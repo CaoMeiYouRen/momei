@@ -84,7 +84,6 @@
                 "clear_tags_confirm_message": "確定要清空目前文章的所有標籤嗎？此操作不會自動儲存。",
                 "clear_tags_confirm_title": "確認清空標籤",
                 "content_placeholder": "開始寫作...（支援 Markdown）",
-                "content_preview": "內容預覽",
                 "content_too_short": "文章內容太短，無法分析",
                 "copyright": "版權聲明",
                 "copyright_hint": "留空則使用全域預設聲明",
@@ -92,9 +91,7 @@
                 "cover_image": "封面圖 URL",
                 "create": "建立文章",
                 "floating_actions": {
-                    "leave_confirm": "此頁面仍有尚未儲存的變更，確定要離開嗎？",
-                    "saved": "目前內容已儲存",
-                    "unsaved": "仍有尚未儲存的變更"
+                    "leave_confirm": "此頁面仍有尚未儲存的變更，確定要離開嗎？"
                 },
                 "distribution": {
                     "action": {
@@ -142,7 +139,6 @@
                     },
                     "preview": {
                         "accounts": "投遞帳號",
-                        "article_title": "標題",
                         "body": "正文",
                         "copyright": "版權尾註",
                         "cover": "封面",
@@ -155,10 +151,7 @@
                             "xiaohongshu_compatible": "小紅書風險分析",
                             "weibo_compatible": "微博風險分析"
                         },
-                        "summary": "摘要",
-                        "tags": "標籤尾註",
-                        "title": "同步前內容檢查",
-                        "wechatsync_title": "WechatSync 投遞預覽"
+                        "tags": "標籤尾註"
                     },
                     "start_wechatsync": "開始 WechatSync 投遞",
                     "status": {
@@ -194,9 +187,7 @@
                 "import_success": "Markdown 匯入成功",
                 "language": "文章語言",
                 "media": {
-                    "audio_available": "可試聽",
                     "audio_missing": "無音訊",
-                    "cover_available": "有封面",
                     "cover_missing": "無封面"
                 },
                 "parse_failed": "解析 Markdown 檔案失敗",
@@ -243,8 +234,6 @@
                 "slug_hint": "文章的自訂連結路徑",
                 "status": "狀態",
                 "summary_placeholder": "文章摘要...",
-                "sync_to_memos": "同步至 Memos",
-                "sync_to_memos_desc": "內容發佈後，會自動在您的 Memos 實例中建立一則摘要筆記。",
                 "tags_hint": "輸入標籤名稱後按 Enter",
                 "tags_placeholder": "輸入標籤...",
                 "title": "文章管理",
@@ -362,7 +351,6 @@
                 "version_compare": "版本比較",
                 "version_compare_current": "與目前文章狀態比較",
                 "version_compare_previous": "與上一個版本比較",
-                "version_delete_confirm": "確定要永久刪除此版本記錄嗎？",
                 "version_diff_empty": "目前比較結果沒有欄位變化",
                 "version_fields": {
                     "categoryId": "分類",
@@ -379,7 +367,6 @@
                 "version_restore_noop": "目標版本已是最新狀態，未重複產生版本紀錄",
                 "version_restore_success": "已恢復該版本並產生新的線性版本紀錄",
                 "version_rollback_confirm": "確定要回滾到此版本嗎？目前編輯器的內容將被覆蓋（儲存後生效）。",
-                "version_rollback_success": "已將版本內容載入編輯器",
                 "version_sources": {
                     "create": "建立",
                     "edit": "編輯",

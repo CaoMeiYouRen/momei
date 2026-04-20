@@ -107,7 +107,6 @@
         "confirm_delete": "確認刪除",
         "delete_confirm": "確認刪除",
         "delete_confirm_message": "確定要刪除此項目嗎？此操作無法復原。",
-        "delete_success": "刪除成功",
         "delete_failed": "刪除失敗",
         "danger": "危險操作",
         "admin": "管理",

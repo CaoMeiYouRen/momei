@@ -162,7 +162,6 @@
             }
         },
         "setupChecklist": {
-            "title": "首次配置清单",
             "summaryTitle": "先关注这几项",
             "summary": {
                 "production": "先完成会影响站点可用性的最小配置,其余能力安装后再去系统设置补齐。",

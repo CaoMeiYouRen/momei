@@ -84,7 +84,6 @@
                 "clear_tags_confirm_message": "Are you sure you want to clear all tags from this post? This action is not saved automatically.",
                 "clear_tags_confirm_title": "Confirm Clear Tags",
                 "content_placeholder": "Start writing... (Markdown supported)",
-                "content_preview": "Content Preview",
                 "content_too_short": "The post content is too short to analyze",
                 "copyright": "Copyright Notice",
                 "copyright_hint": "Leave blank to use the global default notice",
@@ -136,7 +135,6 @@
                     },
                     "preview": {
                         "accounts": "Accounts",
-                        "article_title": "Title",
                         "body": "Body",
                         "copyright": "Copyright tail",
                         "cover": "Cover",
@@ -149,10 +147,7 @@
                             "xiaohongshu_compatible": "Xiaohongshu risk analysis",
                             "weibo_compatible": "Weibo risk analysis"
                         },
-                        "summary": "Summary",
-                        "tags": "Tag tail",
-                        "title": "Pre-sync content check",
-                        "wechatsync_title": "WechatSync preview"
+                        "tags": "Tag tail"
                     },
                     "retry": "Retry",
                     "start_wechatsync": "Start WechatSync Delivery",
@@ -185,18 +180,14 @@
                 "export_success": "Export successful",
                 "file_empty": "File is empty",
                 "floating_actions": {
-                    "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?",
-                    "saved": "All changes are saved",
-                    "unsaved": "You have unsaved changes"
+                    "leave_confirm": "You have unsaved changes on this page. Are you sure you want to leave?"
                 },
                 "history_versions": "Version History",
                 "image_upload_success": "Image uploaded and inserted into the content",
                 "import_success": "Markdown imported successfully",
                 "language": "Post Language",
                 "media": {
-                    "audio_available": "Has audio",
                     "audio_missing": "No audio",
-                    "cover_available": "Has cover",
                     "cover_missing": "No cover"
                 },
                 "parse_failed": "Failed to parse the Markdown file",
@@ -243,8 +234,6 @@
                 "slug_hint": "Custom URL path for this post",
                 "status": "Status",
                 "summary_placeholder": "Post summary...",
-                "sync_to_memos": "Sync to Memos",
-                "sync_to_memos_desc": "After the post is published, automatically create a summary note in your Memos instance.",
                 "tags_hint": "Type a tag name and press Enter",
                 "tags_placeholder": "Enter tags...",
                 "title": "Post Management",
@@ -362,7 +351,6 @@
                 "version_compare": "Version Comparison",
                 "version_compare_current": "Compare with Current State",
                 "version_compare_previous": "Compare with Previous Version",
-                "version_delete_confirm": "Are you sure you want to permanently delete this version record?",
                 "version_diff_empty": "No field changes in this comparison",
                 "version_fields": {
                     "categoryId": "Category",
@@ -379,7 +367,6 @@
                 "version_restore_noop": "The target version is already the latest state, so no duplicate version record was created.",
                 "version_restore_success": "The version has been restored and a new linear version record has been created.",
                 "version_rollback_confirm": "Are you sure you want to roll back to this version? The current editor content will be overwritten and take effect after saving.",
-                "version_rollback_success": "This version has been loaded into the editor",
                 "version_sources": {
                     "create": "Create",
                     "edit": "Edit",

@@ -425,52 +425,6 @@
                     },
                     "notifications": {
                         "browser": "Browser Notifications",
-                        "delivery_logs": {
-                            "channels": {
-                                "email": "Email",
-                                "in_app": "In-app",
-                                "listmonk": "listmonk",
-                                "sse": "SSE Push",
-                                "web_push": "Browser Push"
-                            },
-                            "columns": {
-                                "channel": "Channel",
-                                "error": "Fail/Skip reason",
-                                "recipient": "Recipient",
-                                "sent_at": "Sent time",
-                                "status": "Result",
-                                "title": "Notification Title / Target",
-                                "type": "Notification Type"
-                            },
-                            "description": "Track notification delivery by type, channel, result, and time window to ensure trace-ability of sent user notifications.",
-                            "empty": "No notification delivery records found",
-                            "filters": {
-                                "apply": "Apply Filters",
-                                "channel": "Channel",
-                                "end_date": "End Date",
-                                "recipient": "Filter recipient / email / ID",
-                                "reset": "Reset",
-                                "start_date": "Start Date",
-                                "status": "Status",
-                                "type": "Notification Type"
-                            },
-                            "recipient": {
-                                "copy_id": "Copy User ID",
-                                "copy_id_success": "User ID copied",
-                                "user_id": "User ID"
-                            },
-                            "refresh": "Refresh",
-                            "statuses": {
-                                "failed": "Failed",
-                                "skipped": "Skipped",
-                                "success": "Success"
-                            },
-                            "title": "Notification Delivery Audit",
-                            "value_states": {
-                                "none": "None",
-                                "unknown_user": "Unlinked user"
-                            }
-                        },
                         "description": "Configure administrator preferences for specific site events. Timely notifications help you respond quickly to user interactions and system anomalies.",
                         "email": "Email Notifications",
                         "event": "Site Event",
@@ -487,10 +441,8 @@
                             "private_key_missing": "ENV Private Key not configured",
                             "private_key_ready": "ENV Private Key configured",
                             "private_key_status": "Server Private Key Status",
-                            "public_key_hint": "Provide the VAPID Public Key for browser subscriptions.",
                             "status_incomplete": "Configuration incomplete",
                             "status_ready": "Configuration complete",
-                            "subject_hint": "Recommended contact address starting with mailto:, e.g., mailto:admin{'@'}example.com.",
                             "title": "Web Push Basic Config"
                         }
                     },

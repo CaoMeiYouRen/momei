@@ -84,7 +84,6 @@
                 "clear_tags_confirm_message": "确定要清空当前文章的所有标签吗？此操作不会自动保存。",
                 "clear_tags_confirm_title": "确认清空标签",
                 "content_placeholder": "开始写作... (支持 Markdown)",
-                "content_preview": "内容预览",
                 "content_too_short": "文章内容太短，无法分析",
                 "copyright": "版权声明",
                 "copyright_hint": "留空则使用全局默认声明",
@@ -92,9 +91,7 @@
                 "cover_image": "封面图 URL",
                 "create": "新建文章",
                 "floating_actions": {
-                    "leave_confirm": "当前页面仍有未保存的更改，确定要离开吗？",
-                    "saved": "当前内容已保存",
-                    "unsaved": "存在未保存的更改"
+                    "leave_confirm": "当前页面仍有未保存的更改，确定要离开吗？"
                 },
                 "distribution": {
                     "action": {
@@ -142,7 +139,6 @@
                     },
                     "preview": {
                         "accounts": "投递账号",
-                        "article_title": "标题",
                         "body": "正文",
                         "copyright": "版权尾注",
                         "cover": "封面",
@@ -155,10 +151,7 @@
                             "xiaohongshu_compatible": "小红书风险分析",
                             "weibo_compatible": "微博风险分析"
                         },
-                        "summary": "摘要",
-                        "tags": "标签尾注",
-                        "title": "同步前内容检查",
-                        "wechatsync_title": "WechatSync 投递预览"
+                        "tags": "标签尾注"
                     },
                     "start_wechatsync": "开始 WechatSync 投递",
                     "status": {
@@ -194,9 +187,7 @@
                 "import_success": "Markdown 导入成功",
                 "language": "文章语言",
                 "media": {
-                    "audio_available": "可试听",
                     "audio_missing": "无音频",
-                    "cover_available": "有封面",
                     "cover_missing": "无封面"
                 },
                 "parse_failed": "解析 Markdown 文件失败",
@@ -243,8 +234,6 @@
                 "slug_hint": "文章的自定义链接路径",
                 "status": "状态",
                 "summary_placeholder": "文章摘要...",
-                "sync_to_memos": "同步至 Memos",
-                "sync_to_memos_desc": "内容发布后，自动在您的 Memos 实例中创建一个摘要笔记。",
                 "tags_hint": "输入标签名称并回车",
                 "tags_placeholder": "输入标签...",
                 "title": "文章管理",
@@ -362,7 +351,6 @@
                 "version_compare": "版本对比",
                 "version_compare_current": "与当前文章状态对比",
                 "version_compare_previous": "与上一个版本对比",
-                "version_delete_confirm": "确定要永久删除该版本记录吗？",
                 "version_diff_empty": "当前比较结果没有字段变化",
                 "version_fields": {
                     "categoryId": "分类",
@@ -379,7 +367,6 @@
                 "version_restore_noop": "目标版本已是当前最新状态，未重复生成版本记录",
                 "version_restore_success": "已恢复该版本并生成新的线性版本记录",
                 "version_rollback_confirm": "确定要回滚到该版本吗？当前编辑器的内容将被覆盖（保存后生效）。",
-                "version_rollback_success": "已将版本内容加载到编辑器",
                 "version_sources": {
                     "create": "创建",
                     "edit": "编辑",

@@ -107,7 +107,6 @@
         "confirm_delete": "삭제 확인",
         "delete_confirm": "삭제 확인",
         "delete_confirm_message": "이 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-        "delete_success": "삭제되었습니다",
         "delete_failed": "삭제에 실패했습니다",
         "danger": "위험 작업",
         "admin": "관리",

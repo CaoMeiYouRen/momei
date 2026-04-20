@@ -425,52 +425,6 @@
                     },
                     "notifications": {
                         "browser": "ブラウザ通知",
-                        "delivery_logs": {
-                            "channels": {
-                                "email": "メール",
-                                "in_app": "サイト内通知",
-                                "listmonk": "listmonk",
-                                "sse": "SSE オンライン通知",
-                                "web_push": "ブラウザプッシュ"
-                            },
-                            "columns": {
-                                "channel": "チャネル",
-                                "error": "失敗 / スキップ理由",
-                                "recipient": "受信者",
-                                "sent_at": "送信時刻",
-                                "status": "結果",
-                                "title": "通知タイトル / 対象",
-                                "type": "通知種別"
-                            },
-                            "description": "通知種別、配信チャネル、結果、時間範囲ごとに配信状況を追跡し、ユーザーには届いたのに管理側で追えない状態を防ぎます。",
-                            "empty": "通知配信記録はまだありません",
-                            "filters": {
-                                "apply": "フィルター適用",
-                                "channel": "配信チャネル",
-                                "end_date": "終了時刻",
-                                "recipient": "受信者 / メール / ID で絞り込み",
-                                "reset": "リセット",
-                                "start_date": "開始時刻",
-                                "status": "配信結果",
-                                "type": "通知種別"
-                            },
-                            "recipient": {
-                                "copy_id": "ユーザー ID をコピー",
-                                "copy_id_success": "ユーザー ID をコピーしました",
-                                "user_id": "ユーザー ID"
-                            },
-                            "refresh": "更新",
-                            "statuses": {
-                                "failed": "失敗",
-                                "skipped": "スキップ済み",
-                                "success": "成功"
-                            },
-                            "title": "通知配信監査",
-                            "value_states": {
-                                "none": "なし",
-                                "unknown_user": "ユーザー未関連付け"
-                            }
-                        },
                         "description": "特定のサイト運営イベント発生時に、管理者がどの通知を受け取るかを設定します。適時の通知はユーザー反応やシステム異常への素早い対応に役立ちます。",
                         "email": "メール通知",
                         "event": "運営イベント",
@@ -487,10 +441,8 @@
                             "private_key_missing": "環境変数の秘密鍵が未設定です",
                             "private_key_ready": "環境変数の秘密鍵は設定済みです",
                             "private_key_status": "サーバー秘密鍵状態",
-                            "public_key_hint": "ブラウザ購読に使用する VAPID 公開鍵を入力します。",
                             "status_incomplete": "設定未完了",
                             "status_ready": "設定完了",
-                            "subject_hint": "mailto: で始まる連絡先アドレスを推奨します。例: mailto:admin{'@'}example.com。",
                             "title": "Web Push 基本設定"
                         }
                     },

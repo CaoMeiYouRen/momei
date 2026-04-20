@@ -425,52 +425,6 @@
                     },
                     "notifications": {
                         "browser": "瀏覽器通知",
-                        "delivery_logs": {
-                            "channels": {
-                                "email": "電子郵件",
-                                "in_app": "站內通知",
-                                "listmonk": "listmonk",
-                                "sse": "SSE 即時推送",
-                                "web_push": "瀏覽器推播"
-                            },
-                            "columns": {
-                                "channel": "通道",
-                                "error": "失敗或略過原因",
-                                "recipient": "接收者",
-                                "sent_at": "投遞時間",
-                                "status": "結果",
-                                "title": "通知標題 / 目標",
-                                "type": "通知類型"
-                            },
-                            "description": "依通知類型、投遞通道、結果與時間範圍追蹤通知送達情況，避免出現使用者收到但後台無法追蹤。",
-                            "empty": "目前沒有通知投遞紀錄",
-                            "filters": {
-                                "apply": "套用篩選",
-                                "channel": "投遞通道",
-                                "end_date": "結束時間",
-                                "recipient": "篩選接收者 / 信箱 / ID",
-                                "reset": "重設",
-                                "start_date": "開始時間",
-                                "status": "投遞結果",
-                                "type": "通知類型"
-                            },
-                            "recipient": {
-                                "copy_id": "複製使用者 ID",
-                                "copy_id_success": "使用者 ID 已複製",
-                                "user_id": "使用者 ID"
-                            },
-                            "refresh": "重新整理",
-                            "statuses": {
-                                "failed": "失敗",
-                                "skipped": "已略過",
-                                "success": "成功"
-                            },
-                            "title": "通知投遞稽核",
-                            "value_states": {
-                                "none": "無",
-                                "unknown_user": "未關聯使用者"
-                            }
-                        },
                         "description": "設定管理員在特定站務事件發生時的接收偏好。即時的站務提醒有助於您快速回應使用者互動與系統異常。",
                         "email": "郵件通知",
                         "event": "站務情境",
@@ -487,10 +441,8 @@
                             "private_key_missing": "尚未設定環境變數私鑰",
                             "private_key_ready": "已設定環境變數私鑰",
                             "private_key_status": "伺服器端私鑰狀態",
-                            "public_key_hint": "填寫供瀏覽器訂閱使用的 VAPID 公鑰。",
                             "status_incomplete": "設定未完成",
                             "status_ready": "設定完整",
-                            "subject_hint": "建議使用以 mailto: 開頭的聯絡位址，例如 mailto:admin{'@'}example.com。",
                             "title": "Web Push 基礎設定"
                         }
                     },

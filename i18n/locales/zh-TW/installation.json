@@ -162,7 +162,6 @@
             }
         },
         "setupChecklist": {
-            "title": "首次配置清單",
             "summaryTitle": "先關注這幾項",
             "summary": {
                 "production": "先完成會影響站點可用性的最小配置,其餘能力安裝後再到系統設定補齊。",

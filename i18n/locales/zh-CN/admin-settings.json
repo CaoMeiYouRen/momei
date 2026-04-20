@@ -425,52 +425,6 @@
                     },
                     "notifications": {
                         "browser": "浏览器通知",
-                        "delivery_logs": {
-                            "channels": {
-                                "email": "邮件",
-                                "in_app": "站内信",
-                                "listmonk": "listmonk",
-                                "sse": "SSE 在线推送",
-                                "web_push": "浏览器推送"
-                            },
-                            "columns": {
-                                "channel": "渠道",
-                                "error": "失败或跳过原因",
-                                "recipient": "接收者",
-                                "sent_at": "投递时间",
-                                "status": "结果",
-                                "title": "通知标题 / 目标",
-                                "type": "通知类型"
-                            },
-                            "description": "按通知类型、投递渠道、结果和时间范围追踪通知送达情况，避免出现用户收到了但后台不可追踪。",
-                            "empty": "暂无通知投递记录",
-                            "filters": {
-                                "apply": "应用筛选",
-                                "channel": "投递渠道",
-                                "end_date": "结束时间",
-                                "recipient": "筛选接收者 / 邮箱 / ID",
-                                "reset": "重置",
-                                "start_date": "开始时间",
-                                "status": "投递结果",
-                                "type": "通知类型"
-                            },
-                            "recipient": {
-                                "copy_id": "复制用户 ID",
-                                "copy_id_success": "用户 ID 已复制",
-                                "user_id": "用户 ID"
-                            },
-                            "refresh": "刷新",
-                            "statuses": {
-                                "failed": "失败",
-                                "skipped": "已跳过",
-                                "success": "成功"
-                            },
-                            "title": "通知投递审计",
-                            "value_states": {
-                                "none": "无",
-                                "unknown_user": "未关联用户"
-                            }
-                        },
                         "description": "设置管理员在特定站务事件发生时的接收偏好。及时的站务提醒有助于您快速响应用户互动与系统异常。",
                         "email": "邮件通知",
                         "event": "站务场景",
@@ -487,10 +441,8 @@
                             "private_key_missing": "尚未配置环境变量私钥",
                             "private_key_ready": "已配置环境变量私钥",
                             "private_key_status": "服务端私钥状态",
-                            "public_key_hint": "填写供浏览器订阅使用的 VAPID 公钥。",
                             "status_incomplete": "配置未完成",
                             "status_ready": "配置完整",
-                            "subject_hint": "建议使用 mailto: 开头的联系地址，例如 mailto:admin{'@'}example.com。",
                             "title": "Web Push 基础配置"
                         }
                     },

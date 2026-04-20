@@ -84,7 +84,6 @@
                 "clear_tags_confirm_message": "現在の記事のタグをすべてクリアしてもよろしいですか？この操作は自動保存されません。",
                 "clear_tags_confirm_title": "タグクリア確認",
                 "content_placeholder": "執筆を開始... (Markdown 対応)",
-                "content_preview": "内容プレビュー",
                 "content_too_short": "記事内容が短すぎて解析できません",
                 "copyright": "著作権表示",
                 "copyright_hint": "空欄の場合は全体既定の声明を使用します",
@@ -92,9 +91,7 @@
                 "cover_image": "カバー画像 URL",
                 "create": "新規記事",
                 "floating_actions": {
-                    "leave_confirm": "このページには未保存の変更があります。離れてもよろしいですか？",
-                    "saved": "現在の内容は保存済みです",
-                    "unsaved": "未保存の変更があります"
+                    "leave_confirm": "このページには未保存の変更があります。離れてもよろしいですか？"
                 },
                 "distribution": {
                     "action": {
@@ -142,7 +139,6 @@
                     },
                     "preview": {
                         "accounts": "配信アカウント",
-                        "article_title": "タイトル",
                         "body": "本文",
                         "copyright": "著作権追記",
                         "cover": "カバー",
@@ -155,10 +151,7 @@
                             "xiaohongshu_compatible": "小紅書リスク分析",
                             "weibo_compatible": "Weibo リスク分析"
                         },
-                        "summary": "概要",
-                        "tags": "タグ追記",
-                        "title": "同期前コンテンツ確認",
-                        "wechatsync_title": "WechatSync 配信プレビュー"
+                        "tags": "タグ追記"
                     },
                     "start_wechatsync": "WechatSync 配信を開始",
                     "status": {
@@ -194,9 +187,7 @@
                 "import_success": "Markdown のインポートに成功しました",
                 "language": "記事言語",
                 "media": {
-                    "audio_available": "試聴可能",
                     "audio_missing": "音声なし",
-                    "cover_available": "カバーあり",
                     "cover_missing": "カバーなし"
                 },
                 "parse_failed": "Markdown ファイルの解析に失敗しました",
@@ -243,8 +234,6 @@
                 "slug_hint": "記事のカスタムリンクパス",
                 "status": "状態",
                 "summary_placeholder": "記事要約...",
-                "sync_to_memos": "Memos に同期",
-                "sync_to_memos_desc": "内容公開後、あなたの Memos インスタンスに要約メモを自動作成します。",
                 "tags_hint": "タグ名を入力して Enter",
                 "tags_placeholder": "タグを入力...",
                 "title": "記事管理",
@@ -362,7 +351,6 @@
                 "version_compare": "バージョン比較",
                 "version_compare_current": "現在の記事状態と比較",
                 "version_compare_previous": "直前バージョンと比較",
-                "version_delete_confirm": "このバージョン記録を完全削除してもよろしいですか？",
                 "version_diff_empty": "現在の比較結果ではフィールド差分がありません",
                 "version_fields": {
                     "categoryId": "カテゴリ",
@@ -379,7 +367,6 @@
                 "version_restore_noop": "対象バージョンはすでに最新状態のため、重複した履歴記録は生成しませんでした",
                 "version_restore_success": "このバージョンを復元し、新しい線形履歴記録を生成しました",
                 "version_rollback_confirm": "このバージョンへロールバックしてもよろしいですか？現在のエディター内容は上書きされます（保存後に有効）。",
-                "version_rollback_success": "バージョン内容をエディターへ読み込みました",
                 "version_sources": {
                     "create": "作成",
                     "edit": "編集",

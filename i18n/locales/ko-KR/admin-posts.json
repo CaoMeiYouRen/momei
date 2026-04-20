@@ -84,7 +84,6 @@
                 "clear_tags_confirm_message": "현재 게시글의 모든 태그를 제거하시겠습니까? 이 작업은 자동 저장되지 않습니다.",
                 "clear_tags_confirm_title": "태그 비우기 확인",
                 "content_placeholder": "글쓰기를 시작하세요... (Markdown 지원)",
-                "content_preview": "내용 미리보기",
                 "content_too_short": "게시글 내용이 너무 짧아 분석할 수 없습니다",
                 "copyright": "저작권 고지",
                 "copyright_hint": "비워 두면 전역 기본값을 사용합니다",
@@ -92,9 +91,7 @@
                 "cover_image": "커버 이미지 URL",
                 "create": "새 게시글",
                 "floating_actions": {
-                    "leave_confirm": "이 페이지에 아직 저장되지 않은 변경 사항이 있습니다. 그래도 나가시겠습니까?",
-                    "saved": "현재 변경 사항이 저장되었습니다",
-                    "unsaved": "저장되지 않은 변경 사항이 있습니다"
+                    "leave_confirm": "이 페이지에 아직 저장되지 않은 변경 사항이 있습니다. 그래도 나가시겠습니까?"
                 },
                 "distribution": {
                     "action": {
@@ -142,7 +139,6 @@
                     },
                     "preview": {
                         "accounts": "배포 계정",
-                        "article_title": "제목",
                         "body": "본문",
                         "copyright": "저작권 꼬리말",
                         "cover": "커버",
@@ -155,10 +151,7 @@
                             "xiaohongshu_compatible": "샤오홍슈 리스크 분석",
                             "weibo_compatible": "Weibo 리스크 분석"
                         },
-                        "summary": "요약",
-                        "tags": "태그 꼬리말",
-                        "title": "동기화 전 콘텐츠 확인",
-                        "wechatsync_title": "WechatSync 배포 미리보기"
+                        "tags": "태그 꼬리말"
                     },
                     "start_wechatsync": "WechatSync 배포 시작",
                     "status": {
@@ -194,9 +187,7 @@
                 "import_success": "Markdown를 성공적으로 가져왔습니다",
                 "language": "게시글 언어",
                 "media": {
-                    "audio_available": "바로 재생 가능",
                     "audio_missing": "오디오 없음",
-                    "cover_available": "커버 있음",
                     "cover_missing": "커버 없음"
                 },
                 "parse_failed": "Markdown 파일을 해석하지 못했습니다",
@@ -243,8 +234,6 @@
                 "slug_hint": "게시글의 사용자 정의 URL 경로",
                 "status": "상태",
                 "summary_placeholder": "게시글 요약...",
-                "sync_to_memos": "Memos에 동기화",
-                "sync_to_memos_desc": "발행 후 Memos 인스턴스에 요약 메모를 자동 생성합니다.",
                 "tags_hint": "태그 이름을 입력하고 Enter를 누르세요",
                 "tags_placeholder": "태그 입력...",
                 "title": "게시글 관리",
@@ -362,7 +351,6 @@
                 "version_compare": "버전 비교",
                 "version_compare_current": "현재 게시글 상태와 비교",
                 "version_compare_previous": "이전 버전과 비교",
-                "version_delete_confirm": "이 버전을 영구 삭제하시겠습니까?",
                 "version_diff_empty": "현재 비교에서 변경된 필드가 없습니다.",
                 "version_fields": {
                     "categoryId": "카테고리",
@@ -379,7 +367,6 @@
                 "version_restore_noop": "선택한 버전이 이미 최신 상태와 같아서 중복 버전을 만들지 않았습니다.",
                 "version_restore_success": "선택한 버전을 복원했고 새로운 선형 버전 기록을 생성했습니다.",
                 "version_rollback_confirm": "이 버전으로 되돌리시겠습니까? 현재 편집기 내용이 덮어써집니다.",
-                "version_rollback_success": "버전 내용을 편집기에 불러왔습니다",
                 "version_sources": {
                     "create": "생성",
                     "edit": "편집",

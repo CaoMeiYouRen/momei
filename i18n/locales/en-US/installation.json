@@ -162,7 +162,6 @@
             }
         },
         "setupChecklist": {
-            "title": "Initial Setup Checklist",
             "summaryTitle": "Focus on these first",
             "summary": {
                 "production": "Finish the minimum settings that affect site availability first, then continue the rest in system settings.",
