@@ -16,7 +16,7 @@ const mockFetchData = ref({
         slug: 'test-post',
         language: 'zh-CN',
         summary: 'Test summary',
-        content: '## What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n## Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
+        content: '## Overview\n\nGEO improves AI visibility and citation quality for public posts.\n\n## FAQ\n\n### What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n### Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
         status: 'published',
         author: {
             id: '1',
@@ -85,7 +85,25 @@ mockNuxtImport('useMomeiConfig', () => () => ({
 
 mockNuxtImport('usePageSeo', () => mockUsePageSeo)
 mockNuxtImport('useHead', () => mockUseHead)
+mockNuxtImport('useSetI18nParams', () => () => vi.fn())
+mockNuxtImport('useRouter', () => () => ({
+    push: vi.fn(),
+    replace: vi.fn(() => Promise.resolve()),
+    currentRoute: ref({
+        fullPath: '/posts/test-post',
+        path: '/posts/test-post',
+        params: { id: '123456789012345' },
+        meta: {},
+    }),
+    afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    onError: vi.fn(),
+}))
 mockNuxtImport('useRuntimeConfig', () => () => ({
+    app: {
+        baseURL: '/',
+    },
     public: {
         siteUrl: 'https://momei.app',
     },
@@ -182,6 +200,9 @@ vi.stubGlobal('useMomeiConfig', () => ({
     currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
 }))
 vi.stubGlobal('useRuntimeConfig', () => ({
+    app: {
+        baseURL: '/',
+    },
     public: {
         siteUrl: 'https://momei.app',
     },
@@ -204,7 +225,7 @@ describe('PostDetailPage', () => {
                 slug: 'test-post',
                 language: 'zh-CN',
                 summary: 'Test summary',
-                content: '## What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n## Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
+                content: '## Overview\n\nGEO improves AI visibility and citation quality for public posts.\n\n## FAQ\n\n### What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n### Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
                 status: 'published',
                 author: {
                     id: '1',
