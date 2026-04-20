@@ -10,6 +10,14 @@ import { ensureDatabaseReady } from '@/server/database'
 const PUBLIC_SETTINGS_CACHE_TTL_SECONDS = 60
 const PUBLIC_SETTINGS_CACHE_NAMESPACE = 'settings:public'
 
+function isEnabledSetting(value: string | null | undefined, fallback = false): boolean {
+    return (value ?? (fallback ? 'true' : 'false')) === 'true'
+}
+
+function resolveOptionalBooleanSetting(value: string | null | undefined): boolean | null {
+    return value === null || value === undefined ? null : value === 'true'
+}
+
 /**
  * 获取公开站点配置
  * GET /api/settings/public
@@ -112,10 +120,10 @@ export default defineEventHandler(async (event) => {
                         icpLicenseNumber: settings[SettingKey.ICP_LICENSE_NUMBER],
                         publicSecurityNumber: settings[SettingKey.PUBLIC_SECURITY_NUMBER],
                         footerCode: settings[SettingKey.FOOTER_CODE],
-                        travellingsEnabled: String(settings[SettingKey.TRAVELLINGS_ENABLED] ?? 'true') === 'true',
-                        travellingsHeaderEnabled: String(settings[SettingKey.TRAVELLINGS_HEADER_ENABLED] ?? 'true') === 'true',
-                        travellingsFooterEnabled: String(settings[SettingKey.TRAVELLINGS_FOOTER_ENABLED] ?? 'true') === 'true',
-                        travellingsSidebarEnabled: String(settings[SettingKey.TRAVELLINGS_SIDEBAR_ENABLED] ?? 'true') === 'true',
+                        travellingsEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_ENABLED], true),
+                        travellingsHeaderEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_HEADER_ENABLED], true),
+                        travellingsFooterEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_FOOTER_ENABLED], true),
+                        travellingsSidebarEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_SIDEBAR_ENABLED], true),
                         live2dEnabled: String(settings[SettingKey.LIVE2D_ENABLED]) === 'true',
                         live2dScriptUrl: settings[SettingKey.LIVE2D_SCRIPT_URL] || '',
                         live2dModelUrl: settings[SettingKey.LIVE2D_MODEL_URL] || '',
@@ -128,7 +136,7 @@ export default defineEventHandler(async (event) => {
                         canvasNestMobileEnabled: String(settings[SettingKey.CANVAS_NEST_MOBILE_ENABLED]) === 'true',
                         canvasNestMinWidth: Number(settings[SettingKey.CANVAS_NEST_MIN_WIDTH] || 1024),
                         canvasNestDataSaverBlock: settings[SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK] !== 'false',
-                        effectsMobileEnabled: settings[SettingKey.EFFECTS_MOBILE_ENABLED] === null || settings[SettingKey.EFFECTS_MOBILE_ENABLED] === undefined ? null : String(settings[SettingKey.EFFECTS_MOBILE_ENABLED]) === 'true',
+                        effectsMobileEnabled: resolveOptionalBooleanSetting(settings[SettingKey.EFFECTS_MOBILE_ENABLED]),
                         effectsMinWidth: settings[SettingKey.EFFECTS_MIN_WIDTH] === null || settings[SettingKey.EFFECTS_MIN_WIDTH] === undefined ? null : Number(settings[SettingKey.EFFECTS_MIN_WIDTH]),
                         effectsDataSaverBlock: settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === null || settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === undefined ? null : settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] !== 'false',
                         aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',

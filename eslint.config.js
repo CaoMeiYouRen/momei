@@ -223,6 +223,14 @@ export default withNuxt(
         },
     },
     {
+        // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
+        files: ['server/api/settings/**/*.{ts,tsx,mts,cts}'],
+        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
+        rules: {
+            '@typescript-eslint/no-unnecessary-type-conversion': [1],
+        },
+    },
+    {
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [],

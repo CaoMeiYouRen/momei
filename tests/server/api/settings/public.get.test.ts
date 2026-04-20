@@ -142,6 +142,11 @@ describe('GET /api/settings/public', () => {
         expect(result.data.siteTitle).toBe('墨梅博客')
         expect(result.data.siteDescription).toBe('AI 驱动开发者博客')
         expect(result.data.siteKeywords).toBe('AI, 博客')
+        expect(result.data.travellingsEnabled).toBe(true)
+        expect(result.data.travellingsHeaderEnabled).toBe(true)
+        expect(result.data.travellingsFooterEnabled).toBe(true)
+        expect(result.data.travellingsSidebarEnabled).toBe(true)
+        expect(result.data.effectsMobileEnabled).toBeNull()
         expect(result.data.i18n).toEqual({
             locale: 'zh-CN',
             fallbackChain: ['zh-CN'],

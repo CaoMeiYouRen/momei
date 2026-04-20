@@ -9,6 +9,57 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-21 settings API ESLint / 类型债窄边界收紧
+
+### 范围
+
+- 目标：继续推进第二十九阶段 P1“ESLint / 类型债与规则收紧治理”，但保持单次只上收一条低噪音规则，不把当前切片扩写成全仓清理工程。
+- 本轮上收：仅在 `server/api/settings/**` 生产源码范围启用 `@typescript-eslint/no-unnecessary-type-conversion`。
+- 回滚边界：仅涉及 `eslint.config.js`、`server/api/settings/public.get.ts` 与 `tests/server/api/settings/public.get.test.ts`；未触碰 `server/services/**`、`composables/**`、测试豁免边界与其他高噪音规则族。
+
+### 命中清单
+
+- 候选筛选：只读采样显示 `@typescript-eslint/prefer-nullish-coalescing` 当前生产源码命中 `1315` 处，明显超出本轮预算；不适合作为继续收紧的小切片。
+- 候选筛选：`@typescript-eslint/no-unnecessary-type-conversion` 当前生产源码命中 `42` 处，其中 `server/api/settings/public.get.ts` 集中命中 `5` 处，是当前可清零且回滚面清晰的窄边界热点。
+- settings API 范围：本轮定向 lint 通过后，`server/api/settings/**` 下该规则命中已清零。
+
+### 最小验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：记录候选规则采样、切片范围与回滚边界。
+- V1：执行 settings API 定向 ESLint、编辑器诊断与 Nuxt typecheck。
+- V2：执行 `tests/server/api/settings/public.get.test.ts`，确认公开设置接口的布尔兜底与缓存路径未回归。
+- RG：本轮 Review Gate 结论为 `Pass`。
+
+### 实施说明
+
+- `eslint.config.js` 新增 `server/api/settings/**/*.{ts,tsx,mts,cts}` 的窄 override，只对该目录启用 `@typescript-eslint/no-unnecessary-type-conversion`，继续排除测试与脚本范围。
+- `server/api/settings/public.get.ts` 新增局部 helper，收敛 `travellings*` 与 `effectsMobileEnabled` 的布尔兜底逻辑，移除 5 处冗余 `String(...)` 包装。
+- `tests/server/api/settings/public.get.test.ts` 补充断言，锁定 `travellings*` 默认开启与 `effectsMobileEnabled` 保持 `null` 的既有行为。
+
+### 已执行验证
+
+- 编辑器诊断：`eslint.config.js`、`server/api/settings/public.get.ts`
+	- 结果：均无新增错误。
+- 定向 ESLint：`pnpm exec eslint server/api/settings/public.get.ts server/api/settings/commercial.get.ts server/api/settings/theme.get.ts eslint.config.js`
+	- 结果：通过，无输出。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过，无输出。
+- 定向 Vitest：`tests/server/api/settings/public.get.test.ts`
+	- 结果：通过，`3` 个测试全部通过。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮规则上收只作用于 settings API 窄目录，且实际命中、行为回归与类型层都已补齐证据。
+
+### 未覆盖边界
+
+- 本轮没有继续推进 `server/services/email-template.ts` 等 `no-unnecessary-type-conversion` 高频文件，避免把 settings API 小切片扩写为跨服务层治理。
+- 本轮没有触碰 `@typescript-eslint/no-unnecessary-condition`；尽管 `server/api/settings/public.get.ts` 仍有该类候选命中，但不属于当前已批准的规则范围。
+- `prefer-nullish-coalescing`、`no-explicit-any` 与 `no-unsafe-*` 仍保持观望状态，后续如要继续推进，应按目录或模块组重新拆桶，而不是直接全局提级。
+
 ## 2026-04-20 文档事实源、回归入口与深度归档阈值收敛
 
 ### 范围
