@@ -1,13 +1,54 @@
 # 当前回归窗口
 
-本文档用于承载最近 1 - 2 个阶段的活动回归记录，是后续迁移后的主要写入位置。
+本文档用于承载最近 1 - 2 个阶段的活动回归记录，是当前唯一允许继续追加近线回归正文的正式写入位置。
 
-在迁移完成前，现有回归正文仍可通过 [docs/plan/regression-log.md](../../plan/regression-log.md) 回看；新增回归治理和管理口径以 [回归记录管理与深度归档](./index.md) 为准。
+兼容期内，既有历史正文仍可通过 [docs/plan/regression-log.md](../../plan/regression-log.md) 回看；新增回归治理和管理口径以 [回归记录管理与深度归档](./index.md) 为准。
 
 ## 说明
 
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
+
+## 2026-04-20 文档事实源、回归入口与深度归档阈值收敛
+
+### 范围
+
+- 目标：完成第二十九阶段 P1“文档事实源、回归记录与深度归档治理”的首轮可落地收敛，不把本轮扩写成全量历史搬迁工程。
+- 本轮覆盖：`docs/design/modules/` 的代表性专项文档去 Todo 化与索引补齐、`docs/reports/regression/**` 与 `docs/plan/regression-log*.md` 的入口边界收敛，以及 `roadmap.md` / `todo-archive.md` 的深度归档阈值文档化。
+- 约束：保留旧 `docs/plan/regression-log*.md` 的历史回看能力，但禁止继续把它们作为新的正式回归写入入口。
+
+### 基线对比
+
+- 回归活动窗口：`docs/reports/regression/current.md` 当前仍低于 `300 - 400` 行阈值，处于健康窗口内；问题不在活动窗口超限，而在旧 `docs/plan/regression-log*.md` 仍承载了过多“像正式入口一样”的说明文字。
+- 路线图体量：`docs/plan/roadmap.md` 当前约 `797` 行，已接近 warning 上限，继续追加长篇阶段摘要前需要先定义深度归档触发规则。
+- 待办归档体量：`docs/plan/todo-archive.md` 当前约 `1971` 行，已进入 warning 区间，说明下一次阶段归档前应优先准备第一轮深度分片。
+
+### 实施说明
+
+- `docs/reports/regression/index.md` 与 `docs/reports/regression/archive/index.md` 已进一步明确“活动窗口 / 历史归档 / 兼容入口”三层职责，并把旧 `docs/plan/regression-log*.md` 降级为冻结兼容入口。
+- `docs/plan/regression-log-index.md` 已收敛为薄兼容页，不再维护具体窗口数字；`docs/plan/regression-log.md` 与 `docs/plan/regression-log-archive.md` 顶部说明也改为“历史快照，只读回看”。
+- 新增 `docs/plan/archive/index.md`，正式定义 `roadmap.md` 与 `todo-archive.md` 的 warning / 强制分片阈值、主窗口保留策略与后续阶段区间分片方案。
+- `docs/design/modules/index.md` 已补齐 `cacheable-api-inventory.md` 与 `e2e-coverage-matrix.md` 的索引入口；`cacheable-api-inventory.md`、`demo-mode.md` 与 `i18n-seo-unification.md` 也同步完成首轮去 Todo 化收敛。
+
+### 已执行验证
+
+- `pnpm lint:md`
+	- 结果：通过，新增与更新的 Markdown 文档未引入格式问题。
+- `pnpm docs:check:source-of-truth`
+	- 结果：命令失败，但失败项来自仓库既有的多语文档 `last_sync` 超窗告警；本轮未新增新的层级一致性错误，也未扩大翻译时效债范围。
+- `pnpm docs:check:i18n`
+	- 结果：通过；本轮文档变更未引入旧目录回流或重复翻译页。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前剩余问题是仓库既有的翻译时效告警，不阻塞本轮“模块设计文档收敛 + 回归入口边界澄清 + 深度归档阈值文档化”的最小闭环。
+
+### 未覆盖边界
+
+- 本轮只定义了深度归档阈值与后续分片策略，尚未真的把 `roadmap.md` 或 `todo-archive.md` 的早期阶段正文迁移到新的阶段区间分片。
+- 旧 `docs/plan/regression-log*.md` 仍保留完整历史正文，当前只是完成入口降级与冻结说明，未进行全量正文搬迁。
 
 ## 2026-04-20 共享复用层 CSV 列表解析收敛
 

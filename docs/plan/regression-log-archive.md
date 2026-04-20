@@ -2,18 +2,11 @@
 
 本文档当前作为兼容归档入口保留。新的正式归档管理已迁移到 [docs/reports/regression/archive/index.md](../reports/regression/archive/index.md)；历史记录仍可继续在本文件中回看。
 
-## 归档窗口与索引
+## 兼容入口说明
 
-- 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前归档窗口: 已收纳 2026-03-20 至 2026-04-08 的历史记录，承担长期回溯与旧阶段基线对比职责。
-- 活动日志入口: 如需查看最近 1 - 2 个阶段的活动回归，请回到 [regression-log.md](./regression-log.md)。
-
-## 维护规则
-
-- 归档记录默认按时间倒序追加。
-- 同一条回归记录必须整体迁移，不拆分其回归范围、命令、输出摘要、Review Gate 结论与后续补跑计划。
-- 当活动日志超过 300 - 400 行、或累计超过 6 - 8 条完整记录且已影响当前阶段阅读效率时，应优先将最早且不再服务最近基线比较的记录迁移到本文件。
-- 若本文件继续明显膨胀，可进一步按年份或半年拆分为多份归档文件，并在 [regression-log.md](./regression-log.md) 中保留索引入口。
+- 正式历史归档入口已迁移到 [docs/reports/regression/archive/index.md](../reports/regression/archive/index.md)。
+- 本文件以下正文为旧归档日志兼容快照，不再继续追加新的正式归档记录。
+- 如需查看最近 1 - 2 个阶段的活动回归，请改用 [docs/reports/regression/current.md](../reports/regression/current.md)。
 
 ## 已归档记录
 

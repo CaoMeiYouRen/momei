@@ -4,36 +4,11 @@
 
 历史内容仍保留在本文件中，便于旧链接与阶段审计继续回看；规划摘要仍保留在 [待办事项](./todo.md) 与 [项目计划](./roadmap.md) 中。
 
-## 当前窗口与索引
+## 兼容入口说明
 
-- 统一入口: [回归日志索引与对比指南](./regression-log-index.md)
-- 当前窗口: 活动日志当前保留第二十六阶段的增量治理记录，以及第二十四阶段最近一次阶段收口复跑记录，继续用于当前阶段收口、近期发版核对与最近基线对比。
-- 历史归档: 2026-03-20 至 2026-04-06 的较早记录已滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)。
-- 历史归档补充: 本轮已继续把 2026-04-07 的较早阶段级 / 专项记录滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)，避免活动日志重新膨胀为阶段归档 blocker。
-- 对比建议: 先用本文件确认当前基线，再按主题到归档文件核对更早一期的 clean baseline 或历史专项记录。
-
-## 维护规则
-
-- 回归记录默认按时间倒序追加，便于后续比较基线漂移。
-- 同一次回归的正文只保留在本文件；其他规划文档只保留摘要、状态与链接。
-- 每条记录至少包含回归范围、触发条件、执行频率、timeout budget、已执行命令、输出摘要、Review Gate 结论、未覆盖边界与后续补跑计划。
-- 本文件定位为“活动回归日志”，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录，用于服务当前阶段收口、近期发版与最近基线对比。
-- 当本文件超过 300 - 400 行、或最近记录已明显影响当前阶段阅读效率时，应将更早的历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，并在本文件顶部保留必要索引与摘要入口。
-- 回归记录归档采用“滚动归档”而非“阶段完成即整份搬空”的策略；主日志必须始终保留足够支撑最近一次基线比较和发版判断的近线记录。
-
-## 归档规则
-
-- 触发条件:
-    - 活动日志超过 300 - 400 行。
-    - 活动日志累计超过 6 - 8 条完整回归记录。
-    - 当前阶段已归档，且最旧记录已不再服务最近 1 - 2 个阶段的基线比较。
-- 归档范围:
-    - 优先迁移最早且已不再参与当前阶段 / 下一阶段基线比较的完整记录。
-    - 同一条回归记录必须整体迁移，不拆分其“命令 / 结果 / Review Gate / 后续计划”正文。
-- 维护方式:
-    - 活动日志保留最近记录与索引入口。
-    - 历史记录迁移到 [regression-log-archive.md](./regression-log-archive.md)，按时间倒序维护。
-    - 若后续单一归档文件继续膨胀，再按年份或半年进一步拆分归档文件。
+- 正式活动窗口已迁移到 [docs/reports/regression/current.md](../reports/regression/current.md)。
+- 正式边界与阈值说明已迁移到 [docs/reports/regression/index.md](../reports/regression/index.md)。
+- 本文件以下正文为历史兼容快照，不再继续追加新的正式回归记录。
 
 ## 第二十七阶段渠道分发回归加固根因调研（2026-04-16）
 
@@ -129,7 +104,7 @@
         - V1 / 接口扩面: 分类公开列表与标签公开列表已接入统一缓存层，并在各自新增 / 更新 / 删除接口中补上 namespace 失效，避免只能依赖 TTL 自然过期。
         - V1 / 定向测试: 上述 5 个测试文件通过，覆盖缓存命中、旁路统计、namespace 失效，以及 archive / settings / categories / tags 的公开接口缓存边界。
         - V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
-        - V1 / 证据层: 已新增 [cacheable-api-inventory.md](./cacheable-api-inventory.md)，统一记录接口、TTL、共享边界、失效策略与观测 namespace。
+        - V1 / 证据层: 已新增 [cacheable-api-inventory.md](../../design/modules/cacheable-api-inventory.md)，统一记录接口、TTL、共享边界、失效策略与观测 namespace。
     - 结果摘要:
         - 当前阶段已接入统一缓存层的接口共 `5` 组：`settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`。
         - 其中分类 / 标签公开列表已形成“读缓存 + 写失效”的第一组完整落地验证；设置、友链与归档则继续采用短 TTL + 权限边界控制，避免当前阶段扩写为跨部署缓存一致性工程。
@@ -192,7 +167,7 @@
         - [server/services/ai/text.ts](../../server/services/ai/text.ts) 已形成更完整的单文件测试基线，后续即使继续重构 `translate*` / `recommend*` 包装器，也有现成的红绿保护网。
         - 本轮属于守线型增量补测，主要新增的是过去缺失的断言与边界覆盖，而不是先复现既有 failing test 再修实现；对应证据口径应视为“新增补测已转绿”，不是“已有红例转绿”。
         - 这轮只提升了目标服务层，不足以单独支撑全仓 coverage 从 `68.85%` 向 `72%` 收口；它的价值在于先把 todo 中点名的高优先级 AI 文本服务缺口补齐。
-        - 截至最近一次全仓 coverage 汇总（[coverage-report/coverage-summary.json](../../coverage-report/coverage-summary.json)），当前总覆盖率为 `Statements 70.45% (16937/24039)`、`Lines 70.48% (16249/23053)`；因此第二十六阶段覆盖率主线仍未满足“约 `72%`”的阶段目标，后续还需继续补齐公开查询热点 API 或数据库治理相关服务层的高 ROI 缺口。
+        - 截至最近一次全仓 coverage 汇总（见 `artifacts/coverage-2026-04-18.txt` 与相关 coverage artifact），当前总覆盖率仍未满足“约 `72%`”的阶段目标；后续还需继续补齐公开查询热点 API 或数据库治理相关服务层的高 ROI 缺口。
     - Review Gate 结论:
         - 结论: Pass（限本轮服务层补测）
         - 问题分级: none

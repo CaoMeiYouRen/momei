@@ -90,6 +90,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   `docs/plan/todo.md` 是实时操作手册，仅包含**当前阶段的具体实施任务**。
 -   `docs/reports/regression/current.md` 用于集中维护周期性回归、阶段基线与补跑记录；`todo.md` 仅保留当前阶段上下文、摘要与链接，不再堆叠长篇回归正文。
  -   `docs/reports/regression/current.md` 作为活动回归窗口，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/` 或其后续分拆文件。
+-   `docs/plan/regression-log*.md` 仅保留兼容入口与历史快照职责，不再继续追加新的正式回归正文；新增记录统一写入 `docs/reports/regression/current.md`。
 -   任务状态必须清晰标记：`[ ]` (待办), `[x]` (已完成), `[-]` (已取消)。
 -   任务描述应包含具体的 "验收标准 (Acceptance Criteria)"。
 -   **查重原则**: 在规划或添加任何新功能前，**必须**同步查阅 `docs/plan/todo.md`、`docs/plan/roadmap.md` 以及 `docs/plan/todo-archive.md`。严禁重复设计或规划已被归档、已在当前待办中或已在路线图中的任务。
@@ -211,6 +212,12 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   **归档形式**: 归档应保留原始待办事项的层级结构、复选框状态及验收标准，确保历史可追溯。
 -   **保持简洁**: 归档后，`docs/plan/todo.md` 应仅保留正在进行的阶段的具体实施任务；长期主线与短期候选统一在 `docs/plan/backlog.md` 中管理，`roadmap.md` 只保留正式阶段规划与归档结论。
 
+深度归档补充规则如下，完整管理入口见 [规划文档深度归档治理](../plan/archive/index.md)：
+
+- `roadmap.md`：`<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行前必须优先拆出更早阶段的深度归档分片。
+- `todo-archive.md`：`<= 1800` 行为健康窗口，`1801 - 2200` 行进入 warning，超过 `2200` 行前必须优先拆出早期阶段区间分片。
+- 深度归档后，主文档只保留近线阶段窗口、摘要与索引入口，不再长期复制全量历史正文。
+
 ### 4.5 阶段归档与下一阶段规划标准流程 (Phase Archive Workflow)
 
 任何“当前阶段已做完，准备归档并评估下一阶段”的动作，都必须遵循以下统一流程。该流程是 `todo.md`、`todo-archive.md`、`roadmap.md` 以及相关翻译摘要的唯一归档口径；智能体技能与其他文档只能引用，不得再各自发明第二套步骤。
@@ -311,4 +318,4 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   [项目规划](../plan/roadmap.md)
 -   [待办事项](../plan/todo.md)
 -   [开发规范](./development.md)
--   [设计文档汇总](../design/index.md)
+-   [设计文档汇总](../design/modules/index.md)

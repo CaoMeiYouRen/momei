@@ -46,5 +46,5 @@
 ## 5. 关联证据
 
 - 活动回归日志: [docs/reports/regression/current.md](../../reports/regression/current.md)
-- 当前待办: [docs/plan/todo.md](./todo.md)
-- 路线图阶段摘要: [docs/plan/roadmap.md](./roadmap.md)
+- 当前阶段事实源: [docs/plan/todo.md](../../plan/todo.md)
+- 路线图阶段摘要: [docs/plan/roadmap.md](../../plan/roadmap.md)

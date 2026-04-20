@@ -55,6 +55,7 @@
 
 以下文档用于记录阶段性收敛、治理契约、迁移方案或专项优化，不应与上方主文档重复描述整套模块能力：
 
+- **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。
 - **[国际化扩展与多语言 SEO 统一设计](./i18n-seo-unification)**: `i18n.md` 的专项扩展，聚焦 Locale Registry、语言就绪度与 SEO 契约统一。
 - **[配置项多语言国际化与回退治理](./settings-i18n-fallback-governance)**: `system.md` / `i18n.md` 的联合治理补充，聚焦管理员可编辑配置的结构化多语言存储、旧值兼容与统一回退链。
 - **[AI 成本治理与多用户配额](./ai-cost-governance)**: `ai.md` 的治理补充，聚焦额度、失败扣额与后台审计口径。
@@ -68,6 +69,7 @@
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。
 - **[文章批量翻译编排能力评估](./batch-translation-orchestration)**: `ai.md` / `cli-mcp-automation.md` 的专项评估文档，聚焦批次范围冻结、父子任务模型、确认流与 Serverless 边界。
 - **[E2E 测试增强设计文档](./e2e-testing-enhancement)**: 跨模块质量设计，聚焦关键路径验证与自动化测试增强。
+- **[E2E 覆盖矩阵](./e2e-coverage-matrix)**: `e2e-testing-enhancement.md` 的执行态补充，聚焦页面 / 写链路风险分级、当前 Playwright 覆盖状态与下一轮补测优先级。
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 
 ## 阶段复盘与审计记录 (Phase Review & Audit Docs)

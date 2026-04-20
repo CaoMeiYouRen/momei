@@ -11,4 +11,5 @@
 ## 2. 入口说明
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
-- 旧的 `docs/plan/regression-log-archive.md` 保留兼容回看用途，待迁移完成后再视情况收敛。
+- 旧的 `docs/plan/regression-log-archive.md` 仅保留兼容回看用途，不再追加新的正式归档正文。
+- 若本目录下的单一索引继续膨胀，应再向年份或半年度分片，而不是把新旧记录混回 `docs/plan/`。
