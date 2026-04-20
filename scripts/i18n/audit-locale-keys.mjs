@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { resolve, join, extname } from 'node:path'
+import { i18nDynamicKeyPatterns } from './dynamic-key-allowlist.mjs'
 
 const ROOT_DIR = process.cwd()
 const LOCALE_ROOT = resolve(ROOT_DIR, 'i18n', 'locales')
@@ -22,50 +23,6 @@ const IGNORED_DIRS = new Set([
     'static',
     'test-results',
 ])
-
-const DYNAMIC_KEY_PATTERNS = [
-    /^app\./u,
-    /^common\.languages\./u,
-    /^common\.platforms\./u,
-    /^components\.post\.copyright\.unknown_author$/u,
-    /^components\.post\.copyright\.licenses\./u,
-    /^components\.post\.share\.platforms\./u,
-    /^components\.post\.sponsor\.platforms\./u,
-    /^demo\.stages\./u,
-    /^installation\.complete\.handoffDescription\./u,
-    /^installation\.healthCheck\.(issues|runtimeLabels|severity)\./u,
-    /^installation\.setupChecklist\.(mode|summary|description|groups)\./u,
-    /^pages\.links\.health_statuses\./u,
-    /^pages\.about\.meaning\.features\[\d+\]$/u,
-    /^pages\.about\.features\.items\[\d+\]\.(title|desc)$/u,
-    /^pages\.admin\.ai\.types\./u,
-    /^pages\.admin\.ai\.statuses\./u,
-    /^pages\.admin\.ai\.alerts\./u,
-    /^pages\.admin\.ai\.charge_statuses\./u,
-    /^pages\.admin\.ai\.failure_stages\./u,
-    /^pages\.admin\.link_governance\.(content_types|scopes|validation_modes|modes|statuses)\./u,
-    /^pages\.admin\.marketing\.status\./u,
-    /^pages\.admin\.posts\.ai\./u,
-    /^pages\.admin\.posts\.distribution\.(action|channels|failure_reason|precheck|status|wechatsync_task)\./u,
-    /^pages\.admin\.posts\.translation_workflow\./u,
-    /^pages\.admin\.posts\.tts\./u,
-    /^pages\.admin\.posts\.version_(fields|sources|summaries)\./u,
-    /^pages\.admin\.posts\.wechatsync\./u,
-    /^pages\.admin\.notifications\.delivery_logs\.(channels|statuses)\./u,
-    /^pages\.admin\.settings\.system\.email_templates\.(catalog|field_hints|fields|preview_samples|runtime|variables)\./u,
-    /^pages\.admin\.settings\.system\.agreements\./u,
-    /^pages\.admin\.settings\.system\.audit_logs\./u,
-    /^pages\.admin\.settings\.system\.fields\./u,
-    /^pages\.admin\.settings\.system\.hints\./u,
-    /^pages\.admin\.settings\.system\.keys\./u,
-    /^pages\.admin\.settings\.system\.smart_mode\.source_counts\./u,
-    /^pages\.admin\.settings\.system\.source_badges\./u,
-    /^pages\.admin\.settings\.system\.notifications\.events\./u,
-    /^pages\.admin\.snippets\.source_types\./u,
-    /^pages\.archives\.months\./u,
-    /^pages\.posts\.locked\./u,
-    /^pages\.settings\.commercial\.social_platforms\./u,
-]
 
 const QUOTED_KEY_REGEX = /['"`]([A-Za-z][\w-]*(?:\.[\w\-[\]]+)+)['"`]/gu
 
@@ -377,7 +334,7 @@ function collectUnusedCandidates(localeModules, referencedKeys) {
                     continue
                 }
 
-                if (DYNAMIC_KEY_PATTERNS.some((pattern) => pattern.test(key))) {
+                if (i18nDynamicKeyPatterns.some((pattern) => pattern.test(key))) {
                     continue
                 }
 

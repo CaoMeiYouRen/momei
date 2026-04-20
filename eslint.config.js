@@ -5,6 +5,7 @@ import vueI18n from '@intlify/eslint-plugin-vue-i18n'
 import tseslint from 'typescript-eslint'
 import { __WARN__, createLanguageOptions } from 'eslint-config-cmyr/utils'
 import withNuxt from './.nuxt/eslint.config.mjs'
+import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.mjs'
 
 const enableI18nLint = process.env.ESLINT_I18N === 'true'
 
@@ -47,23 +48,7 @@ const i18nLintConfigs = enableI18nLint
                     {
                         extensions: ['.js', '.ts', '.vue'],
                         // 由于某些翻译项是动态生成的，或者在代码中以动态方式访问，因此无法静态分析到它们的使用情况，所以需要忽略这些特定的路径模式。
-                        ignores: [
-                            '/^components\\.post\\.copyright\\.licenses\\./',
-                            '/^components\\.post\\.sponsor\\.platforms\\./',
-                            '/^pages\\.about\\.meaning\\.features\\[\\d+\\]$/',
-                            '/^pages\\.about\\.features\\.items\\[\\d+\\]\\.(title|desc)$/',
-                            '/^pages\\.admin\\.ai\\.types\\.(asr|image|text|suggest_slug|summarize|translate|recommend_tags)$/',
-                            '/^pages\\.admin\\.settings\\.system\\.notifications\\.events\\./',
-                            '/^pages\\.admin\\.snippets\\.source_types\\./',
-                            '/^pages\\.archives\\.months\\./',
-                            '/^pages\\.posts\\.locked\\./',
-                            '/^pages\\.settings\\.commercial\\.social_platforms\\./',
-                            '/^pages\\.login\\.(email_required|password_required)$/',
-                            '/^pages\\.register\\.(name_required|email_required|password_required|confirm_password_required)$/',
-                            '/^pages\\.settings\\.security\\.(current_password_required|new_password_required|confirm_password_required)$/',
-                            '/^legal\\.agreement_required$/',
-                            '/^error\\.(forbidden|validation|rateLimited|internal)$/',
-                        ],
+                        ignores: vueI18nNoUnusedKeyIgnores,
                     },
                 ],
             },
