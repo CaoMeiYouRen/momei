@@ -125,6 +125,14 @@ pnpm i18n:check-sync -- --locale=<target-locale>
 
 如本轮涉及邮件或关键业务链路，建议额外执行对应定向测试。
 
+针对 unused 候选的定向排查，统一使用：
+
+```bash
+pnpm i18n:audit:unused -- --locale=<target-locale> --module=<target-module>
+```
+
+`i18n:audit:unused` 默认只作为治理线索，不自动升级为 blocker；只有在你准备删除历史 key、收敛命名空间，或需要证明某一批旧 key 已无运行时引用时，才把它作为本轮变更的必查项。
+
 涉及 locale 模块动态加载、共享组件跨页面复用或后台 / 公共页共用壳层文案时，额外执行：
 
 ```bash
@@ -133,6 +141,28 @@ pnpm i18n:audit:duplicates
 ```
 
 前者固定串联 `lint:i18n` 与高频运行时回归测试，用于尽早暴露高频模块加载回归、模块未声明与 missing-key 警告；后者用于输出“跨所有语言都重复”的文案候选，支撑后续的人工复用决策。
+
+### 5.4 Blocker 入口与最小检查矩阵
+
+`pnpm i18n:audit:missing` 的口径统一为“缺词 parity blocker”，但只在以下入口和改动类型上按 blocker 处理：
+
+| 场景 | 必跑命令 | blocker 判定 |
+| :-- | :-- | :-- |
+| 周级治理 | `pnpm regression:weekly` | 内含 `i18n:audit:missing`，任一 required 步骤失败即 blocker |
+| 发版前 | `pnpm regression:pre-release` / `pnpm release:check:full` | `i18n:audit:missing` 失败直接阻断发版 |
+| 阶段收口前 | `pnpm regression:phase-close` | `release:check:full` 内部的 `i18n:audit:missing` 失败直接阻断归档 |
+| 日常 i18n 代码改动 | `pnpm lint:i18n` + `pnpm i18n:audit:missing` | 只要本次变更触及 `i18n/locales/**`、`i18n/config/**`、共享组件命名空间或 locale 模块装配，缺词就按本次 PR / Review Gate blocker 处理 |
+
+`pnpm i18n:audit:unused` 的口径统一为 warning / cleanup candidate，不直接阻断 release、weekly 或 phase-close。只有当本次任务目标本身就是“删除旧 key、收敛未使用文案、证明某模块可安全裁剪”时，才把 unused 结果升级为当前任务的必过检查。
+
+i18n 相关改动的最小检查矩阵统一如下：
+
+| 改动类型 | 最小检查矩阵 |
+| :-- | :-- |
+| 仅补 locale 文案 | `pnpm lint:i18n` + `pnpm i18n:audit:missing` + `pnpm i18n:check-sync -- --locale=<locale> --module=<module> --fail-on-diff` |
+| locale 模块注册、运行时加载、共享组件跨页面复用 | 上述命令 + `pnpm i18n:verify:runtime` |
+| 文案复用 / 命名空间收敛 | 上述命令 + `pnpm i18n:audit:duplicates` + `pnpm i18n:audit:unused -- --locale=<locale> --module=<module>` |
+| 发版前或阶段收口 | 直接走 `pnpm regression:pre-release` 或 `pnpm regression:phase-close`，不再手工降级 |
 
 ## 6. 回归检查清单
 

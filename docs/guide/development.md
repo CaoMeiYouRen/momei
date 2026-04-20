@@ -68,6 +68,7 @@
 | `pnpm lint:css` | 运行样式检查 |
 | `pnpm i18n:audit` | 审计 i18n 词条与模块拆分状态 |
 | `pnpm i18n:audit:missing` | 运行缺词 parity 审计，发现缺失字段直接失败 |
+| `pnpm i18n:audit:unused` | 单独审计未引用词条候选，默认作为治理线索而非 blocker |
 | `pnpm regression:weekly` | 执行周级周期性回归，固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线 |
 | `pnpm regression:pre-release` | 执行发版前周期性回归，固定覆盖完整发布前校验（内含缺词 parity 审计）、文档 i18n 检查与性能预算 |
 | `pnpm regression:phase-close` | 执行阶段收口前周期性回归，并把回归日志窗口超限与 release 内部 i18n 缺词一起升级为 blocker |

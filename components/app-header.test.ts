@@ -239,7 +239,7 @@ describe('AppHeader', () => {
         expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
             expect.objectContaining({
                 locale: expect.any(String),
-                modules: ['admin', 'admin-posts'],
+                modules: ['admin'],
             }),
         )
         expect(wrapper.text()).toMatch(/文章管理|Post Management/)

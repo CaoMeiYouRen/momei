@@ -591,7 +591,7 @@ watch(
         await ensureLocaleMessageModules({
             i18n: nuxtApp.$i18n as object,
             locale: currentLocale,
-            modules: ['admin', 'admin-posts'],
+            modules: ['admin'],
         })
 
         adminLocaleReady.value = true

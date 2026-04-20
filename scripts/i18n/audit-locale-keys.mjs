@@ -4,6 +4,8 @@ import { resolve, join, extname } from 'node:path'
 const ROOT_DIR = process.cwd()
 const LOCALE_ROOT = resolve(ROOT_DIR, 'i18n', 'locales')
 const SOURCE_EXTENSIONS = new Set(['.ts', '.js', '.mjs', '.vue'])
+const DEFAULT_OUTPUT_MODE = 'all'
+const DEFAULT_SUMMARY_LIMIT = 10
 const IGNORED_DIRS = new Set([
     '.git',
     '.nuxt',
@@ -53,6 +55,98 @@ const DYNAMIC_KEY_PATTERNS = [
 
 const QUOTED_KEY_REGEX = /['"`]([A-Za-z][\w-]*(?:\.[\w\-[\]]+)+)['"`]/gu
 
+function parseListArgument(rawValue) {
+    if (!rawValue) {
+        return []
+    }
+
+    return rawValue
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+}
+
+function parseArguments(argv) {
+    const options = {
+        failOnMissing: false,
+        failOnUnused: false,
+        locales: [],
+        modules: [],
+        only: DEFAULT_OUTPUT_MODE,
+        summaryLimit: DEFAULT_SUMMARY_LIMIT,
+    }
+
+    for (let index = 0; index < argv.length; index += 1) {
+        const arg = argv[index]
+
+        if (arg === '--fail-on-missing') {
+            options.failOnMissing = true
+            continue
+        }
+
+        if (arg === '--fail-on-unused') {
+            options.failOnUnused = true
+            continue
+        }
+
+        if (arg.startsWith('--locale=')) {
+            options.locales.push(...parseListArgument(arg.slice('--locale='.length)))
+            continue
+        }
+
+        if (arg === '--locale') {
+            options.locales.push(...parseListArgument(argv[index + 1]))
+            index += 1
+            continue
+        }
+
+        if (arg.startsWith('--module=')) {
+            options.modules.push(...parseListArgument(arg.slice('--module='.length)))
+            continue
+        }
+
+        if (arg === '--module') {
+            options.modules.push(...parseListArgument(argv[index + 1]))
+            index += 1
+            continue
+        }
+
+        if (arg.startsWith('--only=')) {
+            options.only = arg.slice('--only='.length).trim() || DEFAULT_OUTPUT_MODE
+            continue
+        }
+
+        if (arg === '--only') {
+            options.only = argv[index + 1]?.trim() || DEFAULT_OUTPUT_MODE
+            index += 1
+            continue
+        }
+
+        if (arg.startsWith('--summary-limit=')) {
+            options.summaryLimit = Number(arg.slice('--summary-limit='.length))
+            continue
+        }
+
+        if (arg === '--summary-limit') {
+            options.summaryLimit = Number(argv[index + 1])
+            index += 1
+        }
+    }
+
+    options.locales = [...new Set(options.locales)].sort()
+    options.modules = [...new Set(options.modules)].sort()
+
+    if (!['all', 'missing', 'unused'].includes(options.only)) {
+        throw new Error(`Unsupported --only value: ${options.only}`)
+    }
+
+    if (!Number.isInteger(options.summaryLimit) || options.summaryLimit < 0) {
+        throw new Error(`Expected --summary-limit to be a non-negative integer, received: ${options.summaryLimit}`)
+    }
+
+    return options
+}
+
 function flattenMessages(source, prefix = '') {
     const result = []
 
@@ -94,12 +188,25 @@ async function readJson(filePath) {
     return JSON.parse(await readFile(filePath, 'utf8'))
 }
 
-async function getLocaleModules() {
+async function getLocaleModules(options) {
     const locales = await readdir(LOCALE_ROOT, { withFileTypes: true })
     const localeMap = new Map()
+    const availableLocales = locales
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+
+    const unknownLocales = options.locales.filter((localeCode) => !availableLocales.includes(localeCode))
+    if (unknownLocales.length > 0) {
+        throw new Error(`Unknown locale selector(s): ${unknownLocales.join(', ')}`)
+    }
 
     for (const localeEntry of locales) {
         if (!localeEntry.isDirectory()) {
+            continue
+        }
+
+        if (options.locales.length > 0 && !options.locales.includes(localeEntry.name)) {
             continue
         }
 
@@ -113,6 +220,10 @@ async function getLocaleModules() {
             }
 
             const moduleName = moduleEntry.name.replace(/\.json$/u, '')
+            if (options.modules.length > 0 && !options.modules.includes(moduleName)) {
+                continue
+            }
+
             const modulePath = join(localeDir, moduleEntry.name)
             const keys = flattenMessages(await readJson(modulePath))
             moduleMap.set(moduleName, keys.sort())
@@ -121,7 +232,26 @@ async function getLocaleModules() {
         localeMap.set(localeEntry.name, moduleMap)
     }
 
+    if (options.modules.length > 0) {
+        const availableModules = new Set()
+
+        for (const modules of localeMap.values()) {
+            for (const moduleName of modules.keys()) {
+                availableModules.add(moduleName)
+            }
+        }
+
+        const unknownModules = options.modules.filter((moduleName) => !availableModules.has(moduleName))
+        if (unknownModules.length > 0) {
+            throw new Error(`Unknown module selector(s): ${unknownModules.join(', ')}`)
+        }
+    }
+
     return localeMap
+}
+
+function shouldScanSourceFile(filePath) {
+    return !(/(?:^|[/\\])tests(?:[/\\]|$)|\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(filePath))
 }
 
 async function walkSourceFiles(currentDir, files = []) {
@@ -144,7 +274,7 @@ async function walkSourceFiles(currentDir, files = []) {
             continue
         }
 
-        if (SOURCE_EXTENSIONS.has(extname(entry.name))) {
+        if (SOURCE_EXTENSIONS.has(extname(entry.name)) && shouldScanSourceFile(absolutePath)) {
             files.push(absolutePath)
         }
     }
@@ -200,15 +330,27 @@ function collectMissingParity(localeModules) {
             const missingInBase = [...currentKeys].filter((key) => !baseKeys.has(key))
 
             missingInCurrent.forEach((key) => {
-                results.push(`${otherLocale}/${moduleName}.json is missing ${key}`)
+                results.push({
+                    key,
+                    localeCode: otherLocale,
+                    moduleName,
+                })
             })
             missingInBase.forEach((key) => {
-                results.push(`${baseLocale}/${moduleName}.json is missing ${key}`)
+                results.push({
+                    key,
+                    localeCode: baseLocale,
+                    moduleName,
+                })
             })
         }
     }
 
-    return results.sort()
+    return results.sort((left, right) => {
+        const leftPath = `${left.localeCode}/${left.moduleName}.json`
+        const rightPath = `${right.localeCode}/${right.moduleName}.json`
+        return leftPath.localeCompare(rightPath) || left.key.localeCompare(right.key)
+    })
 }
 
 function collectUnusedCandidates(localeModules, referencedKeys) {
@@ -225,26 +367,122 @@ function collectUnusedCandidates(localeModules, referencedKeys) {
                     continue
                 }
 
-                results.push(`${localeCode}/${moduleName}.json -> ${key}`)
+                results.push({
+                    key,
+                    localeCode,
+                    moduleName,
+                })
             }
         }
     }
 
-    return results.sort()
+    return results.sort((left, right) => {
+        const leftPath = `${left.localeCode}/${left.moduleName}.json`
+        const rightPath = `${right.localeCode}/${right.moduleName}.json`
+        return leftPath.localeCompare(rightPath) || left.key.localeCompare(right.key)
+    })
+}
+
+function formatFinding(item, kind) {
+    const prefix = `${item.localeCode}/${item.moduleName}.json`
+    return kind === 'missing'
+        ? `${prefix} is missing ${item.key}`
+        : `${prefix} -> ${item.key}`
+}
+
+function summarizeFindings(items, options) {
+    const moduleHotspots = new Map()
+    const localeCounts = new Map()
+
+    for (const item of items) {
+        const localeCount = localeCounts.get(item.localeCode) || 0
+        localeCounts.set(item.localeCode, localeCount + 1)
+
+        const hotspotKey = `${item.localeCode}/${item.moduleName}.json`
+        const hotspotCount = moduleHotspots.get(hotspotKey) || 0
+        moduleHotspots.set(hotspotKey, hotspotCount + 1)
+    }
+
+    return {
+        localeCounts: [...localeCounts.entries()]
+            .sort((left, right) => left[0].localeCompare(right[0]))
+            .map(([localeCode, count]) => `${localeCode}: ${count}`),
+        scannedLocales: options.locales.length > 0 ? options.locales : [...options.availableLocales],
+        scannedModules: options.modules.length > 0 ? options.modules : [...options.availableModules],
+        topHotspots: [...moduleHotspots.entries()]
+            .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+            .slice(0, options.summaryLimit)
+            .map(([modulePath, count]) => `${modulePath}: ${count}`),
+        total: items.length,
+    }
+}
+
+function formatSummary(title, summary) {
+    const summaryLines = [
+        `${title}:`,
+        `  - total: ${summary.total}`,
+        `  - scanned locales: ${summary.scannedLocales.join(', ') || 'none'}`,
+        `  - scanned modules: ${summary.scannedModules.join(', ') || 'none'}`,
+        `  - per-locale: ${summary.localeCounts.join(', ') || 'none'}`,
+    ]
+
+    if (summary.topHotspots.length > 0) {
+        summaryLines.push('  - top hotspots:')
+        summary.topHotspots.forEach((hotspot) => {
+            summaryLines.push(`    - ${hotspot}`)
+        })
+    }
+
+    return summaryLines.join('\n')
 }
 
 async function main() {
-    const localeModules = await getLocaleModules()
+    const options = parseArguments(process.argv.slice(2))
+    const localeModules = await getLocaleModules(options)
     const referencedKeys = await getReferencedKeys()
+    const availableLocales = [...localeModules.keys()].sort()
+    const availableModules = [...new Set(
+        [...localeModules.values()].flatMap((modules) => [...modules.keys()]),
+    )].sort()
 
     const missingParity = collectMissingParity(localeModules)
     const unusedCandidates = collectUnusedCandidates(localeModules, referencedKeys)
+    const showMissing = options.only === 'all' || options.only === 'missing'
+    const showUnused = options.only === 'all' || options.only === 'unused'
 
-    console.info(formatSection('Missing parity keys', missingParity))
-    console.info('')
-    console.info(formatSection('Unused candidate keys', unusedCandidates))
+    if (showMissing) {
+        console.info(formatSummary('Missing parity summary', summarizeFindings(missingParity, {
+            availableLocales,
+            availableModules,
+            locales: options.locales,
+            modules: options.modules,
+            summaryLimit: options.summaryLimit,
+        })))
+        console.info('')
+        console.info(formatSection('Missing parity keys', missingParity.map((item) => formatFinding(item, 'missing'))))
+    }
 
-    if (process.argv.includes('--fail-on-missing') && missingParity.length > 0) {
+    if (showMissing && showUnused) {
+        console.info('')
+    }
+
+    if (showUnused) {
+        console.info(formatSummary('Unused candidate summary', summarizeFindings(unusedCandidates, {
+            availableLocales,
+            availableModules,
+            locales: options.locales,
+            modules: options.modules,
+            summaryLimit: options.summaryLimit,
+        })))
+        console.info('')
+        console.info(formatSection('Unused candidate keys', unusedCandidates.map((item) => formatFinding(item, 'unused'))))
+    }
+
+    if (options.failOnMissing && missingParity.length > 0) {
+        process.exitCode = 1
+    }
+
+    if (options.failOnUnused && unusedCandidates.length > 0) {
         process.exitCode = 1
     }
 }
