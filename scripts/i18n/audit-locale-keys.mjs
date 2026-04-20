@@ -52,7 +52,7 @@ const DYNAMIC_KEY_PATTERNS = [
     /^pages\.admin\.posts\.version_(fields|sources|summaries)\./u,
     /^pages\.admin\.posts\.wechatsync\./u,
     /^pages\.admin\.notifications\.delivery_logs\.(channels|statuses)\./u,
-    /^pages\.admin\.settings\.system\.email_templates\.(catalog|field_hints|fields|preview_samples|variables)\./u,
+    /^pages\.admin\.settings\.system\.email_templates\.(catalog|field_hints|fields|preview_samples|runtime|variables)\./u,
     /^pages\.admin\.settings\.system\.agreements\./u,
     /^pages\.admin\.settings\.system\.audit_logs\./u,
     /^pages\.admin\.settings\.system\.fields\./u,

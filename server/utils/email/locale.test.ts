@@ -98,4 +98,16 @@ describe('email locale utils', () => {
         expect(shell.greeting).toBe('Hello,')
         expect(shell.helpText).toBe('Need help? Contact our support team')
     })
+
+    it('falls back to locale-aware shell copy when runtime keys are missing', async () => {
+        const i18nModule = await import('@/server/utils/i18n')
+        vi.mocked(i18nModule.loadLocaleMessages).mockResolvedValueOnce({})
+
+        const shell = await loadEmailShellMessages('en-US')
+
+        expect(shell.locale).toBe('en-US')
+        expect(shell.helpText).toBe('Need help? Contact our support team')
+        expect(shell.privacyPolicyLabel).toBe('Privacy Policy')
+        expect(shell.allRightsReserved).toBe('All rights reserved.')
+    })
 })
