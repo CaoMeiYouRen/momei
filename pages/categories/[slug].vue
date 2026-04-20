@@ -29,7 +29,7 @@
                 <h1 class="taxonomy-page__title">
                     <span>{{ category.name }}</span>
                     <a
-                        :href="`/feed/category/${category.slug}.xml`"
+                        :href="categoryFeedHref"
                         target="_blank"
                         class="taxonomy-page__rss"
                         :title="$t('common.rss')"
@@ -88,6 +88,7 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
+import { resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import { buildAbsoluteUrl, buildBreadcrumbListStructuredData } from '@/utils/shared/seo'
 
 const route = useRoute()
@@ -109,7 +110,28 @@ const { page, limit, first, posts, total, totalPages, postsPending, postsError, 
 })
 
 const siteUrl = computed(() => runtimeConfig.public.siteUrl || 'https://momei.app')
-const categoryCanonicalPath = computed(() => localePath(`/categories/${slug.value}`))
+const categoryLanguage = computed(() => category.value?.language ? resolveAppLocaleCode(category.value.language) : null)
+const categorySlug = computed(() => category.value?.slug || slug.value)
+
+function buildLocalizedCategoryPath(path: string, language: AppLocaleCode | null) {
+    return language ? localePath({ path }, language) : localePath(path)
+}
+
+const categoryHomePath = computed(() => buildLocalizedCategoryPath('/', categoryLanguage.value))
+const categoryIndexPath = computed(() => buildLocalizedCategoryPath('/categories', categoryLanguage.value))
+const categoryCanonicalPath = computed(() => buildLocalizedCategoryPath(`/categories/${categorySlug.value}`, categoryLanguage.value))
+const categoryCanonicalUrl = computed(() => buildAbsoluteUrl(siteUrl.value, categoryCanonicalPath.value))
+const categoryFeedHref = computed(() => {
+    const searchParams = new URLSearchParams()
+
+    if (categoryLanguage.value) {
+        searchParams.set('language', categoryLanguage.value)
+    }
+
+    const query = searchParams.toString()
+    return `/feed/category/${categorySlug.value}.xml${query ? `?${query}` : ''}`
+})
+
 const categoryStructuredData = computed(() => {
     if (!category.value) {
         return []
@@ -120,15 +142,15 @@ const categoryStructuredData = computed(() => {
             items: [
                 {
                     name: t('common.home'),
-                    item: buildAbsoluteUrl(siteUrl.value, localePath('/')),
+                    item: buildAbsoluteUrl(siteUrl.value, categoryHomePath.value),
                 },
                 {
                     name: t('common.category'),
-                    item: buildAbsoluteUrl(siteUrl.value, localePath('/categories')),
+                    item: buildAbsoluteUrl(siteUrl.value, categoryIndexPath.value),
                 },
                 {
                     name: category.value.name,
-                    item: buildAbsoluteUrl(siteUrl.value, categoryCanonicalPath.value),
+                    item: categoryCanonicalUrl.value,
                 },
             ],
         }),
@@ -138,6 +160,7 @@ const categoryStructuredData = computed(() => {
 usePageSeo({
     type: 'collection',
     title: () => category.value?.name ? `${category.value.name} - ${t('common.category')}` : t('pages.posts.title'),
+    locale: () => categoryLanguage.value,
     description: () => category.value?.description || t('app.description'),
     path: () => categoryCanonicalPath.value,
     structuredData: () => categoryStructuredData.value,
@@ -147,10 +170,14 @@ useHead(() => ({
     link: category.value
         ? [
                 {
+                    rel: 'canonical',
+                    href: categoryCanonicalUrl.value,
+                },
+                {
                     rel: 'alternate',
                     type: 'application/rss+xml',
                     title: `${category.value.name} RSS`,
-                    href: `/feed/category/${category.value.slug}.xml`,
+                    href: categoryFeedHref.value,
                 },
             ]
         : [],

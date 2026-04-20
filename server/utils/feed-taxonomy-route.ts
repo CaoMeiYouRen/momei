@@ -59,6 +59,17 @@ export function buildTaxonomyFeedTitle(language: string, name: string, labels: T
         : `${labels.default}: ${name}`
 }
 
+function resolveScopedFeedLanguage(event: H3Event): string {
+    const query = getQuery(event)
+    const requestedLanguage = Array.isArray(query.language) ? query.language[0] : query.language
+
+    if (typeof requestedLanguage === 'string' && requestedLanguage.trim()) {
+        return requestedLanguage.trim()
+    }
+
+    return getFeedLanguage(event)
+}
+
 export function createTaxonomyFeedRoute<T extends FeedTaxonomyEntity>(options: TaxonomyFeedRouteOptions<T>) {
     return defineEventHandler(async (event: H3Event) => {
         const { contentType, format, slug } = parseScopedFeedRequest(getRouterParam(event, 'slug') || '')
@@ -70,7 +81,7 @@ export function createTaxonomyFeedRoute<T extends FeedTaxonomyEntity>(options: T
             })
         }
 
-        const language = getFeedLanguage(event)
+        const language = resolveScopedFeedLanguage(event)
         const repository = dataSource.getRepository(options.entity)
         const item = await repository.findOne({
             where: { slug, language } as FindOptionsWhere<T>,

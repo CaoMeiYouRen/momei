@@ -28,7 +28,7 @@
                 <h1 class="taxonomy-page__title">
                     <span>#{{ tag.name }}</span>
                     <a
-                        :href="`/feed/tag/${tag.slug}.xml`"
+                        :href="tagFeedHref"
                         target="_blank"
                         class="taxonomy-page__rss"
                         :title="$t('common.rss')"
@@ -84,6 +84,7 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { Tag } from '@/types/tag'
+import { resolveAppLocaleCode, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import { buildAbsoluteUrl, buildBreadcrumbListStructuredData } from '@/utils/shared/seo'
 
 const route = useRoute()
@@ -105,7 +106,28 @@ const { page, limit, first, posts, total, totalPages, postsPending, postsError, 
 })
 
 const siteUrl = computed(() => runtimeConfig.public.siteUrl || 'https://momei.app')
-const tagCanonicalPath = computed(() => localePath(`/tags/${slug.value}`))
+const tagLanguage = computed(() => tag.value?.language ? resolveAppLocaleCode(tag.value.language) : null)
+const tagSlug = computed(() => tag.value?.slug || slug.value)
+
+function buildLocalizedTagPath(path: string, language: AppLocaleCode | null) {
+    return language ? localePath({ path }, language) : localePath(path)
+}
+
+const tagHomePath = computed(() => buildLocalizedTagPath('/', tagLanguage.value))
+const tagIndexPath = computed(() => buildLocalizedTagPath('/tags', tagLanguage.value))
+const tagCanonicalPath = computed(() => buildLocalizedTagPath(`/tags/${tagSlug.value}`, tagLanguage.value))
+const tagCanonicalUrl = computed(() => buildAbsoluteUrl(siteUrl.value, tagCanonicalPath.value))
+const tagFeedHref = computed(() => {
+    const searchParams = new URLSearchParams()
+
+    if (tagLanguage.value) {
+        searchParams.set('language', tagLanguage.value)
+    }
+
+    const query = searchParams.toString()
+    return `/feed/tag/${tagSlug.value}.xml${query ? `?${query}` : ''}`
+})
+
 const tagStructuredData = computed(() => {
     if (!tag.value) {
         return []
@@ -116,15 +138,15 @@ const tagStructuredData = computed(() => {
             items: [
                 {
                     name: t('common.home'),
-                    item: buildAbsoluteUrl(siteUrl.value, localePath('/')),
+                    item: buildAbsoluteUrl(siteUrl.value, tagHomePath.value),
                 },
                 {
                     name: t('common.tag'),
-                    item: buildAbsoluteUrl(siteUrl.value, localePath('/tags')),
+                    item: buildAbsoluteUrl(siteUrl.value, tagIndexPath.value),
                 },
                 {
                     name: tag.value.name,
-                    item: buildAbsoluteUrl(siteUrl.value, tagCanonicalPath.value),
+                    item: tagCanonicalUrl.value,
                 },
             ],
         }),
@@ -134,6 +156,7 @@ const tagStructuredData = computed(() => {
 usePageSeo({
     type: 'collection',
     title: () => tag.value?.name ? `#${tag.value.name} - ${t('common.tag')}` : t('pages.posts.title'),
+    locale: () => tagLanguage.value,
     description: () => t('app.description'),
     path: () => tagCanonicalPath.value,
     structuredData: () => tagStructuredData.value,
@@ -143,10 +166,14 @@ useHead(() => ({
     link: tag.value
         ? [
                 {
+                    rel: 'canonical',
+                    href: tagCanonicalUrl.value,
+                },
+                {
                     rel: 'alternate',
                     type: 'application/rss+xml',
                     title: `${tag.value.name} RSS`,
-                    href: `/feed/tag/${tag.value.slug}.xml`,
+                    href: tagFeedHref.value,
                 },
             ]
         : [],

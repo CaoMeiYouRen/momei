@@ -20,17 +20,20 @@ describe('server/utils/feed-taxonomy-route', () => {
         findOne: vi.fn(),
     }
     const mockGetRouterParam = vi.fn()
+    const mockGetQuery = vi.fn()
     const mockAppendHeader = vi.fn()
 
     beforeEach(() => {
         vi.clearAllMocks()
         vi.stubGlobal('defineEventHandler', (handler: unknown) => handler)
         vi.stubGlobal('getRouterParam', mockGetRouterParam)
+        vi.stubGlobal('getQuery', mockGetQuery)
         vi.stubGlobal('appendHeader', mockAppendHeader)
         vi.stubGlobal('createError', vi.fn((options: Record<string, unknown>) => Object.assign(new Error(String(options.statusMessage)), options)))
 
         vi.mocked(dataSource.getRepository).mockReturnValue(mockRepository as never)
         vi.mocked(getFeedLanguage).mockReturnValue('zh-CN')
+        mockGetQuery.mockReturnValue({})
     })
 
     it('parses atom and json suffixes into feed metadata', () => {
@@ -173,6 +176,48 @@ describe('server/utils/feed-taxonomy-route', () => {
         })
         expect(mockAppendHeader).toHaveBeenCalledWith(event, 'Content-Type', 'application/feed+json')
         expect(result).toBe('{"version":"https://jsonfeed.org/version/1.1"}')
+    })
+
+    it('prefers explicit language query over request locale for taxonomy discovery urls', async () => {
+        const rssFeed = vi.fn(() => '<rss />')
+        vi.mocked(generateFeed).mockResolvedValue({
+            atom1: vi.fn(),
+            json1: vi.fn(),
+            rss2: rssFeed,
+        } as never)
+        vi.mocked(getFeedLanguage).mockReturnValue('en-US')
+        mockGetQuery.mockReturnValue({ language: 'zh-CN' })
+        mockGetRouterParam.mockReturnValue('rss-tech.xml')
+        mockRepository.findOne.mockResolvedValue({
+            id: 'category-1',
+            language: 'zh-CN',
+            name: '技术',
+            slug: 'rss-tech',
+        })
+
+        const handler = createTaxonomyFeedRoute({
+            entity: 'CategoryEntity',
+            feedFilterKey: 'categoryId',
+            labels: { default: 'Category', zhCN: '分类' },
+            missingSlugMessage: 'Category slug is required',
+            notFoundMessage: 'Category not found',
+        })
+
+        const event = {} as H3Event
+        const result = await handler(event)
+
+        expect(mockRepository.findOne).toHaveBeenCalledWith({
+            where: {
+                language: 'zh-CN',
+                slug: 'rss-tech',
+            },
+        })
+        expect(generateFeed).toHaveBeenCalledWith(event, {
+            categoryId: 'category-1',
+            language: 'zh-CN',
+            titleSuffix: '分类: 技术',
+        })
+        expect(result).toBe('<rss />')
     })
 
     it('throws a 404 error when the taxonomy item is missing', async () => {

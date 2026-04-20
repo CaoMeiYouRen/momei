@@ -31,8 +31,8 @@ describe('utils/shared/citable-content', () => {
         expect(truncatePlainText('long plain text value', 10)).toBe('long plain...')
     })
 
-    it('extracts faq items from markdown question headings', () => {
-        const faqItems = extractFaqItemsFromMarkdown(`## What is GEO?\n\nGEO is a way to improve AI citation visibility for published content.\n\n## How does it help?\n\nIt gives crawlers and answer engines clearer summaries and structured context.`)
+    it('extracts faq items from an explicit FAQ section', () => {
+        const faqItems = extractFaqItemsFromMarkdown(`## FAQ\n\n### What is GEO?\n\nGEO is a way to improve AI citation visibility for published content.\n\n### How does it help?\n\nIt gives crawlers and answer engines clearer summaries and structured context.`)
 
         expect(faqItems).toEqual([
             {
@@ -46,20 +46,28 @@ describe('utils/shared/citable-content', () => {
         ])
     })
 
+    it('ignores question headings outside FAQ sections', () => {
+        const faqItems = extractFaqItemsFromMarkdown(`## What is GEO?\n\nGEO is a way to improve AI citation visibility for published content.\n\n## How does it help?\n\nIt gives crawlers and answer engines clearer summaries and structured context.`)
+
+        expect(faqItems).toEqual([])
+    })
+
     it('ignores question headings inside fenced code blocks', () => {
-        const faqItems = extractFaqItemsFromMarkdown(`## What is GEO?
+        const faqItems = extractFaqItemsFromMarkdown(`## FAQ
 
-    GEO is a way to improve AI citation visibility for published content.
+### What is GEO?
 
-    ~~~md
-    ## Should this become FAQ?
+GEO is a way to improve AI citation visibility for published content.
 
-    No, fenced examples must be ignored.
-    ~~~
+~~~md
+### Should this become FAQ?
 
-    ## How does it help?
+No, fenced examples must be ignored.
+~~~
 
-    It gives crawlers and answer engines clearer summaries and structured context.`)
+### How does it help?
+
+It gives crawlers and answer engines clearer summaries and structured context.`)
 
         expect(faqItems).toEqual([
             {

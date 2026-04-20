@@ -1,6 +1,11 @@
+import { buildAbsoluteUrl } from '@/utils/shared/seo'
+
 export default defineEventHandler((event) => {
     const config = useRuntimeConfig()
     const siteUrl = config.public.siteUrl || 'https://momei.app'
+    const llmsUrl = buildAbsoluteUrl(siteUrl, '/llms.txt')
+    const llmsFullUrl = buildAbsoluteUrl(siteUrl, '/llms-full.txt')
+    const sitemapUrl = buildAbsoluteUrl(siteUrl, '/sitemap.xml')
 
     // 格式化当前日期作为参考（可选）
     const robots = [
@@ -30,10 +35,10 @@ export default defineEventHandler((event) => {
         'Disallow: /api/',
         '',
         '# AI crawler discovery resources',
-        `# llms: ${siteUrl}/llms.txt`,
-        `# llms-full: ${siteUrl}/llms-full.txt`,
+        `# llms: ${llmsUrl}`,
+        `# llms-full: ${llmsFullUrl}`,
         '',
-        `Sitemap: ${siteUrl}/sitemap.xml`,
+        `Sitemap: ${sitemapUrl}`,
     ].join('\n')
 
     // 设置响应头为文本格式

@@ -100,6 +100,14 @@ function buildDefaultStructuredData(
     })
 }
 
+export function buildCanonicalPageUrl(siteUrl: string, canonicalPath: string) {
+    if (canonicalPath === '/' || canonicalPath === '') {
+        return siteUrl.replace(/\/+$/u, '')
+    }
+
+    return buildAbsoluteUrl(siteUrl, canonicalPath)
+}
+
 export function usePageSeo(options: UsePageSeoOptions) {
     const route = useRoute()
     const runtimeConfig = useRuntimeConfig()
@@ -119,7 +127,7 @@ export function usePageSeo(options: UsePageSeoOptions) {
 
         return route.fullPath.split('#')[0] || '/'
     })
-    const canonicalUrl = computed(() => buildAbsoluteUrl(siteUrl.value, canonicalPath.value))
+    const canonicalUrl = computed(() => buildCanonicalPageUrl(siteUrl.value, canonicalPath.value))
     const metaTitle = computed(() => toValue(options.title))
     const metaDescription = computed(() => toValue(options.description) || fallbackDescription.value)
     const imageUrl = computed(() => resolveSeoImageUrl(siteUrl.value, toValue(options.image) || siteLogo.value || null))

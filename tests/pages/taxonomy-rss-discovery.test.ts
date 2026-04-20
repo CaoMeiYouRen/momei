@@ -13,11 +13,13 @@ const hoisted = vi.hoisted(() => ({
             name: 'RSS Tech',
             slug: 'rss-tech',
             description: 'Category description',
+            language: 'zh-CN',
         },
         tag: {
             id: 'tag-1',
             name: 'FeedTag',
             slug: 'feed-tag',
+            language: 'en-US',
         },
     },
     capturedHeadEntries: [] as Record<string, unknown>[],
@@ -34,6 +36,16 @@ function resolveTotalCount(params?: Record<string, unknown>) {
     }
 
     return 0
+}
+
+function localizePath(path: string, locale?: string | null) {
+    if (!locale || locale === 'zh-CN') {
+        return path
+    }
+
+    return path === '/'
+        ? `/${locale}`
+        : `/${locale}${path}`
 }
 
 function translate(key: string, params?: Record<string, unknown>) {
@@ -61,7 +73,10 @@ mockNuxtImport('definePageMeta', () => vi.fn())
 mockNuxtImport('navigateTo', () => hoisted.mockNavigateTo)
 mockNuxtImport('useRoute', () => () => ({ params: { slug: hoisted.state.routeSlug } }))
 mockNuxtImport('useI18n', () => () => ({ t: translate }))
-mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useLocalePath', () => () => (route: string | { path?: string }, locale?: string | null) => {
+    const path = typeof route === 'string' ? route : route.path || '/'
+    return localizePath(path, locale)
+})
 mockNuxtImport('useRuntimeConfig', () => () => ({
     public: {
         siteUrl: 'https://momei.app',
@@ -127,11 +142,13 @@ describe('taxonomy RSS discovery', () => {
             name: 'RSS Tech',
             slug: 'rss-tech',
             description: 'Category description',
+            language: 'zh-CN',
         }
         hoisted.state.tag = {
             id: 'tag-1',
             name: 'FeedTag',
             slug: 'feed-tag',
+            language: 'en-US',
         }
     })
 
@@ -148,14 +165,18 @@ describe('taxonomy RSS discovery', () => {
 
         await flushPromises()
 
-        expect(wrapper.html()).toContain('/feed/category/rss-tech.xml')
+        expect(wrapper.html()).toContain('/feed/category/rss-tech.xml?language=zh-CN')
         expect(hoisted.capturedHeadEntries).toContainEqual({
             link: [
+                {
+                    rel: 'canonical',
+                    href: 'https://momei.app/categories/rss-tech',
+                },
                 {
                     rel: 'alternate',
                     type: 'application/rss+xml',
                     title: 'RSS Tech RSS',
-                    href: '/feed/category/rss-tech.xml',
+                    href: '/feed/category/rss-tech.xml?language=zh-CN',
                 },
             ],
         })
@@ -164,9 +185,13 @@ describe('taxonomy RSS discovery', () => {
         const seoOptions = hoisted.mockUsePageSeo.mock.calls[0]?.[0]
         const structuredData = seoOptions.structuredData()
 
+        expect(seoOptions.locale()).toBe('zh-CN')
         expect(seoOptions.path()).toBe('/categories/rss-tech')
         expect(structuredData).toHaveLength(1)
         expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
+        expect(structuredData[0].itemListElement[0].item).toBe('https://momei.app/')
+        expect(structuredData[0].itemListElement[1].item).toBe('https://momei.app/categories')
+        expect(structuredData[0].itemListElement[2].item).toBe('https://momei.app/categories/rss-tech')
     })
 
     it('renders tag RSS link and injects discovery head link', async () => {
@@ -184,14 +209,18 @@ describe('taxonomy RSS discovery', () => {
 
         await flushPromises()
 
-        expect(wrapper.html()).toContain('/feed/tag/feed-tag.xml')
+        expect(wrapper.html()).toContain('/feed/tag/feed-tag.xml?language=en-US')
         expect(hoisted.capturedHeadEntries).toContainEqual({
             link: [
+                {
+                    rel: 'canonical',
+                    href: 'https://momei.app/en-US/tags/feed-tag',
+                },
                 {
                     rel: 'alternate',
                     type: 'application/rss+xml',
                     title: 'FeedTag RSS',
-                    href: '/feed/tag/feed-tag.xml',
+                    href: '/feed/tag/feed-tag.xml?language=en-US',
                 },
             ],
         })
@@ -200,8 +229,12 @@ describe('taxonomy RSS discovery', () => {
         const seoOptions = hoisted.mockUsePageSeo.mock.calls[0]?.[0]
         const structuredData = seoOptions.structuredData()
 
-        expect(seoOptions.path()).toBe('/tags/feed-tag')
+        expect(seoOptions.locale()).toBe('en-US')
+        expect(seoOptions.path()).toBe('/en-US/tags/feed-tag')
         expect(structuredData).toHaveLength(1)
         expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
+        expect(structuredData[0].itemListElement[0].item).toBe('https://momei.app/en-US')
+        expect(structuredData[0].itemListElement[1].item).toBe('https://momei.app/en-US/tags')
+        expect(structuredData[0].itemListElement[2].item).toBe('https://momei.app/en-US/tags/feed-tag')
     })
 })

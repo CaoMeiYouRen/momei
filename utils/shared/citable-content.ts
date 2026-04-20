@@ -3,6 +3,13 @@ export interface FaqItem {
     answer: string
 }
 
+interface MarkdownHeading {
+    level: number
+    text: string
+}
+
+const FAQ_SECTION_PATTERN = /(?:^|\b)(faq|frequently asked questions?)(?:\b|$)|常见问题|常见问答|问题解答/iu
+
 function resolveFenceMarker(line: string): string | null {
     const match = /^(```+|~~~+)/u.exec(line.trim())
 
@@ -15,6 +22,23 @@ function resolveFenceMarker(line: string): string | null {
 
 export function collapseWhitespace(text: string): string {
     return text.replace(/\s+/gu, ' ').trim()
+}
+
+function parseMarkdownHeading(line: string): MarkdownHeading | null {
+    const match = /^(#{1,6})\s+(.+?)(?:\s+#+\s*)?$/u.exec(line.trim())
+
+    if (!match) {
+        return null
+    }
+
+    return {
+        level: match[1]!.length,
+        text: collapseWhitespace(match[2] || ''),
+    }
+}
+
+function isFaqSectionHeading(text: string): boolean {
+    return FAQ_SECTION_PATTERN.test(text)
 }
 
 export function stripMarkdownToPlainText(markdown: string): string {
@@ -67,6 +91,7 @@ export function extractFaqItemsFromMarkdown(markdown: string, maxItems: number =
     const lines = markdown.split(/\r?\n/u)
     const items: FaqItem[] = []
     let activeFenceMarker: string | null = null
+    let faqSectionLevel: number | null = null
 
     for (let index = 0; index < lines.length; index += 1) {
         const rawLine = lines[index] || ''
@@ -82,13 +107,26 @@ export function extractFaqItemsFromMarkdown(markdown: string, maxItems: number =
         }
 
         const currentLine = rawLine.trim()
-        const headingMatch = /^#{1,6}\s+(.+?)(?:\s+#+\s*)?$/u.exec(currentLine)
+        const heading = parseMarkdownHeading(currentLine)
 
-        if (!headingMatch) {
+        if (!heading) {
             continue
         }
 
-        const question = collapseWhitespace(headingMatch[1] || '')
+        if (isFaqSectionHeading(heading.text)) {
+            faqSectionLevel = heading.level
+            continue
+        }
+
+        if (faqSectionLevel !== null && heading.level <= faqSectionLevel) {
+            faqSectionLevel = null
+        }
+
+        if (faqSectionLevel === null || heading.level <= faqSectionLevel) {
+            continue
+        }
+
+        const question = heading.text
         if (!/[?？]$/u.test(question)) {
             continue
         }
@@ -110,8 +148,9 @@ export function extractFaqItemsFromMarkdown(markdown: string, maxItems: number =
             }
 
             const nextLine = rawNextLine.trim() || ''
+            const nextHeading = parseMarkdownHeading(nextLine)
 
-            if (/^#{1,6}\s+/u.test(nextLine)) {
+            if (nextHeading && (nextHeading.level <= heading.level || nextHeading.level <= faqSectionLevel)) {
                 break
             }
 
