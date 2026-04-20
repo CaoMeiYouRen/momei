@@ -17,7 +17,14 @@ export default [
             'no-console': 'off',
             'n/no-process-exit': 'off',
             'unicorn/no-process-exit': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
+    {
+        files: ['src/**/*.{ts,tsx,mts,cts}'],
+        ignores: ['src/**/*.test.ts', 'src/**/*.bench.ts'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'error',
+            '@typescript-eslint/explicit-module-boundary-types': 'error',
         },
     },
 ]
