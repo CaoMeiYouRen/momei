@@ -9,6 +9,56 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-20 共享复用层 CSV 列表解析收敛
+
+### 范围
+
+- 目标：在不新增 shared API surface 的前提下，优先收敛一组高收益的列表型查询 / 查询参数处理重复区，把手写的 CSV 解析逻辑统一回收到现有 `splitAndNormalizeStringList`。
+- 本轮覆盖：`utils/shared/roles.ts`、`utils/shared/env.ts`、`utils/schemas/post.ts`、`composables/use-post-editor-translation.ts`、`server/database/index.ts`、`server/utils/ai/tts-volcengine.ts`。
+- 约束：所有新调用点都显式固定 `delimiters: ','`，避免把 `splitAndNormalizeStringList` 默认支持的分号、全角逗号、顿号等语义外溢到本轮原本只接受英文逗号的链路。
+
+### 基线对比
+
+- 典型手写模式基线：`split(',').map(trim).filter(Boolean)` 在运行时源码中命中 `4` 处，分别位于 `utils/shared/roles.ts`、`server/database/index.ts`、`server/utils/ai/tts-volcengine.ts` 与 `packages/cli/src/cli-shared.ts`。
+- 收敛后：运行时源码中仅剩 `packages/cli/src/cli-shared.ts` `1` 处保留；其余 `3` 处已统一切回 shared helper。
+- 相邻重复区：`utils/schemas/post.ts` 中的数组查询参数拆分与 `composables/use-post-editor-translation.ts` 中的翻译范围解析也同步回收至同一 helper，避免“同语义、不同实现”继续扩散。
+
+### 实施说明
+
+- `utils/shared/roles.ts` 与 `server/database/index.ts` 不再各自维护角色 CSV 解析细节，统一使用 `splitAndNormalizeStringList` 处理角色串。
+- `utils/shared/env.ts` 把 `ADMIN_USER_IDS` 的环境变量解析收回 shared helper，避免启动期配置解析继续保留手写 split / trim / filter 链。
+- `utils/schemas/post.ts` 将列表型查询参数解析改为复用 shared helper，继续保持仅按英文逗号拆分的既有行为。
+- `composables/use-post-editor-translation.ts` 将翻译范围解析切回 shared helper，并保留去重、白名单过滤与默认回退逻辑。
+- `server/utils/ai/tts-volcengine.ts` 统一复用 shared helper 解析字符串形式的 podcast speaker 输入。
+- `packages/cli/src/cli-shared.ts` 暂未跟进：该包使用独立 `tsconfig.json` 与 `rootDir=src`，本轮不跨包拉取应用层 shared 依赖，避免为了复用一个纯函数而破坏包边界。
+
+### 抽象收益
+
+- 统一了“CSV 字符串 -> 干净字符串数组”的实现来源，减少角色串、环境变量、查询参数与翻译范围等相近链路的局部漂移风险。
+- 没有新增新的工具层接口，只是把既有 helper 真正用到重复区，符合“先收敛、后扩面”的窄边界治理原则。
+
+### 已执行验证
+
+- 定向基线复核：使用 grep 复核后，典型手写 `split(',').map(trim).filter(Boolean)` 运行时命中从 `4` 处降为 `1` 处。
+- 根仓定向 ESLint：`pnpm exec eslint utils/shared/roles.ts utils/shared/env.ts composables/use-post-editor-translation.ts utils/schemas/post.ts server/database/index.ts server/utils/ai/tts-volcengine.ts utils/shared/string-list.test.ts utils/schemas/post.test.ts --max-warnings 0`
+	- 结果：通过，输出 `ESLINT_OK`。
+- 定向 Vitest：`pnpm exec vitest run utils/shared/roles.test.ts utils/shared/string-list.test.ts utils/schemas/post.test.ts composables/use-post-editor-translation.test.ts server/utils/ai/tts-volcengine.test.ts`
+	- 结果：通过，`5` 个测试文件、`113` 个测试全部通过。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过，输出 `TYPECHECK_OK`。
+- 编辑器诊断：本轮受影响文件经诊断检查后无新增错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮抽象未扩大既有输入语义，也没有跨出 CLI 包的独立构建边界。
+
+### 未覆盖边界
+
+- `packages/cli/src/cli-shared.ts` 仍保留手写 CSV 解析；若后续要继续收敛，应优先在 `packages/cli/src` 内部补一个同构 helper，或先统一包间共享代码策略，而不是直接引用主应用 shared 目录。
+- `utils/shared/env.ts` 与 `server/database/index.ts` 这两条链路本轮未新增专门测试，只依赖等价替换、编辑器诊断与类型检查兜底；后续若继续深挖配置装配 / 启动链路，可再补更直接的单测。
+
 ## 2026-04-20 mcp-server ESLint / 类型债治理首批收紧
 
 ### 范围

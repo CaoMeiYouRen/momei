@@ -16,6 +16,7 @@ import type {
     TranslationScopeField,
 } from '@/types/post-translation'
 import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
+import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 import { hasSharedTranslationCluster, resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 
 interface TranslationAudioState {
@@ -345,12 +346,13 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             return [...DEFAULT_TRANSLATION_SCOPES]
         }
 
-        const scopes = rawValue
-            .split(',')
-            .map((item) => item.trim())
+        const scopes = splitAndNormalizeStringList(rawValue, {
+            dedupe: true,
+            delimiters: ',',
+        })
             .filter((item): item is TranslationScopeField => AVAILABLE_TRANSLATION_SCOPES.includes(item as TranslationScopeField))
 
-        return scopes.length > 0 ? Array.from(new Set(scopes)) : [...DEFAULT_TRANSLATION_SCOPES]
+        return scopes.length > 0 ? scopes : [...DEFAULT_TRANSLATION_SCOPES]
     }
 
     const hasTranslation = (langCode: string) => {

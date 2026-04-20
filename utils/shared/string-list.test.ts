@@ -20,4 +20,10 @@ describe('string-list', () => {
             dedupe: true,
         })).toEqual(['a', 'b', 'c'])
     })
+
+    it('should support string delimiters while preserving duplicates by default', () => {
+        expect(splitAndNormalizeStringList(' a, a , b ', {
+            delimiters: ',',
+        })).toEqual(['a', 'a', 'b'])
+    })
 })

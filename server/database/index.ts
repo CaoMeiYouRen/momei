@@ -40,6 +40,7 @@ import { repairLegacyPostVersionRecords } from './post-version-repair'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
+import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 import {
     DATABASE_TYPE,
     DATABASE_PATH,
@@ -206,7 +207,9 @@ async function syncAdminRoles(ds: DataSource) {
 
         for (const user of admins) {
             if (!isAdmin(user.role)) {
-                const roles = user.role?.split(',')?.map((r) => r.trim())?.filter(Boolean) || []
+                const roles = splitAndNormalizeStringList(user.role, {
+                    delimiters: ',',
+                })
                 if (!roles.includes('admin')) {
                     roles.push('admin')
                     user.role = roles.join(',')

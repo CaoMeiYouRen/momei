@@ -1,3 +1,5 @@
+import { splitAndNormalizeStringList } from './string-list'
+
 export enum UserRole {
     ADMIN = 'admin',
     AUTHOR = 'author',
@@ -13,7 +15,10 @@ export function hasRole(userRole: string | null | undefined, requiredRoles: stri
     if (!userRole) {
         return false
     }
-    const userRoles = userRole.split(',').map((r) => r.trim())
+
+    const userRoles = splitAndNormalizeStringList(userRole, {
+        delimiters: ',',
+    })
     const rolesToCheck = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
     return rolesToCheck.some((role) => userRoles.includes(role))
 }

@@ -12,6 +12,7 @@ import {
     parseVolcengineEventPacket,
 } from './volcengine-protocol'
 import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
+import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export interface VolcengineTTSConfig {
@@ -528,7 +529,9 @@ export class VolcengineTTSProvider implements Partial<AIProvider> {
         }
 
         if (typeof voice === 'string' && voice.includes(',')) {
-            const speakers = voice.split(',').map((item) => item.trim()).filter(Boolean)
+            const speakers = splitAndNormalizeStringList(voice, {
+                delimiters: ',',
+            })
             if (speakers.length >= 2) {
                 return [speakers[0], speakers[1]]
             }
