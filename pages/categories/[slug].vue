@@ -88,10 +88,12 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
+import { buildAbsoluteUrl, buildBreadcrumbListStructuredData } from '@/utils/shared/seo'
 
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
+const runtimeConfig = useRuntimeConfig()
 
 const slug = computed(() => route.params.slug as string)
 
@@ -106,10 +108,39 @@ const { page, limit, first, posts, total, totalPages, postsPending, postsError, 
     entityData: category,
 })
 
+const siteUrl = computed(() => runtimeConfig.public.siteUrl || 'https://momei.app')
+const categoryCanonicalPath = computed(() => localePath(`/categories/${slug.value}`))
+const categoryStructuredData = computed(() => {
+    if (!category.value) {
+        return []
+    }
+
+    return [
+        buildBreadcrumbListStructuredData({
+            items: [
+                {
+                    name: t('common.home'),
+                    item: buildAbsoluteUrl(siteUrl.value, localePath('/')),
+                },
+                {
+                    name: t('common.category'),
+                    item: buildAbsoluteUrl(siteUrl.value, localePath('/categories')),
+                },
+                {
+                    name: category.value.name,
+                    item: buildAbsoluteUrl(siteUrl.value, categoryCanonicalPath.value),
+                },
+            ],
+        }),
+    ]
+})
+
 usePageSeo({
     type: 'collection',
     title: () => category.value?.name ? `${category.value.name} - ${t('common.category')}` : t('pages.posts.title'),
     description: () => category.value?.description || t('app.description'),
+    path: () => categoryCanonicalPath.value,
+    structuredData: () => categoryStructuredData.value,
 })
 
 useHead(() => ({

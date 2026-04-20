@@ -66,14 +66,18 @@ describe('db ready middleware', () => {
 
     it('should warm up anonymous metadata routes such as sitemap and webfinger', async () => {
         expect(shouldWarmupDatabase('/sitemap.xml')).toBe(true)
+        expect(shouldWarmupDatabase('/llms.txt')).toBe(true)
+        expect(shouldWarmupDatabase('/llms-full.txt')).toBe(true)
         expect(shouldWarmupDatabase('/.well-known/webfinger')).toBe(true)
         expect(shouldWarmupDatabase('/fed/actor/test-user')).toBe(true)
 
         await ensureRequestDatabaseReady(createEvent('/sitemap.xml'))
+        await ensureRequestDatabaseReady(createEvent('/llms.txt'))
+        await ensureRequestDatabaseReady(createEvent('/llms-full.txt'))
         await ensureRequestDatabaseReady(createEvent('/.well-known/webfinger?resource=acct:test@example.com'))
         await ensureRequestDatabaseReady(createEvent('/fed/actor/test-user'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(3)
+        expect(initializeDB).toHaveBeenCalledTimes(5)
     })
 
     it('should skip installation and static asset requests', async () => {

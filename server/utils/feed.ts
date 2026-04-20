@@ -6,8 +6,11 @@ import { mapAuthLocaleToAppLocale } from './locale'
 import { applyPostVisibilityFilter } from './post-access'
 import { t, getLocale } from './i18n'
 import { applyPostsReadModelFromMetadata } from './post-metadata'
+import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
+import { resolveCitableExcerpt } from '@/utils/shared/citable-content'
+import { buildAbsoluteUrl } from '@/utils/shared/seo'
 
 interface FeedOptions {
     categoryId?: string
@@ -39,6 +42,10 @@ export function getFeedLanguage(event: H3Event, explicitLanguage?: string): stri
         return mapAuthLocaleToAppLocale(explicitLanguage)
     }
     return getLocale()
+}
+
+function buildFeedPostUrl(siteUrl: string, language: string, slug: string): string {
+    return buildAbsoluteUrl(siteUrl, `${getLocaleRoutePrefix(language)}/posts/${slug}`)
 }
 
 export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
@@ -160,9 +167,13 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
 
         feed.addItem({
             title: post.title,
-            id: `${siteUrl}/posts/${post.slug}`,
-            link: `${siteUrl}/posts/${post.slug}`,
-            description: post.summary || '',
+            id: buildFeedPostUrl(siteUrl, post.language, post.slug),
+            link: buildFeedPostUrl(siteUrl, post.language, post.slug),
+            description: resolveCitableExcerpt({
+                summary: post.summary,
+                content: post.content,
+                maxLength: 280,
+            }),
             content,
             author: [
                 {

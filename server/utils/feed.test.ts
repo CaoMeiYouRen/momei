@@ -122,6 +122,7 @@ describe('Feed Generation Utility', () => {
         // Should only contain the ZH post
         expect(feed.items.length).toBe(1)
         expect(feed.items[0]!.title).toBe('RSS 中文文章')
+        expect(feed.items[0]!.link).toBe('https://momei.app/posts/rss-zh')
     })
 
     it('should filter out non-public posts in feed', async () => {
@@ -151,6 +152,8 @@ describe('Feed Generation Utility', () => {
         expect(feed.items.length).toBe(2)
         expect(feed.items.some((i) => i.title === 'RSS English Post')).toBe(true)
         expect(feed.items.some((i) => i.title === 'RSS English Post 2')).toBe(true)
+        expect(feed.items.find((item) => item.title === 'RSS English Post')?.link).toBe('https://momei.app/en-US/posts/rss-en-1')
+        expect(feed.items.find((item) => item.title === 'RSS English Post 2')?.description).toBe('More English content')
     })
 
     it('should filter by category', async () => {

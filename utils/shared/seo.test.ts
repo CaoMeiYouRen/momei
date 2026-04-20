@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
     buildAbsoluteUrl,
     buildBlogPostingStructuredData,
+    buildBreadcrumbListStructuredData,
     buildCollectionPageStructuredData,
+    buildFaqPageStructuredData,
     buildWebsiteStructuredData,
     resolveSeoImageUrl,
 } from './seo'
@@ -49,6 +51,7 @@ describe('utils/shared/seo', () => {
             siteUrl: 'https://momei.app/',
             headline: '测试文章',
             description: '测试摘要',
+            abstract: '用于 AI 摘录的摘要',
             inLanguage: 'zh-CN',
             publisherName: '墨梅博客',
             authorName: '作者',
@@ -57,13 +60,65 @@ describe('utils/shared/seo', () => {
             updatedAt: '2026-03-09T00:00:00.000Z',
             section: 'Nuxt',
             tags: ['Nuxt', 'SEO'],
+            about: ['Nuxt', 'GEO'],
+            wordCount: 1234,
+            speakableSelectors: ['.post-detail__summary', '.markdown-body p:first-of-type'],
         })
 
         expect(article['@type']).toBe('BlogPosting')
         expect(article.headline).toBe('测试文章')
+        expect(article.abstract).toBe('用于 AI 摘录的摘要')
         expect(article.articleSection).toBe('Nuxt')
         expect(article.keywords).toBe('Nuxt, SEO')
+        expect(article.about).toEqual(['Nuxt', 'GEO'])
+        expect(article.wordCount).toBe(1234)
         expect(article.datePublished).toBe('2026-03-08T00:00:00.000Z')
         expect(article.dateModified).toBe('2026-03-09T00:00:00.000Z')
+        expect(article.speakable).toEqual({
+            '@type': 'SpeakableSpecification',
+            cssSelector: ['.post-detail__summary', '.markdown-body p:first-of-type'],
+        })
+    })
+
+    it('should build breadcrumb and faq structured data', () => {
+        const breadcrumb = buildBreadcrumbListStructuredData({
+            items: [
+                { name: '首页', item: 'https://momei.app/' },
+                { name: '文章', item: 'https://momei.app/posts' },
+            ],
+        })
+
+        const faq = buildFaqPageStructuredData({
+            items: [
+                { question: 'What is GEO?', answer: 'GEO improves AI citation readiness.' },
+            ],
+        })
+
+        expect(breadcrumb['@type']).toBe('BreadcrumbList')
+        expect(breadcrumb.itemListElement).toEqual([
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: '首页',
+                item: 'https://momei.app/',
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: '文章',
+                item: 'https://momei.app/posts',
+            },
+        ])
+        expect(faq['@type']).toBe('FAQPage')
+        expect(faq.mainEntity).toEqual([
+            {
+                '@type': 'Question',
+                name: 'What is GEO?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'GEO improves AI citation readiness.',
+                },
+            },
+        ])
     })
 })

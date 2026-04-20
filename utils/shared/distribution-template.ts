@@ -190,7 +190,7 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
     return stripResidualHtml(markdown
         .replace(/```([\s\S]*?)```/gu, '$1')
         .replace(/`([^`\n]+)`/gu, '$1')
-        .replace(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/gmu, (_match, text) => renderWeiboHeadingMarkdown(text))
+        .replace(/^\s{0,4}#{1,6}\s+(.+?)\s*#*\s*$/gmu, (_match, text) => renderWeiboHeadingMarkdown(text))
         .replace(/^>\s?/gmu, '')
         .replace(/^\s*[-*_]{3,}\s*$/gmu, '')
         .replace(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/giu, (_match, inner) => renderWeiboHeadingMarkdown(inner))

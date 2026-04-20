@@ -6,13 +6,17 @@ import PostDetailPage from './[id].vue'
 const { mockUsePageSeo } = vi.hoisted(() => ({
     mockUsePageSeo: vi.fn(),
 }))
+const { mockUseHead } = vi.hoisted(() => ({
+    mockUseHead: vi.fn(),
+}))
 const mockFetchData = ref({
     data: {
         id: '123456789012345',
         title: 'Test Post',
         slug: 'test-post',
+        language: 'zh-CN',
         summary: 'Test summary',
-        content: 'Test content',
+        content: '## What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n## Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
         status: 'published',
         author: {
             id: '1',
@@ -32,6 +36,7 @@ const mockFetchData = ref({
             id: '123456789012344',
             title: 'Newer Post',
             slug: 'newer-post',
+            language: 'zh-CN',
             summary: 'Newer summary',
             publishedAt: '2024-01-02T00:00:00Z',
         },
@@ -39,6 +44,7 @@ const mockFetchData = ref({
             id: '123456789012346',
             title: 'Older Post',
             slug: 'older-post',
+            language: 'zh-CN',
             summary: 'Older summary',
             publishedAt: '2023-12-31T00:00:00Z',
         },
@@ -78,6 +84,12 @@ mockNuxtImport('useMomeiConfig', () => () => ({
 }))
 
 mockNuxtImport('usePageSeo', () => mockUsePageSeo)
+mockNuxtImport('useHead', () => mockUseHead)
+mockNuxtImport('useRuntimeConfig', () => () => ({
+    public: {
+        siteUrl: 'https://momei.app',
+    },
+}))
 
 // Stub components
 const stubs = {
@@ -137,8 +149,13 @@ vi.mock('#imports', async (importOriginal) => {
         useMomeiConfig: () => ({
             currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
         }),
+        useRuntimeConfig: () => ({
+            public: {
+                siteUrl: 'https://momei.app',
+            },
+        }),
         usePageSeo: mockUsePageSeo,
-        useHead: vi.fn(),
+        useHead: mockUseHead,
         useRequestURL: () => ({ href: 'http://localhost:3000/posts/test' }),
         onMounted: (fn: () => void) => fn(),
     }
@@ -164,8 +181,13 @@ vi.stubGlobal('useI18nDate', () => ({
 vi.stubGlobal('useMomeiConfig', () => ({
     currentDescription: ref('AI 驱动、原生国际化的开发者博客平台。'),
 }))
+vi.stubGlobal('useRuntimeConfig', () => ({
+    public: {
+        siteUrl: 'https://momei.app',
+    },
+}))
 vi.stubGlobal('usePageSeo', mockUsePageSeo)
-vi.stubGlobal('useHead', vi.fn())
+vi.stubGlobal('useHead', mockUseHead)
 vi.stubGlobal('useRequestURL', () => ({ href: 'http://localhost:3000/posts/test' }))
 vi.stubGlobal('onMounted', (fn: () => void) => fn())
 vi.stubGlobal('$fetch', vi.fn(() => Promise.resolve({ code: 200, data: { views: 101 } })))
@@ -174,13 +196,15 @@ describe('PostDetailPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.params.id = '123456789012345'
+        mockRoute.query = {}
         mockFetchData.value = {
             data: {
                 id: '123456789012345',
                 title: 'Test Post',
                 slug: 'test-post',
+                language: 'zh-CN',
                 summary: 'Test summary',
-                content: 'Test content',
+                content: '## What is GEO?\n\nGEO improves AI visibility and citation quality for public posts.\n\n## Why does it matter?\n\nIt helps answer engines discover summaries, structure, and canonical URLs.',
                 status: 'published',
                 author: {
                     id: '1',
@@ -200,6 +224,7 @@ describe('PostDetailPage', () => {
                     id: '123456789012344',
                     title: 'Newer Post',
                     slug: 'newer-post',
+                    language: 'zh-CN',
                     summary: 'Newer summary',
                     publishedAt: '2024-01-02T00:00:00Z',
                 },
@@ -207,6 +232,7 @@ describe('PostDetailPage', () => {
                     id: '123456789012346',
                     title: 'Older Post',
                     slug: 'older-post',
+                    language: 'zh-CN',
                     summary: 'Older summary',
                     publishedAt: '2023-12-31T00:00:00Z',
                 },
@@ -317,6 +343,16 @@ describe('PostDetailPage', () => {
         expect(wrapper.find('.share').exists()).toBe(true)
     })
 
+    it('renders the article summary block when summary is available', async () => {
+        const wrapper = await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        expect(wrapper.find('.post-detail__summary-text').text()).toBe('Test summary')
+    })
+
     it('passes article summary and site description into page seo', async () => {
         await mountSuspended(PostDetailPage, {
             global: {
@@ -329,5 +365,73 @@ describe('PostDetailPage', () => {
         expect(seoOptions).toBeTruthy()
         expect(seoOptions.title()).toBe('Test Post')
         expect(seoOptions.description()).toBe('Test summary AI 驱动、原生国际化的开发者博客平台。')
+        expect(seoOptions.locale()).toBe('zh-CN')
+        expect(seoOptions.path()).toBe('/posts/test-post')
+        expect(seoOptions.abstract()).toBe('Test summary')
+        expect(seoOptions.about()).toEqual(['Test Category', 'test'])
+        expect(seoOptions.wordCount()).toBeGreaterThan(0)
+        expect(seoOptions.speakableSelectors()).toEqual(['.post-detail__summary-text', '.markdown-body p:first-of-type'])
+
+        const structuredData = seoOptions.structuredData()
+
+        expect(structuredData).toHaveLength(2)
+        expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
+        expect(structuredData[1]).toMatchObject({ '@type': 'FAQPage' })
+    })
+
+    it('uses the post language for canonical and structured seo URLs', async () => {
+        mockFetchData.value = {
+            data: {
+                ...mockFetchData.value.data,
+                slug: 'english-post',
+                language: 'en-US',
+            },
+        }
+
+        await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        const seoOptions = mockUsePageSeo.mock.calls[0]?.[0]
+        const structuredData = seoOptions.structuredData()
+        const breadcrumb = structuredData[0]
+        const headInput = mockUseHead.mock.calls.at(-1)?.[0]
+        const headOptions = typeof headInput === 'function' ? headInput() : headInput
+
+        expect(seoOptions.locale()).toBe('en-US')
+        expect(seoOptions.path()).toBe('/en-US/posts/english-post')
+        expect(breadcrumb.itemListElement[0].item).toBe('https://momei.app/en-US')
+        expect(breadcrumb.itemListElement[1].item).toBe('https://momei.app/en-US/posts')
+        expect(breadcrumb.itemListElement[2].item).toBe('https://momei.app/en-US/categories/test-category')
+        expect(breadcrumb.itemListElement[3].item).toBe('https://momei.app/en-US/posts/english-post')
+        expect(headOptions.link).toEqual([
+            {
+                rel: 'canonical',
+                href: 'https://momei.app/en-US/posts/english-post',
+            },
+        ])
+    })
+
+    it('does not publish FAQPage structured data when only one question heading is present', async () => {
+        mockFetchData.value = {
+            data: {
+                ...mockFetchData.value.data,
+                content: '## Is one question enough?\n\nNo, a single question heading should not emit FAQPage schema on its own.',
+            },
+        }
+
+        await mountSuspended(PostDetailPage, {
+            global: {
+                stubs,
+            },
+        })
+
+        const seoOptions = mockUsePageSeo.mock.calls[0]?.[0]
+        const structuredData = seoOptions.structuredData()
+
+        expect(structuredData).toHaveLength(1)
+        expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
     })
 })

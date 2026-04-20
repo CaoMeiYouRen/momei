@@ -62,6 +62,11 @@ mockNuxtImport('navigateTo', () => hoisted.mockNavigateTo)
 mockNuxtImport('useRoute', () => () => ({ params: { slug: hoisted.state.routeSlug } }))
 mockNuxtImport('useI18n', () => () => ({ t: translate }))
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useRuntimeConfig', () => () => ({
+    public: {
+        siteUrl: 'https://momei.app',
+    },
+}))
 mockNuxtImport('useAppFetch', () => (url: string | (() => string)) => {
     const resolvedUrl = typeof url === 'function' ? url() : url
 
@@ -155,6 +160,13 @@ describe('taxonomy RSS discovery', () => {
             ],
         })
         expect(hoisted.mockUsePageSeo).toHaveBeenCalled()
+
+        const seoOptions = hoisted.mockUsePageSeo.mock.calls[0]?.[0]
+        const structuredData = seoOptions.structuredData()
+
+        expect(seoOptions.path()).toBe('/categories/rss-tech')
+        expect(structuredData).toHaveLength(1)
+        expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
     })
 
     it('renders tag RSS link and injects discovery head link', async () => {
@@ -184,5 +196,12 @@ describe('taxonomy RSS discovery', () => {
             ],
         })
         expect(hoisted.mockUsePageSeo).toHaveBeenCalled()
+
+        const seoOptions = hoisted.mockUsePageSeo.mock.calls[0]?.[0]
+        const structuredData = seoOptions.structuredData()
+
+        expect(seoOptions.path()).toBe('/tags/feed-tag')
+        expect(structuredData).toHaveLength(1)
+        expect(structuredData[0]).toMatchObject({ '@type': 'BreadcrumbList' })
     })
 })

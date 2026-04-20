@@ -145,7 +145,7 @@
                             </span>
                             <span class="post-detail__meta-item">
                                 <i class="pi pi-pencil" />
-                                {{ countWords(post.content) }} {{ $t('common.word_count') }}
+                                {{ articleWordCount }} {{ $t('common.word_count') }}
                             </span>
                             <span class="post-detail__meta-item">
                                 <i class="pi pi-clock" />
@@ -163,6 +163,19 @@
                             </NuxtLink>
                         </div>
                     </header>
+
+                    <section
+                        v-if="articleSummary"
+                        class="post-detail__summary"
+                        :aria-label="$t('common.summary')"
+                    >
+                        <p class="post-detail__summary-label">
+                            {{ $t('common.summary') }}
+                        </p>
+                        <p class="post-detail__summary-text">
+                            {{ articleSummary }}
+                        </p>
+                    </section>
 
                     <template v-if="post.locked">
                         <div class="post-detail__locked">
@@ -417,9 +430,12 @@
 </template>
 
 <script setup lang="ts">
+import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'
 import type { DonationLink, SocialLink } from '@/utils/shared/commercial'
+import { extractFaqItemsFromMarkdown, resolveCitableExcerpt } from '@/utils/shared/citable-content'
+import { buildAbsoluteUrl, buildBreadcrumbListStructuredData, buildFaqPageStructuredData } from '@/utils/shared/seo'
 import { buildShareCanonicalUrl } from '@/utils/shared/share'
 import { isSnowflakeId } from '@/utils/shared/validate'
 import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
@@ -471,8 +487,20 @@ const { t } = useI18n()
 const setI18nParams = useSetI18nParams()
 const { formatDateTime } = useI18nDate()
 const { currentDescription } = useMomeiConfig()
+const runtimeConfig = useRuntimeConfig()
 
 const idOrSlug = route.params.id as string
+
+function buildLocalizedContentPath(path: string, language?: string | null): string {
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    const prefix = getLocaleRoutePrefix(language)
+
+    if (normalizedPath === '/') {
+        return prefix || '/'
+    }
+
+    return `${prefix}${normalizedPath}`
+}
 
 const fullUrl = computed(() => {
     if (import.meta.server) {
@@ -511,19 +539,82 @@ const endpoint = computed(() => {
 const { data, pending, error, refresh } = await useAppFetch<ApiResponse<PostDetailResponse>>(() => endpoint.value)
 
 const post = computed(() => data.value?.data)
+const siteUrl = computed(() => runtimeConfig.public.siteUrl || 'https://momei.app')
+const articleLanguage = computed(() => post.value?.language || null)
+const articleSummary = computed(() => typeof post.value?.summary === 'string' ? post.value.summary.trim() : '')
+const articleHomePath = computed(() => buildLocalizedContentPath('/', articleLanguage.value))
+const articlePostsIndexPath = computed(() => buildLocalizedContentPath('/posts', articleLanguage.value))
+const articleCategoryPath = computed(() => post.value?.category
+    ? buildLocalizedContentPath(`/categories/${post.value.category.slug}`, articleLanguage.value)
+    : null)
+const articleCanonicalPath = computed(() => buildLocalizedContentPath(`/posts/${post.value?.slug || idOrSlug}`, articleLanguage.value))
+const articleCanonicalUrl = computed(() => buildAbsoluteUrl(siteUrl.value, articleCanonicalPath.value))
+const articleKeywordTags = computed(() => Array.isArray(post.value?.tags)
+    ? post.value.tags.map((tag: { name: string }) => tag.name).filter(Boolean)
+    : [])
+const articleCitableExcerpt = computed(() => resolveCitableExcerpt({
+    summary: articleSummary.value,
+    content: post.value?.content,
+    maxLength: 320,
+}))
+const articleAbout = computed(() => Array.from(new Set([
+    post.value?.category?.name,
+    ...articleKeywordTags.value,
+].filter((value): value is string => Boolean(value)))))
+const articleWordCount = computed(() => post.value?.content ? countWords(post.value.content) : null)
+const articleSpeakableSelectors = computed(() => articleSummary.value
+    ? ['.post-detail__summary-text', '.markdown-body p:first-of-type']
+    : ['.markdown-body p:first-of-type'])
+const articleFaqItems = computed(() => {
+    const items = extractFaqItemsFromMarkdown(post.value?.content || '', 3)
+    return items.length > 1 ? items : []
+})
+const articleStructuredData = computed(() => {
+    if (!post.value?.title) {
+        return []
+    }
+
+    const breadcrumbItems = [
+        {
+            name: t('common.home'),
+            item: buildAbsoluteUrl(siteUrl.value, articleHomePath.value),
+        },
+        {
+            name: t('pages.posts.title'),
+            item: buildAbsoluteUrl(siteUrl.value, articlePostsIndexPath.value),
+        },
+    ]
+
+    if (post.value.category && articleCategoryPath.value) {
+        breadcrumbItems.push({
+            name: post.value.category.name,
+            item: buildAbsoluteUrl(siteUrl.value, articleCategoryPath.value),
+        })
+    }
+
+    breadcrumbItems.push({
+        name: post.value.title,
+        item: articleCanonicalUrl.value,
+    })
+
+    return [
+        buildBreadcrumbListStructuredData({ items: breadcrumbItems }),
+        ...(articleFaqItems.value.length > 0
+            ? [buildFaqPageStructuredData({ items: articleFaqItems.value })]
+            : []),
+    ]
+})
 
 const articleSeoDescription = computed(() => {
-    const summary = typeof post.value?.summary === 'string' ? post.value.summary.trim() : ''
     const siteDescription = typeof currentDescription.value === 'string'
         ? currentDescription.value.trim()
         : t('app.description')
 
-    return [summary, siteDescription].filter(Boolean).join(' ')
+    return [articleCitableExcerpt.value, siteDescription].filter(Boolean).join(' ')
 })
 
 const shareText = computed(() => {
-    const summary = typeof post.value?.summary === 'string' ? post.value.summary.trim() : ''
-    return summary || currentDescription.value || t('app.description')
+    return articleCitableExcerpt.value || currentDescription.value || t('app.description')
 })
 
 const lightboxVisible = ref(false)
@@ -578,14 +669,27 @@ watch(post, (newPost) => {
 usePageSeo({
     type: 'article',
     title: () => post.value?.title || t('pages.posts.title'),
+    locale: () => articleLanguage.value,
     description: () => articleSeoDescription.value,
+    path: () => articleCanonicalPath.value,
     image: () => post.value?.coverImage || null,
     publishedAt: () => post.value?.publishedAt || post.value?.createdAt || null,
     updatedAt: () => post.value?.updatedAt || post.value?.publishedAt || null,
     section: () => post.value?.category?.name || null,
-    tags: () => Array.isArray(post.value?.tags) ? post.value.tags.map((tag: { name: string }) => tag.name) : [],
+    tags: () => articleKeywordTags.value,
     authorName: () => post.value?.author?.name || null,
+    abstract: () => articleCitableExcerpt.value || null,
+    about: () => articleAbout.value,
+    wordCount: () => articleWordCount.value,
+    speakableSelectors: () => articleSpeakableSelectors.value,
+    structuredData: () => articleStructuredData.value,
 })
+
+useHead(() => ({
+    link: post.value?.slug
+        ? [{ rel: 'canonical', href: articleCanonicalUrl.value }]
+        : [],
+}))
 
 onMounted(async () => {
     if (!post.value?.id) {

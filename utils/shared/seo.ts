@@ -30,6 +30,26 @@ export interface BlogPostingStructuredDataOptions {
     updatedAt?: string | Date | null
     section?: string | null
     tags?: string[]
+    abstract?: string | null
+    about?: string[] | null
+    wordCount?: number | null
+    speakableSelectors?: string[] | null
+}
+
+export interface BreadcrumbListItem {
+    name: string
+    item: string
+}
+
+export interface BreadcrumbListStructuredDataOptions {
+    items: BreadcrumbListItem[]
+}
+
+export interface FaqPageStructuredDataOptions {
+    items: {
+        question: string
+        answer: string
+    }[]
 }
 
 function normalizeDate(value?: string | Date | null): string | undefined {
@@ -103,6 +123,8 @@ export function buildBlogPostingStructuredData(options: BlogPostingStructuredDat
     const updatedAt = normalizeDate(options.updatedAt) || publishedAt
     const image = options.image || undefined
     const tags = options.tags?.filter(Boolean)
+    const about = options.about?.filter(Boolean)
+    const speakableSelectors = options.speakableSelectors?.filter(Boolean)
 
     return {
         '@context': 'https://schema.org',
@@ -113,11 +135,22 @@ export function buildBlogPostingStructuredData(options: BlogPostingStructuredDat
         headline: options.headline,
         description: options.description,
         inLanguage: options.inLanguage,
+        ...(options.abstract ? { abstract: options.abstract } : {}),
         ...(publishedAt ? { datePublished: publishedAt } : {}),
         ...(updatedAt ? { dateModified: updatedAt } : {}),
         ...(image ? { image } : {}),
         ...(options.section ? { articleSection: options.section } : {}),
         ...(tags?.length ? { keywords: tags.join(', ') } : {}),
+        ...(about?.length ? { about } : {}),
+        ...(typeof options.wordCount === 'number' && Number.isFinite(options.wordCount) ? { wordCount: options.wordCount } : {}),
+        ...(speakableSelectors?.length
+            ? {
+                speakable: {
+                    '@type': 'SpeakableSpecification',
+                    cssSelector: speakableSelectors,
+                },
+            }
+            : {}),
         author: {
             '@type': 'Person',
             name: options.authorName || options.publisherName,
@@ -128,5 +161,33 @@ export function buildBlogPostingStructuredData(options: BlogPostingStructuredDat
             url: options.siteUrl,
             ...(image ? { logo: image } : {}),
         },
+    }
+}
+
+export function buildBreadcrumbListStructuredData(options: BreadcrumbListStructuredDataOptions): Record<string, unknown> {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: options.items.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            item: item.item,
+        })),
+    }
+}
+
+export function buildFaqPageStructuredData(options: FaqPageStructuredDataOptions): Record<string, unknown> {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: options.items.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer,
+            },
+        })),
     }
 }

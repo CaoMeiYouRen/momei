@@ -41,6 +41,7 @@ export function shouldWarmupDatabase(pathname: string) {
     if (
         normalizedPath.startsWith('/feed')
         || normalizedPath.startsWith('/api')
+        || normalizedPath.startsWith('/llms')
         || normalizedPath.startsWith('/.well-known')
         || normalizedPath.startsWith('/sitemap')
         || normalizedPath.startsWith('/fed')

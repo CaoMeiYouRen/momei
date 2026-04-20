@@ -6,6 +6,9 @@ export default defineEventHandler((event) => {
     const robots = [
         'User-agent: *',
         'Allow: /',
+        'Allow: /sitemap.xml',
+        'Allow: /llms.txt',
+        'Allow: /llms-full.txt',
         '',
         '# 管理端与设置',
         'Disallow: /admin/',
@@ -25,6 +28,10 @@ export default defineEventHandler((event) => {
         '',
         '# API 接口',
         'Disallow: /api/',
+        '',
+        '# AI crawler discovery resources',
+        `# llms: ${siteUrl}/llms.txt`,
+        `# llms-full: ${siteUrl}/llms-full.txt`,
         '',
         `Sitemap: ${siteUrl}/sitemap.xml`,
     ].join('\n')

@@ -13,6 +13,7 @@ type StructuredDataNode = Record<string, unknown>
 export interface UsePageSeoOptions {
     type: 'website' | 'article' | 'collection'
     title: MaybeRefOrGetter<string>
+    locale?: MaybeRefOrGetter<string | null | undefined>
     description?: MaybeRefOrGetter<string | null | undefined>
     path?: MaybeRefOrGetter<string | null | undefined>
     image?: MaybeRefOrGetter<string | null | undefined>
@@ -22,6 +23,10 @@ export interface UsePageSeoOptions {
     section?: MaybeRefOrGetter<string | null | undefined>
     tags?: MaybeRefOrGetter<string[] | null | undefined>
     authorName?: MaybeRefOrGetter<string | null | undefined>
+    abstract?: MaybeRefOrGetter<string | null | undefined>
+    about?: MaybeRefOrGetter<string[] | null | undefined>
+    wordCount?: MaybeRefOrGetter<number | null | undefined>
+    speakableSelectors?: MaybeRefOrGetter<string[] | null | undefined>
     structuredData?: MaybeRefOrGetter<StructuredDataNode | StructuredDataNode[] | null | undefined>
 }
 
@@ -48,6 +53,10 @@ function buildDefaultStructuredData(
         updatedAt?: string | Date | null
         section?: string | null
         tags?: string[]
+        abstract?: string | null
+        about?: string[] | null
+        wordCount?: number | null
+        speakableSelectors?: string[] | null
     },
 ): StructuredDataNode {
     if (type === 'article') {
@@ -64,6 +73,10 @@ function buildDefaultStructuredData(
             updatedAt: payload.updatedAt,
             section: payload.section,
             tags: payload.tags,
+            abstract: payload.abstract,
+            about: payload.about,
+            wordCount: payload.wordCount,
+            speakableSelectors: payload.speakableSelectors,
         })
     }
 
@@ -94,7 +107,7 @@ export function usePageSeo(options: UsePageSeoOptions) {
     const { currentTitle, currentDescription, siteLogo } = useMomeiConfig()
 
     const siteUrl = computed(() => runtimeConfig.public.siteUrl || 'https://momei.app')
-    const resolvedLocale = computed(() => resolveAppLocaleCode(locale.value))
+    const resolvedLocale = computed(() => resolveAppLocaleCode(toValue(options.locale) || locale.value))
     const localeRegistryItem = computed(() => getLocaleRegistryItem(resolvedLocale.value))
     const siteName = computed(() => currentTitle.value || t('app.name'))
     const fallbackDescription = computed(() => currentDescription.value || t('app.description'))
@@ -130,6 +143,10 @@ export function usePageSeo(options: UsePageSeoOptions) {
             updatedAt: toValue(options.updatedAt),
             section: toValue(options.section),
             tags: metaTags.value,
+            abstract: toValue(options.abstract),
+            about: toValue(options.about),
+            wordCount: toValue(options.wordCount),
+            speakableSelectors: toValue(options.speakableSelectors),
         })
 
         return [defaultNode, ...normalizeStructuredData(toValue(options.structuredData))]

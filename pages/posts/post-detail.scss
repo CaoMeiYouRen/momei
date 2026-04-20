@@ -324,6 +324,34 @@
         }
     }
 
+    &__summary {
+        margin-bottom: 2rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 1rem;
+        border: 1px solid color-mix(in srgb, var(--p-primary-color) 16%, var(--p-surface-border));
+        background: color-mix(in srgb, var(--p-surface-card) 92%, var(--p-primary-color) 8%);
+
+        @media (width <= 768px) {
+            padding: 1rem 1.125rem;
+        }
+    }
+
+    &__summary-label {
+        margin: 0 0 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--p-text-muted-color);
+    }
+
+    &__summary-text {
+        margin: 0;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: var(--p-text-color);
+    }
+
     &__author {
         display: flex;
         align-items: center;
