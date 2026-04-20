@@ -72,12 +72,29 @@ function translate(key: string, params?: Record<string, unknown>) {
 mockNuxtImport('definePageMeta', () => vi.fn())
 mockNuxtImport('navigateTo', () => hoisted.mockNavigateTo)
 mockNuxtImport('useRoute', () => () => ({ params: { slug: hoisted.state.routeSlug } }))
+mockNuxtImport('useRouter', () => () => ({
+    push: vi.fn(),
+    replace: vi.fn(() => Promise.resolve()),
+    currentRoute: ref({
+        fullPath: `/categories/${hoisted.state.routeSlug}`,
+        path: `/categories/${hoisted.state.routeSlug}`,
+        params: { slug: hoisted.state.routeSlug },
+        meta: {},
+    }),
+    afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    onError: vi.fn(),
+}))
 mockNuxtImport('useI18n', () => () => ({ t: translate }))
 mockNuxtImport('useLocalePath', () => () => (route: string | { path?: string }, locale?: string | null) => {
     const path = typeof route === 'string' ? route : route.path || '/'
     return localizePath(path, locale)
 })
 mockNuxtImport('useRuntimeConfig', () => () => ({
+    app: {
+        baseURL: '/',
+    },
     public: {
         siteUrl: 'https://momei.app',
     },
