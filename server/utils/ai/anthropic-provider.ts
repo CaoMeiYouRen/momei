@@ -1,3 +1,4 @@
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider } from '@/types/ai'
 
 export class AnthropicProvider implements AIProvider {
@@ -13,7 +14,7 @@ export class AnthropicProvider implements AIProvider {
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
         const endpoint = this.config.endpoint || 'https://api.anthropic.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         try {
             const response = await $fetch<any>(`${baseUrl}/messages`, {
@@ -66,7 +67,7 @@ export class AnthropicProvider implements AIProvider {
 
     async check(): Promise<boolean> {
         const endpoint = this.config.endpoint || 'https://api.anthropic.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         try {
             await $fetch(`${baseUrl}/messages`, {

@@ -1,4 +1,5 @@
 import { createError } from 'h3'
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export class OpenAITTSProvider implements Partial<AIProvider> {
@@ -18,7 +19,7 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
 
     constructor(config: { apiKey: string, endpoint?: string, defaultModel?: string }) {
         this.apiKey = config.apiKey
-        this.endpoint = config.endpoint || 'https://api.openai.com/v1'
+        this.endpoint = stripTrailingSlash(config.endpoint || 'https://api.openai.com/v1')
         this.model = config.defaultModel || 'tts-1'
     }
 
@@ -45,10 +46,8 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
         voice: string,
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
-        const baseUrl = this.endpoint.endsWith('/') ? this.endpoint.slice(0, -1) : this.endpoint
-
         try {
-            const response = await fetch(`${baseUrl}/audio/speech`, {
+            const response = await fetch(`${this.endpoint}/audio/speech`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.apiKey}`,

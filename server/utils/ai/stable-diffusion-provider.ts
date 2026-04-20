@@ -1,4 +1,5 @@
 import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './image-utils'
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 /**
@@ -16,7 +17,7 @@ export class StableDiffusionProvider implements AIProvider {
     async generateImage(options: AIImageOptions): Promise<AIImageResponse> {
         // SD WebUI API 通常不需要 API Key，但如果用户设置了鉴权，可以在 headers 中处理
         const endpoint = this.config.endpoint || 'http://127.0.0.1:7860'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         let width = 1024
         let height = 1024
@@ -82,7 +83,7 @@ export class StableDiffusionProvider implements AIProvider {
 
     async check?(): Promise<boolean> {
         const endpoint = this.config.endpoint || 'http://127.0.0.1:7860'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
         try {
             await $fetch(`${baseUrl}/sdapi/v1/options`)
             return true

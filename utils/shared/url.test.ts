@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildAbsoluteUrl, ensureTrailingSlash, isAbsoluteHttpUrl, joinBaseUrlAndPath, normalizeBaseUrl } from './url'
+import { buildAbsoluteUrl, ensureTrailingSlash, isAbsoluteHttpUrl, joinBaseUrlAndPath, normalizeBaseUrl, stripTrailingSlash } from './url'
 
 describe('shared url helpers', () => {
     it('detects absolute http urls', () => {
@@ -11,6 +11,13 @@ describe('shared url helpers', () => {
         expect(normalizeBaseUrl(' https://momei.app/assets ')).toBe('https://momei.app/assets/')
         expect(normalizeBaseUrl('   ')).toBeNull()
         expect(ensureTrailingSlash('/uploads')).toBe('/uploads/')
+    })
+
+    it('strips redundant trailing slashes without breaking root paths', () => {
+        expect(stripTrailingSlash('https://api.openai.com/v1/')).toBe('https://api.openai.com/v1')
+        expect(stripTrailingSlash('https://api.openai.com/v1///')).toBe('https://api.openai.com/v1')
+        expect(stripTrailingSlash('')).toBe('')
+        expect(stripTrailingSlash('/')).toBe('')
     })
 
     it('builds absolute urls from http bases', () => {

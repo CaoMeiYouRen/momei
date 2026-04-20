@@ -1,4 +1,5 @@
 import { createError } from 'h3'
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
 
 export class SiliconFlowTTSProvider implements Partial<AIProvider> {
@@ -22,7 +23,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
 
     constructor(config: { apiKey: string, endpoint?: string, defaultModel?: string }) {
         this.apiKey = config.apiKey
-        this.endpoint = config.endpoint || 'https://api.siliconflow.cn/v1'
+        this.endpoint = stripTrailingSlash(config.endpoint || 'https://api.siliconflow.cn/v1')
         this.model = config.defaultModel || 'FunAudioLLM/CosyVoice2-0.5B'
     }
 
@@ -41,8 +42,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
 
         // 尝试获取动态音色
         try {
-            const baseUrl = this.endpoint.endsWith('/') ? this.endpoint.slice(0, -1) : this.endpoint
-            const response = await fetch(`${baseUrl}/audio/voice/list`, {
+            const response = await fetch(`${this.endpoint}/audio/voice/list`, {
                 headers: {
                     Authorization: `Bearer ${this.apiKey}`,
                 },
@@ -90,10 +90,8 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
         voice: string,
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
-        const baseUrl = this.endpoint.endsWith('/') ? this.endpoint.slice(0, -1) : this.endpoint
-
         try {
-            const response = await fetch(`${baseUrl}/audio/speech`, {
+            const response = await fetch(`${this.endpoint}/audio/speech`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.apiKey}`,

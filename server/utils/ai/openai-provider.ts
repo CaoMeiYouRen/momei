@@ -1,4 +1,5 @@
 import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './image-utils'
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIChatStreamChunk, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 export class OpenAIProvider implements AIProvider {
@@ -14,7 +15,7 @@ export class OpenAIProvider implements AIProvider {
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         try {
             const response = await $fetch<any>(`${baseUrl}/chat/completions`, {
@@ -58,7 +59,7 @@ export class OpenAIProvider implements AIProvider {
 
     async* chatStream(options: AIChatOptions): AsyncGenerator<AIChatStreamChunk, void, void> {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         const response = await fetch(`${baseUrl}/chat/completions`, {
             method: 'POST',
@@ -201,7 +202,7 @@ export class OpenAIProvider implements AIProvider {
 
     async generateImage(options: AIImageOptions): Promise<AIImageResponse> {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         // 统一映射语义化分辨率 (1K, 2K, 4K) 到像素字符串
         let finalSize = options.size
@@ -277,7 +278,7 @@ export class OpenAIProvider implements AIProvider {
 
     async check(): Promise<boolean> {
         const endpoint = this.config.endpoint || 'https://api.openai.com/v1'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
 
         try {
             await $fetch(`${baseUrl}/chat/completions`, {

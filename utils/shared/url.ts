@@ -4,6 +4,10 @@ export function isAbsoluteHttpUrl(value: string) {
     return /^https?:\/\//iu.test(value)
 }
 
+export function stripTrailingSlash(value: string) {
+    return value.replace(/\/+$/, '')
+}
+
 export function ensureTrailingSlash(value: string) {
     return value.endsWith('/') ? value : `${value}/`
 }

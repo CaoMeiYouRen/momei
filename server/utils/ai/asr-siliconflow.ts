@@ -1,3 +1,4 @@
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIProvider, TranscribeOptions, TranscribeResponse } from '@/types/ai'
 
 export class SiliconFlowASRProvider implements Partial<AIProvider> {
@@ -8,7 +9,7 @@ export class SiliconFlowASRProvider implements Partial<AIProvider> {
 
     constructor(apiKey: string, endpoint: string = 'https://api.siliconflow.cn/v1', model: string = 'FunAudioLLM/SenseVoiceSmall') {
         this.apiKey = apiKey
-        this.endpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        this.endpoint = stripTrailingSlash(endpoint)
         this.model = model
     }
 

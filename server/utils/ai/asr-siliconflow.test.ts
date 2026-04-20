@@ -72,6 +72,42 @@ describe('siliconflow asr provider', () => {
         expect(result.duration).toBe(0)
     })
 
+    it('keeps empty endpoints unchanged to preserve relative request behavior', async () => {
+        fetchMock.mockResolvedValueOnce({
+            text: 'relative endpoint text',
+        })
+
+        const provider = new SiliconFlowASRProvider('demo-key', '', 'fallback-model')
+
+        await provider.transcribe({
+            audioBuffer: Buffer.from('abc'),
+            mimeType: 'audio/wav',
+            fileName: 'clip.wav',
+        })
+
+        expect(fetchMock).toHaveBeenCalledWith('/audio/transcriptions', expect.objectContaining({
+            method: 'POST',
+        }))
+    })
+
+    it('turns root endpoints into same-origin relative requests without duplicate slashes', async () => {
+        fetchMock.mockResolvedValueOnce({
+            text: 'root endpoint text',
+        })
+
+        const provider = new SiliconFlowASRProvider('demo-key', '/', 'fallback-model')
+
+        await provider.transcribe({
+            audioBuffer: Buffer.from('abc'),
+            mimeType: 'audio/wav',
+            fileName: 'clip.wav',
+        })
+
+        expect(fetchMock).toHaveBeenCalledWith('/audio/transcriptions', expect.objectContaining({
+            method: 'POST',
+        }))
+    })
+
     it('wraps upstream failures with createError metadata', async () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 

@@ -1,3 +1,4 @@
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider, AIImageOptions, AIImageResponse, AIChatMessage } from '@/types/ai'
 
 
@@ -22,7 +23,7 @@ export class GeminiProvider implements AIProvider {
         const endpoint = this.config.endpoint || 'https://generativelanguage.googleapis.com'
 
         return {
-            baseUrl: endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint,
+            baseUrl: stripTrailingSlash(endpoint),
             model: options.model || this.config.model || 'imagen-3.0-generate-001',
             apiKey: this.config.apiKey,
             apiToken: this.config.apiToken,
@@ -35,7 +36,7 @@ export class GeminiProvider implements AIProvider {
 
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
         const endpoint = this.config.endpoint || 'https://generativelanguage.googleapis.com'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
         const model = options.model || this.config.model || 'gemini-1.5-flash'
         const apiKey = this.config.apiKey
         const apiToken = this.config.apiToken
@@ -335,7 +336,7 @@ export class GeminiProvider implements AIProvider {
     async check?(): Promise<boolean> {
         // Simple connectivity check (list models)
         const endpoint = this.config.endpoint || 'https://generativelanguage.googleapis.com'
-        const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint
+        const baseUrl = stripTrailingSlash(endpoint)
         try {
             await $fetch(`${baseUrl}/v1beta/models?key=${this.config.apiKey}`)
             return true
