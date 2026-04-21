@@ -195,7 +195,7 @@
                         "external_feed_enabled": "外部更新集約を有効化",
                         "external_feed_home_enabled": "ホームで外部更新を表示",
                         "external_feed_home_limit": "ホーム外部更新件数",
-                        "external_feed_sources": "外部更新ソース設定 JSON",
+                        "external_feed_sources": "外部更新ソース設定",
                         "external_feed_stale_while_error_seconds": "外部更新の失敗時フォールバック時間"
                     },
                     "hints": {
@@ -224,7 +224,7 @@
                         "listmonk_default_list_ids": "例: 1,2,5。マッピングに一致しない場合はこれらのリストへ配信します",
                         "external_feed_cache_ttl_seconds": "外部ソースの取得成功後にキャッシュをそのまま再利用できる時間を制御します。15m や 1d のような可読時長を受け付け、従来の秒数入力とも互換です。",
                         "external_feed_home_limit": "ホームの外部更新モジュールに表示する集約件数の上限を制御します。",
-                        "external_feed_sources": "外部ソースの JSON 配列を入力します。各項目には最低でも id、provider、title、sourceUrl が必要で、includeInHome、defaultLocale、localeStrategy、priority、cacheTtlSeconds、staleWhileErrorSeconds、maxItems を任意で指定できます。",
+                        "external_feed_sources": "外部ソース一覧はフォームで管理し、まとめて移行するときだけ JSON のインポート／エクスポートを使います。",
                         "external_feed_stale_while_error_seconds": "外部ソースの更新に失敗した場合でも、直近の成功スナップショットへフォールバックできる最大時間を制御します。15m や 1d のような可読時長を受け付け、従来の秒数入力とも互換です。",
                         "listmonk_instance_url": "例: https://listmonk.example.com",
                         "listmonk_tag_list_map": "JSON。例: ｛\"tag-id\":[3]｝",
@@ -345,7 +345,7 @@
                         "external_feed_enabled": "外部更新集約を有効化",
                         "external_feed_home_enabled": "ホームで外部更新を表示",
                         "external_feed_home_limit": "ホーム外部更新件数",
-                        "external_feed_sources": "外部更新ソース設定 JSON",
+                        "external_feed_sources": "外部更新ソース設定",
                         "external_feed_stale_while_error_seconds": "外部更新の失敗時フォールバック時間",
                         "listmonk_access_token": "Access Token",
                         "listmonk_category_list_map": "カテゴリとリストのマッピング",
@@ -478,6 +478,43 @@
                         "travellings": "Travellings 連携"
                     },
                     "external_feeds": {
+                        "editor": {
+                            "title": "ソース編集",
+                            "hint": "通常はフォームで管理し、一括移行が必要な場合だけ JSON のインポート／エクスポートを使います。",
+                            "import_json": "JSON をインポート",
+                            "import_success": "外部更新ソース設定を取り込みました。",
+                            "import_failed": "外部更新ソース設定の取り込みに失敗しました。",
+                            "export_success": "外部更新ソース設定をエクスポートしました。",
+                            "invalid_current_value": "現在の外部更新ソース設定は有効な JSON 配列ではありません。修正後に保存すると復旧できます。",
+                            "empty_title": "外部更新ソースはまだ設定されていません",
+                            "empty_hint": "先にソースを追加するか、既存の JSON を取り込んでください。",
+                            "source_label": "ソース",
+                            "pending_id": "ID 未設定",
+                            "use_runtime_locale": "現在のリクエスト言語に従う",
+                            "fields": {
+                                "enabled": "ソースを有効化",
+                                "include_in_home": "ホームに含める",
+                                "id": "ソース ID",
+                                "title": "タイトル",
+                                "provider": "種別",
+                                "source_url": "取得 URL",
+                                "site_url": "サイト URL",
+                                "site_name": "サイト名",
+                                "locale_strategy": "言語戦略",
+                                "default_locale": "固定言語",
+                                "badge_label": "バッジ文言",
+                                "priority": "優先度",
+                                "timeout_ms": "タイムアウト（ms）",
+                                "cache_ttl_seconds": "キャッシュ TTL（秒）",
+                                "stale_while_error_seconds": "失敗時のフォールバック期間（秒）",
+                                "max_items": "ソースごとの最大件数"
+                            },
+                            "locale_strategy_options": {
+                                "inherit-current": "現在のリクエスト言語ごとに分桶",
+                                "fixed": "指定言語のバケットに固定",
+                                "all": "すべての言語で同じスナップショットを共有"
+                            }
+                        },
                         "refresh_cache": "キャッシュを手動更新",
                         "refresh_cache_hint": "ソース設定を変更した後、最新の RSS / RSSHub スナップショットをすぐに再取得できます。",
                         "refresh_cache_success": "外部アップデートのキャッシュを更新しました。",

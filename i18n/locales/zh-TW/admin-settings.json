@@ -195,7 +195,7 @@
                         "external_feed_enabled": "啟用外部動態聚合",
                         "external_feed_home_enabled": "在首頁顯示外部動態",
                         "external_feed_home_limit": "首頁外部動態數量",
-                        "external_feed_sources": "外部動態來源設定 JSON",
+                        "external_feed_sources": "外部動態來源設定",
                         "external_feed_stale_while_error_seconds": "外部動態失敗回退視窗"
                     },
                     "hints": {
@@ -224,7 +224,7 @@
                         "listmonk_default_list_ids": "例如: 1,2,5；當分類或標籤映射未命中時使用",
                         "external_feed_cache_ttl_seconds": "控制外部來源成功抓取後可直接重用快取的時長，支援 15m、1d 等可讀時長，也相容舊有秒數輸入。",
                         "external_feed_home_limit": "控制首頁外部動態模組最多展示多少條聚合內容。",
-                        "external_feed_sources": "填寫外部來源 JSON 陣列。每項至少包含 id、provider、title、sourceUrl，並可選 includeInHome、defaultLocale、localeStrategy、priority、cacheTtlSeconds、staleWhileErrorSeconds、maxItems。",
+                        "external_feed_sources": "改用表單維護外部來源列表；需要批次搬移時仍可匯入或匯出 JSON。",
                         "external_feed_stale_while_error_seconds": "當外部來源刷新失敗時，允許繼續回退最近成功快照的最長時長，支援 15m、1d 等可讀時長，也相容舊有秒數輸入。",
                         "listmonk_instance_url": "例如: https://listmonk.example.com",
                         "listmonk_tag_list_map": "JSON，例如: ｛\"tag-id\":[3]｝",
@@ -345,7 +345,7 @@
                         "external_feed_enabled": "啟用外部動態聚合",
                         "external_feed_home_enabled": "在首頁顯示外部動態",
                         "external_feed_home_limit": "首頁外部動態數量",
-                        "external_feed_sources": "外部動態來源設定 JSON",
+                        "external_feed_sources": "外部動態來源設定",
                         "external_feed_stale_while_error_seconds": "外部動態失敗回退視窗",
                         "listmonk_access_token": "Access Token",
                         "listmonk_category_list_map": "分類到列表映射",
@@ -478,6 +478,43 @@
                         "travellings": "開往整合"
                     },
                     "external_feeds": {
+                        "editor": {
+                            "title": "來源清單編輯器",
+                            "hint": "優先透過表單維護來源，只有在批次搬移時再使用 JSON 匯入或匯出。",
+                            "import_json": "匯入 JSON",
+                            "import_success": "外部動態來源設定已匯入。",
+                            "import_failed": "匯入外部動態來源設定失敗。",
+                            "export_success": "外部動態來源設定已匯出。",
+                            "invalid_current_value": "目前的外部動態來源設定不是有效的 JSON 陣列。修正後重新儲存即可恢復。",
+                            "empty_title": "目前尚未設定任何外部動態來源",
+                            "empty_hint": "先新增一個來源，或直接匯入既有 JSON 設定。",
+                            "source_label": "來源",
+                            "pending_id": "尚未填寫 ID",
+                            "use_runtime_locale": "跟隨目前語言請求",
+                            "fields": {
+                                "enabled": "啟用來源",
+                                "include_in_home": "加入首頁聚合",
+                                "id": "來源 ID",
+                                "title": "來源標題",
+                                "provider": "來源類型",
+                                "source_url": "抓取位址",
+                                "site_url": "站點位址",
+                                "site_name": "站點名稱",
+                                "locale_strategy": "語言策略",
+                                "default_locale": "固定語言",
+                                "badge_label": "角標文案",
+                                "priority": "優先級",
+                                "timeout_ms": "逾時（毫秒）",
+                                "cache_ttl_seconds": "快取 TTL（秒）",
+                                "stale_while_error_seconds": "失敗回退視窗（秒）",
+                                "max_items": "單來源最大筆數"
+                            },
+                            "locale_strategy_options": {
+                                "inherit-current": "依目前語言請求分桶",
+                                "fixed": "固定到指定語言桶",
+                                "all": "所有語言共用同一份快照"
+                            }
+                        },
                         "refresh_cache": "手動刷新快取",
                         "refresh_cache_hint": "調整來源設定後，可立即拉取最新 RSS / RSSHub 快照。",
                         "refresh_cache_success": "外部動態快取已刷新。",

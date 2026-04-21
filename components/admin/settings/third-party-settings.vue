@@ -393,12 +393,10 @@
                     :metadata="metadata.external_feed_sources"
                     :description="$t('pages.admin.settings.system.hints.external_feed_sources')"
                 >
-                    <Textarea
-                        id="external_feed_sources"
-                        v-model="settings.external_feed_sources"
+                    <ExternalFeedSourcesEditor
+                        :model-value="settings.external_feed_sources"
                         :disabled="metadata.external_feed_sources?.isLocked"
-                        rows="10"
-                        fluid
+                        @update:model-value="settings.external_feed_sources = $event"
                     />
                 </SettingFormField>
             </div>
@@ -409,6 +407,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ExternalFeedSourcesEditor from './external-feed-sources-editor.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { toBoolean } from '@/utils/shared/coerce'
 

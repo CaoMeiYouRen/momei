@@ -195,7 +195,7 @@
                         "external_feed_enabled": "Enable external feed aggregation",
                         "external_feed_home_enabled": "Show external updates on the homepage",
                         "external_feed_home_limit": "Homepage external update count",
-                        "external_feed_sources": "External feed source JSON",
+                        "external_feed_sources": "External feed sources",
                         "external_feed_stale_while_error_seconds": "External feed stale fallback window"
                     },
                     "hints": {
@@ -215,7 +215,7 @@
                         "env_locked": "This configuration is locked by an environment variable",
                         "external_feed_cache_ttl_seconds": "Controls how long a successful external source fetch can be reused from cache. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
                         "external_feed_home_limit": "Controls how many aggregated external updates can appear in the homepage module.",
-                        "external_feed_sources": "Provide a JSON array of external sources. Each item must include at least id, provider, title, and sourceUrl, and can optionally define includeInHome, defaultLocale, localeStrategy, priority, cacheTtlSeconds, staleWhileErrorSeconds, and maxItems.",
+                        "external_feed_sources": "Manage the source list with the form editor. You can still import or export JSON when migrating configurations in bulk.",
                         "external_feed_stale_while_error_seconds": "Controls how long the latest successful snapshot may continue to be used when refreshing an external source fails. Supports human-readable durations like 15m or 1d and still accepts legacy numeric seconds.",
                         "feedback_url": "Used for \"Contact Administrator\" entries on public feedback pages. Can be a ticket URL, form URL, or mailto link; falls back to contact email if empty.",
                         "file_types_placeholder": "e.g., .jpg, .png, image/webp, audio/mpeg (comma-separated)",
@@ -323,7 +323,7 @@
                         "external_feed_enabled": "Enable external dynamics aggregation",
                         "external_feed_home_enabled": "Show external dynamics on home",
                         "external_feed_home_limit": "Home external dynamics count",
-                        "external_feed_sources": "External dynamics sources JSON",
+                        "external_feed_sources": "External feed sources",
                         "external_feed_stale_while_error_seconds": "External dynamics stale window",
                         "feedback_url": "Feedback URL",
                         "footer_code": "Footer extra code",
@@ -478,6 +478,43 @@
                         "travellings": "Travellings Integration"
                     },
                     "external_feeds": {
+                        "editor": {
+                            "title": "Source editor",
+                            "hint": "Use the form as the default editing path, and fall back to JSON import/export only for bulk migration.",
+                            "import_json": "Import JSON",
+                            "import_success": "External feed sources imported.",
+                            "import_failed": "Failed to import external feed sources.",
+                            "export_success": "External feed sources exported.",
+                            "invalid_current_value": "The current external feed source setting is not a valid JSON array. Save again after fixing it to recover.",
+                            "empty_title": "No external feed sources configured yet",
+                            "empty_hint": "Add a source first, or import an existing JSON file.",
+                            "source_label": "Source",
+                            "pending_id": "ID pending",
+                            "use_runtime_locale": "Follow current request locale",
+                            "fields": {
+                                "enabled": "Enable source",
+                                "include_in_home": "Include on homepage",
+                                "id": "Source ID",
+                                "title": "Title",
+                                "provider": "Provider",
+                                "source_url": "Fetch URL",
+                                "site_url": "Site URL",
+                                "site_name": "Site name",
+                                "locale_strategy": "Locale strategy",
+                                "default_locale": "Fixed locale",
+                                "badge_label": "Badge label",
+                                "priority": "Priority",
+                                "timeout_ms": "Timeout (ms)",
+                                "cache_ttl_seconds": "Cache TTL (s)",
+                                "stale_while_error_seconds": "Stale fallback window (s)",
+                                "max_items": "Max items per source"
+                            },
+                            "locale_strategy_options": {
+                                "inherit-current": "Bucket by current request locale",
+                                "fixed": "Pin to a fixed locale bucket",
+                                "all": "Share the same snapshot for all locales"
+                            }
+                        },
                         "refresh_cache": "Refresh cache now",
                         "refresh_cache_hint": "After updating source settings, you can pull the latest RSS / RSSHub snapshots immediately.",
                         "refresh_cache_success": "External feed cache refreshed.",

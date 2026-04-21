@@ -195,7 +195,7 @@
                         "external_feed_enabled": "启用外部动态聚合",
                         "external_feed_home_enabled": "在首页显示外部动态",
                         "external_feed_home_limit": "首页外部动态数量",
-                        "external_feed_sources": "外部动态源配置 JSON",
+                        "external_feed_sources": "外部动态源配置",
                         "external_feed_stale_while_error_seconds": "外部动态失败回退窗口"
                     },
                     "hints": {
@@ -214,7 +214,7 @@
                         "env_locked": "此配置已由环境变量锁定",
                         "external_feed_cache_ttl_seconds": "控制外部源成功抓取后可直接复用缓存的时长，支持 15m、1d 等可读时长，也兼容旧值秒数。",
                         "external_feed_home_limit": "控制首页外部动态模块最多展示多少条聚合内容。",
-                        "external_feed_sources": "填写外部源 JSON 数组。每项至少包含 id、provider、title、sourceUrl，并可选 includeInHome、defaultLocale、localeStrategy、priority、cacheTtlSeconds、staleWhileErrorSeconds、maxItems。",
+                        "external_feed_sources": "通过表单维护外部源列表；支持导入和导出 JSON，并可按来源单独调整语言策略、缓存和条数上限。",
                         "external_feed_stale_while_error_seconds": "当外部源刷新失败时，允许继续回退最近成功快照的最长时长，支持 15m、1d 等可读时长，也兼容旧值秒数。",
                         "feedback_url": "用于公开反馈页中的“联系站点管理员”入口。可填写工单地址、表单地址或 mailto 链接；留空时会回退到联系邮箱。",
                         "file_types_placeholder": "例如: .jpg, .png, image/webp, audio/mpeg (逗号分隔)",
@@ -321,7 +321,7 @@
                         "external_feed_enabled": "启用外部动态聚合",
                         "external_feed_home_enabled": "在首页显示外部动态",
                         "external_feed_home_limit": "首页外部动态数量",
-                        "external_feed_sources": "外部动态源配置 JSON",
+                        "external_feed_sources": "外部动态源配置",
                         "external_feed_stale_while_error_seconds": "外部动态失败回退窗口",
                         "enable_captcha": "启用人机验证",
                         "enable_comment_review": "开启评论审核",
@@ -478,6 +478,43 @@
                         "travellings": "开往集成"
                     },
                     "external_feeds": {
+                        "editor": {
+                            "title": "源列表编辑器",
+                            "hint": "优先通过表单维护来源，只有在需要批量迁移时再导入或导出 JSON。",
+                            "import_json": "导入 JSON",
+                            "import_success": "外部动态源配置已导入。",
+                            "import_failed": "导入外部动态源配置失败。",
+                            "export_success": "外部动态源配置已导出。",
+                            "invalid_current_value": "当前外部动态源配置不是有效的 JSON 数组。修正后保存即可恢复。",
+                            "empty_title": "当前还没有配置任何外部动态源",
+                            "empty_hint": "先新增一个来源，或直接导入现有 JSON 配置。",
+                            "source_label": "来源",
+                            "pending_id": "尚未填写 ID",
+                            "use_runtime_locale": "跟随当前语言请求",
+                            "fields": {
+                                "enabled": "启用来源",
+                                "include_in_home": "参与首页聚合",
+                                "id": "来源 ID",
+                                "title": "来源标题",
+                                "provider": "来源类型",
+                                "source_url": "抓取地址",
+                                "site_url": "站点地址",
+                                "site_name": "站点名称",
+                                "locale_strategy": "语言策略",
+                                "default_locale": "固定语言",
+                                "badge_label": "角标文案",
+                                "priority": "优先级",
+                                "timeout_ms": "超时（毫秒）",
+                                "cache_ttl_seconds": "缓存 TTL（秒）",
+                                "stale_while_error_seconds": "失败回退窗口（秒）",
+                                "max_items": "单源最大条数"
+                            },
+                            "locale_strategy_options": {
+                                "inherit-current": "按当前语言请求聚合",
+                                "fixed": "固定到指定语言桶",
+                                "all": "所有语言共用同一份快照"
+                            }
+                        },
                         "refresh_cache": "手动刷新缓存",
                         "refresh_cache_hint": "修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。",
                         "refresh_cache_success": "外部动态缓存已刷新。",

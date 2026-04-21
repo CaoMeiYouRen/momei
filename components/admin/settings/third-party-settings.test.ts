@@ -144,13 +144,14 @@ describe('ThirdPartySettings', () => {
                     Password: { template: '<input />' },
                     Select: { template: '<select />' },
                     InputNumber: { template: '<input />' },
-                    Textarea: { template: '<textarea />' },
+                    ExternalFeedSourcesEditor: { template: '<div class="external-feed-sources-editor-stub" />' },
                     Button: { template: '<button class="refresh-cache-button" @click="$emit(\'click\')">{{ label }}</button>', props: ['label', 'icon', 'severity', 'loading'], emits: ['click'] },
                 },
             },
         })
 
         expect(wrapper.find('.refresh-cache-button').exists()).toBe(true)
+        expect(wrapper.find('.external-feed-sources-editor-stub').exists()).toBe(true)
         expect(wrapper.text()).toContain('手动刷新缓存')
         expect(wrapper.text()).toContain('修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。')
     })
@@ -220,7 +221,7 @@ describe('ThirdPartySettings', () => {
                     Password: { template: '<input />' },
                     Select: { template: '<select />' },
                     InputNumber: { template: '<input />' },
-                    Textarea: { template: '<textarea />' },
+                    ExternalFeedSourcesEditor: { template: '<div class="external-feed-sources-editor-stub" />' },
                     Button: { template: '<button @click="$emit(\'click\')">{{ label }}</button>', props: ['label', 'icon', 'severity', 'loading'], emits: ['click'] },
                 },
             },

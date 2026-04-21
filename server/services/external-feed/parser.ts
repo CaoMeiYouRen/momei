@@ -9,7 +9,53 @@ const xmlParser = new XMLParser({
     attributeNamePrefix: '@_',
     trimValues: true,
     parseTagValue: false,
+    stopNodes: ['*.description', '*.content:encoded', '*.summary', '*.content'],
 })
+
+const DEFAULT_SOURCE_MAX_ITEMS = 10
+const SUMMARY_SOURCE_SLICE_LIMIT = 12000
+
+function unwrapCdata(value: string) {
+    if (value.startsWith('<![CDATA[') && value.endsWith(']]>')) {
+        return value.slice(9, -3)
+    }
+
+    return value
+}
+
+function decodeBasicXmlEntities(value: string) {
+    let decodedValue = value
+
+    for (let index = 0; index < 2; index += 1) {
+        const nextValue = decodedValue
+            .replace(/&#x([0-9a-fA-F]{1,6});/g, (_, codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
+            .replace(/&#([0-9]{1,7});/g, (_, codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 10)))
+            .replace(/&(lt|gt|quot|apos|amp);/g, (entity) => {
+                switch (entity) {
+                    case '&lt;':
+                        return '<'
+                    case '&gt;':
+                        return '>'
+                    case '&quot;':
+                        return '"'
+                    case '&apos;':
+                        return '\''
+                    case '&amp;':
+                        return '&'
+                    default:
+                        return entity
+                }
+            })
+
+        if (nextValue === decodedValue) {
+            return nextValue
+        }
+
+        decodedValue = nextValue
+    }
+
+    return decodedValue
+}
 
 function ensureArray<T>(value: T | T[] | undefined | null) {
     if (!value) {
@@ -25,7 +71,7 @@ function createStableHash(value: string) {
 
 function resolveTextValue(value: unknown): string | null {
     if (typeof value === 'string') {
-        return normalizeOptionalString(value)
+        return normalizeOptionalString(unwrapCdata(value))
     }
 
     if (typeof value === 'number') {
@@ -34,11 +80,11 @@ function resolveTextValue(value: unknown): string | null {
 
     if (value && typeof value === 'object') {
         if ('#text' in value && typeof value['#text'] === 'string') {
-            return normalizeOptionalString(value['#text'])
+            return normalizeOptionalString(unwrapCdata(value['#text']))
         }
 
         if ('__cdata' in value && typeof value.__cdata === 'string') {
-            return normalizeOptionalString(value.__cdata)
+            return normalizeOptionalString(unwrapCdata(value.__cdata))
         }
     }
 
@@ -92,7 +138,7 @@ function extractSummary(...candidates: unknown[]) {
             continue
         }
 
-        const plainText = convert(textValue, {
+        const plainText = convert(decodeBasicXmlEntities(textValue.slice(0, SUMMARY_SOURCE_SLICE_LIMIT)), {
             wordwrap: false,
             selectors: [
                 { selector: 'img', format: 'skip' },
@@ -109,7 +155,7 @@ function extractSummary(...candidates: unknown[]) {
 }
 
 function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFeedSourceConfig): ExternalFeedItem[] {
-    const items = ensureArray(channel.item)
+    const items = ensureArray(channel.item).slice(0, source.maxItems ?? DEFAULT_SOURCE_MAX_ITEMS)
     const channelLanguage = resolveTextValue(channel.language)
     const baseUrl = source.siteUrl ?? source.sourceUrl
 
@@ -145,7 +191,7 @@ function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFee
 }
 
 function normalizeAtomItems(feed: Record<string, unknown>, source: ExternalFeedSourceConfig): ExternalFeedItem[] {
-    const entries = ensureArray(feed.entry)
+    const entries = ensureArray(feed.entry).slice(0, source.maxItems ?? DEFAULT_SOURCE_MAX_ITEMS)
     const feedLanguage = resolveTextValue(feed['@_xml:lang'])
     const baseUrl = source.siteUrl ?? source.sourceUrl
 

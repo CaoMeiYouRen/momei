@@ -195,7 +195,7 @@
                         "external_feed_enabled": "외부 업데이트 집계 활성화",
                         "external_feed_home_enabled": "홈에 외부 업데이트 표시",
                         "external_feed_home_limit": "홈 외부 업데이트 개수",
-                        "external_feed_sources": "외부 업데이트 소스 설정 JSON",
+                        "external_feed_sources": "외부 업데이트 소스 설정",
                         "external_feed_stale_while_error_seconds": "외부 업데이트 실패 폴백 창"
                     },
                     "hints": {
@@ -224,7 +224,7 @@
                         "listmonk_default_list_ids": "예: 1,2,5. 카테고리/태그 매핑이 없을 때 사용됩니다",
                         "external_feed_cache_ttl_seconds": "외부 소스를 성공적으로 가져온 뒤 캐시를 바로 재사용할 수 있는 시간을 제어합니다. 15m, 1d 같은 사람이 읽기 쉬운 기간과 기존 초 단위 입력을 모두 지원합니다.",
                         "external_feed_home_limit": "홈 외부 업데이트 모듈에 최대 몇 개의 집계 항목을 보여줄지 제어합니다.",
-                        "external_feed_sources": "외부 소스 JSON 배열을 입력하세요. 각 항목에는 최소한 id, provider, title, sourceUrl 이 필요하며 includeInHome, defaultLocale, localeStrategy, priority, cacheTtlSeconds, staleWhileErrorSeconds, maxItems 를 선택적으로 지정할 수 있습니다.",
+                        "external_feed_sources": "외부 소스 목록은 폼으로 관리하고, 대량 이전이 필요할 때만 JSON 가져오기/내보내기를 사용하세요.",
                         "external_feed_stale_while_error_seconds": "외부 소스 갱신이 실패했을 때 최근 성공 스냅샷으로 계속 폴백할 수 있는 최대 시간을 제어합니다. 15m, 1d 같은 사람이 읽기 쉬운 기간과 기존 초 단위 입력을 모두 지원합니다.",
                         "listmonk_instance_url": "예: https://listmonk.example.com",
                         "listmonk_tag_list_map": "JSON 예시: ｛\"tag-id\":[3]｝",
@@ -345,7 +345,7 @@
                         "external_feed_enabled": "외부 업데이트 집계 활성화",
                         "external_feed_home_enabled": "홈에 외부 업데이트 표시",
                         "external_feed_home_limit": "홈 외부 업데이트 개수",
-                        "external_feed_sources": "외부 업데이트 소스 설정 JSON",
+                        "external_feed_sources": "외부 업데이트 소스 설정",
                         "external_feed_stale_while_error_seconds": "외부 업데이트 실패 폴백 창",
                         "listmonk_access_token": "액세스 토큰",
                         "listmonk_category_list_map": "카테고리-리스트 매핑",
@@ -478,6 +478,43 @@
                         "travellings": "Travelling 통합"
                     },
                     "external_feeds": {
+                        "editor": {
+                            "title": "소스 편집기",
+                            "hint": "평소에는 폼으로 관리하고, 일괄 이전이 필요할 때만 JSON 가져오기/내보내기를 사용하세요.",
+                            "import_json": "JSON 가져오기",
+                            "import_success": "외부 업데이트 소스 설정을 가져왔습니다.",
+                            "import_failed": "외부 업데이트 소스 설정을 가져오지 못했습니다.",
+                            "export_success": "외부 업데이트 소스 설정을 내보냈습니다.",
+                            "invalid_current_value": "현재 외부 업데이트 소스 설정이 유효한 JSON 배열이 아닙니다. 수정 후 다시 저장하면 복구할 수 있습니다.",
+                            "empty_title": "아직 설정된 외부 업데이트 소스가 없습니다",
+                            "empty_hint": "먼저 소스를 추가하거나 기존 JSON 파일을 가져오세요.",
+                            "source_label": "소스",
+                            "pending_id": "ID 미입력",
+                            "use_runtime_locale": "현재 요청 언어 따르기",
+                            "fields": {
+                                "enabled": "소스 활성화",
+                                "include_in_home": "홈페이지에 포함",
+                                "id": "소스 ID",
+                                "title": "제목",
+                                "provider": "유형",
+                                "source_url": "가져오기 URL",
+                                "site_url": "사이트 URL",
+                                "site_name": "사이트 이름",
+                                "locale_strategy": "언어 전략",
+                                "default_locale": "고정 언어",
+                                "badge_label": "배지 문구",
+                                "priority": "우선순위",
+                                "timeout_ms": "타임아웃(ms)",
+                                "cache_ttl_seconds": "캐시 TTL(초)",
+                                "stale_while_error_seconds": "실패 시 폴백 창(초)",
+                                "max_items": "소스별 최대 항목 수"
+                            },
+                            "locale_strategy_options": {
+                                "inherit-current": "현재 요청 언어 기준으로 버킷 분리",
+                                "fixed": "지정한 언어 버킷에 고정",
+                                "all": "모든 언어가 같은 스냅샷을 공유"
+                            }
+                        },
                         "refresh_cache": "캐시 수동 새로고침",
                         "refresh_cache_hint": "소스 설정을 바꾼 뒤 최신 RSS / RSSHub 스냅샷을 즉시 다시 가져올 수 있습니다.",
                         "refresh_cache_success": "외부 업데이트 캐시를 새로고쳤습니다.",
