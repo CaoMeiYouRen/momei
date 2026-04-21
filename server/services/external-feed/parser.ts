@@ -163,7 +163,7 @@ function normalizeRssItems(channel: Record<string, unknown>, source: ExternalFee
         const entry = typeof item === 'object' && item !== null ? item as Record<string, unknown> : {}
         const url = resolveFeedLink(entry.link, baseUrl) ?? source.sourceUrl
         const canonicalUrl = url
-        const title = resolveTextValue(entry.title) ?? canonicalUrl
+        const title = resolveTextValue(entry.title) ?? ''
         const publishedRaw = resolveTextValue(entry.pubDate) ?? resolveTextValue(entry.published)
         const publishedAt = publishedRaw ? new Date(publishedRaw).toISOString() : null
         const summary = extractSummary(entry.description, entry['content:encoded'], entry.summary)
@@ -199,7 +199,7 @@ function normalizeAtomItems(feed: Record<string, unknown>, source: ExternalFeedS
         const item = typeof entry === 'object' && entry !== null ? entry as Record<string, unknown> : {}
         const url = resolveFeedLink(item.link, baseUrl) ?? source.sourceUrl
         const canonicalUrl = url
-        const title = resolveTextValue(item.title) ?? canonicalUrl
+        const title = resolveTextValue(item.title) ?? ''
         const publishedRaw = resolveTextValue(item.published) ?? resolveTextValue(item.updated)
         const publishedAt = publishedRaw ? new Date(publishedRaw).toISOString() : null
         const author = item.author && typeof item.author === 'object'

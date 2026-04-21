@@ -51,4 +51,24 @@ describe('ExternalFeedPanel', () => {
         expect(wrapper.text()).toContain('当前展示的是最近一次成功抓取的缓存快照，外部源暂时不可用。')
         expect(wrapper.text()).toContain('缓存回退')
     })
+
+    it('does not render a title link when an item has no title', async () => {
+        const wrapper = await mountSuspended(ExternalFeedPanel, {
+            props: {
+                items: [
+                    {
+                        ...items[0],
+                        title: '',
+                        url: 'https://memos.cmyr.ltd/m/abc123',
+                    },
+                ],
+            },
+        })
+
+        expect(wrapper.find('.external-feed-panel__item-title').exists()).toBe(false)
+
+        const action = wrapper.find('.external-feed-panel__action')
+        expect(action.exists()).toBe(true)
+        expect(action.attributes('href')).toBe('https://memos.cmyr.ltd/m/abc123')
+    })
 })

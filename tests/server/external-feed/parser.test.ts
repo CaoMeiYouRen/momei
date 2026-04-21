@@ -46,4 +46,40 @@ describe('parseExternalFeedXml', () => {
         expect(items[0]?.summary).toContain('entry 0')
         expect(items[0]?.summary?.length).toBeLessThanOrEqual(240)
     })
+
+    it('keeps title empty when feed item does not provide one', () => {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+            <rss version="2.0">
+                <channel>
+                    <title>Untitled feed</title>
+                    <item>
+                        <link>https://example.com/posts/untitled</link>
+                        <description>Untitled entry</description>
+                    </item>
+                </channel>
+            </rss>`
+
+        const items = parseExternalFeedXml(xml, {
+            id: 'untitled-feed',
+            enabled: true,
+            provider: 'rss',
+            title: 'Untitled Feed',
+            sourceUrl: 'https://example.com/rss.xml',
+            siteUrl: 'https://example.com',
+            siteName: null,
+            defaultLocale: 'zh-CN',
+            localeStrategy: 'inherit-current',
+            includeInHome: true,
+            badgeLabel: null,
+            priority: 0,
+            timeoutMs: null,
+            cacheTtlSeconds: null,
+            staleWhileErrorSeconds: null,
+            maxItems: 1,
+        })
+
+        expect(items).toHaveLength(1)
+        expect(items[0]?.title).toBe('')
+        expect(items[0]?.url).toBe('https://example.com/posts/untitled')
+    })
 })

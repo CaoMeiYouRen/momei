@@ -81,7 +81,7 @@
                         </span>
                     </div>
 
-                    <h3 class="external-feed-panel__item-title">
+                    <h3 v-if="item.title" class="external-feed-panel__item-title">
                         <a
                             :href="item.url"
                             target="_blank"
@@ -215,6 +215,7 @@ withDefaults(defineProps<{
         margin: $spacing-md 0 0.75rem;
         font-size: 1.1rem;
         line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
     &__link,
@@ -226,6 +227,11 @@ withDefaults(defineProps<{
         &:focus-visible {
             color: var(--m-accent-color);
         }
+    }
+
+    &__link {
+        display: block;
+        overflow-wrap: anywhere;
     }
 
     &__summary {
