@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-16
+last_sync: 2026-04-21
 ---
 
 # Features
@@ -70,6 +70,7 @@ Momei treats subscription and external delivery as part of the same operating su
 
 -   **Multi-vendor Captcha**: Integration with Cloudflare Turnstile, Google reCAPTCHA, hCaptcha, and CaptchaFox to prevent brute-force and automated attacks.
 -   **Comment Moderation**: Native comment system with multi-level moderation tiers to prevent spam.
+-   **Read-only Comment Translation**: Comments can be translated into the current UI language while keeping source-language badges, original-text toggles, cache reuse, and the existing quota / rate-limit governance.
 
 ## 8. Compliance & Legal
 

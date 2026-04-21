@@ -885,7 +885,9 @@
     - **验收标准**: 不影响自动保存、上传回填与翻译工作流，并完成定向交互或视觉验证。
     - **阶段结果**: 共享 renderer、工具栏矩阵、主题变量、GitHub alerts / code-group 对齐与只读模式增强均已完成，后台编辑器 smoke 与相关单测已收口。
 
-### 第二十九阶段：评论翻译与治理事实源收敛推进 (Comment Translation & Governance Fact-Source Consolidation Advancement) (执行中)
+### 第二十九阶段：评论翻译与治理事实源收敛推进 (Comment Translation & Governance Fact-Source Consolidation Advancement) (已审计归档)
+
+**审计结论**: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中形成闭环，满足归档条件。评论区已支持“查看翻译 / 查看原文”的只读切换与缓存复用；GEO / SEO 抽样验证已落在 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余长期治理切片分别在 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-04-18 至 2026-04-21 记录中完成 Review Gate `Pass` 收口。
 
 **时间表**: 2026-04-20 ~ 2026-05-11（预计三周）
 **目标**: 在第二十八阶段完成内容洞察、运行时治理与编辑器收口后，开启“1 个新功能 + 5 个优化”的下一阶段执行面：以评论区翻译作为唯一新增能力，同时推进 GEO / SEO / AI crawler 可见性补强、ESLint / 类型债规则收紧、重复代码与纯函数复用收敛、国际化文案复用与 unused 审计治理，以及文档事实源 / 回归记录 / 深度归档治理。

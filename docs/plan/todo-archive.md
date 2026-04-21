@@ -2341,3 +2341,63 @@
     - 验收: 梳理并补齐编辑器 Markdown 能力与文章页渲染能力的对齐范围，优先覆盖高频语法与扩展项，而不是直接替换底层编辑器。
     - 验收: 补齐至少 1 轮定向交互测试或视觉验证，确认不影响自动保存、上传回填与翻译工作流。
     - 结果: 已保留 `mavon-editor` 并在包装层注入 shared renderer，统一工具栏矩阵、主题变量、代码组 tabs / copy 行为与只读模式增强；`markdown`、`admin-markdown-editor`、`rendered-markdown` 相关测试与后台编辑器 smoke 均已收口。
+
+## 第二十九阶段：评论翻译与治理事实源收敛推进 (已审计归档)
+
+> 审计结论: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中完成闭环，满足归档条件。评论区翻译已完成只读切换、缓存复用与匿名阅读兼容；GEO / SEO 抽样验证见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余治理切片分别在 [current.md](../reports/regression/current.md) 的 2026-04-18 至 2026-04-21 记录中收口并给出 Review Gate `Pass` 结论。
+
+> **ROI 评估**: 评论区翻译功能 1.67；GEO / SEO / AI crawler 可见性与文章可引用性补强 1.80；ESLint / 类型债与规则收紧治理 1.50；重复代码与纯函数复用收敛 1.60；国际化运行时加载 / 文案复用 / unused 审计治理 1.50；文档事实源、回归记录与深度归档治理 1.40。六项均已按本阶段准入边界完成收口，其中评论区翻译、GEO / SEO 与重复代码复用为本轮优先上收项。
+
+### 1. 主线：评论区翻译功能 (P1)
+
+- [x] **在评论列表与评论详情区交付只读翻译切换**
+    - 验收: 在评论列表与评论详情 / 展开区提供“查看翻译 / 查看原文”的只读切换。
+    - 验收: 当前语言版本评论优先展示；同一翻译簇中的其他公开语言版本按线程补位，避免语言切换后评论区出现空白错觉。
+    - 验收: 跨语言补位评论需标记原始语言；若已命中当前阅读语言缓存，则默认显示译文并保留“查看原文”入口。
+    - 验收: 不改写原文，不破坏评论审核、回复链路与现有匿名阅读体验。
+    - 验收: 若调用 AI 翻译能力，必须沿用现有配额、频率限制与审计口径，并提供失败兜底与缓存复用。
+    - 结果: 已落地评论翻译服务、评论缓存字段与前端只读切换 UI；当前语言评论优先展示，跨语言补位保留原始语言标记，匿名阅读、评论审核与回复链路不受影响。
+    - 验证: `components/comment-item.test.ts`、`server/services/comment-translation.test.ts`、`server/api/ai/comment-translation.post.test.ts` 与 `server/services/comment.test.ts` 已覆盖按钮切换、缓存复用、失败兜底与作者隐私链路；模块设计见 [interactions.md](../design/modules/interactions.md)。
+
+### 2. 主线：GEO / SEO / AI crawler 可见性与文章可引用性补强 (P0)
+
+- [x] **补齐公开入口校验与文章可引用性抽样**
+    - 验收: 公开 `feed`、`robots`、`sitemap`、`llms` 相关入口具备可复验的状态码与内容校验。
+    - 验收: 首页、文章页、分类页的 `canonical`、OG、Twitter、JSON-LD 抽样验证通过。
+    - 验收: 至少抽样 `3 - 5` 篇文章验证摘要 / 要点 / FAQ 或等价可引用性增强，不破坏现有渲染与国际化体验。
+    - 结果: 已完成 `/robots.txt`、`/feed.atom`、`/sitemap.xml`、`/llms.txt` 与 `/llms-full.txt` 的公开入口抽样，并确认首页、文章页、分类页的 canonical / OG / JSON-LD 对齐；5 篇文章样本均具备摘要块与 `BlogPosting.abstract`。
+    - 验证: 专项验证记录见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；相关运行时能力继续由 `server/utils/llms.ts`、`server/routes/robots.txt.ts`、`server/api/_sitemap-urls.ts` 与页面级 SEO 测试守线。
+
+### 3. 主线：ESLint / 类型债与规则收紧治理 (P1)
+
+- [x] **按窄边界完成两轮规则上收与回滚边界固化**
+    - 验收: 只上收 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则，不扩写为全仓规则重构。
+    - 验收: 输出命中清单、回滚边界与最小验证矩阵，并同步处理受影响文件的 warning / 类型债。
+    - 结果: 已完成 `packages/mcp-server` 范围的 `no-explicit-any` / `explicit-module-boundary-types` 收紧，以及 settings API 范围的 `no-unnecessary-type-conversion` 收紧，均保留了命中清单、回滚边界与最小验证矩阵。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20 与 2026-04-21 条目；两轮 Review Gate 结论均为 `Pass`。
+
+### 4. 主线：重复代码与纯函数复用收敛 (P1)
+
+- [x] **完成共享 CSV 列表解析与高收益重复区收敛**
+    - 验收: 优先收敛公共页模板片段、列表型查询 helper、查询参数处理或读模型组装中的高收益重复区。
+    - 验收: 记录重复基线变化、抽象收益与未覆盖边界，并确认未引入过度泛化。
+    - 结果: 已将多处 CSV 列表解析统一回收到 `splitAndNormalizeStringList`，并继续压降前台公共页与查询处理重复区；本轮保持“先复用、后扩面”的窄边界治理策略。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20“共享复用层 CSV 列表解析收敛”条目，Review Gate 结论为 `Pass`。
+
+### 5. 主线：国际化运行时加载、文案复用与 unused 审计治理 (P1)
+
+- [x] **明确 missing blocker 分级并补一轮 duplicate / unused 治理基线**
+    - 验收: 在现有运行时治理基础上，补一轮 unused 字段排查与 missing blocker 分级治理。
+    - 验收: 明确哪些入口必须把 `i18n:audit:missing` 视为 blocker，并沉淀 i18n 变更后的最小检查矩阵。
+    - 验收: 继续减少 raw key 直出、命名空间漂移与不受控的跨页面文案复用。
+    - 结果: 已补齐 `admin-posts` 缺词 parity，明确 `release`、`weekly` 与 `phase-close` 对 `i18n:audit:missing` 的 blocker 口径，并完成一轮 cross-module duplicate 抽取与 unused 分级说明。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-18“admin-posts parity 与缺词门禁上收”与“i18n 重复文案抽取”条目。
+
+### 6. 主线：文档事实源、回归记录与深度归档治理 (P1)
+
+- [x] **完成目录分层、回归入口与深度归档阈值的首轮收敛**
+    - 验收: 至少完成一轮模块设计文档、专项治理目录、回归记录入口与深度归档阈值的组合收敛。
+    - 验收: 明确活动窗口、历史归档与兼容入口的边界，并沉淀后续拆分策略。
+    - 验收: `docs/design/modules/` 只保留模块总设计，专项治理 / 增量设计 / 阶段复盘统一迁移到 `docs/design/governance/`。
+    - 结果: 已完成 `docs/design/modules/` 与 `docs/design/governance/` 的职责分层、`docs/reports/regression/**` 的正式入口收敛，以及 `roadmap.md` / `todo-archive.md` 的 warning / 强制分片阈值文档化。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20“文档事实源、回归入口与深度归档阈值收敛”条目，Review Gate 结论为 `Pass`。

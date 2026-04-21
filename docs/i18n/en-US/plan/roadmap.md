@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-20
+last_sync: 2026-04-21
 ---
 
 # Momei - Project Roadmap
@@ -21,7 +21,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 26 has now been audited and archived**: The governance slice is fully closed across all five tracks. Workspace-wide coverage has reached the phase target (about `72%`), and recent production monitoring confirms PostgreSQL query and connection pressure has been significantly reduced after the query-shaping and caching hardening work.
 - **Stage 27 has now been audited and archived**: Channel distribution regression hardening, article sharing and icon system cleanup, cache reuse expansion, first-round performance baseline work, and the first E2E coverage matrix have all been closed in the Chinese source of truth and archive docs.
 - **Stage 28 has now been audited and archived**: The admin content insights dashboard, PostgreSQL CPU / connection-lifecycle balancing, coverage uplift beyond `76%`, i18n runtime-loading governance, and editor Markdown / visual consistency work have all been closed in the Chinese source of truth, regression evidence, and archive docs.
-- **Stage 29 is now formally in progress**: The Chinese source of truth has opened one new feature plus five optimizations for the current phase: comment translation, GEO / SEO / AI-crawler visibility hardening, phased ESLint / type-debt tightening, duplicate-code and pure-function reuse convergence, second-round i18n governance, and documentation / regression / archive governance.
+- **Stage 29 has now been audited and archived**: Comment translation, GEO / SEO / AI-crawler visibility hardening, phased ESLint / type-debt tightening, duplicate-code and pure-function reuse convergence, second-round i18n governance, and documentation / regression / archive governance have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview

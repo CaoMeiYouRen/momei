@@ -60,6 +60,7 @@ Momei Blog is a modern blog platform built on **Nuxt**. It is designed to provid
 -   **Markdown Authoring**: A concise and efficient Markdown editor with real-time preview and drag-and-drop image upload.
 -   **Content Orchestration and Brand Semantics**: The homepage now includes “latest posts + popular posts” dual sections, post pinning, and a fully connected footer copyright configuration flow for operations and branding.
 -   **Multi-level Subscription**: Multi-dimensional RSS subscriptions across global, category, and tag scopes, with multilingual detection support.
+-   **Read-only Comment Translation**: Readers can view AI-translated comments in the current UI language while keeping source-language badges, original-text toggles, cache reuse, and the existing quota / rate-limit governance.
 -   **Configurable System Governance**: The settings center, environment variable locking, configuration audit logs, and deployment guidance have been aligned for both self-hosted and serverless scenarios.
 -   **Cloud Asset Delivery**: Supports S3 / R2 direct-upload authorization, public asset URL governance, and object key strategies scoped by user and post ownership, making it easier to switch CDN and storage backends.
 
