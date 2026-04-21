@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-19
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # 翻譯治理與貢獻流程
@@ -47,6 +48,18 @@ last_sync: 2026-03-19
 4. **SEO 鏈路**：語言路由、canonical、`hreflang`、sitemap 與 readiness 保持一致。
 5. **文件入口**：文件站首頁、快速開始、翻譯治理頁至少具備可訪問版本。
 
+## 3.1 文件 freshness 分層
+
+文件翻譯不再使用一條通吃的 30 天規則，而是依 tier 分層治理：
+
+| tier | freshness | 適用形態 |
+| :--- | :--- | :--- |
+| `must-sync` | 30 天 | 與中文原文保持操作等價的公共入口頁 |
+| `summary-sync` | 45 天 | 可以較短，但必須同步現行規則的摘要頁 |
+| `source-only` | 無天數 SLA | 只保留 locale URL 與中文原文入口，不承諾持續維護正文 |
+
+目前 `zh-TW` 對外承諾的主要範圍是首頁、快速開始、部署指南、翻譯治理、功能特色、變數與設定映射與路線圖摘要。深層 guide / standards / design 頁面已改為 `source-only`。
+
 ## 4. 術語約束
 
 翻譯時需遵循以下基本規則：
@@ -77,20 +90,30 @@ last_sync: 2026-03-19
 3. 翻譯文件的物理路徑統一放在 `docs/i18n/<locale>/`，對外文件站 URL 維持 `/<locale>/...`。
 4. 目錄遷移已完成，不再保留或重新建立 `docs/<locale>/`；若發現遺留翻譯頁，必須在同一變更中移到 `docs/i18n/<locale>/`，並保持 rewrites / editLink 映射正確。
 5. 若某模組暫不翻譯，應保留原文來源說明，而不是留空或放英文占位。
+6. 若頁面降級為 `source-only`，必須補上 `translation_tier: source-only`、`source_origin`，並在頁面正文明示「中文事實源優先」。
 
 ### 5.3 提交前
 
 至少執行以下檢查：
 
 ```bash
-node scripts/i18n/audit-locale-keys.mjs --fail-on-missing
+pnpm docs:check:source-of-truth
 pnpm docs:check:i18n
 pnpm lint
 pnpm lint:i18n
+pnpm i18n:audit:missing
 pnpm typecheck
 ```
 
 若本輪涉及郵件或關鍵業務鏈路，建議再執行對應定向測試。
+
+## 6.1 文件 blocker 門禁
+
+| 情境 | 最低命令 | blocker 規則 |
+| :--- | :--- | :--- |
+| 文件翻譯改動 | `pnpm docs:check:source-of-truth` + `pnpm docs:check:i18n` | tier 宣告、freshness 或來源頁對映不一致即為 blocker |
+| locale 訊息 / runtime loading 改動 | 上述命令 + `pnpm lint:i18n` + `pnpm i18n:audit:missing` | 缺 key 與 runtime loading 回歸即為 blocker |
+| 發版 / 階段收口 | `pnpm regression:pre-release` 或 `pnpm regression:phase-close` | 不得以臨時命令組替代固定回歸入口 |
 
 ## 6. 回歸檢查清單
 
@@ -101,6 +124,7 @@ pnpm typecheck
 3. 郵件 locale 是否已獨立註冊，未復用其他語言對象。
 4. i18n audit 是否通過，且沒有缺失 key。
 5. 文件站對應語言首頁與快速開始頁是否可正常訪問。
+6. 已降級為 `source-only` 的頁面是否不再佔用 locale 導航，且仍保留中文原文入口。
 
 ## 7. PR / 交付說明建議
 

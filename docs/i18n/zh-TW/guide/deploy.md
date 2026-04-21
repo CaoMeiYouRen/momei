@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # 部署指南
@@ -89,8 +90,23 @@ last_sync: 2026-03-18
 - **`CRON_SECRET`**：Vercel Cron 專用 Bearer 驗證密鑰。
 - **`TASKS_TOKEN`**：排程任務 Webhook 的基礎驗證令牌。
 - **`WEBHOOK_SECRET`**：建議額外配置，用於 HMAC 驗簽。
-- **`TASK_CRON_EXPRESSION`**：自託管環境覆蓋內建排程頻率。
+- **`TASK_CRON_EXPRESSION`**：自託管環境覆蓋內建排程頻率。主任務目前會統一執行文章 / 行銷排程與 AI 媒體超時補償。
+- **`FRIEND_LINKS_CHECK_CRON`**：僅自託管環境有效，用來覆蓋獨立友鏈巡檢 Cron，預設每天 UTC 02:00 執行一次。
 - **`DISABLE_CRON_JOB=true`**：顯式停用自託管環境中的內建 Cron。
+- **`FRIEND_LINKS_CHECK_INTERVAL_MINUTES`**：友鏈巡檢最小生效間隔；最終值不會低於 60 分鐘。
+- **`FRIEND_LINKS_CHECK_BATCH_SIZE`**：單輪友鏈巡檢批量，預設 `20`。
+- **`FRIEND_LINKS_CHECK_TIMEOUT_MS`**：單站點探測超時，預設 `8000` 毫秒。
+- **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**：連續失敗站點的最大冷卻窗口，預設 `10080` 分鐘（7 天）。
+- **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**：連續失敗達到閾值後可自動轉為 `inactive`，預設關閉。
+
+說明：`WEBHOOK_TIMESTAMP_TOLERANCE` 目前仍保留在示例檔中，但現版本實作尚未讀取；Webhook 校驗固定使用 5 分鐘容差。
+
+調度責任目前收斂如下：
+
+- Vercel / Cloudflare / 手動 Webhook 入口會統一執行文章排程、行銷排程、AI 媒體超時補償與友鏈巡檢。
+- 自託管環境下，主 Cron 負責文章 / 行銷排程與 AI 媒體補償；友鏈巡檢維持獨立 Cron，避免跟隨預設 5 分鐘主任務頻率高頻觸發。
+
+友鏈巡檢只會探測已達最小間隔且不在失敗冷卻期內的記錄；AI 媒體補償只會掃描超時且長期無更新的圖片生成 / 播客任務，並依既有 checkpoint 決定續跑、補寫或最終失敗落點。
 
 ## 3. 體驗增強配置
 
@@ -180,6 +196,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- 若需內建 Cron，可使用 `TASK_CRON_EXPRESSION` 自訂頻率。
 - **Cloudflare（外圍能力接入）**：
 	- 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers，根因是專案仍依賴 TypeORM 與 Node 執行時能力。
+	- 研究結論與止損條件請參考 [Cloudflare 執行時相容研究與止損結論](../../design/governance/cloudflare-runtime-study.md)。
 	- Cloudflare R2 可繼續作為物件儲存接入。
 	- Scheduled Events 相關觸發適配與 [wrangler.toml](../../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，不應被解讀為整站 Cloudflare 執行時已受支援。
 	- `pnpm deploy:wrangler` 目前僅用於 wrangler 側適配調試，不應作為生產環境整站部署指令。
@@ -196,6 +213,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel / Netlify 首次啟動後資料重置或管理員遺失**：請確認是否仍在使用預設 SQLite。Serverless 路徑必須切換到外部 `DATABASE_URL`。
 - **Vercel / Netlify 可以打開站點但上傳失敗**：通常仍在使用 `STORAGE_TYPE=local`。請改成 `s3`、`r2` 或 `vercel_blob`。
 - **Cloudflare Pages / Workers 出現 TypeORM / Node 相容錯誤**：這是目前已知的平台邊界，不是部署步驟遺漏。請改用 Vercel、Docker 或自託管 Node 環境作為應用主體；若需要 Cloudflare，當前僅保留 R2 / Scheduled Events 等外圍能力接入。
+- **Cloudflare D1 能否直接替代目前資料庫？**：不能。現行主棧仍圍繞 TypeORM 與 `sqlite/mysql/postgres` 三類驅動組織，D1 仍屬未來條件觸發型研究項，而非正式支援路徑。
 
 ## 7. 延伸閱讀
 

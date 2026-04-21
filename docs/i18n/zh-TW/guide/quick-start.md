@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # 快速開始
@@ -94,6 +95,8 @@ docker-compose up -d
 
 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers。原因是專案目前仍依賴 TypeORM 與 Node 執行時能力，尚未形成可維護的 Cloudflare 適配層。
 
+詳細阻塞清單、最小樣機邊界與後續觸發條件，請參考 [Cloudflare 執行時相容研究與止損結論](../../design/governance/cloudflare-runtime-study.md)。
+
 如果你需要使用 Cloudflare，當前建議僅接入以下外圍能力：
 
 - Cloudflare R2 作為物件儲存。
@@ -133,6 +136,8 @@ pnpm dev
 - `ASSET_PUBLIC_BASE_URL`
 - `MEMOS_INSTANCE_URL`
 - `MEMOS_ACCESS_TOKEN`
+- `LISTMONK_INSTANCE_URL`
+- `LISTMONK_ACCESS_TOKEN`
 
 啟動完成後，瀏覽器開啟 `http://localhost:3000` 即可查看即時效果。
 
@@ -141,7 +146,15 @@ pnpm dev
 - **進入後台**：造訪 `/admin` 登入管理端；全新安裝時，請留意終端或初始化流程給出的帳號資訊。
 - **啟用 AI 助手**：在 `.env` 中設定 `AI_API_KEY` 等相關配置，即可啟用智慧標題、摘要與翻譯能力。
 - **啟用 Memos 同步**：設定 `MEMOS_ENABLED=true`、`MEMOS_INSTANCE_URL`、`MEMOS_ACCESS_TOKEN`。
+- **啟用 listmonk Newsletter 分發**：在系統設定 -> 第三方整合中啟用 `listmonk`，填入實例網址、管理員帳號、Access Token，以及預設列表 ID 或分類 / 標籤映射。
 - **體驗 Demo 模式**：設定 `NUXT_PUBLIC_DEMO_MODE=true`，即可在記憶體資料庫中快速體驗管理後台。
+
+若要驗證 Newsletter 外部分發的最小鏈路，建議依序操作：
+
+1. 在後台補齊 `LISTMONK_*` 對應設定，至少包含實例網址、使用者名稱、Access Token 與預設列表 ID。
+2. 透過文章重推或行銷 Campaign 入口觸發一次發送。
+3. 再次觸發同一 Campaign，確認系統優先復用已回寫的遠端 Campaign ID，而不是重複建立新 Campaign。
+4. 打開通知投遞審計，檢查 `listmonk` 渠道最後一次結果、失敗原因與人工處理建議。
 
 ---
 

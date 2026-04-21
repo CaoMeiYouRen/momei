@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # Development Guide
@@ -76,10 +77,27 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm lint:i18n` | Run `@intlify/vue-i18n` slow rules separately |
 | `pnpm lint:css` | Run style linting |
 | `pnpm i18n:audit` | Audit i18n keys and module split status |
+| `pnpm i18n:audit:missing` | Fail fast when locale parity is missing |
+| `pnpm i18n:audit:unused` | Review cleanup candidates without turning them into a default blocker |
+| `pnpm regression:weekly` | Run the fixed weekly regression entry for coverage, dependency risk, docs source-of-truth, i18n checks, and duplicate-code baseline |
+| `pnpm regression:pre-release` | Run the fixed pre-release regression entry, including release checks and perf budgets |
+| `pnpm regression:phase-close` | Run the phase-close regression entry before archive rotation and stage close |
 | `pnpm test` | Run unit tests |
 | `pnpm test:e2e` | Run Playwright end-to-end tests |
+| `pnpm test:e2e:critical` | Run the minimal browser critical baseline |
+| `pnpm test:e2e:review-gate --scope=<change>` | Capture review-gate browser evidence, traces, and `manifest.json` under `artifacts/testing/ui-regression/` |
 | `pnpm typecheck`| Run type checking |
 | `pnpm deploy:wrangler` | Debug wrangler-side integration; not a supported full-site Cloudflare deployment path |
+
+`pnpm test:e2e` and `pnpm test:e2e:critical` now verify that `.output/server/index.mjs` is not older than the source tree before they start, so browser validation does not silently reuse a stale build.
+
+The regression flow is intentionally fixed around three entries instead of ad-hoc command bundles:
+
+- `pnpm regression:weekly`
+- `pnpm regression:pre-release`
+- `pnpm regression:phase-close`
+
+If `docs/reports/regression/current.md` exceeds the active-window limit, the phase-close entry stops and requires archive rotation before it can pass.
 
 ## 5. Contributing
 

@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../design/ui.md
 ---
 
 # UI 設計
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../design/ui.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../design/ui.md) 取得最新內容。
 :::
 
 墨梅的 UI 設計靈感來自「墨」與「梅」的東方氣質，同時結合現代 Web 應用對可讀性、效率與沉浸感的要求。這份文檔用於描述整體風格、主題系統、交互原則與管理後台常用組件方向。

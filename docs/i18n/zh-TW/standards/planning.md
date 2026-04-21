@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../standards/planning.md
 ---
 
 # 規劃與評估規範
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../standards/planning.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../standards/planning.md) 取得最新內容。
 :::
 
 本文檔用於規範墨梅的階段規劃、需求准入與任務維護方式，目的是避免範圍蔓延，並確保團隊資源持續集中於核心價值。

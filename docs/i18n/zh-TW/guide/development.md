@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-18
+translation_tier: source-only
+source_origin: ../../../guide/development.md
 ---
 
 # 開發指南
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../guide/development.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../guide/development.md) 取得最新內容。
 :::
 
 本指南旨在協助開發者快速搭建墨梅的本機開發環境，並在理解專案規範的前提下參與功能開發、文件更新與品質驗證。

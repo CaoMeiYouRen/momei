@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-18
+translation_tier: source-only
+source_origin: ../../../design/api.md
 ---
 
 # API 설계
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../design/api.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../design/api.md)을 확인하세요.
 :::
 
 이 문서는 모메이 백엔드의 상위 API 설계를 설명합니다. 핵심은 인증 방식, 모듈별 라우팅, 데이터 모델 경계, 다국어 콘텐츠와의 연결 구조입니다.

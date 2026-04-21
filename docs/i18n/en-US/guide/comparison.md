@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-19
+translation_tier: source-only
+source_origin: ../../../guide/comparison.md
 ---
 
 # Comparison
 
 ::: warning Translation Notice
 This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../guide/comparison.md) shall prevail.
+:::
+
+::: info Source-Only Scope
+This locale now keeps this URL as a source-only entry. For the latest and complete content, use the [Chinese source of truth](../../../guide/comparison.md).
 :::
 
 This page provides a comprehensive comparison between **Momei** and mainstream blogging solutions. As an **AI-driven, native i18n** developer platform, Momei offers unique advantages in global content creation and intelligent experience.

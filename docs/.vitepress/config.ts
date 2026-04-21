@@ -134,6 +134,7 @@ export default defineConfig({
                             { text: '内容分发模板与标签', link: '/design/governance/content-distribution-template-tag-adaptation' },
                             { text: '第三方分发治理', link: '/design/governance/content-distribution-governance' },
                             { text: 'Hexo 仓库同步评估', link: '/design/governance/hexo-repository-sync' },
+                            { text: '文档翻译 freshness 治理', link: '/design/governance/docs-translation-freshness-governance' },
                             { text: '文章分享系统', link: '/design/governance/post-sharing' },
                             { text: '国际化扩展与多语言 SEO', link: '/design/governance/i18n-seo-unification' },
                             { text: '国际化字段治理', link: '/design/governance/i18n-field-governance' },
@@ -188,7 +189,7 @@ export default defineConfig({
                     { text: '快速開始', link: '/zh-TW/guide/quick-start' },
                     { text: '翻譯治理', link: '/zh-TW/guide/translation-governance' },
                     { text: '部署指南', link: '/zh-TW/guide/deploy' },
-                    { text: 'API 設計', link: '/zh-TW/design/api' },
+                    { text: '路線圖', link: '/zh-TW/plan/roadmap' },
                 ],
                 sidebar: [
                     {
@@ -198,10 +199,7 @@ export default defineConfig({
                             { text: '翻譯治理與貢獻流程', link: '/zh-TW/guide/translation-governance' },
                             { text: '部署指南', link: '/zh-TW/guide/deploy' },
                             { text: '變數與設定映射', link: '/zh-TW/guide/variables' },
-                            { text: '開發指南', link: '/zh-TW/guide/development' },
-                            { text: 'AI 驅動開發指南', link: '/zh-TW/guide/ai-development' },
                             { text: '功能特色', link: '/zh-TW/guide/features' },
-                            { text: '方案比較', link: '/zh-TW/guide/comparison' },
                         ],
                     },
                     {
@@ -209,26 +207,6 @@ export default defineConfig({
                         items: [
                             { text: '路線圖', link: '/zh-TW/plan/roadmap' },
                             { text: '中文待辦事項', link: '/plan/todo' },
-                        ],
-                    },
-                    {
-                        text: '規範',
-                        items: [
-                            { text: '規劃與評估規範', link: '/zh-TW/standards/planning' },
-                            { text: '開發規範', link: '/zh-TW/standards/development' },
-                            { text: 'AI 協作規範', link: '/zh-TW/standards/ai-collaboration' },
-                            { text: 'API 規範', link: '/zh-TW/standards/api' },
-                            { text: '測試規範', link: '/zh-TW/standards/testing' },
-                            { text: '安全規範', link: '/zh-TW/standards/security' },
-                            { text: '文件規範', link: '/zh-TW/standards/documentation' },
-                        ],
-                    },
-                    {
-                        text: '設計',
-                        items: [
-                            { text: 'UI 設計', link: '/zh-TW/design/ui' },
-                            { text: 'API 設計', link: '/zh-TW/design/api' },
-                            { text: '資料庫設計', link: '/zh-TW/design/database' },
                         ],
                     },
                 ],
@@ -258,7 +236,7 @@ export default defineConfig({
                     { text: 'Quick Start', link: '/en-US/guide/quick-start' },
                     { text: 'Translation Governance', link: '/en-US/guide/translation-governance' },
                     { text: 'Deploy', link: '/en-US/guide/deploy' },
-                    { text: 'API Design', link: '/en-US/design/api' },
+                    { text: 'Roadmap', link: '/en-US/plan/roadmap' },
                 ],
                 sidebar: [
                     {
@@ -269,9 +247,7 @@ export default defineConfig({
                             { text: 'Deployment', link: '/en-US/guide/deploy' },
                             { text: 'Variables & Settings', link: '/en-US/guide/variables' },
                             { text: 'Dev Guide', link: '/en-US/guide/development' },
-                            { text: 'AI Synergy', link: '/en-US/guide/ai-development' },
                             { text: 'Features', link: '/en-US/guide/features' },
-                            { text: 'Comparison', link: '/en-US/guide/comparison' },
                         ],
                     },
                     {
@@ -287,16 +263,9 @@ export default defineConfig({
                             { text: 'Planning', link: '/en-US/standards/planning' },
                             { text: 'Development', link: '/en-US/standards/development' },
                             { text: 'AI Collaboration', link: '/en-US/standards/ai-collaboration' },
-                            { text: 'API Standard', link: '/en-US/standards/api' },
                             { text: 'Documentation', link: '/en-US/standards/documentation' },
-                        ],
-                    },
-                    {
-                        text: 'Design',
-                        items: [
-                            { text: 'UI Design', link: '/en-US/design/ui' },
-                            { text: 'API Design', link: '/en-US/design/api' },
-                            { text: 'Database Design', link: '/en-US/design/database' },
+                            { text: 'Security', link: '/en-US/standards/security' },
+                            { text: 'Testing', link: '/en-US/standards/testing' },
                         ],
                     },
                 ],
@@ -326,7 +295,7 @@ export default defineConfig({
                     { text: '빠른 시작', link: '/ko-KR/guide/quick-start' },
                     { text: '번역 거버넌스', link: '/ko-KR/guide/translation-governance' },
                     { text: '배포 가이드', link: '/ko-KR/guide/deploy' },
-                    { text: 'API 설계', link: '/ko-KR/design/api' },
+                    { text: '로드맵', link: '/ko-KR/plan/roadmap' },
                 ],
                 sidebar: [
                     {
@@ -336,10 +305,7 @@ export default defineConfig({
                             { text: '번역 거버넌스와 기여 절차', link: '/ko-KR/guide/translation-governance' },
                             { text: '배포 가이드', link: '/ko-KR/guide/deploy' },
                             { text: '변수 및 설정 매핑', link: '/ko-KR/guide/variables' },
-                            { text: '개발 가이드', link: '/ko-KR/guide/development' },
-                            { text: 'AI 주도 개발 가이드', link: '/ko-KR/guide/ai-development' },
                             { text: '기능 개요', link: '/ko-KR/guide/features' },
-                            { text: '솔루션 비교', link: '/ko-KR/guide/comparison' },
                         ],
                     },
                     {
@@ -347,26 +313,6 @@ export default defineConfig({
                         items: [
                             { text: '로드맵', link: '/ko-KR/plan/roadmap' },
                             { text: '중문 할 일 목록', link: '/plan/todo' },
-                        ],
-                    },
-                    {
-                        text: '표준',
-                        items: [
-                            { text: '계획 및 평가 표준', link: '/ko-KR/standards/planning' },
-                            { text: '개발 표준', link: '/ko-KR/standards/development' },
-                            { text: 'AI 협업 표준', link: '/ko-KR/standards/ai-collaboration' },
-                            { text: 'API 표준', link: '/ko-KR/standards/api' },
-                            { text: '테스트 표준', link: '/ko-KR/standards/testing' },
-                            { text: '보안 개발 표준', link: '/ko-KR/standards/security' },
-                            { text: '문서 표준', link: '/ko-KR/standards/documentation' },
-                        ],
-                    },
-                    {
-                        text: '설계',
-                        items: [
-                            { text: 'UI 설계', link: '/ko-KR/design/ui' },
-                            { text: 'API 설계', link: '/ko-KR/design/api' },
-                            { text: '데이터베이스 설계', link: '/ko-KR/design/database' },
                         ],
                     },
                 ],

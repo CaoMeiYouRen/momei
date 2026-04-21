@@ -1,10 +1,11 @@
 ---
 source_branch: master
 last_sync: 2026-02-11
+translation_tier: source-only
+source_origin: ../../../guide/ai-development.md
 ---
 
 # AI-Driven Development Guide
-
 This guide introduces developers to leveraging AI Agents for efficient participation in the Momei project. We believe modern development should be a "human-machine collaboration" where humans define intent and AI executes complex, mechanical tasks.
 
 ## 1. Core Concept: Hybrid Workflow
@@ -12,6 +13,10 @@ This guide introduces developers to leveraging AI Agents for efficient participa
 In the Momei project, development tasks follow two paths:
 
 1.  **Traditional Path**: For simple text edits, configuration tweaks, or specialized environments unreachable by AI.
+
+::: info Source-Only Scope
+This locale now keeps this URL as a source-only entry. For the latest and complete content, use the [Chinese source of truth](../../../guide/ai-development.md).
+:::
 2.  **AI-Enhanced Path (Recommended)**: For feature development, bug fixes, large-scale refactoring, and test writing.
 
 ## 2. Agent System

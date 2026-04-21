@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../standards/testing.md
 ---
 
 # 테스트 표준
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../standards/testing.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../standards/testing.md)을 확인하세요.
 :::
 
 이 문서는 모메이의 테스트 계층, 파일 배치 규칙, 커버리지 기대치, 효율적인 실행 전략을 설명합니다.

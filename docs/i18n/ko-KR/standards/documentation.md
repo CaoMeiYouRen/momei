@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-19
+translation_tier: source-only
+source_origin: ../../../standards/documentation.md
 ---
 
 # 문서 표준
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../standards/documentation.md)을 기준으로 합니다. 차이가 있으면 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../standards/documentation.md)을 확인하세요.
 :::
 
 이 문서는 모메이 문서의 작성, 구조화, 번역, 유지보수 규칙을 정의하며 사람과 AI 에이전트가 같은 문서 계약을 공유하도록 돕습니다.

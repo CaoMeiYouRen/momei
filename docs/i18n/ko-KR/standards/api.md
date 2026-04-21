@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../standards/api.md
 ---
 
 # API 표준
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../standards/api.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../standards/api.md)을 확인하세요.
 :::
 
 이 문서는 모메이 백엔드 API의 공통 규칙을 정의합니다. 응답 형식, 인증 방식, 입력 검증, 장시간 작업 처리 방식이 모두 이 문서를 기준으로 정렬되어야 합니다.

@@ -1,7 +1,8 @@
 ---
 layout: home
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 
 hero:
     name: "모메이 블로그"
@@ -16,49 +17,25 @@ hero:
           link: https://github.com/CaoMeiYouRen/momei
 
 features:
-    - title: 기능 소개
-      details: AI 창작 보조, 네이티브 다국어, 구독 분배 체계와 운영 기능을 한눈에 살펴봅니다.
-      link: /ko-KR/guide/features
     - title: 빠른 시작
-      details: Vercel, Docker, 로컬 개발 모드로 모메이 사이트를 빠르게 실행합니다.
+      details: 최소 실행 경로로 사이트를 먼저 띄운 뒤 AI, 스토리지, 알림, 예약 작업을 단계적으로 켭니다.
       link: /ko-KR/guide/quick-start
-    - title: 솔루션 비교
-      details: WordPress, Hugo, Hexo와 비교했을 때 모메이의 위치와 장점을 정리합니다.
-      link: /ko-KR/guide/comparison
     - title: 배포 가이드
-      details: Vercel, Docker, 자체 호스팅과 Cloudflare 외곽 기능 연계 경계를 정리합니다.
+      details: 현재 지원되는 배포 계약, 환경 변수, Cloudflare 경계, 문제 해결 포인트를 확인합니다.
       link: /ko-KR/guide/deploy
-    - title: 로드맵
-      details: 완료된 단계, 현재 초점, 장기 backlog를 통해 프로젝트 청사진을 파악합니다.
-      link: /ko-KR/plan/roadmap
-    - title: 계획 표준
-      details: ROI 평가, 단계 집중, todo 분해, 되돌리지 않는 원칙을 확인합니다.
-      link: /ko-KR/standards/planning
-    - title: 개발 가이드
-      details: Nuxt 4, TypeScript, SCSS, i18n 기반의 로컬 개발 흐름을 빠르게 익힙니다.
-      link: /ko-KR/guide/development
-    - title: AI 협업 개발
-      details: PDTFC+ 흐름으로 AI 에이전트와 개발자가 함께 일하는 방식을 설명합니다.
-      link: /ko-KR/guide/ai-development
     - title: 번역 거버넌스
-      details: 언어 readiness 단계, 용어 규칙, 품질 게이트, 기여 흐름을 정리합니다.
+      details: ko-KR가 현재 유지하는 페이지 범위, freshness tier, blocker 명령, source-only 회귀 규칙을 정리합니다.
       link: /ko-KR/guide/translation-governance
-    - title: AI 협업 표준
-      details: AI 에이전트의 행동 경계, 보안 요구, 작업 절차를 문서화합니다.
-      link: /ko-KR/standards/ai-collaboration
-    - title: API 표준
-      details: 공통 응답 형식, 검증 방식, 권한 경계, 작업 API 규칙을 설명합니다.
-      link: /ko-KR/standards/api
-    - title: 개발 표준
-      details: 코드 스타일, 디렉터리 경계, 설정 접근, Git 워크플로와 문서 동기화 원칙을 다룹니다.
-      link: /ko-KR/standards/development
-    - title: 문서 표준
-      details: 문서 구조, 번역 페이지 메타데이터, nav/sidebar 동기화 전략을 확인합니다.
-      link: /ko-KR/standards/documentation
-    - title: 설계 문서
-      details: UI, API, 데이터베이스 관점에서 모메이의 상위 아키텍처를 파악합니다.
-      link: /ko-KR/design/ui
-    - title: 테스트와 보안
-      details: 테스트 계층, 품질 게이트, 권한 검증과 CLI 자동화 보안 기준을 정리합니다.
-      link: /ko-KR/standards/testing
+    - title: 기능 소개
+      details: AI 작성, 다국어 콘텐츠, 동기화와 운영 기능의 현재 요약을 빠르게 훑어봅니다.
+      link: /ko-KR/guide/features
+    - title: 변수 및 설정 매핑
+      details: 배포, AI, 스토리지, 동기화 구성을 바꾸기 전에 환경 변수와 시스템 설정 키의 대응 관계를 확인합니다.
+      link: /ko-KR/guide/variables
+    - title: 로드맵
+      details: 완료된 단계, 현재 30단계 초점, 후속 거버넌스 backlog를 요약해서 봅니다.
+      link: /ko-KR/plan/roadmap
+    - title: 중국어 todo 사실원
+      details: 현재 실행 중인 todo는 여전히 중국어 원문이 유일한 권위 소스입니다.
+      link: /plan/todo
 ---

@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../design/database.md
 ---
 
 # 資料庫設計
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../design/database.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../design/database.md) 取得最新內容。
 :::
 
 本文檔描述墨梅資料層的高層結構，重點說明主要實體、關聯、索引策略與多語內容的建模方式。

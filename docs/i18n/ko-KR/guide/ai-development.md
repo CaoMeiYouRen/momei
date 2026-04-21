@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../guide/ai-development.md
 ---
 
 # AI 협업 개발 가이드
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../guide/ai-development.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../guide/ai-development.md)을 확인하세요.
 :::
 
 모메이는 AI를 단순한 코드 생성기가 아니라, 계획 수립부터 구현, 검증, 문서 동기화까지 함께 수행하는 협업 주체로 다룹니다. 이 가이드는 사람이 의도를 정의하고 AI가 반복 작업을 맡는 방식으로 프로젝트를 다루는 방법을 설명합니다.

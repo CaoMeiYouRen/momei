@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../guide/comparison.md
 ---
 
 # 솔루션 비교
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../guide/comparison.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../guide/comparison.md)을 확인하세요.
 :::
 
 이 문서는 모메이와 WordPress, Hugo, Hexo를 기술 스택, 국제화, 운영 편의성, 확장성 관점에서 비교합니다. 모메이의 핵심 차별점은 **AI + 다국어 + 운영 백오피스**를 하나의 제품 흐름으로 묶는 데 있습니다.

@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-02-11
+translation_tier: source-only
+source_origin: ../../../design/ui.md
 ---
 
 # UI Design
 
 ::: warning Translation Notice
 This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../design/ui.md) shall prevail.
+:::
+
+::: info Source-Only Scope
+This locale now keeps this URL as a source-only entry. For the latest and complete content, use the [Chinese source of truth](../../../design/ui.md).
 :::
 
 ## 1. Design Philosophy

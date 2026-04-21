@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: must-sync
 ---
 
 # Deployment Guide
@@ -91,10 +92,25 @@ Note: browser direct upload currently uses presigned `PUT` requests when `STORAG
 - **`CRON_SECRET`**: Bearer auth secret dedicated to Vercel Cron. Vercel sends it automatically as `Authorization: Bearer <secret>`.
 - **`TASKS_TOKEN`**: Base token used for task webhook authentication, mainly for manual triggers or legacy integrations.
 - **`WEBHOOK_SECRET`**: Recommended as a dedicated HMAC signing secret.
-- **`TASK_CRON_EXPRESSION`**: Only effective in self-hosted mode to override the built-in cron frequency.
+- **`TASK_CRON_EXPRESSION`**: Only effective in self-hosted mode to override the built-in cron frequency. The main task run now covers article / marketing scheduling plus AI media timeout compensation.
+- **`FRIEND_LINKS_CHECK_CRON`**: Only effective in self-hosted mode to override the standalone friend-links inspection cron. The default is once per day at UTC 02:00.
 - **`DISABLE_CRON_JOB=true`**: Explicitly disables the built-in cron job in self-hosted mode.
+- **`FRIEND_LINKS_CHECK_INTERVAL_MINUTES`**: Minimum effective friend-links inspection interval. Admin settings may adjust it, but the final value never goes below 60 minutes.
+- **`FRIEND_LINKS_CHECK_BATCH_SIZE`**: Batch size per friend-links inspection round. Default `20`.
+- **`FRIEND_LINKS_CHECK_TIMEOUT_MS`**: Per-site probe timeout. Default `8000` ms.
+- **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**: Maximum cooldown window for repeatedly failing sites. Default `10080` minutes (7 days).
+- **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**: After this consecutive-failure threshold, a link can be auto-switched to `inactive`. Disabled by default.
 
 `WEBHOOK_TIMESTAMP_TOLERANCE` still appears in the example file, but the current implementation does not read it. Webhook validation uses a fixed 5-minute tolerance window.
+
+Dispatch responsibilities now converge as follows:
+
+- Vercel / Cloudflare / manual webhook entry points execute article scheduling, marketing scheduling, AI media timeout compensation, and friend-links inspection through the unified task entry.
+- In self-hosted mode, the main cron handles article / marketing scheduling and AI media timeout compensation, while friend-links inspection continues on a separate cron so it does not inherit the default 5-minute main-task cadence.
+
+Friend-links inspection only probes records that have passed the minimum interval and are not currently inside their failure cooldown window.
+
+AI media compensation only scans image-generation and podcast tasks that exceeded the timeout threshold and stayed stale long enough. It resumes or closes them based on persisted checkpoints instead of blindly regenerating them on every run.
 
 ## 3. Optional Enhancements
 
@@ -185,6 +201,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- Use `TASK_CRON_EXPRESSION` if you want to customize the built-in cron schedule.
 - **Cloudflare (Peripheral integrations only)**:
 	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
+	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).
 	- Cloudflare R2 can still be used as object storage.
 	- Scheduled Events-related trigger adaptation and [wrangler.toml](../../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points and should not be read as full Cloudflare runtime support.
 	- `pnpm deploy:wrangler` is currently only for wrangler-side integration debugging and should not be treated as a production full-site deployment command.
@@ -204,6 +221,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel / Netlify resets data or loses the admin account after the first boot**: confirm that you are no longer relying on default SQLite. Serverless paths must switch to an external `DATABASE_URL`.
 - **Vercel / Netlify opens the site but uploads fail**: you are usually still using `STORAGE_TYPE=local`. Switch to `s3`, `r2`, or `vercel_blob`.
 - **Cloudflare Pages / Workers shows TypeORM or Node-compatibility errors**: This is a known platform boundary, not a missed deployment step. Keep the main app on Vercel, Docker, or a self-hosted Node environment; if you need Cloudflare, use it only for peripheral integrations such as R2 or Scheduled Events-related experiments.
+- **Can Cloudflare D1 replace the current database directly?**: No. The current stack still revolves around TypeORM and the `sqlite/mysql/postgres` driver set. D1 remains a future conditional-research topic rather than a supported production substitute.
 
 ## 7. References
 

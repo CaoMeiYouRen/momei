@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # Testing Standards
@@ -66,6 +67,12 @@ E2E test files are stored in the `tests/e2e/` directory at the project root.
     -   Cross-page interactions
     -   Validation in a real browser environment
 
+### 3.4 Browser Critical Baseline
+
+- `pnpm test:e2e:critical` is the default browser baseline for review and regression.
+- `pnpm test:e2e:review-gate --scope=<change>` is the structured evidence entry used by review-gate and regression records.
+- Review-gate evidence converges on one run directory containing `manifest.json`, `evidence.md`, `playwright.log`, `playwright-report/`, and `test-results/`.
+
 ## 4. Testing Requirements
 
 ### 4.1 Frontend Components & Pages
@@ -92,6 +99,7 @@ E2E test files are stored in the `tests/e2e/` directory at the project root.
 -   **Overall Project Target**: **≥ 60%**
 -   **Core Modules (Utils, Server API)**: ≥ 80% recommended.
 -   **UI Components**: ≥ 50% recommended (focus on logic over styling).
+-   Coverage-governance work should preserve or raise the current floor instead of allowing regressions in the name of cleanup.
 
 Run coverage check:
 
@@ -111,3 +119,14 @@ To balance quality and development speed, especially since full test suites (spe
     -   Run relevant tests before pushing to ensure no regressions.
 3.  **CI/CD Validation**:
     -   Full test execution is handled by the CI server.
+
+### 6.1 Command Budgets
+
+| Command type | Typical entry | Default timeout budget |
+| :--- | :--- | :--- |
+| Targeted tests | `pnpm test keyword` / `pnpm exec vitest run path/to/file.test.ts` | 10 minutes |
+| Full tests | `pnpm test` | 30 minutes |
+| Coverage | `pnpm test:coverage` | 30 minutes |
+| Verify | `pnpm verify` | 60 minutes |
+
+Periodic regression should prefer the fixed entries `pnpm regression:weekly`, `pnpm regression:pre-release`, and `pnpm regression:phase-close` instead of mixing ad-hoc bundles of commands.

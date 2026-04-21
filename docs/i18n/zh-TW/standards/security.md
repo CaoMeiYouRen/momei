@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../standards/security.md
 ---
 
 # 安全開發規範
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../standards/security.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../standards/security.md) 取得最新內容。
 :::
 
 本文檔定義墨梅在認證、資料處理、Web 防護、依賴管理與 CLI 自動化方面的安全要求。

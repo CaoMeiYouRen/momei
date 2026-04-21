@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # Security Development Standards
@@ -8,6 +9,12 @@ last_sync: 2026-02-11
 ::: warning Translation Notice
 This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../standards/security.md) shall prevail.
 :::
+
+## 0. Source & Scope
+
+- `AGENTS.md` remains the project-level security red line source.
+- This page is the implementation summary for security development details.
+- The permission implementation authority is `server/utils/permission.ts`, especially `requireAuth`, `requireAdmin`, `requireAdminOrAuthor`, and `requireRole`.
 
 ## 1. Authentication & Authorization
 
@@ -45,3 +52,9 @@ When executing any automated scripts or terminal operations, follow these securi
 -   **Environment Check**: Before executing shell commands, check the current OS (Windows, Linux, macOS) and environment (CMD, PowerShell, Bash) to ensure syntax compatibility.
 -   **Path Verification**: Explicitly verify the existence and validity of target paths before executing deletion commands (e.g., `rm`, `dir /s`, `rd`).
 -   **Empty Path Avoidance**: Never pass empty strings, undefined variables, or high-risk wildcards (e.g., `/*`) as path arguments to deletion commands. High-risk operations similar to `rm -rf /` are strictly prohibited.
+
+Practical additions from the current Chinese source:
+
+- Treat platform/runtime detection as mandatory before running destructive CLI automation.
+- Prefer safe path validation over assumed working-directory context.
+- Do not treat infrastructure-only concerns such as WAF/CDN configuration as if they were application-code security rules.

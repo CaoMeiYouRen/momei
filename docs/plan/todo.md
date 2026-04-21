@@ -30,11 +30,12 @@
 	- 验收: 至少完成 GitHub / Gitee 两类远端的契约评估，并落地一条可复验的候选链路；若只先接通一类 provider，另一类必须保留明确的契约差异、阻塞点与后续落地条件。
 	- 验收: 补齐最小验证矩阵，至少覆盖导出结果结构、Front-matter 字段映射、媒体路径策略、认证失败 / 推送失败兜底与审计日志落点。
 
-2. [ ] **文档翻译 freshness 清偿与文档翻译治理 (P0)**
+2. [x] **文档翻译 freshness 清偿与文档翻译治理 (P0)**
 	- 验收: 对当前承诺维护的翻译页完成一轮 freshness 清偿，优先覆盖首页、快速开始、部署、翻译治理，以及 `planning` / `documentation` / `security` / `testing` 等高频规范页，不允许只更新 `last_sync` 而不校正文案。
 	- 验收: `pnpm docs:check:source-of-truth` 必须恢复为可通过状态；若决定缩减某类翻译承诺范围，必须同步更新文档规范、目录范围与对应翻译页，而不是通过忽略告警绕过事实源检查。
 	- 验收: 明确翻译页分层治理口径，区分“必须同步”“允许摘要同步”“默认只保留中文原文”三类范围，并把残余存量债写回规范或 backlog，而不是留作隐性尾项。
 	- 验收: 输出本轮已同步范围、暂缓范围、剩余风险与下一轮清偿顺序，作为后续文档治理基线。
+	- 结果: 已完成文档翻译 tier 化治理设计与脚本收口，正式固化 `must-sync / summary-sync / source-only` 三层口径；`pnpm docs:check:source-of-truth`、`pnpm docs:check:i18n` 与 `pnpm lint:md` 均已通过。已同步 `en-US` 高频入口与核心规范摘要页，以及 `zh-TW` / `ko-KR` / `ja-JP` 的公共入口页；深层 design / guide / standards 页则按新规则降级为 `source-only` 并显式回链中文事实源。同步范围、残余边界与下一轮扩容前提见 `docs/reports/regression/current.md`。
 
 3. [x] **国际化字段治理 (P1)**
 	- 验收: 本轮至少明确一组高频模块的 missing blocker 与运行时加载治理边界，优先覆盖 `admin-settings`、`admin-ai`、`admin-snippets`、`admin-friend-links` 与公开页装配链路，不得回退为散点补词。

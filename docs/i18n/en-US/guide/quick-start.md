@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: must-sync
 ---
 
 # Quick Start
@@ -88,6 +89,8 @@ docker-compose up -d
 
 The current version does not support deploying the application itself to Cloudflare Pages / Workers. The main reason is that the project still depends on TypeORM and Node runtime capabilities, and there is no maintainable Cloudflare runtime adaptation layer yet.
 
+For the current blocker matrix, minimum prototype boundary, and stop-loss criteria, see [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).
+
 If you need Cloudflare, limit it to peripheral capabilities for now:
 
 - Cloudflare R2 as object storage.
@@ -119,7 +122,7 @@ Momei supports **Zero-Config Startup** for development:
 
 That zero-config experience is only for local development. Once you are preparing a public deployment, OAuth callback, or absolute public links, go back to the minimal path above and make the core variables explicit.
 
-If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
+If you want the full feature set, start from `.env.full.example` and follow the settings mapping used by the settings service, especially for values such as `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `MEMOS_INSTANCE_URL`, `MEMOS_ACCESS_TOKEN`, `LISTMONK_INSTANCE_URL`, and `LISTMONK_ACCESS_TOKEN`.
 
 Visit `http://localhost:3000` in your browser.
 
@@ -128,7 +131,15 @@ Visit `http://localhost:3000` in your browser.
 -   **Admin Dashboard**: Visit `/admin` to log in. For a fresh installation, check the console logs for initialization credentials.
 -   **AI Assistant**: Configure `AI_API_KEY` in your `.env` to enable smart title generation and one-click translation.
 -   **Enable Memos Sync**: Configure `MEMOS_ENABLED=true`, `MEMOS_INSTANCE_URL`, and `MEMOS_ACCESS_TOKEN`.
+-   **Enable listmonk Newsletter Delivery**: In system settings -> third-party integrations, enable `listmonk`, provide the instance URL, admin username, access token, and default list ID or category/tag mapping.
 -   **Demo Mode**: Set `NUXT_PUBLIC_DEMO_MODE=true` to preview all admin features in-memory (data is not persisted).
+
+If you want to validate the minimum external newsletter flow, use this sequence:
+
+1. Configure the `LISTMONK_*`-mapped settings in the admin panel, including at least the instance URL, username, access token, and default list ID.
+2. Trigger one delivery through article redistribution or the marketing campaign entry.
+3. Trigger the same campaign again and confirm the system reuses the written-back remote campaign ID instead of creating a duplicate remote campaign.
+4. Open notification delivery audit and inspect the latest `listmonk` channel result, failure reason, and suggested manual action.
 
 ---
 

@@ -58,6 +58,7 @@
 ### 4.1 核心原则 (Core Principles)
 
 1.  **分级翻译**: 并非所有文档都需要翻译。优先处理对外部用户及新接触博主至关重要的文档。
+2.  **分层 freshness**: 翻译文档按 `must-sync`、`summary-sync`、`source-only` 三层治理，不再把 `docs/i18n/<locale>/` 下所有页面统一按同一时效窗口处理。
 2.  **源地一致**: 
     - 翻译文档统一存放在 `docs/i18n/<locale>/`，并严格保持与 `docs/` 根目录一致的目录结构和文件名。
     - 外部文档站继续使用 `/<locale>/...` 路由；构建层通过 VitePress rewrites 维持“仓库路径”与“公共 URL”解耦。
@@ -70,9 +71,9 @@
 
 | Locale | 状态 | 目录 | 说明 |
 | :-- | :-- | :-- | :-- |
-| `en-US` | 已支持 | `docs/i18n/en-US/` | 英文为默认对外翻译语言，README 与 Guide 类文档优先保证同步。 |
-| `zh-TW` | 已支持 | `docs/i18n/zh-TW/` | 以繁体中文阅读体验为主，采用渐进式同步策略。 |
-| `ko-KR` | 已支持 | `docs/i18n/ko-KR/` | 以关键指南与路线图摘要同步为主。 |
+| `en-US` | 已支持 | `docs/i18n/en-US/` | 默认对外协作语言。首页与核心公开 Guide 维持 `must-sync`，开发 / 规范入口以 `summary-sync` 为主。 |
+| `zh-TW` | 已支持 | `docs/i18n/zh-TW/` | 以繁体中文阅读体验为主，当前采用“公开入口页摘要同步 + 深层页中文事实源优先”的渐进式策略。 |
+| `ko-KR` | 已支持 | `docs/i18n/ko-KR/` | 以公开入口页摘要同步为主，深层页默认回到中文事实源。 |
 | `ja-JP` | `seo-ready` | `docs/i18n/ja-JP/` | 已完成 README、首页、快速开始、部署、翻译治理与路线图摘要同步，并补齐邮件、SEO、站点地图与专项回归验证，作为正式公开语种维护。 |
 
 说明：
@@ -94,6 +95,23 @@
 
 对于 `packages/` 目录下子包的 README 文件，原则上只提供中文和英文版本，且必须保持内容一致。其他语言版本（如韩语、繁体中文）可根据社区需求决定是否提供。
 
+### 4.3.1 freshness 分层与 locale 范围
+
+| Tier | freshness 口径 | 允许内容形态 | 当前典型范围 |
+| :-- | :-- | :-- | :-- |
+| `must-sync` | `30` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
+| `summary-sync` | `45` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页 |
+| `source-only` | 不做天数 SLA，但必须显式声明“中文事实源优先” | locale URL 保留页，不承诺持续翻译正文 | 低频设计页、低频 Guide、当前不再维护的深层 Standards |
+
+当前 locale 范围矩阵：
+
+| Locale | `must-sync` | `summary-sync` | `source-only` |
+| :-- | :-- | :-- | :-- |
+| `en-US` | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance` | `plan/roadmap`、`guide/development`、`guide/features`、`guide/variables`、`standards/planning`、`standards/documentation`、`standards/security`、`standards/testing`、`standards/development`、`standards/ai-collaboration` | `design/*`、`guide/ai-development`、`guide/comparison`、`standards/api` |
+| `zh-TW` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap` | `design/*`、`guide/development`、`guide/ai-development`、`guide/comparison`、`standards/*` |
+| `ko-KR` | 无 | 与 `zh-TW` 相同 | 与 `zh-TW` 相同 |
+| `ja-JP` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`plan/roadmap` | 其他路径默认不新增翻译承诺 |
+
 ### 4.4 翻译件规范 (Standard for Translated Docs)
 
 1.  **顶部提示旗标 (Header Notice)**:
@@ -109,9 +127,15 @@
     ---
     source_branch: master
     last_sync: 2026-02-11  # ISO 日期格式
+    translation_tier: must-sync # must-sync | summary-sync | source-only
+    # source_origin: ../../../guide/ai-development.md # source-only 页面必填
     # 可选：source_hash: <git_commit_hash>
     ---
     ```
+3.  **`source-only` 页面要求**:
+    - 必须在 Frontmatter 中显式声明 `translation_tier: source-only` 与 `source_origin`。
+    - 必须在正文顶部明确说明“本页不再承诺持续维护翻译内容，请以中文原文为准”。
+    - 不得继续占据 locale 导航与侧边栏主入口。
 
 ### 4.5 路线图翻译特殊逻辑 (Roadmap Sync)
 
@@ -206,7 +230,9 @@
 
 ### 6.3 过时内容识别
 
-- 翻译文档的 `last_sync` 超过 30 天应触发 review
+- `must-sync` 页面的 `last_sync` 超过 `30` 天应触发 review
+- `summary-sync` 页面的 `last_sync` 超过 `45` 天应触发 review
+- `source-only` 页面不以天数判断 freshness，但必须持续保留明确的中文事实源回链与 tier 声明
 - 智能体在引用文档时，应检查文件头部的时间戳
 - 定期运行 `pnpm i18n:audit` 检查未同步的翻译键
 

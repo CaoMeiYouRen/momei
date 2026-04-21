@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../design/ui.md
 ---
 
 # UI 설계
 
 ::: warning 번역 안내
 이 페이지는 [중국어 원문](../../../design/ui.md)을 기준으로 정리했습니다. 차이가 있을 경우 원문을 우선합니다.
+:::
+
+::: info 중국어 사실원 우선
+이 페이지는 locale URL과 원문 진입점만 유지하는 source-only 범위입니다. 최신 내용은 [중국어 원문](../../../design/ui.md)을 확인하세요.
 :::
 
 모메이의 UI는 동양적 정서와 현대적인 웹 경험을 함께 추구합니다. 공개 블로그와 관리자 화면 모두에서 읽기 쉬움, 몰입감, 운영 효율을 동시에 달성하는 것이 목표입니다.

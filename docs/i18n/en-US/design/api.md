@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-18
+translation_tier: source-only
+source_origin: ../../../design/api.md
 ---
 
 # API Design
 
 ::: warning Translation Notice
 This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](../../../design/api.md) shall prevail.
+:::
+
+::: info Source-Only Scope
+This locale now keeps this URL as a source-only entry. For the latest and complete content, use the [Chinese source of truth](../../../design/api.md).
 :::
 
 ## 1. Overview

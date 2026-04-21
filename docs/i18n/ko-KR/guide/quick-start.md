@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # 빠른 시작
@@ -88,6 +89,8 @@ docker-compose up -d
 
 현재 버전은 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포하는 것을 지원하지 않습니다. 프로젝트가 아직 TypeORM과 Node 런타임 기능에 의존하고 있어 유지 가능한 Cloudflare 적응 계층이 없기 때문입니다.
 
+현재 blocker 목록, 최소 프로토타입 경계, 중단 기준은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../design/governance/cloudflare-runtime-study.md)을 참고하세요.
+
 Cloudflare가 필요하다면 현재는 다음과 같은 외곽 기능에만 한정하는 것을 권장합니다.
 
 - Cloudflare R2를 객체 스토리지로 사용
@@ -113,14 +116,22 @@ pnpm dev
 
 다만 이 zero-config 경험은 로컬 개발 전용입니다. 공개 배포, OAuth 콜백, 절대 공개 URL이 필요해지는 시점에는 위 최소 경로로 돌아가 핵심 변수를 명시적으로 채워야 합니다.
 
-완전한 기능을 시험하려면 `.env.full.example`을 기준으로 설정을 확장하고, 특히 AI, 스토리지, Memos 관련 환경 변수를 함께 맞추는 것이 좋습니다.
+완전한 기능을 시험하려면 `.env.full.example`을 기준으로 설정을 확장하고, 특히 `AI_QUOTA_ENABLED`, `AI_QUOTA_POLICIES`, `ASSET_PUBLIC_BASE_URL`, `MEMOS_INSTANCE_URL`, `MEMOS_ACCESS_TOKEN`, `LISTMONK_INSTANCE_URL`, `LISTMONK_ACCESS_TOKEN` 같은 변수들을 함께 맞추는 것이 좋습니다.
 
 ## 5. 다음 단계
 
 - `/admin`에 접속해 관리자 화면을 확인합니다.
 - `AI_API_KEY`를 설정해 제목, 요약, 번역 기능을 활성화합니다.
 - `MEMOS_ENABLED=true`, `MEMOS_INSTANCE_URL`, `MEMOS_ACCESS_TOKEN`을 설정해 Memos 동기화를 켭니다.
+- 시스템 설정 -> 서드파티 통합에서 `listmonk`를 활성화하고 인스턴스 URL, 관리자 사용자명, Access Token, 기본 리스트 ID 또는 카테고리 / 태그 매핑을 채워 Newsletter 배포를 준비합니다.
 - `NUXT_PUBLIC_DEMO_MODE=true`로 데모 모드를 체험합니다.
+
+Newsletter 외부 배포의 최소 경로를 검증하려면 다음 순서를 권장합니다.
+
+1. 관리자 화면에서 `LISTMONK_*`에 대응하는 설정을 채우고 최소한 인스턴스 URL, 사용자명, Access Token, 기본 리스트 ID를 준비합니다.
+2. 게시글 재배포 또는 마케팅 캠페인 진입점에서 한 번 발송을 트리거합니다.
+3. 같은 캠페인을 다시 트리거해 시스템이 새 원격 캠페인을 만들지 않고 이미 기록된 원격 Campaign ID를 재사용하는지 확인합니다.
+4. 알림 전달 감사 화면에서 `listmonk` 채널의 마지막 결과, 실패 이유, 수동 처리 제안을 확인합니다.
 
 ---
 

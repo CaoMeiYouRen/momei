@@ -69,13 +69,13 @@ const RULES = [
     },
 ]
 
-// 翻译文档过时检查
-const TRANSLATED_DOCS = [
-    { path: 'docs/i18n/en-US/', maxAge: 30 },
-    { path: 'docs/i18n/zh-TW/', maxAge: 30 },
-    { path: 'docs/i18n/ko-KR/', maxAge: 30 },
-    { path: 'docs/i18n/ja-JP/', maxAge: 30 },
-]
+const TRANSLATION_LOCALES = ['en-US', 'zh-TW', 'ko-KR', 'ja-JP']
+
+const TRANSLATION_TIER_RULES = {
+    'must-sync': { maxAge: 30 },
+    'summary-sync': { maxAge: 45 },
+    'source-only': { maxAge: null },
+}
 
 function readFile(filePath) {
     try {
@@ -83,6 +83,92 @@ function readFile(filePath) {
     } catch {
         return null
     }
+}
+
+function normalizePath(filePath) {
+    return filePath.replace(/\\/g, '/')
+}
+
+function parseFrontmatter(content) {
+    const match = content.match(/^---\n([\s\S]*?)\n---/)
+    if (!match) {
+        return {}
+    }
+
+    const data = {}
+    for (const line of match[1].split('\n')) {
+        const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.+)$/)
+        if (!fieldMatch) {
+            continue
+        }
+
+        const [, key, rawValue] = fieldMatch
+        data[key] = rawValue.trim().replace(/^['"]|['"]$/g, '')
+    }
+
+    return data
+}
+
+function resolveTranslationTier(filePath) {
+    const normalized = normalizePath(filePath)
+    const match = normalized.match(/^docs\/i18n\/([^/]+)\/(.+)$/)
+
+    if (!match) {
+        return null
+    }
+
+    const [, locale, relativePath] = match
+
+    if (locale === 'en-US') {
+        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md'].includes(relativePath)) {
+            return 'must-sync'
+        }
+
+        if ([
+            'plan/roadmap.md',
+            'guide/development.md',
+            'guide/features.md',
+            'guide/variables.md',
+            'standards/planning.md',
+            'standards/documentation.md',
+            'standards/security.md',
+            'standards/testing.md',
+            'standards/development.md',
+            'standards/ai-collaboration.md',
+        ].includes(relativePath)) {
+            return 'summary-sync'
+        }
+
+        if (relativePath.startsWith('design/') || ['guide/ai-development.md', 'guide/comparison.md', 'standards/api.md'].includes(relativePath)) {
+            return 'source-only'
+        }
+    }
+
+    if (locale === 'zh-TW' || locale === 'ko-KR') {
+        if ([
+            'index.md',
+            'guide/quick-start.md',
+            'guide/deploy.md',
+            'guide/translation-governance.md',
+            'guide/features.md',
+            'guide/variables.md',
+            'plan/roadmap.md',
+        ].includes(relativePath)) {
+            return 'summary-sync'
+        }
+
+        if (relativePath.startsWith('design/') || relativePath.startsWith('standards/') || ['guide/development.md', 'guide/ai-development.md', 'guide/comparison.md'].includes(relativePath)) {
+            return 'source-only'
+        }
+    }
+
+    if (locale === 'ja-JP') {
+        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md', 'plan/roadmap.md'].includes(relativePath)) {
+            return 'summary-sync'
+        }
+    }
+
+    return null
 }
 
 function getFrontmatterDate(content) {
@@ -129,7 +215,8 @@ function checkFile(filePath, rule) {
 function checkTranslatedDocs() {
     const results = []
 
-    for (const { path: dir, maxAge } of TRANSLATED_DOCS) {
+    for (const locale of TRANSLATION_LOCALES) {
+        const dir = `docs/i18n/${locale}/`
         const fullPath = path.join(ROOT, dir)
         if (!fs.existsSync(fullPath)) {
             continue
@@ -139,29 +226,72 @@ function checkTranslatedDocs() {
             .filter((f) => f.endsWith('.md'))
 
         for (const file of files) {
-            const filePath = path.join(dir, file)
+            const filePath = normalizePath(path.join(dir, file))
             const content = readFile(filePath)
             if (!content) {
                 continue
             }
 
+            const tier = resolveTranslationTier(filePath)
+            if (!tier) {
+                results.push({
+                    file: filePath,
+                    pass: false,
+                    reason: `翻译文档未映射到 freshness tier，请更新治理矩阵或目录范围: ${filePath}`,
+                })
+                continue
+            }
+
+            const frontmatter = parseFrontmatter(content)
+
             const lastSync = getFrontmatterDate(content)
-            if (lastSync) {
-                const age = daysSince(lastSync)
-                if (age > maxAge) {
-                    results.push({
-                        file: filePath,
-                        age,
-                        maxAge,
-                        pass: false,
-                        reason: `翻译文档已 ${age} 天未同步（限制：${maxAge} 天）`,
-                    })
-                }
-            } else {
+
+            if (!lastSync) {
                 results.push({
                     file: filePath,
                     pass: false,
                     reason: `翻译文档缺少 last_sync 元数据: ${filePath}`,
+                })
+                continue
+            }
+
+            if (tier === 'source-only') {
+                if (frontmatter.translation_tier !== 'source-only') {
+                    results.push({
+                        file: filePath,
+                        pass: false,
+                        reason: `source-only 页面必须显式声明 translation_tier: source-only: ${filePath}`,
+                    })
+                }
+
+                if (!frontmatter.source_origin) {
+                    results.push({
+                        file: filePath,
+                        pass: false,
+                        reason: `source-only 页面必须提供 source_origin 回链: ${filePath}`,
+                    })
+                }
+
+                continue
+            }
+
+            if (frontmatter.translation_tier && frontmatter.translation_tier !== tier) {
+                results.push({
+                    file: filePath,
+                    pass: false,
+                    reason: `翻译文档的 translation_tier 与当前治理矩阵不一致（期望 ${tier}）: ${filePath}`,
+                })
+            }
+
+            const maxAge = TRANSLATION_TIER_RULES[tier].maxAge
+            const age = daysSince(lastSync)
+            if (typeof maxAge === 'number' && age > maxAge) {
+                results.push({
+                    file: filePath,
+                    age,
+                    maxAge,
+                    pass: false,
+                    reason: `翻译文档已 ${age} 天未同步（${tier} 限制：${maxAge} 天）`,
                 })
             }
         }

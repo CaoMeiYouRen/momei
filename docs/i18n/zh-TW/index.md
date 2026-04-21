@@ -1,7 +1,8 @@
 ---
 layout: home
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 
 hero:
     name: "墨梅部落格"
@@ -16,49 +17,25 @@ hero:
           link: https://github.com/CaoMeiYouRen/momei
 
 features:
-    - title: 功能特色
-      details: 深入了解墨梅內建的 AI 創作助手、深度國際化與多維度 RSS 訂閱能力。
-      link: /zh-TW/guide/features
     - title: 快速開始
-      details: 透過一鍵部署、Docker 或本機開發模式快速啟動你的墨梅站點。
+      details: 用最小可運行路徑快速啟動站點，再逐步補齊 AI、儲存、通知與排程能力。
       link: /zh-TW/guide/quick-start
-    - title: 方案比較
-      details: 了解墨梅與 WordPress、Hugo、Hexo 等主流方案的差異與定位。
-      link: /zh-TW/guide/comparison
     - title: 部署指南
-      details: 涵蓋 Vercel、Docker、自託管，以及 Cloudflare 外圍能力接入邊界。
+      details: 對照目前支援的部署契約、環境變數、Cloudflare 邊界與排障重點。
       link: /zh-TW/guide/deploy
-    - title: 專案路線圖
-      details: 了解已完成階段、當前重點與後續積壓項的整體藍圖。
-      link: /zh-TW/plan/roadmap
-    - title: 規劃規範
-      details: 掌握 ROI 評估、階段聚焦、待辦拆解與不可回溯原則。
-      link: /zh-TW/standards/planning
-    - title: 開發指南
-      details: 快速接手 Nuxt 4、TypeScript、SCSS 與 i18n 的本機開發流程。
-      link: /zh-TW/guide/development
-    - title: AI 協同開發
-      details: 了解如何以 PDTFC+ 流程驅動 AI 代理與人類開發者高效協作。
-      link: /zh-TW/guide/ai-development
     - title: 翻譯治理
-      details: 查看語言 readiness 分級、術語規範、門禁要求與貢獻流程。
+      details: 查看 zh-TW 目前承諾的頁面範圍、freshness tier、門禁命令與 source-only 回退規則。
       link: /zh-TW/guide/translation-governance
-    - title: AI 協作規範
-      details: 面向 AI 代理的行為邊界、紅線、安全要求與執行節奏說明。
-      link: /zh-TW/standards/ai-collaboration
-    - title: API 規範
-      details: 了解統一回應格式、驗證方式、授權模型與任務接口約束。
-      link: /zh-TW/standards/api
-    - title: 開發規範
-      details: 覆蓋程式風格、目錄邊界、設定讀取、Git 工作流與文件同步要求。
-      link: /zh-TW/standards/development
-    - title: 文件規範
-      details: 說明文件結構、翻譯頁標記、導航同步與國際化維護策略。
-      link: /zh-TW/standards/documentation
-    - title: 設計文件
-      details: 從 UI、API 到資料庫層面掌握墨梅的高層架構與實作邊界。
-      link: /zh-TW/design/ui
-    - title: 測試與安全
-      details: 查看測試分層、品質門禁、權限檢查與 CLI 自動化安全基準。
-      link: /zh-TW/standards/testing
+    - title: 功能特色
+      details: 快速了解 AI 創作、多語內容、同步與營運能力的現行摘要。
+      link: /zh-TW/guide/features
+    - title: 變數與設定映射
+      details: 變更部署、AI、儲存與同步設定前，先確認環境變數與系統設定的對應關係。
+      link: /zh-TW/guide/variables
+    - title: 專案路線圖
+      details: 聚焦已完成階段、第三十階段重點與後續治理積壓項。
+      link: /zh-TW/plan/roadmap
+    - title: 中文待辦事實源
+      details: 當前執行中的 todo 仍以中文原文為唯一權威來源。
+      link: /plan/todo
 ---

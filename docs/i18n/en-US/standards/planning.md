@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-02-11
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # Planning & Evaluation Standards
@@ -28,6 +29,14 @@ When conducting phase planning or introducing major features, the following hard
     -   Any functional planning that does not include a test completion plan is ineligible for admission.
 -   **Priority Driven**:
     -   An ROI (Return on Investment) analysis must be conducted during planning. Priority is given to features that directly improve user experience or represent core competitiveness.
+-   **Acceptance Specificity**:
+    -   Every admitted task must define scope, non-goals, acceptance criteria, validation evidence, and rollback boundary when relevant.
+-   **Design-First Gate**:
+    -   Cross-module rewrites, contract changes, or standalone governance topics must land in `docs/design/modules/` or `docs/design/governance/` before implementation starts.
+-   **Phase Transition Gate**:
+    -   A stage is still open until `todo.md`, roadmap state, archive updates, and regression evidence are all synchronized.
+-   **In-Iteration Intake Gate**:
+    -   Newly discovered work does not automatically enter the active phase. It must first be classified as in-scope, blocker-worthy, or backlog-only.
 -   **Requirement Interview & Intent Extraction**:
     -   For vague requirements, agents **must** use an "interview" approach to ask the user clarifying questions rather than guessing.
     -   Interview Principles: Structured before detailed; one question at a time; goal is to extract the core, true business need.
@@ -65,11 +74,22 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 ### 4.2 TODO Maintenance
 -   `docs/plan/todo.md` is the real-time operational manual, containing **specific implementation tasks for the current phase only**.
+-   `docs/reports/regression/current.md` is the active regression window and should be linked instead of copied into planning docs.
 -   Task status must be clearly marked: `[ ]` (Pending), `[x]` (Completed), `[-]` (Canceled).
 -   Task descriptions should include specific "Acceptance Criteria."
 -   **Anti-Duplication Principle**: Before planning or adding any new feature, **always** check `docs/plan/todo.md`, `docs/plan/roadmap.md`, and `docs/plan/todo-archive.md`. Duplicate designs for tasks that are already archived, in progress, or on the roadmap are forbidden.
 
-### 4.3 Irreversible Principle: No Retroactive Modifications
+### 4.3 Fixed Regression Entries
+
+The project now treats these commands as the canonical periodic regression entries:
+
+- `pnpm regression:weekly`
+- `pnpm regression:pre-release`
+- `pnpm regression:phase-close`
+
+Planning work should reference these fixed entries instead of rebuilding custom bundles from scratch each time.
+
+### 4.4 Irreversible Principle: No Retroactive Modifications
 -   **Non-Modification Rule**: Once a task in a phase is marked as `[x]` (Completed), retroactive modifications to that entry are forbidden, including:
     -   Changing acceptance criteria
     -   Deleting completed tasks
@@ -81,7 +101,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
         2.  Evaluate whether to execute immediately or place in the long-term backlog.
         3.  Extend the existing feature rather than deleting or rewriting it.
 
-### 4.4 Archive Management
+### 4.5 Archive Management
 -   **Timing**: When all core tasks of a Phase are marked as completed, the details should be archived to `docs/plan/todo-archive.md`.
 -   **Format**: Archives should preserve the original hierarchy, checkbox status, and acceptance criteria for historical traceability.
 -   **Simplicity**: After archiving, `docs/plan/todo.md` should only retain active tasks for the current iteration. Long-term backlog items are managed exclusively in `docs/plan/roadmap.md`.

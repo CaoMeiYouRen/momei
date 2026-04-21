@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../guide/ai-development.md
 ---
 
 # AI 協同開發指南
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../guide/ai-development.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../guide/ai-development.md) 取得最新內容。
 :::
 
 本指南面向希望在墨梅專案中有效利用 AI 代理的開發者。我們把現代開發視為一種「人定義意圖、AI 負責執行重複性工作」的協作模式，而不是完全放任模型自行產出未經驗證的結果。

@@ -1,12 +1,18 @@
 ---
 source_branch: master
 last_sync: 2026-03-10
+translation_tier: source-only
+source_origin: ../../../guide/comparison.md
 ---
 
 # 方案比較
 
 ::: warning 翻譯說明
 本頁對應 [中文原文](../../../guide/comparison.md)。若內容有差異，請以中文原文為準。
+:::
+
+::: info 中文事實源優先
+本頁目前只保留 locale URL 與原文入口，不再承諾持續維護翻譯正文。請改讀 [中文原文](../../../guide/comparison.md) 取得最新內容。
 :::
 
 本頁從技術棧、國際化、創作流程、後台治理與遷移成本等角度，對比墨梅與目前常見的部落格方案。作為一套 **AI 驅動、原生國際化** 的開發者部落格平台，墨梅的優勢主要體現在跨語內容創作與一體化營運體驗。

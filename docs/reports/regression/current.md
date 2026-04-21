@@ -9,6 +9,43 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-21 文档翻译 freshness 清偿与文档翻译治理
+
+### 范围
+
+- 目标：完成第三十阶段 `文档翻译 freshness 清偿与文档翻译治理 (P0)` 的首轮收口，解决 `docs:check:source-of-truth` 长期失效问题，并把翻译承诺范围从“全量翻译默认持续维护”收敛为分层治理。
+- 本轮覆盖：`docs/design/governance/docs-translation-freshness-governance.md` 专项设计文档；`docs/guide/translation-governance.md` 与 `docs/standards/documentation.md` 的规则上收；`scripts/docs/check-source-of-truth.mjs` 的 tier 化校验；`docs/.vitepress/config.ts` 的 locale 导航收窄；`docs/i18n/en-US`、`docs/i18n/zh-TW`、`docs/i18n/ko-KR`、`docs/i18n/ja-JP` 的公共入口页同步与 source-only 降级页显式声明。
+- 非目标：不在本轮恢复所有深层翻译页的正文同步；深层 design / standards / guide 页优先通过 `source-only` 明示中文事实源，而不是继续假装为完整维护翻译。
+
+### 治理决议与同步范围
+
+- 已正式固化三层口径：`must-sync`（30 天）、`summary-sync`（45 天）、`source-only`（无天数 SLA，但必须显式回链中文原文）。
+- `en-US`：同步首页、快速开始、部署、翻译治理、开发指南，以及 `planning` / `documentation` / `security` / `testing` 高频规范页；将 design 页、`guide/ai-development`、`guide/comparison`、`standards/api` 降为 `source-only`。
+- `zh-TW` / `ko-KR`：同步首页、快速开始、部署、翻译治理等公共入口；深层 guide / standards / design 页统一降为 `source-only`，并补齐 locale URL 保留说明与中文事实源回链。
+- `ja-JP`：同步首页摘要，使其与当前第三十阶段 roadmap 口径保持一致。
+- 导航与目录范围已同步收窄，避免 sidebar / nav 继续暴露已降级的深层翻译页。
+
+### 已执行验证
+
+- `pnpm docs:check:source-of-truth`
+	- 结果：通过；翻译页 freshness、tier 与 source-only frontmatter 契约已恢复到可通过状态。
+- `pnpm docs:check:i18n`
+	- 结果：通过；未发现 legacy `docs/<locale>/` 与 `docs/i18n/<locale>/` 的重复翻译页。
+- `pnpm lint:md`
+	- 结果：通过；本轮新增与修改的治理文档、翻译页与回归记录未引入 Markdown 规范错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：本轮唯一实现期 blocker 是 `docs/i18n/en-US/guide/ai-development.md` 的 `translation_tier` / `source_origin` 一度落在 frontmatter 之外，已在同轮修正并复跑通过。
+
+### 未覆盖边界
+
+- `source-only` 降级并不意味着恢复了深层翻译页正文同步；后续若决定重新扩大 locale 承诺范围，必须先更新规范、脚本映射与导航，再恢复正文维护。
+- `zh-TW` / `ko-KR` / `ja-JP` 目前仍以公共入口摘要为主，未扩展到全量 standards / design 正文 parity。
+- 后续若新增翻译页或调整 tier，必须同步修改 frontmatter、页面提示文案、`docs/.vitepress/config.ts` 与 `scripts/docs/check-source-of-truth.mjs`，否则最容易再次出现“脚本豁免范围”和“站点导航承诺”漂移。
+
 ## 2026-04-21 存量代码注释治理与注释漂移治理首轮切片
 
 ### 范围

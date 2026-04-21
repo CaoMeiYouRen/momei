@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-04-21
+translation_tier: summary-sync
 ---
 
 # 배포 가이드
@@ -67,13 +68,30 @@ last_sync: 2026-03-18
 
 - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`
 - `CRON_SECRET`, `TASKS_TOKEN`, `WEBHOOK_SECRET`
-- `TASK_CRON_EXPRESSION`, `DISABLE_CRON_JOB`
+- `TASK_CRON_EXPRESSION`: 자가 호스팅에서 메인 작업 주기를 덮어씁니다. 메인 작업은 게시글 / 마케팅 스케줄링과 AI 미디어 timeout 보상을 함께 담당합니다.
+- `FRIEND_LINKS_CHECK_CRON`: 자가 호스팅에서 친구 링크 점검용 독립 cron을 덮어씁니다. 기본은 UTC 02:00 하루 1회입니다.
+- `DISABLE_CRON_JOB`
+- `FRIEND_LINKS_CHECK_INTERVAL_MINUTES`: 친구 링크 점검 최소 간격. 최종값은 60분 아래로 내려가지 않습니다.
+- `FRIEND_LINKS_CHECK_BATCH_SIZE`: 1회 점검 배치 크기. 기본 `20`.
+- `FRIEND_LINKS_CHECK_TIMEOUT_MS`: 사이트별 probe timeout. 기본 `8000`ms.
+- `FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`: 연속 실패 사이트의 최대 냉각 시간. 기본 `10080`분(7일).
+- `FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`: 연속 실패가 임계값에 도달하면 `inactive`로 자동 전환할 수 있습니다. 기본은 비활성화입니다.
+
+`WEBHOOK_TIMESTAMP_TOLERANCE`는 예시 파일에 아직 남아 있지만 현재 구현은 읽지 않습니다. webhook 검증은 고정 5분 허용 오차를 사용합니다.
+
+현재 작업 진입점 역할은 다음처럼 정리됩니다.
+
+- Vercel / Cloudflare / 수동 webhook 진입점은 게시글 스케줄링, 마케팅 스케줄링, AI 미디어 timeout 보상, 친구 링크 점검을 통합 실행합니다.
+- 자가 호스팅에서는 메인 cron이 게시글 / 마케팅 스케줄링과 AI 미디어 보상을 담당하고, 친구 링크 점검은 별도 cron으로 유지되어 기본 5분 메인 주기를 그대로 따르지 않습니다.
+
+친구 링크 점검은 최소 간격을 넘기고 실패 냉각 구간에 있지 않은 기록만 probe 합니다. AI 미디어 보상은 timeout 이후 오래 stale 상태인 이미지 생성 / 팟캐스트 작업만 스캔하고, 저장된 checkpoint를 바탕으로 이어 실행하거나 마무리합니다.
 
 ## 3. 플랫폼별 추천
 
 - **Vercel**: Serverless 배포에 적합하며 `CRON_SECRET` 설정을 권장합니다.
 - **Docker / 자가 호스팅**: 로컬 디스크와 자체 cron 제어가 필요한 경우 적합합니다.
 - **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 다만 Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
+- **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 현재 연구 및 손절 결론은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../design/governance/cloudflare-runtime-study.md)에 정리되어 있습니다. Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
 
 ## 4. 자주 겪는 문제
 
@@ -85,6 +103,7 @@ last_sync: 2026-03-18
 - Vercel / Netlify에서 첫 부팅 후 데이터나 관리자 계정이 사라짐: 아직 기본 SQLite를 쓰고 있는지 확인하세요. Serverless 경로는 외부 `DATABASE_URL`로 전환해야 합니다.
 - Vercel / Netlify에서 사이트는 열리지만 업로드가 실패함: 대부분 `STORAGE_TYPE=local`이 남아 있는 경우입니다. `s3`, `r2`, `vercel_blob`로 바꾸세요.
 - Cloudflare Pages / Workers에서 TypeORM 또는 Node 호환성 오류가 발생함: 배포 절차 누락이 아니라 현재 플랫폼 경계입니다. 메인 앱은 Vercel, Docker, 또는 자체 호스팅 Node 환경에 두고, Cloudflare는 R2나 Scheduled Events 관련 실험 같은 외곽 기능으로만 사용하세요.
+- Cloudflare D1이 현재 데이터베이스를 바로 대체할 수 있는가: 아닙니다. 현재 주 스택은 여전히 TypeORM과 `sqlite/mysql/postgres` 드라이버 조합을 전제로 하며, D1은 이후 조건부 연구 항목일 뿐 정식 지원 경로가 아닙니다.
 
 ## 5. 함께 읽기
 
