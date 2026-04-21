@@ -134,6 +134,7 @@ export default defineConfig({
                             { text: 'Hexo 仓库同步评估', link: '/design/governance/hexo-repository-sync' },
                             { text: '文章分享系统', link: '/design/governance/post-sharing' },
                             { text: '国际化扩展与多语言 SEO', link: '/design/governance/i18n-seo-unification' },
+                            { text: '国际化字段治理', link: '/design/governance/i18n-field-governance' },
                             { text: '配置项多语言回退治理', link: '/design/governance/settings-i18n-fallback-governance' },
                             { text: 'AI 成本治理', link: '/design/governance/ai-cost-governance' },
                             { text: 'AI 初始化 / 配置助手评估', link: '/design/governance/ai-setup-assistant-evaluation' },

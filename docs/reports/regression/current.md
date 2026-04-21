@@ -9,6 +9,54 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-21 国际化字段治理关闭复核
+
+### 范围
+
+- 目标：完成第三十阶段 `国际化字段治理 (P1)` 的正式关闭复核，确认本轮已不再停留在“散点补词”，而是已经形成可复核的 blocker 矩阵、运行时边界与共享文案上收口径。
+- 本轮收口：覆盖后台壳层导航运行时加载边界、公开友链元信息显式 locale 覆盖、友链公开页 / 后台页共享字段标签上收，以及缺词 / parity / runtime 三类验证基线。
+- 证据事实源：`docs/design/governance/i18n-field-governance.md`、`components/app-header.test.ts`、`tests/server/api/friend-links/meta.get.test.ts`、`pages/friend-links.test.ts`、`pages/admin/friend-links/index.test.ts`、`i18n/config/locale-modules.test.ts`、`i18n/config/locale-runtime-loader.test.ts`、`components/commercial-link-manager.test.ts`。
+
+### 基线对比
+
+- 本轮前：长期治理主线已经明确 `missing` 优先于 `unused`，也已把 `i18n:audit:missing` 上收到固定入口，但第三十阶段 `todo` 仍缺一份正式的共享 key 准入标准、覆盖模块清单与关闭口径说明。
+- 本轮后：第三十阶段的国际化字段治理已具备明确的字段归属规则、运行时加载边界、blocker 矩阵与已覆盖链路说明，可从当前阶段 `todo` 关闭；长期 i18n 主线继续保留在 backlog。
+- 当前仓库基线：`pnpm i18n:audit:missing -- --summary-limit=12` 返回 `total: 0`，仓库级缺词 blocker 已清零。
+
+### 实施说明
+
+- 新增专项治理文档 `docs/design/governance/i18n-field-governance.md`，正式固化页面私有 key、模块级共享 key、组件 / 领域共享 key 与 `common` 级公共文案四层准入标准。
+- 友链链路已完成一轮跨公开页与后台页的共享字段上收：`site_url`、`logo`、`rss_url`、`contact_email` 统一迁移到 `components.friend_links.fields.*`，旧的 `public` / `admin-friend-links` 模块仅保留页面私有 placeholder 与 hint。
+- 后台壳层导航继续锁定只依赖 `admin` 核心词条，不跨到 `admin-settings`、`admin-ai`、`admin-snippets`、`admin-friend-links` 等可选模块。
+- 公开友链元信息接口继续锁定 query 显式覆盖 locale 的行为，避免客户端切换语言时误回退到 cookie / header。
+
+### 已执行验证
+
+- `pnpm i18n:audit:missing -- --summary-limit=12`
+	- 结果：通过；`Missing parity summary: total: 0`。
+- `pnpm i18n:verify:runtime`
+	- 结果：通过；`5` 个测试文件、`45` 个测试全部通过。
+- `pnpm i18n:check-sync -- --locale=en-US --module=components --fail-on-diff`
+	- 结果：通过；`en-US: parity with zh-CN`。
+- `pnpm i18n:check-sync -- --locale=en-US --module=public --fail-on-diff`
+	- 结果：通过；`en-US: parity with zh-CN`。
+- `pnpm i18n:check-sync -- --locale=en-US --module=admin-friend-links --fail-on-diff`
+	- 结果：通过；`en-US: parity with zh-CN`。
+- 定向友链回归：`pnpm exec vitest run pages/friend-links.test.ts pages/admin/friend-links/index.test.ts components/app-header.test.ts tests/server/api/friend-links/meta.get.test.ts server/utils/locale.test.ts`
+	- 结果：通过；`5` 个测试文件、`62` 个测试全部通过。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前剩余内容已降为长期主线的下一轮候选切片，不再阻塞第三十阶段当前 `todo` 关闭。
+
+### 未覆盖边界
+
+- 本轮没有继续把友链 placeholder / hint 类页面私有文案上收到共享命名空间；这属于后续语义复核问题，不是当前关闭 blocker。
+- 本轮没有展开 `unused` 字段清理；当前仍坚持 `missing` blocker 优先、`unused` 分级观察的治理策略。
+- 长期主线仍需继续守线：后续新增字段或跨模块复用场景，仍必须重新跑 `i18n:audit:missing`、runtime 命中验证与定向 parity。
+
 ## 2026-04-21 settings API ESLint / 类型债窄边界收紧
 
 ### 范围
