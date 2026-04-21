@@ -394,9 +394,9 @@
                     :description="$t('pages.admin.settings.system.hints.external_feed_sources')"
                 >
                     <ExternalFeedSourcesEditor
-                        :model-value="settings.external_feed_sources"
+                        :model-value="externalFeedSourcesModel"
                         :disabled="metadata.external_feed_sources?.isLocked"
-                        @update:model-value="settings.external_feed_sources = $event"
+                        @update:model-value="externalFeedSourcesModel = $event"
                     />
                 </SettingFormField>
             </div>
@@ -417,6 +417,13 @@ const { showErrorToast, showSuccessToast } = useRequestFeedback()
 
 const settings = defineModel<any>('settings', { required: true })
 defineProps<{ metadata: any }>()
+
+const externalFeedSourcesModel = computed({
+    get: () => settings.value.external_feed_sources,
+    set: (value) => {
+        settings.value.external_feed_sources = value
+    },
+})
 
 interface ExternalFeedRefreshResponse {
     data: {
