@@ -216,6 +216,14 @@ export default withNuxt(
         },
     },
     {
+        // shared 工具层先按单目录收紧 any，优先清掉 Markdown 渲染器接线点的类型债。
+        files: ['utils/shared/**/*.{ts,tsx,mts,cts}'],
+        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': [1],
+        },
+    },
+    {
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [],

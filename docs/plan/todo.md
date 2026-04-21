@@ -57,11 +57,12 @@
 	- 验收: 至少完成一轮针对受影响文件的 review，自检“注释是否准确、是否过量、是否与实现同步”，不接受只凭主观感觉判定完成。
 	- 结果: 已完成候选组 A 的首轮注释治理，覆盖 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`；本轮补齐了设置来源优先级、locale 归一化边界，以及 `/api/auth` 固定准入、公开接口会话痕迹准入与 i18n 白名单跳过的请求上下文契约说明，并清理了复述型旧注释。收口阶段已补充函数级 JSDoc 保留策略与模板，明确导出函数、复用函数与复杂函数优先保留简短 JSDoc，当前任务到此结束，不再扩到候选组 B/C。覆盖范围、模板、未覆盖边界、验证矩阵与漂移风险见 `docs/design/governance/comment-drift-governance.md` 与 `docs/reports/regression/current.md`。
 
-6. [ ] **ESLint / 类型债与规则收紧治理 (P1)**
+6. [x] **ESLint / 类型债与规则收紧治理 (P1)**
 	- 验收: 本轮仍只允许选择 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则推进，不直接扩写到 `no-unsafe-*`、全仓 `any` 清零或大规模样式迁移。
 	- 验收: 在进入实现前，必须先给出候选规则命中清单、影响文件、预期收益、回滚方式与最小验证矩阵；若命中过广或回滚边界不清晰，必须退回 backlog 重新切片。
 	- 验收: 对受影响文件同步处理 warning / 类型债，并明确哪些属于本轮收口范围、哪些仍为后续债务，不允许借“顺手修一修”把执行面继续膨胀。
 	- 验收: 输出本轮规则上收结论、残余债务清单与下一轮候选规则建议，便于阶段收口与后续准入复用。
+	- 结果: 已完成 `utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any` 首轮上收，并清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any` 命中；候选规则、回滚边界、最小验证矩阵、残余债与下一轮候选已落盘至 [专项设计与治理索引](../design/governance/eslint-type-debt-tightening.md) 与 [活动回归窗口](../reports/regression/current.md)。
 
 
 

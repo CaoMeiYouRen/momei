@@ -54,6 +54,13 @@ export interface MarkdownRendererInstance extends MarkdownIt {
     image_del: (key: unknown) => void
 }
 
+type MarkdownImageRenderRule = NonNullable<MarkdownRendererInstance['renderer']['rules']['image']>
+type MarkdownTokenList = Parameters<MarkdownImageRenderRule>[0]
+type MarkdownContainerRenderRule = (tokens: MarkdownTokenList, idx: number) => string
+type MarkdownContainerPlugin = (md: MarkdownIt, name: string, options?: { render?: MarkdownContainerRenderRule }) => void
+
+const markdownContainerPlugin = MarkdownItContainer as unknown as MarkdownContainerPlugin
+
 export interface MarkdownOptions {
     /**
      * 是否允许 HTML 标签
@@ -195,7 +202,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     attachMarkdownImagePlaceholderSupport(md)
 
     // 为图片添加懒加载属性
-    const defaultImageRender = md.renderer.rules.image || function (tokens: any, idx: number, options: any, env: any, self: any) {
+    const defaultImageRender: MarkdownImageRenderRule = md.renderer.rules.image || function (tokens, idx, options, _env, self) {
         return self.renderToken(tokens, idx, options)
     }
 
@@ -273,9 +280,13 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     // 集成自定义容器 (tip, warning, danger, info)
     const containers = ['tip', 'warning', 'danger', 'info']
     containers.forEach((type) => {
-        md.use(MarkdownItContainer as any, type, {
-            render: (tokens: any, idx: number) => {
+        md.use(markdownContainerPlugin, type, {
+            render: (tokens: MarkdownTokenList, idx: number) => {
                 const token = tokens[idx]
+                if (!token) {
+                    return ''
+                }
+
                 const info = token.info.trim().slice(type.length).trim()
                 if (token.nesting === 1) {
                     const title = info || type.toUpperCase()
@@ -288,9 +299,14 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     })
 
     // 集成代码组 (Code Group)
-    md.use(MarkdownItContainer as any, 'code-group', {
-        render: (tokens: any, idx: number) => {
-            if (tokens[idx].nesting === 1) {
+    md.use(markdownContainerPlugin, 'code-group', {
+        render: (tokens: MarkdownTokenList, idx: number) => {
+            const token = tokens[idx]
+            if (!token) {
+                return ''
+            }
+
+            if (token.nesting === 1) {
                 return '<div class="code-group">\n'
             }
             return '</div>\n'

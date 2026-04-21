@@ -34,11 +34,11 @@
 - **当前状态**:
     - 第二十四阶段已完成 `@typescript-eslint/no-dynamic-delete` 首轮生产代码收紧，warning 基线、回滚方式与最小验证矩阵已落盘。
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
-    - 第三十阶段已正式上收下一轮规则治理切片，当前要求在实现前先固化候选规则命中清单、影响文件、回滚边界与最小验证矩阵，避免再次以模糊验收把范围缩成最小解释。
+    - 第三十阶段已完成 `utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，并补齐专项设计、回归记录与回滚边界；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
 - **最近一次上收阶段**:
     - 第三十阶段（执行中）。
 - **下一次可切片方向**:
-    - 若下一轮正式上收，验收口径至少应包含 `1 - 2` 条规则的命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
+    - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-explicit-any`、`@typescript-eslint/no-non-null-assertion` 或 `@typescript-eslint/no-unused-vars`，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
 3. **重复代码与纯函数复用收敛**
 - **目标**:

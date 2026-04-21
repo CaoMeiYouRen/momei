@@ -215,6 +215,60 @@
 - 本轮没有展开 `unused` 字段清理；当前仍坚持 `missing` blocker 优先、`unused` 分级观察的治理策略。
 - 长期主线仍需继续守线：后续新增字段或跨模块复用场景，仍必须重新跑 `i18n:audit:missing`、runtime 命中验证与定向 parity。
 
+## 2026-04-21 utils/shared ESLint / 类型债窄边界收紧
+
+### 范围
+
+- 目标：继续推进第三十阶段 P1“ESLint / 类型债与规则收紧治理”，但保持单次只上收一条高 ROI、低噪音规则，不把 shared 层切片扩写成全仓 `any` 清理工程。
+- 本轮上收：仅在 `utils/shared/**` 生产源码范围启用 `@typescript-eslint/no-explicit-any`。
+- 回滚边界：仅涉及 `eslint.config.js`、`utils/shared/markdown.ts`、`docs/.vitepress/config.ts`、`docs/design/governance/eslint-type-debt-tightening.md` 与当前阶段的回归 / 规划文档；未触碰 `server/**`、`composables/**`、测试豁免边界与 `no-unsafe-*`、`no-non-null-assertion` 等其他规则族。
+
+### 命中清单
+
+- 候选筛选：`@typescript-eslint/prefer-nullish-coalescing` 仍属于千级命中规则，不符合本轮“命中有限、可回滚”的准入要求。
+- 候选筛选：`@typescript-eslint/no-non-null-assertion` 当前生产命中仍跨 `server/**`、`composables/**` 与前端表单链路，回滚桶不够窄，暂不进入本轮。
+- `utils/shared` 范围：`@typescript-eslint/no-explicit-any` 当前生产命中集中在 `utils/shared/markdown.ts`，显式 `any` 共 `7` 处，均位于 MarkdownIt 图片渲染 fallback 与容器插件接线点。
+- `utils/shared` 范围：本轮定向 lint 通过后，`utils/shared/**` 下该规则的当前命中已清零；测试文件中的 `as any` 继续保留在显式豁免边界之外。
+
+### 最小验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：记录候选规则筛选结果、命中范围、设计文档与回滚边界。
+- V1：执行 `utils/shared/markdown.ts` 与 `eslint.config.js` 的定向 ESLint，并完成根仓 Nuxt typecheck。
+- V2：执行 `utils/shared/markdown.test.ts`，确认图片占位符、提示块、code-group 与 anchor 渲染行为未回归。
+- RG：本轮 Review Gate 结论为 `Pass`。
+
+### 实施说明
+
+- `eslint.config.js` 新增 `utils/shared/**/*.{ts,tsx,mts,cts}` 的窄 override，只对该目录生产源码启用 `@typescript-eslint/no-explicit-any`，继续排除测试与脚本范围。
+- `utils/shared/markdown.ts` 新增基于 `MarkdownRendererInstance` 推导的窄类型别名，替换图片 fallback 渲染器与容器插件回调中的显式 `any`。
+- `docs/.vitepress/config.ts` 已同步把新增治理页接入“专项设计与治理”侧边栏分组，保证设计文档不只存在于索引页，也能在文档站直接导航。
+- `docs/design/governance/eslint-type-debt-tightening.md` 固化了本轮的候选规则、范围、非目标、回滚边界与下一轮候选，避免后续再次以“继续收紧”这类模糊口径进入实现。
+
+### 已执行验证
+
+- 编辑器诊断：`eslint.config.js`、`utils/shared/markdown.ts`、`docs/design/governance/eslint-type-debt-tightening.md`
+	- 结果：均无新增错误。
+- 定向 ESLint：`pnpm exec eslint utils/shared/markdown.ts eslint.config.js`
+	- 结果：通过，无输出。
+- 定向 Vitest：`utils/shared/markdown.test.ts`
+	- 结果：通过，`12` 个测试全部通过。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过，无输出。
+- 文档构建：`pnpm docs:build`
+	- 结果：通过；`docs:check:i18n` 与 VitePress build 均通过，新增治理页已被文档站侧边栏正确接入。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮规则上收只作用于 `utils/shared` 窄目录，且实际命中、类型层与行为回归都已补齐证据。
+
+### 未覆盖边界
+
+- 本轮没有继续把 `@typescript-eslint/no-explicit-any` 扩到 `server/**`、`composables/**`、前端组件层或测试层，避免把 shared 小切片扩写成更大范围的债务治理。
+- `@typescript-eslint/no-non-null-assertion`、`@typescript-eslint/prefer-nullish-coalescing` 与 `@typescript-eslint/no-unused-vars` error 化仍保留为下一轮候选；若继续推进，必须先按目录或模块组重新拆桶。
+
 ## 2026-04-21 settings API ESLint / 类型债窄边界收紧
 
 ### 范围
