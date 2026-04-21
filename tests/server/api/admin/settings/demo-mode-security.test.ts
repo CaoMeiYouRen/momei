@@ -58,15 +58,13 @@ describe('demo mode admin settings security', () => {
         expect(() => assertDemoSettingsWriteAllowed('PUT', normalRuntimeConfig)).not.toThrow()
     })
 
-    it('应该允许远程仓库同步字段进入通用系统设置写入过滤', () => {
+    it('应该从通用系统设置写入中剔除 Hexo 仓库同步字段', () => {
         expect(filterAdminSettingsPayload({
             [SettingKey.SITE_TITLE]: 'Momei',
             [SettingKey.HEXO_SYNC_ENABLED]: 'true',
             [SettingKey.HEXO_SYNC_REPO]: 'example-hexo',
         })).toEqual({
             [SettingKey.SITE_TITLE]: 'Momei',
-            [SettingKey.HEXO_SYNC_ENABLED]: 'true',
-            [SettingKey.HEXO_SYNC_REPO]: 'example-hexo',
         })
     })
 })

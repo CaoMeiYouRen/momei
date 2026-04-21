@@ -17,6 +17,10 @@ vi.mock('@/server/services/setting', () => ({
 
 import { getSetting } from '@/server/services/setting'
 
+function readRequestBody(requestInit?: RequestInit) {
+    return typeof requestInit?.body === 'string' ? requestInit.body : ''
+}
+
 const actor = {
     currentUserId: 'admin-user',
     isAdmin: true,
@@ -126,7 +130,7 @@ describe('post-hexo-repository-sync service', () => {
         expect(fetcher.mock.calls[1]?.[0]).toBe(`https://api.github.com/repos/example-owner/example-hexo/contents/source/_posts/en-US/${post.slug}.md`)
 
         const requestInit = fetcher.mock.calls[1]?.[1]
-        const payload = JSON.parse(String(requestInit?.body)) as { content: string }
+        const payload = JSON.parse(readRequestBody(requestInit)) as { content: string }
         const markdown = Buffer.from(payload.content, 'base64').toString('utf-8')
         expect(markdown).toContain('image: https://momei.app/uploads/frontmatter-cover.png')
         expect(markdown).toContain('audio_url: https://momei.app/uploads/audio.mp3')
@@ -165,7 +169,7 @@ describe('post-hexo-repository-sync service', () => {
 
         const requestInit = fetcher.mock.calls[1]?.[1]
         expect(requestInit?.method).toBe('POST')
-        const payload = JSON.parse(String(requestInit?.body)) as { access_token: string }
+        const payload = JSON.parse(readRequestBody(requestInit)) as { access_token: string }
         expect(payload.access_token).toBe('gitee_test_token')
     })
 

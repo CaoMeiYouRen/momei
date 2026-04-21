@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
         const rawPolicies = settingsPayload[SettingKey.AI_QUOTA_POLICIES]
         const parsedPolicies = Array.isArray(rawPolicies)
             ? rawPolicies
-            : parseMaybeJson<unknown[] | null>(String(rawPolicies ?? ''), null)
+            : parseMaybeJson<unknown[] | null>(rawPolicies, null)
         const validation = aiQuotaPoliciesSchema.safeParse(parsedPolicies)
 
         if (!validation.success) {
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
         const rawThresholds = settingsPayload[SettingKey.AI_ALERT_THRESHOLDS]
         const parsedThresholds = typeof rawThresholds === 'object' && rawThresholds !== null
             ? rawThresholds
-            : parseMaybeJson<Record<string, unknown> | null>(String(rawThresholds ?? ''), null)
+            : parseMaybeJson<Record<string, unknown> | null>(rawThresholds, null)
         const validation = aiAlertThresholdsSchema.safeParse(parsedThresholds)
 
         if (!validation.success) {
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
         const rawCostFactors = settingsPayload[SettingKey.AI_COST_FACTORS]
         const parsedCostFactors = typeof rawCostFactors === 'object' && rawCostFactors !== null
             ? rawCostFactors
-            : parseMaybeJson<Record<string, unknown> | null>(String(rawCostFactors ?? ''), null)
+            : parseMaybeJson<Record<string, unknown> | null>(rawCostFactors, null)
         const validation = aiCostFactorsSchema.safeParse(parsedCostFactors)
 
         if (!validation.success) {
@@ -102,7 +102,7 @@ export default defineEventHandler(async (event) => {
         const rawSources = settingsPayload[SettingKey.EXTERNAL_FEED_SOURCES]
         const parsedSources = Array.isArray(rawSources)
             ? rawSources
-            : parseMaybeJson<unknown[] | null>(String(rawSources ?? ''), null)
+            : parseMaybeJson<unknown[] | null>(rawSources, null)
         const validation = externalFeedSourcesSchema.safeParse(parsedSources)
 
         if (!validation.success) {

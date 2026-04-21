@@ -49,6 +49,11 @@ describe('setting.constants', () => {
             expect(isInternalOnlySettingKey(SettingKey.SITE_NAME)).toBe(false)
         })
 
+        it('returns true for Hexo repository sync settings', () => {
+            expect(isInternalOnlySettingKey(SettingKey.HEXO_SYNC_ENABLED)).toBe(true)
+            expect(isInternalOnlySettingKey(SettingKey.HEXO_SYNC_ACCESS_TOKEN)).toBe(true)
+        })
+
         it('returns false for unknown key', () => {
             expect(isInternalOnlySettingKey('not_a_key')).toBe(false)
         })

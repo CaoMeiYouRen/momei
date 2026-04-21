@@ -211,9 +211,23 @@ export const INTERNAL_ONLY_ENV_KEYS: string[] = [
 export const INTERNAL_ONLY_SETTING_KEYS: string[] = [
     SettingKey.ASR_VOLCENGINE_SECRET_KEY,
     SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
+    SettingKey.HEXO_SYNC_ENABLED,
+    SettingKey.HEXO_SYNC_PROVIDER,
+    SettingKey.HEXO_SYNC_OWNER,
+    SettingKey.HEXO_SYNC_REPO,
+    SettingKey.HEXO_SYNC_BRANCH,
+    SettingKey.HEXO_SYNC_POSTS_DIR,
+    SettingKey.HEXO_SYNC_ACCESS_TOKEN,
 ]
 
 export const ADMIN_SETTINGS_EXCLUDED_KEYS: string[] = [
+    SettingKey.HEXO_SYNC_ENABLED,
+    SettingKey.HEXO_SYNC_PROVIDER,
+    SettingKey.HEXO_SYNC_OWNER,
+    SettingKey.HEXO_SYNC_REPO,
+    SettingKey.HEXO_SYNC_BRANCH,
+    SettingKey.HEXO_SYNC_POSTS_DIR,
+    SettingKey.HEXO_SYNC_ACCESS_TOKEN,
 ]
 
 export const INTERNAL_ONLY_KEYS: string[] = [

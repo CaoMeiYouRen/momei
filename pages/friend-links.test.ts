@@ -61,7 +61,7 @@ mockNuxtImport('useRuntimeConfig', () => () => ({
 }))
 
 mockNuxtImport('useRouter', () => () => ({
-    replace: vi.fn(async () => undefined),
+    replace: vi.fn(() => Promise.resolve(undefined)),
     beforeEach: vi.fn(),
     beforeResolve: vi.fn(),
     afterEach: vi.fn(),
@@ -70,9 +70,9 @@ mockNuxtImport('useRouter', () => () => ({
 
 mockNuxtImport('usePageSeo', () => vi.fn())
 
-mockNuxtImport('useAsyncData', () => async (key: string) => {
+mockNuxtImport('useAsyncData', () => (key: string) => {
     if (key === 'friend-links-meta') {
-        return {
+        return Promise.resolve({
             data: ref({
                 enabled: true,
                 applicationEnabled: true,
@@ -80,16 +80,16 @@ mockNuxtImport('useAsyncData', () => async (key: string) => {
                 categories: [],
             }),
             refresh: mockRefreshMeta,
-        }
+        })
     }
 
-    return {
+    return Promise.resolve({
         data: ref({
             items: [],
             groups: [],
         }),
         refresh: mockRefreshLinks,
-    }
+    })
 })
 
 vi.mock('@/lib/auth-client', () => ({

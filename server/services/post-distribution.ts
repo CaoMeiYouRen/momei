@@ -113,13 +113,27 @@ function normalizeHexoRepositorySyncChannelState(state?: PostHexoRepositorySyncS
     const lastFailureAt = normalizeDistributionTimestamp(state?.lastFailureAt)
     const hasFailure = Boolean(lastFailureAt && (!lastSyncedAt || Date.parse(lastFailureAt) >= Date.parse(lastSyncedAt)))
     const lastAttemptAt = hasFailure ? lastFailureAt : lastSyncedAt
+    let status: HexoRepositorySyncChannelSummary['status'] = 'idle'
+    let lastAction: HexoRepositorySyncChannelSummary['lastAction'] = null
+
+    if (hasFailure) {
+        status = 'failed'
+    } else if (lastSyncedAt) {
+        status = 'succeeded'
+    }
+
+    if (state?.lastOperation === 'retry') {
+        lastAction = 'retry'
+    } else if (lastSyncedAt) {
+        lastAction = 'update'
+    }
 
     return {
-        status: hasFailure ? 'failed' : lastSyncedAt ? 'succeeded' : 'idle',
+        status,
         remoteId: state?.remoteSha ?? null,
         remoteUrl: state?.remoteUrl ?? null,
         lastMode: null,
-        lastAction: state?.lastOperation === 'retry' ? 'retry' : lastSyncedAt ? 'update' : null,
+        lastAction,
         lastAttemptId: null,
         activeAttemptId: null,
         lastAttemptAt,
