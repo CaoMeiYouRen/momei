@@ -111,7 +111,7 @@
                     "extension_missing": "未偵測到 WechatSync 外掛，請先安裝並登入。",
                     "hexo_repository_file_path": "目標檔案",
                     "hexo_repository_hint": "若尚未配置倉庫目標，請先前往系統設定 > 第三方整合完成遠端倉庫同步設定。",
-                    "hexo_repository_target": "將同步到 {provider} 倉庫 {target}@{branch}",
+                    "hexo_repository_target": "將同步到 {provider} 倉庫 {target}（分支：{branch}）",
                     "hexo_sync_success": "遠端倉庫同步已完成",
                     "failure_reason": {
                         "auth_failed": "驗證失敗",

@@ -111,7 +111,7 @@
                     "extension_missing": "WechatSync 확장이 감지되지 않았습니다. 먼저 설치하고 로그인해 주세요.",
                     "hexo_repository_file_path": "대상 파일",
                     "hexo_repository_hint": "저장소 대상이 아직 설정되지 않았다면 시스템 설정 > 통합으로 이동해 원격 저장소 동기화 설정을 먼저 완료하세요.",
-                    "hexo_repository_target": "{provider} 저장소 {target}@{branch} 로 동기화됩니다",
+                    "hexo_repository_target": "{provider} 저장소 {target} (브랜치: {branch}) 로 동기화됩니다",
                     "hexo_sync_success": "원격 저장소 동기화가 완료되었습니다",
                     "failure_reason": {
                         "auth_failed": "인증 실패",

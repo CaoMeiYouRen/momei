@@ -111,7 +111,7 @@
                     "extension_missing": "未检测到 WechatSync 插件，请先安装并登录。",
                     "hexo_repository_file_path": "目标文件",
                     "hexo_repository_hint": "若尚未配置仓库目标，请先前往系统设置 > 第三方集成完成远程仓库同步配置。",
-                    "hexo_repository_target": "将同步到 {provider} 仓库 {target}@{branch}",
+                    "hexo_repository_target": "将同步到 {provider} 仓库 {target}（分支：{branch}）",
                     "hexo_sync_success": "远程仓库同步已完成",
                     "failure_reason": {
                         "auth_failed": "鉴权失败",
