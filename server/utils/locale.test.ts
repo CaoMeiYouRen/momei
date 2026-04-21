@@ -175,6 +175,36 @@ describe('server/utils/locale.ts', () => {
     })
 
     describe('detectRequestAuthLocale', () => {
+        it('should prioritize explicit query locale over cookie and header', () => {
+            vi.mocked(getQuery).mockReturnValue({ locale: 'zh-CN' })
+            vi.mocked(parseCookies).mockReturnValue({ locale: 'en-US' })
+            vi.mocked(getHeader).mockImplementation((_, name) => {
+                if (name === 'accept-language') {
+                    return 'ko-KR'
+                }
+                return undefined
+            })
+
+            const event = {} as H3Event
+
+            expect(detectRequestAuthLocale(event)).toBe('zh-Hans')
+        })
+
+        it('should ignore query locale when includeQuery is disabled', () => {
+            vi.mocked(getQuery).mockReturnValue({ locale: 'zh-CN' })
+            vi.mocked(parseCookies).mockReturnValue({ locale: 'en-US' })
+            vi.mocked(getHeader).mockImplementation((_, name) => {
+                if (name === 'accept-language') {
+                    return 'ko-KR'
+                }
+                return undefined
+            })
+
+            const event = {} as H3Event
+
+            expect(detectRequestAuthLocale(event, { includeQuery: false })).toBe('en-US')
+        })
+
         it('should prioritize cookie', () => {
             vi.mocked(parseCookies).mockReturnValue({ locale: 'zh-Hans' })
             vi.mocked(getHeader).mockReturnValue('en-US')

@@ -98,8 +98,30 @@ const ButtonStub = defineComponent({
 
 const MenuStub = defineComponent({
     inheritAttrs: false,
-    setup(_, { attrs, expose }) {
+    props: {
+        model: {
+            type: Array,
+            default: () => [],
+        },
+    },
+    setup(props, { attrs, expose }) {
         const id = typeof attrs.id === 'string' ? attrs.id : ''
+        const collectLabels = (items: unknown[]): string[] => {
+            return items.flatMap((item) => {
+                if (!item || typeof item !== 'object') {
+                    return []
+                }
+
+                const label = typeof (item as { label?: unknown }).label === 'string'
+                    ? [(item as { label: string }).label]
+                    : []
+                const nestedItems = Array.isArray((item as { items?: unknown[] }).items)
+                    ? collectLabels((item as { items: unknown[] }).items)
+                    : []
+
+                return [...label, ...nestedItems]
+            })
+        }
 
         expose({
             toggle(event: Event) {
@@ -112,7 +134,7 @@ const MenuStub = defineComponent({
             },
         })
 
-        return () => h('div', { class: 'menu-stub', ...attrs })
+        return () => h('div', { class: 'menu-stub', ...attrs }, collectLabels(props.model as unknown[]).join(' | '))
     },
 })
 
@@ -268,6 +290,41 @@ describe('AppHeader', () => {
         expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
         expect(wrapper.text()).toMatch(/文章管理|Post Management/)
         expect(wrapper.text()).not.toContain('pages.admin.posts.title')
+    })
+
+    it('renders admin shell labels for optional admin modules without leaking raw keys', async () => {
+        sessionState.value = {
+            data: {
+                user: { id: '7', role: 'admin', name: 'Admin' },
+            },
+            isPending: false,
+        }
+
+        const wrapper = await mountSuspended(AppHeader, {
+            global: { stubs },
+        })
+
+        await vi.waitFor(() => {
+            expect(wrapper.find('#admin-menu-btn').exists()).toBe(true)
+        })
+
+        const text = wrapper.text()
+
+        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
+            expect.objectContaining({
+                modules: ['admin'],
+            }),
+        )
+        expect(text).toMatch(/AI 任务与统计|AI Tasks & Stats/)
+        expect(text).toMatch(/灵感收纳箱|Inspiration Inbox/)
+        expect(text).toMatch(/友链管理|Friend Links/)
+        expect(text).toMatch(/主题定制|Theme Customization/)
+        expect(text).toMatch(/系统设置|System Settings/)
+        expect(text).not.toContain('pages.admin.ai.title')
+        expect(text).not.toContain('pages.admin.snippets.title')
+        expect(text).not.toContain('pages.admin.friend_links.title')
+        expect(text).not.toContain('pages.admin.settings.theme.title')
+        expect(text).not.toContain('pages.admin.settings.system.title')
     })
 
     it('renders admin posts link after travellings in desktop nav', async () => {

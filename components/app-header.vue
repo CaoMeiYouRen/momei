@@ -389,6 +389,8 @@ const showAdminControls = computed(() => Boolean(
 const goToAdminPosts = () => navigateTo(localePath('/admin/posts'))
 
 const adminMenuItems = computed(() => {
+    // Header 会出现在任意路由上，后台导航标签必须持续依赖始终预装的 admin 壳层词条，
+    // 不能把可选页面模块里的私有文案直接带进全局导航，否则切到未加载该模块的页面时会泄露 raw key。
     const items: MenuItem[] = [
         {
             label: t('pages.admin.dashboard.title'),
