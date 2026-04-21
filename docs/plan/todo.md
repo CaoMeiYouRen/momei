@@ -62,7 +62,7 @@
 	- 验收: 在进入实现前，必须先给出候选规则命中清单、影响文件、预期收益、回滚方式与最小验证矩阵；若命中过广或回滚边界不清晰，必须退回 backlog 重新切片。
 	- 验收: 对受影响文件同步处理 warning / 类型债，并明确哪些属于本轮收口范围、哪些仍为后续债务，不允许借“顺手修一修”把执行面继续膨胀。
 	- 验收: 输出本轮规则上收结论、残余债务清单与下一轮候选规则建议，便于阶段收口与后续准入复用。
-	- 结果: 已完成 `utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any` 首轮上收，并清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any` 命中；候选规则、回滚边界、最小验证矩阵、残余债与下一轮候选已落盘至 [专项设计与治理索引](../design/governance/eslint-type-debt-tightening.md) 与 [活动回归窗口](../reports/regression/current.md)。
+	- 结果: 已完成两轮 `@typescript-eslint/no-explicit-any` 窄边界收紧，覆盖 `utils/shared/markdown.ts` 的 `7` 处显式 `any` 与 `server/utils/object.ts`、`server/utils/pagination.ts` 的 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样，并明确下一轮优先从 `composables` 继续缩窄。候选规则、回滚边界、最小验证矩阵、采样结论与残余债已落盘至 [专项设计与治理索引](../design/governance/eslint-type-debt-tightening.md) 与 [活动回归窗口](../reports/regression/current.md)。
 
 
 

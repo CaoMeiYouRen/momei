@@ -9,9 +9,12 @@ export function assignDefined<T extends object, S extends object>(
     source: S,
     keys: (keyof S & keyof T)[],
 ) {
+    const targetRecord = target as Record<keyof S & keyof T, unknown>
+
     for (const key of keys) {
-        if (source[key] !== undefined) {
-            target[key] = source[key] as any
+        const value = source[key]
+        if (value !== undefined) {
+            targetRecord[key] = value
         }
     }
 }

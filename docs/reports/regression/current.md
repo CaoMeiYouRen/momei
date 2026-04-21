@@ -215,6 +215,60 @@
 - 本轮没有展开 `unused` 字段清理；当前仍坚持 `missing` blocker 优先、`unused` 分级观察的治理策略。
 - 长期主线仍需继续守线：后续新增字段或跨模块复用场景，仍必须重新跑 `i18n:audit:missing`、runtime 命中验证与定向 parity。
 
+## 2026-04-21 server/utils ESLint / 类型债第二轮收紧
+
+### 范围
+
+- 目标：在 `utils/shared` 首轮收紧之后，再完成一轮可回滚的 `@typescript-eslint/no-explicit-any` 窄切片，并同步为 `@typescript-eslint/no-non-null-assertion` 做三桶采样，作为第三十阶段该待办的最终收口依据。
+- 本轮上收：仅在 `server/utils/object.ts` 与 `server/utils/pagination.ts` 两个生产文件上启用 `@typescript-eslint/no-explicit-any`。
+- 回滚边界：仅涉及 `eslint.config.js`、`server/utils/object.ts`、`server/utils/pagination.ts` 与当前阶段的治理 / 规划文档；未触碰整个 `server/utils` 目录、`composables/**`、前端表单链路或测试豁免边界。
+
+### 命中清单
+
+- `@typescript-eslint/no-explicit-any` 下一候选筛选：`server/utils/object.ts` 与 `server/utils/pagination.ts` 当前生产命中共 `2` 处，分别是 `assignDefined()` 的赋值桥接和 `parsePagination()` 的未收紧输入参数。
+- 两文件都属于底层工具层，且有同级测试文件 `server/utils/object.test.ts` 与 `server/utils/pagination.test.ts`，符合“命中继续集中、验证便宜、回滚清晰”的准入要求。
+- `@typescript-eslint/no-non-null-assertion` 分桶采样：`server` 约 `15` 处，集中在设置读取、鉴权上下文和服务层链路；`composables` 约 `8` 处，集中在广告注入与后台 AI 管理链路；前端表单组约 `25+` 处，集中在设置管理器、编辑器和后台表单组件。
+- 分桶结论：`server` 与前端表单组当前都不适合直接上收，前者风险偏向运行时边界，后者噪音显著偏高；`composables` 更适合作为下一轮单模块再拆桶，而不是在本待办末尾直接提级。
+
+### 最小验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：记录两文件组命中清单、`no-non-null-assertion` 三桶采样和最终收口结论。
+- V1：执行受影响文件定向 ESLint、编辑器诊断与 Nuxt typecheck。
+- V2：执行 `server/utils/object.test.ts` 与 `server/utils/pagination.test.ts`，确认对象同步与分页解析行为未回归。
+- RG：本轮 Review Gate 结论为 `Pass`。
+
+### 实施说明
+
+- `eslint.config.js` 新增对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 的窄 override，只对这两个生产文件启用 `@typescript-eslint/no-explicit-any`。
+- `server/utils/object.ts` 用 `Record<keyof S & keyof T, unknown>` 视图替代了 `assignDefined()` 中的显式 `any` 赋值桥接。
+- `server/utils/pagination.ts` 将 `parsePagination()` 的输入从 `any` 收紧为 `unknown`，继续依赖 `paginationSchema.safeParse()` 处理合法性。
+- 本轮只记录 `@typescript-eslint/no-non-null-assertion` 的采样结论，不正式上收该规则，避免在待办收口前引入新的大范围行为噪音。
+
+### 已执行验证
+
+- 编辑器诊断：`eslint.config.js`、`server/utils/object.ts`、`server/utils/pagination.ts`
+	- 结果：均无新增错误。
+- 定向 ESLint：`pnpm exec eslint server/utils/object.ts server/utils/pagination.ts eslint.config.js`
+	- 结果：通过，无输出。
+- 定向 Vitest：`server/utils/object.test.ts`、`server/utils/pagination.test.ts`
+	- 结果：通过，`19` 个测试全部通过。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过，无输出。
+- 文档构建：`pnpm docs:build`
+	- 结果：通过；`docs:check:i18n` 与 VitePress build 均通过，本轮文档与规划改动未引入新的站点构建问题。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮规则上收仍保持两文件窄边界，且 `no-non-null-assertion` 已完成分桶采样但未越权直接提级，符合当前待办的收口口径。
+
+### 未覆盖边界
+
+- 本轮没有把 `@typescript-eslint/no-explicit-any` 扩到整个 `server/utils` 或更高层业务目录，避免把最后一轮切片扩成大范围服务端清理。
+- `@typescript-eslint/no-non-null-assertion` 当前只完成了 `server / composables / 前端表单` 三桶采样；若后续继续推进，优先从 `composables` 再拆成单一 composable 或单一后台管理模块。
+
 ## 2026-04-21 utils/shared ESLint / 类型债窄边界收紧
 
 ### 范围

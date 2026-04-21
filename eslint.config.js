@@ -224,6 +224,13 @@ export default withNuxt(
         },
     },
     {
+        // 第二轮只收紧 server/utils 底层工具组中的两个高复用文件，避免把 server 工具层一次性扩写成大范围 any 清理。
+        files: ['server/utils/object.ts', 'server/utils/pagination.ts'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': [1],
+        },
+    },
+    {
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [],

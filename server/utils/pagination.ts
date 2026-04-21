@@ -49,7 +49,7 @@ export function applyPagination<T extends ObjectLiteral>(qb: SelectQueryBuilder<
  * 解析并验证分页参数
  * @param query 原始查询参数
  */
-export function parsePagination(query: any): PaginationOptions {
+export function parsePagination(query: unknown): PaginationOptions {
     const result = paginationSchema.safeParse(query)
     if (result.success) {
         return result.data

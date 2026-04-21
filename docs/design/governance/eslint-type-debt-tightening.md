@@ -2,9 +2,9 @@
 
 ## 1. 概述
 
-第三十阶段的“ESLint / 类型债与规则收紧治理 (P1)”继续沿长期主线推进，但本轮只冻结一个窄切片：`utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any`。
+第三十阶段的“ESLint / 类型债与规则收紧治理 (P1)”沿长期主线推进了两轮窄切片：先完成 `utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any`，再继续把同一条规则推进到 `server/utils` 中命中继续集中的底层工具文件组。
 
-本轮目标不是把历史 `any` 一次性清零，而是先在高复用的 shared 工具层建立一条可回滚、可复验的规则上收路径，并把当前命中收敛到单文件闭环。
+本轮目标不是把历史 `any` 一次性清零，而是按“高复用层 -> 服务端底层工具层”的路径建立可回滚、可复验的规则上收节奏，并在结束当前待办前补齐 `@typescript-eslint/no-non-null-assertion` 的三桶采样结论。
 
 ## 2. 本轮范围与非目标
 
@@ -12,12 +12,13 @@
 
 - 规则配置：`eslint.config.js`
 - shared Markdown 渲染器：`utils/shared/markdown.ts`
+- server 工具组：`server/utils/object.ts`、`server/utils/pagination.ts`
 - 文档站导航：`docs/.vitepress/config.ts`
 - 当前阶段待办与回归记录：`docs/plan/todo.md`、`docs/reports/regression/current.md`
 
 ### 2.2 非目标
 
-- 不把 `@typescript-eslint/no-explicit-any` 外溢到全仓生产源码、测试、脚本或 `server/**` / `composables/**`。
+- 不把 `@typescript-eslint/no-explicit-any` 外溢到全仓生产源码、测试、脚本或整个 `server/**` / `composables/**`。
 - 不把本轮扩写为 `no-unsafe-*`、`prefer-nullish-coalescing`、`no-unused-vars` error 化，或“全仓 any 清零”工程。
 - 不重写 Markdown 渲染能力、容器语法或图片占位符行为；本轮只做类型收敛与规则上收。
 
@@ -34,11 +35,19 @@
 - 本轮只上收 `utils/shared/**/*.{ts,tsx,mts,cts}` 的 `@typescript-eslint/no-explicit-any`，并继续排除 `*.test.*`、`*.spec.*`、`tests/**` 与 `scripts/**`。
 - 选择该切片的原因：`utils/shared` 属于高复用层；当前命中几乎集中在单文件；替换方式可依赖现有 `MarkdownIt` 实例推导出的参数类型完成，不需要引入新依赖或更大范围的范型重构。
 
+### 3.3 第二轮筛选与最终收口结论
+
+- `@typescript-eslint/no-explicit-any` 下一候选：`server/utils/object.ts` 与 `server/utils/pagination.ts` 两文件组当前生产命中共 `2` 处，均位于底层工具函数，且各自有同级测试文件，符合“命中继续集中、回滚边界清晰”的准入要求。
+- `@typescript-eslint/no-non-null-assertion` 分桶采样：`server` 约 `15` 处，集中在设置、鉴权与服务层上下文；`composables` 约 `8` 处，集中在广告注入与后台 AI 管理；前端表单组约 `25+` 处，集中在设置管理器、编辑器与管理表单链路。
+- 分桶结论：`server` 与前端表单组当前都不适合直接上收，前者会触碰数据库 / 鉴权边界，后者会导致大量模板与 ref 判空噪音；`composables` 风险中等，但命中仍跨多个交互链路，不适合作为本待办的最后一刀。
+- 最终结论：本轮继续正式上收 `@typescript-eslint/no-explicit-any`，但只作用于 `server/utils/object.ts` 与 `server/utils/pagination.ts`，同时把 `no-non-null-assertion` 的三桶采样结论落盘，作为关闭第三十阶段该待办的收口依据。
+
 ## 4. 实施策略
 
 ### 4.1 规则上收策略
 
 - 在 `eslint.config.js` 中新增 `utils/shared` 生产源码 override，仅对该目录启用 `@typescript-eslint/no-explicit-any` warning。
+- 第二轮仅对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 启用同一条规则，避免把 `server/utils` 整体提升成高噪音目录级治理。
 - 测试文件中的 `as any` 保持豁免，避免为了非法输入断言或 mock 边界而把本轮切片扩写到测试治理。
 - 新增治理页进入 `docs/design/governance/index.md` 后，必须同步接入 `docs/.vitepress/config.ts` 的“专项设计与治理”侧边栏分组，避免设计文档事实源与文档站导航漂移。
 
@@ -46,12 +55,16 @@
 
 - 通过 `MarkdownRendererInstance['renderer']['rules']['image']` 派生参数类型，收敛图片渲染 fallback 回调中的 `any`。
 - 为自定义容器渲染建立窄类型别名，去掉 `MarkdownItContainer as any` 与容器 `render(tokens: any, idx: number)` 的显式 `any`。
+- 把 `assignDefined()` 内部的赋值桥接改写为 `Record<keyof S & keyof T, unknown>` 视图，去掉目标对象同步时的显式 `any`。
+- 将 `parsePagination()` 的输入从 `any` 收紧为 `unknown`，保持 `zod safeParse` 的既有行为不变。
 - 保持 Markdown 渲染输出、图片占位符替换、提示块与 code-group 容器结构不变。
 
 ## 5. 回滚边界
 
 - 配置回滚：只需回退 `eslint.config.js` 中新增的 `utils/shared` override。
+- 第二轮配置回滚：只需回退 `eslint.config.js` 中针对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 的窄 override。
 - 代码回滚：只需回退 `utils/shared/markdown.ts` 的类型收敛改动。
+- 第二轮代码回滚：只需回退 `server/utils/object.ts` 与 `server/utils/pagination.ts` 的类型收敛改动。
 - 文档站回滚：若撤回本轮治理页，需同步回退 `docs/.vitepress/config.ts` 中新增的侧边栏入口。
 - 文档回滚：只需回退本设计文档、`todo.md` 与 `docs/reports/regression/current.md` 的本轮记录。
 
@@ -60,6 +73,7 @@
 - V0：记录候选规则、命中范围、收益与回滚边界。
 - V1：执行受影响文件定向 ESLint、编辑器诊断与 Nuxt typecheck。
 - V2：执行 `utils/shared/markdown.test.ts`，确认 Markdown 图片占位符、容器渲染与锚点行为未回归。
+- V2：执行 `server/utils/object.test.ts` 与 `server/utils/pagination.test.ts`，确认对象同步与分页参数解析行为未回归。
 - 文档验证：执行 `pnpm docs:build`，确认新增治理页与侧边栏配置已被文档站正确接入。
 - RG：在 `docs/reports/regression/current.md` 中沉淀 Review Gate 结论、未覆盖边界与下一轮候选。
 
@@ -73,7 +87,7 @@
 ### 7.2 下一轮候选规则建议
 
 - 继续按目录切片推进 `@typescript-eslint/no-explicit-any`，优先选择 shared / server 中命中继续集中的单文件或单模块组，而不是直接全仓提级。
-- 若要推进 `@typescript-eslint/no-non-null-assertion`，应先按 `server`、`composables`、前端表单分别拆桶，再决定是否进入正式切片。
+- 若要推进 `@typescript-eslint/no-non-null-assertion`，优先从 `composables` 继续缩窄到单一 composable 或单一后台管理模块，而不是直接触碰 `server` 与前端表单大桶。
 - 若要处理 warning 债，优先评估生产源码范围的 `@typescript-eslint/no-unused-vars` 是否适合从 warning 升为 error，但必须先确认当前命中已足够窄。
 
 ## 8. 证据落点
