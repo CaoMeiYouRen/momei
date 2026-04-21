@@ -128,6 +128,7 @@ export default defineConfig({
                         text: '专项设计与治理',
                         items: [
                             { text: '治理概览', link: '/design/governance/index' },
+                            { text: '注释漂移治理', link: '/design/governance/comment-drift-governance' },
                             { text: '可缓存接口清单', link: '/design/governance/cacheable-api-inventory' },
                             { text: '内容分发模板与标签', link: '/design/governance/content-distribution-template-tag-adaptation' },
                             { text: '第三方分发治理', link: '/design/governance/content-distribution-governance' },

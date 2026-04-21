@@ -9,6 +9,54 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-21 存量代码注释治理与注释漂移治理首轮切片
+
+### 范围
+
+- 目标：完成第三十阶段 `存量代码注释治理与注释漂移治理 (P1)` 的首轮窄切片，只覆盖 `1` 组高复杂度链路，不扩写为全仓补注释工程。
+- 本轮覆盖：候选组 A，即 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`。
+- 非目标：不触碰上传存储解析、文章访问控制、AI 服务治理与公开查询裁剪链路；不改任何运行时行为，只治理注释质量与漂移风险。
+
+### 注释补强与清理结论
+
+- 设置来源判定：已补齐 localized setting 的结构化 locale 回退链、legacy 单值兼容、`env > db > default` 统一决议点，以及 `setSettings()` 中脱敏占位符保值与 legacy alias 清理的契约说明。
+- locale 归一化：已补齐 auth boundary locale 到 `AppLocaleCode` 的映射边界、`default -> en-US` 的内部折叠口径，以及 H3 请求与 Better Auth `Request` 场景必须共享同一优先级链的原因。
+- 鉴权上下文挂载：已补齐 `shouldResolveSession()` 的准入边界，明确 `/api/auth` 始终进入 session 解析，其余情况下只在特定公开接口且已带会话痕迹时才触发，避免匿名热点请求被无意义地拖入鉴权初始化。
+- i18n 上下文注入：已补齐 `event.context.locale` 与 `AsyncLocalStorage` 双写入的原因，并明确当前白名单只跳过内部构建产物与 favicon，没有把局部跳过策略误写成“所有静态资源都不进入链路”。
+- 低价值注释清理：移除了 `setting.ts` 与 `locale.ts` 中多处只复述函数名 / 参数含义的通用 JSDoc，改为解释来源优先级、兼容边界与副作用的窄注释。
+
+### 设计与证据事实源
+
+- 设计文档：`docs/design/governance/comment-drift-governance.md`
+- 当前阶段状态：`docs/plan/todo.md`
+
+### 已执行验证
+
+- 受影响文件错误检查：编辑器诊断复核 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts`、`server/middleware/i18n.ts`
+	- 结果：无新增错误。
+- 定向 ESLint：`server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts`、`server/middleware/i18n.ts`
+	- 结果：通过。
+- 定向 Markdown lint：`docs/design/governance/comment-drift-governance.md`、`docs/design/governance/index.md`、`docs/plan/todo.md`、`docs/reports/regression/current.md`
+	- 结果：通过。
+- 定向 Vitest：`server/services/setting.test.ts`、`server/utils/locale.test.ts`
+	- 结果：通过；设置回退链与 locale 归一化语义保持不变。
+- 类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；无新增诊断。
+- 注释自检：逐文件复核“注释是否准确、是否过量、是否与实现同步”，并按审计意见修正 `1-auth.ts` 与 `i18n.ts` 的边界描述
+	- 结果：通过；修正后未发现仍与实现冲突的新增注释。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：首轮审计曾指出 `1-auth.ts` 与 `i18n.ts` 的边界注释写得过宽，已在同轮修正并复核；当前无剩余 blocker。
+
+### 未覆盖边界
+
+- 本轮没有继续处理候选组 B 的上传存储解析、文章访问控制与 AI 服务治理；这些链路仍保留为下一轮高复杂度切片入口。
+- 本轮没有扩到候选组 C 的公开查询热点接口与 query helper，因为它们更适合与行为级回归一起评估，而不是单独做注释补强。
+- 若后续调整 `resolveSettingEnvEntry()`、Better Auth locale 支持集、`/api/auth` 会话准入或 i18n 白名单路径，必须同步更新本轮新增注释，否则最容易在 `setting.ts`、`locale.ts`、`1-auth.ts` 与 `i18n.ts` 上再次出现注释漂移。
+
 ## 2026-04-21 重复代码与纯函数复用治理首轮切片
 
 ### 范围

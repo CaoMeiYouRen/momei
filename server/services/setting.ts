@@ -274,6 +274,8 @@ function createEmptyLocalizedResolvedSetting<T extends LocalizedSettingScalar = 
     }
 }
 
+// Localized setting 先按结构化 locales + fallbackChain 解析，只有整条链都未命中时
+// 才允许回退 legacy 单值，避免旧格式继续抢占明确的 locale 值。
 function resolveLocalizedSettingFromValue<T extends LocalizedSettingScalar = string>(
     key: SettingKey | string,
     rawValue: SettingValue | undefined,
@@ -374,6 +376,8 @@ export function resolveLocalizedSettingsFromValues(
     return Object.fromEntries(entries)
 }
 
+// 单个设置项的最终结果统一在这里决议，确保 env > db > default 的来源优先级、
+// internal-only 隐藏规则、localized metadata 与 UI 锁定信息不会在各调用方分叉。
 function createResolvedSettingItem(
     key: string,
     dbSetting?: Setting | null,
@@ -464,12 +468,8 @@ export const resolveSettings = async (keys: (SettingKey | string)[]) => {
 }
 
 /**
- * 获取指定键的设置值
- * 遵循优先从环境变量获取，其次数据库的原则
- *
- * @param key 设置键名
- * @param defaultValue 默认值 (当环境变量和数据库都没有时返回)
- * @returns 设置值
+ * 读取单个配置值。
+ * 调用方拿到的是 env 优先、internal-only 隐藏后的最终可见值，不需要再重复决议来源。
  */
 export async function getSetting<T = string>(key: SettingKey | string, defaultValue: T | null = null): Promise<string | T | null> {
     // 优先从环境变量获取
@@ -497,11 +497,7 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
 }
 
 /**
- * 获取多个设置值
- * 遵循优先从环境变量获取，其次数据库的原则
- *
- * @param keys 设置键名数组
- * @returns 键值对对象
+ * 批量读取配置值，并保持与单项读取一致的 env 优先级与 legacy alias 解析口径。
  */
 export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record<string, string | null>> => {
     const result: Record<string, string | null> = {}
@@ -537,6 +533,8 @@ export const getSettings = async (keys: (SettingKey | string)[]): Promise<Record
                 return
             }
 
+            // 缓存命中时直接复用 lookupKey 解析结果，保持 getSetting/getSettings
+            // 对 legacy alias key 的读取行为一致。
             if (cachedSetting.setting && !isInternalOnlySettingKey(cachedSetting.setting.key)) {
                 result[key] = cachedSetting.setting.value
             }
@@ -573,6 +571,9 @@ export async function getLocalizedSetting<T extends LocalizedSettingScalar = str
     return resolveLocalizedSettingFromValue<T>(key, rawValue, requestedLocale, fallbackChain)
 }
 
+/**
+ * 批量解析 localized setting，统一返回 requested locale、fallback 命中结果与 legacy 回退信息。
+ */
 export async function getLocalizedSettings(
     keys: (SettingKey | string)[],
     locale?: string | null,
@@ -582,11 +583,8 @@ export async function getLocalizedSettings(
 }
 
 /**
- * 设置或更新配置项
- *
- * @param key 设置键名
- * @param value 设置值
- * @param options 配置选项 (级别、描述、脱敏类型)
+ * 设置单个配置项的便捷入口。
+ * 真实写入、审计与脱敏占位符处理统一委托给 setSettings()。
  */
 export const setSetting = async (
     key: string,
@@ -609,9 +607,8 @@ export const setSetting = async (
 }
 
 /**
- * 获取所有设置项 (Admin 仅限)
- * @param includeSecrets 是否包含机密信息 (level 3)
- * @param shouldMask 是否执行脱敏
+ * 获取管理后台设置列表。
+ * 返回值已经按 internal-only、level 与脱敏策略做过过滤，供 UI 直接消费。
  */
 export const getAllSettings = async (options?: { includeSecrets?: boolean, shouldMask?: boolean }) => {
     const settingRepo = dataSource.getRepository(Setting)
@@ -669,9 +666,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 }
 
 /**
- * 批量设置配置项
- *
- * @param settings 键值对对象，key 也可以是对象包含具体属性
+ * 批量写入配置项，并统一处理 env 锁定、脱敏占位符保值、legacy alias 清理与审计日志。
  */
 export const setSettings = async (settings: Record<string, any>, auditContext?: SettingAuditContext) => {
     const settingRepo = dataSource.getRepository(Setting)
@@ -706,6 +701,8 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
                 isMaskedSettingPlaceholder(normalizedIncomingValue, existingSetting.maskType)
                 || isMaskedSettingPlaceholder(normalizedIncomingValue, currentMaskType)
             )
+        // 管理端提交脱敏占位符时，语义是“保持当前机密值不变”，
+        // 不能把 UI 里的掩码文本真正写回数据库覆盖原值。
         const nextValue: string | null = isExistingMaskedPlaceholder
             ? existingSetting.value
             : normalizedIncomingValue
@@ -739,6 +736,8 @@ export const setSettings = async (settings: Record<string, any>, auditContext?: 
 
         const legacyKeys = getSettingLookupKeys(key).filter((lookupKey) => lookupKey !== key)
         if (legacyKeys.length > 0) {
+            // 统一写 canonical key 后立即清理 legacy alias，避免读取层命中旧键
+            // 时出现“值已更新但来源解释仍指向历史 key”的漂移。
             await settingRepo.delete({ key: In(legacyKeys) })
         }
 

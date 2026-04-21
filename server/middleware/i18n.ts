@@ -4,24 +4,26 @@ import { i18nStorage } from '../utils/i18n'
 import { resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 /**
- * 国际化中间件 (Request-level i18n Recognition)
- * 在请求处理周期内利用 AsyncLocalStorage 存储当前语言，便于深度追踪调用
+ * 请求级 i18n 上下文注入。
+ * 同时写入 event.context 与 AsyncLocalStorage，确保显式传参链路和深层工具链
+ * 对“当前语言”读取的是同一份事实。
  */
 export default defineEventHandler((event) => {
-    // 0. 特殊排除：非 API/Page 请求 (如静态资源) 一般不需要注入 (此处可选，也可全域监控)
+    // 这里只跳过内部构建产物与 favicon；其余请求仍维持统一 locale 上下文，
+    // 避免把局部白名单分支误扩成整站多套解析口径。
     if (event.path?.startsWith('/_') || event.path?.includes('favicon.ico')) {
         return
     }
 
-    // 1. 设置请求上下文中的语言标识
     const rawLocale = detectRequestAuthLocale(event)
+    // 认证边界先映射到 AppLocaleCode，再交给 locale registry 做最终收敛，
+    // 避免 zh-Hans / default 这类 auth locale 直接泄露到业务层。
     const appLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(rawLocale))
 
-    // 保存到 H3 Event 上下文，供不需要 AsyncLocalStorage 的逻辑使用
     event.context.locale = appLocale
 
-    // 2. 利用 AsyncLocalStorage.run() 实现异步生命周期隔离
-    // 该方法能让所有在此期间运行的子任务、工具方法等感知当前的 appLocale
+    // AsyncLocalStorage 让不显式接收 locale 参数的深层 helper 也能读取本次请求语境，
+    // 并且不同请求间不会互相污染。
     return i18nStorage.run(appLocale, () => {
         // 继续执行后续 Handler
     })

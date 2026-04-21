@@ -1,8 +1,3 @@
-/**
- * 国际化工具函数
- * 用于检测和管理用户的语言偏好
- */
-
 import { type H3Event, parseCookies, getHeader, setCookie, getQuery } from 'h3'
 import type { AppLocaleCode } from '@/i18n/config/locale-registry'
 import {
@@ -30,6 +25,8 @@ const AUTH_TO_APP_LOCALE_MAP: Partial<Record<AuthBoundaryLocale, AppLocaleCode>>
     'zh-Hant': 'zh-TW',
     'en-US': 'en-US',
     'ko-KR': 'ko-KR',
+    // better-auth-localization 的 default 在项目内部统一折叠到英语默认 locale，
+    // 避免 default 继续扩散到业务层、SEO 或 locale 目录事实源。
     default: 'en-US',
 }
 
@@ -41,10 +38,8 @@ export function mapAuthLocaleToAppLocale(locale: string): string {
     return AUTH_TO_APP_LOCALE_MAP[locale as AuthBoundaryLocale] || locale
 }
 
-/**
- * 语言代码映射表
- * 用于将常见的语言代码转换为支持的语言代码
- */
+// 认证边界只接受一小组 Better Auth locale，但浏览器、Cookie 和第三方回调
+// 可能带来大量别名；这些映射统一在 normalizeLocale 入口收敛。
 const LOCALE_MAPPING: Record<string, AuthBoundaryLocale> = {
     // 中文变体映射
     zh: 'zh-Hans',
@@ -125,15 +120,12 @@ const LOCALE_MAPPING: Record<string, AuthBoundaryLocale> = {
 }
 
 /**
- * 标准化语言代码
- * @param locale 原始语言代码
- * @returns 标准化后的语言代码
+ * 将浏览器、Cookie、Header 或第三方回调带来的 locale 别名归一化到认证边界支持集。
+ * 未命中映射时会按语言前缀兜底，最终回退到认证默认语言。
  */
 export function normalizeLocale(locale: string): AuthBoundaryLocale {
-    // 转换为小写并去除空格
     const cleanLocale = locale.trim().toLowerCase()
 
-    // 如果直接匹配支持的语言，返回该语言
     const directMatch = AUTH_BOUNDARY_LOCALES.find(
         (supportedLocale) => supportedLocale.toLowerCase() === cleanLocale,
     )
@@ -141,14 +133,13 @@ export function normalizeLocale(locale: string): AuthBoundaryLocale {
         return directMatch
     }
 
-    // 先尝试原始值，再尝试 cleanLocale：这样既兼容映射表里历史大小写键，
-    // 也兼容调用方传入的非标准大小写写法。
+    // 先试原始值再试 cleanLocale，兼容历史映射表里的大小写遗留，
+    // 也兼容浏览器 / 第三方请求头传来的非标准大小写变体。
     const mappedLocale = LOCALE_MAPPING[locale] || LOCALE_MAPPING[cleanLocale]
     if (mappedLocale) {
         return mappedLocale
     }
 
-    // 尝试前缀匹配（例如 'zh-xxx' -> 'zh-Hans'）
     const languagePrefix = cleanLocale.split('-')[0]
     const prefixMatch = AUTH_BOUNDARY_LOCALES.find(
         (supportedLocale) => supportedLocale.toLowerCase().startsWith(`${languagePrefix}-`)
@@ -158,7 +149,6 @@ export function normalizeLocale(locale: string): AuthBoundaryLocale {
         return prefixMatch
     }
 
-    // 如果都不匹配，返回默认语言
     return AUTH_DEFAULT_LOCALE
 }
 
@@ -344,8 +334,8 @@ export function setLocaleCookie(
  */
 export function getAuthLocaleFromRequest(request: Request): AuthBoundaryLocale {
     try {
-        // better-auth 的 request 场景没有 H3Event，因此需要在这里复刻一份
-        // 查询参数 -> Cookie -> Header 的同优先级链路，保持认证边界口径一致。
+        // better-auth 的 request 场景没有 H3Event，但认证插件与业务请求必须共享
+        // 同一套 locale 优先级链，否则登录页与普通 API 会出现语言决策分叉。
         // 从 URL 查询参数获取语言
         const url = new URL(request.url)
         const urlLocale = url.searchParams.get('locale')

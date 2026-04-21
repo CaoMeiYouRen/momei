@@ -50,11 +50,12 @@
 	- 验收: 补齐最小验证矩阵，确认共享 helper / 纯函数抽象不会改变公开页、查询参数解析与读模型装配行为。
 	- 结果: 已完成两轮窄边界切片，覆盖 AI 管理任务读模型装配共享 helper、后台分页 query `safeParse + 默认回退` 模板，以及公开文章列表 locale fallback 过滤 helper；`pnpm duplicate-code:check` 最新为 `33 clones / 830 duplicated lines / 0.70%`，低于 baseline 容差，剩余热点、风险与验证记录见 `docs/reports/regression/current.md`。
 
-5. [ ] **存量代码注释治理与注释漂移治理 (P1)**
+5. [x] **存量代码注释治理与注释漂移治理 (P1)**
 	- 验收: 首轮只允许选择 `1 - 2` 组高复杂度链路推进，优先覆盖设置来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制或 AI 服务治理，不得扩成全仓平均补注释工程。
 	- 验收: 每组链路都必须同时补“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释，并清理失效、误导性或逐行复述代码的低价值注释，不能只做加法。
 	- 验收: 导出函数、跨层契约与复杂分支的注释补齐后，需明确记录已覆盖范围、仍未覆盖边界与注释漂移风险，便于后续继续切片。
 	- 验收: 至少完成一轮针对受影响文件的 review，自检“注释是否准确、是否过量、是否与实现同步”，不接受只凭主观感觉判定完成。
+	- 结果: 已完成候选组 A 的首轮注释治理，覆盖 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`；本轮补齐了设置来源优先级、locale 归一化边界，以及 `/api/auth` 固定准入、公开接口会话痕迹准入与 i18n 白名单跳过的请求上下文契约说明，并清理了复述型旧注释。覆盖范围、未覆盖边界、验证矩阵与漂移风险见 `docs/design/governance/comment-drift-governance.md` 与 `docs/reports/regression/current.md`。
 
 6. [ ] **ESLint / 类型债与规则收紧治理 (P1)**
 	- 验收: 本轮仍只允许选择 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则推进，不直接扩写到 `no-unsafe-*`、全仓 `any` 清零或大规模样式迁移。
