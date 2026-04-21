@@ -203,6 +203,13 @@ export enum SettingKey {
     LISTMONK_CATEGORY_LIST_MAP = 'listmonk_category_list_map',
     LISTMONK_TAG_LIST_MAP = 'listmonk_tag_list_map',
     LISTMONK_TEMPLATE_ID = 'listmonk_template_id',
+    HEXO_SYNC_ENABLED = 'hexo_sync_enabled',
+    HEXO_SYNC_PROVIDER = 'hexo_sync_provider',
+    HEXO_SYNC_OWNER = 'hexo_sync_owner',
+    HEXO_SYNC_REPO = 'hexo_sync_repo',
+    HEXO_SYNC_BRANCH = 'hexo_sync_branch',
+    HEXO_SYNC_POSTS_DIR = 'hexo_sync_posts_dir',
+    HEXO_SYNC_ACCESS_TOKEN = 'hexo_sync_access_token',
 
     // External Feeds
     EXTERNAL_FEED_ENABLED = 'external_feed_enabled',

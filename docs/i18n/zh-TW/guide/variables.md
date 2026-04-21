@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-04-21
 ---
 
 # 變數與設定映射
@@ -102,11 +102,20 @@ last_sync: 2026-03-10
 | `MEMOS_ENABLED` | `memos_enabled` | 2 | 是否啟用 Memos 同步 |
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | Memos 實例位址 |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | Memos API Token |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | 是否啟用 Hexo 風格倉庫同步 |
+| `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | 目標提供商，當前支援 `github` / `gitee` |
+| `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | 目標倉庫 Owner / 命名空間 |
+| `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | 目標倉庫名稱 |
+| `HEXO_SYNC_BRANCH` | `hexo_sync_branch` | 2 | 目標分支，預設 `main` |
+| `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | 倉庫內文章目錄，預設 `source/_posts` |
+| `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | 倉庫寫入令牌，僅服務端可讀 |
+
+補充：目前 Hexo 倉庫同步候選能力尚未接入通用系統設定頁，因此 `HEXO_SYNC_*` 應暫時視為部署層配置，避免在後台保存其他設定時被隱式回寫。
 
 ## 3. 鎖定機制與注意事項
 
 1. **環境變數鎖定**：由於部分第三方庫會直接讀取 `process.env`，某些配置會被強制鎖定為部署層管理，後台無法修改。
-2. **內部獨占配置**：像 `DATABASE_URL`、`REDIS_URL`、`AUTH_SECRET` 這類系統核心變數，永遠不應進入一般後台設定介面。
+2. **內部獨占配置**：像 `DATABASE_URL`、`REDIS_URL`、`AUTH_SECRET` 這類系統核心變數，永遠不應進入一般後台設定介面；`HEXO_SYNC_ACCESS_TOKEN` 也遵循同樣規則。
 3. **熱更新邊界**：非鎖定類配置通常可在後台即時生效，但切換儲存驅動等場景仍可能需要重啟。
 4. **排程補充**：`WEBHOOK_TIMESTAMP_TOLERANCE` 目前仍存在於示例檔案中，但當前實作尚未真正讀取它。
 

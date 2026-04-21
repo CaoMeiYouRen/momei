@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-07
+last_sync: 2026-04-21
 ---
 
 # Variables & Settings Mapping
@@ -160,6 +160,15 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos instance base URL |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API token |
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Default Memos visibility |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | Enables Hexo-style repository sync |
+| `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | Target provider, currently `github` or `gitee` |
+| `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | Target repository owner or namespace |
+| `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | none | Target repository name |
+| `HEXO_SYNC_BRANCH` | `hexo_sync_branch` | 2 | none | Target branch, default `main` |
+| `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | none | Posts directory inside the repository, default `source/_posts` |
+| `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | password | Repository write token, server-only |
+
+Note: the current candidate implementation does not expose `HEXO_SYNC_*` in the generic admin settings page yet. Treat them as deployment-level settings for now to avoid accidental persistence during unrelated admin saves.
 
 ## 3. Locking Rules And Notes
 
@@ -167,7 +176,7 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
    Some third-party integrations, especially Better Auth, read directly from `process.env` instead of the settings center. For `SITE_URL`, `GITHUB_*`, `GOOGLE_*`, and `CAPTCHA_*`, Momei enforces an ENV lock, so those values cannot be edited from the admin panel.
 
 2. **Internal-only values (`INTERNAL_ONLY`)**:
-   `DATABASE_URL`, `REDIS_URL`, and `AUTH_SECRET` are always host-level secrets. They never appear in the database and are not editable in the admin UI.
+   `DATABASE_URL`, `REDIS_URL`, and `AUTH_SECRET` are always host-level secrets. They never appear in the database and are not editable in the admin UI. `HEXO_SYNC_ACCESS_TOKEN` follows the same server-only rule.
 
 3. **Hot-update behavior**:
    Non-locked settings usually take effect immediately after changes in the admin panel. Some storage-engine changes may still require a restart so the driver can be reinitialized.

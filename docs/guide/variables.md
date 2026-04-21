@@ -155,8 +155,17 @@
 | `LISTMONK_CATEGORY_LIST_MAP` | `listmonk_category_list_map` | 2 | none | 分类到 listmonk 列表的 JSON 映射 |
 | `LISTMONK_TAG_LIST_MAP` | `listmonk_tag_list_map` | 2 | none | 标签到 listmonk 列表的 JSON 映射 |
 | `LISTMONK_TEMPLATE_ID` | `listmonk_template_id` | 2 | none | 可选的 listmonk 模板 ID |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | 是否启用 Hexo 风格文章仓库同步 |
+| `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | 仓库提供商，当前支持 `github` / `gitee` |
+| `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | 目标仓库 Owner / 命名空间 |
+| `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | none | 目标仓库名称 |
+| `HEXO_SYNC_BRANCH` | `hexo_sync_branch` | 2 | none | 同步写入的目标分支，默认 `main` |
+| `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | none | 仓库内文章目录，默认 `source/_posts` |
+| `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | password | 仓库写入令牌，仅服务端读取，不参与数据库热更新 |
 
 说明：当 `LISTMONK_ENABLED=true` 时，营销 Campaign 发送会优先切换到 listmonk。若本地 Campaign 已记录远端 `remoteCampaignId`，后续重发会走更新而不是重新创建；若远端请求失败，系统会把失败原因、人工处理建议与远端 ID 一并回写到投递审计与 Campaign 元数据中。
+
+补充：本轮 Hexo 仓库同步候选能力尚未接入通用“系统设置”管理页。为避免后台保存任意设置时隐式回写这些字段，当前所有 `HEXO_SYNC_*` 键都应视为部署层配置；其中 `HEXO_SYNC_ACCESS_TOKEN` 进一步被标记为内部独占设置键，只接受环境变量注入。
 
 ---
 

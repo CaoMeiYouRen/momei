@@ -25,7 +25,8 @@ vi.mock('h3', async () => {
 })
 
 import { assertDemoSettingsReadAllowed } from '@/server/api/admin/settings/index.get'
-import { assertDemoSettingsWriteAllowed } from '@/server/api/admin/settings/index.put'
+import { assertDemoSettingsWriteAllowed, filterAdminSettingsPayload } from '@/server/api/admin/settings/index.put'
+import { SettingKey } from '@/types/setting'
 
 const demoRuntimeConfig = {
     public: {
@@ -55,5 +56,15 @@ describe('demo mode admin settings security', () => {
     it('应该在非 demo 模式下继续允许系统设置访问', () => {
         expect(() => assertDemoSettingsReadAllowed(normalRuntimeConfig)).not.toThrow()
         expect(() => assertDemoSettingsWriteAllowed('PUT', normalRuntimeConfig)).not.toThrow()
+    })
+
+    it('应该从通用系统设置写入中剔除 Hexo 仓库同步字段', () => {
+        expect(filterAdminSettingsPayload({
+            [SettingKey.SITE_TITLE]: 'Momei',
+            [SettingKey.HEXO_SYNC_ENABLED]: 'true',
+            [SettingKey.HEXO_SYNC_REPO]: 'example-hexo',
+        })).toEqual({
+            [SettingKey.SITE_TITLE]: 'Momei',
+        })
     })
 })

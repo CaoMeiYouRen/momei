@@ -103,4 +103,55 @@ describe('Post Export Service', () => {
         expect(markdown).not.toContain('    mode:')
         expect(markdown).not.toContain('  tts:')
     })
+
+    it('should absolutize media URLs when repository sync export requests it', () => {
+        const post = new Post()
+        post.title = 'Absolute Asset Post'
+        post.content = '![Inline](/uploads/inline.png)\n\n<img src="/uploads/raw.png" />'
+        post.slug = 'absolute-asset-post'
+        post.coverImage = '/uploads/cover.png'
+        post.metadata = {
+            audio: {
+                url: '/uploads/audio.mp3',
+            },
+        }
+
+        const markdown = formatPostToMarkdown(post, {
+            siteUrl: 'https://momei.app',
+            absolutizeMediaUrls: true,
+        })
+
+        expect(markdown).toContain('image: https://momei.app/uploads/cover.png')
+        expect(markdown).toContain('audio_url: https://momei.app/uploads/audio.mp3')
+        expect(markdown).toContain('![Inline](https://momei.app/uploads/inline.png)')
+        expect(markdown).toContain('<img src="https://momei.app/uploads/raw.png" />')
+    })
+
+    it('should not rewrite media examples inside fenced code or inline code', () => {
+        const post = new Post()
+        post.title = 'Code Sample Post'
+        post.slug = 'code-sample-post'
+        post.content = [
+            '真实图片: ![Inline](/uploads/inline.png)',
+            '',
+            '行内示例 `![Inline](/uploads/code-inline.png)` 不应被改写。',
+            '双反引号示例 ``![Inline](/uploads/code-inline-double.png)`` 也不应被改写。',
+            '',
+            '````md',
+            '![Inline](/uploads/code-block.png)',
+            '<img src="/uploads/code-block-html.png" />',
+            '````',
+        ].join('\n')
+
+        const markdown = formatPostToMarkdown(post, {
+            siteUrl: 'https://momei.app',
+            absolutizeMediaUrls: true,
+        })
+
+        expect(markdown).toContain('真实图片: ![Inline](https://momei.app/uploads/inline.png)')
+        expect(markdown).toContain('`![Inline](/uploads/code-inline.png)`')
+        expect(markdown).toContain('``![Inline](/uploads/code-inline-double.png)``')
+        expect(markdown).toContain('![Inline](/uploads/code-block.png)')
+        expect(markdown).toContain('<img src="/uploads/code-block-html.png" />')
+    })
 })

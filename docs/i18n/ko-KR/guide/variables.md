@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-04-21
 ---
 
 # 변수 및 설정 매핑
@@ -53,9 +53,13 @@ last_sync: 2026-03-10
 - `ALLOW_REGISTRATION`, `ENABLE_CAPTCHA`
 - `CRON_SECRET`, `TASKS_TOKEN`, `WEBHOOK_SECRET`
 - `MEMOS_ENABLED`, `MEMOS_INSTANCE_URL`, `MEMOS_ACCESS_TOKEN`
+- `HEXO_SYNC_ENABLED`, `HEXO_SYNC_PROVIDER`, `HEXO_SYNC_OWNER`, `HEXO_SYNC_REPO`
+- `HEXO_SYNC_BRANCH`, `HEXO_SYNC_POSTS_DIR`, `HEXO_SYNC_ACCESS_TOKEN`
+
+참고: 현재 Hexo 저장소 동기화 후보 구현은 일반 관리자 설정 화면에 아직 노출되지 않습니다. 따라서 `HEXO_SYNC_*` 값은 당분간 배포 계층 환경 변수로 관리하는 것이 안전합니다.
 
 ## 3. 운영 시 유의점
 
-- `AUTH_SECRET`, `DATABASE_URL`, `REDIS_URL` 같은 항목은 항상 배포 계층에서 관리해야 합니다.
+- `AUTH_SECRET`, `DATABASE_URL`, `REDIS_URL`, `HEXO_SYNC_ACCESS_TOKEN` 같은 항목은 항상 배포 계층에서 관리해야 합니다.
 - 일부 항목은 관리자 화면에서 수정 가능하지만, 저장소 드라이버처럼 재시작이 필요한 경우도 있습니다.
 - 다국어, AI, 알림, 예약 작업과 엮인 설정은 관련 설계 문서를 함께 읽어야 합니다.

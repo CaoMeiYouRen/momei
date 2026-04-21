@@ -160,6 +160,13 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.LISTMONK_CATEGORY_LIST_MAP]: 'LISTMONK_CATEGORY_LIST_MAP',
     [SettingKey.LISTMONK_TAG_LIST_MAP]: 'LISTMONK_TAG_LIST_MAP',
     [SettingKey.LISTMONK_TEMPLATE_ID]: 'LISTMONK_TEMPLATE_ID',
+    [SettingKey.HEXO_SYNC_ENABLED]: 'HEXO_SYNC_ENABLED',
+    [SettingKey.HEXO_SYNC_PROVIDER]: 'HEXO_SYNC_PROVIDER',
+    [SettingKey.HEXO_SYNC_OWNER]: 'HEXO_SYNC_OWNER',
+    [SettingKey.HEXO_SYNC_REPO]: 'HEXO_SYNC_REPO',
+    [SettingKey.HEXO_SYNC_BRANCH]: 'HEXO_SYNC_BRANCH',
+    [SettingKey.HEXO_SYNC_POSTS_DIR]: 'HEXO_SYNC_POSTS_DIR',
+    [SettingKey.HEXO_SYNC_ACCESS_TOKEN]: 'HEXO_SYNC_ACCESS_TOKEN',
     [SettingKey.EXTERNAL_FEED_ENABLED]: 'NUXT_PUBLIC_EXTERNAL_FEED_ENABLED',
     [SettingKey.EXTERNAL_FEED_SOURCES]: 'EXTERNAL_FEED_SOURCES',
     [SettingKey.EXTERNAL_FEED_HOME_ENABLED]: 'NUXT_PUBLIC_EXTERNAL_FEED_HOME_ENABLED',
@@ -204,6 +211,23 @@ export const INTERNAL_ONLY_ENV_KEYS: string[] = [
 export const INTERNAL_ONLY_SETTING_KEYS: string[] = [
     SettingKey.ASR_VOLCENGINE_SECRET_KEY,
     SettingKey.WEB_PUSH_VAPID_PRIVATE_KEY,
+    SettingKey.HEXO_SYNC_ENABLED,
+    SettingKey.HEXO_SYNC_PROVIDER,
+    SettingKey.HEXO_SYNC_OWNER,
+    SettingKey.HEXO_SYNC_REPO,
+    SettingKey.HEXO_SYNC_BRANCH,
+    SettingKey.HEXO_SYNC_POSTS_DIR,
+    SettingKey.HEXO_SYNC_ACCESS_TOKEN,
+]
+
+export const ADMIN_SETTINGS_EXCLUDED_KEYS: string[] = [
+    SettingKey.HEXO_SYNC_ENABLED,
+    SettingKey.HEXO_SYNC_PROVIDER,
+    SettingKey.HEXO_SYNC_OWNER,
+    SettingKey.HEXO_SYNC_REPO,
+    SettingKey.HEXO_SYNC_BRANCH,
+    SettingKey.HEXO_SYNC_POSTS_DIR,
+    SettingKey.HEXO_SYNC_ACCESS_TOKEN,
 ]
 
 export const INTERNAL_ONLY_KEYS: string[] = [
@@ -212,6 +236,7 @@ export const INTERNAL_ONLY_KEYS: string[] = [
 ]
 
 const INTERNAL_ONLY_SETTING_KEY_SET = new Set<string>(INTERNAL_ONLY_SETTING_KEYS)
+const ADMIN_SETTINGS_EXCLUDED_KEY_SET = new Set<string>(ADMIN_SETTINGS_EXCLUDED_KEYS)
 
 const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
     [SettingKey.DEFAULT_LANGUAGE]: 'zh-CN',
@@ -232,6 +257,10 @@ const SETTING_DEFAULT_MAP: Partial<Record<string, string>> = {
     [SettingKey.TRAVELLINGS_HEADER_ENABLED]: 'true',
     [SettingKey.TRAVELLINGS_FOOTER_ENABLED]: 'true',
     [SettingKey.TRAVELLINGS_SIDEBAR_ENABLED]: 'true',
+    [SettingKey.HEXO_SYNC_ENABLED]: 'false',
+    [SettingKey.HEXO_SYNC_PROVIDER]: 'github',
+    [SettingKey.HEXO_SYNC_BRANCH]: 'main',
+    [SettingKey.HEXO_SYNC_POSTS_DIR]: 'source/_posts',
     [SettingKey.EXTERNAL_FEED_ENABLED]: 'false',
     [SettingKey.EXTERNAL_FEED_SOURCES]: '[]',
     [SettingKey.EXTERNAL_FEED_HOME_ENABLED]: 'false',
@@ -337,6 +366,10 @@ export function resolveSettingEnvEntry(key: string) {
 
 export function isInternalOnlySettingKey(key: string) {
     return INTERNAL_ONLY_SETTING_KEY_SET.has(key)
+}
+
+export function isAdminSettingsExcludedKey(key: string) {
+    return ADMIN_SETTINGS_EXCLUDED_KEY_SET.has(key)
 }
 
 export function isLegacyOnlySettingKey(key: string) {

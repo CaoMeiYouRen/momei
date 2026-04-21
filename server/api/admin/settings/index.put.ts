@@ -5,6 +5,7 @@ import { externalFeedSourcesSchema } from '@/utils/schemas/external-feed'
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { success } from '@/server/utils/response'
 import { setSettings } from '@/server/services/setting'
+import { isAdminSettingsExcludedKey } from '@/server/services/setting.constants'
 import { SettingKey } from '@/types/setting'
 import { assertDemoModeRequestAllowed } from '@/server/utils/demo-security'
 
@@ -15,6 +16,12 @@ const settingsUpdateSchema = z.object({
     reason: z.string().trim().max(255).optional(),
     source: settingAuditSourceSchema.optional(),
 }).loose()
+
+export function filterAdminSettingsPayload(settingsPayload: Record<string, unknown>) {
+    return Object.fromEntries(
+        Object.entries(settingsPayload).filter(([key]) => !isAdminSettingsExcludedKey(key)),
+    )
+}
 
 export function assertDemoSettingsWriteAllowed(
     method = 'PUT',
@@ -32,9 +39,10 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, (payload) => settingsUpdateSchema.parse(payload))
     const reservedKeys = new Set(['settings', 'reason', 'source'])
-    const settingsPayload = body.settings && typeof body.settings === 'object'
+    const rawSettingsPayload = body.settings && typeof body.settings === 'object'
         ? body.settings
         : Object.fromEntries(Object.entries(body).filter(([key]) => !reservedKeys.has(key)))
+    const settingsPayload = filterAdminSettingsPayload(rawSettingsPayload)
 
     if (Object.hasOwn(settingsPayload, SettingKey.AI_QUOTA_POLICIES)) {
         const rawPolicies = settingsPayload[SettingKey.AI_QUOTA_POLICIES]

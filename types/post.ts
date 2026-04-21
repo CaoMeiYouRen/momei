@@ -134,6 +134,8 @@ export interface PostScaffoldMetadata {
     metadata?: Record<string, unknown> | null
 }
 
+export type PostHexoRepositoryProvider = 'github' | 'gitee'
+
 export type PostDistributionChannel = 'memos' | 'wechatsync'
 
 export type PostDistributionAction = 'create' | 'update' | 'republish' | 'retry' | 'terminate'
@@ -196,12 +198,29 @@ export interface PostDistributionMetadata {
     timeline?: PostDistributionTimelineEntry[] | null
 }
 
+export interface PostHexoRepositorySyncState {
+    provider?: PostHexoRepositoryProvider | null
+    owner?: string | null
+    repo?: string | null
+    branch?: string | null
+    filePath?: string | null
+    remoteUrl?: string | null
+    remoteSha?: string | null
+    lastOperation?: 'sync' | 'retry' | null
+    lastSyncedAt?: string | Date | null
+    lastFailureAt?: string | Date | null
+    lastFailureReason?: PostDistributionFailureReason | null
+    lastMessage?: string | null
+    lastOperatorId?: string | null
+}
+
 /**
  * 集成元数据
  */
 export interface PostIntegrationMetadata {
     memosId?: string | null
     distribution?: PostDistributionMetadata | null
+    hexoRepositorySync?: PostHexoRepositorySyncState | null
 }
 
 /**

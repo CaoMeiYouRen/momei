@@ -10,6 +10,7 @@ import {
     getSettingEffectiveSource,
     getSettingLockReason,
     getSettingLookupKeys,
+    isAdminSettingsExcludedKey,
     isInternalOnlySettingKey,
     isLegacyOnlySettingKey,
     isSettingEnvLocked,
@@ -49,6 +50,7 @@ export {
     getSettingEffectiveSource,
     getSettingLockReason,
     getSettingLookupKeys,
+    isAdminSettingsExcludedKey,
     isInternalOnlySettingKey,
     isLegacyOnlySettingKey,
     isLocalizedSettingKey,
@@ -623,6 +625,10 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
     const result: Omit<SettingResolvedItem, 'defaultValue'>[] = []
     for (const key of allKeys) {
         if (isLegacyOnlySettingKey(key)) {
+            continue
+        }
+
+        if (isAdminSettingsExcludedKey(key)) {
             continue
         }
 
