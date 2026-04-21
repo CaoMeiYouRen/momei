@@ -55,7 +55,7 @@
 	- 验收: 每组链路都必须同时补“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释，并清理失效、误导性或逐行复述代码的低价值注释，不能只做加法。
 	- 验收: 导出函数、跨层契约与复杂分支的注释补齐后，需明确记录已覆盖范围、仍未覆盖边界与注释漂移风险，便于后续继续切片。
 	- 验收: 至少完成一轮针对受影响文件的 review，自检“注释是否准确、是否过量、是否与实现同步”，不接受只凭主观感觉判定完成。
-	- 结果: 已完成候选组 A 的首轮注释治理，覆盖 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`；本轮补齐了设置来源优先级、locale 归一化边界，以及 `/api/auth` 固定准入、公开接口会话痕迹准入与 i18n 白名单跳过的请求上下文契约说明，并清理了复述型旧注释。覆盖范围、未覆盖边界、验证矩阵与漂移风险见 `docs/design/governance/comment-drift-governance.md` 与 `docs/reports/regression/current.md`。
+	- 结果: 已完成候选组 A 的首轮注释治理，覆盖 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`；本轮补齐了设置来源优先级、locale 归一化边界，以及 `/api/auth` 固定准入、公开接口会话痕迹准入与 i18n 白名单跳过的请求上下文契约说明，并清理了复述型旧注释。收口阶段已补充函数级 JSDoc 保留策略与模板，明确导出函数、复用函数与复杂函数优先保留简短 JSDoc，当前任务到此结束，不再扩到候选组 B/C。覆盖范围、模板、未覆盖边界、验证矩阵与漂移风险见 `docs/design/governance/comment-drift-governance.md` 与 `docs/reports/regression/current.md`。
 
 6. [ ] **ESLint / 类型债与规则收紧治理 (P1)**
 	- 验收: 本轮仍只允许选择 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则推进，不直接扩写到 `no-unsafe-*`、全仓 `any` 清零或大规模样式迁移。
