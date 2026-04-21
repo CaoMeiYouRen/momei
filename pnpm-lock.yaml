@@ -89,8 +89,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       '@primeuix/utils':
-        specifier: ^0.6.4
-        version: 0.6.4
+        specifier: ^0.7.1
+        version: 0.7.1
       '@primevue/core':
         specifier: ^4.5.5
         version: 4.5.5(vue@3.5.32(typescript@5.9.3))
@@ -3577,6 +3577,10 @@ packages:
 
   '@primeuix/utils@0.6.4':
     resolution: {integrity: sha512-pZ5f+vj7wSzRhC7KoEQRU5fvYAe+RP9+m39CTscZ3UywCD1Y2o6Fe1rRgklMPSkzUcty2jzkA0zMYkiJBD1hgg==}
+    engines: {node: '>=12.11.0'}
+
+  '@primeuix/utils@0.7.1':
+    resolution: {integrity: sha512-qX9hPvRqnvGTgv+Fo7KiTIEdKZ8dPN4rwLtfP1o0KbqMNQMcFPJgSz+xCewneJN/eDylBSayC4DGKn86wS5XlA==}
     engines: {node: '>=12.11.0'}
 
   '@primevue/auto-import-resolver@4.5.5':
@@ -16865,6 +16869,8 @@ snapshots:
       '@primeuix/styled': 0.7.4
 
   '@primeuix/utils@0.6.4': {}
+
+  '@primeuix/utils@0.7.1': {}
 
   '@primevue/auto-import-resolver@4.5.5':
     dependencies:
