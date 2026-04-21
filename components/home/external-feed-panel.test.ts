@@ -1,27 +1,27 @@
 import { describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ExternalFeedPanel from './external-feed-panel.vue'
+import type { ExternalFeedItem } from '@/types/external-feed'
 
 describe('ExternalFeedPanel', () => {
-    const items = [
-        {
-            id: 'item-1',
-            sourceId: 'source-1',
-            title: 'External item title',
-            summary: 'External item summary',
-            url: 'https://example.com/post-1',
-            canonicalUrl: 'https://example.com/post-1',
-            publishedAt: '2026-04-01T08:00:00.000Z',
-            authorName: 'Author',
-            language: 'en-US',
-            coverImage: null,
-            sourceTitle: 'Example Feed',
-            sourceSiteUrl: 'https://example.com',
-            sourceBadge: 'RSS',
-            dedupeKey: 'https://example.com/post-1',
-            priority: 10,
-        },
-    ]
+    const item: ExternalFeedItem = {
+        id: 'item-1',
+        sourceId: 'source-1',
+        title: 'External item title',
+        summary: 'External item summary',
+        url: 'https://example.com/post-1',
+        canonicalUrl: 'https://example.com/post-1',
+        publishedAt: '2026-04-01T08:00:00.000Z',
+        authorName: 'Author',
+        language: 'en-US',
+        coverImage: null,
+        sourceTitle: 'Example Feed',
+        sourceSiteUrl: 'https://example.com',
+        sourceBadge: 'RSS',
+        dedupeKey: 'https://example.com/post-1',
+        priority: 10,
+    }
+    const items = [item]
 
     it('renders external feed item and opens in a new tab', async () => {
         const wrapper = await mountSuspended(ExternalFeedPanel, {
@@ -57,7 +57,7 @@ describe('ExternalFeedPanel', () => {
             props: {
                 items: [
                     {
-                        ...items[0],
+                        ...item,
                         title: '',
                         url: 'https://memos.cmyr.ltd/m/abc123',
                     },
