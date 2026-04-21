@@ -33,7 +33,7 @@
                 class="admin-friend-links__table"
             >
                 <Column field="name" :header="$t('common.name')" />
-                <Column field="url" :header="tt('pages.admin.friend_links.site_url')">
+                <Column field="url" :header="tt('components.friend_links.fields.site_url')">
                     <template #body="{data}">
                         <a
                             :href="data.url"
@@ -171,7 +171,7 @@
                     class="admin-friend-links__table"
                 >
                     <Column field="name" :header="$t('common.name')" />
-                    <Column field="contactEmail" :header="tt('pages.admin.friend_links.contact_email')" />
+                    <Column field="contactEmail" :header="tt('components.friend_links.fields.contact_email')" />
                     <Column field="submittedIp" :header="tt('pages.admin.friend_links.submitted_ip')" />
                     <Column field="createdAt" :header="$t('common.created_at')">
                         <template #body="{data}">
@@ -221,7 +221,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-url">{{ tt('pages.admin.friend_links.site_url') }} *</label>
+                    <label for="link-url">{{ tt('components.friend_links.fields.site_url') }} *</label>
                     <InputText
                         id="link-url"
                         v-model="linkForm.url"
@@ -229,7 +229,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-logo">{{ tt('pages.admin.friend_links.logo') }}</label>
+                    <label for="link-logo">{{ tt('components.friend_links.fields.logo') }}</label>
                     <AppUploader
                         id="link-logo"
                         v-model="linkForm.logo"
@@ -239,7 +239,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-rss">{{ tt('pages.admin.friend_links.rss_url') }}</label>
+                    <label for="link-rss">{{ tt('components.friend_links.fields.rss_url') }}</label>
                     <InputText
                         id="link-rss"
                         v-model="linkForm.rssUrl"
@@ -247,7 +247,7 @@
                     />
                 </div>
                 <div class="admin-friend-links__field">
-                    <label for="link-email">{{ tt('pages.admin.friend_links.contact_email') }} *</label>
+                    <label for="link-email">{{ tt('components.friend_links.fields.contact_email') }} *</label>
                     <InputText
                         id="link-email"
                         v-model="linkForm.contactEmail"
@@ -400,11 +400,11 @@
             <div v-if="selectedApplication" class="admin-friend-links__review">
                 <div class="admin-friend-links__review-grid">
                     <div><strong>{{ $t('common.name') }}:</strong> {{ selectedApplication.name }}</div>
-                    <div><strong>{{ tt('pages.admin.friend_links.contact_email') }}:</strong> {{ selectedApplication.contactEmail }}</div>
+                    <div><strong>{{ tt('components.friend_links.fields.contact_email') }}:</strong> {{ selectedApplication.contactEmail }}</div>
                     <div v-if="selectedApplication.applicant">
                         <strong>{{ tt('pages.admin.friend_links.applicant_account') }}:</strong> {{ selectedApplication.applicant.name || selectedApplication.applicant.email || selectedApplication.applicant.id }}
                     </div>
-                    <div><strong>{{ tt('pages.admin.friend_links.site_url') }}:</strong> {{ selectedApplication.url }}</div>
+                    <div><strong>{{ tt('components.friend_links.fields.site_url') }}:</strong> {{ selectedApplication.url }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.reciprocal_url') }}:</strong> {{ selectedApplication.reciprocalUrl || '-' }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.submitted_ip') }}:</strong> {{ selectedApplication.submittedIp || '-' }}</div>
                     <div><strong>{{ $t('common.created_at') }}:</strong> {{ formatDate(selectedApplication.createdAt) }}</div>

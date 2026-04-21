@@ -14,7 +14,6 @@
                 "approve": "承認して公開",
                 "categories": "相互リンク分類",
                 "category_status": "分類状態",
-                "contact_email": "連絡メール",
                 "create_category": "分類を追加",
                 "create_link": "相互リンクを追加",
                 "disable_now": "すぐに非公開",
@@ -38,7 +37,6 @@
                 "last_checked_at": "最終巡回",
                 "link_status": "相互リンク状態",
                 "links": "公開相互リンク",
-                "logo": "Logo 画像",
                 "logo_placeholder": "サイト Logo 画像をアップロード",
                 "messages": {
                     "create_category_success": "分類を作成しました",
@@ -69,8 +67,6 @@
                 "review_application": "申請をレビュー",
                 "review_note": "審査メモ",
                 "review_or_disable_title": "巡回異常の通知",
-                "rss_url": "RSS URL",
-                "site_url": "サイト URL",
                 "sort_order": "並び順",
                 "statuses": {
                     "active": "有効",

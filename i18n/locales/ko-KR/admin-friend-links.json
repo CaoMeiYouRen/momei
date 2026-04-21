@@ -14,7 +14,6 @@
                 "approve": "승인 후 공개",
                 "categories": "카테고리",
                 "category_status": "카테고리 상태",
-                "contact_email": "연락 이메일",
                 "create_category": "카테고리 생성",
                 "create_link": "링크 생성",
                 "disable_now": "즉시 비활성화",
@@ -38,7 +37,6 @@
                 "last_checked_at": "최근 점검 시각",
                 "link_status": "링크 상태",
                 "links": "공개된 링크",
-                "logo": "로고 이미지",
                 "logo_placeholder": "사이트 로고 이미지를 업로드하세요",
                 "messages": {
                     "create_category_success": "카테고리가 생성되었습니다",
@@ -69,8 +67,6 @@
                 "review_application": "신청 검토",
                 "review_note": "검토 메모",
                 "review_or_disable_title": "상태 점검 경고",
-                "rss_url": "RSS 주소",
-                "site_url": "사이트 주소",
                 "sort_order": "정렬 순서",
                 "statuses": {
                     "active": "활성",

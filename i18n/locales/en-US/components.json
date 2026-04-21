@@ -53,6 +53,14 @@
       "success": "Subscription successful! Thank you for following.",
       "submitting": "Processing..."
     },
+    "friend_links": {
+      "fields": {
+        "site_url": "Site URL",
+        "logo": "Logo Image",
+        "rss_url": "RSS URL",
+        "contact_email": "Contact Email"
+      }
+    },
     "post": {
       "copyright": {
         "title": "Copyright Notice",

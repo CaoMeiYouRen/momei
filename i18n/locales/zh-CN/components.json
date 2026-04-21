@@ -53,6 +53,14 @@
             "success": "订阅成功！感谢您的关注。",
             "submitting": "处理中..."
         },
+        "friend_links": {
+            "fields": {
+                "site_url": "站点地址",
+                "logo": "Logo 图片",
+                "rss_url": "RSS 地址",
+                "contact_email": "联系邮箱"
+            }
+        },
         "post": {
             "copyright": {
                 "title": "版权声明",

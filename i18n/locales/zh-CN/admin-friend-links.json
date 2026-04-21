@@ -14,7 +14,6 @@
                 "approve": "通过并上线",
                 "categories": "友链分类",
                 "category_status": "分类状态",
-                "contact_email": "联系邮箱",
                 "create_category": "新增分类",
                 "create_link": "新增友链",
                 "disable_now": "直接下架",
@@ -38,7 +37,6 @@
                 "last_checked_at": "最近巡检",
                 "link_status": "友链状态",
                 "links": "正式友链",
-                "logo": "Logo 图片",
                 "logo_placeholder": "上传站点 Logo 图片",
                 "messages": {
                     "create_category_success": "分类创建成功",
@@ -69,8 +67,6 @@
                 "review_application": "审核申请",
                 "review_note": "审核备注",
                 "review_or_disable_title": "巡检异常提醒",
-                "rss_url": "RSS 地址",
-                "site_url": "站点地址",
                 "sort_order": "排序值",
                 "statuses": {
                     "active": "启用",

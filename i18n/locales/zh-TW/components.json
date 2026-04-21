@@ -53,6 +53,14 @@
             "success": "訂閱成功！感謝您的關注。",
             "submitting": "處理中..."
         },
+        "friend_links": {
+            "fields": {
+                "site_url": "站點地址",
+                "logo": "Logo 圖片",
+                "rss_url": "RSS 位址",
+                "contact_email": "聯絡信箱"
+            }
+        },
         "post": {
             "copyright": {
                 "title": "版權聲明",

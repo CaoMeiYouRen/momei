@@ -14,7 +14,6 @@
                 "approve": "通過並上線",
                 "categories": "友站連結分類",
                 "category_status": "分類狀態",
-                "contact_email": "聯絡信箱",
                 "create_category": "新增分類",
                 "create_link": "新增友站連結",
                 "disable_now": "直接下架",
@@ -38,7 +37,6 @@
                 "last_checked_at": "最近巡檢",
                 "link_status": "友站連結狀態",
                 "links": "正式友站連結",
-                "logo": "Logo 圖片",
                 "logo_placeholder": "上傳站點 Logo 圖片",
                 "messages": {
                     "create_category_success": "分類建立成功",
@@ -69,8 +67,6 @@
                 "review_application": "審核申請",
                 "review_note": "審核備註",
                 "review_or_disable_title": "巡檢異常提醒",
-                "rss_url": "RSS 位址",
-                "site_url": "站點地址",
                 "sort_order": "排序值",
                 "statuses": {
                     "active": "啟用",

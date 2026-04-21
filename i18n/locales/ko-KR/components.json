@@ -53,6 +53,14 @@
       "success": "구독이 완료되었습니다! 관심 가져 주셔서 감사합니다.",
       "submitting": "처리 중..."
     },
+    "friend_links": {
+      "fields": {
+        "site_url": "사이트 주소",
+        "logo": "로고 이미지",
+        "rss_url": "RSS 주소",
+        "contact_email": "연락 이메일"
+      }
+    },
     "post": {
       "copyright": {
         "title": "저작권 안내",

@@ -198,15 +198,11 @@
                 "unreachable": "접속 불가"
             },
             "form": {
-                "url": "사이트 URL",
-                "logo": "로고 이미지",
                 "logo_placeholder": "사이트에 업로드된 자산 또는 허용 목록 이미지 URL만 사용할 수 있습니다",
                 "logo_hint": "로고는 사이트에 업로드된 자산 또는 보안 허용 목록의 이미지 URL만 허용됩니다.",
                 "logo_upload_placeholder": "로고 이미지를 업로드하거나 허용 목록 URL을 입력해 주세요",
                 "logo_upload_hint": "로그인한 사용자는 로고 이미지를 직접 업로드할 수 있습니다. 수동으로 입력할 경우에도 사이트 자산 또는 허용 목록 URL이어야 합니다.",
-                "rss_url": "RSS URL",
                 "contact_name": "담당자 이름",
-                "contact_email": "연락처 이메일",
                 "category_placeholder": "선택 사항: 가장 가까운 카테고리를 선택해 주세요",
                 "category_suggestion": "카테고리 제안",
                 "reciprocal_url": "상호 링크 페이지",

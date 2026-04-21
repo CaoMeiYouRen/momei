@@ -139,7 +139,7 @@
                                     />
                                 </div>
                                 <div class="links-page__field">
-                                    <label for="url">{{ tt('pages.links.form.url') }} *</label>
+                                    <label for="url">{{ tt('components.friend_links.fields.site_url') }} *</label>
                                     <InputText
                                         id="url"
                                         v-model="form.url"
@@ -147,7 +147,7 @@
                                     />
                                 </div>
                                 <div class="links-page__field">
-                                    <label for="logo">{{ tt('pages.links.form.logo') }}</label>
+                                    <label for="logo">{{ tt('components.friend_links.fields.logo') }}</label>
                                     <ClientOnly>
                                         <AppUploader
                                             v-if="canUploadLogo"
@@ -178,7 +178,7 @@
                                     </small>
                                 </div>
                                 <div class="links-page__field">
-                                    <label for="rssUrl">{{ tt('pages.links.form.rss_url') }}</label>
+                                    <label for="rssUrl">{{ tt('components.friend_links.fields.rss_url') }}</label>
                                     <InputText
                                         id="rssUrl"
                                         v-model="form.rssUrl"
@@ -194,7 +194,7 @@
                                     />
                                 </div>
                                 <div class="links-page__field">
-                                    <label for="contactEmail">{{ tt('pages.links.form.contact_email') }} *</label>
+                                    <label for="contactEmail">{{ tt('components.friend_links.fields.contact_email') }} *</label>
                                     <InputText
                                         id="contactEmail"
                                         v-model="form.contactEmail"

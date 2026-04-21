@@ -198,15 +198,11 @@
                 "unreachable": "访问异常"
             },
             "form": {
-                "url": "站点地址",
-                "logo": "Logo 图片",
                 "logo_placeholder": "仅支持本站上传后的图片地址或白名单图片链接",
                 "logo_hint": "Logo 仅支持本站已上传资源或安全白名单中的图片链接。",
                 "logo_upload_placeholder": "可直接上传 Logo，或填写安全白名单中的图片地址",
                 "logo_upload_hint": "已登录用户可以直接上传 Logo 图片；如果手动填写，仍需使用本站资源或安全白名单中的图片链接。",
-                "rss_url": "RSS 地址",
                 "contact_name": "联系人",
-                "contact_email": "联系邮箱",
                 "category_placeholder": "可选：选择更接近的分类",
                 "category_suggestion": "分类建议",
                 "reciprocal_url": "互链页面地址",

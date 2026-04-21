@@ -53,6 +53,14 @@
             "success": "購読が完了しました。フォローありがとうございます。",
             "submitting": "処理中..."
         },
+        "friend_links": {
+            "fields": {
+                "site_url": "サイト URL",
+                "logo": "Logo 画像",
+                "rss_url": "RSS URL",
+                "contact_email": "連絡メール"
+            }
+        },
         "post": {
             "copyright": {
                 "title": "著作権表示",

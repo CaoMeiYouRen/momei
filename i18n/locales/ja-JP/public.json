@@ -198,15 +198,11 @@
                 "unreachable": "到達不可"
             },
             "form": {
-                "url": "サイト URL",
-                "logo": "ロゴ画像",
                 "logo_placeholder": "アップロード済みアセットまたはホワイトリスト済み画像 URL のみ利用できます",
                 "logo_hint": "ロゴには、サイト内アセットまたはセキュリティホワイトリストに含まれる画像 URL のみ使えます。",
                 "logo_upload_placeholder": "ロゴ画像をアップロードするか、ホワイトリスト済み URL を入力してください",
                 "logo_upload_hint": "ログイン済みユーザーはロゴ画像を直接アップロードできます。手動入力する場合でも、サイト内アセットまたはホワイトリスト済み URL に限られます。",
-                "rss_url": "RSS URL",
                 "contact_name": "連絡先名",
-                "contact_email": "連絡先メール",
                 "category_placeholder": "任意: 最も近いカテゴリを選択",
                 "category_suggestion": "カテゴリ候補",
                 "reciprocal_url": "相互リンク掲載ページ",

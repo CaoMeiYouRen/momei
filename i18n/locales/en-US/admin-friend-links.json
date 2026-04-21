@@ -14,7 +14,6 @@
                 "approve": "Approve & Publish",
                 "categories": "Link Categories",
                 "category_status": "Category Status",
-                "contact_email": "Contact Email",
                 "create_category": "Create Category",
                 "create_link": "Create Friend Link",
                 "disable_now": "Take Down Directly",
@@ -38,7 +37,6 @@
                 "last_checked_at": "Last Checked",
                 "link_status": "Link Status",
                 "links": "Official Links",
-                "logo": "Logo Image",
                 "logo_placeholder": "Upload site logo",
                 "messages": {
                     "create_category_success": "Category created successfully",
@@ -69,8 +67,6 @@
                 "review_application": "Review Application",
                 "review_note": "Review Note",
                 "review_or_disable_title": "Health Check Warning",
-                "rss_url": "RSS URL",
-                "site_url": "Site URL",
                 "sort_order": "Sort Order",
                 "statuses": {
                     "active": "Active",

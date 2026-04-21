@@ -198,15 +198,11 @@
                 "unreachable": "Unreachable"
             },
             "form": {
-                "url": "Site URL",
-                "logo": "Logo Image",
                 "logo_placeholder": "Only uploaded site assets or whitelisted image URLs are allowed",
                 "logo_hint": "The logo only accepts uploaded site assets or image URLs from the security whitelist.",
                 "logo_upload_placeholder": "Upload a logo image or enter a URL from the security whitelist",
                 "logo_upload_hint": "Signed-in users can upload a logo image directly. If you enter it manually, it still must be a site asset or a whitelisted image URL.",
-                "rss_url": "RSS URL",
                 "contact_name": "Contact Name",
-                "contact_email": "Contact Email",
                 "category_placeholder": "Optional: choose the closest category",
                 "category_suggestion": "Category Suggestion",
                 "reciprocal_url": "Reciprocal Link Page",
