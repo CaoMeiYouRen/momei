@@ -88,7 +88,43 @@ describe('post-distribution service', () => {
 
         expect(summary.channels.memos.status).toBe('idle')
         expect(summary.channels.wechatsync.status).toBe('idle')
+        expect(summary.channels.hexoRepositorySync.status).toBe('idle')
         expect(summary.timeline).toEqual([])
+    })
+
+    it('should expose hexo repository sync state in the unified summary', async () => {
+        const post = await createPublishedPost()
+        post.metadata = {
+            integration: {
+                hexoRepositorySync: {
+                    provider: 'github',
+                    owner: 'CaoMeiYouRen',
+                    repo: 'momei-posts',
+                    branch: 'main',
+                    filePath: 'source/_posts/zh-CN/distributed.md',
+                    remoteUrl: 'https://github.com/CaoMeiYouRen/momei-posts/blob/main/source/_posts/zh-CN/distributed.md',
+                    remoteSha: 'commit-sha-hexo',
+                    lastOperation: 'sync',
+                    lastSyncedAt: '2026-04-21T08:00:00.000Z',
+                    lastMessage: 'Created Hexo repository content successfully',
+                    lastOperatorId: actor.currentUserId,
+                },
+            },
+        }
+        await dataSource.getRepository(Post).save(post)
+
+        const summary = await getPostDistributionService(post.id, actor)
+
+        expect(summary.channels.hexoRepositorySync).toMatchObject({
+            status: 'succeeded',
+            provider: 'github',
+            owner: 'CaoMeiYouRen',
+            repo: 'momei-posts',
+            branch: 'main',
+            filePath: 'source/_posts/zh-CN/distributed.md',
+            remoteSha: 'commit-sha-hexo',
+            remoteUrl: 'https://github.com/CaoMeiYouRen/momei-posts/blob/main/source/_posts/zh-CN/distributed.md',
+        })
     })
 
     it('should create a memos delivery record and persist remote state', async () => {

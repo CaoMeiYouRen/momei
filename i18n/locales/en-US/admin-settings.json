@@ -235,6 +235,11 @@
                         "live2d_options_json": "e.g., {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "live2d_script_url": "e.g., https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "local_storage_min_free_space": "System will refuse further uploads when disk free space falls below this threshold. Unit: bytes.",
+                        "hexo_sync_access_token": "Use a token with Contents API write access to the target repository",
+                        "hexo_sync_branch": "e.g., main",
+                        "hexo_sync_owner": "e.g., CaoMeiYouRen",
+                        "hexo_sync_posts_dir": "e.g., source/_posts",
+                        "hexo_sync_repo": "e.g., momei-posts",
                         "memos_access_token": "Generate via Memos Settings -> Account -> Access Tokens",
                         "memos_instance_url": "e.g., https://memos.example.com",
                         "post_copyright": "Default copyright agreement only for article pages and external distribution; does not affect site footer copyright.",
@@ -334,6 +339,13 @@
                         "google_analytics": "Google Analytics ID",
                         "google_client_id": "Google Client ID",
                         "google_client_secret": "Google Client Secret",
+                        "hexo_sync_access_token": "Repository Access Token",
+                        "hexo_sync_branch": "Target Branch",
+                        "hexo_sync_enabled": "Enable Hexo repository sync",
+                        "hexo_sync_owner": "Repository Owner / Namespace",
+                        "hexo_sync_posts_dir": "Posts Directory",
+                        "hexo_sync_provider": "Repository Provider",
+                        "hexo_sync_repo": "Repository Name",
                         "icp_license_number": "ICP License Number",
                         "listmonk_access_token": "Access Token",
                         "listmonk_category_list_map": "Category-to-List mapping",
@@ -423,6 +435,12 @@
                             "PUBLIC": "Everyone (Public)"
                         }
                     },
+                    "hexo_sync": {
+                        "providers": {
+                            "gitee": "Gitee",
+                            "github": "GitHub"
+                        }
+                    },
                     "notifications": {
                         "browser": "Browser Notifications",
                         "description": "Configure administrator preferences for specific site events. Timely notifications help you respond quickly to user interactions and system anomalies.",
@@ -453,6 +471,7 @@
                         "external_feeds": "External RSS / RSSHub aggregation",
                         "footer": "Footer Settings",
                         "friend_links": "Friend Link Settings",
+                        "hexo_repository_sync": "Hexo Repository Sync",
                         "listmonk": "listmonk Newsletter Distribution",
                         "live2d": "Board Mascot (Live2D)",
                         "memos": "Memos Sync",

@@ -199,6 +199,60 @@
                     <section class="post-distribution-dialog__channel-card">
                         <div class="post-distribution-dialog__channel-header">
                             <div>
+                                <h4>{{ $t('pages.admin.posts.distribution.channels.hexo_repository_sync') }}</h4>
+                                <small>{{ renderHexoRepositorySyncMessage(summary.channels.hexoRepositorySync) }}</small>
+                            </div>
+                            <Tag
+                                :value="renderStatusLabel(summary.channels.hexoRepositorySync.status, t)"
+                                :severity="renderStatusSeverity(summary.channels.hexoRepositorySync.status)"
+                            />
+                        </div>
+                        <small class="post-distribution-dialog__hint">
+                            {{ renderHexoRepositorySyncTarget(summary.channels.hexoRepositorySync) }}
+                        </small>
+                        <div v-if="summary.channels.hexoRepositorySync.filePath" class="post-distribution-dialog__preview-launcher">
+                            <div class="post-distribution-dialog__preview-launcher-main">
+                                <span class="post-distribution-dialog__preview-label">{{ $t('pages.admin.posts.distribution.hexo_repository_file_path') }}</span>
+                                <p class="post-distribution-dialog__preview-launcher-text">
+                                    {{ summary.channels.hexoRepositorySync.filePath }}
+                                </p>
+                            </div>
+                            <div class="post-distribution-dialog__preview-actions">
+                                <Tag
+                                    v-if="summary.channels.hexoRepositorySync.remoteSha"
+                                    :value="summary.channels.hexoRepositorySync.remoteSha"
+                                    severity="secondary"
+                                />
+                            </div>
+                        </div>
+                        <a
+                            v-if="summary.channels.hexoRepositorySync.remoteUrl"
+                            :href="summary.channels.hexoRepositorySync.remoteUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="post-distribution-dialog__remote-link"
+                        >
+                            {{ $t('pages.admin.posts.distribution.open_remote') }}
+                        </a>
+                        <div class="post-distribution-dialog__actions">
+                            <Button
+                                :label="$t('pages.admin.posts.distribution.sync_now')"
+                                severity="contrast"
+                                :loading="hexoRepositorySubmitting"
+                                @click="dispatchHexoRepositorySync('sync')"
+                            />
+                            <Button
+                                v-if="canRetry(summary.channels.hexoRepositorySync)"
+                                :label="$t('pages.admin.posts.distribution.retry')"
+                                text
+                                :loading="hexoRepositorySubmitting"
+                                @click="dispatchHexoRepositorySync('retry')"
+                            />
+                        </div>
+                    </section>
+                    <section class="post-distribution-dialog__channel-card">
+                        <div class="post-distribution-dialog__channel-header">
+                            <div>
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.wechatsync') }}</h4>
                                 <small>{{ renderChannelMessage(summary.channels.wechatsync, t) }}</small>
                             </div>
@@ -492,6 +546,7 @@ const dialogVisible = ref(false)
 const expandedPreviewVisible = ref(false)
 const loading = ref(false)
 const memosSubmitting = ref(false)
+const hexoRepositorySubmitting = ref(false)
 const wechatSyncSubmitting = ref(false)
 const distributionContextVersion = ref(0)
 const extensionInstalled = ref(false)
@@ -617,6 +672,26 @@ function openWechatSyncPreviewDialog(group: WechatSyncDistributionPreviewGroup) 
     openExpandedPreview(createWechatSyncExpandedPreview(group, t))
 }
 
+function renderHexoRepositorySyncMessage(state: PostDistributionSummary['channels']['hexoRepositorySync']) {
+    if (state.lastMessage) {
+        return state.lastMessage
+    }
+
+    return t('pages.admin.posts.distribution.hexo_repository_hint')
+}
+
+function renderHexoRepositorySyncTarget(state: PostDistributionSummary['channels']['hexoRepositorySync']) {
+    if (state.owner && state.repo) {
+        return t('pages.admin.posts.distribution.hexo_repository_target', {
+            provider: (state.provider || 'github').toUpperCase(),
+            target: `${state.owner}/${state.repo}`,
+            branch: state.branch || 'main',
+        })
+    }
+
+    return t('pages.admin.posts.distribution.hexo_repository_hint')
+}
+
 async function ensurePostDetail() {
     const context = captureDistributionContext()
     if (cachedDistributionPost.value || !context) return
@@ -695,6 +770,31 @@ async function dispatchMemos(operation: 'sync' | 'retry') {
     } finally {
         if (isActiveDistributionContext(context)) {
             memosSubmitting.value = false
+        }
+    }
+}
+
+async function dispatchHexoRepositorySync(operation: 'sync' | 'retry') {
+    const context = captureDistributionContext()
+    if (!context) return
+
+    hexoRepositorySubmitting.value = true
+    try {
+        await $fetch(`/api/admin/posts/${context.postId}/hexo-repository-sync`, {
+            method: 'POST',
+            body: { operation },
+        })
+        await loadSummary()
+        if (isActiveDistributionContext(context)) {
+            showSuccessToast('pages.admin.posts.distribution.hexo_sync_success')
+        }
+    } catch (error) {
+        if (isActiveDistributionContext(context)) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.posts.distribution.dispatch_failed' })
+        }
+    } finally {
+        if (isActiveDistributionContext(context)) {
+            hexoRepositorySubmitting.value = false
         }
     }
 }
@@ -933,6 +1033,7 @@ watch(routePostId, (nextRoutePostId, previousRoutePostId) => {
     distributionContextVersion.value += 1
     loading.value = false
     memosSubmitting.value = false
+    hexoRepositorySubmitting.value = false
     wechatSyncSubmitting.value = false
     fetchedPost.value = null
     summary.value = null

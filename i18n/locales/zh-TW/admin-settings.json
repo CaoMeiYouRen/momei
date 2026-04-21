@@ -234,6 +234,11 @@
                         "live2d_options_json": "例如: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "live2d_script_url": "例如: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "local_storage_min_free_space": "當本機磁碟剩餘空間低於此閾值時，系統會拒絕繼續上傳。單位為位元組。",
+                        "hexo_sync_access_token": "填寫具有目標倉庫 Contents API 寫入權限的存取權杖",
+                        "hexo_sync_branch": "例如: main",
+                        "hexo_sync_owner": "例如: CaoMeiYouRen",
+                        "hexo_sync_posts_dir": "例如: source/_posts",
+                        "hexo_sync_repo": "例如: momei-posts",
                         "memos_access_token": "在 Memos 設定 -> 帳戶 -> 存取權杖中產生",
                         "memos_instance_url": "例如: https://memos.example.com",
                         "post_copyright": "僅用於文章頁與外部分發場景的預設版權協議，不參與站點頁腳版權顯示。",
@@ -328,6 +333,13 @@
                         "google_analytics": "Google Analytics ID",
                         "google_client_id": "Google Client ID",
                         "google_client_secret": "Google Client Secret",
+                        "hexo_sync_access_token": "倉庫存取權杖",
+                        "hexo_sync_branch": "目標分支",
+                        "hexo_sync_enabled": "啟用 Hexo 倉庫同步",
+                        "hexo_sync_owner": "倉庫 Owner / 命名空間",
+                        "hexo_sync_posts_dir": "文章目錄",
+                        "hexo_sync_provider": "倉庫提供商",
+                        "hexo_sync_repo": "倉庫名稱",
                         "icp_license_number": "ICP 备案号",
                         "external_feed_cache_ttl_seconds": "外部動態快取 TTL",
                         "external_feed_enabled": "啟用外部動態聚合",
@@ -423,6 +435,12 @@
                             "PUBLIC": "所有人可見 (Public)"
                         }
                     },
+                    "hexo_sync": {
+                        "providers": {
+                            "gitee": "Gitee",
+                            "github": "GitHub"
+                        }
+                    },
                     "notifications": {
                         "browser": "瀏覽器通知",
                         "description": "設定管理員在特定站務事件發生時的接收偏好。即時的站務提醒有助於您快速回應使用者互動與系統異常。",
@@ -453,6 +471,7 @@
                         "external_feeds": "外部 RSS / RSSHub 聚合",
                         "footer": "頁尾設定",
                         "friend_links": "友站連結設定",
+                        "hexo_repository_sync": "Hexo 倉庫同步",
                         "listmonk": "listmonk Newsletter 分發",
                         "live2d": "看板娘 (Live2D)",
                         "memos": "Memos 同步",

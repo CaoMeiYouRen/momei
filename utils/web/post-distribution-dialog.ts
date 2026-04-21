@@ -27,10 +27,20 @@ interface PostDistributionChannelSummary {
     lastSuccessAt?: string | Date | null
 }
 
+interface HexoRepositorySyncChannelSummary extends PostDistributionChannelSummary {
+    provider?: 'github' | 'gitee' | null
+    owner?: string | null
+    repo?: string | null
+    branch?: string | null
+    filePath?: string | null
+    remoteSha?: string | null
+}
+
 export interface PostDistributionSummary {
     channels: {
         memos: PostDistributionChannelSummary
         wechatsync: PostDistributionChannelSummary
+        hexoRepositorySync: HexoRepositorySyncChannelSummary
     }
     timeline: PostDistributionTimelineEntry[]
 }

@@ -102,12 +102,17 @@
                         "update": "更新內容"
                     },
                     "channels": {
+                        "hexo_repository_sync": "Hexo 倉庫同步",
                         "memos": "Memos",
                         "wechatsync": "WechatSync"
                     },
                     "dialog_title": "第三方分發管理",
                     "dispatch_failed": "分發操作失敗",
                     "extension_missing": "未偵測到 WechatSync 外掛，請先安裝並登入。",
+                    "hexo_repository_file_path": "目標檔案",
+                    "hexo_repository_hint": "若尚未配置倉庫目標，請先前往系統設定 > 第三方整合完成 Hexo 倉庫同步設定。",
+                    "hexo_repository_target": "將同步到 {provider} 倉庫 {target}@{branch}",
+                    "hexo_sync_success": "Hexo 倉庫同步已完成",
                     "failure_reason": {
                         "auth_failed": "驗證失敗",
                         "content_validation_failed": "內容驗證失敗",

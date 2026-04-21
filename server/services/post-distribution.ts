@@ -15,6 +15,8 @@ import {
     type PostDistributionMode,
     type PostDistributionStatus,
     type PostDistributionTimelineEntry,
+    type PostHexoRepositoryProvider,
+    type PostHexoRepositorySyncState,
 } from '@/types/post'
 import { SettingKey } from '@/types/setting'
 import { toBoolean } from '@/utils/shared/coerce'
@@ -53,8 +55,18 @@ export interface PostDistributionSummary {
     channels: {
         memos: PostDistributionChannelState
         wechatsync: PostDistributionChannelState
+        hexoRepositorySync: HexoRepositorySyncChannelSummary
     }
     timeline: PostDistributionTimelineEntry[]
+}
+
+export interface HexoRepositorySyncChannelSummary extends PostDistributionChannelState {
+    provider?: PostHexoRepositoryProvider | null
+    owner?: string | null
+    repo?: string | null
+    branch?: string | null
+    filePath?: string | null
+    remoteSha?: string | null
 }
 
 export interface DispatchPostDistributionResult {
@@ -84,6 +96,47 @@ function normalizeChannelState(state?: PostDistributionChannelState | null, lega
         lastMessage: state?.lastMessage ?? null,
         lastOperatorId: state?.lastOperatorId ?? null,
         retryCount: state?.retryCount ?? 0,
+    }
+}
+
+function normalizeDistributionTimestamp(value: string | Date | null | undefined) {
+    if (!value) {
+        return null
+    }
+
+    const normalized = value instanceof Date ? value.toISOString() : String(value)
+    return Number.isNaN(Date.parse(normalized)) ? null : normalized
+}
+
+function normalizeHexoRepositorySyncChannelState(state?: PostHexoRepositorySyncState | null): HexoRepositorySyncChannelSummary {
+    const lastSyncedAt = normalizeDistributionTimestamp(state?.lastSyncedAt)
+    const lastFailureAt = normalizeDistributionTimestamp(state?.lastFailureAt)
+    const hasFailure = Boolean(lastFailureAt && (!lastSyncedAt || Date.parse(lastFailureAt) >= Date.parse(lastSyncedAt)))
+    const lastAttemptAt = hasFailure ? lastFailureAt : lastSyncedAt
+
+    return {
+        status: hasFailure ? 'failed' : lastSyncedAt ? 'succeeded' : 'idle',
+        remoteId: state?.remoteSha ?? null,
+        remoteUrl: state?.remoteUrl ?? null,
+        lastMode: null,
+        lastAction: state?.lastOperation === 'retry' ? 'retry' : lastSyncedAt ? 'update' : null,
+        lastAttemptId: null,
+        activeAttemptId: null,
+        lastAttemptAt,
+        activeSince: null,
+        lastSuccessAt: lastSyncedAt,
+        lastFailureAt,
+        lastFinishedAt: lastAttemptAt,
+        lastFailureReason: state?.lastFailureReason ?? null,
+        lastMessage: state?.lastMessage ?? null,
+        lastOperatorId: state?.lastOperatorId ?? null,
+        retryCount: state?.lastOperation === 'retry' ? 1 : 0,
+        provider: state?.provider ?? null,
+        owner: state?.owner ?? null,
+        repo: state?.repo ?? null,
+        branch: state?.branch ?? null,
+        filePath: state?.filePath ?? null,
+        remoteSha: state?.remoteSha ?? null,
     }
 }
 
@@ -120,11 +173,13 @@ function ensureDistributionMetadata(post: Post) {
 
 function toDistributionSummary(post: Post): PostDistributionSummary {
     const { distribution } = ensureDistributionMetadata(post)
+    const hexoRepositorySync = normalizeHexoRepositorySyncChannelState(post.metadata?.integration?.hexoRepositorySync)
 
     return {
         channels: {
             memos: distribution.channels?.memos || normalizeChannelState(undefined),
             wechatsync: distribution.channels?.wechatsync || normalizeChannelState(undefined),
+            hexoRepositorySync,
         },
         timeline: (distribution.timeline || []).slice(0, DISTRIBUTION_TIMELINE_LIMIT),
     }

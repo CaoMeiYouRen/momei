@@ -234,6 +234,11 @@
                         "live2d_options_json": "例如: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "live2d_script_url": "例如: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "local_storage_min_free_space": "当本地磁盘剩余空间低于该阈值时，系统会拒绝继续上传。单位为字节。",
+                        "hexo_sync_access_token": "填写具有目标仓库 Contents API 写权限的访问令牌",
+                        "hexo_sync_branch": "例如: main",
+                        "hexo_sync_owner": "例如: CaoMeiYouRen",
+                        "hexo_sync_posts_dir": "例如: source/_posts",
+                        "hexo_sync_repo": "例如: momei-posts",
                         "memos_access_token": "在 Memos 设置 -> 账户 -> 访问令牌中生成",
                         "memos_instance_url": "例如: https://memos.example.com",
                         "post_copyright": "仅用于文章页与外部分发场景的默认版权协议，不参与站点页脚版权展示。",
@@ -334,6 +339,13 @@
                         "google_analytics": "Google Analytics ID",
                         "google_client_id": "Google Client ID",
                         "google_client_secret": "Google Client Secret",
+                        "hexo_sync_access_token": "仓库访问令牌",
+                        "hexo_sync_branch": "目标分支",
+                        "hexo_sync_enabled": "启用 Hexo 仓库同步",
+                        "hexo_sync_owner": "仓库 Owner / 命名空间",
+                        "hexo_sync_posts_dir": "文章目录",
+                        "hexo_sync_provider": "仓库提供商",
+                        "hexo_sync_repo": "仓库名称",
                         "icp_license_number": "ICP 备案号",
                         "listmonk_access_token": "Access Token",
                         "listmonk_category_list_map": "分类到列表映射",
@@ -423,6 +435,12 @@
                             "PUBLIC": "所有人可见 (Public)"
                         }
                     },
+                    "hexo_sync": {
+                        "providers": {
+                            "gitee": "Gitee",
+                            "github": "GitHub"
+                        }
+                    },
                     "notifications": {
                         "browser": "浏览器通知",
                         "description": "设置管理员在特定站务事件发生时的接收偏好。及时的站务提醒有助于您快速响应用户互动与系统异常。",
@@ -453,6 +471,7 @@
                         "external_feeds": "外部 RSS / RSSHub 聚合",
                         "footer": "页脚设置",
                         "friend_links": "友链设置",
+                        "hexo_repository_sync": "Hexo 仓库同步",
                         "listmonk": "listmonk Newsletter 分发",
                         "live2d": "看板娘 (Live2D)",
                         "memos": "Memos 同步",

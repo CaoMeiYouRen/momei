@@ -190,6 +190,114 @@
 
         <div class="third-party-settings__section">
             <h3 class="third-party-settings__section-title">
+                {{ $t('pages.admin.settings.system.sections.hexo_repository_sync') }}
+            </h3>
+
+            <SettingFormField
+                field-key="hexo_sync_enabled"
+                input-id="hexo_sync_enabled"
+                :metadata="metadata.hexo_sync_enabled"
+                inline
+            >
+                <ToggleSwitch
+                    id="hexo_sync_enabled"
+                    v-model="hexoSyncEnabled"
+                    :disabled="metadata.hexo_sync_enabled?.isLocked"
+                />
+            </SettingFormField>
+
+            <div v-if="hexoSyncEnabled" class="third-party-settings__sub-fields">
+                <SettingFormField
+                    field-key="hexo_sync_provider"
+                    input-id="hexo_sync_provider"
+                    :metadata="metadata.hexo_sync_provider"
+                >
+                    <Select
+                        id="hexo_sync_provider"
+                        v-model="settings.hexo_sync_provider"
+                        :options="hexoProviderOptions"
+                        option-label="label"
+                        option-value="value"
+                        :disabled="metadata.hexo_sync_provider?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="hexo_sync_owner"
+                    input-id="hexo_sync_owner"
+                    :metadata="metadata.hexo_sync_owner"
+                >
+                    <InputText
+                        id="hexo_sync_owner"
+                        v-model="settings.hexo_sync_owner"
+                        :placeholder="$t('pages.admin.settings.system.hints.hexo_sync_owner')"
+                        :disabled="metadata.hexo_sync_owner?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="hexo_sync_repo"
+                    input-id="hexo_sync_repo"
+                    :metadata="metadata.hexo_sync_repo"
+                >
+                    <InputText
+                        id="hexo_sync_repo"
+                        v-model="settings.hexo_sync_repo"
+                        :placeholder="$t('pages.admin.settings.system.hints.hexo_sync_repo')"
+                        :disabled="metadata.hexo_sync_repo?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="hexo_sync_branch"
+                    input-id="hexo_sync_branch"
+                    :metadata="metadata.hexo_sync_branch"
+                >
+                    <InputText
+                        id="hexo_sync_branch"
+                        v-model="settings.hexo_sync_branch"
+                        :placeholder="$t('pages.admin.settings.system.hints.hexo_sync_branch')"
+                        :disabled="metadata.hexo_sync_branch?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="hexo_sync_posts_dir"
+                    input-id="hexo_sync_posts_dir"
+                    :metadata="metadata.hexo_sync_posts_dir"
+                >
+                    <InputText
+                        id="hexo_sync_posts_dir"
+                        v-model="settings.hexo_sync_posts_dir"
+                        :placeholder="$t('pages.admin.settings.system.hints.hexo_sync_posts_dir')"
+                        :disabled="metadata.hexo_sync_posts_dir?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
+
+                <SettingFormField
+                    field-key="hexo_sync_access_token"
+                    input-id="hexo_sync_access_token"
+                    :metadata="metadata.hexo_sync_access_token"
+                >
+                    <Password
+                        id="hexo_sync_access_token"
+                        v-model="settings.hexo_sync_access_token"
+                        :placeholder="$t('pages.admin.settings.system.hints.hexo_sync_access_token')"
+                        :disabled="metadata.hexo_sync_access_token?.isLocked"
+                        :toggle-mask="true"
+                        fluid
+                    />
+                </SettingFormField>
+            </div>
+        </div>
+
+        <div class="third-party-settings__section">
+            <h3 class="third-party-settings__section-title">
                 {{ $t('pages.admin.settings.system.sections.external_feeds') }}
             </h3>
 
@@ -320,7 +428,7 @@ interface ExternalFeedRefreshResponse {
     }
 }
 
-function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled' | 'external_feed_enabled' | 'external_feed_home_enabled') {
+function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled' | 'hexo_sync_enabled' | 'external_feed_enabled' | 'external_feed_home_enabled') {
     return computed({
         get: () => toBoolean(settings.value?.[key]),
         set: (value: boolean) => {
@@ -333,6 +441,7 @@ function createToggleModel(key: 'memos_enabled' | 'listmonk_enabled' | 'external
 
 const memosEnabled = createToggleModel('memos_enabled')
 const listmonkEnabled = createToggleModel('listmonk_enabled')
+const hexoSyncEnabled = createToggleModel('hexo_sync_enabled')
 const externalFeedEnabled = createToggleModel('external_feed_enabled')
 const externalFeedHomeEnabled = createToggleModel('external_feed_home_enabled')
 const refreshingExternalFeeds = ref(false)
@@ -358,6 +467,11 @@ const visibilityOptions = computed(() => [
     { label: t('pages.admin.settings.system.memos.visibility.PUBLIC'), value: 'PUBLIC' },
     { label: t('pages.admin.settings.system.memos.visibility.PROTECTED'), value: 'PROTECTED' },
     { label: t('pages.admin.settings.system.memos.visibility.PRIVATE'), value: 'PRIVATE' },
+])
+
+const hexoProviderOptions = computed(() => [
+    { label: t('pages.admin.settings.system.hexo_sync.providers.github'), value: 'github' },
+    { label: t('pages.admin.settings.system.hexo_sync.providers.gitee'), value: 'gitee' },
 ])
 </script>
 

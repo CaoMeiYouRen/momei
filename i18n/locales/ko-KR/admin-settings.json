@@ -234,6 +234,11 @@
                         "live2d_options_json": "예: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "live2d_script_url": "예: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "local_storage_min_free_space": "로컬 디스크 여유 공간이 이 값보다 낮아지면 업로드가 거부됩니다. 값은 바이트입니다.",
+                        "hexo_sync_access_token": "대상 저장소의 Contents API 쓰기 권한이 있는 토큰을 입력하세요",
+                        "hexo_sync_branch": "예: main",
+                        "hexo_sync_owner": "예: CaoMeiYouRen",
+                        "hexo_sync_posts_dir": "예: source/_posts",
+                        "hexo_sync_repo": "예: momei-posts",
                         "memos_access_token": "Memos 설정 -> 계정 -> 액세스 토큰에서 생성하세요",
                         "memos_instance_url": "예: https://memos.example.com",
                         "post_copyright": "게시글 페이지와 외부 배포에 사용할 기본 저작권 라이선스입니다. 사이트 저작권 문구에는 사용되지 않습니다.",
@@ -328,6 +333,13 @@
                         "google_analytics": "Google Analytics ID",
                         "google_client_id": "Google Client ID",
                         "google_client_secret": "Google Client Secret",
+                        "hexo_sync_access_token": "저장소 액세스 토큰",
+                        "hexo_sync_branch": "대상 브랜치",
+                        "hexo_sync_enabled": "Hexo 저장소 동기화 활성화",
+                        "hexo_sync_owner": "저장소 Owner / 네임스페이스",
+                        "hexo_sync_posts_dir": "게시글 디렉터리",
+                        "hexo_sync_provider": "저장소 제공자",
+                        "hexo_sync_repo": "저장소 이름",
                         "icp_license_number": "ICP 등록 번호",
                         "external_feed_cache_ttl_seconds": "외부 업데이트 캐시 TTL",
                         "external_feed_enabled": "외부 업데이트 집계 활성화",
@@ -423,6 +435,12 @@
                             "PUBLIC": "모두에게 공개 (Public)"
                         }
                     },
+                    "hexo_sync": {
+                        "providers": {
+                            "gitee": "Gitee",
+                            "github": "GitHub"
+                        }
+                    },
                     "notifications": {
                         "browser": "브라우저 알림",
                         "description": "특정 사이트 이벤트가 발생했을 때 관리자가 어떤 방식으로 알림을 받을지 설정합니다. 적시에 도착한 운영 알림은 사용자 상호작용과 시스템 이상에 빠르게 대응하는 데 도움이 됩니다.",
@@ -453,6 +471,7 @@
                         "external_feeds": "외부 RSS / RSSHub 집계",
                         "footer": "푸터 설정",
                         "friend_links": "친구 링크 설정",
+                        "hexo_repository_sync": "Hexo 저장소 동기화",
                         "listmonk": "listmonk 뉴스레터 배포",
                         "live2d": "Live2D 위젯",
                         "memos": "Memos 동기화",

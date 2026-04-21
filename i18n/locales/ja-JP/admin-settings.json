@@ -234,6 +234,11 @@
                         "live2d_options_json": "例: {'{'}\n  \"modelId\": 0,\n  \"cdnPath\": \"https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/\",\n  \"tools\": [\"hitokoto\", \"switch-model\", \"switch-texture\", \"photo\", \"info\", \"quit\"],\n  \"drag\": false,\n  \"logLevel\": \"warn\"\n{'}'}",
                         "live2d_script_url": "例: https://unpkg.com/live2d-widgets{'@'}1.0.0/dist/",
                         "local_storage_min_free_space": "ローカルディスクの空き容量がこのしきい値を下回ると、システムはアップロードを拒否します。単位はバイトです。",
+                        "hexo_sync_access_token": "対象リポジトリの Contents API 書き込み権限を持つトークンを入力します",
+                        "hexo_sync_branch": "例: main",
+                        "hexo_sync_owner": "例: CaoMeiYouRen",
+                        "hexo_sync_posts_dir": "例: source/_posts",
+                        "hexo_sync_repo": "例: momei-posts",
                         "memos_access_token": "Memos の設定 -> アカウント -> アクセストークンで生成します",
                         "memos_instance_url": "例: https://memos.example.com",
                         "post_copyright": "記事ページと外部分発用の既定ライセンスにのみ使われ、サイトフッターの著作権表示には使いません。",
@@ -328,6 +333,13 @@
                         "google_analytics": "Google Analytics ID",
                         "google_client_id": "Google Client ID",
                         "google_client_secret": "Google Client Secret",
+                        "hexo_sync_access_token": "リポジトリアクセストークン",
+                        "hexo_sync_branch": "対象ブランチ",
+                        "hexo_sync_enabled": "Hexo リポジトリ同期を有効化",
+                        "hexo_sync_owner": "リポジトリ Owner / Namespace",
+                        "hexo_sync_posts_dir": "記事ディレクトリ",
+                        "hexo_sync_provider": "リポジトリプロバイダー",
+                        "hexo_sync_repo": "リポジトリ名",
                         "icp_license_number": "ICP 登録番号",
                         "external_feed_cache_ttl_seconds": "外部更新キャッシュ TTL",
                         "external_feed_enabled": "外部更新集約を有効化",
@@ -423,6 +435,12 @@
                             "PUBLIC": "全員に公開 (Public)"
                         }
                     },
+                    "hexo_sync": {
+                        "providers": {
+                            "gitee": "Gitee",
+                            "github": "GitHub"
+                        }
+                    },
                     "notifications": {
                         "browser": "ブラウザ通知",
                         "description": "特定のサイト運営イベント発生時に、管理者がどの通知を受け取るかを設定します。適時の通知はユーザー反応やシステム異常への素早い対応に役立ちます。",
@@ -453,6 +471,7 @@
                         "external_feeds": "外部 RSS / RSSHub 集約",
                         "footer": "フッター設定",
                         "friend_links": "友链設定",
+                        "hexo_repository_sync": "Hexo リポジトリ同期",
                         "listmonk": "listmonk Newsletter 配信",
                         "live2d": "Live2D",
                         "memos": "Memos 同期",
