@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getDemoNotificationDeliveryLogsPreview } from '@/server/utils/demo-settings'
 import { getNotificationDeliveryLogs } from '@/server/services/notification-delivery'
 import { requireAdmin } from '@/server/utils/permission'
+import { safeParsePaginatedQuery } from '@/server/utils/pagination'
 import { success } from '@/server/utils/response'
 import { NotificationDeliveryChannel, NotificationDeliveryStatus, NotificationType } from '@/utils/shared/notification'
 
@@ -32,8 +33,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const queryResult = querySchema.safeParse(getQuery(event))
-    const query = queryResult.success ? queryResult.data : { page: 1, limit: 10 }
+    const query = safeParsePaginatedQuery(querySchema, getQuery(event))
 
     if (useRuntimeConfig().public.demoMode) {
         return success(getDemoNotificationDeliveryLogsPreview(query.page, query.limit))

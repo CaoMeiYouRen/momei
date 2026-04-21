@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyDefaultPaginationLimit, applyPagination, parsePagination } from './pagination'
+import { z } from 'zod'
+import { applyDefaultPaginationLimit, applyPagination, parsePagination, safeParsePaginatedQuery } from './pagination'
 
 describe('pagination utils', () => {
     describe('applyPagination', () => {
@@ -96,6 +97,49 @@ describe('pagination utils', () => {
             expect(applyDefaultPaginationLimit({ page: '1' }, 'invalid')).toEqual({
                 page: '1',
                 limit: 10,
+            })
+        })
+    })
+
+    describe('safeParsePaginatedQuery', () => {
+        const querySchema = z.object({
+            page: z.coerce.number().int().min(1).default(1),
+            limit: z.coerce.number().int().min(1).max(100).default(10),
+            keyword: z.string().trim().min(1).optional(),
+        })
+
+        it('should return parsed query when schema validation succeeds', () => {
+            expect(safeParsePaginatedQuery(querySchema, {
+                page: '2',
+                limit: '20',
+                keyword: 'hello',
+            })).toEqual({
+                page: 2,
+                limit: 20,
+                keyword: 'hello',
+            })
+        })
+
+        it('should fall back to pagination defaults when schema validation fails', () => {
+            expect(safeParsePaginatedQuery(querySchema, {
+                page: 'invalid',
+                limit: 'invalid',
+                keyword: 42,
+            })).toEqual({
+                page: 1,
+                limit: 10,
+            })
+        })
+
+        it('should allow overriding the pagination fallback', () => {
+            expect(safeParsePaginatedQuery(querySchema, {
+                page: 'invalid',
+            }, {
+                page: 1,
+                limit: 25,
+            })).toEqual({
+                page: 1,
+                limit: 25,
             })
         })
     })

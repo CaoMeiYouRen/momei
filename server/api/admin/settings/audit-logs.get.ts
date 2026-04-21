@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getSettingAuditLogs } from '@/server/services/setting-audit'
 import { getDemoSettingAuditLogsPreview } from '@/server/utils/demo-settings'
 import { requireAdmin } from '@/server/utils/permission'
+import { safeParsePaginatedQuery } from '@/server/utils/pagination'
 import { success } from '@/server/utils/response'
 
 const querySchema = z.object({
@@ -13,8 +14,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const queryResult = querySchema.safeParse(getQuery(event))
-    const query = queryResult.success ? queryResult.data : { page: 1, limit: 10 }
+    const query = safeParsePaginatedQuery(querySchema, getQuery(event))
 
     if (useRuntimeConfig().public.demoMode) {
         return success(getDemoSettingAuditLogsPreview(query.page, query.limit))

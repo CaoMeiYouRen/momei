@@ -9,6 +9,61 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-21 重复代码与纯函数复用治理首轮切片
+
+### 范围
+
+- 目标：按第三十阶段 `重复代码与纯函数复用治理 (P1)` 的准入边界，只处理 `2` 组高收益重复区，不扩写为全仓重构。
+- 本轮覆盖：`server/api/admin/ai/tasks.get.ts` 与 `server/services/ai/task-detail.ts` 的 AI 管理任务读模型装配重复；`server/api/admin/notifications/delivery-logs.get.ts`、`server/api/admin/settings/audit-logs.get.ts`、`server/api/admin/migrations/link-governance/reports.get.ts` 的分页 query `safeParse + 默认回退` 模板重复；以及 `scripts/review-gate/check-duplicate-code.mjs` 的 Windows 运行入口恢复。
+- 非目标：不处理仍然使用 `Number(query.page || 1)` / `Number(query.limit || x)` 的后台分页接口，因为这些入口对非法值的既有语义并不完全一致；本轮只收敛完全同构的分页回退模板。
+
+### 原始重复点与抽象边界
+
+- 重复点 1：AI 任务列表接口与任务详情服务各自维护同一组 `task.* + user.*` 字段选择和同一组数字字段归一化。
+- 抽象边界 1：把共享的 QueryBuilder 装配与读模型归一化统一收到 `server/services/ai/task-detail.ts`，由列表接口复用 `createAIAdminTaskReadModelQuery` 与 `normalizeAIAdminTaskListItem`，不额外引入新的跨模块 service surface。
+- 重复点 2：多个后台分页接口重复书写 `querySchema.safeParse(getQuery(event))` 失败后回退 `{ page: 1, limit: 10 }` 的模板。
+- 抽象边界 2：在 `server/utils/pagination.ts` 中新增 `safeParsePaginatedQuery`，只抽取“schema-safeParse + 分页默认值回退”这一个纯函数，不吞并各接口自己的过滤字段、demo 分支或 service 调用。
+
+### 收益、风险与回滚边界
+
+- 复用收益：AI 管理任务读模型后续再扩字段时，只需维护一处字段选择和一处数字归一化，避免列表和详情继续漂移。
+- 复用收益：分页 query 回退口径统一后，后台 demo 预览和报表接口不再各自维护完全相同的 fallback 模板。
+- 风险控制：`safeParsePaginatedQuery` 只替换原本就使用同一 fallback 的三条链路，不触碰手写 `Number(...)` 的历史接口，避免改变非法 query 值的运行时语义。
+- 回滚边界：若本轮出现回归，回滚只需撤销 `server/services/ai/task-detail.ts`、`server/api/admin/ai/tasks.get.ts`、`server/utils/pagination.ts` 与 3 个后台分页接口；不涉及数据库、前端渲染层或公共 API 契约重写。
+
+### 当前基线与剩余热点
+
+- `pnpm duplicate-code:check`
+	- 结果：通过；`34 clones / 868 duplicated lines / 0.73%`，低于既有 baseline 容差，Review Gate 结论仍为 `Pass`。
+- 读模型 / 路由层剩余热点：`server/api/posts/home.get.ts` <-> `server/api/posts/index.get.ts`、`server/api/ai/translate.post.ts` <-> `server/api/ai/translate.stream.post.ts`、`server/routes/fed/actor/[username].ts` <-> `server/routes/fed/outbox/[username].ts`。
+- 页面 / 模板层剩余热点：`pages/privacy-policy.vue` <-> `pages/user-agreement.vue`、`pages/forgot-password.vue` <-> `pages/reset-password.vue`、`pages/categories/[slug].vue` <-> `pages/tags/[slug].vue`。
+- 手写分页热点保留：`server/api/admin/friend-link-applications/index.get.ts`、`server/api/admin/friend-links/index.get.ts`、`server/api/admin/submissions/index.get.ts` 仍属于下一轮候选，但需要先明确非法 query 语义后再收敛。
+
+### 已执行验证
+
+- 定向 ESLint：`pnpm exec eslint server/utils/pagination.ts server/utils/pagination.test.ts server/api/admin/notifications/delivery-logs.get.ts server/api/admin/settings/audit-logs.get.ts server/api/admin/migrations/link-governance/reports.get.ts server/services/ai/task-detail.ts server/api/admin/ai/tasks.get.ts scripts/review-gate/check-duplicate-code.mjs tests/server/api/admin/settings/audit-logs.get.test.ts --max-warnings 0`
+	- 结果：通过；无输出。
+- 定向 Vitest：`server/utils/pagination.test.ts`、`server/api/admin/ai/tasks.get.test.ts`、`tests/server/api/admin/notifications/delivery-logs.get.test.ts`、`tests/server/api/admin/link-governance-reports.test.ts`、`server/api/ai/tasks/[id].get.test.ts`
+	- 结果：通过；`18` 个测试全部通过。
+- 补充 Vitest：`tests/server/api/admin/settings/audit-logs.get.test.ts`
+	- 结果：通过；`2` 个测试通过，覆盖合法参数透传与非法分页参数回退到 `page=1 / limit=10`。
+- 类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；无输出、无新增诊断。
+- 重复代码基线：`pnpm duplicate-code:check`
+	- 结果：通过；最新 artifact 已写入 `artifacts/review-gate/2026-04-21-duplicate-code.json` 与 `artifacts/review-gate/2026-04-21-duplicate-code.md`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮收敛保持在既定的 `2` 组重复区内，且 lint、typecheck、定向测试与重复代码基线均已补齐。
+
+### 未覆盖边界
+
+- `scripts/review-gate/check-duplicate-code.mjs` 在 Windows 下已恢复可运行，但当前实现仍依赖 shell 模式拉起 `pnpm`；后续若要继续治理该脚本，可再评估更稳妥的跨平台子进程封装。
+- `safeParsePaginatedQuery` 目前只服务于 `page/limit` 默认回退模板；如果后续要统一 `pageSize`、排序或非法值兼容口径，应另开切片，不要把本 helper 继续膨胀成“大一统 query parser”。
+- `server/api/admin/settings/audit-logs.get.ts` 的 `demoMode` 预览分支本轮未补直接 handler 级回归；当前只覆盖了正常 service 路径与非法分页参数回退，后续若继续收紧该链路，再单独为 demo 分支补测。
+
 ## 2026-04-21 国际化字段治理关闭复核
 
 ### 范围

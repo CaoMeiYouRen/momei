@@ -4,7 +4,7 @@ import { User } from '@/server/entities/user'
 import type { AIAdminTaskListItem } from '@/types/ai'
 import { toNumber } from '@/utils/shared/coerce'
 
-function buildTaskDetailQuery(taskId: string) {
+export function createAIAdminTaskReadModelQuery() {
     return dataSource.getRepository(AITask)
         .createQueryBuilder('task')
         .leftJoin(User, 'user', 'task.userId = user.id')
@@ -36,10 +36,9 @@ function buildTaskDetailQuery(taskId: string) {
         .addSelect('user.name', 'user_name')
         .addSelect('user.email', 'user_email')
         .addSelect('user.image', 'user_image')
-        .where('task.id = :taskId', { taskId })
 }
 
-function normalizeTaskDetail(item: Record<string, unknown>): AIAdminTaskListItem {
+export function normalizeAIAdminTaskListItem(item: Record<string, unknown>): AIAdminTaskListItem {
     return {
         ...item,
         estimatedCost: toNumber(item.estimatedCost),
@@ -54,7 +53,8 @@ function normalizeTaskDetail(item: Record<string, unknown>): AIAdminTaskListItem
 }
 
 export async function getAITaskDetail(taskId: string, userId: string, options: { isAdmin?: boolean } = {}) {
-    const queryBuilder = buildTaskDetailQuery(taskId)
+    const queryBuilder = createAIAdminTaskReadModelQuery()
+        .where('task.id = :taskId', { taskId })
 
     if (!options.isAdmin) {
         queryBuilder.andWhere('task.userId = :userId', { userId })
@@ -69,5 +69,5 @@ export async function getAITaskDetail(taskId: string, userId: string, options: {
         })
     }
 
-    return normalizeTaskDetail(item)
+    return normalizeAIAdminTaskListItem(item)
 }

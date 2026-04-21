@@ -1,4 +1,5 @@
 import type { SelectQueryBuilder, ObjectLiteral } from 'typeorm'
+import type { z } from 'zod'
 import { paginationSchema } from '@/utils/schemas/pagination'
 
 export interface PaginationOptions {
@@ -7,6 +8,10 @@ export interface PaginationOptions {
 }
 
 const DEFAULT_PAGINATION_LIMIT = 10
+const DEFAULT_PAGINATION_OPTIONS: PaginationOptions = {
+    page: 1,
+    limit: DEFAULT_PAGINATION_LIMIT,
+}
 
 function normalizePaginationLimit(limit: unknown) {
     const parsed = Number(limit)
@@ -49,8 +54,23 @@ export function parsePagination(query: any): PaginationOptions {
     if (result.success) {
         return result.data
     }
+
     return {
-        page: 1,
-        limit: DEFAULT_PAGINATION_LIMIT,
+        ...DEFAULT_PAGINATION_OPTIONS,
     }
+}
+
+export function safeParsePaginatedQuery<T extends PaginationOptions>(
+    schema: z.ZodType<T>,
+    query: unknown,
+    fallback: PaginationOptions = DEFAULT_PAGINATION_OPTIONS,
+): T {
+    const result = schema.safeParse(query)
+    if (result.success) {
+        return result.data
+    }
+
+    return {
+        ...fallback,
+    } as T
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { listLinkGovernanceReports } from '@/server/services/migration-link-governance'
 import { requireAdmin } from '@/server/utils/permission'
+import { safeParsePaginatedQuery } from '@/server/utils/pagination'
 import { success } from '@/server/utils/response'
 
 const querySchema = z.object({
@@ -13,8 +14,7 @@ const querySchema = z.object({
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const queryResult = querySchema.safeParse(getQuery(event))
-    const query = queryResult.success ? queryResult.data : { page: 1, limit: 10 }
+    const query = safeParsePaginatedQuery(querySchema, getQuery(event))
     const data = await listLinkGovernanceReports(query)
 
     return success(data)
