@@ -64,6 +64,56 @@
 - `safeParsePaginatedQuery` 目前只服务于 `page/limit` 默认回退模板；如果后续要统一 `pageSize`、排序或非法值兼容口径，应另开切片，不要把本 helper 继续膨胀成“大一统 query parser”。
 - `server/api/admin/settings/audit-logs.get.ts` 的 `demoMode` 预览分支本轮未补直接 handler 级回归；当前只覆盖了正常 service 路径与非法分页参数回退，后续若继续收紧该链路，再单独为 demo 分支补测。
 
+## 2026-04-21 重复代码与纯函数复用治理第二轮收口
+
+### 范围
+
+- 目标：在首轮 `2` 组切片通过后，再收敛一组高收益且有现成 handler 测试兜底的公开查询重复区，为第三十阶段 `重复代码与纯函数复用治理 (P1)` 提供可关闭的收口证据。
+- 本轮覆盖：`server/api/posts/home.get.ts` 与 `server/api/posts/index.get.ts` 中完全同构的公开文章多语言 fallback 过滤 SQL 片段。
+- 非目标：不把 `server/api/posts/archive.get.ts`、`server/api/search/index.get.ts` 一并强行并入当前 helper；虽然存在相邻相似逻辑，但其目标语言语义与验证护栏并不完全同构，本轮不做过度泛化。
+
+### 原始重复点与抽象边界
+
+- 重复点：首页最新文章接口与公开文章列表接口都内联了同一套“translationId 为空直接放行；按 locale fallbackChain 逐级选语言；若前序语言已存在已发布版本则排除后序语言版本”的 SQL 过滤逻辑。
+- 抽象边界：在 `server/utils/post-list-query.ts` 中新增 `applyPublishedPostLanguageFallbackFilter`，只承接“公开已发布文章的语言 fallback 过滤”这一段 QueryBuilder 装配，不吞并可见性过滤、排序、分页或管理态聚合逻辑。
+
+### 收益、风险与回滚边界
+
+- 复用收益：公开文章列表相关接口后续再调整 locale fallback 口径时，只需维护一处查询构造，避免首页和列表页再度漂移。
+- 复用收益：文章列表查询工具层现在同时承接字段选择与公开语言过滤两类高频重复装配，读查询边界更清晰。
+- 风险控制：helper 仅在 `query.scope !== 'manage'` 的公开链路调用，不触碰管理态 `aggregate` 聚合与翻译附带媒体装配，避免把不同语义的翻译聚合策略误合并。
+- 回滚边界：若出现回归，只需撤回 `server/utils/post-list-query.ts`、`server/utils/post-list-query.test.ts`、`server/api/posts/home.get.ts`、`server/api/posts/index.get.ts`；不涉及数据库结构、页面模板或外部 API 契约。
+
+### 当前基线与剩余热点
+
+- `pnpm duplicate-code:check`
+	- 结果：通过；最新基线为 `33 clones / 830 duplicated lines / 0.70%`，较首轮进一步下降，Review Gate 结论仍为 `Pass`。
+- 读模型 / 路由层剩余热点：`server/api/ai/translate.post.ts` <-> `server/api/ai/translate.stream.post.ts`、`server/routes/fed/actor/[username].ts` <-> `server/routes/fed/outbox/[username].ts`。
+- 页面 / 模板层剩余热点：`pages/privacy-policy.vue` <-> `pages/user-agreement.vue`、`pages/forgot-password.vue` <-> `pages/reset-password.vue`、`pages/categories/[slug].vue` <-> `pages/tags/[slug].vue`。
+- 保留原因：上述热点要么缺少同级别回归护栏，要么已接近页面壳层/协议层重组，不适合作为当前阶段的继续切片。
+
+### 已执行验证
+
+- 定向 Vitest：`server/utils/post-list-query.test.ts`、`tests/server/api/posts/home.get.test.ts`、`tests/server/api/posts/index.get.test.ts`
+	- 结果：通过；`25` 个测试全部通过。
+- 定向 ESLint：`pnpm exec eslint server/utils/post-list-query.ts server/utils/post-list-query.test.ts server/api/posts/home.get.ts server/api/posts/index.get.ts`
+	- 结果：通过；无输出。
+- 类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；无输出、无新增诊断。
+- 重复代码基线：`pnpm duplicate-code:check`
+	- 结果：通过；最新 artifact 已写入 `artifacts/review-gate/2026-04-21-duplicate-code.json` 与 `artifacts/review-gate/2026-04-21-duplicate-code.md`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；第二轮继续保持在单组高收益重复区内，且公开查询行为已由 util 单测与现有 handler 回归共同兜底。
+
+### 未覆盖边界
+
+- `applyPublishedPostLanguageFallbackFilter` 当前固定服务于 `Post` 公开已发布查询；如果后续要让 `archive`、`search` 或其他非公开列表复用，应先重新定义目标语言语义和最小测试矩阵，而不是继续给当前 helper 加开关。
+- 本轮没有继续处理 `translate.post` / `translate.stream.post` 与 ActivityPub actor/outbox 这两组重复；它们仍是下一轮候选，但需要先补齐测试或协议边界说明。
+
 ## 2026-04-21 国际化字段治理关闭复核
 
 ### 范围

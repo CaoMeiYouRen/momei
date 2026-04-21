@@ -1,4 +1,3 @@
-import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { z } from 'zod'
 import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Post } from '@/server/entities/post'
@@ -6,10 +5,9 @@ import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
-import { applyPostListSelect } from '@/server/utils/post-list-query'
+import { applyPostListSelect, applyPublishedPostLanguageFallbackFilter } from '@/server/utils/post-list-query'
 import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 import { success } from '@/server/utils/response'
-import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 import {
     HOMEPAGE_LATEST_POST_LIMIT,
     HOMEPAGE_PINNED_POST_LIMIT,
@@ -58,43 +56,7 @@ export default defineEventHandler(async (event) => {
                 rethrowPostAccessError(error)
             }
 
-            if (query.language) {
-                const fallbackChain = getLocaleRegistryItem(query.language).fallbackChain
-
-                qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
-                    sub.where('post.translationId IS NULL')
-
-                    fallbackChain.forEach((fallbackLanguage, index) => {
-                        const languageParam = index === 0 ? 'language' : `fallbackLanguage${index}`
-                        const params: Record<string, string | string[]> = {
-                            [languageParam]: fallbackLanguage,
-                        }
-
-                        sub.orWhere(new Brackets((candidate: WhereExpressionBuilder) => {
-                            candidate.where('post.translationId IS NOT NULL')
-                                .andWhere(`post.language = :${languageParam}`, params)
-
-                            const previousLanguages = fallbackChain.slice(0, index)
-                            if (previousLanguages.length > 0) {
-                                const previousLanguagesParam = `previousLanguages${index}`
-                                candidate.andWhere((subQb: SelectQueryBuilder<Post>) => {
-                                    const existsQuery = subQb.subQuery()
-                                        .select('1')
-                                        .from(Post, 'p2')
-                                        .where('p2.translationId = post.translationId')
-                                        .andWhere('p2.status = :publishedStatus', { publishedStatus: 'published' })
-                                        .andWhere(`p2.language IN (:...${previousLanguagesParam})`, {
-                                            [previousLanguagesParam]: previousLanguages,
-                                        })
-                                        .getQuery()
-
-                                    return `NOT EXISTS ${existsQuery}`
-                                })
-                            }
-                        }))
-                    })
-                }))
-            }
+            applyPublishedPostLanguageFallbackFilter(qb, query.language)
 
             applyPostOrdering(qb, {
                 alias: 'post',

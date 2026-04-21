@@ -1,5 +1,6 @@
-import type { SelectQueryBuilder } from 'typeorm'
-import type { Post } from '@/server/entities/post'
+import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
+import { Post } from '@/server/entities/post'
+import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 
 interface PostListSelectOptions {
     includeAuthor?: boolean
@@ -63,6 +64,53 @@ export function applyPostListSelect(
         qb.leftJoin('post.tags', 'tags')
             .addSelect(['tags.id', 'tags.name', 'tags.slug'])
     }
+
+    return qb
+}
+
+export function applyPublishedPostLanguageFallbackFilter(
+    qb: SelectQueryBuilder<Post>,
+    language?: null | string,
+) {
+    if (!language) {
+        return qb
+    }
+
+    const fallbackChain = getLocaleRegistryItem(language).fallbackChain
+
+    qb.andWhere(new Brackets((sub: WhereExpressionBuilder) => {
+        sub.where('post.translationId IS NULL')
+
+        fallbackChain.forEach((fallbackLanguage, index) => {
+            const languageParam = index === 0 ? 'language' : `fallbackLanguage${index}`
+            const params: Record<string, string | string[]> = {
+                [languageParam]: fallbackLanguage,
+            }
+
+            sub.orWhere(new Brackets((candidate: WhereExpressionBuilder) => {
+                candidate.where('post.translationId IS NOT NULL')
+                    .andWhere(`post.language = :${languageParam}`, params)
+
+                const previousLanguages = fallbackChain.slice(0, index)
+                if (previousLanguages.length > 0) {
+                    const previousLanguagesParam = `previousLanguages${index}`
+                    candidate.andWhere((subQb: SelectQueryBuilder<Post>) => {
+                        const existsQuery = subQb.subQuery()
+                            .select('1')
+                            .from(Post, 'p2')
+                            .where('p2.translationId = post.translationId')
+                            .andWhere('p2.status = :publishedStatus', { publishedStatus: 'published' })
+                            .andWhere(`p2.language IN (:...${previousLanguagesParam})`, {
+                                [previousLanguagesParam]: previousLanguages,
+                            })
+                            .getQuery()
+
+                        return `NOT EXISTS ${existsQuery}`
+                    })
+                }
+            }))
+        })
+    }))
 
     return qb
 }

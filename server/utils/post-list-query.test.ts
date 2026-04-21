@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { applyPostListSelect } from './post-list-query'
+import { Brackets } from 'typeorm'
+import { describe, expect, it, vi } from 'vitest'
+import { applyPostListSelect, applyPublishedPostLanguageFallbackFilter } from './post-list-query'
 
 function createQueryBuilderMock() {
     const state = {
@@ -69,5 +70,30 @@ describe('applyPostListSelect', () => {
             ['post.author', 'author'],
         ])
         expect(state.addSelect).toHaveLength(1)
+    })
+})
+
+describe('applyPublishedPostLanguageFallbackFilter', () => {
+    it('returns the original query builder when language is missing', () => {
+        const queryBuilder = {
+            andWhere: vi.fn().mockReturnThis(),
+        }
+
+        const result = applyPublishedPostLanguageFallbackFilter(queryBuilder as never, undefined)
+
+        expect(result).toBe(queryBuilder)
+        expect(queryBuilder.andWhere).not.toHaveBeenCalled()
+    })
+
+    it('adds a shared fallback filter when language is provided', () => {
+        const queryBuilder = {
+            andWhere: vi.fn().mockReturnThis(),
+        }
+
+        const result = applyPublishedPostLanguageFallbackFilter(queryBuilder as never, 'zh-TW')
+
+        expect(result).toBe(queryBuilder)
+        expect(queryBuilder.andWhere).toHaveBeenCalledTimes(1)
+        expect(queryBuilder.andWhere.mock.calls[0]?.[0]).toBeInstanceOf(Brackets)
     })
 })

@@ -43,12 +43,12 @@
 	- 验收: 明确本轮处理模块、未覆盖模块、raw key 风险与后续分批清偿顺序，便于 Review Gate 判定是否达标。
 	- 结果: 已固化 `missing` blocker、运行时加载边界与共享 key 准入口径；当前 `i18n:audit:missing` 为 `0`，`i18n:verify:runtime` 与定向 parity 已通过，详见 `docs/design/governance/i18n-field-governance.md` 与 `docs/reports/regression/current.md`。
 
-4. [ ] **重复代码与纯函数复用治理 (P1)**
+4. [x] **重复代码与纯函数复用治理 (P1)**
 	- 验收: 只处理 `1 - 2` 组高收益重复区，优先围绕公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界推进，不得扩写为全仓重构。
 	- 验收: 每组切片都必须给出原始重复点、拟抽象边界、复用收益、潜在过度泛化风险与回滚方式，而不是只写“继续复用”。
 	- 验收: 至少保住重复代码基线不反弹，并输出本轮收敛后的剩余热点列表，作为下一轮切片入口。
 	- 验收: 补齐最小验证矩阵，确认共享 helper / 纯函数抽象不会改变公开页、查询参数解析与读模型装配行为。
-	- 进展: 已完成首轮 `2` 组切片收敛，覆盖 AI 管理任务读模型装配共享 helper 与后台分页 query `safeParse + 默认回退` 模板；`pnpm duplicate-code:check` 当前为 `34 clones / 868 duplicated lines / 0.73%`，仍低于 baseline 容差，剩余热点与验证记录见 `docs/reports/regression/current.md`。
+	- 结果: 已完成两轮窄边界切片，覆盖 AI 管理任务读模型装配共享 helper、后台分页 query `safeParse + 默认回退` 模板，以及公开文章列表 locale fallback 过滤 helper；`pnpm duplicate-code:check` 最新为 `33 clones / 830 duplicated lines / 0.70%`，低于 baseline 容差，剩余热点、风险与验证记录见 `docs/reports/regression/current.md`。
 
 5. [ ] **存量代码注释治理与注释漂移治理 (P1)**
 	- 验收: 首轮只允许选择 `1 - 2` 组高复杂度链路推进，优先覆盖设置来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制或 AI 服务治理，不得扩成全仓平均补注释工程。
