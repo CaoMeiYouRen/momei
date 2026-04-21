@@ -131,11 +131,18 @@ export interface AIAdminTaskListItem {
     chargeStatus: AIChargeStatus | null
     failureStage: AIFailureStage | null
     durationMs: number
-    usageSnapshot: AIAdminTaskDataValue
     createdAt: string | Date
     startedAt: string | Date | null
     completedAt: string | Date | null
     userId: string
+    user_name: string | null
+    user_email: string | null
+    user_image: string | null
+}
+
+export interface AIAdminTaskDetailItem extends AIAdminTaskListItem {
+    id: string
+    usageSnapshot: AIAdminTaskDataValue
     payload: AIAdminTaskDataValue
     result: AIAdminTaskDataValue
     error: string | null
@@ -143,9 +150,6 @@ export interface AIAdminTaskListItem {
     audioSize: number
     textLength: number
     language: string | null
-    user_name: string | null
-    user_email: string | null
-    user_image: string | null
 }
 
 export interface AIAdminTaskListResponse {
@@ -155,7 +159,7 @@ export interface AIAdminTaskListResponse {
 }
 
 export interface AITaskDetailResponse {
-    item: AIAdminTaskListItem
+    item: AIAdminTaskDetailItem
     costDisplay: AICostDisplay
 }
 

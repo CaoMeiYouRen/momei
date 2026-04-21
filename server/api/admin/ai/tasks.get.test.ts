@@ -90,10 +90,10 @@ describe('GET /api/admin/ai/tasks', () => {
             estimatedQuotaUnits: 20,
             quotaUnits: 18,
             durationMs: 3600,
-            audioDuration: 0,
-            audioSize: 0,
-            textLength: 0,
         }))
+        expect(result.items[0]).not.toHaveProperty('payload')
+        expect(result.items[0]).not.toHaveProperty('result')
+        expect(result.items[0]).not.toHaveProperty('usageSnapshot')
         expect(result.costDisplay).toEqual(expect.objectContaining({
             currencyCode: 'CNY',
             currencySymbol: '¥',

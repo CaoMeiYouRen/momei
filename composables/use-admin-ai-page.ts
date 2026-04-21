@@ -1,9 +1,12 @@
 import { useConfirm } from 'primevue/useconfirm'
+import type { ApiResponse } from '@/types/api'
 import type {
     AIAdminStatsResponse,
+    AIAdminTaskDetailItem,
     AIAdminTaskListFilters,
     AIAdminTaskListItem,
     AIAdminTaskListResponse,
+    AITaskDetailResponse,
     AICostDisplay,
 } from '@/types/ai'
 
@@ -16,7 +19,7 @@ export function useAdminAiPage() {
     const { t } = useI18n()
     const confirm = useConfirm()
     const { $appFetch } = useAppApi()
-    const { showErrorToast, showSuccessToast } = useRequestFeedback()
+    const { resolveErrorMessage, showErrorToast, showSuccessToast } = useRequestFeedback()
 
     const activeTab = ref('stats')
     const stats = ref<AIAdminStatsResponse | null>(null)
@@ -37,7 +40,10 @@ export function useAdminAiPage() {
     })
 
     const detailsVisible = ref(false)
-    const selectedTask = ref<AIAdminTaskListItem | null>(null)
+    const loadingTaskDetails = ref(false)
+    const taskDetailsError = ref<string | null>(null)
+    const selectedTask = ref<AIAdminTaskDetailItem | null>(null)
+    const taskDetailsRequestToken = ref(0)
 
     const loadStats = async () => {
         loadingStats.value = true
@@ -102,9 +108,55 @@ export function useAdminAiPage() {
         void loadTasks()
     }
 
-    const showDetails = (task: AIAdminTaskListItem) => {
-        selectedTask.value = task
+    const showDetails = async (task: AIAdminTaskListItem) => {
+        taskDetailsRequestToken.value += 1
+        const requestToken = taskDetailsRequestToken.value
+
         detailsVisible.value = true
+        loadingTaskDetails.value = true
+        taskDetailsError.value = null
+        selectedTask.value = null
+
+        try {
+            const response = await $appFetch<ApiResponse<AITaskDetailResponse>>(`/api/ai/tasks/${task.id}`)
+
+            if (taskDetailsRequestToken.value !== requestToken) {
+                return
+            }
+
+            const detail = response.data?.item
+
+            if (!detail) {
+                const error = new Error('AI task detail response is empty')
+                const resolvedErrorMessage = resolveErrorMessage(error, {
+                    fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
+                })
+
+                taskDetailsError.value = resolvedErrorMessage
+                showErrorToast(error, {
+                    fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
+                })
+                return
+            }
+
+            selectedTask.value = detail
+            costDisplay.value = response.data?.costDisplay || costDisplay.value
+        } catch (error: unknown) {
+            if (taskDetailsRequestToken.value !== requestToken) {
+                return
+            }
+
+            taskDetailsError.value = resolveErrorMessage(error, {
+                fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
+            })
+            showErrorToast(error, {
+                fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
+            })
+        } finally {
+            if (taskDetailsRequestToken.value === requestToken) {
+                loadingTaskDetails.value = false
+            }
+        }
     }
 
     const confirmDelete = (task: AIAdminTaskListItem) => {
@@ -160,6 +212,17 @@ export function useAdminAiPage() {
         void refreshAll()
     })
 
+    watch(detailsVisible, (visible) => {
+        if (visible) {
+            return
+        }
+
+        taskDetailsRequestToken.value += 1
+        loadingTaskDetails.value = false
+        taskDetailsError.value = null
+        selectedTask.value = null
+    })
+
     return {
         activeTab,
         stats,
@@ -172,6 +235,8 @@ export function useAdminAiPage() {
         pageSize,
         filters,
         detailsVisible,
+        loadingTaskDetails,
+        taskDetailsError,
         selectedTask,
         loadTasks,
         onPage,

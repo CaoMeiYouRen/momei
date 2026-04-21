@@ -106,22 +106,20 @@ const MenuStub = defineComponent({
     },
     setup(props, { attrs, expose }) {
         const id = typeof attrs.id === 'string' ? attrs.id : ''
-        const collectLabels = (items: unknown[]): string[] => {
-            return items.flatMap((item) => {
-                if (!item || typeof item !== 'object') {
-                    return []
-                }
+        const collectLabels = (items: unknown[]): string[] => items.flatMap((item) => {
+            if (!item || typeof item !== 'object') {
+                return []
+            }
 
-                const label = typeof (item as { label?: unknown }).label === 'string'
-                    ? [(item as { label: string }).label]
-                    : []
-                const nestedItems = Array.isArray((item as { items?: unknown[] }).items)
-                    ? collectLabels((item as { items: unknown[] }).items)
-                    : []
+            const label = typeof (item as { label?: unknown }).label === 'string'
+                ? [(item as { label: string }).label]
+                : []
+            const nestedItems = Array.isArray((item as { items?: unknown[] }).items)
+                ? collectLabels((item as { items: unknown[] }).items)
+                : []
 
-                return [...label, ...nestedItems]
-            })
-        }
+            return [...label, ...nestedItems]
+        })
 
         expose({
             toggle(event: Event) {

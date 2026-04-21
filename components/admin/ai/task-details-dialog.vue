@@ -6,8 +6,20 @@
         class="max-w-50rem w-full"
         @update:visible="$emit('update:visible', $event)"
     >
+        <div v-if="loading" class="task-details-dialog__state">
+            <ProgressSpinner stroke-width="4" />
+        </div>
+
+        <Message
+            v-else-if="errorMessage"
+            severity="error"
+            :closable="false"
+        >
+            {{ errorMessage }}
+        </Message>
+
         <AdminAiTaskDetailContent
-            v-if="task"
+            v-else-if="task"
             :task="task"
             :cost-display="costDisplay"
         />
@@ -15,11 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import type { AIAdminTaskListItem, AICostDisplay } from '@/types/ai'
+import type { AIAdminTaskDetailItem, AICostDisplay } from '@/types/ai'
 
 defineProps<{
     visible: boolean
-    task: AIAdminTaskListItem | null
+    loading?: boolean
+    errorMessage?: string | null
+    task: AIAdminTaskDetailItem | null
     costDisplay?: AICostDisplay | null
 }>()
 
@@ -27,3 +41,13 @@ defineEmits<{
     (e: 'update:visible', value: boolean): void
 }>()
 </script>
+
+<style lang="scss" scoped>
+.task-details-dialog {
+    &__state {
+        display: flex;
+        justify-content: center;
+        padding: 3rem 0;
+    }
+}
+</style>

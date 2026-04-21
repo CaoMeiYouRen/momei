@@ -49,6 +49,8 @@
 
         <AdminAiTaskDetailsDialog
             v-model:visible="detailsVisible"
+            :loading="loadingTaskDetails"
+            :error-message="taskDetailsError"
             :task="selectedTask"
             :cost-display="costDisplay"
         />
@@ -74,6 +76,8 @@ const {
     pageSize,
     filters,
     detailsVisible,
+    loadingTaskDetails,
+    taskDetailsError,
     selectedTask,
     loadTasks,
     onPage,

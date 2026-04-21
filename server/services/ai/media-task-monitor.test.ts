@@ -4,6 +4,7 @@ import { dataSource } from '@/server/database'
 import { ImageService } from '@/server/services/ai/image'
 import { TTSService } from '@/server/services/ai/tts'
 import { acquireLock, releaseLock } from '@/server/utils/redis'
+import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 
 const mocks = vi.hoisted(() => ({
     logger: {
@@ -58,22 +59,25 @@ describe('media task monitor', () => {
         taskRepo.find.mockResolvedValue([
             { id: 'image-1', type: 'image_generation' },
             { id: 'podcast-1', type: 'podcast' },
-            { id: 'ignored-1', type: 'unknown' },
+            { id: 'tts-1', type: 'tts' },
         ])
         vi.mocked(ImageService.compensateStaleTask).mockResolvedValue('completed')
-        vi.mocked(TTSService.compensateStaleTask).mockResolvedValue('resumed')
+        vi.mocked(TTSService.compensateStaleTask)
+            .mockResolvedValueOnce('resumed')
+            .mockResolvedValueOnce('completed')
 
         const summary = await scanAndCompensateTimedOutMediaTasks(new Date('2026-04-07T12:00:00.000Z'))
 
         expect(summary).toEqual(expect.objectContaining({
             scanned: 3,
-            completed: 1,
+            completed: 2,
             resumed: 1,
-            skipped: 1,
+            skipped: 0,
             failed: 0,
         }))
         expect(ImageService.compensateStaleTask).toHaveBeenCalledWith('image-1')
         expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('podcast-1')
+        expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('tts-1')
         expect(taskRepo.find).toHaveBeenCalledTimes(1)
         expect(taskRepo.update).toHaveBeenCalledTimes(3)
         expect(releaseLock).toHaveBeenCalledTimes(1)
@@ -128,5 +132,64 @@ describe('media task monitor', () => {
             failed: 0,
         }))
         expect(ImageService.compensateStaleTask).not.toHaveBeenCalled()
+    })
+
+    it('should narrow stale scan to a single task when taskId filter is provided', async () => {
+        taskRepo.find.mockResolvedValue([
+            { id: 'podcast-1', type: 'podcast' },
+        ])
+        vi.mocked(TTSService.compensateStaleTask).mockResolvedValue('completed')
+
+        const summary = await scanAndCompensateTimedOutMediaTasks(new Date('2026-04-07T12:00:00.000Z'), {
+            taskId: 'podcast-1',
+        })
+
+        expect(summary).toEqual(expect.objectContaining({
+            scanned: 1,
+            completed: 1,
+            failed: 0,
+            resumed: 0,
+            skipped: 0,
+        }))
+        expect(taskRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+            where: expect.arrayContaining([
+                expect.objectContaining({ id: 'podcast-1', status: 'pending' }),
+                expect.objectContaining({ id: 'podcast-1', status: 'processing' }),
+            ]),
+        }))
+        expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('podcast-1')
+    })
+
+    it('should compensate stale tts task through TTSService', async () => {
+        taskRepo.find.mockResolvedValue([
+            { id: 'tts-1', type: 'tts' },
+        ])
+        vi.mocked(TTSService.compensateStaleTask).mockResolvedValue('completed')
+
+        const summary = await scanAndCompensateTimedOutMediaTasks(new Date('2026-04-07T12:00:00.000Z'))
+
+        expect(summary).toEqual(expect.objectContaining({
+            scanned: 1,
+            completed: 1,
+            failed: 0,
+            resumed: 0,
+            skipped: 0,
+        }))
+        expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('tts-1')
+    })
+
+    it('should claim compensation with a lease that covers the heavy task timeout window', async () => {
+        taskRepo.find.mockResolvedValue([
+            { id: 'tts-1', type: 'tts', status: 'processing', result: null, progress: 20 },
+        ])
+        vi.mocked(TTSService.compensateStaleTask).mockResolvedValue('resumed')
+
+        const now = new Date('2026-04-07T12:00:00.000Z')
+        await scanAndCompensateTimedOutMediaTasks(now)
+
+        const claimedUpdate = taskRepo.update.mock.calls[0]?.[1] as { result?: string }
+        const claimedResult = JSON.parse(String(claimedUpdate.result)) as { compensationLeaseExpiresAt: string }
+
+        expect(Date.parse(claimedResult.compensationLeaseExpiresAt) - now.getTime()).toBeGreaterThanOrEqual(AI_HEAVY_TASK_TIMEOUT_MS)
     })
 })

@@ -168,7 +168,7 @@ import { formatAICost } from '@/utils/shared/ai-cost'
 import { formatAIAdminJson, getAIChargeStatusSeverity, getAITaskStatusSeverity } from '@/utils/shared/ai-admin'
 import type {
     AIAdminTaskDataValue,
-    AIAdminTaskListItem,
+    AIAdminTaskDetailItem,
     AICostDisplay,
 } from '@/types/ai'
 
@@ -185,7 +185,7 @@ function parseTaskDataValue(value: AIAdminTaskDataValue): Record<string, unknown
 }
 
 const props = defineProps<{
-    task: AIAdminTaskListItem
+    task: AIAdminTaskDetailItem
     costDisplay?: AICostDisplay | null
 }>()
 
@@ -267,7 +267,7 @@ const formatDuration = (durationMs?: number | null) => {
     return `${(ms / 1000).toFixed(2)} s`
 }
 
-const getTaskImages = (task: AIAdminTaskListItem | null) => {
+const getTaskImages = (task: AIAdminTaskDetailItem | null) => {
     if (!task || task.type !== 'image_generation' || !task.result) return []
 
     const result = parseTaskDataValue(task.result)
@@ -287,7 +287,7 @@ const getTaskImages = (task: AIAdminTaskListItem | null) => {
     })
 }
 
-const getTaskAudio = (task: AIAdminTaskListItem | null) => {
+const getTaskAudio = (task: AIAdminTaskDetailItem | null) => {
     if (!task || !task.result) return null
 
     const result = parseTaskDataValue(task.result)

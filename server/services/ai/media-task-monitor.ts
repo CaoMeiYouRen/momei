@@ -7,11 +7,11 @@ import logger from '@/server/utils/logger'
 import { acquireLock, releaseLock } from '@/server/utils/redis'
 import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 
-const RECOVERABLE_MEDIA_TASK_TYPES = ['image_generation', 'podcast'] as const
+const RECOVERABLE_MEDIA_TASK_TYPES = ['image_generation', 'podcast', 'tts'] as const
 const RECOVERABLE_MEDIA_TASK_STATUSES = ['pending', 'processing'] as const
 const MEDIA_TASK_MONITOR_LOCK_KEY = 'momei:lock:ai-media-compensation'
 const MEDIA_TASK_MONITOR_LOCK_TTL = 60000
-const MEDIA_TASK_COMPENSATION_LEASE_MS = 60000
+const MEDIA_TASK_COMPENSATION_LEASE_MS = AI_HEAVY_TASK_TIMEOUT_MS + 60000
 
 export type MediaTaskCompensationOutcome = 'completed' | 'failed' | 'resumed' | 'skipped'
 
@@ -28,6 +28,10 @@ interface MediaTaskCompensationClaim {
     compensationClaimedAt: string
     compensationClaimToken: string
     compensationLeaseExpiresAt: string
+}
+
+interface ScanTimedOutMediaTaskOptions {
+    taskId?: string
 }
 
 function createEmptySummary(staleBefore: Date): MediaTaskCompensationSummary {
@@ -130,7 +134,10 @@ async function claimTaskForCompensation(
     return true
 }
 
-export async function scanAndCompensateTimedOutMediaTasks(now = new Date()): Promise<MediaTaskCompensationSummary> {
+export async function scanAndCompensateTimedOutMediaTasks(
+    now = new Date(),
+    options: ScanTimedOutMediaTaskOptions = {},
+): Promise<MediaTaskCompensationSummary> {
     const staleBefore = new Date(now.getTime() - AI_HEAVY_TASK_TIMEOUT_MS)
     const summary = createEmptySummary(staleBefore)
     const hasLock = await acquireLock(MEDIA_TASK_MONITOR_LOCK_KEY, MEDIA_TASK_MONITOR_LOCK_TTL)
@@ -143,12 +150,15 @@ export async function scanAndCompensateTimedOutMediaTasks(now = new Date()): Pro
     const taskRepo = dataSource.getRepository(AITask)
 
     try {
+        const staleTaskWhere = RECOVERABLE_MEDIA_TASK_STATUSES.map((status) => ({
+            ...(options.taskId ? { id: options.taskId } : {}),
+            type: In([...RECOVERABLE_MEDIA_TASK_TYPES]),
+            status,
+            updatedAt: LessThan(staleBefore),
+        }))
+
         const staleTasks = await taskRepo.find({
-            where: RECOVERABLE_MEDIA_TASK_STATUSES.map((status) => ({
-                type: In([...RECOVERABLE_MEDIA_TASK_TYPES]),
-                status,
-                updatedAt: LessThan(staleBefore),
-            })),
+            where: staleTaskWhere,
             order: {
                 updatedAt: 'ASC',
             },
@@ -173,7 +183,7 @@ export async function scanAndCompensateTimedOutMediaTasks(now = new Date()): Pro
 
                 if (task.type === 'image_generation') {
                     outcome = await ImageService.compensateStaleTask(task.id)
-                } else if (task.type === 'podcast') {
+                } else if (task.type === 'podcast' || task.type === 'tts') {
                     outcome = await TTSService.compensateStaleTask(task.id)
                 }
 

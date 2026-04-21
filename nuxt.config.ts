@@ -330,6 +330,11 @@ export default defineNuxtConfig({
         experimental: {
             websocket: true,
         },
+        vercel: {
+            functions: {
+                maxDuration: 60,
+            },
+        },
         ignore: [
             '**/*.test.ts',
             '**/*.spec.ts',

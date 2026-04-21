@@ -16,7 +16,9 @@ import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
 import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
-const MAX_PODCAST_COMPENSATION_ATTEMPTS = 2
+const MAX_AUDIO_COMPENSATION_ATTEMPTS = 2
+
+type RecoverableTTSTaskType = 'tts' | 'podcast'
 
 type PodcastTaskCheckpointPhase = 'queued' | 'asset_uploaded'
 
@@ -32,24 +34,45 @@ interface PodcastTaskCheckpoint {
     lastResumeAt?: string | null
 }
 
-function parsePodcastTaskCheckpoint(taskResult: string | null | undefined) {
+function parseTaskResultRecord(taskResult: string | null | undefined): Record<string, unknown> | null {
     if (!taskResult) {
         return null
     }
 
     try {
-        const parsed = JSON.parse(taskResult) as Partial<PodcastTaskCheckpoint>
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || typeof parsed.phase !== 'string') {
+        const parsed = JSON.parse(taskResult) as unknown
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
             return null
         }
 
-        if (!['queued', 'asset_uploaded'].includes(parsed.phase)) {
-            return null
-        }
-
-        return parsed as PodcastTaskCheckpoint
+        return parsed as Record<string, unknown>
     } catch {
         return null
+    }
+}
+
+function parsePodcastTaskCheckpoint(taskResult: string | null | undefined) {
+    const parsed = parseTaskResultRecord(taskResult)
+
+    if (!parsed) {
+        return null
+    }
+
+    if (typeof parsed.phase !== 'string') {
+        return null
+    }
+
+    if (!['queued', 'asset_uploaded'].includes(parsed.phase)) {
+        return null
+    }
+
+    return {
+        phase: parsed.phase as PodcastTaskCheckpointPhase,
+        uploadedAsset: parsed.uploadedAsset as PodcastTaskCheckpoint['uploadedAsset'],
+        resumeAttempts: typeof parsed.resumeAttempts === 'number' ? parsed.resumeAttempts : undefined,
+        lastResumeAt: typeof parsed.lastResumeAt === 'string' || parsed.lastResumeAt === null
+            ? parsed.lastResumeAt
+            : undefined,
     }
 }
 
@@ -665,9 +688,11 @@ export class TTSService extends AIBaseService {
         const taskRepo = dataSource.getRepository(AITask)
         const task = await taskRepo.findOneBy({ id: taskId })
 
-        if (task?.type !== 'podcast') {
+        if (task?.type !== 'podcast' && task?.type !== 'tts') {
             return 'skipped' as const
         }
+
+        const taskType = task.type as RecoverableTTSTaskType
 
         const finalStatus = task.status
 
@@ -679,45 +704,69 @@ export class TTSService extends AIBaseService {
             return 'failed' as const
         }
 
-        const checkpoint = parsePodcastTaskCheckpoint(task.result)
-        if (checkpoint?.phase !== 'asset_uploaded') {
-            const nextAttempts = (checkpoint?.resumeAttempts || 0) + 1
-            if (nextAttempts > MAX_PODCAST_COMPENSATION_ATTEMPTS) {
-                task.status = 'failed'
-                task.error = 'Podcast generation task timed out and exceeded compensation attempts'
-                task.failureStage = 'provider_processing'
-                task.chargeStatus = deriveChargeStatus({
-                    status: 'failed',
-                    failureStage: 'provider_processing',
-                    quotaUnits: 0,
-                    settlementSource: 'estimated',
-                })
-                task.completedAt = new Date()
-                task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
-                await taskRepo.save(task)
+        const checkpoint = taskType === 'podcast' ? parsePodcastTaskCheckpoint(task.result) : null
+        if (taskType === 'podcast' && checkpoint?.phase === 'asset_uploaded' && checkpoint.uploadedAsset?.url) {
+            await this.processTask(task.id, task)
+
+            const latestTask = await taskRepo.findOneBy({ id: task.id }) || task
+
+            if (latestTask.status === 'completed') {
+                return 'completed' as const
+            }
+
+            if (latestTask.status === 'failed') {
                 return 'failed' as const
             }
 
-            task.status = 'processing'
-            task.error = null
-            task.startedAt = task.startedAt || new Date()
-            task.result = JSON.stringify({
-                phase: checkpoint?.phase || 'queued',
-                uploadedAsset: checkpoint?.uploadedAsset,
-                resumeAttempts: nextAttempts,
-                lastResumeAt: new Date().toISOString(),
-            } satisfies PodcastTaskCheckpoint)
-            task.progress = Math.max(task.progress || 0, 10)
-            await taskRepo.save(task)
+            return 'resumed' as const
         }
+
+        const resultRecord = parseTaskResultRecord(task.result)
+        const previousAttempts = typeof resultRecord?.resumeAttempts === 'number' ? resultRecord.resumeAttempts : 0
+        const nextAttempts = previousAttempts + 1
+
+        if (nextAttempts > MAX_AUDIO_COMPENSATION_ATTEMPTS) {
+            task.status = 'failed'
+            task.error = `${taskType === 'podcast' ? 'Podcast' : 'TTS'} generation task timed out and exceeded compensation attempts`
+            task.failureStage = 'provider_processing'
+            task.chargeStatus = deriveChargeStatus({
+                status: 'failed',
+                failureStage: 'provider_processing',
+                quotaUnits: 0,
+                settlementSource: 'estimated',
+            })
+            task.completedAt = new Date()
+            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+            await taskRepo.save(task)
+            return 'failed' as const
+        }
+
+        task.status = 'processing'
+        task.error = null
+        task.startedAt = task.startedAt || new Date()
+        task.result = JSON.stringify({
+            ...(resultRecord || {}),
+            ...(taskType === 'podcast'
+                ? {
+                    phase: checkpoint?.phase || 'queued',
+                    uploadedAsset: checkpoint?.uploadedAsset,
+                }
+                : {}),
+            resumeAttempts: nextAttempts,
+            lastResumeAt: new Date().toISOString(),
+        })
+        task.progress = Math.max(task.progress || 0, 10)
+        await taskRepo.save(task)
 
         await this.processTask(task.id, task)
 
-        if (task.status === 'completed') {
+        const latestTask = await taskRepo.findOneBy({ id: task.id }) || task
+
+        if (latestTask.status === 'completed') {
             return 'completed' as const
         }
 
-        if (task.status === 'failed') {
+        if (latestTask.status === 'failed') {
             return 'failed' as const
         }
 

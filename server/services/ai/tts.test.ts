@@ -261,6 +261,89 @@ describe('TTSService estimateProviderCost', () => {
         expect(sendInAppNotification).toHaveBeenCalled()
     })
 
+    it('should resume stale tts task by regenerating audio once', async () => {
+        const taskRepo = {
+            findOneBy: vi.fn().mockResolvedValue({
+                id: 'task-1',
+                userId: 'user-1',
+                provider: 'openai',
+                model: 'tts-model',
+                category: 'tts',
+                type: 'tts',
+                mode: 'speech',
+                voice: 'alloy',
+                payload: JSON.stringify({
+                    text: 'Hello from Momei',
+                    voice: 'alloy',
+                    mode: 'speech',
+                    options: {},
+                }),
+                result: JSON.stringify({
+                    resumeAttempts: 1,
+                }),
+                status: 'processing',
+                progress: 10,
+                startedAt: new Date('2026-03-16T00:00:00.000Z'),
+            }),
+            save: vi.fn((value) => Promise.resolve(value)),
+        }
+
+        vi.mocked(dataSource.getRepository).mockReturnValue(taskRepo as any)
+        vi.mocked(getAIProvider).mockResolvedValue({
+            name: 'openai',
+            generateSpeech: vi.fn().mockResolvedValue(new ReadableStream<Uint8Array>({
+                start(controller) {
+                    controller.enqueue(new Uint8Array([1, 2, 3, 4]))
+                    controller.close()
+                },
+            })),
+        } as any)
+        vi.mocked(buildUploadStoredFilename).mockReturnValue('generated.mp3')
+        vi.mocked(uploadFromBuffer).mockResolvedValue({
+            url: '/uploads/audio/generated.mp3',
+            filename: 'generated.mp3',
+        } as any)
+
+        const outcome = await TTSService.compensateStaleTask('task-1')
+
+        expect(outcome).toBe('completed')
+        expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+            status: 'completed',
+        }))
+        expect(sendInAppNotification).toHaveBeenCalled()
+    })
+
+    it('should fail stale tts task after compensation attempts are exhausted', async () => {
+        const taskRepo = {
+            findOneBy: vi.fn().mockResolvedValue({
+                id: 'task-1',
+                userId: 'user-1',
+                provider: 'openai',
+                model: 'tts-model',
+                category: 'tts',
+                type: 'tts',
+                payload: JSON.stringify({ text: 'Hello from Momei', voice: 'alloy', mode: 'speech', options: {} }),
+                result: JSON.stringify({
+                    resumeAttempts: 2,
+                }),
+                status: 'processing',
+                progress: 10,
+                startedAt: new Date('2026-03-16T00:00:00.000Z'),
+            }),
+            save: vi.fn((value) => Promise.resolve(value)),
+        }
+
+        vi.mocked(dataSource.getRepository).mockReturnValue(taskRepo as any)
+
+        const outcome = await TTSService.compensateStaleTask('task-1')
+
+        expect(outcome).toBe('failed')
+        expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+            status: 'failed',
+            error: 'TTS generation task timed out and exceeded compensation attempts',
+        }))
+    })
+
     it('should fail stale podcast task after compensation attempts are exhausted', async () => {
         const taskRepo = {
             findOneBy: vi.fn().mockResolvedValue({

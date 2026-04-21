@@ -1,5 +1,5 @@
 import { parseMaybeJson } from '@/utils/shared/coerce'
-import type { AIAdminTaskDataValue, AIAdminTaskListItem, AIAdminTaskType, AITaskStatus } from '@/types/ai'
+import type { AIAdminTaskDataValue, AIAdminTaskType, AIChargeStatus, AITaskStatus } from '@/types/ai'
 
 export function getAITaskTypeIcon(type: AIAdminTaskType) {
     switch (type) {
@@ -29,7 +29,7 @@ export function getAITaskStatusSeverity(status: AITaskStatus) {
     }
 }
 
-export function getAIChargeStatusSeverity(status: AIAdminTaskListItem['chargeStatus']) {
+export function getAIChargeStatusSeverity(status: AIChargeStatus | null) {
     switch (status) {
         case 'actual':
             return 'success'

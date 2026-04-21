@@ -1,6 +1,6 @@
 import { Brackets } from 'typeorm'
 import { getAICostDisplayConfig } from '@/server/services/ai/cost-display'
-import { createAIAdminTaskReadModelQuery, normalizeAIAdminTaskListItem } from '@/server/services/ai/task-detail'
+import { createAIAdminTaskListReadModelQuery, normalizeAIAdminTaskListItem } from '@/server/services/ai/task-detail'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const failureStage = query.failureStage as string
     const search = (query.search as string)?.trim()
 
-    const qb = createAIAdminTaskReadModelQuery()
+    const qb = createAIAdminTaskListReadModelQuery()
         .orderBy('task.createdAt', 'DESC')
         .skip((page - 1) * pageSize)
         .take(pageSize)
