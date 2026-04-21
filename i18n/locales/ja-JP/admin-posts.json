@@ -102,7 +102,7 @@
                         "update": "内容更新"
                     },
                     "channels": {
-                        "hexo_repository_sync": "Hexo リポジトリ同期",
+                        "hexo_repository_sync": "リモートリポジトリ同期",
                         "memos": "Memos",
                         "wechatsync": "WechatSync"
                     },
@@ -110,9 +110,9 @@
                     "dispatch_failed": "配信操作に失敗しました",
                     "extension_missing": "WechatSync プラグインが見つかりません。先にインストールしてログインしてください。",
                     "hexo_repository_file_path": "対象ファイル",
-                    "hexo_repository_hint": "リポジトリの送信先が未設定なら、先にシステム設定 > Integrations で Hexo リポジトリ同期設定を完了してください。",
+                    "hexo_repository_hint": "リポジトリの送信先が未設定なら、先にシステム設定 > Integrations でリモートリポジトリ同期設定を完了してください。",
                     "hexo_repository_target": "{provider} リポジトリ {target}@{branch} へ同期します",
-                    "hexo_sync_success": "Hexo リポジトリ同期が完了しました",
+                    "hexo_sync_success": "リモートリポジトリ同期が完了しました",
                     "failure_reason": {
                         "auth_failed": "認証失敗",
                         "content_validation_failed": "内容検証失敗",

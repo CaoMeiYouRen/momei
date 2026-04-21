@@ -155,7 +155,7 @@
 | `LISTMONK_CATEGORY_LIST_MAP` | `listmonk_category_list_map` | 2 | none | 分类到 listmonk 列表的 JSON 映射 |
 | `LISTMONK_TAG_LIST_MAP` | `listmonk_tag_list_map` | 2 | none | 标签到 listmonk 列表的 JSON 映射 |
 | `LISTMONK_TEMPLATE_ID` | `listmonk_template_id` | 2 | none | 可选的 listmonk 模板 ID |
-| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | 是否启用 Hexo 风格文章仓库同步 |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | 是否启用将 Hexo 风格文章导出同步到远程仓库 |
 | `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | 仓库提供商，当前支持 `github` / `gitee` |
 | `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | 目标仓库 Owner / 命名空间 |
 | `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | none | 目标仓库名称 |

@@ -99,7 +99,7 @@
                         "update": "Update"
                     },
                     "channels": {
-                        "hexo_repository_sync": "Hexo Repository Sync",
+                        "hexo_repository_sync": "Remote Repository Sync",
                         "memos": "Memos",
                         "wechatsync": "WechatSync"
                     },
@@ -107,9 +107,9 @@
                     "dispatch_failed": "Distribution action failed",
                     "extension_missing": "WechatSync extension not detected. Please install it and sign in first.",
                     "hexo_repository_file_path": "Target File",
-                    "hexo_repository_hint": "If the repository target has not been configured yet, go to System Settings > Integrations and complete the Hexo repository sync settings first.",
+                    "hexo_repository_hint": "If the repository target has not been configured yet, go to System Settings > Integrations and complete the remote repository sync settings first.",
                     "hexo_repository_target": "Will sync to the {provider} repository {target}@{branch}",
-                    "hexo_sync_success": "Hexo repository sync completed",
+                    "hexo_sync_success": "Remote repository sync completed",
                     "failure_reason": {
                         "auth_failed": "Authentication failed",
                         "content_validation_failed": "Content validation failed",

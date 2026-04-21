@@ -17,7 +17,7 @@ export const externalFeedSourceConfigSchema = z.object({
     includeInHome: z.boolean().optional().default(true),
     badgeLabel: z.string().trim().max(32).optional().nullable(),
     priority: z.number().int().min(-100).max(100).optional().default(0),
-    timeoutMs: z.number().int().min(1000).max(8000).optional().nullable(),
+    timeoutMs: z.number().int().min(1000).max(60000).optional().nullable(),
     cacheTtlSeconds: z.number().int().min(60).max(86400).optional().nullable(),
     staleWhileErrorSeconds: z.number().int().min(60).max(604800).optional().nullable(),
     maxItems: z.number().int().min(1).max(20).optional().nullable(),

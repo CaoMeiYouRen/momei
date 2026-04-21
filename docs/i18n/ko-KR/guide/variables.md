@@ -56,7 +56,7 @@ last_sync: 2026-04-21
 - `HEXO_SYNC_ENABLED`, `HEXO_SYNC_PROVIDER`, `HEXO_SYNC_OWNER`, `HEXO_SYNC_REPO`
 - `HEXO_SYNC_BRANCH`, `HEXO_SYNC_POSTS_DIR`, `HEXO_SYNC_ACCESS_TOKEN`
 
-참고: 현재 Hexo 저장소 동기화 후보 구현은 일반 관리자 설정 화면에 아직 노출되지 않습니다. 따라서 `HEXO_SYNC_*` 값은 당분간 배포 계층 환경 변수로 관리하는 것이 안전합니다.
+참고: `HEXO_SYNC_*` 는 이제 관리자 화면의 시스템 설정 > 통합 섹션에서 관리할 수 있습니다. `HEXO_SYNC_ACCESS_TOKEN` 은 UI 에서 마스킹되며, 동일한 환경 변수가 배포 계층에 있으면 계속 ENV 잠금 상태로 읽기 전용을 유지합니다.
 
 ## 3. 운영 시 유의점
 

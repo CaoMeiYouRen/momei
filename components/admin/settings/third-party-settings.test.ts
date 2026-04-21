@@ -9,7 +9,7 @@ const showErrorToast = vi.fn()
 const translations: Record<string, string> = {
     'pages.admin.settings.system.sections.memos': 'Memos',
     'pages.admin.settings.system.sections.listmonk': 'listmonk',
-    'pages.admin.settings.system.sections.hexo_repository_sync': 'Hexo 仓库同步',
+    'pages.admin.settings.system.sections.hexo_repository_sync': '远程仓库同步',
     'pages.admin.settings.system.sections.external_feeds': '外部动态',
     'pages.admin.settings.system.hints.hexo_sync_owner': '仓库 Owner',
     'pages.admin.settings.system.hints.hexo_sync_repo': '仓库名称',
@@ -155,7 +155,7 @@ describe('ThirdPartySettings', () => {
         expect(wrapper.text()).toContain('修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。')
     })
 
-    it('shows the hexo repository sync section when enabled', async () => {
+    it('shows the remote repository sync section when enabled', async () => {
         const { default: ThirdPartySettings } = await import('./third-party-settings.vue')
 
         const settings = {
@@ -226,7 +226,7 @@ describe('ThirdPartySettings', () => {
             },
         })
 
-        expect(wrapper.text()).toContain('Hexo 仓库同步')
+        expect(wrapper.text()).toContain('远程仓库同步')
         expect(wrapper.find('[data-field-key="hexo_sync_provider"]').exists()).toBe(true)
         expect(wrapper.find('[data-field-key="hexo_sync_owner"]').exists()).toBe(true)
         expect(wrapper.find('[data-field-key="hexo_sync_repo"]').exists()).toBe(true)

@@ -102,7 +102,7 @@ last_sync: 2026-04-21
 | `MEMOS_ENABLED` | `memos_enabled` | 2 | 是否啟用 Memos 同步 |
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | Memos 實例位址 |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | Memos API Token |
-| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | 是否啟用 Hexo 風格倉庫同步 |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | 是否啟用將 Hexo 風格文章輸出同步到遠端倉庫 |
 | `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | 目標提供商，當前支援 `github` / `gitee` |
 | `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | 目標倉庫 Owner / 命名空間 |
 | `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | 目標倉庫名稱 |
@@ -110,7 +110,7 @@ last_sync: 2026-04-21
 | `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | 倉庫內文章目錄，預設 `source/_posts` |
 | `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | 倉庫寫入令牌，僅服務端可讀 |
 
-補充：目前 Hexo 倉庫同步候選能力尚未接入通用系統設定頁，因此 `HEXO_SYNC_*` 應暫時視為部署層配置，避免在後台保存其他設定時被隱式回寫。
+補充：`HEXO_SYNC_*` 已接入後台「系統設定 > 第三方整合」面板。`HEXO_SYNC_ACCESS_TOKEN` 在後台會以密碼欄位遮罩顯示；若部署層同時提供同名環境變數，該欄位仍會保持 ENV 鎖定只讀。
 
 ## 3. 鎖定機制與注意事項
 

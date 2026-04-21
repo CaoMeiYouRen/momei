@@ -160,7 +160,7 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos instance base URL |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API token |
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Default Memos visibility |
-| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | Enables Hexo-style repository sync |
+| `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | Enables remote repository sync for Hexo-style article exports |
 | `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | Target provider, currently `github` or `gitee` |
 | `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | Target repository owner or namespace |
 | `HEXO_SYNC_REPO` | `hexo_sync_repo` | 2 | none | Target repository name |
@@ -168,7 +168,7 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | none | Posts directory inside the repository, default `source/_posts` |
 | `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | password | Repository write token, server-only |
 
-Note: the current candidate implementation does not expose `HEXO_SYNC_*` in the generic admin settings page yet. Treat them as deployment-level settings for now to avoid accidental persistence during unrelated admin saves.
+Note: `HEXO_SYNC_*` is now exposed in the admin panel under System Settings > Integrations. `HEXO_SYNC_ACCESS_TOKEN` is still masked in the UI, and any value injected via environment variables remains locked as deployment-managed configuration.
 
 ## 3. Locking Rules And Notes
 

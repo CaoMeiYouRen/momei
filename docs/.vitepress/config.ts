@@ -133,7 +133,7 @@ export default defineConfig({
                             { text: '可缓存接口清单', link: '/design/governance/cacheable-api-inventory' },
                             { text: '内容分发模板与标签', link: '/design/governance/content-distribution-template-tag-adaptation' },
                             { text: '第三方分发治理', link: '/design/governance/content-distribution-governance' },
-                            { text: 'Hexo 仓库同步评估', link: '/design/governance/hexo-repository-sync' },
+                            { text: '远程仓库同步评估（Hexo 风格）', link: '/design/governance/hexo-repository-sync' },
                             { text: '文档翻译 freshness 治理', link: '/design/governance/docs-translation-freshness-governance' },
                             { text: '文章分享系统', link: '/design/governance/post-sharing' },
                             { text: '国际化扩展与多语言 SEO', link: '/design/governance/i18n-seo-unification' },
