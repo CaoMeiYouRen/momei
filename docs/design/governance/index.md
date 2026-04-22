@@ -11,6 +11,7 @@
 ## 系统治理与运行时边界
 
 - **[系统配置深度解耦与统一化](./system-config-unification)**: `system.md` 的配置治理补充，聚焦来源解释、锁定与审计口径。
+- **[caomei-auth OAuth / OIDC 接入预研](./caomei-auth-oauth-evaluation)**: 认证体系的候选预研文档，聚焦 `genericOAuth` 接入前提、字段契约、ENV 锁定与上游缺口清单。
 - **[存量代码注释治理与注释漂移治理](./comment-drift-governance)**: 第三十阶段治理切片文档，聚焦设置来源判定、locale 归一化与请求上下文挂载链路的高价值注释补强。
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。
 - **[配置项多语言国际化与回退治理](./settings-i18n-fallback-governance)**: `system.md` / `i18n.md` 的联合治理补充，聚焦管理员可编辑配置的结构化多语言存储、旧值兼容与统一回退链。
@@ -41,6 +42,7 @@
 
 ## 测试与阶段复盘
 
+- **[第三十一阶段候选上收草案](./phase-31-candidate-draft)**: 下一阶段候选规划工件，聚焦 1 个新功能预研、4 个治理切片与 1 个战略评估的正式上收字段冻结。
 - **[E2E 测试增强设计文档](./e2e-testing-enhancement)**: 跨模块质量设计，聚焦关键路径验证与自动化测试增强。
 - **[E2E 覆盖矩阵](./e2e-coverage-matrix)**: `e2e-testing-enhancement.md` 的执行态补充，聚焦页面 / 写链路风险分级、当前 Playwright 覆盖状态与下一轮补测优先级。
 - **[第八阶段实施审计与复盘](./phase-8-feasibility-report)**: 已完成阶段的收尾审计文档，只保留阶段结论与索引，不再承担当前设计说明职责。
