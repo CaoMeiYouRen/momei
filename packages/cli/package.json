@@ -35,12 +35,12 @@
   "author": "CaoMeiYouRen",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "cac": "^7.0.0",
     "chalk": "^5.4.1",
     "glob": "^13.0.6",
     "gray-matter": "^4.0.3",
-    "ora": "^9.3.0"
+    "ora": "^9.4.0"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
