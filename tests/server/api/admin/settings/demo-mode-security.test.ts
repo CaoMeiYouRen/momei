@@ -46,11 +46,11 @@ describe('demo mode admin settings security', () => {
     })
 
     it('应该在 demo 模式下阻止更新系统设置', () => {
-        expect(() => assertDemoSettingsWriteAllowed('PUT', demoRuntimeConfig)).toThrowError(/核心管理操作/)
+        expect(() => assertDemoSettingsWriteAllowed('PUT', demoRuntimeConfig)).toThrow(/核心管理操作/)
     })
 
     it('应该在 demo 模式下统一阻止删除类方法', () => {
-        expect(() => assertDemoSettingsWriteAllowed('DELETE', demoRuntimeConfig)).toThrowError(/禁止删除数据/)
+        expect(() => assertDemoSettingsWriteAllowed('DELETE', demoRuntimeConfig)).toThrow(/禁止删除数据/)
     })
 
     it('应该在非 demo 模式下继续允许系统设置访问', () => {

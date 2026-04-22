@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { ASRService } from '~/server/services/ai/asr'
 import { requireAdminOrAuthor } from '~/server/utils/permission'
-import type { ASRProvider } from '~/types/asr'
 
 const RequestSchema = z.object({
     provider: z.enum(['siliconflow', 'volcengine']).optional(),

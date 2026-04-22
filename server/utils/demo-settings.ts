@@ -7,7 +7,7 @@ import {
 } from '@/server/services/setting'
 import { resolveSettingLevel, resolveSettingMaskType } from '@/server/utils/settings'
 import type { NotificationDeliveryLogItem } from '@/types/notification'
-import { SettingKey, type SettingAuditItem, type SettingItem, type SettingLockReason, type SettingSource } from '@/types/setting'
+import { SettingKey, type SettingAuditItem, type SettingItem, type SettingSource } from '@/types/setting'
 import { type DonationLink, type SocialLink } from '@/utils/shared/commercial'
 import { AdminNotificationEvent, NotificationDeliveryChannel, NotificationDeliveryStatus, NotificationType } from '@/utils/shared/notification'
 

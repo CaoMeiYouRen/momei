@@ -55,10 +55,10 @@ describe('demo guard middleware', () => {
     })
 
     it('应该拦截系统设置写入请求', () => {
-        expect(() => runDemoGuard(createEvent('PUT', '/api/admin/settings'), demoRuntimeConfig)).toThrowError(/核心管理操作/)
+        expect(() => runDemoGuard(createEvent('PUT', '/api/admin/settings'), demoRuntimeConfig)).toThrow(/核心管理操作/)
     })
 
     it('应该拦截删除请求', () => {
-        expect(() => runDemoGuard(createEvent('DELETE', '/api/posts/1'), demoRuntimeConfig)).toThrowError(/禁止删除数据/)
+        expect(() => runDemoGuard(createEvent('DELETE', '/api/posts/1'), demoRuntimeConfig)).toThrow(/禁止删除数据/)
     })
 })

@@ -15,7 +15,7 @@ describe('AdSenseAdapter', () => {
     it('rejects missing client id', async () => {
         const adapter = new AdSenseAdapter('adsense', 'Google AdSense', ['*'])
 
-        await expect(adapter.initialize({ clientId: '' })).rejects.toThrowError(new AdError('AdSense Client ID is required'))
+        await expect(adapter.initialize({ clientId: '' })).rejects.toThrow(new AdError('AdSense Client ID is required'))
     })
 
     it('rejects invalid client id format', async () => {

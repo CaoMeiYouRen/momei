@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import type { ApiResponse } from '@/types/api'
-import { PostStatus, PostVisibility, type PublishIntent } from '@/types/post'
+import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 import type {
     PostTagBindingInput,

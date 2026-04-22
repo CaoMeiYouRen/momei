@@ -1,5 +1,4 @@
 import { AdAdapterFactory } from '../../services/adapters'
-import type { AdAdapterConfig } from '../../services/adapters/base'
 import { getSetting } from '@/server/services/setting'
 import { resolveAdNetworkConfigs } from '@/server/utils/ad-network-config'
 import { SettingKey } from '@/types/setting'

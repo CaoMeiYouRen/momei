@@ -18,8 +18,6 @@ import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery } from '@/types/ai'
 
 const MAX_AUDIO_COMPENSATION_ATTEMPTS = 2
 
-type RecoverableTTSTaskType = 'tts' | 'podcast'
-
 type PodcastTaskCheckpointPhase = 'queued' | 'asset_uploaded'
 
 interface PodcastTaskCheckpoint {

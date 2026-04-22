@@ -64,11 +64,11 @@ describe('response utils', () => {
 
     describe('fail', () => {
         it('should throw error with default status code 400', () => {
-            expect(() => fail('Error message')).toThrowError('Error message')
+            expect(() => fail('Error message')).toThrow('Error message')
         })
 
         it('should throw error with custom status code', () => {
-            expect(() => fail('Not found', 404)).toThrowError('Not found')
+            expect(() => fail('Not found', 404)).toThrow('Not found')
         })
 
         it('should expose locale-aware payload in thrown errors', () => {

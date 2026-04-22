@@ -4,7 +4,6 @@ import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 import { requireAdminOrAuthor } from '~/server/utils/permission'
 import { generateASRCredentials, resolveASRCredentialTtlMilliseconds } from '~/server/utils/ai/asr-credentials'
-import type { ASRProvider, ASRMode } from '~/types/asr'
 
 const RequestSchema = z.object({
     provider: z.enum(['siliconflow', 'volcengine']),
