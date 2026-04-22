@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     const viewHourlyRepo = dataSource.getRepository(PostViewHourly)
 
     const selectedRange = Number(query.range) as AdminContentInsightsRange
-    const scope = query.scope as AdminContentInsightsScope
+    const scope = query.scope
     const maxWindowDays = Math.max(...ADMIN_CONTENT_INSIGHT_RANGES)
     const resolvedTimeZone = resolveAdminContentInsightsTimeZone(query.timezone)
     const currentEnd = dayjs().tz(resolvedTimeZone).endOf('day')

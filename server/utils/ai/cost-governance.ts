@@ -64,7 +64,7 @@ export function normalizeAICostFactors(rawFactors?: Partial<AICostFactors> | nul
         Object.entries(exchangeRates)
             .map(([currency, rate]) => [normalizeCurrencyCode(currency, currencyCode), toNumber(rate, Number.NaN)] as const)
             .filter((entry): entry is readonly [string, number] => Number.isFinite(entry[1]) && entry[1] > 0),
-    ) as Record<string, number>
+    )
 
     normalizedExchangeRates[currencyCode] = 1
 

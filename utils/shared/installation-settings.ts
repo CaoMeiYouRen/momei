@@ -272,7 +272,7 @@ function omitLocalizedLocaleValue<T extends LocalizedSettingScalar>(
 ) {
     value.locales = Object.fromEntries(
         Object.entries(value.locales).filter(([localeKey]) => localeKey !== locale),
-    ) as LocalizedSettingValueV1<T>['locales']
+    )
 }
 
 export function updateInstallationLocalizedSiteFieldValue<K extends InstallationLocalizedSiteFieldKey>(

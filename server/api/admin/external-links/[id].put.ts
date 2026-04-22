@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
         // 如果是状态更新，使用专用方法
         if (body.status !== undefined) {
-            const link = await updateLinkStatus(id, body.status as LinkStatus)
+            const link = await updateLinkStatus(id, body.status)
             if (!link) {
                 return {
                     code: 404,

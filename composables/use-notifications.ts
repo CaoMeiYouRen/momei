@@ -160,7 +160,7 @@ export function useNotifications() {
         }
 
         permissionStatus = await navigator.permissions.query({
-            name: 'notifications' as PermissionName,
+            name: 'notifications',
         })
 
         permissionStatus.onchange = () => {

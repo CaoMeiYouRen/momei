@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const currentStatus = post.status
-    const targetStatus = body.status as PostStatus
+    const targetStatus = body.status
 
     // 仅在状态发生改变时校验转换逻辑
     if (currentStatus !== targetStatus && !isAdmin) {

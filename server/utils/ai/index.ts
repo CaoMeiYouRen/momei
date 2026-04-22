@@ -105,7 +105,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     // Demo 模式且不是 ASR/TTS (ASR/TTS 耗费通常较低或有免费额度，或者 Mock 不好做)
     const runtimeConfig = useRuntimeConfig()
     if (runtimeConfig.public.demoMode && (category === 'text' || category === 'image')) {
-        return new MockAIProvider() as any
+        return new MockAIProvider()
     }
 
     if (!finalConfig.enabled) {
@@ -131,7 +131,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     // ASR 提供者
     if (category === 'asr') {
         if (finalConfig.provider === 'siliconflow') {
-            return new SiliconFlowASRProvider(finalConfig.apiKey, finalConfig.endpoint, finalConfig.model) as any
+            return new SiliconFlowASRProvider(finalConfig.apiKey, finalConfig.endpoint, finalConfig.model)
         }
         if (finalConfig.provider === 'volcengine') {
             const configuredModelOrResourceId = dbSettings[SettingKey.ASR_MODEL] || ''
@@ -149,7 +149,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
                 cluster: dbSettings[SettingKey.ASR_VOLCENGINE_CLUSTER_ID] || '',
                 endpoint: dbSettings[SettingKey.ASR_ENDPOINT] || process.env.ASR_ENDPOINT || '',
                 resourceId: resolvedVolcResourceId,
-            }) as any
+            })
         }
     }
 
@@ -160,14 +160,14 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
                 apiKey: finalConfig.apiKey,
                 endpoint: finalConfig.endpoint,
                 defaultModel: finalConfig.model,
-            }) as any
+            })
         }
         if (finalConfig.provider === 'siliconflow') {
             return new SiliconFlowTTSProvider({
                 apiKey: finalConfig.apiKey,
                 endpoint: finalConfig.endpoint,
                 defaultModel: finalConfig.model,
-            }) as any
+            })
         }
         if (finalConfig.provider === 'volcengine') {
             return new VolcengineTTSProvider({
@@ -175,7 +175,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
                 accessKey: dbSettings[SettingKey.VOLCENGINE_ACCESS_KEY] || process.env.VOLCENGINE_ACCESS_KEY || '',
                 secretKey: dbSettings[SettingKey.VOLCENGINE_SECRET_KEY] || process.env.VOLCENGINE_SECRET_KEY || '',
                 defaultModel: finalConfig.model,
-            }) as any
+            })
         }
     }
     // 通用图像提供者 (OpenAI 兼容)
@@ -191,7 +191,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
                     ...finalConfig,
                     // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
                     apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
-                }) as any
+                })
             case 'stable-diffusion':
                 return new StableDiffusionProvider(finalConfig)
             default:

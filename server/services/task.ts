@@ -90,7 +90,7 @@ export const processScheduledPosts = async (now = new Date()) => {
 
                 // 执行发布副作用 (从 metadata 中恢复意图)
                 const intent: PublishIntent = resolvePostPublishIntent(post)
-                await executePublishEffects(post as any, intent)
+                await executePublishEffects(post, intent)
 
                 logger.info(`[TaskEngine] Successfully published post: ${post.title} (ID: ${post.id})`)
             } catch (err) {

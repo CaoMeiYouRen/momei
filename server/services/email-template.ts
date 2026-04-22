@@ -246,7 +246,7 @@ function applyOverrides(
     for (const fieldId of EMAIL_TEMPLATE_DEFINITIONS[templateId].editableFields) {
         const resolvedField = resolveEmailTemplateLocalizedField(templateConfig.fields[fieldId], locale)
         if (resolvedField.value) {
-            nextContent[fieldId as keyof EmailTemplateRuntimeContent] = resolvedField.value as never
+            nextContent[fieldId as keyof EmailTemplateRuntimeContent] = resolvedField.value
         }
     }
 

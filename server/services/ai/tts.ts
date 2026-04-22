@@ -692,7 +692,7 @@ export class TTSService extends AIBaseService {
             return 'skipped' as const
         }
 
-        const taskType = task.type as RecoverableTTSTaskType
+        const taskType = task.type
 
         const finalStatus = task.status
 

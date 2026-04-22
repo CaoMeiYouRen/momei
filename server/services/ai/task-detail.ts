@@ -72,7 +72,7 @@ export function normalizeAIAdminTaskListItem(item: Record<string, unknown>): AIA
         user_name: (item.user_name as string | null) ?? null,
         user_email: (item.user_email as string | null) ?? null,
         user_image: (item.user_image as string | null) ?? null,
-    } as AIAdminTaskListItem
+    }
 }
 
 export function normalizeAIAdminTaskDetailItem(item: Record<string, unknown>): AIAdminTaskDetailItem {

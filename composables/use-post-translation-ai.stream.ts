@@ -65,7 +65,7 @@ export function normalizeTranslationStreamChunk(payload: unknown): TranslationSt
     }
 
     if (payload && typeof payload === 'object') {
-        return payload as TranslationStreamChunk
+        return payload
     }
 
     return {}

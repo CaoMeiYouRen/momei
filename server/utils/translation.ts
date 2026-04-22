@@ -85,7 +85,7 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
 
     const allTranslations = await repo.find({
         where: { translationId: In(translationIds) } as any,
-        select: options.select as any,
+        select: options.select,
     })
 
     items.forEach((item) => {

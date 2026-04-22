@@ -67,7 +67,7 @@ export function useInstallationWizard() {
     const siteConfig = ref<InstallationSiteConfigModel>({
         ...DEFAULT_INSTALLATION_SITE_CONFIG,
         siteUrl: import.meta.client ? window.location.origin : '',
-        postCopyright: resolveDefaultCopyrightLicense((config.public.postCopyright || config.public.defaultCopyright) as string | undefined),
+        postCopyright: resolveDefaultCopyrightLicense((config.public.postCopyright || config.public.defaultCopyright)),
     })
     const siteConfigLoading = ref(false)
     const siteConfigError = ref('')
@@ -133,7 +133,7 @@ export function useInstallationWizard() {
                 return
             }
 
-            siteConfig.value[configKey] = envValue as InstallationSiteConfigModel[typeof configKey]
+            siteConfig.value[configKey] = envValue
         })
 
         Object.entries(INSTALLATION_EXTRA_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {

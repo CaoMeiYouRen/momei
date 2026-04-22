@@ -46,8 +46,8 @@ export default defineEventHandler(async (event) => {
 
     // 生成临时凭证
     const credentials = await generateASRCredentials({
-        provider: body.provider as ASRProvider,
-        mode: body.mode as ASRMode,
+        provider: body.provider,
+        mode: body.mode,
         connectId: body.connectId || randomUUID(),
         settings: settings as Record<string, string | undefined>,
         expiresIn: resolveASRCredentialTtlMilliseconds(settings[SettingKey.ASR_CREDENTIAL_TTL_SECONDS]),

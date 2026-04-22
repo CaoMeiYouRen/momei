@@ -224,7 +224,7 @@ export function getDemoSettingsPreview(): SettingItem[] {
                 isLocked,
                 envKey: isLocked ? (SETTING_ENV_MAP[key] ?? null) : null,
                 defaultUsed: source === 'default',
-                lockReason: (isLocked ? 'forced_env_lock' : null) as SettingLockReason | null,
+                lockReason: (isLocked ? 'forced_env_lock' : null),
                 requiresRestart: doesSettingRequireRestart(key),
             }
         })

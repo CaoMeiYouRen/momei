@@ -119,7 +119,7 @@ export function parseTaskPayload(task: Pick<AITask, 'payload'>): TranslatePostTa
         return JSON.parse(task.payload) as TranslatePostTaskPayload
     }
 
-    return task.payload as unknown as TranslatePostTaskPayload
+    return task.payload
 }
 
 export function parseTaskResult(result: string | null | undefined): unknown {

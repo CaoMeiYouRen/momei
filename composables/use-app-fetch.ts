@@ -27,7 +27,7 @@ function resolveQueryRecord(query?: MaybeReactive<AppQueryRecord | undefined>) {
     const params: Record<string, AppQueryResolvedValue> = {}
 
     for (const [key, value] of Object.entries(baseQuery)) {
-        params[key] = unref(value as MaybeReactive<AppQueryResolvedValue>)
+        params[key] = unref(value)
     }
 
     return params
@@ -54,7 +54,7 @@ export function useAppFetch<T = ApiResponse<unknown>>(
                 language: locale.value,
                 ...params,
             }
-        }) as UseFetchOptions<AppFetchResponse<T>>['query'],
+        }),
     }
 
     return useFetch<AppFetchResponse<T>>(url, mergedOptions as never)

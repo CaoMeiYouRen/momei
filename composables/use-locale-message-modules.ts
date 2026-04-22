@@ -36,7 +36,7 @@ export function useLocaleMessageModules(options: {
 
             localeModulesReady.value = false
             await ensureLocaleMessageModules({
-                i18n: nuxtApp.$i18n as object,
+                i18n: nuxtApp.$i18n,
                 locale: currentLocale,
                 modules,
             })

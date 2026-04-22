@@ -39,7 +39,7 @@ export class ASRService extends AIBaseService {
                     fileName: (options as any).fileName || 'audio.webm',
                     mimeType: (options as any).mimeType || 'audio/webm',
                     ...options,
-                } as TranscribeOptions),
+                }),
                 'ASR transcription',
             )
 
@@ -222,7 +222,7 @@ export class ASRService extends AIBaseService {
                     fileName,
                     mimeType,
                     language,
-                } as TranscribeOptions),
+                }),
                 'ASR async transcription',
             )
 

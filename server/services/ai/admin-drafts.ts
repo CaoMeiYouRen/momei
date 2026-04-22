@@ -148,7 +148,7 @@ export async function generateLocalizedSettingDraft(options: {
         })
     }
 
-    nextValue.locales[targetLocale] = generatedValue as never
+    nextValue.locales[targetLocale] = generatedValue
 
     return {
         key: options.key,

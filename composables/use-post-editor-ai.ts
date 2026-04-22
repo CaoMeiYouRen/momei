@@ -166,7 +166,7 @@ export function usePostEditorAI(
                     language: post.value.language,
                 },
             })
-            titleSuggestions.value = (data as string[]) || []
+            titleSuggestions.value = (data) || []
             if (titleSuggestions.value.length > 0) {
                 titleOp.value?.show(event, currentTarget)
             }
@@ -281,7 +281,7 @@ export function usePostEditorAI(
                     language: post.value.language,
                 },
             })
-            const recommended = data as string[]
+            const recommended = data
             recommended.forEach((tag) => {
                 if (!selectedTags.value.includes(tag)) {
                     selectedTags.value.push(tag)

@@ -53,11 +53,11 @@ const DEFAULT_SEPARATOR = '----------'
 function unwrapLocaleObject(value: unknown): Record<string, unknown> {
     if (typeof value === 'object' && value !== null) {
         if ('default' in value) {
-            return unwrapLocaleObject((value as { default: unknown }).default)
+            return unwrapLocaleObject((value).default)
         }
 
         if ('value' in value && typeof (value as { value?: unknown }).value === 'object') {
-            return unwrapLocaleObject((value as { value: unknown }).value)
+            return unwrapLocaleObject((value).value)
         }
 
         return value as Record<string, unknown>
@@ -82,14 +82,14 @@ function extractNestedString(value: unknown, seen = new Set<unknown>()): string 
     seen.add(value)
 
     if ('default' in value) {
-        const nested = extractNestedString((value as { default: unknown }).default, seen)
+        const nested = extractNestedString((value).default, seen)
         if (nested) {
             return nested
         }
     }
 
     if ('value' in value) {
-        const nested = extractNestedString((value as { value: unknown }).value, seen)
+        const nested = extractNestedString((value).value, seen)
         if (nested) {
             return nested
         }
@@ -133,11 +133,11 @@ function resolveCopyrightMessages(localeMessages: ComponentsLocaleSchema): Copyr
 }
 
 const COPYRIGHT_MESSAGES: Record<SupportedLocale, CopyrightMessages> = {
-    'zh-CN': resolveCopyrightMessages(zhCnComponents as ComponentsLocaleSchema),
-    'en-US': resolveCopyrightMessages(enUsComponents as ComponentsLocaleSchema),
-    'zh-TW': resolveCopyrightMessages(zhTwComponents as ComponentsLocaleSchema),
-    'ko-KR': resolveCopyrightMessages(koKrComponents as ComponentsLocaleSchema),
-    'ja-JP': resolveCopyrightMessages(jaJpComponents as ComponentsLocaleSchema),
+    'zh-CN': resolveCopyrightMessages(zhCnComponents),
+    'en-US': resolveCopyrightMessages(enUsComponents),
+    'zh-TW': resolveCopyrightMessages(zhTwComponents),
+    'ko-KR': resolveCopyrightMessages(koKrComponents),
+    'ja-JP': resolveCopyrightMessages(jaJpComponents),
 }
 
 function resolveLocale(locale?: string | null): SupportedLocale {

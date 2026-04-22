@@ -605,11 +605,11 @@ export const friendLinkService = {
             if (existingLink) {
                 existingLink.name = input.linkData?.name?.trim() || application.name
                 existingLink.url = input.linkData?.url?.trim() || application.url
-                existingLink.logo = normalizeOptionalString(input.linkData?.logo as string | undefined) ?? application.logo
-                existingLink.description = normalizeOptionalString(input.linkData?.description as string | undefined) ?? application.description
-                existingLink.rssUrl = normalizeOptionalString(input.linkData?.rssUrl as string | undefined) ?? application.rssUrl
-                existingLink.contactEmail = normalizeOptionalString(input.linkData?.contactEmail as string | undefined) ?? application.contactEmail
-                existingLink.categoryId = normalizeOptionalString(input.linkData?.categoryId as string | undefined) ?? application.categoryId
+                existingLink.logo = normalizeOptionalString(input.linkData?.logo) ?? application.logo
+                existingLink.description = normalizeOptionalString(input.linkData?.description) ?? application.description
+                existingLink.rssUrl = normalizeOptionalString(input.linkData?.rssUrl) ?? application.rssUrl
+                existingLink.contactEmail = normalizeOptionalString(input.linkData?.contactEmail) ?? application.contactEmail
+                existingLink.categoryId = normalizeOptionalString(input.linkData?.categoryId) ?? application.categoryId
                 existingLink.status = input.linkData?.status ?? FriendLinkStatus.ACTIVE
                 existingLink.healthStatus = FriendLinkHealthStatus.UNKNOWN
                 existingLink.consecutiveFailures = 0
@@ -625,11 +625,11 @@ export const friendLinkService = {
                 friendLink = await this.createFriendLink({
                     name: input.linkData?.name?.trim() || application.name,
                     url: input.linkData?.url?.trim() || application.url,
-                    logo: normalizeOptionalString(input.linkData?.logo as string | undefined) ?? application.logo,
-                    description: normalizeOptionalString(input.linkData?.description as string | undefined) ?? application.description,
-                    rssUrl: normalizeOptionalString(input.linkData?.rssUrl as string | undefined) ?? application.rssUrl,
-                    contactEmail: normalizeOptionalString(input.linkData?.contactEmail as string | undefined) ?? application.contactEmail,
-                    categoryId: normalizeOptionalString(input.linkData?.categoryId as string | undefined) ?? application.categoryId,
+                    logo: normalizeOptionalString(input.linkData?.logo) ?? application.logo,
+                    description: normalizeOptionalString(input.linkData?.description) ?? application.description,
+                    rssUrl: normalizeOptionalString(input.linkData?.rssUrl) ?? application.rssUrl,
+                    contactEmail: normalizeOptionalString(input.linkData?.contactEmail) ?? application.contactEmail,
+                    categoryId: normalizeOptionalString(input.linkData?.categoryId) ?? application.categoryId,
                     status: input.linkData?.status ?? FriendLinkStatus.ACTIVE,
                     isPinned: input.linkData?.isPinned ?? false,
                     isFeatured: input.linkData?.isFeatured ?? false,

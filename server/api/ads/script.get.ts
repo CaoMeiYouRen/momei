@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
             }
 
             try {
-                const adapter = await AdAdapterFactory.create(id, config as AdAdapterConfig)
+                const adapter = await AdAdapterFactory.create(id, config)
                 scripts.push({
                     adapter: id,
                     script: adapter.getScript(),

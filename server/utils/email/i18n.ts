@@ -59,7 +59,7 @@ export class EmailI18nManager {
         const resolvedLocale = resolveEmailLocale(locale || getLocale())
         const config = this.loadLocale(resolvedLocale)
         const result = config[emailType]
-        return result ? (result as EmailLocaleConfig[T]) : null
+        return result ? (result) : null
     }
 
     /**
@@ -97,7 +97,7 @@ export class EmailI18nManager {
         const result: Record<SupportedEmailLocale, EmailLocaleConfig[T]> = {} as any
         for (const locale of this.getSupportedLocales()) {
             const config = this.loadLocale(locale)
-            result[locale] = config[emailType] as EmailLocaleConfig[T]
+            result[locale] = config[emailType]
         }
         return result
     }

@@ -65,7 +65,7 @@ async function loadLocaleModule(locale: AppLocaleCode, moduleName: LocaleMessage
 }
 
 async function ensureLocaleModules(i18n: object, locale: AppLocaleCode, modules: readonly LocaleMessageModule[]) {
-    const composer = resolveComposer(i18n as I18nLike)
+    const composer = resolveComposer(i18n)
     if (!composer) {
         return
     }

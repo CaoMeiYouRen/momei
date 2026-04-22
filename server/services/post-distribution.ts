@@ -690,7 +690,7 @@ export async function completeWechatSyncDistributionService(
         throw createError({ statusCode: 409, statusMessage: 'Another WechatSync attempt is currently active' })
     }
 
-    if (command.accounts.some((account) => !['done', 'failed'].includes(account.status as string))) {
+    if (command.accounts.some((account) => !['done', 'failed'].includes(account.status))) {
         throw createError({ statusCode: 400, statusMessage: 'WechatSync completion requires terminal account statuses' })
     }
 

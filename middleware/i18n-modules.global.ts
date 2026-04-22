@@ -25,7 +25,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     const runtimeConfig = useRuntimeConfig()
 
     await ensureRouteLocaleMessages({
-        i18n: nuxtApp.$i18n as object,
+        i18n: nuxtApp.$i18n,
         locale: resolveCurrentLocale(nuxtApp.$i18n),
         path: to.path,
         demoMode: runtimeConfig.public.demoMode,

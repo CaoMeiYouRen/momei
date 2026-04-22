@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
         fileName,
         mimeType,
         language: body.language,
-        provider: body.provider as ASRProvider | undefined,
+        provider: body.provider,
     })
 
     return {

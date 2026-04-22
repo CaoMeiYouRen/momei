@@ -257,7 +257,7 @@ export function buildSavePayload(options: {
     }
 
     payload.metadata = {
-        ...(payload.metadata as Record<string, unknown> || {}),
+        ...(payload.metadata || {}),
         publish: {
             ...((payload.metadata as { publish?: Record<string, unknown> } | undefined)?.publish || {}),
             intent: publishIntent,

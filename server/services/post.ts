@@ -144,7 +144,7 @@ async function applyPostChanges(
     // 6. 状态转换与发布时间逻辑
     if (body.status) {
         const currentStatus = post.status
-        const targetStatus = body.status as PostStatus
+        const targetStatus = body.status
 
         // 状态转换校验（非管理员）
         if (!isNew && currentStatus !== targetStatus && !options.isAdmin) {

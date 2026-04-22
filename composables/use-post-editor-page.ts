@@ -419,7 +419,7 @@ export function usePostEditorPage() {
             ...(post.value.metadata || {}),
             publish: {
                 ...(post.value.metadata?.publish || {}),
-                intent: publishIntent as PublishIntent,
+                intent: publishIntent,
             },
         }
 

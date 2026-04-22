@@ -102,7 +102,7 @@ export function cloneLocalizedSettingValue<T extends LocalizedSettingScalar>(
                 locale,
                 Array.isArray(localeValue) ? cloneStringArray(localeValue) as T : localeValue,
             ]),
-        ) as Partial<Record<AppLocaleCode, T>>,
+        ),
         legacyValue: Array.isArray(value.legacyValue) ? cloneStringArray(value.legacyValue) as T : value.legacyValue,
     }
 }

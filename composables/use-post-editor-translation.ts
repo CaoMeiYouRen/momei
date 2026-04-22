@@ -326,7 +326,7 @@ function applyAudioState(post: Ref<PostEditorData>, state: TranslationAudioState
     }
 
     post.value.metadata = Object.keys(nextMetadata).length > 0 ? nextMetadata : null
-    syncLegacyAudioState(post.value as PostEditorData & LegacyAudioCompat, state.metadataAudio)
+    syncLegacyAudioState(post.value, state.metadataAudio)
 }
 
 export function usePostEditorTranslation(options: UsePostEditorTranslationOptions) {
