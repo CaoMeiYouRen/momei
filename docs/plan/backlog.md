@@ -36,7 +36,7 @@
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
     - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样，并明确下一轮优先从 `composables` 再缩到单模块切片。
 - **最近一次上收阶段**:
-    - 第三十阶段（执行中）。
+    - 第三十阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
@@ -50,7 +50,7 @@
     - 第二十九阶段已完成新的复用收敛切片，当前已收敛共享 CSV 列表解析、前台 legal pages 与公共页模板片段等高收益重复区；剩余热点继续聚焦 categories / tags 公共页及读模型组装边界。
     - 第三十阶段已正式上收下一轮复用治理切片，当前优先聚焦公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界，并要求每组切片先写清拟抽象边界、收益与回滚方式。
 - **最近一次上收阶段**:
-    - 第三十阶段（执行中）。
+    - 第三十阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先围绕“公共页模板片段 + 列表型查询 helper / 纯函数”做组合切片，并要求同步评估共享抽象是否会引入过度泛化。
 
@@ -80,7 +80,7 @@
     - 编辑器链路的下一轮切片可以优先围绕 `mavon-editor` 工具栏与背景栏配色、Markdown 能力补齐，以及与文章页渲染能力保持一致的扩展项收口，而不是直接切换底层编辑器实现。
     - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选 `1 - 2` 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
 - **最近一次上收阶段**:
-    - 第三十阶段（执行中）。
+    - 第三十阶段（已审计归档）。
 - **下一次可切片方向**:
     - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
     - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
@@ -160,7 +160,7 @@
     - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、unused 字段排查策略与共享命名空间继续收敛方向。
     - 第三十阶段切片已完成正式收口：`i18n:audit:missing` 当前 `total: 0`，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
 - **最近一次上收阶段**:
-    - 第三十阶段（已完成当前切片）。
+    - 第三十阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先扩到公开页装配链路、共享组件命名空间沉淀与固定运行时回归入口，而不是继续做散点修补。
     - 下一轮专项治理应单列“locale parity 与缺词阻断策略”，至少覆盖：哪些入口必须把 `i18n:audit:missing` 视为 blocker、i18n 变更后的最小检查矩阵、Review Gate 对 raw key / 缺词问题的定级口径，以及历史缺词债的分批清偿顺序。
@@ -172,17 +172,17 @@
 - **状态**:
     - 进行中。
 - **当前状态**:
-    - 当前 `docs:check:source-of-truth` 仍因多语首页、指南与规范页存在超过 30 天未同步的翻译而失败，说明翻译 freshness 已成为显性质量门缺口。
-    - 第三十阶段已正式上收本轮清偿切片，当前优先覆盖首页、快速开始、部署、翻译治理，以及 `planning` / `documentation` / `security` / `testing` 等高频规范页，并同步收敛翻译承诺范围与残余债务落点。
+    - 第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，中文事实源、多语摘要页与 `source-only` 契约保持一致。
+    - 当前已完成首页、快速开始、部署、翻译治理，以及 `planning` / `documentation` / `security` / `testing` 等高频规范页的同步与范围收敛，并将深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
 - **最近一次上收阶段**:
-    - 第三十阶段（执行中）。
+    - 第三十阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若本轮完成 facts-of-truth 转绿，下一轮优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从“是否有翻译”推进到“哪些翻译必须持续保持新鲜”。
 
 
 ## 现状摘要与方向判断
 
-> 本区基于 `roadmap.md`、`todo-archive.md`、`CHANGELOG.md` 与当前源码 / 文档事实源整理，用于 backlog 背景判断与后续切片参考；第三十阶段已正式开启，当前仍以中文 `roadmap.md`、`todo.md` 与 `todo-archive.md` 为唯一规划事实源。
+> 本区基于 `roadmap.md`、`todo-archive.md`、`CHANGELOG.md` 与当前源码 / 文档事实源整理，用于 backlog 背景判断与后续切片参考；第三十阶段已完成审计归档，当前仍以中文 `roadmap.md`、`todo.md` 与 `todo-archive.md` 为唯一规划事实源。
 
 - **已实现能力摘要**:
     - 产品主干已经基本闭环：内容管理、AI 创作 / 翻译 / 配图 / 语音、多语言内容治理、第三方分发、通知 / 营销、主题与设置中心、上传与对象存储、迁移 CLI / MCP、审计与 Review Gate、周期性回归与发布门禁均已落地。
@@ -197,7 +197,7 @@
     - 长期治理主线仍应继续切片推进，特别是测试有效性、ESLint / 类型债、重复代码与注释治理，不能因为上一阶段已做一轮就退出 backlog 主线。
 - **方向判断**:
     - 第二十九阶段已按“1 个新功能 + 5 个优化”的组合完成本轮切片并审计归档。
-    - 第三十阶段已按“1 个新功能 + 5 个优化”的组合正式开启，当前新增能力聚焦远程仓库同步（Hexo 风格 / GitHub / Gitee）能力评估与候选落地；优化主线聚焦文档翻译 freshness、国际化字段治理、重复代码复用、注释治理，以及 ESLint / 类型债规则收紧。
+	- 第三十阶段已按“1 个新功能 + 5 个优化”的组合完成并审计归档，当前新增能力已落地远程仓库同步（Hexo 风格 / GitHub / Gitee）单仓库候选闭环；优化主线也已完成文档翻译 freshness、国际化字段治理、重复代码复用、注释治理，以及 ESLint / 类型债规则收紧五条切片收口。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
 
 ## 短期 / 一次性候选任务（上收后去重）
@@ -231,7 +231,7 @@
 
 ### 本轮新增候选处理结果（2026-04-21）
 
-- 已上收至 [roadmap.md](./roadmap.md) 第三十阶段（执行中）：
+- 已上收至 [roadmap.md](./roadmap.md) 第三十阶段（已审计归档）：
     - 远程仓库同步（Hexo 风格 / GitHub / Gitee）能力评估与候选落地。
 
 ### 延后新增能力保留池（当前不建议优先上收）

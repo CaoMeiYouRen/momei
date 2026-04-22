@@ -887,7 +887,7 @@
 
 ### 第二十九阶段：评论翻译与治理事实源收敛推进 (Comment Translation & Governance Fact-Source Consolidation Advancement) (已审计归档)
 
-**审计结论**: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中形成闭环，满足归档条件。评论区已支持“查看翻译 / 查看原文”的只读切换与缓存复用；GEO / SEO 抽样验证已落在 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余长期治理切片分别在 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-04-18 至 2026-04-21 记录中完成 Review Gate `Pass` 收口。
+**审计结论**: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中形成闭环，满足归档条件。评论区已支持“查看翻译 / 查看原文”的只读切换与缓存复用；GEO / SEO 抽样验证已落在 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余长期治理切片分别在 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 归档记录中完成 Review Gate `Pass` 收口。
 
 **时间表**: 2026-04-20 ~ 2026-05-11（预计三周）
 **目标**: 在第二十八阶段完成内容洞察、运行时治理与编辑器收口后，开启“1 个新功能 + 5 个优化”的下一阶段执行面：以评论区翻译作为唯一新增能力，同时推进 GEO / SEO / AI crawler 可见性补强、ESLint / 类型债规则收紧、重复代码与纯函数复用收敛、国际化文案复用与 unused 审计治理，以及文档事实源 / 回归记录 / 深度归档治理。
@@ -921,9 +921,10 @@
     - **验收标准**: 至少完成一轮目录 / 入口 / 管理文档对齐，明确模块总设计与专项治理的分目录边界、活动窗口与历史归档边界，并沉淀后续深度归档触发阈值。
     - **阶段目标**: 优先收敛事实源与管理入口，降低后续每轮阶段收口时的文档读写成本，而不是一次性搬迁全部历史内容。
 
-### 第三十阶段：远程仓库同步与治理基线细化推进（Hexo 风格导出） (Remote Repository Sync & Governance Baseline Refinement Advancement for Hexo-style Exports) (执行中)
+### 第三十阶段：远程仓库同步与治理基线细化推进（Hexo 风格导出） (Remote Repository Sync & Governance Baseline Refinement Advancement for Hexo-style Exports) (已审计归档)
 
 **时间表**: 2026-04-21 ~ 2026-05-12（预计三周）
+**审计结论**: 第三十阶段围绕远程仓库同步（Hexo 风格 / GitHub / Gitee）候选落地、文档翻译 freshness 清偿、国际化字段治理、重复代码与纯函数复用、存量代码注释治理，以及 ESLint / 类型债窄边界收紧六条主线，已在实现代码、专项设计文档、活动回归窗口、配置说明与定向测试中形成闭环，满足归档条件。远程仓库同步已落地单篇文章手动推送到 GitHub / Gitee 内容仓库的最小闭环，最近状态可统一回写到文章分发摘要；其余五条优化主线已分别在 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-04-21 记录中完成 Review Gate `Pass` 收口。
 **目标**: 在第二十九阶段完成评论翻译与治理事实源收敛后，开启“1 个新功能 + 5 个优化”的下一阶段执行面：以远程仓库同步（Hexo 风格 / GitHub / Gitee）能力评估与候选落地作为唯一新增能力，同时推进文档翻译 freshness 清偿与翻译治理、国际化字段治理、重复代码与纯函数复用治理、存量代码注释治理与注释漂移治理，以及 ESLint / 类型债与规则收紧治理。
 
 **准入结论**: 六条主线均已完成候选分析，总数控制在 6 项内，满足当前阶段容量约束。新增功能仅保留远程仓库同步这一条，且明确要求先完成专项设计 / 评估文档，再进入候选落地；当前导出内容风格限定为 Hexo 风格。其余 5 条均来自 backlog 的长期治理主线或当前明确存在的质量门缺口，其中“文档翻译 freshness 清偿与翻译治理”与“国际化字段治理”直接对应当前事实源与运行时质量风险，优先级高于继续扩面新的体验型优化。

@@ -2344,7 +2344,7 @@
 
 ## 第二十九阶段：评论翻译与治理事实源收敛推进 (已审计归档)
 
-> 审计结论: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中完成闭环，满足归档条件。评论区翻译已完成只读切换、缓存复用与匿名阅读兼容；GEO / SEO 抽样验证见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余治理切片分别在 [current.md](../reports/regression/current.md) 的 2026-04-18 至 2026-04-21 记录中收口并给出 Review Gate `Pass` 结论。
+> 审计结论: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中完成闭环，满足归档条件。评论区翻译已完成只读切换、缓存复用与匿名阅读兼容；GEO / SEO 抽样验证见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余治理切片分别在 [current.md](../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 归档记录中收口并给出 Review Gate `Pass` 结论。
 
 > **ROI 评估**: 评论区翻译功能 1.67；GEO / SEO / AI crawler 可见性与文章可引用性补强 1.80；ESLint / 类型债与规则收紧治理 1.50；重复代码与纯函数复用收敛 1.60；国际化运行时加载 / 文案复用 / unused 审计治理 1.50；文档事实源、回归记录与深度归档治理 1.40。六项均已按本阶段准入边界完成收口，其中评论区翻译、GEO / SEO 与重复代码复用为本轮优先上收项。
 
@@ -2374,7 +2374,7 @@
     - 验收: 只上收 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则，不扩写为全仓规则重构。
     - 验收: 输出命中清单、回滚边界与最小验证矩阵，并同步处理受影响文件的 warning / 类型债。
     - 结果: 已完成 `packages/mcp-server` 范围的 `no-explicit-any` / `explicit-module-boundary-types` 收紧，以及 settings API 范围的 `no-unnecessary-type-conversion` 收紧，均保留了命中清单、回滚边界与最小验证矩阵。
-    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20 与 2026-04-21 条目；两轮 Review Gate 结论均为 `Pass`。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20 / 2026-04-21 归档条目；两轮 Review Gate 结论均为 `Pass`。
 
 ### 4. 主线：重复代码与纯函数复用收敛 (P1)
 
@@ -2382,7 +2382,7 @@
     - 验收: 优先收敛公共页模板片段、列表型查询 helper、查询参数处理或读模型组装中的高收益重复区。
     - 验收: 记录重复基线变化、抽象收益与未覆盖边界，并确认未引入过度泛化。
     - 结果: 已将多处 CSV 列表解析统一回收到 `splitAndNormalizeStringList`，并继续压降前台公共页与查询处理重复区；本轮保持“先复用、后扩面”的窄边界治理策略。
-    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20“共享复用层 CSV 列表解析收敛”条目，Review Gate 结论为 `Pass`。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“共享复用层 CSV 列表解析收敛”条目，Review Gate 结论为 `Pass`。
 
 ### 5. 主线：国际化运行时加载、文案复用与 unused 审计治理 (P1)
 
@@ -2391,7 +2391,7 @@
     - 验收: 明确哪些入口必须把 `i18n:audit:missing` 视为 blocker，并沉淀 i18n 变更后的最小检查矩阵。
     - 验收: 继续减少 raw key 直出、命名空间漂移与不受控的跨页面文案复用。
     - 结果: 已补齐 `admin-posts` 缺词 parity，明确 `release`、`weekly` 与 `phase-close` 对 `i18n:audit:missing` 的 blocker 口径，并完成一轮 cross-module duplicate 抽取与 unused 分级说明。
-    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-18“admin-posts parity 与缺词门禁上收”与“i18n 重复文案抽取”条目。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-18“admin-posts parity 与缺词门禁上收”与“i18n 重复文案抽取”条目。
 
 ### 6. 主线：文档事实源、回归记录与深度归档治理 (P1)
 
@@ -2400,4 +2400,70 @@
     - 验收: 明确活动窗口、历史归档与兼容入口的边界，并沉淀后续拆分策略。
     - 验收: `docs/design/modules/` 只保留模块总设计，专项治理 / 增量设计 / 阶段复盘统一迁移到 `docs/design/governance/`。
     - 结果: 已完成 `docs/design/modules/` 与 `docs/design/governance/` 的职责分层、`docs/reports/regression/**` 的正式入口收敛，以及 `roadmap.md` / `todo-archive.md` 的 warning / 强制分片阈值文档化。
-    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-20“文档事实源、回归入口与深度归档阈值收敛”条目，Review Gate 结论为 `Pass`。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“文档事实源、回归入口与深度归档阈值收敛”条目，Review Gate 结论为 `Pass`。
+
+## 第三十阶段：远程仓库同步与治理基线细化推进（Hexo 风格导出） (已审计归档)
+
+> 审计结论: 第三十阶段围绕远程仓库同步（Hexo 风格 / GitHub / Gitee）候选落地、文档翻译 freshness 清偿、国际化字段治理、重复代码与纯函数复用治理、存量代码注释治理，以及 ESLint / 类型债与规则收紧治理六条主线，已在实现代码、专项设计文档、活动回归窗口、Guide / Standards 文档与定向测试中完成闭环，满足归档条件。远程仓库同步已完成 GitHub / Gitee provider 契约评估与单篇文章手动推送最小闭环；其余五条治理主线均已在 [current.md](../reports/regression/current.md) 的 2026-04-21 记录中给出 Review Gate `Pass` 结论。
+
+> **ROI 评估**: 远程仓库同步（Hexo 风格 / GitHub / Gitee）能力评估与候选落地 1.60；文档翻译 freshness 清偿与文档翻译治理 1.60；国际化字段治理 1.60；重复代码与纯函数复用治理 1.60；存量代码注释治理与注释漂移治理 1.40；ESLint / 类型债与规则收紧治理 1.50。六项均已按当前阶段的执行边界完成收口，其中远程仓库同步、文档翻译 freshness、国际化字段治理与重复代码复用为本轮高优先级上收项。
+
+### 1. 主线：远程仓库同步（Hexo 风格 / GitHub / Gitee）能力评估与候选落地 (P1)
+
+- [x] **完成 GitHub / Gitee 单仓库同步候选闭环**
+    - 验收: 先完成一份专项设计 / 评估文档，明确同步方向（单向导出 / 双向同步）、Hexo 目录结构、Front-matter 契约、媒体引用策略、认证方式（Token / SSH）、冲突策略、审计边界与回滚方式。
+    - 验收: 首轮候选落地只允许收敛到“已发布文章 -> Hexo 风格 Markdown + Front-matter + 媒体引用 -> 单仓库推送”这一条最小闭环，不得在本阶段扩写为桌面端同步、双向合并、定时任务编排或新的通用 Git 发布平台。
+    - 验收: 至少完成 GitHub / Gitee 两类远端的契约评估，并落地一条可复验的候选链路；若只先接通一类 provider，另一类必须保留明确的契约差异、阻塞点与后续落地条件。
+    - 验收: 补齐最小验证矩阵，至少覆盖导出结果结构、Front-matter 字段映射、媒体路径策略、认证失败 / 推送失败兜底与审计日志落点。
+    - 结果: 已完成专项设计文档 [hexo-repository-sync.md](../design/governance/hexo-repository-sync.md)，并落地 `server/services/post-hexo-repository-sync.ts`、`POST /api/admin/posts/:id/hexo-repository-sync` 与分发摘要 `hexoRepositorySync` 派生状态。当前已支持将已发布文章导出为 Hexo 风格 Markdown，改写站内媒体为绝对 URL，并通过 GitHub / Gitee Contents API 推送到单仓库指定目录，同时把最近一次同步状态回写到文章元数据。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21“远程仓库同步（Hexo 风格）候选链路收口”条目，Review Gate 结论为 `Pass`。
+
+### 2. 主线：文档翻译 freshness 清偿与文档翻译治理 (P0)
+
+- [x] **完成翻译 freshness 首轮清偿与 tier 化治理收口**
+    - 验收: 对当前承诺维护的翻译页完成一轮 freshness 清偿，优先覆盖首页、快速开始、部署、翻译治理，以及 `planning` / `documentation` / `security` / `testing` 等高频规范页，不允许只更新 `last_sync` 而不校正文案。
+    - 验收: `pnpm docs:check:source-of-truth` 必须恢复为可通过状态；若决定缩减某类翻译承诺范围，必须同步更新文档规范、目录范围与对应翻译页，而不是通过忽略告警绕过事实源检查。
+    - 验收: 明确翻译页分层治理口径，区分“必须同步”“允许摘要同步”“默认只保留中文原文”三类范围，并把残余存量债写回规范或 backlog，而不是留作隐性尾项。
+    - 验收: 输出本轮已同步范围、暂缓范围、剩余风险与下一轮清偿顺序，作为后续文档治理基线。
+    - 结果: 已完成文档翻译 tier 化治理设计与脚本收口，正式固化 `must-sync / summary-sync / source-only` 三层口径；`pnpm docs:check:source-of-truth`、`pnpm docs:check:i18n` 与 `pnpm lint:md` 均已通过。已同步 `en-US` 高频入口与核心规范摘要页，以及 `zh-TW` / `ko-KR` / `ja-JP` 的公共入口页；深层 design / guide / standards 页则按新规则降级为 `source-only` 并显式回链中文事实源。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21“文档翻译 freshness 清偿与文档翻译治理”条目，Review Gate 结论为 `Pass`。
+
+### 3. 主线：国际化字段治理 (P1)
+
+- [x] **完成 missing blocker、运行时加载边界与共享字段准入口径收口**
+    - 验收: 本轮至少明确一组高频模块的 missing blocker 与运行时加载治理边界，优先覆盖 `admin-settings`、`admin-ai`、`admin-snippets`、`admin-friend-links` 与公开页装配链路，不得回退为散点补词。
+    - 验收: 明确共享组件文案上收的准入标准，区分页面私有 key、模块级共享 key 与 `common` 级公共文案，避免再次出现跨页面复用后命名空间漂移。
+    - 验收: 至少补齐一轮 `i18n:audit:missing`、运行时命中验证与必要的 parity 检查，并形成“哪些入口失败即 blocker”的固定矩阵。
+    - 验收: 明确本轮处理模块、未覆盖模块、raw key 风险与后续分批清偿顺序，便于 Review Gate 判定是否达标。
+    - 结果: 已固化 `missing` blocker、运行时加载边界与共享 key 准入口径；当前 `i18n:audit:missing` 为 `0`，`i18n:verify:runtime` 与定向 parity 已通过，并把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21“国际化字段治理关闭复核”条目，Review Gate 结论为 `Pass`。
+
+### 4. 主线：重复代码与纯函数复用治理 (P1)
+
+- [x] **完成两轮高收益重复区收口并保住重复代码基线**
+    - 验收: 只处理 `1 - 2` 组高收益重复区，优先围绕公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界推进，不得扩写为全仓重构。
+    - 验收: 每组切片都必须给出原始重复点、拟抽象边界、复用收益、潜在过度泛化风险与回滚方式，而不是只写“继续复用”。
+    - 验收: 至少保住重复代码基线不反弹，并输出本轮收敛后的剩余热点列表，作为下一轮切片入口。
+    - 验收: 补齐最小验证矩阵，确认共享 helper / 纯函数抽象不会改变公开页、查询参数解析与读模型装配行为。
+    - 结果: 已完成两轮窄边界切片，覆盖 AI 管理任务读模型装配共享 helper、后台分页 query `safeParse + 默认回退` 模板，以及公开文章列表 locale fallback 过滤 helper；`pnpm duplicate-code:check` 最新为 `33 clones / 830 duplicated lines / 0.70%`，低于 baseline 容差。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21“重复代码与纯函数复用治理首轮切片”与“重复代码与纯函数复用治理第二轮收口”条目，两轮 Review Gate 结论均为 `Pass`。
+
+### 5. 主线：存量代码注释治理与注释漂移治理 (P1)
+
+- [x] **完成首轮高复杂度链路注释治理与漂移复核**
+    - 验收: 首轮只允许选择 `1 - 2` 组高复杂度链路推进，优先覆盖设置来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制或 AI 服务治理，不得扩成全仓平均补注释工程。
+    - 验收: 每组链路都必须同时补“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释，并清理失效、误导性或逐行复述代码的低价值注释，不能只做加法。
+    - 验收: 导出函数、跨层契约与复杂分支的注释补齐后，需明确记录已覆盖范围、仍未覆盖边界与注释漂移风险，便于后续继续切片。
+    - 验收: 至少完成一轮针对受影响文件的 review，自检“注释是否准确、是否过量、是否与实现同步”，不接受只凭主观感觉判定完成。
+    - 结果: 已完成候选组 A 的首轮注释治理，覆盖 `server/services/setting.ts`、`server/utils/locale.ts`、`server/middleware/1-auth.ts` 与 `server/middleware/i18n.ts`；本轮补齐了设置来源优先级、locale 归一化边界，以及 `/api/auth` 固定准入、公开接口会话痕迹准入与 i18n 白名单跳过的请求上下文契约说明，并清理了复述型旧注释。收口阶段已补充函数级 JSDoc 保留策略与模板，明确导出函数、复用函数与复杂函数优先保留简短 JSDoc。
+    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21“存量代码注释治理与注释漂移治理首轮切片”条目，Review Gate 结论为 `Pass`。
+
+### 6. 主线：ESLint / 类型债与规则收紧治理 (P1)
+
+- [x] **完成两轮 `no-explicit-any` 窄边界收紧与下一轮采样定位**
+    - 验收: 本轮仍只允许选择 `1 - 2` 条命中有限、回滚边界清晰的高 ROI 规则推进，不直接扩写到 `no-unsafe-*`、全仓 `any` 清零或大规模样式迁移。
+    - 验收: 在进入实现前，必须先给出候选规则命中清单、影响文件、预期收益、回滚方式与最小验证矩阵；若命中过广或回滚边界不清晰，必须退回 backlog 重新切片。
+    - 验收: 对受影响文件同步处理 warning / 类型债，并明确哪些属于本轮收口范围、哪些仍为后续债务，不允许借“顺手修一修”把执行面继续膨胀。
+    - 验收: 输出本轮规则上收结论、残余债务清单与下一轮候选规则建议，便于阶段收口与后续准入复用。
+    - 结果: 已完成两轮 `@typescript-eslint/no-explicit-any` 窄边界收紧，覆盖 `utils/shared/markdown.ts` 的 `7` 处显式 `any` 与 `server/utils/object.ts`、`server/utils/pagination.ts` 的 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样，并明确下一轮优先从 `composables` 继续缩窄。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-21“utils/shared ESLint / 类型债窄边界收紧”条目与 [current.md](../reports/regression/current.md) 的 2026-04-21“server/utils ESLint / 类型债第二轮收紧”条目，两轮 Review Gate 结论均为 `Pass`。
