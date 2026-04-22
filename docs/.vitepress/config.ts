@@ -128,6 +128,7 @@ export default defineConfig({
                         text: '专项设计与治理',
                         items: [
                             { text: '治理概览', link: '/design/governance/index' },
+                            { text: '商业化转型重评框架', link: '/design/governance/commercialization-reassessment-framework' },
                             { text: '注释漂移治理', link: '/design/governance/comment-drift-governance' },
                             { text: 'ESLint / 类型债治理', link: '/design/governance/eslint-type-debt-tightening' },
                             { text: '可缓存接口清单', link: '/design/governance/cacheable-api-inventory' },

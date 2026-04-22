@@ -60,3 +60,4 @@ tests/e2e/.auth
 *.png
 
 /artifacts
+/opc-doc

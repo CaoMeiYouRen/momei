@@ -31,6 +31,7 @@
 
 ## 内容分发、订阅与执行态补充
 
+- **[商业化转型可行性重评框架](./commercialization-reassessment-framework)**: 商业化候选评估文档，聚焦主卖点收敛、承接链核对、验收标准与最小验证矩阵。
 - **[第三方分发解耦与投递控制](./content-distribution-governance)**: `third-party.md` 的分发治理补充，聚焦外部分发状态机与投递边界。
 - **[远程仓库同步能力评估（Hexo 风格）](./hexo-repository-sync)**: `migration.md` / `content-distribution-governance.md` 之间的专项评估文档，聚焦 GitHub / Gitee 单仓库同步候选方案、媒体策略与失败审计。
 - **[渠道分发模板与标签适配方案](./content-distribution-template-tag-adaptation)**: `content-distribution-governance.md` 的增量方案，聚焦渠道内容模板与标签适配收口。
