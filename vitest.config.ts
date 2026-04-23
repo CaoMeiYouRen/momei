@@ -18,7 +18,7 @@ export default defineVitestConfig({
         teardownTimeout: 60000,
         // vmMemoryLimit: '512MB',
         pool: 'threads',
-        maxWorkers: Math.ceil(os.cpus().length / 2), // 最大工作线程数，根据 CPU 核心数调整
+        maxWorkers: Math.ceil(os.cpus().length), // 最大工作线程数，根据 CPU 核心数调整
         // maxConcurrency: os.cpus().length, // 最大并发数，根据 CPU 核心数调整
     },
     resolve: {
