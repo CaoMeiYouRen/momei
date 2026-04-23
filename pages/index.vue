@@ -168,7 +168,7 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const { runWhenIdle } = useClientEffectGuard()
 const secondarySectionsTrigger = useTemplateRef<HTMLElement>('secondarySectionsTrigger')
-const shouldHydrateSecondarySections = ref(import.meta.test)
+const shouldHydrateSecondarySections = ref(import.meta.test || import.meta.env.MODE === 'test')
 let secondarySectionsObserver: IntersectionObserver | null = null
 
 const revealSecondarySections = () => {

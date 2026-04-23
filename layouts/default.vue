@@ -19,7 +19,7 @@
 <script setup lang="ts">
 const { isSearchReady } = useSearch()
 const { runWhenIdle } = useClientEffectGuard()
-const shouldMountEffects = ref(import.meta.test)
+const shouldMountEffects = ref(import.meta.test || import.meta.env.MODE === 'test')
 
 onMounted(() => {
     if (shouldMountEffects.value) {
