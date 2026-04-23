@@ -181,7 +181,7 @@
       "hono": "^4.12.14",
       "nanotar": "^0.3.0",
       "h3": "^1.15.9",
-      "uuid": "^14.0.0",
+      "uuid": "11.1.0",
       "@nuxt/test-utils>h3-next": "npm:h3@^2.0.1-rc.18",
       "seroval": "^1.4.1",
       "simple-git": "^3.32.3",
