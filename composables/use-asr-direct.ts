@@ -246,7 +246,7 @@ export function useASRDirect(options: ASRDirectOptions) {
                     temporaryUserId: creds.temporaryUserId || createTemporaryUserId(),
                 })
                 requestSequence += 1
-                socket.send(frame)
+                socket.send(toWebSocketBuffer(frame))
                 resolveOnce()
             } catch (err: unknown) {
                 rejectOnce(toError(err))
@@ -345,7 +345,7 @@ export function useASRDirect(options: ASRDirectOptions) {
                 isFinal: false,
             })
             requestSequence += 1
-            ws.send(frame)
+            ws.send(toWebSocketBuffer(frame))
         } catch (err: unknown) {
             error.value = toError(err).message || 'audio_send_failed'
         }
@@ -427,7 +427,7 @@ export function useASRDirect(options: ASRDirectOptions) {
                         isFinal: true,
                     })
                     requestSequence += 1
-                    activeSocket.send(frame)
+                    activeSocket.send(toWebSocketBuffer(frame))
                 } catch (err: unknown) {
                     error.value = toError(err).message || 'stream_stop_failed'
                 }
@@ -650,6 +650,16 @@ function concatBytes(...chunks: Uint8Array[]): Uint8Array {
     })
 
     return merged
+}
+
+function toWebSocketBuffer(data: Uint8Array): ArrayBuffer {
+    const { buffer, byteOffset, byteLength } = data
+
+    if (buffer instanceof ArrayBuffer && byteOffset === 0 && byteLength === buffer.byteLength) {
+        return buffer
+    }
+
+    return data.slice().buffer
 }
 
 function encodePcmToInt16Bytes(float32Samples: Float32Array): Uint8Array {
