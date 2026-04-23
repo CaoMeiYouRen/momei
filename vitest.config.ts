@@ -8,7 +8,7 @@ export default defineVitestConfig({
     test: {
         globals: true,
         environment: 'nuxt',
-        fileParallelism: false,
+        // fileParallelism: false, // 禁止文件级别的并行执行，确保测试在单线程中运行
         setupFiles: ['./tests/testSetup.ts'],
         include: ['./**/*.spec.ts', './**/*.test.ts'],
         // include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
@@ -16,10 +16,10 @@ export default defineVitestConfig({
         testTimeout: 60000,
         hookTimeout: 60000,
         teardownTimeout: 60000,
-        vmMemoryLimit: '4GB', // 内存限制
-        pool: 'forks', // 使用 fork 模式运行测试
-        maxWorkers: os.cpus().length, // 最大工作线程数，根据 CPU 核心数调整
-        maxConcurrency: os.cpus().length, // 最大并发数，根据 CPU 核心数调整
+        // vmMemoryLimit: '512MB',
+        pool: 'threads',
+        maxWorkers: Math.ceil(os.cpus().length / 2), // 最大工作线程数，根据 CPU 核心数调整
+        // maxConcurrency: os.cpus().length, // 最大并发数，根据 CPU 核心数调整
     },
     resolve: {
         alias: {
