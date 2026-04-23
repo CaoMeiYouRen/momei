@@ -11,10 +11,17 @@ vi.stubEnv('DATABASE_TYPE', 'sqlite')
 vi.stubEnv('DATABASE_PATH', ':memory:')
 vi.stubEnv('NODE_ENV', 'test')
 
-// 全局错误处理
-process.on('unhandledRejection', (reason) => {
-    console.error('Unhandled Rejection:', reason)
-})
+const globalTestSetupState = globalThis as typeof globalThis & {
+    __momeiVitestUnhandledRejectionHandlerInstalled__?: boolean
+}
+
+// setupFiles 会在同一 worker 的每个测试文件前重复执行，监听器只能注册一次。
+if (!globalTestSetupState.__momeiVitestUnhandledRejectionHandlerInstalled__) {
+    process.on('unhandledRejection', (reason) => {
+        console.error('Unhandled Rejection:', reason)
+    })
+    globalTestSetupState.__momeiVitestUnhandledRejectionHandlerInstalled__ = true
+}
 
 // Mock Nuxt/H3 Globals for Unit Testing Server Handlers
 const mockEventHandler = (handler: any) => handler
