@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研已完成并形成准入结论，其余事项尚未开启进行中项。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
+> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研、国际化运行时加载与文案复用治理两条主线已完成当前切片收口，其余事项尚未开启进行中项。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
 
 ### 第三十一阶段：认证预研与治理执行面正式上收
 
@@ -34,11 +34,11 @@
 	- 非目标: 不改写既有阶段完成事实，不扩写成多语翻译同步工程。
 	- 验证: `pnpm lint:md`，以及归档索引与主文档链接可回查。
 
-- [ ] **国际化运行时加载与文案复用治理 (P0)**
+- [x] **国际化运行时加载与文案复用治理 (P0)**
 	- 验收: `i18n:audit:missing` 继续保持 `0` blocker，且 `i18n:verify:runtime` 已覆盖至少一条公开页装配链路与一组共享组件文案场景。
 	- 验收: 已明确共享 key 上收准入标准、缺词定级口径与下一批高风险历史热点。
 	- 非目标: 不发起全仓 i18n 重构，不把 `unused` 字段清理升级为本轮 blocker。
-	- 验证: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`。
+	- 验证: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`，以及 [活动回归窗口](../reports/regression/current.md) 的 2026-04-24 记录。
 
 - [ ] **ESLint / 类型债治理（`composables` 子桶） (P1)**
 	- 验收: 已冻结 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶的命中清单、替代写法与回滚边界。

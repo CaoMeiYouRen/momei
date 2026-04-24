@@ -9,6 +9,39 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-24 第三十一阶段国际化运行时加载与文案复用治理切片
+
+### 范围
+
+- 目标：完成第三十一阶段 `国际化运行时加载与文案复用治理 (P0)` 的当前切片，确认缺词 blocker 继续为 `0`，并把运行时回归入口正式扩到一条公开页装配链路和一组跨公开页 / 后台共享字段场景。
+- 本轮覆盖：`package.json` 中 `i18n:verify:runtime` 的定向测试矩阵、`pages/about.test.ts` 的公开页真实文案装配断言，以及既有 `pages/friend-links.test.ts`、`pages/admin/friend-links/index.test.ts` 共享字段场景纳入固定回归入口。
+- 非目标：不调整 `locale-runtime-loader` 实现，不发起全仓 locale 模块重构，不把 `unused` 审计提升为 blocker，也不继续扩大为更多公开页的铺量补测。
+
+### 实施结论
+
+- `i18n:verify:runtime` 现在除了 locale 模块解析、运行时加载器、后台壳层、登录页和商业化设置组件外，还固定覆盖 About 公开页与友链公开页 / 后台页共享字段链路。
+- About 页测试已从“页面结构存在”升级为“真实翻译装配命中”，会直接拦截 `pages.about.*` raw key 泄漏到公开页 UI。
+- 友链共享字段链路继续沿用 `components.friend_links.fields.*` 作为领域共享命名空间，固定验证公开页与后台页不会回退到页面私有 key。
+- 共享 key 上收准入标准、`missing` 优先于 `unused` 的缺词定级口径，以及长期热点切片顺序，继续以 `docs/design/governance/i18n-field-governance.md` 与 `docs/plan/backlog.md` 为事实源。
+
+### 已执行验证
+
+- `pnpm i18n:audit:missing -- --summary-limit=12`
+	- 结果：通过；`Missing parity summary: total: 0`。
+- `pnpm i18n:verify:runtime`
+	- 结果：通过；`8` 个测试文件、`55` 条断言全部通过，覆盖公开页装配链路、共享字段链路与既有运行时加载边界。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮新增验证面直接命中当前阶段验收要求，且未引入新的运行时加载实现分叉。
+
+### 未覆盖边界
+
+- `pnpm i18n:verify:runtime` 当前公开页只新增了 About 链路；后续若继续上收，优先补 `app-footer` 友链区域与 `archives` / `categories` / `tags` 等公开列表页装配链路，而不是继续增加同类静态页面结构断言。
+- 共享组件命名空间当前继续聚焦友链字段与商业化设置场景；下一批高风险历史热点仍优先观察 `admin-settings`、`admin-ai`、`admin-snippets` 与未来新增的跨模块共享字段，而不是回头做全仓 `unused` 清扫。
+
 ## 2026-04-22 第三十阶段归档放行复核
 
 ### 范围

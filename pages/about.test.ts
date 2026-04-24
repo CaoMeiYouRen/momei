@@ -3,6 +3,21 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AboutPage from './about.vue'
 
 describe('about page', () => {
+    it('应该装配真实公开页文案而不是显示 raw key', async () => {
+        const wrapper = await mountSuspended(AboutPage)
+
+        const text = wrapper.text()
+
+        expect(text).toMatch(/Momei|墨梅/u)
+        expect(text).toMatch(/Core Advantages|核心优势/u)
+        expect(text).toMatch(/Contact Us|联系我们/u)
+        expect(text).not.toContain('pages.about.hero.title')
+        expect(text).not.toContain('pages.about.features.title')
+        expect(text).not.toContain('pages.about.contact.title')
+        expect(wrapper.findAll('.feature-list__item')).toHaveLength(4)
+        expect(wrapper.findAll('.feature-card')).toHaveLength(3)
+    })
+
     it('应该正确渲染页面', async () => {
         const wrapper = await mountSuspended(AboutPage)
 
