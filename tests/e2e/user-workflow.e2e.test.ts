@@ -215,7 +215,7 @@ test.describe('User Workflow E2E Tests', () => {
             await expect(submitButton).toBeVisible()
 
             // 直接点击提交
-            await submitForm(page, '.submit-form')
+            await submitForm(page, '.submit-btn')
 
             // 验证必填字段错误文案可见
             await expect(page.locator('body')).toContainText('标题不能为空')

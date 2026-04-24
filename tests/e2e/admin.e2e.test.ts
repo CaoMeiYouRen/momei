@@ -21,12 +21,18 @@ function hasStoredAuth(): boolean {
 }
 
 async function gotoAdminRoute(page: import('@playwright/test').Page, routePath: string) {
+    const retryableNavigationErrors = [
+        'interrupted by another navigation',
+        'NS_BINDING_ABORTED',
+        'frame was detached',
+    ]
+
     for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
-            await page.goto(routePath)
+            await page.goto(routePath, { waitUntil: 'domcontentloaded' })
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
-            if (!message.includes('interrupted by another navigation')) {
+            if (!retryableNavigationErrors.some((fragment) => message.includes(fragment))) {
                 throw error
             }
         }
