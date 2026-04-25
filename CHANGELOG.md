@@ -1,5 +1,56 @@
 # momei
 
+# [1.15.0](https://github.com/CaoMeiYouRen/momei/compare/v1.14.0...v1.15.0) (2026-04-25)
+
+
+### ✨ 新功能
+
+* **admin-ai:** 增加任务详情加载功能 ([8615558](https://github.com/CaoMeiYouRen/momei/commit/8615558))
+* **api:** 增强 API 类型安全与错误处理 ([d861917](https://github.com/CaoMeiYouRen/momei/commit/d861917))
+* **comment:** 增加评论翻译功能及跨语言提示 ([4aeb56b](https://github.com/CaoMeiYouRen/momei/commit/4aeb56b))
+* **friend-links:** 增加友链元信息接口的本地化支持 ([37fa5dd](https://github.com/CaoMeiYouRen/momei/commit/37fa5dd))
+* **friend-links:** 添加友链管理功能及国际化支持 ([c62a79f](https://github.com/CaoMeiYouRen/momei/commit/c62a79f))
+* **governance:** 完成存量代码注释治理首轮并固化 JSDoc 模板 ([03f98a9](https://github.com/CaoMeiYouRen/momei/commit/03f98a9))
+* **governance:** 添加 ESLint / 类型债治理文档及相关配置 ([6cdc601](https://github.com/CaoMeiYouRen/momei/commit/6cdc601))
+* **governance:** 添加存量代码注释治理与注释漂移治理文档及相关注释 ([3d1e553](https://github.com/CaoMeiYouRen/momei/commit/3d1e553))
+* **hexo-sync:** 新增 Hexo 风格文章仓库同步能力 ([b77a9fd](https://github.com/CaoMeiYouRen/momei/commit/b77a9fd))
+* **hexorepositorysync:** 添加 Hexo 仓库同步功能 ([ebd510d](https://github.com/CaoMeiYouRen/momei/commit/ebd510d))
+* **i18n:** 增强国际化审计功能 ([0440a93](https://github.com/CaoMeiYouRen/momei/commit/0440a93))
+* **i18n:** 完善 admin-posts 模块的翻译内容 ([c4313b3](https://github.com/CaoMeiYouRen/momei/commit/c4313b3))
+* **i18n:** 更新多语言支持和管理界面文本 ([2a94258](https://github.com/CaoMeiYouRen/momei/commit/2a94258))
+* **markdown-editor:** 添加 Markdown 编辑器功能和代码复制支持 ([a7c170d](https://github.com/CaoMeiYouRen/momei/commit/a7c170d))
+* **pagination:** 添加安全解析分页查询功能 ([cf20841](https://github.com/CaoMeiYouRen/momei/commit/cf20841))
+* **post-list-query:** 添加语言回退过滤器功能 ([f65e610](https://github.com/CaoMeiYouRen/momei/commit/f65e610))
+* **seo:** 增加页面 SEO 相关功能 ([3fb4b4e](https://github.com/CaoMeiYouRen/momei/commit/3fb4b4e))
+* 新增 评论区 AI 翻译功能 ([5ac60f7](https://github.com/CaoMeiYouRen/momei/commit/5ac60f7))
+* 添加标签页面的结构化数据和 SEO 优化 ([03cff13](https://github.com/CaoMeiYouRen/momei/commit/03cff13))
+* 统一字符串列表解析逻辑 ([21981ca](https://github.com/CaoMeiYouRen/momei/commit/21981ca))
+
+
+### 🐛 Bug 修复
+
+* **admin-posts:** 添加文章管理功能及国际化支持 ([630a968](https://github.com/CaoMeiYouRen/momei/commit/630a968))
+* **email:** 添加邮件模板的运行时字段支持 ([c078ff1](https://github.com/CaoMeiYouRen/momei/commit/c078ff1))
+* **external-feed-panel:** 优化测试用例结构 ([c638a89](https://github.com/CaoMeiYouRen/momei/commit/c638a89))
+* **external-feed:** 处理无标题项的情况 ([3f8a2b3](https://github.com/CaoMeiYouRen/momei/commit/3f8a2b3))
+* **governance:** 完成 ESLint / 类型债第二轮收紧 ([88149f4](https://github.com/CaoMeiYouRen/momei/commit/88149f4))
+* **i18n:** 优化仓库同步信息的本地化文本 ([20b0e69](https://github.com/CaoMeiYouRen/momei/commit/20b0e69))
+* **i18n:** 添加用户协议管理功能的国际化支持 ([a1ac635](https://github.com/CaoMeiYouRen/momei/commit/a1ac635))
+* **settings:** 优化设置字段解析逻辑 ([4029d45](https://github.com/CaoMeiYouRen/momei/commit/4029d45))
+* **settings:** 添加外部源编辑器功能 ([c26556b](https://github.com/CaoMeiYouRen/momei/commit/c26556b))
+
+
+### 📦 代码重构
+
+* **ai:** 统一去除末尾斜杠的处理逻辑 ([de1371a](https://github.com/CaoMeiYouRen/momei/commit/de1371a))
+* **asr:** 使用 toWebSocketBuffer 函数发送数据 ([ef7ff9c](https://github.com/CaoMeiYouRen/momei/commit/ef7ff9c))
+* **database:** 增加数据库就绪检查功能 ([b67a2bb](https://github.com/CaoMeiYouRen/momei/commit/b67a2bb))
+* **governance:** 更新 Hexo 仓库同步为远程仓库同步 ([dc95edf](https://github.com/CaoMeiYouRen/momei/commit/dc95edf))
+* **i18n:** 重构国际化动态键处理逻辑 ([8921e65](https://github.com/CaoMeiYouRen/momei/commit/8921e65))
+* **settings:** 增强设置 API 的类型处理逻辑 ([8bc931d](https://github.com/CaoMeiYouRen/momei/commit/8bc931d))
+* **third-party-settings:** 优化外部源设置模型绑定 ([c7a5eb6](https://github.com/CaoMeiYouRen/momei/commit/c7a5eb6))
+* 优化效果挂载条件 ([3cfa247](https://github.com/CaoMeiYouRen/momei/commit/3cfa247))
+
 # [1.14.0](https://github.com/CaoMeiYouRen/momei/compare/v1.13.0...v1.14.0) (2026-04-18)
 
 
