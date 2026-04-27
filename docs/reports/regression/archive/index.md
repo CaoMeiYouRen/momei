@@ -11,6 +11,7 @@
 ## 2. 入口说明
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
+- 2026-04-21 治理切片归档: [2026-04-21-governance-rollup.md](./2026-04-21-governance-rollup.md)
 - 2026-04 中旬历史窗口: [2026-04-18-to-2026-04-21.md](./2026-04-18-to-2026-04-21.md)
 - 旧活动日志迁移快照: [legacy-plan-regression-log.md](./legacy-plan-regression-log.md)
 - 旧归档日志迁移快照: [legacy-plan-regression-log-archive.md](./legacy-plan-regression-log-archive.md)

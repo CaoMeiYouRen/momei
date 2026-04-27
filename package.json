@@ -49,9 +49,10 @@
     "review-gate:generate": "node scripts/review-gate/generate-evidence.mjs",
     "review-gate:generate:check": "node scripts/review-gate/generate-evidence.mjs --run-checks",
     "docs:check:i18n": "node scripts/docs/check-i18n-duplicates.mjs",
+    "docs:check:line-count": "node scripts/docs/check-line-count.mjs",
     "docs:check:source-of-truth": "node scripts/docs/check-source-of-truth.mjs",
-    "docs:dev": "pnpm docs:check:i18n && vitepress dev docs --open",
-    "docs:build": "pnpm docs:check:i18n && vitepress build docs",
+    "docs:dev": "pnpm docs:check:i18n && pnpm docs:check:line-count && vitepress dev docs --open",
+    "docs:build": "pnpm docs:check:i18n && pnpm docs:check:line-count && vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "deploy:wrangler": "wrangler deploy"
   },

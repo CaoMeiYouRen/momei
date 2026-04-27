@@ -223,7 +223,10 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 - `roadmap.md`：`<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行前必须优先拆出更早阶段的深度归档分片。
 - `todo-archive.md`：`<= 1800` 行为健康窗口，`1801 - 2200` 行进入 warning，超过 `2200` 行前必须优先拆出早期阶段区间分片。
+- `docs/reports/regression/current.md`：`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行前必须先把旧记录整体滚动归档到 `docs/reports/regression/archive/`。
 - 深度归档后，主文档只保留近线阶段窗口、摘要与索引入口，不再长期复制全量历史正文。
+
+以上阈值由 `pnpm docs:check:line-count` 执行校验；进入 warning 区间时必须尽快安排治理，超过 error 线则视为需要立即归档收敛的阻断项。
 
 ### 4.5 阶段归档与下一阶段规划标准流程 (Phase Archive Workflow)
 
