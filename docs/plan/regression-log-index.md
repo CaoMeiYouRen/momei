@@ -10,12 +10,12 @@
 
 ## 2. 兼容入口职责
 
-- [regression-log.md](./regression-log.md): 保留旧活动日志正文，供历史链接与旧阶段审计回看。
-- [regression-log-archive.md](./regression-log-archive.md): 保留旧归档日志正文，供历史阶段证据追溯。
+- [regression-log.md](./regression-log.md): 兼容跳转页，指向已迁移的旧活动日志快照与新的正式入口。
+- [regression-log-archive.md](./regression-log-archive.md): 兼容跳转页，指向已迁移的旧归档日志快照与新的正式入口。
 - 本文件只负责把旧入口导向新的正式入口，不再作为回归治理的事实源。
 
 ## 3. 使用约定
 
 1. 新增回归正文统一写入 [docs/reports/regression/current.md](../reports/regression/current.md)。
-2. 需要回看旧阶段全文时，再跳转到 [regression-log.md](./regression-log.md) 或 [regression-log-archive.md](./regression-log-archive.md)。
+2. 需要回看旧阶段全文时，再从 [regression-log.md](./regression-log.md) 或 [regression-log-archive.md](./regression-log-archive.md) 跳转到 `docs/reports/regression/archive/` 下的迁移快照。
 3. 若需要确认活动窗口、历史归档与兼容入口的边界，以 [docs/reports/regression/index.md](../reports/regression/index.md) 为准。

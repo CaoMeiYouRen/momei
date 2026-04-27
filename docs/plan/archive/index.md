@@ -8,11 +8,11 @@
 - `docs/plan/todo-archive.md`: 保留最近若干阶段的完整归档块与近线收口依据，不长期充当所有历史阶段的唯一全文容器。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-04-20）
+## 2. 当前基线（2026-04-27）
 
-- `roadmap.md`: 约 `797` 行，已接近主窗口 warning 上限。
-- `todo-archive.md`: 约 `1971` 行，已进入“需准备下一轮深度归档”的 warning 区间。
-- `docs/reports/regression/current.md`: 当前仍低于 `300 - 400` 行活动窗口阈值，暂无因体量触发额外拆分的压力。
+- `roadmap.md`: `528` 行，已回到健康窗口。
+- `todo-archive.md`: `265` 行，已回到健康窗口。
+- `docs/reports/regression/current.md`: `344` 行，仍处于活动窗口允许范围内，但后续继续追加前应优先关注滚动归档阈值。
 
 ## 3. 阈值定义
 
@@ -42,19 +42,21 @@
 
 ## 5. 后续分片策略
 
-- `roadmap.md` 深度归档优先按阶段区间切分，例如 `docs/plan/archive/roadmap-phases-01-15.md`。
-- `todo-archive.md` 深度归档优先按阶段区间切分，例如 `docs/plan/archive/todo-archive-phases-01-12.md`。
+- `roadmap.md` 深度归档优先按阶段区间切分；本轮已落地 `docs/plan/archive/roadmap-phases-01-10.md` 与 `docs/plan/archive/roadmap-phases-11-21.md`。
+- `todo-archive.md` 深度归档优先按阶段区间切分；本轮已落地 `docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md` 与 `docs/plan/archive/todo-archive-phases-22-24.md`。
 - 若未来阶段数继续显著增长，再评估按年份或半年度拆分，而不是重新把旧正文塞回主文档。
 - 主文档只保留摘要、索引与最近窗口，不再复制完整历史正文。
 
 ## 6. 本轮结论与下一步
 
-- 本轮先完成阈值定义、入口对齐与兼容边界澄清，不立即启动大规模历史搬迁。
-- `roadmap.md` 当前已接近 warning 上限，后续新增较长阶段摘要前应优先准备第一份阶段区间归档分片。
-- `todo-archive.md` 当前已处于 warning 区间；下一次阶段归档前，应优先决定第一批迁出的早期阶段范围，避免在超过 `2200` 行后被动拆分。
+- 本轮已完成首轮深度归档落地：主文档只保留近线窗口，早期阶段已按区间迁入分片，并补齐主入口回链。
+- `roadmap.md` 当前保留第二十二至第三十一阶段；若后续再次接近 `800` 行，优先把第二十二至第二十四阶段继续迁出为下一份近线前置分片。
+- `todo-archive.md` 当前保留第二十五至第三十阶段；若后续归档再次显著增长，优先继续按连续阶段区间迁出，不重新回退到单文件全量承载。
 
 ## 7. 相关入口
 
 - 当前路线图: [../roadmap.md](../roadmap.md)
 - 当前待办归档: [../todo-archive.md](../todo-archive.md)
+- 路线图分片: [roadmap-phases-01-10.md](./roadmap-phases-01-10.md)、[roadmap-phases-11-21.md](./roadmap-phases-11-21.md)
+- 待办归档分片: [todo-archive-phases-01-10.md](./todo-archive-phases-01-10.md)、[todo-archive-phases-11-21.md](./todo-archive-phases-11-21.md)、[todo-archive-phases-22-24.md](./todo-archive-phases-22-24.md)
 - 回归记录入口: [../../reports/regression/index.md](../../reports/regression/index.md)

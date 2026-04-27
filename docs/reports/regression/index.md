@@ -25,6 +25,7 @@
 ### 2.3 兼容入口
 
 - `docs/plan/regression-log.md`、`docs/plan/regression-log-index.md` 与 `docs/plan/regression-log-archive.md` 仅保留为兼容快照入口。
+- 原 `docs/plan/regression-log.md` 与 `docs/plan/regression-log-archive.md` 的历史正文快照已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
 - 兼容入口不得继续追加新的正式回归正文，也不应再承载新的窗口统计或管理规则。
 - 兼容入口只负责旧链接回看与迁移提示；新的管理规则统一以本目录为准。
 
@@ -39,3 +40,5 @@
 - 活动窗口: [current.md](./current.md)
 - 历史归档: [archive/index.md](./archive/index.md)
 - 兼容入口: [docs/plan/regression-log.md](../../plan/regression-log.md)
+- 旧活动日志迁移快照: [archive/legacy-plan-regression-log.md](./archive/legacy-plan-regression-log.md)
+- 旧归档日志迁移快照: [archive/legacy-plan-regression-log-archive.md](./archive/legacy-plan-regression-log-archive.md)

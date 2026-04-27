@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研、国际化运行时加载与文案复用治理两条主线已完成当前切片收口，其余事项尚未开启进行中项。其中国际化治理切片已同时覆盖运行时装配验证与一批 `unused` 字段清理。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
+> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研、路线图 / Todo 深度归档治理、国际化运行时加载与文案复用治理三条主线已完成当前切片收口，其余事项尚未开启进行中项。其中国际化治理切片已同时覆盖运行时装配验证与一批 `unused` 字段清理；深度归档治理已将规划主入口收敛为近线窗口，并把旧回归兼容入口迁入 `docs/reports/regression/` 正式目录。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
 
 ### 第三十一阶段：认证预研与治理执行面正式上收
 
@@ -28,11 +28,12 @@
 	- 非目标: 不直接落地真实登录按钮、回调处理或账号绑定实现。
 	- 验证: 回链 [caomei-auth OAuth / OIDC 接入预研](../design/governance/caomei-auth-oauth-evaluation.md)。
 
-- [ ] **路线图 / Todo 深度归档治理 (P1)**
+- [x] **路线图 / Todo 深度归档治理 (P1)**
 	- 验收: 已对 `roadmap.md` 与 `todo-archive.md` 完成首轮深度归档，补齐区间分片、兼容入口与回链说明，并重新量化主文档行数。
-	- 验收: 若主文档未完全回到健康窗口，已明确记录剩余阻塞点与下一步拆分计划。
+	- 验收: 主文档已回到健康窗口；若后续再次膨胀，已明确记录下一步拆分计划。
 	- 非目标: 不改写既有阶段完成事实，不扩写成多语翻译同步工程。
-	- 验证: `pnpm lint:md`，以及归档索引与主文档链接可回查。
+	- 结果: 已新增 `docs/plan/archive/roadmap-phases-01-10.md`、`docs/plan/archive/roadmap-phases-11-21.md`、`docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md` 与 `docs/plan/archive/todo-archive-phases-22-24.md` 五个区间分片；`roadmap.md` 已收敛到 `528` 行，`todo-archive.md` 已收敛到 `265` 行；`docs/plan/regression-log*.md` 旧正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`，原路径现仅保留兼容入口。
+	- 验证: `pnpm exec lint-md docs/plan/roadmap.md docs/plan/todo-archive.md docs/plan/archive/index.md docs/plan/archive/roadmap-phases-01-10.md docs/plan/archive/roadmap-phases-11-21.md docs/plan/archive/todo-archive-phases-01-10.md docs/plan/archive/todo-archive-phases-11-21.md docs/plan/archive/todo-archive-phases-22-24.md docs/plan/regression-log.md docs/plan/regression-log-archive.md docs/plan/regression-log-index.md docs/reports/regression/index.md docs/reports/regression/archive/index.md`。
 
 - [x] **国际化运行时加载与文案复用治理 (P0)**
 	- 验收: `i18n:audit:missing` 继续保持 `0` blocker，且 `i18n:verify:runtime` 已覆盖至少一条公开页装配链路与一组共享组件文案场景。
