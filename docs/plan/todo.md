@@ -40,12 +40,11 @@
 	- 非目标: 不发起全仓 i18n 重构，不把后续新增 `unused` 字段清理扩写为独立 blocker 工程。
 	- 验证: `pnpm i18n:audit:unused -- --summary-limit=20`、`pnpm i18n:audit:missing -- --summary-limit=12`、`pnpm i18n:verify:runtime`、`pnpm exec nuxt typecheck`，以及 [活动回归窗口](../reports/regression/current.md) 的 2026-04-24 记录。
 
-- [ ] **ESLint / 类型债治理（`composables` 子桶） (P1)**
+- [x] **ESLint / 类型债治理（`composables` 子桶） (P1)**
 	- 验收: 已冻结 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶的命中清单、替代写法与回滚边界。
 	- 验收: 目标子桶中的非空断言已按显式守卫、默认值、类型收窄或提前返回收敛，且未外溢到非目标目录。
 	- 非目标: 不并行开启其他规则的全仓治理，不把 `any`、`unsafe-*`、`max-lines` 等主线打包并入。
-	- 进展: 已确认当前生产源码中的 `@typescript-eslint/no-non-null-assertion` 命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并已改为局部变量、显式守卫与类型收窄；目录内文本扫描未再发现剩余非空断言形态。
-	- 阻塞: `pnpm exec eslint composables --max-warnings 0` 仍被 `composables/use-asr-direct.ts` 的既有 `max-lines` warning 阻塞；该 warning 不属于本条 `no-non-null-assertion` 切片，暂不并入本轮治理面。
+	- 结果: 已确认当前生产源码中的 `@typescript-eslint/no-non-null-assertion` 命中收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并已改为局部变量、显式守卫与类型收窄；同时通过复用 `utils/web/audio-compression.ts` 中的 PCM 转换 helper 消除了 `composables/use-asr-direct.ts` 的目录级 `max-lines` blocker，使 `composables` 子桶 ESLint 收口重新打通。
 	- 验证: `pnpm exec eslint composables --max-warnings 0`、`pnpm exec nuxt typecheck`。
 
 - [ ] **测试覆盖率与有效性治理 (P0)**

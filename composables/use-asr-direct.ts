@@ -4,6 +4,7 @@ import {
     hasASRCredentialsExpired,
     shouldRefreshASRCredentials,
 } from '~/utils/shared/asr-credential-window'
+import { float32ToPcmInt16 } from '~/utils/web/audio-compression'
 
 export interface ASRDirectOptions {
     provider: ASRProvider
@@ -338,7 +339,7 @@ export function useASRDirect(options: ASRDirectOptions) {
         }
 
         try {
-            const audioBytes = encodePcmToInt16Bytes(pcmData)
+            const audioBytes = new Uint8Array(float32ToPcmInt16(pcmData))
             const frame = buildVolcengineAudioFrame({
                 sequence: requestSequence,
                 audioBytes,
@@ -660,20 +661,6 @@ function toWebSocketBuffer(data: Uint8Array): ArrayBuffer {
     }
 
     return data.slice().buffer
-}
-
-function encodePcmToInt16Bytes(float32Samples: Float32Array): Uint8Array {
-    const pcmBuffer = new ArrayBuffer(float32Samples.length * 2)
-    const pcmView = new DataView(pcmBuffer)
-
-    for (let i = 0; i < float32Samples.length; i++) {
-        const sample = float32Samples[i] ?? 0
-        const clamped = Math.max(-1, Math.min(1, sample))
-        const int16 = clamped < 0 ? clamped * 0x8000 : clamped * 0x7FFF
-        pcmView.setInt16(i * 2, int16, true)
-    }
-
-    return new Uint8Array(pcmBuffer)
 }
 
 async function parseVolcengineServerPacket(rawData: Blob | ArrayBuffer | string): Promise<VolcengineServerPacket> {
