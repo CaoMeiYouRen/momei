@@ -9,6 +9,43 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-27 `composables` 子桶 `no-non-null-assertion` 窄切片推进
+
+### 范围
+
+- 目标：推进第三十一阶段 `ESLint / 类型债治理（composables 子桶） (P1)` 的首个实现切片，重新冻结 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 生产源码中的真实命中，并只对回滚边界足够窄的单文件链路完成收敛。
+- 本轮覆盖：`composables/use-post-editor-io.ts` 的 Markdown frontmatter 导入分支、`eslint.config.js` 中对应单文件 override，以及当前阶段待办与治理设计文档的事实源同步。
+- 非目标：不并行处理 `composables/use-asr-direct.ts` 的 `max-lines` warning，不把 `composables/**` 整体提升为 `no-non-null-assertion` 治理目录，也不扩写到 `any`、`unsafe-*` 或其他规则主线。
+
+### 实施结论
+
+- 重新复核 `composables/` 生产源码后，`@typescript-eslint/no-non-null-assertion` 的真实命中已收敛到 `composables/use-post-editor-io.ts` 单文件，共 `8` 处，集中在 frontmatter 多别名字段导入链路。
+- 这 `8` 处已统一改写为局部变量、显式守卫与类型分支：`slug`、`summary`、`coverImage`、`copyright`、`language`、`audio url`、`audio size` 与 `audio mimeType` 的读取路径不再依赖后缀 `!`。
+- `eslint.config.js` 已新增只作用于 `composables/use-post-editor-io.ts` 的 `@typescript-eslint/no-non-null-assertion` warning override，确保回滚边界仍保持在“单文件 + 单条配置”。
+- 目录级扫描未再发现 `composables/` 生产源码里的剩余非空断言形态；当前阻塞 `pnpm exec eslint composables --max-warnings 0` 的唯一问题，是 `composables/use-asr-direct.ts` 既有的 `max-lines` warning。
+
+### 已执行验证
+
+- 定向 ESLint：`pnpm exec eslint composables/use-post-editor-io.ts --rule '{"@typescript-eslint/no-non-null-assertion":"error"}'`
+	- 结果：通过；首轮修复后该文件的 `8` 处非空断言命中已清零。
+- 定向 Vitest：`pnpm exec vitest run composables/use-post-editor-io.test.ts`
+	- 结果：通过；`9` 个测试全部通过，frontmatter 导入与音频元数据映射行为保持稳定。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；未发现本轮类型回归。
+- 目录级 ESLint：`pnpm exec eslint composables --max-warnings 0`
+	- 结果：失败；唯一 blocker 为 `composables/use-asr-direct.ts:801` 的既有 `max-lines` warning，非本轮 `no-non-null-assertion` 切片引入。
+
+### Review Gate
+
+- 结论：Blocked
+- 问题分级：warning-blocker
+- 主要问题：本轮目标文件与规则切片本身已验证通过，但待办要求的目录级 ESLint 收口仍被 `use-asr-direct.ts` 既有 `max-lines` warning 阻塞；在不越权并入 `max-lines` 主线前，当前条目不宜直接宣告完成。
+
+### 未覆盖边界
+
+- 本轮没有处理 `composables/use-asr-direct.ts` 的超长文件问题；若要让 `pnpm exec eslint composables --max-warnings 0` 真正通过，需要在独立 `max-lines` 主线中收敛该文件或为其建立经审查的精确豁免边界。
+- 当前 `composables` 子桶的 `no-non-null-assertion` 只正式上收到 `use-post-editor-io.ts`；后续若继续推进，仍应保持单一 composable 切片策略，而不是直接把规则外溢到整个 `composables/**`。
+
 ## 2026-04-24 第三十一阶段国际化运行时加载与文案复用治理切片
 
 ### 范围

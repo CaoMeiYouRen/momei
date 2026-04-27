@@ -96,35 +96,33 @@ export function usePostEditorIO(
                 if (frontMatter.title) {
                     post.value.title = frontMatter.title
                 }
-                if (frontMatter.slug || frontMatter.abbrlink) {
-                    post.value.slug = (frontMatter.slug
-                        || frontMatter.abbrlink)!
+                const slug = frontMatter.slug || frontMatter.abbrlink
+                if (slug) {
+                    post.value.slug = slug
                 }
-                if (frontMatter.description || frontMatter.desc) {
-                    post.value.summary = (frontMatter.description
-                        || frontMatter.desc)!
+                const summary = frontMatter.description || frontMatter.desc
+                if (summary) {
+                    post.value.summary = summary
                 }
-                if (
-                    frontMatter.image
+                const coverImage = frontMatter.image
                     || frontMatter.cover
                     || frontMatter.thumb
-                ) {
-                    post.value.coverImage = (frontMatter.image
-                        || frontMatter.cover
-                        || frontMatter.thumb)!
+                if (coverImage) {
+                    post.value.coverImage = coverImage
                 }
-                if (frontMatter.copyright || frontMatter.license) {
-                    post.value.copyright = (frontMatter.copyright
-                        || frontMatter.license)!
+                const copyright = frontMatter.copyright || frontMatter.license
+                if (copyright) {
+                    post.value.copyright = copyright
                 }
-                if (frontMatter.language || frontMatter.lang) {
-                    post.value.language = (frontMatter.language
-                        || frontMatter.lang)!
+                const language = frontMatter.language || frontMatter.lang
+                if (language) {
+                    post.value.language = language
                 }
 
-                if (frontMatter.audio || frontMatter.audio_url || frontMatter.media) {
+                const audioUrl = frontMatter.audio || frontMatter.audio_url || frontMatter.media
+                if (audioUrl) {
                     mergeAudioMetadata({
-                        url: (frontMatter.audio || frontMatter.audio_url || frontMatter.media)!,
+                        url: audioUrl,
                     })
                 }
                 const rawDuration = frontMatter.audio_duration || frontMatter.duration
@@ -143,12 +141,13 @@ export function usePostEditorIO(
                 if (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength) {
                     const size = (frontMatter.audio_size || frontMatter.medialength || frontMatter.mediaLength)
                     mergeAudioMetadata({
-                        size: typeof size === 'string' ? parseInt(size, 10) : (size!),
+                        size: typeof size === 'string' ? parseInt(size, 10) : size,
                     })
                 }
-                if (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType) {
+                const mimeType = frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType
+                if (mimeType) {
                     mergeAudioMetadata({
-                        mimeType: (frontMatter.audio_mime_type || frontMatter.mediatype || frontMatter.mediaType)!,
+                        mimeType,
                     })
                 }
 

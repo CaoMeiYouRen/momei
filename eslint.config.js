@@ -231,6 +231,13 @@ export default withNuxt(
         },
     },
     {
+        // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
+        files: ['composables/use-post-editor-io.ts'],
+        rules: {
+            '@typescript-eslint/no-non-null-assertion': [1],
+        },
+    },
+    {
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [],
