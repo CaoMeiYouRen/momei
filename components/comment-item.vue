@@ -424,7 +424,6 @@ const formatDate = (date: string) => {
 :global(.dark) .comment-item {
   &--reply {
     border-color: var(--p-surface-700);
-    border-left-color: var(--p-surface-700);
   }
 
   .comment-item__author-name {

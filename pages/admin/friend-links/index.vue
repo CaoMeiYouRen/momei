@@ -57,7 +57,7 @@
                 </Column>
                 <Column field="healthStatus" :header="tt('pages.admin.friend_links.health_status')">
                     <template #body="{data}">
-                        <Tag :value="tt(`pages.admin.friend_links.health_statuses.${data.healthStatus || 'unknown'}`)" :severity="getHealthStatusSeverity(data.healthStatus)" />
+                        <Tag :value="tt(getFriendLinkHealthStatusLabelKey(data.healthStatus))" :severity="getHealthStatusSeverity(data.healthStatus)" />
                     </template>
                 </Column>
                 <Column :header="tt('pages.admin.friend_links.featured')">
@@ -180,7 +180,7 @@
                     </Column>
                     <Column field="status" :header="tt('pages.admin.friend_links.application_status')">
                         <template #body="{data}">
-                            <Tag :value="tt(`pages.admin.friend_links.application_statuses.${data.status}`)" :severity="getApplicationStatusSeverity(data.status)" />
+                            <Tag :value="tt(getFriendLinkApplicationStatusLabelKey(data.status))" :severity="getApplicationStatusSeverity(data.status)" />
                         </template>
                     </Column>
                     <Column :header="$t('common.actions')">
@@ -490,10 +490,33 @@
 
 <script setup lang="ts">
 import { UploadType } from '@/composables/use-upload'
+import { FriendLinkApplicationStatus, FriendLinkHealthStatus } from '@/types/friend-link'
 
 definePageMeta({
     middleware: 'admin',
 })
+
+const friendLinkHealthStatusLabelKeyMap: Record<FriendLinkHealthStatus, 'pages.admin.friend_links.health_statuses.checking' | 'pages.admin.friend_links.health_statuses.healthy' | 'pages.admin.friend_links.health_statuses.unknown' | 'pages.admin.friend_links.health_statuses.unreachable'> = {
+    [FriendLinkHealthStatus.CHECKING]: 'pages.admin.friend_links.health_statuses.checking',
+    [FriendLinkHealthStatus.HEALTHY]: 'pages.admin.friend_links.health_statuses.healthy',
+    [FriendLinkHealthStatus.UNKNOWN]: 'pages.admin.friend_links.health_statuses.unknown',
+    [FriendLinkHealthStatus.UNREACHABLE]: 'pages.admin.friend_links.health_statuses.unreachable',
+}
+
+const friendLinkApplicationStatusLabelKeyMap: Record<FriendLinkApplicationStatus, 'pages.admin.friend_links.application_statuses.approved' | 'pages.admin.friend_links.application_statuses.archived' | 'pages.admin.friend_links.application_statuses.pending' | 'pages.admin.friend_links.application_statuses.rejected'> = {
+    [FriendLinkApplicationStatus.APPROVED]: 'pages.admin.friend_links.application_statuses.approved',
+    [FriendLinkApplicationStatus.ARCHIVED]: 'pages.admin.friend_links.application_statuses.archived',
+    [FriendLinkApplicationStatus.PENDING]: 'pages.admin.friend_links.application_statuses.pending',
+    [FriendLinkApplicationStatus.REJECTED]: 'pages.admin.friend_links.application_statuses.rejected',
+}
+
+function getFriendLinkHealthStatusLabelKey(status: string | null | undefined) {
+    return friendLinkHealthStatusLabelKeyMap[(status as FriendLinkHealthStatus) || FriendLinkHealthStatus.UNKNOWN]
+}
+
+function getFriendLinkApplicationStatusLabelKey(status: string) {
+    return friendLinkApplicationStatusLabelKeyMap[status as FriendLinkApplicationStatus]
+}
 
 const {
     tt,

@@ -77,8 +77,6 @@
                     "title": "瀏覽器通知",
                     "description": "瀏覽器通知偏好預設開啟。即使尚未授權，也可先儲存接收策略，稍後再完成瀏覽器授權。"
                 },
-                "web_push": "瀏覽器通知",
-                "web_push_desc": "設定離線瀏覽器通知的接收方式。啟用後，留言回覆、系統訊息與安全提醒可在您離線時送達瀏覽器。",
                 "browser_status": "瀏覽器通知狀態",
                 "browser_status_site_disabled": "本站尚未完成 Web Push 設定，請稍後再試或聯絡管理員。",
                 "browser_status_unsupported": "目前瀏覽器或裝置不支援 Web Push。",
@@ -89,8 +87,7 @@
                 "browser_type_desc": {
                     "comment_reply": "有人回覆您的留言時發送瀏覽器提醒。",
                     "system": "非同步任務完成、站內重要變更等系統訊息透過瀏覽器提醒。",
-                    "security": "登入安全、異常操作等高優先級安全訊息透過瀏覽器提醒。",
-                    "marketing": "行銷訊息目前不進入瀏覽器推播通道。"
+                    "security": "登入安全、異常操作等高優先級安全訊息透過瀏覽器提醒。"
                 },
                 "marketing": "行銷與功能通知",
                 "marketing_desc": "接收來自墨梅團隊的功能更新、活動推薦等電子郵件建議。",

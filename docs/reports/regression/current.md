@@ -13,23 +13,29 @@
 
 ### 范围
 
-- 目标：完成第三十一阶段 `国际化运行时加载与文案复用治理 (P0)` 的当前切片，确认缺词 blocker 继续为 `0`，并把运行时回归入口正式扩到一条公开页装配链路和一组跨公开页 / 后台共享字段场景。
-- 本轮覆盖：`package.json` 中 `i18n:verify:runtime` 的定向测试矩阵、`pages/about.test.ts` 的公开页真实文案装配断言，以及既有 `pages/friend-links.test.ts`、`pages/admin/friend-links/index.test.ts` 共享字段场景纳入固定回归入口。
-- 非目标：不调整 `locale-runtime-loader` 实现，不发起全仓 locale 模块重构，不把 `unused` 审计提升为 blocker，也不继续扩大为更多公开页的铺量补测。
+- 目标：完成第三十一阶段 `国际化运行时加载与文案复用治理 (P0)` 的当前切片，确认缺词 blocker 继续为 `0`，把运行时回归入口正式扩到一条公开页装配链路与一组跨公开页 / 后台共享字段场景，并清理一批已确认的 `unused` 国际化字段。
+- 本轮覆盖：`package.json` 中 `i18n:verify:runtime` 的定向测试矩阵、`pages/about.test.ts` 的公开页真实文案装配断言、`pages/admin/friend-links/index.vue` 与 `components/settings/settings-notifications.vue` 的有限集合动态 key 显式化，以及 `i18n/locales/*/settings.json` 中确认废弃字段的删除。
+- 非目标：不调整 `locale-runtime-loader` 实现，不发起全仓 locale 模块重构，不把后续新增 `unused` 清理扩写为独立长线 blocker 工程，也不继续扩大为更多公开页的铺量补测。
 
 ### 实施结论
 
 - `i18n:verify:runtime` 现在除了 locale 模块解析、运行时加载器、后台壳层、登录页和商业化设置组件外，还固定覆盖 About 公开页与友链公开页 / 后台页共享字段链路。
 - About 页测试已从“页面结构存在”升级为“真实翻译装配命中”，会直接拦截 `pages.about.*` raw key 泄漏到公开页 UI。
 - 友链共享字段链路继续沿用 `components.friend_links.fields.*` 作为领域共享命名空间，固定验证公开页与后台页不会回退到页面私有 key。
+- 友链后台页与通知设置页中原本依赖模板字符串拼接的有限集合动态 key，现已改为显式静态 key 映射；`i18n:audit:unused` 不再把这些真实在用字段误判为未使用。
+- `settings` 模块内已删除一组确认废弃的浏览器通知字段：`browser_type_desc.marketing`、`web_push`、`web_push_desc`，五种 locale 保持同步收敛。
 - 共享 key 上收准入标准、`missing` 优先于 `unused` 的缺词定级口径，以及长期热点切片顺序，继续以 `docs/design/governance/i18n-field-governance.md` 与 `docs/plan/backlog.md` 为事实源。
 
 ### 已执行验证
 
+- `pnpm i18n:audit:unused -- --summary-limit=20`
+	- 结果：通过；`Unused candidate summary: total: 0`。
 - `pnpm i18n:audit:missing -- --summary-limit=12`
 	- 结果：通过；`Missing parity summary: total: 0`。
 - `pnpm i18n:verify:runtime`
 	- 结果：通过；`8` 个测试文件、`55` 条断言全部通过，覆盖公开页装配链路、共享字段链路与既有运行时加载边界。
+- `pnpm exec nuxt typecheck`
+	- 结果：通过；显式成功标记 `NUXT_TYPECHECK_OK`。
 
 ### Review Gate
 

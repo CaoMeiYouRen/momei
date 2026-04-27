@@ -77,8 +77,6 @@
                     "title": "浏览器通知",
                     "description": "浏览器通知偏好默认开启。即使尚未授权，也可以先保存接收策略，稍后完成浏览器授权。"
                 },
-                "web_push": "浏览器通知",
-                "web_push_desc": "配置离线浏览器通知的接收方式。开启后，评论回复、系统消息和安全提醒可以在您不在线时送达浏览器。",
                 "browser_status": "浏览器通知状态",
                 "browser_status_site_disabled": "站点尚未完成 Web Push 配置，请稍后再试或联系管理员。",
                 "browser_status_unsupported": "当前浏览器或设备不支持 Web Push。",
@@ -89,8 +87,7 @@
                 "browser_type_desc": {
                     "comment_reply": "有人回复您的评论时发送浏览器提醒。",
                     "system": "异步任务完成、站内重要变更等系统消息通过浏览器提醒。",
-                    "security": "登录安全、异常操作等高优先级安全消息通过浏览器提醒。",
-                    "marketing": "营销消息当前不进入浏览器推送渠道。"
+                    "security": "登录安全、异常操作等高优先级安全消息通过浏览器提醒。"
                 },
                 "marketing": "营销与功能通知",
                 "marketing_desc": "接收来自墨梅团队的功能更新、活动推荐等邮件建议。",

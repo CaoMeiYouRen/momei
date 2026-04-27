@@ -77,8 +77,6 @@
                     "title": "Browser Notifications",
                     "description": "Browser delivery preferences stay enabled by default. Even if permission has not been granted yet, you can save the policy first and authorize the browser later."
                 },
-                "web_push": "Browser Notifications",
-                "web_push_desc": "Configure how offline browser alerts are delivered. Once enabled, comment replies, system messages, and security reminders can reach your browser even when you are away.",
                 "browser_status": "Browser Notification Status",
                 "browser_status_site_disabled": "The site has not finished Web Push configuration yet. Please try again later or contact an administrator.",
                 "browser_status_unsupported": "Your current browser or device does not support Web Push.",
@@ -89,8 +87,7 @@
                 "browser_type_desc": {
                     "comment_reply": "Send a browser alert when someone replies to your comment.",
                     "system": "Deliver browser alerts for completed async tasks and other important system messages.",
-                    "security": "Deliver browser alerts for login security and other high-priority security events.",
-                    "marketing": "Marketing messages currently do not enter the Web Push channel."
+                    "security": "Deliver browser alerts for login security and other high-priority security events."
                 },
                 "marketing": "Marketing & Features",
                 "marketing_desc": "Receive functional updates, activity recommendations and other email suggestions from the Momei team.",

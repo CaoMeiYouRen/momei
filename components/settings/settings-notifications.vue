@@ -129,10 +129,10 @@
                             >
                                 <div class="subscription-settings__channel-item-copy">
                                     <span class="subscription-settings__channel-item-title">
-                                        {{ $t(`pages.settings.notifications.notification_types.${getNotificationTypeKey(type)}`) }}
+                                        {{ $t(getNotificationTypeLabelKey(type)) }}
                                     </span>
                                     <small class="subscription-settings__field-help">
-                                        {{ $t(`pages.settings.notifications.email_type_desc.${getNotificationTypeKey(type)}`) }}
+                                        {{ $t(getNotificationTypeEmailDescriptionKey(type)) }}
                                     </small>
                                 </div>
                                 <ToggleSwitch
@@ -187,10 +187,10 @@
                             >
                                 <div class="subscription-settings__channel-item-copy">
                                     <span class="subscription-settings__channel-item-title">
-                                        {{ $t(`pages.settings.notifications.notification_types.${getNotificationTypeKey(type)}`) }}
+                                        {{ $t(getNotificationTypeLabelKey(type)) }}
                                     </span>
                                     <small class="subscription-settings__field-help">
-                                        {{ $t(`pages.settings.notifications.browser_type_desc.${getNotificationTypeKey(type)}`) }}
+                                        {{ $t(getNotificationTypeBrowserDescriptionKey(type)) }}
                                     </small>
                                 </div>
                                 <ToggleSwitch
@@ -258,6 +258,24 @@ const notificationTypeKeyMap: Record<ManagedNotificationType, 'comment_reply' | 
     [NotificationType.SECURITY]: 'security',
 }
 
+const notificationTypeLabelKeyMap: Record<ManagedNotificationType, 'pages.settings.notifications.notification_types.comment_reply' | 'pages.settings.notifications.notification_types.system' | 'pages.settings.notifications.notification_types.security'> = {
+    [NotificationType.COMMENT_REPLY]: 'pages.settings.notifications.notification_types.comment_reply',
+    [NotificationType.SYSTEM]: 'pages.settings.notifications.notification_types.system',
+    [NotificationType.SECURITY]: 'pages.settings.notifications.notification_types.security',
+}
+
+const notificationTypeEmailDescriptionKeyMap: Record<ManagedNotificationType, 'pages.settings.notifications.email_type_desc.comment_reply' | 'pages.settings.notifications.email_type_desc.system' | 'pages.settings.notifications.email_type_desc.security'> = {
+    [NotificationType.COMMENT_REPLY]: 'pages.settings.notifications.email_type_desc.comment_reply',
+    [NotificationType.SYSTEM]: 'pages.settings.notifications.email_type_desc.system',
+    [NotificationType.SECURITY]: 'pages.settings.notifications.email_type_desc.security',
+}
+
+const notificationTypeBrowserDescriptionKeyMap: Record<ManagedNotificationType, 'pages.settings.notifications.browser_type_desc.comment_reply' | 'pages.settings.notifications.browser_type_desc.system' | 'pages.settings.notifications.browser_type_desc.security'> = {
+    [NotificationType.COMMENT_REPLY]: 'pages.settings.notifications.browser_type_desc.comment_reply',
+    [NotificationType.SYSTEM]: 'pages.settings.notifications.browser_type_desc.system',
+    [NotificationType.SECURITY]: 'pages.settings.notifications.browser_type_desc.security',
+}
+
 const channelNotificationSettings = reactive<Record<ConfigurableNotificationChannel, Record<ManagedNotificationType, boolean>>>({
     [NotificationChannel.EMAIL]: {
         [NotificationType.COMMENT_REPLY]: true,
@@ -321,6 +339,18 @@ function isNotificationTypeLocked(type: ManagedNotificationType) {
 
 function getNotificationTypeKey(type: ManagedNotificationType) {
     return notificationTypeKeyMap[type]
+}
+
+function getNotificationTypeLabelKey(type: ManagedNotificationType) {
+    return notificationTypeLabelKeyMap[type]
+}
+
+function getNotificationTypeEmailDescriptionKey(type: ManagedNotificationType) {
+    return notificationTypeEmailDescriptionKeyMap[type]
+}
+
+function getNotificationTypeBrowserDescriptionKey(type: ManagedNotificationType) {
+    return notificationTypeBrowserDescriptionKeyMap[type]
 }
 
 function normalizeNotificationSetting(type: ManagedNotificationType, isEnabled: boolean) {

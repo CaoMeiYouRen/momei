@@ -155,15 +155,16 @@
     - 仓库已经具备 Locale Registry、按路由动态加载 message module、后台 locale 拆分与 `lint:i18n` 质量门，但近期运行时问题说明“翻译资源已存在”并不等于“当前页面一定能加载并命中正确命名空间”。
     - 最新案例暴露出文章编辑页复用了设置页 key，导致 `/admin/posts` 路由未加载 `admin-settings` 模块时直接显示 raw key；这类问题的根因在于模块归属与组件复用边界不清，而不只是某个语言包缺词。
     - 2026-04-18 新增证据表明，`en-US/admin-posts.json` 曾长期存在大面积 parity 缺口，导致 `pages.admin.posts.media.audio_missing` 之类低级 raw key 直接漏到后台 UI。当前已补齐该模块英文词条，并把 `i18n:audit:missing` 接入 release / 周级回归入口，但仓库级历史缺词债仍需专项治理，不能把本轮修补视为问题已根除。
-    - 当前治理优先级明确区分两类审计结果：`missing` 缺失字段必须优先修复，`unused` 未使用字段先观察即可；未使用字段通常不会直接影响前端 UI，因此不作为当前阶段的阻断重点。
+    - 当前治理优先级明确区分两类审计结果：`missing` 缺失字段必须优先修复；`unused` 默认先观察，但若当前切片已经定位到一批有限集合动态 key 误报或确认废弃字段，则应优先在同一切片内完成显式化或删除，避免审计噪音长期堆积。
     - 当前仍有一批“不同页面文案完全一致”的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
     - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、unused 字段排查策略与共享命名空间继续收敛方向。
     - 第三十阶段切片已完成正式收口：`i18n:audit:missing` 当前 `total: 0`，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
-    - 第三十一阶段当前切片已继续把固定运行时回归入口扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；当前 `i18n:audit:missing` 仍保持 `total: 0`。
+    - 第三十一阶段当前切片已继续把固定运行时回归入口扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing` 与 `i18n:audit:unused` 均为 `total: 0`。
 - **最近一次上收阶段**:
     - 第三十一阶段（当前切片已收口，长期主线继续保留）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先扩到 `app-footer` 友链区域与 `archives` / `categories` / `tags` 等公开页装配链路、共享组件命名空间沉淀与固定运行时回归入口，而不是继续做散点修补。
+    - 对仍需动态拼接 key 的场景，应优先评估“是否为有限集合”；若答案为是，默认用显式静态 key 映射替代扩充 allowlist，只有真正开放集合才进入 `scripts/i18n/dynamic-key-allowlist.mjs`。
     - 下一轮专项治理应单列“locale parity 与缺词阻断策略”，至少覆盖：哪些入口必须把 `i18n:audit:missing` 视为 blocker、i18n 变更后的最小检查矩阵、Review Gate 对 raw key / 缺词问题的定级口径，以及历史缺词债的分批清偿顺序。
 
 11. **文档翻译 freshness 清偿与翻译治理**
