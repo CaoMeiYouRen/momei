@@ -77,11 +77,13 @@ async function main() {
     const errors = results.filter((item) => item.severity === 'error')
 
     for (const result of results) {
-        const prefix = result.severity === 'error'
-            ? '[docs-line-count] error'
-            : result.severity === 'warning'
-                ? '[docs-line-count] warning'
-                : '[docs-line-count] ok'
+        let prefix = '[docs-line-count] ok'
+
+        if (result.severity === 'error') {
+            prefix = '[docs-line-count] error'
+        } else if (result.severity === 'warning') {
+            prefix = '[docs-line-count] warning'
+        }
 
         console.info(`${prefix}: ${result.file} -> ${result.lines} lines (warn>${result.warningLimit}, error>${result.errorLimit})`)
     }
