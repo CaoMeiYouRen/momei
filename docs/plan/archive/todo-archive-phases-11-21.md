@@ -315,7 +315,7 @@
 
 ## 第十五阶段：AI 协作治理与国际化文档收敛 (已审计归档)
 
-> 审计结论: 第十五阶段围绕 AI 治理事实源、验证矩阵、周期性回归模板、文档国际化目录迁移与 `ja-JP` 准入的核心目标已在代码、规范、计划文档和翻译目录中完成闭环。阶段收口期间额外清理了 `.claude/skills/git-flow-manager` 残留空目录，并扩展 `scripts/ai/check-governance.mjs` 以检测镜像侧多余文件 / 目录；首次回归基线已独立沉淀到 [regression-log.md](./regression-log.md)，作为下一阶段专项回归的比较起点。本阶段不再保留专属未完成项。
+> 审计结论: 第十五阶段围绕 AI 治理事实源、验证矩阵、周期性回归模板、文档国际化目录迁移与 `ja-JP` 准入的核心目标已在代码、规范、计划文档和翻译目录中完成闭环。阶段收口期间额外清理了 `.claude/skills/git-flow-manager` 残留空目录，并扩展 `scripts/ai/check-governance.mjs` 以检测镜像侧多余文件 / 目录；首次回归基线已独立沉淀到 [首次回归基线记录（2026-03-20）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#首次回归基线记录2026-03-20)，作为下一阶段专项回归的比较起点。本阶段不再保留专属未完成项。
 
 ### 1. AI Agent / Skills 治理、Rules 边界与复用收敛 (P0)
 
@@ -358,7 +358,7 @@
     - 验收: 回归任务允许执行全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify`，但必须声明显式 timeout budget，不得使用无限等待。
     - 验收: 补齐最小执行约定，至少覆盖定向测试、全量测试、coverage 与 verify 4 类命令的预算或升级条件。
 - [x] **回归任务记录独立归档**
-    - 验收: 将首次回归基线迁移到 [regression-log.md](./regression-log.md)，并同步收敛 `todo.md`、规划规范与文档规范中的回归记录入口。
+    - 验收: 将首次回归基线迁移到 [首次回归基线记录（2026-03-20）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#首次回归基线记录2026-03-20)，并同步收敛 `todo.md`、规划规范与文档规范中的回归记录入口。
     - 验收: 后续周期性回归统一在独立文档中连续沉淀，`todo.md` 与 `roadmap.md` 仅保留阶段上下文、摘要与入口链接。
 
 ### 3. 文档国际化目录重构 (P1)
@@ -387,7 +387,7 @@
 
 ## 第十六阶段：规范事实源收敛与专项回归治理 (已审计归档)
 
-> 审计结论: 第十六阶段围绕规范事实源收敛、Review Gate 审查闭环、Skills / Agents 镜像治理，以及三类专项回归任务的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间补齐了 `server/services/migration-link-governance.ts`、`server/services/setting.ts` 与 AI 文本服务的结构收敛，完成根 README 多语入口与数据库初始化脚本关键约束纠偏，并以 [regression-log.md](./regression-log.md) 沉淀了代码质量、文档 / 配置 / 数据库、测试 / 性能 / 依赖安全三条专项回归证据链。本阶段不再保留专属未完成项。
+> 审计结论: 第十六阶段围绕规范事实源收敛、Review Gate 审查闭环、Skills / Agents 镜像治理，以及三类专项回归任务的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间补齐了 `server/services/migration-link-governance.ts`、`server/services/setting.ts` 与 AI 文本服务的结构收敛，完成根 README 多语入口与数据库初始化脚本关键约束纠偏，并以 [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 沉淀了代码质量、文档 / 配置 / 数据库、测试 / 性能 / 依赖安全三条专项回归证据链。本阶段不再保留专属未完成项。
 
 ### 1. 规范文档事实源收敛与过时内容纠偏 (P0)
 
@@ -438,7 +438,7 @@
 - [x] **README / 部署 / 翻译文档 / 配置说明同步回归**
     - 验收: 根目录多语 README、部署指南、翻译治理、环境变量与系统设置说明与当前能力保持一致，不再保留过时平台声明和旧路径引用。
     - 验收: 至少覆盖中文、英文、繁体中文、韩语、日语 5 类入口的路径、术语和能力边界复核。
-    - 验收: 将回归结果沉淀到 `docs/plan/regression-log.md`，明确问题分级、补跑计划与是否阻塞发版。
+    - 验收: 将回归结果沉淀到 `docs/reports/regression/current.md`，明确问题分级、补跑计划与是否阻塞发版。
 - [x] **`database/*/init.sql`、实体与设计文档同步回归**
     - 验收: 对齐 SQLite、MySQL、PostgreSQL 初始化脚本与当前实体定义、`docs/design/database.md`、相关模块设计文档的关键字段与索引。
     - 验收: 形成结构化漂移记录，明确“代码事实源 / 初始化派生物 / 设计文档”的职责边界与修复优先级。
@@ -453,13 +453,13 @@
 - [x] **覆盖率、浏览器验证、性能预算与依赖安全回归**
     - 验收: 基于周期性回归模板安排 coverage、V3 浏览器级验证与按需 V4 性能验证，并声明显式 timeout budget。
     - 验收: 发版前或阶段收口前重新执行依赖安全审计，复核 `html-minifier` high 风险是否仍无补丁，并给出继续延期或计划替换的明确判断。
-    - 验收: 在 `docs/plan/regression-log.md` 中输出已执行验证、结果摘要、Review Gate 结论、未覆盖边界与后续补跑计划，不得只写“已回归”。
+    - 验收: 在 `docs/reports/regression/current.md` 中输出已执行验证、结果摘要、Review Gate 结论、未覆盖边界与后续补跑计划，不得只写“已回归”。
 
 ---
 
 ## 第十七阶段：配置事实源复用与创作 / 分发效率收敛 (已审计归档)
 
-> 审计结论: 第十七阶段围绕配置事实源复用、认证会话治理、后台邮件模板配置、Serverless 长文本翻译续跑，以及 AI 视觉资产 / 存量资源迁移扩展的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间新增的 release 依赖风险门禁与后台新建文章空草稿跨语言切换回归也已完成修复与验证，并分别沉淀到 [regression-log.md](./regression-log.md#release-依赖包风险门禁回归2026-03-22) 与 [regression-log.md](./regression-log.md#文章新建页多语言切换回归2026-03-22)。本阶段不再保留专属未完成项。
+> 审计结论: 第十七阶段围绕配置事实源复用、认证会话治理、后台邮件模板配置、Serverless 长文本翻译续跑，以及 AI 视觉资产 / 存量资源迁移扩展的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间新增的 release 依赖风险门禁与后台新建文章空草稿跨语言切换回归也已完成修复与验证，并分别沉淀到 [release 依赖包风险门禁回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#release-依赖包风险门禁回归2026-03-22) 与 [文章新建页多语言切换回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#文章新建页多语言切换回归2026-03-22)。本阶段不再保留专属未完成项。
 
 ### 1. 主线：安装向导与后台设置多语言字段收敛 (P0)
 
@@ -475,7 +475,7 @@
     - 验收: 为 `authClient`、`useAsyncData`、全局状态与请求层建立短时缓存、请求合并与失效时机策略，显著减少重复会话请求但不破坏权限判断与用户体验。
     - 验收: 至少补齐登录态初始化、登出同步、会话过期、多标签页切换与页面刷新 5 类回归验证。
     - 实施记录: 已完成统一会话读取层、请求层短时缓存 / 合并 / 失效广播、路由守卫链路收敛，以及登录 / 注册 / 登出 / 资料更新 / 头像上传的会话刷新闭环。
-    - 验证记录: 见 [认证会话获取频率治理回归（2026-03-21）](./regression-log-archive.md#认证会话获取频率治理回归2026-03-21)。
+    - 验证记录: 见 [认证会话获取频率治理回归（2026-03-21）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#认证会话获取频率治理回归2026-03-21)。
 
 ### 3. 主线：后台邮件模板配置能力 (P1)
 
@@ -498,7 +498,7 @@
     - 验收: 将 AI 图片生成能力从封面扩展到文章配图、专题头图、活动图等场景，并明确“自动回填”与“仅生成候选图待人工确认”的边界。
     - 验收: 补齐参数约束、编辑流程与回归记录，避免视觉资产链路继续分散演进。
     - 实施记录: 已新增统一的 `assetUsage` / `applyMode` / `promptDimensions` 契约、五维提示词共享解析器、`metadata.visualAssets` 事实源，以及文章编辑器内“封面 + 配图”双入口。
-    - 验证记录: 见 [AI 视觉资产收敛回归（2026-03-22）](./regression-log.md#ai-视觉资产收敛回归2026-03-22)。
+    - 验证记录: 见 [AI 视觉资产收敛回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#ai-视觉资产收敛回归2026-03-22)。
 
 ### 6. 扩展：存量资源链接重写与迁移工具 (P1)
 
@@ -518,14 +518,14 @@
     - 验收: 支持维护“已知、影响范围明确、当前批准暂时放行”的依赖风险白名单或等价基线；命中白名单时 release 可继续，但必须输出清晰日志，标明包名、风险级别、原因、来源与暂时放行依据。
     - 验收: 不把该需求扩写为整仓库依赖大升级；至少补齐脚本级定向测试或等价验证，并同步 release 工作流 / 文档中的执行入口。
     - 实施记录: 已新增 `scripts/security/check-dependency-risk.mjs`、`.github/security/dependency-risk-allowlist.json` 与 `pnpm security:audit-deps`，白名单需绑定已批准依赖路径，并将该门禁接入 `package.json` release 入口与 `.github/workflows/release.yml`。
-    - 验证记录: 见 [release 依赖包风险门禁回归（2026-03-22）](./regression-log.md#release-依赖包风险门禁回归2026-03-22)。
+    - 验证记录: 见 [release 依赖包风险门禁回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#release-依赖包风险门禁回归2026-03-22)。
 
 - [x] **修复新建文章空草稿无法从默认语言切换到其他语言的问题**
     - 验收: 在后台新建文章页中，若当前文章尚未保存且内容仍为空，允许从默认语言切换到其他语言创建新草稿，不再错误提示“需要先保存”。
     - 验收: 若当前新建文章已录入标题、正文、摘要、slug、标签、分类、封面或其他会造成上下文丢失的内容，仍保持现有保护策略，避免用户误切换导致内容丢失。
     - 验收: 至少补齐文章编辑器语言切换的定向回归，覆盖“空白新建草稿可切换”和“已录入内容的新建草稿仍需确认或先保存”两类场景。
     - 实施记录: 已在 `use-post-editor-translation` 中将新建草稿的切换保护收敛为“仅当存在实质内容时阻止切换”；空白新建草稿允许直接跳转到目标语言新建页，并保留 `sourceId` / `translationId` 翻译上下文。
-    - 验证记录: 见 [文章新建页多语言切换回归（2026-03-22）](./regression-log.md#文章新建页多语言切换回归2026-03-22)。
+    - 验证记录: 见 [文章新建页多语言切换回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#文章新建页多语言切换回归2026-03-22)。
 
 ---
 
@@ -608,11 +608,11 @@
 ### 2. 主线：回归日志滚动归档后的检索与对比体验治理 (P0)
 
 - [x] **建立回归日志索引入口与最近基线对比路径**
-    - 验收: 为 `regression-log.md` 与归档日志建立按阶段、主题或时间的统一索引入口，避免近线与历史记录滚动归档后难以检索。
+    - 验收: 为 `docs/reports/regression/current.md` 与归档日志建立按阶段、主题或时间的统一索引入口，避免近线与历史记录滚动归档后难以检索。
     - 验收: 明确活动日志与归档日志在“当前基线 / 历史基线 / 发版对比”中的职责分工，并提供最小可用的对比路径。
     - 验收: 视复杂度补齐轻量脚本或索引文档，并完成至少一次“主日志 vs 归档日志”的等价对比演示或等价验证。
-    - 结果: 已新增 `docs/plan/regression-log-index.md` 作为统一入口，并在活动日志、归档日志与文档站侧栏补齐导航。
-    - 验证: 已将 2026-03-20 至 2026-03-21 的 5 条历史记录滚动迁移到 `docs/plan/regression-log-archive.md`，并在索引页记录一次“主日志 vs 归档日志”的等价对比演示。
+    - 结果: 已新增 `docs/reports/regression/index.md` 作为统一入口，并在活动窗口、历史归档与迁移快照层补齐导航。
+    - 验证: 已将 2026-03-20 至 2026-03-21 的 5 条历史记录滚动迁移到 `docs/reports/regression/archive/legacy-plan-regression-log-archive.md`，并在 [回归记录管理与深度归档](../../reports/regression/index.md) 中记录一次“主日志 vs 归档日志”的等价对比演示。
 
 ### 3. 主线：重复代码治理与纯函数复用基线建设 (P1)
 
@@ -630,7 +630,7 @@
     - 验收: 聚焦 TypeORM 连接与日志、设置读取高频查库、定时任务扫描与高频写入路径，输出热点路径与是否构成当前阶段阻塞的判定。
     - 验收: 仅对已形成证据链的热点做最小优化或缓解，不将本阶段扩写为整仓数据库重构工程；并补齐受影响路径的最小验证或回归记录。
     - 结果: 已将公开设置链路的整表读取与 localized 双批读取收敛到按 key 批量取数，移除页面装配期重复 `fetchSiteConfig()`，并将定时任务扫描缩减为最小字段集。
-    - 验证: `docs/plan/regression-log.md` 已记录定向测试、浏览器 Network 检查与本地 PostgreSQL 采样证据，确认 `/api/settings/public` 与定时任务扫描的查询面均已收敛。
+    - 验证: [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 已记录定向测试、浏览器 Network 检查与本地 PostgreSQL 采样证据，确认 `/api/settings/public` 与定时任务扫描的查询面均已收敛。
 
 ## 第二十阶段：质量门禁、发布自动化与安全治理闭环建设 (已审计归档)
 
@@ -644,12 +644,12 @@
     - 验收: 明确并修复当前 Playwright 运行中测试服务中途失联、`Connection refused`、关键接口高并发触发 429 或等价问题的主要根因。
     - 验收: 至少为认证会话、后台受保护页访问、文章编辑器核心路径建立可复用的稳定验证口径，而不是依赖一次性人工补跑。
     - 结果: 已将过期 `.output` 构建复用、认证测试模式、受保护路由跳转接管与关键矩阵命令收敛到 `scripts/testing/run-e2e.mjs`、`scripts/testing/run-e2e-critical.mjs` 与对应 Playwright 用例中。
-    - 验证: `docs/plan/regression-log.md` 已记录 `pnpm test:e2e:critical` 20 passed 与全量 `pnpm test:e2e` 185 passed / 66 skipped 的收口结果，确认最小关键路径与全量套件均已回到稳定态。
+    - 验证: [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 已记录 `pnpm test:e2e:critical` 20 passed 与全量 `pnpm test:e2e` 185 passed / 66 skipped 的收口结果，确认最小关键路径与全量套件均已回到稳定态。
 - [x] **最小关键路径浏览器基线固化**
     - 验收: 收敛 Chromium / Firefox / WebKit 与最小移动端 smoke 的执行范围、触发条件与失败归因规则。
     - 验收: 将“哪些改动必须补浏览器证据”写入回归记录或脚本入口说明，避免后续继续凭经验补跑。
     - 结果: 已把认证会话三浏览器矩阵与移动端关键 smoke 固化为正式入口，并把升级到全量 Playwright 的条件写入回归记录。
-    - 验证: `docs/plan/regression-log.md` 已沉淀两轮浏览器主线回归与收口补充，可直接作为后续阶段比较基线。
+    - 验证: [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 已沉淀两轮浏览器主线回归与收口补充，可直接作为后续阶段比较基线。
 
 ### 2. 主线：Release 与 Review Gate 自动化整合 (P0)
 
@@ -659,9 +659,9 @@
     - 实现: `scripts/release/pre-release-check.mjs` + `pnpm release:check` / `pnpm release:check:full`
 - [x] **Review Gate 证据自动化补强**
     - 验收: 为常见治理型改动补齐可复用的证据模板、结果落点或脚本辅助，至少覆盖质量门状态、已执行验证、问题分级与未覆盖边界。
-    - 验收: 相关收口流程需与 `regression-log.md`、`planning.md`、`documentation.md` 的现有规范保持一致，不新增第二套口径。
+    - 验收: 相关收口流程需与 `docs/reports/regression/current.md`、`planning.md`、`documentation.md` 的现有规范保持一致，不新增第二套口径。
     - 实现: `scripts/review-gate/generate-evidence.mjs` + `pnpm review-gate:generate` / `pnpm review-gate:generate:check`
-    - 验证: 阶段收口补跑结果已补充到 `docs/plan/regression-log.md` 的 2026-04-01 记录，可直接复用于后续阶段归档与发布前校验。
+    - 验证: 阶段收口补跑结果已补充到 [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 的 2026-04-01 记录，可直接复用于后续阶段归档与发布前校验。
 
 ### 3. 主线：Dependabot / Code Scanning 安全告警闭环 (P0)
 
@@ -673,7 +673,7 @@
     - 验收: 至少完成一轮真实告警的修复、验证、延期记录或 allowlist / 例外基线收敛，避免只做读取不做处置判断。
     - 验收: 将结果同步沉淀到回归记录与 Review Gate 结论中，确保后续发版前可直接复用。
     - 实现: `scripts/security/load-local-env.mjs` + `pnpm.overrides[@xmldom/xmldom]` + `pnpm security:audit-deps` / `pnpm security:alerts`
-    - 验证: 已通过本地 `.env` 自动装载完成安全门禁补跑，修复 `@xmldom/xmldom` high 告警并生成 `artifacts/review-gate/2026-04-01-security-alerts.json` / `.md`；详见 `docs/plan/regression-log.md` 2026-04-01 真实告警修复闭环记录。
+    - 验证: 已通过本地 `.env` 自动装载完成安全门禁补跑，修复 `@xmldom/xmldom` high 告警并生成 `artifacts/review-gate/2026-04-01-security-alerts.json` / `.md`；详见 [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 的 2026-04-01 真实告警修复闭环记录。
 
 ### 4. 主线：重复代码检测自动化补强 (P1)
 
@@ -684,7 +684,7 @@
 - [x] **检测结果与 shared 复用治理联动**
     - 验收: 首轮至少输出一份可追溯的重复片段检测报告，并结合 shared helper / 纯函数治理基线给出“立即处理 / 延后处理 / 保持局部实现”分类。
     - 验收: 将重复代码检测结果纳入回归记录、Review Gate 或质量门说明，形成持续可复用的治理入口。
-    - 验证: 已生成 `artifacts/review-gate/2026-04-01-duplicate-code.json` / `.md`，并将首轮分类、baseline 与 strict 回归结果同步到 `docs/plan/regression-log.md` 的 2026-04-01 记录。
+    - 验证: 已生成 `artifacts/review-gate/2026-04-01-duplicate-code.json` / `.md`，并将首轮分类、baseline 与 strict 回归结果同步到 [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 的 2026-04-01 记录。
 
 ## 第二十一阶段：验证入口与创作工作流体验收敛 (已审计归档)
 
@@ -698,7 +698,7 @@
     - 验收: 明确“可复跑脚本作为回归基线、技能只用于探索性验证”的执行边界，并同步到 `scripts/README.md`、`docs/standards/testing.md` 或等价入口文档。
     - 验收: 至少为一条高频 UI 回归场景补齐稳定脚本入口、证据落点与失败归因模板。
     - 结果: 已把 `pnpm test:e2e:review-gate --scope=<change>` 固化为可复跑入口，并将脚本优先、技能补充的分层边界同步到测试规范、开发指南与脚本说明。
-    - 验证: `docs/plan/regression-log.md` 已记录 2026-04-01 的 UI 真实环境 Review Gate 证据规范补强回归，覆盖 `manifest.json`、`evidence.md` 与失败归因分类的结构化产物。
+    - 验证: [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 已记录 2026-04-01 的 UI 真实环境 Review Gate 证据规范补强回归，覆盖 `manifest.json`、`evidence.md` 与失败归因分类的结构化产物。
 - [x] **收敛浏览器环境准备与证据产物规范**
     - 验收: 统一登录态复用、测试数据前置 / 清理、截图 / 日志产物落点与失败命名规范，减少人工验证抖动。
     - 验收: 对应流程需能直接服务 Review Gate，而不是继续依赖口头说明。
@@ -721,12 +721,12 @@
 - [x] **建立覆盖率阶段基线与逐阶段提升机制**
     - 验收: 产出当前核心模块测试覆盖率基线、优先补齐路径与后续阶段每阶段约提升 5% 的治理节奏，目标最终稳定达到 80% 以上。
     - 验收: 明确本阶段允许使用的定向测试、coverage 命令、timeout budget、证据落点与未覆盖边界记录口径，避免覆盖率治理变成无上限全仓补测。
-    - 结果: 已在 `docs/standards/testing.md` 与 `docs/plan/regression-log.md` 中形成“60% 守线 + 按目录或模块组逐阶段提升”的治理节奏、命令预算与记录口径。
+    - 结果: 已在 `docs/standards/testing.md` 与 [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 中形成“60% 守线 + 按目录或模块组逐阶段提升”的治理节奏、命令预算与记录口径。
 - [x] **完成本阶段首轮覆盖率补强**
     - 验收: 至少对一组核心路径或低覆盖模块完成测试补强，并使阶段覆盖率相对上一轮基线提升约 5%，或在达到 80% 后转为守线与缺口治理。
     - 验收: 回归记录需沉淀覆盖率结果、失败归因、未覆盖边界与下一阶段继续补齐建议。
     - 结果: 已对 `utils/shared` 与 `utils/web` 的低覆盖模块完成首轮补测，全仓覆盖率从 Statements 60.06% 提升到 60.95%，`utils/web` 目录提升到 Statements 89.41%。
-    - 验证: 详见 `docs/plan/regression-log.md` 2026-04-02 测试覆盖率阶段性抬升治理首轮基线记录。
+    - 验证: 详见 [旧归档日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log-archive.md) 的 2026-04-02 测试覆盖率阶段性抬升治理首轮基线记录。
 
 ### 4. 主线：RSS 资源挂载与外部动态聚合展示 (P1)
 

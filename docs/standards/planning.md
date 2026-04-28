@@ -96,7 +96,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   `docs/plan/todo.md` 是实时操作手册，仅包含**当前阶段的具体实施任务**。
 -   `docs/reports/regression/current.md` 用于集中维护周期性回归、阶段基线与补跑记录；`todo.md` 仅保留当前阶段上下文、摘要与链接，不再堆叠长篇回归正文。
  -   `docs/reports/regression/current.md` 作为活动回归窗口，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/` 或其后续分拆文件。
--   `docs/plan/regression-log*.md` 仅保留兼容入口与历史快照职责，不再继续追加新的正式回归正文；新增记录统一写入 `docs/reports/regression/current.md`。
+-   旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一写入 `docs/reports/regression/current.md`。
 -   任务状态必须清晰标记：`[ ]` (待办), `[x]` (已完成), `[-]` (已取消)。
 -   任务描述应包含具体的 "验收标准 (Acceptance Criteria)"，且至少覆盖执行范围、非目标、可验证结果、验证方式 / 证据落点，以及必要时的回滚边界。
 -   **查重原则**: 在规划或添加任何新功能前，**必须**同步查阅 `docs/plan/todo.md`、`docs/plan/roadmap.md` 以及 `docs/plan/todo-archive.md`。严禁重复设计或规划已被归档、已在当前待办中或已在路线图中的任务。

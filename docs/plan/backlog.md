@@ -124,12 +124,12 @@
 - **状态**:
     - 观察中。
 - **当前状态**:
-    - `docs/reports/regression/index.md` 已进一步明确活动窗口、历史归档与兼容入口的三层边界；`docs/plan/regression-log*.md` 也已降级为冻结兼容入口，不再承担新的正式写入职责。
-    - 第二十九阶段已完成本轮入口收敛，但旧 plan 目录中的完整历史正文仍保留为兼容快照；后续仍可继续按模块分片与日期分片迁移正文。
+    - `docs/reports/regression/index.md` 已进一步明确活动窗口、历史归档与迁移快照的三层边界；旧 `docs/plan/regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
+    - 第二十九阶段已完成本轮入口收敛；后续仍可继续围绕 `docs/reports/regression/archive/` 下的 legacy 快照做更细的模块 / 日期分片迁移，而不再保留 plan 侧旧入口。
 - **最近一次上收阶段**:
     - 第二十九阶段（已审计归档）。
 - **下一次可切片方向**:
-    - 先完成新目录结构与活动窗口 / 归档入口迁移，再决定是否把旧的 plan 入口收敛为纯兼容链接。
+    - 先继续细化 `docs/reports/regression/archive/` 下的模块 / 日期分片，再决定是否把 legacy 快照进一步按年份或主题拆分。
 
 9. **路线图 / Todo 深度归档治理**
 - **目标**:

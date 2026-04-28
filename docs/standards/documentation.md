@@ -12,7 +12,7 @@
     -  `docs/design/modules/`: 各核心模块（如认证、文章管理、评论系统）的总设计文档，只保留稳定高层入口。
     -  `docs/design/governance/`: 专项治理、专项设计、迁移方案、执行矩阵与阶段复盘文档。
 -   `docs/guide/`: 用户手册、快速开始、部署指南、开发入门及 AI 协同指南。
--   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`) 及规划侧摘要与兼容入口。
+-   `docs/plan/`: 项目路线图 (`roadmap.md`)、长期积压 (`backlog.md`)、待办事项 (`todo.md`) 及规划侧摘要与迁移说明。
 -   `docs/reports/regression/`: 回归记录管理、活动回归窗口与按模块 / 日期归档。
 -   `docs/standards/`: 各类专项开发规范、安全规范、测试规范及本文档。
 -   `docs/i18n/<locale>/`: 翻译文档的物理存储目录，例如 `docs/i18n/en-US/`、`docs/i18n/zh-TW/`、`docs/i18n/ko-KR/`。
@@ -173,7 +173,7 @@
 1.  **管理文档单开一条**: `docs/reports/regression/index.md` 作为回归记录管理规划与索引入口，负责说明当前窗口、归档分层与迁移状态。
 2.  **活动窗口独立存放**: 最新回归正文优先写入 `docs/reports/regression/current.md`，只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录。
 3.  **按模块或日期归档**: 历史记录优先拆入 `docs/reports/regression/archive/` 下的模块或日期分片；若归档继续膨胀，再按年份或半年继续拆分。
-4.  **计划文档只留入口**: `docs/plan/` 中与回归记录有关的文件仅保留摘要、迁移说明与兼容入口，不再承载长篇正文。
+4.  **计划文档只留入口**: `docs/plan/` 中与回归记录有关的文件仅保留摘要与迁移说明，不再承载长篇正文。
 5.  **读写压力触发归档**: 当活动窗口超过 300 - 400 行、或超过 6 - 8 条完整记录且影响当前阶段阅读效率时，必须先滚动归档再继续追加新记录。
 6.  **管理文档引用**: 文档规范、规划规范、测试规范与阶段审计文档应统一引用 `docs/reports/regression/index.md`，避免再把新记录入口散落到多个位置。
 
@@ -212,7 +212,7 @@
 1. `docs/reports/regression/current.md` 不采用“阶段完成即整份搬空”的归档方式，而采用滚动归档，确保最近基线比较和发版判断仍可直接在主日志中完成。
 2. 同一条回归记录迁移到归档文件时必须整体迁移，不得将执行命令、Review Gate 结论与后续补跑计划拆散到多个位置。
 3. 若 `docs/reports/regression/archive/` 继续膨胀，应再按年份或半年分拆，而不是重新把历史记录塞回活动窗口。
-4. `docs/plan/regression-log*.md` 只保留兼容回看职责，不再继续追加新的正式回归正文；新增记录统一落在 `docs/reports/regression/current.md`。
+4. 旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一落在 `docs/reports/regression/current.md`。
 5. 若阶段状态从“规划中 / 进行中”变为“已归档 / 已审计归档”，必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要状态与 `last_sync`，但 `todo.md` 与 `backlog.md` 仍保持中文事实源，不为归档动作单独扩展翻译件。
 6. 阶段归档块必须能独立说明“为什么可以归档”，至少包含审计结论、主线完成情况、关键验证或回归入口，以及残余风险或后续观察项；不得只写一句“已完成”。
 

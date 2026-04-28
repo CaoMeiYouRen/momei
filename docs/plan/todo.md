@@ -32,8 +32,8 @@
 	- 验收: 已对 `roadmap.md` 与 `todo-archive.md` 完成首轮深度归档，补齐区间分片、兼容入口与回链说明，并重新量化主文档行数。
 	- 验收: 主文档已回到健康窗口；若后续再次膨胀，已明确记录下一步拆分计划。
 	- 非目标: 不改写既有阶段完成事实，不扩写成多语翻译同步工程。
-	- 结果: 已新增 `docs/plan/archive/roadmap-phases-01-10.md`、`docs/plan/archive/roadmap-phases-11-21.md`、`docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md` 与 `docs/plan/archive/todo-archive-phases-22-24.md` 五个区间分片；`roadmap.md` 已收敛到 `528` 行，`todo-archive.md` 已收敛到 `265` 行；`docs/plan/regression-log*.md` 旧正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`，原路径现仅保留兼容入口。
-	- 验证: `pnpm exec lint-md docs/plan/roadmap.md docs/plan/todo-archive.md docs/plan/archive/index.md docs/plan/archive/roadmap-phases-01-10.md docs/plan/archive/roadmap-phases-11-21.md docs/plan/archive/todo-archive-phases-01-10.md docs/plan/archive/todo-archive-phases-11-21.md docs/plan/archive/todo-archive-phases-22-24.md docs/plan/regression-log.md docs/plan/regression-log-archive.md docs/plan/regression-log-index.md docs/reports/regression/index.md docs/reports/regression/archive/index.md`。
+	- 结果: 已新增 `docs/plan/archive/roadmap-phases-01-10.md`、`docs/plan/archive/roadmap-phases-11-21.md`、`docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md` 与 `docs/plan/archive/todo-archive-phases-22-24.md` 五个区间分片；`roadmap.md` 已收敛到 `528` 行，`todo-archive.md` 已收敛到 `265` 行；`docs/plan/regression-log*.md` 旧正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`，原路径现已删除。
+	- 验证: `pnpm exec lint-md docs/plan/roadmap.md docs/plan/todo-archive.md docs/plan/archive/index.md docs/plan/archive/roadmap-phases-01-10.md docs/plan/archive/roadmap-phases-11-21.md docs/plan/archive/todo-archive-phases-01-10.md docs/plan/archive/todo-archive-phases-11-21.md docs/plan/archive/todo-archive-phases-22-24.md docs/reports/regression/index.md docs/reports/regression/archive/index.md`。
 
 - [x] **国际化运行时加载与文案复用治理 (P0)**
 	- 验收: `i18n:audit:missing` 继续保持 `0` blocker，且 `i18n:verify:runtime` 已覆盖至少一条公开页装配链路与一组共享组件文案场景。

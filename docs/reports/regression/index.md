@@ -1,6 +1,6 @@
 # 回归记录管理与深度归档
 
-本文档是回归记录的管理规划与统一索引入口，负责说明活动窗口、历史归档、兼容入口与后续深度拆分边界。
+本文档是回归记录的管理规划与统一索引入口，负责说明活动窗口、历史归档、迁移快照与后续深度拆分边界。
 
 ## 1. 目录职责
 
@@ -22,23 +22,22 @@
 - 历史记录优先按模块或日期分片；若单个归档入口继续膨胀，再按年份或半年继续拆分。
 - 同一条记录必须整体迁移，不得把命令、结论与后续计划拆散到多个位置。
 
-### 2.3 兼容入口
+### 2.3 迁移快照
 
-- `docs/plan/regression-log.md`、`docs/plan/regression-log-index.md` 与 `docs/plan/regression-log-archive.md` 仅保留为兼容快照入口。
-- 原 `docs/plan/regression-log.md` 与 `docs/plan/regression-log-archive.md` 的历史正文快照已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
-- 兼容入口不得继续追加新的正式回归正文，也不应再承载新的窗口统计或管理规则。
-- 兼容入口只负责旧链接回看与迁移提示；新的管理规则统一以本目录为准。
+- 原 `docs/plan/` 目录中的活动日志与归档日志正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
+- 新增回归记录只允许写入 [current.md](./current.md) 或后续正式归档分片，不再通过 `docs/plan/` 中转。
+- 若需要回看旧 `docs/plan/` 时期的历史正文，直接使用本目录下的迁移快照。
+- 原 `docs/plan/regression-log*.md` 入口已移除，避免旧兼容页继续反向污染事实源。
 
 ## 3. 窗口与拆分阈值
 
 1. `current.md` 超过 `300 - 400` 行、或超过 `6 - 8` 条完整记录时，必须先滚动归档再继续写入。
 2. `archive/index.md` 若开始难以承担“按模块 / 日期快速定位”的索引职责，应继续向年份或半年度分片，而不是把历史正文重新塞回活动窗口。
-3. 兼容入口不参与新的窗口统计；窗口健康度只以 `docs/reports/regression/current.md` 为准。
+3. 迁移快照不参与新的窗口统计；窗口健康度只以 `docs/reports/regression/current.md` 为准。
 
 ## 4. 相关入口
 
 - 活动窗口: [current.md](./current.md)
 - 历史归档: [archive/index.md](./archive/index.md)
-- 兼容入口: [docs/plan/regression-log.md](../../plan/regression-log.md)
-- 旧活动日志迁移快照: [archive/legacy-plan-regression-log.md](./archive/legacy-plan-regression-log.md)
-- 旧归档日志迁移快照: [archive/legacy-plan-regression-log-archive.md](./archive/legacy-plan-regression-log-archive.md)
+- 旧 plan 活动日志迁移快照: [archive/legacy-plan-regression-log.md](./archive/legacy-plan-regression-log.md)
+- 旧 plan 归档日志迁移快照: [archive/legacy-plan-regression-log-archive.md](./archive/legacy-plan-regression-log-archive.md)

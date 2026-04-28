@@ -26,7 +26,7 @@
 - [x] **补齐测试有效性的证据口径**
     - 验收: 在回归记录中明确记录本轮新增失败用例、修复后转绿结果、未覆盖边界与下一轮优先补齐范围。
     - 验收: 不得只把该主线落成“新增若干测试文件”，必须体现对真实缺陷约束力的提升。
-    - 结果: 已在 `docs/plan/regression-log.md` 记录失败路径补强、`503` 异常映射与“签名 + 逐项过期”解锁凭据收敛结果。
+    - 结果: 已在 [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 记录失败路径补强、`503` 异常映射与“签名 + 逐项过期”解锁凭据收敛结果。
 
 ### 2. 主线：周期性回归任务实盘化 (P0)
 
@@ -35,9 +35,9 @@
     - 验收: 至少覆盖测试 / coverage、依赖安全、文档同步、脚本入口、性能基线或等价高漂移项中的一组固定组合。
     - 结果: 已新增 `scripts/regression/run-periodic-regression.mjs`，并固定 `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close` 三条入口。
 - [x] **统一回归产物与调度记录方式**
-    - 验收: 回归结果继续统一沉淀到 `docs/plan/regression-log.md`，并明确何时滚动归档、何时升级为阻塞项。
+    - 验收: 回归结果继续统一沉淀到 `docs/reports/regression/current.md`，并明确何时滚动归档、何时升级为阻塞项。
     - 验收: 不再新增第二套周期性回归记录口径或临时散落文档。
-    - 结果: 已统一回归证据到 `artifacts/review-gate/`，并在本次归档中完成 `regression-log.md` 的滚动归档与索引同步。
+    - 结果: 已统一回归证据到 `artifacts/review-gate/`，并在本次归档中完成 [回归活动窗口](../../reports/regression/current.md) 的滚动归档与索引同步。
 
 ### 3. 主线：文章批量翻译到其他语言的编排能力评估 (P1)
 
@@ -86,7 +86,7 @@
 
 ## 第二十三阶段：社交平台与 AI 生成内容优化、安全巡检 (已审计归档)
 
-> 审计结论: 第二十三阶段围绕多语言社交与赞助平台扩展、AI 媒体生成在 Vercel 场景下的超时巡检与状态补偿、依赖包风险每日巡检自动化、实时语音识别鉴权有效期优化，以及文章详情相关文章推荐与内容发现增强五条主线，已在实现代码、定向测试、运行调度入口与规划文档中完成闭环，满足归档条件。关键验证与 Review Gate 详见 [regression-log.md](./regression-log.md) 中 2026-04-07 的阶段收口记录。下一阶段目前仅保留候选分析，不在本次归档中直接上收为正式 Phase 24。
+> 审计结论: 第二十三阶段围绕多语言社交与赞助平台扩展、AI 媒体生成在 Vercel 场景下的超时巡检与状态补偿、依赖包风险每日巡检自动化、实时语音识别鉴权有效期优化，以及文章详情相关文章推荐与内容发现增强五条主线，已在实现代码、定向测试、运行调度入口与规划文档中完成闭环，满足归档条件。关键验证与 Review Gate 详见 [第二十三阶段归档与文档同步收口（2026-04-07）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#第二十三阶段归档与文档同步收口2026-04-07)。下一阶段目前仅保留候选分析，不在本次归档中直接上收为正式 Phase 24。
 
 > **ROI 评估**: 多语言社交与赞助平台扩展 1.60；AI 媒体生成在 Vercel 场景下的超时巡检与状态补偿 1.75；依赖包风险每日巡检自动化 1.60；实时语音识别鉴权有效期优化 1.50；文章详情相关文章推荐与内容发现增强 1.50。五项均已按本阶段准入边界完成收口。
 
@@ -176,6 +176,6 @@
 
 - [x] **完成真实阶段级回归并形成统一收口证据链**
     - 验收: 完成一次带明确 timeout budget 的阶段级回归任务，而不是只停留在规范层面的固定入口定义。
-    - 验收: 至少覆盖 coverage、lint / typecheck、重复代码、文档一致性与 Review Gate 结论，并统一沉淀到 `regression-log.md`。
+    - 验收: 至少覆盖 coverage、lint / typecheck、重复代码、文档一致性与 Review Gate 结论，并统一沉淀到 `docs/reports/regression/current.md`。
     - 验收: 若发现 blocker，明确回灌当前阶段待办；若未发现 blocker，也要记录未覆盖边界与下一次补跑条件。
     - 结果: 已完成真实 `phase-close` 执行、活动日志滚动归档、严格性能预算口径修复与收口复跑；[2026-04-08-phase-close-regression.md](./../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 最终给出 `Pass`，正式放行归档。

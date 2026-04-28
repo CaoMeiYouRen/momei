@@ -153,7 +153,7 @@
 
 **ROI 评估**: AI Agent / Skills 治理、Rules 边界与复用收敛 1.80；自动化验证分级、周期性回归与 Review Gate 2.00；文档国际化目录重构 1.60；日语界面与文档支持 1.55。四项核心任务均满足下一阶段准入条件。
 
-**审计结论**: 第十五阶段的核心治理目标已在代码、规范、计划文档与翻译目录中完成收口。阶段审计期间额外清理了 `.claude/skills/git-flow-manager` 残留空目录，并扩展 `scripts/ai/check-governance.mjs` 以检测镜像侧多余文件 / 目录，避免“镜像目录漂移但脚本漏检”的残余问题。首次回归基线继续保留在 [regression-log.md](./regression-log.md) 作为后续专项回归的比较起点；第十五阶段不再保留专属未完成项。
+**审计结论**: 第十五阶段的核心治理目标已在代码、规范、计划文档与翻译目录中完成收口。阶段审计期间额外清理了 `.claude/skills/git-flow-manager` 残留空目录，并扩展 `scripts/ai/check-governance.mjs` 以检测镜像侧多余文件 / 目录，避免“镜像目录漂移但脚本漏检”的残余问题。首次回归基线继续保留在 [首次回归基线记录（2026-03-20）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#首次回归基线记录2026-03-20) 作为后续专项回归的比较起点；第十五阶段不再保留专属未完成项。
 
 1. **AI Agent / Skills 治理、Rules 边界与复用收敛 (P0)**:
     - **权威文件收敛**: 明确以 `AGENTS.md` 作为平台无关的唯一权威事实源；`CLAUDE.md`、`docs/guide/ai-development.md` 与其他平台适配文档仅承担适配与补充说明，不再与 `AGENTS.md` 并列定义核心规则。
@@ -165,7 +165,7 @@
     - **分级验证矩阵**: 建立逻辑、接口、跨模块流程、UI 浏览器验证、Lighthouse / Bundle 预算与 Review Gate 的统一分级矩阵，明确不同改动类型的最低验证要求。
     - **周期性回归清单**: 整理并固化常态回归项，至少覆盖代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体/设计文档同步、README / 部署 / 翻译文档同步、测试用例补齐与性能基线漂移。
     - **覆盖率与超时预算**: 回归任务默认要求补充或修正测试用例，维持覆盖率不低于现行门槛；允许执行全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify`，但必须声明显式 timeout budget，并沉淀“测试结果 + 浏览器验证 + 性能结果 + Review 结论 + 未覆盖边界”的证据链。
-    - **回归记录独立归档**: 首次回归基线已迁移到 [regression-log.md](./regression-log.md)，`todo.md` 与规范文档只保留入口与摘要，不再重复堆叠长篇正文。
+    - **回归记录独立归档**: 首次回归基线已迁移到 [首次回归基线记录（2026-03-20）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#首次回归基线记录2026-03-20)，`todo.md` 与规范文档只保留入口与摘要，不再重复堆叠长篇正文。
 3. **文档国际化目录重构 (P1)**:
     - **翻译目录收敛**: 规划将英文、繁体中文、韩语等翻译文档统一收敛到 `docs/i18n/<locale>/`，同时保持对外站点 URL 继续使用 `/<locale>/...`。
     - **站点配置与规范同步**: 同步更新 VitePress locale 配置、导航侧边栏、编辑链接映射、Translation Notice 与文档规范中的路径约束。
@@ -179,7 +179,7 @@
 
 ### 第十六阶段：规范事实源收敛与专项回归治理 (Governance Fact-Source Consolidation & Focused Regression Hardening) (已审计归档)
 
-**审计结论**: 第十六阶段围绕规范事实源收敛、Review Gate 审查闭环、Skills / Agents 镜像治理，以及三类专项回归任务的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间补齐了 `server/services/migration-link-governance.ts`、`server/services/setting.ts` 与 AI 文本服务的结构收敛，完成根 README 多语入口与数据库初始化脚本关键约束纠偏，并以 [regression-log.md](./regression-log.md) 沉淀了代码质量、文档 / 配置 / 数据库、测试 / 性能 / 依赖安全三条专项回归证据链。本阶段不再保留专属未完成项，后续新增需求统一先进入 [backlog.md](./backlog.md)。
+**审计结论**: 第十六阶段围绕规范事实源收敛、Review Gate 审查闭环、Skills / Agents 镜像治理，以及三类专项回归任务的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间补齐了 `server/services/migration-link-governance.ts`、`server/services/setting.ts` 与 AI 文本服务的结构收敛，完成根 README 多语入口与数据库初始化脚本关键约束纠偏，并以 [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md) 沉淀了代码质量、文档 / 配置 / 数据库、测试 / 性能 / 依赖安全三条专项回归证据链。本阶段不再保留专属未完成项，后续新增需求统一先进入 [backlog.md](./backlog.md)。
 
 **时间表**: 约 1 - 1.5 个月
 **目标**: 围绕规范事实源去重、Review Gate 审查闭环、Skills / Agents 分层治理与三类专项回归任务，补齐“规则重复、审查结论松散、镜像治理靠人工、首次回归覆盖面偏窄”的剩余治理缺口，让系统从“规则已写下”走向“规则可执行、回归可复用、质量基线可持续维护”。
@@ -216,7 +216,7 @@
 **时间表**: 约 1 - 1.5 个月
 **目标**: 围绕配置事实源复用、认证会话读取链路降频、后台邮件模板闭环、长文本翻译在 Serverless 平台的超时续跑修复，以及 AI 视觉资产与存量资源迁移两项扩展能力，补齐“安装与设置两套配置模型并存、会话请求偏频、邮件模板后台不可治理、长文本翻译在 Vercel 等平台易中断、视觉资产策略分散、历史资源迁移工具缺位”的剩余短板，让系统从“阶段性治理完成”走向“配置可复用、认证更稳、创作与分发效率继续提升”。
 
-**审计结论**: 第十七阶段围绕配置事实源复用、认证会话治理、后台邮件模板配置、Serverless 长文本翻译续跑，以及 AI 视觉资产 / 存量资源迁移扩展的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间新增的 release 依赖风险门禁与后台新建文章空草稿跨语言切换回归也已完成修复与验证，并分别沉淀到 [regression-log.md](./regression-log.md#release-依赖包风险门禁回归2026-03-22) 与 [regression-log.md](./regression-log.md#文章新建页多语言切换回归2026-03-22)。本阶段不再保留专属未完成项，后续新增需求统一先进入 [backlog.md](./backlog.md)。
+**审计结论**: 第十七阶段围绕配置事实源复用、认证会话治理、后台邮件模板配置、Serverless 长文本翻译续跑，以及 AI 视觉资产 / 存量资源迁移扩展的核心目标已在代码、测试、规划文档与回归记录中完成闭环。阶段收口期间新增的 release 依赖风险门禁与后台新建文章空草稿跨语言切换回归也已完成修复与验证，并分别沉淀到 [release 依赖包风险门禁回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#release-依赖包风险门禁回归2026-03-22) 与 [文章新建页多语言切换回归（2026-03-22）](../../reports/regression/archive/legacy-plan-regression-log-archive.md#文章新建页多语言切换回归2026-03-22)。本阶段不再保留专属未完成项，后续新增需求统一先进入 [backlog.md](./backlog.md)。
 
 **ROI 评估**: 安装向导与后台设置多语言字段收敛 2.00；认证会话获取频率治理 1.60；后台邮件模板配置能力 1.60；长文本翻译在 Serverless 平台的超时续跑修复 1.75；AI 视觉资产收敛 1.33；存量资源链接重写与迁移工具 1.33。前四项满足主线准入条件，后两项作为扩展项纳入同阶段容量内管理。
 
@@ -291,7 +291,7 @@
     - **来源与准入治理**: 为首批外部 skills 建立来源清单、同步地址、更新频率、失效处理与转内部化门槛，不再依赖零散人工记忆维护外部来源。
     - **最小校验闭环**: 扩展治理脚本与文档检查，至少能发现 frontmatter 结构漂移、`metadata.internal` 不一致、目录名与 `name` 偏差，以及外部 skill 说明与事实源不一致的问题。
 2. **主线：回归日志滚动归档后的检索与对比体验治理 (P0)**:
-    - **索引入口建立**: 为 `regression-log.md` 与 `regression-log-archive.md` 建立按阶段、主题或时间的统一索引入口，避免近线与历史回归证据分散后难以定位。
+    - **索引入口建立**: 为 `docs/reports/regression/current.md` 与历史归档建立按阶段、主题或时间的统一索引入口，避免近线与历史回归证据分散后难以定位。
     - **比较口径明确**: 明确活动日志与归档日志在“当前基线 / 历史基线 / 发版对比”中的职责分工，并提供最小对比路径，不再依赖人工全文检索。
     - **工具联动补强**: 视复杂度为日志检索与对比补齐轻量脚本或索引文档，确保回归记录滚动归档后仍可支撑近期阶段比较与发版判断。
 3. **主线：重复代码治理与纯函数复用基线建设 (P1)**:
@@ -320,7 +320,7 @@
 2. **主线：Release 与 Review Gate 自动化整合 (P0)**:
     - **发布前校验编排**: 在既有 `lint`、`typecheck`、文档检查、依赖安全门禁与回归记录基础上，补齐统一的发布前校验入口或等价脚本编排。
     - **证据模板复用**: 为治理型改动、阶段归档与高风险收口补齐统一证据模板或脚本辅助，确保质量门状态、问题分级、未覆盖边界与后续补跑计划可以稳定复用。
-    - **口径去重**: 自动化整合不得重新发明第二套 Review Gate / 规划流程，而应复用现有 `planning.md`、`documentation.md` 与 `regression-log.md` 的证据口径。
+    - **口径去重**: 自动化整合不得重新发明第二套 Review Gate / 规划流程，而应复用现有 `planning.md`、`documentation.md` 与 `docs/reports/regression/current.md` 的证据口径。
 3. **主线：Dependabot / Code Scanning 安全告警闭环 (P0)**:
     - **官方数据源优先**: 优先接入仓库 Dependabot alerts 与 Code Scanning alerts 的官方来源，补齐当前主要依赖 `pnpm audit` 回退路径的缺口。
     - **处置分级明确**: 对安全告警建立“立即修复 / 延期记录 / 仅观察”分级规则，并明确哪些告警会阻塞 release、哪些只进入回归记录。

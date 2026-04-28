@@ -15,5 +15,5 @@
 - 2026-04 中旬历史窗口: [2026-04-18-to-2026-04-21.md](./2026-04-18-to-2026-04-21.md)
 - 旧活动日志迁移快照: [legacy-plan-regression-log.md](./legacy-plan-regression-log.md)
 - 旧归档日志迁移快照: [legacy-plan-regression-log-archive.md](./legacy-plan-regression-log-archive.md)
-- `docs/plan/regression-log.md` 与 `docs/plan/regression-log-archive.md` 仅保留兼容回看用途，不再追加新的正式归档正文。
+- 旧 `docs/plan/` 目录中的回归正文已整体迁移到上述 legacy 快照；原 plan 侧入口已移除。
 - 若本目录下的单一索引继续膨胀，应再向年份或半年度分片，而不是把新旧记录混回 `docs/plan/`。

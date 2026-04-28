@@ -30,6 +30,7 @@
 -   **首页运营编排**: 首页已建立“最新文章 + 热门文章”双区块，支持跨区块去重、热门回填与 SSR 输出收口。
 -   **文章置顶机制**: 后台编辑、公开查询、文章卡片与列表排序统一支持 `isPinned` 语义，明确置顶、热门、最新的优先级边界。
 -   **编辑器稳定接入**: 当前 Markdown 编辑器通过异步客户端包装层接入，保留图片上传回填、双栏预览与全屏等能力，并将整体替换保持在“无功能回退再推进”的闸门之后。
+-   **后台内容洞察首页**: `/admin` 已内置内容运营洞察首页，可查看阅读量、评论量、发文量趋势，以及热门文章、热门标签、热门分类排行，并支持时间范围、语言与公开状态筛选。
 
 ## 4. 全方位订阅与分发 (Subscription & Distribution Hub)
 
@@ -56,6 +57,7 @@
 -   **版权协议系统**: 支持 CC BY-NC-SA 4.0 等常见协议，并在文章底部显著展示。
 -   **暗色模式支持**: 完美匹配系统的深色/浅色偏好，且在切换时无闪烁。
 -   **自动 Sitemap**: 实时生成 `sitemap.xml`，自动通知搜索引擎更新。
+-   **GEO / AI crawler 可见性**: 已补齐 `llms.txt`、结构化数据、站点级 AI 入口说明与公开 Feed / Sitemap 基线，便于搜索引擎与 AI 检索系统理解站点结构与内容语义。
 
 ## 7. 安全与防骚扰 (Security & Protection)
 
@@ -76,7 +78,19 @@
 -   **外部发布 API**: 通过 API KEY，你可以将墨梅集成到你的自动化流中（如从 Obsidian 一键发布）。
 -   **Demo 模式**: 开启 `DEMO_MODE` 后，网站将使用内存数据库运行，并拦截所有持久化修改，非常适合作为产品演示。
 
-## 10. 定时任务与自动化
+## 10. 工程基础与运行边界
+
+-   **现代化全栈基础**: 基于 Nuxt 4、Vue 3 与 TypeScript 构建，前端样式采用 SCSS + PrimeVue，兼顾 SSR、SSG 与后台管理端的一体化演进。
+-   **数据库与认证基线**: 支持 SQLite 本地 / Demo 运行，生产侧推荐 MySQL 或 PostgreSQL；认证层采用 Better Auth，统一承载 Credentials 与第三方 OAuth 能力。
+-   **部署边界明确**: 当前主应用支持 Vercel、Docker 与 VPS 自托管；Cloudflare R2、Scheduled Events 等外围能力可接入，但受 TypeORM 与 Node 运行时依赖限制，主应用仍不宣称支持 Cloudflare 运行时完整部署。
+
+## 11. 质量保障与运行观测
+
+-   **测试与回归基线**: 通过 Vitest 覆盖核心逻辑与高风险回退链路，通过 Playwright 守住关键浏览器路径，并按阶段持续推进 coverage、lint、typecheck 与 Review Gate 证据闭环。
+-   **性能守线**: 已建立 bundle budget、Lighthouse 与关键页面性能采样口径，围绕首屏体积、异步 chunk 与关键 CSS 维持持续治理。
+-   **运行观测**: 已接入 Sentry、Microsoft Clarity、Google Analytics 4 与百度统计，用于错误监控、性能跟踪、行为分析与流量观测。
+
+## 12. 定时任务与自动化
 
 -   **内置调度引擎**: 支持通过 `CRON_SECRET`（Vercel Cron）、`WEBHOOK_SECRET`（HMAC）或 `TASKS_TOKEN`（兼容模式）进行安全验证，并可由 Webhook 或系统 Cron 触发任务。
 -   **自动化管理**: 支持定时发布文章、执行外部分发相关任务、AI 媒体超时巡检与状态补偿，以及其他后台维护流程。

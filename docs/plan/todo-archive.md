@@ -160,7 +160,7 @@
 - [x] **抽离缓存复用层并对高收益公开读接口完成至少一组扩面验证**
     - 验收: 抽离缓存复用层（TTL / 失效 / 键策略 / 权限边界），减少重复实现。
     - 验收: 输出一组高收益接口扩面清单并完成至少 1 组落地验证。
-    - 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/governance/cacheable-api-inventory.md) 与 [regression-log.md](./regression-log.md)。
+    - 结果: 已统一接入 `settings/public`、`friend-links/index`、`posts/archive`、`categories/index`、`tags/index`，并补齐缓存清单与回归证据，见 [cacheable-api-inventory.md](../design/governance/cacheable-api-inventory.md) 与 [旧活动日志迁移快照](../reports/regression/archive/legacy-plan-regression-log.md)。
 
 ### 4. 主线：首屏性能阶段一优化（Lighthouse >= 50） (P0)
 
@@ -175,7 +175,7 @@
     - 验收: 建立页面与接口覆盖矩阵并明确优先级。
     - 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
     - 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
-    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/governance/e2e-coverage-matrix.md) 与 [regression-log.md](./regression-log.md)。
+    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../design/governance/e2e-coverage-matrix.md) 与 [旧活动日志迁移快照](../reports/regression/archive/legacy-plan-regression-log.md)。
 
 ## 第二十八阶段：内容运营洞察与运行时治理推进 (已审计归档)
 
