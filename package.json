@@ -113,7 +113,7 @@
     "markdown-it-github-alerts": "^1.0.1",
     "markdown-it-texmath": "^1.0.0",
     "mavon-editor": "^3.0.2",
-    "mjml": "^5.0.1",
+    "mjml": "^5.1.0",
     "ms": "4.0.0-nightly.202508271359",
     "music-metadata": "^11.12.3",
     "mysql2": "^3.22.2",
