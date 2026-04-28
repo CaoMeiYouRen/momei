@@ -63,7 +63,7 @@
     "@better-auth/sso": "^1.6.7",
     "@mdi/font": "^7.4.47",
     "@microsoft/clarity": "^1.0.2",
-    "@nuxtjs/i18n": "^10.2.4",
+    "@nuxtjs/i18n": "^10.3.0",
     "@primeuix/styled": "^0.7.4",
     "@primeuix/styles": "^2.0.3",
     "@primeuix/themes": "^2.0.3",
