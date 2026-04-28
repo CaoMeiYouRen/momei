@@ -236,7 +236,7 @@
     "@vitest/coverage-v8": "4.1.5",
     "@vue/test-utils": "^2.4.6",
     "commitizen": "^4.3.1",
-    "commitlint": "^20.5.0",
+    "commitlint": "^20.5.2",
     "commitlint-config-cmyr": "^1.0.0",
     "cross-env": "^10.0.0",
     "cz-conventional-changelog-cmyr": "^2.0.0",
