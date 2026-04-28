@@ -41,6 +41,11 @@ const { mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
     mockEnsureLocaleMessageModules: vi.fn(),
 }))
 
+const { mockConfirmRequire, mockToastAdd } = vi.hoisted(() => ({
+    mockConfirmRequire: vi.fn(),
+    mockToastAdd: vi.fn(),
+}))
+
 vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
 
@@ -56,7 +61,7 @@ vi.mock('primevue/useconfirm', async (importOriginal) => {
     return {
         ...actual,
         useConfirm: () => ({
-            require: vi.fn(),
+            require: mockConfirmRequire,
         }),
     }
 })
@@ -67,7 +72,7 @@ vi.mock('primevue/usetoast', async (importOriginal) => {
     return {
         ...actual,
         useToast: () => ({
-            add: vi.fn(),
+            add: mockToastAdd,
         }),
     }
 })
@@ -132,5 +137,170 @@ describe('CommercialLinkManager', () => {
         expect(mockEnsureLocaleMessageModules).not.toHaveBeenCalled()
         expect(wrapper.text()).toContain('public social desc')
         expect(wrapper.text()).toContain('public donation desc')
+    })
+
+    it('validates, adds, edits and deletes donation links through dialog actions', async () => {
+        const wrapper = await mountSuspended(CommercialLinkManager, {
+            props: {
+                donationLinks: [
+                    {
+                        platform: 'paypal',
+                        url: 'https://paypal.me/original',
+                        locales: ['en-US'],
+                    },
+                ],
+            },
+            global: { stubs },
+        })
+
+        const vm = wrapper.vm as any
+
+        vm.openDonationDialog()
+        expect(vm.dialogVisible).toBe(true)
+        expect(vm.editingIndex).toBe(-1)
+        expect(vm.currentLink).toMatchObject({
+            platform: 'wechat_pay',
+            url: '',
+            image: '',
+            locales: [],
+        })
+
+        vm.addLink()
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'warn',
+            summary: 'warn',
+            detail: 'validation error',
+        }))
+        expect(vm.dialogVisible).toBe(true)
+        expect(vm.donationLinks).toHaveLength(1)
+
+        vm.currentLink.url = 'https://paypal.me/new'
+        vm.currentLink.locales = ['zh-CN']
+        vm.addLink()
+        await nextTick()
+
+        expect(vm.dialogVisible).toBe(false)
+        expect(vm.donationLinks).toHaveLength(2)
+        expect(vm.donationLinks[1]).toMatchObject({
+            platform: 'wechat_pay',
+            url: 'https://paypal.me/new',
+            locales: ['zh-CN'],
+        })
+
+        const originalLink = vm.donationLinks[0]
+        vm.openDonationDialog(originalLink, 0)
+        expect(vm.editingIndex).toBe(0)
+        expect(vm.currentLink.locales).toEqual(['en-US'])
+
+        vm.currentLink.url = 'https://paypal.me/updated'
+        vm.currentLink.locales.push('zh-CN')
+        expect(originalLink.locales).toEqual(['en-US'])
+
+        vm.addLink()
+        await nextTick()
+
+        expect(vm.donationLinks[0]).toMatchObject({
+            platform: 'paypal',
+            url: 'https://paypal.me/updated',
+            locales: ['en-US', 'zh-CN'],
+        })
+
+        vm.confirmDelete(0)
+        expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'delete confirm',
+            header: 'confirmation',
+            icon: 'pi pi-exclamation-triangle',
+        }))
+
+        const confirmOptions = mockConfirmRequire.mock.calls[0]?.[0]
+        confirmOptions.accept()
+        await nextTick()
+
+        expect(vm.donationLinks).toHaveLength(1)
+        expect(vm.donationLinks[0]).toMatchObject({
+            url: 'https://paypal.me/new',
+        })
+    })
+
+    it('validates, adds, edits and deletes social links through dialog actions', async () => {
+        const wrapper = await mountSuspended(CommercialLinkManager, {
+            props: {
+                socialLinks: [
+                    {
+                        platform: 'github',
+                        url: 'https://github.com/original',
+                        locales: ['en-US'],
+                    },
+                ],
+            },
+            global: { stubs },
+        })
+
+        const vm = wrapper.vm as any
+
+        vm.openSocialDialog()
+        expect(vm.socialDialogVisible).toBe(true)
+        expect(vm.editingSocialIndex).toBe(-1)
+        expect(vm.currentSocialLink).toMatchObject({
+            platform: 'github',
+            url: '',
+            locales: [],
+        })
+
+        vm.addSocialLink()
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'warn',
+            summary: 'warn',
+            detail: 'validation error',
+        }))
+        expect(vm.socialDialogVisible).toBe(true)
+        expect(vm.socialLinks).toHaveLength(1)
+
+        vm.currentSocialLink.url = 'https://github.com/new'
+        vm.currentSocialLink.locales = ['zh-CN']
+        vm.addSocialLink()
+        await nextTick()
+
+        expect(vm.socialDialogVisible).toBe(false)
+        expect(vm.socialLinks).toHaveLength(2)
+        expect(vm.socialLinks[1]).toMatchObject({
+            platform: 'github',
+            url: 'https://github.com/new',
+            locales: ['zh-CN'],
+        })
+
+        const originalLink = vm.socialLinks[0]
+        vm.openSocialDialog(originalLink, 0)
+        expect(vm.editingSocialIndex).toBe(0)
+        expect(vm.currentSocialLink.locales).toEqual(['en-US'])
+
+        vm.currentSocialLink.url = 'https://github.com/updated'
+        vm.currentSocialLink.locales.push('zh-CN')
+        expect(originalLink.locales).toEqual(['en-US'])
+
+        vm.addSocialLink()
+        await nextTick()
+
+        expect(vm.socialLinks[0]).toMatchObject({
+            platform: 'github',
+            url: 'https://github.com/updated',
+            locales: ['en-US', 'zh-CN'],
+        })
+
+        vm.confirmDeleteSocial(0)
+        expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'delete confirm',
+            header: 'confirmation',
+            icon: 'pi pi-exclamation-triangle',
+        }))
+
+        const confirmOptions = mockConfirmRequire.mock.calls[0]?.[0]
+        confirmOptions.accept()
+        await nextTick()
+
+        expect(vm.socialLinks).toHaveLength(1)
+        expect(vm.socialLinks[0]).toMatchObject({
+            url: 'https://github.com/new',
+        })
     })
 })
