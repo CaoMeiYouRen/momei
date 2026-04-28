@@ -24,7 +24,12 @@ metadata:
 - **开发与设计**：[开发规范](../../../docs/standards/development.md)、[API 规范](../../../docs/standards/api.md)、[UI 设计](../../../docs/design/ui.md)
 - **安全与质量**：[安全规范](../../../docs/standards/security.md)、[测试规范](../../../docs/standards/testing.md)
 
-## 三、标准 PDTFC+ 2.1 工作流 (Standard Workflow)
+## 三、统一执行原则 (Shared Execution Principles)
+
+- 本节只保留全栈编排视角下的执行摘要，不再复制完整项目级规则；权威口径分别以 [AI 协作规范](../../../docs/standards/ai-collaboration.md)、[开发规范](../../../docs/standards/development.md) 与 [测试规范](../../../docs/standards/testing.md) 为准。
+- 编排默认遵循四步判断顺序：先暴露假设，再选最小方案，再限制改动范围，最后用最小充分验证决定是否继续扩写。
+
+## 四、标准 PDTFC+ 2.1 工作流 (Standard Workflow)
 
 1. **P (Plan) - 需求分析与规划**
     1. **读取文档**：确认 `todo.md`、`roadmap.md`、当前验收标准与必要规范。
@@ -64,14 +69,14 @@ metadata:
     3. **提交说明**：`Commit` 不是本技能默认的独立主阶段；只有在用户明确要求提交，或当前流程被明确委派为提交流程时，才在 F 阶段收口后调用 `conventional-committer`。
     - **技能**：`documentation-specialist`、`todo-manager`、`conventional-committer`
 
-## 四、需求挖掘方法论 (Intent Extraction Methodology)
+## 五、需求挖掘方法论 (Intent Extraction Methodology)
 
 1. **逐级递进**：先锁定整体结构和目标，再深入到具体实现细节。
 2. **单点突破**：一次仅问一个问题，待用户回答后再进行下一步追问。
 3. **循环校验**：当用户回答不清晰时，尝试换一种表述方式进行确认。
 4. **意图抽离**：分析用户想要什么背后的为什么，提供更优专业建议。
 
-## 五、技能引用（Each Sub-Skill Reference）
+## 六、技能引用（Each Sub-Skill Reference）
 
 - [requirement-analyst](../requirement-analyst/SKILL.md)
 - [todo-manager](../todo-manager/SKILL.md)
@@ -89,7 +94,7 @@ metadata:
 - [conventional-committer](../conventional-committer/SKILL.md)
 - [devops-specialist](../devops-specialist/SKILL.md)
 
-## 六、编写规范 (Authoring Rules)
+## 七、编写规范 (Authoring Rules)
 
 1. **Imperative & Structured**
    - 用动词+目标描述标准化每一步/每个技能的 usage section。
@@ -111,7 +116,7 @@ metadata:
 5. **国际化与文档优先**
    - 所有工作流/技能创建应默认兼容 i18n 和标准文档同步动作。
 
-## 七、模板用法 (Usage Example)
+## 八、模板用法 (Usage Example)
 
 ```yaml
 workflow:
