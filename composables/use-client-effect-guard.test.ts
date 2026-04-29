@@ -56,22 +56,35 @@ describe('useClientEffectGuard', () => {
     it('runWhenIdle 应优先使用 requestIdleCallback，否则回退到 setTimeout', () => {
         const { runWhenIdle } = useClientEffectGuard()
         const idleSpy = vi.fn()
+        const originalIdleCallback = window.requestIdleCallback
         const timeoutSpy = vi.spyOn(globalThis, 'setTimeout').mockImplementation(((task: () => void) => {
             task()
             return 1
         }) as typeof setTimeout)
 
-        Object.defineProperty(window, 'requestIdleCallback', {
-            configurable: true,
-            value: idleSpy,
-        })
+        try {
+            Object.defineProperty(window, 'requestIdleCallback', {
+                configurable: true,
+                value: idleSpy,
+            })
 
-        const task = vi.fn()
-        runWhenIdle(task, { timeout: 500 })
-        expect(idleSpy).toHaveBeenCalledWith(task, { timeout: 500 })
+            const task = vi.fn()
+            runWhenIdle(task, { timeout: 500 })
+            expect(idleSpy).toHaveBeenCalledWith(task, { timeout: 500 })
 
-        Reflect.deleteProperty(window, 'requestIdleCallback')
-        runWhenIdle(task, { fallbackDelay: 250 })
-        expect(timeoutSpy).toHaveBeenCalledWith(task, 250)
+            Reflect.deleteProperty(window, 'requestIdleCallback')
+            runWhenIdle(task, { fallbackDelay: 250 })
+            expect(timeoutSpy).toHaveBeenCalledWith(task, 250)
+        } finally {
+            if (originalIdleCallback) {
+                Object.defineProperty(window, 'requestIdleCallback', {
+                    configurable: true,
+                    value: originalIdleCallback,
+                })
+            } else {
+                Reflect.deleteProperty(window, 'requestIdleCallback')
+            }
+            timeoutSpy.mockRestore()
+        }
     })
 })

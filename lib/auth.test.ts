@@ -66,6 +66,31 @@ interface TwoFactorPluginOptions {
     }
 }
 
+interface PreferredEmailLocaleOptions {
+    email?: string
+    language?: unknown
+}
+
+interface UserRepositoryRecord {
+    id?: string
+    email: string
+    language?: string
+    role?: string
+}
+
+interface SubscriberRepositoryRecord {
+    email: string
+    userId?: string | null
+    language?: string
+}
+
+interface PluginOptionsMap {
+    magicLink: MagicLinkPluginOptions
+    emailOTP: EmailOtpPluginOptions
+    phoneNumber: PhoneNumberPluginOptions
+    twoFactor: TwoFactorPluginOptions
+}
+
 const {
     betterAuthMock,
     typeormAdapterMock,
@@ -89,10 +114,10 @@ const {
         options,
     }))
 
-    const createRepositoryMock = () => ({
+    const createRepositoryMock = <TRecord extends object>() => ({
         count: vi.fn(() => Promise.resolve(1)),
-        findOne: vi.fn(() => Promise.resolve(null)),
-        save: vi.fn(() => Promise.resolve(null)),
+        findOne: vi.fn((_query?: unknown) => Promise.resolve<TRecord | null>(null)),
+        save: vi.fn((entity: TRecord) => Promise.resolve<TRecord | null>(entity)),
     })
 
     const hoistedMockEntities = {
@@ -101,8 +126,8 @@ const {
     }
 
     const hoistedRepositoryMocks = {
-        user: createRepositoryMock(),
-        subscriber: createRepositoryMock(),
+        user: createRepositoryMock<UserRepositoryRecord>(),
+        subscriber: createRepositoryMock<SubscriberRepositoryRecord>(),
     }
 
     const resolveRepositoryMock = vi.fn((entity: unknown) => entity === hoistedMockEntities.User
@@ -110,10 +135,10 @@ const {
         : hoistedRepositoryMocks.subscriber)
 
     return {
-        betterAuthMock: vi.fn((options: Record<string, unknown>) => ({ options })),
+        betterAuthMock: vi.fn((options: CapturedAuthConfig) => ({ options })),
         typeormAdapterMock: vi.fn(() => ({ adapter: 'typeorm' })),
         getAuthLocaleFromRequestMock: vi.fn(() => 'zh-Hant'),
-        resolvePreferredEmailLocaleMock: vi.fn(() => Promise.resolve('zh-CN')),
+        resolvePreferredEmailLocaleMock: vi.fn((_options: PreferredEmailLocaleOptions) => Promise.resolve('zh-CN')),
         markAgreementConsentForLocaleMock: vi.fn(),
         sendEmailMock: vi.fn(),
         loggerInfoMock: vi.fn(),
@@ -258,7 +283,11 @@ vi.mock('@/server/utils/locale', () => ({
 async function importAuthModule() {
     vi.resetModules()
     const module = await import('./auth')
-    const config = betterAuthMock.mock.calls.at(-1)?.[0] as CapturedAuthConfig
+    const config = betterAuthMock.mock.calls.at(-1)?.[0]
+
+    if (!config) {
+        throw new Error('Expected betterAuth to be called with auth config')
+    }
 
     return {
         module,
@@ -266,10 +295,17 @@ async function importAuthModule() {
     }
 }
 
-function getPluginOptions(config: CapturedAuthConfig, pluginName: string) {
+function getPluginOptions<TPluginName extends keyof PluginOptionsMap>(
+    config: CapturedAuthConfig,
+    pluginName: TPluginName,
+): PluginOptionsMap[TPluginName] {
     const plugin = config.plugins.find((currentPlugin) => currentPlugin.name === pluginName)
-    expect(plugin).toBeDefined()
-    return plugin?.options ?? {}
+
+    if (!plugin?.options) {
+        throw new Error(`Expected ${pluginName} plugin options to be defined`)
+    }
+
+    return plugin.options as unknown as PluginOptionsMap[TPluginName]
 }
 
 describe('lib/auth configuration', () => {
@@ -412,7 +448,7 @@ describe('lib/auth configuration', () => {
         ))
 
         const { config } = await importAuthModule()
-        const magicLinkOptions = getPluginOptions(config, 'magicLink') as MagicLinkPluginOptions
+        const magicLinkOptions = getPluginOptions(config, 'magicLink')
 
         await config.emailAndPassword.sendResetPassword({
             user: {
@@ -490,9 +526,9 @@ describe('lib/auth configuration', () => {
         ))
 
         const { config } = await importAuthModule()
-        const emailOtpOptions = getPluginOptions(config, 'emailOTP') as EmailOtpPluginOptions
-        const phoneNumberOptions = getPluginOptions(config, 'phoneNumber') as PhoneNumberPluginOptions
-        const twoFactorOptions = getPluginOptions(config, 'twoFactor') as TwoFactorPluginOptions
+        const emailOtpOptions = getPluginOptions(config, 'emailOTP')
+        const phoneNumberOptions = getPluginOptions(config, 'phoneNumber')
+        const twoFactorOptions = getPluginOptions(config, 'twoFactor')
 
         await emailOtpOptions.sendVerificationOTP(
             {
