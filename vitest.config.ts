@@ -5,8 +5,9 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
 const rootDir = resolve(__dirname, './')
 const isCoverageRun = process.argv.includes('--coverage')
 const availableCpuCount = os.cpus().length
+const testPool = isCoverageRun ? 'forks' : 'threads'
 const maxWorkerCount = isCoverageRun
-    ? Math.min(availableCpuCount, 4)
+    ? 1
     : availableCpuCount
 
 export default defineVitestConfig({
@@ -22,8 +23,8 @@ export default defineVitestConfig({
         hookTimeout: 60000,
         teardownTimeout: 60000,
         // vmMemoryLimit: '512MB',
-        pool: 'threads',
-        // Coverage 模式会让 Nuxt 测试 worker 的常驻内存显著上升，限制并发避免 OOM。
+        // Coverage 模式优先用 child process 和更低并发换稳定性，避免 Nuxt worker threads 在全仓运行时 OOM。
+        pool: testPool,
         maxWorkers: maxWorkerCount,
         // maxConcurrency: os.cpus().length, // 最大并发数，根据 CPU 核心数调整
     },
