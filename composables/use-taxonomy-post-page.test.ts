@@ -13,10 +13,23 @@ const {
     errorRef,
 } = vi.hoisted(() => ({
     routeState: {
+        fullPath: '/tags/initial',
+        path: '/tags/initial',
+        params: {} as Record<string, string>,
+        meta: {} as Record<string, unknown>,
         query: {} as Record<string, string | undefined>,
     },
     routerState: {
         push: vi.fn(),
+        replace: vi.fn(() => Promise.resolve()),
+        currentRoute: {
+            value: {
+                fullPath: '/tags/initial',
+                path: '/tags/initial',
+                params: {},
+                meta: {},
+            },
+        },
         afterEach: vi.fn(),
         beforeEach: vi.fn(),
         beforeResolve: vi.fn(),
@@ -40,8 +53,18 @@ import { useTaxonomyPostPage } from './use-taxonomy-post-page'
 describe('useTaxonomyPostPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        routeState.fullPath = '/tags/initial'
+        routeState.path = '/tags/initial'
+        routeState.params = {}
+        routeState.meta = {}
         routeState.query = {}
         routerState.push = routerPushMock
+        routerState.currentRoute.value = {
+            fullPath: routeState.fullPath,
+            path: routeState.path,
+            params: routeState.params,
+            meta: routeState.meta,
+        }
         postsDataRef.value = {
             data: {
                 items: [{ id: 'post-1', title: 'Nuxt' }],
@@ -63,7 +86,16 @@ describe('useTaxonomyPostPage', () => {
     })
 
     it('binds route pagination and taxonomy slug into the posts query', async () => {
+        routeState.fullPath = '/tags/nuxt?page=3'
+        routeState.path = '/tags/nuxt'
+        routeState.params = { slug: 'nuxt' }
         routeState.query = { page: '3' }
+        routerState.currentRoute.value = {
+            fullPath: routeState.fullPath,
+            path: routeState.path,
+            params: routeState.params,
+            meta: routeState.meta,
+        }
 
         const result = await useTaxonomyPostPage({
             filterKey: 'tag',
@@ -92,7 +124,16 @@ describe('useTaxonomyPostPage', () => {
     })
 
     it('updates paging state, pushes the new route query and scrolls to top', async () => {
+        routeState.fullPath = '/categories/frontend?page=1&view=compact'
+        routeState.path = '/categories/frontend'
+        routeState.params = { slug: 'frontend' }
         routeState.query = { page: '1', view: 'compact' }
+        routerState.currentRoute.value = {
+            fullPath: routeState.fullPath,
+            path: routeState.path,
+            params: routeState.params,
+            meta: routeState.meta,
+        }
 
         const result = await useTaxonomyPostPage({
             filterKey: 'category',
