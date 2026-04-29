@@ -9,12 +9,16 @@ const testPool = isCoverageRun ? 'forks' : 'threads'
 const maxWorkerCount = isCoverageRun
     ? 1
     : availableCpuCount
+const coverageExecArgv = isCoverageRun
+    ? ['--max-old-space-size=6144']
+    : undefined
 
 export default defineVitestConfig({
     test: {
         globals: true,
         environment: 'nuxt',
         // fileParallelism: false, // 禁止文件级别的并行执行，确保测试在单线程中运行
+        execArgv: coverageExecArgv,
         setupFiles: ['./tests/testSetup.ts'],
         include: ['./**/*.spec.ts', './**/*.test.ts'],
         // include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
