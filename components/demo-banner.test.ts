@@ -55,7 +55,7 @@ describe('DemoBanner', () => {
 
         expect(wrapper.find('.demo-banner').exists()).toBe(true)
         expect(wrapper.find('.demo-banner__text').text()).not.toBe('')
-        expect(wrapper.findAll('.demo-banner__path')).toHaveLength(3)
+        expect(wrapper.findAll('.demo-banner__path')).toHaveLength(4)
     })
 
     it('should not render when demoMode is disabled', async () => {

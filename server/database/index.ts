@@ -34,6 +34,7 @@ import { LinkGovernanceReport } from '../entities/link-governance-report'
 import { SettingAuditLog } from '../entities/setting-audit-log'
 import { NotificationDeliveryLog } from '../entities/notification-delivery-log'
 import { WebPushSubscription } from '../entities/web-push-subscription'
+import { BenefitWaitlist } from '../entities/benefit-waitlist'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { repairLegacyPostVersionRecords } from './post-version-repair'
@@ -104,6 +105,7 @@ const entities = [
     SettingAuditLog,
     NotificationDeliveryLog,
     WebPushSubscription,
+    BenefitWaitlist,
 ]
 
 function getDataSourceContext() {

@@ -27,6 +27,11 @@
         "label": "Enter creator mode",
         "description": "Jump straight to the editor; if you are not signed in yet, the app will send you to login and then return you to the editor.",
         "action": "Open editor"
+      },
+      "enhanced_pack": {
+        "label": "Learn about Enhanced Pack",
+        "description": "Batch translation orchestration, multi-platform distribution tracking, unified content asset management — see what's next.",
+        "action": "Learn more"
       }
     },
     "tour": {

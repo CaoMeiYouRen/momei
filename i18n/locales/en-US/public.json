@@ -244,6 +244,83 @@
                 "11": "November",
                 "12": "December"
             }
+        },
+        "enhanced_pack": {
+            "meta": {
+                "title": "Enhanced Pack - Momei Blog",
+                "description": "Multilingual Content Assetization Enhanced Pack: Let your technical content reach readers worldwide — automatically. Batch translation orchestration, multi-platform distribution tracking, unified content asset management."
+            },
+            "hero": {
+                "title": "Let your technical content reach readers worldwide — automatically",
+                "subtitle": "Multilingual Content Assetization Enhanced Pack — built on top of the open-source Momei Blog, offering batch translation orchestration, multi-platform distribution tracking, and cross-entry content asset unification. One click, global reach.",
+                "cta": "Learn More"
+            },
+            "free_core": {
+                "heading": "Momei Open-Source Free Core",
+                "items": [
+                    { "title": "AI Writing Assistant", "desc": "Smart title suggestions, auto-summaries, and tag extraction — full AI support for single articles." },
+                    { "title": "Native Multi-Language UI", "desc": "Five-language interface (zh/en/ja/ko/zh-TW) with internationalization baked in, not patched on." },
+                    { "title": "Single-Article AI Translation", "desc": "One-click translation to target languages with translation clusters and auto-routing for cross-language readers." },
+                    { "title": "Basic Content Distribution", "desc": "RSS / Atom / JSON Feed, sitemap, SEO metadata — search-engine friendly out of the box." },
+                    { "title": "Self-Hosted & Open Source", "desc": "Fully open source under MIT license. Deploy, modify, and extend freely." }
+                ]
+            },
+            "premium": {
+                "heading": "Content Assetization Enhanced Pack",
+                "description": "The following capabilities are additional value-added services in the Enhanced Pack, beyond the open-source free core.",
+                "items": [
+                    {
+                        "title": "Batch Translation Orchestration",
+                        "desc": "Multi-article → multi-language batch translation scheduling, terminology consistency checks, post-translation preview and pre-publish comparison. No more manual one-by-one translation.",
+                        "icon": "pi-language"
+                    },
+                    {
+                        "title": "Multi-Platform Distribution Tracking",
+                        "desc": "Status tracking, failure retry, and consistency governance for distribution to GitHub, Gitee, Dev.to, Hashnode, and more. Publish once, track everywhere.",
+                        "icon": "pi-send"
+                    },
+                    {
+                        "title": "Unified Content Asset Convergence",
+                        "desc": "Unified indexing, cross-entry association, and display orchestration for multi-entry content assets — blog, docs, project README. Say goodbye to fragmented content.",
+                        "icon": "pi-box"
+                    }
+                ]
+            },
+            "comparison": {
+                "heading": "Free Core vs Enhanced Pack",
+                "free_label": "Momei Open Source",
+                "premium_label": "Enhanced Pack",
+                "row_1": "AI-assisted writing (titles / summaries / tags)",
+                "row_2": "Single-article AI translation",
+                "row_3": "Native multi-language UI (5 locales)",
+                "row_4": "RSS / Sitemap / SEO metadata",
+                "row_5": "Self-hosted & open source",
+                "row_6": "Batch translation orchestration & terminology checks",
+                "row_7": "Multi-platform distribution tracking & retry",
+                "row_8": "Cross-entry content asset unification"
+            },
+            "faq": {
+                "heading": "FAQ",
+                "items": [
+                    { "q": "Will the Enhanced Pack affect my existing blog?", "a": "No. The Enhanced Pack is an optional value-added service on top of the Momei open-source core. Without it, your blog runs exactly as before." },
+                    { "q": "Do I need to migrate my blog somewhere else?", "a": "No. The Enhanced Pack extends your existing Momei deployment — no data migration or platform switch is needed." },
+                    { "q": "Can I purchase the Enhanced Pack now?", "a": "The Enhanced Pack is still in development and validation. Join the waitlist to be notified when it opens, and get invited to early access." },
+                    { "q": "What happens after I join the waitlist?", "a": "We will contact you via the email you provide with updates on progress, early access opportunities, and the official launch timeline." }
+                ]
+            },
+            "cta_form": {
+                "heading": "Join the Waitlist",
+                "description": "The Enhanced Pack is in early development. Leave your contact info and we'll notify you as soon as it opens, and invite you to participate in the beta.",
+                "name_label": "Your Name",
+                "name_placeholder": "Enter your name",
+                "email_label": "Email Address",
+                "email_placeholder": "For receiving launch notifications",
+                "submit": "Join Waitlist",
+                "submitting": "Submitting...",
+                "success": "You've been added to the waitlist! We'll notify you as soon as the Enhanced Pack opens.",
+                "error": "Submission failed, please try again later.",
+                "privacy_note": "We will only use this email to send Enhanced Pack related notifications."
+            }
         }
     }
 }

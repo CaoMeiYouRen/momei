@@ -121,6 +121,11 @@
                         <i class="contact-link__icon pi pi-book" />
                         <span>{{ $t('pages.about.contact.blog') }}</span>
                     </a>
+
+                    <NuxtLink :to="localePath('/benefits')" class="contact-link">
+                        <i class="contact-link__icon pi pi-box" />
+                        <span>{{ $t('pages.enhanced_pack.hero.cta') }}</span>
+                    </NuxtLink>
                 </div>
 
                 <div class="contact-message">
@@ -140,6 +145,7 @@
 
 <script setup lang="ts">
 const { t, tm, rt } = useI18n()
+const localePath = useLocalePath()
 
 const meaningFeatures = computed(() => tm('pages.about.meaning.features') as any[])
 const featureItems = computed(() => tm('pages.about.features.items') as any[])
