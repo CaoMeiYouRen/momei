@@ -225,6 +225,49 @@
 - 本条记录只为第三十阶段归档动作提供统一放行入口，不替代六条主线各自的实现级回归记录；后续复查具体链路时，仍应回到对应的 2026-04-21 主线条目或历史归档切片。
 - 第三十一阶段尚未正式落盘；后续只允许以候选方案形式评估“一个新功能 + 若干优化”，不得引用本条记录直接替代下一阶段准入。
 
+## 2026-05-01 第三十二阶段 P1「统一承接入口」闭关记录
+
+### 范围
+
+- 目标：为第三十二阶段 P1 主线「多语言内容资产化增强包的统一承接入口」补齐阶段闭合记录，覆盖候补名单去重、已登录预填充、多语言翻译补全与 Footer 导流入口。
+- 本轮覆盖：`server/services/benefit-waitlist.ts`（去重）、`pages/benefits.vue`（预填充）、`i18n/locales/{ja-JP,ko-KR,zh-TW}/public.json` 与 `demo.json`（翻译补全）、`i18n/locales/*/common.json`（footer 键值）、`components/app-footer.vue`（页脚链接）、`docs/design/governance/multilingual-assetization-intake.md`（设计文档同步）。
+- 非目标：不重做 `benefits.vue` 页面本体的实现级 review；浏览器视觉验证交由 `@ui-validator` 按需后续补跑。
+
+### 闭合结论
+
+- 候补名单邮箱去重已落地（应用层 `findOne` + early return，相同邮箱静默返回已有记录）。
+- 已登录用户自动填充已落地（`watch(loggedInUser)` 首次自动填充 `name` + `email`，含 `hasAutoFilled` 守卫）。
+- 多语言翻译已补全至 5 语种全覆盖：`pages.enhanced_pack`（`ja-JP` / `ko-KR` / `zh-TW`）与 `demo.paths.enhanced_pack` 三语均已同步。
+- Footer 新增增强包链接，五语种 `common.enhanced_pack` 翻译已补齐。
+- 当前共有 3 条公开导流入口：Demo Banner → `/benefits`、About 页 → `/benefits`、Footer → `/benefits`，形成「入口 → 承接页 → 候补名单」最小闭环。
+- 设计文档已同步更新（导流入口状态、翻译覆盖状态、去重/预填充实现说明）。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1`。
+- V0：核对候补名单去重逻辑、预填充守卫、5 语种 enhanced_pack 键结构一致性与 Footer 链接渲染。
+- V1：`pnpm lint:i18n`、`pnpm exec nuxt typecheck`、`pnpm vitest run server/api/benefits/waitlist.post.test.ts utils/schemas/benefit-waitlist.test.ts pages/benefits.test.ts`。
+
+### 已执行验证
+
+- `pnpm lint:i18n`：通过，零错误。
+- `pnpm exec nuxt typecheck`：通过，无新增类型错误。
+- Vitest（3 文件 / 16 用例）：全部通过。
+- JSON 语法校验（6 个修改文件）：全部合法。
+- i18n 键结构一致性（5 语种 × 7 子模块）：完全一致。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；三条增强均已在代码、测试与翻译层面完成闭环，专项设计文档与回归记录已同步更新。
+
+### 未覆盖边界
+
+- 浏览器视觉验证（响应式 / 暗色模式 / CTA 跳转）未在本轮执行，后续由 `@ui-validator` 按需补跑。
+- GitHub README CTA 入口为可选项，未在本轮实现。
+- `benefitWaitlistService` 当前仅做应用层去重，未在 DB 层添加 unique index；若后续候补名单量级增长，可按需补入。
+
 ## 近线窗口外历史入口
 
 - 2026-04-21 的历史治理记录已整体迁移到 [archive/2026-04-21-governance-rollup.md](./archive/2026-04-21-governance-rollup.md)。

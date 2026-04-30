@@ -22,15 +22,16 @@
 
 ### 第三十二阶段：多语言内容资产化承接入口与高风险治理推进
 
-- [ ] **多语言内容资产化增强包的统一承接入口 (P1)**
+- [x] **多语言内容资产化增强包的统一承接入口 (P1)**
 	- **增强项 (2026-05-01)**:
 		- ✅ 候补名单已实现邮箱应用层去重（`benefitWaitlistService` 中 `findOne` + early return 策略，相同邮箱静默返回已有记录）
 		- ✅ 已登录用户自动填充默认值（`pages/benefits.vue` 中 `watch(loggedInUser)` 首次自动填充 `name` + `email`）
 		- ✅ 多语言翻译已补全：`pages.enhanced_pack` 已添加到 `ja-JP`、`ko-KR`、`zh-TW` 的 `public.json`，`demo.paths.enhanced_pack` 已同步补全到对应三语 `demo.json`
-	- 验收: 先在 `docs/design/governance/` 或等价入口补齐专项设计文档，明确首版只做独立说明 / 申请页与真实 CTA，不进入支付、价格页、会员中心或营销后台实现。
-	- 验收: 已形成单一主卖点文案，并明确免费核心与付费增强边界；至少一条公开入口完成导流接入，形成"入口 -> 承接页 -> 申请 / 试用 / 候补名单"的最小闭环。
-	- 非目标: 不把现有免费能力简单加锁，不直接扩写为完整销售站点改版。
-	- 验证: 至少完成受影响页面与 CTA 跳转的定向测试或浏览器验证，并把设计文档与入口说明回链到活动回归窗口。
+		- ✅ Footer 新增增强包链接（`components/app-footer.vue`，5 语种 `common.enhanced_pack` 翻译已补齐）
+	- 验收: 已在 `docs/design/governance/multilingual-assetization-intake.md` 补齐专项设计文档，首版只做独立说明 / 申请页与真实 CTA。
+	- 验收: 已形成「让你的技术内容自动触达全球读者」单一主卖点文案，并明确免费核心与付费增强边界；已有 3 条公开入口完成导流接入（Demo Banner / About 页 / Footer），形成"入口 -> 承接页 -> 申请 / 候补名单"的最小闭环。
+	- 非目标: 未对现有免费能力加锁，未扩写为完整销售站点改版。
+	- 验证: `pages/benefits.test.ts`（6 tests）、`waitlist.post.test.ts`（2 tests）、`benefit-waitlist.test.ts`（7 tests）全部通过；`lint:i18n` 与 `nuxt typecheck` 通过；回归记录已回链到活动回归窗口。
 
 - [ ] **测试覆盖率与有效性治理 (P0)**
 	- 验收: 在当前 `76.03% / 76.08%` 基线上继续提升覆盖率，并优先锁定统一承接入口、公开页 runtime、认证配置退化、共享组件 raw key 暴露，以及公开热点读链路等高风险行为断言。

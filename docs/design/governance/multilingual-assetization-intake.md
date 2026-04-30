@@ -52,12 +52,12 @@
 
 至少从以下入口接入一条真实 CTA：
 
-| 入口 | 位置 | CTA 文案 | 优先级 |
-|------|------|----------|--------|
-| Demo Banner | `components/demo-banner.vue` 新增第四条路径 | 「了解增强包」→ `/benefits` | 本轮必做 |
-| About 页 | 联系方式区或页脚新增链接 | 「了解更多增强能力」→ `/benefits` | 本轮必做 |
-| GitHub README | 仓库 `README.md` 补链接 | 「了解多语言内容资产化增强包」 | 建议但不强求 |
-| 页脚公共区 | `components/app-footer.vue` 补链接 | 「增强包」 | 可选 |
+| 入口 | 位置 | CTA 文案 | 状态 |
+|------|------|----------|------|
+| Demo Banner | `components/demo-banner.vue` 新增第四条路径 | 「了解增强包」→ `/benefits` | ✅ 已接入 |
+| About 页 | 联系方式区或页脚新增链接 | 「了解更多增强能力」→ `/benefits` | ✅ 已接入 |
+| Footer 页脚 | `components/app-footer.vue` 导航链接 | `common.enhanced_pack` → `/benefits` | ✅ 已接入 |
+| GitHub README | 仓库 `README.md` 补链接 | 「了解多语言内容资产化增强包」 | 后续可选 |
 
 ### 5.2 承接动作
 
@@ -118,9 +118,9 @@ pages.enhanced_pack:
 
 ### 6.3 需要覆盖的语言
 
-- `zh-CN`（默认）
-- `en-US`（必做）
-- `ja-JP`、`zh-TW`、`ko-KR`（补齐基础翻译）
+- `zh-CN`（默认） — ✅ 已完成
+- `en-US` — ✅ 已完成
+- `ja-JP`、`zh-TW`、`ko-KR` — ✅ 已补齐（含 `public.json` + `demo.json`）
 
 ## 7. 技术实现要点
 
@@ -133,8 +133,10 @@ pages.enhanced_pack:
 
 ### 7.2 后端 API（最小可行）
 
-- `POST /api/benefits/waitlist`：接收 `{ name, email, locale }`，写入 `benefit_waitlist` 表或复用现有 submissions 机制
-- 不做邮件发送、不做去重校验（最小闭环即可）
+- `POST /api/benefits/waitlist`：接收 `{ name, email, locale }`，写入 `benefit_waitlist` 表。
+- 已实现应用层邮箱去重（`findOne` + early return），相同邮箱静默返回已有记录。
+- 已登录用户在前端通过 `watch(loggedInUser)` 首次自动填充 `name` + `email`。
+- 不做邮件发送（最小闭环即可）。
 
 ### 7.3 不涉及
 
