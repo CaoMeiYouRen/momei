@@ -11,6 +11,7 @@ const linkMappings = [
     { linkRelPath: '.claude/agents', targetRelPath: '.github/agents' },
     { linkRelPath: '.claude/skills', targetRelPath: '.github/skills' },
     { linkRelPath: '.agents/skills', targetRelPath: '.github/skills' },
+    { linkRelPath: '.opencode/agents', targetRelPath: '.github/agents' },
 ]
 
 function runGitWorktreeList() {

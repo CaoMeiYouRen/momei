@@ -49,6 +49,8 @@ coverage-report
 .claude/skills
 .agents/agents
 .agents/skills
+.opencode/agents
+.opencode/skills
 
 .vercel
 .vscode
