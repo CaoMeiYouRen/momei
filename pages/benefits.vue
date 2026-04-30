@@ -225,8 +225,13 @@
 </template>
 
 <script setup lang="ts">
+import { authClient } from '@/lib/auth-client'
+
 const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
+
+const session = authClient.useSession()
+const loggedInUser = computed(() => session.value?.data?.user)
 
 const freeCoreItems = computed(() => tm('pages.enhanced_pack.free_core.items') as any[])
 const premiumItems = computed(() => tm('pages.enhanced_pack.premium.items') as any[])
@@ -264,6 +269,26 @@ const form = reactive({
 const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 const submitSuccess = ref(false)
+
+// 已登录用户自动填充默认值（仅首次填充空字段）
+let hasAutoFilled = false
+watch(loggedInUser, (user) => {
+    if (!user || hasAutoFilled) {
+        return
+    }
+
+    if (!form.name && (user as any).name) {
+        form.name = (user as any).name
+    }
+
+    if (!form.email && user.email) {
+        form.email = user.email
+    }
+
+    if (form.email) {
+        hasAutoFilled = true
+    }
+}, { immediate: true })
 
 async function handleSubmit() {
     if (isSubmitting.value) {
