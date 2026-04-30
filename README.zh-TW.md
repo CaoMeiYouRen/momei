@@ -131,6 +131,7 @@
 
 -   [**快速開始**](https://docs.momei.app/zh-TW/guide/quick-start) - 一鍵部署與啟動
 -   [**方案比較**](https://docs.momei.app/zh-TW/guide/comparison) - 為什麼選擇墨梅？
+-   [**增強包**](https://docs.momei.app/zh-TW/guide/enhanced-pack) - 批量翻譯編排、多平台分發追蹤與內容資產統一管理
 -   [**部署指南**](https://docs.momei.app/zh-TW/guide/deploy) - Vercel / Docker / 私有伺服器
 -   [**環境與系統設定**](https://docs.momei.app/zh-TW/guide/variables) - 環境變數、設定中心映射與鎖定策略
 -   [**開發指南**](https://docs.momei.app/zh-TW/guide/development) - 環境搭建與貢獻

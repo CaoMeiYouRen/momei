@@ -131,6 +131,7 @@ Main Sections:
 
 -   [**Quick Start**](https://docs.momei.app/en-US/guide/quick-start) - One-click deployment and startup
 -   [**Comparison**](https://docs.momei.app/en-US/guide/comparison) - Why choose Momei?
+-   [**Enhanced Pack**](https://docs.momei.app/en-US/guide/enhanced-pack) - Batch translation, distribution tracking & content asset unification
 -   [**Deploy Guide**](https://docs.momei.app/en-US/guide/deploy) - Vercel / Docker / private server
 -   [**Variables and System Settings**](https://docs.momei.app/en-US/guide/variables) - Environment variables, settings mapping, and locking strategy
 -   [**Development Guide**](https://docs.momei.app/en-US/guide/development) - Environment setup and contribution

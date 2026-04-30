@@ -135,6 +135,7 @@
 -   [**デプロイガイド**](https://docs.momei.app/ja-JP/guide/deploy) - コア変数、推奨デプロイ先、Cloudflare 周辺能力の境界
 -   [**翻訳ガバナンス**](https://docs.momei.app/ja-JP/guide/translation-governance) - ja-JP の公開範囲と未翻訳ページの扱い
 -   [**ロードマップ要約**](https://docs.momei.app/ja-JP/plan/roadmap) - 日本語で公開中の進捗サマリー
+-   [**拡張パック**](https://docs.momei.app/ja-JP/guide/enhanced-pack) - 一括翻訳、配信追跡とコンテンツ資産統合管理
 -   [**比較ガイド（中国語原文）**](https://docs.momei.app/guide/comparison) - なぜ墨梅を選ぶのか？
 -   [**環境とシステム設定（中国語原文）**](https://docs.momei.app/guide/variables) - 環境変数、設定センターマッピング、ロック戦略
 -   [**開発ガイド（中国語原文）**](https://docs.momei.app/guide/development) - 環境構築と貢献

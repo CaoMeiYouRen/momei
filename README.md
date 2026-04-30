@@ -131,6 +131,7 @@
 
 -   [**快速开始**](https://docs.momei.app/guide/quick-start) - 一键部署与启动
 -   [**方案对比**](https://docs.momei.app/guide/comparison) - 为什么选择墨梅?
+-   [**增强包**](https://docs.momei.app/guide/enhanced-pack) - 批量翻译编排、多平台分发追踪与内容资产统一管理
 -   [**部署指南**](https://docs.momei.app/guide/deploy) - Vercel/Docker/私有服务器
 -   [**环境与系统设置**](https://docs.momei.app/guide/variables) - 环境变量、设置中心映射与锁定策略
 -   [**开发指南**](https://docs.momei.app/guide/development) - 环境搭建与贡献

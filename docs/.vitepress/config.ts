@@ -59,6 +59,7 @@ export default defineConfig({
                             { text: 'AI 协同开发', link: '/guide/ai-development' },
                             { text: '功能特性', link: '/guide/features' },
                             { text: '方案对比', link: '/guide/comparison' },
+                            { text: '增强包', link: '/guide/enhanced-pack' },
                         ],
                     },
                     {
@@ -201,6 +202,7 @@ export default defineConfig({
                             { text: '部署指南', link: '/zh-TW/guide/deploy' },
                             { text: '變數與設定映射', link: '/zh-TW/guide/variables' },
                             { text: '功能特色', link: '/zh-TW/guide/features' },
+                            { text: '增強包', link: '/zh-TW/guide/enhanced-pack' },
                         ],
                     },
                     {
@@ -249,6 +251,7 @@ export default defineConfig({
                             { text: 'Variables & Settings', link: '/en-US/guide/variables' },
                             { text: 'Dev Guide', link: '/en-US/guide/development' },
                             { text: 'Features', link: '/en-US/guide/features' },
+                            { text: 'Enhanced Pack', link: '/en-US/guide/enhanced-pack' },
                         ],
                     },
                     {
@@ -307,6 +310,7 @@ export default defineConfig({
                             { text: '배포 가이드', link: '/ko-KR/guide/deploy' },
                             { text: '변수 및 설정 매핑', link: '/ko-KR/guide/variables' },
                             { text: '기능 개요', link: '/ko-KR/guide/features' },
+                            { text: '확장 팩', link: '/ko-KR/guide/enhanced-pack' },
                         ],
                     },
                     {
@@ -352,6 +356,7 @@ export default defineConfig({
                             { text: 'クイックスタート', link: '/ja-JP/guide/quick-start' },
                             { text: 'デプロイガイド', link: '/ja-JP/guide/deploy' },
                             { text: '翻訳ガバナンスと貢献方針', link: '/ja-JP/guide/translation-governance' },
+                            { text: '拡張パック', link: '/ja-JP/guide/enhanced-pack' },
                         ],
                     },
                     {

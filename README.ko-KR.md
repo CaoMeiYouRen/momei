@@ -131,6 +131,7 @@
 
 -   [**빠른 시작**](https://docs.momei.app/ko-KR/guide/quick-start) - 원클릭 배포와 시작
 -   [**솔루션 비교**](https://docs.momei.app/ko-KR/guide/comparison) - 왜 모메이를 선택해야 하는가?
+-   [**확장 팩**](https://docs.momei.app/ko-KR/guide/enhanced-pack) - 일괄 번역, 배포 추적 및 콘텐츠 자산 통합 관리
 -   [**배포 가이드**](https://docs.momei.app/ko-KR/guide/deploy) - Vercel / Docker / 사설 서버
 -   [**환경 및 시스템 설정**](https://docs.momei.app/ko-KR/guide/variables) - 환경 변수, 설정 센터 매핑, 잠금 전략
 -   [**개발 가이드**](https://docs.momei.app/ko-KR/guide/development) - 환경 구축과 기여
