@@ -7,7 +7,7 @@ const isCoverageRun = process.argv.includes('--coverage')
 const availableCpuCount = os.cpus().length
 const testPool = isCoverageRun ? 'forks' : 'threads'
 const maxWorkerCount = isCoverageRun
-    ? 1
+    ? Math.ceil(availableCpuCount / 2)
     : availableCpuCount
 const coverageExecArgv = isCoverageRun
     ? ['--max-old-space-size=6144']
