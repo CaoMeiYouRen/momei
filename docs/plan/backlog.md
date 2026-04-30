@@ -20,9 +20,10 @@
     - 进行中。
 - **当前状态**:
     - 第二十六阶段已将全仓覆盖率推进到约 `72%`，第二十八阶段也已完成本轮切片并把全仓 coverage 推进到 `76%+`。
-    - 本轮继续按高风险路径优先完成后台统计、数据库中间件边界、公开读接口、编辑器关键工作流与多语言回退链路补测，但长期主线仍未结束，后续目标继续朝 `80%+` 推进。
+    - 第三十一阶段已继续围绕共享文案 raw key 暴露、认证配置退化与 coverage blocker 三条高风险链路补齐失败断言，并把 `AppFooter` 与公开友链页纳入固定 runtime 回归入口；当前全仓 coverage 已稳定在 statements `76.03%` / lines `76.08%`。
+    - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
-    - 第二十八阶段（已审计归档）。
+    - 第三十一阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先围绕 `76%+` 之后的高风险模块深挖，而不是回到低价值铺量测试。
 
@@ -34,9 +35,10 @@
 - **当前状态**:
     - 第二十四阶段已完成 `@typescript-eslint/no-dynamic-delete` 首轮生产代码收紧，warning 基线、回滚方式与最小验证矩阵已落盘。
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
-    - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样，并明确下一轮优先从 `composables` 再缩到单模块切片。
+    - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
+    - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
 - **最近一次上收阶段**:
-    - 第三十阶段（已审计归档）。
+    - 第三十一阶段（已审计归档）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
@@ -140,8 +142,9 @@
 - **当前状态**:
     - 规划文档已积累较长历史窗口，随着阶段数增加，早期内容的维护与检索成本持续上升，需要从“阶段性压缩 + 完整历史归档”两个层面重新设计。
     - 2026-04-20 基线已完成一次量化：`roadmap.md` 约 `797` 行、`todo-archive.md` 约 `1971` 行；对应 warning / 强制分片阈值与分片策略已正式落在 `docs/plan/archive/index.md`。
+    - 第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 也已改为“深度归档索引 + 近线阶段窗口”的维护模式；后续治理重点转为按阈值滚动归档，而不是再次做一次性大搬迁。
 - **最近一次上收阶段**:
-    - 第二十九阶段（已审计归档）。
+    - 第三十一阶段（已审计归档）。
 - **下一次可切片方向**:
     - 先评估 `roadmap.md` / `todo-archive.md` 的当前行数、阶段数量与检索成本，再定义深度归档触发阈值与分片策略。
 
@@ -159,7 +162,7 @@
     - 当前仍有一批“不同页面文案完全一致”的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
     - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、unused 字段排查策略与共享命名空间继续收敛方向。
     - 第三十阶段切片已完成正式收口：`i18n:audit:missing` 当前 `total: 0`，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
-    - 第三十一阶段当前切片已继续把固定运行时回归入口扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing` 与 `i18n:audit:unused` 均为 `total: 0`。
+    - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing` 与 `i18n:audit:unused` 均为 `total: 0`。
 - **最近一次上收阶段**:
     - 第三十一阶段（当前切片已收口，长期主线继续保留）。
 - **下一次可切片方向**:
@@ -184,7 +187,7 @@
 
 ## 现状摘要与方向判断
 
-> 本区基于 `roadmap.md`、`todo-archive.md`、`CHANGELOG.md` 与当前源码 / 文档事实源整理，用于 backlog 背景判断与后续切片参考；第三十阶段已完成审计归档，当前仍以中文 `roadmap.md`、`todo.md` 与 `todo-archive.md` 为唯一规划事实源。
+> 本区基于 `roadmap.md`、`todo-archive.md`、`CHANGELOG.md` 与当前源码 / 文档事实源整理，用于 backlog 背景判断与后续切片参考；第三十一阶段已完成审计归档，当前仍以中文 `roadmap.md`、`todo.md` 与 `todo-archive.md` 为唯一规划事实源。
 
 - **已实现能力摘要**:
     - 产品主干已经基本闭环：内容管理、AI 创作 / 翻译 / 配图 / 语音、多语言内容治理、第三方分发、通知 / 营销、主题与设置中心、上传与对象存储、迁移 CLI / MCP、审计与 Review Gate、周期性回归与发布门禁均已落地。
@@ -200,6 +203,7 @@
 - **方向判断**:
     - 第二十九阶段已按“1 个新功能 + 5 个优化”的组合完成本轮切片并审计归档。
 	- 第三十阶段已按“1 个新功能 + 5 个优化”的组合完成并审计归档，当前新增能力已落地远程仓库同步（Hexo 风格 / GitHub / Gitee）单仓库候选闭环；优化主线也已完成文档翻译 freshness、国际化字段治理、重复代码复用、注释治理，以及 ESLint / 类型债规则收紧五条切片收口。
+    - 第三十一阶段已按“1 个新功能预研 + 4 个治理切片 + 1 个战略评估”的组合完成并审计归档，当前已形成 `caomei-auth` 暂缓接入结论，完成路线图 / Todo 深度归档、国际化运行时治理、`composables` 子桶 ESLint 收口、coverage `76%+` 关闭，以及商业化转型重评收口。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
 
 ## 短期 / 一次性候选任务（上收后去重）

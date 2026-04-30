@@ -349,3 +349,63 @@
     - 验收: 输出本轮规则上收结论、残余债务清单与下一轮候选规则建议，便于阶段收口与后续准入复用。
     - 结果: 已完成两轮 `@typescript-eslint/no-explicit-any` 窄边界收紧，覆盖 `utils/shared/markdown.ts` 的 `7` 处显式 `any` 与 `server/utils/object.ts`、`server/utils/pagination.ts` 的 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样，并明确下一轮优先从 `composables` 继续缩窄。
     - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-21“utils/shared ESLint / 类型债窄边界收紧”条目与 [current.md](../reports/regression/current.md) 的 2026-04-21“server/utils ESLint / 类型债第二轮收紧”条目，两轮 Review Gate 结论均为 `Pass`。
+
+## 第三十一阶段：认证预研与治理执行面正式上收 (已审计归档)
+
+> 审计结论: 第三十一阶段围绕 `caomei-auth` 第三方登录支持评估与接入预研、路线图 / Todo 深度归档治理、国际化运行时加载与文案复用治理、ESLint / 类型债治理（`composables` 子桶）、测试覆盖率与有效性治理，以及商业化转型可行性重评六条主线，已在专项设计文档、实现代码、定向测试、活动回归窗口与规划文档中完成闭环，满足归档条件。`caomei-auth` 预研、国际化运行时治理、`composables` ESLint 收口与 coverage `76%+` 关闭线的收口证据均已写入 [current.md](../reports/regression/current.md) 的近线记录；路线图 / Todo 深度归档治理与商业化重评也已在中文事实源与设计文档中形成可追溯结论。
+
+> **ROI 评估**: `caomei-auth` 第三方登录支持评估与接入预研 1.33；路线图 / Todo 深度归档治理 1.40；国际化运行时加载与文案复用治理 1.60；ESLint / 类型债治理（`composables` 子桶）1.50；测试覆盖率与有效性治理 1.83；商业化转型可行性重评 1.20。六项均已按当前阶段执行边界完成收口，其中测试覆盖率与国际化运行时治理为本轮 P0 主线。
+
+### 1. 主线：`caomei-auth` 第三方登录支持评估与接入预研 (P1)
+
+- [x] **`caomei-auth` 第三方登录支持评估与接入预研**
+    - 验收: 已明确 `genericOAuth` / `genericOAuthClient` 接入锚点，以及 `caomei-auth` 的 Discovery、授权、令牌、用户信息、JWKS、动态注册与刷新令牌能力是否满足最小接入前提。
+    - 验收: 已明确字段映射、账号绑定、同邮箱合并、回调地址与 ENV 锁定边界，并输出“允许进入实现 / 需上游补齐 / 暂缓接入”的三选一结论。
+    - 非目标: 不直接落地真实登录按钮、回调处理或账号绑定实现。
+    - 结果: 已确认 `better-auth` 现有 `genericOAuth` 接入锚点可承接 `caomei-auth`，但上游当前仍缺少明确的 revocation / refresh token 能力保证，故阶段结论为“暂缓接入，待上游补齐后再评估真实实现”。
+    - 验证: 详见 [caomei-auth OAuth / OIDC 接入预研](../design/governance/caomei-auth-oauth-evaluation.md)。
+
+### 2. 主线：路线图 / Todo 深度归档治理 (P1)
+
+- [x] **路线图 / Todo 深度归档治理**
+    - 验收: 已对 `roadmap.md` 与 `todo-archive.md` 完成首轮深度归档，补齐区间分片、兼容入口与回链说明，并重新量化主文档行数。
+    - 验收: 主文档已回到健康窗口；若后续再次膨胀，已明确记录下一步拆分计划。
+    - 非目标: 不改写既有阶段完成事实，不扩写成多语翻译同步工程。
+    - 结果: 已新增 `docs/plan/archive/roadmap-phases-01-10.md`、`docs/plan/archive/roadmap-phases-11-21.md`、`docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md` 与 `docs/plan/archive/todo-archive-phases-22-24.md` 五个区间分片；`docs/plan/regression-log*.md` 旧正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`，原路径现已删除。
+    - 验证: `pnpm exec lint-md docs/plan/roadmap.md docs/plan/todo-archive.md docs/plan/archive/index.md docs/plan/archive/roadmap-phases-01-10.md docs/plan/archive/roadmap-phases-11-21.md docs/plan/archive/todo-archive-phases-01-10.md docs/plan/archive/todo-archive-phases-11-21.md docs/plan/archive/todo-archive-phases-22-24.md docs/reports/regression/index.md docs/reports/regression/archive/index.md`。
+
+### 3. 主线：国际化运行时加载与文案复用治理 (P0)
+
+- [x] **国际化运行时加载与文案复用治理**
+    - 验收: `i18n:audit:missing` 继续保持 `0` blocker，且 `i18n:verify:runtime` 已覆盖至少一条公开页装配链路与一组共享组件文案场景。
+    - 验收: 已明确共享 key 上收准入标准、缺词定级口径与下一批高风险历史热点，并完成一批有限集合动态 key 显式化与废弃通知字段删除，使 `i18n:audit:unused` 回到 `0`。
+    - 非目标: 不发起全仓 i18n 重构，不把后续新增 `unused` 字段清理扩写为独立 blocker 工程。
+    - 结果: 已把固定运行时回归入口扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing` 与 `i18n:audit:unused` 均为 `total: 0`。
+    - 验证: `pnpm i18n:audit:unused -- --summary-limit=20`、`pnpm i18n:audit:missing -- --summary-limit=12`、`pnpm i18n:verify:runtime`、`pnpm exec nuxt typecheck`，以及 [活动回归窗口](../reports/regression/current.md) 的 2026-04-24 记录。
+
+### 4. 主线：ESLint / 类型债治理（`composables` 子桶） (P1)
+
+- [x] **ESLint / 类型债治理（`composables` 子桶）**
+    - 验收: 已冻结 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶的命中清单、替代写法与回滚边界。
+    - 验收: 目标子桶中的非空断言已按显式守卫、默认值、类型收窄或提前返回收敛，且未外溢到非目标目录。
+    - 非目标: 不并行开启其他规则的全仓治理，不把 `any`、`unsafe-*`、`max-lines` 等主线打包并入。
+    - 结果: 已确认当前生产源码中的 `@typescript-eslint/no-non-null-assertion` 命中收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并已改为局部变量、显式守卫与类型收窄；同时通过复用 `utils/web/audio-compression.ts` 中的 PCM 转换 helper 消除了 `composables/use-asr-direct.ts` 的目录级 `max-lines` blocker，使 `composables` 子桶 ESLint 收口重新打通。
+    - 验证: `pnpm exec eslint composables --max-warnings 0`、`pnpm exec nuxt typecheck`。
+
+### 5. 主线：测试覆盖率与有效性治理 (P0)
+
+- [x] **测试覆盖率与有效性治理**
+    - 验收: 全仓 coverage 基线不低于当前 `76%+` 水位，并至少补齐一组“命名空间漂移 / raw key 暴露 / 认证配置退化时会失败”的高风险行为断言。
+    - 验收: 回归记录已说明新增覆盖命中的真实风险与未覆盖边界。
+    - 非目标: 不把本轮扩大成全仓 coverage 冲 `80%` 的铺量工程，不接受只有 snapshot 的低价值补测。
+    - 结果: 2026-04-30 已补 `components/app-footer.test.ts`、`pages/friend-links.test.ts`、`lib/auth-client.test.ts` 与 `components/comment-list.test.ts` 的高风险断言，并把 `AppFooter` 纳入 `i18n:verify:runtime` 固定入口；当前全仓 coverage 为 statements `76.03%` / lines `76.08%`，达到本轮 `76%+` 关闭线，故本项完成。
+    - 验证: `pnpm exec vitest run pages/friend-links.test.ts`、`pnpm i18n:verify:runtime`、`pnpm test:coverage`，以及 `pnpm exec nuxt typecheck`（输出回写到 `artifacts/typecheck-coverage-governance-2026-04-30.txt`，无诊断输出）。
+
+### 6. 主线：商业化转型可行性重评 (P1)
+
+- [x] **商业化转型可行性重评**
+    - 验收: 已按统一评分维度完成打分，并输出“继续推进 / 暂缓推进 / 降级观察”三选一结论。
+    - 验收: 已明确一个最值得继续验证的付费增强能力，或明确说明当前尚不存在该主卖点，并指出统一承接入口的优先落点。
+    - 非目标: 不直接进入支付、价格页、会员中心或营销后台增强实现。
+    - 结果: 已结合既有 `opc-doc` 利基 / 价值主张 / 商业模式 / 转化闭环产物，以及首页、Demo、About 三个公开入口审计完成重评；统一评分为 `17 / 25`，结论为“降级观察”。已确认“开源核心 + 付费增强功能”仍是唯一主路径，但赞助 / 会员继续只承担辅助收入角色；当前最值得继续验证的候选收敛为“多语言内容资产化增强包”。
+    - 验证: 详见 [商业化转型可行性重评框架](../design/governance/commercialization-reassessment-framework.md) 与 [项目长期规划与积压项](./backlog.md)。

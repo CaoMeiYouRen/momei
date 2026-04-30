@@ -9,6 +9,52 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-30 第三十一阶段归档放行复核
+
+### 范围
+
+- 目标：为第三十一阶段“认证预研与治理执行面正式上收”补齐阶段归档动作本身的独立放行证据，确保规划状态从“当前阶段执行中”切换到“已审计归档”时，具备可直接引用的 phase-close 记录。
+- 本轮覆盖：`docs/plan/todo.md`、`docs/plan/todo-archive.md`、`docs/plan/roadmap.md`、`docs/plan/backlog.md` 的阶段状态一致性，`docs/i18n/*/plan/roadmap.md` 的摘要同步，以及第三十一阶段 6 条主线在当前回归窗口和专项设计文档中的证据挂接完整性。
+- 非目标：不重做第三十一阶段各主线的实现级 review；`caomei-auth` 预研、国际化运行时治理、`composables` ESLint 收口、coverage 收口与商业化重评等实现证据仍以本文件既有记录和专项文档为准。
+
+### 归档结论
+
+- 第三十一阶段 6 条主线均已具备独立收口证据：`caomei-auth` 第三方登录支持评估与接入预研、路线图 / Todo 深度归档治理、国际化运行时加载与文案复用治理、ESLint / 类型债治理（`composables` 子桶）、测试覆盖率与有效性治理，以及商业化转型可行性重评，均已在实现代码、专项设计文档、活动回归窗口或阶段待办中形成可回溯结论。
+- 中文事实源已完成阶段切换：`todo.md` 已清理第三十一阶段执行正文并回到“当前无已正式上收执行项”的待命状态，`todo-archive.md` 已追加完整归档块，`roadmap.md` 已将第三十一阶段切换为“已审计归档”，`backlog.md` 也已同步长期主线的最近一次上收阶段与状态说明。
+- 多语摘要已同步：`en-US`、`zh-TW`、`ko-KR`、`ja-JP` 的 roadmap 摘要均已补到“第三十一阶段已审计归档”，并把 `last_sync` 更新为 2026-04-30。
+- 当前三份主窗口文档仍处于健康范围：`roadmap.md` 为 `301` 行、`todo-archive.md` 为 `310` 行、`docs/reports/regression/current.md` 为 `165` 行，均未触发对应的 warning / blocker 阈值。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1 + RG`。
+- V0：核对第三十一阶段 6 条主线的收口状态、中文事实源、backlog、专项文档与多语 roadmap 摘要的一致性。
+- V1：执行规划 / 翻译文档的编辑器诊断检查、`pnpm docs:check:source-of-truth`、`pnpm docs:check:i18n`、`pnpm lint:md`，并复核活动回归窗口仍处于可读范围。
+- RG：本轮 Review Gate 结论为 `Pass`。
+
+### 已执行验证
+
+- 编辑器诊断：`docs/plan/todo.md`、`docs/plan/todo-archive.md`、`docs/plan/roadmap.md`、`docs/plan/backlog.md`、`docs/i18n/*/plan/roadmap.md`、`docs/reports/regression/current.md`
+	- 结果：通过；本轮同步后无新增诊断错误。
+- `pnpm docs:check:source-of-truth`
+	- 结果：通过；中文事实源、翻译摘要与 `last_sync` 时效性保持一致。
+- `pnpm docs:check:i18n`
+	- 结果：通过；未发现旧 `docs/<locale>/` 目录回流或重复翻译页。
+- `pnpm lint:md`
+	- 结果：通过；阶段归档块、路线图状态切换与多语摘要更新未引入 Markdown 结构错误。
+- 活动窗口体量复核：`docs/plan/roadmap.md`、`docs/plan/todo-archive.md`、`docs/reports/regression/current.md`
+	- 结果：当前分别为 `301`、`310`、`165` 行，均处于健康窗口内。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；第三十一阶段归档所需的中文事实源、多语摘要与最小文档质量门均已完成并可重复通过。
+
+### 未覆盖边界
+
+- 本条记录只为第三十一阶段归档动作提供统一放行入口，不替代 `caomei-auth` 预研、coverage 治理、i18n 运行时治理等主线各自的实现级回归记录；后续复查具体链路时，仍应回到对应的专项文档或近线记录。
+- 下一阶段当前仍只允许保留“1 个新功能 + 若干优化”的候选分析，尚未满足正式写入 `todo.md` / `roadmap.md` 的准入条件；任何新增事项在下一阶段正式上收前仍应先进入 `backlog.md` 做评分与分流。
+
 ## 2026-04-30 第三十一阶段测试覆盖率与有效性治理切片续推
 
 ### 范围
