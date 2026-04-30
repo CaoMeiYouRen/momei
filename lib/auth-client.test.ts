@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const globalFetchMock = vi.fn<typeof fetch>()
+
+vi.stubGlobal('fetch', globalFetchMock)
+
 const {
     createAuthClientMock,
     authBaseUrlState,
@@ -94,6 +98,7 @@ describe('lib/auth-client configuration', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         authBaseUrlState.value = ''
+        globalFetchMock.mockReset()
         Object.defineProperty(window, '__NUXT__', {
             value: {
                 publicRuntimeConfig: {
@@ -132,5 +137,110 @@ describe('lib/auth-client configuration', () => {
             'genericOAuthClient',
             'twoFactorClient',
         ]))
+    })
+
+    it('falls back to window origin when both env and runtime auth config are absent', async () => {
+        Object.defineProperty(window, '__NUXT__', {
+            value: {
+                publicRuntimeConfig: {
+                    authBaseUrl: '',
+                },
+            },
+            configurable: true,
+            writable: true,
+        })
+
+        const { options } = await importAuthClientModule()
+
+        expect(options.baseURL).toBe(window.location.origin)
+    })
+
+    it('resets the session atom and broadcasts cache busts by default', async () => {
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+        const { module } = await importAuthClientModule()
+
+        module.invalidateAuthSessionRequestCache()
+
+        expect(sessionAtomSetMock).toHaveBeenCalledWith(expect.objectContaining({
+            data: null,
+            error: null,
+            isPending: true,
+            isRefetching: false,
+            refetch: expect.any(Function),
+        }))
+        expect(setItemSpy).toHaveBeenCalledWith('momei:auth-session-cache-bust', expect.any(String))
+        expect(module.getAuthSessionCacheBustVersion()).toBeGreaterThan(0)
+    })
+
+    it('serves primed session cache snapshots without hitting fetch', async () => {
+        const { module, options } = await importAuthClientModule()
+
+        module.primeAuthSessionRequestCache(null)
+
+        const response = await options.fetchOptions.customFetchImpl('https://runtime-auth.example.com/api/auth/get-session')
+
+        expect(globalFetchMock).not.toHaveBeenCalled()
+        expect(response.status).toBe(200)
+        expect(await response.text()).toBe('null')
+    })
+
+    it('deduplicates in-flight session requests and reuses successful cached responses', async () => {
+        const body = JSON.stringify({
+            data: {
+                user: {
+                    id: 'remote-user',
+                },
+            },
+        })
+        globalFetchMock.mockResolvedValue(new Response(body, {
+            status: 200,
+            headers: {
+                'content-type': 'application/json',
+            },
+        }))
+
+        const { options } = await importAuthClientModule()
+        const requestUrl = 'https://runtime-auth.example.com/api/auth/get-session'
+        const [firstResponse, secondResponse] = await Promise.all([
+            options.fetchOptions.customFetchImpl(requestUrl),
+            options.fetchOptions.customFetchImpl(requestUrl),
+        ])
+        const thirdResponse = await options.fetchOptions.customFetchImpl(requestUrl)
+
+        expect(globalFetchMock).toHaveBeenCalledTimes(1)
+        expect(await firstResponse.text()).toBe(body)
+        expect(await secondResponse.text()).toBe(body)
+        expect(await thirdResponse.text()).toBe(body)
+    })
+
+    it('binds the session sync listener once and reacts only to cache bust storage events', async () => {
+        const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+        const { module } = await importAuthClientModule()
+
+        module.initializeAuthSessionSync()
+        module.initializeAuthSessionSync()
+
+        expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
+        expect(addEventListenerSpy).toHaveBeenCalledWith('storage', expect.any(Function))
+
+        const storageListener = addEventListenerSpy.mock.calls[0]?.[1] as ((event: StorageEvent) => void) | undefined
+        expect(storageListener).toBeDefined()
+
+        sessionAtomSetMock.mockClear()
+        storeNotifyMock.mockClear()
+        storageListener?.({ key: 'other-key' } as StorageEvent)
+        expect(sessionAtomSetMock).not.toHaveBeenCalled()
+        expect(storeNotifyMock).not.toHaveBeenCalled()
+
+        storageListener?.({ key: 'momei:auth-session-cache-bust' } as StorageEvent)
+        expect(sessionAtomSetMock).toHaveBeenCalledWith(expect.objectContaining({
+            data: null,
+            error: null,
+            isPending: true,
+            isRefetching: false,
+            refetch: expect.any(Function),
+        }))
+        expect(storeNotifyMock).toHaveBeenCalledWith('$sessionSignal')
+        expect(module.getAuthSessionCacheBustVersion()).toBeGreaterThan(0)
     })
 })

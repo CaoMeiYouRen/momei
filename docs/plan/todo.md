@@ -18,7 +18,7 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研、路线图 / Todo 深度归档治理、国际化运行时加载与文案复用治理三条主线已完成当前切片收口，其余事项尚未开启进行中项。其中国际化治理切片已同时覆盖运行时装配验证与一批 `unused` 字段清理；深度归档治理已将规划主入口收敛为近线窗口，并把旧回归兼容入口迁入 `docs/reports/regression/` 正式目录。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
+> 阶段状态: 第三十阶段已完成审计归档；第三十一阶段已正式上收，`caomei-auth` 第三方登录支持评估与接入预研、路线图 / Todo 深度归档治理、国际化运行时加载与文案复用治理三条主线已完成当前切片收口；`测试覆盖率与有效性治理 (P0)` 也已于 2026-04-30 达到当前 `76%+` 关闭线并完成收口。其中国际化治理切片已同时覆盖运行时装配验证与一批 `unused` 字段清理；深度归档治理已将规划主入口收敛为近线窗口，并把旧回归兼容入口迁入 `docs/reports/regression/` 正式目录。详细范围、非目标、验收标准与最小验证矩阵见 [项目计划](./roadmap.md) 与 [第三十一阶段候选上收草案](../design/governance/phase-31-candidate-draft.md)。
 
 ### 第三十一阶段：认证预研与治理执行面正式上收
 
@@ -48,11 +48,13 @@
 	- 结果: 已确认当前生产源码中的 `@typescript-eslint/no-non-null-assertion` 命中收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并已改为局部变量、显式守卫与类型收窄；同时通过复用 `utils/web/audio-compression.ts` 中的 PCM 转换 helper 消除了 `composables/use-asr-direct.ts` 的目录级 `max-lines` blocker，使 `composables` 子桶 ESLint 收口重新打通。
 	- 验证: `pnpm exec eslint composables --max-warnings 0`、`pnpm exec nuxt typecheck`。
 
-- [ ] **测试覆盖率与有效性治理 (P0)**
+- [x] **测试覆盖率与有效性治理 (P0)**
 	- 验收: 全仓 coverage 基线不低于当前 `76%+` 水位，并至少补齐一组“命名空间漂移 / raw key 暴露 / 认证配置退化时会失败”的高风险行为断言。
 	- 验收: 回归记录已说明新增覆盖命中的真实风险与未覆盖边界。
 	- 非目标: 不把本轮扩大成全仓 coverage 冲 `80%` 的铺量工程，不接受只有 snapshot 的低价值补测。
-	- 验证: `pnpm test:coverage`、`pnpm i18n:verify:runtime` 与受影响 `vitest` 用例。
+	- 结果: 2026-04-30 已补 `components/app-footer.test.ts`、`pages/friend-links.test.ts`、`lib/auth-client.test.ts` 与 `components/comment-list.test.ts` 的高风险断言，并把 `AppFooter` 纳入 `i18n:verify:runtime` 固定入口；其中 `pages/friend-links.test.ts` 进一步覆盖了真实 `useAsyncData` 成功 / 失败回退、登录预填、Uploader 分支、健康状态 fallback 与可选字段提交流程。
+	- 结果: `pnpm i18n:verify:runtime` 与 `pnpm test:coverage` 已可重复通过，当前全仓 coverage 为 statements `76.03%` / lines `76.08%`，达到本轮 `76%+` 关闭线，故本项完成。
+	- 验证: `pnpm exec vitest run pages/friend-links.test.ts`、`pnpm i18n:verify:runtime`、`pnpm test:coverage`，以及 `pnpm exec nuxt typecheck`（输出回写到 `artifacts/typecheck-coverage-governance-2026-04-30.txt`，无诊断输出）。
 
 
 - [x] **商业化转型可行性重评 (P1)**

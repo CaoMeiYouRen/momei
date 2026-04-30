@@ -4,9 +4,9 @@ import CommentList from './comment-list.vue'
 import { CommentStatus } from '@/types/comment'
 
 describe('CommentList', () => {
-    const postId = 'post-1'
-
     it('renders loading state initially', async () => {
+        const postId = 'post-loading'
+
         // Mock slow endpoint
         registerEndpoint(`/api/posts/${postId}/comments`, () => new Promise((resolve) => {
             setTimeout(() => resolve({ code: 200, data: [] }), 100)
@@ -20,6 +20,8 @@ describe('CommentList', () => {
     })
 
     it('renders empty message when no comments', async () => {
+        const postId = 'post-empty'
+
         registerEndpoint(`/api/posts/${postId}/comments`, () => ({
             code: 200,
             data: [],
@@ -35,12 +37,14 @@ describe('CommentList', () => {
                 return true
             }
             throw new Error('Not empty')
-        })
+        }, { timeout: 5000 })
 
         expect(wrapper.text()).toContain('暂无评论')
     })
 
     it('renders list of comments', async () => {
+        const postId = 'post-list'
+
         registerEndpoint(`/api/posts/${postId}/comments`, () => ({
             code: 200,
             data: [
@@ -71,7 +75,7 @@ describe('CommentList', () => {
                 return true
             }
             throw new Error('Comment not found')
-        })
+        }, { timeout: 5000 })
 
         expect(wrapper.text()).toContain('Hello World')
         expect(wrapper.text()).toContain('评论')

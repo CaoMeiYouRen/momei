@@ -9,6 +9,51 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-04-30 第三十一阶段测试覆盖率与有效性治理切片续推
+
+### 范围
+
+- 目标：继续推进第三十一阶段 `测试覆盖率与有效性治理 (P0)`，围绕共享文案 raw key 暴露、认证配置退化和 coverage blocker 三条高风险链路补齐高价值失败断言，并复跑固定 runtime 回归与全仓 coverage。
+- 本轮覆盖：[components/app-footer.test.ts](../../components/app-footer.test.ts)、[pages/friend-links.test.ts](../../pages/friend-links.test.ts)、[lib/auth-client.test.ts](../../lib/auth-client.test.ts)、[components/comment-list.test.ts](../../components/comment-list.test.ts) 与 [package.json](../../package.json) 中的 `i18n:verify:runtime` 固定入口。
+- 非目标：不把本轮扩写为全仓 coverage 冲 `80%` 的铺量工程，不处理与当前高风险链路无关的大面积低覆盖目录，也不把公开页 runtime 回归继续扩散到更多静态结构页。
+
+### 实施结论
+
+- `i18n:verify:runtime` 已正式纳入 `AppFooter` 的真实翻译命中断言，固定拦截 footer 友链区、底部文档入口、法律协议与 `powered_by` 文案回退为 raw key 的回归。
+- `pages/friend-links.test.ts` 已从单一共享字段命名空间断言扩展到禁用态、分组卡片渲染、fallback 文案、真实 `useAsyncData` 成功 / 失败回退、登录预填、Uploader 分支、健康状态 fallback、成功提交、captcha 必填与后端失败回退，覆盖了公开友链页当前最核心的 runtime / 提交流程分支。
+- `lib/auth-client.test.ts` 已补齐 `window.location.origin` 兜底、session cache priming、in-flight 去重、storage 同步与缓存失效广播断言，客户端认证配置退化现在会在测试中直接失败。
+- `components/comment-list.test.ts` 已为每个 case 隔离 endpoint 路径并放宽等待窗口，清除了 `pnpm test:coverage` 下阻塞全仓 coverage 的现有时序 / 污染问题。
+- 全仓 coverage 已从本轮开始前的 `75.68%` 提升到 `76.03%`（lines `76.08%`），达到当前待办要求的 `76%+` 关闭线；其中 `pages/friend-links.vue` 已提升到 statements `97.89%` / lines `97.78%`，本任务据此完成收口。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run components/app-footer.test.ts`
+	- 结果：通过；`6` 个测试全部通过，footer 真实翻译装配与友链区 fallback 文案断言稳定。
+- 定向 Vitest：`pnpm exec vitest run lib/auth-client.test.ts`
+	- 结果：通过；`7` 个测试全部通过，认证客户端回退和 session cache helper 行为已锁定。
+- 定向 Vitest：`pnpm exec vitest run components/comment-list.test.ts`
+	- 结果：通过；`3` 个测试全部通过，coverage blocker 已清除。
+- 定向 Vitest：`pnpm exec vitest run pages/friend-links.test.ts`
+	- 结果：通过；`12` 个测试全部通过，公开友链页共享字段、真实 asyncData 回退、登录预填、健康状态 fallback 与提交流程分支保持稳定。
+- `pnpm i18n:verify:runtime`
+	- 结果：通过；`9` 个测试文件、`74` 条断言全部通过。`pages/friend-links.test.ts` 仍会打印 Nuxt i18n 初始化阶段的既有 stderr，但未影响断言结果或退出码。
+- `pnpm test:coverage`
+	- 结果：通过；`416` 个测试文件、`3273` 条断言通过，`All files` coverage 为 statements `76.03%`、branches `63.36%`、functions `69.55%`、lines `76.08%`。
+- `pnpm exec nuxt typecheck`
+	- 结果：通过；由于共享任务终端不会稳定回显 Nuxt 诊断，本轮改为把输出重定向到 `artifacts/typecheck-coverage-governance-2026-04-30.txt`，文件为空且编辑器诊断无新增错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮代码与测试变更本身无 blocker，固定 runtime 回归、全仓 coverage 与类型检查均已可重复执行；`76%+` 关闭线已达成。当前仅保留 coverage run 中与本轮范围无关的既有 i18n stderr 噪音，未影响退出码或待办收口。
+
+### 未覆盖边界
+
+- `pages/friend-links.vue` 当前 coverage 已提升到 statements `97.89%` / lines `97.78%`，但脚本里仍有少量非主路径表单边界未覆盖；若后续继续推进，优先沿该页剩余提交与状态切换分支收敛，而不是转向低相关目录铺量补测。
+- 公开页 runtime 回归当前已覆盖 About、Friend Links、Footer 与后台友链共享字段链路；后续若要继续上收，仍优先考虑 `archives` / `categories` / `tags` 公开列表页，而不是重复增加同类静态结构断言。
+- 全仓 coverage 已达当前阶段 `76%+` 关闭线；若后续继续治理，仍应继续选择高风险且已有测试基座的文件切片推进，避免为了抬数值转向低价值 snapshot 或样式文件补测。
+
 ## 2026-04-27 `composables` 子桶 `no-non-null-assertion` 收口
 
 ### 范围
