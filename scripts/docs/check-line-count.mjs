@@ -8,13 +8,21 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..', '..')
 
+const README_TARGETS = [
+    'README.md',
+    'README.en-US.md',
+    'README.ja-JP.md',
+    'README.ko-KR.md',
+    'README.zh-TW.md',
+].map((file) => ({
+    file,
+    warningLimit: 300,
+    errorLimit: 400,
+    rationale: '根目录 README 及其多语言镜像应保持门户摘要形态，避免继续膨胀成细节手册。',
+}))
+
 const TARGETS = [
-    {
-        file: 'README.md',
-        warningLimit: 300,
-        errorLimit: 400,
-        rationale: '根目录 README 应保持门户摘要形态，避免继续膨胀成细节手册。',
-    },
+    ...README_TARGETS,
     {
         file: 'docs/plan/roadmap.md',
         warningLimit: 800,
@@ -22,16 +30,22 @@ const TARGETS = [
         rationale: '路线图主文档只保留近线阶段窗口与索引，超过 error 线前必须继续深度归档。',
     },
     {
+        file: 'docs/plan/backlog.md',
+        warningLimit: 300,
+        errorLimit: 400,
+        rationale: 'backlog 只保留候选摘要与主线卡片，详细设计与阶段正文应继续下沉到 design / plan 分片。',
+    },
+    {
         file: 'docs/plan/todo-archive.md',
-        warningLimit: 1800,
-        errorLimit: 2200,
-        rationale: '待办归档主窗口只保留最近若干阶段，超过 error 线前必须继续区间分片。',
+        warningLimit: 500,
+        errorLimit: 700,
+        rationale: '待办归档主窗口只保留近线阶段窗口与归档索引；既然已经拆出深度归档，主文件阈值应同步收紧。',
     },
     {
         file: 'docs/reports/regression/current.md',
-        warningLimit: 300,
-        errorLimit: 400,
-        rationale: '活动回归窗口应只保留最近 1 - 2 个阶段或近线记录，超限前先滚动归档。',
+        warningLimit: 350,
+        errorLimit: 500,
+        rationale: '活动回归窗口应只保留最近 1 - 2 个阶段或近线记录；超过 warning 后尽快滚动归档，超过 error 线则视为阻断。',
     },
 ]
 

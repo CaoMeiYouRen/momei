@@ -174,15 +174,16 @@
 2.  **活动窗口独立存放**: 最新回归正文优先写入 `docs/reports/regression/current.md`，只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录。
 3.  **按模块或日期归档**: 历史记录优先拆入 `docs/reports/regression/archive/` 下的模块或日期分片；若归档继续膨胀，再按年份或半年继续拆分。
 4.  **计划文档只留入口**: `docs/plan/` 中与回归记录有关的文件仅保留摘要与迁移说明，不再承载长篇正文。
-5.  **读写压力触发归档**: 当活动窗口超过 300 - 400 行、或超过 6 - 8 条完整记录且影响当前阶段阅读效率时，必须先滚动归档再继续追加新记录。
+5.  **读写压力触发归档**: 当活动窗口超过 350 - 500 行、或超过 6 - 8 条完整记录且影响当前阶段阅读效率时，必须先滚动归档再继续追加新记录。
 6.  **管理文档引用**: 文档规范、规划规范、测试规范与阶段审计文档应统一引用 `docs/reports/regression/index.md`，避免再把新记录入口散落到多个位置。
 
 `roadmap.md` 与 `todo-archive.md` 的深度归档治理继续以 [规划文档深度归档治理](../plan/archive/index.md) 为唯一入口；当前统一阈值如下：
 
-- `README.md`: 作为门户摘要，`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行应先把细节回收到 `docs/` 对应专题页，而不是继续在根 README 堆叠正文。
+- `README.md` 与根目录 `README.<locale>.md` 镜像：作为门户摘要，`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行应先把细节回收到 `docs/` 对应专题页，而不是继续在根 README 堆叠正文。
 - `roadmap.md`: `<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行应先拆分旧阶段正文再继续扩写。
-- `todo-archive.md`: `<= 1800` 行为健康窗口，`1801 - 2200` 行进入 warning，超过 `2200` 行应先进行阶段区间分片再继续归档。
-- `docs/reports/regression/current.md`: `<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
+- `backlog.md`: `<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行应先把候选摘要回收为卡片式描述，而不是在 backlog 里堆叠实施细节。
+- `todo-archive.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先进行阶段区间分片再继续归档。
+- `docs/reports/regression/current.md`: `<= 350` 行为健康窗口，`351 - 500` 行进入 warning，超过 `500` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
 
 上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build` 与发布前检查，不能再依赖人工目测。
 
