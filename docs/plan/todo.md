@@ -41,11 +41,14 @@
 	- 非目标: 不做与高风险链路无关的铺量补测，不接受只有 snapshot 的低价值测试。
 	- 验证: 至少补跑定向 Vitest、`pnpm i18n:verify:runtime`、`pnpm test:coverage` 与 `pnpm exec nuxt typecheck`。
 
-- [ ] **重复代码与纯函数复用收敛 (P1)**
+- [x] **重复代码与纯函数复用收敛 (P1)**
 	- 验收: 本轮只处理公共页模板片段与列表型查询 helper 两组高收益重复区，需写清原始重复点、拟抽象边界、收益、潜在过度泛化风险与回滚方式。
 	- 验收: 至少保住重复代码基线不反弹，并输出本轮收敛后的剩余热点清单。
 	- 非目标: 不做跨目录大重构，不扩写为通用 UI 框架改造。
-	- 验证: 至少完成受影响公共页与查询 helper 的定向测试 / 类型验证，并把重复代码基线回写到活动回归窗口。
+	- 闭合记录（2026-05-01）: 已完成两组高收益重复区收敛。公共页模板片段将 `privacy-policy` / `user-agreement` 两页的整页模板、样式与取数逻辑下沉到 `components/legal-agreement-page.vue` + `composables/use-legal-agreement-page.ts`，同时保留有限集合 i18n key 的显式映射，避免共享组件继续扩大成动态 key 工厂；列表型查询 helper 将 `categories` / `tags` 公开列表端点中重复的缓存 key 组装、公共过滤与 `postCount` 排序逻辑收敛到 `server/utils/taxonomy-public-list.ts`，各自 handler 只保留实体专属差异（如 `parentId`）。
+	- 闭合记录（2026-05-01）: 当前收益已落到“共享改动只需改一处、同类页面与 taxonomy 列表避免继续手写同构逻辑、测试与 typecheck 回归面缩小且更集中”；过度泛化风险已通过“helper 只收公共过滤 / 排序 / cache key，页面共享组件只消费显式 copy 对象”受控，回滚方式也保持为“页面或 handler 可单独内联回原实现，不影响其他目录”。
+	- 闭合记录（2026-05-01）: `pnpm duplicate-code:check` 当前结果为 `32 clones / 697 duplicated lines / 0.59%`，低于此前 backlog 记录的 `34 clones / 879 duplicated lines / 0.79%` 基线，本轮未出现反弹；剩余热点已记录到活动回归窗口，当前优先观察 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、`pages/forgot-password.vue` vs `pages/reset-password.vue`，以及首页 / 公开列表读模型装配边界。
+	- 验证: `server/utils/taxonomy-public-list.test.ts`、`tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts`、`pages/privacy-policy.test.ts`、`pages/user-agreement.test.ts`、`components/legal-agreement-page.test.ts` 共 `32` 条断言通过；`nuxt typecheck targeted` 与 `pnpm duplicate-code:check` 通过；重复代码基线已回写到活动回归窗口。
 
 - [ ] **ESLint / 类型债治理 (P1)**
 	- 验收: 只允许继续上收单规则窄切片，进入实现前必须先冻结候选规则、命中清单、影响文件、预期收益、回滚方式与最小验证矩阵。

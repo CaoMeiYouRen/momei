@@ -412,3 +412,61 @@
 ## 近线窗口外历史入口
 
 - 2026-04-21 的历史治理记录已整体迁移到 [archive/2026-04-21-governance-rollup.md](./archive/2026-04-21-governance-rollup.md)。
+
+## 2026-05-01 第三十二阶段 P1 重复代码与纯函数复用收敛关闭记录
+
+### 范围
+
+- 目标：复核第三十二阶段 `重复代码与纯函数复用收敛 (P1)` 是否已满足关闭条件，并把本轮两组正式切片的原始重复点、抽象边界、收益、风险、回滚方式与剩余热点统一沉淀到活动回归窗口。
+- 本轮覆盖：[pages/privacy-policy.vue](../../pages/privacy-policy.vue)、[pages/user-agreement.vue](../../pages/user-agreement.vue)、[components/legal-agreement-page.vue](../../components/legal-agreement-page.vue)、[composables/use-legal-agreement-page.ts](../../composables/use-legal-agreement-page.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts)、[server/api/tags/index.get.ts](../../server/api/tags/index.get.ts)、[server/utils/taxonomy-public-list.ts](../../server/utils/taxonomy-public-list.ts)，以及对应的页面 / 组件 / API / helper 测试。
+- 非目标：不把本轮扩写为跨目录 UI 框架改造，不顺手收敛 `categories/[slug]` / `tags/[slug]` 等下一批页面热点，也不把读模型装配与公开列表查询继续扩写成新的数据库治理主线。
+
+### 实施结论
+
+- 公共页模板片段原始重复点：`privacy-policy` 与 `user-agreement` 两页此前各自重复维护整页模板、样式、SEO、异步取数、fallback agreement 构造与日期格式化，任何 legal page 结构变更都需要双写。
+- 本轮抽象边界：新增 [components/legal-agreement-page.vue](../../components/legal-agreement-page.vue) 承担统一渲染结构与分支展示，新增 [composables/use-legal-agreement-page.ts](../../composables/use-legal-agreement-page.ts) 承担 SEO、asyncData、fallback agreement 与日期格式化；页面文件只保留 `agreementType / endpoint / defaultContent` 三处差异。为避免共享组件继续扩成动态 i18n key 工厂，有限集合翻译 key 继续在 composable 中显式解析为 `copy` 对象，再传给共享组件消费。
+- 列表型查询 helper 原始重复点：`categories` / `tags` 公开列表端点此前分别重复拼接 runtime cache key、`search + translationId + language` 通用过滤，以及 `postCount` 与默认字段排序分支，后续再改 taxonomy 公开列表契约时需要双写。
+- 本轮抽象边界：新增 [server/utils/taxonomy-public-list.ts](../../server/utils/taxonomy-public-list.ts) 只承接共享 cache key、通用过滤与排序逻辑，entity-specific 差异继续留在各自 handler 中，例如 `categories` 的 `parentId` 与 join/select 细节未被强行抽进通用 helper。
+- 收益：共享 legal page 的结构与 copy 契约现在只需维护一处；taxonomy 公开列表后续继续调整公共过滤或 `postCount` 排序逻辑时也只需改一处；对应测试面已经从“每页 / 每 handler 各自覆盖相似行为”转为“共享 helper / 组件 + 端点回归”组合。
+- 过度泛化风险与控制：legal page 共享层如果直接动态拼 key，容易破坏 i18n 治理可见性；taxonomy helper 如果继续吸收 join、select、translation attach 等实体差异，会把 categories / tags 特有语义抹平。本轮通过“共享组件只消费显式 copy”与“helper 只收公共过滤 / 排序 / cache key”两条边界保持了最小抽象。
+- 回滚方式：若任一共享层后续被证明不再适合复用，可直接把页面或单个 handler 内联回本地实现；当前抽象没有改动数据库契约、接口 shape 或多目录公共 API，因此回滚不需要跨目录联动迁移。
+
+### 重复代码基线与剩余热点
+
+- `pnpm duplicate-code:check`
+	- 结果：通过；review gate `Pass`。
+	- 当前基线：`32 clones / 697 duplicated lines / 0.59%`。
+	- 对比上一条 backlog 基线：此前长期主线记录为 `34 clones / 879 duplicated lines / 0.79%`，当前未反弹且继续下降。
+	- 产物：`artifacts/review-gate/2026-05-01-duplicate-code.json`、`artifacts/review-gate/2026-05-01-duplicate-code.md`。
+- 当前剩余热点（按下一轮切片优先级归并，不展开新实现）：
+	- 公共页模板片段：`pages/categories/[slug].vue` vs `pages/tags/[slug].vue`。
+	- 公开认证页模板：`pages/forgot-password.vue` vs `pages/reset-password.vue`。
+	- 读模型 / 查询装配边界：首页与公开列表的读模型组装、taxonomy slug 页面数据装配，以及若干 AI / 邮件服务内部重复片段。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：核对 [docs/plan/todo.md](../../docs/plan/todo.md)、[docs/plan/backlog.md](../../docs/plan/backlog.md) 与本记录对“本轮只关闭公共页模板片段 + 列表型查询 helper 两组切片”的口径保持一致。
+- V1：`nuxt typecheck targeted` 与重复代码基线检查。
+- V2：共享 helper / 组件与受影响端点、页面的定向 Vitest。
+- RG：本轮 Review Gate 结论为 `Pass`，当前阶段该条 P1 正式待办可关闭。
+
+### 已执行验证
+
+- 定向 Vitest：`server/utils/taxonomy-public-list.test.ts`、`tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts`、`pages/privacy-policy.test.ts`、`pages/user-agreement.test.ts`、`components/legal-agreement-page.test.ts`
+	- 结果：通过；共 `32` 条断言通过，已覆盖共享 taxonomy helper、categories/tags 公开列表、legal page 页面主路径与共享 legal 组件分支。
+- `nuxt typecheck targeted`
+	- 结果：通过；共享组件 / composable 与 taxonomy helper 当前无新增类型错误。
+- `pnpm duplicate-code:check`
+	- 结果：通过；当前仓库重复代码基线为 `32 clones / 697 duplicated lines / 0.59%`，review gate 为 `Pass`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮两组重复区已完成代码、定向测试、类型验证与重复代码基线回写，且共享抽象边界没有外溢成跨目录大重构。
+
+### 未覆盖边界
+
+- 本轮没有继续覆盖 `categories/[slug]` / `tags/[slug]` 的重复模板，也没有继续下探首页 / 公开列表读模型装配边界；这些热点继续保留给后续阶段按单组切片推进。
+- 当前 `duplicate-code:check` 仍会报告若干与本轮范围无关的仓库级历史热点，例如 AI TTS 路由、邮件服务和部分后台页面模板；它们不影响本轮 P1 关闭，但也不能被误判为已经治理完成。
