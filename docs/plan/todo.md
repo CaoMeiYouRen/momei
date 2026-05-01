@@ -54,6 +54,8 @@
 	- 验收: 只允许继续上收单规则窄切片，进入实现前必须先冻结候选规则、命中清单、影响文件、预期收益、回滚方式与最小验证矩阵。
 	- 验收: 目标切片清理完成后，未外溢到非目标目录，且目录级或定向 ESLint / typecheck 可以稳定通过。
 	- 非目标: 不并行开启第二条规则治理，不扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
+	- 推进记录（2026-05-01）: 本轮继续沿单规则窄切片推进 `@typescript-eslint/no-explicit-any`，只上收到 `composables/use-post-editor-voice.ts` 单文件；`9` 处显式 `any` 已收敛为本地 Web Speech / 错误对象最小类型、配置响应归一化与局部实例收窄，未外溢到其他 composable 或测试目录。
+	- 推进记录（2026-05-01）: `eslint.config.js` 已把重复出现的 TS `files` / `ignores` 作用域抽成共享常量与 `createRuleOverride()`，并将同一条 `no-explicit-any` 的既有窄切片（`utils/shared/**/*`、`server/utils/object.ts`、`server/utils/pagination.ts`、`composables/use-post-editor-voice.ts`）合并到同一条 override，避免后续治理继续复制边界判断。
 	- 验证: 至少完成目标文件或目录的 ESLint 校验、窄范围类型检查与必要单测，并沉淀残余债务说明。
 
 - [x] **Postgres 查询、CPU 与连接生命周期平衡治理 (P0)**

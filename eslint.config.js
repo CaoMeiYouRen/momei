@@ -8,6 +8,24 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.mjs'
 
 const enableI18nLint = process.env.ESLINT_I18N === 'true'
+const testFiles = ['**/**/*.test.*', '**/**/*.spec.*']
+const tsFiles = ['**/*.{ts,tsx,mts,cts}']
+const serverTsFiles = ['server/**/*.{ts,tsx,mts,cts}']
+const settingsApiTsFiles = ['server/api/settings/**/*.{ts,tsx,mts,cts}']
+const noExplicitAnyFiles = [
+    'utils/shared/**/*.{ts,tsx,mts,cts}',
+    'server/utils/object.ts',
+    'server/utils/pagination.ts',
+    'composables/use-post-editor-voice.ts',
+]
+const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
+const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
+
+function createRuleOverride({ files, rules, ignores = [] }) {
+    return ignores.length > 0
+        ? { files, ignores, rules }
+        : { files, rules }
+}
 
 function promoteRuleLevel(ruleConfig) {
     if (Array.isArray(ruleConfig)) {
@@ -112,15 +130,15 @@ export default withNuxt(
             'max-lines': 'off',
         },
     },
-    {
-        files: ['**/**/*.test.*', '**/**/*.spec.*'],
+    createRuleOverride({
+        files: testFiles,
         rules: {
             'max-lines': [1, { max: 1000 }], // 测试文件的行数限制放宽一些
             'max-lines-per-function': [1, { max: 800 }], // 测试文件的函数行数限制放宽一些
         },
-    },
+    }),
     {
-        files: ['**/*.{ts,tsx,mts,cts}'],
+        files: tsFiles,
         extends: [
             tseslint.configs.recommendedTypeChecked,
             tseslint.configs.strictTypeChecked,
@@ -189,60 +207,52 @@ export default withNuxt(
             '@typescript-eslint/no-unnecessary-type-conversion': [0], // 禁止在表达式类型或值未发生变化时使用转换惯用法
         },
     },
-    {
+    createRuleOverride({
         // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
-        files: ['**/*.{ts,tsx,mts,cts}'],
-        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**', 'server/api/admin/migrations/**', '**/migration-*.ts'],
+        files: tsFiles,
+        ignores: productionTsIgnores,
         rules: {
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
             '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
             '@typescript-eslint/no-unnecessary-type-assertion': [1], // 仅对生产 TS 收紧，先清理低命中冗余断言
         },
-    },
-    {
+    }),
+    createRuleOverride({
         // 第二批仅对 server 目录收紧低风险的冗余类型参数，继续维持 tests / scripts / migrations 豁免。
-        files: ['server/**/*.{ts,tsx,mts,cts}'],
-        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**', 'server/api/admin/migrations/**', '**/migration-*.ts'],
+        files: serverTsFiles,
+        ignores: productionTsIgnores,
         rules: {
             '@typescript-eslint/no-unnecessary-type-arguments': [1],
         },
-    },
-    {
+    }),
+    createRuleOverride({
         // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
-        files: ['server/api/settings/**/*.{ts,tsx,mts,cts}'],
-        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
+        files: settingsApiTsFiles,
+        ignores: runtimeTsIgnores,
         rules: {
             '@typescript-eslint/no-unnecessary-type-conversion': [1],
         },
-    },
-    {
-        // shared 工具层先按单目录收紧 any，优先清掉 Markdown 渲染器接线点的类型债。
-        files: ['utils/shared/**/*.{ts,tsx,mts,cts}'],
-        ignores: ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**'],
+    }),
+    createRuleOverride({
+        // 继续沿用 no-explicit-any 的窄切片策略，并把相同豁免边界的文件组收敛到同一条 override。
+        files: noExplicitAnyFiles,
+        ignores: runtimeTsIgnores,
         rules: {
             '@typescript-eslint/no-explicit-any': [1],
         },
-    },
-    {
-        // 第二轮只收紧 server/utils 底层工具组中的两个高复用文件，避免把 server 工具层一次性扩写成大范围 any 清理。
-        files: ['server/utils/object.ts', 'server/utils/pagination.ts'],
-        rules: {
-            '@typescript-eslint/no-explicit-any': [1],
-        },
-    },
-    {
+    }),
+    createRuleOverride({
         // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
         files: ['composables/use-post-editor-io.ts'],
         rules: {
             '@typescript-eslint/no-non-null-assertion': [1],
         },
-    },
-    {
+    }),
+    createRuleOverride({
         // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
-        files: ['**/*.{ts,tsx,mts,cts}'],
-        ignores: [],
+        files: tsFiles,
         rules: {
             '@typescript-eslint/no-misused-spread': [1], // production 与 tests 命中已清零，继续排除脚本范围
         },
-    },
+    }),
 )

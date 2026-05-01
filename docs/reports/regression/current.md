@@ -100,6 +100,41 @@
 - 公开页 runtime 回归当前已覆盖 About、Friend Links、Footer 与后台友链共享字段链路；后续若要继续上收，仍优先考虑 `archives` / `categories` / `tags` 公开列表页，而不是重复增加同类静态结构断言。
 - 全仓 coverage 已达当前阶段 `76%+` 关闭线；若后续继续治理，仍应继续选择高风险且已有测试基座的文件切片推进，避免为了抬数值转向低价值 snapshot 或样式文件补测。
 
+## 2026-05-01 `use-post-editor-voice.ts` `no-explicit-any` 窄切片与 ESLint 作用域归并
+
+### 范围
+
+- 目标：继续推进第三十二阶段 `ESLint / 类型债治理 (P1)`，在不并行开启第二条规则治理的前提下，完成 `composables/use-post-editor-voice.ts` 单文件 `@typescript-eslint/no-explicit-any` 收敛，并把 `eslint.config.js` 中重复的 TS `files` / `ignores` 作用域判断抽成可复用配置片段。
+- 本轮覆盖：`composables/use-post-editor-voice.ts`、`composables/use-post-editor-voice.test.ts`、`eslint.config.js` 与当前阶段待办 / 治理设计文档事实源同步。
+- 非目标：不把 `no-explicit-any` 扩到整个 `composables/**`、不触碰 `no-unsafe-*`、不把 Web Speech 能力抽成新的跨文件运行时层，也不把其它规则切片一起打包上收。
+
+### 实施结论
+
+- 定向 ESLint 预检查确认 `composables/use-post-editor-voice.ts` 在 `@typescript-eslint/no-explicit-any` 下共有 `9` 处真实命中，全部集中在单文件的 ASR 配置拉取、Web Speech 构造器与错误路径，符合“单文件、可回滚”的治理预算。
+- 这 `9` 处已统一收敛为本地最小类型：云端配置响应改为显式 `CloudVoiceConfigResponse` 归一化；Web Speech 改为局部 `SpeechRecognitionLike` / `WindowWithSpeechRecognition` 形状；批量与流式录音错误分支统一改走 `unknown` + 窄 helper 读取消息与名称。
+- `eslint.config.js` 已抽出共享的 `testFiles`、`tsFiles`、`runtimeTsIgnores`、`productionTsIgnores` 常量与 `createRuleOverride()`，并把同一条 `@typescript-eslint/no-explicit-any` 的既有窄切片合并到单一 override，减少重复的 `files` / `ignores` 判断漂移。
+- 配置归并后，`@typescript-eslint/no-explicit-any` 当前仍保持受控边界：仅作用于 `utils/shared/**/*.{ts,tsx,mts,cts}`、`server/utils/object.ts`、`server/utils/pagination.ts` 与 `composables/use-post-editor-voice.ts`，继续显式排除 tests / scripts 范围。
+
+### 已执行验证
+
+- 定向 ESLint：`pnpm exec eslint composables/use-post-editor-voice.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`
+	- 结果：通过；单文件 `9` 处显式 `any` 命中已清零，且新配置可以正常加载。
+- 定向 Vitest：`pnpm exec vitest run composables/use-post-editor-voice.test.ts`
+	- 结果：通过；`13` 条断言全部通过，Web Speech、云端批量与流式回退行为未回归。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；`use-post-editor-voice.ts` 与 `eslint.config.js` 未产生新的类型诊断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮仍保持“单规则 + 单文件切片”边界，且配置归并只收敛重复判断，没有扩大规则作用面。
+
+### 未覆盖边界
+
+- 本轮没有把 `@typescript-eslint/no-explicit-any` 外溢到其它 `composables/**` 文件；后续若继续推进，仍应优先选择单文件或双文件切片，而不是直接整桶提级。
+- `eslint.config.js` 当前只收敛了重复的 `files` / `ignores` 作用域与同规则 override；尚未把所有单文件规则都折叠成更高阶工厂，避免把配置治理本身扩写成抽象工程。
+
 ## 2026-04-27 `composables` 子桶 `no-non-null-assertion` 收口
 
 ### 范围

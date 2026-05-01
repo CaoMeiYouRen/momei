@@ -24,6 +24,83 @@ interface LegacyScriptProcessorFactory {
     createScriptProcessor?: (bufferSize: number, numberOfInputChannels: number, numberOfOutputChannels: number) => LegacyScriptProcessorNode
 }
 
+interface CloudVoiceConfigResponse {
+    enabled: boolean
+    siliconflow: boolean
+    volcengine: boolean
+}
+
+interface SpeechRecognitionAlternativeLike {
+    transcript: string
+}
+
+interface SpeechRecognitionResultLike {
+    '0': SpeechRecognitionAlternativeLike
+    isFinal: boolean
+}
+interface SpeechRecognitionEventLike { results: ArrayLike<SpeechRecognitionResultLike> | Iterable<SpeechRecognitionResultLike> }
+interface SpeechRecognitionErrorEventLike { error: string }
+
+interface SpeechRecognitionLike {
+    continuous: boolean
+    interimResults: boolean
+    lang: string
+    onresult: ((event: SpeechRecognitionEventLike) => void) | null
+    onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null
+    onend: (() => void) | null
+    start: () => void
+    stop: () => void
+}
+
+interface WindowWithSpeechRecognition extends Window {
+    SpeechRecognition?: new () => SpeechRecognitionLike
+    webkitSpeechRecognition?: new () => SpeechRecognitionLike
+}
+interface ErrorWithDataMessage {
+    name?: string
+    data?: {
+        message?: string
+    }
+    message?: string
+}
+
+const defaultCloudVoiceConfig: CloudVoiceConfigResponse = {
+    enabled: false,
+    siliconflow: false,
+    volcengine: false,
+}
+
+function normalizeCloudVoiceConfig(config: Partial<CloudVoiceConfigResponse> | null | undefined): CloudVoiceConfigResponse {
+    return {
+        enabled: Boolean(config?.enabled),
+        siliconflow: Boolean(config?.siliconflow),
+        volcengine: Boolean(config?.volcengine),
+    }
+}
+
+function getSpeechRecognitionConstructor(targetWindow: Window): (new () => SpeechRecognitionLike) | null {
+    const speechWindow = targetWindow as WindowWithSpeechRecognition
+    return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null
+}
+
+function getErrorMessage(error: unknown, fallbackMessage: string): string {
+    if (typeof error !== 'object' || !error) {
+        return fallbackMessage
+    }
+
+    const typedError = error as ErrorWithDataMessage
+    return typedError.data?.message ?? typedError.message ?? fallbackMessage
+}
+
+function getErrorName(error: unknown): string | null {
+    if (typeof error !== 'object' || !error) {
+        return null
+    }
+
+    const typedError = error as Pick<ErrorWithDataMessage, 'name'>
+    return typeof typedError.name === 'string' ? typedError.name : null
+}
+
 function getLegacyScriptProcessor(ctx: AudioContext): LegacyScriptProcessorNode | null {
     const legacyFactory = ctx as unknown as LegacyScriptProcessorFactory
     if (!legacyFactory.createScriptProcessor) {
@@ -222,9 +299,9 @@ async function transcribeVoiceBatch(context: {
         context.currentSessionFinal.value = text
         context.committedTranscript.value += text
         context.currentSessionFinal.value = ''
-    } catch (err: any) {
-        console.error('Cloud batch transcription failed', err)
-        context.error.value = err.data?.message || err.message || 'cloud_transcription_failed'
+    } catch (error: unknown) {
+        console.error('Cloud batch transcription failed', error)
+        context.error.value = getErrorMessage(error, 'cloud_transcription_failed')
     } finally {
         context.isLoadingModel.value = false
     }
@@ -246,11 +323,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     const mode = ref<VoiceTranscriptionMode>('web-speech')
 
     // 云端功能状态
-    const cloudConfig = ref({
-        enabled: false,
-        siliconflow: false,
-        volcengine: false,
-    })
+    const cloudConfig = ref<CloudVoiceConfigResponse>({ ...defaultCloudVoiceConfig })
 
     // 直连 ASR 实例 (用于云端模式直连)
     const asrDirectBatch = directMode
@@ -286,14 +359,15 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
         }
 
         // 异步检查配置
-        void $fetch<any>('/api/ai/asr/config').then((res) => {
-            cloudConfig.value = res
+        void $fetch<Partial<CloudVoiceConfigResponse>>('/api/ai/asr/config').then((res) => {
+            const nextCloudConfig = normalizeCloudVoiceConfig(res)
+            cloudConfig.value = nextCloudConfig
             // 如果云端 ASR 被禁用，或者当前选择的是没配置的云端模式，自动切回 web-speech
-            if (!res.enabled) {
+            if (!nextCloudConfig.enabled) {
                 mode.value = 'web-speech'
-            } else if (mode.value === 'cloud-batch' && !res.siliconflow) {
+            } else if (mode.value === 'cloud-batch' && !nextCloudConfig.siliconflow) {
                 mode.value = 'web-speech'
-            } else if (mode.value === 'cloud-stream' && !res.volcengine) {
+            } else if (mode.value === 'cloud-stream' && !nextCloudConfig.volcengine) {
                 mode.value = 'web-speech'
             }
         }).catch((err) => {
@@ -313,7 +387,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     // 对外暴露的最终文本：已提交的 + 当前会话已确认的
     const finalTranscript = computed(() => committedTranscript.value + currentSessionFinal.value)
 
-    let recognition: any = null
+    let recognition: SpeechRecognitionLike | null = null
     let mediaStream: MediaStream | null = null
     let currentLang = 'zh-CN'
 
@@ -431,21 +505,22 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
     // 初始化 Web Speech API
     if (import.meta.client) {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        const SpeechRecognition = getSpeechRecognitionConstructor(window)
         if (SpeechRecognition) {
             hasSpeechRecognitionSupport.value = true
             isSupported.value = true
-            recognition = new SpeechRecognition()
-            recognition.continuous = true
-            recognition.interimResults = true
+            const recognitionInstance = new SpeechRecognition()
+            recognition = recognitionInstance
+            recognitionInstance.continuous = true
+            recognitionInstance.interimResults = true
 
-            recognition.onresult = (event: any) => {
+            recognitionInstance.onresult = (event: SpeechRecognitionEventLike) => {
                 if (mode.value !== 'web-speech') {
                     return
                 }
                 let interim = ''
                 let sessionFinal = ''
-                for (const result of event.results) {
+                for (const result of Array.from(event.results)) {
                     if (result.isFinal) {
                         sessionFinal += result[0].transcript
                     } else {
@@ -456,7 +531,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
                 interimTranscript.value = interim
             }
 
-            recognition.onerror = (event: any) => {
+            recognitionInstance.onerror = (event: SpeechRecognitionErrorEventLike) => {
                 if (mode.value !== 'web-speech') {
                     return
                 }
@@ -468,7 +543,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
                 isListening.value = false
             }
 
-            recognition.onend = () => {
+            recognitionInstance.onend = () => {
                 if (mode.value !== 'web-speech') {
                     return
                 }
@@ -542,8 +617,8 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
                         // 设置音频处理管道
                         await setupAudioPipeline()
-                    } catch (err: any) {
-                        console.error('Direct stream connection failed, falling back to proxy', err)
+                    } catch (cause: unknown) {
+                        console.error('Direct stream connection failed, falling back to proxy', cause)
                         // 回退到代理模式
                         await startProxyStream()
                     }
@@ -551,15 +626,12 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
                     await startProxyStream()
                 }
             }
-        } catch (err: any) {
-            console.error('Failed to start recording', err)
-            error.value = err.name === 'NotAllowedError' ? 'permission_denied' : 'failed_to_start'
+        } catch (cause: unknown) {
+            console.error('Failed to start recording', cause)
+            error.value = getErrorName(cause) === 'NotAllowedError' ? 'permission_denied' : 'failed_to_start'
         }
     }
 
-    /**
-     * 启动代理流式模式 (回退方案)
-     */
     const startProxyStream = async () => {
         await startProxyVoiceStream({
             mode,
@@ -583,9 +655,6 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
         })
     }
 
-    /**
-     * 设置音频处理管道 (用于流式模式)
-     */
     const setupAudioPipeline = async () => {
         await setupVoiceAudioPipeline({
             audioContext,
@@ -673,7 +742,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
             }
             recognition.lang = recognitionLang
             try {
-                void recognition.start()
+                recognition.start()
                 isListening.value = true
             } catch (e) {
                 console.error('Failed to start Web Speech recognition', e)

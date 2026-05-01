@@ -4,14 +4,14 @@
 
 第三十阶段的“ESLint / 类型债与规则收紧治理 (P1)”沿长期主线推进了两轮窄切片：先完成 `utils/shared` 生产源码范围的 `@typescript-eslint/no-explicit-any`，再继续把同一条规则推进到 `server/utils` 中命中继续集中的底层工具文件组。
 
-当前阶段继续沿用同一口径推进第三轮窄切片：先把 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶中的真实生产命中重新冻结，再只对回滚边界足够窄的单文件链路做收敛；在目录级 ESLint 被既有 `max-lines` 告警阻塞时，只做最小重复代码复用，不把 `composables/**` 一次性扩写成更大的目录级治理。
+当前阶段继续沿用同一口径推进后续窄切片：先把 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶中的真实生产命中重新冻结，再继续只对回滚边界足够窄的单文件链路做收敛；在目录级 ESLint 被既有 `max-lines` 告警阻塞时，只做最小重复代码复用，不把 `composables/**` 一次性扩写成更大的目录级治理。
 
 ## 2. 本轮范围与非目标
 
 ### 2.1 执行范围
 
 - 规则配置：`eslint.config.js`
-- composables 切片：`composables/use-post-editor-io.ts`、`composables/use-asr-direct.ts`
+- composables 切片：`composables/use-post-editor-io.ts`、`composables/use-asr-direct.ts`、`composables/use-post-editor-voice.ts`
 - 既有工具复用点：`utils/web/audio-compression.ts`
 - shared Markdown 渲染器：`utils/shared/markdown.ts`
 - server 工具组：`server/utils/object.ts`、`server/utils/pagination.ts`
@@ -58,6 +58,8 @@
 - 在 `eslint.config.js` 中新增 `utils/shared` 生产源码 override，仅对该目录启用 `@typescript-eslint/no-explicit-any` warning。
 - 第二轮仅对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 启用同一条规则，避免把 `server/utils` 整体提升成高噪音目录级治理。
 - 第三轮仅对 `composables/use-post-editor-io.ts` 启用 `@typescript-eslint/no-non-null-assertion`，继续保持 `composables/**` 其余文件不受该规则影响，确保回滚边界仍然等于“单文件 + 配置一处”。
+- 新一轮继续沿用 `@typescript-eslint/no-explicit-any` 的单文件切片策略，对 `composables/use-post-editor-voice.ts` 清掉显式 `any` 后再把该文件并入既有的 `no-explicit-any` override；不为同一条规则继续复制一份新的 `files` / `ignores` 判断。
+- `eslint.config.js` 中重复出现的 TS `files` / `ignores` 作用域，应优先抽成共享常量与轻量 helper，再在不同规则切片间复用，避免随着治理轮次增加让配置本身成为新的重复代码热点。
 - 若目录级 ESLint 仅被受影响目录内的既有 `max-lines` 告警阻塞，优先复用现有工具函数或删除重复实现压回阈值，而不是先加规则豁免。
 - 测试文件中的 `as any` 保持豁免，避免为了非法输入断言或 mock 边界而把本轮切片扩写到测试治理。
 - 新增治理页进入 `docs/design/governance/index.md` 后，必须同步接入 `docs/.vitepress/config.ts` 的“专项设计与治理”侧边栏分组，避免设计文档事实源与文档站导航漂移。
@@ -77,9 +79,11 @@
 - 配置回滚：只需回退 `eslint.config.js` 中新增的 `utils/shared` override。
 - 第二轮配置回滚：只需回退 `eslint.config.js` 中针对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 的窄 override。
 - 第三轮配置回滚：只需回退 `eslint.config.js` 中针对 `composables/use-post-editor-io.ts` 的窄 override。
+- 新一轮 `no-explicit-any` 配置回滚：只需从聚合后的 `no-explicit-any` override 中移除 `composables/use-post-editor-voice.ts`，不影响其它既有窄切片。
 - 代码回滚：只需回退 `utils/shared/markdown.ts` 的类型收敛改动。
 - 第二轮代码回滚：只需回退 `server/utils/object.ts` 与 `server/utils/pagination.ts` 的类型收敛改动。
 - 第三轮代码回滚：只需回退 `composables/use-post-editor-io.ts` 中 frontmatter 别名读取的局部变量与守卫改动。
+- 新一轮代码回滚：只需回退 `composables/use-post-editor-voice.ts` 中本地 Web Speech / 错误对象类型与配置响应归一化收窄。
 - 目录级 ESLint 收口补刀回滚：只需回退 `composables/use-asr-direct.ts` 对 `float32ToPcmInt16()` 的复用接线。
 - 文档站回滚：若撤回本轮治理页，需同步回退 `docs/.vitepress/config.ts` 中新增的侧边栏入口。
 - 文档回滚：只需回退本设计文档、`todo.md` 与 `docs/reports/regression/current.md` 的本轮记录。
@@ -92,6 +96,7 @@
 - V2：执行 `server/utils/object.test.ts` 与 `server/utils/pagination.test.ts`，确认对象同步与分页参数解析行为未回归。
 - V2：执行 `composables/use-post-editor-io.test.ts`，确认 frontmatter 导入、音频元数据映射与拖拽导入行为未回归。
 - V2：执行 `composables/use-asr-direct.test.ts`，确认 ASR 直连重连、停止与音频发送行为未回归。
+- V2：执行 `composables/use-post-editor-voice.test.ts`，确认 Web Speech、云端批量与流式回退行为未回归。
 - 文档验证：执行 `pnpm docs:build`，确认新增治理页与侧边栏配置已被文档站正确接入。
 - RG：在 `docs/reports/regression/current.md` 中沉淀 Review Gate 结论、未覆盖边界与下一轮候选。
 
@@ -100,6 +105,7 @@
 ### 7.1 当前仍保留的债务
 
 - `no-explicit-any` 仍未扩展到 `server/**`、`composables/**`、前端组件层与测试层。
+- `use-post-editor-voice.ts` 本轮已完成 `@typescript-eslint/no-explicit-any` 清零，但这不等同于 `composables/**` 整体已具备提级条件；后续仍需继续维持单文件 / 双文件节奏。
 - `no-non-null-assertion` 目前只在 `composables/use-post-editor-io.ts` 单文件切片中上收；`use-asr-direct.ts` 的目录级 `max-lines` blocker 已通过复用现有 PCM helper 收敛，但并未继续扩写为独立 ASR helper 下沉工程。
 - `prefer-nullish-coalescing`、`no-unsafe-*` 仍属于更宽的规则族，本轮不触碰。
 
