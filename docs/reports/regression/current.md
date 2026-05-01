@@ -9,6 +9,44 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-01 第三十二阶段测试覆盖率与有效性治理首轮推进
+
+### 范围
+
+- 目标：启动第三十二阶段 `测试覆盖率与有效性治理 (P0)`，优先沿公开页 runtime 高风险链路继续补“真实文案装配而非结构存在”的失败断言，并复跑固定 runtime 回归、全仓 coverage 与类型检查。
+- 本轮覆盖：`pages/categories/index.test.ts`、`pages/tags/index.test.ts` 与 [package.json](../../package.json) 中的 `i18n:verify:runtime` 固定入口。
+- 非目标：不把本轮扩写为 `80%+` 铺量补测，不并行处理统一承接入口、认证配置退化或公开热点读链路之外的其它低相关目录，也不继续扩散到更多静态页面 snapshot。
+
+### 实施结论
+
+- `pages/categories/index.test.ts` 已从“页面结构存在”提升为“真实分类页文案装配”断言，会直接拦截 `common.category`、`pages.posts.total_categories` 与 `pages.posts.article_count` 回退为 raw key 的公开页回归。
+- `pages/tags/index.test.ts` 已同步提升为“真实标签页文案装配”断言，固定验证 `common.tags` 与 `pages.posts.total_tags` 不会在运行时消息加载退化时直接泄漏到 UI。
+- `i18n:verify:runtime` 已把 `pages/categories/index.test.ts` 与 `pages/tags/index.test.ts` 纳入固定回归入口；公开页 runtime 守线从 About / Friend Links 扩展到 taxonomy 列表页，当前更接近待办中“公开页 runtime + raw key 暴露”这组高风险验收点。
+- 全仓 coverage 在上一轮 `76.03% / 76.08%` 基线上继续小幅抬升到 statements `76.05%`、lines `76.10%`；其中 `pages/categories/index.vue` 当前为 statements `100%` / lines `100%`，`pages/tags/index.vue` 为 statements `93.93%` / lines `100%`。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run pages/categories/index.test.ts pages/tags/index.test.ts`
+	- 结果：通过；`14` 条断言全部通过，新增真实文案装配断言稳定命中分类页与标签页的 runtime 风险。
+- `pnpm i18n:verify:runtime`
+	- 结果：通过；当前固定入口共 `11` 个测试文件、`88` 条断言全部通过。`pages/friend-links.test.ts` 仍会输出 Nuxt i18n 初始化阶段的既有 stderr，但未影响退出码。
+- `pnpm test:coverage`
+	- 结果：通过；全仓 coverage 为 statements `76.05%`、branches `63.34%`、functions `69.69%`、lines `76.10%`，较本轮开始前基线继续上升。
+- `pnpm exec nuxt typecheck *> artifacts/typecheck-coverage-runtime-2026-05-01.txt`
+	- 结果：通过；命令退出成功，artifact 已落盘且受影响测试文件无新增编辑器诊断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮代码与测试变更本身无 blocker，公开页 runtime 固定回归、coverage 与类型检查均可重复执行；当前仅保留全仓 coverage 过程中的既有 stderr / warning 噪音，不影响退出码。
+
+### 未覆盖边界
+
+- 当前公开页 runtime 守线已覆盖 About、Friend Links、Categories 与 Tags，但 `archives` 列表页仍未提升到真实文案装配断言；若继续推进同组风险，优先补这一页而不是转向低相关静态结构测试。
+- 认证配置退化、统一承接入口与公开热点读链路仍是当前待办要求中的剩余高风险组；本轮只启动了“公开页 runtime / raw key 暴露”这一个切片，尚不足以关闭整条 P0。
+- taxonomy 列表页的分支覆盖仍低于 statements / lines，`pages/categories/index.vue` branches `71.42%`、`pages/tags/index.vue` branches `64.7%`；后续若继续在这两个页面上加测，应优先命中空列表、权重边界与错误 / pending 之外的剩余分支，而不是重复扩大文案断言数量。
+
 ## 2026-04-30 第三十一阶段归档放行复核
 
 ### 范围

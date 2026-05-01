@@ -3,10 +3,6 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import CategoriesIndexPage from './index.vue'
 
-// Mock locale
-const mockLocale = ref('en')
-
-// Control useAppFetch state
 const mockFetchData = ref<any>({
     data: {
         items: [
@@ -19,20 +15,7 @@ const mockFetchData = ref<any>({
 const mockFetchPending = ref(false)
 const mockFetchError = ref<any>(null)
 
-// Use mockNuxtImport for Nuxt composables
-mockNuxtImport('useI18n', () => () => ({
-    t: (key: string, params?: any) => {
-        if (params?.count !== undefined) {
-            return `${key} (${params.count})`
-        }
-        return key
-    },
-    locale: mockLocale,
-}))
-
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-
-mockNuxtImport('useHead', () => vi.fn())
 
 mockNuxtImport('useAppFetch', () => () => ({
     data: mockFetchData,
@@ -64,15 +47,21 @@ describe('CategoriesIndexPage', () => {
         mockFetchError.value = null
     })
 
-    it('renders page header correctly', async () => {
+    it('装配真实分类页文案而不是显示 raw key', async () => {
         const wrapper = await mountSuspended(CategoriesIndexPage, {
             global: {
                 stubs,
             },
         })
 
-        expect(wrapper.find('.categories-index__header').exists()).toBe(true)
-        expect(wrapper.find('.categories-index__title').exists()).toBe(true)
+        const text = wrapper.text()
+
+        expect(text).toMatch(/Category|分类/u)
+        expect(text).toMatch(/2 categories so far|目前共计 2 个分类/u)
+        expect(text).toMatch(/10 Articles|10 篇文章/u)
+        expect(text).not.toContain('common.category')
+        expect(text).not.toContain('pages.posts.total_categories')
+        expect(text).not.toContain('pages.posts.article_count')
     })
 
     it('shows subtitle with total count', async () => {

@@ -39,6 +39,8 @@
 	- 验收: 在当前 `76.03% / 76.08%` 基线上继续提升覆盖率，并优先锁定统一承接入口、公开页 runtime、认证配置退化、共享组件 raw key 暴露，以及公开热点读链路等高风险行为断言。
 	- 验收: `80%+` 仅作冲刺目标，不作为阶段关闭线；回归记录必须明确新增失败断言命中的真实风险、未覆盖边界与后续冲刺还缺的关键模块。
 	- 非目标: 不做与高风险链路无关的铺量补测，不接受只有 snapshot 的低价值测试。
+	- 推进记录（2026-05-01）: 已启动“公开页 runtime / raw key 暴露”首轮切片，将 `pages/categories/index.test.ts` 与 `pages/tags/index.test.ts` 从结构存在断言升级为真实翻译装配断言，并同步纳入 `i18n:verify:runtime` 固定入口；新增断言会直接拦截 `common.category` / `common.tags`、`pages.posts.total_categories` / `pages.posts.total_tags` 与 `pages.posts.article_count` 回退到 UI 的回归。
+	- 推进记录（2026-05-01）: 本轮定向测试、固定 runtime 回归、全仓 coverage 与类型检查均已通过；全仓 coverage 已从 `76.03% / 76.08%` 小幅抬升到 `76.05% / 76.10%`，其中 `pages/categories/index.vue` 达到 statements `100%` / lines `100%`，`pages/tags/index.vue` 达到 statements `93.93%` / lines `100%`。剩余优先候选继续保持为 `archives` 公开页 runtime、认证配置退化与统一承接入口高风险断言。
 	- 验证: 至少补跑定向 Vitest、`pnpm i18n:verify:runtime`、`pnpm test:coverage` 与 `pnpm exec nuxt typecheck`。
 
 - [x] **重复代码与纯函数复用收敛 (P1)**

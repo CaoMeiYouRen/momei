@@ -3,10 +3,6 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import TagsIndexPage from './index.vue'
 
-// Mock locale
-const mockLocale = ref('en')
-
-// Control useAppFetch state
 const mockFetchData = ref<any>({
     data: {
         items: [
@@ -19,20 +15,7 @@ const mockFetchData = ref<any>({
 const mockFetchPending = ref(false)
 const mockFetchError = ref<any>(null)
 
-// Use mockNuxtImport for Nuxt composables
-mockNuxtImport('useI18n', () => () => ({
-    t: (key: string, params?: any) => {
-        if (params?.count !== undefined) {
-            return `${key} (${params.count})`
-        }
-        return key
-    },
-    locale: mockLocale,
-}))
-
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-
-mockNuxtImport('useHead', () => vi.fn())
 
 mockNuxtImport('useAppFetch', () => () => ({
     data: mockFetchData,
@@ -64,15 +47,19 @@ describe('TagsIndexPage', () => {
         mockFetchError.value = null
     })
 
-    it('renders page header correctly', async () => {
+    it('装配真实标签页文案而不是显示 raw key', async () => {
         const wrapper = await mountSuspended(TagsIndexPage, {
             global: {
                 stubs,
             },
         })
 
-        expect(wrapper.find('.tags-index__header').exists()).toBe(true)
-        expect(wrapper.find('.tags-index__title').exists()).toBe(true)
+        const text = wrapper.text()
+
+        expect(text).toMatch(/Tags|标签/u)
+        expect(text).toMatch(/2 tags so far|目前共计 2 个标签/u)
+        expect(text).not.toContain('common.tags')
+        expect(text).not.toContain('pages.posts.total_tags')
     })
 
     it('shows subtitle with total count', async () => {
