@@ -314,6 +314,56 @@
 - `/api/search` 仍保留长关键词正文匹配语义；若后续要继续压降查询谓词压力，应以全文索引或外部搜索方案评估为前提，而不是在当前阶段静默下调搜索能力。
 - 当前阶段的 Postgres 主线仍保持进行中；下一步应优先补同范围数据库级运行样本，再决定是否允许关闭主线。
 
+## 2026-05-01 第三十二阶段 Postgres P0 主线关闭复核
+
+### 范围
+
+- 目标：基于 2026-05-01 Neon `query performance + system operations` 样本，复核第三十二阶段 Postgres P0 是否已满足“等价 live sample”关闭条件，并决定 `/api/search` 所属的当前公开热点读链路切片能否正式收口。
+- 本轮覆盖：既有 `/api/search` 子切片记录、[docs/plan/todo.md](../../plan/todo.md)、[docs/plan/backlog.md](../../plan/backlog.md)，以及本次样本映射到的 `server/services/ai/media-task-monitor.ts`、`server/services/task.ts`、`server/api/posts/home.get.ts`、`server/services/friend-link.ts`、`server/api/settings/public.get.ts`。
+- 非目标：不在本轮临时开启新的代码切片，不把 `AITask` stale compensation 或首页 posts public list 查询对顺手扩写为第二条并行治理线。
+
+### 闭合结论
+
+- 本次 Neon 样本可作为 roadmap 中要求的“等价 live sample”：它同时给出了热点 SQL、调用次数、平均耗时与 compute `start / suspend` 系统操作记录，足以支撑当前切片的关闭判断。
+- 本轮 Top SQL 已能映射回稳定代码入口：`momei_ai_tasks` stale scan 对应 `scanAndCompensateTimedOutMediaTasks()`；首页 posts public list 的 `DISTINCT + IN (...)` 查询对对应 `server/api/posts/home.get.ts`；精选友链的 `DISTINCT + IN (...)` 查询对对应 `server/services/friend-link.ts`；批量 `momei_setting` `IN (...)` 查询对应 `server/api/settings/public.get.ts`。
+- 当前公开热点读链路的收敛趋势已成立：`/api/settings/public` 只留下两组 batched `IN (...)` 读取（`5.8ms` 与 `5.4ms` 各 `1 call`），精选友链只留下 `4.3ms` 与 `4.1ms` 的一组跟进查询，`/api/search` 未继续停留在当前 Top SQL 列表中，说明本轮 search 缓存切片没有继续表现为显著热点。
+- 当前仍偏重的样本已收敛到下一轮候选，而不是本轮阻塞：`AITask` stale compensation 查询为 `53.9ms / 1 call`，首页 posts public list 的 `DISTINCT + IN (...)` 查询对为 `53.3ms / 40.5ms`、各 `1 call`；它们分别属于定时补偿与首页公开列表链路，应在后续阶段单独选择其一继续推进。
+- 系统操作窗口中 compute 持续出现成功的 `start / suspend` 交替，未观察到长期钉住 Active 或 suspend 失败堆积；结合当前查询样本，可判定本轮未再把数据库连接生命周期异常拉长。
+- 综上，第三十二阶段 Postgres P0 当前这条“公开热点读链路”单路径切片已具备关闭条件，todo 可正式关闭；长期主线仍保留在 backlog 中，供后续阶段继续选择新切片。
+
+### 运行期样本摘要
+
+- `momei_ai_tasks` stale compensation 扫描：`53.9ms`，`1 call`；来源于 `scanAndCompensateTimedOutMediaTasks()` 对超时媒体任务的补偿扫描。
+- 首页 posts public list 查询对：`53.3ms` 的 `DISTINCT` 预选查询 + `40.5ms` 的 `post.id IN (...)` 跟进查询，各 `1 call`；来源于首页公开文章列表读取。
+- `settings/public` 批量设置读取：`32 key` batched `IN (...)` 查询 `5.8ms / 1 call`，`15 key` batched `IN (...)` 查询 `5.4ms / 1 call`，另有 `12` 次单 key 查询总计 `0.3ms`。
+- 精选友链查询对：`4.3ms` 的 `DISTINCT` 预选查询 + `4.1ms` 的 `friendLink.id IN (...)` 跟进查询，各 `1 call`；来源于公开友链精选链路。
+- 定时发布与营销扫描：最小字段 post 扫描 `2.1ms / 1 call`，scheduled campaign 扫描 `1.8ms / 1 call`。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1 + RG`。
+- V0：核对 todo / backlog 的关闭口径，确认 Neon Top SQL 与代码入口映射一致，并确认当前切片仍符合“单路径”治理边界。
+- V1：`pnpm exec lint-md docs/plan/todo.md docs/plan/backlog.md docs/reports/regression/current.md`，以及修改文档的编辑器诊断复核。
+- RG：本轮关闭复核结论为 `Pass`。
+
+### 已执行验证
+
+- `pnpm exec lint-md docs/plan/todo.md docs/plan/backlog.md docs/reports/regression/current.md`
+	- 结果：通过；本轮关闭记录与相关规划文档未引入 Markdown 结构错误。
+- 编辑器诊断：`docs/plan/todo.md`、`docs/plan/backlog.md`、`docs/reports/regression/current.md`
+	- 结果：通过；三份文档均无新增诊断错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前关闭判断建立在已完成的 `/api/search` 代码 / 测试闭环与新补齐的 Neon live sample 之上，剩余高成本样本已清晰转入后续候选，而不是继续阻塞本轮 todo。
+
+### 未覆盖边界
+
+- 当前 Neon 样本仍属于单日短窗口，不等价于长期连续 `pg_stat_statements` 基线；若下一阶段继续推进同一主线，仍建议补更长窗口的热点 SQL 分组与连接活跃窗口对比。
+- 本轮没有顺手优化 `AITask` stale compensation 全字段扫描，也没有继续下探首页 posts public list 的 `DISTINCT + IN (...)` 查询对；这两条应在后续阶段二选一重新上收，不应在本轮关闭后被误判为已经治理完成。
+
 ## 近线窗口外历史入口
 
 - 2026-04-21 的历史治理记录已整体迁移到 [archive/2026-04-21-governance-rollup.md](./archive/2026-04-21-governance-rollup.md)。
