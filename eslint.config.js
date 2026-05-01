@@ -12,10 +12,17 @@ const testFiles = ['**/**/*.test.*', '**/**/*.spec.*']
 const tsFiles = ['**/*.{ts,tsx,mts,cts}']
 const serverTsFiles = ['server/**/*.{ts,tsx,mts,cts}']
 const settingsApiTsFiles = ['server/api/settings/**/*.{ts,tsx,mts,cts}']
-const noExplicitAnyFiles = [
+const noExplicitAnyUtilityFiles = [
     'utils/shared/**/*.{ts,tsx,mts,cts}',
     'server/utils/object.ts',
     'server/utils/pagination.ts',
+]
+const noExplicitAnyApiFiles = [
+    'server/api/categories/index.get.ts',
+]
+const noExplicitAnyFiles = [
+    ...noExplicitAnyUtilityFiles,
+    ...noExplicitAnyApiFiles,
     'composables/use-post-editor-voice.ts',
 ]
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
@@ -234,7 +241,7 @@ export default withNuxt(
         },
     }),
     createRuleOverride({
-        // 继续沿用 no-explicit-any 的窄切片策略，并把相同豁免边界的文件组收敛到同一条 override。
+        // 继续沿用 no-explicit-any 的窄切片策略，并把工具层 / API 单文件切片收敛到同一条 override。
         files: noExplicitAnyFiles,
         ignores: runtimeTsIgnores,
         rules: {

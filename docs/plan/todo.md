@@ -50,13 +50,15 @@
 	- 闭合记录（2026-05-01）: `pnpm duplicate-code:check` 当前结果为 `32 clones / 697 duplicated lines / 0.59%`，低于此前 backlog 记录的 `34 clones / 879 duplicated lines / 0.79%` 基线，本轮未出现反弹；剩余热点已记录到活动回归窗口，当前优先观察 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、`pages/forgot-password.vue` vs `pages/reset-password.vue`，以及首页 / 公开列表读模型装配边界。
 	- 验证: `server/utils/taxonomy-public-list.test.ts`、`tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts`、`pages/privacy-policy.test.ts`、`pages/user-agreement.test.ts`、`components/legal-agreement-page.test.ts` 共 `32` 条断言通过；`nuxt typecheck targeted` 与 `pnpm duplicate-code:check` 通过；重复代码基线已回写到活动回归窗口。
 
-- [ ] **ESLint / 类型债治理 (P1)**
+- [x] **ESLint / 类型债治理 (P1)**
 	- 验收: 只允许继续上收单规则窄切片，进入实现前必须先冻结候选规则、命中清单、影响文件、预期收益、回滚方式与最小验证矩阵。
 	- 验收: 目标切片清理完成后，未外溢到非目标目录，且目录级或定向 ESLint / typecheck 可以稳定通过。
 	- 非目标: 不并行开启第二条规则治理，不扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
 	- 推进记录（2026-05-01）: 本轮继续沿单规则窄切片推进 `@typescript-eslint/no-explicit-any`，只上收到 `composables/use-post-editor-voice.ts` 单文件；`9` 处显式 `any` 已收敛为本地 Web Speech / 错误对象最小类型、配置响应归一化与局部实例收窄，未外溢到其他 composable 或测试目录。
 	- 推进记录（2026-05-01）: `eslint.config.js` 已把重复出现的 TS `files` / `ignores` 作用域抽成共享常量与 `createRuleOverride()`，并将同一条 `no-explicit-any` 的既有窄切片（`utils/shared/**/*`、`server/utils/object.ts`、`server/utils/pagination.ts`、`composables/use-post-editor-voice.ts`）合并到同一条 override，避免后续治理继续复制边界判断。
-	- 验证: 至少完成目标文件或目录的 ESLint 校验、窄范围类型检查与必要单测，并沉淀残余债务说明。
+	- 闭合记录（2026-05-01）: 收口前继续上收了 `server/api/categories/index.get.ts` 这条单文件 `no-explicit-any` 切片，将 `attachTranslations(items as any, ...)` 改为显式泛型调用，不改 helper 契约也不并行开启第二条规则；同规则配置则进一步收敛为“工具层 / API 单文件切片”共用的聚合文件组，保持 tests / scripts 豁免边界不变。
+	- 闭合记录（2026-05-01）: 当前阶段的 ESLint / 类型债治理已满足“单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明”四个收口条件；剩余 `no-explicit-any` 与更宽的 `no-unsafe-*` / `no-non-null-assertion` 债务继续保留在治理设计文档与长期主线中，不再阻塞本阶段关闭。
+	- 验证: `pnpm exec eslint composables/use-post-editor-voice.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`、`pnpm exec eslint server/api/categories/index.get.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`、`composables/use-post-editor-voice.test.ts`（13 tests）、`tests/server/api/categories/index.get.test.ts`（12 tests）与 `pnpm exec nuxt typecheck` 均通过；残余债务与下一轮候选已回写到治理设计文档和活动回归窗口。
 
 - [x] **Postgres 查询、CPU 与连接生命周期平衡治理 (P0)**
 	- 验收: 本轮只从“一组请求入口”或“一组公开热点读链路”中二选一推进，需明确当前切片属于哪一组，并给出数据库唤醒边界、最小字段集、短 TTL 或请求去重中的至少一组收敛方案。

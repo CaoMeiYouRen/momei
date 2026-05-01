@@ -135,6 +135,41 @@
 - 本轮没有把 `@typescript-eslint/no-explicit-any` 外溢到其它 `composables/**` 文件；后续若继续推进，仍应优先选择单文件或双文件切片，而不是直接整桶提级。
 - `eslint.config.js` 当前只收敛了重复的 `files` / `ignores` 作用域与同规则 override；尚未把所有单文件规则都折叠成更高阶工厂，避免把配置治理本身扩写成抽象工程。
 
+## 2026-05-01 `categories` 公开列表 `no-explicit-any` 单文件切片与待办收口
+
+### 范围
+
+- 目标：在不并行开启第二条规则治理的前提下，再上收一条单文件 `@typescript-eslint/no-explicit-any` 切片，并确认当前阶段的同规则归组已经足够支撑 `ESLint / 类型债治理 (P1)` 待办关闭。
+- 本轮覆盖：`server/api/categories/index.get.ts`、`tests/server/api/categories/index.get.test.ts`、`eslint.config.js` 与当前阶段待办 / 治理设计文档同步。
+- 非目标：不改 `attachTranslations()` helper 契约，不把 `categories / tags / posts` 三个入口打包成多文件联动治理，也不扩写到 `no-unsafe-*` 或 `no-non-null-assertion`。
+
+### 实施结论
+
+- `server/api/categories/index.get.ts` 当前生产源码中的 `as any` 仅剩 `attachTranslations(items as any, categoryRepo, ...)` 一处，根因是调用点没有显式告诉 TypeScript 这里实际只需要 `Category` 实体基线，而不是 `Object.assign()` 后的扩展视图。
+- 本轮将该调用收敛为 `attachTranslations<Category>(items, categoryRepo, ...)`，保留 `postCount` 扩展字段与现有翻译附着行为不变，同时去掉单文件里的显式 `any`。
+- `eslint.config.js` 的同规则文件组继续收敛：在既有工具层切片之外，新加 `server/api/categories/index.get.ts` 到 `noExplicitAnyApiFiles`，再与工具层文件组汇总为统一的 `noExplicitAnyFiles`，避免同一条规则继续靠散落单项扩写。
+- 到这一轮为止，当前阶段已经完成“单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明”的收口条件，`ESLint / 类型债治理 (P1)` 可关闭，剩余更宽的治理面回到长期主线继续排队。
+
+### 已执行验证
+
+- 定向 ESLint：`pnpm exec eslint server/api/categories/index.get.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`
+	- 结果：通过；`categories` 公开列表入口当前无剩余显式 `any` 命中。
+- 定向 Vitest：`pnpm exec vitest run tests/server/api/categories/index.get.test.ts`
+	- 结果：通过；`12` 条断言全部通过，公开列表分页、聚合、翻译回退与缓存行为保持稳定。
+- 根仓类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；本轮 API 显式泛型与规则分组调整未引入新的类型诊断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前阶段只继续上收 `@typescript-eslint/no-explicit-any` 这一条规则，且新增切片仍维持单文件边界。
+
+### 未覆盖边界
+
+- 本轮没有同步处理 `server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 中同类 `attachTranslations(... as any)` 调用，避免把当前单文件切片膨胀成三入口联动治理；这两处保留为后续长期主线候选。
+- `eslint.config.js` 的同规则归组当前只覆盖 `no-explicit-any`；其它规则仍按现有窄切片单独管理，不在本轮继续抽象。
+
 ## 2026-04-27 `composables` 子桶 `no-non-null-assertion` 收口
 
 ### 范围

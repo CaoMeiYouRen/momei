@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
             }))
 
             // Attach translation information
-            await attachTranslations(items as any, categoryRepo, {
+            await attachTranslations<Category>(items, categoryRepo, {
                 select: ['id', 'language', 'translationId', 'name', 'slug', 'description', 'parentId'],
             })
 
