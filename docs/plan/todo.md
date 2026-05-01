@@ -20,6 +20,8 @@
 
 > 阶段状态: 第三十一阶段已完成审计归档；第三十二阶段已正式上收，当前执行面固定为“1 个新功能 + 4 个优化”的受控组合。`存量代码注释治理与注释漂移收敛` 仅保留为备用项，继续留在 [backlog.md](./backlog.md)，只有当前五项容量允许时才可后续补入单组切片。
 
+> 当前进行中: `AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)`；已完成最小字段集扫描改造、V1 / V2 定向验证，待下一次 live sample 复核后再决定是否关闭。
+
 ### 第三十二阶段：多语言内容资产化承接入口与高风险治理推进
 
 - [x] **多语言内容资产化增强包的统一承接入口 (P1)**
@@ -59,6 +61,14 @@
 	- 闭合记录（2026-05-01）: 带会话请求继续旁路共享缓存，避免订阅可见性差异污染匿名缓存；Neon `query performance + system operations` live sample 已补齐，当前 Top SQL 中 `settings/public` 仅表现为 `32 key` 与 `15 key` 两组 batched `IN (...)` 查询（`5.8ms / 5.4ms`），精选友链仅表现为一组 `DISTINCT + IN (...)` 跟进查询（`4.3ms / 4.1ms`），`/api/search` 未继续停留在当前热点 SQL 顶部。
 	- 闭合记录（2026-05-01）: 同一窗口内 compute 仍可反复成功 `start / suspend`，未出现持续钉住 Active 的异常；剩余较重样本已收敛到 `AITask` stale scan（`53.9ms / 1 call`）与首页 posts public list 的 `DISTINCT + IN (...)` 查询对（`53.3ms / 40.5ms`，各 `1 call`），转入后续候选，不再阻塞本轮“公开热点读链路”单路径切片关闭。
 	- 验证: 至少补齐受影响入口或链路的定向测试，并通过 `pg_stat_statements`、运行期样本或等价 live sample 记录量化对比结果。
+
+- [ ] **AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)**
+	- **派生原因（2026-05-01）**: 2026-05-01 Neon live sample 中 `momei_ai_tasks` stale compensation 扫描仍是当前剩余重样本之一（`53.9ms / 1 call`）；`/api/search` 主线关闭后，当前阶段释放出的优化槽位继续只上收这一条单路径派生切片。
+	- 验收: `scanAndCompensateTimedOutMediaTasks()` 首轮扫描只保留 `claim + dispatch` 所需字段，避免把整行 `AITask` 记录拉入热点查询；定向测试需锁定 `select` 边界，防止回退到宽行读取。
+	- 验收: 本轮只覆盖定时补偿路径，不并行扩写到首页 `posts public list` 查询对；若未补新一轮 live sample，只能完成代码 / 测试 / 文档闭环，不得提前宣称该热点已完全退出 Top SQL。
+	- 非目标: 不改 `TTSService` / `ImageService` 的补偿逻辑，不重写调度器，不把首页公开列表治理并入本条。
+	- 推进记录（2026-05-01）: 已将 stale scan 收紧为 `id / type / status / result / startedAt / progress` 最小字段集，并在 `media-task-monitor.test.ts` 锁定查询参数断言，避免宽行回退。
+	- 验证: 至少完成 `pnpm exec vitest run server/services/ai/media-task-monitor.test.ts`、受影响文件 ESLint、`nuxt typecheck targeted` 与回归窗口同步；若后续补到新的 Neon / `pg_stat_statements` 样本，再决定是否关闭。
 
 > 备用项：`存量代码注释治理与注释漂移收敛` 当前不作为第三十二阶段正式待办；若后续容量允许，只能按 backlog 中候选组 A / B / C 的单组切片方式补入，不得扩写为全仓补注释工程。
 

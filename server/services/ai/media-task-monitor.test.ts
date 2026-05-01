@@ -79,6 +79,19 @@ describe('media task monitor', () => {
         expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('podcast-1')
         expect(TTSService.compensateStaleTask).toHaveBeenCalledWith('tts-1')
         expect(taskRepo.find).toHaveBeenCalledTimes(1)
+        expect(taskRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+            select: {
+                id: true,
+                type: true,
+                status: true,
+                result: true,
+                startedAt: true,
+                progress: true,
+            },
+            order: {
+                updatedAt: 'ASC',
+            },
+        }))
         expect(taskRepo.update).toHaveBeenCalledTimes(3)
         expect(releaseLock).toHaveBeenCalledTimes(1)
     })

@@ -364,6 +364,51 @@
 - 当前 Neon 样本仍属于单日短窗口，不等价于长期连续 `pg_stat_statements` 基线；若下一阶段继续推进同一主线，仍建议补更长窗口的热点 SQL 分组与连接活跃窗口对比。
 - 本轮没有顺手优化 `AITask` stale compensation 全字段扫描，也没有继续下探首页 posts public list 的 `DISTINCT + IN (...)` 查询对；这两条应在后续阶段二选一重新上收，不应在本轮关闭后被误判为已经治理完成。
 
+## 2026-05-01 第三十二阶段 Postgres P0 `AITask` stale compensation 宽行扫描切片
+
+### 范围
+
+- 目标：基于同日 Neon live sample 中的 `momei_ai_tasks` stale compensation 热点 SQL，继续推进第三十二阶段 Postgres 主线的后续单路径派生切片，只收紧 `scanAndCompensateTimedOutMediaTasks()` 的首轮扫描字段集与定向断言。
+- 本轮覆盖：`server/services/ai/media-task-monitor.ts`、`server/services/ai/media-task-monitor.test.ts`、[docs/plan/todo.md](../../plan/todo.md) 与 [docs/plan/backlog.md](../../plan/backlog.md)。
+- 非目标：不并行扩写到首页 `posts public list` 查询对，不改 `TTSService` / `ImageService` 的补偿语义，也不把本轮代码改动冒充为新的 live sample 结论。
+
+### 实施结论
+
+- stale compensation 首轮扫描现已只选择 `id / type / status / result / startedAt / progress` 六组字段，足以覆盖数据库 claim 条件、补偿分发和进度回填，不再把整行 `AITask` 记录拉进热点查询。
+- `claimTaskForCompensation()` 继续基于 `id + status + result` 做并发 claim，既保留原有 lease 语义，也允许在 claim 成功后原地补写 `startedAt / progress / result`，不需要恢复全字段读取。
+- 定向测试新增 `taskRepo.find(select=...)` 断言，明确把“最小字段集扫描”纳入回归基线；其余 6 条既有测试继续覆盖锁竞争、单任务过滤、补偿结果聚合和 lease 窗口。
+- 当前切片仅完成代码 / 测试 / 文档闭环，尚未补新的 Neon 或 `pg_stat_statements` 样本，因此 todo 保持进行中；首页 `posts public list` 查询对继续留在下一候选。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：核对 [docs/plan/todo.md](../../plan/todo.md)、[docs/plan/backlog.md](../../plan/backlog.md) 与本回归记录对“只推进 AITask 单路径派生切片、主线未关闭”的口径保持一致。
+- V1：`pnpm exec eslint server/services/ai/media-task-monitor.ts server/services/ai/media-task-monitor.test.ts`、`nuxt typecheck targeted` 与 `pnpm exec lint-md docs/plan/todo.md docs/plan/backlog.md docs/reports/regression/current.md`。
+- V2：`pnpm exec vitest run server/services/ai/media-task-monitor.test.ts`。
+- RG：本轮 Review Gate 结论为 `Pass`，但 todo 仍保持进行中，等待后续 live sample 复核。
+
+### 已执行验证
+
+- `pnpm exec eslint server/services/ai/media-task-monitor.ts server/services/ai/media-task-monitor.test.ts`
+	- 结果：通过；无输出。
+- `nuxt typecheck targeted`
+	- 结果：通过；通过 VS Code 任务执行，终端无错误输出，且受影响文件无新增编辑器诊断。
+- `pnpm exec lint-md docs/plan/todo.md docs/plan/backlog.md docs/reports/regression/current.md`
+	- 结果：通过；本轮规划与回归文档结构合法。
+- `pnpm exec vitest run server/services/ai/media-task-monitor.test.ts`
+	- 结果：通过；`7` 个测试全部通过，已覆盖最小字段集扫描、锁竞争、单任务过滤、补偿聚合与 lease 窗口。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前切片的查询边界、测试断言与规划事实源一致，且没有把“字段集收紧”夸大为“热点已从数据库窗口消失”。
+
+### 未覆盖边界
+
+- 本轮尚未补新的 Neon / `pg_stat_statements` 对比样本，因此只能证明“宽行读取已在代码层收紧”，不能直接量化证明该 SQL 已离开热点窗口。
+- 首页 `posts public list` 的 `DISTINCT + IN (...)` 查询对仍未处理，后续若继续推进 Postgres 主线，应继续坚持单路径原则，不与本切片并行实现。
+
 ## 近线窗口外历史入口
 
 - 2026-04-21 的历史治理记录已整体迁移到 [archive/2026-04-21-governance-rollup.md](./archive/2026-04-21-governance-rollup.md)。

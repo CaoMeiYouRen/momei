@@ -103,6 +103,7 @@
     - 第二十八阶段已完成新的平衡型治理切片，重点收紧了请求级数据库预热、匿名鉴权触发面与公开热点读路径缓存边界；结合后台最新运行期观测，本轮查询、重复读取与连接活跃窗口下降趋势已成立。
     - 第三十二阶段已完成本轮“公开热点读链路”单路径切片：`/api/search` 匿名请求接入 `60s` 运行时缓存，带会话请求继续旁路共享缓存，当前阶段只对这一条公共热读路径做实现与断言闭环。
     - 2026-05-01 Neon live sample 显示，当前 Top SQL 中 `settings/public` 维持单次 batched `IN (...)` 读取（`5.8ms / 5.4ms`）、精选友链维持 `4.3ms / 4.1ms` 的 `DISTINCT + IN (...)` 跟进查询，`/api/search` 未继续停留在当前热点 SQL 顶部；剩余较重样本集中在 `AITask` stale scan 与首页 posts public list 查询对，转入后续候选。
+    - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
 - **下一次可切片方向**:

@@ -34,6 +34,8 @@ interface ScanTimedOutMediaTaskOptions {
     taskId?: string
 }
 
+type RecoverableMediaTaskScanItem = Pick<AITask, 'id' | 'type' | 'status' | 'result' | 'startedAt' | 'progress' | 'error'>
+
 function createEmptySummary(staleBefore: Date): MediaTaskCompensationSummary {
     return {
         scanned: 0,
@@ -92,7 +94,7 @@ function hasActiveCompensationLease(task: Pick<AITask, 'result'>, now: Date) {
 
 async function claimTaskForCompensation(
     taskRepo: ReturnType<typeof dataSource.getRepository<AITask>>,
-    task: AITask,
+    task: RecoverableMediaTaskScanItem,
     now: Date,
 ) {
     if (hasActiveCompensationLease(task, now)) {
@@ -158,6 +160,16 @@ export async function scanAndCompensateTimedOutMediaTasks(
         }))
 
         const staleTasks = await taskRepo.find({
+            // 首轮 stale scan 只需要 claim 与补偿分发所需字段，
+            // 避免把整行 AITask 记录拉进内存并拉宽热点查询。
+            select: {
+                id: true,
+                type: true,
+                status: true,
+                result: true,
+                startedAt: true,
+                progress: true,
+            },
             where: staleTaskWhere,
             order: {
                 updatedAt: 'ASC',
