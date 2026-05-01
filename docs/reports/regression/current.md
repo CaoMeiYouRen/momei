@@ -268,6 +268,52 @@
 - GitHub README CTA 入口为可选项，未在本轮实现。
 - `benefitWaitlistService` 当前仅做应用层去重，未在 DB 层添加 unique index；若后续候补名单量级增长，可按需补入。
 
+## 2026-05-01 第三十二阶段 Postgres P0 `/api/search` 热点读链路切片
+
+### 范围
+
+- 目标：继续推进第三十二阶段 `Postgres 查询、CPU 与连接生命周期平衡治理 (P0)` 的“公开热点读链路”切片，只收敛 `/api/search` 的匿名短 TTL 运行时缓存与定向断言。
+- 本轮覆盖：`server/api/search/index.get.ts`、`tests/server/api/search/index.get.test.ts`、`docs/design/governance/cacheable-api-inventory.md` 与 `docs/plan/todo.md`。
+- 非目标：不并行扩写到 `external posts` 或请求级入口治理，不把应用层缓存命中统计冒充为数据库级 `pg_stat_statements` 长窗口采样。
+
+### 实施结论
+
+- 匿名公开搜索结果已接入 `60s` 运行时缓存，缓存 key 覆盖 `q / language / category / tags / sortBy / page / limit`，并统一纳入 `search:public-results` namespace。
+- 带会话搜索请求继续旁路共享缓存，响应头保持 `private, no-store`，避免订阅或可见性差异污染匿名共享结果。
+- 定向测试现已同时锁定行为结果与应用层运行时样本：重复匿名搜索在 `search:public-results` 下形成 `requests=2 / misses=1 / hits=1 / writes=1 / bypasses=0`；带会话搜索形成 `requests=2 / bypasses=2 / hits=0 / misses=0 / writes=0`。
+- 本轮只放行 `/api/search` 子切片，不关闭整条 Postgres 主线；数据库级 `pg_stat_statements` 或等价长窗口 live sample 仍待补齐。
+
+### 最低验证矩阵
+
+- 验证层级：`V0 + V1 + V2 + RG`。
+- V0：核对 `docs/plan/todo.md`、`docs/design/governance/cacheable-api-inventory.md` 与本回归记录对 `/api/search` 子切片、共享边界和“主线继续进行中”结论保持一致。
+- V1：`pnpm exec eslint server/api/search/index.get.ts tests/server/api/search/index.get.test.ts`、`pnpm exec nuxt typecheck`、变更 Markdown 定向 lint。
+- V2：`pnpm exec vitest run tests/server/api/search/index.get.test.ts`，并复核应用层运行时缓存统计样本。
+- RG：本轮 Review Gate 结论为 `Pass`，且 todo 状态保持进行中。
+
+### 已执行验证
+
+- `pnpm exec vitest run tests/server/api/search/index.get.test.ts`
+	- 结果：通过；`8` 个测试全部通过，已覆盖匿名重复请求命中缓存、带会话请求旁路共享缓存、多语言去重与正文字段裁剪。
+- `pnpm exec eslint server/api/search/index.get.ts tests/server/api/search/index.get.test.ts`
+	- 结果：通过；无输出。
+- `pnpm exec nuxt typecheck`
+	- 结果：通过；通过 VS Code 任务执行，终端无输出且无新增编辑器诊断。
+- `pnpm exec lint-md docs/plan/todo.md docs/design/governance/cacheable-api-inventory.md docs/reports/regression/current.md`
+	- 结果：通过；回归窗口、todo 与缓存清单文档结构合法。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮 search 切片的代码、测试与文档事实源一致，且未把主线状态提前标记为完成。
+
+### 未覆盖边界
+
+- 当前量化证据仍停留在应用层运行时缓存命中 / 旁路统计，不能替代数据库级 `pg_stat_statements` 或等价长窗口 live sample。
+- `/api/search` 仍保留长关键词正文匹配语义；若后续要继续压降查询谓词压力，应以全文索引或外部搜索方案评估为前提，而不是在当前阶段静默下调搜索能力。
+- 当前阶段的 Postgres 主线仍保持进行中；下一步应优先补同范围数据库级运行样本，再决定是否允许关闭主线。
+
 ## 近线窗口外历史入口
 
 - 2026-04-21 的历史治理记录已整体迁移到 [archive/2026-04-21-governance-rollup.md](./archive/2026-04-21-governance-rollup.md)。

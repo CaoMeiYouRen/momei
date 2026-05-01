@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
@@ -7,11 +7,17 @@ import { Tag } from '@/server/entities/tag'
 import { PostStatus } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import searchHandler from '@/server/api/search/index.get'
+import { getRuntimeApiCacheStatsSnapshot, invalidateRuntimeApiCacheNamespace, resetRuntimeApiCacheStats } from '@/server/utils/api-runtime-cache'
 
 describe('Search API', () => {
     let author: User
     let category: Category
     let tag: Tag
+
+    beforeEach(() => {
+        invalidateRuntimeApiCacheNamespace('search:public-results')
+        resetRuntimeApiCacheStats('search:public-results')
+    })
 
     beforeAll(async () => {
         const { initializeDB } = await import('@/server/database')
@@ -147,6 +153,90 @@ describe('Search API', () => {
         expect(result.code).toBe(200)
         expect(result.data!.items.some((i: any) => i.slug === 'body-hidden-post')).toBe(true)
         expect(result.data!.items.find((i: any) => i.slug === 'body-hidden-post')?.content).toBeUndefined()
+    })
+
+    it('should reuse runtime cache for repeated anonymous search requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            query: { q: 'Unique' },
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+        } as any
+
+        const first = await searchHandler(event)
+
+        const postRepo = dataSource.getRepository(Post)
+        const post = new Post()
+        post.title = `Unique Cached Search Probe ${generateRandomString(4)}`
+        post.slug = generateRandomString(12)
+        post.content = 'cached search probe content'
+        post.summary = 'cached search probe summary'
+        post.language = 'en-US'
+        post.status = PostStatus.PUBLISHED
+        post.author = author
+        post.publishedAt = new Date('2026-05-01T00:00:00.000Z')
+        await postRepo.save(post)
+
+        const second = await searchHandler(event)
+        const stats = getRuntimeApiCacheStatsSnapshot('search:public-results')
+
+        expect(first).toEqual(second)
+        expect(stats).toMatchObject({
+            requests: 2,
+            misses: 1,
+            hits: 1,
+            bypasses: 0,
+            writes: 1,
+        })
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
+    })
+
+    it('should bypass shared runtime cache for authenticated search requests', async () => {
+        const setHeader = vi.fn()
+        const event = {
+            query: { q: 'Unique' },
+            context: {
+                auth: { user: { id: 'viewer-1', role: 'user' } },
+                user: { id: 'viewer-1', role: 'user' },
+            },
+            node: {
+                req: { headers: {} },
+                res: { setHeader },
+            },
+            req: { headers: {} },
+        } as any
+
+        const first = await searchHandler(event)
+
+        const postRepo = dataSource.getRepository(Post)
+        const post = new Post()
+        post.title = `Unique Auth Search Probe ${generateRandomString(4)}`
+        post.slug = generateRandomString(12)
+        post.content = 'authenticated search probe content'
+        post.summary = 'authenticated search probe summary'
+        post.language = 'en-US'
+        post.status = PostStatus.PUBLISHED
+        post.author = author
+        post.publishedAt = new Date('2026-05-01T00:10:00.000Z')
+        await postRepo.save(post)
+
+        const second = await searchHandler(event)
+        const stats = getRuntimeApiCacheStatsSnapshot('search:public-results')
+
+        expect(second).not.toEqual(first)
+        expect(second.data!.items.some((item: any) => item.slug === post.slug)).toBe(true)
+        expect(stats).toMatchObject({
+            requests: 2,
+            misses: 0,
+            hits: 0,
+            bypasses: 2,
+            writes: 0,
+        })
+        expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store')
     })
 
     it('should handle multi-language deduplication (prefer zh-CN)', async () => {
