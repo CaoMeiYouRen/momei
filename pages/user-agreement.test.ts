@@ -61,4 +61,34 @@ describe('user agreement page', () => {
         expect(wrapper.text()).toContain('English translation body')
         expect(wrapper.text()).toContain('正式版本')
     })
+
+    it('renders fallback notice when authoritative language content is used directly', async () => {
+        registerEndpoint('/api/agreements/user-agreement', () => ({
+            code: 200,
+            data: {
+                ...createPayload().data,
+                fallbackToAuthoritative: true,
+                isReferenceTranslation: false,
+            },
+        }))
+
+        const wrapper = await mountSuspended(UserAgreementPage, {
+            global: {
+                stubs: {
+                    Tag: {
+                        template: '<span class="tag">{{ value }}</span>',
+                        props: ['value', 'severity'],
+                    },
+                    Divider: { template: '<hr />' },
+                    ArticleContent: {
+                        template: '<article class="article-content">{{ content }}</article>',
+                        props: ['content'],
+                    },
+                },
+            },
+        })
+
+        expect(wrapper.find('.legal-page__notice').exists()).toBe(true)
+        expect(wrapper.text()).toContain('zh-CN')
+    })
 })

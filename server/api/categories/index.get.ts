@@ -5,7 +5,12 @@ import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { buildCategoryPostCountSubquery } from '@/server/utils/taxonomy-post-count'
-import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
+import { withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
+import {
+    applyTaxonomyPublicListFilters,
+    applyTaxonomyPublicListOrdering,
+    buildTaxonomyPublicListCacheKey,
+} from '@/server/utils/taxonomy-public-list'
 
 const CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE = 'categories:public-list'
 const CATEGORY_PUBLIC_LIST_CACHE_TTL_SECONDS = 60
@@ -21,18 +26,11 @@ function buildCategoryPublicListCacheKey(query: {
     search?: null | string
     translationId?: null | string
 }) {
-    return buildRuntimeApiCacheKey(
-        CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE,
-        query.aggregate ? '1' : '0',
-        query.language ?? 'all',
-        query.parentId ?? 'all',
-        query.translationId ?? 'all',
-        query.search ?? '',
-        query.orderBy ?? 'createdAt',
-        query.order ?? 'DESC',
-        query.page,
-        query.limit,
-    )
+    return buildTaxonomyPublicListCacheKey({
+        namespace: CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE,
+        query,
+        extraSegments: [query.parentId ?? 'all'],
+    })
 }
 
 export default defineEventHandler(async (event) => {
@@ -67,22 +65,16 @@ export default defineEventHandler(async (event) => {
                 })
             }
 
-            if (query.search) {
-                baseQueryBuilder.andWhere('category.name LIKE :search', { search: `%${query.search}%` })
-            }
+            applyTaxonomyPublicListFilters(baseQueryBuilder, {
+                alias: 'category',
+                aggregate: query.aggregate,
+                language: query.language,
+                search: query.search,
+                translationId: query.translationId,
+            })
 
             if (query.parentId) {
                 baseQueryBuilder.andWhere('category.parentId = :parentId', { parentId: query.parentId })
-            }
-
-            if (query.translationId) {
-                baseQueryBuilder.andWhere('COALESCE(category.translationId, category.slug) = :translationId', {
-                    translationId: query.translationId,
-                })
-            }
-
-            if (query.language && !query.aggregate) {
-                baseQueryBuilder.andWhere('category.language = :language', { language: query.language })
             }
 
             const total = await baseQueryBuilder.clone().getCount()
@@ -94,11 +86,12 @@ export default defineEventHandler(async (event) => {
                 .addSelect('COALESCE(post_count_summary.post_count, 0)', 'category_post_count')
                 .setParameters(postCountQuery.getParameters())
 
-            if (query.orderBy === 'postCount') {
-                queryBuilder.orderBy('category_post_count', query.order || 'DESC')
-            } else {
-                queryBuilder.orderBy(`category.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
-            }
+            applyTaxonomyPublicListOrdering(queryBuilder, {
+                alias: 'category',
+                orderBy: query.orderBy,
+                order: query.order,
+                postCountAlias: 'category_post_count',
+            })
 
             const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
             const items = entities.map((item, index) => Object.assign(item, {

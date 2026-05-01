@@ -5,7 +5,12 @@ import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
 import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
 import { buildTagPostCountSubquery } from '@/server/utils/taxonomy-post-count'
-import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
+import { withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
+import {
+    applyTaxonomyPublicListFilters,
+    applyTaxonomyPublicListOrdering,
+    buildTaxonomyPublicListCacheKey,
+} from '@/server/utils/taxonomy-public-list'
 
 const TAG_PUBLIC_LIST_CACHE_NAMESPACE = 'tags:public-list'
 const TAG_PUBLIC_LIST_CACHE_TTL_SECONDS = 60
@@ -20,17 +25,10 @@ function buildTagPublicListCacheKey(query: {
     search?: null | string
     translationId?: null | string
 }) {
-    return buildRuntimeApiCacheKey(
-        TAG_PUBLIC_LIST_CACHE_NAMESPACE,
-        query.aggregate ? '1' : '0',
-        query.language ?? 'all',
-        query.translationId ?? 'all',
-        query.search ?? '',
-        query.orderBy ?? 'createdAt',
-        query.order ?? 'DESC',
-        query.page,
-        query.limit,
-    )
+    return buildTaxonomyPublicListCacheKey({
+        namespace: TAG_PUBLIC_LIST_CACHE_NAMESPACE,
+        query,
+    })
 }
 
 export default defineEventHandler(async (event) => {
@@ -63,19 +61,13 @@ export default defineEventHandler(async (event) => {
                 })
             }
 
-            if (query.search) {
-                baseQueryBuilder.andWhere('tag.name LIKE :search', { search: `%${query.search}%` })
-            }
-
-            if (query.translationId) {
-                baseQueryBuilder.andWhere('COALESCE(tag.translationId, tag.slug) = :translationId', {
-                    translationId: query.translationId,
-                })
-            }
-
-            if (query.language && !query.aggregate) {
-                baseQueryBuilder.andWhere('tag.language = :language', { language: query.language })
-            }
+            applyTaxonomyPublicListFilters(baseQueryBuilder, {
+                alias: 'tag',
+                aggregate: query.aggregate,
+                language: query.language,
+                search: query.search,
+                translationId: query.translationId,
+            })
 
             const total = await baseQueryBuilder.clone().getCount()
 
@@ -86,11 +78,12 @@ export default defineEventHandler(async (event) => {
                 .addSelect('COALESCE(post_count_summary.post_count, 0)', 'tag_post_count')
                 .setParameters(postCountQuery.getParameters())
 
-            if (query.orderBy === 'postCount') {
-                queryBuilder.orderBy('tag_post_count', query.order || 'DESC')
-            } else {
-                queryBuilder.orderBy(`tag.${query.orderBy || 'createdAt'}`, query.order || 'DESC')
-            }
+            applyTaxonomyPublicListOrdering(queryBuilder, {
+                alias: 'tag',
+                orderBy: query.orderBy,
+                order: query.order,
+                postCountAlias: 'tag_post_count',
+            })
 
             const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
             const items = entities.map((item, index) => Object.assign(item, {
