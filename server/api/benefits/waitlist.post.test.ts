@@ -49,6 +49,7 @@ describe('POST /api/benefits/waitlist', () => {
         expect(benefitWaitlistService.addToWaitlist).toHaveBeenCalledWith({
             name: 'Test User',
             email: 'test@example.com',
+            purpose: 'benefit',
             locale: 'zh-CN',
             ip: '127.0.0.1',
             userAgent: 'vitest',
