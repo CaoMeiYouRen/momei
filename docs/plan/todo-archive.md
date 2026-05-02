@@ -17,11 +17,11 @@
 
 ---
 
-## 第三十二阶段：多语言内容资产化承接入口与高风险治理推进 (部分归档)
+## 第三十二阶段：多语言内容资产化承接入口与高风险治理推进 (已审计归档)
 
-> 归档说明: 第三十二阶段 5 条主线中 4 条 + 1 条 Postgres 派生切片已于 2026-05-01 / 2026-05-02 依次闭合，仅 `测试覆盖率与有效性治理 (P0)` 仍在继续推进。本轮将已闭合的 5 条事项整体迁移到归档，进行中的 coverage P0 留在 [todo.md](./todo.md) 当前待办区。
+> 归档说明: 第三十二阶段 5 条正式主线 + 1 条 Postgres 派生切片（AITask stale compensation）已于 2026-05-01 / 2026-05-02 全部闭合并归档至本文件；`测试覆盖率与有效性治理 (P0)` 已于 2026-05-02 完成阶段收口（当前基线继续抬升，`80%+` 冲刺目标顺延至下一阶段）。阶段正式收口后，`todo.md` 已清理当前待办区。
 
-> **ROI 评估**: 多语言内容资产化增强包的统一承接入口 1.80；重复代码与纯函数复用收敛 1.60；ESLint / 类型债治理 1.40；Postgres 查询治理（含 AITask 派生切片）2.00。四项均已按本阶段准入边界完成收口，其中 Postgres P0 为本轮最高优先级治理项。
+> **ROI 评估**: 多语言内容资产化增强包的统一承接入口 1.80；测试覆盖率与有效性治理 1.67；重复代码与纯函数复用收敛 1.60；ESLint / 类型债治理 1.40；Postgres 查询治理（含 AITask 派生切片）2.00。五项均已按本阶段准入边界完成收口，其中 Postgres P0 为本轮最高优先级治理项。
 
 ### 1. 多语言内容资产化增强包的统一承接入口 (P1)
 
@@ -36,7 +36,16 @@
 	- 非目标: 未对现有免费能力加锁，未扩写为完整销售站点改版。
 	- 验证: `pages/benefits.test.ts`（6 tests）、`waitlist.post.test.ts`（2 tests）、`benefit-waitlist.test.ts`（7 tests）全部通过；`lint:i18n` 与 `nuxt typecheck` 通过；回归记录已回链到活动回归窗口。
 
-### 2. 重复代码与纯函数复用收敛 (P1)
+### 2. 测试覆盖率与有效性治理 (P0)
+
+- [x] **测试覆盖率与有效性治理 (P0)**
+	- 验收: 在本阶段基线上继续提升覆盖率，并优先锁定公开页 runtime、认证配置退化、认证页 raw key 暴露三大高风险链路的真实文案装配断言补强。
+	- 验收: 不接受只有 snapshot、缺少失败断言或与高风险链路无关的低价值补测；`80%+` 仅作为冲刺目标，不作为阶段关闭线。
+	- 非目标: 不把本轮写成全仓 coverage 冲 `80%+` 的铺量工程。
+	- **阶段收口记录（2026-05-02）**: 本阶段已完成公开页 runtime（categories / tags / archives / posts）、认证配置退化（auth-client / auth lib）、认证页 raw key 暴露（forgot-password / reset-password / register / login）三大高风险链路的真实文案装配断言补强。全仓覆盖率从 `76.03% / 76.08%` 抬升至当前基线，`pages/login.vue` 达 statements 100% / branches 84.44%。`80%+` 冲刺目标顺延至下一阶段，优先沿其余认证流边角分支、共享组件 raw key 暴露与热点公开读链路失败路径继续补强。
+	- 验证: 多轮定向 Vitest、`pnpm i18n:verify:runtime`、`pnpm test:coverage` 与 `pnpm exec nuxt typecheck` 均通过。
+
+### 3. 重复代码与纯函数复用收敛 (P1)
 
 - [x] **重复代码与纯函数复用收敛 (P1)**
 	- 验收: 本轮只处理公共页模板片段与列表型查询 helper 两组高收益重复区，需写清原始重复点、拟抽象边界、收益、潜在过度泛化风险与回滚方式。
@@ -46,7 +55,7 @@
 	- 闭合记录（2026-05-01）: `pnpm duplicate-code:check` 当前结果为 `32 clones / 697 duplicated lines / 0.59%`，低于此前 backlog 记录的 `34 clones / 879 duplicated lines / 0.79%` 基线，本轮未出现反弹。
 	- 验证: `server/utils/taxonomy-public-list.test.ts`、`tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts`、`pages/privacy-policy.test.ts`、`pages/user-agreement.test.ts`、`components/legal-agreement-page.test.ts` 共 `32` 条断言通过；`nuxt typecheck targeted` 与 `pnpm duplicate-code:check` 通过。
 
-### 3. ESLint / 类型债治理 (P1)
+### 4. ESLint / 类型债治理 (P1)
 
 - [x] **ESLint / 类型债治理 (P1)**
 	- 验收: 只允许继续上收单规则窄切片，进入实现前必须先冻结候选规则、命中清单、影响文件、预期收益、回滚方式与最小验证矩阵。
@@ -55,7 +64,7 @@
 	- 闭合记录（2026-05-01）: 当前阶段的 ESLint / 类型债治理已满足"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四个收口条件。
 	- 验证: `pnpm exec eslint composables/use-post-editor-voice.ts server/api/categories/index.get.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`、受影响测试文件与 `pnpm exec nuxt typecheck` 均通过。
 
-### 4. Postgres 查询、CPU 与连接生命周期平衡治理 (P0)
+### 5. Postgres 查询、CPU 与连接生命周期平衡治理 (P0)
 
 - [x] **Postgres 查询、CPU 与连接生命周期平衡治理 (P0)**
 	- 验收: 本轮只从"公开热点读链路"推进，给出数据库唤醒边界、最小字段集、短 TTL 或请求去重中的至少一组收敛方案。
@@ -64,7 +73,7 @@
 	- 闭合记录（2026-05-01）: 同一窗口内 compute 仍可反复成功 `start / suspend`，未出现持续钉住 Active 的异常。
 	- 验证: `tests/server/api/search/index.get.test.ts`（8 tests）、`nuxt typecheck targeted`、Neon 2026-05-01 live sample 均通过。
 
-### 5. AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)
+### 6. AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)
 
 - [x] **AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)**
 	- **派生原因（2026-05-01）**: 2026-05-01 Neon live sample 中 `momei_ai_tasks` stale compensation 扫描仍是当前剩余重样本之一（`53.9ms / 1 call`）。
