@@ -88,6 +88,20 @@
             "subscribers": {
                 "title": "訂閱管理"
             },
+            "waitlist": {
+                "title": "候補名單",
+                "search_placeholder": "按姓名或郵箱搜尋...",
+                "purpose_filter": "全部目的",
+                "export": "匯出 CSV",
+                "delete_confirm": "確定要移除此候補記錄嗎？",
+                "columns": {
+                    "name": "姓名",
+                    "email": "郵箱",
+                    "purpose": "目的",
+                    "locale": "語言",
+                    "createdAt": "加入時間"
+                }
+            },
             "tags": {
                 "title": "標籤管理"
             },

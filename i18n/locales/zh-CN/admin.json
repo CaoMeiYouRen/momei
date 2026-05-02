@@ -88,6 +88,20 @@
             "subscribers": {
                 "title": "订阅管理"
             },
+            "waitlist": {
+                "title": "候补名单",
+                "search_placeholder": "按姓名或邮箱搜索...",
+                "purpose_filter": "全部目的",
+                "export": "导出 CSV",
+                "delete_confirm": "确定要移除此候补记录吗？",
+                "columns": {
+                    "name": "姓名",
+                    "email": "邮箱",
+                    "purpose": "目的",
+                    "locale": "语言",
+                    "createdAt": "加入时间"
+                }
+            },
             "tags": {
                 "title": "标签管理"
             },

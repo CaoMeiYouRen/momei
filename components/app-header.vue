@@ -447,6 +447,11 @@ const adminMenuItems = computed(() => {
                 command: () => navigateTo(localePath('/admin/subscribers')),
             },
             {
+                label: t('pages.admin.waitlist.title'),
+                icon: 'pi pi-list-check',
+                command: () => navigateTo(localePath('/admin/waitlist')),
+            },
+            {
                 label: t('pages.admin.ad.title'),
                 icon: 'pi pi-percentage',
                 items: [

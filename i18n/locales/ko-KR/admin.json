@@ -88,6 +88,20 @@
             "subscribers": {
                 "title": "구독자 관리"
             },
+            "waitlist": {
+                "title": "대기 목록",
+                "search_placeholder": "이름 또는 이메일로 검색...",
+                "purpose_filter": "모든 목적",
+                "export": "CSV 내보내기",
+                "delete_confirm": "이 항목을 삭제하시겠습니까?",
+                "columns": {
+                    "name": "이름",
+                    "email": "이메일",
+                    "purpose": "목적",
+                    "locale": "언어",
+                    "createdAt": "가입 시간"
+                }
+            },
             "tags": {
                 "title": "태그 관리"
             },

@@ -88,6 +88,20 @@
             "subscribers": {
                 "title": "Subscribers"
             },
+            "waitlist": {
+                "title": "Waitlist",
+                "search_placeholder": "Search by name or email...",
+                "purpose_filter": "All Purposes",
+                "export": "Export CSV",
+                "delete_confirm": "Are you sure you want to remove this entry?",
+                "columns": {
+                    "name": "Name",
+                    "email": "Email",
+                    "purpose": "Purpose",
+                    "locale": "Locale",
+                    "createdAt": "Joined At"
+                }
+            },
             "tags": {
                 "title": "Tags"
             },

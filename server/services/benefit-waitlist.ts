@@ -13,6 +13,7 @@ export const benefitWaitlistService = {
     async addToWaitlist(data: {
         name: string
         email: string
+        purpose?: string
         locale?: string | null
         ip?: string | null
         userAgent?: string | null
@@ -31,6 +32,7 @@ export const benefitWaitlistService = {
         assignDefined(entry, data, [
             'name',
             'email',
+            'purpose',
             'locale',
             'ip',
             'userAgent',

@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
     try {
         const entry = await benefitWaitlistService.addToWaitlist({
             ...result.data,
+            purpose: result.data.purpose || 'benefit',
             ip: ip || null,
             userAgent: userAgent || null,
         })

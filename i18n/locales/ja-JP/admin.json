@@ -88,6 +88,20 @@
             "subscribers": {
                 "title": "購読者管理"
             },
+            "waitlist": {
+                "title": "待機リスト",
+                "search_placeholder": "名前またはメールで検索...",
+                "purpose_filter": "すべての目的",
+                "export": "CSV エクスポート",
+                "delete_confirm": "このエントリを削除してもよろしいですか？",
+                "columns": {
+                    "name": "名前",
+                    "email": "メール",
+                    "purpose": "目的",
+                    "locale": "言語",
+                    "createdAt": "登録日時"
+                }
+            },
             "tags": {
                 "title": "タグ管理"
             },

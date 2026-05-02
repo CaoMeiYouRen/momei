@@ -4,6 +4,9 @@ import { BaseEntity } from './base-entity'
 
 @Entity('benefit_waitlist')
 export class BenefitWaitlist extends BaseEntity {
+    @CustomColumn({ type: 'varchar', length: 100, default: 'benefit' })
+    purpose: string
+
     @CustomColumn({ type: 'varchar', length: 100, nullable: false })
     name: string
 
