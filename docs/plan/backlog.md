@@ -21,10 +21,10 @@
 - **当前状态**:
     - 第二十六阶段已将全仓覆盖率推进到约 `72%`，第二十八阶段也已完成本轮切片并把全仓 coverage 推进到 `76%+`。
     - 第三十一阶段已继续围绕共享文案 raw key 暴露、认证配置退化与 coverage blocker 三条高风险链路补齐失败断言，并把 `AppFooter` 与公开友链页纳入固定 runtime 回归入口；当前全仓 coverage 已稳定在 statements `76.03%` / lines `76.08%`。
-    - 第三十二阶段已正式上收下一轮切片，但已明确把“继续提升并锁定高风险链路”作为关闭口径，`80%+` 只保留为冲刺目标，不再作为本轮阶段关闭线。
+    - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
-    - 第三十二阶段（规划中）。
+    - 第三十二阶段（执行中）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先围绕 `76%+` 之后的高风险模块深挖，而不是回到低价值铺量测试。
 
@@ -38,9 +38,9 @@
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
     - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
     - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
-    - 第三十二阶段已正式上收下一轮单规则窄切片，并明确只能在单文件或双文件范围内推进，不允许再并行开启第二条规则治理。
+    - 第三十二阶段已完成「单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明」四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
 - **最近一次上收阶段**:
-    - 第三十二阶段（规划中）。
+    - 第三十二阶段（当前切片已收口）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 

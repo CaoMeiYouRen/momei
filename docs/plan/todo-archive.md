@@ -17,6 +17,66 @@
 
 ---
 
+## 第三十二阶段：多语言内容资产化承接入口与高风险治理推进 (部分归档)
+
+> 归档说明: 第三十二阶段 5 条主线中 4 条 + 1 条 Postgres 派生切片已于 2026-05-01 / 2026-05-02 依次闭合，仅 `测试覆盖率与有效性治理 (P0)` 仍在继续推进。本轮将已闭合的 5 条事项整体迁移到归档，进行中的 coverage P0 留在 [todo.md](./todo.md) 当前待办区。
+
+> **ROI 评估**: 多语言内容资产化增强包的统一承接入口 1.80；重复代码与纯函数复用收敛 1.60；ESLint / 类型债治理 1.40；Postgres 查询治理（含 AITask 派生切片）2.00。四项均已按本阶段准入边界完成收口，其中 Postgres P0 为本轮最高优先级治理项。
+
+### 1. 多语言内容资产化增强包的统一承接入口 (P1)
+
+- [x] **多语言内容资产化增强包的统一承接入口 (P1)**
+	- **增强项 (2026-05-01)**:
+		- ✅ 候补名单已实现邮箱应用层去重（`benefitWaitlistService` 中 `findOne` + early return 策略，相同邮箱静默返回已有记录）
+		- ✅ 已登录用户自动填充默认值（`pages/benefits.vue` 中 `watch(loggedInUser)` 首次自动填充 `name` + `email`）
+		- ✅ 多语言翻译已补全：`pages.enhanced_pack` 已添加到 `ja-JP`、`ko-KR`、`zh-TW` 的 `public.json`，`demo.paths.enhanced_pack` 已同步补全到对应三语 `demo.json`
+		- ✅ Footer 新增增强包链接（`components/app-footer.vue`，5 语种 `common.enhanced_pack` 翻译已补齐）
+	- 验收: 已在 `docs/design/governance/multilingual-assetization-intake.md` 补齐专项设计文档，首版只做独立说明 / 申请页与真实 CTA。
+	- 验收: 已形成「让你的技术内容自动触达全球读者」单一主卖点文案，并明确免费核心与付费增强边界；已有 3 条公开入口完成导流接入（Demo Banner / About 页 / Footer），形成"入口 -> 承接页 -> 申请 / 候补名单"的最小闭环。
+	- 非目标: 未对现有免费能力加锁，未扩写为完整销售站点改版。
+	- 验证: `pages/benefits.test.ts`（6 tests）、`waitlist.post.test.ts`（2 tests）、`benefit-waitlist.test.ts`（7 tests）全部通过；`lint:i18n` 与 `nuxt typecheck` 通过；回归记录已回链到活动回归窗口。
+
+### 2. 重复代码与纯函数复用收敛 (P1)
+
+- [x] **重复代码与纯函数复用收敛 (P1)**
+	- 验收: 本轮只处理公共页模板片段与列表型查询 helper 两组高收益重复区，需写清原始重复点、拟抽象边界、收益、潜在过度泛化风险与回滚方式。
+	- 验收: 至少保住重复代码基线不反弹，并输出本轮收敛后的剩余热点清单。
+	- 非目标: 不做跨目录大重构，不扩写为通用 UI 框架改造。
+	- 闭合记录（2026-05-01）: 已完成两组高收益重复区收敛。公共页模板片段将 `privacy-policy` / `user-agreement` 两页的整页模板、样式与取数逻辑下沉到 `components/legal-agreement-page.vue` + `composables/use-legal-agreement-page.ts`，同时保留有限集合 i18n key 的显式映射，避免共享组件继续扩大成动态 key 工厂；列表型查询 helper 将 `categories` / `tags` 公开列表端点中重复的缓存 key 组装、公共过滤与 `postCount` 排序逻辑收敛到 `server/utils/taxonomy-public-list.ts`，各自 handler 只保留实体专属差异（如 `parentId`）。
+	- 闭合记录（2026-05-01）: `pnpm duplicate-code:check` 当前结果为 `32 clones / 697 duplicated lines / 0.59%`，低于此前 backlog 记录的 `34 clones / 879 duplicated lines / 0.79%` 基线，本轮未出现反弹。
+	- 验证: `server/utils/taxonomy-public-list.test.ts`、`tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts`、`pages/privacy-policy.test.ts`、`pages/user-agreement.test.ts`、`components/legal-agreement-page.test.ts` 共 `32` 条断言通过；`nuxt typecheck targeted` 与 `pnpm duplicate-code:check` 通过。
+
+### 3. ESLint / 类型债治理 (P1)
+
+- [x] **ESLint / 类型债治理 (P1)**
+	- 验收: 只允许继续上收单规则窄切片，进入实现前必须先冻结候选规则、命中清单、影响文件、预期收益、回滚方式与最小验证矩阵。
+	- 非目标: 不并行开启第二条规则治理，不扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
+	- 闭合记录（2026-05-01）: `@typescript-eslint/no-explicit-any` 窄切片已覆盖 `composables/use-post-editor-voice.ts`、`server/api/categories/index.get.ts` 与工具层文件组；同规则 override 已归并为统一配置片段。
+	- 闭合记录（2026-05-01）: 当前阶段的 ESLint / 类型债治理已满足"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四个收口条件。
+	- 验证: `pnpm exec eslint composables/use-post-editor-voice.ts server/api/categories/index.get.ts --rule '{"@typescript-eslint/no-explicit-any":2}'`、受影响测试文件与 `pnpm exec nuxt typecheck` 均通过。
+
+### 4. Postgres 查询、CPU 与连接生命周期平衡治理 (P0)
+
+- [x] **Postgres 查询、CPU 与连接生命周期平衡治理 (P0)**
+	- 验收: 本轮只从"公开热点读链路"推进，给出数据库唤醒边界、最小字段集、短 TTL 或请求去重中的至少一组收敛方案。
+	- 非目标: 不扩写为全站性能重构，不同时并行推进请求入口与热点读链路两大方向。
+	- 闭合记录（2026-05-01）: `/api/search` 匿名请求已接入 `60s` 运行时缓存；Neon live sample 已补齐，Top SQL 中 `settings/public` batched `IN (...)` 查询（`5.8ms / 5.4ms`），精选友链（`4.3ms / 4.1ms`），`/api/search` 未继续停留在热点 SQL 顶部。
+	- 闭合记录（2026-05-01）: 同一窗口内 compute 仍可反复成功 `start / suspend`，未出现持续钉住 Active 的异常。
+	- 验证: `tests/server/api/search/index.get.test.ts`（8 tests）、`nuxt typecheck targeted`、Neon 2026-05-01 live sample 均通过。
+
+### 5. AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)
+
+- [x] **AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)**
+	- **派生原因（2026-05-01）**: 2026-05-01 Neon live sample 中 `momei_ai_tasks` stale compensation 扫描仍是当前剩余重样本之一（`53.9ms / 1 call`）。
+	- 验收: `scanAndCompensateTimedOutMediaTasks()` 首轮扫描只保留 `claim + dispatch` 所需字段。
+	- 非目标: 不改 `TTSService` / `ImageService` 的补偿逻辑，不重写调度器。
+	- 推进记录（2026-05-01）: 已将 stale scan 收紧为 `id / type / status / result / startedAt / progress` 最小字段集。
+	- 推进记录（2026-05-02）: 修复 `RecoverableMediaTaskScanItem` 类型定义中 `error` 字段与 `select` 不一致的问题。
+	- **闭合记录（2026-05-02）**: 已补新一轮 Neon live sample。本轮 Top SQL 中 `momei_ai_tasks` stale compensation 扫描（前次 `53.9ms / 1 call`）已完全退出热点列表；System Operations 全天 30+ 次 start/suspend 正常交替。本条 P0 派生切片代码、测试、类型与 live sample 四条证据链已闭环，正式关闭。
+	- 验证: `pnpm exec vitest run server/services/ai/media-task-monitor.test.ts`（7 tests）、受影响文件 ESLint、`nuxt typecheck targeted`、Neon 2026-05-02 live sample 均通过。
+
+---
+
 ## 第二十五阶段：部署体验与可持续演进收敛 (已审计归档)
 
 > 审计结论: 第二十五阶段围绕部署体验与初始化收敛、编辑器与正文渲染体验第二轮收口、构建速度与包体性能深化、Cloudflare 运行时兼容研究与止损结论，以及 AI 初始化 / 配置问答助手评估五条主线，已在实现代码、部署 / 设计 / 指南文档、多语言翻译页与专项 Review Gate 证据中形成闭环，满足归档条件。正式放行依据为 [2026-04-11-phase-25-archive.md](./../../artifacts/review-gate/2026-04-11-phase-25-archive.md) 的 `Pass` 结论；其中部署体验收敛、Cloudflare 研究结论、AI 助手评估与编辑器 / 渲染收口分别继续引用 2026-04-09 至 2026-04-10 的专项证据，不再额外起第二套事实源。

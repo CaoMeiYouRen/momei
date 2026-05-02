@@ -129,6 +129,7 @@ function resolveTranslationTier(filePath) {
             'guide/development.md',
             'guide/features.md',
             'guide/variables.md',
+            'guide/enhanced-pack.md',
             'standards/planning.md',
             'standards/documentation.md',
             'standards/security.md',
@@ -152,6 +153,7 @@ function resolveTranslationTier(filePath) {
             'guide/translation-governance.md',
             'guide/features.md',
             'guide/variables.md',
+            'guide/enhanced-pack.md',
             'plan/roadmap.md',
         ].includes(relativePath)) {
             return 'summary-sync'
@@ -163,7 +165,7 @@ function resolveTranslationTier(filePath) {
     }
 
     if (locale === 'ja-JP') {
-        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md', 'plan/roadmap.md'].includes(relativePath)) {
+        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md', 'guide/enhanced-pack.md', 'plan/roadmap.md'].includes(relativePath)) {
             return 'summary-sync'
         }
     }
