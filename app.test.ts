@@ -1,5 +1,5 @@
-import { computed, ref } from 'vue'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { computed, nextTick, reactive, ref } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 import App from './app.vue'
 
@@ -15,6 +15,8 @@ const createDefaultSiteConfig = () => ({
     siteLogo: '',
 })
 
+let appConfigPayload = createDefaultSiteConfig()
+
 const mockSiteConfig = ref(createDefaultSiteConfig())
 const mockFetchSiteConfig = vi.fn(() => {
     mockSiteConfig.value = {
@@ -23,7 +25,65 @@ const mockFetchSiteConfig = vi.fn(() => {
     }
 })
 
-let appConfigPayload = createDefaultSiteConfig()
+const sessionState = ref<{ data: { user?: { language?: string } } | null, isPending: boolean }>({
+    data: null,
+    isPending: false,
+})
+
+const routeState = reactive({
+    path: '/',
+    fullPath: '/',
+    query: {} as Record<string, unknown>,
+    params: {} as Record<string, unknown>,
+    matched: [] as unknown[],
+    meta: {},
+    hash: '',
+    name: 'index___zh-CN___default',
+    redirectedFrom: undefined as unknown,
+})
+
+const routerState = {
+    push: vi.fn(),
+    replace: vi.fn(() => Promise.resolve()),
+    afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    onError: vi.fn(),
+    currentRoute: { value: routeState },
+}
+
+const runtimeConfigState = {
+    app: {
+        baseURL: '/',
+        buildAssetsDir: '/_nuxt/',
+        cdnURL: '',
+    },
+    public: {
+        demoMode: false,
+    },
+}
+
+const localeState = ref('zh-CN')
+const setLocaleMock = vi.fn((locale: string) => {
+    localeState.value = locale
+})
+const headMock = vi.fn()
+const initializeAuthSessionSyncMock = vi.fn()
+const primeHydratedAuthSessionMock = vi.fn()
+const setupAuthSessionLifecycleMock = vi.fn()
+const startTourMock = vi.fn(async () => true)
+const maybeAutoStartTourMock = vi.fn()
+const fetchThemeMock = vi.fn(async () => undefined)
+const applyThemeMock = vi.fn()
+
+const headState = computed(() => ({
+    htmlAttrs: {
+        lang: localeState.value,
+        dir: 'ltr',
+    },
+    meta: [{ name: 'og:locale', content: localeState.value }],
+    link: [{ rel: 'canonical', href: `https://momei.app${routeState.path}` }],
+}))
 
 const createInstallStatusPayload = (overrides: Partial<Record<string, unknown>> = {}) => ({
     installed: true,
@@ -56,6 +116,35 @@ const registerInstallStatusEndpoint = (overrides: Partial<Record<string, unknown
     }))
 }
 
+mockNuxtImport('useRoute', () => () => routeState)
+mockNuxtImport('useRouter', () => () => routerState)
+mockNuxtImport('useRuntimeConfig', () => () => runtimeConfigState)
+mockNuxtImport('useI18n', () => () => ({
+    t: (key: string) => key,
+    setLocale: (...args: Parameters<typeof setLocaleMock>) => setLocaleMock(...args),
+    locale: localeState,
+}))
+mockNuxtImport('useLocaleHead', () => () => headState)
+mockNuxtImport('useHead', () => (...args: Parameters<typeof headMock>) => headMock(...args))
+mockNuxtImport('useOnboarding', () => () => ({
+    startTour: (...args: Parameters<typeof startTourMock>) => startTourMock(...args),
+    maybeAutoStartTour: (...args: Parameters<typeof maybeAutoStartTourMock>) => maybeAutoStartTourMock(...args),
+}))
+mockNuxtImport('useTheme', () => () => ({
+    fetchTheme: (...args: Parameters<typeof fetchThemeMock>) => fetchThemeMock(...args),
+    applyTheme: (...args: Parameters<typeof applyThemeMock>) => applyThemeMock(...args),
+}))
+
+vi.mock('@/lib/auth-client', () => ({
+    initializeAuthSessionSync: (...args: Parameters<typeof initializeAuthSessionSyncMock>) => initializeAuthSessionSyncMock(...args),
+}))
+
+vi.mock('@/composables/use-auth-session', () => ({
+    primeHydratedAuthSession: (...args: Parameters<typeof primeHydratedAuthSessionMock>) => primeHydratedAuthSessionMock(...args),
+    setupAuthSessionLifecycle: (...args: Parameters<typeof setupAuthSessionLifecycleMock>) => setupAuthSessionLifecycleMock(...args),
+    useAuthSession: () => sessionState,
+}))
+
 mockNuxtImport('useMomeiConfig', () => () => ({
     siteConfig: mockSiteConfig,
     fetchSiteConfig: mockFetchSiteConfig,
@@ -72,46 +161,161 @@ describe('app.vue', () => {
         vi.clearAllMocks()
         appConfigPayload = createDefaultSiteConfig()
         mockSiteConfig.value = createDefaultSiteConfig()
+        sessionState.value = {
+            data: null,
+            isPending: false,
+        }
+        routeState.path = '/'
+        routeState.fullPath = '/'
+        routeState.query = {}
+        routeState.params = {}
+        routeState.matched = []
+        routeState.meta = {}
+        routeState.hash = ''
+        routeState.name = 'index___zh-CN___default'
+        routeState.redirectedFrom = undefined
+        routerState.currentRoute.value = routeState
+        runtimeConfigState.public.demoMode = false
+        localeState.value = 'zh-CN'
+        fetchThemeMock.mockResolvedValue(undefined)
+        mockFetchSiteConfig.mockImplementation(() => {
+            mockSiteConfig.value = {
+                ...createDefaultSiteConfig(),
+                ...appConfigPayload,
+            }
+        })
         registerInstallStatusEndpoint()
     })
 
-    it('should render the app layout with main components', async () => {
+    it('skips initial settings fetches on installation routes but still wires auth and theme lifecycle', async () => {
+        routeState.path = '/installation'
+        routeState.fullPath = '/installation'
+
         const wrapper = await mountSuspended(App)
 
-        // Check that the app renders
         expect(wrapper.exists()).toBe(true)
+        expect(initializeAuthSessionSyncMock).toHaveBeenCalledTimes(1)
+        expect(primeHydratedAuthSessionMock).toHaveBeenCalledTimes(1)
+        expect(setupAuthSessionLifecycleMock).toHaveBeenCalledWith(sessionState)
+        expect(applyThemeMock).toHaveBeenCalledTimes(1)
+        expect(fetchThemeMock).not.toHaveBeenCalled()
+        expect(mockFetchSiteConfig).not.toHaveBeenCalled()
 
-        // Check for key layout elements
-        const html = wrapper.html()
-        expect(html).toBeTruthy()
-        expect(html.length).toBeGreaterThan(0)
+        localeState.value = 'en-US'
+        await nextTick()
+
+        expect(mockFetchSiteConfig).not.toHaveBeenCalled()
     })
 
-    it('should render on installation page', async () => {
-        registerInstallStatusEndpoint({
-            installed: false,
-            databaseConnected: false,
-            hasUsers: false,
-            hasInstallationFlag: false,
-        })
+    it('logs initialization failures on regular pages and builds head metadata from site config', async () => {
+        appConfigPayload = {
+            ...createDefaultSiteConfig(),
+            siteTitle: 'Momei Test',
+            siteDescription: 'Runtime description',
+            siteKeywords: 'momei,test',
+            googleAdsenseAccount: 'ca-pub-123',
+            siteFavicon: '/test.ico',
+        }
+        fetchThemeMock.mockRejectedValueOnce(new Error('theme failed'))
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-        const wrapper = await mountSuspended(App, {
-            route: '/installation',
-        })
+        await mountSuspended(App)
 
-        expect(wrapper.exists()).toBe(true)
+        await vi.waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch initial data:', expect.any(Error))
+        })
+        expect(fetchThemeMock).toHaveBeenCalledTimes(1)
+        expect(mockFetchSiteConfig).toHaveBeenCalledTimes(1)
+        expect(applyThemeMock).toHaveBeenCalledTimes(1)
+
+        const headConfig = headMock.mock.calls.at(-1)?.[0]
+        expect(headConfig).toBeDefined()
+        expect(headConfig.titleTemplate('Home')).toBe('Home - Momei Test')
+        expect(headConfig.htmlAttrs).toMatchObject({ lang: 'zh-CN', dir: 'ltr' })
+        expect(headConfig.meta).toEqual(expect.arrayContaining([
+            expect.objectContaining({ name: 'description', content: 'Runtime description' }),
+            expect.objectContaining({ name: 'keywords', content: 'momei,test' }),
+            expect.objectContaining({ name: 'google-adsense-account', content: 'ca-pub-123' }),
+            expect.objectContaining({ name: 'og:locale', content: 'zh-CN' }),
+        ]))
+        expect(headConfig.link).toEqual(expect.arrayContaining([
+            expect.objectContaining({ rel: 'icon', href: '/test.ico' }),
+            expect.objectContaining({ rel: 'alternate', href: '/feed.xml' }),
+            expect.objectContaining({ rel: 'preconnect', href: 'https://www.googletagmanager.com' }),
+            expect.objectContaining({ rel: 'canonical', href: 'https://momei.app/' }),
+        ]))
+
+        consoleErrorSpy.mockRestore()
     })
 
-    it('should render on regular pages', async () => {
-        const wrapper = await mountSuspended(App, {
-            route: '/about',
-        })
+    it('starts the demo tour on demand, auto-runs in demo mode, and stops listening after unmount', async () => {
+        runtimeConfigState.public.demoMode = true
 
-        expect(wrapper.exists()).toBe(true)
-        expect(mockFetchSiteConfig).toHaveBeenCalled()
+        const wrapper = await mountSuspended(App)
+
+        expect(maybeAutoStartTourMock).toHaveBeenCalledTimes(1)
+
+        window.dispatchEvent(new CustomEvent('momei:start-tour'))
+        await nextTick()
+        expect(startTourMock).toHaveBeenCalledTimes(1)
+
+        wrapper.unmount()
+        window.dispatchEvent(new CustomEvent('momei:start-tour'))
+        await nextTick()
+
+        expect(startTourMock).toHaveBeenCalledTimes(1)
     })
 
-    it('should hydrate shared site config for feedback page through app initialization', async () => {
+    it('reruns the demo onboarding check after client-side route changes in demo mode', async () => {
+        runtimeConfigState.public.demoMode = true
+
+        await mountSuspended(App)
+
+        expect(maybeAutoStartTourMock).toHaveBeenCalledTimes(1)
+
+        routeState.fullPath = '/posts?page=2'
+        await nextTick()
+        await nextTick()
+
+        await vi.waitFor(() => {
+            expect(maybeAutoStartTourMock).toHaveBeenCalledTimes(2)
+        })
+    })
+
+    it('applies session language preferences and refreshes site config when locale changes off installation routes', async () => {
+        routeState.path = '/about'
+        routeState.fullPath = '/about'
+
+        await mountSuspended(App)
+
+        await vi.waitFor(() => {
+            expect(mockFetchSiteConfig).toHaveBeenCalledTimes(1)
+        })
+        mockFetchSiteConfig.mockClear()
+
+        sessionState.value = {
+            data: {
+                user: {
+                    language: 'en-US',
+                },
+            },
+            isPending: false,
+        }
+
+        await vi.waitFor(() => {
+            expect(setLocaleMock).toHaveBeenCalledWith('en-US')
+        })
+        await vi.waitFor(() => {
+            expect(mockFetchSiteConfig).toHaveBeenCalledTimes(1)
+        })
+
+        localeState.value = 'ja-JP'
+        await vi.waitFor(() => {
+            expect(mockFetchSiteConfig).toHaveBeenCalledTimes(2)
+        })
+    })
+
+    it('hydrates feedback page content from shared site config during app initialization', async () => {
         appConfigPayload = {
             siteTitle: 'Momei Blog Test',
             siteDescription: 'A test blog',
@@ -123,12 +327,14 @@ describe('app.vue', () => {
             siteFavicon: '',
             siteLogo: '',
         }
+        routeState.path = '/feedback'
+        routeState.fullPath = '/feedback'
 
-        const wrapper = await mountSuspended(App, {
-            route: '/feedback',
+        const wrapper = await mountSuspended(App)
+
+        await vi.waitFor(() => {
+            expect(mockFetchSiteConfig).toHaveBeenCalled()
         })
-
-        expect(mockFetchSiteConfig).toHaveBeenCalled()
         expect(wrapper.text()).toContain('联系 墨梅运维 的站点管理员')
         expect(wrapper.find('a[href="https://support.example.com"]').exists()).toBe(true)
     })
