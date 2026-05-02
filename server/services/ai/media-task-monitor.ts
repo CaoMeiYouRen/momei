@@ -34,7 +34,7 @@ interface ScanTimedOutMediaTaskOptions {
     taskId?: string
 }
 
-type RecoverableMediaTaskScanItem = Pick<AITask, 'id' | 'type' | 'status' | 'result' | 'startedAt' | 'progress' | 'error'>
+type RecoverableMediaTaskScanItem = Pick<AITask, 'id' | 'type' | 'status' | 'result' | 'startedAt' | 'progress'>
 
 function createEmptySummary(staleBefore: Date): MediaTaskCompensationSummary {
     return {
@@ -128,7 +128,6 @@ async function claimTaskForCompensation(
     }
 
     task.status = 'processing'
-    task.error = null
     task.result = claimedResult
     task.startedAt = task.startedAt || now
     task.progress = Math.max(task.progress || 0, 5)
