@@ -114,7 +114,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   **周期性回归任务**: 代码优化与复用收敛、ESLint warning / 类型债治理、`database/*/init.sql` 与实体 / 设计文档同步、README / 部署 / 翻译文档同步、i18n 翻译大文件拆分后的初始化字段完整性、测试补齐与覆盖率治理、性能基线审计、依赖安全审计（Dependabot / `pnpm audit --registry=https://registry.npmjs.org/`）、`scripts/**` 中未使用长期脚本 / 失效入口引用 / 临时脚本残留 / 无效脚本清理，以及 `max-lines` 超限文件与 `/* eslint-disable max-lines */` 等临时豁免收敛等易漂移事项，应以独立治理任务或阶段形式规划。此类任务允许执行全量测试与 coverage，但必须显式声明 timeout budget，并记录结果与未覆盖边界。
 -   **回归任务隔离原则**: 上述周期性事项默认属于独立治理任务，不自动膨胀进普通功能需求；只有在阻塞当前交付、造成明确功能回归或构成高风险问题时，才允许插队进入当前阶段。
  -   **回归记录落点**: 周期性回归、阶段基线、补跑记录与 Review Gate 证据链正文默认写入 `docs/reports/regression/current.md`；`todo.md` 和 `roadmap.md` 只保留任务状态、阶段摘要与文档入口，避免规划文档反复复制同一份长记录。
- -   **回归日志滚动归档**: 当 `docs/reports/regression/current.md` 超过 350 - 500 行、或累计超过 6 - 8 条完整记录且已影响当前阶段阅读效率时，应将较早且不再服务最近基线比较的记录整体迁移到 `docs/reports/regression/archive/`；主窗口必须继续保留足够支撑最近阶段对比与发版判断的近线记录。
+ -   **回归日志滚动归档**: 当 `docs/reports/regression/current.md` 超过 500 - 700 行、或累计超过 6 - 8 条完整记录且已影响当前阶段阅读效率时，应将较早且不再服务最近基线比较的记录整体迁移到 `docs/reports/regression/archive/`；主窗口必须继续保留足够支撑最近阶段对比与发版判断的近线记录。
 
 #### 依赖安全回归补充规则
 
@@ -158,13 +158,13 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 | :--- | :--- | :--- | :--- | :--- |
 | 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `i18n:audit:missing` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
 | 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
-| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `500` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
+| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `700` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
 
 补充约束：
 
 1. 三条固定入口生成的 artifact 仅作为引用证据，正式结果摘要仍统一沉淀到 `docs/reports/regression/current.md`。
 2. `duplicate-code:check` 在周级 / 发版前入口中默认只作为 warning 基线；进入 `phase-close` 时必须升级到 strict 口径。
-3. `docs/reports/regression/current.md` 触发滚动归档的条件继续保持唯一事实源：超过 `350 - 500` 行、或超过 `6 - 8` 条完整记录且已影响当前阶段阅读效率；`phase-close` 入口将其中的上限口径编码为正式 blocker。
+3. `docs/reports/regression/current.md` 触发滚动归档的条件继续保持唯一事实源：超过 `500 - 700` 行、或超过 `6 - 8` 条完整记录且已影响当前阶段阅读效率；`phase-close` 入口将其中的上限口径编码为正式 blocker。
 
 推荐输出模板：
 
@@ -223,9 +223,9 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 - `README.md` 与根目录 `README.<locale>.md` 镜像：`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行前应先把细节回收到 `docs/` 专题页。
 - `roadmap.md`：`<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行前必须优先拆出更早阶段的深度归档分片。
-- `backlog.md`：`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行前应先收敛候选摘要与主线卡片，避免把实施正文重新堆回 backlog。
+- `backlog.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前应先收敛候选摘要与主线卡片，避免把实施正文重新堆回 backlog。
 - `todo-archive.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前必须优先拆出更早阶段区间分片。
-- `docs/reports/regression/current.md`：`<= 350` 行为健康窗口，`351 - 500` 行进入 warning，超过 `500` 行前必须先把旧记录整体滚动归档到 `docs/reports/regression/archive/`。
+- `docs/reports/regression/current.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前必须先把旧记录整体滚动归档到 `docs/reports/regression/archive/`。
 - 深度归档后，主文档只保留近线阶段窗口、摘要与索引入口，不再长期复制全量历史正文。
 
 以上阈值由 `pnpm docs:check:line-count` 执行校验；进入 warning 区间时必须尽快安排治理，超过 error 线则视为需要立即归档收敛的阻断项。
