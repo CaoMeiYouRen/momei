@@ -5,6 +5,22 @@ const e2eHost = '127.0.0.1'
 const e2ePort = 3001
 const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
 const e2eAuthSecret = 'lhci-test-secret-0123456789abcdef'
+const mobileCriticalSpecPattern = /.*mobile-critical\.e2e\.test\.ts/
+const detectedParallelism = typeof os.availableParallelism === 'function'
+    ? os.availableParallelism()
+    : os.cpus().length
+const configuredCiWorkers = Number.parseInt(process.env.PLAYWRIGHT_CI_WORKERS ?? '', 10)
+const defaultCiWorkers = Math.max(1, Math.min(2, detectedParallelism - 1))
+
+let resolvedWorkers: number | undefined
+if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
+    resolvedWorkers = configuredCiWorkers
+} else if (process.env.CI) {
+    resolvedWorkers = defaultCiWorkers
+} else {
+    resolvedWorkers = undefined
+}
+
 const e2eServerEnv = [
     'DEMO_MODE=true',
     'NUXT_PUBLIC_DEMO_MODE=true',
@@ -41,8 +57,8 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 1,
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
+    /* Keep CI parallelism bounded instead of fully serializing the whole browser matrix. */
+    workers: resolvedWorkers,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [['html', { open: 'never' }], ['list']],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions */
@@ -60,27 +76,30 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
+            testIgnore: mobileCriticalSpecPattern,
             use: { ...devices['Desktop Chrome'] },
         },
 
         {
             name: 'firefox',
+            testIgnore: mobileCriticalSpecPattern,
             use: { ...devices['Desktop Firefox'] },
         },
 
         {
             name: 'webkit',
+            testIgnore: mobileCriticalSpecPattern,
             use: { ...devices['Desktop Safari'] },
         },
 
         {
             name: 'mobile-chrome-critical',
-            testMatch: /.*mobile-critical\.e2e\.test\.ts/,
+            testMatch: mobileCriticalSpecPattern,
             use: { ...devices['Pixel 5'] },
         },
         {
             name: 'mobile-safari-critical',
-            testMatch: /.*mobile-critical\.e2e\.test\.ts/,
+            testMatch: mobileCriticalSpecPattern,
             use: { ...devices['iPhone 12'] },
         },
 

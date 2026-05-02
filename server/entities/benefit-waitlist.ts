@@ -1,6 +1,6 @@
 import { Entity } from 'typeorm'
-import { BaseEntity } from './base-entity'
 import { CustomColumn } from '../decorators/custom-column'
+import { BaseEntity } from './base-entity'
 
 @Entity('benefit_waitlist')
 export class BenefitWaitlist extends BaseEntity {
