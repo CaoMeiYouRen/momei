@@ -162,7 +162,7 @@ describe('email template engine', () => {
     })
 
     it('prefers Nitro storage templates and reuses cached template fragments', async () => {
-        const storageGetItemMock = vi.fn(async (relativePath: string) => {
+        const storageGetItemMock = vi.fn((relativePath: string) => {
             if (relativePath === 'base-template.mjml') {
                 return '<mjml><mj-body>{{mainContent}}</mj-body></mjml>'
             }

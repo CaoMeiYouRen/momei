@@ -36,9 +36,15 @@ export const benefitWaitlistService = {
             'userAgent',
         ])
 
-        if (data.locale === undefined) { entry.locale = null }
-        if (data.ip === undefined) { entry.ip = null }
-        if (data.userAgent === undefined) { entry.userAgent = null }
+        if (data.locale === undefined) {
+            entry.locale = null
+        }
+        if (data.ip === undefined) {
+            entry.ip = null
+        }
+        if (data.userAgent === undefined) {
+            entry.userAgent = null
+        }
 
         return await repo.save(entry)
     },
