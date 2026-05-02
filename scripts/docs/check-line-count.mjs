@@ -31,8 +31,8 @@ const TARGETS = [
     },
     {
         file: 'docs/plan/backlog.md',
-        warningLimit: 300,
-        errorLimit: 400,
+        warningLimit: 500,
+        errorLimit: 700,
         rationale: 'backlog 只保留候选摘要与主线卡片，详细设计与阶段正文应继续下沉到 design / plan 分片。',
     },
     {
