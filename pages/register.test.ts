@@ -1,35 +1,92 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import RegisterPage from './register.vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, nextTick } from 'vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-const { mockInvalidateAuthSessionState, mockRefreshAuthSession, mockRegisterEmail } = vi.hoisted(() => ({
-    mockInvalidateAuthSessionState: vi.fn(),
-    mockRefreshAuthSession: vi.fn(),
-    mockRegisterEmail: vi.fn(),
-}))
+const signUpEmailMock = vi.fn()
+const socialSignInMock = vi.fn()
+const navigateToMock = vi.fn()
+const invalidateAuthSessionStateMock = vi.fn()
+const refreshAuthSessionMock = vi.fn()
+const toastAddMock = vi.fn()
+const resetCaptchaMock = vi.fn()
+const routeState = {
+    query: {} as Record<string, unknown>,
+    path: '/register',
+    fullPath: '/register',
+    name: 'register___en-US___default',
+    params: {},
+    matched: [],
+    meta: {},
+    hash: '',
+    redirectedFrom: undefined,
+}
+
+const translate = (key: string) => {
+    switch (key) {
+        case 'pages.register.title':
+            return 'Create account'
+        case 'pages.register.name':
+            return 'Name'
+        case 'pages.register.email':
+            return 'Email'
+        case 'pages.register.password':
+            return 'Password'
+        case 'pages.register.confirm_password':
+            return 'Confirm password'
+        case 'pages.register.submit':
+            return 'Create account'
+        case 'pages.register.have_account':
+            return 'Already have an account?'
+        case 'pages.login.github_login':
+            return 'Continue with GitHub'
+        case 'pages.login.google_login':
+            return 'Continue with Google'
+        case 'pages.login.or_continue_with_email':
+            return 'Or continue with email'
+        case 'legal.user_agreement':
+            return 'User Agreement'
+        case 'legal.privacy_policy':
+            return 'Privacy Policy'
+        case 'legal.agreement_checkbox':
+            return 'I agree to the terms'
+        case 'validation.required':
+            return 'This field is required'
+        case 'validation.password_mismatch':
+            return 'Passwords do not match'
+        case 'common.error':
+            return 'Error'
+        case 'common.success':
+            return 'Success'
+        case 'common.save_success':
+            return 'Saved successfully'
+        case 'common.unexpected_error':
+            return 'Unexpected error'
+        default:
+            return key
+    }
+}
 
 vi.mock('@/composables/use-auth-session', () => ({
-    invalidateAuthSessionState: mockInvalidateAuthSessionState,
-    refreshAuthSession: mockRefreshAuthSession,
+    invalidateAuthSessionState: (...args: Parameters<typeof invalidateAuthSessionStateMock>) => invalidateAuthSessionStateMock(...args),
+    refreshAuthSession: (...args: Parameters<typeof refreshAuthSessionMock>) => refreshAuthSessionMock(...args),
 }))
 
-// Mock auth-client
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         signUp: {
-            email: mockRegisterEmail,
+            email: (...args: Parameters<typeof signUpEmailMock>) => signUpEmailMock(...args),
         },
         signIn: {
-            social: vi.fn(),
+            social: (...args: Parameters<typeof socialSignInMock>) => socialSignInMock(...args),
         },
     },
 }))
 
-// Mock schemas
 vi.mock('@/utils/schemas/auth', () => ({
     registerSchema: {
         safeParse: vi.fn((data) => {
-            const errors: any[] = []
+            const errors: { path: string[], message: string }[] = []
+
             if (!data.name) {
                 errors.push({ path: ['name'], message: 'validation.required' })
             }
@@ -49,243 +106,245 @@ vi.mock('@/utils/schemas/auth', () => ({
             if (errors.length > 0) {
                 return { success: false, error: { issues: errors } }
             }
+
             if (data.password !== data.confirmPassword) {
                 return {
                     success: false,
-                    error: { issues: [{ path: ['confirmPassword'], message: 'validation.password_mismatch' }] },
+                    error: {
+                        issues: [{ path: ['confirmPassword'], message: 'validation.password_mismatch' }],
+                    },
                 }
             }
+
             return { success: true, data }
         }),
     },
 }))
 
-// Stub components
+mockNuxtImport('useToast', () => () => ({ add: toastAddMock }))
+mockNuxtImport('useI18n', () => () => ({
+    t: translate,
+    locale: { value: 'en-US' },
+}))
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('useRouter', () => () => ({
+    push: vi.fn(),
+    replace: vi.fn(() => Promise.resolve()),
+    afterEach: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    currentRoute: { value: routeState },
+    onError: vi.fn(),
+}))
+mockNuxtImport('useRoute', () => () => routeState)
+mockNuxtImport('useSwitchLocalePath', () => () => () => routeState.path)
+mockNuxtImport('useRuntimeConfig', () => () => ({
+    app: {
+        baseURL: '/',
+        buildAssetsDir: '/_nuxt/',
+        cdnURL: '',
+    },
+    public: {
+        socialProviders: {
+            github: true,
+            google: true,
+        },
+    },
+}))
+mockNuxtImport('navigateTo', () => (...args: Parameters<typeof navigateToMock>) => navigateToMock(...args))
+mockNuxtImport('definePageMeta', () => vi.fn())
+
+const AppCaptchaStub = defineComponent({
+    name: 'AppCaptchaStub',
+    props: {
+        modelValue: {
+            type: String,
+            default: '',
+        },
+    },
+    emits: ['update:modelValue'],
+    methods: {
+        reset: resetCaptchaMock,
+    },
+    template: '<input class="captcha-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+})
+
 const stubs = {
-    Card: { template: '<div class="card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
+    Card: { template: '<div class="register-card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
     Button: {
-        template: '<button :type="type" @click="$emit(\'click\')"><slot /></button>',
-        props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type'],
+        template: '<button :type="type" :data-loading="String(loading)" @click="$emit(\'click\')">{{ label }}</button>',
+        props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type', 'class'],
         emits: ['click'],
     },
     InputText: {
-        template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :class="{ \'p-invalid\': invalid }" />',
-        props: ['modelValue', 'type', 'invalid', 'id'],
+        template: '<input :id="id" :value="modelValue" :type="type" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+        props: ['modelValue', 'type', 'invalid', 'id', 'class'],
         emits: ['update:modelValue'],
     },
     Password: {
-        template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+        template: '<input :id="id" :value="modelValue" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid', 'id'],
         emits: ['update:modelValue'],
     },
     Checkbox: {
-        template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
-        props: ['modelValue', 'binary', 'inputId'],
+        template: '<input id="agreed" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+        props: ['modelValue', 'binary', 'inputId', 'invalid'],
         emits: ['update:modelValue'],
     },
-    Divider: { template: '<hr /><div class="divider-text"><slot /></div>' },
+    Divider: { template: '<div class="divider"><slot /></div>' },
     Message: { template: '<div v-if="severity" class="message"><slot /></div>', props: ['severity', 'size', 'variant'] },
-    Toast: { template: '<div />' },
-    'app-captcha': {
-        template: '<div />',
-        methods: {
-            reset: vi.fn(),
-        },
-    },
-    NuxtLink: { template: '<a :href="to"><slot /></a>', props: ['to', 'target'] },
-    i18nT: { template: '<span><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
+    Toast: { template: '<div class="toast-stub" />' },
+    'app-captcha': AppCaptchaStub,
+    NuxtLink: { template: '<a :href="to" :target="target"><slot /></a>', props: ['to', 'target', 'class'] },
+    i18nT: { template: '<span class="agreement-copy"><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
 }
 
-const mockToast = {
-    add: vi.fn(),
-}
+import RegisterPage from './register.vue'
 
-// Mock Nuxt auto-imports
-vi.mock('#imports', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('#imports')>()
-    return {
-        ...actual,
-        useToast: () => mockToast,
-        useI18n: () => ({
-            t: (key: string) => key,
-        }),
-        useLocalePath: () => (path: string) => path,
-        useHead: vi.fn(),
-        useRuntimeConfig: () => ({
-            public: {
-                socialProviders: {
-                    github: 'true',
-                    google: 'true',
-                },
+async function mountPage() {
+    return mountSuspended(RegisterPage, {
+        global: {
+            stubs,
+            mocks: {
+                $t: translate,
             },
-        }),
-        navigateTo: vi.fn(),
-        definePageMeta: vi.fn(),
-    }
-})
-
-vi.stubGlobal('useToast', () => mockToast)
-vi.stubGlobal('useI18n', () => ({ t: (key: string) => key }))
-vi.stubGlobal('useLocalePath', () => (path: string) => path)
-vi.stubGlobal('useHead', vi.fn())
-vi.stubGlobal('useRuntimeConfig', () => ({
-    public: {
-        socialProviders: {
-            github: 'true',
-            google: 'true',
         },
-    },
-}))
-vi.stubGlobal('navigateTo', vi.fn())
-vi.stubGlobal('definePageMeta', vi.fn())
+    })
+}
 
 describe('RegisterPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        routeState.query = {}
+        routeState.path = '/register'
+        routeState.fullPath = '/register'
+        routeState.params = {}
+        routeState.matched = []
+        routeState.meta = {}
+        routeState.hash = ''
+        routeState.redirectedFrom = undefined
+        signUpEmailMock.mockResolvedValue({ error: null })
+        socialSignInMock.mockResolvedValue(undefined)
+        refreshAuthSessionMock.mockResolvedValue(undefined)
     })
 
-    it('renders register form correctly', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
+    it('装配真实注册页文案而不是显示 raw key', async () => {
+        const wrapper = await mountPage()
+        const text = wrapper.text()
 
         expect(wrapper.find('.register-page').exists()).toBe(true)
-        expect(wrapper.find('.register-card').exists()).toBe(true)
+        expect(text).toContain('Create account')
+        expect(text).toContain('Continue with GitHub')
+        expect(text).toContain('Continue with Google')
+        expect(text).toContain('Already have an account?')
+        expect(text).not.toContain('pages.register.title')
+        expect(text).not.toContain('pages.login.github_login')
     })
 
-    it('shows name input field', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
+    it('shows translated validation errors instead of submitting invalid payloads', async () => {
+        const wrapper = await mountPage()
+
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+
+        expect(signUpEmailMock).not.toHaveBeenCalled()
+        expect(wrapper.text()).toContain('This field is required')
+    })
+
+    it('dispatches social sign-in with localized callback targets', async () => {
+        const wrapper = await mountPage()
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0]?.trigger('click')
+        await buttons[1]?.trigger('click')
+
+        expect(socialSignInMock).toHaveBeenNthCalledWith(1, {
+            provider: 'github',
+            callbackURL: '/',
+        })
+        expect(socialSignInMock).toHaveBeenNthCalledWith(2, {
+            provider: 'google',
+            callbackURL: '/',
+        })
+    })
+
+    it('submits successfully and redirects home after showing a success toast', async () => {
+        const wrapper = await mountPage()
+
+        await wrapper.find('#name').setValue('Tester')
+        await wrapper.find('#email').setValue('tester@momei.dev')
+        await wrapper.find('#password').setValue('secure-pass')
+        await wrapper.find('#confirmPassword').setValue('secure-pass')
+        await wrapper.find('#agreed').setValue(true)
+        await wrapper.find('.captcha-input').setValue('captcha-token')
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
+
+        expect(invalidateAuthSessionStateMock).toHaveBeenCalledTimes(1)
+        expect(signUpEmailMock).toHaveBeenCalledWith({
+            email: 'tester@momei.dev',
+            password: 'secure-pass',
+            name: 'Tester',
+            language: 'en-US',
+            callbackURL: '/',
+            fetchOptions: {
+                headers: {
+                    'x-captcha-response': 'captcha-token',
+                },
             },
         })
-
-        // InputText component with id="name" should be rendered
-        const html = wrapper.html()
-        expect(html).toContain('name')
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('shows email input field', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
+        expect(toastAddMock).toHaveBeenCalledWith({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Saved successfully',
+            life: 3000,
         })
-
-        // InputText component with id="email" should be rendered
-        const html = wrapper.html()
-        expect(html).toContain('email')
-        expect(wrapper.html().length).toBeGreaterThan(0)
+        expect(navigateToMock).toHaveBeenCalledWith('/')
     })
 
-    it('shows password input field', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Password component is stubbed
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('shows confirm password input field', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Confirm password component is stubbed
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('shows agreement checkbox', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Agreement checkbox is stubbed
-        expect(wrapper.find('.register-form__agreement').exists()).toBe(true)
-    })
-
-    it('shows submit button', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Button component should be rendered
-        const html = wrapper.html()
-        expect(html).toContain('button')
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('shows social login buttons when providers are enabled', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Social login section may or may not render based on config
-        // Just verify the component renders
-        expect(wrapper.find('.register-page').exists()).toBe(true)
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('shows login link in footer', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        const loginLink = wrapper.find('.register-card__login-link')
-        expect(loginLink.exists()).toBe(true)
-    })
-
-    it('renders legal notice links', async () => {
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        // Legal links should exist
-        expect(wrapper.html().length).toBeGreaterThan(0)
-    })
-
-    it('restores session state when registration fails', async () => {
-        mockRegisterEmail.mockResolvedValue({
+    it('restores session state and captcha when registration fails or throws', async () => {
+        signUpEmailMock.mockResolvedValueOnce({
             error: {
                 message: 'Register failed',
                 statusText: 'Bad Request',
             },
         })
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        const wrapper = await mountPage()
 
-        const wrapper = await mountSuspended(RegisterPage, {
-            global: {
-                stubs,
-            },
-        })
-
-        await wrapper.find('input#name').setValue('Tester')
-        await wrapper.find('input#email').setValue('tester@momei.dev')
-        await wrapper.find('input#password').setValue('secure-pass')
-        await wrapper.find('input#confirmPassword').setValue('secure-pass')
-        await wrapper.find('input[type="checkbox"]').setValue(true)
+        await wrapper.find('#name').setValue('Tester')
+        await wrapper.find('#email').setValue('tester@momei.dev')
+        await wrapper.find('#password').setValue('secure-pass')
+        await wrapper.find('#confirmPassword').setValue('secure-pass')
+        await wrapper.find('#agreed').setValue(true)
         await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
 
-        await vi.waitFor(() => {
-            expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(1)
-            expect(mockRefreshAuthSession).toHaveBeenCalledTimes(1)
+        expect(refreshAuthSessionMock).toHaveBeenCalledTimes(1)
+        expect(resetCaptchaMock).toHaveBeenCalledTimes(1)
+        expect(toastAddMock).toHaveBeenCalledWith({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Register failed',
+            life: 3000,
         })
+
+        signUpEmailMock.mockRejectedValueOnce(new Error('network-failed'))
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
+
+        expect(refreshAuthSessionMock).toHaveBeenCalledTimes(2)
+        expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error))
+        expect(toastAddMock).toHaveBeenLastCalledWith({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unexpected error',
+            life: 3000,
+        })
+
+        consoleErrorSpy.mockRestore()
     })
 })

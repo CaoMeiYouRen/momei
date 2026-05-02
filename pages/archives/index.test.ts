@@ -1,8 +1,42 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick, ref } from 'vue'
 import ArchivesIndex from './index.vue'
 import { useAppFetch } from '@/composables/use-app-fetch'
+
+const showSummaryState = ref(false)
+const mockUsePageSeo = vi.fn((config?: { title?: () => string, description?: () => string }) => {
+    config?.title?.()
+    config?.description?.()
+})
+
+const translate = (key: string, params?: { count?: number }) => {
+    switch (key) {
+        case 'pages.archives.title':
+            return 'Archives'
+        case 'pages.archives.count':
+            return `${params?.count ?? 0} posts`
+        case 'pages.archives.months.4':
+            return 'April'
+        case 'pages.archives.months.5':
+            return 'May'
+        case 'pages.archives.months.12':
+            return 'December'
+        case 'common.error_loading':
+            return 'Failed to load archives'
+        default:
+            return key
+    }
+}
+
+mockNuxtImport('useI18n', () => () => ({
+    t: translate,
+    locale: ref('en'),
+}))
+
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
+mockNuxtImport('usePageSeo', () => (...args: Parameters<typeof mockUsePageSeo>) => mockUsePageSeo(...args))
+mockNuxtImport('useState', () => () => showSummaryState)
 
 // Mock dependencies
 vi.mock('@/composables/use-app-fetch', () => ({
@@ -43,6 +77,8 @@ const mockPostsData = {
 describe('ArchivesIndex', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        showSummaryState.value = false
+        mockUsePageSeo.mockClear()
         vi.mocked(useAppFetch).mockReturnValue({
             data: ref(mockArchiveData),
             pending: ref(false),
@@ -57,6 +93,11 @@ describe('ArchivesIndex', () => {
 
         expect(wrapper.find('.year-title').exists()).toBe(true)
         expect(wrapper.findAll('.year-block').length).toBe(2)
+        expect(wrapper.text()).toMatch(/May|5月|五月/u)
+        expect(wrapper.text()).toMatch(/2 posts|共计 2 篇/u)
+        expect(wrapper.text()).not.toContain('pages.archives.months.5')
+        expect(wrapper.text()).not.toContain('pages.archives.count')
+        expect(mockUsePageSeo).toHaveBeenCalled()
     })
 
     it('expands the first year months by default', async () => {
@@ -94,6 +135,63 @@ describe('ArchivesIndex', () => {
                 query: expect.objectContaining({ year: 2023, month: 12 }),
             }))
         }
+    })
+
+    it('renders post summaries when the summary state is enabled', async () => {
+        showSummaryState.value = true
+
+        const wrapper = await mountSuspended(ArchivesIndex)
+        await nextTick()
+        await nextTick()
+
+        expect(wrapper.find('.post-summary').exists()).toBe(true)
+        expect(wrapper.text()).toContain('Summary 1')
+    })
+
+    it('collapses an expanded month without refetching posts', async () => {
+        const wrapper = await mountSuspended(ArchivesIndex)
+        await nextTick()
+        await nextTick()
+
+        const toggles = wrapper.findAll('.month-toggle')
+        const initialFetchCount = mockFetch.mock.calls.length
+
+        await toggles[0]?.trigger('click')
+        await nextTick()
+
+        expect(mockFetch).toHaveBeenCalledTimes(initialFetchCount)
+        expect(toggles[0]?.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('falls back to an empty post list when loading a month fails', async () => {
+        mockFetch.mockImplementation((_path: string, options?: { query?: { year?: number, month?: number } }) => {
+            if (options?.query?.year === 2023 && options.query.month === 12) {
+                return Promise.reject(new Error('month failed'))
+            }
+
+            return Promise.resolve(mockPostsData)
+        })
+
+        const wrapper = await mountSuspended(ArchivesIndex)
+        await nextTick()
+        await nextTick()
+
+        const toggles = wrapper.findAll('.month-toggle')
+        const dec2023Toggle = toggles.find((toggle) => /December|12/u.test(toggle.text()))
+        const dec2023MonthItem = wrapper.findAll('.month-item').find((item) => /December|12/u.test(item.text()))
+        const initialPostCount = wrapper.findAll('.post-item').length
+
+        await dec2023Toggle?.trigger('click')
+        await nextTick()
+        await nextTick()
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/posts/archive', expect.objectContaining({
+            query: expect.objectContaining({ year: 2023, month: 12 }),
+        }))
+        expect(initialPostCount).toBeGreaterThan(0)
+        expect(wrapper.findAll('.post-item')).toHaveLength(initialPostCount)
+        expect(dec2023MonthItem?.findAll('.post-item')).toHaveLength(0)
+        expect(wrapper.find('.error-state').exists()).toBe(false)
     })
 
     it('shows loading state', async () => {

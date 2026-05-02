@@ -9,6 +9,11 @@ interface CapturedAuthConfig {
     baseURL: string
     trustedOrigins: string[]
     socialProviders: Record<string, { clientId: string, clientSecret: string }>
+    advanced: {
+        database: {
+            generateId: () => string
+        }
+    }
     rateLimit: {
         customRules: Record<string, { window: number, max: number }>
     }
@@ -54,9 +59,17 @@ interface EmailOtpPluginOptions {
 interface PhoneNumberPluginOptions {
     callbackOnVerification: () => Promise<void>
     phoneNumberValidator: (phoneNumber: string) => boolean
+    sendOTP: () => Promise<never>
     signUpOnVerification: {
         getTempEmail: () => string
         getTempName: () => string
+    }
+}
+
+interface UsernamePluginOptions {
+    usernameNormalization: (name: string) => string
+    validationOrder: {
+        username: string
     }
 }
 
@@ -85,6 +98,7 @@ interface SubscriberRepositoryRecord {
 }
 
 interface PluginOptionsMap {
+    username: UsernamePluginOptions
     magicLink: MagicLinkPluginOptions
     emailOTP: EmailOtpPluginOptions
     phoneNumber: PhoneNumberPluginOptions
@@ -408,6 +422,112 @@ describe('lib/auth configuration', () => {
         expect(getLocale?.(new Request('https://example.com'))).toBe('en-US')
     })
 
+    it('falls back to default locale when auth callbacks run without request context', async () => {
+        resolvePreferredEmailLocaleMock.mockImplementation((options: { language?: unknown }) => Promise.resolve(
+            typeof options.language === 'string'
+                ? options.language
+                : 'en-US',
+        ))
+
+        const { config } = await importAuthModule()
+        const localizationPlugin = config.plugins.find((plugin) => plugin.name === 'localization')
+        const getLocale = localizationPlugin?.options?.getLocale as ((request?: Request) => string) | undefined
+        const magicLinkOptions = getPluginOptions(config, 'magicLink')
+        const emailOtpOptions = getPluginOptions(config, 'emailOTP')
+
+        await magicLinkOptions.sendMagicLink({
+            email: 'magic-no-ctx@example.com',
+            url: 'https://auth.example.com/magic-link',
+        })
+        await emailOtpOptions.sendVerificationOTP({
+            email: 'otp-no-ctx@example.com',
+            otp: '123456',
+            type: 'sign-in',
+        })
+
+        expect(resolvePreferredEmailLocaleMock).toHaveBeenNthCalledWith(1, {
+            email: 'magic-no-ctx@example.com',
+            language: undefined,
+        })
+        expect(resolvePreferredEmailLocaleMock).toHaveBeenNthCalledWith(2, {
+            email: 'otp-no-ctx@example.com',
+            language: undefined,
+        })
+        expect(emailServiceMock.sendMagicLink).toHaveBeenCalledWith(
+            'magic-no-ctx@example.com',
+            'https://auth.example.com/magic-link',
+            'en-US',
+        )
+        expect(emailServiceMock.sendLoginOTP).toHaveBeenCalledWith(
+            'otp-no-ctx@example.com',
+            '123456',
+            15,
+            'en-US',
+        )
+        expect(getLocale?.()).toBe('en-US')
+    })
+
+    it('swallows endpoint locale drift and enables captcha only with complete config', async () => {
+        Object.assign(envState, {
+            AUTH_CAPTCHA_PROVIDER: 'turnstile',
+            AUTH_CAPTCHA_SECRET_KEY: 'captcha-secret',
+        })
+        resolvePreferredEmailLocaleMock.mockImplementation((options: { language?: unknown }) => Promise.resolve(
+            typeof options.language === 'string'
+                ? options.language
+                : 'en-US',
+        ))
+        getAuthLocaleFromRequestMock.mockImplementation(() => {
+            throw new Error('endpoint-locale-drift')
+        })
+
+        const { config } = await importAuthModule()
+        const magicLinkOptions = getPluginOptions(config, 'magicLink')
+        const captchaPlugin = config.plugins.find((plugin) => plugin.name === 'captcha')
+
+        await magicLinkOptions.sendMagicLink(
+            {
+                email: 'magic-drift@example.com',
+                url: 'https://auth.example.com/magic-link',
+            },
+            { request: new Request('https://auth.example.com/magic-link') },
+        )
+
+        expect(resolvePreferredEmailLocaleMock).toHaveBeenCalledWith({
+            email: 'magic-drift@example.com',
+            language: undefined,
+        })
+        expect(emailServiceMock.sendMagicLink).toHaveBeenCalledWith(
+            'magic-drift@example.com',
+            'https://auth.example.com/magic-link',
+            'en-US',
+        )
+        expect(captchaPlugin).toEqual({
+            name: 'captcha',
+            options: {
+                provider: 'turnstile',
+                secretKey: 'captcha-secret',
+                endpoints: [
+                    '/sign-up/email',
+                    '/sign-in/email',
+                    '/forget-password/email-otp',
+                    '/forget-password/send-link',
+                ],
+            },
+        })
+    })
+
+    it('keeps captcha disabled when provider config is partial', async () => {
+        Object.assign(envState, {
+            AUTH_CAPTCHA_PROVIDER: 'turnstile',
+            AUTH_CAPTCHA_SECRET_KEY: '',
+        })
+
+        const { config } = await importAuthModule()
+
+        expect(config.plugins.find((plugin) => plugin.name === 'captcha')).toBeUndefined()
+    })
+
     it('falls back to test-safe auth origins when env-locked auth config degrades', async () => {
         Object.assign(envState, {
             AUTH_BASE_URL: '',
@@ -614,6 +734,17 @@ describe('lib/auth configuration', () => {
             subject: '您的一次性验证码',
             text: '您的验证码是：654321。1分钟内有效。如果您没有请求此验证码，请忽略此邮件。',
         })
+    })
+
+    it('keeps helper generators and normalization fallbacks deterministic', async () => {
+        const { config } = await importAuthModule()
+        const usernameOptions = getPluginOptions(config, 'username')
+        const phoneNumberOptions = getPluginOptions(config, 'phoneNumber')
+
+        expect(config.advanced.database.generateId()).toBe('snowflake-id')
+        expect(usernameOptions.validationOrder).toEqual({ username: 'pre-normalization' })
+        expect(usernameOptions.usernameNormalization('  MixedCaseUser  ')).toBe('mixedcaseuser')
+        await expect(phoneNumberOptions.sendOTP()).rejects.toThrow('未实现发送短信功能！')
     })
 
     it('keeps database hooks fail-safe while bootstrapping and syncing subscribers', async () => {

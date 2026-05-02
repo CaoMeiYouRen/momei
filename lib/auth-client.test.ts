@@ -155,6 +155,32 @@ describe('lib/auth-client configuration', () => {
         expect(options.baseURL).toBe(window.location.origin)
     })
 
+    it('supports URL and Request session inputs when resolving cached auth fetches', async () => {
+        const body = JSON.stringify({
+            data: {
+                user: {
+                    id: 'typed-session-user',
+                },
+            },
+        })
+        globalFetchMock.mockResolvedValueOnce(new Response(body, {
+            status: 200,
+            headers: {
+                'content-type': 'application/json',
+            },
+        }))
+
+        const { options } = await importAuthClientModule()
+        const requestUrl = 'https://runtime-auth.example.com/api/auth/get-session'
+
+        const urlResponse = await options.fetchOptions.customFetchImpl(new URL(requestUrl))
+        const requestResponse = await options.fetchOptions.customFetchImpl(new Request(requestUrl))
+
+        expect(globalFetchMock).toHaveBeenCalledTimes(1)
+        expect(await urlResponse.text()).toBe(body)
+        expect(await requestResponse.text()).toBe(body)
+    })
+
     it('resets the session atom and broadcasts cache busts by default', async () => {
         const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
         const { module } = await importAuthClientModule()
@@ -170,6 +196,51 @@ describe('lib/auth-client configuration', () => {
         }))
         expect(setItemSpy).toHaveBeenCalledWith('momei:auth-session-cache-bust', expect.any(String))
         expect(module.getAuthSessionCacheBustVersion()).toBeGreaterThan(0)
+    })
+
+    it('skips broadcasting when cache invalidation opts out explicitly', async () => {
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+        const { module } = await importAuthClientModule()
+
+        module.invalidateAuthSessionRequestCache({ broadcast: false })
+
+        expect(sessionAtomSetMock).toHaveBeenCalledWith(expect.objectContaining({
+            data: null,
+            error: null,
+            isPending: true,
+            isRefetching: false,
+            refetch: expect.any(Function),
+        }))
+        expect(setItemSpy).not.toHaveBeenCalled()
+    })
+
+    it('returns early when the session atom is unavailable', async () => {
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem')
+        const { module } = await importAuthClientModule()
+
+        module.authClient.$store.atoms.session = undefined as never
+        module.invalidateAuthSessionRequestCache()
+
+        expect(sessionAtomSetMock).not.toHaveBeenCalled()
+        expect(setItemSpy).toHaveBeenCalledWith('momei:auth-session-cache-bust', expect.any(String))
+    })
+
+    it('warns when cross-tab cache bust broadcasting fails', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+            throw new Error('quota exceeded')
+        })
+        const { module } = await importAuthClientModule()
+
+        module.invalidateAuthSessionRequestCache()
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            '[auth-client] Failed to broadcast session cache invalidation.',
+            expect.any(Error),
+        )
+
+        warnSpy.mockRestore()
+        setItemSpy.mockRestore()
     })
 
     it('serves primed session cache snapshots without hitting fetch', async () => {
@@ -211,6 +282,41 @@ describe('lib/auth-client configuration', () => {
         expect(await firstResponse.text()).toBe(body)
         expect(await secondResponse.text()).toBe(body)
         expect(await thirdResponse.text()).toBe(body)
+    })
+
+    it('bypasses the session cache for non-session and non-GET requests', async () => {
+        globalFetchMock
+            .mockResolvedValueOnce(new Response('plain', { status: 200 }))
+            .mockResolvedValueOnce(new Response('mutating', { status: 200 }))
+
+        const { options } = await importAuthClientModule()
+        const nonSessionResponse = await options.fetchOptions.customFetchImpl('https://runtime-auth.example.com/api/posts')
+        const postSessionResponse = await options.fetchOptions.customFetchImpl(
+            'https://runtime-auth.example.com/api/auth/get-session',
+            { method: 'POST' },
+        )
+
+        expect(globalFetchMock).toHaveBeenCalledTimes(2)
+        expect(await nonSessionResponse.text()).toBe('plain')
+        expect(await postSessionResponse.text()).toBe('mutating')
+    })
+
+    it('does not cache failed session responses', async () => {
+        globalFetchMock
+            .mockResolvedValueOnce(new Response('server-error', { status: 500, statusText: 'Server Error' }))
+            .mockResolvedValueOnce(new Response('server-ok', { status: 200, statusText: 'OK' }))
+
+        const { options } = await importAuthClientModule()
+        const requestUrl = 'https://runtime-auth.example.com/api/auth/get-session'
+
+        const firstResponse = await options.fetchOptions.customFetchImpl(new Request(requestUrl))
+        const secondResponse = await options.fetchOptions.customFetchImpl(new Request(requestUrl))
+
+        expect(globalFetchMock).toHaveBeenCalledTimes(2)
+        expect(firstResponse.status).toBe(500)
+        expect(await firstResponse.text()).toBe('server-error')
+        expect(secondResponse.status).toBe(200)
+        expect(await secondResponse.text()).toBe('server-ok')
     })
 
     it('binds the session sync listener once and reacts only to cache bust storage events', async () => {
