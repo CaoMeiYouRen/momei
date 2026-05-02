@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -108,7 +108,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -171,7 +171,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
@@ -194,7 +194,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           version: "latest"
       - name: Setup Node.js@lts environment
