@@ -1,48 +1,91 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, nextTick } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-const { mockEmailSignIn, mockSocialSignIn, mockNavigateTo, mockRoute, mockRuntimeConfig, mockEnsureLocaleMessageModules } = vi.hoisted(() => ({
-    mockEmailSignIn: vi.fn(),
-    mockSocialSignIn: vi.fn(),
-    mockNavigateTo: vi.fn(),
-    mockEnsureLocaleMessageModules: vi.fn(),
-    mockRoute: {
-        query: {} as Record<string, unknown>,
-        path: '/login',
-        fullPath: '/login',
-        name: 'login___zh-CN___default',
-        params: {},
-        matched: [],
-        meta: {},
-        hash: '',
-        redirectedFrom: undefined,
+const emailSignInMock = vi.fn()
+const socialSignInMock = vi.fn()
+const navigateToMock = vi.fn()
+const invalidateAuthSessionStateMock = vi.fn()
+const refreshAuthSessionMock = vi.fn()
+const toastAddMock = vi.fn()
+const resetCaptchaMock = vi.fn()
+const useHeadMock = vi.fn()
+const ensureLocaleMessageModulesMock = vi.fn()
+const ensureRouteLocaleMessagesMock = vi.fn()
+const routeState = {
+    query: {} as Record<string, unknown>,
+    path: '/login',
+    fullPath: '/login',
+    name: 'login___en-US___default',
+    params: {},
+    matched: [],
+    meta: {},
+    hash: '',
+    redirectedFrom: undefined,
+}
+const runtimeConfig = {
+    app: {
+        baseURL: '/',
+        buildAssetsDir: '/_nuxt/',
+        cdnURL: '',
     },
-    mockRuntimeConfig: {
-        app: {
-            baseURL: '/',
-            buildAssetsDir: '/_nuxt/',
-            cdnURL: '',
+    public: {
+        socialProviders: {
+            github: true,
+            google: true,
         },
-        public: {
-            socialProviders: {
-                github: true,
-                google: true,
-            },
-            demoMode: true,
-            demoUserEmail: 'demo@momei.dev',
-            demoPassword: 'demo-password',
-        },
+        demoMode: true,
+        demoUserEmail: 'demo@momei.dev',
+        demoPassword: 'demo-password',
     },
-}))
+}
 
-const { mockInvalidateAuthSessionState, mockRefreshAuthSession } = vi.hoisted(() => ({
-    mockInvalidateAuthSessionState: vi.fn(),
-    mockRefreshAuthSession: vi.fn(),
-}))
+const translate = (key: string) => {
+    switch (key) {
+        case 'pages.login.title':
+            return 'Sign in'
+        case 'pages.login.description':
+            return 'Access your Momei account.'
+        case 'pages.login.github_login':
+            return 'Continue with GitHub'
+        case 'pages.login.google_login':
+            return 'Continue with Google'
+        case 'pages.login.or_continue_with_email':
+            return 'Or continue with email'
+        case 'pages.login.email':
+            return 'Email'
+        case 'pages.login.password':
+            return 'Password'
+        case 'pages.login.remember_me':
+            return 'Remember me'
+        case 'pages.login.forgot_password':
+            return 'Forgot password?'
+        case 'pages.login.submit':
+            return 'Sign in'
+        case 'pages.login.no_account':
+            return 'Create an account'
+        case 'pages.login.email_required':
+            return 'Email is required'
+        case 'pages.login.password_required':
+            return 'Password is required'
+        case 'legal.user_agreement':
+            return 'User Agreement'
+        case 'legal.privacy_policy':
+            return 'Privacy Policy'
+        case 'legal.login_notice':
+            return 'By signing in you agree to the terms.'
+        case 'common.error':
+            return 'Error'
+        case 'common.unexpected_error':
+            return 'Unexpected error'
+        default:
+            return key
+    }
+}
 
 vi.mock('@/composables/use-auth-session', () => ({
-    invalidateAuthSessionState: mockInvalidateAuthSessionState,
-    refreshAuthSession: mockRefreshAuthSession,
+    invalidateAuthSessionState: (...args: Parameters<typeof invalidateAuthSessionStateMock>) => invalidateAuthSessionStateMock(...args),
+    refreshAuthSession: (...args: Parameters<typeof refreshAuthSessionMock>) => refreshAuthSessionMock(...args),
 }))
 
 vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
@@ -50,247 +93,302 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
 
     return {
         ...actual,
-        ensureLocaleMessageModules: mockEnsureLocaleMessageModules,
+        ensureLocaleMessageModules: (...args: Parameters<typeof ensureLocaleMessageModulesMock>) => ensureLocaleMessageModulesMock(...args),
+        ensureRouteLocaleMessages: (...args: Parameters<typeof ensureRouteLocaleMessagesMock>) => ensureRouteLocaleMessagesMock(...args),
     }
 })
 
-// Mock auth-client
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         signIn: {
-            email: mockEmailSignIn,
-            social: mockSocialSignIn,
+            email: (...args: Parameters<typeof emailSignInMock>) => emailSignInMock(...args),
+            social: (...args: Parameters<typeof socialSignInMock>) => socialSignInMock(...args),
         },
     },
 }))
 
-// Mock schemas
 vi.mock('@/utils/schemas/auth', () => ({
     loginSchema: {
         safeParse: vi.fn((data) => {
-            if (!data.email || !data.password) {
-                return {
-                    success: false,
-                    error: { issues: [{ path: ['email'], message: 'validation.required' }] },
-                }
+            const issues: { path: string[], message: string }[] = []
+
+            if (!data.email) {
+                issues.push({ path: ['email'], message: 'pages.login.email_required' })
             }
-            if (!data.email.includes('@')) {
-                return {
-                    success: false,
-                    error: { issues: [{ path: ['email'], message: 'validation.invalid_email' }] },
-                }
+            if (!data.password) {
+                issues.push({ path: ['password'], message: 'pages.login.password_required' })
             }
+
+            if (issues.length > 0) {
+                return { success: false, error: { issues } }
+            }
+
             return { success: true, data }
         }),
     },
 }))
 
-// Stub components
-const stubs = {
-    Card: { template: '<div class="card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
-    Button: { template: '<button :type="type" @click="$emit(\'click\')">{{ label }}<slot /></button>', props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type'] },
-    InputText: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :class="[{ \'p-invalid\': invalid }, $attrs.class]" />', props: ['id', 'modelValue', 'type', 'invalid'] },
-    Password: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid'] },
-    Checkbox: { template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue', 'binary', 'inputId'] },
-    Divider: { template: '<hr />' },
-    Message: { template: '<div v-if="severity"><slot /></div>', props: ['severity', 'size', 'variant'] },
-    Toast: { template: '<div />' },
-    'app-captcha': {
-        template: '<div />',
-        methods: {
-            reset: vi.fn(),
-        },
-    },
-    NuxtLink: { template: '<a :href="to"><slot /></a>', props: ['to', 'target'] },
-    i18nT: { template: '<span><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
-}
-
-const mockToast = {
-    add: vi.fn(),
-}
-
-mockNuxtImport('useToast', () => () => mockToast)
+mockNuxtImport('useToast', () => () => ({ add: toastAddMock }))
 mockNuxtImport('useI18n', () => () => ({
-    t: (key: string) => key,
-    locale: { value: 'zh-CN' },
-    mergeLocaleMessage: vi.fn(),
+    t: translate,
+    locale: { value: 'en-US' },
 }))
 mockNuxtImport('useRouter', () => () => ({
+    push: vi.fn(),
+    replace: vi.fn(() => Promise.resolve()),
     afterEach: vi.fn(),
     beforeEach: vi.fn(),
     beforeResolve: vi.fn(),
-    currentRoute: { value: mockRoute },
+    currentRoute: { value: routeState },
     onError: vi.fn(),
-    replace: vi.fn().mockResolvedValue(undefined),
 }))
-mockNuxtImport('useRoute', () => () => mockRoute)
+mockNuxtImport('useRoute', () => () => routeState)
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-mockNuxtImport('useSwitchLocalePath', () => () => () => mockRoute.path)
-mockNuxtImport('useRuntimeConfig', () => () => mockRuntimeConfig)
-mockNuxtImport('useHead', () => vi.fn())
-mockNuxtImport('navigateTo', () => mockNavigateTo)
+mockNuxtImport('useRuntimeConfig', () => () => runtimeConfig)
+mockNuxtImport('useHead', () => (...args: Parameters<typeof useHeadMock>) => useHeadMock(...args))
+mockNuxtImport('navigateTo', () => (...args: Parameters<typeof navigateToMock>) => navigateToMock(...args))
+mockNuxtImport('definePageMeta', () => vi.fn())
+
+const AppCaptchaStub = defineComponent({
+    name: 'AppCaptchaStub',
+    props: {
+        modelValue: {
+            type: String,
+            default: '',
+        },
+    },
+    emits: ['update:modelValue'],
+    methods: {
+        reset: resetCaptchaMock,
+    },
+    template: '<input class="captcha-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+})
+
+const stubs = {
+    Card: { template: '<div class="login-card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
+    Button: {
+        template: '<button :type="type" :data-loading="String(!!loading)" @click="$emit(\'click\')">{{ label }}</button>',
+        props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type', 'class'],
+        emits: ['click'],
+    },
+    InputText: {
+        template: '<input :id="id" :value="modelValue" :type="type" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+        props: ['id', 'modelValue', 'type', 'invalid', 'class'],
+        emits: ['update:modelValue'],
+    },
+    Password: {
+        template: '<input :id="id" :value="modelValue" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+        props: ['id', 'modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid'],
+        emits: ['update:modelValue'],
+    },
+    Checkbox: {
+        template: '<input :id="inputId" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+        props: ['modelValue', 'binary', 'inputId'],
+        emits: ['update:modelValue'],
+    },
+    Divider: { template: '<div class="divider"><slot /></div>' },
+    Message: { template: '<div class="message"><slot /></div>', props: ['severity', 'size', 'variant'] },
+    Toast: { template: '<div class="toast-stub" />' },
+    'app-captcha': AppCaptchaStub,
+    NuxtLink: { template: '<a :href="to" :target="target"><slot /></a>', props: ['to', 'target', 'class'] },
+    i18nT: { template: '<span class="legal-copy"><slot name="agreement" /><slot name="privacy" /></span>', props: ['keypath'] },
+}
 
 import LoginPage from './login.vue'
 
-const mountLoginPage = () => mountSuspended(LoginPage, {
-    global: {
-        stubs,
-        mocks: {
-            $t: (key: string) => key,
+async function mountPage() {
+    return mountSuspended(LoginPage, {
+        global: {
+            stubs,
+            mocks: {
+                $t: translate,
+            },
         },
-    },
-})
+    })
+}
 
 describe('LoginPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mockRoute.query = {}
-        mockRoute.path = '/login'
-        mockRoute.fullPath = '/login'
-        mockRoute.params = {}
-        mockRoute.matched = []
-        mockRoute.meta = {}
-        mockRoute.hash = ''
-        mockRoute.redirectedFrom = undefined
-        mockEnsureLocaleMessageModules.mockResolvedValue(undefined)
+        routeState.query = {}
+        routeState.path = '/login'
+        routeState.fullPath = '/login'
+        routeState.params = {}
+        routeState.matched = []
+        routeState.meta = {}
+        routeState.hash = ''
+        routeState.redirectedFrom = undefined
+        runtimeConfig.public.socialProviders.github = true
+        runtimeConfig.public.socialProviders.google = true
+        runtimeConfig.public.demoMode = true
+        runtimeConfig.public.demoUserEmail = 'demo@momei.dev'
+        runtimeConfig.public.demoPassword = 'demo-password'
+        ensureLocaleMessageModulesMock.mockResolvedValue(undefined)
+        ensureRouteLocaleMessagesMock.mockResolvedValue(undefined)
+        emailSignInMock.mockResolvedValue({ error: null })
+        socialSignInMock.mockResolvedValue(undefined)
+        refreshAuthSessionMock.mockResolvedValue(undefined)
     })
 
-    it('renders login form correctly', async () => {
-        const wrapper = await mountLoginPage()
+    it('装配真实登录页文案而不是显示 raw key', async () => {
+        const wrapper = await mountPage()
+        const text = wrapper.text()
 
         expect(wrapper.find('.login-page').exists()).toBe(true)
-        expect(wrapper.find('.login-card').exists()).toBe(true)
-    })
-
-    it('preloads auth locale messages before render', async () => {
-        await mountLoginPage()
-
-        expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith({
+        expect(text).toContain('Sign in')
+        expect(text).toContain('Continue with GitHub')
+        expect(text).toContain('Continue with Google')
+        expect(text).toContain('Forgot password?')
+        expect(text).toContain('Create an account')
+        expect(text).toContain('Remember me')
+        expect(text).not.toContain('pages.login.title')
+        expect(text).not.toContain('pages.login.github_login')
+        expect(useHeadMock).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'Sign in',
+            meta: expect.arrayContaining([
+                expect.objectContaining({ content: 'Access your Momei account.' }),
+            ]),
+        }))
+        expect(ensureLocaleMessageModulesMock).toHaveBeenCalledWith({
             i18n: expect.objectContaining({
-                locale: { value: 'zh-CN' },
+                locale: { value: 'en-US' },
             }),
-            locale: 'zh-CN',
+            locale: 'en-US',
             modules: ['auth'],
         })
     })
 
-    it('shows email input field', async () => {
-        const wrapper = await mountLoginPage()
+    it('hides social login controls when all social providers are disabled', async () => {
+        runtimeConfig.public.socialProviders.github = false
+        runtimeConfig.public.socialProviders.google = false
 
-        const emailInput = wrapper.find('input#email')
-        expect(emailInput.exists()).toBe(true)
+        const wrapper = await mountPage()
+        const text = wrapper.text()
+
+        expect(text).not.toContain('Continue with GitHub')
+        expect(text).not.toContain('Continue with Google')
+        expect(text).not.toContain('Or continue with email')
     })
 
-    it('shows password input field', async () => {
-        const wrapper = await mountLoginPage()
-
-        // Password component is stubbed, check for the wrapper div
-        const passwordField = wrapper.find('.login-form__field')
-        expect(passwordField.exists()).toBe(true)
-    })
-
-    it('shows submit button', async () => {
-        const wrapper = await mountLoginPage()
-
-        const submitBtn = wrapper.find('button[type="submit"]')
-        expect(submitBtn.exists()).toBe(true)
-    })
-
-    it('shows social login buttons when providers are enabled', async () => {
-        const wrapper = await mountLoginPage()
-
-        // Check that the page renders correctly with social providers enabled
-        // The v-if directive controls visibility based on hasSocialLogin computed property
-        const html = wrapper.html()
-        // Since social providers are mocked as enabled, check for any indication of social login
-        expect(html.length).toBeGreaterThan(0)
-    })
-
-    it('shows forgot password link', async () => {
-        const wrapper = await mountLoginPage()
-
-        const forgotLink = wrapper.find('.login-form__forgot')
-        expect(forgotLink.exists()).toBe(true)
-    })
-
-    it('shows register link', async () => {
-        const wrapper = await mountLoginPage()
-
-        const registerLink = wrapper.find('.login-card__register-link')
-        expect(registerLink.exists()).toBe(true)
-    })
-
-    it('shows remember me checkbox', async () => {
-        const wrapper = await mountLoginPage()
-
-        // Check for remember me section (stubbed checkbox)
-        const rememberSection = wrapper.find('.login-form__remember')
-        expect(rememberSection.exists()).toBe(true)
-    })
-
-    it('shows legal notice with links', async () => {
-        const wrapper = await mountLoginPage()
-
-        const legalNotice = wrapper.find('.login-form__legal-notice')
-        expect(legalNotice.exists()).toBe(true)
-    })
-
-    it('prefills demo account when redirecting to the editor in demo mode', async () => {
-        mockRoute.query = {
+    it('prefills the demo account only for editor redirects in demo mode', async () => {
+        routeState.query = {
             redirect: '/admin/posts/new',
         }
 
-        const wrapper = await mountLoginPage()
+        const wrapper = await mountPage()
+        await nextTick()
 
-        await wrapper.vm.$nextTick()
-
-        const emailInput = wrapper.find('input#email').element as HTMLInputElement
-        const passwordInput = wrapper.find('input#password').element as HTMLInputElement
-
-        expect(emailInput.value).toBe('demo@momei.dev')
-        expect(passwordInput.value).toBe('demo-password')
+        expect((wrapper.find('#email').element as HTMLInputElement).value).toBe('demo@momei.dev')
+        expect((wrapper.find('#password').element as HTMLInputElement).value).toBe('demo-password')
     })
 
-    it('uses redirect target for email sign in', async () => {
-        mockRoute.query = {
-            redirect: '/admin/posts/new',
+    it('dispatches social sign-in with a normalized local callback target', async () => {
+        routeState.query = {
+            redirect: '//evil.example.com',
         }
-        mockEmailSignIn.mockResolvedValue({ error: null })
+        const wrapper = await mountPage()
+        const buttons = wrapper.findAll('button')
 
-        const wrapper = await mountLoginPage()
+        await buttons[0]?.trigger('click')
+        await buttons[1]?.trigger('click')
 
-        await wrapper.vm.$nextTick()
+        expect(socialSignInMock).toHaveBeenNthCalledWith(1, {
+            provider: 'github',
+            callbackURL: '/',
+        })
+        expect(socialSignInMock).toHaveBeenNthCalledWith(2, {
+            provider: 'google',
+            callbackURL: '/',
+        })
+    })
 
-        await wrapper.find('input#email').setValue('writer@momei.dev')
-        await wrapper.find('input#password').setValue('secure-pass')
+    it('shows translated required-field errors instead of submitting an empty payload', async () => {
+        const wrapper = await mountPage()
+
         await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
 
-        expect(mockEmailSignIn).toHaveBeenCalledWith(expect.objectContaining({
-            callbackURL: '/admin/posts/new',
+        expect(emailSignInMock).not.toHaveBeenCalled()
+        expect(wrapper.text()).toContain('Email is required')
+        expect(wrapper.text()).toContain('Password is required')
+        expect(wrapper.find('#email').attributes('data-invalid')).toBe('true')
+        expect(wrapper.find('#password').attributes('data-invalid')).toBe('true')
+    })
+
+    it('submits email sign-in with rememberMe, captcha header, and a safe redirect target', async () => {
+        routeState.query = {
+            redirect: '/admin/posts/new',
+        }
+        const wrapper = await mountPage()
+
+        await wrapper.find('#email').setValue('writer@momei.dev')
+        await wrapper.find('#password').setValue('secure-pass')
+        await wrapper.find('#rememberMe').setValue(true)
+        await wrapper.find('.captcha-input').setValue('captcha-token')
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+
+        expect(invalidateAuthSessionStateMock).toHaveBeenCalledTimes(1)
+        expect(emailSignInMock).toHaveBeenCalledWith({
             email: 'writer@momei.dev',
             password: 'secure-pass',
-        }))
-        expect(mockNavigateTo).toHaveBeenCalledWith('/admin/posts/new')
+            rememberMe: true,
+            callbackURL: '/admin/posts/new',
+            fetchOptions: {
+                headers: {
+                    'x-captcha-response': 'captcha-token',
+                },
+            },
+        })
+        expect(navigateToMock).toHaveBeenCalledWith('/admin/posts/new')
+        expect(refreshAuthSessionMock).not.toHaveBeenCalled()
     })
 
-    it('restores session state when email sign in fails', async () => {
-        mockEmailSignIn.mockResolvedValue({
+    it('restores session state, shows backend errors, and resets captcha on logical failure', async () => {
+        emailSignInMock.mockResolvedValueOnce({
             error: {
-                message: 'Login failed',
                 statusText: 'Unauthorized',
             },
         })
+        const wrapper = await mountPage()
 
-        const wrapper = await mountLoginPage()
-
-        await wrapper.find('input#email').setValue('writer@momei.dev')
-        await wrapper.find('input#password').setValue('wrong-pass')
+        await wrapper.find('#email').setValue('writer@momei.dev')
+        await wrapper.find('#password').setValue('wrong-pass')
+        await wrapper.find('.captcha-input').setValue('captcha-token')
         await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
 
-        expect(mockInvalidateAuthSessionState).toHaveBeenCalledTimes(1)
-        expect(mockRefreshAuthSession).toHaveBeenCalledTimes(1)
-        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
+        expect(refreshAuthSessionMock).toHaveBeenCalledTimes(1)
+        expect(resetCaptchaMock).toHaveBeenCalledTimes(1)
+        expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'error',
+            summary: 'Error',
+            detail: 'Unauthorized',
         }))
+        expect(navigateToMock).not.toHaveBeenCalled()
+        expect(wrapper.find('button[type="submit"]').attributes('data-loading')).toBe('false')
+    })
+
+    it('falls back to the shared unexpected error copy when email sign-in throws', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        emailSignInMock.mockRejectedValueOnce(new Error('network down'))
+        const wrapper = await mountPage()
+
+        await wrapper.find('#email').setValue('writer@momei.dev')
+        await wrapper.find('#password').setValue('secure-pass')
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
+
+        expect(refreshAuthSessionMock).toHaveBeenCalledTimes(1)
+        expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'Unexpected error',
+        }))
+        expect(consoleErrorSpy).toHaveBeenCalled()
+        expect(resetCaptchaMock).not.toHaveBeenCalled()
+        expect(navigateToMock).not.toHaveBeenCalled()
+        consoleErrorSpy.mockRestore()
     })
 })
