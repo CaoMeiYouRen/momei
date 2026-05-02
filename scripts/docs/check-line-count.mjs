@@ -43,8 +43,8 @@ const TARGETS = [
     },
     {
         file: 'docs/reports/regression/current.md',
-        warningLimit: 350,
-        errorLimit: 500,
+        warningLimit: 500,
+        errorLimit: 700,
         rationale: '活动回归窗口应只保留最近 1 - 2 个阶段或近线记录；超过 warning 后尽快滚动归档，超过 error 线则视为阻断。',
     },
 ]

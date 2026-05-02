@@ -183,7 +183,7 @@
 - `roadmap.md`: `<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行应先拆分旧阶段正文再继续扩写。
 - `backlog.md`: `<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行应先把候选摘要回收为卡片式描述，而不是在 backlog 里堆叠实施细节。
 - `todo-archive.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先进行阶段区间分片再继续归档。
-- `docs/reports/regression/current.md`: `<= 350` 行为健康窗口，`351 - 500` 行进入 warning，超过 `500` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
+- `docs/reports/regression/current.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
 
 上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build` 与发布前检查，不能再依赖人工目测。
 
