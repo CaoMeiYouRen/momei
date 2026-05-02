@@ -15,7 +15,7 @@ jobs:
   qa:
     name: QA
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
       security-events: read
@@ -36,8 +36,23 @@ jobs:
       - run: pnpm run lint:css
       - run: pnpm run typecheck
       - run: pnpm run build
+  unit:
+    name: Unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: "latest"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
       - run: pnpm run test
-
   e2e:
     name: E2E
     runs-on: ubuntu-latest
@@ -64,7 +79,7 @@ jobs:
 
   release:
     name: Release
-    needs: [ qa, e2e ]
+    needs: [ qa, e2e, unit ]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
