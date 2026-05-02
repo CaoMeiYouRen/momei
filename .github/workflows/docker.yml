@@ -39,6 +39,8 @@ jobs:
     name: Unit
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm
