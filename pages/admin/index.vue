@@ -1,215 +1,356 @@
 <template>
-    <div class="admin-dashboard admin-page-container" :class="{'admin-dashboard--loading': loading}">
+    <div class="admin-dashboard admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.dashboard.title')" show-language-switcher>
             <template #actions>
                 <Button
                     :label="$t('common.refresh')"
                     icon="pi pi-refresh"
                     severity="secondary"
-                    :loading="loading"
-                    @click="refresh"
+                    :loading="loading || creatorLoading"
+                    @click="activeTab === 'insights' ? refresh() : creatorRefresh()"
                 />
             </template>
         </AdminPageHeader>
 
-        <div class="admin-content-card admin-dashboard__hero">
-            <div class="admin-dashboard__hero-copy">
-                <p class="admin-dashboard__eyebrow">
-                    {{ $t('pages.admin.dashboard.title') }}
-                </p>
-                <h2 class="admin-dashboard__headline">
-                    {{ $t('pages.admin.dashboard.subtitle') }}
-                </h2>
-                <p class="admin-dashboard__summary">
-                    {{ $t('pages.admin.dashboard.selection_summary', {days: selectedRange}) }}
-                </p>
-            </div>
+        <Tabs v-model:value="activeTab">
+            <TabList>
+                <Tab value="insights">
+                    <i class="pi pi-chart-bar" />
+                    <span>{{ $t('pages.admin.dashboard.tab_insights') }}</span>
+                </Tab>
+                <Tab value="creator">
+                    <i class="pi pi-user-edit" />
+                    <span>{{ $t('pages.admin.dashboard.tab_creator') }}</span>
+                </Tab>
+            </TabList>
 
-            <div class="admin-dashboard__controls">
-                <div class="admin-dashboard__ranges">
-                    <button
-                        v-for="summary in rangeSummaries"
-                        :key="summary.days"
-                        type="button"
-                        class="admin-dashboard__range-button"
-                        :class="{'admin-dashboard__range-button--active': selectedRange === summary.days}"
-                        @click="selectedRange = summary.days"
-                    >
-                        <span class="admin-dashboard__range-label">
-                            {{ $t('pages.admin.dashboard.range_label', {days: summary.days}) }}
-                        </span>
-                        <strong class="admin-dashboard__range-value">
-                            {{ numberFormatter.format(summary.metrics.posts.total) }}
-                        </strong>
-                        <small class="admin-dashboard__range-caption">
-                            {{ $t('pages.admin.dashboard.metrics.posts') }}
-                        </small>
-                    </button>
-                </div>
+            <TabPanels>
+                <TabPanel value="insights">
+                    <div class="admin-dashboard__panel" :class="{'admin-dashboard__panel--loading': loading}">
+                        <div class="admin-content-card admin-dashboard__hero">
+                            <div class="admin-dashboard__hero-copy">
+                                <p class="admin-dashboard__eyebrow">
+                                    {{ $t('pages.admin.dashboard.title') }}
+                                </p>
+                                <h2 class="admin-dashboard__headline">
+                                    {{ $t('pages.admin.dashboard.subtitle') }}
+                                </h2>
+                                <p class="admin-dashboard__summary">
+                                    {{ $t('pages.admin.dashboard.selection_summary', {days: selectedRange}) }}
+                                </p>
+                            </div>
 
-                <div class="admin-dashboard__filters">
-                    <div class="admin-dashboard__filter-field">
-                        <label class="admin-dashboard__filter-label" for="dashboard-scope-select">
-                            {{ $t('pages.admin.dashboard.scope_label') }}
-                        </label>
-                        <Select
-                            id="dashboard-scope-select"
-                            v-model="scope"
-                            :options="scopeOptions"
-                            option-label="label"
-                            option-value="value"
-                            class="admin-dashboard__scope-select"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="admin-dashboard__notes">
-            <Tag :value="$t('pages.admin.dashboard.notes.timezone', {timezone: dashboard?.timezone || timezone})" severity="secondary" />
-            <Tag
-                :value="scope === 'public'
-                    ? $t('pages.admin.dashboard.notes.public_scope')
-                    : $t('pages.admin.dashboard.notes.all_scope')"
-                severity="info"
-            />
-            <Tag :value="$t('pages.admin.dashboard.notes.cohort_metrics', {days: selectedRange})" severity="warn" />
-            <Tag :value="$t('pages.admin.dashboard.notes.representative')" severity="contrast" />
-        </div>
-
-        <div v-if="loading && !dashboard" class="admin-dashboard__loading-state">
-            <ProgressSpinner stroke-width="4" />
-        </div>
-
-        <template v-else-if="selectedSummary">
-            <div class="admin-dashboard__metrics">
-                <AdminDashboardMetricCard
-                    v-for="metric in metricCards"
-                    :key="metric.key"
-                    :label="metric.label"
-                    :icon="metric.icon"
-                    :metric="metric.metric"
-                    :tone="metric.tone"
-                />
-            </div>
-
-            <div v-if="hasRankingData" class="admin-dashboard__rankings">
-                <Card class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide">
-                    <template #title>
-                        {{ $t('pages.admin.dashboard.rankings.posts') }}
-                    </template>
-                    <template #content>
-                        <ol class="admin-dashboard__ranking-list">
-                            <li
-                                v-for="post in dashboard?.rankings.posts || []"
-                                :key="post.id"
-                                class="admin-dashboard__ranking-item"
-                            >
-                                <div class="admin-dashboard__ranking-copy">
-                                    <NuxtLink
-                                        :to="localePath(`/admin/posts/${post.id}`)"
-                                        class="admin-dashboard__ranking-link"
+                            <div class="admin-dashboard__controls">
+                                <div class="admin-dashboard__ranges">
+                                    <button
+                                        v-for="summary in rangeSummaries"
+                                        :key="summary.days"
+                                        type="button"
+                                        class="admin-dashboard__range-button"
+                                        :class="{'admin-dashboard__range-button--active': selectedRange === summary.days}"
+                                        @click="selectedRange = summary.days"
                                     >
-                                        {{ post.title }}
-                                    </NuxtLink>
-                                    <div class="admin-dashboard__ranking-meta">
-                                        <Tag :value="post.language.toUpperCase()" severity="secondary" />
-                                        <span v-if="post.category">{{ post.category.name }}</span>
-                                        <span>{{ formatDateTime(post.publishedAt || post.createdAt) }}</span>
+                                        <span class="admin-dashboard__range-label">
+                                            {{ $t('pages.admin.dashboard.range_label', {days: summary.days}) }}
+                                        </span>
+                                        <strong class="admin-dashboard__range-value">
+                                            {{ numberFormatter.format(summary.metrics.posts.total) }}
+                                        </strong>
+                                        <small class="admin-dashboard__range-caption">
+                                            {{ $t('pages.admin.dashboard.metrics.posts') }}
+                                        </small>
+                                    </button>
+                                </div>
+
+                                <div class="admin-dashboard__filters">
+                                    <div class="admin-dashboard__filter-field">
+                                        <label class="admin-dashboard__filter-label" for="dashboard-scope-select">
+                                            {{ $t('pages.admin.dashboard.scope_label') }}
+                                        </label>
+                                        <Select
+                                            id="dashboard-scope-select"
+                                            v-model="scope"
+                                            :options="scopeOptions"
+                                            option-label="label"
+                                            option-value="value"
+                                            class="admin-dashboard__scope-select"
+                                        />
                                     </div>
                                 </div>
-                                <div class="admin-dashboard__ranking-stats">
-                                    <span>
-                                        <i class="pi pi-eye" />
-                                        {{ numberFormatter.format(post.views) }}
-                                    </span>
-                                    <span>
-                                        <i class="pi pi-comments" />
-                                        {{ numberFormatter.format(post.commentCount) }}
-                                    </span>
-                                </div>
-                            </li>
-                        </ol>
-                    </template>
-                </Card>
+                            </div>
+                        </div>
 
-                <Card class="admin-dashboard__ranking-card">
-                    <template #title>
-                        {{ $t('pages.admin.dashboard.rankings.tags') }}
-                    </template>
-                    <template #content>
-                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                            <li
-                                v-for="tag in dashboard?.rankings.tags || []"
-                                :key="tag.clusterId"
-                                class="admin-dashboard__ranking-item"
+                        <div class="admin-dashboard__notes">
+                            <Tag :value="$t('pages.admin.dashboard.notes.timezone', {timezone: dashboard?.timezone || timezone})" severity="secondary" />
+                            <Tag
+                                :value="scope === 'public'
+                                    ? $t('pages.admin.dashboard.notes.public_scope')
+                                    : $t('pages.admin.dashboard.notes.all_scope')"
+                                severity="info"
+                            />
+                            <Tag :value="$t('pages.admin.dashboard.notes.cohort_metrics', {days: selectedRange})" severity="warn" />
+                            <Tag :value="$t('pages.admin.dashboard.notes.representative')" severity="contrast" />
+                        </div>
+
+                        <div v-if="loading && !dashboard" class="admin-dashboard__loading-state">
+                            <ProgressSpinner stroke-width="4" />
+                        </div>
+
+                        <template v-else-if="selectedSummary">
+                            <div class="admin-dashboard__metrics">
+                                <AdminDashboardMetricCard
+                                    v-for="metric in metricCards"
+                                    :key="metric.key"
+                                    :label="metric.label"
+                                    :icon="metric.icon"
+                                    :metric="metric.metric"
+                                    :tone="metric.tone"
+                                />
+                            </div>
+
+                            <div v-if="hasRankingData" class="admin-dashboard__rankings">
+                                <Card class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide">
+                                    <template #title>
+                                        {{ $t('pages.admin.dashboard.rankings.posts') }}
+                                    </template>
+                                    <template #content>
+                                        <ol class="admin-dashboard__ranking-list">
+                                            <li
+                                                v-for="post in dashboard?.rankings.posts || []"
+                                                :key="post.id"
+                                                class="admin-dashboard__ranking-item"
+                                            >
+                                                <div class="admin-dashboard__ranking-copy">
+                                                    <NuxtLink
+                                                        :to="localePath(`/admin/posts/${post.id}`)"
+                                                        class="admin-dashboard__ranking-link"
+                                                    >
+                                                        {{ post.title }}
+                                                    </NuxtLink>
+                                                    <div class="admin-dashboard__ranking-meta">
+                                                        <Tag :value="post.language.toUpperCase()" severity="secondary" />
+                                                        <span v-if="post.category">{{ post.category.name }}</span>
+                                                        <span>{{ formatDateTime(post.publishedAt || post.createdAt) }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="admin-dashboard__ranking-stats">
+                                                    <span>
+                                                        <i class="pi pi-eye" />
+                                                        {{ numberFormatter.format(post.views) }}
+                                                    </span>
+                                                    <span>
+                                                        <i class="pi pi-comments" />
+                                                        {{ numberFormatter.format(post.commentCount) }}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </template>
+                                </Card>
+
+                                <Card class="admin-dashboard__ranking-card">
+                                    <template #title>
+                                        {{ $t('pages.admin.dashboard.rankings.tags') }}
+                                    </template>
+                                    <template #content>
+                                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                                            <li
+                                                v-for="tag in dashboard?.rankings.tags || []"
+                                                :key="tag.clusterId"
+                                                class="admin-dashboard__ranking-item"
+                                            >
+                                                <div class="admin-dashboard__ranking-copy">
+                                                    <strong>{{ tag.name }}</strong>
+                                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: tag.postCount}) }}</small>
+                                                </div>
+                                                <div class="admin-dashboard__ranking-stats">
+                                                    <span>
+                                                        <i class="pi pi-eye" />
+                                                        {{ numberFormatter.format(tag.views) }}
+                                                    </span>
+                                                    <span>
+                                                        <i class="pi pi-comments" />
+                                                        {{ numberFormatter.format(tag.commentCount) }}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </template>
+                                </Card>
+
+                                <Card class="admin-dashboard__ranking-card">
+                                    <template #title>
+                                        {{ $t('pages.admin.dashboard.rankings.categories') }}
+                                    </template>
+                                    <template #content>
+                                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                                            <li
+                                                v-for="category in dashboard?.rankings.categories || []"
+                                                :key="category.clusterId"
+                                                class="admin-dashboard__ranking-item"
+                                            >
+                                                <div class="admin-dashboard__ranking-copy">
+                                                    <strong>{{ category.name }}</strong>
+                                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: category.postCount}) }}</small>
+                                                </div>
+                                                <div class="admin-dashboard__ranking-stats">
+                                                    <span>
+                                                        <i class="pi pi-eye" />
+                                                        {{ numberFormatter.format(category.views) }}
+                                                    </span>
+                                                    <span>
+                                                        <i class="pi pi-comments" />
+                                                        {{ numberFormatter.format(category.commentCount) }}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </ol>
+                                    </template>
+                                </Card>
+                            </div>
+
+                            <div v-else class="admin-content-card admin-dashboard__empty-state">
+                                {{ $t('pages.admin.dashboard.empty') }}
+                            </div>
+                        </template>
+
+                        <div v-else class="admin-content-card admin-dashboard__empty-state">
+                            {{ $t('pages.admin.dashboard.empty') }}
+                        </div>
+                    </div><!-- end panel -->
+                </TabPanel>
+
+                <TabPanel value="creator">
+                    <div class="admin-dashboard__panel" :class="{'admin-dashboard__panel--loading': creatorLoading}">
+                        <!-- 创作者统计: Range 选择 -->
+                        <div class="admin-dashboard__ranges admin-dashboard__ranges--creator">
+                            <button
+                                v-for="rangeOpt in creatorRangeOptions"
+                                :key="rangeOpt.value"
+                                type="button"
+                                class="admin-dashboard__range-button"
+                                :class="{'admin-dashboard__range-button--active': creatorSelectedRange === rangeOpt.value}"
+                                @click="creatorSelectedRange = rangeOpt.value"
                             >
-                                <div class="admin-dashboard__ranking-copy">
-                                    <strong>{{ tag.name }}</strong>
-                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: tag.postCount}) }}</small>
-                                </div>
-                                <div class="admin-dashboard__ranking-stats">
-                                    <span>
-                                        <i class="pi pi-eye" />
-                                        {{ numberFormatter.format(tag.views) }}
-                                    </span>
-                                    <span>
-                                        <i class="pi pi-comments" />
-                                        {{ numberFormatter.format(tag.commentCount) }}
-                                    </span>
-                                </div>
-                            </li>
-                        </ol>
-                    </template>
-                </Card>
+                                <span class="admin-dashboard__range-label">
+                                    {{ $t('pages.admin.dashboard.range_label', {days: rangeOpt.value}) }}
+                                </span>
+                            </button>
+                        </div>
 
-                <Card class="admin-dashboard__ranking-card">
-                    <template #title>
-                        {{ $t('pages.admin.dashboard.rankings.categories') }}
-                    </template>
-                    <template #content>
-                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                            <li
-                                v-for="category in dashboard?.rankings.categories || []"
-                                :key="category.clusterId"
-                                class="admin-dashboard__ranking-item"
-                            >
-                                <div class="admin-dashboard__ranking-copy">
-                                    <strong>{{ category.name }}</strong>
-                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: category.postCount}) }}</small>
-                                </div>
-                                <div class="admin-dashboard__ranking-stats">
-                                    <span>
-                                        <i class="pi pi-eye" />
-                                        {{ numberFormatter.format(category.views) }}
-                                    </span>
-                                    <span>
-                                        <i class="pi pi-comments" />
-                                        {{ numberFormatter.format(category.commentCount) }}
-                                    </span>
-                                </div>
-                            </li>
-                        </ol>
-                    </template>
-                </Card>
-            </div>
+                        <div v-if="creatorLoading && !creatorStats" class="admin-dashboard__loading-state">
+                            <ProgressSpinner stroke-width="4" />
+                        </div>
 
-            <div v-else class="admin-content-card admin-dashboard__empty-state">
-                {{ $t('pages.admin.dashboard.empty') }}
-            </div>
-        </template>
+                        <template v-else-if="creatorStats">
+                            <!-- 产出概览卡片 -->
+                            <div class="admin-dashboard__metrics admin-dashboard__metrics--creator">
+                                <CreatorMetricCard
+                                    :label="$t('pages.admin.dashboard.creator_published')"
+                                    :value="creatorStats.publishing.totalPublished"
+                                    icon="pi pi-file-check"
+                                    tone="neutral"
+                                />
+                                <CreatorMetricCard
+                                    :label="$t('pages.admin.dashboard.creator_drafts')"
+                                    :value="creatorStats.publishing.draftCount"
+                                    icon="pi pi-pen-to-square"
+                                    tone="warm"
+                                />
+                                <CreatorMetricCard
+                                    v-if="creatorStats.distribution.wechatsync"
+                                    :label="$t('pages.admin.dashboard.creator_wechat_sync')"
+                                    :value="creatorStats.distribution.wechatsync.overallSuccessRate"
+                                    icon="pi pi-share-alt"
+                                    tone="cool"
+                                    format="percent"
+                                />
+                                <CreatorMetricCard
+                                    v-if="creatorStats.distribution.hexoRepositorySync"
+                                    :label="$t('pages.admin.dashboard.creator_hexo_sync')"
+                                    :value="creatorStats.distribution.hexoRepositorySync.overallSuccessRate"
+                                    icon="pi pi-code-branch"
+                                    tone="cool"
+                                    format="percent"
+                                />
+                            </div>
 
-        <div v-else class="admin-content-card admin-dashboard__empty-state">
-            {{ $t('pages.admin.dashboard.empty') }}
-        </div>
+                            <!-- 发文趋势 -->
+                            <div v-if="creatorStats.publishing.trend.length > 0" class="admin-dashboard__trend-section">
+                                <h3 class="admin-dashboard__trend-title">
+                                    {{ $t('pages.admin.dashboard.creator_publish_trend') }}
+                                    <Tag :value="creatorStats.aggregationGranularity === 'week' ? $t('pages.admin.dashboard.creator_weekly') : $t('pages.admin.dashboard.creator_monthly')" severity="info" />
+                                </h3>
+                                <div class="admin-dashboard__trend-list">
+                                    <div
+                                        v-for="point in creatorStats.publishing.trend"
+                                        :key="point.periodStart"
+                                        class="admin-dashboard__trend-row"
+                                    >
+                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
+                                        <span class="admin-dashboard__trend-count">
+                                            {{ $t('pages.admin.dashboard.creator_post_count', {count: point.count}) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 分发趋势 -->
+                            <div v-if="hasDistributionData" class="admin-dashboard__trend-section">
+                                <h3 class="admin-dashboard__trend-title">
+                                    {{ $t('pages.admin.dashboard.creator_distribution_trend') }}
+                                </h3>
+                                <div v-if="creatorStats.distribution.wechatsync?.trend.length" class="admin-dashboard__trend-subsection">
+                                    <h4 class="admin-dashboard__trend-subtitle">
+                                        {{ $t('pages.admin.dashboard.creator_wechat_sync') }}
+                                    </h4>
+                                    <div
+                                        v-for="point in creatorStats.distribution.wechatsync.trend"
+                                        :key="point.periodStart"
+                                        class="admin-dashboard__trend-row"
+                                    >
+                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
+                                        <Tag
+                                            :value="`${point.succeeded} / ${point.total}`"
+                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
+                                        />
+                                    </div>
+                                </div>
+                                <div v-if="creatorStats.distribution.hexoRepositorySync?.trend.length" class="admin-dashboard__trend-subsection">
+                                    <h4 class="admin-dashboard__trend-subtitle">
+                                        {{ $t('pages.admin.dashboard.creator_hexo_sync') }}
+                                    </h4>
+                                    <div
+                                        v-for="point in creatorStats.distribution.hexoRepositorySync.trend"
+                                        :key="point.periodStart"
+                                        class="admin-dashboard__trend-row"
+                                    >
+                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
+                                        <Tag
+                                            :value="`${point.succeeded} / ${point.total}`"
+                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div v-else class="admin-content-card admin-dashboard__empty-state">
+                            {{ $t('pages.admin.dashboard.empty') }}
+                        </div>
+                    </div><!-- end panel -->
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { ADMIN_CONTENT_INSIGHT_RANGES } from '@/types/admin-content-insights'
 import { useI18nDate } from '@/composables/use-i18n-date'
 import { useAdminContentInsightsPage } from '@/composables/use-admin-content-insights-page'
+import { useCreatorStatsPage } from '@/composables/use-creator-stats-page'
 
 definePageMeta({
     middleware: 'author',
@@ -230,6 +371,29 @@ const {
     timezone,
     refresh,
 } = useAdminContentInsightsPage()
+
+// 创作者统计
+const activeTab = ref<'insights' | 'creator'>('insights')
+const {
+    stats: creatorStats,
+    loading: creatorLoading,
+    selectedRange: creatorSelectedRange,
+    refresh: creatorRefresh,
+} = useCreatorStatsPage()
+
+const creatorRangeOptions = [
+    { value: 7 as const },
+    { value: 30 as const },
+    { value: 90 as const },
+]
+
+const hasDistributionData = computed(() => Boolean(
+    creatorStats.value
+    && (
+        (creatorStats.value.distribution.wechatsync?.trend.length ?? 0) > 0
+        || (creatorStats.value.distribution.hexoRepositorySync?.trend.length ?? 0) > 0
+    ),
+))
 
 const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))
 
@@ -543,6 +707,77 @@ const hasRankingData = computed(() => Boolean(
         &__filter-field {
             width: 100%;
         }
+    }
+}
+
+// Creator stats panel
+.admin-dashboard {
+    &__panel {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+
+        &--loading {
+            pointer-events: none;
+        }
+    }
+
+    &__ranges--creator {
+        max-width: 480px;
+    }
+
+    &__metrics--creator {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    &__trend-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    &__trend-title,
+    &__trend-subtitle {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+    }
+
+    &__trend-subtitle {
+        font-size: 0.95rem;
+        color: var(--p-text-muted-color);
+        margin-top: $spacing-sm;
+    }
+
+    &__trend-subsection {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+    }
+
+    &__trend-list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+    }
+
+    &__trend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: $spacing-sm $spacing-md;
+        background: color-mix(in srgb, var(--p-surface-100) 50%, transparent);
+        border-radius: $border-radius-md;
+    }
+
+    &__trend-period {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    &__trend-count {
+        color: var(--p-text-muted-color);
     }
 }
 </style>

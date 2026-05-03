@@ -45,7 +45,18 @@
                 },
                 "feedback": {
                     "load_failed": "コンテンツインサイトの読み込みに失敗しました"
-                }
+                },
+                "tab_insights": "コンテンツインサイト",
+                "tab_creator": "クリエイター統計",
+                "creator_published": "公開済み記事",
+                "creator_drafts": "下書き数",
+                "creator_wechat_sync": "WechatSync 配信",
+                "creator_hexo_sync": "Hexo リポジトリ同期",
+                "creator_publish_trend": "投稿トレンド",
+                "creator_distribution_trend": "配信トレンド",
+                "creator_weekly": "週次",
+                "creator_monthly": "月次",
+                "creator_post_count": "{count} 件"
             },
             "categories": {
                 "title": "カテゴリ管理"

@@ -45,7 +45,18 @@
                 },
                 "feedback": {
                     "load_failed": "Failed to load content insights"
-                }
+                },
+                "tab_insights": "Content Insights",
+                "tab_creator": "Creator Stats",
+                "creator_published": "Published Posts",
+                "creator_drafts": "Drafts",
+                "creator_wechat_sync": "WechatSync Distribution",
+                "creator_hexo_sync": "Hexo Repo Sync",
+                "creator_publish_trend": "Publishing Trend",
+                "creator_distribution_trend": "Distribution Trend",
+                "creator_weekly": "Weekly",
+                "creator_monthly": "Monthly",
+                "creator_post_count": "{count} posts"
             },
             "categories": {
                 "title": "Categories Management"

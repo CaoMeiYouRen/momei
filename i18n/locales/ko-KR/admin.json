@@ -45,7 +45,18 @@
                 },
                 "feedback": {
                     "load_failed": "콘텐츠 인사이트를 불러오지 못했습니다"
-                }
+                },
+                "tab_insights": "콘텐츠 인사이트",
+                "tab_creator": "크리에이터 통계",
+                "creator_published": "게시된 글",
+                "creator_drafts": "임시 저장",
+                "creator_wechat_sync": "WechatSync 배포",
+                "creator_hexo_sync": "Hexo 리포지토리 동기화",
+                "creator_publish_trend": "발행 추이",
+                "creator_distribution_trend": "배포 추이",
+                "creator_weekly": "주간",
+                "creator_monthly": "월간",
+                "creator_post_count": "{count}개"
             },
             "categories": {
                 "title": "카테고리 관리"

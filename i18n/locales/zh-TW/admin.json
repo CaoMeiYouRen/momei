@@ -45,7 +45,18 @@
                 },
                 "feedback": {
                     "load_failed": "載入內容洞察失敗"
-                }
+                },
+                "tab_insights": "內容洞察",
+                "tab_creator": "創作者統計",
+                "creator_published": "已發布文章",
+                "creator_drafts": "草稿存量",
+                "creator_wechat_sync": "WechatSync 分發",
+                "creator_hexo_sync": "Hexo 倉庫同步",
+                "creator_publish_trend": "發文趨勢",
+                "creator_distribution_trend": "分發趨勢",
+                "creator_weekly": "按週",
+                "creator_monthly": "按月",
+                "creator_post_count": "{count} 篇"
             },
             "categories": {
                 "title": "分類管理"
