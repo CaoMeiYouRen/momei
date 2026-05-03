@@ -106,7 +106,7 @@ const isCategory = computed(() => props.taxonomyType === 'category')
 
 // Entity fetch
 type Entity = Category | Tag
-const fetchUrl = computed(() => `/api/${props.taxonomyType}s/slug/${slug.value}`)
+const fetchUrl = computed(() => `/api/${props.taxonomyType === 'category' ? 'categories' : 'tags'}/slug/${slug.value}`)
 const { data: entityData, pending: entityPending, error: entityError } = await useAppFetch<ApiResponse<Entity>>(() => fetchUrl.value)
 const entity = computed(() => entityData.value?.data as (Category & { description?: string | null }) | null)
 

@@ -97,7 +97,7 @@ describe('ForgotPasswordPage', () => {
         const wrapper = await mountPage()
         const text = wrapper.text()
 
-        expect(wrapper.find('.forgot-password-page').exists()).toBe(true)
+        expect(wrapper.find('.auth-page').exists()).toBe(true)
         expect(text).toContain('Forgot Password')
         expect(text).toContain('We will send you a reset link.')
         expect(text).toContain('Send reset email')
