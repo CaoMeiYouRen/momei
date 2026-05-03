@@ -6,11 +6,11 @@ const e2ePort = 3001
 const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
 const e2eAuthSecret = 'lhci-test-secret-0123456789abcdef'
 const mobileCriticalSpecPattern = /.*mobile-critical\.e2e\.test\.ts/
-const detectedParallelism = typeof os.availableParallelism === 'function'
-    ? os.availableParallelism()
-    : os.cpus().length
+// const detectedParallelism = typeof os.availableParallelism === 'function'
+//     ? os.availableParallelism()
+//     : os.cpus().length
 const configuredCiWorkers = Number.parseInt(process.env.PLAYWRIGHT_CI_WORKERS ?? '', 10)
-const defaultCiWorkers = Math.min(4, Math.max(2, detectedParallelism))
+const defaultCiWorkers = 1
 
 let resolvedWorkers: number | undefined
 if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
@@ -20,17 +20,16 @@ if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
 } else {
     resolvedWorkers = undefined
 }
-
 /** Chromium-specific browser launch flags for CI performance */
-const chromiumLaunchArgs = [
-    '--disable-gpu',
-    '--disable-dev-shm-usage',
-    '--disable-extensions',
-    '--disable-background-timer-throttling',
-    '--disable-backgrounding-occluded-windows',
-    '--disable-renderer-backgrounding',
-    '--no-sandbox',
-]
+// const chromiumLaunchArgs = [
+//     '--disable-gpu',
+//     '--disable-dev-shm-usage',
+//     '--disable-extensions',
+//     '--disable-background-timer-throttling',
+//     '--disable-backgrounding-occluded-windows',
+//     '--disable-renderer-backgrounding',
+//     '--no-sandbox',
+// ]
 
 const e2eServerEnv = [
     'DEMO_MODE=true',
@@ -84,9 +83,9 @@ export default defineConfig({
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
         /* Capture screenshot on failure */
-        screenshot: 'only-on-failure',
+        // screenshot: 'only-on-failure',
         /* Only record video on failure to reduce IO */
-        video: 'retain-on-failure',
+        // video: 'retain-on-failure',
     },
 
     /* Configure projects for major browsers */
@@ -97,7 +96,7 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
                 /** Chromium-specific launch args (must NOT be applied to WebKit/Firefox) */
-                launchOptions: { args: chromiumLaunchArgs },
+                // launchOptions: { args: chromiumLaunchArgs },
             },
         },
 
@@ -119,7 +118,7 @@ export default defineConfig({
             use: {
                 ...devices['Pixel 5'],
                 /** Chromium-specific launch args (must NOT be applied to WebKit/Firefox) */
-                launchOptions: { args: chromiumLaunchArgs },
+                // launchOptions: { args: chromiumLaunchArgs },
             },
         },
         {
