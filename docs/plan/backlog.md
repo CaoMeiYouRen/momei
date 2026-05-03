@@ -293,6 +293,28 @@
 - **当前结论**:
     - 已上收至第三十三阶段正式规划，首版指标集合、权限口径与归因来源三项前置结论需先以 `docs/design/governance/` 下专项设计文档形式冻结。具体执行范围、非目标与验证矩阵以 `roadmap.md` / `todo.md` 第三十三阶段为准。
 
+13. **前端直出 TTS + 直传 OSS：解决云函数 TTS 超时**
+
+- **问题**: 当前 TTS（语音合成）链路为「服务端调用 AI Provider API → 流式读取 → Buffer 拼接 → 服务端上传 OSS → 回写 Post 元数据」。在 Vercel 云函数环境下，**函数硬超时仅 60 秒**（`nuxt.config.ts` `maxDuration: 60`），而长文章 TTS 生成远超此限制（提供商响应 + 流式读取 + OSS 上传可耗时数分钟）。现有补偿机制（`media-task-monitor`）依赖 Vercel Cron（每 2 小时执行一次）或用户主动轮询触发恢复，体验较差。
+- **方案**: 将 TTS 生成从服务端迁移到**前端（浏览器）**，利用浏览器无超时限制的优势。前端调用 AI Provider 的语音合成 API（流式），接收音频数据后在浏览器端拼接为完整音频文件，通过已有的**前端直传 OSS** 基础设施（`direct-upload.ts` 预签名 URL + `use-upload.ts`）直接上传到对象存储，最后回调服务端接口写入 `Post.metadata.audio` / `Post.metadata.tts` 元数据。
+- **关键约束**:
+    - **Provider API Key 安全问题**: 当前 TTS Provider 的 API Key 仅存在服务端。若改为前端直调，需通过服务端生成**短期 Token** 或**代理转发**，避免将 API Key 暴露到浏览器端。
+    - **跨域（CORS）**: OpenAI / SiliconFlow 等 Provider API 默认不接受浏览器端跨域请求。需评估各 Provider 的 CORS 支持情况，或在服务端提供代理转发层。
+    - **音频格式一致性**: 需确保前端拼接的音频 Buffer 与当前服务端 `Buffer.concat(chunks)` 产物一致（当前统一输出 `mp3` 或 Provider 原生格式）。
+    - **错误处理与重试**: 浏览器端网络中断、Provider API 限流等需要前端友好的错误反馈和重试机制，替代当前服务端的 `MAX_AUDIO_COMPENSATION_ATTEMPTS` 重试逻辑。
+    - **直传授权**: 已有 `POST /api/upload/direct-auth` 预签名 URL 机制（5 分钟有效期），可直接复用。需在 TTS 对话框 UI 中新增上传进度展示。
+- **前置评估（上收前必须完成）**:
+    1. 确认各 TTS Provider（OpenAI / SiliconFlow / Volcengine）的 API 是否支持浏览器端调用（CORS 头 + 流式响应在浏览器中的可用性）。
+    2. 设计 API Key 安全方案：服务端下发短期 Token → 浏览器携带 Token 直调 Provider，或服务端提供一个轻量转发代理（不参与流式读取，仅转发字节流）。
+    3. 评估 Volcengine WebSocket 方案的浏览器兼容性——当前播客模式使用 WebSocket，改为前端 WebSocket 直连的可行性。
+    4. 确认 `use-upload.ts` 现有直传逻辑能否直接复用（需 TTS 对话框调用 `POST /api/upload/direct-auth` 获取预签名 URL → PUT Blob 到 S3/R2）。
+- **非目标**: 不改变 `TTSService.processTask()` 的服务端实现（保留兼容自部署/非 Serverless 环境的原始链路）；不重写 `media-task-monitor` 补偿逻辑；不把前端直传扩展到图片生成（AI Image 暂不纳入本候选）。
+- **当前结论**: 该需求直接对应当前 Vercel 部署场景下 TTS 任务的**最高频失败根因**。但入口前必须完成 Provider CORS 评估与 API Key 安全方案设计，否则前端直调无法落地。建议在下一阶段以「评估 + 最小原型」形式优先上收，先确认技术可行性，再进入完整实现。
+- **后续上收条件**:
+    - 已完成 Provider CORS 评估（至少覆盖 OpenAI 和 SiliconFlow 两个主流 Provider）。
+    - 已产出 API Key 安全方案设计文档（`docs/design/governance/` 下），明确短期 Token 下发策略或代理转发架构。
+    - 已在本机完成一条「前端调 Provider API → 浏览器拼接音频 → 直传 OSS → 服务端写元数据」的最小闭环原型验证。
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
