@@ -82,6 +82,8 @@
 | `TTS_ENDPOINT` | `tts_endpoint` | 2 | none | TTS 兼容接口或代理端点 |
 | `TTS_DEFAULT_MODEL` | `tts_model` | 2 | none | 默认 TTS 模型 |
 | `TTS_DEFAULT_VOICE` | - | 2 | none | 默认 TTS 音色 |
+| `TTS_FRONTEND_DIRECT` | - | 2 | none | 显式启用 TTS 前端直连模式（火山引擎）。默认在 Serverless 环境自动启用 |
+| `TTS_CREDENTIAL_TTL_SECONDS` | `tts_credential_ttl_seconds` | 2 | none | TTS 前端直连凭证有效期（秒）。默认 600（10min），范围 [300, 43200] |
 
 ### 2.3 数据库与存储 (Storage & DB)
 
