@@ -322,6 +322,7 @@
                 "tts": {
                     "attach_success": "音频已成功关联到文章",
                     "completed": "音频合成成功",
+                    "direct_hint": "前端直连，无超时限制",
                     "estimated_cost": "预估生成成本",
                     "failed": "合成失败",
                     "generate_title": "生成文章音频",

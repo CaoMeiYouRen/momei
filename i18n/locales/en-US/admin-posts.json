@@ -322,6 +322,7 @@
                 "tts": {
                     "attach_success": "Audio linked to the post successfully",
                     "completed": "Audio generated successfully",
+                    "direct_hint": "Frontend direct, no timeout limit",
                     "estimated_cost": "Estimated Cost",
                     "failed": "Generation failed",
                     "generate_title": "Generate Post Audio",

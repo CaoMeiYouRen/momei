@@ -322,6 +322,7 @@
                 "tts": {
                     "attach_success": "오디오가 게시글에 성공적으로 연결되었습니다",
                     "completed": "오디오 생성 완료",
+                    "direct_hint": "프론트엔드 직접, 시간 제한 없음",
                     "estimated_cost": "예상 비용",
                     "failed": "생성 실패",
                     "generate_title": "게시글 오디오 생성",

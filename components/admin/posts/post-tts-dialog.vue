@@ -48,6 +48,7 @@ const {
     error,
     hasGeneratedAudio,
     isGenerating,
+    isDirectMode,
     startGenerate,
 } = usePostTtsDialog({
     postId: toRef(props, 'postId'),
@@ -160,6 +161,12 @@ function handleConfirm() {
                         />
                         <small class="text-gray-500 text-xs tts-field__hint">{{ t('pages.admin.posts.tts.manuscript_hint') }}</small>
                     </div>
+                </div>
+
+                <!-- 前端直连提示 -->
+                <div v-if="isDirectMode && config.voice" class="tts-direct-hint">
+                    <i class="pi pi-bolt tts-direct-hint__icon" />
+                    <span class="tts-direct-hint__text">{{ t('pages.admin.posts.tts.direct_hint') }}</span>
                 </div>
 
                 <!-- Cost Info -->
@@ -460,6 +467,28 @@ function handleConfirm() {
 
     &__audio {
         width: 100%;
+    }
+}
+
+.tts-direct-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background: linear-gradient(135deg, var(--primary-50), var(--surface-0));
+    border: 1px solid var(--primary-200);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+
+    &__icon {
+        color: var(--primary-600);
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    &__text {
+        color: var(--primary-800);
+        font-weight: 500;
     }
 }
 </style>

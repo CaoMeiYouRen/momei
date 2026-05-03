@@ -322,6 +322,7 @@
                 "tts": {
                     "attach_success": "音声を記事に関連付けました",
                     "completed": "音声合成成功",
+                    "direct_hint": "フロントエンド直接、タイムアウト制限なし",
                     "estimated_cost": "見積生成コスト",
                     "failed": "合成失敗",
                     "generate_title": "記事音声を生成",
