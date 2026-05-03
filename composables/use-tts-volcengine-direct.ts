@@ -757,6 +757,7 @@ export function useTTSVolcengineDirect() {
                             voice: params.voice,
                             mode: params.mode,
                             duration,
+                            textLength: params.text.length,
                         },
                     })
                 } catch (metaError: any) {

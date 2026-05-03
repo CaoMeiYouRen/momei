@@ -24,15 +24,16 @@
 
 ### 第三十四阶段：TTS 前端化评估与长期治理补欠
 
-- [x] **前端直出 TTS + 直传 OSS 评估与原型 (P1)** ✅ 原型设计完成
-	- 评估文档: `docs/design/governance/tts-frontend-direct-evaluation.md`（CORS 评估 + API Key 安全方案 + 架构设计）
+- [x] **前端直出 TTS + 直传 OSS 评估与原型 (P1)** ✅ 调试通过
+	- 评估文档: `docs/design/governance/tts-frontend-direct-evaluation.md`
 	- 火山 JWT 凭证: `server/utils/ai/tts-credentials.ts` + `server/api/ai/tts/credentials.post.ts`
-	- 前端直连: `composables/use-tts-volcengine-direct.ts`（JWT 鉴权 → 直调火山 API → 直传 OSS → 回写元数据）
-	- 元数据回写: `server/api/posts/[id]/tts-metadata.patch.ts`
-	- 自动降级: `server/api/ai/tts/task.post.ts`（serverless 环境 volcengine 自动走前端直连）
-	- 原型组件: `components/admin/posts/post-tts-prototype.vue`（仅火山引擎直连模式）
-	- 环境变量: `TTS_FRONTEND_DIRECT`（显式启用）/ `TTS_CREDENTIAL_TTL_SECONDS`（凭证有效期）
-	- 非目标: 不重写 `TTSService.processTask()`，不动 `media-task-monitor`，仅支持火山引擎
+	- 前端直连 (speech HTTP + podcast WebSocket): `composables/use-tts-volcengine-direct.ts`
+	- 服务端代理兼容: `composables/use-post-tts-dialog.ts`（火山引擎自动走直连）
+	- 元数据回写 + AI 计费: `server/api/posts/[id]/tts-metadata.patch.ts`
+	- 自动降级: `server/api/ai/tts/task.post.ts`（serverless 环境自动走直连）
+	- 二进制协议对齐: V3 podcast WebSocket 帧构建/解析完全对齐 `volcengine-protocol.ts`
+	- 环境变量: `TTS_FRONTEND_DIRECT` / `TTS_CREDENTIAL_TTL_SECONDS`
+	- 非目标: 不重写 `TTSService.processTask()`，不动 `media-task-monitor`
 
 - [ ] **测试覆盖率冲刺 80%+ (P0)**
 	- 范围: Lines 75.8% 继续提升，优先 Phase 33 新增组件 + 认证流边角分支 + 热点读链路失败路径。
