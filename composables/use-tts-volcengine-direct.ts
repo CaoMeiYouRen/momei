@@ -112,6 +112,7 @@ function convertLoudnessRate(volume: number): number {
 
 // ---- Composable ----
 
+// eslint-disable-next-line max-lines-per-function
 export function useTTSVolcengineDirect() {
     const { t } = useI18n()
     const toast = useToast()
@@ -208,11 +209,43 @@ export function useTTSVolcengineDirect() {
 
         progress.value = 30
 
-        // 读完整响应为 ArrayBuffer
-        const arrayBuffer = await response.arrayBuffer()
-        const fullData = new Uint8Array(arrayBuffer)
+        // 流式读取响应，按字节量更新进度
+        const reader = response.body?.getReader()
+        if (!reader) {
+            throw new Error('Response body is not readable')
+        }
 
-        progress.value = 50
+        const chunks: Uint8Array[] = []
+        let receivedBytes = 0
+        /** 估算总字节：按 16KB/s × 字符数/2(s) */
+        const estimatedTotal = Math.max(50 * 1024, body.req_params.text.length * 8)
+
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) {
+                break
+            }
+            chunks.push(value)
+            receivedBytes += value.length
+            // 30% → 65%，按已收字节比例映射
+            const ratio = Math.min(1, receivedBytes / estimatedTotal)
+            progress.value = 30 + Math.round(ratio * 35)
+        }
+
+        if (chunks.length === 0) {
+            throw new Error('No audio data received from Volcengine TTS API')
+        }
+
+        // 合并 chunks
+        const totalSize = chunks.reduce((s, c) => s + c.length, 0)
+        const fullData = new Uint8Array(totalSize)
+        let offset = 0
+        for (const c of chunks) {
+            fullData.set(c, offset)
+            offset += c.length
+        }
+
+        progress.value = 65
 
         // 火山 V3 API 可能在响应体开头返回 JSON 元数据。
         // 扫描第一个 '{' 到对应的 '}' 之间的 JSON 对象，音频从其后开始。
@@ -521,6 +554,15 @@ export function useTTSVolcengineDirect() {
 
             const audioChunks: Uint8Array[] = []
             let settled = false
+            let totalBytes = 0
+            /** 估算最大音频字节：按 16KB/s × 字符数/2(s) 粗略估算，下限 100KB */
+            const estimatedMaxBytes = Math.max(100 * 1024, text.length * 8)
+
+            const updatePodcastProgress = () => {
+                // 15% 起步，按已收字节比例映射到 [15, 70]
+                const ratio = Math.min(1, totalBytes / estimatedMaxBytes)
+                progress.value = 15 + Math.round(ratio * 55)
+            }
 
             const cleanup = () => {
                 settled = true
@@ -559,7 +601,8 @@ export function useTTSVolcengineDirect() {
                     const payload = pkt.rawPayload
                     if (payload && payload.length > 0) {
                         audioChunks.push(payload)
-                        progress.value = Math.min(70, 15 + audioChunks.length * 2)
+                        totalBytes += payload.length
+                        updatePodcastProgress()
                         return
                     }
 
@@ -577,7 +620,8 @@ export function useTTSVolcengineDirect() {
                                 const binary = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
                                 if (binary.length > 0) {
                                     audioChunks.push(binary)
-                                    progress.value = Math.min(70, 15 + audioChunks.length * 2)
+                                    totalBytes += binary.length
+                                    updatePodcastProgress()
                                 }
                             } catch { /* ignore */ }
                         }
@@ -610,6 +654,7 @@ export function useTTSVolcengineDirect() {
                         }
                     } catch { /* ignore */ }
                     cleanup()
+                    progress.value = 70
                     const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
                     const merged = new Uint8Array(total)
                     let offset = 0
