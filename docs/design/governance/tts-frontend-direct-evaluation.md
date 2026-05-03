@@ -61,7 +61,7 @@
 
 - **API 端点**: 
   - Speech: `POST /api/v1/tts`（当前代码: `server/utils/ai/tts-volcengine.ts` L798）
-  - Podcast: `wss://openspeech.bytedance.com/api/v2/tts/ws`（WebSocket 双人对话模式）
+  - Podcast: `wss://openspeech.bytedance.com/api/v3/sami/podcasttts`（WebSocket 双人对话模式）
 - **鉴权方式**: HMAC-SHA256 Token 签名（需 `AppId` + `AccessKey` + `SecretKey`），无法在浏览器端安全计算。
 - **CORS 状态**: 不设置 CORS 响应头。
 - **流式响应**: Speech 模式支持 HTTP 流式；Podcast 模式使用 WebSocket（Seed-TTS 2.0 协议）。

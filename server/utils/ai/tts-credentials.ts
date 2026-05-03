@@ -20,7 +20,7 @@ import { normalizeDurationSeconds } from '~/utils/shared/duration'
 const VOLCENGINE_STS_TOKEN_ENDPOINT = 'https://openspeech.bytedance.com/api/v1/sts/token'
 
 /** 凭证有效期限制 */
-const MIN_CREDENTIAL_TTL_SECONDS = 300  // 5 分钟
+const MIN_CREDENTIAL_TTL_SECONDS = 300 // 5 分钟
 const MAX_CREDENTIAL_TTL_SECONDS = 43200 // 12 小时
 const DEFAULT_CREDENTIAL_TTL_SECONDS = 600 // 10 分钟
 
@@ -28,7 +28,7 @@ const DEFAULT_CREDENTIAL_TTL_SECONDS = 600 // 10 分钟
 const VOLCENGINE_TTS_SPEECH_ENDPOINT = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional'
 
 /** TTS 双向流式 (播客) WebSocket 端点 */
-const VOLCENGINE_TTS_PODCAST_ENDPOINT = 'wss://openspeech.bytedance.com/api/v2/tts/ws'
+const VOLCENGINE_TTS_PODCAST_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sami/podcasttts'
 
 /** 播客模式固定 AppKey */
 const VOLCENGINE_PODCAST_APP_KEY = 'aGjiRDfUWi'
@@ -37,7 +37,7 @@ const VOLCENGINE_PODCAST_APP_KEY = 'aGjiRDfUWi'
 const DEFAULT_RESOURCE_ID = 'volc.service_type.10029'
 
 /** 播客资源 ID */
-const PODCAST_RESOURCE_ID = 'volc.megatts.default'
+const PODCAST_RESOURCE_ID = 'volc.service_type.10050'
 
 // ---- 类型定义 ----
 
