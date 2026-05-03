@@ -226,7 +226,7 @@ describe('lib/auth-client configuration', () => {
     })
 
     it('warns when cross-tab cache bust broadcasting fails', async () => {
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { /* suppress console output in test */ })
         const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
             throw new Error('quota exceeded')
         })

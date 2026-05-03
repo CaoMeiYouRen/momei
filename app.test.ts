@@ -75,9 +75,9 @@ const headMock = vi.fn()
 const initializeAuthSessionSyncMock = vi.fn()
 const primeHydratedAuthSessionMock = vi.fn()
 const setupAuthSessionLifecycleMock = vi.fn()
-const startTourMock = vi.fn(async () => true)
+const startTourMock = vi.fn(() => true)
 const maybeAutoStartTourMock = vi.fn()
-const fetchThemeMock = vi.fn(async () => undefined)
+const fetchThemeMock = vi.fn(() => undefined)
 const applyThemeMock = vi.fn()
 
 const headState = computed(() => ({

@@ -66,15 +66,15 @@ class MockOfflineAudioContext {
         return this.source
     }
 
-    async startRendering(): Promise<AudioBuffer> {
-        return createAudioBufferMock([[0.5, -0.5, 1.2, -1.5]], this.sampleRate)
+    startRendering(): Promise<AudioBuffer> {
+        return Promise.resolve(createAudioBufferMock([[0.5, -0.5, 1.2, -1.5]], this.sampleRate))
     }
 }
 
 class MockAudioContext {
     static lastInstance: MockAudioContext | null = null
 
-    readonly close = vi.fn(async () => undefined)
+    readonly close = vi.fn(() => undefined)
 
     constructor() {
         MockAudioContext.lastInstance = this

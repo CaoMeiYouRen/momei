@@ -755,12 +755,8 @@ watch(
     gap: $spacing-xs;
 
     &__title {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--p-text-muted-color);
-        padding: $spacing-sm 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-size: 0.75rem; font-weight: 700; color: var(--p-text-muted-color);
+        padding: $spacing-sm 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
     }
 }
 
@@ -797,9 +793,6 @@ watch(
     background-color: var(--p-surface-card);
     border-left: 1px solid var(--p-surface-border);
     color: var(--p-text-color);
-
-    .p-drawer-header {
-        border-bottom: 1px solid var(--p-surface-border);
-    }
+    .p-drawer-header { border-bottom: 1px solid var(--p-surface-border); }
 }
 </style>

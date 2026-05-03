@@ -6,8 +6,8 @@
                     :label="$t('common.refresh')"
                     icon="pi pi-refresh"
                     severity="secondary"
-                    :loading="loading || creatorLoading"
-                    @click="activeTab === 'insights' ? refresh() : creatorRefresh()"
+                    :loading="loading"
+                    @click="handleRefresh"
                 />
             </template>
         </AdminPageHeader>
@@ -221,133 +221,7 @@
                 </TabPanel>
 
                 <TabPanel value="creator">
-                    <div class="admin-dashboard__panel" :class="{'admin-dashboard__panel--loading': creatorLoading}">
-                        <!-- 创作者统计: Range 选择 -->
-                        <div class="admin-dashboard__ranges admin-dashboard__ranges--creator">
-                            <button
-                                v-for="rangeOpt in creatorRangeOptions"
-                                :key="rangeOpt.value"
-                                type="button"
-                                class="admin-dashboard__range-button"
-                                :class="{'admin-dashboard__range-button--active': creatorSelectedRange === rangeOpt.value}"
-                                @click="creatorSelectedRange = rangeOpt.value"
-                            >
-                                <span class="admin-dashboard__range-label">
-                                    {{ $t('pages.admin.dashboard.range_label', {days: rangeOpt.value}) }}
-                                </span>
-                            </button>
-                        </div>
-
-                        <div v-if="creatorLoading && !creatorStats" class="admin-dashboard__loading-state">
-                            <ProgressSpinner stroke-width="4" />
-                        </div>
-
-                        <template v-else-if="creatorStats">
-                            <!-- 产出概览卡片 -->
-                            <div class="admin-dashboard__metrics admin-dashboard__metrics--creator">
-                                <CreatorMetricCard
-                                    :label="$t('pages.admin.dashboard.creator_published')"
-                                    :value="creatorStats.publishing.totalPublished"
-                                    icon="pi pi-file-check"
-                                    tone="neutral"
-                                />
-                                <CreatorMetricCard
-                                    :label="$t('pages.admin.dashboard.creator_drafts')"
-                                    :value="creatorStats.publishing.draftCount"
-                                    icon="pi pi-pen-to-square"
-                                    tone="warm"
-                                />
-                                <CreatorMetricCard
-                                    v-if="creatorStats.distribution.wechatsync"
-                                    :label="$t('pages.admin.dashboard.creator_wechat_sync')"
-                                    :value="creatorStats.distribution.wechatsync.overallSuccessRate"
-                                    icon="pi pi-share-alt"
-                                    tone="cool"
-                                    format="percent"
-                                />
-                                <CreatorMetricCard
-                                    v-if="creatorStats.distribution.hexoRepositorySync"
-                                    :label="$t('pages.admin.dashboard.creator_hexo_sync')"
-                                    :value="creatorStats.distribution.hexoRepositorySync.overallSuccessRate"
-                                    icon="pi pi-code-branch"
-                                    tone="cool"
-                                    format="percent"
-                                />
-                            </div>
-
-                            <!-- 发文趋势 -->
-                            <div v-if="creatorStats.publishing.trend.length > 0" class="admin-dashboard__trend-section">
-                                <h3 class="admin-dashboard__trend-title">
-                                    {{ $t('pages.admin.dashboard.creator_publish_trend') }}
-                                    <Tag
-                                        :value="creatorStats.aggregationGranularity === 'day'
-                                            ? $t('pages.admin.dashboard.creator_daily')
-                                            : creatorStats.aggregationGranularity === 'week'
-                                                ? $t('pages.admin.dashboard.creator_weekly')
-                                                : $t('pages.admin.dashboard.creator_monthly')"
-                                        severity="info"
-                                    />
-                                </h3>
-                                <div class="admin-dashboard__trend-list">
-                                    <div
-                                        v-for="point in creatorStats.publishing.trend"
-                                        :key="point.periodStart"
-                                        class="admin-dashboard__trend-row"
-                                    >
-                                        <span class="admin-dashboard__trend-period">
-                                            {{ formatPeriodLabel(point, creatorStats.aggregationGranularity) }}
-                                        </span>
-                                        <span class="admin-dashboard__trend-count">
-                                            {{ $t('pages.admin.dashboard.creator_post_count', {count: point.count}) }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 分发趋势 -->
-                            <div v-if="hasDistributionData" class="admin-dashboard__trend-section">
-                                <h3 class="admin-dashboard__trend-title">
-                                    {{ $t('pages.admin.dashboard.creator_distribution_trend') }}
-                                </h3>
-                                <div v-if="creatorStats.distribution.wechatsync?.trend.length" class="admin-dashboard__trend-subsection">
-                                    <h4 class="admin-dashboard__trend-subtitle">
-                                        {{ $t('pages.admin.dashboard.creator_wechat_sync') }}
-                                    </h4>
-                                    <div
-                                        v-for="point in creatorStats.distribution.wechatsync.trend"
-                                        :key="point.periodStart"
-                                        class="admin-dashboard__trend-row"
-                                    >
-                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
-                                        <Tag
-                                            :value="`${point.succeeded} / ${point.total}`"
-                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
-                                        />
-                                    </div>
-                                </div>
-                                <div v-if="creatorStats.distribution.hexoRepositorySync?.trend.length" class="admin-dashboard__trend-subsection">
-                                    <h4 class="admin-dashboard__trend-subtitle">
-                                        {{ $t('pages.admin.dashboard.creator_hexo_sync') }}
-                                    </h4>
-                                    <div
-                                        v-for="point in creatorStats.distribution.hexoRepositorySync.trend"
-                                        :key="point.periodStart"
-                                        class="admin-dashboard__trend-row"
-                                    >
-                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
-                                        <Tag
-                                            :value="`${point.succeeded} / ${point.total}`"
-                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div v-else class="admin-content-card admin-dashboard__empty-state">
-                            {{ $t('pages.admin.dashboard.empty') }}
-                        </div>
-                    </div><!-- end panel -->
+                    <CreatorStatsPanel ref="creatorPanelRef" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -359,7 +233,6 @@ import { computed, ref } from 'vue'
 import { ADMIN_CONTENT_INSIGHT_RANGES } from '@/types/admin-content-insights'
 import { useI18nDate } from '@/composables/use-i18n-date'
 import { useAdminContentInsightsPage } from '@/composables/use-admin-content-insights-page'
-import { useCreatorStatsPage } from '@/composables/use-creator-stats-page'
 
 definePageMeta({
     middleware: 'author',
@@ -381,44 +254,15 @@ const {
     refresh,
 } = useAdminContentInsightsPage()
 
-// 创作者统计
 const activeTab = ref<'insights' | 'creator'>('insights')
-const {
-    stats: creatorStats,
-    loading: creatorLoading,
-    selectedRange: creatorSelectedRange,
-    refresh: creatorRefresh,
-} = useCreatorStatsPage()
+const creatorPanelRef = ref<{ refresh: () => void } | null>(null)
 
-const creatorRangeOptions = [
-    { value: 7 as const },
-    { value: 30 as const },
-    { value: 90 as const },
-]
-
-const hasDistributionData = computed(() => Boolean(
-    creatorStats.value
-    && (
-        (creatorStats.value.distribution.wechatsync?.trend.length ?? 0) > 0
-        || (creatorStats.value.distribution.hexoRepositorySync?.trend.length ?? 0) > 0
-    ),
-))
-
-function formatPeriodLabel(point: { periodStart: string, periodEnd?: string }, granularity: string): string {
-    if (granularity === 'day') {
-        // 显示 MM-DD
-        return point.periodStart.slice(5)
+function handleRefresh() {
+    if (activeTab.value === 'creator') {
+        creatorPanelRef.value?.refresh()
+    } else {
+        refresh()
     }
-    if (granularity === 'week' && point.periodEnd) {
-        // 显示 04-27 ~ 05-03
-        return `${point.periodStart.slice(5)} ~ ${point.periodEnd}`
-    }
-    if (granularity === 'month') {
-        // 显示 2026-05 → 5月
-        const m = Number.parseInt(point.periodStart.slice(5), 10)
-        return `${m}月`
-    }
-    return point.periodStart
 }
 
 const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))

@@ -5,7 +5,6 @@ import { PostStatus, PostVisibility } from '@/types/post'
 import type { Post } from '@/server/entities/post'
 import { UserRole } from '@/utils/shared/roles'
 import { dataSource } from '@/server/database'
-import { Subscriber } from '@/server/entities/subscriber'
 
 // Mock dataSource
 vi.mock('@/server/database', () => ({

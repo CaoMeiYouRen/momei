@@ -371,7 +371,7 @@ describe('LoginPage', () => {
     })
 
     it('falls back to the shared unexpected error copy when email sign-in throws', async () => {
-        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* suppress console error in test */ })
         emailSignInMock.mockRejectedValueOnce(new Error('network down'))
         const wrapper = await mountPage()
 
