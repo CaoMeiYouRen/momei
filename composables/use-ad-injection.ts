@@ -27,7 +27,7 @@ export function useAdInjection() {
                     id: string
                     location: AdLocation
                     name: string
-                    metadata: Record<string, any>
+                    metadata: Record<string, unknown>
                 }[]
             }>('/api/ads/placements', {
                 params: {
@@ -76,12 +76,12 @@ export function useAdInjection() {
         id: string
         location: AdLocation
         name: string
-        metadata: Record<string, any>
+        metadata: Record<string, unknown>
     }): string {
         return `
             <div class="ad-placeholder" data-placement-id="${placement.id}">
                 <div class="ad-placeholder__label">Advertisement</div>
-                <div class="ad-placeholder__content" data-adapter="adsense" data-slot="${placement.metadata.slot || ''}">
+                <div class="ad-placeholder__content" data-adapter="adsense" data-slot="${(placement.metadata as { slot?: string }).slot || ''}">
                     Loading ad...
                 </div>
             </div>
@@ -117,7 +117,7 @@ export function useAdInjection() {
                 location: AdLocation
                 format: string
                 adapterId: string
-                metadata: Record<string, any>
+                metadata: Record<string, unknown>
                 customCss: string | null
             }[]
         }>(`/api/ads/placements?${params.toString()}`)
