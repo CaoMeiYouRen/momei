@@ -24,11 +24,9 @@
 
 ### 第三十三阶段：创作者统计与质量冲刺
 
-- [ ] **创作者数据统计增强 (P1)**
-	- 前置: 进入实现前，先在 `docs/design/governance/` 下冻结首版指标集合、权限口径与归因来源三项结论。
-	- 范围: 后台 `/admin` 增加「创作者统计」tab，提供发文趋势图 + 分发效果卡片（WechatSync / 远程仓库同步成功率）。新增 `GET /api/admin/creator-stats`（`?range=` + `?authorId=`）。
-	- 非目标: 不做全站 BI、不做来源归因、不做订阅漏斗、不新增加埋点。
-	- 验证: 定向测试覆盖空数据、时间范围切换、权限隔离；浏览器 UI 截图。
+- [x] ~~**创作者数据统计增强 (P1)**~~ → 已完成
+	- 闭合记录（2026-05-03）: 专项设计文档已冻结三项前置结论并通过两轮 Review Gate。`GET /api/admin/creator-stats` 已落地，支持 `?range=7|30|90` 窗口过滤、`?authorId=` 权限隔离。发文趋势按 7d→天、30d→周、90d→月 聚合；分发成功率从 `Post.metadata` JSONB TypeScript 端提取并按周分桶。后台 `/admin` 新增「创作者统计」Tab，展示产出卡片（已发布/草稿/WechatSync 成功率/Hexo 同步成功率）与趋势列表。31 条定向测试 + typecheck + lint 全部通过，i18n 五语完整。
+	- 验证: `pnpm exec vitest run server/utils/creator-stats.test.ts server/api/admin/creator-stats.get.test.ts components/admin/dashboard/creator-metric-card.test.ts`（31 passed）、`pnpm exec nuxt typecheck`、`pnpm i18n:audit:missing`（total: 0）。
 
 - [ ] **测试覆盖率冲刺 80%+ (P0)**
 	- 范围: 从 `~76%+` 基线继续提升，优先认证流边角分支、raw key 暴露、热点公开读链路失败路径、新增 creator-stats API 的失败断言。
