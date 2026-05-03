@@ -32,9 +32,9 @@
 	- 范围: 从 `~76%+` 基线继续提升，优先认证流边角分支、raw key 暴露、热点公开读链路失败路径、新增 creator-stats API 的失败断言。
 	- 收口线: `>= 78%`（`80%+` 为冲刺目标）。
 
-- [ ] **ESLint / 类型债 composables 子桶继续收紧 (P1)**
-	- 范围: 继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 的下一组命中点。
-	- 回退: 若命中点过少，回退为单文件 `no-explicit-any` 切片。
+- [x] ~~**ESLint / 类型债 composables 子桶继续收紧 (P1)**~~ → 已完成（回退为 no-explicit-any 切片）
+	- 闭合记录（2026-05-03）: `composables/` 生产源码 `no-non-null-assertion` 命中 0（已在 Phase 31 清零），46 个命中全在测试文件。按回退策略切换为 `no-explicit-any` 单文件切片，收敛 `use-ad-injection.ts` 中 3 处 `Record<string, any>` → `Record<string, unknown>`。
+	- 验证: `pnpm exec eslint composables/use-ad-injection.ts --rule '{"@typescript-eslint/no-explicit-any":"error"}' --max-warnings 0`、`pnpm exec nuxt typecheck`。
 
 - [ ] **重复代码 — 公开认证页模板收敛 (P1)**
 	- 范围: `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑下沉。

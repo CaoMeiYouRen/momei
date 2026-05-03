@@ -76,7 +76,7 @@ function generateTencentCode(metadata: AdPlacementMetadata & { appId?: string })
  */
 export function validateAdConfig(
     adapterId: string,
-    config: Record<string, any>,
+    config: Record<string, unknown>,
 ): { valid: boolean, errors: string[] } {
     const errors: string[] = []
 
@@ -113,12 +113,12 @@ export function validateAdConfig(
 /**
  * Sanitize metadata to prevent XSS
  */
-export function sanitizeMetadata(metadata: Record<string, any> | null): Record<string, any> {
+export function sanitizeMetadata(metadata: Record<string, unknown> | null): Record<string, unknown> {
     if (!metadata) {
         return {}
     }
 
-    const sanitized: Record<string, any> = {}
+    const sanitized: Record<string, unknown> = {}
 
     for (const [key, value] of Object.entries(metadata)) {
         if (typeof value === 'string') {
@@ -145,7 +145,7 @@ export function formatAdSize(width: number | string, height: number | string): s
 /**
  * Parse targeting rules from JSON string
  */
-export function parseTargetingRules(rulesStr: string): Record<string, any> {
+export function parseTargetingRules(rulesStr: string): Record<string, unknown> {
     try {
         if (!rulesStr || rulesStr.trim() === '') {
             return {}

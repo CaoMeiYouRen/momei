@@ -16,6 +16,8 @@ const noExplicitAnyUtilityFiles = [
     'utils/shared/**/*.{ts,tsx,mts,cts}',
     'server/utils/object.ts',
     'server/utils/pagination.ts',
+    'server/utils/ad.ts',
+    'server/utils/agreement-public.ts',
 ]
 const noExplicitAnyApiFiles = [
     'server/api/categories/index.get.ts',

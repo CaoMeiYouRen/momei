@@ -49,10 +49,11 @@ export function createAgreementPublicHandler(options: AgreementPublicHandlerOpti
             }
 
             return success(agreement)
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : options.fetchErrorMessage
             throw createError({
                 statusCode: 500,
-                statusMessage: error.message || options.fetchErrorMessage,
+                statusMessage: message,
             })
         }
     })
