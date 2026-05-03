@@ -454,6 +454,54 @@
     - **验收标准**: 两条链路均已补齐"为什么这样写 / 边界条件 / 副作用或契约"类高价值注释；已清理失效或逐行复述的旧注释；导出函数与跨层契约的注释补齐后已记录已覆盖范围与仍未覆盖边界。
     - **验证与证据**: 至少完成一轮受影响文件的 Review Gate 复核，自检注释准确性与实现同步性。
 
+### 第三十四阶段：TTS 前端化评估与长期治理补欠 (TTS Frontend Evaluation & Long-Term Governance Catch-Up)
+
+**时间表**: 2026-05-04 ~ 2026-05-24（预计三周）
+**目标**: 在第三十三阶段完成创作者统计与多条治理收口后，以「前端直出 TTS + 直传 OSS 评估与原型」作为唯一新增能力候选，配合 coverage `80%+` 冲刺、周期性回归执行、ESLint 下一轮切片、i18n 运行时继续扩面，以及文档翻译 freshness 续五条优化主线，保持「1 个新功能评估 + 5 个优化」的受控组合。本轮重点补上三条长期欠账：周期性回归（距 P24 已 10 个阶段）、i18n 运行时（距 P31 已 3 个阶段）、文档翻译（距 P30 已 4 个阶段），并继续 coverage 80%+ 冲刺。
+
+**准入结论**: 新功能来自 backlog #13（前端直出 TTS + 直传 OSS），当前阶段只做评估与最小原型，不进入完整实现。六条主线均来自长期主线或短期候选池，满足阶段容量上限约束。周期性回归是对 10 个阶段前（P24）已闭环但长期未复盘的执行面补充。i18n 运行时与文档翻译 freshness 继续以受控切片方式补上距上次上收 3-4 个阶段的欠账。ESLint 继续窄切片策略。测试覆盖率以 `80%+` 为冲刺目标，收口线设在 `>= 78%`。
+
+**执行约束**: TTS 评估必须先产出 Provider CORS 兼容性清单与 API Key 安全方案（`docs/design/governance/` 下）。周期性回归以既有入口 `pnpm regression:phase-close` 为核心。i18n 运行时优先扩到 `app-footer` 友链区域与 `archives`/`categories`/`tags` 等公开页装配链路。文档翻译续优先清偿剩余高频设计页与对外 guide。Coverage 不接受低价值铺量。
+
+**ROI 评估**: TTS 前端化评估与原型 `1.33`；测试覆盖率冲刺 80%+ `1.83`；周期性回归执行 `1.50`；ESLint 下一轮切片 `1.50`；i18n 运行时继续扩面 `1.50`；文档翻译 freshness 续 `1.33`。其中覆盖率冲刺为 P0 主线，其余为 P1 主线。
+
+1. **主线：前端直出 TTS + 直传 OSS 评估与原型 (P1)**:
+    - **前置工作**: 进入代码原型前，必须完成两项评估结论：① Provider CORS 兼容性清单（至少覆盖 OpenAI / SiliconFlow 两个主流 Provider），② API Key 安全方案设计文档（短期 Token 下发或代理转发架构）。
+    - **执行范围**: 在完成评估文档后，落地一条「前端调 Provider API → 浏览器拼接音频 Buffer → 复用 `use-upload.ts` 直传 OSS → 回调服务端写 Post 元数据」的最小闭环原型。
+    - **非目标**: 不进入完整实现（不重写 `TTSService.processTask()`、不动 `media-task-monitor`、不扩展到 AI Image），不改变自部署/非 Serverless 环境的原始服务端 TTS 链路。
+    - **验收标准**: 已产出 Provider CORS 评估文档与 API Key 安全方案设计文档；已完成至少一条端到端原型验证（浏览器端生成 + 直传 + 元数据回写成功）。
+    - **验证与证据**: 至少完成一次浏览器端到端原型截图或录屏验证，并将评估文档与原型证据回链到阶段回归记录。
+
+2. **主线：测试覆盖率冲刺 80%+ (P0)**:
+    - **执行范围**: 从当前 Lines 75.8% / Statements 75.67% 基线继续提升。优先锁定 Phase 33 未覆盖的认证流边角分支、热点公开读链路失败路径，以及 Phase 33 新增组件（`creator-stats-panel.vue`、`taxonomy-post-page.vue` 等）的补充断言。
+    - **非目标**: 不回到低价值铺量测试，不接受只有 snapshot 且缺少失败断言的用例。`80%+` 为冲刺目标，阶段收口线 `>= 78%`。
+    - **验收标准**: 全仓 coverage 不低于 78%，继续冲刺 80%+；至少补齐一组与 Phase 33 新增功能或认证链路直连的失败断言。
+    - **验证与证据**: 至少补跑定向 Vitest、`pnpm i18n:verify:runtime`、`pnpm test:coverage` 与 `pnpm exec nuxt typecheck`，并把 coverage 增量与未覆盖边界回写到活动回归窗口。
+
+3. **主线：周期性回归执行 (P1)**:
+    - **执行范围**: 基于既有 `pnpm regression:phase-close` 入口，执行一次真实回归任务。至少覆盖 coverage、lint/typecheck、重复代码基线、文档事实源一致性与 Review Gate 结论，并统一沉淀到 `docs/reports/regression/current.md`。
+    - **非目标**: 不新做一套回归规范或自动化体系，不把回归任务扩写为新增治理面。
+    - **验收标准**: 已执行一次真实回归——产出覆盖上述 5 项的结果摘要，并明确是否有 blocker；若未发现 blocker，记录未覆盖边界与下一次补跑条件。
+    - **验证与证据**: 回归结果统一回链到活动回归窗口，至少保留一轮可追溯的执行记录。
+
+4. **主线：ESLint 下一轮切片 (P1)**:
+    - **执行范围**: 继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶的下一个拆桶方向；若命中点已在前几轮大量收敛，允许回退到单文件 `no-explicit-any` 切片（优先扫 `server/utils/` 或 `server/api/` 工具层）。
+    - **非目标**: 不并行开启新规则，不扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
+    - **验收标准**: 目标子桶或目标文件 ESLint `--max-warnings 0` 通过；残余债务清单与下一轮候选已记录。
+    - **验证与证据**: 至少完成目标文件的 ESLint 校验、窄范围类型检查与必要单测。
+
+5. **主线：i18n 运行时继续扩面 (P1)**:
+    - **执行范围**: 优先扩到 `app-footer` 友链区域、`archives` / `categories` / `tags` 等公开页装配链路，以及已提取的 `auth-card.vue` / `taxonomy-post-page.vue` 两个 Phase 33 新增共享组件的运行时命名空间。
+    - **非目标**: 不发起全仓 i18n 重构，不把 `unused` 字段清理升级为本轮 blocker。
+    - **验收标准**: `i18n:audit:missing` 继续保持 `0`；至少一条新增公开页装配链路纳入 `i18n:verify:runtime` 固定回归入口。
+    - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime` 与必要的 parity 检查通过。
+
+6. **主线：文档翻译 freshness 续 (P1)**:
+    - **执行范围**: 清偿剩余高频设计页（`design/ui.md`、`design/api.md`、`design/database.md`）与对外 guide（`guide/features.md`、`guide/comparison.md`）的翻译 freshness，并继续按 tier 化口径维护 `source-only` 契约。
+    - **非目标**: 不把 `docs/design/modules/` 或 `docs/design/governance/` 下高频变化的治理正文纳入翻译范围。
+    - **验收标准**: `pnpm docs:check:source-of-truth` 可通过；已更新范围声明与翻译页同步记录。
+    - **验证与证据**: `pnpm docs:check:source-of-truth`、`pnpm docs:check:i18n` 与 `pnpm lint:md` 通过。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
