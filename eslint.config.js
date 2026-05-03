@@ -133,12 +133,6 @@ export default withNuxt(
             'max-lines-per-function': [1, { max: 500 }], // 强制函数最大行数
         },
     },
-    {
-        files: ['components/admin/posts/post-distribution-button.vue'],
-        rules: {
-            'max-lines': 'off',
-        },
-    },
     createRuleOverride({
         files: testFiles,
         rules: {
