@@ -326,7 +326,6 @@ export function useTTSVolcengineDirect() {
     /** 火山二进制帧常量（与 server/utils/ai/volcengine-protocol.ts 对齐） */
     const VOLC_PROTOCOL_VERSION = 0b0001
     const VOLC_HEADER_SIZE_UNITS = 0b0001
-    const VOLC_HEADER_BYTES = 4
 
     // 消息类型
     const VOLC_MSG_FULL_CLIENT = 0b0001 // fullClientRequest
@@ -336,28 +335,14 @@ export function useTTSVolcengineDirect() {
     const VOLC_SERIAL_JSON = 0b0001
     const VOLC_COMPRESS_NONE = 0b0000
 
-    // ---- 二进制帧构建（对齐 buildVolcengineHeader + buildVolcengineEventClientRequestFrame） ----
-
-    /** 构建 4 字节帧头 */
-    function buildVolcengineHeader(messageType: number, messageTypeFlags: number, serialization: number, compression: number): Uint8Array {
-        const header = new Uint8Array(VOLC_HEADER_BYTES)
-        header[0] = (VOLC_PROTOCOL_VERSION << 4) | VOLC_HEADER_SIZE_UNITS
-        header[1] = (messageType << 4) | messageTypeFlags
-        header[2] = (serialization << 4) | compression
-        header[3] = 0x00
-        return header
-    }
-
-    function writeUint32BE(buf: Uint8Array, offset: number, value: number) {
-        new DataView(buf.buffer).setUint32(offset, value, false)
-    }
-
-    function writeInt32BE(buf: Uint8Array, offset: number, value: number) {
-        new DataView(buf.buffer).setInt32(offset, value, false)
-    }
+    // ---- 二进制帧构建 ----
 
     /**
      * 构建播客 StartSession 帧（event=100，对齐 buildVolcengineEventClientRequestFrame）
+     *
+     * 帧格式（与 server/utils/ai/volcengine-protocol.ts 完全对齐）：
+     *   header(4B) + event(4B int32BE) + sessionIdLen(4B uint32BE) + sessionId
+     *   + payloadLen(4B uint32BE) + payload
      */
     function buildPodcastStartFrame(sessionId: string, text: string, speakerIds: string[]): Uint8Array {
         const encoder = new TextEncoder()
@@ -375,70 +360,68 @@ export function useTTSVolcengineDirect() {
         const payloadBytes = encoder.encode(payloadJson)
         const sessionBytes = encoder.encode(sessionId)
 
-        // event (4B int32 BE)
-        const eventBuf = new Uint8Array(4)
-        writeInt32BE(eventBuf, 0, 100)
+        // 计算各段长度
+        const headerLen = 4
+        const eventLen = 4
+        const sessionIdSizeLen = 4
+        const payloadSizeLen = 4
+        const prefixLen = eventLen + sessionIdSizeLen + sessionBytes.length + payloadSizeLen
+        const total = headerLen + prefixLen + payloadBytes.length
 
-        // sessionId size (4B uint32 BE)
-        const sessionSizeBuf = new Uint8Array(4)
-        writeUint32BE(sessionSizeBuf, 0, sessionBytes.length)
-
-        // payload size (4B uint32 BE)
-        const payloadSizeBuf = new Uint8Array(4)
-        writeUint32BE(payloadSizeBuf, 0, payloadBytes.length)
-
-        const prefixLen = 4 + 4 + sessionBytes.length + 4
-        const total = VOLC_HEADER_BYTES + prefixLen + payloadBytes.length
-
-        const header = buildVolcengineHeader(VOLC_MSG_FULL_CLIENT, 0b0100, VOLC_SERIAL_JSON, VOLC_COMPRESS_NONE)
         const frame = new Uint8Array(total)
-        let offset = 0
-        frame.set(header, offset)
-        offset += VOLC_HEADER_BYTES
-        frame.set(eventBuf, offset)
-        offset += 4
-        frame.set(sessionSizeBuf, offset)
-        offset += 4
-        frame.set(sessionBytes, offset)
-        offset += sessionBytes.length
-        frame.set(payloadSizeBuf, offset)
-        offset += 4
-        frame.set(payloadBytes, offset)
+        const view = new DataView(frame.buffer, frame.byteOffset, frame.byteLength)
+
+        // 1. Header (4 bytes)
+        view.setUint8(0, (VOLC_PROTOCOL_VERSION << 4) | VOLC_HEADER_SIZE_UNITS)
+        view.setUint8(1, (VOLC_MSG_FULL_CLIENT << 4) | 0b0100)
+        view.setUint8(2, (VOLC_SERIAL_JSON << 4) | VOLC_COMPRESS_NONE)
+        view.setUint8(3, 0)
+
+        // 2. Event = 100 (int32 BE at offset 4)
+        view.setInt32(headerLen, 100, false)
+
+        // 3. SessionId length (uint32 BE at offset 8)
+        view.setUint32(headerLen + eventLen, sessionBytes.length, false)
+
+        // 4. SessionId bytes (at offset 12)
+        frame.set(sessionBytes, headerLen + eventLen + sessionIdSizeLen)
+
+        // 5. Payload length (uint32 BE after sessionId)
+        const payloadSizeOffset = headerLen + eventLen + sessionIdSizeLen + sessionBytes.length
+        view.setUint32(payloadSizeOffset, payloadBytes.length, false)
+
+        // 6. Payload bytes
+        frame.set(payloadBytes, payloadSizeOffset + payloadSizeLen)
+
         return frame
     }
 
     /**
-     * 构建 FinishConnection 帧（event=2）
+     * 构建 FinishConnection 帧（event=2，不含 sessionId）
+     *
+     * 对齐 buildVolcengineConnectionClientRequestFrame:
+     *   header(4B) + event=2(4B) + payloadSize(4B) + payload({})
      */
-    function buildPodcastFinishFrame(sessionId: string): Uint8Array {
+    function buildPodcastFinishFrame(): Uint8Array {
         const encoder = new TextEncoder()
         const payloadBytes = encoder.encode('{}')
-        const sessionBytes = encoder.encode(sessionId)
 
-        const eventBuf = new Uint8Array(4)
-        writeInt32BE(eventBuf, 0, 2)
+        const headerLen = 4
+        const eventLen = 4
+        const payloadSizeLen = 4
+        const total = headerLen + eventLen + payloadSizeLen + payloadBytes.length
 
-        const sessionSizeBuf = new Uint8Array(4)
-        writeUint32BE(sessionSizeBuf, 0, sessionBytes.length)
-
-        const payloadSizeBuf = new Uint8Array(4)
-        writeUint32BE(payloadSizeBuf, 0, payloadBytes.length)
-
-        const total = VOLC_HEADER_BYTES + 4 + 4 + sessionBytes.length + 4 + payloadBytes.length
-        const header = buildVolcengineHeader(VOLC_MSG_FULL_CLIENT, 0b0100, VOLC_SERIAL_JSON, VOLC_COMPRESS_NONE)
         const frame = new Uint8Array(total)
-        let offset = 0
-        frame.set(header, offset)
-        offset += VOLC_HEADER_BYTES
-        frame.set(eventBuf, offset)
-        offset += 4
-        frame.set(sessionSizeBuf, offset)
-        offset += 4
-        frame.set(sessionBytes, offset)
-        offset += sessionBytes.length
-        frame.set(payloadSizeBuf, offset)
-        offset += 4
-        frame.set(payloadBytes, offset)
+        const view = new DataView(frame.buffer, frame.byteOffset, frame.byteLength)
+
+        view.setUint8(0, (VOLC_PROTOCOL_VERSION << 4) | VOLC_HEADER_SIZE_UNITS)
+        view.setUint8(1, (VOLC_MSG_FULL_CLIENT << 4) | 0b0100)
+        view.setUint8(2, (VOLC_SERIAL_JSON << 4) | VOLC_COMPRESS_NONE)
+        view.setUint8(3, 0)
+        view.setInt32(headerLen, 2, false)
+        view.setUint32(headerLen + eventLen, payloadBytes.length, false)
+        frame.set(payloadBytes, headerLen + eventLen + payloadSizeLen)
+
         return frame
     }
 
@@ -468,8 +451,8 @@ export function useTTSVolcengineDirect() {
         const serialization = (bytes[2]! >> 4) & 0x0F
         const compression = bytes[2]! & 0x0F
 
-        // 跳过 error 帧（由调用方处理）
-        if (messageType === VOLC_MSG_ERROR) {
+        // 仅处理 fullServerResponse (0b1001) 和 audioOnlyServerResponse (0b1011)
+        if (messageType !== 0b1001 && messageType !== 0b1011) {
             return null
         }
 
@@ -487,7 +470,7 @@ export function useTTSVolcengineDirect() {
         const sessionIdSize = view.getUint32(cursor, false)
         cursor += 4
 
-        if (bytes.length < cursor + sessionIdSize + 4) {
+        if (sessionIdSize === 0 || bytes.length < cursor + sessionIdSize + 4) {
             return null
         }
         const sessionId = new TextDecoder().decode(bytes.subarray(cursor, cursor + sessionIdSize))
@@ -575,6 +558,7 @@ export function useTTSVolcengineDirect() {
                 const startFrame = buildPodcastStartFrame(sessionId, text, speakerIds)
                 ws.send(startFrame.buffer as ArrayBuffer)
                 progress.value = 15
+                console.log('[TTS Podcast] WS connected, session:', sessionId)
             }
 
             ws.onmessage = (ev) => {
@@ -586,6 +570,7 @@ export function useTTSVolcengineDirect() {
                 // 先检查错误帧
                 const errorPkt = parseVolcengineErrorFrame(data)
                 if (errorPkt) {
+                    console.error('[TTS Podcast] Error frame:', errorPkt)
                     cleanup()
                     reject(new Error(`Volcengine Podcast Error(${errorPkt.code}): ${errorPkt.message}`))
                     return
@@ -593,8 +578,11 @@ export function useTTSVolcengineDirect() {
 
                 const pkt = parseVolcengineFrame(data)
                 if (!pkt) {
+                    console.warn('[TTS Podcast] Unparsed frame, len:', data.byteLength)
                     return
                 }
+
+                console.log('[TTS Podcast] Event:', pkt.event, 'payloadLen:', pkt.rawPayload.length)
 
                 // event=361: 音频数据（对齐服务端处理逻辑）
                 if (pkt.event === 361) {
@@ -639,9 +627,34 @@ export function useTTSVolcengineDirect() {
                     return
                 }
 
-                // event=363: 播客结束（可能带 audio_url）
+                // event=363: 播客结束（可能带 audio_url）— 主动触发结束
                 // event=154: 用量信息
                 if (pkt.event === 363 || pkt.event === 154) {
+                    if (pkt.event === 363 && !settled) {
+                        // 发 FinishConnection 通知服务端结束
+                        try {
+                            if (ws.readyState === WebSocket.OPEN) {
+                                const finishFrame = buildPodcastFinishFrame()
+                                ws.send(finishFrame.buffer as ArrayBuffer)
+                            }
+                        } catch { /* ignore */ }
+                        // 设置超时兜底：5 秒后若仍未 resolve，用已有音频关闭
+                        setTimeout(() => {
+                            if (!settled) {
+                                console.log('[TTS Podcast] Timeout after PodcastEnd, resolving with', audioChunks.length, 'chunks')
+                                cleanup()
+                                progress.value = 70
+                                const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
+                                const merged = new Uint8Array(total)
+                                let offset = 0
+                                for (const c of audioChunks) {
+                                    merged.set(c, offset)
+                                    offset += c.length
+                                }
+                                resolve(merged)
+                            }
+                        }, 5000)
+                    }
                     return
                 }
 
@@ -649,12 +662,13 @@ export function useTTSVolcengineDirect() {
                 if (pkt.event === 152) {
                     try {
                         if (ws.readyState === WebSocket.OPEN) {
-                            const finishFrame = buildPodcastFinishFrame(sessionId)
+                            const finishFrame = buildPodcastFinishFrame()
                             ws.send(finishFrame.buffer as ArrayBuffer)
                         }
                     } catch { /* ignore */ }
                     cleanup()
                     progress.value = 70
+                    console.log('[TTS Podcast] Resolving with', audioChunks.length, 'audio chunks,', totalBytes, 'bytes')
                     const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
                     const merged = new Uint8Array(total)
                     let offset = 0
@@ -675,6 +689,7 @@ export function useTTSVolcengineDirect() {
 
             ws.onclose = () => {
                 if (!settled) {
+                    console.log('[TTS Podcast] WS closed, chunks:', audioChunks.length, 'bytes:', totalBytes)
                     cleanup()
                     if (audioChunks.length > 0) {
                         const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
