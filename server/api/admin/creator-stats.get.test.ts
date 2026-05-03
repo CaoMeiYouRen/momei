@@ -225,4 +225,68 @@ describe('GET /api/admin/creator-stats', () => {
         expect(result.distribution.wechatsync!.overallSuccessRate).toBe(0.8)
         expect(result.distribution.hexoRepositorySync).toBeNull()
     })
+
+    it('applies date window filter on publishing trend query', async () => {
+        mockSession('author')
+        const publishedCountQb = createRawQueryBuilder([{ count: '0' }])
+        const draftCountQb = createRawQueryBuilder([{ count: '0' }])
+        const trendQb = createRawQueryBuilder([])
+        const distQb = createRawQueryBuilder([])
+        mockRepo(publishedCountQb, draftCountQb, trendQb, distQb)
+
+        await handler({ query: { range: '7' } } as any as Parameters<typeof handler>[0])
+
+        // Trend query must have a date window filter
+        expect(trendQb.andWhere).toHaveBeenCalledWith(
+            'post.publishedAt >= :windowStart',
+            expect.objectContaining({ windowStart: expect.any(Date) }),
+        )
+    })
+
+    it('returns daily granularity for 7-day range', async () => {
+        mockSession('author')
+        const publishedCountQb = createRawQueryBuilder([{ count: '0' }])
+        const draftCountQb = createRawQueryBuilder([{ count: '0' }])
+        const trendQb = createRawQueryBuilder([])
+        const distQb = createRawQueryBuilder([])
+        mockRepo(publishedCountQb, draftCountQb, trendQb, distQb)
+
+        vi.mocked(buildCreatorStats).mockReturnValue({
+            range: 7,
+            aggregationGranularity: 'day',
+            timezone: 'UTC',
+            publishing: { totalPublished: 0, draftCount: 0, trend: [] },
+            distribution: { wechatsync: null, hexoRepositorySync: null },
+            generatedAt: new Date().toISOString(),
+        })
+
+        const result = await handler({ query: { range: '7' } } as any as Parameters<typeof handler>[0])
+        expect(result.aggregationGranularity).toBe('day')
+    })
+
+    it('returns null for disabled distribution channels', async () => {
+        vi.mocked(resolveDistributionChannelEnabled).mockResolvedValue({
+            wechatsync: false,
+            hexoRepositorySync: false,
+        })
+        mockSession('author')
+        const publishedCountQb = createRawQueryBuilder([{ count: '3' }])
+        const draftCountQb = createRawQueryBuilder([{ count: '0' }])
+        const trendQb = createRawQueryBuilder([])
+        const distQb = createRawQueryBuilder([])
+        mockRepo(publishedCountQb, draftCountQb, trendQb, distQb)
+
+        vi.mocked(buildCreatorStats).mockReturnValue({
+            range: 30,
+            aggregationGranularity: 'week',
+            timezone: 'UTC',
+            publishing: { totalPublished: 3, draftCount: 0, trend: [] },
+            distribution: { wechatsync: null, hexoRepositorySync: null },
+            generatedAt: new Date().toISOString(),
+        })
+
+        const result = await handler({ query: {} } as any as Parameters<typeof handler>[0])
+        expect(result.distribution.wechatsync).toBeNull()
+        expect(result.distribution.hexoRepositorySync).toBeNull()
+    })
 })

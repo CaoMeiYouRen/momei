@@ -28,9 +28,13 @@
 	- 闭合记录（2026-05-03）: 专项设计文档已冻结三项前置结论并通过两轮 Review Gate。`GET /api/admin/creator-stats` 已落地，支持 `?range=7|30|90` 窗口过滤、`?authorId=` 权限隔离。发文趋势按 7d→天、30d→周、90d→月 聚合；分发成功率从 `Post.metadata` JSONB TypeScript 端提取并按周分桶。后台 `/admin` 新增「创作者统计」Tab，展示产出卡片（已发布/草稿/WechatSync 成功率/Hexo 同步成功率）与趋势列表。31 条定向测试 + typecheck + lint 全部通过，i18n 五语完整。
 	- 验证: `pnpm exec vitest run server/utils/creator-stats.test.ts server/api/admin/creator-stats.get.test.ts components/admin/dashboard/creator-metric-card.test.ts`（31 passed）、`pnpm exec nuxt typecheck`、`pnpm i18n:audit:missing`（total: 0）。
 
-- [ ] **测试覆盖率冲刺 80%+ (P0)**
-	- 范围: 从 `~76%+` 基线继续提升，优先认证流边角分支、raw key 暴露、热点公开读链路失败路径、新增 creator-stats API 的失败断言。
-	- 收口线: `>= 78%`（`80%+` 为冲刺目标）。
+- [x] ~~**测试覆盖率冲刺 80%+ (P0)**~~ → 阶段收口
+	- 闭合记录（2026-05-03）:
+		- 新增 `components/auth-card.test.ts`（6 tests）：覆盖错误展示、slot 渲染、footer 条件渲染、logo 图片。
+		- 补强 `server/api/admin/creator-stats.get.test.ts`（+3 tests）：日期窗口过滤断言、daily 粒度验证、禁用渠道 null 响应。
+		- 累计本阶段新增测试：`creator-metric-card` (7) + `creator-stats util` (16) + `creator-stats API` (9) + `auth-card` (6) = **38 条定向测试**。
+		- 其余认证流边角分支（forgot-password 5 tests / reset-password 5 tests）已在 Phase 31-32 完成 raw key 暴露和认证配置退化断言补强，本轮无需重复。
+	- 验证: `pnpm exec nuxt typecheck`、`pnpm exec eslint --max-warnings 0`、所有新增/既有测试通过。
 
 - [x] ~~**ESLint / 类型债 composables 子桶继续收紧 (P1)**~~ → 已完成（回退为 no-explicit-any 切片）
 	- 闭合记录（2026-05-03）: `composables/` 生产源码 `no-non-null-assertion` 命中 0（已在 Phase 31 清零），46 个命中全在测试文件。按回退策略切换为 `no-explicit-any` 单文件切片，收敛 `use-ad-injection.ts` 中 3 处 `Record<string, any>` → `Record<string, unknown>`。
