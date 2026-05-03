@@ -1,65 +1,38 @@
 <template>
-    <div class="forgot-password-page">
-        <div class="auth-card">
-            <div class="auth-header">
-                <NuxtLink :to="localePath('/')" class="logo-link">
-                    <img
-                        src="/logo.png"
-                        alt="Momei Logo"
-                        class="logo"
-                    >
-                </NuxtLink>
-                <h1 class="title">
-                    {{ $t("pages.forgot_password.title") }}
-                </h1>
-                <p class="subtitle">
-                    {{ $t("pages.forgot_password.subtitle") }}
-                </p>
-            </div>
-
-            <form class="auth-form" @submit.prevent="handleForgotPassword">
-                <div class="form-group">
-                    <label for="email">{{ $t("common.email") }}</label>
-                    <InputText
-                        id="email"
-                        v-model="email"
-                        type="email"
-                        :placeholder="$t('pages.login.email_placeholder')"
-                        required
-                        :invalid="!!error"
-                        fluid
-                    />
-                </div>
-
-                <div v-if="error" class="error-message">
-                    <i class="pi pi-exclamation-circle" />
-                    <span>{{ error }}</span>
-                </div>
-
-                <div v-if="success" class="success-message">
-                    <i class="pi pi-check-circle" />
-                    <span>{{
-                        $t("pages.forgot_password.success_message")
-                    }}</span>
-                </div>
-
-                <app-captcha ref="captchaRef" v-model="captchaToken" />
-
-                <Button
-                    type="submit"
-                    :label="$t('pages.forgot_password.submit')"
-                    :loading="loading"
-                    class="submit-btn"
-                />
-
-                <div class="auth-footer">
-                    <NuxtLink :to="localePath('/login')" class="link">
-                        {{ $t("pages.forgot_password.back_to_login") }}
-                    </NuxtLink>
-                </div>
-            </form>
+    <AuthCard
+        :title-key="$t('pages.forgot_password.title')"
+        :subtitle-key="$t('pages.forgot_password.subtitle')"
+        :submit-label="$t('pages.forgot_password.submit')"
+        :loading="loading"
+        :error="error"
+        @submit="handleForgotPassword"
+    >
+        <div class="form-group">
+            <label for="email">{{ $t('common.email') }}</label>
+            <InputText
+                id="email"
+                v-model="email"
+                type="email"
+                :placeholder="$t('pages.login.email_placeholder')"
+                required
+                :invalid="!!error"
+                fluid
+            />
         </div>
-    </div>
+
+        <div v-if="success" class="success-message">
+            <i class="pi pi-check-circle" />
+            <span>{{ $t('pages.forgot_password.success_message') }}</span>
+        </div>
+
+        <app-captcha ref="captchaRef" v-model="captchaToken" />
+
+        <template #footer>
+            <NuxtLink :to="localePath('/login')" class="link">
+                {{ $t('pages.forgot_password.back_to_login') }}
+            </NuxtLink>
+        </template>
+    </AuthCard>
 </template>
 
 <script setup lang="ts">
@@ -120,59 +93,6 @@ const handleForgotPassword = async () => {
 </script>
 
 <style lang="scss" scoped>
-.forgot-password-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 200px);
-    padding: 2rem 1rem;
-}
-
-.auth-card {
-    width: 100%;
-    max-width: 400px;
-    background-color: var(--p-surface-card);
-    border-radius: 1rem;
-    padding: 2.5rem;
-    box-shadow:
-        0 4px 6px -1px rgb(0 0 0 / 0.1),
-        0 2px 4px -1px rgb(0 0 0 / 0.06);
-    border: 1px solid var(--p-surface-border);
-}
-
-.auth-header {
-    text-align: center;
-    margin-bottom: 2rem;
-
-    .logo-link {
-        display: inline-block;
-        margin-bottom: 1.5rem;
-    }
-
-    .logo {
-        height: 48px;
-        width: auto;
-    }
-
-    .title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--p-text-color);
-        margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-        color: var(--p-text-muted-color);
-        font-size: 0.875rem;
-    }
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
 .form-group {
     display: flex;
     flex-direction: column;
@@ -182,21 +102,6 @@ const handleForgotPassword = async () => {
         font-size: 0.875rem;
         font-weight: 500;
         color: var(--p-text-color);
-    }
-}
-
-.error-message {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--p-red-500);
-    font-size: 0.875rem;
-    background-color: var(--p-red-50);
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-
-    :global(.dark) & {
-        background-color: rgb(239 68 68 / 0.1);
     }
 }
 
@@ -215,23 +120,13 @@ const handleForgotPassword = async () => {
     }
 }
 
-.submit-btn {
-    width: 100%;
-}
+.link {
+    color: var(--p-primary-color);
+    text-decoration: none;
+    font-weight: 500;
 
-.auth-footer {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.875rem;
-
-    .link {
-        color: var(--p-primary-color);
-        text-decoration: none;
-        font-weight: 500;
-
-        &:hover {
-            text-decoration: underline;
-        }
+    &:hover {
+        text-decoration: underline;
     }
 }
 </style>
