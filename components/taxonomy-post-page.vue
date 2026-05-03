@@ -82,6 +82,18 @@
                 />
             </div>
         </div>
+
+        <div v-else class="taxonomy-page__error">
+            <Message severity="error" icon="pi pi-times-circle">
+                {{ $t('common.not_found') }}
+            </Message>
+            <Button
+                :label="$t('common.back_to_home')"
+                icon="pi pi-home"
+                class="mt-4"
+                @click="navigateTo(localePath('/'))"
+            />
+        </div>
     </div>
 </template>
 
@@ -104,8 +116,9 @@ const runtimeConfig = useRuntimeConfig()
 const slug = computed(() => route.params.slug as string)
 const isCategory = computed(() => props.taxonomyType === 'category')
 
-// Entity fetch
 type Entity = Category | Tag
+
+// Entity fetch
 const fetchUrl = computed(() => `/api/${props.taxonomyType === 'category' ? 'categories' : 'tags'}/slug/${slug.value}`)
 const { data: entityData, pending: entityPending, error: entityError } = await useAppFetch<ApiResponse<Entity>>(() => fetchUrl.value)
 const entity = computed(() => entityData.value?.data as (Category & { description?: string | null }) | null)
