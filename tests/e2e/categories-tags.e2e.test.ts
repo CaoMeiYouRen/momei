@@ -127,8 +127,9 @@ test.describe('Categories and Tags E2E Tests', () => {
 
             if (count > 0) {
                 await cards.first().click()
-                // 验证分类详情页加载
-                await expect(page.locator('h1')).toBeVisible({ timeout: 10000 })
+                // TaxonomyPostPage renders an h1 inside .taxonomy-page__content
+                // Use specific selector with longer timeout for CI stability
+                await expect(page.locator('.taxonomy-page__title')).toBeVisible({ timeout: 30000 })
             }
         })
 
@@ -143,8 +144,8 @@ test.describe('Categories and Tags E2E Tests', () => {
 
             if (count > 0) {
                 await tags.first().click()
-                // 验证标签详情页加载
-                await expect(page.locator('h1')).toBeVisible({ timeout: 10000 })
+                // TaxonomyPostPage renders an h1 inside .taxonomy-page__title
+                await expect(page.locator('.taxonomy-page__title')).toBeVisible({ timeout: 30000 })
             }
         })
     })
