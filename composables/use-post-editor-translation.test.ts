@@ -818,7 +818,7 @@ describe('usePostEditorTranslation', () => {
         sourcePostSnapshot.value = {
             ...(createSourcePost()),
             id: '',
-        } as never
+        }
 
         expect(translationSourceOptions.value).toEqual([
             {

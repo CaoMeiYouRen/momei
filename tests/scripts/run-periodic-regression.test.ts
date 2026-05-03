@@ -145,6 +145,6 @@ describe('run-periodic-regression', () => {
     })
 
     it('throws for unsupported regression profiles', () => {
-        expect(() => resolveRegressionProfile('nightly' as never)).toThrow(/Unsupported regression profile/)
+        expect(() => resolveRegressionProfile('nightly')).toThrow(/Unsupported regression profile/)
     })
 })

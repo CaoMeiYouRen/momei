@@ -52,17 +52,17 @@ describe('ai-admin utils', () => {
         })
 
         it('returns string data as-is for non-JSON string', () => {
-            const result = formatAIAdminJson('Some plain text' as any)
+            const result = formatAIAdminJson('Some plain text')
             expect(result).toBe('Some plain text')
         })
 
         it('pretty-prints a JSON string', () => {
-            const result = formatAIAdminJson('{"key":"value"}' as any)
+            const result = formatAIAdminJson('{"key":"value"}')
             expect(result).toBe('{\n  "key": "value"\n}')
         })
 
         it('serializes object data to pretty JSON', () => {
-            const result = formatAIAdminJson({ key: 'value' } as any)
+            const result = formatAIAdminJson({ key: 'value' })
             expect(result).toBe('{\n  "key": "value"\n}')
         })
     })

@@ -15,9 +15,9 @@ const {
     routeState: {
         fullPath: '/tags/initial',
         path: '/tags/initial',
-        params: {} as Record<string, string>,
-        meta: {} as Record<string, unknown>,
-        query: {} as Record<string, string | undefined>,
+        params: {},
+        meta: {},
+        query: {},
     },
     routerState: {
         push: vi.fn(),
@@ -38,9 +38,9 @@ const {
     routerPushMock: vi.fn(),
     setI18nParamsMock: vi.fn(),
     useAppFetchMock: vi.fn(),
-    postsDataRef: { value: null as unknown },
+    postsDataRef: { value: null },
     pendingRef: { value: false },
-    errorRef: { value: null as unknown },
+    errorRef: { value: null },
 }))
 
 mockNuxtImport('useRoute', () => () => routeState)

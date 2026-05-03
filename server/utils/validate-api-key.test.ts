@@ -51,7 +51,7 @@ describe('server/utils/validate-api-key', () => {
 
         vi.mocked(dataSource.getRepository).mockReturnValue(mockRepo)
 
-        mockEvent = {} as Partial<H3Event>
+        mockEvent = {}
     })
 
     describe('validateApiKeyRequest', () => {

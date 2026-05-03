@@ -27,8 +27,8 @@ const { runtimeConfigState, routerState, routeState } = vi.hoisted(() => ({
     routeState: {
         path: '/',
         fullPath: '/',
-        query: {} as Record<string, string | undefined>,
-        params: {} as Record<string, string | undefined>,
+        query: {},
+        params: {},
         name: 'index',
         meta: {},
         hash: '',
@@ -41,7 +41,7 @@ mockNuxtImport('useRouter', () => () => routerState)
 mockNuxtImport('useRoute', () => () => routeState)
 
 function callExposedReset(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
-    const rootInstance = (wrapper.vm as any).$
+    const rootInstance = (wrapper.vm).$
     const reset = rootInstance?.exposed?.reset
         ?? rootInstance?.subTree?.component?.exposed?.reset
         ?? rootInstance?.subTree?.component?.subTree?.component?.exposed?.reset
@@ -241,7 +241,7 @@ describe('AppCaptcha', () => {
             },
         })
 
-        const appendedScript = document.head.querySelector('script[src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"]') as HTMLScriptElement | null
+        const appendedScript = document.head.querySelector('script[src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"]')
         expect(appendedScript).not.toBeNull()
 
         const turnstileRenderMock = vi.fn(() => 'loaded-widget')

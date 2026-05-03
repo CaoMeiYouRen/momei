@@ -68,7 +68,7 @@ describe('TTSService estimateProviderCost', () => {
         vi.mocked(getAIProvider).mockResolvedValue({
             name: 'openai',
             estimateTTSCost: vi.fn().mockResolvedValue(0.15),
-        } as any)
+        })
 
         await expect(TTSService.estimateProviderCost('hello', 'alloy', 'openai')).resolves.toBe(0.15)
     })
@@ -77,7 +77,7 @@ describe('TTSService estimateProviderCost', () => {
         vi.mocked(getAIProvider).mockResolvedValue({
             name: 'siliconflow',
             estimateCost: vi.fn().mockResolvedValue(0.08),
-        } as any)
+        })
 
         await expect(TTSService.estimateProviderCost('hello', 'alex', 'siliconflow')).resolves.toBe(0.08)
     })
@@ -87,9 +87,9 @@ describe('TTSService estimateProviderCost', () => {
         vi.mocked(getAIProvider).mockResolvedValue({
             name: 'openai',
             estimateTTSCost,
-        } as any)
+        })
 
-        await TTSService.estimateProviderCost('hello', undefined as any, 'openai')
+        await TTSService.estimateProviderCost('hello', undefined, 'openai')
         await TTSService.estimateProviderCost('hello', 'default', 'openai')
 
         expect(estimateTTSCost).toHaveBeenNthCalledWith(1, 'hello', 'alloy')
@@ -150,7 +150,7 @@ describe('TTSService estimateProviderCost', () => {
                     controller.close()
                 },
             })),
-        } as any)
+        })
         vi.mocked(buildPostUploadPrefix).mockReturnValue('posts/post-1/audio/tts/')
         vi.mocked(buildUploadStoredFilename).mockReturnValue('generated.mp3')
         vi.mocked(uploadFromBuffer).mockResolvedValue({
@@ -297,7 +297,7 @@ describe('TTSService estimateProviderCost', () => {
                     controller.close()
                 },
             })),
-        } as any)
+        })
         vi.mocked(buildUploadStoredFilename).mockReturnValue('generated.mp3')
         vi.mocked(uploadFromBuffer).mockResolvedValue({
             url: '/uploads/audio/generated.mp3',

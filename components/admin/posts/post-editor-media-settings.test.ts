@@ -129,7 +129,7 @@ describe('PostEditorMediaSettings', () => {
     })
 
     it('passes locale-aware cover generator props from the editor state', async () => {
-        const post = reactive(createPost()) as PostEditorData
+        const post = reactive(createPost())
         const wrapper = await mountSuspended(PostEditorMediaSettings, {
             props: {
                 post,
@@ -187,7 +187,7 @@ describe('PostEditorMediaSettings', () => {
                 },
             },
             audioUrl: '/audio/old.mp3',
-        })) as PostEditorData
+        }))
         const wrapper = await mountSuspended(PostEditorMediaSettings, {
             props: {
                 post,
@@ -288,7 +288,7 @@ describe('PostEditorMediaSettings', () => {
             audioDuration: 66,
             audioSize: 512,
             audioMimeType: 'audio/mpeg',
-        })) as PostEditorData
+        }))
         const wrapper = await mountSuspended(PostEditorMediaSettings, {
             props: {
                 post,
@@ -338,7 +338,7 @@ describe('PostEditorMediaSettings', () => {
         const post = reactive(createPost({
             content: 'Body content',
             metadata: {},
-        })) as PostEditorData
+        }))
         const wrapper = await mountSuspended(PostEditorMediaSettings, {
             props: {
                 post,
@@ -393,7 +393,7 @@ describe('PostEditorMediaSettings', () => {
         const post = reactive(createPost({
             coverImage: null,
             metadata: {},
-        })) as PostEditorData
+        }))
         const wrapper = await mountSuspended(PostEditorMediaSettings, {
             props: {
                 post,

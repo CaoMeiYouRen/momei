@@ -72,7 +72,7 @@ describe('post-unlock utils', () => {
             sameSite: 'lax',
         })
 
-        const verifiedValue = verifyCookieValue(cookieValue as string)
+        const verifiedValue = verifyCookieValue(cookieValue)
         expect(verifiedValue).not.toBeNull()
 
         const parsed = JSON.parse(verifiedValue!) as { id: string, expiresAt: number }[]
@@ -93,7 +93,7 @@ describe('post-unlock utils', () => {
         rememberUnlockedPost({} as any, postId, now)
 
         const [, , cookieValue] = vi.mocked(setCookie).mock.calls[0]!
-        const parsed = JSON.parse(verifyCookieValue(cookieValue as string)!) as { id: string, expiresAt: number }[]
+        const parsed = JSON.parse(verifyCookieValue(cookieValue)!) as { id: string, expiresAt: number }[]
 
         expect(parsed).toHaveLength(POST_UNLOCK_MAX_ENTRIES)
         expect(parsed[0]?.id).toBe(credentials[1]?.id)
@@ -112,7 +112,7 @@ describe('post-unlock utils', () => {
         rememberUnlockedPost({} as any, refreshedId, now)
 
         const [, , cookieValue] = vi.mocked(setCookie).mock.calls[0]!
-        const parsed = JSON.parse(verifyCookieValue(cookieValue as string)!) as { id: string, expiresAt: number }[]
+        const parsed = JSON.parse(verifyCookieValue(cookieValue)!) as { id: string, expiresAt: number }[]
 
         expect(parsed).toHaveLength(POST_UNLOCK_MAX_ENTRIES)
         expect(parsed.filter((entry) => entry.id === refreshedId)).toHaveLength(1)

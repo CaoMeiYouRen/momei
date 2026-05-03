@@ -392,7 +392,7 @@ describe('friendLinkService.updateCategory', () => {
 
         await friendLinkService.updateCategory('cat-1', { slug: '' })
 
-        const saved = vi.mocked(categoryRepo.save).mock.calls[0]?.[0] as FriendLinkCategory | undefined
+        const saved = vi.mocked(categoryRepo.save).mock.calls[0]?.[0]
         expect(saved?.slug).toBe('my-category')
     })
 })

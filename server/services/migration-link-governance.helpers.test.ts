@@ -105,10 +105,10 @@ function createRuntimeContext(): GovernanceRuntimeContext {
             postByTranslationId: new Map(posts.filter((item) => item.translationId).map((item) => [item.translationId as string, item])),
             categoryById: new Map(categories.map((item) => [item.id, item])),
             categoryBySlug: new Map(categories.map((item) => [item.slug, item])),
-            categoryByTranslationId: new Map(categories.filter((item) => item.translationId).map((item) => [item.translationId as string, item])),
+            categoryByTranslationId: new Map(categories.filter((item) => item.translationId).map((item) => [item.translationId, item])),
             tagById: new Map(tags.map((item) => [item.id, item])),
             tagBySlug: new Map(tags.map((item) => [item.slug, item])),
-            tagByTranslationId: new Map(tags.filter((item) => item.translationId).map((item) => [item.translationId as string, item])),
+            tagByTranslationId: new Map(tags.filter((item) => item.translationId).map((item) => [item.translationId, item])),
         },
         defaultSeeds: [{
             source: '/legacy/posts/:slug',

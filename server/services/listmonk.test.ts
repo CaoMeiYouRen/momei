@@ -51,8 +51,8 @@ describe('listmonk service', () => {
 
     it('should create and start a remote campaign on first dispatch', async () => {
         fetchMock
-            .mockResolvedValueOnce({ data: { id: 42 } } as never)
-            .mockResolvedValueOnce({ success: true } as never)
+            .mockResolvedValueOnce({ data: { id: 42 } })
+            .mockResolvedValueOnce({ success: true })
 
         const result = await dispatchListmonkCampaign({
             id: 'campaign-1',
@@ -85,8 +85,8 @@ describe('listmonk service', () => {
 
     it('should update the existing remote campaign on repeated dispatch', async () => {
         fetchMock
-            .mockResolvedValueOnce({ success: true } as never)
-            .mockResolvedValueOnce({ success: true } as never)
+            .mockResolvedValueOnce({ success: true })
+            .mockResolvedValueOnce({ success: true })
 
         const result = await dispatchListmonkCampaign({
             id: 'campaign-2',
@@ -145,7 +145,7 @@ describe('listmonk service', () => {
 
     it('should surface remote id when listmonk fails after campaign creation', async () => {
         fetchMock
-            .mockResolvedValueOnce({ data: { id: 99 } } as never)
+            .mockResolvedValueOnce({ data: { id: 99 } })
             .mockRejectedValueOnce(new Error('remote status update failed'))
 
         const execution = dispatchListmonkCampaign({

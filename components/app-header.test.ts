@@ -132,7 +132,7 @@ const MenuStub = defineComponent({
             },
         })
 
-        return () => h('div', { class: 'menu-stub', ...attrs }, collectLabels(props.model as unknown[]).join(' | '))
+        return () => h('div', { class: 'menu-stub', ...attrs }, collectLabels(props.model).join(' | '))
     },
 })
 

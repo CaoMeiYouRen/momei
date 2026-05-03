@@ -116,7 +116,7 @@ describe('post-publish service', () => {
             const mockCampaign = { id: 'campaign-1' }
             vi.mocked(createCampaignFromPost).mockResolvedValue(mockCampaign as any)
 
-            await executePublishEffects(postWithoutAuthor as any, intent)
+            await executePublishEffects(postWithoutAuthor, intent)
 
             expect(createCampaignFromPost).toHaveBeenCalledWith(
                 'post-1',

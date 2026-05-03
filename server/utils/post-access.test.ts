@@ -123,7 +123,7 @@ describe('post-access utils', () => {
 
         it('应该在订阅用户公共列表中放行作者、注册态和订阅态文章', async () => {
             const qb = createQueryBuilderMock()
-            mockRepo.findOne.mockResolvedValue({ userId: 'user-1', isActive: true } as Subscriber)
+            mockRepo.findOne.mockResolvedValue({ userId: 'user-1', isActive: true })
 
             await applyPostVisibilityFilter(qb as any, { id: 'user-1', role: UserRole.USER }, 'public')
 
@@ -283,7 +283,7 @@ describe('post-access utils', () => {
             vi.mocked(mockRepo.findOne).mockResolvedValue({
                 userId: 'user-1',
                 isActive: true,
-            } as Subscriber)
+            })
 
             const result = await checkPostAccess(subscriberPost, userSession)
 

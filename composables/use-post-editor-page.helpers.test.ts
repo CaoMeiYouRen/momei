@@ -306,7 +306,7 @@ describe('preloadSourcePost', () => {
                     autoTranslate: 'false',
                 },
                 params: {},
-            } as never,
+            },
             resolveTranslatedTagBindings: vi.fn().mockResolvedValue([{ name: 'translated-tag' }]),
         })
 
@@ -350,7 +350,7 @@ describe('preloadSourcePost', () => {
                     translationScopes: ['title'],
                 },
                 params: {},
-            } as never,
+            },
         })
 
         fetchMock.mockResolvedValueOnce({
@@ -396,7 +396,7 @@ describe('preloadSourcePost', () => {
                     translationScopes: 'title,content',
                 },
                 params: {},
-            } as never,
+            },
         })
 
         await preloadSourcePost({
@@ -430,7 +430,7 @@ describe('preloadSourcePost', () => {
                     autoTranslate: 'true',
                 },
                 params: {},
-            } as never,
+            },
         })
 
         fetchMock.mockRejectedValueOnce(new Error('source fetch failed'))
@@ -456,7 +456,7 @@ describe('loadExistingPostDetail', () => {
                 params: {
                     id: 'post-1',
                 },
-            } as never,
+            },
             hasRecoverableDraft: vi.fn().mockReturnValue(true),
         })
 
@@ -524,7 +524,7 @@ describe('loadExistingPostDetail', () => {
                 params: {
                     id: 'post-2',
                 },
-            } as never,
+            },
             hasRecoverableDraft: vi.fn().mockReturnValue(true),
         })
 
@@ -553,7 +553,7 @@ describe('loadExistingPostDetail', () => {
                 params: {
                     id: 'post-1',
                 },
-            } as never,
+            },
         })
 
         fetchMock

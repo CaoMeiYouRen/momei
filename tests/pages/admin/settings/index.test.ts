@@ -50,7 +50,7 @@ const mockNavigateTo = vi.fn()
 
 const mockRoute = reactive({
     path: '/admin/settings',
-    query: {} as Record<string, unknown>,
+    query: {},
 })
 
 const mockSettingsResponse = {
@@ -215,13 +215,13 @@ describe('Admin Settings Page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         mockRoute.query = {}
-        mockFetch.mockImplementation(((url: string, options?: { method?: string, body?: unknown }) => {
+        mockFetch.mockImplementation((url: string, options?: { method?: string, body?: unknown }) => {
             if (url === '/api/admin/settings' && options?.method === 'PUT') {
                 return Promise.resolve({ data: null })
             }
 
             return Promise.resolve(mockSettingsResponse)
-        }) as any)
+        })
     })
 
     it('renders smart mode summary and saves wrapped payload', async () => {

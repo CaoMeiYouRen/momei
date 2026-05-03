@@ -33,13 +33,13 @@ const sessionState = ref<{ data: { user?: { language?: string } } | null, isPend
 const routeState = reactive({
     path: '/',
     fullPath: '/',
-    query: {} as Record<string, unknown>,
-    params: {} as Record<string, unknown>,
+    query: {},
+    params: {},
     matched: [] as unknown[],
     meta: {},
     hash: '',
     name: 'index___zh-CN___default',
-    redirectedFrom: undefined as unknown,
+    redirectedFrom: undefined,
 })
 
 const routerState = {

@@ -61,7 +61,7 @@ describe('email template service locale integration', () => {
             buttonText: 'LEGACY BUTTON',
             reminderContent: 'LEGACY REMINDER',
             securityTip: 'LEGACY SECURITY',
-        } as never)
+        })
 
         const template = await resolveEmailTemplateRuntimeContent({
             templateId: 'verification',
@@ -85,7 +85,7 @@ describe('email template service locale integration', () => {
             author: 'LEGACY AUTHOR',
             category: 'LEGACY CATEGORY',
             publishedAt: 'LEGACY DATE',
-        } as never)
+        })
 
         const template = await resolveEmailTemplateRuntimeContent({
             templateId: 'marketingCampaign',

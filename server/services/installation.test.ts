@@ -116,7 +116,7 @@ describe('Installation Service', () => {
                 MOMEI_INSTALLED: 'true',
                 WEB_PUSH_VAPID_PRIVATE_KEY: 'private-key',
                 WEB_PUSH_VAPID_PUBLIC_KEY: 'public-key',
-            } as NodeJS.ProcessEnv
+            }
 
             const status = await getInstallationStatus()
 
@@ -333,7 +333,7 @@ describe('Installation Service', () => {
             process.env = {
                 WEB_PUSH_VAPID_PRIVATE_KEY: 'private-key',
                 WEB_PUSH_VAPID_PUBLIC_KEY: 'public-key',
-            } as NodeJS.ProcessEnv
+            }
 
             const mockSave = vi.fn()
             const mockCreate = vi.fn((item) => item)

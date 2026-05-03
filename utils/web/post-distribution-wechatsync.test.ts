@@ -161,7 +161,7 @@ describe('post-distribution-wechatsync', () => {
             thumb: '',
         }
 
-        ;(materialBundle as DistributionMaterialBundle).channels = {
+        ;(materialBundle).channels = {
             memos: { content: '' },
             wechatsync: {
                 basePost: rawPost,
@@ -230,7 +230,7 @@ describe('post-distribution-wechatsync', () => {
             thumb: '',
         }
 
-        ;(materialBundle as DistributionMaterialBundle).channels = {
+        ;(materialBundle).channels = {
             memos: { content: '' },
             wechatsync: {
                 basePost: {

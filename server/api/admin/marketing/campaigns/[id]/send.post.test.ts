@@ -17,7 +17,7 @@ describe('POST /api/admin/marketing/campaigns/[id]/send', () => {
         vi.mocked(requireAdmin).mockResolvedValue({
             user: { id: 'admin-1', role: 'admin' } as any,
             session: {} as any,
-        } as any)
+        })
     })
 
     it('should start sending campaign successfully', async () => {

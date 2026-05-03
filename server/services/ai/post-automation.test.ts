@@ -210,7 +210,7 @@ describe('PostAutomationService', () => {
             result: null,
         }
 
-        taskRepo.findOneBy.mockResolvedValue(task as never)
+        taskRepo.findOneBy.mockResolvedValue(task)
         taskRepo.save.mockImplementation((value) => {
             if (typeof value?.progress === 'number') {
                 savedProgresses.push(value.progress)
@@ -285,7 +285,7 @@ describe('PostAutomationService', () => {
             result: null,
         }
 
-        taskRepo.findOneBy.mockResolvedValue(task as never)
+        taskRepo.findOneBy.mockResolvedValue(task)
         postRepo.findOne.mockImplementation((options: { where?: Record<string, string> }) => {
             if (options.where?.id === 'post-1') {
                 return {

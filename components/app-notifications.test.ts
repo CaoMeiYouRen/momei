@@ -16,7 +16,7 @@ const {
 } = vi.hoisted(() => ({
     notificationsRef: { __v_isRef: true, value: [] as Record<string, any>[] },
     unreadCountRef: { __v_isRef: true, value: 0 },
-    browserPermissionRef: { __v_isRef: true, value: 'unsupported' as 'unsupported' | NotificationPermission },
+    browserPermissionRef: { __v_isRef: true, value: 'unsupported' },
     browserPushReadyRef: { __v_isRef: true, value: false },
     markAsReadMock: vi.fn(),
     enableBrowserPushMock: vi.fn(),
