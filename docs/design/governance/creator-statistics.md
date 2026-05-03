@@ -48,7 +48,7 @@
 
 - 时间窗口：`7d` / `30d` / `90d`（与现有内容洞察 `range` 参数一致）
 - 默认窗口：`30d`
-- 发文趋势聚合粒度：`range = 7d` 或 `30d` 时按**周**聚合，`range = 90d` 时按**月**聚合（响应中通过 `aggregationGranularity` 字段显式声明）
+- 发文趋势聚合粒度：`range = 7d` 时按**天**聚合（`DATE`），`range = 30d` 时按**周**聚合（`DATE_TRUNC('week')`），`range = 90d` 时按**月**聚合（`DATE_TRUNC('month')`），响应中通过 `aggregationGranularity: 'day' | 'week' | 'month'` 字段显式声明
 - 分发成功率始终按**周**聚合（分发事件密度低，按月聚合易出现大量零桶）
 - 时间戳字段 `periodStart` 为 ISO 日期字符串（周：周一，月：月初）
 

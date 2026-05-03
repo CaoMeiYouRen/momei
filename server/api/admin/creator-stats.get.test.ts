@@ -27,7 +27,7 @@ vi.mock('@/server/utils/creator-stats', async (importOriginal) => {
     }
 })
 
-type QueryBuilderMock = {
+interface QueryBuilderMock {
     select: ReturnType<typeof vi.fn>
     addSelect: ReturnType<typeof vi.fn>
     where: ReturnType<typeof vi.fn>

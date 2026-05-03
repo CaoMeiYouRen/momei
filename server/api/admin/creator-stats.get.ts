@@ -24,7 +24,12 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const resolvedTimeZone = query.timezone
     const range = query.range
-    const aggregationGranularity: 'day' | 'week' | 'month' = range === 7 ? 'day' : range === 30 ? 'week' : 'month'
+    const GRANULARITY_MAP = {
+        '7': 'day' as const,
+        '30': 'week' as const,
+        '90': 'month' as const,
+    }
+    const aggregationGranularity = GRANULARITY_MAP[range]
 
     // 确定 authorId 过滤：author 角色固定为本人，忽略传入参数；admin 可选择过滤
     const effectiveAuthorId = isAdmin(session.user.role) ? query.authorId : session.user.id
@@ -60,11 +65,12 @@ export default defineEventHandler(async (event) => {
     const draftCount = Number(draftResult?.count ?? 0)
 
     // ====== 3. 发文趋势 ======
-    const truncFn = aggregationGranularity === 'day'
-        ? 'DATE(post.publishedAt)'
-        : aggregationGranularity === 'week'
-            ? 'DATE_TRUNC(\'week\', post.publishedAt)'
-            : 'DATE_TRUNC(\'month\', post.publishedAt)'
+    const TRUNC_FN_MAP = {
+        day: 'DATE(post.publishedAt)',
+        week: 'DATE_TRUNC(\'week\', post.publishedAt)',
+        month: 'DATE_TRUNC(\'month\', post.publishedAt)',
+    } as const
+    const truncFn = TRUNC_FN_MAP[aggregationGranularity]
 
     const trendQuery = postRepo
         .createQueryBuilder('post')
@@ -148,19 +154,27 @@ export default defineEventHandler(async (event) => {
 
         if (wcs?.lastSuccessAt) {
             const d = new Date(wcs.lastSuccessAt)
-            if (d >= distWindowStart) { addToBucket(d, 'wechatsyncSuccess') }
+            if (d >= distWindowStart) {
+                addToBucket(d, 'wechatsyncSuccess')
+            }
         }
         if (wcs?.lastFailureAt) {
             const d = new Date(wcs.lastFailureAt)
-            if (d >= distWindowStart) { addToBucket(d, 'wechatsyncFail') }
+            if (d >= distWindowStart) {
+                addToBucket(d, 'wechatsyncFail')
+            }
         }
         if (hexo?.lastSyncedAt) {
             const d = new Date(hexo.lastSyncedAt)
-            if (d >= distWindowStart) { addToBucket(d, 'hexoSuccess') }
+            if (d >= distWindowStart) {
+                addToBucket(d, 'hexoSuccess')
+            }
         }
         if (hexo?.lastFailureAt) {
             const d = new Date(hexo.lastFailureAt)
-            if (d >= distWindowStart) { addToBucket(d, 'hexoFail') }
+            if (d >= distWindowStart) {
+                addToBucket(d, 'hexoFail')
+            }
         }
     }
 
