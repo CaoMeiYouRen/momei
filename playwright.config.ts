@@ -21,6 +21,17 @@ if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
     resolvedWorkers = undefined
 }
 
+/** Chromium-specific browser launch flags for CI performance */
+const chromiumLaunchArgs = [
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-extensions',
+    '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding',
+    '--no-sandbox',
+]
+
 const e2eServerEnv = [
     'DEMO_MODE=true',
     'NUXT_PUBLIC_DEMO_MODE=true',
@@ -57,6 +68,8 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 1,
+    /* Global test timeout — raised for CI where the built server handles multiple concurrent browsers */
+    timeout: process.env.CI ? 90000 : 30000,
     /* Keep CI parallelism bounded instead of fully serializing the whole browser matrix. */
     workers: resolvedWorkers,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -74,18 +87,6 @@ export default defineConfig({
         screenshot: 'only-on-failure',
         /* Only record video on failure to reduce IO */
         video: 'retain-on-failure',
-        /* Browser launch optimizations for CI speed */
-        launchOptions: {
-            args: [
-                '--disable-gpu',
-                '--disable-dev-shm-usage',
-                '--disable-extensions',
-                '--disable-background-timer-throttling',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--no-sandbox',
-            ],
-        },
     },
 
     /* Configure projects for major browsers */
@@ -93,7 +94,11 @@ export default defineConfig({
         {
             name: 'chromium',
             testIgnore: mobileCriticalSpecPattern,
-            use: { ...devices['Desktop Chrome'] },
+            use: {
+                ...devices['Desktop Chrome'],
+                /** Chromium-specific launch args (must NOT be applied to WebKit/Firefox) */
+                launchOptions: { args: chromiumLaunchArgs },
+            },
         },
 
         {
@@ -111,7 +116,11 @@ export default defineConfig({
         {
             name: 'mobile-chrome-critical',
             testMatch: mobileCriticalSpecPattern,
-            use: { ...devices['Pixel 5'] },
+            use: {
+                ...devices['Pixel 5'],
+                /** Chromium-specific launch args (must NOT be applied to WebKit/Firefox) */
+                launchOptions: { args: chromiumLaunchArgs },
+            },
         },
         {
             name: 'mobile-safari-critical',
