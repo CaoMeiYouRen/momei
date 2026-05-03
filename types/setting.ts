@@ -60,6 +60,7 @@ export enum SettingKey {
     TTS_API_KEY = 'tts_api_key',
     TTS_MODEL = 'tts_model',
     TTS_ENDPOINT = 'tts_endpoint',
+    TTS_CREDENTIAL_TTL_SECONDS = 'tts_credential_ttl_seconds',
 
     // Email
     EMAIL_HOST = 'email_host',

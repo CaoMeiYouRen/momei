@@ -346,6 +346,10 @@ export const TTS_API_KEY = process.env.TTS_API_KEY || AI_API_KEY
 export const TTS_ENDPOINT = process.env.TTS_ENDPOINT || AI_API_ENDPOINT
 export const TTS_DEFAULT_MODEL = process.env.TTS_DEFAULT_MODEL || 'tts-1'
 export const TTS_DEFAULT_VOICE = process.env.TTS_DEFAULT_VOICE || 'alloy'
+/** TTS 前端直连模式：serverless 环境自动降级，也可通过环境变量显式指定 */
+export const TTS_FRONTEND_DIRECT = process.env.TTS_FRONTEND_DIRECT === 'true'
+/** TTS 前端直连凭证有效时长（秒），默认 10 分钟 */
+export const TTS_CREDENTIAL_TTL_SECONDS = process.env.TTS_CREDENTIAL_TTL_SECONDS || '600'
 
 /**
  * ASR 配置

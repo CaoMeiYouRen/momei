@@ -24,10 +24,15 @@
 
 ### 第三十四阶段：TTS 前端化评估与长期治理补欠
 
-- [ ] **前端直出 TTS + 直传 OSS 评估与原型 (P1)**
-	- 前置: 进入原型前，在 `docs/design/governance/` 下完成 Provider CORS 评估 + API Key 安全方案。
-	- 范围: 评估文档 + 最小原型（前端调 API → 拼接音频 → 直传 OSS → 写元数据）。
-	- 非目标: 不进入完整实现，不动服务端 `TTSService`。
+- [x] **前端直出 TTS + 直传 OSS 评估与原型 (P1)** ✅ 原型设计完成
+	- 评估文档: `docs/design/governance/tts-frontend-direct-evaluation.md`（CORS 评估 + API Key 安全方案 + 架构设计）
+	- 火山 JWT 凭证: `server/utils/ai/tts-credentials.ts` + `server/api/ai/tts/credentials.post.ts`
+	- 前端直连: `composables/use-tts-volcengine-direct.ts`（JWT 鉴权 → 直调火山 API → 直传 OSS → 回写元数据）
+	- 元数据回写: `server/api/posts/[id]/tts-metadata.patch.ts`
+	- 自动降级: `server/api/ai/tts/task.post.ts`（serverless 环境 volcengine 自动走前端直连）
+	- 原型组件: `components/admin/posts/post-tts-prototype.vue`（仅火山引擎直连模式）
+	- 环境变量: `TTS_FRONTEND_DIRECT`（显式启用）/ `TTS_CREDENTIAL_TTL_SECONDS`（凭证有效期）
+	- 非目标: 不重写 `TTSService.processTask()`，不动 `media-task-monitor`，仅支持火山引擎
 
 - [ ] **测试覆盖率冲刺 80%+ (P0)**
 	- 范围: Lines 75.8% 继续提升，优先 Phase 33 新增组件 + 认证流边角分支 + 热点读链路失败路径。
