@@ -220,100 +220,15 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/voice-popover" as *;
+
 .voice-popover {
-    &__card {
-        width: 350px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid var(--p-surface-border);
-    }
-
-    &__title {
-        font-weight: 600;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    &__icon {
-        color: var(--p-primary-color);
-        font-size: 1rem;
-
-        &--listening {
-            animation: pulse-mic 1.5s infinite;
-            color: var(--p-red-500);
-        }
-    }
-
-    &__content {
-        min-height: 80px;
-        max-height: 200px;
-        overflow-y: auto;
-        padding: 0.75rem;
-        background: var(--p-surface-50);
-        border-radius: var(--p-border-radius-md);
-        border: 1px inset var(--p-surface-border);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    &__loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        padding: 0.5rem;
-    }
-
-    &__transcript {
-        line-height: 1.5;
-        font-size: 0.875rem;
-        word-break: break-all;
-    }
-
-    &__final {
-        color: var(--p-text-color);
-    }
-
-    &__interim {
-        color: var(--p-text-muted-color);
-        font-style: italic;
-    }
-
     &__placeholder {
-        color: var(--p-text-muted-color);
-        display: flex;
-        justify-content: center;
-        padding: 1rem;
         text-align: center;
     }
 
     &__error {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--p-red-500);
-        padding: 0.5rem;
-        font-size: 0.875rem;
         text-align: center;
-    }
-
-    &__footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        padding-top: 0.25rem;
     }
 
     &__result-actions {
@@ -342,29 +257,6 @@ defineExpose({
 
     &__action-btn {
         width: 100%;
-    }
-}
-
-@keyframes pulse-mic {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.15);
-        opacity: 0.7;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-:global(.dark) {
-    .voice-popover__content {
-        background: var(--p-surface-900);
     }
 }
 </style>

@@ -58,12 +58,14 @@
     - 第三十阶段已正式上收下一轮复用治理切片，当前优先聚焦公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界，并要求每组切片先写清拟抽象边界、收益与回滚方式。
     - 第三十二阶段已完成当前组合切片：`privacy-policy` / `user-agreement` 的公共 legal 页面模板与取数逻辑已收敛到共享组件 / composable，`categories` / `tags` 公开列表端点的 cache key、通用过滤与排序逻辑已收敛到 `server/utils/taxonomy-public-list.ts`；当前 `pnpm duplicate-code:check` 基线为 `32 clones / 697 duplicated lines / 0.59%`，较此前 `34 clones / 879 duplicated lines / 0.79%` 继续下降。
     - 本轮收口后，剩余高优先级热点继续聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、公开认证相关页模板（如 `forgot-password` / `reset-password`），以及首页 / 公开列表读模型装配边界；长期主线继续保留，但当前阶段这条正式待办已可关闭。
-    - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。
+    - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
+    - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
-    - 第三十三阶段（已正式上收认证页模板收敛切片）。
+    - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
 - **下一次可切片方向**:
-    - 若下一轮正式上收，优先围绕 `categories/[slug]` vs `tags/[slug]` 的公共页模板片段、公开认证页模板，以及首页 / 公开列表读模型装配边界继续做窄切片，并继续要求同步评估共享抽象是否会引入过度泛化。
+    - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）、`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts`（33 lines）。
+    - 文件内自重复：`server/utils/email/service.ts`（27+27）、`components/commercial-link-manager.vue`（42+15）。
 
 4. **周期性回归与阶段收口执行治理**
 - **目标**:

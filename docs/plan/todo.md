@@ -36,9 +36,13 @@
 	- 闭合记录（2026-05-03）: `composables/` 生产源码 `no-non-null-assertion` 命中 0（已在 Phase 31 清零），46 个命中全在测试文件。按回退策略切换为 `no-explicit-any` 单文件切片，收敛 `use-ad-injection.ts` 中 3 处 `Record<string, any>` → `Record<string, unknown>`。
 	- 验证: `pnpm exec eslint composables/use-ad-injection.ts --rule '{"@typescript-eslint/no-explicit-any":"error"}' --max-warnings 0`、`pnpm exec nuxt typecheck`。
 
-- [ ] **重复代码 — 公开认证页模板收敛 (P1)**
-	- 范围: `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑下沉。
-	- 基线: `pnpm duplicate-code:check` 不反弹（当前 `32 clones / 0.59%`）。
+- [x] ~~**重复代码 — 公开认证页模板收敛 + 追加切片 (P1)**~~ → 已完成（三轮收敛）
+	- 闭合记录（2026-05-03）:
+		- **首轮（auth-card）**: 提取 `components/auth-card.vue` 共享认证壳组件，消除 `forgot-password.vue` 与 `reset-password.vue` 的重复 CSS + 模板头部（-16 dup lines）。
+		- **次轮（taxonomy-page）**: 提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug].vue` 与 `tags/[slug].vue` 的模板/脚本/CSS（-1 clone, -47 dup lines）。
+		- **三轮（voice-overlay）**: 提取 `styles/voice-popover.scss` 共享 CSS，收敛 `app-voice-input-overlay.vue` 与 `post-editor-voice-overlay.vue`（-1 clone, -59 dup lines）。
+		- **累计**: `33 clones / 681 lines / 0.57%` → `31 clones / 575 lines / 0.48%`（-2 clones, -106 dup lines, ↓0.09%）。
+	- 验证: 每轮 `pnpm duplicate-code:check` Pass，`pnpm exec eslint` `--max-warnings 0`，`pnpm exec nuxt typecheck`。
 
 - [ ] **存量代码注释治理 — 候选组 B (P1)**
 	- 范围: `server/services/upload.ts` + `server/utils/post-access.ts` 两条安全敏感链路。

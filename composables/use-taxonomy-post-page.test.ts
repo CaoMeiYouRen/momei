@@ -38,7 +38,7 @@ const {
     routerPushMock: vi.fn(),
     setI18nParamsMock: vi.fn(),
     useAppFetchMock: vi.fn(),
-    postsDataRef: { value: null },
+    postsDataRef: { value: null as any },
     pendingRef: { value: false },
     errorRef: { value: null },
 }))

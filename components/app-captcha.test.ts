@@ -251,7 +251,8 @@ describe('AppCaptcha', () => {
             remove: vi.fn(),
         }
 
-        appendedScript?.onload?.(new Event('load'))
+        const script = appendedScript as HTMLScriptElement | null
+        script?.onload?.(new Event('load'))
         await nextTick()
         expect(turnstileRenderMock).toHaveBeenCalledTimes(1)
 
