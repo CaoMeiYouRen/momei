@@ -44,9 +44,11 @@
 		- **累计**: `33 clones / 681 lines / 0.57%` → `31 clones / 575 lines / 0.48%`（-2 clones, -106 dup lines, ↓0.09%）。
 	- 验证: 每轮 `pnpm duplicate-code:check` Pass，`pnpm exec eslint` `--max-warnings 0`，`pnpm exec nuxt typecheck`。
 
-- [ ] **存量代码注释治理 — 候选组 B (P1)**
-	- 范围: `server/services/upload.ts` + `server/utils/post-access.ts` 两条安全敏感链路。
-	- 同步清理失效旧注释，完成 Review Gate 复核。
+- [x] ~~**存量代码注释治理 — 候选组 B (P1)**~~ → 已完成
+	- 闭合记录（2026-05-03）:
+		- `server/services/upload.ts`: 新增 11 处 JSDoc（`UploadSettings` / `UploadStorageContext` 设计意图、`normalizePrefix` / `getSettingValue` / `getNumericLimit` / `getAssetObjectPrefix` / `resolveUploadPublicBaseUrl` 优先级链、`normalizeStorageType` vercel-blob 映射原因、`sanitizeUploadBasename` 安全意图、`buildUploadStoredFilename` 格式契约、`isAllowedUploadFileType` 匹配规则矩阵、`validateUploadPayload` / `buildUploadObjectKey` / `getUploadStorageContext` env 分层模式）；移除 1 处被 JSDoc 吸收的冗余行内注释。
+		- `server/utils/post-access.ts`: 新增 `rethrowPostAccessError` JSDoc（错误转换链）；补充 `applyPostVisibilityFilter` 中 `any` 类型说明（Better-Auth 外部契约）；移除 1 处从行内提升到 JSDoc 的重复注释。
+	- 验证: `pnpm exec eslint` `--max-warnings 0`、`pnpm exec nuxt typecheck`、`server/utils/post-access.test.ts` 全部通过。
 
 ## 相关文档
 

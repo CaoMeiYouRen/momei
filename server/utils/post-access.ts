@@ -9,10 +9,17 @@ const SUBSCRIBER_LOOKUP_ERROR_MESSAGE = 'Failed to resolve subscriber status'
 export const POST_ACCESS_STATE_ERROR_MESSAGE = 'Failed to resolve content access state'
 
 /**
- * 为查询构建器应用文章可见性过滤逻辑
+ * 为查询构建器应用文章可见性过滤逻辑。
+ *
+ * 该函数用于“列表可见性”过滤，不是“详情页是否可读全文”；
+ * 详情页由 checkPostAccess 再执行一次更细粒度门禁。
+ *
+ * 注意：user / session 参数使用 any 类型，因为 Better-Auth 的
+ * session.user 结构由外部 Auth 库定义，本模块不控制其类型定义。
+ *
  * @param qb SelectQueryBuilder
- * @param user 当前用户（可选）
- * @param mode 模式：'public' (常规列表) | 'feed' (订阅源) | 'manage' (管理后台)
+ * @param user 当前 Better-Auth 会话用户（可选），类型由外部 Auth 库定义
+ * @param mode 'public'（常规列表）| 'feed'（订阅源）| 'manage'（管理后台）
  */
 export async function applyPostVisibilityFilter(
     qb: SelectQueryBuilder<Post>,
@@ -37,8 +44,6 @@ export async function applyPostVisibilityFilter(
     }
 
     // 3. 处理公共列表模式 (Public Mode)
-    // 该函数用于“列表可见性”过滤，而不是“详情页是否可读全文”；
-    // 详情页由 checkPostAccess 再执行一次更细粒度门禁。
     qb.andWhere('post.status = :status', { status: PostStatus.PUBLISHED })
 
     // 管理员在公共模式下也能看到所有已发布的文章
@@ -224,6 +229,13 @@ async function isUserSubscriber(userId: string): Promise<boolean> {
     }
 }
 
+/**
+ * 将订阅者状态查询失败统一映射为 503 错误。
+ *
+ * 订阅者查询失败（数据库故障等）不应泄露给 API 调用方，
+ * 由本函数统一转换为 POST_ACCESS_STATE_UNAVAILABLE 标志的 503 响应。
+ * 非订阅相关错误原样抛出。
+ */
 export function rethrowPostAccessError(error: unknown): never {
     if (error instanceof Error && error.message === SUBSCRIBER_LOOKUP_ERROR_MESSAGE) {
         throw createError({

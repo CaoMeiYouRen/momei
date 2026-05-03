@@ -37,13 +37,23 @@ export interface UploadOptions {
 }
 
 export interface UploadedFile {
+    /** 原始文件名 */
     filename: string
+    /** 存储后的公开访问 URL */
     url: string
+    /** MIME 类型 */
     mimetype: string | undefined
 }
 
 export type UploadSettings = Partial<Record<SettingKey, string | null | undefined>>
 
+/**
+ * 上传存储运行时上下文
+ *
+ * 在设计上同时保留 rawStorageType（原始设置字符串，用于分支判断）
+ * 和 normalizedStorageType（归一化后的驱动键，用于 getFileStorage 查找），
+ * 避免调用方需要重复做归一化与分支判断。
+ */
 export interface UploadStorageContext {
     rawStorageType: string
     normalizedStorageType: string
@@ -54,6 +64,13 @@ export interface UploadStorageContext {
     settings: UploadSettings
 }
 
+/**
+ * 批量加载上传相关的全部设置键。
+ *
+ * 这里的键集合覆盖 local / s3 / r2 / vercel_blob 四种存储驱动，以及
+ * 全局资产域名、对象前缀、上传尺寸与文件类型限制等跨驱动通用配置。
+ * 一次性批量 getSettings 可减少数据库往返次数。
+ */
 const COMMON_UPLOAD_SETTING_KEYS = [
     SettingKey.STORAGE_TYPE,
     SettingKey.LOCAL_STORAGE_DIR,
@@ -79,6 +96,10 @@ const COMMON_UPLOAD_SETTING_KEYS = [
     SettingKey.ALLOWED_FILE_TYPES,
 ] as const
 
+/**
+ * 统一化路径前缀：去除反斜杠、首部斜杠，确保以 '/' 结尾。
+ * 输入为空时返回空字符串，便于上层拼接时不产生多余斜杠。
+ */
 function normalizePrefix(prefix?: string) {
     if (!prefix) {
         return ''
@@ -92,15 +113,25 @@ function normalizePrefix(prefix?: string) {
     return normalized.endsWith('/') ? normalized : `${normalized}/`
 }
 
+/**
+ * 从 UploadSettings 中安全提取字符串值。
+ */
 function getSettingValue(settings: UploadSettings, key: SettingKey, fallback = '') {
     return String(settings[key] || fallback)
 }
 
+/**
+ * 从 UploadSettings 中提取数值限制，非有限值时退回 fallback。
+ */
 function getNumericLimit(settings: UploadSettings, key: SettingKey, fallback: number) {
     const value = Number(settings[key])
     return Number.isFinite(value) ? value : fallback
 }
 
+/**
+ * 获取存储桶对象前缀。
+ * 优先级：ASSET_OBJECT_PREFIX > S3_BUCKET_PREFIX（后者为历史兼容）。
+ */
 function getAssetObjectPrefix(settings: UploadSettings) {
     return normalizePrefix(
         getSettingValue(settings, SettingKey.ASSET_OBJECT_PREFIX)
@@ -108,8 +139,16 @@ function getAssetObjectPrefix(settings: UploadSettings) {
     )
 }
 
+/**
+ * 解析上传资产公开访问域名。
+ *
+ * 优先级链：
+ *   1. ASSET_PUBLIC_BASE_URL（全局资产域名，最高优先级，允许统一切换 CDN）
+ *   2. 驱动专属域名（R2_BASE_URL / S3_BASE_URL / LOCAL_STORAGE_BASE_URL）
+ *   3. Vercel Blob：复用 ASSET_PUBLIC_BASE_URL
+ *   4. 兜底：env.S3_BASE_URL
+ */
 export function resolveUploadPublicBaseUrl(settings: UploadSettings, rawStorageType: string, env: FileStorageEnv) {
-    // 全局资产域名优先级最高：允许在不改动 driver 的情况下统一切换外链域名/CDN。
     const globalBaseUrl = getSettingValue(settings, SettingKey.ASSET_PUBLIC_BASE_URL)
     if (globalBaseUrl) {
         return globalBaseUrl
@@ -182,6 +221,12 @@ function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string):
     }
 }
 
+/**
+ * 将原始 storageType 归一化为驱动键。
+ *
+ * 特殊处理：vercel-blob → vercel_blob（Vercel 配置习惯用连字符，
+ * 但内部驱动键统一用下划线，避免 URL 元字符问题）。
+ */
 export function normalizeStorageType(storageType?: string | null) {
     const rawStorageType = (storageType || 'local').trim()
 
@@ -228,6 +273,13 @@ export function buildPostUploadPrefix(options: {
         : `posts/${options.postId}/${typeDirectory}/`
 }
 
+/**
+ * 安全清洗上传文件名。
+ *
+ * 处理路径分隔符（防目录穿越）、多余空格和非法字符，
+ * 最终只保留 Unicode 字母数字、下划线和连字符。
+ * 空结果或不可清洗输入返回空字符串，由调用方决定是否回退到时间戳命名。
+ */
 function sanitizeUploadBasename(basename?: string) {
     if (!basename) {
         return ''
@@ -247,6 +299,10 @@ function sanitizeUploadBasename(basename?: string) {
         .replace(/^-+|-+$/g, '')
 }
 
+/**
+ * 构建存储文件名（格式：{basename-}timestamp-random.extension）。
+ * basename 经过安全清洗，extension 自动补 '.' 前缀。
+ */
 export function buildUploadStoredFilename(options: {
     originalFilename?: string
     extension?: string
@@ -295,6 +351,15 @@ function inferUploadTypeFromContentType(contentType?: string) {
     return UploadType.FILE
 }
 
+/**
+ * 检查文件类型是否在允许列表中。
+ *
+ * 匹配规则（按优先级）：
+ *   1. '*' — 通配，允许所有
+ *   2. 'image/*' — MIME 大类通配，需目标有 contentType
+ *   3. 'image/png' — 精确 MIME 匹配
+ *   4. '.jpg' / 'jpg' — 扩展名匹配（自动补 '.' 前缀）
+ */
 function isAllowedUploadFileType(options: {
     allowedFileTypes: string[]
     contentType?: string
@@ -333,6 +398,10 @@ function isAllowedUploadFileType(options: {
     })
 }
 
+/**
+ * 校验上传载荷：文件大小、类型是否匹配、是否在允许类型白名单内。
+ * 任一项不通过直接抛 HTTP 错误。
+ */
 export function validateUploadPayload(input: {
     type: UploadType
     size: number
@@ -365,6 +434,11 @@ export function validateUploadPayload(input: {
     }
 }
 
+/**
+ * 构建对象存储路径：{bucketPrefix}{prefix}{secureFilename}
+ *
+ * 路径组件均经过 normalizePrefix 清洗，最终结果不含反斜杠或多余斜杠。
+ */
 export function buildUploadObjectKey(options: {
     prefix: string
     originalFilename: string
@@ -379,6 +453,13 @@ export function buildUploadObjectKey(options: {
     return `${bucketPrefix}${prefix}${filename}`
 }
 
+/**
+ * 获取上传存储运行时上下文。
+ *
+ * 一次性解析所有存储相关设置，构造驱动环境对象。
+ * baseEnv 承载跨存储通用配置（本地路径、Vercel Blob token），
+ * 再覆盖补齐 S3/R2 兼容配置，确保不管哪种驱动都能从 env 拿到所需字段。
+ */
 export async function getUploadStorageContext(): Promise<UploadStorageContext> {
     const settings = await getSettings([...COMMON_UPLOAD_SETTING_KEYS]) as UploadSettings
     const rawStorageType = getSettingValue(settings, SettingKey.STORAGE_TYPE, 'local')
