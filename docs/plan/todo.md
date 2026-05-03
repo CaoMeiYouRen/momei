@@ -18,25 +18,33 @@
 ## 当前待办
 > 开始进行待办时，在本区域填写正在进行的待办，结束后清理并更新对应条目状态。
 
-> 阶段状态: 第三十一阶段已完成审计归档；第三十二阶段 5/5 主线 + 1 派生切片已于 2026-05-01 / 2026-05-02 全部闭合并归档至 [todo-archive.md](./todo-archive.md)，阶段正式收口。下一阶段继续将测试覆盖率推进至 `80%+`。`存量代码注释治理与注释漂移收敛` 继续保留为备用项，留在 [backlog.md](./backlog.md)。
+> 阶段状态: 第三十一、第三十二阶段已完成审计归档。第三十三阶段正式上收，继续将测试覆盖率推进至 `80%+`（冲刺目标）。`存量代码注释治理与注释漂移收敛` 已正式上收为候选组 B 切片。
 
-> 当前进行中: 暂无。第三十二阶段已全部闭合，下一阶段候选待 [backlog.md](./backlog.md) 评分后正式上收。
+> 当前进行中: 第三十三阶段 —「1 个新功能 + 4 个优化」。新功能：创作者数据统计增强；优化：coverage `80%+` 冲刺、ESLint `composables` 子桶继续收紧、重复代码认证页模板收敛、注释治理候选组 B。
 
-### 第三十二阶段：多语言内容资产化承接入口与高风险治理推进
+### 第三十三阶段：创作者统计与质量冲刺
 
-- [x] ~~**多语言内容资产化增强包的统一承接入口 (P1)**~~ → 已归档
-- [x] **测试覆盖率与有效性治理 (P0)** → 阶段收口（下一阶段继续冲刺 80%+）
-		- **阶段收口记录（2026-05-02）**: 本阶段已完成公开页 runtime（categories / tags / archives / posts）、认证配置退化（auth-client / auth lib）、认证页 raw key 暴露（forgot-password / reset-password / register / login）三大高风险链路的真实文案装配断言补强。全仓覆盖率从 76.03% / 76.08% 抬升至当前基线，pages/login.vue 达 statements 100% / branches 84.44%。80%+ 冲刺目标顺延至下一阶段，优先沿其余认证流边角分支、共享组件 raw key 暴露与热点公开读链路失败路径继续补强。
-		- 验证: 多轮定向 Vitest、pnpm i18n:verify:runtime、pnpm test:coverage 与 pnpm exec nuxt typecheck 均通过。
+- [ ] **创作者数据统计增强 (P1)**
+	- 前置: 进入实现前，先在 `docs/design/governance/` 下冻结首版指标集合、权限口径与归因来源三项结论。
+	- 范围: 后台 `/admin` 增加「创作者统计」tab，提供发文趋势图 + 分发效果卡片（WechatSync / 远程仓库同步成功率）。新增 `GET /api/admin/creator-stats`（`?range=` + `?authorId=`）。
+	- 非目标: 不做全站 BI、不做来源归因、不做订阅漏斗、不新增加埋点。
+	- 验证: 定向测试覆盖空数据、时间范围切换、权限隔离；浏览器 UI 截图。
 
-- [x] ~~**重复代码与纯函数复用收敛 (P1)**~~ → 已归档
-- [x] ~~**ESLint / 类型债治理 (P1)**~~ → 已归档
-- [x] ~~**Postgres 查询、CPU 与连接生命周期平衡治理 (P0)**~~ → 已归档
-- [x] ~~**AITask stale compensation 宽行扫描收敛 (P0 / Postgres 派生切片)**~~ → 已归档
+- [ ] **测试覆盖率冲刺 80%+ (P0)**
+	- 范围: 从 `~76%+` 基线继续提升，优先认证流边角分支、raw key 暴露、热点公开读链路失败路径、新增 creator-stats API 的失败断言。
+	- 收口线: `>= 78%`（`80%+` 为冲刺目标）。
 
-> 备用项：`存量代码注释治理与注释漂移收敛` 当前不作为第三十二阶段正式待办；若后续容量允许，只能按 backlog 中候选组 A / B / C 的单组切片方式补入，不得扩写为全仓补注释工程。
+- [ ] **ESLint / 类型债 composables 子桶继续收紧 (P1)**
+	- 范围: 继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 的下一组命中点。
+	- 回退: 若命中点过少，回退为单文件 `no-explicit-any` 切片。
 
+- [ ] **重复代码 — 公开认证页模板收敛 (P1)**
+	- 范围: `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑下沉。
+	- 基线: `pnpm duplicate-code:check` 不反弹（当前 `32 clones / 0.59%`）。
 
+- [ ] **存量代码注释治理 — 候选组 B (P1)**
+	- 范围: `server/services/upload.ts` + `server/utils/post-access.ts` 两条安全敏感链路。
+	- 同步清理失效旧注释，完成 Review Gate 复核。
 
 ## 相关文档
 

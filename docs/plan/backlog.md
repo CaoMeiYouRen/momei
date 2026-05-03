@@ -24,7 +24,8 @@
     - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
-    - 第三十二阶段（执行中）。
+    - 第三十二阶段（当前切片已收口）。
+    - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先围绕 `76%+` 之后的高风险模块深挖，而不是回到低价值铺量测试。
 
@@ -39,8 +40,10 @@
     - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
     - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
     - 第三十二阶段已完成「单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明」四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
+    - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
+    - 第三十三阶段（已正式上收 composables 子桶继续收紧切片）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
@@ -55,8 +58,10 @@
     - 第三十阶段已正式上收下一轮复用治理切片，当前优先聚焦公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界，并要求每组切片先写清拟抽象边界、收益与回滚方式。
     - 第三十二阶段已完成当前组合切片：`privacy-policy` / `user-agreement` 的公共 legal 页面模板与取数逻辑已收敛到共享组件 / composable，`categories` / `tags` 公开列表端点的 cache key、通用过滤与排序逻辑已收敛到 `server/utils/taxonomy-public-list.ts`；当前 `pnpm duplicate-code:check` 基线为 `32 clones / 697 duplicated lines / 0.59%`，较此前 `34 clones / 879 duplicated lines / 0.79%` 继续下降。
     - 本轮收口后，剩余高优先级热点继续聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、公开认证相关页模板（如 `forgot-password` / `reset-password`），以及首页 / 公开列表读模型装配边界；长期主线继续保留，但当前阶段这条正式待办已可关闭。
+    - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
+    - 第三十三阶段（已正式上收认证页模板收敛切片）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先围绕 `categories/[slug]` vs `tags/[slug]` 的公共页模板片段、公开认证页模板，以及首页 / 公开列表读模型装配边界继续做窄切片，并继续要求同步评估共享抽象是否会引入过度泛化。
 
@@ -85,8 +90,10 @@
     - 现阶段更适合优先覆盖设置读取 / 来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制、AI 配额 / 文本服务，以及数据库查询收敛逻辑等高复杂度链路，而不是回头给低风险展示组件平均补注释。
     - 编辑器链路的下一轮切片可以优先围绕 `mavon-editor` 工具栏与背景栏配色、Markdown 能力补齐，以及与文章页渲染能力保持一致的扩展项收口，而不是直接切换底层编辑器实现。
     - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选 `1 - 2` 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
+    - 第三十三阶段已正式上收候选组 B 切片，聚焦 `server/services/upload.ts` 与 `server/utils/post-access.ts` 两条运行时安全敏感链路。
 - **最近一次上收阶段**:
     - 第三十阶段（已审计归档）。
+    - 第三十三阶段（已正式上收候选组 B 切片）。
 - **下一次可切片方向**:
     - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
     - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
@@ -212,6 +219,7 @@
 	- 第三十阶段已按“1 个新功能 + 5 个优化”的组合完成并审计归档，当前新增能力已落地远程仓库同步（Hexo 风格 / GitHub / Gitee）单仓库候选闭环；优化主线也已完成文档翻译 freshness、国际化字段治理、重复代码复用、注释治理，以及 ESLint / 类型债规则收紧五条切片收口。
     - 第三十一阶段已按“1 个新功能预研 + 4 个治理切片 + 1 个战略评估”的组合完成并审计归档，当前已形成 `caomei-auth` 暂缓接入结论，完成路线图 / Todo 深度归档、国际化运行时治理、`composables` 子桶 ESLint 收口、coverage `76%+` 关闭，以及商业化转型重评收口。
     - 第三十二阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档，当前已落地多语言资产化统一承接入口、重复代码基线降至 32 clones / 0.59%、ESLint no-explicit-any 窄切片收口、Postgres /api/search 缓存与 AITask stale scan 最小字段集收紧，以及 coverage 阶段收口（80%+ 冲刺顺延至下一阶段）。
+    - 第三十三阶段已按"1 个新功能 + 4 个优化"的组合正式规划上收：新功能为创作者数据统计增强，优化为 coverage 80%+ 冲刺、ESLint composables 子桶继续收紧、重复代码认证页模板收敛、注释治理候选组 B。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
 
 ## 短期 / 一次性候选任务（上收后去重）
@@ -278,15 +286,10 @@
 
 12. **创作者数据统计增强**
 - **留档范围**:
-    - 在现有后台内容洞察基础上，补充更偏“创作者经营视角”的统计能力，候选方向包括创作产出、分发效果、内容转化、来源渠道与作者维度汇总。
+    - 在现有后台内容洞察基础上，补充更偏"创作者经营视角"的统计能力，候选方向包括创作产出、分发效果、内容转化、来源渠道与作者维度汇总。
     - 本条默认视为对既有 `/admin` 内容洞察的增强候选，而不是另起一套通用 BI 系统或全仓埋点重构工程。
 - **当前结论**:
-    - 该需求与第二十八阶段已完成的“后台内容统计与热点分析看板”不重复；现有能力更偏内容窗口表现与热门排行，而“创作者数据统计”更接近作者经营看板、分发效果与内容生命周期指标增强。
-    - 由于当前“创作者数据统计”仍缺少明确指标口径，正式上收前必须先回答统计主体（全站 / 作者本人 / 多作者对比）、时间窗口、归因来源，以及是否纳入 WechatSync / 远程仓库 / 评论 / 订阅等转化链路，否则容易把需求膨胀成通用报表系统。
-- **后续上收条件**:
-    - 已冻结首版指标集合，至少明确哪些属于必做指标，哪些延后观察，不接受“把能统计的都加上”的模糊口径。
-    - 已明确权限与口径边界，例如 `admin` 是否看全站、`author` 是否只看本人、翻译簇 / 时区 / 草稿 / 私密内容是否去重或过滤。
-    - 已给出最小验证矩阵与证据落点，至少覆盖空数据、时间范围切换、作者权限隔离、翻译簇去重，以及新增指标与现有内容洞察之间的一致性约束。
+    - 已上收至第三十三阶段正式规划，首版指标集合、权限口径与归因来源三项前置结论需先以 `docs/design/governance/` 下专项设计文档形式冻结。具体执行范围、非目标与验证矩阵以 `roadmap.md` / `todo.md` 第三十三阶段为准。
 
 ## 相关文档
 
