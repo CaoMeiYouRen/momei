@@ -72,16 +72,22 @@ export function usePostTtsDialog(options: {
     const isDirectMode = ref(false)
     const directAudioUrl = ref<string | null>(null)
 
-    // ---- 是否启用前端直连（volcengine + speech） ----
+    // ---- 是否启用前端直连（volcengine，speech + podcast） ----
     const canUseDirect = computed(() =>
-        config.value.provider === 'volcengine' && config.value.mode === 'speech',
+        config.value.provider === 'volcengine',
     )
 
     // ---- 合并状态 ----
     const status = computed(() => {
-        if (!isDirectMode.value) return taskStatus.value
-        if (directAudioUrl.value) return 'completed'
-        if (directTts.isGenerating.value) return 'processing'
+        if (!isDirectMode.value) {
+            return taskStatus.value
+        }
+        if (directAudioUrl.value) {
+            return 'completed'
+        }
+        if (directTts.isGenerating.value) {
+            return 'processing'
+        }
         return null
     })
 
@@ -141,7 +147,9 @@ export function usePostTtsDialog(options: {
     }
 
     const fetchVoices = async () => {
-        if (!config.value.provider) return
+        if (!config.value.provider) {
+            return
+        }
         loadingVoices.value = true
         try {
             const response = await $appFetch<ApiResponse<TTSVoiceOption[]>>('/api/ai/tts/voices', {
@@ -159,7 +167,9 @@ export function usePostTtsDialog(options: {
     }
 
     const optimizeManuscript = async () => {
-        if (!options.content.value || optimizing.value) return
+        if (!options.content.value || optimizing.value) {
+            return
+        }
         optimizing.value = true
         try {
             const response = await $appFetch<ApiResponse<{ manuscript: string }>>('/api/ai/tts/manuscript', {
@@ -183,12 +193,12 @@ export function usePostTtsDialog(options: {
         currentTaskId.value = null
         directAudioUrl.value = null
 
-        // 火山引擎 speech 模式走前端直连
+        // 火山引擎走前端直连
         if (canUseDirect.value) {
             isDirectMode.value = true
             try {
                 const result = await directTts.generateAndUpload({
-                    mode: 'speech',
+                    mode: config.value.mode,
                     text: script.value || options.content.value,
                     voice: config.value.voice,
                     speed: 1.0,

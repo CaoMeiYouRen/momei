@@ -144,7 +144,6 @@ export default defineEventHandler(async (event) => {
     // 5. 前端直出降级判断
     const useFrontendDirect = (isServerlessEnvironment() || TTS_FRONTEND_DIRECT)
         && (provider === 'volcengine' || !provider)
-        && mode === 'speech'
 
     if (useFrontendDirect) {
         const response: FrontendDirectResponse = {
