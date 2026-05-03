@@ -100,6 +100,7 @@
                     "image_generation": "画像生成",
                     "optimize_manuscript": "原稿最適化",
                     "podcast": "AI ポッドキャスト",
+                    "podcast_direct": "AI ポッドキャスト（直接）",
                     "recommend_tags": "タグ推薦",
                     "refine_voice": "音声原稿の整形",
                     "suggest_image_prompt": "画像プロンプト生成",
@@ -112,7 +113,8 @@
                     "translate": "翻訳",
                     "translate_name": "名称翻訳",
                     "translate_name_batch": "名称一括翻訳",
-                    "tts": "音声合成"
+                    "tts": "音声合成",
+                    "tts_direct": "音声合成（直接）"
                 },
                 "usage_snapshot": "利用量スナップショット"
             }

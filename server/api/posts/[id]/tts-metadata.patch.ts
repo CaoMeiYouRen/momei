@@ -109,8 +109,8 @@ export default defineEventHandler(async (event) => {
         const taskRepo = dataSource.getRepository(AITask)
         const task = taskRepo.create({
             category: taskCategory,
-            /** type 加 -direct 后缀标记直连模式，与轮询模式区分 */
-            type: `${taskCategory}-direct`,
+            /** type 加 _direct 后缀标记直连模式，与轮询模式区分 */
+            type: `${taskCategory}_direct`,
             postId,
             userId: session.user.id,
             provider: body.provider || 'volcengine',
@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
 
         await taskRepo.save(task)
 
-        logger.info(`[TTS Metadata] AITask ${task.id} (${taskCategory}-direct) created, textLength: ${textLength}, quota: ${quotaUnits}`)
+        logger.info(`[TTS Metadata] AITask ${task.id} (${taskCategory}_direct) created, textLength: ${textLength}, quota: ${quotaUnits}`)
     }
 
     return {

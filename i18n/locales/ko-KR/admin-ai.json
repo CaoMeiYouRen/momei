@@ -100,6 +100,7 @@
                     "image_generation": "이미지 생성",
                     "optimize_manuscript": "원고 최적화",
                     "podcast": "AI Podcast",
+                    "podcast_direct": "AI Podcast (직접)",
                     "recommend_tags": "태그 추천",
                     "refine_voice": "음성 원고 다듬기",
                     "suggest_image_prompt": "이미지 프롬프트 제안",
@@ -112,7 +113,8 @@
                     "translate": "번역",
                     "translate_name": "이름 번역",
                     "translate_name_batch": "이름 일괄 번역",
-                    "tts": "음성 합성"
+                    "tts": "음성 합성",
+                    "tts_direct": "음성 합성 (직접)"
                 },
                 "usage_snapshot": "사용량 스냅샷"
             }

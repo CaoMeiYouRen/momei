@@ -100,6 +100,7 @@
                     "image_generation": "Image Generation",
                     "optimize_manuscript": "Optimize Manuscript",
                     "podcast": "AI Podcast",
+                    "podcast_direct": "AI Podcast (Direct)",
                     "recommend_tags": "Recommend Tags",
                     "refine_voice": "Refine Voice Script",
                     "suggest_image_prompt": "Suggest Image Prompt",
@@ -112,7 +113,8 @@
                     "translate": "Translate",
                     "translate_name": "Translate Name",
                     "translate_name_batch": "Batch Translate Names",
-                    "tts": "Text to Speech"
+                    "tts": "Text to Speech",
+                    "tts_direct": "Text to Speech (Direct)"
                 },
                 "usage_snapshot": "Usage Snapshot"
             }

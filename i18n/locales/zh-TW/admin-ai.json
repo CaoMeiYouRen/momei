@@ -100,6 +100,7 @@
                     "image_generation": "圖像生成",
                     "optimize_manuscript": "優化講稿",
                     "podcast": "AI 播客",
+                    "podcast_direct": "AI 播客（直連）",
                     "recommend_tags": "推薦標籤",
                     "refine_voice": "潤飾語音稿",
                     "suggest_image_prompt": "生成繪圖提示詞",
@@ -112,7 +113,8 @@
                     "translate": "翻譯",
                     "translate_name": "翻譯名稱",
                     "translate_name_batch": "批量翻譯名稱",
-                    "tts": "語音合成"
+                    "tts": "語音合成",
+                    "tts_direct": "語音合成（直連）"
                 },
                 "usage_snapshot": "用量快照"
             }
