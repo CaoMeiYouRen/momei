@@ -54,6 +54,7 @@
                 "creator_hexo_sync": "Hexo 仓库同步",
                 "creator_publish_trend": "发文趋势",
                 "creator_distribution_trend": "分发趋势",
+                "creator_daily": "按天",
                 "creator_weekly": "按周",
                 "creator_monthly": "按月",
                 "creator_post_count": "{count} 篇"

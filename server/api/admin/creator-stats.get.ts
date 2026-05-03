@@ -24,10 +24,14 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const resolvedTimeZone = query.timezone
     const range = query.range
-    const aggregationGranularity: 'week' | 'month' = range === 90 ? 'month' : 'week'
+    const aggregationGranularity: 'day' | 'week' | 'month' = range === 7 ? 'day' : range === 30 ? 'week' : 'month'
 
     // 确定 authorId 过滤：author 角色固定为本人，忽略传入参数；admin 可选择过滤
     const effectiveAuthorId = isAdmin(session.user.role) ? query.authorId : session.user.id
+
+    // 当前窗口边界（用于发文趋势和分发统计的日期过滤）
+    const currentEnd = dayjs().tz(resolvedTimeZone).endOf('day')
+    const windowStart = currentEnd.startOf('day').subtract(range - 1, 'day').toDate()
 
     // ====== 1. 已发布总数（翻译簇去重） ======
     const publishedQuery = postRepo
@@ -56,13 +60,18 @@ export default defineEventHandler(async (event) => {
     const draftCount = Number(draftResult?.count ?? 0)
 
     // ====== 3. 发文趋势 ======
-    const truncFn = aggregationGranularity === 'week' ? 'DATE_TRUNC(\'week\', post.publishedAt)' : 'DATE_TRUNC(\'month\', post.publishedAt)'
+    const truncFn = aggregationGranularity === 'day'
+        ? 'DATE(post.publishedAt)'
+        : aggregationGranularity === 'week'
+            ? 'DATE_TRUNC(\'week\', post.publishedAt)'
+            : 'DATE_TRUNC(\'month\', post.publishedAt)'
 
     const trendQuery = postRepo
         .createQueryBuilder('post')
         .select(truncFn, 'periodStart')
         .addSelect('COUNT(DISTINCT COALESCE(post.translationId, post.id))', 'count')
         .where('post.status = :status', { status: PostStatus.PUBLISHED })
+        .andWhere('post.publishedAt >= :windowStart', { windowStart })
         .groupBy(truncFn)
         .orderBy(truncFn, 'ASC')
 
@@ -76,76 +85,94 @@ export default defineEventHandler(async (event) => {
         count: Number(row.count),
     }))
 
-    // ====== 4. 分发事件统计 ======
-    // 查询 published 文章的分发元数据，按最后事件周分桶
-    const currentEnd = dayjs().tz(resolvedTimeZone).endOf('day')
-    const maxWindowDays = Math.max(7, 30, 90) * 2 // 参照 content-insights 2x 窗口
-    const minWindowStart = currentEnd.startOf('day').subtract(maxWindowDays, 'day').toDate()
+    // ====== 4. 分发事件统计（TypeScript 端聚合） ======
+    const maxWindowDays = Math.max(7, 30, 90) * 2
+    const distWindowStart = currentEnd.startOf('day').subtract(maxWindowDays, 'day').toDate()
 
-    const distQuery = postRepo
+    const distBaseQuery = postRepo
         .createQueryBuilder('post')
-        .select(`DATE_TRUNC('week', GREATEST(
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastSuccessAt',
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastFailureAt'),
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastSyncedAt',
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastFailureAt')
-        )`, 'weekStart')
-        .addSelect(
-            'SUM(CASE WHEN (COALESCE(NULLIF(post.metadata ->> \'integration\', \'\')::jsonb ->> \'distribution\', \'\')::jsonb -> \'channels\' -> \'wechatsync\' ->> \'lastSuccessAt\') IS NOT NULL THEN 1 ELSE 0 END)',
-            'wechatsyncSuccess',
-        )
-        .addSelect(
-            'SUM(CASE WHEN (COALESCE(NULLIF(post.metadata ->> \'integration\', \'\')::jsonb ->> \'distribution\', \'\')::jsonb -> \'channels\' -> \'wechatsync\' ->> \'lastFailureAt\') IS NOT NULL THEN 1 ELSE 0 END)',
-            'wechatsyncFail',
-        )
-        .addSelect(
-            'SUM(CASE WHEN (COALESCE(NULLIF(post.metadata ->> \'integration\', \'\')::jsonb ->> \'hexoRepositorySync\' ->> \'lastSyncedAt\') IS NOT NULL THEN 1 ELSE 0 END)',
-            'hexoSuccess',
-        )
-        .addSelect(
-            'SUM(CASE WHEN (COALESCE(NULLIF(post.metadata ->> \'integration\', \'\')::jsonb ->> \'hexoRepositorySync\' ->> \'lastFailureAt\') IS NOT NULL THEN 1 ELSE 0 END)',
-            'hexoFail',
-        )
+        .select(['post.id', 'post.metadata', 'post.publishedAt'])
         .where('post.status = :status', { status: PostStatus.PUBLISHED })
-        .andWhere('post.publishedAt BETWEEN :minWindowStart AND :maxWindowEnd', {
-            minWindowStart,
+        .andWhere('post.publishedAt BETWEEN :distWindowStart AND :maxWindowEnd', {
+            distWindowStart,
             maxWindowEnd: currentEnd.toDate(),
         })
-        .andWhere(
-            `(
-                COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastSuccessAt' IS NOT NULL
-                OR COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastFailureAt' IS NOT NULL
-                OR COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastSyncedAt') IS NOT NULL
-                OR COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastFailureAt') IS NOT NULL
-            )`,
-        )
-        .groupBy(`DATE_TRUNC('week', GREATEST(
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastSuccessAt',
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'distribution', '')::jsonb -> 'channels' -> 'wechatsync' ->> 'lastFailureAt'),
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastSyncedAt',
-            COALESCE(NULLIF(post.metadata ->> 'integration', '')::jsonb ->> 'hexoRepositorySync' ->> 'lastFailureAt')
-        )`)
-        .orderBy('"weekStart"', 'ASC')
 
     if (effectiveAuthorId) {
-        distQuery.andWhere('post.authorId = :authorId', { authorId: effectiveAuthorId })
+        distBaseQuery.andWhere('post.authorId = :authorId', { authorId: effectiveAuthorId })
     }
 
-    const distRows = await distQuery.getRawMany<{
-        weekStart: string
-        wechatsyncSuccess: string
-        wechatsyncFail: string
-        hexoSuccess: string
-        hexoFail: string
-    }>()
+    const distPosts = await distBaseQuery.getMany()
 
-    const distributionRawRows = distRows.map((row) => ({
-        weekStart: new Date(row.weekStart),
-        wechatsyncSuccess: Number(row.wechatsyncSuccess),
-        wechatsyncFail: Number(row.wechatsyncFail),
-        hexoSuccess: Number(row.hexoSuccess),
-        hexoFail: Number(row.hexoFail),
-    }))
+    // 在 TypeScript 端提取分发事件并按周分桶
+    interface DistBucket {
+        weekStart: string
+        wechatsyncSuccess: number
+        wechatsyncFail: number
+        hexoSuccess: number
+        hexoFail: number
+    }
+
+    const bucketMap = new Map<string, DistBucket>()
+
+    for (const post of distPosts) {
+        const integration = post.metadata?.integration
+        if (!integration) {
+            continue
+        }
+
+        const wcs = integration.distribution?.channels?.wechatsync
+        const hexo = integration.hexoRepositorySync
+
+        function addToBucket(eventDate: Date, field: keyof DistBucket) {
+            const d = dayjs(eventDate)
+            // 计算周一
+            const dayOfWeek = d.day()
+            const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+            const monday = d.startOf('day').subtract(offset, 'day').format('YYYY-MM-DD')
+
+            const bucket = bucketMap.get(monday)
+            if (bucket) {
+                bucket[field]++
+            } else {
+                bucketMap.set(monday, {
+                    weekStart: monday,
+                    wechatsyncSuccess: 0,
+                    wechatsyncFail: 0,
+                    hexoSuccess: 0,
+                    hexoFail: 0,
+                    [field]: 1,
+                })
+            }
+        }
+
+        if (wcs?.lastSuccessAt) {
+            const d = new Date(wcs.lastSuccessAt)
+            if (d >= distWindowStart) { addToBucket(d, 'wechatsyncSuccess') }
+        }
+        if (wcs?.lastFailureAt) {
+            const d = new Date(wcs.lastFailureAt)
+            if (d >= distWindowStart) { addToBucket(d, 'wechatsyncFail') }
+        }
+        if (hexo?.lastSyncedAt) {
+            const d = new Date(hexo.lastSyncedAt)
+            if (d >= distWindowStart) { addToBucket(d, 'hexoSuccess') }
+        }
+        if (hexo?.lastFailureAt) {
+            const d = new Date(hexo.lastFailureAt)
+            if (d >= distWindowStart) { addToBucket(d, 'hexoFail') }
+        }
+    }
+
+    const distributionRawRows = Array.from(bucketMap.values())
+        .sort((a, b) => a.weekStart.localeCompare(b.weekStart))
+        .map((b) => ({
+            weekStart: new Date(b.weekStart),
+            wechatsyncSuccess: b.wechatsyncSuccess,
+            wechatsyncFail: b.wechatsyncFail,
+            hexoSuccess: b.hexoSuccess,
+            hexoFail: b.hexoFail,
+        }))
 
     // ====== 5. 渠道启用状态 ======
     const channelEnabled = await resolveDistributionChannelEnabled()

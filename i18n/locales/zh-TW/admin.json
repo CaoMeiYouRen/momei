@@ -49,6 +49,7 @@
                 "tab_insights": "內容洞察",
                 "tab_creator": "創作者統計",
                 "creator_published": "已發布文章",
+                "creator_daily": "按天",
                 "creator_drafts": "草稿存量",
                 "creator_wechat_sync": "WechatSync 分發",
                 "creator_hexo_sync": "Hexo 倉庫同步",

@@ -279,7 +279,14 @@
                             <div v-if="creatorStats.publishing.trend.length > 0" class="admin-dashboard__trend-section">
                                 <h3 class="admin-dashboard__trend-title">
                                     {{ $t('pages.admin.dashboard.creator_publish_trend') }}
-                                    <Tag :value="creatorStats.aggregationGranularity === 'week' ? $t('pages.admin.dashboard.creator_weekly') : $t('pages.admin.dashboard.creator_monthly')" severity="info" />
+                                    <Tag
+                                        :value="creatorStats.aggregationGranularity === 'day'
+                                            ? $t('pages.admin.dashboard.creator_daily')
+                                            : creatorStats.aggregationGranularity === 'week'
+                                                ? $t('pages.admin.dashboard.creator_weekly')
+                                                : $t('pages.admin.dashboard.creator_monthly')"
+                                        severity="info"
+                                    />
                                 </h3>
                                 <div class="admin-dashboard__trend-list">
                                     <div
@@ -287,7 +294,9 @@
                                         :key="point.periodStart"
                                         class="admin-dashboard__trend-row"
                                     >
-                                        <span class="admin-dashboard__trend-period">{{ point.periodStart }}</span>
+                                        <span class="admin-dashboard__trend-period">
+                                            {{ formatPeriodLabel(point, creatorStats.aggregationGranularity) }}
+                                        </span>
                                         <span class="admin-dashboard__trend-count">
                                             {{ $t('pages.admin.dashboard.creator_post_count', {count: point.count}) }}
                                         </span>
@@ -394,6 +403,23 @@ const hasDistributionData = computed(() => Boolean(
         || (creatorStats.value.distribution.hexoRepositorySync?.trend.length ?? 0) > 0
     ),
 ))
+
+function formatPeriodLabel(point: { periodStart: string, periodEnd?: string }, granularity: string): string {
+    if (granularity === 'day') {
+        // 显示 MM-DD
+        return point.periodStart.slice(5)
+    }
+    if (granularity === 'week' && point.periodEnd) {
+        // 显示 04-27 ~ 05-03
+        return `${point.periodStart.slice(5)} ~ ${point.periodEnd}`
+    }
+    if (granularity === 'month') {
+        // 显示 2026-05 → 5月
+        const m = Number.parseInt(point.periodStart.slice(5), 10)
+        return `${m}月`
+    }
+    return point.periodStart
+}
 
 const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))
 

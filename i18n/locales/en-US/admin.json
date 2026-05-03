@@ -54,6 +54,7 @@
                 "creator_hexo_sync": "Hexo Repo Sync",
                 "creator_publish_trend": "Publishing Trend",
                 "creator_distribution_trend": "Distribution Trend",
+                "creator_daily": "Daily",
                 "creator_weekly": "Weekly",
                 "creator_monthly": "Monthly",
                 "creator_post_count": "{count} posts"

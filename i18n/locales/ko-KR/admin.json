@@ -49,6 +49,7 @@
                 "tab_insights": "콘텐츠 인사이트",
                 "tab_creator": "크리에이터 통계",
                 "creator_published": "게시된 글",
+                "creator_daily": "일간",
                 "creator_drafts": "임시 저장",
                 "creator_wechat_sync": "WechatSync 배포",
                 "creator_hexo_sync": "Hexo 리포지토리 동기화",

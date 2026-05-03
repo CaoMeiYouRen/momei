@@ -2,8 +2,10 @@
  * 创作者数据统计响应类型
  */
 export interface PublishingTrendPoint {
-    /** ISO 日期（周一或月初） */
+    /** ISO 日期（天/周一/月初） */
     periodStart: string
+    /** 周期结束日期（周/月时有值，用于显示日期范围） */
+    periodEnd?: string
     /** 该周期内发布数（翻译簇去重） */
     count: number
 }
@@ -28,8 +30,8 @@ export interface DistributionChannelStats {
 export interface CreatorStatsResponse {
     /** 时间窗口（天） */
     range: 7 | 30 | 90
-    /** 聚合粒度 */
-    aggregationGranularity: 'week' | 'month'
+    /** 聚合粒度：day=按天, week=按周(周一), month=按月 */
+    aggregationGranularity: 'day' | 'week' | 'month'
     timezone: string
     /** 发文产出 */
     publishing: {

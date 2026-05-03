@@ -49,6 +49,7 @@
                 "tab_insights": "コンテンツインサイト",
                 "tab_creator": "クリエイター統計",
                 "creator_published": "公開済み記事",
+                "creator_daily": "日次",
                 "creator_drafts": "下書き数",
                 "creator_wechat_sync": "WechatSync 配信",
                 "creator_hexo_sync": "Hexo リポジトリ同期",

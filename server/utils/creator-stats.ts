@@ -84,25 +84,46 @@ export function computeOverallSuccessRate(trend: DistributionTrendPoint[]): numb
 }
 
 /**
- * 按周/月对发布记录分桶
+ * 按天/周/月对发布记录分桶
  */
 export function bucketPublishingTrend(
     rows: RawPeriodBucket[],
-    granularity: 'week' | 'month',
+    granularity: 'day' | 'week' | 'month',
 ): PublishingTrendPoint[] {
-    const buckets = new Map<string, number>()
+    const buckets = new Map<string, { count: number, periodEnd?: string }>()
 
     for (const row of rows) {
-        const periodStart = granularity === 'week'
-            ? dayjs(row.periodStart).startOf('week').add(1, 'day').format('YYYY-MM-DD') // Monday
-            : dayjs(row.periodStart).startOf('month').format('YYYY-MM-DD')
+        const d = dayjs(row.periodStart)
+        let periodStart: string
+        let periodEnd: string | undefined
 
-        buckets.set(periodStart, (buckets.get(periodStart) || 0) + row.count)
+        if (granularity === 'day') {
+            periodStart = d.format('YYYY-MM-DD')
+        } else if (granularity === 'week') {
+            const offset = d.day() === 0 ? 6 : d.day() - 1
+            const monday = d.startOf('day').subtract(offset, 'day')
+            periodStart = monday.format('YYYY-MM-DD')
+            periodEnd = monday.add(6, 'day').format('MM-DD')
+        } else {
+            periodStart = d.startOf('month').format('YYYY-MM')
+            periodEnd = d.endOf('month').format('MM-DD')
+        }
+
+        const existing = buckets.get(periodStart)
+        if (existing) {
+            existing.count += row.count
+        } else {
+            buckets.set(periodStart, { count: row.count, periodEnd })
+        }
     }
 
     return Array.from(buckets.entries())
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([periodStart, count]) => ({ periodStart, count }))
+        .map(([periodStart, { count, periodEnd }]) => ({
+            periodStart,
+            count,
+            ...(periodEnd ? { periodEnd } : {}),
+        }))
 }
 
 /**
@@ -130,7 +151,7 @@ export async function resolveDistributionChannelEnabled(): Promise<{
 export function buildCreatorStats(params: {
     range: 7 | 30 | 90
     timezone: string
-    aggregationGranularity: 'week' | 'month'
+    aggregationGranularity: 'day' | 'week' | 'month'
     totalPublished: number
     draftCount: number
     publishingRawRows: RawPeriodBucket[]
