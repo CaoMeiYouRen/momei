@@ -20,11 +20,19 @@ import logger from '@/server/utils/logger'
 const TTSMetadataSchema = z.object({
     audioUrl: z.string().min(1),
     provider: z.string().min(1).max(50).optional(),
-    voice: z.string().min(1).max(100).optional(),
+    voice: z.string().min(1).max(200).optional(),
     mode: z.enum(['speech', 'podcast']).optional().default('speech'),
     duration: z.number().int().positive().optional(),
     /** 合成文本长度（用于计费统计） */
     textLength: z.number().int().nonnegative().optional(),
+    /** 原文文本（用于审计记录） */
+    text: z.string().optional(),
+    /** 语言代码 */
+    language: z.string().max(10).optional(),
+    /** 语速 */
+    speed: z.number().optional(),
+    /** 模型名称 */
+    model: z.string().max(100).optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -80,24 +88,37 @@ export default defineEventHandler(async (event) => {
     const textLength = body.textLength || 0
 
     if (textLength > 0) {
-        const payload = { text: '', voice: body.voice || '', mode: body.mode, textLength }
+        const taskPayload = {
+            text: body.text || '',
+            voice: body.voice || '',
+            mode: body.mode,
+            textLength,
+            language: body.language || null,
+            speed: body.speed ?? null,
+            model: body.model || 'seed-tts-2.0',
+            /** 标记为前端直连模式 */
+            strategy: 'frontend-direct',
+        }
+
         const quotaUnits = calculateQuotaUnits({
             category: taskCategory,
             type: taskCategory,
-            payload,
+            payload: taskPayload,
         })
 
         const taskRepo = dataSource.getRepository(AITask)
         const task = taskRepo.create({
             category: taskCategory,
-            type: taskCategory,
+            /** type 加 -direct 后缀标记直连模式，与轮询模式区分 */
+            type: `${taskCategory}-direct`,
             postId,
             userId: session.user.id,
             provider: body.provider || 'volcengine',
-            model: 'seed-tts-2.0',
+            model: body.model || 'seed-tts-2.0',
             mode: body.mode,
             voice: body.voice || '',
-            script: '',
+            /** 存储合成原文（截取前 500 字符用于审计展示） */
+            script: (body.text || '').slice(0, 500),
             status: 'completed',
             progress: 100,
             textLength,
@@ -105,12 +126,13 @@ export default defineEventHandler(async (event) => {
             chargeStatus: deriveChargeStatus({ status: 'completed', quotaUnits, settlementSource: 'actual' }),
             completedAt: new Date(),
             durationMs: (body.duration || 0) * 1000,
+            payload: JSON.stringify(taskPayload),
             result: JSON.stringify({ audioUrl: body.audioUrl }),
         })
 
         await taskRepo.save(task)
 
-        logger.info(`[TTS Metadata] AITask ${task.id} created for direct TTS, textLength: ${textLength}, quotaUnits: ${quotaUnits}`)
+        logger.info(`[TTS Metadata] AITask ${task.id} (${taskCategory}-direct) created, textLength: ${textLength}, quota: ${quotaUnits}`)
     }
 
     return {

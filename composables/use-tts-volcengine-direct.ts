@@ -758,6 +758,9 @@ export function useTTSVolcengineDirect() {
                             mode: params.mode,
                             duration,
                             textLength: params.text.length,
+                            text: params.text,
+                            language: params.language,
+                            speed: params.speed,
                         },
                     })
                 } catch (metaError: any) {
