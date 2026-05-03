@@ -10,7 +10,7 @@ const detectedParallelism = typeof os.availableParallelism === 'function'
     ? os.availableParallelism()
     : os.cpus().length
 const configuredCiWorkers = Number.parseInt(process.env.PLAYWRIGHT_CI_WORKERS ?? '', 10)
-const defaultCiWorkers = Math.max(1, Math.min(2, detectedParallelism - 1))
+const defaultCiWorkers = Math.min(4, Math.max(2, detectedParallelism))
 
 let resolvedWorkers: number | undefined
 if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
@@ -60,7 +60,9 @@ export default defineConfig({
     /* Keep CI parallelism bounded instead of fully serializing the whole browser matrix. */
     workers: resolvedWorkers,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: [['html', { open: 'never' }], ['list']],
+    reporter: process.env.CI
+        ? [['github'], ['list'], ['json', { outputFile: 'test-results.json' }]]
+        : [['html', { open: 'never' }], ['list']],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions */
     use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -70,6 +72,20 @@ export default defineConfig({
         trace: 'on-first-retry',
         /* Capture screenshot on failure */
         screenshot: 'only-on-failure',
+        /* Only record video on failure to reduce IO */
+        video: 'retain-on-failure',
+        /* Browser launch optimizations for CI speed */
+        launchOptions: {
+            args: [
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--disable-extensions',
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--no-sandbox',
+            ],
+        },
     },
 
     /* Configure projects for major browsers */
