@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { NotificationType, NotificationChannel } from '../shared/notification'
 import {
     adminNotificationWebPushConfigSchema,
+    marketingCampaignListQuerySchema,
     notificationSettingSchema,
     updateNotificationSettingsSchema,
     updateAdminNotificationSettingsPayloadSchema,
@@ -187,6 +188,27 @@ describe('utils/schemas/notification', () => {
 
             const result = updateNotificationSettingsSchema.safeParse(invalidData)
             expect(result.success).toBe(false)
+        })
+    })
+
+    describe('marketingCampaignListQuerySchema', () => {
+        it('应该解析有效的分页查询参数', () => {
+            const result = marketingCampaignListQuerySchema.safeParse({
+                page: '2',
+                limit: '15',
+            })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data).toEqual({
+                    page: 2,
+                    limit: 15,
+                })
+            }
+        })
+
+        it('应该拒绝无效分页参数', () => {
+            expect(marketingCampaignListQuerySchema.safeParse({ page: '0', limit: '-1' }).success).toBe(false)
         })
     })
 

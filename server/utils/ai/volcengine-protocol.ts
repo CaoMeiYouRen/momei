@@ -9,7 +9,6 @@ import {
     buildVolcengineConnectionClientRequestFrame as buildSharedVolcengineConnectionClientRequestFrame,
     buildVolcengineEventClientRequestFrame as buildSharedVolcengineEventClientRequestFrame,
     buildVolcengineHeader as buildSharedVolcengineHeader,
-    decodeVolcengineSerializedPayload,
     parseVolcengineErrorFrame,
     parseVolcengineEventFrame,
 } from '@/utils/shared/volcengine-protocol'

@@ -1,7 +1,7 @@
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { updateAgreementContent } from '@/server/services/agreement'
-import { agreementUpdateSchema } from '@/utils/schemas/agreement'
+import { agreementIdParamSchema, agreementUpdateSchema } from '@/utils/schemas/agreement'
 
 /**
  * PUT /api/admin/agreements/[id]
@@ -10,12 +10,8 @@ import { agreementUpdateSchema } from '@/utils/schemas/agreement'
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const id = getRouterParam(event, 'id')
-    if (!id) {
-        return fail('Agreement ID is required', 400)
-    }
-
     try {
+        const { id } = await getValidatedRouterParams(event, (params) => agreementIdParamSchema.parse(params))
         const body = await readValidatedBody(event, (b) => agreementUpdateSchema.parse(b))
 
         const agreement = await updateAgreementContent(id, body)

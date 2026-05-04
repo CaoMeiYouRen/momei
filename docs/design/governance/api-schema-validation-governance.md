@@ -45,12 +45,33 @@
 | [server/api/admin/agreements/[id]/activate.post.ts](../../../server/api/admin/agreements/[id]/activate.post.ts) | `POST` | `params` | `getRouterParam` + 手动字符串比对 | 切到共享 `agreementTypeParamSchema` + `getValidatedRouterParams` |
 | [server/api/upload/index.post.ts](../../../server/api/upload/index.post.ts) | `POST` | `query` | `getQuery` + 类型断言 | 切到共享 `uploadQuerySchema` + `getValidatedQuery` |
 
-### 3.2 已确认但留待下一批
+### 3.2 已在第二批修复中收口
+
+| 文件 | 方法 | 缺口 | 原模式 | 当前治理结果 |
+| :-- | :-- | :-- | :-- | :-- |
+| [server/api/admin/ai/tasks.get.ts](../../../server/api/admin/ai/tasks.get.ts) | `GET` | `query` | 手动解析 `page`、`pageSize`、`status`、`search` 等过滤参数 | 切到共享 `aiAdminTaskListQuerySchema` + `getValidatedQuery` |
+| [server/api/admin/ai/tasks.delete.ts](../../../server/api/admin/ai/tasks.delete.ts) | `DELETE` | `query` | 直接读取 `ids` 并按逗号拆分 | 切到共享 `aiAdminTaskDeleteQuerySchema` + `getValidatedQuery` |
+
+### 3.3 已在第三批修复中收口
+
+| 文件 | 方法 | 缺口 | 原模式 | 当前治理结果 |
+| :-- | :-- | :-- | :-- | :-- |
+| [server/api/admin/agreements/index.get.ts](../../../server/api/admin/agreements/index.get.ts) | `GET` | `query` | 直接读取 `type`、`language` 并手动收窄 | 切到共享 `agreementAdminListQuerySchema` + `getValidatedQuery` |
+| [server/api/admin/marketing/campaigns.get.ts](../../../server/api/admin/marketing/campaigns.get.ts) | `GET` | `query` | 直接 `getQuery` 后交给 `parsePagination` 回退默认值 | 切到共享 `marketingCampaignListQuerySchema` + `getValidatedQuery` |
+
+### 3.4 已在第四批修复中收口
+
+| 文件 | 方法 | 缺口 | 原模式 | 当前治理结果 |
+| :-- | :-- | :-- | :-- | :-- |
+| [server/api/admin/agreements/[id].put.ts](../../../server/api/admin/agreements/[id].put.ts) | `PUT` | `params` | 直接读取 `id` 路由参数并手动判空 | 切到共享 `agreementIdParamSchema` + `getValidatedRouterParams` |
+| [server/api/admin/friend-links/index.get.ts](../../../server/api/admin/friend-links/index.get.ts) | `GET` | `query` | 手动解析分页、状态、分类、featured 和关键词 | 切到共享 `adminFriendLinkListQuerySchema` + `getValidatedQuery` |
+
+### 3.5 已确认但留待下一批
 
 | 文件 | 方法 | 缺口 | 现状说明 | 建议方向 |
 | :-- | :-- | :-- | :-- | :-- |
-| [server/api/admin/ai/tasks.get.ts](../../../server/api/admin/ai/tasks.get.ts) | `GET` | `query` | 仍在手动解析 `page`、`pageSize`、`status`、`search` 等过滤参数 | 抽 `aiAdminTaskListQuerySchema`，统一分页和筛选枚举 |
-| [server/api/admin/ai/tasks.delete.ts](../../../server/api/admin/ai/tasks.delete.ts) | `DELETE` | `query` | 直接读取 `ids` 并按逗号拆分 | 抽 `ids` 列表 schema，校验空值与非法 ID |
+| [server/api/admin/external-links/[id].put.ts](../../../server/api/admin/external-links/[id].put.ts) | `PUT` | `params` | 仍在直接读取 `id` 路由参数 | 迁移到共享 params schema，并与 body 校验一起收口 |
+| [server/api/admin/agreements/[id].delete.ts](../../../server/api/admin/agreements/[id].delete.ts) | `DELETE` | `params` | 仍在直接读取 `id` 路由参数 | 迁移到共享 agreement params schema |
 
 ## 4. 第一批治理策略
 
@@ -62,6 +83,10 @@
 2. 协议激活参数与请求体归并到 [utils/schemas/agreement.ts](../../../utils/schemas/agreement.ts)。
 3. 友链申请后台列表查询归并到 [utils/schemas/friend-link.ts](../../../utils/schemas/friend-link.ts)。
 4. 上传查询参数独立落在 [utils/schemas/upload.ts](../../../utils/schemas/upload.ts)。
+5. 管理端 AI 任务列表与批量删除查询归并到 [utils/schemas/ai.ts](../../../utils/schemas/ai.ts)。
+6. 协议列表查询归并到 [utils/schemas/agreement.ts](../../../utils/schemas/agreement.ts)。
+7. 营销活动后台列表分页查询归并到 [utils/schemas/notification.ts](../../../utils/schemas/notification.ts)。
+8. 协议更新 params 与后台友链列表查询分别归并到 [utils/schemas/agreement.ts](../../../utils/schemas/agreement.ts) 和 [utils/schemas/friend-link.ts](../../../utils/schemas/friend-link.ts)。
 
 ### 4.2 Handler 只保留业务决策
 
@@ -78,10 +103,10 @@
 
 下一轮优先级建议如下：
 
-1. 管理端任务查询与批量删除：统一 `admin/ai/tasks.*` 的 query schema。
-2. 管理端其他列表接口：优先排查仍然直接 `getQuery` 的后台分页路由。
-3. 动态路由参数：继续把 `getRouterParam` + 非空断言迁移到 `getValidatedRouterParams`。
-4. 外部入口：继续清点 `external/**` 下仍使用裸 `readBody` 的写接口。
+1. 管理端其他列表接口：优先排查仍然直接 `getQuery` 的后台分页路由。
+2. 动态路由参数：继续把 `getRouterParam` + 非空断言迁移到 `getValidatedRouterParams`。
+3. 外部入口：继续清点 `external/**` 下仍使用裸 `readBody` 的写接口。
+4. 对已迁移接口补 schema 单测，避免共享契约后续被回退成裸读。
 
 ## 6. 验证要求
 

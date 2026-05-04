@@ -1,19 +1,14 @@
 import { Brackets } from 'typeorm'
 import { getAICostDisplayConfig } from '@/server/services/ai/cost-display'
 import { createAIAdminTaskListReadModelQuery, normalizeAIAdminTaskListItem } from '@/server/services/ai/task-detail'
+import { requireAdmin } from '@/server/utils/permission'
+import { aiAdminTaskListQuerySchema } from '@/utils/schemas/ai'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const query = getQuery(event)
-    const page = Number(query.page) || 1
-    const pageSize = Number(query.pageSize) || 10
-    const type = query.type as string
-    const category = query.category as string
-    const status = query.status as string
-    const chargeStatus = query.chargeStatus as string
-    const failureStage = query.failureStage as string
-    const search = (query.search as string)?.trim()
+    const { page, pageSize, type, category, status, chargeStatus, failureStage, search } =
+        await getValidatedQuery(event, (query) => aiAdminTaskListQuerySchema.parse(query))
 
     const qb = createAIAdminTaskListReadModelQuery()
         .orderBy('task.createdAt', 'DESC')

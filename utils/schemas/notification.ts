@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { NotificationType, NotificationChannel, MarketingCampaignType, AdminNotificationEvent } from '../shared/notification'
+import { paginationSchema } from './pagination'
 
 export const notificationSettingSchema = z.object({
     type: z.enum(NotificationType),
@@ -30,10 +31,13 @@ export const marketingCampaignSchema = z.object({
     scheduledAt: z.coerce.date().optional().nullable(),
 })
 
+export const marketingCampaignListQuerySchema = paginationSchema
+
 export type NotificationSettingInput = z.infer<typeof notificationSettingSchema>
 export type UpdateNotificationSettingsInput = z.infer<typeof updateNotificationSettingsSchema>
 export type WebPushSubscriptionInput = z.infer<typeof webPushSubscriptionSchema>
 export type MarketingCampaignInput = z.infer<typeof marketingCampaignSchema>
+export type MarketingCampaignListQueryInput = z.infer<typeof marketingCampaignListQuerySchema>
 
 export const adminNotificationSettingSchema = z.object({
     event: z.enum(AdminNotificationEvent),

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+    adminFriendLinkListQuerySchema,
     friendLinkCategorySchema,
     friendLinkSchema,
     friendLinkApplicationSchema,
@@ -395,6 +396,35 @@ describe('utils/schemas/friend-link', () => {
             }
             const result = friendLinkApplicationReviewSchema.safeParse(data)
             expect(result.success).toBe(true)
+        })
+    })
+
+    describe('adminFriendLinkListQuerySchema', () => {
+        it('应该解析后台友链列表查询参数', () => {
+            const result = adminFriendLinkListQuerySchema.safeParse({
+                page: '2',
+                limit: '15',
+                status: FriendLinkStatus.ACTIVE,
+                categoryId: ' category-1 ',
+                featured: 'true',
+                keyword: '  example  ',
+            })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data).toEqual({
+                    page: 2,
+                    limit: 15,
+                    status: FriendLinkStatus.ACTIVE,
+                    categoryId: 'category-1',
+                    featured: true,
+                    keyword: 'example',
+                })
+            }
+        })
+
+        it('应该拒绝无效 featured 值', () => {
+            expect(adminFriendLinkListQuerySchema.safeParse({ featured: 'maybe' }).success).toBe(false)
         })
     })
 })

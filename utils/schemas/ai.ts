@@ -216,5 +216,48 @@ export const aiExternalTTSTaskSchema = z.object({
     options: aiTTSOptionsSchema,
 })
 
+const optionalTrimmedStringSchema = (maxLength: number) => z.preprocess(
+    (value) => {
+        if (typeof value !== 'string') {
+            return value
+        }
+
+        const trimmed = value.trim()
+        return trimmed.length > 0 ? trimmed : undefined
+    },
+    z.string().max(maxLength).optional(),
+)
+
+export const aiAdminTaskListQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(10),
+    type: optionalTrimmedStringSchema(50),
+    category: z.enum(['text', 'image', 'tts', 'asr', 'video', 'podcast']).optional(),
+    status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
+    chargeStatus: z.enum(['none', 'estimated', 'actual', 'waived']).optional(),
+    failureStage: z.enum(['preflight', 'provider_rejected', 'provider_processing', 'post_process']).optional(),
+    search: optionalTrimmedStringSchema(255),
+})
+
+export const aiAdminTaskDeleteQuerySchema = z.object({
+    ids: z.preprocess(
+        (value) => {
+            const raw = Array.isArray(value) ? value.join(',') : value
+
+            if (typeof raw !== 'string') {
+                return raw
+            }
+
+            return raw
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean)
+        },
+        z.array(z.string().trim().refine((value) => isSnowflakeId(value), {
+            message: 'Invalid AI task id',
+        })).min(1, 'No task IDs provided'),
+    ),
+})
+
 export type AiTranslateInput = z.infer<typeof aiTranslateSchema>
 export type AiSummarizeInput = z.infer<typeof aiSummarizeSchema>

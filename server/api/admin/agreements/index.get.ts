@@ -2,6 +2,7 @@ import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { getAgreementVersions } from '@/server/services/agreement'
 import type { AgreementType } from '@/types/agreement'
+import { agreementAdminListQuerySchema } from '@/utils/schemas/agreement'
 
 /**
  * GET /api/admin/agreements
@@ -13,18 +14,16 @@ import type { AgreementType } from '@/types/agreement'
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const query = getQuery(event)
-    const type = query.type as string
-    const language = query.language as string | undefined
+    const result = await getValidatedQuery(event, (query) => agreementAdminListQuerySchema.safeParse(query))
 
-    if (!type || !['user_agreement', 'privacy_policy'].includes(type)) {
+    if (!result.success) {
         return fail('Invalid agreement type', 400)
     }
 
     try {
         const versions = await getAgreementVersions(
-            type as AgreementType,
-            language,
+            result.data.type,
+            result.data.language,
         )
         return success(versions)
     } catch (error: any) {

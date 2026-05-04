@@ -78,8 +78,50 @@ export const friendLinkApplicationListQuerySchema = z.object({
     status: z.enum(FriendLinkApplicationStatus).optional(),
 })
 
+const optionalTrimmedFriendLinkStringSchema = (maxLength: number) => z.preprocess(
+    (value) => {
+        if (typeof value !== 'string') {
+            return value
+        }
+
+        const trimmed = value.trim()
+        return trimmed.length > 0 ? trimmed : undefined
+    },
+    z.string().max(maxLength).optional(),
+)
+
+export const adminFriendLinkListQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    status: z.enum([FriendLinkStatus.DRAFT, FriendLinkStatus.ACTIVE, FriendLinkStatus.INACTIVE]).optional(),
+    categoryId: optionalTrimmedFriendLinkStringSchema(64),
+    featured: z.preprocess(
+        (value) => {
+            if (value === undefined || value === null || value === '') {
+                return undefined
+            }
+            if (typeof value === 'boolean') {
+                return value
+            }
+            if (typeof value === 'string') {
+                if (value === 'true') {
+                    return true
+                }
+                if (value === 'false') {
+                    return false
+                }
+            }
+
+            return value
+        },
+        z.boolean().optional(),
+    ),
+    keyword: optionalTrimmedFriendLinkStringSchema(255),
+})
+
 export type FriendLinkCategoryInput = z.infer<typeof friendLinkCategorySchema>
 export type FriendLinkInput = z.infer<typeof friendLinkSchema>
 export type FriendLinkApplicationInput = z.infer<typeof friendLinkApplicationSchema>
 export type FriendLinkApplicationReviewInput = z.infer<typeof friendLinkApplicationReviewSchema>
 export type FriendLinkApplicationListQueryInput = z.infer<typeof friendLinkApplicationListQuerySchema>
+export type AdminFriendLinkListQueryInput = z.infer<typeof adminFriendLinkListQuerySchema>

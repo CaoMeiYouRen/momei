@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { agreementBodySchema, agreementUpdateSchema, agreementReviewStatusSchema } from './agreement'
+import { agreementAdminListQuerySchema, agreementBodySchema, agreementIdParamSchema, agreementUpdateSchema, agreementReviewStatusSchema } from './agreement'
 
 describe('agreementBodySchema', () => {
     const valid = {
@@ -53,5 +53,40 @@ describe('agreementReviewStatusSchema', () => {
 
     it('rejects invalid statuses', () => {
         expect(agreementReviewStatusSchema.safeParse({ reviewStatus: 'invalid' }).success).toBe(false)
+    })
+})
+
+describe('agreementAdminListQuerySchema', () => {
+    it('accepts valid agreement list query', () => {
+        const result = agreementAdminListQuerySchema.safeParse({
+            type: 'user_agreement',
+            language: '  en-US  ',
+        })
+
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data).toEqual({
+                type: 'user_agreement',
+                language: 'en-US',
+            })
+        }
+    })
+
+    it('rejects invalid agreement type', () => {
+        expect(agreementAdminListQuerySchema.safeParse({ type: 'invalid' }).success).toBe(false)
+    })
+})
+
+describe('agreementIdParamSchema', () => {
+    it('trims and accepts non-empty agreement id', () => {
+        const result = agreementIdParamSchema.safeParse({ id: ' agreement-1 ' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.id).toBe('agreement-1')
+        }
+    })
+
+    it('rejects empty agreement id', () => {
+        expect(agreementIdParamSchema.safeParse({ id: '   ' }).success).toBe(false)
     })
 })

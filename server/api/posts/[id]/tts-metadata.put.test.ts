@@ -53,8 +53,8 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
     }
 
     const postRepo = {
-        findOneBy: vi.fn(async () => post),
-        save: vi.fn(async (value) => value),
+        findOneBy: vi.fn(() => Promise.resolve(post)),
+        save: vi.fn((value) => Promise.resolve(value)),
     }
 
     const taskRepo = {
@@ -62,7 +62,7 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
             id: 'task-direct-1',
             ...payload,
         })),
-        save: vi.fn(async (value) => value),
+        save: vi.fn((value) => Promise.resolve(value)),
     }
 
     beforeEach(async () => {
@@ -74,12 +74,13 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
         } as any)
         vi.mocked(TTSService.estimateCost).mockResolvedValue(0.42)
         vi.mocked(dataSource.getRepository).mockImplementation((entity) => {
-            const entityName =
-                typeof entity === 'function'
-                    ? entity.name
-                    : typeof entity === 'object' && entity !== null && 'name' in entity
-                        ? (entity as { name?: string }).name
-                        : undefined
+            let entityName: string | undefined
+
+            if (typeof entity === 'function') {
+                entityName = entity.name
+            } else if (typeof entity === 'object' && entity !== null && 'name' in entity) {
+                entityName = (entity as { name?: string }).name
+            }
 
             if (entityName === 'Post') {
                 return postRepo as any
