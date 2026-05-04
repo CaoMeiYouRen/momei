@@ -36,8 +36,9 @@
 	- 非目标: 不重写 `TTSService.processTask()`，不动 `media-task-monitor`
 
 - [ ] **测试覆盖率冲刺 80%+ (P0)**
-	- 范围: Lines 75.8% 继续提升，优先 Phase 33 新增组件 + 认证流边角分支 + 热点读链路失败路径。
+	- 范围: 已从全仓 lines `75.28%` 拉升到 `78.06%`，本轮优先命中了 Phase 33/34 settings 面板、认证/通知边角、热点读链路失败路径与高 ROI composable / service 切片；后续继续冲 `80%+`。
 	- 收口线: `>= 78%`（`80%+` 冲刺）。
+	- 最新进度: 2026-05-04 全量 `pnpm test:coverage` 已达到 lines `78.06%`，阶段收口线达成；条目暂不关闭，后续从 `>= 78%` 转为继续冲 `80%+`。
 
 - [ ] **周期性回归执行 (P1)**
 	- 范围: `pnpm regression:phase-close` 真实回归，覆盖 coverage / lint-typecheck / dup code / docs / RG。

@@ -210,4 +210,74 @@ describe('AppSearch', () => {
 
         consoleErrorSpy.mockRestore()
     })
+
+    it('shows the loading state while a search request is still pending', async () => {
+        let resolveRequest: ((value: any) => void) | undefined
+        appFetchMock.mockReturnValueOnce(new Promise((resolve) => {
+            resolveRequest = resolve
+        }))
+
+        const wrapper = await mountSuspended(AppSearch, {
+            global: {
+                stubs: {
+                    Dialog: DialogStub,
+                    InputText: InputTextStub,
+                    Tag: TagStub,
+                    NuxtLink: NuxtLinkStub,
+                },
+            },
+        })
+
+        await wrapper.find('input').setValue('slow')
+        await Promise.resolve()
+
+        expect(wrapper.find('.app-search__status').exists()).toBe(true)
+
+        resolveRequest?.({
+            code: 200,
+            data: {
+                items: [],
+            },
+        })
+        await Promise.resolve()
+        await Promise.resolve()
+
+        expect(wrapper.find('.app-search__status').exists()).toBe(false)
+    })
+
+    it('keeps the empty state when the api returns a non-200 response and does not navigate on enter', async () => {
+        appFetchMock.mockResolvedValueOnce({
+            code: 500,
+            data: {
+                items: [{
+                    id: 'ignored',
+                    slug: 'ignored',
+                    title: 'Ignored',
+                    summary: 'Ignored',
+                    category: null,
+                    language: 'en-US',
+                }],
+            },
+        })
+
+        const wrapper = await mountSuspended(AppSearch, {
+            global: {
+                stubs: {
+                    Dialog: DialogStub,
+                    InputText: InputTextStub,
+                    Tag: TagStub,
+                    NuxtLink: NuxtLinkStub,
+                },
+            },
+        })
+
+        await wrapper.find('input').setValue('ignored')
+        await Promise.resolve()
+        await Promise.resolve()
+        await wrapper.find('input').trigger('keyup.enter')
+
+        expect(wrapper.text()).toContain('No results found')
+        expect(navigateToMock).not.toHaveBeenCalled()
+        expect(closeSearchMock).not.toHaveBeenCalled()
+    })
 })

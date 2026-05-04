@@ -5,14 +5,18 @@ import { authClient } from '@/lib/auth-client'
 
 // Mock PrimeVue components
 const stubs = {
-    Button: { template: '<button><slot /></button>' },
+    Button: {
+        emits: ['click'],
+        props: ['loading', 'label', 'type'],
+        template: '<button :disabled="loading" :type="type" @click="$emit(\'click\')">{{ label }}<slot /></button>',
+    },
     InputText: {
         props: ['modelValue'],
         template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
     Textarea: {
-        props: ['modelValue'],
-        template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+        props: ['modelValue', 'placeholder'],
+        template: '<textarea :value="modelValue" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
 }
 
@@ -95,6 +99,7 @@ describe('CommentForm', () => {
 
     it('submits the form successfully', async () => {
         const mockFetch = vi.fn().mockResolvedValue({})
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined)
         vi.stubGlobal('$fetch', mockFetch)
 
         const wrapper = await mountSuspended(CommentForm, {
@@ -126,6 +131,117 @@ describe('CommentForm', () => {
         expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'success',
         }))
+        expect(setItemSpy).toHaveBeenCalledWith('momei_guest_info', JSON.stringify({
+            name: 'John Doe',
+            email: 'john@example.com',
+            url: '',
+        }))
         expect(wrapper.emitted('success')).toBeTruthy()
+    })
+
+    it('shows the guest moderation hint for anonymous readers', async () => {
+        const wrapper = await mountSuspended(CommentForm, {
+            props: {
+                postId: '1',
+            },
+            global: {
+                stubs,
+            },
+        })
+
+        expect(wrapper.find('.comment-form__tip').exists()).toBe(true)
+        expect(wrapper.find('textarea').attributes('placeholder')).toBeTruthy()
+    })
+
+    it('emits cancel-reply when closing the replying banner', async () => {
+        const wrapper = await mountSuspended(CommentForm, {
+            props: {
+                postId: '1',
+                parentId: 'reply-1',
+                replyToName: 'Alice',
+            },
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.get('.comment-form__replying-to button').trigger('click')
+
+        expect(wrapper.emitted('cancel-reply')).toBeTruthy()
+    })
+
+    it('submits with the signed-in user profile and skips guest persistence', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({})
+        const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined)
+        vi.stubGlobal('$fetch', mockFetch)
+        // @ts-expect-error - mock function
+        authClient.useSession.mockReturnValue({
+            value: {
+                data: {
+                    user: {
+                        id: 'user-1',
+                        name: 'Member',
+                        email: 'member@example.com',
+                    },
+                },
+            },
+        })
+
+        const wrapper = await mountSuspended(CommentForm, {
+            props: {
+                postId: 'post-456',
+            },
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.find('textarea').setValue('Signed in comment')
+        await wrapper.find('form').trigger('submit')
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/posts/post-456/comments', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({
+                authorName: 'Member',
+                authorEmail: 'member@example.com',
+                content: 'Signed in comment',
+            }),
+        }))
+        expect(setItemSpy).not.toHaveBeenCalled()
+        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'success',
+            detail: expect.any(String),
+        }))
+    })
+
+    it('shows an error toast when comment submission fails', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        const mockFetch = vi.fn().mockRejectedValue({
+            statusMessage: 'Submission failed',
+        })
+        vi.stubGlobal('$fetch', mockFetch)
+
+        const wrapper = await mountSuspended(CommentForm, {
+            props: {
+                postId: 'post-789',
+            },
+            global: {
+                stubs,
+            },
+        })
+
+        await wrapper.find('#nickname').setValue('John Doe')
+        await wrapper.find('#email').setValue('john@example.com')
+        await wrapper.find('textarea').setValue('This will fail')
+        await wrapper.find('form').trigger('submit')
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Comment submission failed:', expect.objectContaining({
+            statusMessage: 'Submission failed',
+        }))
+        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'Submission failed',
+        }))
+        expect(wrapper.get('button').attributes('disabled')).toBeUndefined()
     })
 })

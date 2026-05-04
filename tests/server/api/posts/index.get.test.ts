@@ -339,6 +339,26 @@ describe('/api/posts', () => {
         expect(result.data!.items.length).toBeGreaterThan(0)
     })
 
+    it('should filter category slugs by language in public mode', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                category: 'tech',
+                language: 'en',
+            },
+        } as any
+
+        const result = await postsHandler(event)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.items.every((item: any) => item.category?.slug === 'tech')).toBe(true)
+    })
+
     it('should filter by tag', async () => {
         const event = {
             context: {},
@@ -356,6 +376,43 @@ describe('/api/posts', () => {
 
         expect(result.code).toBe(200)
         expect(result.data!.items.length).toBeGreaterThan(0)
+    })
+
+    it('should filter by tag slug language and explicit tag id', async () => {
+        const slugEvent = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                tag: 'test',
+                language: 'en',
+            },
+        } as any
+
+        const slugResult = await postsHandler(slugEvent)
+
+        expect(slugResult.code).toBe(200)
+        expect(slugResult.data!.items.length).toBeGreaterThan(0)
+
+        const tagIdEvent = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                tagId: tag.id,
+            },
+        } as any
+
+        const tagIdResult = await postsHandler(tagIdEvent)
+
+        expect(tagIdResult.code).toBe(200)
+        expect(tagIdResult.data!.items.length).toBeGreaterThan(0)
     })
 
     it('should support sorting', async () => {
@@ -417,6 +474,44 @@ describe('/api/posts', () => {
         expect(result.code).toBe(200)
         expect(result.data!.items.some((item: PostRecord) => item.id === pinnedPostId)).toBe(false)
         expect(result.data!.items.some((item: PostRecord) => item.id === popularPostId)).toBe(true)
+    })
+
+    it('should filter explicit pinned state and translation clusters', async () => {
+        const pinnedEvent = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                isPinned: false,
+            },
+        } as any
+
+        const pinnedResult = await postsHandler(pinnedEvent)
+
+        expect(pinnedResult.code).toBe(200)
+        expect(pinnedResult.data!.items.some((item: PostRecord) => item.id === pinnedPostId)).toBe(false)
+
+        const translationEvent = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                translationId: translationClusterId,
+                orderBy: 'publishedAt',
+                order: 'DESC',
+            },
+        } as any
+
+        const translationResult = await postsHandler(translationEvent)
+
+        expect(translationResult.code).toBe(200)
+        expect(translationResult.data!.items.every((item: any) => item.translationId === translationClusterId)).toBe(true)
     })
 
     it('should return empty array when no posts found', async () => {

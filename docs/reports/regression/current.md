@@ -9,6 +9,43 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-04 第三十四阶段 coverage 80%+ 冲刺收口线达成
+
+### 范围
+
+- 目标：在第三十四阶段 `测试覆盖率冲刺 80%+ (P0)` 中，先把阶段收口线稳定推过 `>= 78%`，不再停留于局部定向 coverage，而是以全量 `pnpm test:coverage` 的 lines 结果作为唯一放行口径。
+- 起点基线：沿用本窗口首轮记录的全仓基线，lines `75.28%`；本轮推进过程中曾依次复跑到 `76.52%`、`76.91%`、`77.22%`、`77.48%`，最后继续补两块低风险高 ROI 后再做最终全量复跑。
+- 本轮覆盖：公开读链路失败路径、通知/商业/安全等用户 settings 面板、后台简单 settings 表单、后台友链管理 composable 与短链服务等高 ROI 切片。
+- 非目标：本轮只要求达成 `>= 78%` 阶段收口线，不把条目直接扩写成“已达成 80%+”；仓内仍保留若干 0% 或低覆盖的大体量后台编辑器文件，暂不在本轮硬啃。
+
+### 实施结论
+
+- 公开读链路与轻量公共组件侧，已补齐 [components/ad-placement.test.ts](../../components/ad-placement.test.ts)、[components/rss-icon.test.ts](../../components/rss-icon.test.ts) 与 [pages/benefits.behavior.test.ts](../../pages/benefits.behavior.test.ts)，把广告位装配、SVG 图标与 benefits 页提交失败路径纳入守线。
+- 用户侧 settings / notifications / commercial / security 切片，已新增并稳定通过 [components/settings/settings-security.test.ts](../../components/settings/settings-security.test.ts)、[components/settings/settings-api-keys.test.ts](../../components/settings/settings-api-keys.test.ts)、[components/settings/settings-notifications.test.ts](../../components/settings/settings-notifications.test.ts)、[components/settings/settings-commercial.test.ts](../../components/settings/settings-commercial.test.ts) 与 [components/settings/notification-history-list.test.ts](../../components/settings/notification-history-list.test.ts)。
+- 后台简单 settings 表单继续作为低风险高 ROI 补量面，已新增并通过 [components/admin/settings/auth-settings.test.ts](../../components/admin/settings/auth-settings.test.ts)、[components/admin/settings/security-settings.test.ts](../../components/admin/settings/security-settings.test.ts)、[components/admin/settings/limits-settings.test.ts](../../components/admin/settings/limits-settings.test.ts)、[components/admin/settings/storage-settings.test.ts](../../components/admin/settings/storage-settings.test.ts)、[components/admin/settings/email-settings.test.ts](../../components/admin/settings/email-settings.test.ts) 与 [components/admin/settings/analytics-settings.test.ts](../../components/admin/settings/analytics-settings.test.ts)。
+- 较大 ROI 切片方面，已补齐 [composables/use-admin-friend-links-page.test.ts](../../composables/use-admin-friend-links-page.test.ts) 与 [server/services/link.test.ts](../../server/services/link.test.ts)，分别回收后台友链管理状态流与短链服务 DB 路径的大块缺口。
+- 最终全量 coverage 已稳定过线：All files statements `78.01%` / branches `65.32%` / functions `74.17%` / lines `78.06%`。这说明第三十四阶段 coverage 冲刺的阶段收口线已经达成，后续若继续推进，目标应从“保 78”切换为“继续冲 80+”。
+
+### 已执行验证
+
+- `pnpm exec vitest run components/admin/settings/email-settings.test.ts components/admin/settings/analytics-settings.test.ts`
+	- 结果：通过；`2` 个文件、`2` 个测试全部通过。
+- `pnpm exec eslint components/admin/settings/email-settings.test.ts components/admin/settings/analytics-settings.test.ts`
+	- 结果：通过；无输出。
+- `pnpm test:coverage`
+	- 结果：通过；`451` 个测试文件通过、`1` 个跳过；`3482` 个测试通过、`1` 个跳过；All files 为 statements `78.01%` / branches `65.32%` / functions `74.17%` / lines `78.06%`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮已经达成 `>= 78%` 阶段收口线，但 Todo 条目标题仍是 `80%+` 冲刺，因此当前只能视为阶段目标达成，不等于整个 coverage 治理条目已经完成；若后续继续冲 `80%+`，应优先转向高体量低覆盖后台编辑器或 composable，而不是继续在个位数增益的小文件上摊薄时间。
+
+### 未覆盖边界
+
+- 当前全仓 coverage 已过 `78%`，但距离 `80%+` 仍有明显空间；[components/admin/settings/site-settings.vue](../../components/admin/settings/site-settings.vue)、[components/admin/settings/cache-settings.vue](../../components/admin/settings/cache-settings.vue)、后台 posts editor 相关大文件仍是下一批高 ROI 候选。
+- 根仓 `nuxt typecheck` 仍存在本轮范围外的既有问题，因此本条回归记录只把“本轮新增测试文件局部 lint 通过 + 全量 coverage 过线”作为放行证据，不把整仓 merge-ready 与本条混为一谈。
+
 ## 2026-05-04 第三十四阶段 coverage 80%+ 冲刺首轮推进
 
 ### 范围
