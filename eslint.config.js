@@ -42,6 +42,67 @@ const maxLinesExceptionFiles = ['components/admin/posts/post-distribution-button
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
 const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
 
+const lineRuleOverrides = [
+    createRuleOverride({
+        // 文章分发按钮当前汇聚多平台预览与分发编排，先做单文件 max-lines 豁免，后续再按功能块拆分。
+        files: maxLinesExceptionFiles,
+        rules: {
+            'max-lines': [0],
+        },
+    }),
+    createRuleOverride({
+        files: testFiles,
+        rules: {
+            'max-lines': [1, { max: 1000 }], // 测试文件的行数限制放宽一些
+            'max-lines-per-function': [1, { max: 800 }], // 测试文件的函数行数限制放宽一些
+        },
+    }),
+]
+
+const strictTsRuleOverrides = [
+    createRuleOverride({
+        // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
+        files: tsFiles,
+        ignores: productionTsIgnores,
+        rules: {
+            '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
+            '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
+            '@typescript-eslint/no-unnecessary-type-assertion': [1], // 仅对生产 TS 收紧，先清理低命中冗余断言
+        },
+    }),
+    createRuleOverride({
+        // 第二批仅对 server 目录收紧低风险的冗余类型参数，继续维持 tests / scripts / migrations 豁免。
+        files: serverTsFiles,
+        ignores: productionTsIgnores,
+        rules: {
+            '@typescript-eslint/no-unnecessary-type-arguments': [1],
+        },
+    }),
+    createRuleOverride({
+        // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
+        files: settingsApiTsFiles,
+        ignores: runtimeTsIgnores,
+        rules: {
+            '@typescript-eslint/no-unnecessary-type-conversion': [1],
+        },
+    }),
+    createRuleOverride({
+        // 继续沿用 no-explicit-any 的窄切片策略，并把工具层 / API 单文件切片收敛到同一条 override。
+        files: noExplicitAnyFiles,
+        ignores: runtimeTsIgnores,
+        rules: {
+            '@typescript-eslint/no-explicit-any': [1],
+        },
+    }),
+    createRuleOverride({
+        // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
+        files: ['composables/use-post-editor-io.ts'],
+        rules: {
+            '@typescript-eslint/no-non-null-assertion': [1],
+        },
+    }),
+]
+
 function createRuleOverride({ files, rules, ignores = [] }) {
     return ignores.length > 0
         ? { files, ignores, rules }
@@ -145,20 +206,7 @@ export default withNuxt(
             'max-lines-per-function': [1, { max: 500 }], // 强制函数最大行数
         },
     },
-    createRuleOverride({
-        // 文章分发按钮当前汇聚多平台预览与分发编排，先做单文件 max-lines 豁免，后续再按功能块拆分。
-        files: maxLinesExceptionFiles,
-        rules: {
-            'max-lines': [0],
-        },
-    }),
-    createRuleOverride({
-        files: testFiles,
-        rules: {
-            'max-lines': [1, { max: 1000 }], // 测试文件的行数限制放宽一些
-            'max-lines-per-function': [1, { max: 800 }], // 测试文件的函数行数限制放宽一些
-        },
-    }),
+    ...lineRuleOverrides,
     {
         files: tsFiles,
         extends: [
@@ -199,6 +247,7 @@ export default withNuxt(
             '@typescript-eslint/no-invalid-void-type': [1], // 禁止在泛型或返回类型之外使用 void 类型
             '@typescript-eslint/no-unnecessary-type-parameters': [1], // 禁止在类型参数未被使用时将其添加到泛型函数中
             '@typescript-eslint/no-unused-vars': [1, { argsIgnorePattern: '^_' }], // 禁止未使用的变量，参数名以 _ 开头的除外
+            '@typescript-eslint/no-misused-spread': [1], // 禁止在非数组类型上使用扩展运算符
 
             '@typescript-eslint/no-extraneous-class': [0], // 允许存在没有成员的类，或者只有静态成员的类
             '@typescript-eslint/no-confusing-void-expression': [0], // 要求类型为 void 的表达式出现在语句位置
@@ -224,57 +273,9 @@ export default withNuxt(
             '@typescript-eslint/no-unsafe-call': [0], // 不允许对 any 类型的值进行调用
             '@typescript-eslint/unbound-method': [0], // 不允许不绑定上下文的类方法引用
 
-            '@typescript-eslint/no-misused-spread': [0], // 禁止在可能引起意外行为时使用展开运算符
             '@typescript-eslint/no-dynamic-delete': [0], // 允许使用 delete 操作符删除对象的属性，即使该对象的类型不包含索引签名
             '@typescript-eslint/no-unnecessary-type-conversion': [0], // 禁止在表达式类型或值未发生变化时使用转换惯用法
         },
     },
-    createRuleOverride({
-        // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
-        files: tsFiles,
-        ignores: productionTsIgnores,
-        rules: {
-            '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
-            '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
-            '@typescript-eslint/no-unnecessary-type-assertion': [1], // 仅对生产 TS 收紧，先清理低命中冗余断言
-        },
-    }),
-    createRuleOverride({
-        // 第二批仅对 server 目录收紧低风险的冗余类型参数，继续维持 tests / scripts / migrations 豁免。
-        files: serverTsFiles,
-        ignores: productionTsIgnores,
-        rules: {
-            '@typescript-eslint/no-unnecessary-type-arguments': [1],
-        },
-    }),
-    createRuleOverride({
-        // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
-        files: settingsApiTsFiles,
-        ignores: runtimeTsIgnores,
-        rules: {
-            '@typescript-eslint/no-unnecessary-type-conversion': [1],
-        },
-    }),
-    createRuleOverride({
-        // 继续沿用 no-explicit-any 的窄切片策略，并把工具层 / API 单文件切片收敛到同一条 override。
-        files: noExplicitAnyFiles,
-        ignores: runtimeTsIgnores,
-        rules: {
-            '@typescript-eslint/no-explicit-any': [1],
-        },
-    }),
-    createRuleOverride({
-        // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
-        files: ['composables/use-post-editor-io.ts'],
-        rules: {
-            '@typescript-eslint/no-non-null-assertion': [1],
-        },
-    }),
-    createRuleOverride({
-        // 全量启用的规则，生产、测试与脚本范围均命中，以持续提升整体代码质量。
-        files: tsFiles,
-        rules: {
-            '@typescript-eslint/no-misused-spread': [1], // production 与 tests 命中已清零，继续排除脚本范围
-        },
-    }),
+    ...strictTsRuleOverrides,
 )
