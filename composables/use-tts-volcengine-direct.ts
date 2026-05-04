@@ -774,7 +774,7 @@ export function useTTSVolcengineDirect() {
             toast.add({
                 severity: 'success',
                 summary: t('common.success'),
-                detail: t('admin.post.tts.completed'),
+                detail: t('pages.admin.posts.tts.completed'),
                 life: 3000,
             })
 
