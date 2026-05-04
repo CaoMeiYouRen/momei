@@ -1,4 +1,3 @@
-import os from 'os'
 import { defineConfig, devices } from '@playwright/test'
 
 const e2eHost = '127.0.0.1'

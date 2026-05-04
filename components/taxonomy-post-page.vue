@@ -149,9 +149,14 @@ function buildLocalizedPath(targetPath: string, language: AppLocaleCode | null) 
     return language ? localePath({ path: targetPath }, language) : localePath(targetPath)
 }
 
+function resolveTaxonomyCollectionPath(taxonomyType: 'category' | 'tag') {
+    return taxonomyType === 'category' ? '/categories' : '/tags'
+}
+
 const homePath = computed(() => buildLocalizedPath('/', entityLanguage.value))
-const indexPath = computed(() => buildLocalizedPath(`/${props.taxonomyType}s`, entityLanguage.value))
-const canonicalPath = computed(() => buildLocalizedPath(`/${props.taxonomyType}s/${entitySlug.value}`, entityLanguage.value))
+const collectionPath = computed(() => resolveTaxonomyCollectionPath(props.taxonomyType))
+const indexPath = computed(() => buildLocalizedPath(collectionPath.value, entityLanguage.value))
+const canonicalPath = computed(() => buildLocalizedPath(`${collectionPath.value}/${entitySlug.value}`, entityLanguage.value))
 const canonicalUrl = computed(() => buildAbsoluteUrl(siteUrl.value, canonicalPath.value))
 const feedHref = computed(() => {
     const searchParams = new URLSearchParams()

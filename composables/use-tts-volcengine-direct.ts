@@ -558,7 +558,7 @@ export function useTTSVolcengineDirect() {
                 const startFrame = buildPodcastStartFrame(sessionId, text, speakerIds)
                 ws.send(startFrame.buffer as ArrayBuffer)
                 progress.value = 15
-                console.log('[TTS Podcast] WS connected, session:', sessionId)
+                console.info('[TTS Podcast] WS connected, session:', sessionId)
             }
 
             ws.onmessage = (ev) => {
@@ -582,7 +582,7 @@ export function useTTSVolcengineDirect() {
                     return
                 }
 
-                console.log('[TTS Podcast] Event:', pkt.event, 'payloadLen:', pkt.rawPayload.length)
+                console.info('[TTS Podcast] Event:', pkt.event, 'payloadLen:', pkt.rawPayload.length)
 
                 // event=361: 音频数据（对齐服务端处理逻辑）
                 if (pkt.event === 361) {
@@ -641,7 +641,7 @@ export function useTTSVolcengineDirect() {
                         // 设置超时兜底：5 秒后若仍未 resolve，用已有音频关闭
                         setTimeout(() => {
                             if (!settled) {
-                                console.log('[TTS Podcast] Timeout after PodcastEnd, resolving with', audioChunks.length, 'chunks')
+                                console.info('[TTS Podcast] Timeout after PodcastEnd, resolving with', audioChunks.length, 'chunks')
                                 cleanup()
                                 progress.value = 70
                                 const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
@@ -668,7 +668,7 @@ export function useTTSVolcengineDirect() {
                     } catch { /* ignore */ }
                     cleanup()
                     progress.value = 70
-                    console.log('[TTS Podcast] Resolving with', audioChunks.length, 'audio chunks,', totalBytes, 'bytes')
+                    console.info('[TTS Podcast] Resolving with', audioChunks.length, 'audio chunks,', totalBytes, 'bytes')
                     const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
                     const merged = new Uint8Array(total)
                     let offset = 0
@@ -689,7 +689,7 @@ export function useTTSVolcengineDirect() {
 
             ws.onclose = () => {
                 if (!settled) {
-                    console.log('[TTS Podcast] WS closed, chunks:', audioChunks.length, 'bytes:', totalBytes)
+                    console.info('[TTS Podcast] WS closed, chunks:', audioChunks.length, 'bytes:', totalBytes)
                     cleanup()
                     if (audioChunks.length > 0) {
                         const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
