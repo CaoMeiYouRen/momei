@@ -60,7 +60,7 @@ async function mountControls() {
 }
 
 function getWindowListenerCalls(spy: ReturnType<typeof vi.spyOn>) {
-    return spy.mock.calls as Array<[string, EventListenerOrEventListenerObject]>
+    return spy.mock.calls as [string, EventListenerOrEventListenerObject][]
 }
 
 describe('ReaderControls', () => {
