@@ -1,7 +1,6 @@
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { getAgreementVersions } from '@/server/services/agreement'
-import type { AgreementType } from '@/types/agreement'
 import { agreementAdminListQuerySchema } from '@/utils/schemas/agreement'
 
 /**

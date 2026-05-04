@@ -77,7 +77,7 @@ describe('POST /api/external/ai/tts/task', () => {
         vi.mocked(TTSService.getProvider).mockResolvedValue({ model: 'seed-tts-2.0' } as any)
         vi.mocked(TTSService.processTask).mockResolvedValue(undefined)
         vi.mocked(assertAIQuotaAllowance).mockResolvedValue(undefined)
-        mocks.readValidatedBody.mockImplementation(async (event: { body?: unknown }, parser: (body: unknown) => unknown) => parser(event.body))
+        mocks.readValidatedBody.mockImplementation((event: { body?: unknown }, parser: (body: unknown) => unknown) => Promise.resolve(parser(event.body)))
     })
 
     it('should register external TTS processing with waitUntil when available', async () => {
