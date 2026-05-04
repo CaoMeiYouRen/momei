@@ -68,6 +68,10 @@ mockNuxtImport('onBeforeUnmount', () => (callback: () => void) => {
     beforeUnmountCallbacks.push(callback)
 })
 
+function getWindowListenerCalls(spy: ReturnType<typeof vi.spyOn>) {
+    return spy.mock.calls as [string, EventListenerOrEventListenerObject][]
+}
+
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
         useSession: mockUseSession,
@@ -218,9 +222,12 @@ describe('useAuthSession', () => {
         setupAuthSessionLifecycle(liveSession as never)
         expect(mountedCallbacks).toHaveLength(1)
 
-        mountedCallbacks[0]()
+        const mountedCallback = mountedCallbacks[0]
+        expect(mountedCallback).toBeTypeOf('function')
+        mountedCallback?.()
 
-        const focusListener = addWindowListenerSpy.mock.calls.find(([eventName]) => eventName === 'focus')?.[1]
+        const focusListener = getWindowListenerCalls(addWindowListenerSpy)
+            .find(([eventName]) => eventName === 'focus')?.[1]
 
         expect(focusListener).toBeTypeOf('function')
         expect(addDocumentListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
@@ -242,7 +249,9 @@ describe('useAuthSession', () => {
         expect(liveSession.value.refetch).toHaveBeenCalledTimes(1)
 
         expect(beforeUnmountCallbacks).toHaveLength(1)
-        beforeUnmountCallbacks[0]()
+        const beforeUnmountCallback = beforeUnmountCallbacks[0]
+        expect(beforeUnmountCallback).toBeTypeOf('function')
+        beforeUnmountCallback?.()
 
         expect(removeWindowListenerSpy).toHaveBeenCalledWith('focus', focusListener)
         expect(removeDocumentListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
@@ -265,12 +274,16 @@ describe('useAuthSession', () => {
         }
 
         setupAuthSessionLifecycle(liveSession as never)
-        mountedCallbacks[0]()
+        const mountedCallback = mountedCallbacks[0]
+        expect(mountedCallback).toBeTypeOf('function')
+        mountedCallback?.()
 
         currentTimestamp = 62_000
-        const focusListener = addWindowListenerSpy.mock.calls.find(([eventName]) => eventName === 'focus')?.[1] as EventListener
+        const focusListener = getWindowListenerCalls(addWindowListenerSpy)
+            .find(([eventName]) => eventName === 'focus')?.[1] as EventListener | undefined
 
-        focusListener(new Event('focus'))
+        expect(focusListener).toBeTypeOf('function')
+        focusListener?.(new Event('focus'))
         await Promise.resolve()
         await Promise.resolve()
 

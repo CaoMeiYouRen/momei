@@ -2,10 +2,16 @@ import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SubscriberForm from './subscriber-form.vue'
 
+interface SessionData {
+    user: {
+        email: string
+    }
+}
+
 const { sessionRef, localeRef, fetchMock } = vi.hoisted(() => ({
     sessionRef: {
         value: {
-            data: null,
+            data: null as SessionData | null,
         },
     },
     localeRef: {

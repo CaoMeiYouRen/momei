@@ -597,9 +597,15 @@ describe('PostDetailPage', () => {
     })
 
     it('uses the post language for canonical and structured seo URLs', async () => {
+        const currentPost = mockFetchData.value?.data
+        expect(currentPost).toBeTruthy()
+        if (!currentPost) {
+            throw new Error('mockFetchData should be initialized before overriding post language')
+        }
+
         mockFetchData.value = {
             data: {
-                ...mockFetchData.value.data,
+                ...currentPost,
                 slug: 'english-post',
                 language: 'en-US',
             },
@@ -632,9 +638,15 @@ describe('PostDetailPage', () => {
     })
 
     it('does not publish FAQPage structured data when only one question heading is present', async () => {
+        const currentPost = mockFetchData.value?.data
+        expect(currentPost).toBeTruthy()
+        if (!currentPost) {
+            throw new Error('mockFetchData should be initialized before overriding post content')
+        }
+
         mockFetchData.value = {
             data: {
-                ...mockFetchData.value.data,
+                ...currentPost,
                 content: '## Is one question enough?\n\nNo, a single question heading should not emit FAQPage schema on its own.',
             },
         }

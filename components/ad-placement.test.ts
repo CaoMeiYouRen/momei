@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AdPlacement from './ad-placement.vue'
+import { AdLocation } from '@/types/ad'
 
 const { placementDataRef, pendingRef, scriptDataRef, useFetchMock } = vi.hoisted(() => ({
     placementDataRef: { __v_isRef: true, value: null as any },
@@ -35,7 +36,7 @@ vi.mock('vue-i18n', async (importOriginal) => {
 async function mountComponent(props?: Record<string, unknown>) {
     return mountSuspended(AdPlacement, {
         props: {
-            location: 'content_top',
+            location: AdLocation.CONTENT_TOP,
             ...props,
         },
         global: {
@@ -91,7 +92,7 @@ describe('AdPlacement', () => {
         placementDataRef.value = {
             id: 'placement-1',
             name: 'Top banner',
-            location: 'content_top',
+            location: AdLocation.CONTENT_TOP,
             format: 'html',
             adapterId: 'adsense',
             metadata: {
@@ -130,7 +131,7 @@ describe('AdPlacement', () => {
         placementDataRef.value = {
             id: 'placement-1',
             name: 'Top banner',
-            location: 'content_top',
+            location: AdLocation.CONTENT_TOP,
             format: 'html',
             adapterId: 'adsense',
             metadata: {

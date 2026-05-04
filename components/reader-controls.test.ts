@@ -59,6 +59,10 @@ async function mountControls() {
     })
 }
 
+function getWindowListenerCalls(spy: ReturnType<typeof vi.spyOn>) {
+    return spy.mock.calls as Array<[string, EventListenerOrEventListenerObject]>
+}
+
 describe('ReaderControls', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -139,7 +143,8 @@ describe('ReaderControls', () => {
         await wrapper.findAll('.reader-controls__actions button')[1]?.trigger('click')
         await nextTick()
 
-        const keydownHandler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'keydown')?.[1] as ((event: KeyboardEvent) => void) | undefined
+        const keydownHandler = getWindowListenerCalls(addEventListenerSpy)
+            .find(([eventName]) => eventName === 'keydown')?.[1] as ((event: KeyboardEvent) => void) | undefined
 
         keydownHandler?.(new KeyboardEvent('keydown', { key: 'Escape' }))
         await nextTick()
