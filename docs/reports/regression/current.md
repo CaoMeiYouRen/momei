@@ -9,6 +9,45 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-04 `use-tts-task.ts` `no-explicit-any` 回退切片
+
+### 范围
+
+- 目标：推进第三十四阶段 `ESLint 下一轮切片 (P1)` 时，先复核 `composables` 子桶当前没有新的 `no-non-null-assertion` 生产命中可继续上收，再按 todo 里的回退口径完成 `composables/use-tts-task.ts` 单文件 `@typescript-eslint/no-explicit-any` 切片。
+- 本轮覆盖：[composables/use-tts-task.ts](../../composables/use-tts-task.ts)、[composables/use-tts-task.test.ts](../../composables/use-tts-task.test.ts)、[eslint.config.js](../../eslint.config.js)、[docs/design/governance/eslint-type-debt-tightening.md](../../docs/design/governance/eslint-type-debt-tightening.md) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不把规则扩到整个 `composables/**`，不并行开启新的 `no-non-null-assertion` 或 `no-unsafe-*` 切片，也不把其它 TTS / upload composable 打包成多文件联动治理。
+
+### 实施结论
+
+- 结合既有 [2026-04-21-to-2026-05-01.md](./archive/2026-04-21-to-2026-05-01.md) 中 `composables` 子桶收口记录与当前生产源码命中分布，`no-non-null-assertion` 没有新的单文件高 ROI 候选，因此本轮按既定回退方案改做 `no-explicit-any` 单文件切片。
+- [composables/use-tts-task.ts](../../composables/use-tts-task.ts) 当前生产源码中的显式 `any` 共有 `2` 处，分别位于任务状态轮询的 `$fetch<any>` 与错误回退 `catch (e: any)`，且已有同级测试，符合“单文件、可回滚、验证便宜”的准入条件。
+- 本轮将任务轮询响应收窄为本地 `TTSTaskStatusPayload` / `TTSTaskResultPayload`，并复用 [types/ai.ts](../../types/ai.ts) 中的 `AITaskStatus` 作为状态事实源；音频 URL 解析与错误消息提取改为局部 helper，不再依赖显式 `any`。
+- [eslint.config.js](../../eslint.config.js) 已把 `composables/use-tts-task.ts` 并入既有的 `noExplicitAnyFiles` 聚合列表，继续维持“单文件 + 单条 override”的回滚边界。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run composables/use-tts-task.test.ts`
+	- 结果：通过；`5` 个测试全部通过，TTS 任务轮询、完成态音频 URL 解析与失败态错误回退行为保持稳定。
+- 定向 ESLint：`pnpm exec eslint composables/use-tts-task.ts eslint.config.js --max-warnings 0`
+	- 结果：通过；受影响文件无新增 warning / error。
+- 受影响文件诊断：`get_errors(use-tts-task.ts, eslint.config.js)`
+	- 结果：通过；两文件均无新增诊断。
+- 根仓类型检查：`nuxt typecheck targeted`
+	- 结果：失败，但命中均为本轮范围外的既有测试文件；[composables/use-tts-task.ts](../../composables/use-tts-task.ts) 与 [eslint.config.js](../../eslint.config.js) 自身无新增错误。
+- 文档构建：`pnpm docs:build`
+	- 结果：通过；文档站可完成 build，仅保留既有的 VitePress / Rolldown warning，不影响本轮治理记录落盘。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮切片本身无 blocker，单测、定向 ESLint 与文件级诊断均通过；当前只保留根仓 `nuxt typecheck` 的既有测试文件错误作为仓内背景噪音，不影响本轮单文件治理放行。
+
+### 未覆盖边界
+
+- 本轮没有把 `@typescript-eslint/no-explicit-any` 外溢到其它 TTS / upload composable；[composables/use-upload.ts](../../composables/use-upload.ts)、[composables/use-tts-volcengine-direct.ts](../../composables/use-tts-volcengine-direct.ts) 与其它轮询链路仍保留为后续单文件 / 双文件候选。
+- `no-non-null-assertion` 在 `composables` 子桶没有新的单文件候选不等于整条主线已经结束；后续若再推进，仍应优先保持“单一 composable / 单一链路”的切片策略。
+
 ## 2026-05-04 第三十四阶段 coverage 80%+ 冲刺收口线达成
 
 ### 范围

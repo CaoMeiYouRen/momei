@@ -1,5 +1,65 @@
 import { ref, unref, type Ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
+import type { AITaskStatus } from '@/types/ai'
+
+interface TTSTaskResultPayload {
+    audioUrl?: string | null
+    url?: string | null
+}
+
+interface TTSTaskStatusPayload {
+    status: AITaskStatus
+    progress: number
+    audioUrl?: string | null
+    result?: string | TTSTaskResultPayload | null
+    error?: string | null
+    errorMessage?: string | null
+}
+
+function resolveTaskAudioUrl(payload: TTSTaskStatusPayload) {
+    if (payload.audioUrl) {
+        return payload.audioUrl
+    }
+
+    if (!payload.result) {
+        return null
+    }
+
+    if (typeof payload.result === 'string') {
+        try {
+            const parsed = JSON.parse(payload.result) as TTSTaskResultPayload
+            return parsed.audioUrl || parsed.url || null
+        } catch (error) {
+            console.error('Failed to parse task result:', error)
+            return null
+        }
+    }
+
+    return payload.result.audioUrl || payload.result.url || null
+}
+
+function resolveTaskErrorMessage(error: unknown) {
+    if (typeof error !== 'object' || !error) {
+        return '获取任务状态失败'
+    }
+
+    const maybeError = error as {
+        data?: {
+            message?: unknown
+        }
+        message?: unknown
+    }
+
+    if (typeof maybeError.data?.message === 'string' && maybeError.data.message) {
+        return maybeError.data.message
+    }
+
+    if (typeof maybeError.message === 'string' && maybeError.message) {
+        return maybeError.message
+    }
+
+    return '获取任务状态失败'
+}
 
 /**
  * TTS 任务状态追踪 Composable
@@ -18,28 +78,25 @@ export function useTTSTask(taskIdRef: Ref<string | null>) {
 
         void (async () => {
             try {
-                const data = await $fetch<any>(`/api/tasks/tts/${taskId}`)
+                const data = await $fetch<TTSTaskStatusPayload>(`/api/tasks/tts/${taskId}`)
                 status.value = data.status
                 progress.value = data.progress
 
                 if (data.status === 'completed') {
-                    // 如果后端存入了 result，解析出 audioUrl
-                    if (data.result) {
-                        try {
-                            const result = typeof data.result === 'string' ? JSON.parse(data.result) : data.result
-                            audioUrl.value = result.audioUrl || result.url
-                        } catch (e) {
-                            console.error('Failed to parse task result:', e)
-                        }
+                    const resolvedAudioUrl = resolveTaskAudioUrl(data)
+
+                    if (resolvedAudioUrl) {
+                        audioUrl.value = resolvedAudioUrl
                     }
+
                     status.value = 'completed'
                     pause()
                 } else if (data.status === 'failed') {
                     error.value = data.error || data.errorMessage || '任务执行失败'
                     pause()
                 }
-            } catch (e: any) {
-                error.value = e.data?.message || e.message || '获取任务状态失败'
+            } catch (caughtError: unknown) {
+                error.value = resolveTaskErrorMessage(caughtError)
                 status.value = 'failed'
                 pause()
             }

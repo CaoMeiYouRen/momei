@@ -46,6 +46,7 @@
 
 - [ ] **ESLint 下一轮切片 (P1)**
 	- 范围: `no-non-null-assertion` composables 子桶；命中少则回退单文件 `no-explicit-any`。
+	- 最新进度: 2026-05-04 已确认 `composables` 子桶没有新的 `no-non-null-assertion` 高 ROI 命中可继续上收，本轮已按回退方案完成 `composables/use-tts-task.ts` 单文件 `no-explicit-any` 切片，并通过同级测试与定向 ESLint；待办继续保留，用于后续下一刀单文件 / 双文件候选推进。
 
 - [ ] **i18n 运行时继续扩面 (P1)**
 	- 范围: `app-footer` / 公开页装配链路 / Phase 33 新增共享组件（auth-card, taxonomy-post-page）命名空间。

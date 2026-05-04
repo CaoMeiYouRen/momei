@@ -26,6 +26,7 @@ const noExplicitAnyFiles = [
     ...noExplicitAnyUtilityFiles,
     ...noExplicitAnyApiFiles,
     'composables/use-post-editor-voice.ts',
+    'composables/use-tts-task.ts',
 ]
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
 const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
