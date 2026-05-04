@@ -6,7 +6,9 @@ import { TTSService } from '@/server/services/ai'
 import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
+import { createFrontendDirectTTSResponse, shouldUseTTSFrontendDirect } from '@/server/utils/ai/tts-direct-dispatch'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
+import { TTS_FRONTEND_DIRECT } from '@/utils/shared/env'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -68,6 +70,21 @@ export default defineEventHandler(async (event) => {
         estimatedQuotaUnits,
         estimatedCost,
     })
+
+    if (shouldUseTTSFrontendDirect({
+        provider,
+        isServerless: isServerlessEnvironment(),
+        frontendDirectEnabled: TTS_FRONTEND_DIRECT,
+    })) {
+        return {
+            code: 200,
+            data: createFrontendDirectTTSResponse({
+                mode,
+                estimatedCost,
+                estimatedQuotaUnits,
+            }),
+        }
+    }
 
     let finalModel = model
     if (!finalModel) {

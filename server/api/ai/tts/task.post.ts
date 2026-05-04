@@ -8,6 +8,7 @@ import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
+import { createFrontendDirectTTSResponse, shouldUseTTSFrontendDirect } from '@/server/utils/ai/tts-direct-dispatch'
 import { isAdmin } from '@/utils/shared/roles'
 import { TTS_FRONTEND_DIRECT } from '@/utils/shared/env'
 import { isSnowflakeId } from '@/utils/shared/validate'
@@ -50,16 +51,6 @@ const TaskBodySchema = z.object({
     /** TTS 参数选项 */
     options: TTSOptionsSchema,
 })
-
-/** 前端直连降级响应 */
-interface FrontendDirectResponse {
-    strategy: 'frontend-direct'
-    provider: 'volcengine'
-    mode: TTSSynthesisMode
-    estimatedCost: number
-    estimatedQuotaUnits: number
-    message: string
-}
 
 /**
  * 将合成模式映射为 AITask category/type
@@ -142,19 +133,18 @@ export default defineEventHandler(async (event) => {
     })
 
     // 5. 前端直出降级判断
-    const useFrontendDirect = (isServerlessEnvironment() || TTS_FRONTEND_DIRECT)
-        && (provider === 'volcengine' || !provider)
+    const useFrontendDirect = shouldUseTTSFrontendDirect({
+        provider,
+        isServerless: isServerlessEnvironment(),
+        frontendDirectEnabled: TTS_FRONTEND_DIRECT,
+    })
 
     if (useFrontendDirect) {
-        const response: FrontendDirectResponse = {
-            strategy: 'frontend-direct',
-            provider: 'volcengine',
+        return createFrontendDirectTTSResponse({
             mode,
             estimatedCost,
             estimatedQuotaUnits,
-            message: 'Serverless 环境自动降级：请前端通过 POST /api/ai/tts/credentials 获取临时凭证后直连火山引擎 TTS API。',
-        }
-        return response
+        })
     }
 
     // 6. 解析 model

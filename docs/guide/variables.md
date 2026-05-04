@@ -82,8 +82,8 @@
 | `TTS_ENDPOINT` | `tts_endpoint` | 2 | none | TTS 兼容接口或代理端点 |
 | `TTS_DEFAULT_MODEL` | `tts_model` | 2 | none | 默认 TTS 模型 |
 | `TTS_DEFAULT_VOICE` | - | 2 | none | 默认 TTS 音色 |
-| `TTS_FRONTEND_DIRECT` | - | 2 | none | 显式启用 TTS 前端直连模式（火山引擎）。默认在 Serverless 环境自动启用 |
-| `TTS_CREDENTIAL_TTL_SECONDS` | `tts_credential_ttl_seconds` | 2 | none | TTS 前端直连凭证有效期（秒）。默认 600（10min），范围 [300, 43200] |
+| `TTS_FRONTEND_DIRECT` | - | 2 | none | 显式启用 TTS 前端直连模式（仅 Volcengine）。默认在 Serverless 环境自动启用；内部与外部 TTS 任务入口都会返回 `frontend-direct` |
+| `TTS_CREDENTIAL_TTL_SECONDS` | `tts_credential_ttl_seconds` | 2 | none | TTS 前端直连凭证有效期（秒）。默认 600（10min），范围 [300, 43200]；仅用于 Volcengine 临时 JWT |
 
 ### 2.3 数据库与存储 (Storage & DB)
 
@@ -111,7 +111,7 @@
 | `CLOUDFLARE_R2_BASE_URL` | `cloudflare_r2_base_url` | 2 | none | Cloudflare R2 公共访问域名 |
 | `BLOB_READ_WRITE_TOKEN`| `vercel_blob_token` | 3 | password | Vercel Blob 专有令牌 |
 
-说明：浏览器直传目前在 `STORAGE_TYPE=s3` 或 `STORAGE_TYPE=r2` 时优先走预签名 `PUT` 上传；其他驱动仍回退到服务端代理上传。
+说明：浏览器直传目前在 `STORAGE_TYPE=s3` 或 `STORAGE_TYPE=r2` 时优先走预签名 `PUT` 上传；其他驱动仍回退到服务端代理上传。对前端 TTS 来说，这意味着 `local` / `vercel_blob` 仍支持“浏览器合成 + 服务端上传”的混合链路，但不属于纯前端直传 OSS。
 
 ### 2.4 认证与系统安全 (Security)
 

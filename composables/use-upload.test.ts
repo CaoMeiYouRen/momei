@@ -327,5 +327,34 @@ describe('useUpload', () => {
             }),
         )
     })
+
+    it('should resolve reactive custom prefixes at upload time', async () => {
+        const mockUrl = 'https://example.com/post-tts.mp3'
+        const prefix = ref('posts/post-123/audio/tts/')
+        mockFetch.mockResolvedValueOnce({
+            data: { strategy: 'proxy' },
+        })
+        mockFetch.mockResolvedValueOnce({
+            data: [{ url: mockUrl }],
+        })
+
+        const { uploadFile } = useUpload({
+            type: UploadType.AUDIO,
+            prefix,
+        })
+        const file = new File(['content'], 'voice.mp3', { type: 'audio/mpeg' })
+
+        await uploadFile(file)
+
+        expect(mockFetch).toHaveBeenCalledWith(
+            '/api/upload/direct-auth',
+            expect.objectContaining({
+                body: expect.objectContaining({
+                    prefix: 'posts/post-123/audio/tts/',
+                    type: UploadType.AUDIO,
+                }),
+            }),
+        )
+    })
 })
 

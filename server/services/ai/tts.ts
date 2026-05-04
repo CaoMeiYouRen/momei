@@ -9,6 +9,7 @@ import { AITask } from '@/server/entities/ai-task'
 import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage, normalizeUsageSnapshot, serializeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
+import { buildTTSPostMetadata } from '@/server/utils/ai/tts-post-metadata'
 import { withAITimeout } from '@/server/utils/ai/timeout'
 import { sendInAppNotification } from '@/server/services/notification'
 import { SettingKey } from '@/types/setting'
@@ -118,29 +119,18 @@ export class TTSService extends AIBaseService {
 
         if (post) {
             applyPostMetadataPatch(post, {
-                metadata: {
-                    ...post.metadata,
-                    audio: {
-                        ...post.metadata?.audio,
-                        url: uploadedFile.url,
-                        size: bufferSize,
-                        mimeType,
-                        language: effectiveLanguage,
-                        translationId: effectiveTranslationId,
-                        postId: post.id,
-                        mode: normalizedMode,
-                    },
-                    tts: {
-                        ...post.metadata?.tts,
-                        provider: task.provider || null,
-                        voice,
-                        generatedAt: new Date(),
-                        language: effectiveLanguage,
-                        translationId: effectiveTranslationId,
-                        postId: post.id,
-                        mode: normalizedMode,
-                    },
-                },
+                metadata: buildTTSPostMetadata({
+                    post,
+                    audioUrl: uploadedFile.url,
+                    audioSize: bufferSize,
+                    mimeType,
+                    provider: task.provider || null,
+                    voice,
+                    generatedAt: new Date(),
+                    language: effectiveLanguage,
+                    translationId: effectiveTranslationId,
+                    mode: normalizedMode,
+                }),
             })
             await postRepo.save(post)
         }

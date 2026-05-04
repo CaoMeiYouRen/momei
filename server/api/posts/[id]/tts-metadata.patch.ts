@@ -12,10 +12,13 @@ import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
+import { TTSService } from '@/server/services/ai'
 import { calculateQuotaUnits, deriveChargeStatus } from '@/server/utils/ai/cost-governance'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 import logger from '@/server/utils/logger'
+import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
+import { buildTTSPostMetadata } from '@/server/utils/ai/tts-post-metadata'
 
 const TTSMetadataSchema = z.object({
     audioUrl: z.string().min(1),
@@ -23,6 +26,8 @@ const TTSMetadataSchema = z.object({
     voice: z.string().min(1).max(200).optional(),
     mode: z.enum(['speech', 'podcast']).optional().default('speech'),
     duration: z.number().int().positive().optional(),
+    audioSize: z.number().int().positive().optional(),
+    mimeType: z.string().min(1).max(100).optional(),
     /** 合成文本长度（用于计费统计） */
     textLength: z.number().int().nonnegative().optional(),
     /** 原文文本（用于审计记录） */
@@ -57,27 +62,24 @@ export default defineEventHandler(async (event) => {
     }
 
     // 1. 回写 Post 元数据
-    const metadata = (post.metadata || {}) as Record<string, unknown>
+    const effectiveLanguage = body.language || post.language
+    const effectiveTranslationId = post.translationId ?? null
 
-    metadata.audio = {
-        ...((metadata.audio ?? {}) as Record<string, unknown>),
-        url: body.audioUrl,
-        updatedAt: new Date().toISOString(),
-    }
-
-    metadata.tts = {
-        provider: body.provider || 'unknown',
-        voice: body.voice || 'default',
-        mode: body.mode,
-        duration: body.duration ?? (
-            typeof (metadata.tts as Record<string, unknown>)?.duration === 'number'
-                ? (metadata.tts as Record<string, unknown>).duration
-                : undefined
-        ),
-        generatedAt: new Date().toISOString(),
-    }
-
-    post.metadata = metadata
+    applyPostMetadataPatch(post, {
+        metadata: buildTTSPostMetadata({
+            post,
+            audioUrl: body.audioUrl,
+            audioSize: body.audioSize ?? null,
+            duration: body.duration ?? null,
+            mimeType: body.mimeType || 'audio/mpeg',
+            provider: body.provider || 'volcengine',
+            voice: body.voice || 'default',
+            generatedAt: new Date(),
+            language: effectiveLanguage,
+            translationId: effectiveTranslationId,
+            mode: body.mode,
+        }),
+    })
     await postRepo.save(post)
 
     logger.info(`[TTS Metadata] Updated post ${postId} audio metadata: ${body.audioUrl}`)
@@ -93,9 +95,14 @@ export default defineEventHandler(async (event) => {
             voice: body.voice || '',
             mode: body.mode,
             textLength,
-            language: body.language || null,
+            language: effectiveLanguage || null,
+            translationId: effectiveTranslationId,
             speed: body.speed ?? null,
             model: body.model || 'seed-tts-2.0',
+            audioUrl: body.audioUrl,
+            audioSize: body.audioSize ?? null,
+            mimeType: body.mimeType || 'audio/mpeg',
+            duration: body.duration ?? null,
             /** 标记为前端直连模式 */
             strategy: 'frontend-direct',
         }
@@ -105,6 +112,9 @@ export default defineEventHandler(async (event) => {
             type: taskCategory,
             payload: taskPayload,
         })
+        const actualCost = body.text
+            ? await TTSService.estimateCost(body.text, body.voice || 'default', body.provider || 'volcengine', { mode: body.mode, quotaUnits })
+            : 0
 
         const taskRepo = dataSource.getRepository(AITask)
         const task = taskRepo.create({
@@ -121,13 +131,17 @@ export default defineEventHandler(async (event) => {
             script: (body.text || '').slice(0, 500),
             status: 'completed',
             progress: 100,
+            actualCost,
+            audioDuration: body.duration || 0,
+            audioSize: body.audioSize || 0,
             textLength,
+            language: effectiveLanguage || null,
             quotaUnits,
             chargeStatus: deriveChargeStatus({ status: 'completed', quotaUnits, settlementSource: 'actual' }),
             completedAt: new Date(),
             durationMs: (body.duration || 0) * 1000,
             payload: JSON.stringify(taskPayload),
-            result: JSON.stringify({ audioUrl: body.audioUrl }),
+            result: JSON.stringify({ audioUrl: body.audioUrl, strategy: 'frontend-direct' }),
         })
 
         await taskRepo.save(task)

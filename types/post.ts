@@ -119,6 +119,7 @@ export interface PostVisualAssetMetadata {
 export interface PostTTSMetadata {
     provider?: string | null
     voice?: string | null
+    duration?: number | null
     generatedAt?: string | Date | null
     language?: string | null
     translationId?: string | null

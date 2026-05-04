@@ -10,7 +10,7 @@ export enum UploadType {
 
 export interface UseUploadOptions {
     type?: UploadType
-    prefix?: string
+    prefix?: MaybeRefOrGetter<string | null | undefined>
     postId?: MaybeRefOrGetter<string | null | undefined>
     showErrorToast?: boolean
 }
@@ -44,9 +44,14 @@ export function useUpload(options: UseUploadOptions = {}) {
         return typeof postId === 'string' && postId.trim() ? postId.trim() : null
     })
 
+    const resolvedPrefix = computed(() => {
+        const prefix = options.prefix ? unref(options.prefix) : null
+        return typeof prefix === 'string' && prefix.trim() ? prefix.trim() : null
+    })
+
     const resolveUploadPrefix = (type: UploadType) => {
-        if (options.prefix) {
-            return options.prefix
+        if (resolvedPrefix.value) {
+            return resolvedPrefix.value
         }
 
         const typeSegment = typeSegments[type] || typeSegments[UploadType.FILE]

@@ -98,16 +98,17 @@ describe('POST /api/external/ai/tts/task', () => {
         expect(result).toEqual({
             code: 200,
             data: {
-                taskId: 'task-ext-1',
-                status: 'pending',
+                strategy: 'frontend-direct',
+                provider: 'volcengine',
+                mode: 'podcast',
                 estimatedCost: 1.23,
                 estimatedQuotaUnits: 8,
+                message: expect.any(String),
             },
         })
-        expect(waitUntil).toHaveBeenCalledTimes(1)
-        expect(waitUntil.mock.calls[0]?.[0]).toBeInstanceOf(Promise)
-        await waitUntil.mock.calls[0]?.[0]
-        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
+        expect(waitUntil).not.toHaveBeenCalled()
+        expect(TTSService.processTask).not.toHaveBeenCalled()
+        expect(taskRepo.create).not.toHaveBeenCalled()
     })
 
     it('should skip external waitUntil registration outside serverless runtimes', async () => {
@@ -129,5 +130,27 @@ describe('POST /api/external/ai/tts/task', () => {
         })
         expect(waitUntil).not.toHaveBeenCalled()
         expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
+    })
+
+    it('should still return frontend-direct strategy when waitUntil is unavailable', async () => {
+        vi.mocked(isServerlessEnvironment).mockReturnValue(true)
+
+        const result = await handler({
+            context: {},
+        } as any)
+
+        expect(result).toEqual({
+            code: 200,
+            data: {
+                strategy: 'frontend-direct',
+                provider: 'volcengine',
+                mode: 'podcast',
+                estimatedCost: 1.23,
+                estimatedQuotaUnits: 8,
+                message: expect.any(String),
+            },
+        })
+        expect(TTSService.processTask).not.toHaveBeenCalled()
+        expect(taskRepo.create).not.toHaveBeenCalled()
     })
 })
