@@ -155,7 +155,7 @@ describe('ReaderControls', () => {
         const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
         const wrapper = await mountControls()
-        await wrapper.unmount()
+        wrapper.unmount()
 
         expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
         expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))

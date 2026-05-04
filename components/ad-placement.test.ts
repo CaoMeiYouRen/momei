@@ -54,7 +54,7 @@ describe('AdPlacement', () => {
         scriptDataRef.value = null
         document.head.querySelectorAll('script[data-ad-adapter]').forEach((node) => node.remove())
 
-        useFetchMock.mockImplementation(async (input: string | (() => string)) => {
+        useFetchMock.mockImplementation((input: string | (() => string)) => {
             const url = typeof input === 'function' ? input() : input
 
             if (url.startsWith('/api/ads/placements?')) {
@@ -175,7 +175,7 @@ describe('AdPlacement', () => {
         existingScript.remove()
         const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
-        useFetchMock.mockImplementation(async (input: string | (() => string)) => {
+        useFetchMock.mockImplementation((input: string | (() => string)) => {
             const url = typeof input === 'function' ? input() : input
 
             if (url.startsWith('/api/ads/placements?')) {

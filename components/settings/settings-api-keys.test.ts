@@ -168,7 +168,7 @@ describe('SettingsApiKeys', () => {
     })
 
     it('creates a new API key and opens the dialog with the secret', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string, body?: Record<string, string> }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string, body?: Record<string, string> }) => {
             if (url === '/api/user/api-keys' && !options) {
                 return { code: 200, data: [] }
             }
@@ -207,7 +207,7 @@ describe('SettingsApiKeys', () => {
     })
 
     it('shows an error toast when creating a key fails', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/user/api-keys' && !options) {
                 return { code: 200, data: [] }
             }
@@ -237,7 +237,7 @@ describe('SettingsApiKeys', () => {
     })
 
     it('deletes an API key and refreshes the list on success', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/user/api-keys' && !options) {
                 return {
                     code: 200,
@@ -278,7 +278,7 @@ describe('SettingsApiKeys', () => {
     })
 
     it('shows an error toast when deleting an API key fails', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/user/api-keys' && !options) {
                 return {
                     code: 200,
@@ -318,7 +318,7 @@ describe('SettingsApiKeys', () => {
     })
 
     it('copies the newly created key to the clipboard', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/user/api-keys' && !options) {
                 return { code: 200, data: [] }
             }

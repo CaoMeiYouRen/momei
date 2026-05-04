@@ -1,4 +1,4 @@
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsNotifications from './settings-notifications.vue'
@@ -219,7 +219,7 @@ const notificationSettingsPayload = {
 }
 
 function installSuccessfulFetchMocks() {
-    fetchMock.mockImplementation(async (url: string, options?: { method?: string, body?: unknown }) => {
+    fetchMock.mockImplementation((url: string, options?: { method?: string, body?: unknown }) => {
         if (url === '/api/categories') {
             return categoriesPayload
         }
@@ -423,7 +423,7 @@ describe('SettingsNotifications', () => {
     })
 
     it('shows an error toast when saving settings fails', async () => {
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/categories') {
                 return categoriesPayload
             }

@@ -52,7 +52,7 @@ vi.mock('primevue/useconfirm', async (importOriginal) => {
 })
 
 function installDefaultFetchMock() {
-    fetchMock.mockImplementation(async (url: string, options?: { method?: string, body?: unknown, query?: unknown }) => {
+    fetchMock.mockImplementation((url: string, options?: { method?: string, body?: unknown, query?: unknown }) => {
         if (url === '/api/admin/friend-links' && !options?.method) {
             return {
                 data: {
@@ -186,7 +186,7 @@ describe('useAdminFriendLinksPage', () => {
     it('creates a new friend link and reloads the list on success', async () => {
         const { exposed } = await mountComposable()
         fetchMock.mockClear()
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/admin/friend-links' && options?.method === 'POST') {
                 return { code: 200 }
             }
@@ -262,7 +262,7 @@ describe('useAdminFriendLinksPage', () => {
     it('reviews applications successfully and reloads related lists', async () => {
         const { exposed } = await mountComposable()
         fetchMock.mockClear()
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/admin/friend-link-applications/application-1/review' && options?.method === 'PUT') {
                 return { code: 200 }
             }
@@ -309,7 +309,7 @@ describe('useAdminFriendLinksPage', () => {
     it('confirms disable/recheck actions and executes the selected callback', async () => {
         const { exposed, openSpy } = await mountComposable()
         fetchMock.mockClear()
-        fetchMock.mockImplementation(async (url: string, options?: { method?: string }) => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
             if (url === '/api/admin/friend-links/link-1' && options?.method === 'PUT') {
                 return { code: 200 }
             }

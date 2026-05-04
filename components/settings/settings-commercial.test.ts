@@ -34,7 +34,7 @@ mockNuxtImport('useAppApi', () => () => ({
     $appFetch: appFetchMock,
 }))
 
-mockNuxtImport('useAsyncData', () => async () => ({
+mockNuxtImport('useAsyncData', () => () => ({
     data: asyncDataRef,
     refresh: refreshMock,
 }))

@@ -13,7 +13,7 @@ const refreshedSession = {
 }
 
 function createRefetchMock() {
-    return vi.fn(async () => {
+    return vi.fn(() => {
         liveSession.value = {
             ...liveSession.value,
             data: refreshedSession,
@@ -250,7 +250,7 @@ describe('useAuthSession', () => {
 
     it('should warn when lifecycle-driven session refresh fails', async () => {
         const addWindowListenerSpy = vi.spyOn(window, 'addEventListener')
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
         const nowSpy = vi.spyOn(Date, 'now')
         let currentTimestamp = 1_000
 

@@ -28,6 +28,7 @@ const noExplicitAnyFiles = [
     'composables/use-post-editor-voice.ts',
     'composables/use-tts-task.ts',
 ]
+const maxLinesExceptionFiles = ['components/admin/posts/post-distribution-button.vue']
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
 const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
 
@@ -134,6 +135,13 @@ export default withNuxt(
             'max-lines-per-function': [1, { max: 500 }], // 强制函数最大行数
         },
     },
+    createRuleOverride({
+        // 文章分发按钮当前汇聚多平台预览与分发编排，先做单文件 max-lines 豁免，后续再按功能块拆分。
+        files: maxLinesExceptionFiles,
+        rules: {
+            'max-lines': [0],
+        },
+    }),
     createRuleOverride({
         files: testFiles,
         rules: {
