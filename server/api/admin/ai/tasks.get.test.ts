@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import handler from './tasks.get'
 import { dataSource } from '@/server/database'
+import { requireAdmin } from '@/server/utils/permission'
 
 vi.mock('@/server/database')
+vi.mock('@/server/utils/permission', () => ({
+    requireAdmin: vi.fn(),
+}))
 vi.mock('@/server/services/ai/cost-display', () => ({
     getAICostDisplayConfig: vi.fn().mockResolvedValue({
         currencyCode: 'CNY',
@@ -36,13 +40,13 @@ function createQueryBuilderMock(rawData: any[], total: number) {
 describe('GET /api/admin/ai/tasks', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.stubGlobal('requireAdmin', vi.fn().mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } }))
-        vi.stubGlobal('getQuery', vi.fn(() => ({
+        vi.mocked(requireAdmin).mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as never)
+        vi.stubGlobal('getValidatedQuery', vi.fn((event: { query?: unknown }, parser: (query: unknown) => unknown) => Promise.resolve(parser(event.query || {
             page: '1',
             pageSize: '10',
             search: 'openai',
             status: 'completed',
-        })))
+        }))))
     })
 
     it('should return normalized numeric governance fields', async () => {
