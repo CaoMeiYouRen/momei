@@ -29,7 +29,7 @@
 	- 火山 JWT 凭证: `server/utils/ai/tts-credentials.ts` + `server/api/ai/tts/credentials.post.ts`
 	- 前端直连 (speech HTTP + podcast WebSocket): `composables/use-tts-volcengine-direct.ts`
 	- 服务端代理兼容: `composables/use-post-tts-dialog.ts`（火山引擎自动走直连）
-	- 元数据回写 + AI 计费: `server/api/posts/[id]/tts-metadata.patch.ts`
+	- 元数据回写 + AI 计费: `server/api/posts/[id]/tts-metadata.put.ts`
 	- 自动降级: `server/api/ai/tts/task.post.ts`（serverless 环境自动走直连）
 	- 二进制协议对齐: V3 podcast WebSocket 帧构建/解析完全对齐 `volcengine-protocol.ts`
 	- 环境变量: `TTS_FRONTEND_DIRECT` / `TTS_CREDENTIAL_TTL_SECONDS`

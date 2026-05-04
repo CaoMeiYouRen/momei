@@ -5,7 +5,7 @@
  *   1. 将音频 URL、Provider、音色、时长写入 Post.metadata
  *   2. 创建 AITask 记录并计入 AI 用量统计
  *
- * REST: PATCH /api/posts/:id/tts-metadata
+ * REST: PUT /api/posts/:id/tts-metadata
  */
 import { createError, getRouterParam } from 'h3'
 import { z } from 'zod'

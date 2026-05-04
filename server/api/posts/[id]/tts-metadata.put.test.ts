@@ -32,7 +32,7 @@ vi.mock('@/server/utils/permission', () => ({
     requireAdminOrAuthor: vi.fn(),
 }))
 
-describe('PATCH /api/posts/[id]/tts-metadata', () => {
+describe('PUT /api/posts/[id]/tts-metadata', () => {
     let handler: (event: any) => Promise<any>
 
     const post = {
@@ -66,7 +66,7 @@ describe('PATCH /api/posts/[id]/tts-metadata', () => {
     }
 
     beforeEach(async () => {
-        handler ||= (await import('./tts-metadata.patch')).default
+        handler ||= (await import('./tts-metadata.put')).default
         vi.clearAllMocks()
         h3Mocks.getRouterParam.mockReturnValue('post-1')
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({

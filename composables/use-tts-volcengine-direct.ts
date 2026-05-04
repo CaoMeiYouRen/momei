@@ -9,7 +9,7 @@
  *   2. POST Volcengine TTS API (JWT via Query) → 流式接收音频
  *   3. 解析响应（JSON 元数据 + MP3 字节流）
  *   4. useUpload 直传 OSS
- *   5. PATCH /api/posts/[id]/tts-metadata → 回写元数据
+ *   5. PUT /api/posts/[id]/tts-metadata → 回写元数据
  *
  * 鉴权方案: JWT Token（方案一）
  *   - 服务端用 AppId + Access Token 请求火山 STS 获取临时 JWT
@@ -625,7 +625,7 @@ export function useTTSVolcengineDirect() {
             if (params.postId) {
                 try {
                     await $fetch(`/api/posts/${params.postId}/tts-metadata`, {
-                        method: 'PATCH',
+                        method: 'PUT',
                         body: {
                             audioUrl,
                             provider: 'volcengine',
