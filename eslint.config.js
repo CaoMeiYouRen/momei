@@ -25,8 +25,18 @@ const noExplicitAnyApiFiles = [
 const noExplicitAnyFiles = [
     ...noExplicitAnyUtilityFiles,
     ...noExplicitAnyApiFiles,
+    'composables/use-admin-ai.ts',
+    'composables/use-admin-i18n.ts',
+    'composables/use-asr-task.ts',
+    'composables/use-onboarding.ts',
+    'composables/use-post-editor-ai.ts',
+    'composables/use-post-editor-auto-save.ts',
+    'composables/use-post-editor-io.ts',
+    'composables/use-post-editor-page.helpers.ts',
     'composables/use-post-editor-voice.ts',
     'composables/use-tts-task.ts',
+    'composables/use-tts-volcengine-direct.ts',
+    'composables/use-upload.ts',
 ]
 const maxLinesExceptionFiles = ['components/admin/posts/post-distribution-button.vue']
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']

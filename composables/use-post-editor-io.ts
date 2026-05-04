@@ -74,7 +74,7 @@ export function usePostEditorIO(
             }
 
             try {
-                let data: any = {}
+                let data: unknown = {}
                 let content = markdown
 
                 const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/.exec(markdown)
@@ -90,7 +90,7 @@ export function usePostEditorIO(
                     }
                 }
 
-                const frontMatter = data as PostFrontMatter
+                const frontMatter = (typeof data === 'object' && data !== null ? data : {}) as PostFrontMatter
 
                 post.value.content = content.trim()
                 if (frontMatter.title) {
@@ -166,8 +166,7 @@ export function usePostEditorIO(
 
                     if (catName && typeof catName === 'string') {
                         const foundCat = categories.value.find(
-                            (c: any) =>
-                                c.name.toLowerCase() === catName.toLowerCase(),
+                            (category) => category.name.toLowerCase() === catName.toLowerCase(),
                         )
                         if (foundCat) {
                             post.value.categoryId = foundCat.id

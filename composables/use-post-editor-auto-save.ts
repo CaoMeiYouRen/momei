@@ -3,6 +3,16 @@ import { useLocalStorage, useDebounceFn } from '@vueuse/core'
 import type { PostEditorData } from '@/types/post-editor'
 import { getDateTimestamp } from '@/utils/shared/date'
 
+interface PostEditorLocalDraft {
+    title?: string
+    content?: string
+    summary?: string | null
+    coverImage?: string | null
+    categoryId?: string | null
+    tags?: PostEditorData['tags']
+    lastSavedAt?: number
+}
+
 /**
  * 文章编辑器自动保存 Composable
  *
@@ -27,7 +37,7 @@ export function usePostEditorAutoSave(
 
     // 使用 vueuse 的 useLocalStorage，它会自动同步 reactive 数据与磁盘
     // 我们手动管理此变量的生命周期
-    const localDraft = useLocalStorage<any>(draftKey, null)
+    const localDraft = useLocalStorage<PostEditorLocalDraft | null>(draftKey, null)
 
     /**
      * 执行本地保存
@@ -82,7 +92,7 @@ export function usePostEditorAutoSave(
         const serverUpdatedAt = getDateTimestamp(post.value.updatedAt)
 
         // 逻辑：本地草稿比服务器时间更新超过 30 秒（容许小幅时钟误差）
-        return lastSavedAt > serverUpdatedAt + 30000
+        return (lastSavedAt ?? 0) > serverUpdatedAt + 30000
     }
 
     /**

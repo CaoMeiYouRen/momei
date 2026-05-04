@@ -585,6 +585,31 @@ export function useTTSVolcengineDirect() {
      * 执行端到端 TTS 直出流程
      */
     async function generateAndUpload(params: TTSVolcengineDirectParams): Promise<TTSVolcengineDirectResult> {
+        const resolveDirectTtsErrorMessage = (caughtError: unknown) => {
+            if (caughtError instanceof Error && caughtError.message) {
+                return caughtError.message
+            }
+
+            if (typeof caughtError === 'object' && caughtError !== null) {
+                const directTtsError = caughtError as {
+                    data?: {
+                        statusMessage?: unknown
+                    }
+                    message?: unknown
+                }
+
+                if (typeof directTtsError.data?.statusMessage === 'string' && directTtsError.data.statusMessage) {
+                    return directTtsError.data.statusMessage
+                }
+
+                if (typeof directTtsError.message === 'string' && directTtsError.message) {
+                    return directTtsError.message
+                }
+            }
+
+            return t('common.error')
+        }
+
         isGenerating.value = true
         progress.value = 0
         error.value = null
@@ -641,7 +666,7 @@ export function useTTSVolcengineDirect() {
                             model,
                         },
                     })
-                } catch (metaError: any) {
+                } catch (metaError: unknown) {
                     console.warn('[useTTSVolcengineDirect] Metadata write-back failed (non-blocking):', metaError)
                 }
             }
@@ -657,8 +682,8 @@ export function useTTSVolcengineDirect() {
             })
 
             return { audioUrl, duration }
-        } catch (err: any) {
-            const message = err.data?.statusMessage || err.message || t('common.error')
+        } catch (caughtError: unknown) {
+            const message = resolveDirectTtsErrorMessage(caughtError)
             error.value = message
             isGenerating.value = false
 
@@ -669,7 +694,7 @@ export function useTTSVolcengineDirect() {
                 life: 5000,
             })
 
-            throw err
+            throw caughtError
         } finally {
             uploadPrefix.value = DEFAULT_DIRECT_TTS_UPLOAD_PREFIX
         }

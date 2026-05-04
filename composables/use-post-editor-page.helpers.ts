@@ -51,6 +51,12 @@ interface ConfirmServiceLike {
     require: (options: Record<string, unknown>) => void
 }
 
+interface SuccessToastOptions {
+    severity?: 'success' | 'info' | 'warn'
+    summaryKey?: string
+    life?: number
+}
+
 interface LoadPostOptions {
     route: RouteLocationNormalizedLoaded
     post: Ref<PostEditorData>
@@ -69,7 +75,7 @@ interface LoadPostOptions {
     clearLocalDraft: () => void
     confirm: ConfirmServiceLike
     t: Composer['t']
-    showSuccessToast: (...args: any[]) => void
+    showSuccessToast: (key: string, options?: SuccessToastOptions) => void
 }
 
 interface SavePostOptions {

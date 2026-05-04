@@ -9,6 +9,51 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-04 第三十四阶段 `ESLint 下一轮切片 (P1)` 关闭
+
+### 范围
+
+- 目标：在已确认 `composables` 子桶没有新的高 ROI `no-non-null-assertion` 生产命中后，沿 todo 的回退口径把剩余高 ROI `@typescript-eslint/no-explicit-any` 生产 composable 单文件 / 双文件切片全部收口，并关闭第三十四阶段 `ESLint 下一轮切片 (P1)`。
+- 本轮覆盖：[composables/use-upload.ts](../../composables/use-upload.ts)、[composables/use-asr-task.ts](../../composables/use-asr-task.ts)、[composables/use-admin-ai.ts](../../composables/use-admin-ai.ts)、[composables/use-admin-i18n.ts](../../composables/use-admin-i18n.ts)、[composables/use-post-editor-auto-save.ts](../../composables/use-post-editor-auto-save.ts)、[composables/use-onboarding.ts](../../composables/use-onboarding.ts)、[composables/use-post-editor-page.helpers.ts](../../composables/use-post-editor-page.helpers.ts)、[composables/use-tts-volcengine-direct.ts](../../composables/use-tts-volcengine-direct.ts)、[composables/use-post-editor-ai.ts](../../composables/use-post-editor-ai.ts)、[composables/use-post-editor-io.ts](../../composables/use-post-editor-io.ts)、[eslint.config.js](../../eslint.config.js)、[docs/design/governance/eslint-type-debt-tightening.md](../../docs/design/governance/eslint-type-debt-tightening.md) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不把规则外溢到测试文件，不并行开启 `no-unsafe-*`、`prefer-nullish-coalescing` 或更宽的 editor / composables 目录级提级。
+
+### 实施结论
+
+- 本轮把回退主线剩余的高 ROI 生产 composable 显式 `any` 全部收敛为本地接口、窄 payload 类型、`unknown` 错误解析 helper 或更精确的函数签名，没有新增新的共享抽象层，也没有扩写为目录级规则提级。
+- 具体收口点包括：上传 / TTS / ASR 链路的错误对象读取，后台 AI / i18n / onboarding 的局部接口约束，编辑器自动保存草稿类型，`use-post-editor-ai.ts` 的标题建议 / 翻译响应类型，以及 `use-post-editor-io.ts` 的 frontmatter `unknown` 解析与分类匹配守卫。
+- [eslint.config.js](../../eslint.config.js) 已把这批 production composable 全部纳入既有 `noExplicitAnyFiles` 聚合 override。复核后，`composables/*.ts` 范围内残余 `any` 已只存在于测试文件，不再存在新的生产源码阻塞点，因此第三十四阶段这条 ESLint P1 待办可正式关闭。
+
+### 已执行验证
+
+- 定向 ESLint：
+	`pnpm exec eslint composables/use-upload.ts composables/use-asr-task.ts composables/use-admin-ai.ts composables/use-admin-i18n.ts composables/use-post-editor-auto-save.ts composables/use-onboarding.ts composables/use-post-editor-page.helpers.ts composables/use-tts-volcengine-direct.ts eslint.config.js --max-warnings 0`
+	`pnpm exec eslint composables/use-post-editor-ai.ts composables/use-post-editor-io.ts eslint.config.js --max-warnings 0`
+	- 结果：通过；新纳入切片的 production composable 与配置文件均无新增 warning / error。
+- 同级 Vitest：
+	`pnpm exec vitest run composables/use-upload.test.ts composables/use-asr-task.test.ts composables/use-admin-ai.test.ts composables/use-admin-i18n.test.ts composables/use-post-editor-auto-save.test.ts composables/use-onboarding.test.ts composables/use-post-editor-page.helpers.test.ts composables/use-post-editor-io.test.ts`
+	- 结果：通过；`8` 个测试文件、`87` 个测试全部通过。
+	`pnpm exec vitest run composables/use-post-editor-ai.test.ts composables/use-tts-volcengine-direct.test.ts`
+	- 结果：通过；新增 focused test `2` 个文件、`4` 个测试全部通过。
+- Nuxt typecheck：`pnpm exec nuxt typecheck`
+	- 结果：通过；本轮局部类型收窄与 `header.titleOp ?? null` 修正后未出现新的类型错误。
+- 根仓 lint：`npm run lint`
+	- 结果：通过；根仓 `eslint . --fix --max-warnings 10` 与 `packages/*` lint 均通过。
+- Markdown 校验：`pnpm exec lint-md docs/design/governance/eslint-type-debt-tightening.md docs/reports/regression/current.md docs/plan/todo.md`
+	- 结果：通过；治理设计、回归窗口与 todo 文档均通过 markdown lint。
+- 受影响文件诊断：`get_errors`
+	- 结果：通过；本轮 touched composable 与 [eslint.config.js](../../eslint.config.js) 无新增诊断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker。当前关闭依据不是“整仓所有 ESLint 技术债清零”，而是第三十四阶段 todo 中这条主线要求的 `composables` 子桶复核 + 回退单文件 `no-explicit-any` 切片已经全部完成，且验证链路完整。
+
+### 未覆盖边界
+
+- 当前剩余 `any` 命中主要在测试文件与刻意保留的 mock / 非法输入断言，不属于本条 production composable 治理范围。
+- 更宽的 editor 规则提级、`no-unsafe-*`、`prefer-nullish-coalescing` 与其它目录级规则治理仍是后续独立候选，不应混入本次已关闭的第三十四阶段 ESLint 切片待办。
+
 ## 2026-05-04 `use-tts-task.ts` `no-explicit-any` 回退切片
 
 ### 范围

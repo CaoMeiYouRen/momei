@@ -39,8 +39,13 @@ interface LocaleOption {
     code: string
 }
 
+interface TitleSuggestionOverlayRef {
+    show?: (event: Event, target?: EventTarget | null) => void
+    hide?: () => void
+}
+
 interface HeaderExpose {
-    titleOp?: unknown
+    titleOp?: TitleSuggestionOverlayRef | null
     openDistribution?: () => Promise<void>
 }
 
@@ -230,7 +235,7 @@ export function usePostEditorPage() {
 
     watch(headerRef, (header) => {
         if (header) {
-            titleOp.value = header.titleOp
+            titleOp.value = header.titleOp ?? null
         }
     })
 

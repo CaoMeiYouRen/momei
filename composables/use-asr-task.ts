@@ -31,6 +31,22 @@ function normalizeTaskResponse(response: ASRTaskApiResponse): ASRTaskResponseDat
     return response
 }
 
+function resolveTaskPollingError(error: unknown) {
+    if (typeof error === 'object' && error !== null) {
+        const taskError = error as {
+            data?: {
+                message?: unknown
+            }
+        }
+
+        if (typeof taskError.data?.message === 'string' && taskError.data.message) {
+            return taskError.data.message
+        }
+    }
+
+    return '获取任务状态失败'
+}
+
 export interface ASRTaskOptions {
     /** 轮询间隔 (毫秒) */
     pollingInterval?: number
@@ -100,8 +116,8 @@ export function useASRTask(
                         pausePolling()
                         isTracking.value = false
                     }
-                } catch (e: any) {
-                    error.value = e.data?.message || '获取任务状态失败'
+                } catch (caughtError: unknown) {
+                    error.value = resolveTaskPollingError(caughtError)
                     status.value = 'failed'
                     pausePolling()
                     isTracking.value = false

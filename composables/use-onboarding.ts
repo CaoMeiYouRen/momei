@@ -11,6 +11,13 @@ interface TourStep {
 
 type DemoTourStage = 'public' | 'login' | 'editor'
 
+interface DemoTourDriver {
+    setSteps: (steps: TourStep[]) => void
+    drive: () => void
+}
+
+type DemoTourDriverFactory = (options: Record<string, unknown>) => DemoTourDriver
+
 export const DEMO_TOUR_QUEUE_KEY = 'momei_demo_next_stage'
 const DEMO_TOUR_SEEN_PREFIX = 'momei_demo_tour_seen:'
 
@@ -48,7 +55,7 @@ export const useOnboarding = () => {
     const config = useRuntimeConfig()
     const isTestMode = computed(() => Boolean(config.public.testMode))
 
-    const createDriver = (driverFactory: (options: Record<string, unknown>) => any) => driverFactory({
+    const createDriver = (driverFactory: DemoTourDriverFactory) => driverFactory({
         showProgress: true,
         animate: true,
         doneBtnText: t('common.done') || '完成',

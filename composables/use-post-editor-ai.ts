@@ -28,6 +28,24 @@ interface AITaskStatusPayload {
     error?: string | null
 }
 
+interface TitleSuggestionOverlayRef {
+    show?: (event: Event, target?: EventTarget | null) => void
+    hide?: () => void
+}
+
+interface TitleSuggestionTriggerEvent {
+    currentTarget?: EventTarget | null
+    target?: EventTarget | null
+}
+
+interface StringListResponse {
+    data: string[]
+}
+
+interface StringResponse {
+    data: string
+}
+
 export function usePostEditorAI(
     post: Ref<PostEditorData>,
     allTags: Ref<string[]>,
@@ -45,7 +63,7 @@ export function usePostEditorAI(
     })
 
     const titleSuggestions = ref<string[]>([])
-    const titleOp = ref<any>(null)
+    const titleOp = ref<TitleSuggestionOverlayRef | null>(null)
 
     const extractTranslatedContent = (result: AITaskStatusPayload['result']) => {
         if (!result) {
@@ -144,7 +162,7 @@ export function usePostEditorAI(
         return await waitForTranslationTask(result.taskId)
     }
 
-    const suggestTitles = async (event: any) => {
+    const suggestTitles = async (event: TitleSuggestionTriggerEvent) => {
         if (!post.value.content || post.value.content.length < 10) {
             toast.add({
                 severity: 'warn',
@@ -159,16 +177,16 @@ export function usePostEditorAI(
 
         aiLoading.value.title = true
         try {
-            const { data } = await $fetch('/api/ai/suggest-titles', {
+            const { data } = await $fetch<StringListResponse>('/api/ai/suggest-titles', {
                 method: 'POST',
                 body: {
                     content: post.value.content,
                     language: post.value.language,
                 },
             })
-            titleSuggestions.value = (data) || []
+            titleSuggestions.value = data || []
             if (titleSuggestions.value.length > 0) {
-                titleOp.value?.show(event, currentTarget)
+                titleOp.value?.show?.(event as Event, currentTarget)
             }
         } catch (error) {
             console.error('AI Title Suggestion error:', error)
@@ -185,7 +203,7 @@ export function usePostEditorAI(
 
     const selectTitle = (suggestion: string) => {
         post.value.title = suggestion
-        titleOp.value?.hide()
+        titleOp.value?.hide?.()
     }
 
     const suggestSlug = async () => {
@@ -205,7 +223,7 @@ export function usePostEditorAI(
 
         aiLoading.value.slug = true
         try {
-            const { data } = await $fetch('/api/ai/suggest-slug', {
+            const { data } = await $fetch<StringResponse>('/api/ai/suggest-slug', {
                 method: 'POST',
                 body: {
                     title: post.value.title,
@@ -239,7 +257,7 @@ export function usePostEditorAI(
 
         aiLoading.value.summary = true
         try {
-            const { data } = await $fetch('/api/ai/summarize', {
+            const { data } = await $fetch<StringResponse>('/api/ai/summarize', {
                 method: 'POST',
                 body: {
                     content: post.value.content,
@@ -273,7 +291,7 @@ export function usePostEditorAI(
 
         aiLoading.value.tags = true
         try {
-            const { data } = await $fetch('/api/ai/recommend-tags', {
+            const { data } = await $fetch<StringListResponse>('/api/ai/recommend-tags', {
                 method: 'POST',
                 body: {
                     content: post.value.content,
@@ -324,12 +342,12 @@ export function usePostEditorAI(
         aiLoading.value.translate = true
         try {
             // Translate Title, Summary and Content in parallel where possible
-            const translationTasks: Promise<any>[] = []
+            const translationTasks: Promise<void>[] = []
 
             // Translate Title if exists
             if (titleToTranslate) {
                 translationTasks.push((async () => {
-                    const { data: translatedTitle } = await $fetch<any>(
+                    const { data: translatedTitle } = await $fetch<StringResponse>(
                         '/api/ai/translate-name',
                         {
                             method: 'POST',
@@ -339,7 +357,7 @@ export function usePostEditorAI(
                             },
                         },
                     )
-                    post.value.title = translatedTitle as string
+                    post.value.title = translatedTitle
                 })())
             }
 

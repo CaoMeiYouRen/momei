@@ -44,9 +44,9 @@
 	- 范围: `pnpm regression:phase-close` 真实回归，覆盖 coverage / lint-typecheck / dup code / docs / RG。
 	- 非目标: 不新做回归规范体系。
 
-- [ ] **ESLint 下一轮切片 (P1)**
+- [x] **ESLint 下一轮切片 (P1)**
 	- 范围: `no-non-null-assertion` composables 子桶；命中少则回退单文件 `no-explicit-any`。
-	- 最新进度: 2026-05-04 已确认 `composables` 子桶没有新的 `no-non-null-assertion` 高 ROI 命中可继续上收，本轮已按回退方案完成 `composables/use-tts-task.ts` 单文件 `no-explicit-any` 切片，并通过同级测试与定向 ESLint；待办继续保留，用于后续下一刀单文件 / 双文件候选推进。
+	- 最新进度: 2026-05-04 已确认 `composables` 子桶没有新的 `no-non-null-assertion` 高 ROI 命中可继续上收，并已沿回退口径完成 `use-tts-task.ts`、`use-upload.ts`、`use-asr-task.ts`、`use-admin-ai.ts`、`use-admin-i18n.ts`、`use-post-editor-auto-save.ts`、`use-onboarding.ts`、`use-post-editor-page.helpers.ts`、`use-tts-volcengine-direct.ts`、`use-post-editor-ai.ts`、`use-post-editor-io.ts` 等 production composable 的 `no-explicit-any` 单文件 / 双文件切片；定向 ESLint、同级 Vitest 与 `npm run lint` 均通过，当前 `composables` 生产源码范围内已无这条主线的残余阻塞，因此条目正式关闭。
 
 - [ ] **i18n 运行时继续扩面 (P1)**
 	- 范围: `app-footer` / 公开页装配链路 / Phase 33 新增共享组件（auth-card, taxonomy-post-page）命名空间。

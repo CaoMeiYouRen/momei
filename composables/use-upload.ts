@@ -29,6 +29,31 @@ interface DirectUploadPresignStrategy {
 
 type DirectUploadStrategy = DirectUploadProxyStrategy | DirectUploadPresignStrategy
 
+function resolveUploadErrorMessage(error: unknown, fallback: string) {
+    if (error instanceof Error && error.message) {
+        return error.message
+    }
+
+    if (typeof error === 'object' && error !== null) {
+        const uploadError = error as {
+            data?: {
+                statusMessage?: unknown
+            }
+            message?: unknown
+        }
+
+        if (typeof uploadError.data?.statusMessage === 'string' && uploadError.data.statusMessage) {
+            return uploadError.data.statusMessage
+        }
+
+        if (typeof uploadError.message === 'string' && uploadError.message) {
+            return uploadError.message
+        }
+    }
+
+    return fallback
+}
+
 export function useUpload(options: UseUploadOptions = {}) {
     const { t } = useI18n()
     const toast = useToast()
@@ -121,10 +146,10 @@ export function useUpload(options: UseUploadOptions = {}) {
             }
 
             return await uploadThroughProxy(file, type, prefix)
-        } catch (error: any) {
-            console.error('Upload failed', error)
+        } catch (caughtError: unknown) {
+            console.error('Upload failed', caughtError)
             if (options.showErrorToast !== false) {
-                const detail = error.data?.statusMessage || error.message || t('common.upload_failed')
+                const detail = resolveUploadErrorMessage(caughtError, t('common.upload_failed'))
                 toast.add({
                     severity: 'error',
                     summary: t('common.error'),
@@ -132,7 +157,7 @@ export function useUpload(options: UseUploadOptions = {}) {
                     life: 3000,
                 })
             }
-            throw error
+            throw caughtError
         } finally {
             uploading.value = false
         }

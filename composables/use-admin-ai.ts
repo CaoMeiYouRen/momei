@@ -1,18 +1,52 @@
 import { isPureEnglish } from '@/utils/shared/validate'
 
-export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<string>) => {
+interface AdminAiFormEntry {
+    id?: string | null
+    name: string
+    slug: string
+    translationId?: string | null
+}
+
+interface AdminAiLocaleOption {
+    code: string
+}
+
+interface AdminAiStringResponse {
+    data: string
+}
+
+function getAdminAiFormEntry(
+    multiForm: Ref<Record<string, AdminAiFormEntry>>,
+    lang: string,
+) {
+    return multiForm.value[lang]
+}
+
+function isAdminAiLocaleOption(value: unknown): value is AdminAiLocaleOption {
+    return typeof value === 'object' && value !== null
+        && 'code' in value
+        && typeof value.code === 'string'
+}
+
+export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, activeTab: Ref<string>) => {
     const { t, locales } = useI18n()
     const toast = useToast()
+    const localeEntries = (Array.isArray(locales.value) ? locales.value : []).filter(isAdminAiLocaleOption)
 
     const aiLoading = ref<Record<string, { name: boolean, slug: boolean }>>(
-        Object.fromEntries(locales.value.map((l: any) => [l.code, { name: false, slug: false }])),
+        Object.fromEntries(localeEntries.map((locale) => [locale.code, { name: false, slug: false }])),
     )
 
     const translateName = async (lang: string) => {
         // Find the first language with a name as the source
-        const sourceLang = locales.value.find((l: any) => multiForm.value[l.code].name && l.code !== lang)?.code
+        const sourceLang = localeEntries.find((locale) => multiForm.value[locale.code]?.name && locale.code !== lang)?.code
         if (!sourceLang) {
             toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+            return
+        }
+
+        const sourceForm = multiForm.value[sourceLang]
+        if (!sourceForm?.name) {
             return
         }
 
@@ -21,14 +55,16 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
         }
         aiLoading.value[lang].name = true
         try {
-            const { data } = await $fetch<any>('/api/ai/translate-name', {
+            const { data } = await $fetch<AdminAiStringResponse>('/api/ai/translate-name', {
                 method: 'POST',
                 body: {
-                    name: multiForm.value[sourceLang].name,
+                    name: sourceForm.name,
                     targetLanguage: t(`common.languages.${lang}`),
                 },
             })
-            multiForm.value[lang].name = data as string
+            if (multiForm.value[lang]) {
+                multiForm.value[lang].name = data
+            }
         } catch (error) {
             console.error('AI Translate error:', error)
             toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
@@ -40,7 +76,8 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
     }
 
     const generateSlug = async (lang: string) => {
-        if (!multiForm.value[lang].name) {
+        const targetForm = getAdminAiFormEntry(multiForm, lang)
+        if (!targetForm?.name) {
             toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
             return
         }
@@ -50,13 +87,13 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
         }
         aiLoading.value[lang].slug = true
         try {
-            const { data } = await $fetch<any>('/api/ai/suggest-slug-from-name', {
+            const { data } = await $fetch<AdminAiStringResponse>('/api/ai/suggest-slug-from-name', {
                 method: 'POST',
                 body: {
-                    name: multiForm.value[lang].name,
+                    name: targetForm.name,
                 },
             })
-            multiForm.value[lang].slug = data as string
+            targetForm.slug = data
         } catch (error) {
             console.error('AI Slug error:', error)
             toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
@@ -69,8 +106,8 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
 
     const syncAIAllLanguages = async () => {
         const sourceLang = activeTab.value
-        const sourceForm = multiForm.value[sourceLang]
-        if (!sourceForm.name) {
+        const sourceForm = getAdminAiFormEntry(multiForm, sourceLang)
+        if (!sourceForm?.name) {
             return
         }
 
@@ -89,11 +126,14 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
         const sharedTranslationId = sourceForm.translationId
 
         // 3. Loop through other languages
-        for (const l of locales.value) {
-            if (l.code === sourceLang) {
+        for (const locale of localeEntries) {
+            if (locale.code === sourceLang) {
                 continue
             }
-            const targetForm = multiForm.value[l.code]
+            const targetForm = multiForm.value[locale.code]
+            if (!targetForm) {
+                continue
+            }
 
             // Skip if it already has an ID (already exists in DB)
             if (targetForm.id) {
@@ -106,10 +146,10 @@ export const useAdminAI = (multiForm: Ref<Record<string, any>>, activeTab: Ref<s
             } else {
                 // Use AI to translate name and generate slug if they are empty
                 if (!targetForm.name) {
-                    await translateName(l.code)
+                    await translateName(locale.code)
                 }
                 if (targetForm.name && !targetForm.slug) {
-                    await generateSlug(l.code)
+                    await generateSlug(locale.code)
                 }
             }
 
