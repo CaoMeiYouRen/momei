@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const fetchedSession = {
@@ -12,22 +12,26 @@ const refreshedSession = {
     user: { id: 'user-1', role: 'author' },
 }
 
-const liveSession = ref({
-    data: null as typeof fetchedSession | null,
-    error: null,
-    isPending: true,
-    isRefetching: false,
-    refetch: vi.fn(() => {
+function createRefetchMock() {
+    return vi.fn(async () => {
         liveSession.value = {
             ...liveSession.value,
             data: refreshedSession,
             isPending: false,
             isRefetching: false,
         }
-    }),
+    })
+}
+
+const liveSession = ref({
+    data: null as typeof fetchedSession | null,
+    error: null,
+    isPending: true,
+    isRefetching: false,
+    refetch: createRefetchMock(),
 })
 
-const { mockUseSession, mockInvalidateRequestCache, mockPrimeRequestCache, mockSessionAtomSet } = vi.hoisted(() => ({
+const { mockUseSession, mockInvalidateRequestCache, mockPrimeRequestCache, mockSessionAtomSet, mountedCallbacks, beforeUnmountCallbacks } = vi.hoisted(() => ({
     mockUseSession: vi.fn((fetcher?: unknown) => {
         if (fetcher) {
             return Promise.resolve({
@@ -49,12 +53,20 @@ const { mockUseSession, mockInvalidateRequestCache, mockPrimeRequestCache, mockS
     }),
     mockPrimeRequestCache: vi.fn(),
     mockSessionAtomSet: vi.fn(),
+    mountedCallbacks: [] as (() => void)[],
+    beforeUnmountCallbacks: [] as (() => void)[],
 }))
 
 let cacheBustVersion = 0
 
 mockNuxtImport('useFetch', () => vi.fn())
 mockNuxtImport('useRequestHeaders', () => () => ({}))
+mockNuxtImport('onMounted', () => (callback: () => void) => {
+    mountedCallbacks.push(callback)
+})
+mockNuxtImport('onBeforeUnmount', () => (callback: () => void) => {
+    beforeUnmountCallbacks.push(callback)
+})
 
 vi.mock('@/lib/auth-client', () => ({
     authClient: {
@@ -73,18 +85,26 @@ vi.mock('@/lib/auth-client', () => ({
     primeAuthSessionRequestCache: mockPrimeRequestCache,
 }))
 
-import { invalidateAuthSessionState, refreshAuthSession, resolveRouteAuthSession } from './use-auth-session'
+import {
+    invalidateAuthSessionState,
+    primeHydratedAuthSession,
+    refreshAuthSession,
+    resolveRouteAuthSession,
+    setupAuthSessionLifecycle,
+} from './use-auth-session'
 
 describe('useAuthSession', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         cacheBustVersion = 0
+        mountedCallbacks.length = 0
+        beforeUnmountCallbacks.length = 0
         liveSession.value = {
             data: null,
             error: null,
             isPending: true,
             isRefetching: false,
-            refetch: liveSession.value.refetch,
+            refetch: createRefetchMock(),
         }
         invalidateAuthSessionState({ broadcast: false })
     })
@@ -160,5 +180,103 @@ describe('useAuthSession', () => {
 
         expect(resolved).toEqual(fetchedSession)
         expect(mockUseSession.mock.calls.filter(([fetcher]) => Boolean(fetcher))).toHaveLength(1)
+    })
+
+    it('should hydrate the client auth session atom from the resolved route state', async () => {
+        await resolveRouteAuthSession()
+
+        vi.clearAllMocks()
+        primeHydratedAuthSession()
+
+        expect(mockPrimeRequestCache).toHaveBeenCalledWith(fetchedSession)
+        expect(mockSessionAtomSet).toHaveBeenCalledWith(expect.objectContaining({
+            data: fetchedSession,
+            error: null,
+            isPending: false,
+            isRefetching: false,
+        }))
+    })
+
+    it('should refresh stale sessions on focus and cleanup lifecycle listeners', async () => {
+        const addWindowListenerSpy = vi.spyOn(window, 'addEventListener')
+        const removeWindowListenerSpy = vi.spyOn(window, 'removeEventListener')
+        const addDocumentListenerSpy = vi.spyOn(document, 'addEventListener')
+        const removeDocumentListenerSpy = vi.spyOn(document, 'removeEventListener')
+        const nowSpy = vi.spyOn(Date, 'now')
+        let currentTimestamp = 1_000
+        let visibilityState = 'visible'
+
+        nowSpy.mockImplementation(() => currentTimestamp)
+        vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibilityState as DocumentVisibilityState)
+
+        liveSession.value = {
+            ...liveSession.value,
+            data: fetchedSession,
+            isPending: false,
+        }
+
+        setupAuthSessionLifecycle(liveSession as never)
+        expect(mountedCallbacks).toHaveLength(1)
+
+        mountedCallbacks[0]()
+
+        const focusListener = addWindowListenerSpy.mock.calls.find(([eventName]) => eventName === 'focus')?.[1]
+
+        expect(focusListener).toBeTypeOf('function')
+        expect(addDocumentListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
+
+        currentTimestamp = 30_000
+        ;(focusListener as EventListener)(new Event('focus'))
+        await nextTick()
+        expect(liveSession.value.refetch).not.toHaveBeenCalled()
+
+        visibilityState = 'hidden'
+        currentTimestamp = 62_000
+        ;(focusListener as EventListener)(new Event('focus'))
+        await nextTick()
+        expect(liveSession.value.refetch).not.toHaveBeenCalled()
+
+        visibilityState = 'visible'
+        ;(focusListener as EventListener)(new Event('focus'))
+        await Promise.resolve()
+        expect(liveSession.value.refetch).toHaveBeenCalledTimes(1)
+
+        expect(beforeUnmountCallbacks).toHaveLength(1)
+        beforeUnmountCallbacks[0]()
+
+        expect(removeWindowListenerSpy).toHaveBeenCalledWith('focus', focusListener)
+        expect(removeDocumentListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
+    })
+
+    it('should warn when lifecycle-driven session refresh fails', async () => {
+        const addWindowListenerSpy = vi.spyOn(window, 'addEventListener')
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const nowSpy = vi.spyOn(Date, 'now')
+        let currentTimestamp = 1_000
+
+        nowSpy.mockImplementation(() => currentTimestamp)
+        vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
+
+        liveSession.value = {
+            ...liveSession.value,
+            data: fetchedSession,
+            isPending: false,
+            refetch: vi.fn().mockRejectedValue(new Error('refresh failed')),
+        }
+
+        setupAuthSessionLifecycle(liveSession as never)
+        mountedCallbacks[0]()
+
+        currentTimestamp = 62_000
+        const focusListener = addWindowListenerSpy.mock.calls.find(([eventName]) => eventName === 'focus')?.[1] as EventListener
+
+        focusListener(new Event('focus'))
+        await Promise.resolve()
+        await Promise.resolve()
+
+        expect(warnSpy).toHaveBeenCalledWith(
+            'Failed to refresh auth session on visibility change',
+            expect.objectContaining({ message: 'refresh failed' }),
+        )
     })
 })

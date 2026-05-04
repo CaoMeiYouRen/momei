@@ -9,6 +9,48 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-04 第三十四阶段 coverage 80%+ 冲刺首轮推进
+
+### 范围
+
+- 目标：启动第三十四阶段 `测试覆盖率冲刺 80%+ (P0)`，先做基线缺口量化，再只挑“已有测试基础、贴近当前待办风险、可做定向验证”的切片推进，避免一开始就铺向全仓低价值补测。
+- 当前基线：以 2026-05-04 全量 `pnpm test:coverage` 输出为准，lines `75.28%`。按现有总代码行数估算，达到 `78%` 还约差 `625` 行覆盖，达到 `80%` 还约差 `1085` 行覆盖。
+- 本轮覆盖：`composables/use-auth-session.test.ts`（认证链路 hydration + 生命周期守线）与 `components/admin/posts/post-tts-dialog.test.ts`（火山直连 TTS 成功分支）。
+- 非目标：本轮不做全量 coverage 复跑，不强行碰 `0%` 大块目录，不把失败态尚未稳定的 TTS 任务创建错误映射断言留在仓库里。
+
+### 实施结论
+
+- 认证链路先落地到 [composables/use-auth-session.test.ts](../../composables/use-auth-session.test.ts)：新增 hydration 回填断言、生命周期注册/清理断言、focus 可见性过期刷新断言，以及刷新失败 warning 断言。
+- 定向 coverage 结果显示 [composables/use-auth-session.ts](../../composables/use-auth-session.ts) 当前已达 lines `89%`，说明原先未覆盖的 hydration / lifecycle 分支已被实打实回收，适合作为“认证边角分支”组的首个已完成切片。
+- TTS 新链路补到 [components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts)：新增火山直连生成 + confirm emit 成功路径断言，保留现有 openai 轮询路径断言。
+- 定向 coverage 结果显示 [components/admin/posts/post-tts-dialog.vue](../../components/admin/posts/post-tts-dialog.vue) 当前已达 lines `84.78%`，并带动 [composables/use-post-tts-dialog.ts](../../composables/use-post-tts-dialog.ts) 达到 lines `85.21%`。这说明当前 Phase 34 TTS 分流链路的“直连成功路径”已有稳定回归守线。
+- TTS 的“任务创建失败 -> 可见错误映射”断言在组件层连续 3 次局部修正后仍未稳定打穿，因此本轮按最小风险原则回退该测试，不把不稳定断言留在仓库里；后续若继续补这一支，优先改走 composable 级定向测试，而不是继续在组件文件里来回试探。
+
+### 已执行验证
+
+- `pnpm exec vitest run composables/use-auth-session.test.ts`
+	- 结果：通过；`9` 个测试全部通过。
+- `pnpm exec vitest run composables/use-auth-session.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=composables/use-auth-session.ts`
+	- 结果：通过；[composables/use-auth-session.ts](../../composables/use-auth-session.ts) 为 statements `88.78%` / branches `72.22%` / functions `96.29%` / lines `89%`。
+- `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts`
+	- 结果：通过；`3` 个测试全部通过。
+- `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=components/admin/posts/post-tts-dialog.vue --coverage.include=composables/use-post-tts-dialog.ts`
+	- 结果：通过；[components/admin/posts/post-tts-dialog.vue](../../components/admin/posts/post-tts-dialog.vue) 为 lines `84.78%`，[composables/use-post-tts-dialog.ts](../../composables/use-post-tts-dialog.ts) 为 lines `85.21%`。
+- 编辑器诊断复核
+	- 结果：通过；受影响测试文件无新增诊断。
+
+### Review Gate
+
+- 结论：Pass（本轮切片）
+- 问题分级：warning
+- 主要问题：当前只完成了 coverage 冲刺的首轮切片，尚未复跑全仓 coverage，因此不能用本轮局部结果替代阶段基线；TTS 失败态映射断言仍是已知候选，但未保留不稳定实现。
+
+### 未覆盖边界
+
+- 全仓 coverage 仍停留在 2026-05-04 的 `75.28%` 基线口径，本轮只做了局部切片验证，尚未刷新阶段级总线。
+- `80%+` 冲刺距离仍然较大，当前应继续优先命中三类高 ROI 区域：认证边角分支剩余切片、热点读链路失败路径、已有测试基础但 coverage 仍偏低的 Phase 33/34 共享组件。
+- 下一轮优先候选：`pages/posts/[id].test.ts` 或 `tests/server/api/posts/access-error-mapping.test.ts` 所在的公开读链路失败态，以及缺少专门 composable 测试的 `use-post-tts-dialog.ts` 失败映射分支。
+
 ## 2026-05-02 AITask stale compensation 宽行扫描收敛 P0 关闭
 
 ### 范围
