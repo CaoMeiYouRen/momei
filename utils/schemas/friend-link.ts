@@ -72,7 +72,14 @@ export const friendLinkApplicationReviewSchema = z.object({
     linkData: friendLinkSchema.partial().optional(),
 })
 
+export const friendLinkApplicationListQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    status: z.enum(FriendLinkApplicationStatus).optional(),
+})
+
 export type FriendLinkCategoryInput = z.infer<typeof friendLinkCategorySchema>
 export type FriendLinkInput = z.infer<typeof friendLinkSchema>
 export type FriendLinkApplicationInput = z.infer<typeof friendLinkApplicationSchema>
 export type FriendLinkApplicationReviewInput = z.infer<typeof friendLinkApplicationReviewSchema>
+export type FriendLinkApplicationListQueryInput = z.infer<typeof friendLinkApplicationListQuerySchema>

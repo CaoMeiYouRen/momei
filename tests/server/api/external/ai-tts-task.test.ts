@@ -7,7 +7,7 @@ import { isServerlessEnvironment } from '@/server/utils/env'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 
 const mocks = vi.hoisted(() => ({
-    readBody: vi.fn(),
+    readValidatedBody: vi.fn(),
 }))
 
 vi.mock('h3', async (importOriginal) => {
@@ -15,7 +15,7 @@ vi.mock('h3', async (importOriginal) => {
 
     return {
         ...actual,
-        readBody: mocks.readBody,
+        readValidatedBody: mocks.readValidatedBody,
     }
 })
 
@@ -77,23 +77,29 @@ describe('POST /api/external/ai/tts/task', () => {
         vi.mocked(TTSService.getProvider).mockResolvedValue({ model: 'seed-tts-2.0' } as any)
         vi.mocked(TTSService.processTask).mockResolvedValue(undefined)
         vi.mocked(assertAIQuotaAllowance).mockResolvedValue(undefined)
-        mocks.readBody.mockResolvedValue({
+        mocks.readValidatedBody.mockImplementation(async (event: { body?: unknown }, parser: (body: unknown) => unknown) => parser(event.body))
+    })
+
+    it('should register external TTS processing with waitUntil when available', async () => {
+        const event = {
+            waitUntil: vi.fn(),
+            context: {},
             provider: 'volcengine',
             voice: 'zh_female_vv_uranus_bigtts',
             text: 'hello world',
             mode: 'podcast',
             options: {},
-        })
-    })
-
-    it('should register external TTS processing with waitUntil when available', async () => {
+        }
+        ;(event as any).body = {
+            provider: 'volcengine',
+            voice: 'zh_female_vv_uranus_bigtts',
+            text: 'hello world',
+            mode: 'podcast',
+            options: {},
+        }
         vi.mocked(isServerlessEnvironment).mockReturnValue(true)
-        const waitUntil = vi.fn()
 
-        const result = await handler({
-            waitUntil,
-            context: {},
-        } as any)
+        const result = await handler(event as any)
 
         expect(result).toEqual({
             code: 200,
@@ -106,7 +112,7 @@ describe('POST /api/external/ai/tts/task', () => {
                 message: expect.any(String),
             },
         })
-        expect(waitUntil).not.toHaveBeenCalled()
+        expect(event.waitUntil).not.toHaveBeenCalled()
         expect(TTSService.processTask).not.toHaveBeenCalled()
         expect(taskRepo.create).not.toHaveBeenCalled()
     })
@@ -117,6 +123,13 @@ describe('POST /api/external/ai/tts/task', () => {
         const result = await handler({
             waitUntil,
             context: {},
+            body: {
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                text: 'hello world',
+                mode: 'podcast',
+                options: {},
+            },
         } as any)
 
         expect(result).toEqual({
@@ -137,6 +150,13 @@ describe('POST /api/external/ai/tts/task', () => {
 
         const result = await handler({
             context: {},
+            body: {
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                text: 'hello world',
+                mode: 'podcast',
+                options: {},
+            },
         } as any)
 
         expect(result).toEqual({

@@ -1,11 +1,7 @@
-import { z } from 'zod'
 import { requireAdmin } from '@/server/utils/permission'
 import { success, fail } from '@/server/utils/response'
 import { setActiveAgreement } from '@/server/services/agreement'
-
-const setActiveSchema = z.object({
-    agreementId: z.string().min(1),
-})
+import { agreementTypeParamSchema, setActiveAgreementSchema } from '@/utils/schemas/agreement'
 
 /**
  * POST /api/admin/agreements/[id]/activate
@@ -14,18 +10,11 @@ const setActiveSchema = z.object({
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
 
-    const type = getRouterParam(event, 'id')!
-    if (!type || !['user_agreement', 'privacy_policy'].includes(type)) {
-        return fail('Invalid agreement type', 400)
-    }
-
     try {
-        const body = await readValidatedBody(event, (b) => setActiveSchema.parse(b))
+        const { id: type } = await getValidatedRouterParams(event, (params) => agreementTypeParamSchema.parse(params))
+        const body = await readValidatedBody(event, (payload) => setActiveAgreementSchema.parse(payload))
 
-        const agreement = await setActiveAgreement(
-            type as 'user_agreement' | 'privacy_policy',
-            body.agreementId,
-        )
+        const agreement = await setActiveAgreement(type, body.agreementId)
 
         return success(agreement)
     } catch (error: any) {

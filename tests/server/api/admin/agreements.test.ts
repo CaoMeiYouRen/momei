@@ -18,7 +18,7 @@ describe('admin agreements api', () => {
         vi.clearAllMocks()
         vi.stubGlobal('getQuery', vi.fn((event: { query?: unknown }) => event.query || {}))
         vi.stubGlobal('readValidatedBody', vi.fn((event: { body?: unknown }, parser: (body: unknown) => unknown) => Promise.resolve(parser(event.body))))
-        vi.stubGlobal('getRouterParam', vi.fn((event: { context?: { params?: Record<string, string> } }, key: string) => event.context?.params?.[key]))
+        vi.stubGlobal('getValidatedRouterParams', vi.fn((event: { context?: { params?: Record<string, string> } }, parser: (params: unknown) => unknown) => Promise.resolve(parser(event.context?.params || {}))))
         vi.mocked(requireAdmin).mockResolvedValue({ user: { id: 'admin-1', role: 'admin' } } as never)
     })
 

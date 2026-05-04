@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, readBody } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
@@ -8,18 +8,15 @@ import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from 
 import { isServerlessEnvironment } from '@/server/utils/env'
 import { createFrontendDirectTTSResponse, shouldUseTTSFrontendDirect } from '@/server/utils/ai/tts-direct-dispatch'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
+import { aiExternalTTSTaskSchema } from '@/utils/schemas/ai'
 import { TTS_FRONTEND_DIRECT } from '@/utils/shared/env'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
 
-    const body = await readBody(event)
-    const { postId, text, provider, mode = 'speech', voice, model, script, options = {} } = body
-
-    if (!voice) {
-        throw createError({ statusCode: 400, statusMessage: 'Voice is required' })
-    }
+    const { postId, text, provider, mode, voice, model, script, options } =
+        await readValidatedBody(event, (payload) => aiExternalTTSTaskSchema.parse(payload))
 
     const finalPostId = postId
     let contentToConvert = text || script
@@ -98,7 +95,7 @@ export default defineEventHandler(async (event) => {
     const task = taskRepo.create({
         category: mode === 'podcast' ? 'podcast' : 'tts',
         type: mode === 'podcast' ? 'podcast' : 'tts',
-        postId: finalPostId || null,
+        postId: finalPostId || undefined,
         userId: user.id,
         provider,
         mode,

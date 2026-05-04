@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { PostStatus } from '@/types/post'
 import { SettingKey } from '@/types/setting'
+import { isSnowflakeId } from '@/utils/shared/validate'
 
 const aiQuotaScopeSchema = z.string().trim().refine((value) => value === 'all'
     || ['text', 'image', 'asr', 'tts', 'podcast'].includes(value)
@@ -189,6 +190,30 @@ export const aiGenerateImageSchema = z.object({
     quality: z.enum(['standard', 'hd']).optional().default('standard'),
     style: z.enum(['vivid', 'natural']).optional().default('vivid'),
     n: z.number().int().min(1).max(4).optional().default(1),
+})
+
+export const aiTTSOptionsSchema = z.object({
+    mode: z.enum(['speech', 'podcast']).optional(),
+    speed: z.number().min(0.25).max(4).optional(),
+    pitch: z.number().min(-12).max(12).optional(),
+    volume: z.number().min(0.5).max(2).optional(),
+    language: z.string().max(10).optional(),
+    model: z.string().max(100).optional(),
+    sampleRate: z.number().int().positive().optional(),
+    outputFormat: z.string().max(20).optional(),
+}).optional().default({})
+
+export const aiExternalTTSTaskSchema = z.object({
+    postId: z.string().trim().refine((value) => isSnowflakeId(value), {
+        message: 'Invalid snowflake ID',
+    }).optional(),
+    text: z.string().optional(),
+    provider: z.string().max(50).optional(),
+    mode: z.enum(['speech', 'podcast']).optional().default('speech'),
+    voice: z.string().min(1).max(200),
+    model: z.string().max(100).optional(),
+    script: z.string().optional(),
+    options: aiTTSOptionsSchema,
 })
 
 export type AiTranslateInput = z.infer<typeof aiTranslateSchema>
