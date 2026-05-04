@@ -51,6 +51,7 @@
 - [ ] **i18n 运行时继续扩面 (P1)**
 	- 范围: `app-footer` / 公开页装配链路 / Phase 33 新增共享组件（auth-card, taxonomy-post-page）命名空间。
 	- 验收: `i18n:audit:missing` 保持 0，新增一条公开页纳入 `i18n:verify:runtime`。
+	- 最新进度: 2026-05-04 已修正 `auth-card` 真实 key 传递契约，移除 `taxonomy-post-page` 的 RSS `aria-label` 硬编码，并将 `pages/forgot-password.test.ts`、`pages/reset-password.test.ts`、`tests/pages/taxonomy-rss-discovery.test.ts` 纳入 `i18n:verify:runtime`；`pnpm exec vitest run --config vitest.i18n.config.ts` 通过。
 
 - [ ] **文档翻译 freshness 续 (P1)**
 	- 范围: 清偿高频设计页 + 对外 guide 翻译 freshness。

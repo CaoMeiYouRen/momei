@@ -1,8 +1,8 @@
 <template>
     <AuthCard
-        :title-key="$t('pages.reset_password.title')"
-        :subtitle-key="$t('pages.reset_password.subtitle')"
-        :submit-label="$t('pages.reset_password.submit')"
+        title-key="pages.reset_password.title"
+        subtitle-key="pages.reset_password.subtitle"
+        submit-label="pages.reset_password.submit"
         :loading="loading"
         :error="error"
         @submit="handleResetPassword"

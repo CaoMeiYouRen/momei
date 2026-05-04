@@ -33,7 +33,7 @@
                         target="_blank"
                         class="taxonomy-page__rss"
                         :title="$t('common.rss')"
-                        aria-label="RSS Feed"
+                        :aria-label="$t('common.rss')"
                     >
                         <RssIcon class="taxonomy-page__rss-icon" />
                     </a>

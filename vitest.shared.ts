@@ -18,11 +18,14 @@ const i18nRuntimeTestFiles = [
     'components/app-header.test.ts',
     'components/app-footer.test.ts',
     'components/commercial-link-manager.test.ts',
+    'pages/forgot-password.test.ts',
     'pages/login.test.ts',
+    'pages/reset-password.test.ts',
     'pages/about.test.ts',
     'pages/friend-links.test.ts',
     'pages/categories/index.test.ts',
     'pages/tags/index.test.ts',
+    'tests/pages/taxonomy-rss-discovery.test.ts',
     'pages/admin/friend-links/index.test.ts',
 ]
 

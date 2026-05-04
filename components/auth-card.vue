@@ -27,7 +27,7 @@
 
                 <Button
                     type="submit"
-                    :label="submitLabel"
+                    :label="$t(submitLabel)"
                     :loading="loading"
                     class="submit-btn"
                 />
