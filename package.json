@@ -262,7 +262,7 @@
     "vitepress": "^1.6.4",
     "vitest": "^4.1.5",
     "vitest-environment-nuxt": "^2.0.0",
-    "vue-tsc": "^3.2.7",
+    "vue-tsc": "^3.2.8",
     "wrangler": "^4.86.0"
   },
   "author": "CaoMeiYouRen",
