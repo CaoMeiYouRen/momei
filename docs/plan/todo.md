@@ -40,9 +40,10 @@
 	- 收口线: `>= 78%`（`80%+` 冲刺）。
 	- 最新进度: 2026-05-04 全量 `pnpm test:coverage` 已达到 lines `78.06%`，阶段收口线达成；条目暂不关闭，后续从 `>= 78%` 转为继续冲 `80%+`。
 
-- [ ] **周期性回归执行 (P1)**
+- [x] **周期性回归执行 (P1)**
 	- 范围: `pnpm regression:phase-close` 真实回归，覆盖 coverage / lint-typecheck / dup code / docs / RG。
 	- 非目标: 不新做回归规范体系。
+	- 最新进度: 2026-05-05 已完成真实 `pnpm regression:phase-close` 回归，期间依次清除了 `security:audit-deps`、导航 E2E、`test:perf:budget:strict` 与回归窗口超限四类 blocker；最终 phase-close、发布前校验与 Review Gate 证据生成全部通过，因此条目正式关闭。
 
 - [x] **ESLint 下一轮切片 (P1)**
 	- 范围: `no-non-null-assertion` composables 子桶；命中少则回退单文件 `no-explicit-any`。
