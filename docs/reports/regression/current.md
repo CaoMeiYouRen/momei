@@ -180,6 +180,7 @@
 - 后台简单 settings 表单继续作为低风险高 ROI 补量面，已新增并通过 [components/admin/settings/auth-settings.test.ts](../../components/admin/settings/auth-settings.test.ts)、[components/admin/settings/security-settings.test.ts](../../components/admin/settings/security-settings.test.ts)、[components/admin/settings/limits-settings.test.ts](../../components/admin/settings/limits-settings.test.ts)、[components/admin/settings/storage-settings.test.ts](../../components/admin/settings/storage-settings.test.ts)、[components/admin/settings/email-settings.test.ts](../../components/admin/settings/email-settings.test.ts) 与 [components/admin/settings/analytics-settings.test.ts](../../components/admin/settings/analytics-settings.test.ts)。
 - 较大 ROI 切片方面，已补齐 [composables/use-admin-friend-links-page.test.ts](../../composables/use-admin-friend-links-page.test.ts) 与 [server/services/link.test.ts](../../server/services/link.test.ts)，分别回收后台友链管理状态流与短链服务 DB 路径的大块缺口。
 - 最终全量 coverage 已稳定过线：All files statements `78.01%` / branches `65.32%` / functions `74.17%` / lines `78.06%`。这说明第三十四阶段 coverage 冲刺的阶段收口线已经达成，后续若继续推进，目标应从“保 78”切换为“继续冲 80+”。
+- 方法论沉淀已完成：本轮已将“先估算缺口、逐文件定向验证、累计后再跑全量 checkpoint、过程持续写回回归窗口”的 coverage 冲刺口径回写到 [docs/standards/testing.md](../../standards/testing.md)，后续同类治理不再只依赖口头约定。
 
 ### 已执行验证
 

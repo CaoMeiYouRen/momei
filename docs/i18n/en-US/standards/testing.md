@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-05-05
 translation_tier: summary-sync
 ---
 
@@ -101,6 +101,15 @@ E2E test files are stored in the `tests/e2e/` directory at the project root.
 -   **UI Components**: ≥ 50% recommended (focus on logic over styling).
 -   Coverage-governance work should preserve or raise the current floor instead of allowing regressions in the name of cleanup.
 
+### 5.1 Coverage Sprint Playbook
+
+1.  Start from a fresh baseline taken from the current `pnpm test:coverage` run or `coverage/coverage-final.json`; do not plan ROI from a stale `coverage-report/coverage-summary.json` artifact.
+2.  Before editing tests, estimate the line-gap to the current target and record the baseline, the target line threshold, and the first high-ROI slices to attack.
+3.  Prefer high-ROI slices such as large low-coverage modules with existing test scaffolding, stable composables or services, and simple forms before jumping into very large editor surfaces.
+4.  After every test edit, rerun the touched test file first. A coverage sprint does not waive targeted validation.
+5.  Rerun full `pnpm test:coverage` only when the accumulated expected gain is close to the stage gate or when a new whole-repo checkpoint is needed.
+6.  Keep the baseline, gap estimate, targeted checkpoints, and next candidates in [docs/reports/regression/current.md](../../../reports/regression/current.md) so the evidence chain stays reviewable.
+
 Run coverage check:
 
 ```bash
@@ -115,6 +124,7 @@ To balance quality and development speed, especially since full test suites (spe
     -   During local development and bug fixing, **prefer running only tests directly related to the current change**.
     -   **Reason**: Full test suites are slow and frequent runs can block the development flow.
     -   **Command**: `pnpm test [filename_keyword]`.
+    -   **Coverage sprint rule**: every newly touched test file must pass in isolation before moving on to the next slice.
 2.  **Pre-Commit Check**:
     -   Run relevant tests before pushing to ensure no regressions.
 3.  **CI/CD Validation**:
