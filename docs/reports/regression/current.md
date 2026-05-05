@@ -9,6 +9,41 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-05 第三十四阶段 `i18n 运行时继续扩面 (P1)` 关闭
+
+### 范围
+
+- 目标：完成第三十四阶段 `i18n 运行时继续扩面 (P1)` 的最后一条公开页装配链路收口，并把该待办正式关闭。
+- 本轮覆盖：[vitest.shared.ts](../../vitest.shared.ts)、[pages/archives/index.test.ts](../../pages/archives/index.test.ts)、[docs/reports/regression/current.md](../../docs/reports/regression/current.md) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不重写 [pages/archives/index.vue](../../pages/archives/index.vue) 的页面实现，不继续扩写新的公开页矩阵，也不重新处理已在前序切片中完成的 `app-footer`、`auth-card` 或 `taxonomy-post-page` 运行时命名空间问题。
+
+### 实施结论
+
+- 当前仓库里 [pages/archives/index.test.ts](../../pages/archives/index.test.ts) 已经具备真实翻译命中断言，会校验归档月份、文章计数文案与 raw key 泄漏；缺口只在于它尚未被纳入 `i18n:verify:runtime` 的固定运行时回归入口。
+- 本轮将 [pages/archives/index.test.ts](../../pages/archives/index.test.ts) 加入 [vitest.shared.ts](../../vitest.shared.ts) 的 `i18nRuntimeTestFiles`，把 `archives` 公开页装配链路正式并入固定回归矩阵。
+- 结合 2026-05-04 已完成的 `forgot-password` / `reset-password` / taxonomy RSS 与更早完成的 `app-footer`、About、Friend Links、Categories、Tags 等守线，当前待办验收条件已经满足，可正式关闭。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run --config vitest.i18n.config.ts pages/archives/index.test.ts`
+	- 结果：通过；`8` 个测试全部通过，新增公开页链路已能在固定 i18n runtime 配置下稳定运行。
+- 缺词 parity：`pnpm i18n:audit:missing`
+	- 结果：通过；`total: 0`，所有已扫描 locale / module 仍无缺词 blocker。
+- 固定运行时入口：`pnpm i18n:verify:runtime`
+	- 结果：通过；`15` 个测试文件、`103` 个测试全部通过，`archives` 已被纳入固定回归入口。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮改动只扩大固定运行时测试矩阵，没有引入新的共享命名空间或页面实现风险。
+
+### 未覆盖边界
+
+- 本轮没有继续新增 `archives` 之外的公开页装配链路；后续若再扩面，应以新的高风险公开页或新增共享组件为单位单独切片，而不是在当前已关闭的待办上继续膨胀范围。
+- `i18n:verify:runtime` 的通过结果已足够支撑本条待办关闭，但不等于未来所有新增公开页都会自动获得守线；后续新增入口仍需按相同口径显式纳入。
+- 当前完整 `i18n:verify:runtime` 套件在 `friend-links` 与 `reset-password` 相关用例上仍会打印既有的 Nuxt i18n 初始化 stderr；现阶段不影响测试通过与本条待办关闭，但后续应单列治理以降低回归噪音。
+
 ## 2026-05-04 第三十四阶段 `ESLint 下一轮切片 (P1)` 关闭
 
 ### 范围

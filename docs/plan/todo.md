@@ -48,10 +48,11 @@
 	- 范围: `no-non-null-assertion` composables 子桶；命中少则回退单文件 `no-explicit-any`。
 	- 最新进度: 2026-05-04 已确认 `composables` 子桶没有新的 `no-non-null-assertion` 高 ROI 命中可继续上收，并已沿回退口径完成 `use-tts-task.ts`、`use-upload.ts`、`use-asr-task.ts`、`use-admin-ai.ts`、`use-admin-i18n.ts`、`use-post-editor-auto-save.ts`、`use-onboarding.ts`、`use-post-editor-page.helpers.ts`、`use-tts-volcengine-direct.ts`、`use-post-editor-ai.ts`、`use-post-editor-io.ts` 等 production composable 的 `no-explicit-any` 单文件 / 双文件切片；定向 ESLint、同级 Vitest 与 `npm run lint` 均通过，当前 `composables` 生产源码范围内已无这条主线的残余阻塞，因此条目正式关闭。
 
-- [ ] **i18n 运行时继续扩面 (P1)**
+
+- [x] **i18n 运行时继续扩面 (P1)**
 	- 范围: `app-footer` / 公开页装配链路 / Phase 33 新增共享组件（auth-card, taxonomy-post-page）命名空间。
 	- 验收: `i18n:audit:missing` 保持 0，新增一条公开页纳入 `i18n:verify:runtime`。
-	- 最新进度: 2026-05-04 已修正 `auth-card` 真实 key 传递契约，移除 `taxonomy-post-page` 的 RSS `aria-label` 硬编码，并将 `pages/forgot-password.test.ts`、`pages/reset-password.test.ts`、`tests/pages/taxonomy-rss-discovery.test.ts` 纳入 `i18n:verify:runtime`；`pnpm exec vitest run --config vitest.i18n.config.ts` 通过。
+	- 最新进度: 2026-05-05 已将 `pages/archives/index.test.ts` 纳入 `i18n:verify:runtime` 固定入口，补齐 `archives` 公开页装配链路；结合 2026-05-04 已完成的 `auth-card` 契约修正、`taxonomy-post-page` RSS `aria-label` 去硬编码，以及 `pages/forgot-password.test.ts`、`pages/reset-password.test.ts`、`tests/pages/taxonomy-rss-discovery.test.ts` 的运行时守线，当前 `pnpm i18n:audit:missing` 为 `total: 0`，`pnpm i18n:verify:runtime` 通过，因此条目正式关闭。
 
 - [x] **文档翻译 freshness 续 (P1)**
 	- 范围: 清偿高频设计页 + 对外 guide 翻译 freshness。
