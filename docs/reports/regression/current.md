@@ -9,6 +9,47 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-05 第三十四阶段 coverage 80%+ 冲刺续推：ai-settings 切片
+
+### 范围
+
+- 目标：继续推进第三十四阶段 `测试覆盖率冲刺 80%+ (P0)`，先在已有测试基座的后台 settings 组件里拿下一块高 ROI 条件渲染切片，而不是立刻重跑全量 coverage。
+- 当前全仓基线：以 2026-05-05 用户提供的最新全量 `pnpm test:coverage` 输出为准，All files lines `78.19%`，距离 `80%` 还差 `1.81` 个百分点。
+- 本轮覆盖：[components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 与 [components/admin/settings/ai-settings.test.ts](../../components/admin/settings/ai-settings.test.ts)。
+- 非目标：本轮不重跑全量 `pnpm test:coverage`，不并行扩写第二个 settings 组件，也不把当前切片包装成“80%+ 已达成”。
+
+### 实施结论
+
+- [components/admin/settings/ai-settings.test.ts](../../components/admin/settings/ai-settings.test.ts) 已从单条 happy path 扩到 `3` 条风险定向用例，分别覆盖 Google/Gemini + Volcengine 组合路径、SiliconFlow ASR + 标准 TTS 路径，以及 TTS-only Volcengine 共享凭证路径。
+- 本轮测试桩同步补齐 `v-model` update 事件与 `Select` option 渲染，使 provider 切换、密码输入、普通输入和开关收起都能命中真实分支，而不是只做静态存在性断言。
+- 定向 coverage 结果显示 [components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 已从 lines `44.28%` / branches `79.26%` 提升到 lines `81.42%` / branches `100%`，证明这块 Phase 34 settings 表单切片具备明确 ROI。
+- 当前全仓是否已越过 `80%` 仍以“下一次全量 checkpoint” 为唯一事实源；本轮先把高 ROI 组件切片抬稳，再决定下一批候选，避免每补一个文件就重跑全量 coverage。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run components/admin/settings/ai-settings.test.ts`
+	- 结果：通过；`3` 个测试全部通过。
+- 定向 coverage（初始基线）：`pnpm exec vitest run components/admin/settings/ai-settings.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=components/admin/settings/ai-settings.vue`
+	- 结果：通过；[components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 为 lines `44.28%` / branches `79.26%`。
+- 定向 coverage（当前 checkpoint）：`pnpm exec vitest run components/admin/settings/ai-settings.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=components/admin/settings/ai-settings.vue`
+	- 结果：通过；[components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 为 statements `81.69%` / branches `100%` / functions `79.36%` / lines `81.42%`。
+- 定向 ESLint：`pnpm exec eslint components/admin/settings/ai-settings.test.ts`
+	- 结果：通过；无输出。
+- 受影响文件诊断：`get_errors(components/admin/settings/ai-settings.test.ts)`
+	- 结果：通过；无新增诊断。
+
+### Review Gate
+
+- 结论：Pass（本轮切片）
+- 问题分级：warning
+- 主要问题：当前通过结论只覆盖 [components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 这一局部切片；全仓 coverage 仍停留在 2026-05-05 的 `78.19%` 基线口径，尚未刷新下一次全量 checkpoint。
+
+### 未覆盖边界
+
+- 本轮没有刷新全仓 `pnpm test:coverage`，因此不能把 [components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 的局部提升直接换算成新的全仓 lines 百分比。
+- [components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 仍有少量未命中的图像模型字段与早段输入绑定，但已越过 `80%` 守线；下一轮更适合转向其它已有测试基座但整体 coverage 更低的后台 settings / admin 组件，而不是继续在同一文件里做边际收益递减的补测。
+- 下一次全量 checkpoint 的触发条件保持不变：再累计 `1 - 2` 个高 ROI 切片后，统一重跑 `pnpm test:coverage`，用全仓 lines 结果判断是否真正逼近或越过 `80%`。
+
 ## 2026-05-05 第三十四阶段 `周期性回归执行 (P1)` 关闭
 
 ### 范围

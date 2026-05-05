@@ -1,10 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import { reactive, ref } from 'vue'
 
-const mockAppFetch = vi.fn()
-const showSuccessToast = vi.fn()
-const showErrorToast = vi.fn()
+const {
+    mockAppFetch,
+    showSuccessToast,
+    showErrorToast,
+} = vi.hoisted(() => ({
+    mockAppFetch: vi.fn().mockResolvedValue({
+        data: {
+            refreshedAt: '2026-05-05T00:00:00.000Z',
+            sourceCount: 2,
+            snapshotCount: 3,
+            failureCount: 0,
+        },
+    }),
+    showSuccessToast: vi.fn(),
+    showErrorToast: vi.fn(),
+}))
 
 const translations: Record<string, string> = {
     'pages.admin.settings.system.sections.memos': 'Memos',
@@ -56,112 +70,211 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
-vi.mock('#imports', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('#imports')>()
-
-    return {
-        ...actual,
-        useAppApi: () => ({
-            $appFetch: mockAppFetch,
-        }),
-        useRequestFeedback: () => ({
-            showSuccessToast,
-            showErrorToast,
-        }),
-    }
-})
-
-vi.stubGlobal('useAppApi', () => ({
+mockNuxtImport('useAppApi', () => () => ({
     $appFetch: mockAppFetch,
 }))
 
-vi.stubGlobal('useRequestFeedback', () => ({
+mockNuxtImport('useRequestFeedback', () => () => ({
     showSuccessToast,
     showErrorToast,
 }))
 
+const defaultSettings = {
+    memos_enabled: false,
+    memos_instance_url: '',
+    memos_access_token: '',
+    memos_default_visibility: 'PUBLIC',
+    listmonk_enabled: false,
+    listmonk_instance_url: '',
+    listmonk_username: '',
+    listmonk_access_token: '',
+    listmonk_default_list_ids: '',
+    listmonk_category_list_map: '',
+    listmonk_tag_list_map: '',
+    listmonk_template_id: '',
+    hexo_sync_enabled: false,
+    hexo_sync_provider: 'github',
+    hexo_sync_owner: '',
+    hexo_sync_repo: '',
+    hexo_sync_branch: 'main',
+    hexo_sync_posts_dir: 'source/_posts',
+    hexo_sync_access_token: '',
+    external_feed_enabled: false,
+    external_feed_home_enabled: false,
+    external_feed_home_limit: 6,
+    external_feed_cache_ttl_seconds: 900,
+    external_feed_stale_while_error_seconds: 86400,
+    external_feed_sources: '[]',
+}
+
+const stubs = {
+    SettingFormField: { template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>', props: ['fieldKey', 'inputId', 'metadata', 'inline', 'description'] },
+    ToggleSwitch: {
+        template: '<input :id="id" class="toggle-switch" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+        props: ['id', 'modelValue', 'disabled'],
+        emits: ['update:modelValue'],
+    },
+    InputText: {
+        template: `<input :id="id" class="input-text" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
+        props: ['id', 'modelValue', 'placeholder', 'disabled', 'fluid'],
+        emits: ['update:modelValue'],
+    },
+    Password: {
+        template: `<input :id="id" class="password-input" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
+        props: ['id', 'modelValue', 'placeholder', 'disabled', 'toggleMask', 'fluid'],
+        emits: ['update:modelValue'],
+    },
+    Textarea: {
+        template: `<textarea :id="id" class="textarea-input" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
+        props: ['id', 'modelValue', 'placeholder', 'disabled', 'rows', 'fluid'],
+        emits: ['update:modelValue'],
+    },
+    Select: {
+        template: `
+            <select :id="id" class="select-input" :value="modelValue ?? ''" :disabled="disabled" @change="$emit('update:modelValue', $event.target.value)">
+                <option
+                    v-for="option in options"
+                    :key="typeof option === 'string' ? option : option[optionValue || 'value']"
+                    :value="typeof option === 'string' ? option : option[optionValue || 'value']"
+                >
+                    {{ typeof option === 'string' ? option : option[optionLabel || 'label'] }}
+                </option>
+            </select>
+        `,
+        props: ['id', 'modelValue', 'options', 'disabled', 'optionLabel', 'optionValue', 'fluid'],
+        emits: ['update:modelValue'],
+    },
+    InputNumber: {
+        template: '<input :id="id" class="number-input" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />',
+        props: ['id', 'modelValue', 'disabled', 'min', 'max', 'fluid'],
+        emits: ['update:modelValue'],
+    },
+    ExternalFeedSourcesEditor: {
+        name: 'ExternalFeedSourcesEditor',
+        template: '<button class="external-feed-sources-editor-stub" :disabled="disabled" @click="$emit(\'update:modelValue\', payload)">edit sources</button>',
+        props: ['modelValue', 'disabled'],
+        emits: ['update:modelValue'],
+        data() {
+            return {
+                payload: '[{"source":"rss"}]',
+            }
+        },
+    },
+    Button: {
+        name: 'Button',
+        template: `<button class="refresh-cache-button" :data-loading="loading ? 'true' : 'false'" @click="handleClick">{{ label }}</button>`,
+        props: ['label', 'icon', 'severity', 'loading', 'onClick'],
+        emits: ['click'],
+        methods: {
+            handleClick(event: MouseEvent) {
+                this.$emit('click', event)
+
+                if (typeof this.onClick === 'function') {
+                    this.onClick(event)
+                }
+            },
+        },
+    },
+}
+
+function createSettings(overrides: Record<string, unknown> = {}) {
+    return reactive({
+        ...defaultSettings,
+        ...overrides,
+    })
+}
+
+function createMetadata(lockedKeys: string[] = []) {
+    const lockedKeySet = new Set(lockedKeys)
+
+    return new Proxy({}, {
+        get: (_, key) => ({
+            isLocked: typeof key === 'string' && lockedKeySet.has(key),
+        }),
+    })
+}
+
+async function mountComponent(settings: ReturnType<typeof createSettings>, lockedKeys: string[] = []) {
+    const { default: ThirdPartySettings } = await import('./third-party-settings.vue')
+
+    return mountSuspended(ThirdPartySettings, {
+        props: {
+            settings,
+            metadata: createMetadata(lockedKeys),
+        },
+        global: {
+            mocks: {
+                $t: translate,
+            },
+            stubs,
+        },
+    })
+}
+
+function getRefreshHandler(wrapper: Awaited<ReturnType<typeof mountComponent>>) {
+    return wrapper.getComponent({ name: 'Button' }).props('onClick') as (() => Promise<void>) | undefined
+}
+
 describe('ThirdPartySettings', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-    })
-
-    it('shows the manual refresh entry when external feeds are enabled', async () => {
-        const { default: ThirdPartySettings } = await import('./third-party-settings.vue')
-
-        const settings = {
-            memos_enabled: false,
-            listmonk_enabled: false,
-            hexo_sync_enabled: false,
-            external_feed_enabled: true,
-            external_feed_home_enabled: true,
-            external_feed_home_limit: 6,
-            external_feed_cache_ttl_seconds: 900,
-            external_feed_stale_while_error_seconds: 86400,
-            external_feed_sources: '[]',
-        }
-
-        const metadata = {
-            memos_enabled: { isLocked: false },
-            memos_instance_url: { isLocked: false },
-            memos_access_token: { isLocked: false },
-            memos_default_visibility: { isLocked: false },
-            listmonk_enabled: { isLocked: false },
-            listmonk_instance_url: { isLocked: false },
-            listmonk_username: { isLocked: false },
-            listmonk_access_token: { isLocked: false },
-            listmonk_default_list_ids: { isLocked: false },
-            listmonk_category_list_map: { isLocked: false },
-            listmonk_tag_list_map: { isLocked: false },
-            listmonk_template_id: { isLocked: false },
-            hexo_sync_enabled: { isLocked: false },
-            hexo_sync_provider: { isLocked: false },
-            hexo_sync_owner: { isLocked: false },
-            hexo_sync_repo: { isLocked: false },
-            hexo_sync_branch: { isLocked: false },
-            hexo_sync_posts_dir: { isLocked: false },
-            hexo_sync_access_token: { isLocked: false },
-            external_feed_enabled: { isLocked: false },
-            external_feed_home_enabled: { isLocked: false },
-            external_feed_home_limit: { isLocked: false },
-            external_feed_cache_ttl_seconds: { isLocked: false },
-            external_feed_stale_while_error_seconds: { isLocked: false },
-            external_feed_sources: { isLocked: false },
-        }
-
-        const wrapper = await mountSuspended(ThirdPartySettings, {
-            props: {
-                settings,
-                metadata,
-            },
-            global: {
-                mocks: {
-                    $t: translate,
-                },
-                stubs: {
-                    SettingFormField: { template: '<div :data-field-key="fieldKey"><slot /></div>', props: ['fieldKey', 'inputId', 'metadata', 'inline', 'description'] },
-                    ToggleSwitch: { template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue'], emits: ['update:modelValue'] },
-                    InputText: { template: '<input />' },
-                    Password: { template: '<input />' },
-                    Select: { template: '<select />' },
-                    InputNumber: { template: '<input />' },
-                    ExternalFeedSourcesEditor: { template: '<div class="external-feed-sources-editor-stub" />' },
-                    Button: { template: '<button class="refresh-cache-button" @click="$emit(\'click\')">{{ label }}</button>', props: ['label', 'icon', 'severity', 'loading'], emits: ['click'] },
-                },
+        mockAppFetch.mockResolvedValue({
+            data: {
+                refreshedAt: '2026-05-05T00:00:00.000Z',
+                sourceCount: 2,
+                snapshotCount: 3,
+                failureCount: 0,
             },
         })
-
-        expect(wrapper.find('.refresh-cache-button').exists()).toBe(true)
-        expect(wrapper.find('.external-feed-sources-editor-stub').exists()).toBe(true)
-        expect(wrapper.text()).toContain('手动刷新缓存')
-        expect(wrapper.text()).toContain('修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。')
     })
 
-    it('shows the remote repository sync section when enabled', async () => {
-        const { default: ThirdPartySettings } = await import('./third-party-settings.vue')
+    it('renders and updates memos and listmonk fields when both sections are enabled', async () => {
+        const settings = createSettings({
+            memos_enabled: true,
+            listmonk_enabled: true,
+        })
 
-        const settings = {
-            memos_enabled: false,
-            listmonk_enabled: false,
+        const wrapper = await mountComponent(settings)
+
+        expect(wrapper.find('#memos_instance_url').exists()).toBe(true)
+        expect(wrapper.find('#memos_access_token').exists()).toBe(true)
+        expect(wrapper.find('#memos_default_visibility').exists()).toBe(true)
+        expect(wrapper.find('#listmonk_instance_url').exists()).toBe(true)
+        expect(wrapper.find('#listmonk_template_id').exists()).toBe(true)
+
+        await wrapper.get('#memos_instance_url').setValue('https://memos.example.com')
+        await wrapper.get('#memos_access_token').setValue('memos-secret')
+        await wrapper.get('#memos_default_visibility').setValue('PRIVATE')
+        await wrapper.get('#listmonk_instance_url').setValue('https://listmonk.example.com')
+        await wrapper.get('#listmonk_username').setValue('admin')
+        await wrapper.get('#listmonk_access_token').setValue('listmonk-secret')
+        await wrapper.get('#listmonk_default_list_ids').setValue('1,2')
+        await wrapper.get('#listmonk_category_list_map').setValue('{"tech":[1]}')
+        await wrapper.get('#listmonk_tag_list_map').setValue('{"nuxt":[2]}')
+        await wrapper.get('#listmonk_template_id').setValue('42')
+
+        expect(settings.memos_instance_url).toBe('https://memos.example.com')
+        expect(settings.memos_access_token).toBe('memos-secret')
+        expect(settings.memos_default_visibility).toBe('PRIVATE')
+        expect(settings.listmonk_instance_url).toBe('https://listmonk.example.com')
+        expect(settings.listmonk_username).toBe('admin')
+        expect(settings.listmonk_access_token).toBe('listmonk-secret')
+        expect(settings.listmonk_default_list_ids).toBe('1,2')
+        expect(settings.listmonk_category_list_map).toBe('{"tech":[1]}')
+        expect(settings.listmonk_tag_list_map).toBe('{"nuxt":[2]}')
+        expect(settings.listmonk_template_id).toBe('42')
+
+        await wrapper.get('#memos_enabled').setValue(false)
+        await wrapper.get('#listmonk_enabled').setValue(false)
+
+        expect(settings.memos_enabled).toBe(false)
+        expect(settings.listmonk_enabled).toBe(false)
+        expect(wrapper.find('#memos_instance_url').exists()).toBe(false)
+        expect(wrapper.find('#listmonk_instance_url').exists()).toBe(false)
+    })
+
+    it('renders and updates the remote repository sync section when enabled', async () => {
+        const settings = createSettings({
             hexo_sync_enabled: true,
             hexo_sync_provider: 'github',
             hexo_sync_owner: 'CaoMeiYouRen',
@@ -169,68 +282,95 @@ describe('ThirdPartySettings', () => {
             hexo_sync_branch: 'main',
             hexo_sync_posts_dir: 'source/_posts',
             hexo_sync_access_token: '********',
-            external_feed_enabled: false,
-            external_feed_home_enabled: false,
-            external_feed_home_limit: 6,
-            external_feed_cache_ttl_seconds: 900,
-            external_feed_stale_while_error_seconds: 86400,
-            external_feed_sources: '[]',
-        }
-
-        const metadata = {
-            memos_enabled: { isLocked: false },
-            memos_instance_url: { isLocked: false },
-            memos_access_token: { isLocked: false },
-            memos_default_visibility: { isLocked: false },
-            listmonk_enabled: { isLocked: false },
-            listmonk_instance_url: { isLocked: false },
-            listmonk_username: { isLocked: false },
-            listmonk_access_token: { isLocked: false },
-            listmonk_default_list_ids: { isLocked: false },
-            listmonk_category_list_map: { isLocked: false },
-            listmonk_tag_list_map: { isLocked: false },
-            listmonk_template_id: { isLocked: false },
-            hexo_sync_enabled: { isLocked: false },
-            hexo_sync_provider: { isLocked: false },
-            hexo_sync_owner: { isLocked: false },
-            hexo_sync_repo: { isLocked: false },
-            hexo_sync_branch: { isLocked: false },
-            hexo_sync_posts_dir: { isLocked: false },
-            hexo_sync_access_token: { isLocked: false },
-            external_feed_enabled: { isLocked: false },
-            external_feed_home_enabled: { isLocked: false },
-            external_feed_home_limit: { isLocked: false },
-            external_feed_cache_ttl_seconds: { isLocked: false },
-            external_feed_stale_while_error_seconds: { isLocked: false },
-            external_feed_sources: { isLocked: false },
-        }
-
-        const wrapper = await mountSuspended(ThirdPartySettings, {
-            props: {
-                settings,
-                metadata,
-            },
-            global: {
-                mocks: {
-                    $t: translate,
-                },
-                stubs: {
-                    SettingFormField: { template: '<div :data-field-key="fieldKey"><slot /></div>', props: ['fieldKey', 'inputId', 'metadata', 'inline', 'description'] },
-                    ToggleSwitch: { template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue'], emits: ['update:modelValue'] },
-                    InputText: { template: '<input />' },
-                    Password: { template: '<input />' },
-                    Select: { template: '<select />' },
-                    InputNumber: { template: '<input />' },
-                    ExternalFeedSourcesEditor: { template: '<div class="external-feed-sources-editor-stub" />' },
-                    Button: { template: '<button @click="$emit(\'click\')">{{ label }}</button>', props: ['label', 'icon', 'severity', 'loading'], emits: ['click'] },
-                },
-            },
         })
+
+        const wrapper = await mountComponent(settings)
 
         expect(wrapper.text()).toContain('远程仓库同步')
         expect(wrapper.find('[data-field-key="hexo_sync_provider"]').exists()).toBe(true)
         expect(wrapper.find('[data-field-key="hexo_sync_owner"]').exists()).toBe(true)
         expect(wrapper.find('[data-field-key="hexo_sync_repo"]').exists()).toBe(true)
         expect(wrapper.find('[data-field-key="hexo_sync_access_token"]').exists()).toBe(true)
+
+        await wrapper.get('#hexo_sync_provider').setValue('gitee')
+        await wrapper.get('#hexo_sync_owner').setValue('mirror-owner')
+        await wrapper.get('#hexo_sync_repo').setValue('mirror-repo')
+        await wrapper.get('#hexo_sync_branch').setValue('develop')
+        await wrapper.get('#hexo_sync_posts_dir').setValue('content/posts')
+        await wrapper.get('#hexo_sync_access_token').setValue('token-next')
+        await wrapper.get('#hexo_sync_enabled').setValue(false)
+
+        expect(settings.hexo_sync_provider).toBe('gitee')
+        expect(settings.hexo_sync_owner).toBe('mirror-owner')
+        expect(settings.hexo_sync_repo).toBe('mirror-repo')
+        expect(settings.hexo_sync_branch).toBe('develop')
+        expect(settings.hexo_sync_posts_dir).toBe('content/posts')
+        expect(settings.hexo_sync_access_token).toBe('token-next')
+        expect(settings.hexo_sync_enabled).toBe(false)
+        expect(wrapper.find('#hexo_sync_provider').exists()).toBe(false)
+    })
+
+    it('refreshes external feeds, updates sources, and propagates feed settings', async () => {
+        const settings = createSettings({
+            external_feed_enabled: true,
+            external_feed_home_enabled: true,
+        })
+
+        const wrapper = await mountComponent(settings)
+
+        expect(wrapper.find('.refresh-cache-button').exists()).toBe(true)
+        expect(wrapper.find('.external-feed-sources-editor-stub').exists()).toBe(true)
+        expect(wrapper.text()).toContain('手动刷新缓存')
+        expect(wrapper.text()).toContain('修改来源配置后，可立即拉取最新 RSS / RSSHub 快照。')
+
+        await wrapper.getComponent({ name: 'ExternalFeedSourcesEditor' }).vm.$emit('update:modelValue', '[{"source":"rss"}]')
+        await wrapper.get('#external_feed_home_enabled').setValue(false)
+        await wrapper.get('#external_feed_home_limit').setValue('8')
+        await wrapper.get('#external_feed_cache_ttl_seconds').setValue('1200')
+        await wrapper.get('#external_feed_stale_while_error_seconds').setValue('172800')
+        const refreshHandler = getRefreshHandler(wrapper)
+
+        expect(typeof refreshHandler).toBe('function')
+
+        await refreshHandler?.()
+        await flushPromises()
+
+        expect(settings.external_feed_sources).toBe('[{"source":"rss"}]')
+        expect(settings.external_feed_home_enabled).toBe(false)
+        expect(settings.external_feed_home_limit).toBe(8)
+        expect(settings.external_feed_cache_ttl_seconds).toBe('1200')
+        expect(settings.external_feed_stale_while_error_seconds).toBe('172800')
+        expect(mockAppFetch).toHaveBeenCalledWith('/api/admin/external-feed/refresh', {
+            method: 'POST',
+        })
+        expect(showSuccessToast).toHaveBeenCalledWith('pages.admin.settings.system.external_feeds.refresh_cache_success')
+        expect(showErrorToast).not.toHaveBeenCalled()
+
+        await wrapper.get('#external_feed_enabled').setValue(false)
+
+        expect(settings.external_feed_enabled).toBe(false)
+        expect(wrapper.find('.refresh-cache-button').exists()).toBe(false)
+    })
+
+    it('shows an error toast when external feed refresh fails', async () => {
+        const settings = createSettings({
+            external_feed_enabled: true,
+        })
+        const refreshError = new Error('refresh failed')
+        mockAppFetch.mockRejectedValueOnce(refreshError)
+
+        const wrapper = await mountComponent(settings)
+
+        const refreshHandler = getRefreshHandler(wrapper)
+
+        expect(typeof refreshHandler).toBe('function')
+
+        await refreshHandler?.()
+        await flushPromises()
+
+        expect(showSuccessToast).not.toHaveBeenCalled()
+        expect(showErrorToast).toHaveBeenCalledWith(refreshError, {
+            fallbackKey: 'pages.admin.settings.system.external_feeds.refresh_cache_failed',
+        })
     })
 })
