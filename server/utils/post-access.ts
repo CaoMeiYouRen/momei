@@ -5,6 +5,16 @@ import { dataSource } from '@/server/database'
 import { Subscriber } from '@/server/entities/subscriber'
 import { isAdmin } from '@/utils/shared/roles'
 
+/** post-access 模块使用的用户最小接口（id + role 即可满足鉴权需求） */
+interface PostAccessUser {
+    id: string
+    role?: string | null
+}
+
+interface PostAccessSession {
+    user: PostAccessUser | null
+}
+
 const SUBSCRIBER_LOOKUP_ERROR_MESSAGE = 'Failed to resolve subscriber status'
 export const POST_ACCESS_STATE_ERROR_MESSAGE = 'Failed to resolve content access state'
 
@@ -23,7 +33,7 @@ export const POST_ACCESS_STATE_ERROR_MESSAGE = 'Failed to resolve content access
  */
 export async function applyPostVisibilityFilter(
     qb: SelectQueryBuilder<Post>,
-    user?: any,
+    user?: PostAccessUser | null,
     mode: 'public' | 'feed' | 'manage' = 'public',
 ) {
     const isSystemAdmin = user && isAdmin(user.role)
@@ -52,7 +62,8 @@ export async function applyPostVisibilityFilter(
     }
 
     // 检查订阅状态
-    const isSub = await isUserSubscriber(user?.id)
+    const uid = user?.id
+    const isSub = uid ? await isUserSubscriber(uid) : false
 
     qb.andWhere(new Brackets((sub) => {
         // A. 任何人均可见公开文章
@@ -111,7 +122,7 @@ export interface PostAccessResult {
  */
 export async function checkPostAccess(
     post: Post,
-    session?: any,
+    session?: PostAccessSession | null,
     unlockedIds: string[] = [],
 ): Promise<PostAccessResult> {
     const user = session?.user
@@ -170,7 +181,8 @@ export async function checkPostAccess(
                     data: filterSensitivePostData(post),
                 }
             }
-            const isSub = await isUserSubscriber(user?.id)
+            const uid = user?.id
+            const isSub = uid ? await isUserSubscriber(uid) : false
             if (!isSub) {
                 return {
                     allowed: false,
@@ -195,14 +207,15 @@ export async function checkPostAccess(
  * 过滤敏感数据，仅保留元数据（标题、摘要、封面、分类、标签等）
  */
 function filterSensitivePostData(post: Post): Partial<Post> {
-    const metadata = { ...(post as any) }
-    delete metadata.content
-    delete metadata.html
-    delete metadata.password
+    // spread-delete pattern: TS 不允许直接 delete 实体属性，用 Record 中转
+    const raw = { ...post } as unknown as Record<string, unknown>
+    delete raw.content
+    delete raw.html
+    delete raw.password
     return {
-        ...metadata,
+        ...raw,
         locked: true,
-    }
+    } as unknown as Partial<Post>
 }
 
 /**

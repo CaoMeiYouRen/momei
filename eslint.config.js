@@ -18,6 +18,7 @@ const noExplicitAnyUtilityFiles = [
     'server/utils/pagination.ts',
     'server/utils/ad.ts',
     'server/utils/agreement-public.ts',
+    'server/utils/post-access.ts',
 ]
 const noExplicitAnyApiFiles = [
     'server/api/categories/index.get.ts',
