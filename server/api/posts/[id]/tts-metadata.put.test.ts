@@ -63,6 +63,7 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
             ...payload,
         })),
         save: vi.fn((value) => Promise.resolve(value)),
+        findOneBy: vi.fn<() => Promise<any>>(async () => null),
     }
 
     beforeEach(async () => {
@@ -136,10 +137,221 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
             audioSize: 2048,
             language: 'zh-CN',
             actualCost: 0.42,
+            chargeStatus: 'estimated',
         }))
         expect(result).toEqual({
             success: true,
             audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/voice.mp3',
+        })
+    })
+
+    it('should settle an existing direct task with actual usage when provider usage is available', async () => {
+        const createdAt = new Date(Date.now() - 5000)
+
+        taskRepo.findOneBy.mockResolvedValueOnce({
+            id: 'task-direct-existing',
+            userId: 'author-1',
+            postId: 'post-1',
+            category: 'podcast',
+            type: 'podcast_direct',
+            provider: 'volcengine',
+            model: 'seed-tts-2.0-expressive',
+            mode: 'podcast',
+            voice: 'zh_female_vv_uranus_bigtts',
+            script: 'hello world',
+            payload: JSON.stringify({
+                postId: 'post-1',
+                text: 'hello world',
+                voice: 'zh_female_vv_uranus_bigtts',
+                mode: 'podcast',
+                language: 'zh-CN',
+                translationId: 'translation-1',
+                strategy: 'frontend-direct',
+            }),
+            estimatedCost: 1.23,
+            estimatedQuotaUnits: 8,
+            progress: 0,
+            audioDuration: 0,
+            audioSize: 0,
+            textLength: 0,
+            language: 'zh-CN',
+            quotaUnits: 0,
+            chargeStatus: 'none',
+            failureStage: null,
+            usageSnapshot: null,
+            createdAt,
+            startedAt: null,
+            completedAt: null,
+            durationMs: 0,
+        })
+
+        const result = await handler({
+            body: {
+                taskId: 'task-direct-existing',
+                status: 'completed',
+                audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/podcast.mp3',
+                providerUsage: {
+                    tokens_total: 4200,
+                },
+                duration: 80,
+                audioSize: 4096,
+                mimeType: 'audio/mpeg',
+            },
+        } as any)
+
+        expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+            id: 'task-direct-existing',
+            status: 'completed',
+            chargeStatus: 'actual',
+            quotaUnits: 45,
+            actualCost: 0.42,
+        }))
+        expect(taskRepo.save.mock.calls[0]?.[0]?.durationMs).toBeGreaterThan(0)
+        expect(result).toEqual({
+            success: true,
+            audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/podcast.mp3',
+        })
+    })
+
+    it('should mark an existing direct task as failed with estimated fallback when provider usage is unavailable', async () => {
+        taskRepo.findOneBy.mockResolvedValueOnce({
+            id: 'task-direct-failed',
+            userId: 'author-1',
+            postId: 'post-1',
+            category: 'tts',
+            type: 'tts_direct',
+            provider: 'volcengine',
+            model: 'seed-tts-2.0-expressive',
+            mode: 'speech',
+            voice: 'zh_female_vv_uranus_bigtts',
+            script: 'hello world',
+            payload: JSON.stringify({
+                postId: 'post-1',
+                text: 'hello world',
+                voice: 'zh_female_vv_uranus_bigtts',
+                mode: 'speech',
+                language: 'zh-CN',
+                translationId: 'translation-1',
+                strategy: 'frontend-direct',
+            }),
+            estimatedCost: 1.23,
+            estimatedQuotaUnits: 8,
+            progress: 35,
+            audioDuration: 0,
+            audioSize: 0,
+            textLength: 0,
+            language: 'zh-CN',
+            quotaUnits: 0,
+            chargeStatus: 'none',
+            failureStage: null,
+            usageSnapshot: null,
+            startedAt: new Date('2026-05-05T10:00:00.000Z'),
+            completedAt: null,
+            durationMs: 0,
+            result: null,
+        })
+
+        const result = await handler({
+            body: {
+                taskId: 'task-direct-failed',
+                status: 'failed',
+                error: 'provider timeout',
+            },
+        } as any)
+
+        expect(postRepo.save).toHaveBeenCalledTimes(0)
+        expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
+            id: 'task-direct-failed',
+            status: 'failed',
+            chargeStatus: 'estimated',
+            quotaUnits: 8,
+            actualCost: 1.23,
+            error: 'provider timeout',
+            failureStage: 'provider_processing',
+        }))
+        expect(result).toEqual({
+            success: true,
+            audioUrl: null,
+        })
+    })
+
+    it('should reject settling a direct task for a different post', async () => {
+        taskRepo.findOneBy.mockResolvedValueOnce({
+            id: 'task-direct-other-post',
+            userId: 'author-1',
+            postId: 'post-2',
+            type: 'tts_direct',
+            payload: JSON.stringify({
+                postId: 'post-2',
+                strategy: 'frontend-direct',
+            }),
+        })
+
+        await expect(handler({
+            body: {
+                taskId: 'task-direct-other-post',
+                status: 'completed',
+                audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/voice.mp3',
+            },
+        } as any)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Task does not belong to this post',
+        })
+    })
+
+    it('should ignore a stale failed settlement after a direct task is already completed', async () => {
+        taskRepo.findOneBy.mockResolvedValueOnce({
+            id: 'task-direct-completed',
+            userId: 'author-1',
+            postId: 'post-1',
+            type: 'tts_direct',
+            status: 'completed',
+            payload: JSON.stringify({
+                postId: 'post-1',
+                strategy: 'frontend-direct',
+            }),
+            result: JSON.stringify({
+                audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/final.mp3',
+                strategy: 'frontend-direct',
+            }),
+        })
+
+        const result = await handler({
+            body: {
+                taskId: 'task-direct-completed',
+                status: 'failed',
+                error: 'metadata failed',
+            },
+        } as any)
+
+        expect(postRepo.save).not.toHaveBeenCalled()
+        expect(taskRepo.save).not.toHaveBeenCalled()
+        expect(result).toEqual({
+            success: true,
+            audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/final.mp3',
+        })
+    })
+
+    it('should reject settling a non-direct task through the direct metadata endpoint', async () => {
+        taskRepo.findOneBy.mockResolvedValueOnce({
+            id: 'task-async-1',
+            userId: 'author-1',
+            postId: 'post-1',
+            type: 'tts',
+            payload: JSON.stringify({
+                postId: 'post-1',
+            }),
+        })
+
+        await expect(handler({
+            body: {
+                taskId: 'task-async-1',
+                status: 'completed',
+                audioUrl: 'https://cdn.example.com/posts/post-1/audio/tts/voice.mp3',
+            },
+        } as any)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Only frontend-direct TTS tasks can be settled via this endpoint',
         })
     })
 })

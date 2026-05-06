@@ -257,6 +257,15 @@ describe('PostTTSDialog', () => {
                 })
             }
 
+            if (url === '/api/ai/tts/task') {
+                return Promise.resolve({
+                    taskId: 'task-direct-1',
+                    strategy: 'frontend-direct',
+                    estimatedCost: 2.5,
+                    estimatedQuotaUnits: 4,
+                })
+            }
+
             return Promise.resolve({ data: {} })
         })
 
@@ -290,13 +299,20 @@ describe('PostTTSDialog', () => {
         expect(wrapper.text()).toContain('pages.admin.posts.tts.direct_hint')
 
         expect(mockGenerateAndUpload).toHaveBeenCalledWith(expect.objectContaining({
+            taskId: 'task-direct-1',
             mode: 'speech',
             text: 'Direct generation content',
             voice: 'BV001',
             language: 'zh-CN',
             postId: 'post-2',
         }))
-        expect(mockAppFetch).not.toHaveBeenCalledWith('/api/ai/tts/task', expect.anything())
+        expect(mockAppFetch).toHaveBeenCalledWith('/api/ai/tts/task', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({
+                postId: 'post-2',
+                translationId: 'cluster-direct',
+            }),
+        }))
 
         await wrapper.get('button[data-label="common.confirm"]').trigger('click')
 

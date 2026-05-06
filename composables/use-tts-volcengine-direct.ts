@@ -38,6 +38,8 @@ import {
 // ---- 类型 ----
 
 export interface TTSVolcengineDirectParams {
+    /** 已创建的后台任务 ID */
+    taskId?: string | null
     /** TTS 模式 */
     mode: 'speech' | 'podcast'
     /** 合成文本 */
@@ -57,6 +59,15 @@ export interface TTSVolcengineDirectParams {
 export interface TTSVolcengineDirectResult {
     audioUrl: string
     duration: number
+}
+
+interface TTSDirectProviderUsage {
+    totalTokens?: number
+}
+
+interface TTSVolcengineGeneratedAudio {
+    audioBytes: Uint8Array
+    providerUsage: TTSDirectProviderUsage | null
 }
 
 // ---- Volcengine Credentials 类型 ----
@@ -120,6 +131,23 @@ function convertLoudnessRate(volume: number): number {
         return Math.min(100, Math.round((volume - 1) * 100))
     }
     return Math.max(-50, Math.round((volume - 1) * 100))
+}
+
+function normalizeVolcengineProviderUsage(rawUsage: unknown): TTSDirectProviderUsage | null {
+    if (!rawUsage || typeof rawUsage !== 'object' || Array.isArray(rawUsage)) {
+        return null
+    }
+
+    const usageRecord = rawUsage as Record<string, unknown>
+    const totalTokens = Number(usageRecord.totalTokens ?? usageRecord.tokens_total ?? usageRecord.tokens)
+
+    if (!Number.isFinite(totalTokens) || totalTokens <= 0) {
+        return null
+    }
+
+    return {
+        totalTokens,
+    }
 }
 
 // ---- Composable ----
@@ -209,7 +237,7 @@ export function useTTSVolcengineDirect() {
     async function callVolcengineTTS(
         credentials: VolcengineTTSCredentials,
         params: TTSVolcengineDirectParams,
-    ): Promise<Uint8Array> {
+    ): Promise<TTSVolcengineGeneratedAudio> {
         const body = buildSpeechRequestBody(params, credentials)
 
         const response = await fetch(credentials.endpoint, {
@@ -272,18 +300,24 @@ export function useTTSVolcengineDirect() {
 
         // 火山 V3 API 可能在响应体开头返回 JSON 元数据。
         // 扫描第一个 '{' 到对应的 '}' 之间的 JSON 对象，音频从其后开始。
-        const audioStart = findJsonBoundary(fullData)
+        const responseMeta = extractSpeechResponseMeta(fullData)
 
-        if (audioStart > 0) {
+        if (responseMeta.audioStart > 0) {
             // JSON 元数据存在，提取后续音频字节
-            const audioData = fullData.slice(audioStart)
+            const audioData = fullData.slice(responseMeta.audioStart)
             progress.value = 70
-            return audioData
+            return {
+                audioBytes: audioData,
+                providerUsage: responseMeta.providerUsage,
+            }
         }
 
         // 没有 JSON 前缀，整个响应体就是音频
         progress.value = 70
-        return fullData
+        return {
+            audioBytes: fullData,
+            providerUsage: null,
+        }
     }
 
     /**
@@ -291,10 +325,10 @@ export function useTTSVolcengineDirect() {
      * 如果在开头检测到 '{'，则扫描到匹配的 '}' 之后的位置。
      * 返回音频数据的起始偏移量（即 JSON 结束后的位置）。
      */
-    function findJsonBoundary(data: Uint8Array): number {
+    function extractSpeechResponseMeta(data: Uint8Array): { audioStart: number, providerUsage: TTSDirectProviderUsage | null } {
         // 检查响应是否以 '{' 开头
         if (data.length < 2 || data[0] !== 0x7B /* '{' */) {
-            return 0 // 没有 JSON 前缀
+            return { audioStart: 0, providerUsage: null } // 没有 JSON 前缀
         }
 
         const text = new TextDecoder().decode(data.subarray(0, Math.min(4096, data.length)))
@@ -336,12 +370,23 @@ export function useTTSVolcengineDirect() {
                     // i 是字符索引，需要计算字节偏移
                     const encoder = new TextEncoder()
                     const jsonPrefix = text.substring(0, i + 1)
-                    return encoder.encode(jsonPrefix).length
+                    try {
+                        const parsed = JSON.parse(jsonPrefix) as { usage?: unknown }
+                        return {
+                            audioStart: encoder.encode(jsonPrefix).length,
+                            providerUsage: normalizeVolcengineProviderUsage(parsed.usage),
+                        }
+                    } catch {
+                        return {
+                            audioStart: encoder.encode(jsonPrefix).length,
+                            providerUsage: null,
+                        }
+                    }
                 }
             }
         }
 
-        return 0 // 未找到完整 JSON
+        return { audioStart: 0, providerUsage: null } // 未找到完整 JSON
     }
 
     /**
@@ -389,7 +434,7 @@ export function useTTSVolcengineDirect() {
     async function callVolcenginePodcast(
         credentials: VolcengineTTSCredentials,
         params: TTSVolcengineDirectParams,
-    ): Promise<Uint8Array> {
+    ): Promise<TTSVolcengineGeneratedAudio> {
         const { text, voice } = params
         const speakerIds = voice.includes(',')
             ? voice.split(',').map((s) => s.trim())
@@ -400,11 +445,12 @@ export function useTTSVolcengineDirect() {
         const wsUrl = `${credentials.endpoint}?${queryStr}`
         const sessionId = crypto.randomUUID()
 
-        return new Promise<Uint8Array>((resolve, reject) => {
+        return new Promise<TTSVolcengineGeneratedAudio>((resolve, reject) => {
             const ws = new WebSocket(wsUrl)
             ws.binaryType = 'arraybuffer'
 
             const audioChunks: Uint8Array[] = []
+            let providerUsage: TTSDirectProviderUsage | null = null
             let settled = false
             let totalBytes = 0
             /** 估算最大音频字节：按 16KB/s × 字符数/2(s) 粗略估算，下限 100KB */
@@ -500,34 +546,43 @@ export function useTTSVolcengineDirect() {
                     return
                 }
 
-                // event=363: 播客结束（可能带 audio_url）— 主动触发结束
                 // event=154: 用量信息
-                if (pkt.event === 363 || pkt.event === 154) {
-                    if (pkt.event === 363 && !settled) {
-                        // 发 FinishConnection 通知服务端结束
-                        try {
-                            if (ws.readyState === WebSocket.OPEN) {
-                                const finishFrame = buildPodcastFinishFrame()
-                                ws.send(toVolcengineArrayBuffer(finishFrame))
-                            }
-                        } catch { /* ignore */ }
-                        // 设置超时兜底：5 秒后若仍未 resolve，用已有音频关闭
-                        setTimeout(() => {
-                            if (!settled) {
-                                console.info('[TTS Podcast] Timeout after PodcastEnd, resolving with', audioChunks.length, 'chunks')
-                                cleanup()
-                                progress.value = 70
-                                const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
-                                const merged = new Uint8Array(total)
-                                let offset = 0
-                                for (const c of audioChunks) {
-                                    merged.set(c, offset)
-                                    offset += c.length
-                                }
-                                resolve(merged)
-                            }
-                        }, 5000)
+                if (pkt.event === 154) {
+                    if (payloadDecoded && typeof payloadDecoded === 'object') {
+                        const usagePayload = payloadDecoded as Record<string, unknown>
+                        providerUsage = normalizeVolcengineProviderUsage(usagePayload.usage ?? usagePayload)
                     }
+                    return
+                }
+
+                // event=363: 播客结束（可能带 audio_url）— 主动触发结束
+                if (pkt.event === 363 && !settled) {
+                    // 发 FinishConnection 通知服务端结束
+                    try {
+                        if (ws.readyState === WebSocket.OPEN) {
+                            const finishFrame = buildPodcastFinishFrame()
+                            ws.send(toVolcengineArrayBuffer(finishFrame))
+                        }
+                    } catch { /* ignore */ }
+                    // 设置超时兜底：5 秒后若仍未 resolve，用已有音频关闭
+                    setTimeout(() => {
+                        if (!settled) {
+                            console.info('[TTS Podcast] Timeout after PodcastEnd, resolving with', audioChunks.length, 'chunks')
+                            cleanup()
+                            progress.value = 70
+                            const total = audioChunks.reduce((s, c) => s + c.byteLength, 0)
+                            const merged = new Uint8Array(total)
+                            let offset = 0
+                            for (const c of audioChunks) {
+                                merged.set(c, offset)
+                                offset += c.length
+                            }
+                            resolve({
+                                audioBytes: merged,
+                                providerUsage,
+                            })
+                        }
+                    }, 5000)
                     return
                 }
 
@@ -549,7 +604,10 @@ export function useTTSVolcengineDirect() {
                         merged.set(c, offset)
                         offset += c.length
                     }
-                    resolve(merged)
+                    resolve({
+                        audioBytes: merged,
+                        providerUsage,
+                    })
                 }
             }
 
@@ -572,7 +630,10 @@ export function useTTSVolcengineDirect() {
                             merged.set(c, offset)
                             offset += c.length
                         }
-                        resolve(merged)
+                        resolve({
+                            audioBytes: merged,
+                            providerUsage,
+                        })
                     } else {
                         reject(new Error('Volcengine Podcast WebSocket closed without audio'))
                     }
@@ -610,6 +671,8 @@ export function useTTSVolcengineDirect() {
             return t('common.error')
         }
 
+        let hasUploadedAudio = false
+
         isGenerating.value = true
         progress.value = 0
         error.value = null
@@ -626,9 +689,11 @@ export function useTTSVolcengineDirect() {
 
             // 3. 调用火山 TTS API
             progress.value = 10
-            const audioBytes = params.mode === 'podcast'
+            const generationResult = params.mode === 'podcast'
                 ? await callVolcenginePodcast(credentials, params)
                 : await callVolcengineTTS(credentials, params)
+
+            const audioBytes = generationResult.audioBytes
 
             if (audioBytes.length === 0) {
                 throw new Error('No audio data received from Volcengine TTS API')
@@ -642,33 +707,38 @@ export function useTTSVolcengineDirect() {
             const audioFile = new File([audioBlob], fileName, { type: 'audio/mpeg' })
 
             const audioUrl = await uploadFile(audioFile)
+            hasUploadedAudio = true
             progress.value = 95
 
             // 5. 回写元数据
             const duration = Math.round(audioBytes.length / 16000) // 128kbps MP3 估算
             const model = resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts')
             if (params.postId) {
-                try {
-                    await $fetch(`/api/posts/${params.postId}/tts-metadata`, {
-                        method: 'PUT',
-                        body: {
-                            audioUrl,
-                            provider: 'volcengine',
-                            voice: params.voice,
-                            mode: params.mode,
-                            duration,
-                            audioSize: audioBytes.length,
-                            mimeType: audioFile.type,
-                            textLength: params.text.length,
-                            text: params.text,
-                            language: params.language,
-                            speed: params.speed,
-                            model,
-                        },
-                    })
-                } catch (metaError: unknown) {
-                    console.warn('[useTTSVolcengineDirect] Metadata write-back failed (non-blocking):', metaError)
-                }
+                await $fetch(`/api/posts/${params.postId}/tts-metadata`, {
+                    method: 'PUT',
+                    body: {
+                        ...(params.taskId
+                            ? {
+                                taskId: params.taskId,
+                                status: 'completed',
+                            }
+                            : {
+                                textLength: params.text.length,
+                                text: params.text,
+                            }),
+                        audioUrl,
+                        provider: 'volcengine',
+                        voice: params.voice,
+                        mode: params.mode,
+                        duration,
+                        audioSize: audioBytes.length,
+                        mimeType: audioFile.type,
+                        language: params.language,
+                        speed: params.speed,
+                        model,
+                        providerUsage: generationResult.providerUsage ?? undefined,
+                    },
+                })
             }
 
             progress.value = 100
@@ -686,6 +756,29 @@ export function useTTSVolcengineDirect() {
             const message = resolveDirectTtsErrorMessage(caughtError)
             error.value = message
             isGenerating.value = false
+
+            if (params.postId && params.taskId && !hasUploadedAudio) {
+                try {
+                    await $fetch(`/api/posts/${params.postId}/tts-metadata`, {
+                        method: 'PUT',
+                        body: {
+                            taskId: params.taskId,
+                            status: 'failed',
+                            provider: 'volcengine',
+                            voice: params.voice,
+                            mode: params.mode,
+                            language: params.language,
+                            speed: params.speed,
+                            model: resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts'),
+                            error: message,
+                        },
+                    })
+                } catch (taskSettleError: unknown) {
+                    console.warn('[useTTSVolcengineDirect] Direct task failure settlement failed:', taskSettleError)
+                }
+            } else if (params.postId && params.taskId && hasUploadedAudio) {
+                console.warn('[useTTSVolcengineDirect] Skipping failed settlement after audio upload to avoid downgrading a direct task that may already be completed.')
+            }
 
             toast.add({
                 severity: 'error',

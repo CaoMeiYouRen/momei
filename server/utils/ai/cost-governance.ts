@@ -264,10 +264,17 @@ export function calculateQuotaUnits(options: {
             baseMeasure = Math.max(1, Math.ceil(snapshot.audioBytes / (1024 * 1024 * 2)))
         }
     } else if (normalizedCategory === 'tts') {
-        baseMeasure = Math.max(1, Math.ceil((snapshot.textChars || 0) / 1000))
+        if (snapshot.totalTokens && snapshot.totalTokens > 0) {
+            baseMeasure = Math.max(1, Math.ceil(snapshot.totalTokens / 1000))
+        } else {
+            baseMeasure = Math.max(1, Math.ceil((snapshot.textChars || 0) / 1000))
+        }
     } else if (normalizedCategory === 'podcast') {
+        const usageMeasure = snapshot.totalTokens && snapshot.totalTokens > 0
+            ? Math.max(1, Math.ceil(snapshot.totalTokens / 1000))
+            : Math.max(1, Math.ceil((snapshot.textChars || 0) / 1000))
         const speakerFactor = Array.isArray(payload.voice) ? Math.max(payload.voice.length, 2) / 2 : 1.5
-        baseMeasure = Math.max(1, Math.ceil((snapshot.textChars || 0) / 1000)) * speakerFactor
+        baseMeasure = usageMeasure * speakerFactor
     }
 
     return roundTo(baseMeasure * CATEGORY_WEIGHTS[normalizedCategory])

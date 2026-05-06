@@ -74,6 +74,24 @@ describe('ai cost governance utils', () => {
         expect(quota).toBe(12)
     })
 
+    it('should prefer provider token usage for tts and podcast quota settlement when available', () => {
+        const ttsQuota = calculateQuotaUnits({
+            category: 'tts',
+            type: 'tts_direct',
+            usageSnapshot: { textChars: 500, totalTokens: 2500 },
+        })
+
+        const podcastQuota = calculateQuotaUnits({
+            category: 'podcast',
+            type: 'podcast_direct',
+            payload: { voice: ['speaker-a', 'speaker-b'] },
+            usageSnapshot: { textChars: 500, totalTokens: 2500 },
+        })
+
+        expect(ttsQuota).toBe(9)
+        expect(podcastQuota).toBe(18)
+    })
+
     it('should infer provider_rejected for 429 errors', () => {
         expect(inferFailureStage({ statusCode: 429 })).toBe('provider_rejected')
     })

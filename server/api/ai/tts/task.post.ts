@@ -104,16 +104,25 @@ export default defineEventHandler(async (event) => {
         ...options,
         language: resolvedLanguage || options.language,
     }
+    const taskPayload = {
+        postId: finalPostId || undefined,
+        text: contentToConvert,
+        voice,
+        mode,
+        language: resolvedLanguage || null,
+        translationId: resolvedTranslationId,
+        options: normalizedOptions,
+    }
 
     // 4. 配额与成本估算
     const estimatedQuotaUnits = calculateQuotaUnits({
         category: taskCategory,
         type: taskCategory,
-        payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
+        payload: taskPayload,
         usageSnapshot: normalizeUsageSnapshot({
             category: taskCategory,
             type: taskCategory,
-            payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
+            payload: taskPayload,
             textLength: contentToConvert.length,
         }),
     })
@@ -132,22 +141,7 @@ export default defineEventHandler(async (event) => {
         estimatedCost,
     })
 
-    // 5. 前端直出降级判断
-    const useFrontendDirect = shouldUseTTSFrontendDirect({
-        provider,
-        isServerless: isServerlessEnvironment(),
-        frontendDirectEnabled: TTS_FRONTEND_DIRECT,
-    })
-
-    if (useFrontendDirect) {
-        return createFrontendDirectTTSResponse({
-            mode,
-            estimatedCost,
-            estimatedQuotaUnits,
-        })
-    }
-
-    // 6. 解析 model
+    // 5. 解析 model
     let finalModel = model
     if (!finalModel) {
         const providerObj = await TTSService.getProvider(provider || 'volcengine')
@@ -156,8 +150,55 @@ export default defineEventHandler(async (event) => {
             || 'unknown'
     }
 
-    // 7. 创建后台任务
     const taskRepo = dataSource.getRepository(AITask)
+
+    // 6. 前端直出降级判断
+    const useFrontendDirect = shouldUseTTSFrontendDirect({
+        provider,
+        isServerless: isServerlessEnvironment(),
+        frontendDirectEnabled: TTS_FRONTEND_DIRECT,
+    })
+
+    if (useFrontendDirect) {
+        const directTaskPayload = {
+            ...taskPayload,
+            strategy: 'frontend-direct' as const,
+        }
+
+        const directTask = taskRepo.create({
+            category: taskCategory,
+            type: `${taskCategory}_direct`,
+            postId: finalPostId || undefined,
+            userId: user.id,
+            provider: provider || 'volcengine',
+            mode,
+            voice,
+            model: finalModel || 'unknown',
+            script: contentToConvert,
+            payload: JSON.stringify(directTaskPayload),
+            status: 'pending',
+            progress: 0,
+            estimatedCost,
+            estimatedQuotaUnits,
+            actualCost: 0,
+            quotaUnits: 0,
+            textLength: contentToConvert.length,
+            language: resolvedLanguage || null,
+            startedAt: new Date(),
+            chargeStatus: deriveChargeStatus({ status: 'pending', quotaUnits: estimatedQuotaUnits, settlementSource: 'estimated' }),
+        })
+
+        await taskRepo.save(directTask)
+
+        return createFrontendDirectTTSResponse({
+            taskId: directTask.id,
+            mode,
+            estimatedCost,
+            estimatedQuotaUnits,
+        })
+    }
+
+    // 7. 创建后台任务
     const task = taskRepo.create({
         category: taskCategory,
         type: taskCategory,
@@ -168,15 +209,7 @@ export default defineEventHandler(async (event) => {
         voice,
         model: finalModel || 'unknown',
         script: contentToConvert,
-        payload: JSON.stringify({
-            postId: finalPostId || undefined,
-            text: contentToConvert,
-            voice,
-            mode,
-            language: resolvedLanguage || null,
-            translationId: resolvedTranslationId,
-            options: normalizedOptions,
-        }),
+        payload: JSON.stringify(taskPayload),
         status: 'pending',
         progress: 0,
         estimatedCost,

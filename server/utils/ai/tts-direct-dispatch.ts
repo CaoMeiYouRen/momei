@@ -1,6 +1,7 @@
 import type { TTSSynthesisMode } from '@/types/ai'
 
 export interface FrontendDirectTTSResponse {
+    taskId: string
     strategy: 'frontend-direct'
     provider: 'volcengine'
     mode: TTSSynthesisMode
@@ -19,11 +20,13 @@ export function shouldUseTTSFrontendDirect(options: {
 }
 
 export function createFrontendDirectTTSResponse(options: {
+    taskId: string
     mode: TTSSynthesisMode
     estimatedCost: number
     estimatedQuotaUnits: number
 }): FrontendDirectTTSResponse {
     return {
+        taskId: options.taskId,
         strategy: 'frontend-direct',
         provider: 'volcengine',
         mode: options.mode,

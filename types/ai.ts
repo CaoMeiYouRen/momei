@@ -107,6 +107,10 @@ export interface TTSTaskCreateResponse {
     taskId: string
     estimatedCost: number
     estimatedQuotaUnits: number
+    strategy?: 'frontend-direct'
+    provider?: 'volcengine'
+    mode?: TTSSynthesisMode
+    message?: string
 }
 
 export type AIAdminTaskDataValue = string | Record<string, unknown> | null

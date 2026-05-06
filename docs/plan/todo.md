@@ -24,7 +24,7 @@
 
 ### 第三十五阶段：运行时计量校准与结构治理续推
 
-- [ ] **AI task 计量口径校准与 TTS 前端直连防回归 (P0)**
+- [x] **AI task 计量口径校准与 TTS 前端直连防回归 (P0)**
 	- 验收: 明确 `estimated` 与 `actual` 的计量边界，前端直连 TTS / Podcast 在可获取 provider 最终 usage 时优先按最终 usage 落盘；缺少最终 usage 时才回退到估算值，避免后台统计与任务明细失真。
 	- 验收: 至少补齐一组“前端直连成功 / 失败 / 回退”高风险断言，并验证管理端 AI task 列表、详情与聚合统计的口径一致性。
 	- 非目标: 不重写 `TTSService.processTask()`，不把更多 Provider 扩写为浏览器直连。

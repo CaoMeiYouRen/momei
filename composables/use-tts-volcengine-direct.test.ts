@@ -64,6 +64,19 @@ function createReadableResponse(bytes: Uint8Array) {
     }
 }
 
+function createSpeechResponseWithUsage(totalTokens: number, audioBytes: number[]) {
+    const meta = new TextEncoder().encode(JSON.stringify({
+        usage: {
+            tokens_total: totalTokens,
+        },
+    }))
+
+    return createReadableResponse(new Uint8Array([
+        ...meta,
+        ...audioBytes,
+    ]))
+}
+
 describe('useTTSVolcengineDirect', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -95,7 +108,56 @@ describe('useTTSVolcengineDirect', () => {
         }))
     })
 
-    it('returns success even when metadata write-back fails', async () => {
+    it('settles the direct task with normalized provider usage after upload succeeds', async () => {
+        mockFetch
+            .mockResolvedValueOnce({
+                data: {
+                    provider: 'volcengine',
+                    mode: 'speech',
+                    authType: 'query',
+                    issuedAt: 0,
+                    expiresInMs: 60000,
+                    expiresAt: Date.now() + 60000,
+                    endpoint: 'https://tts.example.com',
+                    connectId: 'connect-1',
+                    appId: 'app-1',
+                    jwtToken: 'jwt',
+                    authQuery: { api_access_key: 'Jwt; jwt' },
+                    resourceId: 'resource-1',
+                    temporaryUserId: 'temp-user',
+                },
+            })
+            .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
+
+        mockBrowserFetch.mockResolvedValueOnce(createSpeechResponseWithUsage(12, [1, 2, 3, 4]))
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
+
+        const direct = useTTSVolcengineDirect()
+
+        const result = await direct.generateAndUpload({
+            taskId: 'task-1',
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+            postId: 'post-1',
+        })
+
+        expect(result.audioUrl).toBe('https://cdn.example.com/audio.mp3')
+        expect(mockFetch).toHaveBeenNthCalledWith(2, '/api/posts/post-1/tts-metadata', expect.objectContaining({
+            method: 'PUT',
+            body: expect.objectContaining({
+                taskId: 'task-1',
+                status: 'completed',
+                providerUsage: { totalTokens: 12 },
+            }),
+        }))
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'success',
+            detail: 'pages.admin.posts.tts.completed',
+        }))
+    })
+
+    it('does not downgrade the direct task when completed write-back fails after upload', async () => {
         mockFetch
             .mockResolvedValueOnce({
                 data: {
@@ -115,28 +177,41 @@ describe('useTTSVolcengineDirect', () => {
                 },
             })
             .mockRejectedValueOnce(new Error('metadata failed'))
+            .mockResolvedValueOnce({ success: true, audioUrl: null })
 
         mockBrowserFetch.mockResolvedValueOnce(createReadableResponse(new Uint8Array([1, 2, 3, 4])))
         mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
 
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
         const direct = useTTSVolcengineDirect()
 
-        const result = await direct.generateAndUpload({
+        await expect(direct.generateAndUpload({
+            taskId: 'task-2',
             mode: 'speech',
             text: 'This is a valid sample text.',
             voice: 'zh_female_shuangkuaisisi_moon_bigtts',
             postId: 'post-1',
+        })).rejects.toMatchObject({
+            message: 'metadata failed',
         })
 
-        expect(result.audioUrl).toBe('https://cdn.example.com/audio.mp3')
-        expect(warnSpy).toHaveBeenCalledWith(
-            '[useTTSVolcengineDirect] Metadata write-back failed (non-blocking):',
-            expect.any(Error),
-        )
+        expect(mockFetch).toHaveBeenCalledTimes(2)
+        expect(mockFetch).toHaveBeenNthCalledWith(2, '/api/posts/post-1/tts-metadata', expect.objectContaining({
+            method: 'PUT',
+            body: expect.objectContaining({
+                taskId: 'task-2',
+                status: 'completed',
+            }),
+        }))
+        expect(mockFetch).not.toHaveBeenCalledWith('/api/posts/post-1/tts-metadata', expect.objectContaining({
+            method: 'PUT',
+            body: expect.objectContaining({
+                taskId: 'task-2',
+                status: 'failed',
+            }),
+        }))
         expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'success',
-            detail: 'pages.admin.posts.tts.completed',
+            severity: 'error',
+            detail: 'metadata failed',
         }))
     })
 })

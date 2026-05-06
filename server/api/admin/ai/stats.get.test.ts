@@ -107,6 +107,7 @@ describe('GET /api/admin/ai/stats', () => {
             actualCost: 3.5,
             quotaUnits: 28,
         }))
+        expect(result.overview.avgDurationMs).toBe(2450)
         expect(result.overview.successRate).toBe(0.8)
         expect(result.categoryStats[0]).toEqual(expect.objectContaining({
             category: 'image',

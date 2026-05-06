@@ -84,6 +84,7 @@ describe('POST /api/ai/tts/task', () => {
         } as any)
 
         expect(result).toEqual({
+            taskId: 'task-1',
             strategy: 'frontend-direct',
             provider: 'volcengine',
             mode: 'podcast',
@@ -93,7 +94,13 @@ describe('POST /api/ai/tts/task', () => {
         })
         expect(waitUntil).not.toHaveBeenCalled()
         expect(TTSService.processTask).not.toHaveBeenCalled()
-        expect(taskRepo.create).not.toHaveBeenCalled()
+        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'podcast_direct',
+            status: 'pending',
+            quotaUnits: 0,
+            estimatedQuotaUnits: 8,
+            startedAt: expect.any(Date),
+        }))
     })
 
     it('should skip waitUntil registration outside serverless runtimes', async () => {
@@ -113,6 +120,7 @@ describe('POST /api/ai/tts/task', () => {
         vi.mocked(isServerlessEnvironment).mockReturnValue(true)
 
         await expect(handler({ body: requestBody, context: {} } as any)).resolves.toEqual({
+            taskId: 'task-1',
             strategy: 'frontend-direct',
             provider: 'volcengine',
             mode: 'podcast',
@@ -122,5 +130,10 @@ describe('POST /api/ai/tts/task', () => {
         })
 
         expect(TTSService.processTask).not.toHaveBeenCalled()
+        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'podcast_direct',
+            status: 'pending',
+            startedAt: expect.any(Date),
+        }))
     })
 })

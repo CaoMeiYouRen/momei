@@ -104,17 +104,18 @@ describe('POST /api/external/ai/tts/task', () => {
         expect(result).toEqual({
             code: 200,
             data: {
-                strategy: 'frontend-direct',
-                provider: 'volcengine',
-                mode: 'podcast',
+                taskId: 'task-ext-1',
+                status: 'pending',
                 estimatedCost: 1.23,
                 estimatedQuotaUnits: 8,
-                message: expect.any(String),
             },
         })
-        expect(event.waitUntil).not.toHaveBeenCalled()
-        expect(TTSService.processTask).not.toHaveBeenCalled()
-        expect(taskRepo.create).not.toHaveBeenCalled()
+        expect(event.waitUntil).toHaveBeenCalledTimes(1)
+        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
+        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'podcast',
+            status: 'pending',
+        }))
     })
 
     it('should skip external waitUntil registration outside serverless runtimes', async () => {
@@ -145,7 +146,7 @@ describe('POST /api/external/ai/tts/task', () => {
         expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
     })
 
-    it('should still return frontend-direct strategy when waitUntil is unavailable', async () => {
+    it('should still return an async task when waitUntil is unavailable', async () => {
         vi.mocked(isServerlessEnvironment).mockReturnValue(true)
 
         const result = await handler({
@@ -162,15 +163,16 @@ describe('POST /api/external/ai/tts/task', () => {
         expect(result).toEqual({
             code: 200,
             data: {
-                strategy: 'frontend-direct',
-                provider: 'volcengine',
-                mode: 'podcast',
+                taskId: 'task-ext-1',
+                status: 'pending',
                 estimatedCost: 1.23,
                 estimatedQuotaUnits: 8,
-                message: expect.any(String),
             },
         })
-        expect(TTSService.processTask).not.toHaveBeenCalled()
-        expect(taskRepo.create).not.toHaveBeenCalled()
+        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
+        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'podcast',
+            status: 'pending',
+        }))
     })
 })

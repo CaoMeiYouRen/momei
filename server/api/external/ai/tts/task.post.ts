@@ -6,10 +6,8 @@ import { TTSService } from '@/server/services/ai'
 import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
 import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
-import { createFrontendDirectTTSResponse, shouldUseTTSFrontendDirect } from '@/server/utils/ai/tts-direct-dispatch'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { aiExternalTTSTaskSchema } from '@/utils/schemas/ai'
-import { TTS_FRONTEND_DIRECT } from '@/utils/shared/env'
 import { isAdmin } from '@/utils/shared/roles'
 
 export default defineEventHandler(async (event) => {
@@ -41,14 +39,23 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Text or postId is required' })
     }
 
+    const taskCategory = mode === 'podcast' ? 'podcast' : 'tts'
+    const taskPayload = {
+        postId: finalPostId || null,
+        text: contentToConvert,
+        voice,
+        mode,
+        options,
+    }
+
     const estimatedQuotaUnits = calculateQuotaUnits({
-        category: mode === 'podcast' ? 'podcast' : 'tts',
-        type: mode === 'podcast' ? 'podcast' : 'tts',
-        payload: { text: contentToConvert, voice, mode, options },
+        category: taskCategory,
+        type: taskCategory,
+        payload: taskPayload,
         usageSnapshot: normalizeUsageSnapshot({
-            category: mode === 'podcast' ? 'podcast' : 'tts',
-            type: mode === 'podcast' ? 'podcast' : 'tts',
-            payload: { text: contentToConvert, voice, mode, options },
+            category: taskCategory,
+            type: taskCategory,
+            payload: taskPayload,
             textLength: contentToConvert.length,
         }),
     })
@@ -61,27 +68,12 @@ export default defineEventHandler(async (event) => {
     await assertAIQuotaAllowance({
         userId: user.id,
         userRole: user.role,
-        category: mode === 'podcast' ? 'podcast' : 'tts',
-        type: mode === 'podcast' ? 'podcast' : 'tts',
-        payload: { text: contentToConvert, voice, mode, options },
+        category: taskCategory,
+        type: taskCategory,
+        payload: taskPayload,
         estimatedQuotaUnits,
         estimatedCost,
     })
-
-    if (shouldUseTTSFrontendDirect({
-        provider,
-        isServerless: isServerlessEnvironment(),
-        frontendDirectEnabled: TTS_FRONTEND_DIRECT,
-    })) {
-        return {
-            code: 200,
-            data: createFrontendDirectTTSResponse({
-                mode,
-                estimatedCost,
-                estimatedQuotaUnits,
-            }),
-        }
-    }
 
     let finalModel = model
     if (!finalModel) {
@@ -93,8 +85,8 @@ export default defineEventHandler(async (event) => {
 
     const taskRepo = dataSource.getRepository(AITask)
     const task = taskRepo.create({
-        category: mode === 'podcast' ? 'podcast' : 'tts',
-        type: mode === 'podcast' ? 'podcast' : 'tts',
+        category: taskCategory,
+        type: taskCategory,
         postId: finalPostId || undefined,
         userId: user.id,
         provider,
@@ -102,13 +94,7 @@ export default defineEventHandler(async (event) => {
         voice,
         model: finalModel,
         script: contentToConvert,
-        payload: JSON.stringify({
-            postId: finalPostId || null,
-            text: contentToConvert,
-            voice,
-            mode,
-            options,
-        }),
+        payload: JSON.stringify(taskPayload),
         status: 'pending',
         progress: 0,
         estimatedCost,

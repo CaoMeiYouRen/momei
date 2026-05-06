@@ -25,11 +25,11 @@ interface TTSDialogConfig {
  *
  * 双模式支持:
  *   - 传统轮询模式: 调用 POST /api/ai/tts/task 创建后台任务 → useTTSTask 轮询
- *   - 火山前端直连: 跳过任务端点，通过 credentials + 直调火山 API + 直传 OSS 完成
+ *   - 前端直连模式: 先调用 POST /api/ai/tts/task 创建任务，再按服务端返回的 strategy 决定是否走浏览器直连
  *
- * 直连触发条件:
- *   - Provider 为 volcengine
- *   - Mode 为 speech（播客模式暂不支持直连）
+ * 直连触发策略:
+ *   - 由服务端 `/api/ai/tts/task` 返回的 `strategy` 决定
+ *   - 当前主要用于 volcengine 的直连链路，具体支持模式以服务端策略为准
  */
 export function usePostTtsDialog(options: {
     postId: Ref<string | undefined>
@@ -71,11 +71,6 @@ export function usePostTtsDialog(options: {
     const directTts = useTTSVolcengineDirect()
     const isDirectMode = ref(false)
     const directAudioUrl = ref<string | null>(null)
-
-    // ---- 是否启用前端直连（volcengine，speech + podcast） ----
-    const canUseDirect = computed(() =>
-        config.value.provider === 'volcengine',
-    )
 
     // ---- 合并状态 ----
     const status = computed(() => {
@@ -191,32 +186,16 @@ export function usePostTtsDialog(options: {
     const startGenerate = async () => {
         // 重置状态
         currentTaskId.value = null
-        directAudioUrl.value = null
-
-        // 火山引擎走前端直连
-        if (canUseDirect.value) {
-            isDirectMode.value = true
-            try {
-                const result = await directTts.generateAndUpload({
-                    mode: config.value.mode,
-                    text: script.value || options.content.value,
-                    voice: config.value.voice,
-                    speed: 1.0,
-                    volume: 1.0,
-                    language: options.language.value || locale.value,
-                    postId: options.postId.value ?? null,
-                })
-                directAudioUrl.value = result.audioUrl
-            } catch {
-                // 错误已在 directTts 内部处理（toast + error ref）
-            }
-            return
-        }
-
-        // 传统轮询模式
         isDirectMode.value = false
+        directAudioUrl.value = null
+        taskError.value = null
         try {
-            const data = await $appFetch<{ taskId: string }>('/api/ai/tts/task', {
+            const data = await $appFetch<{
+                taskId: string
+                strategy?: 'frontend-direct'
+                estimatedCost?: number
+                estimatedQuotaUnits?: number
+            }>('/api/ai/tts/task', {
                 method: 'POST',
                 body: {
                     ...config.value,
@@ -226,10 +205,36 @@ export function usePostTtsDialog(options: {
                     script: script.value,
                 },
             })
-            if (data.taskId) {
-                currentTaskId.value = data.taskId
-                startPolling()
+
+            if (!data.taskId) {
+                throw new Error('TTS taskId is required')
             }
+
+            currentTaskId.value = data.taskId
+
+            if (data.strategy === 'frontend-direct') {
+                isDirectMode.value = true
+                try {
+                    const result = await directTts.generateAndUpload({
+                        taskId: data.taskId,
+                        mode: config.value.mode,
+                        text: script.value || options.content.value,
+                        voice: config.value.voice,
+                        speed: 1.0,
+                        volume: 1.0,
+                        language: options.language.value || locale.value,
+                        postId: options.postId.value ?? null,
+                    })
+                    directAudioUrl.value = result.audioUrl
+                } catch {
+                    // 错误已在 directTts 内部处理（toast + error ref）
+                }
+                return
+            }
+
+            // 传统轮询模式
+            isDirectMode.value = false
+            startPolling()
         } catch (requestError) {
             taskError.value = resolveErrorMessage(requestError, {
                 fallbackKey: 'pages.admin.posts.tts.failed',
