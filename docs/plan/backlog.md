@@ -14,20 +14,22 @@
 
 1. **测试覆盖率与有效性治理**
 - **目标**:
-    - 以核心路径为优先，把覆盖率从当前基线继续提升到 `76%` 以上，并持续朝 80% 以上推进。
-    - 加强红绿测试有效性，避免只追求覆盖率数字而缺少失败用例、边界断言与回归价值。
+    - 在全仓 coverage 已越过 `80%+` 后，继续把重点转向高风险链路的红绿测试有效性与回归价值，而不是只把覆盖率数字继续当作唯一目标。
+    - 优先围绕前端直连 TTS、AI task 计量口径、认证退化与公开热点读链路补失败断言、边界断言与统计一致性验证。
 - **状态**:
     - 进行中。
 - **当前状态**:
     - 第二十六阶段已将全仓覆盖率推进到约 `72%`，第二十八阶段也已完成本轮切片并把全仓 coverage 推进到 `76%+`。
     - 第三十一阶段已继续围绕共享文案 raw key 暴露、认证配置退化与 coverage blocker 三条高风险链路补齐失败断言，并把 `AppFooter` 与公开友链页纳入固定 runtime 回归入口；当前全仓 coverage 已稳定在 statements `76.03%` / lines `76.08%`。
     - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
+    - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从“继续冲数字”转为“围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理”。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
+    - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
 - **下一次可切片方向**:
-    - 若后续继续上收，优先围绕 `76%+` 之后的高风险模块深挖，而不是回到低价值铺量测试。
+    - 若后续继续上收，优先围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路等高风险模块深挖，而不是回到低价值铺量测试。
 
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
@@ -44,12 +46,14 @@
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已正式上收 composables 子桶继续收紧切片）。
+    - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
-3. **重复代码与纯函数复用收敛**
+3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
 - **目标**:
-    - 继续压缩高频重复实现，补齐共享 helper / 纯函数抽象，降低后续变更的维护成本与行为漂移风险。
+    - 继续压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型、简单工具函数与轻量响应壳层纳入受控复用范围，降低后续变更的维护成本与行为漂移风险。
+    - 优先治理逻辑简单、跨文件重复率高、适合稳定上收到共享层的类型与工具函数，而不是把所有局部实现都强行抽象。
 - **状态**:
     - 进行中。
 - **当前状态**:
@@ -60,12 +64,15 @@
     - 本轮收口后，剩余高优先级热点继续聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、公开认证相关页模板（如 `forgot-password` / `reset-password`），以及首页 / 公开列表读模型装配边界；长期主线继续保留，但当前阶段这条正式待办已可关闭。
     - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
     - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
+    - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖“重复导入 + 轻包装”“局部类型同形状复制”与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
+    - 第三十五阶段（已正式扩充为结构复用治理，并上收零散类型与纯函数 / 工具函数首轮切片）。
 - **下一次可切片方向**:
     - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）、`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts`（33 lines）。
     - 文件内自重复：`server/utils/email/service.ts`（27+27）、`components/commercial-link-manager.vue`（42+15）。
+    - 结构性重复候选：重复出现的 `isPlainRecord` / `isRecord` 类守卫、`LocaleOption` / `MaybeReactive` / 轻量 `ResponseData` 与 `StatusPayload` 壳层，以及“重复导入同一共享函数后再做轻包装”的简单纯函数 / 工具函数。
 
 4. **周期性回归与阶段收口执行治理**
 - **目标**:
@@ -96,6 +103,7 @@
 - **最近一次上收阶段**:
     - 第三十阶段（已审计归档）。
     - 第三十三阶段（已正式上收候选组 B 切片）。
+    - 第三十五阶段（已正式上收候选组 A 切片）。
 - **下一次可切片方向**:
     - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
     - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
@@ -116,6 +124,7 @@
     - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
+    - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
 - **下一次可切片方向**:
     - 候选组 A：继续审计 `0b-db-ready`、安装态检查与匿名鉴权等请求级入口，减少不必要的数据库唤醒。
     - 候选组 B：为 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略。
@@ -221,7 +230,8 @@
 	- 第三十阶段已按“1 个新功能 + 5 个优化”的组合完成并审计归档，当前新增能力已落地远程仓库同步（Hexo 风格 / GitHub / Gitee）单仓库候选闭环；优化主线也已完成文档翻译 freshness、国际化字段治理、重复代码复用、注释治理，以及 ESLint / 类型债规则收紧五条切片收口。
     - 第三十一阶段已按“1 个新功能预研 + 4 个治理切片 + 1 个战略评估”的组合完成并审计归档，当前已形成 `caomei-auth` 暂缓接入结论，完成路线图 / Todo 深度归档、国际化运行时治理、`composables` 子桶 ESLint 收口、coverage `76%+` 关闭，以及商业化转型重评收口。
     - 第三十二阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档，当前已落地多语言资产化统一承接入口、重复代码基线降至 32 clones / 0.59%、ESLint no-explicit-any 窄切片收口、Postgres /api/search 缓存与 AITask stale scan 最小字段集收紧，以及 coverage 阶段收口（80%+ 冲刺顺延至下一阶段）。
-    - 第三十三阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档。第三十四阶段也已按"1 个新功能评估 + 5 个优化"完成并审计归档：前端直出 TTS + 直传 OSS 评估与原型已形成最小闭环，coverage 正式越过 `80%+`，周期性回归、ESLint 切片、i18n 运行时继续扩面与文档翻译 freshness 五条优化主线均已关闭。下一阶段当前只保留候选分析，不在本轮直接写入正式规划。
+    - 第三十三阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档。第三十四阶段也已按"1 个新功能评估 + 5 个优化"完成并审计归档：前端直出 TTS + 直传 OSS 评估与原型已形成最小闭环，coverage 正式越过 `80%+`，周期性回归、ESLint 切片、i18n 运行时继续扩面与文档翻译 freshness 五条优化主线均已关闭。
+    - 第三十五阶段已正式切换为“0 个新功能 + 5 个优化”的执行面，当前聚焦 AI task 计量口径与 TTS 防回归、Postgres 热点公开读链路与数据库唤醒、ESLint / 类型债、结构复用治理（重复代码 / 零散类型 / 纯函数与工具函数），以及存量代码注释治理候选组 A。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
 
 ## 短期 / 一次性候选任务（上收后去重）
