@@ -35,10 +35,10 @@
 	- 环境变量: `TTS_FRONTEND_DIRECT` / `TTS_CREDENTIAL_TTL_SECONDS`
 	- 非目标: 不重写 `TTSService.processTask()`，不动 `media-task-monitor`
 
-- [ ] **测试覆盖率冲刺 80%+ (P0)**
-	- 范围: 已从全仓 lines `75.28%` 拉升到 `78.06%`，本轮优先命中了 Phase 33/34 settings 面板、认证/通知边角、热点读链路失败路径与高 ROI composable / service 切片；后续继续冲 `80%+`。
-	- 收口线: `>= 78%`（`80%+` 冲刺）。
-	- 最新进度: 2026-05-05 用户提供的最新全量 `pnpm test:coverage` checkpoint 已更新到 lines `78.19%`；本轮继续命中高 ROI settings 切片，[components/admin/settings/ai-settings.vue](../../components/admin/settings/ai-settings.vue) 已通过 [components/admin/settings/ai-settings.test.ts](../../components/admin/settings/ai-settings.test.ts) 从局部 lines `44.28%` 拉到 `81.42%`。当前尚未触发下一次全量 checkpoint，条目继续保持开启并朝 `80%+` 推进。
+- [x] **测试覆盖率冲刺 80%+ (P0)**
+	- 范围: 已从全仓 lines `75.28%` 逐步拉升到 `80.05%`，正式达成第三十四阶段 `80%+` 冲刺目标。本轮中后段重点命中了后台 settings / editor 高 ROI 切片，而不是继续在低增益小文件上摊薄时间。
+	- 收口线: `>= 80%`。
+	- 最新进度: 2026-05-06 最终全量 `pnpm test:coverage` checkpoint 为 statements `80.03%` / branches `67.18%` / functions `78.99%` / lines `80.05%`；本轮连续收口了 [components/admin/settings/general-settings.vue](../../components/admin/settings/general-settings.vue)、[components/admin/settings/ai-quota-policies-editor.vue](../../components/admin/settings/ai-quota-policies-editor.vue)、[components/admin/settings/ai-alert-thresholds-editor.vue](../../components/admin/settings/ai-alert-thresholds-editor.vue)、[components/admin/settings/ai-cost-factors-editor.vue](../../components/admin/settings/ai-cost-factors-editor.vue)、[components/admin/settings/commercial-settings.vue](../../components/admin/settings/commercial-settings.vue)、[components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue) 与 [components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue) 的定向测试，局部 lines 分别达到 `91.48%`、`85.61%`、`94.93%`、`93.75%`、`96.22%`、`94.11%` 与 `93.84%`，条目现已正式关闭。
 
 - [x] **周期性回归执行 (P1)**
 	- 范围: `pnpm regression:phase-close` 真实回归，覆盖 coverage / lint-typecheck / dup code / docs / RG。

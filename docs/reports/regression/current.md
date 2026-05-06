@@ -9,6 +9,50 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-06 第三十四阶段 coverage 80%+ 冲刺达成
+
+### 范围
+
+- 目标：在 2026-05-06 全量 checkpoint lines `79.57%` 的基础上，继续通过高 ROI 后台 settings / editor 切片把全仓覆盖率正式推过 `80%`。
+- 起点基线：全量 `pnpm test:coverage` 为 statements `79.56%` / branches `66.78%` / functions `78.19%` / lines `79.57%`；基于最新 `coverage/coverage-final.json` 估算，还差约 `124` 条可执行语句覆盖才能越过 `80%`。
+- 本轮覆盖：[components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue)、[components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue)，并以此前已完成的 [components/admin/settings/general-settings.vue](../../components/admin/settings/general-settings.vue)、[components/admin/settings/ai-quota-policies-editor.vue](../../components/admin/settings/ai-quota-policies-editor.vue)、[components/admin/settings/ai-alert-thresholds-editor.vue](../../components/admin/settings/ai-alert-thresholds-editor.vue)、[components/admin/settings/ai-cost-factors-editor.vue](../../components/admin/settings/ai-cost-factors-editor.vue) 与 [components/admin/settings/commercial-settings.vue](../../components/admin/settings/commercial-settings.vue) 作为同一轮 sprint 的已验证增量基础。
+- 非目标：本轮不转向 [components/admin/settings/agreements-settings.vue](../../components/admin/settings/agreements-settings.vue)、[components/admin/settings/admin-notification-settings.vue](../../components/admin/settings/admin-notification-settings.vue) 或 [components/admin/settings/setting-audit-log-list.vue](../../components/admin/settings/setting-audit-log-list.vue) 这类更重的异步大面，只做足以过线的最后组合切片。
+
+### 实施结论
+
+- 最新两块切片的局部 coverage 已稳定过高线： [components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue) 达到 statements `94.40%` / branches `77.96%` / functions `100%` / lines `94.11%`；[components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue) 达到 statements `93.93%` / branches `80.43%` / functions `80%` / lines `93.84%`。
+- 与本轮前序已完成切片叠加后，coverage 冲刺的 settings / editor 收口面已包含 [components/admin/settings/general-settings.vue](../../components/admin/settings/general-settings.vue) lines `91.48%`、[components/admin/settings/ai-quota-policies-editor.vue](../../components/admin/settings/ai-quota-policies-editor.vue) lines `85.61%`、[components/admin/settings/ai-alert-thresholds-editor.vue](../../components/admin/settings/ai-alert-thresholds-editor.vue) lines `94.93%`、[components/admin/settings/ai-cost-factors-editor.vue](../../components/admin/settings/ai-cost-factors-editor.vue) lines `93.75%`、[components/admin/settings/commercial-settings.vue](../../components/admin/settings/commercial-settings.vue) lines `96.22%`、[components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue) lines `94.11%` 与 [components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue) lines `93.84%`。
+- 最终全量 `pnpm test:coverage` 已正式过线：`460` 个测试文件中 `459` 通过、`1` 跳过；`3511` 个测试中 `3510` 通过、`1` 跳过；All files 为 statements `80.03%` / branches `67.18%` / functions `78.99%` / lines `80.05%`。
+- 这意味着第三十四阶段 `测试覆盖率冲刺 80%+ (P0)` 已从“阶段守住 78%”推进到“正式越过 80%”，条目可以关闭；后续若继续治理，重点应转向更大体量的后台设置和编辑器文件，而不是继续在已过高线的小面上补边角。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run components/admin/settings/external-feed-sources-editor.test.ts`
+	- 结果：通过；`4` 个测试全部通过。
+- 定向 coverage：`pnpm exec vitest run components/admin/settings/external-feed-sources-editor.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=components/admin/settings/external-feed-sources-editor.vue`
+	- 结果：通过；[components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue) 为 statements `94.40%` / branches `77.96%` / functions `100%` / lines `94.11%`。
+- 定向 Vitest：`pnpm exec vitest run components/admin/settings/theme-save-dialog.test.ts`
+	- 结果：通过；`4` 个测试全部通过。
+- 定向 coverage：`pnpm exec vitest run components/admin/settings/theme-save-dialog.test.ts --coverage.enabled=true --coverage.provider=v8 --coverage.include=components/admin/settings/theme-save-dialog.vue`
+	- 结果：通过；[components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue) 为 statements `93.93%` / branches `80.43%` / functions `80%` / lines `93.84%`。
+- 定向 ESLint：`pnpm exec eslint components/admin/settings/external-feed-sources-editor.test.ts components/admin/settings/theme-save-dialog.test.ts`
+	- 结果：通过；无输出。
+- 受影响文件诊断：`get_errors(external-feed-sources-editor.test.ts, theme-save-dialog.test.ts)`
+	- 结果：通过；无新增诊断。
+- 全量 checkpoint：`pnpm test:coverage`
+	- 结果：通过；All files 达到 statements `80.03%` / branches `67.18%` / functions `78.99%` / lines `80.05%`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：当前全仓 lines 已越过 `80%`，但 branches 与 functions 仍明显低于 lines；coverage 主线已完成，不等于后台设置与编辑器目录的整体低覆盖热点已经全部清偿。
+
+### 未覆盖边界
+
+- [components/admin/settings/agreements-settings.vue](../../components/admin/settings/agreements-settings.vue)、[components/admin/settings/admin-notification-settings.vue](../../components/admin/settings/admin-notification-settings.vue) 与 [components/admin/settings/setting-audit-log-list.vue](../../components/admin/settings/setting-audit-log-list.vue) 仍是 admin/settings 下最明显的低覆盖热点，后续若继续提升 coverage，这三块应优先重新排 ROI。
+- 当前全量过线主要依赖高 ROI settings / editor 切片组合；后台 posts editor、大型主题配置与若干 `0%` 管理端组件仍然存在，不属于本轮“冲过 80%”的必要收口范围。
+
 ## 2026-05-05 第三十四阶段 coverage 80%+ 冲刺续推：ai-settings 切片
 
 ### 范围
