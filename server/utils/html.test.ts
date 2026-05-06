@@ -32,4 +32,13 @@ describe('htmlToPlainText', () => {
         const result = htmlToPlainText('<a href="https://example.com">https://example.com</a>')
         expect(result).not.toContain('[https://example.com]')
     })
+
+    it('supports feed-style conversion by ignoring href and collapsing whitespace', () => {
+        const result = htmlToPlainText('<p>Text <a href="https://example.com/post">Read more</a>\n  next</p>', {
+            linkHrefMode: 'ignore',
+            collapseWhitespace: true,
+        })
+
+        expect(result).toBe('Text Read more next')
+    })
 })

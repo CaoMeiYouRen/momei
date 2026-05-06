@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { XMLParser } from 'fast-xml-parser'
-import { convert } from 'html-to-text'
+import { htmlToPlainText } from '@/server/utils/html'
 import type { ExternalFeedItem, ExternalFeedSourceConfig } from '@/types/external-feed'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
 
@@ -138,13 +138,10 @@ function extractSummary(...candidates: unknown[]) {
             continue
         }
 
-        const plainText = convert(decodeBasicXmlEntities(textValue.slice(0, SUMMARY_SOURCE_SLICE_LIMIT)), {
-            wordwrap: false,
-            selectors: [
-                { selector: 'img', format: 'skip' },
-                { selector: 'a', options: { ignoreHref: true } },
-            ],
-        }).replace(/\s+/g, ' ').trim()
+        const plainText = htmlToPlainText(decodeBasicXmlEntities(textValue.slice(0, SUMMARY_SOURCE_SLICE_LIMIT)), {
+            linkHrefMode: 'ignore',
+            collapseWhitespace: true,
+        })
 
         if (plainText) {
             return plainText.slice(0, 240)
