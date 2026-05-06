@@ -16,6 +16,54 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十四阶段：TTS 前端化评估与长期治理补欠 (已审计归档)
+
+> 归档说明: 第三十四阶段「1 个新功能评估 + 5 个优化」已于 2026-05-06 完成收口并归档至本文件。6 条主线均已在实现代码、专项设计文档、活动回归窗口、`phase-close` 回归结果与多语路线图摘要中完成闭环；`todo.md` 当前待办区已清理，下一阶段仍停留在候选分析，不在本轮直接上收。
+
+> **ROI 评估**: 前端直出 TTS + 直传 OSS 评估与原型 1.33；测试覆盖率冲刺 80%+ 1.83；周期性回归执行 1.50；ESLint 下一轮切片 1.50；i18n 运行时继续扩面 1.50；文档翻译 freshness 续 1.33。
+
+### 1. 前端直出 TTS + 直传 OSS 评估与原型 (P1)
+
+- [x] **前端直出 TTS + 直传 OSS 评估与原型 (P1)**
+    - 验收: 已在 `docs/design/governance/tts-frontend-direct-evaluation.md` 固化 Provider CORS、JWT 凭证下发与浏览器直传 OSS 的设计边界。
+    - 结果: 已落地火山 JWT 凭证、前端直连 composable、服务端代理兼容、TTS 元数据回写与 serverless 自动降级；本轮只为 Volcengine 打通前端直连闭环，不重写 `TTSService.processTask()`。
+    - 验证: 详见活动回归窗口中与 TTS 前端化原型对应的专项记录，以及 `docs/design/governance/tts-frontend-direct-evaluation.md` 的结论。
+
+### 2. 测试覆盖率冲刺 80%+ (P0)
+
+- [x] **测试覆盖率冲刺 80%+ (P0)**
+    - 验收: 全仓 coverage 已从第三十三阶段基线 lines `75.8%` 继续拉升，并正式越过 `80%+` 目标线。
+    - 结果: 2026-05-06 最终全量 `pnpm test:coverage` checkpoint 为 statements `80.03%` / branches `67.18%` / functions `78.99%` / lines `80.05%`；后台 settings / editor 高 ROI 切片已形成稳定增量。
+    - 验证: `pnpm test:coverage`、定向 Vitest / coverage、定向 ESLint 与受影响文件诊断均已通过，详见 `docs/reports/regression/current.md` 2026-05-06 记录。
+
+### 3. 周期性回归执行 (P1)
+
+- [x] **周期性回归执行 (P1)**
+    - 验收: 已执行一次真实 `pnpm regression:phase-close`，覆盖 coverage、lint / typecheck、重复代码、文档事实源与 Review Gate 证据生成。
+    - 结果: 依赖安全、导航 E2E、严格性能预算与回归窗口超限四类 blocker 已全部解除；phase-close、pre-release 与 Review Gate 证据均已转绿。
+    - 验证: `pnpm regression:phase-close` 通过，对应证据见 `docs/reports/regression/current.md` 2026-05-05 记录与 `artifacts/review-gate/2026-05-05-phase-close-regression.md`。
+
+### 4. ESLint 下一轮切片 (P1)
+
+- [x] **ESLint 下一轮切片 (P1)**
+    - 验收: 已完成 `composables` 子桶复核，并沿回退口径收口 production composable 的高 ROI `no-explicit-any` 单文件 / 双文件切片。
+    - 结果: `use-tts-task.ts`、`use-upload.ts`、`use-asr-task.ts`、`use-admin-ai.ts`、`use-admin-i18n.ts`、`use-post-editor-auto-save.ts`、`use-onboarding.ts`、`use-post-editor-page.helpers.ts`、`use-tts-volcengine-direct.ts`、`use-post-editor-ai.ts` 与 `use-post-editor-io.ts` 等文件已完成类型收窄；当前生产源码范围内无这条主线的残余 blocker。
+    - 验证: 定向 ESLint、同级 Vitest、`pnpm exec nuxt typecheck` 与根仓 `npm run lint` 均通过。
+
+### 5. i18n 运行时继续扩面 (P1)
+
+- [x] **i18n 运行时继续扩面 (P1)**
+    - 验收: `i18n:audit:missing` 持续保持 `0`，并新增一条公开页装配链路纳入 `i18n:verify:runtime` 固定回归入口。
+    - 结果: 已将 `pages/archives/index.test.ts` 并入固定运行时矩阵，同时完成 `auth-card`、`taxonomy-post-page`、归档页和 taxonomy RSS 相关运行时守线收口。
+    - 验证: `pnpm i18n:audit:missing` 与 `pnpm i18n:verify:runtime` 通过，详见 `docs/reports/regression/current.md` 2026-05-05 记录。
+
+### 6. 文档翻译 freshness 续 (P1)
+
+- [x] **文档翻译 freshness 续 (P1)**
+    - 验收: 高频设计页与对外 guide 的翻译 freshness 已恢复通过，`docs:check:source-of-truth` 无阻塞页。
+    - 结果: 当前阶段不再存在该条目的翻译 freshness blocker；多语路线图摘要与中文规划事实源现已同步到最新阶段状态。
+    - 验证: `pnpm docs:check:source-of-truth`、`pnpm docs:check:i18n` 与本轮 roadmap 翻译同步校验通过。
+
 ## 第三十三阶段：创作者统计与质量冲刺 (已审计归档)
 
 > 归档说明: 第三十三阶段「1 个新功能 + 4 个优化」已于 2026-05-03 全部闭合并归档至本文件。5 条主线均在代码、测试、设计文档与 lint/typecheck 中完成闭环。Coverage 80%+ 为冲刺目标，实际收口基线为 Lines 75.8% / Statements 75.67%，顺延至 Phase 34。
