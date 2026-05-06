@@ -20,7 +20,7 @@
 
 > 阶段状态: 第三十五阶段已正式开启，当前按“0 个新功能 + 5 个优化”推进，聚焦 AI task 计量口径、Postgres、ESLint / 类型债、结构复用治理，以及存量代码注释治理五条主线。
 
-> 当前进行中: Postgres 热点公开读链路与数据库唤醒继续治理 (P0) - 收敛首页 popular posts 经过 `/api/posts` 的前置 settings 查库，验证显式 `limit` 请求优先走缓存路径。
+> 当前进行中: 无（等待第三十五阶段下一条待办上收）。
 
 ### 第三十五阶段：运行时计量校准与结构治理续推
 
@@ -30,11 +30,12 @@
 	- 非目标: 不重写 `TTSService.processTask()`，不把更多 Provider 扩写为浏览器直连。
 	- 验证: 定向 Vitest、受影响 API / composable 断言、`pnpm exec nuxt typecheck`。
 
-- [ ] **Postgres 热点公开读链路与数据库唤醒继续治理 (P0)**
+- [x] **Postgres 热点公开读链路与数据库唤醒继续治理 (P0)**
 	- 验收: 只选择一组高热公开读链路或一组请求级数据库唤醒入口继续推进，优先围绕首页 `posts public list` 查询对及其相邻装配链路补最小字段集、短 TTL、请求去重或缓存复用中的至少一项收敛。
 	- 验收: 留下数据库级长窗口样本或等价 live sample，对比说明查询体量、结果集大小或连接活跃窗口存在可追溯下降趋势。
 	- 非目标: 不把本轮扩写为全站性能重构，不同时并行改造全部请求入口与全部热点读路径。
-	- 验证: 定向 Vitest / typecheck + `pg_stat_statements` 或等价 live sample 证据。
+	- 闭合记录（2026-05-06）: [server/api/posts/index.get.ts](../../server/api/posts/index.get.ts) 已把 `POSTS_PER_PAGE` 读取推迟到缺省 `limit` 请求；本地 PostgreSQL 17 + `pg_stat_statements` 对照样本显示，首页 popular posts 等价请求（显式 `limit=3`、`isPinned=false`、`orderBy=views`、`order=DESC`、`excludeIds=post-hot-read-01,post-hot-read-02`）重复命中仅留下 `3` 条 `momei_post` 查询指纹，未再留下 `momei_setting` 查询；同组缺省 `limit` 对照仍留下 `1` 条 `momei_setting` 查询（`calls=1`、`rows=1`）。结合定向回归测试，可追溯证明本轮已去掉首页 popular posts 这条公开热读路径的前置 settings 查库。
+	- 验证: `pnpm exec vitest run tests/server/api/posts/index.get.test.ts`、`nuxt typecheck targeted`、本地 PostgreSQL 17 `pg_stat_statements` 对照采样。
 
 - [ ] **ESLint / 类型债下一轮窄切片 (P1)**
 	- 验收: 继续按单规则、单文件或双文件高 ROI 切片推进，进入实现前先冻结命中清单、回滚边界与最小验证矩阵；优先评估服务端工具层与跨层 helper，而不是回到已基本清空的 `composables` 子桶做低收益清尾。

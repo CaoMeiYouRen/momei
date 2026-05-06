@@ -9,6 +9,45 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-06 第三十五阶段 Postgres P0 首页 popular posts 显式 `limit` 查库收敛关闭
+
+### 范围
+
+- 目标：完成第三十五阶段 `Postgres 热点公开读链路与数据库唤醒继续治理 (P0)` 当前这条首页 popular posts 子切片收口，并补齐数据库级 live sample 证据后正式关闭 todo。
+- 本轮覆盖：[server/api/posts/index.get.ts](../../server/api/posts/index.get.ts)、[tests/server/api/posts/index.get.test.ts](../../tests/server/api/posts/index.get.test.ts)、[docs/reports/regression/current.md](../../docs/reports/regression/current.md) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不并行扩写到其它公开读链路，不把应用层 runtime cache 命中统计冒充为数据库级证据，也不继续改造首页 `posts/home` 或其它请求级数据库唤醒入口。
+
+### 实施结论
+
+- [server/api/posts/index.get.ts](../../server/api/posts/index.get.ts) 现已只在请求缺省 `limit` 时读取 `POSTS_PER_PAGE`；首页 popular posts 这组显式 `limit=3` 的公开列表请求不再在命中 runtime cache 之前额外读取 settings。
+- 本地 PostgreSQL 17 + `pg_stat_statements` 对照样本已经补齐：工作区内临时 PostgreSQL 实例运行在 `55432` 端口，Nuxt dev 运行在 `3004` 端口；在重置统计窗口后，连续两次请求 `/api/posts?scope=public&limit=3&isPinned=false&orderBy=views&order=DESC&excludeIds=post-hot-read-01,post-hot-read-02`，数据库中只留下 `3` 条 `momei_post` 查询指纹（`calls=1`，`rows=3/3/1`，`total_ms=0.14/0.13/0.07`），未出现 `momei_setting` 查询。
+- 同组缺省 `limit` 对照请求 `/api/posts?scope=public&isPinned=false&orderBy=views&order=DESC&excludeIds=post-hot-read-01,post-hot-read-02` 在同样的“重置统计窗口后连续请求 2 次”条件下，仍留下 `1` 条 `momei_setting` 查询（`calls=1`，`rows=1`，`total_ms=0.09`）以及 `2` 条 `momei_post` 查询指纹（`calls=1`，`rows=3/3`，`total_ms=0.19/0.08`）。这说明显式 `limit` 请求已经从数据库层完全移除了那次前置 settings 读取。
+- 结合 [tests/server/api/posts/index.get.test.ts](../../tests/server/api/posts/index.get.test.ts) 中“显式 `limit` 不再调用 `getSetting`”的回归断言，本轮已经满足 todo 对“同范围数据库级 live sample”与“可追溯下降趋势”的关闭条件；第三十五阶段这条 Postgres P0 待办可正式关闭。
+
+### 已执行验证
+
+- 数据库级 live sample：本地 PostgreSQL 17 `pg_stat_statements` 对照采样。
+	- 结果：通过；显式 `limit` 样本仅留下 `momei_post` 指纹，缺省 `limit` 对照额外留下 `1` 条 `momei_setting` 查询。
+- 定向 Vitest：`pnpm exec vitest run tests/server/api/posts/index.get.test.ts`
+	- 结果：通过；`19` 个测试全部通过。
+- Nuxt typecheck：`pnpm exec nuxt typecheck`
+	- 结果：通过；无新增类型错误输出。
+- Markdown lint：`pnpm exec lint-md docs/plan/todo.md docs/reports/regression/current.md`
+	- 结果：通过；无输出。
+- 受影响文件诊断：`get_errors(server/api/posts/index.get.ts, tests/server/api/posts/index.get.test.ts, docs/plan/todo.md, docs/reports/regression/current.md)`
+	- 结果：通过；无新增诊断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker / warning；代码、测试、todo 关闭记录与本地 `pg_stat_statements` 对照样本一致，足以支撑这条第三十五阶段 Postgres P0 待办正式关闭。
+
+### 未覆盖边界
+
+- 本轮本地样本属于短窗口控制实验，足以证明“显式 `limit` 请求已移除前置 settings 查库”，但不等价于后续阶段其它 Postgres 主线切片可直接复用本结论；若未来继续推进新的公开热读链路，仍需按新范围重新补 live sample。
+- 当前关闭只覆盖首页 popular posts 经过 `/api/posts` 的前置 settings 查库问题，不等于首页 `posts/home`、更宽的 public list 查询对或其它数据库唤醒入口已经全部完成后续治理。
+
 ## 2026-05-06 第三十四阶段 coverage 80%+ 冲刺达成
 
 ### 范围
