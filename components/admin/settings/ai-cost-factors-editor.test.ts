@@ -69,13 +69,30 @@ describe('AiCostFactorsEditor', () => {
         expect(wrapper.find('.ai-cost-factors-editor__error').exists()).toBe(false)
 
         const textInputs = wrapper.findAll('.input-text-stub')
-        await textInputs[0].setValue(' eur ')
-        await textInputs[1].setValue(' € ')
+        expect(textInputs).toHaveLength(2)
+        const currencyCodeInput = textInputs.at(0)
+        const currencySymbolInput = textInputs.at(1)
+
+        if (!currencyCodeInput || !currencySymbolInput) {
+            throw new Error('expected text input stubs to be rendered')
+        }
+
+        await currencyCodeInput.setValue(' eur ')
+        await currencySymbolInput.setValue(' € ')
 
         const numberInputs = wrapper.findAll('.input-number-stub')
-        await numberInputs[0].setValue('0.35')
-        await numberInputs[1].setValue('1.08')
-        await numberInputs[2].setValue('7.88')
+        expect(numberInputs).toHaveLength(3)
+        const quotaPriceInput = numberInputs.at(0)
+        const usdRateInput = numberInputs.at(1)
+        const cnyRateInput = numberInputs.at(2)
+
+        if (!quotaPriceInput || !usdRateInput || !cnyRateInput) {
+            throw new Error('expected number input stubs to be rendered')
+        }
+
+        await quotaPriceInput.setValue('0.35')
+        await usdRateInput.setValue('1.08')
+        await cnyRateInput.setValue('7.88')
 
         const latestModel = JSON.parse(String(wrapper.emitted('update:modelValue')?.at(-1)?.[0]))
 
@@ -126,7 +143,14 @@ describe('AiCostFactorsEditor', () => {
 
         await flushPromises()
 
-        expect(wrapper.findAll('.input-text-stub')[0].attributes('disabled')).toBeDefined()
-        expect(wrapper.findAll('.input-number-stub')[0].attributes('disabled')).toBeDefined()
+        const textInput = wrapper.findAll('.input-text-stub').at(0)
+        const numberInput = wrapper.findAll('.input-number-stub').at(0)
+
+        if (!textInput || !numberInput) {
+            throw new Error('expected locked editor controls to be rendered')
+        }
+
+        expect(textInput.attributes('disabled')).toBeDefined()
+        expect(numberInput.attributes('disabled')).toBeDefined()
     })
 })

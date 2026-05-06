@@ -32,12 +32,16 @@ const stubs = {
         props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'disabled', 'display', 'appendTo', 'fluid'],
         emits: ['update:modelValue'],
         methods: {
-            isSelected(value: unknown) {
+            isSelected(this: { modelValue?: unknown[] }, value: unknown) {
                 return Array.isArray(this.modelValue) && this.modelValue.includes(value)
             },
-            handleChange(event: Event) {
+            handleChange(this: {
+                options?: Record<string, unknown>[]
+                optionValue?: string
+                $emit: (event: 'update:modelValue', values: unknown[]) => void
+            }, event: Event) {
                 const values = Array.from((event.target as HTMLSelectElement).selectedOptions).map((option) => {
-                    const matchedOption = this.options.find((item: Record<string, unknown>) => String(item[this.optionValue || 'value']) === option.value)
+                    const matchedOption = this.options?.find((item: Record<string, unknown>) => String(item[this.optionValue || 'value']) === option.value)
                     return matchedOption?.[this.optionValue || 'value'] ?? option.value
                 })
 
@@ -98,19 +102,46 @@ describe('AiAlertThresholdsEditor', () => {
         expect(wrapper.find('.ai-alert-thresholds-editor__error').exists()).toBe(false)
 
         const multiSelects = wrapper.findAll('.multi-select-stub')
-        await multiSelects[0].setValue(['0.9', '1'])
-        await multiSelects[1].setValue(['0.5', '1'])
-        await multiSelects[2].setValue(['all', 'podcast'])
+        expect(multiSelects).toHaveLength(3)
+        const quotaRatiosSelect = multiSelects.at(0)
+        const costRatiosSelect = multiSelects.at(1)
+        const categoriesSelect = multiSelects.at(2)
+
+        if (!quotaRatiosSelect || !costRatiosSelect || !categoriesSelect) {
+            throw new Error('expected multi-select stubs to be rendered')
+        }
+
+        await quotaRatiosSelect.setValue(['0.9', '1'])
+        await costRatiosSelect.setValue(['0.5', '1'])
+        await categoriesSelect.setValue(['all', 'podcast'])
 
         const numberInputs = wrapper.findAll('.input-number-stub')
-        await numberInputs[0].setValue('240')
-        await numberInputs[1].setValue('9')
-        await numberInputs[2].setValue('18')
-        await numberInputs[3].setValue('6')
+        expect(numberInputs).toHaveLength(4)
+        const dedupeWindowInput = numberInputs.at(0)
+        const maxAlertsInput = numberInputs.at(1)
+        const failureWindowInput = numberInputs.at(2)
+        const failureCountInput = numberInputs.at(3)
+
+        if (!dedupeWindowInput || !maxAlertsInput || !failureWindowInput || !failureCountInput) {
+            throw new Error('expected number input stubs to be rendered')
+        }
+
+        await dedupeWindowInput.setValue('240')
+        await maxAlertsInput.setValue('9')
+        await failureWindowInput.setValue('18')
+        await failureCountInput.setValue('6')
 
         const toggles = wrapper.findAll('.toggle-switch-stub')
-        await toggles[1].setValue(false)
-        await toggles[0].setValue(false)
+        expect(toggles).toHaveLength(2)
+        const alertToggle = toggles.at(0)
+        const failureBurstToggle = toggles.at(1)
+
+        if (!alertToggle || !failureBurstToggle) {
+            throw new Error('expected toggle stubs to be rendered')
+        }
+
+        await failureBurstToggle.setValue(false)
+        await alertToggle.setValue(false)
 
         const latestModel = JSON.parse(String(wrapper.emitted('update:modelValue')?.at(-1)?.[0]))
 
@@ -159,8 +190,16 @@ describe('AiAlertThresholdsEditor', () => {
 
         await flushPromises()
 
-        expect(wrapper.findAll('.toggle-switch-stub')[0].attributes('disabled')).toBeDefined()
-        expect(wrapper.findAll('.multi-select-stub')[0].attributes('disabled')).toBeDefined()
-        expect(wrapper.findAll('.input-number-stub')[0].attributes('disabled')).toBeDefined()
+        const toggle = wrapper.findAll('.toggle-switch-stub').at(0)
+        const multiSelect = wrapper.findAll('.multi-select-stub').at(0)
+        const numberInput = wrapper.findAll('.input-number-stub').at(0)
+
+        if (!toggle || !multiSelect || !numberInput) {
+            throw new Error('expected locked editor controls to be rendered')
+        }
+
+        expect(toggle.attributes('disabled')).toBeDefined()
+        expect(multiSelect.attributes('disabled')).toBeDefined()
+        expect(numberInput.attributes('disabled')).toBeDefined()
     })
 })

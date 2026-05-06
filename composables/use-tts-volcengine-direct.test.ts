@@ -51,13 +51,13 @@ function createReadableResponse(bytes: Uint8Array) {
         status: 200,
         body: {
             getReader: () => ({
-                read: vi.fn(async () => {
+                read: vi.fn(() => {
                     if (done) {
-                        return { done: true, value: undefined }
+                        return Promise.resolve({ done: true, value: undefined })
                     }
 
                     done = true
-                    return { done: false, value: bytes }
+                    return Promise.resolve({ done: false, value: bytes })
                 }),
             }),
         },

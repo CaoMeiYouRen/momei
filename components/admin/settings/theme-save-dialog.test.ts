@@ -82,7 +82,7 @@ function createSettings(overrides: Record<string, unknown> = {}) {
 async function mountComponent(props: {
     modelValue: boolean
     settings: Record<string, unknown> | null
-    previewInner?: HTMLElement | null
+    previewInner: HTMLElement | null
 }) {
     const { default: ThemeSaveDialog } = await import('./theme-save-dialog.vue')
 

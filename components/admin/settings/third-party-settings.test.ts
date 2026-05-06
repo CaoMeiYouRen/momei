@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import type { PropType } from 'vue'
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, type PropType } from 'vue'
 
 const {
     mockAppFetch,
