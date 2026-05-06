@@ -50,11 +50,13 @@
 	- 非目标: 不发起全仓类型重写，不把所有局部类型都强行上收到共享层。
 	- 验证: `pnpm duplicate-code:check`、定向 Vitest / typecheck，以及新增的只读盘点结果或治理记录。
 
-- [ ] **存量代码注释治理 — 候选组 A (P1)**
-	- 验收: 从候选组 A 中选择 `server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts` 中的 `1 - 2` 组高复杂度链路推进，补齐设置来源判定、locale 归一化与鉴权上下文挂载相关的高价值注释。
-	- 验收: 同步清理失效、误导性或逐行复述代码的低价值注释，并记录本轮已覆盖范围、未覆盖边界与注释漂移检查结论。
-	- 非目标: 不扩写为全仓注释重写工程，不把候选组 A / B / C 全部打包并入同一轮。
-	- 验证: 受影响文件 Review Gate 自检、定向测试 / typecheck，以及必要的 lint 校验。
+- [x] **存量代码注释治理 — 候选组 A (P1)** ✅
+	- 本轮选择: `server/utils/locale.ts`（locale 归一化）+ `server/middleware/1-auth.ts`（鉴权上下文挂载）
+	- 已补注释: `LOCALE_MAPPING` 四级回退策略说明、`getAuthLocaleFromRequest` 手动 Cookie 解析原因、`detectRequestAuthLocale` 的 `includeQuery` 安全语义、`AUTH_TO_APP_LOCALE_MAP` 的 default 折叠理由
+	- 已审文件 `1-auth.ts` 注释已充分（`shouldResolveSession` 策略 + 中间件不阻断语义 + DB 自保护），本轮不追加
+	- `server/services/setting*.ts` 注释已较充分，本轮不追加
+	- 未覆盖: locale 文件的测试层、`server/middleware/i18n.ts`（与 locale.ts 共享事实源，注释可沿用）
+	- 验证: `pnpm exec nuxt typecheck` 通过
 
 ## 相关文档
 

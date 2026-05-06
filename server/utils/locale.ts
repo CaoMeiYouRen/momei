@@ -25,8 +25,8 @@ const AUTH_TO_APP_LOCALE_MAP: Partial<Record<AuthBoundaryLocale, AppLocaleCode>>
     'zh-Hant': 'zh-TW',
     'en-US': 'en-US',
     'ko-KR': 'ko-KR',
-    // better-auth-localization 的 default 在项目内部统一折叠到英语默认 locale，
-    // 避免 default 继续扩散到业务层、SEO 或 locale 目录事实源。
+    // better-auth-localization 的 default locale 是 en-US；
+    // 将其收敛到 App 层 en-US 避免业务代码中出现两套英语语义。
     default: 'en-US',
 }
 
@@ -40,6 +40,14 @@ export function mapAuthLocaleToAppLocale(locale: string): string {
 
 // 认证边界只接受一小组 Better Auth locale，但浏览器、Cookie 和第三方回调
 // 可能带来大量别名；这些映射统一在 normalizeLocale 入口收敛。
+//
+// 映射策略：
+//   1. 精确匹配 → 直接返回（大小写不敏感）
+//   2. 本表命中 → 返回映射值
+//   3. 按语言前缀兜底 → 在 AUTH_BOUNDARY_LOCALES 中查找同前缀 locale
+//   4. 全部未命中 → 回退 AUTH_DEFAULT_LOCALE
+//
+// 未支持语言映射到最相近语言（如 no → da-DK）；完全无相近语言时回退 en-US。
 const LOCALE_MAPPING: Record<string, AuthBoundaryLocale> = {
     // 中文变体映射
     zh: 'zh-Hans',
@@ -277,8 +285,9 @@ export function detectRequestAuthLocale(
     event: H3Event,
     options: { includeQuery?: boolean } = { includeQuery: true },
 ): AuthBoundaryLocale {
-    // 查询参数属于“显式覆盖”入口，默认只在需要支持 URL 临时覆写时启用。
-    // 某些内部调用可以传 includeQuery=false，避免被 URL 参数劫持默认语言决策。
+    // 查询参数属于"显式覆盖"入口，默认只在需要支持 URL 临时覆写时启用。
+    // 某些内部调用可以传 includeQuery=false，避免被 URL 参数劫持默认语言决策
+    // （如 RSS/API 这类不应受查询参数影响的上下文）。
     if (options.includeQuery) {
         const queryLocale = getLocaleFromQuery(event)
         if (queryLocale) {
@@ -336,6 +345,8 @@ export function getAuthLocaleFromRequest(request: Request): AuthBoundaryLocale {
     try {
         // better-auth 的 request 场景没有 H3Event，但认证插件与业务请求必须共享
         // 同一套 locale 优先级链，否则登录页与普通 API 会出现语言决策分叉。
+        // 这里手动解析 Cookie 和 Query，复用 normalizeLocale 保证一致性。
+        // 优先级：URL query > Cookie > x-locale header > Accept-Language > default
         // 从 URL 查询参数获取语言
         const url = new URL(request.url)
         const urlLocale = url.searchParams.get('locale')
