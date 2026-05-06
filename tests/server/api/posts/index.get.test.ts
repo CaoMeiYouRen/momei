@@ -200,6 +200,36 @@ describe('/api/posts', () => {
         expect(setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=60')
     })
 
+    it('should skip posts_per_page lookup when public list limit is explicitly provided', async () => {
+        const settingService = await import('@/server/services/setting')
+        const getSettingSpy = vi.spyOn(settingService, 'getSetting')
+
+        try {
+            const event = {
+                context: {},
+                node: {
+                    req: { headers: {} },
+                    res: { setHeader: vi.fn() },
+                },
+                req: { headers: {} },
+                query: {
+                    scope: 'public',
+                    limit: 3,
+                    orderBy: 'views',
+                    order: 'DESC',
+                    isPinned: false,
+                },
+            } as any
+
+            const result = await postsHandler(event)
+
+            expect(result.code).toBe(200)
+            expect(getSettingSpy).not.toHaveBeenCalled()
+        } finally {
+            getSettingSpy.mockRestore()
+        }
+    })
+
     it('should support pagination', async () => {
         const event = {
             context: {},

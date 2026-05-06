@@ -56,8 +56,17 @@ function buildPostsPublicListCacheKey(query: {
 }
 
 export default defineEventHandler(async (event) => {
-    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
-    const query = await getValidatedQuery(event, (q) => postQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
+    const query = await getValidatedQuery(event, async (q) => {
+        const normalizedQuery = q as Record<string, unknown>
+
+        // 显式 limit 的公开列表请求不应在命中 runtime cache 前再额外读取 settings。
+        if (normalizedQuery.limit !== undefined && normalizedQuery.limit !== null && normalizedQuery.limit !== '') {
+            return postQuerySchema.parse(normalizedQuery)
+        }
+
+        const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+        return postQuerySchema.parse(applyDefaultPaginationLimit(normalizedQuery, postsPerPage))
+    })
     const user = event.context?.user
     const isSharedPublicResponse = query.scope === 'public' && !event.context?.auth?.user && !user
     const publicCacheKey = buildPostsPublicListCacheKey(query)
