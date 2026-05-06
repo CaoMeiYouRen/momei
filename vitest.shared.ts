@@ -22,6 +22,7 @@ const i18nRuntimeTestFiles = [
     'pages/login.test.ts',
     'pages/reset-password.test.ts',
     'pages/about.test.ts',
+    'pages/archives/index.test.ts',
     'pages/friend-links.test.ts',
     'pages/categories/index.test.ts',
     'pages/tags/index.test.ts',

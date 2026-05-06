@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-02
+last_sync: 2026-05-06
 ---
 
 # Momei - Project Roadmap
@@ -24,7 +24,9 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 29 has now been audited and archived**: Comment translation, GEO / SEO / AI-crawler visibility hardening, phased ESLint / type-debt tightening, duplicate-code and pure-function reuse convergence, second-round i18n governance, and documentation / regression / archive governance have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 30 has now been audited and archived**: The Hexo-style article repository sync candidate has been closed as the phase's only new feature, while documentation translation freshness remediation, i18n field governance, duplicate-code and pure-function reuse, existing code comment governance, and another narrow ESLint / type-debt tightening slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 31 has now been audited and archived**: The `caomei-auth` third-party login evaluation, roadmap / todo deep-archive governance, i18n runtime-loading and message-reuse governance, the `composables` ESLint / type-debt slice, coverage and test-effectiveness closure at `76%+`, and the commercialization reassessment have all been closed in the Chinese source of truth, regression evidence, and archive docs.
-- **Stage 32 is now in execution (4/5 tracks + 1 derived slice closed)**: The unified intake page for the multilingual content-assetization enhancement package has been closed as the phase's only new feature, joined by closed slices for duplicate-code / pure-function reuse, a single-rule ESLint / type-debt slice, one PostgreSQL hot-read governance slice, and the AITask stale compensation derived slice. The coverage and test-effectiveness track remains in progress along the public-page runtime, auth config degradation, and auth-page raw-key exposure directions.
+- **Stage 32 has now been audited and archived**: The unified intake page for the multilingual content-assetization enhancement package, duplicate-code / pure-function reuse convergence, the narrow ESLint / type-debt slice, the PostgreSQL hot-read governance slice, and the derived AITask stale-compensation tightening have all been closed in the Chinese source of truth and archive docs.
+- **Stage 33 has now been audited and archived**: Creator statistics, the renewed `80%+` coverage sprint setup, the composables ESLint fallback slice, duplicate-code convergence, and the candidate-B code-comment governance slice have all been closed in the Chinese source of truth and archive docs.
+- **Stage 34 has now been audited and archived**: The Volcengine-first frontend-direct TTS + OSS-upload prototype, the workspace-wide `80.05%` lines coverage checkpoint, the real `pnpm regression:phase-close` run, the next ESLint tightening slice, i18n runtime expansion, and document-translation freshness remediation have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview

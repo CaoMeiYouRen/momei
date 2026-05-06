@@ -124,6 +124,17 @@ components/
 3.  单个目录或模块组稳定达到 80% 后，后续阶段应转为守线与缺口治理，优先防止新增改动造成回退，而不是继续机械堆高同一组测试。
 4.  覆盖率治理的命令、timeout budget、证据落点、未覆盖边界与下一阶段计划，统一沉淀到 [docs/reports/regression/current.md](../reports/regression/current.md)。
 
+### 5.1 coverage 冲刺执行方法论
+
+1.  开始补测试前，必须先做一次 fresh 基线分析：以当前 `pnpm test:coverage` 输出或 `coverage/coverage-final.json` 为准，禁止拿可能滞后的 `coverage-report/coverage-summary.json` 直接做 ROI 规划。
+2.  在真正编辑测试前，必须先估算“离目标还差多少覆盖行数”，至少记录当前 lines、目标 lines、粗略缺口和预期先打的高 ROI 切片；若任务目标只是阶段收口线，也要明确写出该收口线，而不是笼统写“继续补 coverage”。
+3.  估算缺口后，优先选择高 ROI 切片：大体量低覆盖文件、已有测试基础的模块、能稳定命中失败路径的 composable / service / 简单表单，优先级高于没有把握的大型编辑器或需要重搭环境的复杂页面。
+4.  覆盖率补测必须坚持“小步快跑”：每次只改当前切片的测试文件，改完立即运行该测试文件或同级最小定向命令，先证明当前新增断言能稳定通过，再继续下一个切片。
+5.  全量 `pnpm test:coverage` 只在两种情况下执行：一是累计的预期增益已经接近阶段目标，二是需要刷新全仓基线并决定下一批 ROI；禁止每补完一个小文件就立刻重跑全量 coverage。
+6.  覆盖率冲刺过程中，必须持续把基线、估算缺口、已补切片、最近一次全量 checkpoint、剩余高 ROI 候选与未覆盖边界写入 [docs/reports/regression/current.md](../reports/regression/current.md)，避免方法、进度和证据只停留在对话里。
+
+补充说明：2026-05 第三十四阶段从全仓 lines `75.28%` 推进到 `78.06%` 的实践表明，先估算缺口、逐个定向验证、累计后再做全量 checkpoint，比“边补边全量跑”的成本更低，也更容易定位高 ROI 切片。
+
 运行覆盖率检查:
 
 ```bash
@@ -140,6 +151,7 @@ pnpm run test:coverage
     -   **价值排序**: 优先选择能直接命中当前风险、失败路径或契约边界的测试，而不是为了“多跑一点”扩大到低相关文件。
     -   **命令示例**: `pnpm test [filename_keyword]`。
     -   **命中不稳定时的回退**: 若关键字方式无法稳定命中同级 `*.test.ts`，优先使用 `pnpm exec vitest run path/to/file.test.ts`。
+    -   **coverage 冲刺追加约束**: 即使目标是补 coverage，也要把“当前新改的测试文件能单独跑通”作为每一步的必过门槛，不能跳过定向验证直接堆到下一批改动。
     -   **UI 真实环境回归例外**: 若目标是“给 Review Gate 一条可复跑的浏览器证据”，优先使用 `pnpm test:e2e:review-gate --scope=<change>`，不要用技能式手工点点点替代。
 
 2.  **全量测试准入条件 (Full Test Triggers)**: 
@@ -154,6 +166,7 @@ pnpm run test:coverage
     -   在周期性回归任务中，允许执行全量 `pnpm test`、`pnpm test:coverage` 与 `pnpm verify`，但必须设置显式 timeout budget，严禁无限等待。
     -   建议预算：定向测试 10 分钟，全量 `pnpm test` 30 分钟，全量 `pnpm test:coverage` 30 分钟，全量 `pnpm verify` 60 分钟；若 CI 资源较低可上调，但必须在任务记录中说明。
     -   若执行超时，必须记录中止位置、已完成验证项与后续补跑计划，不得仅以“本地太慢”替代结果说明。
+    -   若当前事项属于 coverage 冲刺，应先在回归记录中写明“预计何时触发下一次全量 checkpoint”，再执行高成本命令，避免全量 coverage 被滥用为逐文件 smoke test。
 
 4.  **测试规模评估**:
     -   在执行测试前，必须评估本次改动的风险与规模。
