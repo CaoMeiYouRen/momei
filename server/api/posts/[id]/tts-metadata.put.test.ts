@@ -63,7 +63,7 @@ describe('PUT /api/posts/[id]/tts-metadata', () => {
             ...payload,
         })),
         save: vi.fn((value) => Promise.resolve(value)),
-        findOneBy: vi.fn<() => Promise<any>>(async () => null),
+        findOneBy: vi.fn<() => Promise<any>>(async () => await Promise.resolve(null)),
     }
 
     beforeEach(async () => {

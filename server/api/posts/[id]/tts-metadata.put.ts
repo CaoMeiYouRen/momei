@@ -215,13 +215,17 @@ export default defineEventHandler(async (event) => {
         })
         : fallbackQuotaUnits
     const settlementSource = normalizedProviderUsage ? 'actual' as const : 'estimated' as const
-    const settledCost = resolvedText
-        ? normalizedProviderUsage
-            ? await TTSService.estimateCost(resolvedText, resolvedVoice, resolvedProvider, { mode, quotaUnits })
-            : existingTask
-                ? Math.max(0, toNumber(existingTask.estimatedCost, 0))
-                : await TTSService.estimateCost(resolvedText, resolvedVoice, resolvedProvider, { mode, quotaUnits: fallbackQuotaUnits })
-        : 0
+    let settledCost = 0
+    if (resolvedText) {
+        const existingEstimated = existingTask ? Math.max(0, toNumber(existingTask.estimatedCost, 0)) : null
+        if (normalizedProviderUsage) {
+            settledCost = await TTSService.estimateCost(resolvedText, resolvedVoice, resolvedProvider, { mode, quotaUnits })
+        } else if (existingEstimated !== null) {
+            settledCost = existingEstimated
+        } else {
+            settledCost = await TTSService.estimateCost(resolvedText, resolvedVoice, resolvedProvider, { mode, quotaUnits: fallbackQuotaUnits })
+        }
+    }
     const failureStage = body.status === 'failed' ? 'provider_processing' : null
     const chargeStatus = deriveChargeStatus({
         status: body.status,
