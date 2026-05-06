@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { reactive, ref } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 
 const {
     mockAppFetch,
@@ -160,21 +161,43 @@ const stubs = {
             }
         },
     },
-    Button: {
+    Button: defineComponent({
         name: 'Button',
-        template: `<button class="refresh-cache-button" :data-loading="loading ? 'true' : 'false'" @click="handleClick">{{ label }}</button>`,
-        props: ['label', 'icon', 'severity', 'loading', 'onClick'],
-        emits: ['click'],
-        methods: {
-            handleClick(event: MouseEvent) {
-                this.$emit('click', event)
-
-                if (typeof this.onClick === 'function') {
-                    this.onClick(event)
-                }
+        props: {
+            label: {
+                type: String,
+                default: '',
+            },
+            icon: {
+                type: String,
+                default: '',
+            },
+            severity: {
+                type: String,
+                default: '',
+            },
+            loading: {
+                type: Boolean,
+                default: false,
+            },
+            onClick: {
+                type: Function as PropType<((event: MouseEvent) => void) | undefined>,
+                default: undefined,
             },
         },
-    },
+        emits: ['click'],
+        setup(props, { emit }) {
+            function handleClick(event: MouseEvent) {
+                emit('click', event)
+                props.onClick?.(event)
+            }
+
+            return {
+                handleClick,
+            }
+        },
+        template: `<button class="refresh-cache-button" :data-loading="loading ? 'true' : 'false'" @click="handleClick">{{ label }}</button>`,
+    }),
 }
 
 function createSettings(overrides: Record<string, unknown> = {}) {

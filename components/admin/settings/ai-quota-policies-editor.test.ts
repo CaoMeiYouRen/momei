@@ -95,6 +95,18 @@ async function mountComponent(
     })
 }
 
+function getIndexedElement<T>(elements: T[], index: number, label: string): T {
+    const element = elements[index]
+
+    expect(element, `${label} at index ${index} should exist`).toBeDefined()
+
+    if (!element) {
+        throw new Error(`${label} at index ${index} should exist`)
+    }
+
+    return element
+}
+
 describe('AiQuotaPoliciesEditor', () => {
     it('auto-creates a basic policy and serializes edits from both editors', async () => {
         const updateModelValue = vi.fn()
@@ -106,23 +118,23 @@ describe('AiQuotaPoliciesEditor', () => {
         expect(wrapper.find('.ai-quota-policies-editor__empty-state').exists()).toBe(false)
 
         let selects = wrapper.findAll('.select-stub')
-        await selects[0].setValue('role')
+        await getIndexedElement(selects, 0, 'select').setValue('role')
         await flushPromises()
 
         selects = wrapper.findAll('.select-stub')
-        await selects[1].setValue('admin')
-        await selects[2].setValue('tts')
-        await selects[3].setValue('month')
+        await getIndexedElement(selects, 1, 'select').setValue('admin')
+        await getIndexedElement(selects, 2, 'select').setValue('tts')
+        await getIndexedElement(selects, 3, 'select').setValue('month')
 
         const numberInputs = wrapper.findAll('.input-number-stub')
-        await numberInputs[0].setValue('12')
-        await numberInputs[1].setValue('34')
-        await numberInputs[2].setValue('56.78')
-        await numberInputs[3].setValue('2')
+        await getIndexedElement(numberInputs, 0, 'number input').setValue('12')
+        await getIndexedElement(numberInputs, 1, 'number input').setValue('34')
+        await getIndexedElement(numberInputs, 2, 'number input').setValue('56.78')
+        await getIndexedElement(numberInputs, 3, 'number input').setValue('2')
 
         const toggles = wrapper.findAll('.toggle-switch-stub')
-        await toggles[0].setValue(false)
-        await toggles[1].setValue(true)
+        await getIndexedElement(toggles, 0, 'toggle').setValue(false)
+        await getIndexedElement(toggles, 1, 'toggle').setValue(true)
 
         await wrapper.get('#ai_quota_policies').setValue(JSON.stringify([
             {
@@ -154,7 +166,7 @@ describe('AiQuotaPoliciesEditor', () => {
         await flushPromises()
         expect(wrapper.findAll('.ai-quota-policies-editor__policy-card')).toHaveLength(2)
 
-        await wrapper.findAll('.button-stub[data-icon="pi pi-trash"]')[0].trigger('click')
+        await getIndexedElement(wrapper.findAll('.button-stub[data-icon="pi pi-trash"]'), 0, 'delete button').trigger('click')
         await flushPromises()
         expect(wrapper.findAll('.ai-quota-policies-editor__policy-card')).toHaveLength(1)
     })

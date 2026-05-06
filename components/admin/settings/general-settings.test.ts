@@ -68,14 +68,9 @@ const stubs = {
         props: ['align'],
     },
     AppUploader: {
-        template: '<button :id="id" class="uploader-stub" type="button" :disabled="disabled" @click="$emit(\'update:modelValue\', nextValue)">{{ modelValue }}</button>',
+        template: '<button :id="id" class="uploader-stub" type="button" :disabled="disabled" @click="$emit(\'update:modelValue\', id === \'site_logo\' ? \'/logo-next.svg\' : \'/favicon-next.ico\')">{{ modelValue }}</button>',
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
-        computed: {
-            nextValue() {
-                return this.id === 'site_logo' ? '/logo-next.svg' : '/favicon-next.ico'
-            },
-        },
     },
     Image: {
         template: '<img class="image-stub" :src="src" :width="width" />',
