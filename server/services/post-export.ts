@@ -3,10 +3,7 @@ import JSZip from 'jszip'
 import type { Post } from '@/server/entities/post'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
 import { buildAbsoluteUrl, isAbsoluteHttpUrl } from '@/utils/shared/url'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
-}
+import { isRecord } from '@/utils/shared/is-record'
 
 export interface PostMarkdownExportOptions {
     siteUrl?: string | null

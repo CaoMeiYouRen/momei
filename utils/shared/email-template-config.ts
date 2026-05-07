@@ -1,3 +1,4 @@
+import { isRecord } from '@/utils/shared/is-record'
 import type { AppLocaleCode } from '@/i18n/config/locale-registry'
 import {
     createEmptyLocalizedSettingValue,
@@ -126,10 +127,6 @@ export interface ResolvedEmailTemplateField {
     value: string | null
     resolvedLocale: AppLocaleCode | 'legacy' | null
     usedFallback: boolean
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function isEmailTemplateId(value: unknown): value is EmailTemplateId {

@@ -1,3 +1,5 @@
+import { isRecord } from '@/utils/shared/is-record'
+
 export interface RequestFeedbackError {
     statusCode?: number
     statusMessage?: string
@@ -15,8 +17,6 @@ export interface ValidationIssue {
     path: (string | number)[]
     message: string
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
 const isValidationIssue = (value: unknown): value is ValidationIssue => {
     if (!isRecord(value)) {

@@ -44,11 +44,12 @@
 	- 验证: `pnpm exec nuxt typecheck` 通过，`pnpm exec vitest run server/utils/post-access.test.ts`（定向）
 	- 残余: `server/utils/ai/` Provider 层仍有 `error: any` 等（低 ROI，留后续切片）；`server/utils/translation.ts` 多处 `as any`
 
-- [ ] **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)**
-	- 验收: 在现有 `duplicate-code:check` 行级重复基线之外，补做一轮“零散类型 + 简单纯函数 / 工具函数”只读盘点，优先识别 `isPlainRecord` / `isRecord`、`LocaleOption`、`MaybeReactive` 与轻量 `ResponseData / StatusPayload` 壳层这类高频重复形状。
-	- 验收: 至少完成 `1 - 2` 组可安全复用的共享抽象，不因去重引入过度泛化；并记录当前 `jscpd` 无法覆盖的结构性重复边界。
-	- 非目标: 不发起全仓类型重写，不把所有局部类型都强行上收到共享层。
-	- 验证: `pnpm duplicate-code:check`、定向 Vitest / typecheck，以及新增的只读盘点结果或治理记录。
+- [x] **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)** ✅
+	- Group 1: `isRecord` / `isPlainRecord` — 6 个文件各定义一次 → 收敛到 `utils/shared/is-record.ts`
+	- Group 2: `MaybeReactive<T>` — 2 个文件各定义一次 → 收敛到 `types/utils.ts`
+	- 受影响文件: `use-asr-direct.ts`, `localized-settings.ts`, `post-export.ts`, `email-template-config.ts`, `request-feedback.ts`, `ad-network-config.ts`, `use-locale-message-modules.ts`, `use-app-fetch.ts`
+	- jscpd 无法覆盖边界: 类型别名重复（同一 type 定义在多个文件），非行级代码重复
+	- 验证: `pnpm exec nuxt typecheck` 通过
 
 - [x] **存量代码注释治理 — 候选组 A (P1)** ✅
 	- 本轮选择: `server/utils/locale.ts`（locale 归一化）+ `server/middleware/1-auth.ts`（鉴权上下文挂载）

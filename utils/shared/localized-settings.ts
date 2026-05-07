@@ -4,10 +4,7 @@ import type {
     LocalizedSettingType,
     LocalizedSettingValueV1,
 } from '@/types/setting'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
+import { isRecord } from '@/utils/shared/is-record'
 
 function isStringArray(value: unknown): value is string[] {
     return Array.isArray(value) && value.every((item) => typeof item === 'string')

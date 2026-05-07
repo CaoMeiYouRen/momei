@@ -5,6 +5,7 @@ import {
     shouldRefreshASRCredentials,
 } from '~/utils/shared/asr-credential-window'
 import { float32ToPcmInt16 } from '~/utils/web/audio-compression'
+import { isRecord } from '~/utils/shared/is-record'
 
 export interface ASRDirectOptions {
     provider: ASRProvider
@@ -782,8 +783,4 @@ function hasDefiniteUtterance(payload: unknown): boolean {
     const utterances = payload.result.utterances
     return Array.isArray(utterances)
         && utterances.some((item) => isRecord(item) && item.definite === true)
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null
 }

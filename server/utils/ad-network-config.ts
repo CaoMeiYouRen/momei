@@ -1,5 +1,7 @@
 type EnvMap = NodeJS.ProcessEnv
 
+import { isRecord } from '@/utils/shared/is-record'
+
 export type AdNetworkConfig = Record<string, unknown>
 
 export interface AdNetworkConfigMap {
@@ -9,10 +11,6 @@ export interface AdNetworkConfigMap {
     [key: string]: AdNetworkConfig | undefined
 }
 
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-    return !!value && typeof value === 'object' && !Array.isArray(value)
-}
-
 export function parseCommercialConfig(raw: string | null | undefined): Record<string, unknown> {
     if (!raw) {
         return {}
@@ -20,14 +18,15 @@ export function parseCommercialConfig(raw: string | null | undefined): Record<st
 
     try {
         const parsed = JSON.parse(raw)
-        return isPlainRecord(parsed) ? parsed : {}
+        return isRecord(parsed) ? parsed : {}
+
     } catch {
         return {}
     }
 }
 
 export function normalizeAdapterConfig(config: unknown): AdNetworkConfig | null {
-    if (!isPlainRecord(config) || config.enabled === false) {
+    if (!isRecord(config) || config.enabled === false) {
         return null
     }
 

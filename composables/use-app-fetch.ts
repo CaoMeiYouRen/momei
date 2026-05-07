@@ -1,8 +1,7 @@
-import { computed, unref, type ComputedRef, type Ref } from 'vue'
+import { computed, unref, type Ref } from 'vue'
 import { type UseFetchOptions } from '#app'
 import type { ApiResponse } from '@/types/api'
-
-type MaybeReactive<T> = T | Ref<T> | ComputedRef<T>
+import type { MaybeReactive } from '@/types/utils'
 
 type AppQueryScalar = string | number | boolean | null | undefined
 
