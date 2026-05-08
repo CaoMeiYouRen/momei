@@ -8,12 +8,20 @@ if (REDIS_URL) {
         redis = new Redis(REDIS_URL, {
             maxRetriesPerRequest: 3,
             lazyConnect: true,
+            connectTimeout: 10000,
+            retryStrategy(times) {
+                if (times > 3) {
+                    return null // 放弃重试，停止触发 error 事件
+                }
+                return Math.min(times * 200, 2000)
+            },
         })
         redis.on('error', (err) => {
-            console.error('[Redis] Connection error:', err)
+            console.error('[Redis] Connection error:', err.message)
         })
     } catch (err) {
         console.error('[Redis] Failed to initialize:', err)
+        redis = null
     }
 }
 

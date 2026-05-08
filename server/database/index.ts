@@ -242,10 +242,11 @@ export const initializeDB = async () => {
             if (!AppDataSource.isInitialized) {
                 await AppDataSource.initialize()
             }
-            isInitialized = true
 
             await syncAdminRoles(AppDataSource)
             await repairLegacyPostVersionRecords(AppDataSource)
+
+            isInitialized = true
 
             if (!isTestEnv) {
                 logger.system.startup({
@@ -258,6 +259,8 @@ export const initializeDB = async () => {
 
             return AppDataSource
         } catch (error: any) {
+            isInitialized = true
+
             if (isTestEnv) {
                 logger.error(`Database initialization failed: ${error.message}`)
             } else {
@@ -270,8 +273,6 @@ export const initializeDB = async () => {
             }
 
             return AppDataSource
-        } finally {
-            initializationPromise = null
         }
     })()
 

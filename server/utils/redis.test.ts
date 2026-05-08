@@ -79,6 +79,8 @@ describe('server/utils/redis', () => {
         expect(redisConstructor).toHaveBeenCalledWith('redis://127.0.0.1:6379', {
             maxRetriesPerRequest: 3,
             lazyConnect: true,
+            connectTimeout: 10000,
+            retryStrategy: expect.any(Function),
         })
         expect(getRedis()).toBe(redisClient)
         expect(redisClient.on).toHaveBeenCalledWith('error', expect.any(Function))

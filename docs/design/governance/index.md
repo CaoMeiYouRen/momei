@@ -42,6 +42,7 @@
 
 ## 测试与阶段复盘
 
+- **[第三十六阶段执行计划](./phase-36-plan)**: 当前阶段执行工件，聚焦 PG/Redis 修复（P0）、TTS backlog 清理、ESLint 治理、结构复用与注释治理候选组 C。
 - **[第三十一阶段候选上收草案](./phase-31-candidate-draft)**: 下一阶段候选规划工件，聚焦 1 个新功能预研、4 个治理切片与 1 个战略评估的正式上收字段冻结。
 - **[E2E 测试增强设计文档](./e2e-testing-enhancement)**: 跨模块质量设计，聚焦关键路径验证与自动化测试增强。
 - **[E2E 覆盖矩阵](./e2e-coverage-matrix)**: `e2e-testing-enhancement.md` 的执行态补充，聚焦页面 / 写链路风险分级、当前 Playwright 覆盖状态与下一轮补测优先级。
