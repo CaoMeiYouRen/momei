@@ -23,7 +23,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -46,7 +46,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -65,7 +65,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -78,7 +78,7 @@ jobs:
       - run: pnpm run test:e2e
 
   build:
-    needs: [ qa, e2e, unit ] # 等待 QA 和 E2E 执行成功
+    needs: [qa, e2e, unit] # 等待 QA 和 E2E 执行成功
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:

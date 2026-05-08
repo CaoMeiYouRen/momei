@@ -24,7 +24,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
@@ -47,7 +47,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -67,7 +67,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
@@ -81,7 +81,7 @@ jobs:
 
   release:
     name: Release
-    needs: [ qa, e2e, unit ]
+    needs: [qa, e2e, unit]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -97,7 +97,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "latest"
+          version: "10"
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
