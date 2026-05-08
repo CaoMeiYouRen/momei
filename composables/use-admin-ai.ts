@@ -7,9 +7,7 @@ interface AdminAiFormEntry {
     translationId?: string | null
 }
 
-interface AdminAiLocaleOption {
-    code: string
-}
+import type { LocaleOption } from '@/types/utils'
 
 interface AdminAiStringResponse {
     data: string
@@ -22,16 +20,16 @@ function getAdminAiFormEntry(
     return multiForm.value[lang]
 }
 
-function isAdminAiLocaleOption(value: unknown): value is AdminAiLocaleOption {
+function isLocaleOption(value: unknown): value is LocaleOption {
     return typeof value === 'object' && value !== null
         && 'code' in value
-        && typeof value.code === 'string'
+        && typeof (value as LocaleOption).code === 'string'
 }
 
 export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, activeTab: Ref<string>) => {
     const { t, locales } = useI18n()
     const toast = useToast()
-    const localeEntries = (Array.isArray(locales.value) ? locales.value : []).filter(isAdminAiLocaleOption)
+    const localeEntries = (Array.isArray(locales.value) ? locales.value : []).filter(isLocaleOption)
 
     const aiLoading = ref<Record<string, { name: boolean, slug: boolean }>>(
         Object.fromEntries(localeEntries.map((locale) => [locale.code, { name: false, slug: false }])),

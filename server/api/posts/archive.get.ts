@@ -1,3 +1,16 @@
+/**
+ * GET /api/posts/archive — 文章按年月归档列表
+ *
+ * ## SQL 差异策略
+ * - 使用原生 SQL（`dataSource.createQueryBuilder`）按 `YEAR(post.createdAt)` 和 `MONTH(post.createdAt)` 分组，
+ *   生成 `{ year, months: [{ month, count }] }` 结构。
+ * - 与 `/api/categories` / `/api/tags` 不同：归档接口不走 `applyTaxonomyPublicList*` 复用层，
+ *   因为它需要按时间维度聚合而非按分类/标签关联查询。
+ *
+ * ## 可见性
+ * - 仅返回 `status = 'published'` 的文章，且受 `post-access` 可见性规则约束。
+ * - 不区分语言版本——同一翻译簇下各语言文章独立计入归档（与 posts list 聚合策略不同）。
+ */
 import { Brackets, type SelectQueryBuilder, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'

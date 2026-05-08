@@ -2,13 +2,10 @@ import { createError } from 'h3'
 import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { AITask } from '@/server/entities/ai-task'
-import { TTSService } from '@/server/services/ai'
-import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
-import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { createFrontendDirectTTSResponse, shouldUseTTSFrontendDirect } from '@/server/utils/ai/tts-direct-dispatch'
+import { createTTSTask } from '@/server/utils/ai/tts-task-shared'
 import { isAdmin } from '@/utils/shared/roles'
 import { TTS_FRONTEND_DIRECT } from '@/utils/shared/env'
 import { isSnowflakeId } from '@/utils/shared/validate'
@@ -104,55 +101,8 @@ export default defineEventHandler(async (event) => {
         ...options,
         language: resolvedLanguage || options.language,
     }
-    const taskPayload = {
-        postId: finalPostId || undefined,
-        text: contentToConvert,
-        voice,
-        mode,
-        language: resolvedLanguage || null,
-        translationId: resolvedTranslationId,
-        options: normalizedOptions,
-    }
 
-    // 4. 配额与成本估算
-    const estimatedQuotaUnits = calculateQuotaUnits({
-        category: taskCategory,
-        type: taskCategory,
-        payload: taskPayload,
-        usageSnapshot: normalizeUsageSnapshot({
-            category: taskCategory,
-            type: taskCategory,
-            payload: taskPayload,
-            textLength: contentToConvert.length,
-        }),
-    })
-    const estimatedCost = await TTSService.estimateCost(contentToConvert, voice, provider, {
-        mode,
-        quotaUnits: estimatedQuotaUnits,
-    })
-
-    await assertAIQuotaAllowance({
-        userId: user.id,
-        userRole: user.role,
-        category: taskCategory,
-        type: taskCategory,
-        payload: { text: contentToConvert, voice, mode, options: normalizedOptions },
-        estimatedQuotaUnits,
-        estimatedCost,
-    })
-
-    // 5. 解析 model
-    let finalModel = model
-    if (!finalModel) {
-        const providerObj = await TTSService.getProvider(provider || 'volcengine')
-        finalModel = (providerObj as unknown as Record<string, unknown>).model as string
-            || (providerObj as unknown as Record<string, unknown>).defaultModel as string
-            || 'unknown'
-    }
-
-    const taskRepo = dataSource.getRepository(AITask)
-
-    // 6. 前端直出降级判断
+    // 4. 前端直出降级判断
     const useFrontendDirect = shouldUseTTSFrontendDirect({
         provider,
         isServerless: isServerlessEnvironment(),
@@ -160,35 +110,30 @@ export default defineEventHandler(async (event) => {
     })
 
     if (useFrontendDirect) {
-        const directTaskPayload = {
-            ...taskPayload,
-            strategy: 'frontend-direct' as const,
-        }
-
-        const directTask = taskRepo.create({
-            category: taskCategory,
-            type: `${taskCategory}_direct`,
-            postId: finalPostId || undefined,
+        const { task: directTask, estimatedCost, estimatedQuotaUnits } = await createTTSTask({
             userId: user.id,
-            provider: provider || 'volcengine',
-            mode,
+            postId: finalPostId,
+            content: contentToConvert,
             voice,
-            model: finalModel || 'unknown',
-            script: contentToConvert,
-            payload: JSON.stringify(directTaskPayload),
-            status: 'pending',
-            progress: 0,
-            estimatedCost,
-            estimatedQuotaUnits,
-            actualCost: 0,
-            quotaUnits: 0,
-            textLength: contentToConvert.length,
+            provider,
+            mode,
+            model,
             language: resolvedLanguage || null,
-            startedAt: new Date(),
-            chargeStatus: deriveChargeStatus({ status: 'pending', quotaUnits: estimatedQuotaUnits, settlementSource: 'estimated' }),
+            extraPayload: {
+                language: resolvedLanguage || null,
+                translationId: resolvedTranslationId,
+                options: normalizedOptions,
+                strategy: 'frontend-direct',
+            },
+            taskOverrides: {
+                type: `${taskCategory}_direct`,
+                textLength: contentToConvert.length,
+                actualCost: 0,
+                quotaUnits: 0,
+                language: resolvedLanguage || null,
+                startedAt: new Date(),
+            },
         })
-
-        await taskRepo.save(directTask)
 
         return createFrontendDirectTTSResponse({
             taskId: directTask.id,
@@ -198,35 +143,22 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    // 7. 创建后台任务
-    const task = taskRepo.create({
-        category: taskCategory,
-        type: taskCategory,
-        postId: finalPostId || undefined,
+    // 5. 创建后台任务
+    const { task, estimatedCost, estimatedQuotaUnits } = await createTTSTask({
         userId: user.id,
-        provider: provider || 'volcengine',
-        mode,
+        postId: finalPostId,
+        content: contentToConvert,
         voice,
-        model: finalModel || 'unknown',
-        script: contentToConvert,
-        payload: JSON.stringify(taskPayload),
-        status: 'pending',
-        progress: 0,
-        estimatedCost,
-        estimatedQuotaUnits,
-        chargeStatus: deriveChargeStatus({ status: 'pending', quotaUnits: estimatedQuotaUnits, settlementSource: 'estimated' }),
+        provider,
+        mode,
+        model,
+        language: resolvedLanguage || null,
+        extraPayload: {
+            language: resolvedLanguage || null,
+            translationId: resolvedTranslationId,
+            options: normalizedOptions,
+        },
     })
-
-    await taskRepo.save(task)
-
-    // 8. 启动后台处理
-    const backgroundTask = TTSService.processTask(task.id).catch((err) => {
-        console.error('TTS Background Task Error:', err)
-    })
-
-    if (isServerlessEnvironment()) {
-        event.waitUntil?.(backgroundTask)
-    }
 
     const response: TTSTaskCreateResponse = {
         taskId: task.id,

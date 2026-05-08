@@ -208,7 +208,7 @@ export async function checkPostAccess(
  */
 function filterSensitivePostData(post: Post): Partial<Post> {
     // spread-delete pattern: TS 不允许直接 delete 实体属性，用 Record 中转
-    const raw = { ...post } as unknown as Record<string, unknown>
+    const raw = Object.assign({}, post) as unknown as Record<string, unknown>
     delete raw.content
     delete raw.html
     delete raw.password

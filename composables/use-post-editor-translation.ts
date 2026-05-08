@@ -35,9 +35,7 @@ interface LegacyAudioCompat {
     audioMimeType?: string | null
 }
 
-interface LocaleOption {
-    code: string
-}
+import type { LocaleOption } from '@/types/utils'
 
 interface TranslationGroupOption {
     label: string

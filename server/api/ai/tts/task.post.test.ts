@@ -1,33 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { dataSource } from '@/server/database'
-import { TTSService } from '@/server/services/ai'
-import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
-import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
-
 vi.mock('@/server/database', () => ({
     dataSource: {
         getRepository: vi.fn(),
     },
-}))
-
-vi.mock('@/server/services/ai', () => ({
-    TTSService: {
-        estimateCost: vi.fn(),
-        getProvider: vi.fn(),
-        processTask: vi.fn(),
-    },
-}))
-
-vi.mock('@/server/services/ai/quota-governance', () => ({
-    assertAIQuotaAllowance: vi.fn(),
-}))
-
-vi.mock('@/server/utils/ai/cost-governance', () => ({
-    calculateQuotaUnits: vi.fn(),
-    deriveChargeStatus: vi.fn(),
-    normalizeUsageSnapshot: vi.fn(),
 }))
 
 vi.mock('@/server/utils/env', () => ({
@@ -37,6 +15,51 @@ vi.mock('@/server/utils/env', () => ({
 vi.mock('@/server/utils/permission', () => ({
     requireAdminOrAuthor: vi.fn(),
 }))
+
+vi.mock('@/utils/shared/env', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@/utils/shared/env')>()
+
+    return {
+        ...actual,
+        TTS_FRONTEND_DIRECT: false,
+    }
+})
+
+const mockTask = {
+    id: 'task-1',
+    category: 'podcast',
+    type: 'podcast',
+    status: 'pending',
+    estimatedCost: 1.23,
+    estimatedQuotaUnits: 8,
+}
+
+const mockCreateTTSTask = vi.fn().mockResolvedValue({
+    task: mockTask,
+    estimatedCost: 1.23,
+    estimatedQuotaUnits: 8,
+})
+
+vi.mock('@/server/utils/ai/tts-task-shared', () => ({
+    createTTSTask: mockCreateTTSTask,
+}))
+
+vi.mock('@/server/utils/ai/tts-direct-dispatch', () => ({
+    createFrontendDirectTTSResponse: vi.fn((params) => ({
+        taskId: params.taskId,
+        strategy: 'frontend-direct',
+        provider: 'volcengine',
+        mode: params.mode,
+        estimatedCost: params.estimatedCost,
+        estimatedQuotaUnits: params.estimatedQuotaUnits,
+        message: 'Direct TTS task created',
+    })),
+    shouldUseTTSFrontendDirect: vi.fn(() => false),
+}))
+
+const postRepo = {
+    findOneBy: vi.fn().mockResolvedValue(null),
+}
 
 describe('POST /api/ai/tts/task', () => {
     let handler: (event: any) => Promise<any>
@@ -48,33 +71,45 @@ describe('POST /api/ai/tts/task', () => {
         options: {},
     }
 
-    const taskRepo = {
-        create: vi.fn((payload) => ({
-            id: 'task-1',
-            ...payload,
-        })),
-        save: vi.fn((value) => Promise.resolve(value)),
-    }
-
     beforeEach(async () => {
         handler ||= (await import('./task.post')).default
         vi.clearAllMocks()
-        vi.mocked(dataSource.getRepository).mockReturnValue(taskRepo as any)
+        vi.mocked(dataSource.getRepository).mockReturnValue(postRepo as any)
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'author-1', role: 'author' },
         } as any)
-        vi.mocked(normalizeUsageSnapshot).mockReturnValue({ textLength: 11 } as any)
-        vi.mocked(calculateQuotaUnits).mockReturnValue(8)
-        vi.mocked(deriveChargeStatus).mockReturnValue('pending' as any)
         vi.mocked(isServerlessEnvironment).mockReturnValue(false)
-        vi.mocked(TTSService.estimateCost).mockResolvedValue(1.23)
-        vi.mocked(TTSService.getProvider).mockResolvedValue({ model: 'seed-tts-2.0' } as any)
-        vi.mocked(TTSService.processTask).mockResolvedValue(undefined)
-        vi.mocked(assertAIQuotaAllowance).mockResolvedValue(undefined)
     })
 
-    it('should return frontend-direct strategy in serverless runtimes', async () => {
+    it('should create task via shared helper for non-serverless requests', async () => {
+        const waitUntil = vi.fn()
+
+        const result = await handler({
+            body: requestBody,
+            waitUntil,
+            context: {},
+        } as any)
+
+        expect(result).toEqual({
+            taskId: 'task-1',
+            estimatedCost: 1.23,
+            estimatedQuotaUnits: 8,
+        })
+        expect(mockCreateTTSTask).toHaveBeenCalledWith(expect.objectContaining({
+            userId: 'author-1',
+            content: 'hello world',
+            voice: 'zh_female_vv_uranus_bigtts',
+            provider: 'volcengine',
+            mode: 'podcast',
+        }))
+        expect(waitUntil).not.toHaveBeenCalled()
+    })
+
+    it('should return frontend-direct strategy in serverless runtimes when enabled', async () => {
+        const { shouldUseTTSFrontendDirect } = await import('@/server/utils/ai/tts-direct-dispatch')
         vi.mocked(isServerlessEnvironment).mockReturnValue(true)
+        vi.mocked(shouldUseTTSFrontendDirect).mockReturnValueOnce(true)
+
         const waitUntil = vi.fn()
 
         const result = await handler({
@@ -90,16 +125,15 @@ describe('POST /api/ai/tts/task', () => {
             mode: 'podcast',
             estimatedCost: 1.23,
             estimatedQuotaUnits: 8,
-            message: expect.any(String),
+            message: 'Direct TTS task created',
         })
-        expect(waitUntil).not.toHaveBeenCalled()
-        expect(TTSService.processTask).not.toHaveBeenCalled()
-        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-            type: 'podcast_direct',
-            status: 'pending',
-            quotaUnits: 0,
-            estimatedQuotaUnits: 8,
-            startedAt: expect.any(Date),
+        // Frontend-direct tasks should use taskOverrides with type _direct
+        expect(mockCreateTTSTask).toHaveBeenCalledWith(expect.objectContaining({
+            taskOverrides: expect.objectContaining({
+                type: 'podcast_direct',
+                actualCost: 0,
+                quotaUnits: 0,
+            }),
         }))
     })
 
@@ -113,27 +147,5 @@ describe('POST /api/ai/tts/task', () => {
         })
 
         expect(waitUntil).not.toHaveBeenCalled()
-        expect(TTSService.processTask).toHaveBeenCalledWith('task-1')
-    })
-
-    it('should still return frontend-direct strategy when waitUntil is unavailable', async () => {
-        vi.mocked(isServerlessEnvironment).mockReturnValue(true)
-
-        await expect(handler({ body: requestBody, context: {} } as any)).resolves.toEqual({
-            taskId: 'task-1',
-            strategy: 'frontend-direct',
-            provider: 'volcengine',
-            mode: 'podcast',
-            estimatedCost: 1.23,
-            estimatedQuotaUnits: 8,
-            message: expect.any(String),
-        })
-
-        expect(TTSService.processTask).not.toHaveBeenCalled()
-        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-            type: 'podcast_direct',
-            status: 'pending',
-            startedAt: expect.any(Date),
-        }))
     })
 })

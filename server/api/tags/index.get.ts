@@ -1,3 +1,14 @@
+/**
+ * GET /api/tags — 公开标签列表
+ *
+ * ## 与 categories 的共享策略
+ * - 走 `applyTaxonomyPublicListFilters` / `applyTaxonomyPublicListOrdering` / `buildTaxonomyPublicListCacheKey`
+ *   共享层，与 `/api/categories` 共用同套缓存/排序/过滤策略。
+ *
+ * ## 文章计数子查询
+ * - 通过 `buildTagPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
+ * - Tag 与 Post 是多对多关系，子查询需要 JOIN `post_tags_tag` 中间表。
+ */
 import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { tagQuerySchema } from '@/utils/schemas/tag'

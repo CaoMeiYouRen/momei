@@ -1,4 +1,4 @@
-import { computed, ref, unref, watch, type Ref } from 'vue'
+import { computed, ref, unref, watch } from 'vue'
 import type { LocaleMessageModule } from '@/i18n/config/locale-modules'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import type { MaybeReactive } from '@/types/utils'

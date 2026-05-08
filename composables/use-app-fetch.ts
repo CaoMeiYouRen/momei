@@ -1,4 +1,4 @@
-import { computed, unref, type Ref } from 'vue'
+import { computed, unref } from 'vue'
 import { type UseFetchOptions } from '#app'
 import type { ApiResponse } from '@/types/api'
 import type { MaybeReactive } from '@/types/utils'

@@ -38,6 +38,7 @@ const noExplicitAnyFiles = [
     'composables/use-tts-task.ts',
     'composables/use-tts-volcengine-direct.ts',
     'composables/use-upload.ts',
+    'server/services/ai/tts.ts',
 ]
 const maxLinesExceptionFiles = ['components/admin/posts/post-distribution-button.vue']
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']

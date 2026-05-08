@@ -1,15 +1,12 @@
 import { ref } from 'vue'
+import type { LocaleOption } from '@/types/utils'
 
 const contentLanguage = ref<string | null>(null)
 
-interface AdminI18nLocaleOption {
-    code: string
-}
-
-function isAdminI18nLocaleOption(value: unknown): value is AdminI18nLocaleOption {
+function isLocaleOption(value: unknown): value is LocaleOption {
     return typeof value === 'object' && value !== null
         && 'code' in value
-        && typeof value.code === 'string'
+        && typeof (value as LocaleOption).code === 'string'
 }
 
 export function useAdminI18n() {
@@ -21,7 +18,7 @@ export function useAdminI18n() {
 
     const availableLocales = computed(() => [
         { label: t('common.all_languages'), value: null },
-        ...(Array.isArray(locales.value) ? locales.value : []).filter(isAdminI18nLocaleOption).map((locale) => ({
+        ...(Array.isArray(locales.value) ? locales.value : []).filter(isLocaleOption).map((locale) => ({
             label: t(`common.languages.${locale.code}`),
             value: locale.code,
         })),

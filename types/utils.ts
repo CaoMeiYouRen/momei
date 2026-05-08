@@ -7,3 +7,32 @@ import type { ComputedRef, Ref } from 'vue'
  * 现收敛到此单一事实源。
  */
 export type MaybeReactive<T> = T | Ref<T> | ComputedRef<T>
+
+/**
+ * 通用语言选项（仅 code 字段）。
+ * 曾分别在 composables/use-post-editor-translation.ts 与 composables/use-post-editor-page.ts 中定义，
+ * 现收敛到此单一事实源。
+ */
+export interface LocaleOption {
+    code: string
+}
+
+/**
+ * 带标签的语言选项（用于 Select 组件）。
+ * 曾分别在 composables/use-admin-ai.ts（AdminAiLocaleOption）与 composables/use-admin-i18n.ts（AdminI18nLocaleOption）中定义，
+ * 现收敛到此单一事实源。
+ */
+export interface SelectLocaleOption {
+    label: string
+    code: string
+}
+
+/**
+ * SelectLocaleOption 的类型守卫
+ */
+export function isSelectLocaleOption(value: unknown): value is SelectLocaleOption {
+    return typeof value === 'object'
+        && value !== null
+        && 'label' in value
+        && 'code' in value
+}

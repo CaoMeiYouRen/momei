@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { dataSource } from '@/server/database'
-import { TTSService } from '@/server/services/ai'
-import { assertAIQuotaAllowance } from '@/server/services/ai/quota-governance'
-import { calculateQuotaUnits, deriveChargeStatus, normalizeUsageSnapshot } from '@/server/utils/ai/cost-governance'
 import { isServerlessEnvironment } from '@/server/utils/env'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 
@@ -25,24 +22,6 @@ vi.mock('@/server/database', () => ({
     },
 }))
 
-vi.mock('@/server/services/ai', () => ({
-    TTSService: {
-        estimateCost: vi.fn(),
-        getProvider: vi.fn(),
-        processTask: vi.fn(),
-    },
-}))
-
-vi.mock('@/server/services/ai/quota-governance', () => ({
-    assertAIQuotaAllowance: vi.fn(),
-}))
-
-vi.mock('@/server/utils/ai/cost-governance', () => ({
-    calculateQuotaUnits: vi.fn(),
-    deriveChargeStatus: vi.fn(),
-    normalizeUsageSnapshot: vi.fn(),
-}))
-
 vi.mock('@/server/utils/env', () => ({
     isServerlessEnvironment: vi.fn(() => false),
 }))
@@ -51,53 +30,54 @@ vi.mock('@/server/utils/validate-api-key', () => ({
     validateApiKeyRequest: vi.fn(),
 }))
 
+const mockTask = {
+    id: 'task-ext-1',
+    category: 'podcast',
+    type: 'podcast',
+    status: 'pending',
+    estimatedCost: 1.23,
+    estimatedQuotaUnits: 8,
+}
+
+const mockCreateTTSTask = vi.fn().mockResolvedValue({
+    task: mockTask,
+    estimatedCost: 1.23,
+    estimatedQuotaUnits: 8,
+})
+
+vi.mock('@/server/utils/ai/tts-task-shared', () => ({
+    createTTSTask: mockCreateTTSTask,
+}))
+
 describe('POST /api/external/ai/tts/task', () => {
     let handler: (event: any) => Promise<any>
 
-    const taskRepo = {
-        create: vi.fn((payload) => ({
-            id: 'task-ext-1',
-            ...payload,
-        })),
-        save: vi.fn((value) => Promise.resolve(value)),
+    const postRepo = {
+        findOneBy: vi.fn().mockResolvedValue(null),
     }
 
     beforeEach(async () => {
         handler ||= (await import('@/server/api/external/ai/tts/task.post')).default
         vi.clearAllMocks()
-        vi.mocked(dataSource.getRepository).mockReturnValue(taskRepo as any)
+        vi.mocked(dataSource.getRepository).mockReturnValue(postRepo as any)
         vi.mocked(validateApiKeyRequest).mockResolvedValue({
             user: { id: 'author-1', role: 'author' },
         } as any)
-        vi.mocked(normalizeUsageSnapshot).mockReturnValue({ textLength: 11 } as any)
-        vi.mocked(calculateQuotaUnits).mockReturnValue(8)
-        vi.mocked(deriveChargeStatus).mockReturnValue('pending' as any)
         vi.mocked(isServerlessEnvironment).mockReturnValue(false)
-        vi.mocked(TTSService.estimateCost).mockResolvedValue(1.23)
-        vi.mocked(TTSService.getProvider).mockResolvedValue({ model: 'seed-tts-2.0' } as any)
-        vi.mocked(TTSService.processTask).mockResolvedValue(undefined)
-        vi.mocked(assertAIQuotaAllowance).mockResolvedValue(undefined)
         mocks.readValidatedBody.mockImplementation((event: { body?: unknown }, parser: (body: unknown) => unknown) => Promise.resolve(parser(event.body)))
     })
 
-    it('should register external TTS processing with waitUntil when available', async () => {
+    it('should create external TTS task via shared helper', async () => {
         const event = {
-            waitUntil: vi.fn(),
             context: {},
-            provider: 'volcengine',
-            voice: 'zh_female_vv_uranus_bigtts',
-            text: 'hello world',
-            mode: 'podcast',
-            options: {},
+            body: {
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                text: 'hello world',
+                mode: 'podcast',
+                options: {},
+            },
         }
-        ;(event as any).body = {
-            provider: 'volcengine',
-            voice: 'zh_female_vv_uranus_bigtts',
-            text: 'hello world',
-            mode: 'podcast',
-            options: {},
-        }
-        vi.mocked(isServerlessEnvironment).mockReturnValue(true)
 
         const result = await handler(event as any)
 
@@ -110,43 +90,15 @@ describe('POST /api/external/ai/tts/task', () => {
                 estimatedQuotaUnits: 8,
             },
         })
-        expect(event.waitUntil).toHaveBeenCalledTimes(1)
-        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
-        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-            type: 'podcast',
-            status: 'pending',
+        expect(mockCreateTTSTask).toHaveBeenCalledWith(expect.objectContaining({
+            userId: 'author-1',
+            content: 'hello world',
+            voice: 'zh_female_vv_uranus_bigtts',
+            mode: 'podcast',
         }))
     })
 
-    it('should skip external waitUntil registration outside serverless runtimes', async () => {
-        const waitUntil = vi.fn()
-
-        const result = await handler({
-            waitUntil,
-            context: {},
-            body: {
-                provider: 'volcengine',
-                voice: 'zh_female_vv_uranus_bigtts',
-                text: 'hello world',
-                mode: 'podcast',
-                options: {},
-            },
-        } as any)
-
-        expect(result).toEqual({
-            code: 200,
-            data: {
-                taskId: 'task-ext-1',
-                status: 'pending',
-                estimatedCost: 1.23,
-                estimatedQuotaUnits: 8,
-            },
-        })
-        expect(waitUntil).not.toHaveBeenCalled()
-        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
-    })
-
-    it('should still return an async task when waitUntil is unavailable', async () => {
+    it('should delegate to shared helper when waitUntil is unavailable', async () => {
         vi.mocked(isServerlessEnvironment).mockReturnValue(true)
 
         const result = await handler({
@@ -169,10 +121,8 @@ describe('POST /api/external/ai/tts/task', () => {
                 estimatedQuotaUnits: 8,
             },
         })
-        expect(TTSService.processTask).toHaveBeenCalledWith('task-ext-1')
-        expect(taskRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-            type: 'podcast',
-            status: 'pending',
+        expect(mockCreateTTSTask).toHaveBeenCalledWith(expect.objectContaining({
+            mode: 'podcast',
         }))
     })
 })

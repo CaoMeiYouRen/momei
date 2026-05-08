@@ -34,10 +34,7 @@ import { useRequestFeedback } from '@/composables/use-request-feedback'
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import { syncPostTagBindings } from '@/utils/shared/post-tag-bindings'
 import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
-
-interface LocaleOption {
-    code: string
-}
+import type { LocaleOption } from '@/types/utils'
 
 interface TitleSuggestionOverlayRef {
     show?: (event: Event, target?: EventTarget | null) => void

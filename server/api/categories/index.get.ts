@@ -1,3 +1,14 @@
+/**
+ * GET /api/categories — 公开分类列表
+ *
+ * ## 缓存与复用
+ * - 走 `applyTaxonomyPublicListFilters` / `applyTaxonomyPublicListOrdering` / `buildTaxonomyPublicListCacheKey`
+ *   共享层，与 `/api/tags` 共用同套缓存/排序/过滤策略。
+ * - 缓存键按 `language` 区分，命中时旁路数据库查询。
+ *
+ * ## 文章计数子查询
+ * - 通过 `buildCategoryPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
+ */
 import { dataSource, ensureDatabaseReady } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { categoryQuerySchema } from '@/utils/schemas/category'

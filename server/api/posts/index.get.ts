@@ -1,3 +1,22 @@
+/**
+ * GET /api/posts — 文章公开列表与后台管理列表的统一入口
+ *
+ * ## 两种模式 (scope)
+ * - `public`: 仅返回已发布、通过可见性过滤且完成翻译聚合的文章。
+ * - `manage`: 需要 admin/author 角色，返回文章管理列表（含草稿/私密等非公开状态）。
+ *
+ * ## 多语言聚合策略
+ * - 公开模式按 `translationId` 分组，优先返回请求语言的文章；
+ * - 若请求语言没有对应翻译，按语言优先级回退（`applyTranslationAggregation`）。
+ *
+ * ## 缓存策略
+ * - 公开列表（scope=public）走 runtime 缓存（默认 60s TTL），键值按查询参数复合。
+ * - 过期由 `withRuntimeApiCache` 统一管理和告警。
+ *
+ * ## 可见性控制
+ * - 公开模式：仅返回 `status = 'published'` 且通过可见性/密码检查的文章。
+ * - 管理员模式：走后端权限校验但不跳过可见性规则（`post-access` 层处理）。
+ */
 import { Brackets, type WhereExpressionBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
