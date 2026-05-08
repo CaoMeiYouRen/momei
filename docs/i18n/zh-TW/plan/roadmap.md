@@ -59,7 +59,7 @@ last_sync: 2026-05-06
 - **第三十二階段已完成審計歸檔**：多語言內容資產化增強包的統一承接入口、重複代碼 / 純函式復用、單規則 ESLint / 型別債切片、Postgres 公開熱讀鏈路治理，以及 AITask stale compensation 派生切片，已在中文事實源與歸檔文檔中完成收口。
 - **第三十三階段已完成審計歸檔**：創作者統計、`80%+` coverage 衝刺重啟、`composables` ESLint 回退切片、重複代碼收斂，以及候選組 B 存量代碼註釋治理，已在中文事實源與歸檔文檔中完成收口。
 - **第三十四階段已完成審計歸檔**：以 Volcengine 為起點的前端直出 TTS + 直傳 OSS 原型、全倉 lines `80.05%` checkpoint、真實 `pnpm regression:phase-close`、下一輪 ESLint 切片、i18n 執行期擴面，以及文檔翻譯 freshness 清償，已在中文事實源、回歸證據與歸檔文檔中完成收口。
-- **第三十五階段已正式進入規劃與執行面**：本輪不再上收新功能，而是改為「0 個新功能 + 5 個優化」的受控組合，聚焦 AI task 計量口徑與前端直連 TTS 防回歸、Postgres 熱點公開讀鏈路 / 資料庫喚醒治理、下一輪 ESLint / 型別債窄切片、結構復用治理（重複代碼 / 零散型別 / 純函式與工具函式），以及存量代碼註釋治理候選組 A。
+- **第三十五階段已完成審計歸檔**：AI task 計量口徑校準與 TTS 前端直連防回歸（含 Volcengine 前端直連計費閉環）、Postgres 熱點公開讀鏈路與資料庫喚醒繼續治理（含 `pg_stat_statements` 對照採樣證明首頁 popular posts 前置 settings 查庫已移除）、ESLint / 型別債下一輪窄切片（`server/utils/post-access.ts` 3 處 `any` 收窄）、結構復用治理（`isRecord` / `isPlainRecord` 與 `MaybeReactive<T>` 兩組型別收斂），以及存量代碼註釋治理候選組 A（`server/utils/locale.ts` + `server/middleware/1-auth.ts`），已在中文事實源、回歸證據與歸檔文檔中完成收口。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

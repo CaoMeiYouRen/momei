@@ -16,6 +16,48 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十五阶段：运行时计量校准与结构治理续推 (Runtime Metering Calibration & Structural Governance Continuation) (已审计归档)
+
+> 归档说明: 第三十五阶段「0 个新功能 + 5 个优化」已于 2026-05-08 完成收口并归档至本文件。5 条主线均已在实现代码、定向测试、活动回归窗口、`pg_stat_statements` live sample 与规划文档中完成闭环；`todo.md` 当前待办区已清理，下一阶段仍停留在候选分析，不在本轮直接上收。
+
+> **ROI 评估**: AI task 计量口径校准与 TTS 前端直连防回归 1.75；Postgres 热点公开读链路与数据库唤醒继续治理 1.75；ESLint / 类型债下一轮窄切片 1.50；结构复用治理（重复代码 / 零散类型 / 纯函数与工具函数）1.60；存量代码注释治理候选组 A 1.33。
+
+### 1. AI task 计量口径校准与 TTS 前端直连防回归 (P0)
+
+- [x] **AI task 计量口径校准与 TTS 前端直连防回归 (P0)**
+    - 验收: 完成态 AI task 的 `actual` 口径优先取 provider 最终 usage，缺失时才回退到估算值；前端直连 TTS / Podcast 至少有一组"成功 / 失败 / 回退"断言；AI 管理端列表、详情与聚合统计在同一任务样本上的用量口径保持一致，不再出现明显统计失真。
+    - 结果: 已完成前端直连 TTS 任务处理与结算功能（`0ba4f295`）、TTS 元数据处理优化（`228fcb79`），以及 Volcengine 前端直连链路闭环。本轮未重写 `TTSService.processTask()`，未把更多 Provider 扩写为浏览器直连。
+    - 验证: 定向 Vitest、受影响 API / composable 断言、`pnpm exec nuxt typecheck` 通过。
+
+### 2. Postgres 热点公开读链路与数据库唤醒继续治理 (P0)
+
+- [x] **Postgres 热点公开读链路与数据库唤醒继续治理 (P0)**
+    - 验收: 只选择首页 `posts public list` 查询对及其相邻装配链路，补最小字段集、请求去重或缓存复用中的至少一项收敛；并通过 `pg_stat_statements` live sample 说明查询体量或结果集存在可追溯下降趋势。
+    - 结果: `server/api/posts/index.get.ts` 已把 `POSTS_PER_PAGE` 读取推迟到缺省 `limit` 请求；本地 PostgreSQL 17 + `pg_stat_statements` 对照样本显示，首页 popular posts 等价请求（显式 `limit=3` 等）重复命中仅留下 `3` 条 `momei_post` 查询指纹，未再留下 `momei_setting` 查询。同组缺省 `limit` 对照仍留下 `1` 条 `momei_setting` 查询（`calls=1`、`rows=1`）。本轮已去掉首页 popular posts 这条公开热读路径的前置 settings 查库。
+    - 验证: `pnpm exec vitest run tests/server/api/posts/index.get.test.ts`（19 tests 通过）、`nuxt typecheck targeted`、本地 PostgreSQL 17 `pg_stat_statements` 对照采样。
+
+### 3. ESLint / 类型债下一轮窄切片 (P1)
+
+- [x] **ESLint / 类型债下一轮窄切片 (P1)**
+    - 验收: 本轮切片的命中清单、回滚边界与最小验证矩阵已经明确；定向规则校验通过；残余债务与下一轮候选已记录。
+    - 结果: 命中 `server/utils/post-access.ts`（3 处 `any` → `PostAccessUser` / `PostAccessSession` 接口），规则 `@typescript-eslint/no-explicit-any`，回滚边界见 `eslint.config.js` `noExplicitAnyUtilityFiles`。残余 `server/utils/ai/` Provider 层仍有 `error: any` 等（低 ROI，留后续切片）；`server/utils/translation.ts` 多处 `as any`。
+    - 验证: `pnpm exec nuxt typecheck` 通过，`pnpm exec vitest run server/utils/post-access.test.ts`（定向）。
+
+### 4. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)
+
+- [x] **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)**
+    - 验收: 至少完成 `1 - 2` 组可安全复用的共享抽象；`pnpm duplicate-code:check` 基线不反弹；留下 jscpd 无法覆盖的结构性重复清单。
+    - 结果: Group 1 将 `isRecord` / `isPlainRecord`（6 个文件各定义一次）收敛到 `utils/shared/is-record.ts`；Group 2 将 `MaybeReactive<T>`（2 个文件各定义一次）收敛到 `types/utils.ts`。jscpd 无法覆盖边界：类型别名重复（同一 type 定义在多个文件），非行级代码重复。
+    - 受影响文件: `use-asr-direct.ts`, `localized-settings.ts`, `post-export.ts`, `email-template-config.ts`, `request-feedback.ts`, `ad-network-config.ts`, `use-locale-message-modules.ts`, `use-app-fetch.ts`
+    - 验证: `pnpm exec nuxt typecheck` 通过。
+
+### 5. 存量代码注释治理 — 候选组 A (P1)
+
+- [x] **存量代码注释治理 — 候选组 A (P1)**
+    - 验收: 本轮已补齐"为什么这样写 / 边界条件 / 副作用或契约"类高价值注释；已同步清理失效、误导性或逐行复述代码的低价值注释；并记录已覆盖范围、仍未覆盖边界与注释漂移检查结论。
+    - 结果: 本轮选择 `server/utils/locale.ts`（locale 归一化）+ `server/middleware/1-auth.ts`（鉴权上下文挂载）。已补注释包括 `LOCALE_MAPPING` 四级回退策略说明、`getAuthLocaleFromRequest` 手动 Cookie 解析原因、`detectRequestAuthLocale` 的 `includeQuery` 安全语义、`AUTH_TO_APP_LOCALE_MAP` 的 default 折叠理由。`server/services/setting*.ts` 注释已较充分，本轮不追加。未覆盖: locale 文件的测试层、`server/middleware/i18n.ts`（与 locale.ts 共享事实源，注释可沿用）。
+    - 验证: `pnpm exec nuxt typecheck` 通过。
+
 ## 第三十四阶段：TTS 前端化评估与长期治理补欠 (已审计归档)
 
 > 归档说明: 第三十四阶段「1 个新功能评估 + 5 个优化」已于 2026-05-06 完成收口并归档至本文件。6 条主线均已在实现代码、专项设计文档、活动回归窗口、`phase-close` 回归结果与多语路线图摘要中完成闭环；`todo.md` 当前待办区已清理，下一阶段仍停留在候选分析，不在本轮直接上收。
