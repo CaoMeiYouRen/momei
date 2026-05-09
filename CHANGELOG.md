@@ -1,5 +1,74 @@
 # momei
 
+# [1.16.0](https://github.com/CaoMeiYouRen/momei/compare/v1.15.0...v1.16.0) (2026-05-09)
+
+
+### ✨ 新功能
+
+* **admin:** 添加创作者统计功能 ([68ad449](https://github.com/CaoMeiYouRen/momei/commit/68ad449))
+* **api:** 增加前端直连 TTS 任务处理与结算功能 ([0ba4f29](https://github.com/CaoMeiYouRen/momei/commit/0ba4f29))
+* **api:** 将多个接口的查询参数和路由参数迁移到共享 schema 中 ([6b27283](https://github.com/CaoMeiYouRen/momei/commit/6b27283))
+* **api:** 添加 API 校验治理文档及相关模式 ([8df6834](https://github.com/CaoMeiYouRen/momei/commit/8df6834))
+* **api:** 添加前端直连 TTS 功能 ([591a80f](https://github.com/CaoMeiYouRen/momei/commit/591a80f))
+* **api:** 重构 TTS 任务创建逻辑为共享 helper ([fb730e9](https://github.com/CaoMeiYouRen/momei/commit/fb730e9))
+* **app-footer:** 添加增强包链接至页脚 ([c00e501](https://github.com/CaoMeiYouRen/momei/commit/c00e501))
+* **dashboard:** 添加创作者指标卡组件及其测试用例 ([86ada08](https://github.com/CaoMeiYouRen/momei/commit/86ada08))
+* **enhanced_pack:** 添加增强包功能页面及相关内容 ([47a3db2](https://github.com/CaoMeiYouRen/momei/commit/47a3db2))
+* **enhanced_pack:** 添加多语言内容资产化功能及相关内容 ([8ce3f20](https://github.com/CaoMeiYouRen/momei/commit/8ce3f20))
+* **legal-agreement:** 新增法律协议页面组合逻辑和组件重构 ([a6b2fef](https://github.com/CaoMeiYouRen/momei/commit/a6b2fef))
+* **search:** 添加公开搜索结果的短 TTL 缓存功能 ([eb100c0](https://github.com/CaoMeiYouRen/momei/commit/eb100c0))
+* **tts:** 完成 TTS 前端直出设计 ([ffe2be4](https://github.com/CaoMeiYouRen/momei/commit/ffe2be4))
+* **tts:** 更新火山引擎 WebSocket 端点及凭证有效期配置 ([2da1f0e](https://github.com/CaoMeiYouRen/momei/commit/2da1f0e))
+* **tts:** 添加前端直连提示与状态管理 ([a9ae640](https://github.com/CaoMeiYouRen/momei/commit/a9ae640))
+* **tts:** 添加文本、语言和语速参数以支持 TTS 元数据回写 ([51cb5e9](https://github.com/CaoMeiYouRen/momei/commit/51cb5e9))
+* **tts:** 添加文本长度参数以支持计费统计 ([ff27168](https://github.com/CaoMeiYouRen/momei/commit/ff27168))
+* **waitlist:** 添加候补名单功能 ([446c53f](https://github.com/CaoMeiYouRen/momei/commit/446c53f))
+
+
+### 🐛 Bug 修复
+
+* **admin:** 优化创作者统计面板组件 ([a3b14e6](https://github.com/CaoMeiYouRen/momei/commit/a3b14e6))
+* **api:** 添加分类公开列表的显式泛型调用 ([cbb4655](https://github.com/CaoMeiYouRen/momei/commit/cbb4655))
+* **benefit-waitlist:** 优化等待列表服务中的数据处理逻辑 ([a74dbd3](https://github.com/CaoMeiYouRen/momei/commit/a74dbd3))
+* **database:** 修复数据库初始化竞态问题 ([8a1adfc](https://github.com/CaoMeiYouRen/momei/commit/8a1adfc))
+* **i18n:** 添加直连模式的 TTS 和播客翻译项 ([71df40f](https://github.com/CaoMeiYouRen/momei/commit/71df40f))
+* **media-task-monitor:** 移除可恢复媒体任务扫描项中的错误字段 ([e5babe9](https://github.com/CaoMeiYouRen/momei/commit/e5babe9))
+* **scripts:** 优化文档行数检查输出格式 ([57fa4df](https://github.com/CaoMeiYouRen/momei/commit/57fa4df))
+* **taxonomy-post-page:** 添加 404 错误处理界面 ([b4f2310](https://github.com/CaoMeiYouRen/momei/commit/b4f2310))
+* **tts:** 修正 TTS 完成提示信息的翻译路径 ([3bb1df3](https://github.com/CaoMeiYouRen/momei/commit/3bb1df3))
+* **tts:** 修正元数据回写 API 的请求方法为 PUT ([47c8774](https://github.com/CaoMeiYouRen/momei/commit/47c8774))
+* **use-post-editor-voice:** 添加云端语音配置与错误处理优化 ([c4daa0c](https://github.com/CaoMeiYouRen/momei/commit/c4daa0c))
+* 添加对 AITask stale compensation 扫描的字段选择验证 ([29f5ff1](https://github.com/CaoMeiYouRen/momei/commit/29f5ff1))
+
+
+### 📦 代码重构
+
+* **ad-injection:** 更新广告位元数据类型为未知类型 ([15f1380](https://github.com/CaoMeiYouRen/momei/commit/15f1380))
+* **ad:** 更新广告配置类型为未知类型并优化错误处理 ([cfe8293](https://github.com/CaoMeiYouRen/momei/commit/cfe8293))
+* **api:** 优化 TTS 元数据处理逻辑 ([228fcb7](https://github.com/CaoMeiYouRen/momei/commit/228fcb7))
+* **api:** 优化公开列表查询逻辑 ([efb9f66](https://github.com/CaoMeiYouRen/momei/commit/efb9f66))
+* **api:** 优化创作者统计功能的聚合粒度处理 ([1b3e968](https://github.com/CaoMeiYouRen/momei/commit/1b3e968))
+* **api:** 移除未使用的类型导入 ([59be2f0](https://github.com/CaoMeiYouRen/momei/commit/59be2f0))
+* **asr:** 复用 PCM 转换工具以减少行数 ([301d913](https://github.com/CaoMeiYouRen/momei/commit/301d913))
+* **auth-card:** 移除 AuthCard 组件中的 i18n 绑定 ([a92ae9e](https://github.com/CaoMeiYouRen/momei/commit/a92ae9e))
+* **auth:** 添加认证卡组件并重构重置密码和忘记密码页面 ([fcdd121](https://github.com/CaoMeiYouRen/momei/commit/fcdd121))
+* **composables:** 收敛类型与错误处理逻辑 ([ea3eb65](https://github.com/CaoMeiYouRen/momei/commit/ea3eb65))
+* **composables:** 收窄 use-tts-task 中的 any 类型使用 ([10b12f7](https://github.com/CaoMeiYouRen/momei/commit/10b12f7))
+* **eslint:** 收紧 composables 子桶非空断言规则 ([8467fa0](https://github.com/CaoMeiYouRen/momei/commit/8467fa0))
+* **parser:** 更新 HTML 转换逻辑以使用新的工具函数 ([72b04b0](https://github.com/CaoMeiYouRen/momei/commit/72b04b0))
+* **settings:** 优化通知设置页面的国际化处理 ([a209c41](https://github.com/CaoMeiYouRen/momei/commit/a209c41))
+* **taxonomy:** 优化分类与标签路径构建逻辑 ([9b0a556](https://github.com/CaoMeiYouRen/momei/commit/9b0a556))
+* **taxonomy:** 优化分类和标签页面的 API 请求逻辑 ([68f3a6b](https://github.com/CaoMeiYouRen/momei/commit/68f3a6b))
+* **taxonomy:** 添加分类和标签页面组件 ([b510bc1](https://github.com/CaoMeiYouRen/momei/commit/b510bc1))
+* **tts:** 优化二进制帧构建逻辑 ([ed12628](https://github.com/CaoMeiYouRen/momei/commit/ed12628))
+* **tts:** 优化前端直连逻辑与状态管理 ([76639a7](https://github.com/CaoMeiYouRen/momei/commit/76639a7))
+* **tts:** 优化音频流式读取与进度更新逻辑 ([e43a476](https://github.com/CaoMeiYouRen/momei/commit/e43a476))
+* **tts:** 重构 TTS 任务处理逻辑 ([84df6ff](https://github.com/CaoMeiYouRen/momei/commit/84df6ff))
+* **upload:** 增强上传服务与文章访问控制的文档注释 ([de963c2](https://github.com/CaoMeiYouRen/momei/commit/de963c2))
+* **voice-popover:** 重构语音弹出框样式并优化结构 ([32d3bc8](https://github.com/CaoMeiYouRen/momei/commit/32d3bc8))
+* 收敛重复类型定义至单一文件 ([7d5535a](https://github.com/CaoMeiYouRen/momei/commit/7d5535a))
+* 更新存量代码注释治理内容 ([667a699](https://github.com/CaoMeiYouRen/momei/commit/667a699))
+
 # [1.15.0](https://github.com/CaoMeiYouRen/momei/compare/v1.14.0...v1.15.0) (2026-04-25)
 
 
