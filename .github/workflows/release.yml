@@ -83,7 +83,7 @@ jobs:
     name: Release
     needs: [qa, e2e, unit]
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       packages: write
       contents: write
