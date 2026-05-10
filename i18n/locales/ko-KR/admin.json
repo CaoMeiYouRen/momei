@@ -57,6 +57,8 @@
                 "creator_distribution_trend": "배포 추이",
                 "creator_weekly": "주간",
                 "creator_monthly": "월간",
+                "creator_headline": "발행 및 배포 개요",
+                "creator_summary": "최근 {days}일의 크리에이터 실적 데이터입니다.",
                 "creator_post_count": "{count}개"
             },
             "categories": {

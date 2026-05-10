@@ -57,6 +57,8 @@
                 "creator_daily": "按天",
                 "creator_weekly": "按周",
                 "creator_monthly": "按月",
+                "creator_headline": "发文与分发概览",
+                "creator_summary": "最近 {days} 天的创作者表现数据。",
                 "creator_post_count": "{count} 篇"
             },
             "categories": {

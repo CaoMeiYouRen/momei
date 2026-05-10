@@ -57,6 +57,8 @@
                 "creator_distribution_trend": "分發趨勢",
                 "creator_weekly": "按週",
                 "creator_monthly": "按月",
+                "creator_headline": "發文與分發概覽",
+                "creator_summary": "最近 {days} 天的創作者表現數據。",
                 "creator_post_count": "{count} 篇"
             },
             "categories": {

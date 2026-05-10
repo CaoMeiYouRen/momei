@@ -23,6 +23,9 @@ const mockRefresh = vi.fn()
 vi.mock('@/composables/use-creator-stats-page', () => ({
     useCreatorStatsPage: () => ({
         stats: {
+            range: 30,
+            timezone: 'UTC',
+            generatedAt: '2026-05-10T00:00:00.000Z',
             publishing: {
                 totalPublished: 10,
                 draftCount: 3,
@@ -42,6 +45,7 @@ vi.mock('@/composables/use-creator-stats-page', () => ({
         },
         loading: false,
         selectedRange: { value: 30 },
+        timezone: 'UTC',
         refresh: mockRefresh,
     }),
 }))

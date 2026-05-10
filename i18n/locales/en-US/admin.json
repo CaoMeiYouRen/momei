@@ -57,6 +57,8 @@
                 "creator_daily": "Daily",
                 "creator_weekly": "Weekly",
                 "creator_monthly": "Monthly",
+                "creator_headline": "Publishing & Distribution Overview",
+                "creator_summary": "Creator performance data from the last {days} days.",
                 "creator_post_count": "{count} posts"
             },
             "categories": {

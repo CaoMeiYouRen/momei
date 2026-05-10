@@ -57,6 +57,8 @@
                 "creator_distribution_trend": "配信トレンド",
                 "creator_weekly": "週次",
                 "creator_monthly": "月次",
+                "creator_headline": "投稿と配信の概要",
+                "creator_summary": "直近 {days} 日のクリエイター実績データ。",
                 "creator_post_count": "{count} 件"
             },
             "categories": {
