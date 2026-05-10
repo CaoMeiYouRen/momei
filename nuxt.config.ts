@@ -66,10 +66,7 @@ const MomeiPreset = definePreset(Aura, {
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    // future: {
-    //     compatibilityVersion: 4, // 设定兼容性版本为 4，启用相关的未来版本特性和行为变更，以便提前适配 Nuxt 4 的升级要求
-    // },
-    compatibilityDate: '2026-05-01',
+    compatibilityDate: '2025-12-01',
     devtools: { enabled: false },
     modules: [
         '@nuxt/eslint',
@@ -79,41 +76,41 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
-        // !process.env.VITEST && '@vite-pwa/nuxt',
+        !process.env.VITEST && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
-    // pwa: {
-    //     registerType: 'autoUpdate',
-    //     manifest: {
-    //         name: '墨梅博客',
-    //         short_name: '墨梅',
-    //         theme_color: '#64748b',
-    //         icons: [
-    //             {
-    //                 src: 'logo.png',
-    //                 sizes: '512x512',
-    //                 type: 'image/png',
-    //             },
-    //         ],
-    //         shortcuts: [
-    //             {
-    //                 name: '快速灵感',
-    //                 short_name: '快速灵感',
-    //                 url: '/admin/snippets/capture',
-    //                 icons: [{ src: 'logo.png', sizes: '512x512' }],
-    //             },
-    //         ],
-    //         display: 'standalone',
-    //     },
-    //     workbox: {
-    //         navigateFallback: '/',
-    //         // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
-    //         navigateFallbackDenylist: [/^\/.*$/],
-    //         globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-    //     },
-    //     devOptions: {
-    //         enabled: false,
-    //     },
-    // },
+    pwa: {
+        registerType: 'autoUpdate',
+        manifest: {
+            name: '墨梅博客',
+            short_name: '墨梅',
+            theme_color: '#64748b',
+            icons: [
+                {
+                    src: 'logo.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                },
+            ],
+            shortcuts: [
+                {
+                    name: '快速灵感',
+                    short_name: '快速灵感',
+                    url: '/admin/snippets/capture',
+                    icons: [{ src: 'logo.png', sizes: '512x512' }],
+                },
+            ],
+            display: 'standalone',
+        },
+        workbox: {
+            navigateFallback: '/',
+            // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
+            navigateFallbackDenylist: [/^\/.*$/],
+            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        },
+        devOptions: {
+            enabled: false,
+        },
+    },
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         // 定时任务安全配置
@@ -268,6 +265,11 @@ export default defineNuxtConfig({
         transpile: [
             'ms',
             'debug',
+            // 'zhlint',
+            // 'unified',
+            // 'remark-parse',
+            // 'remark-gfm',
+            // 'remark-frontmatter',
             (ctx) => !ctx.isDev && 'google-libphonenumber',
         ],
     },
@@ -295,17 +297,17 @@ export default defineNuxtConfig({
         },
         optimizeDeps: {
             include: [
-                // 'primevue/config',
-                // 'primevue/dialog',
-                // 'primevue/confirmdialog',
-                // 'primevue/toast',
-                // 'primevue/datepicker',
-                // 'primevue/select',
-                // 'primevue/autocomplete',
-                // 'primevue/dynamicdialog',
-                // '@primevue/core',
-                // '@primeuix/styled',
-                // '@primeuix/styles',
+                'primevue/config',
+                'primevue/dialog',
+                'primevue/confirmdialog',
+                'primevue/toast',
+                'primevue/datepicker',
+                'primevue/select',
+                'primevue/autocomplete',
+                'primevue/dynamicdialog',
+                '@primevue/core',
+                '@primeuix/styled',
+                '@primeuix/styles',
             ],
         },
         css: {
@@ -327,7 +329,6 @@ export default defineNuxtConfig({
     nitro: {
         experimental: {
             websocket: true,
-            legacyExternals: true,
         },
         vercel: {
             functions: {
@@ -351,8 +352,24 @@ export default defineNuxtConfig({
             inline: [
                 'mjml',
                 'mjml-core',
+                'html-minifier',
+                'html-minifier-terser',
+                'cheerio',
+                'htmlparser2',
+                'entities',
+                'domhandler',
+                'domelementtype',
+                'domutils',
                 'lodash',
+                'lodash-es',
                 'dayjs',
+                'primevue',
+                '@primevue/core',
+                '@primevue/forms',
+                '@primevue/icons',
+                '@primeuix/styled',
+                '@primeuix/styles',
+                '@primeuix/themes',
             ],
         },
         esbuild: {
