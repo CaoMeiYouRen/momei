@@ -21,6 +21,7 @@ metadata:
 6.  **生成消息**: 分析更改以确定 `type` (feat, fix, docs, style, refactor, test, perf, build, ci, chore, revert), `scope` (可选, 例如: 组件名, 模块) 和 `description`。消息描述统一使用**中文**。
 7.  **提交**: 运行 `git commit -m "..."`。
 8.  **验证**: 确保消息符合 `commitlint.config.ts`。
+9.  **合作**: 默认不添加 `Co-Authored-By`，除非确实是多人合作提交。
 
 ## 使用示例 (Usage Example)
 

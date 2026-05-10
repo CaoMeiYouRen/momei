@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { aiQuotaPolicySchema, aiQuotaPoliciesSchema, aiAlertThresholdsSchema, aiCostFactorsSchema } from './ai'
+import { aiQuotaPolicySchema, aiQuotaPoliciesSchema, aiAlertThresholdsSchema, aiCostFactorsSchema, aiAdminTaskListQuerySchema } from './ai'
 
 describe('aiQuotaPolicySchema', () => {
     const valid = {
@@ -61,6 +61,92 @@ describe('aiAlertThresholdsSchema', () => {
 
     it('rejects ratio <=0', () => {
         expect(aiAlertThresholdsSchema.safeParse({ quotaUsageRatios: [0] }).success).toBe(false)
+    })
+})
+
+describe('aiAdminTaskListQuerySchema', () => {
+    const validQuery = {
+        page: '1',
+        pageSize: '10',
+    }
+
+    it('accepts minimal valid query with defaults', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse(validQuery)
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.page).toBe(1)
+            expect(result.data.pageSize).toBe(10)
+        }
+    })
+
+    it('accepts populated status', () => {
+        expect(aiAdminTaskListQuerySchema.safeParse({ ...validQuery, status: 'completed' }).success).toBe(true)
+        expect(aiAdminTaskListQuerySchema.safeParse({ ...validQuery, status: 'pending' }).success).toBe(true)
+    })
+
+    it('treats empty string status as undefined (regression: query ?status& from empty URL params)', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({ ...validQuery, status: '' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.status).toBeUndefined()
+        }
+    })
+
+    it('treats empty string category as undefined (regression: query ?category& from empty URL params)', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({ ...validQuery, category: '' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.category).toBeUndefined()
+        }
+    })
+
+    it('treats empty string chargeStatus as undefined', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({ ...validQuery, chargeStatus: '' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.chargeStatus).toBeUndefined()
+        }
+    })
+
+    it('treats empty string failureStage as undefined', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({ ...validQuery, failureStage: '' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.failureStage).toBeUndefined()
+        }
+    })
+
+    it('handles the full empty-params URL pattern ?type&status&search (regression)', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({
+            ...validQuery,
+            type: '',
+            status: '',
+            search: '',
+            category: '',
+            chargeStatus: '',
+            failureStage: '',
+        })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.type).toBeUndefined()
+            expect(result.data.status).toBeUndefined()
+            expect(result.data.search).toBeUndefined()
+            expect(result.data.category).toBeUndefined()
+            expect(result.data.chargeStatus).toBeUndefined()
+            expect(result.data.failureStage).toBeUndefined()
+        }
+    })
+
+    it('rejects invalid status value', () => {
+        expect(aiAdminTaskListQuerySchema.safeParse({ ...validQuery, status: 'invalid_status' }).success).toBe(false)
+    })
+
+    it('treats whitespace-only status as undefined', () => {
+        const result = aiAdminTaskListQuerySchema.safeParse({ ...validQuery, status: '   ' })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.status).toBeUndefined()
+        }
     })
 })
 
