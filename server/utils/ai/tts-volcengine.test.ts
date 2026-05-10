@@ -8,8 +8,6 @@ import {
 } from './volcengine-protocol'
 import { VolcengineTTSProvider } from './tts-volcengine'
 
-const fetchMock = vi.fn()
-
 const { MockWebSocket, loggerMock } = vi.hoisted(() => {
     type EventHandler = (...args: any[]) => void
 
@@ -69,19 +67,6 @@ vi.mock('ws', () => ({
 vi.mock('../logger', () => ({
     default: loggerMock,
 }))
-
-function createTextStream(chunks: string[]) {
-    const encoder = new TextEncoder()
-
-    return new ReadableStream<Uint8Array>({
-        start(controller) {
-            for (const chunk of chunks) {
-                controller.enqueue(encoder.encode(chunk))
-            }
-            controller.close()
-        },
-    })
-}
 
 async function readAll(stream: ReadableStream<Uint8Array>) {
     const reader = stream.getReader()
@@ -143,15 +128,72 @@ function buildPodcastErrorPacket(code: number, message: string) {
     return raw
 }
 
+function buildVolcengineConnectionResponsePacket(event: number, payload: unknown, connectionId = 'connection-001') {
+    const connectionBuffer = Buffer.from(connectionId, 'utf-8')
+    const eventBuffer = Buffer.alloc(4)
+    eventBuffer.writeInt32BE(event, 0)
+
+    const connectionSizeBuffer = Buffer.alloc(4)
+    connectionSizeBuffer.writeUInt32BE(connectionBuffer.length, 0)
+
+    const payloadBuffer = Buffer.from(JSON.stringify(payload), 'utf-8')
+    const payloadSizeBuffer = Buffer.alloc(4)
+    payloadSizeBuffer.writeUInt32BE(payloadBuffer.length, 0)
+
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullServerResponse,
+        messageTypeFlags: 0b0100,
+        serialization: VOLCENGINE_SERIALIZATION.json,
+        compression: VOLCENGINE_COMPRESSION.none,
+        prefixBuffers: [eventBuffer, connectionSizeBuffer, connectionBuffer, payloadSizeBuffer],
+        payload: payloadBuffer,
+    })
+}
+
+function buildVolcengineSessionResponsePacket(event: number, payload: unknown, sessionId = 'session-001') {
+    const sessionBuffer = Buffer.from(sessionId, 'utf-8')
+    const eventBuffer = Buffer.alloc(4)
+    eventBuffer.writeInt32BE(event, 0)
+
+    const sessionSizeBuffer = Buffer.alloc(4)
+    sessionSizeBuffer.writeUInt32BE(sessionBuffer.length, 0)
+
+    const payloadBuffer = Buffer.from(JSON.stringify(payload), 'utf-8')
+
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullServerResponse,
+        messageTypeFlags: 0b0100,
+        serialization: VOLCENGINE_SERIALIZATION.json,
+        compression: VOLCENGINE_COMPRESSION.none,
+        prefixBuffers: [eventBuffer, sessionSizeBuffer, sessionBuffer],
+        payload: payloadBuffer,
+    })
+}
+
+function buildVolcengineAudioResponsePacket(audio: Buffer, sessionId = 'session-001') {
+    const sessionBuffer = Buffer.from(sessionId, 'utf-8')
+    const eventBuffer = Buffer.alloc(4)
+    eventBuffer.writeInt32BE(352, 0)
+
+    const sessionSizeBuffer = Buffer.alloc(4)
+    sessionSizeBuffer.writeUInt32BE(sessionBuffer.length, 0)
+
+    return buildVolcengineBinaryFrame({
+        messageType: VOLCENGINE_MESSAGE_TYPE.audioOnlyServerResponse,
+        messageTypeFlags: 0b0100,
+        serialization: VOLCENGINE_SERIALIZATION.none,
+        compression: VOLCENGINE_COMPRESSION.none,
+        prefixBuffers: [eventBuffer, sessionSizeBuffer, sessionBuffer],
+        payload: audio,
+    })
+}
+
 describe('volcengine tts provider', () => {
     beforeEach(() => {
-        fetchMock.mockReset()
         MockWebSocket.instances = []
-        vi.stubGlobal('fetch', fetchMock)
     })
 
     afterEach(() => {
-        vi.unstubAllGlobals()
         vi.restoreAllMocks()
     })
 
@@ -176,21 +218,9 @@ describe('volcengine tts provider', () => {
         await expect(new VolcengineTTSProvider({ appId: '', accessKey: '' }).check()).resolves.toBe(false)
     })
 
-    it('builds HTTP request payloads, parses stream frames and returns audio bytes', async () => {
+    it('builds websocket request frames, parses stream packets and returns audio bytes', async () => {
         const audioA = Buffer.from('hello-')
         const audioB = Buffer.from('world')
-
-        fetchMock.mockResolvedValueOnce({
-            ok: true,
-            status: 200,
-            headers: new Headers({ 'X-Tt-Logid': 'log-001' }),
-            body: createTextStream([
-                'event: meta\n',
-                `data: ${JSON.stringify({ data: audioA.toString('base64') })}\n`,
-                `${JSON.stringify({ audio: audioB.toString('base64') })}${JSON.stringify({ code: 20000000, usage: { tokens_total: 12 } })}`,
-                '\n',
-            ]),
-        })
 
         const provider = new VolcengineTTSProvider({
             appId: 'app-id',
@@ -207,24 +237,31 @@ describe('volcengine tts provider', () => {
             sampleRate: 16000,
         })
 
-        const audio = await readAll(stream)
-        expect(audio.toString()).toBe('hello-world')
+        const ws = MockWebSocket.instances[0]
+        expect(ws?.url).toBe('wss://openspeech.bytedance.com/api/v3/tts/bidirection')
+        expect(ws?.options.headers).toMatchObject({
+            'X-Api-App-Id': 'app-id',
+            'X-Api-App-Key': 'app-id',
+            'X-Api-Access-Key': 'access-key',
+            'X-Api-Resource-Id': 'seed-tts-2.0',
+            'X-Api-Connect-Id': expect.any(String),
+            'X-Api-Request-Id': expect.any(String),
+        })
 
-        expect(fetchMock).toHaveBeenCalledWith('https://openspeech.bytedance.com/api/v3/tts/unidirectional', expect.objectContaining({
-            method: 'POST',
-            headers: expect.objectContaining({
-                'X-Api-App-Id': 'app-id',
-                'X-Api-Access-Key': 'access-key',
-                'X-Api-Resource-Id': 'seed-tts-2.0',
-                'X-Api-Request-Id': expect.any(String),
-            }),
-        }))
+        ws?.emit('open')
 
-        const request = fetchMock.mock.calls[0]?.[1] as { body: string }
-        expect(JSON.parse(request.body)).toEqual({
+        const startConnectionFrame = ws?.send.mock.calls[0]?.[0] as Buffer
+        expect(startConnectionFrame.readInt32BE(4)).toBe(1)
+
+        ws?.emit('message', buildVolcengineConnectionResponsePacket(50, {}))
+
+        const startSessionFrame = ws?.send.mock.calls[1]?.[0] as Buffer
+        const parsedStartSessionFrame = parseVolcengineEventPacket(startSessionFrame)
+        expect(parsedStartSessionFrame?.event).toBe(100)
+        expect(parsedStartSessionFrame?.payload).toMatchObject({
             user: { uid: expect.any(String) },
+            namespace: 'BidirectionalTTS',
             req_params: {
-                text: 'hello volcengine',
                 model: 'seed-tts-2.0-expressive',
                 speaker: 'saturn_zh_female_cancan_tob',
                 audio_params: {
@@ -244,41 +281,80 @@ describe('volcengine tts provider', () => {
                 }),
             },
         })
+
+        ws?.emit('message', buildVolcengineSessionResponsePacket(150, {}))
+
+        const taskRequestFrame = ws?.send.mock.calls[2]?.[0] as Buffer
+        const parsedTaskRequestFrame = parseVolcengineEventPacket(taskRequestFrame)
+        expect(parsedTaskRequestFrame?.event).toBe(200)
+        expect(parsedTaskRequestFrame?.payload).toMatchObject({
+            namespace: 'BidirectionalTTS',
+            req_params: {
+                text: 'hello volcengine',
+            },
+        })
+
+        const finishSessionFrame = ws?.send.mock.calls[3]?.[0] as Buffer
+        expect(parseVolcengineEventPacket(finishSessionFrame)?.event).toBe(102)
+
+        ws?.emit('message', buildVolcengineAudioResponsePacket(audioA, 'session-001'))
+        ws?.emit('message', buildVolcengineAudioResponsePacket(audioB, 'session-001'))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, { status_code: 20000000, usage: { tokens_total: 12 } }))
+
+        const audio = await readAll(stream)
+        expect(audio.toString()).toBe('hello-world')
+
+        expect(ws?.send.mock.calls[4]?.[0]).toBeInstanceOf(Buffer)
+        expect(ws?.close).toHaveBeenCalledTimes(1)
     })
 
-    it('wraps HTTP failures, missing credentials and missing response bodies', async () => {
+    it('wraps websocket failures and missing credentials', async () => {
         const provider = new VolcengineTTSProvider({
             appId: 'app-id',
             accessKey: 'access-key',
         })
 
-        fetchMock
-            .mockResolvedValueOnce({
-                ok: false,
-                status: 429,
-                headers: new Headers(),
-                text: vi.fn().mockResolvedValue('rate limited'),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                headers: new Headers(),
-                body: null,
-            })
+        const stream = await provider.generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const reader = stream.getReader()
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('error', new Error('socket down'))
 
-        await expect(provider.generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})).rejects.toMatchObject({
-            statusCode: 429,
-            statusMessage: 'Volcengine TTS Request Failed: rate limited',
-        })
-
-        await expect(provider.generateSpeech('hello', 'legacy_voice', {})).rejects.toMatchObject({
-            statusCode: 500,
-            statusMessage: 'Failed to access response body',
+        await expect(reader.read()).rejects.toMatchObject({
+            statusCode: 502,
+            message: 'Volcengine TTS websocket error: socket down',
         })
 
         await expect(new VolcengineTTSProvider({ appId: '', accessKey: '' }).generateSpeech('hello', 'voice', {})).rejects.toMatchObject({
             statusCode: 500,
             message: 'Volcengine TTS Error: AppID or Access Token missing',
+        })
+    })
+
+    it('rejects websocket connection failures and premature closes', async () => {
+        const provider = new VolcengineTTSProvider({
+            appId: 'app-id',
+            accessKey: 'access-key',
+        })
+
+        const connectionFailure = await provider.generateSpeech('hello', 'legacy_voice', {})
+        const connectionReader = connectionFailure.getReader()
+        const connectionWs = MockWebSocket.instances[0]
+        connectionWs?.emit('open')
+        connectionWs?.emit('message', buildVolcengineConnectionResponsePacket(51, { message: 'unauthorized' }))
+
+        await expect(connectionReader.read()).rejects.toMatchObject({
+            statusCode: 502,
+        })
+
+        const closeBeforeOpen = await provider.generateSpeech('hello', 'voice', {})
+        const closeReader = closeBeforeOpen.getReader()
+        const closeSocket = MockWebSocket.instances[1]
+        closeSocket?.emit('close')
+
+        await expect(closeReader.read()).rejects.toMatchObject({
+            statusCode: 502,
+            message: 'Volcengine TTS connection closed before start',
         })
     })
 
