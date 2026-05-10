@@ -233,6 +233,7 @@ import { computed, ref } from 'vue'
 import { ADMIN_CONTENT_INSIGHT_RANGES } from '@/types/admin-content-insights'
 import { useI18nDate } from '@/composables/use-i18n-date'
 import { useAdminContentInsightsPage } from '@/composables/use-admin-content-insights-page'
+import CreatorStatsPanel from '@/components/admin/dashboard/creator-stats-panel.vue'
 
 definePageMeta({
     middleware: 'author',
