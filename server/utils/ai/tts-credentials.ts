@@ -24,8 +24,9 @@ const MIN_CREDENTIAL_TTL_SECONDS = 300 // 5 分钟
 const MAX_CREDENTIAL_TTL_SECONDS = 43200 // 12 小时
 const DEFAULT_CREDENTIAL_TTL_SECONDS = 600 // 10 分钟
 
-/** TTS 单向流式 (speech) 端点 */
-const VOLCENGINE_TTS_SPEECH_ENDPOINT = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional'
+
+/** TTS 双向流式 (speech) WebSocket 端点（新版） */
+const VOLCENGINE_TTS_SPEECH_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
 
 /** TTS 双向流式 (播客) WebSocket 端点 */
 const VOLCENGINE_TTS_PODCAST_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sami/podcasttts'
