@@ -121,9 +121,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useCreatorStatsPage } from '@/composables/use-creator-stats-page'
 import CreatorMetricCard from './creator-metric-card.vue'
+
+const props = defineProps<{
+    refreshSignal?: number
+}>()
 
 const {
     stats,
@@ -131,6 +135,13 @@ const {
     selectedRange,
     refresh,
 } = useCreatorStatsPage()
+
+// 当父组件通过 refreshSignal 触发刷新时，调用 refresh
+watch(() => props.refreshSignal, (next, prev) => {
+    if (next !== undefined && next !== prev) {
+        void refresh()
+    }
+})
 
 const rangeOptions = [
     { value: 7 as const },

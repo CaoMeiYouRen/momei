@@ -221,7 +221,7 @@
                 </TabPanel>
 
                 <TabPanel value="creator">
-                    <CreatorStatsPanel ref="creatorPanelRef" />
+                    <CreatorStatsPanel :refresh-signal="creatorRefreshSignal" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -255,11 +255,11 @@ const {
 } = useAdminContentInsightsPage()
 
 const activeTab = ref<'insights' | 'creator'>('insights')
-const creatorPanelRef = ref<{ refresh: () => void } | null>(null)
+const creatorRefreshSignal = ref(0)
 
 function handleRefresh() {
     if (activeTab.value === 'creator') {
-        creatorPanelRef.value?.refresh()
+        creatorRefreshSignal.value++
     } else {
         refresh()
     }

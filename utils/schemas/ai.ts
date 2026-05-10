@@ -232,10 +232,22 @@ export const aiAdminTaskListQuerySchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(10),
     type: optionalTrimmedStringSchema(50),
-    category: z.enum(['text', 'image', 'tts', 'asr', 'video', 'podcast']).optional(),
-    status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
-    chargeStatus: z.enum(['none', 'estimated', 'actual', 'waived']).optional(),
-    failureStage: z.enum(['preflight', 'provider_rejected', 'provider_processing', 'post_process']).optional(),
+    category: z.preprocess(
+        (value) => (typeof value === 'string' && value.trim().length === 0 ? undefined : value),
+        z.enum(['text', 'image', 'tts', 'asr', 'video', 'podcast']).optional(),
+    ),
+    status: z.preprocess(
+        (value) => (typeof value === 'string' && value.trim().length === 0 ? undefined : value),
+        z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
+    ),
+    chargeStatus: z.preprocess(
+        (value) => (typeof value === 'string' && value.trim().length === 0 ? undefined : value),
+        z.enum(['none', 'estimated', 'actual', 'waived']).optional(),
+    ),
+    failureStage: z.preprocess(
+        (value) => (typeof value === 'string' && value.trim().length === 0 ? undefined : value),
+        z.enum(['preflight', 'provider_rejected', 'provider_processing', 'post_process']).optional(),
+    ),
     search: optionalTrimmedStringSchema(255),
 })
 
