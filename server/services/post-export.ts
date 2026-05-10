@@ -5,6 +5,17 @@ import { normalizeOptionalString } from '@/utils/shared/coerce'
 import { buildAbsoluteUrl, isAbsoluteHttpUrl } from '@/utils/shared/url'
 import { isRecord } from '@/utils/shared/is-record'
 
+/**
+ * 将秒数格式化为 "hh:mm:ss" 字符串
+ */
+function formatDurationSeconds(totalSeconds: number): string {
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = Math.floor(totalSeconds % 60)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}
+
 export interface PostMarkdownExportOptions {
     siteUrl?: string | null
     absolutizeMediaUrls?: boolean
@@ -172,8 +183,8 @@ export function formatPostToMarkdown(post: Post, options: PostMarkdownExportOpti
         if (audioUrl) {
             frontMatter.audio_url = audioUrl
         }
-        if (typeof audioMetadata.duration === 'number') {
-            frontMatter.audio_duration = audioMetadata.duration
+        if (typeof audioMetadata.duration === 'number' && audioMetadata.duration > 0) {
+            frontMatter.audio_duration = formatDurationSeconds(audioMetadata.duration)
         }
         if (typeof audioMetadata.size === 'number') {
             frontMatter.audio_size = audioMetadata.size

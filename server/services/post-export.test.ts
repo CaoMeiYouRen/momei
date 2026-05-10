@@ -83,7 +83,7 @@ describe('Post Export Service', () => {
         expect(markdown).not.toContain('translationId:')
         expect(markdown).toContain('audio_url: https://example.com/metadata-audio.mp3')
         expect(markdown).not.toContain('audio: https://example.com/metadata-audio.mp3')
-        expect(markdown).toContain('audio_duration: 321')
+        expect(markdown).toContain('audio_duration: \'00:05:21\'')
         expect(markdown).toContain('audio_size: 4096')
         expect(markdown).toContain('audio_mime_type: audio/mpeg')
         expect(markdown).toContain('audio_language: en-US')

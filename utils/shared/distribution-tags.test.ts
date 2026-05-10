@@ -52,7 +52,7 @@ describe('distribution-tags', () => {
     })
 
     it('maps platforms to the correct tag render mode', () => {
-        expect(resolveWechatSyncTagRenderMode('bilibili_article')).toBe('wrapped')
+        expect(resolveWechatSyncTagRenderMode('bilibili_article')).toBe('leading')
         expect(resolveWechatSyncTagRenderMode('weibo')).toBe('none')
         expect(resolveWechatSyncTagRenderMode('xiaohongshu')).toBe('leading')
         expect(resolveWechatSyncTagRenderMode('twitter')).toBe('leading')
@@ -91,7 +91,7 @@ describe('distribution-tags', () => {
                 ],
             },
             {
-                renderMode: 'wrapped',
+                renderMode: 'leading',
                 contentProfile: 'default',
                 accounts: [
                     { id: 'b', type: 'bilibili_article', title: 'B 站', checked: true },

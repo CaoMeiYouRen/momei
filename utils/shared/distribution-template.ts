@@ -200,7 +200,9 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
         .replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/giu, (_match, inner) => `\n\n${stripHtmlToPlainText(inner)}\n\n`)
         .replace(/<br\s*\/?>/giu, '\n')
         .replace(/<\/?(?:p|div|section|article|span|strong|em|b|i|u|code)\b[^>]*>/giu, '\n')
-        .replace(/\n{3,}/gu, '\n\n'))
+        .replace(/\n{3,}/gu, '\n\n')
+        // 微博中 # 字符被系统保留用于话题，移除正文中残余的 # 避免被误解析
+        .replace(/#/gu, ''))
         .trim()
 }
 
