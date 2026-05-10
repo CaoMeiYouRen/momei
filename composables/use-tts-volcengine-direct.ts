@@ -177,169 +177,271 @@ export function useTTSVolcengineDirect() {
     }
 
     /**
-     * 调用火山 TTS API 并接收音频数据
+     * 构建 speech 双向流式 WebSocket StartConnection 帧 (event=1)
+     */
+    function buildSpeechStartConnectionFrame(): Uint8Array {
+        return buildVolcengineConnectionClientRequestFrame({
+            event: 1,
+            payload: {},
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+    }
+
+    /**
+     * 构建 speech 双向流式 WebSocket StartSession 帧 (event=100)
+     */
+    function buildSpeechStartSessionFrame(sessionId: string, params: TTSVolcengineDirectParams, credentials: VolcengineTTSCredentials): Uint8Array {
+        const body = buildSpeechRequestBody(params, credentials)
+
+        const additions: Record<string, unknown> = {
+            explicit_language: params.language || 'zh',
+            disable_markdown_filter: true,
+            enable_timestamp: true,
+        }
+
+        return buildVolcengineEventClientRequestFrame({
+            event: 100,
+            sessionId,
+            payload: {
+                user: { uid: credentials.temporaryUserId },
+                namespace: 'BidirectionalTTS',
+                req_params: {
+                    ...body.req_params,
+                    additions: JSON.stringify(additions),
+                },
+            },
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+    }
+
+    /**
+     * 构建 speech 双向流式 WebSocket TaskRequest 帧 (event=200)
+     */
+    function buildSpeechTaskRequestFrame(sessionId: string, text: string): Uint8Array {
+        return buildVolcengineEventClientRequestFrame({
+            event: 200,
+            sessionId,
+            payload: {
+                namespace: 'BidirectionalTTS',
+                req_params: { text },
+            },
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+    }
+
+    /**
+     * 构建 speech 双向流式 WebSocket FinishSession 帧 (event=102)
+     */
+    function buildSpeechFinishSessionFrame(sessionId: string): Uint8Array {
+        return buildVolcengineEventClientRequestFrame({
+            event: 102,
+            sessionId,
+            payload: {},
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+    }
+
+    /**
+     * 构建 speech 双向流式 WebSocket FinishConnection 帧 (event=2)
+     */
+    function buildSpeechFinishConnectionFrame(): Uint8Array {
+        return buildVolcengineConnectionClientRequestFrame({
+            event: 2,
+            payload: {},
+            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+            messageTypeFlags: 0b0100,
+            compression: VOLCENGINE_COMPRESSION.none,
+        })
+    }
+
+    /**
+     * 火山 TTS 双向流式 WebSocket (speech 模式)
      *
-     * V3 接口鉴权：header 添加 "X-Api-Access-Key: Jwt; jwt_token"
-     * Query 方式（?api_jwt=...）留作 WebSocket 播客模式备用。
+     * 对齐 server/utils/ai/tts-volcengine-websocket.ts 的 generateVolcengineWebSocketSpeech。
+     * JWT 鉴权通过 URL Query 参数传递（浏览器 WebSocket 不支持自定义 Header）。
      *
-     * 火山 V3 unidirectional 端点响应格式:
-     *   - 可能以 JSON 元数据开头（如 {"reqid":"...","code":3000,...}），
-     *     之后紧跟 MP3 字节流
-     *   - 简单策略：读完整响应为 ArrayBuffer，然后扫描找到 JSON 结束位置
+     * 协议流程:
+     *   ws.onopen → StartConnection(1)
+     *   ← ConnectionStarted(50) → StartSession(100)
+     *   ← SessionStarted(150) → TaskRequest(200) + FinishSession(102)
+     *   ← Audio(352) → 收集音频数据
+     *   ← SessionFinished(152/153) → FinishConnection(2) → resolve
      */
     async function callVolcengineTTS(
         credentials: VolcengineTTSCredentials,
         params: TTSVolcengineDirectParams,
     ): Promise<TTSVolcengineGeneratedAudio> {
-        const body = buildSpeechRequestBody(params, credentials)
+        const { text } = params
 
-        const response = await fetch(credentials.endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Api-App-Id': credentials.appId,
-                'X-Api-Access-Key': `Jwt; ${credentials.jwtToken}`,
-                'X-Api-Resource-Id': credentials.resourceId,
-                'X-Api-Request-Id': crypto.randomUUID(),
-                Connection: 'keep-alive',
-            },
-            body: JSON.stringify(body),
-        })
+        // JWT via URL Query（浏览器 WebSocket 不支持自定义 header）
+        const queryStr = new URLSearchParams(credentials.authQuery).toString()
+        const wsUrl = `${credentials.endpoint}?${queryStr}`
+        const sessionId = crypto.randomUUID()
 
-        if (!response.ok) {
-            const errorText = await response.text().catch(() => '')
-            throw new Error(`Volcengine TTS API error (${response.status}): ${errorText}`)
-        }
+        return new Promise<TTSVolcengineGeneratedAudio>((resolve, reject) => {
+            const ws = new WebSocket(wsUrl)
+            ws.binaryType = 'arraybuffer'
 
-        progress.value = 30
+            const audioChunks: Uint8Array[] = []
+            let providerUsage: TTSDirectProviderUsage | null = null
+            let settled = false
+            const connectionStarted = false
+            let sessionStarted = false
 
-        // 流式读取响应，按字节量更新进度
-        const reader = response.body?.getReader()
-        if (!reader) {
-            throw new Error('Response body is not readable')
-        }
-
-        const chunks: Uint8Array[] = []
-        let receivedBytes = 0
-        /** 估算总字节：按 16KB/s × 字符数/2(s) */
-        const estimatedTotal = Math.max(50 * 1024, body.req_params.text.length * 8)
-
-        while (true) {
-            const { done, value } = await reader.read()
-            if (done) {
-                break
-            }
-            chunks.push(value)
-            receivedBytes += value.length
-            // 30% → 65%，按已收字节比例映射
-            const ratio = Math.min(1, receivedBytes / estimatedTotal)
-            progress.value = 30 + Math.round(ratio * 35)
-        }
-
-        if (chunks.length === 0) {
-            throw new Error('No audio data received from Volcengine TTS API')
-        }
-
-        // 合并 chunks
-        const totalSize = chunks.reduce((s, c) => s + c.length, 0)
-        const fullData = new Uint8Array(totalSize)
-        let offset = 0
-        for (const c of chunks) {
-            fullData.set(c, offset)
-            offset += c.length
-        }
-
-        progress.value = 65
-
-        // 火山 V3 API 可能在响应体开头返回 JSON 元数据。
-        // 扫描第一个 '{' 到对应的 '}' 之间的 JSON 对象，音频从其后开始。
-        const responseMeta = extractSpeechResponseMeta(fullData)
-
-        if (responseMeta.audioStart > 0) {
-            // JSON 元数据存在，提取后续音频字节
-            const audioData = fullData.slice(responseMeta.audioStart)
-            progress.value = 70
-            return {
-                audioBytes: audioData,
-                providerUsage: responseMeta.providerUsage,
-            }
-        }
-
-        // 没有 JSON 前缀，整个响应体就是音频
-        progress.value = 70
-        return {
-            audioBytes: fullData,
-            providerUsage: null,
-        }
-    }
-
-    /**
-     * 在字节数组中查找首段 JSON 对象的结束位置。
-     * 如果在开头检测到 '{'，则扫描到匹配的 '}' 之后的位置。
-     * 返回音频数据的起始偏移量（即 JSON 结束后的位置）。
-     */
-    function extractSpeechResponseMeta(data: Uint8Array): { audioStart: number, providerUsage: TTSDirectProviderUsage | null } {
-        // 检查响应是否以 '{' 开头
-        if (data.length < 2 || data[0] !== 0x7B /* '{' */) {
-            return { audioStart: 0, providerUsage: null } // 没有 JSON 前缀
-        }
-
-        const text = new TextDecoder().decode(data.subarray(0, Math.min(4096, data.length)))
-
-        let depth = 0
-        let inString = false
-        let escaped = false
-
-        for (let i = 0; i < text.length; i++) {
-            const ch = text[i]
-
-            if (inString) {
-                if (escaped) {
-                    escaped = false
-                    continue
+            const cleanup = () => {
+                settled = true
+                if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+                    ws.close()
                 }
-                if (ch === '\\') {
-                    escaped = true
-                    continue
-                }
-                if (ch === '"') {
-                    inString = false
-                }
-                continue
             }
 
-            if (ch === '"') {
-                inString = true
-                continue
+            const sendFrame = (frame: Uint8Array) => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(toVolcengineArrayBuffer(frame))
+                }
             }
-            if (ch === '{') {
-                depth++
-                continue
+
+            ws.onopen = () => {
+                sendFrame(buildSpeechStartConnectionFrame())
+                progress.value = 10
             }
-            if (ch === '}') {
-                depth--
-                if (depth === 0) {
-                    // JSON 对象结束，音频从下一个字节开始
-                    // i 是字符索引，需要计算字节偏移
-                    const encoder = new TextEncoder()
-                    const jsonPrefix = text.substring(0, i + 1)
+
+            ws.onmessage = (ev) => {
+                if (settled) {
+                    return
+                }
+                const data = new Uint8Array(ev.data as ArrayBuffer)
+
+                // 先检查错误帧
+                const errorPkt = parseVolcengineErrorFrame(data)
+                if (errorPkt) {
+                    cleanup()
+                    reject(new Error(`Volcengine TTS Error(${errorPkt.code}): ${errorPkt.message}`))
+                    return
+                }
+
+                const pkt = parseVolcengineEventFrame(data)
+                if (!pkt) {
+                    return // 非事件帧（如 Connection 帧）由下层处理
+                }
+
+                // event=150: SessionStarted → 发送 TaskRequest + FinishSession
+                if (pkt.event === 150) {
+                    if (!sessionStarted) {
+                        sessionStarted = true
+                        sendFrame(buildSpeechTaskRequestFrame(sessionId, text))
+                        sendFrame(buildSpeechFinishSessionFrame(sessionId))
+                        progress.value = 20
+                    }
+                    return
+                }
+
+                // event=350/351: 进度通知
+                if (pkt.event === 350 || pkt.event === 351) {
+                    return
+                }
+
+                // event=352: 音频数据
+                if (pkt.event === 352) {
+                    const rawPayload = pkt.rawPayload
+                    if (rawPayload && rawPayload.length > 0) {
+                        audioChunks.push(rawPayload)
+                        progress.value = Math.min(70, 20 + Math.round((audioChunks.length / 20) * 50))
+                        return
+                    }
+
+                    // rawPayload 为空时尝试解析 base64 编码的 payload
+                    const decoded = pkt.compression === VOLCENGINE_COMPRESSION.none
+                        ? decodeVolcengineSerializedPayload(rawPayload, pkt.serialization)
+                        : rawPayload
+                    if (decoded && typeof decoded === 'object') {
+                        const obj = decoded as Record<string, unknown>
+                        let b64: string | undefined
+                        if (typeof obj.data === 'string') { b64 = obj.data } else if (typeof obj.audio === 'string') { b64 = obj.audio }
+                        if (b64) {
+                            try {
+                                const binary = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
+                                if (binary.length > 0) {
+                                    audioChunks.push(binary)
+                                    progress.value = Math.min(70, 20 + Math.round((audioChunks.length / 20) * 50))
+                                }
+                            } catch { /* ignore */ }
+                        }
+                    }
+                    return
+                }
+
+                // event=154: 用量信息
+                if (pkt.event === 154 && pkt.rawPayload) {
+                    const decoded = pkt.compression === VOLCENGINE_COMPRESSION.none
+                        ? decodeVolcengineSerializedPayload(pkt.rawPayload, pkt.serialization)
+                        : null
+                    if (decoded && typeof decoded === 'object') {
+                        providerUsage = normalizeVolcengineProviderUsage((decoded as Record<string, unknown>).usage ?? decoded)
+                    }
+                    return
+                }
+
+                // event=152/153: SessionFinished → 发送 FinishConnection → resolve
+                if (pkt.event === 152 || pkt.event === 153) {
                     try {
-                        const parsed = JSON.parse(jsonPrefix) as { usage?: unknown }
-                        return {
-                            audioStart: encoder.encode(jsonPrefix).length,
-                            providerUsage: normalizeVolcengineProviderUsage(parsed.usage),
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(toVolcengineArrayBuffer(buildSpeechFinishConnectionFrame()))
                         }
-                    } catch {
-                        return {
-                            audioStart: encoder.encode(jsonPrefix).length,
-                            providerUsage: null,
+                    } catch { /* ignore */ }
+                    cleanup()
+                    progress.value = 70
+
+                    const total = audioChunks.reduce((s, c) => s + c.length, 0)
+                    const merged = new Uint8Array(total)
+                    let offset = 0
+                    for (const c of audioChunks) {
+                        merged.set(c, offset)
+                        offset += c.length
+                    }
+                    resolve({
+                        audioBytes: merged,
+                        providerUsage,
+                    })
+                }
+            }
+
+            ws.onerror = () => {
+                if (!settled) {
+                    cleanup()
+                    reject(new Error('Volcengine TTS WebSocket connection error'))
+                }
+            }
+
+            ws.onclose = () => {
+                if (!settled) {
+                    cleanup()
+                    if (audioChunks.length > 0) {
+                        const total = audioChunks.reduce((s, c) => s + c.length, 0)
+                        const merged = new Uint8Array(total)
+                        let offset = 0
+                        for (const c of audioChunks) {
+                            merged.set(c, offset)
+                            offset += c.length
                         }
+                        resolve({
+                            audioBytes: merged,
+                            providerUsage,
+                        })
+                    } else {
+                        reject(new Error('Volcengine TTS WebSocket closed without audio'))
                     }
                 }
             }
-        }
-
-        return { audioStart: 0, providerUsage: null } // 未找到完整 JSON
+        })
     }
 
     /**

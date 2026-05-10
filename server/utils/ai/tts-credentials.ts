@@ -25,7 +25,7 @@ const MAX_CREDENTIAL_TTL_SECONDS = 43200 // 12 小时
 const DEFAULT_CREDENTIAL_TTL_SECONDS = 600 // 10 分钟
 
 
-/** TTS 双向流式 (speech) WebSocket 端点（新版） */
+/** TTS 双向流式 (speech) WebSocket 端点 */
 const VOLCENGINE_TTS_SPEECH_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
 
 /** TTS 双向流式 (播客) WebSocket 端点 */

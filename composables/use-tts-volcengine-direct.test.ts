@@ -3,7 +3,46 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mockToastAdd = vi.fn()
 const mockUploadFile = vi.fn()
 const mockFetch = vi.fn()
-const mockBrowserFetch = vi.fn()
+
+// ---- WebSocket Mock ----
+
+class MockWebSocket {
+    static OPEN = 1
+    static CONNECTING = 0
+    static CLOSING = 2
+    static CLOSED = 3
+
+    url: string
+    readyState = 0
+    binaryType = 'arraybuffer'
+    onopen: ((ev?: unknown) => void) | null = null
+    onmessage: ((ev: { data: ArrayBuffer }) => void) | null = null
+    onerror: ((ev?: unknown) => void) | null = null
+    onclose: ((ev?: unknown) => void) | null = null
+
+    constructor(url: string) {
+        this.url = url
+        // 异步触发 onopen 模拟真实 WebSocket 行为
+        setTimeout(() => {
+            this.readyState = MockWebSocket.OPEN
+            this.onopen?.()
+        }, 0)
+    }
+
+    send(_data: ArrayBuffer) {
+        // 无操作
+    }
+
+    close() {
+        this.readyState = MockWebSocket.CLOSED
+    }
+}
+
+vi.stubGlobal('WebSocket', MockWebSocket)
+vi.stubGlobal('$fetch', mockFetch)
+vi.stubGlobal('crypto', {
+    randomUUID: () => 'uuid-1',
+})
 
 vi.mock('vue-i18n', async (importOriginal) => {
     const actual = await importOriginal<typeof import('vue-i18n')>()
@@ -36,50 +75,84 @@ vi.mock('./use-upload', () => ({
     }),
 }))
 
-vi.stubGlobal('$fetch', mockFetch)
-vi.stubGlobal('fetch', mockBrowserFetch)
-vi.stubGlobal('crypto', {
-    randomUUID: () => 'uuid-1',
-})
-
 import { useTTSVolcengineDirect } from './use-tts-volcengine-direct'
 
-function createReadableResponse(bytes: Uint8Array) {
-    let done = false
-    return {
-        ok: true,
-        status: 200,
-        body: {
-            getReader: () => ({
-                read: vi.fn(() => {
-                    if (done) {
-                        return Promise.resolve({ done: true, value: undefined })
-                    }
+/**
+ * 构建符合 parseVolcengineEventFrame 格式的事件帧
+ *
+ * 帧格式: header(4B) + event(4B) + sessionIdSize(4B) + sessionId(variable) + payloadSize(4B) + payload(variable)
+ */
+function buildEventFrame(event: number, payload: Uint8Array, sessionId: string, serialization: number, compression: number): ArrayBuffer {
+    const sessionIdBytes = new TextEncoder().encode(sessionId)
+    const totalSize = 16 + sessionIdBytes.length + payload.length
+    const frame = new Uint8Array(totalSize)
+    const view = new DataView(frame.buffer)
 
-                    done = true
-                    return Promise.resolve({ done: false, value: bytes })
-                }),
-            }),
-        },
-    }
+    view.setUint8(0, 0x11) // version=1, headerSize=1
+    view.setUint8(1, (serialization << 4) | compression) // messageType=event(0), stored in upper nibble of serialization field... actually: messageType is at bits 4-7 of byte 1
+    // Hmm wait, messageType = 0b0001 (fullClientRequest event) is at bits 4-7 of byte 1.
+    // parseVolcengineEventFrame reads: messageType = (view.getUint8(1) >> 4) & 0x0f
+    // So the upper nibble is messageType, lower nibble is messageTypeFlags
+    view.setUint8(1, (0b0001 << 4) | 0b0100) // messageType=fullClientRequest(1), flags=0b0100
+    view.setUint8(2, (serialization << 4) | compression)
+    view.setUint8(3, 0) // reserved
+    view.setInt32(4, event, false)
+    view.setUint32(8, sessionIdBytes.length, false) // sessionIdSize
+    frame.set(sessionIdBytes, 12)
+    view.setUint32(12 + sessionIdBytes.length, payload.length, false) // payloadSize
+    frame.set(payload, 16 + sessionIdBytes.length)
+
+    return frame.buffer
 }
 
-function createSpeechResponseWithUsage(totalTokens: number, audioBytes: number[]) {
-    const meta = new TextEncoder().encode(JSON.stringify({
-        usage: {
-            tokens_total: totalTokens,
-        },
-    }))
+/**
+ * 向 MockWebSocket 注入双向流式协议响应帧
+ */
+function simulateSpeechWebSocketFrames(audioBytes: number[], usage?: { totalTokens: number }) {
+    const sessionId = 'uuid-1'
+    let sessionStarted = false
 
-    return createReadableResponse(new Uint8Array([
-        ...meta,
-        ...audioBytes,
-    ]))
+    MockWebSocket.prototype.send = function (data: ArrayBuffer) {
+        const buffer = new Uint8Array(data)
+        if (buffer.length < 8) {
+            return
+        }
+
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+        const messageType = (view.getUint8(1) >> 4) & 0x0f
+        const event = view.getInt32(4)
+
+        // StartConnection(1) → 服务端发送 SessionStarted(150)
+        if (messageType === 0b0001 && event === 1 && !sessionStarted) {
+            sessionStarted = true
+
+            setTimeout(() => {
+                // Audio 帧 (event=352)
+                if (audioBytes.length > 0) {
+                    const audioPkt = buildEventFrame(352, new Uint8Array(audioBytes), sessionId, 0b0010, 0b0000)
+                    this.onmessage?.({ data: audioPkt })
+                }
+
+                // Usage 帧 (event=154)
+                if (usage) {
+                    const usageJson = new TextEncoder().encode(JSON.stringify({ usage: { tokens_total: usage.totalTokens } }))
+                    const usagePkt = buildEventFrame(154, usageJson, sessionId, 0b0001, 0b0000)
+                    this.onmessage?.({ data: usagePkt })
+                }
+
+                // SessionFinished 帧 (event=152)
+                const finishPkt = buildEventFrame(152, new Uint8Array(0), sessionId, 0b0010, 0b0000)
+                this.onmessage?.({ data: finishPkt })
+            }, 0)
+        }
+    }
 }
 
 describe('useTTSVolcengineDirect', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        // 恢复 MockWebSocket.prototype.send
+        MockWebSocket.prototype.send = vi.fn()
     })
 
     it('uses nested statusMessage when credential fetching fails', async () => {
@@ -108,7 +181,10 @@ describe('useTTSVolcengineDirect', () => {
         }))
     })
 
-    it('settles the direct task with normalized provider usage after upload succeeds', async () => {
+    it('settles the direct task via WebSocket speech with normalized provider usage after upload succeeds', async () => {
+        // 注入 WebSocket 模拟帧
+        simulateSpeechWebSocketFrames([1, 2, 3, 4], { totalTokens: 12 })
+
         mockFetch
             .mockResolvedValueOnce({
                 data: {
@@ -118,7 +194,7 @@ describe('useTTSVolcengineDirect', () => {
                     issuedAt: 0,
                     expiresInMs: 60000,
                     expiresAt: Date.now() + 60000,
-                    endpoint: 'https://tts.example.com',
+                    endpoint: 'wss://tts.example.com',
                     connectId: 'connect-1',
                     appId: 'app-1',
                     jwtToken: 'jwt',
@@ -129,7 +205,6 @@ describe('useTTSVolcengineDirect', () => {
             })
             .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
 
-        mockBrowserFetch.mockResolvedValueOnce(createSpeechResponseWithUsage(12, [1, 2, 3, 4]))
         mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
 
         const direct = useTTSVolcengineDirect()
@@ -158,6 +233,9 @@ describe('useTTSVolcengineDirect', () => {
     })
 
     it('does not downgrade the direct task when completed write-back fails after upload', async () => {
+        // 无 usage —— WebSocket 模拟不发送 usage 帧
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
         mockFetch
             .mockResolvedValueOnce({
                 data: {
@@ -167,7 +245,7 @@ describe('useTTSVolcengineDirect', () => {
                     issuedAt: 0,
                     expiresInMs: 60000,
                     expiresAt: Date.now() + 60000,
-                    endpoint: 'https://tts.example.com',
+                    endpoint: 'wss://tts.example.com',
                     connectId: 'connect-1',
                     appId: 'app-1',
                     jwtToken: 'jwt',
@@ -179,7 +257,6 @@ describe('useTTSVolcengineDirect', () => {
             .mockRejectedValueOnce(new Error('metadata failed'))
             .mockResolvedValueOnce({ success: true, audioUrl: null })
 
-        mockBrowserFetch.mockResolvedValueOnce(createReadableResponse(new Uint8Array([1, 2, 3, 4])))
         mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
 
         const direct = useTTSVolcengineDirect()
