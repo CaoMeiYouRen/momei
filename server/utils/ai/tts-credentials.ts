@@ -119,9 +119,9 @@ export async function generateTTSCredentials(options: TTSCredentialsOptions): Pr
     const issuedAt = now
     const expiresAt = now + expiresIn
 
-    // 获取 Volcengine 配置（复用通用配置，可被 TTS 专用覆盖）
-    const appId = settings[SettingKey.VOLCENGINE_APP_ID] || ''
-    const accessKey = settings[SettingKey.VOLCENGINE_ACCESS_KEY] || ''
+    // 获取 Volcengine 配置（TTS 专用优先，回退到通用配置）
+    const appId = settings[SettingKey.TTS_VOLCENGINE_APP_ID] || settings[SettingKey.VOLCENGINE_APP_ID] || ''
+    const accessKey = settings[SettingKey.TTS_VOLCENGINE_ACCESS_KEY] || settings[SettingKey.VOLCENGINE_ACCESS_KEY] || ''
 
     if (!appId || !accessKey) {
         throw createError({

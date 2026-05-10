@@ -61,6 +61,8 @@ export enum SettingKey {
     TTS_MODEL = 'tts_model',
     TTS_ENDPOINT = 'tts_endpoint',
     TTS_CREDENTIAL_TTL_SECONDS = 'tts_credential_ttl_seconds',
+    TTS_VOLCENGINE_APP_ID = 'tts_volcengine_app_id',
+    TTS_VOLCENGINE_ACCESS_KEY = 'tts_volcengine_access_key',
 
     // Email
     EMAIL_HOST = 'email_host',

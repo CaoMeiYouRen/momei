@@ -26,8 +26,10 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, (payload) => RequestSchema.parse(payload))
 
-    // 获取 Volcengine 配置
+    // 获取 Volcengine 配置（TTS 专用优先，回退到通用配置）
     const settings = await getSettings([
+        SettingKey.TTS_VOLCENGINE_APP_ID,
+        SettingKey.TTS_VOLCENGINE_ACCESS_KEY,
         SettingKey.VOLCENGINE_APP_ID,
         SettingKey.VOLCENGINE_ACCESS_KEY,
         SettingKey.TTS_CREDENTIAL_TTL_SECONDS,
