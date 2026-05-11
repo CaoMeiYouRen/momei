@@ -61,6 +61,7 @@ last_sync: 2026-05-11
 - **第三十四階段已完成審計歸檔**：以 Volcengine 為起點的前端直出 TTS + 直傳 OSS 原型、全倉 lines `80.05%` checkpoint、真實 `pnpm regression:phase-close`、下一輪 ESLint 切片、i18n 執行期擴面，以及文檔翻譯 freshness 清償，已在中文事實源、回歸證據與歸檔文檔中完成收口。
 - **第三十五階段已完成審計歸檔**：AI task 計量口徑校準與 TTS 前端直連防回歸（含 Volcengine 前端直連計費閉環）、Postgres 熱點公開讀鏈路與資料庫喚醒繼續治理（含 `pg_stat_statements` 對照採樣證明首頁 popular posts 前置 settings 查庫已移除）、ESLint / 型別債下一輪窄切片（`server/utils/post-access.ts` 3 處 `any` 收窄）、結構復用治理（`isRecord` / `isPlainRecord` 與 `MaybeReactive<T>` 兩組型別收斂），以及存量代碼註釋治理候選組 A（`server/utils/locale.ts` + `server/middleware/1-auth.ts`），已在中文事實源、回歸證據與歸檔文檔中完成收口。
 - **第三十六階段已完成審計歸檔**：`initializeDB()` 並發窗口與 Redis 連線超時治理、TTS 前端直連 / 直傳 OSS backlog 清理、ESLint / 型別債最新窄切片、TTS task 與 `LocaleOption` 結構復用收斂，以及公開讀接口註釋治理候選組 C，已在中文事實源與歸檔文檔中完成收口。
+- **第三十七階段已正式上收**：下一階段已在中文事實源中正式寫入，當前聚焦 Windows 本地 `nuxt dev` / `nuxt build` 效能治理、高風險測試有效性切片、下一輪 ESLint / 型別債窄切片、至少 3 處結構復用熱點，以及 PostgreSQL 長窗口複核切片。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

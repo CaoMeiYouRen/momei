@@ -17,8 +17,36 @@
 
 ## 当前待办
 
-> 第三十六阶段已完成归档收口，详见 [待办事项归档](./todo-archive.md) 与 [项目计划](./roadmap.md)。
-> 下一阶段目前仅保留候选分析，不直接写入本文件；新事项在正式准入前统一先回到 [backlog.md](./backlog.md) 评估。
+### 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening)
+
+**时间表**: 2026-05-11 ~ 约 1 - 2 周
+**目标**: 在第三十六阶段完成运行时稳态补漏与结构治理收口后，继续以“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先解决 Windows 本地 `nuxt dev` / `nuxt build` 的可感知阻塞，同时补一轮高风险测试有效性、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
+**准入说明**: 五条主线均来自 [backlog.md](./backlog.md) 的长期主线任务，已完成候选分析并正式上收；详细边界与验证矩阵见 [phase-37-plan.md](../design/governance/phase-37-plan.md)。
+
+1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**
+- [ ] 冻结 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要安装态、哪些路径才必须等待完整 `initializeDB()`。
+- [ ] 为数据库初始化与首请求冷路径补齐分阶段耗时口径，并把事实源统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
+- [ ] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
+
+2. **主线：测试有效性切片 (P0)**
+- [ ] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言或边界断言。
+- [ ] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
+- [ ] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
+
+3. **主线：ESLint / 类型债治理 (P1)**
+- [ ] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
+- [ ] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
+- [ ] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
+
+4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**
+- [ ] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
+- [ ] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。
+- [ ] 复核 `pnpm duplicate-code:check` 基线不反弹，并补记结构性重复盘点结论。
+
+5. **主线：Postgres 长窗口复核切片 (P1)**
+- [ ] 补一组 `pg_stat_statements` 或等价 live sample 长窗口样本，先确认当前最耗 CPU 或最拉长连接寿命的请求组。
+- [ ] 在“请求入口组”与“公开热点读链路组”中二选一推进最小治理动作，不并行扩写成全站数据库重构。
+- [ ] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](./backlog.md)。
 
 ## 相关文档
 

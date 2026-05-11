@@ -538,6 +538,45 @@
     - **验收标准**: 本轮已补齐“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释；已同步清理失效、误导性或逐行复述代码的低价值注释；并记录已覆盖范围、仍未覆盖边界与注释漂移检查结论。
     - **验证与证据**: 受影响文件 Review Gate 自检、必要的定向测试 / typecheck，以及对应回归或审计记录。
 
+### 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening)
+
+**时间表**: 2026-05-11 ~ 约 1 - 2 周
+**目标**: 在第三十六阶段完成运行时稳态补漏与结构治理收口后，继续按“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先解决 Windows 本地 `nuxt dev` / `nuxt build` 的阻塞体验，同时补一轮高风险测试有效性、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
+
+**准入结论**: 五条主线均来自 [backlog.md](./backlog.md) 的长期主线任务，并已完成候选分析、容量控制与优先级排序。本阶段保持 `2 个 P0 + 3 个 P1` 的执行面，不引入新功能，也不把探索性想法直接塞入当前阶段。
+
+**ROI 评估**: Windows 本地 Dev / Build 性能治理 `2.00`；测试有效性切片 `1.80`；ESLint / 类型债治理 `1.50`；结构复用治理（至少 3 处热点）`1.70`；Postgres 长窗口复核切片 `1.45`。其中 Windows 性能与测试有效性为 P0 主线，其余三项为受控 P1 治理切片。
+
+1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**:
+    - **执行范围**: 继续复用 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源，先冻结 installation state 探测边界，再补齐 `initializeDB()` 分阶段耗时口径，最后进入 `Server built -> Build complete` 长尾专项剖析。
+    - **非目标**: 不扩写为全平台构建重构，不并行开启 bundle 体系重做、PWA 体系调整或 Cloudflare 运行时适配。
+    - **验收标准**: `pnpm perf:nuxt:dev -- --repeat=3` 下首页与 `/api/settings/public` 首请求中位数收敛到 `<= 15s`；`pnpm perf:nuxt:build -- --repeat=3` 总耗时中位数先压进 `<= 500s`；并输出新的性能证据文件。
+    - **验证与证据**: 定向性能脚本、必要的 `nuxt typecheck`，以及文档中对应的耗时拆解记录。
+
+2. **主线：测试有效性切片 (P0)**:
+    - **执行范围**: 优先围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言、边界断言或统计一致性验证。
+    - **非目标**: 不回到低价值铺量测试，不把本轮目标退化为“单纯把 coverage 再抬高一点”。
+    - **验收标准**: 至少补齐 `2` 组高风险失败路径或边界断言，其中至少 `1` 组覆盖统计一致性或回归价值高于普通成功路径；并说明本轮仍未覆盖的边界。
+    - **验证与证据**: 受影响测试文件的定向 Vitest、必要的类型检查，以及对应回归入口说明。
+
+3. **主线：ESLint / 类型债治理 (P1)**:
+    - **执行范围**: 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先正式上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的 `@typescript-eslint/no-explicit-any` 高 ROI 收敛候选。
+    - **非目标**: 不并行重开 `composables` 子桶大范围收紧，不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
+    - **验收标准**: 命中清单、替代写法、回滚边界与最小验证矩阵已经冻结；定向 ESLint 与 `nuxt typecheck` 通过；残余债务与下一轮候选有明确说明。
+    - **验证与证据**: 定向 ESLint、必要单测、`nuxt typecheck` 与受影响文件诊断结果。
+
+4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**:
+    - **执行范围**: 本轮至少完成 `3` 处热点复用，优先从 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、`server/utils/email/service.ts` 与 `components/commercial-link-manager.vue` 中选择，不再重复统计已在第三十六阶段收口的 TTS task 双端点复用。
+    - **非目标**: 不发起跨目录大重构，不把复杂业务逻辑抽象伪装成共享框架。
+    - **验收标准**: 至少完成 `3` 处共享抽象或文件内自重复收敛；`pnpm duplicate-code:check` 基线不反弹；并补记无法由 `jscpd` 稳定覆盖的结构性重复盘点结果。
+    - **验证与证据**: `pnpm duplicate-code:check`、定向 Vitest / typecheck，以及复用边界与回滚说明。
+
+5. **主线：Postgres 长窗口复核切片 (P1)**:
+    - **执行范围**: 先补 `pg_stat_statements` 或等价 live sample 的长窗口样本，再在“请求入口组”与“公开热点读链路组”中二选一推进最小治理动作，优先回答“当前哪些请求最耗 CPU、最拉长连接寿命”。
+    - **非目标**: 不并行推进多个请求组，也不把本轮扩写为全站数据库性能重构。
+    - **验收标准**: 至少形成一组可复核的长窗口样本；能明确指出当前最重的 SQL / 请求组；若进入代码实现，只允许绑定一个最小治理动作并说明收益假设。
+    - **验证与证据**: `pg_stat_statements` 或等价 live sample、受影响链路定向测试、`nuxt typecheck` 与阶段性观测记录。
+
 ### 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
 
 **时间表**: 2026-05-09 ~ 2026-05-11

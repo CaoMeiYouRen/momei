@@ -28,6 +28,7 @@
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
     - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
+    - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路等高风险模块深挖，而不是回到低价值铺量测试。
 
@@ -47,6 +48,7 @@
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已正式上收 composables 子桶继续收紧切片）。
     - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
+    - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
 - **下一次可切片方向**:
     - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
 
@@ -69,8 +71,9 @@
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
     - 第三十五阶段（已正式扩充为结构复用治理，并上收零散类型与纯函数 / 工具函数首轮切片）。
+    - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
 - **下一次可切片方向**:
-    - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）、`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts`（33 lines）。
+    - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）；`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts` 已在第三十六阶段收口，不再计入活跃热点。
     - 文件内自重复：`server/utils/email/service.ts`（27+27）、`components/commercial-link-manager.vue`（42+15）。
     - 结构性重复候选：重复出现的 `isPlainRecord` / `isRecord` 类守卫、`LocaleOption` / `MaybeReactive` / 轻量 `ResponseData` 与 `StatusPayload` 壳层，以及“重复导入同一共享函数后再做轻包装”的简单纯函数 / 工具函数。
 
@@ -125,6 +128,7 @@
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
     - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
+    - 第三十七阶段（已正式上收长窗口样本复核切片，优先回答热点 SQL 与连接活跃窗口问题）。
 - **下一次可切片方向**:
     - 候选组 A：继续审计 `0b-db-ready`、安装态检查与匿名鉴权等请求级入口，减少不必要的数据库唤醒。
     - 候选组 B：为 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略。
@@ -222,7 +226,7 @@
     - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与“所有首请求都卡住”的实测现象一致。
     - 2026-05-11 本轮规划补充了两级目标：先把 Windows 本地 build 总耗时中位数压进 `500s` 内，再在热点拆解完成后继续向 Linux 侧约 `120s` 的参考体验逼近；当前 `120s` 仍只作为对照目标，不视为已验证承诺。
 - **最近一次上收阶段**:
-    - 尚未正式上收；当前先以 backlog 长期主线治理。
+    - 第三十七阶段（已正式上收 Windows 本地 Dev / Build 性能治理切片）。
 - **下一次可切片方向**:
     - 先冻结安装状态探测方案：明确 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
     - 再补齐 `initializeDB()` 分阶段耗时口径，避免直接开改后仍无法判断实际慢点。
@@ -252,6 +256,7 @@
     - 第三十二阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档，当前已落地多语言资产化统一承接入口、重复代码基线降至 32 clones / 0.59%、ESLint no-explicit-any 窄切片收口、Postgres /api/search 缓存与 AITask stale scan 最小字段集收紧，以及 coverage 阶段收口（80%+ 冲刺顺延至下一阶段）。
     - 第三十三阶段已按"1 个新功能 + 4 个优化"的组合完成并审计归档。第三十四阶段也已按"1 个新功能评估 + 5 个优化"完成并审计归档：前端直出 TTS + 直传 OSS 评估与原型已形成最小闭环，coverage 正式越过 `80%+`，周期性回归、ESLint 切片、i18n 运行时继续扩面与文档翻译 freshness 五条优化主线均已关闭。
     - 第三十五阶段已正式切换为“0 个新功能 + 5 个优化”的执行面，当前聚焦 AI task 计量口径与 TTS 防回归、Postgres 热点公开读链路与数据库唤醒、ESLint / 类型债、结构复用治理（重复代码 / 零散类型 / 纯函数与工具函数），以及存量代码注释治理候选组 A。
+    - 第三十七阶段已正式切换为“0 个新功能 + 5 个优化”的执行面，当前聚焦 Windows 本地 Dev / Build 性能治理、测试有效性切片、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
 
 ## 短期 / 一次性候选任务（上收后去重）
