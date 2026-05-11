@@ -325,7 +325,7 @@ const performSearch = () => {
     transform: translateY(10px);
 }
 
-:global(.dark) .app-search__result-item:hover {
+.dark .app-search__result-item:hover {
     background-color: var(--p-primary-900);
 
     .app-search__result-icon {
