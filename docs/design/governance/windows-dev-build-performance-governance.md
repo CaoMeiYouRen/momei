@@ -9,6 +9,10 @@
 
 本专项只覆盖本地 Windows 开发 / 构建生命周期，不替代既有的前端页面性能预算、Lighthouse 或 bundle budget 守线。
 
+## 1.1 当前计划边界
+
+本轮仅做一次方案与规划收敛，不直接开始运行时代码改造。当前文档的职责是把执行顺序、量化目标与验收口径固定下来，避免后续又回到“边改边定义目标”。
+
 ## 2. 已落地修复
 
 当前仓库已经完成一轮 Windows 兼容止血，事实源在 [nuxt.config.ts](../../../nuxt.config.ts)：
@@ -51,6 +55,15 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 | 本地生产构建 | `pnpm perf:nuxt:build` | 总耗时约 `542.77s`；`Client built` 约 `26.36s`；`Server built` 约 `28.01s`；`Server built` 里程碑出现于约 `121.14s` | 主要耗时不在 Vite bundling，而在 `Server built` 之后约 `421.63s` 的 Nitro / 产物收尾阶段 |
 
 补充事实：`artifacts/nuxt-build-performance.log` 尾部显示 `.output/server/**/*` 大量产物写出，最终 `Σ Total size` 约为 `21.9 MB (3.53 MB gzip)`，进一步支持“构建尾耗时由 Nitro / 服务端产物阶段主导”的判断。
+
+### 3.3 对照目标口径
+
+当前 Windows 本地 build 基线约为 `542.77s`，已经明显偏离可接受区间。结合本轮讨论，后续治理统一采用两级目标：
+
+- 第一目标：先把 Windows 本地 `pnpm perf:nuxt:build -- --repeat=3` 的总耗时中位数压到 `<= 500s`，优先解决“明显偏离日常可用”的问题。
+- 第二目标：在 `<= 500s` 达成后，继续向 Linux 侧约 `120s` 级别的参考体验靠近；该 `120s` 目前作为对照目标使用，不视为当前仓库已验证可直接达到的承诺值。
+
+因此，后续所有优化讨论都应先回答“能否把 Windows 从 542s 级别压进 500s 内”，再讨论如何继续逼近 `120s` 档位，而不是一开始就把两种目标混为一谈。
 
 ## 4. 已确认热点
 
@@ -108,8 +121,9 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 建议验收：
 
-- `pnpm perf:nuxt:build -- --repeat=3` 的总耗时中位数压到 `<= 300s`
-- `Server built -> Build complete` 尾耗时中位数压到 `<= 180s`
+- 第一阶段先把 `pnpm perf:nuxt:build -- --repeat=3` 的总耗时中位数压到 `<= 500s`
+- 在第一阶段稳定后，再继续把总耗时中位数向 `120s` 参考档位逼近；只有当热点拆解结果支持时，才把这一目标升格为正式承诺
+- `Server built -> Build complete` 尾耗时需要先显著低于当前约 `421s` 的长尾水平，并在后续剖析后补成更细的阶段验收阈值
 - 不以破坏 `pnpm build` 正常产物或质量门为代价
 
 ### 5.3 P2：固定量化口径
@@ -124,14 +138,16 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 ## 6. 下一轮切片建议
 
-1. 拆分安装状态探测与完整数据库初始化。
-   - 优先判断 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 是否可以复用更轻量的“已安装”信号，而不是在首请求强制执行完整 `initializeDB()`。
+1. 先完成安装状态探测方案冻结。
+   - 优先围绕 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 设计更轻量的“已安装”判断链路，避免在首请求上同步触发完整 `initializeDB()`。
+   - 本步先回答“哪些路径必须等 DB fully ready，哪些路径只需要 installation state”，再决定代码切片，不在当前文档轮次内直接开改。
 
-2. 为 `initializeDB()` 增加分阶段耗时观测。
-   - 至少拆开 `AppDataSource.initialize()`、`syncAdminRoles()`、`repairLegacyPostVersionRecords()`，避免只知道“DB init 很慢”却不知道慢在哪一段。
+2. 再补齐 `initializeDB()` 的分阶段观测设计。
+   - 至少拆开 `AppDataSource.initialize()`、`syncAdminRoles()`、`repairLegacyPostVersionRecords()` 三段口径，确保后续改动前就知道慢点具体落在哪一段。
 
-3. 单独量化构建尾耗时。
-   - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并结合 `.output/server` chunk 数量、sourcemap 数量与最大服务端 chunk 做下一轮热点锁定。
+3. 然后进入 build 长尾专项剖析。
+   - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。
+   - 这一轮的首要收益目标不是立刻追到 `120s`，而是先为“压进 `500s` 内”提供可执行的热点清单。
 
 4. 保持 Windows 定向优化边界。
    - PWA、Nitro trace、inline 包等 Windows 特殊口径应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。

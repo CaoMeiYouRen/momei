@@ -220,11 +220,13 @@
     - 2026-05-11 已通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集到第一轮基线：`pnpm perf:nuxt:dev` 中首页 `Local` 约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头；`--request-path=/api/settings/public` 同样 `60s` 超时，说明问题落在请求级全局冷路径而不是单页模板。
     - 同日 `pnpm perf:nuxt:build` 基线显示总耗时约 `542.77s`，`Client built` 约 `26.36s`、`Server built` 约 `28.01s`，`Server built` 里程碑出现在约 `121.14s`，之后仍有约 `421.63s` 长尾；主要压力已从 Vite bundling 转移到 Nitro / `.output/server` 收尾阶段。
     - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与“所有首请求都卡住”的实测现象一致。
+    - 2026-05-11 本轮规划补充了两级目标：先把 Windows 本地 build 总耗时中位数压进 `500s` 内，再在热点拆解完成后继续向 Linux 侧约 `120s` 的参考体验逼近；当前 `120s` 仍只作为对照目标，不视为已验证承诺。
 - **最近一次上收阶段**:
     - 尚未正式上收；当前先以 backlog 长期主线治理。
 - **下一次可切片方向**:
-    - 先拆分安装状态探测与完整 `initializeDB()` 冷路径，补齐 `initializeDB()` 分阶段耗时观测。
-    - 再继续量化 `Server built -> Build complete` 的长尾，并结合 `.output/server` chunk / sourcemap 数量锁定 Nitro 收尾热点。
+    - 先冻结安装状态探测方案：明确 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
+    - 再补齐 `initializeDB()` 分阶段耗时口径，避免直接开改后仍无法判断实际慢点。
+    - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
     - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
 
 
