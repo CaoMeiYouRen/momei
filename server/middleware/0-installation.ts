@@ -7,6 +7,12 @@ const INSTALLATION_STATUS_CACHE_KEY = 'installation:status'
 // so regular page traffic does not keep waking the database just for installation checks.
 const INSTALLATION_STATUS_CACHE_TTL_SECONDS = 60 * 10
 
+function logInstallationProbeStage(pathname: string, stage: string, durationMs: number) {
+    const message = `[momei-perf] scope=installation-probe stage=${stage} durationMs=${durationMs} path=${pathname || '/'}`
+    console.info(message)
+    logger.info(message)
+}
+
 function resolveEnvInstallationFlag() {
     if (process.env.MOMEI_INSTALLED === 'true') {
         return true
@@ -28,6 +34,7 @@ function resolveEnvInstallationFlag() {
 export default defineEventHandler(async (event) => {
     // 提取路径名
     const pathname = (event.path || '').split('?')[0] ?? ''
+    console.info(`[momei-perf] scope=installation-probe stage=entered durationMs=0 path=${pathname || '/'}`)
 
     // 跳过静态资源
     if (
@@ -62,13 +69,21 @@ export default defineEventHandler(async (event) => {
         let status = getRuntimeCache(INSTALLATION_STATUS_CACHE_KEY) as { installed: boolean, databaseConnected: boolean } | undefined
 
         if (!status) {
-            const { dataSource, initializeDB } = await import('~/server/database')
+            const installationProbeStartedAt = Date.now()
+            const { dataSource, initializeDatabaseConnection } = await import('~/server/database')
             if (!dataSource.isInitialized) {
-                await initializeDB()
+                // 安装态探测只需要数据库连接与实体元数据；完整维护型初始化交给
+                // request-level DB warmup 或具体 handler，避免首页 / 公共 API 首请求
+                // 因管理员角色同步或历史修复链路被串行阻塞。
+                const databaseConnectionStartedAt = Date.now()
+                await initializeDatabaseConnection()
+                logInstallationProbeStage(pathname, 'database-connection', Date.now() - databaseConnectionStartedAt)
             }
 
             const { getInstallationStatus } = await import('~/server/services/installation')
+            const installationStatusStartedAt = Date.now()
             const freshStatus = await getInstallationStatus()
+            logInstallationProbeStage(pathname, 'installation-status', Date.now() - installationStatusStartedAt)
             status = {
                 installed: freshStatus.installed,
                 databaseConnected: freshStatus.databaseConnected,
@@ -77,6 +92,8 @@ export default defineEventHandler(async (event) => {
             if (status.installed) {
                 setRuntimeCache(INSTALLATION_STATUS_CACHE_KEY, status, INSTALLATION_STATUS_CACHE_TTL_SECONDS)
             }
+
+            logInstallationProbeStage(pathname, 'total', Date.now() - installationProbeStartedAt)
         }
 
         const installed = status.installed

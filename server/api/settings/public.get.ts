@@ -24,6 +24,7 @@ function resolveOptionalBooleanSetting(value: string | null | undefined): boolea
  */
 export default defineEventHandler(async (event) => {
     try {
+        console.info('[momei-perf] scope=settings-public stage=entered durationMs=0')
         // 先把认证边界 locale 映射回 AppLocaleCode，再进入 settings 读取，
         // 确保前后台 locale 口径一致且可命中同一缓存 key。
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))

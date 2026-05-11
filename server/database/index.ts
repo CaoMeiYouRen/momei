@@ -62,6 +62,7 @@ const SUPPORTED_DATABASE_TYPES = ['sqlite', 'mysql', 'postgres']
 // 连接状态
 let isInitialized = false
 let AppDataSource: DataSource | null = null
+let connectionInitializationPromise: Promise<DataSource> | null = null
 let initializationPromise: Promise<DataSource> | null = null
 let dataSourceContext: {
     dataSource: DataSource
@@ -225,6 +226,73 @@ async function syncAdminRoles(ds: DataSource) {
     }
 }
 
+function reportDatabaseInitializationFailure(error: unknown, actualDbType: string, isTestEnv: boolean) {
+    if (!(error instanceof Error)) {
+        logger.error('Database initialization failed with a non-Error value')
+        return
+    }
+
+    if (isTestEnv) {
+        logger.error(`Database initialization failed: ${error.message}`)
+        return
+    }
+
+    logger.database.error({
+        error: error.message,
+        stack: error.stack,
+        query: `database_initialization (${actualDbType})`,
+    })
+    logger.error('Database connection failed during startup. The application will continue but features requiring a database will be disabled until corrected.')
+}
+
+function logPerformanceStage(scope: string, stage: string, durationMs: number, details?: Record<string, string | number | boolean | undefined>) {
+    const serializedDetails = Object.entries(details ?? {})
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => `${key}=${String(value)}`)
+        .join(' ')
+
+    const message = `[momei-perf] scope=${scope} stage=${stage} durationMs=${durationMs}${serializedDetails ? ` ${serializedDetails}` : ''}`
+    console.info(message)
+    logger.info(message)
+}
+
+/**
+ * 仅初始化数据库连接与实体元数据，供安装态探测等冷路径使用。
+ * 维护型动作（管理员角色同步、历史数据修复）仍由完整 initializeDB() 负责。
+ */
+export const initializeDatabaseConnection = async () => {
+    if (AppDataSource?.isInitialized) {
+        return AppDataSource
+    }
+
+    if (connectionInitializationPromise) {
+        return connectionInitializationPromise
+    }
+
+    connectionInitializationPromise = (async () => {
+        const { dataSource, actualDbType, isTestEnv } = getDataSourceContext()
+        AppDataSource = dataSource
+        const connectionStartedAt = Date.now()
+
+        try {
+            if (!AppDataSource.isInitialized) {
+                await AppDataSource.initialize()
+            }
+
+            logPerformanceStage('db-init', 'connection', Date.now() - connectionStartedAt, {
+                databaseType: actualDbType,
+            })
+
+            return AppDataSource
+        } catch (error) {
+            reportDatabaseInitializationFailure(error, actualDbType, isTestEnv)
+            return AppDataSource
+        }
+    })()
+
+    return connectionInitializationPromise
+}
+
 export const initializeDB = async () => {
     if (isInitialized && AppDataSource?.isInitialized) {
         return AppDataSource
@@ -237,14 +305,36 @@ export const initializeDB = async () => {
     initializationPromise = (async () => {
         const { dataSource, actualDbType, isMemoryDB, isTestEnv } = getDataSourceContext()
         AppDataSource = dataSource
+        const initializationStartedAt = Date.now()
 
         try {
-            if (!AppDataSource.isInitialized) {
-                await AppDataSource.initialize()
+            const initializedDataSource = await initializeDatabaseConnection()
+
+            if (!initializedDataSource.isInitialized) {
+                logPerformanceStage('db-init', 'full-initialize', Date.now() - initializationStartedAt, {
+                    databaseType: actualDbType,
+                    ready: false,
+                })
+                isInitialized = true
+                return initializedDataSource
             }
 
-            await syncAdminRoles(AppDataSource)
-            await repairLegacyPostVersionRecords(AppDataSource)
+            const syncAdminRolesStartedAt = Date.now()
+            await syncAdminRoles(initializedDataSource)
+            logPerformanceStage('db-init', 'sync-admin-roles', Date.now() - syncAdminRolesStartedAt, {
+                databaseType: actualDbType,
+            })
+
+            const repairPostVersionsStartedAt = Date.now()
+            await repairLegacyPostVersionRecords(initializedDataSource)
+            logPerformanceStage('db-init', 'repair-post-versions', Date.now() - repairPostVersionsStartedAt, {
+                databaseType: actualDbType,
+            })
+
+            logPerformanceStage('db-init', 'full-initialize', Date.now() - initializationStartedAt, {
+                databaseType: actualDbType,
+                ready: true,
+            })
 
             isInitialized = true
 
@@ -257,20 +347,11 @@ export const initializeDB = async () => {
                 logger.info(`Database initialized successfully with type: ${actualDbType}${isMemoryDB ? ' (memory)' : ''}${DEMO_MODE ? ' [DEMO MODE]' : ''}`)
             }
 
-            return AppDataSource
-        } catch (error: any) {
+            return initializedDataSource
+        } catch (error) {
             isInitialized = true
 
-            if (isTestEnv) {
-                logger.error(`Database initialization failed: ${error.message}`)
-            } else {
-                logger.database.error({
-                    error: error.message,
-                    stack: error.stack,
-                    query: `database_initialization (${actualDbType})`,
-                })
-                logger.error('Database connection failed during startup. The application will continue but features requiring a database will be disabled until corrected.')
-            }
+            reportDatabaseInitializationFailure(error, actualDbType, isTestEnv)
 
             return AppDataSource
         }

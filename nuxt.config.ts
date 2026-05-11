@@ -17,8 +17,30 @@ const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
 ]
 
 const IS_WINDOWS = process.platform === 'win32'
+const IS_WINDOWS_LOCAL_DEV = IS_WINDOWS && process.env.NODE_ENV !== 'production' && !process.env.VITEST
 const ENABLE_PWA = !process.env.VITEST
     && (!IS_WINDOWS || process.env.NUXT_ENABLE_PWA_ON_WINDOWS === 'true')
+const ENABLE_NUXT_ESLINT_MODULE = !IS_WINDOWS
+    || process.env.NUXT_ENABLE_ESLINT_MODULE_ON_WINDOWS === 'true'
+const ENABLE_SENTRY_MODULE = !IS_WINDOWS_LOCAL_DEV
+    || process.env.NUXT_ENABLE_SENTRY_ON_WINDOWS_DEV === 'true'
+const ENABLE_SITEMAP_MODULE = !IS_WINDOWS_LOCAL_DEV
+    || process.env.NUXT_ENABLE_SITEMAP_ON_WINDOWS_DEV === 'true'
+const VITE_OPTIMIZE_DEPS_INCLUDE = IS_WINDOWS_LOCAL_DEV
+    ? []
+    : [
+        'primevue/config',
+        'primevue/dialog',
+        'primevue/confirmdialog',
+        'primevue/toast',
+        'primevue/datepicker',
+        'primevue/select',
+        'primevue/autocomplete',
+        'primevue/dynamicdialog',
+        '@primevue/core',
+        '@primeuix/styled',
+        '@primeuix/styles',
+    ]
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -87,13 +109,13 @@ export default defineNuxtConfig({
     compatibilityDate: '2025-12-01',
     devtools: { enabled: false },
     modules: [
-        '@nuxt/eslint',
+        ENABLE_NUXT_ESLINT_MODULE && '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
-        '@sentry/nuxt/module',
-        '@nuxtjs/sitemap',
+        ENABLE_SENTRY_MODULE && '@sentry/nuxt/module',
+        ENABLE_SITEMAP_MODULE && '@nuxtjs/sitemap',
         ENABLE_PWA && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
     ...(ENABLE_PWA
@@ -295,16 +317,23 @@ export default defineNuxtConfig({
             (ctx) => !ctx.isDev && 'google-libphonenumber',
         ],
     },
+    typescript: {
+        includeWorkspace: !IS_WINDOWS_LOCAL_DEV,
+    },
     css: [
         '@/styles/vendor.css',
         '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
-    eslint: {
-        config: {
-            standalone: false,
-        },
-    },
+    ...(ENABLE_NUXT_ESLINT_MODULE
+        ? {
+            eslint: {
+                config: {
+                    standalone: false,
+                },
+            },
+        }
+        : {}),
     vite: {
         resolve: {
             // 规避 pnpm + Vite 下 PrimeVue Overlay / 动态组件样式变量偶发丢失
@@ -318,19 +347,8 @@ export default defineNuxtConfig({
             ],
         },
         optimizeDeps: {
-            include: [
-                'primevue/config',
-                'primevue/dialog',
-                'primevue/confirmdialog',
-                'primevue/toast',
-                'primevue/datepicker',
-                'primevue/select',
-                'primevue/autocomplete',
-                'primevue/dynamicdialog',
-                '@primevue/core',
-                '@primeuix/styled',
-                '@primeuix/styles',
-            ],
+            include: VITE_OPTIMIZE_DEPS_INCLUDE,
+            noDiscovery: IS_WINDOWS_LOCAL_DEV,
         },
         css: {
             preprocessorOptions: {

@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+async function flushAsyncStartup() {
+    await Promise.resolve()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+}
+
 const mocks = vi.hoisted(() => {
     const cronJobs: { cronTime: string, onTick: () => Promise<void> | void, stop: ReturnType<typeof vi.fn> }[] = []
 
@@ -78,6 +83,8 @@ describe('task scheduler plugin', () => {
         delete process.env.DISABLE_CRON_JOB
         delete process.env.TASK_CRON_EXPRESSION
         delete process.env.FRIEND_LINKS_CHECK_CRON
+        delete process.env.RUN_STARTUP_FRIEND_LINK_HEALTH_CHECK
+        process.env.NODE_ENV = 'test'
     })
 
     it('should include AI media compensation in the self-hosted scheduled task scan', async () => {
@@ -92,6 +99,7 @@ describe('task scheduler plugin', () => {
         plugin(nitroApp as any)
 
         expect(mocks.cronJobs).toHaveLength(2)
+        expect(mocks.friendLinkHealthCheck).not.toHaveBeenCalled()
         const scheduledTaskJob = mocks.cronJobs.find((job) => job.cronTime === '*/5 * * * *')
         expect(scheduledTaskJob).toBeTruthy()
 
@@ -116,5 +124,35 @@ describe('task scheduler plugin', () => {
         expect(mocks.cronJobs).toHaveLength(0)
         expect(mocks.processScheduledTasks).not.toHaveBeenCalled()
         expect(mocks.scanAndCompensateTimedOutMediaTasks).not.toHaveBeenCalled()
+    })
+
+    it('should skip the eager friend link health check outside production', async () => {
+        vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
+        const plugin = (await import('./task-scheduler')).default
+
+        plugin({
+            hooks: {
+                hook: vi.fn(),
+            },
+        } as any)
+
+        expect(mocks.friendLinkHealthCheck).not.toHaveBeenCalled()
+        expect(mocks.logger.info).toHaveBeenCalledWith('[TaskScheduler] Skipping eager friend link health check outside production.')
+    })
+
+    it('should keep the eager friend link health check in production', async () => {
+        process.env.NODE_ENV = 'production'
+        vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
+        const plugin = (await import('./task-scheduler')).default
+
+        plugin({
+            hooks: {
+                hook: vi.fn(),
+            },
+        } as any)
+
+        await flushAsyncStartup()
+
+        expect(mocks.friendLinkHealthCheck).toHaveBeenCalledTimes(1)
     })
 })

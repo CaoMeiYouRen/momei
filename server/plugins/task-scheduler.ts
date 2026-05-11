@@ -4,6 +4,10 @@ import logger from '@/server/utils/logger'
 
 const DEFAULT_TASK_CRON_EXPRESSION = '*/5 * * * *'
 
+function shouldRunInitialFriendLinkHealthCheck() {
+    return process.env.RUN_STARTUP_FRIEND_LINK_HEALTH_CHECK === 'true' || process.env.NODE_ENV === 'production'
+}
+
 async function runScheduledTaskScan() {
     const [{ initializeDB }, { processScheduledTasks }, { scanAndCompensateTimedOutMediaTasks }] = await Promise.all([
         import('../database'),
@@ -71,10 +75,14 @@ export default defineNitroPlugin((nitroApp) => {
             'UTC',
         )
 
-        void runFriendLinkHealthCheck()
-            .catch((error) => {
-                logger.error('[TaskScheduler] Initial friend link health check failed:', error)
-            })
+        if (shouldRunInitialFriendLinkHealthCheck()) {
+            void runFriendLinkHealthCheck()
+                .catch((error) => {
+                    logger.error('[TaskScheduler] Initial friend link health check failed:', error)
+                })
+        } else {
+            logger.info('[TaskScheduler] Skipping eager friend link health check outside production.')
+        }
 
         nitroApp.hooks.hook('close', () => {
             logger.info('[TaskScheduler] Stopping cron jobs.')

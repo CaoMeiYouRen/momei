@@ -72,6 +72,7 @@ function getDefaultTimeoutMs(mode) {
 
 const ANSI_ESCAPE = String.fromCharCode(27)
 const ANSI_SGR_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-9;]*m`, 'g')
+const PERF_MARKER_PATTERN = /\[momei-perf\]\s+scope=([a-z0-9-]+)\s+stage=([a-z0-9-]+)\s+durationMs=(\d+)/i
 
 function stripAnsi(value) {
     return value.replace(ANSI_SGR_PATTERN, '')
@@ -242,6 +243,32 @@ function recordMatchedEvent(sample, matcher, match, cleanLine, sinceStartMs) {
     })
 }
 
+function processPerformanceMarker(sample, cleanLine, sinceStartMs) {
+    const match = cleanLine.match(PERF_MARKER_PATTERN)
+    if (!match) {
+        return null
+    }
+
+    const [, scope, stage, rawDurationMs] = match
+    const durationMs = parseDurationMs(rawDurationMs)
+    if (durationMs === null) {
+        return null
+    }
+
+    const metricKey = `${scope}.${stage}Ms`
+    const eventKey = `perf:${scope}:${stage}`
+
+    appendValue(sample.internalDurations, metricKey, durationMs)
+    setOnce(sample.milestones, eventKey, sinceStartMs)
+    sample.events.push({
+        key: eventKey,
+        line: cleanLine,
+        sinceStartMs,
+    })
+
+    return eventKey
+}
+
 function processOutputLine(sample, line, startTime, matchers) {
     const cleanLine = stripAnsi(line).trimEnd()
     if (!cleanLine) {
@@ -250,6 +277,11 @@ function processOutputLine(sample, line, startTime, matchers) {
 
     const sinceStartMs = Date.now() - startTime
     const matchedKeys = []
+
+    const perfMarkerKey = processPerformanceMarker(sample, cleanLine, sinceStartMs)
+    if (perfMarkerKey) {
+        matchedKeys.push(perfMarkerKey)
+    }
 
     for (const matcher of matchers) {
         const match = cleanLine.match(matcher.regex)

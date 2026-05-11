@@ -56,7 +56,15 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 补充事实：`artifacts/nuxt-build-performance.log` 尾部显示 `.output/server/**/*` 大量产物写出，最终 `Σ Total size` 约为 `21.9 MB (3.53 MB gzip)`，进一步支持“构建尾耗时由 Nitro / 服务端产物阶段主导”的判断。
 
-### 3.3 对照目标口径
+### 3.3 2026-05-12 补充诊断
+
+- 直接请求 `/`、`/api/settings/public` 与 `/favicon.ico` 时，TCP 连接都能建立，但 `15s` 到 `20s` 内始终 `0 bytes received`。
+- 已在 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 和 [server/api/settings/public.get.ts](../../../server/api/settings/public.get.ts) 顶部增加 `console.info` 级别的进入探针；在上述超时窗口内，这两条 marker 都没有出现。
+- 这说明当前 Windows 本地 dev 的首请求阻塞点早于 H3 middleware / API handler，不能再把主因归结为安装态中间件或页面 SSR 顶层初始化。
+- 基于 `node --cpu-prof` 抓取的 `artifacts/CPU.20260512.000620.159640.0.001.cpuprofile`，热点主要落在 Node ESM 解析、`exsolve`、Nuxt `initNuxt -> resolveTypescriptPaths` 与 Nitro / `archiver` 链路，而不是用户态 handler。
+- Windows 本地 dev 侧已经追加了若干范围受限的收紧措施：默认关闭 `@nuxt/eslint`、`@sentry/nuxt/module`、`@nuxtjs/sitemap`，关闭 `typescript.includeWorkspace`，并禁止强制 `vite.optimizeDeps.include` / `noDiscovery`。这些改动改变了启动路径，但仍未让 `/favicon.ico` 在 `15s` 内恢复响应。
+
+### 3.4 对照目标口径
 
 当前 Windows 本地 build 基线约为 `542.77s`，已经明显偏离可接受区间。结合本轮讨论，后续治理统一采用两级目标：
 
@@ -69,23 +77,20 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 ### 4.1 Dev 首请求阻塞
 
-当前最强信号来自两个中间件：
+当前已经确认两件事：
 
-- [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts) 会跳过 `/` 与 `/api/settings/public`，因此它不是这两个请求共同超时的直接原因。
-- [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 在安装状态缓存为空时，会同步执行 `initializeDB()`，随后再调用 `getInstallationStatus()`。
+- [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts) 仍会跳过 `/` 与 `/api/settings/public`。
+- 在 `/`、`/api/settings/public` 与 `/favicon.ico` 的超时窗口中，[server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 与 [server/api/settings/public.get.ts](../../../server/api/settings/public.get.ts) 顶部新增的 `console.info` 进入探针都不会触发。
 
-这意味着：
+这意味着当前 Windows 本地 dev 的问题已经从“请求进入应用层后被某条业务冷路径阻塞”收敛为“请求尚未进入 H3 应用层就被 Nuxt/Vite/Nitro 的前置准备阶段卡住”。
 
-1. 即便公共 API 或首页本身不需要在首包前做完整数据库预热，首次请求仍可能被安装状态探测链路阻塞。
-2. 当前阻塞更像“请求级全局冷路径”，不是单个页面首屏渲染逻辑过重。
+最新 CPU profile 进一步支持这一点：
 
-同时，[server/database/index.ts](../../../server/database/index.ts) 中的 `initializeDB()` 还串行执行了：
+- 热点集中在 Node ESM 解析、`realpathSync` / `lstat`、`exsolve`、Nuxt `resolveTypescriptPaths()`、Nitro / `archiver` 链路。
+- `@nuxtjs/i18n`、`@nuxtjs/sitemap`、`@sentry/nuxt`、`@nuxt/eslint` 等模块都出现在启动期样本里，但没有任何单一可选模块探针能独立恢复首请求。
+- 杀掉长时间挂起的 dev 进程后，终端曾补吐出 `Vite client built`、`Vite server built` 与 `optimizer scanning/bundling dependencies` 日志，说明首请求阻塞期间至少存在 Vite 预构建或相关准备工作延后执行的迹象。
 
-- `AppDataSource.initialize()`
-- `syncAdminRoles()`
-- `repairLegacyPostVersionRecords()`
-
-对于“只是判断系统是否已安装”的首请求来说，这条初始化链过重，至少需要继续拆分和量化。
+因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点。
 
 ### 4.2 Build 尾耗时过长
 
@@ -139,18 +144,19 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 ## 6. 下一轮切片建议
 
 1. 先完成安装状态探测方案冻结。
-   - 优先围绕 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 设计更轻量的“已安装”判断链路，避免在首请求上同步触发完整 `initializeDB()`。
-   - 本步先回答“哪些路径必须等 DB fully ready，哪些路径只需要 installation state”，再决定代码切片，不在当前文档轮次内直接开改。
+   - 已落地的 connection-only 拆分应继续保留，但不再把它视为当前 dev 首请求阻塞的唯一主因。
+   - 本步后续只保留“避免额外放大安装态冷路径”的目标，不再承载 Nuxt dev 无响应的主诊断任务。
 
-2. 再补齐 `initializeDB()` 的分阶段观测设计。
-   - 至少拆开 `AppDataSource.initialize()`、`syncAdminRoles()`、`repairLegacyPostVersionRecords()` 三段口径，确保后续改动前就知道慢点具体落在哪一段。
+2. 把排查主线切到 Nuxt / Vite / Nitro 的请求前准备阶段。
+   - 优先围绕 `resolveTypescriptPaths()`、Node ESM 解析、Vite optimizer 及 Nitro 初始化补更贴近根因的诊断证据，而不是继续扩大业务层探针。
+   - 下一轮应优先产出“请求前阶段”的稳定证据，例如更细的 CPU profile 摘要、Vite optimizer 生命周期日志，或能明确区分“预构建未完成”和“全局 ready 锁未释放”的诊断输出。
 
-3. 然后进入 build 长尾专项剖析。
+3. 再进入 build 长尾专项剖析。
    - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。
    - 这一轮的首要收益目标不是立刻追到 `120s`，而是先为“压进 `500s` 内”提供可执行的热点清单。
 
 4. 保持 Windows 定向优化边界。
-   - PWA、Nitro trace、inline 包等 Windows 特殊口径应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。
+   - PWA、Nitro trace、inline 包，以及本轮新增的 Windows-local-dev 模块 / TypeScript / Vite 门禁，都应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。
 
 ## 7. 非目标
 
