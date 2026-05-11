@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-06
+last_sync: 2026-05-11
 ---
 
 # Momei 프로젝트 로드맵
@@ -46,6 +46,7 @@ last_sync: 2026-05-06
 - **33단계는 감사 완료 후 아카이브되었습니다**: 창작자 통계, `80%+` coverage 스프린트 재시동, `composables` ESLint fallback 슬라이스, 중복 코드 수렴, 후보군 B 기존 코드 주석 거버넌스가 중국어 사실원과 아카이브 문서에서 모두 수렴되었습니다.
 - **34단계는 감사 완료 후 아카이브되었습니다**: Volcengine 중심의 프런트 직출 TTS + OSS 직전송 프로토타입, 전역 lines `80.05%` checkpoint, 실제 `pnpm regression:phase-close`, 다음 ESLint 슬라이스, i18n 런타임 확장, 문서 번역 freshness 정리가 중국어 사실원, 회귀 증거, 아카이브 문서에서 모두 수렴되었습니다.
 - **35단계는 감사 완료 후 아카이브되었습니다**: AI task 계량 구간과 프런트 직출 TTS 회귀 방지(Volcengine 프런트 직결 과금 폐쇄 루프 포함), Postgres 핫 리드 체인과 DB 기동 경계 거버넌스(`pg_stat_statements` 대조 샘플링으로 메인 페이지 popular posts의 사전 settings 조회 제거 증명), 다음 ESLint / 타입 부채 슬라이스(`server/utils/post-access.ts` 3곳 `any` 수렴), 구조 재사용 거버넌스(`isRecord` / `isPlainRecord` 및 `MaybeReactive<T>` 2개 타입 수렴), 기존 코드 주석 거버넌스 후보군 A(`server/utils/locale.ts` + `server/middleware/1-auth.ts`)가 중국어 사실원, 회귀 증거, 아카이브 문서에서 모두 수렴되었습니다.
+- **36단계는 감사 완료 후 아카이브되었습니다**: `initializeDB()` 동시성 창과 Redis 연결 타임아웃 거버넌스, TTS 프런트 직결 / 직전송 OSS backlog 정리, 최신 ESLint / 타입 부채 슬라이스, TTS task 및 `LocaleOption` 구조 재사용 수렴, 공개 읽기 API 주석 거버넌스 후보군 C가 중국어 사실원과 아카이브 문서에서 모두 수렴되었습니다.
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog

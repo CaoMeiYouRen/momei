@@ -538,6 +538,47 @@
     - **验收标准**: 本轮已补齐“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释；已同步清理失效、误导性或逐行复述代码的低价值注释；并记录已覆盖范围、仍未覆盖边界与注释漂移检查结论。
     - **验证与证据**: 受影响文件 Review Gate 自检、必要的定向测试 / typecheck，以及对应回归或审计记录。
 
+### 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
+
+**时间表**: 2026-05-09 ~ 2026-05-11
+**目标**: 在第三十五阶段完成运行时计量校准与结构复用首轮收口后，继续以“0 个新功能 + 5 个优化”的受控组合完成剩余高 ROI 收尾：围绕数据库初始化竞态与 Redis 连接稳态、TTS 前端直连 / 直传 OSS backlog 清理、ESLint / 类型债窄切片续推、结构复用治理补漏，以及公开读接口注释治理候选组 C 完成当前阶段闭环，而不提前把下一阶段候选上收为正式规划。
+
+**审计结论**: 第三十六阶段五条主线已在当前仓库实现、对应用例入口、backlog 去重状态与规划文档中完成闭环，满足归档条件。`server/database/index.ts` 与 `server/utils/redis.ts` 的运行时稳态修复已落地；TTS 前端直连链路测试入口与 backlog 状态已完成对账；`server/services/ai/tts.ts` 的 `any` 收敛、`server/utils/ai/tts-task-shared.ts` 与 `types/utils.ts` 的共享抽象，以及公开读接口注释治理候选组 C 也均可在当前代码中对照。`todo.md` 当前执行面已清理，`todo-archive.md` 已收录完整归档块；下一阶段当前仍只保留候选分析，不在本轮直接上收。
+
+**准入结论**: 本阶段不引入新功能。五条主线均属于当前已实现能力的稳定化收口或长期治理主线的受控切片，总数维持在 `5` 项内，满足阶段容量约束。原本未完成的 `server/services/ai/asr.ts` 与邮件服务自重复收敛仍保留在下一阶段候选池，不借归档动作改写为“已完成”。
+
+**ROI 评估**: 数据库初始化并发与 Redis 连接稳态修复 `1.75`；TTS 前端直连 / 直传 OSS backlog 清理 `1.50`；ESLint / 类型债继续治理 `1.50`；结构复用治理（TTS task + locale 类型收敛）`1.60`；存量代码注释治理候选组 C `1.33`。其中运行时稳态修复为 P0 主线，其余四项维持 P1 受控治理切片。
+
+1. **主线：修复数据库查询并发问题与 Redis 连接异常 (P0)**:
+    - **执行范围**: 修复 `initializeDB()` 竞态窗口、保留单一初始化 promise 守卫，并为 Redis 客户端补齐有限超时与重试边界。
+    - **非目标**: 不把本轮扩写为数据库层全面重构，也不新增第二套缓存或连接管理策略。
+    - **阶段结果**: `server/database/index.ts` 已把 `isInitialized` 的设置时机后移并保留 `initializationPromise` 复用；`server/utils/redis.ts` 已补 `connectTimeout` 与有限 `retryStrategy`，避免 serverless 场景下无边界等待。
+    - **验证与证据**: 对应代码入口与测试文件已落在 `server/database/index.ts`、`server/utils/redis.ts`、`server/utils/redis.test.ts` 与数据库定向测试目录。
+
+2. **主线：TTS 前端直出 + 直传 OSS 审查与 backlog 清理 (P1)**:
+    - **执行范围**: 对账 TTS 前端直连链路测试覆盖、清理 backlog 中已交付条目，并确认超长类型定义已完成拆分收口。
+    - **非目标**: 不在本阶段继续扩写新的 TTS provider 或新的前端直连协议。
+    - **阶段结果**: TTS 前端直连与元数据回写的测试入口已齐备，`docs/plan/backlog.md` 第 13 条已标注为“已交付（第三十四—三十五阶段）”，`use-tts-volcengine-direct.ts` 的类型负担也已抽离到共享类型文件。
+    - **验证与证据**: 对应入口包括 `composables/use-tts-volcengine-direct.test.ts`、`server/api/posts/[id]/tts-metadata.put.test.ts` 与 backlog 中文事实源。
+
+3. **主线：ESLint / 类型债继续治理 (P1)**:
+    - **执行范围**: 关闭既有 warning，并把 `no-explicit-any` 单文件窄切片继续推进到 `server/services/ai/tts.ts`。
+    - **非目标**: 不并行开启 `server/services/ai/asr.ts` 或更宽范围的目录级规则提升。
+    - **阶段结果**: 本轮已完成 4 个 warning 收口，并把 `server/services/ai/tts.ts` 中约 `16` 处 `any` / `as any` 收敛；`server/services/ai/asr.ts` 明确保留为后续候选。
+    - **验证与证据**: 受影响实现与规则边界已同步到 `eslint.config.js`、`server/services/ai/tts.ts` 及其相关验证入口。
+
+4. **主线：结构复用治理：重复代码 + 零散类型收敛 (P1)**:
+    - **执行范围**: 收敛双 TTS task 端点共享逻辑与 `LocaleOption` 相关散落类型，不扩写到更大规模的跨目录抽象。
+    - **非目标**: 不把邮件服务自重复收敛强行并入本阶段，也不借共享类型名义扩大为全仓类型重写。
+    - **阶段结果**: `server/utils/ai/tts-task-shared.ts` 已承接双端点共享 helper，`types/utils.ts` 已沉淀 `LocaleOption` / `SelectLocaleOption`，相关守卫收敛为统一 `isLocaleOption`。
+    - **验证与证据**: 当前代码已可直接对照 `createTTSTask` 共享 helper、locale 类型共享与双端点调用面。
+
+5. **主线：存量代码注释治理候选组 C (P1)**:
+    - **执行范围**: 为公开读接口链路补齐多语言聚合、缓存策略、SQL 差异与 taxonomy 过滤复用边界的高价值注释。
+    - **非目标**: 不将注释治理扩写成全仓重写，也不继续上收候选组外的其他文件。
+    - **阶段结果**: `posts/index.get.ts`、`posts/archive.get.ts`、`categories/index.get.ts` 与 `tags/index.get.ts` 已补入与当前实现匹配的高价值注释，规划描述与代码事实一致。
+    - **验证与证据**: 对应实现均位于当前 server API 文件中，可直接与阶段归档块对照复核。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)

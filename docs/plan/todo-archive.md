@@ -16,6 +16,63 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
+
+> 归档说明: 第三十六阶段「0 个新功能 + 5 个优化」已于 2026-05-11 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：`initializeDB()` 并发窗口与 Redis 连接超时治理、TTS 前端直连 / 直传 OSS backlog 清理、ESLint / 类型债窄切片、TTS task 与 `LocaleOption` 结构复用收敛，以及公开读接口注释治理。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
+
+> **ROI 评估**: 数据库初始化并发与 Redis 连接稳态修复 1.75；TTS 前端直连 / 直传 OSS backlog 清理 1.50；ESLint / 类型债继续治理 1.50；结构复用治理（TTS task + locale 类型收敛）1.60；存量代码注释治理候选组 C 1.33。
+
+### 1. 修复数据库查询并发问题与 Redis 连接异常（P0）
+
+- 结果: `server/database/index.ts` 已保留单一 `initializationPromise` 守卫并收紧 `isInitialized` 时序，`server/utils/redis.ts` 已补 `connectTimeout` 与有限次 `retryStrategy`，不再沿用无边界的默认连接等待策略。
+- 验证: 对应实现与测试入口已分别落在 `server/database/index.ts`、`server/utils/redis.ts`、`server/utils/redis.test.ts` 与数据库相关定向测试目录；本轮归档后继续以类型检查与文档质量门作为最小放行补验。
+- [x] 修复 `server/database/index.ts` 中 `initializeDB()` 竞态窗口（`isInitialized = true` 时序 + 移除 `finally` 中的 `initializationPromise = null`）
+- [x] 修复 `server/utils/redis.ts` 中 ioredis 连接超时（添加 `connectTimeout` + `retryStrategy`）
+
+### 2. TTS 前端直出 + 直传 OSS 审查与 backlog 清理（P1）
+
+- 结果: TTS 前端直连链路的测试入口已齐备，`docs/plan/backlog.md` 第 13 条已明确标注为“已交付（第三十四—三十五阶段）”，`use-tts-volcengine-direct.ts` 的超长类型定义也已抽离到共享类型文件。
+- 验证: 相关入口包括 `composables/use-tts-volcengine-direct.test.ts`、`server/api/posts/[id]/tts-metadata.put.test.ts` 与 backlog 事实源对账；本轮主要完成规划侧闭环，不新增实现面。
+- [x] 审查 TTS 前端直连 pipeline 测试覆盖完整性（9/9 测试通过）
+- [x] 运行 TTS 相关测试确认通过
+- [x] 从 `docs/plan/backlog.md` 标注 #13「前端直出 TTS + 直传 OSS」为已交付
+- [x] 审查 `composables/use-tts-volcengine-direct.ts` max-lines 阈值（类型抽取至 `types/tts-direct.ts`）
+
+### 3. ESLint / 类型债继续治理（P1）
+
+- 结果: 本轮已清掉既有 4 个 warning，并将 `no-explicit-any` 窄切片推进到 `server/services/ai/tts.ts`；`server/services/ai/asr.ts` 仍按容量约束保留为下阶段候选，不伪装为本轮已完成。
+- 验证: 受影响范围已在 `eslint.config.js`、`server/services/ai/tts.ts` 与对应测试 / 类型检查入口中闭环，规划状态与当前代码事实一致。
+- [x] 修复 4 个 ESLint warning（2 unused imports, 1 max-lines 类型抽取, 1 no-misused-spread → Object.assign）
+- [x] 扩展 `no-explicit-any` 窄切片到 `server/services/ai/tts.ts`（~16 处 `any`/`as any` 收敛）
+- [-] `server/services/ai/asr.ts`：本轮容量有限，延后至下阶段
+
+### 4. 结构复用治理：重复代码 + 零散类型收敛（P1）
+
+- 结果: 双 TTS task 端点已共享 `server/utils/ai/tts-task-shared.ts`，`LocaleOption` 与相关选择项类型已收敛到 `types/utils.ts`；邮件服务自重复收敛因容量约束继续留在后续候选池。
+- 验证: 当前代码中可直接对照 `createTTSTask` 共享 helper、`LocaleOption` 共享类型及 `isLocaleOption` 守卫的收敛结果，且 backlog 未再保留重复的当前阶段正文。
+- [x] TTS task API 重复收敛：提取 `server/utils/ai/tts-task-shared.ts`，双端点使用共享 helper
+- [-] 邮件服务自重复收敛：本轮容量有限，延后至下阶段
+- [x] `LocaleOption` 类型收敛：4 个 composable → `types/utils.ts`（`LocaleOption` + `SelectLocaleOption`）
+- [x] 类型守卫收敛：`isAdminAiLocaleOption` / `isAdminI18nLocaleOption` → 统一 `isLocaleOption`
+
+### 5. 存量代码注释治理候选组 C（P1）
+
+- 结果: 公开读接口链路的多语言聚合、缓存策略、管理模式差异和 taxonomy 过滤复用边界均已补入高价值注释，当前规划描述与代码实现一致。
+- 验证: 受影响文件集中在 `server/api/posts/index.get.ts`、`server/api/posts/archive.get.ts`、`server/api/categories/index.get.ts` 与 `server/api/tags/index.get.ts`，本轮归档只补事实源，不扩写新的注释范围。
+- [x] `server/api/posts/index.get.ts`：补多语言聚合、缓存策略、管理模式注释
+- [x] `server/api/posts/archive.get.ts`：补 SQL 差异逻辑与 aggregation 注释
+- [x] `server/api/categories/index.get.ts`：补缓存键与 taxonomy filter 复用注释
+- [x] `server/api/tags/index.get.ts`：同上
+
+### 本轮基线
+
+| 指标 | 起始 | 结束 | 变化 |
+|------|------|------|------|
+| ESLint | 4 warnings | 0 warnings | ✅ |
+| jscpd | 34/629/0.52% | 33/608/0.50% | ↓1 clone, ↓21 lines |
+| `tts.ts` any | ~16 | 0 | ✅ |
+| LocaleOption 定义 | 4 scattered | 1 shared | ✅ |
+
 ## 第三十五阶段：运行时计量校准与结构治理续推 (Runtime Metering Calibration & Structural Governance Continuation) (已审计归档)
 
 > 归档说明: 第三十五阶段「0 个新功能 + 5 个优化」已于 2026-05-08 完成收口并归档至本文件。5 条主线均已在实现代码、定向测试、活动回归窗口、`pg_stat_statements` live sample 与规划文档中完成闭环；`todo.md` 当前待办区已清理，下一阶段仍停留在候选分析，不在本轮直接上收。
