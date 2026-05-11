@@ -2,6 +2,24 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
+
+const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
+    'mjml',
+    'mjml-core',
+    'html-minifier',
+    'html-minifier-terser',
+    'cheerio',
+    'htmlparser2',
+    'entities',
+    'domhandler',
+    'domelementtype',
+    'domutils',
+]
+
+const IS_WINDOWS = process.platform === 'win32'
+const ENABLE_PWA = !process.env.VITEST
+    && (!IS_WINDOWS || process.env.NUXT_ENABLE_PWA_ON_WINDOWS === 'true')
+
 const MomeiPreset = definePreset(Aura, {
     semantic: {
         primary: {
@@ -76,41 +94,45 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
-        !process.env.VITEST && '@vite-pwa/nuxt',
+        ENABLE_PWA && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
-    pwa: {
-        registerType: 'autoUpdate',
-        manifest: {
-            name: '墨梅博客',
-            short_name: '墨梅',
-            theme_color: '#64748b',
-            icons: [
-                {
-                    src: 'logo.png',
-                    sizes: '512x512',
-                    type: 'image/png',
+    ...(ENABLE_PWA
+        ? {
+            pwa: {
+                registerType: 'autoUpdate',
+                manifest: {
+                    name: '墨梅博客',
+                    short_name: '墨梅',
+                    theme_color: '#64748b',
+                    icons: [
+                        {
+                            src: 'logo.png',
+                            sizes: '512x512',
+                            type: 'image/png',
+                        },
+                    ],
+                    shortcuts: [
+                        {
+                            name: '快速灵感',
+                            short_name: '快速灵感',
+                            url: '/admin/snippets/capture',
+                            icons: [{ src: 'logo.png', sizes: '512x512' }],
+                        },
+                    ],
+                    display: 'standalone',
                 },
-            ],
-            shortcuts: [
-                {
-                    name: '快速灵感',
-                    short_name: '快速灵感',
-                    url: '/admin/snippets/capture',
-                    icons: [{ src: 'logo.png', sizes: '512x512' }],
+                workbox: {
+                    navigateFallback: '/',
+                    // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
+                    navigateFallbackDenylist: [/^\/.*$/],
+                    globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
                 },
-            ],
-            display: 'standalone',
-        },
-        workbox: {
-            navigateFallback: '/',
-            // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
-            navigateFallbackDenylist: [/^\/.*$/],
-            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-        },
-        devOptions: {
-            enabled: false,
-        },
-    },
+                devOptions: {
+                    enabled: false,
+                },
+            },
+        }
+        : {}),
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         // 定时任务安全配置
@@ -349,28 +371,12 @@ export default defineNuxtConfig({
             external: ['debug'],
         },
         externals: {
-            inline: [
-                'mjml',
-                'mjml-core',
-                'html-minifier',
-                'html-minifier-terser',
-                'cheerio',
-                'htmlparser2',
-                'entities',
-                'domhandler',
-                'domelementtype',
-                'domutils',
-                'lodash',
-                'lodash-es',
-                'dayjs',
-                'primevue',
-                '@primevue/core',
-                '@primevue/forms',
-                '@primevue/icons',
-                '@primeuix/styled',
-                '@primeuix/styles',
-                '@primeuix/themes',
-            ],
+            // Nitro 在 Windows 上做 external tracing 的成本很高，
+            // 本地 dev/build 更适合直接依赖工作区 node_modules，而不是长时间追踪依赖树。
+            trace: !IS_WINDOWS,
+            // 仅内联服务端邮件渲染链，避免把 PrimeVue 等大体积前端依赖强行打进 Nitro 包，
+            // 否则在 Windows 上会显著放大 Nitro dev/build 的依赖解析与打包成本。
+            inline: NITRO_SERVER_ONLY_INLINE_PACKAGES,
         },
         esbuild: {
             options: {
