@@ -84,6 +84,11 @@ export interface TTSCredentials {
     temporaryUserId: string
 }
 
+interface VolcengineCredentialCandidate {
+    appId: string
+    accessKey: string
+}
+
 // ---- Zod Schema ----
 
 const VolcengineTokenResponseSchema = z.object({
@@ -119,11 +124,17 @@ export async function generateTTSCredentials(options: TTSCredentialsOptions): Pr
     const issuedAt = now
     const expiresAt = now + expiresIn
 
-    // 获取 Volcengine 配置（TTS 专用优先，回退到通用配置）
-    const appId = settings[SettingKey.TTS_VOLCENGINE_APP_ID] || settings[SettingKey.VOLCENGINE_APP_ID] || ''
-    const accessKey = settings[SettingKey.TTS_VOLCENGINE_ACCESS_KEY] || settings[SettingKey.VOLCENGINE_ACCESS_KEY] || ''
+    const primaryCredentials = resolveCredentialCandidate(
+        settings[SettingKey.TTS_VOLCENGINE_APP_ID],
+        settings[SettingKey.TTS_VOLCENGINE_ACCESS_KEY],
+    )
+    const sharedCredentials = resolveCredentialCandidate(
+        settings[SettingKey.VOLCENGINE_APP_ID],
+        settings[SettingKey.VOLCENGINE_ACCESS_KEY],
+    )
+    const activeCredentials = primaryCredentials || sharedCredentials
 
-    if (!appId || !accessKey) {
+    if (!activeCredentials) {
         throw createError({
             statusCode: 400,
             message: 'Volcengine AppId or Access Key not configured for TTS direct',
@@ -139,18 +150,20 @@ export async function generateTTSCredentials(options: TTSCredentialsOptions): Pr
     // 计算 JWT Token 有效期
     const durationSeconds = resolveCredentialDurationSeconds(expiresIn)
 
-    // 向火山 STS 请求临时 JWT
-    const jwtToken = await requestVolcengineJWTToken({
-        appId,
-        accessKey,
+    // TTS 专用 grant 已配置但失效时，回退到通用 Volcengine grant，避免线上直连链路直接报 502。
+    const issuedCredentials = await requestVolcengineJWTTokenWithFallback({
+        primaryCredentials: activeCredentials,
+        fallbackCredentials: shouldFallbackToSharedCredentials(primaryCredentials, sharedCredentials)
+            ? sharedCredentials
+            : null,
         durationSeconds,
     })
 
     // 构建 URL Query 鉴权参数（WebSocket 播客模式用；HTTP speech 模式用 Header）
     const authQuery: Record<string, string> = {
         api_resource_id: resourceId,
-        api_appid: appId,
-        api_access_key: `Jwt; ${jwtToken}`,
+        api_appid: issuedCredentials.appId,
+        api_access_key: `Jwt; ${issuedCredentials.jwtToken}`,
     }
 
     if (appKey) {
@@ -166,8 +179,8 @@ export async function generateTTSCredentials(options: TTSCredentialsOptions): Pr
         expiresAt,
         endpoint,
         connectId,
-        appId,
-        jwtToken,
+        appId: issuedCredentials.appId,
+        jwtToken: issuedCredentials.jwtToken,
         authQuery,
         resourceId,
         appKey,
@@ -186,6 +199,79 @@ function resolveCredentialDurationSeconds(expiresIn: number): number {
         MAX_CREDENTIAL_TTL_SECONDS,
         Math.max(MIN_CREDENTIAL_TTL_SECONDS, requestedSeconds),
     )
+}
+
+function resolveCredentialCandidate(
+    appId: string | undefined,
+    accessKey: string | undefined,
+): VolcengineCredentialCandidate | null {
+    const normalizedAppId = appId?.trim() || ''
+    const normalizedAccessKey = accessKey?.trim() || ''
+
+    if (!normalizedAppId || !normalizedAccessKey) {
+        return null
+    }
+
+    return {
+        appId: normalizedAppId,
+        accessKey: normalizedAccessKey,
+    }
+}
+
+function shouldFallbackToSharedCredentials(
+    primaryCredentials: VolcengineCredentialCandidate | null,
+    sharedCredentials: VolcengineCredentialCandidate | null,
+): sharedCredentials is VolcengineCredentialCandidate {
+    return !!primaryCredentials
+        && !!sharedCredentials
+        && (primaryCredentials.appId !== sharedCredentials.appId || primaryCredentials.accessKey !== sharedCredentials.accessKey)
+}
+
+async function requestVolcengineJWTTokenWithFallback(options: {
+    primaryCredentials: VolcengineCredentialCandidate
+    fallbackCredentials: VolcengineCredentialCandidate | null
+    durationSeconds: number
+}): Promise<{ appId: string, jwtToken: string }> {
+    try {
+        return {
+            appId: options.primaryCredentials.appId,
+            jwtToken: await requestVolcengineJWTToken({
+                appId: options.primaryCredentials.appId,
+                accessKey: options.primaryCredentials.accessKey,
+                durationSeconds: options.durationSeconds,
+            }),
+        }
+    } catch (error) {
+        if (!options.fallbackCredentials || !isGrantNotFoundError(error)) {
+            throw error
+        }
+
+        return {
+            appId: options.fallbackCredentials.appId,
+            jwtToken: await requestVolcengineJWTToken({
+                appId: options.fallbackCredentials.appId,
+                accessKey: options.fallbackCredentials.accessKey,
+                durationSeconds: options.durationSeconds,
+            }),
+        }
+    }
+}
+
+function isGrantNotFoundError(error: unknown): boolean {
+    const message = getErrorMessage(error).toLowerCase()
+    return message.includes('grant not found')
+}
+
+function getErrorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+        return error
+    }
+
+    if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+        return error.message
+    }
+
+    return ''
 }
 
 /**
