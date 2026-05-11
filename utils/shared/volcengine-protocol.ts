@@ -165,6 +165,81 @@ export function buildVolcengineConnectionClientRequestFrame(options: {
     })
 }
 
+export function buildSpeechStartConnectionFrame(): Uint8Array {
+    return buildVolcengineConnectionClientRequestFrame({
+        event: 1,
+        payload: {},
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
+export function buildSpeechTaskRequestFrame(sessionId: string, text: string): Uint8Array {
+    return buildVolcengineEventClientRequestFrame({
+        event: 200,
+        sessionId,
+        payload: {
+            namespace: 'BidirectionalTTS',
+            req_params: { text },
+        },
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
+export function buildSpeechFinishSessionFrame(sessionId: string): Uint8Array {
+    return buildVolcengineEventClientRequestFrame({
+        event: 102,
+        sessionId,
+        payload: {},
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
+export function buildSpeechFinishConnectionFrame(): Uint8Array {
+    return buildVolcengineConnectionClientRequestFrame({
+        event: 2,
+        payload: {},
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
+export function buildPodcastStartFrame(sessionId: string, text: string, speakerIds: string[]): Uint8Array {
+    return buildVolcengineEventClientRequestFrame({
+        event: 100,
+        sessionId,
+        payload: {
+            input_id: sessionId,
+            input_text: text,
+            action: 0,
+            use_head_music: false,
+            use_tail_music: false,
+            audio_config: { format: 'mp3', sample_rate: 24000, speech_rate: 0 },
+            speaker_info: { random_order: true, speakers: speakerIds },
+            aigc_watermark: false,
+        },
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
+export function buildPodcastFinishFrame(): Uint8Array {
+    return buildVolcengineConnectionClientRequestFrame({
+        event: 2,
+        payload: {},
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
 export function parseVolcengineErrorFrame(input: ArrayBuffer | ArrayBufferView): VolcengineErrorFrame | null {
     const data = toUint8Array(input)
     if (data.length < 12) {

@@ -70,7 +70,8 @@ function getDefaultTimeoutMs(mode) {
     return mode === 'dev' ? 10 * 60 * 1000 : 30 * 60 * 1000
 }
 
-const ANSI_SGR_PATTERN = new RegExp(String.raw`\\u001B\[[0-9;]*m`, 'g')
+const ANSI_ESCAPE = String.fromCharCode(27)
+const ANSI_SGR_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-9;]*m`, 'g')
 
 function stripAnsi(value) {
     return value.replace(ANSI_SGR_PATTERN, '')
@@ -302,7 +303,7 @@ async function terminateProcessTree(pid) {
     try {
         process.kill(pid, 'SIGTERM')
     } catch {
-        return
+        // ignore cases where the child process already exited before teardown
     }
 }
 

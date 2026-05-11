@@ -26,10 +26,13 @@ import { useI18n } from 'vue-i18n'
 import { useUpload, UploadType } from './use-upload'
 import {
     VOLCENGINE_COMPRESSION,
-    VOLCENGINE_MESSAGE_TYPE,
+    buildPodcastFinishFrame,
+    buildPodcastStartFrame,
+    buildSpeechFinishConnectionFrame,
+    buildSpeechFinishSessionFrame,
+    buildSpeechStartConnectionFrame,
+    buildSpeechTaskRequestFrame,
     decodeVolcengineSerializedPayload,
-    buildVolcengineConnectionClientRequestFrame,
-    buildVolcengineEventClientRequestFrame,
     parseVolcengineErrorFrame,
     parseVolcengineEventFrame,
     toVolcengineArrayBuffer,
@@ -64,26 +67,6 @@ function resolveBodyModel(speaker: string, explicitModel?: string): string {
         return 'seed-tts-2.0-expressive'
     }
     return 'seed-tts-1.1'
-}
-
-/**
- * 将 0-2 范围的语速转换为火山 API 的 [-50, 100] 范围
- */
-function convertSpeechRate(speed: number): number {
-    if (speed >= 1) {
-        return Math.min(100, Math.round((speed - 1) * 100))
-    }
-    return Math.max(-50, Math.round((speed - 1) * 100))
-}
-
-/**
- * 将 0-2 范围的音量转换为火山 API 的 [-50, 100] 范围
- */
-function convertLoudnessRate(volume: number): number {
-    if (volume >= 1) {
-        return Math.min(100, Math.round((volume - 1) * 100))
-    }
-    return Math.max(-50, Math.round((volume - 1) * 100))
 }
 
 function normalizeVolcengineProviderUsage(rawUsage: unknown): TTSDirectProviderUsage | null {
@@ -142,63 +125,6 @@ export function useTTSVolcengineDirect() {
         }
 
         return `posts/${normalizedPostId}/audio/tts/`
-    }
-
-    /**
-     * 构建 speech 双向流式 WebSocket StartConnection 帧 (event=1)
-     */
-    function buildSpeechStartConnectionFrame(): Uint8Array {
-        return buildVolcengineConnectionClientRequestFrame({
-            event: 1,
-            payload: {},
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
-    }
-
-    /**
-     * 构建 speech 双向流式 WebSocket TaskRequest 帧 (event=200)
-     */
-    function buildSpeechTaskRequestFrame(sessionId: string, text: string): Uint8Array {
-        return buildVolcengineEventClientRequestFrame({
-            event: 200,
-            sessionId,
-            payload: {
-                namespace: 'BidirectionalTTS',
-                req_params: { text },
-            },
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
-    }
-
-    /**
-     * 构建 speech 双向流式 WebSocket FinishSession 帧 (event=102)
-     */
-    function buildSpeechFinishSessionFrame(sessionId: string): Uint8Array {
-        return buildVolcengineEventClientRequestFrame({
-            event: 102,
-            sessionId,
-            payload: {},
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
-    }
-
-    /**
-     * 构建 speech 双向流式 WebSocket FinishConnection 帧 (event=2)
-     */
-    function buildSpeechFinishConnectionFrame(): Uint8Array {
-        return buildVolcengineConnectionClientRequestFrame({
-            event: 2,
-            payload: {},
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
     }
 
     /**
@@ -315,7 +241,9 @@ export function useTTSVolcengineDirect() {
                                     audioChunks.push(binary)
                                     progress.value = Math.min(70, 20 + Math.round((audioChunks.length / 20) * 50))
                                 }
-                            } catch { /* ignore */ }
+                            } catch {
+                                // ignore invalid base64 payload fragments from provider fallback frames
+                            }
                         }
                     }
                     return
@@ -338,7 +266,9 @@ export function useTTSVolcengineDirect() {
                         if (ws.readyState === WebSocket.OPEN) {
                             ws.send(toVolcengineArrayBuffer(buildSpeechFinishConnectionFrame()))
                         }
-                    } catch { /* ignore */ }
+                    } catch {
+                        // ignore close-race when the socket is already shutting down
+                    }
                     cleanup()
                     progress.value = 70
 
@@ -383,45 +313,6 @@ export function useTTSVolcengineDirect() {
                     }
                 }
             }
-        })
-    }
-
-    /**
-     * 构建播客 StartSession 帧（event=100，对齐 buildVolcengineEventClientRequestFrame）
-     */
-    function buildPodcastStartFrame(sessionId: string, text: string, speakerIds: string[]): Uint8Array {
-        return buildVolcengineEventClientRequestFrame({
-            event: 100,
-            sessionId,
-            payload: {
-                input_id: sessionId,
-                input_text: text,
-                action: 0,
-                use_head_music: false,
-                use_tail_music: false,
-                audio_config: { format: 'mp3', sample_rate: 24000, speech_rate: 0 },
-                speaker_info: { random_order: true, speakers: speakerIds },
-                aigc_watermark: false,
-            },
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
-    }
-
-    /**
-     * 构建 FinishConnection 帧（event=2，不含 sessionId）
-     *
-     * 对齐 buildVolcengineConnectionClientRequestFrame:
-     *   header(4B) + event=2(4B) + payloadSize(4B) + payload({})
-     */
-    function buildPodcastFinishFrame(): Uint8Array {
-        return buildVolcengineConnectionClientRequestFrame({
-            event: 2,
-            payload: {},
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
         })
     }
 
@@ -527,7 +418,9 @@ export function useTTSVolcengineDirect() {
                                     totalBytes += binary.length
                                     updatePodcastProgress()
                                 }
-                            } catch { /* ignore */ }
+                            } catch {
+                                // ignore invalid base64 payload fragments from provider fallback frames
+                            }
                         }
                     }
                     return
@@ -560,7 +453,9 @@ export function useTTSVolcengineDirect() {
                             const finishFrame = buildPodcastFinishFrame()
                             ws.send(toVolcengineArrayBuffer(finishFrame))
                         }
-                    } catch { /* ignore */ }
+                    } catch {
+                        // ignore finish-frame send race during teardown
+                    }
                     // 设置超时兜底：5 秒后若仍未 resolve，用已有音频关闭
                     setTimeout(() => {
                         if (!settled) {
@@ -590,7 +485,9 @@ export function useTTSVolcengineDirect() {
                             const finishFrame = buildPodcastFinishFrame()
                             ws.send(toVolcengineArrayBuffer(finishFrame))
                         }
-                    } catch { /* ignore */ }
+                    } catch {
+                        // ignore finish-frame send race during teardown
+                    }
                     cleanup()
                     progress.value = 70
                     console.info('[TTS Podcast] Resolving with', audioChunks.length, 'audio chunks,', totalBytes, 'bytes')
