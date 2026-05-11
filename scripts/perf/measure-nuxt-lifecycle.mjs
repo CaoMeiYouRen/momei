@@ -70,8 +70,10 @@ function getDefaultTimeoutMs(mode) {
     return mode === 'dev' ? 10 * 60 * 1000 : 30 * 60 * 1000
 }
 
+const ANSI_SGR_PATTERN = new RegExp(String.raw`\\u001B\[[0-9;]*m`, 'g')
+
 function stripAnsi(value) {
-    return value.replace(/\u001B\[[0-9;]*m/g, '')
+    return value.replace(ANSI_SGR_PATTERN, '')
 }
 
 function getSpawnCommand(command, commandArgs) {
@@ -300,7 +302,7 @@ async function terminateProcessTree(pid) {
     try {
         process.kill(pid, 'SIGTERM')
     } catch {
-
+        return
     }
 }
 

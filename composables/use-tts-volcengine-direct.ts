@@ -135,38 +135,6 @@ export function useTTSVolcengineDirect() {
         return response.data
     }
 
-    /**
-     * 构建 TTS 请求体（与 server/utils/ai/tts-volcengine.ts 对齐）
-     */
-    function buildSpeechRequestBody(params: TTSVolcengineDirectParams, credentials: VolcengineTTSCredentials) {
-        const { text, voice, speed, volume, language } = params
-        const speaker = voice || 'zh_female_shuangkuaisisi_moon_bigtts'
-        const bodyModel = resolveBodyModel(speaker)
-
-        const additions: Record<string, unknown> = {
-            explicit_language: language || 'zh',
-            disable_markdown_filter: true,
-            enable_timestamp: true,
-        }
-
-        return {
-            user: { uid: credentials.temporaryUserId },
-            req_params: {
-                text,
-                model: bodyModel,
-                speaker,
-                audio_params: {
-                    format: 'mp3',
-                    sample_rate: 24000,
-                    speech_rate: convertSpeechRate(speed ?? 1.0),
-                    loudness_rate: convertLoudnessRate(volume ?? 1.0),
-                    enable_timestamp: true,
-                },
-                additions: JSON.stringify(additions),
-            },
-        }
-    }
-
     function resolveUploadTargetPrefix(postId?: string | null) {
         const normalizedPostId = postId?.trim()
         if (!normalizedPostId) {
@@ -183,35 +151,6 @@ export function useTTSVolcengineDirect() {
         return buildVolcengineConnectionClientRequestFrame({
             event: 1,
             payload: {},
-            messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
-            messageTypeFlags: 0b0100,
-            compression: VOLCENGINE_COMPRESSION.none,
-        })
-    }
-
-    /**
-     * 构建 speech 双向流式 WebSocket StartSession 帧 (event=100)
-     */
-    function buildSpeechStartSessionFrame(sessionId: string, params: TTSVolcengineDirectParams, credentials: VolcengineTTSCredentials): Uint8Array {
-        const body = buildSpeechRequestBody(params, credentials)
-
-        const additions: Record<string, unknown> = {
-            explicit_language: params.language || 'zh',
-            disable_markdown_filter: true,
-            enable_timestamp: true,
-        }
-
-        return buildVolcengineEventClientRequestFrame({
-            event: 100,
-            sessionId,
-            payload: {
-                user: { uid: credentials.temporaryUserId },
-                namespace: 'BidirectionalTTS',
-                req_params: {
-                    ...body.req_params,
-                    additions: JSON.stringify(additions),
-                },
-            },
             messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
             messageTypeFlags: 0b0100,
             compression: VOLCENGINE_COMPRESSION.none,
@@ -293,7 +232,6 @@ export function useTTSVolcengineDirect() {
             const audioChunks: Uint8Array[] = []
             let providerUsage: TTSDirectProviderUsage | null = null
             let settled = false
-            const connectionStarted = false
             let sessionStarted = false
 
             const cleanup = () => {
@@ -365,7 +303,11 @@ export function useTTSVolcengineDirect() {
                     if (decoded && typeof decoded === 'object') {
                         const obj = decoded as Record<string, unknown>
                         let b64: string | undefined
-                        if (typeof obj.data === 'string') { b64 = obj.data } else if (typeof obj.audio === 'string') { b64 = obj.audio }
+                        if (typeof obj.data === 'string') {
+                            b64 = obj.data
+                        } else if (typeof obj.audio === 'string') {
+                            b64 = obj.audio
+                        }
                         if (b64) {
                             try {
                                 const binary = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
