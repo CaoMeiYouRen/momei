@@ -144,6 +144,7 @@ export default defineConfig({
                             { text: 'AI 成本治理', link: '/design/governance/ai-cost-governance' },
                             { text: 'AI 初始化 / 配置助手评估', link: '/design/governance/ai-setup-assistant-evaluation' },
                             { text: 'ASR 性能优化', link: '/design/governance/asr-performance-optimization' },
+                            { text: 'Windows Dev / Build 性能治理', link: '/design/governance/windows-dev-build-performance-governance' },
                             { text: '系统配置统一化', link: '/design/governance/system-config-unification' },
                             { text: 'Cloudflare 运行时研究', link: '/design/governance/cloudflare-runtime-study' },
                             { text: 'CLI / MCP 自动化', link: '/design/governance/cli-mcp-automation' },

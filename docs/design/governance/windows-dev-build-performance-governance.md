@@ -1,0 +1,152 @@
+# Windows 本地 Dev / Build 性能治理 (Windows Local Dev / Build Performance Governance)
+
+## 1. 概述
+
+本文档聚焦 Windows 本地开发体验的两类问题：
+
+- `nuxt dev` 虽然已经不再出现“明显卡死”，但首个请求仍存在长时间无响应。
+- `nuxt build` 已恢复可完成，但总耗时仍远高于可接受区间。
+
+本专项只覆盖本地 Windows 开发 / 构建生命周期，不替代既有的前端页面性能预算、Lighthouse 或 bundle budget 守线。
+
+## 2. 已落地修复
+
+当前仓库已经完成一轮 Windows 兼容止血，事实源在 [nuxt.config.ts](../../../nuxt.config.ts)：
+
+- Windows 下将 Nitro `externals.trace` 关闭，避免本地依赖追踪过重。
+- Nitro inline 依赖收窄到邮件 / HTML 渲染链，不再把 PrimeVue 等前端依赖强行并入服务端构建。
+- Windows 本地默认关闭 `@vite-pwa/nuxt`，保留 `NUXT_ENABLE_PWA_ON_WINDOWS=true` 的显式开关，绕开当前 Rolldown / `manualChunks` 兼容性与额外构建负担。
+
+这些改动已经把“构建卡住”收敛为“构建可完成但仍偏慢”。
+
+## 3. 当前基线
+
+### 3.1 测量入口
+
+当前统一通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集本地生命周期时间，并通过 `package.json` 暴露以下稳定入口：
+
+- `pnpm perf:nuxt:dev`
+- `pnpm perf:nuxt:build`
+- `pnpm perf:nuxt:baseline`
+
+输出默认落在：
+
+- `artifacts/nuxt-dev-performance.json`
+- `artifacts/nuxt-dev-performance.log`
+- `artifacts/nuxt-build-performance.json`
+- `artifacts/nuxt-build-performance.log`
+
+若需要验证公共 API 首请求，可直接运行：
+
+```bash
+node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/settings/public --output=artifacts/nuxt-dev-api-performance.json --log-output=artifacts/nuxt-dev-api-performance.log
+```
+
+### 3.2 2026-05-11 Windows 本地实测
+
+| 场景 | 命令 | 当前结果 | 结论 |
+| :--- | :--- | :--- | :--- |
+| 首页首请求 | `pnpm perf:nuxt:dev` | `Local` 输出约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头 | 端口监听已出现，但首个页面请求仍被全局冷路径阻塞 |
+| 公共 API 首请求 | `measure-nuxt-lifecycle --mode=dev --request-path=/api/settings/public` | `Local` 输出约 `26.11s`，但 `/api/settings/public` 首请求同样 `60s` 超时 | 问题不在页面模板自身，而在请求级全局初始化 |
+| 本地生产构建 | `pnpm perf:nuxt:build` | 总耗时约 `542.77s`；`Client built` 约 `26.36s`；`Server built` 约 `28.01s`；`Server built` 里程碑出现于约 `121.14s` | 主要耗时不在 Vite bundling，而在 `Server built` 之后约 `421.63s` 的 Nitro / 产物收尾阶段 |
+
+补充事实：`artifacts/nuxt-build-performance.log` 尾部显示 `.output/server/**/*` 大量产物写出，最终 `Σ Total size` 约为 `21.9 MB (3.53 MB gzip)`，进一步支持“构建尾耗时由 Nitro / 服务端产物阶段主导”的判断。
+
+## 4. 已确认热点
+
+### 4.1 Dev 首请求阻塞
+
+当前最强信号来自两个中间件：
+
+- [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts) 会跳过 `/` 与 `/api/settings/public`，因此它不是这两个请求共同超时的直接原因。
+- [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 在安装状态缓存为空时，会同步执行 `initializeDB()`，随后再调用 `getInstallationStatus()`。
+
+这意味着：
+
+1. 即便公共 API 或首页本身不需要在首包前做完整数据库预热，首次请求仍可能被安装状态探测链路阻塞。
+2. 当前阻塞更像“请求级全局冷路径”，不是单个页面首屏渲染逻辑过重。
+
+同时，[server/database/index.ts](../../../server/database/index.ts) 中的 `initializeDB()` 还串行执行了：
+
+- `AppDataSource.initialize()`
+- `syncAdminRoles()`
+- `repairLegacyPostVersionRecords()`
+
+对于“只是判断系统是否已安装”的首请求来说，这条初始化链过重，至少需要继续拆分和量化。
+
+### 4.2 Build 尾耗时过长
+
+`pnpm perf:nuxt:build` 的结果表明：
+
+- `Nuxt banner -> Client built` 约 `93s`
+- `Nuxt banner -> Server built` 约 `121s`
+- `Server built -> Build complete` 仍有约 `421s`
+
+因此当前 Windows 本地构建的主要瓶颈不是单纯的 Vite client/server bundle，而是：
+
+- Nitro 产物整理与 `.output/server` 大规模写出
+- 服务端 chunk / sourcemap 数量膨胀带来的本地文件系统开销
+- 可能的 Nitro post-build 收尾逻辑
+
+这一段需要继续定量拆解，而不是只看 `Client built` / `Server built` 两行日志。
+
+## 5. 治理目标
+
+### 5.1 P0：恢复可接受的首请求体验
+
+目标：Windows 本地 `nuxt dev` 不能只做到“端口可见”，而必须做到“首个公共请求可响应”。
+
+建议验收：
+
+- `pnpm perf:nuxt:dev -- --repeat=3` 的首页首请求中位数 `<= 15s`
+- `--request-path=/api/settings/public` 的首请求中位数 `<= 15s`
+- 不再出现 `warmRequest timed out after 60000ms`
+
+### 5.2 P1：压缩构建尾耗时
+
+目标：先把 Windows 本地构建的“Server built 之后长尾”单独收敛，而不是笼统宣称“继续优化 build”。
+
+建议验收：
+
+- `pnpm perf:nuxt:build -- --repeat=3` 的总耗时中位数压到 `<= 300s`
+- `Server built -> Build complete` 尾耗时中位数压到 `<= 180s`
+- 不以破坏 `pnpm build` 正常产物或质量门为代价
+
+### 5.3 P2：固定量化口径
+
+目标：避免后续又回到“体感变快 / 体感变慢”的描述。
+
+建议验收：
+
+- 继续复用 [scripts/perf/measure-nuxt-lifecycle.mjs](../../../scripts/perf/measure-nuxt-lifecycle.mjs) 作为唯一生命周期计时脚本
+- 所有阶段性结论至少附带 JSON artifact 或等价日志
+- Windows 本地 Dev / Build 治理继续保留在 backlog 长期主线，直到基线稳定后再考虑关闭
+
+## 6. 下一轮切片建议
+
+1. 拆分安装状态探测与完整数据库初始化。
+   - 优先判断 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 是否可以复用更轻量的“已安装”信号，而不是在首请求强制执行完整 `initializeDB()`。
+
+2. 为 `initializeDB()` 增加分阶段耗时观测。
+   - 至少拆开 `AppDataSource.initialize()`、`syncAdminRoles()`、`repairLegacyPostVersionRecords()`，避免只知道“DB init 很慢”却不知道慢在哪一段。
+
+3. 单独量化构建尾耗时。
+   - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并结合 `.output/server` chunk 数量、sourcemap 数量与最大服务端 chunk 做下一轮热点锁定。
+
+4. 保持 Windows 定向优化边界。
+   - PWA、Nitro trace、inline 包等 Windows 特殊口径应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。
+
+## 7. 非目标
+
+- 不在本专项内重写整套安装流程或数据库抽象层。
+- 不新起第二套前端性能预算体系；页面体积与 Lighthouse 继续由既有性能规范负责。
+- 不把本轮治理扩大为“全仓所有构建慢点一次性清零”。
+
+## 8. 相关文件
+
+- [nuxt.config.ts](../../../nuxt.config.ts)
+- [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts)
+- [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts)
+- [server/database/index.ts](../../../server/database/index.ts)
+- [scripts/perf/measure-nuxt-lifecycle.mjs](../../../scripts/perf/measure-nuxt-lifecycle.mjs)
+- [docs/plan/backlog.md](../../plan/backlog.md)

@@ -209,6 +209,24 @@
 - **下一次可切片方向**:
     - 若本轮完成 facts-of-truth 转绿，下一轮优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从“是否有翻译”推进到“哪些翻译必须持续保持新鲜”。
 
+12. **Windows 本地 Dev / Build 性能治理**
+- **目标**:
+    - 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，避免继续以“体感慢”描述问题。
+    - 优先收敛首请求阻塞与构建尾耗时两类高收益热点，不把范围扩写为全平台构建重构。
+- **状态**:
+    - 进行中。
+- **当前状态**:
+    - 当前已经完成一轮 Windows 定向止血：`nuxt.config.ts` 已收窄 Nitro inline 依赖、关闭 Windows 下 Nitro trace，并在 Windows 本地默认关闭 PWA；`pnpm build` 已恢复可完成。
+    - 2026-05-11 已通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集到第一轮基线：`pnpm perf:nuxt:dev` 中首页 `Local` 约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头；`--request-path=/api/settings/public` 同样 `60s` 超时，说明问题落在请求级全局冷路径而不是单页模板。
+    - 同日 `pnpm perf:nuxt:build` 基线显示总耗时约 `542.77s`，`Client built` 约 `26.36s`、`Server built` 约 `28.01s`，`Server built` 里程碑出现在约 `121.14s`，之后仍有约 `421.63s` 长尾；主要压力已从 Vite bundling 转移到 Nitro / `.output/server` 收尾阶段。
+    - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与“所有首请求都卡住”的实测现象一致。
+- **最近一次上收阶段**:
+    - 尚未正式上收；当前先以 backlog 长期主线治理。
+- **下一次可切片方向**:
+    - 先拆分安装状态探测与完整 `initializeDB()` 冷路径，补齐 `initializeDB()` 分阶段耗时观测。
+    - 再继续量化 `Server built -> Build complete` 的长尾，并结合 `.output/server` chunk / sourcemap 数量锁定 Nitro 收尾热点。
+    - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
+
 
 ## 现状摘要与方向判断
 
