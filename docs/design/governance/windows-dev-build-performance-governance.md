@@ -63,6 +63,10 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 这说明当前 Windows 本地 dev 的首请求阻塞点早于 H3 middleware / API handler，不能再把主因归结为安装态中间件或页面 SSR 顶层初始化。
 - 基于 `node --cpu-prof` 抓取的 `artifacts/CPU.20260512.000620.159640.0.001.cpuprofile`，热点主要落在 Node ESM 解析、`exsolve`、Nuxt `initNuxt -> resolveTypescriptPaths` 与 Nitro / `archiver` 链路，而不是用户态 handler。
 - Windows 本地 dev 侧已经追加了若干范围受限的收紧措施：默认关闭 `@nuxt/eslint`、`@sentry/nuxt/module`、`@nuxtjs/sitemap`，关闭 `typescript.includeWorkspace`，并禁止强制 `vite.optimizeDeps.include` / `noDiscovery`。这些改动改变了启动路径，但仍未让 `/favicon.ico` 在 `15s` 内恢复响应。
+- 进一步把忽略目录迁移到 Nuxt 顶层 `ignore` 并叠加 `packages/cli/**`、`packages/mcp-server/**` 等 Windows-local-dev 定向忽略后，`fs.watch` probe 的 `totalWatchRegistrations` 已从约 `2984` 收缩到约 `1060`，证明 watcher 噪声目录显著下降，但首请求仍未恢复。
+- 在“首轮构建完成后再发第二次请求”的独立 profile 中，热点转为 Vite `matchPatterns -> _isIgnored -> _addToNodeFs`；对比二次请求前后的 watcher 快照，新增 watcher 主要集中在 `server/api`、`i18n/locales`、`server/utils`、`components/admin`、`pages/admin` 等真实业务树，而不是 `.github` / `docs` / `artifacts` 这类外围目录。
+- 但把 `vite.server.watch` 直接设为 `null` 后，首个 `/api/settings/public` 请求在 `60s` 内仍然超时，而终端已在约 `33s` 左右打印 `Vite client built` / `Vite server built`。这说明 Vite watcher 动态扩张已不是主控制点。
+- 同一轮试验里，终端曾出现 `Nuxt Nitro server built in 333417ms`。配合 `artifacts/dev-first-request-watch-null-60s.cpuprofile` 可见，`60s` 窗口主要消耗已经转移到 Rollup / `@rollup/plugin-node-resolve`、`exsolve`、`internalModuleStat`、`readPackageJSON`、`compileFunctionForCJSLoader` 等 Nitro dev 构建链，而不是单纯的 Vite watcher。
 
 ### 3.4 对照目标口径
 
@@ -90,7 +94,13 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - `@nuxtjs/i18n`、`@nuxtjs/sitemap`、`@sentry/nuxt`、`@nuxt/eslint` 等模块都出现在启动期样本里，但没有任何单一可选模块探针能独立恢复首请求。
 - 杀掉长时间挂起的 dev 进程后，终端曾补吐出 `Vite client built`、`Vite server built` 与 `optimizer scanning/bundling dependencies` 日志，说明首请求阻塞期间至少存在 Vite 预构建或相关准备工作延后执行的迹象。
 
-因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点。
+截至 2026-05-12 最新一轮验证，这个判断还需要再收紧一层：
+
+- `nuxt.options.ignore` 与 Windows-local-dev watcher ignore 只解决了外围目录噪声，不足以恢复首请求。
+- `vite.server.watch = null` 依旧无法让首个公共 API 请求在 `60s` 内返回，因此“Vite watcher 本身”已经被证伪为主阻塞。
+- 当前最强证据指向 Nitro dev 首次服务端构建：Vite client/server 可在约 `30s` 内完成，但公共请求仍被挂住；长窗口 CPU profile 已转向 Rollup / node-resolve / `exsolve` / Node 模块解析链。
+
+因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点；下一轮应把主诊断重心放在 Nitro dev build 的依赖解析与服务端图规模，而不是继续微调 Vite watcher ignore。
 
 ### 4.2 Build 尾耗时过长
 
@@ -148,8 +158,9 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
    - 本步后续只保留“避免额外放大安装态冷路径”的目标，不再承载 Nuxt dev 无响应的主诊断任务。
 
 2. 把排查主线切到 Nuxt / Vite / Nitro 的请求前准备阶段。
-   - 优先围绕 `resolveTypescriptPaths()`、Node ESM 解析、Vite optimizer 及 Nitro 初始化补更贴近根因的诊断证据，而不是继续扩大业务层探针。
-   - 下一轮应优先产出“请求前阶段”的稳定证据，例如更细的 CPU profile 摘要、Vite optimizer 生命周期日志，或能明确区分“预构建未完成”和“全局 ready 锁未释放”的诊断输出。
+   - 优先围绕 Nitro dev 首次构建链补更贴近根因的证据：Rollup / node-resolve / `exsolve`、Node 模块解析与服务端依赖图规模，而不是继续扩大业务层探针。
+   - `nuxt.options.ignore`、工作区包 ignore 与 Vite watcher ignore 已验证只能降噪，不能单独恢复首请求；后续不应再把 watcher ignore 视为主修复方向。
+   - 下一轮应优先产出 Nitro 侧的稳定证据，例如更细的 Rollup resolve/load 热点、服务端入口图 / chunk 图、或能明确区分“构建尚未完成”和“构建完成但 ready 锁未释放”的诊断输出。
 
 3. 再进入 build 长尾专项剖析。
    - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。

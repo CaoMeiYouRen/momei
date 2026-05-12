@@ -1,3 +1,5 @@
+import { mkdir, writeFile } from 'node:fs/promises'
+import { dirname, resolve as resolvePath } from 'node:path'
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
@@ -20,6 +22,8 @@ const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
 
 const IS_WINDOWS = process.platform === 'win32'
 const IS_WINDOWS_LOCAL_DEV = IS_WINDOWS && process.env.NODE_ENV !== 'production' && !process.env.VITEST
+const ENABLE_NITRO_RESOLVE_PROBE = IS_WINDOWS_LOCAL_DEV
+    && process.env.NUXT_ENABLE_NITRO_RESOLVE_PROBE === 'true'
 const ENABLE_PWA = !process.env.VITEST
     && (!IS_WINDOWS || process.env.NUXT_ENABLE_PWA_ON_WINDOWS === 'true')
 const ENABLE_NUXT_ESLINT_MODULE = !IS_WINDOWS
@@ -50,6 +54,139 @@ const VITE_OPTIMIZE_DEPS_INCLUDE = IS_WINDOWS_LOCAL_DEV
         '@primeuix/styled',
         '@primeuix/styles',
     ]
+const WINDOWS_LOCAL_DEV_NUXT_IGNORES = [
+    '.agents/**',
+    '.claude/**',
+    '.cursor/**',
+    '.dev/**',
+    '.github/**',
+    '.husky/**',
+    '.lighthouseci/**',
+    '.opencode/**',
+    '.playwright-mcp/**',
+    '.vscode/**',
+    'artifacts/**',
+    'coverage/**',
+    'docs/**',
+    'logs/**',
+    'opc-doc/**',
+    'packages/cli/**',
+    'packages/mcp-server/**',
+    'playwright-report/**',
+    'scripts/**',
+    'test-results/**',
+    'tests/**',
+]
+const WINDOWS_LOCAL_DEV_WATCH_IGNORES = [
+    '**/.agents/**',
+    '**/.claude/**',
+    '**/.cursor/**',
+    '**/.dev/**',
+    '**/.github/**',
+    '**/.husky/**',
+    '**/.lighthouseci/**',
+    '**/.opencode/**',
+    '**/.playwright-mcp/**',
+    '**/.vscode/**',
+    '**/artifacts/**',
+    '**/coverage/**',
+    '**/docs/**',
+    '**/logs/**',
+    '**/opc-doc/**',
+    '**/packages/cli/**',
+    '**/packages/mcp-server/**',
+    '**/playwright-report/**',
+    '**/scripts/**',
+    '**/test-results/**',
+    '**/tests/**',
+]
+
+function createNitroResolveProbe() {
+    const outputPath = resolvePath(process.cwd(), 'artifacts', 'nitro-resolve-probe.json')
+    const resolveCounts = new Map<string, { count: number, importers: Set<string> }>()
+    let flushTimer: NodeJS.Timeout | undefined
+
+    async function flushSummary() {
+        const summary = {
+            generatedAt: new Date().toISOString(),
+            outputPath,
+            topSpecifiers: [...resolveCounts.entries()]
+                .sort((left, right) => right[1].count - left[1].count)
+                .slice(0, 200)
+                .map(([source, entry]) => ({
+                    source,
+                    count: entry.count,
+                    importers: [...entry.importers].slice(0, 20),
+                })),
+        }
+
+        await mkdir(dirname(outputPath), { recursive: true })
+        await writeFile(outputPath, JSON.stringify(summary, null, 2), 'utf8')
+    }
+
+    function scheduleFlush() {
+        if (flushTimer) {
+            return
+        }
+
+        flushTimer = setTimeout(() => {
+            flushTimer = undefined
+            void flushSummary()
+        }, 1000)
+        flushTimer.unref?.()
+    }
+
+    return {
+        name: 'momei-nitro-resolve-probe',
+        resolveId(source: string, importer?: string | undefined) {
+            const entry = resolveCounts.get(source)
+            if (entry) {
+                entry.count += 1
+                if (importer) {
+                    entry.importers.add(importer)
+                }
+            }
+            else {
+                resolveCounts.set(source, {
+                    count: 1,
+                    importers: new Set(importer ? [importer] : []),
+                })
+            }
+
+            scheduleFlush()
+            return null
+        },
+        async buildEnd() {
+            await flushSummary()
+        },
+    }
+}
+
+function createNitroPerfHooks() {
+    let buildStartedAt = 0
+    let rollupStartedAt = 0
+
+    return {
+        'build:before'() {
+            buildStartedAt = Date.now()
+            console.info('[momei-perf] scope=nitro-dev-build stage=build-before durationMs=0')
+        },
+        'rollup:before'(_nitro: unknown, rollupConfig: { plugins?: Array<{ name?: string }> }) {
+            rollupStartedAt = Date.now()
+            console.info(`[momei-perf] scope=nitro-dev-build stage=rollup-before durationMs=${buildStartedAt ? Date.now() - buildStartedAt : 0}`)
+            rollupConfig.plugins ||= []
+            if (!rollupConfig.plugins.some((plugin) => plugin.name === 'momei-nitro-resolve-probe')) {
+                rollupConfig.plugins.push(createNitroResolveProbe())
+            }
+        },
+        compiled() {
+            console.info(`[momei-perf] scope=nitro-dev-build stage=compiled durationMs=${buildStartedAt ? Date.now() - buildStartedAt : 0}`)
+            if (rollupStartedAt) {
+                console.info(`[momei-perf] scope=nitro-dev-build stage=rollup-compiled durationMs=${Date.now() - rollupStartedAt}`)
+            }
+        },
+    }
+}
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -117,6 +254,12 @@ const MomeiPreset = definePreset(Aura, {
 export default defineNuxtConfig({
     compatibilityDate: '2025-12-01',
     devtools: { enabled: false },
+    ...(IS_WINDOWS_LOCAL_DEV
+        ? {
+            ignore: WINDOWS_LOCAL_DEV_NUXT_IGNORES,
+            watcher: 'parcel',
+        }
+        : {}),
     // Node.js 24 的 ESM 解析不接受 `lodash/fp` 目录导入，显式固定到文件入口。
     alias: NODE_ESM_SUBPATH_ALIASES,
     modules: [
@@ -361,6 +504,11 @@ export default defineNuxtConfig({
             include: VITE_OPTIMIZE_DEPS_INCLUDE,
             noDiscovery: IS_WINDOWS_LOCAL_DEV,
         },
+        server: {
+            watch: {
+                ignored: IS_WINDOWS_LOCAL_DEV ? WINDOWS_LOCAL_DEV_WATCH_IGNORES : undefined,
+            },
+        },
         css: {
             preprocessorOptions: {
                 scss: {
@@ -379,6 +527,11 @@ export default defineNuxtConfig({
     },
     nitro: {
         alias: NODE_ESM_SUBPATH_ALIASES,
+        ...(ENABLE_NITRO_RESOLVE_PROBE
+            ? {
+                hooks: createNitroPerfHooks(),
+            }
+            : {}),
         experimental: {
             websocket: true,
         },
