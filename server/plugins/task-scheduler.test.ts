@@ -29,6 +29,7 @@ const mocks = vi.hoisted(() => {
         friendLinkHealthCheck: vi.fn(),
         logger: {
             info: vi.fn(),
+            warn: vi.fn(),
             error: vi.fn(),
         },
     }
@@ -81,6 +82,7 @@ describe('task scheduler plugin', () => {
         })
         mocks.friendLinkHealthCheck.mockResolvedValue(0)
         delete process.env.DISABLE_CRON_JOB
+        delete process.env.ENABLE_CRON_JOB
         delete process.env.TASK_CRON_EXPRESSION
         delete process.env.FRIEND_LINKS_CHECK_CRON
         delete process.env.RUN_STARTUP_FRIEND_LINK_HEALTH_CHECK
@@ -88,6 +90,7 @@ describe('task scheduler plugin', () => {
     })
 
     it('should include AI media compensation in the self-hosted scheduled task scan', async () => {
+        process.env.ENABLE_CRON_JOB = 'true'
         vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
         const plugin = (await import('./task-scheduler')).default
         const nitroApp = {
@@ -110,6 +113,21 @@ describe('task scheduler plugin', () => {
         expect(mocks.scanAndCompensateTimedOutMediaTasks).toHaveBeenCalledTimes(1)
     })
 
+    it('should skip cron registration outside production', async () => {
+        vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
+        const plugin = (await import('./task-scheduler')).default
+
+        plugin({
+            hooks: {
+                hook: vi.fn(),
+            },
+        } as any)
+
+        expect(mocks.cronJobs).toHaveLength(0)
+        expect(mocks.initializeDB).not.toHaveBeenCalled()
+        expect(mocks.logger.info).toHaveBeenCalledWith('[TaskScheduler] Skipping cron registration outside production.')
+    })
+
     it('should not register cron jobs in serverless environments', async () => {
         mocks.isServerlessEnvironment.mockReturnValue(true)
         vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
@@ -124,20 +142,6 @@ describe('task scheduler plugin', () => {
         expect(mocks.cronJobs).toHaveLength(0)
         expect(mocks.processScheduledTasks).not.toHaveBeenCalled()
         expect(mocks.scanAndCompensateTimedOutMediaTasks).not.toHaveBeenCalled()
-    })
-
-    it('should skip the eager friend link health check outside production', async () => {
-        vi.stubGlobal('defineNitroPlugin', (plugin: (nitroApp: any) => unknown) => plugin)
-        const plugin = (await import('./task-scheduler')).default
-
-        plugin({
-            hooks: {
-                hook: vi.fn(),
-            },
-        } as any)
-
-        expect(mocks.friendLinkHealthCheck).not.toHaveBeenCalled()
-        expect(mocks.logger.info).toHaveBeenCalledWith('[TaskScheduler] Skipping eager friend link health check outside production.')
     })
 
     it('should keep the eager friend link health check in production', async () => {

@@ -48,6 +48,8 @@
 - [ ] 在“请求入口组”与“公开热点读链路组”中二选一推进最小治理动作，不并行扩写成全站数据库重构。
 - [ ] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](./backlog.md)。
 
+进展记录（2026-05-12）：基于用户提供的 Neon compute operations 与 Top SQL 长窗口样本，当前已确认“连接长时间不释放”的首要放大器并不是单条业务读 SQL，而是非 serverless 环境下 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 默认每 `5` 分钟注册一次自部署 Cron；在本地 dev 直连远端 Neon 的场景里，它会周期性唤醒数据库并拉长 compute 活跃窗口。本轮已先落地最小治理：非生产环境默认不再注册内置 Cron，只有生产环境或显式设置 `ENABLE_CRON_JOB=true` 时才启用；请求入口组是否仍有链路误走完整 `initializeDB()` 维护链，继续保留为下一轮候选复核项。
+
 ## 相关文档
 
 - [AI 代理配置](../../AGENTS.md)

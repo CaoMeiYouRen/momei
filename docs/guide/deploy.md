@@ -87,6 +87,7 @@
 - **`WEBHOOK_SECRET`**: 推荐单独配置，用于 HMAC 模式验签。
 - **`TASK_CRON_EXPRESSION`**: 仅自部署环境有效，用于覆盖主任务 Cron 频率。主任务会统一执行文章 / 营销调度与 AI 媒体超时补偿。
 - **`FRIEND_LINKS_CHECK_CRON`**: 仅自部署环境有效，用于覆盖独立友链巡检 Cron，默认每天 UTC 02:00 执行一次。
+- **`ENABLE_CRON_JOB=true`**: 在开发或测试环境中显式启用自部署内置 Cron；默认仅生产环境会自动注册内置 Cron。
 - **`DISABLE_CRON_JOB=true`**: 用于显式关闭自部署环境内置 Cron。
 - **`FRIEND_LINKS_CHECK_INTERVAL_MINUTES`**: 友链巡检的最小生效间隔。后台可调整，但最终不会低于 60 分钟。
 - **`FRIEND_LINKS_CHECK_BATCH_SIZE`**: 单轮友链巡检批量，默认 `20`。
@@ -100,6 +101,7 @@
 
 - Vercel / Cloudflare / 手动 Webhook 入口统一执行文章 / 营销调度、AI 媒体超时补偿和友链巡检。
 - 自部署环境下，主 Cron 负责文章 / 营销调度和 AI 媒体超时补偿；友链巡检继续由独立 Cron 执行，避免默认跟随 5 分钟主任务频率高频触发。
+- 非生产环境默认不自动注册这两组内置 Cron，避免本地开发直连远端数据库时周期性唤醒 compute；确需本地联调时再显式设置 `ENABLE_CRON_JOB=true`。
 
 友链巡检说明：即使 Cloudflare / Vercel 的统一定时入口触发更频繁，友链服务也只会对已达到最小间隔且不处于失败冷却期的记录发起探测。
 

@@ -11,6 +11,37 @@
 
 ## 2026-05-06 第三十五阶段 Postgres P0 首页 popular posts 显式 `limit` 查库收敛关闭
 
+## 2026-05-12 第三十七阶段 Postgres P1 长窗口复核：自部署 Cron 默认门禁收紧
+
+### 范围
+
+- 目标：基于用户提供的 Neon compute operations 与 Top SQL 长窗口样本，先解释“为何数据库连接窗口被持续拉长”，并只落地一条最小、可回退的治理切片。
+- 本轮覆盖：[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)、[server/plugins/task-scheduler.test.ts](../../server/plugins/task-scheduler.test.ts)、[docs/plan/todo.md](../../docs/plan/todo.md)、[docs/guide/variables.md](../../docs/guide/variables.md) 与 [docs/guide/deploy.md](../../docs/guide/deploy.md)。
+- 非目标：不并行扩写为全站数据库连接池重构，不在同一轮同时改动请求入口组与公开热点读链路，也不把 `initializeDB()` 的维护链拆分工程一并塞进本次切片。
+
+### 实施结论
+
+- 长窗口样本里最重的一组 SQL 以 TypeORM metadata introspection、`information_schema` / `pg_catalog` 探测与 `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"` 为主，说明压力核心更接近“初始化 / 维护链”而不是某条公开读接口的普通查询体量。
+- 结合 compute operations 的时间节奏复核后，本轮首先锁定到 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)：自部署 Cron 默认主任务频率为每 `5` 分钟一次，且过去在非 serverless 环境下会直接注册。对于“本地 dev 连远端 Neon”这类场景，这会持续周期性唤醒数据库，并把 compute 活跃窗口拉长，外观上接近“连接一直没有释放”。
+- 当前已落地最小治理：内置 Cron 改为“仅生产环境自动注册；开发/测试环境需要显式设置 `ENABLE_CRON_JOB=true` 才启用”。这样不会影响生产调度闭环，但能直接切断本地联调场景下默认的 `5` 分钟数据库唤醒源。
+- 请求入口组里的 `0b-db-ready` / `1-auth` 是否仍有链路把公共请求带入完整 `initializeDB()` 维护链，本轮保留为下一候选；它仍是需要继续复核的第二嫌疑面，但不与本次 Cron 门禁切片并行落地。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run server/plugins/task-scheduler.test.ts`
+	- 结果：通过；`4` 个测试全部通过，覆盖生产默认启用、非生产默认跳过、serverless 禁用与生产 eager health check 四条边界。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮已切断一个高概率周期性唤醒源，但尚未彻底排除请求入口组在特定路径下误触完整 `initializeDB()` 维护链的可能性；后续若长窗口样本仍显示异常活跃窗口，应继续沿 `0b-db-ready` 与 `1-auth` 复核。
+
+### 未覆盖边界
+
+- 本轮没有改动 PostgreSQL pool 的 `idleTimeoutMillis` / `maxLifetimeSeconds` 等连接池参数，也没有引入 `DataSource.destroy()` 生命周期钩子；如果后续证据表明仍存在非 Cron 场景的活跃连接拖尾，需要再单独评估这条切片。
+- 本轮没有继续改造 `initializeDatabaseConnection()` 与 `initializeDB()` 的职责边界，因此 Top SQL 中与完整初始化维护链相关的 metadata introspection 仍可能在首次真正需要数据库的路径上出现，但不会再被本地默认 Cron 周期性重复放大。
+
 ### 范围
 
 - 目标：完成第三十五阶段 `Postgres 热点公开读链路与数据库唤醒继续治理 (P0)` 当前这条首页 popular posts 子切片收口，并补齐数据库级 live sample 证据后正式关闭 todo。

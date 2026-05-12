@@ -8,6 +8,10 @@ function shouldRunInitialFriendLinkHealthCheck() {
     return process.env.RUN_STARTUP_FRIEND_LINK_HEALTH_CHECK === 'true' || process.env.NODE_ENV === 'production'
 }
 
+function shouldRegisterCronJobs() {
+    return process.env.ENABLE_CRON_JOB === 'true' || process.env.NODE_ENV === 'production'
+}
+
 async function runScheduledTaskScan() {
     const [{ initializeDB }, { processScheduledTasks }, { scanAndCompensateTimedOutMediaTasks }] = await Promise.all([
         import('../database'),
@@ -33,11 +37,17 @@ async function runFriendLinkHealthCheck() {
  */
 export default defineNitroPlugin((nitroApp) => {
     // 1. 判断是否需要启用 Cron
-    // 默认在生产环境下尝试启用，除非明确设置了 DISABLE_CRON_JOB 或处于无服务器环境
-    const disableCron = process.env.DISABLE_CRON_JOB === 'true' || isServerlessEnvironment()
+    // 默认仅在生产环境下启用；开发/测试环境需要显式设置 ENABLE_CRON_JOB=true
+    const isServerless = isServerlessEnvironment()
+    const disableCron = process.env.DISABLE_CRON_JOB === 'true' || isServerless
 
     if (disableCron) {
         logger.info('[TaskScheduler] Cron jobs are disabled in this environment.')
+        return
+    }
+
+    if (!shouldRegisterCronJobs()) {
+        logger.info('[TaskScheduler] Skipping cron registration outside production.')
         return
     }
 
