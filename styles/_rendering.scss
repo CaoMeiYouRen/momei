@@ -209,7 +209,7 @@
   }
 
   // Dark mode specific adjustments for KaTeX
-  :global(.dark) & {
+  .dark & {
     .katex {
         // Ensure symbols are readable against dark background
         color: var(--p-text-color);
@@ -270,7 +270,7 @@
   }
 
   // Dark mode adjustments
-  :global(.dark) & {
+  .dark & {
     .custom-block {
       background-color: var(--p-surface-900);
       &.tip { background-color: rgba($color-success, 0.05); }

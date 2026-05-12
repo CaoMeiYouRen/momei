@@ -6,6 +6,8 @@ import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-regi
 const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
     'mjml',
     'mjml-core',
+    'lodash',
+    'dayjs',
     'html-minifier',
     'html-minifier-terser',
     'cheerio',
@@ -26,6 +28,13 @@ const ENABLE_SENTRY_MODULE = !IS_WINDOWS_LOCAL_DEV
     || process.env.NUXT_ENABLE_SENTRY_ON_WINDOWS_DEV === 'true'
 const ENABLE_SITEMAP_MODULE = !IS_WINDOWS_LOCAL_DEV
     || process.env.NUXT_ENABLE_SITEMAP_ON_WINDOWS_DEV === 'true'
+const NODE_ESM_SUBPATH_ALIASES = {
+    'dayjs/plugin/duration': 'dayjs/plugin/duration.js',
+    'dayjs/plugin/relativeTime': 'dayjs/plugin/relativeTime.js',
+    'dayjs/plugin/timezone': 'dayjs/plugin/timezone.js',
+    'dayjs/plugin/utc': 'dayjs/plugin/utc.js',
+    'lodash/fp': 'lodash/fp.js',
+} as const
 const VITE_OPTIMIZE_DEPS_INCLUDE = IS_WINDOWS_LOCAL_DEV
     ? []
     : [
@@ -108,6 +117,8 @@ const MomeiPreset = definePreset(Aura, {
 export default defineNuxtConfig({
     compatibilityDate: '2025-12-01',
     devtools: { enabled: false },
+    // Node.js 24 的 ESM 解析不接受 `lodash/fp` 目录导入，显式固定到文件入口。
+    alias: NODE_ESM_SUBPATH_ALIASES,
     modules: [
         ENABLE_NUXT_ESLINT_MODULE && '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
@@ -367,6 +378,7 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
+        alias: NODE_ESM_SUBPATH_ALIASES,
         experimental: {
             websocket: true,
         },

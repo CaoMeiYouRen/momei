@@ -64,7 +64,7 @@ const toggleMenu = (event: any) => {
     }
 }
 
-:global(.dark) .is-active-locale {
+.dark .is-active-locale {
     .p-menuitem-content {
         background-color: var(--p-surface-800);
     }
