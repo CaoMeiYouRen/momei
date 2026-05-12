@@ -67,6 +67,10 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 在“首轮构建完成后再发第二次请求”的独立 profile 中，热点转为 Vite `matchPatterns -> _isIgnored -> _addToNodeFs`；对比二次请求前后的 watcher 快照，新增 watcher 主要集中在 `server/api`、`i18n/locales`、`server/utils`、`components/admin`、`pages/admin` 等真实业务树，而不是 `.github` / `docs` / `artifacts` 这类外围目录。
 - 但把 `vite.server.watch` 直接设为 `null` 后，首个 `/api/settings/public` 请求在 `60s` 内仍然超时，而终端已在约 `33s` 左右打印 `Vite client built` / `Vite server built`。这说明 Vite watcher 动态扩张已不是主控制点。
 - 同一轮试验里，终端曾出现 `Nuxt Nitro server built in 333417ms`。配合 `artifacts/dev-first-request-watch-null-60s.cpuprofile` 可见，`60s` 窗口主要消耗已经转移到 Rollup / `@rollup/plugin-node-resolve`、`exsolve`、`internalModuleStat`、`readPackageJSON`、`compileFunctionForCJSLoader` 等 Nitro dev 构建链，而不是单纯的 Vite watcher。
+- 进一步用 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 对 `/api/settings/public` 跑 `180s` 长窗口后，增强版 `artifacts/nitro-resolve-probe.json` 在 repo-local bucket 视角下已经能说明主导方向：`topImporterBuckets` 中 `server/api` 约 `1439`、`server/api/admin` 约 `1248`、`server/services` 约 `928`、`server/utils` 约 `898`、`server/services/ai` 约 `464`、`server/api/ai` 约 `358`；与之对照，`i18n/locales` 在 repo-local 视角下只在 `topTargetBuckets` 中约为 `10`。由于同一份 probe 的全量结果仍会被 `node_modules` 与 `other` 这类 bucket 覆盖，因此这里更适合作为“repo-local 热点分布”证据，而不是全量 specifier 的绝对排序结论；但它已经足够说明首请求长尾并不是由 locale 资源树主导，而是被大范围 server graph 提前卷入。
+- 同一份 probe 的 `topTargetBuckets` 在 repo-local 视角下主要落点是 `server/utils`（约 `1370`）、`utils/shared`（约 `1293`）、`server/entities`（约 `565`）、`server/services`（约 `415`）和 `server/database`（约 `293`）；`i18n/locales` 目标命中量仍只有约 `10`。结合 `focusBucketPairs` 这个专门过滤 repo-local 入口图的视角，可见主要热点集中在 `server/api -> server/utils`（约 `370`）、`server/api -> server/database`（约 `96`）、`server/api/admin -> server/utils`（约 `306`）、`server/api/admin -> server/database`（约 `38`）、`server/services -> server/utils`（约 `100`）、`server/services -> server/database`（约 `54`）、`server/api/ai -> server/utils`（约 `88`）、`server/api/ai -> server/services/ai`（约 `29`）、`server/services/ai -> server/utils`（约 `68`）和 `server/services/ai -> server/database`（约 `22`）。因此，当前最可信的 repo-local 结论是：Nitro resolve 长尾主要来自“广泛 `server/api` / `server/api/admin` 先扫进 `server/utils` / `server/database` / `utils/shared` / `server/entities`”这类公共依赖扇出，而不是单个 API 入口或 locale 模块。
+- `artifacts/nitro-resolve-probe.snapshot.json` 中还能看到 `/api/settings/public` 相关链路反复命中 `types/setting`、`server/utils/api-runtime-cache`、`server/services/setting` 与 `server/utils/settings`。这说明当前公共设置读取路径并没有保持在轻量 public graph 内，而是共享了较宽的 settings / cache / service 栈。
+- Windows 上读取 probe artifact 时曾触发 `EBUSY` 并打断 dev 进程，因此当前 probe 已改为“写盘忙则记录 marker 并重试”，并通过临时文件 + `rename` 替换正式 artifact，避免并发写把 `nitro-resolve-probe.json` 直接写坏；需要注意的是，运行中的诊断窗口里仍可能暂时只有 `.tmp` 或尚未生成正式 JSON，因此后续分析应优先基于已经复制出的 snapshot 或已落盘完成的正式 artifact，而不是把“文件暂时不存在”的窗口误判为没有采样结果。
 
 ### 3.4 对照目标口径
 
@@ -99,6 +103,8 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - `nuxt.options.ignore` 与 Windows-local-dev watcher ignore 只解决了外围目录噪声，不足以恢复首请求。
 - `vite.server.watch = null` 依旧无法让首个公共 API 请求在 `60s` 内返回，因此“Vite watcher 本身”已经被证伪为主阻塞。
 - 当前最强证据指向 Nitro dev 首次服务端构建：Vite client/server 可在约 `30s` 内完成，但公共请求仍被挂住；长窗口 CPU profile 已转向 Rollup / node-resolve / `exsolve` / Node 模块解析链。
+- 新增 Nitro resolve bucket probe 后，可以把“哪条 repo-local graph 更重”进一步说清：当前不是 `i18n/locales`、不是单个 `/api/settings/public` handler 本身，而是 Nitro 在首请求期间将大范围 `server/api` / `server/api/admin` 入口一并扇出到 `server/utils`、`server/database`、`utils/shared`、`server/entities` 和部分 `server/services`。`server/api/ai` 与 `server/services/ai` 也是可见热点，但量级仍低于通用 `server/api -> server/utils` / `server/database` 扇出。
+- 因为 `/api/settings/public` 明确命中 `types/setting`、`server/utils/api-runtime-cache`、`server/services/setting` 和 `server/utils/settings`，下一轮不应再把它当成“天然轻量的公共读接口”；更合理的方向是把 public settings 读链从通用 settings/service/cache 栈中切出来，避免首请求一上来就拖进完整 settings graph。
 
 因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点；下一轮应把主诊断重心放在 Nitro dev build 的依赖解析与服务端图规模，而不是继续微调 Vite watcher ignore。
 
@@ -160,7 +166,9 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 2. 把排查主线切到 Nuxt / Vite / Nitro 的请求前准备阶段。
    - 优先围绕 Nitro dev 首次构建链补更贴近根因的证据：Rollup / node-resolve / `exsolve`、Node 模块解析与服务端依赖图规模，而不是继续扩大业务层探针。
    - `nuxt.options.ignore`、工作区包 ignore 与 Vite watcher ignore 已验证只能降噪，不能单独恢复首请求；后续不应再把 watcher ignore 视为主修复方向。
-   - 下一轮应优先产出 Nitro 侧的稳定证据，例如更细的 Rollup resolve/load 热点、服务端入口图 / chunk 图、或能明确区分“构建尚未完成”和“构建完成但 ready 锁未释放”的诊断输出。
+   - 下一轮应优先围绕 `server/api -> server/utils`、`server/api/admin -> server/utils`、`server/api -> server/database` 这几条最重 pair 收缩入口图，而不是继续泛化到所有目录。
+   - `/api/settings/public` 应先单独拆它的 settings graph：重点核查 `server/utils/api-runtime-cache`、`server/services/setting`、`server/utils/settings` 与 `types/setting` 是否能切出更轻量的 public read model，避免首请求加载完整 settings / admin 相关依赖。
+   - `server/api/admin` 与 `server/api/ai` 的共享依赖扇出已经可见，应继续核查通用 `server/utils/permission`、`server/database`、实体聚合与 shared util 是否在 dev 首构建时被过早全量卷入；需要时再补更细的 Rollup resolve/load 热点与服务端 chunk 图。
 
 3. 再进入 build 长尾专项剖析。
    - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。

@@ -159,8 +159,7 @@ async function captureProfile(options) {
                 durationMs: Date.now() - requestStartedAt,
                 headers: Object.fromEntries(response.headers.entries()),
             }
-        }
-        catch (error) {
+        } catch (error) {
             requestSummary = {
                 ok: false,
                 durationMs: Date.now() - requestStartedAt,
@@ -184,13 +183,12 @@ async function captureProfile(options) {
             webSocketUrl,
         })
 
-        console.log(JSON.stringify({
+        console.info(JSON.stringify({
             metadataOutputPath,
             outputPath,
             request: requestSummary,
         }, null, 2))
-    }
-    finally {
+    } finally {
         webSocket.close()
     }
 }
