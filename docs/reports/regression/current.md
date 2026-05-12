@@ -9,38 +9,41 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
-## 2026-05-06 第三十五阶段 Postgres P0 首页 popular posts 显式 `limit` 查库收敛关闭
-
-## 2026-05-12 第三十七阶段 Postgres P1 长窗口复核：自部署 Cron 默认门禁收紧
+## 2026-05-12 第三十七阶段 Postgres P1 长窗口复核：自部署 Cron 与请求入口连接级初始化收紧
 
 ### 范围
 
-- 目标：基于用户提供的 Neon compute operations 与 Top SQL 长窗口样本，先解释“为何数据库连接窗口被持续拉长”，并只落地一条最小、可回退的治理切片。
-- 本轮覆盖：[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)、[server/plugins/task-scheduler.test.ts](../../server/plugins/task-scheduler.test.ts)、[docs/plan/todo.md](../../docs/plan/todo.md)、[docs/guide/variables.md](../../docs/guide/variables.md) 与 [docs/guide/deploy.md](../../docs/guide/deploy.md)。
-- 非目标：不并行扩写为全站数据库连接池重构，不在同一轮同时改动请求入口组与公开热点读链路，也不把 `initializeDB()` 的维护链拆分工程一并塞进本次切片。
+- 目标：基于用户提供的 Neon compute operations 与 Top SQL 长窗口样本，先解释“为何数据库连接窗口被持续拉长”，并只落地一组最小、可回退的治理切片。
+- 本轮覆盖：[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)、[server/plugins/task-scheduler.test.ts](../../server/plugins/task-scheduler.test.ts)、[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../server/middleware/1-auth.ts)、[tests/server/middleware/db-ready.test.ts](../../tests/server/middleware/db-ready.test.ts)、[tests/server/middleware/auth-optional-session.test.ts](../../tests/server/middleware/auth-optional-session.test.ts)、[docs/plan/todo.md](../../docs/plan/todo.md)、[docs/guide/variables.md](../../docs/guide/variables.md) 与 [docs/guide/deploy.md](../../docs/guide/deploy.md)。
+- 非目标：不并行扩写为全站数据库连接池重构，不在同一轮同时改动更多公开热点读链路，也不继续拆分 `initializeDB()` 的维护职责。
 
 ### 实施结论
 
 - 长窗口样本里最重的一组 SQL 以 TypeORM metadata introspection、`information_schema` / `pg_catalog` 探测与 `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"` 为主，说明压力核心更接近“初始化 / 维护链”而不是某条公开读接口的普通查询体量。
 - 结合 compute operations 的时间节奏复核后，本轮首先锁定到 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)：自部署 Cron 默认主任务频率为每 `5` 分钟一次，且过去在非 serverless 环境下会直接注册。对于“本地 dev 连远端 Neon”这类场景，这会持续周期性唤醒数据库，并把 compute 活跃窗口拉长，外观上接近“连接一直没有释放”。
 - 当前已落地最小治理：内置 Cron 改为“仅生产环境自动注册；开发/测试环境需要显式设置 `ENABLE_CRON_JOB=true` 才启用”。这样不会影响生产调度闭环，但能直接切断本地联调场景下默认的 `5` 分钟数据库唤醒源。
-- 请求入口组里的 `0b-db-ready` / `1-auth` 是否仍有链路把公共请求带入完整 `initializeDB()` 维护链，本轮保留为下一候选；它仍是需要继续复核的第二嫌疑面，但不与本次 Cron 门禁切片并行落地。
+- 随后沿请求入口组继续审计后，[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 与 [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 已从完整 `initializeDB()` 收紧为 `initializeDatabaseConnection()`：请求级数据库预热与可选 session 解析现在只确保连接与实体元数据可用，不再把 `syncAdminRoles()` 与 `repairLegacyPostVersionRecords()` 维护链拖进公开请求首跳。
+- 这次收紧与 [server/database/index.ts](../../server/database/index.ts) 现有职责注释保持一致：连接级初始化继续服务安装态探针、请求预热与鉴权自保，完整 `initializeDB()` 仍由定时任务、seed 插件或显式调用入口承担维护型动作，不会因为这轮请求级收紧而变成死路径。
 
 ### 已执行验证
 
 - 定向 Vitest：`pnpm exec vitest run server/plugins/task-scheduler.test.ts`
 	- 结果：通过；`4` 个测试全部通过，覆盖生产默认启用、非生产默认跳过、serverless 禁用与生产 eager health check 四条边界。
+- 定向 Vitest：`pnpm exec vitest run tests/server/middleware/db-ready.test.ts tests/server/middleware/auth-optional-session.test.ts`
+	- 结果：通过；`13` 个测试全部通过，确认请求级数据库预热与可选 session 解析已经改为连接级初始化，且不再误触完整 `initializeDB()`。
 
 ### Review Gate
 
 - 结论：Pass
 - 问题分级：warning
-- 主要问题：本轮已切断一个高概率周期性唤醒源，但尚未彻底排除请求入口组在特定路径下误触完整 `initializeDB()` 维护链的可能性；后续若长窗口样本仍显示异常活跃窗口，应继续沿 `0b-db-ready` 与 `1-auth` 复核。
+- 主要问题：本轮已切断一个高概率周期性唤醒源，并收紧了当前已确认的请求入口误触面；但是否还存在其它首次请求或后台路径会把完整 `initializeDB()` 维护链放大到长窗口样本中，仍需下一轮 live sample 继续确认。
 
 ### 未覆盖边界
 
 - 本轮没有改动 PostgreSQL pool 的 `idleTimeoutMillis` / `maxLifetimeSeconds` 等连接池参数，也没有引入 `DataSource.destroy()` 生命周期钩子；如果后续证据表明仍存在非 Cron 场景的活跃连接拖尾，需要再单独评估这条切片。
-- 本轮没有继续改造 `initializeDatabaseConnection()` 与 `initializeDB()` 的职责边界，因此 Top SQL 中与完整初始化维护链相关的 metadata introspection 仍可能在首次真正需要数据库的路径上出现，但不会再被本地默认 Cron 周期性重复放大。
+- 本轮没有继续改造 `initializeDatabaseConnection()` 与 `initializeDB()` 的职责边界，因此 Top SQL 中与完整初始化维护链相关的 metadata introspection 仍可能在首次真正需要数据库的路径上出现，但不会再被本地默认 Cron 或当前这两条请求级中间件重复放大。
+
+## 2026-05-06 第三十五阶段 Postgres P0 首页 popular posts 显式 `limit` 查库收敛关闭
 
 ### 范围
 

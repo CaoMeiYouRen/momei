@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { dataSourceState, getSession, initializeDB, loggerError } = vi.hoisted(() => ({
+const { dataSourceState, getSession, initializeDatabaseConnection, initializeDB, loggerError } = vi.hoisted(() => ({
     getSession: vi.fn().mockResolvedValue({
         user: {
             id: 'user-1',
             role: 'author',
         },
     }),
+    initializeDatabaseConnection: vi.fn().mockResolvedValue(undefined),
     initializeDB: vi.fn().mockResolvedValue(undefined),
     loggerError: vi.fn(),
     dataSourceState: {
@@ -30,6 +31,7 @@ vi.mock('@/server/database', () => ({
             return dataSourceState.isInitialized
         },
     },
+    initializeDatabaseConnection,
     initializeDB,
 }))
 
@@ -84,6 +86,7 @@ describe('auth optional session middleware', () => {
 
         await authMiddleware(event)
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
         expect(getSession).not.toHaveBeenCalled()
         expect(event.context.auth).toBeUndefined()
@@ -94,6 +97,7 @@ describe('auth optional session middleware', () => {
 
         await authMiddleware(event)
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
         expect(getSession).not.toHaveBeenCalled()
     })
@@ -103,6 +107,7 @@ describe('auth optional session middleware', () => {
 
         await authMiddleware(event)
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
         expect(getSession).not.toHaveBeenCalled()
     })
@@ -112,7 +117,8 @@ describe('auth optional session middleware', () => {
 
         await authMiddleware(event)
 
-        expect(initializeDB).toHaveBeenCalledTimes(1)
+        expect(initializeDatabaseConnection).toHaveBeenCalledTimes(1)
+        expect(initializeDB).not.toHaveBeenCalled()
         expect(getSession).toHaveBeenCalledTimes(1)
         expect(event.context.user).toMatchObject({ id: 'user-1', role: 'author' })
     })
@@ -123,6 +129,7 @@ describe('auth optional session middleware', () => {
 
         await authMiddleware(event)
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
         expect(getSession).toHaveBeenCalledTimes(1)
         expect(event.context.auth).toBeTruthy()

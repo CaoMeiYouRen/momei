@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { dataSourceState, initializeDB, loggerWarn } = vi.hoisted(() => ({
+const { dataSourceState, initializeDatabaseConnection, initializeDB, loggerWarn } = vi.hoisted(() => ({
+    initializeDatabaseConnection: vi.fn(() => Promise.resolve(undefined)),
     initializeDB: vi.fn(() => Promise.resolve(undefined)),
     loggerWarn: vi.fn(),
     dataSourceState: {
@@ -24,6 +25,7 @@ vi.mock('@/server/database', () => ({
             return dataSourceState.isInitialized
         },
     },
+    initializeDatabaseConnection,
     initializeDB,
 }))
 
@@ -55,13 +57,15 @@ describe('db ready middleware', () => {
 
         await ensureRequestDatabaseReady(createEvent('/feed.xml'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(1)
+        expect(initializeDatabaseConnection).toHaveBeenCalledTimes(1)
+        expect(initializeDB).not.toHaveBeenCalled()
     })
 
     it('should warm up public friend-links api routes before handlers access repositories', async () => {
         await ensureRequestDatabaseReady(createEvent('/api/friend-links?featured=true'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(1)
+        expect(initializeDatabaseConnection).toHaveBeenCalledTimes(1)
+        expect(initializeDB).not.toHaveBeenCalled()
     })
 
     it('should warm up anonymous metadata routes such as sitemap and webfinger', async () => {
@@ -77,7 +81,8 @@ describe('db ready middleware', () => {
         await ensureRequestDatabaseReady(createEvent('/.well-known/webfinger?resource=acct:test@example.com'))
         await ensureRequestDatabaseReady(createEvent('/fed/actor/test-user'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(5)
+        expect(initializeDatabaseConnection).toHaveBeenCalledTimes(5)
+        expect(initializeDB).not.toHaveBeenCalled()
     })
 
     it('should skip installation and static asset requests', async () => {
@@ -121,6 +126,7 @@ describe('db ready middleware', () => {
         await ensureRequestDatabaseReady(createEvent('/uploads/avatar.webp'))
         await ensureRequestDatabaseReady(createEvent('/favicon.ico'))
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
     })
 
@@ -129,18 +135,20 @@ describe('db ready middleware', () => {
 
         await ensureRequestDatabaseReady(createEvent('/feed.atom'))
 
+        expect(initializeDatabaseConnection).not.toHaveBeenCalled()
         expect(initializeDB).not.toHaveBeenCalled()
     })
 
     it('should warn when initialization still leaves the data source unavailable', async () => {
-        initializeDB.mockImplementationOnce(() => {
+        initializeDatabaseConnection.mockImplementationOnce(() => {
             dataSourceState.isInitialized = false
             return Promise.resolve(undefined)
         })
 
         await ensureRequestDatabaseReady(createEvent('/api/posts'))
 
-        expect(initializeDB).toHaveBeenCalledTimes(1)
+        expect(initializeDatabaseConnection).toHaveBeenCalledTimes(1)
+        expect(initializeDB).not.toHaveBeenCalled()
         expect(loggerWarn).toHaveBeenCalledWith('[DBReady] Database warmup did not finish before handling /api/posts')
     })
 })

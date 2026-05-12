@@ -40,11 +40,11 @@ export default defineEventHandler(async (event) => {
             return
         }
 
-        const { dataSource, initializeDB } = await import('@/server/database')
+        const { dataSource, initializeDatabaseConnection } = await import('@/server/database')
         if (!dataSource.isInitialized) {
-            // 可选 session 解析会早于部分 service 层触发；这里自保式初始化 DB，
-            // 避免“有会话痕迹但数据库尚未就绪”直接导致鉴权链短路。
-            await initializeDB()
+            // 可选 session 解析只需要连接与实体元数据可用，不应把维护型
+            // initializeDB() 链路一并拉进公开请求首跳。
+            await initializeDatabaseConnection()
         }
         const { auth } = await import('@/lib/auth')
         const session = await auth.api.getSession({

@@ -59,13 +59,13 @@ export async function ensureRequestDatabaseReady(event: H3Event) {
         return
     }
 
-    const { dataSource, initializeDB } = await import('@/server/database')
+    const { dataSource, initializeDatabaseConnection } = await import('@/server/database')
 
     if (dataSource.isInitialized) {
         return
     }
 
-    await initializeDB()
+    await initializeDatabaseConnection()
 
     if (!dataSource.isInitialized) {
         logger.warn(`[DBReady] Database warmup did not finish before handling ${pathname}`)
