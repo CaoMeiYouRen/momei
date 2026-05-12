@@ -16,6 +16,7 @@ import { primeHydratedAuthSession, setupAuthSessionLifecycle, useAuthSession } f
 const { t, setLocale, locale } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig()
+const shouldDeferInitialServerSettings = import.meta.server && config.public.windowsLocalDevMode
 
 initializeAuthSessionSync()
 
@@ -43,6 +44,10 @@ const isInstallationPage = computed(() => {
 
 const initializeAppSettings = async () => {
     if (isInstallationPage.value) {
+        return
+    }
+
+    if (shouldDeferInitialServerSettings) {
         return
     }
 

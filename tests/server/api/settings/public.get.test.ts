@@ -3,17 +3,17 @@ import publicSettingsHandler from '@/server/api/settings/public.get'
 import { clearRuntimeCache } from '@/server/utils/runtime-cache'
 import { SettingKey } from '@/types/setting'
 
-const { ensureDatabaseReady } = vi.hoisted(() => ({
-    ensureDatabaseReady: vi.fn().mockResolvedValue(true),
+const {
+    getPublicSettings,
+    resolvePublicLocalizedSettingsFromValues,
+} = vi.hoisted(() => ({
+    getPublicSettings: vi.fn(),
+    resolvePublicLocalizedSettingsFromValues: vi.fn(),
 }))
 
-vi.mock('~/server/services/setting', () => ({
-    getSettings: vi.fn(),
-    resolveLocalizedSettingsFromValues: vi.fn(),
-}))
-
-vi.mock('@/server/database', () => ({
-    ensureDatabaseReady,
+vi.mock('~/server/services/public-settings', () => ({
+    getPublicSettings,
+    resolvePublicLocalizedSettingsFromValues,
 }))
 
 vi.mock('~/server/utils/locale', () => ({
@@ -25,14 +25,11 @@ vi.mock('~/server/utils/ad-network-config', () => ({
     resolveGoogleAdSenseAccount: vi.fn(() => 'ca-pub-1234567890123456'),
 }))
 
-import { getSettings, resolveLocalizedSettingsFromValues } from '~/server/services/setting'
-
 describe('GET /api/settings/public', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         clearRuntimeCache()
-        ensureDatabaseReady.mockResolvedValue(true)
-        vi.mocked(getSettings).mockResolvedValue({
+        vi.mocked(getPublicSettings).mockResolvedValue({
             [SettingKey.SITE_NAME]: 'Momei',
             [SettingKey.SITE_TITLE]: null,
             [SettingKey.SITE_DESCRIPTION]: null,
@@ -80,7 +77,7 @@ describe('GET /api/settings/public', () => {
             [SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY]: '',
             [SettingKey.COMMERCIAL_SPONSORSHIP]: null,
         })
-        vi.mocked(resolveLocalizedSettingsFromValues).mockReturnValue({
+        vi.mocked(resolvePublicLocalizedSettingsFromValues).mockReturnValue({
             [SettingKey.SITE_TITLE]: {
                 key: SettingKey.SITE_TITLE,
                 value: '墨梅博客',
@@ -133,9 +130,8 @@ describe('GET /api/settings/public', () => {
         const result = await publicSettingsHandler({} as any)
 
         expect(result.code).toBe(200)
-        expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
-        expect(getSettings).toHaveBeenCalledTimes(1)
-        expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
+        expect(getPublicSettings).toHaveBeenCalledTimes(1)
+        expect(resolvePublicLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
         expect(result.data.postCopyright).toBe('all-rights-reserved')
         expect(result.data.siteCopyrightOwner).toBe('墨梅团队')
         expect(result.data.siteCopyrightStartYear).toBe('2024')
@@ -165,17 +161,16 @@ describe('GET /api/settings/public', () => {
         const second = await publicSettingsHandler({} as any)
 
         expect(first).toEqual(second)
-        expect(ensureDatabaseReady).toHaveBeenCalledTimes(1)
-        expect(getSettings).toHaveBeenCalledTimes(1)
-        expect(resolveLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
+        expect(getPublicSettings).toHaveBeenCalledTimes(1)
+        expect(resolvePublicLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
     })
 
     it('should not cache fallback settings when database bootstrap fails', async () => {
-        ensureDatabaseReady.mockResolvedValueOnce(false)
+        vi.mocked(getPublicSettings).mockResolvedValueOnce(null)
 
         await expect(publicSettingsHandler({} as any)).rejects.toMatchObject({
             statusCode: 503,
         })
-        expect(getSettings).not.toHaveBeenCalled()
+        expect(resolvePublicLocalizedSettingsFromValues).not.toHaveBeenCalled()
     })
 })

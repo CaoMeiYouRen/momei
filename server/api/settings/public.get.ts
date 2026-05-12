@@ -1,11 +1,10 @@
-import { getSettings, resolveLocalizedSettingsFromValues } from '~/server/services/setting'
+import { getPublicSettings, resolvePublicLocalizedSettingsFromValues } from '~/server/services/public-settings'
 import { resolveAppLocaleCode } from '~/i18n/config/locale-registry'
 import { resolveGoogleAdSenseAccount } from '~/server/utils/ad-network-config'
 import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '~/server/utils/locale'
 import { getLocalizedFallbackChain, serializeLocalizedStringList } from '~/utils/shared/localized-settings'
-import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting } from '~/types/setting'
+import { PUBLIC_SETTING_KEYS, SettingKey, type ResolvedLocalizedSetting, type SettingValue } from '~/types/setting'
 import { buildRuntimeApiCacheKey, withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
-import { ensureDatabaseReady } from '@/server/database'
 
 const PUBLIC_SETTINGS_CACHE_TTL_SECONDS = 60
 const PUBLIC_SETTINGS_CACHE_NAMESPACE = 'settings:public'
@@ -16,6 +15,10 @@ function isEnabledSetting(value: string | null | undefined, fallback = false): b
 
 function resolveOptionalBooleanSetting(value: string | null | undefined): boolean | null {
     return value === null || value === undefined ? null : value === 'true'
+}
+
+function asStringSetting(value: SettingValue | undefined): string | null | undefined {
+    return typeof value === 'string' ? value : undefined
 }
 
 /**
@@ -38,8 +41,9 @@ export default defineEventHandler(async (event) => {
             ttlSeconds: PUBLIC_SETTINGS_CACHE_TTL_SECONDS,
             isSharedPublicResponse: true,
             loader: async () => {
-                const databaseReady = await ensureDatabaseReady()
-                if (!databaseReady) {
+                const settings = await getPublicSettings([...PUBLIC_SETTING_KEYS, SettingKey.COMMERCIAL_SPONSORSHIP])
+
+                if (!settings) {
                     throw createError({
                         statusCode: 503,
                         statusMessage: 'Database unavailable',
@@ -47,8 +51,7 @@ export default defineEventHandler(async (event) => {
                 }
 
                 const fallbackChain = getLocalizedFallbackChain(requestedLocale)
-                const settings = await getSettings([...PUBLIC_SETTING_KEYS, SettingKey.COMMERCIAL_SPONSORSHIP])
-                const localizedSettings = resolveLocalizedSettingsFromValues(settings, [
+                const localizedSettings = resolvePublicLocalizedSettingsFromValues(settings, [
                     SettingKey.SITE_TITLE,
                     SettingKey.SITE_DESCRIPTION,
                     SettingKey.SITE_KEYWORDS,
@@ -121,10 +124,10 @@ export default defineEventHandler(async (event) => {
                         icpLicenseNumber: settings[SettingKey.ICP_LICENSE_NUMBER],
                         publicSecurityNumber: settings[SettingKey.PUBLIC_SECURITY_NUMBER],
                         footerCode: settings[SettingKey.FOOTER_CODE],
-                        travellingsEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_ENABLED], true),
-                        travellingsHeaderEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_HEADER_ENABLED], true),
-                        travellingsFooterEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_FOOTER_ENABLED], true),
-                        travellingsSidebarEnabled: isEnabledSetting(settings[SettingKey.TRAVELLINGS_SIDEBAR_ENABLED], true),
+                        travellingsEnabled: isEnabledSetting(asStringSetting(settings[SettingKey.TRAVELLINGS_ENABLED]), true),
+                        travellingsHeaderEnabled: isEnabledSetting(asStringSetting(settings[SettingKey.TRAVELLINGS_HEADER_ENABLED]), true),
+                        travellingsFooterEnabled: isEnabledSetting(asStringSetting(settings[SettingKey.TRAVELLINGS_FOOTER_ENABLED]), true),
+                        travellingsSidebarEnabled: isEnabledSetting(asStringSetting(settings[SettingKey.TRAVELLINGS_SIDEBAR_ENABLED]), true),
                         live2dEnabled: String(settings[SettingKey.LIVE2D_ENABLED]) === 'true',
                         live2dScriptUrl: settings[SettingKey.LIVE2D_SCRIPT_URL] || '',
                         live2dModelUrl: settings[SettingKey.LIVE2D_MODEL_URL] || '',
@@ -137,7 +140,7 @@ export default defineEventHandler(async (event) => {
                         canvasNestMobileEnabled: String(settings[SettingKey.CANVAS_NEST_MOBILE_ENABLED]) === 'true',
                         canvasNestMinWidth: Number(settings[SettingKey.CANVAS_NEST_MIN_WIDTH] || 1024),
                         canvasNestDataSaverBlock: settings[SettingKey.CANVAS_NEST_DATA_SAVER_BLOCK] !== 'false',
-                        effectsMobileEnabled: resolveOptionalBooleanSetting(settings[SettingKey.EFFECTS_MOBILE_ENABLED]),
+                        effectsMobileEnabled: resolveOptionalBooleanSetting(asStringSetting(settings[SettingKey.EFFECTS_MOBILE_ENABLED])),
                         effectsMinWidth: settings[SettingKey.EFFECTS_MIN_WIDTH] === null || settings[SettingKey.EFFECTS_MIN_WIDTH] === undefined ? null : Number(settings[SettingKey.EFFECTS_MIN_WIDTH]),
                         effectsDataSaverBlock: settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === null || settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] === undefined ? null : settings[SettingKey.EFFECTS_DATA_SAVER_BLOCK] !== 'false',
                         aiEnabled: String(settings[SettingKey.AI_ENABLED]) === 'true',

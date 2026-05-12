@@ -4,6 +4,19 @@ import { ref } from 'vue'
 import IndexPage from './index.vue'
 import { useAppFetch } from '@/composables/use-app-fetch'
 
+vi.mock('#app', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('#app')>()
+
+    return {
+        ...actual,
+        useRuntimeConfig: () => ({
+            public: {
+                windowsLocalDevMode: false,
+            },
+        }),
+    }
+})
+
 // Mock dependencies
 vi.mock('@/composables/use-app-fetch', () => ({
     useAppFetch: vi.fn(),
@@ -104,6 +117,7 @@ describe('IndexPage', () => {
 
         const latestCall = vi.mocked(useAppFetch).mock.calls[0]
         expect(latestCall?.[0]).toBe('/api/posts/home')
+        expect(latestCall?.[1]).toMatchObject({ server: true })
 
         const popularCall = vi.mocked(useAppFetch).mock.calls[1]
         expect(popularCall?.[1]).toMatchObject({

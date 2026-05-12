@@ -105,6 +105,12 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 当前最强证据指向 Nitro dev 首次服务端构建：Vite client/server 可在约 `30s` 内完成，但公共请求仍被挂住；长窗口 CPU profile 已转向 Rollup / node-resolve / `exsolve` / Node 模块解析链。
 - 新增 Nitro resolve bucket probe 后，可以把“哪条 repo-local graph 更重”进一步说清：当前不是 `i18n/locales`、不是单个 `/api/settings/public` handler 本身，而是 Nitro 在首请求期间将大范围 `server/api` / `server/api/admin` 入口一并扇出到 `server/utils`、`server/database`、`utils/shared`、`server/entities` 和部分 `server/services`。`server/api/ai` 与 `server/services/ai` 也是可见热点，但量级仍低于通用 `server/api -> server/utils` / `server/database` 扇出。
 - 因为 `/api/settings/public` 明确命中 `types/setting`、`server/utils/api-runtime-cache`、`server/services/setting` 和 `server/utils/settings`，下一轮不应再把它当成“天然轻量的公共读接口”；更合理的方向是把 public settings 读链从通用 settings/service/cache 栈中切出来，避免首请求一上来就拖进完整 settings graph。
+- 截至 2026-05-12 本轮继续验证后，以下几类“就近止血”仍未让 `pnpm perf:nuxt:dev -- --repeat=1` 恢复首请求：
+   - 将 `/api/settings/public` 切成轻量 public read model。
+   - Windows-local-dev 默认排除 admin pages / components / `server/api/admin`，仅保留 `NUXT_ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV=true` 的显式恢复开关。
+   - 收紧 `nitro.externals.inline`，在 Windows 本地不再强制 inline `dayjs` / `lodash`。
+   - 把 [app.vue](../../../app.vue) 的 `fetchTheme()` / `fetchSiteConfig()` 以及 [pages/index.vue](../../../pages/index.vue) 的 latest posts 改成 Windows-local-dev 客户端延后拉取。
+- 这组结果说明：当前主阻塞仍然早于这些入口业务链和首页 SSR 数据链；后续不应继续把首页首屏或单个 public API 当作主控制点，而应继续收敛 Nitro dev 首次服务端构建本身。
 
 因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点；下一轮应把主诊断重心放在 Nitro dev build 的依赖解析与服务端图规模，而不是继续微调 Vite watcher ignore。
 
@@ -123,6 +129,12 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 可能的 Nitro post-build 收尾逻辑
 
 这一段需要继续定量拆解，而不是只看 `Client built` / `Server built` 两行日志。
+
+截至 2026-05-12 本轮单样本复测，build 侧已经拿到一个可复用的止血点：
+
+- 在 [nuxt.config.ts](../../../nuxt.config.ts) 中把 Windows 本地 `sourcemap.server` 关闭后，`pnpm perf:nuxt:build -- --repeat=1` 已从约 `542774ms` 降到 `490844ms`，首次进入 `<= 500s` 区间。
+- 同一轮结果里，`Nuxt banner -> Server built` 约 `111s`，`Server built -> process exit` 约 `380s`，说明长尾仍在，但已经较上一轮约 `421s` 有所收敛。
+- `rg -n "\\.map" artifacts/nuxt-build-performance.log` 已查不到 `.output/server/*.map` 写出记录，这与“关闭 server sourcemap 后尾部写盘负担下降”的判断一致。
 
 ## 5. 治理目标
 
@@ -143,6 +155,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 建议验收：
 
 - 第一阶段先把 `pnpm perf:nuxt:build -- --repeat=3` 的总耗时中位数压到 `<= 500s`
+- 2026-05-12 已有 `repeat=1` 单样本达到 `490844ms`；下一步需要补 `repeat=3`，确认该结果不是偶然波动。
 - 在第一阶段稳定后，再继续把总耗时中位数向 `120s` 参考档位逼近；只有当热点拆解结果支持时，才把这一目标升格为正式承诺
 - `Server built -> Build complete` 尾耗时需要先显著低于当前约 `421s` 的长尾水平，并在后续剖析后补成更细的阶段验收阈值
 - 不以破坏 `pnpm build` 正常产物或质量门为代价

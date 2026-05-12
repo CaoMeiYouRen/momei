@@ -60,6 +60,7 @@ const runtimeConfigState = {
     },
     public: {
         demoMode: false,
+        windowsLocalDevMode: false,
     },
 }
 
@@ -189,6 +190,7 @@ describe('app.vue', () => {
         routeState.redirectedFrom = undefined
         routerState.currentRoute.value = routeState
         runtimeConfigState.public.demoMode = false
+        runtimeConfigState.public.windowsLocalDevMode = false
         localeState.value = 'zh-CN'
         fetchThemeMock.mockResolvedValue(undefined)
         mockFetchSiteConfig.mockImplementation(() => {

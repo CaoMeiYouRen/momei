@@ -5,11 +5,11 @@ import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
 
+const IS_WINDOWS = process.platform === 'win32'
+const IS_WINDOWS_LOCAL = IS_WINDOWS && !process.env.CI && !process.env.VITEST
 const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
     'mjml',
     'mjml-core',
-    'lodash',
-    'dayjs',
     'html-minifier',
     'html-minifier-terser',
     'cheerio',
@@ -18,10 +18,12 @@ const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
     'domhandler',
     'domelementtype',
     'domutils',
+    ...(!IS_WINDOWS_LOCAL ? ['lodash', 'dayjs'] : []),
 ]
 
-const IS_WINDOWS = process.platform === 'win32'
-const IS_WINDOWS_LOCAL_DEV = IS_WINDOWS && process.env.NODE_ENV !== 'production' && !process.env.VITEST
+const IS_WINDOWS_LOCAL_DEV = IS_WINDOWS_LOCAL && process.env.NODE_ENV !== 'production'
+const ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV = !IS_WINDOWS_LOCAL_DEV
+    || process.env.NUXT_ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV === 'true'
 const ENABLE_NITRO_RESOLVE_PROBE = IS_WINDOWS_LOCAL_DEV
     && process.env.NUXT_ENABLE_NITRO_RESOLVE_PROBE === 'true'
 const ENABLE_PWA = !process.env.VITEST
@@ -76,6 +78,12 @@ const WINDOWS_LOCAL_DEV_NUXT_IGNORES = [
     'scripts/**',
     'test-results/**',
     'tests/**',
+    ...(ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
+        ? []
+        : [
+            'components/admin/**',
+            'pages/admin/**',
+        ]),
 ]
 const WINDOWS_LOCAL_DEV_WATCH_IGNORES = [
     '**/.agents/**',
@@ -99,6 +107,13 @@ const WINDOWS_LOCAL_DEV_WATCH_IGNORES = [
     '**/scripts/**',
     '**/test-results/**',
     '**/tests/**',
+    ...(ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
+        ? []
+        : [
+            '**/components/admin/**',
+            '**/pages/admin/**',
+            '**/server/api/admin/**',
+        ]),
 ]
 
 function createNitroResolveProbe() {
@@ -596,6 +611,7 @@ export default defineNuxtConfig({
         webhookSecret: process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN,
         public: {
             NODE_ENV: process.env.NODE_ENV,
+            windowsLocalDevMode: IS_WINDOWS_LOCAL_DEV,
             siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
@@ -710,6 +726,9 @@ export default defineNuxtConfig({
             enabled: false,
         },
     },
+    sourcemap: {
+        server: !IS_WINDOWS_LOCAL,
+    },
     primevue: {
         options: {
             theme: {
@@ -823,6 +842,9 @@ export default defineNuxtConfig({
             '**/*.test.ts',
             '**/*.spec.ts',
             '**/tests/**',
+            ...(IS_WINDOWS_LOCAL_DEV && !ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
+                ? ['server/api/admin/**']
+                : []),
         ],
         prerender: {
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
