@@ -40,22 +40,10 @@ const noExplicitAnyFiles = [
     'composables/use-upload.ts',
     'server/services/ai/tts.ts',
 ]
-const maxLinesExceptionFiles = [
-    'components/admin/posts/post-distribution-button.vue',
-    'nuxt.config.ts',
-]
 const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
 const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
 
 const lineRuleOverrides = [
-    createRuleOverride({
-        // 文章分发按钮当前汇聚多平台预览与分发编排，先做单文件 max-lines 豁免，后续再按功能块拆分。
-        // nuxt.config.ts 当前同时承载 Windows 本地性能治理门控与 Nitro probe 配置，先做单文件 max-lines 豁免，避免在本轮诊断期把配置文件 lint 卡死。
-        files: maxLinesExceptionFiles,
-        rules: {
-            'max-lines': [0],
-        },
-    }),
     createRuleOverride({
         files: testFiles,
         rules: {
