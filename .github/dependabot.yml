@@ -8,6 +8,101 @@ updates:
       time: "05:00"
       timezone: Asia/Shanghai
     groups:
+      # Nuxt 官方 ESLint 适配包是同一条配置链，宜锁步升级。
+      nuxt-eslint:
+        patterns:
+          - "@nuxt/eslint"
+          - "@nuxt/eslint-config"
+
+      # Nuxt 测试运行时与 test-utils 需要匹配同一套测试适配层。
+      nuxt-testing:
+        patterns:
+          - "@nuxt/test-utils"
+          - "vitest-environment-nuxt"
+
+      # VueUse Nuxt 模块直接包裹 VueUse core，升级时适合一起验证。
+      vueuse:
+        patterns:
+          - "@vueuse/core"
+          - "@vueuse/nuxt"
+
+      # PrimeVue 主包、官方扩展和 PrimeUIX 底层包共享内部类型与主题能力。
+      primevue-core:
+        patterns:
+          - "primevue"
+          - "@primevue/*"
+          - "@primeuix/*"
+
+      # TypeScript、vue-tsc 与 typescript-eslint 共享 TS 版本兼容窗口。
+      typescript-checking:
+        patterns:
+          - "typescript"
+          - "vue-tsc"
+          - "typescript-eslint"
+
+      # Vitest、覆盖率插件与 happy-dom 属于同一测试执行栈。
+      vitest-stack:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "happy-dom"
+
+      # ESLint 主包、配置和核心插件存在直接 peer 约束。
+      eslint-stack:
+        patterns:
+          - "eslint"
+          - "eslint-plugin-vue"
+          - "eslint-config-cmyr"
+          - "@intlify/eslint-plugin-vue-i18n"
+
+      # Stylelint 主包与配置包保持小粒度同步升级即可。
+      stylelint-stack:
+        patterns:
+          - "stylelint"
+          - "stylelint-config-cmyr"
+
+      # Better Auth 主包、SSO 扩展与本地化包存在直接集成关系。
+      better-auth:
+        patterns:
+          - "better-auth"
+          - "@better-auth/*"
+          - "better-auth-localization"
+
+      # markdown-it 主包及其插件共享解析器扩展接口。
+      markdown-it:
+        patterns:
+          - "markdown-it"
+          - "@types/markdown-it"
+          - "markdown-it-anchor"
+          - "markdown-it-container"
+          - "markdown-it-emoji"
+          - "markdown-it-github-alerts"
+          - "@types/markdown-it-container"
+          - "@types/markdown-it-emoji"
+
+      # Katex 只与 markdown-it-texmath 这条数学渲染链直接耦合。
+      markdown-math:
+        patterns:
+          - "markdown-it-texmath"
+          - "katex"
+          - "@types/katex"
+
+      # 邮件发送器与 MJML 模板编译链会一起参与邮件生成与投递。
+      email-stack:
+        patterns:
+          - "nodemailer"
+          - "@types/nodemailer"
+          - "mjml"
+          - "@types/mjml"
+
+      # Playwright 三件套需要锁步升级，避免 runner、core 与 test API 版本错位。
+      playwright:
+        patterns:
+          - "playwright"
+          - "playwright-core"
+          - "@playwright/test"
+
+      # AWS S3 客户端与 presigner 共享 smithy 类型，拆开升级容易直接报错。
       aws-sdk-s3:
         patterns:
           - "@aws-sdk/client-s3"
