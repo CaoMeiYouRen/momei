@@ -251,7 +251,7 @@
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "jscpd": "^4.1.1",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.4",
     "playwright": "^1.59.1",
     "playwright-core": "^1.59.1",
     "postcss": "^8.5.14",
