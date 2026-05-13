@@ -410,15 +410,11 @@ export default defineNuxtConfig({
         '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
-    ...(ENABLE_NUXT_ESLINT_MODULE
-        ? {
-            eslint: {
-                config: {
-                    standalone: false,
-                },
-            },
-        }
-        : {}),
+    eslint: {
+        config: {
+            standalone: false,
+        },
+    },
     vite: {
         resolve: {
             // 规避 pnpm + Vite 下 PrimeVue Overlay / 动态组件样式变量偶发丢失
