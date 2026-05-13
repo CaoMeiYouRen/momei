@@ -11,7 +11,7 @@
 
 ## 1.1 当前计划边界
 
-本轮仅做一次方案与规划收敛，不直接开始运行时代码改造。当前文档的职责是把执行顺序、量化目标与验收口径固定下来，避免后续又回到“边改边定义目标”。
+当前已经进入“最小止血 + 基线量化 + 受控验证”阶段，不再停留于纯规划收敛。当前文档的职责除了固定执行顺序、量化目标与验收口径外，也同步沉淀已验证有效的止血点、已证伪的方向，以及下一轮应继续追踪的控制面。
 
 ## 2. 已落地修复
 
@@ -22,6 +22,11 @@
 - Windows 本地默认关闭 `@vite-pwa/nuxt`，保留 `NUXT_ENABLE_PWA_ON_WINDOWS=true` 的显式开关，绕开当前 Rolldown / `manualChunks` 兼容性与额外构建负担。
 
 这些改动已经把“构建卡住”收敛为“构建可完成但仍偏慢”。
+
+- Windows 下的 dev 生命周期量化脚本现已直接调用 repo-local [node_modules/nuxt/bin/nuxt.mjs](../../../node_modules/nuxt/bin/nuxt.mjs)，不再经由 `pnpm exec nuxt`；这一步不是性能优化本体，但修复了当前环境里 `nuxt` shim 缺失导致的假失败，使 `artifacts/nuxt-dev-performance.json` 重新具备可复跑性。
+- 同一问题也已经同步收敛到 [package.json](../../../package.json) 的标准入口：`dev`、`build`、`generate`、`preview`、`postinstall` 与 `typecheck` 现统一直连 repo-local Nuxt CLI。最新 `pnpm run typecheck` 已在当前 Windows 环境完整跑通并返回 `EXITCODE=0`，说明“标准脚本入口本身起不来”这一层已被修复。
+- [server/utils/rate-limit.ts](../../../server/utils/rate-limit.ts) 已把 `limiterStorage` 改为在 `rateLimit()` 内部懒加载，避免仅因常驻中间件模块被扫描，就在顶层提前拉入 `server/database/storage` 与 `ioredis` 存储链。
+- [server/database/storage.ts](../../../server/database/storage.ts) 现已把底层 Redis / LRU 存储实例改为首次访问时再创建，而不是在模块导入时立刻实例化。这一步属于 always-loaded install/auth/logger/database cluster 的继续收窄，当前已通过 `pnpm run typecheck` 验证接口未回归，但性能收益仍需下一轮冷启动复测确认。
 
 ## 3. 当前基线
 
@@ -72,6 +77,17 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - `artifacts/nitro-resolve-probe.snapshot.json` 中还能看到 `/api/settings/public` 相关链路反复命中 `types/setting`、`server/utils/api-runtime-cache`、`server/services/setting` 与 `server/utils/settings`。这说明当前公共设置读取路径并没有保持在轻量 public graph 内，而是共享了较宽的 settings / cache / service 栈。
 - Windows 上读取 probe artifact 时曾触发 `EBUSY` 并打断 dev 进程，因此当前 probe 已改为“写盘忙则记录 marker 并重试”，并通过临时文件 + `rename` 替换正式 artifact，避免并发写把 `nitro-resolve-probe.json` 直接写坏；需要注意的是，运行中的诊断窗口里仍可能暂时只有 `.tmp` 或尚未生成正式 JSON，因此后续分析应优先基于已经复制出的 snapshot 或已落盘完成的正式 artifact，而不是把“文件暂时不存在”的窗口误判为没有采样结果。
 
+### 3.4 2026-05-13 Dev 基线补充
+
+- 当前事实源已经确认：`scripts/perf/measure-nuxt-lifecycle.mjs` 在 Windows 上可以稳定拉起 `nuxt dev`，因此“测量脚本自己没把服务起起来”已经被证伪。
+- 最新基线命令 `node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=60000` 的结果已落在 `artifacts/nuxt-dev-favicon-performance.json`：`Local ready` 约 `24419ms`，但 `/favicon.ico` 的首次请求在 `60000ms` 窗口内仍无响应，最终于约 `84422ms` 记录 `warmRequestFailed`。
+- 为排除测量脚本干扰，另起一个独立 `nuxt dev` 进程并从外部直接请求 `http://127.0.0.1:34568/favicon.ico`；该请求同样在约 `60231ms` 后因 `HttpClient.Timeout` 超时失败。这说明当前问题不在量化脚本，而在 Nuxt / Nitro 自身于 `Local ready` 之后仍无法在 `60s` 内返回最小静态请求。
+- 随后用独立 `nuxt dev` 进程加外部 `curl` 轮询重新测了一次真正的“启动到首个成功响应”基线，结果已落在 [artifacts/nuxt-dev-startup-baseline.json](../../../artifacts/nuxt-dev-startup-baseline.json) 与 [artifacts/dev-startup-baseline-34571.log](../../../artifacts/dev-startup-baseline-34571.log)：`/favicon.ico` 首个 `HTTP 200` 的 wall-clock 约为 `502279ms`，`curl` 自身等待约 `485.29s`，同一轮日志里记录 `Nuxt Nitro server built in 426190ms`。这说明当前 Windows 本地 dev 已经不是“起不来”，而是“首个成功响应约需 8.37 分钟”，可作为后续优化前的正式基线。
+- 对已经完成 Nitro build 并 warmed 的独立 dev 进程再次请求 `/favicon.ico` 时，响应仅约 `203ms`。这进一步说明当前主要问题集中在首次服务端构建与首响冷路径，而不是服务进入 warmed 状态后的稳态响应。
+- 在一轮 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 的 `60s` 窗口里，首次请求约在 `Local ready` 后 `31.4s` 才触发 `nitro-dev-build:build-before`，并在约 `32.5s` 后进入 `rollup-before`；直到超时都没有出现 `compiled`。这说明当前真正卡住的是 Nitro dev 首次服务端构建本身，而不是 Vite client/server 预热。
+- 期间曾尝试把 Windows-local-dev 的大批 API / install / auth / middleware / plugin surface 一次性排除出默认扫描面，但该方向没有恢复首响，反而把 `Local ready` 拉长到约 `36.89s`。这组试探性 ignore 已回滚，不作为后续优化方向继续保留。
+- 上一轮成功落盘的 `artifacts/nitro-resolve-probe.json` 虽然来自已回滚的 reduced-surface 试验，但它仍然提供了有效的根因收敛线索：在大范围 public API surface 被裁掉后，剩余热点集中到 `server/middleware/0-installation.ts`、`server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/utils/logger.ts`、`server/database`、`server/api/auth/[...all].ts` 与 `server/api/install/**`。因此，下一轮应继续围绕“always-loaded install/auth/logger/database cluster”而不是继续扩大 route ignore 试验。
+
 ### 3.4 对照目标口径
 
 当前 Windows 本地 build 基线约为 `542.77s`，已经明显偏离可接受区间。结合本轮讨论，后续治理统一采用两级目标：
@@ -97,6 +113,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 热点集中在 Node ESM 解析、`realpathSync` / `lstat`、`exsolve`、Nuxt `resolveTypescriptPaths()`、Nitro / `archiver` 链路。
 - `@nuxtjs/i18n`、`@nuxtjs/sitemap`、`@sentry/nuxt`、`@nuxt/eslint` 等模块都出现在启动期样本里，但没有任何单一可选模块探针能独立恢复首请求。
 - 杀掉长时间挂起的 dev 进程后，终端曾补吐出 `Vite client built`、`Vite server built` 与 `optimizer scanning/bundling dependencies` 日志，说明首请求阻塞期间至少存在 Vite 预构建或相关准备工作延后执行的迹象。
+- 2026-05-13 的独立外部请求也验证了同一结论：即便不经过量化脚本，只要 `Local ready` 后直接请求 `/favicon.ico`，`60s` 内依旧不会返回任何响应头；因此“测量脚本或父进程 fetch 把请求拖挂”可以从候选根因里排除。
 
 截至 2026-05-12 最新一轮验证，这个判断还需要再收紧一层：
 
@@ -105,11 +122,12 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 当前最强证据指向 Nitro dev 首次服务端构建：Vite client/server 可在约 `30s` 内完成，但公共请求仍被挂住；长窗口 CPU profile 已转向 Rollup / node-resolve / `exsolve` / Node 模块解析链。
 - 新增 Nitro resolve bucket probe 后，可以把“哪条 repo-local graph 更重”进一步说清：当前不是 `i18n/locales`、不是单个 `/api/settings/public` handler 本身，而是 Nitro 在首请求期间将大范围 `server/api` / `server/api/admin` 入口一并扇出到 `server/utils`、`server/database`、`utils/shared`、`server/entities` 和部分 `server/services`。`server/api/ai` 与 `server/services/ai` 也是可见热点，但量级仍低于通用 `server/api -> server/utils` / `server/database` 扇出。
 - 因为 `/api/settings/public` 明确命中 `types/setting`、`server/utils/api-runtime-cache`、`server/services/setting` 和 `server/utils/settings`，下一轮不应再把它当成“天然轻量的公共读接口”；更合理的方向是把 public settings 读链从通用 settings/service/cache 栈中切出来，避免首请求一上来就拖进完整 settings graph。
-- 截至 2026-05-12 本轮继续验证后，以下几类“就近止血”仍未让 `pnpm perf:nuxt:dev -- --repeat=1` 恢复首请求：
+- 截至 2026-05-13 本轮继续验证后，以下几类“就近止血”仍未让 `pnpm perf:nuxt:dev -- --repeat=1` 恢复首请求：
    - 将 `/api/settings/public` 切成轻量 public read model。
    - Windows-local-dev 默认排除 admin pages / components / `server/api/admin`，仅保留 `NUXT_ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV=true` 的显式恢复开关。
    - 收紧 `nitro.externals.inline`，在 Windows 本地不再强制 inline `dayjs` / `lodash`。
    - 把 [app.vue](../../../app.vue) 的 `fetchTheme()` / `fetchSiteConfig()` 以及 [pages/index.vue](../../../pages/index.vue) 的 latest posts 改成 Windows-local-dev 客户端延后拉取。
+- 还包括一轮“更激进地裁掉 install/auth/middleware/plugin surface”的 reduced-surface ignore 试验；该方向不但没有恢复首响，还把 `Local ready` 拉长到约 `36.89s`，因此已被明确判定为低收益且不再继续。
 - 这组结果说明：当前主阻塞仍然早于这些入口业务链和首页 SSR 数据链；后续不应继续把首页首屏或单个 public API 当作主控制点，而应继续收敛 Nitro dev 首次服务端构建本身。
 
 因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点；下一轮应把主诊断重心放在 Nitro dev build 的依赖解析与服务端图规模，而不是继续微调 Vite watcher ignore。
@@ -182,6 +200,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
    - 下一轮应优先围绕 `server/api -> server/utils`、`server/api/admin -> server/utils`、`server/api -> server/database` 这几条最重 pair 收缩入口图，而不是继续泛化到所有目录。
    - `/api/settings/public` 应先单独拆它的 settings graph：重点核查 `server/utils/api-runtime-cache`、`server/services/setting`、`server/utils/settings` 与 `types/setting` 是否能切出更轻量的 public read model，避免首请求加载完整 settings / admin 相关依赖。
    - `server/api/admin` 与 `server/api/ai` 的共享依赖扇出已经可见，应继续核查通用 `server/utils/permission`、`server/database`、实体聚合与 shared util 是否在 dev 首构建时被过早全量卷入；需要时再补更细的 Rollup resolve/load 热点与服务端 chunk 图。
+   - 当前还应新增一条更窄的 always-loaded 检查线：围绕 `server/middleware/0-installation.ts`、`server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/utils/logger.ts`、`server/database` 与 `server/api/auth/[...all].ts` 这一组“无需页面命中也会被 Nitro 首构建提前扫描”的入口，优先清点顶层 import 是否还能再懒加载。当前已落下一步试探：`server/database/storage.ts` 不再在模块导入时立刻创建 Redis / LRU 实例；下一轮应直接复测它是否能缩短 `502279ms` 首响基线。
 
 3. 再进入 build 长尾专项剖析。
    - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。
@@ -189,6 +208,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 4. 保持 Windows 定向优化边界。
    - PWA、Nitro trace、inline 包，以及本轮新增的 Windows-local-dev 模块 / TypeScript / Vite 门禁，都应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。
+   - 已证伪的 broad ignore / reduced-surface 试验不再继续保留为默认配置；后续只接受“能证明首响缩短且不把 Local ready 拉长”的更窄修复。
 
 ## 7. 非目标
 

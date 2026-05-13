@@ -8,50 +8,59 @@ interface RedisClientMock {
     expire: ReturnType<typeof vi.fn>
 }
 
-const createRedisClientMock = (): RedisClientMock => ({
-    get: vi.fn().mockResolvedValue('mock-value'),
-    set: vi.fn().mockResolvedValue('OK'),
-    del: vi.fn().mockResolvedValue(1),
-    incr: vi.fn().mockResolvedValue(1),
-    expire: vi.fn().mockResolvedValue(1),
-})
+function createRedisClientMock(): RedisClientMock {
+    return {
+        get: vi.fn().mockResolvedValue('mock-value'),
+        set: vi.fn().mockResolvedValue('OK'),
+        del: vi.fn().mockResolvedValue(1),
+        incr: vi.fn().mockResolvedValue(1),
+        expire: vi.fn().mockResolvedValue(1),
+    }
+}
+
+const mockState = vi.hoisted(() => ({
+    redisUrl: undefined as string | undefined,
+    redisClient: createRedisClientMock(),
+    redisConstructor: vi.fn(),
+}))
+
+vi.mock('@/utils/shared/env', () => ({
+    get REDIS_URL() {
+        return mockState.redisUrl
+    },
+}))
+
+vi.mock('ioredis', () => ({
+    Redis: class RedisMock {
+        constructor(...args: unknown[]) {
+            mockState.redisConstructor(...args)
+            return mockState.redisClient
+        }
+    },
+}))
 
 const loadStorageModule = async (options?: {
     redisUrl?: string
     redisClient?: RedisClientMock
 }) => {
     vi.resetModules()
-    vi.doMock('@/utils/shared/env', () => ({
-        REDIS_URL: options?.redisUrl,
-    }))
-
-    const redisClient = options?.redisClient ?? createRedisClientMock()
-    const redisConstructor = vi.fn()
-
-    class RedisMock {
-        constructor(...args: unknown[]) {
-            redisConstructor(...args)
-            return redisClient
-        }
-    }
-
-    vi.doMock('ioredis', () => ({
-        Redis: RedisMock,
-    }))
+    mockState.redisUrl = options?.redisUrl
+    mockState.redisClient = options?.redisClient ?? createRedisClientMock()
+    mockState.redisConstructor.mockReset()
 
     const storageModule = await import('./storage')
     return {
         ...storageModule,
-        redisClient,
-        redisConstructor,
+        redisClient: mockState.redisClient,
+        redisConstructor: mockState.redisConstructor,
     }
 }
 
 afterEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
-    vi.doUnmock('ioredis')
-    vi.doUnmock('@/utils/shared/env')
+    mockState.redisUrl = undefined
+    mockState.redisClient = createRedisClientMock()
 })
 
 describe('server/database/storage', () => {
@@ -61,8 +70,9 @@ describe('server/database/storage', () => {
                 redisUrl: 'redis://127.0.0.1:6379',
             })
 
-            expect(redisConstructor).toHaveBeenCalledWith('redis://127.0.0.1:6379')
+            expect(redisConstructor).not.toHaveBeenCalled()
             expect(await secondaryStorage.get('test-key')).toBe('mock-value')
+            expect(redisConstructor).toHaveBeenCalledWith('redis://127.0.0.1:6379')
             expect(redisClient.get).toHaveBeenCalledWith('test-key')
 
             expect(await secondaryStorage.set('test-key', 'test-value', 60)).toBe('OK')
@@ -120,6 +130,7 @@ describe('server/database/storage', () => {
             await expect(limiterStorage.increment('limit-key', 60)).resolves.toBe(1)
             await expect(limiterStorage.increment('limit-key', 60)).resolves.toBe(2)
             await expect(limiterStorage.get('limit-key')).resolves.toBe('2')
+            expect(redisConstructor).not.toHaveBeenCalled()
         })
     })
 })

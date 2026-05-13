@@ -26,7 +26,7 @@
 1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**
 - [ ] 冻结 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要安装态、哪些路径才必须等待完整 `initializeDB()`。
 - [ ] 为数据库初始化与首请求冷路径补齐分阶段耗时口径，并把事实源统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
-- [ ] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
+- [x] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
 
 2. **主线：测试有效性切片 (P0)**
 - [ ] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言或边界断言。
@@ -49,6 +49,8 @@
 - [ ] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](./backlog.md)。
 
 进展记录（2026-05-12）：基于用户提供的 Neon compute operations 与 Top SQL 长窗口样本，当前已确认“连接长时间不释放”的首要放大器并不是单条业务读 SQL，而是非 serverless 环境下 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 默认每 `5` 分钟注册一次自部署 Cron；在本地 dev 直连远端 Neon 的场景里，它会周期性唤醒数据库并拉长 compute 活跃窗口。本轮已先落地两步最小治理：一是非生产环境默认不再注册内置 Cron，只有生产环境或显式设置 `ENABLE_CRON_JOB=true` 时才启用；二是请求入口组中的 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 与 [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 已改为只调用 `initializeDatabaseConnection()`，不再把管理员角色同步与历史数据修复一并拉进公开请求首跳。下一轮重点转为补新的长窗口样本，确认 `5` 分钟节奏唤醒是否已经消失，并继续观察是否仍存在更深层的完整 `initializeDB()` 误触路径。
+
+进展记录（2026-05-13）：Windows 本地 build 的首轮止血已形成可复用事实源：在 [nuxt.config.ts](../../nuxt.config.ts) 关闭 Windows 本地 `sourcemap.server` 后，`pnpm perf:nuxt:build -- --repeat=1` 单样本已降至约 `490844ms`，因此“`Server built -> Build complete` 长尾首轮收敛”已关闭；但为了避免把单样本误当成完全收口，`repeat=3` 中位数验证仍保留在性能文档与后续观察项中。dev 侧则继续保持进行中：当前 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 已改为在 Windows 直接调用 repo-local Nuxt CLI，排除了 `pnpm exec nuxt` 缺少 shim 的假失败；[package.json](../../package.json) 中的 `dev`、`build`、`generate`、`preview`、`postinstall` 与 `typecheck` 标准脚本入口也已同步切到 repo-local Nuxt CLI，其中 `pnpm run typecheck` 已在当前环境返回 `EXITCODE=0`。同时 [server/utils/rate-limit.ts](../../server/utils/rate-limit.ts) 已把 `limiterStorage` 收敛为懒加载，避免常驻中间件顶层直接拉入存储链；[server/database/storage.ts](../../server/database/storage.ts) 也进一步改成首次访问时才创建 Redis / LRU 实例，先把 always-loaded storage 开销从模块导入路径上摘掉。最新冷启动事实源已补齐到 [artifacts/nuxt-dev-favicon-performance.json](../../artifacts/nuxt-dev-favicon-performance.json)、[artifacts/nuxt-dev-startup-baseline.json](../../artifacts/nuxt-dev-startup-baseline.json) 与 [artifacts/dev-startup-baseline-34571.log](../../artifacts/dev-startup-baseline-34571.log)：前者显示 `Local ready` 约 `24419ms`，但 `GET /favicon.ico` 在 `60000ms` 窗口内仍无响应；后者则给出了真正的成功首响基线，`/favicon.ico` 首个 `HTTP 200` 的 wall-clock 约 `502279ms`，同轮日志记录 `Nuxt Nitro server built in 426190ms`。这说明当前 Windows dev 已可成功启动并最终响应，但冷启动到首响仍约为 `8.37` 分钟，主阻塞继续落在 Nitro dev 首次服务端构建。期间试过一轮 broad ignore / reduced-surface 配置，但没有恢复首响且拉长了 `Local ready`，因此该方向已回滚并记为证伪结论；下一轮将继续围绕 always-loaded install/auth/logger/database cluster 收紧，并优先复测 `storage` 懒初始化能否缩短现有基线，而不是继续扩大路由裁剪面。
 
 ## 相关文档
 

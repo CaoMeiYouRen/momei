@@ -1,7 +1,5 @@
 import { H3Event } from 'h3'
 
-import { limiterStorage } from '@/server/database/storage'
-
 interface RateLimitOptions {
     // 窗口时间，秒
     window: number
@@ -12,6 +10,7 @@ interface RateLimitOptions {
 export async function rateLimit(event: H3Event, options: RateLimitOptions) {
     const ip = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
     const key = `ratelimit:${ip}:${event.path}`
+    const { limiterStorage } = await import('@/server/database/storage')
     const $store = limiterStorage
     const count = await $store.increment(key, options.window)
 

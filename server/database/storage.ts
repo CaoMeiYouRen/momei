@@ -79,18 +79,30 @@ const createBaseStorage = (): BaseStorage => {
     }
 }
 
-// 创建基础存储实例
-const baseStorage = createBaseStorage()
+let baseStorage: BaseStorage | null = null
+
+const getBaseStorage = (): BaseStorage => {
+    if (!baseStorage) {
+        baseStorage = createBaseStorage()
+    }
+
+    return baseStorage
+}
 
 // 实现 SecondaryStorage 接口
 const secondaryStorageImplementation: SecondaryStorage = {
-    get: baseStorage.get,
-    set: baseStorage.set,
-    delete: baseStorage.delete,
+    get: (key: string) => getBaseStorage().get(key),
+    set: (key: string, value: string, ttl?: number) => getBaseStorage().set(key, value, ttl),
+    delete: (key: string) => getBaseStorage().delete(key),
 }
 
 // 二级存储
 export const secondaryStorage = secondaryStorageImplementation
 
 // 限流存储
-export const limiterStorage = baseStorage
+export const limiterStorage: BaseStorage = {
+    get: (key: string) => getBaseStorage().get(key),
+    set: (key: string, value: string, ttl?: number) => getBaseStorage().set(key, value, ttl),
+    delete: (key: string) => getBaseStorage().delete(key),
+    increment: (key: string, ttl: number) => getBaseStorage().increment(key, ttl),
+}

@@ -8,6 +8,7 @@ import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 const DEFAULT_DEV_PORT = 34567
+const NUXT_CLI_ENTRY = path.resolve(repoRoot, 'node_modules', 'nuxt', 'bin', 'nuxt.mjs')
 
 function parseArgs(argv) {
     return parseCliOptions(argv, {
@@ -87,6 +88,13 @@ function getSpawnCommand(command, commandArgs) {
     }
 
     return { command, args: commandArgs }
+}
+
+function getDevSpawnTarget(port) {
+    return {
+        command: process.execPath,
+        args: [NUXT_CLI_ENTRY, 'dev', '--port', String(port), '--host', '127.0.0.1'],
+    }
 }
 
 function parseDurationMs(rawValue, unit = 'ms') {
@@ -411,11 +419,9 @@ async function runSingleSample(options, sampleNumber) {
     const matchers = getEventMatchers(options.mode)
     const timeoutMs = options.timeoutMs || getDefaultTimeoutMs(options.mode)
 
-    const commandArgs = options.mode === 'dev'
-        ? ['exec', 'nuxt', 'dev', '--port', String(options.port + sampleNumber - 1), '--host', '127.0.0.1']
-        : ['run', 'build']
-
-    const spawnTarget = getSpawnCommand('pnpm', commandArgs)
+    const spawnTarget = options.mode === 'dev'
+        ? getDevSpawnTarget(options.port + sampleNumber - 1)
+        : getSpawnCommand('pnpm', ['run', 'build'])
     sample.command = [spawnTarget.command, ...spawnTarget.args].join(' ')
 
     return await new Promise((resolve) => {
