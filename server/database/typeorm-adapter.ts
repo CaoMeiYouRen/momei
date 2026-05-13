@@ -16,6 +16,13 @@ import { BetterAuthError, type DBFieldAttributeConfig, type DBFieldType, generat
 import { getAuthTables } from 'better-auth/db'
 import type { DBAdapter, BetterAuthOptions, Where, DBTransactionAdapter } from 'better-auth/types'
 
+type CompatibleDBTransactionAdapter = DBTransactionAdapter & {
+    consumeOne: <T>(data: {
+        model: string
+        where: Where[]
+    }) => Promise<T | null>
+}
+
 type JoinOption = Record<string, boolean | {
     limit?: number
 }>
@@ -305,7 +312,7 @@ export const typeormAdapter =
 
         const transformHelpers = createTransform()
 
-        const createAdapter = (manager: EntityManager): DBTransactionAdapter => ({
+        const createAdapter = (manager: EntityManager): CompatibleDBTransactionAdapter => ({
             id: 'typeorm',
             async create<T extends Record<string, unknown>, R = T>(data: {
                 model: string
@@ -377,6 +384,48 @@ export const typeormAdapter =
                 } catch (error: unknown) {
                     throw new BetterAuthError(
                         `Failed to delete ${model}: ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
+            },
+
+            async consumeOne<T>(data: { model: string, where: Where[] }): Promise<T | null> {
+                const { model, where } = data
+                const repositoryName = transformHelpers.getModelName(model)
+                const repository = manager.getRepository(repositoryName)
+
+                try {
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const target = await repository.findOne({
+                        where: findOptions,
+                    })
+
+                    if (!target) {
+                        return null
+                    }
+
+                    const targetId = target.id
+                    if (targetId === undefined || targetId === null) {
+                        return null
+                    }
+
+                    const deleted = await repository.delete(
+                        transformHelpers.convertWhereToFindOptions(model, [
+                            ...where,
+                            {
+                                field: 'id',
+                                value: targetId,
+                                operator: 'eq',
+                                connector: 'AND',
+                            },
+                        ]),
+                    )
+
+                    return deleted.affected && deleted.affected > 0
+                        ? transformHelpers.transformOutput(target, model) as T
+                        : null
+                } catch (error: unknown) {
+                    throw new BetterAuthError(
+                        `Failed to consume ${model}: ${error instanceof Error ? error.message : String(error)}`,
                     )
                 }
             },

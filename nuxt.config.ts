@@ -190,7 +190,7 @@ export default defineNuxtConfig({
     // Node.js 24 的 ESM 解析不接受 `lodash/fp` 目录导入，显式固定到文件入口。
     alias: NODE_ESM_SUBPATH_ALIASES,
     modules: [
-        ENABLE_NUXT_ESLINT_MODULE && '@nuxt/eslint',
+        '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
