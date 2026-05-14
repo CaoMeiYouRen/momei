@@ -1,5 +1,11 @@
 import { defineEventHandler, getHeader } from 'h3'
-import logger from '@/server/utils/logger'
+
+let authMiddlewareLoggerPromise: Promise<typeof import('@/server/utils/logger').default> | null = null
+
+async function getAuthMiddlewareLogger() {
+    authMiddlewareLoggerPromise ??= import('@/server/utils/logger').then((module) => module.default)
+    return authMiddlewareLoggerPromise
+}
 
 const OPTIONAL_SESSION_ROUTE_PATTERNS = [
     /^\/api\/posts(?:\/|$)/,
@@ -56,6 +62,7 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
         // 这里的失败不能直接等价成 401/403；否则公开接口会把“会话解析异常”
         // 误写成“业务拒绝访问”，后续定位会失真。
+        const logger = await getAuthMiddlewareLogger()
         logger.error('Auth middleware error:', error)
     }
 })

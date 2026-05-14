@@ -1,7 +1,15 @@
 import type { H3Event } from 'h3'
-import { auth } from '@/lib/auth'
-import { ensureDatabaseReady } from '@/server/database'
 import { hasRole, UserRole } from '@/utils/shared/roles'
+
+async function ensurePermissionDatabaseReady() {
+    const { ensureDatabaseReady } = await import('@/server/database')
+    return ensureDatabaseReady()
+}
+
+async function getPermissionSession(headers: Headers) {
+    const { auth } = await import('@/lib/auth')
+    return auth.api.getSession({ headers })
+}
 
 function normalizeRequestHeaders(request: Request) {
     const headers = new Headers()
@@ -21,7 +29,7 @@ export async function requireAuth(event: H3Event) {
     let session = event.context.auth
 
     if (!session) {
-        const databaseReady = await ensureDatabaseReady()
+        const databaseReady = await ensurePermissionDatabaseReady()
         if (!databaseReady) {
             throw createError({
                 statusCode: 503,
@@ -29,9 +37,7 @@ export async function requireAuth(event: H3Event) {
             })
         }
 
-        session = await auth.api.getSession({
-            headers: event.headers,
-        })
+        session = await getPermissionSession(event.headers)
     }
 
     if (!session?.user) {
@@ -93,7 +99,7 @@ export async function requireWsAuth(request: Request | undefined) {
         })
     }
 
-    const databaseReady = await ensureDatabaseReady()
+    const databaseReady = await ensurePermissionDatabaseReady()
     if (!databaseReady) {
         throw createError({
             statusCode: 503,
@@ -101,9 +107,7 @@ export async function requireWsAuth(request: Request | undefined) {
         })
     }
 
-    const session = await auth.api.getSession({
-        headers: normalizeRequestHeaders(request),
-    })
+    const session = await getPermissionSession(normalizeRequestHeaders(request))
 
     if (!session?.user) {
         throw createError({

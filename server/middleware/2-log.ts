@@ -1,7 +1,13 @@
-import logger from '@/server/utils/logger'
 import { detectRequestAuthLocale } from '@/server/utils/locale'
 
-export default defineEventHandler((event) => {
+let requestLoggerPromise: Promise<typeof import('@/server/utils/logger').default> | null = null
+
+async function getRequestLogger() {
+    requestLoggerPromise ??= import('@/server/utils/logger').then((module) => module.default)
+    return requestLoggerPromise
+}
+
+export default defineEventHandler(async (event) => {
     // 只记录 API 请求
     if (!event.path.startsWith('/api')) {
         return
@@ -16,6 +22,7 @@ export default defineEventHandler((event) => {
 
     // 获取用户信息（已由 1-auth.ts 中间件挂载）
     const userId = event.context.user?.id
+    const logger = await getRequestLogger()
 
     // 记录请求
     logger.api.request({
@@ -36,27 +43,30 @@ export default defineEventHandler((event) => {
 
         // 监听响应完成事件
         event.node.res.on('finish', () => {
-            const responseTime = Date.now() - startTime
-            const statusCode = event.node.res.statusCode || 200
+            void (async () => {
+                const responseTime = Date.now() - startTime
+                const statusCode = event.node.res.statusCode || 200
+                const responseLogger = await getRequestLogger()
 
-            // 记录响应
-            logger.api.response({
-                method,
-                path,
-                statusCode,
-                responseTime,
-                userId,
-            })
-
-            // 如果是错误状态码，额外记录错误信息
-            if (statusCode >= 400) {
-                logger.api.error({
+                // 记录响应
+                responseLogger.api.response({
                     method,
                     path,
-                    error: `HTTP ${statusCode}`,
+                    statusCode,
+                    responseTime,
                     userId,
                 })
-            }
+
+                // 如果是错误状态码，额外记录错误信息
+                if (statusCode >= 400) {
+                    responseLogger.api.error({
+                        method,
+                        path,
+                        error: `HTTP ${statusCode}`,
+                        userId,
+                    })
+                }
+            })()
         })
     }
 })

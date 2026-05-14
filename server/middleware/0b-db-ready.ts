@@ -1,5 +1,11 @@
 import { defineEventHandler, getRequestURL, type H3Event } from 'h3'
-import logger from '@/server/utils/logger'
+
+let dbReadyLoggerPromise: Promise<typeof import('@/server/utils/logger').default> | null = null
+
+async function getDbReadyLogger() {
+    dbReadyLoggerPromise ??= import('@/server/utils/logger').then((module) => module.default)
+    return dbReadyLoggerPromise
+}
 
 const INSTALLATION_PAGE_PATTERN = /^(?:\/[a-z]{2}-[A-Z]{2})?\/installation(?:\/|$)/
 const LAZY_PUBLIC_ROUTE_PATTERNS = [
@@ -68,6 +74,7 @@ export async function ensureRequestDatabaseReady(event: H3Event) {
     await initializeDatabaseConnection()
 
     if (!dataSource.isInitialized) {
+        const logger = await getDbReadyLogger()
         logger.warn(`[DBReady] Database warmup did not finish before handling ${pathname}`)
     }
 }

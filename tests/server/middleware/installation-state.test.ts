@@ -4,7 +4,7 @@ const {
     dataSourceState,
     initializeDatabaseConnection,
     initializeDB,
-    getInstallationStatus,
+    getInstallationProbeStatus,
     loggerInfo,
     runtimeCache,
     setRuntimeCache,
@@ -15,7 +15,7 @@ const {
     },
     initializeDatabaseConnection: vi.fn(() => Promise.resolve(undefined)),
     initializeDB: vi.fn(() => Promise.resolve(undefined)),
-    getInstallationStatus: vi.fn(() => Promise.resolve({
+    getInstallationProbeStatus: vi.fn(() => Promise.resolve({
         installed: true,
         databaseConnected: true,
     })),
@@ -51,8 +51,8 @@ vi.mock('~/server/database', () => ({
     initializeDB,
 }))
 
-vi.mock('~/server/services/installation', () => ({
-    getInstallationStatus,
+vi.mock('~/server/services/installation-probe', () => ({
+    getInstallationProbeStatus,
 }))
 
 vi.mock('@/server/utils/runtime-cache', () => ({

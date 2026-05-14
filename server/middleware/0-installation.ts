@@ -1,4 +1,3 @@
-import logger from '~/server/utils/logger'
 import { TEST_MODE } from '@/utils/shared/env'
 import { getRuntimeCache, setRuntimeCache } from '@/server/utils/runtime-cache'
 
@@ -9,7 +8,20 @@ const INSTALLATION_STATUS_CACHE_TTL_SECONDS = 60 * 10
 
 function logInstallationProbeStage(pathname: string, stage: string, durationMs: number) {
     const message = `[momei-perf] scope=installation-probe stage=${stage} durationMs=${durationMs} path=${pathname || '/'}`
+    return message
+}
+
+let installationProbeLoggerPromise: Promise<typeof import('~/server/utils/logger').default> | null = null
+
+async function getInstallationProbeLogger() {
+    installationProbeLoggerPromise ??= import('~/server/utils/logger').then((module) => module.default)
+    return installationProbeLoggerPromise
+}
+
+async function emitInstallationProbeLog(pathname: string, stage: string, durationMs: number) {
+    const message = logInstallationProbeStage(pathname, stage, durationMs)
     console.info(message)
+    const logger = await getInstallationProbeLogger()
     logger.info(message)
 }
 
@@ -77,13 +89,13 @@ export default defineEventHandler(async (event) => {
                 // 因管理员角色同步或历史修复链路被串行阻塞。
                 const databaseConnectionStartedAt = Date.now()
                 await initializeDatabaseConnection()
-                logInstallationProbeStage(pathname, 'database-connection', Date.now() - databaseConnectionStartedAt)
+                await emitInstallationProbeLog(pathname, 'database-connection', Date.now() - databaseConnectionStartedAt)
             }
 
-            const { getInstallationStatus } = await import('~/server/services/installation')
+            const { getInstallationProbeStatus } = await import('~/server/services/installation-probe')
             const installationStatusStartedAt = Date.now()
-            const freshStatus = await getInstallationStatus()
-            logInstallationProbeStage(pathname, 'installation-status', Date.now() - installationStatusStartedAt)
+            const freshStatus = await getInstallationProbeStatus()
+            await emitInstallationProbeLog(pathname, 'installation-status', Date.now() - installationStatusStartedAt)
             status = {
                 installed: freshStatus.installed,
                 databaseConnected: freshStatus.databaseConnected,
@@ -93,7 +105,7 @@ export default defineEventHandler(async (event) => {
                 setRuntimeCache(INSTALLATION_STATUS_CACHE_KEY, status, INSTALLATION_STATUS_CACHE_TTL_SECONDS)
             }
 
-            logInstallationProbeStage(pathname, 'total', Date.now() - installationProbeStartedAt)
+            await emitInstallationProbeLog(pathname, 'total', Date.now() - installationProbeStartedAt)
         }
 
         const installed = status.installed
@@ -162,6 +174,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // 记录未知错误
+        const logger = await getInstallationProbeLogger()
         logger.error('Installation check middleware error:', error)
 
         // 关键点：如果我们在安装页面或 API 发生了未知错误（如数据库连接失败），

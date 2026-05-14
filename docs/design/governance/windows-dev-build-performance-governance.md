@@ -27,6 +27,8 @@
 - 同一问题也已经同步收敛到 [package.json](../../../package.json) 的标准入口：`dev`、`build`、`generate`、`preview`、`postinstall` 与 `typecheck` 现统一直连 repo-local Nuxt CLI。最新 `pnpm run typecheck` 已在当前 Windows 环境完整跑通并返回 `EXITCODE=0`，说明“标准脚本入口本身起不来”这一层已被修复。
 - [server/utils/rate-limit.ts](../../../server/utils/rate-limit.ts) 已把 `limiterStorage` 改为在 `rateLimit()` 内部懒加载，避免仅因常驻中间件模块被扫描，就在顶层提前拉入 `server/database/storage` 与 `ioredis` 存储链。
 - [server/database/storage.ts](../../../server/database/storage.ts) 现已把底层 Redis / LRU 存储实例改为首次访问时再创建，而不是在模块导入时立刻实例化。这一步属于 always-loaded install/auth/logger/database cluster 的继续收窄，当前已通过 `pnpm run typecheck` 验证接口未回归，但性能收益仍需下一轮冷启动复测确认。
+- [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 现在改为只调用轻量 [server/services/installation-probe.ts](../../../server/services/installation-probe.ts) 来读取 `installed` / `databaseConnected`，并把 logger 下沉到函数内按需导入；安装态探测边界已经冻结为“连接级初始化 + 状态探针”，不再复用携带环境诊断、设置聚合与安装向导写路径的重型 [server/services/installation.ts](../../../server/services/installation.ts)。
+- [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../../server/middleware/1-auth.ts)、[server/middleware/2-log.ts](../../../server/middleware/2-log.ts) 与 [server/utils/permission.ts](../../../server/utils/permission.ts) 已继续把 logger / auth / database 依赖改为函数内懒加载；其中 `permission.ts` 不再在模块顶层静态引入 [lib/auth.ts](../../../lib/auth.ts) 与 [server/database/index.ts](../../../server/database/index.ts)，避免 `requireAuth` / `requireAdmin` 被大范围 API 顶层导入时把整条鉴权与数据库链提前卷进 Nitro 首构建。
 
 ## 3. 当前基线
 
@@ -88,6 +90,13 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 期间曾尝试把 Windows-local-dev 的大批 API / install / auth / middleware / plugin surface 一次性排除出默认扫描面，但该方向没有恢复首响，反而把 `Local ready` 拉长到约 `36.89s`。这组试探性 ignore 已回滚，不作为后续优化方向继续保留。
 - 上一轮成功落盘的 `artifacts/nitro-resolve-probe.json` 虽然来自已回滚的 reduced-surface 试验，但它仍然提供了有效的根因收敛线索：在大范围 public API surface 被裁掉后，剩余热点集中到 `server/middleware/0-installation.ts`、`server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/utils/logger.ts`、`server/database`、`server/api/auth/[...all].ts` 与 `server/api/install/**`。因此，下一轮应继续围绕“always-loaded install/auth/logger/database cluster”而不是继续扩大 route ignore 试验。
 
+### 3.5 2026-05-14 Dev 基线收敛
+
+- 在继续收窄 always-loaded install/auth/logger/database cluster 后，最新命令 `pnpm perf:nuxt:dev -- --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=120000` 的结果已覆盖到 [artifacts/nuxt-dev-favicon-performance.json](../../../artifacts/nuxt-dev-favicon-performance.json)：`Local ready` 约 `2729ms`，`Nuxt Nitro server built` 约 `44067ms`，`/favicon.ico` 首个 `HTTP 200` 约 `58549ms`，首个响应块约 `55821ms`。
+- 相比 2026-05-13 外部直连基线中约 `502279ms` 的首个成功响应，本轮已把首响压缩约 `446s`，降幅约 `88.9%`；当前 Windows dev 的主问题已经从“`Local ready` 后长时间无响应”收敛成“首个请求会同步触发约 `44s` 的 Nitro 首次服务端构建”。
+- 同日的 probe 口径结果已落在 [artifacts/nitro-resolve-probe.json](../../../artifacts/nitro-resolve-probe.json)。需要注意的是，启用 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 会把同一路径放大到约 `83s`，因此 probe 只用于拓扑分析，不作为正式性能基线。
+- 最新 probe 的 `topSpecifiers` 显示，当前 repo-local 热点已经从单一 install/auth/logger cluster 转向更广的共享图：`server/database/index.ts`、`server/utils/permission.ts`、`types/setting.ts`、`utils/shared/roles.ts` 与 `server/utils/logger.ts` 仍位于前列；其中 logger 已降到约 `56` 次命中，不再是唯一主导项，而 `server/database` / `permission` / `types/setting` 这几条共享入口成为下一轮更直接的收敛对象。
+
 ### 3.4 对照目标口径
 
 当前 Windows 本地 build 基线约为 `542.77s`，已经明显偏离可接受区间。结合本轮讨论，后续治理统一采用两级目标：
@@ -129,6 +138,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
    - 把 [app.vue](../../../app.vue) 的 `fetchTheme()` / `fetchSiteConfig()` 以及 [pages/index.vue](../../../pages/index.vue) 的 latest posts 改成 Windows-local-dev 客户端延后拉取。
 - 还包括一轮“更激进地裁掉 install/auth/middleware/plugin surface”的 reduced-surface ignore 试验；该方向不但没有恢复首响，还把 `Local ready` 拉长到约 `36.89s`，因此已被明确判定为低收益且不再继续。
 - 这组结果说明：当前主阻塞仍然早于这些入口业务链和首页 SSR 数据链；后续不应继续把首页首屏或单个 public API 当作主控制点，而应继续收敛 Nitro dev 首次服务端构建本身。
+- 2026-05-14 的最新结果表明，“always-loaded install/auth/logger/database cluster” 这一轮窄切片已经完成了有效止血：安装态探测、中间件 logger、可选 session 与 permission 顶层鉴权链不再是主要阻塞源。当前剩余长尾已经转移到更广义的 `server/api -> server/database / server/utils/permission / types/setting / utils/shared/roles` 共享图，因此后续不应再回到安装态或 logger 这一层做重复治理。
 
 因此，安装态中间件拆分仍是必要止血，但已经不再是当前首请求挂起的主控制点；下一轮应把主诊断重心放在 Nitro dev build 的依赖解析与服务端图规模，而不是继续微调 Vite watcher ignore。
 
@@ -200,7 +210,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
    - 下一轮应优先围绕 `server/api -> server/utils`、`server/api/admin -> server/utils`、`server/api -> server/database` 这几条最重 pair 收缩入口图，而不是继续泛化到所有目录。
    - `/api/settings/public` 应先单独拆它的 settings graph：重点核查 `server/utils/api-runtime-cache`、`server/services/setting`、`server/utils/settings` 与 `types/setting` 是否能切出更轻量的 public read model，避免首请求加载完整 settings / admin 相关依赖。
    - `server/api/admin` 与 `server/api/ai` 的共享依赖扇出已经可见，应继续核查通用 `server/utils/permission`、`server/database`、实体聚合与 shared util 是否在 dev 首构建时被过早全量卷入；需要时再补更细的 Rollup resolve/load 热点与服务端 chunk 图。
-   - 当前还应新增一条更窄的 always-loaded 检查线：围绕 `server/middleware/0-installation.ts`、`server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/utils/logger.ts`、`server/database` 与 `server/api/auth/[...all].ts` 这一组“无需页面命中也会被 Nitro 首构建提前扫描”的入口，优先清点顶层 import 是否还能再懒加载。当前已落下一步试探：`server/database/storage.ts` 不再在模块导入时立刻创建 Redis / LRU 实例；下一轮应直接复测它是否能缩短 `502279ms` 首响基线。
+   - 围绕 `server/middleware/0-installation.ts`、`server/middleware/0b-db-ready.ts`、`server/middleware/1-auth.ts`、`server/utils/logger.ts`、`server/utils/permission.ts` 与 `server/database` 这组“无需页面命中也会被 Nitro 首构建提前扫描”的入口，当前已经完成一轮顶层 import 收紧，并把首响从约 `502279ms` 压到约 `55821ms`。下一轮不应重复停留在安装态或 logger 本身，而应直接转向 `server/database/index.ts`、`server/utils/permission.ts`、`types/setting.ts` 与更广泛的 `server/api` 共享图，继续缩短约 `44s` 的 Nitro 首次服务端构建。
 
 3. 再进入 build 长尾专项剖析。
    - 在 `perf:nuxt:build` 现有结果基础上，继续统计 `serverBuilt -> process exit` 长尾，并补 `.output/server` chunk 数量、sourcemap 数量、最大服务端 chunk 与总文件写出规模。
