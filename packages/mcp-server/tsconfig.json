@@ -2,6 +2,12 @@
     "compilerOptions": {
         "target": "ESNext",
         "module": "ESNext",
+        "lib": [
+            "ESNext"
+        ],
+        "types": [
+            "node"
+        ],
         "moduleResolution": "bundler",
         "allowJs": true,
         "outDir": "./dist",

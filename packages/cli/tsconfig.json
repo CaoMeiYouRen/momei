@@ -3,7 +3,10 @@
         "target": "ESNext",
         "module": "ESNext",
         "lib": [
-            "ES2022"
+            "ESNext"
+        ],
+        "types": [
+            "node"
         ],
         "moduleResolution": "bundler",
         "resolveJsonModule": true,
