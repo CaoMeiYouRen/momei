@@ -125,14 +125,15 @@
     - 第三十二阶段已完成本轮“公开热点读链路”单路径切片：`/api/search` 匿名请求接入 `60s` 运行时缓存，带会话请求继续旁路共享缓存，当前阶段只对这一条公共热读路径做实现与断言闭环。
     - 2026-05-01 Neon live sample 显示，当前 Top SQL 中 `settings/public` 维持单次 batched `IN (...)` 读取（`5.8ms / 5.4ms`）、精选友链维持 `4.3ms / 4.1ms` 的 `DISTINCT + IN (...)` 跟进查询，`/api/search` 未继续停留在当前热点 SQL 顶部；剩余较重样本集中在 `AITask` stale scan 与首页 posts public list 查询对，转入后续候选。
     - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
+    - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在“连接长期不释放”的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
     - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
     - 第三十七阶段（已正式上收长窗口样本复核切片，优先回答热点 SQL 与连接活跃窗口问题）。
 - **下一次可切片方向**:
-    - 候选组 A：继续审计 `0b-db-ready`、安装态检查与匿名鉴权等请求级入口，减少不必要的数据库唤醒。
+    - 候选组 A：继续审计剩余显式 `initializeDB()` 调用点与后台冷路径，避免 connection-only 场景误走完整维护链。
     - 候选组 B：为 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略。
-    - 候选组 C：补充 `pg_stat_statements` 长窗口采样、热点 SQL 分组、结果集大小估算或连接活跃窗口对比，明确哪些请求最耗 CPU、最拉长连接寿命。
+    - 候选组 C：若后续又出现异常长活跃窗口，再补 `pg_stat_statements` 长窗口采样、热点 SQL 分组、结果集大小估算或连接活跃窗口对比，明确新的放大器是否已经转移。
 
 7. **模块设计与专项治理文档收敛**
 - **目标**:

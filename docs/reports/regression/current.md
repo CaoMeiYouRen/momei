@@ -9,6 +9,40 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-14 第三十七阶段 Postgres P1 长窗口复核关闭：Neon 样本确认无持续占用窗口
+
+### 范围
+
+- 目标：使用用户补充的 2026-05-14 Neon query performance 与 system operations 长窗口样本，判断第三十七阶段 Postgres P1 是否已经满足关闭条件，并把剩余候选收敛回 [docs/plan/backlog.md](../../docs/plan/backlog.md)。
+- 本轮覆盖：[docs/plan/todo.md](../../docs/plan/todo.md)、[docs/reports/regression/current.md](../../docs/reports/regression/current.md) 与 [docs/plan/backlog.md](../../docs/plan/backlog.md)。
+- 非目标：不新增数据库连接池参数调优，不继续扩写新的公开读链路改造，也不在本轮重拆 `initializeDB()` 维护职责。
+
+### 实施结论
+
+- 2026-05-14 的 Neon query performance 样本里，当前最重 SQL 仍以一次性 TypeORM metadata introspection 为主，包括 `information_schema.columns`、`pg_index`、table comment / constraint 探测与单次 `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`。这说明现阶段最显著的 CPU 热点仍然是冷启动初始化探测，而不是某条持续运行的业务读查询。
+- 业务查询热点已经明显收敛：首页 posts public list 的 `DISTINCT + IN (...)` 查询对仍是当前最重的业务组，但 tags slug、posts 列表、精选友链与 `settings/public` batched `IN (...)` 读取都落在低毫秒级，不再支持“有某条常驻业务 SQL 持续把连接窗口拉长”的判断。
+- 同日 System Operations 记录显示，在 `5` 分钟 autosuspend 延迟下，compute 全天持续发生成功的 `start / suspend` 交替，没有出现长时间维持 Active、不进入 suspend，或 suspend 失败持续堆积的现象。这直接否定了“当前仍存在数据库连接长时间不释放”的阻塞级结论。
+- 结合 2026-05-12 已落地的两步最小治理，即 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 的非生产环境 Cron 默认门禁收紧，以及 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) / [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 的连接级初始化收紧，本条第三十七阶段 Postgres P1 已完成“长窗口样本复核 -> 最小治理动作 -> 可追溯关闭结论”的闭环。
+- 剩余候选已回收至 backlog：请求入口组只保留“继续审计剩余显式 `initializeDB()` 调用点”这一更窄的后续方向；公开热点读链路组则继续聚焦首页 posts public list 查询对及其相邻装配路径，而不是继续把本条已关闭的 P1 主线扩写成新的全站治理。
+
+### 已执行验证
+
+- 长窗口证据复核：用户提供的 2026-05-14 Neon query performance 与 system operations 样本。
+	- 结果：通过；最重热点已收敛为冷启动 metadata introspection 与首页 posts public list 查询对，compute 活跃窗口恢复为正常 `start / suspend` 交替。
+- 既有实现验证：沿用 2026-05-12 已通过的定向测试与类型检查。
+	- 结果：通过；`pnpm exec vitest run server/plugins/task-scheduler.test.ts`、`pnpm exec vitest run tests/server/middleware/db-ready.test.ts tests/server/middleware/auth-optional-session.test.ts` 与 `pnpm exec nuxt typecheck` 已在前一轮实现收口中全部通过。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：当前仍能在冷启动窗口看到 TypeORM metadata introspection 的一次性成本，首页 posts public list 查询对也仍是下一轮最值得继续瘦身的业务组；但这些都已退回 backlog，不再阻塞第三十七阶段这条 P1 主线关闭。
+
+### 未覆盖边界
+
+- 本轮关闭依据的是托管侧 Neon 长窗口观测，不是同窗口的自建 `pg_stat_statements` 采样；它足以回答“是否仍存在长期不释放连接”的问题，但不等价于对所有 SQL 指纹做更细的 rows / calls / plan 级分析。
+- 本轮不会移除首次真正需要数据库时出现的初始化探测成本，也不意味着首页 posts public list 查询对已经完成下一阶段瘦身；如果后续样本重新出现异常长活跃窗口，仍需按 backlog 候选重新切一轮更小的实现或采样任务。
+
 ## 2026-05-12 第三十七阶段 Postgres P1 长窗口复核：自部署 Cron 与请求入口连接级初始化收紧
 
 ### 范围
