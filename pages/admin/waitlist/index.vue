@@ -1,6 +1,10 @@
 <template>
-    <div class="admin-waitlist page-container">
-        <AdminPageHeader :title="$t('pages.admin.waitlist.title')" show-language-switcher>
+    <div>
+        <AdminListShell
+            container-class="admin-waitlist page-container"
+            :title="$t('pages.admin.waitlist.title')"
+            show-language-switcher
+        >
             <template #actions>
                 <Button
                     :label="$t('pages.admin.waitlist.export')"
@@ -9,10 +13,8 @@
                     @click="exportWaitlist"
                 />
             </template>
-        </AdminPageHeader>
 
-        <div class="admin-waitlist__card">
-            <div class="admin-waitlist__filters">
+            <template #filters>
                 <IconField icon-position="left">
                     <InputIcon class="pi pi-search" />
                     <InputText
@@ -30,14 +32,14 @@
                         @input="onFilterChange"
                     />
                 </IconField>
-            </div>
+            </template>
 
             <DataTable
                 :value="items"
                 :loading="loading"
                 lazy
-                :total-records="total"
-                :rows="pagination.pageSize"
+                :total-records="pagination.total"
+                :rows="pagination.limit"
                 paginator
                 class="p-datatable-sm"
                 @page="onPage"
@@ -82,12 +84,10 @@
                     </template>
                 </Column>
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.posts.empty') }}
-                    </div>
+                    <AdminTableEmptyState :label="$t('pages.posts.empty')" />
                 </template>
             </DataTable>
-        </div>
+        </AdminListShell>
 
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"
@@ -98,59 +98,65 @@
 </template>
 
 <script setup lang="ts">
+interface WaitlistEntry {
+    id: number
+    name: string
+    email: string
+    purpose: string | null
+    locale: string | null
+    createdAt: string
+}
+
 definePageMeta({
     middleware: 'admin',
     layout: 'default',
 })
 
-const { t } = useI18n()
 const { formatDate } = useI18nDate()
 
-const loading = ref(false)
-const items = ref<any[]>([])
-const total = ref(0)
-const pagination = reactive({
-    page: 1,
-    pageSize: 20,
-})
 const filters = reactive({
     search: '',
     purpose: '',
 })
 
 const deleteVisible = ref(false)
-const itemToDelete = ref<any>(null)
+const itemToDelete = ref<WaitlistEntry | null>(null)
 
-const loadData = async () => {
-    loading.value = true
-    try {
-        const query: Record<string, any> = {
-            page: pagination.page,
-            pageSize: pagination.pageSize,
-            search: filters.search || undefined,
-            purpose: filters.purpose || undefined,
-        }
-        const res = await $fetch<any>('/api/admin/waitlist', { query })
-        if (res.code === 200) {
-            items.value = res.data.items
-            total.value = res.data.total
-        }
-    } catch (error) {
-        console.error('Failed to load waitlist:', error)
-    } finally {
-        loading.value = false
-    }
-}
+const {
+    items,
+    loading,
+    pagination,
+    onPage,
+    onFilterChange: applyFilters,
+    refresh,
+} = useAdminList<WaitlistEntry, typeof filters>({
+    initialFilters: filters,
+    initialLimit: 20,
+    fetchFn: async ({ page, limit, search, purpose }) => {
+        const response = await $fetch<{
+            code: number
+            data: {
+                items: WaitlistEntry[]
+                total: number
+            }
+        }>('/api/admin/waitlist', {
+            query: {
+                page,
+                pageSize: limit,
+                search,
+                purpose,
+            },
+        })
 
-const onPage = (event: any) => {
-    pagination.page = event.page + 1
-    pagination.pageSize = event.rows
-    loadData()
-}
+        return {
+            data: response.code === 200 ? response.data.items : [],
+            total: response.code === 200 ? response.data.total : 0,
+        }
+    },
+})
 
 const onFilterChange = useDebounceFn(() => {
-    pagination.page = 1
-    loadData()
+    applyFilters()
 }, 500)
 
 const exportWaitlist = () => {
@@ -162,7 +168,7 @@ const exportWaitlist = () => {
     window.open(url, '_blank')
 }
 
-const confirmDelete = (item: any) => {
+const confirmDelete = (item: WaitlistEntry) => {
     itemToDelete.value = item
     deleteVisible.value = true
 }
@@ -173,43 +179,19 @@ const doDelete = async () => {
         await $fetch(`/api/admin/waitlist/${itemToDelete.value.id}`, {
             method: 'DELETE',
         })
+        await refresh()
         deleteVisible.value = false
         itemToDelete.value = null
-        loadData()
     } catch (error) {
         console.error('Failed to delete waitlist entry:', error)
     }
 }
-
-onMounted(() => {
-    loadData()
-})
 </script>
 
 <style lang="scss" scoped>
 .admin-waitlist {
-    &__card {
-        background: var(--surface-card);
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgb(0 0 0 / 0.05);
-    }
-
-    &__filters {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-    }
-
     &__purpose-input {
         min-width: 160px;
     }
-}
-
-.empty-state {
-    padding: 3rem;
-    text-align: center;
-    color: var(--text-color-secondary);
 }
 </style>

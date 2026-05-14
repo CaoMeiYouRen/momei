@@ -1,6 +1,11 @@
 <template>
-    <div class="admin-page-container">
-        <AdminPageHeader :title="$t('pages.admin.ad.campaigns.title')" show-language-switcher>
+    <div>
+        <AdminListShell
+            container-class="admin-page-container"
+            card-class="admin-content-card"
+            :title="$t('pages.admin.ad.campaigns.title')"
+            show-language-switcher
+        >
             <template #actions>
                 <Button
                     :label="$t('common.create')"
@@ -8,9 +13,7 @@
                     @click="openDialog()"
                 />
             </template>
-        </AdminPageHeader>
 
-        <div class="admin-content-card">
             <DataTable
                 :value="campaigns"
                 :loading="loading"
@@ -91,12 +94,10 @@
                     </template>
                 </Column>
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.admin.ad.campaigns.empty') }}
-                    </div>
+                    <AdminTableEmptyState :label="$t('pages.admin.ad.campaigns.empty')" />
                 </template>
             </DataTable>
-        </div>
+        </AdminListShell>
 
         <Dialog
             v-model:visible="dialogVisible"
@@ -155,7 +156,7 @@
                 <Button
                     :label="$t('common.cancel')"
                     severity="secondary"
-                    @click="dialogVisible = false"
+                    @click="closeDialog()"
                 />
                 <Button
                     :label="$t('common.save')"
@@ -170,9 +171,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { CampaignStatus } from '@/types/ad'
+import { CampaignStatus, type AdCampaign } from '@/types/ad'
+
+interface CampaignFormState {
+    name: string
+    status: CampaignStatus
+    startDate: Date | null
+    endDate: Date | null
+}
+
+const createEmptyForm = (): CampaignFormState => ({
+    name: '',
+    status: CampaignStatus.DRAFT,
+    startDate: null,
+    endDate: null,
+})
 
 const { t } = useI18n()
 const { formatDateTime } = useI18nDate()
@@ -184,26 +198,45 @@ definePageMeta({
 
 const confirm = useConfirm()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
-
-const loading = ref(true)
-const campaigns = ref<any[]>([])
-const dialogVisible = ref(false)
-const editingItem = ref<any>(null)
 const saving = ref(false)
 
-const formData = reactive<{
-    name: string
-    status: CampaignStatus
-    startDate: Date | null
-    endDate: Date | null
-}>({
-    name: '',
-    status: CampaignStatus.DRAFT,
-    startDate: null,
-    endDate: null,
+const {
+    items: campaigns,
+    loading,
+    refresh: loadCampaigns,
+} = useAdminEntityList<AdCampaign>({
+    loadItems: async () => {
+        try {
+            const response = await $fetch<{ data?: AdCampaign[] }>('/api/admin/ad/campaigns')
+            return response.data || []
+        } catch (error) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.load_failed' })
+            throw error
+        }
+    },
 })
 
-const errors = reactive<Record<string, string>>({})
+const formData = reactive<CampaignFormState>(createEmptyForm())
+
+const {
+    dialogVisible,
+    editingItem,
+    errors,
+    resetErrors,
+    openDialog,
+    closeDialog,
+} = useAdminFormDialog<AdCampaign, CampaignFormState>({
+    formData,
+    createEmptyForm,
+    assignItemToForm: (item, form) => {
+        Object.assign(form, {
+            name: item.name,
+            status: item.status,
+            startDate: item.startDate ? new Date(item.startDate) : null,
+            endDate: item.endDate ? new Date(item.endDate) : null,
+        })
+    },
+})
 
 const statusOptions = computed(() => [
     { label: t('pages.admin.ad.campaigns.statuses.draft'), value: CampaignStatus.DRAFT },
@@ -212,43 +245,8 @@ const statusOptions = computed(() => [
     { label: t('pages.admin.ad.campaigns.statuses.ended'), value: CampaignStatus.ENDED },
 ])
 
-async function loadCampaigns() {
-    loading.value = true
-    try {
-        const response = await $fetch<any>('/api/admin/ad/campaigns')
-        campaigns.value = response.data || []
-    } catch (error) {
-        showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.load_failed' })
-    } finally {
-        loading.value = false
-    }
-}
-
-function openDialog(item?: any) {
-    editingItem.value = item || null
-
-    if (item) {
-        Object.assign(formData, {
-            name: item.name,
-            status: item.status,
-            startDate: item.startDate ? new Date(item.startDate) : null,
-            endDate: item.endDate ? new Date(item.endDate) : null,
-        })
-    } else {
-        Object.assign(formData, {
-            name: '',
-            status: CampaignStatus.DRAFT,
-            startDate: null,
-            endDate: null,
-        })
-    }
-
-    Object.keys(errors).forEach((key) => delete errors[key])
-    dialogVisible.value = true
-}
-
 async function save() {
-    Object.keys(errors).forEach((key) => delete errors[key])
+    resetErrors()
 
     if (!formData.name) {
         errors.name = t('pages.admin.ad.campaigns.messages.name_required')
@@ -283,7 +281,7 @@ async function save() {
                 : 'pages.admin.ad.campaigns.messages.create_success',
         )
 
-        dialogVisible.value = false
+        closeDialog()
         await loadCampaigns()
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'pages.admin.ad.campaigns.messages.save_failed' })
@@ -292,7 +290,7 @@ async function save() {
     }
 }
 
-function confirmDelete(item: any) {
+function confirmDelete(item: AdCampaign) {
     confirm.require({
         message: t('pages.admin.ad.campaigns.messages.delete_confirm'),
         header: t('common.confirm_delete'),
@@ -303,7 +301,7 @@ function confirmDelete(item: any) {
     })
 }
 
-async function deleteItem(item: any) {
+async function deleteItem(item: AdCampaign) {
     try {
         await $fetch(`/api/admin/ad/campaigns/${item.id}`, {
             method: 'DELETE',
@@ -334,10 +332,6 @@ function formatDate(date: string | null): string {
     if (!date) return '-'
     return formatDateTime(date, 'YYYY-MM-DD HH:mm')
 }
-
-onMounted(() => {
-    loadCampaigns()
-})
 </script>
 
 <style scoped lang="scss">

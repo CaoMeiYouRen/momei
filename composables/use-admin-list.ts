@@ -80,7 +80,7 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
     const loading = ref(false)
     const error = ref<AdminListError>(null)
 
-    const filters = reactive({ ...(initialFilters || {}) }) as F
+    const filters = reactive(initialFilters ?? {}) as F
     const sort = reactive({
         field: initialSort?.field || 'createdAt',
         order: initialSort?.order || 'desc',

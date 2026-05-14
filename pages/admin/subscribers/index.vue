@@ -1,6 +1,10 @@
 <template>
-    <div class="admin-subscribers page-container">
-        <AdminPageHeader :title="$t('pages.admin.subscribers.title')" show-language-switcher>
+    <div>
+        <AdminListShell
+            container-class="admin-subscribers page-container"
+            :title="$t('pages.admin.subscribers.title')"
+            show-language-switcher
+        >
             <template #actions>
                 <Button
                     :label="$t('pages.admin.subscribers.export')"
@@ -9,10 +13,8 @@
                     @click="exportSubscribers"
                 />
             </template>
-        </AdminPageHeader>
 
-        <div class="admin-subscribers__card">
-            <div class="admin-subscribers__filters">
+            <template #filters>
                 <IconField icon-position="left">
                     <InputIcon class="pi pi-search" />
                     <InputText
@@ -21,14 +23,14 @@
                         @input="onFilterChange"
                     />
                 </IconField>
-            </div>
+            </template>
 
             <DataTable
                 :value="items"
                 :loading="loading"
                 lazy
-                :total-records="total"
-                :rows="pagination.pageSize"
+                :total-records="pagination.total"
+                :rows="pagination.limit"
                 paginator
                 class="p-datatable-sm"
                 @page="onPage"
@@ -91,12 +93,10 @@
                     </template>
                 </Column>
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.posts.empty') }}
-                    </div>
+                    <AdminTableEmptyState :label="$t('pages.posts.empty')" />
                 </template>
             </DataTable>
-        </div>
+        </AdminListShell>
 
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"
@@ -109,7 +109,6 @@
 <script setup lang="ts">
 import type { Subscriber } from '@/types/subscriber'
 
-const { t } = useI18n()
 const { formatDate } = useI18nDate()
 
 definePageMeta({
@@ -117,56 +116,54 @@ definePageMeta({
     layout: 'default',
 })
 
-const loading = ref(false)
-const items = ref<Subscriber[]>([])
-const total = ref(0)
-const pagination = reactive({
-    page: 1,
-    pageSize: 20,
-})
 const filters = reactive({
     email: '',
 })
 
 const deleteVisible = ref(false)
-const itemToDelete = ref<any>(null)
+const itemToDelete = ref<Subscriber | null>(null)
 
-const loadData = async () => {
-    loading.value = true
-    try {
-        const query = {
-            page: pagination.page,
-            pageSize: pagination.pageSize,
-            email: filters.email || undefined,
-        }
-        const res = await $fetch<any>('/api/subscribers', { query })
-        if (res.code === 200) {
-            items.value = res.data.items
-            total.value = res.data.total
-        }
-    } catch (error) {
-        console.error('Failed to load subscribers:', error)
-    } finally {
-        loading.value = false
-    }
-}
+const {
+    items,
+    loading,
+    pagination,
+    onPage,
+    onFilterChange: applyFilters,
+    refresh,
+} = useAdminList<Subscriber, typeof filters>({
+    initialFilters: filters,
+    initialLimit: 20,
+    fetchFn: async ({ page, limit, email }) => {
+        const response = await $fetch<{
+            code: number
+            data: {
+                items: Subscriber[]
+                total: number
+            }
+        }>('/api/subscribers', {
+            query: {
+                page,
+                pageSize: limit,
+                email,
+            },
+        })
 
-const onPage = (event: any) => {
-    pagination.page = event.page + 1
-    pagination.pageSize = event.rows
-    loadData()
-}
+        return {
+            data: response.code === 200 ? response.data.items : [],
+            total: response.code === 200 ? response.data.total : 0,
+        }
+    },
+})
 
 const onFilterChange = useDebounceFn(() => {
-    pagination.page = 1
-    loadData()
+    applyFilters()
 }, 500)
 
 const exportSubscribers = () => {
     window.open('/api/subscribers/export', '_blank')
 }
 
-const toggleStatus = async (item: any) => {
+const toggleStatus = async (item: Subscriber) => {
     try {
         await $fetch(`/api/subscribers/${item.id}`, {
             method: 'PUT',
@@ -178,7 +175,7 @@ const toggleStatus = async (item: any) => {
     }
 }
 
-const confirmDelete = (item: any) => {
+const confirmDelete = (item: Subscriber) => {
     itemToDelete.value = item
     deleteVisible.value = true
 }
@@ -189,36 +186,11 @@ const doDelete = async () => {
         await $fetch(`/api/subscribers/${itemToDelete.value.id}`, {
             method: 'DELETE',
         })
+        await refresh()
         deleteVisible.value = false
         itemToDelete.value = null
-        loadData()
     } catch (error) {
         console.error('Failed to delete subscriber:', error)
     }
 }
-
-onMounted(() => {
-    loadData()
-})
 </script>
-
-<style lang="scss" scoped>
-.admin-subscribers {
-    &__card {
-        background: var(--surface-card);
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgb(0 0 0 / 0.05);
-    }
-
-    &__filters {
-        margin-bottom: 1.5rem;
-    }
-}
-
-.empty-state {
-    padding: 3rem;
-    text-align: center;
-    color: var(--text-color-secondary);
-}
-</style>

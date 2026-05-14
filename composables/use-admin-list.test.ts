@@ -1,4 +1,4 @@
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent, nextTick, reactive, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
@@ -162,6 +162,31 @@ describe('useAdminList', () => {
         await flushPromises()
         expect(fetchFn).toHaveBeenLastCalledWith(expect.objectContaining({
             language: 'zh-CN',
+        }))
+    })
+
+    it('应使用外部 filters 的最新值重新加载列表', async () => {
+        const initialFilters = reactive({
+            keyword: 'draft',
+        })
+        const fetchFn = vi.fn().mockResolvedValue({
+            data: [],
+            total: 0,
+        })
+
+        const list = await mountAdminList({
+            fetchFn,
+            initialFilters,
+        })
+
+        fetchFn.mockClear()
+        initialFilters.keyword = 'published'
+
+        list.onFilterChange()
+        await flushPromises()
+
+        expect(fetchFn).toHaveBeenLastCalledWith(expect.objectContaining({
+            keyword: 'published',
         }))
     })
 

@@ -39,9 +39,11 @@
 - [ ] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
 
 4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**
-- [ ] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
-- [ ] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。
-- [ ] 复核 `pnpm duplicate-code:check` 基线不反弹，并补记结构性重复盘点结论。
+- [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
+- [x] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。
+- [x] 复核 `pnpm duplicate-code:check` 基线不反弹，并补记结构性重复盘点结论。
+
+进展记录（2026-05-14）：结构复用主线本轮已完成 `3` 处热点收敛并完成基线复核。第一组为 [pages/admin/subscribers/index.vue](../../pages/admin/subscribers/index.vue) 与 [pages/admin/waitlist/index.vue](../../pages/admin/waitlist/index.vue)：共享边界冻结为“后台列表页壳层 + useAdminList 适配器”，只抽离页头 / 卡片 / 空态与分页筛选编排，接口参数形状继续通过 `fetchFn` 显式适配，不改 `/api/subscribers` 与 `/api/admin/waitlist` 契约；收益是去掉重复的列表加载、分页、过滤和空态样板；若要回滚，只需把 [components/admin/admin-list-shell.vue](../../components/admin/admin-list-shell.vue)、[components/admin/admin-table-empty-state.vue](../../components/admin/admin-table-empty-state.vue) 与页面内 `useAdminList` 接入内联回原页。第二组为 [pages/admin/ad/campaigns.vue](../../pages/admin/ad/campaigns.vue) 与 [pages/admin/ad/placements.vue](../../pages/admin/ad/placements.vue)：共享边界冻结为“实体列表加载 + 表单弹窗状态”两条窄 composable，[composables/use-admin-entity-list.ts](../../composables/use-admin-entity-list.ts) 只负责列表加载 / 刷新，[composables/use-admin-form-dialog.ts](../../composables/use-admin-form-dialog.ts) 只负责弹窗状态、错误重置和表单回填，资源特有字段、校验、toast key、接口地址与启停逻辑仍保留在页面内；收益是收敛重复的 CRUD 页面控制流，而不把广告资源伪装成通用后台框架；回滚方式为把两个 composable 逻辑重新内联到各页。第三组为 [server/utils/email/service.ts](../../server/utils/email/service.ts)：共享边界冻结为“邮件模板解析 / 发送 / 记录日志”内部 helper，公开方法名、模板 ID、模板入参与调用方契约保持不变；收益是收敛 action/code/simple/marketing 四类邮件的重复发送管线；回滚方式为把 helper 折回各发送方法。验证方面，已执行 [server/utils/email/service.test.ts](../../server/utils/email/service.test.ts) 定向测试（`13` 通过、`0` 失败）、`pnpm exec nuxt typecheck`（通过）与 `pnpm duplicate-code:check`（通过，baseline 未反弹）；本轮未继续动 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)，保留为下一轮候选，以避免在已满足 `3` 处热点目标后把当前切片扩写成大组件拆分工程。
 
 5. **主线：Postgres 长窗口复核切片 (P1)**
 - [x] 补一组 `pg_stat_statements` 或等价 live sample 长窗口样本，先确认当前最耗 CPU 或最拉长连接寿命的请求组。

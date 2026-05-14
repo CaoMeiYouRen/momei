@@ -1,6 +1,11 @@
 <template>
-    <div class="admin-page-container">
-        <AdminPageHeader :title="$t('pages.admin.ad.placements.title')" show-language-switcher>
+    <div>
+        <AdminListShell
+            container-class="admin-page-container"
+            card-class="admin-content-card"
+            :title="$t('pages.admin.ad.placements.title')"
+            show-language-switcher
+        >
             <template #actions>
                 <Button
                     :label="$t('common.create')"
@@ -8,9 +13,7 @@
                     @click="openDialog()"
                 />
             </template>
-        </AdminPageHeader>
 
-        <div class="admin-content-card">
             <DataTable
                 :value="placements"
                 :loading="loading"
@@ -93,12 +96,10 @@
                     </template>
                 </Column>
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.admin.ad.placements.empty') }}
-                    </div>
+                    <AdminTableEmptyState :label="$t('pages.admin.ad.placements.empty')" />
                 </template>
             </DataTable>
-        </div>
+        </AdminListShell>
 
         <Dialog
             v-model:visible="dialogVisible"
@@ -190,7 +191,7 @@
                 <Button
                     :label="$t('common.cancel')"
                     severity="secondary"
-                    @click="dialogVisible = false"
+                    @click="closeDialog()"
                 />
                 <Button
                     :label="$t('common.save')"
@@ -205,9 +206,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import { AdFormat, AdLocation, type AdPlacementMetadata } from '@/types/ad'
+import { AdFormat, AdLocation, type AdPlacement, type AdPlacementMetadata } from '@/types/ad'
+
+interface PlacementFormState {
+    name: string
+    location: AdLocation
+    format: AdFormat
+    adapterId: string
+    metadata: AdPlacementMetadata
+    priority: number
+    enabled: boolean
+}
+
+const createEmptyForm = (): PlacementFormState => ({
+    name: '',
+    location: AdLocation.SIDEBAR,
+    format: AdFormat.RESPONSIVE,
+    adapterId: 'adsense',
+    metadata: {},
+    priority: 0,
+    enabled: true,
+})
 
 const { t } = useI18n()
 
@@ -218,41 +238,55 @@ definePageMeta({
 
 const confirm = useConfirm()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
-
-const loading = ref(true)
-const placements = ref<any[]>([])
-const dialogVisible = ref(false)
-const editingItem = ref<any>(null)
 const saving = ref(false)
 
-const formData = reactive<{
-    name: string
-    location: AdLocation
-    format: AdFormat
-    adapterId: string
-    metadata: AdPlacementMetadata
-    priority: number
-    enabled: boolean
-}>({
-    name: '',
-    location: AdLocation.SIDEBAR,
-    format: AdFormat.RESPONSIVE,
-    adapterId: 'adsense',
-    metadata: {},
-    priority: 0,
-    enabled: true,
+const {
+    items: placements,
+    loading,
+    refresh: loadPlacements,
+} = useAdminEntityList<AdPlacement>({
+    loadItems: async () => {
+        try {
+            const response = await $fetch<{ data?: AdPlacement[] }>('/api/admin/ad/placements')
+            return response.data || []
+        } catch (error) {
+            showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.load_failed' })
+            throw error
+        }
+    },
 })
 
-const errors = reactive<Record<string, string>>({})
+const formData = reactive<PlacementFormState>(createEmptyForm())
 
-// 适配器列表
+const {
+    dialogVisible,
+    editingItem,
+    errors,
+    resetErrors,
+    openDialog,
+    closeDialog,
+} = useAdminFormDialog<AdPlacement, PlacementFormState>({
+    formData,
+    createEmptyForm,
+    assignItemToForm: (item, form) => {
+        Object.assign(form, {
+            name: item.name,
+            location: item.location,
+            format: item.format,
+            adapterId: item.adapterId,
+            metadata: item.metadata || {},
+            priority: item.priority,
+            enabled: item.enabled,
+        })
+    },
+})
+
 const adapterOptions = [
     { id: 'adsense', name: 'Google AdSense' },
     { id: 'baidu', name: '百度联盟' },
     { id: 'tencent', name: '腾讯广告 (广点通)' },
 ]
 
-// 位置选项
 const locationOptions = computed(() => [
     { label: t('pages.admin.ad.placements.locations.header'), value: AdLocation.HEADER },
     { label: t('pages.admin.ad.placements.locations.sidebar'), value: AdLocation.SIDEBAR },
@@ -262,7 +296,6 @@ const locationOptions = computed(() => [
     { label: t('pages.admin.ad.placements.locations.footer'), value: AdLocation.FOOTER },
 ])
 
-// 格式选项
 const formatOptions = computed(() => [
     { label: t('pages.admin.ad.placements.formats.display'), value: AdFormat.DISPLAY },
     { label: t('pages.admin.ad.placements.formats.native'), value: AdFormat.NATIVE },
@@ -270,50 +303,8 @@ const formatOptions = computed(() => [
     { label: t('pages.admin.ad.placements.formats.responsive'), value: AdFormat.RESPONSIVE },
 ])
 
-async function loadPlacements() {
-    loading.value = true
-    try {
-        const response = await $fetch<any>('/api/admin/ad/placements')
-        placements.value = response.data || []
-    } catch (error) {
-        showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.load_failed' })
-    } finally {
-        loading.value = false
-    }
-}
-
-function openDialog(item?: any) {
-    editingItem.value = item || null
-
-    if (item) {
-        Object.assign(formData, {
-            name: item.name,
-            location: item.location,
-            format: item.format,
-            adapterId: item.adapterId,
-            metadata: item.metadata || {},
-            priority: item.priority,
-            enabled: item.enabled,
-        })
-    } else {
-        Object.assign(formData, {
-            name: '',
-            location: AdLocation.SIDEBAR,
-            format: AdFormat.RESPONSIVE,
-            adapterId: 'adsense',
-            metadata: {},
-            priority: 0,
-            enabled: true,
-        })
-    }
-
-    Object.keys(errors).forEach((key) => delete errors[key])
-    dialogVisible.value = true
-}
-
 async function save() {
-    // 验证
-    Object.keys(errors).forEach((key) => delete errors[key])
+    resetErrors()
 
     if (!formData.name) {
         errors.name = t('pages.admin.ad.placements.messages.name_required')
@@ -351,7 +342,7 @@ async function save() {
                 : 'pages.admin.ad.placements.messages.create_success',
         )
 
-        dialogVisible.value = false
+        closeDialog()
         await loadPlacements()
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'pages.admin.ad.placements.messages.save_failed' })
@@ -360,7 +351,7 @@ async function save() {
     }
 }
 
-function confirmDelete(item: any) {
+function confirmDelete(item: AdPlacement) {
     confirm.require({
         message: t('pages.admin.ad.placements.messages.delete_confirm'),
         header: t('common.confirm_delete'),
@@ -371,7 +362,7 @@ function confirmDelete(item: any) {
     })
 }
 
-async function deleteItem(item: any) {
+async function deleteItem(item: AdPlacement) {
     try {
         await $fetch(`/api/admin/ad/placements/${item.id}`, {
             method: 'DELETE',
@@ -385,7 +376,7 @@ async function deleteItem(item: any) {
     }
 }
 
-async function toggleEnabled(item: any) {
+async function toggleEnabled(item: AdPlacement) {
     try {
         await $fetch(`/api/admin/ad/placements/${item.id}`, {
             method: 'PUT',
@@ -411,10 +402,6 @@ function getAdapterName(adapterId: string): string {
     const adapter = adapterOptions.find((a) => a.id === adapterId)
     return adapter?.name || adapterId
 }
-
-onMounted(() => {
-    loadPlacements()
-})
 </script>
 
 <style scoped lang="scss">

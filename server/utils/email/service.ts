@@ -3,7 +3,127 @@ import { plainTextToHtml } from '../html'
 import { emailTemplateEngine } from './templates'
 import { sendEmail } from './index'
 import { resolveEmailTemplateRuntimeContent } from '@/server/services/email-template'
+import type { EmailTemplateId } from '@/utils/shared/email-template-config'
 import { APP_NAME } from '@/utils/shared/env'
+
+type ResolvedEmailTemplate = Awaited<ReturnType<typeof resolveEmailTemplateRuntimeContent>>
+
+interface SendGeneratedEmailOptions {
+    email: string
+    locale?: string
+    templateId: EmailTemplateId
+    logType: string
+    params?: Record<string, unknown>
+    render: (template: ResolvedEmailTemplate) => Promise<{ html: string, text: string }>
+}
+
+interface SendActionTemplateEmailOptions {
+    email: string
+    locale?: string
+    templateId: EmailTemplateId
+    logType: string
+    actionUrl: string
+    defaultButtonText?: string
+    params?: Record<string, unknown>
+}
+
+interface SendCodeTemplateEmailOptions {
+    email: string
+    locale?: string
+    templateId: EmailTemplateId
+    logType: string
+    otp: string
+    expiresInMinutes: number
+    params?: Record<string, unknown>
+}
+
+function getEmailErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
+}
+
+function createTemplateParams(params?: Record<string, unknown>) {
+    return {
+        appName: APP_NAME,
+        ...(params ?? {}),
+    }
+}
+
+async function sendGeneratedEmail(options: SendGeneratedEmailOptions): Promise<void> {
+    try {
+        const template = await resolveEmailTemplateRuntimeContent({
+            templateId: options.templateId,
+            locale: options.locale,
+            params: createTemplateParams(options.params),
+        })
+
+        const { html, text } = await options.render(template)
+
+        await sendEmail({
+            to: options.email,
+            subject: template.title,
+            html,
+            text,
+        })
+
+        logger.email.sent({ type: options.logType, email: options.email })
+    } catch (error) {
+        logger.email.failed({
+            type: options.logType,
+            email: options.email,
+            error: getEmailErrorMessage(error),
+        })
+        throw error
+    }
+}
+
+async function sendActionTemplateEmail(options: SendActionTemplateEmailOptions): Promise<void> {
+    await sendGeneratedEmail({
+        email: options.email,
+        locale: options.locale,
+        templateId: options.templateId,
+        logType: options.logType,
+        params: options.params,
+        render: async (template) => emailTemplateEngine.generateActionEmailTemplate(
+            {
+                headerIcon: template.headerIcon,
+                message: template.message,
+                buttonText: template.buttonText ?? options.defaultButtonText ?? '',
+                actionUrl: options.actionUrl,
+                reminderContent: template.reminderContent ?? '',
+                securityTip: template.securityTip ?? '',
+            },
+            {
+                title: template.title,
+                preheader: template.preheader,
+                locale: options.locale,
+            },
+        ),
+    })
+}
+
+async function sendCodeTemplateEmail(options: SendCodeTemplateEmailOptions): Promise<void> {
+    await sendGeneratedEmail({
+        email: options.email,
+        locale: options.locale,
+        templateId: options.templateId,
+        logType: options.logType,
+        params: options.params,
+        render: async (template) => emailTemplateEngine.generateCodeEmailTemplate(
+            {
+                headerIcon: template.headerIcon,
+                message: template.message,
+                verificationCode: options.otp,
+                expiresIn: options.expiresInMinutes,
+                securityTip: template.securityTip ?? '',
+            },
+            {
+                title: template.title,
+                preheader: template.preheader,
+                locale: options.locale,
+            },
+        ),
+    })
+}
 
 /**
  * 邮件验证服务
@@ -19,48 +139,13 @@ export const emailService = {
         verificationUrl: string,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'verification',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    buttonText: template.buttonText ?? '',
-                    actionUrl: verificationUrl,
-                    reminderContent: template.reminderContent ?? '',
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'verification', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'verification',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+        await sendActionTemplateEmail({
+            email,
+            locale,
+            templateId: 'verification',
+            logType: 'verification',
+            actionUrl: verificationUrl,
+        })
     },
 
     /**
@@ -71,48 +156,13 @@ export const emailService = {
         resetUrl: string,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'passwordReset',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    buttonText: template.buttonText ?? '',
-                    actionUrl: resetUrl,
-                    reminderContent: template.reminderContent ?? '',
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'password-reset', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'password-reset',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+        await sendActionTemplateEmail({
+            email,
+            locale,
+            templateId: 'passwordReset',
+            logType: 'password-reset',
+            actionUrl: resetUrl,
+        })
     },
 
     /**
@@ -124,48 +174,17 @@ export const emailService = {
         expiresInMinutes: number = 5,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
+        await sendCodeTemplateEmail({
+            email,
+            locale,
+            templateId: 'loginOTP',
+            logType: 'login-otp',
+            otp,
+            expiresInMinutes,
+            params: {
                 expiresIn: expiresInMinutes,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'loginOTP',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    verificationCode: otp,
-                    expiresIn: expiresInMinutes,
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'login-otp', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'login-otp',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+            },
+        })
     },
 
     /**
@@ -177,48 +196,17 @@ export const emailService = {
         expiresInMinutes: number = 5,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
+        await sendCodeTemplateEmail({
+            email,
+            locale,
+            templateId: 'emailVerificationOTP',
+            logType: 'email-verification-otp',
+            otp,
+            expiresInMinutes,
+            params: {
                 expiresIn: expiresInMinutes,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'emailVerificationOTP',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    verificationCode: otp,
-                    expiresIn: expiresInMinutes,
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'email-verification-otp', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'email-verification-otp',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+            },
+        })
     },
 
     /**
@@ -230,96 +218,30 @@ export const emailService = {
         expiresInMinutes: number = 5,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
+        await sendCodeTemplateEmail({
+            email,
+            locale,
+            templateId: 'passwordResetOTP',
+            logType: 'password-reset-otp',
+            otp,
+            expiresInMinutes,
+            params: {
                 expiresIn: expiresInMinutes,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'passwordResetOTP',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateCodeEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    verificationCode: otp,
-                    expiresIn: expiresInMinutes,
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'password-reset-otp', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'password-reset-otp',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+            },
+        })
     },
 
     /**
      * 发送Magic Link邮件（支持国际化）
      */
     async sendMagicLink(email: string, magicUrl: string, locale?: string): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'magicLink',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    buttonText: template.buttonText ?? '',
-                    actionUrl: magicUrl,
-                    reminderContent: template.reminderContent ?? '',
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'magic-link', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'magic-link',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+        await sendActionTemplateEmail({
+            email,
+            locale,
+            templateId: 'magicLink',
+            logType: 'magic-link',
+            actionUrl: magicUrl,
+        })
     },
 
     /**
@@ -331,48 +253,14 @@ export const emailService = {
         changeUrl: string,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'emailChangeVerification',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    buttonText: template.buttonText ?? '',
-                    actionUrl: changeUrl,
-                    reminderContent: template.reminderContent ?? '',
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: currentEmail,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'email-change', email: currentEmail })
-        } catch (error) {
-            logger.email.failed({
-                type: 'email-change',
-                email: currentEmail,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+        void newEmail
+        await sendActionTemplateEmail({
+            email: currentEmail,
+            locale,
+            templateId: 'emailChangeVerification',
+            logType: 'email-change',
+            actionUrl: changeUrl,
+        })
     },
 
     /**
@@ -384,17 +272,12 @@ export const emailService = {
         details: string,
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'securityNotification',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateSimpleMessageTemplate(
+        await sendGeneratedEmail({
+            email,
+            locale,
+            templateId: 'securityNotification',
+            logType: 'security-notification',
+            render: async (template) => emailTemplateEngine.generateSimpleMessageTemplate(
                 {
                     headerIcon: template.headerIcon,
                     message: `${template.message}<br/><br/><strong>${action}</strong>`,
@@ -405,72 +288,22 @@ export const emailService = {
                     preheader: template.preheader,
                     locale,
                 },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'security-notification', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'security-notification',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+            ),
+        })
     },
 
     /**
      * 发送订阅确认邮件（支持国际化）
      */
     async sendSubscriptionConfirmation(email: string, locale?: string): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'subscriptionConfirmation',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateActionEmailTemplate(
-                {
-                    headerIcon: template.headerIcon,
-                    message: template.message,
-                    buttonText: template.buttonText ?? '访问博客',
-                    actionUrl: '/',
-                    reminderContent: template.reminderContent ?? '',
-                    securityTip: template.securityTip ?? '',
-                },
-                {
-                    title: template.title,
-                    preheader: template.preheader,
-                    locale,
-                },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'subscription-confirm', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'subscription-confirm',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+        await sendActionTemplateEmail({
+            email,
+            locale,
+            templateId: 'subscriptionConfirmation',
+            logType: 'subscription-confirm',
+            actionUrl: '/',
+            defaultButtonText: '访问博客',
+        })
     },
 
     /**
@@ -489,18 +322,13 @@ export const emailService = {
         },
         locale?: string,
     ): Promise<void> {
-        try {
-            const params = {
-                appName: APP_NAME,
-                ...campaignData,
-            }
-            const template = await resolveEmailTemplateRuntimeContent({
-                templateId: 'marketingCampaign',
-                locale,
-                params,
-            })
-
-            const { html, text } = await emailTemplateEngine.generateMarketingEmailTemplate(
+        await sendGeneratedEmail({
+            email,
+            locale,
+            templateId: 'marketingCampaign',
+            logType: 'marketing-campaign',
+            params: campaignData,
+            render: async (template) => emailTemplateEngine.generateMarketingEmailTemplate(
                 {
                     headerIcon: template.headerIcon,
                     message: plainTextToHtml(campaignData.summary),
@@ -519,24 +347,8 @@ export const emailService = {
                     preheader: template.preheader,
                     locale,
                 },
-            )
-
-            await sendEmail({
-                to: email,
-                subject: template.title,
-                html,
-                text,
-            })
-
-            logger.email.sent({ type: 'marketing-campaign', email })
-        } catch (error) {
-            logger.email.failed({
-                type: 'marketing-campaign',
-                email,
-                error: error instanceof Error ? error.message : String(error),
-            })
-            throw error
-        }
+            ),
+        })
     },
 }
 

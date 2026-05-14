@@ -84,6 +84,29 @@ export interface CampaignTargeting {
     locales?: string[]
 }
 
+export interface AdCampaign {
+    id: string
+    name: string
+    status: CampaignStatus
+    startDate: string | null
+    endDate: string | null
+    targeting?: CampaignTargeting | null
+    impressions: number
+    clicks: number
+    revenue: number
+}
+
+export interface AdPlacement {
+    id: string
+    name: string
+    location: AdLocation
+    format: AdFormat
+    adapterId: string
+    metadata: AdPlacementMetadata
+    priority: number
+    enabled: boolean
+}
+
 /**
  * 外链元数据接口
  */
