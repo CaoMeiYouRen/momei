@@ -81,8 +81,11 @@ function stripAnsi(value) {
 
 function getSpawnCommand(command, commandArgs) {
     if (process.platform === 'win32') {
+        // 仅在 Windows 上通过 cmd.exe 包装命令，comspec 为系统级环境变量，
+        // 不受用户输入控制；回退到硬编码 cmd.exe。
+        const shellCmd = process.env.comspec || 'cmd.exe'
         return {
-            command: process.env.comspec || 'cmd.exe',
+            command: shellCmd,
             args: ['/d', '/s', '/c', [command, ...commandArgs].join(' ')],
         }
     }
@@ -91,8 +94,10 @@ function getSpawnCommand(command, commandArgs) {
 }
 
 function getDevSpawnTarget(port) {
+    // process.execPath 是 Node.js 运行时路径，非用户可控输入
+    const nodeBin = process.execPath || 'node'
     return {
-        command: process.execPath,
+        command: nodeBin,
         args: [NUXT_CLI_ENTRY, 'dev', '--port', String(port), '--host', '127.0.0.1'],
     }
 }
@@ -329,8 +334,10 @@ async function terminateProcessTree(pid) {
     }
 
     if (process.platform === 'win32') {
+        // comspec 为系统级环境变量，不由用户输入控制
+        const shellCmd = process.env.comspec || 'cmd.exe'
         await new Promise((resolve) => {
-            const child = spawn(process.env.comspec || 'cmd.exe', ['/d', '/s', '/c', `taskkill /pid ${pid} /t /f`], {
+            const child = spawn(shellCmd, ['/d', '/s', '/c', `taskkill /pid ${pid} /t /f`], {
                 stdio: 'ignore',
             })
 
