@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 const DEFAULT_DEV_PORT = 34567
 const NUXT_CLI_ENTRY = path.resolve(repoRoot, 'node_modules', 'nuxt', 'bin', 'nuxt.mjs')
+const BUILD_NODE_OPTIONS = '--max-old-space-size=6144'
 
 function parseArgs(argv) {
     return parseCliOptions(argv, {
@@ -79,27 +80,35 @@ function stripAnsi(value) {
     return value.replace(ANSI_SGR_PATTERN, '')
 }
 
-function getSpawnCommand(command, commandArgs) {
-    if (process.platform === 'win32') {
-        // 仅在 Windows 上通过 cmd.exe 包装命令，comspec 为系统级环境变量，
-        // 不受用户输入控制；回退到硬编码 cmd.exe。
-        const shellCmd = process.env.comspec || 'cmd.exe'
-        return {
-            command: shellCmd,
-            args: ['/d', '/s', '/c', [command, ...commandArgs].join(' ')],
-        }
+function appendNodeOptions(existingValue, addition) {
+    if (!existingValue) {
+        return addition
     }
 
-    return { command, args: commandArgs }
+    if (existingValue.includes(addition)) {
+        return existingValue
+    }
+
+    return `${existingValue} ${addition}`
 }
 
-function getDevSpawnTarget(port) {
-    // process.execPath 是 Node.js 运行时路径，非用户可控输入
+function getNuxtSpawnTarget(commandArgs, extraEnv = undefined) {
     const nodeBin = process.execPath || 'node'
     return {
         command: nodeBin,
-        args: [NUXT_CLI_ENTRY, 'dev', '--port', String(port), '--host', '127.0.0.1'],
+        args: [NUXT_CLI_ENTRY, ...commandArgs],
+        env: extraEnv,
     }
+}
+
+function getDevSpawnTarget(port) {
+    return getNuxtSpawnTarget(['dev', '--port', String(port), '--host', '127.0.0.1'])
+}
+
+function getBuildSpawnTarget() {
+    return getNuxtSpawnTarget(['build'], {
+        NODE_OPTIONS: appendNodeOptions(process.env.NODE_OPTIONS, BUILD_NODE_OPTIONS),
+    })
 }
 
 function parseDurationMs(rawValue, unit = 'ms') {
@@ -334,10 +343,8 @@ async function terminateProcessTree(pid) {
     }
 
     if (process.platform === 'win32') {
-        // comspec 为系统级环境变量，不由用户输入控制
-        const shellCmd = process.env.comspec || 'cmd.exe'
         await new Promise((resolve) => {
-            const child = spawn(shellCmd, ['/d', '/s', '/c', `taskkill /pid ${pid} /t /f`], {
+            const child = spawn('taskkill', ['/pid', String(pid), '/t', '/f'], {
                 stdio: 'ignore',
             })
 
@@ -428,7 +435,7 @@ async function runSingleSample(options, sampleNumber) {
 
     const spawnTarget = options.mode === 'dev'
         ? getDevSpawnTarget(options.port + sampleNumber - 1)
-        : getSpawnCommand('pnpm', ['run', 'build'])
+        : getBuildSpawnTarget()
     sample.command = [spawnTarget.command, ...spawnTarget.args].join(' ')
 
     return await new Promise((resolve) => {
@@ -452,6 +459,7 @@ async function runSingleSample(options, sampleNumber) {
             cwd: repoRoot,
             env: {
                 ...process.env,
+                ...spawnTarget.env,
                 NUXT_TELEMETRY_DISABLED: '1',
             },
             stdio: ['ignore', 'pipe', 'pipe'],
