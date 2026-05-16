@@ -1,3 +1,8 @@
+import {
+    resolveVolcengineLoudnessRate,
+    resolveVolcengineSpeechRate,
+} from './volcengine-tts-profile'
+
 export const VOLCENGINE_PROTOCOL_VERSION = 0b0001
 export const VOLCENGINE_HEADER_SIZE_UNITS = 0b0001
 
@@ -186,15 +191,8 @@ export function buildSpeechStartSessionFrame(options: {
     volume?: number
     language?: string
 }): Uint8Array {
-    const speed = options.speed ?? 1
-    const speechRate = speed >= 1
-        ? Math.min(100, Math.round((speed - 1) * 100))
-        : Math.max(-50, Math.round((speed - 1) * 100))
-
-    const volume = options.volume ?? 1
-    const loudnessRate = volume >= 1
-        ? Math.min(100, Math.round((volume - 1) * 100))
-        : Math.max(-50, Math.round((volume - 1) * 100))
+    const speechRate = resolveVolcengineSpeechRate(options.speed)
+    const loudnessRate = resolveVolcengineLoudnessRate(options.volume)
 
     return buildVolcengineEventClientRequestFrame({
         event: 100,

@@ -38,6 +38,11 @@ import {
     parseVolcengineEventFrame,
     toVolcengineArrayBuffer,
 } from '@/utils/shared/volcengine-protocol'
+import {
+    normalizeVolcengineSpeaker,
+    resolveVolcengineBodyModel,
+    resolveVolcengineSpeechResourceId,
+} from '@/utils/shared/volcengine-tts-profile'
 import type {
     TTSVolcengineDirectParams,
     TTSVolcengineDirectResult,
@@ -49,50 +54,6 @@ import type {
 const DEFAULT_DIRECT_TTS_UPLOAD_PREFIX = 'audio/tts/'
 
 // ---- 常量 ----
-
-/**
- * 判断是否为 Saturn 系列（声音复刻）或 Uranus 系列（豆包 2.0）音色
- */
-function isV2Speaker(speaker: string): boolean {
-    return speaker.startsWith('saturn_') || speaker.endsWith('_uranus_bigtts')
-}
-
-/**
- * 根据音色自动推断 bodyModel
- */
-function resolveBodyModel(speaker: string, explicitModel?: string): string {
-    if (explicitModel && explicitModel !== 'unknown' && explicitModel !== 'seed-tts-2.0') {
-        return explicitModel
-    }
-    if (isV2Speaker(speaker)) {
-        return 'seed-tts-2.0-expressive'
-    }
-    return 'seed-tts-1.1'
-}
-
-function resolveSpeechResourceId(speaker: string): string {
-    const normalizedSpeaker = speaker.trim()
-
-    if (!normalizedSpeaker) {
-        return 'seed-tts-1.0'
-    }
-
-    if (isV2Speaker(normalizedSpeaker)) {
-        return 'seed-tts-2.0'
-    }
-
-    // ICL 音色通常以 ICL_/S_ 前缀呈现；默认按 1.0 复刻资源处理。
-    if (
-        normalizedSpeaker.startsWith('ICL_')
-        || normalizedSpeaker.startsWith('icl_')
-        || normalizedSpeaker.startsWith('S_')
-        || normalizedSpeaker.startsWith('s_')
-    ) {
-        return 'seed-icl-1.0'
-    }
-
-    return 'seed-tts-1.0'
-}
 
 function normalizeVolcengineProviderUsage(rawUsage: unknown): TTSDirectProviderUsage | null {
     if (!rawUsage || typeof rawUsage !== 'object' || Array.isArray(rawUsage)) {
@@ -170,12 +131,13 @@ export function useTTSVolcengineDirect() {
         params: TTSVolcengineDirectParams,
     ): Promise<TTSVolcengineGeneratedAudio> {
         const { text } = params
+        const speaker = normalizeVolcengineSpeaker(params.voice)
 
         // JWT via URL Query（浏览器 WebSocket 不支持自定义 header）
         const authQuery = {
             ...credentials.authQuery,
             // 仅对合成资源做版本对齐，不改变 JWT 鉴权方式本身。
-            api_resource_id: resolveSpeechResourceId(params.voice),
+            api_resource_id: resolveVolcengineSpeechResourceId(speaker),
         }
         const queryStr = new URLSearchParams(authQuery).toString()
         const wsUrl = `${credentials.endpoint}?${queryStr}`
@@ -246,8 +208,8 @@ export function useTTSVolcengineDirect() {
                         sendFrame(buildSpeechStartSessionFrame({
                             sessionId,
                             userId: credentials.temporaryUserId,
-                            speaker: params.voice,
-                            model: resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts'),
+                            speaker,
+                            model: resolveVolcengineBodyModel(speaker),
                             speed: params.speed,
                             volume: params.volume,
                             language: params.language,
@@ -655,7 +617,7 @@ export function useTTSVolcengineDirect() {
 
             // 5. 回写元数据
             const duration = Math.round(audioBytes.length / 16000) // 128kbps MP3 估算
-            const model = resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts')
+            const model = resolveVolcengineBodyModel(params.voice)
             if (params.postId) {
                 await $fetch(`/api/posts/${params.postId}/tts-metadata`, {
                     method: 'PUT',
@@ -712,7 +674,7 @@ export function useTTSVolcengineDirect() {
                             mode: params.mode,
                             language: params.language,
                             speed: params.speed,
-                            model: resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts'),
+                            model: resolveVolcengineBodyModel(params.voice),
                             error: message,
                         },
                     })

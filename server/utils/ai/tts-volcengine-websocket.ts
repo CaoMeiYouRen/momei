@@ -12,6 +12,13 @@ import {
     parseVolcengineEventPacket,
 } from './volcengine-protocol'
 import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
+import {
+    normalizeVolcengineSpeaker,
+    resolveVolcengineBodyModel,
+    resolveVolcengineLoudnessRate,
+    resolveVolcengineSpeechRate,
+    resolveVolcengineSpeechResourceId,
+} from '@/utils/shared/volcengine-tts-profile'
 import type { TTSOptions } from '@/types/ai'
 
 export interface VolcengineTTSConfigLike {
@@ -140,29 +147,11 @@ export function generateVolcengineWebSocketSpeech({
         })
     }
 
-    let speaker = 'zh_female_shuangkuaisisi_moon_bigtts'
-    if (Array.isArray(voice) && voice.length > 0) {
-        const v = voice[0]
-        if (v) {
-            speaker = v
-        }
-    } else if (typeof voice === 'string' && voice) {
-        speaker = voice
-    }
-
-    const isSaturn = speaker.startsWith('saturn_')
-    const isUranus = speaker.endsWith('_uranus_bigtts')
-    const isV2 = isSaturn || isUranus
-    const resourceId = isV2 ? 'seed-tts-2.0' : 'seed-tts-1.0'
-
-    let bodyModel = options.model
-    if (!bodyModel || bodyModel === 'seed-tts-2.0' || bodyModel === 'unknown') {
-        if (isSaturn || isUranus) {
-            bodyModel = 'seed-tts-2.0-expressive'
-        } else {
-            bodyModel = 'seed-tts-1.1'
-        }
-    }
+    const speaker = Array.isArray(voice)
+        ? normalizeVolcengineSpeaker(voice[0])
+        : normalizeVolcengineSpeaker(voice)
+    const resourceId = resolveVolcengineSpeechResourceId(speaker)
+    const bodyModel = resolveVolcengineBodyModel(speaker, options.model)
     logger.debug(`[VolcengineTTS] Resource ID: ${resourceId}, Final Body Model: ${bodyModel}`)
 
     const endpoint = 'wss://openspeech.bytedance.com/api/v3/tts/bidirection'
@@ -171,21 +160,8 @@ export function generateVolcengineWebSocketSpeech({
     const sessionId = crypto.randomUUID()
     const userId = crypto.randomUUID()
 
-    const speed = options.speed || 1.0
-    let speechRate = 0
-    if (speed >= 1) {
-        speechRate = Math.min(100, Math.round((speed - 1) * 100))
-    } else {
-        speechRate = Math.max(-50, Math.round((speed - 1) * 100))
-    }
-
-    const volume = options.volume || 1.0
-    let loudnessRate = 0
-    if (volume >= 1) {
-        loudnessRate = Math.min(100, Math.round((volume - 1) * 100))
-    } else {
-        loudnessRate = Math.max(-50, Math.round((volume - 1) * 100))
-    }
+    const speechRate = resolveVolcengineSpeechRate(options.speed)
+    const loudnessRate = resolveVolcengineLoudnessRate(options.volume)
 
     const additions: Record<string, unknown> = {
         explicit_language: options.language || 'zh',
