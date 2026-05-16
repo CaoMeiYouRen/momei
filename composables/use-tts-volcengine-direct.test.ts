@@ -192,6 +192,29 @@ function simulateSpeechWebSocketFrames(audioBytes: number[], usage?: { totalToke
     }
 }
 
+function createCredentialResponse() {
+    return {
+        data: {
+            provider: 'volcengine',
+            mode: 'speech',
+            authType: 'query',
+            issuedAt: 0,
+            expiresInMs: 60000,
+            expiresAt: Date.now() + 60000,
+            endpoint: 'wss://tts.example.com',
+            connectId: 'connect-1',
+            appId: 'app-1',
+            jwtToken: 'jwt',
+            authQuery: {
+                api_resource_id: 'volc.service_type.10029',
+                api_access_key: 'Jwt; jwt',
+            },
+            resourceId: 'volc.service_type.10029',
+            temporaryUserId: 'temp-user',
+        },
+    }
+}
+
 describe('useTTSVolcengineDirect', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -204,26 +227,7 @@ describe('useTTSVolcengineDirect', () => {
         simulateSpeechWebSocketFrames([1, 2, 3, 4])
 
         mockFetch
-            .mockResolvedValueOnce({
-                data: {
-                    provider: 'volcengine',
-                    mode: 'speech',
-                    authType: 'query',
-                    issuedAt: 0,
-                    expiresInMs: 60000,
-                    expiresAt: Date.now() + 60000,
-                    endpoint: 'wss://tts.example.com',
-                    connectId: 'connect-1',
-                    appId: 'app-1',
-                    jwtToken: 'jwt',
-                    authQuery: {
-                        api_resource_id: 'volc.service_type.10029',
-                        api_access_key: 'Jwt; jwt',
-                    },
-                    resourceId: 'volc.service_type.10029',
-                    temporaryUserId: 'temp-user',
-                },
-            })
+            .mockResolvedValueOnce(createCredentialResponse())
             .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
 
         mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
@@ -240,6 +244,72 @@ describe('useTTSVolcengineDirect', () => {
         const ws = MockWebSocket.instances.at(-1)
         expect(ws?.url).toContain('api_resource_id=seed-tts-1.0')
         expect(ws?.url).toContain('api_access_key=Jwt%3B+jwt')
+    })
+
+    it('maps uranus/saturn speakers to seed-tts-2.0 resource id', async () => {
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
+
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
+
+        const direct = useTTSVolcengineDirect()
+
+        await direct.generateAndUpload({
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: 'zh_female_vv_uranus_bigtts',
+            postId: 'post-1',
+        })
+
+        const ws = MockWebSocket.instances.at(-1)
+        expect(ws?.url).toContain('api_resource_id=seed-tts-2.0')
+    })
+
+    it('maps ICL speakers to seed-icl-1.0 resource id', async () => {
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
+
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
+
+        const direct = useTTSVolcengineDirect()
+
+        await direct.generateAndUpload({
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: 'ICL_zh_female_yry_tob',
+            postId: 'post-1',
+        })
+
+        const ws = MockWebSocket.instances.at(-1)
+        expect(ws?.url).toContain('api_resource_id=seed-icl-1.0')
+    })
+
+    it('falls back to seed-tts-1.0 when speaker is blank', async () => {
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
+
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
+
+        const direct = useTTSVolcengineDirect()
+
+        await direct.generateAndUpload({
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: '   ',
+            postId: 'post-1',
+        })
+
+        const ws = MockWebSocket.instances.at(-1)
+        expect(ws?.url).toContain('api_resource_id=seed-tts-1.0')
     })
 
     it('uses nested statusMessage when credential fetching fails', async () => {
