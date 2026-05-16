@@ -4,13 +4,15 @@
 
 > **维护规则**:
 > 1. 新功能需求、非阻塞优化与长期治理事项优先写入本文件，而不是直接写入 `todo.md`。
-> 2. backlog 必须区分“长期主线任务”和“短期 / 一次性候选任务”：长期主线可跨阶段保留，短期 / 一次性候选在正式上收后必须去重。
+> 2. backlog 必须区分"长期主线任务""周期性回归验证层"和"短期 / 一次性候选任务"：长期主线可跨阶段保留，回归验证层有固定节奏不参与阶段排队，短期 / 一次性候选在正式上收后必须去重。
 > 3. 长期主线被某阶段抽取后，不删除主线卡片，只补记最近一次上收阶段、当前状态与下一次可切片方向。
-> 4. 当前仓库的 backlog 以中文为唯一事实源；翻译文档只保留摘要或跳转说明。
+> 4. 周期性回归验证层不是"一个任务"，而是所有长期主线的健康检查层。它按固定日历节奏执行（周级/发版前/阶段收口），不参与阶段切片容量竞争。回归发现的问题回灌到对应长期主线。
+> 5. 当前仓库的 backlog 以中文为唯一事实源；翻译文档只保留摘要或跳转说明。
 
 ## 长期主线任务（可跨阶段保留）
 
 > 状态口径统一使用：进行中 / 观察中 / 暂停 / 已关闭。
+> 共 8 条（2026-05-17 瘦身后）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层。
 
 1. **测试覆盖率与有效性治理**
 - **目标**:
@@ -22,7 +24,7 @@
     - 第二十六阶段已将全仓覆盖率推进到约 `72%`，第二十八阶段也已完成本轮切片并把全仓 coverage 推进到 `76%+`。
     - 第三十一阶段已继续围绕共享文案 raw key 暴露、认证配置退化与 coverage blocker 三条高风险链路补齐失败断言，并把 `AppFooter` 与公开友链页纳入固定 runtime 回归入口；当前全仓 coverage 已稳定在 statements `76.03%` / lines `76.08%`。
     - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
-    - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从“继续冲数字”转为“围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理”。
+    - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从"继续冲数字"转为"围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理"。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
@@ -42,7 +44,7 @@
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
     - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
     - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
-    - 第三十二阶段已完成「单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明」四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
+    - 第三十二阶段已完成"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
     - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
@@ -50,7 +52,7 @@
     - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
     - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
 - **下一次可切片方向**:
-    - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写“继续收紧”。
+    - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写"继续收紧"。
 
 3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
 - **目标**:
@@ -66,7 +68,7 @@
     - 本轮收口后，剩余高优先级热点继续聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、公开认证相关页模板（如 `forgot-password` / `reset-password`），以及首页 / 公开列表读模型装配边界；长期主线继续保留，但当前阶段这条正式待办已可关闭。
     - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
     - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
-    - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖“重复导入 + 轻包装”“局部类型同形状复制”与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
+    - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖"重复导入 + 轻包装""局部类型同形状复制"与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
@@ -75,25 +77,12 @@
 - **下一次可切片方向**:
     - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）；`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts` 已在第三十六阶段收口，不再计入活跃热点。
     - 文件内自重复：`server/utils/email/service.ts`（27+27）、`components/commercial-link-manager.vue`（42+15）。
-    - 结构性重复候选：重复出现的 `isPlainRecord` / `isRecord` 类守卫、`LocaleOption` / `MaybeReactive` / 轻量 `ResponseData` 与 `StatusPayload` 壳层，以及“重复导入同一共享函数后再做轻包装”的简单纯函数 / 工具函数。
+    - 结构性重复候选：重复出现的 `isPlainRecord` / `isRecord` 类守卫、`LocaleOption` / `MaybeReactive` / 轻量 `ResponseData` 与 `StatusPayload` 壳层，以及"重复导入同一共享函数后再做轻包装"的简单纯函数 / 工具函数。
 
-4. **周期性回归与阶段收口执行治理**
-- **目标**:
-    - 在既有周级、发版前、阶段收口三条固定入口基础上，继续做一次真实回归任务，验证脚本调度、证据留痕、blocker 判定与补跑节奏是否可持续复用。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - 第二十四阶段已完成真实 `phase-close` 回归执行、活动日志滚动归档与严格性能预算转绿；相关结论现统一以 `docs/reports/regression/current.md` 与兼容归档入口回看，不再依赖旧 artifact 单链接作为唯一说明。
-    - 当前活动日志窗口仍低于正式阈值，近线证据可继续保留；下一轮重点从“清 blocker”转为“优化补跑节奏与对比基线”。
-- **最近一次上收阶段**:
-    - 第二十四阶段。
-- **下一次可切片方向**:
-    - 若当前 strict perf blocker 清零并完成归档，下一轮再继续优化补跑节奏、artifact 与 `docs/reports/regression/current.md` 的对齐口径，以及阶段收口对比基线。
-
-5. **存量代码注释治理与注释漂移收敛**
+4. **存量代码注释治理与注释漂移收敛**
 - **目标**:
     - 按现行注释规范为存量代码逐步补充高价值注释，优先覆盖复杂逻辑、兼容性兜底、跨层契约、关键副作用与核心导出函数，而不是做全仓平均铺开式补注释。
-    - 同步清理失效、误导性或逐行复述代码的低价值注释，避免“注释数量增加但可维护性没有提升”。
+    - 同步清理失效、误导性或逐行复述代码的低价值注释，避免"注释数量增加但可维护性没有提升"。
     - 让注释治理与 Review Gate 形成闭环：每轮切片都保留受影响范围、已补注释类型、未覆盖边界与注释漂移检查结论。
 - **状态**:
     - 进行中。
@@ -113,19 +102,19 @@
     - 候选组 C：`server/api/posts/index.get.ts`、`server/api/posts/archive.get.ts`、`server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与相关查询 helper，优先覆盖多语言聚合、宽查询裁剪、分页读取与热点读接口约束。
     - 首轮上收时最多从候选组 A、B、C 中选 `1 - 2` 组，不把本轮扩大成全仓注释重写工程。
 
-6. **Postgres 查询、CPU 与连接生命周期平衡治理**
+5. **Postgres 查询、CPU 与连接生命周期平衡治理**
 - **目标**:
     - 在保证公开页面、鉴权与安装体验不回退的前提下，重新平衡 PostgreSQL 查询体量、CPU 使用与连接生命周期，减少不必要的数据库唤醒与长期活跃连接。
-    - 建立“哪些请求不该碰数据库 -> 必须查库请求如何继续瘦身 -> `pg_stat_statements` 或等价 live sample 复核”的闭环，不再只用数据库出网流量作为单一目标。
+    - 建立"哪些请求不该碰数据库 -> 必须查库请求如何继续瘦身 -> `pg_stat_statements` 或等价 live sample 复核"的闭环，不再只用数据库出网流量作为单一目标。
 - **状态**:
     - 进行中。
 - **当前状态**:
     - 历史专项已完成公开设置链路与定时任务扫描的首轮治理，并验证过 `setting` 读取与定时发布扫描的结果集体量已下降。
     - 第二十八阶段已完成新的平衡型治理切片，重点收紧了请求级数据库预热、匿名鉴权触发面与公开热点读路径缓存边界；结合后台最新运行期观测，本轮查询、重复读取与连接活跃窗口下降趋势已成立。
-    - 第三十二阶段已完成本轮“公开热点读链路”单路径切片：`/api/search` 匿名请求接入 `60s` 运行时缓存，带会话请求继续旁路共享缓存，当前阶段只对这一条公共热读路径做实现与断言闭环。
+    - 第三十二阶段已完成本轮"公开热点读链路"单路径切片：`/api/search` 匿名请求接入 `60s` 运行时缓存，带会话请求继续旁路共享缓存，当前阶段只对这一条公共热读路径做实现与断言闭环。
     - 2026-05-01 Neon live sample 显示，当前 Top SQL 中 `settings/public` 维持单次 batched `IN (...)` 读取（`5.8ms / 5.4ms`）、精选友链维持 `4.3ms / 4.1ms` 的 `DISTINCT + IN (...)` 跟进查询，`/api/search` 未继续停留在当前热点 SQL 顶部；剩余较重样本集中在 `AITask` stale scan 与首页 posts public list 查询对，转入后续候选。
     - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
-    - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在“连接长期不释放”的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
+    - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在"连接长期不释放"的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
     - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
@@ -135,61 +124,18 @@
     - 候选组 B：为 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略。
     - 候选组 C：若后续又出现异常长活跃窗口，再补 `pg_stat_statements` 长窗口采样、热点 SQL 分组、结果集大小估算或连接活跃窗口对比，明确新的放大器是否已经转移。
 
-7. **模块设计与专项治理文档收敛**
+6. **国际化运行时加载与文案复用治理**
 - **目标**:
-    - 持续维护 `docs/design/modules/` 与 `docs/design/governance/` 的分层边界，确保总设计只保留稳定高层入口，专项文档只保留增量结论、治理契约与阶段性收口。
-    - 清理无效、过时或严重漂移的设计 / 治理文档，保留仍有参考意义或当前实现对应的版本；对已失效且无参考价值的内容，允许直接归档或删除。
-- **状态**:
-    - 观察中。
-- **当前状态**:
-    - 第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；模块目录只保留 canonical module docs，专项治理、专项设计和阶段复盘已迁移到治理目录。
-    - 当前剩余工作从“继续混放目录”转为“持续清理漂移内容与残留任务口吻”，避免新文档回流到错误目录。
-- **最近一次上收阶段**:
-    - 第二十九阶段（已审计归档）。
-- **下一次可切片方向**:
-    - 先清理仍直接引用当前 Todo 的设计 / 治理文档，再按模块逐个审计“当前实现 / 设计正文 / delta 文档 / 归档文档”的重叠与漂移程度。
-
-8. **回归记录独立归档与深度分层**
-- **目标**:
-    - 将回归记录从 `docs/plan/` 中独立拆出，按模块或日期分文件归档，减少单个大文件长期膨胀对阅读和回查的压力。
-    - 建立活动窗口、归档目录与兼容入口的清晰分层，并为后续年度 / 半年度深度拆分预留治理流程。
-- **状态**:
-    - 观察中。
-- **当前状态**:
-    - `docs/reports/regression/index.md` 已进一步明确活动窗口、历史归档与迁移快照的三层边界；旧 `docs/plan/regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
-    - 第二十九阶段已完成本轮入口收敛；后续仍可继续围绕 `docs/reports/regression/archive/` 下的 legacy 快照做更细的模块 / 日期分片迁移，而不再保留 plan 侧旧入口。
-- **最近一次上收阶段**:
-    - 第二十九阶段（已审计归档）。
-- **下一次可切片方向**:
-    - 先继续细化 `docs/reports/regression/archive/` 下的模块 / 日期分片，再决定是否把 legacy 快照进一步按年份或主题拆分。
-
-9. **路线图 / Todo 深度归档治理**
-- **目标**:
-    - 评估 `roadmap.md`、`todo-archive.md` 等规划文档的膨胀压力，建立定期深度归档流程，减少早期历史内容对当前规划阅读效率的干扰。
-    - 在归档前明确读写压力、可接受的正文窗口、保留摘要的最低指标，以及完整历史内容的模块 / 日期归档格式。
-- **状态**:
-    - 观察中。
-- **当前状态**:
-    - 规划文档已积累较长历史窗口，随着阶段数增加，早期内容的维护与检索成本持续上升，需要从“阶段性压缩 + 完整历史归档”两个层面重新设计。
-    - 2026-04-20 基线已完成一次量化：`roadmap.md` 约 `797` 行、`todo-archive.md` 约 `1971` 行；对应 warning / 强制分片阈值与分片策略已正式落在 `docs/plan/archive/index.md`。
-    - 第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 也已改为“深度归档索引 + 近线阶段窗口”的维护模式；后续治理重点转为按阈值滚动归档，而不是再次做一次性大搬迁。
-- **最近一次上收阶段**:
-    - 第三十一阶段（已审计归档）。
-- **下一次可切片方向**:
-    - 先评估 `roadmap.md` / `todo-archive.md` 的当前行数、阶段数量与检索成本，再定义深度归档触发阈值与分片策略。
-
-10. **国际化运行时加载与文案复用治理**
-- **目标**:
-    - 建立“翻译字段定义 -> locale 模块注册 -> 路由动态加载 -> 运行时命中 -> 回退 / raw key 暴露”的周期性治理闭环，避免问题只在 `lint:i18n` 通过后于运行时才暴露。
+    - 建立"翻译字段定义 -> locale 模块注册 -> 路由动态加载 -> 运行时命中 -> 回退 / raw key 暴露"的周期性治理闭环，避免问题只在 `lint:i18n` 通过后于运行时才暴露。
     - 审慎推进跨页面相同组件文案的复用治理；只有在组件职责、文案语义和 locale 模块归属都稳定一致时，才允许上收到共享命名空间，避免为了去重而引入新的运行时加载漂移。
 - **状态**:
     - 进行中。
 - **当前状态**:
-    - 仓库已经具备 Locale Registry、按路由动态加载 message module、后台 locale 拆分与 `lint:i18n` 质量门，但近期运行时问题说明“翻译资源已存在”并不等于“当前页面一定能加载并命中正确命名空间”。
+    - 仓库已经具备 Locale Registry、按路由动态加载 message module、后台 locale 拆分与 `lint:i18n` 质量门，但近期运行时问题说明"翻译资源已存在"并不等于"当前页面一定能加载并命中正确命名空间"。
     - 最新案例暴露出文章编辑页复用了设置页 key，导致 `/admin/posts` 路由未加载 `admin-settings` 模块时直接显示 raw key；这类问题的根因在于模块归属与组件复用边界不清，而不只是某个语言包缺词。
     - 2026-04-18 新增证据表明，`en-US/admin-posts.json` 曾长期存在大面积 parity 缺口，导致 `pages.admin.posts.media.audio_missing` 之类低级 raw key 直接漏到后台 UI。当前已补齐该模块英文词条，并把 `i18n:audit:missing` 接入 release / 周级回归入口，但仓库级历史缺词债仍需专项治理，不能把本轮修补视为问题已根除。
     - 当前治理优先级明确区分两类审计结果：`missing` 缺失字段必须优先修复；`unused` 默认先观察，但若当前切片已经定位到一批有限集合动态 key 误报或确认废弃字段，则应优先在同一切片内完成显式化或删除，避免审计噪音长期堆积。
-    - 当前仍有一批“不同页面文案完全一致”的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
+    - 当前仍有一批"不同页面文案完全一致"的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
     - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、unused 字段排查策略与共享命名空间继续收敛方向。
     - 第三十阶段切片已完成正式收口：`i18n:audit:missing` 当前 `total: 0`，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
     - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing` 与 `i18n:audit:unused` 均为 `total: 0`。
@@ -197,26 +143,33 @@
     - 第三十一阶段（当前切片已收口，长期主线继续保留）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先扩到 `app-footer` 友链区域与 `archives` / `categories` / `tags` 等公开页装配链路、共享组件命名空间沉淀与固定运行时回归入口，而不是继续做散点修补。
-    - 对仍需动态拼接 key 的场景，应优先评估“是否为有限集合”；若答案为是，默认用显式静态 key 映射替代扩充 allowlist，只有真正开放集合才进入 `scripts/i18n/dynamic-key-allowlist.mjs`。
-    - 下一轮专项治理应单列“locale parity 与缺词阻断策略”，至少覆盖：哪些入口必须把 `i18n:audit:missing` 视为 blocker、i18n 变更后的最小检查矩阵、Review Gate 对 raw key / 缺词问题的定级口径，以及历史缺词债的分批清偿顺序。
+    - 对仍需动态拼接 key 的场景，应优先评估"是否为有限集合"；若答案为是，默认用显式静态 key 映射替代扩充 allowlist，只有真正开放集合才进入 `scripts/i18n/dynamic-key-allowlist.mjs`。
+    - 下一轮专项治理应单列"locale parity 与缺词阻断策略"，至少覆盖：哪些入口必须把 `i18n:audit:missing` 视为 blocker、i18n 变更后的最小检查矩阵、Review Gate 对 raw key / 缺词问题的定级口径，以及历史缺词债的分批清偿顺序。
 
-11. **文档翻译 freshness 清偿与翻译治理**
+7. **文档事实源、翻译与分层归档治理**
+- **合并来源**: 本条由原 backlog 长期主线 #7（模块设计与专项治理文档收敛）、#9（路线图 / Todo 深度归档治理）、#11（文档翻译 freshness 清偿与翻译治理）三条同类任务合并而成。原三条任务分别治理 `docs/design/`、`docs/plan/` 与 `docs/i18n/*/` 三个文档域，但治理动作本质相同：维护分层结构、设置膨胀阈值、定期清理漂移、保持 freshness。
 - **目标**:
-    - 清偿当前承诺维护的翻译页 freshness 存量债，让文档事实源检查重新恢复可通过状态。
-    - 建立“必须同步 / 允许摘要同步 / 默认只保留中文原文”的翻译分层治理口径，避免每轮都靠临时补 `last_sync` 应付检查。
+    - 统一维护项目全文档体系的分层边界、膨胀阈值与 freshness 治理：包括 `docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 分层与同步。
+    - 清理无效、过时或漂移的设计 / 治理 / 规划文档，对已失效且无参考价值的内容允许直接归档或删除。
+    - 保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过状态，不靠临时补 `last_sync` 应付检查。
 - **状态**:
-    - 进行中。
-- **当前状态**:
-    - 第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，中文事实源、多语摘要页与 `source-only` 契约保持一致。
-    - 当前已完成首页、快速开始、部署、翻译治理，以及 `planning` / `documentation` / `security` / `testing` 等高频规范页的同步与范围收敛，并将深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
+    - 观察中（合并后首次综合评估）。
+- **当前状态（按原域追踪）**:
+    - **design 域**（原 #7）：第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；当前剩余工作从"继续混放目录"转为"持续清理漂移内容与残留任务口吻"，避免新文档回流到错误目录。
+    - **plan 域**（原 #9）：第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 已改为"深度归档索引 + 近线阶段窗口"的维护模式。后续治理重点转为按阈值滚动归档。
+    - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
 - **最近一次上收阶段**:
-    - 第三十阶段（已审计归档）。
+    - 第二十九阶段（原 #7，已审计归档）。
+    - 第三十阶段（原 #11，已审计归档）。
+    - 第三十一阶段（原 #9，已审计归档）。
 - **下一次可切片方向**:
-    - 若本轮完成 facts-of-truth 转绿，下一轮优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从“是否有翻译”推进到“哪些翻译必须持续保持新鲜”。
+    - design 域：先清理仍直接引用当前 Todo 的设计 / 治理文档，再按模块逐个审计"当前实现 / 设计正文 / delta 文档 / 归档文档"的重叠与漂移程度。
+    - plan 域：按阈值触发滚动归档，跟进 `roadmap.md` / `todo-archive.md` 的当前行数并决定是否需要下一轮区间分片。
+    - 翻译域：优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从"是否有翻译"推进到"哪些翻译必须持续保持新鲜"。
 
-12. **Windows 本地 Dev / Build 性能治理**
+8. **Windows 本地 Dev / Build 性能治理**
 - **目标**:
-    - 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，避免继续以“体感慢”描述问题。
+    - 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，避免继续以"体感慢"描述问题。
     - 优先收敛首请求阻塞与构建尾耗时两类高收益热点，不把范围扩写为全平台构建重构。
 - **状态**:
     - 进行中。
@@ -224,7 +177,7 @@
     - 当前已经完成一轮 Windows 定向止血：`nuxt.config.ts` 已收窄 Nitro inline 依赖、关闭 Windows 下 Nitro trace，并在 Windows 本地默认关闭 PWA；`pnpm build` 已恢复可完成。
     - 2026-05-11 已通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集到第一轮基线：`pnpm perf:nuxt:dev` 中首页 `Local` 约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头；`--request-path=/api/settings/public` 同样 `60s` 超时，说明问题落在请求级全局冷路径而不是单页模板。
     - 同日 `pnpm perf:nuxt:build` 基线显示总耗时约 `542.77s`，`Client built` 约 `26.36s`、`Server built` 约 `28.01s`，`Server built` 里程碑出现在约 `121.14s`，之后仍有约 `421.63s` 长尾；主要压力已从 Vite bundling 转移到 Nitro / `.output/server` 收尾阶段。
-    - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与“所有首请求都卡住”的实测现象一致。
+    - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与"所有首请求都卡住"的实测现象一致。
     - 2026-05-11 本轮规划补充了两级目标：先把 Windows 本地 build 总耗时中位数压进 `500s` 内，再在热点拆解完成后继续向 Linux 侧约 `120s` 的参考体验逼近；当前 `120s` 仍只作为对照目标，不视为已验证承诺。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收 Windows 本地 Dev / Build 性能治理切片）。
@@ -234,8 +187,56 @@
     - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
     - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
 
+## 周期性回归验证层
 
-## 现状摘要与方向判断
+> **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
+
+### 固定执行入口
+
+三条入口及其命令组合在 [项目规划规范 §4.2 固定调度入口](../standards/planning.md) 中完整定义，此处仅列出摘要：
+
+| 节奏 | 入口 | 最小固定组合 | 触发条件 |
+|:---|:---|:---|:---|
+| 周级 | `pnpm regression:weekly` | coverage + deps audit + source-of-truth + i18n + duplicate-code | 每周一次 |
+| 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
+| 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
+
+### 覆盖矩阵（每条长期主线的回归覆盖状态）
+
+| 长期主线 | 周级覆盖 | 发版前覆盖 | 阶段收口覆盖 |
+|:---|:---|:---|:---|
+| #1 测试覆盖率治理 | ✅ `test:coverage` | — | ✅ `test:coverage` |
+| #2 ESLint / 类型债治理 | ✅ `lint` | ✅ `release:check:full` (内含) | ✅ `release:check:full` (内含) |
+| #3 结构复用治理 | ✅ `duplicate-code:check` | ✅ `duplicate-code:check` | ✅ `duplicate-code:check:strict` |
+| #4 注释治理 | — | — | — (暂无自动检查) |
+| #5 Postgres 治理 | — | — | — (依赖 live sample，非自动) |
+| #6 国际化治理 | ✅ `i18n:audit:missing` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
+| #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
+| #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
+
+> 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
+
+### 漂移路由规则
+
+回归验证发现的问题不自行修复，而是按以下规则路由到对应长期主线的下一次切片候选：
+
+| 回归发现问题 | 路由目标 |
+|:---|:---|
+| coverage 下降或测试有效性退化 | → 长期主线 #1（测试覆盖率治理） |
+| ESLint warning 反弹或新 type 债 | → 长期主线 #2（ESLint 治理） |
+| duplicate-code 基线反弹 | → 长期主线 #3（结构复用治理） |
+| i18n missing / raw key 暴露 | → 长期主线 #6（国际化治理） |
+| 文档事实源 stale 或行数超阈值 | → 长期主线 #7（文档治理） |
+| 性能预算超标 | → 长期主线 #8（Windows 性能治理） |
+| 依赖安全 high+ 漏洞 | → 直接 blocker，在当前阶段修复 |
+| 跨多条主线的问题 | → 取最匹配的一条路由，其他在路由备注中引用 |
+
+### 回归记录管理
+
+- 每次回归执行后，结果写入 `docs/reports/regression/current.md`。
+- 当 `current.md` 超过 500-700 行 warning、700+ 行 blocker 时，触发滚动归档：将旧记录整体迁移到 `docs/reports/regression/archive/`，主窗口仅保留近线记录。
+- 滚动归档的执行由回归层在阶段收口时统一触发，不另设独立的长期主线。
+- （本条吸收了原 backlog 长期主线 #8 "回归记录独立归档与深度分层" 的全部职责。）
 
 > 本区基于 `roadmap.md`、`todo-archive.md`、`CHANGELOG.md` 与当前源码 / 文档事实源整理，用于 backlog 背景判断与后续切片参考；第三十一、第三十二阶段已完成审计归档，当前仍以中文 `roadmap.md`、`todo.md` 与 `todo-archive.md` 为唯一规划事实源。
 

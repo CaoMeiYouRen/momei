@@ -44,6 +44,7 @@
 ## 测试与阶段复盘
 
 - **[Harness Engineering 方法论引入方案](./harness-engineering-adoption)**: 基于《从 Vibe Coding 到 Harness Engineering》的五层 harness 体系分析，优先引入认知层（推理模式切换）和交接层（Session 级任务协议），搁置边界层 OS 级 Hooks。
+- **[Backlog 长期主线瘦身与层级重构方案](./backlog-consolidation-plan)**: 对 `docs/plan/backlog.md` 中 12 条长期主线做文档类任务合并（4→1）与周期性回归提级（从普通长期主线升级为独立验证层），最终从 12 条瘦身为 8 条长期主线 + 1 个回归验证层。
 - **[第三十七阶段执行计划](./phase-37-plan)**: 当前阶段执行工件，聚焦 Windows 性能（P0）、测试有效性（P0）、ESLint 治理（P1）、结构复用（P1）与 Postgres 长窗口复核（P1）。
 - **[第三十六阶段执行计划](./phase-36-plan)**: 已完成阶段执行工件，聚焦 PG/Redis 修复（P0）、TTS backlog 清理、ESLint 治理、结构复用与注释治理候选组 C。
 - **[第三十一阶段候选上收草案](./phase-31-candidate-draft)**: 下一阶段候选规划工件，聚焦 1 个新功能预研、4 个治理切片与 1 个战略评估的正式上收字段冻结。
