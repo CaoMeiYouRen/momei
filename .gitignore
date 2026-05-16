@@ -63,4 +63,5 @@ tests/e2e/.auth
 
 /artifacts
 /opc-doc
+/.session
 .eslintcache
