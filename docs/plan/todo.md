@@ -38,6 +38,8 @@
 - [ ] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
 - [ ] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
 
+进展记录（2026-05-17）：已完成一轮“单规则 + 单文件”窄切片，目标文件为 [server/services/ai/asr.ts](../../server/services/ai/asr.ts)。实现前冻结命中清单为 `13` 处显式 `any` / `catch any`（涵盖音频大小读取、`options.fileName/mimeType` 读取、provider model 推断与错误对象透传）；替代写法统一为 `unknown + 显式收窄`，并新增 `ASRProviderShape`、`resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 四个窄 helper，避免在调用侧重复断言。回滚边界冻结为“仅改 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 内部类型收窄，不改 API 入参、任务记录字段、通知文案语义与 provider 调用契约”；若需要回滚，可直接还原该文件。最小验证矩阵已执行 `pnpm exec eslint server/services/ai/asr.ts`（通过）与 `pnpm run typecheck`（通过）。残余候选暂保留在 AI 服务族其他文件（例如 `server/services/ai/tts.ts` 与 provider 聚合层中的历史 `as unknown as` 多态访问），下一轮继续按“单规则 + 单文件 / 双文件”推进。
+
 4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**
 - [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
 - [x] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。

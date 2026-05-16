@@ -5,14 +5,42 @@ import { withAITimeout } from '@/server/utils/ai/timeout'
 import { sendInAppNotification, pushRealtimeEvent } from '@/server/services/notification'
 import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
 import logger from '@/server/utils/logger'
-import type { TranscribeOptions } from '@/types/ai'
+import type { TranscribeOptions, AIProvider } from '@/types/ai'
+
+interface ASRProviderShape {
+    model?: string
+    config?: { model?: string }
+}
+
+function resolveAudioSize(audio: Buffer | Blob): number {
+    if (audio instanceof Buffer) {
+        return audio.length
+    }
+
+    return (audio as Blob).size
+}
+
+function resolveProviderModel(provider: AIProvider, preferredModel?: string): string {
+    if (preferredModel) {
+        return preferredModel
+    }
+
+    const providerShape = provider as unknown as ASRProviderShape
+    return providerShape.model || providerShape.config?.model || 'unknown'
+}
+
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
+}
 
 export class ASRService extends AIBaseService {
     /**
      * 转录音频为文本
      */
     static async transcribe(audio: Buffer | Blob, options: Partial<TranscribeOptions> = {}, userId?: string) {
-        const audioSize = audio instanceof Buffer ? audio.length : (audio as any).size
+        const audioSize = resolveAudioSize(audio)
+        const fileName = options.fileName || 'audio.webm'
+        const mimeType = options.mimeType || 'audio/webm'
 
         await this.assertQuotaAllowance({
             userId,
@@ -21,8 +49,8 @@ export class ASRService extends AIBaseService {
             payload: {
                 options,
                 size: audioSize,
-                fileName: (options as any).fileName || 'audio.webm',
-                mimeType: (options as any).mimeType || 'audio/webm',
+                fileName,
+                mimeType,
             },
         })
 
@@ -36,8 +64,8 @@ export class ASRService extends AIBaseService {
             const response = await withAITimeout(
                 provider.transcribe({
                     audioBuffer: audio instanceof Buffer ? audio : Buffer.from(await (audio as Blob).arrayBuffer()),
-                    fileName: (options as any).fileName || 'audio.webm',
-                    mimeType: (options as any).mimeType || 'audio/webm',
+                    fileName,
+                    mimeType,
                     ...options,
                 }),
                 'ASR transcription',
@@ -50,7 +78,7 @@ export class ASRService extends AIBaseService {
                 category: 'asr',
                 type: 'transcription',
                 provider: provider.name,
-                model: options.model || (provider as any).model || (provider as any).config?.model || 'unknown',
+                model: resolveProviderModel(provider, options.model),
                 payload: { options, size: audioSize },
                 response: { text: response.text },
                 audioSize,
@@ -59,14 +87,14 @@ export class ASRService extends AIBaseService {
             })
 
             return response
-        } catch (error: any) {
+        } catch (error: unknown) {
             logger.error('[ASRService] Transcription failed:', error)
             await this.recordTask({
                 userId,
                 category: 'asr',
                 type: 'transcription',
                 provider: provider.name,
-                model: options.model || (provider as any).model || (provider as any).config?.model || 'unknown',
+                model: resolveProviderModel(provider, options.model),
                 payload: { options },
                 error,
                 failureStage: inferFailureStage(error),
@@ -114,7 +142,7 @@ export class ASRService extends AIBaseService {
             category: 'asr',
             status: 'pending',
             provider: providerName,
-            model: (provider as any).model || (provider as any).config?.model || 'unknown',
+            model: resolveProviderModel(provider),
             payload: {
                 fileName,
                 mimeType,
@@ -161,7 +189,7 @@ export class ASRService extends AIBaseService {
                 taskId: task.id,
                 status: 'failed',
                 progress: 100,
-                error: err.message || '任务执行失败',
+                error: toErrorMessage(err) || '任务执行失败',
             })
 
             // 发送失败通知
@@ -169,7 +197,7 @@ export class ASRService extends AIBaseService {
                 userId,
                 type: NotificationType.SYSTEM,
                 title: '语音转写失败',
-                content: `您的音频文件 ${fileName} 转写失败: ${err.message || '未知错误'}`,
+                content: `您的音频文件 ${fileName} 转写失败: ${toErrorMessage(err) || '未知错误'}`,
             }).catch((e) => logger.error('[ASRService] Failed to send notification:', e))
         })
 
@@ -265,7 +293,7 @@ export class ASRService extends AIBaseService {
                 content: `您的音频文件已成功转写，共 ${response.text.length} 个字符。`,
                 link: buildAITaskDetailPath(taskId),
             }).catch((e) => logger.error('[ASRService] Failed to send notification:', e))
-        } catch (err: any) {
+        } catch (err: unknown) {
             // 更新状态为失败
             await this.recordTask({
                 id: taskId,
@@ -283,7 +311,7 @@ export class ASRService extends AIBaseService {
                 taskId,
                 status: 'failed',
                 progress: 100,
-                error: err.message || '任务执行失败',
+                error: toErrorMessage(err) || '任务执行失败',
             })
 
             throw err
