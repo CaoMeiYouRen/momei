@@ -11,6 +11,7 @@ class MockWebSocket {
     static CONNECTING = 0
     static CLOSING = 2
     static CLOSED = 3
+    static instances: MockWebSocket[] = []
 
     url: string
     readyState = 0
@@ -22,6 +23,7 @@ class MockWebSocket {
 
     constructor(url: string) {
         this.url = url
+        MockWebSocket.instances.push(this)
         // 异步触发 onopen 模拟真实 WebSocket 行为
         setTimeout(() => {
             this.readyState = MockWebSocket.OPEN
@@ -105,11 +107,32 @@ function buildEventFrame(event: number, payload: Uint8Array, sessionId: string, 
     return frame.buffer
 }
 
+function buildConnectionFrame(event: number, payload: Uint8Array, connectionId: string, serialization: number, compression: number): ArrayBuffer {
+    const connectionIdBytes = new TextEncoder().encode(connectionId)
+    const totalSize = 16 + connectionIdBytes.length + payload.length
+    const frame = new Uint8Array(totalSize)
+    const view = new DataView(frame.buffer)
+
+    view.setUint8(0, 0x11)
+    view.setUint8(1, (0b0001 << 4) | 0b0100)
+    view.setUint8(2, (serialization << 4) | compression)
+    view.setUint8(3, 0)
+    view.setInt32(4, event, false)
+    view.setUint32(8, connectionIdBytes.length, false)
+    frame.set(connectionIdBytes, 12)
+    view.setUint32(12 + connectionIdBytes.length, payload.length, false)
+    frame.set(payload, 16 + connectionIdBytes.length)
+
+    return frame.buffer
+}
+
 /**
  * 向 MockWebSocket 注入双向流式协议响应帧
  */
 function simulateSpeechWebSocketFrames(audioBytes: number[], usage?: { totalTokens: number }) {
     const sessionId = 'uuid-1'
+    const connectionId = 'conn-1'
+    let connectionStarted = false
     let sessionStarted = false
 
     MockWebSocket.prototype.send = function (data: ArrayBuffer) {
@@ -122,11 +145,32 @@ function simulateSpeechWebSocketFrames(audioBytes: number[], usage?: { totalToke
         const messageType = (view.getUint8(1) >> 4) & 0x0f
         const event = view.getInt32(4)
 
-        // StartConnection(1) → 服务端发送 SessionStarted(150)
-        if (messageType === 0b0001 && event === 1 && !sessionStarted) {
+        // StartConnection(1) → 服务端发送 ConnectionStarted(50)
+        if (messageType === 0b0001 && event === 1 && !connectionStarted) {
+            connectionStarted = true
+
+            setTimeout(() => {
+                const connectionStartedPacket = buildConnectionFrame(50, new Uint8Array(0), connectionId, 0b0010, 0b0000)
+                this.onmessage?.({ data: connectionStartedPacket })
+
+                // 如果客户端没有按协议发送 StartSession(100)，连接会被服务端关闭
+                setTimeout(() => {
+                    if (!sessionStarted) {
+                        this.onclose?.()
+                    }
+                }, 0)
+            }, 0)
+            return
+        }
+
+        // StartSession(100) → 服务端发送 SessionStarted(150)
+        if (messageType === 0b0001 && event === 100 && connectionStarted && !sessionStarted) {
             sessionStarted = true
 
             setTimeout(() => {
+                const sessionStartedPacket = buildEventFrame(150, new Uint8Array(0), sessionId, 0b0010, 0b0000)
+                this.onmessage?.({ data: sessionStartedPacket })
+
                 // Audio 帧 (event=352)
                 if (audioBytes.length > 0) {
                     const audioPkt = buildEventFrame(352, new Uint8Array(audioBytes), sessionId, 0b0010, 0b0000)
@@ -151,8 +195,51 @@ function simulateSpeechWebSocketFrames(audioBytes: number[], usage?: { totalToke
 describe('useTTSVolcengineDirect', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        MockWebSocket.instances = []
         // 恢复 MockWebSocket.prototype.send
         MockWebSocket.prototype.send = vi.fn()
+    })
+
+    it('overrides speech resource id by speaker version in direct websocket URL', async () => {
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
+        mockFetch
+            .mockResolvedValueOnce({
+                data: {
+                    provider: 'volcengine',
+                    mode: 'speech',
+                    authType: 'query',
+                    issuedAt: 0,
+                    expiresInMs: 60000,
+                    expiresAt: Date.now() + 60000,
+                    endpoint: 'wss://tts.example.com',
+                    connectId: 'connect-1',
+                    appId: 'app-1',
+                    jwtToken: 'jwt',
+                    authQuery: {
+                        api_resource_id: 'volc.service_type.10029',
+                        api_access_key: 'Jwt; jwt',
+                    },
+                    resourceId: 'volc.service_type.10029',
+                    temporaryUserId: 'temp-user',
+                },
+            })
+            .mockResolvedValueOnce({ success: true, audioUrl: 'https://cdn.example.com/audio.mp3' })
+
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/audio.mp3')
+
+        const direct = useTTSVolcengineDirect()
+
+        await direct.generateAndUpload({
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+            postId: 'post-1',
+        })
+
+        const ws = MockWebSocket.instances.at(-1)
+        expect(ws?.url).toContain('api_resource_id=seed-tts-1.0')
+        expect(ws?.url).toContain('api_access_key=Jwt%3B+jwt')
     })
 
     it('uses nested statusMessage when credential fetching fails', async () => {

@@ -31,6 +31,7 @@ import {
     buildSpeechFinishConnectionFrame,
     buildSpeechFinishSessionFrame,
     buildSpeechStartConnectionFrame,
+    buildSpeechStartSessionFrame,
     buildSpeechTaskRequestFrame,
     decodeVolcengineSerializedPayload,
     parseVolcengineErrorFrame,
@@ -67,6 +68,30 @@ function resolveBodyModel(speaker: string, explicitModel?: string): string {
         return 'seed-tts-2.0-expressive'
     }
     return 'seed-tts-1.1'
+}
+
+function resolveSpeechResourceId(speaker: string): string {
+    const normalizedSpeaker = speaker.trim()
+
+    if (!normalizedSpeaker) {
+        return 'seed-tts-1.0'
+    }
+
+    if (isV2Speaker(normalizedSpeaker)) {
+        return 'seed-tts-2.0'
+    }
+
+    // ICL 音色通常以 ICL_/S_ 前缀呈现；默认按 1.0 复刻资源处理。
+    if (
+        normalizedSpeaker.startsWith('ICL_')
+        || normalizedSpeaker.startsWith('icl_')
+        || normalizedSpeaker.startsWith('S_')
+        || normalizedSpeaker.startsWith('s_')
+    ) {
+        return 'seed-icl-1.0'
+    }
+
+    return 'seed-tts-1.0'
 }
 
 function normalizeVolcengineProviderUsage(rawUsage: unknown): TTSDirectProviderUsage | null {
@@ -147,7 +172,12 @@ export function useTTSVolcengineDirect() {
         const { text } = params
 
         // JWT via URL Query（浏览器 WebSocket 不支持自定义 header）
-        const queryStr = new URLSearchParams(credentials.authQuery).toString()
+        const authQuery = {
+            ...credentials.authQuery,
+            // 仅对合成资源做版本对齐，不改变 JWT 鉴权方式本身。
+            api_resource_id: resolveSpeechResourceId(params.voice),
+        }
+        const queryStr = new URLSearchParams(authQuery).toString()
         const wsUrl = `${credentials.endpoint}?${queryStr}`
         const sessionId = crypto.randomUUID()
 
@@ -158,6 +188,7 @@ export function useTTSVolcengineDirect() {
             const audioChunks: Uint8Array[] = []
             let providerUsage: TTSDirectProviderUsage | null = null
             let settled = false
+            let connectionStarted = false
             let sessionStarted = false
 
             const cleanup = () => {
@@ -204,6 +235,24 @@ export function useTTSVolcengineDirect() {
                         sendFrame(buildSpeechTaskRequestFrame(sessionId, text))
                         sendFrame(buildSpeechFinishSessionFrame(sessionId))
                         progress.value = 20
+                    }
+                    return
+                }
+
+                // event=50: ConnectionStarted → 发送 StartSession
+                if (pkt.event === 50) {
+                    if (!connectionStarted) {
+                        connectionStarted = true
+                        sendFrame(buildSpeechStartSessionFrame({
+                            sessionId,
+                            userId: credentials.temporaryUserId,
+                            speaker: params.voice,
+                            model: resolveBodyModel(params.voice || 'zh_female_shuangkuaisisi_moon_bigtts'),
+                            speed: params.speed,
+                            volume: params.volume,
+                            language: params.language,
+                        }))
+                        progress.value = 15
                     }
                     return
                 }

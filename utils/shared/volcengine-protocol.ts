@@ -175,6 +175,56 @@ export function buildSpeechStartConnectionFrame(): Uint8Array {
     })
 }
 
+export function buildSpeechStartSessionFrame(options: {
+    sessionId: string
+    userId: string
+    speaker: string
+    model: string
+    outputFormat?: string
+    sampleRate?: number
+    speed?: number
+    volume?: number
+    language?: string
+}): Uint8Array {
+    const speed = options.speed ?? 1
+    const speechRate = speed >= 1
+        ? Math.min(100, Math.round((speed - 1) * 100))
+        : Math.max(-50, Math.round((speed - 1) * 100))
+
+    const volume = options.volume ?? 1
+    const loudnessRate = volume >= 1
+        ? Math.min(100, Math.round((volume - 1) * 100))
+        : Math.max(-50, Math.round((volume - 1) * 100))
+
+    return buildVolcengineEventClientRequestFrame({
+        event: 100,
+        sessionId: options.sessionId,
+        payload: {
+            user: { uid: options.userId },
+            namespace: 'BidirectionalTTS',
+            req_params: {
+                model: options.model,
+                speaker: options.speaker,
+                audio_params: {
+                    format: options.outputFormat || 'mp3',
+                    sample_rate: options.sampleRate || 24000,
+                    speech_rate: speechRate,
+                    loudness_rate: loudnessRate,
+                    enable_timestamp: true,
+                },
+                additions: JSON.stringify({
+                    explicit_language: options.language || 'zh',
+                    disable_markdown_filter: true,
+                    enable_timestamp: true,
+                }),
+            },
+        },
+        messageType: VOLCENGINE_MESSAGE_TYPE.fullClientRequest,
+        messageTypeFlags: 0b0100,
+        compression: VOLCENGINE_COMPRESSION.none,
+    })
+}
+
 export function buildSpeechTaskRequestFrame(sessionId: string, text: string): Uint8Array {
     return buildVolcengineEventClientRequestFrame({
         event: 200,
