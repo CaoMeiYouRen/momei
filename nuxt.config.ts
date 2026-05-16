@@ -27,8 +27,6 @@ const ENABLE_NITRO_RESOLVE_PROBE = IS_WINDOWS_LOCAL_DEV
     && process.env.NUXT_ENABLE_NITRO_RESOLVE_PROBE === 'true'
 const ENABLE_PWA = !process.env.VITEST
     && (!IS_WINDOWS || process.env.NUXT_ENABLE_PWA_ON_WINDOWS === 'true')
-const ENABLE_NUXT_ESLINT_MODULE = !IS_WINDOWS
-    || process.env.NUXT_ENABLE_ESLINT_MODULE_ON_WINDOWS === 'true'
 const ENABLE_SENTRY_MODULE = !IS_WINDOWS_LOCAL_DEV
     || process.env.NUXT_ENABLE_SENTRY_ON_WINDOWS_DEV === 'true'
 const ENABLE_SITEMAP_MODULE = !IS_WINDOWS_LOCAL_DEV
@@ -190,6 +188,7 @@ export default defineNuxtConfig({
     // Node.js 24 的 ESM 解析不接受 `lodash/fp` 目录导入，显式固定到文件入口。
     alias: NODE_ESM_SUBPATH_ALIASES,
     modules: [
+        // 必须常驻：eslint.config.js 依赖 .nuxt/eslint.config.mjs。
         '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
@@ -326,18 +325,22 @@ export default defineNuxtConfig({
             hfProxy: process.env.NUXT_PUBLIC_HF_PROXY || 'https://huggingface.co',
         },
     },
-    sitemap: {
-        // 如果需要排除某些路径
-        exclude: [
-            '/admin/**',
-            '/settings/**',
-            '/login',
-            '/register',
-            '/forgot-password',
-            '/reset-password',
-        ],
-        sources: ['/api/_sitemap-urls'],
-    },
+    ...(ENABLE_SITEMAP_MODULE
+        ? {
+            sitemap: {
+                // 如果需要排除某些路径
+                exclude: [
+                    '/admin/**',
+                    '/settings/**',
+                    '/login',
+                    '/register',
+                    '/forgot-password',
+                    '/reset-password',
+                ],
+                sources: ['/api/_sitemap-urls'],
+            },
+        }
+        : {}),
     app: {
         head: {
             meta: [

@@ -29,6 +29,8 @@
 - [server/database/storage.ts](../../../server/database/storage.ts) 现已把底层 Redis / LRU 存储实例改为首次访问时再创建，而不是在模块导入时立刻实例化。这一步属于 always-loaded install/auth/logger/database cluster 的继续收窄，当前已通过 `pnpm run typecheck` 验证接口未回归，但性能收益仍需下一轮冷启动复测确认。
 - [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 现在改为只调用轻量 [server/services/installation-probe.ts](../../../server/services/installation-probe.ts) 来读取 `installed` / `databaseConnected`，并把 logger 下沉到函数内按需导入；安装态探测边界已经冻结为“连接级初始化 + 状态探针”，不再复用携带环境诊断、设置聚合与安装向导写路径的重型 [server/services/installation.ts](../../../server/services/installation.ts)。
 - [server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../../server/middleware/1-auth.ts)、[server/middleware/2-log.ts](../../../server/middleware/2-log.ts) 与 [server/utils/permission.ts](../../../server/utils/permission.ts) 已继续把 logger / auth / database 依赖改为函数内懒加载；其中 `permission.ts` 不再在模块顶层静态引入 [lib/auth.ts](../../../lib/auth.ts) 与 [server/database/index.ts](../../../server/database/index.ts)，避免 `requireAuth` / `requireAdmin` 被大范围 API 顶层导入时把整条鉴权与数据库链提前卷进 Nitro 首构建。
+- 模块开关策略补充约束：`@nuxt/eslint` 不能通过 Windows 本地开关关闭。原因是 [eslint.config.js](../../../eslint.config.js) 需要 `import withNuxt from './.nuxt/eslint.config.mjs'`，关闭模块会让 lint 链路直接失效。自本轮起，`@nuxt/eslint` 固定启用。
+- 对其余可选模块，统一要求“模块开关与配置项成对出现”。例如关闭 `@nuxtjs/sitemap` 时，必须同时移除/禁用 `nuxt.config.ts` 里的 `sitemap` 配置块，否则会在开发阶段触发 Nuxt 类型报错。
 
 ## 3. 当前基线
 
