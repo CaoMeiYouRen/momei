@@ -2,116 +2,6 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
-import { createNitroPerfHooks } from './lib/nuxt-dev-performance'
-
-const IS_WINDOWS = process.platform === 'win32'
-const IS_WINDOWS_LOCAL = IS_WINDOWS && !process.env.CI && !process.env.VITEST
-const NITRO_SERVER_ONLY_INLINE_PACKAGES = [
-    'mjml',
-    'mjml-core',
-    'html-minifier',
-    'html-minifier-terser',
-    'cheerio',
-    'htmlparser2',
-    'entities',
-    'domhandler',
-    'domelementtype',
-    'domutils',
-    ...(!IS_WINDOWS_LOCAL ? ['lodash', 'dayjs'] : []),
-]
-
-const IS_WINDOWS_LOCAL_DEV = IS_WINDOWS_LOCAL && process.env.NODE_ENV !== 'production'
-const ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV = !IS_WINDOWS_LOCAL_DEV
-    || process.env.NUXT_ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV === 'true'
-const ENABLE_NITRO_RESOLVE_PROBE = IS_WINDOWS_LOCAL_DEV
-    && process.env.NUXT_ENABLE_NITRO_RESOLVE_PROBE === 'true'
-const ENABLE_PWA = !process.env.VITEST
-    && (!IS_WINDOWS || process.env.NUXT_ENABLE_PWA_ON_WINDOWS === 'true')
-const ENABLE_SENTRY_MODULE = !IS_WINDOWS_LOCAL_DEV
-    || process.env.NUXT_ENABLE_SENTRY_ON_WINDOWS_DEV === 'true'
-const ENABLE_SITEMAP_MODULE = !IS_WINDOWS_LOCAL_DEV
-    || process.env.NUXT_ENABLE_SITEMAP_ON_WINDOWS_DEV === 'true'
-const NODE_ESM_SUBPATH_ALIASES = {
-    'dayjs/plugin/duration': 'dayjs/plugin/duration.js',
-    'dayjs/plugin/relativeTime': 'dayjs/plugin/relativeTime.js',
-    'dayjs/plugin/timezone': 'dayjs/plugin/timezone.js',
-    'dayjs/plugin/utc': 'dayjs/plugin/utc.js',
-    'lodash/fp': 'lodash/fp.js',
-} as const
-const VITE_OPTIMIZE_DEPS_INCLUDE = IS_WINDOWS_LOCAL_DEV
-    ? []
-    : [
-        'primevue/config',
-        'primevue/dialog',
-        'primevue/confirmdialog',
-        'primevue/toast',
-        'primevue/datepicker',
-        'primevue/select',
-        'primevue/autocomplete',
-        'primevue/dynamicdialog',
-        '@primevue/core',
-        '@primeuix/styled',
-        '@primeuix/styles',
-    ]
-const WINDOWS_LOCAL_DEV_NUXT_IGNORES = [
-    '.agents/**',
-    '.claude/**',
-    '.cursor/**',
-    '.dev/**',
-    '.github/**',
-    '.husky/**',
-    '.lighthouseci/**',
-    '.opencode/**',
-    '.playwright-mcp/**',
-    '.vscode/**',
-    'artifacts/**',
-    'coverage/**',
-    'docs/**',
-    'logs/**',
-    'opc-doc/**',
-    'packages/cli/**',
-    'packages/mcp-server/**',
-    'playwright-report/**',
-    'scripts/**',
-    'test-results/**',
-    'tests/**',
-    ...(ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
-        ? []
-        : [
-            'components/admin/**',
-            'pages/admin/**',
-        ]),
-]
-const WINDOWS_LOCAL_DEV_WATCH_IGNORES = [
-    '**/.agents/**',
-    '**/.claude/**',
-    '**/.cursor/**',
-    '**/.dev/**',
-    '**/.github/**',
-    '**/.husky/**',
-    '**/.lighthouseci/**',
-    '**/.opencode/**',
-    '**/.playwright-mcp/**',
-    '**/.vscode/**',
-    '**/artifacts/**',
-    '**/coverage/**',
-    '**/docs/**',
-    '**/logs/**',
-    '**/opc-doc/**',
-    '**/packages/cli/**',
-    '**/packages/mcp-server/**',
-    '**/playwright-report/**',
-    '**/scripts/**',
-    '**/test-results/**',
-    '**/tests/**',
-    ...(ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
-        ? []
-        : [
-            '**/components/admin/**',
-            '**/pages/admin/**',
-            '**/server/api/admin/**',
-        ]),
-]
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -179,62 +69,49 @@ const MomeiPreset = definePreset(Aura, {
 export default defineNuxtConfig({
     compatibilityDate: '2025-12-01',
     devtools: { enabled: false },
-    ...(IS_WINDOWS_LOCAL_DEV
-        ? {
-            ignore: WINDOWS_LOCAL_DEV_NUXT_IGNORES,
-            watcher: 'parcel',
-        }
-        : {}),
-    // Node.js 24 的 ESM 解析不接受 `lodash/fp` 目录导入，显式固定到文件入口。
-    alias: NODE_ESM_SUBPATH_ALIASES,
     modules: [
-        // 必须常驻：eslint.config.js 依赖 .nuxt/eslint.config.mjs。
         '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
-        ENABLE_SENTRY_MODULE && '@sentry/nuxt/module',
-        ENABLE_SITEMAP_MODULE && '@nuxtjs/sitemap',
-        ENABLE_PWA && '@vite-pwa/nuxt',
+        '@sentry/nuxt/module',
+        '@nuxtjs/sitemap',
+        !process.env.VITEST && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
-    ...(ENABLE_PWA
-        ? {
-            pwa: {
-                registerType: 'autoUpdate',
-                manifest: {
-                    name: '墨梅博客',
-                    short_name: '墨梅',
-                    theme_color: '#64748b',
-                    icons: [
-                        {
-                            src: 'logo.png',
-                            sizes: '512x512',
-                            type: 'image/png',
-                        },
-                    ],
-                    shortcuts: [
-                        {
-                            name: '快速灵感',
-                            short_name: '快速灵感',
-                            url: '/admin/snippets/capture',
-                            icons: [{ src: 'logo.png', sizes: '512x512' }],
-                        },
-                    ],
-                    display: 'standalone',
+    pwa: {
+        registerType: 'autoUpdate',
+        manifest: {
+            name: '墨梅博客',
+            short_name: '墨梅',
+            theme_color: '#64748b',
+            icons: [
+                {
+                    src: 'logo.png',
+                    sizes: '512x512',
+                    type: 'image/png',
                 },
-                workbox: {
-                    navigateFallback: '/',
-                    // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
-                    navigateFallbackDenylist: [/^\/.*$/],
-                    globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+            ],
+            shortcuts: [
+                {
+                    name: '快速灵感',
+                    short_name: '快速灵感',
+                    url: '/admin/snippets/capture',
+                    icons: [{ src: 'logo.png', sizes: '512x512' }],
                 },
-                devOptions: {
-                    enabled: false,
-                },
-            },
-        }
-        : {}),
+            ],
+            display: 'standalone',
+        },
+        workbox: {
+            navigateFallback: '/',
+            // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
+            navigateFallbackDenylist: [/^\/.*$/],
+            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        },
+        devOptions: {
+            enabled: false,
+        },
+    },
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         // 定时任务安全配置
@@ -243,7 +120,6 @@ export default defineNuxtConfig({
         webhookSecret: process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN,
         public: {
             NODE_ENV: process.env.NODE_ENV,
-            windowsLocalDevMode: IS_WINDOWS_LOCAL_DEV,
             siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
             appName: process.env.NUXT_PUBLIC_APP_NAME,
             authBaseUrl: process.env.NUXT_PUBLIC_AUTH_BASE_URL,
@@ -325,22 +201,18 @@ export default defineNuxtConfig({
             hfProxy: process.env.NUXT_PUBLIC_HF_PROXY || 'https://huggingface.co',
         },
     },
-    ...(ENABLE_SITEMAP_MODULE
-        ? {
-            sitemap: {
-                // 如果需要排除某些路径
-                exclude: [
-                    '/admin/**',
-                    '/settings/**',
-                    '/login',
-                    '/register',
-                    '/forgot-password',
-                    '/reset-password',
-                ],
-                sources: ['/api/_sitemap-urls'],
-            },
-        }
-        : {}),
+    sitemap: {
+        // 如果需要排除某些路径
+        exclude: [
+            '/admin/**',
+            '/settings/**',
+            '/login',
+            '/register',
+            '/forgot-password',
+            '/reset-password',
+        ],
+        sources: ['/api/_sitemap-urls'],
+    },
     app: {
         head: {
             meta: [
@@ -361,9 +233,6 @@ export default defineNuxtConfig({
         sourceMapsUploadOptions: {
             enabled: false,
         },
-    },
-    sourcemap: {
-        server: !IS_WINDOWS_LOCAL,
     },
     primevue: {
         options: {
@@ -405,9 +274,6 @@ export default defineNuxtConfig({
             (ctx) => !ctx.isDev && 'google-libphonenumber',
         ],
     },
-    typescript: {
-        includeWorkspace: !IS_WINDOWS_LOCAL_DEV,
-    },
     css: [
         '@/styles/vendor.css',
         '@/styles/iconfont/iconfont.css',
@@ -431,13 +297,19 @@ export default defineNuxtConfig({
             ],
         },
         optimizeDeps: {
-            include: VITE_OPTIMIZE_DEPS_INCLUDE,
-            noDiscovery: IS_WINDOWS_LOCAL_DEV,
-        },
-        server: {
-            watch: {
-                ignored: IS_WINDOWS_LOCAL_DEV ? WINDOWS_LOCAL_DEV_WATCH_IGNORES : undefined,
-            },
+            include: [
+                'primevue/config',
+                'primevue/dialog',
+                'primevue/confirmdialog',
+                'primevue/toast',
+                'primevue/datepicker',
+                'primevue/select',
+                'primevue/autocomplete',
+                'primevue/dynamicdialog',
+                '@primevue/core',
+                '@primeuix/styled',
+                '@primeuix/styles',
+            ],
         },
         css: {
             preprocessorOptions: {
@@ -456,12 +328,6 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
-        alias: NODE_ESM_SUBPATH_ALIASES,
-        ...(ENABLE_NITRO_RESOLVE_PROBE
-            ? {
-                hooks: createNitroPerfHooks(),
-            }
-            : {}),
         experimental: {
             websocket: true,
         },
@@ -474,9 +340,6 @@ export default defineNuxtConfig({
             '**/*.test.ts',
             '**/*.spec.ts',
             '**/tests/**',
-            ...(IS_WINDOWS_LOCAL_DEV && !ENABLE_ADMIN_SURFACES_ON_WINDOWS_DEV
-                ? ['server/api/admin/**']
-                : []),
         ],
         prerender: {
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
@@ -487,12 +350,28 @@ export default defineNuxtConfig({
             external: ['debug'],
         },
         externals: {
-            // Nitro 在 Windows 上做 external tracing 的成本很高，
-            // 本地 dev/build 更适合直接依赖工作区 node_modules，而不是长时间追踪依赖树。
-            trace: !IS_WINDOWS,
-            // 仅内联服务端邮件渲染链，避免把 PrimeVue 等大体积前端依赖强行打进 Nitro 包，
-            // 否则在 Windows 上会显著放大 Nitro dev/build 的依赖解析与打包成本。
-            inline: NITRO_SERVER_ONLY_INLINE_PACKAGES,
+            inline: [
+                'mjml',
+                'mjml-core',
+                'html-minifier',
+                'html-minifier-terser',
+                'cheerio',
+                'htmlparser2',
+                'entities',
+                'domhandler',
+                'domelementtype',
+                'domutils',
+                'lodash',
+                'lodash-es',
+                'dayjs',
+                'primevue',
+                '@primevue/core',
+                '@primevue/forms',
+                '@primevue/icons',
+                '@primeuix/styled',
+                '@primeuix/styles',
+                '@primeuix/themes',
+            ],
         },
         esbuild: {
             options: {

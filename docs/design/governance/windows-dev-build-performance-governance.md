@@ -99,6 +99,29 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 同日的 probe 口径结果已落在 [artifacts/nitro-resolve-probe.json](../../../artifacts/nitro-resolve-probe.json)。需要注意的是，启用 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 会把同一路径放大到约 `83s`，因此 probe 只用于拓扑分析，不作为正式性能基线。
 - 最新 probe 的 `topSpecifiers` 显示，当前 repo-local 热点已经从单一 install/auth/logger cluster 转向更广的共享图：`server/database/index.ts`、`server/utils/permission.ts`、`types/setting.ts`、`utils/shared/roles.ts` 与 `server/utils/logger.ts` 仍位于前列；其中 logger 已降到约 `56` 次命中，不再是唯一主导项，而 `server/database` / `permission` / `types/setting` 这几条共享入口成为下一轮更直接的收敛对象。
 
+### 3.6 2026-05-16 真实环境复核与 bisect 结论
+
+- 用户在 Windows 本地真实 `pnpm run dev` 场景提供了可复现日志：`Nuxt Nitro server built in 91041ms`，随后首轮页面链路可响应，但出现运行时依赖发现与二次预构建提示（`Vite discovered new dependencies at runtime` / `New dependencies found`）。
+- 同一轮日志还显示了两个需要并行关注的副信号：
+   - `TaskScheduler` 在本地开发环境注册了周期任务并持续触发数据库扫描（每 `5` 分钟一次）。
+   - `pg` 驱动出现 `client.query() when the client is already executing a query` 的 deprecation warning，说明当前连接复用路径存在并发查询告警面。
+- 用户基于提交区间验证给出明确 bisect 事实：
+   - good: `9cb0b9a5fb136ef56f5b445f7a1d73f864e9f7eb`
+   - good: `28b9d7ef8647360eed8b8b2ab56c4b9adb83d4a3`
+   - bad: `cca7493bb16c0765a459618d9dc79fe73773c33c`
+- 在 `28b9d7e..cca7493b` 区间内，改动仅命中 [nuxt.config.ts](../../../nuxt.config.ts)。因此该次回归的首要入口应继续锚定 Nuxt 配置层（模块装配、Nitro external/inline、Windows 分支配置），而不是先扩散到业务 API 实现层。
+- 2026-05-16 在当前仓库复跑 `pnpm perf:nuxt:dev -- --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=120000`，结果为 `Nuxt Nitro server built` 约 `71.07s`、首请求响应头约 `90.62s`。该结果高于 2026-05-14 的约 `58.55s` 首响基线，说明后续提交存在回归或环境分支差异，需要继续沿 `nuxt.config.ts` 的后续提交做定向排查。
+- 当日已执行一轮“配置层最小试探”并得到证伪结论：
+   - 试探 1：在 Windows 本地临时恢复 Nitro inline（`lodash` / `lodash-es` / `dayjs`）以缩短外部解析链。
+   - 试探 2：预填运行时提示的 Vite pre-bundle 依赖，尝试减少首次访问后的动态依赖发现。
+   - 实测结果：`Nuxt Nitro server built` 从约 `71.07s` 升高到约 `93.99s`，`warmRequestHeaders` 从约 `90.62s` 升高到约 `111.73s`，属于明显退化。
+   - 处置：上述试探已全部回退，不保留在当前配置中；后续排查不再继续“扩大 Nitro inline 包集合”这条路径。
+- 2026-05-16 夜间再验证（`pnpm run dev` 真实访问链路）显示：
+   - `Nuxt Nitro server built in 131254ms` 后，首页与 `settings/public`、`settings/theme`、`posts/home`、`friend-links` 等首屏依赖 API 已可稳定返回 `200`。
+   - `TaskScheduler` 日志显示“`Skipping cron registration outside production.`”，说明开发环境周期任务门禁按预期生效。
+   - 本轮结论：**“Windows 本地 dev 无法启动 / 无法访问首页”问题暂时关闭**；当前保留问题已收敛为“首轮 Nitro 构建仍偏慢（约 `131s`）”。
+   - 后续动作：性能问题继续保留在本专项与 backlog 长期主线跟踪，不再阻塞当前可用性收口。
+
 ### 3.4 对照目标口径
 
 当前 Windows 本地 build 基线约为 `542.77s`，已经明显偏离可接受区间。结合本轮讨论，后续治理统一采用两级目标：
