@@ -7,11 +7,6 @@ import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notifica
 import logger from '@/server/utils/logger'
 import type { TranscribeOptions, AIProvider } from '@/types/ai'
 
-interface ASRProviderShape {
-    model?: string
-    config?: { model?: string }
-}
-
 function resolveAudioSize(audio: Buffer | Blob): number {
     if (audio instanceof Buffer) {
         return audio.length
@@ -25,8 +20,21 @@ function resolveProviderModel(provider: AIProvider, preferredModel?: string): st
         return preferredModel
     }
 
-    const providerShape = provider as unknown as ASRProviderShape
-    return providerShape.model || providerShape.config?.model || 'unknown'
+    const providerRecord = provider as { model?: unknown, config?: unknown }
+    const model = providerRecord.model
+    if (typeof model === 'string' && model.length > 0) {
+        return model
+    }
+
+    const config = providerRecord.config
+    if (config && typeof config === 'object' && !Array.isArray(config)) {
+        const configModel = (config as Record<string, unknown>).model
+        if (typeof configModel === 'string' && configModel.length > 0) {
+            return configModel
+        }
+    }
+
+    return 'unknown'
 }
 
 function toErrorMessage(error: unknown): string {

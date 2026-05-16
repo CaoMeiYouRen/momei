@@ -34,11 +34,13 @@
 - [ ] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
 
 3. **主线：ESLint / 类型债治理 (P1)**
-- [ ] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
-- [ ] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
-- [ ] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
+- [x] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
+- [x] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
+- [x] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
 
-进展记录（2026-05-17）：已完成一轮“单规则 + 单文件”窄切片，目标文件为 [server/services/ai/asr.ts](../../server/services/ai/asr.ts)。实现前冻结命中清单为 `13` 处显式 `any` / `catch any`（涵盖音频大小读取、`options.fileName/mimeType` 读取、provider model 推断与错误对象透传）；替代写法统一为 `unknown + 显式收窄`，并新增 `ASRProviderShape`、`resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 四个窄 helper，避免在调用侧重复断言。回滚边界冻结为“仅改 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 内部类型收窄，不改 API 入参、任务记录字段、通知文案语义与 provider 调用契约”；若需要回滚，可直接还原该文件。最小验证矩阵已执行 `pnpm exec eslint server/services/ai/asr.ts`（通过）与 `pnpm run typecheck`（通过）。残余候选暂保留在 AI 服务族其他文件（例如 `server/services/ai/tts.ts` 与 provider 聚合层中的历史 `as unknown as` 多态访问），下一轮继续按“单规则 + 单文件 / 双文件”推进。
+进展记录（2026-05-17）：已先完成 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的 `no-explicit-any` 收敛切片，冻结命中清单为 `13` 处显式 `any` / `catch any`（涵盖音频大小读取、`options.fileName/mimeType` 读取、provider model 推断与错误对象透传）；替代写法统一为 `unknown + 显式收窄`，新增 `resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 等窄 helper，避免在调用侧重复断言。随后按“asr 邻近调用链”继续推进 [server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts)、[server/services/ai/base.ts](../../server/services/ai/base.ts) 的同类收敛：移除 `catch any`、收敛 provider model 多态断言、将基础任务记录接口中的 `payload/response/error` 改为 `unknown` 并补错误字符串化守卫。回滚边界冻结为“仅改 AI 服务层类型收窄与日志字段提取，不改 API 入参、任务状态机、provider 调用契约与通知业务语义”；若需要回滚，可按文件粒度还原上述 `4` 个服务文件。
+
+闭合记录（2026-05-17）：本轮 P1 主线已满足关闭条件。验证矩阵已执行 `pnpm exec eslint server/services/ai/asr.ts server/services/ai/image.ts server/services/ai/tts.ts server/services/ai/base.ts`（通过）、`pnpm exec vitest run server/services/ai/asr.test.ts server/services/ai/image.test.ts server/services/ai/tts.test.ts`（`26` 通过、`0` 失败）与 `pnpm run typecheck`（通过）。残余候选收敛为测试桩层的历史 `as any`（主要在 `*.test.ts`）与后续 provider 聚合层进一步去断言化，已转入下一轮非阻塞治理候选。
 
 4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**
 - [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。

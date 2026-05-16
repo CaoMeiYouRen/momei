@@ -94,6 +94,22 @@ function serializePayload(payload: unknown): string {
     return JSON.stringify(payload)
 }
 
+function stringifyUnknownError(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message
+    }
+
+    if (typeof error === 'string') {
+        return error
+    }
+
+    try {
+        return JSON.stringify(error)
+    } catch {
+        return 'Unknown error'
+    }
+}
+
 export abstract class AIBaseService {
     protected static async assertQuotaAllowance(options: {
         userId?: string
@@ -174,9 +190,9 @@ export abstract class AIBaseService {
         status?: 'pending' | 'processing' | 'completed' | 'failed'
         provider?: string
         model?: string
-        payload?: any
-        response?: any
-        error?: any
+        payload?: unknown
+        response?: unknown
+        error?: unknown
         postId?: string
         audioDuration?: number
         audioSize?: number
@@ -281,7 +297,7 @@ export abstract class AIBaseService {
 
             let errorMsg = task.error
             if (error) {
-                errorMsg = error.message || String(error)
+                errorMsg = stringifyUnknownError(error)
             } else if (status) {
                 // If status is provided but no error, we probably want to clear old error or keep it
                 // Logic check: if status is 'completed' or 'processing', we might want to clear error
@@ -342,18 +358,28 @@ export abstract class AIBaseService {
      */
     protected static logUsage(options: {
         task: string
-        response: any
+        response: unknown
         userId?: string
     }) {
         const { task, response, userId } = options
-        const { model, usage } = response
+        const responseRecord = response && typeof response === 'object'
+            ? response as Record<string, unknown>
+            : null
+        const model = responseRecord?.model
+        const usageRecord = responseRecord?.usage
+        const usage = usageRecord && typeof usageRecord === 'object'
+            ? usageRecord as Record<string, unknown>
+            : null
+        const promptTokens = typeof usage?.promptTokens === 'number' ? usage.promptTokens : 'unknown'
+        const completionTokens = typeof usage?.completionTokens === 'number' ? usage.completionTokens : 'unknown'
+        const totalTokens = typeof usage?.totalTokens === 'number' ? usage.totalTokens : 'unknown'
         if (usage) {
             logger.info(
-                `[AIUsage] task=${task}, model=${model}, userId=${userId || 'anonymous'}, promptTokens=${usage.promptTokens}, completionTokens=${usage.completionTokens}, totalTokens=${usage.totalTokens}`,
+                `[AIUsage] task=${task}, model=${typeof model === 'string' ? model : 'unknown'}, userId=${userId || 'anonymous'}, promptTokens=${promptTokens}, completionTokens=${completionTokens}, totalTokens=${totalTokens}`,
             )
         } else {
             logger.info(
-                `[AIUsage] task=${task}, model=${model}, userId=${userId || 'anonymous'}, usage=unknown`,
+                `[AIUsage] task=${task}, model=${typeof model === 'string' ? model : 'unknown'}, userId=${userId || 'anonymous'}, usage=unknown`,
             )
         }
     }

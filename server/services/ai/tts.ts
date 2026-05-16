@@ -15,13 +15,18 @@ import { sendInAppNotification } from '@/server/services/notification'
 import { SettingKey } from '@/types/setting'
 import { AI_HEAVY_TASK_TIMEOUT_MS, TTS_DEFAULT_VOICE } from '@/utils/shared/env'
 import { NotificationType, buildAITaskDetailPath } from '@/utils/shared/notification'
-import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery, AIProviderType } from '@/types/ai'
+import type { TTSOptions, TTSAudioVoice, TTSVoiceQuery, AIProviderType, AIProvider } from '@/types/ai'
 
 /** Provider 多态访问的最小接口 — 用于替代 `(provider as any).model` */
 interface TTSProviderShape {
     model?: string
     defaultModel?: string
     config?: { model?: string }
+}
+
+function resolveProviderModel(provider: AIProvider): string {
+    const providerShape: TTSProviderShape = provider as TTSProviderShape
+    return providerShape.model || providerShape.defaultModel || providerShape.config?.model || 'unknown'
 }
 
 const MAX_AUDIO_COMPENSATION_ATTEMPTS = 2
@@ -231,7 +236,7 @@ export class TTSService extends AIBaseService {
                 this.logUsage({
                     task: 'tts',
                     response: {
-                        model: (provider as unknown as TTSProviderShape).model || (provider as unknown as TTSProviderShape).defaultModel || (provider as unknown as TTSProviderShape).config?.model || 'unknown',
+                        model: resolveProviderModel(provider),
                         content: `Audio generation for ${text.length} characters`,
                     },
                     userId,
@@ -243,7 +248,7 @@ export class TTSService extends AIBaseService {
                     category: 'tts',
                     type: 'tts',
                     provider: provider.name,
-                    model: (provider as unknown as TTSProviderShape).model || (provider as unknown as TTSProviderShape).defaultModel || (provider as unknown as TTSProviderShape).config?.model || 'unknown',
+                    model: resolveProviderModel(provider),
                     payload: { text, voice: resolvedVoice, options },
                     response: { status: 'success' },
                 })
@@ -259,7 +264,7 @@ export class TTSService extends AIBaseService {
                     category: 'tts',
                     type: 'tts',
                     provider: provider.name,
-                    model: (provider as unknown as TTSProviderShape).model || (provider as unknown as TTSProviderShape).defaultModel || (provider as unknown as TTSProviderShape).config?.model || 'unknown',
+                    model: resolveProviderModel(provider),
                     payload: { text, voice: resolvedVoice, options },
                     error,
                 })
@@ -505,7 +510,7 @@ export class TTSService extends AIBaseService {
             // 任务开始处理时，如果模型字段为空，尝试补全
             if (!task.model) {
                 const providerObj = await getAIProvider('tts', { provider: task.provider as AIProviderType })
-                task.model = (providerObj as unknown as TTSProviderShape).model || (providerObj as unknown as TTSProviderShape).defaultModel || 'unknown'
+                task.model = resolveProviderModel(providerObj)
                 await taskRepo.save(task)
             }
 

@@ -24,6 +24,10 @@ interface ImageTaskCheckpoint {
     lastResumeAt?: string | null
 }
 
+function toErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
+}
+
 function parseImageTaskCheckpoint(taskResult: string | null | undefined) {
     if (!taskResult) {
         return null
@@ -236,7 +240,7 @@ export class ImageService extends AIBaseService {
             failureStage = 'post_process'
             await this.finalizeTaskFromResponse(task, options, providerResponse, checkpoint)
             return 'completed' as const
-        } catch (error: any) {
+        } catch (error: unknown) {
             logger.error(`AI Image Generation Error (Task ${task.id}):`, error)
             await this.recordTask({
                 id: task.id,
@@ -253,7 +257,7 @@ export class ImageService extends AIBaseService {
                 userId: task.userId,
                 type: NotificationType.SYSTEM,
                 title: 'AI 图片生成失败',
-                content: `您的图片生成任务失败: ${error.message || '未知错误'}`,
+                content: `您的图片生成任务失败: ${toErrorMessage(error) || '未知错误'}`,
                 link: buildAITaskDetailPath(task.id),
             }).catch((notificationError) => logger.error('[ImageService] Failed to send failure notification:', notificationError))
 
