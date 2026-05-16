@@ -1,5 +1,43 @@
 # momei
 
+# [1.17.0](https://github.com/CaoMeiYouRen/momei/compare/v1.16.0...v1.17.0) (2026-05-16)
+
+
+### ✨ 新功能
+
+* **ad:** 添加广告位和广告活动相关接口及功能 ([588c11e](https://github.com/CaoMeiYouRen/momei/commit/588c11e))
+* **performance:** 添加性能监控和日志记录功能 ([9484ace](https://github.com/CaoMeiYouRen/momei/commit/9484ace))
+* 添加 Windows 本地开发模式支持 ([2b116ca](https://github.com/CaoMeiYouRen/momei/commit/2b116ca))
+
+
+### 🐛 Bug 修复
+
+* **admin:** 引入 CreatorStatsPanel 组件 ([1550ce2](https://github.com/CaoMeiYouRen/momei/commit/1550ce2))
+* **creator-stats-panel:** 添加 refreshSignal 属性以支持父组件刷新 ([f262091](https://github.com/CaoMeiYouRen/momei/commit/f262091))
+* **creator-stats-panel:** 添加创作者统计面板的功能和国际化支持 ([debb497](https://github.com/CaoMeiYouRen/momei/commit/debb497))
+* **database:** 更新 typeorm 适配器以支持 consumeOne 方法 ([410277a](https://github.com/CaoMeiYouRen/momei/commit/410277a))
+* **tts:** prevent double processing of frontend-direct TTS tasks ([9a296e0](https://github.com/CaoMeiYouRen/momei/commit/9a296e0))
+* **volcengine:** 添加语音和播客相关的帧构建函数 ([ba98ae1](https://github.com/CaoMeiYouRen/momei/commit/ba98ae1))
+* 优化 ANSI 转义字符处理逻辑 ([1885767](https://github.com/CaoMeiYouRen/momei/commit/1885767))
+
+
+### 📦 代码重构
+
+* **api:** 优化设置项的布尔值处理逻辑 ([1fe2722](https://github.com/CaoMeiYouRen/momei/commit/1fe2722))
+* **middleware:** 优化安装态探测与日志记录机制 ([00d54c3](https://github.com/CaoMeiYouRen/momei/commit/00d54c3))
+* **middleware:** 收紧数据库初始化逻辑 ([41e3916](https://github.com/CaoMeiYouRen/momei/commit/41e3916))
+* **perf:** 优化 Nuxt 启动命令和内存配置 ([90bd663](https://github.com/CaoMeiYouRen/momei/commit/90bd663))
+* **perf:** 优化命令行执行和进程管理逻辑 ([771242a](https://github.com/CaoMeiYouRen/momei/commit/771242a))
+* **perf:** 移除不必要的 max-lines 例外文件配置 ([9c9e2f4](https://github.com/CaoMeiYouRen/momei/commit/9c9e2f4))
+* **post-export:** 格式化音频持续时间为 "hh:mm:ss" 字符串 ([84aa67c](https://github.com/CaoMeiYouRen/momei/commit/84aa67c))
+* **tts-credentials:** 优化凭证生成逻辑 ([d0a9f22](https://github.com/CaoMeiYouRen/momei/commit/d0a9f22))
+* **tts-credentials:** 更新 TTS 单向流式端点为双向流式 WebSocket 端点 ([7439641](https://github.com/CaoMeiYouRen/momei/commit/7439641))
+* **tts-credentials:** 更新 TTS 双向流式 WebSocket 端点描述 ([3191441](https://github.com/CaoMeiYouRen/momei/commit/3191441))
+* **tts-credentials:** 更新 Volcengine 配置获取逻辑 ([920b2bb](https://github.com/CaoMeiYouRen/momei/commit/920b2bb))
+* **tts-volcengine:** 实现基于 WebSocket 的语音合成功能 ([e2cd943](https://github.com/CaoMeiYouRen/momei/commit/e2cd943))
+* 将 Cron 注册逻辑改为仅生产环境自动启用，非生产环境需显式设置 ([e18c5df](https://github.com/CaoMeiYouRen/momei/commit/e18c5df))
+* 更新 Windows 本地 Dev / Build 性能治理文档 ([368e292](https://github.com/CaoMeiYouRen/momei/commit/368e292))
+
 # [1.16.0](https://github.com/CaoMeiYouRen/momei/compare/v1.15.0...v1.16.0) (2026-05-09)
 
 
