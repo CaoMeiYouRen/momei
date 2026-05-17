@@ -252,7 +252,9 @@ function logPerformanceStage(scope: string, stage: string, durationMs: number, d
         .join(' ')
 
     const message = `[momei-perf] scope=${scope} stage=${stage} durationMs=${durationMs}${serializedDetails ? ` ${serializedDetails}` : ''}`
-    console.info(message)
+    if (process.env.NODE_ENV !== 'production') {
+        console.info(message)
+    }
     logger.info(message)
 }
 

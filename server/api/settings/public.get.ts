@@ -27,7 +27,9 @@ function asStringSetting(value: SettingValue | undefined): string | null | undef
  */
 export default defineEventHandler(async (event) => {
     try {
-        console.info('[momei-perf] scope=settings-public stage=entered durationMs=0')
+        if (process.env.NODE_ENV !== 'production') {
+            console.info('[momei-perf] scope=settings-public stage=entered durationMs=0')
+        }
         // 先把认证边界 locale 映射回 AppLocaleCode，再进入 settings 读取，
         // 确保前后台 locale 口径一致且可命中同一缓存 key。
         const requestedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(detectRequestAuthLocale(event)))

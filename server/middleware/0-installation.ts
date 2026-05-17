@@ -20,7 +20,9 @@ async function getInstallationProbeLogger() {
 
 async function emitInstallationProbeLog(pathname: string, stage: string, durationMs: number) {
     const message = logInstallationProbeStage(pathname, stage, durationMs)
-    console.info(message)
+    if (process.env.NODE_ENV !== 'production') {
+        console.info(message)
+    }
     const logger = await getInstallationProbeLogger()
     logger.info(message)
 }
@@ -46,7 +48,9 @@ function resolveEnvInstallationFlag() {
 export default defineEventHandler(async (event) => {
     // 提取路径名
     const pathname = (event.path || '').split('?')[0] ?? ''
-    console.info(`[momei-perf] scope=installation-probe stage=entered durationMs=0 path=${pathname || '/'}`)
+    if (process.env.NODE_ENV !== 'production') {
+        console.info(`[momei-perf] scope=installation-probe stage=entered durationMs=0 path=${pathname || '/'}`)
+    }
 
     // 跳过静态资源
     if (
