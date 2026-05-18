@@ -9,6 +9,43 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-18 第三十七阶段归档对账与 Review Gate
+
+### 范围
+
+- 目标：对账第三十七阶段 5 条主线在实现代码、性能 / 长窗口事实源、活动回归窗口与规划文档中的实际落地情况，并完成 `todo.md` 清理、`todo-archive.md` 归档、`roadmap.md` 与多语路线图摘要同步；本轮明确不把下一阶段直接写入正式规划。
+- 本轮覆盖：[docs/plan/todo.md](../../docs/plan/todo.md)、[docs/plan/todo-archive.md](../../docs/plan/todo-archive.md)、[docs/plan/roadmap.md](../../docs/plan/roadmap.md)、4 份多语 roadmap 摘要、[docs/i18n/ja-JP/guide/translation-governance.md](../../docs/i18n/ja-JP/guide/translation-governance.md)、[windows-dev-build-performance-governance.md](../../docs/design/governance/windows-dev-build-performance-governance.md) 与本文件近线证据窗口。
+- 非目标：不重跑整个第三十七阶段全部历史实现命令，不提前上收下一阶段 Phase 38，也不借归档动作改写 backlog 候选优先级。
+
+### 实施结论
+
+- 第三十七阶段五条主线已具备可追溯证据：Windows 本地性能治理可回链到 [windows-dev-build-performance-governance.md](../../docs/design/governance/windows-dev-build-performance-governance.md) 与相关 `artifacts/nuxt-*-performance.json`；测试有效性与 Postgres 长窗口复核已在本窗口留有 2026-05-18、2026-05-14 与 2026-05-12 的正式记录；ESLint / 类型债与结构复用治理则已在中文规划事实源与对应实现文件中完成闭环。
+- [docs/plan/todo.md](../../docs/plan/todo.md) 已清理当前执行面，并明确写出“下一阶段当前仅保留候选分析与准入评估”；没有出现偷写下一阶段正式规划的问题。
+- [docs/plan/todo-archive.md](../../docs/plan/todo-archive.md) 与 [docs/plan/roadmap.md](../../docs/plan/roadmap.md) 已统一改写为“第三十七阶段已审计归档”，且多语摘要同步改为相同口径；`ja-JP` 翻译治理页的 freshness 也已同步恢复。
+
+### 已执行验证
+
+- 既有阶段证据复核：
+	- [docs/reports/regression/current.md](../../docs/reports/regression/current.md) 中 2026-05-18 第三十七阶段测试有效性切片关闭记录。
+	- [docs/reports/regression/current.md](../../docs/reports/regression/current.md) 中 2026-05-14 / 2026-05-12 第三十七阶段 Postgres 长窗口复核记录。
+	- [windows-dev-build-performance-governance.md](../../docs/design/governance/windows-dev-build-performance-governance.md) 与相关性能 artifact。
+- 本轮归档文档验证：
+	- `pnpm lint:md docs/plan/todo.md docs/plan/todo-archive.md docs/plan/roadmap.md docs/i18n/en-US/plan/roadmap.md docs/i18n/zh-TW/plan/roadmap.md docs/i18n/ko-KR/plan/roadmap.md docs/i18n/ja-JP/plan/roadmap.md docs/i18n/ja-JP/guide/translation-governance.md`
+	- `pnpm docs:check:i18n`
+	- `pnpm docs:check:source-of-truth`
+	- 结果：全部通过。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮归档放行依赖的是第三十七阶段已有的切片级回归、性能 / 长窗口事实源与本次文档验证，而不是重新执行一轮统一 `pnpm regression:phase-close`。考虑到当前任务是阶段收口与事实源同步，这一证据组合足以支撑归档，但后续若要统一收紧“归档必须附带固定入口回归”的门槛，需要在规范中先明确豁免边界。
+
+### 未覆盖边界
+
+- 本轮没有重新全量复跑第三十七阶段内所有历史定向测试、性能脚本与数据库 live sample；放行依据继续以既有近线证据和事实源文档为准。
+- 下一阶段当前仍只停留在候选分析，没有在中文或翻译 roadmap 中写入正式 Phase 38；后续若上收，仍需单独完成 backlog 去重、ROI 评分与最小验证矩阵设计。
+
 ## 2026-05-18 第三十七阶段测试有效性切片（P0）关闭
 
 ### 范围

@@ -16,6 +16,52 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening) (已审计归档)
+
+> 归档说明: 第三十七阶段「0 个新功能 + 5 个优化」已于 2026-05-18 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：Windows 本地 `nuxt dev` / `nuxt build` 可用性与长尾首轮收敛、高风险测试有效性切片、AI 服务层 ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
+
+> **ROI 评估**: Windows 本地 Dev / Build 性能治理 2.00；测试有效性切片 1.80；ESLint / 类型债治理 1.50；结构复用治理（至少 3 处热点）1.70；Postgres 长窗口复核切片 1.45。
+
+### 1. Windows 本地 Dev / Build 性能治理 (P0)
+
+- 结果: [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts)、[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../server/middleware/1-auth.ts)、[server/middleware/2-log.ts](../../server/middleware/2-log.ts) 与 [server/utils/permission.ts](../../server/utils/permission.ts) 已完成 installation state、连接级初始化、optional session、request log 与 permission 边界收紧；[server/services/installation-probe.ts](../../server/services/installation-probe.ts) 已承接轻量安装态探针；Windows 本地 `nuxt build` 长尾首轮已通过关闭 server sourcemap 收敛，`nuxt dev` 首响也已从约 `502279ms` 收敛到约 `58549ms`。
+- 验证: 事实源已统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 与相关 dev 日志；2026-05-16 用户实测 `pnpm run dev` 后首页、`settings/public`、`settings/theme`、`posts/home` 与 `friend-links` 均可访问。
+- [x] 冻结 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要安装态、哪些路径才必须等待完整 `initializeDB()`。
+- [x] 为数据库初始化与首请求冷路径补齐分阶段耗时口径，并把事实源统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
+- [x] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
+
+### 2. 测试有效性切片 (P0)
+
+- 结果: 本轮已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路完成 3 组高风险断言补强：[server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 覆盖 post-backed / `404` / `403`， [server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 覆盖 `estimated / actual` 独立口径与非终态 `successRate / failureRate = 0`， [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 覆盖 `/api/posts/home` 统一 `503` 映射。
+- 验证: 定向回归矩阵已收敛为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果为 `14` 通过、`0` 失败；详细证据见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
+- [x] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言或边界断言。
+- [x] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
+- [x] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
+
+### 3. ESLint / 类型债治理 (P1)
+
+- 结果: [server/services/ai/asr.ts](../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，新增 `resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 等窄 helper，去掉 `catch any` 并收紧基础任务记录接口中的多态日志字段。
+- 验证: 已执行 `pnpm exec eslint server/services/ai/asr.ts server/services/ai/image.ts server/services/ai/tts.ts server/services/ai/base.ts`、`pnpm exec vitest run server/services/ai/asr.test.ts server/services/ai/image.test.ts server/services/ai/tts.test.ts`（`26` 通过、`0` 失败）与 `pnpm run typecheck`；残余候选继续收敛为测试桩层历史 `as any` 与 provider 聚合层去断言化。
+- [x] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
+- [x] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
+- [x] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
+
+### 4. 结构复用治理：至少 3 处热点收敛 (P1)
+
+- 结果: 已完成 3 处热点收敛。[pages/admin/subscribers/index.vue](../../pages/admin/subscribers/index.vue) / [pages/admin/waitlist/index.vue](../../pages/admin/waitlist/index.vue) 共享后台列表页壳层；[pages/admin/ad/campaigns.vue](../../pages/admin/ad/campaigns.vue) / [pages/admin/ad/placements.vue](../../pages/admin/ad/placements.vue) 收敛到 [composables/use-admin-entity-list.ts](../../composables/use-admin-entity-list.ts) 与 [composables/use-admin-form-dialog.ts](../../composables/use-admin-form-dialog.ts) 两条窄 composable；[server/utils/email/service.ts](../../server/utils/email/service.ts) 已把模板解析 / 发送 / 记录日志压回内部 helper。
+- 验证: 已执行 [server/utils/email/service.test.ts](../../server/utils/email/service.test.ts)（`13` 通过、`0` 失败）、`pnpm exec nuxt typecheck` 与 `pnpm duplicate-code:check`，确认 baseline 未反弹；[components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 继续保留为下一轮候选。
+- [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
+- [x] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。
+- [x] 复核 `pnpm duplicate-code:check` 基线不反弹，并补记结构性重复盘点结论。
+
+### 5. Postgres 长窗口复核切片 (P1)
+
+- 结果: 基于 2026-05-12 与 2026-05-14 的 Neon 长窗口样本，已确认当前最主要的放大器是非生产环境定时 Cron 与请求入口误触完整初始化，而非单条业务 SQL；[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 已改为非生产默认不注册内置 Cron，[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) / [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 已收紧为连接级初始化。
+- 验证: [docs/reports/regression/current.md](../reports/regression/current.md) 已保留 2026-05-12 与 2026-05-14 两轮长窗口复核记录；同日 System Operations 在 `5` 分钟 autosuspend 延迟下保持成功的 `start / suspend` 交替，未再出现 compute 长期钉住 Active 的阻塞形态。剩余候选已回收到 [backlog.md](./backlog.md)。
+- [x] 补一组 `pg_stat_statements` 或等价 live sample 长窗口样本，先确认当前最耗 CPU 或最拉长连接寿命的请求组。
+- [x] 在“请求入口组”与“公开热点读链路组”中二选一推进最小治理动作，不并行扩写成全站数据库重构。
+- [x] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](./backlog.md)。
+
 ## 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
 
 > 归档说明: 第三十六阶段「0 个新功能 + 5 个优化」已于 2026-05-11 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：`initializeDB()` 并发窗口与 Redis 连接超时治理、TTS 前端直连 / 直传 OSS backlog 清理、ESLint / 类型债窄切片、TTS task 与 `LocaleOption` 结构复用收敛，以及公开读接口注释治理。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
