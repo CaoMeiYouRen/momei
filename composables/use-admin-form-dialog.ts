@@ -10,7 +10,9 @@ export function useAdminFormDialog<TItem, TForm extends object>(options: UseAdmi
     const errors = reactive<Record<string, string>>({})
 
     const resetErrors = () => {
-        Object.keys(errors).forEach((key) => delete errors[key])
+        Object.keys(errors).forEach((key) => {
+            Reflect.deleteProperty(errors, key)
+        })
     }
 
     const resetForm = () => {

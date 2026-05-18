@@ -50,267 +50,267 @@ function withApplyDefault(
     return value
 }
 
-export const typeormAdapter =
-    (dataSource: DataSource) => (options: BetterAuthOptions): DBAdapter => {
-        const schema = getAuthTables(options)
-        const createTransform = () => {
-            function getField(model: string, field: string): string {
-                if (field === 'id') {
-                    return field
-                }
-                const modelSchema = schema[model]
-                if (!modelSchema) {
-                    throw new Error(`Model ${model} not found in schema`)
-                }
-                const f = modelSchema.fields[field]
-                return f?.fieldName || field
-            }
+function createTransformHelpers({
+    dataSource,
+    options,
+    schema,
+}: {
+    dataSource: DataSource
+    options: BetterAuthOptions
+    schema: ReturnType<typeof getAuthTables>
+}) {
+    function getField(model: string, field: string): string {
+        if (field === 'id') {
+            return field
+        }
+        const modelSchema = schema[model]
+        if (!modelSchema) {
+            throw new Error(`Model ${model} not found in schema`)
+        }
+        const f = modelSchema.fields[field]
+        return f?.fieldName || field
+    }
 
-            function convertOperatorToTypeORM(operator: string, value: unknown) {
-                switch (operator) {
-                    case 'eq':
-                        return value
-                    case 'ne':
-                        return Not(value)
-                    case 'gt':
-                        return MoreThan(value)
-                    case 'lt':
-                        return LessThan(value)
-                    case 'gte':
-                        return MoreThanOrEqual(value)
-                    case 'lte':
-                        return LessThanOrEqual(value)
-                    case 'in':
-                        return In(value as unknown[])
-                    case 'contains':
-                        return Like(`%${value}%`)
-                    case 'starts_with':
-                        return Like(`${value}%`)
-                    case 'ends_with':
-                        return Like(`%${value}`)
-                    default:
-                        return value
-                }
-            }
+    function convertOperatorToTypeORM(operator: string, value: unknown) {
+        switch (operator) {
+            case 'eq':
+                return value
+            case 'ne':
+                return Not(value)
+            case 'gt':
+                return MoreThan(value)
+            case 'lt':
+                return LessThan(value)
+            case 'gte':
+                return MoreThanOrEqual(value)
+            case 'lte':
+                return LessThanOrEqual(value)
+            case 'in':
+                return In(value as unknown[])
+            case 'contains':
+                return Like(`%${value}%`)
+            case 'starts_with':
+                return Like(`${value}%`)
+            case 'ends_with':
+                return Like(`%${value}`)
+            default:
+                return value
+        }
+    }
 
-            function convertWhereToFindOptions(
-                model: string,
-                where?: Where[],
-            ): FindOptionsWhere<ObjectLiteral> {
-                if (!where || where.length === 0) {
-                    return {}
-                }
+    function convertWhereToFindOptions(
+        model: string,
+        where?: Where[],
+    ): FindOptionsWhere<ObjectLiteral> {
+        if (!where || where.length === 0) {
+            return {}
+        }
 
-                const findOptions: FindOptionsWhere<ObjectLiteral> = {}
+        const findOptions: FindOptionsWhere<ObjectLiteral> = {}
 
-                for (const w of where) {
-                    const field = getField(model, w.field)
+        for (const w of where) {
+            const field = getField(model, w.field)
 
-                    if (!w.operator || w.operator === 'eq') {
-                        findOptions[field] = w.value
-                    } else {
-                        findOptions[field] = convertOperatorToTypeORM(w.operator, w.value)
-                    }
-                }
-
-                return findOptions
-            }
-
-            function getModelName(model: string): string {
-                const modelSchema = schema[model]
-                if (!modelSchema) {
-                    throw new Error(`Model ${model} not found in schema`)
-                }
-                const modelName = modelSchema.modelName
-                let entity = dataSource.entityMetadatas.find(
-                    (e) => e.name.toLowerCase() === modelName.toLowerCase() || e.tableName.toLowerCase() === modelName.toLowerCase(),
-                )
-                if (!entity && dataSource.options.entityPrefix) {
-                    const namingStrategy = dataSource.namingStrategy
-                    const tableName = namingStrategy.tableName(modelName, modelName)
-                    const prefixedName = (dataSource.options.entityPrefix + tableName).toLowerCase()
-                    entity = dataSource.entityMetadatas.find(
-                        (e) => e.tableName.toLowerCase() === prefixedName,
-                    )
-                }
-                return entity?.name || modelName
-            }
-
-            function getRelationName(model: string, joinedModel: string): string | undefined {
-                const repositoryName = getModelName(model)
-                const metadata = dataSource.getRepository(repositoryName).metadata
-                const joinedModelName = getModelName(joinedModel)
-
-                const relation = metadata.relations.find((r) => {
-                    // 1. 优先使用 inverseEntityMetadata 匹配
-                    if (r.inverseEntityMetadata) {
-                        if (r.inverseEntityMetadata.name.toLowerCase() === joinedModelName.toLowerCase()) {
-                            return true
-                        }
-                        if (r.inverseEntityMetadata.tableName.toLowerCase() === joinedModelName.toLowerCase()) {
-                            return true
-                        }
-                    }
-
-                    let targetName = ''
-                    if (typeof r.target === 'string') {
-                        targetName = r.target
-                    } else if (typeof r.target === 'function') {
-                        targetName = (r.target).name
-                    }
-
-                    // 2. 直接匹配名称 (忽略大小写)
-                    if (targetName.toLowerCase() === joinedModelName.toLowerCase()) {
-                        return true
-                    }
-
-                    // 3. 通过 EntityMetadata 匹配
-                    const targetEntity = dataSource.entityMetadatas.find((e) => e.name === targetName || e.target === r.target)
-                    if (targetEntity) {
-                        if (targetEntity.name.toLowerCase() === joinedModelName.toLowerCase()) {
-                            return true
-                        }
-                        if (targetEntity.tableName.toLowerCase() === joinedModelName.toLowerCase()) {
-                            return true
-                        }
-                    }
-                    return false
-                })
-
-                if (relation) {
-                    return relation.propertyName
-                }
-
-                // 尝试直接使用 joinedModel 作为属性名
-                const relationByProp = metadata.relations.find((r) => r.propertyName === joinedModel)
-                if (relationByProp) {
-                    return relationByProp.propertyName
-                }
-                return undefined
-            }
-
-            function convertJoinToRelations(
-                model: string,
-                join?: JoinOption,
-            ): FindOptionsRelations<ObjectLiteral> | undefined {
-                if (!join) {
-                    return undefined
-                }
-                const relations: FindOptionsRelations<ObjectLiteral> = {}
-
-                for (const [joinedModel, joinConfig] of Object.entries(join)) {
-                    if (joinConfig === false) {
-                        continue
-                    }
-                    const relationName = getRelationName(model, joinedModel)
-                    if (relationName) {
-                        relations[relationName] = true
-                    }
-                }
-                return relations
-            }
-
-            const useDatabaseGeneratedId = options?.advanced?.database?.generateId === false
-            return {
-                transformInput(
-                    data: Record<string, unknown>,
-                    model: string,
-                    action: 'create' | 'update',
-                    forceAllowId?: boolean,
-                ): Record<string, unknown> {
-                    let transformedData: Record<string, unknown>
-                    if (action === 'update') {
-                        transformedData = {}
-                    } else if (forceAllowId && data.id) {
-                        transformedData = { id: data.id }
-                    } else if (useDatabaseGeneratedId) {
-                        transformedData = {}
-                    } else {
-                        transformedData = {
-                            id: typeof options.advanced?.database?.generateId === 'function'
-                                ? options.advanced.database.generateId({ model })
-                                : data.id || generateId(),
-                        }
-                    }
-
-                    const modelSchema = schema[model]
-                    if (!modelSchema) {
-                        throw new Error(`Model ${model} not found in schema`)
-                    }
-
-                    const fields = modelSchema.fields
-                    for (const field in fields) {
-                        const value = data[field]
-                        const fieldConfig = fields[field]
-                        if (!fieldConfig) {
-                            continue
-                        }
-
-                        if (value === undefined && (!fieldConfig.defaultValue || action === 'update')) {
-                            continue
-                        }
-                        transformedData[fieldConfig.fieldName || field] = withApplyDefault(
-                            value,
-                            fieldConfig,
-                            action,
-                        )
-                    }
-                    return transformedData
-                },
-
-                transformOutput(
-                    data: ObjectLiteral | null,
-                    model: string,
-                    select: string[] = [],
-                ): Record<string, unknown> | null {
-                    if (!data) {
-                        return null
-                    }
-
-                    // console.log('transformOutput model:', model)
-                    // console.log('transformOutput data keys:', Object.keys(data))
-
-                    let transformedData: Record<string, unknown> = {}
-                    if (data.id || data._id) {
-                        if (select.length === 0 || select.includes('id')) {
-                            transformedData = { id: data.id || data._id }
-                        } else {
-                            transformedData = {}
-                        }
-                    } else {
-                        transformedData = {}
-                    }
-
-                    const modelSchema = schema[model]
-                    if (!modelSchema) {
-                        throw new Error(`Model ${model} not found in schema`)
-                    }
-
-                    const tableSchema = modelSchema.fields
-                    // console.log('transformOutput tableSchema keys:', Object.keys(tableSchema))
-
-                    for (const key in tableSchema) {
-                        if (select.length && !select.includes(key)) {
-                            continue
-                        }
-                        const field = tableSchema[key]
-                        if (field) {
-                            transformedData[key] = data[field.fieldName || key]
-                        }
-                    }
-
-                    return transformedData
-                },
-
-                convertWhereToFindOptions,
-                getModelName,
-                getField,
-                convertJoinToRelations,
-                getRelationName,
+            if (!w.operator || w.operator === 'eq') {
+                findOptions[field] = w.value
+            } else {
+                findOptions[field] = convertOperatorToTypeORM(w.operator, w.value)
             }
         }
 
-        const transformHelpers = createTransform()
+        return findOptions
+    }
+
+    function getModelName(model: string): string {
+        const modelSchema = schema[model]
+        if (!modelSchema) {
+            throw new Error(`Model ${model} not found in schema`)
+        }
+        const modelName = modelSchema.modelName
+        let entity = dataSource.entityMetadatas.find(
+            (e) => e.name.toLowerCase() === modelName.toLowerCase() || e.tableName.toLowerCase() === modelName.toLowerCase(),
+        )
+        if (!entity && dataSource.options.entityPrefix) {
+            const namingStrategy = dataSource.namingStrategy
+            const tableName = namingStrategy.tableName(modelName, modelName)
+            const prefixedName = (dataSource.options.entityPrefix + tableName).toLowerCase()
+            entity = dataSource.entityMetadatas.find(
+                (e) => e.tableName.toLowerCase() === prefixedName,
+            )
+        }
+        return entity?.name || modelName
+    }
+
+    function getRelationName(model: string, joinedModel: string): string | undefined {
+        const repositoryName = getModelName(model)
+        const metadata = dataSource.getRepository(repositoryName).metadata
+        const joinedModelName = getModelName(joinedModel)
+
+        const relation = metadata.relations.find((r) => {
+            if (r.inverseEntityMetadata) {
+                if (r.inverseEntityMetadata.name.toLowerCase() === joinedModelName.toLowerCase()) {
+                    return true
+                }
+                if (r.inverseEntityMetadata.tableName.toLowerCase() === joinedModelName.toLowerCase()) {
+                    return true
+                }
+            }
+
+            let targetName = ''
+            if (typeof r.target === 'string') {
+                targetName = r.target
+            } else if (typeof r.target === 'function') {
+                targetName = (r.target).name
+            }
+
+            if (targetName.toLowerCase() === joinedModelName.toLowerCase()) {
+                return true
+            }
+
+            const targetEntity = dataSource.entityMetadatas.find((e) => e.name === targetName || e.target === r.target)
+            if (targetEntity) {
+                if (targetEntity.name.toLowerCase() === joinedModelName.toLowerCase()) {
+                    return true
+                }
+                if (targetEntity.tableName.toLowerCase() === joinedModelName.toLowerCase()) {
+                    return true
+                }
+            }
+            return false
+        })
+
+        if (relation) {
+            return relation.propertyName
+        }
+
+        const relationByProp = metadata.relations.find((r) => r.propertyName === joinedModel)
+        if (relationByProp) {
+            return relationByProp.propertyName
+        }
+        return undefined
+    }
+
+    function convertJoinToRelations(
+        model: string,
+        join?: JoinOption,
+    ): FindOptionsRelations<ObjectLiteral> | undefined {
+        if (!join) {
+            return undefined
+        }
+        const relations: FindOptionsRelations<ObjectLiteral> = {}
+
+        for (const [joinedModel, joinConfig] of Object.entries(join)) {
+            if (joinConfig === false) {
+                continue
+            }
+            const relationName = getRelationName(model, joinedModel)
+            if (relationName) {
+                relations[relationName] = true
+            }
+        }
+        return relations
+    }
+
+    const useDatabaseGeneratedId = options?.advanced?.database?.generateId === false
+    return {
+        transformInput(
+            data: Record<string, unknown>,
+            model: string,
+            action: 'create' | 'update',
+            forceAllowId?: boolean,
+        ): Record<string, unknown> {
+            let transformedData: Record<string, unknown>
+            if (action === 'update') {
+                transformedData = {}
+            } else if (forceAllowId && data.id) {
+                transformedData = { id: data.id }
+            } else if (useDatabaseGeneratedId) {
+                transformedData = {}
+            } else {
+                transformedData = {
+                    id: typeof options.advanced?.database?.generateId === 'function'
+                        ? options.advanced.database.generateId({ model })
+                        : data.id || generateId(),
+                }
+            }
+
+            const modelSchema = schema[model]
+            if (!modelSchema) {
+                throw new Error(`Model ${model} not found in schema`)
+            }
+
+            const fields = modelSchema.fields
+            for (const field in fields) {
+                const value = data[field]
+                const fieldConfig = fields[field]
+                if (!fieldConfig) {
+                    continue
+                }
+
+                if (value === undefined && (!fieldConfig.defaultValue || action === 'update')) {
+                    continue
+                }
+                transformedData[fieldConfig.fieldName || field] = withApplyDefault(
+                    value,
+                    fieldConfig,
+                    action,
+                )
+            }
+            return transformedData
+        },
+
+        transformOutput(
+            data: ObjectLiteral | null,
+            model: string,
+            select: string[] = [],
+        ): Record<string, unknown> | null {
+            if (!data) {
+                return null
+            }
+
+            let transformedData: Record<string, unknown> = {}
+            if (data.id || data._id) {
+                if (select.length === 0 || select.includes('id')) {
+                    transformedData = { id: data.id || data._id }
+                } else {
+                    transformedData = {}
+                }
+            } else {
+                transformedData = {}
+            }
+
+            const modelSchema = schema[model]
+            if (!modelSchema) {
+                throw new Error(`Model ${model} not found in schema`)
+            }
+
+            const tableSchema = modelSchema.fields
+            for (const key in tableSchema) {
+                if (select.length && !select.includes(key)) {
+                    continue
+                }
+                const field = tableSchema[key]
+                if (field) {
+                    transformedData[key] = data[field.fieldName || key]
+                }
+            }
+
+            return transformedData
+        },
+
+        convertWhereToFindOptions,
+        getModelName,
+        getField,
+        convertJoinToRelations,
+        getRelationName,
+    }
+}
+
+export const typeormAdapter =
+    (dataSource: DataSource) => (options: BetterAuthOptions): DBAdapter => {
+        const schema = getAuthTables(options)
+
+        const transformHelpers = createTransformHelpers({ dataSource, options, schema })
 
         const createAdapter = (manager: EntityManager): CompatibleDBTransactionAdapter => ({
             id: 'typeorm',

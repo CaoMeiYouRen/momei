@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mergeDistributionSourcePost } from './use-post-distribution-button'
+import { mergeDistributionSourcePost } from './use-post-distribution-button.helpers'
 import { buildDistributionMaterialBundle } from '@/utils/shared/distribution-template'
 import { buildMemosDistributionPreview } from '@/utils/shared/post-distribution-preview'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
