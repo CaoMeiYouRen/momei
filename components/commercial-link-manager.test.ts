@@ -303,4 +303,73 @@ describe('CommercialLinkManager', () => {
             url: 'https://github.com/new',
         })
     })
+
+    it('bridges section button clicks back to parent add/edit/remove handlers', async () => {
+        const wrapper = await mountSuspended(CommercialLinkManager, {
+            props: {
+                socialLinks: [
+                    {
+                        platform: 'github',
+                        url: 'https://github.com/original',
+                        locales: ['en-US'],
+                    },
+                ],
+                donationLinks: [
+                    {
+                        platform: 'paypal',
+                        url: 'https://paypal.me/original',
+                        locales: ['en-US'],
+                    },
+                ],
+            },
+            global: { stubs },
+        })
+
+        const vm = wrapper.vm as any
+
+        await wrapper.get('[data-testid="social-add"]').trigger('click')
+        expect(vm.socialDialogVisible).toBe(true)
+
+        vm.socialDialogVisible = false
+        await nextTick()
+
+        await wrapper.get('[data-testid="social-edit-0"]').trigger('click')
+        expect(vm.editingSocialIndex).toBe(0)
+        expect(vm.currentSocialLink).toMatchObject({
+            platform: 'github',
+            url: 'https://github.com/original',
+            locales: ['en-US'],
+        })
+
+        await wrapper.get('[data-testid="social-remove-0"]').trigger('click')
+        expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
+            message: 'delete confirm',
+            header: 'confirmation',
+        }))
+
+        const socialRemoveConfirm = mockConfirmRequire.mock.calls.at(-1)?.[0]
+        socialRemoveConfirm.accept()
+        await nextTick()
+        expect(vm.socialLinks).toHaveLength(0)
+
+        await wrapper.get('[data-testid="donation-add"]').trigger('click')
+        expect(vm.dialogVisible).toBe(true)
+
+        vm.dialogVisible = false
+        await nextTick()
+
+        await wrapper.get('[data-testid="donation-edit-0"]').trigger('click')
+        expect(vm.editingIndex).toBe(0)
+        expect(vm.currentLink).toMatchObject({
+            platform: 'paypal',
+            url: 'https://paypal.me/original',
+            locales: ['en-US'],
+        })
+
+        await wrapper.get('[data-testid="donation-remove-0"]').trigger('click')
+        const donationRemoveConfirm = mockConfirmRequire.mock.calls.at(-1)?.[0]
+        donationRemoveConfirm.accept()
+        await nextTick()
+        expect(vm.donationLinks).toHaveLength(0)
+    })
 })

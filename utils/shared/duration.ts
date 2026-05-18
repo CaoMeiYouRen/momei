@@ -7,9 +7,15 @@ interface NormalizeDurationOptions {
     max?: number
 }
 
-export function parseDurationSeconds(value: DurationInput): number | null {
+type NormalizedDurationInput =
+    | { kind: 'numeric', value: number }
+    | { kind: 'string', value: string }
+
+function normalizeDurationInput(value: DurationInput): NormalizedDurationInput | null {
     if (typeof value === 'number') {
-        return Number.isFinite(value) ? Math.floor(value) : null
+        return Number.isFinite(value)
+            ? { kind: 'numeric', value: Math.floor(value) }
+            : null
     }
 
     if (typeof value !== 'string') {
@@ -25,11 +31,43 @@ export function parseDurationSeconds(value: DurationInput): number | null {
     const numericValue = Number(normalized)
 
     if (Number.isFinite(numericValue)) {
-        return Math.floor(numericValue)
+        return { kind: 'numeric', value: Math.floor(numericValue) }
+    }
+
+    return { kind: 'string', value: normalized }
+}
+
+function normalizeDurationFallback(
+    parsedValue: number | null,
+    fallbackValue: number,
+    options: NormalizeDurationOptions = {},
+) {
+    let nextValue = Math.floor(parsedValue ?? fallbackValue)
+
+    if (options.min !== undefined) {
+        nextValue = Math.max(options.min, nextValue)
+    }
+
+    if (options.max !== undefined) {
+        nextValue = Math.min(options.max, nextValue)
+    }
+
+    return nextValue
+}
+
+export function parseDurationSeconds(value: DurationInput): number | null {
+    const normalizedInput = normalizeDurationInput(value)
+
+    if (normalizedInput === null) {
+        return null
+    }
+
+    if (normalizedInput.kind === 'numeric') {
+        return normalizedInput.value
     }
 
     try {
-        const parsedMilliseconds = ms(normalized as StringValue)
+        const parsedMilliseconds = ms(normalizedInput.value as StringValue)
 
         if (typeof parsedMilliseconds === 'number' && Number.isFinite(parsedMilliseconds)) {
             return Math.floor(parsedMilliseconds / 1000)
@@ -46,44 +84,21 @@ export function normalizeDurationSeconds(
     fallbackSeconds: number,
     options: NormalizeDurationOptions = {},
 ) {
-    const parsedValue = parseDurationSeconds(value)
-    let nextValue = parsedValue ?? fallbackSeconds
-
-    nextValue = Math.floor(nextValue)
-
-    if (options.min !== undefined) {
-        nextValue = Math.max(options.min, nextValue)
-    }
-
-    if (options.max !== undefined) {
-        nextValue = Math.min(options.max, nextValue)
-    }
-
-    return nextValue
+    return normalizeDurationFallback(parseDurationSeconds(value), fallbackSeconds, options)
 }
 
 export function parseDurationMinutes(value: DurationInput): number | null {
-    if (typeof value === 'number') {
-        return Number.isFinite(value) ? Math.floor(value) : null
-    }
+    const normalizedInput = normalizeDurationInput(value)
 
-    if (typeof value !== 'string') {
+    if (normalizedInput === null) {
         return null
     }
 
-    const normalized = value.trim()
-
-    if (!normalized) {
-        return null
+    if (normalizedInput.kind === 'numeric') {
+        return normalizedInput.value
     }
 
-    const numericValue = Number(normalized)
-
-    if (Number.isFinite(numericValue)) {
-        return Math.floor(numericValue)
-    }
-
-    const parsedSeconds = parseDurationSeconds(normalized)
+    const parsedSeconds = parseDurationSeconds(normalizedInput.value)
 
     if (parsedSeconds === null) {
         return null
@@ -97,20 +112,7 @@ export function normalizeDurationMinutes(
     fallbackMinutes: number,
     options: NormalizeDurationOptions = {},
 ) {
-    const parsedValue = parseDurationMinutes(value)
-    let nextValue = parsedValue ?? fallbackMinutes
-
-    nextValue = Math.floor(nextValue)
-
-    if (options.min !== undefined) {
-        nextValue = Math.max(options.min, nextValue)
-    }
-
-    if (options.max !== undefined) {
-        nextValue = Math.min(options.max, nextValue)
-    }
-
-    return nextValue
+    return normalizeDurationFallback(parseDurationMinutes(value), fallbackMinutes, options)
 }
 
 export function formatDurationSecondsForInput(value: number | null | undefined, fallback = '0s') {

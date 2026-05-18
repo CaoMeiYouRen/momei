@@ -36,10 +36,11 @@
 	- 验收: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势，并回答当前超预算为何更像公开热读问题。
 	- 验证: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
 
-- [ ] **结构复用第二轮（至少 3 处热点） (P1)**
-	- 验收: 至少完成 `3` 处热点收敛，其中必须包含 `components/commercial-link-manager.vue` 文件内自重复。
-	- 验收: `pnpm duplicate-code:check` 基线不反弹，并留下结构性重复候选清单。
-	- 验证: 受影响组件 / helper 定向测试、`pnpm duplicate-code:check` 与受影响文件类型检查。
+- [x] **结构复用第二轮（至少 3 处热点） (P1)**
+	- 结果: 已完成 `3` 处热点收敛：`components/commercial-link-manager.vue` 将社交 / 打赏卡片区下沉到共享组件 `components/commercial-link-section.vue`；`utils/shared/commercial-schema.ts` 已把 `SocialLinkSchema / DonationLinkSchema` 收敛到同一工厂函数；`utils/shared/duration.ts` 已把秒 / 分钟解析与 fallback + clamp 逻辑收敛到共享内部 helper。
+	- 基线: `pnpm duplicate-code:check` 已从 `55 clones / 1112 duplicated lines / 0.89%` 降到 `52 clones / 1035 duplicated lines / 0.83%`，且 `commercial-link-manager` 已脱离当前 `jscpd` 热点清单。
+	- 候选: 下一轮可优先关注 `packages/cli/src/cli-shared.ts` vs `packages/mcp-server/src/tools/automation.ts`、`server/api/admin/external-links.post.ts` vs `server/api/admin/external-links/[id].put.ts`、`middleware/admin.ts` vs `middleware/author.ts`，以及 `components/admin/dashboard/creator-metric-card.vue` vs `components/admin/dashboard/metric-card.vue`。
+	- 验证: `components/commercial-link-manager.test.ts`、`utils/shared/commercial-schema.test.ts`、`utils/shared/duration.test.ts`、`pnpm exec nuxt typecheck`、`pnpm duplicate-code:check`，以及浏览器侧验证 `http://127.0.0.1:3002/settings?tab=commercial` 上 `social-add -> social-save -> social-edit-0` 可回读新增 URL、`donation-add` 可打开打赏对话框（默认图片上传分支）。
 
 - [ ] **ESLint / 类型债下一轮窄切片 (P1)**
 	- 验收: 继续坚持“单规则、单文件或双文件”切片，优先在 AI provider 聚合层与高 ROI 测试桩历史断言之间二选一推进。
