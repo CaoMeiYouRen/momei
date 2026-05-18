@@ -538,35 +538,6 @@
     - **验收标准**: 本轮已补齐“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释；已同步清理失效、误导性或逐行复述代码的低价值注释；并记录已覆盖范围、仍未覆盖边界与注释漂移检查结论。
     - **验证与证据**: 受影响文件 Review Gate 自检、必要的定向测试 / typecheck，以及对应回归或审计记录。
 
-### 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening) (已审计归档)
-
-**时间表**: 2026-05-11 ~ 2026-05-18
-**目标**: 在第三十六阶段完成运行时稳态补漏与结构治理收口后，继续以“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先解决 Windows 本地 `nuxt dev` / `nuxt build` 的可感知阻塞，同时补一轮高风险测试有效性、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
-
-**审计结论**: 第三十七阶段五条主线已在当前仓库实现、回归记录、性能 / 长窗口事实源与规划文档中完成闭环，满足归档条件。Windows 本地 `nuxt dev` 已恢复首页与公开设置链路可用，`nuxt build` 长尾已完成首轮收敛；测试有效性、AI 服务层类型债、结构复用热点与 Postgres 长窗口复核也都已具备可追溯证据。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
-
-**ROI 评估**: Windows 本地 Dev / Build 性能治理 `2.00`；测试有效性切片 `1.80`；ESLint / 类型债治理 `1.50`；结构复用治理（至少 3 处热点）`1.70`；Postgres 长窗口复核切片 `1.45`。其中 Windows 性能与测试有效性为 P0 主线，其余三项为受控 P1 治理切片。
-
-1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**:
-    - **阶段结果**: installation state、连接级初始化、optional session、request log 与 permission 的 always-loaded 边界已完成收紧；新增 [server/services/installation-probe.ts](../design/governance/windows-dev-build-performance-governance.md) 对应的轻量探针事实源后，Windows 本地 `nuxt dev` 首响已由约 `502279ms` 收敛到约 `58549ms`，`nuxt build` 也已完成 `Server built -> Build complete` 长尾首轮止血。
-    - **验证与证据**: 见 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 以及 2026-05-16 的用户实测记录。
-
-2. **主线：测试有效性切片 (P0)**:
-    - **阶段结果**: 已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路补齐 3 组高风险断言，避免本轮退化为单纯补 coverage 数字。
-    - **验证与证据**: 定向回归矩阵为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果 `14` 通过、`0` 失败；详见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
-
-3. **主线：ESLint / 类型债治理 (P1)**:
-    - **阶段结果**: [server/services/ai/asr.ts](../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，AI 服务层日志字段与 provider model 多态断言已同步收紧。
-    - **验证与证据**: 定向 ESLint、对应单测与 `pnpm run typecheck` 已通过；残余候选继续收敛为测试桩历史 `as any` 与 provider 聚合层进一步去断言化。
-
-4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**:
-    - **阶段结果**: 后台订阅 / waitlist 列表页壳层、广告 campaigns / placements 实体列表与表单弹窗控制流，以及邮件服务内部发送管线已完成 3 处热点收敛；[components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 保留为下一轮候选。
-    - **验证与证据**: `pnpm duplicate-code:check`、[server/utils/email/service.test.ts](../../server/utils/email/service.test.ts) 与 `pnpm exec nuxt typecheck` 已通过，baseline 未反弹。
-
-5. **主线：Postgres 长窗口复核切片 (P1)**:
-    - **阶段结果**: 已通过 2026-05-12 与 2026-05-14 的 Neon 长窗口样本确认，当前不再存在“非生产自部署 Cron + 请求入口误触完整初始化”导致的长期 compute 占用阻塞；剩余热点已回收到 backlog 继续管理。
-    - **验证与证据**: 详见 [docs/reports/regression/current.md](../reports/regression/current.md) 中两轮长窗口复核记录，以及 [backlog.md](./backlog.md) 的后续候选收敛说明。
-
 ### 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
 
 **时间表**: 2026-05-09 ~ 2026-05-11
@@ -607,6 +578,75 @@
     - **非目标**: 不将注释治理扩写成全仓重写，也不继续上收候选组外的其他文件。
     - **阶段结果**: `posts/index.get.ts`、`posts/archive.get.ts`、`categories/index.get.ts` 与 `tags/index.get.ts` 已补入与当前实现匹配的高价值注释，规划描述与代码事实一致。
     - **验证与证据**: 对应实现均位于当前 server API 文件中，可直接与阶段归档块对照复核。
+
+### 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening) (已审计归档)
+
+**时间表**: 2026-05-11 ~ 2026-05-18
+**目标**: 在第三十六阶段完成运行时稳态补漏与结构治理收口后，继续以“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先解决 Windows 本地 `nuxt dev` / `nuxt build` 的可感知阻塞，同时补一轮高风险测试有效性、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
+
+**审计结论**: 第三十七阶段五条主线已在当前仓库实现、回归记录、性能 / 长窗口事实源与规划文档中完成闭环，满足归档条件。Windows 本地 `nuxt dev` 已恢复首页与公开设置链路可用，`nuxt build` 长尾已完成首轮收敛；测试有效性、AI 服务层类型债、结构复用热点与 Postgres 长窗口复核也都已具备可追溯证据。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
+
+**ROI 评估**: Windows 本地 Dev / Build 性能治理 `2.00`；测试有效性切片 `1.80`；ESLint / 类型债治理 `1.50`；结构复用治理（至少 3 处热点）`1.70`；Postgres 长窗口复核切片 `1.45`。其中 Windows 性能与测试有效性为 P0 主线，其余三项为受控 P1 治理切片。
+
+1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**:
+    - **阶段结果**: installation state、连接级初始化、optional session、request log 与 permission 的 always-loaded 边界已完成收紧；新增 [server/services/installation-probe.ts](../design/governance/windows-dev-build-performance-governance.md) 对应的轻量探针事实源后，Windows 本地 `nuxt dev` 首响已由约 `502279ms` 收敛到约 `58549ms`，`nuxt build` 也已完成 `Server built -> Build complete` 长尾首轮止血。
+    - **验证与证据**: 见 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 以及 2026-05-16 的用户实测记录。
+
+2. **主线：测试有效性切片 (P0)**:
+    - **阶段结果**: 已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路补齐 3 组高风险断言，避免本轮退化为单纯补 coverage 数字。
+    - **验证与证据**: 定向回归矩阵为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果 `14` 通过、`0` 失败；详见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
+
+3. **主线：ESLint / 类型债治理 (P1)**:
+    - **阶段结果**: [server/services/ai/asr.ts](../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，AI 服务层日志字段与 provider model 多态断言已同步收紧。
+    - **验证与证据**: 定向 ESLint、对应单测与 `pnpm run typecheck` 已通过；残余候选继续收敛为测试桩历史 `as any` 与 provider 聚合层进一步去断言化。
+
+4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**:
+    - **阶段结果**: 后台订阅 / waitlist 列表页壳层、广告 campaigns / placements 实体列表与表单弹窗控制流，以及邮件服务内部发送管线已完成 3 处热点收敛；[components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 保留为下一轮候选。
+    - **验证与证据**: `pnpm duplicate-code:check`、[server/utils/email/service.test.ts](../../server/utils/email/service.test.ts) 与 `pnpm exec nuxt typecheck` 已通过，baseline 未反弹。
+
+5. **主线：Postgres 长窗口复核切片 (P1)**:
+    - **阶段结果**: 已通过 2026-05-12 与 2026-05-14 的 Neon 长窗口样本确认，当前不再存在“非生产自部署 Cron + 请求入口误触完整初始化”导致的长期 compute 占用阻塞；剩余热点已回收到 backlog 继续管理。
+    - **验证与证据**: 详见 [docs/reports/regression/current.md](../reports/regression/current.md) 中两轮长窗口复核记录，以及 [backlog.md](./backlog.md) 的后续候选收敛说明。
+
+### 第三十八阶段：分发一致性修补与热点治理续推 (Distribution Consistency Patch-Up & Hotspot Governance Continuation)
+
+**时间表**: 2026-05-18 ~ 约 1 - 2 周
+**目标**: 在第三十七阶段完成 Windows 本地性能、测试有效性、结构复用、ESLint 窄切片与 Postgres 长窗口复核后，继续以“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先修补第三方分发标签尾注与预览一致性，并围绕测试有效性第二轮、Postgres 单路径收敛、结构复用第二轮与 AI provider / 测试桩类型债继续做窄切片治理。
+
+**准入结论**: 五条主线均来自 [backlog.md](./backlog.md) 的长期主线或短期候选，总数控制在 `5` 项内，符合当前阶段容量约束。当前阶段不引入新增功能，执行优先级为 `2 个 P0 + 3 个 P1`。
+
+**ROI 评估**: 第三方分发标签尾注与预览一致性修补 `1.60`；测试有效性第二轮切片 `1.85`；Postgres 公开热点读链路继续瘦身 `1.75`；结构复用第二轮（至少 3 处热点）`1.70`；ESLint / 类型债下一轮窄切片 `1.50`。其中测试有效性与 Postgres 热点读链路为 P0 主线，其余三项为受控 P1 治理切片。
+
+1. **主线：第三方分发标签尾注与预览一致性修补 (P1)**:
+    - **执行范围**: 只覆盖 `B 站` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
+    - **非目标**: 不扩写到 WechatSync、邮件、Hexo 仓库同步或其他分发器；不重做整套分发 UI。
+    - **验收标准**: `B 站` 预览、`B 站` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致；并明确“标签尾注中的标签项去除空格后再输出”的唯一规则。
+    - **验证与证据**: 至少补齐一组分发物料 helper / template 测试与一组实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
+
+2. **主线：测试有效性第二轮切片 (P0)**:
+    - **执行范围**: 继续沿已有测试基座推进第二轮高风险断言，优先补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
+    - **非目标**: 不回到低价值 coverage 铺量；不把 snapshot 或纯存在性断言当作主要成果。
+    - **验收标准**: 至少完成 `3` 组高风险失败 / 边界断言，其中至少 `1` 组覆盖用户可见错误映射，而不是只断言内部异常被抛出。
+    - **验证与证据**: 定向 Vitest、受影响文件类型检查，以及本轮新增入口的定向回归矩阵记录。
+
+3. **主线：Postgres 公开热点读链路继续瘦身 (P0)**:
+    - **执行范围**: 下一轮只选择“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计；优先围绕 `settings public`、`friend-links`、`posts home`、`search` 等已知公共热读路径继续做最小字段集、短 TTL、请求去重或装配裁剪中的一项或两项最小收敛。
+    - **非目标**: 不并行推进新的请求入口初始化治理；不扩写为全站数据库重构或全量 SQL 清洗工程。
+    - **验收标准**: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势；并明确回答“为什么当前超预算更像公开热读问题，而不是初始化误触问题”。
+    - **验证与证据**: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
+
+4. **主线：结构复用第二轮（至少 3 处热点） (P1)**:
+    - **执行范围**: 再次完成 `3` 处以上热点收敛，优先处理 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 文件内自重复；其余候选优先选择轻量 shared helper，而不是复杂业务抽象。
+    - **非目标**: 不把复杂页面状态机包装成新的通用框架；不重复统计第三十七阶段已收口的热点。
+    - **验收标准**: 至少 `3` 处热点完成收敛，其中必须包含 `commercial-link-manager` 文件内自重复；`pnpm duplicate-code:check` 基线不反弹。
+    - **验证与证据**: 受影响组件 / helper 定向测试、`pnpm duplicate-code:check` 与受影响文件类型检查。
+
+5. **主线：ESLint / 类型债下一轮窄切片 (P1)**:
+    - **执行范围**: 继续坚持“单规则、单文件或双文件”的窄切片，优先在 AI provider 聚合层与高 ROI 测试桩历史断言之间二选一推进。
+    - **非目标**: 不并行开启 `no-unsafe-*` 或全目录规则收紧；不把测试桩清理扩大成整仓 mock 体系重写。
+    - **验收标准**: 定向 ESLint、定向测试与类型检查通过；残余债务与下一轮候选有明确记录。
+    - **验证与证据**: 定向 ESLint、定向 Vitest、受影响文件类型检查与对应残余债务记录。
+
 
 ## 3. 相关文档
 

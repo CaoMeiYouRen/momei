@@ -32,7 +32,8 @@
     - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
 - **下一次可切片方向**:
-    - 若后续继续上收，优先围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路等高风险模块深挖，而不是回到低价值铺量测试。
+    - 若后续继续上收，优先进入“测试有效性第二轮切片”：补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径，避免高风险链路只剩服务端成功断言。
+    - 保持“已有测试基座 + 失败 / 边界优先”的节奏，不回到低价值 coverage 铺量。
 
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
@@ -52,7 +53,8 @@
     - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
     - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
 - **下一次可切片方向**:
-    - 若下一轮正式上收，优先继续按目录或模块组拆桶评估 `@typescript-eslint/no-non-null-assertion` 的 `composables` 子桶，或继续寻找 `@typescript-eslint/no-explicit-any` 在服务端工具层的下一个单文件 / 双文件高 ROI 切片，并继续要求命中清单、回滚边界与最小验证矩阵，而不是只写"继续收紧"。
+    - 若下一轮正式上收，继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在 AI provider 聚合层或高 ROI 测试桩历史断言中二选一推进，而不是回到全仓 `any` 清零。
+    - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵，不把规则收紧重新做成目录级工程。
 
 3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
 - **目标**:
@@ -75,9 +77,9 @@
     - 第三十五阶段（已正式扩充为结构复用治理，并上收零散类型与纯函数 / 工具函数首轮切片）。
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
 - **下一次可切片方向**:
-    - 剩余高优先级热点：`pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`（26 lines）、`pages/admin/ad/campaigns.vue` vs `placements.vue`（38 lines）；`server/api/ai/tts/task.post.ts` vs `external/ai/tts/task.post.ts` 已在第三十六阶段收口，不再计入活跃热点。
-    - 文件内自重复：`server/utils/email/service.ts`（27+27）、`components/commercial-link-manager.vue`（42+15）。
-    - 结构性重复候选：重复出现的 `isPlainRecord` / `isRecord` 类守卫、`LocaleOption` / `MaybeReactive` / 轻量 `ResponseData` 与 `StatusPayload` 壳层，以及"重复导入同一共享函数后再做轻包装"的简单纯函数 / 工具函数。
+    - 下一轮优先进入“结构复用第二轮”：至少继续处理 `3` 处热点，其中 `components/commercial-link-manager.vue` 文件内自重复为最高优先级。
+    - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹，不把复杂业务逻辑伪装成共享框架。
+    - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper，以及低耦合守卫函数。
 
 4. **存量代码注释治理与注释漂移收敛**
 - **目标**:
@@ -115,14 +117,15 @@
     - 2026-05-01 Neon live sample 显示，当前 Top SQL 中 `settings/public` 维持单次 batched `IN (...)` 读取（`5.8ms / 5.4ms`）、精选友链维持 `4.3ms / 4.1ms` 的 `DISTINCT + IN (...)` 跟进查询，`/api/search` 未继续停留在当前热点 SQL 顶部；剩余较重样本集中在 `AITask` stale scan 与首页 posts public list 查询对，转入后续候选。
     - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
     - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在"连接长期不释放"的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
+    - 2026-05-18 新增预算事实：免费额度在约 `17` 天内已消耗 `5GB` network transfer 与 `90 CU-hrs`，折算约 `301MB/天` 与 `5.29 CU-hrs/天`；相较约 `170MB/天` 的安全网络预算已明显超线，说明下一轮应优先复核公开热点读链路，而不是重新并行扩写初始化治理。
 - **最近一次上收阶段**:
     - 第三十二阶段（已完成当前公开热点读链路切片）。
     - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
     - 第三十七阶段（已正式上收长窗口样本复核切片，优先回答热点 SQL 与连接活跃窗口问题）。
 - **下一次可切片方向**:
-    - 候选组 A：继续审计剩余显式 `initializeDB()` 调用点与后台冷路径，避免 connection-only 场景误走完整维护链。
-    - 候选组 B：为 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略。
-    - 候选组 C：若后续又出现异常长活跃窗口，再补 `pg_stat_statements` 长窗口采样、热点 SQL 分组、结果集大小估算或连接活跃窗口对比，明确新的放大器是否已经转移。
+    - 下一轮只允许在“剩余显式 `initializeDB()` 调用点审计”和“公开热点读链路继续瘦身”中二选一；基于当前 network 超预算事实，默认优先候选组 B。
+    - 候选组 B：围绕 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略，并用 live sample 证明 calls / rows / 网络体量下降趋势。
+    - 只有在新增证据重新指向请求入口误触完整初始化时，才回退到候选组 A；否则不并行扩写成新的全站数据库治理。
 
 6. **国际化运行时加载与文案复用治理**
 - **目标**:
@@ -324,16 +327,6 @@
     - 已在 `docs/design/governance/` 或等价入口沉淀设计文档，并说明与现有 Markdown 渲染、Wechatsync 分发模板和文章详情页渲染之间的复用边界。
 
 12. **第三方分发标签尾注与预览一致性修补（B 站 / Memos）**
-- **留档范围**:
-    - 修补 B 站分发链路中“标签尾注”在预览与实际同步正文里同时缺失的问题，避免站内预览通过但真实导出结果仍不完整。
-    - 修补 Memos 预览未显示标签尾注的问题，并统一标签空格归一化口径，避免预览与实际投递对同一组标签生成不同文案。
-- **当前结论**:
-    - 该事项属于已归档第三方分发能力的修补型候选，不阻塞第三十七阶段归档；当前先保留在 backlog，待下一阶段与其他分发链路修补需求统一评估是否正式上收。
-    - 根因初判更接近“预览构造层与实际导出层未共用同一条标签尾注拼装 / 标签标准化入口”，后续若进入实现，应优先收敛共享 helper，而不是分别对 B 站与 Memos 做独立热修。
-- **后续上收条件**:
-    - 首版范围冻结为 B 站与 Memos 两个渠道，不顺手扩写到 WechatSync、邮件或其他分发器。
-    - 验收至少覆盖 B 站预览、B 站实际同步 payload 与 Memos 预览三处输出一致性，并明确“标签尾注中的标签项去除空格后再输出”的规则。
-    - 最小验证矩阵至少包含预览构造 helper 与实际分发 / 导出测试，证明标签标准化与尾注拼装逻辑已被同源复用。
 
 ## 相关文档
 
