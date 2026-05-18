@@ -34,7 +34,7 @@
                         <span class="post-distribution-preview-dialog__meta-label">{{ $t('pages.admin.posts.distribution.preview.tags') }}</span>
                         <p>{{ renderPreviewValue(expandedPreview.tagLine) }}</p>
                     </div>
-                    <div class="post-distribution-preview-dialog__meta-card">
+                    <div class="post-distribution-preview-dialog__meta-card post-distribution-preview-dialog__meta-card--cover">
                         <span class="post-distribution-preview-dialog__meta-label">{{ $t('pages.admin.posts.distribution.preview.cover') }}</span>
                         <div v-if="expandedPreview.coverUrl" class="post-distribution-preview-dialog__cover-media">
                             <img
@@ -54,6 +54,18 @@
                         <p v-else>
                             {{ renderPreviewValue('') }}
                         </p>
+                    </div>
+                    <div v-if="expandedPreview.copyrightMarkdown" class="post-distribution-preview-dialog__meta-card post-distribution-preview-dialog__meta-card--tailnote">
+                        <div class="post-distribution-preview-dialog__panel-header">
+                            <span class="post-distribution-preview-dialog__meta-label">{{ $t('pages.admin.posts.distribution.preview.copyright') }}</span>
+                            <span>{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
+                        </div>
+                        <!-- eslint-disable vue/no-v-html -->
+                        <div
+                            class="post-distribution-dialog__preview-rich post-distribution-preview-dialog__tailnote-surface"
+                            v-html="renderPreviewMarkdownHtml(expandedPreview.copyrightMarkdown)"
+                        />
+                        <!-- eslint-enable vue/no-v-html -->
                     </div>
                 </div>
                 <div class="post-distribution-preview-dialog__panel-grid">
@@ -82,18 +94,6 @@
                             <span>{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
                         </div>
                         <pre class="post-distribution-dialog__preview-code post-distribution-preview-dialog__code-surface">{{ renderPreviewValue(expandedPreview.bodyMarkdown) }}</pre>
-                    </section>
-                    <section v-if="expandedPreview.copyrightMarkdown" class="post-distribution-preview-dialog__panel">
-                        <div class="post-distribution-preview-dialog__panel-header">
-                            <h4>{{ $t('pages.admin.posts.distribution.preview.copyright') }}</h4>
-                            <span>{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
-                        </div>
-                        <!-- eslint-disable vue/no-v-html -->
-                        <div
-                            class="post-distribution-dialog__preview-rich post-distribution-preview-dialog__preview-surface"
-                            v-html="renderPreviewMarkdownHtml(expandedPreview.copyrightMarkdown)"
-                        />
-                        <!-- eslint-enable vue/no-v-html -->
                     </section>
                 </div>
             </div>

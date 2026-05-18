@@ -378,6 +378,11 @@
             background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-primary-100) 8%);
         }
 
+        &--cover,
+        &--tailnote {
+            grid-column: span 2;
+        }
+
         h3 {
             font-size: 1.125rem;
         }
@@ -413,6 +418,15 @@
         border-radius: var(--p-border-radius-md);
         border: 1px solid var(--p-surface-border);
         background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-surface-100) 8%);
+    }
+
+    &__tailnote-surface {
+        min-height: 100%;
+        padding: 1rem;
+        border: 1px solid var(--p-surface-border);
+        border-radius: var(--p-border-radius-md);
+        background: color-mix(in srgb, var(--p-content-background) 94%, var(--p-primary-50) 6%);
+        overflow: auto;
     }
 
     &__panel-grid {

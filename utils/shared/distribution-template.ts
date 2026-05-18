@@ -6,11 +6,16 @@ import { buildAbsoluteUrl } from './seo'
 import {
     normalizeDistributionTags,
     renderDistributionTags,
+    type DistributionTagSource,
     type DistributionTagRenderMode,
     type NormalizedDistributionTag,
     type WechatSyncContentProfile,
 } from './distribution-tags'
 import type { Post } from '@/types/post'
+
+type DistributionMaterialSourcePost = Pick<Post, 'id' | 'title' | 'content' | 'summary' | 'coverImage' | 'author' | 'copyright' | 'language' | 'slug'> & {
+    tags?: DistributionTagSource[] | null
+}
 
 export interface WechatSyncCompatibilityCheck {
     adjustments: string[]
@@ -281,7 +286,7 @@ function resolvePostUrl(post: Pick<Post, 'language' | 'slug' | 'id'>, siteUrl: s
 }
 
 export function buildDistributionMaterialBundle(
-    post: Pick<Post, 'id' | 'title' | 'content' | 'summary' | 'coverImage' | 'author' | 'copyright' | 'language' | 'slug' | 'tags'>,
+    post: DistributionMaterialSourcePost,
     options: DistributionMaterialBuildOptions,
 ): DistributionMaterialBundle {
     const summaryPlain = collapseWhitespace(post.summary?.trim() || stripMarkdownToPlainText(post.content || ''))

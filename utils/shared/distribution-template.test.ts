@@ -80,6 +80,29 @@ describe('distribution-template', () => {
         expect(rawWechatPost.content).toContain('版权声明')
     })
 
+    it('removes spaces from rendered tag tailnotes for memos and bilibili-compatible payloads', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            tags: [
+                { id: '1', slug: 'nuxt-3', name: 'Nuxt 3', translationId: 'cluster-nuxt-3' },
+                { id: '2', slug: 'vue', name: 'Vue', translationId: 'cluster-vue' },
+            ],
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const bilibiliPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'leading',
+            contentProfile: 'default',
+        })
+
+        expect(materialBundle.channels.memos.content).toContain('#Nuxt3 #Vue')
+        expect(materialBundle.channels.memos.content).not.toContain('#Nuxt 3')
+        expect(bilibiliPost.markdown).toContain('#Nuxt3 #Vue')
+        expect(bilibiliPost.markdown).not.toContain('#Nuxt 3')
+    })
+
     it('downgrades weibo content into a compatible payload', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,

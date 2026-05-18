@@ -60,7 +60,7 @@ describe('post-distribution-preview', () => {
         expect(groups).toHaveLength(3)
         expect(bilibiliPreview).toBeTruthy()
         expect(bilibiliPreview?.accountsLabel).toBe('B 站专栏')
-        expect(bilibiliPreview?.tagLine).toBe('')
+        expect(bilibiliPreview?.tagLine).toBe('#Nuxt #Vue')
         expect(bilibiliPreview?.bodyMarkdown).toBe(post.content)
         expect(bilibiliPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
         expect(bilibiliPreview?.finalMarkdown).toContain(post.content)
@@ -86,5 +86,26 @@ describe('post-distribution-preview', () => {
         expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['heading-anchor']),
         )
+    })
+
+    it('keeps memos preview and bilibili preview aligned when tag names contain spaces', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            tags: [
+                { id: '1', slug: 'nuxt-3', name: 'Nuxt 3' },
+                { id: '2', slug: 'vue', name: 'Vue' },
+            ],
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+        const memosPreview = buildMemosDistributionPreview(materialBundle)
+        const [bilibiliPreview] = buildWechatSyncDistributionPreviewGroups(materialBundle, normalizeWechatSyncAccounts([
+            { type: 'bilibili', title: 'B 站专栏' },
+        ]))
+
+        expect(memosPreview.tagLine).toBe('#Nuxt3 #Vue')
+        expect(bilibiliPreview?.tagLine).toBe(memosPreview.tagLine)
+        expect(bilibiliPreview?.finalMarkdown).toContain(memosPreview.tagLine)
     })
 })

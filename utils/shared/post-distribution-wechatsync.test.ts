@@ -3,6 +3,7 @@ import {
     mapCompletionAccountsToTaskAccounts,
     mergeWechatSyncCompletionAccounts,
     mergeWechatSyncTaskAccounts,
+    resolveWechatSyncDispatchPayloadProfile,
     resolveWechatSyncCompletionAccountKey,
     resolveWechatSyncTaskAccountKey,
     shouldFinalizeWechatSyncStatus,
@@ -23,6 +24,27 @@ describe('post distribution wechatsync helpers', () => {
                 { id: 'weibo', type: 'weibo', title: '微博 B', status: 'failed' },
             ],
         })).toBe(true)
+    })
+
+    it('resolves payload profile from the selected account groups', () => {
+        expect(resolveWechatSyncDispatchPayloadProfile([
+            { id: 'bilibili', type: 'bilibili_article', title: 'B 站专栏', checked: true },
+        ])).toEqual({
+            strategy: 'single_add_task_group_profile',
+            renderMode: 'leading',
+            contentProfile: 'default',
+            usesRawPost: false,
+        })
+
+        expect(resolveWechatSyncDispatchPayloadProfile([
+            { id: 'bilibili', type: 'bilibili_article', title: 'B 站专栏', checked: true },
+            { id: 'weibo', type: 'weibo', title: '微博专栏', checked: true },
+        ])).toEqual({
+            strategy: 'single_add_task_default_raw',
+            renderMode: 'none',
+            contentProfile: 'default',
+            usesRawPost: true,
+        })
     })
 
     it('resolves stable task and completion account keys with trim and fallback order', () => {

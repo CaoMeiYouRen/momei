@@ -130,7 +130,7 @@ describe('post-distribution service', () => {
     it('should create a memos delivery record and persist remote state', async () => {
         const post = await createPublishedPost()
         const tag = new Tag()
-        tag.name = 'Nuxt'
+        tag.name = 'Nuxt 3'
         tag.slug = `nuxt-${Math.random().toString(36).slice(2, 8)}`
         tag.language = 'zh-CN'
         tag.translationId = 'cluster-nuxt'
@@ -152,7 +152,7 @@ describe('post-distribution service', () => {
             content: expect.stringContaining('![](https://static.example.com/cover.png)'),
         }))
         expect(createMemo).toHaveBeenCalledWith(expect.objectContaining({
-            content: expect.stringContaining('#Nuxt'),
+            content: expect.stringContaining('#Nuxt3'),
         }))
         expect(createMemo).toHaveBeenCalledWith(expect.objectContaining({
             content: expect.stringContaining('版权声明'),

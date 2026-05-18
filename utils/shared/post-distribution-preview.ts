@@ -4,6 +4,7 @@ import {
     type DistributionMaterialBundle,
 } from './distribution-template'
 import { groupWechatSyncAccountsByTagRenderMode, renderDistributionTags } from './distribution-tags'
+import { resolveWechatSyncDispatchPayloadProfile } from './post-distribution-wechatsync'
 import { resolveWechatSyncAccountKey, type WechatSyncAccount } from './wechatsync'
 
 export interface MemosDistributionPreview {
@@ -52,10 +53,16 @@ export function buildWechatSyncDistributionPreviewGroups(
     materialBundle: DistributionMaterialBundle,
     accounts: readonly WechatSyncAccount[],
 ) {
+    const payloadProfile = resolveWechatSyncDispatchPayloadProfile(accounts)
+    const usesProfiledRuntimePreview = payloadProfile.contentProfile === 'default' && !payloadProfile.usesRawPost
+
     return groupWechatSyncAccountsByTagRenderMode(accounts).map<WechatSyncDistributionPreviewGroup>((group) => {
+        const tagLine = group.contentProfile === 'default'
+            ? renderDistributionTags(materialBundle.canonical.tags, group.renderMode)
+            : ''
         const runtimePayload = buildWechatSyncPostFromMaterialBundle(materialBundle, {
-            renderMode: 'none',
-            contentProfile: 'default',
+            renderMode: usesProfiledRuntimePreview ? payloadProfile.renderMode : 'none',
+            contentProfile: usesProfiledRuntimePreview ? payloadProfile.contentProfile : 'default',
         })
 
         return {
@@ -67,7 +74,7 @@ export function buildWechatSyncDistributionPreviewGroups(
             summary: runtimePayload.desc,
             coverUrl: runtimePayload.thumb || null,
             bodyMarkdown: materialBundle.canonical.bodyMarkdown,
-            tagLine: '',
+            tagLine,
             copyrightMarkdown: materialBundle.canonical.copyrightMarkdown,
             finalMarkdown: runtimePayload.markdown,
             compatibility: inspectWechatSyncMaterialCompatibility(materialBundle, group.contentProfile),

@@ -9,6 +9,7 @@ import {
 import type { WechatSyncWindow } from './post-distribution-dialog'
 import type { Post } from '@/types/post'
 import type { DistributionMaterialBundle } from '@/utils/shared/distribution-template'
+import { groupWechatSyncAccountsByTagRenderMode } from '@/utils/shared/distribution-tags'
 import {
     MAX_WECHATSYNC_OBSERVATION_EVENTS,
     type WechatSyncAccount,
@@ -24,6 +25,7 @@ const {
     mapWechatSyncTaskAccountsForCompletionMock,
     mergeWechatSyncCompletionAccountsMock,
     normalizeWechatSyncAccountsMock,
+    resolveWechatSyncDispatchPayloadProfileMock,
     mergeWechatSyncTaskAccountsMock,
     shouldFinalizeWechatSyncStatusMock,
 } = vi.hoisted(() => ({
@@ -33,6 +35,7 @@ const {
     mapWechatSyncTaskAccountsForCompletionMock: vi.fn(),
     mergeWechatSyncCompletionAccountsMock: vi.fn(),
     normalizeWechatSyncAccountsMock: vi.fn(),
+    resolveWechatSyncDispatchPayloadProfileMock: vi.fn(),
     mergeWechatSyncTaskAccountsMock: vi.fn(),
     shouldFinalizeWechatSyncStatusMock: vi.fn(),
 }))
@@ -55,6 +58,7 @@ vi.mock('@/utils/shared/wechatsync', () => ({
 vi.mock('@/utils/shared/post-distribution-wechatsync', () => ({
     mergeWechatSyncCompletionAccounts: mergeWechatSyncCompletionAccountsMock,
     mergeWechatSyncTaskAccounts: mergeWechatSyncTaskAccountsMock,
+    resolveWechatSyncDispatchPayloadProfile: resolveWechatSyncDispatchPayloadProfileMock,
     shouldFinalizeWechatSyncStatus: shouldFinalizeWechatSyncStatusMock,
 }))
 
@@ -93,6 +97,28 @@ describe('post-distribution-wechatsync', () => {
             }
 
             return Array.from(mergedAccounts.values())
+        })
+        resolveWechatSyncDispatchPayloadProfileMock.mockImplementation((accounts: readonly WechatSyncAccount[]) => {
+            const groupedAccounts = groupWechatSyncAccountsByTagRenderMode(accounts)
+            const group = groupedAccounts[0]
+
+            if (groupedAccounts.length === 1 && group) {
+                const usesRawPost = group.renderMode === 'none' && group.contentProfile === 'default'
+
+                return {
+                    strategy: usesRawPost ? 'single_add_task_default_raw' : 'single_add_task_group_profile',
+                    renderMode: group.renderMode,
+                    contentProfile: group.contentProfile,
+                    usesRawPost,
+                }
+            }
+
+            return {
+                strategy: 'single_add_task_default_raw',
+                renderMode: 'none',
+                contentProfile: 'default',
+                usesRawPost: true,
+            }
         })
     })
 
@@ -277,6 +303,70 @@ describe('post-distribution-wechatsync', () => {
                 contentProfile: 'weibo',
                 usesRawPost: false,
                 accountKeys: ['weibo'],
+            },
+        })
+    })
+
+    it('uses the leading/default payload for a single bilibili-compatible account group', async () => {
+        const materialBundle = { bundle: true } as unknown as DistributionMaterialBundle
+        const accounts = [{ id: 'bilibili', type: 'bilibili_article', title: 'B 站专栏', checked: true }]
+        const taskAccounts: WechatSyncTaskAccount[] = [{ id: 'bilibili', title: 'B 站专栏', status: 'done' }]
+        const completionAccounts = [{ id: 'bilibili', title: 'B 站专栏', status: 'done' }]
+        const compatiblePost = {
+            title: 'bilibili-post',
+            markdown: '正文\n\n#Nuxt3 #Vue',
+            content: '<p>正文</p><p>#Nuxt3 #Vue</p>',
+            desc: 'summary',
+            thumb: '',
+        }
+
+        ;(materialBundle).channels = {
+            memos: { content: '' },
+            wechatsync: {
+                basePost: {
+                    title: 'raw-post',
+                    markdown: '# raw',
+                    content: '<p>raw</p>',
+                    desc: 'summary',
+                    thumb: '',
+                },
+                tagPlacement: 'before-copyright',
+            },
+        }
+
+        buildWechatSyncDispatchPostFromMaterialBundleMock.mockReturnValueOnce(compatiblePost)
+        shouldFinalizeWechatSyncStatusMock.mockReturnValue(true)
+        mapWechatSyncTaskAccountsForCompletionMock.mockReturnValue(completionAccounts)
+
+        const result = await runWechatSyncTask({
+            syncer: createSyncer({
+                addTask(payload, onStatus) {
+                    expect(payload).toEqual({
+                        post: compatiblePost,
+                        accounts,
+                    })
+                    onStatus({ accounts: taskAccounts })
+                },
+            }),
+            materialBundle,
+            accounts,
+            onTaskAccounts: vi.fn(),
+            onReady: vi.fn(),
+            resolveFailureMessage: () => 'unused',
+        })
+
+        expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
+            renderMode: 'leading',
+            contentProfile: 'default',
+        })
+        expect(result.observation).toMatchObject({
+            strategy: 'single_add_task_group_profile',
+            resolution: 'terminal_status',
+            payload: {
+                renderMode: 'leading',
+                contentProfile: 'default',
+                usesRawPost: false,
+                accountKeys: ['bilibili'],
             },
         })
     })

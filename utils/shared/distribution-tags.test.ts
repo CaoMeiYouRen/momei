@@ -11,8 +11,8 @@ import {
 
 describe('distribution-tags', () => {
     it('sanitizes hashtag text and removes surrounding hash markers', () => {
-        expect(sanitizeDistributionTagName(' #Nuxt 3# ')).toBe('Nuxt-3')
-        expect(sanitizeDistributionTagName('（测试）/Tag')).toBe('测试-Tag')
+        expect(sanitizeDistributionTagName(' #Nuxt 3# ')).toBe('Nuxt3')
+        expect(sanitizeDistributionTagName('（测试）/Tag')).toBe('测试Tag')
     })
 
     it('deduplicates tags by translation cluster and enforces limits', () => {
