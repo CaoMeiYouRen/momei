@@ -55,6 +55,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('security:audit-deps', 'security:audit-deps', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:source-of-truth', 'docs:check:source-of-truth', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
+            createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
             createPnpmStep('i18n:audit:missing', 'i18n:audit:missing', { timeoutBudget: '10m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
         ],
@@ -73,6 +74,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
         steps: [
             createPnpmStep('release:check:full', 'release:check:full', { timeoutBudget: '60m' }),
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
+            createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
             createPnpmStep('test:perf:budget:strict', 'test:perf:budget:strict', { timeoutBudget: '10m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
         ],
@@ -92,6 +94,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('test:coverage', 'test:coverage', { timeoutBudget: '30m' }),
             createPnpmStep('release:check:full', 'release:check:full', { timeoutBudget: '60m' }),
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
+            createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
             createPnpmStep('test:perf:budget:strict', 'test:perf:budget:strict', { timeoutBudget: '10m' }),
             createPnpmStep('duplicate-code:check:strict', 'duplicate-code:check:strict', { timeoutBudget: '10m' }),
             createPnpmStep('review-gate:generate:check', 'review-gate:generate:check', {

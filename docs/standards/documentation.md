@@ -185,7 +185,7 @@
 - `todo-archive.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先进行阶段区间分片再继续归档。
 - `docs/reports/regression/current.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
 
-上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build` 与发布前检查，不能再依赖人工目测。
+上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build`、发版前回归、阶段归档前回归与文档类 Review Gate 检查，不能再依赖人工目测。
 
 ### 5.2 根目录 README 多语言镜像
 

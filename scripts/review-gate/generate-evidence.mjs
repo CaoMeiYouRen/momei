@@ -139,17 +139,21 @@ function resolveValidationLevel(types) {
     const commands = new Set()
     const notes = []
 
+    if (types.has('docs')) {
+        commands.add('pnpm docs:check:line-count')
+    }
+
     if (types.has('docs') && !types.has('ui') && !types.has('api') && !types.has('logic') && !types.has('config') && !types.has('script')) {
         level = 'V1'
         commands.add('pnpm lint:md')
-        notes.push('文档/README/翻译类: V0 + V1 + RG')
+        notes.push('文档/README/翻译类: V0 + V1 + RG，并补文档长度守线检查')
     }
 
     if (types.has('governance')) {
         level = 'V1'
         commands.add('pnpm lint:md')
         commands.add('pnpm ai:check')
-        notes.push('governance/skill/agent 类: V0 + V1 + RG，需额外 pnpm ai:check')
+        notes.push('governance/skill/agent 类: V0 + V1 + RG；若同时命中文档改动，需额外通过文档长度守线与 pnpm ai:check')
     }
 
     if (types.has('style')) {

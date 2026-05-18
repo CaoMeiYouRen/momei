@@ -156,9 +156,9 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 | 节奏 | 正式入口 | 最小固定组合 | 责任边界 | blocker 规则 |
 | :--- | :--- | :--- | :--- | :--- |
-| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `i18n:audit:missing` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
-| 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
-| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `700` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
+| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
+| 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
+| 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `700` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
 
 补充约束：
 
