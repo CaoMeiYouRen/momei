@@ -71,6 +71,10 @@
 | `pnpm i18n:audit:unused` | 单独审计未引用词条候选，默认作为治理线索而非 blocker |
 | `pnpm governance:check:scripts` | 运行脚本目录治理体检，输出稳定入口、临时残留与文档漂移 baseline |
 | `pnpm governance:audit:simple-duplicates` | 运行简单重复候选盘点，输出结构复用的同名 / 近似命名 baseline |
+| `pnpm governance:audit:eslint-debt` | 运行 ESLint / 类型债 inventory，输出 rule / 目录 / 显式豁免 baseline |
+| `pnpm governance:audit:comment-drift` | 运行注释治理 inventory，输出高复杂度缺注释、TODO、复述与漂移候选 |
+| `pnpm docs:check:line-count:candidate` | 运行文档行数扩面 candidate profile，只输出 warning baseline |
+| `pnpm docs:check:source-of-truth:candidate` | 运行翻译 freshness 收紧 candidate profile，只输出 warning baseline |
 | `pnpm regression:weekly` | 执行周级周期性回归，固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查、重复代码基线与脚本治理体检 |
 | `pnpm regression:pre-release` | 执行发版前周期性回归，固定覆盖完整发布前校验（内含缺词 parity 审计）、文档 i18n 检查与性能预算 |
 | `pnpm regression:phase-close` | 执行阶段收口前周期性回归，并把回归日志窗口超限与 release 内部 i18n 缺词一起升级为 blocker |

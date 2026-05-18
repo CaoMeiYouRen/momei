@@ -212,15 +212,15 @@
 - **状态**:
     - 进行中。
 - **当前状态**:
-    - 仓库已经具备 `docs`、`i18n`、`perf`、`security`、`review-gate`、`regression` 等长期脚本资产，也已经有三条固定回归入口，但仍缺少“脚本本身是否健康、是否有稳定入口、是否覆盖长期治理量化口径”的统一审计面。
-    - 当前多条长期主线仍主要依赖单次定向命令或阶段叙述来说明进度，例如 ESLint / 类型债、结构复用、注释治理与文档治理都还缺少可跨轮次比较的 inventory 脚本输出。
-    - 固定回归入口尚未覆盖脚本资产治理；当前无法自动回答“是否存在无入口长期脚本、临时脚本残留、路径漂移或新的治理主线还没沉淀脚本事实源”。
+    - `pnpm governance:check:scripts` 已作为 5.1 脚本资产自检稳定运行，并进入 `pnpm regression:weekly` 的 warning 基线。
+    - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供独立 JSON / Markdown baseline。
+    - 文档治理已补充 `pnpm docs:check:line-count:candidate` 与 `pnpm docs:check:source-of-truth:candidate` 两条候选入口，用于评估高频页扩面与翻译 freshness 收紧，但默认 blocker 行为仍保持不变。
 - **最近一次上收阶段**:
-    - 尚无（2026-05-19 新增长期主线，待首次切片正式上收）。
+    - 2026-05-19：已完成 5.1 - 5.5 的首轮 baseline 化，上收为独立脚本入口与候选文档门禁入口。
 - **下一次可切片方向**:
-    - 先补一条 `script-governance` 审计脚本，至少检查长期脚本是否有 `package.json` / workflow / 文档入口，是否存在孤儿脚本、临时脚本残留、路径失效或输出契约漂移。
-    - 再从 `simple duplicate inventory`、`eslint debt inventory`、`comment inventory` 三类量化脚本中优先实现 `1 - 2` 条高 ROI 入口，作为其他长期主线的最小事实源基座。
-    - 脚本一旦稳定，优先接入 `pnpm regression:weekly`；发版前与阶段收口入口至少保留 warning -> blocker 的升级口径，而不是长期停留在人工补跑。
+    - 先清理 `audit-comment-drift` 与两条 docs candidate 的误报 / warning 面，收敛人工判定口径与目录分桶视图。
+    - 再评估 `governance:audit:eslint-debt`、`governance:audit:comment-drift` 与 docs candidate 是否具备进入 `pnpm regression:weekly` warning 面的条件。
+    - 若某条脚本对发版或阶段收口形成放行影响，再沿 `warning -> blocker` 口径升级到 `pre-release` / `phase-close`，而不是长期停留在独立 baseline。
 
 ## 周期性回归验证层
 
@@ -236,7 +236,7 @@
 | 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
 | 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
 
-- 当前固定入口已覆盖 `script-governance` 的 5.1 脚本自检：`pnpm governance:check:scripts` 已进入 weekly warning 基线；5.2 `pnpm governance:audit:simple-duplicates` 仍保持独立 baseline，待人工判定口径稳定后再评估是否进入更高频回归。
+- 当前固定入口已覆盖 `script-governance` 的 5.1 脚本自检：`pnpm governance:check:scripts` 已进入 weekly warning 基线；5.2 `pnpm governance:audit:simple-duplicates`、5.3 `pnpm governance:audit:eslint-debt`、5.4 `pnpm governance:audit:comment-drift` 与 5.5 docs candidate 入口仍保持独立 baseline，待误报与 warning 面收敛后再评估是否进入更高频回归。
 
 ### 覆盖矩阵（每条长期主线的回归覆盖状态）
 
@@ -250,7 +250,7 @@
 | #6 国际化治理 | ✅ `i18n:audit:missing` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
-| #9 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` 暂保持独立 baseline) |
+| #9 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` / `audit:eslint-debt` / `audit:comment-drift` / docs candidate 暂保持独立 baseline) |
 
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 

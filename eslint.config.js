@@ -6,42 +6,18 @@ import tseslint from 'typescript-eslint'
 import { __WARN__, createLanguageOptions } from 'eslint-config-cmyr/utils'
 import withNuxt from './.nuxt/eslint.config.mjs'
 import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.mjs'
+import {
+    NO_EXPLICIT_ANY_FILES,
+    NO_NON_NULL_ASSERTION_FILES,
+    PRODUCTION_TS_IGNORES,
+    RUNTIME_TS_IGNORES,
+} from './scripts/governance/eslint-debt-targets.mjs'
 
 const enableI18nLint = process.env.ESLINT_I18N === 'true'
 const testFiles = ['**/**/*.test.*', '**/**/*.spec.*']
 const tsFiles = ['**/*.{ts,tsx,mts,cts}']
 const serverTsFiles = ['server/**/*.{ts,tsx,mts,cts}']
 const settingsApiTsFiles = ['server/api/settings/**/*.{ts,tsx,mts,cts}']
-const noExplicitAnyUtilityFiles = [
-    'utils/shared/**/*.{ts,tsx,mts,cts}',
-    'server/utils/object.ts',
-    'server/utils/pagination.ts',
-    'server/utils/ad.ts',
-    'server/utils/agreement-public.ts',
-    'server/utils/post-access.ts',
-]
-const noExplicitAnyApiFiles = [
-    'server/api/categories/index.get.ts',
-]
-const noExplicitAnyFiles = [
-    ...noExplicitAnyUtilityFiles,
-    ...noExplicitAnyApiFiles,
-    'composables/use-admin-ai.ts',
-    'composables/use-admin-i18n.ts',
-    'composables/use-asr-task.ts',
-    'composables/use-onboarding.ts',
-    'composables/use-post-editor-ai.ts',
-    'composables/use-post-editor-auto-save.ts',
-    'composables/use-post-editor-io.ts',
-    'composables/use-post-editor-page.helpers.ts',
-    'composables/use-post-editor-voice.ts',
-    'composables/use-tts-task.ts',
-    'composables/use-tts-volcengine-direct.ts',
-    'composables/use-upload.ts',
-    'server/services/ai/tts.ts',
-]
-const runtimeTsIgnores = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
-const productionTsIgnores = [...runtimeTsIgnores, 'server/api/admin/migrations/**', '**/migration-*.ts']
 
 const lineRuleOverrides = [
     createRuleOverride({
@@ -57,7 +33,7 @@ const strictTsRuleOverrides = [
     createRuleOverride({
         // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
         files: tsFiles,
-        ignores: productionTsIgnores,
+        ignores: PRODUCTION_TS_IGNORES,
         rules: {
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
             '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
@@ -67,7 +43,7 @@ const strictTsRuleOverrides = [
     createRuleOverride({
         // 第二批仅对 server 目录收紧低风险的冗余类型参数，继续维持 tests / scripts / migrations 豁免。
         files: serverTsFiles,
-        ignores: productionTsIgnores,
+        ignores: PRODUCTION_TS_IGNORES,
         rules: {
             '@typescript-eslint/no-unnecessary-type-arguments': [1],
         },
@@ -75,22 +51,22 @@ const strictTsRuleOverrides = [
     createRuleOverride({
         // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
         files: settingsApiTsFiles,
-        ignores: runtimeTsIgnores,
+        ignores: RUNTIME_TS_IGNORES,
         rules: {
             '@typescript-eslint/no-unnecessary-type-conversion': [1],
         },
     }),
     createRuleOverride({
         // 继续沿用 no-explicit-any 的窄切片策略，并把工具层 / API 单文件切片收敛到同一条 override。
-        files: noExplicitAnyFiles,
-        ignores: runtimeTsIgnores,
+        files: NO_EXPLICIT_ANY_FILES,
+        ignores: RUNTIME_TS_IGNORES,
         rules: {
             '@typescript-eslint/no-explicit-any': [1],
         },
     }),
     createRuleOverride({
         // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
-        files: ['composables/use-post-editor-io.ts'],
+        files: NO_NON_NULL_ASSERTION_FILES,
         rules: {
             '@typescript-eslint/no-non-null-assertion': [1],
         },

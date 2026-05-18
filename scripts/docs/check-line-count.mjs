@@ -4,11 +4,14 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const projectRoot = path.resolve(__dirname, '..', '..')
+export const projectRoot = path.resolve(__dirname, '..', '..')
+export const DEFAULT_PROFILE = 'default'
+export const DEFAULT_MODE = 'error'
 
-const README_TARGETS = [
+export const README_TARGETS = [
     'README.md',
     'README.en-US.md',
     'README.ja-JP.md',
@@ -21,7 +24,7 @@ const README_TARGETS = [
     rationale: '根目录 README 及其多语言镜像应保持门户摘要形态，避免继续膨胀成细节手册。',
 }))
 
-const TARGETS = [
+export const BASE_TARGETS = [
     ...README_TARGETS,
     {
         file: 'docs/plan/roadmap.md',
@@ -49,7 +52,58 @@ const TARGETS = [
     },
 ]
 
-function countLines(content) {
+export const CANDIDATE_TARGETS = [
+    {
+        file: 'docs/guide/translation-governance.md',
+        warningLimit: 180,
+        errorLimit: 220,
+        rationale: '翻译治理指南应保持执行口径与操作清单的紧凑形态，避免膨胀成重复规范正文。',
+    },
+    {
+        file: 'docs/guide/deploy.md',
+        warningLimit: 220,
+        errorLimit: 260,
+        rationale: '部署指南应聚焦部署路径与排障入口，细节应继续下沉到专项设计或平台文档。',
+    },
+    {
+        file: 'docs/standards/planning.md',
+        warningLimit: 320,
+        errorLimit: 380,
+        rationale: '规划规范只保留流程与门禁，阶段细节应继续回写到 roadmap / backlog / design 分片。',
+    },
+    {
+        file: 'docs/standards/documentation.md',
+        warningLimit: 240,
+        errorLimit: 300,
+        rationale: '文档规范应持续压缩为规则索引，不应重新承载逐阶段的治理历史。',
+    },
+]
+
+export const LINE_COUNT_PROFILES = {
+    candidate: [...BASE_TARGETS, ...CANDIDATE_TARGETS],
+    default: [...BASE_TARGETS],
+}
+
+export function parseArgs(argv = process.argv) {
+    return parseCliOptions(argv, {
+        defaults: {
+            mode: DEFAULT_MODE,
+            profile: DEFAULT_PROFILE,
+        },
+        values: {
+            '--mode': {
+                allowedValues: ['error', 'warn'],
+                key: 'mode',
+            },
+            '--profile': {
+                allowedValues: Object.keys(LINE_COUNT_PROFILES),
+                key: 'profile',
+            },
+        },
+    })
+}
+
+export function countLines(content) {
     if (content.length === 0) {
         return 0
     }
@@ -57,7 +111,7 @@ function countLines(content) {
     return content.split(/\r?\n/u).length
 }
 
-async function inspectTarget(target) {
+export async function inspectTarget(target) {
     const absolutePath = path.join(projectRoot, target.file)
     const content = await readFile(absolutePath, 'utf8')
     const lines = countLines(content)
@@ -85,10 +139,24 @@ async function inspectTarget(target) {
     }
 }
 
-async function main() {
-    const results = await Promise.all(TARGETS.map(inspectTarget))
+export async function collectLineCountReport(options = {}) {
+    const profile = options.profile ?? DEFAULT_PROFILE
+    const targets = LINE_COUNT_PROFILES[profile] ?? LINE_COUNT_PROFILES.default
+    const results = await Promise.all(targets.map(inspectTarget))
     const warnings = results.filter((item) => item.severity === 'warning')
     const errors = results.filter((item) => item.severity === 'error')
+
+    return {
+        errors,
+        profile,
+        results,
+        warnings,
+    }
+}
+
+export async function main(argv = process.argv) {
+    const { mode, profile } = parseArgs(argv)
+    const { errors, results, warnings } = await collectLineCountReport({ profile })
 
     for (const result of results) {
         let prefix = '[docs-line-count] ok'
@@ -110,16 +178,26 @@ async function main() {
     }
 
     if (errors.length > 0) {
-        console.error('\n[docs-line-count] error summary:')
+        const summaryLabel = mode === 'error' ? 'error summary' : 'candidate summary'
+        const writer = mode === 'error' ? console.error : console.warn
+
+        writer(`\n[docs-line-count] ${summaryLabel}:`)
         for (const error of errors) {
-            console.error(`- ${error.file}: ${error.lines} lines. ${error.rationale}`)
+            writer(`- ${error.file}: ${error.lines} lines. ${error.rationale}`)
         }
 
-        process.exitCode = 1
+        if (mode === 'error') {
+            process.exitCode = 1
+            return
+        }
+
+        console.warn('\n[docs-line-count] completed in warn mode: error-threshold breaches are reported for candidate review only.')
         return
     }
 
     console.info('\n[docs-line-count] passed: no document exceeded the error threshold.')
 }
 
-await main()
+if (isDirectExecution(import.meta.url)) {
+    await main()
+}

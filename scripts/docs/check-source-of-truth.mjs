@@ -16,14 +16,18 @@
 
 import fs from 'fs'
 import path from 'path'
+import process from 'node:process'
 import { fileURLToPath } from 'url'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const ROOT = path.resolve(__dirname, '../..')
+export const ROOT = path.resolve(__dirname, '../..')
+export const DEFAULT_PROFILE = 'default'
+export const DEFAULT_MODE = 'error'
 
 // 检查规则定义
-const RULES = [
+export const RULES = [
     {
         file: 'CLAUDE.md',
         maxAge: 90, // 天
@@ -69,12 +73,44 @@ const RULES = [
     },
 ]
 
-const TRANSLATION_LOCALES = ['en-US', 'zh-TW', 'ko-KR', 'ja-JP']
+export const TRANSLATION_LOCALES = ['en-US', 'zh-TW', 'ko-KR', 'ja-JP']
 
-const TRANSLATION_TIER_RULES = {
+export const TRANSLATION_TIER_RULES = {
     'must-sync': { maxAge: 30 },
     'summary-sync': { maxAge: 45 },
     'source-only': { maxAge: null },
+}
+
+export const SOURCE_OF_TRUTH_PROFILES = {
+    candidate: {
+        translationTierRules: {
+            'must-sync': { maxAge: 21 },
+            'summary-sync': { maxAge: 30 },
+            'source-only': { maxAge: null },
+        },
+    },
+    default: {
+        translationTierRules: { ...TRANSLATION_TIER_RULES },
+    },
+}
+
+export function parseArgs(argv = process.argv) {
+    return parseCliOptions(argv, {
+        defaults: {
+            mode: DEFAULT_MODE,
+            profile: DEFAULT_PROFILE,
+        },
+        values: {
+            '--mode': {
+                allowedValues: ['error', 'warn'],
+                key: 'mode',
+            },
+            '--profile': {
+                allowedValues: Object.keys(SOURCE_OF_TRUTH_PROFILES),
+                key: 'profile',
+            },
+        },
+    })
 }
 
 function readFile(filePath) {
@@ -214,7 +250,7 @@ function checkFile(filePath, rule) {
     return { pass: true }
 }
 
-function checkTranslatedDocs() {
+export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULES) {
     const results = []
 
     for (const locale of TRANSLATION_LOCALES) {
@@ -285,7 +321,7 @@ function checkTranslatedDocs() {
                 })
             }
 
-            const maxAge = TRANSLATION_TIER_RULES[tier].maxAge
+            const maxAge = translationTierRules[tier]?.maxAge ?? null
             const age = daysSince(lastSync)
             if (typeof maxAge === 'number' && age > maxAge) {
                 results.push({
@@ -302,41 +338,70 @@ function checkTranslatedDocs() {
     return results
 }
 
-// 主检查流程
-console.info('🔍 开始文档事实源一致性检查...\n')
+export function collectSourceOfTruthReport(options = {}) {
+    const profile = options.profile ?? DEFAULT_PROFILE
+    const profileConfig = SOURCE_OF_TRUTH_PROFILES[profile] ?? SOURCE_OF_TRUTH_PROFILES.default
+    const baseRuleResults = RULES.map((rule) => ({
+        file: rule.file,
+        ...checkFile(rule.file, rule),
+    }))
+    const translationResults = checkTranslatedDocs(profileConfig.translationTierRules)
 
-let hasErrors = false
-
-// 检查基础规则
-for (const rule of RULES) {
-    const result = checkFile(rule.file, rule)
-    const status = result.pass ? '✅' : '❌'
-    console.info(`${status} ${rule.file}`)
-    if (!result.pass) {
-        console.error(`   └─ ${result.reason}`)
-        hasErrors = true
+    return {
+        baseRuleResults,
+        hasErrors: baseRuleResults.some((result) => !result.pass) || translationResults.length > 0,
+        profile,
+        translationResults,
+        translationTierRules: profileConfig.translationTierRules,
     }
 }
 
-// 检查翻译文档
-console.info('\n📚 翻译文档时效性检查:')
-const translationResults = checkTranslatedDocs()
-if (translationResults.length === 0) {
-    console.info('✅ 所有翻译文档均在时效范围内')
-} else {
-    hasErrors = true
-    for (const result of translationResults) {
-        console.error(`❌ ${result.file}`)
-        console.error(`   └─ ${result.reason}`)
-    }
-}
+export function printSourceOfTruthReport(report, mode = DEFAULT_MODE) {
+    console.info('🔍 开始文档事实源一致性检查...\n')
 
-// 总结
-console.info(`\n${'='.repeat(50)}`)
-if (hasErrors) {
-    console.error('❌ 检查未通过：发现事实源一致性问题')
-    process.exit(1)
-} else {
+    for (const result of report.baseRuleResults) {
+        const status = result.pass ? '✅' : '❌'
+        console.info(`${status} ${result.file}`)
+        if (!result.pass) {
+            console.error(`   └─ ${result.reason}`)
+        }
+    }
+
+    console.info('\n📚 翻译文档时效性检查:')
+    if (report.translationResults.length === 0) {
+        console.info('✅ 所有翻译文档均在时效范围内')
+    } else {
+        const writer = mode === 'error' ? console.error : console.warn
+        for (const result of report.translationResults) {
+            writer(`❌ ${result.file}`)
+            writer(`   └─ ${result.reason}`)
+        }
+    }
+
+    console.info(`\n${'='.repeat(50)}`)
+    if (report.hasErrors) {
+        if (mode === 'error') {
+            console.error('❌ 检查未通过：发现事实源一致性问题')
+        } else {
+            console.warn('⚠️ 候选 profile 发现事实源一致性问题，当前仅作为 warning baseline 输出')
+        }
+        return
+    }
+
     console.info('✅ 所有检查通过：文档事实源层级正确')
-    process.exit(0)
+}
+
+export function main(argv = process.argv) {
+    const { mode, profile } = parseArgs(argv)
+    const report = collectSourceOfTruthReport({ profile })
+
+    printSourceOfTruthReport(report, mode)
+
+    if (report.hasErrors && mode === 'error') {
+        process.exit(1)
+    }
+}
+
+if (isDirectExecution(import.meta.url)) {
+    main()
 }

@@ -209,6 +209,18 @@ pnpm governance:check:scripts
 # 简单重复候选盘点（产出结构复用 baseline）
 pnpm governance:audit:simple-duplicates
 
+# ESLint / 类型债 inventory（产出 rule / 目录 / 豁免 baseline）
+pnpm governance:audit:eslint-debt
+
+# 注释治理 inventory（产出缺注释 / TODO / 漂移候选 baseline）
+pnpm governance:audit:comment-drift
+
+# 文档门禁扩面 candidate（warning baseline）
+pnpm docs:check:line-count:candidate
+
+# 翻译 freshness 收紧 candidate（warning baseline）
+pnpm docs:check:source-of-truth:candidate
+
 # 类型检查
 pnpm typecheck
 

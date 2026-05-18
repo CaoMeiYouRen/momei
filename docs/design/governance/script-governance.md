@@ -137,7 +137,11 @@
 
 目标：让 ESLint / 类型债主线具备稳定的可比较数据，而不只记录“本轮清了几处”。
 
-建议新增脚本：`scripts/governance/audit-eslint-debt.mjs`
+当前已落地脚本：`scripts/governance/audit-eslint-debt.mjs`
+
+当前稳定入口：`pnpm governance:audit:eslint-debt`
+
+当前状态：已形成独立 baseline 入口，并复用 `scripts/governance/eslint-debt-targets.mjs` 与 `eslint.config.js` 的同一规则切片事实源
 
 建议最小输出：
 
@@ -147,10 +151,11 @@
 - `warning` 与显式豁免的数量变化
 - 与上一轮 baseline 的 delta
 
-建议验收：
+当前验收状态：
 
+- 已按 rule / 目录 / 显式豁免输出 JSON + Markdown baseline，并保留与上一轮 baseline 的 delta
 - 首轮只覆盖当前长期主线中已经明确提到的规则族，例如 `no-explicit-any`、`no-non-null-assertion`
-- 不把它扩写成全仓所有 ESLint 规则的统一大盘
+- 当前不把它扩写成全仓所有 ESLint 规则的统一大盘
 
 ### 5.4 注释治理 inventory
 
@@ -158,7 +163,11 @@
 
 目标：把“高价值注释补齐”和“低价值注释清理”从叙述推进到可量化候选。
 
-建议新增脚本：`scripts/governance/audit-comment-drift.mjs`
+当前已落地脚本：`scripts/governance/audit-comment-drift.mjs`
+
+当前稳定入口：`pnpm governance:audit:comment-drift`
+
+当前状态：已形成独立 baseline 入口，当前仅作为只读 inventory，不接入固定回归
 
 建议最小输出：
 
@@ -167,8 +176,9 @@
 - 疑似逐行复述型注释候选数
 - 疑似与代码不一致的漂移注释候选数
 
-建议验收：
+当前验收状态：
 
+- 已按四类候选与目录分桶输出 JSON + Markdown baseline
 - 首轮以 inventory 和人工复核清单为主，不自动判定 blocker
 - 只有在误报可控后，才考虑纳入周级治理的 warning 面
 
@@ -176,22 +186,33 @@
 
 优先级：P1
 
-目标：把已经提出的文档治理候选从规划文本推进到脚本设计。
+目标：把已经提出的文档治理候选从规划文本推进到脚本契约与候选入口。
 
 当前已落地事实：
 
-- `docs:check:line-count` 已覆盖 README、`roadmap.md`、`backlog.md`、`todo-archive.md` 与 `docs/reports/regression/current.md`
-- `docs:check:source-of-truth` 已按 `must-sync 30 天 / summary-sync 45 天 / source-only` 运行
+- `docs:check:line-count` 已支持 `profile=default|candidate` 与 `mode=warn|error`
+- `docs:check:source-of-truth` 已支持 `profile=default|candidate` 与 `mode=warn|error`
 
-下一轮候选：
+当前稳定入口：
 
-- 将 [docs/guide/translation-governance.md](../../guide/translation-governance.md)、[docs/guide/deploy.md](../../guide/deploy.md)、[docs/standards/planning.md](../../standards/planning.md)、[docs/standards/documentation.md](../../standards/documentation.md) 纳入 line-count
-- 评估将 `must-sync` 收紧到 `21` 天、`summary-sync` 收紧到 `30` 天的可执行性
+- `pnpm docs:check:line-count:candidate`
+- `pnpm docs:check:source-of-truth:candidate`
+
+当前状态：
+
+- 默认 blocker 行为保持不变；candidate profile 先作为独立 warning baseline 运行
+- `docs:check:line-count:candidate` 已把 [docs/guide/translation-governance.md](../../guide/translation-governance.md)、[docs/guide/deploy.md](../../guide/deploy.md)、[docs/standards/planning.md](../../standards/planning.md)、[docs/standards/documentation.md](../../standards/documentation.md) 纳入 warning / error 观察面
+- `docs:check:source-of-truth:candidate` 已可评估 `must-sync 21 天 / summary-sync 30 天 / source-only` 的收紧影响
+
+当前验收状态：
+
+- `docs:check:line-count:candidate` 当前输出 `5` 个 warning，其中包含 `docs/reports/regression/current.md` 与 4 个新增高频页，无 error
+- `docs:check:source-of-truth:candidate` 当前输出 `6` 个翻译 freshness warning，仅作为候选基线，不影响现有 blocker
 
 约束：
 
-- 在脚本与文档规范同步落地前，这些新阈值仍属于候选，不视为已正式生效
-- 不允许只在规划里宣称“门禁收紧”，却不回写脚本契约
+- 在 candidate profile 被提升为正式门禁前，这些新阈值仍属于候选，不视为已正式生效
+- 不允许只在规划里宣称“门禁收紧”，却不回写脚本契约与稳定入口
 
 ## 6. 固定回归接入策略
 
