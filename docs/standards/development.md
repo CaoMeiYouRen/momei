@@ -203,6 +203,12 @@ pnpm duplicate-code:check
 # 重复代码检测（strict，超过 baseline 直接失败）
 pnpm duplicate-code:check:strict
 
+# 脚本目录治理体检（warning，产出 baseline）
+pnpm governance:check:scripts
+
+# 简单重复候选盘点（产出结构复用 baseline）
+pnpm governance:audit:simple-duplicates
+
 # 类型检查
 pnpm typecheck
 

@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
+import { collectScriptGovernanceReport } from '../governance/check-script-governance.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..', '..')
@@ -24,17 +25,8 @@ const governanceDocs = [
     path.join(projectRoot, 'docs', 'standards', 'development.md'),
 ]
 
-const scriptRoot = path.join(projectRoot, 'scripts')
 const externalSkillRegistryPath = path.join(projectRoot, '.github', 'external-skills-registry.json')
 const externalSkillRegistryDocPath = path.join(projectRoot, 'docs', 'standards', 'external-skills-intake.md')
-const scriptSearchRoots = [
-    path.join(projectRoot, 'package.json'),
-    path.join(projectRoot, 'AGENTS.md'),
-    path.join(projectRoot, 'CLAUDE.md'),
-    path.join(projectRoot, 'docs'),
-    path.join(projectRoot, '.github', 'workflows'),
-]
-const scriptTempDirNames = new Set(['temp', 'tmp', '_temp', '_tmp'])
 
 const supportedSkillFrontmatterKeys = new Set([
     'argument-hint',
@@ -107,15 +99,6 @@ async function readUtf8(filePath) {
 
 async function readRaw(filePath) {
     return readFile(filePath)
-}
-
-function isScriptFile(fileName) {
-    return ['.mjs', '.js', '.cjs', '.ts'].includes(path.extname(fileName))
-}
-
-function isTemporaryScript(relativeFile) {
-    const segments = relativeFile.split('/')
-    return segments.some((segment) => scriptTempDirNames.has(segment))
 }
 
 function parseFrontmatter(content) {
@@ -524,73 +507,13 @@ async function collectReferenceWarnings(skillFiles, agentFiles) {
     return warnings
 }
 
-async function collectSearchableFiles(targetPath) {
-    if (!(await pathExists(targetPath))) {
-        return []
-    }
-
-    const statLikeFiles = []
-
-    try {
-        const entries = await readdir(targetPath, { withFileTypes: true })
-
-        for (const entry of entries) {
-            const absolutePath = path.join(targetPath, entry.name)
-
-            if (entry.isDirectory()) {
-                statLikeFiles.push(...await collectSearchableFiles(absolutePath))
-                continue
-            }
-
-            if (entry.isFile() && ['.md', '.json', '.yml', '.yaml'].includes(path.extname(entry.name))) {
-                statLikeFiles.push(absolutePath)
-            }
-        }
-
-        return statLikeFiles
-    } catch {
-        return [targetPath]
-    }
-}
-
 async function collectScriptReferenceWarnings(scriptFiles) {
-    const searchableFiles = []
+    const trackedScriptPaths = new Set(scriptFiles.map((scriptPath) => toPosixPath(scriptPath)))
+    const report = await collectScriptGovernanceReport({ projectRoot })
 
-    for (const root of scriptSearchRoots) {
-        searchableFiles.push(...await collectSearchableFiles(root))
-    }
-
-    const uniqueSearchableFiles = unique(searchableFiles)
-    const searchableContents = new Map()
-
-    for (const filePath of uniqueSearchableFiles) {
-        searchableContents.set(filePath, await readUtf8(filePath))
-    }
-
-    const warnings = []
-
-    for (const scriptPath of scriptFiles) {
-        const relativePath = toPosixPath(scriptPath)
-
-        if (isTemporaryScript(relativePath.replace(/^scripts\//u, ''))) {
-            continue
-        }
-
-        let referenced = false
-
-        for (const content of searchableContents.values()) {
-            if (content.includes(relativePath)) {
-                referenced = true
-                break
-            }
-        }
-
-        if (!referenced) {
-            warnings.push(buildIssue('unreferenced-script', relativePath, '未在 package.json、工作流或规范文档中发现稳定入口，建议确认是否仍应作为长期脚本保留。', 'warning'))
-        }
-    }
-
-    return warnings
+    return report.findings
+        .filter((finding) => trackedScriptPaths.has(finding.filePath))
+        .map((finding) => buildIssue(finding.code, finding.filePath, finding.message, finding.severity))
 }
 
 function printSection(title, lines) {
@@ -659,8 +582,8 @@ async function main() {
 
     const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
     const githubAgentFiles = githubAgentRelFiles.map((relativeFile) => path.join(governanceRoots.githubAgents, relativeFile))
-    const projectScriptRelFiles = await listFilesRecursive(scriptRoot, isScriptFile)
-    const projectScriptFiles = projectScriptRelFiles.map((relativeFile) => path.join(scriptRoot, relativeFile))
+    const scriptGovernanceReport = await collectScriptGovernanceReport({ projectRoot })
+    const projectScriptFiles = scriptGovernanceReport.scripts.map((entry) => path.join(projectRoot, entry.scriptPath))
 
     await compareMirrorTrees(governanceRoots.githubSkills, governanceRoots.claudeSkills, githubSkillMirrorFiles, issues, 'skill')
     await compareMirrorTrees(governanceRoots.githubAgents, governanceRoots.claudeAgents, githubAgentMirrorFiles, issues, 'agent')

@@ -161,7 +161,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 | 节奏 | 正式入口 | 最小固定组合 | 责任边界 | blocker 规则 |
 | :--- | :--- | :--- | :--- | :--- |
-| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
+| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
 | 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
 | 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `700` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
 
@@ -171,6 +171,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 2. `duplicate-code:check` 在周级 / 发版前入口中默认只作为 warning 基线；进入 `phase-close` 时必须升级到 strict 口径。
 3. `docs/reports/regression/current.md` 触发滚动归档的条件继续保持唯一事实源：超过 `500 - 700` 行、或超过 `6 - 8` 条完整记录且已影响当前阶段阅读效率；`phase-close` 入口将其中的上限口径编码为正式 blocker。
 4. 当某条长期主线已经形成稳定的治理脚本时，应优先把该脚本接入固定入口或明确写出暂不接入的原因；不得长期保持“脚本存在，但仍只靠人工补跑或阶段叙述”的漂移状态。
+5. `governance:check:scripts` 当前仅在 weekly 中以 warning 基线运行；`governance:audit:simple-duplicates` 仍保留为结构复用的独立基线入口，暂不阻断固定回归。
 
 推荐输出模板：
 

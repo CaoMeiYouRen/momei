@@ -9,6 +9,7 @@
 | `regression` | `pnpm regression:weekly` / `pnpm regression:pre-release` / `pnpm regression:phase-close` | 固定 cadence profile；可选 `--mode=warn|error`、`--dry-run` | 周级 / 发版前 / 阶段收口前的统一执行摘要；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | `phase-close` 会把回归日志窗口超限升级为 blocker；所有结果仍需回写 `docs/plan/regression-log.md` | 正式入口 |
 | `release` | `pnpm release:check` / `pnpm release:check:full` | 可选 `--skip-test`、`--skip-e2e`、`--mode=warn|error` | 控制台验证摘要；`artifacts/release/` 下的发布前证据 | 默认会跑 lint、typecheck、安全 / 文档检查；`full` 会升级补跑 Vitest 与 E2E，避免在未评估预算时直接使用 | 正式入口 |
 | `review-gate` | `pnpm review-gate:generate` / `pnpm review-gate:generate:check` / `pnpm duplicate-code:check` | 可选 `--run-checks`、`--scope=<change>`、`--mode=warn|error` | Review Gate 证据 Markdown / JSON；重复代码审计产物 | 以证据生成和只读审计为主；`generate:check` 会主动拉起更多校验，适合阶段收口或发版前 | 正式入口 |
+| `governance` | `pnpm governance:check:scripts` / `pnpm governance:audit:simple-duplicates` | 默认输出 `artifacts/governance/*.json` + `.md`；可选 `--output`、`--root=<dir>` | 脚本目录健康体检、简单重复候选清单与按目录 / 文件分桶的 baseline | `check:scripts` 已进入 weekly warning 基线；`audit:simple-duplicates` 先作为结构复用的独立只读盘点，不直接阻断回归 | 正式入口 |
 | `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 默认按 high+ 阻断；`audit-deps:daily` 产出每日结构化摘要并供调度入口消费；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:source-of-truth` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页 / 事实源漂移结论 | 只读检查，不修改文档；适合文档 PR 和阶段归档前的最低门禁 | 正式入口 |
@@ -21,6 +22,7 @@
 | 目录 | 主要脚本 | 调用入口 | 副作用范围 | 当前结论 |
 | :--- | :--- | :--- | :--- | :--- |
 | `scripts/regression/` | `run-periodic-regression.mjs` | `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close` | 按 profile 编排固定回归组合，读取 `docs/plan/regression-log.md` 窗口健康度，并生成 Review Gate 摘要 | 保留 |
+| `scripts/governance/` | `check-script-governance.mjs`、`audit-simple-duplicates.mjs` | `pnpm governance:check:scripts`、`pnpm governance:audit:simple-duplicates`、`pnpm regression:weekly`（仅 `check:scripts`） | 产出脚本稳定入口、临时残留、文档漂移与简单重复候选的 JSON / Markdown baseline | 新增保留 |
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
 | `scripts/release/` | `pre-release-check.mjs` | `pnpm release:check`、`pnpm release:check:full` | 汇总 lint、typecheck、安全、文档与按需测试的发布前门禁，并落盘证据 | 保留 |
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
@@ -41,6 +43,8 @@
 
 ```bash
 pnpm ai:check
+pnpm governance:check:scripts
+pnpm governance:audit:simple-duplicates
 pnpm regression:weekly
 pnpm regression:pre-release
 pnpm regression:phase-close
@@ -83,7 +87,7 @@ pnpm test:perf:budget:strict
 
 `pnpm regression:weekly`、`pnpm regression:pre-release` 与 `pnpm regression:phase-close` 则负责把既有周期性回归规范上收为三条固定节奏：
 
-- `weekly` 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查与重复代码基线。
+- `weekly` 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查、重复代码基线与脚本治理体检。
 - `pre-release` 固定覆盖完整发布前校验、文档 i18n 检查、性能预算与重复代码复核。
 - `phase-close` 在 `pre-release` 基础上补强 coverage、严格重复代码检查与 Review Gate 证据生成；若活动回归日志超过 `400` 行或 `8` 条记录，脚本会把“先滚动归档再收口”升级为 blocker。
 

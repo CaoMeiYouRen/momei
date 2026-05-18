@@ -232,11 +232,11 @@
 
 | 节奏 | 入口 | 最小固定组合 | 触发条件 |
 |:---|:---|:---|:---|
-| 周级 | `pnpm regression:weekly` | coverage + deps audit + source-of-truth + i18n + duplicate-code | 每周一次 |
+| 周级 | `pnpm regression:weekly` | coverage + deps audit + source-of-truth + i18n + duplicate-code + script-governance | 每周一次 |
 | 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
 | 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
 
-- 当前固定入口尚未覆盖 `script-governance`；该缺口已提升为长期主线 #9，后续优先补独立检查脚本并接入 weekly / pre-release / phase-close。
+- 当前固定入口已覆盖 `script-governance` 的 5.1 脚本自检：`pnpm governance:check:scripts` 已进入 weekly warning 基线；5.2 `pnpm governance:audit:simple-duplicates` 仍保持独立 baseline，待人工判定口径稳定后再评估是否进入更高频回归。
 
 ### 覆盖矩阵（每条长期主线的回归覆盖状态）
 
@@ -250,7 +250,7 @@
 | #6 国际化治理 | ✅ `i18n:audit:missing` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
-| #9 脚本治理 | — | — | — (待 `script-governance` 入口落地后接入) |
+| #9 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` 暂保持独立 baseline) |
 
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 

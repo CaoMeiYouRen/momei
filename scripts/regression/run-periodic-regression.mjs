@@ -58,6 +58,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
             createPnpmStep('i18n:audit:missing', 'i18n:audit:missing', { timeoutBudget: '10m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
+            createPnpmStep('governance:check:scripts', 'governance:check:scripts', { required: false, timeoutBudget: '10m' }),
         ],
     },
     'pre-release': {

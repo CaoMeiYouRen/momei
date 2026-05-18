@@ -23,6 +23,7 @@ describe('run-periodic-regression', () => {
             'docs:check:line-count',
             'i18n:audit:missing',
             'duplicate-code:check',
+            'governance:check:scripts',
         ])
         expect(resolveRegressionProfile('phase-close').steps.at(-1)).toMatchObject({
             label: 'review-gate:generate:check',

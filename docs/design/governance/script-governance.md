@@ -87,7 +87,11 @@
 
 目标：先回答“当前脚本目录是否健康”。
 
-建议新增脚本：`scripts/governance/check-script-governance.mjs`
+当前已落地脚本：`scripts/governance/check-script-governance.mjs`
+
+当前稳定入口：`pnpm governance:check:scripts`
+
+当前状态：已按 warning 口径进入 `pnpm regression:weekly`
 
 建议最小输出：
 
@@ -97,10 +101,10 @@
 - 是否存在文档已声明、但脚本文件不存在或路径失效
 - 是否存在脚本文件已落地、但没有任何稳定入口引用
 
-建议验收：
+当前验收状态：
 
-- 首轮先以 warning 口径接入 `regression:weekly`
-- 当误报率收敛后，再评估是否升级为 `pre-release` 或 `phase-close` blocker
+- 已完成首轮 warning 接入 `regression:weekly`
+- 后续待误报率收敛后，再评估是否升级为 `pre-release` 或 `phase-close` blocker
 
 ### 5.2 结构复用的“简单重复”盘点
 
@@ -108,7 +112,11 @@
 
 目标：补齐 `jscpd` 看不见的重复候选。
 
-建议新增脚本：`scripts/governance/audit-simple-duplicates.mjs`
+当前已落地脚本：`scripts/governance/audit-simple-duplicates.mjs`
+
+当前稳定入口：`pnpm governance:audit:simple-duplicates`
+
+当前状态：已形成独立 baseline 入口，暂不接入固定回归
 
 建议最小输出：
 
@@ -118,10 +126,10 @@
 - 候选按目录与文件分桶
 - 人工判定结果占位：`可复用` / `保留局部实现` / `待观察`
 
-建议验收：
+当前验收状态：
 
-- 首轮先作为结构复用主线的 baseline，不直接阻断回归
-- 等人工判定口径稳定后，再考虑与 `duplicate-code:check` 组合输出
+- 已作为结构复用主线的独立 baseline 落地，不直接阻断回归
+- 后续待人工判定口径稳定后，再考虑与 `duplicate-code:check` 组合输出
 
 ### 5.3 ESLint / 类型债 inventory
 
