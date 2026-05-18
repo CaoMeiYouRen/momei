@@ -9,7 +9,7 @@
  * - 通过 `buildTagPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
  * - Tag 与 Post 是多对多关系，子查询需要 JOIN `post_tags_tag` 中间表。
  */
-import { dataSource, ensureDatabaseReady } from '@/server/database'
+import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
 import { Tag } from '@/server/entities/tag'
 import { tagQuerySchema } from '@/utils/schemas/tag'
 import { applyPagination } from '@/server/utils/pagination'
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: TAG_PUBLIC_LIST_CACHE_TTL_SECONDS,
         isSharedPublicResponse: true,
         loader: async () => {
-            const databaseReady = await ensureDatabaseReady()
+            const databaseReady = await ensureDatabaseConnectionReady()
             if (!databaseReady) {
                 throw createError({
                     statusCode: 503,

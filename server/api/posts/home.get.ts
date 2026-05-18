@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { dataSource, ensureDatabaseReady } from '@/server/database'
+import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: HOME_POSTS_CACHE_TTL_SECONDS,
         isSharedPublicResponse,
         loader: async () => {
-            const databaseReady = await ensureDatabaseReady()
+            const databaseReady = await ensureDatabaseConnectionReady()
             if (!databaseReady) {
                 throw createError({
                     statusCode: 503,

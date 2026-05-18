@@ -36,6 +36,10 @@
 - [ ] **Postgres 公开热点读链路继续瘦身 (P0)**
 	- 验收: 本轮只允许推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。
 	- 验收: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势，并回答当前超预算为何更像公开热读问题。
+	- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../server/database/index.ts)，避免公开冷路径再串上管理员角色同步与 post version repair 维护链。
+	- 结果: 已同步修正 [server/database/index.ts](../../server/database/index.ts) 的两阶段初始化状态机：`ensureDatabaseReady()` 只在 full init 已完成时短路；connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试，不再把 partial-ready 状态永久缓存。
+	- 残余: 当前条目仍未收口；新的 live sample / `pg_stat_statements` 对照尚未补齐，因此暂不关闭本条 P0。
+	- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，以及受影响文件无错误的静态诊断。
 	- 验证: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
 
 - [x] **结构复用第二轮（至少 3 处热点） (P1)**

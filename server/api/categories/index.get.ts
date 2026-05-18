@@ -9,7 +9,7 @@
  * ## 文章计数子查询
  * - 通过 `buildCategoryPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
  */
-import { dataSource, ensureDatabaseReady } from '@/server/database'
+import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { categoryQuerySchema } from '@/utils/schemas/category'
 import { applyPagination } from '@/server/utils/pagination'
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: CATEGORY_PUBLIC_LIST_CACHE_TTL_SECONDS,
         isSharedPublicResponse: true,
         loader: async () => {
-            const databaseReady = await ensureDatabaseReady()
+            const databaseReady = await ensureDatabaseConnectionReady()
             if (!databaseReady) {
                 throw createError({
                     statusCode: 503,

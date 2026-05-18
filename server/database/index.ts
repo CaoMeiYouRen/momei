@@ -290,10 +290,8 @@ export const initializeDatabaseConnection = async () => {
             reportDatabaseInitializationFailure(error, actualDbType, isTestEnv)
             return AppDataSource
         } finally {
-            // 初始化失败时必须释放 promise，让后续请求可以重试连接。
-            if (!AppDataSource?.isInitialized) {
-                connectionInitializationPromise = null
-            }
+            // 只把 promise 作为并发中的初始化锁；完成后统一释放，后续再按当前连接状态判断是否重试。
+            connectionInitializationPromise = null
         }
     })()
 
@@ -359,9 +357,10 @@ export const initializeDB = async () => {
 
             return AppDataSource
         } finally {
-            // 完整初始化失败后保持可重试，避免把失败状态永久缓存。
-            if (!AppDataSource?.isInitialized) {
-                initializationPromise = null
+            // 只把 promise 作为并发中的 full-init 锁；只要本轮没有把维护链完整跑完，下一次就必须允许重试。
+            initializationPromise = null
+
+            if (!isInitialized || !AppDataSource?.isInitialized) {
                 isInitialized = false
             }
         }
@@ -371,11 +370,20 @@ export const initializeDB = async () => {
 }
 
 export const ensureDatabaseReady = async () => {
-    if (dataSource.isInitialized) {
+    if (isInitialized && dataSource.isInitialized) {
         return true
     }
 
     await initializeDB()
+    return dataSource.isInitialized
+}
+
+export const ensureDatabaseConnectionReady = async () => {
+    if (dataSource.isInitialized) {
+        return true
+    }
+
+    await initializeDatabaseConnection()
     return dataSource.isInitialized
 }
 
