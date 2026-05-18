@@ -6,6 +6,7 @@ import { Subscriber } from '@/server/entities/subscriber'
 import { PostStatus, PostVisibility } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
 import postsHandler from '@/server/api/posts/index.get'
+import homePostsHandler from '@/server/api/posts/home.get'
 import archiveHandler from '@/server/api/posts/archive.get'
 import searchHandler from '@/server/api/search/index.get'
 import postDetailHandler from '@/server/api/posts/[id].get'
@@ -124,6 +125,23 @@ describe('content access API error mapping', () => {
             },
             req: { headers: {} },
             query: {},
+        } as any))
+    })
+
+    it('应该将 /api/posts/home 的订阅状态查询失败统一映射为 503', async () => {
+        withSubscriberLookupFailure()
+
+        await expectMappedAccessError(homePostsHandler({
+            context: {
+                auth: { user: { id: 'viewer-1', role: 'user' } },
+                user: { id: 'viewer-1', role: 'user' },
+            },
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: { language: 'zh-CN' },
         } as any))
     })
 

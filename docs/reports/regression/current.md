@@ -9,6 +9,41 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-18 第三十七阶段测试有效性切片（P0）关闭
+
+### 范围
+
+- 目标：围绕第三十七阶段 `测试有效性切片 (P0)`，从前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路中，选择已有测试基座且回归风险最高的 `3` 组路径补失败断言或边界断言，并把新增入口纳入可复用的定向回归矩阵。
+- 本轮覆盖：[server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts)、[server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts)、[tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不把本轮退化为 coverage 铺量，不并行扩写组件层 front-end direct TTS 可见错误映射，也不重复补已经由 [tests/server/middleware/auth-optional-session.test.ts](../../tests/server/middleware/auth-optional-session.test.ts) 守住的认证退化基础边界。
+
+### 实施结论
+
+- [server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 现已补齐 post-backed 内容与翻译元信息透传边界，以及“文章不存在 `404`”与“作者越权访问他人文章 `403`”两条失败断言，避免前端直连 TTS 与后台任务共用入口在 postId 分支上只剩 happy path 守线。
+- [server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 新增 `estimatedCost / estimatedQuotaUnits` 与 `actualCost / quotaUnits` 独立聚合守线，并验证“全部任务仍处于 pending 时 `successRate / failureRate` 保持 `0` 而不是漂移或算出异常比例”，满足本轮“至少一组统计一致性回归”的验收要求。
+- [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 已把 `/api/posts/home` 纳入统一 `503 POST_ACCESS_STATE_UNAVAILABLE` 错误映射矩阵，补齐公开热点读链路里此前缺失的 home 入口，与 `/api/posts`、`/api/posts/archive`、`/api/search` 及详情接口保持一致。
+- 认证退化路径本轮没有继续扩写，因为 [tests/server/middleware/auth-optional-session.test.ts](../../tests/server/middleware/auth-optional-session.test.ts) 已覆盖 targeted public routes、connection-only 初始化与 session lookup failure swallow；相较之下，本轮新增的三处缺口更能直接区分高回归风险。
+- 本轮可复用的定向回归矩阵已固定为：`pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`
+	- 结果：通过；`3` 个文件、`14` 个测试全部通过（`0` 失败）。
+- Markdown lint：`pnpm exec lint-md docs/reports/regression/current.md docs/plan/todo.md`
+	- 结果：通过；[docs/reports/regression/current.md](../../docs/reports/regression/current.md) 与 [docs/plan/todo.md](../../docs/plan/todo.md) 无新增格式或链接告警。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮已完成 todo 要求的 `3` 组高风险切片，但认证退化的页面级联动、前端直连 TTS 组件层错误映射与 `settings/public` / friend-links 公开链路的更细失败口径仍未纳入本轮范围，需要保留为下一轮候选，而不是误写成“测试有效性已全域收口”。
+
+### 未覆盖边界
+
+- 组件层 front-end direct TTS 仍只守成功直连与 confirm 提交流程，`/api/ai/tts/task` 创建失败后的可见错误映射没有在 [components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 里重新落地。
+- 认证退化当前只守住 server middleware 的边界；登录、注册与 header/profile 等页面级 session 刷新退化联动没有并入这轮定向矩阵。
+- 公开热点读链路本轮只补齐了 `/api/posts/home` 的访问状态错误映射，不等于 [tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 或 friend-links 公开入口的失败口径已经完成统一治理。
+
 ## 2026-05-14 第三十七阶段 Postgres P1 长窗口复核关闭：Neon 样本确认无持续占用窗口
 
 ### 范围

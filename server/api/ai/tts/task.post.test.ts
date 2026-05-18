@@ -63,6 +63,7 @@ const postRepo = {
 
 describe('POST /api/ai/tts/task', () => {
     let handler: (event: any) => Promise<any>
+    const postId = 'abcdef123456789'
     const requestBody = {
         provider: 'volcengine',
         voice: 'zh_female_vv_uranus_bigtts',
@@ -103,6 +104,90 @@ describe('POST /api/ai/tts/task', () => {
             mode: 'podcast',
         }))
         expect(waitUntil).not.toHaveBeenCalled()
+    })
+
+    it('should use post content and translation metadata when text is omitted', async () => {
+        postRepo.findOneBy.mockResolvedValueOnce({
+            id: postId,
+            authorId: 'author-1',
+            content: 'post backed content',
+            language: 'zh-CN',
+            translationId: 'cluster-1',
+        })
+
+        const result = await handler({
+            body: {
+                postId,
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                mode: 'speech',
+                options: {},
+            },
+            context: {},
+        } as any)
+
+        expect(result).toEqual({
+            taskId: 'task-1',
+            estimatedCost: 1.23,
+            estimatedQuotaUnits: 8,
+        })
+        expect(postRepo.findOneBy).toHaveBeenCalledWith({ id: postId })
+        expect(mockCreateTTSTask).toHaveBeenCalledWith(expect.objectContaining({
+            postId,
+            content: 'post backed content',
+            language: 'zh-CN',
+            extraPayload: expect.objectContaining({
+                language: 'zh-CN',
+                translationId: 'cluster-1',
+                options: expect.objectContaining({
+                    language: 'zh-CN',
+                }),
+            }),
+        }))
+    })
+
+    it('should reject when referenced post is missing', async () => {
+        postRepo.findOneBy.mockResolvedValueOnce(null)
+
+        await expect(handler({
+            body: {
+                postId,
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                options: {},
+            },
+            context: {},
+        } as any)).rejects.toMatchObject({
+            statusCode: 404,
+            statusMessage: 'Post not found',
+        })
+
+        expect(mockCreateTTSTask).not.toHaveBeenCalled()
+    })
+
+    it('should reject when a non-admin author targets another author\'s post', async () => {
+        postRepo.findOneBy.mockResolvedValueOnce({
+            id: postId,
+            authorId: 'author-2',
+            content: 'private content',
+            language: 'zh-CN',
+            translationId: null,
+        })
+
+        await expect(handler({
+            body: {
+                postId,
+                provider: 'volcengine',
+                voice: 'zh_female_vv_uranus_bigtts',
+                options: {},
+            },
+            context: {},
+        } as any)).rejects.toMatchObject({
+            statusCode: 403,
+            statusMessage: 'Forbidden',
+        })
+
+        expect(mockCreateTTSTask).not.toHaveBeenCalled()
     })
 
     it('should return frontend-direct strategy in serverless runtimes when enabled', async () => {

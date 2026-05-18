@@ -140,4 +140,50 @@ describe('GET /api/admin/ai/stats', () => {
         }))
         expect(evaluateAIUsageAlerts).toHaveBeenCalledTimes(1)
     })
+
+    it('should keep estimated and actual metrics independent when no tasks are terminal', async () => {
+        const builders = [
+            createAggregateBuilder({
+                totalTasks: '3',
+                estimatedCost: '10.5',
+                actualCost: '2.25',
+                estimatedQuotaUnits: '90',
+                quotaUnits: '12',
+                avgDurationMs: '0',
+            }, 'getRawOne'),
+            createAggregateBuilder([{ status: 'pending', count: '3' }]),
+            createAggregateBuilder([{ type: 'tts_direct', count: '3' }]),
+            createAggregateBuilder([{ category: 'tts', count: '3', actualCost: '2.25', quotaUnits: '12' }]),
+            createAggregateBuilder([{ chargeStatus: 'estimated', count: '3' }]),
+            createAggregateBuilder([]),
+            createAggregateBuilder([{ provider: 'volcengine', model: 'seed-tts-2.0', count: '3' }]),
+            createAggregateBuilder([{ userId: 'user-1', name: 'Author', actualCost: '2.25', quotaUnits: '12', taskCount: '3' }]),
+            createAggregateBuilder([]),
+        ]
+
+        vi.mocked(dataSource.getRepository).mockReturnValue({
+            createQueryBuilder: vi.fn(() => builders.shift()),
+        } as any)
+
+        const result = await handler({} as any)
+
+        expect(result.overview).toEqual(expect.objectContaining({
+            totalTasks: 3,
+            estimatedCost: 10.5,
+            actualCost: 2.25,
+            estimatedQuotaUnits: 90,
+            quotaUnits: 12,
+            avgDurationMs: 0,
+            successRate: 0,
+            failureRate: 0,
+        }))
+        expect(result.chargeStatusStats).toEqual([
+            {
+                chargeStatus: 'estimated',
+                count: 3,
+            },
+        ])
+        expect(result.failureStageStats).toEqual([])
+        expect(result.dailyTrend).toEqual([])
+    })
 })

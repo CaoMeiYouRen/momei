@@ -29,9 +29,11 @@
 - [x] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
 
 2. **主线：测试有效性切片 (P0)**
-- [ ] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言或边界断言。
-- [ ] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
-- [ ] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
+- [x] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的 `2 - 3` 组路径补失败断言或边界断言。
+- [x] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
+- [x] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
+
+闭合记录（2026-05-18）：本轮已按“已有测试基座 + 高回归风险”关闭第三十七阶段测试有效性切片，选择 [server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 的前端直连 TTS post-backed / `404` / `403` 分支、[server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 的 `estimated / actual` 独立口径与非终态 `successRate / failureRate = 0` 守线，以及 [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 的 `/api/posts/home` 统一 `503` 映射。定向回归矩阵已更新为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，验证结果为 `14` 通过、`0` 失败；详细证据见 [docs/reports/regression/current.md](../reports/regression/current.md)。本轮未继续扩写认证退化页面级联动，因为 [tests/server/middleware/auth-optional-session.test.ts](../../tests/server/middleware/auth-optional-session.test.ts) 已覆盖 targeted public routes、连接级初始化与 session lookup failure swallow；残余候选收敛为组件层 direct TTS 失败提示、登录/注册等页面级 auth degradation，以及 `settings/public` / friend-links 公开链路的更细失败口径。
 
 3. **主线：ESLint / 类型债治理 (P1)**
 - [x] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
