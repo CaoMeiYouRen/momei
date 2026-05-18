@@ -20,6 +20,7 @@ describe('run-periodic-regression', () => {
             'security:audit-deps',
             'docs:check:source-of-truth',
             'docs:check:i18n',
+            'docs:check:line-count',
             'i18n:audit:missing',
             'duplicate-code:check',
         ])
