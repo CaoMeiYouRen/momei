@@ -12,7 +12,7 @@
 ## 长期主线任务（可跨阶段保留）
 
 > 状态口径统一使用：进行中 / 观察中 / 暂停 / 已关闭。
-> 共 8 条（2026-05-17 瘦身后）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层。
+> 共 9 条（2026-05-19 增补脚本治理主线）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层；本轮新增 1 条“脚本资产、量化口径与回归入口治理”主线，用于承接长期治理的 script-first 基座。
 
 1. **测试覆盖率与有效性治理**
 - **目标**:
@@ -38,6 +38,7 @@
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
     - 按批次继续收紧 ESLint 规则，至少再收紧 `1 - 2` 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
+    - 治理进度默认以可重复执行的规则债盘点脚本作为事实源，至少能按 rule / 目录 / 豁免类型统计命中数、清零数与残余债务，而不是只靠阶段叙述判断“似乎有进展”。
 - **状态**:
     - 进行中。
 - **当前状态**:
@@ -47,12 +48,14 @@
     - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
     - 第三十二阶段已完成"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
     - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
+    - 当前仍缺少统一的规则债 inventory 脚本；现有 `lint`、定向 `eslint` 与阶段记录可以证明单次切片通过，但还不能稳定回答“全仓还剩多少命中、按目录如何分桶、每轮实际消掉了多少”。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已正式上收 composables 子桶继续收紧切片）。
     - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
     - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
 - **下一次可切片方向**:
+    - 下一轮进入实现前，先补一条规则债 inventory 脚本，至少覆盖 `no-explicit-any`、`no-non-null-assertion`、warning 基线与目录分桶；正式切片默认以该脚本输出作为 baseline / delta 事实源。
     - 若下一轮正式上收，继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在 AI provider 聚合层或高 ROI 测试桩历史断言中二选一推进，而不是回到全仓 `any` 清零。
     - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵，不把规则收紧重新做成目录级工程。
 
@@ -60,6 +63,7 @@
 - **目标**:
     - 继续压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型、简单工具函数与轻量响应壳层纳入受控复用范围，降低后续变更的维护成本与行为漂移风险。
     - 优先治理逻辑简单、跨文件重复率高、适合稳定上收到共享层的类型与工具函数，而不是把所有局部实现都强行抽象。
+    - 对 `jscpd` 覆盖不到的“简单内部函数 / type / interface 重复”建立脚本盘点口径，优先统计同名、近似名与同形状声明候选，再逐个判断是否真的值得复用。
 - **状态**:
     - 进行中。
 - **当前状态**:
@@ -71,12 +75,14 @@
     - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
     - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
     - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖"重复导入 + 轻包装""局部类型同形状复制"与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
+    - 当前缺少专门面向“未 export 的简单函数 / type / interface”重复盘点脚本，尚不能量化同名或近似名候选的规模，也无法稳定回答哪些候选已经人工判定为“可复用”或“保留局部实现”。
 - **最近一次上收阶段**:
     - 第三十二阶段（当前切片已收口）。
     - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
     - 第三十五阶段（已正式扩充为结构复用治理，并上收零散类型与纯函数 / 工具函数首轮切片）。
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
 - **下一次可切片方向**:
+    - 先补 `simple duplicate inventory` 脚本：按函数名、type/interface 名、近似签名与目录分桶输出候选清单，并把“确认可复用 / 保留局部实现 / 待观察”作为人工复核结论写入同一条事实源。
     - 下一轮优先进入“结构复用第二轮”：至少继续处理 `3` 处热点，其中 `components/commercial-link-manager.vue` 文件内自重复为最高优先级。
     - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹，不把复杂业务逻辑伪装成共享框架。
     - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper，以及低耦合守卫函数。
@@ -86,6 +92,7 @@
     - 按现行注释规范为存量代码逐步补充高价值注释，优先覆盖复杂逻辑、兼容性兜底、跨层契约、关键副作用与核心导出函数，而不是做全仓平均铺开式补注释。
     - 同步清理失效、误导性或逐行复述代码的低价值注释，避免"注释数量增加但可维护性没有提升"。
     - 让注释治理与 Review Gate 形成闭环：每轮切片都保留受影响范围、已补注释类型、未覆盖边界与注释漂移检查结论。
+    - 注释治理默认以脚本化盘点输出作为事实源，至少回答“高复杂度导出函数缺注释数、疑似逐行复述注释数、漂移注释候选数”的变化，而不是只写本轮补了哪些注释。
 - **状态**:
     - 进行中。
 - **当前状态**:
@@ -94,11 +101,13 @@
     - 编辑器链路的下一轮切片可以优先围绕 `mavon-editor` 工具栏与背景栏配色、Markdown 能力补齐，以及与文章页渲染能力保持一致的扩展项收口，而不是直接切换底层编辑器实现。
     - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选 `1 - 2` 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
     - 第三十三阶段已正式上收候选组 B 切片，聚焦 `server/services/upload.ts` 与 `server/utils/post-access.ts` 两条运行时安全敏感链路。
+    - 当前仍缺少注释盘点脚本，尚不能稳定量化“复杂逻辑缺注释”和“低价值 / 漂移注释”候选规模，导致阶段叙述很难形成跨轮次可比较的进度口径。
 - **最近一次上收阶段**:
     - 第三十阶段（已审计归档）。
     - 第三十三阶段（已正式上收候选组 B 切片）。
     - 第三十五阶段（已正式上收候选组 A 切片）。
 - **下一次可切片方向**:
+    - 首个切片前先补注释盘点脚本，至少覆盖导出函数 / 高复杂度函数的缺注释候选，以及 `TODO` / 过时口吻 / 逐行复述类低价值注释候选，再决定本轮 `1 - 2` 组模块。
     - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
     - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
     - 候选组 C：`server/api/posts/index.get.ts`、`server/api/posts/archive.get.ts`、`server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与相关查询 helper，优先覆盖多语言聚合、宽查询裁剪、分页读取与热点读接口约束。
@@ -155,12 +164,14 @@
     - 统一维护项目全文档体系的分层边界、膨胀阈值与 freshness 治理：包括 `docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 分层与同步。
     - 清理无效、过时或漂移的设计 / 治理 / 规划文档，对已失效且无参考价值的内容允许直接归档或删除。
     - 保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过状态，不靠临时补 `last_sync` 应付检查。
+    - 文档治理默认以脚本输出为准；当行数阈值或翻译 freshness 被证明过宽时，必须先回写到 `docs:check:line-count` / `docs:check:source-of-truth` 对应脚本，再更新规范与阶段结论。
 - **状态**:
     - 观察中（合并后首次综合评估）。
 - **当前状态（按原域追踪）**:
     - **design 域**（原 #7）：第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；当前剩余工作从"继续混放目录"转为"持续清理漂移内容与残留任务口吻"，避免新文档回流到错误目录。
     - **plan 域**（原 #9）：第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 已改为"深度归档索引 + 近线阶段窗口"的维护模式。后续治理重点转为按阈值滚动归档。
     - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
+    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 的 `must-sync 30 天 / summary-sync 45 天` 对高频治理页仍偏宽松，尚未覆盖更多高频 Guide / Standards 文档的膨胀与 freshness 风险。
 - **最近一次上收阶段**:
     - 第二十九阶段（原 #7，已审计归档）。
     - 第三十阶段（原 #11，已审计归档）。
@@ -169,6 +180,7 @@
     - design 域：先清理仍直接引用当前 Todo 的设计 / 治理文档，再按模块逐个审计"当前实现 / 设计正文 / delta 文档 / 归档文档"的重叠与漂移程度。
     - plan 域：按阈值触发滚动归档，跟进 `roadmap.md` / `todo-archive.md` 的当前行数并决定是否需要下一轮区间分片。
     - 翻译域：优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从"是否有翻译"推进到"哪些翻译必须持续保持新鲜"。
+    - 下一轮优先上收“文档门禁收紧”切片：把 `docs/guide/translation-governance.md`、`docs/guide/deploy.md`、`docs/standards/planning.md`、`docs/standards/documentation.md` 等高频页纳入 `docs:check:line-count`，并同步评估 `must-sync` 收紧到 `21` 天、`summary-sync` 收紧到 `30` 天的可执行性；未落到脚本前，不把这些新门槛直接写成已生效规范。
 
 8. **Windows 本地 Dev / Build 性能治理**
 - **目标**:
@@ -190,6 +202,26 @@
     - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
     - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
 
+9. **脚本资产、量化口径与回归入口治理**
+- **目标**:
+    - 把脚本作为长期治理主线的事实源，优先为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出，而不是长期依赖叙述性阶段总结。
+    - 治理 `scripts/**` 目录的长期脚本入口、孤儿脚本、临时脚本残留与输出漂移，避免“脚本存在但没人跑”或“治理口径停留在文档、没有落到脚本”。
+    - 让脚本治理进入固定回归入口：一旦某类治理脚本稳定，应优先并入 `regression:weekly`，再视风险升级到发版前和阶段收口入口。
+- **专项设计事实源**:
+    - 统一收敛到 [docs/design/governance/script-governance.md](../design/governance/script-governance.md)，后续新增脚本、接入顺序与非目标优先在该文档维护，再回写规划摘要。
+- **状态**:
+    - 进行中。
+- **当前状态**:
+    - 仓库已经具备 `docs`、`i18n`、`perf`、`security`、`review-gate`、`regression` 等长期脚本资产，也已经有三条固定回归入口，但仍缺少“脚本本身是否健康、是否有稳定入口、是否覆盖长期治理量化口径”的统一审计面。
+    - 当前多条长期主线仍主要依赖单次定向命令或阶段叙述来说明进度，例如 ESLint / 类型债、结构复用、注释治理与文档治理都还缺少可跨轮次比较的 inventory 脚本输出。
+    - 固定回归入口尚未覆盖脚本资产治理；当前无法自动回答“是否存在无入口长期脚本、临时脚本残留、路径漂移或新的治理主线还没沉淀脚本事实源”。
+- **最近一次上收阶段**:
+    - 尚无（2026-05-19 新增长期主线，待首次切片正式上收）。
+- **下一次可切片方向**:
+    - 先补一条 `script-governance` 审计脚本，至少检查长期脚本是否有 `package.json` / workflow / 文档入口，是否存在孤儿脚本、临时脚本残留、路径失效或输出契约漂移。
+    - 再从 `simple duplicate inventory`、`eslint debt inventory`、`comment inventory` 三类量化脚本中优先实现 `1 - 2` 条高 ROI 入口，作为其他长期主线的最小事实源基座。
+    - 脚本一旦稳定，优先接入 `pnpm regression:weekly`；发版前与阶段收口入口至少保留 warning -> blocker 的升级口径，而不是长期停留在人工补跑。
+
 ## 周期性回归验证层
 
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
@@ -204,6 +236,8 @@
 | 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
 | 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
 
+- 当前固定入口尚未覆盖 `script-governance`；该缺口已提升为长期主线 #9，后续优先补独立检查脚本并接入 weekly / pre-release / phase-close。
+
 ### 覆盖矩阵（每条长期主线的回归覆盖状态）
 
 | 长期主线 | 周级覆盖 | 发版前覆盖 | 阶段收口覆盖 |
@@ -216,6 +250,7 @@
 | #6 国际化治理 | ✅ `i18n:audit:missing` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
+| #9 脚本治理 | — | — | — (待 `script-governance` 入口落地后接入) |
 
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 
@@ -231,6 +266,7 @@
 | i18n missing / raw key 暴露 | → 长期主线 #6（国际化治理） |
 | 文档事实源 stale 或行数超阈值 | → 长期主线 #7（文档治理） |
 | 性能预算超标 | → 长期主线 #8（Windows 性能治理） |
+| 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #9（脚本治理） |
 | 依赖安全 high+ 漏洞 | → 直接 blocker，在当前阶段修复 |
 | 跨多条主线的问题 | → 取最匹配的一条路由，其他在路由备注中引用 |
 

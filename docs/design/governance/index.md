@@ -14,6 +14,7 @@
 - **[caomei-auth OAuth / OIDC 接入预研](./caomei-auth-oauth-evaluation)**: 认证体系的候选预研文档，聚焦 `genericOAuth` 接入前提、字段契约、ENV 锁定与上游缺口清单。
 - **[存量代码注释治理与注释漂移治理](./comment-drift-governance)**: 第三十阶段治理切片文档，聚焦设置来源判定、locale 归一化与请求上下文挂载链路的高价值注释补强。
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。
+- **[脚本治理与量化基线设计](./script-governance)**: 聚合 backlog、planning、development 中分散的 script-first 规则，聚焦长期脚本资产、量化口径、固定回归接入顺序与首批新增治理脚本候选。
 - **[配置项多语言国际化与回退治理](./settings-i18n-fallback-governance)**: `system.md` / `i18n.md` 的联合治理补充，聚焦管理员可编辑配置的结构化多语言存储、旧值兼容与统一回退链。
 - **[Cloudflare 运行时兼容研究与止损结论](./cloudflare-runtime-study)**: `system.md` / `scheduled-publication.md` 的平台边界补充，聚焦 Workers / Pages / D1 的阻塞清单、最小样机边界与止损条件。
 - **[迁移链接治理与云端资源重写](./migration-link-governance)**: `migration.md` 的专项治理补充，聚焦链接治理和 `dry-run / apply / report` 契约。

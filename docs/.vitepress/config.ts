@@ -132,6 +132,7 @@ export default defineConfig({
                             { text: '商业化转型重评框架', link: '/design/governance/commercialization-reassessment-framework' },
                             { text: '注释漂移治理', link: '/design/governance/comment-drift-governance' },
                             { text: 'ESLint / 类型债治理', link: '/design/governance/eslint-type-debt-tightening' },
+                            { text: '脚本治理与量化基线', link: '/design/governance/script-governance' },
                             { text: '可缓存接口清单', link: '/design/governance/cacheable-api-inventory' },
                             { text: '内容分发模板与标签', link: '/design/governance/content-distribution-template-tag-adaptation' },
                             { text: '第三方分发治理', link: '/design/governance/content-distribution-governance' },
