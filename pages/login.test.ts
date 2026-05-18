@@ -370,6 +370,40 @@ describe('LoginPage', () => {
         expect(wrapper.find('button[type="submit"]').attributes('data-loading')).toBe('false')
     })
 
+    it('keeps the backend auth error visible when session refresh degrades after a logical failure', async () => {
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+        emailSignInMock.mockResolvedValueOnce({
+            error: {
+                statusText: 'Unauthorized',
+            },
+        })
+        refreshAuthSessionMock.mockRejectedValueOnce(new Error('session refresh failed'))
+
+        const wrapper = await mountPage()
+
+        await wrapper.find('#email').setValue('writer@momei.dev')
+        await wrapper.find('#password').setValue('wrong-pass')
+        await wrapper.find('.captcha-input').setValue('captcha-token')
+        await wrapper.find('form').trigger('submit.prevent')
+        await nextTick()
+        await nextTick()
+
+        expect(refreshAuthSessionMock).toHaveBeenCalledTimes(1)
+        expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'Unauthorized',
+        }))
+        expect(resetCaptchaMock).toHaveBeenCalledTimes(1)
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+            'Failed to refresh auth session after login attempt',
+            expect.objectContaining({ message: 'session refresh failed' }),
+        )
+        expect(navigateToMock).not.toHaveBeenCalled()
+
+        consoleWarnSpy.mockRestore()
+    })
+
     it('falls back to the shared unexpected error copy when email sign-in throws', async () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* suppress console error in test */ })
         emailSignInMock.mockRejectedValueOnce(new Error('network down'))

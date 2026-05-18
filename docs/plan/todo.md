@@ -26,10 +26,12 @@
 	- 验收: 预览构造与实际分发必须复用同一条标签标准化 / 尾注拼装入口，并明确“标签尾注中的标签项去除空格后再输出”的规则。
 	- 验证: 分发物料 helper / template 测试 + 实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
 
-- [ ] **测试有效性第二轮切片 (P0)**
+- [x] **测试有效性第二轮切片 (P0)**
 	- 验收: 至少完成 `3` 组高风险失败 / 边界断言，优先覆盖组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
 	- 验收: 其中至少 `1` 组必须覆盖用户可见错误映射，而不是只断言内部异常被抛出。
-	- 验证: 定向 Vitest、受影响文件类型检查，以及本轮新增入口的定向回归矩阵记录。
+	- 结果: 已完成 `3` 组高风险切片：[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 覆盖 direct TTS 任务创建失败后的可见错误映射；[pages/login.test.ts](../../pages/login.test.ts) 与 [pages/login.vue](../../pages/login.vue) 覆盖登录页 logical failure 后 `refreshAuthSession` 退化不吞主错误；[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 覆盖 `503` bootstrap 失败不污染短 TTL runtime cache、后续成功请求可恢复。
+	- 结果: 本轮至少 `2` 组直接覆盖用户可见错误映射（direct TTS 对话框错误文案、login 页认证失败提示），满足“不可只断言内部异常”的准入要求。
+	- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../reports/regression/current.md) 中的本轮定向回归矩阵记录。
 
 - [ ] **Postgres 公开热点读链路继续瘦身 (P0)**
 	- 验收: 本轮只允许推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。

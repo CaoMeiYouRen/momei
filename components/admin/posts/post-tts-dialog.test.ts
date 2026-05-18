@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils'
 import { ref, watch } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import PostTTSDialog from './post-tts-dialog.vue'
 
 const mockAppFetch = vi.fn()
@@ -53,10 +53,15 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
-vi.stubGlobal('$fetch', mockAppFetch)
-vi.stubGlobal('useRequestFeedback', () => ({
+mockNuxtImport('useAppApi', () => () => ({
+    $appFetch: mockAppFetch,
+}))
+
+mockNuxtImport('useRequestFeedback', () => () => ({
     resolveErrorMessage: mockResolveErrorMessage,
 }))
+
+vi.stubGlobal('$fetch', mockAppFetch)
 
 describe('PostTTSDialog', () => {
     beforeEach(() => {
@@ -324,6 +329,84 @@ describe('PostTTSDialog', () => {
                 mode: 'speech',
             }],
         ])
+    })
+
+    it('renders a visible error message when task creation fails before direct generation starts', async () => {
+        mockAppFetch.mockImplementation((url: string) => {
+            if (url === '/api/ai/tts/config') {
+                return Promise.resolve({
+                    data: {
+                        defaultProvider: 'volcengine',
+                        availableProviders: ['volcengine', 'openai'],
+                        providerModes: {
+                            volcengine: ['speech'],
+                            openai: ['speech'],
+                        },
+                    },
+                })
+            }
+
+            if (url === '/api/ai/tts/voices') {
+                return Promise.resolve({
+                    data: [{ id: 'BV001', name: 'Volc Voice' }],
+                })
+            }
+
+            if (url === '/api/ai/tts/estimate') {
+                return Promise.resolve({
+                    data: {
+                        providerCost: 0.2,
+                        providerCurrency: 'USD',
+                        displayCost: 2.5,
+                        quotaUnits: 4,
+                        costDisplay: {
+                            currencyCode: 'CNY',
+                            currencySymbol: '¥',
+                            quotaUnitPrice: 0.1,
+                        },
+                    },
+                })
+            }
+
+            if (url === '/api/ai/tts/task') {
+                return Promise.reject(new Error('task create failed'))
+            }
+
+            return Promise.resolve({ data: {} })
+        })
+
+        const wrapper = await mountSuspended(PostTTSDialog, {
+            props: {
+                visible: true,
+                postId: 'post-error',
+                content: 'Direct generation content',
+                language: 'zh-CN',
+                translationId: 'cluster-error',
+            },
+            global: {
+                stubs: {
+                    Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+                    Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
+                    Select: { template: '<div />' },
+                    RadioButton: { template: '<div />' },
+                    ProgressBar: { template: '<div />' },
+                    Message: { template: '<div class="message"><slot /></div>' },
+                    Textarea: { template: '<textarea />' },
+                },
+            },
+        })
+
+        await flushPromises()
+        await flushPromises()
+
+        await wrapper.get('button[data-label="pages.admin.posts.tts.start_generate"]').trigger('click')
+        await flushPromises()
+
+        expect(mockResolveErrorMessage).toHaveBeenCalledWith(expect.any(Error), {
+            fallbackKey: 'pages.admin.posts.tts.failed',
+        })
+        expect(mockGenerateAndUpload).not.toHaveBeenCalled()
+        expect(wrapper.text()).toContain('fallback error')
     })
 
 })

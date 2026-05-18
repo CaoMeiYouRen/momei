@@ -249,6 +249,14 @@ const handleGoogleLogin = async () => {
     })
 }
 
+const refreshAuthSessionSafely = async () => {
+    try {
+        await refreshAuthSession()
+    } catch (refreshError) {
+        console.warn('Failed to refresh auth session after login attempt', refreshError)
+    }
+}
+
 const handleEmailLogin = async () => {
     errors.email = ''
     errors.password = ''
@@ -282,7 +290,7 @@ const handleEmailLogin = async () => {
         })
 
         if (error) {
-            await refreshAuthSession()
+            await refreshAuthSessionSafely()
             toast.add({
                 severity: 'error',
                 summary: t('common.error'),
@@ -294,7 +302,7 @@ const handleEmailLogin = async () => {
             navigateTo(redirectTarget.value)
         }
     } catch (e) {
-        await refreshAuthSession()
+        await refreshAuthSessionSafely()
         console.error(e)
         toast.add({
             severity: 'error',

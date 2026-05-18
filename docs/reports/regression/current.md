@@ -9,6 +9,40 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-18 第三十八阶段测试有效性第二轮切片（P0）关闭
+
+### 范围
+
+- 目标：围绕第三十八阶段 `测试有效性第二轮切片 (P0)`，补齐组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 friend-links 公开失败口径中的最小高风险缺口，并把本轮命中的入口沉淀为可复用定向回归矩阵。
+- 本轮覆盖：[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts)、[pages/login.vue](../../pages/login.vue)、[pages/login.test.ts](../../pages/login.test.ts)、[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 与 [docs/plan/todo.md](../../docs/plan/todo.md)。
+- 非目标：不把页面级 auth degradation 扩到 register 页，不重开 friend-links 第二条失败口径，也不把本轮放大成新的 coverage 冲刺。
+
+### 实施结论
+
+- [components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 已补齐 `/api/ai/tts/task` 创建失败后的用户可见错误映射，验证 direct TTS 在真正进入浏览器直连前若任务创建失败，会通过对话框 error Message 暴露 fallback 文案，而不是静默失败或只留内部异常。
+- [pages/login.test.ts](../../pages/login.test.ts) 与 [pages/login.vue](../../pages/login.vue) 已补齐登录页 logical failure 后的 auth degradation 守线：当 `refreshAuthSession` 作为失败后的补偿步骤再次退化时，页面继续保留原始 `Unauthorized` 错误提示并记录 warning，而不会二次掉进 catch 把用户可见结果抹成 `Unexpected error`。
+- [tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 已补齐 `settings public` 的失败缓存边界：第一次 bootstrap `503` 不会污染 `settings:public` 的短 TTL runtime cache，随后恢复的请求会重新查库并返回 `200`，避免公开热点读链路在短时间内被错误结果钉死。
+- 本轮可复用的定向回归矩阵已固定为：`pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`。
+
+### 已执行验证
+
+- 定向 Vitest：`pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`
+	- 结果：通过；`3` 个文件、`17` 个测试全部通过（`0` 失败）。
+- 受影响文件类型检查：`pnpm exec nuxt typecheck`
+	- 结果：通过；命令正常结束且未返回类型错误输出，且 [pages/login.vue](../../pages/login.vue)、[pages/login.test.ts](../../pages/login.test.ts)、[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts)、[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 的编辑器诊断均为 `No errors found`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮已经满足 todo 中 `3` 组高风险切片的验收要求，但 register 页仍保留与 login 页相同的“失败后补刷 session”形态，friend-links 公开链路也仍只有既有失败守线；二者应保留为下一轮候选，而不是误写成认证退化与公开失败口径已经全域收口。
+
+### 未覆盖边界
+
+- 本轮页面级 auth degradation 只落在 login 页；[pages/register.vue](../../pages/register.vue) 的同构失败补偿链路尚未补同级守线。
+- 本轮没有继续扩写 friend-links 公开页失败口径；[pages/friend-links.test.ts](../../pages/friend-links.test.ts) 的现有加载失败与提交失败断言继续沿用，但未新增本轮专属切片。
+- direct TTS 当前只补到“任务创建失败”的可见映射；若后续继续推进，可再考虑浏览器直连上传阶段失败与进度中断的更细 UI 归因。
+
 ## 2026-05-18 第三十七阶段归档对账与 Review Gate
 
 ### 范围

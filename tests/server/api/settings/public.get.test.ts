@@ -173,4 +173,19 @@ describe('GET /api/settings/public', () => {
         })
         expect(resolvePublicLocalizedSettingsFromValues).not.toHaveBeenCalled()
     })
+
+    it('should retry the loader after a cached miss caused by a bootstrap failure', async () => {
+        vi.mocked(getPublicSettings).mockResolvedValueOnce(null)
+
+        await expect(publicSettingsHandler({} as any)).rejects.toMatchObject({
+            statusCode: 503,
+        })
+
+        const recovered = await publicSettingsHandler({} as any)
+
+        expect(recovered.code).toBe(200)
+        expect(recovered.data.siteTitle).toBe('墨梅博客')
+        expect(getPublicSettings).toHaveBeenCalledTimes(2)
+        expect(resolvePublicLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
+    })
 })
