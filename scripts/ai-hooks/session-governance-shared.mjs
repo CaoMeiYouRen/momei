@@ -627,6 +627,12 @@ export async function handleSessionGovernanceEvent({ eventName, payload = {}, pl
         }
 
         sessionState.currentTask.session.updated_at = timestamp
+        sessionState.currentTask.auto_handoff = {
+            generated_at: timestamp,
+            trigger: eventName,
+            summary: buildHandoffSummary(sessionState.currentTask, sessionState.runtimeState),
+        }
+        sessionState.runtimeState.hook_state.last_handoff_at = timestamp
 
         await persistSessionState(sessionState)
 
