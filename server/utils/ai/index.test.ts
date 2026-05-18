@@ -133,10 +133,25 @@ describe('getAIProvider', () => {
             [SettingKey.AI_PROVIDER]: 'anthropic',
         }))
 
-        const provider = await getAIProvider('text') as unknown as { kind: string, config: { provider: string } }
+        const provider = await getAIProvider('text')
 
-        expect(provider.kind).toBe('anthropic')
-        expect(provider.config.provider).toBe('anthropic')
+        expect(provider).toMatchObject({
+            kind: 'anthropic',
+            config: { provider: 'anthropic' },
+        })
+    })
+
+    it('falls back to openai when stored provider is unsupported', async () => {
+        getSettingsMock.mockResolvedValue(createSettings({
+            [SettingKey.AI_PROVIDER]: 'legacy-provider',
+        }))
+
+        const provider = await getAIProvider('text')
+
+        expect(provider).toMatchObject({
+            kind: 'openai',
+            config: { provider: 'openai' },
+        })
     })
 
     it('returns gemini provider for image category with api token', async () => {
@@ -148,11 +163,15 @@ describe('getAIProvider', () => {
             [SettingKey.GEMINI_API_TOKEN]: 'gemini-token',
         }))
 
-        const provider = await getAIProvider('image') as unknown as { kind: string, config: { apiToken: string, provider: string } }
+        const provider = await getAIProvider('image')
 
-        expect(provider.kind).toBe('gemini')
-        expect(provider.config.provider).toBe('gemini')
-        expect(provider.config.apiToken).toBe('gemini-token')
+        expect(provider).toMatchObject({
+            kind: 'gemini',
+            config: {
+                provider: 'gemini',
+                apiToken: 'gemini-token',
+            },
+        })
     })
 
     it('returns stable diffusion provider for image category', async () => {
@@ -162,9 +181,9 @@ describe('getAIProvider', () => {
             [SettingKey.AI_IMAGE_API_KEY]: 'sd-key',
         }))
 
-        const provider = await getAIProvider('image') as unknown as { kind: string }
+        const provider = await getAIProvider('image')
 
-        expect(provider.kind).toBe('stable-diffusion')
+        expect(provider).toMatchObject({ kind: 'stable-diffusion' })
     })
 
     it('returns siliconflow asr provider', async () => {
@@ -176,12 +195,14 @@ describe('getAIProvider', () => {
             [SettingKey.ASR_ENDPOINT]: 'https://asr.example.com',
         }))
 
-        const provider = await getAIProvider('asr') as unknown as { kind: string, apiKey: string, endpoint: string, model: string }
+        const provider = await getAIProvider('asr')
 
-        expect(provider.kind).toBe('asr-siliconflow')
-        expect(provider.apiKey).toBe('asr-key')
-        expect(provider.endpoint).toBe('https://asr.example.com')
-        expect(provider.model).toBe('asr-model')
+        expect(provider).toMatchObject({
+            kind: 'asr-siliconflow',
+            apiKey: 'asr-key',
+            endpoint: 'https://asr.example.com',
+            model: 'asr-model',
+        })
     })
 
     it('returns volcengine asr provider with resolved resource id', async () => {
@@ -195,13 +216,15 @@ describe('getAIProvider', () => {
             [SettingKey.ASR_ENDPOINT]: 'wss://asr.example.com',
         }))
 
-        const provider = await getAIProvider('asr') as unknown as { kind: string, config: { resourceId: string, appId: string, token: string } }
+        const provider = await getAIProvider('asr')
 
-        expect(provider.kind).toBe('asr-volcengine')
-        expect(provider.config).toMatchObject({
-            appId: 'app-id',
-            token: 'access-key',
-            resourceId: 'volc.bigasr.sauc.duration',
+        expect(provider).toMatchObject({
+            kind: 'asr-volcengine',
+            config: {
+                appId: 'app-id',
+                token: 'access-key',
+                resourceId: 'volc.bigasr.sauc.duration',
+            },
         })
     })
 
@@ -216,13 +239,15 @@ describe('getAIProvider', () => {
             [SettingKey.VOLCENGINE_SECRET_KEY]: 'secret-key',
         }))
 
-        const provider = await getAIProvider('tts') as unknown as { kind: string, config: { appId: string, accessKey: string, secretKey: string } }
+        const provider = await getAIProvider('tts')
 
-        expect(provider.kind).toBe('tts-volcengine')
-        expect(provider.config).toMatchObject({
-            appId: 'app-id',
-            accessKey: 'access-key',
-            secretKey: 'secret-key',
+        expect(provider).toMatchObject({
+            kind: 'tts-volcengine',
+            config: {
+                appId: 'app-id',
+                accessKey: 'access-key',
+                secretKey: 'secret-key',
+            },
         })
     })
 })

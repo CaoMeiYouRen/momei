@@ -42,10 +42,14 @@
 	- 候选: 下一轮可优先关注 `packages/cli/src/cli-shared.ts` vs `packages/mcp-server/src/tools/automation.ts`、`server/api/admin/external-links.post.ts` vs `server/api/admin/external-links/[id].put.ts`、`middleware/admin.ts` vs `middleware/author.ts`，以及 `components/admin/dashboard/creator-metric-card.vue` vs `components/admin/dashboard/metric-card.vue`。
 	- 验证: `components/commercial-link-manager.test.ts`、`utils/shared/commercial-schema.test.ts`、`utils/shared/duration.test.ts`、`pnpm exec nuxt typecheck`、`pnpm duplicate-code:check`，以及浏览器侧验证 `http://127.0.0.1:3002/settings?tab=commercial` 上 `social-add -> social-save -> social-edit-0` 可回读新增 URL、`donation-add` 可打开打赏对话框（默认图片上传分支）。
 
-- [ ] **ESLint / 类型债下一轮窄切片 (P1)**
+- [x] **ESLint / 类型债下一轮窄切片 (P1)**
 	- 验收: 继续坚持“单规则、单文件或双文件”切片，优先在 AI provider 聚合层与高 ROI 测试桩历史断言之间二选一推进。
 	- 验收: 定向 ESLint、定向测试与类型检查通过，残余债务与下一轮候选有明确记录。
+	- 结果: 已在 `server/utils/ai/index.ts` 为数据库 provider 值补上 `AIProviderType` 守卫与归一化 helper，移除直接写入 `AIConfig.provider` 的 `as any`；`server/utils/ai/index.test.ts` 同步把聚合层邻近的多处 `unknown as` 历史结构断言改为 `toMatchObject`，并补上“stored provider 不受支持时回退到 `openai`”的守线用例。
+	- 残余债务: `server/utils/ai/index.ts` 当前仍维护一份本地 provider allowlist，与 `types/ai.ts` 中的 `AIProviderType` 不是单一事实源；若后续扩 provider，需要同步补一条 parity 守线，避免遗漏时静默回退到 `openai`。
+	- 候选: 下一轮继续保持二选一，不并行扩面；可优先关注 `server/utils/ai/index.ts` 邻近的 provider / error typing 收口，或转向一组高 ROI 测试桩历史断言的继续收敛。
 	- 验证: 定向 ESLint、定向 Vitest 与受影响文件类型检查。
+	- 验证: `pnpm exec eslint server/utils/ai/index.ts server/utils/ai/index.test.ts`、`pnpm exec vitest run server/utils/ai/index.test.ts`、`pnpm exec nuxt typecheck`。
 
 ## 相关文档
 

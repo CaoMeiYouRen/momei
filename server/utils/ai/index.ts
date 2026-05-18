@@ -8,13 +8,32 @@ import { VolcengineASRProvider } from './asr-volcengine'
 import { OpenAITTSProvider } from './tts-openai'
 import { SiliconFlowTTSProvider } from './tts-siliconflow'
 import { VolcengineTTSProvider } from './tts-volcengine'
-import type { AIConfig, AIProvider, AICategory } from '@/types/ai'
+import type { AIConfig, AIProvider, AICategory, AIProviderType } from '@/types/ai'
 import {
     AI_MAX_TOKENS,
     AI_TEMPERATURE,
 } from '@/utils/shared/env'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
+
+const aiProviderTypes = [
+    'openai',
+    'anthropic',
+    'gemini',
+    'stable-diffusion',
+    'doubao',
+    'siliconflow',
+    'volcengine',
+    'deepseek',
+] as const satisfies readonly AIProviderType[]
+
+function isAIProviderType(value: string): value is AIProviderType {
+    return aiProviderTypes.some((provider) => provider === value)
+}
+
+function resolveAIProviderType(value: string | null | undefined): AIProviderType {
+    return value && isAIProviderType(value) ? value : 'openai'
+}
 
 /**
  * 获取指定类别的 AI 提供者
@@ -92,7 +111,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     // 继承逻辑：如果子模块未配置，则尝试使用主配置
     const config: AIConfig = {
         enabled: (dbSettings[enabledKey] || dbSettings[SettingKey.AI_ENABLED]) === 'true',
-        provider: (dbSettings[providerKey] || dbSettings[SettingKey.AI_PROVIDER] || 'openai') as any,
+        provider: resolveAIProviderType(dbSettings[providerKey] || dbSettings[SettingKey.AI_PROVIDER]),
         apiKey: dbSettings[apiKeyKey] || dbSettings[SettingKey.AI_API_KEY] || '',
         model: dbSettings[modelKey] || dbSettings[SettingKey.AI_MODEL] || '',
         endpoint: dbSettings[endpointKey] || dbSettings[SettingKey.AI_ENDPOINT] || '',
@@ -200,7 +219,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     }
 
     // 通用文本提供者 (OpenAI 兼容)
-    switch (finalConfig.provider as string) {
+    switch (finalConfig.provider) {
         case 'openai':
         case 'doubao':
         case 'siliconflow':
