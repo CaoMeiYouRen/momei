@@ -186,6 +186,7 @@ export default withNuxt(
         'playwright-report',
         'test-results',
         'pnpm-lock.yaml',
+        'artifacts',
     ]),
     {
         plugins: {

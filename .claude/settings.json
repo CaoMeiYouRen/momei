@@ -1,0 +1,49 @@
+{
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=session-start",
+                        "timeout": 15
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Write|Edit|MultiEdit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=post-tool-use",
+                        "timeout": 15
+                    }
+                ]
+            }
+        ],
+        "PreCompact": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=pre-compact",
+                        "timeout": 15
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=session-end",
+                        "timeout": 15
+                    }
+                ]
+            }
+        ]
+    }
+}

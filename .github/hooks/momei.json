@@ -1,4 +1,33 @@
 {
     "version": 1,
-    "hooks": {}
+    "hooks": {
+        "sessionStart": [
+            {
+                "type": "command",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=session-start",
+                "timeoutSec": 15
+            }
+        ],
+        "postToolUse": [
+            {
+                "type": "command",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
+                "timeoutSec": 15
+            }
+        ],
+        "preCompact": [
+            {
+                "type": "command",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=pre-compact",
+                "timeoutSec": 15
+            }
+        ],
+        "sessionEnd": [
+            {
+                "type": "command",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=session-end",
+                "timeoutSec": 15
+            }
+        ]
+    }
 }

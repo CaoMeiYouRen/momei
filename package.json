@@ -15,6 +15,7 @@
     "web-push:generate-vapid": "node scripts/setup/generate-web-push-vapid.mjs",
     "setup:ai": "node scripts/setup/setup-ai.mjs",
     "ai:check": "node scripts/ai/check-governance.mjs",
+    "ai:session:hook": "node scripts/ai-hooks/session-governance.mjs",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "i18n:audit:missing": "node scripts/i18n/audit-locale-keys.mjs --only=missing --fail-on-missing",
     "i18n:audit:unused": "node scripts/i18n/audit-locale-keys.mjs --only=unused",
