@@ -5,6 +5,9 @@ import { handleSessionGovernanceEvent } from './session-governance-shared.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..', '..')
+const INITIAL_STDIN_TIMEOUT_MS = 250
+const STDIN_IDLE_TIMEOUT_MS = 50
+const STDIN_MAX_TIMEOUT_MS = 1000
 
 function parseArgs(argv) {
     const parsed = {
@@ -45,13 +48,66 @@ async function readStdin() {
         return ''
     }
 
-    const chunks = []
+    return new Promise((resolve) => {
+        const chunks = []
+        let settled = false
+        let idleTimer = null
+        let initialTimer = null
+        let maxTimer = null
 
-    for await (const chunk of process.stdin) {
-        chunks.push(chunk)
-    }
+        const finish = () => {
+            if (settled) {
+                return
+            }
 
-    return Buffer.concat(chunks).toString('utf8').trim()
+            settled = true
+
+            if (idleTimer) {
+                clearTimeout(idleTimer)
+            }
+
+            if (initialTimer) {
+                clearTimeout(initialTimer)
+            }
+
+            if (maxTimer) {
+                clearTimeout(maxTimer)
+            }
+
+            process.stdin.off('data', handleData)
+            process.stdin.off('end', finish)
+            process.stdin.off('error', finish)
+            process.stdin.pause()
+
+            resolve(Buffer.concat(chunks).toString('utf8').trim())
+        }
+
+        const scheduleIdleFinish = () => {
+            if (idleTimer) {
+                clearTimeout(idleTimer)
+            }
+
+            idleTimer = setTimeout(finish, STDIN_IDLE_TIMEOUT_MS)
+        }
+
+        const handleData = (chunk) => {
+            if (initialTimer) {
+                clearTimeout(initialTimer)
+                initialTimer = null
+            }
+
+            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+            scheduleIdleFinish()
+        }
+
+        initialTimer = setTimeout(finish, INITIAL_STDIN_TIMEOUT_MS)
+        maxTimer = setTimeout(finish, STDIN_MAX_TIMEOUT_MS)
+
+        process.stdin.on('data', handleData)
+        process.stdin.on('end', finish)
+        process.stdin.on('error', finish)
+        process.stdin.resume()
+    })
 }
 
 function parsePayload(rawInput) {
