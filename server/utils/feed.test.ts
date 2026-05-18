@@ -152,7 +152,10 @@ describe('Feed Generation Utility', () => {
         expect(feed.items.length).toBe(2)
         expect(feed.items.some((i) => i.title === 'RSS English Post')).toBe(true)
         expect(feed.items.some((i) => i.title === 'RSS English Post 2')).toBe(true)
-        expect(feed.items.find((item) => item.title === 'RSS English Post')?.link).toBe('https://momei.app/en-US/posts/rss-en-1')
+        const englishPost = feed.items.find((item) => item.title === 'RSS English Post')
+        expect(englishPost?.link).toBe('https://momei.app/en-US/posts/rss-en-1')
+        expect(englishPost?.author?.[0]?.name).toBe('Feed Author')
+        expect(englishPost?.category?.[0]?.name).toBe('RSS Tech')
         expect(feed.items.find((item) => item.title === 'RSS English Post 2')?.description).toBe('More English content')
     })
 

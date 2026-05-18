@@ -4,6 +4,7 @@ import MarkdownItAnchor from 'markdown-it-anchor'
 import type { H3Event } from 'h3'
 import { mapAuthLocaleToAppLocale } from './locale'
 import { applyPostVisibilityFilter } from './post-access'
+import { applyPostListSelect } from './post-list-query'
 import { t, getLocale } from './i18n'
 import { applyPostsReadModelFromMetadata } from './post-metadata'
 import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
@@ -69,10 +70,12 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
     })
 
     const postRepo = dataSource.getRepository(Post)
-    const queryBuilder = postRepo.createQueryBuilder('post')
-        .leftJoinAndSelect('post.author', 'author')
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.tags', 'tags')
+    // Feed 输出只需要正文、作者名称与分类名称；标签只用于可选过滤，
+    // 不应再为公开 feed 热读路径装配整块 author/category/tags 实体。
+    const queryBuilder = applyPostListSelect(postRepo.createQueryBuilder('post'), {
+        includeAuthorEmail: false,
+        includeTags: false,
+    }).addSelect(['post.content'])
 
     // 应用统一的文章可见性过滤逻辑 (Mode: feed)
     await applyPostVisibilityFilter(queryBuilder, event.context?.user, 'feed')
