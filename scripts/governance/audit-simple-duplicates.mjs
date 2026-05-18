@@ -317,6 +317,17 @@ function buildNearNameGroups(items) {
 function buildGlobalBuckets({ nearNameFunctions, sameNameFunctions, sameNameTypes }) {
     const directoryBuckets = new Map()
     const fileBuckets = new Map()
+    const resolveBucketField = (field) => {
+        if (field === 'sameNameFunctions') {
+            return 'sameNameFunctions'
+        }
+
+        if (field === 'sameNameTypes') {
+            return 'sameNameTypes'
+        }
+
+        return 'nearNameFunctions'
+    }
     const registerDirectory = (directory, field) => {
         const current = directoryBuckets.get(directory) ?? {
             directory,
@@ -325,7 +336,7 @@ function buildGlobalBuckets({ nearNameFunctions, sameNameFunctions, sameNameType
             sameNameTypes: 0,
         }
 
-        current[field === 'sameNameFunctions' ? 'sameNameFunctions' : field === 'sameNameTypes' ? 'sameNameTypes' : 'nearNameFunctions'] += 1
+        current[resolveBucketField(field)] += 1
         directoryBuckets.set(directory, current)
     }
     const registerFile = (filePath, field) => {
@@ -336,7 +347,7 @@ function buildGlobalBuckets({ nearNameFunctions, sameNameFunctions, sameNameType
             sameNameTypes: 0,
         }
 
-        current[field === 'sameNameFunctions' ? 'sameNameFunctions' : field === 'sameNameTypes' ? 'sameNameTypes' : 'nearNameFunctions'] += 1
+        current[resolveBucketField(field)] += 1
         fileBuckets.set(filePath, current)
     }
     const registerGroup = (groups, field) => {

@@ -89,7 +89,14 @@ describe('audit-simple-duplicates', () => {
             expect(report.sameNameTypes[0]).toMatchObject({
                 name: 'LocalPayload',
             })
-            expect(report.nearNameFunctions[0].names).toEqual(expect.arrayContaining([
+            expect(report.nearNameFunctions).toHaveLength(1)
+            const firstNearNameGroup = report.nearNameFunctions[0]
+
+            if (!firstNearNameGroup) {
+                throw new Error('Expected one near-name function group')
+            }
+
+            expect(firstNearNameGroup.names).toEqual(expect.arrayContaining([
                 'buildStatusSummary',
                 'createStatusSummary',
                 'resolveStatusSummary',
