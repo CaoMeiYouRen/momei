@@ -138,7 +138,7 @@ function createExpandedPreviewController(options: {
         }
 
         if (!import.meta.client || !navigator.clipboard) {
-            options.showErrorToast(new Error(options.t('common.unknown_error')), {
+            options.showErrorToast(new Error(options.t('common.error_loading')), {
                 fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
             })
             return

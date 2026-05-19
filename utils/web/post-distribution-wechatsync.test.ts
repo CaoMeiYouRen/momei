@@ -223,14 +223,14 @@ describe('post-distribution-wechatsync', () => {
         expect(shouldFinalizeWechatSyncStatusMock).toHaveBeenCalledWith({ accounts: taskAccounts })
         expect(mapWechatSyncTaskAccountsForCompletionMock).toHaveBeenCalledWith(taskAccounts, accounts)
         expect(result.observation).toMatchObject({
-            strategy: 'single_add_task_default_raw',
+            strategy: 'single_add_task_group_profile',
             resolution: 'terminal_status',
             readyEventCount: 1,
             statusEventCount: 1,
             payload: {
                 renderMode: 'none',
                 contentProfile: 'default',
-                usesRawPost: true,
+                usesRawPost: false,
                 accountKeys: ['wechat'],
             },
         })
@@ -645,7 +645,7 @@ describe('post-distribution-wechatsync', () => {
         expect(result.completionAccounts).toBe(failureResults)
         expect(buildWechatSyncFailureResultsMock).toHaveBeenCalledWith([{ id: 'wechat', type: 'wechat', title: '公众号 A', checked: true }], 'sync failed')
         expect(result.observation).toMatchObject({
-            strategy: 'single_add_task_default_raw',
+            strategy: 'single_add_task_group_profile',
             resolution: 'start_error',
         })
         expect(result.observation.events.at(-1)?.phase).toBe('start_failed')
