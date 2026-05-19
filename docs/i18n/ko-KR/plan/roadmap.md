@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-18
+last_sync: 2026-05-19
 ---
 
 # Momei 프로젝트 로드맵
@@ -48,7 +48,7 @@ last_sync: 2026-05-18
 - **35단계는 감사 완료 후 아카이브되었습니다**: AI task 계량 구간과 프런트 직출 TTS 회귀 방지(Volcengine 프런트 직결 과금 폐쇄 루프 포함), Postgres 핫 리드 체인과 DB 기동 경계 거버넌스(`pg_stat_statements` 대조 샘플링으로 메인 페이지 popular posts의 사전 settings 조회 제거 증명), 다음 ESLint / 타입 부채 슬라이스(`server/utils/post-access.ts` 3곳 `any` 수렴), 구조 재사용 거버넌스(`isRecord` / `isPlainRecord` 및 `MaybeReactive<T>` 2개 타입 수렴), 기존 코드 주석 거버넌스 후보군 A(`server/utils/locale.ts` + `server/middleware/1-auth.ts`)가 중국어 사실원, 회귀 증거, 아카이브 문서에서 모두 수렴되었습니다.
 - **36단계는 감사 완료 후 아카이브되었습니다**: `initializeDB()` 동시성 창과 Redis 연결 타임아웃 거버넌스, TTS 프런트 직결 / 직전송 OSS backlog 정리, 최신 ESLint / 타입 부채 슬라이스, TTS task 및 `LocaleOption` 구조 재사용 수렴, 공개 읽기 API 주석 거버넌스 후보군 C가 중국어 사실원과 아카이브 문서에서 모두 수렴되었습니다.
 - **37단계는 감사 후 아카이브가 완료되었습니다**: Windows 로컬 `nuxt dev` / `nuxt build` 성능 거버넌스, 고위험 테스트 유효성 슬라이스, 다음 ESLint / 타입 부채 협소 슬라이스, 최소 3곳의 구조 재사용 핫스팟, PostgreSQL 장기 관측 복기 슬라이스가 중국어 사실원, 회귀 증거, 아카이브 문서에서 모두 수렴되었습니다.
-- **38단계는 중국어 사실원에서 정식 상향되었습니다**: 현재 실행면은 `B 站 / Memos` 태그 꼬리주석과 미리보기 일관성 보수, 테스트 유효성 2차 슬라이스, Postgres 공개 핫리드 단일 경로 수렴, 구조 재사용 2차, 다음 ESLint / 타입 부채 협소 슬라이스에 집중합니다.
+- **38단계는 감사 완료 후 아카이브되었습니다**: `B 站 / Memos` 태그 꼬리주석과 미리보기 일관성, 테스트 유효성 2차 슬라이스, Postgres 공개 핫리드 단일 경로의 손실 제한형 경량화와 원인 수렴, 구조 재사용 2차, 다음 ESLint / 타입 부채 협소 슬라이스가 중국어 사실원, 회귀 증거, 아카이브 문서에서 모두 수렴되었습니다.
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog

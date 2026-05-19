@@ -12,11 +12,54 @@
 
 ## 主窗口保留范围
 
-- 主文档当前只保留最近 6 个阶段的完整归档块、相邻阶段对比所需的收口依据与归档索引。
+- 主文档当前只保留最近 7 个阶段的完整归档块、相邻阶段对比所需的收口依据与归档索引。
 - 第一至第三十一阶段的完整待办归档正文已迁入区间分片，避免主文档继续承担所有历史阶段全文。
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十八阶段：分发一致性修补与热点治理续推 (已审计归档)
+
+> 归档说明: 第三十八阶段「0 个新功能 + 5 个优化」已于 2026-05-19 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：`B 站 / Memos` 标签尾注与预览一致性、高风险测试有效性第二轮切片、公开热点读链路止损式瘦身与根因收敛、至少 3 处结构复用热点，以及 AI provider 聚合层 ESLint / 类型债窄切片。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
+
+> **ROI 评估**: 第三方分发标签尾注与预览一致性修补 1.60；测试有效性第二轮切片 1.85；Postgres 公开热点读链路继续瘦身 1.75；结构复用第二轮（至少 3 处热点）1.70；ESLint / 类型债下一轮窄切片 1.50。
+
+### 1. 第三方分发标签尾注与预览一致性修补 (P1)
+
+- 结果: `B 站 / Memos` 两个渠道已统一复用同一条标签标准化与尾注拼装入口；`B 站` 预览、`B 站` 实际同步 payload 与 `Memos` 预览三处输出已按“标签尾注中的标签项去除空格后再输出”的同一规则收敛。
+- 验证: 分发物料 helper / template 测试、实际分发 / 导出层测试，以及必要的后台分发预览组件测试已在当前仓库与阶段事实源中闭环。
+- [x] 仅覆盖 `B 站 / Memos` 两个渠道，不扩写到其他分发器。
+- [x] 预览构造与实际分发复用同一条标签标准化 / 尾注拼装入口。
+
+### 2. 测试有效性第二轮切片 (P0)
+
+- 结果: 本轮已完成 `3` 组高风险切片：[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 覆盖 direct TTS 任务创建失败后的可见错误映射；[pages/login.test.ts](../../pages/login.test.ts) 与 [pages/login.vue](../../pages/login.vue) 覆盖登录页 logical failure 后 `refreshAuthSession` 退化不吞主错误；[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 覆盖 `503` bootstrap 失败不污染短 TTL runtime cache、后续成功请求可恢复。
+- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../reports/regression/current.md) 中的本轮定向回归矩阵记录。
+- [x] 至少完成 `3` 组高风险失败 / 边界断言。
+- [x] 其中至少 `1` 组覆盖用户可见错误映射，而不是只断言内部异常被抛出。
+
+### 3. Postgres 公开热点读链路继续瘦身 (P0)
+
+- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../server/database/index.ts)，并同步修正两阶段初始化状态机，确保 connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试。
+- 结果: [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts) 已把首页列表查询切到 `includeAuthorEmail: false`，并在首页响应剥离 `author.email / emailHash`，避免公开首页卡片继续为未消费的作者邮箱链路付费；对应守线见 [tests/server/api/posts/home.get.test.ts](../../tests/server/api/posts/home.get.test.ts) 与 [tests/server/database/init-boundary.test.ts](../../tests/server/database/init-boundary.test.ts)。
+- 结果: 基于 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是剩余显式 `initializeDB()` 调用点继续主导成本。本阶段据此完成“单路径瘦身 + 根因收敛 + 停止继续沿连接初始化链路硬挤收益”的止损收口；剩余缓存侧优化继续回收到长期主线候选，而不伪装为本阶段已彻底根治。
+- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，受影响文件无错误静态诊断，以及 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)。
+- [x] 本轮只推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。
+- [x] 已形成一组新的等价 live sample，并完成“当前超预算更像公开热读问题而不是初始化误触问题”的根因回答。
+
+### 4. 结构复用第二轮（至少 3 处热点） (P1)
+
+- 结果: 已完成 `3` 处热点收敛：`components/commercial-link-manager.vue` 将社交 / 打赏卡片区下沉到共享组件 `components/commercial-link-section.vue`；`utils/shared/commercial-schema.ts` 已把 `SocialLinkSchema / DonationLinkSchema` 收敛到同一工厂函数；`utils/shared/duration.ts` 已把秒 / 分钟解析与 fallback + clamp 逻辑收敛到共享内部 helper。
+- 验证: `components/commercial-link-manager.test.ts`、`utils/shared/commercial-schema.test.ts`、`utils/shared/duration.test.ts`、`pnpm exec nuxt typecheck`、`pnpm duplicate-code:check`，以及浏览器侧验证 `http://127.0.0.1:3002/settings?tab=commercial` 的定向交互记录。
+- [x] 至少 `3` 处热点完成收敛，其中包含 `commercial-link-manager` 文件内自重复。
+- [x] `pnpm duplicate-code:check` 基线未反弹。
+
+### 5. ESLint / 类型债下一轮窄切片 (P1)
+
+- 结果: 已在 `server/utils/ai/index.ts` 为数据库 provider 值补上 `AIProviderType` 守卫与归一化 helper，移除直接写入 `AIConfig.provider` 的 `as any`；`server/utils/ai/index.test.ts` 同步把聚合层邻近的多处 `unknown as` 历史结构断言改为 `toMatchObject`，并补上“stored provider 不受支持时回退到 `openai`”的守线用例。
+- 验证: `pnpm exec eslint server/utils/ai/index.ts server/utils/ai/index.test.ts`、`pnpm exec vitest run server/utils/ai/index.test.ts`、`pnpm exec nuxt typecheck`。
+- [x] 定向 ESLint、定向测试与类型检查通过。
+- [x] 残余债务与下一轮候选已明确记录。
+
 ## 第三十七阶段：Windows 本地性能与治理链路深化 (Windows Local Performance & Governance Deepening) (已审计归档)
 
 > 归档说明: 第三十七阶段「0 个新功能 + 5 个优化」已于 2026-05-18 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：Windows 本地 `nuxt dev` / `nuxt build` 可用性与长尾首轮收敛、高风险测试有效性切片、AI 服务层 ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。

@@ -9,6 +9,44 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-19 第三十八阶段归档对账与 Review Gate
+
+### 范围
+
+- 目标：对账第三十八阶段 5 条主线在实现代码、定向测试、live sample、活动回归窗口与规划文档中的实际落地情况，并完成 `todo.md` 清理、`todo-archive.md` 归档、`roadmap.md` 与 4 份多语路线图摘要同步；本轮明确不把下一阶段直接写入正式规划。
+- 本轮覆盖：[docs/plan/todo.md](../../plan/todo.md)、[docs/plan/todo-archive.md](../../plan/todo-archive.md)、[docs/plan/roadmap.md](../../plan/roadmap.md)、4 份多语 roadmap 摘要、[server/api/posts/home.get.ts](../../../server/api/posts/home.get.ts)、[server/database/index.ts](../../../server/database/index.ts)、[tests/server/api/posts/home.get.test.ts](../../../tests/server/api/posts/home.get.test.ts)、[tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts) 与本文件近线证据窗口。
+- 非目标：不重新补一轮新的数据库长窗口采样，不重跑全套 `pnpm regression:phase-close`，也不在本轮直接上收下一阶段的“1 个新功能 + 若干优化”正式规划。
+
+### 实施结论
+
+- 第三十八阶段中，分发一致性修补、测试有效性第二轮、结构复用第二轮与 ESLint / 类型债窄切片四条主线，已分别在对应实现、定向测试与中文规划事实源中闭环，可直接回链到当前仓库与 2026-05-18 的活动回归记录。
+- Postgres P0 条目当前已完成本阶段最小目标：`posts/home`、`categories` 与 `tags` 公开链路已切到 connection-only 初始化边界，首页响应已去掉未消费的作者邮箱字段，且 `2026-05-19` 的 Neon live sample 已把根因进一步收敛到“公开热读 + 稀疏公共流量反复打醒 compute”而不是初始化误触主导成本。
+- 由于当前仍缺同口径前后对照样本来直接证明 `rows / mean time / 网络体量` 的下降趋势，本轮不把长期 Postgres 治理误写成“已彻底收口”；阶段归档结论改为“当前切片已止损并完成根因收敛，剩余缓存侧继续优化回到 backlog 长期主线”，不再把该残余视为第三十八阶段的阻塞项。
+- [docs/plan/todo.md](../../plan/todo.md) 已清理当前执行面，[docs/plan/todo-archive.md](../../plan/todo-archive.md) 与 [docs/plan/roadmap.md](../../plan/roadmap.md) 已统一改写为“第三十八阶段已审计归档”，4 份多语路线图摘要也已同步为相同口径；下一阶段当前仍只保留候选分析。
+
+### 已执行验证
+
+- 既有阶段证据复核：
+	- [docs/reports/regression/current.md](./current.md) 中 2026-05-18 的第三十八阶段测试有效性第二轮切片关闭记录。
+	- [server/api/posts/home.get.ts](../../../server/api/posts/home.get.ts)、[server/database/index.ts](../../../server/database/index.ts)、[tests/server/api/posts/home.get.test.ts](../../../tests/server/api/posts/home.get.test.ts) 与 [tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts) 的当前实现 / 守线入口。
+	- [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md) 中的现状结论、止损口径与候选转移说明。
+- 本轮归档文档验证：
+	- `pnpm exec lint-md docs/plan/todo.md docs/plan/todo-archive.md docs/plan/roadmap.md docs/reports/regression/current.md docs/i18n/en-US/plan/roadmap.md docs/i18n/zh-TW/plan/roadmap.md docs/i18n/ko-KR/plan/roadmap.md docs/i18n/ja-JP/plan/roadmap.md`
+	- `pnpm docs:check:i18n`
+	- `pnpm docs:check:source-of-truth`
+	- `pnpm docs:check:line-count`
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮放行依赖的是第三十八阶段既有的定向测试、live sample 与本次规划文档同步，而不是重新执行一次统一 `pnpm regression:phase-close`。考虑到本轮改动以归档、状态对账与翻译同步为主，这一证据组合足以支撑归档；但若后续要把“阶段归档必须附带固定入口回归”收紧为硬门槛，仍需先在规范与脚本入口中明确。
+
+### 未覆盖边界
+
+- 本轮没有补新的同口径 `pg_stat_statements` 前后对照采样，因此 Postgres 长期主线只能判定为“当前切片止损完成”，不能据此宣称公共热读成本已经得到长期证明式收口。
+- 下一阶段当前仍只停留在候选分析；若要把新的长期治理事项上收到正式待办，仍应先补对应脚本 baseline，而不是直接把叙述性目标写进 `todo.md` 或 `roadmap.md`。
+
 ## 2026-05-18 第三十八阶段测试有效性第二轮切片（P0）关闭
 
 ### 范围

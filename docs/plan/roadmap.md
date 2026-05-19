@@ -608,10 +608,12 @@
     - **阶段结果**: 已通过 2026-05-12 与 2026-05-14 的 Neon 长窗口样本确认，当前不再存在“非生产自部署 Cron + 请求入口误触完整初始化”导致的长期 compute 占用阻塞；剩余热点已回收到 backlog 继续管理。
     - **验证与证据**: 详见 [docs/reports/regression/current.md](../reports/regression/current.md) 中两轮长窗口复核记录，以及 [backlog.md](./backlog.md) 的后续候选收敛说明。
 
-### 第三十八阶段：分发一致性修补与热点治理续推 (Distribution Consistency Patch-Up & Hotspot Governance Continuation)
+### 第三十八阶段：分发一致性修补与热点治理续推 (Distribution Consistency Patch-Up & Hotspot Governance Continuation) (已审计归档)
 
 **时间表**: 2026-05-18 ~ 约 1 - 2 周
 **目标**: 在第三十七阶段完成 Windows 本地性能、测试有效性、结构复用、ESLint 窄切片与 Postgres 长窗口复核后，继续以“0 个新功能 + 5 个优化”的受控组合推进下一阶段，优先修补第三方分发标签尾注与预览一致性，并围绕测试有效性第二轮、Postgres 单路径收敛、结构复用第二轮与 AI provider / 测试桩类型债继续做窄切片治理。
+
+**审计结论**: 第三十八阶段五条主线已在当前仓库实现、定向测试、live sample、活动回归窗口与规划文档中完成闭环，满足归档条件。`B 站 / Memos` 标签尾注与预览一致性已收口；测试有效性第二轮、结构复用第二轮与 AI provider 聚合层 ESLint / 类型债窄切片也均具备可追溯证据。Postgres P0 当前已完成“公开热点读链路止损式瘦身 + 根因收敛”的本阶段目标，剩余缓存侧优化继续回收到 backlog 长期主线，而不再作为本阶段阻塞项。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
 
 **准入结论**: 五条主线均来自 [backlog.md](./backlog.md) 的长期主线或短期候选，总数控制在 `5` 项内，符合当前阶段容量约束。当前阶段不引入新增功能，执行优先级为 `2 个 P0 + 3 个 P1`。
 
@@ -630,10 +632,9 @@
     - **验证与证据**: 定向 Vitest、受影响文件类型检查，以及本轮新增入口的定向回归矩阵记录。
 
 3. **主线：Postgres 公开热点读链路继续瘦身 (P0)**:
-    - **执行范围**: 下一轮只选择“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计；优先围绕 `settings public`、`friend-links`、`posts home`、`search` 等已知公共热读路径继续做最小字段集、短 TTL、请求去重或装配裁剪中的一项或两项最小收敛。
-    - **非目标**: 不并行推进新的请求入口初始化治理；不扩写为全站数据库重构或全量 SQL 清洗工程。
-    - **验收标准**: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势；并明确回答“为什么当前超预算更像公开热读问题，而不是初始化误触问题”。
-    - **验证与证据**: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
+    - **阶段结果**: `posts/home`、`categories` 与 `tags` 公开链路已切到 connection-only 初始化边界，`server/database/index.ts` 的两阶段初始化状态机也已修正为“connection/full init 锁在每轮结束后释放，维护链失败后下一次仍可重试”；首页列表响应已剥离 `author.email / emailHash`，避免为未消费字段继续承担公共热读成本。
+    - **阶段结果**: 基于 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是初始化误触问题；本阶段据此完成单路径瘦身与根因收敛，并将剩余缓存侧继续优化回收到 backlog 长期主线。
+    - **验证与证据**: `tests/server/database/init-boundary.test.ts`、`tests/server/api/posts/home.get.test.ts`、受影响 API 定向测试、受影响文件类型检查，以及 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)。
 
 4. **主线：结构复用第二轮（至少 3 处热点） (P1)**:
     - **执行范围**: 再次完成 `3` 处以上热点收敛，优先处理 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 文件内自重复；其余候选优先选择轻量 shared helper，而不是复杂业务抽象。

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-18
+last_sync: 2026-05-19
 ---
 
 # 墨梅專案路線圖
@@ -62,7 +62,7 @@ last_sync: 2026-05-18
 - **第三十五階段已完成審計歸檔**：AI task 計量口徑校準與 TTS 前端直連防回歸（含 Volcengine 前端直連計費閉環）、Postgres 熱點公開讀鏈路與資料庫喚醒繼續治理（含 `pg_stat_statements` 對照採樣證明首頁 popular posts 前置 settings 查庫已移除）、ESLint / 型別債下一輪窄切片（`server/utils/post-access.ts` 3 處 `any` 收窄）、結構復用治理（`isRecord` / `isPlainRecord` 與 `MaybeReactive<T>` 兩組型別收斂），以及存量代碼註釋治理候選組 A（`server/utils/locale.ts` + `server/middleware/1-auth.ts`），已在中文事實源、回歸證據與歸檔文檔中完成收口。
 - **第三十六階段已完成審計歸檔**：`initializeDB()` 並發窗口與 Redis 連線超時治理、TTS 前端直連 / 直傳 OSS backlog 清理、ESLint / 型別債最新窄切片、TTS task 與 `LocaleOption` 結構復用收斂，以及公開讀接口註釋治理候選組 C，已在中文事實源與歸檔文檔中完成收口。
 - **第三十七階段已完成審計歸檔**：Windows 本地 `nuxt dev` / `nuxt build` 效能治理、高風險測試有效性切片、下一輪 ESLint / 型別債窄切片、至少 3 處結構復用熱點，以及 PostgreSQL 長窗口複核切片，已在中文事實源、回歸證據與歸檔文檔中完成收口。
-- **第三十八階段已在中文事實源正式上收**：當前執行面聚焦 `B 站 / Memos` 標籤尾注與預覽一致性修補、測試有效性第二輪切片、Postgres 公開熱讀單路徑收斂、結構復用第二輪，以及下一輪 ESLint / 型別債窄切片。
+- **第三十八階段已完成審計歸檔**：`B 站 / Memos` 標籤尾注與預覽一致性、測試有效性第二輪切片、Postgres 公開熱讀單路徑止損與根因收斂、結構復用第二輪，以及下一輪 ESLint / 型別債窄切片，已在中文事實源、回歸證據與歸檔文檔中完成收口。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

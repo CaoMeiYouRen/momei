@@ -17,50 +17,8 @@
 
 ## 当前待办
 
-> 第三十八阶段已正式上收为当前执行面，具体验收标准以 [项目计划](./roadmap.md) 与 [Phase 38 执行计划](../design/governance/phase-38-plan.md) 为准。
-
-### 第三十八阶段：分发一致性修补与热点治理续推
-
-- [x] **第三方分发标签尾注与预览一致性修补 (P1)**
-	- 验收: 仅覆盖 `B 站 / Memos` 两个渠道；`B 站` 预览、`B 站` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致。
-	- 验收: 预览构造与实际分发必须复用同一条标签标准化 / 尾注拼装入口，并明确“标签尾注中的标签项去除空格后再输出”的规则。
-	- 验证: 分发物料 helper / template 测试 + 实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
-
-- [x] **测试有效性第二轮切片 (P0)**
-	- 验收: 至少完成 `3` 组高风险失败 / 边界断言，优先覆盖组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
-	- 验收: 其中至少 `1` 组必须覆盖用户可见错误映射，而不是只断言内部异常被抛出。
-	- 结果: 已完成 `3` 组高风险切片：[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 覆盖 direct TTS 任务创建失败后的可见错误映射；[pages/login.test.ts](../../pages/login.test.ts) 与 [pages/login.vue](../../pages/login.vue) 覆盖登录页 logical failure 后 `refreshAuthSession` 退化不吞主错误；[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 覆盖 `503` bootstrap 失败不污染短 TTL runtime cache、后续成功请求可恢复。
-	- 结果: 本轮至少 `2` 组直接覆盖用户可见错误映射（direct TTS 对话框错误文案、login 页认证失败提示），满足“不可只断言内部异常”的准入要求。
-	- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../reports/regression/current.md) 中的本轮定向回归矩阵记录。
-
-- [ ] **  (P0)**
-	- 验收: 本轮只允许推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。
-	- 验收: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势，并回答当前超预算为何更像公开热读问题。
-	- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../server/database/index.ts)，避免公开冷路径再串上管理员角色同步与 post version repair 维护链。
-	- 结果: 已同步修正 [server/database/index.ts](../../server/database/index.ts) 的两阶段初始化状态机：`ensureDatabaseReady()` 只在 full init 已完成时短路；connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试，不再把 partial-ready 状态永久缓存。
-	- 结果: 基于 `2026-05-19` 的 Neon live sample，当前超预算仍更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合：`/api/posts/home` 对应的双阶段分页 SQL 仍是样本里平均耗时最高的公开列表读，而 `settings public` / `friend-links` 更偏向高 calls 但低 mean time 的辅助热点；系统操作面仍呈现 `5 - 20` 分钟级的 start/suspend 周期，更符合公共请求间歇命中而不是 full init 维护链长尾占用。
-	- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts) 的首页列表查询切到 `includeAuthorEmail: false`，并在首页响应剥离 `author.email / emailHash`，避免首页卡片继续为未消费的作者邮箱链路付费。
-	- 结果: 基于本轮后续观测，长连接 / 活跃窗口仍偶发出现，说明当前问题大概率已经超出“继续微调数据库连接初始化”这一条思路的直接收益区间；在 Neon `5` 分钟 autosuspend 前提下，只要存在稀疏公共请求，就仍可能反复打醒 compute，因此本轮不把该条误判为“单迭代内可彻底收口”的事项。
-	- 决策: 当前迭代先保留本条为进行中，不关闭；本轮以“记录现状 + 停止继续沿数据库连接链路硬挤收益”为结论，等待更长窗口样本后再决定是否继续上收。
-	- 残余: 当前条目仍未收口；虽然已补一组新的 live sample 结论，但还缺同口径前后对照样本来证明 `rows / mean time / 体量` 的下降趋势，因此暂不关闭本条 P0。
-	- 候选: 下一轮优先转向缓存侧思路，不再把“继续压数据库连接链路”作为默认方向；可在“首页标签装配二段化，避免 `take()` + `leftJoin post.tags` 继续触发双阶段宽查询”和“共享公共缓存头补 `s-maxage` / `stale-while-revalidate`，减少稀疏公共流量反复打醒 Neon”之间二选一继续推进，不并行扩面。
-	- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，以及受影响文件无错误的静态诊断。
-	- 验证: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
-
-- [x] **结构复用第二轮（至少 3 处热点） (P1)**
-	- 结果: 已完成 `3` 处热点收敛：`components/commercial-link-manager.vue` 将社交 / 打赏卡片区下沉到共享组件 `components/commercial-link-section.vue`；`utils/shared/commercial-schema.ts` 已把 `SocialLinkSchema / DonationLinkSchema` 收敛到同一工厂函数；`utils/shared/duration.ts` 已把秒 / 分钟解析与 fallback + clamp 逻辑收敛到共享内部 helper。
-	- 基线: `pnpm duplicate-code:check` 已从 `55 clones / 1112 duplicated lines / 0.89%` 降到 `52 clones / 1035 duplicated lines / 0.83%`，且 `commercial-link-manager` 已脱离当前 `jscpd` 热点清单。
-	- 候选: 下一轮可优先关注 `packages/cli/src/cli-shared.ts` vs `packages/mcp-server/src/tools/automation.ts`、`server/api/admin/external-links.post.ts` vs `server/api/admin/external-links/[id].put.ts`、`middleware/admin.ts` vs `middleware/author.ts`，以及 `components/admin/dashboard/creator-metric-card.vue` vs `components/admin/dashboard/metric-card.vue`。
-	- 验证: `components/commercial-link-manager.test.ts`、`utils/shared/commercial-schema.test.ts`、`utils/shared/duration.test.ts`、`pnpm exec nuxt typecheck`、`pnpm duplicate-code:check`，以及浏览器侧验证 `http://127.0.0.1:3002/settings?tab=commercial` 上 `social-add -> social-save -> social-edit-0` 可回读新增 URL、`donation-add` 可打开打赏对话框（默认图片上传分支）。
-
-- [x] **ESLint / 类型债下一轮窄切片 (P1)**
-	- 验收: 继续坚持“单规则、单文件或双文件”切片，优先在 AI provider 聚合层与高 ROI 测试桩历史断言之间二选一推进。
-	- 验收: 定向 ESLint、定向测试与类型检查通过，残余债务与下一轮候选有明确记录。
-	- 结果: 已在 `server/utils/ai/index.ts` 为数据库 provider 值补上 `AIProviderType` 守卫与归一化 helper，移除直接写入 `AIConfig.provider` 的 `as any`；`server/utils/ai/index.test.ts` 同步把聚合层邻近的多处 `unknown as` 历史结构断言改为 `toMatchObject`，并补上“stored provider 不受支持时回退到 `openai`”的守线用例。
-	- 残余债务: `server/utils/ai/index.ts` 当前仍维护一份本地 provider allowlist，与 `types/ai.ts` 中的 `AIProviderType` 不是单一事实源；若后续扩 provider，需要同步补一条 parity 守线，避免遗漏时静默回退到 `openai`。
-	- 候选: 下一轮继续保持二选一，不并行扩面；可优先关注 `server/utils/ai/index.ts` 邻近的 provider / error typing 收口，或转向一组高 ROI 测试桩历史断言的继续收敛。
-	- 验证: 定向 ESLint、定向 Vitest 与受影响文件类型检查。
-	- 验证: `pnpm exec eslint server/utils/ai/index.ts server/utils/ai/index.test.ts`、`pnpm exec vitest run server/utils/ai/index.test.ts`、`pnpm exec nuxt typecheck`。
+> 第三十八阶段已于 `2026-05-19` 完成对账并归档，详见 [待办事项归档](./todo-archive.md) 与 [项目计划](./roadmap.md)。
+> 下一阶段当前仅保留“`1` 个新功能 + 若干优化”的候选分析，不在本轮直接上收；若需新增长期治理事项，必须先补对应脚本 baseline，再评估是否进入正式待办。
 
 ## 相关文档
 

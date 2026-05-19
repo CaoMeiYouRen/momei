@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-05-18
+last_sync: 2026-05-19
+translation_tier: summary-sync
 ---
 
 # Momei - Project Roadmap
@@ -30,7 +31,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 35 has now been audited and archived**: AI task metering calibration and frontend-direct TTS regression hardening, PostgreSQL hot-read / connection-wakeup governance, the next narrow ESLint / type-debt slice, structural reuse convergence, and the candidate-A existing-code comment-governance slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 36 has now been audited and archived**: The `initializeDB()` concurrency-window fix and Redis timeout hardening, TTS frontend-direct / direct-upload backlog cleanup, the latest ESLint and type-debt slice, TTS-task and locale-option structural reuse convergence, and the candidate-C public-read API comment-governance slice have all been closed in the Chinese source of truth and archive docs.
 - **Stage 37 has now been audited and archived**: Windows local `nuxt dev` / `nuxt build` performance hardening, high-risk test-effectiveness work, the next narrow ESLint / type-debt slice, at least three structural-reuse hotspots, and the PostgreSQL long-window review slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
-- **Stage 38 has now been formally promoted in the Chinese source of truth**: The current phase focuses on third-party distribution tag-tailnote consistency for Bilibili / Memos, a second high-risk test-effectiveness slice, one PostgreSQL hot public-read slimming slice, another structural-reuse round, and the next narrow ESLint / type-debt slice.
+- **Stage 38 has now been audited and archived**: Third-party distribution tag-tailnote consistency for Bilibili / Memos, the second high-risk test-effectiveness slice, one PostgreSQL hot public-read slimming and root-cause-narrowing slice, another structural-reuse round, and the next narrow ESLint / type-debt slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
