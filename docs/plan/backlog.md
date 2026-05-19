@@ -249,7 +249,7 @@
 | #3 结构复用治理 | ✅ `duplicate-code:check` | ✅ `duplicate-code:check` | ✅ `duplicate-code:check:strict` |
 | #4 注释治理 | — | — | — (暂无自动检查) |
 | #5 Postgres 治理 | — | — | — (依赖 live sample，非自动) |
-| #6 国际化治理 | ✅ `i18n:audit:missing` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
+| #6 国际化治理 | ✅ `i18n:audit:missing` + `i18n:audit:duplicates` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
 | #9 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` / `audit:eslint-debt` / `audit:comment-drift` / docs candidate 暂保持独立 baseline) |
@@ -265,7 +265,7 @@
 | coverage 下降或测试有效性退化 | → 长期主线 #1（测试覆盖率治理） |
 | ESLint warning 反弹或新 type 债 | → 长期主线 #2（ESLint 治理） |
 | duplicate-code 基线反弹 | → 长期主线 #3（结构复用治理） |
-| i18n missing / raw key 暴露 | → 长期主线 #6（国际化治理） |
+| i18n missing / duplicate keys / raw key 暴露 | → 长期主线 #6（国际化治理） |
 | 文档事实源 stale 或行数超阈值 | → 长期主线 #7（文档治理） |
 | 性能预算超标 | → 长期主线 #8（Windows 性能治理） |
 | 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #9（脚本治理） |

@@ -47,11 +47,11 @@
 - 验证结果 (2026-05-19): `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts` 已通过；脚本治理最新统计为长期脚本 `39`、稳定入口 `39`、缺少稳定入口 `0`、文档声明但缺失 `0`。
 
 5. [x] 国际化文案复用治理 (P1)
-- 验收标准: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把 `AppFooter`、`archives`、`categories`、`tags` 这 `4` 组公开装配链路纳入固定 runtime 验证面，并明确页面私有命名空间与共享组件命名空间的边界；新增范围内不得出现 raw key 暴露。
+- 验收标准: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，同步执行 `pnpm i18n:audit:duplicates` 并将重复键分组作为复用治理事实源；同时把 `AppFooter`、`archives`、`categories`、`tags` 这 `4` 组公开装配链路纳入固定 runtime 验证面，并明确页面私有命名空间与共享组件命名空间的边界；新增范围内不得出现 raw key 暴露。
 - 数据参考: 当前共享字段已在友链场景统一到 `components.friend_links.fields`，既有 runtime 验证已覆盖 About / friend-links；route-module 装配事实源位于 `i18n/config/locale-modules.ts`。
-- 最小验证: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试。
+- 最小验证: `pnpm i18n:audit:duplicates`、`pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试。
 - 当前进展 (2026-05-19): 已将 `AppFooter`、`archives`、`categories`、`tags` 四组公开装配链路固定到 `i18n:verify:runtime` 测试面（`components/app-footer.test.ts`、`pages/archives/index.test.ts`、`pages/categories/index.test.ts`、`pages/tags/index.test.ts`），并补充 `i18n/config/locale-modules.test.ts` 与 `i18n/config/locale-runtime-loader.test.ts` 的边界断言，明确 `public` 模块承载页面私有命名空间（`pages.archives` / `pages.categories_index` / `pages.tags_index` / `pages.posts`），`components` 模块承载共享组件命名空间（`components.*` / `comments.*`）。
-- 验证结果 (2026-05-19): `pnpm i18n:audit:missing` 结果为 `0`；`pnpm i18n:verify:runtime` 通过（`15` 个测试文件、`108` 条用例），新增范围未出现 raw key 暴露。
+- 验证结果 (2026-05-19): `pnpm i18n:audit:duplicates` 已执行（扫描 `5` 个 locale，命中 `101` 组跨全语种一致的重复键组，其中 `56` 组跨模块）；`pnpm i18n:audit:missing` 结果为 `0`；`pnpm i18n:verify:runtime` 通过（`15` 个测试文件、`108` 条用例），新增范围未出现 raw key 暴露。
 
 ## 相关文档
 
