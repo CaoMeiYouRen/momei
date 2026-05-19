@@ -102,7 +102,6 @@
                 "history": {
                     "title": "通知履歴",
                     "description": "受信済みの通知を確認し、既読状態をここで同期できます。",
-                    "refresh": "更新",
                     "mark_all_read": "すべて既読にする",
                     "mark_read": "既読にする",
                     "view_target": "対象を開く",

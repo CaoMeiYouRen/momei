@@ -7,7 +7,6 @@
                     "dry_run": "Start Dry Run",
                     "export_json": "Export JSON",
                     "export_markdown": "Export Markdown",
-                    "refresh": "Refresh",
                     "view": "View Details"
                 },
                 "columns": {

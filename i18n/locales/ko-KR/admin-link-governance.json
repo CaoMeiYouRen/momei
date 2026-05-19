@@ -7,7 +7,6 @@
                     "dry_run": "드라이런 시작",
                     "export_json": "JSON 내보내기",
                     "export_markdown": "Markdown 내보내기",
-                    "refresh": "새로고침",
                     "view": "상세 보기"
                 },
                 "columns": {

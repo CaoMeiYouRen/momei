@@ -168,7 +168,6 @@
                             "system_settings_update": "시스템 설정 저장",
                             "theme_settings_update": "테마 설정 저장"
                         },
-                        "refresh": "새로고침",
                         "sources": {
                             "admin_ui": "시스템 설정 페이지",
                             "api": "관리자 API",

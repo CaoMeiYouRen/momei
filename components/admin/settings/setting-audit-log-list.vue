@@ -26,7 +26,7 @@
                     <Button
                         icon="pi pi-refresh"
                         variant="text"
-                        :label="$t('pages.admin.settings.system.audit_logs.refresh')"
+                        :label="$t('common.refresh')"
                         @click="loadLogs"
                     />
                 </div>

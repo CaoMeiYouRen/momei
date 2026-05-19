@@ -168,7 +168,6 @@
                             "system_settings_update": "システム設定を保存",
                             "theme_settings_update": "テーマ設定を保存"
                         },
-                        "refresh": "更新",
                         "sources": {
                             "admin_ui": "システム設定ページ",
                             "api": "管理 API",

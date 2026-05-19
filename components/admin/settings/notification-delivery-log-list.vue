@@ -27,7 +27,7 @@
                     <Button
                         icon="pi pi-refresh"
                         variant="text"
-                        :label="$t('pages.admin.notifications.delivery_logs.refresh')"
+                        :label="$t('common.refresh')"
                         @click="loadLogs"
                     />
                 </div>

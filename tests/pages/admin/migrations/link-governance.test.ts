@@ -20,7 +20,7 @@ const translations: Record<string, string> = {
     'pages.admin.link_governance.execution.allow_relative_links': '允许相对链接',
     'pages.admin.link_governance.execution.confirm_apply': '确认写入',
     'pages.admin.link_governance.report_list.title': '治理报告',
-    'pages.admin.link_governance.actions.refresh': '刷新',
+    'common.refresh': '刷新',
     'pages.admin.link_governance.actions.dry_run': '开始干跑',
     'pages.admin.link_governance.actions.apply_now': '执行改写',
     'pages.admin.link_governance.actions.export_json': '导出 JSON',

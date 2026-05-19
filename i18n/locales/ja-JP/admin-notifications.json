@@ -37,7 +37,6 @@
                         "copy_id_success": "ユーザー ID をコピーしました",
                         "user_id": "ユーザー ID"
                     },
-                    "refresh": "更新",
                     "statuses": {
                         "failed": "失敗",
                         "skipped": "スキップ",

@@ -44,7 +44,6 @@
                 "impersonate": "代理ログイン",
                 "last_active": "最終アクティブ",
                 "no_active_sessions": "アクティブなセッションはありません",
-                "refresh": "更新",
                 "revoke_all": "全セッションを一括無効化",
                 "role": "ロール",
                 "roles": {

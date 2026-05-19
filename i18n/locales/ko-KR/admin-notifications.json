@@ -37,7 +37,6 @@
                         "copy_id_success": "사용자 ID를 복사했습니다",
                         "user_id": "사용자 ID"
                     },
-                    "refresh": "새로고침",
                     "statuses": {
                         "failed": "실패",
                         "skipped": "건너뜀",

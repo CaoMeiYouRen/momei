@@ -44,7 +44,6 @@
                 "impersonate": "模拟登录",
                 "last_active": "最后活跃",
                 "no_active_sessions": "暂无活跃会话",
-                "refresh": "刷新",
                 "revoke_all": "一键下线所有会话",
                 "role": "角色",
                 "roles": {

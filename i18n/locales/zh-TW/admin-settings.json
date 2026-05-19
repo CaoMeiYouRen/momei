@@ -168,7 +168,6 @@
                             "system_settings_update": "儲存系統設定",
                             "theme_settings_update": "儲存主題設定"
                         },
-                        "refresh": "重新整理",
                         "sources": {
                             "admin_ui": "系統設定頁",
                             "api": "後台介面",

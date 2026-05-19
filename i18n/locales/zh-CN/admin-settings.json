@@ -168,7 +168,6 @@
                             "system_settings_update": "保存系统设置",
                             "theme_settings_update": "保存主题设置"
                         },
-                        "refresh": "刷新",
                         "sources": {
                             "admin_ui": "系统设置页",
                             "api": "后台接口",

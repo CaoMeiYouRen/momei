@@ -3,7 +3,7 @@
         <AdminPageHeader :title="$t('pages.admin.users.title')">
             <template #actions>
                 <Button
-                    :label="$t('pages.admin.users.refresh')"
+                    :label="$t('common.refresh')"
                     icon="pi pi-refresh"
                     severity="secondary"
                     @click="fetchUsers"

@@ -44,7 +44,6 @@
                 "impersonate": "Impersonate",
                 "last_active": "Last Active",
                 "no_active_sessions": "No active sessions",
-                "refresh": "Refresh",
                 "revoke_all": "Revoke All Sessions",
                 "role": "Role",
                 "roles": {

@@ -37,7 +37,6 @@
                         "copy_id_success": "用户 ID 已复制",
                         "user_id": "用户 ID"
                     },
-                    "refresh": "刷新",
                     "statuses": {
                         "failed": "失败",
                         "skipped": "已跳过",

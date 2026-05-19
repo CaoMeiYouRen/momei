@@ -7,7 +7,6 @@
                     "dry_run": "ドライラン開始",
                     "export_json": "JSON を出力",
                     "export_markdown": "Markdown を出力",
-                    "refresh": "更新",
                     "view": "詳細を見る"
                 },
                 "columns": {

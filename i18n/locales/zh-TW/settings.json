@@ -102,7 +102,6 @@
                 "history": {
                     "title": "通知歷史",
                     "description": "查看已接收過的站內通知歷史，並在此同步已讀狀態。",
-                    "refresh": "重新整理",
                     "mark_all_read": "全部標示為已讀",
                     "mark_read": "標示為已讀",
                     "view_target": "查看目標",

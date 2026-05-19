@@ -168,7 +168,6 @@
                             "system_settings_update": "Update system settings",
                             "theme_settings_update": "Update theme settings"
                         },
-                        "refresh": "Refresh",
                         "sources": {
                             "admin_ui": "System Settings page",
                             "api": "Backend API",

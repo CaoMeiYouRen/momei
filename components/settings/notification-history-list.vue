@@ -32,7 +32,7 @@
                         <Button
                             icon="pi pi-refresh"
                             variant="text"
-                            :label="$t('pages.settings.notifications.history.refresh')"
+                            :label="$t('common.refresh')"
                             @click="loadNotifications"
                         />
                     </div>

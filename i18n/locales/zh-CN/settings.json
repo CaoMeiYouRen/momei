@@ -102,7 +102,6 @@
                 "history": {
                     "title": "通知历史",
                     "description": "查看已经接收过的站内通知历史，并在这里补齐已读状态。",
-                    "refresh": "刷新",
                     "mark_all_read": "全部设为已读",
                     "mark_read": "标记为已读",
                     "view_target": "查看目标",

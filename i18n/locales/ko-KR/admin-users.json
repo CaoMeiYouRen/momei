@@ -44,7 +44,6 @@
                 "impersonate": "대리 로그인",
                 "last_active": "마지막 활동",
                 "no_active_sessions": "활성 세션이 없습니다",
-                "refresh": "새로고침",
                 "revoke_all": "모든 세션 종료",
                 "role": "역할",
                 "roles": {

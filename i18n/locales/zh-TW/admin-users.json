@@ -44,7 +44,6 @@
                 "impersonate": "模擬登入",
                 "last_active": "最後活躍",
                 "no_active_sessions": "目前沒有活躍工作階段",
-                "refresh": "重新整理",
                 "revoke_all": "一鍵下線所有工作階段",
                 "role": "角色",
                 "roles": {

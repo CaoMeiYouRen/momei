@@ -3,7 +3,7 @@
         <AdminPageHeader :title="$t('pages.admin.link_governance.title')" show-language-switcher>
             <template #actions>
                 <Button
-                    :label="$t('pages.admin.link_governance.actions.refresh')"
+                    :label="$t('common.refresh')"
                     icon="pi pi-refresh"
                     severity="secondary"
                     variant="outlined"

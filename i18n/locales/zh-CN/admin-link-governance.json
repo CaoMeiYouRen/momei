@@ -7,7 +7,6 @@
                     "dry_run": "开始干跑",
                     "export_json": "导出 JSON",
                     "export_markdown": "导出 Markdown",
-                    "refresh": "刷新",
                     "view": "查看详情"
                 },
                 "columns": {
