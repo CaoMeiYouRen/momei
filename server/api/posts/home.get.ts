@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
 import { Post } from '@/server/entities/post'
-import { processAuthorsPrivacy } from '@/server/utils/author'
 import { applyPostVisibilityFilter, rethrowPostAccessError } from '@/server/utils/post-access'
 import { applyPostsReadModelFromMetadata } from '@/server/utils/post-metadata'
 import { applyPostOrdering } from '@/server/utils/post-ordering'
@@ -13,10 +12,20 @@ import {
     HOMEPAGE_PINNED_POST_LIMIT,
     MAX_PINNED_POSTS,
 } from '@/utils/shared/post-pinning'
-import { isAdmin } from '@/utils/shared/roles'
 
 const HOME_POSTS_CACHE_TTL_SECONDS = 60
 const HOME_POSTS_CACHE_NAMESPACE = 'posts:home'
+
+function stripHomepageAuthorPrivateFields(items: Post[]) {
+    for (const item of items) {
+        if (!item.author) {
+            continue
+        }
+
+        Reflect.deleteProperty(item.author, 'email')
+        Reflect.deleteProperty(item.author, 'emailHash')
+    }
+}
 
 function buildHomePostsCacheKey(language?: string) {
     return buildRuntimeApiCacheKey(HOME_POSTS_CACHE_NAMESPACE, language ?? 'default')
@@ -48,7 +57,9 @@ export default defineEventHandler(async (event) => {
             }
 
             const postRepo = dataSource.getRepository(Post)
-            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'))
+            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'), {
+                includeAuthorEmail: false,
+            })
 
             try {
                 await applyPostVisibilityFilter(qb, user, 'public')
@@ -69,9 +80,7 @@ export default defineEventHandler(async (event) => {
 
             const items = await qb.getMany()
             applyPostsReadModelFromMetadata(items)
-
-            const isUserAdmin = user && isAdmin(user.role)
-            await processAuthorsPrivacy(items, !!isUserAdmin)
+            stripHomepageAuthorPrivateFields(items)
 
             const latestItems: Post[] = []
             let pinnedCount = 0

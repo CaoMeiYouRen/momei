@@ -33,12 +33,15 @@
 	- 结果: 本轮至少 `2` 组直接覆盖用户可见错误映射（direct TTS 对话框错误文案、login 页认证失败提示），满足“不可只断言内部异常”的准入要求。
 	- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../reports/regression/current.md) 中的本轮定向回归矩阵记录。
 
-- [ ] **Postgres 公开热点读链路继续瘦身 (P0)**
+- [ ] **  (P0)**
 	- 验收: 本轮只允许推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。
 	- 验收: 至少形成一组新的 `pg_stat_statements` 或等价 live sample，对照说明目标公开读路径的 calls、rows、mean time 或网络体量存在下降趋势，并回答当前超预算为何更像公开热读问题。
 	- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../server/database/index.ts)，避免公开冷路径再串上管理员角色同步与 post version repair 维护链。
 	- 结果: 已同步修正 [server/database/index.ts](../../server/database/index.ts) 的两阶段初始化状态机：`ensureDatabaseReady()` 只在 full init 已完成时短路；connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试，不再把 partial-ready 状态永久缓存。
-	- 残余: 当前条目仍未收口；新的 live sample / `pg_stat_statements` 对照尚未补齐，因此暂不关闭本条 P0。
+	- 结果: 基于 `2026-05-19` 的 Neon live sample，当前超预算仍更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合：`/api/posts/home` 对应的双阶段分页 SQL 仍是样本里平均耗时最高的公开列表读，而 `settings public` / `friend-links` 更偏向高 calls 但低 mean time 的辅助热点；系统操作面仍呈现 `5 - 20` 分钟级的 start/suspend 周期，更符合公共请求间歇命中而不是 full init 维护链长尾占用。
+	- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts) 的首页列表查询切到 `includeAuthorEmail: false`，并在首页响应剥离 `author.email / emailHash`，避免首页卡片继续为未消费的作者邮箱链路付费。
+	- 残余: 当前条目仍未收口；虽然已补一组新的 live sample 结论，但还缺同口径前后对照样本来证明 `rows / mean time / 体量` 的下降趋势，因此暂不关闭本条 P0。
+	- 候选: 下一轮优先在“首页标签装配二段化，避免 `take()` + `leftJoin post.tags` 继续触发双阶段宽查询”和“共享公共缓存头补 `s-maxage` / `stale-while-revalidate`，减少稀疏公共流量反复打醒 Neon”之间二选一继续推进，不并行扩面。
 	- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，以及受影响文件无错误的静态诊断。
 	- 验证: 受影响 API 定向测试、受影响文件类型检查，以及一组 live sample 或本地等价观测记录。
 

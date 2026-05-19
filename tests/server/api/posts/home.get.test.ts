@@ -91,6 +91,27 @@ describe('/api/posts/home', () => {
         expect(pinnedItems).toHaveLength(1)
     })
 
+    it('should not expose or hash author emails for anonymous homepage cards', async () => {
+        const event = {
+            context: {},
+            node: {
+                req: { headers: {} },
+                res: { setHeader: vi.fn() },
+            },
+            req: { headers: {} },
+            query: {
+                language: 'zh-CN',
+            },
+        } as any
+
+        const result = await homePostsHandler(event)
+        const firstAuthor = result.data?.items?.[0]?.author
+
+        expect(firstAuthor).toBeTruthy()
+        expect(firstAuthor).not.toHaveProperty('email')
+        expect(firstAuthor).not.toHaveProperty('emailHash')
+    })
+
     it('should reuse runtime cache for anonymous homepage requests', async () => {
         const setHeader = vi.fn()
         const event = {
