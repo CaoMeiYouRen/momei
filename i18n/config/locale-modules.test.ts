@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+    LOCALE_MESSAGE_MODULE_GROUPS,
     getLocaleMessageFilePaths,
     getNuxtLocaleMessageFilePaths,
     resolveLocaleMessageModulesForRoute,
@@ -135,6 +136,47 @@ describe('i18n locale modules', () => {
             'auth',
             'admin',
             'admin-taxonomy',
+        ])
+    })
+
+    it('should keep public page namespaces separate from shared component namespaces', () => {
+        expect(LOCALE_MESSAGE_MODULE_GROUPS.public).toEqual(expect.arrayContaining([
+            'pages.archives',
+            'pages.categories_index',
+            'pages.tags_index',
+            'pages.posts',
+        ]))
+        expect(LOCALE_MESSAGE_MODULE_GROUPS.components).toEqual(expect.arrayContaining([
+            'components',
+            'comments',
+        ]))
+        expect(LOCALE_MESSAGE_MODULE_GROUPS.components.some((namespace) => namespace.startsWith('pages.'))).toBe(false)
+    })
+
+    it('should resolve archives and taxonomy index routes with core modules only', () => {
+        expect(resolveLocaleMessageModulesForRoute('/archives')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+        ])
+        expect(resolveLocaleMessageModulesForRoute('/categories')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
+        ])
+        expect(resolveLocaleMessageModulesForRoute('/tags')).toEqual([
+            'common',
+            'components',
+            'public',
+            'settings',
+            'legal',
+            'auth',
         ])
     })
 })

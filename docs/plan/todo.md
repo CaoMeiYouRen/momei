@@ -46,10 +46,12 @@
 - 当前进展 (2026-05-19): 已完成 `docs/reports/regression/current.md` 的历史窗口滚动归档（新增 `docs/reports/regression/archive/2026-05-04-to-2026-05-06.md`，并同步 `archive/index.md`），活动窗口由 `588` 行降至 `235` 行；存储重写脚本的失效文档声明已下线，`capture-remote-cpuprofile.mjs` 与 `fs-watch-probe.mjs` 已补 package 级稳定入口（`pnpm perf:cpuprofile:remote`、`pnpm perf:fs-watch:probe:dev`）并同步到 `scripts/README.md`；`docs/i18n/en-US/index.md`、`docs/i18n/en-US/guide/quick-start.md`、`docs/i18n/en-US/guide/deploy.md`、`docs/i18n/en-US/guide/translation-governance.md` 的 `last_sync` 已回补到 `2026-05-19`。
 - 验证结果 (2026-05-19): `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts` 已通过；脚本治理最新统计为长期脚本 `39`、稳定入口 `39`、缺少稳定入口 `0`、文档声明但缺失 `0`。
 
-5. [ ] 国际化文案复用治理 (P1)
+5. [x] 国际化文案复用治理 (P1)
 - 验收标准: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把 `AppFooter`、`archives`、`categories`、`tags` 这 `4` 组公开装配链路纳入固定 runtime 验证面，并明确页面私有命名空间与共享组件命名空间的边界；新增范围内不得出现 raw key 暴露。
 - 数据参考: 当前共享字段已在友链场景统一到 `components.friend_links.fields`，既有 runtime 验证已覆盖 About / friend-links；route-module 装配事实源位于 `i18n/config/locale-modules.ts`。
 - 最小验证: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试。
+- 当前进展 (2026-05-19): 已将 `AppFooter`、`archives`、`categories`、`tags` 四组公开装配链路固定到 `i18n:verify:runtime` 测试面（`components/app-footer.test.ts`、`pages/archives/index.test.ts`、`pages/categories/index.test.ts`、`pages/tags/index.test.ts`），并补充 `i18n/config/locale-modules.test.ts` 与 `i18n/config/locale-runtime-loader.test.ts` 的边界断言，明确 `public` 模块承载页面私有命名空间（`pages.archives` / `pages.categories_index` / `pages.tags_index` / `pages.posts`），`components` 模块承载共享组件命名空间（`components.*` / `comments.*`）。
+- 验证结果 (2026-05-19): `pnpm i18n:audit:missing` 结果为 `0`；`pnpm i18n:verify:runtime` 通过（`15` 个测试文件、`108` 条用例），新增范围未出现 raw key 暴露。
 
 ## 相关文档
 

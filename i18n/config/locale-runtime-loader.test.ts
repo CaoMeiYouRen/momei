@@ -14,6 +14,22 @@ describe('i18n locale runtime loader', () => {
         expect(mergeLocaleMessage).not.toHaveBeenCalled()
     })
 
+    it('should keep archives and taxonomy index routes on core locale modules only', async () => {
+        const publicRoutePaths = ['/en-US/archives', '/en-US/categories', '/en-US/tags']
+
+        for (const path of publicRoutePaths) {
+            const mergeLocaleMessage = vi.fn()
+
+            await ensureRouteLocaleMessages({
+                i18n: { mergeLocaleMessage },
+                locale: 'en-US',
+                path,
+            })
+
+            expect(mergeLocaleMessage).not.toHaveBeenCalled()
+        }
+    })
+
     it('should load explicitly requested optional locale modules for locale fallback chain', async () => {
         const mergeLocaleMessage = vi.fn()
 
