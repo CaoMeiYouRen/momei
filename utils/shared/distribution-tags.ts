@@ -15,7 +15,7 @@ export interface NormalizedDistributionTag {
 }
 
 export type DistributionTagRenderMode = 'leading' | 'wrapped' | 'none'
-export type WechatSyncContentProfile = 'default' | 'weibo' | 'xiaohongshu'
+export type WechatSyncContentProfile = 'default' | 'weibo' | 'xiaohongshu' | 'wechat_mp'
 
 type WechatSyncPlatformSource = string | null | undefined
 
@@ -120,7 +120,7 @@ function normalizePlatformType(value: string | null | undefined) {
     return value?.trim().toLowerCase().replace(/[\s-]+/gu, '_') || ''
 }
 
-function matchesWechatSyncPlatform(value: string, platform: 'weibo' | 'bilibili' | 'xiaohongshu' | 'twitter' | 'memos') {
+function matchesWechatSyncPlatform(value: string, platform: 'weibo' | 'bilibili' | 'xiaohongshu' | 'twitter' | 'memos' | 'wechat_mp') {
     switch (platform) {
         case 'weibo':
             return /weibo|微博/iu.test(value)
@@ -132,6 +132,8 @@ function matchesWechatSyncPlatform(value: string, platform: 'weibo' | 'bilibili'
             return /twitter|(?:^|[_\s-])x(?:$|[_\s-])/iu.test(value)
         case 'memos':
             return /memos/iu.test(value)
+        case 'wechat_mp':
+            return /(?:^|[_\s-])(?:wechat(?:[_\s-]?mp)?|weixin|wx|official(?:[_\s-]?account))(?:$|[_\s-])|公众号/iu.test(value)
     }
 }
 
@@ -141,9 +143,9 @@ function resolveWechatSyncPlatformCandidates(source: WechatSyncPlatformSource | 
     }
 
     return [
+        ...(source.supportTypes || []),
         source.type,
         source.id,
-        ...(source.supportTypes || []),
         source.title,
         source.displayName,
     ].filter((value): value is string => Boolean(value?.trim()))
@@ -167,6 +169,9 @@ function resolveWechatSyncPlatformFamily(source: WechatSyncPlatformSource | Wech
         }
         if (matchesWechatSyncPlatform(candidate, 'memos')) {
             return 'memos'
+        }
+        if (matchesWechatSyncPlatform(candidate, 'wechat_mp')) {
+            return 'wechat_mp'
         }
     }
 
@@ -192,6 +197,10 @@ export function resolveWechatSyncTagRenderMode(platformType: string | null | und
         return 'none'
     }
 
+    if (normalizedType.includes('wechat_mp')) {
+        return 'none'
+    }
+
     return 'none'
 }
 
@@ -204,6 +213,10 @@ export function resolveWechatSyncContentProfile(platformType: string | null | un
 
     if (normalizedType.includes('xiaohongshu')) {
         return 'xiaohongshu'
+    }
+
+    if (normalizedType.includes('wechat_mp')) {
+        return 'wechat_mp'
     }
 
     return 'default'

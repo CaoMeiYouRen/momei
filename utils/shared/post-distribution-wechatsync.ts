@@ -24,6 +24,15 @@ export function resolveWechatSyncDispatchPayloadProfile(accounts: readonly Wecha
     const group = groupedAccounts[0]
 
     if (groupedAccounts.length === 1 && group) {
+        if (group.contentProfile === 'wechat_mp') {
+            return {
+                strategy: 'single_add_task_default_raw',
+                renderMode: 'none',
+                contentProfile: 'default',
+                usesRawPost: true,
+            }
+        }
+
         const usesRawPost = group.renderMode === 'none' && group.contentProfile === 'default'
 
         return {

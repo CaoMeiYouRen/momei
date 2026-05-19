@@ -4,7 +4,6 @@ import {
     type DistributionMaterialBundle,
 } from './distribution-template'
 import { groupWechatSyncAccountsByTagRenderMode, renderDistributionTags } from './distribution-tags'
-import { resolveWechatSyncDispatchPayloadProfile } from './post-distribution-wechatsync'
 import { resolveWechatSyncAccountKey, type WechatSyncAccount } from './wechatsync'
 
 export interface MemosDistributionPreview {
@@ -20,7 +19,7 @@ export interface WechatSyncDistributionPreviewGroup {
     key: string
     accounts: WechatSyncAccount[]
     accountsLabel: string
-    contentProfile: 'default' | 'weibo' | 'xiaohongshu'
+    contentProfile: 'default' | 'weibo' | 'xiaohongshu' | 'wechat_mp'
     title: string
     summary: string
     coverUrl: string | null
@@ -53,16 +52,13 @@ export function buildWechatSyncDistributionPreviewGroups(
     materialBundle: DistributionMaterialBundle,
     accounts: readonly WechatSyncAccount[],
 ) {
-    const payloadProfile = resolveWechatSyncDispatchPayloadProfile(accounts)
-    const usesProfiledRuntimePreview = payloadProfile.contentProfile === 'default' && !payloadProfile.usesRawPost
-
     return groupWechatSyncAccountsByTagRenderMode(accounts).map<WechatSyncDistributionPreviewGroup>((group) => {
         const tagLine = group.contentProfile === 'default'
             ? renderDistributionTags(materialBundle.canonical.tags, group.renderMode)
             : ''
         const runtimePayload = buildWechatSyncPostFromMaterialBundle(materialBundle, {
-            renderMode: usesProfiledRuntimePreview ? payloadProfile.renderMode : 'none',
-            contentProfile: usesProfiledRuntimePreview ? payloadProfile.contentProfile : 'default',
+            renderMode: group.renderMode,
+            contentProfile: group.contentProfile,
         })
 
         return {

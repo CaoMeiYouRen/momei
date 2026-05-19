@@ -65,6 +65,7 @@ export interface WechatSyncWindow {
 
 export interface ExpandedDistributionPreview {
     channel: PostDistributionChannel
+    contentProfile?: WechatSyncDistributionPreviewGroup['contentProfile']
     title: string
     badge: string
     badgeSeverity: string
@@ -125,12 +126,17 @@ export function renderWechatSyncPreviewProfile(group: WechatSyncDistributionPrev
         return t('pages.admin.posts.distribution.preview.payload.xiaohongshu_compatible')
     }
 
+    if (group.contentProfile === 'wechat_mp') {
+        return t('pages.admin.posts.distribution.preview.payload.wechat_mp_compatible')
+    }
+
     return t('pages.admin.posts.distribution.preview.payload.standard')
 }
 
 export function createWechatSyncExpandedPreview(group: WechatSyncDistributionPreviewGroup, t: Translate): ExpandedDistributionPreview {
     return {
         channel: 'wechatsync',
+        contentProfile: group.contentProfile,
         title: `${t('common.preview')} · ${t('pages.admin.posts.distribution.channels.wechatsync')}`,
         badge: renderWechatSyncPreviewProfile(group, t),
         badgeSeverity: renderWechatSyncPreviewSeverity(group),

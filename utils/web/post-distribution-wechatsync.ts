@@ -126,7 +126,7 @@ function buildWechatSyncDispatchObservation(
         resolution: null,
         payload: {
             renderMode: payloadProfile.renderMode,
-            contentProfile: payloadProfile.contentProfile,
+            contentProfile: payloadProfile.contentProfile === 'wechat_mp' ? 'default' : payloadProfile.contentProfile,
             usesRawPost: payloadProfile.usesRawPost,
             markdownLength: postToSync.markdown?.length || 0,
             contentLength: postToSync.content.length,

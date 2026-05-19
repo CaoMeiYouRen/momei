@@ -129,6 +129,10 @@
                     "open_remote": "Open Remote Content",
                     "precheck": {
                         "blocking_toast": "The selected WechatSync accounts still have unresolved compatibility issues. Adjust the content or deselect those accounts first.",
+                        "wechat_mp_adjusted_title": "Official Account channels have formatting compatibility risks",
+                        "wechat_mp_adjusted_detail": "Detected notice containers, code-group wrappers, heading anchors, or copy buttons. WeChat Official Account editors usually cannot keep these site-specific enhancements as-is; this preview shows the downgraded wechat_mp layout while runtime dispatch still sends the raw/default payload. Accounts: {accounts}",
+                        "wechat_mp_blocking_title": "Official Account channels have high-risk compatibility issues",
+                        "wechat_mp_blocking_detail": "The current content still contains structures that are high-risk for the WeChat Official Account editor: {components}. Adjust the content before delivery. Accounts: {accounts}",
                         "xiaohongshu_adjusted_detail": "Detected heading anchors, notice blocks, code-group wrappers, or copy buttons. These structures rely more on extension-side compatibility handling on the Xiaohongshu path; the current experiment will still send the raw/default payload, so watch these accounts closely during joint validation. Accounts: {accounts}",
                         "xiaohongshu_adjusted_title": "Xiaohongshu accounts have compatibility risks",
                         "xiaohongshu_blocking_detail": "The current content still contains structures that are high-risk for the Xiaohongshu editor: {components}. The current experiment will still send the raw/default payload, but these accounts are more likely to fail in the extension path. Watch the joint-validation result closely or temporarily deselect these accounts. Accounts: {accounts}",
@@ -149,10 +153,14 @@
                         "no_account_selected": "Select WechatSync accounts to inspect the exact payload each platform will receive before syncing.",
                         "payload": {
                             "standard": "Raw/default payload",
+                            "wechat_mp_compatible": "WeChat Official Account preview",
                             "xiaohongshu_compatible": "Xiaohongshu risk analysis",
                             "weibo_compatible": "Weibo risk analysis"
                         },
-                        "tags": "Tag tail"
+                        "tags": "Tag tail",
+                        "copy_formatted_content": "Copy formatted content",
+                        "copy_formatted_success": "Formatted Official Account content copied",
+                        "copy_formatted_failed": "Failed to copy formatted content"
                     },
                     "retry": "Retry",
                     "start_wechatsync": "Start WechatSync Delivery",

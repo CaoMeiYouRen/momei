@@ -90,6 +90,7 @@ describe('post-distribution-dialog', () => {
 
         expect(createWechatSyncExpandedPreview(group, translate)).toEqual({
             channel: 'wechatsync',
+            contentProfile: 'weibo',
             title: 'translated:common.preview · translated:pages.admin.posts.distribution.channels.wechatsync',
             badge: 'translated:pages.admin.posts.distribution.preview.payload.weibo_compatible',
             badgeSeverity: 'warn',
@@ -132,6 +133,9 @@ describe('post-distribution-dialog', () => {
         expect(renderWechatSyncPreviewProfile(createPreviewGroup({
             contentProfile: 'xiaohongshu',
         }), translate)).toBe('translated:pages.admin.posts.distribution.preview.payload.xiaohongshu_compatible')
+        expect(renderWechatSyncPreviewProfile(createPreviewGroup({
+            contentProfile: 'wechat_mp',
+        }), translate)).toBe('translated:pages.admin.posts.distribution.preview.payload.wechat_mp_compatible')
         expect(renderWechatSyncPreviewProfile(createPreviewGroup({
             contentProfile: 'default',
         }), translate)).toBe('translated:pages.admin.posts.distribution.preview.payload.standard')

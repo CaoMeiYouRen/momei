@@ -65,13 +65,14 @@ describe('post-distribution-preview', () => {
         expect(bilibiliPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
         expect(bilibiliPreview?.finalMarkdown).toContain(post.content)
         expect(bilibiliPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
-        expect(bilibiliPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
+        expect(bilibiliPreview?.finalMarkdown).toContain('#Nuxt #Vue')
 
         expect(weiboPreview).toBeTruthy()
         expect(weiboPreview?.accountsLabel).toBe('微博专栏')
         expect(weiboPreview?.tagLine).toBe('')
         expect(weiboPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
-        expect(weiboPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
+        expect(weiboPreview?.finalMarkdown).toContain('本文作者: Momei Author')
+        expect(weiboPreview?.finalMarkdown).not.toContain('----------')
         expect(weiboPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
         expect(weiboPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['blockquote', 'figure', 'heading-anchor', 'divider']),
@@ -82,7 +83,7 @@ describe('post-distribution-preview', () => {
         expect(xiaohongshuPreview?.tagLine).toBe('')
         expect(xiaohongshuPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
         expect(xiaohongshuPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
-        expect(xiaohongshuPreview?.finalMarkdown).not.toContain('#Nuxt #Vue')
+        expect(xiaohongshuPreview?.finalMarkdown).toContain('#Nuxt #Vue')
         expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['heading-anchor']),
         )
@@ -107,5 +108,25 @@ describe('post-distribution-preview', () => {
         expect(memosPreview.tagLine).toBe('#Nuxt3 #Vue')
         expect(bilibiliPreview?.tagLine).toBe(memosPreview.tagLine)
         expect(bilibiliPreview?.finalMarkdown).toContain(memosPreview.tagLine)
+    })
+
+    it('builds a dedicated wechat_mp preview profile for official account channels', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '## 一级标题\n\n::: tip 微信提示\n请关注\n:::\n\n> 引用\n\n```ts\nconst a = 1\n```',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const [wechatMpPreview] = buildWechatSyncDistributionPreviewGroups(materialBundle, normalizeWechatSyncAccounts([
+            { type: 'official_account', title: '微信公众号' },
+        ]))
+
+        expect(wechatMpPreview?.contentProfile).toBe('wechat_mp')
+        expect(wechatMpPreview?.accountsLabel).toBe('微信公众号')
+        expect(wechatMpPreview?.finalMarkdown).toContain('## 一级标题')
+        expect(wechatMpPreview?.finalMarkdown).toContain('> [微信提示]')
+        expect(wechatMpPreview?.finalMarkdown).toContain('```ts')
     })
 })

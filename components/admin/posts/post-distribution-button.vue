@@ -99,6 +99,13 @@
             </div>
             <template #footer>
                 <Button
+                    v-if="expandedPreview?.channel === 'wechatsync' && expandedPreview?.contentProfile === 'wechat_mp'"
+                    :label="$t('pages.admin.posts.distribution.preview.copy_formatted_content')"
+                    icon="pi pi-copy"
+                    severity="contrast"
+                    @click="copyExpandedPreviewContent"
+                />
+                <Button
                     :label="$t('common.close')"
                     text
                     severity="secondary"
@@ -485,6 +492,7 @@ const {
     allAccounts,
     canRetry,
     closeExpandedPreview,
+    copyExpandedPreviewContent,
     dialogVisible,
     dispatchHexoRepositorySync,
     dispatchMemos,

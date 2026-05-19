@@ -45,6 +45,15 @@ describe('post distribution wechatsync helpers', () => {
             contentProfile: 'default',
             usesRawPost: true,
         })
+
+        expect(resolveWechatSyncDispatchPayloadProfile([
+            { id: 'wechat', type: 'official_account', title: '公众号', checked: true },
+        ])).toEqual({
+            strategy: 'single_add_task_default_raw',
+            renderMode: 'none',
+            contentProfile: 'default',
+            usesRawPost: true,
+        })
     })
 
     it('resolves stable task and completion account keys with trim and fallback order', () => {

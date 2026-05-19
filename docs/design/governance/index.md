@@ -38,6 +38,7 @@
 - **[第三方分发解耦与投递控制](./content-distribution-governance)**: `third-party.md` 的分发治理补充，聚焦外部分发状态机与投递边界。
 - **[远程仓库同步能力评估（Hexo 风格）](./hexo-repository-sync)**: `migration.md` / `content-distribution-governance.md` 之间的专项评估文档，聚焦 GitHub / Gitee 单仓库同步候选方案、媒体策略与失败审计。
 - **[渠道分发模板与标签适配方案](./content-distribution-template-tag-adaptation)**: `content-distribution-governance.md` 的增量方案，聚焦渠道内容模板与标签适配收口。
+- **[微信公众号格式预览与导出辅助](./wechat-mp-preview-export-assist)**: 第三十九阶段 P0 设计冻结文档，聚焦 `wechat_mp` 预览 profile、复制排版后内容入口与 dispatch 非目标边界。
 - **[文章分享系统设计文档](./post-sharing)**: 页面分享能力的专项设计，聚焦平台拼链、复制分享与统一口径。
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 - **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。

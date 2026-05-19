@@ -117,4 +117,36 @@ describe('post-distribution-precheck', () => {
         expect(notices[0]?.detail).toContain('accounts=小红书')
         expect(notices[1]?.detail).toContain('components=embedded-media')
     })
+
+    it('builds wechat_mp notices for custom blocks and embedded media risks', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...basePost,
+            content: '## 标题\n\n::: warning 微信提示\n内容\n:::\n\n<iframe src="https://example.com/embed"></iframe>',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const notices = buildWechatSyncPrecheckNotices(materialBundle, [
+            {
+                id: 'wechat',
+                type: 'official_account',
+                title: '微信公众号',
+                checked: true,
+            },
+        ], translate)
+
+        expect(notices).toEqual([
+            expect.objectContaining({
+                key: 'wechat_mp-adjustments',
+                severity: 'warn',
+            }),
+            expect.objectContaining({
+                key: 'wechat_mp-blockers',
+                severity: 'danger',
+            }),
+        ])
+        expect(notices[0]?.detail).toContain('accounts=微信公众号')
+        expect(notices[1]?.detail).toContain('components=embedded-media')
+    })
 })

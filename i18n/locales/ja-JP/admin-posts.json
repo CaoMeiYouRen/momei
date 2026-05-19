@@ -133,6 +133,10 @@
                     "retry": "再試行",
                     "precheck": {
                         "blocking_toast": "選択した WechatSync アカウントに未解決の互換性問題があります。内容を調整するか、これらのアカウントを外してください。",
+                        "wechat_mp_adjusted_title": "微信公众号アカウントに互換リスクがあります",
+                        "wechat_mp_adjusted_detail": "注意コンテナ、コードグループ、見出しアンカー、コピー用ボタンなどが検出されました。微信公众号エディタではこれらの拡張構造をそのまま保持できないことが多いため、今回のプレビューでは微信公众号向けに整形した結果を表示します。実際の投递は raw/default payload のままです。アカウント: {accounts}",
+                        "wechat_mp_blocking_title": "微信公众号アカウントに高リスクの互換問題があります",
+                        "wechat_mp_blocking_detail": "現在の内容には微信公众号エディタで高リスクな非互換構造が含まれています: {components}。配信前に内容を調整してください。アカウント: {accounts}",
                         "xiaohongshu_adjusted_title": "小紅書アカウントに互換リスクがあります",
                         "xiaohongshu_adjusted_detail": "見出しアンカー、注意ブロック、コードグループ、コピー用ボタンなどが検出されています。これらは小紅書経路で拡張機能側の互換処理により強く依存するため、今回の実験では raw/default payload をそのまま送信しつつ、該当アカウントの連携結果を重点的に確認してください。アカウント: {accounts}",
                         "xiaohongshu_blocking_title": "小紅書アカウントに高リスクの互換問題があります",
@@ -153,10 +157,14 @@
                         "no_account_selected": "WechatSync アカウントを選択すると、各プラットフォームへ送信される内容をここで事前確認できます。",
                         "payload": {
                             "standard": "Raw / default payload",
+                            "wechat_mp_compatible": "微信公众号レイアウトプレビュー",
                             "xiaohongshu_compatible": "小紅書リスク分析",
                             "weibo_compatible": "Weibo リスク分析"
                         },
-                        "tags": "タグ追記"
+                        "tags": "タグ追記",
+                        "copy_formatted_content": "整形後コンテンツをコピー",
+                        "copy_formatted_success": "微信公众号向け整形コンテンツをコピーしました",
+                        "copy_formatted_failed": "整形後コンテンツのコピーに失敗しました"
                     },
                     "start_wechatsync": "WechatSync 配信を開始",
                     "status": {

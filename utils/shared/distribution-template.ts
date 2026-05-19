@@ -98,6 +98,21 @@ const XIAOHONGSHU_HTML_ADJUSTMENT_RULES: [RegExp, string][] = [
 const XIAOHONGSHU_BLOCKER_RULES: [RegExp, string][] = [
     [/<(?:table|iframe|video|audio)\b/iu, 'embedded-media'],
 ]
+const WECHAT_MP_MARKDOWN_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/^:::\s*(?:tip|warning|danger|info)\b/mu, 'custom-block'],
+    [/^:::\s*code-group\b/mu, 'code-group'],
+    [/^\s*>\s*\[![A-Z]+\]/mu, 'github-alert'],
+]
+const WECHAT_MP_HTML_ADJUSTMENT_RULES: [RegExp, string][] = [
+    [/header-anchor/iu, 'heading-anchor'],
+    [/copy-code-button/iu, 'copy-code-button'],
+    [/class=(['"])[^'"]*\bcustom-block\b[^'"]*\1/iu, 'custom-block'],
+    [/class=(['"])[^'"]*\bcode-group\b[^'"]*\1/iu, 'code-group'],
+    [/class=(['"])[^'"]*\bmarkdown-alert\b[^'"]*\1/iu, 'github-alert'],
+]
+const WECHAT_MP_BLOCKER_RULES: [RegExp, string][] = [
+    [/<(?:table|iframe|video|audio)\b/iu, 'embedded-media'],
+]
 
 function collapseWhitespace(text: string) {
     return text.replace(/\s+/gu, ' ').trim()
@@ -222,6 +237,17 @@ function sanitizeWechatSyncMarkdownForXiaohongshu(markdown: string) {
         .trim()
 }
 
+function sanitizeWechatSyncMarkdownForWechatMp(markdown: string) {
+    return markdown
+        .replace(/^:::\s*code-group\s*$/gmu, '')
+        .replace(/^:::\s*(tip|warning|danger|info)(?:\s+(.+))?\s*$/gmu, (_match, type, title) => `> [${String(title || type).toUpperCase()}]`)
+        .replace(/^:::\s*$/gmu, '')
+        .replace(/^\s*>\s*\[!([A-Z]+)\]\s*$/gmu, (_match, title) => `> [${title}]`)
+        .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
+        .replace(/\n{3,}/gu, '\n\n')
+        .trim()
+}
+
 function sanitizeWechatSyncHtmlForXiaohongshu(html: string) {
     if (!html) {
         return ''
@@ -266,6 +292,22 @@ export function inspectWechatSyncMaterialCompatibility(
         const blockers = uniqueIssues(collectWechatSyncCompatibilityMatches(
             `${markdownSource}\n\n${htmlSource}`,
             XIAOHONGSHU_BLOCKER_RULES,
+        ))
+
+        return {
+            adjustments,
+            blockers,
+        }
+    }
+
+    if (contentProfile === 'wechat_mp') {
+        const adjustments = uniqueIssues([
+            ...collectWechatSyncCompatibilityMatches(markdownSource, WECHAT_MP_MARKDOWN_ADJUSTMENT_RULES),
+            ...collectWechatSyncCompatibilityMatches(htmlSource, WECHAT_MP_HTML_ADJUSTMENT_RULES),
+        ])
+        const blockers = uniqueIssues(collectWechatSyncCompatibilityMatches(
+            `${markdownSource}\n\n${htmlSource}`,
+            WECHAT_MP_BLOCKER_RULES,
         ))
 
         return {
@@ -361,6 +403,7 @@ export function buildWechatSyncPostFromMaterialBundle(
     const contentProfile = options.contentProfile || 'default'
     const usesWeiboCompatibility = contentProfile === 'weibo'
     const usesXiaohongshuCompatibility = contentProfile === 'xiaohongshu'
+    const usesWechatMpCompatibility = contentProfile === 'wechat_mp'
     const copyrightMarkdown = contentProfile === 'weibo'
         ? materialBundle.canonical.copyrightMarkdown.replace(/^\s*[-*_]{3,}\s*\n?/u, '').trim()
         : materialBundle.canonical.copyrightMarkdown
@@ -375,11 +418,13 @@ export function buildWechatSyncPostFromMaterialBundle(
         markdown = sanitizeWechatSyncMarkdownForWeibo(rawMarkdown)
     } else if (usesXiaohongshuCompatibility) {
         markdown = sanitizeWechatSyncMarkdownForXiaohongshu(rawMarkdown)
+    } else if (usesWechatMpCompatibility) {
+        markdown = sanitizeWechatSyncMarkdownForWechatMp(rawMarkdown)
     }
 
     const renderer = createMarkdownRenderer({
         html: !usesWeiboCompatibility,
-        withAnchor: !usesWeiboCompatibility && !usesXiaohongshuCompatibility,
+        withAnchor: !usesWeiboCompatibility && !usesXiaohongshuCompatibility && !usesWechatMpCompatibility,
     })
     const content = renderer.render(markdown)
 

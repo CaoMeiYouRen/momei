@@ -34,9 +34,9 @@ export function buildWechatSyncPrecheckNotices(
 
     const notices: WechatSyncPrecheckNotice[] = []
     const appendCompatibilityNotices = (
-        profile: 'weibo' | 'xiaohongshu',
+        profile: 'weibo' | 'xiaohongshu' | 'wechat_mp',
         profileAccounts: readonly WechatSyncAccount[],
-        titlePrefix: 'weibo' | 'xiaohongshu',
+        titlePrefix: 'weibo' | 'xiaohongshu' | 'wechat_mp',
     ) => {
         if (!profileAccounts.length) {
             return
@@ -78,6 +78,11 @@ export function buildWechatSyncPrecheckNotices(
         'xiaohongshu',
         accounts.filter((account) => resolveWechatSyncAccountContentProfile(account) === 'xiaohongshu'),
         'xiaohongshu',
+    )
+    appendCompatibilityNotices(
+        'wechat_mp',
+        accounts.filter((account) => resolveWechatSyncAccountContentProfile(account) === 'wechat_mp'),
+        'wechat_mp',
     )
 
     return notices

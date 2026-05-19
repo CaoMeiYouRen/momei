@@ -133,6 +133,10 @@
                     "retry": "重試",
                     "precheck": {
                         "blocking_toast": "所選 WechatSync 帳號仍有未處理的相容性問題，請先調整內容或取消這些帳號。",
+                        "wechat_mp_adjusted_title": "微信公眾號帳號存在相容風險提示",
+                        "wechat_mp_adjusted_detail": "偵測到提示容器、程式碼分組、標題錨點或複製按鈕等結構。公眾號編輯器通常無法完整保留這些站內增強標記；本次預覽會提供公眾號排版降級結果，實際投遞仍送出 raw/default payload。帳號：{accounts}",
+                        "wechat_mp_blocking_title": "微信公眾號帳號存在高風險相容問題",
+                        "wechat_mp_blocking_detail": "目前內容仍含有公眾號編輯器高風險不相容結構：{components}。建議先調整內容後再投遞。帳號：{accounts}",
                         "xiaohongshu_adjusted_title": "小紅書帳號存在相容風險提示",
                         "xiaohongshu_adjusted_detail": "當偵測到標題錨點、提示區塊、程式碼分組或複製按鈕等站內增強結構時，代表這些內容在小紅書鏈路中更依賴擴充功能側相容處理；本次實驗仍會送出 raw/default payload，請特別關注這些帳號的聯調結果。帳號：{accounts}",
                         "xiaohongshu_blocking_title": "小紅書帳號存在高風險相容問題",
@@ -153,10 +157,14 @@
                         "no_account_selected": "選擇 WechatSync 帳號後，可先在這裡檢查各平台將收到的內容。",
                         "payload": {
                             "standard": "Raw / default payload",
+                            "wechat_mp_compatible": "微信公眾號排版預覽",
                             "xiaohongshu_compatible": "小紅書風險分析",
                             "weibo_compatible": "微博風險分析"
                         },
-                        "tags": "標籤尾註"
+                        "tags": "標籤尾註",
+                        "copy_formatted_content": "複製排版後內容",
+                        "copy_formatted_success": "已複製公眾號排版內容",
+                        "copy_formatted_failed": "複製排版內容失敗"
                     },
                     "start_wechatsync": "開始 WechatSync 投遞",
                     "status": {

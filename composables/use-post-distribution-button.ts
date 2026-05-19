@@ -95,6 +95,8 @@ function createExpandedPreviewController(options: {
     expandedPreview: Ref<ExpandedDistributionPreview | null>
     expandedPreviewVisible: Ref<boolean>
     memosPreview: ComputedRef<MemosDistributionPreview | null>
+    showErrorToast: (...args: Parameters<ReturnType<typeof useRequestFeedback>['showErrorToast']>) => void
+    showSuccessToast: (...args: Parameters<ReturnType<typeof useRequestFeedback>['showSuccessToast']>) => void
     t: TranslateFn
 }) {
     function renderPreviewValue(value?: string | null) {
@@ -126,7 +128,46 @@ function createExpandedPreviewController(options: {
         openExpandedPreview(createWechatSyncExpandedPreview(group, options.t))
     }
 
+    async function copyExpandedPreviewContent() {
+        const currentPreview = options.expandedPreview.value
+        if (!currentPreview?.finalMarkdown?.trim()) {
+            options.showErrorToast(new Error(options.t('pages.admin.posts.distribution.preview.empty')), {
+                fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
+            })
+            return
+        }
+
+        if (!import.meta.client || !navigator.clipboard) {
+            options.showErrorToast(new Error(options.t('common.unknown_error')), {
+                fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
+            })
+            return
+        }
+
+        const markdown = currentPreview.finalMarkdown.trim()
+        const html = renderDistributionPreviewHtml(markdown, options.t('pages.admin.posts.distribution.preview.empty'))
+
+        try {
+            if (typeof navigator.clipboard.write === 'function' && typeof ClipboardItem !== 'undefined') {
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/plain': new Blob([markdown], { type: 'text/plain' }),
+                        'text/html': new Blob([html], { type: 'text/html' }),
+                    }),
+                ])
+            } else {
+                await navigator.clipboard.writeText(markdown)
+            }
+            options.showSuccessToast('pages.admin.posts.distribution.preview.copy_formatted_success')
+        } catch (error) {
+            options.showErrorToast(error, {
+                fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
+            })
+        }
+    }
+
     return {
+        copyExpandedPreviewContent,
         closeExpandedPreview,
         openMemosPreviewDialog,
         openWechatSyncPreviewDialog,
@@ -341,6 +382,7 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
         : [])
     const expandedPreviewTitle = computed(() => expandedPreview.value?.title || t('common.preview'))
     const {
+        copyExpandedPreviewContent,
         closeExpandedPreview,
         openMemosPreviewDialog,
         openWechatSyncPreviewDialog,
@@ -350,6 +392,8 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
         expandedPreview,
         expandedPreviewVisible,
         memosPreview,
+        showErrorToast,
+        showSuccessToast,
         t,
     })
     const {
@@ -708,6 +752,7 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
         allAccounts,
         canRetry,
         closeExpandedPreview,
+        copyExpandedPreviewContent,
         dialogVisible,
         dispatchHexoRepositorySync,
         dispatchMemos,

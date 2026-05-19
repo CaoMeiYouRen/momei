@@ -133,6 +133,10 @@
                     "retry": "재시도",
                     "precheck": {
                         "blocking_toast": "선택한 WechatSync 계정에 아직 해결되지 않은 호환성 문제가 있습니다. 내용을 조정하거나 해당 계정을 제외해 주세요.",
+                        "wechat_mp_adjusted_title": "微信公众号 계정에 호환성 리스크가 있습니다",
+                        "wechat_mp_adjusted_detail": "안내 컨테이너, 코드 그룹, 제목 앵커, 복사 버튼 같은 구조가 감지되었습니다. 微信公众号 편집기에서는 이런 사이트 전용 확장 마크업이 그대로 유지되지 않는 경우가 많아, 이번 미리보기에서는 微信公众号용으로 정리된 결과를 제공합니다. 실제 전송은 raw/default payload 그대로 유지됩니다. 계정: {accounts}",
+                        "wechat_mp_blocking_title": "微信公众号 계정에 고위험 호환성 문제가 있습니다",
+                        "wechat_mp_blocking_detail": "현재 콘텐츠에는 微信公众号 편집기에서 고위험으로 분류되는 비호환 구조가 포함되어 있습니다: {components}. 배포 전에 콘텐츠를 조정해 주세요. 계정: {accounts}",
                         "xiaohongshu_adjusted_title": "샤오홍슈 계정에 호환성 리스크가 있습니다",
                         "xiaohongshu_adjusted_detail": "제목 앵커, 안내 블록, 코드 그룹, 복사 버튼 같은 구조가 감지되었습니다. 이런 구조는 샤오홍슈 경로에서 확장 프로그램 쪽 호환 처리에 더 크게 의존하므로, 이번 실험에서는 raw/default payload 를 그대로 보내되 해당 계정의 연동 결과를 집중해서 확인해 주세요. 계정: {accounts}",
                         "xiaohongshu_blocking_title": "샤오홍슈 계정에 고위험 호환성 문제가 있습니다",
@@ -153,10 +157,14 @@
                         "no_account_selected": "WechatSync 계정을 선택하면 각 플랫폼으로 전달될 내용을 여기서 먼저 확인할 수 있습니다.",
                         "payload": {
                             "standard": "Raw/default payload",
+                            "wechat_mp_compatible": "微信公众号 레이아웃 미리보기",
                             "xiaohongshu_compatible": "샤오홍슈 리스크 분석",
                             "weibo_compatible": "Weibo 리스크 분석"
                         },
-                        "tags": "태그 꼬리말"
+                        "tags": "태그 꼬리말",
+                        "copy_formatted_content": "서식 적용 콘텐츠 복사",
+                        "copy_formatted_success": "微信公众号용 서식 콘텐츠를 복사했습니다",
+                        "copy_formatted_failed": "서식 적용 콘텐츠 복사에 실패했습니다"
                     },
                     "start_wechatsync": "WechatSync 배포 시작",
                     "status": {
