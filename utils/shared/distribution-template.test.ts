@@ -186,6 +186,30 @@ describe('distribution-template', () => {
         expect(xiaohongshuDispatchPost.markdown).toContain('#Nuxt #Vue')
     })
 
+    it('converts markdown and bare external links to end references for wechat_mp payloads', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '外链示例：https://github.com/CaoMeiYouRen/momei\n\n微信内链：https://mp.weixin.qq.com/s/example\n\n重复外链：https://github.com/CaoMeiYouRen/momei\n\nMarkdown 外链：[RSSHub](https://github.com/DIYgod/RSSHub)',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const wechatMpPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'none',
+            contentProfile: 'wechat_mp',
+        })
+
+        expect(wechatMpPost.markdown).toContain('链接[')
+        expect(wechatMpPost.markdown).toContain('RSSHub[')
+        expect(wechatMpPost.markdown).toContain('https://mp.weixin.qq.com/s/example')
+        expect(wechatMpPost.markdown).toContain('## 引用链接')
+        expect(wechatMpPost.markdown).toContain('链接: `https://')
+        expect(wechatMpPost.markdown).toContain('RSSHub: `https://github.com/DIYgod/RSSHub`')
+        expect(wechatMpPost.content).toContain('<ol>')
+        expect(wechatMpPost.content).toContain('<li>RSSHub: <code>https://github.com/DIYgod/RSSHub</code></li>')
+    })
+
     it('flags weibo-only blockers that still require manual cleanup', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,

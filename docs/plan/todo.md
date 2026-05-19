@@ -25,7 +25,7 @@
 - 验收标准: 先在 `docs/design/governance/` 或等价入口落一份专项设计文档，明确首版只交付“公众号风格预览 / 复制排版后内容”，不做编辑器替换；随后基于现有编辑器 / 分发预览表面补一条公众号样式转换链路，并验证标题层级、图片、引用块、代码块 / 提示容器、长文阅读连续性，以及复制结果一致性。
 - 数据参考: 当前仓库已支持 `Memos / WechatSync` expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类输出，但尚无 dedicated `wechat_mp` render profile，也没有固定的“复制排版后内容”入口。
 - 最小验证: 受影响组件 / composable 定向测试、必要的浏览器验证与剪贴板复制验证。
-- 当前进展 (2026-05-19): 已补专项设计文档 `docs/design/governance/wechat-mp-preview-export-assist.md`，并在分发预览链路落地 `wechat_mp` profile（预览 / 预检）与 expanded preview 的“复制排版后内容”入口；运行时 dispatch 维持 raw/default payload，不改变既有 WechatSync 投递契约。待补收口项为定向测试、类型检查与浏览器侧复制验证证据。
+- 当前进展 (2026-05-20): 已补专项设计文档 `docs/design/governance/wechat-mp-preview-export-assist.md`，并在分发预览链路落地 `wechat_mp` profile（预览 / 预检）与 expanded preview 的“复制排版后内容”入口；运行时 dispatch 维持 raw/default payload，不改变既有 WechatSync 投递契约。本轮新增“外链自动转文末引用”转换能力（仅 `wechat_mp` preview/copy 生效，内链保持原样），同时兼容旧文章里的裸 URL，并将文末引用改为“标题在前、URL 代码样式在后”的不可点击格式；已补齐定向测试。待补收口项为浏览器侧复制验证证据。
 
 2. [ ] 结构复用第三轮：3 个热点收敛 (P1，进行中)
 - 验收标准: 以 `simple-duplicates` baseline 为事实源，至少完成 `3` 组热点收敛，并确保 `confirmDelete`（`13` 处）、`getStatusSeverity`（`9` 处）、`DistributionMaterialBundle`（`6` 处）这三组在重跑脚本后都能看到可对比的 delta；`pnpm duplicate-code:check` 基线不得反弹。

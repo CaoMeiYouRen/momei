@@ -11,6 +11,7 @@ import {
     type NormalizedDistributionTag,
     type WechatSyncContentProfile,
 } from './distribution-tags'
+import { isAbsoluteHttpUrl } from './url'
 import type { Post } from '@/types/post'
 
 type DistributionMaterialSourcePost = Pick<Post, 'id' | 'title' | 'content' | 'summary' | 'coverImage' | 'author' | 'copyright' | 'language' | 'slug'> & {
@@ -248,6 +249,134 @@ function sanitizeWechatSyncMarkdownForWechatMp(markdown: string) {
         .trim()
 }
 
+function normalizeHostname(hostname: string) {
+    return hostname.trim().toLowerCase().replace(/^www\./u, '')
+}
+
+function isWechatMpInternalLink(url: string) {
+    if (!isAbsoluteHttpUrl(url)) {
+        return false
+    }
+
+    try {
+        const parsed = new URL(url)
+        const hostname = normalizeHostname(parsed.hostname)
+        if (!hostname) {
+            return false
+        }
+
+        return hostname === 'mp.weixin.qq.com' || hostname.endsWith('.mp.weixin.qq.com')
+    } catch {
+        return false
+    }
+}
+
+function normalizeReferenceLabel(label: string) {
+    const normalized = collapseWhitespace(stripResidualHtml(label))
+    return normalized || '链接'
+}
+
+function formatReferenceUrl(url: string) {
+    return `\`${url}\``
+}
+
+function addWechatMpReference(
+    references: { index: number, label: string, url: string }[],
+    indexByUrl: Map<string, number>,
+    url: string,
+    label: string,
+) {
+    const normalizedUrl = url.trim()
+    const normalizedLabel = normalizeReferenceLabel(label)
+    let referenceIndex = indexByUrl.get(normalizedUrl)
+    if (!referenceIndex) {
+        referenceIndex = references.length + 1
+        indexByUrl.set(normalizedUrl, referenceIndex)
+        references.push({
+            index: referenceIndex,
+            label: normalizedLabel === normalizedUrl ? '链接' : normalizedLabel,
+            url: normalizedUrl,
+        })
+    }
+
+    return referenceIndex
+}
+
+function transformWechatMpExternalLinksToReferences(markdown: string) {
+    const references: { index: number, label: string, url: string }[] = []
+    const indexByUrl = new Map<string, number>()
+
+    const segments = markdown.split(/(```[\s\S]*?```)/gu)
+    const transformedMarkdown = segments.map((segment, segmentIndex) => {
+        if (segmentIndex % 2 === 1) {
+            return segment
+        }
+
+        const inlineCodePlaceholders: string[] = []
+        const segmentWithoutInlineCode = segment.replace(/`[^`\n]*`/gu, (inlineCode) => {
+            const placeholder = `__MOMEI_INLINE_CODE_${inlineCodePlaceholders.length}__`
+            inlineCodePlaceholders.push(inlineCode)
+            return placeholder
+        })
+
+        const rewrittenSegment = segmentWithoutInlineCode.replace(/(!)?\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gu, (match, imageMarker, label, url) => {
+            if (imageMarker) {
+                return match
+            }
+
+            const normalizedUrl = url.trim()
+            if (isWechatMpInternalLink(normalizedUrl)) {
+                return match
+            }
+
+            const referenceIndex = addWechatMpReference(references, indexByUrl, normalizedUrl, label)
+
+            if (isAbsoluteHttpUrl(label)) {
+                return `${label} [${referenceIndex}]`
+            }
+
+            return `${label}[${referenceIndex}]`
+        })
+
+        const rewrittenWithBareUrls = rewrittenSegment.replace(/https?:\/\/[^\s<>)\]]+/gu, (match, ...args: unknown[]) => {
+            const sourceArg = args[args.length - 1]
+            const offsetArg = args[args.length - 2]
+            const source = typeof sourceArg === 'string' ? sourceArg : ''
+            const offset = typeof offsetArg === 'number' ? offsetArg : 0
+            const previousTwoChars = source.slice(Math.max(0, offset - 2), offset)
+            if (previousTwoChars === '](') {
+                return match
+            }
+
+            const normalizedUrl = match.trim().replace(/[.,;:!?]+$/gu, '')
+            if (!isWechatMpInternalLink(normalizedUrl)) {
+                const referenceIndex = addWechatMpReference(references, indexByUrl, normalizedUrl, '链接')
+                return `链接[${referenceIndex}]`
+            }
+
+            return match
+        })
+
+        return rewrittenWithBareUrls.replace(/__MOMEI_INLINE_CODE_(\d+)__/gu, (_match, rawIndex) => {
+            const index = Number.parseInt(rawIndex, 10)
+            return inlineCodePlaceholders[index] || ''
+        })
+    }).join('')
+
+    if (!references.length) {
+        return transformedMarkdown
+    }
+
+    const hasReferenceHeading = /(^|\n)##\s+引用链接\s*(\n|$)/u.test(transformedMarkdown)
+    const referenceHeading = hasReferenceHeading ? '## 外链引用' : '## 引用链接'
+    const referenceLines = references.map((reference) => `${reference.index}. ${reference.label}: ${formatReferenceUrl(reference.url)}`)
+
+    return joinSections([
+        transformedMarkdown,
+        [referenceHeading, '', ...referenceLines].join('\n'),
+    ])
+}
+
 function sanitizeWechatSyncHtmlForXiaohongshu(html: string) {
     if (!html) {
         return ''
@@ -419,7 +548,9 @@ export function buildWechatSyncPostFromMaterialBundle(
     } else if (usesXiaohongshuCompatibility) {
         markdown = sanitizeWechatSyncMarkdownForXiaohongshu(rawMarkdown)
     } else if (usesWechatMpCompatibility) {
-        markdown = sanitizeWechatSyncMarkdownForWechatMp(rawMarkdown)
+        markdown = transformWechatMpExternalLinksToReferences(
+            sanitizeWechatSyncMarkdownForWechatMp(rawMarkdown),
+        )
     }
 
     const renderer = createMarkdownRenderer({
