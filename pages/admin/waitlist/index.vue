@@ -79,7 +79,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(data)"
+                            @click="openDeleteDialog(data)"
                         />
                     </template>
                 </Column>
@@ -113,14 +113,17 @@ definePageMeta({
 })
 
 const { formatDate } = useI18nDate()
+const {
+    visible: deleteVisible,
+    item: itemToDelete,
+    openDeleteDialog,
+    resetDeleteDialog,
+} = useDeleteDialogState<WaitlistEntry>()
 
 const filters = reactive({
     search: '',
     purpose: '',
 })
-
-const deleteVisible = ref(false)
-const itemToDelete = ref<WaitlistEntry | null>(null)
 
 const {
     items,
@@ -168,11 +171,6 @@ const exportWaitlist = () => {
     window.open(url, '_blank')
 }
 
-const confirmDelete = (item: WaitlistEntry) => {
-    itemToDelete.value = item
-    deleteVisible.value = true
-}
-
 const doDelete = async () => {
     if (!itemToDelete.value) return
     try {
@@ -180,8 +178,7 @@ const doDelete = async () => {
             method: 'DELETE',
         })
         await refresh()
-        deleteVisible.value = false
-        itemToDelete.value = null
+        resetDeleteDialog()
     } catch (error) {
         console.error('Failed to delete waitlist entry:', error)
     }

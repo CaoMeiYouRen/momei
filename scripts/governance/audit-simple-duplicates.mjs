@@ -172,11 +172,45 @@ export function buildNearNameSignature(name) {
     return meaningfulTokens.join(':')
 }
 
+function collectImportStatementLines(content) {
+    const importStatementLines = new Set()
+    const lines = content.split('\n')
+    let inImportStatement = false
+
+    for (const [index, line] of lines.entries()) {
+        const trimmed = line.trim()
+
+        if (!inImportStatement) {
+            if (!trimmed.startsWith('import ')) {
+                continue
+            }
+
+            importStatementLines.add(index + 1)
+
+            const isSingleLineImport = /\bfrom\b/u.test(trimmed)
+                || /^import\s+['"][^'"]+['"]\s*;?$/u.test(trimmed)
+                || /[=]\s*require\(/u.test(trimmed)
+
+            inImportStatement = !isSingleLineImport
+            continue
+        }
+
+        importStatementLines.add(index + 1)
+
+        if (/\bfrom\b/u.test(trimmed)) {
+            inImportStatement = false
+        }
+    }
+
+    return importStatementLines
+}
+
 export function extractDeclarations(content, filePath) {
     const declarations = {
         functions: [],
         types: [],
     }
+    const importStatementLines = collectImportStatementLines(content)
     const matchers = [
         {
             kind: 'function',
@@ -202,11 +236,17 @@ export function extractDeclarations(content, filePath) {
 
     for (const matcher of matchers) {
         for (const match of content.matchAll(matcher.regex)) {
+            const line = computeLineNumber(content, (match.index ?? 0) + String(match[1] ?? '').length)
+
+            if (importStatementLines.has(line)) {
+                continue
+            }
+
             declarations[matcher.target].push({
                 exported: Boolean(match[2]),
                 filePath,
                 kind: matcher.kind,
-                line: computeLineNumber(content, match.index ?? 0),
+                line,
                 name: match[3],
             })
         }

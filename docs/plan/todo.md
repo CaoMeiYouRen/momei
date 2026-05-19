@@ -26,10 +26,12 @@
 - 数据参考: 当前仓库已支持 `Memos / WechatSync` expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类输出，但尚无 dedicated `wechat_mp` render profile，也没有固定的“复制排版后内容”入口。
 - 最小验证: 受影响组件 / composable 定向测试、必要的浏览器验证与剪贴板复制验证。
 
-2. [ ] 结构复用第三轮：3 个热点收敛 (P1)
+2. [ ] 结构复用第三轮：3 个热点收敛 (P1，进行中)
 - 验收标准: 以 `simple-duplicates` baseline 为事实源，至少完成 `3` 组热点收敛，并确保 `confirmDelete`（`13` 处）、`getStatusSeverity`（`9` 处）、`DistributionMaterialBundle`（`6` 处）这三组在重跑脚本后都能看到可对比的 delta；`pnpm duplicate-code:check` 基线不得反弹。
 - 数据参考: 当前 baseline 为同名内部函数候选 `112`、同名 type/interface 候选 `156`、近似命名函数候选 `10`，产物落点为 `artifacts/governance/simple-duplicates-latest.md/.json`。
 - 最小验证: `pnpm governance:audit:simple-duplicates`、`pnpm duplicate-code:check`、受影响 helper / 组件定向测试与类型检查。
+- 当前进展 (2026-05-19): `confirmDelete`、`getStatusSeverity`、`DistributionMaterialBundle` 已从最新 `simple-duplicates` baseline 消失；最新统计为同名内部函数候选 `110`、同名 type/interface 候选 `27`、近似命名函数候选 `10`，`pnpm duplicate-code:check` 维持 `warn` 未反弹。
+- 阻塞: 当前 diff 审查发现 [pages/admin/ad/placements.vue](pages/admin/ad/placements.vue#L38) 列表误删 adapter 列，且 [components/commercial-link-manager.test.ts](components/commercial-link-manager.test.ts#L208) 仍调用旧的 `confirmDelete` 导致定向测试失败；修复并补回验证前不得标记完成。
 
 3. [ ] 注释治理首轮：1 - 2 组模块 (P1)
 - 验收标准: 以 `comment-drift` baseline 为事实源，优先处理 `usePostEditorIO`（complexity `61`）与 `usePostEditorAI`（complexity `44`）；第二组只允许在 `useNotifications`、`useInstallationWizard`、`useAdminFriendLinksPage` 中三选一。所选模块必须补齐契约 / 副作用 / 失败回退类高价值注释，并同步清理对应文件中的 TODO / 漂移注释。

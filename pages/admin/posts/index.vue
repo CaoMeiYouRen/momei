@@ -86,7 +86,7 @@
                     header-style="min-width: 7rem"
                 >
                     <template #body="slotProps">
-                        <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getStatusSeverity(slotProps.data.status)" />
+                        <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getPostListStatusSeverity(slotProps.data.status)" />
                     </template>
                 </Column>
                 <Column
@@ -245,7 +245,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(slotProps.data)"
+                            @click="openPostDeleteDialog(slotProps.data)"
                         />
                     </template>
                 </Column>
@@ -270,6 +270,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
+import { getPostStatusSeverity } from '@/composables/use-post-editor-page.helpers'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import type { Post } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
@@ -401,8 +402,9 @@ const confirmRepush = (post: any) => {
 
 const deleteDialog = ref()
 const postToDelete = ref<Post | null>(null)
+const getPostListStatusSeverity = getPostStatusSeverity
 
-const confirmDelete = (post: Post) => {
+const openPostDeleteDialog = (post: Post) => {
     postToDelete.value = post
     deleteDialog.value.open()
 }
@@ -432,18 +434,6 @@ const getStatusLabel = (status: string) => {
         hidden: t('common.status.hidden'),
     }
     return map[status] || status
-}
-
-const getStatusSeverity = (status: string) => {
-    const map: Record<string, string | undefined> = {
-        published: 'success',
-        scheduled: 'info',
-        draft: 'secondary',
-        pending: 'warn',
-        rejected: 'danger',
-        hidden: 'info',
-    }
-    return map[status] || 'info'
 }
 
 const handleExport = (post: Post) => {

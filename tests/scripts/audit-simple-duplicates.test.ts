@@ -42,6 +42,56 @@ describe('audit-simple-duplicates', () => {
         expect(declarations.types).toHaveLength(2)
     })
 
+    it('ignores multi-line type imports when extracting declarations', () => {
+        const declarations = extractDeclarations([
+            'import {',
+            '  type ImportedPayload,',
+            '  normalizeStatus as normalizeImportedStatus,',
+            '} from \'./shared\'',
+            'export type PublicPayload = string',
+            'interface LocalPayload {',
+            '  value: string',
+            '}',
+        ].join('\n'), 'utils/example.ts')
+        const declarationNames = (declarations.types as { name: string }[]).map((item) => item.name)
+
+        expect(declarationNames).toEqual([
+            'PublicPayload',
+            'LocalPayload',
+        ])
+    })
+
+    it('ignores multi-line type imports when building same-name type candidates', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'simple-duplicates-imports-'))
+
+        await writeProjectFile(directory, 'utils/one.ts', [
+            'import {',
+            '  type DistributionMaterialBundle,',
+            '} from \'./shared\'',
+            'type LocalPayload = { value: string }',
+        ].join('\n'))
+        await writeProjectFile(directory, 'utils/two.ts', [
+            'import {',
+            '  type DistributionMaterialBundle,',
+            '} from \'./shared\'',
+            'interface RemotePayload {',
+            '  value: string',
+            '}',
+        ].join('\n'))
+
+        try {
+            const report = await collectSimpleDuplicateReport({
+                projectRoot: directory,
+                roots: ['utils'],
+            })
+
+            expect(report.summary.sameNameTypeCandidates).toBe(0)
+            expect(report.sameNameTypes).toEqual([])
+        } finally {
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+
     it('builds same-name and near-name candidate groups', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'simple-duplicates-'))
 

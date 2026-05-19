@@ -482,7 +482,7 @@ export function usePostEditorPage() {
 
     const getStatusLabel = (status: string) => getPostStatusLabel(t, status)
 
-    const getStatusSeverity = (status: string) => getPostStatusSeverity(status)
+    const getPostEditorStatusSeverity = (status: string) => getPostStatusSeverity(status)
 
     watch(
         () => post.value.language,
@@ -621,6 +621,6 @@ export function usePostEditorPage() {
         handlePublishConfirm,
         savePost,
         getStatusLabel,
-        getStatusSeverity,
+        getStatusSeverity: getPostEditorStatusSeverity,
     }
 }

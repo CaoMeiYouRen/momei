@@ -27,7 +27,7 @@
             :links="donationLinks"
             @add="openDonationDialog()"
             @edit="(index) => openDonationDialog(donationLinks[index], index)"
-            @remove="confirmDelete"
+            @remove="confirmDeleteDonationLink"
         />
 
         <!-- 打赏对话框 -->
@@ -350,7 +350,7 @@ const getPlatformColor = (key: string) => getCommercialPlatformColor(key, 'donat
 const getSocialIcon = (key: string) => getCommercialPlatformIcon(key, 'social')
 const getSocialColor = (key: string) => getCommercialPlatformColor(key, 'social')
 
-const confirmDelete = (index: number) => {
+const confirmDeleteDonationLink = (index: number) => {
     confirm.require({
         message: t('pages.settings.commercial.delete_confirm'),
         header: t('common.confirmation'),

@@ -43,14 +43,6 @@
                     </template>
                 </Column>
                 <Column
-                    field="adapterId"
-                    :header="$t('pages.admin.ad.placements.adapter')"
-                >
-                    <template #body="{data}">
-                        {{ getAdapterName(data.adapterId) }}
-                    </template>
-                </Column>
-                <Column
                     field="enabled"
                     :header="$t('pages.admin.ad.placements.status')"
                 >
@@ -91,7 +83,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(data)"
+                            @click="confirmDeletePlacement(data)"
                         />
                     </template>
                 </Column>
@@ -351,7 +343,7 @@ async function save() {
     }
 }
 
-function confirmDelete(item: AdPlacement) {
+function confirmDeletePlacement(item: AdPlacement) {
     confirm.require({
         message: t('pages.admin.ad.placements.messages.delete_confirm'),
         header: t('common.confirm_delete'),

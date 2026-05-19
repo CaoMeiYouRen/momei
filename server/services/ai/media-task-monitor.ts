@@ -1,4 +1,4 @@
-import { In, IsNull, LessThan } from 'typeorm'
+import { In, IsNull, LessThan, type Repository } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import { ImageService } from '@/server/services/ai/image'
@@ -93,7 +93,7 @@ function hasActiveCompensationLease(task: Pick<AITask, 'result'>, now: Date) {
 }
 
 async function claimTaskForCompensation(
-    taskRepo: ReturnType<typeof dataSource.getRepository<AITask>>,
+    taskRepo: Repository<AITask>,
     task: RecoverableMediaTaskScanItem,
     now: Date,
 ) {

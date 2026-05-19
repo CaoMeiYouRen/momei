@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
 import { commentTranslationService } from '@/server/services/comment-translation'
 import { signCookieValue, verifyCookieValue } from '@/server/utils/security'
@@ -14,7 +15,7 @@ const commentTranslationBodySchema = z.object({
     targetLanguage: z.string().trim().min(2).max(16),
 })
 
-function resolveCommentTranslationActorId(event: Parameters<typeof getCookie>[0]) {
+function resolveCommentTranslationActorId(event: H3Event) {
     const signedActorId = getCookie(event, COMMENT_TRANSLATION_VISITOR_COOKIE_NAME)
     const verifiedActorId = verifyCookieValue(signedActorId)
     if (verifiedActorId) {

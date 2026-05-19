@@ -65,7 +65,7 @@
                             :snippet="item"
                             class="snippet-card-item"
                             @edit="editSnippet"
-                            @delete="confirmDelete"
+                            @delete="openDeleteDialog"
                             @convert="convertSnippet"
                         />
                     </div>
@@ -116,6 +116,12 @@ import type { Snippet } from '@/types/snippet'
 
 const { t } = useI18n()
 const toast = useToast()
+const {
+    visible: deleteDialogVisible,
+    item: snippetToDelete,
+    openDeleteDialog,
+    resetDeleteDialog,
+} = useDeleteDialogState<Snippet>()
 
 const { items, pagination, loading, refresh, onPage } = useAdminList<Snippet>({
     url: '/api/admin/snippets',
@@ -143,20 +149,13 @@ const convertSnippet = async (snippet: Snippet) => {
     }
 }
 
-const deleteDialogVisible = ref(false)
-const snippetToDelete = ref<Snippet | null>(null)
-
-const confirmDelete = (snippet: Snippet) => {
-    snippetToDelete.value = snippet
-    deleteDialogVisible.value = true
-}
-
 const deleteSnippet = async () => {
     if (!snippetToDelete.value) return
     try {
         await $fetch(`/api/admin/snippets/${snippetToDelete.value.id}`, { method: 'DELETE' } as any)
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.delete_success'), life: 3000 })
         refresh()
+        resetDeleteDialog()
     } catch (e) {
         toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
     }

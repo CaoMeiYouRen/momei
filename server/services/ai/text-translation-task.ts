@@ -1,3 +1,4 @@
+import type { Repository } from 'typeorm'
 import { AIBaseService } from './base'
 import { requestTranslation, type TranslateRequestOptions } from './text-translation'
 import { dataSource } from '@/server/database'
@@ -212,7 +213,7 @@ function hasActiveChunkLease(state: TranslateTaskState) {
     return Number.isFinite(leaseExpiresAt) && leaseExpiresAt > Date.now()
 }
 
-async function claimTranslateTaskChunk(taskRepo: ReturnType<typeof dataSource.getRepository<AITask>>, task: AITask, state: TranslateTaskState) {
+async function claimTranslateTaskChunk(taskRepo: Repository<AITask>, task: AITask, state: TranslateTaskState) {
     const claimedState: TranslateTaskState = {
         ...state,
         activeChunkIndex: state.activeChunkIndex ?? state.nextChunkIndex,

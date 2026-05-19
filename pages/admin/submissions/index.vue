@@ -41,7 +41,7 @@
                 >
                     <template #body="{data}">
                         <Tag
-                            :severity="getStatusSeverity(data.status)"
+                            :severity="getSubmissionStatusSeverity(data.status)"
                             :value="$t(`pages.admin.submissions.status_${data.status}`)"
                         />
                     </template>
@@ -85,7 +85,7 @@
                                 text
                                 rounded
                                 severity="danger"
-                                @click="confirmDelete(data)"
+                                @click="openDeleteDialog(data)"
                             />
                         </div>
                     </template>
@@ -229,10 +229,16 @@ const { items, loading, pagination, onPage, onFilterChange, refresh } = useAdmin
     url: '/api/admin/submissions',
     initialFilters: filters,
 })
+const {
+    visible: deleteVisible,
+    item: submissionToDelete,
+    openDeleteDialog,
+    resetDeleteDialog,
+} = useDeleteDialogState<any>()
 
 const formatDate = (date: string) => formatDateTime(date)
 
-const getStatusSeverity = (status: SubmissionStatus) => {
+const getSubmissionStatusSeverity = (status: SubmissionStatus) => {
     switch (status) {
         case SubmissionStatus.PENDING: return 'info'
         case SubmissionStatus.ACCEPTED: return 'success'
@@ -304,21 +310,16 @@ const submitReview = async (status: SubmissionStatus) => {
 }
 
 // 删除逻辑
-const deleteVisible = ref(false)
-const submissionToDelete = ref<any>(null)
-
-const confirmDelete = (submission: any) => {
-    submissionToDelete.value = submission
-    deleteVisible.value = true
-}
-
 const handleDelete = async () => {
+    if (!submissionToDelete.value) return
+
     try {
         // 虽然 design doc 没写 DELETE API，但通常后台需要，我顺便实现一个对应的 API 或用通用删除
         // 暂时假设有 DELETE /api/admin/submissions/:id
         await $fetch(`/api/admin/submissions/${submissionToDelete.value.id}`, { method: 'DELETE' })
         showSuccessToast('pages.admin.submissions.delete_success')
         refresh()
+        resetDeleteDialog()
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'pages.admin.submissions.delete_failed' })
     }

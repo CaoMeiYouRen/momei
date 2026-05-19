@@ -1,3 +1,4 @@
+import type { Repository } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { LinkGovernanceReport } from '@/server/entities/link-governance-report'
@@ -48,7 +49,7 @@ export interface GovernanceRuntimeContext {
     siteUrl: string
     managedDomains: string[]
     storageContext: Awaited<ReturnType<typeof getUploadStorageContext>>
-    reportRepo: ReturnType<typeof dataSource.getRepository<LinkGovernanceReport>>
+    reportRepo: Repository<LinkGovernanceReport>
 }
 
 export interface LinkCandidate {

@@ -1,4 +1,5 @@
 import { kebabCase } from 'lodash-es'
+import type { Repository } from 'typeorm'
 import type { z } from 'zod'
 import { ensureTags } from './tag'
 import { executePublishEffects } from './post-publish'
@@ -22,8 +23,8 @@ import {
     type PostVersionAuditContext,
 } from '@/server/services/post-version'
 
-type CreatePostInput = z.infer<typeof createPostSchema>
-type UpdatePostInput = z.infer<typeof updatePostSchema>
+export type CreatePostInput = z.infer<typeof createPostSchema>
+export type UpdatePostInput = z.infer<typeof updatePostSchema>
 
 interface CreatePostOptions {
     isAdmin: boolean
@@ -37,7 +38,7 @@ interface UpdatePostOptions {
 }
 
 async function ensurePinnedPostLimit(
-    postRepo: ReturnType<typeof dataSource.getRepository<Post>>,
+    postRepo: Repository<Post>,
     body: CreatePostInput | UpdatePostInput,
     currentPost?: Pick<Post, 'isPinned'> | null,
 ) {

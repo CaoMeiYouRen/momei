@@ -37,7 +37,7 @@
                         <Tag v-else-if="slotProps.data.status === 'SCHEDULED'" severity="warn">
                             <i class="marketing-campaign-list__status-icon pi pi-calendar" /> {{ $t('pages.admin.marketing.status.scheduled') }}
                         </Tag>
-                        <Tag v-else :severity="getStatusSeverity(slotProps.data.status)">
+                        <Tag v-else :severity="getMarketingCampaignStatusSeverity(slotProps.data.status)">
                             {{ $t(`pages.admin.marketing.status.${slotProps.data.status?.toLowerCase()}`) }}
                         </Tag>
                     </div>
@@ -128,7 +128,7 @@ const onPage = (event: { page: number }) => {
     loadData()
 }
 
-const getStatusSeverity = (status: string) => {
+const getMarketingCampaignStatusSeverity = (status: string) => {
     switch (status) {
         case 'COMPLETED': return 'success'
         case 'SENDING': return 'info'

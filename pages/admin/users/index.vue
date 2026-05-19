@@ -128,7 +128,7 @@
                                 severity="danger"
                                 text
                                 rounded
-                                @click="confirmDelete(data)"
+                                @click="openUserDeleteDialog(data)"
                             />
                         </div>
                     </template>
@@ -291,7 +291,7 @@ const openSessionsDrawer = (user: any) => {
     drawers.sessions.visible = true
 }
 
-const confirmDelete = (user: any) => {
+const openUserDeleteDialog = (user: any) => {
     deleteDialog.user = user
     deleteDialog.message = t('pages.admin.users.confirm_delete', { name: user.name })
     deleteDialog.visible = true

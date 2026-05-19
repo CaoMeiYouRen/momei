@@ -33,7 +33,7 @@
                     <template #body="{data}">
                         <Tag
                             :value="data.status"
-                            :severity="getStatusSeverity(data.status)"
+                            :severity="getAdCampaignStatusSeverity(data.status)"
                         />
                     </template>
                 </Column>
@@ -89,7 +89,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(data)"
+                            @click="confirmDeleteAdCampaign(data)"
                         />
                     </template>
                 </Column>
@@ -290,7 +290,7 @@ async function save() {
     }
 }
 
-function confirmDelete(item: AdCampaign) {
+function confirmDeleteAdCampaign(item: AdCampaign) {
     confirm.require({
         message: t('pages.admin.ad.campaigns.messages.delete_confirm'),
         header: t('common.confirm_delete'),
@@ -315,7 +315,7 @@ async function deleteItem(item: AdCampaign) {
     }
 }
 
-function getStatusSeverity(status: CampaignStatus): string {
+function getAdCampaignStatusSeverity(status: CampaignStatus): string {
     switch (status) {
         case CampaignStatus.ACTIVE:
             return 'success'

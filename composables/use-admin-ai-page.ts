@@ -159,7 +159,7 @@ export function useAdminAiPage() {
         }
     }
 
-    const confirmDelete = (task: AIAdminTaskListItem) => {
+    const confirmDeleteTask = (task: AIAdminTaskListItem) => {
         confirm.require({
             message: t('pages.admin.ai.delete_confirm'),
             header: t('common.confirm_delete'),
@@ -242,7 +242,7 @@ export function useAdminAiPage() {
         onPage,
         onFilterChange,
         showDetails,
-        confirmDelete,
+        confirmDelete: confirmDeleteTask,
         confirmBulkDelete,
     }
 }

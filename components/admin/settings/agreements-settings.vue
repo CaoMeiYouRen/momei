@@ -202,7 +202,7 @@
                                 class="p-button-danger p-button-rounded p-button-text"
                                 :disabled="!data.canDelete"
                                 :title="getRestrictionMessage(data.restrictionReasons)"
-                                @click="confirmDelete(data, section.type)"
+                                @click="confirmDeleteAgreement(data, section.type)"
                             />
                         </div>
                     </template>
@@ -695,7 +695,7 @@ async function activateAgreement(agreement: AgreementAdminItem, type: AgreementT
     }
 }
 
-function confirmDelete(agreement: AgreementAdminItem, type: AgreementType) {
+function confirmDeleteAgreement(agreement: AgreementAdminItem, type: AgreementType) {
     confirm.require({
         message: t('pages.admin.settings.system.agreements.delete_confirm'),
         header: t('common.confirm'),

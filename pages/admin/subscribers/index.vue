@@ -88,7 +88,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(data)"
+                            @click="openDeleteDialog(data)"
                         />
                     </template>
                 </Column>
@@ -110,6 +110,12 @@
 import type { Subscriber } from '@/types/subscriber'
 
 const { formatDate } = useI18nDate()
+const {
+    visible: deleteVisible,
+    item: itemToDelete,
+    openDeleteDialog,
+    resetDeleteDialog,
+} = useDeleteDialogState<Subscriber>()
 
 definePageMeta({
     middleware: 'admin',
@@ -119,9 +125,6 @@ definePageMeta({
 const filters = reactive({
     email: '',
 })
-
-const deleteVisible = ref(false)
-const itemToDelete = ref<Subscriber | null>(null)
 
 const {
     items,
@@ -175,11 +178,6 @@ const toggleStatus = async (item: Subscriber) => {
     }
 }
 
-const confirmDelete = (item: Subscriber) => {
-    itemToDelete.value = item
-    deleteVisible.value = true
-}
-
 const doDelete = async () => {
     if (!itemToDelete.value) return
     try {
@@ -187,8 +185,7 @@ const doDelete = async () => {
             method: 'DELETE',
         })
         await refresh()
-        deleteVisible.value = false
-        itemToDelete.value = null
+        resetDeleteDialog()
     } catch (error) {
         console.error('Failed to delete subscriber:', error)
     }

@@ -41,7 +41,7 @@
                 >
                     <template #body="{data}">
                         <Tag
-                            :severity="getStatusSeverity(data.status)"
+                            :severity="getCommentStatusSeverity(data.status)"
                             :value="$t(`pages.admin.comments.status_${data.status}`)"
                         />
                     </template>
@@ -114,7 +114,7 @@
                                 text
                                 rounded
                                 severity="danger"
-                                @click="confirmDelete(data)"
+                                @click="openDeleteDialog(data)"
                             />
                         </div>
                     </template>
@@ -144,6 +144,12 @@ import { CommentStatus, type Comment } from '@/types/comment'
 
 const { t } = useI18n()
 const { formatDate } = useI18nDate()
+const {
+    visible: deleteVisible,
+    item: itemToDelete,
+    openDeleteDialog,
+    resetDeleteDialog,
+} = useDeleteDialogState<Comment>()
 
 const loading = ref(false)
 const items = ref<Comment[]>([])
@@ -163,9 +169,6 @@ const statusOptions = computed(() => [
     { label: t('pages.admin.comments.status_published'), value: CommentStatus.PUBLISHED },
     { label: t('pages.admin.comments.status_spam'), value: CommentStatus.SPAM },
 ])
-
-const deleteVisible = ref(false)
-const itemToDelete = ref<Comment | null>(null)
 
 const loadData = async () => {
     loading.value = true
@@ -199,7 +202,7 @@ const onFilterChange = useDebounceFn(() => {
     loadData()
 }, 500)
 
-const getStatusSeverity = (status: CommentStatus) => {
+const getCommentStatusSeverity = (status: CommentStatus) => {
     switch (status) {
         case 'published': return 'success'
         case 'pending': return 'warn'
@@ -220,11 +223,6 @@ const updateStatus = async (item: Comment, status: CommentStatus) => {
     }
 }
 
-const confirmDelete = (item: Comment) => {
-    itemToDelete.value = item
-    deleteVisible.value = true
-}
-
 const doDelete = async () => {
     if (!itemToDelete.value) return
     try {
@@ -235,8 +233,7 @@ const doDelete = async () => {
     } catch (error) {
         console.error('Failed to delete comment:', error)
     } finally {
-        deleteVisible.value = false
-        itemToDelete.value = null
+        resetDeleteDialog()
     }
 }
 

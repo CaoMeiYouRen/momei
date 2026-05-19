@@ -65,3 +65,4 @@ tests/e2e/.auth
 /opc-doc
 /.session
 .eslintcache
+temp.md

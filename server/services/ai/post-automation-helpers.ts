@@ -3,7 +3,7 @@ import { AITask } from '@/server/entities/ai-task'
 import { Category } from '@/server/entities/category'
 import { Post } from '@/server/entities/post'
 import { Tag } from '@/server/entities/tag'
-import { createPostService } from '@/server/services/post'
+import type { CreatePostInput } from '@/server/services/post'
 import { TextService } from '@/server/services/ai/text'
 import { createPostTagBinding } from '@/utils/shared/post-tag-bindings'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
@@ -60,7 +60,7 @@ export interface PostCategoryRecommendationResult {
     } | null
 }
 
-type CreatePostMetadataInput = Parameters<typeof createPostService>[0]['metadata']
+export type CreatePostMetadataInput = CreatePostInput['metadata']
 type SourcePostIntegrationMetadata = NonNullable<PostMetadata['integration']>
 type SourcePostDistributionMetadata = NonNullable<SourcePostIntegrationMetadata['distribution']>
 type SourcePostDistributionChannelState = NonNullable<NonNullable<SourcePostDistributionMetadata['channels']>['memos']>

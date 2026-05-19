@@ -14,6 +14,7 @@ import {
     resolvePostSlug,
     resolveTagBindings,
     sanitizeSlug,
+    type CreatePostMetadataInput,
     type PostCategoryRecommendationResult,
     type TranslatePostTaskPayload,
     type TranslationUsageAggregate,
@@ -22,10 +23,10 @@ import { requestTranslation, translateInChunks, type TranslateRequestOptions } f
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import { Post } from '@/server/entities/post'
-import { createPostService, updatePostService } from '@/server/services/post'
+import { createPostService, updatePostService, type CreatePostInput, type UpdatePostInput } from '@/server/services/post'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
 import type { PostTagBindingInput, PostTranslationSourceDetail, TranslationScopeField } from '@/types/post-translation'
-import { PostStatus, PostVisibility } from '@/types/post'
+import { PostStatus, PostVisibility, type PostMetadata } from '@/types/post'
 
 type TranslatePostTaskStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
@@ -58,7 +59,7 @@ interface TranslatePostPreviewSnapshot {
     tags?: string[]
     tagBindings?: PostTagBindingInput[]
     coverImage?: string | null
-    metadata?: ReturnType<typeof normalizeMetadataForPostInput>
+    metadata?: CreatePostMetadataInput
     copyright: PostTranslationSourceDetail['copyright']
     visibility: PostTranslationSourceDetail['visibility']
     status: PostStatus.DRAFT | PostStatus.PENDING
@@ -67,8 +68,8 @@ interface TranslatePostPreviewSnapshot {
     audioCopied: boolean
 }
 
-type CreatePostBodyInput = Parameters<typeof createPostService>[0]
-type UpdatePostBodyInput = Parameters<typeof updatePostService>[1]
+type CreatePostBodyInput = CreatePostInput
+type UpdatePostBodyInput = UpdatePostInput
 
 export class PostAutomationService extends AIBaseService {
     static async createTranslatePostTask(input: TranslatePostTaskInput, actor: { userId: string, isAdmin: boolean }) {
@@ -301,7 +302,7 @@ export class PostAutomationService extends AIBaseService {
 
         await this.updateTaskProgress(task, 'processing', 25)
 
-        let tagBindings: Awaited<ReturnType<typeof this.resolveTagBindings>> | undefined
+        let tagBindings: PostTagBindingInput[] | undefined
         if (scopes.includes('tags')) {
             try {
                 tagBindings = await this.resolveTagBindings(sourcePost.tags, sourceLanguage, input.targetLanguage, usageAggregate)
@@ -341,7 +342,7 @@ export class PostAutomationService extends AIBaseService {
             approvedSlug: input.approvedSlug,
         })
 
-        let metadataPatch: ReturnType<typeof mergeAudioMetadata> | null | undefined
+        let metadataPatch: PostMetadata | null | undefined
         if (scopes.includes('audio')) {
             metadataPatch = targetPost ? mergeAudioMetadata(targetPost) : null
         }

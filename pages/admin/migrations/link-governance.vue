@@ -235,7 +235,7 @@
 
                     <Column :header="$t('pages.admin.link_governance.columns.status')">
                         <template #body="slotProps">
-                            <Tag :severity="getStatusSeverity(slotProps.data.status)">
+                            <Tag :severity="getLinkGovernanceReportStatusSeverity(slotProps.data.status)">
                                 {{ translateStatus(slotProps.data.status) }}
                             </Tag>
                         </template>
@@ -543,7 +543,7 @@ function getModeSeverity(mode: LinkGovernanceMode) {
     return mode === 'apply' ? 'success' : 'info'
 }
 
-function getStatusSeverity(status: LinkGovernanceReportStatus) {
+function getLinkGovernanceReportStatusSeverity(status: LinkGovernanceReportStatus) {
     return status === 'failed' ? 'danger' : 'success'
 }
 

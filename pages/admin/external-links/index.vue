@@ -53,7 +53,7 @@
                     <template #body="{data}">
                         <Tag
                             :value="data.status"
-                            :severity="getStatusSeverity(data.status)"
+                            :severity="getExternalLinkStatusSeverity(data.status)"
                         />
                     </template>
                 </Column>
@@ -101,7 +101,7 @@
                             text
                             rounded
                             severity="danger"
-                            @click="confirmDelete(data)"
+                            @click="confirmDeleteExternalLink(data)"
                         />
                     </template>
                 </Column>
@@ -351,7 +351,7 @@ async function save() {
     }
 }
 
-function confirmDelete(item: any) {
+function confirmDeleteExternalLink(item: any) {
     confirm.require({
         message: t('pages.admin.external_links.messages.delete_confirm'),
         header: t('common.confirm_delete'),
@@ -393,7 +393,7 @@ function copyShortCode(code: string) {
     })
 }
 
-function getStatusSeverity(status: LinkStatus): string {
+function getExternalLinkStatusSeverity(status: LinkStatus): string {
     switch (status) {
         case LinkStatus.ACTIVE:
             return 'success'

@@ -122,7 +122,7 @@
 
             <Column :header="$t('pages.admin.notifications.delivery_logs.columns.status')">
                 <template #body="slotProps">
-                    <Tag :severity="getStatusSeverity(slotProps.data.status)">
+                    <Tag :severity="getNotificationDeliveryStatusSeverity(slotProps.data.status)">
                         {{ translateStatus(slotProps.data.status) }}
                     </Tag>
                 </template>
@@ -345,7 +345,7 @@ function getChannelSeverity(channel: string) {
     }
 }
 
-function getStatusSeverity(status: string) {
+function getNotificationDeliveryStatusSeverity(status: string) {
     switch (status) {
         case 'SUCCESS':
             return 'success'

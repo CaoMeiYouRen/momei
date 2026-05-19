@@ -16,6 +16,7 @@ import {
 import {
     buildMemosDistributionPreview,
     buildWechatSyncDistributionPreviewGroups,
+    type MemosDistributionPreview,
     type WechatSyncDistributionPreviewGroup,
 } from '@/utils/shared/post-distribution-preview'
 import {
@@ -93,7 +94,7 @@ function isDistributionSourcePost(
 function createExpandedPreviewController(options: {
     expandedPreview: Ref<ExpandedDistributionPreview | null>
     expandedPreviewVisible: Ref<boolean>
-    memosPreview: ComputedRef<ReturnType<typeof buildMemosDistributionPreview> | null>
+    memosPreview: ComputedRef<MemosDistributionPreview | null>
     t: TranslateFn
 }) {
     function renderPreviewValue(value?: string | null) {
