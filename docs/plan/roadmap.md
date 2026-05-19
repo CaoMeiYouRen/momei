@@ -648,6 +648,46 @@
     - **验收标准**: 定向 ESLint、定向测试与类型检查通过；残余债务与下一轮候选有明确记录。
     - **验证与证据**: 定向 ESLint、定向 Vitest、受影响文件类型检查与对应残余债务记录。
 
+### 第三十九阶段：公众号排版预览与治理基线落盘 (WeChat Layout Preview & Governance Baseline Landing)
+
+**时间表**: 2026-05-19 ~ 约 1 - 2 周
+**目标**: 在第三十八阶段完成分发一致性修补、测试有效性第二轮与 Postgres 止损式瘦身收口后，正式切到“`1` 个新功能 + `4` 个优化”的下一阶段执行面：以“公众号格式预览 / 导出辅助”作为唯一新增能力，同时把结构复用第三轮、注释治理首轮、文档 / 脚本治理最小收口包，以及国际化文案复用治理四条优化统一纳入 script-first / design-first 的受控组合，避免再次回到“只有叙述目标、缺少 baseline 和对比口径”的阶段规划。
+
+**准入结论**: 五条主线中，“公众号格式预览 / 导出辅助”是唯一新增功能，其余四条均已有可重复执行 baseline 或稳定事实源：`artifacts/governance/simple-duplicates-latest.md`、`artifacts/governance/comment-drift-latest.md`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate`、`artifacts/governance/script-governance-latest.md`，以及 `i18n:audit:missing` / `i18n:verify:runtime` 与 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 的运行时装配基线。总数控制在 `5` 项内，符合当前阶段容量约束。
+
+**ROI 评估**: 微信公众号格式预览 / 导出辅助 `1.56`；结构复用第三轮（3 个热点）`1.72`；注释治理首轮（1 - 2 组模块）`1.43`；文档 / 脚本治理最小收口包 `1.67`；国际化文案复用治理 `1.60`。其中公众号能力与文档 / 脚本治理作为本阶段优先主线，其余三项保持受控治理切片推进。
+
+1. **主线：微信公众号格式预览 / 导出辅助 (P0)**:
+    - **执行范围**: 只做“Markdown -> 公众号风格 HTML / 样式预览 / 复制排版后内容”三件事，且坚持“格式转换优先，样式美化次之”；优先复用现有编辑器与分发预览表面，如 [components/admin/mavon-editor-client.client.vue](../../components/admin/mavon-editor-client.client.vue)、[components/admin/posts/post-editor-header.vue](../../components/admin/posts/post-editor-header.vue)、[components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue)、[composables/use-post-distribution-button.ts](../../composables/use-post-distribution-button.ts) 与 [utils/web/post-distribution-dialog.ts](../../utils/web/post-distribution-dialog.ts)，而不是新建一套完整编辑器。
+    - **非目标**: 不整体引入 `doocs/md` 的完整编辑器、图床、AI、草稿与部署体系；不替换 `mavon-editor`；不把范围扩写为新的富文本编辑器工程。
+    - **数据基线**: 当前仓库已存在 `Memos / WechatSync` 的 expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类预览输出，但尚不存在 dedicated 的 `wechat_mp` 风格渲染 profile，也没有“复制排版后内容”的固定入口。
+    - **验收标准**: 先在 `docs/design/governance/` 或等价入口落一份专项设计文档，明确首版只交付“公众号风格预览 / 复制排版后内容”，不交付整体编辑器替换；再补齐一条可复用的公众号样式转换链路，并至少验证标题层级、图片、引用块、代码块 / 提示容器、长文阅读连续性，以及编辑器预览与复制结果的一致性。
+    - **验证与证据**: 设计文档、受影响组件 / composable 定向测试、必要的浏览器验证与剪贴板复制验证，以及新增预览入口的回归记录。
+
+2. **主线：结构复用第三轮（3 个热点） (P1)**:
+    - **执行范围**: 继续沿 `simple-duplicates` baseline 做窄切片，当前基线为“同名内部函数候选 `112`、同名 type/interface 候选 `156`”；本轮优先锁定 `confirmDelete`（`13` 处）、`getStatusSeverity`（`9` 处）与 `DistributionMaterialBundle`（`6` 处）三组热点，而不是继续追逐测试桩里的 `translate` / `mountComponent`。
+    - **非目标**: 不把复杂页面状态机包装成新的通用框架；不要求一轮清掉整仓同名候选；`duplicate-code:check` 与 `simple-duplicates` 两套口径只做增量收敛，不做大爆炸式重构。
+    - **验收标准**: 至少完成 `3` 组热点收敛，且本轮选中的三组热点在重跑 `pnpm governance:audit:simple-duplicates` 后都要出现可对比的 delta；同时 `pnpm duplicate-code:check` 基线不得反弹。
+    - **验证与证据**: `artifacts/governance/simple-duplicates-latest.md/.json` 的前后对比、受影响 helper / 组件定向测试、`pnpm duplicate-code:check` 与受影响文件类型检查。
+
+3. **主线：注释治理首轮（1 - 2 组模块） (P1)**:
+    - **执行范围**: 以 `comment-drift` baseline 为事实源推进首轮高复杂度模块补注释，当前基线为“高复杂度导出函数缺注释候选 `177`、TODO / 临时口吻 `27`、疑似漂移注释 `298`”；本轮优先锁定 [composables/use-post-editor-io.ts](../../composables/use-post-editor-io.ts)（complexity `61`）与 [composables/use-post-editor-ai.ts](../../composables/use-post-editor-ai.ts)（complexity `44`），第二组只允许在 [composables/use-notifications.ts](../../composables/use-notifications.ts)、[composables/use-installation-wizard.ts](../../composables/use-installation-wizard.ts)、[composables/use-admin-friend-links-page.ts](../../composables/use-admin-friend-links-page.ts) 中三选一。
+    - **非目标**: 不把本轮扩大成全仓平均补注释；不把逐行复述代码的注释当作成果；不为了数字好看而跳过 TODO / 漂移注释清理。
+    - **验收标准**: 本轮选中的 `1 - 2` 组模块必须补齐“为什么这样写 / 契约 / 副作用 / 失败回退”类高价值注释，并同步清理对应文件中的 TODO / 漂移注释；重跑 `pnpm governance:audit:comment-drift` 后，所选模块在缺注释 / 漂移候选中应出现可追溯下降。
+    - **验证与证据**: `artifacts/governance/comment-drift-latest.md/.json` 对比、受影响 composable 定向测试与受影响文件类型检查。
+
+4. **主线：文档 / 脚本治理最小收口包 (P0)**:
+    - **执行范围**: 只做一组最小闭环，不扩写成全仓文档整顿。当前 docs candidate 事实源显示 `docs/reports/regression/current.md`（`588` 行）、`docs/guide/deploy.md`（`228` 行）、`docs/guide/translation-governance.md`（`214` 行）、`docs/standards/planning.md`（`360` 行）与 `docs/standards/documentation.md`（`280` 行）已进入 warning 面；`docs:check:source-of-truth:candidate` 还暴露了 `6` 条英文 freshness 违规。脚本侧 baseline 为“长期脚本 `39`、稳定入口 `37`、缺少稳定入口 `2`、文档声明但缺失 `1`”。
+    - **非目标**: 不重写文档体系；不在本轮同时收紧 candidate 门槛；不把 perf 研究脚本全部强制升级为 blocker 入口。
+    - **验收标准**: 至少完成 `1` 组回归 / 指南类超长页收敛、`4` 份高频英文 must-sync 文档 freshness 回补，以及脚本治理 `3` 条现存 finding 的处置闭环（补脚本、补稳定入口，或明确下线），并在对应脚本重跑后保留前后对比。
+    - **验证与证据**: `pnpm lint:md`、`pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts`，以及对应 artifact / 文档 diff。
+
+5. **主线：国际化文案复用治理 (P1)**:
+    - **执行范围**: 继续坚持“先守住模块归属和运行时命中，再做有限复用”。当前 `i18n:audit:missing` 已保持 `total: 0`，友链场景共享字段已统一沉淀到 `components.friend_links.fields`；下一轮优先把运行时验证面从 About / friend-links 扩到 [components/app-footer.vue](../../components/app-footer.vue)、[pages/archives/index.vue](../../pages/archives/index.vue)、[pages/categories/index.vue](../../pages/categories/index.vue) 与 [pages/tags/index.vue](../../pages/tags/index.vue) 这 `4` 组公开装配链路。
+    - **非目标**: 不为了去重强行把页面私有语义上收到 `common`；不把 `unused` 清理扩成整仓 key 改名工程；不改写现有 route-module 装配边界。
+    - **验收标准**: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把上述 `4` 组公开装配链路纳入固定 runtime 验证面，并明确哪些字段继续保留页面私有命名空间、哪些字段可稳定沉淀到共享组件命名空间；新增范围内不得再出现 raw key 暴露。
+    - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试，以及 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 对应模块装配的变更记录。
+
 
 ## 3. 相关文档
 
