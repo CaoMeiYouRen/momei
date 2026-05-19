@@ -39,10 +39,12 @@
 - 最小验证: `pnpm governance:audit:comment-drift`、受影响 composable 定向测试与类型检查。
 - 当前进展 (2026-05-19): 已完成 `usePostEditorIO`、`usePostEditorAI` 与 `useInstallationWizard` 三个 composable 的首轮注释治理，补齐导出契约、关键副作用与失败回退说明；所选文件内未命中 TODO / 临时口吻注释。最新 `comment-drift` 统计为高复杂度导出函数缺注释候选 `174`、TODO / 临时口吻 `27`、疑似逐行复述注释 `71`、疑似漂移注释 `298`；`composables/use-post-editor-io.test.ts`、`composables/use-post-editor-ai.test.ts`、`composables/use-installation-wizard.test.ts` 共 `19` 条定向测试通过，`pnpm exec nuxt typecheck` 与 Review Gate 均已通过。
 
-4. [ ] 文档 / 脚本治理最小收口包 (P0)
+4. [x] 文档 / 脚本治理最小收口包 (P0)
 - 验收标准: 至少完成 `1` 组回归 / 指南类超长页收敛、`4` 份高频英文 must-sync 文档 freshness 回补，以及脚本治理 `3` 条现存 finding 的处置闭环（补脚本、补稳定入口，或明确下线），并保留前后对比证据。
 - 数据参考: docs candidate 当前已暴露 `5` 个 line-count warning 面与 `6` 条 source-of-truth freshness 违规；脚本治理 baseline 为长期脚本 `39`、稳定入口 `37`、缺少稳定入口 `2`、文档声明但缺失 `1`。
 - 最小验证: `pnpm lint:md`、`pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts`。
+- 当前进展 (2026-05-19): 已完成 `docs/reports/regression/current.md` 的历史窗口滚动归档（新增 `docs/reports/regression/archive/2026-05-04-to-2026-05-06.md`，并同步 `archive/index.md`），活动窗口由 `588` 行降至 `235` 行；存储重写脚本的失效文档声明已下线，`capture-remote-cpuprofile.mjs` 与 `fs-watch-probe.mjs` 已补 package 级稳定入口（`pnpm perf:cpuprofile:remote`、`pnpm perf:fs-watch:probe:dev`）并同步到 `scripts/README.md`；`docs/i18n/en-US/index.md`、`docs/i18n/en-US/guide/quick-start.md`、`docs/i18n/en-US/guide/deploy.md`、`docs/i18n/en-US/guide/translation-governance.md` 的 `last_sync` 已回补到 `2026-05-19`。
+- 验证结果 (2026-05-19): `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts` 已通过；脚本治理最新统计为长期脚本 `39`、稳定入口 `39`、缺少稳定入口 `0`、文档声明但缺失 `0`。
 
 5. [ ] 国际化文案复用治理 (P1)
 - 验收标准: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把 `AppFooter`、`archives`、`categories`、`tags` 这 `4` 组公开装配链路纳入固定 runtime 验证面，并明确页面私有命名空间与共享组件命名空间的边界；新增范围内不得出现 raw key 暴露。

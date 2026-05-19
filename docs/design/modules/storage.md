@@ -375,8 +375,8 @@ interface DirectUploadAuthorizationResponse {
 
 后续实现建议提供单独脚本或任务入口，例如：
 
-- `scripts/storage/rewrite-asset-urls.ts`
-- 或 `POST /api/admin/storage/rewrite-assets` 受管理员权限保护
+- `POST /api/admin/storage/rewrite-assets` 受管理员权限保护
+- 或在治理脚本目录补一条独立入口，并与专项治理文档保持同步
 
 能力要求：
 

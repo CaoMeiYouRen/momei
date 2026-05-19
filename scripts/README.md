@@ -30,7 +30,7 @@
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-line-count.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate` | 只读检查文档重复、膨胀、翻译同步与事实源一致性 | 保留 |
 | `scripts/i18n/` | `audit-locale-keys.mjs`、`audit-duplicate-messages.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`、`pnpm i18n:audit:duplicates`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、跨语言重复文案候选、拆分翻译文件 | 保留 |
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
-| `scripts/perf/` | `check-bundle-budget.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出并给出预算结论 | 保留 |
+| `scripts/perf/` | `check-bundle-budget.mjs`、`capture-remote-cpuprofile.mjs`、`fs-watch-probe.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`pnpm perf:cpuprofile:remote`、`pnpm perf:fs-watch:probe:dev`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出，按需采集远端 CPU profile，并支持 dev `fs.watch` 注册分布探针 | 保留 |
 | `scripts/setup/` | `generate-web-push-vapid.mjs`、`setup-ai.mjs` | `pnpm web-push:generate-vapid`；`pnpm setup:ai` | 生成 VAPID 密钥；批量同步 worktree 内 AI 目录链接 | `generate-web-push-vapid.mjs` 保留；`setup-ai.mjs` 作为跨平台正式入口 |
 | `scripts/shared/` | `cli.mjs` | 被 `security/`、`testing/`、`review-gate/`、`release/`、`perf/`、`i18n/`、`setup/` 等脚本内部复用 | 提供公共 CLI helper，如直跑判断、`argv` 切片、声明式 flag / `--key=value` 白名单解析、枚举校验；不直接暴露为包管理器入口 | 新增保留 |
 | `scripts/hooks/` | `pre-tool.ps1`、`post-tool.ps1`、`session-end.ps1` | 无 `package.json` 或 CI 稳定入口；仅面向本地 Copilot / Claude Hook 实验 | 拦截工具调用、尝试自动 lint、记录会话摘要 | 保留为本地手工脚本，不纳入常规团队入口 |
@@ -42,7 +42,7 @@
 以下脚本已有稳定入口，可直接通过 `package.json` 运行：
 
 ```bash
-pnpm ai:check
+pnpm ai:check  
 pnpm governance:check:scripts
 pnpm governance:audit:simple-duplicates
 pnpm governance:audit:eslint-debt
@@ -68,6 +68,8 @@ pnpm web-push:generate-vapid
 pnpm setup:ai
 pnpm test:perf:budget
 pnpm test:perf:budget:strict
+pnpm perf:cpuprofile:remote
+pnpm perf:fs-watch:probe:dev
 ```
 
 其中 `pnpm test:e2e:review-gate` 用于需要提交 Review Gate 证据的高频 UI 真实环境回归：

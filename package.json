@@ -43,6 +43,8 @@
     "perf:nuxt:dev": "node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --output=artifacts/nuxt-dev-performance.json --log-output=artifacts/nuxt-dev-performance.log",
     "perf:nuxt:build": "node scripts/perf/measure-nuxt-lifecycle.mjs --mode=build --output=artifacts/nuxt-build-performance.json --log-output=artifacts/nuxt-build-performance.log",
     "perf:nuxt:baseline": "pnpm run perf:nuxt:dev && pnpm run perf:nuxt:build",
+    "perf:cpuprofile:remote": "node scripts/perf/capture-remote-cpuprofile.mjs --output=artifacts/remote-inspector.cpuprofile --metadata-output=artifacts/remote-inspector.cpuprofile.meta.json",
+    "perf:fs-watch:probe:dev": "node --import ./scripts/perf/fs-watch-probe.mjs ./node_modules/nuxt/bin/nuxt.mjs dev -o",
     "test:perf:budget": "node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "test:perf:budget:strict": "node scripts/perf/check-bundle-budget.mjs --mode=error --output=.lighthouseci/bundle-budget-report.json --baseline=.github/perf/bundle-baseline.json",
     "security:audit-deps": "node scripts/security/check-dependency-risk.mjs --mode=error --allowlist=.github/security/dependency-risk-allowlist.json --min-severity=high --registry=https://registry.npmjs.org/",
