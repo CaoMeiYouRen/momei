@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 
-async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: 'zh-CN' | 'en-US' | 'ja-JP') {
+async function setLocaleCookie(page: Page, baseURL: string | undefined, locale: 'zh-CN' | 'zh-TW' | 'en-US' | 'ko-KR' | 'ja-JP') {
     await page.context().addCookies([
         {
             name: 'i18n_redirected',
@@ -60,6 +60,10 @@ async function expectLocaleMeta(page: Page, locale: string, ogLocale: string) {
     await expect.poll(async () => page.locator('meta[name="description"]').getAttribute('content')).not.toBeNull()
 }
 
+async function expectRobotsDirective(page: Page, content: string) {
+    await expect.poll(async () => page.locator('meta[name="robots"]').getAttribute('content')).toBe(content)
+}
+
 async function expectOgAlternateLocales(page: Page, expectedLocales: string[]) {
     await expect.poll(async () => page.locator('meta[property="og:locale:alternate"]').evaluateAll((nodes) => nodes
         .map((node) => node.getAttribute('content') || '')
@@ -74,10 +78,13 @@ test.describe('SEO Regression', () => {
 
         await expectCanonicalPath(page, '/')
         await expectAlternatePath(page, 'zh-CN', '/')
+        await expectAlternatePath(page, 'zh-TW', '/zh-TW')
         await expectAlternatePath(page, 'en-US', '/en-US')
+        await expectAlternatePath(page, 'ko-KR', '/ko-KR')
         await expectAlternatePath(page, 'ja-JP', '/ja-JP')
         await expectLocaleMeta(page, 'zh-CN', 'zh_CN')
-        await expectOgAlternateLocales(page, ['en_US', 'ja_JP'])
+        await expectRobotsDirective(page, 'index, follow')
+        await expectOgAlternateLocales(page, ['zh_TW', 'en_US', 'ko_KR', 'ja_JP'])
         await expectStructuredLanguage(page, 'zh-CN')
     })
 
@@ -88,10 +95,45 @@ test.describe('SEO Regression', () => {
 
         await expectCanonicalPath(page, '/en-US/about')
         await expectAlternatePath(page, 'zh-CN', '/about')
+        await expectAlternatePath(page, 'zh-TW', '/zh-TW/about')
         await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ko-KR', '/ko-KR/about')
         await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
         await expectLocaleMeta(page, 'en-US', 'en_US')
-        await expectOgAlternateLocales(page, ['zh_CN', 'ja_JP'])
+        await expectRobotsDirective(page, 'index, follow')
+        await expectOgAlternateLocales(page, ['zh_CN', 'zh_TW', 'ko_KR', 'ja_JP'])
+    })
+
+    test('should render multilingual head tags for traditional chinese static pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'zh-TW')
+        await page.goto('/zh-TW/about')
+        await page.waitForLoadState('domcontentloaded')
+
+        await expectCanonicalPath(page, '/zh-TW/about')
+        await expectAlternatePath(page, 'zh-CN', '/about')
+        await expectAlternatePath(page, 'zh-TW', '/zh-TW/about')
+        await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ko-KR', '/ko-KR/about')
+        await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
+        await expectLocaleMeta(page, 'zh-TW', 'zh_TW')
+        await expectRobotsDirective(page, 'index, follow')
+        await expectOgAlternateLocales(page, ['zh_CN', 'en_US', 'ko_KR', 'ja_JP'])
+    })
+
+    test('should render multilingual head tags for korean static pages', async ({ page, baseURL }) => {
+        await setLocaleCookie(page, baseURL, 'ko-KR')
+        await page.goto('/ko-KR/about')
+        await page.waitForLoadState('domcontentloaded')
+
+        await expectCanonicalPath(page, '/ko-KR/about')
+        await expectAlternatePath(page, 'zh-CN', '/about')
+        await expectAlternatePath(page, 'zh-TW', '/zh-TW/about')
+        await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ko-KR', '/ko-KR/about')
+        await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
+        await expectLocaleMeta(page, 'ko-KR', 'ko_KR')
+        await expectRobotsDirective(page, 'index, follow')
+        await expectOgAlternateLocales(page, ['zh_CN', 'zh_TW', 'en_US', 'ja_JP'])
     })
 
     test('should render multilingual head tags for japanese static pages', async ({ page, baseURL }) => {
@@ -101,10 +143,13 @@ test.describe('SEO Regression', () => {
 
         await expectCanonicalPath(page, '/ja-JP/about')
         await expectAlternatePath(page, 'zh-CN', '/about')
+        await expectAlternatePath(page, 'zh-TW', '/zh-TW/about')
         await expectAlternatePath(page, 'en-US', '/en-US/about')
+        await expectAlternatePath(page, 'ko-KR', '/ko-KR/about')
         await expectAlternatePath(page, 'ja-JP', '/ja-JP/about')
         await expectLocaleMeta(page, 'ja-JP', 'ja_JP')
-        await expectOgAlternateLocales(page, ['en_US', 'zh_CN'])
+        await expectRobotsDirective(page, 'index, follow')
+        await expectOgAlternateLocales(page, ['zh_CN', 'zh_TW', 'en_US', 'ko_KR'])
     })
 
     test('should render article seo metadata on post detail pages', async ({ page, baseURL }) => {

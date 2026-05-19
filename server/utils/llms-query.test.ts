@@ -53,6 +53,9 @@ describe('server/utils/llms query builder', () => {
     it('orders published llms posts by publishedAt then createdAt', async () => {
         await fetchPublishedLlmsPosts(12)
 
+        expect(hoisted.queryBuilder.andWhere).toHaveBeenCalledWith('post.language IN (:...locales)', {
+            locales: ['zh-CN', 'zh-TW', 'en-US', 'ko-KR', 'ja-JP'],
+        })
         expect(hoisted.queryBuilder.orderBy).toHaveBeenCalledWith('post.publishedAt', 'DESC', 'NULLS LAST')
         expect(hoisted.queryBuilder.addOrderBy).toHaveBeenCalledWith('post.createdAt', 'DESC')
         expect(hoisted.queryBuilder.take).toHaveBeenCalledWith(12)

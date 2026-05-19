@@ -4,7 +4,9 @@ import { buildLlmsDocument, buildLocalizedPostUrl } from './llms'
 describe('server/utils/llms', () => {
     it('builds localized llms post urls', () => {
         expect(buildLocalizedPostUrl('https://momei.app', 'zh-CN', 'nuxt-seo')).toBe('https://momei.app/posts/nuxt-seo')
+        expect(buildLocalizedPostUrl('https://momei.app', 'zh-TW', 'nuxt-seo')).toBe('https://momei.app/zh-TW/posts/nuxt-seo')
         expect(buildLocalizedPostUrl('https://momei.app', 'en-US', 'nuxt-seo')).toBe('https://momei.app/en-US/posts/nuxt-seo')
+        expect(buildLocalizedPostUrl('https://momei.app', 'ko-KR', 'nuxt-seo')).toBe('https://momei.app/ko-KR/posts/nuxt-seo')
         expect(buildLocalizedPostUrl('https://momei.app', 'ja-JP', 'nuxt-seo')).toBe('https://momei.app/ja-JP/posts/nuxt-seo')
     })
 
@@ -28,6 +30,7 @@ describe('server/utils/llms', () => {
         expect(document).toContain('# 墨梅博客')
         expect(document).toContain('- Sitemap: https://momei.app/sitemap.xml')
         expect(document).toContain('- Full Index: https://momei.app/llms-full.txt')
+        expect(document).toContain('- Indexable locales: zh-CN, zh-TW, en-US, ko-KR, ja-JP')
         expect(document).toContain('### [en-US] Nuxt GEO Guide')
         expect(document).toContain('- URL: https://momei.app/en-US/posts/nuxt-geo-guide')
     })

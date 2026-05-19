@@ -38,18 +38,33 @@ describe('i18n locale registry', () => {
     it('should report seo ready locales', () => {
         expect(isSeoReadyLocale('zh-CN')).toBe(true)
         expect(isSeoReadyLocale('en-US')).toBe(true)
-        expect(isSeoReadyLocale('zh-TW')).toBe(false)
-        expect(isSeoReadyLocale('ko-KR')).toBe(false)
+        expect(isSeoReadyLocale('zh-TW')).toBe(true)
+        expect(isSeoReadyLocale('ko-KR')).toBe(true)
         expect(isSeoReadyLocale('ja-JP')).toBe(true)
         expect(isSeoReadyLocale('fr-FR')).toBe(false)
     })
 
     it('should expose locale metadata', () => {
+        expect(getLocaleRegistryItem('zh-CN').readiness).toBe('seo-ready')
+        expect(getLocaleRegistryItem('zh-TW')).toMatchObject({
+            readiness: 'seo-ready',
+            indexable: true,
+            sitemapEnabled: true,
+            feedEnabled: true,
+        })
+        expect(getLocaleRegistryItem('ko-KR')).toMatchObject({
+            readiness: 'seo-ready',
+            indexable: true,
+            sitemapEnabled: true,
+            feedEnabled: true,
+        })
         expect(isAppLocale('zh-CN')).toBe(true)
         expect(getLocaleRegistryItem('en-US').ogLocale).toBe('en_US')
-        expect(getLocaleRegistryItem('zh-CN').ogAlternateLocales).toEqual(['en_US', 'ja_JP'])
-        expect(getLocaleRegistryItem('en-US').ogAlternateLocales).toEqual(['zh_CN', 'ja_JP'])
-        expect(getLocaleRegistryItem('ja-JP').ogAlternateLocales).toEqual(['en_US', 'zh_CN'])
+        expect(getLocaleRegistryItem('zh-CN').ogAlternateLocales).toEqual(['zh_TW', 'en_US', 'ko_KR', 'ja_JP'])
+        expect(getLocaleRegistryItem('zh-TW').ogAlternateLocales).toEqual(['zh_CN', 'en_US', 'ko_KR', 'ja_JP'])
+        expect(getLocaleRegistryItem('en-US').ogAlternateLocales).toEqual(['zh_CN', 'zh_TW', 'ko_KR', 'ja_JP'])
+        expect(getLocaleRegistryItem('ko-KR').ogAlternateLocales).toEqual(['zh_CN', 'zh_TW', 'en_US', 'ja_JP'])
+        expect(getLocaleRegistryItem('ja-JP').ogAlternateLocales).toEqual(['zh_CN', 'zh_TW', 'en_US', 'ko_KR'])
         expect(getLocaleRegistryItem('zh-TW').nativeName).toBe('繁體中文')
         expect(getLocaleRegistryItem('ko-KR').nativeName).toBe('한국어')
         expect(getLocaleRegistryItem('ja-JP').nativeName).toBe('日本語')

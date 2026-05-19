@@ -109,7 +109,9 @@ describe('usePageSeo', () => {
             { name: 'twitter:card', content: 'summary_large_image' },
             { name: 'twitter:image', content: 'https://momei.app/logo.png' },
         ]))
+        expect(head.meta).toContainEqual({ property: 'og:locale:alternate', content: 'zh_TW' })
         expect(head.meta).toContainEqual({ property: 'og:locale:alternate', content: 'en_US' })
+        expect(head.meta).toContainEqual({ property: 'og:locale:alternate', content: 'ko_KR' })
         expect(head.meta).toContainEqual({ property: 'og:locale:alternate', content: 'ja_JP' })
         expect(head.script).toHaveLength(2)
         expect(JSON.parse(head.script[0].textContent)).toMatchObject({
@@ -188,8 +190,40 @@ describe('usePageSeo', () => {
         expect(JSON.parse(head.script[1].textContent)).toEqual({ '@type': 'Thing', name: 'article-extra' })
     })
 
-    it('suppresses structured data for non-seo-ready locales and explicit noindex', () => {
+    it('does not auto-noindex promoted locales', () => {
         localeState.value = 'zh-TW'
+        currentTitle.value = ''
+        currentDescription.value = ''
+        siteLogo.value = ''
+
+        const seo = usePageSeo({
+            type: 'website',
+            title: '繁體首頁',
+            locale: 'zh-TW',
+            path: '/zh-TW',
+        })
+
+        expect(seo.canonicalUrl.value).toBe('https://momei.app/zh-TW')
+        expect(seo.imageUrl.value).toBeNull()
+        expect(seo.shouldNoIndex.value).toBe(false)
+
+        const head = resolveHeadPayload()
+        expect(head.meta).toEqual(expect.arrayContaining([
+            { name: 'description', content: 'Fallback description' },
+            { name: 'robots', content: 'index, follow' },
+            { property: 'og:locale', content: 'zh_TW' },
+            { name: 'twitter:card', content: 'summary' },
+        ]))
+        expect(head.script).toHaveLength(1)
+        expect(JSON.parse(head.script[0].textContent)).toMatchObject({
+            '@type': 'WebSite',
+            inLanguage: 'zh-TW',
+            url: 'https://momei.app/zh-TW',
+        })
+    })
+
+    it('suppresses structured data when explicit noindex is set on seo-ready locales', () => {
+        localeState.value = 'ko-KR'
         currentTitle.value = ''
         currentDescription.value = ''
         siteLogo.value = ''
@@ -197,12 +231,12 @@ describe('usePageSeo', () => {
         const seo = usePageSeo({
             type: 'collection',
             title: '分类页',
-            locale: 'zh-TW',
+            locale: 'ko-KR',
             noindex: true,
-            path: '/',
+            path: '/ko-KR',
         })
 
-        expect(seo.canonicalUrl.value).toBe('https://momei.app')
+        expect(seo.canonicalUrl.value).toBe('https://momei.app/ko-KR')
         expect(seo.imageUrl.value).toBeNull()
         expect(seo.shouldNoIndex.value).toBe(true)
 
@@ -210,7 +244,7 @@ describe('usePageSeo', () => {
         expect(head.meta).toEqual(expect.arrayContaining([
             { name: 'description', content: 'Fallback description' },
             { name: 'robots', content: 'noindex, nofollow' },
-            { property: 'og:locale', content: 'zh_TW' },
+            { property: 'og:locale', content: 'ko_KR' },
             { name: 'twitter:card', content: 'summary' },
         ]))
         expect(head.script).toEqual([])
