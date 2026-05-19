@@ -43,6 +43,14 @@
                     </template>
                 </Column>
                 <Column
+                    field="adapterId"
+                    :header="$t('pages.admin.ad.placements.adapter')"
+                >
+                    <template #body="{data}">
+                        {{ getAdapterName(data.adapterId) }}
+                    </template>
+                </Column>
+                <Column
                     field="enabled"
                     :header="$t('pages.admin.ad.placements.status')"
                 >

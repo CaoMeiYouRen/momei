@@ -205,7 +205,7 @@ describe('CommercialLinkManager', () => {
             locales: ['en-US', 'zh-CN'],
         })
 
-        vm.confirmDelete(0)
+        vm.confirmDeleteDonationLink(0)
         expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
             message: 'delete confirm',
             header: 'confirmation',
