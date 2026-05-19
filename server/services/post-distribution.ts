@@ -229,15 +229,19 @@ async function loadManagedPost(postId: string) {
 }
 
 function ensureDistributionAccess(post: Post, actor: PostDistributionActor) {
-    if (!actor.isAdmin && post.authorId !== actor.currentUserId) {
-        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-    }
+    ensureDistributionReadAccess(post, actor)
 
     if (post.status !== PostStatus.PUBLISHED) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Only published posts can be distributed manually',
         })
+    }
+}
+
+function ensureDistributionReadAccess(post: Post, actor: PostDistributionActor) {
+    if (!actor.isAdmin && post.authorId !== actor.currentUserId) {
+        throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
     }
 }
 
@@ -656,7 +660,7 @@ function classifyWechatSyncFailure(accounts: CompleteWechatSyncAccountResult[]):
 
 export async function getPostDistributionService(postId: string, actor: PostDistributionActor) {
     const post = await loadManagedPost(postId)
-    ensureDistributionAccess(post, actor)
+    ensureDistributionReadAccess(post, actor)
     return toDistributionSummary(post)
 }
 

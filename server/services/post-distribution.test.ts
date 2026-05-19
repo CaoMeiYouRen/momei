@@ -52,6 +52,22 @@ async function createPublishedPost() {
     return dataSource.getRepository(Post).save(post)
 }
 
+async function createDraftPost() {
+    const author = await createAuthor()
+    const post = new Post()
+    post.title = 'Draft Post'
+    post.slug = `draft-${Math.random().toString(36).slice(2, 10)}`
+    post.content = 'Draft content for preview and copy verification.'
+    post.summary = 'Draft summary'
+    post.author = author
+    post.authorId = author.id
+    post.language = 'zh-CN'
+    post.status = PostStatus.DRAFT
+    post.visibility = PostVisibility.PUBLIC
+    post.metadata = null
+    return dataSource.getRepository(Post).save(post)
+}
+
 describe('post-distribution service', () => {
     beforeAll(async () => {
         await initializeDB()
@@ -90,6 +106,28 @@ describe('post-distribution service', () => {
         expect(summary.channels.wechatsync.status).toBe('idle')
         expect(summary.channels.hexoRepositorySync.status).toBe('idle')
         expect(summary.timeline).toEqual([])
+    })
+
+    it('should allow reading distribution summary for draft posts', async () => {
+        const post = await createDraftPost()
+
+        const summary = await getPostDistributionService(post.id, actor)
+
+        expect(summary.channels.memos.status).toBe('idle')
+        expect(summary.channels.wechatsync.status).toBe('idle')
+        expect(summary.channels.hexoRepositorySync.status).toBe('idle')
+    })
+
+    it('should still reject manual distribution for draft posts', async () => {
+        const post = await createDraftPost()
+
+        await expect(dispatchPostDistributionService(post.id, {
+            channel: 'memos',
+            operation: 'sync',
+        }, actor)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Only published posts can be distributed manually',
+        })
     })
 
     it('should expose hexo repository sync state in the unified summary', async () => {

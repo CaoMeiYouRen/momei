@@ -451,7 +451,7 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
             }
         } catch (error) {
             if (isActiveDistributionContext(context)) {
-                showErrorToast(error, { fallbackKey: 'common.load_failed' })
+                showErrorToast(error, { fallbackKey: 'common.error_loading' })
             }
         } finally {
             if (isActiveDistributionContext(context)) {
