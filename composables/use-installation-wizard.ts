@@ -49,6 +49,12 @@ interface AdminCreationForm {
 
 type InstallationStepActivator = (step: string) => void
 
+/**
+ * 管理安装向导的步骤状态、表单数据和服务端安装流程。
+ *
+ * 契约：统一封装数据库初始化、站点配置、管理员创建、扩展配置和最终收口动作。
+ * 副作用：会直接回写向导表单、触发安装 API，并在已安装场景下执行路由跳转或整页回退。
+ */
 export function useInstallationWizard() {
     const { t } = useI18n()
     const config = useRuntimeConfig()
@@ -99,6 +105,7 @@ export function useInstallationWizard() {
     const finalizeSuccess = ref(false)
     const finalizeError = ref('')
 
+    // 环境变量只做 best-effort 预填充，保留表单默认值，并对多语言字段和数值字段走专用归一化。
     const applyEnvSettingsBackfill = (envSettings: Record<string, InstallationEnvSetting>) => {
         Object.entries(INSTALLATION_SITE_ENV_BACKFILL_MAP).forEach(([settingKey, configKey]) => {
             const envValue = envSettings[settingKey]?.value
@@ -230,6 +237,7 @@ export function useInstallationWizard() {
             }, t)
             extraFieldErrors.value = mapValidationIssues<keyof InstallationExtraConfigModel>(extractValidationIssues(error))
 
+            // 预览接口失败但没有字段级错误时，仍推进到预览步骤，便于用户查看诊断信息后重试。
             if (Object.keys(extraFieldErrors.value).length === 0) {
                 activateCallback('6')
             }
@@ -273,6 +281,7 @@ export function useInstallationWizard() {
         try {
             await navigateTo(target)
         } catch {
+            // 安装态首跳有时早于客户端路由完全就绪，保留浏览器级跳转兜底避免向导卡死。
             if (import.meta.client) {
                 window.location.assign(target)
             }

@@ -33,10 +33,11 @@
 - 当前进展 (2026-05-19): `confirmDelete`、`getStatusSeverity`、`DistributionMaterialBundle` 已从最新 `simple-duplicates` baseline 消失；最新统计为同名内部函数候选 `110`、同名 type/interface 候选 `27`、近似命名函数候选 `10`，`pnpm duplicate-code:check` 维持 `warn` 未反弹；`components/commercial-link-manager.test.ts`、`composables/use-delete-dialog-state.test.ts`、`tests/scripts/audit-simple-duplicates.test.ts`、`pnpm exec nuxt typecheck` 与 `pnpm lint` 已通过。
 - 阻塞: 旧代码 blocker 已关闭，当前仅剩 [pages/admin/ad/placements.vue](pages/admin/ad/placements.vue#L46) 的最小浏览器验证证据未补齐；本地 Nuxt dev 在访问 `/login` / `/admin/ad/placements` 时首个 HTTP 响应卡住，尚未拿到实际页面 DOM，需待该既有环境问题恢复后补证据再正式收口。
 
-3. [ ] 注释治理首轮：1 - 2 组模块 (P1)
+3. [x] 注释治理首轮：1 - 2 组模块 (P1)
 - 验收标准: 以 `comment-drift` baseline 为事实源，优先处理 `usePostEditorIO`（complexity `61`）与 `usePostEditorAI`（complexity `44`）；第二组只允许在 `useNotifications`、`useInstallationWizard`、`useAdminFriendLinksPage` 中三选一。所选模块必须补齐契约 / 副作用 / 失败回退类高价值注释，并同步清理对应文件中的 TODO / 漂移注释。
 - 数据参考: 当前 baseline 为高复杂度导出函数缺注释候选 `177`、TODO / 临时口吻 `27`、疑似漂移注释 `298`，产物落点为 `artifacts/governance/comment-drift-latest.md/.json`。
 - 最小验证: `pnpm governance:audit:comment-drift`、受影响 composable 定向测试与类型检查。
+- 当前进展 (2026-05-19): 已完成 `usePostEditorIO`、`usePostEditorAI` 与 `useInstallationWizard` 三个 composable 的首轮注释治理，补齐导出契约、关键副作用与失败回退说明；所选文件内未命中 TODO / 临时口吻注释。最新 `comment-drift` 统计为高复杂度导出函数缺注释候选 `174`、TODO / 临时口吻 `27`、疑似逐行复述注释 `71`、疑似漂移注释 `298`；`composables/use-post-editor-io.test.ts`、`composables/use-post-editor-ai.test.ts`、`composables/use-installation-wizard.test.ts` 共 `19` 条定向测试通过，`pnpm exec nuxt typecheck` 与 Review Gate 均已通过。
 
 4. [ ] 文档 / 脚本治理最小收口包 (P0)
 - 验收标准: 至少完成 `1` 组回归 / 指南类超长页收敛、`4` 份高频英文 must-sync 文档 freshness 回补，以及脚本治理 `3` 条现存 finding 的处置闭环（补脚本、补稳定入口，或明确下线），并保留前后对比证据。

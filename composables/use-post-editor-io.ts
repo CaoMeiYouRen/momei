@@ -10,6 +10,12 @@ interface MarkdownEditorRef {
     $img2Url?: (position: number, url: string) => void
 }
 
+/**
+ * 统一处理编辑器内的导入、拖拽和图片上传链路。
+ *
+ * 副作用：会直接回写文章内容、标签、分类和音频元数据，并在各类失败回退上给出 toast。
+ * 回退约束：front matter 解析失败时仍保留正文导入，避免单个坏 YAML 阻断整篇内容恢复。
+ */
 export function usePostEditorIO(
     post: Ref<PostEditorData>,
     selectedTags: Ref<string[]>,
@@ -25,6 +31,7 @@ export function usePostEditorIO(
         showErrorToast: false,
     })
 
+    // Front matter 里的音频字段可能分散出现，按 patch 合并可避免后续字段覆盖先前已解析出的元数据。
     const mergeAudioMetadata = (patch: {
         url?: string | null
         duration?: number | null
@@ -83,6 +90,7 @@ export function usePostEditorIO(
                         data = yaml.load(match[1] || '') || {}
                         content = match[2] || ''
                     } catch (e) {
+                        // front matter 语法损坏时退回纯 Markdown 导入，避免正文因为头部格式错误被整段丢弃。
                         console.warn(
                             'YAML parse failed, importing as plain content',
                             e,

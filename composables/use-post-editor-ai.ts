@@ -46,6 +46,12 @@ interface StringResponse {
     data: string
 }
 
+/**
+ * 封装文章编辑器里的 AI 辅助动作。
+ *
+ * 契约：统一暴露标题、摘要、标签、slug 和翻译入口，并把 AI 结果直接回写到当前文章草稿。
+ * 副作用：会发起 AI 请求、轮询异步任务状态，并通过 toast 向编辑器反馈成功或失败结果。
+ */
 export function usePostEditorAI(
     post: Ref<PostEditorData>,
     allTags: Ref<string[]>,
@@ -65,6 +71,7 @@ export function usePostEditorAI(
     const titleSuggestions = ref<string[]>([])
     const titleOp = ref<TitleSuggestionOverlayRef | null>(null)
 
+    // 归一化 task result 载荷，兼容 string 和 object 两种完成态形态。
     const extractTranslatedContent = (result: AITaskStatusPayload['result']) => {
         if (!result) {
             return ''
@@ -90,6 +97,7 @@ export function usePostEditorAI(
         return new Error(t('pages.admin.posts.ai_error'))
     }
 
+    // 轮询链路始终保持单请求在途，并在终态或网络错误后立即停表，避免重复请求与悬挂定时器。
     const waitForTranslationTask = async (taskId: string) => await new Promise<string>((resolve, reject) => {
         let settled = false
         let requestInFlight = false
@@ -141,6 +149,7 @@ export function usePostEditorAI(
         resume()
     })
 
+    // 翻译接口既可能同步直返结果，也可能下发异步任务，调用方只关心最终文本时统一走这里收敛。
     const requestTranslatedText = async (content: string, targetLanguage: string) => {
         const response = await $fetch<{ code: number, data: TranslateApiResult }>('/api/ai/translate', {
             method: 'POST',
