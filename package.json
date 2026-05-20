@@ -221,7 +221,7 @@
     }
   },
   "devDependencies": {
-    "@intlify/eslint-plugin-vue-i18n": "^4.3.0",
+    "@intlify/eslint-plugin-vue-i18n": "^4.4.0",
     "@lhci/cli": "^0.15.1",
     "@lint-md/cli": "^2.0.0",
     "@nuxt/eslint": "^1.15.2",
@@ -254,7 +254,7 @@
     "commitlint-config-cmyr": "^1.0.0",
     "cross-env": "^10.0.0",
     "cz-conventional-changelog-cmyr": "^2.0.0",
-    "eslint": "^9.39.2",
+    "eslint": "^10.4.0",
     "eslint-config-cmyr": "^2.3.0",
     "eslint-plugin-vue": "^10.9.1",
     "happy-dom": "^20.9.0",
