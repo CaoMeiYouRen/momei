@@ -86,7 +86,7 @@
     "@primevue/themes": "^4.5.4",
     "@sentry/nuxt": "^10.53.1",
     "@tokenizer/http": "^0.9.2",
-    "@vercel/blob": "^2.3.3",
+    "@vercel/blob": "^2.4.0",
     "@vueuse/core": "^14.3.0",
     "@vueuse/nuxt": "^14.3.0",
     "animate.css": "^4.1.1",
