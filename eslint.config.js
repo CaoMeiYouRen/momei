@@ -191,6 +191,7 @@ export default withNuxt(
         languageOptions: createLanguageOptions({}, {
             projectService: {
                 defaultProject: 'tsconfig.json',
+                allowDefaultProject: ['nuxt.config.ts'],
             },
             tsconfigRootDir: process.cwd(),
         }),
