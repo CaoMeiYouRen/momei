@@ -168,6 +168,8 @@
     ],
     "overrides": {
       "axios": "^1.16.0",
+      "js-cookie": "^3.0.7",
+      "samlify": "^2.13.0",
       "basic-ftp": "^5.3.1",
       "fast-xml-parser": "^5.8.0",
       "follow-redirects": "^1.16.0",
