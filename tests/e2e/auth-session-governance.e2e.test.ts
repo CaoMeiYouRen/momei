@@ -142,9 +142,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
             }
         })
 
-        if (!hasStoredAuth()) {
-            await new AuthHelper(page).loginAsAdmin()
-        }
+        await new AuthHelper(page).ensureAdminSession()
 
         await ensureAuthenticatedSettings(page)
 
@@ -167,9 +165,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         const secondaryTab = await context.newPage()
 
         try {
-            if (!hasStoredAuth()) {
-                await new AuthHelper(primaryTab).loginAsAdmin()
-            }
+            await new AuthHelper(primaryTab).ensureAdminSession()
 
             await ensureAuthenticatedSettings(primaryTab)
             await ensureAuthenticatedAdmin(secondaryTab)
@@ -183,9 +179,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should redirect to login after session expiry invalidates stale client state', async ({ page }) => {
-        if (!hasStoredAuth()) {
-            await new AuthHelper(page).loginAsAdmin()
-        }
+        await new AuthHelper(page).ensureAdminSession()
 
         await ensureAuthenticatedSettings(page)
 
@@ -194,9 +188,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should block immediate protected revisit after logout in the current tab', async ({ page }) => {
-        if (!hasStoredAuth()) {
-            await new AuthHelper(page).loginAsAdmin()
-        }
+        await new AuthHelper(page).ensureAdminSession()
 
         await ensureAuthenticatedSettings(page)
 
@@ -205,9 +197,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should switch language on a blank new draft without requiring save first', async ({ page }) => {
-        if (!hasStoredAuth()) {
-            await new AuthHelper(page).loginAsAdmin()
-        }
+        await new AuthHelper(page).ensureAdminSession()
 
         await openNewDraftEditor(page)
 
@@ -236,9 +226,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should protect entered new draft from language switch before saving', async ({ page }) => {
-        if (!hasStoredAuth()) {
-            await new AuthHelper(page).loginAsAdmin()
-        }
+        await new AuthHelper(page).ensureAdminSession()
 
         await openNewDraftEditor(page)
 

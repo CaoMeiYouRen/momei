@@ -13,14 +13,14 @@ test.describe('Responsive Design E2E Tests', () => {
         await expect(desktopNav).not.toBeVisible()
 
         // 移动端菜单按钮
-        const menuBtn = page.locator('.app-header button:has([class*="pi-bars"])')
+        const menuBtn = page.locator('#mobile-menu-btn')
         await expect(menuBtn).toBeVisible()
 
         // 点击按钮
         await menuBtn.click()
 
         // 抽屉菜单应可见 (PrimeVue Drawer 组件)
-        const drawer = page.locator('.p-drawer')
+        const drawer = page.locator('.mobile-drawer')
         await expect(drawer).toBeVisible({ timeout: 10000 })
 
         // 检查移动端导航链接 (Articles/文章)

@@ -211,6 +211,7 @@
                     @click="goToAdminPosts"
                 />
                 <Button
+                    id="mobile-menu-btn"
                     icon="pi pi-bars"
                     text
                     rounded

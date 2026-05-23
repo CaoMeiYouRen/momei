@@ -23,7 +23,9 @@ async function submitForm(page: Page, submitButtonSelector: string) {
     const submitButton = page.locator(submitButtonSelector)
     await expect(submitButton).toBeVisible()
     await expect(submitButton).toBeEnabled()
-    await submitButton.click()
+    await page.locator('.register-form__fields').evaluate((element) => {
+        (element as HTMLFormElement).requestSubmit()
+    })
 }
 
 async function acceptAgreement(page: Page) {

@@ -55,15 +55,12 @@ test.describe('Admin E2E Tests', () => {
     })
 
     test.beforeEach(async ({ page }) => {
-        // 如果没有存储的认证状态，尝试登录
-        if (!hasStoredAuth()) {
-            const auth = new AuthHelper(page)
-            try {
-                await auth.loginAsAdmin()
-            } catch {
-                // 登录失败，跳过测试
-                test.skip()
-            }
+        const auth = new AuthHelper(page)
+        try {
+            await auth.ensureAdminSession()
+        } catch {
+            // 登录失败，跳过测试
+            test.skip()
         }
     })
 
@@ -131,7 +128,7 @@ test.describe('Admin E2E Tests', () => {
 
     test('should load admin ai page', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/ai')
-        // 使用 .first() 解决严格模式违反问题，并应对多卡片渲染
-        await expect(page.locator('.ai-config-panel, .p-card').first()).toBeVisible({ timeout: 15000 })
+        await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 15000 })
+        await expect(page.getByRole('tab', { name: /统计|Stats/i })).toBeVisible({ timeout: 15000 })
     })
 })

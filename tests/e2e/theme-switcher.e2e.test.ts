@@ -7,15 +7,15 @@ test.describe('Theme Switcher E2E Tests', () => {
 
     test('should toggle dark mode during session', async ({ page }) => {
         const html = page.locator('html')
-        const themeToggle = page.locator('.theme-switcher, button:has(.pi-moon), button:has(.pi-sun)')
+        const themeToggle = page.locator('#theme-switcher')
 
         // Wait for page to be ready
-        await expect(themeToggle.first()).toBeVisible()
+        await expect(themeToggle).toBeVisible()
 
         const isDarkBefore = await html.evaluate((el) => el.classList.contains('dark'))
 
         // Click to toggle
-        await themeToggle.first().click()
+        await themeToggle.click()
 
         // Wait for class to change
         await expect(async () => {

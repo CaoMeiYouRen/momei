@@ -17,6 +17,31 @@ export class AuthHelper {
         this.page = page
     }
 
+    private async hasAuthenticatedShell() {
+        const loginButton = this.page.locator('#login-btn')
+        if (await loginButton.count() > 0) {
+            return false
+        }
+
+        const authEntrypoints = [
+            this.page.locator('#user-menu-btn'),
+            this.page.locator('#admin-menu-btn'),
+            this.page.locator('.mobile-user-button'),
+        ]
+
+        for (const locator of authEntrypoints) {
+            try {
+                if (await locator.first().isVisible()) {
+                    return true
+                }
+            } catch {
+                // Ignore detached/hidden locator errors and continue probing.
+            }
+        }
+
+        return false
+    }
+
     private async expectAuthenticatedShell() {
         await this.page.waitForLoadState('domcontentloaded')
 
@@ -73,6 +98,17 @@ export class AuthHelper {
         await this.page.waitForURL(/\//, { timeout: 20000 })
 
         await this.expectAuthenticatedShell()
+    }
+
+    async ensureAdminSession() {
+        await this.page.goto('/')
+        await this.page.waitForLoadState('domcontentloaded')
+
+        if (await this.hasAuthenticatedShell()) {
+            return
+        }
+
+        await this.loginAsAdmin()
     }
 
     /**

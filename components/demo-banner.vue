@@ -1,5 +1,5 @@
 <template>
-    <div v-if="config.public.demoMode" class="demo-banner">
+    <div v-if="config.public.demoMode && !config.public.testMode" class="demo-banner">
         <div class="demo-banner__content" :class="{'demo-banner__content--collapsed': isCollapsed}">
             <div class="demo-banner__top-row">
                 <div class="demo-banner__intro">

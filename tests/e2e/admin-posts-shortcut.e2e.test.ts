@@ -18,11 +18,7 @@ function hasStoredAuth(): boolean {
 }
 
 async function ensureAdminSession(page: import('@playwright/test').Page) {
-    if (hasStoredAuth()) {
-        return
-    }
-
-    await new AuthHelper(page).loginAsAdmin()
+    await new AuthHelper(page).ensureAdminSession()
 }
 
 test.describe('Admin Posts Shortcut E2E Tests', () => {
