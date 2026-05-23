@@ -196,9 +196,12 @@
     - 同日 `pnpm perf:nuxt:build` 基线显示总耗时约 `542.77s`，`Client built` 约 `26.36s`、`Server built` 约 `28.01s`，`Server built` 里程碑出现在约 `121.14s`，之后仍有约 `421.63s` 长尾；主要压力已从 Vite bundling 转移到 Nitro / `.output/server` 收尾阶段。
     - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与"所有首请求都卡住"的实测现象一致。
     - 2026-05-11 本轮规划补充了两级目标：先把 Windows 本地 build 总耗时中位数压进 `500s` 内，再在热点拆解完成后继续向 Linux 侧约 `120s` 的参考体验逼近；当前 `120s` 仍只作为对照目标，不视为已验证承诺。
+    - 2026-05-23 最新 `npm run dev` 实测显示，依赖重优化后 `Nuxt Nitro server built in 372904ms`（约 `6m13s`），说明构建长尾仍然显著；本轮应把“`Server built -> Build complete` / Nitro 构建尾段”重新列为优先复核对象。
+    - 同一轮实测中，首页与设置链路进入请求阶段后仍出现明显延迟：`[momei-perf] installation-probe` 于 `22:01:47` 进入 `/`，`22:02:02` 才进入 `/api/settings/public`，随后触发 `SELECT version()`、`CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"` 与 metadata 探测序列；说明冷启动数据库初始化与请求首跳仍需持续压缩。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收 Windows 本地 Dev / Build 性能治理切片）。
 - **下一次可切片方向**:
+    - 先针对 2026-05-23 新样本补一轮“构建尾段 + 首请求首跳”复核：分别量化 `Nuxt Nitro server built` 长尾和 installation-probe 到公开设置接口的首跳耗时，作为下一轮动作的准入门槛。
     - 先冻结安装状态探测方案：明确 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
     - 再补齐 `initializeDB()` 分阶段耗时口径，避免直接开改后仍无法判断实际慢点。
     - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
