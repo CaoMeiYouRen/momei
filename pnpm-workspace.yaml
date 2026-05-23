@@ -1,2 +1,74 @@
 packages:
     - "packages/*"
+
+# Keep a short quarantine window for newly published packages,
+# but avoid blocking normal lockfile maintenance for same-day releases.
+minimumReleaseAge: 60
+
+allowBuilds:
+    "@parcel/watcher": true
+    "@sentry/cli": true
+    better-sqlite3: true
+    esbuild: true
+    nice-napi: true
+    protobufjs: true
+    sharp: true
+    unrs-resolver: true
+    vue-demi: true
+    workerd: true
+
+overrides:
+    "@nuxt/kit": "^4.4.6"
+    axios: "^1.16.0"
+    js-cookie: "^3.0.7"
+    samlify: "^2.13.0"
+    basic-ftp: "^5.3.1"
+    fast-xml-parser: "^5.8.0"
+    follow-redirects: "^1.16.0"
+    "@smithy/types": "^4.13.1"
+    file-type: "^21.3.2"
+    preact: "^10.28.2"
+    vite: "$vite"
+    esbuild: "^0.25.0"
+    brace-expansion: "^5.0.5"
+    tar: "^7.5.11"
+    minimatch: "^10.2.3"
+    html-minifier: "npm:html-minifier-terser@^7.2.0"
+    handlebars: "^4.7.9"
+    node-forge: "^1.4.0"
+    js-yaml: "^4.1.0"
+    tmp: "^0.2.4"
+    debug: "$debug"
+    undici: "^6.24.0"
+    diff: "^9.0.0"
+    devalue: "^5.8.1"
+    defu: "6.1.5"
+    unhead: "^2.1.13"
+    qs: "^6.14.2"
+    hono: "^4.12.16"
+    uuid: "11.1.1"
+    "@nuxt/test-utils>h3-next": "npm:h3@^2.0.1-rc.18"
+    seroval: "^1.4.1"
+    simple-git: "^3.36.0"
+    immutable: "^5.1.5"
+    "path-to-regexp@0.1.12": "^0.1.13"
+    "path-to-regexp@8.3.0": "^8.4.0"
+    "picomatch@2.3.1": "^2.3.2"
+    "picomatch@4.0.3": "^4.0.4"
+    svgo: "^4.0.1"
+    lodash: "$lodash-es"
+    "ajv@^6.0.0": "^6.14.0"
+    "ajv@^8.0.0": "^8.18.0"
+    rollup: "^4.59.0"
+    serialize-javascript: "^7.0.5"
+    "@xmldom/xmldom": "^0.8.13"
+    yauzl: "^3.2.1"
+    flatted: "^3.4.2"
+    kysely: "^0.28.17"
+    srvx: "^0.11.13"
+    yaml: "^2.8.3"
+    ip-address: "^10.1.1"
+    "push-all-in-one>nodemailer": "^8.0.4"
+    typescript-eslint: "$typescript-eslint"
+    fast-uri: "^3.1.2"
+    "@babel/plugin-transform-modules-systemjs": "^7.29.4"
