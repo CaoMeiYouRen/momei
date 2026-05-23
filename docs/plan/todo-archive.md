@@ -17,6 +17,47 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第三十九阶段：公众号排版预览与治理基线落盘 (已审计归档)
+
+> 归档说明: 第三十九阶段「1 个新功能 + 4 个优化」已于 2026-05-23 完成对账、文档同步与归档收口。当前仓库可对照到五条主线的实现与证据落点：`wechat_mp` 预览 / 复制能力、结构复用第三轮热点收敛、注释治理首轮切片、文档 / 脚本治理最小收口包、国际化文案复用治理。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
+
+> **ROI 评估**: 微信公众号格式预览 / 导出辅助 `1.56`；结构复用第三轮（3 个热点）`1.72`；注释治理首轮（1 - 2 组模块）`1.43`；文档 / 脚本治理最小收口包 `1.67`；国际化文案复用治理 `1.60`。
+
+### 1. 微信公众号格式预览 / 导出辅助 (P0)
+
+- 结果: `wechat_mp` profile 已落地到分发预览与预检链路，覆盖公众号兼容规则（标题 / 引用 / 代码块降级、提示容器 / 代码分组转换）、外链转文末引用（去重、代码块排除、裸 URL 兼容），并新增“复制排版后内容”入口（`ClipboardItem` 双格式 + `writeText` 降级）。
+- 证据: 提交 `3f0989d8`、`9c7a5eb2`，设计文档 [docs/design/governance/wechat-mp-preview-export-assist.md](../../docs/design/governance/wechat-mp-preview-export-assist.md)，以及分发预览相关测试集。
+- [x] 仅交付“公众号风格预览 + 复制排版后内容”，未扩写为编辑器替换工程。
+- [x] 定向验证已覆盖转换链路与复制逻辑，核心行为可复现。
+
+### 2. 结构复用第三轮：3 个热点收敛 (P1)
+
+- 结果: `confirmDelete`、`getStatusSeverity`、`DistributionMaterialBundle` 三组热点均已在 `simple-duplicates` 基线中消失；统计由同名内部函数候选 `112` 降至 `110`，同名 type/interface 候选由 `156` 降至 `27`，近似命名函数候选保持 `10`。
+- 证据: `pnpm governance:audit:simple-duplicates` 产物、`pnpm duplicate-code:check`（warn 模式 `40 clones / 0.69%`）与定向测试通过记录。
+- [x] 至少 `3` 组热点完成收敛。
+- [x] `duplicate-code` 基线未反弹。
+
+### 3. 注释治理首轮：1 - 2 组模块 (P1)
+
+- 结果: `usePostEditorIO`、`usePostEditorAI` 与 `useInstallationWizard` 已完成契约 / 副作用 / 失败回退注释补齐，并清理所选文件内 TODO / 临时口吻；`comment-drift` 基线已形成本轮可追溯 delta。
+- 证据: `pnpm governance:audit:comment-drift` 产物与三组 composable 定向测试通过记录。
+- [x] 已按高复杂度优先策略完成首轮模块切片。
+- [x] 所选范围内未保留低价值 TODO 注释噪音。
+
+### 4. 文档 / 脚本治理最小收口包 (P0)
+
+- 结果: 回归活动窗口完成历史滚动归档（`588` 行降至 `235` 行），英文高频 must-sync 页 freshness 回补到 `2026-05-19`，脚本治理三条 finding 完成处置闭环（稳定入口补齐与失效声明下线）。
+- 证据: `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts` 均通过；脚本治理统计收敛为“缺少稳定入口 `0`、文档声明但缺失 `0`”。
+- [x] 文档与脚本两条治理面均完成最小闭环。
+- [x] 已保留前后对比的可追溯事实源。
+
+### 5. 国际化文案复用治理 (P1)
+
+- 结果: `AppFooter`、`archives`、`categories`、`tags` 四组公开装配链路已并入固定 runtime 验证面；页面私有命名空间与共享组件命名空间边界已在 runtime 装配测试中固化，同时完成首个重复键收敛切片（`common.refresh` 统一）。
+- 证据: `pnpm i18n:audit:missing` 维持 `0`，`pnpm i18n:audit:duplicates` 命中由 `101/56` 降至 `100/55`，`pnpm i18n:verify:runtime`（`15` 文件 / `108` 用例）通过。
+- [x] 新增范围未出现 raw key 暴露。
+- [x] 复用治理与运行时装配边界保持一致。
+
 ## 第三十八阶段：分发一致性修补与热点治理续推 (已审计归档)
 
 > 归档说明: 第三十八阶段「0 个新功能 + 5 个优化」已于 2026-05-19 完成对账、文档同步与归档收口。当前仓库已可对照到五条主线的实现落点：`B 站 / Memos` 标签尾注与预览一致性、高风险测试有效性第二轮切片、公开热点读链路止损式瘦身与根因收敛、至少 3 处结构复用热点，以及 AI provider 聚合层 ESLint / 类型债窄切片。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。

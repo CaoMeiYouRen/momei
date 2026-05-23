@@ -648,10 +648,12 @@
     - **验收标准**: 定向 ESLint、定向测试与类型检查通过；残余债务与下一轮候选有明确记录。
     - **验证与证据**: 定向 ESLint、定向 Vitest、受影响文件类型检查与对应残余债务记录。
 
-### 第三十九阶段：公众号排版预览与治理基线落盘 (WeChat Layout Preview & Governance Baseline Landing)
+### 第三十九阶段：公众号排版预览与治理基线落盘 (WeChat Layout Preview & Governance Baseline Landing) (已审计归档)
 
 **时间表**: 2026-05-19 ~ 约 1 - 2 周
 **目标**: 在第三十八阶段完成分发一致性修补、测试有效性第二轮与 Postgres 止损式瘦身收口后，正式切到“`1` 个新功能 + `4` 个优化”的下一阶段执行面：以“公众号格式预览 / 导出辅助”作为唯一新增能力，同时把结构复用第三轮、注释治理首轮、文档 / 脚本治理最小收口包，以及国际化文案复用治理四条优化统一纳入 script-first / design-first 的受控组合，避免再次回到“只有叙述目标、缺少 baseline 和对比口径”的阶段规划。
+
+**审计结论**: 第三十九阶段五条主线已在实现代码、定向测试、设计文档、治理 baseline 与规划文档中完成闭环。`todo.md` 已清理当前阶段正文，`todo-archive.md` 已收录完整归档块；多语路线图摘要已同步阶段状态。下一阶段当前仅保留候选分析，不在本轮直接上收。
 
 **准入结论**: 五条主线中，“公众号格式预览 / 导出辅助”是唯一新增功能，其余四条均已有可重复执行 baseline 或稳定事实源：`artifacts/governance/simple-duplicates-latest.md`、`artifacts/governance/comment-drift-latest.md`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate`、`artifacts/governance/script-governance-latest.md`，以及 `i18n:audit:missing` / `i18n:verify:runtime` 与 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 的运行时装配基线。总数控制在 `5` 项内，符合当前阶段容量约束。
 

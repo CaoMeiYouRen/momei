@@ -9,6 +9,40 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-23 第三十九阶段归档对账与文档同步
+
+### 范围
+
+- 目标：核对第三十九阶段 5 条主线与实际代码改动的一致性，完成 `todo.md` 清理、`todo-archive.md` 归档、`roadmap.md` 状态同步，以及 4 份多语路线图摘要更新；本轮不把下一阶段直接写入正式规划。
+- 本轮覆盖：[docs/plan/todo.md](../../plan/todo.md)、[docs/plan/todo-archive.md](../../plan/todo-archive.md)、[docs/plan/roadmap.md](../../plan/roadmap.md)、[docs/i18n/en-US/plan/roadmap.md](../../i18n/en-US/plan/roadmap.md)、[docs/i18n/zh-TW/plan/roadmap.md](../../i18n/zh-TW/plan/roadmap.md)、[docs/i18n/ko-KR/plan/roadmap.md](../../i18n/ko-KR/plan/roadmap.md)、[docs/i18n/ja-JP/plan/roadmap.md](../../i18n/ja-JP/plan/roadmap.md)。
+- 对账依据：`feat(wechat_mp)` 与相关收口提交（`3f0989d8`、`9c7a5eb2`、`a08adbd7`、`a1395e29`、`5179a5ff`、`b9bfb3bb`）及其受影响文件清单。
+
+### 实施结论
+
+- 第三十九阶段在规划文档中的 5 项待办均可映射到已落地代码与文档证据，当前阶段可判定为“已完成且可归档”。
+- `todo.md` 已清空当前执行面并明确“下一阶段仅候选分析”；`todo-archive.md` 已新增第三十九阶段完整归档块。
+- `roadmap.md` 已将第三十九阶段状态改为“已审计归档”并补充审计结论；`en-US` / `zh-TW` / `ko-KR` / `ja-JP` 路线图摘要已同步状态与 `last_sync`。
+
+### 已执行验证
+
+- `pnpm exec lint-md docs/plan/todo.md docs/plan/todo-archive.md docs/plan/roadmap.md docs/i18n/en-US/plan/roadmap.md docs/i18n/zh-TW/plan/roadmap.md docs/i18n/ko-KR/plan/roadmap.md docs/i18n/ja-JP/plan/roadmap.md`
+- `pnpm docs:check:source-of-truth`
+- `pnpm docs:check:i18n`
+- `pnpm docs:check:line-count`
+
+验证结果：全部通过；`docs/plan/todo-archive.md` 当前 `514` 行，落在 warning 区间但未触发 error 阻断。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：归档主窗口行数已进入 warning 区间，后续若继续增长应按深度归档规则滚动迁移，避免主窗口再次膨胀。
+
+### 未覆盖边界
+
+- 本轮为规划与文档收口，不包含新一轮全量 `phase-close` 复跑；放行依据为既有阶段实现证据 + 本轮文档质量门校验。
+- 下一阶段当前仍仅保留候选分析，尚未执行正式上收与容量切片。
+
 ## 2026-05-19 第三十八阶段归档对账与 Review Gate
 
 ### 范围

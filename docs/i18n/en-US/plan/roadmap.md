@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-19
+last_sync: 2026-05-23
 translation_tier: summary-sync
 ---
 
@@ -32,7 +32,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 36 has now been audited and archived**: The `initializeDB()` concurrency-window fix and Redis timeout hardening, TTS frontend-direct / direct-upload backlog cleanup, the latest ESLint and type-debt slice, TTS-task and locale-option structural reuse convergence, and the candidate-C public-read API comment-governance slice have all been closed in the Chinese source of truth and archive docs.
 - **Stage 37 has now been audited and archived**: Windows local `nuxt dev` / `nuxt build` performance hardening, high-risk test-effectiveness work, the next narrow ESLint / type-debt slice, at least three structural-reuse hotspots, and the PostgreSQL long-window review slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 38 has now been audited and archived**: Third-party distribution tag-tailnote consistency for Bilibili / Memos, the second high-risk test-effectiveness slice, one PostgreSQL hot public-read slimming and root-cause-narrowing slice, another structural-reuse round, and the next narrow ESLint / type-debt slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
-- **Stage 39 is now the active phase**: One design-first WeChat Official Account formatting preview / export-assist feature has been promoted, together with four data-backed governance slices covering structural reuse (`112` same-name internal-function candidates / `156` type-interface candidates baseline), comment governance (`177` high-complexity missing-comment candidates / `298` drift candidates baseline), docs + script governance (`6` freshness violations / `3` script-governance findings baseline), and i18n runtime message-reuse hardening for four additional public surfaces.
+- **Stage 39 has now been audited and archived**: The WeChat Official Account formatting preview / copy-assist feature and four governance slices (structural reuse, comment governance, docs + script governance, and i18n runtime message reuse) have all been closed in the Chinese source of truth, with archive and roadmap status synchronized.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
