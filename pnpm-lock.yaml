@@ -140,8 +140,8 @@ importers:
         specifier: ^12.10.0
         version: 12.10.0
       canvas-nest.js:
-        specifier: ^2.0.4
-        version: 2.2.4
+        specifier: 2.0.4
+        version: 2.0.4
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -5961,9 +5961,8 @@ packages:
   caniuse-lite@1.0.30001793:
     resolution: {integrity: sha512-iwSsYWaCOoh26cV8NwNRViHlrfUvYsHDfRVcbtmw0Kg6PJIZZXwMkj1442FYLBGkeUf1juAsU3DTfxW579mrPA==}
 
-  canvas-nest.js@2.2.4:
-    resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==, tarball: https://registry.npmmirror.com/canvas-nest.js/-/canvas-nest.js-2.0.4.tgz}
-    deprecated: '[WARNING] Use 2.0.4 instead of 2.2.4, reason: antv-block list, redirect to last clean version before 2026-05-19'
+  canvas-nest.js@2.0.4:
+    resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -19456,7 +19455,7 @@ snapshots:
 
   caniuse-lite@1.0.30001793: {}
 
-  canvas-nest.js@2.2.4:
+  canvas-nest.js@2.0.4:
     dependencies:
       size-sensor: 0.2.6
 
