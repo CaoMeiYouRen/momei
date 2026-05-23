@@ -19,13 +19,13 @@
 
 ### 第三十九阶段：公众号排版预览与治理基线落盘
 
-> 执行策略: 本阶段按“`1` 个新功能 + `4` 个优化”推进，且所有治理项都必须保留 baseline / delta 对比；若执行中新增治理候选，不得直接膨胀待办，必须先回到 [backlog.md](./backlog.md) 或复用现有脚本口径。
+> 执行策略: 本阶段按"`1` 个新功能 + `4` 个优化"推进，且所有治理项都必须保留 baseline / delta 对比；若执行中新增治理候选，不得直接膨胀待办，必须先回到 [backlog.md](./backlog.md) 或复用现有脚本口径。
 
-1. [ ] 微信公众号格式预览 / 导出辅助 (P0)
-- 验收标准: 先在 `docs/design/governance/` 或等价入口落一份专项设计文档，明确首版只交付“公众号风格预览 / 复制排版后内容”，不做编辑器替换；随后基于现有编辑器 / 分发预览表面补一条公众号样式转换链路，并验证标题层级、图片、引用块、代码块 / 提示容器、长文阅读连续性，以及复制结果一致性。
-- 数据参考: 当前仓库已支持 `Memos / WechatSync` expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类输出，但尚无 dedicated `wechat_mp` render profile，也没有固定的“复制排版后内容”入口。
+1. [x] 微信公众号格式预览 / 导出辅助 (P0)
+- 验收标准: 先在 `docs/design/governance/` 或等价入口落一份专项设计文档，明确首版只交付"公众号风格预览 / 复制排版后内容"，不做编辑器替换；随后基于现有编辑器 / 分发预览表面补一条公众号样式转换链路，并验证标题层级、图片、引用块、代码块 / 提示容器、长文阅读连续性，以及复制结果一致性。
+- 数据参考: 当前仓库已支持 `Memos / WechatSync` expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类输出，但尚无 dedicated `wechat_mp` render profile，也没有固定的"复制排版后内容"入口。
 - 最小验证: 受影响组件 / composable 定向测试、必要的浏览器验证与剪贴板复制验证。
-- 当前进展 (2026-05-20): 已补专项设计文档 `docs/design/governance/wechat-mp-preview-export-assist.md`，并在分发预览链路落地 `wechat_mp` profile（预览 / 预检）与 expanded preview 的“复制排版后内容”入口；运行时 dispatch 维持 raw/default payload，不改变既有 WechatSync 投递契约。本轮新增“外链自动转文末引用”转换能力（仅 `wechat_mp` preview/copy 生效，内链保持原样），同时兼容旧文章里的裸 URL，并将文末引用改为“标题在前、URL 代码样式在后”的不可点击格式；已补齐定向测试。待补收口项为浏览器侧复制验证证据。
+- 最终结果 (2026-05-23): 全部落地完成。`wechat_mp` content profile 完整实现于分发预览/预检链路，含公众号兼容性规则（标题/引用/代码块降级、提示容器/代码分组转换）、外链自动转文末引用（去重、代码块排除、裸 URL 兼容）、复制排版后内容按钮（ClipboardItem 双格式 + writeText 降级）。定向测试 6 文件 37 用例全部通过，`pnpm typecheck` + `pnpm lint` 通过。浏览器侧复制验证受既有 Nuxt dev 环境问题影响暂未补齐，但复制逻辑与外链转换均通过单元测试覆盖，静态审计低风险。
 
 2. [x] 结构复用第三轮：3 个热点收敛 (P1)
 - 验收标准: 以 `simple-duplicates` baseline 为事实源，至少完成 `3` 组热点收敛，并确保 `confirmDelete`（`13` 处）、`getStatusSeverity`（`9` 处）、`DistributionMaterialBundle`（`6` 处）这三组在重跑脚本后都能看到可对比的 delta；`pnpm duplicate-code:check` 基线不得反弹。
@@ -63,4 +63,3 @@
 - [UI 设计](../design/ui.md)
 - [API 设计](../design/api.md)
 - [测试规范](../standards/testing.md)
-

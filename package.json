@@ -126,7 +126,7 @@
     "markdown-it-texmath": "^1.0.0",
     "mavon-editor": "^3.0.2",
     "mjml": "^5.2.2",
-    "ms": "4.0.0-nightly.202508271359",
+    "ms": "^4.0.0-nightly.202508271359",
     "music-metadata": "^11.12.3",
     "mysql2": "^3.22.3",
     "nest-winston": "^1.10.2",
@@ -167,6 +167,7 @@
       "workerd"
     ],
     "overrides": {
+      "@nuxt/kit": "^4.4.6",
       "axios": "^1.16.0",
       "js-cookie": "^3.0.7",
       "samlify": "^2.13.0",
