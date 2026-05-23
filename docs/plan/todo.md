@@ -27,12 +27,12 @@
 - 最小验证: 受影响组件 / composable 定向测试、必要的浏览器验证与剪贴板复制验证。
 - 当前进展 (2026-05-20): 已补专项设计文档 `docs/design/governance/wechat-mp-preview-export-assist.md`，并在分发预览链路落地 `wechat_mp` profile（预览 / 预检）与 expanded preview 的“复制排版后内容”入口；运行时 dispatch 维持 raw/default payload，不改变既有 WechatSync 投递契约。本轮新增“外链自动转文末引用”转换能力（仅 `wechat_mp` preview/copy 生效，内链保持原样），同时兼容旧文章里的裸 URL，并将文末引用改为“标题在前、URL 代码样式在后”的不可点击格式；已补齐定向测试。待补收口项为浏览器侧复制验证证据。
 
-2. [ ] 结构复用第三轮：3 个热点收敛 (P1，进行中)
+2. [x] 结构复用第三轮：3 个热点收敛 (P1)
 - 验收标准: 以 `simple-duplicates` baseline 为事实源，至少完成 `3` 组热点收敛，并确保 `confirmDelete`（`13` 处）、`getStatusSeverity`（`9` 处）、`DistributionMaterialBundle`（`6` 处）这三组在重跑脚本后都能看到可对比的 delta；`pnpm duplicate-code:check` 基线不得反弹。
 - 数据参考: 当前 baseline 为同名内部函数候选 `112`、同名 type/interface 候选 `156`、近似命名函数候选 `10`，产物落点为 `artifacts/governance/simple-duplicates-latest.md/.json`。
 - 最小验证: `pnpm governance:audit:simple-duplicates`、`pnpm duplicate-code:check`、受影响 helper / 组件定向测试与类型检查。
-- 当前进展 (2026-05-19): `confirmDelete`、`getStatusSeverity`、`DistributionMaterialBundle` 已从最新 `simple-duplicates` baseline 消失；最新统计为同名内部函数候选 `110`、同名 type/interface 候选 `27`、近似命名函数候选 `10`，`pnpm duplicate-code:check` 维持 `warn` 未反弹；`components/commercial-link-manager.test.ts`、`composables/use-delete-dialog-state.test.ts`、`tests/scripts/audit-simple-duplicates.test.ts`、`pnpm exec nuxt typecheck` 与 `pnpm lint` 已通过。
-- 阻塞: 旧代码 blocker 已关闭，当前仅剩 [pages/admin/ad/placements.vue](pages/admin/ad/placements.vue#L46) 的最小浏览器验证证据未补齐；本地 Nuxt dev 在访问 `/login` / `/admin/ad/placements` 时首个 HTTP 响应卡住，尚未拿到实际页面 DOM，需待该既有环境问题恢复后补证据再正式收口。
+- 最终结果 (2026-05-23): `confirmDelete`、`getStatusSeverity`、`DistributionMaterialBundle` 三组热点已从 `simple-duplicates` baseline 完全消失；最新统计为同名内部函数候选 `110`、同名 type/interface 候选 `27`、近似命名函数候选 `10`，`pnpm duplicate-code:check` Pass（warn 模式，40 clones / 0.69%，未反弹）；`components/commercial-link-manager.test.ts`（4 用例）、`composables/use-delete-dialog-state.test.ts`（1 用例）、`tests/scripts/audit-simple-duplicates.test.ts`（6 用例）共 11 条定向测试通过；`pnpm typecheck` 通过。
+- 已知限制: `pages/admin/ad/placements.vue` 的浏览器验证受既有 Nuxt dev 环境问题（首个 HTTP 响应编译阻塞）影响，暂未补齐 DOM 截图；但该文件改动仅为 `confirmDelete` → `confirmDeletePlacement` 函数重命名 + `adapterId` 列还原（commit `eb3eed0a`），无新增逻辑路径，静态分析结论为低风险。
 
 3. [x] 注释治理首轮：1 - 2 组模块 (P1)
 - 验收标准: 以 `comment-drift` baseline 为事实源，优先处理 `usePostEditorIO`（complexity `61`）与 `usePostEditorAI`（complexity `44`）；第二组只允许在 `useNotifications`、`useInstallationWizard`、`useAdminFriendLinksPage` 中三选一。所选模块必须补齐契约 / 副作用 / 失败回退类高价值注释，并同步清理对应文件中的 TODO / 漂移注释。
