@@ -69,8 +69,8 @@
     "deploy:wrangler": "wrangler deploy"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1052.0",
-    "@aws-sdk/s3-request-presigner": "^3.1052.0",
+    "@aws-sdk/client-s3": "^3.1053.0",
+    "@aws-sdk/s3-request-presigner": "^3.1053.0",
     "@axiomhq/winston": "^1.6.1",
     "@better-auth/sso": "^1.6.11",
     "@mdi/font": "^7.4.47",
@@ -149,7 +149,7 @@
     "web-push": "^3.6.7",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "ws": "^8.20.1",
+    "ws": "^8.21.0",
     "zhlint": "^0.8.2",
     "zod": "^4.4.3"
   },
@@ -225,6 +225,7 @@
   },
   "devDependencies": {
     "@intlify/eslint-plugin-vue-i18n": "4.4.0",
+    "@intlify/shared": "^11.4.4",
     "@lhci/cli": "^0.15.1",
     "@lint-md/cli": "^2.0.0",
     "@nuxt/eslint": "^1.15.2",
