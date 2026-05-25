@@ -48,7 +48,6 @@ jobs:
       - name: Run daily dependency audit
         run: >-
           pnpm run security:audit-deps:daily --
-          --mode=warn
           --output-json=${{ steps.paths.outputs.summary_json }}
           --output-markdown=${{ steps.paths.outputs.summary_md }}
           --run-url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -63,8 +62,12 @@ jobs:
         run: |
           STATUS=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(data.status)" "${{ steps.paths.outputs.summary_json }}")
           CONCLUSION=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(data.conclusion)" "${{ steps.paths.outputs.summary_json }}")
+          REQUIRES_ATTENTION=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(String(Boolean(data.requiresAttention)))" "${{ steps.paths.outputs.summary_json }}")
+          REVIEW_GATE=$(node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));process.stdout.write(data.reviewGate?.conclusion || 'Pass')" "${{ steps.paths.outputs.summary_json }}")
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
           echo "conclusion=$CONCLUSION" >> "$GITHUB_OUTPUT"
+          echo "requires_attention=$REQUIRES_ATTENTION" >> "$GITHUB_OUTPUT"
+          echo "review_gate=$REVIEW_GATE" >> "$GITHUB_OUTPUT"
 
       - name: Upload audit artifact
         uses: actions/upload-artifact@v7
@@ -104,7 +107,7 @@ jobs:
             })
             let activeIssueNumber = null
 
-            if (summary.status !== 'clean') {
+            if (summary.shouldOpenIssue || summary.requiresAttention) {
               const existingIssue = pickDailyDependencyRiskIssueForTitle(existingIssues, title)
 
               if (existingIssue) {
@@ -158,7 +161,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail on risky or failed audit
-        if: steps.audit_status.outputs.status != 'clean'
+        if: steps.audit_status.outputs.requires_attention == 'true'
         run: |
-          echo "Dependency audit requires attention: ${{ steps.audit_status.outputs.conclusion }}"
+          echo "Dependency audit requires attention: ${{ steps.audit_status.outputs.conclusion }} (Review Gate: ${{ steps.audit_status.outputs.review_gate }})"
           exit 1

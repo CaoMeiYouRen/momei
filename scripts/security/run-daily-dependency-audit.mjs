@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
+import { DEPENDENCY_RISK_POLICY_KEYS, classifyDependencyRiskOutcome, resolveDependencyRiskPolicy } from './dependency-risk-policy.mjs'
 import {
     evaluateDependencyRiskGate,
     loadAuditReport,
@@ -14,10 +15,9 @@ import { loadLocalEnvFile } from './load-local-env.mjs'
 const DEFAULTS = {
     allowlist: '.github/security/dependency-risk-allowlist.json',
     input: null,
-    minSeverity: 'high',
-    mode: 'warn',
     outputJson: 'artifacts/security/daily-dependency-audit/latest.json',
     outputMarkdown: 'artifacts/security/daily-dependency-audit/latest.md',
+    policy: 'daily',
     registry: 'https://registry.npmjs.org/',
     runUrl: '',
 }
@@ -36,13 +36,24 @@ function parseArgs(argv) {
             },
             '--output-json': { key: 'outputJson' },
             '--output-markdown': { key: 'outputMarkdown' },
+            '--policy': {
+                key: 'policy',
+                allowedValues: DEPENDENCY_RISK_POLICY_KEYS,
+                invalidMessage: (value) => `Unsupported dependency risk policy: ${value}`,
+            },
             '--registry': { key: 'registry' },
             '--run-url': { key: 'runUrl' },
         },
     })
 
-    args.minSeverity = normalizeSeverity(args.minSeverity)
-    return args
+    const policy = resolveDependencyRiskPolicy(args.policy)
+
+    return {
+        ...args,
+        minSeverity: normalizeSeverity(args.minSeverity || policy.minSeverity),
+        mode: args.mode || policy.defaultMode,
+        policy: policy.key,
+    }
 }
 
 function isFixableRisk(risk) {
@@ -89,17 +100,25 @@ export function buildDailyDependencyAuditSummary({
     allowlist,
     generatedAt,
     minSeverity,
+    policy,
     registry,
     result,
     risks,
     runUrl,
 }) {
+    const resolvedPolicy = typeof policy === 'string'
+        ? resolveDependencyRiskPolicy(policy)
+        : resolveDependencyRiskPolicy(policy.key)
     const blockingRisks = result.blocking.map(toSerializableRisk)
     const allowlistedRisks = result.allowlisted.map((item) => ({
         ...toSerializableRisk(item.risk),
         allowlistReason: item.allowlistEntry.reason,
         temporaryException: item.allowlistEntry.temporaryException,
     }))
+    const reviewGate = classifyDependencyRiskOutcome({
+        blockingRiskCount: blockingRisks.length,
+        policy: resolvedPolicy,
+    })
     const counts = {
         relevant: result.relevantRisks.length,
         allowlisted: allowlistedRisks.length,
@@ -114,8 +133,18 @@ export function buildDailyDependencyAuditSummary({
             counts,
             generatedAt,
             minSeverity,
+            policy: {
+                defaultMode: resolvedPolicy.defaultMode,
+                findingLevels: resolvedPolicy.findingLevels,
+                issueThreshold: resolvedPolicy.issueThreshold,
+                key: resolvedPolicy.key,
+                title: resolvedPolicy.title,
+            },
             registry,
+            requiresAttention: reviewGate.requiresAttention,
+            reviewGate,
             runUrl,
+            shouldOpenIssue: reviewGate.shouldOpenIssue,
             status: 'clean',
             summary: '当前 high 及以上依赖风险门禁通过。',
             allowlistedRisks,
@@ -129,8 +158,18 @@ export function buildDailyDependencyAuditSummary({
         counts,
         generatedAt,
         minSeverity,
+        policy: {
+            defaultMode: resolvedPolicy.defaultMode,
+            findingLevels: resolvedPolicy.findingLevels,
+            issueThreshold: resolvedPolicy.issueThreshold,
+            key: resolvedPolicy.key,
+            title: resolvedPolicy.title,
+        },
         registry,
+        requiresAttention: reviewGate.requiresAttention,
+        reviewGate,
         runUrl,
+        shouldOpenIssue: reviewGate.shouldOpenIssue,
         status: 'risk_found',
         summary: counts.fixable > 0
             ? `发现 ${counts.fixable} 项可直接处理的 high+ 风险。`
@@ -145,9 +184,18 @@ export function buildDailyDependencyAuditFailureSummary({
     error,
     generatedAt,
     minSeverity,
+    policy,
     registry,
     runUrl,
 }) {
+    const resolvedPolicy = typeof policy === 'string'
+        ? resolveDependencyRiskPolicy(policy)
+        : resolveDependencyRiskPolicy(policy.key)
+    const reviewGate = classifyDependencyRiskOutcome({
+        auditFailed: true,
+        policy: resolvedPolicy,
+    })
+
     return {
         allowlist,
         conclusion: '审计执行失败',
@@ -162,8 +210,18 @@ export function buildDailyDependencyAuditFailureSummary({
         error: error instanceof Error ? error.message : String(error),
         generatedAt,
         minSeverity,
+        policy: {
+            defaultMode: resolvedPolicy.defaultMode,
+            findingLevels: resolvedPolicy.findingLevels,
+            issueThreshold: resolvedPolicy.issueThreshold,
+            key: resolvedPolicy.key,
+            title: resolvedPolicy.title,
+        },
         registry,
+        requiresAttention: reviewGate.requiresAttention,
+        reviewGate,
         runUrl,
+        shouldOpenIssue: reviewGate.shouldOpenIssue,
         status: 'audit_failed',
         summary: '依赖风险审计未能完成，需先排查 registry、网络或 pnpm audit 执行链路。',
         allowlistedRisks: [],
@@ -195,6 +253,8 @@ export function renderDailyDependencyAuditMarkdown(summary) {
         `- 生成时间: ${summary.generatedAt}`,
         `- 数据源: pnpm audit (${summary.registry})`,
         `- 最小严重级别: ${summary.minSeverity}`,
+        `- 守护策略: ${summary.policy?.key || 'unknown'} (${summary.policy?.title || 'unknown policy'})`,
+        `- Review Gate: ${summary.reviewGate?.conclusion || 'Pass'} / ${summary.reviewGate?.findingLevel || 'none'}`,
         `- Allowlist: ${summary.allowlist}`,
         `- 运行链接: ${summary.runUrl || '未提供'}`,
         '',
@@ -264,6 +324,7 @@ async function runDailyDependencyAudit(args) {
         allowlist: args.allowlist,
         generatedAt: new Date().toISOString(),
         minSeverity: args.minSeverity,
+        policy: args.policy,
         registry: args.registry,
         result,
         risks,
@@ -285,6 +346,7 @@ async function main() {
             error,
             generatedAt: new Date().toISOString(),
             minSeverity: args.minSeverity,
+            policy: args.policy,
             registry: args.registry,
             runUrl: args.runUrl,
         })
@@ -293,15 +355,17 @@ async function main() {
     const { jsonPath, markdownPath } = await writeOutputs(args, summary)
 
     console.info(`[dependency-risk-daily] ${summary.conclusion}`)
+    console.info(`[dependency-risk-daily] Review Gate: ${summary.reviewGate.conclusion} (${summary.reviewGate.findingLevel})`)
     console.info(`[dependency-risk-daily] JSON: ${jsonPath}`)
     console.info(`[dependency-risk-daily] Markdown: ${markdownPath}`)
 
-    if (summary.status !== 'clean' && args.mode === 'error') {
+    if (summary.requiresAttention && args.mode === 'error') {
         process.exitCode = 1
     }
 }
 
 export {
+    classifyDependencyRiskOutcome,
     parseArgs,
     runDailyDependencyAudit,
 }

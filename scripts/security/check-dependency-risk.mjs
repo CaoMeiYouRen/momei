@@ -3,12 +3,12 @@ import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
+import { classifyDependencyRiskOutcome, DEPENDENCY_RISK_POLICY_KEYS, resolveDependencyRiskPolicy } from './dependency-risk-policy.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const DEFAULTS = {
     allowlist: '.github/security/dependency-risk-allowlist.json',
-    minSeverity: 'high',
-    mode: 'error',
+    policy: 'release',
     registry: 'https://registry.npmjs.org/',
 }
 
@@ -55,12 +55,23 @@ function parseArgs(argv) {
                 allowedValues: ['warn', 'error'],
                 invalidMessage: (value) => `Unsupported mode: ${value}`,
             },
+            '--policy': {
+                key: 'policy',
+                allowedValues: DEPENDENCY_RISK_POLICY_KEYS,
+                invalidMessage: (value) => `Unsupported dependency risk policy: ${value}`,
+            },
             '--registry': { key: 'registry' },
         },
     })
 
-    args.minSeverity = normalizeSeverity(args.minSeverity)
-    return args
+    const policy = resolveDependencyRiskPolicy(args.policy)
+
+    return {
+        ...args,
+        minSeverity: normalizeSeverity(args.minSeverity || policy.minSeverity),
+        mode: args.mode || policy.defaultMode,
+        policy: policy.key,
+    }
 }
 
 function resolveAdvisoryId(candidate) {
@@ -416,6 +427,7 @@ async function main() {
     await loadLocalEnvFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..'))
 
     const args = parseArgs(process.argv)
+    const policy = resolveDependencyRiskPolicy(args.policy)
     const [allowlistEntries, auditReport] = await Promise.all([
         readAllowlist(args.allowlist),
         loadAuditReport(args),
@@ -427,12 +439,18 @@ async function main() {
         allowlistEntries,
         minSeverity: args.minSeverity,
     })
+    const reviewGate = classifyDependencyRiskOutcome({
+        blockingRiskCount: result.blocking.length,
+        policy,
+    })
 
     console.info('Dependency Risk Gate')
+    console.info(`- policy: ${policy.key}`)
     console.info(`- source: pnpm audit (${args.registry})`)
     console.info(`- min severity: ${args.minSeverity}`)
     console.info(`- allowlist: ${args.allowlist}`)
     console.info(`- relevant risks: ${result.relevantRisks.length}`)
+    console.info(`- review gate: ${reviewGate.conclusion} (${reviewGate.findingLevel})`)
 
     if (result.allowlisted.length > 0) {
         console.info('\nAllowlisted risks:')
@@ -446,7 +464,7 @@ async function main() {
         result.blocking.forEach((risk) => {
             printRisk(risk)
         })
-        if (args.mode === 'error') {
+        if (reviewGate.conclusion === 'Reject' && args.mode === 'error') {
             process.exitCode = 1
         }
         return
@@ -457,6 +475,7 @@ async function main() {
 
 export {
     assertSupportedAuditReport,
+    classifyDependencyRiskOutcome,
     evaluateDependencyRiskGate,
     loadAuditReport,
     main,

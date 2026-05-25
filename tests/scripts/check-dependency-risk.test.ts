@@ -9,6 +9,7 @@ import {
     evaluateDependencyRiskGate,
     main as dependencyRiskMain,
     normalizeAllowlistDefinition,
+    parseArgs,
     parseAuditReport,
 } from '@/scripts/security/check-dependency-risk.mjs'
 
@@ -53,6 +54,25 @@ describe('check-dependency-risk', () => {
             severity: 'high',
         })
         expect(risks[0].paths).toEqual(['.>mjml>mjml-cli>html-minifier'])
+    })
+
+    it('defaults to the release dependency risk policy and supports explicit overrides', () => {
+        expect(parseArgs(['node', 'check-dependency-risk.mjs'])).toMatchObject({
+            minSeverity: 'high',
+            mode: 'error',
+            policy: 'release',
+        })
+
+        expect(parseArgs([
+            'node',
+            'check-dependency-risk.mjs',
+            '--policy=daily',
+            '--mode=error',
+        ])).toMatchObject({
+            minSeverity: 'high',
+            mode: 'error',
+            policy: 'daily',
+        })
     })
 
     it('allows known high risks while still blocking new high and critical risks', () => {

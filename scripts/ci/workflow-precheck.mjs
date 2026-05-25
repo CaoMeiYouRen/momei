@@ -4,6 +4,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
+import { isBlockingGuardFindingLevel, normalizeGuardFindingLevel } from '../shared/guard-strategy.mjs'
+import { resolveDependencyRiskPolicy } from '../security/dependency-risk-policy.mjs'
 import {
     resolveRegressionWindowPath,
     toPosixRelativePath,
@@ -40,32 +42,50 @@ function createTruthyEnvRequirement(name, error) {
 }
 
 function createFileCheckStep(label, files, options = {}) {
+    const failureLevel = normalizeGuardFindingLevel(options.failureLevel ?? 'blocker')
+
     return {
+        failureLevel,
         files,
         label,
-        required: options.required ?? true,
+        required: options.required ?? isBlockingGuardFindingLevel(failureLevel),
         type: 'file-check',
     }
 }
 
 function createEnvCheckStep(label, requirements, options = {}) {
+    const failureLevel = normalizeGuardFindingLevel(options.failureLevel ?? 'blocker')
+
     return {
+        failureLevel,
         label,
-        required: options.required ?? true,
+        required: options.required ?? isBlockingGuardFindingLevel(failureLevel),
         requirements,
         type: 'env-check',
     }
 }
 
 function createCommandStep(label, command, commandArgs, options = {}) {
+    const failureLevel = normalizeGuardFindingLevel(options.failureLevel ?? 'blocker')
+
     return {
         command,
         commandArgs,
+        failureLevel,
         label,
-        required: options.required ?? true,
+        required: options.required ?? isBlockingGuardFindingLevel(failureLevel),
         timeoutBudget: options.timeoutBudget ?? '10m',
         type: 'command',
     }
+}
+
+function createDependencyRiskGateStep() {
+    const releasePolicy = resolveDependencyRiskPolicy('release')
+
+    return createCommandStep('security:audit-deps', 'pnpm', ['run', 'security:audit-deps'], {
+        failureLevel: releasePolicy.findingLevels.blockingRisk,
+        timeoutBudget: '10m',
+    })
 }
 
 function dedupeItems(items) {
@@ -149,9 +169,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 ...COMMON_ENV_REQUIREMENTS,
                 ...RELEASE_PUBLISH_ENV_REQUIREMENTS,
             ]),
-            createCommandStep('security:audit-deps', 'pnpm', ['run', 'security:audit-deps'], {
-                timeoutBudget: '10m',
-            }),
+            createDependencyRiskGateStep(),
         ],
     },
     test: {
@@ -165,9 +183,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 'scripts/testing/run-e2e.mjs',
             ])),
             createEnvCheckStep('test environment', COMMON_ENV_REQUIREMENTS),
-            createCommandStep('security:audit-deps', 'pnpm', ['run', 'security:audit-deps'], {
-                timeoutBudget: '10m',
-            }),
+            createDependencyRiskGateStep(),
         ],
     },
     docker: {
@@ -183,9 +199,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 ...COMMON_ENV_REQUIREMENTS,
                 ...DOCKER_PUBLISH_ENV_REQUIREMENTS,
             ]),
-            createCommandStep('security:audit-deps', 'pnpm', ['run', 'security:audit-deps'], {
-                timeoutBudget: '10m',
-            }),
+            createDependencyRiskGateStep(),
         ],
     },
 }
@@ -384,8 +398,11 @@ export function summarizeWorkflowPrecheck({ dryRun = false, mode = 'error', resu
         }
 
         const summary = `${result.label} failed`
+        const failureLevel = normalizeGuardFindingLevel(
+            result.failureLevel ?? (result.required ? 'blocker' : 'warning'),
+        )
 
-        if (result.required) {
+        if (isBlockingGuardFindingLevel(failureLevel)) {
             blockers.push(summary)
         } else {
             warnings.push(summary)
@@ -442,10 +459,14 @@ export function buildEvidence({
 
     for (const result of results) {
         const commandText = result.command ? [result.command, ...(result.commandArgs || [])].join(' ') : 'n/a'
+        const failureLevel = normalizeGuardFindingLevel(
+            result.failureLevel ?? (result.required ? 'blocker' : 'warning'),
+        )
 
         lines.push(`### ${result.label}`)
         lines.push(`- 结果: ${getResultStatus(result)}`)
         lines.push(`- required: ${result.required ? 'yes' : 'no'}`)
+        lines.push(`- finding level: ${failureLevel}`)
         lines.push(`- 类型: ${result.type}`)
         lines.push(`- 命令: ${commandText}`)
         lines.push(`- 耗时: ${(result.durationMs / 1000).toFixed(1)}s`)

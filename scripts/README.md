@@ -11,7 +11,7 @@
 | `release` | `pnpm release:check` / `pnpm release:check:full` | 可选 `--skip-test`、`--skip-e2e`、`--mode=warn|error` | 控制台验证摘要；`artifacts/release/` 下的发布前证据 | 默认会跑 lint、typecheck、安全 / 文档检查；`full` 会升级补跑 Vitest 与 E2E，避免在未评估预算时直接使用 | 正式入口 |
 | `review-gate` | `pnpm review-gate:generate` / `pnpm review-gate:generate:check` / `pnpm duplicate-code:check` | 可选 `--run-checks`、`--scope=<change>`、`--mode=warn|error` | Review Gate 证据 Markdown / JSON；重复代码审计产物 | 以证据生成和只读审计为主；`generate:check` 会主动拉起更多校验，适合阶段收口或发版前 | 正式入口 |
 | `governance` | `pnpm governance:check:scripts` / `pnpm governance:audit:simple-duplicates` / `pnpm governance:audit:eslint-debt` / `pnpm governance:audit:comment-drift` | 默认输出 `artifacts/governance/*.json` + `.md`；可选 `--output`、`--root=<dir>` | 脚本目录健康体检、简单重复候选、ESLint / 类型债分桶与注释漂移候选的 baseline | `check:scripts` 已进入 weekly warning 基线；其余治理入口先保持独立只读 baseline，不直接阻断回归 | 正式入口 |
-| `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、最小严重级别、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 默认按 high+ 阻断；`audit-deps:daily` 产出每日结构化摘要并供调度入口消费；本地会尝试补装 `.env` 中的 token，但不会覆盖已显式传入变量 | 正式入口 |
+| `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、策略档位、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 与 `audit-deps:daily` 共用同一份依赖风险策略表；同类 high+ 风险在 release 与 daily 下保持同级结论，区别只在触发时机与告警收口 | 正式入口 |
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:line-count` / `pnpm docs:check:source-of-truth` / `pnpm docs:check:line-count:candidate` / `pnpm docs:check:source-of-truth:candidate` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页、文档膨胀与事实源 / freshness 漂移结论 | 默认入口维持 blocker；`candidate` 入口只输出 warning baseline，用于评估扩面与收紧影响 | 正式入口 |
 | `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` / `pnpm i18n:audit:duplicates` / `pnpm i18n:verify:runtime` | 可选 CLI 参数、locale / module 过滤器、`--output` | locale key 缺口、同步偏差、跨语言重复文案候选、高频运行时回归 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
@@ -28,7 +28,7 @@
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
 | `scripts/release/` | `pre-release-check.mjs` | `pnpm release:check`、`pnpm release:check:full` | 汇总 lint、typecheck、安全、文档与按需测试的发布前门禁，并落盘证据 | 保留 |
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
-| `scripts/security/` | `check-dependency-risk.mjs`、`run-daily-dependency-audit.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:audit-deps:daily`、`pnpm security:alerts`、`.github/workflows/release.yml`、`.github/workflows/dependency-risk-daily.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；每日巡检包装脚本会产出三态摘要并供调度入口上传 artifact / 触发告警；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
+| `scripts/security/` | `check-dependency-risk.mjs`、`run-daily-dependency-audit.mjs`、`dependency-risk-policy.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:audit-deps:daily`、`pnpm security:alerts`、`.github/workflows/release.yml`、`.github/workflows/dependency-risk-daily.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；`dependency-risk-policy.mjs` 统一维护 release / daily 的最小严重级别、finding level 与 issue 阈值；每日巡检包装脚本会产出结构化 Review Gate 摘要并供调度入口上传 artifact / 触发告警；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-line-count.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate` | 只读检查文档重复、膨胀、翻译同步与事实源一致性 | 保留 |
 | `scripts/i18n/` | `audit-locale-keys.mjs`、`audit-duplicate-messages.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`、`pnpm i18n:audit:duplicates`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、跨语言重复文案候选、拆分翻译文件 | 保留 |
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
@@ -89,6 +89,12 @@ pnpm perf:fs-watch:probe:dev
 
 - JSON 摘要：用于 workflow 解析三类结论（无高危风险 / 发现可修复风险 / 审计执行失败）并决定是否告警。
 - Markdown 摘要：用于写入 GitHub Actions Job Summary，并作为 artifact 一部分保留近线追溯记录。
+
+两条依赖风险入口共用 `scripts/security/dependency-risk-policy.mjs`：
+
+- `release` 策略驱动 `pnpm security:audit-deps`，默认以 `high` 为最小严重级别，并把命中的依赖风险与审计失败都视为 blocker。
+- `daily` 策略驱动 `pnpm security:audit-deps:daily`，沿用同一最小严重级别与 finding level，但额外在 JSON / Markdown 中暴露 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue`，供 workflow 和 issue 收口消费。
+- 若后续要调整同类风险的 blocker / warning 口径，应优先修改策略表，而不是分别改 package script、workflow 条件和 issue 同步逻辑。
 
 `.github/workflows/dependency-risk-daily.yml` 则负责每天触发一次该脚本，并执行以下收口动作：
 

@@ -68,6 +68,7 @@
 	- 非目标：不把所有 daily warning 升级为发版 blocker；不新增独立的第三套依赖风险入口。
 	- 最小验收：策略表可读、可审计，新增规则不需要改 workflow 结构；同一类风险在 daily 与 release 前的结论一致，只有时机差异。
 	- 证据落点：守护策略配置、依赖审计入口定向执行结果、对应文档摘要。
+	- 2026-05-25：已新增共享策略表 `scripts/security/dependency-risk-policy.mjs`，`security:audit-deps` / `security:audit-deps:daily` / `scripts/ci/workflow-precheck.mjs` 已统一读取同一套 dependency-risk finding level；daily 摘要新增 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue` 字段，定向验证覆盖 `tests/scripts/check-dependency-risk.test.ts`、`tests/scripts/run-daily-dependency-audit.test.ts` 与 `tests/scripts/workflow-precheck.test.ts`。
 
 ## 相关文档
 

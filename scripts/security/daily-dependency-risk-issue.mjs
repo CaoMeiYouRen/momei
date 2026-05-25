@@ -54,6 +54,8 @@ export function buildDailyDependencyRiskIssueBody(summary) {
         '## 最新结论',
         `- 状态: ${summary.conclusion}`,
         `- 摘要: ${summary.summary}`,
+        `- 守护策略: ${summary.policy?.key || 'unknown'}`,
+        `- Review Gate: ${summary.reviewGate?.conclusion || 'Pass'} / ${summary.reviewGate?.findingLevel || 'none'}`,
         `- 运行链接: ${summary.runUrl || '未提供'}`,
         `- Relevant 风险数: ${summary.counts.relevant}`,
         `- Blocking 风险数: ${summary.counts.blocking}`,

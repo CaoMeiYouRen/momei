@@ -2,16 +2,26 @@ import { describe, expect, it } from 'vitest'
 import {
     buildDailyDependencyAuditFailureSummary,
     buildDailyDependencyAuditSummary,
+    parseArgs,
     renderDailyDependencyAuditMarkdown,
 } from '@/scripts/security/run-daily-dependency-audit.mjs'
 import { evaluateDependencyRiskGate, parseAuditReport } from '@/scripts/security/check-dependency-risk.mjs'
 
 describe('run-daily-dependency-audit', () => {
+    it('defaults to the daily dependency risk policy', () => {
+        expect(parseArgs(['node', 'run-daily-dependency-audit.mjs'])).toMatchObject({
+            minSeverity: 'high',
+            mode: 'warn',
+            policy: 'daily',
+        })
+    })
+
     it('returns a clean summary when no blocking high risks remain', () => {
         const summary = buildDailyDependencyAuditSummary({
             allowlist: '.github/security/dependency-risk-allowlist.json',
             generatedAt: '2026-04-06T00:00:00.000Z',
             minSeverity: 'high',
+            policy: 'daily',
             registry: 'https://registry.npmjs.org/',
             result: {
                 allowlisted: [],
@@ -24,7 +34,63 @@ describe('run-daily-dependency-audit', () => {
 
         expect(summary.status).toBe('clean')
         expect(summary.conclusion).toBe('无高危风险')
+        expect(summary.reviewGate).toMatchObject({
+            conclusion: 'Pass',
+            findingLevel: 'none',
+        })
         expect(renderDailyDependencyAuditMarkdown(summary)).toContain('当前 high 及以上依赖风险门禁通过')
+    })
+
+    it('keeps the same blocker conclusion for blocking risks as the release gate', () => {
+        const summary = buildDailyDependencyAuditSummary({
+            allowlist: '.github/security/dependency-risk-allowlist.json',
+            generatedAt: '2026-05-25T12:00:00.000Z',
+            minSeverity: 'high',
+            policy: 'daily',
+            registry: 'https://registry.npmjs.org/',
+            result: {
+                allowlisted: [],
+                blocking: [{
+                    advisoryId: 'GHSA-risk',
+                    packageName: 'vite',
+                    patchedVersions: 'vite@7.3.9',
+                    paths: ['node_modules/vite'],
+                    recommendation: 'Upgrade vite to 7.3.9',
+                    severity: 'high',
+                    source: 'https://github.com/advisories/GHSA-risk',
+                    title: 'vite risk',
+                }],
+                relevantRisks: [{
+                    advisoryId: 'GHSA-risk',
+                    packageName: 'vite',
+                    patchedVersions: 'vite@7.3.9',
+                    paths: ['node_modules/vite'],
+                    recommendation: 'Upgrade vite to 7.3.9',
+                    severity: 'high',
+                    source: 'https://github.com/advisories/GHSA-risk',
+                    title: 'vite risk',
+                }],
+            },
+            risks: [{
+                advisoryId: 'GHSA-risk',
+                packageName: 'vite',
+                patchedVersions: 'vite@7.3.9',
+                paths: ['node_modules/vite'],
+                recommendation: 'Upgrade vite to 7.3.9',
+                severity: 'high',
+                source: 'https://github.com/advisories/GHSA-risk',
+                title: 'vite risk',
+            }],
+            runUrl: 'https://example.com/runs/1',
+        })
+
+        expect(summary.status).toBe('risk_found')
+        expect(summary.reviewGate).toMatchObject({
+            conclusion: 'Reject',
+            findingLevel: 'blocker',
+        })
+        expect(summary.requiresAttention).toBe(true)
+        expect(summary.shouldOpenIssue).toBe(true)
     })
 
     it('classifies blocking risks into fixable and unfixable buckets', () => {
@@ -32,6 +98,7 @@ describe('run-daily-dependency-audit', () => {
             allowlist: '.github/security/dependency-risk-allowlist.json',
             generatedAt: '2026-04-06T00:00:00.000Z',
             minSeverity: 'high',
+            policy: 'daily',
             registry: 'https://registry.npmjs.org/',
             result: {
                 allowlisted: [],
@@ -77,6 +144,7 @@ describe('run-daily-dependency-audit', () => {
             allowlist: '.github/security/dependency-risk-allowlist.json',
             generatedAt: '2026-04-06T00:00:00.000Z',
             minSeverity: 'high',
+            policy: 'daily',
             registry: 'https://registry.npmjs.org/',
             result: {
                 allowlisted: [],
@@ -130,6 +198,7 @@ describe('run-daily-dependency-audit', () => {
             allowlist: '.github/security/dependency-risk-allowlist.json',
             generatedAt: '2026-04-06T00:00:00.000Z',
             minSeverity: 'high',
+            policy: 'daily',
             registry: 'https://registry.npmjs.org/',
             result,
             risks,
@@ -140,18 +209,24 @@ describe('run-daily-dependency-audit', () => {
         expect(summary.conclusion).toBe('发现高危风险（暂无直接修复版本）')
     })
 
-    it('returns an audit failure summary when execution fails', () => {
+    it('marks audit failures with the same blocker-level review gate', () => {
         const summary = buildDailyDependencyAuditFailureSummary({
             allowlist: '.github/security/dependency-risk-allowlist.json',
             error: new Error('registry unavailable'),
-            generatedAt: '2026-04-06T00:00:00.000Z',
+            generatedAt: '2026-05-25T12:00:00.000Z',
             minSeverity: 'high',
+            policy: 'daily',
             registry: 'https://registry.npmjs.org/',
-            runUrl: 'https://github.com/CaoMeiYouRen/momei/actions/runs/3',
+            runUrl: 'https://example.com/runs/1',
         })
 
         expect(summary.status).toBe('audit_failed')
-        expect(summary.conclusion).toBe('审计执行失败')
+        expect(summary.reviewGate).toMatchObject({
+            conclusion: 'Reject',
+            findingLevel: 'blocker',
+        })
+        expect(summary.requiresAttention).toBe(true)
+        expect(summary.shouldOpenIssue).toBe(true)
         expect(renderDailyDependencyAuditMarkdown(summary)).toContain('registry unavailable')
     })
 })

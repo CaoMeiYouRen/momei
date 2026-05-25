@@ -101,12 +101,14 @@ describe('workflow-precheck', () => {
             mode: 'error',
             results: [
                 {
+                    failureLevel: 'blocker',
                     label: 'release environment',
                     ok: false,
                     required: true,
                     skipped: false,
                 },
                 {
+                    failureLevel: 'warning',
                     label: 'optional warning',
                     ok: false,
                     required: false,
@@ -149,6 +151,7 @@ describe('workflow-precheck', () => {
                     command: 'pnpm',
                     commandArgs: ['run', 'security:audit-deps'],
                     durationMs: 0,
+                    failureLevel: 'blocker',
                     label: 'security:audit-deps',
                     ok: true,
                     output: 'Skipped in dry-run mode.',
@@ -167,6 +170,7 @@ describe('workflow-precheck', () => {
         expect(evidence).toContain('Review Gate Record — workflow precheck (test)')
         expect(evidence).toContain('- 调度入口: pnpm run ci:precheck -- --profile=test')
         expect(evidence).toContain('- 结论: Prepared')
+        expect(evidence).toContain('- finding level: blocker')
         expect(evidence).toContain('- 结果: DRY RUN')
     })
 
