@@ -7,6 +7,7 @@
     "release:check": "node scripts/release/pre-release-check.mjs --skip-test --skip-e2e",
     "release:check:full": "node scripts/release/pre-release-check.mjs",
     "release:semantic": "semantic-release",
+    "ci:precheck": "node scripts/ci/workflow-precheck.mjs",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=6144 nuxt build",
     "dev": "nuxt dev -o",
     "generate": "cross-env NODE_OPTIONS=--max-old-space-size=6144 nuxt generate",

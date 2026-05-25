@@ -12,8 +12,45 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false # Release 作业不取消，因为要确保版本发布成功
 jobs:
+  precheck:
+    name: Pre-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11"
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Run shared CI pre-check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+        run: pnpm run ci:precheck -- --profile=release
+      - name: Upload pre-check artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-precheck-release
+          path: |
+            artifacts/review-gate/*-ci-precheck-release.md
+            artifacts/review-gate/*-ci-precheck-release.json
+          if-no-files-found: warn
+
   qa:
     name: QA
+    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -38,6 +75,7 @@ jobs:
       - run: pnpm run build
   unit:
     name: Unit
+    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -57,6 +95,7 @@ jobs:
       - run: pnpm run test
   e2e:
     name: E2E
+    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -104,8 +143,6 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      - name: Audit dependency risk gate
-        run: pnpm run security:audit-deps
       - name: Audit GitHub security alerts gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
