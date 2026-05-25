@@ -24,11 +24,12 @@
 
 #### A. 发布前守护轨
 
-1. [ ] **CI 前置守护脚本接入首轮落地 (P0)**
+1. [x] **CI 前置守护脚本接入首轮落地 (P0)**
 	- 执行范围：在正式执行主命令前增加统一 pre-check，并要求 release/test/docker 三条 workflow 复用同一入口。
 	- 非目标：不重写全部 workflow；不在本轮把所有 warning 一次性升级为 blocker。
 	- 最小验收：release/test/docker 三条 workflow 在执行主体前都调用同一守护入口；至少覆盖依赖风险、关键脚本存在性、必要环境检查。
 	- 证据落点：workflow 变更记录、守护入口定向执行结果、至少一条失败样本定位记录。
+	- 2026-05-25：共享入口 `pnpm ci:precheck -- --profile=<workflow>` 已接入三条 workflow；首轮执行摘要与失败样本定位记录已回写到 [活动回归窗口](../reports/regression/current.md)。
 
 2. [ ] **发布链路最小回归闸门收紧 (P0)**
 	- 执行范围：把已有 release:check / regression 脚本编排成固定顺序，先解决本地与 CI 执行顺序不一致的问题。

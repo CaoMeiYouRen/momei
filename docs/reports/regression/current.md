@@ -9,6 +9,41 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-25 第四十阶段 CI 前置守护脚本接入首轮落地（P0）
+
+### 范围
+
+- 目标：确认共享 `ci:precheck` 入口已经被 `release / test / docker` 三条 workflow 复用，并补齐首轮执行证据与失败样本定位记录；本轮不重写 workflow 主体，也不并行推进第二条 P0 的回归顺序收紧。
+- 本轮覆盖：[package.json](../../../package.json)、[.github/workflows/release.yml](../../../.github/workflows/release.yml)、[.github/workflows/test.yml](../../../.github/workflows/test.yml)、[.github/workflows/docker.yml](../../../.github/workflows/docker.yml)、[scripts/ci/workflow-precheck.mjs](../../../scripts/ci/workflow-precheck.mjs)、[tests/scripts/workflow-precheck.test.ts](../../../tests/scripts/workflow-precheck.test.ts) 与 [docs/plan/todo.md](../../plan/todo.md)。
+- 非目标：不把所有 warning 一次性升级为 blocker，不改写 [scripts/release/pre-release-check.mjs](../../../scripts/release/pre-release-check.mjs) 的发布前校验矩阵，也不把其他 workflow 一并接入本轮范围。
+
+### 实施结论
+
+- 共享入口已经就位：[.github/workflows/release.yml](../../../.github/workflows/release.yml)、[.github/workflows/test.yml](../../../.github/workflows/test.yml) 与 [.github/workflows/docker.yml](../../../.github/workflows/docker.yml) 均在主体 job 之前执行 `pnpm run ci:precheck -- --profile=<workflow>`，并统一指向 [scripts/ci/workflow-precheck.mjs](../../../scripts/ci/workflow-precheck.mjs)。
+- `test` profile 的真实执行样本已经通过：本轮验证了 `8` 个关键文件、`5` 个 GitHub Actions 必需环境变量，并在执行 `security:audit-deps` 后确认 `high+` 依赖风险为 `0`。
+- `release` profile 的失败样本已能在主体命令前稳定定位到凭据缺失：当只提供通用 CI 变量与占位 `GITHUB_TOKEN` 时，入口会在 `release environment` 步骤直接给出 `DOCKER_USERNAME / DOCKER_PASSWORD / ALIYUN_USERNAME / ALIYUN_PASSWORD` 缺失结论，而不会继续进入后续命令。
+- 本轮同时生成了本地 Review Gate artifact：`artifacts/review-gate/2026-05-25-ci-precheck-test.{md,json}` 与 `artifacts/review-gate/2026-05-25-ci-precheck-release.{md,json}`；由于 `artifacts/` 目录默认被 Git 忽略，正式近线结论回写到本文件作为可追溯事实源。
+
+### 已执行验证
+
+- `pnpm exec vitest run tests/scripts/workflow-precheck.test.ts`
+	- 结果：通过；`1` 个文件、`7` 个测试全部通过，覆盖 profile 暴露、环境 / 文件检查、证据生成与 dry-run artifact 落盘。
+- `CI=true GITHUB_ACTIONS=true GITHUB_WORKFLOW=test GITHUB_SHA=local-precheck-pass GITHUB_REF=refs/heads/master pnpm run ci:precheck -- --profile=test`
+	- 结果：通过；`test critical files`、`test environment` 与 `security:audit-deps` 全部通过，其中依赖风险检查返回 `relevant risks: 0`。
+- `CI=true GITHUB_ACTIONS=true GITHUB_WORKFLOW=release GITHUB_SHA=local-precheck-fail GITHUB_REF=refs/heads/master GITHUB_TOKEN=dummy pnpm run ci:precheck -- --profile=release`
+	- 结果：按预期失败；入口在 `release environment` 步骤阻断，失败信息可直接定位到缺失的 Docker / Aliyun 发布凭据，满足“至少一条失败样本定位记录”的最小验收。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮在本地只能验证 `test` profile 的真实成功样本，以及 `release` profile 的失败定位样本；`release` / `docker` 的真实发布凭据路径仍需依赖 GitHub Actions 运行时 secrets 做最终闭环，但这不阻塞当前 P0 的首轮落地判定。
+
+### 未覆盖边界
+
+- 本轮没有在本地复现携带真实 secrets 的 `release` / `docker` 成功路径，因此发布侧凭据注入与 registry 登录仍以 workflow 运行时为准。
+- 本轮只关闭“统一 pre-check 入口接入”这一条 P0，尚未并行处理“发布链路最小回归闸门收紧 (P0)”的固定顺序与标准化摘要收口。
+
 ## 2026-05-23 第三十九阶段归档对账与文档同步
 
 ### 范围
