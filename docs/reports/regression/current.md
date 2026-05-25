@@ -9,6 +9,18 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+<!-- regression-window:start:typeorm-assessment:第四十阶段:2026-05-25 -->
+## 2026-05-25 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
+
+- 执行入口: `pnpm regression:typeorm-assessment`
+- 事实源: [docs/design/governance/typeorm-v1-upgrade-assessment.md](../../design/governance/typeorm-v1-upgrade-assessment.md)
+- 结果摘要: 当前建议：`NO-GO（直接升级）`。首轮 probe 已证明适配层与初始化层不是首个 blocker，但 `typecheck` 仍显示 `select` / `relations` 旧语法迁移面较大，主工作区剩余基线为 `22` 处字符串数组 `select` 与 `38` 处字符串数组 `relations`。；当前建议：`GO（评估任务上收）`。；下一触发点：先完成 `FindOptionsSelect` / `FindOptionsRelations` 语法迁移、隔离 `packages/**` 的 typecheck 噪音并重跑 `pnpm run typecheck`；待最小验证矩阵全绿后，再决定是否把“真实升级实施”写入后续阶段。
+- 已执行验证: 已同步设计文档中的 7 条首轮 probe 记录。
+- Review Gate: `Pass` / `warning`；主要问题=直接升级仍为 `NO-GO`，需先完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移并隔离 `packages/**` typecheck 噪音。
+- 未覆盖边界: 本回填仅同步评估结论与 probe 摘要；更细的 failure buckets、回滚说明与后续触发条件仍以设计文档为准。
+
+<!-- regression-window:end:typeorm-assessment:第四十阶段:2026-05-25 -->
+
 ## 2026-05-25 第四十阶段 TypeORM 1.0.0 首轮兼容性探针（P1）
 
 ### 范围

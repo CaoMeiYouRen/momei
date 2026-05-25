@@ -96,7 +96,7 @@ jobs:
     name: E2E
     needs: precheck
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -119,7 +119,7 @@ jobs:
   build:
     needs: [qa, e2e, unit] # 等待 QA 和 E2E 执行成功
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     permissions:
       packages: write
       contents: read

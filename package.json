@@ -54,6 +54,7 @@
     "regression:weekly": "node scripts/regression/run-periodic-regression.mjs --profile=weekly",
     "regression:pre-release": "node scripts/regression/run-periodic-regression.mjs --profile=pre-release",
     "regression:phase-close": "node scripts/regression/run-periodic-regression.mjs --profile=phase-close",
+    "regression:typeorm-assessment": "node scripts/regression/sync-typeorm-assessment.mjs",
     "duplicate-code:check": "node scripts/review-gate/check-duplicate-code.mjs",
     "duplicate-code:check:strict": "node scripts/review-gate/check-duplicate-code.mjs --mode=error",
     "verify": "pnpm lint && pnpm lint:i18n && pnpm typecheck && pnpm test && pnpm test:e2e",

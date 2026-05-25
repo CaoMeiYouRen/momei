@@ -69,7 +69,7 @@
 2. 认证适配定向测试：`server/database/typeorm-adapter.ts` 相关测试。
 3. 数据库初始化与公开读链路定向测试：`server/database/index.ts` 及相关 API 测试。
 4. 依赖安全与锁文件一致性：`pnpm security:audit-deps`（或等价入口）。
-5. 证据沉淀：把结论写入 `docs/reports/regression/current.md`。
+5. 证据沉淀：优先通过 `pnpm regression:typeorm-assessment` 把 go/no-go 与 probe 摘要自动回填到 `docs/reports/regression/current.md`，详细 failure buckets 继续以本文档为准。
 
 ### 6.1 2026-05-25 首轮探针实测
 

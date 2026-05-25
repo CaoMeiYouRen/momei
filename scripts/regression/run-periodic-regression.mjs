@@ -4,11 +4,14 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
+import {
+    resolveRegressionWindowPath,
+    toPosixRelativePath,
+    upsertRegressionWindowEntry,
+} from '../shared/regression-window.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
-const regressionLogPath = path.join(repoRoot, 'docs', 'reports', 'regression', 'current.md')
-const artifactDir = path.join(repoRoot, 'artifacts', 'review-gate')
 
 export const LOG_WINDOW_LIMITS = {
     maxEntries: 8,
@@ -206,7 +209,7 @@ export function summarizeRegressionRun({ dryRun = false, logHealth, profile, res
     }
 }
 
-export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun = false, logHealth, mode, profile, results, summary }) {
+export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun = false, logHealth, mode, profile, projectRoot = repoRoot, results, summary }) {
     const lines = [
         `# Review Gate Record — ${profile.key} periodic regression`,
         '',
@@ -215,8 +218,8 @@ export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun =
         '- 关联 Todo: 主线2 - 周期性回归任务实盘化',
         '- 改动类型: 周期性回归 / 质量门 / 文档同步 / 调度编排',
         `- 风险等级: ${profile.key === 'weekly' ? '中' : '高'}`,
-        `- 记录路径: ${path.relative(repoRoot, artifactMarkdownPath)}`,
-        `- JSON 摘要: ${path.relative(repoRoot, artifactJsonPath)}`,
+        `- 记录路径: ${path.relative(projectRoot, artifactMarkdownPath)}`,
+        `- JSON 摘要: ${path.relative(projectRoot, artifactJsonPath)}`,
         `- 执行时间: ${new Date().toISOString()}`,
         `- 模式: ${mode}`,
         `- dry-run: ${dryRun ? '是' : '否'}`,
@@ -312,6 +315,55 @@ export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun =
     return lines.join('\n')
 }
 
+function formatFindingList(items) {
+    return items.length > 0 ? items.join('；') : '无'
+}
+
+function resolveGateSeverity(summary) {
+    if (summary.blockers.length > 0) {
+        return 'blocker'
+    }
+
+    if (summary.warnings.length > 0) {
+        return 'warning'
+    }
+
+    return 'none'
+}
+
+export function buildRegressionWindowEntry({
+    artifactJsonPath,
+    artifactMarkdownPath,
+    dateStr,
+    dryRun = false,
+    logHealth,
+    profile,
+    projectRoot = repoRoot,
+    results,
+    summary,
+}) {
+    const regressionWindowPath = resolveRegressionWindowPath(projectRoot)
+    const artifactMarkdownRelative = toPosixRelativePath(regressionWindowPath, artifactMarkdownPath)
+    const artifactJsonRelative = toPosixRelativePath(regressionWindowPath, artifactJsonPath)
+    const executedSummary = results
+        .map((result) => `${result.label}=${result.skipped ? 'DRY RUN' : result.ok ? 'PASS' : 'FAIL'}`)
+        .join('，')
+
+    return {
+        body: [
+            `- 执行入口: \`pnpm regression:${profile.key}${dryRun ? ' -- --dry-run' : ''}\``,
+            `- 证据 artifact: [md](${artifactMarkdownRelative}) / [json](${artifactJsonRelative})`,
+            `- 结果摘要: \`${summary.conclusion}\`；blocker=${summary.blockers.length}，warning=${summary.warnings.length}。`,
+            `- 已执行验证: ${executedSummary || '无'}`,
+            `- 回归窗口: ${logHealth.lineCount} 行 / ${logHealth.entryCount} 条，归档判定=${logHealth.shouldArchive ? '需要滚动归档' : '窗口健康'}。`,
+            `- Review Gate: \`${summary.conclusion}\` / \`${resolveGateSeverity(summary)}\`；主要问题=${formatFindingList(summary.blockers.length > 0 ? summary.blockers : summary.warnings)}。`,
+            `- 未覆盖边界: ${dryRun ? '本轮为 dry-run，仅验证编排与回填，不代表真实回归执行结果。' : logHealth.shouldArchive ? formatFindingList(logHealth.reasons) : '无新增未覆盖边界。'}`,
+        ].join('\n'),
+        id: `periodic-regression:${profile.key}:${dateStr}`,
+        title: `${dateStr} ${profile.title}（自动回填）`,
+    }
+}
+
 function formatDuration(durationMs) {
     return `${(durationMs / 1000).toFixed(1)}s`
 }
@@ -363,8 +415,8 @@ async function runCommand(step) {
     })
 }
 
-async function writeArtifacts({ evidence, profile, summary, results, logHealth }) {
-    await mkdir(artifactDir, { recursive: true })
+async function writeArtifacts({ artifactDirectory, evidence, profile, summary, results, logHealth }) {
+    await mkdir(artifactDirectory, { recursive: true })
     await writeFile(profile.artifactMarkdownPath, evidence, 'utf8')
     await writeFile(profile.artifactJsonPath, JSON.stringify({
         profile: profile.key,
@@ -390,23 +442,29 @@ async function writeArtifacts({ evidence, profile, summary, results, logHealth }
 }
 
 export async function runPeriodicRegression(options = {}) {
+    const projectRoot = options.projectRoot ?? repoRoot
+    const regressionLogPath = resolveRegressionWindowPath(projectRoot)
+    const artifactDirectory = path.join(projectRoot, 'artifacts', 'review-gate')
     const profile = resolveRegressionProfile(options.profile)
     const dateStr = new Date().toISOString().slice(0, 10)
     const artifactBaseName = `${dateStr}-${profile.key}-regression`
-    profile.artifactMarkdownPath = path.join(artifactDir, `${artifactBaseName}.md`)
-    profile.artifactJsonPath = path.join(artifactDir, `${artifactBaseName}.json`)
+    const resolvedProfile = {
+        ...profile,
+        artifactJsonPath: path.join(artifactDirectory, `${artifactBaseName}.json`),
+        artifactMarkdownPath: path.join(artifactDirectory, `${artifactBaseName}.md`),
+    }
     const logContent = await readFile(regressionLogPath, 'utf8')
     const logHealth = assessRegressionLogWindow(logContent)
     const results = []
 
     console.info(`\n${'─'.repeat(60)}`)
-    console.info(`  墨梅博客 - ${profile.title}`)
-    console.info(`  profile: ${profile.key}  |  mode: ${options.mode}`)
+    console.info(`  墨梅博客 - ${resolvedProfile.title}`)
+    console.info(`  profile: ${resolvedProfile.key}  |  mode: ${options.mode}`)
     console.info(`  dry-run: ${options.dryRun ? '是' : '否'}`)
-    console.info(`  trigger: ${profile.triggerCondition}`)
+    console.info(`  trigger: ${resolvedProfile.triggerCondition}`)
     console.info(`${'─'.repeat(60)}\n`)
 
-    for (const step of profile.steps) {
+    for (const step of resolvedProfile.steps) {
         console.info(`▶ [${step.label}] timeout budget ${step.timeoutBudget}`)
 
         if (options.dryRun) {
@@ -433,24 +491,46 @@ export async function runPeriodicRegression(options = {}) {
     const summary = summarizeRegressionRun({
         dryRun: options.dryRun,
         logHealth,
-        profile,
+        profile: resolvedProfile,
         results,
     })
 
     const evidence = buildEvidence({
-        artifactJsonPath: profile.artifactJsonPath,
-        artifactMarkdownPath: profile.artifactMarkdownPath,
+        artifactJsonPath: resolvedProfile.artifactJsonPath,
+        artifactMarkdownPath: resolvedProfile.artifactMarkdownPath,
         dryRun: options.dryRun,
         logHealth,
         mode: options.mode,
-        profile,
+        profile: resolvedProfile,
+        projectRoot,
         results,
         summary,
     })
-    const artifacts = await writeArtifacts({ evidence, profile, results, summary, logHealth })
+    const artifacts = await writeArtifacts({
+        artifactDirectory,
+        evidence,
+        profile: resolvedProfile,
+        results,
+        summary,
+        logHealth,
+    })
+
+    await upsertRegressionWindowEntry(buildRegressionWindowEntry({
+        artifactJsonPath: resolvedProfile.artifactJsonPath,
+        artifactMarkdownPath: resolvedProfile.artifactMarkdownPath,
+        dateStr,
+        dryRun: options.dryRun,
+        logHealth,
+        profile: resolvedProfile,
+        projectRoot,
+        results,
+        summary,
+    }), {
+        projectRoot,
+    })
 
     console.info(`\nReview Gate: ${summary.conclusion}`)
-    console.info(`Artifacts: ${path.relative(repoRoot, artifacts.artifactMarkdownPath)}, ${path.relative(repoRoot, artifacts.artifactJsonPath)}`)
+    console.info(`Artifacts: ${path.relative(projectRoot, artifacts.artifactMarkdownPath)}, ${path.relative(projectRoot, artifacts.artifactJsonPath)}`)
 
     if (summary.conclusion === 'Reject' && options.mode === 'error') {
         process.exit(1)
@@ -459,7 +539,7 @@ export async function runPeriodicRegression(options = {}) {
     return {
         artifacts,
         logHealth,
-        profile,
+        profile: resolvedProfile,
         results,
         summary,
     }

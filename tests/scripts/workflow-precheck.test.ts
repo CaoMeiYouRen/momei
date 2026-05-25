@@ -1,4 +1,4 @@
-import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -171,10 +171,21 @@ describe('workflow-precheck', () => {
     })
 
     it('runs docker profile in dry-run mode and writes artifact files', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'workflow-precheck-main-'))
+
+        await writeProjectFile(directory, 'docs/reports/regression/current.md', [
+            '# 当前回归窗口',
+            '',
+            '## 说明',
+            '',
+            '- 测试窗口。',
+        ].join('\n'))
+
         const result = await runWorkflowPrecheck({
             dryRun: true,
             mode: 'warn',
             profile: 'docker',
+            projectRoot: directory,
         })
 
         expect(result.summary.conclusion).toBe('Prepared')
@@ -182,7 +193,12 @@ describe('workflow-precheck', () => {
         await expect(access(result.artifacts.artifactMarkdownPath)).resolves.toBeUndefined()
         await expect(access(result.artifacts.artifactJsonPath)).resolves.toBeUndefined()
 
+        const regressionWindow = await readFile(resolve(directory, 'docs/reports/regression/current.md'), 'utf8')
+        expect(regressionWindow).toContain('workflow pre-check（docker，自动回填）')
+        expect(regressionWindow).toContain('pnpm run ci:precheck -- --profile=docker --dry-run')
+
         await rm(result.artifacts.artifactMarkdownPath, { force: true })
         await rm(result.artifacts.artifactJsonPath, { force: true })
+        await rm(directory, { force: true, recursive: true })
     })
 })

@@ -56,11 +56,12 @@
 
 #### C. 收口轨
 
-5. [ ] **文档证据自动回填 (P1)**
+5. [x] **文档证据自动回填 (P1)**
 	- 执行范围：将 pre-check、回归摘要与 TypeORM 评估结论自动沉淀到活动回归窗口模板，减少阶段收口时的人工补录。
 	- 非目标：不重新设计第二套回归记录文档；不要求本轮自动生成完整审计报告。
 	- 最小验收：每次主流程后能生成一条标准化证据记录，至少包含执行入口、结果摘要、阻断项或 go/no-go 结论。
 	- 证据落点：[docs/reports/regression/current.md](../reports/regression/current.md) 中的模板化记录与对应脚本输出。
+	- 2026-05-25：`scripts/ci/workflow-precheck.mjs` 与 `scripts/regression/run-periodic-regression.mjs` 已在落盘 artifact 后自动 upsert [活动回归窗口](../reports/regression/current.md) 的紧凑记录；新增 `pnpm regression:typeorm-assessment` 可从 [typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 自动同步 go/no-go 与 probe 摘要。定向验证覆盖 `tests/scripts/workflow-precheck.test.ts`、`tests/scripts/run-periodic-regression.main.test.ts` 与 `tests/scripts/sync-typeorm-assessment.test.ts`。
 
 6. [ ] **守护策略分级与依赖风险口径对齐 (P2)**
 	- 执行范围：把阻断项和提醒项配置化，并同步校准 `security:audit-deps` 与 `security:audit-deps:daily` 的判断口径。

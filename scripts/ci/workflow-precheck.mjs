@@ -4,6 +4,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
+import {
+    resolveRegressionWindowPath,
+    toPosixRelativePath,
+    upsertRegressionWindowEntry,
+} from '../shared/regression-window.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
@@ -477,6 +482,53 @@ export function buildEvidence({
     return lines.join('\n')
 }
 
+function formatFindingList(items) {
+    return items.length > 0 ? items.join('；') : '无'
+}
+
+function resolveGateSeverity(summary) {
+    if (summary.blockers.length > 0) {
+        return 'blocker'
+    }
+
+    if (summary.warnings.length > 0) {
+        return 'warning'
+    }
+
+    return 'none'
+}
+
+export function buildWorkflowPrecheckWindowEntry({
+    artifactJsonPath,
+    artifactMarkdownPath,
+    dateStr,
+    dryRun = false,
+    profile,
+    projectRoot = repoRoot,
+    results,
+    summary,
+}) {
+    const regressionWindowPath = resolveRegressionWindowPath(projectRoot)
+    const artifactMarkdownRelative = toPosixRelativePath(regressionWindowPath, artifactMarkdownPath)
+    const artifactJsonRelative = toPosixRelativePath(regressionWindowPath, artifactJsonPath)
+    const executedSummary = results
+        .map((result) => `${result.label}=${result.skipped ? 'DRY RUN' : result.ok ? 'PASS' : 'FAIL'}`)
+        .join('，')
+
+    return {
+        body: [
+            `- 执行入口: \`pnpm run ci:precheck -- --profile=${profile.key}${dryRun ? ' --dry-run' : ''}\``,
+            `- 证据 artifact: [md](${artifactMarkdownRelative}) / [json](${artifactJsonRelative})`,
+            `- 结果摘要: \`${summary.conclusion}\`；blocker=${summary.blockers.length}，warning=${summary.warnings.length}。`,
+            `- 已执行验证: ${executedSummary || '无'}`,
+            `- Review Gate: \`${summary.conclusion}\` / \`${resolveGateSeverity(summary)}\`；主要问题=${formatFindingList(summary.blockers.length > 0 ? summary.blockers : summary.warnings)}。`,
+            `- 未覆盖边界: ${dryRun ? '本轮为 dry-run，仅验证 workflow 编排与回填，不代表真实 CI 运行结果。' : '真实发布凭据链路仍以 GitHub Actions runtime 为准。'}`,
+        ].join('\n'),
+        id: `workflow-precheck:${profile.key}:${dateStr}`,
+        title: `${dateStr} workflow pre-check（${profile.key}，自动回填）`,
+    }
+}
+
 export async function runWorkflowPrecheck(options = {}) {
     const dryRun = options.dryRun ?? false
     const mode = options.mode ?? 'error'
@@ -556,6 +608,19 @@ export async function runWorkflowPrecheck(options = {}) {
         results,
         summary,
     }, null, 2), 'utf8')
+
+    await upsertRegressionWindowEntry(buildWorkflowPrecheckWindowEntry({
+        artifactJsonPath,
+        artifactMarkdownPath,
+        dateStr,
+        dryRun,
+        profile,
+        projectRoot,
+        results,
+        summary,
+    }), {
+        projectRoot,
+    })
 
     return {
         artifacts: {

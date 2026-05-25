@@ -7,7 +7,7 @@
 | 领域 | 推荐入口 | 主要输入 | 标准输出 | 风险边界 / 备注 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `ci` | `pnpm ci:precheck -- --profile=release|test|docker` | workflow profile；可选 `--mode=warn|error`、`--dry-run` | workflow 前置守护摘要；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | release/test/docker 三条 workflow 的统一 pre-check 入口；至少覆盖依赖风险、关键脚本存在性与必要环境检查 | 正式入口 |
-| `regression` | `pnpm regression:weekly` / `pnpm regression:pre-release` / `pnpm regression:phase-close` | 固定 cadence profile；可选 `--mode=warn|error`、`--dry-run` | 周级 / 发版前 / 阶段收口前的统一执行摘要；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | `phase-close` 会把回归日志窗口超限升级为 blocker；所有结果仍需回写 `docs/reports/regression/current.md` | 正式入口 |
+| `regression` | `pnpm regression:weekly` / `pnpm regression:pre-release` / `pnpm regression:phase-close` / `pnpm regression:typeorm-assessment` | 固定 cadence profile；可选 `--mode=warn|error`、`--dry-run` | 周级 / 发版前 / 阶段收口前的统一执行摘要，或 TypeORM 评估结论回填；`artifacts/review-gate/` 下的 Markdown + JSON 证据 | `phase-close` 会把回归日志窗口超限升级为 blocker；回归与评估结论都会自动回写 `docs/reports/regression/current.md` | 正式入口 |
 | `release` | `pnpm release:check` / `pnpm release:check:full` | 可选 `--skip-test`、`--skip-e2e`、`--mode=warn|error` | 控制台验证摘要；`artifacts/release/` 下的发布前证据 | 默认会跑 lint、typecheck、安全 / 文档检查；`full` 会升级补跑 Vitest 与 E2E，避免在未评估预算时直接使用 | 正式入口 |
 | `review-gate` | `pnpm review-gate:generate` / `pnpm review-gate:generate:check` / `pnpm duplicate-code:check` | 可选 `--run-checks`、`--scope=<change>`、`--mode=warn|error` | Review Gate 证据 Markdown / JSON；重复代码审计产物 | 以证据生成和只读审计为主；`generate:check` 会主动拉起更多校验，适合阶段收口或发版前 | 正式入口 |
 | `governance` | `pnpm governance:check:scripts` / `pnpm governance:audit:simple-duplicates` / `pnpm governance:audit:eslint-debt` / `pnpm governance:audit:comment-drift` | 默认输出 `artifacts/governance/*.json` + `.md`；可选 `--output`、`--root=<dir>` | 脚本目录健康体检、简单重复候选、ESLint / 类型债分桶与注释漂移候选的 baseline | `check:scripts` 已进入 weekly warning 基线；其余治理入口先保持独立只读 baseline，不直接阻断回归 | 正式入口 |
@@ -23,7 +23,7 @@
 | 目录 | 主要脚本 | 调用入口 | 副作用范围 | 当前结论 |
 | :--- | :--- | :--- | :--- | :--- |
 | `scripts/ci/` | `workflow-precheck.mjs` | `pnpm ci:precheck -- --profile=<workflow>`、`.github/workflows/release.yml`、`.github/workflows/test.yml`、`.github/workflows/docker.yml` | 统一执行 workflow 级前置守护，覆盖关键文件、CI 环境与 high+ 依赖风险，并输出 Review Gate 证据 | 新增保留 |
-| `scripts/regression/` | `run-periodic-regression.mjs` | `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close` | 按 profile 编排固定回归组合，读取 `docs/reports/regression/current.md` 窗口健康度，并生成 Review Gate 摘要 | 保留 |
+| `scripts/regression/` | `run-periodic-regression.mjs`、`sync-typeorm-assessment.mjs` | `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close`、`pnpm regression:typeorm-assessment` | 按 profile 编排固定回归组合，或把 TypeORM 评估文档的 go/no-go 自动回填到 `docs/reports/regression/current.md` | 保留 |
 | `scripts/governance/` | `check-script-governance.mjs`、`audit-simple-duplicates.mjs`、`audit-eslint-debt.mjs`、`audit-comment-drift.mjs` | `pnpm governance:check:scripts`、`pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift`、`pnpm regression:weekly`（仅 `check:scripts`） | 产出脚本稳定入口、临时残留、文档漂移、简单重复候选、ESLint / 类型债分桶与注释漂移候选的 JSON / Markdown baseline | 新增保留 |
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
 | `scripts/release/` | `pre-release-check.mjs` | `pnpm release:check`、`pnpm release:check:full` | 汇总 lint、typecheck、安全、文档与按需测试的发布前门禁，并落盘证据 | 保留 |
@@ -55,6 +55,7 @@ pnpm docs:check:line-count:candidate
 pnpm regression:weekly
 pnpm regression:pre-release
 pnpm regression:phase-close
+pnpm regression:typeorm-assessment
 pnpm security:audit-deps
 pnpm security:audit-deps:daily
 pnpm security:alerts
@@ -100,6 +101,7 @@ pnpm perf:fs-watch:probe:dev
 - `weekly` 固定覆盖 coverage、依赖安全、文档事实源 / i18n 检查、重复代码基线与脚本治理体检。
 - `pre-release` 固定覆盖完整发布前校验、文档 i18n 检查、性能预算与重复代码复核。
 - `phase-close` 在 `pre-release` 基础上补强 coverage、严格重复代码检查与 Review Gate 证据生成；若活动回归日志超过 `400` 行或 `8` 条记录，脚本会把“先滚动归档再收口”升级为 blocker。
+- `pnpm regression:typeorm-assessment` 会从 `docs/design/governance/typeorm-v1-upgrade-assessment.md` 提取最新 go/no-go 摘要与 probe 统计，并以紧凑格式自动 upsert 到 `docs/reports/regression/current.md`。
 
 ### 工作流入口
 
