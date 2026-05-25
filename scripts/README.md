@@ -99,7 +99,7 @@ pnpm perf:fs-watch:probe:dev
 `.github/workflows/dependency-risk-daily.yml` 则负责每天触发一次该脚本，并执行以下收口动作：
 
 - 上传每日审计 artifact，默认保留 30 天以便追溯。
-- 仅当发现 high+ 风险或审计失败时，才尝试创建 / 更新 GitHub issue 作为最小可用告警入口；同一风险会按风险指纹复用既有 issue，不重复新建，clean 场景也不会触碰 issue，避免无效膨胀。
+- 仅当发现 high+ 风险或审计失败时，才尝试创建 / 更新 GitHub issue 作为最小可用告警入口；同一风险会按风险指纹复用既有 issue，不重复新建；clean 场景不会新建或更新 issue，但仍会关闭历史 stale issue，避免无效膨胀。
 - 若 issue 通知不可用，则退回到 failed workflow + artifact 作为降级告警，不静默吞掉异常。
 
 `pnpm regression:weekly`、`pnpm regression:pre-release` 与 `pnpm regression:phase-close` 则负责把既有周期性回归规范上收为三条固定节奏：

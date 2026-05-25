@@ -63,12 +63,13 @@
 	- 证据落点：[docs/reports/regression/current.md](../reports/regression/current.md) 中的模板化记录与对应脚本输出。
 	- 2026-05-25：`scripts/ci/workflow-precheck.mjs` 与 `scripts/regression/run-periodic-regression.mjs` 已在落盘 artifact 后自动 upsert [活动回归窗口](../reports/regression/current.md) 的紧凑记录；新增 `pnpm regression:typeorm-assessment` 可从 [typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 自动同步 go/no-go 与 probe 摘要。定向验证覆盖 `tests/scripts/workflow-precheck.test.ts`、`tests/scripts/run-periodic-regression.main.test.ts` 与 `tests/scripts/sync-typeorm-assessment.test.ts`。
 
-6. [ ] **守护策略分级与依赖风险口径对齐 (P2)**
+6. [x] **守护策略分级与依赖风险口径对齐 (P2)**
 	- 执行范围：把阻断项和提醒项配置化，并同步校准 `security:audit-deps` 与 `security:audit-deps:daily` 的判断口径。
 	- 非目标：不把所有 daily warning 升级为发版 blocker；不新增独立的第三套依赖风险入口。
 	- 最小验收：策略表可读、可审计，新增规则不需要改 workflow 结构；同一类风险在 daily 与 release 前的结论一致，只有时机差异。
 	- 证据落点：守护策略配置、依赖审计入口定向执行结果、对应文档摘要。
 	- 2026-05-25：已新增共享策略表 `scripts/security/dependency-risk-policy.mjs`，`security:audit-deps` / `security:audit-deps:daily` / `scripts/ci/workflow-precheck.mjs` 已统一读取同一套 dependency-risk finding level；daily 摘要新增 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue` 字段，定向验证覆盖 `tests/scripts/check-dependency-risk.test.ts`、`tests/scripts/run-daily-dependency-audit.test.ts` 与 `tests/scripts/workflow-precheck.test.ts`。
+	- 2026-05-25：已补跑 `pnpm security:audit-deps` 与 `pnpm security:audit-deps:daily` 的真实入口验证；当前 `high+` 风险均为 `0`，release / daily 两条入口统一给出 `Pass (none)`，活动回归窗口已新增 closeout 摘要，可关闭本条待办。
 
 ## 相关文档
 

@@ -21,6 +21,41 @@
 
 <!-- regression-window:end:typeorm-assessment:第四十阶段:2026-05-25 -->
 
+## 2026-05-25 第四十阶段守护策略分级与依赖风险口径对齐（P2）
+
+### 范围
+
+- 目标：把 dependency risk 的 blocker / warning 口径收敛到共享策略表，并确认 `security:audit-deps` 与 `security:audit-deps:daily` 在同一类风险上输出一致结论，差异只保留在触发时机与告警收口。
+- 本轮覆盖：[scripts/shared/guard-strategy.mjs](../../../scripts/shared/guard-strategy.mjs)、[scripts/security/dependency-risk-policy.mjs](../../../scripts/security/dependency-risk-policy.mjs)、[scripts/security/check-dependency-risk.mjs](../../../scripts/security/check-dependency-risk.mjs)、[scripts/security/run-daily-dependency-audit.mjs](../../../scripts/security/run-daily-dependency-audit.mjs)、[scripts/security/daily-dependency-risk-issue.mjs](../../../scripts/security/daily-dependency-risk-issue.mjs)、[scripts/ci/workflow-precheck.mjs](../../../scripts/ci/workflow-precheck.mjs)、[.github/workflows/dependency-risk-daily.yml](../../../.github/workflows/dependency-risk-daily.yml)、[tests/scripts/check-dependency-risk.test.ts](../../../tests/scripts/check-dependency-risk.test.ts)、[tests/scripts/run-daily-dependency-audit.test.ts](../../../tests/scripts/run-daily-dependency-audit.test.ts)、[tests/scripts/daily-dependency-risk-issue.test.ts](../../../tests/scripts/daily-dependency-risk-issue.test.ts) 与 [tests/scripts/workflow-precheck.test.ts](../../../tests/scripts/workflow-precheck.test.ts)。
+- 非目标：不把 daily 告警策略扩写成第三套独立入口；不在本轮重构所有 precheck / regression 子项的分级语义；不要求本地模拟一次完整 GitHub issue 同步链路。
+
+### 实施结论
+
+- 已新增共享策略表 [scripts/security/dependency-risk-policy.mjs](../../../scripts/security/dependency-risk-policy.mjs)，统一维护 release / daily 两个 dependency-risk 场景的最小严重级别、finding level、默认 mode 与 issue 阈值；[scripts/shared/guard-strategy.mjs](../../../scripts/shared/guard-strategy.mjs) 提供可复用的 finding level 归一化与比较能力。
+- `security:audit-deps`、`security:audit-deps:daily` 与 [scripts/ci/workflow-precheck.mjs](../../../scripts/ci/workflow-precheck.mjs) 已改为消费同一套 dependency-risk finding level，不再分别硬编码 `--mode`、`--min-severity` 与 workflow 失败条件。
+- daily 审计摘要现在会额外输出 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue`；[.github/workflows/dependency-risk-daily.yml](../../../.github/workflows/dependency-risk-daily.yml) 直接读取这些结构化字段决定是否告警、是否 fail workflow，而不是重复维护第二套条件分支。
+- 本地 closeout 实测表明当前依赖树上的 `high+` 风险为 `0`，release 与 daily 两条入口都给出 `Pass (none)`：`security:audit-deps` 输出 `relevant risks: 0` 与 `review gate: Pass (none)`，`security:audit-deps:daily` 输出 `无高危风险` 与 `Review Gate: Pass (none)`，满足“同一类风险结论一致，只有时机差异”的最小验收。
+
+### 已执行验证
+
+- `pnpm exec vitest run tests/scripts/workflow-precheck.test.ts tests/scripts/check-dependency-risk.test.ts tests/scripts/run-daily-dependency-audit.test.ts tests/scripts/daily-dependency-risk-issue.test.ts`
+	- 结果：通过；`4` 个文件、`32` 个测试全部通过，覆盖共享策略默认值、release / daily 口径一致性、daily issue 正文与 workflow precheck 证据输出。
+- `pnpm security:audit-deps`
+	- 结果：通过；当前 `relevant risks: 0`，`review gate: Pass (none)`。
+- `pnpm security:audit-deps:daily -- --output-json=artifacts/security/daily-dependency-audit/manual-closeout/summary.json --output-markdown=artifacts/security/daily-dependency-audit/manual-closeout/summary.md --run-url=local-manual-closeout`
+	- 结果：通过；`summary.json` 与 `summary.md` 已落到 [artifacts/security/daily-dependency-audit/manual-closeout/summary.json](../../../artifacts/security/daily-dependency-audit/manual-closeout/summary.json) 和 [artifacts/security/daily-dependency-audit/manual-closeout/summary.md](../../../artifacts/security/daily-dependency-audit/manual-closeout/summary.md)，当前 `status=clean`、`reviewGate=Pass / none`。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；本轮验收点已收口。
+
+### 未覆盖边界
+
+- 本轮没有在 GitHub Actions 真实运行时补跑一次 `dependency-risk-daily` workflow，因此 issue 同步与 artifact 上传仍以后续 CI 实跑为准；但这不影响当前“策略口径对齐 + 本地入口实测一致”的关闭条件。
+- 若后续要把 dependency-risk 的 `auditFailure` 与 `blockingRisk` 细分成不同 finding level，还需要继续把这种差异向更广的 precheck / regression 子项传播；当前策略表已提供事实源，但本轮不把它扩写成全仓统一分级框架。
+
 ## 2026-05-25 第四十阶段 TypeORM 1.0.0 首轮兼容性探针（P1）
 
 ### 范围

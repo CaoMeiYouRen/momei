@@ -507,6 +507,14 @@ function formatFindingList(items) {
     return items.length > 0 ? items.join('；') : '无'
 }
 
+function formatStepExecutionStatus(result) {
+    if (result.skipped) {
+        return 'DRY RUN'
+    }
+
+    return result.ok ? 'PASS' : 'FAIL'
+}
+
 function resolveGateSeverity(summary) {
     if (summary.blockers.length > 0) {
         return 'blocker'
@@ -533,7 +541,7 @@ export function buildWorkflowPrecheckWindowEntry({
     const artifactMarkdownRelative = toPosixRelativePath(regressionWindowPath, artifactMarkdownPath)
     const artifactJsonRelative = toPosixRelativePath(regressionWindowPath, artifactJsonPath)
     const executedSummary = results
-        .map((result) => `${result.label}=${result.skipped ? 'DRY RUN' : result.ok ? 'PASS' : 'FAIL'}`)
+        .map((result) => `${result.label}=${formatStepExecutionStatus(result)}`)
         .join('，')
 
     return {
