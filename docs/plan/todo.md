@@ -31,11 +31,12 @@
 	- 证据落点：workflow 变更记录、守护入口定向执行结果、至少一条失败样本定位记录。
 	- 2026-05-25：共享入口 `pnpm ci:precheck -- --profile=<workflow>` 已接入三条 workflow；首轮执行摘要与失败样本定位记录已回写到 [活动回归窗口](../reports/regression/current.md)。
 
-2. [ ] **发布链路最小回归闸门收紧 (P0)**
+2. [x] **发布链路最小回归闸门收紧 (P0)**
 	- 执行范围：把已有 release:check / regression 脚本编排成固定顺序，先解决本地与 CI 执行顺序不一致的问题。
 	- 非目标：不新增第二套回归入口；不把阶段收口专用命令强行塞进日常开发默认流程。
 	- 最小验收：失败日志可直接定位到守护子项；本地与 CI 的执行顺序一致，且至少保留一份标准化执行摘要。
 	- 证据落点：发布前守护脚本或回归入口定向执行记录、活动回归窗口摘要。
+	- 2026-05-25：本地 `pnpm release` 已改为先走 `pnpm regression:pre-release`；[.github/workflows/release.yml](../../.github/workflows/release.yml) 已收敛为 `precheck -> regression -> release`；`regression:pre-release` 摘要会把 `release:check:full` 的内部失败子项直接上浮到 blocker / warning，并保留 `artifacts/review-gate/*-pre-release-regression.{md,json}` 标准化摘要。
 
 #### B. TypeORM 评估轨
 

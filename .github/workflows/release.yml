@@ -48,11 +48,11 @@ jobs:
             artifacts/review-gate/*-ci-precheck-release.json
           if-no-files-found: warn
 
-  qa:
-    name: QA
+  regression:
+    name: Regression Gate
     needs: precheck
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
     permissions:
       contents: read
       security-events: read
@@ -68,59 +68,24 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run lint:i18n
-      - run: pnpm run lint:css
-      - run: pnpm run typecheck
-      - run: pnpm run build
-  unit:
-    name: Unit
-    needs: precheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v6
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+      - name: Run pre-release regression gate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run regression:pre-release
+      - name: Upload regression gate artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          version: "11"
-      - name: Setup Node.js@lts environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-      - run: pnpm i --frozen-lockfile
-      - run: pnpm run test
-  e2e:
-    name: E2E
-    needs: precheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    permissions:
-      contents: read
-      security-events: read
-    steps:
-      - uses: actions/checkout@v6
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11"
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-      - run: pnpm i --frozen-lockfile
-      - run: pnpm run build
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-      - run: pnpm run test:e2e
+          name: regression-pre-release
+          path: |
+            artifacts/review-gate/*-pre-release-regression.md
+            artifacts/review-gate/*-pre-release-regression.json
+            artifacts/review-gate/*-pre-release.md
+          if-no-files-found: warn
 
   release:
     name: Release
-    needs: [qa, e2e, unit]
+    needs: regression
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
@@ -143,10 +108,6 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      - name: Audit GitHub security alerts gate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run security:alerts
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run release:semantic

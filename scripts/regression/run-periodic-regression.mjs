@@ -38,6 +38,30 @@ function createPnpmStep(label, script, options = {}) {
     }
 }
 
+function extractNestedFailureLabel(output, label) {
+    const normalizedOutput = typeof output === 'string' ? output : ''
+
+    if (label === 'release:check:full' || label === 'release:check') {
+        const fatalMatch = normalizedOutput.match(/\[pre-release-check\]\s+致命错误:\s+"([^"]+)"\s+失败/u)
+
+        if (fatalMatch) {
+            return fatalMatch[1]
+        }
+    }
+
+    return null
+}
+
+export function resolveRegressionFailureSummary(result) {
+    const nestedFailureLabel = extractNestedFailureLabel(result.output, result.label)
+
+    if (nestedFailureLabel) {
+        return `${result.label} failed -> ${nestedFailureLabel}`
+    }
+
+    return `${result.label} failed`
+}
+
 export const PERIODIC_REGRESSION_PROFILES = {
     weekly: {
         archivePolicy: 'warn',
@@ -151,7 +175,7 @@ export function summarizeRegressionRun({ dryRun = false, logHealth, profile, res
             continue
         }
 
-        const summary = `${result.label} failed`
+        const summary = resolveRegressionFailureSummary(result)
         if (result.required) {
             blockers.push(summary)
         } else {
@@ -223,6 +247,14 @@ export function buildEvidence({ artifactJsonPath, artifactMarkdownPath, dryRun =
         lines.push(`- ${commandText}`)
         lines.push(`  - 结果: ${status}`)
         lines.push(`  - timeout budget: ${result.timeoutBudget}`)
+
+        if (!result.ok && !result.skipped) {
+            const nestedFailureLabel = extractNestedFailureLabel(result.output, result.label)
+
+            if (nestedFailureLabel) {
+                lines.push(`  - 失败定位: ${nestedFailureLabel}`)
+            }
+        }
     }
 
     lines.push('')

@@ -9,6 +9,43 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-25 第四十阶段发布链路最小回归闸门收紧（P0）
+
+### 范围
+
+- 目标：把本地 `pnpm release` 与 [.github/workflows/release.yml](../../../.github/workflows/release.yml) 的发版前回归顺序收敛到同一条主线，并让 `release:check:full` 的内部失败子项能直接出现在 regression summary 中。
+- 本轮覆盖：[package.json](../../../package.json)、[.github/workflows/release.yml](../../../.github/workflows/release.yml)、[scripts/regression/run-periodic-regression.mjs](../../../scripts/regression/run-periodic-regression.mjs)、[tests/scripts/run-periodic-regression.test.ts](../../../tests/scripts/run-periodic-regression.test.ts) 与 [docs/plan/todo.md](../../plan/todo.md)。
+- 非目标：不新增第二套回归入口；不把 `phase-close` 级命令并入日常默认发布链路；不在本轮直接触发一次真实 GitHub Actions release run。
+
+### 实施结论
+
+- 本地发布入口已改为先执行 `pnpm regression:pre-release`，再进入 `pnpm release:semantic`；不再绕开固定回归入口直接调用 `release:check`。
+- 发布 workflow 已从分散的 `qa / unit / e2e` 检查收敛为 `precheck -> regression -> release` 的单一守门顺序，其中 `Regression Gate` job 直接执行 `pnpm run regression:pre-release` 并上传标准化 artifact。
+- [scripts/regression/run-periodic-regression.mjs](../../../scripts/regression/run-periodic-regression.mjs) 现在会解析 `pre-release-check` 的致命输出，把类似 `lint:i18n`、`security:alerts` 这类内部失败子项直接上浮为 `release:check:full failed -> <sub-step>`，满足“失败日志可直接定位到守护子项”的最小验收。
+- 本轮标准化摘要已落盘为 `artifacts/review-gate/2026-05-25-pre-release-regression.md` 与 `artifacts/review-gate/2026-05-25-pre-release-regression.json`；CI 侧也会沿用同一组 artifact 模式继续保留近线证据。
+
+### 已执行验证
+
+- `pnpm exec eslint scripts/regression/run-periodic-regression.mjs tests/scripts/run-periodic-regression.test.ts`
+	- 结果：通过；受影响的回归编排脚本与定向测试文件未报告 ESLint 问题，补齐了本轮配置 / 脚本切片所需的静态层 lint 证据。
+- `pnpm run typecheck`
+	- 结果：通过；`nuxt typecheck` 正常结束，说明本轮发布链路改动未引入新的类型层回归。
+- `pnpm exec vitest run tests/scripts/run-periodic-regression.test.ts`
+	- 结果：通过；`1` 个文件、`8` 个测试全部通过，覆盖固定 profile、日志窗口分级、嵌套失败定位与证据输出。
+- `pnpm run regression:pre-release -- --dry-run`
+	- 结果：`Prepared`；固定顺序成功输出为 `release:check:full -> docs:check:i18n -> docs:check:line-count -> test:perf:budget:strict -> duplicate-code:check`，并生成标准化 Markdown + JSON 摘要。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：本轮没有直接触发一次携带 GitHub Actions secrets 的真实 release workflow，因此 CI 运行时凭据注入、`semantic-release` 发布侧行为与 artifact 上传链路仍以仓库后续 workflow 实跑结果为准；但这不影响当前 P0 的“顺序统一 + 摘要标准化 + 失败定位上浮”收口。
+
+### 未覆盖边界
+
+- 本轮只执行了 `regression:pre-release` 的 dry-run，没有在本地补跑一次完整非 dry-run 的发版前回归，因此 `release:check:full` 的全量耗时与本地令牌依赖未在本 session 重新量测。
+- GitHub Actions 的真实 `Release` workflow 尚未在本轮改动后实跑，CI 侧仍需下一次调度或手动触发来完成最终运行时闭环。
+
 ## 2026-05-25 第四十阶段 CI 前置守护脚本接入首轮落地（P0）
 
 ### 范围

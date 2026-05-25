@@ -5,6 +5,7 @@ import {
     PERIODIC_REGRESSION_PROFILES,
     assessRegressionLogWindow,
     resolveRegressionProfile,
+    resolveRegressionFailureSummary,
     summarizeRegressionRun,
 } from '@/scripts/regression/run-periodic-regression.mjs'
 
@@ -113,6 +114,39 @@ describe('run-periodic-regression', () => {
         expect(summary.warnings).toEqual(['duplicate-code:check failed'])
     })
 
+    it('surfaces nested pre-release-check failures in regression findings', () => {
+        const profile = resolveRegressionProfile('pre-release')
+        const [releaseCheckStep, ...otherSteps] = profile.steps
+        const results = [
+            {
+                ...releaseCheckStep,
+                ok: false,
+                output: '[pre-release-check] 致命错误: "lint:i18n" 失败，阻断后续校验。',
+                skipped: false,
+            },
+            ...otherSteps.map((step) => ({
+                ...step,
+                ok: true,
+                skipped: false,
+            })),
+        ]
+
+        const summary = summarizeRegressionRun({
+            logHealth: {
+                entryCount: 2,
+                lineCount: 80,
+                reasons: [],
+                shouldArchive: false,
+            },
+            profile,
+            results,
+        })
+
+        expect(resolveRegressionFailureSummary(results[0])).toBe('release:check:full failed -> lint:i18n')
+        expect(summary.conclusion).toBe('Reject')
+        expect(summary.blockers).toEqual(['release:check:full failed -> lint:i18n'])
+    })
+
     it('builds markdown evidence with command status and review-gate findings', () => {
         const profile = resolveRegressionProfile('weekly')
         const evidence = buildEvidence({
@@ -144,6 +178,39 @@ describe('run-periodic-regression', () => {
         expect(evidence).toContain('- 结果: DRY RUN')
         expect(evidence).toContain('- 结论: Prepared')
         expect(evidence).toContain('- duplicate-code:check failed')
+    })
+
+    it('includes nested failure location in evidence output', () => {
+        const profile = resolveRegressionProfile('pre-release')
+        const evidence = buildEvidence({
+            artifactJsonPath: '/tmp/pre-release.json',
+            artifactMarkdownPath: '/tmp/pre-release.md',
+            dryRun: false,
+            logHealth: {
+                entryCount: 2,
+                lineCount: 120,
+                reasons: [],
+                shouldArchive: false,
+            },
+            mode: 'error',
+            profile,
+            results: [
+                {
+                    ...profile.steps[0],
+                    ok: false,
+                    output: '[pre-release-check] 致命错误: "security:alerts" 失败，阻断后续校验。',
+                    skipped: false,
+                },
+            ],
+            summary: {
+                blockers: ['release:check:full failed -> security:alerts'],
+                conclusion: 'Reject',
+                warnings: [],
+            },
+        })
+
+        expect(evidence).toContain('- 失败定位: security:alerts')
+        expect(evidence).toContain('- release:check:full failed -> security:alerts')
     })
 
     it('throws for unsupported regression profiles', () => {
