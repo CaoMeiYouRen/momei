@@ -9,6 +9,51 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-05-25 第四十阶段 TypeORM 1.0.0 首轮兼容性探针（P1）
+
+### 范围
+
+- 目标：在不升级主工作区依赖版本的前提下，用隔离 worktree 将 `typeorm` 临时切到 `1.0.0`，验证适配层、数据库初始化、公开热点读链路、类型层与依赖风险的首轮兼容性。
+- 本轮覆盖：[docs/design/governance/typeorm-v1-upgrade-assessment.md](../../design/governance/typeorm-v1-upgrade-assessment.md)、[server/database/typeorm-adapter.ts](../../../server/database/typeorm-adapter.ts)、[tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts)、[tests/server/api/categories/index.get.test.ts](../../../tests/server/api/categories/index.get.test.ts)、[tests/server/api/posts/index.get.test.ts](../../../tests/server/api/posts/index.get.test.ts)、[tests/server/api/tags/index.get.test.ts](../../../tests/server/api/tags/index.get.test.ts)、[server/utils/translation.ts](../../../server/utils/translation.ts) 与 [server/utils/translation.test.ts](../../../server/utils/translation.test.ts)。
+- 非目标：不在本轮把主工作区依赖真正升级到 `typeorm@1.0.0`；不顺手迁移所有 TypeORM mock / 桩；不把真实升级实施并入当前阶段交付。
+
+### 实施结论
+
+- 隔离 probe 下，[server/database/typeorm-adapter.ts](../../../server/database/typeorm-adapter.ts) 的定向测试与 [tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts) 全部通过，说明 `better-auth` 适配层与数据库初始化边界不是首个 runtime blocker。
+- 公开热点读链路的首个真实 blocker 收敛到 [server/utils/translation.ts](../../../server/utils/translation.ts)：TypeORM 1.0.0 移除了字符串数组 `select` 语法，导致 `attachTranslations()` 在 categories / posts 公共读路径上直接抛错。该 helper 已在主工作区改为对象语法，并补了对应断言；当前主工作区的 translation + categories + posts + tags 定向回归为 `52/52` 通过。
+- probe worktree 下的 `pnpm run typecheck` 仍失败（`76 errors / 49 files`）。与 TypeORM 1.0.0 直接相关的主因是字符串数组 `select` / `relations` 旧语法，以及个别 `dataSource.options.type` narrowing 差异；当前主工作区剩余基线为 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]`。
+- `pnpm security:audit-deps` 在 probe worktree 下通过，`relevant risks: 0`；当前没有证据表明 TypeORM 1.0.0 探针同时引入新的 `high+` 依赖风险。
+- 阶段建议保持为：`NO-GO（直接升级）`，但允许继续推进兼容性收敛与分桶验证。
+
+### 已执行验证
+
+- `cd /workspaces/momei-typeorm-probe && pnpm exec vitest run server/database/typeorm-adapter.test.ts`
+	- 结果：通过；`1` 个文件、`11` 个测试全部通过。
+- `cd /workspaces/momei-typeorm-probe && pnpm exec vitest run tests/server/database/init-boundary.test.ts`
+	- 结果：通过；`1` 个文件、`2` 个测试全部通过。
+- `cd /workspaces/momei-typeorm-probe && pnpm exec vitest run tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts`
+	- 结果：首次失败；共同错误为 `String-array "select" syntax has been removed`，调用栈统一落在 [server/utils/translation.ts](../../../server/utils/translation.ts) 的 `attachTranslations()`。
+- `cd /workspaces/momei-typeorm-probe && pnpm exec vitest run tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+	- 结果：在 translation helper 兼容补丁后通过；`3` 个文件、`41` 个测试全部通过。
+- `cd /workspaces/momei-typeorm-probe && pnpm run typecheck`
+	- 结果：失败；`76 errors / 49 files`，主要分布在 API / service / test 中的 `FindOptionsSelect` 与 `FindOptionsRelations` 旧语法。
+- `cd /workspaces/momei-typeorm-probe && pnpm security:audit-deps`
+	- 结果：通过；`relevant risks: 0`。
+- `cd /workspaces/momei && pnpm exec vitest run server/utils/translation.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+	- 结果：通过；`4` 个文件、`52` 个测试全部通过，确认主工作区前向兼容补丁无回归。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：直接升级仍不满足放行条件。当前虽然已收敛首个 runtime blocker，但 `typecheck` 仍显示大量 `select` / `relations` 旧语法需要迁移，且 `packages/**` 的依赖类型噪音还未完全隔离。
+
+### 未覆盖边界
+
+- 本轮没有在 probe 下补跑实体约束测试（如 `post.entity`）与更广的服务层 / 导出链路定向集，因此“实体层是否存在独立 blocker”仍需下一轮补跑确认。
+- 本轮没有迁移剩余 `22` 处字符串数组 `select` 与 `38` 处字符串数组 `relations`，因此 `pnpm run typecheck` 仍不能作为升级已可执行的证据。
+- probe worktree 的 `packages/cli` / `packages/mcp-server` 缺依赖类型声明问题尚未独立隔离，当前只把它们标为非 runtime blocker 的环境噪音。
+
 ## 2026-05-25 第四十阶段发布链路最小回归闸门收紧（P0）
 
 ### 范围

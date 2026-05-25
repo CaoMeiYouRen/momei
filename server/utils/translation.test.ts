@@ -220,6 +220,11 @@ describe('translation utils', () => {
                 select: ['title' as any],
             })
 
+            expect(mockRepo.find).toHaveBeenCalledWith(expect.objectContaining({
+                select: {
+                    title: true,
+                },
+            }))
             expect(result[0].translations[0]).toHaveProperty('title')
             expect(result[0].translations[0].title).toBe('Title 1')
             expect(result[0].translations[1].title).toBe('Title 2')

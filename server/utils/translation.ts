@@ -1,5 +1,18 @@
-import { type SelectQueryBuilder, type Repository, type ObjectLiteral, In } from 'typeorm'
+import { type SelectQueryBuilder, type Repository, type ObjectLiteral, type FindOptionsSelect, In } from 'typeorm'
 import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
+
+function toFindOptionsSelect<T extends ObjectLiteral>(select?: readonly (keyof T)[]): FindOptionsSelect<T> | undefined {
+    if (!select || select.length === 0) {
+        return undefined
+    }
+
+    const findSelect = {} as FindOptionsSelect<T>
+    for (const key of select) {
+        (findSelect as Record<string, true>)[key as string] = true
+    }
+
+    return findSelect
+}
 
 export function resolveTranslationFallbackChain(language?: string) {
     return [...getLocaleRegistryItem(language).fallbackChain]
@@ -85,7 +98,7 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
 
     const allTranslations = await repo.find({
         where: { translationId: In(translationIds) } as any,
-        select: options.select,
+        select: toFindOptionsSelect(options.select),
     })
 
     items.forEach((item) => {
