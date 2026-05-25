@@ -17,6 +17,25 @@ export class AuthHelper {
         this.page = page
     }
 
+    private async seedAdminSession() {
+        const baseUrl = new URL(this.page.url()).origin
+        const loginResponse = await this.page.request.post(`${baseUrl}/api/auth/sign-in/email`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Origin: baseUrl,
+            },
+            data: {
+                email: TEST_ADMIN.email,
+                password: TEST_ADMIN.password,
+                rememberMe: true,
+            },
+        })
+
+        if (!loginResponse.ok()) {
+            throw new Error(`Failed to seed admin session: ${loginResponse.status()} ${await loginResponse.text()}`)
+        }
+    }
+
     private async hasAuthenticatedShell() {
         const loginButton = this.page.locator('#login-btn')
         if (await loginButton.count() > 0) {
@@ -91,11 +110,14 @@ export class AuthHelper {
         await passwordInput.fill(TEST_ADMIN.password)
 
         // 点击登录按钮
-        await this.page.click('button[type="submit"]')
+        const leaveLoginPage = this.page.waitForURL((url) => !/^\/login\/?$/.test(url.pathname), {
+            timeout: 20000,
+        })
 
-        // 等待登录成功跳转到首页
-        // 增加超时时间以应对慢速环境下的重定向
-        await this.page.waitForURL(/\//, { timeout: 20000 })
+        await Promise.all([
+            leaveLoginPage,
+            this.page.click('button[type="submit"]'),
+        ])
 
         await this.expectAuthenticatedShell()
     }
@@ -108,7 +130,9 @@ export class AuthHelper {
             return
         }
 
-        await this.loginAsAdmin()
+        await this.seedAdminSession()
+        await this.page.goto('/')
+        await this.expectAuthenticatedShell()
     }
 
     /**
