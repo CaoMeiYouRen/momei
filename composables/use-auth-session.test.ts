@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { ref } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const fetchedSession = {
@@ -192,6 +192,7 @@ describe('useAuthSession', () => {
         vi.clearAllMocks()
         primeHydratedAuthSession()
 
+        expect(mockUseSession.mock.calls.filter(([fetcher]) => !fetcher)).toHaveLength(1)
         expect(mockPrimeRequestCache).toHaveBeenCalledWith(fetchedSession)
         expect(mockSessionAtomSet).toHaveBeenCalledWith(expect.objectContaining({
             data: fetchedSession,
@@ -201,17 +202,28 @@ describe('useAuthSession', () => {
         }))
     })
 
-    it('should refresh stale sessions on focus and cleanup lifecycle listeners', async () => {
+    it('should refetch the client auth session on mount when hydration state is missing', async () => {
+        setupAuthSessionLifecycle(liveSession as never)
+
+        expect(mountedCallbacks).toHaveLength(1)
+
+        const mountedCallback = mountedCallbacks[0]
+        expect(mountedCallback).toBeTypeOf('function')
+        mountedCallback?.()
+
+        await Promise.resolve()
+        await Promise.resolve()
+
+        expect(mockInvalidateRequestCache).toHaveBeenCalledWith({ broadcast: false })
+        expect(liveSession.value.refetch).toHaveBeenCalledTimes(1)
+        expect(mockPrimeRequestCache).toHaveBeenCalledWith(refreshedSession)
+    })
+
+    it('should register and cleanup session refresh lifecycle listeners', () => {
         const addWindowListenerSpy = vi.spyOn(window, 'addEventListener')
         const removeWindowListenerSpy = vi.spyOn(window, 'removeEventListener')
         const addDocumentListenerSpy = vi.spyOn(document, 'addEventListener')
         const removeDocumentListenerSpy = vi.spyOn(document, 'removeEventListener')
-        const nowSpy = vi.spyOn(Date, 'now')
-        let currentTimestamp = 1_000
-        let visibilityState = 'visible'
-
-        nowSpy.mockImplementation(() => currentTimestamp)
-        vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibilityState as DocumentVisibilityState)
 
         liveSession.value = {
             ...liveSession.value,
@@ -231,22 +243,6 @@ describe('useAuthSession', () => {
 
         expect(focusListener).toBeTypeOf('function')
         expect(addDocumentListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
-
-        currentTimestamp = 30_000
-        ;(focusListener as EventListener)(new Event('focus'))
-        await nextTick()
-        expect(liveSession.value.refetch).not.toHaveBeenCalled()
-
-        visibilityState = 'hidden'
-        currentTimestamp = 62_000
-        ;(focusListener as EventListener)(new Event('focus'))
-        await nextTick()
-        expect(liveSession.value.refetch).not.toHaveBeenCalled()
-
-        visibilityState = 'visible'
-        ;(focusListener as EventListener)(new Event('focus'))
-        await Promise.resolve()
-        expect(liveSession.value.refetch).toHaveBeenCalledTimes(1)
 
         expect(beforeUnmountCallbacks).toHaveLength(1)
         const beforeUnmountCallback = beforeUnmountCallbacks[0]

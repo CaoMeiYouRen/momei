@@ -153,6 +153,8 @@ export function primeHydratedAuthSession() {
         return
     }
 
+    useAuthSession()
+
     primeAuthSessionRequestCache(state.data.value)
     seedSessionAtom(state.data.value)
 }
@@ -225,6 +227,12 @@ export function setupAuthSessionLifecycle(session = useAuthSession()) {
     }
 
     onMounted(() => {
+        if (session.value.isPending && !useRouteSessionState().resolved.value) {
+            void refreshAuthSession().catch((error) => {
+                console.warn('Failed to hydrate auth session on mount', error)
+            })
+        }
+
         window.addEventListener('focus', refreshIfStale)
         document.addEventListener('visibilitychange', refreshIfStale)
     })

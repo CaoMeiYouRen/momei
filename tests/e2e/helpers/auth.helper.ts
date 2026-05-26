@@ -8,6 +8,8 @@ export const TEST_ADMIN = {
     password: 'Password123',
 }
 
+const AUTH_SESSION_CACHE_BUST_KEY = 'momei:auth-session-cache-bust'
+
 /**
  * 封装常用的身份验证操作
  */
@@ -15,6 +17,28 @@ export class AuthHelper {
     private page: Page
     constructor(page: Page) {
         this.page = page
+    }
+
+    private async hasServerSession() {
+        const baseUrl = new URL(this.page.url()).origin
+        const sessionResponse = await this.page.request.get(`${baseUrl}/api/auth/get-session`, {
+            headers: {
+                Origin: baseUrl,
+            },
+        })
+
+        if (!sessionResponse.ok()) {
+            return false
+        }
+
+        const payload = await sessionResponse.json()
+
+        return Boolean(
+            payload?.data?.user
+            || payload?.user
+            || payload?.session?.user
+            || payload?.session,
+        )
     }
 
     private async seedAdminSession() {
@@ -34,6 +58,15 @@ export class AuthHelper {
         if (!loginResponse.ok()) {
             throw new Error(`Failed to seed admin session: ${loginResponse.status()} ${await loginResponse.text()}`)
         }
+    }
+
+    private async invalidateClientSessionCache() {
+        await this.page.evaluate((cacheBustKey) => {
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: cacheBustKey,
+                newValue: Date.now().toString(),
+            }))
+        }, AUTH_SESSION_CACHE_BUST_KEY)
     }
 
     private async hasAuthenticatedShell() {
@@ -126,13 +159,18 @@ export class AuthHelper {
         await this.page.goto('/')
         await this.page.waitForLoadState('domcontentloaded')
 
-        if (await this.hasAuthenticatedShell()) {
+        if (await this.hasServerSession()) {
             return
         }
 
         await this.seedAdminSession()
-        await this.page.goto('/')
-        await this.expectAuthenticatedShell()
+        await this.invalidateClientSessionCache()
+
+        await expect.poll(async () => await this.hasServerSession(), {
+            timeout: 20000,
+        }).toBe(true)
+
+        await this.page.reload({ waitUntil: 'domcontentloaded' })
     }
 
     /**

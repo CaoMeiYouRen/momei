@@ -2,6 +2,7 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
+import { repairRolldownClientInitImports } from './scripts/build/repair-rolldown-client-init-imports.mjs'
 
 const MomeiPreset = definePreset(Aura, {
     semantic: {
@@ -79,6 +80,11 @@ export default defineNuxtConfig({
         '@nuxtjs/sitemap',
         !process.env.VITEST && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
+    hooks: {
+        'build:done': async () => {
+            await repairRolldownClientInitImports()
+        },
+    },
     pwa: {
         registerType: 'autoUpdate',
         manifest: {
@@ -322,7 +328,7 @@ export default defineNuxtConfig({
             noExternal: ['quill'],
         },
         build: {
-            rollupOptions: {
+            rolldownOptions: {
                 external: ['quill'],
             },
         },
