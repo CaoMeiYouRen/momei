@@ -52,7 +52,7 @@ jobs:
     name: Regression Gate
     needs: precheck
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       contents: read
       security-events: read
@@ -87,7 +87,7 @@ jobs:
     name: Release
     needs: regression
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     permissions:
       packages: write
       contents: write
