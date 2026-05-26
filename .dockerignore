@@ -11,6 +11,8 @@ LICENSE
 .github
 # assets
 coverage
+coverage-final
+coverage-report
 docs
 # test
 .codecov.yml
@@ -28,3 +30,10 @@ app.json
 .git
 # src
 logs
+test-results
+playwright-report
+artifacts
+.nuxt
+.output
+.pnpm-store
+.session

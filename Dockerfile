@@ -7,7 +7,8 @@ FROM nodejs AS builder
 
 WORKDIR /app
 
-COPY package.json .npmrc pnpm-lock.yaml /app/
+COPY package.json .npmrc pnpm-lock.yaml pnpm-workspace.yaml /app/
+COPY packages /app/packages
 
 RUN pnpm i --frozen-lockfile
 
@@ -25,7 +26,7 @@ COPY --from=builder /app/.output ./.output
 # 阶段三：生产阶段
 FROM runtime
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 WORKDIR /app
 
