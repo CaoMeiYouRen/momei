@@ -331,6 +331,26 @@ function resolveGateSeverity(summary) {
     return 'none'
 }
 
+function formatRegressionResultStatus(result) {
+    if (result.skipped) {
+        return 'DRY RUN'
+    }
+
+    return result.ok ? 'PASS' : 'FAIL'
+}
+
+function formatUncoveredBoundary(dryRun, logHealth) {
+    if (dryRun) {
+        return '本轮为 dry-run，仅验证编排与回填，不代表真实回归执行结果。'
+    }
+
+    if (logHealth.shouldArchive) {
+        return formatFindingList(logHealth.reasons)
+    }
+
+    return '无新增未覆盖边界。'
+}
+
 export function buildRegressionWindowEntry({
     artifactJsonPath,
     artifactMarkdownPath,
@@ -346,7 +366,7 @@ export function buildRegressionWindowEntry({
     const artifactMarkdownRelative = toPosixRelativePath(regressionWindowPath, artifactMarkdownPath)
     const artifactJsonRelative = toPosixRelativePath(regressionWindowPath, artifactJsonPath)
     const executedSummary = results
-        .map((result) => `${result.label}=${result.skipped ? 'DRY RUN' : result.ok ? 'PASS' : 'FAIL'}`)
+        .map((result) => `${result.label}=${formatRegressionResultStatus(result)}`)
         .join('，')
 
     return {
@@ -357,7 +377,7 @@ export function buildRegressionWindowEntry({
             `- 已执行验证: ${executedSummary || '无'}`,
             `- 回归窗口: ${logHealth.lineCount} 行 / ${logHealth.entryCount} 条，归档判定=${logHealth.shouldArchive ? '需要滚动归档' : '窗口健康'}。`,
             `- Review Gate: \`${summary.conclusion}\` / \`${resolveGateSeverity(summary)}\`；主要问题=${formatFindingList(summary.blockers.length > 0 ? summary.blockers : summary.warnings)}。`,
-            `- 未覆盖边界: ${dryRun ? '本轮为 dry-run，仅验证编排与回填，不代表真实回归执行结果。' : logHealth.shouldArchive ? formatFindingList(logHealth.reasons) : '无新增未覆盖边界。'}`,
+            `- 未覆盖边界: ${formatUncoveredBoundary(dryRun, logHealth)}`,
         ].join('\n'),
         id: `periodic-regression:${profile.key}:${dateStr}`,
         title: `${dateStr} ${profile.title}（自动回填）`,
