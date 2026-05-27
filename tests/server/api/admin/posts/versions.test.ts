@@ -92,7 +92,7 @@ async function seedVersionedPost() {
 
     const createdPost = await postRepo.findOneOrFail({
         where: { id: post.id },
-        relations: ['tags'],
+        relations: { tags: true },
     })
 
     await recordPostVersionCommit(createdPost, author.id, {
@@ -118,7 +118,7 @@ async function seedVersionedPost() {
 
     const editedPost = await postRepo.findOneOrFail({
         where: { id: post.id },
-        relations: ['tags'],
+        relations: { tags: true },
     })
 
     await recordPostVersionCommit(editedPost, author.id, {
@@ -210,7 +210,7 @@ describe('admin post versions API', () => {
 
         const post = await dataSource.getRepository(Post).findOneOrFail({
             where: { id: seed.postId },
-            relations: ['tags'],
+            relations: { tags: true },
         })
         const versions = await dataSource.getRepository(PostVersion).find({
             where: { postId: seed.postId },

@@ -553,7 +553,7 @@ export async function listLinkGovernanceReports(query: {
     const userIds = Array.from(new Set(reports.map((report) => report.requestedByUserId).filter(Boolean)))
     const users = userIds.length > 0
         ? await userRepo.find({
-            select: ['id', 'name', 'email'],
+            select: { id: true, name: true, email: true },
             where: { id: In(userIds) },
         })
         : []

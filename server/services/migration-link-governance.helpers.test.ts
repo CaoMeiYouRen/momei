@@ -248,7 +248,7 @@ describe('server/services/migration-link-governance.helpers', () => {
         const runtime = await buildRuntimeContext()
 
         expect(postRepo.find).toHaveBeenCalledWith({
-            select: ['id', 'slug', 'language', 'translationId'],
+            select: { id: true, slug: true, language: true, translationId: true },
         })
         expect(runtime.siteUrl).toBe('https://blog.example.com')
         expect(runtime.managedDomains).toEqual(expect.arrayContaining([

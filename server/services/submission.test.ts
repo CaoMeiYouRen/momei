@@ -84,7 +84,7 @@ describe('submissionService', () => {
             expect(result).toEqual(mockSubmission)
             expect(mockSubmissionRepo.findOne).toHaveBeenCalledWith({
                 where: { id: '1' },
-                relations: ['author'],
+                relations: { author: true },
             })
         })
     })

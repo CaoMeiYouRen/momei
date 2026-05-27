@@ -48,7 +48,7 @@ export const submissionService = {
         const submissionRepo = dataSource.getRepository(Submission)
         return await submissionRepo.findOne({
             where: { id },
-            relations: ['author'],
+            relations: { author: true },
         })
     },
 

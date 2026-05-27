@@ -82,7 +82,7 @@ describe('setting audit service', () => {
         const result = await getSettingAuditLogs({ page: 1, limit: 10 })
 
         expect(mockAuditRepo.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-            relations: ['operator'],
+            relations: { operator: true },
             order: { createdAt: 'DESC' },
             skip: 0,
             take: 10,

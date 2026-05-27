@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const campaignRepo = dataSource.getRepository(MarketingCampaign)
     const campaign = await campaignRepo.findOne({
         where: { id },
-        relations: ['sender'],
+        relations: { sender: true },
     })
 
     if (!campaign) {

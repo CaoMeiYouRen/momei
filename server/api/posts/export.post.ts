@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
     const posts = await postRepo.find({
         where,
-        relations: ['category', 'tags', 'author'],
+        relations: { category: true, tags: true, author: true },
     })
 
     if (posts.length === 0) {

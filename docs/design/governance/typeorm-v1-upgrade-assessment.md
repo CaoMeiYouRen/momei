@@ -11,6 +11,7 @@
 1. 当前不建议直接合并大版本升级到主干。
 2. 允许在第四十阶段先完成“评估 + 兼容性探针 + 回滚预案”闭环。
 3. 2026-05-25 首轮兼容性探针已完成，但最小验证矩阵仍未全绿；在修完字符串数组 `select` / `relations` 旧语法之前，不进入真实升级实施任务。
+4. 2026-05-27 第二轮 probe 已补齐当前候选态的最小运行矩阵：适配层、数据库初始化与公开热点读链路均转绿，但 `pnpm run typecheck` 仍被 `FindOptionsSelect` / `FindOptionsRelations` 旧语法与 `packages/**` 类型噪音阻断。
 
 ## 2. 准入判定（规划口径）
 
@@ -44,6 +45,15 @@
 4. API 层：`pnpm run typecheck` 暴露出 `_sitemap-urls.ts`、categories slug/detail、posts export / verify-password / views、marketing campaigns、subscribers export、fed note 等入口仍大量使用字符串数组 `select` / `relations`。当前主工作区剩余基线为 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]`。
 5. 测试与桩：`tests/server/api/admin/posts/versions.test.ts` 等测试文件自身仍使用字符串数组 `relations`，升级实施前必须一并迁移。
 6. 非 TypeORM 噪音：probe worktree 的 `pnpm run typecheck` 同时暴露 `packages/cli` 与 `packages/mcp-server` 的缺依赖类型声明错误；当前将其标记为需要单独隔离的包管理 / 环境噪音，不把它们直接计入 TypeORM runtime blocker。
+
+### 4.2 2026-05-27 第二轮收口分桶
+
+1. 数据库与适配层：`pnpm exec vitest run server/database/typeorm-adapter.test.ts --hookTimeout=180000` 通过（`11/11`），说明 `better-auth` 适配层运行时仍可工作；但 `pnpm run typecheck` 仍在 `server/database/typeorm-adapter.ts:448` 暴露一处 `select: string[]` 静态兼容问题。
+2. 实体层：第二轮未补跑独立实体测试，当前 `typeorm@1.0.0` probe 下也未出现实体装饰器或 metadata 级独立断点；该桶仍保持“暂无独立 blocker，但未单独验证”的口径。
+3. 查询与服务层：`server/utils/translation.ts` 的前向兼容补丁继续有效；`pnpm exec vitest run tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts` 通过（`41/41`），第二轮未再出现新的公开热读 runtime blocker。
+4. API 层：`pnpm run typecheck` 已把 TypeORM 直接相关问题收敛到 `11` 个服务端文件 / `13` 个静态错误，集中在 `relations: ['...']` 与 `select: ['...']` 旧语法；当前热点文件为 `server/api/admin/marketing/campaigns/[id].get.ts`、`server/api/categories/[id].get.ts`、`server/api/categories/slug/[slug].get.ts`、`server/api/comments/[id].delete.ts`、`server/api/external/posts/[id].get.ts`、`server/api/posts/[id]/export.get.ts`、`server/api/posts/[id]/verify-password.post.ts`、`server/api/posts/[id]/views.post.ts`、`server/api/tags/slug/[slug].get.ts` 与 `server/routes/fed/note/[id].ts`。
+5. 测试与桩：`server/utils/translation.test.ts` 与 `server/utils/post-list-query.test.ts` 仍保留字符串数组 `select` 形态；它们尚未进入本轮最小验证矩阵失败面，但升级实施前必须同步迁移，避免测试桩继续固化旧语法。
+6. 非 TypeORM 噪音：第二轮 `pnpm run typecheck` 仍包含 `packages/cli` 与 `packages/mcp-server` 的 `22` 个缺依赖类型声明错误（`14` 个文件）；`pnpm security:audit-deps` 两次都因 `pnpm audit` 返回 `fetch failed` 中断，当前将其继续标为 registry / 网络侧噪音，而不计入 TypeORM 兼容 blocker。
 
 ## 5. 升级路径建议
 
@@ -88,6 +98,21 @@
 7. `pnpm security:audit-deps`
    - 结果：通过；`relevant risks: 0`，未发现新的 `high+` 依赖风险。
 
+### 6.2 2026-05-27 第二轮 probe 实测
+
+1. `git worktree add --detach D:\Projects\typescript-projects\momei-typeorm-probe-20260527 HEAD && pnpm up typeorm@1.0.0`
+   - 结果：建立新的隔离 probe worktree，并镜像当前主工作区候选改动后升级到 `typeorm@1.0.0`。
+2. `pnpm run typecheck`
+   - 结果：失败（`35 errors / 25 files`）。其中 TypeORM 直接相关问题已收敛到 `13` 个静态错误 / `11` 个服务端文件；其余 `22` 个错误来自 `packages/cli` 与 `packages/mcp-server` 的缺依赖类型声明。
+3. `pnpm exec vitest run server/database/typeorm-adapter.test.ts --hookTimeout=180000`
+   - 结果：通过（`11/11`）。默认 `60s` hook budget 在 probe 环境下不稳定，因此第二轮固定提高 hook timeout 后再验证。
+4. `pnpm exec vitest run tests/server/database/init-boundary.test.ts --hookTimeout=180000`
+   - 结果：通过（`2/2`）。`ensureDatabaseConnectionReady()` 与 `ensureDatabaseReady()` 的分层契约在 `typeorm@1.0.0` 下继续成立。
+5. `pnpm exec vitest run tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+   - 结果：通过（`41/41`）。说明 translation helper 补丁已经把公开热点读链路从首轮 runtime blocker 收敛为稳定通过。
+6. `pnpm security:audit-deps`
+   - 结果：两次均失败；`pnpm audit` 返回 `fetch failed`，当前仅能记录为外部 registry / 网络噪音，不作为 TypeORM 兼容性 blocker。
+
 ## 7. 回滚与止损
 
 1. 锁定旧版本回退锚点：`typeorm@0.3.29`。
@@ -99,6 +124,6 @@
 
 ## 8. 最终 go/no-go 建议
 
-- 当前建议：`NO-GO（直接升级）`。首轮 probe 已证明适配层与初始化层不是首个 blocker，但 `typecheck` 仍显示 `select` / `relations` 旧语法迁移面较大，主工作区剩余基线为 `22` 处字符串数组 `select` 与 `38` 处字符串数组 `relations`。
-- 当前建议：`GO（评估任务上收）`。
-- 下一触发点：先完成 `FindOptionsSelect` / `FindOptionsRelations` 语法迁移、隔离 `packages/**` 的 typecheck 噪音并重跑 `pnpm run typecheck`；待最小验证矩阵全绿后，再决定是否把“真实升级实施”写入后续阶段。
+- 当前建议：`NO-GO（直接升级）`。截至 2026-05-27，第二轮 probe 已证明最小运行矩阵可通过：适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 均为绿色；但 `pnpm run typecheck` 仍有 `13` 个 TypeORM 直接相关静态错误分布在 `11` 个服务端文件，尚不足以支持真实升级实施。
+- 当前建议：`GO（评估任务上收）`。当前阶段关于 TypeORM 的兼容性探针、失败分桶、回滚锚点与 closeout 证据已经闭环，可关闭本轮评估待办，但不意味着允许把依赖版本直接提升到主工作区。
+- 下一触发点：先迁移剩余 `FindOptionsSelect` / `FindOptionsRelations` 旧语法（含 `server/database/typeorm-adapter.ts`、`10` 个 API / route 热点文件，以及 `server/utils/translation.test.ts` / `server/utils/post-list-query.test.ts` 两处测试桩），再隔离 `packages/**` 的类型噪音并重跑 `pnpm run typecheck`、适配层测试、数据库初始化测试、公开热点读链路测试与依赖审计；待这些证据全绿后，再决定是否把“真实升级实施”写入后续阶段。

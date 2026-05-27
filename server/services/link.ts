@@ -114,7 +114,7 @@ export function extractFaviconUrl(url: string): string {
 export async function getAllLinks(): Promise<ExternalLink[]> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     return linkRepo.find({
-        relations: ['createdBy'],
+        relations: { createdBy: true },
         order: {
             createdAt: 'DESC',
         },
@@ -128,7 +128,7 @@ export async function getLinkById(id: string): Promise<ExternalLink | null> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     return linkRepo.findOne({
         where: { id },
-        relations: ['createdBy'],
+        relations: { createdBy: true },
     })
 }
 

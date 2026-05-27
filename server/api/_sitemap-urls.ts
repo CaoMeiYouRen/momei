@@ -30,13 +30,13 @@ export default defineSitemapEventHandler(async () => {
                 status: PostStatus.PUBLISHED,
                 visibility: PostVisibility.PUBLIC,
             },
-            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
+            select: { id: true, slug: true, language: true, translationId: true, updatedAt: true },
         }),
         categoryRepo.find({
-            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
+            select: { id: true, slug: true, language: true, translationId: true, updatedAt: true },
         }),
         tagRepo.find({
-            select: ['id', 'slug', 'language', 'translationId', 'updatedAt'],
+            select: { id: true, slug: true, language: true, translationId: true, updatedAt: true },
         }),
     ])
 

@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     if (tag.translationId) {
         translations = await tagRepo.find({
             where: { translationId: tag.translationId },
-            select: ['language', 'slug'],
+            select: { language: true, slug: true },
         })
     }
 

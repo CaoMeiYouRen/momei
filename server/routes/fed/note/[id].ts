@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({
         where: { id },
-        relations: ['author', 'tags', 'category'],
+        relations: { author: true, tags: true, category: true },
     })
 
     if (!post) {

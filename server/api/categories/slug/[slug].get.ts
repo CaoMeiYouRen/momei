@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
             slug,
             ...(language ? { language } : {}),
         },
-        relations: ['parent'],
+        relations: { parent: true },
     })
 
     if (!category) {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     if (category.translationId) {
         translations = await categoryRepo.find({
             where: { translationId: category.translationId },
-            select: ['language', 'slug'],
+            select: { language: true, slug: true },
         })
     }
 

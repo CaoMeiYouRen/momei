@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const subscriberRepo = dataSource.getRepository(Subscriber)
     const subscribers = await subscriberRepo.find({
-        relations: ['user'],
+        relations: { user: true },
         order: { createdAt: 'DESC' },
     })
 

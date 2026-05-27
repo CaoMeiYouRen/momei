@@ -492,13 +492,13 @@ export async function buildRuntimeContext() {
 
     const [posts, categories, tags, storageContext, settings] = await Promise.all([
         postRepo.find({
-            select: ['id', 'slug', 'language', 'translationId'],
+            select: { id: true, slug: true, language: true, translationId: true },
         }),
         categoryRepo.find({
-            select: ['id', 'slug', 'language', 'translationId'],
+            select: { id: true, slug: true, language: true, translationId: true },
         }),
         tagRepo.find({
-            select: ['id', 'slug', 'language', 'translationId'],
+            select: { id: true, slug: true, language: true, translationId: true },
         }),
         getUploadStorageContext(),
         getSettings([SettingKey.SITE_URL]),

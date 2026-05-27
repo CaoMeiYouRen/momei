@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     // 这里保持查询一次，因为这是详情页，相对于直接写入 DB，读一次 DB 的开销是可以接受的。
     const post = await postRepo.findOne({
         where: { id },
-        select: ['id', 'views'], // 仅查询需要的字段
+        select: { id: true, views: true }, // 仅查询需要的字段
     })
 
     if (!post) {

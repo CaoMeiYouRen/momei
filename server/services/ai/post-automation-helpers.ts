@@ -438,7 +438,7 @@ export async function findExistingTargetPost(
             translationId,
             language: input.targetLanguage,
         },
-        relations: ['category', 'tags'],
+        relations: { category: true, tags: true },
     })
 
     if (!targetPost) {

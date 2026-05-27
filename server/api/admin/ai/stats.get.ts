@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
 
     // 注意：SQLite 和 MySQL/Postgres 的日期函数不同
     // 这里使用更通用的方式或者按数据库类型处理
-    const dbType = dataSource.options.type
+    const dbType = (dataSource.options.type as string) || ''
 
     let trendQuery = repo.createQueryBuilder('task')
         .select('COUNT(*)', 'count')
@@ -97,9 +97,9 @@ export default defineEventHandler(async (event) => {
         .addSelect('COALESCE(SUM(task.quotaUnits), 0)', 'quotaUnits')
         .where('task.createdAt >= :date', { date: fourteenDaysAgo })
 
-    if (dbType === 'sqlite' || dbType === 'better-sqlite3') {
+    if (dbType.includes('sqlite')) {
         trendQuery = trendQuery.addSelect('strftime(\'%Y-%m-%d\', task.createdAt)', 'date')
-    } else if (dbType === 'postgres') {
+    } else if (dbType.includes('postgres')) {
         trendQuery = trendQuery.addSelect('TO_CHAR(task.createdAt, \'YYYY-MM-DD\')', 'date')
     } else {
         trendQuery = trendQuery.addSelect('DATE_FORMAT(task.createdAt, \'%Y-%m-%d\')', 'date')

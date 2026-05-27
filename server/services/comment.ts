@@ -108,7 +108,7 @@ async function resolveCommentReadContext(postId: string): Promise<{
     const postRepo = dataSource.getRepository(Post)
     const currentPost = await postRepo.findOne({
         where: { id: postId },
-        select: ['id', 'language', 'translationId', 'slug', 'title', 'status', 'visibility'],
+        select: { id: true, language: true, translationId: true, slug: true, title: true, status: true, visibility: true },
     })
 
     if (!currentPost) {
@@ -135,7 +135,7 @@ async function resolveCommentReadContext(postId: string): Promise<{
 
     const siblingPosts = await postRepo.find({
         where: siblingWhere,
-        select: ['id'],
+        select: { id: true },
     })
 
     const postIds = Array.from(new Set([

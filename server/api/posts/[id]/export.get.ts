@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const post = ensureFound(await postRepo.findOne({
         where: { id },
-        relations: ['category', 'tags', 'author'],
+        relations: { category: true, tags: true, author: true },
     }), 'Post')
 
     if (exportAllTranslations) {
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
                 { translationId: tid },
                 { id: tid },
             ],
-            relations: ['category', 'tags', 'author'],
+            relations: { category: true, tags: true, author: true },
         })
 
         if (posts.length > 1) {

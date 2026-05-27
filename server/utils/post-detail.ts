@@ -155,7 +155,7 @@ export async function getPostTranslations(postRepo: Repository<Post>, currentPos
             translationId: currentPost.translationId,
             status: PostStatus.PUBLISHED,
         },
-        select: ['language', 'slug'],
+        select: { language: true, slug: true },
     })
 
     return translations.map((translation) => ({

@@ -90,7 +90,7 @@ export async function repairLegacyPostVersionRecords(dataSource: DataSource) {
     const [posts, versions] = await Promise.all([
         dataSource.getRepository(Post).find({
             where: { id: In(postIds) },
-            relations: ['tags'],
+            relations: { tags: true },
         }),
         versionRepo.find({
             where: { postId: In(postIds) },

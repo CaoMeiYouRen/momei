@@ -38,7 +38,7 @@ describe('admin marketing campaigns api', () => {
             order: { createdAt: 'DESC' },
             skip: 15,
             take: 15,
-            relations: ['sender'],
+            relations: { sender: true },
         })
         expect(result).toEqual({
             code: 200,

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const session = await requireAuth(event)
 
     const commentRepo = dataSource.getRepository(Comment)
-    const comment = await commentRepo.findOne({ where: { id }, relations: ['post'] })
+    const comment = await commentRepo.findOne({ where: { id }, relations: { post: true } })
 
     if (!comment) {
         throw createError({ statusCode: 404, statusMessage: 'Comment not found' })

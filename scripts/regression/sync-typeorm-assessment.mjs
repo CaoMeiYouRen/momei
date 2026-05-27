@@ -35,11 +35,12 @@ function extractHeadingSection(markdown, heading) {
     return lines.slice(startIndex + 1, endIndex).join('\n').trim()
 }
 
-function findHeadingByPrefix(markdown, headingPrefix) {
+function findLastHeadingByPrefix(markdown, headingPrefix) {
     const heading = markdown
         .split('\n')
         .map((line) => line.trim())
-        .find((line) => line.startsWith(headingPrefix))
+        .filter((line) => line.startsWith(headingPrefix))
+        .at(-1)
 
     if (!heading) {
         throw new Error(`[typeorm-assessment-sync] Missing heading prefix: ${headingPrefix}`)
@@ -85,7 +86,7 @@ export function buildTypeormAssessmentWindowEntry({
             '- 执行入口: `pnpm regression:typeorm-assessment`',
             `- 事实源: [docs/design/governance/typeorm-v1-upgrade-assessment.md](${assessmentRelative})`,
             `- 结果摘要: ${goNoGoSummary}`,
-            `- 已执行验证: 已同步设计文档中的 ${probeItemCount} 条首轮 probe 记录。`,
+            `- 已执行验证: 已同步设计文档中的 ${probeItemCount} 条 probe 记录。`,
             '- Review Gate: `Pass` / `warning`；主要问题=直接升级仍为 `NO-GO`，需先完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移并隔离 `packages/**` typecheck 噪音。',
             '- 未覆盖边界: 本回填仅同步评估结论与 probe 摘要；更细的 failure buckets、回滚说明与后续触发条件仍以设计文档为准。',
         ].join('\n'),
@@ -101,7 +102,7 @@ export async function syncTypeormAssessmentRecord(options = {}) {
     const phase = options.phase ?? '第四十阶段'
     const assessmentContent = await readFile(assessmentPath, 'utf8')
     const goNoGoSection = extractHeadingSection(assessmentContent, '## 8. 最终 go/no-go 建议')
-    const probeSection = extractHeadingSection(assessmentContent, findHeadingByPrefix(assessmentContent, '### 6.1 '))
+    const probeSection = extractHeadingSection(assessmentContent, findLastHeadingByPrefix(assessmentContent, '### 6.'))
 
     await upsertRegressionWindowEntry(buildTypeormAssessmentWindowEntry({
         assessmentPath,

@@ -237,7 +237,7 @@ export async function createCampaignFromPost(
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({
         where: { id: postId },
-        relations: ['category', 'tags', 'author'],
+        relations: { category: true, tags: true, author: true },
     })
     if (!post) {
         throw new Error('Post not found')

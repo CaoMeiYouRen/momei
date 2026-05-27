@@ -173,7 +173,7 @@ export function evaluateTargeting(
 export async function getAllCampaigns(): Promise<AdCampaign[]> {
     const campaignRepo = dataSource.getRepository(AdCampaign)
     return campaignRepo.find({
-        relations: ['placements'],
+        relations: { placements: true },
         order: {
             createdAt: 'DESC',
         },
@@ -187,7 +187,7 @@ export async function getCampaignById(id: string): Promise<AdCampaign | null> {
     const campaignRepo = dataSource.getRepository(AdCampaign)
     return campaignRepo.findOne({
         where: { id },
-        relations: ['placements'],
+        relations: { placements: true },
     })
 }
 
@@ -224,7 +224,7 @@ export async function deleteCampaign(id: string): Promise<boolean> {
 export async function getAllPlacements(): Promise<AdPlacement[]> {
     const placementRepo = dataSource.getRepository(AdPlacement)
     return placementRepo.find({
-        relations: ['campaign'],
+        relations: { campaign: true },
         order: {
             priority: 'DESC',
             createdAt: 'ASC',
@@ -239,7 +239,7 @@ export async function getPlacementById(id: string): Promise<AdPlacement | null> 
     const placementRepo = dataSource.getRepository(AdPlacement)
     return placementRepo.findOne({
         where: { id },
-        relations: ['campaign'],
+        relations: { campaign: true },
     })
 }
 

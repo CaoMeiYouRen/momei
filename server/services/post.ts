@@ -241,7 +241,7 @@ export const createPostService = async (body: CreatePostInput, authorId: string,
 
 export const updatePostService = async (id: string, body: UpdatePostInput, options: UpdatePostOptions) => {
     const postRepo = dataSource.getRepository(Post)
-    const post = await postRepo.findOne({ where: { id }, relations: ['tags'] })
+    const post = await postRepo.findOne({ where: { id }, relations: { tags: true } })
 
     if (!post) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })

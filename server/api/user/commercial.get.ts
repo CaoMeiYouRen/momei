@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
     const user = await userRepo.findOne({
         where: { id: session.user.id },
-        select: ['socialLinks', 'donationLinks'],
+        select: { socialLinks: true, donationLinks: true },
     })
 
     if (!user) {

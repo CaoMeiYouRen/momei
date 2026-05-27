@@ -9,6 +9,18 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+<!-- regression-window:start:typeorm-assessment:第四十阶段:2026-05-27 -->
+## 2026-05-27 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
+
+- 执行入口: `pnpm regression:typeorm-assessment`
+- 事实源: [docs/design/governance/typeorm-v1-upgrade-assessment.md](../../design/governance/typeorm-v1-upgrade-assessment.md)
+- 结果摘要: 当前建议：`NO-GO（直接升级）`。截至 2026-05-27，第二轮 probe 已证明最小运行矩阵可通过：适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 均为绿色；但 `pnpm run typecheck` 仍有 `13` 个 TypeORM 直接相关静态错误分布在 `11` 个服务端文件，尚不足以支持真实升级实施。；当前建议：`GO（评估任务上收）`。当前阶段关于 TypeORM 的兼容性探针、失败分桶、回滚锚点与 closeout 证据已经闭环，可关闭本轮评估待办，但不意味着允许把依赖版本直接提升到主工作区。；下一触发点：先迁移剩余 `FindOptionsSelect` / `FindOptionsRelations` 旧语法（含 `server/database/typeorm-adapter.ts`、`10` 个 API / route 热点文件，以及 `server/utils/translation.test.ts` / `server/utils/post-list-query.test.ts` 两处测试桩），再隔离 `packages/**` 的类型噪音并重跑 `pnpm run typecheck`、适配层测试、数据库初始化测试、公开热点读链路测试与依赖审计；待这些证据全绿后，再决定是否把“真实升级实施”写入后续阶段。
+- 已执行验证: 已同步设计文档中的 6 条 probe 记录。
+- Review Gate: `Pass` / `warning`；主要问题=直接升级仍为 `NO-GO`，需先完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移并隔离 `packages/**` typecheck 噪音。
+- 未覆盖边界: 本回填仅同步评估结论与 probe 摘要；更细的 failure buckets、回滚说明与后续触发条件仍以设计文档为准。
+
+<!-- regression-window:end:typeorm-assessment:第四十阶段:2026-05-27 -->
+
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-05-25 -->
 ## 2026-05-25 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
 
@@ -55,6 +67,45 @@
 
 - 本轮没有在 GitHub Actions 真实运行时补跑一次 `dependency-risk-daily` workflow，因此 issue 同步与 artifact 上传仍以后续 CI 实跑为准；但这不影响当前“策略口径对齐 + 本地入口实测一致”的关闭条件。
 - 若后续要把 dependency-risk 的 `auditFailure` 与 `blockingRisk` 细分成不同 finding level，还需要继续把这种差异向更广的 precheck / regression 子项传播；当前策略表已提供事实源，但本轮不把它扩写成全仓统一分级框架。
+
+## 2026-05-27 第四十阶段 TypeORM 1.0.0 第二轮兼容性探针 closeout（P1）
+
+### 范围
+
+- 目标：基于当前主工作区候选代码，重新在隔离 worktree 中执行 `typeorm@1.0.0` probe，确认第一轮 runtime blocker 收敛后，最小验证矩阵是否已足以关闭“兼容性探针与分桶验证”待办。
+- 本轮覆盖：[docs/design/governance/typeorm-v1-upgrade-assessment.md](../../design/governance/typeorm-v1-upgrade-assessment.md)、[server/database/typeorm-adapter.ts](../../../server/database/typeorm-adapter.ts)、[tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts)、[tests/server/api/categories/index.get.test.ts](../../../tests/server/api/categories/index.get.test.ts)、[tests/server/api/posts/index.get.test.ts](../../../tests/server/api/posts/index.get.test.ts) 与 [tests/server/api/tags/index.get.test.ts](../../../tests/server/api/tags/index.get.test.ts)。
+- 非目标：不在本轮直接修完剩余 `FindOptionsSelect` / `FindOptionsRelations` 旧语法；不把 `packages/**` 的缺依赖类型声明一并扩写成新任务实施。
+
+### 实施结论
+
+- 第二轮 probe 下，最小运行矩阵已转绿：`server/database/typeorm-adapter.test.ts` 在 `--hookTimeout=180000` 下通过（`11/11`），`tests/server/database/init-boundary.test.ts` 在同样的 hook budget 下通过（`2/2`），公开热点读链路 `categories + posts + tags` 继续通过（`41/41`）。
+- 当前 `NO-GO（直接升级）` 结论保持不变，但 blocker 已从“运行时首个断点”收敛为“静态迁移面 + 外部噪音”：`pnpm run typecheck` 仍剩 `13` 个 TypeORM 直接相关错误，分布在 `11` 个服务端文件；另有 `packages/cli` 与 `packages/mcp-server` 的 `22` 个类型噪音错误需要单独隔离。
+- 第二轮 `pnpm security:audit-deps` 两次都因 `pnpm audit` 返回 `fetch failed` 中断，当前仅记录为 registry / 网络侧噪音，不作为 TypeORM 兼容 blocker；最近一次成功的安全口径仍以前一轮 probe 为准。
+- 以上证据已足以关闭“兼容性探针与分桶验证 (P1)”待办，但不构成真实升级实施放行条件。
+
+### 已执行验证
+
+- `cd D:\Projects\typescript-projects\momei-typeorm-probe-20260527 && pnpm run typecheck`
+	- 结果：失败；`35 errors / 25 files`，其中 TypeORM 直接相关为 `13` 个错误 / `11` 个服务端文件。
+- `cd D:\Projects\typescript-projects\momei-typeorm-probe-20260527 && pnpm exec vitest run server/database/typeorm-adapter.test.ts --hookTimeout=180000`
+	- 结果：通过；`1` 个文件、`11` 个测试全部通过。
+- `cd D:\Projects\typescript-projects\momei-typeorm-probe-20260527 && pnpm exec vitest run tests/server/database/init-boundary.test.ts --hookTimeout=180000`
+	- 结果：通过；`1` 个文件、`2` 个测试全部通过。
+- `cd D:\Projects\typescript-projects\momei-typeorm-probe-20260527 && pnpm exec vitest run tests/server/api/categories/index.get.test.ts tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+	- 结果：通过；`3` 个文件、`41` 个测试全部通过。
+- `cd D:\Projects\typescript-projects\momei-typeorm-probe-20260527 && pnpm security:audit-deps`
+	- 结果：连续两次失败；`pnpm audit` 返回 `fetch failed`，当前记录为外部依赖源噪音。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：warning
+- 主要问题：P1 评估收口已满足关闭条件，但真实升级实施仍为 `NO-GO`；剩余 blocker 已集中到 `11` 个服务端文件的旧语法迁移与 `packages/**` 类型噪音隔离。
+
+### 未覆盖边界
+
+- 本轮仍未补跑独立实体层测试，因此实体装饰器 / metadata 级断点继续保持“未单独验证”状态。
+- `security:audit-deps` 在本轮未能拿到新的成功样本；若后续要把真实升级实施上收到下一阶段，仍需补一条成功的依赖审计记录。
 
 ## 2026-05-25 第四十阶段 TypeORM 1.0.0 首轮兼容性探针（P1）
 

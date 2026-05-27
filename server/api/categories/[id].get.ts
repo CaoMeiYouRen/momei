@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     // Try to find by ID first
     const category = await categoryRepo.findOne({
         where: { id },
-        relations: ['parent', 'children'],
+        relations: { parent: true, children: true },
     })
 
     ensureFound(category, 'Category')

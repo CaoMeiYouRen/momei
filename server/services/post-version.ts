@@ -179,7 +179,7 @@ async function getPostWithAccess(postId: string, actor: PostVersionActor, includ
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({
         where: { id: postId },
-        relations: includeTags ? ['tags'] : undefined,
+        relations: includeTags ? { tags: true } : undefined,
     })
 
     if (!post) {
@@ -197,7 +197,7 @@ async function getVersionEntity(postId: string, versionId: string): Promise<Post
     const versionRepo = dataSource.getRepository(PostVersion)
     const version = await versionRepo.findOne({
         where: { id: versionId, postId },
-        relations: ['author'],
+        relations: { author: true },
     })
 
     if (!version) {
@@ -212,7 +212,7 @@ async function getLatestVersion(postId: string): Promise<PostVersion | null> {
     return versionRepo.findOne({
         where: { postId },
         order: { sequence: 'DESC' },
-        relations: ['author'],
+        relations: { author: true },
     })
 }
 
@@ -244,7 +244,7 @@ export async function recordPostVersionCommit(post: Post, authorId: string, opti
     if (latestVersion?.snapshotHash === snapshotHash) {
         const hydratedLatest = await versionRepo.findOne({
             where: { id: latestVersion.id, postId: post.id },
-            relations: ['author'],
+            relations: { author: true },
         })
         return {
             created: false,
@@ -275,7 +275,7 @@ export async function recordPostVersionCommit(post: Post, authorId: string, opti
     const savedVersion = await versionRepo.save(version)
     const hydratedVersion = await versionRepo.findOne({
         where: { id: savedVersion.id, postId: post.id },
-        relations: ['author'],
+        relations: { author: true },
     })
 
     return {
@@ -291,7 +291,7 @@ export async function getPostVersionsService(postId: string, actor: PostVersionA
     const versions = await versionRepo.find({
         where: { postId },
         order: { sequence: 'DESC' },
-        relations: ['author'],
+        relations: { author: true },
     })
 
     return versions.map(mapVersionItem)

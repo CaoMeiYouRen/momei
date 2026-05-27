@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({
         where: { id },
-        select: ['id', 'visibility', 'password'], // Explicitly select password since it has select: false
+        select: { id: true, visibility: true, password: true }, // Explicitly select password since it has select: false
     })
 
     if (!post) {

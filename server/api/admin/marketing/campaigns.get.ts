@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         order: { createdAt: 'DESC' },
         skip: (page - 1) * limit,
         take: limit,
-        relations: ['sender'],
+        relations: { sender: true },
     })
 
     return {

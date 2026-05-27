@@ -328,7 +328,7 @@ async function loadManagedPost(postId: string) {
     const postRepo = dataSource.getRepository(PostEntity)
     const post = await postRepo.findOne({
         where: { id: postId },
-        relations: ['author', 'category', 'tags'],
+        relations: { author: true, category: true, tags: true },
     })
 
     if (!post) {

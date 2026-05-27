@@ -107,7 +107,7 @@ export async function getSettingAuditLogs(options: {
     const auditRepo = dataSource.getRepository(SettingAuditLog)
     const [items, total] = await auditRepo.findAndCount({
         where: options.settingKey ? { settingKey: options.settingKey } : undefined,
-        relations: ['operator'],
+        relations: { operator: true },
         order: { createdAt: 'DESC' },
         skip: (options.page - 1) * options.limit,
         take: options.limit,

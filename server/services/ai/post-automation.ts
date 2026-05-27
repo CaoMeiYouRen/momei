@@ -153,7 +153,7 @@ export class PostAutomationService extends AIBaseService {
     private static async getAccessiblePost(postId: string, actor: { userId: string, isAdmin: boolean }) {
         const post = await dataSource.getRepository(Post).findOne({
             where: { id: postId },
-            relations: ['category', 'tags'],
+            relations: { category: true, tags: true },
         })
 
         if (!post) {

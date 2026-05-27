@@ -40,12 +40,13 @@
 
 #### B. TypeORM 评估轨
 
-3. [ ] **TypeORM 1.0.0 兼容性探针与分桶验证 (P1)**
+3. [x] **TypeORM 1.0.0 兼容性探针与分桶验证 (P1)**
 	- 执行范围：仅做评估态兼容性探针，不直接把 `typeorm` 从 `0.3.29` 升级后作为本阶段已交付；优先覆盖 `server/database/**`、`server/database/typeorm-adapter.ts`、公开热点读链路与依赖 TypeORM 形态的定向测试。
 	- 非目标：不在本轮完成真实升级实施；不顺手重写仓库内所有 TypeORM mock。
 	- 最小验收：完成一轮 `typeorm@1.0.0` 兼容性探针，并按“数据库与适配层 / 实体层 / 查询与服务层 / API 层 / 测试桩”输出失败分桶；最小验证矩阵至少覆盖 `pnpm run typecheck`、适配层相关测试、数据库初始化与公开读链路定向测试。
 	- 证据落点：[docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md)、定向验证记录、活动回归窗口阶段结论。
 	- 2026-05-25：已完成隔离 worktree 首轮 probe；`typeorm@1.0.0` 下适配层与初始化层测试通过，首个 runtime blocker 收敛到 [server/utils/translation.ts](../../server/utils/translation.ts) 的字符串数组 `select` 语法，主工作区已落一条前向兼容补丁。当前 `pnpm run typecheck` 仍暴露主工作区剩余 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]` 旧语法，以及待隔离的 `packages/**` 类型噪音；详情见 [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+	- 2026-05-27：已补齐第二轮 closeout probe；`typeorm@1.0.0` 下适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 全部通过，failure buckets 已收敛到 `11` 个服务端文件中的 `13` 个 TypeORM 旧语法静态错误，以及 `packages/**` 的 `22` 个类型噪音错误。当前结论维持 `NO-GO（直接升级）` / `GO（评估任务收口）`，可关闭本条待办；详情见 [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
 
 4. [x] **TypeORM 升级 go/no-go 与回滚预案落盘 (P1)**
 	- 执行范围：依据兼容性探针结果输出 go/no-go，并把回滚锚点、触发条件与后续是否升格为真实升级实施写清楚。

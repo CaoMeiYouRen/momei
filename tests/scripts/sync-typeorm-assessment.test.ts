@@ -53,7 +53,7 @@ describe('sync-typeorm-assessment', () => {
         let regressionWindow = await readFile(resolve(directory, 'docs/reports/regression/current.md'), 'utf8')
         expect(regressionWindow).toContain('TypeORM 1.0.0 升级评估（自动回填）')
         expect(regressionWindow).toContain('NO-GO（直接升级）')
-        expect(regressionWindow).toContain('已同步设计文档中的 2 条首轮 probe 记录')
+        expect(regressionWindow).toContain('已同步设计文档中的 2 条 probe 记录')
 
         await writeProjectFile(directory, 'docs/design/governance/typeorm-v1-upgrade-assessment.md', [
             '# TypeORM 1.0.0 升级专项评估',
@@ -64,6 +64,15 @@ describe('sync-typeorm-assessment', () => {
             '   - 结果：完成隔离 probe。',
             '2. `pnpm run typecheck`',
             '   - 结果：失败。',
+            '',
+            '### 6.2 2026-05-27 第二轮 probe 实测',
+            '',
+            '1. `pnpm exec vitest run server/database/typeorm-adapter.test.ts --hookTimeout=180000`',
+            '   - 结果：通过。',
+            '2. `pnpm exec vitest run tests/server/database/init-boundary.test.ts --hookTimeout=180000`',
+            '   - 结果：通过。',
+            '3. `pnpm exec vitest run tests/server/api/categories/index.get.test.ts`',
+            '   - 结果：通过。',
             '',
             '## 8. 最终 go/no-go 建议',
             '',
@@ -80,6 +89,7 @@ describe('sync-typeorm-assessment', () => {
 
         regressionWindow = await readFile(resolve(directory, 'docs/reports/regression/current.md'), 'utf8')
         expect(regressionWindow).toContain('先隔离 `packages/**` 噪音，再重跑最小验证矩阵。')
+        expect(regressionWindow).toContain('已同步设计文档中的 3 条 probe 记录')
         expect(countOccurrences(regressionWindow, 'TypeORM 1.0.0 升级评估（自动回填）')).toBe(1)
 
         await rm(directory, { force: true, recursive: true })
