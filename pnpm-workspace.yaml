@@ -37,7 +37,7 @@ overrides:
     handlebars: "^4.7.9"
     node-forge: "^1.4.0"
     js-yaml: "^4.1.0"
-    tmp: "^0.2.4"
+    tmp: "^0.2.6"
     debug: "$debug"
     undici: "^6.24.0"
     diff: "^9.0.0"

@@ -10,6 +10,19 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-05-27 -->
+
+<!-- regression-window:start:workflow-precheck:test:2026-05-27 -->
+## 2026-05-27 workflow pre-check（test，自动回填）
+
+- 执行入口: `pnpm run ci:precheck -- --profile=test`
+- 证据 artifact: [md](../../../artifacts/review-gate/2026-05-27-ci-precheck-test.md) / [json](../../../artifacts/review-gate/2026-05-27-ci-precheck-test.json)
+- 结果摘要: `Pass`；blocker=0，warning=0。
+- 已执行验证: test critical files=PASS，test environment=PASS，security:audit-deps=PASS
+- Review Gate: `Pass` / `none`；主要问题=无。
+- 未覆盖边界: 真实发布凭据链路仍以 GitHub Actions runtime 为准。
+
+<!-- regression-window:end:workflow-precheck:test:2026-05-27 -->
+
 ## 2026-05-27 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
 
 - 执行入口: `pnpm regression:typeorm-assessment`
