@@ -168,7 +168,7 @@ describe('email template engine', () => {
             }
 
             if (relativePath === 'fragments/simple-message.mjml') {
-                return '<mj-section><mj-column><mj-text>{{message}}</mj-text></mj-column></mj-section>'
+                return '<mj-section><mj-column><mj-text>storage-template-marker</mj-text><mj-text>{{message}}</mj-text></mj-column></mj-section>'
             }
 
             return null
@@ -196,6 +196,14 @@ describe('email template engine', () => {
             locale: 'en-US',
         })
 
+        const rendered = await engine.generateSimpleMessageTemplate({
+            headerIcon: '🧪',
+            message: 'Compiled through MJML',
+        }, {
+            title: 'Storage Template',
+            locale: 'en-US',
+        })
+
         expect(storageGetItemMock).toHaveBeenCalledWith('base-template.mjml')
         expect(storageGetItemMock).toHaveBeenCalledWith('fragments/simple-message.mjml')
         expect(
@@ -204,5 +212,6 @@ describe('email template engine', () => {
         expect(
             storageGetItemMock.mock.calls.filter(([relativePath]) => relativePath === 'fragments/simple-message.mjml'),
         ).toHaveLength(1)
+        expect(rendered.html).toContain('storage-template-marker')
     })
 })

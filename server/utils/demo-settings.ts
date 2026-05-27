@@ -55,7 +55,7 @@ const demoSettingValues: Partial<Record<string, string>> = {
     [SettingKey.EMAIL_USER]: 'notify@momei.app',
     [SettingKey.EMAIL_PASS]: 'demo-email-password',
     [SettingKey.EMAIL_FROM]: 'Momei Demo <notify@momei.app>',
-    [SettingKey.EMAIL_REQUIRE_VERIFICATION]: 'true',
+    [SettingKey.EMAIL_REQUIRE_VERIFICATION]: 'false',
     [SettingKey.EMAIL_DAILY_LIMIT]: '200',
     [SettingKey.EMAIL_SINGLE_USER_DAILY_LIMIT]: '8',
     [SettingKey.EMAIL_LIMIT_WINDOW]: '86400',

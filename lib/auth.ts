@@ -35,6 +35,7 @@ import {
     AUTH_CAPTCHA_PROVIDER,
     AUTH_CAPTCHA_SECRET_KEY,
     TEST_MODE,
+    DEMO_MODE,
 } from '@/utils/shared/env'
 import { Subscriber } from '@/server/entities/subscriber'
 import { User } from '@/server/entities/user'
@@ -223,7 +224,7 @@ export const auth = betterAuth({
         enabled: true,
         minPasswordLength: 6,
         maxPasswordLength: 64,
-        requireEmailVerification: !TEST_MODE && EMAIL_REQUIRE_VERIFICATION, // 测试环境关闭邮箱验证，避免 E2E 依赖外部 SMTP。
+        requireEmailVerification: !TEST_MODE && !DEMO_MODE && EMAIL_REQUIRE_VERIFICATION, // 测试与 Demo 环境关闭邮箱验证，避免依赖外部 SMTP 导致认证链路阻塞。
         sendResetPassword: async ({ user, url }) => {
             const locale = await resolvePreferredEmailLocale({
                 email: user.email,
@@ -233,11 +234,11 @@ export const auth = betterAuth({
         },
     },
     emailVerification: {
-        sendOnSignUp: !TEST_MODE, // 测试环境跳过注册验证邮件，避免后台任务噪音干扰 E2E 基线
+        sendOnSignUp: !TEST_MODE && !DEMO_MODE, // 测试与 Demo 环境跳过注册验证邮件，避免无 SMTP 环境下的后台任务噪音与阻塞
         autoSignInAfterVerification: true, // 验证后自动登录
         // 发送验证邮件
         sendVerificationEmail: async ({ user, url }) => {
-            if (TEST_MODE) {
+            if (TEST_MODE || DEMO_MODE) {
                 return
             }
 

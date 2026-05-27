@@ -184,6 +184,7 @@ const {
             AUTH_CAPTCHA_PROVIDER: '',
             AUTH_CAPTCHA_SECRET_KEY: '',
             TEST_MODE: false,
+            DEMO_MODE: false,
         },
         pluginFactories: {
             username: createPluginFactory('username'),
@@ -341,6 +342,7 @@ describe('lib/auth configuration', () => {
             AUTH_CAPTCHA_PROVIDER: '',
             AUTH_CAPTCHA_SECRET_KEY: '',
             TEST_MODE: false,
+            DEMO_MODE: false,
         })
         getAuthLocaleFromRequestMock.mockReset()
         getAuthLocaleFromRequestMock.mockReturnValue('zh-Hant')
@@ -554,6 +556,26 @@ describe('lib/auth configuration', () => {
 
         await config.emailVerification.sendVerificationEmail({
             user: { email: 'test-mode@example.com' },
+            url: 'https://auth.example.com/verify',
+        })
+
+        expect(emailServiceMock.sendVerificationEmail).not.toHaveBeenCalled()
+    })
+
+    it('disables verification gates in demo mode to keep seeded accounts usable', async () => {
+        Object.assign(envState, {
+            DEMO_MODE: true,
+            TEST_MODE: false,
+            EMAIL_REQUIRE_VERIFICATION: true,
+        })
+
+        const { config } = await importAuthModule()
+
+        expect(config.emailAndPassword.requireEmailVerification).toBe(false)
+        expect(config.emailVerification.sendOnSignUp).toBe(false)
+
+        await config.emailVerification.sendVerificationEmail({
+            user: { email: 'demo@example.com' },
             url: 'https://auth.example.com/verify',
         })
 
