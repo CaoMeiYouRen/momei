@@ -37,13 +37,18 @@
 ### 2.1 基础运行
 
 ```bash
-docker run -d -p 3000:3000 caomeiyouren/momei
+docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
+    caomeiyouren/momei
 ```
 
 正式环境至少补齐：
 
 ```bash
 docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
     -e AUTH_SECRET=your-random-secret \
     -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
     -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
@@ -63,6 +68,8 @@ services:
             - "3000:3000"
         environment:
             - NODE_ENV=production
+            - HOST=0.0.0.0
+            - NITRO_HOST=0.0.0.0
             - AUTH_SECRET=your-random-secret-key # 生产环境必须配置
         volumes:
             - ./database:/app/database # 持久化存储 SQLite 数据

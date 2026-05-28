@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-19
+last_sync: 2026-05-28
 translation_tier: must-sync
 ---
 
@@ -47,13 +47,18 @@ We provide an official Docker image for Momei.
 ### 2.1 Basic Run
 
 ```bash
-docker run -d -p 3000:3000 caomeiyouren/momei
+docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
+    caomeiyouren/momei
 ```
 
 For production, add at least:
 
 ```bash
 docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
     -e AUTH_SECRET=your-random-secret \
     -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
     -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
@@ -73,6 +78,8 @@ services:
             - "3000:3000"
         environment:
             - NODE_ENV=production
+            - HOST=0.0.0.0
+            - NITRO_HOST=0.0.0.0
             - AUTH_SECRET=your-random-secret-key # Required for production
         volumes:
             - ./database:/app/database # Persistent SQLite storage

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-05-28
 translation_tier: summary-sync
 ---
 
@@ -49,13 +49,18 @@ translation_tier: summary-sync
 ### 2.1 기본 실행
 
 ```bash
-docker run -d -p 3000:3000 caomeiyouren/momei
+docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
+    caomeiyouren/momei
 ```
 
 운영 환경이라면 최소한 다음을 추가하세요.
 
 ```bash
 docker run -d -p 3000:3000 \
+    -e HOST=0.0.0.0 \
+    -e NITRO_HOST=0.0.0.0 \
     -e AUTH_SECRET=your-random-secret \
     -e NUXT_PUBLIC_SITE_URL=https://blog.example.com \
     -e NUXT_PUBLIC_AUTH_BASE_URL=https://blog.example.com \
@@ -73,6 +78,8 @@ services:
             - "3000:3000"
         environment:
             - NODE_ENV=production
+            - HOST=0.0.0.0
+            - NITRO_HOST=0.0.0.0
             - AUTH_SECRET=your-random-secret-key
         volumes:
             - ./database:/app/database
