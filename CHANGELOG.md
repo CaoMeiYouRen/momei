@@ -1,5 +1,49 @@
 # momei
 
+# [1.18.0](https://github.com/CaoMeiYouRen/momei/compare/v1.17.0...v1.18.0) (2026-05-30)
+
+
+### ✨ 新功能
+
+* **auth:** 增加会话管理功能 ([d2a709f](https://github.com/CaoMeiYouRen/momei/commit/d2a709f))
+* **posts:** 增强分发按钮功能与样式 ([da3234f](https://github.com/CaoMeiYouRen/momei/commit/da3234f))
+* **wechat_mp:** 增加外链自动转文末引用功能 ([9c7a5eb](https://github.com/CaoMeiYouRen/momei/commit/9c7a5eb))
+* **wechat_mp:** 实现微信公众号预览与复制功能 ([3f0989d](https://github.com/CaoMeiYouRen/momei/commit/3f0989d))
+
+
+### 🐛 Bug 修复
+
+* **auth:** 添加演示模式支持 ([48c6500](https://github.com/CaoMeiYouRen/momei/commit/48c6500))
+* **feed:** 增强生成 Feed 功能与测试用例 ([494af72](https://github.com/CaoMeiYouRen/momei/commit/494af72))
+* **post-distribution:** 修复加载错误提示信息 ([a08adbd](https://github.com/CaoMeiYouRen/momei/commit/a08adbd))
+* **tts:** 添加语音资源 ID 解析和会话启动帧构建功能 ([38de6e0](https://github.com/CaoMeiYouRen/momei/commit/38de6e0))
+
+
+### 📦 代码重构
+
+* **ai:** 优化 AI 提供者类型处理逻辑 ([7d72043](https://github.com/CaoMeiYouRen/momei/commit/7d72043))
+* **api:** 更新关系和选择字段的语法 ([a777c56](https://github.com/CaoMeiYouRen/momei/commit/a777c56))
+* **asr:** 优化音频处理和错误处理逻辑 ([32e4932](https://github.com/CaoMeiYouRen/momei/commit/32e4932))
+* **audit-simple-duplicates:** 优化全局桶构建逻辑 ([7c8d9cd](https://github.com/CaoMeiYouRen/momei/commit/7c8d9cd))
+* **auth:** 重构认证会话管理逻辑 ([7894214](https://github.com/CaoMeiYouRen/momei/commit/7894214))
+* **components:** 重构分发按钮相关逻辑以提高可读性和可维护性 ([6c2eecd](https://github.com/CaoMeiYouRen/momei/commit/6c2eecd))
+* **components:** 重构商业链接管理器组件以使用共享组件 ([10731b6](https://github.com/CaoMeiYouRen/momei/commit/10731b6))
+* **composables:** 完善多个 composable 的注释和文档说明 ([a908c39](https://github.com/CaoMeiYouRen/momei/commit/a908c39))
+* **database:** 优化数据库连接初始化逻辑 ([356026e](https://github.com/CaoMeiYouRen/momei/commit/356026e))
+* **database:** 重构数据库连接逻辑以提高可维护性和可重用性 ([d6bd00f](https://github.com/CaoMeiYouRen/momei/commit/d6bd00f))
+* **i18n:** 优化国际化文案复用治理与测试覆盖 ([b7c0ea2](https://github.com/CaoMeiYouRen/momei/commit/b7c0ea2))
+* **i18n:** 更新语言支持与 SEO 配置 ([db828ee](https://github.com/CaoMeiYouRen/momei/commit/db828ee))
+* **i18n:** 统一刷新文案为通用键值 ([a4840bc](https://github.com/CaoMeiYouRen/momei/commit/a4840bc))
+* **nuxt.config:** 优化 Windows 本地开发配置 ([4340004](https://github.com/CaoMeiYouRen/momei/commit/4340004))
+* **post-distribution:** 重构分发访问控制逻辑 ([a1395e2](https://github.com/CaoMeiYouRen/momei/commit/a1395e2))
+* **posts:** 隐藏匿名主页卡片的作者邮箱信息 ([ca578a9](https://github.com/CaoMeiYouRen/momei/commit/ca578a9))
+* **translation:** 更新查询选项处理逻辑 ([f80424c](https://github.com/CaoMeiYouRen/momei/commit/f80424c))
+* **tts:** 添加音色规范化和资源 ID 解析功能 ([c9efbd2](https://github.com/CaoMeiYouRen/momei/commit/c9efbd2))
+* **workflow:** 优化发布工作流与回归检查顺序 ([355d3be](https://github.com/CaoMeiYouRen/momei/commit/355d3be))
+* 重命名删除确认函数并更新相关测试用例 ([eb3eed0](https://github.com/CaoMeiYouRen/momei/commit/eb3eed0))
+* 重命名删除确认函数并重构相关逻辑 ([a5cc32d](https://github.com/CaoMeiYouRen/momei/commit/a5cc32d))
+* 重构模型解析和错误处理逻辑 ([f68cc49](https://github.com/CaoMeiYouRen/momei/commit/f68cc49))
+
 # [1.17.0](https://github.com/CaoMeiYouRen/momei/compare/v1.16.0...v1.17.0) (2026-05-16)
 
 
