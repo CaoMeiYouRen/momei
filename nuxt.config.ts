@@ -109,6 +109,10 @@ export default defineNuxtConfig({
             display: 'standalone',
         },
         workbox: {
+            // 生产部署后立即接管新版本，避免旧 SW 继续提供过期 CSS/HTML 组合。
+            cleanupOutdatedCaches: true,
+            clientsClaim: true,
+            skipWaiting: true,
             navigateFallback: '/',
             // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
             navigateFallbackDenylist: [/^\/.*$/],
