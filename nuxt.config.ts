@@ -82,7 +82,7 @@ export default defineNuxtConfig({
     ].filter(Boolean) as any,
     hooks: {
         'build:done': async () => {
-            await repairRolldownClientInitImports()
+            // await repairRolldownClientInitImports()
         },
     },
     pwa: {
