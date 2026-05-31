@@ -45,10 +45,7 @@
 
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
-
-interface ManagedUser {
-    id: string
-}
+import type { ManagedUser } from '@/types/admin-user-management'
 
 const props = defineProps<{
     visible: boolean

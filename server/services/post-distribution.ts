@@ -15,9 +15,12 @@ import {
     type PostDistributionMode,
     type PostDistributionStatus,
     type PostDistributionTimelineEntry,
-    type PostHexoRepositoryProvider,
     type PostHexoRepositorySyncState,
 } from '@/types/post'
+import type {
+    HexoRepositorySyncChannelSummary,
+    PostDistributionSummary,
+} from '@/types/post-distribution'
 import { SettingKey } from '@/types/setting'
 import { toBoolean } from '@/utils/shared/coerce'
 import { cloneJsonValue } from '@/utils/shared/json-clone'
@@ -25,6 +28,11 @@ import { generateRandomString } from '@/utils/shared/random'
 import type { WechatSyncDispatchObservation } from '@/utils/shared/wechatsync'
 
 const DISTRIBUTION_TIMELINE_LIMIT = 20
+
+export type {
+    HexoRepositorySyncChannelSummary,
+    PostDistributionSummary,
+} from '@/types/post-distribution'
 
 export interface PostDistributionActor {
     currentUserId: string
@@ -50,24 +58,6 @@ export interface CompleteWechatSyncDistributionCommand {
     attemptId: string
     accounts: CompleteWechatSyncAccountResult[]
     observation?: WechatSyncDispatchObservation
-}
-
-export interface PostDistributionSummary {
-    channels: {
-        memos: PostDistributionChannelState
-        wechatsync: PostDistributionChannelState
-        hexoRepositorySync: HexoRepositorySyncChannelSummary
-    }
-    timeline: PostDistributionTimelineEntry[]
-}
-
-export interface HexoRepositorySyncChannelSummary extends PostDistributionChannelState {
-    provider?: PostHexoRepositoryProvider | null
-    owner?: string | null
-    repo?: string | null
-    branch?: string | null
-    filePath?: string | null
-    remoteSha?: string | null
 }
 
 export interface DispatchPostDistributionResult {
@@ -157,7 +147,7 @@ function ensureDistributionMetadata(post: Post) {
         ? metadata.integration
         : {}
     const distribution = integration.distribution && typeof integration.distribution === 'object'
-        ? integration.distribution as PostDistributionMetadata
+        ? integration.distribution
         : {}
 
     const channels = distribution.channels && typeof distribution.channels === 'object'

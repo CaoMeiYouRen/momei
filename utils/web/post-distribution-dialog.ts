@@ -4,8 +4,8 @@ import type {
     PostDistributionFailureReason,
     PostDistributionMode,
     PostDistributionStatus,
-    PostDistributionTimelineEntry,
 } from '@/types/post'
+import type { PostDistributionChannelSummary } from '@/types/post-distribution'
 import type { MemosDistributionPreview, WechatSyncDistributionPreviewGroup } from '@/utils/shared/post-distribution-preview'
 import type {
     WechatSyncAccount,
@@ -16,34 +16,7 @@ import type {
 
 type Translate = (key: string) => string
 
-interface PostDistributionChannelSummary {
-    status?: PostDistributionStatus | null
-    remoteId?: string | null
-    remoteUrl?: string | null
-    lastMode?: PostDistributionMode | null
-    activeAttemptId?: string | null
-    lastFailureReason?: PostDistributionFailureReason | null
-    lastMessage?: string | null
-    lastSuccessAt?: string | Date | null
-}
-
-interface HexoRepositorySyncChannelSummary extends PostDistributionChannelSummary {
-    provider?: 'github' | 'gitee' | null
-    owner?: string | null
-    repo?: string | null
-    branch?: string | null
-    filePath?: string | null
-    remoteSha?: string | null
-}
-
-export interface PostDistributionSummary {
-    channels: {
-        memos: PostDistributionChannelSummary
-        wechatsync: PostDistributionChannelSummary
-        hexoRepositorySync: HexoRepositorySyncChannelSummary
-    }
-    timeline: PostDistributionTimelineEntry[]
-}
+export type { PostDistributionSummary } from '@/types/post-distribution'
 
 export interface WechatSyncWindow {
     getAccounts: (callback: (accounts: WechatSyncRawAccount[]) => void) => void

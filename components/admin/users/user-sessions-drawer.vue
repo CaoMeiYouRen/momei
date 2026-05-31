@@ -69,11 +69,7 @@
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
 import { useConfirm } from 'primevue/useconfirm'
-
-interface ManagedUser {
-    id: string
-    name?: string | null
-}
+import type { ManagedUser } from '@/types/admin-user-management'
 
 interface UserSessionRecord {
     token: string

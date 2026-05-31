@@ -34,17 +34,11 @@
 
 <script setup lang="ts">
 import { authClient } from '@/lib/auth-client'
-
-type ManagedUserRole = 'admin' | 'author' | 'user'
-
-interface ManagedUser {
-    id: string
-    role: ManagedUserRole
-}
+import type { ManagedUserWithRole } from '@/types/admin-user-management'
 
 const props = defineProps<{
     visible: boolean
-    user: ManagedUser | null
+    user: ManagedUserWithRole | null
 }>()
 
 const emit = defineEmits(['update:visible', 'success'])
