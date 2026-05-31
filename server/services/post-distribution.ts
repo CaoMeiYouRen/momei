@@ -20,6 +20,7 @@ import {
 } from '@/types/post'
 import { SettingKey } from '@/types/setting'
 import { toBoolean } from '@/utils/shared/coerce'
+import { cloneJsonValue } from '@/utils/shared/json-clone'
 import { generateRandomString } from '@/utils/shared/random'
 import type { WechatSyncDispatchObservation } from '@/utils/shared/wechatsync'
 
@@ -72,10 +73,6 @@ export interface HexoRepositorySyncChannelSummary extends PostDistributionChanne
 export interface DispatchPostDistributionResult {
     summary: PostDistributionSummary
     attemptId?: string | null
-}
-
-function cloneMetadata(metadata: Post['metadata']) {
-    return metadata ? JSON.parse(JSON.stringify(metadata)) : {}
 }
 
 function normalizeChannelState(state?: PostDistributionChannelState | null, legacyRemoteId?: string | null): PostDistributionChannelState {
@@ -155,7 +152,7 @@ function normalizeHexoRepositorySyncChannelState(state?: PostHexoRepositorySyncS
 }
 
 function ensureDistributionMetadata(post: Post) {
-    const metadata = cloneMetadata(post.metadata)
+    const metadata = cloneJsonValue(post.metadata) || {}
     const integration = metadata.integration && typeof metadata.integration === 'object'
         ? metadata.integration
         : {}

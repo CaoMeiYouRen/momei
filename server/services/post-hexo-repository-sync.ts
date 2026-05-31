@@ -12,6 +12,7 @@ import {
 } from '@/types/post'
 import { SettingKey } from '@/types/setting'
 import { normalizeOptionalString, toBoolean } from '@/utils/shared/coerce'
+import { cloneJsonValue } from '@/utils/shared/json-clone'
 
 export interface PostHexoRepositorySyncActor {
     currentUserId: string
@@ -266,12 +267,8 @@ function classifyRepositorySyncError(error: unknown): { reason: PostDistribution
     return { reason: 'unknown', message: 'Unknown repository sync error' }
 }
 
-function cloneMetadata(metadata: Post['metadata']) {
-    return metadata ? JSON.parse(JSON.stringify(metadata)) : {}
-}
-
 function ensureIntegration(metadata: Post['metadata']) {
-    const nextMetadata = cloneMetadata(metadata)
+    const nextMetadata = cloneJsonValue(metadata) || {}
     const integration = nextMetadata.integration && typeof nextMetadata.integration === 'object'
         ? nextMetadata.integration
         : {}

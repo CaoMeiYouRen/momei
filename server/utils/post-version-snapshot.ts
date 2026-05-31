@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { PostVisibility, type PostMetadata } from '@/types/post'
 import { PostVersionDiffField, type PostVersionSnapshot, type PostVersionSource } from '@/types/post-version'
+import { cloneJsonValue } from '@/utils/shared/json-clone'
 
 export interface PostVersionSnapshotLike {
     title: string
@@ -16,14 +17,6 @@ export interface PostVersionSnapshotLike {
     metadata?: PostMetadata | null
     language?: string | null
     translationId?: string | null
-}
-
-function cloneMetadata(metadata: PostMetadata | null | undefined): PostMetadata | null {
-    if (!metadata) {
-        return null
-    }
-
-    return JSON.parse(JSON.stringify(metadata)) as PostMetadata
 }
 
 function stableStringify(value: unknown): string {
@@ -70,7 +63,7 @@ export function buildPostVersionSnapshot(input: PostVersionSnapshotLike): PostVe
         visibility: input.visibility ?? PostVisibility.PUBLIC,
         copyright: input.copyright ?? null,
         metaVersion: input.metaVersion || 1,
-        metadata: cloneMetadata(input.metadata),
+        metadata: cloneJsonValue<PostMetadata | null>(input.metadata ?? null),
         language: input.language || 'zh-CN',
         translationId: input.translationId ?? null,
     }
