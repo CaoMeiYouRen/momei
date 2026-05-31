@@ -78,50 +78,50 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
-        !process.env.VITEST && '@vite-pwa/nuxt',
+        // !process.env.VITEST && '@vite-pwa/nuxt',
     ].filter(Boolean) as any,
     hooks: {
         'build:done': async () => {
-            // await repairRolldownClientInitImports()
+            await repairRolldownClientInitImports()
         },
     },
-    pwa: {
-        registerType: 'autoUpdate',
-        manifest: {
-            name: '墨梅博客',
-            short_name: '墨梅',
-            theme_color: '#64748b',
-            icons: [
-                {
-                    src: 'logo.png',
-                    sizes: '512x512',
-                    type: 'image/png',
-                },
-            ],
-            shortcuts: [
-                {
-                    name: '快速灵感',
-                    short_name: '快速灵感',
-                    url: '/admin/snippets/capture',
-                    icons: [{ src: 'logo.png', sizes: '512x512' }],
-                },
-            ],
-            display: 'standalone',
-        },
-        workbox: {
-            // 生产部署后立即接管新版本，避免旧 SW 继续提供过期 CSS/HTML 组合。
-            cleanupOutdatedCaches: true,
-            clientsClaim: true,
-            skipWaiting: true,
-            navigateFallback: '/',
-            // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
-            navigateFallbackDenylist: [/^\/.*$/],
-            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-        },
-        devOptions: {
-            enabled: false,
-        },
-    },
+    // pwa: {
+    //     registerType: 'autoUpdate',
+    //     manifest: {
+    //         name: '墨梅博客',
+    //         short_name: '墨梅',
+    //         theme_color: '#64748b',
+    //         icons: [
+    //             {
+    //                 src: 'logo.png',
+    //                 sizes: '512x512',
+    //                 type: 'image/png',
+    //             },
+    //         ],
+    //         shortcuts: [
+    //             {
+    //                 name: '快速灵感',
+    //                 short_name: '快速灵感',
+    //                 url: '/admin/snippets/capture',
+    //                 icons: [{ src: 'logo.png', sizes: '512x512' }],
+    //             },
+    //         ],
+    //         display: 'standalone',
+    //     },
+    //     workbox: {
+    //         // 生产部署后立即接管新版本，避免旧 SW 继续提供过期 CSS/HTML 组合。
+    //         cleanupOutdatedCaches: true,
+    //         clientsClaim: true,
+    //         skipWaiting: true,
+    //         navigateFallback: '/',
+    //         // SSR 站点部署后不会长期保留旧 hash 资源，禁止导航兜底继续回放过期 app shell。
+    //         navigateFallbackDenylist: [/^\/.*$/],
+    //         globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    //     },
+    //     devOptions: {
+    //         enabled: false,
+    //     },
+    // },
     runtimeConfig: {
         authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
         // 定时任务安全配置
