@@ -690,10 +690,12 @@
     - **验收标准**: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把上述 `4` 组公开装配链路纳入固定 runtime 验证面，并明确哪些字段继续保留页面私有命名空间、哪些字段可稳定沉淀到共享组件命名空间；新增范围内不得再出现 raw key 暴露。
     - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试，以及 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 对应模块装配的变更记录。
 
-### 第四十阶段：发布前守护与 TypeORM 升级评估收口 (Release Guardrails & TypeORM Upgrade Assessment)
+### 第四十阶段：发布前守护与 TypeORM 升级评估收口 (Release Guardrails & TypeORM Upgrade Assessment) (已审计归档)
 
 **时间表**: 2026-05-23 ~ 约 1 - 2 周
 **目标**: 在第三十九阶段完成治理基线落盘后，把第四十阶段明确收敛为“两条主线并行、一个收口层兜底”的执行面：一条主线负责发布前守护与回归闸门固化，另一条主线负责 TypeORM 1.0.0 升级评估的兼容性探针、go/no-go 结论与回滚预案，避免阶段标题已经写了 TypeORM、但实际执行面只剩 CI 守护的规划漂移。
+
+**审计结论**: 第四十阶段六条主线均已在代码、workflow、回归证据与规划文档中完成闭环。当前状态为：发布前守护轨已统一 pre-check 入口并收敛执行顺序；TypeORM 评估轨维持 `NO-GO（直接升级）` / `GO（评估任务收口）`；收口轨已把 pre-check、周期性回归与 TypeORM 评估结论稳定沉淀到 [活动回归窗口](../reports/regression/current.md)。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块，满足阶段归档条件。
 
 **准入结论**: 本阶段共 `6` 条主线，按“先守护入口、再跑 TypeORM 兼容性探针、最后统一留痕与策略收口”的顺序推进；当前容量为 `2` 条 P0 + `3` 条 P1 + `1` 条 P2，仍在规划规范要求的 `5 - 6` 项窗口内。
 

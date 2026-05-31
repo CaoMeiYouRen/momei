@@ -17,6 +17,62 @@
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的规则把更早阶段整体迁出，而不是拆散验收标准与结果记录。
 
 ---
+## 第四十阶段：发布前守护与 TypeORM 升级评估收口 (已审计归档)
+
+> 归档说明: 第四十阶段「0 个新功能 + 6 个优化」已于 2026-05-31 完成对账、文档同步与归档收口。当前仓库可对照到三段执行面的实现与证据落点：发布前守护轨（统一 pre-check 入口与固定回归顺序）、TypeORM 评估轨（`typeorm@1.0.0` 兼容性探针、失败分桶与 go/no-go 结论）、收口轨（回归窗口自动回填与守护策略分级）。`todo.md` 当前执行面已清理，下一阶段仅保留候选分析，不在本轮直接上收。
+
+> **ROI 评估**: CI 前置守护脚本接入 `2.25`；发布链路最小回归闸门收紧 `2.00`；TypeORM 1.0.0 兼容性探针与分桶验证 `1.75`；TypeORM 升级 go/no-go 与回滚预案落盘 `1.67`；文档证据自动回填 `1.60`；守护策略分级与依赖风险口径对齐 `1.40`。
+
+#### A. 发布前守护轨
+
+1. [x] **CI 前置守护脚本接入首轮落地 (P0)**
+	- 执行范围：在正式执行主命令前增加统一 pre-check，并要求 release/test/docker 三条 workflow 复用同一入口。
+	- 非目标：不重写全部 workflow；不在本轮把所有 warning 一次性升级为 blocker。
+	- 最小验收：release/test/docker 三条 workflow 在执行主体前都调用同一守护入口；至少覆盖依赖风险、关键脚本存在性、必要环境检查。
+	- 证据落点：workflow 变更记录、守护入口定向执行结果、至少一条失败样本定位记录。
+	- 2026-05-25：共享入口 `pnpm ci:precheck -- --profile=<workflow>` 已接入三条 workflow；首轮执行摘要与失败样本定位记录已回写到 [活动回归窗口](../reports/regression/current.md)。
+
+2. [x] **发布链路最小回归闸门收紧 (P0)**
+	- 执行范围：把已有 release:check / regression 脚本编排成固定顺序，先解决本地与 CI 执行顺序不一致的问题。
+	- 非目标：不新增第二套回归入口；不把阶段收口专用命令强行塞进日常开发默认流程。
+	- 最小验收：失败日志可直接定位到守护子项；本地与 CI 的执行顺序一致，且至少保留一份标准化执行摘要。
+	- 证据落点：发布前守护脚本或回归入口定向执行记录、活动回归窗口摘要。
+	- 2026-05-25：本地 `pnpm release` 已改为先走 `pnpm regression:pre-release`；[.github/workflows/release.yml](../../.github/workflows/release.yml) 已收敛为 `precheck -> regression -> release`；`regression:pre-release` 摘要会把 `release:check:full` 的内部失败子项直接上浮到 blocker / warning，并保留 `artifacts/review-gate/*-pre-release-regression.{md,json}` 标准化摘要。
+
+#### B. TypeORM 评估轨
+
+3. [x] **TypeORM 1.0.0 兼容性探针与分桶验证 (P1)**
+	- 执行范围：仅做评估态兼容性探针，不直接把 `typeorm` 从 `0.3.29` 升级后作为本阶段已交付；优先覆盖 `server/database/**`、`server/database/typeorm-adapter.ts`、公开热点读链路与依赖 TypeORM 形态的定向测试。
+	- 非目标：不在本轮完成真实升级实施；不顺手重写仓库内所有 TypeORM mock。
+	- 最小验收：完成一轮 `typeorm@1.0.0` 兼容性探针，并按“数据库与适配层 / 实体层 / 查询与服务层 / API 层 / 测试桩”输出失败分桶；最小验证矩阵至少覆盖 `pnpm run typecheck`、适配层相关测试、数据库初始化与公开读链路定向测试。
+	- 证据落点：[docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md)、定向验证记录、活动回归窗口阶段结论。
+	- 2026-05-25：已完成隔离 worktree 首轮 probe；`typeorm@1.0.0` 下适配层与初始化层测试通过，首个 runtime blocker 收敛到 [server/utils/translation.ts](../../server/utils/translation.ts) 的字符串数组 `select` 语法，主工作区已落一条前向兼容补丁。当前 `pnpm run typecheck` 仍暴露主工作区剩余 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]` 旧语法，以及待隔离的 `packages/**` 类型噪音；详情见 [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+	- 2026-05-27：已补齐第二轮 closeout probe；`typeorm@1.0.0` 下适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 全部通过，failure buckets 已收敛到 `11` 个服务端文件中的 `13` 个 TypeORM 旧语法静态错误，以及 `packages/**` 的 `22` 个类型噪音错误。当前结论维持 `NO-GO（直接升级）` / `GO（评估任务收口）`，可关闭本条待办；详情见 [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+
+4. [x] **TypeORM 升级 go/no-go 与回滚预案落盘 (P1)**
+	- 执行范围：依据兼容性探针结果输出 go/no-go，并把回滚锚点、触发条件与后续是否升格为真实升级实施写清楚。
+	- 非目标：不把已有评估文档误写成“升级已可执行”；不在结论不清时强行把真实升级放进下一阶段实施面。
+	- 最小验收：明确记录 `typeorm@0.3.29` 回滚锚点、no-go 触发条件、下一次重新评估窗口，以及是否允许把真实升级实施纳入后续阶段。
+	- 证据落点：评估文档更新、活动回归窗口结论、roadmap/todo 阶段摘要对齐。
+	- 2026-05-25：当前结论已落盘为“`NO-GO（直接升级）` / `GO（继续评估）`”；回滚锚点保持 `typeorm@0.3.29`，下一次重新评估触发点为完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移、隔离 `packages/**` typecheck 噪音并重跑最小验证矩阵后，再决定是否允许把真实升级实施上收到后续阶段。详情见 [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+
+#### C. 收口轨
+
+5. [x] **文档证据自动回填 (P1)**
+	- 执行范围：将 pre-check、回归摘要与 TypeORM 评估结论自动沉淀到活动回归窗口模板，减少阶段收口时的人工补录。
+	- 非目标：不重新设计第二套回归记录文档；不要求本轮自动生成完整审计报告。
+	- 最小验收：每次主流程后能生成一条标准化证据记录，至少包含执行入口、结果摘要、阻断项或 go/no-go 结论。
+	- 证据落点：[docs/reports/regression/current.md](../reports/regression/current.md) 中的模板化记录与对应脚本输出。
+	- 2026-05-25：`scripts/ci/workflow-precheck.mjs` 与 `scripts/regression/run-periodic-regression.mjs` 已在落盘 artifact 后自动 upsert [活动回归窗口](../reports/regression/current.md) 的紧凑记录；新增 `pnpm regression:typeorm-assessment` 可从 [typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md) 自动同步 go/no-go 与 probe 摘要。定向验证覆盖 `tests/scripts/workflow-precheck.test.ts`、`tests/scripts/run-periodic-regression.main.test.ts` 与 `tests/scripts/sync-typeorm-assessment.test.ts`。
+
+6. [x] **守护策略分级与依赖风险口径对齐 (P2)**
+	- 执行范围：把阻断项和提醒项配置化，并同步校准 `security:audit-deps` 与 `security:audit-deps:daily` 的判断口径。
+	- 非目标：不把所有 daily warning 升级为发版 blocker；不新增独立的第三套依赖风险入口。
+	- 最小验收：策略表可读、可审计，新增规则不需要改 workflow 结构；同一类风险在 daily 与 release 前的结论一致，只有时机差异。
+	- 证据落点：守护策略配置、依赖审计入口定向执行结果、对应文档摘要。
+	- 2026-05-25：已新增共享策略表 `scripts/security/dependency-risk-policy.mjs`，`security:audit-deps` / `security:audit-deps:daily` / `scripts/ci/workflow-precheck.mjs` 已统一读取同一套 dependency-risk finding level；daily 摘要新增 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue` 字段，定向验证覆盖 `tests/scripts/check-dependency-risk.test.ts`、`tests/scripts/run-daily-dependency-audit.test.ts` 与 `tests/scripts/workflow-precheck.test.ts`。
+	- 2026-05-25：已补跑 `pnpm security:audit-deps` 与 `pnpm security:audit-deps:daily` 的真实入口验证；当前 `high+` 风险均为 `0`，release / daily 两条入口统一给出 `Pass (none)`，活动回归窗口已新增 closeout 摘要，可关闭本条待办。
+
 ## 第三十九阶段：公众号排版预览与治理基线落盘 (已审计归档)
 
 > 归档说明: 第三十九阶段「1 个新功能 + 4 个优化」已于 2026-05-23 完成对账、文档同步与归档收口。当前仓库可对照到五条主线的实现与证据落点：`wechat_mp` 预览 / 复制能力、结构复用第三轮热点收敛、注释治理首轮切片、文档 / 脚本治理最小收口包、国际化文案复用治理。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-23
+last_sync: 2026-05-31
 translation_tier: summary-sync
 ---
 
@@ -33,6 +33,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 37 has now been audited and archived**: Windows local `nuxt dev` / `nuxt build` performance hardening, high-risk test-effectiveness work, the next narrow ESLint / type-debt slice, at least three structural-reuse hotspots, and the PostgreSQL long-window review slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 38 has now been audited and archived**: Third-party distribution tag-tailnote consistency for Bilibili / Memos, the second high-risk test-effectiveness slice, one PostgreSQL hot public-read slimming and root-cause-narrowing slice, another structural-reuse round, and the next narrow ESLint / type-debt slice have all been closed in the Chinese source of truth, regression evidence, and archive docs.
 - **Stage 39 has now been audited and archived**: The WeChat Official Account formatting preview / copy-assist feature and four governance slices (structural reuse, comment governance, docs + script governance, and i18n runtime message reuse) have all been closed in the Chinese source of truth, with archive and roadmap status synchronized.
+- **Stage 40 has now been audited and archived**: The release guardrail pre-check gate has been unified across release/test/docker workflows, the TypeORM `1.0.0` assessment probe has been closed with `NO-GO (direct upgrade)` and `GO (assessment closeout)`, and closeout evidence has been consolidated into the Chinese regression window and archive docs.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
@@ -471,5 +472,4 @@ This document outlines the development blueprint for the project. For specific t
 
 > [!NOTE]
 > Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../../plan/roadmap.md).
-
 
