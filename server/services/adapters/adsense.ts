@@ -46,7 +46,7 @@ export class AdSenseAdapter extends BaseAdAdapter {
      * 注意：AdSense 无法通过 API 验证，这里只检查配置是否存在
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!this.getTypedConfig().clientId)
+        return Promise.resolve(isAdSenseConfig(this.config) && !!this.config.clientId)
     }
 
     /**
@@ -61,12 +61,13 @@ export class AdSenseAdapter extends BaseAdAdapter {
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const clientId = this.getTypedConfig().clientId
         const metadata = placement.metadata
 
         if (!metadata) {
             throw new AdError('Ad placement metadata is required for AdSense')
         }
+
+        const clientId = this.getTypedConfig().clientId
 
         const slot = metadata.slot
         const format = metadata.format || 'responsive'

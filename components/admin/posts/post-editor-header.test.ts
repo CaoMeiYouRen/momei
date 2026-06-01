@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
 import { PostStatus } from '@/types/post'
@@ -71,5 +72,15 @@ describe('PostEditorHeader', () => {
         const rightBar = wrapper.find('.top-bar-right')
         expect(rightBar.findComponent({ name: 'Tag' }).exists()).toBe(true)
         expect(rightBar.find('.translation-status-bar').exists()).toBe(true)
+    })
+
+    it('emits translation switch after clicking a language badge', async () => {
+        const wrapper = await mountHeader()
+
+        await wrapper.find('.title-input').trigger('focus')
+        await wrapper.findAll('.translation-badge')[1]?.trigger('click')
+        await nextTick()
+
+        expect(wrapper.emitted('handle-translation')).toEqual([['en-US']])
     })
 })

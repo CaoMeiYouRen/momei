@@ -48,7 +48,7 @@ export class TencentAdapter extends BaseAdAdapter {
      * 验证凭据
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!this.getTypedConfig().appId)
+        return Promise.resolve(isTencentConfig(this.config) && !!this.config.appId)
     }
 
     /**
@@ -83,14 +83,14 @@ window.TencentGDT.push({
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const config = this.getTypedConfig()
         const metadata = placement.metadata
 
         if (!metadata) {
             throw new AdError('Ad placement metadata is required for Tencent')
         }
 
-        const placementId = metadata.placementId || config.placementId
+        const configPlacementId = isTencentConfig(this.config) ? this.config.placementId : undefined
+        const placementId = metadata.placementId || configPlacementId
         const width = metadata.width || 300
         const height = metadata.height || 250
         const adType = metadata.adType || 'banner' // banner, native, feed, etc.

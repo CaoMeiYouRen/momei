@@ -268,6 +268,14 @@ describe('RegisterPage', () => {
         })
     })
 
+    it('navigates to localized login page when clicking the login link', async () => {
+        const wrapper = await mountPage()
+
+        await wrapper.find('a[href="/login"]').trigger('click')
+
+        expect(navigateToMock).toHaveBeenCalledWith('/login')
+    })
+
     it('submits successfully and redirects home after showing a success toast', async () => {
         const wrapper = await mountPage()
 

@@ -194,6 +194,7 @@
                     <NuxtLink
                         :to="localePath('/login')"
                         class="register-card__login-link"
+                        @click.prevent="handleLoginNavigation"
                     >
                         {{ $t("pages.register.have_account") }}
                     </NuxtLink>
@@ -245,6 +246,10 @@ const handleGoogleLogin = async () => {
         provider: 'google',
         callbackURL: localePath('/'),
     })
+}
+
+const handleLoginNavigation = () => {
+    return navigateTo(localePath('/login'))
 }
 
 const handleRegister = async () => {

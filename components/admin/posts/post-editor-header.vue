@@ -138,7 +138,7 @@
                         'translation-badge--active': post.language === l.code,
                         'translation-badge--missing': !hasTranslation(l.code)
                     }"
-                    @click="emit('handle-translation', l.code)"
+                    @click="handleTranslationBadgeClick(l.code)"
                 />
             </div>
             <Tag
@@ -245,6 +245,17 @@ const localePath = useLocalePath()
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
+
+const handleTranslationBadgeClick = async (langCode: string) => {
+    const activeElement = document.activeElement
+
+    if (activeElement instanceof HTMLElement) {
+        activeElement.blur()
+        await nextTick()
+    }
+
+    emit('handle-translation', langCode)
+}
 
 const handleTranslateSelection = (langCode: string | null) => {
     translateOp.value?.hide()

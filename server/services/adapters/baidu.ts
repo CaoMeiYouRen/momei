@@ -48,7 +48,7 @@ export class BaiduAdapter extends BaseAdAdapter {
      * 验证凭据
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!this.getTypedConfig().slotId)
+        return Promise.resolve(isBaiduConfig(this.config) && !!this.config.slotId)
     }
 
     /**
@@ -63,14 +63,14 @@ export class BaiduAdapter extends BaseAdAdapter {
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const config = this.getTypedConfig()
         const metadata = placement.metadata
 
         if (!metadata) {
             throw new AdError('Ad placement metadata is required for Baidu')
         }
 
-        const slotId = metadata.slotId || config.slotId
+        const configSlotId = isBaiduConfig(this.config) ? this.config.slotId : undefined
+        const slotId = metadata.slotId || configSlotId
         const width = metadata.width || 300
         const height = metadata.height || 250
 
