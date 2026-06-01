@@ -1,12 +1,16 @@
-import { BaseAdAdapter, AdError } from './base'
+import { BaseAdAdapter, AdError, type AdAdapterConfig } from './base'
 import { AdPlacement } from '@/server/entities/ad-placement'
 
 /**
  * 腾讯广告适配器配置接口
  */
-interface TencentConfig {
+interface TencentConfig extends AdAdapterConfig {
     appId: string // 腾讯广告应用 ID
     placementId?: string // 默认广告位 ID
+}
+
+function isTencentConfig(config: AdAdapterConfig): config is TencentConfig {
+    return typeof config.appId === 'string'
 }
 
 /**
@@ -26,8 +30,8 @@ export class TencentAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override validateConfig(config: TencentConfig): Promise<void> {
-        if (!config.appId) {
+    protected override validateConfig(config: AdAdapterConfig): Promise<void> {
+        if (!isTencentConfig(config) || !config.appId) {
             throw new AdError('Tencent App ID is required')
         }
 
@@ -44,14 +48,14 @@ export class TencentAdapter extends BaseAdAdapter {
      * 验证凭据
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!(this.config as TencentConfig).appId)
+        return Promise.resolve(!!this.getTypedConfig().appId)
     }
 
     /**
      * 获取腾讯广告初始化脚本
      */
     override getScript(): string {
-        const appId = (this.config as TencentConfig).appId
+        const appId = this.getTypedConfig().appId
         // 腾讯广告 SDK 初始化脚本
         return `
 <script>
@@ -79,7 +83,7 @@ window.TencentGDT.push({
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const config = this.config as TencentConfig
+        const config = this.getTypedConfig()
         const metadata = placement.metadata
 
         if (!metadata) {
@@ -155,12 +159,20 @@ window.TencentGDT.push({
      */
     getAdUnitConfig(placementId: string, width: number, height: number) {
         return {
-            appId: (this.config as TencentConfig).appId,
+            appId: this.getTypedConfig().appId,
             placementId,
             width,
             height,
             adapterId: this.id,
         }
+    }
+
+    private getTypedConfig(): TencentConfig {
+        if (!isTencentConfig(this.config)) {
+            throw new AdError('Tencent App ID is required')
+        }
+
+        return this.config
     }
 }
 

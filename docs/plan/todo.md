@@ -42,6 +42,7 @@
 - [ ] **主线：ESLint / 类型债治理 (P1)**
 	- 执行范围：坚持“单规则 + 单文件 / 双文件”窄切片，结合规则债 inventory 输出推进下一轮清偿。
 	- 非目标：不扩写为全仓 `any` 清零或多规则并行治理。
+	- 当前进度：已完成公开列表 API 子组 `no-explicit-any`、广告配置类型组 `no-explicit-any` 与文本 / 广告目标断言组 `no-non-null-assertion` 三组窄切片。
 	- 最小验收：目标规则命中数下降且定向 lint / typecheck 通过。
 
 ## 相关文档

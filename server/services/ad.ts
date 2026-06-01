@@ -140,11 +140,12 @@ export function evaluateTargeting(
 
     // 分类定向 (OR 逻辑：匹配任一分类即展示)
     if (targeting.categories && targeting.categories.length > 0) {
-        if (!context?.categories) {
+        const categories = context?.categories
+        if (!categories) {
             return false
         }
         const hasMatch = targeting.categories.some((cat) =>
-            context.categories!.includes(cat),
+            categories.includes(cat),
         )
         if (!hasMatch) {
             return false
@@ -153,11 +154,12 @@ export function evaluateTargeting(
 
     // 标签定向 (OR 逻辑：匹配任一标签即展示)
     if (targeting.tags && targeting.tags.length > 0) {
-        if (!context?.tags) {
+        const tags = context?.tags
+        if (!tags) {
             return false
         }
         const hasMatch = targeting.tags.some((tag) =>
-            context.tags!.includes(tag),
+            tags.includes(tag),
         )
         if (!hasMatch) {
             return false

@@ -2,12 +2,14 @@ export const RUNTIME_TS_IGNORES = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'sc
 export const PRODUCTION_TS_IGNORES = [...RUNTIME_TS_IGNORES, 'server/api/admin/migrations/**', '**/migration-*.ts']
 
 const NO_EXPLICIT_ANY_UTILITY_FILES = [
+    'types/ad.ts',
     'utils/shared/**/*.{ts,tsx,mts,cts}',
     'server/utils/object.ts',
     'server/utils/pagination.ts',
     'server/utils/ad.ts',
     'server/utils/agreement-public.ts',
     'server/utils/post-access.ts',
+    'server/services/adapters/base.ts',
 ]
 
 const NO_EXPLICIT_ANY_API_FILES = [
@@ -36,6 +38,8 @@ export const NO_EXPLICIT_ANY_FILES = [
 
 export const NO_NON_NULL_ASSERTION_FILES = [
     'composables/use-post-editor-io.ts',
+    'server/services/ad.ts',
+    'utils/shared/citable-content.ts',
 ]
 
 export const ESLINT_DEBT_RULE_SLICES = [

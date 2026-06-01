@@ -17,7 +17,12 @@ function resolveFenceMarker(line: string): string | null {
         return null
     }
 
-    return match[1]!.startsWith('```') ? '```' : '~~~'
+    const marker = match[1]
+    if (!marker) {
+        return null
+    }
+
+    return marker.startsWith('```') ? '```' : '~~~'
 }
 
 export function collapseWhitespace(text: string): string {
@@ -31,9 +36,15 @@ function parseMarkdownHeading(line: string): MarkdownHeading | null {
         return null
     }
 
+    const headingMarks = match[1]
+    const headingText = match[2]
+    if (!headingMarks || headingText === undefined) {
+        return null
+    }
+
     return {
-        level: match[1]!.length,
-        text: collapseWhitespace(match[2] || ''),
+        level: headingMarks.length,
+        text: collapseWhitespace(headingText),
     }
 }
 

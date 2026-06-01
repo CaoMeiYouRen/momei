@@ -121,7 +121,7 @@ export interface ExternalLinkMetadata {
 /**
  * 广告适配器配置接口
  */
-export type AdAdapterConfig = Record<string, any>
+export type AdAdapterConfig = Record<string, unknown>
 
 /**
  * 广告展示统计接口

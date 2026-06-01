@@ -4,7 +4,7 @@ import { AdPlacement } from '@/server/entities/ad-placement'
 /**
  * 广告适配器配置接口
  */
-export type AdAdapterConfig = Record<string, any>
+export type AdAdapterConfig = Record<string, unknown>
 
 /**
  * 广告适配器错误类

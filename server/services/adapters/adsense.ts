@@ -1,11 +1,15 @@
-import { BaseAdAdapter, AdError } from './base'
+import { BaseAdAdapter, AdError, type AdAdapterConfig } from './base'
 import { AdPlacement } from '@/server/entities/ad-placement'
 
 /**
  * Google AdSense 适配器配置接口
  */
-interface AdSenseConfig {
+interface AdSenseConfig extends AdAdapterConfig {
     clientId: string // ca-pub-XXXXXXXXXXXXXXXX
+}
+
+function isAdSenseConfig(config: AdAdapterConfig): config is AdSenseConfig {
+    return typeof config.clientId === 'string'
 }
 
 /**
@@ -23,8 +27,8 @@ export class AdSenseAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override validateConfig(config: AdSenseConfig): Promise<void> {
-        if (!config.clientId) {
+    protected override validateConfig(config: AdAdapterConfig): Promise<void> {
+        if (!isAdSenseConfig(config) || !config.clientId) {
             throw new AdError('AdSense Client ID is required')
         }
 
@@ -42,14 +46,14 @@ export class AdSenseAdapter extends BaseAdAdapter {
      * 注意：AdSense 无法通过 API 验证，这里只检查配置是否存在
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!(this.config as AdSenseConfig).clientId)
+        return Promise.resolve(!!this.getTypedConfig().clientId)
     }
 
     /**
      * 获取 AdSense 初始化脚本
      */
     override getScript(): string {
-        const clientId = (this.config as AdSenseConfig).clientId
+        const clientId = this.getTypedConfig().clientId
         return `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}" crossorigin="anonymous"></script>`
     }
 
@@ -57,7 +61,7 @@ export class AdSenseAdapter extends BaseAdAdapter {
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const clientId = (this.config as AdSenseConfig).clientId
+        const clientId = this.getTypedConfig().clientId
         const metadata = placement.metadata
 
         if (!metadata) {
@@ -90,9 +94,17 @@ export class AdSenseAdapter extends BaseAdAdapter {
      */
     getAdUnitConfig(slot: string) {
         return {
-            clientId: (this.config as AdSenseConfig).clientId,
+            clientId: this.getTypedConfig().clientId,
             slot,
         }
+    }
+
+    private getTypedConfig(): AdSenseConfig {
+        if (!isAdSenseConfig(this.config)) {
+            throw new AdError('AdSense Client ID is required')
+        }
+
+        return this.config
     }
 }
 

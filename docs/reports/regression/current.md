@@ -9,6 +9,42 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-06-01 第四十一阶段 ESLint / 类型债治理：广告配置类型组 + 文本/广告目标断言组（P1）
+
+### 范围
+
+- 目标：继续沿“单规则 + 单文件 / 双文件”节奏推进两组新切片，分别收敛广告域共享配置类型中的 `@typescript-eslint/no-explicit-any`，以及低风险工具 / 服务文件中的 `@typescript-eslint/no-non-null-assertion`。
+- 本轮覆盖：[scripts/governance/eslint-debt-targets.mjs](../../../scripts/governance/eslint-debt-targets.mjs)、[types/ad.ts](../../../types/ad.ts)、[server/services/adapters/base.ts](../../../server/services/adapters/base.ts)、[server/services/ad.ts](../../../server/services/ad.ts)、[utils/shared/citable-content.ts](../../../utils/shared/citable-content.ts)、[server/services/adapters/base.test.ts](../../../server/services/adapters/base.test.ts)、[server/services/adapters/index.test.ts](../../../server/services/adapters/index.test.ts)、[server/services/ad.test.ts](../../../server/services/ad.test.ts)、[utils/shared/citable-content.test.ts](../../../utils/shared/citable-content.test.ts)、[docs/design/governance/eslint-type-debt-tightening.md](../../design/governance/eslint-type-debt-tightening.md) 与 [docs/plan/todo.md](../../plan/todo.md)。
+- 非目标：不把 `no-explicit-any` 直接外溢到整个 `server/services/adapters/**`；不把 `no-non-null-assertion` 扩写为 `server/services/**` 或 `utils/shared/**` 目录级提级；不顺手清理测试中的 `as any` / 非空断言。
+
+### 实施结论
+
+- 已将 `types/ad.ts` 与 `server/services/adapters/base.ts` 并入现有 `no-explicit-any` 聚合切片，并把重复的 `AdAdapterConfig = Record<string, any>` 统一收窄为 `Record<string, unknown>`，保持广告适配器工厂、基类和子类桥接契约不变。
+- 已将 `server/services/ad.ts` 与 `utils/shared/citable-content.ts` 并入 `no-non-null-assertion` 窄切片，分别用局部 `categories/tags` 守卫和正则捕获守卫替代 `context.categories!` / `context.tags!` / `match[1]!` / `match[2]!`。
+- 重跑 `pnpm governance:audit:eslint-debt` 后，当前治理切片仍保持 `warning=0 / explicit exemptions=0`，说明新增两组切片后基线未反弹。
+
+### 已执行验证
+
+- `pnpm exec eslint types/ad.ts server/services/adapters/base.ts server/services/ad.ts utils/shared/citable-content.ts --max-warnings 0`
+	- 结果：通过；四个受影响文件未新增 ESLint warning。
+- `pnpm governance:audit:eslint-debt`
+	- 结果：通过；当前 `warning 总数: 0`、`显式豁免总数: 0`。
+- `pnpm exec vitest run server/services/adapters/base.test.ts server/services/adapters/index.test.ts server/services/ad.test.ts utils/shared/citable-content.test.ts`
+	- 结果：通过；`4` 个文件、`15` 个测试全部通过。
+- `pnpm typecheck`
+	- 结果：通过；本轮广告配置类型组与断言组未引入新的类型错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；ESLint / 类型债主线已继续推进两组新切片，但仍需维持单文件 / 双文件节奏选择下一刀。
+
+### 未覆盖边界
+
+- 本轮没有继续处理广告适配器子类中的显式类型断言，也没有扩展到 `notification.ts`、`avatar.post.ts`、`app-captcha.vue` 等其它非空断言候选。
+- 当前回归只覆盖广告配置共享契约和两个低风险 `no-non-null-assertion` 文件；测试中的同类断言保持豁免。
+
 ## 2026-06-01 第四十一阶段 ESLint / 类型债治理：公开列表 API 子组 `no-explicit-any` 切片（P1）
 
 ### 范围

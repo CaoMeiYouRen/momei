@@ -1,12 +1,16 @@
-import { BaseAdAdapter, AdError } from './base'
+import { BaseAdAdapter, AdError, type AdAdapterConfig } from './base'
 import { AdPlacement } from '@/server/entities/ad-placement'
 
 /**
  * 百度联盟适配器配置接口
  */
-interface BaiduConfig {
+interface BaiduConfig extends AdAdapterConfig {
     slotId: string // 百度联盟推广位 ID
     userId?: string // 百度联盟用户 ID (可选，某些高级功能需要)
+}
+
+function isBaiduConfig(config: AdAdapterConfig): config is BaiduConfig {
+    return typeof config.slotId === 'string'
 }
 
 /**
@@ -26,8 +30,8 @@ export class BaiduAdapter extends BaseAdAdapter {
     /**
      * 验证配置
      */
-    protected override validateConfig(config: BaiduConfig): Promise<void> {
-        if (!config.slotId) {
+    protected override validateConfig(config: AdAdapterConfig): Promise<void> {
+        if (!isBaiduConfig(config) || !config.slotId) {
             throw new AdError('Baidu slot ID is required')
         }
 
@@ -44,7 +48,7 @@ export class BaiduAdapter extends BaseAdAdapter {
      * 验证凭据
      */
     override verifyCredentials(): Promise<boolean> {
-        return Promise.resolve(!!(this.config as BaiduConfig).slotId)
+        return Promise.resolve(!!this.getTypedConfig().slotId)
     }
 
     /**
@@ -59,7 +63,7 @@ export class BaiduAdapter extends BaseAdAdapter {
      * 获取广告位 HTML
      */
     override getPlacementHtml(placement: AdPlacement): string {
-        const config = this.config as BaiduConfig
+        const config = this.getTypedConfig()
         const metadata = placement.metadata
 
         if (!metadata) {
@@ -102,6 +106,14 @@ export class BaiduAdapter extends BaseAdAdapter {
             height,
             adapterId: this.id,
         }
+    }
+
+    private getTypedConfig(): BaiduConfig {
+        if (!isBaiduConfig(this.config)) {
+            throw new AdError('Baidu slot ID is required')
+        }
+
+        return this.config
     }
 }
 
