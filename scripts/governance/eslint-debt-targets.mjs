@@ -12,6 +12,8 @@ const NO_EXPLICIT_ANY_UTILITY_FILES = [
 
 const NO_EXPLICIT_ANY_API_FILES = [
     'server/api/categories/index.get.ts',
+    'server/api/posts/index.get.ts',
+    'server/api/tags/index.get.ts',
 ]
 
 export const NO_EXPLICIT_ANY_FILES = [

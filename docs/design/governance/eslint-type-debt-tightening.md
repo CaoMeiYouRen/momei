@@ -60,7 +60,7 @@
 - 第二轮仅对 `server/utils/object.ts` 与 `server/utils/pagination.ts` 启用同一条规则，避免把 `server/utils` 整体提升成高噪音目录级治理。
 - 第三轮仅对 `composables/use-post-editor-io.ts` 启用 `@typescript-eslint/no-non-null-assertion`，继续保持 `composables/**` 其余文件不受该规则影响，确保回滚边界仍然等于“单文件 + 配置一处”。
 - 新一轮继续沿用 `@typescript-eslint/no-explicit-any` 的单文件切片策略，对 `composables/use-post-editor-voice.ts` 清掉显式 `any` 后再把该文件并入既有的 `no-explicit-any` override；不为同一条规则继续复制一份新的 `files` / `ignores` 判断。
-- 再下一刀继续沿用同一口径，对 `server/api/categories/index.get.ts` 这类已有同级测试、且只剩单个 `attachTranslations(... as any)` 调用点的入口，用显式泛型替代 cast，并把该文件纳入 `no-explicit-any` 的 API 子组，而不是再新增一条散落 override。
+- 再下一刀继续沿用同一口径，对 `server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 这类已有同级测试、且只剩单个 `attachTranslations(... as any)` 调用点的入口，用显式泛型替代 cast，并统一纳入 `no-explicit-any` 的 API 子组，而不是再新增散落 override。
 - 当前轮按 todo 的回退方案，继续沿用同一条 `@typescript-eslint/no-explicit-any` 的单文件切片策略，对 `composables/use-tts-task.ts` 中的 `$fetch<any>` 与 `catch (e: any)` 收窄为本地任务状态 payload 和 `unknown` 错误解析，并直接并入既有的 `noExplicitAnyFiles` 聚合列表。
 - 收口轮继续沿用同一条 `@typescript-eslint/no-explicit-any` 聚合 override，把 `use-upload.ts`、`use-asr-task.ts`、`use-admin-ai.ts`、`use-admin-i18n.ts`、`use-post-editor-auto-save.ts`、`use-onboarding.ts`、`use-post-editor-page.helpers.ts`、`use-tts-volcengine-direct.ts`、`use-post-editor-ai.ts` 与 `use-post-editor-io.ts` 中剩余的单文件显式 `any` 逐个替换为本地接口、`unknown` 错误收窄或更窄的函数签名，不新增第二条规则、不打开目录级提级。
 - `eslint.config.js` 中重复出现的 TS `files` / `ignores` 作用域，应优先抽成共享常量与轻量 helper，再在不同规则切片间复用，避免随着治理轮次增加让配置本身成为新的重复代码热点。
@@ -77,6 +77,7 @@
 - 将 `use-post-editor-io.ts` 中 frontmatter 多别名读取的非空断言改写为局部变量与显式守卫，保持音频导入、封面导入与基础字段导入行为不变。
 - 将 `use-asr-direct.ts` 里的重复 PCM 转换 helper 删除，改为复用 `utils/web/audio-compression.ts` 中现有的 `float32ToPcmInt16()`，以最小变更消除目录级 `max-lines` blocker。
 - 将 `server/api/categories/index.get.ts` 中的 `attachTranslations(items as any, ...)` 改为显式 `attachTranslations<Category>(items, ...)`，用实体基线类型替代调用点 cast，不改动 helper 契约。
+- 将 `server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 中的 `attachTranslations(items as any, ...)` 分别改为显式 `attachTranslations<Tag>(items, ...)` 与 `attachTranslations<Post>(items, ...)`，保持公开列表 / 管理列表的翻译附着行为不变。
 - 将 `use-tts-task.ts` 中的轮询响应收敛为本地 `TTSTaskStatusPayload` / `TTSTaskResultPayload`，复用 `AITaskStatus` 事实源，避免继续依赖 `$fetch<any>` 与 `catch (error: any)`。
 - 将 `use-upload.ts`、`use-asr-task.ts` 与 `use-tts-volcengine-direct.ts` 中的错误回退统一改为 `unknown` + 局部 helper 解析消息，不再直接读取 `error.data`。
 - 将 `use-admin-ai.ts`、`use-admin-i18n.ts`、`use-onboarding.ts` 与 `use-post-editor-page.helpers.ts` 的松散参数签名改为本地最小接口，保持现有 UI 与导览行为不变。
@@ -90,6 +91,7 @@
 - 第三轮配置回滚：只需回退 `eslint.config.js` 中针对 `composables/use-post-editor-io.ts` 的窄 override。
 - 新一轮 `no-explicit-any` 配置回滚：只需从聚合后的 `no-explicit-any` override 中移除 `composables/use-post-editor-voice.ts`，不影响其它既有窄切片。
 - API 单文件 `no-explicit-any` 配置回滚：只需从 `noExplicitAnyApiFiles` 中移除 `server/api/categories/index.get.ts`，不影响工具层与 composable 切片。
+- API 子组 `no-explicit-any` 配置回滚：只需从 `noExplicitAnyApiFiles` 中移除 `server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 中对应条目，不影响工具层与 composable 切片。
 - 当前回退切片配置回滚：只需从聚合后的 `no-explicit-any` override 中移除 `composables/use-tts-task.ts`，不影响其它既有窄切片。
 - 收口轮配置回滚：只需从聚合后的 `no-explicit-any` override 中移除新增的 composable 文件列表，不影响 shared / server / API 既有切片。
 - 代码回滚：只需回退 `utils/shared/markdown.ts` 的类型收敛改动。
@@ -97,6 +99,7 @@
 - 第三轮代码回滚：只需回退 `composables/use-post-editor-io.ts` 中 frontmatter 别名读取的局部变量与守卫改动。
 - 新一轮代码回滚：只需回退 `composables/use-post-editor-voice.ts` 中本地 Web Speech / 错误对象类型与配置响应归一化收窄。
 - API 单文件代码回滚：只需回退 `server/api/categories/index.get.ts` 中 `attachTranslations<Category>(...)` 的显式泛型调用。
+- API 子组代码回滚：只需分别回退 `server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 中 `attachTranslations<...>(...)` 的显式泛型调用。
 - 当前回退切片代码回滚：只需回退 `composables/use-tts-task.ts` 中本地任务状态 payload、音频结果提取与错误消息解析收窄。
 - 收口轮代码回滚：只需分别回退对应 composable 中新增的本地接口、payload 类型与 `unknown` 错误解析 helper；不需要回退跨文件公共契约或新增抽象层。
 - 目录级 ESLint 收口补刀回滚：只需回退 `composables/use-asr-direct.ts` 对 `float32ToPcmInt16()` 的复用接线。
@@ -115,6 +118,7 @@
 - V2：执行 `composables/use-tts-task.test.ts`，确认 TTS 任务轮询、结果解析与错误回退行为未回归。
 - V2：执行 `composables/use-upload.test.ts`、`composables/use-asr-task.test.ts`、`composables/use-admin-ai.test.ts`、`composables/use-admin-i18n.test.ts`、`composables/use-post-editor-auto-save.test.ts`、`composables/use-onboarding.test.ts`、`composables/use-post-editor-page.helpers.test.ts` 与 `composables/use-post-editor-io.test.ts`，确认错误回退、导览启动、自动保存、frontmatter 导入与后台 AI 辅助行为未回归。
 - V2：执行 `tests/server/api/categories/index.get.test.ts`，确认分类公开列表分页、翻译回退、聚合与缓存行为未回归。
+- V2：执行 `tests/server/api/categories/index.get.test.ts`、`tests/server/api/tags/index.get.test.ts` 与 `tests/server/api/posts/index.get.test.ts`，确认分类 / 标签 / 文章列表入口的翻译附着、分页、聚合与缓存行为未回归。
 - 文档验证：执行 `pnpm docs:build`，确认新增治理页与侧边栏配置已被文档站正确接入。
 - RG：在 `docs/reports/regression/current.md` 中沉淀 Review Gate 结论、未覆盖边界与下一轮候选。
 
@@ -124,7 +128,7 @@
 
 - `no-explicit-any` 仍未扩展到 `server/**`、`composables/**`、前端组件层与测试层。
 - `use-post-editor-voice.ts` 本轮已完成 `@typescript-eslint/no-explicit-any` 清零，但这不等同于 `composables/**` 整体已具备提级条件；后续仍需继续维持单文件 / 双文件节奏。
-- `server/api/categories/index.get.ts` 已完成当前单文件切片，但 `server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 中同类 `attachTranslations(... as any)` 仍保留为后续候选，避免当前收口扩成多入口治理。
+- 公开列表 API 子组中的 `attachTranslations(... as any)` 已在 `categories / tags / posts` 三个入口完成收敛，但这不等于 `server/api/**` 已具备目录级提级条件；后续仍应维持单文件 / 双文件节奏选择下一刀。
 - 第三十四阶段这条 `composables` 子桶回退主线已完成当前所有高 ROI 生产源码 `no-explicit-any` 单文件 / 双文件切片；当前 `composables/*.ts` 的残余显式 `any` 已收敛为测试文件与有意保留的非生产输入断言，不再阻塞本轮待办关闭。
 - `no-non-null-assertion` 目前只在 `composables/use-post-editor-io.ts` 单文件切片中上收；`use-asr-direct.ts` 的目录级 `max-lines` blocker 已通过复用现有 PCM helper 收敛，但并未继续扩写为独立 ASR helper 下沉工程。
 - `use-post-editor-ai.ts` 与 `use-post-editor-io.ts` 这类编辑器链路文件虽然本轮已完成 `no-explicit-any` 清零，但并不意味着下一阶段适合继续把 `no-unsafe-*` 或更宽的 editor 规则直接上收到整条编辑器链路；后续仍应保持单规则、单文件或双文件策略。

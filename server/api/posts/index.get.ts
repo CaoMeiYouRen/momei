@@ -227,7 +227,7 @@ export default defineEventHandler(async (event) => {
 
             // Attach translation information for management mode
             if (query.scope === 'manage') {
-                await attachTranslations(items as any, postRepo, {
+                await attachTranslations<Post>(items, postRepo, {
                     select: ['id', 'language', 'status', 'translationId', 'title', 'coverImage', 'metadata'],
                 })
             }

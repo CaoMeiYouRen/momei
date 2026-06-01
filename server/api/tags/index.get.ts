@@ -102,7 +102,7 @@ export default defineEventHandler(async (event) => {
             }))
 
             // Attach translation information
-            await attachTranslations(items as any, tagRepo, {
+            await attachTranslations<Tag>(items, tagRepo, {
                 select: ['id', 'language', 'translationId', 'name', 'slug'],
             })
 

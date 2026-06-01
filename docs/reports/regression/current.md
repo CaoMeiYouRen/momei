@@ -9,6 +9,42 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+## 2026-06-01 第四十一阶段 ESLint / 类型债治理：公开列表 API 子组 `no-explicit-any` 切片（P1）
+
+### 范围
+
+- 目标：继续沿 `@typescript-eslint/no-explicit-any` 的窄切片策略，把公开列表 API 子组中剩余的 `attachTranslations(... as any)` 收敛到实体泛型调用，不扩写成 `server/api/**` 目录级治理。
+- 本轮覆盖：[scripts/governance/eslint-debt-targets.mjs](../../../scripts/governance/eslint-debt-targets.mjs)、[server/api/tags/index.get.ts](../../../server/api/tags/index.get.ts)、[server/api/posts/index.get.ts](../../../server/api/posts/index.get.ts)、[tests/server/api/tags/index.get.test.ts](../../../tests/server/api/tags/index.get.test.ts)、[tests/server/api/posts/index.get.test.ts](../../../tests/server/api/posts/index.get.test.ts) 与 [docs/design/governance/eslint-type-debt-tightening.md](../../design/governance/eslint-type-debt-tightening.md)。
+- 非目标：不把 `no-explicit-any` 外溢到整个 `server/api/**`；不顺手清理测试桩里的 `as any`；不并行开启 `no-non-null-assertion` 或 `no-unused-vars` 新规则族。
+
+### 实施结论
+
+- 已把 `server/api/tags/index.get.ts` 与 `server/api/posts/index.get.ts` 并入现有 `no-explicit-any` API 子组，保持与 `server/api/categories/index.get.ts` 相同的治理口径。
+- 两个入口中的 `attachTranslations(items as any, ...)` 已分别收敛为 `attachTranslations<Tag>(items, ...)` 与 `attachTranslations<Post>(items, ...)`，不改动查询、分页、缓存与翻译附着契约。
+- 重跑 `pnpm governance:audit:eslint-debt` 后，当前治理切片仍保持 `warning=0 / explicit exemptions=0`，说明这次扩面没有引入新的 residual warnings。
+
+### 已执行验证
+
+- `pnpm exec eslint server/api/posts/index.get.ts server/api/tags/index.get.ts --max-warnings 0`
+	- 结果：通过；受影响 API 入口未新增 ESLint warning。
+- `pnpm governance:audit:eslint-debt`
+	- 结果：通过；当前 `warning 总数: 0`、`显式豁免总数: 0`。
+- `pnpm exec vitest run tests/server/api/posts/index.get.test.ts tests/server/api/tags/index.get.test.ts`
+	- 结果：通过；`2` 个文件、`29` 个测试全部通过。
+- `pnpm typecheck`
+	- 结果：通过；本轮 API 子组切片未引入新的类型错误。
+
+### Review Gate
+
+- 结论：Pass
+- 问题分级：none
+- 主要问题：无 blocker；当前仅完成公开列表 API 子组的一刀，整条 ESLint / 类型债主线仍需继续按单文件 / 双文件节奏推进。
+
+### 未覆盖边界
+
+- 本轮没有把同类治理扩展到其它 `server/api/**` 入口，也没有触碰测试文件中的 `as any`；这些仍保留为后续候选。
+- 当前回归只覆盖 tags / posts 两个受影响入口；`categories` 作为同组既有切片未在本轮重复补跑。
+
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-05-27 -->
 
 <!-- regression-window:start:workflow-precheck:test:2026-05-27 -->
