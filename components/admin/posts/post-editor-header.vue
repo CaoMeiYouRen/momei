@@ -13,6 +13,7 @@
                 :placeholder="$t('pages.admin.posts.title_placeholder')"
                 class="title-input"
                 :class="{'p-invalid': errors.title}"
+                @focus="rememberFocusedEditorElement"
             />
             <ButtonGroup class="ai-tools-group">
                 <Button
@@ -138,6 +139,7 @@
                         'translation-badge--active': post.language === l.code,
                         'translation-badge--missing': !hasTranslation(l.code)
                     }"
+                    @mousedown.capture="rememberActiveEditorElement"
                     @click="handleTranslationBadgeClick(l.code)"
                 />
             </div>
@@ -245,14 +247,40 @@ const localePath = useLocalePath()
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
+const lastFocusedEditorElement = ref<HTMLElement | null>(null)
 
-const handleTranslationBadgeClick = async (langCode: string) => {
+const rememberFocusedEditorElement = (event: FocusEvent) => {
+    const target = event.target
+
+    if (target instanceof HTMLElement) {
+        lastFocusedEditorElement.value = target
+    }
+}
+
+const rememberActiveEditorElement = () => {
     const activeElement = document.activeElement
 
-    if (activeElement instanceof HTMLElement) {
-        activeElement.blur()
+    if (activeElement instanceof HTMLElement && activeElement !== document.body) {
+        lastFocusedEditorElement.value = activeElement
+    }
+}
+
+const blurEditorBeforeTranslation = async () => {
+    const activeElement = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+    const candidate = activeElement && activeElement !== document.body
+        ? activeElement
+        : lastFocusedEditorElement.value
+
+    if (candidate && candidate.isConnected) {
+        candidate.blur()
         await nextTick()
     }
+}
+
+const handleTranslationBadgeClick = async (langCode: string) => {
+    await blurEditorBeforeTranslation()
 
     emit('handle-translation', langCode)
 }
