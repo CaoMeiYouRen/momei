@@ -52,8 +52,17 @@ function buildArchiveCacheKey(query: {
 }
 
 export default defineEventHandler(async (event) => {
-    const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
-    const query = await getValidatedQuery(event, (q) => archiveQuerySchema.parse(applyDefaultPaginationLimit(q as Record<string, unknown>, postsPerPage)))
+    const query = await getValidatedQuery(event, async (q) => {
+        const normalizedQuery = q as Record<string, unknown>
+
+        // 显式 limit 的归档请求不应在命中 runtime cache 前额外读取 settings。
+        if (normalizedQuery.limit !== undefined && normalizedQuery.limit !== null && normalizedQuery.limit !== '') {
+            return archiveQuerySchema.parse(normalizedQuery)
+        }
+
+        const postsPerPage = await getSetting(SettingKey.POSTS_PER_PAGE, '10')
+        return archiveQuerySchema.parse(applyDefaultPaginationLimit(normalizedQuery, postsPerPage))
+    })
 
     const session = event.context?.auth
     const user = event.context?.user

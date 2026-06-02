@@ -1,3 +1,4 @@
+import type { SelectQueryBuilder } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { FriendLinkApplication } from '@/server/entities/friend-link-application'
 import { FriendLinkCategory } from '@/server/entities/friend-link-category'
@@ -216,6 +217,47 @@ async function saveFriendLinkEntity(
     return await dataSource.getRepository(FriendLink).save(entity)
 }
 
+function applyPublicFriendLinkSelect(qb: SelectQueryBuilder<FriendLink>) {
+    return qb
+        .select([
+            'friendLink.id',
+            'friendLink.createdAt',
+            'friendLink.updatedAt',
+            'friendLink.name',
+            'friendLink.url',
+            'friendLink.logo',
+            'friendLink.description',
+            'friendLink.rssUrl',
+            'friendLink.contactEmail',
+            'friendLink.categoryId',
+            'friendLink.status',
+            'friendLink.source',
+            'friendLink.isPinned',
+            'friendLink.isFeatured',
+            'friendLink.sortOrder',
+            'friendLink.healthStatus',
+            'friendLink.consecutiveFailures',
+            'friendLink.healthCheckCooldownUntil',
+            'friendLink.lastCheckedAt',
+            'friendLink.lastErrorMessage',
+            'friendLink.lastHttpStatus',
+            'friendLink.applicationId',
+            'friendLink.createdById',
+            'friendLink.updatedById',
+        ])
+        .leftJoin('friendLink.category', 'category')
+        .addSelect([
+            'category.id',
+            'category.createdAt',
+            'category.updatedAt',
+            'category.name',
+            'category.slug',
+            'category.description',
+            'category.sortOrder',
+            'category.isEnabled',
+        ])
+}
+
 async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), getHealthCheckTimeoutMs())
@@ -379,9 +421,16 @@ export const friendLinkService = {
             }
         }
 
+        if (options.featured && !meta.footerEnabled) {
+            return {
+                meta,
+                items: [],
+                groups: [],
+            }
+        }
+
         const friendLinkRepo = dataSource.getRepository(FriendLink)
-        const qb = friendLinkRepo.createQueryBuilder('friendLink')
-            .leftJoinAndSelect('friendLink.category', 'category')
+        const qb = applyPublicFriendLinkSelect(friendLinkRepo.createQueryBuilder('friendLink'))
             .where('friendLink.status = :status', { status: FriendLinkStatus.ACTIVE })
             .orderBy('friendLink.isPinned', 'DESC')
             .addOrderBy('friendLink.sortOrder', 'ASC')
@@ -392,15 +441,8 @@ export const friendLinkService = {
         }
 
         if (options.featured) {
-            if (!meta.footerEnabled) {
-                return {
-                    meta,
-                    items: [],
-                    groups: [],
-                }
-            }
             qb.andWhere('friendLink.isFeatured = :featured', { featured: true })
-            qb.take(options.limit ?? meta.footerLimit)
+            qb.limit(options.limit ?? meta.footerLimit)
         }
 
         const items = await qb.getMany()

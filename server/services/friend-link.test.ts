@@ -296,6 +296,159 @@ describe('friendLinkService.getCategories', () => {
     })
 })
 
+describe('friendLinkService.getPublicFriendLinks', () => {
+    const queryBuilder = {
+        select: vi.fn().mockReturnThis(),
+        leftJoin: vi.fn().mockReturnThis(),
+        addSelect: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        andWhere: vi.fn().mockReturnThis(),
+        orderBy: vi.fn().mockReturnThis(),
+        addOrderBy: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis(),
+        getMany: vi.fn(),
+    }
+
+    const friendLinkRepo = {
+        createQueryBuilder: vi.fn(() => queryBuilder),
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
+            const settingKey = String(key)
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_LIMIT)) {
+                return Promise.resolve('6')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_CHECK_INTERVAL_MINUTES)) {
+                return Promise.resolve('60')
+            }
+
+            return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
+        })
+
+        vi.mocked(getLocalizedSetting).mockResolvedValue({
+            key: SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES,
+            value: '',
+            requestedLocale: 'zh-CN',
+            resolvedLocale: 'zh-CN',
+            fallbackChain: ['zh-CN', 'en-US'],
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+
+        vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
+            if (entity === FriendLink) {
+                return friendLinkRepo as never
+            }
+
+            throw new Error('Unexpected entity')
+        })
+    })
+
+    it('featured 公开友链使用显式 select 并通过 limit 限制结果', async () => {
+        const category = Object.assign(new FriendLinkCategory(), {
+            id: 'cat-1',
+            name: 'Tech',
+            slug: 'tech',
+            description: 'Tech blogs',
+        })
+        const first = Object.assign(new FriendLink(), {
+            id: 'fl-1',
+            categoryId: 'cat-1',
+            category,
+            name: 'Alpha',
+            url: 'https://alpha.example.com',
+            status: FriendLinkStatus.ACTIVE,
+            isPinned: true,
+            isFeatured: true,
+            sortOrder: 1,
+        })
+        const second = Object.assign(new FriendLink(), {
+            id: 'fl-2',
+            categoryId: null,
+            category: null,
+            name: 'Beta',
+            url: 'https://beta.example.com',
+            status: FriendLinkStatus.ACTIVE,
+            isPinned: false,
+            isFeatured: true,
+            sortOrder: 2,
+        })
+        queryBuilder.getMany.mockResolvedValue([first, second])
+
+        const result = await friendLinkService.getPublicFriendLinks({
+            featured: true,
+            limit: 2,
+        })
+
+        expect(friendLinkRepo.createQueryBuilder).toHaveBeenCalledWith('friendLink')
+        expect(queryBuilder.select).toHaveBeenCalledOnce()
+        expect(queryBuilder.leftJoin).toHaveBeenCalledWith('friendLink.category', 'category')
+        expect(queryBuilder.limit).toHaveBeenCalledWith(2)
+        expect(queryBuilder.andWhere).toHaveBeenCalledWith('friendLink.isFeatured = :featured', { featured: true })
+        expect(result.items).toEqual([first, second])
+        expect(result.groups).toEqual([
+            {
+                category,
+                items: [first],
+            },
+            {
+                category: null,
+                items: [second],
+            },
+        ])
+    })
+
+    it('footer 关闭时直接返回空结果而不触发链接查询', async () => {
+        vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
+            const settingKey = String(key)
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_APPLICATION_ENABLED)) {
+                return Promise.resolve('true')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_ENABLED)) {
+                return Promise.resolve('false')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_FOOTER_LIMIT)) {
+                return Promise.resolve('6')
+            }
+
+            if (settingKey === String(SettingKey.FRIEND_LINKS_CHECK_INTERVAL_MINUTES)) {
+                return Promise.resolve('60')
+            }
+
+            return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
+        })
+
+        const result = await friendLinkService.getPublicFriendLinks({ featured: true })
+
+        expect(friendLinkRepo.createQueryBuilder).not.toHaveBeenCalled()
+        expect(result.items).toEqual([])
+        expect(result.groups).toEqual([])
+    })
+})
+
 describe('friendLinkService.createCategory', () => {
     const categoryRepo = {
         save: vi.fn((entity: FriendLinkCategory) => Promise.resolve(entity)),
