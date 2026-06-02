@@ -217,7 +217,7 @@ describe('translation utils', () => {
             } as unknown as Repository<any>
 
             const result = await attachTranslations(items, mockRepo, {
-                select: ['title' as any],
+                select: { title: true },
             })
 
             expect(mockRepo.find).toHaveBeenCalledWith(expect.objectContaining({

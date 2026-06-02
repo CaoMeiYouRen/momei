@@ -4,6 +4,7 @@ import {
     type ObjectLiteral,
     type EntityManager,
     type FindOptionsRelations,
+    type FindOptionsSelect,
     LessThan,
     LessThanOrEqual,
     MoreThan,
@@ -48,6 +49,17 @@ function withApplyDefault(
         }
     }
     return value
+}
+
+function toFindOptionsSelect(select?: string[]): FindOptionsSelect<any> | undefined {
+    if (!select || select.length === 0) {
+        return undefined
+    }
+    const result: Record<string, true> = {}
+    for (const key of select) {
+        result[key] = true
+    }
+    return result
 }
 
 function createTransformHelpers({
@@ -445,7 +457,7 @@ export const typeormAdapter =
                     const relations = transformHelpers.convertJoinToRelations(model, join)
                     const result = await repository.findOne({
                         where: findOptions,
-                        select,
+                        select: toFindOptionsSelect(select),
                         relations,
                     })
                     const transformed = transformHelpers.transformOutput(result, model, select) as any

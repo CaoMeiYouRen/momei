@@ -111,7 +111,7 @@ export default defineEventHandler(async (event) => {
 
             // Attach translation information
             await attachTranslations<Category>(items, categoryRepo, {
-                select: ['id', 'language', 'translationId', 'name', 'slug', 'description', 'parentId'],
+                select: { id: true, language: true, translationId: true, name: true, slug: true, description: true, parentId: true },
             })
 
             return success(paginate(items, total, query.page, query.limit))

@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
 
             // Attach translation information
             await attachTranslations<Tag>(items, tagRepo, {
-                select: ['id', 'language', 'translationId', 'name', 'slug'],
+                select: { id: true, language: true, translationId: true, name: true, slug: true },
             })
 
             return success(paginate(items, total, query.page, query.limit))

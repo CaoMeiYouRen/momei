@@ -9,6 +9,18 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+<!-- regression-window:start:typeorm-assessment:第四十阶段:2026-06-02 -->
+## 2026-06-02 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
+
+- 执行入口: `pnpm regression:typeorm-assessment`
+- 事实源: [docs/design/governance/typeorm-v1-upgrade-assessment.md](../../design/governance/typeorm-v1-upgrade-assessment.md)
+- 结果摘要: 当前建议：`NO-GO（直接升级）`。截至 2026-05-27，第二轮 probe 已证明最小运行矩阵可通过：适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 均为绿色；但 `pnpm run typecheck` 仍有 `13` 个 TypeORM 直接相关静态错误分布在 `11` 个服务端文件，尚不足以支持真实升级实施。；当前建议：`GO（评估任务上收）`。当前阶段关于 TypeORM 的兼容性探针、失败分桶、回滚锚点与 closeout 证据已经闭环，可关闭本轮评估待办，但不意味着允许把依赖版本直接提升到主工作区。；下一触发点：先迁移剩余 `FindOptionsSelect` / `FindOptionsRelations` 旧语法（含 `server/database/typeorm-adapter.ts`、`10` 个 API / route 热点文件，以及 `server/utils/translation.test.ts` / `server/utils/post-list-query.test.ts` 两处测试桩），再隔离 `packages/**` 的类型噪音并重跑 `pnpm run typecheck`、适配层测试、数据库初始化测试、公开热点读链路测试与依赖审计；待这些证据全绿后，再决定是否把“真实升级实施”写入后续阶段。
+- 已执行验证: 已同步设计文档中的 6 条 probe 记录。
+- Review Gate: `Pass` / `warning`；主要问题=直接升级仍为 `NO-GO`，需先完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移并隔离 `packages/**` typecheck 噪音。
+- 未覆盖边界: 本回填仅同步评估结论与 probe 摘要；更细的 failure buckets、回滚说明与后续触发条件仍以设计文档为准。
+
+<!-- regression-window:end:typeorm-assessment:第四十阶段:2026-06-02 -->
+
 ## 2026-06-01 第四十一阶段 ESLint / 类型债治理：广告配置类型组 + 文本/广告目标断言组（P1）
 
 ### 范围

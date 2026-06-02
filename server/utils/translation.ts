@@ -74,12 +74,16 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
     items: T[],
     repo: Repository<T>,
     options: {
-        select?: (keyof T)[]
+        select?: (keyof T)[] | FindOptionsSelect<T>
     } = {},
 ) {
     if (items.length === 0) {
         return items
     }
+
+    const selectOption = Array.isArray(options.select)
+        ? toFindOptionsSelect(options.select)
+        : options.select
 
     const translationIds = items
         .map((item) => item.translationId)
@@ -98,7 +102,7 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
 
     const allTranslations = await repo.find({
         where: { translationId: In(translationIds) } as any,
-        select: toFindOptionsSelect(options.select),
+        select: selectOption,
     })
 
     items.forEach((item) => {
@@ -113,7 +117,10 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
                     }
                     // 如果有其他字段在 select 中，也一并带上
                     if (options.select) {
-                        options.select.forEach((key) => {
+                        const keys = Array.isArray(options.select)
+                            ? options.select
+                            : Object.keys(options.select) as (keyof T)[]
+                        keys.forEach((key) => {
                             trans[key as string] = t[key]
                         })
                     }
