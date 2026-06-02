@@ -16,6 +16,7 @@
             :get-status-severity="getStatusSeverity"
             :saving="saving"
             :is-new="isNew"
+            :has-unsaved-content="isNew && !post.id && hasUnsavedNewDraftContent(post)"
             :ai-loading="aiLoading"
             :title-suggestions="titleSuggestions"
             @suggest-titles="suggestTitles"
@@ -176,6 +177,7 @@ const {
     translationTargetStatuses,
     hasTranslation,
     handleTranslationClick,
+    hasUnsavedNewDraftContent,
     searchPosts,
     openTranslationWorkflow,
     handleStartTranslationWorkflow,

@@ -33,6 +33,7 @@ describe('PostEditorHeader', () => {
         getStatusSeverity: () => 'info',
         saving: false,
         isNew: true,
+        hasUnsavedContent: false,
         aiLoading: {},
         titleSuggestions: [],
     }

@@ -227,6 +227,7 @@ const props = defineProps<{
     getStatusSeverity: (status: string) => string
     saving: boolean
     isNew: boolean
+    hasUnsavedContent: boolean
     aiLoading: any
     titleSuggestions: string[]
 }>()
@@ -280,6 +281,17 @@ const blurEditorBeforeTranslation = async () => {
 }
 
 const handleTranslationBadgeClick = async (langCode: string) => {
+    if (props.hasUnsavedContent) {
+        const toast = useToast()
+        toast.add({
+            severity: 'warn',
+            summary: t('common.warn'),
+            detail: t('pages.admin.posts.save_current_first'),
+            life: 3000,
+        })
+        return
+    }
+
     await blurEditorBeforeTranslation()
 
     emit('handle-translation', langCode)

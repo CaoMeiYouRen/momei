@@ -622,5 +622,6 @@ export function usePostEditorPage() {
         savePost,
         getStatusLabel,
         getStatusSeverity: getPostEditorStatusSeverity,
+        hasUnsavedNewDraftContent,
     }
 }
