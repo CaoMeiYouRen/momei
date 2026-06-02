@@ -12,7 +12,7 @@
 ## 长期主线任务（可跨阶段保留）
 
 > 状态口径统一使用：进行中 / 观察中 / 暂停 / 已关闭。
-> 共 9 条（2026-05-19 增补脚本治理主线）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层；本轮新增 1 条“脚本资产、量化口径与回归入口治理”主线，用于承接长期治理的 script-first 基座。
+> 共 11 条（2026-05-19 增补脚本治理主线，2026-06-03 增补站点性能主线）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层；本轮新增 1 条“脚本资产、量化口径与回归入口治理”主线，用于承接长期治理的 script-first 基座。
 
 1. **测试覆盖率与有效性治理**
 - **目标**:
@@ -207,7 +207,24 @@
     - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
     - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
 
-9. **脚本资产、量化口径与回归入口治理**
+9. **站点性能与 Core Web Vitals 持续优化**
+- **与 #8 的区别**: #8 聚焦 Windows 本地 Dev / Build 性能（开发体验），本条聚焦**生产环境用户体验性能**（Lighthouse / LCP / CLS / INP）。
+- **目标**:
+    - 持续追踪核心页面的 Core Web Vitals，建立跨版本性能回归基线，并在竞品对标（Ghost 0.8s LCP、Astro 零 JS 输出）中保持优势。
+    - 优先级：公开首页 > 文章详情页 > 分类/标签列表 > 后台管理页。
+- **状态**:
+    - 进行中（已有 Lighthouse CI + bundle budget 体系，但尚未形成持续优化节奏）。
+- **当前状态**:
+    - 已有 `test:perf:budget:strict` 与 `lighthouse` 配置，并在发版前 / 阶段收口入口中作为 blocker 运行。
+    - 当前 `maxAsyncChunkJs` 为 `53.09KB / 120KB`、`keyCss` 为 `59.98KB / 70KB`，核心预算仍在守线范围内。
+    - 竞品对标：Ghost 自托管站点通常 LCP 在 0.8s-1.5s，Astro 内容站点 LCP 可低至 0.5s；墨梅的目标应在 1.5s 以内（公共页）和 2.5s 以内（后台页）。
+- **最近一次上收阶段**:
+    - 第二十七阶段（首屏优化第一阶段 Lighthouse >= 50，已审计归档）。
+- **下一次可切片方向**:
+    - 建立公开页 Core Web Vitals 基线（LCP / CLS / INP），优先收敛首页 banner 图片加载、mavon-editor bundle 懒加载、PrimeVue 组件 tree-shaking 三项热点。
+    - 评估文章详情页的按需 hydration 策略，减少首屏 JS 体积。
+    - 若移动端 LCP 超过 3s，启动专项移动端性能治理。
+    - 所有切片继续复用 `test:perf:budget` 与 Lighthouse CI artifact 作为事实源。
 - **目标**:
     - 把脚本作为长期治理主线的事实源，优先为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出，而不是长期依赖叙述性阶段总结。
     - 治理 `scripts/**` 目录的长期脚本入口、孤儿脚本、临时脚本残留与输出漂移，避免“脚本存在但没人跑”或“治理口径停留在文档、没有落到脚本”。
@@ -256,6 +273,7 @@
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
 | #9 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` / `audit:eslint-debt` / `audit:comment-drift` / docs candidate 暂保持独立 baseline) |
+| #10 站点性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
 
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 
@@ -270,7 +288,8 @@
 | duplicate-code 基线反弹 | → 长期主线 #3（结构复用治理） |
 | i18n missing / duplicate keys / raw key 暴露 | → 长期主线 #6（国际化治理） |
 | 文档事实源 stale 或行数超阈值 | → 长期主线 #7（文档治理） |
-| 性能预算超标 | → 长期主线 #8（Windows 性能治理） |
+| 性能预算超标（bundle / Lighthouse） | → 长期主线 #10（站点性能治理） |
+| Windows Dev / Build 性能退化 | → 长期主线 #8（Windows 性能治理） |
 | 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #9（脚本治理） |
 | 依赖安全 high+ 漏洞 | → 直接 blocker，在当前阶段修复 |
 | 跨多条主线的问题 | → 取最匹配的一条路由，其他在路由备注中引用 |
@@ -338,6 +357,14 @@
 - **状态说明**:
     - 第三十二阶段已按"多语言内容资产化增强包的统一承接入口"完成首轮交付，独立说明 / 申请页、单一主卖点文案与三条公开入口（Demo Banner / About 页 / Footer）已形成"入口 -> 承接页 -> 申请 / 候补名单"最小闭环。
     - 下一步继续观察候选转化信号，暂不追加新的付费增强实现条线；具体执行与验证以 `roadmap.md` / `todo-archive.md` 第三十二阶段归档结论为准。
+- **2026-06 扩展：会员 / 付费订阅体系 (P2, 长期)**:
+    - **背景**: Ghost 的核心差异化在会员付费闭环。墨梅已有完整订阅者管理、邮件推送和 Better-Auth 用户体系，差距在于支付集成和内容付费墙。竞品对标：Ghost 的 Membership Tiers + Stripe 集成 ([source](https://ghost.org/features/))。
+    - **最小范围**: 会员等级（Free / Supporter / Premium）、文章级付费墙（公开 / 订阅者可见 / 付费可见）、Stripe 支付集成、会员管理后台、收入仪表盘。
+    - **非目标**: 不建课程/数字产品商城、不做复杂定价/折扣/优惠券引擎、不与 Patreon 模式竞争。
+    - **前置条件**:
+        - 先确认候补名单的转化信号是否支持继续投入。
+        - 评估 Stripe 在目标区域（含中国大陆）的可用性，必要时预留支付宝/微信支付扩展点。
+        - 确认 Better-Auth 的角色扩展模型足以支撑会员等级。
 
 5. **播客与多媒体扩展 (Podcast & Multimedia)**
 - **全站沉浸式播放**:
@@ -361,6 +388,49 @@
     - 对新增功能点在正式分析前，先进行一次轻量调研（搜索工具或其他可信信息源），再进入范围、验收与 ROI 分析。
 - **当前结论**:
     - 本条作为后续新功能规划的固定前置动作，不等同于立即上收任何具体新功能。
+    - 2026-06-03 首轮调研已完成，报告见 [docs/design/governance/feature-planning-research-2026-06.md](../design/governance/feature-planning-research-2026-06.md)。
+    - 本轮确认了墨梅「自托管 + AI 全链路 + 原生国际化」的差异化优势在市场上暂无直接竞品。
+    - 识别出以下新增候选功能（基于源码审计 + 竞品搜索确认的**真正缺口**，均已写入短期候选区）：
+
+### 2026-06 调研发现的新增候选功能
+
+> **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
+
+9. **AI 内容审计与质量优化 (P1)**
+- **背景**: 墨梅 AI 能力强在「生成」，缺少对**已有内容**的审计维度。2026 年 AI 内容审计（SEO 完整性、可读性、新鲜度）成为新方向 ([source](https://www.ryrob.com/ai-content-writing-tools/))。
+- **最小范围**: 文章列表 SEO/质量评分徽章、一键审计报告 (meta 完整性 / 内部链接 / alt text / 可读性)、AI 改进建议。
+- **非目标**: 不做全站批量重写、不自动修改已发布内容、不做实时内容监控。
+- **前置条件**: 复用现有 AI 管线 (openai/volcengine)，纯增量功能。
+
+10. **内容日历 / 编辑排期 (P1)**
+- **背景**: 专业博主的内容策划需求是高频刚需。墨梅已有定时发布功能，但缺少可视化排期和多草稿管理。
+- **最小范围**: 后台月/周日历视图、草稿管线看板 (Kanban 三列: 构思→写作→待发布)、编辑日历与定时发布联动。
+- **非目标**: 不做团队任务分配、不做跨站点排期、不做  Gantt 图。
+- **前置条件**: 依赖现有 `Post` 实体的 `status` + `publishedAt` 字段。
+
+11. **隐私优先自托管分析集成 (P2)**
+- **背景**: 2026 年自托管分析 (Plausible/Umami/OpenPanel) 成为自托管博客社区的标准配置。墨梅已有 GA4/Clarity/百度统计，缺少 cookieless 自托管选项 ([source](https://openpanel.dev/articles/self-hosted-web-analytics))。
+- **最小范围**: 提供 Umami 的 Docker Compose 部署模板、后台设置页 tracking script 自动注入配置、首页不依赖第三方 cookie 的基础 PV 统计（可选）。
+- **非目标**: 不自建分析引擎、不替换现有 GA4/Clarity、不做产品分析 (funnel/retention)。
+- **前置条件**: 评估 Umami/Plausible 的 Docker 资源开销和与现有中间件的兼容性。
+
+12. **AI 内容多格式复用 (P2)**
+- **背景**: 2026 年「一次创作、多渠道分发」是主流工作流。AI 自动将博文转为社交帖子/视频脚本 ([source](https://bit-social.com/blog/content-repurposing-cant-ignore-it/))。
+- **最小范围**: 发布后一键 AI 生成 Twitter Thread 摘要 + LinkedIn 帖子，支持复制或手动发布。
+- **非目标**: 不建全功能社交媒体调度器、不与 Hootsuite/Buffer 竞争、不自动发送到社交平台。
+- **前置条件**: 复用现有 AI 摘要/翻译管线，纯前端 + API 增量功能。
+
+13. **Digital Garden / 知识花园模式 (P2, 探索)**
+- **背景**: Digital Garden 是 2025-2026 年个人网站的重要趋势，强调双向链接、内容生长状态、非时序导航 ([Maggie Appleton](https://maggieappleton.com/garden-history))。
+- **最小范围**: 文章间双向引用自动检测与「被引用」展示、内容成熟度标记 (draft → evergreen)、可选的知识图谱可视化。
+- **非目标**: 不做完整 Zettelkasten 笔记系统、不与 Obsidian/Logseq 竞争。
+- **前置条件**: 先评估双向链接的存储模型 (JSON 字段 vs 关联表) 与对现有查询的性能影响。
+
+14. **Blogroll / 友链 RSS 聚合 (P2)**
+- **背景**: IndieWeb 运动强调博客间的互链发现。墨梅已有友链系统（自助申请 + 审核），但缺少动态内容聚合。
+- **最小范围**: 友链页面增加「最近更新」RSS 聚合摘要 (读取友链站点的 Feed)、可选的前后博客环导航链接。
+- **非目标**: 不建 RSS 阅读器、不建内容聚合平台、不做全文索引。
+- **前置条件**: 需处理跨域 RSS 抓取、缓存策略与失效处理。
 
 ## 相关文档
 
