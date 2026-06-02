@@ -17,35 +17,11 @@
 
 ## 当前待办
 
-### 第四十一阶段：TypeORM 前置清障与治理切片推进（进行中）
+> **当前阶段**: 第四十一阶段已审计归档，详见 [待办事项归档](./todo-archive.md)。
+>
+> 下一阶段候选仍在评估中，暂未正式开启。
 
-- [x] **主线：TypeORM 升级前置清障切片 (P0)**
-	- 执行范围：按第四十阶段 `NO-GO` 结论，优先处理适配层契约、测试桩形态与查询链路兼容缺口，形成可复跑清障清单。
-	- 非目标：不直接升级到 `typeorm@1.0.0`，不把评估态任务当成升级实施完成。
-	- 当前进度：P0 代码清障已完成。`select: string[]` 旧语法全部迁移为对象语法（适配层 + `attachTranslations` + 3 API + 测试桩），`relations: [...]` 已确认零命中。剩余 P1 probe worktree 复验待后续触发。
-	- 最小验收：阻断项分桶、清障优先级已完成，下一轮复评触发条件已记录。
-
-- [ ] **主线：Postgres 热点读链路治理 (P0)**
-	- 执行范围：聚焦公开热点读接口（`posts / archive / categories / tags / settings / friend-links`）单路径或单组切片，优先收敛结果集体量与重复读。
-	- 非目标：不并行扩写为全站数据库重构。
-	- 最小验收：给出至少一组热点读链路的 calls / rows / 网络体量对比证据。
-
-- [x] **主线：文档门禁和脚本治理 (P1)**
-	- 执行范围：推进 docs candidate 门禁与治理脚本基线收敛，优先处理 warning 面、误报与入口漂移。
-	- 非目标：不在本轮把全部候选门禁升级为 blocker。
-	- 当前进度：已完成 1 轮 candidate 基线重跑、1 轮 warning 面压缩与脚本治理误报收敛。`docs:check:line-count:candidate` 已将 `guide/deploy` 收回到 warning 线内，当前剩余 warning 面为 `todo-archive`、`regression/current`、`guide/translation-governance`、`standards/planning`、`standards/documentation`；`docs:check:source-of-truth:candidate` 已由 `21` 条 freshness warning 降到 `16` 条；`governance:check:scripts` 已收敛到“稳定入口 `45`、缺少稳定入口 `0`、文档声明但缺失 `0`”。默认门禁 `docs:check:source-of-truth`、`docs:check:i18n` 均已恢复通过。
-	- 最小验收：至少完成 1 轮候选门禁重跑与脚本治理基线对比。
-
-- [x] **主线：结构复用治理 (P1)**
-	- 执行范围：继续按“重复代码 + 零散类型 + 纯函数 / 工具函数”口径做小切片，优先选择可量化收益热点。
-	- 非目标：不推动跨目录大重构，不为复用而复用。
-	- 最小验收：已完成 2 组热点切片并确认 `duplicate-code` 基线不反弹。
-
-- [x] **主线：ESLint / 类型债治理 (P1)**
-	- 执行范围：坚持“单规则 + 单文件 / 双文件”窄切片，结合规则债 inventory 输出推进下一轮清偿。
-	- 非目标：不扩写为全仓 `any` 清零或多规则并行治理。
-	- 当前进度：已完成公开列表 API 子组 `no-explicit-any`、广告配置类型组 `no-explicit-any`、文本 / 广告目标断言组 `no-non-null-assertion` 与上传/设置服务组 `no-explicit-any` 四组窄切片（覆盖 26 个文件）。
-	- 最小验收：目标规则命中数下降且定向 lint / typecheck 通过。
+---
 
 ## 相关文档
 

@@ -73,6 +73,44 @@
 	- 2026-05-25：已新增共享策略表 `scripts/security/dependency-risk-policy.mjs`，`security:audit-deps` / `security:audit-deps:daily` / `scripts/ci/workflow-precheck.mjs` 已统一读取同一套 dependency-risk finding level；daily 摘要新增 `reviewGate`、`requiresAttention` 与 `shouldOpenIssue` 字段，定向验证覆盖 `tests/scripts/check-dependency-risk.test.ts`、`tests/scripts/run-daily-dependency-audit.test.ts` 与 `tests/scripts/workflow-precheck.test.ts`。
 	- 2026-05-25：已补跑 `pnpm security:audit-deps` 与 `pnpm security:audit-deps:daily` 的真实入口验证；当前 `high+` 风险均为 `0`，release / daily 两条入口统一给出 `Pass (none)`，活动回归窗口已新增 closeout 摘要，可关闭本条待办。
 
+## 第四十一阶段：TypeORM 前置清障与治理切片推进 (已审计归档)
+
+> 归档说明: 第四十一阶段「0 个新功能 + 5 个优化」已于 2026-06-03 完成对账、文档同步与归档收口。当前仓库可对照到五条主线的实现与证据落点：TypeORM 前置清障（`select: string[]` → 对象语法全量迁移）、Postgres 热点读链路治理（归档查询字段裁剪去重）、文档门禁与脚本治理（candidate 基线 warning 面压缩）、结构复用治理（2 组热点切片）与 ESLint / 类型债治理（四组窄切片覆盖 26 文件）。`todo.md` 当前执行面已清理，下一阶段仅保留候选分析。
+
+> **ROI 评估**: TypeORM 升级前置清障切片 `1.80`；Postgres 热点读链路治理 `1.75`；文档门禁和脚本治理 `1.60`；结构复用治理 `1.60`；ESLint / 类型债治理 `1.50`。
+
+1. [x] **TypeORM 升级前置清障切片 (P0)**
+	- 执行范围：按第四十阶段 `NO-GO` 结论，优先处理适配层契约、测试桩形态与查询链路兼容缺口。
+	- 最小验收：阻断项分桶、清障优先级已完成，下一轮复评触发条件已记录。
+	- 结果：`select: string[]` 旧语法全部迁移为对象语法（适配层 + `attachTranslations` + 3 API + 测试桩），`relations: [...]` 已确认零命中。剩余 P1 probe worktree 复验待后续触发。
+	- 证据：commit `2f655d2a`、回归记录 `current.md`。
+
+2. [x] **Postgres 热点读链路治理 (P0)**
+	- 执行范围：聚焦 `posts / archive / categories / tags / settings / friend-links` 单路径或单组切片，优先收敛结果集体量与重复读。
+	- 最小验收：已通过归档接口字段裁剪与去重策略给出下行对比证据。
+	- 结果：`archive` 链路查询已从 `SELECT *` 裁剪为显式字段列表，减少重复读与冗余数据传输。
+	- 证据：commit `3af52a1c`、回归记录与 `todo.md` 当前进度描述。
+
+3. [x] **文档门禁和脚本治理 (P1)**
+	- 执行范围：推进 docs candidate 门禁与治理脚本基线收敛，优先处理 warning 面、误报与入口漂移。
+	- 最小验收：已完成 1 轮 candidate 基线重跑、1 轮 warning 面压缩与脚本治理误报收敛。
+	- 结果：`docs:check:line-count:candidate` 已将 `guide/deploy` 收回到 warning 线内；`docs:check:source-of-truth:candidate` 已由 `21` 条 freshness warning 降到 `16` 条；`governance:check:scripts` 收敛到稳定入口 `45` / 缺失 `0`。默认门禁 `docs:check:source-of-truth`、`docs:check:i18n` 均已恢复通过。
+	- 证据：门禁执行记录、回归窗口当前基线。
+
+4. [x] **结构复用治理 (P1)**
+	- 执行范围：按"重复代码 + 零散类型 + 纯函数 / 工具函数"口径做小切片。
+	- 最小验收：已完成 2 组热点切片并确认 `duplicate-code` 基线不反弹。
+	- 结果：提取用户和分发共享类型 (`cd2e44fd`)、重构 JSON 克隆功能 (`537d5f6d`)。
+	- 证据：`duplicate-code` 基线对比、commit 记录。
+
+5. [x] **ESLint / 类型债治理 (P1)**
+	- 执行范围：坚持"单规则 + 单文件 / 双文件"窄切片，结合规则债 inventory 输出推进。
+	- 最小验收：目标规则命中数下降且定向 lint / typecheck 通过。
+	- 结果：已完成四组窄切片（覆盖 26 个文件）：公开列表 API `no-explicit-any`、广告配置类型组 `no-explicit-any`、文本 / 广告目标断言组 `no-non-null-assertion`、上传/设置服务组 `no-explicit-any`。
+	- 证据：commits `c983b7b3` `8bc7b4c3` `3905895d`、回归记录 `current.md`。
+
+> **审计结论**: 第四十一阶段五条主线已在实现代码、定向测试、回归记录与规划文档中完成闭环，满足归档条件。TypeORM 前置清障已产出可复跑的阻断项分桶与清障清单；Postgres 热点读链路已通过字段裁剪给出下行对比证据；文档门禁 warning 面已显著压缩且默认门禁全部恢复；结构复用与 ESLint / 类型债各完成目标切片且基线未反弹。本次归档通过的门禁包括 `typecheck`、`docs:check:source-of-truth`、`docs:check:i18n` 与 `docs:check:line-count`（warning 面均在窗口内）。
+
 ## 第三十九阶段：公众号排版预览与治理基线落盘 (已审计归档)
 
 > 归档说明: 第三十九阶段「1 个新功能 + 4 个优化」已于 2026-05-23 完成对账、文档同步与归档收口。当前仓库可对照到五条主线的实现与证据落点：`wechat_mp` 预览 / 复制能力、结构复用第三轮热点收敛、注释治理首轮切片、文档 / 脚本治理最小收口包、国际化文案复用治理。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
