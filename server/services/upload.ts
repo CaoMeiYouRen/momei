@@ -192,7 +192,7 @@ function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string):
         const baseUrl = getSettingValue(settings, SettingKey.CLOUDFLARE_R2_BASE_URL) || (endpoint && bucket ? `${endpoint}/${bucket}` : endpoint)
 
         return {
-            ...(process.env as any),
+            ...process.env,
             S3_ENDPOINT: endpoint,
             S3_BUCKET_NAME: bucket,
             S3_BUCKET: bucket,
@@ -202,13 +202,13 @@ function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string):
             S3_SECRET_ACCESS_KEY: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_SECRET_KEY),
             S3_SECRET_KEY: getSettingValue(settings, SettingKey.CLOUDFLARE_R2_SECRET_KEY),
             S3_BASE_URL: baseUrl,
-        }
+        } as FileStorageEnv
     }
 
     const bucket = getSettingValue(settings, SettingKey.S3_BUCKET)
 
     return {
-        ...(process.env as any),
+        ...process.env,
         S3_ENDPOINT: getSettingValue(settings, SettingKey.S3_ENDPOINT),
         S3_BUCKET_NAME: bucket,
         S3_BUCKET: bucket,
@@ -218,7 +218,7 @@ function buildS3CompatibleEnv(settings: UploadSettings, rawStorageType: string):
         S3_SECRET_ACCESS_KEY: getSettingValue(settings, SettingKey.S3_SECRET_KEY),
         S3_SECRET_KEY: getSettingValue(settings, SettingKey.S3_SECRET_KEY),
         S3_BASE_URL: getSettingValue(settings, SettingKey.S3_BASE_URL),
-    }
+    } as FileStorageEnv
 }
 
 /**
@@ -464,15 +464,15 @@ export async function getUploadStorageContext(): Promise<UploadStorageContext> {
     const settings = await getSettings([...COMMON_UPLOAD_SETTING_KEYS]) as UploadSettings
     const rawStorageType = getSettingValue(settings, SettingKey.STORAGE_TYPE, 'local')
     const normalizedStorageType = normalizeStorageType(rawStorageType)
-    const baseEnv: FileStorageEnv = {
-        ...(process.env as any),
+    const baseEnv = {
+        ...process.env,
         STORAGE_TYPE: normalizedStorageType,
         LOCAL_STORAGE_DIR: getSettingValue(settings, SettingKey.LOCAL_STORAGE_DIR, 'public/uploads'),
         LOCAL_STORAGE_BASE_URL: getSettingValue(settings, SettingKey.LOCAL_STORAGE_BASE_URL, '/uploads'),
         LOCAL_STORAGE_MIN_FREE_SPACE: getNumericLimit(settings, SettingKey.LOCAL_STORAGE_MIN_FREE_SPACE, 100 * 1024 * 1024),
         VERCEL_BLOB_TOKEN: getSettingValue(settings, SettingKey.VERCEL_BLOB_TOKEN),
         BLOB_READ_WRITE_TOKEN: getSettingValue(settings, SettingKey.VERCEL_BLOB_TOKEN),
-    }
+    } as FileStorageEnv
 
     // baseEnv 承载跨存储通用配置，S3/R2 兼容配置再覆盖补齐。
     const env: FileStorageEnv = {

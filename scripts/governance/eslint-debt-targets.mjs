@@ -10,6 +10,8 @@ const NO_EXPLICIT_ANY_UTILITY_FILES = [
     'server/utils/agreement-public.ts',
     'server/utils/post-access.ts',
     'server/services/adapters/base.ts',
+    'server/services/upload.ts',
+    'server/services/setting.ts',
 ]
 
 const NO_EXPLICIT_ANY_API_FILES = [

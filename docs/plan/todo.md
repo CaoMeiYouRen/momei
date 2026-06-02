@@ -22,7 +22,8 @@
 - [ ] **主线：TypeORM 升级前置清障切片 (P0)**
 	- 执行范围：按第四十阶段 `NO-GO` 结论，优先处理适配层契约、测试桩形态与查询链路兼容缺口，形成可复跑清障清单。
 	- 非目标：不直接升级到 `typeorm@1.0.0`，不把评估态任务当成升级实施完成。
-	- 最小验收：输出阻断项分桶、清障优先级与下一轮复评触发条件。
+	- 当前进度：P0 代码清障已完成。`select: string[]` 旧语法全部迁移为对象语法（适配层 + `attachTranslations` + 3 API + 测试桩），`relations: [...]` 已确认零命中。剩余 P1 probe worktree 复验待后续触发。
+	- 最小验收：阻断项分桶、清障优先级已完成，下一轮复评触发条件已记录。
 
 - [ ] **主线：Postgres 热点读链路治理 (P0)**
 	- 执行范围：聚焦公开热点读接口（`posts / archive / categories / tags / settings / friend-links`）单路径或单组切片，优先收敛结果集体量与重复读。
@@ -42,7 +43,7 @@
 - [ ] **主线：ESLint / 类型债治理 (P1)**
 	- 执行范围：坚持“单规则 + 单文件 / 双文件”窄切片，结合规则债 inventory 输出推进下一轮清偿。
 	- 非目标：不扩写为全仓 `any` 清零或多规则并行治理。
-	- 当前进度：已完成公开列表 API 子组 `no-explicit-any`、广告配置类型组 `no-explicit-any` 与文本 / 广告目标断言组 `no-non-null-assertion` 三组窄切片。
+	- 当前进度：已完成公开列表 API 子组 `no-explicit-any`、广告配置类型组 `no-explicit-any`、文本 / 广告目标断言组 `no-non-null-assertion` 与上传/设置服务组 `no-explicit-any` 四组窄切片（覆盖 26 个文件）。
 	- 最小验收：目标规则命中数下降且定向 lint / typecheck 通过。
 
 ## 相关文档

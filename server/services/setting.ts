@@ -489,7 +489,7 @@ export async function getSetting<T = string>(key: SettingKey | string, defaultVa
 
     try {
         const setting = await findSettingRecord(key)
-        return setting?.value ?? (defaultValue as any)
+        return setting?.value ?? (defaultValue)
     } catch (error) {
         logger.error(`Failed to get setting ${key} from database:`, error)
         return defaultValue
