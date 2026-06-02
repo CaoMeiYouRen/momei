@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-06-03
 translation_tier: summary-sync
 ---
 
@@ -31,6 +31,8 @@ When conducting phase planning or introducing major features, the following hard
     -   An ROI (Return on Investment) analysis must be conducted during planning. Priority is given to features that directly improve user experience or represent core competitiveness.
 -   **Acceptance Specificity**:
     -   Every admitted task must define scope, non-goals, acceptance criteria, validation evidence, and rollback boundary when relevant.
+-   **Script-First Governance**:
+    -   Long-running governance work should land with repeatable script output or an explicitly recorded temporary manual baseline.
 -   **Design-First Gate**:
     -   Cross-module rewrites, contract changes, or standalone governance topics must land in `docs/design/modules/` or `docs/design/governance/` before implementation starts.
 -   **Phase Transition Gate**:
@@ -78,6 +80,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   Task status must be clearly marked: `[ ]` (Pending), `[x]` (Completed), `[-]` (Canceled).
 -   Task descriptions should include specific "Acceptance Criteria."
 -   **Anti-Duplication Principle**: Before planning or adding any new feature, **always** check `docs/plan/todo.md`, `docs/plan/roadmap.md`, and `docs/plan/todo-archive.md`. Duplicate designs for tasks that are already archived, in progress, or on the roadmap are forbidden.
+-   Planning and documentation edits still require review; “docs only” is not an excuse to bypass review.
 
 ### 4.3 Fixed Regression Entries
 
@@ -88,6 +91,8 @@ The project now treats these commands as the canonical periodic regression entri
 - `pnpm regression:phase-close`
 
 Planning work should reference these fixed entries instead of rebuilding custom bundles from scratch each time.
+
+When the active regression window exceeds its configured size limit, `pnpm regression:phase-close` upgrades archive rotation into a blocker rather than a documentation-only warning.
 
 ### 4.4 Irreversible Principle: No Retroactive Modifications
 -   **Non-Modification Rule**: Once a task in a phase is marked as `[x]` (Completed), retroactive modifications to that entry are forbidden, including:

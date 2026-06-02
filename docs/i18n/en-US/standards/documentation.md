@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-06-03
 translation_tier: summary-sync
 ---
 
@@ -72,9 +72,12 @@ The canonical authority order remains:
 
 Translation pages should therefore point back to Chinese originals instead of redefining project rules locally.
 
+Regression records now use `docs/reports/regression/current.md` as the active window, with older runs rotated into `docs/reports/regression/archive/` instead of being copied back into planning docs.
+
 ## 6. Site Maintenance
 
 - New pages must update VitePress nav/sidebar configuration when relevant.
 - Directory migrations must maintain both URL compatibility and correct edit links to the real source file.
 - When a page is downgraded to `source-only`, update navigation scope and the page body in the same change. Do not hide the tier change in the script only.
+- `pnpm docs:check:line-count` and `pnpm docs:check:source-of-truth` remain the canonical gates for document size and freshness; candidate profiles stay warning-only until their warning surface is intentionally reduced.
 - Do not edit `CHANGELOG.md` unless explicitly requested.

@@ -23,6 +23,7 @@
 | 目录 | 主要脚本 | 调用入口 | 副作用范围 | 当前结论 |
 | :--- | :--- | :--- | :--- | :--- |
 | `scripts/ci/` | `workflow-precheck.mjs` | `pnpm ci:precheck -- --profile=<workflow>`、`.github/workflows/release.yml`、`.github/workflows/test.yml`、`.github/workflows/docker.yml` | 统一执行 workflow 级前置守护，覆盖关键文件、CI 环境与 high+ 依赖风险，并输出 Review Gate 证据 | 新增保留 |
+| `scripts/build/` | `repair-rolldown-client-init-imports.mjs` | `nuxt.config.ts` 构建链路内自动导入调用 | 在 Rolldown / Nuxt 客户端产物缺失 init helper import 时补丁修复生成后的 chunk，避免构建产物在运行时因缺少初始化导入而失效 | 保留 |
 | `scripts/regression/` | `run-periodic-regression.mjs`、`sync-typeorm-assessment.mjs` | `pnpm regression:weekly`、`pnpm regression:pre-release`、`pnpm regression:phase-close`、`pnpm regression:typeorm-assessment` | 按 profile 编排固定回归组合，或把 TypeORM 评估文档的 go/no-go 自动回填到 `docs/reports/regression/current.md` | 保留 |
 | `scripts/governance/` | `check-script-governance.mjs`、`audit-simple-duplicates.mjs`、`audit-eslint-debt.mjs`、`audit-comment-drift.mjs` | `pnpm governance:check:scripts`、`pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift`、`pnpm regression:weekly`（仅 `check:scripts`） | 产出脚本稳定入口、临时残留、文档漂移、简单重复候选、ESLint / 类型债分桶与注释漂移候选的 JSON / Markdown baseline | 新增保留 |
 | `scripts/ai/` | `check-governance.mjs` | `pnpm ai:check` | 只读体检 `.github/`、`.claude/`、skills / agents 镜像与治理状态 | 保留 |
@@ -135,6 +136,7 @@ pnpm perf:fs-watch:probe:dev
 - 保留：所有 `.mjs` 长期脚本均已有 `package.json`、工作流或治理文档引用。
 - 保留：`scripts/release/pre-release-check.mjs` 继续作为 release 前统一门禁入口，优先承接发布前的最低验证矩阵，而不是让调用方各自拼装 lint / test 命令。
 - 保留：`scripts/ci/workflow-precheck.mjs` 作为 release/test/docker 三条 workflow 的共享守护入口，统一覆盖依赖风险、关键脚本存在性与必要环境检查。
+- 保留：`scripts/build/repair-rolldown-client-init-imports.mjs` 继续作为 Nuxt 构建链路内的产物修补 helper，由 `nuxt.config.ts` 自动导入调用，不单独暴露 `package.json` 入口。
 - 保留：`scripts/review-gate/generate-evidence.mjs` 与 `scripts/review-gate/check-duplicate-code.mjs` 继续承担 Review Gate 证据生成与重复代码审计，不与 release 或 testing 入口混用。
 - 保留：`scripts/security/check-dependency-risk.mjs` 作为 release 前依赖风险门禁入口，配套白名单基线位于 `.github/security/dependency-risk-allowlist.json`。
 - 保留：`scripts/security/check-github-security-alerts.mjs` 作为安全告警闭环入口，配套延期基线位于 `.github/security/security-alert-exceptions.json`。

@@ -12,14 +12,15 @@ export const DEFAULT_SEARCH_ROOTS = [
     path.join(repoRoot, 'AGENTS.md'),
     path.join(repoRoot, 'CLAUDE.md'),
     path.join(repoRoot, 'scripts', 'README.md'),
+    path.join(repoRoot, 'scripts'),
     path.join(repoRoot, 'docs'),
     path.join(repoRoot, '.github', 'workflows'),
 ]
 export const SCRIPT_FILE_EXTENSIONS = new Set(['.mjs', '.js', '.cjs', '.ts', '.ps1'])
 export const TEMP_DIR_NAMES = new Set(['temp', 'tmp', '_temp', '_tmp'])
 
-const SEARCHABLE_EXTENSIONS = new Set(['.md', '.json', '.yml', '.yaml'])
-const REFERENCE_SOURCE_ORDER = ['package-json', 'workflow', 'scripts-guide', 'docs', 'root-doc', 'other']
+const SEARCHABLE_EXTENSIONS = new Set(['.md', '.json', '.yml', '.yaml', '.mjs', '.js', '.cjs', '.ts', '.ps1'])
+const REFERENCE_SOURCE_ORDER = ['package-json', 'workflow', 'scripts-guide', 'docs', 'root-doc', 'script', 'other']
 
 export function parseArgs(argv = process.argv) {
     return parseCliOptions(argv, {
@@ -175,7 +176,49 @@ function classifyReferenceSource(targetPath, projectRoot = repoRoot) {
         return 'docs'
     }
 
+    if (relativePath.startsWith('scripts/')) {
+        return 'script'
+    }
+
     return 'other'
+}
+
+function isDirectStableSource(source) {
+    return source !== 'other' && source !== 'script'
+}
+
+function resolveTransitiveStableSources(entry, entryMap, cache, activeStack = new Set()) {
+    const cached = cache.get(entry.scriptPath)
+
+    if (cached) {
+        return cached
+    }
+
+    if (activeStack.has(entry.scriptPath)) {
+        return new Set(entry.directStableSources)
+    }
+
+    activeStack.add(entry.scriptPath)
+    const stableSources = new Set(entry.directStableSources)
+
+    for (const importerPath of entry.importerScriptPaths) {
+        const importerEntry = entryMap.get(importerPath)
+
+        if (!importerEntry) {
+            continue
+        }
+
+        const importerSources = resolveTransitiveStableSources(importerEntry, entryMap, cache, activeStack)
+
+        for (const source of importerSources) {
+            stableSources.add(source)
+        }
+    }
+
+    activeStack.delete(entry.scriptPath)
+    cache.set(entry.scriptPath, stableSources)
+
+    return stableSources
 }
 
 function buildFinding(code, filePath, message, severity = 'warning') {
@@ -187,10 +230,29 @@ function buildFinding(code, filePath, message, severity = 'warning') {
     }
 }
 
-export function extractScriptReferences(content) {
+export function extractScriptReferences(content, sourceFilePath = null, projectRoot = repoRoot) {
     const matches = content.matchAll(/(?:^|[^A-Za-z0-9_/-])((?:(?:\.\.\/)|(?:\.\/))*scripts\/[A-Za-z0-9._/-]+\.(?:mjs|js|cjs|ts|ps1))/gu)
 
-    return unique([...matches].map((match) => match[1].replace(/^((?:\.\.\/)|(?:\.\/))+/u, '')))
+    const directReferences = [...matches].map((match) => match[1].replace(/^((?:\.\.\/)|(?:\.\/))+/u, ''))
+
+    if (!sourceFilePath) {
+        return unique(directReferences)
+    }
+
+    const relativeImportMatches = content.matchAll(/from\s*["']((?:\.\.\/|\.\/)[^"']+\.(?:mjs|js|cjs|ts|ps1))["']/gu)
+    const sourceDirectory = path.dirname(sourceFilePath)
+    const relativeReferences = []
+
+    for (const match of relativeImportMatches) {
+        const absoluteImportPath = path.resolve(sourceDirectory, match[1])
+        const normalizedImportPath = toPosixPath(absoluteImportPath, projectRoot)
+
+        if (normalizedImportPath.startsWith('scripts/')) {
+            relativeReferences.push(normalizedImportPath)
+        }
+    }
+
+    return unique([...directReferences, ...relativeReferences])
 }
 
 function buildDirectoryBuckets(scriptEntries) {
@@ -259,9 +321,12 @@ export async function collectScriptGovernanceReport(options = {}) {
         searchRoots.map((rootPath) => collectSearchableFiles(rootPath, projectRoot)),
     )).flat())
     const searchableContents = new Map()
+    const extractedReferenceMap = new Map()
 
     for (const filePath of searchableFiles) {
-        searchableContents.set(filePath, await readFile(filePath, 'utf8'))
+        const content = await readFile(filePath, 'utf8')
+        searchableContents.set(filePath, content)
+        extractedReferenceMap.set(filePath, extractScriptReferences(content, filePath, projectRoot))
     }
 
     const scriptRelFiles = await listFilesRecursive(scriptRoot, isScriptFile)
@@ -271,7 +336,9 @@ export async function collectScriptGovernanceReport(options = {}) {
         const references = []
 
         for (const [filePath, content] of searchableContents.entries()) {
-            if (!content.includes(relativePath)) {
+            const extractedReferences = extractedReferenceMap.get(filePath) ?? []
+
+            if (!content.includes(relativePath) && !extractedReferences.includes(relativePath)) {
                 continue
             }
 
@@ -282,21 +349,40 @@ export async function collectScriptGovernanceReport(options = {}) {
         }
 
         const normalizedReferences = normalizeReferenceDetails(references)
-        const stableSources = unique(
+        const directStableSources = unique(
             normalizedReferences
                 .map((item) => item.source)
-                .filter((source) => source !== 'other'),
+                .filter(isDirectStableSource),
+        )
+        const importerScriptPaths = unique(
+            normalizedReferences
+                .filter((item) => item.source === 'script')
+                .map((item) => item.filePath),
         )
         const relativeScriptPath = relativePath.replace(/^scripts\//u, '')
 
         return {
-            hasStableEntry: stableSources.length > 0,
+            directStableSources,
+            hasStableEntry: directStableSources.length > 0,
+            importerScriptPaths,
             isTemporary: isTemporaryScript(relativeScriptPath),
             references: normalizedReferences,
             scriptPath: relativePath,
-            stableSources,
+            stableSources: directStableSources,
         }
     }).sort((left, right) => left.scriptPath.localeCompare(right.scriptPath))
+
+    const scriptEntryMap = new Map(scriptEntries.map((entry) => [entry.scriptPath, entry]))
+    const stableSourceCache = new Map()
+
+    for (const entry of scriptEntries) {
+        const stableSources = unique([
+            ...resolveTransitiveStableSources(entry, scriptEntryMap, stableSourceCache),
+        ])
+
+        entry.stableSources = stableSources
+        entry.hasStableEntry = stableSources.length > 0
+    }
 
     const declaredReferenceMap = new Map()
 

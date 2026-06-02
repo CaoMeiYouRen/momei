@@ -762,6 +762,7 @@
     - **执行范围**: 推进 docs candidate 门禁与脚本治理基线收敛，优先处理 warning 面、误报与入口漂移。
     - **非目标**: 不在本轮把所有候选门禁一次性升级为 blocker。
     - **最小验收**: 至少完成 1 轮门禁候选重跑与脚本基线对比，结论可追溯。
+    - **当前进度**: 已完成脚本治理误报收敛与 build helper 入口补齐，`governance:check:scripts` 当前为稳定入口 `45` / 缺失 `0` / 文档声明但缺失 `0`；`docs:check:line-count:candidate` 已收回 `guide/deploy` warning，剩余 `5` 个 line-count warning；`docs:check:source-of-truth:candidate` 已由 `21` 条 freshness warning 降到 `16` 条，默认 `docs:check:source-of-truth` 与 `docs:check:i18n` 均通过。
     - **验证与证据**: docs checks 与 governance scripts 执行结果、对应文档 diff。
 
 4. **主线：结构复用治理 (P1)**:

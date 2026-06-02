@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-06-03
+translation_tier: summary-sync
 ---
 
 # Variables & Settings Mapping
@@ -96,6 +97,8 @@ These variables control the site-wide AI capabilities.
 | `TTS_ENDPOINT` | `tts_endpoint` | 2 | none | TTS endpoint or proxy |
 | `TTS_DEFAULT_MODEL` | `tts_model` | 2 | none | Default TTS model |
 | `TTS_DEFAULT_VOICE` | - | 2 | none | Default TTS voice |
+| `TTS_FRONTEND_DIRECT` | - | 2 | none | Explicitly enables Volcengine frontend-direct TTS mode |
+| `TTS_CREDENTIAL_TTL_SECONDS` | `tts_credential_ttl_seconds` | 2 | none | TTL for Volcengine frontend-direct credentials |
 
 ### 2.3 Storage And Database
 
@@ -146,6 +149,8 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `TASKS_TOKEN` | - | 3 | password | Task webhook token |
 | `WEBHOOK_SECRET` | - | 3 | password | Webhook HMAC signing secret |
 | `TASK_CRON_EXPRESSION` | - | 3 | none | Built-in cron expression for self-hosted deployments |
+| `FRIEND_LINKS_CHECK_CRON` | - | 3 | none | Dedicated cron expression for standalone friend-links inspection |
+| `ENABLE_CRON_JOB` | - | 3 | none | Explicitly enables built-in cron registration outside production |
 | `DISABLE_CRON_JOB` | - | 3 | none | Explicitly disables the built-in cron job |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | `baidu_analytics` | 0 | none | Baidu Analytics ID |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Shared Sentry DSN for frontend and backend |
@@ -160,6 +165,10 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `MEMOS_INSTANCE_URL` | `memos_instance_url` | 2 | none | Memos instance base URL |
 | `MEMOS_ACCESS_TOKEN` | `memos_access_token` | 2 | key | Memos API token |
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Default Memos visibility |
+| `LISTMONK_ENABLED` | `listmonk_enabled` | 2 | none | Enables listmonk newsletter delivery |
+| `LISTMONK_INSTANCE_URL` | `listmonk_instance_url` | 2 | none | listmonk instance URL |
+| `LISTMONK_ACCESS_TOKEN` | `listmonk_access_token` | 2 | password | listmonk API token |
+| `LISTMONK_DEFAULT_LIST_IDS` | `listmonk_default_list_ids` | 2 | none | Default list IDs for listmonk delivery |
 | `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | Enables remote repository sync for Hexo-style article exports |
 | `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | Target provider, currently `github` or `gitee` |
 | `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | Target repository owner or namespace |
@@ -180,6 +189,9 @@ Note: `HEXO_SYNC_*` is now exposed in the admin panel under System Settings > In
 
 3. **Hot-update behavior**:
    Non-locked settings usually take effect immediately after changes in the admin panel. Some storage-engine changes may still require a restart so the driver can be reinitialized.
+
+4. **Distribution note**:
+   `LISTMONK_*` and `HEXO_SYNC_*` now sit on the same integration surface in admin settings, but server-only tokens remain masked and stay environment-locked when injected at deploy time.
 
 4. **Scheduled-task note**:
    `WEBHOOK_TIMESTAMP_TOLERANCE` still appears in the example file, but the current implementation does not read it. Webhook timestamp tolerance is fixed to 5 minutes.

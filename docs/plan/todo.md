@@ -30,9 +30,10 @@
 	- 非目标：不并行扩写为全站数据库重构。
 	- 最小验收：给出至少一组热点读链路的 calls / rows / 网络体量对比证据。
 
-- [ ] **主线：文档门禁和脚本治理 (P1)**
+- [x] **主线：文档门禁和脚本治理 (P1)**
 	- 执行范围：推进 docs candidate 门禁与治理脚本基线收敛，优先处理 warning 面、误报与入口漂移。
 	- 非目标：不在本轮把全部候选门禁升级为 blocker。
+	- 当前进度：已完成 1 轮 candidate 基线重跑、1 轮 warning 面压缩与脚本治理误报收敛。`docs:check:line-count:candidate` 已将 `guide/deploy` 收回到 warning 线内，当前剩余 warning 面为 `todo-archive`、`regression/current`、`guide/translation-governance`、`standards/planning`、`standards/documentation`；`docs:check:source-of-truth:candidate` 已由 `21` 条 freshness warning 降到 `16` 条；`governance:check:scripts` 已收敛到“稳定入口 `45`、缺少稳定入口 `0`、文档声明但缺失 `0`”。默认门禁 `docs:check:source-of-truth`、`docs:check:i18n` 均已恢复通过。
 	- 最小验收：至少完成 1 轮候选门禁重跑与脚本治理基线对比。
 
 - [x] **主线：结构复用治理 (P1)**

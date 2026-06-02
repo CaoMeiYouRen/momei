@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-19
+last_sync: 2026-06-03
 translation_tier: must-sync
 ---
 
@@ -198,7 +198,8 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- Built-in scheduled triggers are defined in [vercel.json](../../../vercel.json) and currently run once per day.
 - **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
 	- Mount `database/` and upload directories.
-	- Use `TASK_CRON_EXPRESSION` if you want to customize the built-in cron schedule.
+	- Use `TASK_CRON_EXPRESSION` to customize the main cron schedule and `FRIEND_LINKS_CHECK_CRON` when friend-links inspection needs an independent cadence.
+	- Non-production environments do not auto-register the built-in cron jobs unless `ENABLE_CRON_JOB=true` is set explicitly.
 - **Cloudflare (Peripheral integrations only)**:
 	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
 	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).

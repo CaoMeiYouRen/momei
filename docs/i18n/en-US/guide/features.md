@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-06-03
+translation_tier: summary-sync
 ---
 
 # Features
@@ -39,6 +40,7 @@ We believe i18n shouldn't just be UI translation, but content connection:
 -   **Homepage Orchestration**: The homepage now ships with distinct latest/popular sections, cross-section deduplication, refill behavior, and SSR-safe output.
 -   **Post Pinning Semantics**: Admin editing, public queries, card rendering, and ordering rules now share one `isPinned` contract.
 -   **Stable Editor Integration**: The current Markdown editor is wrapped behind an async client-only adapter, preserving upload/preview/fullscreen behavior while keeping replacement work behind a no-regression gate.
+-   **Admin Content Insights Home**: `/admin` now doubles as a content-insights dashboard with trend cards plus hot-post, hot-tag, and hot-category rankings.
 
 ## 4. Subscription & Distribution Hub
 
@@ -65,6 +67,7 @@ Momei treats subscription and external delivery as part of the same operating su
 -   **Copyright Attribution**: Support for CC BY-NC-SA 4.0 and other licenses with prominent display at the bottom of articles.
 -   **Dark Mode Support**: Seamlessly matches system preferences (Light/Dark) with no flickering on switch.
 -   **Automatic Sitemap**: Real-time `sitemap.xml` generation with search engine notification.
+-   **GEO / AI Crawler Visibility**: The public surface now includes `llms.txt`, stronger schema coverage, and clearer feed / sitemap entry points for AI retrieval systems.
 
 ## 7. Security & Protection
 
@@ -78,12 +81,17 @@ Momei treats subscription and external delivery as part of the same operating su
 -   **Multi-language Policies**: Set independent legal texts for different languages.
 -   **Built-in Templates**: Provides default legal templates for quick copy-pasting.
 
-## 9. Developer & Demo Modes
+## 9. Developer, Deployment, and Demo Modes
 
 -   **Installation Wizard**: New installations can use a guided setup flow to complete the initial database and base configuration.
 -   **Momei CLI Migration Tool**: Import Markdown content from Hexo and similar systems through a dedicated CLI.
 -   **Publishing API**: Integrate Momei into your automation flows (e.g., publish from Obsidian) via API keys.
 -   **Demo Mode**: Uses an in-memory database and blocks persistent changes, perfect for product demonstrations.
+
+## 10. Runtime Boundaries and Quality Guardrails
+
+-   **Deployment Boundaries**: The main app officially targets Vercel, Docker, and self-hosted Node. Cloudflare support remains limited to peripheral integrations such as R2 and Scheduled Events experiments.
+-   **Testing and Review Gates**: High-risk flows are guarded by Vitest, Playwright, and fixed regression / review-gate entries instead of ad-hoc validation bundles.
 
 ## 10. Automation & Scheduled Tasks
 

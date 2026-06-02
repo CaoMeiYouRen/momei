@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-04-21
+last_sync: 2026-06-03
 translation_tier: summary-sync
 ---
 
@@ -79,6 +79,9 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm i18n:audit` | Audit i18n keys and module split status |
 | `pnpm i18n:audit:missing` | Fail fast when locale parity is missing |
 | `pnpm i18n:audit:unused` | Review cleanup candidates without turning them into a default blocker |
+| `pnpm governance:check:scripts` | Check long-term script entry drift, missing references, and temporary-script residue |
+| `pnpm docs:check:line-count:candidate` | Review the warning-only candidate baseline for high-frequency guide / standards pages |
+| `pnpm docs:check:source-of-truth:candidate` | Review the warning-only candidate freshness profile before promoting stricter doc gates |
 | `pnpm regression:weekly` | Run the fixed weekly regression entry for coverage, dependency risk, docs source-of-truth, i18n checks, and duplicate-code baseline |
 | `pnpm regression:pre-release` | Run the fixed pre-release regression entry, including release checks and perf budgets |
 | `pnpm regression:phase-close` | Run the phase-close regression entry before archive rotation and stage close |
@@ -98,6 +101,8 @@ The regression flow is intentionally fixed around three entries instead of ad-ho
 - `pnpm regression:phase-close`
 
 If `docs/reports/regression/current.md` exceeds the active-window limit, the phase-close entry stops and requires archive rotation before it can pass.
+
+The docs candidate commands remain warning-only baselines for now. Treat them as planning evidence for future gate tightening rather than as release blockers.
 
 ## 5. Contributing
 
