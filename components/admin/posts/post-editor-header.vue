@@ -281,8 +281,6 @@ const blurEditorBeforeTranslation = async () => {
 }
 
 const handleTranslationBadgeClick = async (langCode: string) => {
-    await blurEditorBeforeTranslation()
-
     if (props.hasUnsavedContent) {
         const toast = useToast()
         toast.add({
@@ -293,6 +291,8 @@ const handleTranslationBadgeClick = async (langCode: string) => {
         })
         return
     }
+
+    await blurEditorBeforeTranslation()
 
     emit('handle-translation', langCode)
 }
