@@ -76,7 +76,10 @@ describe('PostEditorHeader', () => {
     })
 
     it('emits translation switch after clicking a language badge', async () => {
-        const wrapper = await mountHeader()
+        const wrapper = await mountHeader({
+            ...defaultProps,
+            post: { ...mockPost, title: '', content: '' },
+        })
 
         await wrapper.find('.title-input').trigger('focus')
         await wrapper.findAll('.translation-badge')[1]?.trigger('click')

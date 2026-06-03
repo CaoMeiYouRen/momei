@@ -137,10 +137,12 @@
                     class="translation-badge"
                     :class="{
                         'translation-badge--active': post.language === l.code,
-                        'translation-badge--missing': !hasTranslation(l.code)
+                        'translation-badge--missing': !hasTranslation(l.code),
+                        'translation-badge--disabled': props.hasUnsavedContent
                     }"
                     @mousedown.capture="rememberActiveEditorElement"
-                    @click="handleTranslationBadgeClick(l.code)"
+                    @click.capture="onTranslationBadgeMousedown(l.code, $event)"
+                    @click="onTranslationBadgeClick(l.code)"
                 />
             </div>
             <Tag
@@ -280,15 +282,10 @@ const blurEditorBeforeTranslation = async () => {
     }
 }
 
-const handleTranslationBadgeClick = async (langCode: string) => {
-    // Guard: read both model AND DOM value to catch any timing gaps
-    const titleInput = (typeof document !== 'undefined'
-        ? document.querySelector('.title-input')
-        : null) as HTMLInputElement | null
-    const hasDomContent = Boolean(titleInput?.value?.trim())
-    const hasModelContent = Boolean(post.value.title?.trim() || post.value.content?.trim())
-
-    if (props.isNew && !post.value.id && (hasDomContent || hasModelContent)) {
+const onTranslationBadgeMousedown = (langCode: string, event: MouseEvent) => {
+    if (props.hasUnsavedContent) {
+        event.stopPropagation()
+        event.preventDefault()
         const toast = useToast()
         toast.add({
             severity: 'warn',
@@ -296,9 +293,10 @@ const handleTranslationBadgeClick = async (langCode: string) => {
             detail: t('pages.admin.posts.save_current_first'),
             life: 3000,
         })
-        return
     }
+}
 
+const onTranslationBadgeClick = async (langCode: string) => {
     await blurEditorBeforeTranslation()
 
     emit('handle-translation', langCode)
@@ -400,6 +398,12 @@ defineExpose({
         background-color: transparent !important;
         border: 1px dashed var(--p-surface-border) !important;
         color: var(--p-text-muted-color) !important;
+    }
+
+    &--disabled {
+        pointer-events: none;
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 
