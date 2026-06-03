@@ -10,10 +10,11 @@
             />
             <InputText
                 v-model="post.title"
-                :placeholder="$t('pages.admin.posts.title_placeholder')"
                 class="title-input"
+                :placeholder="$t('pages.admin.posts.title_placeholder')"
                 :class="{'p-invalid': errors.title}"
                 @focus="rememberFocusedEditorElement"
+                @input="(e: Event) => { post.title = (e.target as HTMLInputElement).value }"
             />
             <ButtonGroup class="ai-tools-group">
                 <Button
