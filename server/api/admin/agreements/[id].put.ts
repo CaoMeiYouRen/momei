@@ -17,11 +17,12 @@ export default defineEventHandler(async (event) => {
         const agreement = await updateAgreementContent(id, body)
 
         return success(agreement)
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string, errors?: { message?: string }[] }
         if (error.errors) {
             return fail(error.errors[0]?.message || 'Validation failed', 400)
         }
-        if (error.message.includes('Cannot modify') || error.message.includes('not found')) {
+        if (error.message && (error.message.includes('Cannot modify') || error.message.includes('not found'))) {
             return fail(error.message, 403)
         }
         return fail(error.message || 'Failed to update agreement', 500)

@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
         const body = await readValidatedBody(event, (payload) => agreementReviewStatusSchema.parse(payload))
         const agreement = await setAgreementReviewStatus(id, body.reviewStatus)
         return success(agreement)
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string, errors?: { message?: string }[] }
         if (error.errors) {
             return fail(error.errors[0]?.message || 'Validation failed', 400)
         }

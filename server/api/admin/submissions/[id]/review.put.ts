@@ -29,7 +29,8 @@ export default defineEventHandler(async (event) => {
             message: 'Submission reviewed successfully',
             data: { id: submission.id, status: submission.status },
         }
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string, statusCode?: number }
         throw createError({
             statusCode: error.statusCode || 500,
             statusMessage: error.message || 'Internal Server Error',

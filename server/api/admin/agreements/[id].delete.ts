@@ -17,8 +17,9 @@ export default defineEventHandler(async (event) => {
     try {
         await deleteAgreementVersion(id)
         return success({ message: 'Agreement deleted successfully' })
-    } catch (error: any) {
-        if (error.message.includes('Cannot delete') || error.message.includes('not found')) {
+    } catch (e: unknown) {
+        const error = e as { message?: string }
+        if (error.message && (error.message.includes('Cannot delete') || error.message.includes('not found'))) {
             return fail(error.message, 403)
         }
         return fail(error.message || 'Failed to delete agreement', 500)

@@ -52,7 +52,7 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
                 const data = await response.json()
                 // 根据文档，data 应该包含音色列表
                 if (Array.isArray(data)) {
-                    data.forEach((item: any) => {
+                    data.forEach((item: { uri?: string, customName?: string }) => {
                         if (item.uri) {
                             voices.push({
                                 id: item.uri,
@@ -123,7 +123,8 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
             }
 
             return response.body
-        } catch (error: any) {
+        } catch (e: unknown) {
+            const error = e as { message?: string, statusCode?: number }
             throw createError({
                 statusCode: error.statusCode || 500,
                 message: error.message || 'SiliconFlow TTS request failed',

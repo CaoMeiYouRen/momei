@@ -78,7 +78,8 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
             }
 
             return response.body
-        } catch (error: any) {
+        } catch (e: unknown) {
+            const error = e as { message?: string, statusCode?: number }
             throw createError({
                 statusCode: error.statusCode || 500,
                 message: error.message || 'OpenAI TTS request failed',

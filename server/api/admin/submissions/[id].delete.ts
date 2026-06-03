@@ -19,7 +19,8 @@ export default defineEventHandler(async (event) => {
             code: 200,
             message: 'Submission deleted',
         }
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string, statusCode?: number }
         throw createError({
             statusCode: error.statusCode || 500,
             statusMessage: error.message || 'Internal Server Error',

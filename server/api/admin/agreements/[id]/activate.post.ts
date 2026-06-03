@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
         const agreement = await setActiveAgreement(type, body.agreementId)
 
         return success(agreement)
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string, errors?: { message?: string }[] }
         if (error.errors) {
             return fail(error.errors[0]?.message || 'Validation failed', 400)
         }

@@ -25,7 +25,8 @@ export default defineEventHandler(async (event) => {
             result.data.language,
         )
         return success(versions)
-    } catch (error: any) {
+    } catch (e: unknown) {
+        const error = e as { message?: string }
         return fail(error.message || 'Failed to fetch agreements', 500)
     }
 })

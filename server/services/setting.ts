@@ -668,7 +668,7 @@ export const getAllSettings = async (options?: { includeSecrets?: boolean, shoul
 /**
  * 批量写入配置项，并统一处理 env 锁定、脱敏占位符保值、legacy alias 清理与审计日志。
  */
-export const setSettings = async (settings: Record<string, any>, auditContext?: SettingAuditContext) => {
+export const setSettings = async (settings: Record<string, unknown>, auditContext?: SettingAuditContext) => {
     const settingRepo = dataSource.getRepository(Setting)
     const entries = Object.entries(settings)
     const auditChanges: SettingAuditChange[] = []

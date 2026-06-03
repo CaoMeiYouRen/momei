@@ -20,9 +20,31 @@ const NO_EXPLICIT_ANY_API_FILES = [
     'server/api/tags/index.get.ts',
 ]
 
+const NO_EXPLICIT_ANY_AGREEMENTS_API_FILES = [
+    'server/api/admin/agreements/index.get.ts',
+    'server/api/admin/agreements/index.post.ts',
+    'server/api/admin/agreements/[id].put.ts',
+    'server/api/admin/agreements/[id].delete.ts',
+    'server/api/admin/agreements/[id]/activate.post.ts',
+    'server/api/admin/agreements/[id]/review-status.post.ts',
+]
+
+const NO_EXPLICIT_ANY_SUBMISSIONS_API_FILES = [
+    'server/api/admin/submissions/[id].delete.ts',
+    'server/api/admin/submissions/[id]/review.put.ts',
+]
+
+const NO_EXPLICIT_ANY_AI_UTILS_FILES = [
+    'server/utils/ai/tts-openai.ts',
+    'server/utils/ai/tts-siliconflow.ts',
+]
+
 export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_UTILITY_FILES,
     ...NO_EXPLICIT_ANY_API_FILES,
+    ...NO_EXPLICIT_ANY_AGREEMENTS_API_FILES,
+    ...NO_EXPLICIT_ANY_SUBMISSIONS_API_FILES,
+    ...NO_EXPLICIT_ANY_AI_UTILS_FILES,
     'composables/use-admin-ai.ts',
     'composables/use-admin-i18n.ts',
     'composables/use-asr-task.ts',
