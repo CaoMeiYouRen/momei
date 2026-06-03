@@ -38,6 +38,11 @@
 2. 涉及模块级实现时，从 `docs/standards/`、`docs/design/`、`docs/guide/` 中补读对应文档
 3. 若 `.claude/` 目录中缺少某个 agent 或 skill 定义，按回退规则查找 `.github/`
 
+## Git Commit Rules
+- **严禁**在提交信息中添加任何表明信息由 AI 生成的内容（例如 "Written by Claude", "AI-generated", "Generated with" 等）。
+- **不要**添加 "Signed-off-by" 或 "Co-authored-by" 页脚，除非明确要求。
+- **直接输出**提交信息，不要包含任何介绍性文字（例如，省略 "Sure, here is the commit..." 这样的客套话）。
+
 ## 相关文档
 
 | 文档 | 用途 |
