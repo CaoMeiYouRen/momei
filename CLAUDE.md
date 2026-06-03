@@ -37,6 +37,7 @@
 1. 在进入任何写操作前，先按 [AGENTS.md](./AGENTS.md) 要求读取对应阶段必须参考的项目文档
 2. 涉及模块级实现时，从 `docs/standards/`、`docs/design/`、`docs/guide/` 中补读对应文档
 3. 若 `.claude/` 目录中缺少某个 agent 或 skill 定义，按回退规则查找 `.github/`
+4. 当遇到需要外部信息、排查未知问题或修复失败 >= 2 次时，**必须先使用搜索工具**获取官方文档、issue tracker 或社区信息，再继续分析。详细触发条件与搜索策略见 [AI 协作规范 - 搜索优先](./docs/standards/ai-collaboration.md#14-信息获取与搜索优先-search-first)
 
 ## Git Commit Rules
 - **严禁**在提交信息中添加任何表明信息由 AI 生成的内容（例如 "Written by Claude", "AI-generated", "Generated with" 等）。
