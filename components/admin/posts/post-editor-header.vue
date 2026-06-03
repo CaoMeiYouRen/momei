@@ -281,7 +281,14 @@ const blurEditorBeforeTranslation = async () => {
 }
 
 const handleTranslationBadgeClick = async (langCode: string) => {
-    if (props.hasUnsavedContent) {
+    // Guard: read both model AND DOM value to catch any timing gaps
+    const titleInput = (typeof document !== 'undefined'
+        ? document.querySelector('.title-input')
+        : null) as HTMLInputElement | null
+    const hasDomContent = Boolean(titleInput?.value?.trim())
+    const hasModelContent = Boolean(post.value.title?.trim() || post.value.content?.trim())
+
+    if (props.isNew && !post.value.id && (hasDomContent || hasModelContent)) {
         const toast = useToast()
         toast.add({
             severity: 'warn',
