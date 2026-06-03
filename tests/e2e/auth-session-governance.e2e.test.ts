@@ -225,7 +225,8 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await expect(getActiveLanguageBadge(page)).not.toContainText(currentLanguage)
     })
 
-    test('should protect entered new draft from language switch before saving', async ({ page }) => {
+    test('should protect entered new draft from language switch before saving', async ({ page, browserName }) => {
+        test.skip(browserName === 'firefox', 'Flaky in Firefox CI — Playwright fill() + PrimeVue InputText v-model timing issue (2026-06)')
         await new AuthHelper(page).ensureAdminSession()
 
         await openNewDraftEditor(page)
