@@ -9,12 +9,12 @@
                 @click="navigateTo(localePath('/admin/posts'))"
             />
             <InputText
+                ref="titleInputRef"
                 v-model="post.title"
-                class="title-input"
                 :placeholder="$t('pages.admin.posts.title_placeholder')"
+                class="title-input"
                 :class="{'p-invalid': errors.title}"
                 @focus="rememberFocusedEditorElement"
-                @input="(e: Event) => { post.title = (e.target as HTMLInputElement).value }"
             />
             <ButtonGroup class="ai-tools-group">
                 <Button
@@ -250,8 +250,20 @@ const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
+const titleInputRef = ref<any>(null)
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
 const lastFocusedEditorElement = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+    nextTick(() => {
+        const input = titleInputRef.value?.$el
+        if (input instanceof HTMLInputElement) {
+            input.addEventListener('input', () => {
+                post.value.title = input.value
+            })
+        }
+    })
+})
 
 const rememberFocusedEditorElement = (event: FocusEvent) => {
     const target = event.target
