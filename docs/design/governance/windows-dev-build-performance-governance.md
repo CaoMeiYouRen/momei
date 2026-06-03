@@ -4,10 +4,23 @@
 
 本文档聚焦 Windows 本地开发体验的两类问题：
 
-- `nuxt dev` 虽然已经不再出现“明显卡死”，但首个请求仍存在长时间无响应。
+- `nuxt dev` 虽然已经不再出现"明显卡死"，但首个请求仍存在长时间无响应。
 - `nuxt build` 已恢复可完成，但总耗时仍远高于可接受区间。
 
 本专项只覆盖本地 Windows 开发 / 构建生命周期，不替代既有的前端页面性能预算、Lighthouse 或 bundle budget 守线。
+
+### 1.2 行业背景与外部调研
+
+Windows 下 Nuxt/Vite 构建慢是行业共性问题，并非本项目特有：
+
+- **Node.js 在 NTFS 上的先天劣势**：Windows 文件系统处理大量小文件的开销显著高于 Linux（ext4/XFS），这直接影响 Vite 的模块扫描、Nitro 的依赖解析和文件监控。[Reddit 社区讨论](https://www.reddit.com/r/Nuxt/comments/1cytzp0/why_is_nuxt_so_slow_on_windows/) 中实测同项目 Windows 启动约 40s+，macOS M2 约 10s。[Nuxt #20596](https://github.com/nuxt/nuxt/issues/20596) 被标记为 Windows-specific bug。
+- **WSL2 是社区公认的 top-1 解决路径**：Reddit、StackOverflow、Vite 官方文档均推荐将项目放在 WSL2 的 Linux 文件系统内（非 `/mnt/c/`），可恢复接近 Linux 原生性能。但 WSL2 在企业环境或低配机器上并非总是可用。
+- **Nuxt 缺少构建缓存**：[Nuxt #23392](https://github.com/nuxt/nuxt/issues/23392) 指出即便代码未变更，重复 `nuxt build` 耗时不减（vs Next.js 的缓存可将二次构建减半）。CI 场景下每次增量构建都需全量代价。
+- **Dev Server 启动时间随项目规模线性增长**：[Nuxt #27106](https://github.com/nuxt/nuxt/issues/27106) 提供了详细的拆解数据：900 文件项目约 27s 启动，其中模块/插件/CSS/TypeScript 各分摊数秒，不存在单一罪魁祸首。
+- **Vite build 可能挂起（hangs）**：常见原因包括 `build.watch: true`、插件生成大量 CSS 规则、i18n 配置错误、或 `@nabla/vite-plugin-eslint` 等检查插件在构建阶段引入长尾。[StackOverflow 讨论](https://stackoverflow.com/questions/75839993/vite-build-hangs-forever)
+- **Vite Performance Guide** 提供跨平台通用的优化建议：[官方文档](https://vite.dev/guide/performance) 建议审核插件 hooks、减少 resolve 路径猜测、避免 barrel files、使用 `server.warmup`、减少非原生工具链。
+
+以上外部调研的完整报告见：[research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
 
 ## 1.1 当前计划边界
 
@@ -259,3 +272,4 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - [server/database/index.ts](../../../server/database/index.ts)
 - [scripts/perf/measure-nuxt-lifecycle.mjs](../../../scripts/perf/measure-nuxt-lifecycle.mjs)
 - [docs/plan/backlog.md](../../plan/backlog.md)
+- [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)（外部调研报告）

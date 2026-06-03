@@ -80,6 +80,34 @@
 
 若分类分数通过但关键指标持续超阈值（连续 2 次流水线），必须进入修复清单。
 
+### 3.3 CWV 基线采集 (CWV Baseline Collection)
+
+通过 `test:perf:cwv` 脚本建立可追溯的 CWV 基线，覆盖以下公开页：
+
+| 页面 | 路由 | 说明 |
+| :--- | :--- | :--- |
+| 首页 | `/` | 文章卡片列表 |
+| 文章详情 | `/posts/welcome-to-momei-demo` | 完整文章渲染 |
+| 分类列表 | `/categories` | 分类聚合页 |
+| 标签列表 | `/tags` | 标签聚合页 |
+| 归档页 | `/archives` | 时间线归档 |
+
+执行方式：
+
+```bash
+pnpm build && pnpm test:perf:cwv
+```
+
+输出 `.lighthouseci/cwv-baseline.json`，包含：
+- 各页面 3 次采样的 LCP / CLS / TBT 中位数与 rating（good / needs-improvement / poor）
+- Performance / Accessibility / Best Practices / SEO 四项分类得分
+- 诊断指标（Total Byte Weight、DOM Size、Render Blocking Resources）
+
+基线更新时机：
+- 每阶段结束时作为收口动作更新一次。
+- 核心页面布局或资源加载策略变更后必须重采。
+- 优化前后必须记录对比数据（before / after）。
+
 ## 4. 资源预算标准 (Bundle & Asset Budgets)
 
 ### 4.1 JS/CSS 预算
@@ -148,15 +176,17 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 实际的性能测试脚本和预算检查逻辑位于：
 - `scripts/perf/check-bundle-budget.mjs`: 资源预算检查脚本
-- `package.json` 中的 `test:perf`、`test:perf:budget`、`test:perf:budget:strict` 脚本
+- `scripts/perf/cwv-baseline.mjs`: CWV 基线采集脚本
+- `package.json` 中的 `test:perf`、`test:perf:cwv`、`test:perf:budget`、`test:perf:budget:strict` 脚本
 
 ### 10.2 非目标内容
-以下内容不属于本规范范围：
+以下内容不属于本规范范围（但相关治理文档已覆盖）：
 - **API 响应时间**: 属于后端性能范畴，不包含在前端 Lighthouse 审计中
 - **服务端渲染 (SSR) 时间**: 属于服务端性能优化范畴
 - **数据库查询性能**: 属于后端性能优化范畴，参考数据库规范
 - **Nitro 服务端构建产物大小**: 属于服务端部署配置范畴
 - **第三方 API 调用延迟**: 属于外部依赖性能范畴
+- **Windows 本地 Dev / Build 性能**: 由 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 专项覆盖
 
 ### 10.3 与其他规范的关系
 - **安全规范**: 性能优化不得牺牲安全控制（如禁用必要的 CSP）

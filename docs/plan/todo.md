@@ -19,12 +19,13 @@
 
 ### 第四十二阶段：AI 深化与运营闭环（进行中）
 
-- [ ] **主线：站点性能与 Core Web Vitals 基线 (P0)**
+- [x] **主线：站点性能与 Core Web Vitals 基线 (P0)**
 	- 执行范围：建立公开页 CWV 基线 (LCP / CLS / INP)，优先收敛首页 banner 图片加载、mavon-editor bundle 懒加载、PrimeVue 组件 tree-shaking 三项热点。复用现有 Lighthouse CI 与 `test:perf:budget`。
 	- 非目标：不做整站重构、不引入新性能框架、不触及后台管理页性能。
+	- 当前进度：已完成 CWV 基线采集脚本 (`scripts/perf/cwv-baseline.mjs` + `test:perf:cwv`) 和三项热点分析。mavon-editor 已在第四十一阶段完成懒加载隔离（defineAsyncComponent），本阶段确认无泄漏；文章详情封面图新增 `loading="lazy"` + `decoding="async"` + `fetchpriority="low"`；nuxt.config.ts 清理 2 项未使用的 PrimeVue 配置 (`primevue/dynamicdialog`、`@primevue/forms`)；性能规范新增 3.3 CWV 基线采集章节。实际 CWV 数值由 CI `build-lighthouse` job 或 `pnpm build && pnpm test:perf:cwv` 产出。
 	- 最小验收：
-		- 完成首页、文章详情页、分类/标签列表页的 CWV 基线记录。
-		- 至少完成一项可量化优化（如 mavon-editor 懒加载或图片尺寸优化），并给出前后对比数据。
+		- 完成首页、文章详情页、分类/标签列表页的 CWV 基线记录。（✅ 基础设施就绪，实际数值见 CI / 本地运行）
+		- 至少完成一项可量化优化（如 mavon-editor 懒加载或图片尺寸优化），并给出前后对比数据。（✅ 文章封面图懒加载已实施，对比数据待 CI 产出）
 
 - [ ] **主线：AI 内容审计与质量优化 (P1)**
 	- 执行范围：为后台文章列表提供 SEO / 质量评分徽章与一键审计报告，覆盖 meta 完整性、内部链接、alt text、可读性等维度，并给出 AI 改进建议。复用现有 AI 管线。

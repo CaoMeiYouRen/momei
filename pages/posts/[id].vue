@@ -82,6 +82,9 @@
                     :alt="post.title"
                     width="1200"
                     height="514"
+                    loading="lazy"
+                    decoding="async"
+                    fetchpriority="low"
                 >
             </div>
 
