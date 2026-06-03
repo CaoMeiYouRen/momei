@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { createError } from 'h3'
-import { z } from 'zod'
+import { requestVolcengineJWTToken } from './volcengine-sts'
 import type { ASRMode, ASRCredentialsOptions, ASRCredentials } from '~/types/asr'
 import { SettingKey } from '~/types/setting'
 import { normalizeDurationSeconds } from '~/utils/shared/duration'
@@ -8,7 +8,6 @@ import { normalizeDurationSeconds } from '~/utils/shared/duration'
 /**
  * 生成前端直连 AI 厂商的临时凭证
  */
-const VOLCENGINE_STS_TOKEN_ENDPOINT = 'https://openspeech.bytedance.com/api/v1/sts/token'
 const VOLCENGINE_MIN_TOKEN_DURATION_SECONDS = 300
 const VOLCENGINE_MAX_TOKEN_DURATION_SECONDS = 43200
 const DEFAULT_VOLCENGINE_DIRECT_ENDPOINT = 'wss://openspeech.bytedance.com/api/v3/sauc/bigmodel'
@@ -16,10 +15,6 @@ const DEFAULT_VOLCENGINE_RESOURCE_ID = 'volc.bigasr.sauc.duration'
 export const DEFAULT_ASR_CREDENTIAL_TTL_SECONDS = 600
 export const MIN_ASR_CREDENTIAL_TTL_SECONDS = VOLCENGINE_MIN_TOKEN_DURATION_SECONDS
 export const MAX_ASR_CREDENTIAL_TTL_SECONDS = 3600
-
-const VolcengineTokenResponseSchema = z.object({
-    jwt_token: z.string().min(1),
-})
 
 export function resolveASRCredentialTtlMilliseconds(value: string | number | null | undefined) {
     return normalizeDurationSeconds(value, DEFAULT_ASR_CREDENTIAL_TTL_SECONDS, {
@@ -184,48 +179,6 @@ function resolveVolcengineTokenDurationSeconds(expiresIn: number): number {
         VOLCENGINE_MAX_TOKEN_DURATION_SECONDS,
         Math.max(VOLCENGINE_MIN_TOKEN_DURATION_SECONDS, requestedSeconds),
     )
-}
-
-/**
- * 向火山 STS 接口请求临时 JWT
- */
-async function requestVolcengineJWTToken(options: {
-    appId: string
-    accessKey: string
-    durationSeconds: number
-}): Promise<string> {
-    const response = await fetch(VOLCENGINE_STS_TOKEN_ENDPOINT, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer; ${options.accessKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            appid: options.appId,
-            duration: options.durationSeconds,
-        }),
-    })
-
-    const payload = await response.json().catch(() => null)
-
-    if (!response.ok) {
-        throw createError({
-            statusCode: 502,
-            message: payload && typeof payload === 'object' && 'message' in payload
-                ? String(payload.message)
-                : 'Failed to request Volcengine temporary JWT token',
-        })
-    }
-
-    const parsed = VolcengineTokenResponseSchema.safeParse(payload)
-    if (!parsed.success) {
-        throw createError({
-            statusCode: 502,
-            message: 'Invalid Volcengine temporary JWT token response',
-        })
-    }
-
-    return parsed.data.jwt_token
 }
 
 /**

@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { useReaderMode } from '@/composables/use-reader-mode'
 import { toBoolean, toNumber } from '@/utils/shared/coerce'
+import { normalizeRoutePath } from '@/utils/shared/route-path'
 
 const { siteConfig } = useMomeiConfig()
 const route = useRoute()
@@ -106,31 +107,8 @@ const parseLive2dOptions = (raw: unknown): Partial<Live2dWidgetOptions> => {
     return result
 }
 
-const normalizeRoutePath = (path: string) => {
-    if (!path) {
-        return '/'
-    }
-
-    const normalizedSource = path.startsWith('/') ? path : `/${path}`
-    const segments = normalizedSource.split('/')
-    const firstSegment = segments[1]
-    const strippedLocalePath = firstSegment && localeCodes.includes(firstSegment)
-        ? `/${segments.slice(2).join('/')}`
-        : normalizedSource
-
-    if (!strippedLocalePath || strippedLocalePath === '//') {
-        return '/'
-    }
-
-    if (strippedLocalePath.length > 1 && strippedLocalePath.endsWith('/')) {
-        return strippedLocalePath.slice(0, -1)
-    }
-
-    return strippedLocalePath
-}
-
 const isRouteAllowed = computed(() => {
-    const currentPath = normalizeRoutePath(route.path)
+    const currentPath = normalizeRoutePath(route.path, localeCodes)
     return LIVE2D_ALLOWED_ROUTE_PATTERNS.some((pattern) => pattern.test(currentPath))
 })
 

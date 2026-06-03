@@ -4,6 +4,7 @@ import { AITask } from '@/server/entities/ai-task'
 import { ImageService } from '@/server/services/ai/image'
 import { TTSService } from '@/server/services/ai/tts'
 import logger from '@/server/utils/logger'
+import { parseTaskResultRecord } from '@/server/utils/ai/task-result'
 import { acquireLock, releaseLock } from '@/server/utils/redis'
 import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 
@@ -60,23 +61,6 @@ function applyOutcome(summary: MediaTaskCompensationSummary, outcome: MediaTaskC
             return
         default:
             summary.skipped += 1
-    }
-}
-
-function parseTaskResultRecord(taskResult: string | null | undefined): Record<string, unknown> | null {
-    if (!taskResult) {
-        return null
-    }
-
-    try {
-        const parsed = JSON.parse(taskResult) as unknown
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            return null
-        }
-
-        return parsed as Record<string, unknown>
-    } catch {
-        return null
     }
 }
 

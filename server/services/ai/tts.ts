@@ -7,6 +7,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { AITask } from '@/server/entities/ai-task'
 import { calculateQuotaUnits, deriveChargeStatus, inferFailureStage, normalizeUsageSnapshot, serializeUsageSnapshot } from '@/server/utils/ai/cost-governance'
+import { parseTaskResultRecord } from '@/server/utils/ai/task-result'
 import logger from '@/server/utils/logger'
 import { applyPostMetadataPatch } from '@/server/utils/post-metadata'
 import { buildTTSPostMetadata } from '@/server/utils/ai/tts-post-metadata'
@@ -43,23 +44,6 @@ interface PodcastTaskCheckpoint {
     }
     resumeAttempts?: number
     lastResumeAt?: string | null
-}
-
-function parseTaskResultRecord(taskResult: string | null | undefined): Record<string, unknown> | null {
-    if (!taskResult) {
-        return null
-    }
-
-    try {
-        const parsed = JSON.parse(taskResult) as unknown
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            return null
-        }
-
-        return parsed as Record<string, unknown>
-    } catch {
-        return null
-    }
 }
 
 function parsePodcastTaskCheckpoint(taskResult: string | null | undefined) {

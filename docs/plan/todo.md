@@ -50,10 +50,10 @@
 		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
 		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。
 
-- [ ] **主线：结构复用治理 — 至少三组热点切片 (P1)**
+- [x] **主线：结构复用治理 — 至少三组热点切片 (P1)**
 	- 执行范围：聚焦重复类型声明、纯函数、工具函数的收敛。优先处理同名/近似名函数、同形状 type/interface 声明、重复导入后轻包装的 helper。每组切片必须输出：原始重复点、拟抽象边界、复用收益、潜在过度泛化风险与回滚方式。
 	- 非目标：不推动跨目录大重构、不为复用而复用、不改变业务行为。
-	- 当前进度：待启动。上一阶段已完成 2 组热点切片，当前 `duplicate-code` 基线为 `31 clones / 575 duplicated lines / 0.48%`，本轮需在此基础上继续下降。
+	- 当前进度：已完成。本轮完成三组热点切片（`parseTaskResultRecord` → `server/utils/ai/task-result.ts`、`requestVolcengineJWTToken` → `server/utils/ai/volcengine-sts.ts`、`normalizeRoutePath` → `utils/shared/route-path.ts`），jscpd clones 40→37 (-3)，duplicated lines 849→778 (-71)，duplication % 0.69%→0.63%，sameNameFunction 109→107 (-2)，typecheck 通过，Review Gate Pass。
 	- 最小验收：
 		- 至少三组热点切片完成且 `duplicate-code` 基线不反弹。
 		- `pnpm governance:audit:simple-duplicates` 输出显示收敛趋势。
