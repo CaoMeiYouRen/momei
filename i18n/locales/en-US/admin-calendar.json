@@ -1,0 +1,22 @@
+{
+    "pages": {
+        "admin": {
+            "calendar": {
+                "title": "Content Calendar",
+                "tab_calendar": "Calendar",
+                "tab_kanban": "Kanban",
+                "today_btn": "Today",
+                "month_view": "Month",
+                "week_view": "Week",
+                "more": "more",
+                "no_posts": "No posts",
+                "kanban_ideation": "Ideation",
+                "kanban_writing": "Writing",
+                "kanban_ready": "Ready",
+                "kanban_empty": "No cards",
+                "update_success": "Stage updated",
+                "update_failed": "Update failed"
+            }
+        }
+    }
+}

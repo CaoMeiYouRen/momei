@@ -35,9 +35,10 @@
 		- 至少支持 meta 完整性和可读性两个审计维度。
 		- AI 改进建议可生成但仅展示（不自动应用）。
 
-- [ ] **主线：内容日历 / 编辑排期 (P1)**
+- [x] **主线：内容日历 / 编辑排期 (P1)**
 	- 执行范围：提供后台月/周日历视图与草稿管线看板（构思→写作→待发布三列），与现有定时发布功能联动。复用 Post 实体的 `status` + `publishedAt` 字段。
 	- 非目标：不做团队任务分配、不做跨站点排期、不做 Gantt 图。
+		- 当前进度：已完成。新建 9 文件（types/calendar.ts、3 个 API 端点、calendar-view.vue、kanban-view.vue、pages/admin/calendar.vue、5 个语言 i18n 文件）+ 修改 4 文件（types/post.ts PipelineStage、locale-modules.ts 注册、app-header.vue 导航菜单、todo.md）。管线阶段存储于 post.metadata.pipelineStage，看板支持原生 HTML5 拖拽 + 乐观 UI 更新，日历 CSS Grid 月/周视图，数据隔离（日历=已发布/定时发布，看板=草稿）杜绝幽灵条目。typecheck + lint 通过。
 	- 最小验收：
 		- 日历视图可按月/周切换，已排期文章可点击跳转编辑。
 		- 草稿看板支持拖拽变更文章状态（Kanban 三列）。

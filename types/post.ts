@@ -238,6 +238,7 @@ export interface PostMetadata {
     }
     integration?: PostIntegrationMetadata
     audit?: PostAuditResult | null
+    pipelineStage?: PipelineStage | null
 }
 
 /**
@@ -337,6 +338,11 @@ export interface PublishIntent {
         tagIds?: string[]
     }
 }
+
+// ===== 管线阶段 =====
+
+/** 内容管线阶段（仅草稿） */
+export type PipelineStage = 'ideation' | 'writing' | 'ready'
 
 // ===== AI 内容审计 =====
 

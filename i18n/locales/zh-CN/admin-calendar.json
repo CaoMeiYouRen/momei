@@ -1,0 +1,22 @@
+{
+    "pages": {
+        "admin": {
+            "calendar": {
+                "title": "内容日历",
+                "tab_calendar": "日历视图",
+                "tab_kanban": "看板视图",
+                "today_btn": "今天",
+                "month_view": "月",
+                "week_view": "周",
+                "more": "更多",
+                "no_posts": "该日暂无内容",
+                "kanban_ideation": "构思",
+                "kanban_writing": "写作",
+                "kanban_ready": "待发布",
+                "kanban_empty": "暂无卡片",
+                "update_success": "状态更新成功",
+                "update_failed": "状态更新失败"
+            }
+        }
+    }
+}

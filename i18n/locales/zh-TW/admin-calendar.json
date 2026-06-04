@@ -1,0 +1,22 @@
+{
+    "pages": {
+        "admin": {
+            "calendar": {
+                "title": "內容行事曆",
+                "tab_calendar": "行事曆",
+                "tab_kanban": "看板",
+                "today_btn": "今天",
+                "month_view": "月",
+                "week_view": "週",
+                "more": "更多",
+                "no_posts": "該日暫無內容",
+                "kanban_ideation": "構思",
+                "kanban_writing": "寫作",
+                "kanban_ready": "待發布",
+                "kanban_empty": "暫無卡片",
+                "update_success": "狀態更新成功",
+                "update_failed": "狀態更新失敗"
+            }
+        }
+    }
+}

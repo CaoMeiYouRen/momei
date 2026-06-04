@@ -404,6 +404,11 @@ const adminMenuItems = computed(() => {
             command: goToAdminPosts,
         },
         {
+            label: t('pages.admin.calendar.title'),
+            icon: 'pi pi-calendar',
+            command: () => navigateTo(localePath('/admin/calendar')),
+        },
+        {
             label: t('pages.admin.snippets.title'),
             icon: 'pi pi-bolt',
             command: () => navigateTo(localePath('/admin/snippets')),

@@ -7,6 +7,7 @@ export const LOCALE_MESSAGE_MODULE_GROUPS = {
     auth: ['pages.login', 'pages.register', 'pages.forgot_password', 'pages.reset_password'],
     admin: ['pages.admin'],
     'admin-posts': ['pages.admin.posts'],
+    'admin-calendar': ['pages.admin.calendar'],
     'admin-taxonomy': ['pages.admin.categories', 'pages.admin.tags', 'pages.admin.comments', 'pages.admin.subscribers'],
     'admin-submissions': ['pages.admin.submissions'],
     'admin-ai': ['pages.admin.ai'],
@@ -35,6 +36,7 @@ export const LOCALE_MESSAGE_MODULE_ORDER = [
     'auth',
     'admin',
     'admin-posts',
+    'admin-calendar',
     'admin-taxonomy',
     'admin-submissions',
     'admin-ai',
@@ -69,6 +71,7 @@ const OPTIONAL_ROUTE_MODULES = new Set<LocaleMessageModule>([
     'auth',
     'admin',
     'admin-posts',
+    'admin-calendar',
     'admin-taxonomy',
     'admin-submissions',
     'admin-ai',
@@ -94,6 +97,10 @@ const ADMIN_ROUTE_MODULE_RULES: {
     {
         pattern: /^\/admin\/posts(?:\/|$)/u,
         modules: ['admin-posts'],
+    },
+    {
+        pattern: /^\/admin\/calendar(?:\/|$)/u,
+        modules: ['admin-calendar'],
     },
     {
         pattern: /^\/admin\/(?:categories|tags|comments|subscribers)(?:\/|$)/u,

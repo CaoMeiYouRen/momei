@@ -1,0 +1,22 @@
+{
+    "pages": {
+        "admin": {
+            "calendar": {
+                "title": "コンテンツカレンダー",
+                "tab_calendar": "カレンダー",
+                "tab_kanban": "かんばん",
+                "today_btn": "今日",
+                "month_view": "月",
+                "week_view": "週",
+                "more": "さらに表示",
+                "no_posts": "投稿なし",
+                "kanban_ideation": "構想",
+                "kanban_writing": "執筆",
+                "kanban_ready": "公開準備",
+                "kanban_empty": "カードなし",
+                "update_success": "更新しました",
+                "update_failed": "更新に失敗しました"
+            }
+        }
+    }
+}

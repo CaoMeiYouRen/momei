@@ -1,0 +1,22 @@
+{
+    "pages": {
+        "admin": {
+            "calendar": {
+                "title": "콘텐츠 캘린더",
+                "tab_calendar": "캘린더",
+                "tab_kanban": "칸반",
+                "today_btn": "오늘",
+                "month_view": "월",
+                "week_view": "주",
+                "more": "더보기",
+                "no_posts": "게시물 없음",
+                "kanban_ideation": "구상",
+                "kanban_writing": "집필",
+                "kanban_ready": "게시 준비",
+                "kanban_empty": "카드 없음",
+                "update_success": "업데이트 성공",
+                "update_failed": "업데이트 실패"
+            }
+        }
+    }
+}
