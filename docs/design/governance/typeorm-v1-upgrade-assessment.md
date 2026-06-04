@@ -127,3 +127,38 @@
 - 当前建议：`NO-GO（直接升级）`。截至 2026-05-27，第二轮 probe 已证明最小运行矩阵可通过：适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 均为绿色；但 `pnpm run typecheck` 仍有 `13` 个 TypeORM 直接相关静态错误分布在 `11` 个服务端文件，尚不足以支持真实升级实施。
 - 当前建议：`GO（评估任务上收）`。当前阶段关于 TypeORM 的兼容性探针、失败分桶、回滚锚点与 closeout 证据已经闭环，可关闭本轮评估待办，但不意味着允许把依赖版本直接提升到主工作区。
 - 下一触发点：先迁移剩余 `FindOptionsSelect` / `FindOptionsRelations` 旧语法（含 `server/database/typeorm-adapter.ts`、`10` 个 API / route 热点文件，以及 `server/utils/translation.test.ts` / `server/utils/post-list-query.test.ts` 两处测试桩），再隔离 `packages/**` 的类型噪音并重跑 `pnpm run typecheck`、适配层测试、数据库初始化测试、公开热点读链路测试与依赖审计；待这些证据全绿后，再决定是否把“真实升级实施”写入后续阶段。
+
+## 9. 2026-06-04 Dependabot 升级后的全仓审计
+
+> typeorm 已通过 Dependabot 升级到 ^1.0.0。审计基于 [Release Notes](https://typeorm.io/docs/releases/1.0/release-notes)。
+
+### API 移除项审核
+
+| 移除项 | 状态 | 说明 |
+| :--- | :--- | :--- |
+| String-based `relations` | ✅ 已修复 | Phase 42 2 处误用，已改对象语法 |
+| String-based `select` | ✅ 已迁移 | 第四十一阶段完成；仅测试 mock 有 `select: []` |
+| `findByIds` / `findOneById` | ✅ 未使用 | |
+| `Connection` 类 / `.connection` / 全局函数 | ✅ 未使用 | 始终用 `DataSource` + 实例方法 |
+| `@EntityRepository` / `@RelationCount` / IoC | ✅ 未使用 | |
+| `TYPEORM_*` 环境变量 | ✅ 未使用 | 使用显式 `dataSourceOptions` |
+| Legacy Naming Strategies | ✅ 无影响 | 使用 `DefaultNamingStrategy` |
+| `Repository.exist()` | ✅ 正确使用 | `web-push.ts` 用 `exists()` |
+
+### 行为变更风险
+
+| 变更 | 风险 | 说明 |
+| :--- | :--- | :--- |
+| Non-nullable relations → INNER JOIN | 🟡 Medium | 若存在孤立 FK 则查询结果不同 |
+| `invalidWhereValuesBehavior`→throw | 🟢 Low | 未在 where 中传 null/undefined |
+| Node.js 20+ | 🟢 Low | Node v24.11.1 |
+
+### 驱动变更
+
+使用 PostgreSQL + ioredis，MySQL/SQLite/MongoDB/Redis 驱动变更均无影响。
+
+### 结论
+
+**状态**: ✅ 升级已实施，全仓审计通过，typecheck 已恢复。
+
+剩余建议: (1) 验证生产 DB 中无孤立 FK；(2) 关注全量 `pnpm test` 结果；(3) 后续评估 `returning` 等新特性。
