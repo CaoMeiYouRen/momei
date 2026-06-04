@@ -9,6 +9,7 @@ export type AIAdminTaskType =
     | 'tts'
     | 'podcast'
     | 'transcription'
+    | 'content_audit_readability'
     | (string & {})
 
 export type AIChargeStatus = 'none' | 'estimated' | 'actual' | 'waived'

@@ -237,6 +237,7 @@ export interface PostMetadata {
         intent?: PublishIntent | null
     }
     integration?: PostIntegrationMetadata
+    audit?: PostAuditResult | null
 }
 
 /**
@@ -335,4 +336,50 @@ export interface PublishIntent {
         categoryIds?: string[]
         tagIds?: string[]
     }
+}
+
+// ===== AI 内容审计 =====
+
+/** 审计版本号 */
+export const AUDIT_SCHEMA_VERSION = 1
+/** 良好阈值 */
+export const AUDIT_GOOD_THRESHOLD = 70
+/** 缓存有效期 */
+export const AUDIT_CACHE_TTL_MS = 24 * 60 * 60 * 1000
+
+/** 单项审计详情 */
+export interface PostAuditDetail {
+    score: number
+    message: string
+}
+
+/** 元数据完整度审计结果 */
+export interface PostAuditMetaCompleteness {
+    score: number
+    details: {
+        title: PostAuditDetail
+        summary: PostAuditDetail
+        coverImage: PostAuditDetail
+        tags: PostAuditDetail
+        category: PostAuditDetail
+    }
+}
+
+/** 可读性审计结果 */
+export interface PostAuditReadability {
+    score: number
+    suggestions: string[]
+}
+
+/** 审计等级 */
+export type PostAuditTier = 'good' | 'needs_improvement'
+
+/** 完整审计结果 */
+export interface PostAuditResult {
+    score: number
+    tier: PostAuditTier
+    metaCompleteness: PostAuditMetaCompleteness
+    readability: PostAuditReadability
+    cachedAt: string
+    version: number
 }

@@ -422,6 +422,27 @@
                     "syncing": "同步中",
                     "tooltip": "一键同步到多平台 (WechatSync)",
                     "waiting": "等待发布..."
+                },
+                "audit": {
+                    "cached_at": "上次审计",
+                    "column_header": "质量",
+                    "dialog_title": "内容审计",
+                    "meta_completeness": "元数据完整度",
+                    "re_audit": "重新审计",
+                    "readability": "可读性",
+                    "readability_score": "可读性评分",
+                    "run_audit": "运行内容审计",
+                    "running": "审计中",
+                    "suggestions": "AI 建议",
+                    "tier_good": "良好",
+                    "tier_needs_improvement": "需改进",
+                    "factors": {
+                        "category": "分类",
+                        "coverImage": "封面图",
+                        "summary": "摘要",
+                        "tags": "标签",
+                        "title": "标题"
+                    }
                 }
             }
         }

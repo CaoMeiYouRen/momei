@@ -422,6 +422,27 @@
                     "syncing": "同期中",
                     "tooltip": "ワンクリックで複数プラットフォームへ同期 (WechatSync)",
                     "waiting": "公開待ち..."
+                },
+                "audit": {
+                    "cached_at": "前回の監査",
+                    "column_header": "品質",
+                    "dialog_title": "コンテンツ監査",
+                    "meta_completeness": "メタデータ完全性",
+                    "re_audit": "再監査",
+                    "readability": "可読性",
+                    "readability_score": "可読性スコア",
+                    "run_audit": "監査を実行",
+                    "running": "監査中",
+                    "suggestions": "AI 提案",
+                    "tier_good": "良好",
+                    "tier_needs_improvement": "要改善",
+                    "factors": {
+                        "category": "カテゴリ",
+                        "coverImage": "カバー画像",
+                        "summary": "要約",
+                        "tags": "タグ",
+                        "title": "タイトル"
+                    }
                 }
             }
         }

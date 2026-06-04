@@ -46,7 +46,7 @@
 - [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
 	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。
 	- 非目标：不扩写为全仓 `any` 清零、不引入新规则族、不改变治理脚本基线。
-	- 当前进度：待启动。上一阶段已完成四组窄切片（覆盖 26 文件），本轮需在此基础上至少再完成三组。
+	- 当前进度：已完成。本轮完成三组 `no-explicit-any` 窄切片：第一组 agreements API（5 文件），第二组 agreements/submissions API（3 文件），第三组 AI provider utils（2 文件：tts-openai / tts-siliconflow），同时清偿 setting.ts 遗留 warning。治理范围 26→36 文件，`warning=0` / `explicitExemptions=0`。
 	- 最小验收：
 		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
 		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。

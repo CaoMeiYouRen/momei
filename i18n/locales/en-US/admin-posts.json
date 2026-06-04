@@ -422,6 +422,27 @@
                     "syncing": "Syncing",
                     "tooltip": "One-Click Sync to Multiple Platforms (WechatSync)",
                     "waiting": "Waiting to publish..."
+                },
+                "audit": {
+                    "cached_at": "Last audited",
+                    "column_header": "Quality",
+                    "dialog_title": "Content Audit",
+                    "meta_completeness": "Meta Completeness",
+                    "re_audit": "Re-audit",
+                    "readability": "Readability",
+                    "readability_score": "Readability Score",
+                    "run_audit": "Run content audit",
+                    "running": "Auditing...",
+                    "suggestions": "AI Suggestions",
+                    "tier_good": "Good",
+                    "tier_needs_improvement": "Needs Improvement",
+                    "factors": {
+                        "category": "Category",
+                        "coverImage": "Cover Image",
+                        "summary": "Summary",
+                        "tags": "Tags",
+                        "title": "Title"
+                    }
                 }
             }
         }

@@ -201,6 +201,21 @@
                     </template>
                 </Column>
                 <Column
+                    :header="$t('pages.admin.posts.audit.column_header')"
+                    header-style="min-width: 7rem"
+                    header-class="text-center"
+                    body-class="text-center"
+                >
+                    <template #body="{data}">
+                        <PostAuditBadge
+                            :audit-result="auditResults.get(data.id) ?? null"
+                            :loading="auditingPostId === data.id"
+                            @run-audit="runAudit(data.id)"
+                            @show-detail="openAuditDialog(data.id)"
+                        />
+                    </template>
+                </Column>
+                <Column
                     :header="$t('common.actions')"
                     :exportable="false"
                     style="min-width: 8rem"
@@ -261,6 +276,14 @@
             ref="deleteDialog"
             @confirm="handleDelete"
         />
+
+        <PostAuditDialog
+            :visible="showAuditDialog"
+            :result="selectedAuditResult"
+            :re-auditing="reAuditingPostId !== null"
+            @close="closeAuditDialog"
+            @re-audit="handleReAudit"
+        />
     </div>
 </template>
 
@@ -269,10 +292,12 @@ import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
+import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
+import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
 import { getPostStatusSeverity } from '@/composables/use-post-editor-page.helpers'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
-import type { Post } from '@/types/post'
+import type { Post, PostAuditResult } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
 
@@ -458,6 +483,67 @@ const handleBatchExport = async () => {
     })
     await exportBatch(ids)
     selectedItems.value = []
+}
+
+// ===== AI 内容审计 =====
+
+const auditingPostId = ref<string | null>(null)
+const reAuditingPostId = ref<string | null>(null)
+const auditResults = ref<Map<string, PostAuditResult>>(new Map())
+const showAuditDialog = ref(false)
+const selectedAuditResult = ref<PostAuditResult | null>(null)
+
+async function runAudit(postId: string) {
+    auditingPostId.value = postId
+    try {
+        const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${postId}/audit`, {
+            method: 'POST',
+            body: { force: false },
+        })
+        const auditResult = result.data
+        auditResults.value = new Map(auditResults.value).set(postId, auditResult)
+        selectedAuditResult.value = auditResult
+        showAuditDialog.value = true
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.save_failed' })
+    } finally {
+        auditingPostId.value = null
+    }
+}
+
+function openAuditDialog(postId: string) {
+    const cached = auditResults.value.get(postId)
+    if (cached) {
+        selectedAuditResult.value = cached
+        showAuditDialog.value = true
+    }
+}
+
+function closeAuditDialog() {
+    showAuditDialog.value = false
+    selectedAuditResult.value = null
+    reAuditingPostId.value = null
+}
+
+async function handleReAudit() {
+    const postId = Array.from(auditResults.value.entries())
+        .find(([, v]) => v === selectedAuditResult.value)?.[0]
+    if (!postId) return
+
+    reAuditingPostId.value = postId
+    try {
+        const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${postId}/audit`, {
+            method: 'POST',
+            body: { force: true },
+        })
+        const auditResult = result.data
+        auditResults.value = new Map(auditResults.value).set(postId, auditResult)
+        selectedAuditResult.value = auditResult
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'common.save_failed' })
+    } finally {
+        reAuditingPostId.value = null
+    }
 }
 </script>
 

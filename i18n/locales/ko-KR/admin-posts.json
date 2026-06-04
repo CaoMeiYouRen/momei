@@ -422,6 +422,27 @@
                     "syncing": "동기화 중",
                     "tooltip": "여러 플랫폼으로 동기화 (WechatSync)",
                     "waiting": "대기 중..."
+                },
+                "audit": {
+                    "cached_at": "마지막 감사",
+                    "column_header": "품질",
+                    "dialog_title": "콘텐츠 감사",
+                    "meta_completeness": "메타데이터 완전성",
+                    "re_audit": "재감사",
+                    "readability": "가독성",
+                    "readability_score": "가독성 점수",
+                    "run_audit": "감사 실행",
+                    "running": "감사 중",
+                    "suggestions": "AI 제안",
+                    "tier_good": "양호",
+                    "tier_needs_improvement": "개선 필요",
+                    "factors": {
+                        "category": "카테고리",
+                        "coverImage": "커버 이미지",
+                        "summary": "요약",
+                        "tags": "태그",
+                        "title": "제목"
+                    }
                 }
             }
         }
