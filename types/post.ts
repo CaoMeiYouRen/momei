@@ -346,8 +346,8 @@ export type PipelineStage = 'ideation' | 'writing' | 'ready'
 
 // ===== AI 内容审计 =====
 
-/** 审计版本号 */
-export const AUDIT_SCHEMA_VERSION = 1
+/** 审计版本号（每次 schema 变更递增，自动失效旧缓存） */
+export const AUDIT_SCHEMA_VERSION = 2
 /** 良好阈值 */
 export const AUDIT_GOOD_THRESHOLD = 70
 /** 缓存有效期 */

@@ -85,7 +85,7 @@
                 class="calendar-view__cell"
                 :class="{
                     'calendar-view__cell--today': cell.isToday,
-                    'calendar-view__cell--has-posts': cell.posts.length > 0,
+                    'calendar-view__cell--has-posts': cell.posts.length > 0
                 }"
             >
                 <div class="calendar-view__cell-header">

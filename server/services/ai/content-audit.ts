@@ -34,39 +34,35 @@ function metaMessage(
     detail: string | null | undefined,
 ): Pick<PostAuditDetail, 'key' | 'params'> {
     let scoreTier: number
-    if (score >= 20) { scoreTier = 20 }
-    else if (score >= 15) { scoreTier = 15 }
-    else if (score >= 10) { scoreTier = 10 }
-    else if (score > 0) { scoreTier = 1 }
-    else { scoreTier = 0 }
+    if (score >= 20) { scoreTier = 20 } else if (score >= 15) { scoreTier = 15 } else if (score >= 10) { scoreTier = 10 } else if (score > 0) { scoreTier = 1 } else { scoreTier = 0 }
 
     const msgs: Record<string, Record<number, { key: string, params?: Record<string, string | number> }>> = {
         title: {
-            20: { key: `${I18N_PREFIX}.title_ideal` },
-            15: { key: `${I18N_PREFIX}.title_slightly_off` },
-            10: { key: `${I18N_PREFIX}.title_too_short_or_long` },
-            1:  { key: `${I18N_PREFIX}.title_far_from_ideal` },
-            0:  { key: `${I18N_PREFIX}.title_missing` },
+            '20': { key: `${I18N_PREFIX}.title_ideal` },
+            '15': { key: `${I18N_PREFIX}.title_slightly_off` },
+            '10': { key: `${I18N_PREFIX}.title_too_short_or_long` },
+            '1': { key: `${I18N_PREFIX}.title_far_from_ideal` },
+            '0': { key: `${I18N_PREFIX}.title_missing` },
         },
         summary: {
-            20: { key: `${I18N_PREFIX}.summary_detailed` },
-            15: { key: `${I18N_PREFIX}.summary_present_but_short` },
-            10: { key: `${I18N_PREFIX}.summary_very_brief` },
-            1:  { key: `${I18N_PREFIX}.summary_too_short` },
-            0:  { key: `${I18N_PREFIX}.summary_missing` },
+            '20': { key: `${I18N_PREFIX}.summary_detailed` },
+            '15': { key: `${I18N_PREFIX}.summary_present_but_short` },
+            '10': { key: `${I18N_PREFIX}.summary_very_brief` },
+            '1': { key: `${I18N_PREFIX}.summary_too_short` },
+            '0': { key: `${I18N_PREFIX}.summary_missing` },
         },
         coverImage: {
-            20: { key: `${I18N_PREFIX}.cover_image_set` },
-            0:  { key: `${I18N_PREFIX}.cover_image_missing` },
+            '20': { key: `${I18N_PREFIX}.cover_image_set` },
+            '0': { key: `${I18N_PREFIX}.cover_image_missing` },
         },
         tags: {
-            20: { key: `${I18N_PREFIX}.tags_assigned`, params: { count: Number(detail) || 0 } },
-            10: { key: `${I18N_PREFIX}.tags_few`, params: { count: Number(detail) || 0 } },
-            0:  { key: `${I18N_PREFIX}.tags_missing` },
+            '20': { key: `${I18N_PREFIX}.tags_assigned`, params: { count: Number(detail) || 0 } },
+            '10': { key: `${I18N_PREFIX}.tags_few`, params: { count: Number(detail) || 0 } },
+            '0': { key: `${I18N_PREFIX}.tags_missing` },
         },
         category: {
-            20: { key: `${I18N_PREFIX}.category_assigned` },
-            0:  { key: `${I18N_PREFIX}.category_missing` },
+            '20': { key: `${I18N_PREFIX}.category_assigned` },
+            '0': { key: `${I18N_PREFIX}.category_missing` },
         },
     }
 
@@ -210,7 +206,7 @@ export class ContentAuditService extends AIBaseService {
     static async audit(
         postId: string,
         userId: string,
-        options?: { force?: boolean; isAdmin?: boolean },
+        options?: { force?: boolean, isAdmin?: boolean },
     ): Promise<PostAuditResult> {
         const repo = dataSource.getRepository(Post)
         const post = await repo.findOne({

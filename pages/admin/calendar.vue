@@ -12,7 +12,9 @@
                     :placeholder="t('common.all_languages')"
                     size="small"
                     class="calendar-lang-bar__select"
-                    @update:model-value="(val: string | null) => { setContentLanguage(val); loadData() }"
+                    @update:model-value="(val: string | null) => {
+                        setContentLanguage(val); loadData()
+                    }"
                 />
             </div>
             <Tabs v-model:value="activeTab">
