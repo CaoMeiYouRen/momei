@@ -241,7 +241,7 @@ export class ContentAuditService extends AIBaseService {
         const repo = dataSource.getRepository(Post)
         const post = await repo.findOne({
             where: { id: postId },
-            relations: ['tags', 'category', 'author'],
+            relations: { tags: true, category: true, author: true },
         })
         if (!post) {
             throw createError({ statusCode: 404, statusMessage: 'Post not found' })

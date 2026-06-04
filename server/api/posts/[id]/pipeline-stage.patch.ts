@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => bodySchema.parse(b))
 
     const postRepo = dataSource.getRepository(Post)
-    const post = await postRepo.findOne({ where: { id }, relations: ['author'] })
+    const post = await postRepo.findOne({ where: { id }, relations: { author: true } })
 
     if (!post) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' })
