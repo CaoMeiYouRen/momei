@@ -37,6 +37,33 @@
 
 <!-- regression-window:end:phase42-close:第四十二阶段:2026-06-04 -->
 
+<!-- regression-window:start:phase42-docs-sync:第四十二阶段收口后:2026-06-04 -->
+## 2026-06-04 第四十二阶段收口后文档同步
+
+### 范围
+
+- 目标：执行第四十二阶段归档后的文档收口，包括 todo.md 清理、搜索优先原则规范文档同步、英文翻译同步。
+- 本轮覆盖：todo.md（Phase 42 完成项归档）、AGENTS.md（4.5 搜索优先摘要）、ai-collaboration.md（1.4 搜索优先详细规则）、development.md（搜索优先原则）、ai-development.md（搜索优先指引）、CLAUDE.md（搜索优先触发规则）、full-stack-master/code-auditor/qa-assistant agent 定义（搜索优先强化）。
+- 非目标：不新增功能、不改变代码。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | — | 仅文档改动，不涉及代码 |
+| `pnpm lint` | — | 仅文档改动 |
+| `pnpm docs:check:source-of-truth` | Pass | 文档事实源层级正确 |
+| `pnpm docs:check:i18n` | Pass | 翻译文档时效性通过 |
+| en-US 翻译同步 | 完成 | ai-collaboration.md（1.3/1.4 搜索优先）、development.md（搜索优先原则） |
+| todo.md 清理 | 完成 | Phase 42 完成项归档，当前执行面清空 |
+
+### 未覆盖边界
+
+- `en-US/standards/ai-collaboration.md` 仅同步搜索优先相关章节（1.3/1.4），完整 PDTFC+ 2.0 细节仍待后续同步。
+- `zh-TW` / `ko-KR` 翻译保持 source-only，无需更新。
+
+<!-- regression-window:end:phase42-docs-sync:第四十二阶段收口后:2026-06-04 -->
+
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-06-02 -->
 ## 2026-06-02 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
 

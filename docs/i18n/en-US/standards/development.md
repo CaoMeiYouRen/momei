@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-23
+last_sync: 2026-06-04
 ---
 
 # Momei Development Standards
@@ -15,6 +15,8 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 - **Reduced Coupling**: Layer pure functions (pure logic) and side-effect code. Migrate common logic to `utils/**` or reusable hooks. Core modules should have unidirectional, injectable dependencies.
 - **High Reusability**: Abstract duplicate logic into composables, directives, or utils. Reduce boilerplate code (forms, API wrappers, validation, etc.).
 - **Type Safety**: Fully utilize TypeScript. Strictly forbid `any`. Use `unknown` with Type Guards for uncertain types.
+- **Search-First Principle**: When external information, troubleshooting, or hypothesis verification is needed, search tools must be used first for primary-source information. See [AI Collaboration Standards - Search-First](./ai-collaboration.md#14-search-first).
+- **Explicit Assumptions**: When requirements, boundaries, input contracts, or runtime prerequisites are unclear, assumptions must be surfaced and clarified first. Proceeding based on default guesses alone is forbidden.
 - **Minimal Change Principle**: Focus on the target itself when modifying code. Minimize impact on unrelated code to avoid side effects.
 - **Pragmatism First**: Avoid over-engineering. Evaluate the real value and cost (ROI analysis) before introducing new features or refactoring.
 
