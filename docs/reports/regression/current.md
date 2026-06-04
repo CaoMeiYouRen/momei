@@ -9,6 +9,34 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
+<!-- regression-window:start:phase42-close:第四十二阶段:2026-06-04 -->
+## 2026-06-04 第四十二阶段收口回归
+
+### 范围
+
+- 目标：第四十二阶段「AI 深化与运营闭环」5 条主线全部交付后的阶段收口回归，覆盖 typecheck、lint、CWV 基线、代码审计与归档操作。
+- 本轮覆盖：全仓 typecheck + ESLint (`--max-warnings 0`)，Code Auditor 审计及修复，plan 文档归档（roadmap 深度分片 + todo-archive 滚动归档）。
+- 非目标：不包含浏览器端 E2E 回归测试，不包含 CWV 实际数值采集（由 CI `build-lighthouse` job 产出）。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 无静态错误 |
+| `pnpm lint` | Pass | ESLint `--max-warnings 0` 通过 |
+| Code Auditor | Pass | 4 个问题（1H+3M）已修复提交 |
+| CWV 基线 | 待 CI | 基础设施就绪，实际数值由 CI 产出 |
+| roadmap.md 深度归档 | 完成 | Phase 22-24 迁入 `roadmap-phases-22-24.md`，主文档 799→719 行 |
+| todo-archive.md 滚动归档 | 完成 | Phase 32-37 迁入 `todo-archive-phases-32-37.md`，主文档保留 Phase 38-42 |
+| todo.md 状态 | 清理 | Phase 42 5/5 主线 `[x]`，进度与验收均已填写 |
+
+### 未覆盖边界
+
+- CWV 中位数基线需等待 CI 运行 `pnpm build && pnpm test:perf:cwv` 产出后，回填到性能规范 `docs/standards/performance.md`。
+- `pnpm lint:i18n` 未在本轮单独执行，新增 i18n 键依赖 typecheck + 运行时验证。
+
+<!-- regression-window:end:phase42-close:第四十二阶段:2026-06-04 -->
+
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-06-02 -->
 ## 2026-06-02 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
 

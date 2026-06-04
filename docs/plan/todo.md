@@ -27,9 +27,10 @@
 		- 完成首页、文章详情页、分类/标签列表页的 CWV 基线记录。（✅ 基础设施就绪，实际数值见 CI / 本地运行）
 		- 至少完成一项可量化优化（如 mavon-editor 懒加载或图片尺寸优化），并给出前后对比数据。（✅ 文章封面图懒加载已实施，对比数据待 CI 产出）
 
-- [ ] **主线：AI 内容审计与质量优化 (P1)**
+- [x] **主线：AI 内容审计与质量优化 (P1)**
 	- 执行范围：为后台文章列表提供 SEO / 质量评分徽章与一键审计报告，覆盖 meta 完整性、内部链接、alt text、可读性等维度，并给出 AI 改进建议。复用现有 AI 管线。
 	- 非目标：不做全站批量内容重写、不自动修改已发布内容、不做实时监控。
+		- 当前进度：已完成。新建 5 文件（审计服务 ContentAuditService、API 端点 audit.post.ts、AI 提示词 content-audit.ts、徽章组件 post-audit-badge.vue、弹窗组件 post-audit-dialog.vue）+ 修改 8 文件（types/post.ts 审计类型、pages/admin/posts/index.vue 审计列、5 语言 i18n、types/ai.ts）。评分模型：元数据完整度（服务端纯 JS，5 维度各 20 分）+ 可读性（AI 评估），总分 ≥70 为良好。结果缓存于 post.metadata.audit（24h TTL），行级权限收敛。typecheck + lint 通过。
 	- 最小验收：
 		- 后台文章列表展示质量评分徽章（至少区分良好 / 需改进两档）。
 		- 至少支持 meta 完整性和可读性两个审计维度。
