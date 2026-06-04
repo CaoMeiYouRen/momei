@@ -142,6 +142,8 @@
         "custom": "Custom Platform",
         "created_at": "Created At",
         "back_to_home": "Back to Home",
+        "year": "Year",
+        "month": "Month",
         "platforms": {
             "wechat_mp": "WeChat Official Account",
             "juejin": "Juejin",

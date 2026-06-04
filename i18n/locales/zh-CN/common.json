@@ -142,6 +142,8 @@
         "custom": "自定义平台",
         "created_at": "创建时间",
         "back_to_home": "返回首页",
+        "year": "年",
+        "month": "月",
         "platforms": {
             "wechat_mp": "微信公众号",
             "juejin": "掘金",

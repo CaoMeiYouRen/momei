@@ -142,6 +142,8 @@
         "custom": "사용자 지정 플랫폼",
         "created_at": "생성일",
         "back_to_home": "홈으로 돌아가기",
+        "year": "년",
+        "month": "월",
         "platforms": {
             "wechat_mp": "WeChat 공식 계정",
             "juejin": "Juejin",

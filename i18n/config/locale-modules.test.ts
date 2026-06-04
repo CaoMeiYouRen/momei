@@ -28,6 +28,7 @@ describe('i18n locale modules', () => {
             'zh-CN/auth.json',
             'zh-CN/admin.json',
             'zh-CN/admin-posts.json',
+            'zh-CN/admin-calendar.json',
             'zh-CN/admin-taxonomy.json',
             'zh-CN/admin-submissions.json',
             'zh-CN/admin-ai.json',

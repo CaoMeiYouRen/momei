@@ -142,6 +142,8 @@
         "custom": "カスタムプラットフォーム",
         "created_at": "作成日時",
         "back_to_home": "ホームへ戻る",
+        "year": "年",
+        "month": "月",
         "platforms": {
             "wechat_mp": "WeChat 公式アカウント",
             "juejin": "Juejin",
