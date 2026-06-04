@@ -324,6 +324,7 @@
     - 第三十七阶段已正式切换为“0 个新功能 + 5 个优化”的执行面，当前聚焦 Windows 本地 Dev / Build 性能治理、测试有效性切片、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
     - 第四十一阶段候选组合已正式上收到 [项目计划](./roadmap.md) 与 [待办事项](./todo.md) 当前执行面，不再在 backlog 维护重复候选正文。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
+    - **2026-06-05 Harness Phase B 启动**：基于 [harness-engineering-adoption.md](../design/governance/harness-engineering-adoption.md) Phase A 的成果，Phase B 聚焦 PostToolUse 质量校验 + Stop 门禁 hooks 接入。详细方案见 [harness-phase-b-quality-gates.md](../design/governance/harness-phase-b-quality-gates.md)。该项不占用阶段切片容量，作为基础设施增强独立推进。
 
 ## 短期 / 一次性候选任务（上收后去重）
 
