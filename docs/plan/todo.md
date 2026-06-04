@@ -17,7 +17,53 @@
 
 ## 当前待办
 
-> 第四十二阶段已审计归档（详见 [todo-archive.md](./todo-archive.md) 与 [roadmap.md](./roadmap.md)）。当前执行面已清理，第四十三阶段待 backlog 候选池评估后确定。
+### 第四十三阶段：AI 分发复用与治理深化（进行中）
+
+> 背景：第四十二阶段已交付 AI 内容审计与内容日历两条新功能。本阶段继续以「1 个新功能 + 4 个优化」受控组合推进：AI 内容多格式复用作为轻量新增能力，四条优化主线延续治理节奏（ESLint 窄切片、结构复用、Windows 性能、i18n 验证扩面）。CWV 性能优化因 Windows 本地环境前置条件不足，延后至后续阶段。
+
+- [ ] **主线：AI 内容多格式复用 (P1)**
+	- 执行范围：为已发布文章提供一键 AI 生成社交帖子功能。复用现有 AI 摘要/翻译管线（openai/volcengine），纯前端 + API 增量功能。后端新增 `POST /api/admin/posts/:id/social-post` 端点（接受 `platform: 'twitter' | 'linkedin'`），AI 生成对应平台格式的帖子文案，返回文本支持复制（不做自动发布）。
+	- 非目标：不建全功能社交媒体调度器、不与 Hootsuite/Buffer 竞争、不自动发送到社交平台、不做视频脚本/图片生成。
+	- 当前进度：待开始。
+	- 最小验收：
+		- 文章编辑页/详情页提供「生成社交帖子」入口，至少支持 Twitter Thread + LinkedIn 两种格式。
+		- AI 生成的帖子可复制或手动发布（不自动推送到平台）。
+		- 复用现有 AI 成本计费与配额体系，不新增独立计费路径。
+
+- [ ] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
+	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。
+	- 非目标：不扩写为全仓 `any` 清零、不引入新规则族、不改变治理脚本基线。
+	- 当前进度：待开始。
+	- 最小验收：
+		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
+		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。
+
+- [ ] **主线：结构复用治理 — commercial-link-manager 自重复 + 至少三组热点切片 (P1)**
+	- 执行范围：聚焦 backlog 长期主线标注的最高优热点 `components/commercial-link-manager.vue` 文件内自重复（多块模板/样式/逻辑块间的结构性重复），同时至少完成 3 组其他热点切片。每组切片必须输出原始重复点、拟抽象边界、复用收益、潜在过度泛化风险与回滚方式。
+	- 非目标：不推动跨目录大重构、不为复用而复用、不改变业务行为。
+	- 当前进度：待开始。
+	- 最小验收：
+		- `commercial-link-manager.vue` 文件内自重复得到收敛，`duplicate-code` 基线不反弹。
+		- 至少三组其他热点切片完成，`pnpm governance:audit:simple-duplicates` 输出显示收敛趋势。
+
+- [ ] **主线：Windows 本地 Dev / Build 性能治理 (P0)**
+	- 执行范围：基于 2026-06-04 外部调研报告（`research-output/nuxt-windows-build-slow-2026-06-04.md`）的结论，尝试至少 2 项可量化优化：优先评估 WSL2 开发环境（项目置 Linux 文件系统内）、Vite `server.warmup` 预热策略、减少 resolve 路径猜测（显式 import 扩展名）中的高收益项，并用 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集前后对比数据。继续复用 `artifacts/nuxt-*-performance.json` 作为事实源。
+	- 非目标：不重写 Nuxt 构建配置、不把优化扩写为全平台构建重构、不承诺达到 Linux 侧性能水平。
+	- 当前进度：待开始。
+	- 最小验收：
+		- 至少完成 2 项可量化优化且 `pnpm perf:nuxt:build` 总耗时不高于当前基线。
+		- 优化前后对比数据写入 `artifacts/` 并更新 `windows-dev-build-performance-governance.md`。
+
+- [ ] **主线：i18n 运行时验证扩面 (P1)**
+	- 执行范围：把 `app-footer.vue`（友链/关于区域）、`pages/archives/index.vue`、`pages/categories/index.vue`、`pages/tags/index.vue` 四组公开装配链路纳入固定 `i18n:verify:runtime` 回归面。同步清理重复键或跨模块归属漂移，保持 `i18n:audit:missing` 与 `i18n:audit:duplicates` 为 `total: 0`。
+	- 非目标：不做整仓 key 改名工程、不改写现有 route-module 装配边界、不为了去重强行把页面私有语义上收到 `common`。
+	- 当前进度：待开始。
+	- 最小验收：
+		- 上述四组链路纳入 `i18n:verify:runtime` 并通过。
+		- `pnpm i18n:audit:missing` 与 `pnpm i18n:audit:duplicates` 保持 `total: 0`。
+		- 新增范围内不再出现 raw key 暴露。
+
+> **阶段收口时统一处理**: 文档归档治理（regression/current 与 todo-archive 滚动归档）延至本阶段结束时作为收口动作执行，不占用独立待办条目。
 
 ---
 

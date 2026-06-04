@@ -708,6 +708,42 @@
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 
+### 第四十三阶段：AI 分发复用与治理深化 (AI Distribution Reuse & Governance Deepening)
+
+**时间表**: 2026-06-05 ~ 约 2 周
+**目标**: 在第四十二阶段完成 AI 内容审计与内容日历交付后，以「1 个新功能 + 4 个优化」的受控组合推进：AI 内容多格式复用作为轻量新增能力，四条优化主线延续治理节奏（ESLint 窄切片、结构复用、Windows 性能、i18n 验证扩面）。CWV 性能优化因 Windows 本地环境前置条件不足，延后至后续阶段。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选，容量控制在 `5` 项内，符合规划规范。新功能复用现有 AI 管线，增量风险低。四条优化中 Windows 性能基于 2026-06-04 外部调研报告继续尝试可量化优化，ESLint、结构复用与 i18n 验证扩面延续长期主线治理节奏。
+
+**ROI 评估**: AI 内容多格式复用 `1.40`；ESLint / 类型债治理 `1.50`；结构复用治理 `1.60`；Windows Dev/Build 性能治理 `2.00`；i18n 运行时验证扩面 `1.45`。
+
+1. **主线：AI 内容多格式复用 (P1)**:
+    - **执行范围**: 为已发布文章提供一键 AI 生成社交帖子功能。复用现有 AI 摘要/翻译管线，纯前端 + API 增量功能。后端新增 `POST /api/admin/posts/:id/social-post` 端点（接受 `platform: 'twitter' | 'linkedin'`），AI 生成对应平台格式的帖子文案，返回文本供复制。
+    - **非目标**: 不建全功能社交媒体调度器、不自动发送到社交平台、不做视频脚本/图片生成。
+    - **最小验收**: 至少支持 Twitter Thread + LinkedIn 两种格式；AI 帖子可复制；复用现有 AI 计费体系。
+
+2. **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**:
+    - **执行范围**: 继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族。`warning=0`。
+    - **非目标**: 不扩写为全仓 `any` 清零、不引入新规则族。
+    - **最小验收**: 至少三组窄切片完成并通过定向验证；`pnpm governance:audit:eslint-debt` 显示本轮清偿数量。
+
+3. **主线：结构复用治理 — commercial-link-manager 自重复 + 至少三组热点切片 (P1)**:
+    - **执行范围**: 聚焦 backlog 长期主线标注的最高优热点 `components/commercial-link-manager.vue` 文件内自重复（多块模板/样式/逻辑块间的结构性重复），同时至少完成 3 组其他热点切片。
+    - **非目标**: 不推动跨目录大重构、不为复用而复用。
+    - **最小验收**: `commercial-link-manager.vue` 自重复收敛；至少三组其他热点完成且 `duplicate-code` 基线不反弹。
+
+4. **主线：Windows 本地 Dev / Build 性能治理 (P0)**:
+    - **执行范围**: 基于 2026-06-04 外部调研报告，至少尝试 2 项可量化优化（WSL2 评估、Vite warmup、显式 import 扩展名等），并用 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集前后对比数据。
+    - **非目标**: 不重写构建配置、不承诺达到 Linux 性能水平。
+    - **最小验收**: 至少 2 项可量化优化且 build 总耗时不高于当前基线；对比数据写入 `artifacts/`。
+
+5. **主线：i18n 运行时验证扩面 (P1)**:
+    - **执行范围**: 把 app-footer（友链/关于区域）、archives、categories、tags 四组公开装配链路纳入 `i18n:verify:runtime` 回归面，同步清理重复键或跨模块归属漂移。
+    - **非目标**: 不做整仓 key 改名、不改写 route-module 装配边界。
+    - **最小验收**: 四组链路纳入 runtime 验证并通过；`i18n:audit:missing` 与 `i18n:audit:duplicates` 保持 `total: 0`。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
