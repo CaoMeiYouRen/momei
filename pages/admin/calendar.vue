@@ -3,6 +3,18 @@
         <AdminPageHeader :title="$t('pages.admin.calendar.title')" />
 
         <div class="admin-content-card">
+            <div class="calendar-lang-bar">
+                <Select
+                    :model-value="contentLanguage"
+                    :options="availableLocales"
+                    option-label="label"
+                    option-value="value"
+                    :placeholder="t('common.all_languages')"
+                    size="small"
+                    class="calendar-lang-bar__select"
+                    @update:model-value="(val: string | null) => { setContentLanguage(val); loadData() }"
+                />
+            </div>
             <Tabs v-model:value="activeTab">
                 <TabList>
                     <Tab value="calendar">
@@ -43,19 +55,21 @@ import { ref } from 'vue'
 import CalendarView from '@/components/admin/calendar/calendar-view.vue'
 import KanbanView from '@/components/admin/calendar/kanban-view.vue'
 import type { CalendarDayGroup, KanbanResponse, PipelineStage } from '@/types/calendar'
+import { useAdminI18n } from '@/composables/use-admin-i18n'
 
 definePageMeta({
     middleware: 'author',
     layout: 'default',
 })
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
+const { contentLanguage, setContentLanguage, availableLocales } = useAdminI18n()
 const { ensureLocaleMessageModules } = await import('@/i18n/config/locale-runtime-loader')
 
-void ensureLocaleMessageModules({
+await ensureLocaleMessageModules({
     i18n: nuxtApp.$i18n as object,
     locale: locale.value,
     modules: ['admin-calendar'],
@@ -81,9 +95,11 @@ function getMonthRange(date: Date): { startDate: string, endDate: string } {
 async function loadCalendarPosts(startDate: string, endDate: string) {
     calendarLoading.value = true
     try {
-        const res = await $fetch<{ code: number, data: { groups: CalendarDayGroup[] } }>('/api/posts/calendar-posts', {
-            params: { startDate, endDate },
-        })
+        const params: Record<string, string> = { startDate, endDate }
+        if (contentLanguage.value) {
+            params.language = contentLanguage.value
+        }
+        const res = await $fetch<{ code: number, data: { groups: CalendarDayGroup[] } }>('/api/posts/calendar-posts', { params })
         calendarPosts.value = res.data.groups
     } catch (e) {
         showErrorToast(e, { fallbackKey: 'common.load_failed' })
@@ -100,7 +116,11 @@ function handleCalendarNavigate(date: Date) {
 async function loadKanbanPosts() {
     kanbanLoading.value = true
     try {
-        const res = await $fetch<{ code: number, data: KanbanResponse }>('/api/posts/kanban-posts')
+        const params: Record<string, string> = {}
+        if (contentLanguage.value) {
+            params.language = contentLanguage.value
+        }
+        const res = await $fetch<{ code: number, data: KanbanResponse }>('/api/posts/kanban-posts', { params })
         kanbanData.value = res.data
     } catch (e) {
         showErrorToast(e, { fallbackKey: 'common.load_failed' })
@@ -142,6 +162,23 @@ function navigateToEditPost(id: string) {
 
 // Initial load
 const { startDate, endDate } = getMonthRange(new Date())
-void loadCalendarPosts(startDate, endDate)
-void loadKanbanPosts()
+
+function loadData() {
+    void loadCalendarPosts(startDate, endDate)
+    void loadKanbanPosts()
+}
+
+void loadData()
 </script>
+
+<style lang="scss" scoped>
+.calendar-lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+
+    &__select {
+        min-width: 160px;
+    }
+}
+</style>

@@ -9,6 +9,7 @@ import type { CalendarDayGroup, CalendarPostItem } from '@/types/calendar'
 const querySchema = z.object({
     startDate: z.string().min(10).max(10),
     endDate: z.string().min(10).max(10),
+    language: z.string().optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -25,6 +26,10 @@ export default defineEventHandler(async (event) => {
 
     if (!isAdmin(user.role)) {
         qb.andWhere('post.authorId = :authorId', { authorId: user.id })
+    }
+
+    if (query.language) {
+        qb.andWhere('post.language = :language', { language: query.language })
     }
 
     const posts = await qb.getMany()

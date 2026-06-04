@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
@@ -5,6 +6,10 @@ import { isAdmin } from '@/utils/shared/roles'
 import { success } from '@/server/utils/response'
 import type { KanbanCard, KanbanResponse, PipelineStage } from '@/types/calendar'
 import { PostStatus } from '@/types/post'
+
+const querySchema = z.object({
+    language: z.string().optional(),
+})
 
 function toCard(post: Post): KanbanCard {
     return {
@@ -22,6 +27,7 @@ function toCard(post: Post): KanbanCard {
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
     const { user } = session
+    const query = await getValidatedQuery(event, (q) => querySchema.parse(q))
 
     const postRepo = dataSource.getRepository(Post)
     const qb = postRepo.createQueryBuilder('post')
@@ -32,6 +38,10 @@ export default defineEventHandler(async (event) => {
 
     if (!isAdmin(user.role)) {
         qb.andWhere('post.authorId = :authorId', { authorId: user.id })
+    }
+
+    if (query.language) {
+        qb.andWhere('post.language = :language', { language: query.language })
     }
 
     const posts = await qb.getMany()

@@ -24,11 +24,13 @@
                     @click="goToToday"
                 />
                 <SelectButton
-                    v-model="currentView"
+                    :model-value="currentView"
                     :options="viewOptions"
                     option-label="label"
                     option-value="value"
                     size="small"
+                    :allow-empty="false"
+                    @update:model-value="onViewChange"
                 />
             </div>
         </div>
@@ -76,10 +78,35 @@
             </div>
         </div>
 
-        <div v-else class="calendar-view__week">
-            <p class="calendar-view__week-placeholder">
-                {{ $t('pages.admin.calendar.week_view') }}
-            </p>
+        <div v-else class="calendar-view__grid calendar-view__grid--week">
+            <div
+                v-for="cell in weekCells"
+                :key="cell.dateKey"
+                class="calendar-view__cell"
+                :class="{
+                    'calendar-view__cell--today': cell.isToday,
+                    'calendar-view__cell--has-posts': cell.posts.length > 0,
+                }"
+            >
+                <div class="calendar-view__cell-header">
+                    <span class="calendar-view__cell-weekday">{{ cell.weekday }}</span>
+                    <span class="calendar-view__cell-date">{{ cell.day }}</span>
+                </div>
+                <div class="calendar-view__cell-posts">
+                    <div
+                        v-for="post in cell.posts.slice(0, 3)"
+                        :key="post.id"
+                        class="calendar-view__chip"
+                        :class="`calendar-view__chip--${post.status}`"
+                        @click="$emit('edit-post', post.id)"
+                    >
+                        {{ truncate(post.title, 12) }}
+                    </div>
+                    <div v-if="cell.posts.length > 3" class="calendar-view__more">
+                        +{{ cell.posts.length - 3 }} {{ $t('pages.admin.calendar.more') }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -102,6 +129,12 @@ const { t, locale } = useI18n()
 
 const currentView = ref<'month' | 'week'>('month')
 const currentDate = ref(new Date())
+
+function onViewChange(value: 'month' | 'week' | null) {
+    if (value) {
+        currentView.value = value
+    }
+}
 
 const viewOptions = computed(() => [
     { label: t('pages.admin.calendar.month_view'), value: 'month' as const },
@@ -127,6 +160,7 @@ interface CalendarCell {
     day: number
     isCurrentMonth: boolean
     isToday: boolean
+    weekday?: string
     posts: CalendarDayGroup['posts']
 }
 
@@ -160,6 +194,36 @@ const monthCells = computed<CalendarCell[]>(() => {
             day: cursor.getDate(),
             isCurrentMonth: cursor.getMonth() === month,
             isToday: dateKey === todayKey,
+            posts: postsMap.get(dateKey) || [],
+        })
+        cursor.setDate(cursor.getDate() + 1)
+    }
+    return cells
+})
+
+const weekCells = computed<CalendarCell[]>(() => {
+    const today = new Date()
+    const todayKey = today.toISOString().slice(0, 10)
+    const cursor = new Date(currentDate.value)
+    // Set cursor to the Sunday of the week containing currentDate
+    const dayOfWeek = cursor.getDay()
+    cursor.setDate(cursor.getDate() - dayOfWeek)
+
+    const postsMap = new Map<string, CalendarDayGroup['posts']>()
+    for (const group of props.calendarPosts) {
+        postsMap.set(group.date, group.posts)
+    }
+
+    const cells: CalendarCell[] = []
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(cursor)
+        const dateKey = d.toISOString().slice(0, 10)
+        cells.push({
+            dateKey,
+            day: d.getDate(),
+            isCurrentMonth: true,
+            isToday: dateKey === todayKey,
+            weekday: d.toLocaleDateString(locale.value, { weekday: 'short' }),
             posts: postsMap.get(dateKey) || [],
         })
         cursor.setDate(cursor.getDate() + 1)
@@ -288,6 +352,19 @@ function truncate(str: string, max: number): string {
         color: var(--p-text-muted-color);
         display: block;
         margin-bottom: 0.2rem;
+    }
+
+    &__cell-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.2rem;
+    }
+
+    &__cell-weekday {
+        font-size: 0.7rem;
+        color: var(--p-text-muted-color);
+        font-weight: 500;
     }
 
     &__cell-posts {
