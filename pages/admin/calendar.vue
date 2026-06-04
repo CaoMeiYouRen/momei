@@ -21,6 +21,7 @@
                             :loading="calendarLoading"
                             :calendar-posts="calendarPosts"
                             @edit-post="navigateToEditPost"
+                            @navigate="handleCalendarNavigate"
                         />
                     </TabPanel>
                     <TabPanel value="kanban">
@@ -48,7 +49,7 @@ definePageMeta({
     layout: 'default',
 })
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
@@ -68,20 +69,18 @@ const calendarLoading = ref(false)
 const kanbanData = ref<KanbanResponse>({ ideation: [], writing: [], ready: [] })
 const kanbanLoading = ref(false)
 
-function getMonthRange(): { startDate: string, endDate: string } {
-    const now = new Date()
-    const start = new Date(now.getFullYear(), now.getMonth(), 1)
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+function getMonthRange(date: Date): { startDate: string, endDate: string } {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1)
+    const end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
     return {
         startDate: start.toISOString().slice(0, 10),
         endDate: end.toISOString().slice(0, 10),
     }
 }
 
-async function loadCalendarPosts() {
+async function loadCalendarPosts(startDate: string, endDate: string) {
     calendarLoading.value = true
     try {
-        const { startDate, endDate } = getMonthRange()
         const res = await $fetch<{ code: number, data: { groups: CalendarDayGroup[] } }>('/api/posts/calendar-posts', {
             params: { startDate, endDate },
         })
@@ -91,6 +90,11 @@ async function loadCalendarPosts() {
     } finally {
         calendarLoading.value = false
     }
+}
+
+function handleCalendarNavigate(date: Date) {
+    const { startDate, endDate } = getMonthRange(date)
+    void loadCalendarPosts(startDate, endDate)
 }
 
 async function loadKanbanPosts() {
@@ -137,6 +141,7 @@ function navigateToEditPost(id: string) {
 }
 
 // Initial load
-void loadCalendarPosts()
+const { startDate, endDate } = getMonthRange(new Date())
+void loadCalendarPosts(startDate, endDate)
 void loadKanbanPosts()
 </script>

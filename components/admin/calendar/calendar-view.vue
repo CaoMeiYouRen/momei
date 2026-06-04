@@ -93,11 +93,12 @@ const props = defineProps<{
     calendarPosts: CalendarDayGroup[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
     'edit-post': [id: string]
+    navigate: [date: Date]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const currentView = ref<'month' | 'week'>('month')
 const currentDate = ref(new Date())
@@ -108,7 +109,6 @@ const viewOptions = computed(() => [
 ])
 
 const weekdays = computed(() => {
-    const { locale } = useI18n()
     const base = new Date(2024, 0, 7) // Sunday
     return Array.from({ length: 7 }, (_, i) => {
         const d = new Date(base)
@@ -175,6 +175,7 @@ function prevPeriod() {
         d.setDate(d.getDate() - 7)
     }
     currentDate.value = d
+    emit('navigate', d)
 }
 
 function nextPeriod() {
@@ -185,10 +186,13 @@ function nextPeriod() {
         d.setDate(d.getDate() + 7)
     }
     currentDate.value = d
+    emit('navigate', d)
 }
 
 function goToToday() {
-    currentDate.value = new Date()
+    const d = new Date()
+    currentDate.value = d
+    emit('navigate', d)
 }
 
 function truncate(str: string, max: number): string {
@@ -262,7 +266,7 @@ function truncate(str: string, max: number): string {
         border-right: 1px solid var(--p-content-border-color);
         border-bottom: 1px solid var(--p-content-border-color);
 
-        &:nth-child(7n + 1) {
+        &:nth-child(7n) {
             border-right: none;
         }
 

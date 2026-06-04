@@ -1,5 +1,6 @@
-/** 管线阶段（仅草稿） */
-export type PipelineStage = 'ideation' | 'writing' | 'ready'
+import type { PipelineStage } from './post'
+
+export type { PipelineStage }
 
 /** 日历帖子查询参数 */
 export interface CalendarPostsQuery {
