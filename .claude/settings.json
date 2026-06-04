@@ -21,6 +21,16 @@
                         "timeout": 15
                     }
                 ]
+            },
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=post-verify",
+                        "timeout": 120
+                    }
+                ]
             }
         ],
         "PreCompact": [
@@ -41,6 +51,15 @@
                         "type": "command",
                         "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=session-end",
                         "timeout": 15
+                    }
+                ]
+            },
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=pre-stop-check",
+                        "timeout": 10
                     }
                 ]
             }

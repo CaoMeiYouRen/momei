@@ -64,6 +64,20 @@ export const SessionGovernancePlugin = async ({ client, worktree }) => {
                     platform: 'opencode',
                     projectRoot,
                 })
+
+                // Pre-stop check on idle: warn if verification is stale
+                const stopResult = await handleSessionGovernanceEvent({
+                    eventName: 'pre-stop-check',
+                    payload: event,
+                    platform: 'opencode',
+                    projectRoot,
+                })
+
+                if (stopResult.additionalContext) {
+                    await logInfo('OpenCode pre-stop-check: verification stale', {
+                        context: stopResult.additionalContext,
+                    })
+                }
             }
         },
 
@@ -79,6 +93,18 @@ export const SessionGovernancePlugin = async ({ client, worktree }) => {
                 platform: 'opencode',
                 projectRoot,
             })
+
+            // Post-verify: run lint/typecheck after code edits (non-blocking)
+            const verifyResult = await handleSessionGovernanceEvent({
+                eventName: 'post-verify',
+                payload: { timestamp: Date.now() },
+                platform: 'opencode',
+                projectRoot,
+            })
+
+            if (verifyResult.additionalContext) {
+                await logInfo('OpenCode post-verify', { result: verifyResult.additionalContext })
+            }
         },
 
         'experimental.session.compacting': async (input, output) => {

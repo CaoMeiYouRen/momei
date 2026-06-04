@@ -17,6 +17,13 @@
                 "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
                 "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
                 "timeoutSec": 15
+            },
+            {
+                "type": "command",
+                "bash": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
+                "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
+                "timeoutSec": 120
             }
         ],
         "preCompact": [
@@ -35,6 +42,13 @@
                 "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=session-end",
                 "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=session-end",
                 "timeoutSec": 15
+            },
+            {
+                "type": "command",
+                "bash": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=pre-stop-check",
+                "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=pre-stop-check",
+                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=pre-stop-check",
+                "timeoutSec": 10
             }
         ]
     }

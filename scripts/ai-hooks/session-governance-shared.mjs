@@ -1,4 +1,5 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { exec } from 'node:child_process'
 import path from 'node:path'
 import yaml from 'js-yaml'
 
@@ -16,6 +17,18 @@ const MAX_BRIEFING_LINES = 8
 const PATH_HINT_KEY = /(file(Path)?s?|paths?|path)$/iu
 const PATCH_FILE_MARKER = /^\*\*\* (?:Add|Update|Delete) File: (.+)$/gmu
 const EDIT_LIKE_TOOLS = new Set(['create', 'create_file', 'edit', 'edit_notebook_file', 'multiedit', 'apply_patch', 'write'])
+
+function execPromise(command, options) {
+    return new Promise((resolve, reject) => {
+        exec(command, { ...options, timeout: 120000 }, (error, stdout, stderr) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve({ stdout, stderr })
+            }
+        })
+    })
+}
 
 function toTrimmedString(value) {
     return typeof value === 'string' ? value.trim() : ''
@@ -656,6 +669,75 @@ export async function handleSessionGovernanceEvent({ eventName, payload = {}, pl
         return {
             additionalContext: null,
             compactionContext: buildCompactionContext(sessionState.currentTask, sessionState.runtimeState),
+        }
+    }
+
+    if (eventName === 'post-verify') {
+        if (sessionState.runtimeState.verification_state.status !== 'stale') {
+            return { additionalContext: null, compactionContext: null }
+        }
+
+        const changedFiles = sessionState.runtimeState.file_edits
+            .filter((f) => /\\.(ts|vue|js|mjs)$/iu.test(f))
+            .join(' ')
+
+        let lintResult = null
+        let typecheckResult = null
+        let allPassed = true
+
+        // Run lint on changed files (or full lint if no specific files tracked)
+        if (changedFiles) {
+            try {
+                await execPromise(`pnpm exec eslint ${changedFiles} --quiet --max-warnings 0`, { cwd: projectRoot })
+                lintResult = 'pass'
+            } catch {
+                lintResult = 'fail'
+                allPassed = false
+            }
+        }
+
+        // Run typecheck
+        try {
+            await execPromise('pnpm run typecheck', { cwd: projectRoot })
+            typecheckResult = 'pass'
+        } catch {
+            typecheckResult = 'fail'
+            allPassed = false
+        }
+
+        sessionState.runtimeState.last_verification = {
+            lint: lintResult ? { result: lintResult, timestamp } : sessionState.runtimeState.last_verification.lint,
+            typecheck: typecheckResult ? { result: typecheckResult, timestamp } : sessionState.runtimeState.last_verification.typecheck,
+        }
+
+        sessionState.runtimeState.verification_state = {
+            status: allPassed ? 'verified' : 'stale',
+            updated_at: timestamp,
+            reason: allPassed ? null : 'post-verify-failed',
+        }
+
+        await persistSessionState(sessionState)
+
+        const contextParts = []
+        if (lintResult) { contextParts.push(`lint=${lintResult}`) }
+        if (typecheckResult) { contextParts.push(`typecheck=${typecheckResult}`) }
+
+        return {
+            additionalContext: allPassed
+                ? null
+                : `[hooks] post-verify failed: ${contextParts.join(', ')}. Please fix before proceeding.`,
+            compactionContext: null,
+        }
+    }
+
+    if (eventName === 'pre-stop-check') {
+        if (sessionState.runtimeState.verification_state.status !== 'stale') {
+            return { additionalContext: null, compactionContext: null }
+        }
+
+        return {
+            additionalContext: '[hooks] WARNING: verification_state is stale. Please run `pnpm lint && pnpm typecheck` before ending this session.',
+            compactionContext: null,
         }
     }
 
