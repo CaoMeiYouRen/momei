@@ -443,29 +443,7 @@ import { buildShareCanonicalUrl } from '@/utils/shared/share'
 import { isSnowflakeId } from '@/utils/shared/validate'
 import { countWords, estimateReadingTime } from '@/utils/shared/post-stats'
 import { AdLocation } from '@/types/ad'
-
-interface PostNavigationItem {
-    id: string
-    slug: string
-    title: string
-    summary?: string | null
-    coverImage?: string | null
-    publishedAt?: string | Date | null
-    language: string
-}
-
-interface PostRelatedItem extends PostNavigationItem {
-    category?: {
-        id: string
-        name: string
-        slug: string
-    } | null
-    tags?: {
-        id: string
-        name: string
-        slug: string
-    }[] | null
-}
+import type { PostNavigationItem, PostRelatedItem } from '@/server/utils/post-detail'
 
 interface PostDetailAuthor extends NonNullable<Post['author']> {
     email?: string | null

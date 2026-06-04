@@ -24,9 +24,7 @@ interface ImageTaskCheckpoint {
     lastResumeAt?: string | null
 }
 
-function toErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error)
-}
+import { toErrorMessage } from '@/server/utils/ai/error'
 
 function parseImageTaskCheckpoint(taskResult: string | null | undefined) {
     if (!taskResult) {

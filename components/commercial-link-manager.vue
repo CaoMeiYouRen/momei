@@ -30,201 +30,36 @@
             @remove="confirmDeleteDonationLink"
         />
 
-        <!-- 打赏对话框 -->
-        <Dialog
+        <CommercialLinkDialog
             v-model:visible="dialogVisible"
-            :header="editingIndex > -1 ? $t('pages.settings.commercial.edit_donation') : $t('pages.settings.commercial.add_donation')"
-            modal
-            class="commercial-manager__dialog"
-            :dismissable-mask="true"
-        >
-            <div class="commercial-manager__dialog-body">
-                <div class="commercial-manager__field">
-                    <label>{{ $t('pages.settings.commercial.platform') }}</label>
-                    <Select
-                        v-model="currentLink.platform"
-                        :options="DONATION_PLATFORMS"
-                        option-label="key"
-                        option-value="key"
-                        class="w-full"
-                    >
-                        <template #option="slotProps">
-                            <div class="commercial-manager__select-option">
-                                <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
-                                <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.option.key}`) }}</span>
-                            </div>
-                        </template>
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value" class="commercial-manager__select-value">
-                                <i :class="getPlatformIcon(slotProps.value)" :style="{color: getPlatformColor(slotProps.value)}" />
-                                <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`components.post.sponsor.platforms.${slotProps.value}`) }}</span>
-                            </div>
-                            <span v-else>{{ slotProps.placeholder }}</span>
-                        </template>
-                    </Select>
-                </div>
+            v-model:link="currentLink"
+            :editing-index="editingIndex"
+            kind="donation"
+            :platforms="DONATION_PLATFORMS"
+            i18n-prefix="pages.settings.commercial"
+            platform-i18n-prefix="components.post.sponsor.platforms"
+            :platform-icon="(k) => getCommercialPlatformIcon(k, 'donation')"
+            :platform-color="(k) => getCommercialPlatformColor(k, 'donation')"
+            :platform-type="donationPlatformType"
+            :locale-options="localeOptions"
+            @save="addLink"
+        />
 
-                <div v-if="currentLink.platform === 'custom'" class="commercial-manager__field">
-                    <label for="label">{{ $t('pages.settings.commercial.label') }}</label>
-                    <InputText
-                        id="label"
-                        v-model="currentLink.label"
-                        class="w-full"
-                    />
-                </div>
-
-                <div v-if="isPlatformType('url') || isPlatformType('both')" class="commercial-manager__field">
-                    <label for="url">{{ $t('pages.settings.commercial.url') }}</label>
-                    <InputText
-                        id="url"
-                        v-model="currentLink.url"
-                        class="w-full"
-                        placeholder="https://..."
-                    />
-                </div>
-
-                <div v-if="isPlatformType('image') || isPlatformType('both')" class="commercial-manager__field">
-                    <label for="image">{{ $t('pages.settings.commercial.image') }}</label>
-                    <AppUploader
-                        v-model="currentLink.image"
-                        class="w-full"
-                    />
-                    <div v-if="currentLink.image" class="commercial-manager__dialog-preview">
-                        <Image
-                            :src="currentLink.image"
-                            alt="Preview"
-                            width="120"
-                            preview
-                        />
-                    </div>
-                </div>
-
-                <div class="commercial-manager__field">
-                    <label>{{ $t('pages.settings.commercial.locales') }}</label>
-                    <MultiSelect
-                        v-model="currentLink.locales"
-                        :options="localeOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.settings.commercial.locales_hint')"
-                        class="w-full"
-                    />
-                </div>
-            </div>
-            <template #footer>
-                <div class="commercial-manager__dialog-footer">
-                    <Button
-                        :label="$t('common.cancel')"
-                        text
-                        severity="secondary"
-                        @click="dialogVisible = false"
-                    />
-                    <Button
-                        :label="$t('common.save')"
-                        data-testid="donation-save"
-                        @click="addLink"
-                    />
-                </div>
-            </template>
-        </Dialog>
-
-        <!-- 社交对话框 -->
-        <Dialog
+        <CommercialLinkDialog
             v-model:visible="socialDialogVisible"
-            :header="editingSocialIndex > -1 ? $t('pages.settings.commercial.edit_social') : $t('pages.settings.commercial.add_social')"
-            modal
-            class="commercial-manager__dialog"
-            :dismissable-mask="true"
-        >
-            <div class="commercial-manager__dialog-body">
-                <div class="commercial-manager__field">
-                    <label>{{ $t('pages.settings.commercial.platform') }}</label>
-                    <Select
-                        v-model="currentSocialLink.platform"
-                        :options="SOCIAL_PLATFORMS"
-                        option-label="key"
-                        option-value="key"
-                        class="w-full"
-                    >
-                        <template #option="slotProps">
-                            <div class="commercial-manager__select-option">
-                                <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
-                                <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`common.platforms.${slotProps.option.key}`) }}</span>
-                            </div>
-                        </template>
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value" class="commercial-manager__select-value">
-                                <i :class="getSocialIcon(slotProps.value)" :style="{color: getSocialColor(slotProps.value)}" />
-                                <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`common.platforms.${slotProps.value}`) }}</span>
-                            </div>
-                            <span v-else>{{ slotProps.placeholder }}</span>
-                        </template>
-                    </Select>
-                </div>
-
-                <div v-if="currentSocialLink.platform === 'custom'" class="commercial-manager__field">
-                    <label for="social-label">{{ $t('pages.settings.commercial.label') }}</label>
-                    <InputText
-                        id="social-label"
-                        v-model="currentSocialLink.label"
-                        class="w-full"
-                    />
-                </div>
-
-                <div v-if="isSocialPlatformType('url') || isSocialPlatformType('both')" class="commercial-manager__field">
-                    <label for="social-url">{{ $t('pages.settings.commercial.url') }}</label>
-                    <InputText
-                        id="social-url"
-                        v-model="currentSocialLink.url"
-                        class="w-full"
-                        placeholder="https://..."
-                    />
-                </div>
-
-                <div v-if="isSocialPlatformType('image') || isSocialPlatformType('both')" class="commercial-manager__field">
-                    <label for="social-image">{{ $t('pages.settings.commercial.image') }}</label>
-                    <AppUploader
-                        v-model="currentSocialLink.image"
-                        class="w-full"
-                    />
-                    <div v-if="currentSocialLink.image" class="commercial-manager__dialog-preview">
-                        <Image
-                            :src="currentSocialLink.image"
-                            alt="Preview"
-                            width="120"
-                            preview
-                        />
-                    </div>
-                </div>
-
-                <div class="commercial-manager__field">
-                    <label>{{ $t('pages.settings.commercial.locales') }}</label>
-                    <MultiSelect
-                        v-model="currentSocialLink.locales"
-                        :options="localeOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.settings.commercial.locales_hint')"
-                        class="w-full"
-                    />
-                </div>
-            </div>
-            <template #footer>
-                <div class="commercial-manager__dialog-footer">
-                    <Button
-                        :label="$t('common.cancel')"
-                        text
-                        severity="secondary"
-                        @click="socialDialogVisible = false"
-                    />
-                    <Button
-                        :label="$t('common.save')"
-                        data-testid="social-save"
-                        @click="addSocialLink"
-                    />
-                </div>
-            </template>
-        </Dialog>
+            v-model:link="currentSocialLink"
+            :editing-index="editingSocialIndex"
+            kind="social"
+            :platforms="SOCIAL_PLATFORMS"
+            i18n-prefix="pages.settings.commercial"
+            platform-i18n-prefix="common.platforms"
+            :platform-icon="(k) => getCommercialPlatformIcon(k, 'social')"
+            :platform-color="(k) => getCommercialPlatformColor(k, 'social')"
+            :platform-type="socialPlatformType"
+            :show-image="false"
+            :locale-options="localeOptions"
+            @save="addSocialLink"
+        />
     </div>
 </template>
 
@@ -243,6 +78,7 @@ import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { useLocaleMessageModules } from '@/composables/use-locale-message-modules'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
+import CommercialLinkDialog from '@/components/commercial-link-dialog.vue'
 
 interface Props {
     isAdmin?: boolean
@@ -336,19 +172,8 @@ const addSocialLink = () => {
     socialDialogVisible.value = false
 }
 
-const isPlatformType = (type: string) => {
-    return getDonationPlatformType(currentLink.value.platform) === type
-}
-
-const isSocialPlatformType = (type: string) => {
-    return getSocialPlatformType(currentSocialLink.value.platform) === type
-}
-
-const getPlatformIcon = (key: string) => getCommercialPlatformIcon(key, 'donation')
-const getPlatformColor = (key: string) => getCommercialPlatformColor(key, 'donation')
-
-const getSocialIcon = (key: string) => getCommercialPlatformIcon(key, 'social')
-const getSocialColor = (key: string) => getCommercialPlatformColor(key, 'social')
+const donationPlatformType = computed(() => getDonationPlatformType(currentLink.value.platform))
+const socialPlatformType = computed(() => getSocialPlatformType(currentSocialLink.value.platform))
 
 const confirmDeleteDonationLink = (index: number) => {
     confirm.require({
@@ -377,55 +202,8 @@ const confirmDeleteSocial = (index: number) => {
 @use "@/styles/variables" as *;
 
 .commercial-manager {
-    &__dialog-preview {
-        margin-top: $spacing-sm;
-        display: flex;
-        justify-content: center;
-        background-color: var(--p-surface-50);
-        padding: $spacing-sm;
-        border-radius: $border-radius-sm;
-        border: 1px solid var(--p-surface-200);
-
-        .dark & {
-            background-color: var(--p-surface-900);
-            border-color: var(--p-surface-700);
-        }
-    }
-
     &__divider {
         margin: $spacing-xl 0;
-    }
-
-    &__field {
-        margin-bottom: $spacing-md;
-
-        label {
-            display: block;
-            margin-bottom: $spacing-xs;
-            font-weight: 500;
-            font-size: $font-size-sm;
-        }
-    }
-
-    &__uploader-group {
-        display: flex;
-        gap: $spacing-sm;
-    }
-
-    &__select-option, &__select-value {
-        display: flex;
-        align-items: center;
-        gap: $spacing-sm;
-
-        i {
-            font-size: 1.1rem;
-        }
-    }
-
-    &__dialog-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: $spacing-sm;
     }
 }
 </style>

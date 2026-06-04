@@ -1,6 +1,7 @@
 import { computed, ref, unref, type MaybeRefOrGetter } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
+import type { DirectUploadProxyStrategy, DirectUploadPresignStrategy } from '@/server/services/direct-upload'
 
 export enum UploadType {
     IMAGE = 'image',
@@ -13,18 +14,6 @@ export interface UseUploadOptions {
     prefix?: MaybeRefOrGetter<string | null | undefined>
     postId?: MaybeRefOrGetter<string | null | undefined>
     showErrorToast?: boolean
-}
-
-interface DirectUploadProxyStrategy {
-    strategy: 'proxy'
-}
-
-interface DirectUploadPresignStrategy {
-    strategy: 'put-presign'
-    method: 'PUT'
-    url: string
-    headers: Record<string, string>
-    publicUrl: string
 }
 
 type DirectUploadStrategy = DirectUploadProxyStrategy | DirectUploadPresignStrategy
