@@ -178,9 +178,7 @@ describe('calendar-view', () => {
     describe('navigation', () => {
         it('emits navigate event when prev period is clicked', async () => {
             const wrapper = createWrapper()
-            // Find prev button (pi-chevron-left)
             const buttons = wrapper.findAll('button')
-            const prevBtn = buttons.find(b => b.find('.pi-chevron-left').exists() || b.attributes('class')?.includes('pi'))
             if (buttons.length > 0) {
                 await buttons[0]!.trigger('click')
                 expect(wrapper.emitted('navigate')).toBeTruthy()
