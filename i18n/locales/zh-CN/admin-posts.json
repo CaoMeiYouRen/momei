@@ -443,6 +443,26 @@
                         "summary": "摘要",
                         "tags": "标签",
                         "title": "标题"
+                    },
+                    "msg": {
+                        "category_assigned": "已分配分类",
+                        "category_missing": "未分配分类",
+                        "cover_image_missing": "缺少封面图；带图片的文章表现更好",
+                        "cover_image_set": "已设置封面图",
+                        "summary_detailed": "摘要详细",
+                        "summary_missing": "缺少摘要；添加摘要可提升 SEO",
+                        "summary_present_but_short": "摘要较短，可再丰富一些",
+                        "summary_too_short": "摘要过短",
+                        "summary_very_brief": "摘要有内容但偏短",
+                        "tags_assigned": "已添加 {count} 个标签",
+                        "tags_few": "仅 {count} 个标签；建议 3 个以上",
+                        "tags_missing": "未添加标签；建议添加 3+ 个标签以提升可发现性",
+                        "title_far_from_ideal": "标题长度偏离理想范围较多",
+                        "title_ideal": "标题长度在理想范围内",
+                        "title_missing": "缺少标题",
+                        "title_slightly_off": "标题长度略超出理想范围",
+                        "title_too_short_or_long": "标题过长或过短",
+                        "unknown": "未知指标"
                     }
                 }
             }

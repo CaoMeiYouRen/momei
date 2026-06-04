@@ -37,7 +37,7 @@
                         <span class="audit-detail-score">{{ result.metaCompleteness.details[key].score }}/20</span>
                     </div>
                     <ProgressBar :value="result.metaCompleteness.details[key].score * 5" class="audit-detail-bar" />
-                    <span class="audit-detail-msg">{{ result.metaCompleteness.details[key].message }}</span>
+                    <span class="audit-detail-msg">{{ $t((result.metaCompleteness.details[key].key as any), result.metaCompleteness.details[key].params as any) }}</span>
                 </div>
             </div>
 

@@ -443,6 +443,26 @@
                         "summary": "Summary",
                         "tags": "Tags",
                         "title": "Title"
+                    },
+                    "msg": {
+                        "category_assigned": "Category is assigned",
+                        "category_missing": "No category assigned",
+                        "cover_image_missing": "No cover image; articles with images perform better",
+                        "cover_image_set": "Cover image is set",
+                        "summary_detailed": "Summary is detailed",
+                        "summary_missing": "Summary is missing; add one to improve SEO",
+                        "summary_present_but_short": "Summary is present but could be longer",
+                        "summary_too_short": "Summary is too short",
+                        "summary_very_brief": "Summary is very brief",
+                        "tags_assigned": "{count} tags assigned",
+                        "tags_few": "Only {count} tags; aim for 3 or more",
+                        "tags_missing": "No tags assigned; add 3+ tags for better discoverability",
+                        "title_far_from_ideal": "Title is far from ideal length",
+                        "title_ideal": "Title is well within the ideal length range",
+                        "title_missing": "Title is missing",
+                        "title_slightly_off": "Title is slightly outside the ideal length range",
+                        "title_too_short_or_long": "Title is too short or too long",
+                        "unknown": "Unknown metric"
                     }
                 }
             }

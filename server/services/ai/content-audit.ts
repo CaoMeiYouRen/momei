@@ -18,96 +18,70 @@ import {
 
 /** 值在目标范围附近的得分 */
 function rateRange(value: number, idealMin: number, idealMax: number, fullAtPercent: number): number {
-    if (value >= idealMin && value <= idealMax) {
-        return 1
-    }
-    if (value <= 0) {
-        return 0
-    }
-    const distance = value < idealMin
-        ? idealMin - value
-        : value - idealMax
+    if (value >= idealMin && value <= idealMax) { return 1 }
+    if (value <= 0) { return 0 }
+    const distance = value < idealMin ? idealMin - value : value - idealMax
     const decay = Math.min(distance / idealMin, 1)
     return Math.max(0, 1 - decay * (1 - fullAtPercent / 100))
 }
 
+const I18N_PREFIX = 'pages.admin.posts.audit.msg'
+
+/** 拼装审计消息的 i18n key 与参数 */
 function metaMessage(
     factor: string,
     score: number,
     detail: string | null | undefined,
-): string {
-    const labels: Record<string, string> = {
-        title: 'Title',
-        summary: 'Summary',
-        coverImage: 'Cover image',
-        tags: 'Tags',
-        category: 'Category',
-    }
-    const label = labels[factor] || factor
+): Pick<PostAuditDetail, 'key' | 'params'> {
+    let scoreTier: number
+    if (score >= 20) { scoreTier = 20 }
+    else if (score >= 15) { scoreTier = 15 }
+    else if (score >= 10) { scoreTier = 10 }
+    else if (score > 0) { scoreTier = 1 }
+    else { scoreTier = 0 }
 
-    let scoreTier = 0
-    if (score >= 20) {
-        scoreTier = 20
-    }
-    else if (score >= 15) {
-        scoreTier = 15
-    }
-    else if (score >= 10) {
-        scoreTier = 10
-    }
-    else if (score > 0) {
-        scoreTier = 1
-    }
-
-    const messages: Record<string, Record<number, (d: string | null | undefined) => string>> = {
+    const msgs: Record<string, Record<number, { key: string, params?: Record<string, string | number> }>> = {
         title: {
-            '20': () => 'Title is well within the ideal length range',
-            '15': () => 'Title is slightly outside the ideal length range',
-            '10': () => 'Title is too short or too long',
-            '1': () => 'Title is far from ideal length',
-            '0': () => 'Title is missing',
+            20: { key: `${I18N_PREFIX}.title_ideal` },
+            15: { key: `${I18N_PREFIX}.title_slightly_off` },
+            10: { key: `${I18N_PREFIX}.title_too_short_or_long` },
+            1:  { key: `${I18N_PREFIX}.title_far_from_ideal` },
+            0:  { key: `${I18N_PREFIX}.title_missing` },
         },
         summary: {
-            '20': () => 'Summary is detailed',
-            '15': () => 'Summary is present but could be longer',
-            '10': () => 'Summary is very brief',
-            '1': () => 'Summary is too short',
-            '0': () => 'Summary is missing; add one to improve SEO',
+            20: { key: `${I18N_PREFIX}.summary_detailed` },
+            15: { key: `${I18N_PREFIX}.summary_present_but_short` },
+            10: { key: `${I18N_PREFIX}.summary_very_brief` },
+            1:  { key: `${I18N_PREFIX}.summary_too_short` },
+            0:  { key: `${I18N_PREFIX}.summary_missing` },
         },
         coverImage: {
-            '20': () => `${label} is set`,
-            '0': () => 'No cover image; articles with images perform better',
+            20: { key: `${I18N_PREFIX}.cover_image_set` },
+            0:  { key: `${I18N_PREFIX}.cover_image_missing` },
         },
         tags: {
-            '20': () => {
-                const parsed = detail ? parseInt(detail) : 0
-                return `${parsed >= 3 ? '3+' : detail} tags assigned`
-            },
-            '10': () => `Only ${detail || 'a few'} tags; aim for 3 or more`,
-            '0': () => 'No tags assigned; add 3+ tags for better discoverability',
+            20: { key: `${I18N_PREFIX}.tags_assigned`, params: { count: Number(detail) || 0 } },
+            10: { key: `${I18N_PREFIX}.tags_few`, params: { count: Number(detail) || 0 } },
+            0:  { key: `${I18N_PREFIX}.tags_missing` },
         },
         category: {
-            '20': () => `${label} is assigned`,
-            '0': () => 'No category assigned',
+            20: { key: `${I18N_PREFIX}.category_assigned` },
+            0:  { key: `${I18N_PREFIX}.category_missing` },
         },
     }
 
-    const factorMsgs = messages[factor]
+    const factorMsgs = msgs[factor]
     if (!factorMsgs) {
-        return `${label} is missing`
+        return { key: `${I18N_PREFIX}.unknown`, params: { factor } }
     }
 
-    // Find the best matching tier (exact or next lowest)
     const tiers = Object.keys(factorMsgs).map(Number).sort((a, b) => b - a)
     const matchedTier = tiers.find((t) => scoreTier >= t)
-    if (matchedTier !== undefined) {
-        const fn = factorMsgs[matchedTier]
-        if (fn) {
-            return fn(detail)
-        }
+    if (matchedTier !== undefined && factorMsgs[matchedTier]) {
+        return factorMsgs[matchedTier]
     }
 
-    return `${label} is missing`
+    return { key: `${I18N_PREFIX}.unknown`, params: { factor } }
 }
 
 export class ContentAuditService extends AIBaseService {
@@ -148,7 +122,7 @@ export class ContentAuditService extends AIBaseService {
             current: string | null,
         ): PostAuditDetail => ({
             score,
-            message: metaMessage(factor, score, current),
+            ...metaMessage(factor, score, current),
         })
 
         return {

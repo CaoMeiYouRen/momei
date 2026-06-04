@@ -443,6 +443,26 @@
                         "summary": "要約",
                         "tags": "タグ",
                         "title": "タイトル"
+                    },
+                    "msg": {
+                        "category_assigned": "カテゴリが設定されています",
+                        "category_missing": "カテゴリが未設定です",
+                        "cover_image_missing": "カバー画像がありません。画像があると効果的です",
+                        "cover_image_set": "カバー画像が設定されています",
+                        "summary_detailed": "概要が十分に記述されています",
+                        "summary_missing": "概要がありません。SEO 向上のため追加してください",
+                        "summary_present_but_short": "概要がありますが、もう少し充実させられます",
+                        "summary_too_short": "概要が短すぎます",
+                        "summary_very_brief": "概要が非常に簡潔です",
+                        "tags_assigned": "{count} 個のタグが設定されています",
+                        "tags_few": "タグが {count} 個だけです。3 個以上を推奨します",
+                        "tags_missing": "タグが未設定です。3 個以上のタグで見つけやすくなります",
+                        "title_far_from_ideal": "タイトルの長さが理想範囲から大きく外れています",
+                        "title_ideal": "タイトルの長さは理想範囲内です",
+                        "title_missing": "タイトルがありません",
+                        "title_slightly_off": "タイトルの長さが理想範囲から少し外れています",
+                        "title_too_short_or_long": "タイトルが短すぎるか長すぎます",
+                        "unknown": "不明な指標"
                     }
                 }
             }

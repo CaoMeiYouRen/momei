@@ -356,7 +356,10 @@ export const AUDIT_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 /** 单项审计详情 */
 export interface PostAuditDetail {
     score: number
-    message: string
+    /** i18n key，配合 $t() 渲染审计消息 */
+    key: string
+    /** i18n 消息参数（可选） */
+    params?: Record<string, string | number>
 }
 
 /** 元数据完整度审计结果 */
