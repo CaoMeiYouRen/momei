@@ -20,8 +20,9 @@ metadata:
 5.  **验证状态**: 检查 `git status` 查看哪些内容需要暂存。
 6.  **生成消息**: 分析更改以确定 `type` (feat, fix, docs, style, refactor, test, perf, build, ci, chore, revert), `scope` (可选, 例如: 组件名, 模块) 和 `description`。消息描述统一使用**中文**。
 7.  **提交**: 运行 `git commit -m "..."`。
-8.  **验证**: 确保消息符合 `commitlint.config.ts`。
-9.  **合作**: 默认不添加 `Co-Authored-By`，除非确实是多人合作提交。
+8.  **推送禁令**: `git commit` 完成后**不得**自动执行 `git push`。推送仅限用户明确发出"推送""push""推到远端"等指令时方可执行。提交结果应告知用户"已提交到本地，等待推送确认"。
+9.  **验证**: 确保消息符合 `commitlint.config.ts`。
+10. **合作**: 默认不添加 `Co-Authored-By`，除非确实是多人合作提交。
 
 ## 使用示例 (Usage Example)
 

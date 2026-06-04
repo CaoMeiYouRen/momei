@@ -66,3 +66,4 @@ git worktree add ../momei-feature-search feature/search-improvements
 - **分支感知**：AI 代理在执行任务前必须检查当前工作目录所属的分支。
 - **按需切换**：若当前任务明确需要独立验证环境，可优先检查是否已有合适的 Worktree；若不存在，也可以继续在当前仓库内完成，不强制新建 Worktree。
 - **环境隔离**：使用多个工作树时，不同目录的环境配置（如 `.env`）应保持逻辑一致但环境隔离，避免相互干扰。
+- **禁止擅自推送**：AI 代理在 `git commit` 后**不得**自动执行 `git push`。推送仅限用户明确发出"推送""push""推到远端""push to remote"等指令时方可执行。提交完成后应止步于本地 commit，并告知用户等待推送确认。
