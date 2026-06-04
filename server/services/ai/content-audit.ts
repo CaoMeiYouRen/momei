@@ -18,8 +18,12 @@ import {
 
 /** 值在目标范围附近的得分 */
 function rateRange(value: number, idealMin: number, idealMax: number, fullAtPercent: number): number {
-    if (value >= idealMin && value <= idealMax) { return 1 }
-    if (value <= 0) { return 0 }
+    if (value >= idealMin && value <= idealMax) {
+        return 1
+    }
+    if (value <= 0) {
+        return 0
+    }
     const distance = value < idealMin ? idealMin - value : value - idealMax
     const decay = Math.min(distance / idealMin, 1)
     return Math.max(0, 1 - decay * (1 - fullAtPercent / 100))
@@ -34,7 +38,17 @@ function metaMessage(
     detail: string | null | undefined,
 ): Pick<PostAuditDetail, 'key' | 'params'> {
     let scoreTier: number
-    if (score >= 20) { scoreTier = 20 } else if (score >= 15) { scoreTier = 15 } else if (score >= 10) { scoreTier = 10 } else if (score > 0) { scoreTier = 1 } else { scoreTier = 0 }
+    if (score >= 20) {
+        scoreTier = 20
+    } else if (score >= 15) {
+        scoreTier = 15
+    } else if (score >= 10) {
+        scoreTier = 10
+    } else if (score > 0) {
+        scoreTier = 1
+    } else {
+        scoreTier = 0
+    }
 
     const msgs: Record<string, Record<number, { key: string, params?: Record<string, string | number> }>> = {
         title: {
@@ -106,7 +120,11 @@ export class ContentAuditService extends AIBaseService {
 
         const tagCount = post.tags?.length || 0
         let tagsScore = 0
-        if (tagCount >= 3) { tagsScore = 20 } else if (tagCount >= 1) { tagsScore = 10 }
+        if (tagCount >= 3) {
+            tagsScore = 20
+        } else if (tagCount >= 1) {
+            tagsScore = 10
+        }
 
         const categoryScore = post.categoryId ? 20 : 0
 
