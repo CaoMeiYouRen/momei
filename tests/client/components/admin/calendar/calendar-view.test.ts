@@ -113,8 +113,8 @@ describe('calendar-view', () => {
             const wrapper = createWrapper({ calendarPosts: posts })
             const chips = wrapper.findAll('.calendar-view__chip')
             expect(chips.length).toBe(2)
-            expect(chips[0].classes()).toContain('calendar-view__chip--published')
-            expect(chips[1].classes()).toContain('calendar-view__chip--scheduled')
+            expect(chips[0]!.classes()).toContain('calendar-view__chip--published')
+            expect(chips[1]!.classes()).toContain('calendar-view__chip--scheduled')
         })
 
         it('shows more count indicator when posts exceed 3', () => {
@@ -182,7 +182,7 @@ describe('calendar-view', () => {
             const buttons = wrapper.findAll('button')
             const prevBtn = buttons.find(b => b.find('.pi-chevron-left').exists() || b.attributes('class')?.includes('pi'))
             if (buttons.length > 0) {
-                await buttons[0].trigger('click')
+                await buttons[0]!.trigger('click')
                 expect(wrapper.emitted('navigate')).toBeTruthy()
             }
         })

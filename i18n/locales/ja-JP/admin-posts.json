@@ -432,6 +432,7 @@
                     "readability": "可読性",
                     "readability_score": "可読性スコア",
                     "run_audit": "監査を実行",
+                    "run_failed": "コンテンツ監査に失敗しました",
                     "running": "監査中",
                     "suggestions": "AI 提案",
                     "tier_good": "良好",

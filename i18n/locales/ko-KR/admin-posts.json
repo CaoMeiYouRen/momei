@@ -432,6 +432,7 @@
                     "readability": "가독성",
                     "readability_score": "가독성 점수",
                     "run_audit": "감사 실행",
+                    "run_failed": "콘텐츠 감사 실패",
                     "running": "감사 중",
                     "suggestions": "AI 제안",
                     "tier_good": "양호",

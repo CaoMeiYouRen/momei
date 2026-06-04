@@ -155,6 +155,7 @@
                 $t("common.saving")
             }}</span>
             <AdminPostsPostDistributionButton ref="distributionButtonRef" :post="post" />
+            <slot name="audit" />
             <Button
                 v-if="!isNew || post.id"
                 :label="$t('common.preview')"

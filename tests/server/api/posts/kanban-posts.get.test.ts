@@ -82,7 +82,7 @@ describe('/api/posts/kanban-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        const allCards = [...result.data.ideation, ...result.data.writing, ...result.data.ready]
+        const allCards = [...result.data!.ideation, ...result.data!.writing, ...result.data!.ready]
         // Published post should not be in kanban
         expect(allCards.some((c: any) => c.id === publishedPost.id)).toBe(false)
     })
@@ -94,10 +94,10 @@ describe('/api/posts/kanban-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        const allCards = [...result.data.ideation, ...result.data.writing, ...result.data.ready]
+        const allCards = [...result.data!.ideation, ...result.data!.writing, ...result.data!.ready]
         // Only Chinese draft should be returned
         expect(allCards.length).toBe(1)
-        expect(allCards[0].language).toBe('zh-CN')
+        expect(allCards[0]!.language).toBe('zh-CN')
     })
 
     it('should return all languages when language param is omitted', async () => {
@@ -107,7 +107,7 @@ describe('/api/posts/kanban-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        const allCards = [...result.data.ideation, ...result.data.writing, ...result.data.ready]
+        const allCards = [...result.data!.ideation, ...result.data!.writing, ...result.data!.ready]
         // Both drafts should appear (en-US + zh-CN)
         expect(allCards.length).toBeGreaterThanOrEqual(2)
     })
@@ -120,9 +120,9 @@ describe('/api/posts/kanban-posts', () => {
 
         expect(result.code).toBe(200)
         // zh draft has no pipelineStage, should be in ideation
-        expect(result.data.ideation.length).toBe(1)
-        expect(result.data.writing.length).toBe(0)
-        expect(result.data.ready.length).toBe(0)
+        expect(result.data!.ideation.length).toBe(1)
+        expect(result.data!.writing.length).toBe(0)
+        expect(result.data!.ready.length).toBe(0)
     })
 
     it('should place posts with pipelineStage=writing in the writing column', async () => {
@@ -132,9 +132,9 @@ describe('/api/posts/kanban-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        expect(result.data.ideation.length).toBe(0)
-        expect(result.data.writing.length).toBe(1)
-        expect(result.data.ready.length).toBe(0)
+        expect(result.data!.ideation.length).toBe(0)
+        expect(result.data!.writing.length).toBe(1)
+        expect(result.data!.ready.length).toBe(0)
     })
 
     it('should accept language as optional param', async () => {

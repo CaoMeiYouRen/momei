@@ -27,7 +27,17 @@
             @save="savePost"
             @open-settings="settingsVisible = true"
             @open-history="historyVisible = true"
-        />
+        >
+            <template #audit>
+                <PostAuditBadge
+                    v-if="!isNew && post.id"
+                    :audit-result="auditResult"
+                    :loading="auditing"
+                    @run-audit="runAudit"
+                    @show-detail="openAuditDialog"
+                />
+            </template>
+        </PostEditorHeader>
 
         <PostEditorSetupReminder
             v-if="showSetupReminder"
@@ -111,6 +121,14 @@
 
         <!-- Drag Mask -->
         <PostEditorDragMask v-if="isDragging" />
+
+        <PostAuditDialog
+            :visible="showAuditDialog"
+            :result="auditResult"
+            :re-auditing="reAuditing"
+            @close="closeAuditDialog"
+            @re-audit="handleReAudit"
+        />
     </div>
 </template>
 
@@ -123,8 +141,11 @@ import PostTranslationWorkflowDialog from '@/components/admin/posts/post-transla
 import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
+import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
+import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
+import type { PostAuditResult } from '@/types/post'
 
 definePageMeta({
     middleware: 'author',
@@ -189,6 +210,56 @@ const {
     getStatusLabel,
     getStatusSeverity,
 } = usePostEditorPage()
+
+// --- Content Audit ---
+const auditResult = ref<PostAuditResult | null>(null)
+const auditing = ref(false)
+const reAuditing = ref(false)
+const showAuditDialog = ref(false)
+
+async function runAudit() {
+    if (!post.value.id) return
+    auditing.value = true
+    try {
+        const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${post.value.id}/audit`, {
+            method: 'POST',
+        })
+        auditResult.value = result.data
+        showAuditDialog.value = true
+    } catch (e) {
+        const { showErrorToast } = useRequestFeedback()
+        showErrorToast(e, { fallbackKey: 'pages.admin.posts.audit.run_failed' })
+    } finally {
+        auditing.value = false
+    }
+}
+
+function openAuditDialog(_result: PostAuditResult) {
+    showAuditDialog.value = true
+}
+
+function closeAuditDialog() {
+    showAuditDialog.value = false
+    reAuditing.value = false
+}
+
+async function handleReAudit() {
+    if (!post.value.id) return
+    reAuditing.value = true
+    try {
+        const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${post.value.id}/audit`, {
+            method: 'POST',
+            body: { force: true },
+        })
+        auditResult.value = result.data
+    } catch (e) {
+        const { showErrorToast } = useRequestFeedback()
+        showErrorToast(e, { fallbackKey: 'pages.admin.posts.audit.run_failed' })
+    } finally {
+        reAuditing.value = false
+    }
+}
+// --- End Content Audit ---
 
 const dismissSetupReminder = () => {
     clearQueuedSetupJourneyStage()

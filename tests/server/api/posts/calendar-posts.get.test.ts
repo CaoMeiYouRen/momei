@@ -74,7 +74,7 @@ describe('/api/posts/calendar-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        expect(result.data.groups.length).toBeGreaterThanOrEqual(1)
+        expect(result.data!.groups.length).toBeGreaterThanOrEqual(1)
     })
 
     it('should filter by language when provided', async () => {
@@ -88,7 +88,7 @@ describe('/api/posts/calendar-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        const allPosts = result.data.groups.flatMap((g: { posts: any[] }) => g.posts)
+        const allPosts = result.data!.groups.flatMap((g: { posts: any[] }) => g.posts)
         expect(allPosts.every((p: any) => p.language === 'zh-CN')).toBe(true)
     })
 
@@ -102,7 +102,7 @@ describe('/api/posts/calendar-posts', () => {
         } as any)
 
         expect(result.code).toBe(200)
-        const allPosts = result.data.groups.flatMap((g: { posts: any[] }) => g.posts)
+        const allPosts = result.data!.groups.flatMap((g: { posts: any[] }) => g.posts)
         const languages = new Set(allPosts.map((p: any) => p.language))
         // Should contain both English and Chinese
         expect(languages.size).toBeGreaterThanOrEqual(2)

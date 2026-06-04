@@ -432,6 +432,7 @@
                     "readability": "Readability",
                     "readability_score": "Readability Score",
                     "run_audit": "Run content audit",
+                    "run_failed": "Content audit failed",
                     "running": "Auditing...",
                     "suggestions": "AI Suggestions",
                     "tier_good": "Good",

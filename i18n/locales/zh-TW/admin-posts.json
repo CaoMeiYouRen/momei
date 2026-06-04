@@ -432,6 +432,7 @@
                     "readability": "可讀性",
                     "readability_score": "可讀性評分",
                     "run_audit": "執行內容審計",
+                    "run_failed": "內容審計失敗",
                     "running": "審計中",
                     "suggestions": "AI 建議",
                     "tier_good": "良好",
