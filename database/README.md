@@ -35,8 +35,13 @@
 
 1.  **用户中心 (Auth)**: 用户 (`momei_user`)、账号 (`momei_account`)、会话 (`momei_session`)、验证码 (`momei_verification`)。
 2.  **安全增强**: 二步验证 (`momei_two_factor`)、密钥 JWKS (`momei_jwks`)、API 密钥 (`momei_api_key`)。
-3.  **博客内容**: 文章 (`momei_post`)、分类 (`momei_category`)、标签 (`momei_tag`) 及其关联关系。
-4.  **性能优化**: 为常用查询字段（如 `author_id`, `category_id`, `slug` 等）预设了索引。
+3.  **博客内容**: 文章 (`momei_post`)、分类 (`momei_category`)、标签 (`momei_tag`)、评论 (`momei_comment`)、文章历史版本 (`momei_post_version`)、文章阅读统计 (`momei_post_view_hourly`)。
+4.  **通知与订阅**: 订阅者 (`momei_subscriber`)、通知设置 (`momei_admin_notification_settings`、`momei_notification_settings`)、站内通知 (`momei_in_app_notification`)、通知投递日志 (`momei_notification_delivery_logs`)。
+5.  **商业化**: 广告活动 (`momei_ad_campaigns`)、广告位 (`momei_ad_placements`)、营销活动 (`momei_marketing_campaign`)、权益候补 (`benefit_waitlist`)。
+6.  **社区与交互**: 投稿 (`momei_submission`)、友情链接 (`momei_friend_links`、`momei_friend_link_categories`)、友情链接申请 (`momei_friend_link_applications`)。
+7.  **系统与治理**: 系统设置 (`momei_setting`)、设置审计日志 (`momei_setting_audit_logs`)、AI 任务 (`momei_ai_tasks`)、协议内容 (`momei_agreement_content`)、Web Push 订阅 (`momei_web_push_subscriptions`)、链接治理报告 (`momei_link_governance_report`)、外链 (`momei_external_links`)、联邦密钥 (`momei_fed_keys`)。
+8.  **功能增强**: 灵感片段 (`momei_snippet`)、主题配置 (`momei_theme_config`)。
+9.  **性能优化**: 为常用查询字段（如 `author_id`, `category_id`, `slug` 等）预设了索引。
 
 ## 详细配置指南
 

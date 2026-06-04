@@ -726,3 +726,17 @@ CREATE TABLE `momei_web_push_subscriptions` (
   UNIQUE KEY `UQ_web_push_subscriptions_user_endpoint` (`user_id`, `endpoint_sha256`),
   CONSTRAINT `FK_web_push_subscriptions_user` FOREIGN KEY (`user_id`) REFERENCES `momei_user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 37. 权益候补名单表
+CREATE TABLE `benefit_waitlist` (
+  `id` varchar(36) NOT NULL,
+  `purpose` varchar(100) NOT NULL DEFAULT 'benefit',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `locale` varchar(10) DEFAULT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `userAgent` text DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -605,6 +605,19 @@ CREATE TABLE "momei_web_push_subscriptions" (
   CONSTRAINT "FK_web_push_subscriptions_user" FOREIGN KEY ("user_id") REFERENCES "momei_user" ("id") ON DELETE CASCADE
 );
 
+-- 37. 权益候补名单表
+CREATE TABLE "benefit_waitlist" (
+  "id" varchar(36) PRIMARY KEY NOT NULL,
+  "purpose" varchar(100) NOT NULL DEFAULT ('benefit'),
+  "name" varchar(100) NOT NULL,
+  "email" varchar(255) NOT NULL,
+  "locale" varchar(10),
+  "ip" varchar(45),
+  "userAgent" text,
+  "created_at" datetime NOT NULL DEFAULT (DATETIME('now')),
+  "updated_at" datetime NOT NULL DEFAULT (DATETIME('now'))
+);
+
 -- 索引
 CREATE INDEX "IDX_user_email" ON "momei_user" ("email");
 CREATE INDEX "IDX_user_username" ON "momei_user" ("username");
@@ -709,3 +722,4 @@ CREATE INDEX "IDX_notification_delivery_logs_recipient" ON "momei_notification_d
 
 CREATE INDEX "IDX_setting_audit_logs_setting_key" ON "momei_setting_audit_logs" ("setting_key");
 CREATE INDEX "IDX_setting_audit_logs_operator_id" ON "momei_setting_audit_logs" ("operator_id");
+CREATE INDEX "IDX_benefit_waitlist_email" ON "benefit_waitlist" ("email");
