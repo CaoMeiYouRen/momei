@@ -146,6 +146,7 @@ import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { PostAuditResult } from '@/types/post'
+import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 
 definePageMeta({
     middleware: 'author',
@@ -153,6 +154,7 @@ definePageMeta({
 })
 
 const localePath = useLocalePath()
+const { locale } = useI18n()
 const route = useRoute()
 const showSetupReminder = ref(false)
 const lastAutoOpenedDistributionPostId = ref<string | null>(null)
@@ -210,6 +212,14 @@ const {
     getStatusLabel,
     getStatusSeverity,
 } = usePostEditorPage()
+
+// Ensure admin-posts locale module is loaded (needed for audit i18n keys)
+const nuxtApp = useNuxtApp()
+void ensureLocaleMessageModules({
+    i18n: nuxtApp.$i18n as object,
+    locale: locale.value,
+    modules: ['admin-posts'],
+})
 
 // --- Content Audit ---
 const auditResult = ref<PostAuditResult | null>(null)
