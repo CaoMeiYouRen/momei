@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "users": {
-                "actions": "Actions",
                 "active": "Active",
                 "ban": "Ban User",
                 "ban_expiry": "Expiry Date",

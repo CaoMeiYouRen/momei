@@ -85,7 +85,7 @@
                 </template>
             </Column>
 
-            <Column :header="$t('pages.settings.notifications.history.columns.actions')">
+            <Column :header="$t('common.actions')">
                 <template #body="slotProps">
                     <Button
                         v-if="!slotProps.data.isRead"

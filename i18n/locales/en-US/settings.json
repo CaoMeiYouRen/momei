@@ -115,8 +115,7 @@
                         "type": "Type",
                         "content": "Content",
                         "status": "Status",
-                        "target": "Target",
-                        "actions": "Actions"
+                        "target": "Target"
                     }
                 }
             },

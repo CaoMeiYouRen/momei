@@ -11,7 +11,7 @@
                         class="pi pi-microphone voice-popover__icon"
                         :class="{'voice-popover__icon--listening': isListening}"
                     />
-                    {{ isListening ? $t('pages.admin.posts.ai.voice_listening') : $t('pages.admin.posts.ai.voice_input') }}
+                    {{ isListening ? $t('common.voice.listening') : $t('pages.admin.posts.ai.voice_input') }}
                 </span>
                 <SelectButton
                     v-model="internalMode"
@@ -87,7 +87,7 @@
             <div class="voice-popover__footer">
                 <template v-if="isListening">
                     <Button
-                        :label="$t('pages.admin.posts.ai.voice_stop')"
+                        :label="$t('common.voice.stop')"
                         severity="danger"
                         icon="pi pi-stop-circle"
                         @click="$emit('stop')"
@@ -124,7 +124,7 @@
                 </template>
                 <template v-else>
                     <Button
-                        :label="$t('pages.admin.posts.ai.voice_start_record')"
+                        :label="$t('common.voice.start_record')"
                         icon="pi pi-microphone"
                         :loading="isLoadingModel"
                         :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady) || showLoadConfirm"
@@ -172,7 +172,7 @@ watch(internalMode, (newMode) => {
 
 const modeOptions = computed(() => {
     const options = [
-        { label: t('pages.admin.posts.ai.voice_mode_basic'), value: 'web-speech' },
+        { label: t('common.voice.mode_basic'), value: 'web-speech' },
     ]
 
     if (props.cloudConfig?.siliconflow) {

@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "users": {
-                "actions": "작업",
                 "active": "정상",
                 "ban": "차단 실행",
                 "ban_expiry": "만료 시간",

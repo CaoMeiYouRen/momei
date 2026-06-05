@@ -115,8 +115,7 @@
                         "type": "유형",
                         "content": "알림 내용",
                         "status": "상태",
-                        "target": "이동 대상",
-                        "actions": "작업"
+                        "target": "이동 대상"
                     }
                 }
             },

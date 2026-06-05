@@ -115,8 +115,7 @@
                         "type": "種別",
                         "content": "内容",
                         "status": "状態",
-                        "target": "対象",
-                        "actions": "操作"
+                        "target": "対象"
                     }
                 }
             },

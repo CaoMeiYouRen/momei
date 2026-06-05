@@ -115,8 +115,7 @@
                         "type": "类型",
                         "content": "通知内容",
                         "status": "状态",
-                        "target": "跳转目标",
-                        "actions": "操作"
+                        "target": "跳转目标"
                     }
                 }
             },

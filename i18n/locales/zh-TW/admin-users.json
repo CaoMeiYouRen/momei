@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "users": {
-                "actions": "操作",
                 "active": "正常",
                 "ban": "執行封鎖",
                 "ban_expiry": "到期時間",

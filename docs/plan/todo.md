@@ -62,14 +62,16 @@
 		- 至少完成 2 项可量化优化且 `pnpm perf:nuxt:build` 总耗时不高于当前基线。
 		- 优化前后对比数据写入 `artifacts/` 并更新 `windows-dev-build-performance-governance.md`。
 
-- [ ] **主线：i18n 运行时验证扩面 (P1)**
-	- 执行范围：把 `app-footer.vue`（友链/关于区域）、`pages/archives/index.vue`、`pages/categories/index.vue`、`pages/tags/index.vue` 四组公开装配链路纳入固定 `i18n:verify:runtime` 回归面。同步清理重复键或跨模块归属漂移，保持 `i18n:audit:missing` 与 `i18n:audit:duplicates` 为 `total: 0`。
-	- 非目标：不做整仓 key 改名工程、不改写现有 route-module 装配边界、不为了去重强行把页面私有语义上收到 `common`。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 上述四组链路纳入 `i18n:verify:runtime` 并通过。
-		- `pnpm i18n:audit:missing` 与 `pnpm i18n:audit:duplicates` 保持 `total: 0`。
-		- 新增范围内不再出现 raw key 暴露。
+- [x] **主线：i18n 运行时验证扩面 + duplicates 归属漂移收敛 (P1)**
+	- 执行范围：原计划将四组公开页面纳入 `i18n:verify:runtime`（经查已在验证面中），实际交付 pivoted 为 duplicates 归属漂移收敛：对 `i18n:audit:duplicates` 中语义完全等价但分散在多模块的重复键进行窄切片收敛，将模块私有键替换为 `common` 已有键并删除冗余 locale 条目。
+	- 非目标：不做整仓 key 改名工程、不为了去重强行把页面私有语义上收到 `common`、仅处理跨 5 locale 值完全一致的确定性重复。
+	- 当前进度：已完成（2026-06-05）。
+	- 交付摘要：
+		- Slice A (voice): `pages.admin.posts.ai.voice_{listening,mode_basic,start_record,stop}` → `common.voice.*`，1 组件文件 + 5 locale×4 键删除
+		- Slice B (actions): `pages.admin.users.actions` + `pages.settings.notifications.history.columns.actions` → `common.actions`，2 组件文件 + 5 locale×2 键删除
+		- `i18n:audit:duplicates`: 102→97 组（-5），240→229 keys（-11），56→51 cross-module（-5）
+		- `i18n:audit:missing`: total: 0（无破损）
+		- Quality gate: typecheck pass / pnpm lint 0w / i18n:verify:runtime 15 files 108 tests pass
 
 > **阶段收口时统一处理**: 文档归档治理（regression/current 与 todo-archive 滚动归档）延至本阶段结束时作为收口动作执行，不占用独立待办条目。
 

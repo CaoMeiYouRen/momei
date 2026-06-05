@@ -85,7 +85,7 @@
                 </Column>
 
                 <Column
-                    :header="$t('pages.admin.users.actions')"
+                    :header="$t('common.actions')"
                     class="text-left"
                 >
                     <template #body="{data}">
