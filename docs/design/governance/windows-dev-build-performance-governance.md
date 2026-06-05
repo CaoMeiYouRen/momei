@@ -265,7 +265,15 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 1. **`vite.server.warmup`** — 预热 app.vue / index.vue / layout / app-header / app-footer，避免首个页面请求才触发 on-demand 转换链。预期减少 dev 首请求延迟。
 2. **`vite.resolve.extensions` 收紧** — 从默认 `['.mjs','.js','.mts','.ts','.jsx','.tsx','.json']` 移除未使用的 `.jsx`/`.tsx`，每次 import 减少 2 次 FS stat。全仓无 JSX/TSX 文件，零兼容风险。
 
-对比数据待 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集后回填。
+### 优化前基线（Phase 42 收口时采集）
+
+| 指标 | 值 | 来源 artifact |
+|---|---|---|
+| `pnpm perf:nuxt:build` 总耗时 | 490.8s | `nuxt-build-performance.json`（2026-05-13） |
+| `pnpm perf:nuxt:dev` 首请求（/favicon.ico） | 58.6s | `nuxt-dev-favicon-performance.json`（2026-05-14） |
+| `pnpm perf:nuxt:dev` Local ready | 4.1s | `nuxt-dev-performance.json`（2026-06-05） |
+
+优化后对比数据待本地或 CI `pnpm perf:nuxt:build -- --repeat=1` / `pnpm perf:nuxt:dev -- --repeat=1 --request-path=/favicon.ico` 产出后回填。
 
 ## 8. 非目标
 
@@ -273,7 +281,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 不新起第二套前端性能预算体系；页面体积与 Lighthouse 继续由既有性能规范负责。
 - 不把本轮治理扩大为“全仓所有构建慢点一次性清零”。
 
-## 8. 相关文件
+## 9. 相关文件
 
 - [nuxt.config.ts](../../../nuxt.config.ts)
 - [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts)

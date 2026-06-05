@@ -65,7 +65,8 @@
 		- 提交: `227eca85`
 	- 最小验收：
 		- ✅ 至少完成 2 项可量化优化（warmup + extensions）
-		- ⏳ 对比数据待 CI 或本地采集后回填
+		- ✅ 优化前基线已落盘：build 490.8s / dev 首请求 58.6s / Local ready 4.1s（见 `windows-dev-build-performance-governance.md` §7）
+		- ⏳ 优化后对比数据待本地或 CI 采集后回填
 
 - [x] **主线：i18n 运行时验证扩面 + duplicates 归属漂移收敛 (P1)**
 	- 执行范围：原计划将四组公开页面纳入 `i18n:verify:runtime`（经查已在验证面中），实际交付 pivoted 为 duplicates 归属漂移收敛：对 `i18n:audit:duplicates` 中语义完全等价但分散在多模块的重复键进行窄切片收敛，将模块私有键替换为 `common` 已有键并删除冗余 locale 条目。
