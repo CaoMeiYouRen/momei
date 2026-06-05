@@ -597,18 +597,20 @@ export class TextService extends AIBaseService {
         })
 
         const { provider, response, translatedNames } = await translateNamesContent(normalizedNames, to)
-        this.logUsage({ task: 'translate-name-batch', response: response!, userId })
-        await this.recordTask({
-            userId,
-            category: 'text',
-            type: 'translate_name_batch',
-            provider: provider!.name,
-            model: response!.model,
-            payload: { names: normalizedNames, to },
-            response,
-            textLength: normalizedNames.join('').length,
-            settlementSource: 'actual',
-        })
+        if (provider && response) {
+            this.logUsage({ task: 'translate-name-batch', response, userId })
+            await this.recordTask({
+                userId,
+                category: 'text',
+                type: 'translate_name_batch',
+                provider: provider.name,
+                model: response.model,
+                payload: { names: normalizedNames, to },
+                response,
+                textLength: normalizedNames.join('').length,
+                settlementSource: 'actual',
+            })
+        }
 
         return translatedNames
     }
@@ -692,23 +694,25 @@ export class TextService extends AIBaseService {
             ...options,
             categories: normalizedCategories,
         })
-        this.logUsage({ task: 'recommend-categories', response: response!, userId })
-        await this.recordTask({
-            userId,
-            category: 'text',
-            type: 'recommend_categories',
-            provider: provider!.name,
-            model: response!.model,
-            payload: {
-                title: options.title.slice(0, 200),
-                content: options.content.slice(0, AI_CHUNK_SIZE),
-                categories: normalizedCategories,
-                language: options.language || 'zh-CN',
-            },
-            response,
-            textLength: options.title.length + options.content.length,
-            settlementSource: 'actual',
-        })
+        if (provider && response) {
+            this.logUsage({ task: 'recommend-categories', response, userId })
+            await this.recordTask({
+                userId,
+                category: 'text',
+                type: 'recommend_categories',
+                provider: provider.name,
+                model: response.model,
+                payload: {
+                    title: options.title.slice(0, 200),
+                    content: options.content.slice(0, AI_CHUNK_SIZE),
+                    categories: normalizedCategories,
+                    language: options.language || 'zh-CN',
+                },
+                response,
+                textLength: options.title.length + options.content.length,
+                settlementSource: 'actual',
+            })
+        }
 
         return categories
     }

@@ -102,6 +102,10 @@ export default defineEventHandler(async (event) => {
         ttlSeconds: POSTS_PUBLIC_LIST_CACHE_TTL_SECONDS,
         isSharedPublicResponse,
         loader: async () => {
+            // requireAdminOrAuthor ensures user exists for manage scope
+            const currentUserId = event.context?.user?.id
+            const currentUserRole = event.context?.user?.role
+
             // 如果数据库未初始化，返回空列表
             if (!dataSource.isInitialized) {
                 return success({
@@ -123,8 +127,8 @@ export default defineEventHandler(async (event) => {
                     mainAlias: 'post',
                     applyFilters: (subQuery) => {
                         // Apply same primary filters to subquery to ensure consistency
-                        if (!isAdmin(user!.role)) {
-                            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId: user!.id })
+                        if (!isAdmin(currentUserRole)) {
+                            subQuery.andWhere('p2.authorId = :currentUserId', { currentUserId })
                         } else if (query.authorId) {
                             subQuery.andWhere('p2.authorId = :authorId', { authorId: query.authorId })
                         }
@@ -134,14 +138,14 @@ export default defineEventHandler(async (event) => {
 
             if (query.scope === 'manage') {
                 // Management Mode
-                if (isAdmin(user!.role)) {
+                if (isAdmin(currentUserRole)) {
                     // Admins can filter by authorId or see all
                     if (query.authorId) {
                         qb.andWhere('post.authorId = :authorId', { authorId: query.authorId })
                     }
                 } else {
                     // Authors only see their own posts
-                    qb.andWhere('post.authorId = :currentUserId', { currentUserId: user!.id })
+                    qb.andWhere('post.authorId = :currentUserId', { currentUserId })
                 }
 
                 // Status filtering

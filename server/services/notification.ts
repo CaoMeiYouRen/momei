@@ -319,15 +319,18 @@ export async function getTargetSubscribers(criteria: { categoryIds?: string[], t
     const subscribers = await query.getMany()
 
     // Filter by criteria manually to be safe across different database types (sqlite/mysql/pg)
+    const { categoryIds: criteriaCategoryIds, tagIds: criteriaTagIds } = criteria
     return subscribers.filter((sub) => {
-        if (criteria.categoryIds && criteria.categoryIds.length > 0) {
-            const hasCategory = sub.subscribedCategoryIds?.some((id) => criteria.categoryIds!.includes(id))
+        if (criteriaCategoryIds && criteriaCategoryIds.length > 0) {
+            const ids = criteriaCategoryIds
+            const hasCategory = sub.subscribedCategoryIds?.some((id) => ids.includes(id))
             if (!hasCategory) {
                 return false
             }
         }
-        if (criteria.tagIds && criteria.tagIds.length > 0) {
-            const hasTag = sub.subscribedTagIds?.some((id) => criteria.tagIds!.includes(id))
+        if (criteriaTagIds && criteriaTagIds.length > 0) {
+            const ids = criteriaTagIds
+            const hasTag = sub.subscribedTagIds?.some((id) => ids.includes(id))
             if (!hasTag) {
                 return false
             }

@@ -19,13 +19,13 @@
                 >
                     <template #option="slotProps">
                         <div class="commercial-link-dialog__select-option">
-                            <i :class="slotProps.option.icon" :style="{ color: slotProps.option.color }" />
+                            <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
                             <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${slotProps.option.key}`) }}</span>
                         </div>
                     </template>
                     <template #value="slotProps">
                         <div v-if="slotProps.value" class="commercial-link-dialog__select-value">
-                            <i :class="platformIcon(slotProps.value)" :style="{ color: platformColor(slotProps.value) }" />
+                            <i :class="platformIcon(slotProps.value)" :style="{color: platformColor(slotProps.value)}" />
                             <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${slotProps.value}`) }}</span>
                         </div>
                         <span v-else>{{ slotProps.placeholder }}</span>
@@ -35,19 +35,33 @@
 
             <div v-if="link.platform === 'custom'" class="commercial-link-dialog__field">
                 <label for="dialog-label">{{ $t(`${i18nPrefix}.label`) }}</label>
-                <InputText id="dialog-label" v-model="link.label" class="w-full" />
+                <InputText
+                    id="dialog-label"
+                    v-model="link.label"
+                    class="w-full"
+                />
             </div>
 
             <div v-if="platformType !== 'image'" class="commercial-link-dialog__field">
                 <label for="dialog-url">{{ $t(`${i18nPrefix}.url`) }}</label>
-                <InputText id="dialog-url" v-model="link.url" class="w-full" placeholder="https://..." />
+                <InputText
+                    id="dialog-url"
+                    v-model="link.url"
+                    class="w-full"
+                    placeholder="https://..."
+                />
             </div>
 
             <div v-if="showImage !== false && (platformType === 'image' || platformType === 'both')" class="commercial-link-dialog__field">
                 <label for="dialog-image">{{ $t(`${i18nPrefix}.image`) }}</label>
                 <AppUploader v-model="link.image" class="w-full" />
                 <div v-if="link.image" class="commercial-link-dialog__preview">
-                    <Image :src="link.image" alt="Preview" width="120" preview />
+                    <Image
+                        :src="link.image"
+                        alt="Preview"
+                        width="120"
+                        preview
+                    />
                 </div>
             </div>
 
@@ -65,8 +79,17 @@
         </div>
         <template #footer>
             <div class="commercial-link-dialog__footer">
-                <Button :label="$t('common.cancel')" text severity="secondary" @click="$emit('update:visible', false)" />
-                <Button :label="$t('common.save')" :data-testid="`${kind}-save`" @click="$emit('save')" />
+                <Button
+                    :label="$t('common.cancel')"
+                    text
+                    severity="secondary"
+                    @click="$emit('update:visible', false)"
+                />
+                <Button
+                    :label="$t('common.save')"
+                    :data-testid="`${kind}-save`"
+                    @click="$emit('save')"
+                />
             </div>
         </template>
     </Dialog>
@@ -88,7 +111,7 @@ const link = defineModel<Link>('link', { required: true })
 const visible = defineModel<boolean>('visible', { required: true })
 
 const props = withDefaults(defineProps<{
-    editingIndex: number
+    editingIndex?: number
     platforms: { key: string, icon: string, color: string }[]
     kind: 'social' | 'donation'
     i18nPrefix: string
@@ -103,7 +126,7 @@ const props = withDefaults(defineProps<{
     showImage: true,
 })
 
-defineEmits<{ save: [] }>()
+defineEmits<{ save: [], 'update:visible': [visible: boolean] }>()
 </script>
 
 <style lang="scss" scoped>

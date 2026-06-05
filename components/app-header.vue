@@ -362,11 +362,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
-import type { MenuItem } from 'primevue/menuitem'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
+import { useAdminMenuItems } from '@/composables/use-admin-menu-items'
 
 const { t, locale } = useI18n()
 const { openSearch } = useSearch()
@@ -387,137 +387,11 @@ const showAdminControls = computed(() => Boolean(
     && adminLocaleReady.value,
 ))
 
-const goToAdminPosts = () => navigateTo(localePath('/admin/posts'))
-
-const adminMenuItems = computed(() => {
-    // Header 会出现在任意路由上，后台导航标签必须持续依赖始终预装的 admin 壳层词条，
-    // 不能把可选页面模块里的私有文案直接带进全局导航，否则切到未加载该模块的页面时会泄露 raw key。
-    const items: MenuItem[] = [
-        {
-            label: t('pages.admin.dashboard.title'),
-            icon: 'pi pi-chart-bar',
-            command: () => navigateTo(localePath('/admin')),
-        },
-        {
-            label: t('pages.admin.posts.title'),
-            icon: 'pi pi-file',
-            command: goToAdminPosts,
-        },
-        {
-            label: t('pages.admin.calendar.title'),
-            icon: 'pi pi-calendar',
-            command: () => navigateTo(localePath('/admin/calendar')),
-        },
-        {
-            label: t('pages.admin.snippets.title'),
-            icon: 'pi pi-bolt',
-            command: () => navigateTo(localePath('/admin/snippets')),
-        },
-        {
-            label: t('pages.admin.categories.title'),
-            icon: 'pi pi-folder',
-            command: () => navigateTo(localePath('/admin/categories')),
-        },
-        {
-            label: t('pages.admin.tags.title'),
-            icon: 'pi pi-tags',
-            command: () => navigateTo(localePath('/admin/tags')),
-        },
-        {
-            label: t('pages.admin.comments.title'),
-            icon: 'pi pi-comments',
-            command: () => navigateTo(localePath('/admin/comments')),
-        },
-        {
-            label: t('pages.admin.submissions.title'),
-            icon: 'pi pi-inbox',
-            command: () => navigateTo(localePath('/admin/submissions')),
-        },
-        {
-            label: t('pages.admin.ai.title'),
-            icon: 'pi pi-sparkles',
-            command: () => navigateTo(localePath('/admin/ai')),
-        },
-    ]
-
-    if (isAdmin(user.value?.role)) {
-        items.push(
-            {
-                label: t('pages.admin.users.title'),
-                icon: 'pi pi-users',
-                command: () => navigateTo(localePath('/admin/users')),
-            },
-            {
-                label: t('pages.admin.subscribers.title'),
-                icon: 'pi pi-envelope',
-                command: () => navigateTo(localePath('/admin/subscribers')),
-            },
-            {
-                label: t('pages.admin.waitlist.title'),
-                icon: 'pi pi-list-check',
-                command: () => navigateTo(localePath('/admin/waitlist')),
-            },
-            {
-                label: t('pages.admin.ad.title'),
-                icon: 'pi pi-percentage',
-                items: [
-                    {
-                        label: t('pages.admin.ad.campaigns.title'),
-                        icon: 'pi pi-megaphone',
-                        command: () => navigateTo(localePath('/admin/ad/campaigns')),
-                    },
-                    {
-                        label: t('pages.admin.ad.placements.title'),
-                        icon: 'pi pi-map',
-                        command: () => navigateTo(localePath('/admin/ad/placements')),
-                    },
-                ],
-            },
-            {
-                label: t('pages.admin.external_links.title'),
-                icon: 'pi pi-external-link',
-                command: () => navigateTo(localePath('/admin/external-links')),
-            },
-            {
-                label: t('pages.admin.link_governance.title'),
-                icon: 'pi pi-directions-alt',
-                command: () => navigateTo(localePath('/admin/migrations/link-governance')),
-            },
-            {
-                label: t('pages.admin.friend_links.title'),
-                icon: 'pi pi-link',
-                command: () => navigateTo(localePath('/admin/friend-links')),
-            },
-            {
-                label: t('pages.admin.marketing.title'),
-                icon: 'pi pi-megaphone',
-                command: () => navigateTo(localePath('/admin/marketing')),
-            },
-            {
-                label: t('pages.admin.notifications.title'),
-                icon: 'pi pi-bell',
-                command: () => navigateTo(localePath('/admin/notifications')),
-            },
-            {
-                label: t('common.settings'),
-                icon: 'pi pi-cog',
-                items: [
-                    {
-                        label: t('pages.admin.settings.theme.title'),
-                        icon: 'pi pi-palette',
-                        command: () => navigateTo(localePath('/admin/settings/theme')),
-                    },
-                    {
-                        label: t('pages.admin.settings.system.title'),
-                        icon: 'pi pi-sliders-h',
-                        command: () => navigateTo(localePath('/admin/settings')),
-                    },
-                ],
-            },
-        )
-    }
-
-    return items
+const { adminMenuItems, goToAdminPosts } = useAdminMenuItems({
+    t,
+    localePath,
+    userRole: computed(() => user.value?.role ?? null),
+    isAdmin,
 })
 
 const userMenu = ref()

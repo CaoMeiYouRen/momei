@@ -64,6 +64,9 @@ export const NO_NON_NULL_ASSERTION_FILES = [
     'composables/use-post-editor-io.ts',
     'server/services/ad.ts',
     'utils/shared/citable-content.ts',
+    'server/services/ai/text.ts',
+    'server/api/posts/index.get.ts',
+    'server/services/notification.ts',
 ]
 
 export const ESLINT_DEBT_RULE_SLICES = [

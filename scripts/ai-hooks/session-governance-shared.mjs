@@ -719,8 +719,12 @@ export async function handleSessionGovernanceEvent({ eventName, payload = {}, pl
         await persistSessionState(sessionState)
 
         const contextParts = []
-        if (lintResult) { contextParts.push(`lint=${lintResult}`) }
-        if (typecheckResult) { contextParts.push(`typecheck=${typecheckResult}`) }
+        if (lintResult) {
+            contextParts.push(`lint=${lintResult}`)
+        }
+        if (typecheckResult) {
+            contextParts.push(`typecheck=${typecheckResult}`)
+        }
 
         return {
             additionalContext: allPassed
