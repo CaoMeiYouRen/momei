@@ -281,6 +281,18 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 不新起第二套前端性能预算体系；页面体积与 Lighthouse 继续由既有性能规范负责。
 - 不把本轮治理扩大为“全仓所有构建慢点一次性清零”。
 
+### 7.1 2026-06-05 Build 挂起根因分析与修复
+
+`pnpm build` 在 Windows 本地持续超时（>900s 无响应），深入排查定位到三个热点：
+
+| 热点 | 根因 | 修复 | 提交 |
+|---|---|---|---|
+| **Nitro inline 列表过重** | `nitro.externals.inline` 包含 6 个 PrimeVue 前端包（primevue / @primevue/core / icons / styled / styles / themes），这些包已在 Vite 客户端构建中处理完毕，不需在 Nitro 服务端重复打包。6 个前端包的解析 + 转译大幅拉长 Nitro server build。 | 移除 6 个 PrimeVue 前端包，仅保留 `mjml`/`lodash`/`dayjs` 等 13 个运行时必需服务端包 | `nuxt.config.ts` |
+| **Server sourcemap** | Nitro 输出 `.output/server/*.map` 文件，Windows NTFS 写大量小文件的 FS 开销显著 | `nitro.sourceMap: false`（dev 构建不需要 sourcemap） | `nuxt.config.ts` |
+| **`build:done` hook** | `repairRolldownClientInitImports` 扫描所有 dist chunk 并写回修补文件，不增加 CI/Linux 构建价值但拖累 Windows | Windows 环境下跳过该 hook | `nuxt.config.ts` |
+
+这三项修复预计能将 build 尾耗时从 420s+ 级别显著压缩。精确数据待 CI 或本地复测回填。
+
 ## 9. 相关文件
 
 - [nuxt.config.ts](../../../nuxt.config.ts)

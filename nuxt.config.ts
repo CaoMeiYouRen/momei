@@ -82,7 +82,10 @@ export default defineNuxtConfig({
     ].filter(Boolean) as any,
     hooks: {
         'build:done': async () => {
-            await repairRolldownClientInitImports()
+            // Windows 性能优化: repair 脚本仅在非 Windows 环境运行（Windows 构建耗时已不可接受）
+            if (process.platform !== 'win32') {
+                await repairRolldownClientInitImports()
+            }
         },
     },
     // pwa: {
@@ -352,6 +355,8 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
+        // Windows 性能优化: 关闭 sourcemap 减少输出文件体积与写盘耗时
+        sourceMap: false,
         experimental: {
             websocket: true,
         },
@@ -374,6 +379,8 @@ export default defineNuxtConfig({
             external: ['debug'],
         },
         externals: {
+            // Windows 性能优化: 缩小 inline 列表，仅保留运行时必需的服务端包
+            // PrimeVue 等前端包已在 Vite 客户端构建中处理，不需在 Nitro 服务端重复打包
             inline: [
                 'mjml',
                 'mjml-core',
@@ -388,12 +395,6 @@ export default defineNuxtConfig({
                 'lodash',
                 'lodash-es',
                 'dayjs',
-                'primevue',
-                '@primevue/core',
-                '@primevue/icons',
-                '@primeuix/styled',
-                '@primeuix/styles',
-                '@primeuix/themes',
             ],
         },
         esbuild: {
