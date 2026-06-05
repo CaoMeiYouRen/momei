@@ -30,21 +30,29 @@
 		- AI 生成的帖子可复制或手动发布（不自动推送到平台）。
 		- 复用现有 AI 成本计费与配额体系，不新增独立计费路径。
 
-- [ ] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
+- [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
 	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。
 	- 非目标：不扩写为全仓 `any` 清零、不引入新规则族、不改变治理脚本基线。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
-		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。
+	- 当前进度：已完成（2026-06-05）。
+	- 交付摘要：
+		- Slice 1: `vue/require-explicit-emits` + `vue/no-required-prop-with-default` — `commercial-link-dialog.vue`（3 warnings）
+		- Slice 2: `@stylistic/max-statements-per-line` — `session-governance-shared.mjs`（2 warnings）
+		- Slice 3: `max-lines` — 提取 `use-admin-menu-items` composable，`app-header.vue` 804→675 行（1 warning）
+		- Slice 扩展: `no-non-null-assertion` 切片新增 `text.ts` / `posts/index.get.ts` / `notification.ts`（12 warnings）
+		- Quality gate: `pnpm lint` 0w / `typecheck` pass / `governance:audit:eslint-debt` 0w / 13 tests pass
+		- 提交: `d3068ab5`
 
-- [ ] **主线：结构复用治理 — commercial-link-manager 自重复 + 至少三组热点切片 (P1)**
+- [x] **主线：结构复用治理 — commercial-link-manager 自重复 + 至少三组热点切片 (P1)**
 	- 执行范围：聚焦 backlog 长期主线标注的最高优热点 `components/commercial-link-manager.vue` 文件内自重复（多块模板/样式/逻辑块间的结构性重复），同时至少完成 3 组其他热点切片。每组切片必须输出原始重复点、拟抽象边界、复用收益、潜在过度泛化风险与回滚方式。
 	- 非目标：不推动跨目录大重构、不为复用而复用、不改变业务行为。
-	- 当前进度：待开始。
-	- 最小验收：
-		- `commercial-link-manager.vue` 文件内自重复得到收敛，`duplicate-code` 基线不反弹。
-		- 至少三组其他热点切片完成，`pnpm governance:audit:simple-duplicates` 输出显示收敛趋势。
+	- 当前进度：已完成（2026-06-05）。
+	- 交付摘要：
+		- Slice 1 (最高优): `commercial-link-manager.vue` 自重复 → 提取 `CommercialLinkDialog` 共享组件
+		- Slice 2: `PostNavigationItem`/`PostRelatedItem` 重复声明 → 统一从 `post-detail.ts` 导出
+		- Slice 3: `DirectUpload*Strategy` 类型重复 → composable 改为 import server 侧定义
+		- Slice 4: `toErrorMessage` 重复实现 (asr/image) → 收敛到 `server/utils/ai/error.ts`
+		- 统计: 同名函数 111→110, 同名类型/接口 24→20, 7 文件 +196/-293
+		- 提交: `a9cf62ff`
 
 - [ ] **主线：Windows 本地 Dev / Build 性能治理 (P0)**
 	- 执行范围：基于 2026-06-04 外部调研报告（`research-output/nuxt-windows-build-slow-2026-06-04.md`）的结论，尝试至少 2 项可量化优化：优先评估 WSL2 开发环境（项目置 Linux 文件系统内）、Vite `server.warmup` 预热策略、减少 resolve 路径猜测（显式 import 扩展名）中的高收益项，并用 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集前后对比数据。继续复用 `artifacts/nuxt-*-performance.json` 作为事实源。
