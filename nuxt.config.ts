@@ -305,6 +305,21 @@ export default defineNuxtConfig({
                 '@primeuix/styles',
                 '@primeuix/themes',
             ],
+            // Windows 性能优化: 收紧扩展名列表减少 FS 检查次数（每减少 1 项 = 每次 import 省 1 次 stat）
+            extensions: ['.mjs', '.js', '.ts', '.mts', '.vue', '.json'],
+        },
+        server: {
+            // Windows 性能优化: 预热常用入口，避免首个请求才触发 on-demand 转换链
+            warmup: {
+                clientFiles: [
+                    './.nuxt/nuxt.d.ts',
+                    './app.vue',
+                    './pages/index.vue',
+                    './layouts/default.vue',
+                    './components/app-header.vue',
+                    './components/app-footer.vue',
+                ],
+            },
         },
         optimizeDeps: {
             include: [
