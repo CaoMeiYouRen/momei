@@ -258,7 +258,16 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
    - PWA、Nitro trace、inline 包，以及本轮新增的 Windows-local-dev 模块 / TypeScript / Vite 门禁，都应继续限定在“本地 Windows 优化”范围内，不把这轮专项扩写成全平台构建重构。
    - 已证伪的 broad ignore / reduced-surface 试验不再继续保留为默认配置；后续只接受“能证明首响缩短且不把 Local ready 拉长”的更窄修复。
 
-## 7. 非目标
+## 7. 2026-06-05 Phase 43 Vite 优化
+
+基于 [2026-06-04 外部调研报告](../../../research-output/nuxt-windows-build-slow-2026-06-04.md) 中 Vite Performance Guide 的建议，本轮实施 2 项优化：
+
+1. **`vite.server.warmup`** — 预热 app.vue / index.vue / layout / app-header / app-footer，避免首个页面请求才触发 on-demand 转换链。预期减少 dev 首请求延迟。
+2. **`vite.resolve.extensions` 收紧** — 从默认 `['.mjs','.js','.mts','.ts','.jsx','.tsx','.json']` 移除未使用的 `.jsx`/`.tsx`，每次 import 减少 2 次 FS stat。全仓无 JSX/TSX 文件，零兼容风险。
+
+对比数据待 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集后回填。
+
+## 8. 非目标
 
 - 不在本专项内重写整套安装流程或数据库抽象层。
 - 不新起第二套前端性能预算体系；页面体积与 Lighthouse 继续由既有性能规范负责。

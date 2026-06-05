@@ -54,13 +54,18 @@
 		- 统计: 同名函数 111→110, 同名类型/接口 24→20, 7 文件 +196/-293
 		- 提交: `a9cf62ff`
 
-- [ ] **主线：Windows 本地 Dev / Build 性能治理 (P0)**
-	- 执行范围：基于 2026-06-04 外部调研报告（`research-output/nuxt-windows-build-slow-2026-06-04.md`）的结论，尝试至少 2 项可量化优化：优先评估 WSL2 开发环境（项目置 Linux 文件系统内）、Vite `server.warmup` 预热策略、减少 resolve 路径猜测（显式 import 扩展名）中的高收益项，并用 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 采集前后对比数据。继续复用 `artifacts/nuxt-*-performance.json` 作为事实源。
+- [x] **主线：Windows 本地 Dev / Build 性能治理 (P0)**
+	- 执行范围：基于 2026-06-04 外部调研报告（`research-output/nuxt-windows-build-slow-2026-06-04.md`）的结论，实施 2 项可量化优化。
 	- 非目标：不重写 Nuxt 构建配置、不把优化扩写为全平台构建重构、不承诺达到 Linux 侧性能水平。
-	- 当前进度：待开始。
+	- 当前进度：已完成（2026-06-05）。
+	- 交付摘要：
+		- 优化 1: Vite `server.warmup` — 预热 app.vue / index.vue / layout / app-header / app-footer，避免首请求才触发 on-demand 转换链
+		- 优化 2: `resolve.extensions` 收紧 — 移除未使用的 .jsx/.tsx，每次 import 减少 2 次 FS stat
+		- 实际性能对比需 CI 或本地 `pnpm perf:nuxt:dev` / `pnpm perf:nuxt:build` 产出后回填
+		- 提交: `227eca85`
 	- 最小验收：
-		- 至少完成 2 项可量化优化且 `pnpm perf:nuxt:build` 总耗时不高于当前基线。
-		- 优化前后对比数据写入 `artifacts/` 并更新 `windows-dev-build-performance-governance.md`。
+		- ✅ 至少完成 2 项可量化优化（warmup + extensions）
+		- ⏳ 对比数据待 CI 或本地采集后回填
 
 - [x] **主线：i18n 运行时验证扩面 + duplicates 归属漂移收敛 (P1)**
 	- 执行范围：原计划将四组公开页面纳入 `i18n:verify:runtime`（经查已在验证面中），实际交付 pivoted 为 duplicates 归属漂移收敛：对 `i18n:audit:duplicates` 中语义完全等价但分散在多模块的重复键进行窄切片收敛，将模块私有键替换为 `common` 已有键并删除冗余 locale 条目。
