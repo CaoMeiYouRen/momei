@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-01
+last_sync: 2026-06-05
 ---
 
 # 확장 팩
