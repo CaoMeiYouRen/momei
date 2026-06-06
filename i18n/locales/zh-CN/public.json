@@ -190,6 +190,8 @@
             "empty": "暂时还没有公开展示的友链。",
             "disabled": "当前站点暂未开放友链页面。",
             "health_reference_notice": "巡检结果仅供参考，请以实际网站可访问状态为准。",
+            "feed_title": "最近更新",
+            "feed_empty": "暂无友链 RSS 更新",
             "last_checked_at": "最近巡检",
             "health_statuses": {
                 "unknown": "未巡检",

@@ -190,6 +190,8 @@
             "empty": "目前尚無公開展示的友情連結。",
             "disabled": "本站目前尚未開放友情連結頁面。",
             "health_reference_notice": "巡檢結果僅供參考，請以實際網站可訪問狀態為準。",
+            "feed_title": "最近更新",
+            "feed_empty": "暫無友鏈 RSS 更新",
             "last_checked_at": "最近巡檢",
             "health_statuses": {
                 "unknown": "未巡檢",

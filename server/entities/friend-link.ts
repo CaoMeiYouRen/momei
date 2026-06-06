@@ -66,6 +66,9 @@ export class FriendLink extends BaseEntity {
     @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     applicationId: string | null
 
+    @CustomColumn({ type: 'boolean', default: false })
+    showRssFeed: boolean
+
     @CustomColumn({ type: 'varchar', length: 36, nullable: true, index: true })
     createdById: string | null
 

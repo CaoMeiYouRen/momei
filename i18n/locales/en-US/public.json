@@ -190,6 +190,8 @@
             "empty": "There are no public friend links yet.",
             "disabled": "Friend links are currently not enabled on this site.",
             "health_reference_notice": "Health check results are for reference only. Please rely on the actual website availability.",
+            "feed_title": "Recent Updates",
+            "feed_empty": "No recent RSS updates",
             "last_checked_at": "Last Checked",
             "health_statuses": {
                 "unknown": "Not Checked",

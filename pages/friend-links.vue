@@ -268,6 +268,28 @@
                     </template>
                 </Card>
             </template>
+
+            <!-- 友链 RSS 聚合 -->
+            <section v-if="feedItems.length" class="links-page__feed">
+                <h2 class="links-page__section-title">
+                    {{ tt('pages.links.feed_title') }}
+                </h2>
+                <div class="links-page__feed-list">
+                    <article
+                        v-for="item in feedItems"
+                        :key="item.url"
+                        class="links-page__feed-item"
+                    >
+                        <a :href="item.url" target="_blank" rel="noopener" class="links-page__feed-link">
+                            {{ item.title }}
+                        </a>
+                        <div class="links-page__feed-meta">
+                            <span class="links-page__feed-site">{{ item.siteName }}</span>
+                            <span v-if="item.publishedAt" class="links-page__feed-date">{{ formatFeedDate(item.publishedAt) }}</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
         </div>
 
         <Toast />
@@ -326,6 +348,30 @@ const { data: linksData, refresh: refreshLinks } = await useAsyncData('friend-li
         }
     }
 })
+
+// RSS feed aggregation
+const { data: feedData } = await useAsyncData('friend-links-feed', async () => {
+    try {
+        const response = await $fetch<{ code: number, data: FeedItem[] }>('/api/friend-links/feed')
+        return response.data
+    } catch {
+        return [] as FeedItem[]
+    }
+})
+const feedItems = computed(() => feedData.value || [])
+
+function formatFeedDate(iso: string): string {
+    const d = useI18nDate().d(new Date(iso), 'short')
+    return d
+}
+
+interface FeedItem {
+    title: string
+    url: string
+    publishedAt: string | null
+    siteName: string
+    siteUrl: string
+}
 
 const meta = computed(() => metaData.value || {
     enabled: false,
@@ -709,6 +755,43 @@ const handleSubmit = async () => {
     &__empty {
         color: var(--p-text-muted-color);
         line-height: 1.8;
+    }
+
+    &__feed {
+        margin-top: 3rem;
+    }
+
+    &__feed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__feed-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--p-surface-200);
+    }
+
+    &__feed-link {
+        font-weight: 500;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.25rem;
+
+        &:hover {
+            color: var(--p-primary-color);
+        }
+    }
+
+    &__feed-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--p-text-muted-color);
+    }
+
+    &__feed-site {
+        font-weight: 500;
     }
 }
 </style>

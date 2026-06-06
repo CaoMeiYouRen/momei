@@ -190,6 +190,8 @@
             "empty": "公開中のリンクはまだありません。",
             "disabled": "このサイトでは現在リンク集機能を有効にしていません。",
             "health_reference_notice": "ヘルスチェック結果は参考情報です。実際の到達可否を基準にしてください。",
+            "feed_title": "最近の更新",
+            "feed_empty": "RSS 更新はありません",
             "last_checked_at": "最終確認",
             "health_statuses": {
                 "unknown": "未確認",
