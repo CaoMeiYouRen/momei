@@ -50,8 +50,10 @@ async function fetchXml(url: string): Promise<string | null> {
             signal: controller.signal,
             headers: { Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
         })
-        if (!response.ok) { return null }
-        return response.text()
+        if (!response.ok) {
+            return null
+        }
+        return await response.text()
     } catch {
         return null
     } finally {
@@ -60,17 +62,25 @@ async function fetchXml(url: string): Promise<string | null> {
 }
 
 function parseDate(value: string | undefined): string | null {
-    if (!value) { return null }
+    if (!value) {
+        return null
+    }
     const d = new Date(value)
     return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
 function extractAtomLink(link: ({ '@_href'?: string } | string)[] | string | undefined): string | null {
-    if (!link) { return null }
-    if (typeof link === 'string') { return link }
+    if (!link) {
+        return null
+    }
+    if (typeof link === 'string') {
+        return link
+    }
     if (Array.isArray(link)) {
         const first = link[0]
-        if (typeof first === 'string') { return first }
+        if (typeof first === 'string') {
+            return first
+        }
         return first?.['@_href'] ?? null
     }
     return null
@@ -130,7 +140,11 @@ export async function getFriendLinkFeeds(): Promise<FeedItem[]> {
     // Try cache first
     const cached = await limiterStorage.get(cacheKey)
     if (cached) {
-        try { return JSON.parse(cached) } catch { /* fall through */ }
+        try {
+            return JSON.parse(cached)
+        } catch {
+            /* fall through */
+        }
     }
 
     const repo = dataSource.getRepository(FriendLink)
@@ -145,10 +159,14 @@ export async function getFriendLinkFeeds(): Promise<FeedItem[]> {
 
     const allItems: FeedItem[] = []
     for (const link of links) {
-        if (!link.rssUrl) { continue }
+        if (!link.rssUrl) {
+            continue
+        }
         try {
             const xml = await fetchXml(link.rssUrl)
-            if (!xml) { continue }
+            if (!xml) {
+                continue
+            }
             const items = parseRssFeed(xml)
             allItems.push(...items)
         } catch (e) {

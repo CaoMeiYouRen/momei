@@ -795,8 +795,6 @@ const handleSubmit = async () => {
         color: var(--p-text-muted-color);
     }
 
-    &__feed-site {
-        font-weight: 500;
-    }
+    &__feed-site { font-weight: 500; }
 }
 </style>
