@@ -396,27 +396,21 @@
 ### 2026-06 调研发现的新增候选功能
 
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收项**：#9 AI 内容审计 → Phase 42 已交付；#10 内容日历 → Phase 42 已交付；以下编号重新整理。
+> **已上收项**：#9 AI 内容审计 → Phase 42 已交付；#10 内容日历 → Phase 42 已交付；#9 AI 内容多格式复用 → Phase 43 已交付；以下编号重新整理。
 
-9. **AI 内容多格式复用 (P2)**
-- **背景**: 2026 年「一次创作、多渠道分发」是主流工作流。AI 自动将博文转为社交帖子/视频脚本 ([source](https://bit-social.com/blog/content-repurposing-cant-ignore-it/))。
-- **最小范围**: 发布后一键 AI 生成 Twitter Thread 摘要 + LinkedIn 帖子，支持复制或手动发布。
-- **非目标**: 不建全功能社交媒体调度器、不与 Hootsuite/Buffer 竞争、不自动发送到社交平台。
-- **前置条件**: 复用现有 AI 摘要/翻译管线，纯前端 + API 增量功能。
-
-10. **隐私优先自托管分析集成 (P2)**
+9. **隐私优先自托管分析集成 (P2)**
 - **背景**: 2026 年自托管分析 (Plausible/Umami/OpenPanel) 成为自托管博客社区的标准配置。墨梅已有 GA4/Clarity/百度统计，缺少 cookieless 自托管选项 ([source](https://openpanel.dev/articles/self-hosted-web-analytics))。
 - **最小范围**: 提供 Umami 的 Docker Compose 部署模板、后台设置页 tracking script 自动注入配置、首页不依赖第三方 cookie 的基础 PV 统计（可选）。
 - **非目标**: 不自建分析引擎、不替换现有 GA4/Clarity、不做产品分析 (funnel/retention)。
 - **前置条件**: 评估 Umami/Plausible 的 Docker 资源开销和与现有中间件的兼容性。
 
-11. **Digital Garden / 知识花园模式 (P2, 探索)**
+10. **Digital Garden / 知识花园模式 (P2, 探索)**
 - **背景**: Digital Garden 是 2025-2026 年个人网站的重要趋势，强调双向链接、内容生长状态、非时序导航 ([Maggie Appleton](https://maggieappleton.com/garden-history))。
 - **最小范围**: 文章间双向引用自动检测与「被引用」展示、内容成熟度标记 (draft → evergreen)、可选的知识图谱可视化。
 - **非目标**: 不做完整 Zettelkasten 笔记系统、不与 Obsidian/Logseq 竞争。
 - **前置条件**: 先评估双向链接的存储模型 (JSON 字段 vs 关联表) 与对现有查询的性能影响。
 
-12. **Blogroll / 友链 RSS 聚合 (P2)**
+12. **Blogroll / 友链 RSS 聚合 (P2)** — **已上收 Phase 44**
 - **背景**: IndieWeb 运动强调博客间的互链发现。墨梅已有友链系统（自助申请 + 审核），但缺少动态内容聚合。
 - **最小范围**: 友链页面增加「最近更新」RSS 聚合摘要 (读取友链站点的 Feed)、可选的前后博客环导航链接。
 - **非目标**: 不建 RSS 阅读器、不建内容聚合平台、不做全文索引。
