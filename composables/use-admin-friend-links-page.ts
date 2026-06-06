@@ -26,6 +26,7 @@ interface FriendLinkItem {
     healthStatus?: FriendLinkHealthStatus | null
     isPinned: boolean
     isFeatured: boolean
+    showRssFeed: boolean
     sortOrder: number
     lastCheckedAt?: string | null
 }
@@ -98,6 +99,7 @@ export function useAdminFriendLinksPage() {
         status: FriendLinkStatus.ACTIVE,
         isPinned: false,
         isFeatured: false,
+        showRssFeed: false,
         sortOrder: 0,
     })
 
@@ -137,6 +139,7 @@ export function useAdminFriendLinksPage() {
             status: FriendLinkStatus.ACTIVE,
             isPinned: false,
             isFeatured: false,
+            showRssFeed: false,
             sortOrder: 0,
         })
     }
@@ -244,6 +247,7 @@ export function useAdminFriendLinksPage() {
                 status: item.status,
                 isPinned: item.isPinned,
                 isFeatured: item.isFeatured,
+                showRssFeed: item.showRssFeed,
                 sortOrder: item.sortOrder,
             })
         }
