@@ -311,6 +311,14 @@
                         />
                         <label for="link-pinned">{{ tt('pages.admin.friend_links.is_pinned') }}</label>
                     </div>
+                    <div class="admin-friend-links__toggle">
+                        <Checkbox
+                            v-model="linkForm.showRssFeed"
+                            :binary="true"
+                            input-id="link-show-rss"
+                        />
+                        <label for="link-show-rss">{{ $t('feed.show_rss_feed') }}</label>
+                    </div>
                 </div>
             </div>
             <template #footer>

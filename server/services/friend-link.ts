@@ -193,6 +193,7 @@ async function saveFriendLinkEntity(
         'isPinned',
         'isFeatured',
         'sortOrder',
+        'showRssFeed',
         'applicationId',
     ])
 
