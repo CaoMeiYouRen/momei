@@ -36,6 +36,15 @@
                     @run-audit="runAudit"
                     @show-detail="openAuditDialog"
                 />
+                <Button
+                    v-if="!isNew && post.id"
+                    v-tooltip.top="$t('pages.admin.posts.social_post.generate_btn')"
+                    icon="pi pi-share-alt"
+                    text
+                    rounded
+                    severity="secondary"
+                    @click="socialPostVisible = true"
+                />
             </template>
         </PostEditorHeader>
 
@@ -119,6 +128,10 @@
             @restore="handleRestore"
         />
 
+        <PostSocialDialog
+            v-model:visible="socialPostVisible"
+        />
+
         <!-- Drag Mask -->
         <PostEditorDragMask v-if="isDragging" />
 
@@ -143,6 +156,7 @@ import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
 import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
 import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
+import PostSocialDialog from '@/components/admin/posts/post-social-dialog.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { PostAuditResult } from '@/types/post'
@@ -226,6 +240,8 @@ const auditResult = ref<PostAuditResult | null>(null)
 const auditing = ref(false)
 const reAuditing = ref(false)
 const showAuditDialog = ref(false)
+
+const socialPostVisible = ref(false)
 
 async function runAudit() {
     if (!post.value.id) return

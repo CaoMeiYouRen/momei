@@ -460,6 +460,15 @@
                         "title_too_short_or_long": "Title is too short or too long",
                         "unknown": "Unknown metric"
                     }
+                },
+                "social_post": {
+                    "dialog_title": "Generate Social Post",
+                    "platform_label": "Select Platform",
+                    "generate_btn": "AI Generate Social Post",
+                    "generating": "Generating...",
+                    "copy_btn": "Copy",
+                    "copy_success": "Copied!",
+                    "generate_failed": "Social post generation failed"
                 }
             }
         }

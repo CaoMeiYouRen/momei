@@ -460,8 +460,17 @@
                         "title_too_short_or_long": "标题过长或过短",
                         "unknown": "未知指标"
                     }
+                    }
+                },
+                "social_post": {
+                    "dialog_title": "生成社交帖子",
+                    "platform_label": "选择平台",
+                    "generate_btn": "AI 生成社交帖子",
+                    "generating": "正在生成...",
+                    "copy_btn": "复制",
+                    "copy_success": "已复制",
+                    "generate_failed": "社交帖子生成失败"
                 }
-            }
         }
     }
 }
