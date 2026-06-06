@@ -301,6 +301,15 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 **下一步建议**: 在 CI（Linux）环境采集 `pnpm perf:nuxt:build` 基线作为对照，对比 Linux/Windows 的 Nitro build 阶段耗时差异，确认是否属于平台级瓶颈而非配置问题。同时评估将 Windows 构建迁移到 WSL2 的可行性。
 
+**2026-06-05 CI 对照实测**: Linux CI（GitHub Actions, `ubuntu-latest`）`pnpm run build` 全流程 **1m 46s（106s）**，Vite client 15.7s + Vite server 14.9s + Nitro server build + .output write 约 75s。Windows 本地同版本代码 >1800s 超时。**Linux/Windows 构建耗时差距 >17x**。
+
+| 环境 | 总耗时 | Client built | Server built | Nitro + output |
+|---|---|---|---|---|
+| Linux CI | **106s** | 15.7s | 14.9s | ~75s |
+| Windows 本地 | **>1800s 超时** | ~25s | ~19s | 无法完成 |
+
+**结论**: Windows 本地 `nuxt build` 的瓶颈确认为 **平台级瓶颈**（NTFS FS 开销 + Node.js 子进程性能退化），无法通过 Nuxt/Vite/Nitro 配置层进一步收敛。本条主线关闭，后续方向为 WSL2 评估或 CI（Linux）构建委托。
+
 ## 9. 相关文件
 
 - [nuxt.config.ts](../../../nuxt.config.ts)
