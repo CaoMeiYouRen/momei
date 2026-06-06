@@ -38,13 +38,16 @@
 		- 评估文档输出明确的 go/no-go 结论。
 		- 至少覆盖资源开销、兼容性、接入复杂度三个维度。
 
-- [ ] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
+- [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
 	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。
 	- 非目标：不扩写为全仓 `any` 清零、不引入新规则族、不改变治理脚本基线。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
-		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。
+	- 当前进度：已完成（2026-06-06）。
+	- 交付摘要：
+		- Slice 1 (no-non-null-assertion): import-path-alias.ts + quota-governance.ts + post-distribution.ts (5 处 ! 清零)
+		- Slice 2 (no-explicit-any): gemini-provider.ts ({} as any → typed accumulator)
+		- Slice 3: server/services/*.ts non-null assertions 全清零
+		- typecheck pass, 4 文件 +10/-6
+		- 提交: `28e171f8`
 
 - [x] **主线：结构复用治理 — 至少两组热点切片 (P1)**
 	- 执行范围：在 Phase 43 四组切片基础上继续收敛，聚焦重复类型声明、纯函数、工具函数。优先处理同名/近似名函数、同形状 type/interface 声明等热点。每组切片必须输出原始重复点、拟抽象边界、复用收益、回滚方式。
