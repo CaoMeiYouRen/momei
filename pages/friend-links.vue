@@ -280,7 +280,12 @@
                         :key="item.url"
                         class="links-page__feed-item"
                     >
-                        <a :href="item.url" target="_blank" rel="noopener" class="links-page__feed-link">
+                        <a
+                            :href="item.url"
+                            target="_blank"
+                            rel="noopener"
+                            class="links-page__feed-link"
+                        >
                             {{ item.title }}
                         </a>
                         <div class="links-page__feed-meta">

@@ -67,6 +67,7 @@
                 "review_application": "Review Application",
                 "review_note": "Review Note",
                 "review_or_disable_title": "Health Check Warning",
+                "show_rss_feed": "Show RSS Feed",
                 "sort_order": "Sort Order",
                 "statuses": {
                     "active": "Active",

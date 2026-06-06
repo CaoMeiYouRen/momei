@@ -67,6 +67,7 @@
                 "review_application": "審核申請",
                 "review_note": "審核備註",
                 "review_or_disable_title": "巡檢異常提醒",
+                "show_rss_feed": "展示 RSS 動態",
                 "sort_order": "排序值",
                 "statuses": {
                     "active": "啟用",

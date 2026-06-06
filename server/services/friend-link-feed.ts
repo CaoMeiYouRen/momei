@@ -1,9 +1,9 @@
+import { XMLParser } from 'fast-xml-parser'
 import { dataSource } from '@/server/database'
 import { FriendLink } from '@/server/entities/friend-link'
 import { FriendLinkStatus } from '@/types/friend-link'
 import logger from '@/server/utils/logger'
 import { limiterStorage } from '@/server/database/storage'
-import { XMLParser } from 'fast-xml-parser'
 
 export interface FeedItem {
     title: string
@@ -16,25 +16,25 @@ export interface FeedItem {
 interface RssChannel {
     title?: string
     link?: string
-    item?: Array<{
+    item?: {
         title?: string
         link?: string
         pubDate?: string
         'atom:updated'?: string
         published?: string
-    }> | { title?: string, link?: string, pubDate?: string, 'atom:updated'?: string, published?: string }
+    }[] | { title?: string, link?: string, pubDate?: string, 'atom:updated'?: string, published?: string }
 }
 
 interface AtomFeed {
     feed?: {
         title?: string
-        link?: Array<{ '@_href'?: string } | string>
-        entry?: Array<{
+        link?: ({ '@_href'?: string } | string)[]
+        entry?: {
             title?: string | { '#text'?: string }
-            link?: Array<{ '@_href'?: string } | string>
+            link?: ({ '@_href'?: string } | string)[]
             published?: string
             updated?: string
-        }>
+        }[]
     }
 }
 
@@ -48,9 +48,9 @@ async function fetchXml(url: string): Promise<string | null> {
     try {
         const response = await fetch(url, {
             signal: controller.signal,
-            headers: { 'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
+            headers: { Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
         })
-        if (!response.ok) return null
+        if (!response.ok) { return null }
         return response.text()
     } catch {
         return null
@@ -60,17 +60,17 @@ async function fetchXml(url: string): Promise<string | null> {
 }
 
 function parseDate(value: string | undefined): string | null {
-    if (!value) return null
+    if (!value) { return null }
     const d = new Date(value)
     return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
-function extractAtomLink(link: Array<{ '@_href'?: string } | string> | string | undefined): string | null {
-    if (!link) return null
-    if (typeof link === 'string') return link
+function extractAtomLink(link: ({ '@_href'?: string } | string)[] | string | undefined): string | null {
+    if (!link) { return null }
+    if (typeof link === 'string') { return link }
     if (Array.isArray(link)) {
         const first = link[0]
-        if (typeof first === 'string') return first
+        if (typeof first === 'string') { return first }
         return first?.['@_href'] ?? null
     }
     return null
@@ -86,7 +86,12 @@ function parseRssFeed(xml: string): FeedItem[] {
         const channel: RssChannel = rss.channel || {}
         const siteName = channel.title || ''
         const siteUrl = channel.link || ''
-        const items = Array.isArray(channel.item) ? channel.item : (channel.item ? [channel.item] : [])
+        let items: any[] = []
+        if (Array.isArray(channel.item)) {
+            items = channel.item
+        } else if (channel.item) {
+            items = [channel.item]
+        }
         return items.slice(0, 5).map((item) => ({
             title: item.title || 'Untitled',
             url: item.link || siteUrl,
@@ -101,7 +106,12 @@ function parseRssFeed(xml: string): FeedItem[] {
     const atom = feed.feed
     if (atom) {
         const siteName = atom.title || ''
-        const entries = Array.isArray(atom.entry) ? atom.entry : (atom.entry ? [atom.entry] : [])
+        let entries: any[] = []
+        if (Array.isArray(atom.entry)) {
+            entries = atom.entry
+        } else if (atom.entry) {
+            entries = [atom.entry]
+        }
         return entries.slice(0, 5).map((entry) => ({
             title: typeof entry.title === 'string' ? entry.title : (entry.title?.['#text'] || 'Untitled'),
             url: extractAtomLink(entry.link) || '',
@@ -135,10 +145,10 @@ export async function getFriendLinkFeeds(): Promise<FeedItem[]> {
 
     const allItems: FeedItem[] = []
     for (const link of links) {
-        if (!link.rssUrl) continue
+        if (!link.rssUrl) { continue }
         try {
             const xml = await fetchXml(link.rssUrl)
-            if (!xml) continue
+            if (!xml) { continue }
             const items = parseRssFeed(xml)
             allItems.push(...items)
         } catch (e) {

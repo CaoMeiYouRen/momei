@@ -317,7 +317,7 @@
                             :binary="true"
                             input-id="link-show-rss"
                         />
-                        <label for="link-show-rss">{{ $t('feed.show_rss_feed') }}</label>
+                        <label for="link-show-rss">{{ tt('pages.admin.friend_links.show_rss_feed') }}</label>
                     </div>
                 </div>
             </div>

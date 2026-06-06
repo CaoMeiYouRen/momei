@@ -67,6 +67,7 @@
                 "review_application": "신청 검토",
                 "review_note": "검토 메모",
                 "review_or_disable_title": "상태 점검 경고",
+                "show_rss_feed": "Show RSS Feed",
                 "sort_order": "정렬 순서",
                 "statuses": {
                     "active": "활성",

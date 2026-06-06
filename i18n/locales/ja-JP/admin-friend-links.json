@@ -67,6 +67,7 @@
                 "review_application": "申請をレビュー",
                 "review_note": "審査メモ",
                 "review_or_disable_title": "巡回異常の通知",
+                "show_rss_feed": "RSS フィードを表示",
                 "sort_order": "並び順",
                 "statuses": {
                     "active": "有効",

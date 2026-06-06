@@ -502,7 +502,7 @@ describe('FriendLinksPage', () => {
 
         expect(wrapper.text()).toContain('Disabled')
         expect(wrapper.find('.links-page__groups').exists()).toBe(false)
-        expect(mockFetch).toHaveBeenCalledTimes(2)
+        expect(mockFetch).toHaveBeenCalledTimes(3)
     })
 
     it('shows a toast error when the application form is invalid', async () => {
