@@ -298,6 +298,7 @@ export async function resolveAllAIQuotaPolicies(options: Pick<AIQuotaCheckOption
     }
 
     const effectiveUserRole = await resolveUserRole(options.userId, options.userRole)
+    const userId = options.userId ?? 'anonymous'
     const matchedPolicies = policies.filter((policy) => policy.enabled)
 
     // 仅在相同 scope+period 内进行优先级裁决和策略合并，
@@ -311,12 +312,12 @@ export async function resolveAllAIQuotaPolicies(options: Pick<AIQuotaCheckOption
     })
 
     const resolvedPolicies = Array.from(groupedPolicies.values()).map((group) => {
-        const highestPriority = Math.max(...group.map((policy) => getPolicyPriority(policy, options.userId!, effectiveUserRole)))
+        const highestPriority = Math.max(...group.map((policy) => getPolicyPriority(policy, userId, effectiveUserRole)))
         if (highestPriority <= 0) {
             return null
         }
 
-        const highestPriorityPolicies = group.filter((policy) => getPolicyPriority(policy, options.userId!, effectiveUserRole) === highestPriority)
+        const highestPriorityPolicies = group.filter((policy) => getPolicyPriority(policy, userId, effectiveUserRole) === highestPriority)
 
         return mergePolicies(highestPriorityPolicies)
     }).filter(isResolvedQuotaPolicy)

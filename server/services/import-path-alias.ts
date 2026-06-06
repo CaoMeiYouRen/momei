@@ -166,8 +166,10 @@ function collectPermalinkTokens(permalink: string) {
 
 function buildPermalinkTokenContext(input: ImportPathAliasValidationInput, canonicalSlug: string | null) {
     const utcDateParts = getUtcDateParts(input.createdAt)
-    const titleAlias = normalizeOptionalString(input.title) ? slugifyAlias(input.title!) : null
-    const categoryAlias = normalizeOptionalString(input.category) ? slugifyAlias(input.category!) : null
+    const normalizedTitle = normalizeOptionalString(input.title)
+    const normalizedCategory = normalizeOptionalString(input.category)
+    const titleAlias = normalizedTitle ? slugifyAlias(normalizedTitle) : null
+    const categoryAlias = normalizedCategory ? slugifyAlias(normalizedCategory) : null
 
     return {
         year: utcDateParts?.year || null,

@@ -117,6 +117,7 @@ export class GeminiProvider implements AIProvider {
             }))
             const results = await Promise.all(tasks)
 
+            const usageAcc: { promptTokens?: number, completionTokens?: number, totalTokens?: number } = {}
             return {
                 images: results.flatMap((r) => r.images),
                 model: context.model,
@@ -130,7 +131,7 @@ export class GeminiProvider implements AIProvider {
                         completionTokens: (acc?.completionTokens || 0) + (r.usage.completionTokens || 0),
                         totalTokens: (acc?.totalTokens || 0) + (r.usage.totalTokens || 0),
                     }
-                }, {} as any),
+                }, usageAcc),
                 raw: results.map((r) => r.raw),
             }
         }
