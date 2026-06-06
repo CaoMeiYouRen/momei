@@ -117,20 +117,17 @@ export class GeminiProvider implements AIProvider {
             }))
             const results = await Promise.all(tasks)
 
-            const usageAcc: { promptTokens?: number, completionTokens?: number, totalTokens?: number } = {}
+            const usageAcc = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
             return {
                 images: results.flatMap((r) => r.images),
                 model: context.model,
                 usage: results.reduce((acc, r) => {
-                    if (!r.usage) {
-                        return acc
+                    if (r.usage) {
+                        acc.promptTokens += r.usage.promptTokens || 0
+                        acc.completionTokens += r.usage.completionTokens || 0
+                        acc.totalTokens += r.usage.totalTokens || 0
                     }
-
-                    return {
-                        promptTokens: (acc?.promptTokens || 0) + (r.usage.promptTokens || 0),
-                        completionTokens: (acc?.completionTokens || 0) + (r.usage.completionTokens || 0),
-                        totalTokens: (acc?.totalTokens || 0) + (r.usage.totalTokens || 0),
-                    }
+                    return acc
                 }, usageAcc),
                 raw: results.map((r) => r.raw),
             }

@@ -534,8 +534,10 @@ async function runMemosDistribution(
     try {
         const materialBundle = await buildPostDistributionMaterialBundle(post)
         const content = materialBundle.channels.memos.content
-        const memo = action === 'update' || (action === 'retry' && mode === 'update-existing' && attempt.channelState.remoteId)
-            ? await updateMemo(attempt.channelState.remoteId, { content })
+        const remoteId = attempt.channelState.remoteId
+        const isExisting = action === 'update' || (action === 'retry' && mode === 'update-existing' && remoteId)
+        const memo = isExisting && remoteId
+            ? await updateMemo(remoteId, { content })
             : await createMemo({ content })
 
         if (!memo) {
