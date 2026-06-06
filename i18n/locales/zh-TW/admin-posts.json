@@ -460,7 +460,6 @@
                         "title_too_short_or_long": "標題過長或過短",
                         "unknown": "未知指標"
                     }
-                    }
                 },
                 "social_post": {
                     "dialog_title": "產生社群貼文",
@@ -471,6 +470,7 @@
                     "copy_success": "已複製",
                     "generate_failed": "社群貼文產生失敗"
                 }
+            }
         }
     }
 }

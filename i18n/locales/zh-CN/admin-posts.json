@@ -460,7 +460,6 @@
                         "title_too_short_or_long": "标题过长或过短",
                         "unknown": "未知指标"
                     }
-                    }
                 },
                 "social_post": {
                     "dialog_title": "生成社交帖子",
@@ -471,6 +470,7 @@
                     "copy_success": "已复制",
                     "generate_failed": "社交帖子生成失败"
                 }
+            }
         }
     }
 }

@@ -460,7 +460,6 @@
                         "title_too_short_or_long": "タイトルが短すぎるか長すぎます",
                         "unknown": "不明な指標"
                     }
-                    }
                 },
                 "social_post": {
                     "dialog_title": "ソーシャル投稿を生成",
@@ -471,6 +470,7 @@
                     "copy_success": "コピーしました",
                     "generate_failed": "ソーシャル投稿の生成に失敗しました"
                 }
+            }
         }
     }
 }

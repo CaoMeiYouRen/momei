@@ -355,7 +355,6 @@ export default defineNuxtConfig({
         },
     },
     nitro: {
-        // Windows 性能优化: 关闭 sourcemap 减少输出文件体积与写盘耗时
         sourceMap: false,
         experimental: {
             websocket: true,
