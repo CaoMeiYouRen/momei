@@ -287,11 +287,19 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 | 热点 | 根因 | 修复 | 提交 |
 |---|---|---|---|
-| **Nitro inline 列表过重** | `nitro.externals.inline` 包含 6 个 PrimeVue 前端包（primevue / @primevue/core / icons / styled / styles / themes），这些包已在 Vite 客户端构建中处理完毕，不需在 Nitro 服务端重复打包。6 个前端包的解析 + 转译大幅拉长 Nitro server build。 | 移除 6 个 PrimeVue 前端包，仅保留 `mjml`/`lodash`/`dayjs` 等 13 个运行时必需服务端包 | `nuxt.config.ts` |
-| **Server sourcemap** | Nitro 输出 `.output/server/*.map` 文件，Windows NTFS 写大量小文件的 FS 开销显著 | `nitro.sourceMap: false`（dev 构建不需要 sourcemap） | `nuxt.config.ts` |
-| **`build:done` hook** | `repairRolldownClientInitImports` 扫描所有 dist chunk 并写回修补文件，不增加 CI/Linux 构建价值但拖累 Windows | Windows 环境下跳过该 hook | `nuxt.config.ts` |
+| **Nitro inline 列表过重** | `nitro.externals.inline` 包含 6 个 PrimeVue 前端包，已在 Vite 客户端构建中处理，不需在 Nitro 服务端重复打包 | 移除 6 个 PrimeVue 前端包，仅保留 13 个运行时必需包 | `c8e5ba39` |
+| **Server sourcemap** | Nitro 输出 `.output/server/*.map`，Windows NTFS 写大量小文件 FS 开销显著 | `nitro.sourceMap: false` | `c8e5ba39` |
+| **`build:done` hook** | `repairRolldownClientInitImports` 扫描所有 dist chunk 并写回，Windows 构建无必要 | 平台判断跳过 | `c8e5ba39` |
 
-这三项修复预计能将 build 尾耗时从 420s+ 级别显著压缩。精确数据待 CI 或本地复测回填。
+**2026-06-05 优化后实测**: `pnpm build` 与 `pnpm perf:nuxt:build` 均超时（30 分钟 / 1800s 仍未完成），说明上述三项修复不足以解决根本问题。当前的 "Server built → Build complete" 尾部阶段仍然是主要瓶颈，但**瓶颈根因已超出 Vite/Nitro 配置层可收敛的范围**。
+
+**初步结论**: Windows 本地 `nuxt build` 的实际根因可能落在以下方向之一：
+
+1. **Nitro 服务端依赖图过大** — 全仓 `server/api` 与 `server/services` 在 Nitro 打包时扇出到 `server/utils`、`server/database`、`utils/shared`、`server/entities` 等大范围依赖树，Nitro 使用 Rollup 打包服务端代码时，每个依赖都需要 resolve → load → transform，在 Windows NTFS 上累计 FS 开销远超 Linux
+2. **`.output/server` 产物写盘** — 即便关闭 sourcemap，服务端 chunk + 静态资源 + public 目录的批量写盘仍然在 Windows 上构成显著瓶颈
+3. **Node.js `child_process.spawn` 在 Windows 上的性能退化** — 构建过程中的子进程开销在 Windows 上远高于 POSIX
+
+**下一步建议**: 在 CI（Linux）环境采集 `pnpm perf:nuxt:build` 基线作为对照，对比 Linux/Windows 的 Nitro build 阶段耗时差异，确认是否属于平台级瓶颈而非配置问题。同时评估将 Windows 构建迁移到 WSL2 的可行性。
 
 ## 9. 相关文件
 
