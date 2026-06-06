@@ -366,8 +366,7 @@ const { data: feedData } = await useAsyncData('friend-links-feed', async () => {
 const feedItems = computed(() => feedData.value || [])
 
 function formatFeedDate(iso: string): string {
-    const d = useI18nDate().d(new Date(iso), 'short')
-    return d
+    return useI18nDate().formatDate(iso)
 }
 
 interface FeedItem {

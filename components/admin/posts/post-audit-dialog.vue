@@ -104,13 +104,10 @@ defineEmits<{
     're-audit': []
 }>()
 
-const { d } = useI18nDate()
+const { formatDate } = useI18nDate()
 
 const metaFactors = ['title', 'summary', 'coverImage', 'tags', 'category'] as const
 
-function formatDate(iso: string): string {
-    return d(new Date(iso), 'short')
-}
 </script>
 
 <style scoped>
