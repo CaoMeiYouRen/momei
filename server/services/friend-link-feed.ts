@@ -3,6 +3,7 @@ import { FriendLink } from '@/server/entities/friend-link'
 import { FriendLinkStatus } from '@/types/friend-link'
 import logger from '@/server/utils/logger'
 import { limiterStorage } from '@/server/database/storage'
+import { XMLParser } from 'fast-xml-parser'
 
 export interface FeedItem {
     title: string
@@ -76,9 +77,8 @@ function extractAtomLink(link: Array<{ '@_href'?: string } | string> | string | 
 }
 
 function parseRssFeed(xml: string): FeedItem[] {
-    const { XMLParser } = require('fast-xml-parser')
     const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
-    const doc = parser.parse(xml)
+    const doc = parser.parse(xml) as Record<string, any>
 
     // RSS 2.0 format
     const rss = doc?.rss
@@ -128,7 +128,10 @@ export async function getFriendLinkFeeds(): Promise<FeedItem[]> {
         where: { status: FriendLinkStatus.ACTIVE, showRssFeed: true },
     })
 
-    if (!links.length) return []
+    if (!links.length) {
+        await limiterStorage.set(cacheKey, JSON.stringify([]), FEED_CACHE_TTL_SECONDS)
+        return []
+    }
 
     const allItems: FeedItem[] = []
     for (const link of links) {
