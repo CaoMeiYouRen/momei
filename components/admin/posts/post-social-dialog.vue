@@ -18,13 +18,13 @@
                 >
                     <template #option="slotProps">
                         <div class="social-post-dialog__select-option">
-                            <i :class="slotProps.option.icon" :style="{ color: slotProps.option.color }" />
+                            <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
                             <span>{{ slotProps.option.label }}</span>
                         </div>
                     </template>
                     <template #value="slotProps">
                         <div v-if="slotProps.value" class="social-post-dialog__select-value">
-                            <i :class="selectedPlatform?.icon" :style="{ color: selectedPlatform?.color }" />
+                            <i :class="selectedPlatform?.icon" :style="{color: selectedPlatform?.color}" />
                             <span>{{ selectedPlatform?.label }}</span>
                         </div>
                         <span v-else>{{ slotProps.placeholder }}</span>
@@ -59,7 +59,12 @@
             </div>
         </div>
         <template #footer>
-            <Button :label="$t('common.close')" icon="pi pi-times" text @click="$emit('update:visible', false)" />
+            <Button
+                :label="$t('common.close')"
+                icon="pi pi-times"
+                text
+                @click="$emit('update:visible', false)"
+            />
         </template>
     </Dialog>
 </template>
@@ -113,7 +118,9 @@ const { copy } = useClipboard()
 async function handleCopy() {
     await copy(result.value)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
+    setTimeout(() => {
+        copied.value = false
+    }, 2000)
 }
 </script>
 
