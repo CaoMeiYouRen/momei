@@ -46,13 +46,15 @@
 		- 至少三组窄切片完成并通过定向 `eslint --max-warnings 0` 验证。
 		- `pnpm governance:audit:eslint-debt` 输出显示本轮清偿数量与剩余命中数。
 
-- [ ] **主线：结构复用治理 — 至少两组热点切片 (P1)**
+- [x] **主线：结构复用治理 — 至少两组热点切片 (P1)**
 	- 执行范围：在 Phase 43 四组切片基础上继续收敛，聚焦重复类型声明、纯函数、工具函数。优先处理同名/近似名函数、同形状 type/interface 声明等热点。每组切片必须输出原始重复点、拟抽象边界、复用收益、回滚方式。
 	- 非目标：不推动跨目录大重构、不为复用而复用、不改变业务行为。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 至少两组热点切片完成且 `duplicate-code` 基线不反弹。
-		- `pnpm governance:audit:simple-duplicates` 输出显示收敛趋势。
+	- 当前进度：已完成（2026-06-06）。
+	- 交付摘要：
+		- Slice 1: `SettingFieldMetadata` — 4 组件文件统一 import `types/setting.ts`（ai-cost-factors / ai-alert-thresholds / ai-quota-policies / setting-form-field）
+		- Slice 2: `AgreementFormData` — `agreement-edit-dialog.vue` export → `agreements-settings.vue` import
+		- 统计: 同名类型/接口 20→18 (-2)，6 文件 +6/-28，typecheck + lint pass
+		- 提交: `249eb90a`
 
 - [ ] **主线：CWV 性能优化 — 至少一项可量化优化 (P0)**
 	- 执行范围：基于 Phase 42 建立的 CWV 基线，借助 CI（Linux）环境验证，至少完成一项可量化优化。优先从：首屏关键 CSS 内联、非关键 JS 延迟加载、图片格式优化（WebP/AVIF）中选择。用 Lighthouse CI `pnpm test:perf:cwv` 产出前后对比数据。
