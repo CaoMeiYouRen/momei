@@ -48,6 +48,7 @@ export const friendLinkSchema = z.object({
     status: z.enum([FriendLinkStatus.DRAFT, FriendLinkStatus.ACTIVE, FriendLinkStatus.INACTIVE]).optional(),
     isPinned: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
+    showRssFeed: z.boolean().optional(),
     sortOrder: z.coerce.number().int().min(0).max(9999).optional(),
 })
 
