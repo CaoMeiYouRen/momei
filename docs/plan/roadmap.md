@@ -24,7 +24,6 @@
 详见 [roadmap-phases-22-24.md](./archive/roadmap-phases-22-24.md)。
 
 ### 第二十五阶段：部署体验与可持续演进收敛 (Deployment Experience & Sustainable Evolution Consolidation) (已审计归档)
-### 第二十五阶段：部署体验与可持续演进收敛 (Deployment Experience & Sustainable Evolution Consolidation) (已审计归档)
 
 **时间表**: 约 1 - 1.5 个月
 **目标**: 在第二十四阶段完成质量守线与回归执行深化之后，基于 backlog 的方向分析，把“功能已接近完备后应优先打磨什么”正式收敛为下一阶段执行面，围绕部署与初始化体验、编辑器与正文渲染第二轮收口、构建速度与包体性能深化、Cloudflare 平台边界研究，以及 AI 启用式问答 / 配置助手评估五条主线，优先提升新部署者体验、创作稳定性与工程可持续演进能力，而不是继续扩写新的大功能面。
@@ -741,6 +740,9 @@
     - **执行范围**: 把 app-footer（友链/关于区域）、archives、categories、tags 四组公开装配链路纳入 `i18n:verify:runtime` 回归面，同步清理重复键或跨模块归属漂移。
     - **非目标**: 不做整仓 key 改名、不改写 route-module 装配边界。
     - **最小验收**: 四组链路纳入 runtime 验证并通过；`i18n:audit:missing` 与 `i18n:audit:duplicates` 保持 `total: 0`。
+
+**审计结论**: 第四十三阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。Code Auditor 审计发现 2 blocker（i18n nesting + sourceMap cross-platform）已修复并重新验证通过（`0d9b9f47`）。Windows 性能主线确认平台级瓶颈（Linux CI 106s vs Windows >1800s，>17x），已上收关闭。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块。
+
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 

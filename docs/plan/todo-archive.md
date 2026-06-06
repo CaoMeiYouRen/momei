@@ -20,6 +20,54 @@
 
 ---
 
+## 第四十三阶段：AI 分发复用与治理深化 (已审计归档)
+
+> 归档说明: 第四十三阶段「1 个新功能 + 4 个优化」组合已于 2026-06-05 完成五条主线交付、代码审计与阶段收口。
+> 当前仓库可对照到五条主线的实现与证据落点：AI 内容多格式复用（社交帖子生成 Twitter/LinkedIn，4 新文件 + 5 locale i18n）、
+> ESLint / 类型债（3 组窄切片 + no-non-null-assertion 扩展）、结构复用治理（commercial-link-manager 自重复提取 + PostNavigationItem/DirectUploadStrategy/toErrorMessage 收敛）、
+> Windows Dev/Build 性能（Vite warmup + resolve.extensions + Nitro inline 瘦身 + sourceMap + build:done skip，最终确认平台级瓶颈，Linux CI 106s vs Windows >1800s）、
+> i18n duplicates 归属漂移收敛（voice/actions 键统一至 common，-5 组 -11 keys）。
+> todo.md 当前执行面已清理，第四十四阶段待 backlog 候选池评估后确定。
+>
+> **ROI 评估**: AI 内容多格式复用 1.40；ESLint / 类型债治理 1.50；结构复用治理 1.60；Windows Dev/Build 性能治理 2.00；i18n 运行时验证扩面 1.45。
+
+#### A. AI 内容多格式复用 (P1)
+
+1. [x] **主线：AI 内容多格式复用 (P1)**
+    - 执行范围：一键 AI 生成 Twitter Thread + LinkedIn 帖子，复用 AI 管线，纯前端 + API 增量。
+    - 当前进度：已完成。新建 4 文件（API + Service + Prompt + Dialog），修改编辑页 + 5 locale i18n。
+    - 最小验收: (1) 编辑页入口 ✅；(2) Twitter + LinkedIn 两格式 ✅；(3) 复用 AI 计费 ✅
+
+#### B. ESLint / 类型债治理 (P1)
+
+1. [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
+    - 执行范围：vue/require-explicit-emits + vue/no-required-prop-with-default + max-statements-per-line + max-lines（app-header 804→675）+ no-non-null-assertion 扩展。
+    - 当前进度：已完成。0w baseline，13 tests pass。
+    - 提交: `d3068ab5`
+
+#### C. 结构复用治理 (P1)
+
+1. [x] **主线：结构复用治理 — commercial-link-manager 自重复 + 至少三组热点 (P1)**
+    - 执行范围：commercial-link-manager 自重复提取 + PostNavigationItem / DirectUploadStrategy / toErrorMessage 收敛。
+    - 当前进度：已完成。同名类型 24→20，7 文件 +196/-293。
+    - 提交: `a9cf62ff`
+
+#### D. Windows 本地 Dev / Build 性能治理 (P0)
+
+1. [x] **主线：Windows 本地 Dev / Build 性能治理 (P0)**
+    - 执行范围：Vite warmup + resolve.extensions 收紧 + Nitro inline 瘦身 + sourceMap 关闭 + build:done 跳过。
+    - 当前进度：已完成。Linux CI 对照验证：构建 106s vs Windows >1800s（>17x 差距），确认为平台级瓶颈，本条主线关闭。
+    - 提交: `227eca85`, `c8e5ba39`, `9afe8553`
+
+#### E. i18n 运行时验证扩面 (P1)
+
+1. [x] **主线：i18n 运行时验证扩面 + duplicates 归属漂移收敛 (P1)**
+    - 执行范围：voice/actions 重复键收敛至 common 命名空间。
+    - 当前进度：已完成。duplicates 102→97 组，240→229 keys，total: 0 missing。
+    - 提交: `7bc309df`
+
+---
+
 ## 第四十二阶段：AI 深化与运营闭环 (已审计归档)
 
 > 归档说明: 第四十二阶段「新功能 + 优化」组合已于 2026-06-04 完成五条主线交付、代码审计修复与阶段收口。

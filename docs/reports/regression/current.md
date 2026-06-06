@@ -64,6 +64,47 @@
 
 <!-- regression-window:end:phase42-docs-sync:第四十二阶段收口后:2026-06-04 -->
 
+<!-- regression-window:start:phase43-close:第四十三阶段:2026-06-05 -->
+## 2026-06-05 第四十三阶段收口回归
+
+### 范围
+
+- 目标：第四十三阶段「AI 分发复用与治理深化」5 条主线全部交付后的阶段收口回归。
+- 本轮覆盖：全仓 typecheck + ESLint、Code Auditor 审计及修复、i18n nesting bug 修复、sourceMap 跨平台修正。
+- 非目标：不包含 Windows 本地 perf 测量（确认为平台级瓶颈，已关闭）。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 0 errors |
+| `pnpm lint` | Pass | 0w（pre-existing 4 个除外） |
+| `pnpm i18n:audit:missing` | Pass | total: 0 |
+| `pnpm i18n:audit:duplicates` | Pass | 97 组（Phase 43 收敛后） |
+| `pnpm governance:audit:simple-duplicates` | Pass | 同名函数 110, 同名类型 20 |
+| Code Auditor | Pass | 2 blocker 已修复（i18n nesting + sourceMap） |
+| roadmap.md 归档 | 完成 | Phase 43 审计结论已写入 |
+| todo-archive.md 滚动归档 | 完成 | Phase 43 归档块已写入 |
+| todo.md 状态 | 清理 | Phase 43 5/5 主线完成，执行面清空 |
+
+### Phase 43 交付清单
+
+| 主线 | 交付 | 提交 |
+|---|---|---|
+| AI 内容多格式复用 | social-post API + Service + Prompt + Dialog + 5 locale i18n | `e749f3de` |
+| ESLint / 类型债 | vue emits/props + max-statements + max-lines + no-non-null-assertion 扩展 | `d3068ab5` |
+| 结构复用治理 | commercial-link-manager 自重复 + PostNavigationItem/DirectUploadStrategy/toErrorMessage | `a9cf62ff` |
+| Windows 性能治理 | warmup + extensions + inline 瘦身 + sourceMap + build:done；平台级瓶颈确认关闭 | `227eca85`, `c8e5ba39`, `9afe8553` |
+| i18n duplicates 收敛 | voice/actions 键统一至 common，-5 组 -11 keys | `7bc309df` |
+
+### 未覆盖边界
+
+- AI 社交帖子 API 无速率限制（审计 warning #3）
+- AI 服务 + API 无测试覆盖（审计 warning #4）
+- Windows 本地 perf 采集受平台瓶颈阻塞，对比数据仅 CI Linux 对照（106s）
+
+<!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
+
 <!-- regression-window:start:typeorm-assessment:第四十阶段:2026-06-02 -->
 ## 2026-06-02 第四十阶段 TypeORM 1.0.0 升级评估（自动回填）
 
