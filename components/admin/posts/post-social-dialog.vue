@@ -9,13 +9,27 @@
         <div class="social-post-dialog">
             <div class="social-post-dialog__platform">
                 <label>{{ $t('pages.admin.posts.social_post.platform_label') }}</label>
-                <SelectButton
+                <Select
                     v-model="platform"
                     :options="platformOptions"
                     option-label="label"
                     option-value="value"
-                    :allow-empty="false"
-                />
+                    class="w-full"
+                >
+                    <template #option="slotProps">
+                        <div class="social-post-dialog__select-option">
+                            <i :class="slotProps.option.icon" :style="{ color: slotProps.option.color }" />
+                            <span>{{ slotProps.option.label }}</span>
+                        </div>
+                    </template>
+                    <template #value="slotProps">
+                        <div v-if="slotProps.value" class="social-post-dialog__select-value">
+                            <i :class="selectedPlatform?.icon" :style="{ color: selectedPlatform?.color }" />
+                            <span>{{ selectedPlatform?.label }}</span>
+                        </div>
+                        <span v-else>{{ slotProps.placeholder }}</span>
+                    </template>
+                </Select>
             </div>
 
             <Button
@@ -51,25 +65,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core'
+import { SOCIAL_POST_PLATFORMS } from '@/utils/shared/social-post-platforms'
 
 const visible = defineModel<boolean>('visible', { required: true })
-
 defineEmits<{ 'update:visible': [value: boolean] }>()
 
 const { t } = useI18n()
 const { showErrorToast } = useRequestFeedback()
 
-const platform = ref<'twitter' | 'linkedin'>('twitter')
+const platform = ref(SOCIAL_POST_PLATFORMS[0].key)
 const generating = ref(false)
 const result = ref('')
 const copied = ref(false)
 
-const platformOptions = [
-    { label: 'X (Twitter)', value: 'twitter' as const },
-    { label: 'LinkedIn', value: 'linkedin' as const },
-]
+const platformOptions = SOCIAL_POST_PLATFORMS.map((p) => ({
+    label: t(p.i18nKey),
+    value: p.key,
+    icon: p.icon,
+    color: p.color,
+}))
+
+const selectedPlatform = computed(() => platformOptions.find((p) => p.value === platform.value))
 
 async function handleGenerate() {
     const route = useRoute()
@@ -131,6 +149,16 @@ async function handleCopy() {
         margin-top: $spacing-sm;
         display: flex;
         justify-content: flex-end;
+    }
+
+    &__select-option, &__select-value {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        i {
+            font-size: 1.1rem;
+        }
     }
 }
 </style>

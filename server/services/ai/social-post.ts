@@ -2,13 +2,14 @@ import { AIBaseService } from './base'
 import { getAIProvider } from '@/server/utils/ai'
 import { formatPrompt } from '@/server/utils/ai/prompt'
 import { SOCIAL_POST_PROMPT } from '@/server/utils/ai/prompts/social-post'
+import { getSocialPostPlatform, SOCIAL_POST_PLATFORMS } from '@/utils/shared/social-post-platforms'
 import logger from '@/server/utils/logger'
 import { AI_CHUNK_SIZE } from '@/utils/shared/env'
 
-export type SocialPlatform = 'twitter' | 'linkedin'
+export const SOCIAL_POST_PLATFORM_KEYS = SOCIAL_POST_PLATFORMS.map((p) => p.key) as readonly string[]
 
 export interface SocialPostResult {
-    platform: SocialPlatform
+    platform: string
     content: string
 }
 
@@ -16,10 +17,15 @@ export class SocialPostService extends AIBaseService {
     static async generate(
         title: string,
         content: string,
-        platform: SocialPlatform,
+        platform: string,
         language: string,
         userId?: string,
     ): Promise<SocialPostResult> {
+        const platformConfig = getSocialPostPlatform(platform)
+        if (!platformConfig) {
+            throw createError({ statusCode: 400, statusMessage: `Unsupported platform: ${platform}` })
+        }
+
         await this.assertQuotaAllowance({
             userId,
             category: 'text',
@@ -35,7 +41,8 @@ export class SocialPostService extends AIBaseService {
         const prompt = formatPrompt(SOCIAL_POST_PROMPT, {
             title,
             content: content.slice(0, AI_CHUNK_SIZE),
-            platform,
+            platformLabel: platformConfig.key,
+            platformGuideline: platformConfig.promptGuideline,
             language,
         })
 
