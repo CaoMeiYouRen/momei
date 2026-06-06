@@ -1,5 +1,61 @@
 # momei
 
+# [1.19.0](https://github.com/CaoMeiYouRen/momei/compare/v1.18.0...v1.19.0) (2026-06-06)
+
+
+### ⚡ 性能优化
+
+* **windows:** build 挂起根因修复 — Nitro inline 瘦身 + sourceMap 关闭 + build:done 跳过 ([c8e5ba3](https://github.com/CaoMeiYouRen/momei/commit/c8e5ba3)), closes [#31836](https://github.com/CaoMeiYouRen/momei/issues/31836)
+* **windows:** Vite server.warmup + resolve.extensions 收紧 ([227eca8](https://github.com/CaoMeiYouRen/momei/commit/227eca8))
+
+
+### ✨ 新功能
+
+* **calendar:** 添加内容日历与编辑排期 — 月/周日历视图 + 草稿管线看板 ([0966014](https://github.com/CaoMeiYouRen/momei/commit/0966014))
+* **posts:** AI 内容多格式复用 — 一键生成社交帖子 ([e749f3d](https://github.com/CaoMeiYouRen/momei/commit/e749f3d)), closes [#audit](https://github.com/CaoMeiYouRen/momei/issues/audit)
+* **posts:** 审计入口优化 + 审计失败 i18n 键 + force 参数修复 ([8b6d89f](https://github.com/CaoMeiYouRen/momei/commit/8b6d89f)), closes [#audit](https://github.com/CaoMeiYouRen/momei/issues/audit)
+* **posts:** 添加 AI 内容审计 — 后台文章质量评分徽章与审计报告 ([4832e36](https://github.com/CaoMeiYouRen/momei/commit/4832e36))
+
+
+### 🐛 Bug 修复
+
+* **audit:** Phase 43 审计修复 — i18n nesting + sourceMap 跨平台 ([af20205](https://github.com/CaoMeiYouRen/momei/commit/af20205))
+* **audit:** 审计评分消息从硬编码英文重构为 i18n 键系统 ([9dfc69c](https://github.com/CaoMeiYouRen/momei/commit/9dfc69c))
+* **calendar:** 修复 i18n 加载、周视图、SelectButton 切换与语言过滤 ([13df506](https://github.com/CaoMeiYouRen/momei/commit/13df506))
+* **calendar:** 修复审计发现 — 月导航数据刷新、CSS 选择器、类型统一 ([f443737](https://github.com/CaoMeiYouRen/momei/commit/f443737))
+* **i18n:** Phase 42 合并遗漏 — 补全 common.year/month 键 + locale-modules 测试白名单 ([ab30fcc](https://github.com/CaoMeiYouRen/momei/commit/ab30fcc))
+* **posts:** [@input](https://github.com/input) 兜底同步 title DOM 值到 model，防御 Firefox CI 下 fill() 不触发 v-model 的问题 ([82943a8](https://github.com/CaoMeiYouRen/momei/commit/82943a8))
+* **posts:** CSS pointer-events + click.capture 双重阻断未保存草稿的语言切换 ([559f7e6](https://github.com/CaoMeiYouRen/momei/commit/559f7e6))
+* **posts:** 修复翻译徽章点击时未保存内容处理逻辑 ([caf6fed](https://github.com/CaoMeiYouRen/momei/commit/caf6fed))
+* **posts:** 修复翻译徽章点击时的未保存内容处理逻辑 ([c292aef](https://github.com/CaoMeiYouRen/momei/commit/c292aef))
+* **posts:** 双重守卫 — DOM + model 直接读值替代 prop 传播，消除 CI 时序竞态 ([0a76198](https://github.com/CaoMeiYouRen/momei/commit/0a76198))
+* **posts:** 在 Firefox 下语言切换前置拦截未保存草稿 ([5c98003](https://github.com/CaoMeiYouRen/momei/commit/5c98003))
+* **posts:** 添加语言徽章点击事件的处理逻辑 ([c9feb2e](https://github.com/CaoMeiYouRen/momei/commit/c9feb2e))
+* **posts:** 编辑页加载 admin-posts i18n 模块解决审计弹窗缺翻译 ([a4809e9](https://github.com/CaoMeiYouRen/momei/commit/a4809e9))
+* **posts:** 翻译切换前 blur 编辑器以确保内容提交 ([3823775](https://github.com/CaoMeiYouRen/momei/commit/3823775))
+* **posts:** 通过 ref 原生 DOM input 事件同步 title 值，根治 Firefox CI fill() 不触发 model 更新 ([baf6f0d](https://github.com/CaoMeiYouRen/momei/commit/baf6f0d))
+* **typecheck:** Phase 42 合并遗漏 — relations 数组语法改为对象语法 ([de7e3c5](https://github.com/CaoMeiYouRen/momei/commit/de7e3c5))
+* **typecheck:** SOCIAL_POST_PLATFORMS 空数组防护 — index[0] 可选链 + map nullish ([1264457](https://github.com/CaoMeiYouRen/momei/commit/1264457))
+
+
+### 📦 代码重构
+
+* **adapters:** 统一广告适配器配置类型 ([8bc7b4c](https://github.com/CaoMeiYouRen/momei/commit/8bc7b4c))
+* **calendar:** 优化代码格式和审计版本号更新 ([6529d2c](https://github.com/CaoMeiYouRen/momei/commit/6529d2c))
+* **eslint:** tighten api no-explicit-any slices ([c983b7b](https://github.com/CaoMeiYouRen/momei/commit/c983b7b))
+* **eslint:** 三组 no-explicit-any 窄切片 — agreements/submissions API + AI utils ([001eafa](https://github.com/CaoMeiYouRen/momei/commit/001eafa))
+* **eslint:** 第四组窄切片 — 消除 upload/setting 服务中的 explicit any ([3905895](https://github.com/CaoMeiYouRen/momei/commit/3905895))
+* **governance:** ESLint 类型债窄切片 — 3 组规则族清零 + no-non-null-assertion 治理面扩增 ([d3068ab](https://github.com/CaoMeiYouRen/momei/commit/d3068ab))
+* **governance:** 三组结构复用热点切片 — parseTaskResultRecord、requestVolcengineJWTToken、normalizeRoutePath 收敛 ([cc4ffa8](https://github.com/CaoMeiYouRen/momei/commit/cc4ffa8))
+* **governance:** 结构复用治理 — commercial-link-manager 自重复 + 3 组热点切片 ([a9cf62f](https://github.com/CaoMeiYouRen/momei/commit/a9cf62f))
+* **governance:** 结构复用治理 — SettingFieldMetadata + AgreementFormData 收敛 ([249eb90](https://github.com/CaoMeiYouRen/momei/commit/249eb90))
+* **i18n:** duplicates 归属漂移收敛 — voice/actions 键统一至 common ([7bc309d](https://github.com/CaoMeiYouRen/momei/commit/7bc309d))
+* **posts:** 优化归档请求的查询逻辑 ([3af52a1](https://github.com/CaoMeiYouRen/momei/commit/3af52a1))
+* **posts:** 社交帖子平台配置化 — 复用现有平台体系 + 多平台支持 ([e7eb381](https://github.com/CaoMeiYouRen/momei/commit/e7eb381))
+* **reuse:** 提取用户和分发共享类型 ([cd2e44f](https://github.com/CaoMeiYouRen/momei/commit/cd2e44f))
+* **typeorm:** 迁移 select 旧语法为 TypeORM 1.0 兼容对象语法 ([2f655d2](https://github.com/CaoMeiYouRen/momei/commit/2f655d2))
+* **utils:** 重构 JSON 克隆功能 ([537d5f6](https://github.com/CaoMeiYouRen/momei/commit/537d5f6))
+
 # [1.18.0](https://github.com/CaoMeiYouRen/momei/compare/v1.17.0...v1.18.0) (2026-05-30)
 
 
