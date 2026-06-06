@@ -75,12 +75,12 @@ defineEmits<{ 'update:visible': [value: boolean] }>()
 const { t } = useI18n()
 const { showErrorToast } = useRequestFeedback()
 
-const platform = ref(SOCIAL_POST_PLATFORMS[0].key)
+const platform = ref(SOCIAL_POST_PLATFORMS[0]?.key ?? 'twitter')
 const generating = ref(false)
 const result = ref('')
 const copied = ref(false)
 
-const platformOptions = SOCIAL_POST_PLATFORMS.map((p) => ({
+const platformOptions = (SOCIAL_POST_PLATFORMS ?? []).map((p) => ({
     label: t(p.i18nKey),
     value: p.key,
     icon: p.icon,
