@@ -233,6 +233,7 @@ import { useI18n } from 'vue-i18n'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import AgreementEditDialog from './agreement-edit-dialog.vue'
+import type { AgreementFormData } from './agreement-edit-dialog.vue'
 import type { ApiResponse } from '@/types/api'
 import type {
     AgreementAdminItem,
@@ -241,14 +242,6 @@ import type {
     AgreementRestrictionReason,
     AgreementType,
 } from '@/types/agreement'
-
-interface AgreementFormData {
-    language: string
-    version: string
-    versionDescription: string
-    content: string
-    sourceAgreementId: string | null
-}
 
 type AgreementViewMode = 'aggregated' | 'flat'
 

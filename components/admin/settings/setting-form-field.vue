@@ -43,16 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SettingLockReason, SettingSource } from '@/types/setting'
-
-interface SettingFieldMetadata {
-    isLocked?: boolean
-    source?: SettingSource
-    envKey?: string | null
-    defaultUsed?: boolean
-    lockReason?: SettingLockReason | null
-    requiresRestart?: boolean
-}
+import type { SettingFieldMetadata, SettingLockReason, SettingSource } from '@/types/setting'
 
 const props = withDefaults(defineProps<{
     fieldKey?: string

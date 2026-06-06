@@ -269,9 +269,7 @@ type ParsedQuotaPolicy = Omit<AIQuotaPolicy, 'scope'> & {
     scope: string
 }
 
-interface SettingFieldMetadata {
-    isLocked?: boolean
-}
+import type { SettingFieldMetadata } from '@/types/setting'
 
 const quotaPolicies = defineModel<string | null | undefined>({ required: true })
 

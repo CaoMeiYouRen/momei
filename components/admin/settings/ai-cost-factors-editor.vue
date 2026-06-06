@@ -123,9 +123,7 @@ type CostFactorFormState = {
     providerCurrencies: Record<string, string>
 }
 
-interface SettingFieldMetadata {
-    isLocked?: boolean
-}
+import type { SettingFieldMetadata } from '@/types/setting'
 
 const costFactors = defineModel<string | null | undefined>({ required: true })
 

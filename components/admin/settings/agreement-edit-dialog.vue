@@ -105,7 +105,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-interface AgreementFormData {
+export interface AgreementFormData {
     language: string
     version: string
     versionDescription: string

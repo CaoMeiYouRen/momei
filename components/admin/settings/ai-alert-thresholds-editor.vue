@@ -188,9 +188,7 @@ type AlertThresholdFormState = {
     maxAlerts: number | null
 }
 
-interface SettingFieldMetadata {
-    isLocked?: boolean
-}
+import type { SettingFieldMetadata } from '@/types/setting'
 
 const alertThresholds = defineModel<string | null | undefined>({ required: true })
 
