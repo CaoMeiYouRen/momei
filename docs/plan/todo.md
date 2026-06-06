@@ -21,14 +21,19 @@
 
 > 背景：第四十二阶段已交付 AI 内容审计与内容日历两条新功能。本阶段继续以「1 个新功能 + 4 个优化」受控组合推进：AI 内容多格式复用作为轻量新增能力，四条优化主线延续治理节奏（ESLint 窄切片、结构复用、Windows 性能、i18n 验证扩面）。CWV 性能优化因 Windows 本地环境前置条件不足，延后至后续阶段。
 
-- [ ] **主线：AI 内容多格式复用 (P1)**
+- [x] **主线：AI 内容多格式复用 (P1)**
 	- 执行范围：为已发布文章提供一键 AI 生成社交帖子功能。复用现有 AI 摘要/翻译管线（openai/volcengine），纯前端 + API 增量功能。后端新增 `POST /api/admin/posts/:id/social-post` 端点（接受 `platform: 'twitter' | 'linkedin'`），AI 生成对应平台格式的帖子文案，返回文本支持复制（不做自动发布）。
 	- 非目标：不建全功能社交媒体调度器、不与 Hootsuite/Buffer 竞争、不自动发送到社交平台、不做视频脚本/图片生成。
-	- 当前进度：待开始。
+	- 当前进度：已完成（2026-06-05）。
+	- 交付摘要：
+		- 后端: social-post.post.ts (API) + social-post.ts (Service, 复用 AI 管线+配额) + prompts/social-post.ts (Twitter thread + LinkedIn post prompt)
+		- 前端: post-social-dialog.vue (平台选择 + 生成 + 复制) + 编辑页 #audit slot 入口按钮
+		- i18n: 5 locale admin-posts.json 新增 social_post.* 键 (7 keys)
+		- 提交: `e749f3de`
 	- 最小验收：
-		- 文章编辑页/详情页提供「生成社交帖子」入口，至少支持 Twitter Thread + LinkedIn 两种格式。
-		- AI 生成的帖子可复制或手动发布（不自动推送到平台）。
-		- 复用现有 AI 成本计费与配额体系，不新增独立计费路径。
+		- ✅ 文章编辑页提供「生成社交帖子」入口，至少支持 Twitter Thread + LinkedIn 两种格式。
+		- ✅ AI 生成的帖子可复制或手动发布（不自动推送到平台）。
+		- ✅ 复用现有 AI 成本计费与配额体系，不新增独立计费路径。
 
 - [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
 	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。
