@@ -21,14 +21,17 @@
 
 > 背景：第四十三阶段完成 AI 多格式复用与四条治理优化后，本阶段以「1 个新功能 + 1 个评估 + 3 个优化」组合推进：友链 RSS 聚合作为轻量新增能力，隐私自托管分析为评估态不进入实现，三条优化主线延续治理节奏（ESLint、结构复用、CWV 性能）。
 
-- [ ] **主线：友链 RSS 聚合 — Blogroll Feed (P1)**
-	- 执行范围：为友链页面增加「最近更新」RSS 聚合摘要。后端新增 `server/services/friend-link-feed.ts`（读取友链站点的 RSS/Atom Feed，解析标题 + 链接 + 日期），前端友链页新增「最近更新」卡片区域展示最近 N 条聚合摘要。抓取结果缓存于 Redis（TTL 可配，默认 1 小时），避免每次请求都抓取。复用现有 `FriendLink` 实体与友链管理页面。
+- [x] **主线：友链 RSS 聚合 — Blogroll Feed (P1)**
+	- 执行范围：为友链页面增加「最近更新」RSS 聚合摘要。后端新增 `server/services/friend-link-feed.ts`（读取友链站点的 RSS/Atom Feed，解析标题 + 链接 + 日期），前端友链页新增「最近更新」卡片区域展示最近 N 条聚合摘要。抓取结果缓存于 Redis/LRU（TTL 1h）。复用现有 `FriendLink` 实体与友链管理页面。
 	- 非目标：不建 RSS 阅读器、不建内容聚合平台、不做全文索引、不替换现有友链系统。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 友链页面展示至少一个友链站点的最近更新摘要（标题 + 链接 + 日期）。
-		- RSS 抓取带缓存，重复请求不触发重复抓取。
-		- 抓取失败时优雅降级（显示「暂无更新」而非报错）。
+	- 当前进度：已完成（2026-06-06）。
+	- 交付摘要：
+		- FriendLink 实体新增 showRssFeed 字段，管理员控制展示
+		- friend-link-feed.ts: fetch + fast-xml-parser 解析 RSS/Atom, limiterStorage 缓存
+		- /api/friend-links/feed GET 公开端点
+		- pages/friend-links.vue: 最近更新区域（标题+链接+日期+站点名）
+		- 5 locale public.json 新增 feed_title/feed_empty
+		- 提交: `3fa5b924`
 
 - [ ] **主线：隐私优先自托管分析集成 — 评估态 (P1)**
 	- 执行范围：对 Umami 的 Docker 部署方案进行评估，输出 go/no-go 结论。评估维度包括：Docker 资源开销（CPU / RAM / 磁盘）、与现有 PostgreSQL 中间件的兼容性、与现有 GA4/Clarity/百度统计的并存策略、后台设置页 tracking script 注入的接入复杂度。产出评估文档 `docs/design/governance/privacy-analytics-evaluation.md`。
