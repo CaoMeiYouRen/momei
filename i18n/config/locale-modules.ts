@@ -96,7 +96,7 @@ const ADMIN_ROUTE_MODULE_RULES: {
 }[] = [
     {
         pattern: /^\/admin\/posts(?:\/|$)/u,
-        modules: ['admin-posts'],
+        modules: ['admin-posts', 'admin-marketing'],
     },
     {
         pattern: /^\/admin\/calendar(?:\/|$)/u,

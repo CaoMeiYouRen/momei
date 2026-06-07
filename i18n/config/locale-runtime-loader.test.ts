@@ -180,7 +180,7 @@ describe('i18n locale runtime loader', () => {
         )
     })
 
-    it('should load the split admin post locale module on admin post routes', async () => {
+    it('should load split admin post and shared marketing locale modules on admin post routes', async () => {
         const mergeLocaleMessage = vi.fn()
 
         await ensureRouteLocaleMessages({
@@ -195,6 +195,16 @@ describe('i18n locale runtime loader', () => {
                 pages: expect.objectContaining({
                     admin: expect.objectContaining({
                         posts: expect.any(Object),
+                    }),
+                }),
+            }),
+        )
+        expect(mergeLocaleMessage).toHaveBeenCalledWith(
+            'en-US',
+            expect.objectContaining({
+                pages: expect.objectContaining({
+                    admin: expect.objectContaining({
+                        marketing: expect.any(Object),
                     }),
                 }),
             }),

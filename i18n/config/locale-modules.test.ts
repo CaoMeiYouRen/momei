@@ -114,7 +114,7 @@ describe('i18n locale modules', () => {
         ])
     })
 
-    it('should resolve admin post routes with the posts locale module', () => {
+    it('should resolve admin post routes with posts and shared marketing locale modules', () => {
         expect(resolveLocaleMessageModulesForRoute('/admin/posts/123')).toEqual([
             'common',
             'components',
@@ -124,6 +124,7 @@ describe('i18n locale modules', () => {
             'auth',
             'admin',
             'admin-posts',
+            'admin-marketing',
         ])
     })
 
