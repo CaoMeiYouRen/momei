@@ -285,16 +285,21 @@
             @close="closeAuditDialog"
             @re-audit="handleReAudit"
         />
+
+        <PublishPushDialog
+            ref="repushDialog"
+            @confirm="handleRepushConfirm"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
 import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
 import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
+import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
 import { getPostStatusSeverity } from '@/composables/use-post-editor-page.helpers'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
@@ -312,14 +317,13 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 const { formatDateTime, relativeTime, isFuture } = useI18nDate()
-const confirm = useConfirm()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { contentLanguage } = useAdminI18n()
 
 void ensureLocaleMessageModules({
     i18n: nuxtApp.$i18n as object,
     locale: locale.value,
-    modules: ['admin-posts'],
+    modules: ['admin-posts', 'admin-marketing'],
 })
 
 const selectedItems = ref<Post[]>([])
@@ -397,34 +401,45 @@ const openDistribution = (id: string) => {
     }))
 }
 
-const confirmRepush = (post: any) => {
-    confirm.require({
-        header: t('pages.admin.posts.repush_confirm_title'),
-        message: t('pages.admin.posts.repush_confirm_message'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptProps: {
-            label: t('common.confirm'),
-            severity: 'warn',
-        },
-        rejectProps: {
-            label: t('common.cancel'),
-            text: true,
-            severity: 'secondary',
-        },
-        accept: () => {
-            void (async () => {
-                try {
-                    await $fetch(`/api/admin/posts/${post.id}/repush`, {
-                        method: 'POST',
-                    })
-                    showSuccessToast('pages.admin.posts.repush_success')
-                } catch (error) {
-                    console.error('Failed to repush post', error)
-                    showErrorToast(error, { fallbackKey: 'common.save_failed' })
-                }
-            })()
+const repushDialog = ref<InstanceType<typeof PublishPushDialog> | null>(null)
+const repushPost = ref<Post | null>(null)
+
+const confirmRepush = (post: Post) => {
+    repushPost.value = post
+    repushDialog.value?.open?.({
+        pushOption: 'draft',
+        criteria: {
+            categoryIds: post.categoryId ? [post.categoryId] : [],
+            tagIds: post.tags?.map((tag: { id: string }) => tag.id) || [],
         },
     })
+}
+
+const handleRepushConfirm = async (options: {
+    pushOption: 'none' | 'draft' | 'now'
+    publishedAt?: Date | null
+    pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
+}) => {
+    if (!repushPost.value || options.pushOption === 'none') {
+        return
+    }
+
+    try {
+        await $fetch(`/api/admin/posts/${repushPost.value.id}/repush`, {
+            method: 'POST',
+            body: {
+                pushOption: options.pushOption,
+                pushCriteria: options.pushCriteria,
+                publishedAt: options.publishedAt ? options.publishedAt.toISOString() : null,
+            },
+        })
+        showSuccessToast('pages.admin.posts.repush_success')
+    } catch (error) {
+        console.error('Failed to repush post', error)
+        showErrorToast(error, { fallbackKey: 'common.save_failed' })
+    } finally {
+        repushPost.value = null
+    }
 }
 
 const deleteDialog = ref()

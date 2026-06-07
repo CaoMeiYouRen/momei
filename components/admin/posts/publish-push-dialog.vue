@@ -173,10 +173,11 @@ const handleConfirm = () => {
 }
 
 const open = (options?: {
+    pushOption?: 'none' | 'draft' | 'now'
     publishedAt?: string | Date | null
     criteria?: { categoryIds?: string[], tagIds?: string[] }
 }) => {
-    pushOption.value = 'none'
+    pushOption.value = options?.pushOption || 'none'
     publishedAt.value = parsePublishedAt(options?.publishedAt) || new Date()
     targetType.value = 'criteria'
     articleCriteria.value = options?.criteria || {}

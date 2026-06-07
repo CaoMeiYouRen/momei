@@ -233,6 +233,7 @@ export async function createCampaignFromPost(
     senderId: string,
     status: MarketingCampaignStatus = MarketingCampaignStatus.DRAFT,
     criteria?: { categoryIds?: string[], tagIds?: string[] },
+    scheduledAt?: Date | null,
 ) {
     const postRepo = dataSource.getRepository(Post)
     const post = await postRepo.findOne({
@@ -280,6 +281,7 @@ export async function createCampaignFromPost(
     campaign.type = MarketingCampaignType.BLOG_POST
     campaign.senderId = senderId
     campaign.status = status
+    campaign.scheduledAt = status === MarketingCampaignStatus.SCHEDULED ? (scheduledAt || null) : null
     campaign.targetCriteria = {
         ...(criteria || {
             categoryIds: post.categoryId ? [post.categoryId] : [],
