@@ -70,6 +70,16 @@
 		- 至少完成一项可量化优化且 LCP / CLS / TBT 中至少一项有可测量改善。
 		- 优化前后对比数据记录到 `performance.md` 对应章节。
 
+- [ ] **主线：Phase 44 测试回填 — 友链 RSS 聚合 + showRssFeed 链路 (P0)**
+	- 执行范围：基于 `docs/design/governance/phase-44-test-coverage-gap-analysis.md` 的缺口分析，按 Phase A（RSS 聚合核心 2 新文件）、Phase B（管理后台链路 4 补充）、Phase C（公开页渲染 1 补充）三阶段推进测试补全。优先覆盖零覆盖模块（`friend-link-feed.ts`、`feed.get.ts`）及低分支覆盖模块（`friend-link.ts` 48.98%、`use-admin-friend-links-page.ts` 62.29%）。
+	- 非目标：不做低价值铺量测试、不扩写到非 Phase 44 相关模块、不改变测试基线脚本。
+	- 当前进度：待开始。
+	- 最小验收：
+		- `server/services/friend-link-feed.ts` 覆盖率 > 70% stmts。
+		- `server/api/friend-links/feed.get.ts` 覆盖率 > 70% stmts。
+		- `server/services/friend-link.ts` branch 覆盖率 > 55%。
+		- `composables/use-admin-friend-links-page.ts` branch 覆盖率 > 70%。
+
 > **阶段收口时统一处理**: 文档归档治理（regression/current 与 todo-archive 滚动归档）延至本阶段结束时作为收口动作执行，不占用独立待办条目。
 
 ---

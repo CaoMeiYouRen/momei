@@ -31,7 +31,9 @@
     - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
     - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
+    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片，见 `docs/design/governance/phase-44-test-coverage-gap-analysis.md`）。
 - **下一次可切片方向**:
+    - 第四十四阶段已产出友链 RSS 聚合、showRssFeed 全链路及公开页降级的缺口分析，后续优先按 Phase A → B → C 三阶段推进测试补全。
     - 若后续继续上收，优先进入“测试有效性第二轮切片”：补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径，避免高风险链路只剩服务端成功断言。
     - 保持“已有测试基座 + 失败 / 边界优先”的节奏，不回到低价值 coverage 铺量。
 
