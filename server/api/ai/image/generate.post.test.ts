@@ -99,7 +99,7 @@ describe('POST /api/ai/image/generate', () => {
         } as any
 
         const mockBody = {
-            prompt: 'a'.repeat(1001),
+            prompt: 'a'.repeat(2001),
             quality: 'standard',
         }
 
