@@ -35,10 +35,19 @@ export default defineEventHandler(async (event) => {
     })
     const htmlContent = md.render(content)
 
-    // Render using template engine
-    const emailResult = await emailTemplateEngine.generateSimpleMessageTemplate({
+    // Render using marketing campaign template to keep preview consistent with real sends
+    const emailResult = await emailTemplateEngine.generateMarketingEmailTemplate({
         headerIcon: 'pi pi-send',
         message: htmlContent,
+        articleTitle: title,
+        authorLabel: '作者：',
+        authorName: 'Admin',
+        categoryLabel: '分类：',
+        categoryName: 'Marketing',
+        dateLabel: '发布时间：',
+        publishDate: new Date().toLocaleDateString('zh-CN'),
+        buttonText: '阅读全文',
+        actionUrl: '/',
     }, {
         title: title || 'Marketing Campaign Test',
         preheader: 'This is a test email for your marketing campaign.',

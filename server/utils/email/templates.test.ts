@@ -214,4 +214,20 @@ describe('email template engine', () => {
         ).toHaveLength(1)
         expect(rendered.html).toContain('storage-template-marker')
     })
+
+    it('keeps fallback simple message free from verification defaults and undefined links', () => {
+        const engine = new EmailTemplateEngine()
+        const result = (engine as any).generateFallbackTemplate('simple-message', {
+            appName: '墨梅博客',
+            message: '测试营销预览',
+            footerNote: '测试备注',
+            currentYear: 2026,
+        }, {
+            title: '测试邮件',
+        })
+
+        expect(result.html).not.toContain('验证码仅供本次操作使用')
+        expect(result.html).not.toContain('undefined/privacy')
+        expect(result.html).not.toContain('undefined/terms')
+    })
 })

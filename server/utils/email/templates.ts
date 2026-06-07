@@ -191,7 +191,9 @@ export class EmailTemplateEngine {
             ? resolvedSiteName.value.trim()
             : ''
         const appName = localizedSiteTitleValue || siteNameValue || '墨梅博客'
-        const baseUrl = typeof resolvedSiteUrl.value === 'string' ? resolvedSiteUrl.value : ''
+        const baseUrl = typeof resolvedSiteUrl.value === 'string' && resolvedSiteUrl.value.trim().length > 0
+            ? resolvedSiteUrl.value.trim().replace(/\/$/, '')
+            : ''
         const contactEmail = typeof resolvedContactEmail.value === 'string' && resolvedContactEmail.value.trim().length > 0
             ? resolvedContactEmail.value.trim()
             : 'contact@momei.app'
@@ -224,7 +226,7 @@ export class EmailTemplateEngine {
             securityTipTitle: shellMessages.securityTipTitle,
             primaryColor: '#1e293b',
             message: config.message,
-            securityTip: config.securityTip || '• 验证码仅供本次操作使用，请勿泄露给他人\n• 如果您没有进行此操作，请忽略此邮件\n• 请在规定时间内完成验证，过期需重新获取',
+            securityTip: config.securityTip || '',
             ...templateOptions,
         }
     }
@@ -369,6 +371,8 @@ export class EmailTemplateEngine {
         // 确保数据存在
         const safeData = {
             appName: data.appName || '墨梅博客',
+            baseUrl: typeof data.baseUrl === 'string' ? data.baseUrl : '',
+            contactEmail: typeof data.contactEmail === 'string' ? data.contactEmail : 'mailto:contact@momei.app',
             message: data.message || '邮件内容',
             verificationCode: data.verificationCode || '',
             actionUrl: data.actionUrl || '',
