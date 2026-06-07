@@ -431,6 +431,9 @@
                     "run_failed": "内容审计失败",
                     "running": "审计中",
                     "suggestions": "AI 建议",
+                    "ai_pending": "AI 评分生成中",
+                    "ai_pending_desc": "当前先展示本地快速评分，AI 可读性与建议稍后自动更新。",
+                    "suggestions_pending": "AI 建议正在生成中...",
                     "tier_good": "良好",
                     "tier_needs_improvement": "需改进",
                     "factors": {

@@ -4,12 +4,18 @@ Analyze the following blog post and provide a readability assessment and improve
 
 Title: {{title}}
 Content: {{content}}
-Language: {{language}}
+Article language: {{articleLanguage}}
+Required response language: {{responseLanguage}}
 
 Evaluate these dimensions:
 1. **Readability Score** (0-100): Consider overall flow, sentence complexity, paragraph structure, and how easy it is to read.
 2. **Structure**: Does the content use proper headings (H2/H3)? Are paragraphs a reasonable length?
 3. **Improvement Suggestions**: List 3-5 specific, actionable suggestions to improve this article's readability and quality.
+
+Important constraints:
+- Suggestions must be written strictly in {{responseLanguage}}.
+- Do not include any suggestion in other languages.
+- If the article language differs from the response language, still output suggestions in {{responseLanguage}}.
 
 Return ONLY a valid JSON object with these exact keys:
 - "readabilityScore": number (0-100)

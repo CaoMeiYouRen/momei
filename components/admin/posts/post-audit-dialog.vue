@@ -7,6 +7,17 @@
         @update:visible="$emit('close')"
     >
         <template v-if="result">
+            <div v-if="aiPending" class="audit-pending">
+                <Tag
+                    icon="pi pi-spin pi-spinner"
+                    severity="info"
+                    :value="$t('pages.admin.posts.audit.ai_pending')"
+                />
+                <p class="audit-pending-text">
+                    {{ $t('pages.admin.posts.audit.ai_pending_desc') }}
+                </p>
+            </div>
+
             <!-- 总分 -->
             <div class="audit-overall">
                 <div class="audit-score">
@@ -65,6 +76,15 @@
                 </ul>
             </div>
 
+            <div v-else-if="aiPending" class="audit-section">
+                <h3 class="audit-section-title">
+                    {{ $t('pages.admin.posts.audit.suggestions') }}
+                </h3>
+                <p class="audit-detail-msg">
+                    {{ $t('pages.admin.posts.audit.suggestions_pending') }}
+                </p>
+            </div>
+
             <!-- 缓存时间 -->
             <p class="audit-cached-at">
                 {{ $t('pages.admin.posts.audit.cached_at') }}:
@@ -93,9 +113,10 @@
 <script setup lang="ts">
 import type { PostAuditResult } from '@/types/post'
 
-const props = defineProps<{
+defineProps<{
     visible: boolean
     result: PostAuditResult | null
+    aiPending: boolean
     reAuditing: boolean
 }>()
 
@@ -116,6 +137,19 @@ const metaFactors = ['title', 'summary', 'coverImage', 'tags', 'category'] as co
     align-items: center;
     gap: 1rem;
     margin-bottom: 0.5rem;
+}
+
+.audit-pending {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.audit-pending-text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--p-text-muted-color);
 }
 
 .audit-score {

@@ -6,163 +6,38 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import logger from '@/server/utils/logger'
 import { AI_CHUNK_SIZE } from '@/utils/shared/env'
+import { computeAuditMetaCompleteness } from '@/utils/shared/post-audit-quick'
+import type { AppLocaleCode } from '@/i18n/config/locale-registry'
 import {
     AUDIT_CACHE_TTL_MS,
     AUDIT_GOOD_THRESHOLD,
     AUDIT_SCHEMA_VERSION,
-    type PostAuditDetail,
-    type PostAuditMetaCompleteness,
     type PostAuditReadability,
     type PostAuditResult,
 } from '@/types/post'
 
-/** 值在目标范围附近的得分 */
-function rateRange(value: number, idealMin: number, idealMax: number, fullAtPercent: number): number {
-    if (value >= idealMin && value <= idealMax) {
-        return 1
-    }
-    if (value <= 0) {
-        return 0
-    }
-    const distance = value < idealMin ? idealMin - value : value - idealMax
-    const decay = Math.min(distance / idealMin, 1)
-    return Math.max(0, 1 - decay * (1 - fullAtPercent / 100))
-}
-
-const I18N_PREFIX = 'pages.admin.posts.audit.msg'
-
-/** 拼装审计消息的 i18n key 与参数 */
-function metaMessage(
-    factor: string,
-    score: number,
-    detail: string | null | undefined,
-): Pick<PostAuditDetail, 'key' | 'params'> {
-    let scoreTier: number
-    if (score >= 20) {
-        scoreTier = 20
-    } else if (score >= 15) {
-        scoreTier = 15
-    } else if (score >= 10) {
-        scoreTier = 10
-    } else if (score > 0) {
-        scoreTier = 1
-    } else {
-        scoreTier = 0
-    }
-
-    const msgs: Record<string, Record<number, { key: string, params?: Record<string, string | number> }>> = {
-        title: {
-            '20': { key: `${I18N_PREFIX}.title_ideal` },
-            '15': { key: `${I18N_PREFIX}.title_slightly_off` },
-            '10': { key: `${I18N_PREFIX}.title_too_short_or_long` },
-            '1': { key: `${I18N_PREFIX}.title_far_from_ideal` },
-            '0': { key: `${I18N_PREFIX}.title_missing` },
-        },
-        summary: {
-            '20': { key: `${I18N_PREFIX}.summary_detailed` },
-            '15': { key: `${I18N_PREFIX}.summary_present_but_short` },
-            '10': { key: `${I18N_PREFIX}.summary_very_brief` },
-            '1': { key: `${I18N_PREFIX}.summary_too_short` },
-            '0': { key: `${I18N_PREFIX}.summary_missing` },
-        },
-        coverImage: {
-            '20': { key: `${I18N_PREFIX}.cover_image_set` },
-            '0': { key: `${I18N_PREFIX}.cover_image_missing` },
-        },
-        tags: {
-            '20': { key: `${I18N_PREFIX}.tags_assigned`, params: { count: Number(detail) || 0 } },
-            '10': { key: `${I18N_PREFIX}.tags_few`, params: { count: Number(detail) || 0 } },
-            '0': { key: `${I18N_PREFIX}.tags_missing` },
-        },
-        category: {
-            '20': { key: `${I18N_PREFIX}.category_assigned` },
-            '0': { key: `${I18N_PREFIX}.category_missing` },
-        },
-    }
-
-    const factorMsgs = msgs[factor]
-    if (!factorMsgs) {
-        return { key: `${I18N_PREFIX}.unknown`, params: { factor } }
-    }
-
-    const tiers = Object.keys(factorMsgs).map(Number).sort((a, b) => b - a)
-    const matchedTier = tiers.find((t) => scoreTier >= t)
-    if (matchedTier !== undefined && factorMsgs[matchedTier]) {
-        return factorMsgs[matchedTier]
-    }
-
-    return { key: `${I18N_PREFIX}.unknown`, params: { factor } }
+const AUDIT_FALLBACK_SUGGESTIONS: Record<AppLocaleCode, string> = {
+    'zh-CN': 'AI 可读性分析暂不可用，请稍后重试。',
+    'zh-TW': 'AI 可讀性分析暫時不可用，請稍後重試。',
+    'en-US': 'AI readability analysis is temporarily unavailable. Please try again later.',
+    'ko-KR': 'AI 가독성 분석을 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+    'ja-JP': 'AIの可読性分析は一時的に利用できません。しばらくしてから再試行してください。',
 }
 
 export class ContentAuditService extends AIBaseService {
-    /** 服务端计算元数据完整度，零 AI 成本 */
-    static computeMetaCompleteness(post: {
-        title: string
-        summary?: string | null
-        coverImage?: string | null
-        tags?: { id: string }[] | null
-        categoryId?: string | null
-    }): PostAuditMetaCompleteness {
-        const titleLen = post.title.length || 0
-        const titleScore = Math.round(rateRange(titleLen, 5, 60, 80) * 20)
-
-        const summaryLen = post.summary?.length || 0
-        let summaryScore = 0
-        if (summaryLen > 80) {
-            summaryScore = 20
-        } else if (summaryLen > 20) {
-            summaryScore = 15
-        } else if (summaryLen > 0) {
-            summaryScore = 10
-        }
-
-        const coverScore = post.coverImage ? 20 : 0
-
-        const tagCount = post.tags?.length || 0
-        let tagsScore = 0
-        if (tagCount >= 3) {
-            tagsScore = 20
-        } else if (tagCount >= 1) {
-            tagsScore = 10
-        }
-
-        const categoryScore = post.categoryId ? 20 : 0
-
-        const total = titleScore + summaryScore + coverScore + tagsScore + categoryScore
-
-        const detail = (
-            factor: string,
-            score: number,
-            current: string | null,
-        ): PostAuditDetail => ({
-            score,
-            ...metaMessage(factor, score, current),
-        })
-
-        return {
-            score: total,
-            details: {
-                title: detail('title', titleScore, post.title),
-                summary: detail('summary', summaryScore, post.summary || null),
-                coverImage: detail('coverImage', coverScore, post.coverImage || null),
-                tags: detail('tags', tagsScore, String(tagCount)),
-                category: detail('category', categoryScore, post.categoryId || null),
-            },
-        }
-    }
-
     /** AI 评估可读性 */
     static async analyzeReadability(
         title: string,
         content: string,
-        language: string,
+        responseLocale: AppLocaleCode,
+        articleLanguage: string,
         userId?: string,
     ): Promise<PostAuditReadability> {
         await this.assertQuotaAllowance({
             userId,
             category: 'text',
             type: 'content_audit_readability',
-            payload: { title, contentLength: content.length, language },
+            payload: { title, contentLength: content.length, language: responseLocale },
         })
 
         const provider = await getAIProvider('text')
@@ -173,12 +48,16 @@ export class ContentAuditService extends AIBaseService {
         const prompt = formatPrompt(CONTENT_AUDIT_PROMPT, {
             title,
             content: content.slice(0, AI_CHUNK_SIZE),
-            language,
+            responseLanguage: responseLocale,
+            articleLanguage,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: 'You are a content quality auditor. Return JSON only.' },
+                {
+                    role: 'system',
+                    content: `You are a content quality auditor. Return JSON only. Every suggestion must be written in ${responseLocale}.`,
+                },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
@@ -191,10 +70,10 @@ export class ContentAuditService extends AIBaseService {
             type: 'content_audit_readability',
             provider: provider.name,
             model: response.model,
-            payload: { title, contentLength: content.length, language },
+            payload: { title, contentLength: content.length, language: responseLocale },
             response: { content: response.content },
             textLength: content.length,
-            language,
+            language: responseLocale,
         })
 
         let parsed: { readabilityScore: number, hasHeadings: boolean, averageParagraphLength: string, suggestions: string[] }
@@ -210,13 +89,22 @@ export class ContentAuditService extends AIBaseService {
                 readabilityScore: 50,
                 hasHeadings: false,
                 averageParagraphLength: 'medium',
-                suggestions: ['Unable to parse AI analysis. Please try again.'],
+                suggestions: [AUDIT_FALLBACK_SUGGESTIONS[responseLocale]],
             }
         }
 
+        const suggestions = Array.isArray(parsed.suggestions)
+            ? parsed.suggestions
+                .map((item) => String(item).trim())
+                .filter(Boolean)
+                .slice(0, 5)
+            : []
+
         return {
             score: Math.max(0, Math.min(100, parsed.readabilityScore || 50)),
-            suggestions: (parsed.suggestions || []).slice(0, 5),
+            suggestions: suggestions.length > 0
+                ? suggestions
+                : [AUDIT_FALLBACK_SUGGESTIONS[responseLocale]],
         }
     }
 
@@ -224,7 +112,7 @@ export class ContentAuditService extends AIBaseService {
     static async audit(
         postId: string,
         userId: string,
-        options?: { force?: boolean, isAdmin?: boolean },
+        options?: { force?: boolean, isAdmin?: boolean, uiLocale?: AppLocaleCode },
     ): Promise<PostAuditResult> {
         const repo = dataSource.getRepository(Post)
         const post = await repo.findOne({
@@ -250,12 +138,13 @@ export class ContentAuditService extends AIBaseService {
         }
 
         // 计算元数据完整度（无需 AI）
-        const metaCompleteness = this.computeMetaCompleteness(post)
+        const metaCompleteness = computeAuditMetaCompleteness(post)
 
         // AI 可读性分析
         const readability = await this.analyzeReadability(
             post.title,
             post.content,
+            options?.uiLocale || 'zh-CN',
             post.language,
             userId,
         )

@@ -280,6 +280,7 @@
         <PostAuditDialog
             :visible="showAuditDialog"
             :result="selectedAuditResult"
+            :ai-pending="auditingPostId !== null"
             :re-auditing="reAuditingPostId !== null"
             @close="closeAuditDialog"
             @re-audit="handleReAudit"
@@ -300,6 +301,7 @@ import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import type { Post, PostAuditResult } from '@/types/post'
 import { useAdminList } from '@/composables/use-admin-list'
 import { useI18nDate } from '@/composables/use-i18n-date'
+import { computeQuickAuditResult } from '@/utils/shared/post-audit-quick'
 
 definePageMeta({
     middleware: 'author',
@@ -492,18 +494,26 @@ const reAuditingPostId = ref<string | null>(null)
 const auditResults = ref<Map<string, PostAuditResult>>(new Map())
 const showAuditDialog = ref(false)
 const selectedAuditResult = ref<PostAuditResult | null>(null)
+const selectedAuditPostId = ref<string | null>(null)
 
 async function runAudit(postId: string) {
+    const targetPost = items.value.find((item) => item.id === postId)
+    if (!targetPost) {
+        return
+    }
+
+    selectedAuditPostId.value = postId
+    selectedAuditResult.value = computeQuickAuditResult(targetPost)
+    showAuditDialog.value = true
     auditingPostId.value = postId
     try {
         const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${postId}/audit`, {
             method: 'POST',
-            body: { force: false },
+            body: { force: false, locale: locale.value },
         })
         const auditResult = result.data
         auditResults.value = new Map(auditResults.value).set(postId, auditResult)
         selectedAuditResult.value = auditResult
-        showAuditDialog.value = true
     } catch (error) {
         showErrorToast(error, { fallbackKey: 'common.save_failed' })
     } finally {
@@ -514,6 +524,7 @@ async function runAudit(postId: string) {
 function openAuditDialog(postId: string) {
     const cached = auditResults.value.get(postId)
     if (cached) {
+        selectedAuditPostId.value = postId
         selectedAuditResult.value = cached
         showAuditDialog.value = true
     }
@@ -522,19 +533,19 @@ function openAuditDialog(postId: string) {
 function closeAuditDialog() {
     showAuditDialog.value = false
     selectedAuditResult.value = null
+    selectedAuditPostId.value = null
     reAuditingPostId.value = null
 }
 
 async function handleReAudit() {
-    const postId = Array.from(auditResults.value.entries())
-        .find(([, v]) => v === selectedAuditResult.value)?.[0]
+    const postId = selectedAuditPostId.value
     if (!postId) return
 
     reAuditingPostId.value = postId
     try {
         const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${postId}/audit`, {
             method: 'POST',
-            body: { force: true },
+            body: { force: true, locale: locale.value },
         })
         const auditResult = result.data
         auditResults.value = new Map(auditResults.value).set(postId, auditResult)

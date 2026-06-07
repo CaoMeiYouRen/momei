@@ -431,6 +431,9 @@
                     "run_failed": "콘텐츠 감사 실패",
                     "running": "감사 중",
                     "suggestions": "AI 제안",
+                    "ai_pending": "AI 점수 생성 중",
+                    "ai_pending_desc": "먼저 로컬 빠른 점수를 표시합니다. AI 가독성 평가와 제안은 곧 업데이트됩니다.",
+                    "suggestions_pending": "AI 제안을 생성하는 중입니다...",
                     "tier_good": "양호",
                     "tier_needs_improvement": "개선 필요",
                     "factors": {

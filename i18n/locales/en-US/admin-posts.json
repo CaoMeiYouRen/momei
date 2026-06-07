@@ -430,7 +430,10 @@
                     "run_audit": "Run content audit",
                     "run_failed": "Content audit failed",
                     "running": "Auditing...",
+                    "ai_pending": "AI scoring in progress",
+                    "ai_pending_desc": "Showing a quick local score first. AI readability and suggestions will update shortly.",
                     "suggestions": "AI Suggestions",
+                    "suggestions_pending": "AI suggestions are being generated...",
                     "tier_good": "Good",
                     "tier_needs_improvement": "Needs Improvement",
                     "factors": {

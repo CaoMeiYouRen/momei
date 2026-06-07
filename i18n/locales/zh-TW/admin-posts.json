@@ -433,6 +433,9 @@
                     "suggestions": "AI 建議",
                     "tier_good": "良好",
                     "tier_needs_improvement": "需改進",
+                    "ai_pending": "AI 評分產生中",
+                    "ai_pending_desc": "目前先顯示本地快速評分，AI 可讀性與建議稍後會自動更新。",
+                    "suggestions_pending": "AI 建議產生中...",
                     "factors": {
                         "category": "分類",
                         "coverImage": "封面圖",

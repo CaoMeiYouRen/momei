@@ -138,6 +138,7 @@
         <PostAuditDialog
             :visible="showAuditDialog"
             :result="auditResult"
+            :ai-pending="auditing"
             :re-auditing="reAuditing"
             @close="closeAuditDialog"
             @re-audit="handleReAudit"
@@ -161,6 +162,7 @@ import { usePostEditorPage } from '@/composables/use-post-editor-page'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { PostAuditResult } from '@/types/post'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
+import { computeQuickAuditResult } from '@/utils/shared/post-audit-quick'
 
 definePageMeta({
     middleware: 'author',
@@ -245,13 +247,15 @@ const socialPostVisible = ref(false)
 
 async function runAudit() {
     if (!post.value.id) return
+    showAuditDialog.value = true
+    auditResult.value = computeQuickAuditResult(post.value)
     auditing.value = true
     try {
         const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${post.value.id}/audit`, {
             method: 'POST',
+            body: { locale: locale.value },
         })
         auditResult.value = result.data
-        showAuditDialog.value = true
     } catch (e) {
         const { showErrorToast } = useRequestFeedback()
         showErrorToast(e, { fallbackKey: 'pages.admin.posts.audit.run_failed' })
@@ -275,7 +279,7 @@ async function handleReAudit() {
     try {
         const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${post.value.id}/audit`, {
             method: 'POST',
-            body: { force: true },
+            body: { force: true, locale: locale.value },
         })
         auditResult.value = result.data
     } catch (e) {
