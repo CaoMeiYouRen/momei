@@ -175,7 +175,7 @@ const aiVisualPromptDimensionsSchema = z.object({
 })
 
 export const aiGenerateImageSchema = z.object({
-    prompt: z.string().min(1).max(1000),
+    prompt: z.string().min(1).max(2000),
     postId: z.string().min(1).max(64).optional(),
     targetLanguage: z.string().min(1).max(10).optional(),
     translationId: z.string().min(1).max(255).nullable().optional(),
