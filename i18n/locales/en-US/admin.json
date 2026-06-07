@@ -61,6 +61,9 @@
                 "creator_summary": "Creator performance data from the last {days} days.",
                 "creator_post_count": "{count} posts"
             },
+            "calendar": {
+                "title": "Calendar"
+            },
             "categories": {
                 "title": "Categories Management"
             },

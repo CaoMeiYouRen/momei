@@ -61,6 +61,9 @@
                 "creator_summary": "直近 {days} 日のクリエイター実績データ。",
                 "creator_post_count": "{count} 件"
             },
+            "calendar": {
+                "title": "カレンダー"
+            },
             "categories": {
                 "title": "カテゴリ管理"
             },

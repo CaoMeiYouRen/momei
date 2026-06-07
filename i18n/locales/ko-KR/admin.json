@@ -61,6 +61,9 @@
                 "creator_summary": "최근 {days}일의 크리에이터 실적 데이터입니다.",
                 "creator_post_count": "{count}개"
             },
+            "calendar": {
+                "title": "캘린더"
+            },
             "categories": {
                 "title": "카테고리 관리"
             },

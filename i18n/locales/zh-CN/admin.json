@@ -61,6 +61,9 @@
                 "creator_summary": "最近 {days} 天的创作者表现数据。",
                 "creator_post_count": "{count} 篇"
             },
+            "calendar": {
+                "title": "内容日历"
+            },
             "categories": {
                 "title": "分类管理"
             },
