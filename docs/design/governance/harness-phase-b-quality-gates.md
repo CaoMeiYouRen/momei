@@ -2,6 +2,12 @@
 
 **时间表**: 2026-06-05 ~ 约 1 - 2 天
 **来源**: [harness-engineering-adoption.md](./harness-engineering-adoption.md) Phase A 的延续，对应原文档 §4.3「建议的接入架构」中 Phase B 的正式启动。
+**状态更新（2026-06-08）**: `PostToolUse` / `post-tool-use` / `tool.execute.after` 相关 hooks 已在 Claude / Copilot / OpenCode 侧移除。保留 `session-start`、`pre-compact`、`session-end`、`pre-stop-check` 等轻量事件。
+
+## 移除原因（2026-06-08）
+
+1. **工具执行耗时明显增加**：PostToolUse 链路在每次工具调用后触发额外处理，直接拉长 agent 的单次工具执行时长。
+2. **短时进程风暴影响主机稳定性**：短时间内频繁拉起多个 `node.js` 子进程，导致 CPU 与内存占用冲高，影响整机运行稳定性与可用性。
 
 ## 背景与痛点
 

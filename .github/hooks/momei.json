@@ -10,7 +10,6 @@
                 "timeoutSec": 15
             }
         ],
-        "postToolUse": [],
         "preCompact": [
             {
                 "type": "command",

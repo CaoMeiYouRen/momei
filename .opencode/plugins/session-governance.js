@@ -81,32 +81,6 @@ export const SessionGovernancePlugin = async ({ client, worktree }) => {
             }
         },
 
-        'tool.execute.after': async (input, output) => {
-            await handleSessionGovernanceEvent({
-                eventName: 'post-tool-use',
-                payload: {
-                    toolName: input?.tool ?? input?.name,
-                    toolInput: input?.args ?? input,
-                    toolOutput: output,
-                    timestamp: Date.now(),
-                },
-                platform: 'opencode',
-                projectRoot,
-            })
-
-            // Post-verify: run lint/typecheck after code edits (non-blocking)
-            const verifyResult = await handleSessionGovernanceEvent({
-                eventName: 'post-verify',
-                payload: { timestamp: Date.now() },
-                platform: 'opencode',
-                projectRoot,
-            })
-
-            if (verifyResult.additionalContext) {
-                await logInfo('OpenCode post-verify', { result: verifyResult.additionalContext })
-            }
-        },
-
         'experimental.session.compacting': async (input, output) => {
             const result = await handleSessionGovernanceEvent({
                 eventName: 'pre-compact',

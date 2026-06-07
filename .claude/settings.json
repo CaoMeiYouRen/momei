@@ -11,28 +11,6 @@
                 ]
             }
         ],
-        "PostToolUse": [
-            {
-                "matcher": "Write|Edit|MultiEdit",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=post-tool-use",
-                        "timeout": 15
-                    }
-                ]
-            },
-            {
-                "matcher": "Edit|Write",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "node scripts/ai-hooks/session-governance.mjs --platform=claude --event=post-verify",
-                        "timeout": 120
-                    }
-                ]
-            }
-        ],
         "PreCompact": [
             {
                 "hooks": [
