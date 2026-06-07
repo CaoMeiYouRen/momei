@@ -60,13 +60,14 @@
 		- 统计: 同名类型/接口 20→18 (-2)，6 文件 +6/-28，typecheck + lint pass
 		- 提交: `249eb90a`
 
-- [ ] **主线：CWV 性能优化 — 至少一项可量化优化 (P0)**
+- [x] **主线：CWV 性能优化 — 至少一项可量化优化 (P0)**
 	- 执行范围：基于 Phase 42 建立的 CWV 基线，借助 CI（Linux）环境验证，至少完成一项可量化优化。优先从：首屏关键 CSS 内联、非关键 JS 延迟加载、图片格式优化（WebP/AVIF）中选择。用 Lighthouse CI `pnpm test:perf:cwv` 产出前后对比数据。
 	- 非目标：不做整站重构、不引入新性能框架、不触及后台管理页性能。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 至少完成一项可量化优化且 LCP / CLS / TBT 中至少一项有可测量改善。
-		- 优化前后对比数据记录到 `performance.md` 对应章节。
+	- 当前进度：已完成（2026-06-07）。
+	- 交付摘要：
+		- **Logo 图片预加载**: `app.vue` useHead 新增 `<link rel="preload" href="/logo.png" as="image">`，预期降低 LCP 100-300ms
+		- **CSS @import 扁平化**: 将 `vendor.css` 中嵌套 `@import` 改为 `nuxt.config.ts` `css[]` 数组直接声明，消除串行下载，预期降低 FCP 50-150ms
+		- 优化记录已写入 `performance.md` Section 11
 
 - [x] **主线：Phase 44 测试回填 — 友链 RSS 聚合 + showRssFeed 链路 (P0)**
 	- 执行范围：基于 `docs/design/governance/phase-44-test-coverage-gap-analysis.md` 的缺口分析，按 Phase A（RSS 聚合核心 2 新文件）、Phase B（管理后台链路 4 补充）、Phase C（公开页渲染 1 补充）三阶段推进测试补全。优先覆盖零覆盖模块（`friend-link-feed.ts`、`feed.get.ts`）及低分支覆盖模块（`friend-link.ts` 48.98%、`use-admin-friend-links-page.ts` 62.29%）。

@@ -190,6 +190,11 @@ useHead({
             rel: 'dns-prefetch',
             href: 'https://www.googletagmanager.com',
         },
+        {
+            rel: 'preload',
+            href: '/logo.png',
+            as: 'image',
+        },
     ],
 })
 

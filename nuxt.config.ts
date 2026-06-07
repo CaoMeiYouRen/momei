@@ -288,7 +288,9 @@ export default defineNuxtConfig({
         ],
     },
     css: [
-        '@/styles/vendor.css',
+        'normalize.css/normalize.css',
+        '@mdi/font/css/materialdesignicons.css',
+        'primeicons/primeicons.css',
         '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
