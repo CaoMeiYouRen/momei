@@ -132,6 +132,7 @@ describe('utils/schemas/friend-link', () => {
                 status: FriendLinkStatus.ACTIVE,
                 isPinned: false,
                 isFeatured: true,
+                showRssFeed: true,
                 sortOrder: 1,
             }
             const result = friendLinkSchema.safeParse(validData)
@@ -269,6 +270,28 @@ describe('utils/schemas/friend-link', () => {
                 const result = friendLinkSchema.safeParse(data)
                 expect(result.success).toBe(true)
             })
+        })
+
+        it('应该接受 showRssFeed 为 true/false', () => {
+            const data = {
+                name: 'Example',
+                url: 'https://example.com',
+                contactEmail: 'admin@example.com',
+                showRssFeed: true,
+            }
+            expect(friendLinkSchema.safeParse(data).success).toBe(true)
+
+            expect(friendLinkSchema.safeParse({ ...data, showRssFeed: false }).success).toBe(true)
+        })
+
+        it('应该接受缺失 showRssFeed（可选字段）', () => {
+            const data = {
+                name: 'Example',
+                url: 'https://example.com',
+                contactEmail: 'admin@example.com',
+            }
+            const result = friendLinkSchema.safeParse(data)
+            expect(result.success).toBe(true)
         })
     })
 

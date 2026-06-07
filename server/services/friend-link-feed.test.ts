@@ -311,7 +311,7 @@ ${manyItems}
             let callCount = 0
             vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
                 callCount++
-                if (String(url).includes('bad')) {
+                if ((url as unknown as string).includes('bad')) {
                     return Promise.reject(new Error('Bad link'))
                 }
                 return Promise.resolve({

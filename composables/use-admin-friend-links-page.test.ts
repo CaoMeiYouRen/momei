@@ -66,6 +66,7 @@ function installDefaultFetchMock() {
                             healthStatus: FriendLinkHealthStatus.UNREACHABLE,
                             isPinned: false,
                             isFeatured: false,
+                            showRssFeed: true,
                             sortOrder: 1,
                             createdAt: '2025-01-01T00:00:00.000Z',
                         },
@@ -162,13 +163,51 @@ describe('useAdminFriendLinksPage', () => {
         expect(exposed.editingLink.value?.id).toBe('link-1')
         expect(exposed.linkForm.name).toBe('Momei')
         expect(exposed.linkForm.url).toBe('https://momei.app')
+        expect(exposed.linkForm.showRssFeed).toBe(true)
 
         exposed.linkForm.name = 'Changed'
         exposed.openLinkDialog()
 
         expect(exposed.editingLink.value).toBeNull()
         expect(exposed.linkForm.name).toBe('')
+        expect(exposed.linkForm.showRssFeed).toBe(false)
         expect(exposed.linkForm.status).toBe(FriendLinkStatus.ACTIVE)
+    })
+
+    it('fills showRssFeed from the existing link when editing and includes it in the save payload', async () => {
+        const { exposed } = await mountComposable()
+        const link = exposed.links.value[0]!
+
+        // Editing a link with showRssFeed=true
+        exposed.openLinkDialog(link)
+        expect(exposed.linkForm.showRssFeed).toBe(true)
+
+        // Toggle it off
+        exposed.linkForm.showRssFeed = false
+        fetchMock.mockClear()
+        fetchMock.mockImplementation((url: string, options?: { method?: string, body?: string }) => {
+            if (url === `/api/admin/friend-links/${link.id}` && options?.method === 'PUT') {
+                const parsedBody = JSON.parse(options.body || '{}')
+                expect(parsedBody.showRssFeed).toBe(false)
+                return { code: 200 }
+            }
+
+            if (url === '/api/admin/friend-links' && !options?.method) {
+                return { data: { items: [] } }
+            }
+
+            if (url === '/api/admin/friend-link-categories' && !options?.method) {
+                return { data: [] }
+            }
+
+            if (url === '/api/admin/friend-link-applications' && !options?.method) {
+                return { data: { items: [] } }
+            }
+
+            return { code: 200 }
+        })
+
+        await exposed.saveLink()
     })
 
     it('shows a validation toast instead of submitting an invalid friend link', async () => {
@@ -217,6 +256,7 @@ describe('useAdminFriendLinksPage', () => {
             status: FriendLinkStatus.ACTIVE,
             isPinned: true,
             isFeatured: false,
+            showRssFeed: true,
             sortOrder: 2,
         })
 

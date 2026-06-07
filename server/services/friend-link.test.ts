@@ -609,6 +609,19 @@ describe('friendLinkService.createFriendLink', () => {
         expect(result.source).toBe('manual')
         expect(result.isPinned).toBe(false)
         expect(result.isFeatured).toBe(false)
+        expect(result.showRssFeed).toBeUndefined()
+    })
+
+    it('creates link with showRssFeed true', async () => {
+        friendLinkRepo.findOne.mockResolvedValue(null)
+
+        const result = await friendLinkService.createFriendLink({
+            name: 'RSS Blog',
+            url: 'https://rss-blog.example.com',
+            showRssFeed: true,
+        }, null)
+
+        expect(result.showRssFeed).toBe(true)
     })
 
     it('throws 409 when URL already exists', async () => {
@@ -629,6 +642,7 @@ describe('friendLinkService.createFriendLink', () => {
             source: 'application',
             isPinned: true,
             isFeatured: true,
+            showRssFeed: true,
             sortOrder: 5,
         }, 'user-1')
 
@@ -687,6 +701,24 @@ describe('friendLinkService.updateFriendLink', () => {
 
         expect(result.name).toBe('Updated')
         expect(result.status).toBe(FriendLinkStatus.ACTIVE)
+    })
+
+    it('updates showRssFeed on a friend link', async () => {
+        const existing = Object.assign(new FriendLink(), {
+            id: 'fl-1',
+            name: 'Blog',
+            url: 'https://blog.example.com',
+            showRssFeed: false,
+        })
+        friendLinkRepo.findOne
+            .mockResolvedValueOnce(existing)
+            .mockResolvedValue(null)
+
+        const result = await friendLinkService.updateFriendLink('fl-1', {
+            showRssFeed: true,
+        }, 'operator-1')
+
+        expect(result.showRssFeed).toBe(true)
     })
 })
 
