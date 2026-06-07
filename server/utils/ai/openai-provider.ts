@@ -2,6 +2,37 @@ import { normalizeAspectRatio, getSemanticScale, calculateDimension } from './im
 import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIChatStreamChunk, AIProvider, AIImageOptions, AIImageResponse } from '@/types/ai'
 
+interface OpenAICompletionUsage {
+    prompt_tokens?: number
+    completion_tokens?: number
+    total_tokens?: number
+}
+
+interface OpenAIChatCompletionResponse {
+    choices: { message?: { content?: string | null } }[]
+    model: string
+    usage?: OpenAICompletionUsage
+}
+
+interface OpenAIImageGenerationResponse {
+    data: { url: string, revised_prompt?: string }[]
+}
+
+interface OpenAIErrorPayload {
+    statusCode?: number
+    response?: { status?: number }
+    data?: { error?: { message?: string } }
+    message?: string
+}
+
+function normalizeOpenAIError(error: unknown): OpenAIErrorPayload {
+    if (typeof error !== 'object' || error === null) {
+        return {}
+    }
+
+    return error
+}
+
 export class OpenAIProvider implements AIProvider {
     name = 'openai'
     private config: AIConfig
@@ -18,7 +49,7 @@ export class OpenAIProvider implements AIProvider {
         const baseUrl = stripTrailingSlash(endpoint)
 
         try {
-            const response = await $fetch<any>(`${baseUrl}/chat/completions`, {
+            const response = await $fetch<OpenAIChatCompletionResponse>(`${baseUrl}/chat/completions`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.config.apiKey}`,
@@ -35,20 +66,21 @@ export class OpenAIProvider implements AIProvider {
             })
 
             return {
-                content: response.choices[0].message.content,
+                content: response.choices[0]?.message?.content || '',
                 model: response.model,
                 usage: response.usage
                     ? {
-                        promptTokens: response.usage.prompt_tokens,
-                        completionTokens: response.usage.completion_tokens,
-                        totalTokens: response.usage.total_tokens,
+                        promptTokens: response.usage.prompt_tokens || 0,
+                        completionTokens: response.usage.completion_tokens || 0,
+                        totalTokens: response.usage.total_tokens || 0,
                     }
                     : undefined,
                 raw: response,
             }
-        } catch (error: any) {
-            const status = error.statusCode || error.response?.status || 500
-            const message = error.data?.error?.message || error.message || 'OpenAI API request failed'
+        } catch (error: unknown) {
+            const normalizedError = normalizeOpenAIError(error)
+            const status = normalizedError.statusCode || normalizedError.response?.status || 500
+            const message = normalizedError.data?.error?.message || normalizedError.message || 'OpenAI API request failed'
 
             throw createError({
                 statusCode: status,
@@ -243,7 +275,7 @@ export class OpenAIProvider implements AIProvider {
         }
 
         try {
-            const response = await $fetch<any>(`${baseUrl}/images/generations`, {
+            const response = await $fetch<OpenAIImageGenerationResponse>(`${baseUrl}/images/generations`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${this.config.apiKey}`,
@@ -260,14 +292,15 @@ export class OpenAIProvider implements AIProvider {
             })
 
             return {
-                images: response.data.map((item: any) => ({
+                images: response.data.map((item) => ({
                     url: item.url,
                     revisedPrompt: item.revised_prompt,
                 })),
             }
-        } catch (error: any) {
-            const status = error.statusCode || error.response?.status || 500
-            const message = error.data?.error?.message || error.message || 'OpenAI Image Generation failed'
+        } catch (error: unknown) {
+            const normalizedError = normalizeOpenAIError(error)
+            const status = normalizedError.statusCode || normalizedError.response?.status || 500
+            const message = normalizedError.data?.error?.message || normalizedError.message || 'OpenAI Image Generation failed'
 
             throw createError({
                 statusCode: status,

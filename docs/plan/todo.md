@@ -50,10 +50,10 @@
 		- performance.md 恢复纯规范定位（无时间线记录）。
 		- backlog.md 无 Phase 44 残留引用。
 
-- [ ] **主线：ESLint / 类型债 — 继续窄切片 (P1)**
-	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，至少完成两轮：清理 `require-await` 2 处（`feed.get.test.ts`）；继续 `no-explicit-any` 在 `server/services/ai/openai-provider.ts` 子桶收敛 1 桶。
+- [x] **主线：ESLint / 类型债 — 继续窄切片 (P1)**
+	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，至少完成两轮：清理 `require-await` 2 处（`feed.get.test.ts`）；继续 `no-explicit-any` 在 `server/utils/ai/openai-provider.ts` 子桶收敛 1 桶。
 	- 非目标：不做全仓 `any` 清零、不改变治理脚本基线。
-	- 当前进度：待开始。
+	- 当前进度：两轮窄切片已完成并通过审计（`feed.get.test.ts` 移除 `require-await` 2 处豁免；`openai-provider.ts` 清理 5 处 `any`）；本条已关闭。
 	- 最小验收：
 		- eslint-disable 总量从 15 降至 ≤13。
 		- 生产代码新增 any 清零至少 3 处。
