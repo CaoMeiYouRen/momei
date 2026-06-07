@@ -33,13 +33,11 @@
 		- 5 locale public.json 新增 feed_title/feed_empty
 		- 提交: `3fa5b924`
 
-- [ ] **主线：隐私优先自托管分析集成 — 评估态 (P1)**
+- [x] **主线：隐私优先自托管分析集成 — 评估态 (P1)**
 	- 执行范围：对 Umami 的 Docker 部署方案进行评估，输出 go/no-go 结论。评估维度包括：Docker 资源开销（CPU / RAM / 磁盘）、与现有 PostgreSQL 中间件的兼容性、与现有 GA4/Clarity/百度统计的并存策略、后台设置页 tracking script 注入的接入复杂度。产出评估文档 `docs/design/governance/privacy-analytics-evaluation.md`。
 	- 非目标：不在本阶段实施 Umami 部署、不自建分析引擎、不替换现有 GA4/Clarity。
-	- 当前进度：待开始。
-	- 最小验收：
-		- 评估文档输出明确的 go/no-go 结论。
-		- 至少覆盖资源开销、兼容性、接入复杂度三个维度。
+	- 当前进度：已完成（2026-06-07）。
+	- 结论：条件性 Go — 资源开销（<512 MB RAM + 1 GB 磁盘）、接入复杂度（~4h, 9 文件）、兼容性（PostgreSQL 双库并存）均通过最低阈值。建议下个迭代作为 P1 推进实施。
 
 - [x] **主线：ESLint / 类型债治理 — 至少三组窄切片 (P1)**
 	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，本轮至少完成三组独立切片（每组 2-5 个文件），优先选择命中数多、回滚边界清晰的规则族（如 `no-explicit-any`、`no-non-null-assertion`）。继续保持 `warning=0`。

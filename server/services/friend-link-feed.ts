@@ -83,6 +83,10 @@ function extractAtomLink(link: ({ '@_href'?: string } | string)[] | string | und
         }
         return first?.['@_href'] ?? null
     }
+    // fast-xml-parser may return a single object (not array) when only one <link> element
+    if (typeof link === 'object' && '@_href' in link) {
+        return link['@_href'] ?? null
+    }
     return null
 }
 
