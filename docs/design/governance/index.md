@@ -40,6 +40,7 @@
 - **[渠道分发模板与标签适配方案](./content-distribution-template-tag-adaptation)**: `content-distribution-governance.md` 的增量方案，聚焦渠道内容模板与标签适配收口。
 - **[微信公众号格式预览与导出辅助](./wechat-mp-preview-export-assist)**: 第三十九阶段 P0 设计冻结文档，聚焦 `wechat_mp` 预览 profile、复制排版后内容入口与 dispatch 非目标边界。
 - **[文章分享系统设计文档](./post-sharing)**: 页面分享能力的专项设计，聚焦平台拼链、复制分享与统一口径。
+- **[Digital Garden / 知识花园模式探索评估](./digital-garden-evaluation)**: backlog #10 的 go/no-go 评估文档，聚焦双向链接存储模型、非时序导航侵入度与图谱依赖风险。
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 - **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。
 
