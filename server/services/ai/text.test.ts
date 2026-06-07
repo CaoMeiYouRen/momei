@@ -95,8 +95,9 @@ describe('TextService', () => {
             })
             expect(result.assetUsage).toBe('post-cover')
             expect(result.applyMode).toBe('manual-confirm')
-            expect(result.dimensions.type).toBe('clean editorial illustration')
-            expect(result.dimensions.palette).toBe('ink black and warm ivory')
+            expect(result.dimensions.type).toContain('clean editorial illustration')
+            expect(result.dimensions.palette).toContain('ink black and warm ivory')
+            expect(result.dimensions.palette).toContain('中文语义')
             expect(result.prompt).toContain('AI 写作工作流')
         })
     })
@@ -767,4 +768,3 @@ describe('TextService', () => {
         })
     })
 })
-

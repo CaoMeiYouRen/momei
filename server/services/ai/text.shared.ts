@@ -69,7 +69,7 @@ function sanitizePromptDimension(value: unknown): string | undefined {
     return normalized ? normalized.slice(0, 240) : undefined
 }
 
-function isChineseLanguage(language: string | undefined): boolean {
+function isChineseLanguage(language: string | null | undefined): boolean {
     return /^zh(?:-|$)/i.test(language || '')
 }
 
