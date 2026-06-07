@@ -42,6 +42,7 @@ describe('useMomeiConfig', () => {
             baiduAnalytics: '',
             googleAnalytics: '',
             clarityAnalytics: '',
+            umamiAnalytics: '',
             googleAdsenseAccount: '',
             siteLogo: '',
             siteFavicon: '',
@@ -262,4 +263,3 @@ describe('useMomeiConfig', () => {
         expect(siteFavicon.value).toBe('/favicon.ico')
     })
 })
-

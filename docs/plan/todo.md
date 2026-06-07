@@ -24,7 +24,7 @@
 - [ ] **主线：Umami 隐私自托管分析集成 — Phase 1 核心 (P0)**
 	- 执行范围：基于 Phase 44 评估结论和 `docs/design/governance/privacy-analytics-evaluation.md` 实施路线 Phase 1，完成：Schema（`SettingKey.UMAMI_ANALYTICS` + env mapping）、Nuxt 客户端插件（`plugins/umami-analytics.client.ts`）、后台设置页（`analytics-settings.vue` 新增输入框 + 锁定逻辑）、5 locale i18n 翻译、`server/api/settings/public.get.ts` 公开字段。
 	- 非目标：不在本阶段完成 Docker 部署模板（Phase 2）、不替换现有 GA4/Clarity/百度统计。
-	- 当前进度：待开始。
+	- 当前进度：实现已完成并通过 lint/typecheck/定向测试；待补充 V3 浏览器验证证据后关闭。
 	- 最小验收：
 		- 后台设置页可配置 Umami Website ID + Script URL。
 		- 公开页面注入正确 Umami 追踪脚本。

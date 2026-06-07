@@ -297,6 +297,8 @@
                         "captcha_secret_key": "비밀 키",
                         "captcha_site_key": "사이트 키",
                         "clarity_analytics": "Microsoft Clarity ID",
+                        "umami_analytics": "Umami Website ID",
+                        "umami_analytics_script_url": "Umami Script URL",
                         "cloudflare_r2_access_key": "Cloudflare R2 액세스 키",
                         "cloudflare_r2_account_id": "Cloudflare R2 계정 ID",
                         "cloudflare_r2_base_url": "Cloudflare R2 공개 기본 URL",

@@ -116,6 +116,7 @@ export default defineEventHandler(async (event) => {
                         baiduAnalytics: settings[SettingKey.BAIDU_ANALYTICS],
                         googleAnalytics: settings[SettingKey.GOOGLE_ANALYTICS],
                         clarityAnalytics: settings[SettingKey.CLARITY_ANALYTICS],
+                        umamiAnalytics: settings[SettingKey.UMAMI_ANALYTICS],
                         siteLogo: settings[SettingKey.SITE_LOGO],
                         siteFavicon: settings[SettingKey.SITE_FAVICON],
                         siteOperator,

@@ -101,6 +101,7 @@ export enum SettingKey {
     BAIDU_ANALYTICS = 'baidu_analytics',
     GOOGLE_ANALYTICS = 'google_analytics',
     CLARITY_ANALYTICS = 'clarity_analytics',
+    UMAMI_ANALYTICS = 'umami_analytics',
 
     // Social Auth
     GITHUB_CLIENT_ID = 'github_client_id',
@@ -235,6 +236,7 @@ export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = [
     SettingKey.BAIDU_ANALYTICS,
     SettingKey.GOOGLE_ANALYTICS,
     SettingKey.CLARITY_ANALYTICS,
+    SettingKey.UMAMI_ANALYTICS,
     SettingKey.SITE_LOGO,
     SettingKey.SITE_FAVICON,
     SettingKey.SITE_OPERATOR,

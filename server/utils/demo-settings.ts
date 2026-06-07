@@ -75,6 +75,7 @@ const demoSettingValues: Partial<Record<string, string>> = {
     [SettingKey.BAIDU_ANALYTICS]: 'demo-baidu-analytics',
     [SettingKey.GOOGLE_ANALYTICS]: 'G-DEMO1234',
     [SettingKey.CLARITY_ANALYTICS]: 'demo-clarity-project',
+    [SettingKey.UMAMI_ANALYTICS]: '{"websiteId":"demo-umami-website","scriptUrl":"https://analytics.demo.momei.app/script.js"}',
     [SettingKey.GITHUB_CLIENT_ID]: 'demo-github-client-id',
     [SettingKey.GITHUB_CLIENT_SECRET]: 'demo-github-client-secret',
     [SettingKey.GOOGLE_CLIENT_ID]: 'demo-google-client-id',

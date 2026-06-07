@@ -297,6 +297,8 @@
                         "captcha_secret_key": "Secret Key",
                         "captcha_site_key": "Site Key",
                         "clarity_analytics": "Microsoft Clarity ID",
+                        "umami_analytics": "Umami Website ID",
+                        "umami_analytics_script_url": "Umami Script URL",
                         "cloudflare_r2_access_key": "Cloudflare R2 Access Key",
                         "cloudflare_r2_account_id": "Cloudflare R2 Account ID",
                         "cloudflare_r2_base_url": "Cloudflare R2 Public Domain",

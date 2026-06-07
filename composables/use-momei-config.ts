@@ -18,6 +18,7 @@ export interface MomeiPublicConfig {
     baiduAnalytics: string
     googleAnalytics: string
     clarityAnalytics: string
+    umamiAnalytics: string
     googleAdsenseAccount: string
     siteLogo: string
     siteFavicon: string
@@ -67,6 +68,7 @@ const createDefaultSiteConfig = (): MomeiPublicConfig => ({
     baiduAnalytics: '',
     googleAnalytics: '',
     clarityAnalytics: '',
+    umamiAnalytics: '',
     googleAdsenseAccount: '',
     siteLogo: '',
     siteFavicon: '',

@@ -41,6 +41,7 @@ describe('GET /api/settings/public', () => {
             [SettingKey.BAIDU_ANALYTICS]: null,
             [SettingKey.GOOGLE_ANALYTICS]: null,
             [SettingKey.CLARITY_ANALYTICS]: null,
+            [SettingKey.UMAMI_ANALYTICS]: null,
             [SettingKey.SITE_LOGO]: '',
             [SettingKey.SITE_FAVICON]: '',
             [SettingKey.SITE_OPERATOR]: null,
@@ -142,6 +143,7 @@ describe('GET /api/settings/public', () => {
         expect(result.data.travellingsHeaderEnabled).toBe(true)
         expect(result.data.travellingsFooterEnabled).toBe(true)
         expect(result.data.travellingsSidebarEnabled).toBe(true)
+        expect(result.data.umamiAnalytics).toBeNull()
         expect(result.data.effectsMobileEnabled).toBeNull()
         expect(result.data.i18n).toEqual({
             locale: 'zh-CN',
