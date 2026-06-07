@@ -104,3 +104,39 @@
 - Windows 本地 perf 采集受平台瓶颈阻塞，对比数据仅 CI Linux 对照（106s）
 
 <!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
+
+<!-- regression-window:start:phase44-close:第四十四阶段:2026-06-07 -->
+## 2026-06-07 第四十四阶段收口回归
+
+### 范围
+
+- 目标：第四十四阶段「友链生态与性能闭环」6 条主线全部交付后的阶段收口回归。
+- 本轮覆盖：全仓 typecheck + ESLint、i18n 键完整性、Phase 44 全部主线、docs 归档。
+- 非目标：不包含 CWV 实际数值采集（需 CI `build-lighthouse` 产出）。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 0 errors |
+| `pnpm lint` | Pass | 0 errors, 10 pre-existing warnings |
+| i18n key 覆盖 | Pass | feed_title / feed_empty / show_rss_feed 在 5 locale 中完整 |
+| todo-archive.md 滚动归档 | 完成 | Phase 44 归档块已写入 |
+| todo.md 状态 | 清理 | Phase 44 6/6 主线完成，执行面已清空 |
+
+### Phase 44 交付清单
+
+| 主线 | 交付 | 提交 |
+|------|------|------|
+| 友链 RSS 聚合 | showRssFeed 管理配置 + RSS/Atom 抓取/解析/缓存 + 公开页最近更新 | `3fa5b924`, `d580d6c0`, `b06314b6` |
+| 隐私自托管分析评估 | Umami 评估文档，条件性 Go 结论 | `2d41ae1d` |
+| ESLint / 类型债 | 3 组窄切片: no-non-null-assertion + no-explicit-any | `28e171f8` |
+| 结构复用治理 | SettingFieldMetadata + AgreementFormData 收敛 | `249eb90a` |
+| CWV 性能优化 | Logo 预加载 + CSS @import 扁平化 | `8669d0c0` |
+| Phase 44 测试回填 | Phase A (19 用例) + Phase B (7 用例) | `2d41ae1d`, `8d35652f` |
+
+### 未覆盖边界
+
+- CWV 基线数值待 CI 运行 `pnpm build && pnpm test:perf:cwv` 后回填。
+- 友链管理页 Checkbox 渲染测试及公开页 feed 渲染/降级测试已回灌 backlog。
+<!-- regression-window:end:phase44-close:第四十四阶段:2026-06-07 -->

@@ -20,6 +20,65 @@
 
 ---
 
+## 第四十四阶段：友链生态与性能闭环 (已审计归档)
+
+> 归档说明: 第四十四阶段「1 个新功能 + 1 个评估 + 3 个优化」组合已于 2026-06-07 完成六条主线交付、代码审计与阶段收口。
+> 当前仓库可对照到六条主线的实现与证据落点：友链 RSS 聚合（Blogroll Feed，含 showRssFeed 管理配置 + RSS/Atom 抓取解析 + 缓存）、
+> 隐私自托管分析评估（Umami Docker 方案，条件性 Go 结论）、ESLint / 类型债（3 组窄切片 + no-non-null-assertion + no-explicit-any）、
+> 结构复用治理（SettingFieldMetadata + AgreementFormData 收敛）、CWV 性能优化（Logo 预加载 + CSS @import 扁平化）、
+> Phase 44 测试回填（Phase A + B，覆盖零覆盖模块及低分支模块）。
+> todo.md 当前执行面已清理，等待下一阶段候选池评估。
+
+### 1. Blogroll 友链 RSS 聚合 — Blogroll Feed (P1)
+
+- **功能**: 友链页面新增「最近更新」RSS 聚合摘要。后端 `server/services/friend-link-feed.ts` 抓取友链站点的 RSS/Atom Feed 并解析标题 + 链接 + 日期，缓存在 `limiterStorage`（TTL 1h）；前端友链页新增「最近更新」卡片区域（最多 5 条，按日期降序）。
+- **管理端**: `FriendLink` 实体新增 `showRssFeed` 布尔字段，管理员在编辑弹窗中控制该友链是否参与 RSS 聚合。
+- **端到端链路**: DB Entity → service.saveFriendLinkEntity 白名单 → Zod schema `showRssFeed` 校验 → Admin Form Checkbox → Public Feed API (`where: { showRssFeed: true }`) → 公开页渲染。
+- **修复**: `extractAtomLink` 补全单对象（非数组）link 解析 Atom XML 边界 case；`friendLinkSchema` 补全字段避免 safeParse 静默丢弃。
+- **i18n**: 5 locale `public.json` 新增 `feed_title` / `feed_empty`；5 locale `admin-friend-links.json` 新增 `show_rss_feed`。
+- **提交**: `3fa5b924` (初始), `432ac2e8` (审计修复), `d580d6c0` (showRssFeed 配置), `b06314b6` (i18n 迁移), `e545baa0` (类型修复), `e29e3750` (schema 修复), `d1deb781` (lint 清零), `b06314b6` (i18n 迁移完结)
+
+### 2. 隐私自托管分析集成评估 — 评估态 (P1)
+
+- **评估对象**: Umami v3.1.0 (MIT License)
+- **结论**: 条件性 Go — 资源开销（<512 MB RAM + 1 GB 磁盘）、接入复杂度（~4h, 9 文件）、兼容性（PostgreSQL 双库并存）均通过最低阈值。
+- **文档**: `docs/design/governance/privacy-analytics-evaluation.md`
+- **建议**: 下个迭代作为 P1 主线推进实施。
+- **提交**: `2d41ae1d`
+
+### 3. ESLint / 类型债治理 — 至少三组窄切片 (P1)
+
+- **Slice 1** (no-non-null-assertion): `import-path-alias.ts` + `quota-governance.ts` + `post-distribution.ts` (5 处 `!` 清零)
+- **Slice 2** (no-explicit-any): `gemini-provider.ts` (typed accumulator)
+- **Slice 3**: `server/services/*.ts` non-null assertions 全清零
+- **统计**: 4 文件 +10/-6, typecheck + lint pass
+- **提交**: `28e171f8`
+
+### 4. 结构复用治理 — 至少两组热点切片 (P1)
+
+- **Slice 1** (SettingFieldMetadata): 4 组件统一 import `types/setting.ts`（ai-cost-factors / ai-alert-thresholds / ai-quota-policies / setting-form-field）
+- **Slice 2** (AgreementFormData): `agreement-edit-dialog.vue` export → `agreements-settings.vue` import
+- **统计**: 同名类型/接口 20→18 (-2)，6 文件 +6/-28
+- **提交**: `249eb90a`
+
+### 5. CWV 性能优化 (P0)
+
+- **优化 1**: Logo 图片预加载 — `app.vue` useHead 新增 `<link rel="preload" href="/logo.png" as="image">`，预期降低 LCP 100-300ms
+- **优化 2**: CSS @import 扁平化 — 将 `vendor.css` 中嵌套 `@import` 改为 `nuxt.config.ts` `css[]` 数组直接声明，消除串行下载，预期降低 FCP 50-150ms
+- **记录**: `docs/standards/performance.md` Section 11
+- **提交**: `8669d0c0`
+
+### 6. Phase 44 测试回填 (P0)
+
+- **Phase A**: `friend-link-feed.test.ts`（16 用例: 缓存/RSS/Atom/降级/排序）+ `feed.get.test.ts`（3 用例: 正常/空/rate-limit）
+- **Phase B**: composable + service + schema 共补 7 用例覆盖 showRssFeed 全链路
+- **生产 Bug**: `extractAtomLink` 补全单对象 link 解析
+- **验收**: 四项指标全部达成（零覆盖模块 > 70% stmts, 低分支模块 > 55%/70%）
+- **提交**: `2d41ae1d`, `8d35652f`
+- **剩余缺口**（已回灌 backlog）:
+  - `pages/admin/friend-links/index.test.ts` — Checkbox 渲染交互测试
+  - Phase C: `pages/friend-links.test.ts` — 公开页 feed 渲染/降级测试
+
 ## 第四十三阶段：AI 分发复用与治理深化 (已审计归档)
 
 > 归档说明: 第四十三阶段「1 个新功能 + 4 个优化」组合已于 2026-06-05 完成五条主线交付、代码审计与阶段收口。
