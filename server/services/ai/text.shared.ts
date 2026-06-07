@@ -69,6 +69,51 @@ function sanitizePromptDimension(value: unknown): string | undefined {
     return normalized ? normalized.slice(0, 240) : undefined
 }
 
+function isChineseLanguage(language: string | undefined): boolean {
+    return /^zh(?:-|$)/i.test(language || '')
+}
+
+function hasCjk(text: string): boolean {
+    return /[\u3400-\u9fff]/.test(text)
+}
+
+function isLikelyEnglishDimension(text: string): boolean {
+    const letters = (text.match(/[A-Za-z]/g) || []).length
+    return letters >= 8 && !hasCjk(text)
+}
+
+function localizeDimensionForChinese(
+    key: keyof AIVisualPromptDimensions,
+    value: string,
+    context: AIVisualPromptContext,
+): string {
+    if (!isLikelyEnglishDimension(value)) {
+        return value
+    }
+
+    if (key === 'type') {
+        return `${value}; 以中文语境表达，主体明确，突出文章核心概念`
+    }
+
+    if (key === 'palette') {
+        return `${value}; 颜色描述使用中文语义，保持对比清晰`
+    }
+
+    if (key === 'rendering') {
+        return `${value}; 渲染风格用中文表达，强调层次与质感`
+    }
+
+    if (key === 'text') {
+        const title = typeof context.title === 'string' ? context.title.trim() : ''
+        if (title) {
+            return `${value}; 文案使用中文标题「${title}」，控制在 2 行以内`
+        }
+        return `${value}; 文案使用中文短标题，控制在 2 行以内`
+    }
+
+    return `${value}; 氛围表达使用中文词汇，避免空泛形容`
+}
+
 export function parseVisualPromptSuggestion(
     content: string,
     assetUsage: AIVisualAssetUsage,
@@ -86,6 +131,14 @@ export function parseVisualPromptSuggestion(
 
     const resolution = resolveVisualPromptDimensions(assetUsage, context, overrides, 'ai')
     const dimensions = extractVisualPromptDimensions(resolution)
+
+    if (isChineseLanguage(context.language)) {
+        dimensions.type = localizeDimensionForChinese('type', dimensions.type, context)
+        dimensions.palette = localizeDimensionForChinese('palette', dimensions.palette, context)
+        dimensions.rendering = localizeDimensionForChinese('rendering', dimensions.rendering, context)
+        dimensions.text = localizeDimensionForChinese('text', dimensions.text, context)
+        dimensions.mood = localizeDimensionForChinese('mood', dimensions.mood, context)
+    }
 
     return {
         assetUsage,

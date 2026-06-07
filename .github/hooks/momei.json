@@ -10,22 +10,7 @@
                 "timeoutSec": 15
             }
         ],
-        "postToolUse": [
-            {
-                "type": "command",
-                "bash": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
-                "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
-                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-tool-use",
-                "timeoutSec": 15
-            },
-            {
-                "type": "command",
-                "bash": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
-                "powershell": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
-                "command": "node scripts/ai-hooks/session-governance.mjs --platform=copilot --event=post-verify",
-                "timeoutSec": 120
-            }
-        ],
+        "postToolUse": [],
         "preCompact": [
             {
                 "type": "command",

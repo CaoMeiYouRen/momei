@@ -99,7 +99,7 @@ describe('ai-visual-asset helpers', () => {
             language: 'zh-CN',
         }, dimensions)
 
-        expect(prompt).toContain('Create a post-illustration visual asset')
+        expect(prompt).toContain('请为 post-illustration 生成高质量视觉提示词')
         expect(prompt).toContain(dimensions.type)
         expect(prompt).toContain(dimensions.palette)
         expect(prompt).toContain(preset.promptHint)

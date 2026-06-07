@@ -163,6 +163,7 @@ import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/util
 import type { PostAuditResult } from '@/types/post'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { computeQuickAuditResult } from '@/utils/shared/post-audit-quick'
+import type { PostAuditQuickInput } from '@/utils/shared/post-audit-quick'
 
 definePageMeta({
     middleware: 'author',
@@ -245,10 +246,28 @@ const showAuditDialog = ref(false)
 
 const socialPostVisible = ref(false)
 
+function toAuditQuickInput(postInput: {
+    title: string
+    content?: string | null
+    summary?: string | null
+    coverImage?: string | null
+    tags?: string[]
+    categoryId?: string | null
+}): PostAuditQuickInput {
+    return {
+        title: postInput.title,
+        content: postInput.content,
+        summary: postInput.summary,
+        coverImage: postInput.coverImage,
+        tags: (postInput.tags || []).map((id) => ({ id })),
+        categoryId: postInput.categoryId,
+    }
+}
+
 async function runAudit() {
     if (!post.value.id) return
     showAuditDialog.value = true
-    auditResult.value = computeQuickAuditResult(post.value)
+    auditResult.value = computeQuickAuditResult(toAuditQuickInput(post.value))
     auditing.value = true
     try {
         const result = await $fetch<{ code: number, data: PostAuditResult }>(`/api/admin/posts/${post.value.id}/audit`, {

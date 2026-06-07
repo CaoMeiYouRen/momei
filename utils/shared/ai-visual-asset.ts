@@ -338,6 +338,68 @@ function resolveSummary(context: AIVisualPromptContext): string | null {
     return normalizeText(context.content, MAX_SUMMARY_LENGTH)
 }
 
+function shouldUseChinesePrompt(language: string): boolean {
+    return /^zh(?:-|$)/i.test(language)
+}
+
+function normalizeForMatch(value: string): string {
+    return value.replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
+function containsNormalized(base: string, keyword: string): boolean {
+    return normalizeForMatch(base).includes(normalizeForMatch(keyword))
+}
+
+function mergeAIOverrideDimension(options: {
+    key: AIVisualPromptDimensionKey
+    overrideValue: string
+    baseValue: string
+    context: AIVisualPromptContext
+    assetUsage: AIVisualAssetUsage
+}): string {
+    const {
+        key,
+        overrideValue,
+        baseValue,
+        context,
+        assetUsage,
+    } = options
+
+    if (key === 'type') {
+        const title = normalizeText(context.title, MAX_TITLE_LENGTH)
+        if (title && !containsNormalized(overrideValue, title)) {
+            return `${overrideValue}; narrative anchor: ${title}`
+        }
+    }
+
+    if (key === 'mood') {
+        const summary = resolveSummary(context)
+        if (summary) {
+            const cue = containsCjk(summary)
+                ? trimWithEllipsis(summary, 24)
+                : trimWithEllipsis(summary, 72)
+
+            if (!containsNormalized(overrideValue, cue)) {
+                return `${overrideValue}; emotional cue: ${cue}`
+            }
+        }
+    }
+
+    if (key === 'text' && assetUsage === 'post-cover') {
+        const normalized = normalizeForMatch(overrideValue)
+        const hasHeadlineConstraint = /headline|title|safe|margin|max\s*\d+\s*lines|标题|安全区|行/.test(normalized)
+        if (!hasHeadlineConstraint) {
+            return `${overrideValue}; visible headline only, max 2 lines, keep safe margins and strong hierarchy`
+        }
+    }
+
+    if ((key === 'type' || key === 'mood' || key === 'text') && overrideValue.length < 18) {
+        return `${overrideValue}; ${baseValue}`
+    }
+
+    return overrideValue
+}
+
 function resolvePostCoverTextDimensionValue(
     context: AIVisualPromptContext,
     fallback: string,
@@ -434,8 +496,18 @@ export function resolveVisualPromptDimensions(
     keys.forEach((key) => {
         const overrideValue = normalizeText(overrides[key], MAX_OVERRIDE_LENGTH)
         if (overrideValue) {
+            const mergedValue = source === 'ai'
+                ? mergeAIOverrideDimension({
+                    key,
+                    overrideValue,
+                    baseValue: base[key].value,
+                    context,
+                    assetUsage,
+                })
+                : overrideValue
+
             base[key] = {
-                value: overrideValue,
+                value: mergedValue,
                 source,
                 fallback: base[key].fallback,
             }
@@ -465,16 +537,47 @@ export function composeVisualPrompt(
     const summary = resolveSummary(context) || 'N/A'
     const language = normalizeText(context.language, 16) || 'zh-CN'
 
+    if (shouldUseChinesePrompt(language)) {
+        return [
+            `请为 ${assetUsage} 生成高质量视觉提示词（多语言开发者博客场景）。`,
+            `输出语言：${language}。`,
+            '--- 创意简报 ---',
+            `文章标题：${title}。`,
+            `内容摘要：${summary}。`,
+            '--- 五维指令 ---',
+            `类型（Type）：${dimensions.type}。`,
+            `配色（Palette）：${dimensions.palette}。`,
+            `渲染（Rendering）：${dimensions.rendering}。`,
+            `文字（Text）：${dimensions.text}。`,
+            `氛围（Mood）：${dimensions.mood}。`,
+            '--- 构图与可读性硬约束 ---',
+            '1) 画面主体明确，前中后景分层，避免元素堆叠。',
+            '2) 预留安全区，缩略图裁切后主体与标题仍可识别。',
+            '3) 若含文字，仅保留短标题，不生成段落式小字。',
+            '4) 禁止水印、Logo、乱码、错字、畸形手部、低清模糊、过曝噪点。',
+            '--- 交付目标 ---',
+            preset.promptHint,
+        ].join('\n')
+    }
+
     return [
-        `Create a ${assetUsage} visual asset for a multilingual developer blog.`,
-        `Language: ${language}.`,
-        `Primary composition: ${dimensions.type}.`,
-        `Color palette: ${dimensions.palette}.`,
-        `Rendering approach: ${dimensions.rendering}.`,
-        `Text treatment: ${dimensions.text}.`,
-        `Atmosphere: ${dimensions.mood}.`,
+        `Generate a high-quality ${assetUsage} visual prompt for a multilingual developer blog.`,
+        `Output language: ${language}.`,
+        '--- Creative brief ---',
         `Article title: ${title}.`,
         `Content summary: ${summary}.`,
+        '--- Five-dimensional directions ---',
+        `Type: ${dimensions.type}.`,
+        `Palette: ${dimensions.palette}.`,
+        `Rendering: ${dimensions.rendering}.`,
+        `Text: ${dimensions.text}.`,
+        `Mood: ${dimensions.mood}.`,
+        '--- Hard constraints ---',
+        '1) Keep one clear focal subject with readable depth layering.',
+        '2) Preserve thumbnail-safe cropping zones for both subject and title.',
+        '3) If text is present, keep it short and headline-level, never paragraph-like.',
+        '4) Avoid watermark, logo artifacts, gibberish text, malformed hands, blur, or noisy overexposure.',
+        '--- Delivery goal ---',
         preset.promptHint,
     ].join('\n')
 }
