@@ -33,7 +33,7 @@ const strictTsRuleOverrides = [
     createRuleOverride({
         // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
         files: tsFiles,
-        ignores: PRODUCTION_TS_IGNORES,
+        ignores: [...PRODUCTION_TS_IGNORES, 'nuxt.config.ts'],
         rules: {
             '@typescript-eslint/unbound-method': [1], // 首批扩展到全量生产 TS，继续排除测试与脚本范围
             '@typescript-eslint/no-dynamic-delete': [1], // 仅对生产 TS 收紧，测试与脚本维持显式豁免边界
@@ -183,6 +183,7 @@ export default withNuxt(
     ...lineRuleOverrides,
     {
         files: tsFiles,
+        ignores: ['nuxt.config.ts'],
         extends: [
             tseslint.configs.recommendedTypeChecked,
             tseslint.configs.strictTypeChecked,
