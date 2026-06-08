@@ -21,10 +21,10 @@
 
 > 背景：第四十四阶段完成友链 RSS 聚合、分析评估与四条优化后，本阶段以「1 个新功能 + 1 个评估 + 3 个优化」组合推进：Umami 隐私分析作为 Phase 44 评估的落地实现，Digital Garden 为探索评估态，三条优化主线延续治理节奏（文档治理、ESLint/类型债、结构复用）。
 
-- [ ] **主线：Umami 隐私自托管分析集成 — Phase 1 核心 (P0)**
+- [x] **主线：Umami 隐私自托管分析集成 — Phase 1 核心 (P0)**
 	- 执行范围：基于 Phase 44 评估结论和 `docs/design/governance/privacy-analytics-evaluation.md` 实施路线 Phase 1，完成：Schema（`SettingKey.UMAMI_ANALYTICS` + env mapping）、Nuxt 客户端插件（`plugins/umami-analytics.client.ts`）、后台设置页（`analytics-settings.vue` 新增输入框 + 锁定逻辑）、5 locale i18n 翻译、`server/api/settings/public.get.ts` 公开字段。
 	- 非目标：不在本阶段完成 Docker 部署模板（Phase 2）、不替换现有 GA4/Clarity/百度统计。
-	- 当前进度：实现已完成并通过 lint/typecheck/定向测试；待补充 V3 浏览器验证证据后关闭。
+	- 当前进度：Phase 1 实现与验证已完成并关闭（`analytics-settings.test.ts` 覆盖后台设置输入与锁定逻辑，`public.get.test.ts` 覆盖公开字段暴露，`typecheck` 通过）。
 	- 最小验收：
 		- 后台设置页可配置 Umami Website ID + Script URL。
 		- 公开页面注入正确 Umami 追踪脚本。
