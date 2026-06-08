@@ -26,17 +26,25 @@ function runRunE2E(args) {
     })
 }
 
-await runRunE2E([
-    'tests/e2e/auth-session-governance.e2e.test.ts',
-    '--project=chromium',
-    '--project=firefox',
-    '--project=webkit',
-    ...extraArgs,
-])
+export async function main() {
+    await runRunE2E([
+        'tests/e2e/auth-session-governance.e2e.test.ts',
+        '--project=chromium',
+        '--project=firefox',
+        '--project=webkit',
+        ...extraArgs,
+    ])
 
-await runRunE2E([
-    'tests/e2e/mobile-critical.e2e.test.ts',
-    '--project=mobile-chrome-critical',
-    '--project=mobile-safari-critical',
-    ...extraArgs,
-])
+    await runRunE2E([
+        'tests/e2e/mobile-critical.e2e.test.ts',
+        '--project=mobile-chrome-critical',
+        '--project=mobile-safari-critical',
+        ...extraArgs,
+    ])
+}
+
+export { runRunE2E }
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+    await main()
+}

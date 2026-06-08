@@ -7,7 +7,7 @@ import { getCliArgs, isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const outputEntry = path.join(repoRoot, '.output', 'server', 'index.mjs')
-const ignoredEntries = new Set([
+export const defaultIgnoredEntries = new Set([
     '.git',
     '.github',
     '.nuxt',
@@ -105,7 +105,7 @@ async function getInstalledBrowserDirs() {
     }
 }
 
-function quoteWindowsArg(arg) {
+export function quoteWindowsArg(arg) {
     if (/^[a-zA-Z0-9_./:=+-]+$/.test(arg)) {
         return arg
     }
@@ -180,7 +180,7 @@ export function getMissingPlaywrightBrowsers(installedDirs) {
         .map(({ name }) => name)
 }
 
-async function ensurePlaywrightBrowsers() {
+export async function ensurePlaywrightBrowsers() {
     let installedDirs
 
     try {
@@ -227,7 +227,9 @@ async function ensurePlaywrightBrowsers() {
     }
 }
 
-async function getLatestMtimeMs(targetPath) {
+export async function getLatestMtimeMs(targetPath, options = {}) {
+    const ignoredEntries = options.ignoredEntries ?? defaultIgnoredEntries
+
     if (!existsSync(targetPath)) {
         return 0
     }
@@ -246,30 +248,35 @@ async function getLatestMtimeMs(targetPath) {
         }
 
         const entryPath = path.join(targetPath, entry.name)
-        const entryMtimeMs = await getLatestMtimeMs(entryPath)
+        const entryMtimeMs = await getLatestMtimeMs(entryPath, { ignoredEntries })
         latestMtimeMs = Math.max(latestMtimeMs, entryMtimeMs)
     }
 
     return latestMtimeMs
 }
 
-async function shouldRebuildOutput() {
-    if (!existsSync(outputEntry)) {
+export async function shouldRebuildOutput(options = {}) {
+    const currentRepoRoot = options.repoRoot ?? repoRoot
+    const currentOutputEntry = options.outputEntry
+        ?? path.join(currentRepoRoot, '.output', 'server', 'index.mjs')
+    const forceE2EBuild = options.forceE2EBuild ?? process.env.FORCE_E2E_BUILD
+
+    if (!existsSync(currentOutputEntry)) {
         return {
             needsBuild: true,
             reason: 'missing build output',
         }
     }
 
-    if (process.env.FORCE_E2E_BUILD === 'true') {
+    if (forceE2EBuild === 'true') {
         return {
             needsBuild: true,
             reason: 'FORCE_E2E_BUILD=true',
         }
     }
 
-    const outputMtimeMs = (await stat(outputEntry)).mtimeMs
-    const latestInputMtimeMs = await getLatestMtimeMs(repoRoot)
+    const outputMtimeMs = (await stat(currentOutputEntry)).mtimeMs
+    const latestInputMtimeMs = await getLatestMtimeMs(currentRepoRoot)
 
     if (latestInputMtimeMs > outputMtimeMs) {
         return {
@@ -284,7 +291,7 @@ async function shouldRebuildOutput() {
     }
 }
 
-async function ensureBuildOutput() {
+export async function ensureBuildOutput() {
     const { needsBuild, reason } = await shouldRebuildOutput()
 
     if (!needsBuild) {
@@ -296,7 +303,7 @@ async function ensureBuildOutput() {
     await run('pnpm', ['run', 'build'])
 }
 
-async function main() {
+export async function main() {
     const playwrightArgs = getCliArgs()
 
     await ensureBuildOutput()
