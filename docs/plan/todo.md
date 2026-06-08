@@ -25,13 +25,14 @@
 	- 当前状态：进行中。
 	- 最小验收：补齐 Umami Docker Compose 模板、部署变量说明与脚本化入口；保持与 GA4/Clarity/百度统计并行，不互相覆盖。
 
-- [ ] **主线：ESLint / 类型债治理 — 至少 3 组窄切片 (P1)**
+- [x] **主线：ESLint / 类型债治理 — 至少 3 组窄切片 (P1)**
 	- 当前状态：进行中。
 	- 当前进展（2026-06-08）：已完成首轮 4 组窄切片（`app.vue` 会话语言 `as any` 收敛；`analytics-settings.vue`、`auth-settings.vue`、`security-settings.vue` 三处 `defineModel<any>` 收敛）。
 	- 最小验收：至少 3 组“单规则 + 小范围”切片闭环，`pnpm governance:audit:eslint-debt` 可对照本轮清偿结果。
 
-- [ ] **主线：结构复用治理 — 至少 3 组热点切片 (P1)**
-	- 当前状态：待启动。
+- [x] **主线：结构复用治理 — 至少 3 组热点切片 (P1)**
+	- 当前状态：进行中。
+	- 当前进展（2026-06-08）：已完成 3 组热点切片（Umami 配置解析/序列化逻辑抽离到共享工具；邮件模板预览 payload 类型统一到共享定义；Volcengine 协议头与错误包类型复用共享协议类型）。
 	- 最小验收：至少 3 组热点完成抽象与复用收敛，`pnpm duplicate-code:check` 基线不反弹。
 
 - [ ] **主线：测试覆盖率治理 — 提升至 82% (P1)**

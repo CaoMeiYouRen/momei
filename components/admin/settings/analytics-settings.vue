@@ -70,8 +70,11 @@
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
-
-const DEFAULT_UMAMI_SCRIPT_URL = 'https://analytics.umami.is/script.js'
+import {
+    DEFAULT_UMAMI_SCRIPT_URL,
+    parseUmamiAnalyticsOptions,
+    stringifyUmamiAnalyticsOptions,
+} from '@/utils/shared/umami-analytics'
 
 interface AnalyticsSettingsFields {
     umami_analytics: string | null
@@ -87,66 +90,27 @@ defineProps<{
     metadata: SettingMetadataMap<keyof AnalyticsSettingsFields>
 }>()
 
-function parseUmamiAnalytics(rawValue: unknown) {
-    if (typeof rawValue !== 'string') {
-        return {
-            websiteId: '',
-            scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    }
-
-    const trimmedRaw = rawValue.trim()
-    if (!trimmedRaw) {
-        return {
-            websiteId: '',
-            scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    }
-
-    try {
-        const parsed = JSON.parse(trimmedRaw) as Record<string, unknown>
-        const websiteId = typeof parsed.websiteId === 'string'
-            ? parsed.websiteId.trim()
-            : ''
-        const scriptUrl = typeof parsed.scriptUrl === 'string'
-            ? parsed.scriptUrl.trim()
-            : ''
-
-        return {
-            websiteId,
-            scriptUrl: scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    } catch {
-        return {
-            websiteId: trimmedRaw,
-            scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    }
-}
-
 function updateUmamiAnalytics(partial: { websiteId?: string, scriptUrl?: string }) {
-    const current = parseUmamiAnalytics(settings.value.umami_analytics)
+    const current = parseUmamiAnalyticsOptions(settings.value.umami_analytics) || {
+        websiteId: '',
+        scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
+    }
     const websiteId = (partial.websiteId ?? current.websiteId).trim()
     const scriptUrl = (partial.scriptUrl ?? current.scriptUrl).trim()
 
-    if (!websiteId && !scriptUrl) {
-        settings.value.umami_analytics = ''
-        return
-    }
-
-    settings.value.umami_analytics = JSON.stringify({
+    settings.value.umami_analytics = stringifyUmamiAnalyticsOptions({
         websiteId,
-        scriptUrl: scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
+        scriptUrl,
     })
 }
 
 const umamiWebsiteId = computed({
-    get: () => parseUmamiAnalytics(settings.value.umami_analytics).websiteId,
+    get: () => parseUmamiAnalyticsOptions(settings.value.umami_analytics)?.websiteId || '',
     set: (value: string) => updateUmamiAnalytics({ websiteId: value }),
 })
 
 const umamiScriptUrl = computed({
-    get: () => parseUmamiAnalytics(settings.value.umami_analytics).scriptUrl,
+    get: () => parseUmamiAnalyticsOptions(settings.value.umami_analytics)?.scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
     set: (value: string) => updateUmamiAnalytics({ scriptUrl: value }),
 })
 </script>

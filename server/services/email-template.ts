@@ -15,6 +15,12 @@ import {
 } from '@/utils/shared/email-template-config'
 import { type AppLocaleCode } from '@/i18n/config/locale-registry'
 import { resolveRequestedAppLocale } from '@/utils/shared/localized-settings'
+import type {
+    EmailTemplatePreviewFieldSourceMeta,
+    EmailTemplatePreviewMeta,
+    EmailTemplatePreviewPayload,
+    EmailTemplatePreviewVariableMeta,
+} from '@/utils/shared/email-template-preview'
 
 type LocaleMessages = Record<string, any>
 
@@ -29,32 +35,6 @@ export interface EmailTemplateRuntimeContent {
     authorLabel?: string
     categoryLabel?: string
     dateLabel?: string
-}
-
-export interface EmailTemplatePreviewPayload {
-    html: string
-    text: string
-    subject: string
-    meta: EmailTemplatePreviewMeta
-}
-
-export interface EmailTemplatePreviewVariableMeta {
-    value: string
-    source: SettingSource
-    settingKey: SettingKey
-    resolvedLocale: AppLocaleCode | 'legacy' | null
-}
-
-export interface EmailTemplatePreviewFieldSourceMeta {
-    source: 'default' | 'db'
-    resolvedLocale: AppLocaleCode | 'legacy' | null
-    usedFallback: boolean
-}
-
-export interface EmailTemplatePreviewMeta {
-    locale: AppLocaleCode
-    appName: EmailTemplatePreviewVariableMeta
-    fieldSources: Partial<Record<EmailTemplateFieldId, EmailTemplatePreviewFieldSourceMeta>>
 }
 
 interface EmailTemplatePreviewSamples {

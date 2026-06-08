@@ -5,6 +5,8 @@ import {
     VOLCENGINE_MESSAGE_TYPE,
     VOLCENGINE_PROTOCOL_VERSION,
     VOLCENGINE_SERIALIZATION,
+    type VolcengineErrorFrame,
+    type VolcengineFrameHeader,
     buildVolcengineBinaryFrame as buildSharedVolcengineBinaryFrame,
     buildVolcengineConnectionClientRequestFrame as buildSharedVolcengineConnectionClientRequestFrame,
     buildVolcengineEventClientRequestFrame as buildSharedVolcengineEventClientRequestFrame,
@@ -33,15 +35,6 @@ export interface VolcengineAuthHeadersOptions {
     requestId?: string
 }
 
-export interface VolcengineFrameHeader {
-    protocolVersion: number
-    headerSize: number
-    messageType: number
-    messageTypeFlags: number
-    serialization: number
-    compression: number
-}
-
 export interface VolcengineFrameBody {
     header: VolcengineFrameHeader
     headerBytes: number
@@ -50,11 +43,7 @@ export interface VolcengineFrameBody {
     payload: Buffer
 }
 
-export interface VolcengineErrorPacket {
-    code: number
-    message: string
-    messageTypeFlags: number
-}
+export type VolcengineErrorPacket = VolcengineErrorFrame
 
 export type VolcengineParsedPayload = string | Record<string, unknown> | Buffer
 

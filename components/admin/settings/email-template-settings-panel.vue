@@ -180,26 +180,9 @@ import {
     resolveEmailTemplateLocalizedField,
     updateEmailTemplateCustomConfig,
 } from '@/utils/shared/email-template-config'
+import type { EmailTemplatePreviewPayload } from '@/utils/shared/email-template-preview'
 import { createEmptyLocalizedSettingValue, isLocalizedSettingValue } from '@/utils/shared/localized-settings'
 import type { LocalizedSettingValueV1, SettingSource } from '@/types/setting'
-
-interface EmailTemplatePreviewPayload {
-    subject: string
-    html: string
-    text: string
-    meta: {
-        locale: AppLocaleCode
-        appName: {
-            value: string
-            source: SettingSource
-        }
-        fieldSources: Partial<Record<EmailTemplateFieldId, {
-            source: 'default' | 'db'
-            resolvedLocale: AppLocaleCode | 'legacy' | null
-            usedFallback: boolean
-        }>>
-    }
-}
 
 interface EmailTemplatePreviewResponse {
     data: EmailTemplatePreviewPayload

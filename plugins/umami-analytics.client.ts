@@ -1,40 +1,4 @@
-interface UmamiAnalyticsOptions {
-    websiteId: string
-    scriptUrl: string
-}
-
-const DEFAULT_UMAMI_SCRIPT_URL = 'https://analytics.umami.is/script.js'
-
-function resolveUmamiAnalyticsOptions(rawValue: unknown): UmamiAnalyticsOptions | null {
-    if (typeof rawValue !== 'string') {
-        return null
-    }
-
-    const trimmedRawValue = rawValue.trim()
-    if (!trimmedRawValue) {
-        return null
-    }
-
-    try {
-        const parsed = JSON.parse(trimmedRawValue) as Record<string, unknown>
-        const websiteId = typeof parsed.websiteId === 'string' ? parsed.websiteId.trim() : ''
-        const scriptUrl = typeof parsed.scriptUrl === 'string' ? parsed.scriptUrl.trim() : ''
-
-        if (!websiteId) {
-            return null
-        }
-
-        return {
-            websiteId,
-            scriptUrl: scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    } catch {
-        return {
-            websiteId: trimmedRawValue,
-            scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-        }
-    }
-}
+import { parseUmamiAnalyticsOptions } from '@/utils/shared/umami-analytics'
 
 export default defineNuxtPlugin(() => {
     if (!import.meta.client) {
@@ -50,7 +14,7 @@ export default defineNuxtPlugin(() => {
             return
         }
 
-        const options = resolveUmamiAnalyticsOptions(rawValue)
+        const options = parseUmamiAnalyticsOptions(rawValue)
         if (!options) {
             return
         }
