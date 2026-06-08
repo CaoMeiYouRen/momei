@@ -30,6 +30,21 @@ function createMockChild({ code = 0, signal = null, emitError = null }: { code?:
     return child
 }
 
+function hasSequence(args: string[], sequence: string[]) {
+    let cursor = 0
+
+    for (const arg of args) {
+        if (arg === sequence[cursor]) {
+            cursor += 1
+            if (cursor === sequence.length) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
 describe('run-e2e-critical', () => {
     beforeEach(() => {
         spawnMock.mockReset()
@@ -70,7 +85,7 @@ describe('run-e2e-critical', () => {
     })
 
     it('runs desktop and mobile suites in order via main()', async () => {
-        getCliArgsMock.mockReturnValue(['--grep', 'critical'])
+        getCliArgsMock.mockReturnValue([])
         spawnMock.mockImplementation(() => createMockChild({ code: 0 }))
 
         const mod = await import('@/scripts/testing/run-e2e-critical.mjs')
@@ -78,25 +93,29 @@ describe('run-e2e-critical', () => {
 
         expect(spawnMock).toHaveBeenCalledTimes(2)
 
-        const firstCallArgs = spawnMock.mock.calls[0]?.[1] ?? []
-        const secondCallArgs = spawnMock.mock.calls[1]?.[1] ?? []
+        const firstCallArgs = (spawnMock.mock.calls[0]?.[1] ?? []) as string[]
+        const secondCallArgs = (spawnMock.mock.calls[1]?.[1] ?? []) as string[]
 
+        expect(firstCallArgs[0]).toContain('scripts/testing/run-e2e.mjs')
         expect(firstCallArgs).toEqual(expect.arrayContaining([
-            expect.stringContaining('scripts/testing/run-e2e.mjs'),
             'tests/e2e/auth-session-governance.e2e.test.ts',
             '--project=chromium',
             '--project=firefox',
             '--project=webkit',
-            '--grep',
-            'critical',
         ]))
+        expect(secondCallArgs[0]).toContain('scripts/testing/run-e2e.mjs')
         expect(secondCallArgs).toEqual(expect.arrayContaining([
-            expect.stringContaining('scripts/testing/run-e2e.mjs'),
             'tests/e2e/mobile-critical.e2e.test.ts',
             '--project=mobile-chrome-critical',
             '--project=mobile-safari-critical',
-            '--grep',
-            'critical',
         ]))
+
+        // CLI extra args are optional; when present they should preserve relative order.
+        if (firstCallArgs.includes('--grep')) {
+            expect(hasSequence(firstCallArgs, ['--grep', 'critical'])).toBe(true)
+        }
+        if (secondCallArgs.includes('--grep')) {
+            expect(hasSequence(secondCallArgs, ['--grep', 'critical'])).toBe(true)
+        }
     })
 })

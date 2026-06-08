@@ -4,10 +4,14 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
     defaultIgnoredEntries,
+    ensureBuildOutput,
+    ensurePlaywrightBrowsers,
     getLatestMtimeMs,
     getMissingPlaywrightBrowsers,
     getPlaywrightInstallAttempts,
     isRecoverablePlaywrightDepsInstallError,
+    main,
+    quoteWindowsArg,
     shouldRebuildOutput,
 } from '@/scripts/testing/run-e2e.mjs'
 
@@ -69,6 +73,12 @@ describe('run-e2e', () => {
         expect(isRecoverablePlaywrightDepsInstallError('E: The repository is not signed\nNO_PUBKEY 62D54FD4003F6525')).toBe(true)
         expect(isRecoverablePlaywrightDepsInstallError('Failed to install browsers\napt-get update failed')).toBe(true)
         expect(isRecoverablePlaywrightDepsInstallError('download timed out')).toBe(false)
+    })
+
+    it('quotes windows arguments only when necessary', () => {
+        expect(quoteWindowsArg('pnpm')).toBe('pnpm')
+        expect(quoteWindowsArg('playwright install')).toBe('"playwright install"')
+        expect(quoteWindowsArg('path"with"quote')).toBe('"path\\"with\\"quote"')
     })
 
     it('detects missing build output before running playwright', async () => {
@@ -182,5 +192,200 @@ describe('run-e2e', () => {
         } finally {
             await rm(tempRepoRoot, { force: true, recursive: true })
         }
+    })
+
+    it('falls back to plain install when --with-deps failure is recoverable', async () => {
+        const runAndCaptureCalls: string[][] = []
+        const runAndCaptureFn = async (_command: string, args: string[]) => {
+            runAndCaptureCalls.push(args)
+            if (args.includes('--with-deps')) {
+                throw new Error('NO_PUBKEY apt-get failed')
+            }
+            return { stderr: '', stdout: '' }
+        }
+
+        await ensurePlaywrightBrowsers({
+            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps'], ['install']],
+            isRecoverablePlaywrightDepsInstallErrorFn: () => true,
+            runAndCaptureFn,
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })
+
+        expect(runAndCaptureCalls).toEqual([
+            ['exec', 'playwright', 'install', '--with-deps'],
+            ['exec', 'playwright', 'install'],
+        ])
+    })
+
+    it('rethrows browser installation errors when they are not recoverable', async () => {
+        await expect(ensurePlaywrightBrowsers({
+            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps']],
+            isRecoverablePlaywrightDepsInstallErrorFn: () => false,
+            runAndCaptureFn: async () => {
+                throw new Error('download timed out')
+            },
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })).rejects.toThrow('download timed out')
+    })
+
+    it('uses direct install fallback when browser cache inspection fails', async () => {
+        const runCalls: string[][] = []
+
+        await ensurePlaywrightBrowsers({
+            getInstalledBrowserDirsFn: async () => {
+                throw new Error('cache permission denied')
+            },
+            runFn: async (_command: string, args: string[]) => {
+                runCalls.push(args)
+            },
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })
+
+        expect(runCalls).toEqual([
+            ['exec', 'playwright', 'install', '--with-deps'],
+        ])
+    })
+
+    it('skips playwright installation when required browsers already exist', async () => {
+        const runAndCaptureFn = async () => {
+            throw new Error('should not install when cache is complete')
+        }
+
+        await expect(ensurePlaywrightBrowsers({
+            getInstalledBrowserDirsFn: async () => [
+                'chromium-1208',
+                'chromium_headless_shell-1208',
+                'firefox-1509',
+                'webkit-2248',
+            ],
+            runAndCaptureFn,
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })).resolves.toBeUndefined()
+    })
+
+    it('calls build command only when output is stale', async () => {
+        const runCalls: string[][] = []
+
+        await ensureBuildOutput({
+            shouldRebuildOutputFn: async () => ({
+                needsBuild: true,
+                reason: 'source files changed after the last build',
+            }),
+            runFn: async (_command: string, args: string[]) => {
+                runCalls.push(args)
+            },
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })
+
+        expect(runCalls).toEqual([['run', 'build']])
+    })
+
+    it('reuses build output when shouldRebuildOutput reports fresh build', async () => {
+        const runCalls: string[][] = []
+
+        await ensureBuildOutput({
+            shouldRebuildOutputFn: async () => ({
+                needsBuild: false,
+                reason: 'build output is fresh',
+            }),
+            runFn: async (_command: string, args: string[]) => {
+                runCalls.push(args)
+            },
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })
+
+        expect(runCalls).toEqual([])
+    })
+
+    it('throws the last installation error when all recoverable attempts are exhausted', async () => {
+        await expect(ensurePlaywrightBrowsers({
+            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps'], ['install', '--with-deps']],
+            isRecoverablePlaywrightDepsInstallErrorFn: () => true,
+            runAndCaptureFn: async () => {
+                throw new Error('NO_PUBKEY retry still failed')
+            },
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+        })).rejects.toThrow('NO_PUBKEY retry still failed')
+    })
+
+    it('orchestrates build, browser prep, and playwright test execution in main()', async () => {
+        const callOrder: string[] = []
+        let capturedEnv: Record<string, string> | null = null
+        let capturedArgs: string[] | null = null
+
+        await main({
+            getCliArgsFn: () => ['--grep', 'critical'],
+            ensureBuildOutputFn: async () => {
+                callOrder.push('build')
+            },
+            ensurePlaywrightBrowsersFn: async () => {
+                callOrder.push('browsers')
+            },
+            runFn: async (_command: string, args: string[], env: Record<string, string>) => {
+                callOrder.push('run')
+                capturedArgs = args
+                capturedEnv = env
+            },
+            runtimeEnv: {
+                FOO: 'bar',
+            },
+        })
+
+        expect(callOrder).toEqual(['build', 'browsers', 'run'])
+        expect(capturedArgs).toEqual(['exec', 'playwright', 'test', '--grep', 'critical'])
+        expect(capturedEnv).toMatchObject({
+            FOO: 'bar',
+            TEST_MODE: 'true',
+        })
+    })
+
+    it('forces TEST_MODE=true even when runtime env provides a different value', async () => {
+        let capturedEnv: { TEST_MODE?: string } | null = null
+
+        await main({
+            getCliArgsFn: () => [],
+            ensureBuildOutputFn: async () => {},
+            ensurePlaywrightBrowsersFn: async () => {},
+            runFn: async (_command: string, _args: string[], env: Record<string, string | undefined>) => {
+                capturedEnv = { TEST_MODE: env.TEST_MODE }
+            },
+            runtimeEnv: {
+                TEST_MODE: 'false',
+            },
+        })
+
+        const testMode = (capturedEnv as { TEST_MODE?: string } | null)?.TEST_MODE
+        expect(testMode).toBe('true')
     })
 })
