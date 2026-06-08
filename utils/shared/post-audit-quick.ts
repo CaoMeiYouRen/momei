@@ -162,9 +162,19 @@ function computeQuickReadabilityScore(content?: string | null): number {
         : charCount
 
     let score = 55
-    if (headingCount > 0) { score += 15 }
-    if (avgParagraphLength <= 260) { score += 15 } else if (avgParagraphLength <= 420) { score += 8 }
-    if (charCount >= 300) { score += 10 }
+    if (headingCount > 0) {
+        score += 15
+    }
+
+    if (avgParagraphLength <= 260) {
+        score += 15
+    } else if (avgParagraphLength <= 420) {
+        score += 8
+    }
+
+    if (charCount >= 300) {
+        score += 10
+    }
 
     return Math.max(0, Math.min(100, Math.round(score)))
 }
