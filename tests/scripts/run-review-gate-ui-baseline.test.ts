@@ -1,11 +1,18 @@
 import path from 'node:path'
+import { EventEmitter } from 'node:events'
 import { describe, expect, it } from 'vitest'
 import {
     buildArtifactManifest,
     buildEvidence,
     classifyFailureOutput,
     formatTimestamp,
+    getCurrentBranch,
+    main,
+    quoteWindowsArg,
+    resetAuthState,
+    runBaseline,
     sanitizeScope,
+    toArtifactPath,
 } from '@/scripts/testing/run-review-gate-ui-baseline.mjs'
 
 describe('run-review-gate-ui-baseline', () => {
@@ -142,5 +149,104 @@ describe('run-review-gate-ui-baseline', () => {
         expect(evidence).toContain('manifest.json')
         expect(evidence).toContain('category: 具体场景断言')
         expect(evidence).toContain('failing projects: webkit')
+    })
+
+    it('falls back to manual branch when git command fails', () => {
+        const branch = getCurrentBranch({
+            execSyncFn: () => {
+                throw new Error('git unavailable')
+            },
+        })
+
+        expect(branch).toBe('manual')
+    })
+
+    it('normalizes artifact paths to forward slashes', () => {
+        const converted = toArtifactPath(path.join('/workspaces/momei', 'artifacts', 'testing', 'ui-regression', 'x', 'evidence.md'))
+        expect(converted).toContain('artifacts/testing/ui-regression')
+        expect(converted.includes('\\')).toBe(false)
+    })
+
+    it('quotes windows args only when needed', () => {
+        expect(quoteWindowsArg('pnpm')).toBe('pnpm')
+        expect(quoteWindowsArg('playwright test')).toBe('"playwright test"')
+    })
+
+    it('removes stale auth state when file exists', async () => {
+        let removedPath = ''
+        await resetAuthState({
+            authStatePath: '/tmp/auth-state.json',
+            existsSyncFn: () => true,
+            rmFn: async (targetPath: string) => {
+                removedPath = targetPath
+            },
+        })
+
+        expect(removedPath).toBe('/tmp/auth-state.json')
+    })
+
+    it('captures baseline run output and writes playwright log', async () => {
+        const writes: { path: string, content: string }[] = []
+        const child = new EventEmitter() as EventEmitter & { stdout: EventEmitter, stderr: EventEmitter }
+        child.stdout = new EventEmitter()
+        child.stderr = new EventEmitter()
+
+        const resultPromise = runBaseline({
+            runDir: '/tmp/ui-baseline',
+            htmlDir: '/tmp/ui-baseline/playwright-report',
+            outputDir: '/tmp/ui-baseline/test-results',
+            scope: 'auth-session',
+        }, {
+            spawnFn: () => {
+                queueMicrotask(() => {
+                    child.stdout.emit('data', Buffer.from('stdout line'))
+                    child.stderr.emit('data', Buffer.from('stderr line'))
+                    child.emit('exit', 0, null)
+                })
+                return child
+            },
+            writeFileFn: async (targetPath: string, content: string) => {
+                writes.push({ path: targetPath, content })
+            },
+            stdoutWriter: { write: () => true },
+            stderrWriter: { write: () => true },
+            runtimeEnv: {},
+        })
+
+        const result = await resultPromise
+        expect(result.ok).toBe(true)
+        expect(result.logPath).toContain('/tmp/ui-baseline/playwright.log')
+        expect(writes[0]?.path).toContain('/tmp/ui-baseline/playwright.log')
+        expect(writes[0]?.content).toContain('stdout line')
+    })
+
+    it('sets process exitCode on failed baseline result in main()', async () => {
+        const fakeProcess: { exitCode?: number } = {}
+
+        await main({
+            argv: ['node', 'script', '--scope', 'ci-check'],
+            now: new Date('2026-04-01T08:09:10Z'),
+            parseCliOptionsFn: () => ({ keepAuthState: true, scope: 'ci-check' }),
+            getCurrentBranchFn: () => 'master',
+            mkdirFn: async () => {},
+            runBaselineFn: async () => ({
+                ok: false,
+                code: 3,
+                signal: null,
+                logPath: '/tmp/ui-baseline/playwright.log',
+                output: 'Error: timed out',
+            }),
+            buildArtifactManifestFn: () => ({ test: true }),
+            buildEvidenceFn: () => 'evidence content',
+            writeFileFn: async () => {},
+            logger: {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+            },
+            processObj: fakeProcess,
+        })
+
+        expect(fakeProcess.exitCode).toBe(3)
     })
 })

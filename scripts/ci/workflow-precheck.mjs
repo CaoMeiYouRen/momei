@@ -287,7 +287,7 @@ export function checkRequiredEnvironment(requirements, { env = process.env } = {
     }
 }
 
-function runCommand(command, commandArgs, { env = process.env, projectRoot = repoRoot } = {}) {
+export function runCommand(command, commandArgs, { env = process.env, projectRoot = repoRoot } = {}) {
     return new Promise((resolve) => {
         const start = Date.now()
         const isWin = process.platform === 'win32'
@@ -330,8 +330,11 @@ function runCommand(command, commandArgs, { env = process.env, projectRoot = rep
     })
 }
 
-async function executeStep(step, options = {}) {
+export async function executeStep(step, options = {}) {
     const { dryRun = false, env = process.env, projectRoot = repoRoot } = options
+    const checkRequiredFilesFn = options.checkRequiredFilesFn ?? checkRequiredFiles
+    const checkRequiredEnvironmentFn = options.checkRequiredEnvironmentFn ?? checkRequiredEnvironment
+    const runCommandFn = options.runCommandFn ?? runCommand
 
     if (dryRun) {
         return {
@@ -346,7 +349,7 @@ async function executeStep(step, options = {}) {
     const start = Date.now()
 
     if (step.type === 'file-check') {
-        const result = await checkRequiredFiles(step.files, { projectRoot })
+        const result = await checkRequiredFilesFn(step.files, { projectRoot })
 
         return {
             ...step,
@@ -360,7 +363,7 @@ async function executeStep(step, options = {}) {
     }
 
     if (step.type === 'env-check') {
-        const result = checkRequiredEnvironment(step.requirements, { env })
+        const result = checkRequiredEnvironmentFn(step.requirements, { env })
 
         return {
             ...step,
@@ -374,7 +377,7 @@ async function executeStep(step, options = {}) {
     }
 
     if (step.type === 'command') {
-        const result = await runCommand(step.command, step.commandArgs, { env, projectRoot })
+        const result = await runCommandFn(step.command, step.commandArgs, { env, projectRoot })
 
         return {
             ...step,
@@ -561,21 +564,30 @@ export function buildWorkflowPrecheckWindowEntry({
 export async function runWorkflowPrecheck(options = {}) {
     const dryRun = options.dryRun ?? false
     const mode = options.mode ?? 'error'
-    const profile = resolveWorkflowPrecheckProfile(options.profile ?? 'test')
+    const resolveWorkflowPrecheckProfileFn = options.resolveWorkflowPrecheckProfileFn ?? resolveWorkflowPrecheckProfile
+    const executeStepFn = options.executeStepFn ?? executeStep
+    const buildEvidenceFn = options.buildEvidenceFn ?? buildEvidence
+    const buildWorkflowPrecheckWindowEntryFn = options.buildWorkflowPrecheckWindowEntryFn ?? buildWorkflowPrecheckWindowEntry
+    const mkdirFn = options.mkdirFn ?? mkdir
+    const writeFileFn = options.writeFileFn ?? writeFile
+    const upsertRegressionWindowEntryFn = options.upsertRegressionWindowEntryFn ?? upsertRegressionWindowEntry
+    const logger = options.logger ?? console
+    const now = options.now ?? new Date()
+    const profile = resolveWorkflowPrecheckProfileFn(options.profile ?? 'test')
     const env = options.env ?? process.env
     const projectRoot = options.projectRoot ?? repoRoot
 
-    console.info(`\n${SEPARATOR}`)
-    console.info(`  墨梅博客 - workflow pre-check (${profile.key})`)
-    console.info(`  模式: ${mode.toUpperCase()}  |  dry-run: ${dryRun ? '是' : '否'}`)
-    console.info(`  时间: ${new Date().toISOString()}`)
-    console.info(`${SEPARATOR}\n`)
+    logger.info(`\n${SEPARATOR}`)
+    logger.info(`  墨梅博客 - workflow pre-check (${profile.key})`)
+    logger.info(`  模式: ${mode.toUpperCase()}  |  dry-run: ${dryRun ? '是' : '否'}`)
+    logger.info(`  时间: ${now.toISOString()}`)
+    logger.info(`${SEPARATOR}\n`)
 
     const results = []
 
     for (const step of profile.steps) {
-        console.info(`▶ [${step.label}]`)
-        const result = await executeStep(step, {
+        logger.info(`▶ [${step.label}]`)
+        const result = await executeStepFn(step, {
             dryRun,
             env,
             projectRoot,
@@ -583,14 +595,14 @@ export async function runWorkflowPrecheck(options = {}) {
         results.push(result)
 
         const duration = (result.durationMs / 1000).toFixed(1)
-        console.info(`${getResultIcon(result)} ${getResultStatus(result)}  ${step.label}  (${duration}s)`)
+        logger.info(`${getResultIcon(result)} ${getResultStatus(result)}  ${step.label}  (${duration}s)`)
 
         if (!dryRun && !result.ok && step.required && mode === 'error') {
-            console.error(`[workflow-precheck] 致命错误: ${step.label} 失败，阻断后续检查。`)
+            logger.error(`[workflow-precheck] 致命错误: ${step.label} 失败，阻断后续检查。`)
             break
         }
 
-        console.info('')
+        logger.info('')
     }
 
     const summary = summarizeWorkflowPrecheck({
@@ -599,25 +611,25 @@ export async function runWorkflowPrecheck(options = {}) {
         results,
     })
 
-    console.info(SEPARATOR)
-    console.info('  workflow pre-check 汇总')
-    console.info(SEPARATOR)
+    logger.info(SEPARATOR)
+    logger.info('  workflow pre-check 汇总')
+    logger.info(SEPARATOR)
 
     for (const result of results) {
         const duration = (result.durationMs / 1000).toFixed(1)
-        console.info(`  ${getResultIcon(result)} ${result.label.padEnd(32)} ${duration}s`)
+        logger.info(`  ${getResultIcon(result)} ${result.label.padEnd(32)} ${duration}s`)
     }
 
-    console.info(SEPARATOR)
-    console.info(`  结论: ${summary.conclusion}`)
-    console.info(`  blockers: ${summary.blockers.length}  warnings: ${summary.warnings.length}`)
-    console.info(SEPARATOR)
+    logger.info(SEPARATOR)
+    logger.info(`  结论: ${summary.conclusion}`)
+    logger.info(`  blockers: ${summary.blockers.length}  warnings: ${summary.warnings.length}`)
+    logger.info(SEPARATOR)
 
     const artifactDirectory = path.join(projectRoot, 'artifacts', 'review-gate')
-    const dateStr = new Date().toISOString().slice(0, 10)
+    const dateStr = now.toISOString().slice(0, 10)
     const artifactMarkdownPath = path.join(artifactDirectory, `${dateStr}-ci-precheck-${profile.key}.md`)
     const artifactJsonPath = path.join(artifactDirectory, `${dateStr}-ci-precheck-${profile.key}.json`)
-    const evidence = buildEvidence({
+    const evidence = buildEvidenceFn({
         artifactJsonPath,
         artifactMarkdownPath,
         dryRun,
@@ -628,9 +640,9 @@ export async function runWorkflowPrecheck(options = {}) {
         summary,
     })
 
-    await mkdir(artifactDirectory, { recursive: true })
-    await writeFile(artifactMarkdownPath, evidence, 'utf8')
-    await writeFile(artifactJsonPath, JSON.stringify({
+    await mkdirFn(artifactDirectory, { recursive: true })
+    await writeFileFn(artifactMarkdownPath, evidence, 'utf8')
+    await writeFileFn(artifactJsonPath, JSON.stringify({
         dryRun,
         mode,
         profile: profile.key,
@@ -638,7 +650,7 @@ export async function runWorkflowPrecheck(options = {}) {
         summary,
     }, null, 2), 'utf8')
 
-    await upsertRegressionWindowEntry(buildWorkflowPrecheckWindowEntry({
+    await upsertRegressionWindowEntryFn(buildWorkflowPrecheckWindowEntryFn({
         artifactJsonPath,
         artifactMarkdownPath,
         dateStr,

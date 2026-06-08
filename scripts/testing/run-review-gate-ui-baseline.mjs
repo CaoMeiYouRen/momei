@@ -24,10 +24,13 @@ export function sanitizeScope(value) {
         || 'manual'
 }
 
-function getCurrentBranch() {
+export function getCurrentBranch(options = {}) {
+    const execSyncFn = options.execSyncFn ?? execSync
+    const cwd = options.cwd ?? repoRoot
+
     try {
-        return execSync('git rev-parse --abbrev-ref HEAD', {
-            cwd: repoRoot,
+        return execSyncFn('git rev-parse --abbrev-ref HEAD', {
+            cwd,
             encoding: 'utf8',
             stdio: ['ignore', 'pipe', 'ignore'],
         }).trim()
@@ -36,8 +39,9 @@ function getCurrentBranch() {
     }
 }
 
-function toArtifactPath(filePath) {
-    return path.relative(repoRoot, filePath).split(path.sep).join('/')
+export function toArtifactPath(filePath, options = {}) {
+    const baseDir = options.baseDir ?? repoRoot
+    return path.relative(baseDir, filePath).split(path.sep).join('/')
 }
 
 export function formatTimestamp(date) {
@@ -51,7 +55,7 @@ export function formatTimestamp(date) {
     return `${year}${month}${day}-${hours}${minutes}${seconds}`
 }
 
-function quoteWindowsArg(arg) {
+export function quoteWindowsArg(arg) {
     if (/^[a-zA-Z0-9_./:=+-]+$/.test(arg)) {
         return arg
     }
@@ -59,12 +63,16 @@ function quoteWindowsArg(arg) {
     return `"${arg.replaceAll('"', '\\"')}"`
 }
 
-async function resetAuthState() {
-    if (!existsSync(authStatePath)) {
+export async function resetAuthState(options = {}) {
+    const targetAuthStatePath = options.authStatePath ?? authStatePath
+    const existsSyncFn = options.existsSyncFn ?? existsSync
+    const rmFn = options.rmFn ?? rm
+
+    if (!existsSyncFn(targetAuthStatePath)) {
         return
     }
 
-    await rm(authStatePath, { force: true })
+    await rmFn(targetAuthStatePath, { force: true })
 }
 
 function uniq(items) {
@@ -215,16 +223,24 @@ export function buildArtifactManifest({
     }
 }
 
-async function runBaseline({ runDir, htmlDir, outputDir, scope }) {
+export async function runBaseline({ runDir, htmlDir, outputDir, scope }, options = {}) {
+    const spawnFn = options.spawnFn ?? spawn
+    const writeFileFn = options.writeFileFn ?? writeFile
+    const cwd = options.cwd ?? repoRoot
+    const criticalScriptPath = options.criticalScriptPath ?? runCriticalScript
+    const runtimeEnv = options.runtimeEnv ?? process.env
+    const stdoutWriter = options.stdoutWriter ?? process.stdout
+    const stderrWriter = options.stderrWriter ?? process.stderr
+
     return new Promise((resolve, reject) => {
         const commandArgs = [
-            runCriticalScript,
+            criticalScriptPath,
             `--output=${outputDir}`,
         ]
-        const child = spawn(process.execPath, commandArgs, {
-            cwd: repoRoot,
+        const child = spawnFn(process.execPath, commandArgs, {
+            cwd,
             env: {
-                ...process.env,
+                ...runtimeEnv,
                 PLAYWRIGHT_HTML_OUTPUT_DIR: htmlDir,
                 PLAYWRIGHT_HTML_OPEN: 'never',
                 TEST_MODE: 'true',
@@ -236,12 +252,12 @@ async function runBaseline({ runDir, htmlDir, outputDir, scope }) {
         const chunks = []
 
         child.stdout.on('data', (chunk) => {
-            process.stdout.write(chunk)
+            stdoutWriter.write(chunk)
             chunks.push(Buffer.from(chunk))
         })
 
         child.stderr.on('data', (chunk) => {
-            process.stderr.write(chunk)
+            stderrWriter.write(chunk)
             chunks.push(Buffer.from(chunk))
         })
 
@@ -249,7 +265,7 @@ async function runBaseline({ runDir, htmlDir, outputDir, scope }) {
         child.on('exit', async (code, signal) => {
             const logPath = path.join(runDir, 'playwright.log')
             const output = Buffer.concat(chunks).toString('utf8')
-            await writeFile(logPath, output, 'utf8')
+            await writeFileFn(logPath, output, 'utf8')
 
             resolve({
                 ok: code === 0,
@@ -335,8 +351,21 @@ export function buildEvidence({ scope, timestamp, runDir, outputDir, htmlDir, lo
     return `${lines.join('\n')}\n`
 }
 
-async function main() {
-    const { keepAuthState, scope: scopeArg } = parseCliOptions(process.argv, {
+export async function main(options = {}) {
+    const parseCliOptionsFn = options.parseCliOptionsFn ?? parseCliOptions
+    const argv = options.argv ?? process.argv
+    const now = options.now ?? new Date()
+    const getCurrentBranchFn = options.getCurrentBranchFn ?? getCurrentBranch
+    const mkdirFn = options.mkdirFn ?? mkdir
+    const resetAuthStateFn = options.resetAuthStateFn ?? resetAuthState
+    const runBaselineFn = options.runBaselineFn ?? runBaseline
+    const buildArtifactManifestFn = options.buildArtifactManifestFn ?? buildArtifactManifest
+    const buildEvidenceFn = options.buildEvidenceFn ?? buildEvidence
+    const writeFileFn = options.writeFileFn ?? writeFile
+    const logger = options.logger ?? console
+    const processObj = options.processObj ?? process
+
+    const { keepAuthState, scope: scopeArg } = parseCliOptionsFn(argv, {
         defaults: {
             keepAuthState: false,
             scope: null,
@@ -348,23 +377,22 @@ async function main() {
             '--scope': { key: 'scope' },
         },
     })
-    const now = new Date()
     const timestamp = formatTimestamp(now)
-    const scope = sanitizeScope(scopeArg ?? getCurrentBranch())
+    const scope = sanitizeScope(scopeArg ?? getCurrentBranchFn())
     const runDir = path.join(repoRoot, 'artifacts', 'testing', 'ui-regression', `${timestamp}-${scope}`)
     const outputDir = path.join(runDir, 'test-results')
     const htmlDir = path.join(runDir, 'playwright-report')
     const evidencePath = path.join(runDir, 'evidence.md')
     const manifestPath = path.join(runDir, 'manifest.json')
-    const branch = getCurrentBranch()
+    const branch = getCurrentBranchFn()
 
-    await mkdir(runDir, { recursive: true })
+    await mkdirFn(runDir, { recursive: true })
 
     if (!keepAuthState) {
-        await resetAuthState()
+        await resetAuthStateFn()
     }
 
-    const result = await runBaseline({
+    const result = await runBaselineFn({
         runDir,
         htmlDir,
         outputDir,
@@ -388,7 +416,7 @@ async function main() {
         }
         : classifyFailureOutput(result.output)
 
-    const manifest = buildArtifactManifest({
+    const manifest = buildArtifactManifestFn({
         scope,
         timestamp,
         runDir,
@@ -402,9 +430,9 @@ async function main() {
         attribution,
     })
 
-    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
+    await writeFileFn(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
-    const evidence = buildEvidence({
+    const evidence = buildEvidenceFn({
         scope,
         timestamp,
         runDir,
@@ -418,15 +446,15 @@ async function main() {
         attribution,
     })
 
-    await writeFile(evidencePath, evidence, 'utf8')
+    await writeFileFn(evidencePath, evidence, 'utf8')
 
-    console.info(`\n[ui-baseline] Evidence: ${path.relative(repoRoot, evidencePath)}`)
-    console.info(`[ui-baseline] Manifest: ${path.relative(repoRoot, manifestPath)}`)
-    console.info(`[ui-baseline] Log: ${path.relative(repoRoot, result.logPath)}`)
-    console.info(`[ui-baseline] HTML report: ${path.relative(repoRoot, htmlDir)}`)
+    logger.info(`\n[ui-baseline] Evidence: ${path.relative(repoRoot, evidencePath)}`)
+    logger.info(`[ui-baseline] Manifest: ${path.relative(repoRoot, manifestPath)}`)
+    logger.info(`[ui-baseline] Log: ${path.relative(repoRoot, result.logPath)}`)
+    logger.info(`[ui-baseline] HTML report: ${path.relative(repoRoot, htmlDir)}`)
 
     if (!result.ok) {
-        process.exitCode = typeof result.code === 'number' ? result.code : 1
+        processObj.exitCode = typeof result.code === 'number' ? result.code : 1
     }
 }
 

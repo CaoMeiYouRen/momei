@@ -7,7 +7,7 @@ import { getCliArgs, isDirectExecution } from '../shared/cli.mjs'
 
 const repoRoot = process.cwd()
 const outputEntry = path.join(repoRoot, '.output', 'server', 'index.mjs')
-const ignoredEntries = new Set([
+export const defaultIgnoredEntries = new Set([
     '.git',
     '.github',
     '.nuxt',
@@ -105,7 +105,7 @@ async function getInstalledBrowserDirs() {
     }
 }
 
-function quoteWindowsArg(arg) {
+export function quoteWindowsArg(arg) {
     if (/^[a-zA-Z0-9_./:=+-]+$/.test(arg)) {
         return arg
     }
@@ -180,41 +180,48 @@ export function getMissingPlaywrightBrowsers(installedDirs) {
         .map(({ name }) => name)
 }
 
-async function ensurePlaywrightBrowsers() {
+export async function ensurePlaywrightBrowsers(options = {}) {
+    const getInstalledBrowserDirsFn = options.getInstalledBrowserDirsFn ?? getInstalledBrowserDirs
+    const runFn = options.runFn ?? run
+    const runAndCaptureFn = options.runAndCaptureFn ?? runAndCapture
+    const getPlaywrightInstallAttemptsFn = options.getPlaywrightInstallAttemptsFn ?? getPlaywrightInstallAttempts
+    const isRecoverablePlaywrightDepsInstallErrorFn = options.isRecoverablePlaywrightDepsInstallErrorFn ?? isRecoverablePlaywrightDepsInstallError
+    const logger = options.logger ?? console
+
     let installedDirs
 
     try {
-        installedDirs = await getInstalledBrowserDirs()
+        installedDirs = await getInstalledBrowserDirsFn()
     } catch (error) {
-        console.warn('[run-e2e] Failed to inspect Playwright browser cache, installing browsers before test run')
-        await run('pnpm', ['exec', 'playwright', 'install', '--with-deps'])
+        logger.warn('[run-e2e] Failed to inspect Playwright browser cache, installing browsers before test run')
+        await runFn('pnpm', ['exec', 'playwright', 'install', '--with-deps'])
         return
     }
 
     const missingBrowsers = getMissingPlaywrightBrowsers(installedDirs)
     if (missingBrowsers.length === 0) {
-        console.info('[run-e2e] Reusing existing Playwright browsers')
+        logger.info('[run-e2e] Reusing existing Playwright browsers')
         return
     }
 
-    console.info(`[run-e2e] Installing Playwright browsers: missing ${missingBrowsers.join(', ')}`)
+    logger.info(`[run-e2e] Installing Playwright browsers: missing ${missingBrowsers.join(', ')}`)
 
-    const attempts = getPlaywrightInstallAttempts()
+    const attempts = getPlaywrightInstallAttemptsFn()
     let lastError = null
 
     for (const installArgs of attempts) {
         try {
-            console.info(`[run-e2e] playwright ${installArgs.join(' ')}`)
-            await runAndCapture('pnpm', ['exec', 'playwright', ...installArgs])
+            logger.info(`[run-e2e] playwright ${installArgs.join(' ')}`)
+            await runAndCaptureFn('pnpm', ['exec', 'playwright', ...installArgs])
             return
         } catch (error) {
             lastError = error
             const shouldRetryWithoutDeps = installArgs.includes('--with-deps')
                 && attempts.length > 1
-                && isRecoverablePlaywrightDepsInstallError(error.message)
+                && isRecoverablePlaywrightDepsInstallErrorFn(error.message)
 
             if (shouldRetryWithoutDeps) {
-                console.warn('[run-e2e] playwright install --with-deps failed due to system package setup, retrying without --with-deps')
+                logger.warn('[run-e2e] playwright install --with-deps failed due to system package setup, retrying without --with-deps')
                 continue
             }
 
@@ -227,7 +234,9 @@ async function ensurePlaywrightBrowsers() {
     }
 }
 
-async function getLatestMtimeMs(targetPath) {
+export async function getLatestMtimeMs(targetPath, options = {}) {
+    const ignoredEntries = options.ignoredEntries ?? defaultIgnoredEntries
+
     if (!existsSync(targetPath)) {
         return 0
     }
@@ -246,30 +255,35 @@ async function getLatestMtimeMs(targetPath) {
         }
 
         const entryPath = path.join(targetPath, entry.name)
-        const entryMtimeMs = await getLatestMtimeMs(entryPath)
+        const entryMtimeMs = await getLatestMtimeMs(entryPath, { ignoredEntries })
         latestMtimeMs = Math.max(latestMtimeMs, entryMtimeMs)
     }
 
     return latestMtimeMs
 }
 
-async function shouldRebuildOutput() {
-    if (!existsSync(outputEntry)) {
+export async function shouldRebuildOutput(options = {}) {
+    const currentRepoRoot = options.repoRoot ?? repoRoot
+    const currentOutputEntry = options.outputEntry
+        ?? path.join(currentRepoRoot, '.output', 'server', 'index.mjs')
+    const forceE2EBuild = options.forceE2EBuild ?? process.env.FORCE_E2E_BUILD
+
+    if (!existsSync(currentOutputEntry)) {
         return {
             needsBuild: true,
             reason: 'missing build output',
         }
     }
 
-    if (process.env.FORCE_E2E_BUILD === 'true') {
+    if (forceE2EBuild === 'true') {
         return {
             needsBuild: true,
             reason: 'FORCE_E2E_BUILD=true',
         }
     }
 
-    const outputMtimeMs = (await stat(outputEntry)).mtimeMs
-    const latestInputMtimeMs = await getLatestMtimeMs(repoRoot)
+    const outputMtimeMs = (await stat(currentOutputEntry)).mtimeMs
+    const latestInputMtimeMs = await getLatestMtimeMs(currentRepoRoot)
 
     if (latestInputMtimeMs > outputMtimeMs) {
         return {
@@ -284,28 +298,38 @@ async function shouldRebuildOutput() {
     }
 }
 
-async function ensureBuildOutput() {
-    const { needsBuild, reason } = await shouldRebuildOutput()
+export async function ensureBuildOutput(options = {}) {
+    const shouldRebuildOutputFn = options.shouldRebuildOutputFn ?? shouldRebuildOutput
+    const runFn = options.runFn ?? run
+    const logger = options.logger ?? console
+
+    const { needsBuild, reason } = await shouldRebuildOutputFn()
 
     if (!needsBuild) {
-        console.info(`[run-e2e] Reusing existing build: ${reason}`)
+        logger.info(`[run-e2e] Reusing existing build: ${reason}`)
         return
     }
 
-    console.info(`[run-e2e] Building app before Playwright: ${reason}`)
-    await run('pnpm', ['run', 'build'])
+    logger.info(`[run-e2e] Building app before Playwright: ${reason}`)
+    await runFn('pnpm', ['run', 'build'])
 }
 
-async function main() {
-    const playwrightArgs = getCliArgs()
+export async function main(options = {}) {
+    const getCliArgsFn = options.getCliArgsFn ?? getCliArgs
+    const ensureBuildOutputFn = options.ensureBuildOutputFn ?? ensureBuildOutput
+    const ensurePlaywrightBrowsersFn = options.ensurePlaywrightBrowsersFn ?? ensurePlaywrightBrowsers
+    const runFn = options.runFn ?? run
+    const runtimeEnv = options.runtimeEnv ?? process.env
 
-    await ensureBuildOutput()
-    await ensurePlaywrightBrowsers()
-    await run(
+    const playwrightArgs = getCliArgsFn()
+
+    await ensureBuildOutputFn()
+    await ensurePlaywrightBrowsersFn()
+    await runFn(
         'pnpm',
         ['exec', 'playwright', 'test', ...playwrightArgs],
         {
-            ...process.env,
+            ...runtimeEnv,
             TEST_MODE: 'true',
         },
     )
