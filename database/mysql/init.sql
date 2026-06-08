@@ -347,6 +347,7 @@ CREATE TABLE `momei_marketing_campaign` (
 -- 19. AI 任务表
 CREATE TABLE `momei_ai_tasks` (
   `id` varchar(36) NOT NULL,
+  `category` varchar(20) DEFAULT NULL,
   `type` varchar(50) NOT NULL,
   `provider` varchar(50) DEFAULT NULL,
   `model` varchar(100) DEFAULT NULL,
@@ -361,7 +362,13 @@ CREATE TABLE `momei_ai_tasks` (
   `script` text DEFAULT NULL,
   `progress` int NOT NULL DEFAULT 0,
   `estimated_cost` decimal(10,4) NOT NULL DEFAULT 0,
+  `estimated_quota_units` decimal(10,2) NOT NULL DEFAULT 0,
   `actual_cost` decimal(10,4) NOT NULL DEFAULT 0,
+  `quota_units` decimal(10,2) NOT NULL DEFAULT 0,
+  `charge_status` varchar(20) NOT NULL DEFAULT 'none',
+  `failure_stage` varchar(30) DEFAULT NULL,
+  `usage_snapshot` text DEFAULT NULL,
+  `duration_ms` int NOT NULL DEFAULT 0,
   `audio_duration` int NOT NULL DEFAULT 0,
   `audio_size` int NOT NULL DEFAULT 0,
   `text_length` int NOT NULL DEFAULT 0,

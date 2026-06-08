@@ -43,6 +43,31 @@
 8.  **功能增强**: 灵感片段 (`momei_snippet`)、主题配置 (`momei_theme_config`)。
 9.  **性能优化**: 为常用查询字段（如 `author_id`, `category_id`, `slug` 等）预设了索引。
 
+### 关键字段同步提醒
+
+- `momei_ai_tasks` 已包含额度与计费治理字段：`category`、`estimated_quota_units`、`quota_units`、`charge_status`、`failure_stage`、`usage_snapshot`、`duration_ms`。
+- `momei_web_push_subscriptions` 在 MySQL 通过 `endpoint_sha256` 生成列维护 `(user_id, endpoint)` 等价唯一约束，避免长 URL 前缀索引漂移。
+
+### 执行方式示例
+
+1. SQLite:
+
+```bash
+sqlite3 database/momei.sqlite < database/sqlite/init.sql
+```
+
+2. MySQL:
+
+```bash
+mysql -u <user> -p <database_name> < database/mysql/init.sql
+```
+
+3. PostgreSQL:
+
+```bash
+psql "<DATABASE_URL>" -f database/postgres/init.sql
+```
+
 ## 详细配置指南
 
 关于如何在不同环境下配置数据库连接，请参考文档站：

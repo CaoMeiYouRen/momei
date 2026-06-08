@@ -43,8 +43,9 @@
 	- 当前状态：待启动。
 	- 最小验收：完成一次固定回归入口执行并更新 `docs/reports/regression/current.md`，同时输出下一阶段重点候选结论。
 
-- [ ] **主线：数据库初始化脚本与文档同步 (P1)**
-	- 当前状态：待启动。
+- [x] **主线：数据库初始化脚本与文档同步 (P1)**
+	- 当前状态：进行中。
+	- 当前进展（2026-06-08）：已补齐三套 `database/**/init.sql` 的 AI 任务额度/计费字段（`category`、`estimated_quota_units`、`quota_units`、`charge_status`、`failure_stage`、`usage_snapshot`、`duration_ms`），并同步 `database/README.md`、`docs/design/database.md` 与部署指南（含 en-US）初始化说明。
 	- 最小验收：完成 `database/**/init.sql` 与实体/设计文档一致性核对，更新 `database/README.md` 与部署文档的对应说明。
 
 ---

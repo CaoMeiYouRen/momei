@@ -44,6 +44,33 @@
 - **`DATABASE_SYNCHRONIZE=false`**: 生产环境建议固定为 `false`。
 - **`REDIS_URL`**: 启用缓存、部分限流与分布式能力时推荐配置。
 
+#### 2.1.1 生产初始化（init.sql）
+
+当 `DATABASE_SYNCHRONIZE=false` 时，首次部署需要手动执行 `database/**/init.sql` 完成建表。当前三套脚本分别对应：
+
+- SQLite: `database/sqlite/init.sql`
+- MySQL / MariaDB: `database/mysql/init.sql`
+- PostgreSQL: `database/postgres/init.sql`
+
+建议在执行前确认：
+
+1. 数据库实例为空库或已完成备份。
+2. `DATABASE_URL` 与目标引擎一致。
+3. 初始化脚本与实体事实源（`server/entities`）来自同一分支版本。
+
+执行方式示例：
+
+```bash
+# SQLite
+sqlite3 database/momei.sqlite < database/sqlite/init.sql
+
+# MySQL
+mysql -u <user> -p <database_name> < database/mysql/init.sql
+
+# PostgreSQL
+psql "<DATABASE_URL>" -f database/postgres/init.sql
+```
+
 ### 2.2 AI 与多模态能力
 
 - **`AI_PROVIDER`** / **`AI_API_KEY`** / **`AI_MODEL`**: 文本 AI 主引擎。

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-06-03
+last_sync: 2026-06-08
 translation_tier: must-sync
 ---
 
@@ -53,6 +53,33 @@ These settings are not strictly required to boot the app, but they largely deter
 
 - **`DATABASE_SYNCHRONIZE=false`**: Recommended in production.
 - **`REDIS_URL`**: Recommended when you need cache, parts of rate limiting, or distributed behavior.
+
+#### 2.1.1 Production Initialization (init.sql)
+
+When `DATABASE_SYNCHRONIZE=false`, you should run `database/**/init.sql` manually during first-time deployment. The current scripts map to:
+
+- SQLite: `database/sqlite/init.sql`
+- MySQL / MariaDB: `database/mysql/init.sql`
+- PostgreSQL: `database/postgres/init.sql`
+
+Before execution, verify:
+
+1. The target database is empty (or backed up).
+2. `DATABASE_URL` matches the selected engine.
+3. The init.sql files and `server/entities` are from the same branch revision.
+
+Example commands:
+
+```bash
+# SQLite
+sqlite3 database/momei.sqlite < database/sqlite/init.sql
+
+# MySQL
+mysql -u <user> -p <database_name> < database/mysql/init.sql
+
+# PostgreSQL
+psql "<DATABASE_URL>" -f database/postgres/init.sql
+```
 
 ### 2.2 AI And Multimodal Services
 

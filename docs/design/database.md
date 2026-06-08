@@ -162,6 +162,20 @@ Setting 使用 key-value 模型保存运行时配置，SettingAuditLog 记录后
 | ad_campaigns | name, status, start_date, end_date, targeting, impressions, clicks, revenue | 广告活动 |
 | ad_placements | format, location, adapter_id, enabled, targeting, priority, campaign_id | 广告位与投放配置 |
 
+### 4.8 AITask（额度与计费治理）
+
+AITask 除了基础任务状态字段，还包含额度与计费治理字段，三套 init.sql 必须保持一致：
+
+| 字段 | 类型 | 约束/默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| category | varchar(20) | nullable | 任务分类 |
+| estimatedQuotaUnits | decimal(10,2) | default 0 | 预估额度单位 |
+| quotaUnits | decimal(10,2) | default 0 | 实际额度单位 |
+| chargeStatus | varchar(20) | default none | 扣费状态 |
+| failureStage | varchar(30) | nullable | 失败阶段 |
+| usageSnapshot | text | nullable | 用量快照 JSON |
+| durationMs | integer | default 0 | 执行耗时（毫秒） |
+
 ## 5. 关键约束与索引
 
 当前应重点保证以下约束存在且与实体一致：
@@ -183,6 +197,7 @@ Setting 使用 key-value 模型保存运行时配置，SettingAuditLog 记录后
 - notification_delivery_logs：notification_type、channel、status、sent_at、recipient。
 - setting_audit_logs：setting_key、operator_id。
 - ad_placements：location、adapter_id、enabled，以及 (location, enabled)。
+- ai_tasks：生产初始化必须包含 `category`、`estimated_quota_units`、`quota_units`、`charge_status`、`failure_stage`、`usage_snapshot`、`duration_ms`。
 
 ## 6. 初始化脚本同步约束
 
