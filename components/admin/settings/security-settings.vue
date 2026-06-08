@@ -103,8 +103,21 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
 
-const settings = defineModel<any>('settings', { required: true })
-defineProps<{ metadata: any }>()
+interface SecuritySettingsFields {
+    allow_registration: boolean
+    enable_captcha: boolean
+    captcha_provider: string | null
+    captcha_site_key: string | null
+    captcha_secret_key: string | null
+    enable_comment_review: boolean
+    blacklisted_keywords: string | null
+}
+
+type SecuritySettingsModel = Record<string, SettingFormValue> & Partial<SecuritySettingsFields>
+
+const settings = defineModel<SecuritySettingsModel>('settings', { required: true })
+defineProps<{ metadata: SettingMetadataMap<keyof SecuritySettingsFields> }>()
 const captchaTypes = ['turnstile', 'recaptcha', 'hcaptcha']
 </script>

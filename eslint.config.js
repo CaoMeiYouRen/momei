@@ -60,6 +60,9 @@ const strictTsRuleOverrides = [
         // 继续沿用 no-explicit-any 的窄切片策略，并把工具层 / API 单文件切片收敛到同一条 override。
         files: NO_EXPLICIT_ANY_FILES,
         ignores: RUNTIME_TS_IGNORES,
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
         rules: {
             '@typescript-eslint/no-explicit-any': [1],
         },
@@ -73,10 +76,10 @@ const strictTsRuleOverrides = [
     }),
 ]
 
-function createRuleOverride({ files, rules, ignores = [] }) {
+function createRuleOverride({ files, rules, ignores = [], ...rest }) {
     return ignores.length > 0
-        ? { files, ignores, rules }
-        : { files, rules }
+        ? { files, ignores, rules, ...rest }
+        : { files, rules, ...rest }
 }
 
 function promoteRuleLevel(ruleConfig) {

@@ -26,7 +26,8 @@
 	- 最小验收：补齐 Umami Docker Compose 模板、部署变量说明与脚本化入口；保持与 GA4/Clarity/百度统计并行，不互相覆盖。
 
 - [ ] **主线：ESLint / 类型债治理 — 至少 3 组窄切片 (P1)**
-	- 当前状态：待启动。
+	- 当前状态：进行中。
+	- 当前进展（2026-06-08）：已完成首轮 4 组窄切片（`app.vue` 会话语言 `as any` 收敛；`analytics-settings.vue`、`auth-settings.vue`、`security-settings.vue` 三处 `defineModel<any>` 收敛）。
 	- 最小验收：至少 3 组“单规则 + 小范围”切片闭环，`pnpm governance:audit:eslint-debt` 可对照本轮清偿结果。
 
 - [ ] **主线：结构复用治理 — 至少 3 组热点切片 (P1)**

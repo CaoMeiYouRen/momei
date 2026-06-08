@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import { initializeAuthSessionSync } from '@/lib/auth-client'
 import { primeHydratedAuthSession, setupAuthSessionLifecycle, useAuthSession } from '@/composables/use-auth-session'
+import { isAppLocale, type AppLocaleCode } from '@/i18n/config/locale-registry'
 
 const { t, setLocale, locale } = useI18n()
 const route = useRoute()
@@ -35,6 +36,24 @@ const {
     siteFavicon,
     siteLogo,
 } = useMomeiConfig()
+
+interface SessionUserLocale {
+    language?: string | null
+}
+
+function resolveSessionUserLanguage(user: unknown): AppLocaleCode | null {
+    if (!user || typeof user !== 'object') {
+        return null
+    }
+
+    const { language } = user as SessionUserLocale
+    if (typeof language !== 'string') {
+        return null
+    }
+
+    const normalizedLanguage = language.trim()
+    return normalizedLanguage && isAppLocale(normalizedLanguage) ? normalizedLanguage : null
+}
 
 // 初始化主题与站点配置
 // 排除安装页面，避免在数据库未就绪时请求主题导致错误
@@ -199,7 +218,7 @@ useHead({
 })
 
 // 监听用户语言偏好并自动切换
-watch(() => (session.value?.data?.user as any)?.language, (lang) => {
+watch(() => resolveSessionUserLanguage(session.value?.data?.user), (lang) => {
     if (lang) {
         setLocale(lang)
     }

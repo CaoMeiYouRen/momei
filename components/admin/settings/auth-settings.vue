@@ -60,7 +60,17 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
 
-const settings = defineModel<any>('settings', { required: true })
-defineProps<{ metadata: any }>()
+interface AuthSettingsFields {
+    github_client_id: string | null
+    github_client_secret: string | null
+    google_client_id: string | null
+    google_client_secret: string | null
+}
+
+type AuthSettingsModel = Record<string, SettingFormValue> & Partial<AuthSettingsFields>
+
+const settings = defineModel<AuthSettingsModel>('settings', { required: true })
+defineProps<{ metadata: SettingMetadataMap<keyof AuthSettingsFields> }>()
 </script>

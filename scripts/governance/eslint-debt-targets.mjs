@@ -39,12 +39,24 @@ const NO_EXPLICIT_ANY_AI_UTILS_FILES = [
     'server/utils/ai/tts-siliconflow.ts',
 ]
 
+const NO_EXPLICIT_ANY_APP_FILES = [
+    'app.vue',
+]
+
+const NO_EXPLICIT_ANY_ADMIN_SETTINGS_FILES = [
+    'components/admin/settings/analytics-settings.vue',
+    'components/admin/settings/auth-settings.vue',
+    'components/admin/settings/security-settings.vue',
+]
+
 export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_UTILITY_FILES,
     ...NO_EXPLICIT_ANY_API_FILES,
     ...NO_EXPLICIT_ANY_AGREEMENTS_API_FILES,
     ...NO_EXPLICIT_ANY_SUBMISSIONS_API_FILES,
     ...NO_EXPLICIT_ANY_AI_UTILS_FILES,
+    ...NO_EXPLICIT_ANY_APP_FILES,
+    ...NO_EXPLICIT_ANY_ADMIN_SETTINGS_FILES,
     'composables/use-admin-ai.ts',
     'composables/use-admin-i18n.ts',
     'composables/use-asr-task.ts',

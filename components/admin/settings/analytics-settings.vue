@@ -69,12 +69,22 @@
 
 <script setup lang="ts">
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
+import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
 
 const DEFAULT_UMAMI_SCRIPT_URL = 'https://analytics.umami.is/script.js'
 
-const settings = defineModel<any>('settings', { required: true })
+interface AnalyticsSettingsFields {
+    umami_analytics: string | null
+    baidu_analytics: string | null
+    google_analytics: string | null
+    clarity_analytics: string | null
+}
+
+type AnalyticsSettingsModel = Record<string, SettingFormValue> & Partial<AnalyticsSettingsFields>
+
+const settings = defineModel<AnalyticsSettingsModel>('settings', { required: true })
 defineProps<{
-    metadata: Record<string, { isLocked?: boolean } | undefined>
+    metadata: SettingMetadataMap<keyof AnalyticsSettingsFields>
 }>()
 
 function parseUmamiAnalytics(rawValue: unknown) {
