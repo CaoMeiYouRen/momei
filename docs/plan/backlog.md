@@ -405,6 +405,9 @@
 - **最小范围**: 文章间双向引用自动检测与「被引用」展示、内容成熟度标记 (draft → evergreen)、可选的知识图谱可视化。
 - **非目标**: 不做完整 Zettelkasten 笔记系统、不与 Obsidian/Logseq 竞争。
 - **前置条件**: 先评估双向链接的存储模型 (JSON 字段 vs 关联表) 与对现有查询的性能影响。
+- **当前状态**:
+    - 第四十五阶段已完成 go/no-go 评估并输出 No-Go 结论（当前阶段不进入实现，保留后续 P2 候选）。
+    - 评估事实源：[`docs/design/governance/archive/digital-garden-evaluation.md`](../design/governance/archive/digital-garden-evaluation.md)。
 
 ## 相关文档
 
@@ -412,4 +415,3 @@
 - [待办事项](./todo.md)
 - [待办归档](./todo-archive.md)
 - [项目规划规范](../standards/planning.md)
-
