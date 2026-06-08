@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { EventEmitter } from 'node:events'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     buildArtifactManifest,
     buildEvidence,
@@ -177,8 +177,9 @@ describe('run-review-gate-ui-baseline', () => {
         await resetAuthState({
             authStatePath: '/tmp/auth-state.json',
             existsSyncFn: () => true,
-            rmFn: async (targetPath: string) => {
+            rmFn: (targetPath: string) => {
                 removedPath = targetPath
+                return Promise.resolve()
             },
         })
 
@@ -205,8 +206,9 @@ describe('run-review-gate-ui-baseline', () => {
                 })
                 return child
             },
-            writeFileFn: async (targetPath: string, content: string) => {
+            writeFileFn: (targetPath: string, content: string) => {
                 writes.push({ path: targetPath, content })
+                return Promise.resolve()
             },
             stdoutWriter: { write: () => true },
             stderrWriter: { write: () => true },
@@ -228,8 +230,8 @@ describe('run-review-gate-ui-baseline', () => {
             now: new Date('2026-04-01T08:09:10Z'),
             parseCliOptionsFn: () => ({ keepAuthState: true, scope: 'ci-check' }),
             getCurrentBranchFn: () => 'master',
-            mkdirFn: async () => {},
-            runBaselineFn: async () => ({
+            mkdirFn: () => Promise.resolve(),
+            runBaselineFn: () => Promise.resolve({
                 ok: false,
                 code: 3,
                 signal: null,
@@ -238,11 +240,11 @@ describe('run-review-gate-ui-baseline', () => {
             }),
             buildArtifactManifestFn: () => ({ test: true }),
             buildEvidenceFn: () => 'evidence content',
-            writeFileFn: async () => {},
+            writeFileFn: vi.fn(() => Promise.resolve()),
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
             processObj: fakeProcess,
         })

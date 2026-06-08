@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, rm, utimes, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     defaultIgnoredEntries,
     ensureBuildOutput,
@@ -196,23 +196,23 @@ describe('run-e2e', () => {
 
     it('falls back to plain install when --with-deps failure is recoverable', async () => {
         const runAndCaptureCalls: string[][] = []
-        const runAndCaptureFn = async (_command: string, args: string[]) => {
+        const runAndCaptureFn = (_command: string, args: string[]) => {
             runAndCaptureCalls.push(args)
             if (args.includes('--with-deps')) {
                 throw new Error('NO_PUBKEY apt-get failed')
             }
-            return { stderr: '', stdout: '' }
+            return Promise.resolve({ stderr: '', stdout: '' })
         }
 
         await ensurePlaywrightBrowsers({
-            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getInstalledBrowserDirsFn: () => Promise.resolve(['chromium-1208']),
             getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps'], ['install']],
             isRecoverablePlaywrightDepsInstallErrorFn: () => true,
             runAndCaptureFn,
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })
 
@@ -224,16 +224,14 @@ describe('run-e2e', () => {
 
     it('rethrows browser installation errors when they are not recoverable', async () => {
         await expect(ensurePlaywrightBrowsers({
-            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getInstalledBrowserDirsFn: () => Promise.resolve(['chromium-1208']),
             getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps']],
             isRecoverablePlaywrightDepsInstallErrorFn: () => false,
-            runAndCaptureFn: async () => {
-                throw new Error('download timed out')
-            },
+            runAndCaptureFn: () => Promise.reject(new Error('download timed out')),
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })).rejects.toThrow('download timed out')
     })
@@ -242,16 +240,17 @@ describe('run-e2e', () => {
         const runCalls: string[][] = []
 
         await ensurePlaywrightBrowsers({
-            getInstalledBrowserDirsFn: async () => {
+            getInstalledBrowserDirsFn: () => {
                 throw new Error('cache permission denied')
             },
-            runFn: async (_command: string, args: string[]) => {
+            runFn: (_command: string, args: string[]) => {
                 runCalls.push(args)
+                return Promise.resolve()
             },
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })
 
@@ -261,22 +260,22 @@ describe('run-e2e', () => {
     })
 
     it('skips playwright installation when required browsers already exist', async () => {
-        const runAndCaptureFn = async () => {
+        const runAndCaptureFn = () => {
             throw new Error('should not install when cache is complete')
         }
 
         await expect(ensurePlaywrightBrowsers({
-            getInstalledBrowserDirsFn: async () => [
+            getInstalledBrowserDirsFn: () => Promise.resolve([
                 'chromium-1208',
                 'chromium_headless_shell-1208',
                 'firefox-1509',
                 'webkit-2248',
-            ],
+            ]),
             runAndCaptureFn,
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })).resolves.toBeUndefined()
     })
@@ -285,17 +284,18 @@ describe('run-e2e', () => {
         const runCalls: string[][] = []
 
         await ensureBuildOutput({
-            shouldRebuildOutputFn: async () => ({
+            shouldRebuildOutputFn: () => Promise.resolve({
                 needsBuild: true,
                 reason: 'source files changed after the last build',
             }),
-            runFn: async (_command: string, args: string[]) => {
+            runFn: (_command: string, args: string[]) => {
                 runCalls.push(args)
+                return Promise.resolve()
             },
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })
 
@@ -306,17 +306,18 @@ describe('run-e2e', () => {
         const runCalls: string[][] = []
 
         await ensureBuildOutput({
-            shouldRebuildOutputFn: async () => ({
+            shouldRebuildOutputFn: () => Promise.resolve({
                 needsBuild: false,
                 reason: 'build output is fresh',
             }),
-            runFn: async (_command: string, args: string[]) => {
+            runFn: (_command: string, args: string[]) => {
                 runCalls.push(args)
+                return Promise.resolve()
             },
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })
 
@@ -325,16 +326,14 @@ describe('run-e2e', () => {
 
     it('throws the last installation error when all recoverable attempts are exhausted', async () => {
         await expect(ensurePlaywrightBrowsers({
-            getInstalledBrowserDirsFn: async () => ['chromium-1208'],
+            getInstalledBrowserDirsFn: () => Promise.resolve(['chromium-1208']),
             getPlaywrightInstallAttemptsFn: () => [['install', '--with-deps'], ['install', '--with-deps']],
             isRecoverablePlaywrightDepsInstallErrorFn: () => true,
-            runAndCaptureFn: async () => {
-                throw new Error('NO_PUBKEY retry still failed')
-            },
+            runAndCaptureFn: () => Promise.reject(new Error('NO_PUBKEY retry still failed')),
             logger: {
-                info: () => {},
-                warn: () => {},
-                error: () => {},
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
             },
         })).rejects.toThrow('NO_PUBKEY retry still failed')
     })
@@ -346,16 +345,19 @@ describe('run-e2e', () => {
 
         await main({
             getCliArgsFn: () => ['--grep', 'critical'],
-            ensureBuildOutputFn: async () => {
+            ensureBuildOutputFn: () => {
                 callOrder.push('build')
+                return Promise.resolve()
             },
-            ensurePlaywrightBrowsersFn: async () => {
+            ensurePlaywrightBrowsersFn: () => {
                 callOrder.push('browsers')
+                return Promise.resolve()
             },
-            runFn: async (_command: string, args: string[], env: Record<string, string>) => {
+            runFn: (_command: string, args: string[], env: Record<string, string>) => {
                 callOrder.push('run')
                 capturedArgs = args
                 capturedEnv = env
+                return Promise.resolve()
             },
             runtimeEnv: {
                 FOO: 'bar',
@@ -375,10 +377,11 @@ describe('run-e2e', () => {
 
         await main({
             getCliArgsFn: () => [],
-            ensureBuildOutputFn: async () => {},
-            ensurePlaywrightBrowsersFn: async () => {},
-            runFn: async (_command: string, _args: string[], env: Record<string, string | undefined>) => {
+            ensureBuildOutputFn: () => Promise.resolve(),
+            ensurePlaywrightBrowsersFn: () => Promise.resolve(),
+            runFn: (_command: string, _args: string[], env: Record<string, string | undefined>) => {
                 capturedEnv = { TEST_MODE: env.TEST_MODE }
+                return Promise.resolve()
             },
             runtimeEnv: {
                 TEST_MODE: 'false',

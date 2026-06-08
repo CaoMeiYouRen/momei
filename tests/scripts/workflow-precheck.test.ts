@@ -1,7 +1,7 @@
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     WORKFLOW_PRECHECK_PROFILES,
     buildEvidence,
@@ -228,9 +228,9 @@ describe('workflow-precheck', () => {
             projectRoot: '/tmp/workflow-precheck',
             now: new Date('2026-04-01T08:09:10Z'),
             resolveWorkflowPrecheckProfileFn: () => profile,
-            executeStepFn: async (step: { label: string }) => {
+            executeStepFn: (step: { label: string }) => {
                 executedSteps.push(step.label)
-                return {
+                return Promise.resolve({
                     durationMs: 10,
                     label: step.label,
                     ok: false,
@@ -239,14 +239,15 @@ describe('workflow-precheck', () => {
                     skipped: false,
                     type: 'file-check',
                     failureLevel: 'blocker',
-                }
+                })
             },
-            mkdirFn: async () => {},
-            writeFileFn: async (targetPath: string) => {
+            mkdirFn: () => Promise.resolve(),
+            writeFileFn: (targetPath: string) => {
                 writes.push(targetPath)
+                return Promise.resolve()
             },
-            upsertRegressionWindowEntryFn: async () => {},
-            logger: { info: () => {}, error: () => {} },
+            upsertRegressionWindowEntryFn: () => Promise.resolve(),
+            logger: { info: vi.fn(), error: vi.fn() },
         })
 
         expect(executedSteps).toEqual(['required fail'])
@@ -272,9 +273,9 @@ describe('workflow-precheck', () => {
             projectRoot: '/tmp/workflow-precheck',
             now: new Date('2026-04-01T08:09:10Z'),
             resolveWorkflowPrecheckProfileFn: () => profile,
-            executeStepFn: async (step: { label: string }) => {
+            executeStepFn: (step: { label: string }) => {
                 executedSteps.push(step.label)
-                return {
+                return Promise.resolve({
                     durationMs: 10,
                     label: step.label,
                     ok: false,
@@ -283,12 +284,12 @@ describe('workflow-precheck', () => {
                     skipped: false,
                     type: 'file-check',
                     failureLevel: 'blocker',
-                }
+                })
             },
-            mkdirFn: async () => {},
-            writeFileFn: async () => {},
-            upsertRegressionWindowEntryFn: async () => {},
-            logger: { info: () => {}, error: () => {} },
+            mkdirFn: () => Promise.resolve(),
+            writeFileFn: vi.fn(() => Promise.resolve()),
+            upsertRegressionWindowEntryFn: vi.fn(() => Promise.resolve()),
+            logger: { info: vi.fn(), error: vi.fn() },
         })
 
         expect(executedSteps).toEqual(['required fail', 'next step'])
@@ -306,7 +307,7 @@ describe('workflow-precheck', () => {
         }
 
         const result = await executeStep(step, {
-            runCommandFn: async () => ({ durationMs: 12, ok: true, output: 'ok' }),
+            runCommandFn: () => Promise.resolve({ durationMs: 12, ok: true, output: 'ok' }),
         })
 
         expect(result).toMatchObject({
