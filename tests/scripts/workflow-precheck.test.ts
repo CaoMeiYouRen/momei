@@ -5,10 +5,13 @@ import { describe, expect, it } from 'vitest'
 import {
     WORKFLOW_PRECHECK_PROFILES,
     buildEvidence,
+    buildWorkflowPrecheckWindowEntry,
     checkRequiredEnvironment,
     checkRequiredFiles,
+    executeStep,
     parseArgs,
     resolveWorkflowPrecheckProfile,
+    runCommand,
     runWorkflowPrecheck,
     summarizeWorkflowPrecheck,
 } from '@/scripts/ci/workflow-precheck.mjs'
@@ -204,5 +207,145 @@ describe('workflow-precheck', () => {
         await rm(result.artifacts.artifactMarkdownPath, { force: true })
         await rm(result.artifacts.artifactJsonPath, { force: true })
         await rm(directory, { force: true, recursive: true })
+    })
+
+    it('stops after required failure in error mode', async () => {
+        const executedSteps: string[] = []
+        const writes: string[] = []
+        const profile = {
+            key: 'test',
+            title: 'test profile',
+            steps: [
+                { label: 'required fail', required: true, type: 'file-check', failureLevel: 'blocker' },
+                { label: 'should not run', required: true, type: 'env-check', failureLevel: 'blocker' },
+            ],
+        }
+
+        const result = await runWorkflowPrecheck({
+            dryRun: false,
+            mode: 'error',
+            profile: 'test',
+            projectRoot: '/tmp/workflow-precheck',
+            now: new Date('2026-04-01T08:09:10Z'),
+            resolveWorkflowPrecheckProfileFn: () => profile,
+            executeStepFn: async (step: { label: string }) => {
+                executedSteps.push(step.label)
+                return {
+                    durationMs: 10,
+                    label: step.label,
+                    ok: false,
+                    output: 'failed',
+                    required: true,
+                    skipped: false,
+                    type: 'file-check',
+                    failureLevel: 'blocker',
+                }
+            },
+            mkdirFn: async () => {},
+            writeFileFn: async (targetPath: string) => {
+                writes.push(targetPath)
+            },
+            upsertRegressionWindowEntryFn: async () => {},
+            logger: { info: () => {}, error: () => {} },
+        })
+
+        expect(executedSteps).toEqual(['required fail'])
+        expect(result.summary.conclusion).toBe('Reject')
+        expect(writes).toHaveLength(2)
+    })
+
+    it('continues execution in warn mode even when required step fails', async () => {
+        const executedSteps: string[] = []
+        const profile = {
+            key: 'test',
+            title: 'test profile',
+            steps: [
+                { label: 'required fail', required: true, type: 'file-check', failureLevel: 'blocker' },
+                { label: 'next step', required: true, type: 'env-check', failureLevel: 'blocker' },
+            ],
+        }
+
+        const result = await runWorkflowPrecheck({
+            dryRun: false,
+            mode: 'warn',
+            profile: 'test',
+            projectRoot: '/tmp/workflow-precheck',
+            now: new Date('2026-04-01T08:09:10Z'),
+            resolveWorkflowPrecheckProfileFn: () => profile,
+            executeStepFn: async (step: { label: string }) => {
+                executedSteps.push(step.label)
+                return {
+                    durationMs: 10,
+                    label: step.label,
+                    ok: false,
+                    output: 'failed',
+                    required: true,
+                    skipped: false,
+                    type: 'file-check',
+                    failureLevel: 'blocker',
+                }
+            },
+            mkdirFn: async () => {},
+            writeFileFn: async () => {},
+            upsertRegressionWindowEntryFn: async () => {},
+            logger: { info: () => {}, error: () => {} },
+        })
+
+        expect(executedSteps).toEqual(['required fail', 'next step'])
+        expect(result.summary.conclusion).toBe('Pass')
+    })
+
+    it('executes command steps via injected runCommand implementation', async () => {
+        const step = {
+            command: 'pnpm',
+            commandArgs: ['run', 'lint'],
+            label: 'lint',
+            required: true,
+            type: 'command',
+            failureLevel: 'blocker',
+        }
+
+        const result = await executeStep(step, {
+            runCommandFn: async () => ({ durationMs: 12, ok: true, output: 'ok' }),
+        })
+
+        expect(result).toMatchObject({
+            durationMs: 12,
+            ok: true,
+            output: 'ok',
+            skipped: false,
+        })
+    })
+
+    it('builds regression window entry with blocker severity when blockers exist', () => {
+        const entry = buildWorkflowPrecheckWindowEntry({
+            artifactJsonPath: '/tmp/workflow.json',
+            artifactMarkdownPath: '/tmp/workflow.md',
+            dateStr: '2026-04-01',
+            dryRun: false,
+            profile: { key: 'docker', title: 'Docker profile' },
+            projectRoot: '/tmp',
+            results: [
+                { label: 'docker critical files', ok: false, skipped: false },
+            ],
+            summary: {
+                blockers: ['docker critical files failed'],
+                conclusion: 'Reject',
+                warnings: [],
+            },
+        })
+
+        expect(entry.id).toContain('workflow-precheck:docker:2026-04-01')
+        expect(entry.body).toContain('Review Gate: `Reject` / `blocker`')
+    })
+
+    it('returns error output when command spawning fails', async () => {
+        const result = await runCommand('pnpm', ['run', 'lint'], {
+            env: process.env,
+            projectRoot: '/tmp',
+        })
+
+        expect(typeof result.ok).toBe('boolean')
+        expect(typeof result.output).toBe('string')
     })
 })
