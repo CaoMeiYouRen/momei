@@ -153,6 +153,7 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `ENABLE_CRON_JOB` | - | 3 | none | Explicitly enables built-in cron registration outside production |
 | `DISABLE_CRON_JOB` | - | 3 | none | Explicitly disables the built-in cron job |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | `baidu_analytics` | 0 | none | Baidu Analytics ID |
+| `NUXT_PUBLIC_UMAMI_ANALYTICS` | `umami_analytics` | 0 | none | Umami analytics config as JSON (`websiteId` + `scriptUrl`) |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Shared Sentry DSN for frontend and backend |
 | `LOG_LEVEL` | - | 3 | none | Logging level |
 | `NUXT_PUBLIC_LIVE2D_ENABLED` | `live2d_enabled` | 0 | none | Live2D widget switch |

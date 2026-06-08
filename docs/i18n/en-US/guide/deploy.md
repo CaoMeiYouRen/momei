@@ -200,6 +200,12 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- Mount `database/` and upload directories.
 	- Use `TASK_CRON_EXPRESSION` to customize the main cron schedule and `FRIEND_LINKS_CHECK_CRON` when friend-links inspection needs an independent cadence.
 	- Non-production environments do not auto-register the built-in cron jobs unless `ENABLE_CRON_JOB=true` is set explicitly.
+- **Docker + Umami (optional enhancement)**:
+	- `docker-compose.umami.yml` is provided as an additive template so Umami + PostgreSQL can run alongside the existing `docker-compose.yml`.
+	- Copy `umami.env.example` to `.env.umami` and set strong credentials, especially `UMAMI_APP_SECRET`.
+	- Start command:
+		- `docker compose -f docker-compose.yml -f docker-compose.umami.yml --env-file .env --env-file .env.umami up -d`
+	- For guided output, run `pnpm setup:umami` (`--website-id`, `--script-url`, and `--json` are supported).
 - **Cloudflare (Peripheral integrations only)**:
 	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
 	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).
@@ -223,6 +229,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel / Netlify opens the site but uploads fail**: you are usually still using `STORAGE_TYPE=local`. Switch to `s3`, `r2`, or `vercel_blob`.
 - **Cloudflare Pages / Workers shows TypeORM or Node-compatibility errors**: This is a known platform boundary, not a missed deployment step. Keep the main app on Vercel, Docker, or a self-hosted Node environment; if you need Cloudflare, use it only for peripheral integrations such as R2 or Scheduled Events-related experiments.
 - **Can Cloudflare D1 replace the current database directly?**: No. The current stack still revolves around TypeORM and the `sqlite/mysql/postgres` driver set. D1 remains a future conditional-research topic rather than a supported production substitute.
+- **Umami starts but no traffic appears in dashboard**: Verify that `NUXT_PUBLIC_UMAMI_ANALYTICS` uses the same instance for both `websiteId` and `scriptUrl`, and confirm the Umami port mapping (default `3001`) is publicly reachable.
 
 ## 7. References
 

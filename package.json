@@ -15,6 +15,7 @@
     "postinstall": "nuxt prepare",
     "web-push:generate-vapid": "node scripts/setup/generate-web-push-vapid.mjs",
     "setup:ai": "node scripts/setup/setup-ai.mjs",
+    "setup:umami": "node scripts/setup/setup-umami.mjs",
     "ai:check": "node scripts/ai/check-governance.mjs",
     "ai:session:hook": "node scripts/ai-hooks/session-governance.mjs",
     "governance:check:scripts": "node scripts/governance/check-script-governance.mjs --mode=warn --output=artifacts/governance/script-governance-latest.json",

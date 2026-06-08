@@ -138,6 +138,7 @@
 | `ENABLE_CRON_JOB` | - | 3 | none | 在非生产环境显式启用自部署内置 Cron；默认仅生产环境自动注册 |
 | `DISABLE_CRON_JOB` | - | 3 | none | 显式禁用自部署环境内置 Cron |
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`| `baidu_analytics` | 0 | none | 百度统计 ID |
+| `NUXT_PUBLIC_UMAMI_ANALYTICS` | `umami_analytics` | 0 | none | Umami 统计配置（JSON，含 `websiteId` 与 `scriptUrl`） |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Sentry 前后端共享监控 DSN |
 | `LOG_LEVEL` | - | 3 | none | 日志等级 (debug/info/error) |
 | `NUXT_PUBLIC_LIVE2D_ENABLED`| `live2d_enabled` | 0 | none | 看板娘系统开关 |

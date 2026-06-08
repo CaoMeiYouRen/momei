@@ -1,0 +1,33 @@
+services:
+  umami-db:
+    container_name: "${UMAMI_DB_CONTAINER_NAME:-momei-umami-db}"
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${UMAMI_POSTGRES_DB:-umami}"
+      POSTGRES_USER: "${UMAMI_POSTGRES_USER:-umami}"
+      POSTGRES_PASSWORD: "${UMAMI_POSTGRES_PASSWORD:-change-me}"
+    volumes:
+      - umami-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${UMAMI_POSTGRES_USER:-umami} -d ${UMAMI_POSTGRES_DB:-umami}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  umami:
+    container_name: "${UMAMI_CONTAINER_NAME:-momei-umami}"
+    image: ghcr.io/umami-software/umami:postgresql-v3.1.0
+    restart: unless-stopped
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    ports:
+      - "${UMAMI_PORT:-3001}:3000"
+    environment:
+      DATABASE_URL: "postgresql://${UMAMI_POSTGRES_USER:-umami}:${UMAMI_POSTGRES_PASSWORD:-change-me}@umami-db:5432/${UMAMI_POSTGRES_DB:-umami}"
+      APP_SECRET: "${UMAMI_APP_SECRET:-change-me}"
+      TRACKER_SCRIPT_NAME: "${UMAMI_TRACKER_SCRIPT_NAME:-script.js}"
+
+volumes:
+  umami-db-data:
