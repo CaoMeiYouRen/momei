@@ -293,4 +293,66 @@ describe('email template service', () => {
         expect(preview.meta.appName.value).toBe('墨梅博客')
         expect(preview.meta.appName.source).toBe('db')
     })
+
+    it('marks field source as legacy fallback when only legacy value exists', async () => {
+        const preview = await previewEmailTemplate({
+            templateId: 'verification',
+            locale: 'zh-CN',
+            config: {
+                version: 1,
+                templates: {
+                    verification: {
+                        enabled: true,
+                        fields: {
+                            title: {
+                                version: 1,
+                                type: 'localized-text',
+                                locales: {},
+                                legacyValue: 'Legacy 标题',
+                            },
+                        },
+                    },
+                },
+            },
+        })
+
+        expect(preview.subject).toBe('Legacy 标题')
+        expect(preview.meta.fieldSources.title).toEqual({
+            source: 'db',
+            resolvedLocale: 'legacy',
+            usedFallback: true,
+        })
+    })
+
+    it('keeps default field source when template override is disabled', async () => {
+        const preview = await previewEmailTemplate({
+            templateId: 'verification',
+            locale: 'zh-CN',
+            config: {
+                version: 1,
+                templates: {
+                    verification: {
+                        enabled: false,
+                        fields: {
+                            title: {
+                                version: 1,
+                                type: 'localized-text',
+                                locales: {
+                                    'zh-CN': '不会生效的标题',
+                                },
+                                legacyValue: null,
+                            },
+                        },
+                    },
+                },
+            },
+        })
+
+        expect(preview.subject).toContain('Momei')
+        expect(preview.meta.fieldSources.title).toEqual({
+            source: 'default',
+            resolvedLocale: null,
+            usedFallback: false,
+        })
+    })
 })

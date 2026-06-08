@@ -93,4 +93,40 @@ describe('POST /api/admin/posts/[id]/repush', () => {
         expect(createCampaignFromPost).not.toHaveBeenCalled()
         expect(startMarketingCampaignDispatch).not.toHaveBeenCalled()
     })
+
+    it('returns 400 when post id is missing', async () => {
+        vi.mocked(getRouterParam).mockReturnValue(undefined)
+
+        await expect(handler({} as any)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Post ID is required',
+        })
+        expect(createCampaignFromPost).not.toHaveBeenCalled()
+    })
+
+    it('returns 400 when request body validation fails', async () => {
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
+            pushOption: 'invalid',
+        } as any))
+
+        await expect(handler({} as any)).rejects.toMatchObject({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+        })
+        expect(createCampaignFromPost).not.toHaveBeenCalled()
+    })
+
+    it('does not fail repush when async dispatch throws', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        vi.mocked(startMarketingCampaignDispatch).mockRejectedValue(new Error('dispatch failed'))
+
+        const result = await handler({} as any)
+        await Promise.resolve()
+
+        expect(result.message).toBe('Repush task started')
+        expect(startMarketingCampaignDispatch).toHaveBeenCalledWith('campaign-1')
+        expect(consoleErrorSpy).toHaveBeenCalled()
+
+        consoleErrorSpy.mockRestore()
+    })
 })

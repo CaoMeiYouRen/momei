@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createError } from 'h3'
 import handler from './generate.post'
 import { ImageService } from '@/server/services/ai'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
@@ -134,6 +135,51 @@ describe('POST /api/ai/image/generate', () => {
         vi.mocked(ImageService.generateImage).mockRejectedValue(new Error('AI provider unavailable'))
 
         await expect(handler(mockEvent)).rejects.toThrow('AI provider unavailable')
+    })
+
+    it('should keep upstream http errors when service throws statusCode error', async () => {
+        const upstreamError = createError({
+            statusCode: 429,
+            statusMessage: 'Rate limit exceeded',
+        })
+        vi.mocked(readBody).mockResolvedValue({ prompt: 'Test prompt' })
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: { id: 'user-1', role: 'author' } as any,
+            session: {} as any,
+        })
+        vi.mocked(ImageService.generateImage).mockRejectedValue(upstreamError)
+
+        await expect(handler({} as any)).rejects.toMatchObject({
+            statusCode: 429,
+            statusMessage: 'Rate limit exceeded',
+        })
+    })
+
+    it('should apply schema defaults for minimal valid payload', async () => {
+        vi.mocked(ImageService.generateImage).mockResolvedValue({
+            id: 'task-defaults',
+            status: 'processing',
+        } as any)
+        vi.mocked(readBody).mockResolvedValue({
+            prompt: 'Minimal payload',
+        })
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: { id: 'user-2', role: 'author' } as any,
+            session: {} as any,
+        })
+
+        await handler({} as any)
+
+        expect(ImageService.generateImage).toHaveBeenCalledWith(expect.objectContaining({
+            prompt: 'Minimal payload',
+            applyToPost: true,
+            overwriteExistingCover: true,
+            assetUsage: 'post-cover',
+            applyMode: 'auto-apply',
+            quality: 'standard',
+            style: 'vivid',
+            n: 1,
+        }), 'user-2')
     })
 
     it('should validate quality enum values', async () => {

@@ -37,7 +37,7 @@
 
 - [x] **主线：测试覆盖率治理 — 提升至 82% (P1)**
 	- 当前状态：进行中。
-	- 当前进展（2026-06-08）：已完成首个高 ROI 切片，新增 `utils/shared/umami-analytics.test.ts`（9 用例）覆盖 Umami 配置解析/序列化的失败路径、默认值与兼容分支，并与设置页定向测试联合验证通过。
+	- 当前进展（2026-06-08）：已完成规划切片 A/B/C/D：A) `utils/shared/umami-analytics.test.ts` + `tests/plugins/analytics-plugins.test.ts`；B) `server/api/admin/posts/[id]/repush.post.test.ts` 新增 3 条失败路径断言；C) `server/services/email-template.test.ts` 新增 legacy fallback 与 disabled override 断言；D) `server/api/ai/image/generate.post.test.ts` 新增上游状态码透传与默认参数断言。上述定向测试均通过。全量 coverage 基线命令已触发一次，但被 `pages/friend-links.test.ts` 初始化错误阻断（`getRouteLocalizedParams` 读取 `value` 异常），待排障后补跑基线结果。
 	- 最小验收：全仓覆盖率达到 `82%+`，优先补齐最近新增功能与高风险链路的失败/边界断言。
 
 - [ ] **主线：周期性回归任务 + 项目现状调研 (P0)**

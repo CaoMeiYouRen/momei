@@ -248,4 +248,5 @@ describe('EmailTemplateSettingsPanel', () => {
         expect(wrapper.text()).toContain('回退自 English')
         expect(wrapper.find('.email-template-settings-panel__preview-actions select').exists()).toBe(true)
     })
+
 })
