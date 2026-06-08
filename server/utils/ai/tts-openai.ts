@@ -1,6 +1,18 @@
-import { createError } from 'h3'
+import { requestTTSAudioStream } from './tts-http-shared'
 import { stripTrailingSlash } from '@/utils/shared/url'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
+
+function resolveOpenAITTSErrorMessage(errorData: Record<string, unknown>, fallback: string): string {
+    const nestedError = errorData.error
+    if (typeof nestedError !== 'object' || nestedError === null) {
+        return `OpenAI TTS Error: ${fallback}`
+    }
+
+    const errorMessage = 'message' in nestedError && typeof nestedError.message === 'string'
+        ? nestedError.message
+        : fallback
+    return `OpenAI TTS Error: ${errorMessage}`
+}
 
 export class OpenAITTSProvider implements Partial<AIProvider> {
     name = 'openai'
@@ -46,44 +58,19 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
         voice: string,
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
-        try {
-            const response = await fetch(`${this.endpoint}/audio/speech`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: this.model,
-                    input: text,
-                    voice,
-                    response_format: options.outputFormat || 'mp3',
-                    speed: options.speed || 1.0,
-                }),
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}))
-                throw createError({
-                    statusCode: response.status,
-                    message: `OpenAI TTS Error: ${errorData.error?.message || response.statusText}`,
-                })
-            }
-
-            if (!response.body) {
-                throw createError({
-                    statusCode: 500,
-                    message: 'OpenAI TTS Error: No response body',
-                })
-            }
-
-            return response.body
-        } catch (e: unknown) {
-            const error = e as { message?: string, statusCode?: number }
-            throw createError({
-                statusCode: error.statusCode || 500,
-                message: error.message || 'OpenAI TTS request failed',
-            })
-        }
+        return await requestTTSAudioStream({
+            endpoint: `${this.endpoint}/audio/speech`,
+            apiKey: this.apiKey,
+            payload: {
+                model: this.model,
+                input: text,
+                voice,
+                response_format: options.outputFormat || 'mp3',
+                speed: options.speed || 1.0,
+            },
+            resolveErrorMessage: resolveOpenAITTSErrorMessage,
+            noResponseBodyMessage: 'OpenAI TTS Error: No response body',
+            requestFailedMessage: 'OpenAI TTS request failed',
+        })
     }
 }

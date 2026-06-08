@@ -58,10 +58,12 @@
 		- eslint-disable 总量从 15 降至 ≤13。
 		- 生产代码新增 any 清零至少 3 处。
 
-- [ ] **主线：结构复用治理 — 继续收敛 (P1)**
+- [x] **主线：结构复用治理 — 继续收敛 (P1)**
 	- 执行范围：在 Phase 44 两组切片基础上继续收敛，聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue` 的公共模板片段，以及 `server/utils/` 下近似工具函数的抽取。每组切片必须输出原始重复点、拟抽象边界、复用收益。
 	- 非目标：不推动跨目录大重构、不为复用而复用。
-	- 当前进度：待开始。
+	- 当前进度：两组热点切片已完成并通过重复代码基线检查（`pnpm duplicate-code:check` Pass，duplication 0.63% 未反弹）。
+		- 切片 A（页面层）：`pages/categories/[slug].vue` 与 `pages/tags/[slug].vue` 公共模板已收敛为 `components/taxonomy-post-page.vue` + `useTaxonomyPostPage`。原始重复点为分类/标签详情页渲染骨架与分页逻辑；抽象边界为 `taxonomy-type` 输入；收益是单点维护 SEO/分页/空态行为。
+		- 切片 B（`server/utils`）：`tts-openai.ts` 与 `tts-siliconflow.ts` 的语音请求/错误处理重复段已抽取到 `server/utils/ai/tts-http-shared.ts`（`requestTTSAudioStream`）。原始重复点为 POST 请求、错误分支与响应体判空；抽象边界为 provider payload 与错误文案解析器；收益是统一流式返回判定和错误兜底路径，降低双实现漂移风险。
 	- 最小验收：
 		- 至少两组热点切片完成。
 		- `pnpm duplicate-code:check` 基线不反弹。

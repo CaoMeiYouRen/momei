@@ -1,6 +1,11 @@
-import { createError } from 'h3'
+import { requestTTSAudioStream } from './tts-http-shared'
 import { stripTrailingSlash } from '@/utils/shared/url'
 import type { TTSAudioVoice, TTSOptions, AIProvider, TTSVoiceQuery } from '@/types/ai'
+
+function resolveSiliconFlowTTSErrorMessage(errorData: Record<string, unknown>, fallback: string): string {
+    const errorMessage = typeof errorData.message === 'string' ? errorData.message : fallback
+    return `SiliconFlow TTS Error: ${errorMessage}`
+}
 
 export class SiliconFlowTTSProvider implements Partial<AIProvider> {
     name = 'siliconflow'
@@ -90,45 +95,20 @@ export class SiliconFlowTTSProvider implements Partial<AIProvider> {
         voice: string,
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
-        try {
-            const response = await fetch(`${this.endpoint}/audio/speech`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: this.model,
-                    input: text,
-                    voice,
-                    response_format: options.outputFormat || 'mp3',
-                    speed: options.speed || 1.0,
-                    stream: false,
-                }),
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}))
-                throw createError({
-                    statusCode: response.status,
-                    message: `SiliconFlow TTS Error: ${errorData.message || response.statusText}`,
-                })
-            }
-
-            if (!response.body) {
-                throw createError({
-                    statusCode: 500,
-                    message: 'SiliconFlow TTS Error: No response body',
-                })
-            }
-
-            return response.body
-        } catch (e: unknown) {
-            const error = e as { message?: string, statusCode?: number }
-            throw createError({
-                statusCode: error.statusCode || 500,
-                message: error.message || 'SiliconFlow TTS request failed',
-            })
-        }
+        return await requestTTSAudioStream({
+            endpoint: `${this.endpoint}/audio/speech`,
+            apiKey: this.apiKey,
+            payload: {
+                model: this.model,
+                input: text,
+                voice,
+                response_format: options.outputFormat || 'mp3',
+                speed: options.speed || 1.0,
+                stream: false,
+            },
+            resolveErrorMessage: resolveSiliconFlowTTSErrorMessage,
+            noResponseBodyMessage: 'SiliconFlow TTS Error: No response body',
+            requestFailedMessage: 'SiliconFlow TTS request failed',
+        })
     }
 }
