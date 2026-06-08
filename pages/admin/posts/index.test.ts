@@ -187,7 +187,7 @@ describe('AdminPostsPage', () => {
         expect(mockEnsureLocaleMessageModules).toHaveBeenCalledWith(
             expect.objectContaining({
                 locale: expect.any(String),
-                modules: ['admin-posts'],
+                modules: expect.arrayContaining(['admin-posts', 'admin-marketing']),
             }),
         )
     })
