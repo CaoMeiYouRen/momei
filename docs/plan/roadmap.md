@@ -784,7 +784,7 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第四十五阶段：隐私闭环与文档治理 (Privacy Closure & Docs Governance)
+### 第四十五阶段：隐私闭环与文档治理 (Privacy Closure & Docs Governance)（已审计归档）
 
 **时间表**: 2026-06-07 ~ 约 2 周
 **目标**: 在第四十四阶段完成友链 RSS 聚合、分析评估与四条优化后，以「1 个新功能 + 1 个评估 + 3 个优化」组合推进：Umami 隐私自托管分析作为 Phase 44 评估的落地实现，Digital Garden 为探索评估态，三条优化主线延续治理节奏（文档治理、ESLint/类型债、结构复用）。
@@ -792,6 +792,8 @@
 **准入结论**: Umami 核心集成（~4h, 9 文件）在 Phase 44 评估中已确认 Go；Digital Garden 为评估态不进入代码实现；文档治理、ESLint 和结构复用延续治理切片节奏。五条主线均来自 backlog 已验证候选或长期主线，容量控制在 `5` 项内。
 
 **ROI 评估**: Umami 隐私分析集成 `1.50`；Digital Garden 探索评估 `0.90`；文档治理收口 `1.70`；ESLint / 类型债治理 `1.40`；结构复用治理 `1.50`。
+
+**审计结论**: 五条主线均已完成并归档，当前阶段实现、测试与文档证据已对齐；`todo.md` 已清理为“待准入（筹备中）”状态。详细收口见 [todo-archive 第四十五阶段](./todo-archive.md#第四十五阶段隐私闭环与文档治理-已审计归档)。
 
 1. **主线：Umami 隐私自托管分析集成 — Phase 1 核心 (P0)**:
     - **执行范围**: 基于 Phase 44 评估结论和 `docs/design/governance/privacy-analytics-evaluation.md` 中的实施路线 Phase 1，完成：Schema（`SettingKey.UMAMI_ANALYTICS` + env mapping）、Nuxt 客户端插件（`plugins/umami-analytics.client.ts`）、后台设置页（`analytics-settings.vue` 新增输入框 + 锁定逻辑）、5 locale i18n 翻译、`server/api/settings/public.get.ts` 公开字段。
@@ -812,7 +814,7 @@
     - **最小验收**: governance/ 文档从 45 份缩减到 ~25 份；performance.md 恢复纯规范定位；backlog.md 无 Phase 44 残留引用。
 
 4. **主线：ESLint / 类型债 — 继续窄切片 (P1)**:
-    - **执行范围**: 继续「单规则 + 单文件 / 双文件」窄切片，至少完成两轮：清理 `require-await` 2 处（`feed.get.test.ts`）；继续 `no-explicit-any` 在 `server/services/ai/openai-provider.ts` 子桶收敛 1 桶。
+    - **执行范围**: 继续「单规则 + 单文件 / 双文件」窄切片，至少完成两轮：清理 `require-await` 2 处（`feed.get.test.ts`）；继续 `no-explicit-any` 在 `server/utils/ai/openai-provider.ts` 子桶收敛 1 桶。
     - **非目标**: 不做全仓 `any` 清零、不改变治理脚本基线。
     - **最小验收**: eslint-disable 总量从 15 降至 ≤13；生产代码新增 any 清零至少 3 处。
 
@@ -830,4 +832,3 @@
 -   [UI 设计](../design/ui.md)
 -   [API 设计](../design/api.md)
 -   [测试规范](../standards/testing.md)
-

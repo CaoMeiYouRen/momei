@@ -12,11 +12,55 @@
 
 ## 主窗口保留范围
 
-- 主文档当前只保留最近 5 个阶段的完整归档块（第三十八至第四十二阶段）。
+- 主文档当前保留第三十八至第四十五阶段的近线归档块。
 - 第一至第三十七阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第四十五阶段：隐私闭环与文档治理 (已审计归档)
+
+> 归档说明: 第四十五阶段「1 个新功能 + 1 个评估 + 3 个优化」已完成并通过阶段收口检查。  
+> 对照结果：`todo.md` 五条主线均已勾选；实现文件、测试与文档证据已回链并完成状态同步；当前执行面已清理为待准入状态。
+
+### 1. Umami 隐私自托管分析集成 — Phase 1 核心 (P0)
+
+- **实现对照**: `plugins/umami-analytics.client.ts`、`components/admin/settings/analytics-settings.vue`、`server/api/settings/public.get.ts`、`types/setting.ts`、`server/services/setting.constants.ts` 均已落地。
+- **验收对照**:
+  - 后台可配置 Umami Website ID + Script URL；
+  - 公开设置包含 `umamiAnalytics` 字段；
+  - 与 GA4 / Clarity / 百度统计并行，不互相覆盖。
+- **验证证据**: `components/admin/settings/analytics-settings.test.ts`、`tests/server/api/settings/public.get.test.ts`、`pnpm run typecheck`。
+
+### 2. Digital Garden / 知识花园探索评估 (P1)
+
+- **结论**: No-Go（当前阶段不进入实现，保留后续 P2 候选）。
+- **评估文档**: `docs/design/governance/archive/digital-garden-evaluation.md`
+- **验收对照**: 文档覆盖存储模型、性能影响、前端依赖三维评估并给出 go/no-go 结论。
+
+### 3. 文档治理收口 (P1)
+
+- **归档治理**: `docs/design/governance/` 19 份历史文档已迁入 `archive/` 并补齐索引。
+- **规范分层**: `docs/standards/performance.md` 已移除时间线历史，迁出到 `docs/reports/performance-optimization-log.md`。
+- **规划清理**: `docs/plan/backlog.md` 已移除已上收 Blogroll 条目，并同步更新候选状态与描述。
+
+### 4. ESLint / 类型债继续窄切片 (P1)
+
+- **收口对照**: `feed.get.test.ts` 的 `require-await` 豁免清理与 `server/utils/ai/openai-provider.ts` 的 `no-explicit-any` 子桶收敛已完成。
+- **结果摘要**: 两轮窄切片完成，满足“单规则 + 小范围”治理约束。
+
+### 5. 结构复用治理继续收敛 (P1)
+
+- **切片 A（页面层）**: `categories/[slug]` 与 `tags/[slug]` 公共详情模板统一到 `TaxonomyPostPage`。
+- **切片 B（server/utils）**: `tts-openai.ts` 与 `tts-siliconflow.ts` 抽取公共请求层 `server/utils/ai/tts-http-shared.ts`。
+- **基线对照**: `pnpm duplicate-code:check` 保持通过，重复率未反弹。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm lint:md`、`pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`
 
 ---
 
@@ -65,7 +109,7 @@
 
 - **优化 1**: Logo 图片预加载 — `app.vue` useHead 新增 `<link rel="preload" href="/logo.png" as="image">`，预期降低 LCP 100-300ms
 - **优化 2**: CSS @import 扁平化 — 将 `vendor.css` 中嵌套 `@import` 改为 `nuxt.config.ts` `css[]` 数组直接声明，消除串行下载，预期降低 FCP 50-150ms
-- **记录**: `docs/standards/performance.md` Section 11
+- **记录**: `docs/reports/performance-optimization-log.md`
 - **提交**: `8669d0c0`
 
 ### 6. Phase 44 测试回填 (P0)
@@ -347,4 +391,3 @@
 - 验证: `pnpm exec eslint server/utils/ai/index.ts server/utils/ai/index.test.ts`、`pnpm exec vitest run server/utils/ai/index.test.ts`、`pnpm exec nuxt typecheck`。
 - [x] 定向 ESLint、定向测试与类型检查通过。
 - [x] 残余债务与下一轮候选已明确记录。
-

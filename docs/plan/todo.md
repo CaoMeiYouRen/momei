@@ -17,58 +17,13 @@
 
 ## 当前待办
 
-### 第四十五阶段：隐私闭环与文档治理（进行中）
+### 第四十六阶段：待准入（筹备中）
 
-> 背景：第四十四阶段完成友链 RSS 聚合、分析评估与四条优化后，本阶段以「1 个新功能 + 1 个评估 + 3 个优化」组合推进：Umami 隐私分析作为 Phase 44 评估的落地实现，Digital Garden 为探索评估态，三条优化主线延续治理节奏（文档治理、ESLint/类型债、结构复用）。
+> 第四十五阶段已完成归档收口（详见 [待办事项归档](./todo-archive.md) 第四十五阶段条目）。新需求默认先进入 [backlog](./backlog.md) 候选池，待准入评估后再上收当前阶段。
 
-- [x] **主线：Umami 隐私自托管分析集成 — Phase 1 核心 (P0)**
-	- 执行范围：基于 Phase 44 评估结论和 `docs/design/governance/privacy-analytics-evaluation.md` 实施路线 Phase 1，完成：Schema（`SettingKey.UMAMI_ANALYTICS` + env mapping）、Nuxt 客户端插件（`plugins/umami-analytics.client.ts`）、后台设置页（`analytics-settings.vue` 新增输入框 + 锁定逻辑）、5 locale i18n 翻译、`server/api/settings/public.get.ts` 公开字段。
-	- 非目标：不在本阶段完成 Docker 部署模板（Phase 2）、不替换现有 GA4/Clarity/百度统计。
-	- 当前进度：Phase 1 实现与验证已完成并关闭（`analytics-settings.test.ts` 覆盖后台设置输入与锁定逻辑，`public.get.test.ts` 覆盖公开字段暴露，`typecheck` 通过）。
-	- 最小验收：
-		- 后台设置页可配置 Umami Website ID + Script URL。
-		- 公开页面注入正确 Umami 追踪脚本。
-		- 与现有 GA4/Clarity/百度统计可独立开关。
-
-- [x] **主线：Digital Garden / 知识花园探索评估 (P1)**
-	- 执行范围：对 backlog #10「Digital Garden / 知识花园模式」进行 go/no-go 评估，覆盖：双向链接存储模型（JSON 字段 vs 关联表）现有文章体量下的性能影响预估、非时序导航对现有路由 / 信息架构的侵入度、知识图谱可视化的前端依赖与 bundle 增量。产出评估文档 `docs/design/governance/archive/digital-garden-evaluation.md`。
-	- 非目标：不在本阶段实施双向链接、内容成熟度标记或知识图谱可视化。
-	- 当前进度：评估已完成并关闭；结论为 No-Go（当前阶段不进入实现，保留后续 P2 候选）；评估文档已落盘。
-	- 最小验收：
-		- 评估文档输出明确的 go/no-go 结论。
-		- 至少覆盖存储模型、性能影响、前端依赖三个维度。
-
-- [x] **主线：文档治理收口 (P1)**
-	- 执行范围：
-		- `docs/design/governance/` 清理过期文档（Phase 规划稿 5 份 + 已完成评估 7 份 + 已完成工程 6 份 + Phase 44 报告 1 份 → 共 ~19 份归档至 `archive/`）
-		- `docs/standards/performance.md` Section 11「优化历史」迁出至 `docs/reports/performance-optimization-log.md`
-		- `docs/plan/backlog.md` 清理已完成条目（#12 Blogroll 删除 + `#9` 状态更新 + Phase 44 方向描述改写 + `#8` 调研机制移除/合并）
-	- 非目标：不做新文档创建、不做翻译同步（延至阶段收口时统一执行）。
-	- 当前进度：已完成收口。`docs/design/governance/` 19 份历史文档已归档到 `archive/`，`index.md` 增加归档入口并清理活动索引；`performance.md` 的优化历史已迁出至 `docs/reports/performance-optimization-log.md`；`backlog.md` 已完成 #12 删除、隐私分析状态更新、Phase 44 方向改写与调研机制条目并入候选区整理。
-	- 最小验收：
-		- governance/ 文档从 45 份缩减到 ~25 份。
-		- performance.md 恢复纯规范定位（无时间线记录）。
-		- backlog.md 无 Phase 44 残留引用。
-
-- [x] **主线：ESLint / 类型债 — 继续窄切片 (P1)**
-	- 执行范围：继续「单规则 + 单文件 / 双文件」窄切片，至少完成两轮：清理 `require-await` 2 处（`feed.get.test.ts`）；继续 `no-explicit-any` 在 `server/utils/ai/openai-provider.ts` 子桶收敛 1 桶。
-	- 非目标：不做全仓 `any` 清零、不改变治理脚本基线。
-	- 当前进度：两轮窄切片已完成并通过审计（`feed.get.test.ts` 移除 `require-await` 2 处豁免；`openai-provider.ts` 清理 5 处 `any`）；本条已关闭。
-	- 最小验收：
-		- eslint-disable 总量从 15 降至 ≤13。
-		- 生产代码新增 any 清零至少 3 处。
-
-- [x] **主线：结构复用治理 — 继续收敛 (P1)**
-	- 执行范围：在 Phase 44 两组切片基础上继续收敛，聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue` 的公共模板片段，以及 `server/utils/` 下近似工具函数的抽取。每组切片必须输出原始重复点、拟抽象边界、复用收益。
-	- 非目标：不推动跨目录大重构、不为复用而复用。
-	- 当前进度：两组热点切片已完成并通过重复代码基线检查（`pnpm duplicate-code:check` Pass，duplication 0.63% 未反弹）。
-		- 切片 A（页面层）：`pages/categories/[slug].vue` 与 `pages/tags/[slug].vue` 公共模板已收敛为 `components/taxonomy-post-page.vue` + `useTaxonomyPostPage`。原始重复点为分类/标签详情页渲染骨架与分页逻辑；抽象边界为 `taxonomy-type` 输入；收益是单点维护 SEO/分页/空态行为。
-		- 切片 B（`server/utils`）：`tts-openai.ts` 与 `tts-siliconflow.ts` 的语音请求/错误处理重复段已抽取到 `server/utils/ai/tts-http-shared.ts`（`requestTTSAudioStream`）。原始重复点为 POST 请求、错误分支与响应体判空；抽象边界为 provider payload 与错误文案解析器；收益是统一流式返回判定和错误兜底路径，降低双实现漂移风险。
-	- 最小验收：
-		- 至少两组热点切片完成。
-		- `pnpm duplicate-code:check` 基线不反弹。
-
-> **阶段收口时统一处理**: 文档归档治理（regression/current 与 todo-archive 滚动归档）延至本阶段结束时作为收口动作执行，不占用独立待办条目。
+- [ ] **阶段待初始化**
+	- 当前状态：等待 backlog 候选评估与准入结论。
+	- 约束：在正式准入前，不直接写入新的阶段实施条目。
 
 ---
 
