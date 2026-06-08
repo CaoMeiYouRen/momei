@@ -383,7 +383,7 @@
 **ROI 评估**: TTS 前端化评估与原型 `1.33`；测试覆盖率冲刺 80%+ `1.83`；周期性回归执行 `1.50`；ESLint 下一轮切片 `1.50`；i18n 运行时继续扩面 `1.50`；文档翻译 freshness 续 `1.33`。其中 coverage 冲刺为 P0 主线，其余为 P1 主线。
 
 1. **主线：前端直出 TTS + 直传 OSS 评估与原型 (P1)**:
-    - **阶段结果**: 已完成 `docs/design/governance/tts-frontend-direct-evaluation.md` 评估文档，并落地 Volcengine JWT 凭证下发、前端直连 composable、OSS 直传复用与 TTS 元数据回写闭环。
+    - **阶段结果**: 已完成 `docs/design/governance/archive/tts-frontend-direct-evaluation.md` 评估文档，并落地 Volcengine JWT 凭证下发、前端直连 composable、OSS 直传复用与 TTS 元数据回写闭环。
     - **边界控制**: 本轮没有重写 `TTSService.processTask()`，也未扩写到 `media-task-monitor` 或 AI Image 链路；仅在 serverless / 直连场景补齐最小原型。
     - **验证与证据**: 评估文档、活动回归窗口与相关实现文件共同构成收口证据。
 
@@ -537,7 +537,7 @@
 **ROI 评估**: 第三方分发标签尾注与预览一致性修补 `1.60`；测试有效性第二轮切片 `1.85`；Postgres 公开热点读链路继续瘦身 `1.75`；结构复用第二轮（至少 3 处热点）`1.70`；ESLint / 类型债下一轮窄切片 `1.50`。其中测试有效性与 Postgres 热点读链路为 P0 主线，其余三项为受控 P1 治理切片。
 
 1. **主线：第三方分发标签尾注与预览一致性修补 (P1)**:
-    - **执行范围**: 只覆盖 `B 站` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
+    - **执行范围**: 只覆盖 `B 站` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/archive/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
     - **非目标**: 不扩写到 WechatSync、邮件、Hexo 仓库同步或其他分发器；不重做整套分发 UI。
     - **验收标准**: `B 站` 预览、`B 站` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致；并明确“标签尾注中的标签项去除空格后再输出”的唯一规则。
     - **验证与证据**: 至少补齐一组分发物料 helper / template 测试与一组实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
@@ -634,7 +634,7 @@
     - **执行范围**: 仅做评估态兼容性探针，不直接把 `typeorm` 从 `0.3.29` 升到 `1.0.0` 并宣布实施完成；优先覆盖 `server/database/**`、`server/database/typeorm-adapter.ts`、公开热点读链路与依赖 TypeORM 形态的定向测试。
     - **非目标**: 不在本阶段完成真实升级实施；不顺手重写仓库内所有 TypeORM mock。
     - **最小验收**: 至少完成一轮 `typeorm@1.0.0` 兼容性探针，按“数据库与适配层 / 实体层 / 查询与服务层 / API 层 / 测试桩”输出失败分桶，并跑通最小验证矩阵中的静态检查与关键定向验证。
-    - **验证与证据**: [docs/design/governance/typeorm-v1-upgrade-assessment.md](../design/governance/typeorm-v1-upgrade-assessment.md)、定向验证记录与活动回归窗口中的阶段结论。
+    - **验证与证据**: [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md)、定向验证记录与活动回归窗口中的阶段结论。
 
 4. **主线：TypeORM 升级 go/no-go 与回滚预案落盘 (P1)**:
     - **执行范围**: 依据兼容性探针结果输出 go/no-go，并把回滚锚点、触发条件与后续是否升格为真实升级实施写清楚。
@@ -799,7 +799,7 @@
     - **最小验收**: 后台设置页可配置 Umami Website ID + Script URL；公开页面注入正确 Umami 追踪脚本；与现有 GA4/Clarity/百度统计可独立开关。
 
 2. **主线：Digital Garden / 知识花园探索评估 (P1)**:
-    - **执行范围**: 对 backlog #10「Digital Garden / 知识花园模式」进行 go/no-go 评估，覆盖：双向链接存储模型（JSON 字段 vs 关联表）现有文章体量下的性能影响预估、非时序导航对现有路由 / 信息架构的侵入度、知识图谱可视化的前端依赖与 bundle 增量。产出评估文档 `docs/design/governance/digital-garden-evaluation.md`。
+    - **执行范围**: 对 backlog #10「Digital Garden / 知识花园模式」进行 go/no-go 评估，覆盖：双向链接存储模型（JSON 字段 vs 关联表）现有文章体量下的性能影响预估、非时序导航对现有路由 / 信息架构的侵入度、知识图谱可视化的前端依赖与 bundle 增量。产出评估文档 `docs/design/governance/archive/digital-garden-evaluation.md`。
     - **非目标**: 不在本阶段实施双向链接、内容成熟度标记或知识图谱可视化。
     - **最小验收**: 评估文档输出明确的 go/no-go 结论，至少覆盖存储模型、性能影响、前端依赖三个维度。
 
@@ -830,3 +830,4 @@
 -   [UI 设计](../design/ui.md)
 -   [API 设计](../design/api.md)
 -   [测试规范](../standards/testing.md)
+

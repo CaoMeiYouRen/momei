@@ -11,7 +11,6 @@
 ## 系统治理与运行时边界
 
 - **[系统配置深度解耦与统一化](./system-config-unification)**: `system.md` 的配置治理补充，聚焦来源解释、锁定与审计口径。
-- **[caomei-auth OAuth / OIDC 接入预研](./caomei-auth-oauth-evaluation)**: 认证体系的候选预研文档，聚焦 `genericOAuth` 接入前提、字段契约、ENV 锁定与上游缺口清单。
 - **[存量代码注释治理与注释漂移治理](./comment-drift-governance)**: 第三十阶段治理切片文档，聚焦设置来源判定、locale 归一化与请求上下文挂载链路的高价值注释补强。
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。
 - **[脚本治理与量化基线设计](./script-governance)**: 聚合 backlog、planning、development 中分散的 script-first 规则，聚焦长期脚本资产、量化口径、固定回归接入顺序与首批新增治理脚本候选。
@@ -23,7 +22,6 @@
 ## AI、国际化与自动化专项
 
 - **[AI 成本治理与多用户配额](./ai-cost-governance)**: `ai.md` 的治理补充，聚焦额度、失败扣额与后台审计口径。
-- **[AI 初始化 / 配置问答助手评估](./ai-setup-assistant-evaluation)**: `ai.md` / `system.md` / `qa-assistant` 交界处的专项评估文档，聚焦范围冻结、事实源复用、安全边界与最小原型建议。
 - **[ASR 性能与体验优化](./asr-performance-optimization)**: `asr.md` 的专项优化，聚焦临时凭证、压缩与异步追踪。
 - **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
 - **[文档翻译 freshness 清偿与分层治理](./docs-translation-freshness-governance)**: 文档翻译专项治理文档，聚焦 tier 化 freshness 规则、locale 范围矩阵与 `source-only` 降级口径。
@@ -34,23 +32,17 @@
 
 ## 内容分发、订阅与执行态补充
 
-- **[商业化转型可行性重评框架](./commercialization-reassessment-framework)**: 商业化候选评估文档，聚焦主卖点收敛、承接链核对、验收标准与最小验证矩阵。
 - **[第三方分发解耦与投递控制](./content-distribution-governance)**: `third-party.md` 的分发治理补充，聚焦外部分发状态机与投递边界。
-- **[远程仓库同步能力评估（Hexo 风格）](./hexo-repository-sync)**: `migration.md` / `content-distribution-governance.md` 之间的专项评估文档，聚焦 GitHub / Gitee 单仓库同步候选方案、媒体策略与失败审计。
 - **[渠道分发模板与标签适配方案](./content-distribution-template-tag-adaptation)**: `content-distribution-governance.md` 的增量方案，聚焦渠道内容模板与标签适配收口。
 - **[微信公众号格式预览与导出辅助](./wechat-mp-preview-export-assist)**: 第三十九阶段 P0 设计冻结文档，聚焦 `wechat_mp` 预览 profile、复制排版后内容入口与 dispatch 非目标边界。
-- **[文章分享系统设计文档](./post-sharing)**: 页面分享能力的专项设计，聚焦平台拼链、复制分享与统一口径。
-- **[Digital Garden / 知识花园模式探索评估](./digital-garden-evaluation)**: backlog #10 的 go/no-go 评估文档，聚焦双向链接存储模型、非时序导航侵入度与图谱依赖风险。
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 - **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。
 
 ## 测试与阶段复盘
 
-- **[Harness Engineering 方法论引入方案](./harness-engineering-adoption)**: 基于《从 Vibe Coding 到 Harness Engineering》的五层 harness 体系分析，优先引入认知层（推理模式切换）和交接层（Session 级任务协议），并已完成 Claude / Copilot / OpenCode 三端的 Phase A 仓库侧 session hooks / 插件基线实现。Phase B 原计划扩展 PostToolUse 质量校验 + Stop 门禁，但已于 2026-06-08 移除 PostToolUse 相关 hooks（原因：工具耗时增加、短时 node.js 进程风暴导致 CPU/内存占用冲高），详见 [harness-phase-b-quality-gates.md](./harness-phase-b-quality-gates.md)。
-- **[Backlog 长期主线瘦身与层级重构方案](./backlog-consolidation-plan)**: 对 `docs/plan/backlog.md` 中 12 条长期主线做文档类任务合并（4→1）与周期性回归提级（从普通长期主线升级为独立验证层），最终从 12 条瘦身为 8 条长期主线 + 1 个回归验证层。
-- **[第三十七阶段执行计划](./phase-37-plan)**: 当前阶段执行工件，聚焦 Windows 性能（P0）、测试有效性（P0）、ESLint 治理（P1）、结构复用（P1）与 Postgres 长窗口复核（P1）。
-- **[第三十六阶段执行计划](./phase-36-plan)**: 已完成阶段执行工件，聚焦 PG/Redis 修复（P0）、TTS backlog 清理、ESLint 治理、结构复用与注释治理候选组 C。
-- **[第三十一阶段候选上收草案](./phase-31-candidate-draft)**: 下一阶段候选规划工件，聚焦 1 个新功能预研、4 个治理切片与 1 个战略评估的正式上收字段冻结。
-- **[E2E 测试增强设计文档](./e2e-testing-enhancement)**: 跨模块质量设计，聚焦关键路径验证与自动化测试增强。
-- **[E2E 覆盖矩阵](./e2e-coverage-matrix)**: `e2e-testing-enhancement.md` 的执行态补充，聚焦页面 / 写链路风险分级、当前 Playwright 覆盖状态与下一轮补测优先级。
+- **[Harness Engineering 方法论引入方案](./harness-engineering-adoption)**: 基于《从 Vibe Coding 到 Harness Engineering》的五层 harness 体系分析，优先引入认知层（推理模式切换）和交接层（Session 级任务协议），并已完成 Claude / Copilot / OpenCode 三端的 Phase A 仓库侧 session hooks / 插件基线实现。Phase B 原计划扩展 PostToolUse 质量校验 + Stop 门禁，但已于 2026-06-08 移除 PostToolUse 相关 hooks（原因：工具耗时增加、短时 node.js 进程风暴导致 CPU/内存占用冲高），详见 [archive/harness-phase-b-quality-gates.md](./archive/harness-phase-b-quality-gates.md)。
 - **[第八阶段实施审计与复盘](./phase-8-feasibility-report)**: 已完成阶段的收尾审计文档，只保留阶段结论与索引，不再承担当前设计说明职责。
+
+## 已归档文档入口
+
+- 历史阶段规划稿、已完成评估、已完成工程文档与阶段分析报告已迁入 [archive/](./archive/index.md)。

@@ -181,7 +181,7 @@ docs/plan/backlog.md
 
 | 文件 | 操作 | 说明 |
 |:---|:---|:---|
-| `docs/design/governance/backlog-consolidation-plan.md` | 新增 | 本设计文档 |
+| `docs/design/governance/archive/backlog-consolidation-plan.md` | 新增 | 本设计文档 |
 | `docs/plan/backlog.md` | 修改 | 文档类合并 + 回归提级 + 维护规则更新 |
 | `docs/design/governance/index.md` | 修改 | 新增索引条目 |
 
@@ -198,3 +198,4 @@ docs/plan/backlog.md
 - 将 `backlog.md` revert 到改动前版本。
 - 删除本设计文档。
 - 从 `docs/design/governance/index.md` 移除索引条目。
+

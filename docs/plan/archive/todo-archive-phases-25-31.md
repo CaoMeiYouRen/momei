@@ -25,7 +25,7 @@
     - 验收: 已明确字段映射、账号绑定、同邮箱合并、回调地址与 ENV 锁定边界，并输出“允许进入实现 / 需上游补齐 / 暂缓接入”的三选一结论。
     - 非目标: 不直接落地真实登录按钮、回调处理或账号绑定实现。
     - 结果: 已确认 `better-auth` 现有 `genericOAuth` 接入锚点可承接 `caomei-auth`，但上游当前仍缺少明确的 revocation / refresh token 能力保证，故阶段结论为“暂缓接入，待上游补齐后再评估真实实现”。
-    - 验证: 详见 [caomei-auth OAuth / OIDC 接入预研](../../design/governance/caomei-auth-oauth-evaluation.md)。
+    - 验证: 详见 [caomei-auth OAuth / OIDC 接入预研](../../design/governance/archive/caomei-auth-oauth-evaluation.md)。
 
 ### 2. 主线：路线图 / Todo 深度归档治理 (P1)
 
@@ -70,7 +70,7 @@
     - 验收: 已明确一个最值得继续验证的付费增强能力，或明确说明当前尚不存在该主卖点，并指出统一承接入口的优先落点。
     - 非目标: 不直接进入支付、价格页、会员中心或营销后台增强实现。
     - 结果: 已结合既有 `opc-doc` 利基 / 价值主张 / 商业模式 / 转化闭环产物，以及首页、Demo、About 三个公开入口审计完成重评；统一评分为 `17 / 25`，结论为“降级观察”。已确认“开源核心 + 付费增强功能”仍是唯一主路径，但赞助 / 会员继续只承担辅助收入角色；当前最值得继续验证的候选收敛为“多语言内容资产化增强包”。
-    - 验证: 详见 [商业化转型可行性重评框架](../../design/governance/commercialization-reassessment-framework.md) 与 [项目长期规划与积压项](../backlog.md)。
+    - 验证: 详见 [商业化转型可行性重评框架](../../design/governance/archive/commercialization-reassessment-framework.md) 与 [项目长期规划与积压项](../backlog.md)。
 
 ## 第三十阶段：远程仓库同步与治理基线细化推进（Hexo 风格导出） (已审计归档)
 
@@ -85,7 +85,7 @@
     - 验收: 首轮候选落地只允许收敛到“已发布文章 -> Hexo 风格 Markdown + Front-matter + 媒体引用 -> 单仓库推送”这一条最小闭环，不得在本阶段扩写为桌面端同步、双向合并、定时任务编排或新的通用 Git 发布平台。
     - 验收: 至少完成 GitHub / Gitee 两类远端的契约评估，并落地一条可复验的候选链路；若只先接通一类 provider，另一类必须保留明确的契约差异、阻塞点与后续落地条件。
     - 验收: 补齐最小验证矩阵，至少覆盖导出结果结构、Front-matter 字段映射、媒体路径策略、认证失败 / 推送失败兜底与审计日志落点。
-    - 结果: 已完成专项设计文档 [hexo-repository-sync.md](../../design/governance/hexo-repository-sync.md)，并落地 `server/services/post-hexo-repository-sync.ts`、`POST /api/admin/posts/:id/hexo-repository-sync` 与分发摘要 `hexoRepositorySync` 派生状态。当前已支持将已发布文章导出为 Hexo 风格 Markdown，改写站内媒体为绝对 URL，并通过 GitHub / Gitee Contents API 推送到单仓库指定目录，同时把最近一次同步状态回写到文章元数据。
+    - 结果: 已完成专项设计文档 [hexo-repository-sync.md](../../design/governance/archive/hexo-repository-sync.md)，并落地 `server/services/post-hexo-repository-sync.ts`、`POST /api/admin/posts/:id/hexo-repository-sync` 与分发摘要 `hexoRepositorySync` 派生状态。当前已支持将已发布文章导出为 Hexo 风格 Markdown，改写站内媒体为绝对 URL，并通过 GitHub / Gitee Contents API 推送到单仓库指定目录，同时把最近一次同步状态回写到文章元数据。
     - 验证: 详细记录见 [current.md](../../reports/regression/current.md) 的 2026-04-21“远程仓库同步（Hexo 风格）候选链路收口”条目，Review Gate 结论为 `Pass`。
 
 ### 2. 主线：文档翻译 freshness 清偿与文档翻译治理 (P0)
@@ -264,7 +264,7 @@
     - 验收: 文章页提供统一分享入口，覆盖主流平台并保证移动端可用。
     - 验收: 社交 / 打赏图标映射统一，新增第三方图标库与 fallback 策略。
     - 结果: 已完成文章页分享卡片、分享弹窗与平台图标映射收口，移动端原生分享、桌面端分享面板、主流平台拼链与国内平台复制式分享均已落地；微博在当前阶段统一按复制式分享处理。
-    - 设计入口: 分享系统设计草案见 [post-sharing.md](../../design/governance/post-sharing.md)。
+    - 设计入口: 分享系统设计草案见 [post-sharing.md](../../design/governance/archive/post-sharing.md)。
 
 ### 3. 主线：接口缓存逻辑复用与可缓存接口扩面切片 (P1) (已完成)
 
@@ -286,7 +286,7 @@
     - 验收: 建立页面与接口覆盖矩阵并明确优先级。
     - 验收: 完成关键交易路径与高风险接口的首轮稳定用例。
     - 结果: 已补齐注册校验、投稿表单失败 / 成功提交流程、`/feedback` 与 `/friend-links` 等公共页 reachability，以及后台 `users`、`comments`、`submissions`、`subscribers`、`friend-links`、`external-links`、`notifications`、`ai`、taxonomy 搜索 / 聚合开关等首轮稳定用例。
-    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../../design/governance/e2e-coverage-matrix.md) 与 [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md)。
+    - 证据: 定向命令 `pnpm exec playwright test tests/e2e/submit.e2e.test.ts tests/e2e/user-workflow.e2e.test.ts tests/e2e/admin.e2e.test.ts tests/e2e/public-pages.e2e.test.ts --project=chromium` 已验证 `33 passed / 3 skipped`，详见 [e2e-coverage-matrix.md](../../design/governance/archive/e2e-coverage-matrix.md) 与 [旧活动日志迁移快照](../../reports/regression/archive/legacy-plan-regression-log.md)。
 
 ## 第二十六阶段：质量治理与数据库流量收敛 (已审计归档)
 
@@ -404,3 +404,4 @@
     - 验收: 若进入原型阶段，只允许做启用前引导或配置解释类最小交互，不直接承诺全功能站内 AI 助手体验。
     - 验收: 补齐评估结论、风险分级与是否建议进入下一轮正式实现的产品判断。
     - 结果: 评估结论已明确当前阶段只建议推进安装页 / 设置页双入口的最小交互原型，默认不开放 AI 侧写配置；高风险项收敛为“敏感配置泄露”“只读解释误扩为可写代理”“平台边界误判”三类。
+

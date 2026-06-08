@@ -31,20 +31,20 @@
 		- 与现有 GA4/Clarity/百度统计可独立开关。
 
 - [ ] **主线：Digital Garden / 知识花园探索评估 (P1)**
-	- 执行范围：对 backlog #10「Digital Garden / 知识花园模式」进行 go/no-go 评估，覆盖：双向链接存储模型（JSON 字段 vs 关联表）现有文章体量下的性能影响预估、非时序导航对现有路由 / 信息架构的侵入度、知识图谱可视化的前端依赖与 bundle 增量。产出评估文档 `docs/design/governance/digital-garden-evaluation.md`。
+	- 执行范围：对 backlog #10「Digital Garden / 知识花园模式」进行 go/no-go 评估，覆盖：双向链接存储模型（JSON 字段 vs 关联表）现有文章体量下的性能影响预估、非时序导航对现有路由 / 信息架构的侵入度、知识图谱可视化的前端依赖与 bundle 增量。产出评估文档 `docs/design/governance/archive/digital-garden-evaluation.md`。
 	- 非目标：不在本阶段实施双向链接、内容成熟度标记或知识图谱可视化。
 	- 当前进度：评估已完成，结论为 No-Go（当前阶段不进入实现，保留后续 P2 候选）；评估文档已落盘。
 	- 最小验收：
 		- 评估文档输出明确的 go/no-go 结论。
 		- 至少覆盖存储模型、性能影响、前端依赖三个维度。
 
-- [ ] **主线：文档治理收口 (P1)**
+- [x] **主线：文档治理收口 (P1)**
 	- 执行范围：
 		- `docs/design/governance/` 清理过期文档（Phase 规划稿 5 份 + 已完成评估 7 份 + 已完成工程 6 份 + Phase 44 报告 1 份 → 共 ~19 份归档至 `archive/`）
 		- `docs/standards/performance.md` Section 11「优化历史」迁出至 `docs/reports/performance-optimization-log.md`
 		- `docs/plan/backlog.md` 清理已完成条目（#12 Blogroll 删除 + `#9` 状态更新 + Phase 44 方向描述改写 + `#8` 调研机制移除/合并）
 	- 非目标：不做新文档创建、不做翻译同步（延至阶段收口时统一执行）。
-	- 当前进度：待开始。
+	- 当前进度：已完成收口。`docs/design/governance/` 19 份历史文档已归档到 `archive/`，`index.md` 增加归档入口并清理活动索引；`performance.md` 的优化历史已迁出至 `docs/reports/performance-optimization-log.md`；`backlog.md` 已完成 #12 删除、隐私分析状态更新、Phase 44 方向改写与调研机制条目并入候选区整理。
 	- 最小验收：
 		- governance/ 文档从 45 份缩减到 ~25 份。
 		- performance.md 恢复纯规范定位（无时间线记录）。

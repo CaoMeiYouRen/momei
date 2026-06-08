@@ -201,10 +201,10 @@
 
 | 维度 | 最小验证 | 证据落点 |
 | :-- | :-- | :-- |
-| 评估框架 | 三路径比较、五维评分与结论格式保持一致 | `docs/design/governance/commercialization-reassessment-framework.md` |
+| 评估框架 | 三路径比较、五维评分与结论格式保持一致 | `docs/design/governance/archive/commercialization-reassessment-framework.md` |
 | 承接入口核对 | 已核对首页、Demo、About 与项目说明入口 | `pages/index.vue`、`components/demo-banner.vue`、`pages/about.vue` |
 | 规划同步 | backlog 与阶段草案口径保持一致 | `docs/plan/backlog.md` + 本文档 |
-| 决策结果 | 已输出继续推进 / 暂缓推进 / 降级观察之一 | `docs/design/governance/commercialization-reassessment-framework.md` |
+| 决策结果 | 已输出继续推进 / 暂缓推进 / 降级观察之一 | `docs/design/governance/archive/commercialization-reassessment-framework.md` |
 
 ## 4. 正式上收前的最后闸门
 
@@ -224,3 +224,4 @@
 - [商业化转型可行性重评框架](./commercialization-reassessment-framework.md)
 - [国际化字段治理与共享文案边界收敛](./i18n-field-governance.md)
 - [ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening.md)
+

@@ -160,9 +160,9 @@
 ### 1. 前端直出 TTS + 直传 OSS 评估与原型 (P1)
 
 - [x] **前端直出 TTS + 直传 OSS 评估与原型 (P1)**
-    - 验收: 已在 `docs/design/governance/tts-frontend-direct-evaluation.md` 固化 Provider CORS、JWT 凭证下发与浏览器直传 OSS 的设计边界。
+    - 验收: 已在 `docs/design/governance/archive/tts-frontend-direct-evaluation.md` 固化 Provider CORS、JWT 凭证下发与浏览器直传 OSS 的设计边界。
     - 结果: 已落地火山 JWT 凭证、前端直连 composable、服务端代理兼容、TTS 元数据回写与 serverless 自动降级；本轮只为 Volcengine 打通前端直连闭环，不重写 `TTSService.processTask()`。
-    - 验证: 详见活动回归窗口中与 TTS 前端化原型对应的专项记录，以及 `docs/design/governance/tts-frontend-direct-evaluation.md` 的结论。
+    - 验证: 详见活动回归窗口中与 TTS 前端化原型对应的专项记录，以及 `docs/design/governance/archive/tts-frontend-direct-evaluation.md` 的结论。
 
 ### 2. 测试覆盖率冲刺 80%+ (P0)
 
@@ -208,7 +208,7 @@
 ### 1. 创作者数据统计增强 (P1)
 
 - [x] **创作者数据统计增强 (P1)**
-	- 验收: 专项设计文档 docs/design/governance/creator-statistics.md 已冻结首版指标集合、权限口径与归因来源，两轮 Review Gate Pass。
+	- 验收: 专项设计文档 docs/design/governance/archive/creator-statistics.md 已冻结首版指标集合、权限口径与归因来源，两轮 Review Gate Pass。
 	- 验收: 后台 /admin 新增「创作者统计」Tab，产出卡片 + 发文/分发趋势列表。
 	- 验收: GET /api/admin/creator-stats 已落地（?range= + ?authorId=），发文 7d→天/30d→周/90d→月聚合，分发从 Post.metadata JSONB 提取按周分桶。
 	- 结果: types/creator-stats.ts, server/utils/creator-stats.ts, server/api/admin/creator-stats.get.ts, creator-metric-card.vue, use-creator-stats-page.ts 落地；i18n 五语完整。
@@ -416,4 +416,5 @@
     - 验收: 若进入原型阶段，只允许做启用前引导或配置解释类最小交互，不直接承诺全功能站内 AI 助手体验。
     - 验收: 补齐评估结论、风险分级与是否建议进入下一轮正式实现的产品判断。
     - 结果: 评估结论已明确当前阶段只建议推进安装页 / 设置页双入口的最小交互原型，默认不开放 AI 侧写配置；高风险项收敛为“敏感配置泄露”“只读解释误扩为可写代理”“平台边界误判”三类。
+
 

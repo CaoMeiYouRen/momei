@@ -31,9 +31,9 @@
     - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
     - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
-    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片——Phase A + B，覆盖零覆盖模块及低分支模块，四项验收标准全部达成；剩余 Phase C 及 admin page checkbox 测试回灌 backlog）。
+    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片，覆盖零覆盖模块及低分支模块；本轮缺口已完成盘点并转入后续按需回灌）。
 - **下一次可切片方向**:
-    - 第四十四阶段已产出友链 RSS 聚合、showRssFeed 全链路及公开页降级的缺口分析，后续优先按 Phase A → B → C 三阶段推进测试补全。
+    - 友链 RSS 聚合相关测试继续按“风险优先 + 现有基座优先”策略回灌，优先补齐公开页降级与后台配置链路中的失败断言。
     - 若后续继续上收，优先进入“测试有效性第二轮切片”：补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径，避免高风险链路只剩服务端成功断言。
     - 保持“已有测试基座 + 失败 / 边界优先”的节奏，不回到低价值 coverage 铺量。
 
@@ -326,7 +326,7 @@
     - 第三十七阶段已正式切换为“0 个新功能 + 5 个优化”的执行面，当前聚焦 Windows 本地 Dev / Build 性能治理、测试有效性切片、ESLint / 类型债窄切片、至少 3 处结构复用热点，以及 Postgres 长窗口复核闭环。
     - 第四十一阶段候选组合已正式上收到 [项目计划](./roadmap.md) 与 [待办事项](./todo.md) 当前执行面，不再在 backlog 维护重复候选正文。
     - 本轮特别强化“验收标准具体化 + 设计文档前置”两项门槛，避免后续执行继续以最小解释收缩交付范围。
-    - **2026-06-05 Harness Phase B 启动（2026-06-08 调整）**：基于 [harness-engineering-adoption.md](../design/governance/harness-engineering-adoption.md) Phase A 的成果，Phase B 原聚焦 PostToolUse 质量校验 + Stop 门禁 hooks 接入。后续已移除 PostToolUse 相关 hooks（Claude / Copilot / OpenCode），原因是会显著增加 tool 执行耗时，并在短期内产生多个 node.js 进程导致 CPU/内存占用冲高、影响主机运行。详细方案与调整记录见 [harness-phase-b-quality-gates.md](../design/governance/harness-phase-b-quality-gates.md)。
+    - **2026-06-05 Harness Phase B 启动（2026-06-08 调整）**：基于 [harness-engineering-adoption.md](../design/governance/harness-engineering-adoption.md) Phase A 的成果，Phase B 原聚焦 PostToolUse 质量校验 + Stop 门禁 hooks 接入。后续已移除 PostToolUse 相关 hooks（Claude / Copilot / OpenCode），原因是会显著增加 tool 执行耗时，并在短期内产生多个 node.js 进程导致 CPU/内存占用冲高、影响主机运行。详细方案与调整记录见 [harness-phase-b-quality-gates.md](../design/governance/archive/harness-phase-b-quality-gates.md)。
 
 ## 短期 / 一次性候选任务（上收后去重）
 
@@ -386,37 +386,25 @@
     - 短期内不规划新增更多语言支持，继续优先保障现有语言链路稳定性、翻译质量与性能基线。
     - 若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估，再进入正式阶段规划。
 
-8. **新功能点规划前置调研机制（搜索 / 外部信息源）**
-- **执行范围**:
-    - 对新增功能点在正式分析前，先进行一次轻量调研（搜索工具或其他可信信息源），再进入范围、验收与 ROI 分析。
-- **当前结论**:
-    - 本条作为后续新功能规划的固定前置动作，不等同于立即上收任何具体新功能。
-    - 2026-06-03 首轮调研已完成，报告见 [docs/design/governance/feature-planning-research-2026-06.md](../design/governance/feature-planning-research-2026-06.md)。
-    - 本轮确认了墨梅「自托管 + AI 全链路 + 原生国际化」的差异化优势在市场上暂无直接竞品。
-    - 识别出以下新增候选功能（基于源码审计 + 竞品搜索确认的**真正缺口**，均已写入短期候选区）：
-
 ### 2026-06 调研发现的新增候选功能
 
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收项**：#9 AI 内容审计 → Phase 42 已交付；#10 内容日历 → Phase 42 已交付；#9 AI 内容多格式复用 → Phase 43 已交付；以下编号重新整理。
+> **已上收项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）均已交付；以下为当前仍保留的候选。
 
-9. **隐私优先自托管分析集成 (P2)**
+8. **隐私优先自托管分析集成 (P2)**
 - **背景**: 2026 年自托管分析 (Plausible/Umami/OpenPanel) 成为自托管博客社区的标准配置。墨梅已有 GA4/Clarity/百度统计，缺少 cookieless 自托管选项 ([source](https://openpanel.dev/articles/self-hosted-web-analytics))。
 - **最小范围**: 提供 Umami 的 Docker Compose 部署模板、后台设置页 tracking script 自动注入配置、首页不依赖第三方 cookie 的基础 PV 统计（可选）。
 - **非目标**: 不自建分析引擎、不替换现有 GA4/Clarity、不做产品分析 (funnel/retention)。
 - **前置条件**: 评估 Umami/Plausible 的 Docker 资源开销和与现有中间件的兼容性。
+- **状态说明**:
+    - 第四十五阶段已完成 Phase 1 核心集成（Schema、客户端插件、后台设置页、公开配置与 i18n），当前保持与 GA4/Clarity/百度统计并行可控。
+    - 后续仅保留 Docker 自托管模板与部署脚本化（原候选范围中的 Phase 2）。
 
-10. **Digital Garden / 知识花园模式 (P2, 探索)**
+9. **Digital Garden / 知识花园模式 (P2, 探索)**
 - **背景**: Digital Garden 是 2025-2026 年个人网站的重要趋势，强调双向链接、内容生长状态、非时序导航 ([Maggie Appleton](https://maggieappleton.com/garden-history))。
 - **最小范围**: 文章间双向引用自动检测与「被引用」展示、内容成熟度标记 (draft → evergreen)、可选的知识图谱可视化。
 - **非目标**: 不做完整 Zettelkasten 笔记系统、不与 Obsidian/Logseq 竞争。
 - **前置条件**: 先评估双向链接的存储模型 (JSON 字段 vs 关联表) 与对现有查询的性能影响。
-
-12. **Blogroll / 友链 RSS 聚合 (P2)** — **已上收 Phase 44**
-- **背景**: IndieWeb 运动强调博客间的互链发现。墨梅已有友链系统（自助申请 + 审核），但缺少动态内容聚合。
-- **最小范围**: 友链页面增加「最近更新」RSS 聚合摘要 (读取友链站点的 Feed)、可选的前后博客环导航链接。
-- **非目标**: 不建 RSS 阅读器、不建内容聚合平台、不做全文索引。
-- **前置条件**: 需处理跨域 RSS 抓取、缓存策略与失效处理。
 
 ## 相关文档
 
@@ -424,3 +412,4 @@
 - [待办事项](./todo.md)
 - [待办归档](./todo-archive.md)
 - [项目规划规范](../standards/planning.md)
+
