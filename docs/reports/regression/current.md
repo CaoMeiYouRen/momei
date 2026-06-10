@@ -16,10 +16,10 @@
 
 - 执行入口: `pnpm regression:weekly`
 - 证据 artifact: [md](../../../artifacts/review-gate/2026-06-10-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-06-10-weekly-regression.json)
-- 结果摘要: `Reject`；blocker=1，warning=0。
-- 已执行验证: test:coverage=FAIL
-- 回归窗口: 174 行 / 6 条，归档判定=窗口健康。
-- Review Gate: `Reject` / `blocker`；主要问题=test:coverage failed。
+- 结果摘要: `Pass`；blocker=0，warning=1。
+- 已执行验证: test:coverage=PASS，security:audit-deps=PASS，docs:check:source-of-truth=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，i18n:audit:missing=PASS，duplicate-code:check=FAIL，governance:check:scripts=PASS
+- 回归窗口: 189 行 / 7 条，归档判定=窗口健康。
+- Review Gate: `Pass` / `warning`；主要问题=duplicate-code:check failed。
 - 未覆盖边界: 无新增未覆盖边界。
 
 <!-- regression-window:end:periodic-regression:weekly:2026-06-10 -->

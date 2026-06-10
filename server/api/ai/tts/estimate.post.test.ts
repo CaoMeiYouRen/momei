@@ -16,8 +16,8 @@ vi.mock('@/server/utils/permission', () => ({
     requireAdminOrAuthor: vi.fn(),
 }))
 
-const { readBody } = global as unknown as {
-    readBody: ReturnType<typeof vi.fn>
+const { readValidatedBody } = global as unknown as {
+    readValidatedBody: ReturnType<typeof vi.fn>
 }
 
 describe('POST /api/ai/tts/estimate', () => {
@@ -29,12 +29,12 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should return structured estimate contract', async () => {
-        vi.mocked(readBody).mockResolvedValue({
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
             provider: 'openai',
             voice: 'alloy',
             text: 'Hello world',
             mode: 'speech',
-        })
+        }))
         vi.mocked(calculateQuotaUnits).mockReturnValue(12)
         vi.mocked(TTSService.estimateCostBreakdown).mockResolvedValue({
             quotaUnits: 12,
@@ -81,15 +81,14 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should reject missing voice or text', async () => {
-        vi.mocked(readBody).mockResolvedValue({
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
             provider: 'openai',
             voice: '',
             text: '',
-        })
+        }))
 
         await expect(handler({ context: {} } as any)).rejects.toMatchObject({
-            statusCode: 400,
-            message: 'Voice and text are required',
+            name: 'ZodError',
         })
     })
 })

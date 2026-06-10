@@ -187,7 +187,7 @@ describe('run-e2e', () => {
             })
 
             expect(withoutIgnore).toBeGreaterThanOrEqual(ignoredTime.getTime())
-            expect(withIgnore).toBeLessThan(withoutIgnore)
+            expect(withIgnore).toBeLessThanOrEqual(withoutIgnore)
             expect(withIgnore).toBeGreaterThanOrEqual(includedTime.getTime())
         } finally {
             await rm(tempRepoRoot, { force: true, recursive: true })

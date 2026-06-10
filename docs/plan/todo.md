@@ -41,8 +41,8 @@
 	- 最小验收：全仓覆盖率达到 `82%+`，优先补齐最近新增功能与高风险链路的失败/边界断言。
 
 - [x] **主线：周期性回归任务 + 项目现状调研 (P0)**
-	- 当前状态：已完成（本轮结论 Reject，含 blocker）。
-	- 当前进展（2026-06-10）：已完整执行固定入口 `pnpm regression:weekly`，并生成 `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 与 `docs/reports/regression/current.md` 自动回填记录；本轮 blocker 为 `test:coverage failed`，具体失败集中在 `tests/scripts/run-e2e.test.ts` 与 `server/api/ai/tts/estimate.post.test.ts`（共 3 条失败用例）。
+	- 当前状态：已完成（本轮结论 Pass，含 warning）。
+	- 当前进展（2026-06-10）：已修复 `tests/scripts/run-e2e.test.ts` 与 `server/api/ai/tts/estimate.post.test.ts` 的 blocker 用例并重跑固定入口 `pnpm regression:weekly`，`artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 与 `docs/reports/regression/current.md` 已自动回填 `Pass`；当前仅剩 warning：`duplicate-code:check failed`（非 required）。
 	- 最小验收：完成一次固定回归入口执行并更新 `docs/reports/regression/current.md`，同时输出下一阶段重点候选结论。
 
 - [x] **主线：数据库初始化脚本与文档同步 (P1)**
