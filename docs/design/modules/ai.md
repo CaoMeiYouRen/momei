@@ -50,7 +50,22 @@
 
 详细方案请参考 [AI 成本治理与多用户配额](../governance/ai-cost-governance.md)。
 
-### 3.3 环境变量配置
+### 3.3 DeepSeek `user_id` 分组隔离约定
+
+为对齐 DeepSeek 官方“同账号下按业务用户隔离调度与 KVCache”的能力，文本类 AI 请求统一遵循以下约定：
+
+- 后端会把当前业务用户 ID 透传给上游模型提供商：
+    - OpenAI 兼容链路（含 DeepSeek）：请求体字段为 `user_id`
+    - Anthropic 链路：请求体字段为 `metadata.user_id`
+- `user_id` 透传前会做格式校验：必须匹配正则 `[a-zA-Z0-9\-_]+` 且长度不超过 `512`。
+- 当用户标识不满足上游约束时，后端会降级为“不传 `user_id`”，避免请求直接被上游拒绝。
+
+说明：
+
+- 项目当前把业务用户主键作为 `user_id` 透传来源，不允许拼接邮箱、手机号等隐私信息。
+- 并发限速口径仍以 DeepSeek 账号总配额为主；`user_id` 主要用于上游内容安全、KVCache 与调度隔离。
+
+### 3.4 环境变量配置
 
 ```bash
 # 是否启用 AI
@@ -74,6 +89,8 @@ AI_TEMPERATURE=0.7
 ### 4.1 AI 核心接口 (`/api/ai/*`)
 
 所有 AI 接口均需经 `admin` 或 `author` 权限验证。
+
+同时，所有文本类 AI 调用默认携带经过校验的业务用户 `user_id` 到上游提供商（见 3.3 节）。
 
 -   `POST /api/ai/suggest-titles`:
     -   输入: `{ content: string }`

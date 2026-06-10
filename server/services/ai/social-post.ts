@@ -52,6 +52,7 @@ export class SocialPostService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
+            userId,
         })
 
         this.logUsage({ task: 'social-post-generation', response, userId })

@@ -1,4 +1,5 @@
 import { stripTrailingSlash } from '@/utils/shared/url'
+import { toProviderUserId } from './user-id'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider } from '@/types/ai'
 
 export class AnthropicProvider implements AIProvider {
@@ -15,6 +16,7 @@ export class AnthropicProvider implements AIProvider {
     async chat(options: AIChatOptions): Promise<AIChatResponse> {
         const endpoint = this.config.endpoint || 'https://api.anthropic.com/v1'
         const baseUrl = stripTrailingSlash(endpoint)
+        const providerUserId = toProviderUserId(options.userId)
 
         try {
             const response = await $fetch<any>(`${baseUrl}/messages`, {
@@ -32,6 +34,9 @@ export class AnthropicProvider implements AIProvider {
                     max_tokens: options.maxTokens ?? this.config.maxTokens,
                     temperature: options.temperature ?? this.config.temperature,
                     stream: options.stream ?? false,
+                    ...(providerUserId
+                        ? { metadata: { user_id: providerUserId } }
+                        : {}),
                 },
             })
 

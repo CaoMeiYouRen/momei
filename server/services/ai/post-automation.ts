@@ -285,6 +285,7 @@ export class PostAutomationService extends AIBaseService {
             translatedTitle = await this.translateFieldContent(sourcePost.title, input.targetLanguage, {
                 sourceLanguage,
                 field: 'title',
+                userId: actor.userId,
             }, usageAggregate)
         }
 
@@ -296,6 +297,7 @@ export class PostAutomationService extends AIBaseService {
                 ? await this.translateFieldContent(sourcePost.summary, input.targetLanguage, {
                     sourceLanguage,
                     field: 'summary',
+                    userId: actor.userId,
                 }, usageAggregate)
                 : null
         }
@@ -318,6 +320,7 @@ export class PostAutomationService extends AIBaseService {
         if (scopes.includes('content')) {
             const contentResult = await translateInChunks(sourcePost.content, input.targetLanguage, {
                 sourceLanguage,
+                userId: actor.userId,
                 onChunkComplete: async ({ completedChunks, totalChunks }) => {
                     const progress = 40 + Math.round((completedChunks / totalChunks) * 45)
                     await this.updateTaskProgress(task, 'processing', Math.min(85, progress))

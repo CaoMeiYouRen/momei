@@ -135,6 +135,55 @@ describe('AI Infrastructure', () => {
         )
     })
 
+    it('should pass user_id in OpenAI-compatible chat request body', async () => {
+        mockFetch.mockResolvedValueOnce({
+            choices: [{ message: { content: 'Hello' } }],
+            model: 'gpt-4o',
+        })
+
+        const provider = await getAIProvider()
+        await provider.chat!({
+            messages: [{ role: 'user', content: 'Hi' }],
+            userId: 'user-123_abc',
+        })
+
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/chat/completions'),
+            expect.objectContaining({
+                body: expect.objectContaining({
+                    user_id: 'user-123_abc',
+                }),
+            }),
+        )
+    })
+
+    it('should pass metadata.user_id in Anthropic chat request body', async () => {
+        mockFetch.mockResolvedValueOnce({
+            content: [{ type: 'text', text: 'Claude says hi' }],
+            model: 'claude-3-5-sonnet',
+            usage: { input_tokens: 10, output_tokens: 20 },
+        })
+
+        const provider = await getAIProvider({
+            provider: 'anthropic',
+            apiKey: 'claude-key',
+            model: 'claude-3-5-sonnet',
+        })
+        await provider.chat!({
+            messages: [{ role: 'user', content: 'Hi' }],
+            userId: 'user-123_abc',
+        })
+
+        expect(mockFetch).toHaveBeenCalledWith(
+            expect.stringContaining('/messages'),
+            expect.objectContaining({
+                body: expect.objectContaining({
+                    metadata: { user_id: 'user-123_abc' },
+                }),
+            }),
+        )
+    })
+
     it('should support Gemini provider', async () => {
         mockFetch.mockResolvedValueOnce({
             candidates: [{ content: { parts: [{ text: 'Gemini says hi' }] } }],

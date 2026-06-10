@@ -76,6 +76,7 @@ function resolveTranslateTaskChunkSize() {
 async function requestTranslateTaskChunk(
     chunk: string,
     payload: TranslateTaskPayload,
+    userId?: string,
 ) {
     if (!isServerlessEnvironment()) {
         return await requestTranslation(
@@ -85,6 +86,7 @@ async function requestTranslateTaskChunk(
             {
                 sourceLanguage: payload.sourceLanguage,
                 field: payload.field,
+                userId,
             },
         )
     }
@@ -103,6 +105,7 @@ async function requestTranslateTaskChunk(
                 sourceLanguage: payload.sourceLanguage,
                 field: payload.field,
                 signal: controller.signal,
+                userId,
             },
         )
     } catch (error) {
@@ -388,6 +391,7 @@ export class TextTranslationTaskService extends AIBaseService {
                 const { provider, response, translatedContent } = await requestTranslateTaskChunk(
                     currentChunk,
                     payload,
+                    task.userId,
                 )
 
                 lastProvider = provider.name

@@ -123,6 +123,7 @@ export class TextService extends AIBaseService {
             messages: [
                 { role: 'user', content: prompt },
             ],
+            userId,
         })
 
         const suggestion = parseVisualPromptSuggestion(response.content, assetUsage, applyMode, promptContext)
@@ -178,6 +179,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.8,
+            userId,
         })
 
         this.logUsage({ task: 'suggest-titles', response, userId })
@@ -233,6 +235,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
+            userId,
         })
 
         this.logUsage({ task: 'suggest-slug', response, userId })
@@ -268,7 +271,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const { provider, response, summary } = await summarizeTextContent(content, maxLength, language)
+        const { provider, response, summary } = await summarizeTextContent(content, maxLength, language, userId)
         this.logUsage({ task: 'summarize', response, userId })
         await this.recordTask({
             userId,
@@ -306,6 +309,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
+            userId,
         })
 
         this.logUsage({ task: 'refine-voice', response, userId })
@@ -350,6 +354,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
+            userId,
         })
 
         this.logUsage({ task: 'optimize-manuscript', response, userId })
@@ -412,6 +417,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
+            userId,
         })
 
         this.logUsage({ task: 'generate-scaffold', response, userId })
@@ -458,6 +464,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.8,
+            userId,
         })
 
         this.logUsage({ task: 'expand-section', response, userId })
@@ -525,7 +532,10 @@ export class TextService extends AIBaseService {
             requestContent,
             to,
             undefined,
-            options,
+            {
+                ...options,
+                userId,
+            },
         )
 
         this.logUsage({ task: 'translate', response, userId })
@@ -567,6 +577,7 @@ export class TextService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
+            userId,
         })
 
         this.logUsage({ task: 'translate-name', response, userId })
@@ -596,7 +607,7 @@ export class TextService extends AIBaseService {
             payload: { names: normalizedNames, to },
         })
 
-        const { provider, response, translatedNames } = await translateNamesContent(normalizedNames, to)
+        const { provider, response, translatedNames } = await translateNamesContent(normalizedNames, to, userId)
         if (provider && response) {
             this.logUsage({ task: 'translate-name-batch', response, userId })
             await this.recordTask({
@@ -622,7 +633,7 @@ export class TextService extends AIBaseService {
             payload: { name },
         })
 
-        const { provider, response, slug } = await suggestSlugFromNameContent(name)
+        const { provider, response, slug } = await suggestSlugFromNameContent(name, userId)
         this.logUsage({ task: 'suggest-slug', response, userId })
         await this.recordTask({
             userId,
@@ -649,7 +660,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const { provider, response, tags } = await recommendTagsContent(content, existingTags, language)
+        const { provider, response, tags } = await recommendTagsContent(content, existingTags, language, userId)
         this.logUsage({ task: 'recommend-tags', response, userId })
         await this.recordTask({
             userId,
@@ -693,7 +704,7 @@ export class TextService extends AIBaseService {
         const { provider, response, categories } = await recommendCategoriesContent({
             ...options,
             categories: normalizedCategories,
-        })
+        }, userId)
         if (provider && response) {
             this.logUsage({ task: 'recommend-categories', response, userId })
             await this.recordTask({
@@ -750,6 +761,7 @@ export class TextService extends AIBaseService {
             for await (const streamedChunk of requestTranslationStream(chunk, to, provider, {
                 sourceLanguage: options?.sourceLanguage,
                 field,
+                userId,
             })) {
                 translated = streamedChunk.content
                 model = streamedChunk.model || model

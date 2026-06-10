@@ -24,7 +24,7 @@ function assertChatProvider(provider: Awaited<ReturnType<typeof getAIProvider>>)
     return provider.chat.bind(provider)
 }
 
-export async function summarizeTextContent(content: string, maxLength: number, language: string) {
+export async function summarizeTextContent(content: string, maxLength: number, language: string, userId?: string) {
     if (content.length > AI_MAX_CONTENT_LENGTH) {
         throw createError({
             statusCode: 413,
@@ -48,6 +48,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
+            userId,
         })
 
         return {
@@ -75,6 +76,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
                 { role: 'user', content: prompt },
             ],
             temperature: 0.5,
+            userId,
         })
         chunkSummaries.push(response.content.trim())
     }
@@ -91,6 +93,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
             { role: 'user', content: finalPrompt },
         ],
         temperature: 0.5,
+        userId,
     })
 
     return {
@@ -100,7 +103,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
     }
 }
 
-export async function translateNamesContent(names: string[], to: string) {
+export async function translateNamesContent(names: string[], to: string, userId?: string) {
     const normalizedNames = normalizeStringList(names)
     if (normalizedNames.length === 0) {
         return {
@@ -123,6 +126,7 @@ export async function translateNamesContent(names: string[], to: string) {
             { role: 'user', content: prompt },
         ],
         temperature: 0.2,
+        userId,
     })
 
     try {
@@ -144,7 +148,7 @@ export async function translateNamesContent(names: string[], to: string) {
     }
 }
 
-export async function suggestSlugFromNameContent(name: string) {
+export async function suggestSlugFromNameContent(name: string, userId?: string) {
     const provider = await getAIProvider('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, { name })
@@ -155,6 +159,7 @@ export async function suggestSlugFromNameContent(name: string) {
             { role: 'user', content: prompt },
         ],
         temperature: 0.3,
+        userId,
     })
 
     return {
@@ -164,7 +169,7 @@ export async function suggestSlugFromNameContent(name: string) {
     }
 }
 
-export async function recommendTagsContent(content: string, existingTags: string[], language: string) {
+export async function recommendTagsContent(content: string, existingTags: string[], language: string, userId?: string) {
     const provider = await getAIProvider('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_TAGS, {
@@ -179,6 +184,7 @@ export async function recommendTagsContent(content: string, existingTags: string
             { role: 'user', content: prompt },
         ],
         temperature: 0.4,
+        userId,
     })
 
     try {
@@ -197,7 +203,7 @@ export async function recommendTagsContent(content: string, existingTags: string
     }
 }
 
-export async function recommendCategoriesContent(options: RecommendCategoriesRequestOptions) {
+export async function recommendCategoriesContent(options: RecommendCategoriesRequestOptions, userId?: string) {
     const normalizedCategories = normalizeStringList(options.categories, {
         dedupe: true,
         limit: 80,
@@ -226,6 +232,7 @@ export async function recommendCategoriesContent(options: RecommendCategoriesReq
             { role: 'user', content: prompt },
         ],
         temperature: 0.2,
+        userId,
     })
 
     const categoryLookup = new Map(normalizedCategories.map((name) => [name.trim().toLowerCase(), name]))

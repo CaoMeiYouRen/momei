@@ -92,6 +92,7 @@ describe('TextService', () => {
                         content: expect.stringContaining('AI 写作工作流'),
                     }),
                 ],
+                userId: 'user-1',
             })
             expect(result.assetUsage).toBe('post-cover')
             expect(result.applyMode).toBe('manual-confirm')

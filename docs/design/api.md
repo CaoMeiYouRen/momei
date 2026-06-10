@@ -41,7 +41,7 @@
 - **[互动系统 (Interactions)](modules/interactions.md)**: `/api/comments/*` (评论、点赞、验证码)。
 - **[管理员管理 (Admin)](modules/admin.md)**: `/api/admin/*` (系统设置、高级管理)。
 - **[商业化与社交 (Commercial)](modules/commercial.md)**: `/api/settings/commercial`, `/api/user/commercial`。
-- **[AI 辅助 (AI)](modules/ai.md)**: `/api/ai/*` (摘要、翻译、Slug 生成)。
+- **[AI 辅助 (AI)](modules/ai.md)**: `/api/ai/*` (摘要、翻译、Slug 生成)，文本请求默认透传业务用户 `user_id` 到上游模型以支持隔离调度与缓存边界。
 - **[通知与订阅 (Notifications)](modules/notifications.md)**: `/api/subscribers/*` (订阅、退订、偏好验证码)。
 - **[全局搜索 (Search)](modules/search.md)**: `/api/search/*` (全站内容搜索)。
 - **[定时任务 (Tasks)](modules/scheduled-publication.md)**: `/api/tasks/*` (由于 Serverless 触发的定时任务)。

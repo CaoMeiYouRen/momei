@@ -277,6 +277,7 @@ export interface AIChatOptions {
     maxTokens?: number
     stream?: boolean
     signal?: AbortSignal
+    userId?: string
 }
 
 export interface AIChatStreamChunk {

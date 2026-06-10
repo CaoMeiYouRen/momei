@@ -14,12 +14,14 @@ export interface TranslateRequestOptions {
     sourceLanguage?: string
     field?: TranslationTextField
     signal?: AbortSignal
+    userId?: string
 }
 
 export interface ChunkedTranslateOptions {
     chunkSize?: number
     concurrency?: number
     sourceLanguage?: string
+    userId?: string
     onChunkComplete?: (state: {
         completedChunks: number
         totalChunks: number
@@ -84,6 +86,7 @@ export async function requestTranslation(
         ],
         temperature: 0.3,
         signal: options.signal,
+        userId: options.userId,
     })
 
     return {
@@ -120,6 +123,7 @@ export async function* requestTranslationStream(
         ],
         temperature: 0.3,
         stream: true,
+        userId: options.userId,
     }
 
     if (provider.chatStream) {
@@ -219,6 +223,7 @@ export async function translateInChunks(
                 {
                     sourceLanguage: options.sourceLanguage,
                     field: 'content',
+                    userId: options.userId,
                 },
             )
 

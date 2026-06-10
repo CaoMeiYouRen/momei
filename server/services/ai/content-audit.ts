@@ -61,6 +61,7 @@ export class ContentAuditService extends AIBaseService {
                 { role: 'user', content: prompt },
             ],
             temperature: 0.3,
+            userId,
         })
 
         this.logUsage({ task: 'content-audit-readability', response, userId })
