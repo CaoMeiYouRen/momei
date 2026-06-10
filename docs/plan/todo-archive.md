@@ -18,6 +18,50 @@
 
 ---
 
+## 第四十六阶段：隐私部署收口与治理深化 (已审计归档)
+
+> 归档说明: 第四十六阶段「1 个新功能 + 5 个优化」已完成并通过阶段收口检查。  
+> 对照结果：`todo.md` 六条主线均已勾选，`pnpm regression:weekly` 最新结果为 `Pass`（warning: `duplicate-code:check failed`），并已回填回归窗口与 Review Gate artifact。
+
+### 1. Umami 隐私自托管分析集成 — Phase 2 部署化 (P0)
+
+- **实现对照**: 已补齐 Umami 部署模板、部署变量说明与脚本化入口，且保持与 GA4 / Clarity / 百度统计并行开关，不互相覆盖。
+- **验收对照**: 达成“可配置 + 可部署 + 可运维”的最小闭环，满足 Phase 2 部署化目标。
+
+### 2. ESLint / 类型债治理 — 至少 3 组窄切片 (P1)
+
+- **收口对照**: 已完成至少 3 组窄切片，本轮实际完成 4 组（`app.vue` 会话语言 `as any` 收敛；`analytics-settings.vue`、`auth-settings.vue`、`security-settings.vue` 的 `defineModel<any>` 收敛）。
+- **验收对照**: 持续满足“单规则 + 小范围”治理约束，可与规则债盘点产物对照。
+
+### 3. 结构复用治理 — 至少 3 组热点切片 (P1)
+
+- **收口对照**: 已完成 3 组热点收敛（Umami 配置解析/序列化逻辑抽离、邮件模板预览 payload 类型统一、Volcengine 协议头与错误包类型复用）。
+- **验收对照**: 达成本阶段最小切片目标，并保持重复代码治理基线可追溯。
+
+### 4. 测试覆盖率治理 — 提升至 82% (P1)
+
+- **收口对照**: 已完成 A/B/C/D 四组高风险补测切片，覆盖 Umami 共享工具、分析插件、文章 repush 失败路径、邮件模板 fallback/override、AI 图片生成上游状态码透传等关键边界。
+- **验证证据**: 最新周级固定入口 `pnpm regression:weekly` 已回填 `test:coverage=PASS`，覆盖率治理主线达到本阶段收口条件。
+
+### 5. 周期性回归任务 + 项目现状调研 (P0)
+
+- **收口对照**: 阶段内已完成“先 Reject 后收敛为 Pass”的固定入口闭环，`artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 与 `docs/reports/regression/current.md` 已同步。
+- **Review Gate 结论**: `Pass`（warning），当前唯一非阻塞项为 `duplicate-code:check failed`。
+
+### 6. 数据库初始化脚本与文档同步 (P1)
+
+- **收口对照**: 三套 `database/**/init.sql` 已补齐 AI 任务额度/计费相关字段（`category`、`estimated_quota_units`、`quota_units`、`charge_status`、`failure_stage`、`usage_snapshot`、`duration_ms`）。
+- **文档同步**: `database/README.md`、`docs/design/database.md` 与部署指南（含 `en-US`）已对齐初始化字段说明。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 回归证据已落盘：`docs/reports/regression/current.md` 与 `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}`
+
+---
+
 ## 第四十五阶段：隐私闭环与文档治理 (已审计归档)
 
 > 归档说明: 第四十五阶段「1 个新功能 + 1 个评估 + 3 个优化」已完成并通过阶段收口检查。  

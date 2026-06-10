@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-06-08
+last_sync: 2026-06-10
 translation_tier: summary-sync
 ---
 
@@ -35,6 +35,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 39 has now been audited and archived**: The WeChat Official Account formatting preview / copy-assist feature and four governance slices (structural reuse, comment governance, docs + script governance, and i18n runtime message reuse) have all been closed in the Chinese source of truth, with archive and roadmap status synchronized.
 - **Stage 40 has now been audited and archived**: The release guardrail pre-check gate has been unified across release/test/docker workflows, the TypeORM `1.0.0` assessment probe has been closed with `NO-GO (direct upgrade)` and `GO (assessment closeout)`, and closeout evidence has been consolidated into the Chinese regression window and archive docs.
 - **Stage 45 has now been audited and archived**: Umami privacy self-hosted analytics Phase 1, Digital Garden go/no-go evaluation, document-governance closeout, ESLint/type-debt slices, and structural-reuse convergence have all been closed and archived in the Chinese source of truth.
+- **Stage 46 has now been audited and archived**: Umami privacy self-hosted analytics Phase 2 deployment closure, ESLint/type-debt narrow slices, structural-reuse hotspots, coverage-governance hardening, periodic-regression closeout, and database-init/document synchronization have all been closed in the Chinese source of truth, with the latest weekly regression recorded as `Pass` (warning only: `duplicate-code:check`).
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview

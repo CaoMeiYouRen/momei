@@ -823,12 +823,14 @@
     - **非目标**: 不推动跨目录大重构、不为复用而复用。
     - **最小验收**: 至少两组热点切片完成，`pnpm duplicate-code:check` 基线不反弹。
 
-### 第四十六阶段：隐私部署收口与治理深化 (Privacy Deployment Closure & Governance Deepening)
+### 第四十六阶段：隐私部署收口与治理深化 (Privacy Deployment Closure & Governance Deepening) (已审计归档)
 
 **时间表**: 2026-06-08 ~ 约 2 周  
 **目标**: 在第四十五阶段完成归档后，以“1 个新功能 + 5 个优化”组合推进下一阶段：围绕 Umami 集成剩余部署化能力（Phase 2）完成闭环，同时继续推进 ESLint/类型债、结构复用、覆盖率与回归治理，并同步数据库初始化脚本和部署文档，优先降低后续维护与部署漂移成本。
 
 **准入结论**: 六条主线均来自 backlog 长期主线或已验证候选，满足 `docs/standards/planning.md` 的容量约束与准入要求；Digital Garden 维持 No-Go，不在本阶段进入实现范围。
+
+**审计结论**: 第四十六阶段六条主线已在实现代码、定向测试、回归记录与规划文档中完成闭环，满足归档条件。当前 `todo.md` 已清理执行面；`docs/reports/regression/current.md` 与 `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 已回填 `Pass` 结论（含 1 条非阻塞 warning：`duplicate-code:check failed`）。
 
 **ROI 评估**: Umami Phase 2 部署化 `1.75`；ESLint / 类型债治理 `1.50`；结构复用治理 `1.60`；覆盖率提升至 82% `1.55`；周期性回归与现状调研 `2.00`；数据库初始化脚本与文档同步 `1.45`。
 
