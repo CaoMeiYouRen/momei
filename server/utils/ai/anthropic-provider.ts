@@ -1,5 +1,5 @@
-import { stripTrailingSlash } from '@/utils/shared/url'
 import { toProviderUserId } from './user-id'
+import { stripTrailingSlash } from '@/utils/shared/url'
 import type { AIConfig, AIChatOptions, AIChatResponse, AIProvider } from '@/types/ai'
 
 export class AnthropicProvider implements AIProvider {
