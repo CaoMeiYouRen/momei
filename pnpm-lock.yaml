@@ -4204,7 +4204,7 @@ packages:
     engines: {node: '>=18'}
 
   '@sentry-internal/server-utils@10.56.0':
-    resolution: {integrity: sha512-6kuZI/vAjyVKMm1cTzc2pdUmVR4Px4etMG6wnCPyFnwEaGbUKQnTynUBFpTuo/q6Js6QBQvhLNoAnO4YsOfW4w==, tarball: https://r.cnpmjs.org/@sentry-internal/server-utils/-/server-utils-10.56.0.tgz}
+    resolution: {integrity: sha512-6kuZI/vAjyVKMm1cTzc2pdUmVR4Px4etMG6wnCPyFnwEaGbUKQnTynUBFpTuo/q6Js6QBQvhLNoAnO4YsOfW4w==, tarball: https://registry.npmjs.org/@sentry-internal/server-utils/-/server-utils-10.56.0.tgz}
     engines: {node: '>=18'}
 
   '@sentry-internal/tracing@7.120.4':
