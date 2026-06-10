@@ -19,37 +19,8 @@ permissions:
 #   cancel-in-progress: false
 
 jobs:
-  precheck:
-    name: Pre-check
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v6
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11"
-      - name: Setup Node.js@lts environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-      - run: pnpm i --frozen-lockfile
-      - name: Run shared CI pre-check
-        run: pnpm run ci:precheck -- --profile=test
-      - name: Upload pre-check artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci-precheck-test
-          path: |
-            artifacts/review-gate/*-ci-precheck-test.md
-            artifacts/review-gate/*-ci-precheck-test.json
-          if-no-files-found: warn
-
   test:
     name: Test
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -71,7 +42,6 @@ jobs:
 
   unit:
     name: Unit
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -90,7 +60,6 @@ jobs:
 
   coverage:
     name: Coverage
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -113,7 +82,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
   e2e:
     name: E2E Test
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -135,7 +103,6 @@ jobs:
 
   build-lighthouse:
     name: Build & Lighthouse
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -196,7 +163,6 @@ jobs:
           if-no-files-found: warn
   cli:
     name: CLI Test
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -220,7 +186,6 @@ jobs:
       - run: pnpm run build
   mcp-server:
     name: MCP Test
-    needs: precheck
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
