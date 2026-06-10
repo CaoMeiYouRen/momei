@@ -140,3 +140,34 @@
 - CWV 基线数值待 CI 运行 `pnpm build && pnpm test:perf:cwv` 后回填。
 - 友链管理页 Checkbox 渲染测试及公开页 feed 渲染/降级测试已回灌 backlog。
 <!-- regression-window:end:phase44-close:第四十四阶段:2026-06-07 -->
+
+<!-- regression-window:start:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->
+## 2026-06-10 第四十六阶段周级回归启动（进行中）
+
+### 范围
+
+- 目标：启动第四十六阶段 P0 主线「周期性回归任务 + 项目现状调研」，先落地固定入口执行与证据快照。
+- 本轮覆盖：触发 `pnpm regression:weekly`，进入 `test:coverage` 长任务执行并采集运行日志快照（`/tmp/regression-weekly-20260610.log`）。
+- 非目标：本条记录不输出最终 Pass / Reject 结论，不替代完整周级回归收口记录。
+
+### 执行快照
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 固定入口触发 `pnpm regression:weekly` | 已启动 | 已在仓库根目录触发并进入周级回归流程 |
+| `test:coverage` 长任务 | 进行中（未收口） | 运行日志持续增长，期间出现大量 i18n 缺词告警与测试噪音输出 |
+| 周级回归 artifact | 未生成 | 由于回归未完成，`artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 尚未落盘 |
+| 回归窗口记录 | 已更新 | 当前条目用于保留“已启动执行”证据，待完整补跑后回填最终结论 |
+
+### 项目现状调研（阶段候选）
+
+- 候选 1：后台与设置页测试链路存在高频 i18n 缺词告警（如 `pages.admin.*`、`pages.admin.settings.theme.*`），应优先治理“测试环境 locale 装配与键完整性”基线。
+- 候选 2：全量 coverage 成本高且输出噪音大，建议补“周级回归稳定执行策略”（隔离日志、分段回归或覆盖率分片），降低周期性任务被中断风险。
+- 候选 3：部分组件测试暴露第三方 mock 契约噪音（如 `primevue/usetoast` 导出提示），建议纳入“测试 mock 契约一致性”专项窄切片。
+
+### 后续补跑计划
+
+- 使用同一固定入口完成一次不间断 `pnpm regression:weekly`，待脚本生成 artifact 后回填最终 Review Gate 结论。
+- 产出最终结论后，同步更新本阶段 todo 状态与下一阶段候选优先级。
+
+<!-- regression-window:end:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->
