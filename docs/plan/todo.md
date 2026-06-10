@@ -40,9 +40,9 @@
 	- 当前进展（2026-06-08）：已完成规划切片 A/B/C/D：A) `utils/shared/umami-analytics.test.ts` + `tests/plugins/analytics-plugins.test.ts`；B) `server/api/admin/posts/[id]/repush.post.test.ts` 新增 3 条失败路径断言；C) `server/services/email-template.test.ts` 新增 legacy fallback 与 disabled override 断言；D) `server/api/ai/image/generate.post.test.ts` 新增上游状态码透传与默认参数断言。上述定向测试均通过。全量 coverage 基线命令已触发一次，但被 `pages/friend-links.test.ts` 初始化错误阻断（`getRouteLocalizedParams` 读取 `value` 异常），待排障后补跑基线结果。
 	- 最小验收：全仓覆盖率达到 `82%+`，优先补齐最近新增功能与高风险链路的失败/边界断言。
 
-- [ ] **主线：周期性回归任务 + 项目现状调研 (P0)**
-	- 当前状态：进行中。
-	- 当前进展（2026-06-10）：已触发固定入口 `pnpm regression:weekly` 并完成首轮执行快照沉淀，当前已将启动记录与阶段候选结论写入 `docs/reports/regression/current.md`；完整周级回归仍需补跑至脚本自然收口并生成 artifact。
+- [x] **主线：周期性回归任务 + 项目现状调研 (P0)**
+	- 当前状态：已完成（本轮结论 Reject，含 blocker）。
+	- 当前进展（2026-06-10）：已完整执行固定入口 `pnpm regression:weekly`，并生成 `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 与 `docs/reports/regression/current.md` 自动回填记录；本轮 blocker 为 `test:coverage failed`，具体失败集中在 `tests/scripts/run-e2e.test.ts` 与 `server/api/ai/tts/estimate.post.test.ts`（共 3 条失败用例）。
 	- 最小验收：完成一次固定回归入口执行并更新 `docs/reports/regression/current.md`，同时输出下一阶段重点候选结论。
 
 - [x] **主线：数据库初始化脚本与文档同步 (P1)**

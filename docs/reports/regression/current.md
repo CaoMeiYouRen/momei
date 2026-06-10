@@ -10,6 +10,20 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
 <!-- regression-window:start:phase42-close:第四十二阶段:2026-06-04 -->
+
+<!-- regression-window:start:periodic-regression:weekly:2026-06-10 -->
+## 2026-06-10 周级周期性回归（自动回填）
+
+- 执行入口: `pnpm regression:weekly`
+- 证据 artifact: [md](../../../artifacts/review-gate/2026-06-10-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-06-10-weekly-regression.json)
+- 结果摘要: `Reject`；blocker=1，warning=0。
+- 已执行验证: test:coverage=FAIL
+- 回归窗口: 174 行 / 6 条，归档判定=窗口健康。
+- Review Gate: `Reject` / `blocker`；主要问题=test:coverage failed。
+- 未覆盖边界: 无新增未覆盖边界。
+
+<!-- regression-window:end:periodic-regression:weekly:2026-06-10 -->
+
 ## 2026-06-04 第四十二阶段收口回归
 
 ### 范围
@@ -142,22 +156,22 @@
 <!-- regression-window:end:phase44-close:第四十四阶段:2026-06-07 -->
 
 <!-- regression-window:start:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->
-## 2026-06-10 第四十六阶段周级回归启动（进行中）
+## 2026-06-10 第四十六阶段周级回归执行结果（已收口）
 
 ### 范围
 
-- 目标：启动第四十六阶段 P0 主线「周期性回归任务 + 项目现状调研」，先落地固定入口执行与证据快照。
-- 本轮覆盖：触发 `pnpm regression:weekly`，进入 `test:coverage` 长任务执行并采集运行日志快照（`/tmp/regression-weekly-20260610.log`）。
-- 非目标：本条记录不输出最终 Pass / Reject 结论，不替代完整周级回归收口记录。
+- 目标：完成第四十六阶段 P0 主线「周期性回归任务 + 项目现状调研」的固定入口执行，并沉淀可复查证据。
+- 本轮覆盖：执行 `pnpm regression:weekly`，完成 `test:coverage` 全量运行并落盘 Review Gate artifact。
+- 非目标：本条记录不直接修复 blocker，仅输出本轮回归结论与后续治理入口。
 
 ### 执行快照
 
 | 检查项 | 状态 | 说明 |
 |--------|------|------|
-| 固定入口触发 `pnpm regression:weekly` | 已启动 | 已在仓库根目录触发并进入周级回归流程 |
-| `test:coverage` 长任务 | 进行中（未收口） | 运行日志持续增长，期间出现大量 i18n 缺词告警与测试噪音输出 |
-| 周级回归 artifact | 未生成 | 由于回归未完成，`artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 尚未落盘 |
-| 回归窗口记录 | 已更新 | 当前条目用于保留“已启动执行”证据，待完整补跑后回填最终结论 |
+| 固定入口 `pnpm regression:weekly` | 已完成 | 本轮执行完成，退出码 `1` |
+| `test:coverage` | 失败 | `485` 个测试文件中 `2` 个失败文件，`3` 条失败用例 |
+| 周级回归 artifact | 已生成 | `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` |
+| 回归窗口记录 | 已更新 | 自动回填条目已写入当前窗口（`Reject` / blocker=1） |
 
 ### 项目现状调研（阶段候选）
 
@@ -165,9 +179,10 @@
 - 候选 2：全量 coverage 成本高且输出噪音大，建议补“周级回归稳定执行策略”（隔离日志、分段回归或覆盖率分片），降低周期性任务被中断风险。
 - 候选 3：部分组件测试暴露第三方 mock 契约噪音（如 `primevue/usetoast` 导出提示），建议纳入“测试 mock 契约一致性”专项窄切片。
 
-### 后续补跑计划
+### 后续治理计划
 
-- 使用同一固定入口完成一次不间断 `pnpm regression:weekly`，待脚本生成 artifact 后回填最终 Review Gate 结论。
-- 产出最终结论后，同步更新本阶段 todo 状态与下一阶段候选优先级。
+- 优先修复 `tests/scripts/run-e2e.test.ts` 中 `walks directories recursively while skipping ignored entries` 的不稳定断言。
+- 对齐 `server/api/ai/tts/estimate.post.test.ts` 与最新 Zod 校验契约，修复 `voice/text` 缺失时断言口径漂移。
+- 修复后再次执行 `pnpm regression:weekly`，将本轮 `Reject` 收敛为可放行结论。
 
 <!-- regression-window:end:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->
