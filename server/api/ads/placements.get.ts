@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getPlacementsByLocation } from '../../services/ad'
 import { AdLocation } from '@/types/ad'
+import { toQueryString, toQueryStringArray } from '@/server/utils/query-params'
 
 /**
  * 获取广告位配置（公开接口）
@@ -16,8 +17,8 @@ export default defineEventHandler(async (event) => {
     try {
         const query = getQuery(event)
 
-        const location = query.location as AdLocation
-        if (!location || !Object.values(AdLocation).includes(location)) {
+        const location = toQueryString(query.location)
+        if (!location || !Object.values(AdLocation).includes(location as AdLocation)) {
             return {
                 code: 400,
                 message: 'Invalid or missing location parameter',
@@ -44,23 +45,22 @@ export default defineEventHandler(async (event) => {
         }
         context.sessionId = sessionId
 
-        if (query.locale) {
-            context.locale = query.locale
+        const locale = toQueryString(query.locale)
+        if (locale) {
+            context.locale = locale
         }
 
-        if (query.categories) {
-            context.categories = Array.isArray(query.categories)
-                ? query.categories as string[]
-                : [query.categories]
+        const categories = toQueryStringArray(query.categories)
+        if (categories) {
+            context.categories = categories
         }
 
-        if (query.tags) {
-            context.tags = Array.isArray(query.tags)
-                ? query.tags as string[]
-                : [query.tags]
+        const tags = toQueryStringArray(query.tags)
+        if (tags) {
+            context.tags = tags
         }
 
-        const placements = await getPlacementsByLocation(location, context)
+        const placements = await getPlacementsByLocation(location as AdLocation, context)
 
         // 只返回必要的字段
         const safePlacements = placements.map((placement) => ({

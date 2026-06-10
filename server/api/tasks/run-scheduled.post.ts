@@ -5,6 +5,7 @@ import {
     generateSignature,
 } from '@/server/utils/webhook-security'
 import { runRoutineMaintenanceTasks } from '@/server/services/task'
+import { toQueryString } from '@/server/utils/query-params'
 import logger from '@/server/utils/logger'
 
 /**
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const headerSignature = getHeader(event, 'X-Webhook-Signature')
     const headerTimestamp = getHeader(event, 'X-Webhook-Timestamp')
     const headerSource = getHeader(event, 'X-Webhook-Source')
-    const queryToken = Array.isArray(query.token) ? query.token[0] : query.token
+    const queryToken = toQueryString(query.token)
     const bearerToken = extractBearerToken(headerAuthorization)
 
     // 模式 1: HMAC 签名模式 (推荐)

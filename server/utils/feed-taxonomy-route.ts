@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import type { EntityTarget, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { dataSource } from '@/server/database'
 import { generateFeed, getFeedLanguage } from '@/server/utils/feed'
+import { toQueryString } from '@/server/utils/query-params'
 
 export type ScopedFeedFormat = 'rss2' | 'atom1' | 'json1'
 
@@ -61,9 +62,9 @@ export function buildTaxonomyFeedTitle(language: string, name: string, labels: T
 
 function resolveScopedFeedLanguage(event: H3Event): string {
     const query = getQuery(event)
-    const requestedLanguage = Array.isArray(query.language) ? query.language[0] : query.language
+    const requestedLanguage = toQueryString(query.language)
 
-    if (typeof requestedLanguage === 'string' && requestedLanguage.trim()) {
+    if (requestedLanguage?.trim()) {
         return requestedLanguage.trim()
     }
 
