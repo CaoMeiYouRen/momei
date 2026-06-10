@@ -8,11 +8,11 @@
 - `docs/plan/todo-archive.md`: 保留最近若干阶段的完整归档块与近线收口依据，不长期充当所有历史阶段的唯一全文容器。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-05-18）
+## 2. 当前基线（2026-06-10）
 
-- `roadmap.md`: `528` 行，已回到健康窗口。
-- `todo-archive.md`: 已重新收敛到最近 6 个阶段主窗口，超窗部分已迁入 `todo-archive-phases-25-31.md`。
-- `docs/reports/regression/current.md`: `344` 行，仍处于活动窗口允许范围内，但后续继续追加前应优先关注滚动归档阈值。
+- `roadmap.md`: `671` 行，处于健康窗口。
+- `todo-archive.md`: `438` 行，处于健康窗口。
+- `docs/reports/regression/current.md`: `189` 行，处于活动窗口允许范围内。
 
 ## 3. 阈值定义
 
@@ -42,7 +42,7 @@
 
 ## 5. 后续分片策略
 
-- `roadmap.md` 深度归档优先按阶段区间切分；本轮已落地 `docs/plan/archive/roadmap-phases-01-10.md` 与 `docs/plan/archive/roadmap-phases-11-21.md`。
+- `roadmap.md` 深度归档优先按阶段区间切分；当前已落地 `docs/plan/archive/roadmap-phases-01-10.md`、`docs/plan/archive/roadmap-phases-11-21.md`、`docs/plan/archive/roadmap-phases-22-24.md` 与 `docs/plan/archive/roadmap-phases-25-31.md`。
 - `todo-archive.md` 深度归档优先按阶段区间切分；本轮已落地 `docs/plan/archive/todo-archive-phases-01-10.md`、`docs/plan/archive/todo-archive-phases-11-21.md`、`docs/plan/archive/todo-archive-phases-22-24.md` 与 `docs/plan/archive/todo-archive-phases-25-31.md`。
 - 若未来阶段数继续显著增长，再评估按年份或半年度拆分，而不是重新把旧正文塞回主文档。
 - 主文档只保留摘要、索引与最近窗口，不再复制完整历史正文。
@@ -50,13 +50,13 @@
 ## 6. 本轮结论与下一步
 
 - 本轮已完成首轮深度归档落地：主文档只保留近线窗口，早期阶段已按区间迁入分片，并补齐主入口回链。
-- `roadmap.md` 当前保留第二十二至第三十一阶段；若后续再次接近 `800` 行，优先把第二十二至第二十四阶段继续迁出为下一份近线前置分片。
+- `roadmap.md` 当前保留第三十二阶段及之后的近线窗口；若后续再次接近 `800` 行，优先按连续阶段区间继续前移归档。
 - `todo-archive.md` 当前保留第三十二至第三十七阶段；若后续归档再次显著增长，优先继续按连续阶段区间迁出，不重新回退到单文件全量承载。
 
 ## 7. 相关入口
 
 - 当前路线图: [../roadmap.md](../roadmap.md)
 - 当前待办归档: [../todo-archive.md](../todo-archive.md)
-- 路线图分片: [roadmap-phases-01-10.md](./roadmap-phases-01-10.md)、[roadmap-phases-11-21.md](./roadmap-phases-11-21.md)
-- 待办归档分片: [todo-archive-phases-01-10.md](./todo-archive-phases-01-10.md)、[todo-archive-phases-11-21.md](./todo-archive-phases-11-21.md)、[todo-archive-phases-22-24.md](./todo-archive-phases-22-24.md)、[todo-archive-phases-25-31.md](./todo-archive-phases-25-31.md)
+- 路线图分片: [roadmap-phases-01-10.md](./roadmap-phases-01-10.md)、[roadmap-phases-11-21.md](./roadmap-phases-11-21.md)、[roadmap-phases-22-24.md](./roadmap-phases-22-24.md)、[roadmap-phases-25-31.md](./roadmap-phases-25-31.md)
+- 待办归档分片: [todo-archive-phases-01-10.md](./todo-archive-phases-01-10.md)、[todo-archive-phases-11-21.md](./todo-archive-phases-11-21.md)、[todo-archive-phases-22-24.md](./todo-archive-phases-22-24.md)、[todo-archive-phases-25-31.md](./todo-archive-phases-25-31.md)、[todo-archive-phases-32-37.md](./todo-archive-phases-32-37.md)
 - 回归记录入口: [../../reports/regression/index.md](../../reports/regression/index.md)
