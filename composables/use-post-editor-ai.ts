@@ -98,7 +98,7 @@ export function usePostEditorAI(
     }
 
     // 轮询链路始终保持单请求在途，并在终态或网络错误后立即停表，避免重复请求与悬挂定时器。
-    const waitForTranslationTask = async (taskId: string) => await new Promise<string>((resolve, reject) => {
+    const waitForTranslationTask = async (taskId: string) => new Promise<string>((resolve, reject) => {
         let settled = false
         let requestInFlight = false
         const pollingController: { stop?: () => void } = {}
@@ -168,7 +168,7 @@ export function usePostEditorAI(
             return result.content
         }
 
-        return await waitForTranslationTask(result.taskId)
+        return waitForTranslationTask(result.taskId)
     }
 
     const suggestTitles = async (event: TitleSuggestionTriggerEvent) => {

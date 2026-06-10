@@ -17,7 +17,7 @@ export function canUseStaleExternalFeedSnapshot(snapshot: ExternalFeedSnapshot, 
 
 export async function getExternalFeedSnapshot(sourceId: string, localeBucket: string) {
     const storage = useStorage(EXTERNAL_FEED_STORAGE_NAMESPACE)
-    return await storage.getItem<ExternalFeedSnapshot>(buildExternalFeedCacheKey(sourceId, localeBucket))
+    return storage.getItem<ExternalFeedSnapshot>(buildExternalFeedCacheKey(sourceId, localeBucket))
 }
 
 export async function setExternalFeedSnapshot(snapshot: ExternalFeedSnapshot) {

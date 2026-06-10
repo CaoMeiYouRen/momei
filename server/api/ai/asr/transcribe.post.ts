@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const language = formData.find((f) => f.name === 'language')?.data.toString()
     const model = formData.find((f) => f.name === 'model')?.data.toString()
 
-    return await ASRService.transcribe(audioFile.data, {
+    return ASRService.transcribe(Buffer.from(audioFile.data), {
         language,
         model,
     }, session.user.id)

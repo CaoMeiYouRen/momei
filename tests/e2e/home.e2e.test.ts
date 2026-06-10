@@ -15,7 +15,7 @@ async function switchToDifferentLocale(page: Page) {
 
     await page.goto('/en-US')
 
-    await expect.poll(async () => await page.getAttribute('html', 'lang')).not.toBe(currentLang)
+    await expect.poll(async () => page.getAttribute('html', 'lang')).not.toBe(currentLang)
 }
 
 test.describe('Homepage E2E Tests', () => {
@@ -53,7 +53,7 @@ test.describe('Homepage E2E Tests', () => {
         await expect(themeToggle).toBeVisible()
         await themeToggle.click()
 
-        await expect.poll(async () => await html.evaluate((el) => el.classList.contains('dark')), { timeout: 3000 }).not.toBe(isDarkBefore)
+        await expect.poll(async () => html.evaluate((el) => el.classList.contains('dark')), { timeout: 3000 }).not.toBe(isDarkBefore)
     })
 
     test('should navigate to search page', async ({ page }) => {

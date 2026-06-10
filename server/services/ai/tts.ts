@@ -311,7 +311,7 @@ export class TTSService extends AIBaseService {
         if (!provider.getVoices) {
             return []
         }
-        return await provider.getVoices(query)
+        return provider.getVoices(query)
     }
 
     static async estimateProviderCost(text: string, voice: string = TTS_DEFAULT_VOICE, providerName?: string): Promise<number> {
@@ -321,7 +321,7 @@ export class TTSService extends AIBaseService {
             return 0
         }
 
-        return await estimateFn(text, this.resolveVoice(voice))
+        return estimateFn(text, this.resolveVoice(voice))
     }
 
     static async estimateCostBreakdown(
@@ -419,7 +419,7 @@ export class TTSService extends AIBaseService {
      * 获取指定提供商
      */
     static async getProvider(name: string) {
-        return await getAIProvider('tts', { provider: name as AIProviderType })
+        return getAIProvider('tts', { provider: name as AIProviderType })
     }
 
     /**

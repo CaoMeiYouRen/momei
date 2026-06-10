@@ -35,9 +35,9 @@ const createBaseStorage = (): BaseStorage => {
             },
             set: async (key: string, value: string, ttl?: number) => {
                 if (ttl) {
-                    return await redis.set(key, value, 'EX', ttl)
+                    return redis.set(key, value, 'EX', ttl)
                 }
-                return await redis.set(key, value)
+                return redis.set(key, value)
                 
             },
             delete: async (key: string) => {

@@ -148,7 +148,7 @@ export default defineEventHandler(async (event) => {
 
     // If includePosts = false, return aggregated tree
     if (!query.includePosts) {
-        return await withRuntimeApiCache({
+        return withRuntimeApiCache({
             event,
             key: archiveCacheKey,
             namespace: ARCHIVE_CACHE_NAMESPACE,
@@ -193,7 +193,7 @@ export default defineEventHandler(async (event) => {
     const targetYear = query.year
     const targetMonth = query.month
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: archiveCacheKey,
         namespace: ARCHIVE_CACHE_NAMESPACE,

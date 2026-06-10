@@ -491,11 +491,11 @@ export class TextService extends AIBaseService {
         to: string,
         options: ChunkedTranslateOptions = {},
     ): Promise<ChunkedTranslateResult> {
-        return await translateInChunks(content, to, options)
+        return translateInChunks(content, to, options)
     }
 
     static async createTranslateTask(content: string, to: string, userId: string, options?: TranslateRequestOptions) {
-        return await TextTranslationTaskService.createTranslateTask(content, to, userId, options)
+        return TextTranslationTaskService.createTranslateTask(content, to, userId, options)
     }
 
     static override async getTaskStatus(
@@ -512,7 +512,7 @@ export class TextService extends AIBaseService {
             allowFailedResume: options.resumeFailed,
         })
 
-        return await super.getTaskStatus(taskId, userId, options)
+        return super.getTaskStatus(taskId, userId, options)
     }
 
     static async translate(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {

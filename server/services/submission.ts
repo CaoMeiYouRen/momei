@@ -46,7 +46,7 @@ export const submissionService = {
      */
     async getSubmissionById(id: string) {
         const submissionRepo = dataSource.getRepository(Submission)
-        return await submissionRepo.findOne({
+        return submissionRepo.findOne({
             where: { id },
             relations: { author: true },
         })
@@ -93,7 +93,7 @@ export const submissionService = {
         }
         submission.status = SubmissionStatus.PENDING
 
-        return await submissionRepo.save(submission)
+        return submissionRepo.save(submission)
     },
 
     /**
@@ -139,7 +139,7 @@ export const submissionService = {
             )
         }
 
-        return await submissionRepo.save(submission)
+        return submissionRepo.save(submission)
     },
 
     /**

@@ -40,12 +40,17 @@ export default defineEventHandler(async (event) => {
     // 记录响应
     if (!event.context.logResponseAdded) {
         event.context.logResponseAdded = true
+        const response = event.node?.res
+
+        if (!response) {
+            return
+        }
 
         // 监听响应完成事件
-        event.node.res.on('finish', () => {
+        response.on('finish', () => {
             void (async () => {
                 const responseTime = Date.now() - startTime
-                const statusCode = event.node.res.statusCode || 200
+                const statusCode = response.statusCode || 200
                 const responseLogger = await getRequestLogger()
 
                 // 记录响应

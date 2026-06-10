@@ -5,6 +5,12 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 import { aiTranslateSchema } from '@/utils/schemas/ai'
 
+interface SseWritableResponse {
+    write: (chunk: string) => unknown
+    end: () => void
+    flush?: () => void
+}
+
 export default defineEventHandler(async (event) => {
     const session = await requireAdminOrAuthor(event)
 
@@ -41,7 +47,13 @@ export default defineEventHandler(async (event) => {
     setResponseHeader(event, 'Cache-Control', 'no-cache')
     setResponseHeader(event, 'Connection', 'keep-alive')
 
-    const response = event.node.res
+    const response = event.node?.res as SseWritableResponse | undefined
+    if (!response) {
+        throw createError({
+            statusCode: 500,
+            statusMessage: 'SSE response is unavailable',
+        })
+    }
 
     try {
         const stream = translationOptions
@@ -60,8 +72,8 @@ export default defineEventHandler(async (event) => {
         for await (const chunk of stream) {
             response.write(`data: ${JSON.stringify(chunk)}\n\n`)
             // 确保数据发送到客户端
-            if ((response as any).flush) {
-                (response as any).flush()
+            if (response.flush) {
+                response.flush()
             }
         }
 

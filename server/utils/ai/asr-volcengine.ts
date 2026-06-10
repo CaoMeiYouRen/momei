@@ -252,7 +252,7 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
 
         logger.info(`[VolcengineASR] Start transcribe connectId=${connectId}, resourceId=${resourceId}`)
 
-        return await new Promise<TranscribeResponse>((resolve, reject) => {
+        return new Promise<TranscribeResponse>((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 ws.close()
                 reject(createError({

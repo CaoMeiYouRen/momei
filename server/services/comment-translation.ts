@@ -63,7 +63,7 @@ async function translateCommentContent(
     actorId: string,
 ) {
     if (!TextService.shouldUseAsyncTranslateTask(content)) {
-        return await TextService.translate(content, targetLanguage, actorId, {
+        return TextService.translate(content, targetLanguage, actorId, {
             field: 'content',
         })
     }
@@ -111,7 +111,7 @@ export const commentTranslationService = {
         const inflightKey = buildCommentTranslationInflightKey(options.commentId, targetLanguage)
         const existingInflightTask = commentTranslationInflight.get(inflightKey)
         if (existingInflightTask) {
-            return await existingInflightTask
+            return existingInflightTask
         }
 
         const translationTask = (async () => {

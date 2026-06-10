@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     const isSharedPublicResponse = !event.context?.auth?.user && !user
     const cacheKey = buildHomePostsCacheKey(query.language)
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: cacheKey,
         namespace: HOME_POSTS_CACHE_NAMESPACE,

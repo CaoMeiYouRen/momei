@@ -48,6 +48,6 @@ export const benefitWaitlistService = {
             entry.userAgent = null
         }
 
-        return await repo.save(entry)
+        return repo.save(entry)
     },
 }

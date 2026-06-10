@@ -399,7 +399,7 @@ export async function resolveTagBindings(
     }
 
     if (pendingTranslations.length > 0) {
-        const translatedNames = await Promise.all(pendingTranslations.map(async (tag) => await translateFieldContent(tag.name, targetLanguage, {
+        const translatedNames = await Promise.all(pendingTranslations.map(async (tag) => translateFieldContent(tag.name, targetLanguage, {
             sourceLanguage,
             field: 'title',
         }, aggregate)))
@@ -425,7 +425,7 @@ export async function findExistingTargetPost(
     getAccessiblePost: (postId: string, actor: { userId: string, isAdmin: boolean }) => Promise<Post & PostTranslationSourceDetail>,
 ) {
     if (input.targetPostId) {
-        return await getAccessiblePost(input.targetPostId, actor)
+        return getAccessiblePost(input.targetPostId, actor)
     }
 
     const translationId = resolveTranslationClusterId(sourcePost.translationId, sourcePost.slug, sourcePost.id)

@@ -189,7 +189,7 @@ export async function generateAgreementTranslationDraft(options: {
         field: 'content',
     })
 
-    return await createAgreementVersion({
+    return createAgreementVersion({
         type: options.type,
         language: options.targetLanguage,
         content,

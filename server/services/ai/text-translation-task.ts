@@ -79,7 +79,7 @@ async function requestTranslateTaskChunk(
     userId?: string,
 ) {
     if (!isServerlessEnvironment()) {
-        return await requestTranslation(
+        return requestTranslation(
             chunk,
             payload.to,
             undefined,
@@ -345,7 +345,7 @@ export class TextTranslationTaskService extends AIBaseService {
             task.result = JSON.stringify(serializeTranslateTaskState(state))
             task.error = null
             task.completedAt = task.completedAt || new Date()
-            return await taskRepo.save(task)
+            return taskRepo.save(task)
         }
 
         if (hasActiveChunkLease(state)) {
@@ -474,7 +474,7 @@ export class TextTranslationTaskService extends AIBaseService {
                     settlementSource: 'estimated',
                 })
 
-                return await taskRepo.findOneBy({ id: taskId })
+                return taskRepo.findOneBy({ id: taskId })
             }
 
             task.status = 'processing'

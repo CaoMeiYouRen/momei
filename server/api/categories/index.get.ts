@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => categoryQuerySchema.parse(q))
     const cacheKey = buildCategoryPublicListCacheKey(query)
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: cacheKey,
         namespace: CATEGORY_PUBLIC_LIST_CACHE_NAMESPACE,

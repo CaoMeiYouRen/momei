@@ -106,11 +106,11 @@ export function useASRDirect(options: ASRDirectOptions) {
         const currentReceivedAt = credentialsReceivedAt
 
         if (!currentCredentials || behavior.forceRefresh) {
-            return await fetchCredentials()
+            return fetchCredentials()
         }
 
         if (hasASRCredentialsExpired(currentCredentials, currentReceivedAt)) {
-            return await fetchCredentials()
+            return fetchCredentials()
         }
 
         if (behavior.preferFresh && shouldRefreshASRCredentials(currentCredentials, currentReceivedAt)) {
@@ -367,7 +367,7 @@ export function useASRDirect(options: ASRDirectOptions) {
                 formData.append('language', lang)
             }
 
-            return await $fetch<{
+            return $fetch<{
                 text: string
                 duration?: number
             }>(`${activeCredentials.endpoint}/audio/transcriptions`, {

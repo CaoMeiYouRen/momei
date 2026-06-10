@@ -166,7 +166,7 @@ function buildCampaignPayload(campaign: MarketingCampaign, body: string, listIds
 }
 
 async function requestListmonk<T>(config: ListmonkDispatchConfig, path: string, options: { method?: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown> } = {}) {
-    return await $fetch<T>(`${config.baseUrl}${path}`, {
+    return $fetch<T>(`${config.baseUrl}${path}`, {
         method: options.method || 'GET',
         headers: {
             Authorization: buildAuthHeader(config.username, config.accessToken),

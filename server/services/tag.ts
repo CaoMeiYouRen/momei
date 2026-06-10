@@ -48,7 +48,7 @@ export async function createTag(data: TagData): Promise<Tag> {
     assignDefined(tag, data, ['name', 'slug', 'language'])
     tag.translationId = translationClusterId
 
-    return await tagRepo.save(tag)
+    return tagRepo.save(tag)
 }
 
 /**
@@ -126,7 +126,7 @@ export async function updateTag(id: string, data: Partial<TagData>): Promise<Tag
     assignDefined(tag, data, ['name', 'slug', 'language'])
     tag.translationId = targetTranslationId
 
-    return await tagRepo.save(tag)
+    return tagRepo.save(tag)
 }
 
 /**

@@ -115,7 +115,7 @@ export async function upsertWebPushSubscription(options: {
     entity.userAgent = options.userAgent ?? entity.userAgent ?? null
     entity.locale = options.locale ?? entity.locale ?? null
 
-    return await repo.save(entity)
+    return repo.save(entity)
 }
 
 export async function removeWebPushSubscription(options: {

@@ -59,7 +59,7 @@ vi.mock('@/server/utils/logger', () => ({
 
 async function loadModule() {
     vi.resetModules()
-    return await import('./web-push')
+    return import('./web-push')
 }
 
 describe('web-push service', () => {

@@ -145,7 +145,7 @@ export class PostAutomationService extends AIBaseService {
     ) {
         const sourcePost = await this.getAccessiblePost(input.postId, actor)
         const sourceLanguage = input.sourceLanguage || sourcePost.language
-        return await this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor, {
+        return this.buildCategoryRecommendation(sourcePost, input.targetLanguage, sourceLanguage, actor, {
             limit: input.limit,
         })
     }
@@ -210,7 +210,7 @@ export class PostAutomationService extends AIBaseService {
         actor: { userId: string, isAdmin: boolean },
         options: { limit?: number } = {},
     ): Promise<PostCategoryRecommendationResult> {
-        return await buildCategoryRecommendation(sourcePost, targetLanguage, sourceLanguage, actor, options)
+        return buildCategoryRecommendation(sourcePost, targetLanguage, sourceLanguage, actor, options)
     }
 
     private static async resolveTagBindings(
@@ -219,11 +219,11 @@ export class PostAutomationService extends AIBaseService {
         targetLanguage: string,
         aggregate: TranslationUsageAggregate,
     ) {
-        return await resolveTagBindings(sourceTags, sourceLanguage, targetLanguage, aggregate, this.translateFieldContent.bind(this))
+        return resolveTagBindings(sourceTags, sourceLanguage, targetLanguage, aggregate, this.translateFieldContent.bind(this))
     }
 
     private static async findExistingTargetPost(input: TranslatePostTaskInput, sourcePost: PostTranslationSourceDetail, actor: { userId: string, isAdmin: boolean }) {
-        return await findExistingTargetPost(input, sourcePost, actor, this.getAccessiblePost.bind(this))
+        return findExistingTargetPost(input, sourcePost, actor, this.getAccessiblePost.bind(this))
     }
 
     private static async resolvePostSlug(options: {
@@ -234,7 +234,7 @@ export class PostAutomationService extends AIBaseService {
         actorUserId: string
         approvedSlug?: string | null
     }) {
-        return await resolvePostSlug(options)
+        return resolvePostSlug(options)
     }
 
     private static async loadPreviewSnapshot(previewTaskId: string, actor: { userId: string, isAdmin: boolean }) {
@@ -452,7 +452,7 @@ export class PostAutomationService extends AIBaseService {
                         targetPost,
                     }
                 }
-                : async () => await this.buildTranslatePreview({
+                : async () => this.buildTranslatePreview({
                     ...input,
                     slugStrategy,
                     categoryStrategy,

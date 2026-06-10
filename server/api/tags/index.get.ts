@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
     const query = await getValidatedQuery(event, (q) => tagQuerySchema.parse(q))
     const cacheKey = buildTagPublicListCacheKey(query)
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: cacheKey,
         namespace: TAG_PUBLIC_LIST_CACHE_NAMESPACE,

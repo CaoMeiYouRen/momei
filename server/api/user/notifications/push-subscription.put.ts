@@ -1,6 +1,7 @@
 import { requireAuth } from '@/server/utils/permission'
 import { success } from '@/server/utils/response'
 import { upsertWebPushSubscription } from '@/server/services/web-push'
+import { detectRequestAuthLocale } from '@/server/utils/locale'
 import { webPushSubscriptionSchema } from '@/utils/schemas/notification'
 
 export default defineEventHandler(async (event) => {
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
         },
         permission: body.permission,
         userAgent: getRequestHeader(event, 'user-agent') || null,
-        locale: event.context.locale || null,
+        locale: detectRequestAuthLocale(event),
     })
 
     return success({

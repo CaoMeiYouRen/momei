@@ -214,7 +214,7 @@ export async function loadWechatSyncAccounts(
         return []
     }
 
-    return await new Promise<WechatSyncAccount[]>((resolve) => {
+    return new Promise<WechatSyncAccount[]>((resolve) => {
         syncer.getAccounts((accounts) => {
             resolve(normalizeWechatSyncAccounts(accounts, currentAccounts))
         })
@@ -262,7 +262,7 @@ export async function runWechatSyncTask({
     resolveTimeoutMessage?: () => string
     statusInactivityTimeoutMs?: number
 }) {
-    return await new Promise<{
+    return new Promise<{
         completionAccounts: WechatSyncCompletionAccount[]
         observation: WechatSyncDispatchObservation
     }>((resolve) => {

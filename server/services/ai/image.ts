@@ -89,7 +89,7 @@ export class ImageService extends AIBaseService {
             result: JSON.stringify(checkpoint),
             ...patch,
         })
-        return await taskRepo.save(task)
+        return taskRepo.save(task)
     }
 
     private static async finalizeTaskFromResponse(
@@ -359,6 +359,6 @@ export class ImageService extends AIBaseService {
             progress: Math.max(task.progress || 0, 15),
         })
 
-        return await this.continueTask(task, options)
+        return this.continueTask(task, options)
     }
 }

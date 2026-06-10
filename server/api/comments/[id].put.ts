@@ -1,11 +1,17 @@
+import { z } from 'zod'
 import { dataSource } from '@/server/database'
 import { Comment } from '@/server/entities/comment'
 import { requireAdmin } from '@/server/utils/permission'
 import { assignDefined } from '@/server/utils/object'
 
+const commentPatchSchema = z.object({
+    status: z.enum(['pending', 'published', 'spam']).optional(),
+    isSticked: z.boolean().optional(),
+})
+
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id')
-    const body = await readBody(event)
+    const body = await readValidatedBody(event, (payload) => commentPatchSchema.parse(payload))
 
     if (!id) {
         throw createError({ statusCode: 400, statusMessage: 'ID required' })

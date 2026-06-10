@@ -19,7 +19,7 @@ async function resolveAdapterConfigs() {
 export default defineEventHandler(async (event) => {
     try {
         const query = getQuery(event)
-        const adapterId = query.adapter as string | undefined
+        const adapterId = query.adapter
         const adapterConfigs = await resolveAdapterConfigs()
 
         // 如果指定了适配器 ID，只返回该适配器的脚本

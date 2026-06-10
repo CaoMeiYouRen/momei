@@ -58,7 +58,7 @@ export class OpenAITTSProvider implements Partial<AIProvider> {
         voice: string,
         options: TTSOptions,
     ): Promise<ReadableStream<Uint8Array>> {
-        return await requestTTSAudioStream({
+        return requestTTSAudioStream({
             endpoint: `${this.endpoint}/audio/speech`,
             apiKey: this.apiKey,
             payload: {

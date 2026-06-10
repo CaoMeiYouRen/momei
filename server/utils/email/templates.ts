@@ -305,7 +305,7 @@ export class EmailTemplateEngine {
         const templateData = await this.buildBaseTemplateData(templateConfig, options, 'default')
         const fragments = ['action-message', 'important-reminder', 'security-tip']
 
-        return await this.generateTemplate('action-email', fragments, { ...templateData, ...templateConfig }, options)
+        return this.generateTemplate('action-email', fragments, { ...templateData, ...templateConfig }, options)
     }
 
     /**
@@ -318,7 +318,7 @@ export class EmailTemplateEngine {
         const templateData = await this.buildBaseTemplateData(templateConfig, options, 'code')
         const fragments = ['verification-code', 'security-tip']
 
-        return await this.generateTemplate('code-email', fragments, { ...templateData, ...templateConfig }, options)
+        return this.generateTemplate('code-email', fragments, { ...templateData, ...templateConfig }, options)
     }
 
     /**
@@ -331,7 +331,7 @@ export class EmailTemplateEngine {
         const templateData = await this.buildBaseTemplateData(templateConfig, options, 'marketing')
         const fragments = ['marketing-campaign']
 
-        return await this.generateTemplate('marketing-email', fragments, { ...templateData, ...templateConfig }, options)
+        return this.generateTemplate('marketing-email', fragments, { ...templateData, ...templateConfig }, options)
     }
 
     /**
@@ -344,7 +344,7 @@ export class EmailTemplateEngine {
         const templateData = await this.buildBaseTemplateData(templateConfig, options, 'default')
         const fragments = ['simple-message']
 
-        return await this.generateTemplate('simple-message', fragments, { ...templateData, ...templateConfig }, options)
+        return this.generateTemplate('simple-message', fragments, { ...templateData, ...templateConfig }, options)
     }
 
     /**

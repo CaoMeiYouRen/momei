@@ -45,19 +45,19 @@ export default defineEventHandler(async (event) => {
         context.sessionId = sessionId
 
         if (query.locale) {
-            context.locale = query.locale as string
+            context.locale = query.locale
         }
 
         if (query.categories) {
             context.categories = Array.isArray(query.categories)
                 ? query.categories as string[]
-                : [query.categories as string]
+                : [query.categories]
         }
 
         if (query.tags) {
             context.tags = Array.isArray(query.tags)
                 ? query.tags as string[]
-                : [query.tags as string]
+                : [query.tags]
         }
 
         const placements = await getPlacementsByLocation(location, context)

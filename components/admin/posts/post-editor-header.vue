@@ -140,8 +140,7 @@
                         'translation-badge--missing': !hasTranslation(l.code),
                         'translation-badge--disabled': props.hasUnsavedContent
                     }"
-                    @mousedown.capture="rememberActiveEditorElement"
-                    @click.capture="onTranslationBadgeMousedown(l.code, $event)"
+                    @mousedown.capture="rememberActiveEditorElement(); onTranslationBadgeMousedown(l.code, $event)"
                     @click="onTranslationBadgeClick(l.code)"
                 />
             </div>

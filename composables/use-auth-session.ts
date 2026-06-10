@@ -188,7 +188,7 @@ export async function resolveRouteAuthSession(options?: { force?: boolean, maxAg
     }
 
     if (!import.meta.client) {
-        return await fetchRouteSession()
+        return fetchRouteSession()
     }
 
     if (!clientRouteSessionPromise) {
@@ -198,7 +198,7 @@ export async function resolveRouteAuthSession(options?: { force?: boolean, maxAg
             })
     }
 
-    return await clientRouteSessionPromise
+    return clientRouteSessionPromise
 }
 
 export function setupAuthSessionLifecycle(session = useAuthSession()) {

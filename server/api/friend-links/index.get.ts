@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const categoryId = typeof query.categoryId === 'string' ? query.categoryId : undefined
     const cacheKey = buildPublicFriendLinksCacheKey(featured, limit, categoryId)
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: cacheKey,
         namespace: PUBLIC_FRIEND_LINKS_CACHE_NAMESPACE,

@@ -362,7 +362,7 @@ describe('UploadService', () => {
         })
 
         it('should throw error if no files uploaded', async () => {
-            vi.mocked(readMultipartFormData).mockResolvedValue(undefined)
+            vi.mocked(readMultipartFormData).mockResolvedValue([])
             await expect(handleFileUploads(mockEvent, { prefix: 'test/' }))
                 .rejects.toThrow('No file uploaded')
         })

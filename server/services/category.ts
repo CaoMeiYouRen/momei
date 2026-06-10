@@ -64,7 +64,7 @@ export async function createCategory(data: CategoryData): Promise<Category> {
     ])
     category.translationId = translationClusterId
 
-    return await categoryRepo.save(category)
+    return categoryRepo.save(category)
 }
 
 export async function updateCategory(id: string, data: Partial<CategoryData>): Promise<Category> {
@@ -154,5 +154,5 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
     ])
     category.translationId = targetTranslationId
 
-    return await categoryRepo.save(category)
+    return categoryRepo.save(category)
 }

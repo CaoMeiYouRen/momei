@@ -48,7 +48,7 @@ export async function generateASRCredentials(options: ASRCredentialsOptions): Pr
     }
 
     if (provider === 'volcengine') {
-        return await generateVolcengineCredentials({
+        return generateVolcengineCredentials({
             mode,
             issuedAt,
             expiresAt,

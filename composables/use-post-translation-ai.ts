@@ -254,7 +254,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             return false
         }
 
-        return await runTranslationPipelineFromIndex({
+        return runTranslationPipelineFromIndex({
             startIndex,
             controllerState,
             runContext,
@@ -311,7 +311,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             translationProgress,
             setFieldProgress: (nextField, patch) => patchTranslationProgressField(runContext, translationProgress, nextField, patch),
         })
-        return await runPipelineFrom(fieldIndex)
+        return runPipelineFrom(fieldIndex)
     }
 
     const translatePostFields = async (options: {
@@ -334,7 +334,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             return true
         }
 
-        return await runPipelineFrom(0)
+        return runPipelineFrom(0)
     }
 
     return {

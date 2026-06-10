@@ -24,7 +24,7 @@ export function useUnsavedChangesGuard(options: UseUnsavedChangesGuardOptions) {
             return true
         }
 
-        return await new Promise<boolean>((resolve) => {
+        return new Promise<boolean>((resolve) => {
             confirm.require({
                 message: toValue(options.message),
                 icon: 'pi pi-exclamation-triangle',
@@ -58,7 +58,7 @@ export function useUnsavedChangesGuard(options: UseUnsavedChangesGuardOptions) {
         window.removeEventListener('beforeunload', handleBeforeUnload)
     })
 
-    onBeforeRouteLeave(async () => await confirmIfDirty())
+    onBeforeRouteLeave(async () => confirmIfDirty())
 
     return {
         confirmIfDirty,

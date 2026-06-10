@@ -83,7 +83,7 @@ export async function recordNotificationDeliveryLog(input: RecordNotificationDel
         metadata: input.metadata ?? null,
     })
 
-    return await repo.save(entity)
+    return repo.save(entity)
 }
 
 export async function getNotificationDeliveryLogs(filters: NotificationDeliveryLogFilters): Promise<NotificationDeliveryLogListData> {

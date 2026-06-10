@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const isSharedPublicResponse = !event.context?.auth?.user && !user
     const publicCacheKey = buildSearchPublicCacheKey(query)
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: publicCacheKey,
         namespace: SEARCH_PUBLIC_CACHE_NAMESPACE,

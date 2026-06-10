@@ -67,7 +67,7 @@ export function useNotifications() {
             return existingRegistration
         }
 
-        return await navigator.serviceWorker.register('/web-push-sw.js')
+        return navigator.serviceWorker.register('/web-push-sw.js')
     }
 
     const removeServerSubscription = async (endpoint?: string) => {

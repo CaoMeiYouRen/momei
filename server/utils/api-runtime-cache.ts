@@ -100,7 +100,7 @@ export async function withRuntimeApiCache<T>(options: RuntimeApiCacheOptions<T>)
     if (!isSharedPublicResponse) {
         recordRuntimeApiCacheMetric(normalizedNamespace, 'bypasses')
         applyRuntimeApiCacheControl(event, false, ttlSeconds)
-        return await loader()
+        return loader()
     }
 
     const cachedResponse = getRuntimeCache(key) as T | undefined

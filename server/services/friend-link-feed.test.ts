@@ -171,19 +171,26 @@ describe('getFriendLinkFeeds', () => {
             const result = await getFriendLinkFeeds()
 
             expect(result).toHaveLength(2)
-            expect(result[0]).toMatchObject({
+            const first = result[0]
+            const second = result[1]
+            expect(first).toBeDefined()
+            expect(second).toBeDefined()
+            if (!first || !second) {
+                return
+            }
+            expect(first).toMatchObject({
                 title: 'Post One',
                 url: 'https://test.example.com/post-1',
                 siteName: 'Test Blog',
                 siteUrl: 'https://test.example.com',
             })
-            expect(result[1]).toMatchObject({
+            expect(second).toMatchObject({
                 title: 'Post Two',
                 url: 'https://test.example.com/post-2',
             })
             // Sorted by publishedAt descending
-            expect(new Date(result[0].publishedAt!).getTime())
-                .toBeGreaterThanOrEqual(new Date(result[1].publishedAt!).getTime())
+            expect(new Date(first.publishedAt!).getTime())
+                .toBeGreaterThanOrEqual(new Date(second.publishedAt!).getTime())
         })
 
         it('parses RSS feed with single item (not wrapped in array)', async () => {
@@ -339,11 +346,18 @@ ${manyItems}
 
             const result = await getFriendLinkFeeds()
 
-            expect(result[0].publishedAt).toBeDefined()
-            expect(result[1].publishedAt).toBeDefined()
+            const first = result[0]
+            const second = result[1]
+            expect(first).toBeDefined()
+            expect(second).toBeDefined()
+            if (!first || !second) {
+                return
+            }
+            expect(first.publishedAt).toBeDefined()
+            expect(second.publishedAt).toBeDefined()
             // Post One (Jun 02) should come before Post Two (Jun 01)
-            expect(new Date(result[0].publishedAt!).getTime())
-                .toBeGreaterThan(new Date(result[1].publishedAt!).getTime())
+            expect(new Date(first.publishedAt!).getTime())
+                .toBeGreaterThan(new Date(second.publishedAt!).getTime())
         })
 
         it('handles null publishedAt in sorting', async () => {

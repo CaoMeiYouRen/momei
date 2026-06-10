@@ -38,7 +38,7 @@ export const createThemeConfigService = async (body: ThemeConfigInput) => {
     assignDefined(themeConfig, body, ['name', 'description', 'configData', 'previewImage'])
     themeConfig.isSystem = false
 
-    return await themeConfigRepo.save(themeConfig)
+    return themeConfigRepo.save(themeConfig)
 }
 
 /**
@@ -59,7 +59,7 @@ export const updateThemeConfigService = async (id: string, body: ThemeConfigUpda
 
     assignDefined(themeConfig, body, ['name', 'description', 'configData', 'previewImage'])
 
-    return await themeConfigRepo.save(themeConfig)
+    return themeConfigRepo.save(themeConfig)
 }
 
 /**
@@ -77,7 +77,7 @@ export const deleteThemeConfigService = async (id: string) => {
         throw createError({ statusCode: 403, statusMessage: 'System theme config cannot be deleted' })
     }
 
-    return await themeConfigRepo.remove(themeConfig)
+    return themeConfigRepo.remove(themeConfig)
 }
 
 /**

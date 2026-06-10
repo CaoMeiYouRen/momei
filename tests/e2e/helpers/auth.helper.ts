@@ -166,7 +166,7 @@ export class AuthHelper {
         await this.seedAdminSession()
         await this.invalidateClientSessionCache()
 
-        await expect.poll(async () => await this.hasServerSession(), {
+        await expect.poll(async () => this.hasServerSession(), {
             timeout: 20000,
         }).toBe(true)
 

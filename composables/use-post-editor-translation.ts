@@ -612,12 +612,12 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
                 return false
             }
 
-            return await requestConfirm(options.t('pages.admin.posts.translation_workflow.overwrite_published_second'), {
+            return requestConfirm(options.t('pages.admin.posts.translation_workflow.overwrite_published_second'), {
                 severity: 'danger',
             })
         }
 
-        return await requestConfirm(
+        return requestConfirm(
             action === 'continue'
                 ? options.t('pages.admin.posts.translation_workflow.continue_draft')
                 : options.t('pages.admin.posts.translation_workflow.overwrite_draft'),

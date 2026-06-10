@@ -218,7 +218,7 @@ export async function createPostsZip(posts: Post[]): Promise<Buffer> {
         const content = formatPostToMarkdown(post)
         zip.file(filename, content)
     })
-    return await zip.generateAsync({
+    return zip.generateAsync({
         type: 'nodebuffer',
         compression: 'DEFLATE',
         compressionOptions: { level: 9 },

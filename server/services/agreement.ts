@@ -372,7 +372,7 @@ export const createAgreementVersion = async (data: {
         hasUserConsent: false,
     })
 
-    return await repo.save(agreement)
+    return repo.save(agreement)
 }
 
 /**
@@ -435,7 +435,7 @@ export const updateAgreementContent = async (
     agreement.isMainVersion = agreement.isAuthoritativeVersion
     agreement.sourceAgreementId = sourceAgreement?.id || null
 
-    return await repo.save(agreement)
+    return repo.save(agreement)
 }
 
 /**
@@ -465,7 +465,7 @@ export const deleteAgreementVersion = async (id: string) => {
         throw new Error('Cannot delete the currently active authoritative agreement')
     }
 
-    return await repo.remove(agreement)
+    return repo.remove(agreement)
 }
 
 /**
@@ -554,7 +554,7 @@ export const setAgreementReviewStatus = async (
     }
 
     agreement.reviewStatus = nextStatus
-    return await repo.save(agreement)
+    return repo.save(agreement)
 }
 
 export const markAgreementConsentForLocale = async (preferredLanguage?: string) => {

@@ -222,7 +222,7 @@ export const commentService = {
         const allComments = await qb.getMany()
 
         // 构建树形结构并处理隐私
-        return await this.buildCommentTree(allComments, options.isAdmin, context)
+        return this.buildCommentTree(allComments, options.isAdmin, context)
     },
 
     /**
@@ -236,7 +236,7 @@ export const commentService = {
 
         applyCommentViewerVisibilityFilter(qb, options)
 
-        return await qb.getOne()
+        return qb.getOne()
     },
 
     /**

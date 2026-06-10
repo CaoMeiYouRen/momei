@@ -11,7 +11,7 @@ const {
 } = vi.hoisted(() => ({
     getAIProviderMock: vi.fn(),
     inferFailureStageMock: vi.fn(() => 'provider'),
-    withAITimeoutMock: vi.fn(async (promise: Promise<unknown>) => await promise),
+    withAITimeoutMock: vi.fn(async (promise: Promise<unknown>) => promise),
     sendInAppNotificationMock: vi.fn(),
     pushRealtimeEventMock: vi.fn(),
     loggerMock: {

@@ -636,7 +636,7 @@ export async function handleFileUploads(event: H3Event, options: UploadOptions):
         })
 
         // 执行上传
-        await storage.upload(file.data, newFilename, file.type)
+        await storage.upload(Buffer.from(file.data), newFilename, file.type)
 
         uploadedFiles.push({
             filename: file.filename,

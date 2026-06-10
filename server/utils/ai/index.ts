@@ -243,5 +243,5 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
  * 获取图片生成提供者 (快捷方式)
  */
 export async function getAIImageProvider(): Promise<AIProvider> {
-    return await getAIProvider('image')
+    return getAIProvider('image')
 }

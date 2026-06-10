@@ -215,7 +215,7 @@ async function saveFriendLinkEntity(
     await ensureAllowedLogoUrl(entity.logo, Boolean(operatorId))
     await ensureUniqueFriendLinkUrl(entity.url, entity.id)
 
-    return await dataSource.getRepository(FriendLink).save(entity)
+    return dataSource.getRepository(FriendLink).save(entity)
 }
 
 function applyPublicFriendLinkSelect(qb: SelectQueryBuilder<FriendLink>) {
@@ -296,14 +296,14 @@ async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult
 
 export const friendLinkService = {
     async getMeta(locale?: string | null) {
-        return await resolveFriendLinkMeta(locale)
+        return resolveFriendLinkMeta(locale)
     },
 
     async getCategories(options: { enabledOnly?: boolean } = {}) {
         const categoryRepo = dataSource.getRepository(FriendLinkCategory)
         const where = options.enabledOnly ? { isEnabled: true } : {}
 
-        return await categoryRepo.find({
+        return categoryRepo.find({
             where,
             order: {
                 sortOrder: 'ASC',
@@ -328,7 +328,7 @@ export const friendLinkService = {
         category.sortOrder = input.sortOrder ?? 0
         category.isEnabled = input.isEnabled ?? true
 
-        return await categoryRepo.save(category)
+        return categoryRepo.save(category)
     },
 
     async updateCategory(id: string, input: {
@@ -357,7 +357,7 @@ export const friendLinkService = {
             category.isEnabled = input.isEnabled
         }
 
-        return await categoryRepo.save(category)
+        return categoryRepo.save(category)
     },
 
     async deleteCategory(id: string) {
@@ -482,6 +482,7 @@ export const friendLinkService = {
         status?: FriendLinkStatus
         isPinned?: boolean
         isFeatured?: boolean
+        showRssFeed?: boolean
         sortOrder?: number
         applicationId?: string | null
         source?: 'manual' | 'application'
@@ -503,7 +504,7 @@ export const friendLinkService = {
         entity.healthCheckCooldownUntil = null
         entity.createdById = operatorId
 
-        return await saveFriendLinkEntity(entity, input, operatorId)
+        return saveFriendLinkEntity(entity, input, operatorId)
     },
 
     async updateFriendLink(id: string, input: {
@@ -517,6 +518,7 @@ export const friendLinkService = {
         status?: FriendLinkStatus
         isPinned?: boolean
         isFeatured?: boolean
+        showRssFeed?: boolean
         sortOrder?: number
     }, operatorId: string | null) {
         const friendLinkRepo = dataSource.getRepository(FriendLink)
@@ -533,7 +535,7 @@ export const friendLinkService = {
             entity.url = input.url.trim()
         }
 
-        return await saveFriendLinkEntity(entity, input, operatorId)
+        return saveFriendLinkEntity(entity, input, operatorId)
     },
 
     async deleteFriendLink(id: string) {
@@ -621,7 +623,7 @@ export const friendLinkService = {
 
         await ensureAllowedLogoUrl(entity.logo, Boolean(entity.applicantId))
 
-        return await applicationRepo.save(entity)
+        return applicationRepo.save(entity)
     },
 
     async reviewApplication(id: string, input: {

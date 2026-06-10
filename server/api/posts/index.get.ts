@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
         await requireAdminOrAuthor(event)
     }
 
-    return await withRuntimeApiCache({
+    return withRuntimeApiCache({
         event,
         key: publicCacheKey,
         namespace: POSTS_PUBLIC_LIST_CACHE_NAMESPACE,

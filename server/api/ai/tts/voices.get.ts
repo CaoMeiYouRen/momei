@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     await requireAdminOrAuthor(event)
 
     const query = getQuery(event)
-    const voices = await TTSService.getVoices(query.provider as string, {
+    const voices = await TTSService.getVoices(query.provider, {
         mode: query.mode as 'speech' | 'podcast' | undefined,
     })
 
