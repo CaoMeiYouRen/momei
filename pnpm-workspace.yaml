@@ -61,6 +61,7 @@ overrides:
     "ajv@^8.0.0": "^8.18.0"
     rollup: "^4.59.0"
     serialize-javascript: "^7.0.5"
+    shell-quote: "^1.8.4"
     "@xmldom/xmldom": "^0.8.13"
     yauzl: "^3.2.1"
     flatted: "^3.4.2"
