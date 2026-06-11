@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { paginationSchema } from '@/utils/schemas/pagination'
 import { getDemoNotificationDeliveryLogsPreview } from '@/server/utils/demo-settings'
 import { getNotificationDeliveryLogs } from '@/server/services/notification-delivery'
 import { requireAdmin } from '@/server/utils/permission'
@@ -19,8 +20,7 @@ const dateQuerySchema = z.preprocess((value) => {
     return Number.isNaN(parsed.getTime()) ? undefined : parsed
 }, z.date().optional())
 
-const querySchema = z.object({
-    page: z.coerce.number().int().min(1).default(1),
+const querySchema = paginationSchema.extend({
     limit: z.coerce.number().int().min(1).max(100).default(10),
     notificationType: z.enum(NotificationType).optional(),
     channel: z.enum(NotificationDeliveryChannel).optional(),

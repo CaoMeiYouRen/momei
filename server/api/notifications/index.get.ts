@@ -1,11 +1,11 @@
 import { z } from 'zod'
+import { paginationSchema } from '@/utils/schemas/pagination'
 import { dataSource } from '@/server/database'
 import { InAppNotification } from '@/server/entities/in-app-notification'
 import { requireAuth } from '@/server/utils/permission'
 import { paginate } from '@/server/utils/response'
 
-const querySchema = z.object({
-    page: z.coerce.number().min(1).default(1),
+const querySchema = paginationSchema.extend({
     limit: z.coerce.number().min(1).max(100).default(20),
     unreadOnly: z.preprocess((v) => v === 'true', z.boolean()).optional(),
 })
