@@ -37,11 +37,16 @@
 	 - 当前进度：已完成一轮切片（2026-06-11）。
 	 - 交付摘要：FeedItem（page+service→shared types）、TitleSuggestionOverlayRef（composable→composable）、FeedItem service→types 三组类型收敛；同名 type/interface 候选 17→14 (-3)；lint + typecheck through。
 
-3. [ ] **页面与 API 路径规范化治理**
+3. [x] **页面与 API 路径规范化治理**
 	 - 验收标准:
 		 - 输出页面路径 ↔ API 路径映射清单；
 		 - 冻结统一命名/分层规则与迁移优先级；
 		 - 至少完成 `3` 组高频模块样板验证。
+	 - 当前进度：已完成（2026-06-11）。
+	 - 交付摘要：
+		 - 治理文档: `docs/design/governance/route-api-path-governance.md`（46 page ↔ ~120 api 全量映射 + 5 项不一致清单 + 4 页面规则 + 4 API 规则 + 3 样板验证）
+		 - P0 修复: `calendar.vue` + `marketing.vue` → `index.vue` 目录模式（统一 2 处平面文件风格）
+		 - 提交: `102b107b`
 
 4. [ ] **`pages/admin` 路由文件风格统一**
 	 - 验收标准:
