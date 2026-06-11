@@ -659,6 +659,40 @@
     - **非目标**: 不在本阶段重写全部 API 契约。
     - **最小验收**: 覆盖率分层结果落盘，至少完成 3 组高收益 schema 复用样板。
 
+### 第四十八阶段：深度治理与清理收口 (Deep Governance & Cleanup Closure)
+
+**时间表**: 2026-06-11 ~ 约 2 周
+**目标**: 在第四十七阶段完成 6 条治理优化后，以「0 个新功能 + 5 个优化」组合继续深化：ESLint/类型债扩展窄切片、结构复用深度收敛、API Schema 全量推进至完整覆盖、未使用 API 弃用标记与删除、第二轮闲置端点调研。
+
+**准入结论**: 五条主线均延续第四十七阶段治理切片节奏，不引入新功能面。ESLint 和复用已建立稳定「单规则 + 双文件」模式；Schema 覆盖从 58% 完整率推进到 ~85%；未使用 API 经 git 历史验证可安全下架。
+
+**ROI 评估**: ESLint/类型债 `1.40`；结构复用 `1.45`；Schema 覆盖 `1.60`；未使用 API 删除 `1.80`；第二轮调研 `1.10`。
+
+1. **主线：ESLint / 类型债 — 窄切片扩展 ≥5 模块 (P0)**:
+    - **执行范围**: 继续「单规则 + 单文件」窄切片：`seed-demo.ts`（6 处 `as any` → `PostStatus` 枚举）、`typeorm-adapter.ts`（2 处 `as any` 窄类型断言）、`translation.ts` 残留 `as any` 收尾、`use-tts-volcengine-direct.ts` composable 拆分降低 eslint-disable、`server/services/ai/` 子桶 `no-explicit-any` 收敛。
+    - **非目标**: 不做全仓 any 清零、不改变治理脚本基线。
+    - **最小验收**: eslint-disable 生产代码减少 ≥2 处；`as any` 清零 ≥4 处。
+
+2. **主线：结构复用 — 类型/函数深度收敛 ≥5 切片 (P0)**:
+    - **执行范围**: 基于 Phase 47 的 15 组同名 type/interface 基线继续收敛：`AdminAiPageEvent`、`DemoTourStage`、`VolcengineResponsePacket`、`AuthBoundaryLocale` 四组类型统一 + `formatDate` 多处重复统一使用 `useI18nDate().formatDate`。
+    - **非目标**: 不推动跨目录大重构。
+    - **最小验收**: 同名 type/interface 从 15 降至 ≤12；至少 1 组函数级复用落地。
+
+3. **主线：API Schema 全面覆盖 — partial→full + 测试 (P0)**:
+    - **执行范围**: 为 external-links（POST+PUT）、snippets（PUT+POST scaffold）、theme-configs（POST+PUT+apply）、marketing（POST send）、link-governance（POST apply+dry-run）共 ≥8 个端点补全 Zod schema；每个补全端点追加测试用例（schema 通过/拒绝断言）。
+    - **非目标**: 不重写已有 schema、不补 calendar 模块（无独立 API）。
+    - **最小验收**: POST/PUT 无 schema 端点从 27 降至 ≤19；新增 ≥8 个 schema 测试用例。
+
+4. **主线：未使用 API 弃用标记 + 安全删除 (P0)**:
+    - **执行范围**: 基于 Phase 47 评估结果和 git 历史验证，对 7 个零引用端点：标记 `@deprecated` → 删除文件 → 记录 git revert 回滚锚点。
+    - **非目标**: 不删除有测试覆盖的端点。
+    - **最小验收**: 7 个端点全部删除；`pnpm lint` + `pnpm typecheck` 通过。
+
+5. **主线：第二轮未使用 API 扩大调研 (P1)**:
+    - **执行范围**: 对 `admin/subscriptions`、`admin/waitlist/export`、`admin/snippets/scaffold-to-post`、`admin/posts/:id/versions/:versionId/restore` 进行三层交叉验证 + git 历史分析，产出第二轮弃用候选清单。
+    - **非目标**: 不在本阶段删除未确认端点。
+    - **最小验收**: 输出第二轮评估结果（至少 4 个端点的使用证据分析）。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
