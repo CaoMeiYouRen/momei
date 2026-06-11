@@ -17,7 +17,7 @@ overrides:
   preact: ^10.28.2
   vite: 8.0.16
   esbuild: ^0.25.0
-  brace-expansion: ^5.0.5
+  brace-expansion: 5.0.6
   tar: ^7.5.11
   minimatch: ^10.2.3
   html-minifier: npm:html-minifier-terser@^7.2.0
@@ -31,8 +31,8 @@ overrides:
   devalue: ^5.8.1
   defu: 6.1.5
   unhead: ^2.1.13
-  qs: ^6.14.2
-  hono: ^4.12.16
+  qs: 6.15.2
+  hono: 4.12.21
   uuid: 11.1.1
   '@nuxt/test-utils>h3-next': npm:h3@^2.0.1-rc.18
   seroval: ^1.4.1
@@ -2047,7 +2047,7 @@ packages:
     resolution: {integrity: sha512-TsQLe4i2gvoTtrHje625ngThGBySOgSK3Xo2XRYOdqGN1teR8+I7vchQC46uLJi8OF62YTYA3AhSpumtkhsaKQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4.12.16
+      hono: 4.12.21
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
