@@ -18,6 +18,51 @@
 
 ---
 
+## 第四十七阶段：接口契约与路由治理深化 (已审计归档)
+
+> 归档说明: 第四十七阶段「0 个新功能 + 6 个优化」已于 2026-06-11 完成六条主线交付与阶段收口。
+> 六条优化主线: ESLint/类型债继续窄切片、结构复用治理继续推进、页面与 API 路径规范化、路由风格统一、未使用 API 清单评估、API Schema 覆盖与复用治理。
+> todo.md 当前执行面已清理，等待下一阶段候选池评估。
+
+### 1. ESLint / 类型债继续治理（窄切片）
+
+- 收敛 6 处生产代码 `as any`: `link.ts`（`Record<string, unknown>`）、`translation.ts` ×4（`(item as T & { translations })`）、`email/i18n.ts`（`{} as Record<...>`）
+- eslint-disable 总量维持 13 处（≤13 达标）
+- 提交: `b704618f`
+
+### 2. 结构复用治理继续推进
+
+- Slice 1: `FeedItem` — page+service → `types/friend-link.ts` 统一来源
+- Slice 2: `TitleSuggestionOverlayRef` — `use-post-editor-page.ts` → import from `use-post-editor-ai.ts`
+- 同名 type/interface 候选 17→14 (-3)
+- 提交: `7ef401b0`, `516daa45`
+
+### 3. 页面与 API 路径规范化治理
+
+- 治理文档: `docs/design/governance/route-api-path-governance.md`（46 page ↔ ~120 api 全量映射）
+- P0 修复: `calendar.vue` + `marketing.vue` → `index.vue` 目录模式
+- 提交: `102b107b`, `db2a54e0`
+
+### 4. `pages/admin` 路由文件风格统一
+
+- 主规范: 第一级强制目录，第二级允许平铺
+- 迁移: `calendar.vue` + `marketing.vue` → `index.vue`（2 处）
+- 提交: `4f6686a6`, `9e3ddad1`
+
+### 5. 未使用 API 清单与清理可行性评估
+
+- 三层交叉验证 ~120→识别 7 个零引用端点
+- 三档分流: 可删除 7 / 观察 2 / 保留 ~111
+- 治理文档: `docs/design/governance/unused-api-cleanup-assessment.md`
+- 提交: `e3864b1a`, `5d690e5e`
+
+### 6. API Schema 覆盖与复用治理
+
+- 覆盖率: 完整 11 / 部分 7 / 缺失 1
+- 3 组复用样板 + 新增 `utils/schemas/taxonomy.ts`
+- 治理文档: `docs/design/governance/api-schema-coverage-governance.md`
+- 提交: `09924a42`, `8259fa75`
+
 ## 第四十六阶段：隐私部署收口与治理深化 (已审计归档)
 
 > 归档说明: 第四十六阶段「1 个新功能 + 5 个优化」已完成并通过阶段收口检查。  

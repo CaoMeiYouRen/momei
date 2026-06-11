@@ -119,6 +119,39 @@
 
 <!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
 
+<!-- regression-window:start:phase47-close:第四十七阶段:2026-06-11 -->
+## 2026-06-11 第四十七阶段收口回归
+
+### 范围
+
+- 目标：第四十七阶段「接口契约与路由治理深化」6 条优化主线全部交付后的阶段收口回归。
+- 本轮覆盖：全仓 typecheck + ESLint、治理文档 4 份、todo-archive 滚动归档。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 0 errors |
+| `pnpm lint` | Pass | 0 errors |
+| todo-archive.md 滚动归档 | 完成 | Phase 47 归档块已写入 |
+| todo.md 状态 | 清理 | 执行面已清空 |
+
+### Phase 47 交付清单
+
+| 主线 | 交付 | 提交 |
+|------|------|------|
+| ESLint / 类型债 | 6 处 as any 收敛 | `b704618f` |
+| 结构复用治理 | 3 组类型收敛 (FeedItem/TitleSuggestionOverlayRef) | `7ef401b0`, `516daa45` |
+| API 路径规范化 | route-api-path-governance.md + 2 处 P0 修复 | `102b107b`, `db2a54e0` |
+| 路由风格统一 | 规范冻结 + calendar/marketing → index.vue | `4f6686a6`, `9e3ddad1` |
+| 未使用 API 评估 | unused-api-cleanup-assessment.md | `e3864b1a`, `5d690e5e` |
+| API Schema 治理 | taxonomy.ts + 3 组复用样板 | `09924a42`, `8259fa75` |
+
+### 未覆盖边界
+
+- Phase 44-46 的回归窗口不在本轮扫描范围（已有独立窗口）。
+<!-- regression-window:end:phase47-close:第四十七阶段:2026-06-11 -->
+
 <!-- regression-window:start:phase44-close:第四十四阶段:2026-06-07 -->
 ## 2026-06-07 第四十四阶段收口回归
 
