@@ -71,7 +71,7 @@
 
 ### 3.1 页面路径规则
 
-1. **目录优先模式**: 所有 `pages/admin/` 下路由统一使用 `<name>/index.vue`，不再使用 `<name>.vue` 平面文件。
+1. **目录优先模式（第一级）**: `pages/admin/` 第一级必须为目录（`<name>/index.vue`），不得使用平面 `.vue` 文件；第二级及以上允许平铺以减少层级过深。
 2. **REST 语义命名**: 资源用复数 (posts, tags, categories)；操作单独处理 (settings, dashboard)。
 3. **动态路由**: `[id].vue` 代表单资源操作，子资源通过目录组织。
 
@@ -109,4 +109,24 @@
 
 - Page: `/admin/calendar.vue` (平面文件风格) ❌
 - API: 无专用端点 (依赖 posts) ⚠️
-- 结论: **待修正** — `calendar.vue` → `calendar/index.vue`（P0 修复）。
+- 结论: **已修正** — `calendar.vue` → `calendar/index.vue`（Phase 47 P0 修复）。
+
+### 4.4 `pages/admin` 路由风格统一（Phase 47 专项）
+
+**主规范**: `pages/admin/` **第一级必须为目录**（即 `<name>/index.vue` 模式）；第二级及以上允许平铺 `.vue` 文件或继续使用目录，以控制目录深度。
+
+**规则说明**:
+- ✅ 第一级: `admin/calendar/index.vue`、`admin/posts/index.vue`、`admin/snippets/index.vue`
+- ✅ 第二级平铺（允许）: `admin/ad/campaigns.vue`、`admin/settings/theme.vue`
+- ❌ 禁止: `admin/calendar.vue`（第一级平面文件）
+
+**迁移状态表**（仅第一级）:
+
+| 路由 | 旧风格 | 新风格 | 状态 |
+|:---|:---|:---|:---|
+| `admin/calendar` | `calendar.vue` | `calendar/index.vue` | ✅ |
+| `admin/marketing` | `marketing.vue` | `marketing/index.vue` | ✅ |
+
+**例外条件**:
+- 动态路由参数文件（`[id].vue`）不适用此规则。
+- 第二级及更深层级的平铺 `.vue` 文件保留原样（如 `ad/campaigns.vue`、`settings/theme.vue`、`migrations/link-governance.vue`）。
