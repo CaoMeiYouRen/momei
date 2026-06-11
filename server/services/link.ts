@@ -196,7 +196,7 @@ export async function updateLink(id: string, data: Partial<ExternalLink>): Promi
     }
 
     // 只更新基本字段，不包含关系
-    const updateData = { ...data } as any
+    const updateData: Record<string, unknown> = { ...data }
     delete updateData.createdBy
     await linkRepo.update(id, updateData)
     return getLinkById(id)

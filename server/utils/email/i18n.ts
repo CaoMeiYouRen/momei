@@ -94,7 +94,7 @@ export class EmailI18nManager {
      * 获取指定邮件类型的所有多语言文本
      */
     getMultiLocaleText<T extends EmailLocaleType>(emailType: T): Record<SupportedEmailLocale, EmailLocaleConfig[T]> {
-        const result: Record<SupportedEmailLocale, EmailLocaleConfig[T]> = {} as any
+        const result = {} as Record<SupportedEmailLocale, EmailLocaleConfig[T]>
         for (const locale of this.getSupportedLocales()) {
             const config = this.loadLocale(locale)
             result[locale] = config[emailType]
