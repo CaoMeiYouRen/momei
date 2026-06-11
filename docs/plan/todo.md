@@ -29,11 +29,13 @@
 	 - 当前进度：已完成一轮切片（2026-06-08）。
 	 - 交付摘要：收敛 6 处生产代码 `as any`（link.ts + translation.ts ×4 + email/i18n.ts），eslint-disable 总量维持 13 处；`pnpm lint` + `pnpm typecheck` through。
 
-2. [ ] **结构复用治理继续推进（重复代码/类型/纯函数）**
+2. [x] **结构复用治理继续推进（重复代码/类型/纯函数）**
 	 - 验收标准:
 		 - 至少完成 `3 - 5` 组高收益复用切片；
 		 - `pnpm duplicate-code:check` 基线不反弹；
 		 - 每组切片输出收益与未覆盖边界。
+	 - 当前进度：已完成一轮切片（2026-06-11）。
+	 - 交付摘要：FeedItem（page+service→shared types）、TitleSuggestionOverlayRef（composable→composable）、FeedItem service→types 三组类型收敛；同名 type/interface 候选 17→14 (-3)；lint + typecheck through。
 
 3. [ ] **页面与 API 路径规范化治理**
 	 - 验收标准:
