@@ -70,11 +70,17 @@
 		 - 三档分流: 可删除 7 / 观察 2 / 保留 ~111
 		 - 回滚锚点: git revert，窗口至下阶段收口前
 
-6. [ ] **API Schema 覆盖与复用治理**
+6. [x] **API Schema 覆盖与复用治理**
 	 - 验收标准:
 		 - 给出覆盖率分层（完整/部分/缺失）；
 		 - 产出可共享 schema 候选清单；
 		 - 至少完成 `3` 组 schema 复用样板。
+	 - 当前进度：已完成（2026-06-11）。
+	 - 交付摘要：
+		 - 治理文档: `docs/design/governance/api-schema-coverage-governance.md`
+		 - 覆盖率: 完整 11 / 部分 7 / 缺失 1（58% 完整覆盖）
+		 - 3 组复用样板: paginationSchema→通知/delivery-logs, taxonomy→category+tag, 内联分页消除
+		 - 新增 `utils/schemas/taxonomy.ts`（category + tag 共享）
 
 ---
 
