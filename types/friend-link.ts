@@ -34,3 +34,11 @@ export interface FriendLinkHealthCheckResult {
     httpStatus: number | null
     errorMessage: string | null
 }
+
+export interface FeedItem {
+    title: string
+    url: string
+    publishedAt: string | null
+    siteName: string
+    siteUrl: string
+}

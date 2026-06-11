@@ -1,17 +1,13 @@
 import { XMLParser } from 'fast-xml-parser'
 import { dataSource } from '@/server/database'
 import { FriendLink } from '@/server/entities/friend-link'
-import { FriendLinkStatus } from '@/types/friend-link'
+import { type FeedItem, FriendLinkStatus } from '@/types/friend-link'
 import logger from '@/server/utils/logger'
 import { limiterStorage } from '@/server/database/storage'
 
-export interface FeedItem {
-    title: string
-    url: string
-    publishedAt: string | null
-    siteName: string
-    siteUrl: string
-}
+const FEED_CACHE_NAMESPACE = 'friend-link-feed'
+const FEED_CACHE_TTL_SECONDS = 3600 // 1 hour
+const FETCH_TIMEOUT_MS = 8000
 
 interface RssChannel {
     title?: string
@@ -37,10 +33,6 @@ interface AtomFeed {
         }[]
     }
 }
-
-const FEED_CACHE_NAMESPACE = 'friend-link-feed'
-const FEED_CACHE_TTL_SECONDS = 3600 // 1 hour
-const FETCH_TIMEOUT_MS = 8000
 
 async function fetchXml(url: string): Promise<string | null> {
     const controller = new AbortController()

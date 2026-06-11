@@ -12,7 +12,7 @@ import type {
 } from '@/types/post-translation'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
 import { COPYRIGHT_LICENSES } from '@/types/copyright'
-import { usePostEditorAI } from '@/composables/use-post-editor-ai'
+import { usePostEditorAI, type TitleSuggestionOverlayRef } from '@/composables/use-post-editor-ai'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { usePostEditorDirtyState } from '@/composables/use-post-editor-dirty-state'
 import { usePostEditorIO } from '@/composables/use-post-editor-io'
@@ -33,13 +33,9 @@ import { usePostTranslationAI } from '@/composables/use-post-translation-ai'
 import { useRequestFeedback } from '@/composables/use-request-feedback'
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import { syncPostTagBindings } from '@/utils/shared/post-tag-bindings'
-import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
 import type { LocaleOption } from '@/types/utils'
 
-interface TitleSuggestionOverlayRef {
-    show?: (event: Event, target?: EventTarget | null) => void
-    hide?: () => void
-}
+import { buildPreferredTaxonomyOptions } from '@/utils/shared/taxonomy-options'
 
 interface HeaderExpose {
     titleOp?: TitleSuggestionOverlayRef | null

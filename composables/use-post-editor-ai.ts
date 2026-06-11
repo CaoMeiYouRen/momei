@@ -28,7 +28,7 @@ interface AITaskStatusPayload {
     error?: string | null
 }
 
-interface TitleSuggestionOverlayRef {
+export interface TitleSuggestionOverlayRef {
     show?: (event: Event, target?: EventTarget | null) => void
     hide?: () => void
 }

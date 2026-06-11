@@ -305,6 +305,7 @@
 import { authClient } from '@/lib/auth-client'
 import { UploadType } from '@/composables/use-upload'
 import { friendLinkApplicationSchema } from '@/utils/schemas/friend-link'
+import type { FeedItem } from '@/types/friend-link'
 
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -367,14 +368,6 @@ const feedItems = computed(() => feedData.value || [])
 
 function formatFeedDate(iso: string): string {
     return useI18nDate().formatDate(iso)
-}
-
-interface FeedItem {
-    title: string
-    url: string
-    publishedAt: string | null
-    siteName: string
-    siteUrl: string
 }
 
 const meta = computed(() => metaData.value || {
