@@ -15,8 +15,7 @@
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。
 - **[脚本治理与量化基线设计](./script-governance)**: 聚合 backlog、planning、development 中分散的 script-first 规则，聚焦长期脚本资产、量化口径、固定回归接入顺序与首批新增治理脚本候选。
 - **[配置项多语言国际化与回退治理](./settings-i18n-fallback-governance)**: `system.md` / `i18n.md` 的联合治理补充，聚焦管理员可编辑配置的结构化多语言存储、旧值兼容与统一回退链。
-- **[Cloudflare 运行时兼容研究与止损结论](./cloudflare-runtime-study)**: `system.md` / `scheduled-publication.md` 的平台边界补充，聚焦 Workers / Pages / D1 的阻塞清单、最小样机边界与止损条件。
-- **[迁移链接治理与云端资源重写](./migration-link-governance)**: `migration.md` 的专项治理补充，聚焦链接治理和 `dry-run / apply / report` 契约。
+- **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
 - **[Post 元数据统一化迁移方案](./post-metadata-unification)**: `blog.md` / `system.md` 之间的跨模块专项文档，聚焦 `Post` 元数据模型统一与迁移。
 
 ## AI、国际化与自动化专项
@@ -34,15 +33,10 @@
 
 - **[第三方分发解耦与投递控制](./content-distribution-governance)**: `third-party.md` 的分发治理补充，聚焦外部分发状态机与投递边界。
 - **[渠道分发模板与标签适配方案](./content-distribution-template-tag-adaptation)**: `content-distribution-governance.md` 的增量方案，聚焦渠道内容模板与标签适配收口。
-- **[微信公众号格式预览与导出辅助](./wechat-mp-preview-export-assist)**: 第三十九阶段 P0 设计冻结文档，聚焦 `wechat_mp` 预览 profile、复制排版后内容入口与 dispatch 非目标边界。
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 - **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。
-
-## 测试与阶段复盘
-
-- **[Harness Engineering 方法论引入方案](./harness-engineering-adoption)**: 基于《从 Vibe Coding 到 Harness Engineering》的五层 harness 体系分析，优先引入认知层（推理模式切换）和交接层（Session 级任务协议），并已完成 Claude / Copilot / OpenCode 三端的 Phase A 仓库侧 session hooks / 插件基线实现。Phase B 原计划扩展 PostToolUse 质量校验 + Stop 门禁，但已于 2026-06-08 移除 PostToolUse 相关 hooks（原因：工具耗时增加、短时 node.js 进程风暴导致 CPU/内存占用冲高），详见 [archive/harness-phase-b-quality-gates.md](./archive/harness-phase-b-quality-gates.md)。
-- **[第八阶段实施审计与复盘](./phase-8-feasibility-report)**: 已完成阶段的收尾审计文档，只保留阶段结论与索引，不再承担当前设计说明职责。
 
 ## 已归档文档入口
 
 - 历史阶段规划稿、已完成评估、已完成工程文档与阶段分析报告已迁入 [archive/](./archive/index.md)。
+- **已完成评估归档**: [Cloudflare 运行时研究](./archive/cloudflare-runtime-study.md)、[Harness Engineering 方案](./archive/harness-engineering-adoption.md)、[微信公众号预览](./archive/wechat-mp-preview-export-assist.md)、[第八阶段复盘](./archive/phase-8-feasibility-report.md)。

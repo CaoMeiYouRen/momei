@@ -10,15 +10,19 @@
 - [phase-37-plan.md](./phase-37-plan.md)
 - [phase-38-plan.md](./phase-38-plan.md)
 
-## 已完成评估（7）
+## 已完成评估（11）
 
 - [ai-setup-assistant-evaluation.md](./ai-setup-assistant-evaluation.md)
 - [caomei-auth-oauth-evaluation.md](./caomei-auth-oauth-evaluation.md)
+- [cloudflare-runtime-study.md](./cloudflare-runtime-study.md)
 - [commercialization-reassessment-framework.md](./commercialization-reassessment-framework.md)
 - [digital-garden-evaluation.md](./digital-garden-evaluation.md)
 - [hexo-repository-sync.md](./hexo-repository-sync.md)
+- [harness-engineering-adoption.md](./harness-engineering-adoption.md)
+- [phase-8-feasibility-report.md](./phase-8-feasibility-report.md)
 - [tts-frontend-direct-evaluation.md](./tts-frontend-direct-evaluation.md)
 - [typeorm-v1-upgrade-assessment.md](./typeorm-v1-upgrade-assessment.md)
+- [wechat-mp-preview-export-assist.md](./wechat-mp-preview-export-assist.md)
 
 ## 已完成工程文档（6）
 
