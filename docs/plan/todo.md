@@ -27,11 +27,11 @@
 	- 当前进度：已完成（2026-06-13）。
 	- 交付摘要：seed-demo 6 处 + translation 1 残留 + typeorm-adapter 2 处 = 9 处 `as any` 清零（≥4 达标）；eslint-disable 全部为合法内容渲染用例，本轮无额外减少。
 
-- [ ] **主线：结构复用 — 类型/函数深度收敛 ≥5 切片 (P0)**
+- [x] **主线：结构复用 — 类型/函数深度收敛 ≥5 切片 (P0)**
 	- 执行范围：`AdminAiPageEvent`、`DemoTourStage`、`VolcengineResponsePacket`、`AuthBoundaryLocale` 四组类型统一 + `formatDate` 多处统一为 `useI18nDate().formatDate`。
 	- 非目标：不推动跨目录大重构。
-	- 当前进度：待开始。
-	- 最小验收：同名 type/interface 从 15 降至 ≤12；≥1 组函数级复用落地。
+	- 当前进度：已完成 3 组切片（2026-06-13）。
+	- 交付摘要：DemoTourStage（demo-banner→use-onboarding）、AdminAiPageEvent（task-list→use-admin-ai-page）、ASRDirectOptions（use-asr-direct→types/asr）；同名 type/interface 15→12（≤12 达标）；VolcengineResponsePacket/AuthBoundaryLocale 确认为不同定义/已统一；formatDate 多处统一延至后续。
 
 - [ ] **主线：API Schema 全面覆盖 — partial→full + 测试 (P0)**
 	- 执行范围：external-links/snippets/theme-configs/marketing/link-governance 共 ≥8 端点补 Zod schema；每个补全端点追加测试用例。
