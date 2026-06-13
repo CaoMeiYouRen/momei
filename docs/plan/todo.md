@@ -21,11 +21,12 @@
 
 > 背景：Phase 39-49 共 11 个阶段完成 5 个新功能 + 46 条治理优化。Phase 47-49 连续三阶段纯治理后，本阶段以「1 个新功能 + 4 个优化」组合重启新功能面。
 
-- [ ] **主线：PWA 功能开启 — Progressive Web App (P0)**
+- [x] **主线：PWA 功能开启 — Progressive Web App (P0)**
 	- 执行范围：启用 `nuxt.config.ts` 中已注释的 `@vite-pwa/nuxt` 模块，配置 Service Worker + Web Manifest + 离线缓存策略。
 	- 非目标：不做复杂的 Workbox 自定义路由、不做 Push Notification 集成。
-	- 当前进度：待开始。
+	- 当前进度：已完成 (2026-06-14)。
 	- 最小验收：PWA 可安装（manifest.json 生效）；Service Worker 注册成功；离线页面可访问。
+	- 完成证据：`pnpm typecheck`=0, `pnpm lint`=0, `pnpm build` 成功生成 `sw.js` (41KB) + `manifest.webmanifest` (486B), 预缓存 607 条目 (7329.53 KiB)。
 
 - [ ] **主线：API 测试分层收敛 (P1)**
 	- 执行范围：统一 `tests/server/api/` 与 `server/api/**/*.test.ts` 双轨目录，固化测试分层规则与目录归属。
