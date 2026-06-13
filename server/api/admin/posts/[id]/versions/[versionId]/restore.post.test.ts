@@ -13,7 +13,7 @@ vi.mock('h3', async (importOriginal) => {
     return { ...actual, getRequestHeader: vi.fn(() => 'test-agent'), getRequestIP: vi.fn(() => '127.0.0.1') }
 })
 
-const { getRouterParam, createError } = global as any
+const { getRouterParam } = global as any
 
 describe('POST /api/admin/posts/[id]/versions/[versionId]/restore', () => {
     beforeEach(() => {

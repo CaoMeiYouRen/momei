@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { dataSource } from '@/server/database'
-import { Snippet } from '@/server/entities/snippet'
 import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 import createSnippetHandler from '@/server/api/snippets/index.post'
 import listSnippetsHandler from '@/server/api/admin/snippets/index.get'
-import { SnippetStatus } from '@/types/snippet'
 
 describe('Snippets API', () => {
     let user: User

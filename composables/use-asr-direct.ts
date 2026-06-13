@@ -1,5 +1,5 @@
 import { computed, onUnmounted, ref } from 'vue'
-import type { ASRCredentials, ASRDirectOptions, ASRMode, ASRProvider, CompressionLevel } from '~/types/asr'
+import type { ASRCredentials, ASRDirectOptions } from '~/types/asr'
 import {
     hasASRCredentialsExpired,
     shouldRefreshASRCredentials,
