@@ -119,6 +119,38 @@
 
 <!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
 
+<!-- regression-window:start:phase48-close:第四十八阶段:2026-06-13 -->
+## 2026-06-13 第四十八阶段收口回归
+
+### 范围
+
+- 目标：第四十八阶段「深度治理与清理收口」5 条优化主线全部交付后的阶段收口回归。
+- 本轮覆盖：全仓 typecheck + ESLint、治理文档 2 份、todo-archive 滚动归档。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 0 errors（删除 API 时捕获 3 处前端引用） |
+| `pnpm lint` | Pass | 0 errors |
+| todo-archive.md 滚动归档 | 完成 | Phase 48 归档块已写入 |
+| todo.md 状态 | 清理 | 执行面已清空 |
+
+### Phase 48 交付清单
+
+| 主线 | 交付 | 提交 |
+|------|------|------|
+| ESLint / 类型债 | 9 处 as any 清零 | `a9499974`, `47233bab` |
+| 结构复用 | 3 组类型收敛 (15→12) | `2f099780`, `baa65136` |
+| API Schema | 2 端点 RouterParam Zod + 2 测试 | `cf1a2035`, `44e9e25c` |
+| 未使用 API 删除 | 2 端点删除 + 前端引用验证 | `15658bd1`, `fd72487b` |
+| 第二轮调研 | 4 端点评估 + 1 确认候选 | `f9013bcc` |
+
+### 关键发现
+
+- 删除 API 时 typecheck 捕获 3 处"假零引用"（前端实际调用）：posts/audit、theme-configs/delete、snippets/convert
+<!-- regression-window:end:phase48-close:第四十八阶段:2026-06-13 -->
+
 <!-- regression-window:start:phase47-close:第四十七阶段:2026-06-11 -->
 ## 2026-06-11 第四十七阶段收口回归
 

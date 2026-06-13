@@ -18,6 +18,46 @@
 
 ---
 
+## 第四十八阶段：深度治理与清理收口 (已审计归档)
+
+> 归档说明: 第四十八阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。
+> 五条主线: ESLint/类型债窄切片扩展、结构复用深度收敛、API Schema RouterParam Zod 校验、未使用 API 安全删除（含前端引用验证）、第二轮闲置端点扩大调研。
+> todo.md 当前执行面已清理，等待下一阶段候选池评估。
+
+### 1. ESLint / 类型债 — 窄切片扩展（9 处 as any 清零）
+
+- `seed-demo.ts`: 6 处 `'published' as any` → `PostStatus.PUBLISHED`
+- `translation.ts`: 1 处残留 `(item as any)` → `T & { translations: unknown[] }`
+- `typeorm-adapter.ts`: 2 处 `as any` → `Record<string, unknown>`
+- 提交: `a9499974`, `47233bab`
+
+### 2. 结构复用 — 类型收敛（3 组，15→12）
+
+- `DemoTourStage`: demo-banner → import from use-onboarding
+- `AdminAiPageEvent`: task-list → import from use-admin-ai-page
+- `ASRDirectOptions`: use-asr-direct → import from types/asr
+- 提交: `2f099780`, `baa65136`
+
+### 3. API Schema — RouterParam Zod 校验（2 端点 + 2 测试文件）
+
+- `marketing/send`: safeParse({ id }) 校验
+- `posts/restore`: safeParse({ id, versionId }) 校验
+- 新增 refresh/restore 2 测试文件（4 用例）
+- 提交: `cf1a2035`, `44e9e25c`
+
+### 4. 未使用 API — 安全删除（2 端点 + 前端引用验证）
+
+- 实际删除: notifications/broadcast + theme-configs/[id].put
+- 保留（经 typecheck 引用验证）: 5 个端点
+- 关键发现: typecheck 删除时捕获 3 个"假零引用"（前端实际调用）
+- 提交: `15658bd1`, `fd72487b`
+
+### 5. 第二轮未使用 API 扩大调研
+
+- 调研 4 端点：subscriptions（无文件）、waitlist/export（有调用）、scaffold-to-post（有调用）、versions/restore（有测试）
+- 文档: `docs/design/governance/unused-api-round2-assessment.md`
+- 提交: `f9013bcc`
+
 ## 第四十七阶段：接口契约与路由治理深化 (已审计归档)
 
 > 归档说明: 第四十七阶段「0 个新功能 + 6 个优化」已于 2026-06-11 完成六条主线交付与阶段收口。
