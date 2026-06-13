@@ -80,7 +80,7 @@
 3. **主线：ESLint / 类型债 composables 子桶继续收紧 (P1)**:
     - **执行范围**: 本轮继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶的下一组命中点。先产出命中清单、回滚边界与替代写法策略，再执行有限范围清理。若命中点已在前两轮大量收敛、本轮可清理项过少，允许回退到单文件 `no-explicit-any` 切片。
     - **非目标**: 不并行开启 `no-unsafe-*` 或全仓 `any` 清零工程，不把规则收紧外溢到非目标目录。
-    - **验收标准**:``pnpm exec eslint composables --max-warnings`` 通过；残余债务清单与下一轮候选已记录；若触发回退方案，必须以单文件 `no-explicit-any` 切片完成等量治理。
+    - **验收标准**``pnpm exec eslint composables --max-warnings`` 通过；残余债务清单与下一轮候选已记录；若触发回退方案，必须以单文件 `no-explicit-any` 切片完成等量治理。
     - **验证与证据**: 至少完成目标子桶或目标文件的 ESLint 校验、窄范围类型检查与必要单测。
 
 4. **主线：重复代码 — 公开认证页模板收敛 (P1)**:
@@ -128,7 +128,7 @@
 
 5. **主线：i18n 运行时继续扩面 (P1)**:
     - **阶段结果**: 已将 `pages/archives/index.test.ts` 纳入 `i18n:verify:runtime` 固定入口，补齐 `archives` 公开页装配链路，并收口 `auth-card`、`taxonomy-post-page` 与 taxonomy RSS 等相关运行时守线。
-    - **验收结论**: `pnpm i18n:audit:missing` 持续保持``total:``，固定运行时矩阵已覆盖新增公开页链路。
+    - **验收结论**: `pnpm i18n:audit:missing` 持续保``total:``，固定运行时矩阵已覆盖新增公开页链路。
     - **验证与证据**: 详见活动回归窗口 2026-05-05 记录。
 
 6. **主线：文档翻译 freshness 续 (P1)**:
@@ -170,11 +170,11 @@
 4. **主线：结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)**:
     - **执行范围**: 在现有 `duplicate-code:check` 行级重复基线之上，继续推进一组 `jscpd` 可见的简单重复收敛，并补一轮“零散类型 + 简单纯函数 / 工具函数”只读盘点，优先识别 `isPlainRecord` / `isRecord`、`LocaleOption`、`MaybeReactive`、轻量 `ResponseData / StatusPayload` 壳层，以及“重复导入同一共享函数后再做轻包装”的结构性重复。
     - **非目标**: 不发起全仓类型重写，不把所有局部类型都强行上收到共享层，不把复杂业务逻辑抽象伪装成“简单工具函数复用”。
-    - **验收标准**: 至少完成``1 -`` 组可安全复用的共享抽象；`pnpm duplicate-code:check` 基线不反弹；并留下本轮无法由 `jscpd` 自动覆盖的结构性重复清单，作为后续脚本或治理依据。
+    - **验收标准**: 至少完``1 -`` 组可安全复用的共享抽象；`pnpm duplicate-code:check` 基线不反弹；并留下本轮无法由 `jscpd` 自动覆盖的结构性重复清单，作为后续脚本或治理依据。
     - **验证与证据**: `pnpm duplicate-code:check`、定向 Vitest / typecheck，以及只读盘点结果或专项治理记录。
 
 5. **主线：存量代码注释治理 — 候选组 A (P1)**:
-    - **执行范围**: 从候选组 A 中选择 `server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts` 里的``1 -`` 组高复杂度链路推进，补齐设置来源判定、locale 归一化与鉴权上下文挂载相关的高价值注释。
+    - **执行范围**: 从候选组 A 中选择 `server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts` 里``1 -`` 组高复杂度链路推进，补齐设置来源判定、locale 归一化与鉴权上下文挂载相关的高价值注释。
     - **非目标**: 不扩写为全仓注释重写工程，不把候选组 A / B / C 全部打包并入同一轮。
     - **验收标准**: 本轮已补齐“为什么这样写 / 边界条件 / 副作用或契约”类高价值注释；已同步清理失效、误导性或逐行复述代码的低价值注释；并记录已覆盖范围、仍未覆盖边界与注释漂移检查结论。
     - **验证与证据**: 受影响文件 Review Gate 自检、必要的定向测试 / typecheck，以及对应回归或审计记录。
@@ -261,9 +261,9 @@
 **ROI 评估**: 第三方分发标签尾注与预览一致性修补 `1.60`；测试有效性第二轮切片 `1.85`；Postgres 公开热点读链路继续瘦身 `1.75`；结构复用第二轮（至少 3 处热点）`1.70`；ESLint / 类型债下一轮窄切片 `1.50`。其中测试有效性与 Postgres 热点读链路为 P0 主线，其余三项为受控 P1 治理切片。
 
 1. **主线：第三方分发标签尾注与预览一致性修补 (P1)**:
-    - **执行范围**: 只覆盖``B`` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/archive/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
+    - **执行范围**: 只覆``B`` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/archive/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
     - **非目标**: 不扩写到 WechatSync、邮件、Hexo 仓库同步或其他分发器；不重做整套分发 UI。
-    - **验收标准**:``B`` 预览``B`` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致；并明确“标签尾注中的标签项去除空格后再输出”的唯一规则。
+    - **验收标准**``B`` 预``B`` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致；并明确“标签尾注中的标签项去除空格后再输出”的唯一规则。
     - **验证与证据**: 至少补齐一组分发物料 helper / template 测试与一组实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
 
 2. **主线：测试有效性第二轮切片 (P0)**:
@@ -316,7 +316,7 @@
 3. **主线：注释治理首轮（1 - 2 组模块） (P1)**:
     - **执行范围**: 以 `comment-drift` baseline 为事实源推进首轮高复杂度模块补注释，当前基线为“高复杂度导出函数缺注释候选 `177`、TODO / 临时口吻 `27`、疑似漂移注释 `298`”；本轮优先锁定 [composables/use-post-editor-io.ts](../../composables/use-post-editor-io.ts)（complexity `61`）与 [composables/use-post-editor-ai.ts](../../composables/use-post-editor-ai.ts)（complexity `44`），第二组只允许在 [composables/use-notifications.ts](../../composables/use-notifications.ts)、[composables/use-installation-wizard.ts](../../composables/use-installation-wizard.ts)、[composables/use-admin-friend-links-page.ts](../../composables/use-admin-friend-links-page.ts) 中三选一。
     - **非目标**: 不把本轮扩大成全仓平均补注释；不把逐行复述代码的注释当作成果；不为了数字好看而跳过 TODO / 漂移注释清理。
-    - **验收标准**: 本轮选中的``1 -`` 组模块必须补齐“为什么这样写 / 契约 / 副作用 / 失败回退”类高价值注释，并同步清理对应文件中的 TODO / 漂移注释；重跑 `pnpm governance:audit:comment-drift` 后，所选模块在缺注释 / 漂移候选中应出现可追溯下降。
+    - **验收标准**: 本轮选中``1 -`` 组模块必须补齐“为什么这样写 / 契约 / 副作用 / 失败回退”类高价值注释，并同步清理对应文件中的 TODO / 漂移注释；重跑 `pnpm governance:audit:comment-drift` 后，所选模块在缺注释 / 漂移候选中应出现可追溯下降。
     - **验证与证据**: `artifacts/governance/comment-drift-latest.md/.json` 对比、受影响 composable 定向测试与受影响文件类型检查。
 
 4. **主线：文档 / 脚本治理最小收口包 (P0)**:
@@ -326,7 +326,7 @@
     - **验证与证据**: `pnpm lint:md`、`pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts`，以及对应 artifact / 文档 diff。
 
 5. **主线：国际化文案复用治理 (P1)**:
-    - **执行范围**: 继续坚持“先守住模块归属和运行时命中，再做有限复用”。当前 `i18n:audit:missing` 已保持``total:``，友链场景共享字段已统一沉淀到 `components.friend_links.fields`；下一轮优先把运行时验证面从 About / friend-links 扩到 [components/app-footer.vue](../../components/app-footer.vue)、[pages/archives/index.vue](../../pages/archives/index.vue)、[pages/categories/index.vue](../../pages/categories/index.vue) 与 [pages/tags/index.vue](../../pages/tags/index.vue) 这 `4` 组公开装配链路。
+    - **执行范围**: 继续坚持“先守住模块归属和运行时命中，再做有限复用”。当前 `i18n:audit:missing` 已保``total:``，友链场景共享字段已统一沉淀到 `components.friend_links.fields`；下一轮优先把运行时验证面从 About / friend-links 扩到 [components/app-footer.vue](../../components/app-footer.vue)、[pages/archives/index.vue](../../pages/archives/index.vue)、[pages/categories/index.vue](../../pages/categories/index.vue) 与 [pages/tags/index.vue](../../pages/tags/index.vue) 这 `4` 组公开装配链路。
     - **非目标**: 不为了去重强行把页面私有语义上收到 `common`；不把 `unused` 清理扩成整仓 key 改名工程；不改写现有 route-module 装配边界。
     - **验收标准**: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把上述 `4` 组公开装配链路纳入固定 runtime 验证面，并明确哪些字段继续保留页面私有命名空间、哪些字段可稳定沉淀到共享组件命名空间；新增范围内不得再出现 raw key 暴露。
     - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试，以及 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 对应模块装配的变更记录。
@@ -338,7 +338,7 @@
 
 **审计结论**: 第四十阶段六条主线均已在代码、workflow、回归证据与规划文档中完成闭环。当前状态为：发布前守护轨已统一 pre-check 入口并收敛执行顺序；TypeORM 评估轨维持 `NO-GO（直接升级）` / `GO（评估任务收口）`；收口轨已把 pre-check、周期性回归与 TypeORM 评估结论稳定沉淀到 [活动回归窗口](../reports/regression/current.md)。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块，满足阶段归档条件。
 
-**准入结论**: 本阶段共 `6` 条主线，按“先守护入口、再跑 TypeORM 兼容性探针、最后统一留痕与策略收口”的顺序推进；当前容量为 `2` 条 P0 + `3` 条 P1 + `1` 条 P2，仍在规划规范要求的``5 -`` 项窗口内。
+**准入结论**: 本阶段共 `6` 条主线，按“先守护入口、再跑 TypeORM 兼容性探针、最后统一留痕与策略收口”的顺序推进；当前容量为 `2` 条 P0 + `3` 条 P1 + `1` 条 P2，仍在规划规范要求``5 -`` 项窗口内。
 
 **ROI 评估**: CI 前置守护脚本接入 `2.25`；发布链路最小回归闸门收紧 `2.00`；TypeORM 1.0.0 兼容性探针与分桶验证 `1.75`；TypeORM 升级 go/no-go 与回滚预案落盘 `1.67`；文档证据自动回填 `1.60`；守护策略分级与依赖风险口径对齐 `1.40`。
 

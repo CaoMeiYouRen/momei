@@ -42,11 +42,12 @@
 	- 最小验收：输出首屏路由命中矩阵；至少修复 1 处 raw key 泄漏。
 	- 完成证据：输出 `docs/design/governance/i18n-first-screen-hit-matrix.md`（17 路由命中矩阵 + fallbackChain 回退策略）；修复 3 处：`admin/posts/index.vue` + `admin/posts/[id].vue` 的 `void`→`await` 竞态修复 + `locale-modules.ts` 补充 `pages.enhanced_pack` 模块定义；`pnpm lint`=0, `pnpm typecheck`=0, `pnpm lint:md`=0。
 
-- [ ] **主线：backlog 深度清理 (P1)**
+- [x] **主线：backlog 深度清理 (P1)**
 	- 执行范围：压缩「方向判断」中 Phase 29-41 逐段复述为简表；移除已完成的 `#3 未使用 API`、`#4 API Schema`、`#8 调研机制` 条目。
 	- 非目标：不新增 backlog 条目。
-	- 当前进度：待开始。
+	- 当前进度：已完成 (2026-06-14)。
 	- 最小验收：方向判断段缩减 ≥50%；已上收项全部标记或移除。
+	- 完成证据：`roadmap.md` Phase 32-41 段从 386 行压缩至 19 行简表（缩减 95%）；`backlog.md` 移除 #3/#4/#5/#8 四项已上收条目并标记归档来源，剩余条目重新编号 1-4；`pnpm lint:md`=0。
 
 - [ ] **主线：友链前后博客环导航 — 评估态 (P2)**
 	- 执行范围：对友链页「前后博客环」功能做最小可行性评估：相邻友链排序逻辑、前后导航 UX、数据来源（现有 FriendLink 实体复用）。

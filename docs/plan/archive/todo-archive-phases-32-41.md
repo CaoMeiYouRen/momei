@@ -22,9 +22,9 @@
 
 ### 2. 测试有效性切片 (P0)
 
-- 结果: 本轮已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路完成 3 组高风险断言补强：[server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 覆盖 post-backed / `404` / `403`， [server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 覆盖 `estimated / actual` 独立口径与非终态``successRate / failureRate =``， [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 覆盖 `/api/posts/home` 统一 `503` 映射。
+- 结果: 本轮已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路完成 3 组高风险断言补强：[server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 覆盖 post-backed / `404` / `403`， [server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 覆盖 `estimated / actual` 独立口径与非终``successRate / failureRate =``， [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 覆盖 `/api/posts/home` 统一 `503` 映射。
 - 验证: 定向回归矩阵已收敛为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果为 `14` 通过、`0` 失败；详细证据见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
-- [x] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高的``2 -`` 组路径补失败断言或边界断言。
+- [x] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高``2 -`` 组路径补失败断言或边界断言。
 - [x] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
 - [x] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
 
@@ -139,7 +139,7 @@
 ### 4. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)
 
 - [x] **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛 (P1)**
-    - 验收: 至少完成``1 -`` 组可安全复用的共享抽象；`pnpm duplicate-code:check` 基线不反弹；留下 jscpd 无法覆盖的结构性重复清单。
+    - 验收: 至少完``1 -`` 组可安全复用的共享抽象；`pnpm duplicate-code:check` 基线不反弹；留下 jscpd 无法覆盖的结构性重复清单。
     - 结果: Group 1 将 `isRecord` / `isPlainRecord`（6 个文件各定义一次）收敛到 `utils/shared/is-record.ts`；Group 2 将 `MaybeReactive<T>`（2 个文件各定义一次）收敛到 `types/utils.ts`。jscpd 无法覆盖边界：类型别名重复（同一 type 定义在多个文件），非行级代码重复。
     - 受影响文件: `use-asr-direct.ts`, `localized-settings.ts`, `post-export.ts`, `email-template-config.ts`, `request-feedback.ts`, `ad-network-config.ts`, `use-locale-message-modules.ts`, `use-app-fetch.ts`
     - 验证: `pnpm exec nuxt typecheck` 通过。
@@ -313,7 +313,7 @@
 ### 3. 主线：ESLint / 类型债与规则收紧治理 (P1)
 
 - [x] **按窄边界完成两轮规则上收与回滚边界固化**
-    - 验收: 只上收``1 -`` 条命中有限、回滚边界清晰的高 ROI 规则，不扩写为全仓规则重构。
+    - 验收: 只上``1 -`` 条命中有限、回滚边界清晰的高 ROI 规则，不扩写为全仓规则重构。
     - 验收: 输出命中清单、回滚边界与最小验证矩阵，并同步处理受影响文件的 warning / 类型债。
     - 结果: 已完成 `packages/mcp-server` 范围的 `no-explicit-any` / `explicit-module-boundary-types` 收紧，以及 settings API 范围的 `no-unnecessary-type-conversion` 收紧，均保留了命中清单、回滚边界与最小验证矩阵。
     - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20 / 2026-04-21 归档条目；两轮 Review Gate 结论均为 `Pass`。
@@ -428,7 +428,7 @@
 
 ### 1. 第三方分发标签尾注与预览一致性修补 (P1)
 
-- 结果: `B 站 / Memos` 两个渠道已统一复用同一条标签标准化与尾注拼装入口``B`` 预览``B`` 实际同步 payload 与 `Memos` 预览三处输出已按“标签尾注中的标签项去除空格后再输出”的同一规则收敛。
+- 结果: `B 站 / Memos` 两个渠道已统一复用同一条标签标准化与尾注拼装入``B`` 预``B`` 实际同步 payload 与 `Memos` 预览三处输出已按“标签尾注中的标签项去除空格后再输出”的同一规则收敛。
 - 验证: 分发物料 helper / template 测试、实际分发 / 导出层测试，以及必要的后台分发预览组件测试已在当前仓库与阶段事实源中闭环。
 - [x] 仅覆盖 `B 站 / Memos` 两个渠道，不扩写到其他分发器。
 - [x] 预览构造与实际分发复用同一条标签标准化 / 尾注拼装入口。
@@ -577,7 +577,7 @@
 2. [x] **Postgres 热点读链路治理 (P0)**
 	- 执行范围：聚焦 `posts / archive / categories / tags / settings / friend-links` 单路径或单组切片，优先收敛结果集体量与重复读。
 	- 最小验收：已通过归档接口字段裁剪与去重策略给出下行对比证据。
-	- 结果：`archive` 链路查询已从``SELECT`` 裁剪为显式字段列表，减少重复读与冗余数据传输。
+	- 结果：`archive` 链路查询已从`SELECT` 裁剪为显式字段列表，减少重复读与冗余数据传输。
 	- 证据：commit `3af52a1c`、回归记录与 `todo.md` 当前进度描述。
 
 3. [x] **文档门禁和脚本治理 (P1)**

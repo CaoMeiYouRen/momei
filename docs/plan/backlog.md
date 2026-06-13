@@ -1,4 +1,4 @@
-# 墨梅博客 长期规划与积压项 (Backlog)
+﻿# 墨梅博客 长期规划与积压项 (Backlog)
 
 本文档用于维护尚未进入正式阶段执行面的统一候选池，并按“长期主线任务”与“短期 / 一次性候选任务”双轨区分。当前阶段执行面请参阅 [项目计划](./roadmap.md)、[待办事项](./todo.md) 与 [待办归档](./todo-archive.md)。
 
@@ -39,7 +39,7 @@
 
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
-    - 按批次继续收紧 ESLint 规则，至少再收紧 `1 - 2` 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
+    - 按批次继续收紧 ESLint 规则，至少再收紧``1 -`` 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
     - 治理进度默认以可重复执行的规则债盘点脚本作为事实源，至少能按 rule / 目录 / 豁免类型统计命中数、清零数与残余债务，而不是只靠阶段叙述判断“似乎有进展”。
 - **状态**:
     - 进行中。
@@ -47,7 +47,7 @@
     - 第二十四阶段已完成 `@typescript-eslint/no-dynamic-delete` 首轮生产代码收紧，warning 基线、回滚方式与最小验证矩阵已落盘。
     - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
     - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
-    - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级 `pnpm exec eslint composables --max-warnings 0` 已恢复通过。
+    - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级``pnpm exec eslint composables --max-warnings`` 已恢复通过。
     - 第三十二阶段已完成"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
     - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
     - 当前仍缺少统一的规则债 inventory 脚本；现有 `lint`、定向 `eslint` 与阶段记录可以证明单次切片通过，但还不能稳定回答“全仓还剩多少命中、按目录如何分桶、每轮实际消掉了多少”。
@@ -101,7 +101,7 @@
     - 新注释规范已经写入开发规范与 Audit 口径，下一轮可正式启动首轮存量补注释切片。
     - 现阶段更适合优先覆盖设置读取 / 来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制、AI 配额 / 文本服务，以及数据库查询收敛逻辑等高复杂度链路，而不是回头给低风险展示组件平均补注释。
     - 编辑器链路的下一轮切片可以优先围绕 `mavon-editor` 工具栏与背景栏配色、Markdown 能力补齐，以及与文章页渲染能力保持一致的扩展项收口，而不是直接切换底层编辑器实现。
-    - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选 `1 - 2` 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
+    - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选``1 -`` 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
     - 第三十三阶段已正式上收候选组 B 切片，聚焦 `server/services/upload.ts` 与 `server/utils/post-access.ts` 两条运行时安全敏感链路。
     - 当前仍缺少注释盘点脚本，尚不能稳定量化“复杂逻辑缺注释”和“低价值 / 漂移注释”候选规模，导致阶段叙述很难形成跨轮次可比较的进度口径。
 - **最近一次上收阶段**:
@@ -109,11 +109,11 @@
     - 第三十三阶段（已正式上收候选组 B 切片）。
     - 第三十五阶段（已正式上收候选组 A 切片）。
 - **下一次可切片方向**:
-    - 首个切片前先补注释盘点脚本，至少覆盖导出函数 / 高复杂度函数的缺注释候选，以及 `TODO` / 过时口吻 / 逐行复述类低价值注释候选，再决定本轮 `1 - 2` 组模块。
+    - 首个切片前先补注释盘点脚本，至少覆盖导出函数 / 高复杂度函数的缺注释候选，以及 `TODO` / 过时口吻 / 逐行复述类低价值注释候选，再决定本轮``1 -`` 组模块。
     - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
     - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
     - 候选组 C：`server/api/posts/index.get.ts`、`server/api/posts/archive.get.ts`、`server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与相关查询 helper，优先覆盖多语言聚合、宽查询裁剪、分页读取与热点读接口约束。
-    - 首轮上收时最多从候选组 A、B、C 中选 `1 - 2` 组，不把本轮扩大成全仓注释重写工程。
+    - 首轮上收时最多从候选组 A、B、C 中选``1 -`` 组，不把本轮扩大成全仓注释重写工程。
 
 5. **Postgres 查询、CPU 与连接生命周期平衡治理**
 - **目标**:
@@ -153,8 +153,8 @@
     - 当前治理优先级明确区分三类审计结果：`missing` 缺失字段必须优先修复；`duplicates` 重复键必须及时清理；`unused` 默认先观察，但若当前切片已经定位到一批有限集合动态 key 误报或确认废弃字段，则应优先在同一切片内完成显式化或删除，避免审计噪音长期堆积。
     - 当前仍有一批“不同页面文案完全一致”的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
     - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、duplicates/unused 字段排查策略与共享命名空间继续收敛方向。
-    - 第三十阶段切片已完成正式收口：`i18n:audit:missing`、`i18n:audit:duplicates` 当前 `total: 0`，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
-    - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing`、`i18n:audit:duplicates` 与 `i18n:audit:unused` 均为 `total: 0`。
+    - 第三十阶段切片已完成正式收口：`i18n:audit:missing`、`i18n:audit:duplicates` 当前``total:``，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
+    - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing`、`i18n:audit:duplicates` 与 `i18n:audit:unused` 均为``total:``。
 - **最近一次上收阶段**:
     - 第三十一阶段（当前切片已收口，长期主线继续保留）。
 - **下一次可切片方向**:
@@ -175,7 +175,7 @@
     - **design 域**（原 #7）：第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；当前剩余工作从"继续混放目录"转为"持续清理漂移内容与残留任务口吻"，避免新文档回流到错误目录。
     - **plan 域**（原 #9）：第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 已改为"深度归档索引 + 近线阶段窗口"的维护模式。后续治理重点转为按阈值滚动归档。
     - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
-    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 的 `must-sync 30 天 / summary-sync 45 天` 对高频治理页仍偏宽松，尚未覆盖更多高频 Guide / Standards 文档的膨胀与 freshness 风险。
+    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 的``must-sync 30 天 / summary-sync 45`` 对高频治理页仍偏宽松，尚未覆盖更多高频 Guide / Standards 文档的膨胀与 freshness 风险。
 - **最近一次上收阶段**:
     - 第二十九阶段（原 #7，已审计归档）。
     - 第三十阶段（原 #11，已审计归档）。
@@ -311,7 +311,12 @@
 
 ### 2026-06 架构一致性治理候选（延期进入 backlog）
 
-> 分流结论：以下事项均属于“非阻塞治理优化”，不作为当前阶段插队项，统一进入 backlog 候选池，待后续阶段按容量切片上收。
+> **已上收/已归档**: 以下 #3、#4、#5、#8 四项已在对应阶段完成上收并归档至 [todo-archive.md](./todo-archive.md)，此处仅保留索引不再维护正文。
+> - ~~#3 未使用 API 清单与清理可行性评估~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/unused-api-cleanup-assessment.md`）
+> - ~~#4 API Schema 覆盖与复用治理~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/api-schema-coverage-governance.md`）
+> - ~~#5 API 测试分层与目录收敛治理~~ → 第五十阶段已上收（分层规则: `docs/design/governance/api-test-layering.md`）
+> - ~~#8 i18n 拆分加载与首屏翻译稳定性治理~~ → 第五十阶段已上收（命中矩阵: `docs/design/governance/i18n-first-screen-hit-matrix.md`）
+> 分流结论：以下剩余事项均属于非阻塞治理优化，不作为当前阶段插队项，统一进入 backlog 候选池，待后续阶段按容量切片上收。
 
 1. **页面与 API 路径规范化治理**
 - **目标**:
@@ -325,36 +330,10 @@
 - **背景**:
     - 当前同时存在 `pages/admin/calendar.vue` 与 `pages/admin/waitlist/index.vue` 两种写法，均可工作但风格不统一。
 - **最小验收**:
-    - 固化单一规范（保留一种写法）并给出例外条件。
-    - 形成迁移清单与批次策略，避免一次性大迁移导致回归风险。
-
-3. **未使用 API 清单与清理可行性评估**
-- **目标**:
-    - 识别未被页面、任务调度、外部调用使用的 API 端点。
-    - 区分“可直接删除”“需先下线观察”“保留兼容”的三类处理策略。
-- **最小验收**:
-    - 产出端点级别清单与证据来源（调用链 / 日志 / 测试引用）。
-    - 每个候选端点具备清理建议与回滚锚点。
-
-4. **API Schema 覆盖与复用治理**
-- **目标**:
-    - 盘点各 API 是否具备完整输入/输出 schema 校验。
-    - 识别重复 schema 与可上收共享的契约定义。
-- **最小验收**:
-    - 给出覆盖率分层（完整 / 部分 / 缺失）。
-    - 给出复用候选清单（可抽到 shared schema 的优先项）。
-
-5. **API 测试分层与目录收敛治理**
-- **背景**:
-    - 现有 API 测试同时分布在 `server/api/**/*.test.ts` 与 `tests/server/api/**/*.test.ts`。
-- **方向**:
-    - 单元测试靠近源码；API 集成测试统一收敛到 `tests/`；E2E 统一在 `tests/e2e/`。
-    - 同步评估“集成测试是否应靠近源码”与“统一目录”的权衡并形成结论。
-- **最小验收**:
     - 固化测试分层规则与目录归属。
     - 形成迁移与命名规范，避免新增测试继续双轨漂移。
 
-6. **`utils/shared` 与 `types` 职责边界收敛**
+3. **`utils/shared` 与 `types` 职责边界收敛**
 - **目标**:
     - 纯类型定义统一放 `types/`。
     - 含逻辑（函数、常量、订阅与副作用）的复用代码统一放 `utils/`。
@@ -362,16 +341,8 @@
     - 输出冲突样本清单（类型与逻辑混放位置）。
     - 给出迁移规则、导入路径策略与渐进式收敛顺序。
 
-7. **跨包复用治理：`packages/mcp-server` 与 `packages/cli`**
+4. **跨包复用治理：`packages/mcp-server` 与 `packages/cli`**
 - **目标**:
-    - 识别两包重复实现并抽取共享模块，降低维护成本与行为漂移。
-- **最小验收**:
-    - 盘点高频重复点（参数解析、错误处理、协议转换、日志等）。
-    - 给出共享层落点与拆分边界，避免过度抽象。
-
-8. **i18n 拆分加载与首屏翻译稳定性治理**
-- **目标**:
-    - 深入评估 `i18n/config/locale-modules.ts` 的拆分与加载链路。
     - 在保持拆包收益的同时，避免首屏出现未翻译字段 / raw key。
 - **最小验收**:
     - 给出首屏关键路由的加载命中矩阵与回退策略。
