@@ -73,7 +73,7 @@ mockNuxtImport('useAdminFriendLinksPage', () => () => ({
     getLinkStatusSeverity: vi.fn(() => 'success'),
     getHealthStatusSeverity: vi.fn(() => 'secondary'),
     getApplicationStatusSeverity: vi.fn(() => 'warning'),
-    formatDate: vi.fn(() => '-'),
+    formatDateTime: vi.fn(() => '-'),
     shouldSuggestReviewOrDisable: vi.fn(() => false),
     loadLinks: vi.fn(),
     openLinkDialog: vi.fn(),
