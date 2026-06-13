@@ -45,11 +45,11 @@
 	- 当前进度：已完成（2026-06-13）。
 	- 交付摘要：vendor.css 删除（空文件）；backlog.md 清理（测试主线 Phase 44/49 记录更新、隐私分析 Phase 45-46 状态修正、合并 artifact 清理）；user/subscription 确认为用户订阅管理端点，保留。
 
-- [ ] **主线：type 收敛 + 归档索引修正 (P2)**
+- [x] **主线：type 收敛 + 归档索引修正 (P2)**
 	- 执行范围：同名 type/interface 12→≤10；`governance/archive/index.md` 计数同步。
 	- 非目标：不推动生产代码大重构。
-	- 当前进度：待开始。
-	- 最小验收：同名 type ≤10；archive/index.md 计数正确。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：AdAdapterConfig 统一至 types/ad.ts（12→11）；其余「重复」确认为不同结构（Volcengine*）、测试文件（EventHandler/RedisClientMock）或已通过 import 统一（AuthBoundary/BetterAuth）；归档索引计数已确认正确（11+6+1）。
 
 > **阶段收口时统一处理**: 文档归档治理延至本阶段结束时执行。
 
