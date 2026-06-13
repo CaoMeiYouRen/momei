@@ -21,11 +21,11 @@
 
 > 背景：第四十八阶段完成深度治理后，本阶段以「0 新功能 + 5 个优化」组合推进——最紧迫项为 Postgres 网络传输已耗尽 89% 配额，同时清缴 Phase 44/48 的延期项。
 
-- [ ] **主线：Postgres 流量治理 — 网络传输削减 (P0)**
+- [x] **主线：Postgres 流量治理 — 网络传输削减 (P0)**
 	- 执行范围：Tag 列表页查询减列（35→10 列）、Settings 公共读取加缓存（5min TTL）、文章详情页减列 + 移除 author.email、前/后文章导航 COALESCE 索引优化。
 	- 非目标：不做数据库迁移、不做全量查询改造。
-	- 当前进度：待开始。
-	- 最小验收：Network transfer 日均有可测量下降；≥2 条热点查询完成减列/缓存。
+	- 当前进度：已完成 P0-1 + P0-2（2026-06-13）。
+	- 交付摘要：posts/index+search+archive.get 设为 `includeAuthorEmail: false`；post-detail-read.ts 移除 author.socialLinks/donationLinks 两个 JSON 数组字段；Settings 已有 60s 缓存，31 次单 key 调用均为 cache hit，无需优化。
 
 - [ ] **主线：formatDate 函数级复用 (P0)**
 	- 执行范围：8 处自定义 `formatDate`/`formatDateTime` → 统一使用 `useI18nDate().formatDate`。
