@@ -1,5 +1,65 @@
 # momei
 
+# [1.20.0](https://github.com/CaoMeiYouRen/momei/compare/v1.19.0...v1.20.0) (2026-06-13)
+
+
+### ⚡ 性能优化
+
+* Phase 44 CWV 优化 — Logo 预加载 + CSS [@import](https://github.com/import) 扁平化 ([8669d0c](https://github.com/CaoMeiYouRen/momei/commit/8669d0c))
+* **postgres:** 网络传输削减 — 公开列表移除 author.email 查询 + 详情移除非必要字段 ([80dc313](https://github.com/CaoMeiYouRen/momei/commit/80dc313))
+
+
+### ✨ 新功能
+
+* **analytics:** 添加 Umami 分析配置支持 ([d4a6e74](https://github.com/CaoMeiYouRen/momei/commit/d4a6e74))
+* **api:** 增加查询参数处理工具函数 ([1753307](https://github.com/CaoMeiYouRen/momei/commit/1753307))
+* **audit:** 添加 AI 评分生成和状态提示功能 ([f47375c](https://github.com/CaoMeiYouRen/momei/commit/f47375c))
+* **friend-links:** 友链 RSS 聚合 — Blogroll Feed ([3fa5b92](https://github.com/CaoMeiYouRen/momei/commit/3fa5b92))
+* **friend-link:** 后台友链管理新增「展示 RSS 动态」配置项 ([d580d6c](https://github.com/CaoMeiYouRen/momei/commit/d580d6c))
+* **schema:** API Schema 覆盖 — 3 端点 RouterParam Zod 校验 + 2 测试 ([cf1a203](https://github.com/CaoMeiYouRen/momei/commit/cf1a203))
+* 添加 Umami 自托管分析集成的相关文档与配置示例 ([efe4712](https://github.com/CaoMeiYouRen/momei/commit/efe4712))
+* 添加用户 ID 支持到 AI 请求和翻译功能 ([2bcf60c](https://github.com/CaoMeiYouRen/momei/commit/2bcf60c))
+
+
+### 🐛 Bug 修复
+
+* **ai:** 增加生成图像提示的最大字符限制 ([ce0d069](https://github.com/CaoMeiYouRen/momei/commit/ce0d069))
+* **date:** 优化日期格式化函数 ([003327a](https://github.com/CaoMeiYouRen/momei/commit/003327a))
+* **deps:** sync lockfile overrides for hono@4.12.21, qs@6.15.2, brace-expansion@5.0.6 ([b5107a3](https://github.com/CaoMeiYouRen/momei/commit/b5107a3))
+* **email:** 更新营销邮件模板以增强内容渲染 ([ee50cbb](https://github.com/CaoMeiYouRen/momei/commit/ee50cbb))
+* **friend-link-feed:** 审计 blocker 修复 — ESM import + rate limit + 空结果缓存 ([432ac2e](https://github.com/CaoMeiYouRen/momei/commit/432ac2e))
+* **i18n:** admin.json 补全 calendar.title，修复侧边栏加载时翻译缺失 ([a399c83](https://github.com/CaoMeiYouRen/momei/commit/a399c83))
+* **i18n:** 将 show_rss_feed 从 feed.json 迁移至 admin-friend-links.json ([b06314b](https://github.com/CaoMeiYouRen/momei/commit/b06314b))
+* **i18n:** 更新管理员路由模块以支持共享营销模块 ([36a9e43](https://github.com/CaoMeiYouRen/momei/commit/36a9e43))
+* **lint:** 清除 friend-link-feed.ts 及 friend-links.vue 全部 warning ([d1deb78](https://github.com/CaoMeiYouRen/momei/commit/d1deb78))
+* **lint:** 清除 Phase 48 引入的 3 处 lint warnings ([e969f02](https://github.com/CaoMeiYouRen/momei/commit/e969f02))
+* **lint:** 清零全部 5 处既存 warning ([102fde2](https://github.com/CaoMeiYouRen/momei/commit/102fde2))
+* **posts:** 添加重新推送功能及相关测试 ([52dabd7](https://github.com/CaoMeiYouRen/momei/commit/52dabd7))
+* **schema:** friendLinkSchema 补全 showRssFeed 字段 ([e29e375](https://github.com/CaoMeiYouRen/momei/commit/e29e375))
+* **test:** estimate test lint 修复回滚 — async/await 保留 + eslint-disable ([aacf1bc](https://github.com/CaoMeiYouRen/momei/commit/aacf1bc))
+* **typecheck:** 审计 blocker 修复 — reduce accumulator type + remoteId narrowing ([53f1f1b](https://github.com/CaoMeiYouRen/momei/commit/53f1f1b))
+* **typecheck:** 补全 FriendLinkItem / linkForm 的 showRssFeed 类型定义 ([e545baa](https://github.com/CaoMeiYouRen/momei/commit/e545baa))
+
+
+### 📦 代码重构
+
+* **ai:** 优化 AI 视觉提示词生成逻辑 ([9549d77](https://github.com/CaoMeiYouRen/momei/commit/9549d77))
+* **ai:** 重构 TTS 请求逻辑以提高代码复用性 ([490b7fc](https://github.com/CaoMeiYouRen/momei/commit/490b7fc))
+* **api:** 优化缓存调用方式 ([309bbae](https://github.com/CaoMeiYouRen/momei/commit/309bbae))
+* **api:** 未使用 API 安全删除 — 2 端点 + 测试清理 ([15658bd](https://github.com/CaoMeiYouRen/momei/commit/15658bd))
+* **formatDate:** 函数级复用 — 6 处自定义 formatDate → formatDateTime ([793e5af](https://github.com/CaoMeiYouRen/momei/commit/793e5af))
+* **governance:** ESLint 窄切片 — 收敛 6 处生产代码 as any ([b704618](https://github.com/CaoMeiYouRen/momei/commit/b704618))
+* **governance:** ESLint 窄切片 — 收敛 9 处 as any (≥5 模块) ([a949997](https://github.com/CaoMeiYouRen/momei/commit/a949997))
+* **governance:** ESLint 类型债 — 3 组窄切片 (no-non-null-assertion + no-explicit-any) ([28e171f](https://github.com/CaoMeiYouRen/momei/commit/28e171f))
+* **governance:** type 收敛 — AdAdapterConfig 统一到 types/ad.ts ([10eb6ff](https://github.com/CaoMeiYouRen/momei/commit/10eb6ff))
+* **governance:** 结构复用 — 3 组类型收敛 ([2f09978](https://github.com/CaoMeiYouRen/momei/commit/2f09978))
+* **governance:** 结构复用 — 3 组类型收敛 ([7ef401b](https://github.com/CaoMeiYouRen/momei/commit/7ef401b))
+* **governance:** 页面路由规范化 — calendar/marketing → index.vue 目录模式 ([102b107](https://github.com/CaoMeiYouRen/momei/commit/102b107))
+* **schema:** API Schema 覆盖与复用 — 3 组样板 ([09924a4](https://github.com/CaoMeiYouRen/momei/commit/09924a4))
+* **settings:** 收敛设置模型类型定义与语言偏好处理 ([5c65cb9](https://github.com/CaoMeiYouRen/momei/commit/5c65cb9))
+* **settings:** 重构 Umami 分析配置处理逻辑 ([fd3dede](https://github.com/CaoMeiYouRen/momei/commit/fd3dede))
+* 优化可读性评分计算逻辑 ([1513755](https://github.com/CaoMeiYouRen/momei/commit/1513755))
+
 # [1.19.0](https://github.com/CaoMeiYouRen/momei/compare/v1.18.0...v1.19.0) (2026-06-06)
 
 
