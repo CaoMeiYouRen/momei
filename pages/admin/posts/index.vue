@@ -320,7 +320,7 @@ const { formatDateTime, relativeTime, isFuture } = useI18nDate()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { contentLanguage } = useAdminI18n()
 
-void ensureLocaleMessageModules({
+await ensureLocaleMessageModules({
     i18n: nuxtApp.$i18n as object,
     locale: locale.value,
     modules: ['admin-posts', 'admin-marketing'],

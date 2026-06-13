@@ -232,7 +232,7 @@ const {
 
 // Ensure admin-posts locale module is loaded (needed for audit i18n keys)
 const nuxtApp = useNuxtApp()
-void ensureLocaleMessageModules({
+await ensureLocaleMessageModules({
     i18n: nuxtApp.$i18n as object,
     locale: locale.value,
     modules: ['admin-posts'],
