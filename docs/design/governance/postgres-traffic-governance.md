@@ -1,10 +1,19 @@
-# Postgres 流量治理 — 网络传输削减分析
+# Postgres 流量治理 — 网络传输与 pg_stat_statements 开销分析
 
-> 日期: 2026-06-13
-> 数据源: Neon Monitoring (6 月 1-13 日)
-> 基线: Network transfer 4.43/5 GB (89%)
+> 更新日期: 2026-06-14
+> 数据源 A: Neon Monitoring（2026-06-01 至 2026-06-13）
+> 数据源 B: 本地导出的 `pg_stat_statements.csv`（133 条语句样本）
+> 结论口径: 同时覆盖网络传输、业务 SQL 流量与数据库 CPU 时间分布
 
-## 1. 网络消耗全景
+## 1. 执行摘要
+
+当前 Postgres 压力可以拆成两层：
+
+1. Neon 账单层的风险仍然是网络传输偏高，`Network transfer` 已到 `4.43 / 5 GB`，短期内最需要持续压降返回体积。
+2. `pg_stat_statements` 视角下，数据库总执行时间约 `1532.123 ms`，其中真正业务 SQL 只占 `114.631 ms`，约 `7.48%`；剩余时间大多消耗在 Neon / Postgres 自监控与元数据查询，而不是业务读写本身。
+3. 业务 SQL 内部又高度集中在文章模块：文章相关查询占业务 SQL 总执行时间 `93.81%`，是当前唯一明确的数据库热点域。
+
+## 2. 网络消耗全景
 
 | 指标 | 已用 | 配额 | 占比 | 日均 | 预测耗尽 |
 |:---|:---|:---|:---|:---|:---|
@@ -12,122 +21,207 @@
 | Compute | 55.81 CU-hrs | 100 | 56% | 4.29 | 正常 |
 | Storage | 0.2 GB | 0.5 | 40% | — | 正常 |
 
-## 2. 热点查询分析
+这说明治理目标不能只盯单条慢 SQL，还要区分：
 
-### 2.1 Tag 列表页 — 最热路径 (#1)
+- 返回体积大的路径是否在拉高网络配额。
+- 执行复杂的路径是否在拉高数据库 CPU。
 
-| 指标 | 值 |
-|:---|:---|
-| 文件 | `server/api/posts/index.get.ts` |
-| 调用次数 | 12 + 6 + 2 + 1 + 1 = **22 次**（占总调用 ~17%） |
-| 单次耗时 | 0.1ms ~ 1.2ms |
-| 问题 | **无 `.select()` 限制**，TypeORM `getManyAndCount()` 默认 `SELECT *` |
+## 3. pg_stat_statements 总览
 
-**当前查询**:
+### 3.1 总体时间分布
 
-```sql
--- 35 列全量读取，含 post.content（最大字段）
-SELECT post.id, post.title, post.slug, post.content, ...,
-       author.id, author.name, author.email, ...,
-       category.id, category.name, category.description, ...,
-       tags.id, tags.name, tags.slug, ...
-FROM momei_post post
-LEFT JOIN momei_user author ON ...
-LEFT JOIN momei_category category ON ...
-LEFT JOIN momei_tag tags ON ...
-INNER JOIN momei_tag tagBySlug ON tagBySlug.slug = $1
-WHERE post.status = $2 AND ...
-```
+| 维度 | 总执行时间 | 占比 |
+|:---|:---|:---|
+| 全部语句 | 1532.123 ms | 100% |
+| 业务 SQL | 114.631 ms | 7.48% |
+| 系统 / 监控 SQL | 1417.492 ms | 92.52% |
 
-**根因**: `getManyAndCount()` 没有 `.select()` 约束，TypeORM 默认 `SELECT *`，包含：
-- `post.content` (文章正文，最大字段)
-- `post.metadata` (JSON 元数据)
-- `author.email`, `author.socialLinks`, `author.donationLinks` (非公开信息)
-- `category.description` (分类描述)
-- `tags.translation_id` (翻译 ID)
+### 3.2 业务 SQL 时间分布
 
-**优化方向**: 列表页仅需 10 列：`id, title, slug, summary, coverImage, language, status, isPinned, publishedAt, createdAt` + `author.name` + `category.name, category.slug` + `tags.name, tags.slug`。
-
-### 2.2 Settings 公开读取 (#3)
-
-| 指标 | 值 |
-|:---|:---|
-| 文件 | `server/api/settings/public.get.ts` |
-| 调用次数 | 5 (53-key batch) + 5 (15-key batch) + 31 (单 key) |
-| 缓存 | **已有 60s TTL** (`PUBLIC_SETTINGS_CACHE_TTL_SECONDS`) |
-| 单 key 调用 | 31 次 × 0ms = cache hit，**不是问题** |
-
-**结论**: 公开 settings 已有缓存机制，31 次单 key 均为 cache hit（0ms），无需优化。批量读取是正常的冷启动/缓存过期行为。
-
-### 2.3 文章详情页 (#4)
-
-| 指标 | 值 |
-|:---|:---|
-| 文件 | `server/utils/post-detail-read.ts` |
-| 调用次数 | 1 |
-| 单次耗时 | 6.8ms |
-| 问题 | `.addSelect(['author.email', 'author.socialLinks', 'author.donationLinks'])` |
-
-**当前代码** (`post-detail-read.ts:21`):
-
-```ts
-.addSelect(['author.id', 'author.name', 'author.image',
-            'author.email', 'author.socialLinks', 'author.donationLinks'])
-```
-
-`author.socialLinks` 和 `author.donationLinks` 是 JSON 数组字段，体积显著。`author.email` 已在后续 `processAuthorPrivacy()` 中处理，但网络层已传输。
-
-**优化方向**: 移除 `author.socialLinks` 和 `author.donationLinks`（仅在作者公开页或管理后台需要），移除 `author.email`（已在隐私处理后剥离）。
-
-### 2.4 前/后文章导航 (#2)
-
-| 指标 | 值 |
-|:---|:---|
-| 文件 | `server/utils/post-detail.ts` |
-| 调用次数 | 2 |
-| 单次耗时 | 13.4ms |
-| 问题 | COALESCE 多重排序，无索引命中 |
-
-**当前查询**:
-
-```sql
-WHERE post.language = $1 AND post.status = $2 AND post.visibility = $3
-  AND post.id != $4
-  AND COALESCE(post.translation_id, post.id) != $5
-  AND (COALESCE(post.published_at, post.created_at) < $6
-       OR (COALESCE(post.published_at, post.created_at) = $6 AND post.id < $4))
-ORDER BY COALESCE(post.published_at, post.created_at) DESC, post_id DESC
-```
-
-**优化方向**: 为 `(language, status, visibility, COALESCE(published_at, created_at))` 创建复合索引。
-
-### 2.5 Category/Tag 归档页 (#5)
-
-| 指标 | 值 |
-|:---|:---|
-| 调用次数 | 1 |
-| 单次耗时 | 8.7ms |
-| 问题 | 同上—无 select 限制 + COALESCE 排序 |
-
-## 3. 优化优先级
-
-| # | 优化项 | 文件 | 预期收益 | 工作量 |
-|:---|:---|:---|:---|:---|
-| **P0-1** | Tag 列表查询加 `.select()` 减列 (35→10) | `posts/index.get.ts` | **-60% 该路径传输** | 1h |
-| **P0-2** | 文章详情移除 author.socialLinks/donationLinks/email | `post-detail-read.ts` | **-40% 该路径传输** | 0.5h |
-| **P1** | 前/后导航索引优化 | `post-detail.ts` | -50% 耗时 | 1h |
-| **P2** | 归档页减列（复用 P0-1 的 select 配置） | 同上 | — | 含在 P0-1 |
-
-## 4. 预期总量削减
-
-| 路径 | 当前行数 | 优化后 | 削减 |
+| 功能域 | 总执行时间 | 占业务 SQL 比例 | 调用次数 |
 |:---|:---|:---|:---|
-| Tag 列表 (35→10 列) | ~35 cols × 22 calls | ~10 cols | **~60%** |
-| 文章详情 (移除 3 个 JSON 字段) | ~42 cols × 1 call | ~30 cols | **~30%** |
-| **综合预估** | 基准 | — | **日均 Network 从 341MB → ~200MB** |
+| 文章（Post / Tag / Category） | 107.533 ms | **93.81%** | 22 |
+| 友链（Friend Link） | 3.595 ms | 3.14% | 3 |
+| 设置（Setting） | 3.127 ms | 2.73% | 26 |
+| 旧 `article` 表 | 0.329 ms | 0.29% | 4 |
 
-## 5. 注意事项
+### 3.3 业务 SQL 调用分布
 
-- Settings 已有 60s 缓存，31 次单 key 0ms 调用为 cache hit，**无需优化**
-- 减列时需确认前端页面不使用被移除的字段（如 `author.email` 在公开列表页不应暴露）
-- 索引优化需在 Neon 上执行 `CREATE INDEX`，需验证不阻塞现有查询
+| 功能域 | 调用次数 | 结论 |
+|:---|:---|:---|
+| 设置（Setting） | 26 | 高频但便宜 |
+| 文章（Post） | 22 | 中频且最贵 |
+| 旧 `article` 表 | 4 | 可忽略 |
+| 友链（Friend Link） | 3 | 可忽略 |
+
+结论：
+
+- 业务流量最高的是设置读取，不是文章。
+- 业务 CPU 时间最高的是文章查询，不是设置。
+- 所以“流量热点”和“CPU 热点”不是同一个模块，治理动作需要分开设计。
+
+## 4. 业务热点查询分析
+
+### 4.1 文章详情页的相关文章查询 — 业务 CPU 第一热点
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/utils/post-detail.ts](../../../server/utils/post-detail.ts) |
+| 入口函数 | `getRelatedPublicPosts()` |
+| 单次总耗时 | **29.15 ms** |
+| 返回行数 | 319 |
+| 主要问题 | 多对多联表 + cluster 去重前候选集膨胀 |
+
+对应实现见 [server/utils/post-detail.ts](../../../server/utils/post-detail.ts#L215)。该查询会：
+
+- 联 `post.category`
+- 联 `post.tags`
+- 用 `COALESCE(category.translationId, category.slug, category.id)` 匹配分类 cluster
+- 用 `COALESCE(tags.translationId, tags.slug, tags.id)` 匹配标签 cluster
+- 再按时间排序后在应用层做 cluster bucket 去重和评分
+
+根因判断：
+
+- 这条 SQL 不是高频，但单次成本最高。
+- 返回 `319` 行后最终只取少量相关文章，存在明显的候选集放大。
+- CPU 很可能主要花在 join、排序和重复行生成，而不是纯粹的磁盘读取。
+
+### 4.2 上一篇 / 下一篇导航 — 排序表达式热点
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/utils/post-detail.ts](../../../server/utils/post-detail.ts) |
+| 入口函数 | `getAdjacentPublicPosts()` |
+| 单次耗时 | 15.20 ms / 11.70 ms |
+| 主要问题 | `COALESCE(post.publishedAt, post.createdAt)` 范围过滤与排序 |
+
+对应实现见 [server/utils/post-detail.ts](../../../server/utils/post-detail.ts#L167)。查询特征：
+
+- 条件固定：`language + status + visibility`
+- 排除当前文章与当前翻译 cluster
+- 用 `COALESCE(post.publishedAt, post.createdAt)` 做范围过滤
+- 再按同一表达式排序
+
+根因判断：
+
+- 当前 [server/entities/post.ts](../../../server/entities/post.ts) 只有单列索引和 `(slug, language)` 唯一约束。
+- 没有证据显示已存在覆盖 `language + status + visibility + timeline` 的组合索引。
+- 因此这两条查询更像是索引形状不贴合，而不是数据体积问题。
+
+### 4.3 文章列表 / 标签页 — 复杂过滤而非重字段失控
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/api/posts/index.get.ts](../../../server/api/posts/index.get.ts) |
+| 入口函数 | 文章列表、标签筛选、归档类读取 |
+| 代表耗时 | 10.67 ms / 8.45 ms / 4.89 ms / 2.95 ms |
+| 主要问题 | `tag` 多对多 join + 语言 fallback 的 `NOT EXISTS` + `getManyAndCount()` |
+
+对应实现见 [server/api/posts/index.get.ts](../../../server/api/posts/index.get.ts#L206) 和 [server/utils/post-list-query.ts](../../../server/utils/post-list-query.ts#L71)。
+
+这里需要修正文档中的旧判断：
+
+- 当前列表查询已经通过 [server/utils/post-list-query.ts](../../../server/utils/post-list-query.ts#L10) 的 `applyPostListSelect()` 明确限制字段，**不再是“TypeORM 默认 SELECT *”问题**。
+- 列表页已主动排除了 `content`、`password` 等重字段，说明网络治理已经有一轮正确优化。
+
+当前真正的复杂度来自：
+
+- 标签页使用 `innerJoin('post.tags', 'tagBySlug', ...)`
+- 公开列表启用 `applyPublishedPostLanguageFallbackFilter()`
+- fallback 逻辑内部包含 `NOT EXISTS` 子查询，见 [server/utils/post-list-query.ts](../../../server/utils/post-list-query.ts#L71)
+- `getManyAndCount()` 在多对多 join 下会生成 `DISTINCT` 包装查询，进一步拉高执行复杂度
+
+结论：
+
+- 这类查询的主要矛盾已经从“列太多”转移为“过滤条件和 join 形状复杂”。
+- 它们更偏 CPU / 规划器压力，而不是单纯网络返回膨胀。
+
+### 4.4 文章详情主查询 — 网络体积仍需关注
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/utils/post-detail-read.ts](../../../server/utils/post-detail-read.ts) |
+| 入口函数 | `readPostDetail()` |
+| 样本耗时 | 2 次共 8.19 ms，均值 4.10 ms |
+| 主要问题 | 会读取正文 `post.content`，并联带作者、分类、标签 |
+
+对应实现见 [server/utils/post-detail-read.ts](../../../server/utils/post-detail-read.ts#L17)。
+
+这条查询不是 CPU 第一热点，但它具备网络治理风险：
+
+- 明确读取 `post.content`
+- 会把作者、分类、标签一并装载
+- 如果详情页访问量持续升高，它更可能先打满带宽，而不是先打满数据库 CPU
+
+因此它是“网络关注热点”，不是“当前 CPU 第一热点”。
+
+### 4.5 设置读取 — 高频但不是瓶颈
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/services/setting.ts](../../../server/services/setting.ts#L502) |
+| 调用次数 | 26 |
+| 总耗时 | 3.127 ms |
+| 特征 | 60s 运行时缓存 + 批量查询 |
+
+结论：
+
+- 设置读取是业务调用数第一，但成本极低。
+- `getSettings()` 已带缓存与批量查询折叠逻辑，不应作为当前性能治理重点。
+
+### 4.6 友链公共列表 — 当前不是热点
+
+| 指标 | 值 |
+|:---|:---|
+| 代码位置 | [server/services/friend-link.ts](../../../server/services/friend-link.ts#L410) |
+| 调用次数 | 3 |
+| 总耗时 | 3.595 ms |
+| 结论 | 量级很低，暂不优先优化 |
+
+## 5. 系统 / 监控 SQL 分析
+
+`pg_stat_statements` 中最耗时的并不是业务语句，而是平台和系统层查询，包括：
+
+- `pg_database_size` / `pg_stat_database` / `pg_database`
+- `pg_stat_activity`
+- `pg_stat_replication`
+- `pg_settings`
+- `pg_catalog` 元数据读取
+
+典型特征：
+
+- 多条语句调用数在 `712` 次这一档
+- 多条语句累计执行时间在 `70 ms ~ 300 ms`
+- 样本里总时间占比远高于业务 SQL
+
+治理含义：
+
+- 如果观察到数据库 CPU 偏高，不能直接归因为业务代码。
+- 至少在这份样本中，系统监控轮询本身就是总执行时间的大头。
+- 业务优化仍然必要，但其目标是压缩文章模块热点，而不是解释全部数据库负载。
+
+## 6. 优化优先级
+
+| 优先级 | 优化项 | 主要文件 | 目标 |
+|:---|:---|:---|:---|
+| P0 | 相关文章查询改成“两段式候选集 + 回表” | [server/utils/post-detail.ts](../../../server/utils/post-detail.ts) | 降低多对多 join 导致的候选集膨胀 |
+| P0 | 为上一篇 / 下一篇查询验证并补齐组合索引或函数索引 | 数据库迁移 + [server/utils/post-detail.ts](../../../server/utils/post-detail.ts) | 降低 `COALESCE(publishedAt, createdAt)` 排序扫描成本 |
+| P1 | 评估文章列表 fallback 条件是否可拆分或预计算 | [server/utils/post-list-query.ts](../../../server/utils/post-list-query.ts) | 降低 `NOT EXISTS` 与 `DISTINCT` 组合复杂度 |
+| P1 | 复核详情页作者字段选择 | [server/utils/post-detail-read.ts](../../../server/utils/post-detail-read.ts) | 继续压缩详情页返回体积 |
+| P2 | 核对 Neon / exporter 监控采样频率 | 平台配置 | 确认系统 SQL 是否过度轮询 |
+
+## 7. 验证建议
+
+下一轮分析建议直接补齐以下证据，而不是只看聚合统计：
+
+1. 对相关文章查询跑 `EXPLAIN ANALYZE`，确认时间主要耗在 join、sort 还是重复行去重。
+2. 对上一篇 / 下一篇查询跑 `EXPLAIN ANALYZE`，验证是否命中可用索引。
+3. 对标签页 / 文章列表查询分别采集“有 language fallback”和“无 language fallback”的执行计划，量化 `NOT EXISTS` 的真实代价。
+4. 将 Neon Monitoring 的网络传输曲线与文章详情 / 列表页访问量对齐，确认当前带宽主因究竟是详情正文还是列表聚合接口。
+
+## 8. 当前结论
+
+- 网络配额风险依旧存在，详情页与列表页仍要持续控制返回体积。
+- 业务数据库 CPU 热点已明确收敛到文章模块，尤其是相关文章、上一篇 / 下一篇、标签筛选三类查询。
+- 设置读取和友链读取不是当前瓶颈。
+- 样本中的数据库总执行时间大头来自系统监控 SQL，因此“数据库整体忙”不等于“业务 SQL 忙”。
