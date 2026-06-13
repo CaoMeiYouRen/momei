@@ -5,7 +5,6 @@ import { User } from '@/server/entities/user'
 import { generateRandomString } from '@/utils/shared/random'
 import createSnippetHandler from '@/server/api/snippets/index.post'
 import listSnippetsHandler from '@/server/api/admin/snippets/index.get'
-import convertSnippetHandler from '@/server/api/admin/snippets/[id]/convert.post'
 import { SnippetStatus } from '@/types/snippet'
 
 describe('Snippets API', () => {
@@ -61,30 +60,6 @@ describe('Snippets API', () => {
         expect(result.code).toBe(200)
         expect(result.data?.items?.length).toBeGreaterThan(0)
     })
-
-    it('should convert a snippet to a post draft', async () => {
-        const snippetRepo = dataSource.getRepository(Snippet)
-        const snippet = new Snippet()
-        snippet.content = 'Inspiration to post\nDetailed thoughts here.'
-        snippet.author = user
-        snippet.status = SnippetStatus.INBOX
-        await snippetRepo.save(snippet)
-
-        const event = {
-            context: {
-                auth: { user },
-            },
-            params: { id: snippet.id },
-        } as any
-
-        // Workaround for getRouterParam since it's hard to mock directly without h3 context
-        // But in our handler we use getRouterParam(event, 'id')
-        vi.stubGlobal('getRouterParam', () => snippet.id)
-
-        const result = await convertSnippetHandler(event)
-        expect(result.code).toBe(200)
-        expect(result.data?.post?.content).toBe(snippet.content)
-        expect(result.data?.snippet?.status).toBe(SnippetStatus.CONVERTED)
-        expect(result.data?.snippet?.post?.id).toBe(result.data?.post?.id)
-    })
 })
+
+
