@@ -45,11 +45,11 @@
 	- 当前进度：已完成（2026-06-13）。
 	- 交付摘要：实际删除 2 个（broadcast + theme-configs/put）；保留 5 个经前端引用验证（theme-configs delete/apply, posts/audit, snippets/convert, marketing/test 均有组件调用）；回滚锚点: `cf1a2035`。
 
-- [ ] **主线：第二轮未使用 API 扩大调研 (P1)**
+- [x] **主线：第二轮未使用 API 扩大调研 (P1)**
 	- 执行范围：`subscriptions`、`waitlist/export`、`scaffold-to-post`、`versions/restore` 三层验证 + git 历史分析。
 	- 非目标：不在本阶段删除未确认端点。
-	- 当前进度：待开始。
-	- 最小验收：输出第二轮评估结果（≥4 端点分析）。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：`docs/design/governance/unused-api-round2-assessment.md`；确认 1 个新删除候选（subscriptions）；3 个排除（waitlist/export、scaffold-to-post、versions/restore 均有前端调用或测试覆盖）。
 
 > **阶段收口时统一处理**: 文档归档治理延至本阶段结束时执行。
 
