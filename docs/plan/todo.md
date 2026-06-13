@@ -27,11 +27,11 @@
 	- 当前进度：已完成 P0-1 + P0-2（2026-06-13）。
 	- 交付摘要：posts/index+search+archive.get 设为 `includeAuthorEmail: false`；post-detail-read.ts 移除 author.socialLinks/donationLinks 两个 JSON 数组字段；Settings 已有 60s 缓存，31 次单 key 调用均为 cache hit，无需优化。
 
-- [ ] **主线：formatDate 函数级复用 (P0)**
+- [x] **主线：formatDate 函数级复用 (P0)**
 	- 执行范围：8 处自定义 `formatDate`/`formatDateTime` → 统一使用 `useI18nDate().formatDate`。
 	- 非目标：不改动 `useI18nDate` 签名。
-	- 当前进度：待开始。
-	- 最小验收：自定义 formatDate 减少 ≥4 处。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：消除 6 处自定义 wrapper（campaigns/external-links/comment-item/submissions/friend-links-page/friend-links composable）；≥4 达标；保留 2 处有自定义 fallback 逻辑（agreements-settings/legal-agreement-page）。
 
 - [ ] **主线：延期测试回填 (P1)**
 	- 执行范围：Phase C feed 渲染/降级 + Admin checkbox 交互 + 前/后文章导航逻辑。
