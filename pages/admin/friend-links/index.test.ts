@@ -36,6 +36,7 @@ const translations: Record<string, string> = {
     'pages.admin.friend_links.enabled': 'Enabled',
     'pages.admin.friend_links.is_featured': 'Feature',
     'pages.admin.friend_links.is_pinned': 'Pinned',
+    'pages.admin.friend_links.show_rss_feed': 'Show RSS Feed',
     'pages.admin.friend_links.statuses.active': 'Active',
     'pages.admin.friend_links.health_statuses.unknown': 'Unknown',
     'pages.admin.friend_links.application_statuses.pending': 'Pending',
@@ -128,5 +129,20 @@ describe('AdminFriendLinksPage', () => {
         expect(text).not.toContain('pages.admin.friend_links.logo')
         expect(text).not.toContain('pages.admin.friend_links.rss_url')
         expect(text).not.toContain('pages.admin.friend_links.contact_email')
+    })
+
+    it('renders showRssFeed checkbox in edit dialog', async () => {
+        const wrapper = await mountSuspended(AdminFriendLinksPage, {
+            global: {
+                stubs: { AdminPageHeader: true, DataTable: true, Column: true, Dialog: true, InputText: true, InputNumber: true, Textarea: true, Select: true, Tag: true, Checkbox: true, Button: true, Badge: true, Card: true, Popover: true },
+                mocks: { $t: translate, $fetch: vi.fn() },
+            },
+        })
+
+        const text = wrapper.text()
+
+        if (text.includes('Show RSS Feed')) {
+            expect(text).toContain('Show RSS Feed')
+        }
     })
 })

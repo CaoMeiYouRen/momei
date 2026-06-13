@@ -667,4 +667,87 @@ describe('FriendLinksPage', () => {
         expect(mockRefreshMeta).not.toHaveBeenCalled()
         expect(mockRefreshLinks).not.toHaveBeenCalled()
     })
+
+    it('renders feed section with items from /api/friend-links/feed', async () => {
+        mockAsyncDataMode.value = 'handler'
+        mockFetch.mockImplementation((request: string) => {
+            if (request === '/api/friend-links/meta') {
+                return Promise.resolve({
+                    data: { enabled: true, applicationEnabled: false, applicationGuidelines: '', categories: [] },
+                })
+            }
+            if (request === '/api/friend-links') {
+                return Promise.resolve({ data: [] })
+            }
+            if (request === '/api/friend-links/feed') {
+                return Promise.resolve({
+                    data: [
+                        { title: 'Feed Post One', url: 'https://one.example.com', publishedAt: '2025-06-01T00:00:00.000Z', siteName: 'Site One', siteUrl: 'https://one.example.com' },
+                        { title: 'Feed Post Two', url: 'https://two.example.com', publishedAt: null, siteName: 'Site Two', siteUrl: 'https://two.example.com' },
+                    ],
+                })
+            }
+            throw new Error(`Unexpected request: ${request}`)
+        })
+
+        const wrapper = await mountSuspended(FriendLinksPage, {
+            global: { stubs, mocks: { $t: translate } },
+        })
+
+        const feedSection = wrapper.find('.links-page__feed')
+        expect(feedSection.exists()).toBe(true)
+        const items = feedSection.findAll('.links-page__feed-item')
+        expect(items).toHaveLength(2)
+        expect(items[0]!.text()).toContain('Feed Post One')
+        expect(items[1]!.text()).toContain('Feed Post Two')
+    })
+
+    it('does not render feed section when feed is empty', async () => {
+        mockAsyncDataMode.value = 'handler'
+        mockFetch.mockImplementation((request: string) => {
+            if (request === '/api/friend-links/meta') {
+                return Promise.resolve({
+                    data: { enabled: true, applicationEnabled: false, applicationGuidelines: '', categories: [] },
+                })
+            }
+            if (request === '/api/friend-links') {
+                return Promise.resolve({ data: [] })
+            }
+            if (request === '/api/friend-links/feed') {
+                return Promise.resolve({ data: [] })
+            }
+            throw new Error(`Unexpected request: ${request}`)
+        })
+
+        const wrapper = await mountSuspended(FriendLinksPage, {
+            global: { stubs, mocks: { $t: translate } },
+        })
+
+        expect(wrapper.find('.links-page__feed').exists()).toBe(false)
+    })
+
+    it('gracefully degrades feed when API fails', async () => {
+        mockAsyncDataMode.value = 'handler'
+        mockFetch.mockImplementation((request: string) => {
+            if (request === '/api/friend-links/meta') {
+                return Promise.resolve({
+                    data: { enabled: true, applicationEnabled: false, applicationGuidelines: '', categories: [] },
+                })
+            }
+            if (request === '/api/friend-links') {
+                return Promise.resolve({ data: [] })
+            }
+            if (request === '/api/friend-links/feed') {
+                return Promise.reject(new Error('Feed unavailable'))
+            }
+            throw new Error(`Unexpected request: ${request}`)
+        })
+
+        const wrapper = await mountSuspended(FriendLinksPage, {
+            global: { stubs, mocks: { $t: translate } },
+        })
+
+        // Feed section should not render on API failure (graceful degradation)
+        expect(wrapper.find('.links-page__feed').exists()).toBe(false)
+    })
 })
