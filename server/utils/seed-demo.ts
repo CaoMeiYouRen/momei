@@ -5,6 +5,7 @@ import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
+import { PostStatus } from '@/types/post'
 
 export async function seedDemoData(ds: DataSource) {
     const config = useRuntimeConfig()
@@ -99,7 +100,7 @@ export async function seedDemoData(ds: DataSource) {
 
 ### 开始您的探索之旅吧！`,
                 language: 'zh-CN',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 60 * 6),
                 authorId: admin.id,
                 categoryId: techCat?.id,
@@ -123,7 +124,7 @@ This is your first demo post. In **Demo Mode**, you can:
 
 ### Start your journey now!`,
                 language: 'en-US',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 60 * 6),
                 authorId: admin.id,
                 categoryId: techEnCat?.id,
@@ -149,7 +150,7 @@ This is your first demo post. In **Demo Mode**, you can:
 - 进入后台后点击编辑器上的 AI 按钮，快速生成标题与摘要。
 - 最后打开文章列表，看看多语言和状态管理如何协同工作。`,
                 language: 'zh-CN',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 35),
                 authorId: admin.id,
                 categoryId: techCat?.id,
@@ -175,7 +176,7 @@ This post is the fastest route through the demo experience:
 - Use the AI tools in the editor to generate titles and summaries.
 - Revisit the admin list to see translation and status management together.`,
                 language: 'en-US',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 35),
                 authorId: admin.id,
                 categoryId: techEnCat?.id,
@@ -200,7 +201,7 @@ This post is the fastest route through the demo experience:
 
 它不是单点功能展示，而是帮助您判断墨梅是否适合真实创作节奏。`,
                 language: 'zh-CN',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 10),
                 authorId: admin.id,
                 categoryId: techCat?.id,
@@ -225,7 +226,7 @@ Inside the admin editor, the demo follows four steps:
 
 The goal is not to showcase isolated tricks, but to help you evaluate whether Momei fits a real publishing rhythm.`,
                 language: 'en-US',
-                status: 'published' as any,
+                status: PostStatus.PUBLISHED,
                 publishedAt: new Date(now - 1000 * 60 * 10),
                 authorId: admin.id,
                 categoryId: techEnCat?.id,

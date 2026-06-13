@@ -91,7 +91,7 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
 
     if (translationIds.length === 0) {
         items.forEach((item) => {
-            (item as any).translations = [{
+            (item as T & { translations: unknown[] }).translations = [{
                 id: item.id,
                 language: item.language,
                 translationId: item.translationId,
