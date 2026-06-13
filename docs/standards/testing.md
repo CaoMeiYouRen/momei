@@ -49,9 +49,13 @@ components/
 -   **目录位置**: `tests/server/`
 -   **命名规则**: `[feature].test.ts` 或 `[api-path].test.ts`
 -   **适用范围**:
-    -   API 接口测试 (`server/api/`)
-    -   数据库连接与查询测试 (`server/database/`)
+    -   API Handler 测试 (`tests/server/api/`) — 含鉴权、数据库查询、HTTP 请求/响应周期
+    -   数据库连接与查询测试 (`tests/server/database/`)
+    -   中间件测试 (`tests/server/middleware/`)
     -   复杂业务流程集成测试
+-   **禁止事项**: API Handler 测试文件**不得**与 handler 源文件同级存放（即禁止 `server/api/**/*.test.ts`）。所有 API 集成测试必须统一落在 `tests/server/api/`，目录结构与 `server/api/` 镜像对应。
+-   **导入约定**: 迁移到 `tests/server/api/` 后，handler 导入使用绝对路径 `import handler from '@/server/api/path/to/handler'`。
+-   **分层细则**: 完整的分层决策树与迁移规则见 [API 测试分层规则](../design/governance/api-test-layering.md)。
 
 ### 3.3 端对端测试 (E2E Tests)
 

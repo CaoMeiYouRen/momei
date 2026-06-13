@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import handler from './feed.get'
+import handler from '@/server/api/friend-links/feed.get'
 import { getFriendLinkFeeds } from '@/server/services/friend-link-feed'
 import { rateLimit } from '@/server/utils/rate-limit'
 import { success } from '@/server/utils/response'

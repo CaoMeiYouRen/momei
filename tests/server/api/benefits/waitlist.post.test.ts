@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import handler from './waitlist.post'
+import handler from '@/server/api/benefits/waitlist.post'
 import { benefitWaitlistService } from '@/server/services/benefit-waitlist'
 
 vi.mock('@/server/services/benefit-waitlist', () => ({

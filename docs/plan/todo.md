@@ -28,11 +28,12 @@
 	- 最小验收：PWA 可安装（manifest.json 生效）；Service Worker 注册成功；离线页面可访问。
 	- 完成证据：`pnpm typecheck`=0, `pnpm lint`=0, `pnpm build` 成功生成 `sw.js` (41KB) + `manifest.webmanifest` (486B), 预缓存 607 条目 (7329.53 KiB)。
 
-- [ ] **主线：API 测试分层收敛 (P1)**
+- [x] **主线：API 测试分层收敛 (P1)**
 	- 执行范围：统一 `tests/server/api/` 与 `server/api/**/*.test.ts` 双轨目录，固化测试分层规则与目录归属。
 	- 非目标：不重写现有测试内容、不移除测试覆盖。
-	- 当前进度：待开始。
+	- 当前进度：已完成 (2026-06-14)。
 	- 最小验收：输出分层规则文档；至少 3 组样板迁移落地。
+	- 完成证据：输出 `docs/design/governance/api-test-layering.md`；4 组样板迁移 (`benefits/waitlist`, `friend-links/feed`, `ai/comment-translation`, `admin/external-feed/refresh` 去重)；`pnpm lint`=0, `pnpm typecheck`=0, `pnpm lint:md`=0, 定向测试 4 文件 8 tests passed；`docs/standards/testing.md` §3.2 强化禁止 co-located 规则。
 
 - [ ] **主线：i18n 首屏翻译稳定性治理 (P1)**
 	- 执行范围：评估 `locale-modules.ts` 拆分加载链路，识别首屏 raw key 泄漏点；给出首屏关键路由加载命中矩阵与回退策略。

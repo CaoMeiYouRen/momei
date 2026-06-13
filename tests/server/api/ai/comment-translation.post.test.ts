@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import handler, { COMMENT_TRANSLATION_VISITOR_COOKIE_NAME } from './comment-translation.post'
+import handler, { COMMENT_TRANSLATION_VISITOR_COOKIE_NAME } from '@/server/api/ai/comment-translation.post'
 import { commentTranslationService } from '@/server/services/comment-translation'
 import { signCookieValue } from '@/server/utils/security'
 
