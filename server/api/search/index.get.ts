@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
         isSharedPublicResponse,
         loader: async () => {
             const postRepo = dataSource.getRepository(Post)
-            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'))
+            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'), { includeAuthorEmail: false })
 
             // 应用统一的文章可见性过滤逻辑
             try {

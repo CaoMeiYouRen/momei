@@ -118,7 +118,7 @@ export default defineEventHandler(async (event) => {
             }
 
             const postRepo = dataSource.getRepository(Post)
-            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'))
+            const qb = applyPostListSelect(postRepo.createQueryBuilder('post'), { includeAuthorEmail: false })
 
             // Handle Aggregation for Management Mode
             if (query.aggregate && query.scope === 'manage') {

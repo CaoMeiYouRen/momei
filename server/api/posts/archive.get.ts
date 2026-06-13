@@ -201,7 +201,7 @@ export default defineEventHandler(async (event) => {
         isSharedPublicResponse,
         loader: async () => {
             // Fetch posts for specific year/month with pagination
-            const postsQb = applyPostListSelect(postRepo.createQueryBuilder('post'))
+            const postsQb = applyPostListSelect(postRepo.createQueryBuilder('post'), { includeAuthorEmail: false })
 
             await applyCommonFilters(postsQb)
 
