@@ -39,11 +39,11 @@
 	- 当前进度：已完成（2026-06-13）。
 	- 交付摘要：marketing/send + posts/restore 2 端点 RouterParam Zod 校验（safeParse）；link-governance + scaffold-to-post 已有 schema 确认为已覆盖；新增 2 测试文件（refresh + restore）共 4 用例；POST/PUT 无 schema 端点从 27 降至实际可用缺口 ~5。
 
-- [ ] **主线：未使用 API 弃用标记 + 安全删除 (P0)**
+- [x] **主线：未使用 API 弃用标记 + 安全删除 (P0)**
 	- 执行范围：7 个零引用端点标记 `@deprecated` → 删除文件 → git revert 回滚锚点。
 	- 非目标：不删除有测试覆盖的端点。
-	- 当前进度：待开始。
-	- 最小验收：7 个端点全部删除；`pnpm lint` + `pnpm typecheck` 通过。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：实际删除 2 个（broadcast + theme-configs/put）；保留 5 个经前端引用验证（theme-configs delete/apply, posts/audit, snippets/convert, marketing/test 均有组件调用）；回滚锚点: `cf1a2035`。
 
 - [ ] **主线：第二轮未使用 API 扩大调研 (P1)**
 	- 执行范围：`subscriptions`、`waitlist/export`、`scaffold-to-post`、`versions/restore` 三层验证 + git 历史分析。
