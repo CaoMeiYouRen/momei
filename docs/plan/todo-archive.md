@@ -18,6 +18,44 @@
 
 ---
 
+## 第四十九阶段：延期清缴与流量治理 (已审计归档)
+
+> 归档说明: 第四十九阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。
+> 五条主线: Postgres 网络传输削减（89% 耗尽警戒）、formatDate 函数级复用、Phase C 延期测试回填、清理收口（vendor.css + backlog.md）、type 收敛 + 归档索引修正。
+> todo.md 当前执行面已清理，等待下一阶段候选池评估。
+
+### 1. Postgres 流量治理 — 网络传输削减 (P0)
+
+- 分析文档: `docs/design/governance/postgres-traffic-governance.md`
+- P0-1: posts/index+search+archive.get 设为 `includeAuthorEmail: false`（-3 列/行）
+- P0-2: post-detail-read.ts 移除 author.socialLinks/donationLinks
+- Settings 已有 60s 缓存, 31 次单 key=cache hit, 无需优化
+- 提交: `95dc1a0f`, `80dc313c`, `037b0856`
+
+### 2. formatDate 函数级复用 (P0)
+
+- 消除 6 处自定义 wrapper: campaigns.vue, external-links/index.vue, comment-item.vue, submissions/index.vue, friend-links/index.vue, use-admin-friend-links-page.ts
+- 保留 2 处有自定义 fallback: agreements-settings, legal-agreement-page
+- 提交: `793e5af4`, `e871b6c5`
+
+### 3. 延期测试回填 (P1)
+
+- Phase C: friend-links.test.ts 新增 3 用例（feed 渲染/空状态/降级）
+- Admin: friend-links/index.test.ts 新增 showRssFeed 标签测试
+- 提交: `7907b793`, `22609ca6`
+
+### 4. 清理收口 (P1)
+
+- vendor.css 空文件删除
+- backlog.md: 测试主线 Phase 44/49 更新、隐私分析 Phase 45-46 修正、artifact 清理
+- 提交: `455ced9c`, `370db523`
+
+### 5. type 收敛 + 归档索引修正 (P2)
+
+- AdAdapterConfig 统一至 types/ad.ts (12→11)
+- 归档索引计数已确认正确 (11+6+1)
+- 提交: `10eb6fff`, `e0d631cf`
+
 ## 第四十八阶段：深度治理与清理收口 (已审计归档)
 
 > 归档说明: 第四十八阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。

@@ -119,6 +119,34 @@
 
 <!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
 
+<!-- regression-window:start:phase49-close:第四十九阶段:2026-06-13 -->
+## 2026-06-13 第四十九阶段收口回归
+
+### 范围
+
+- 目标：第四十九阶段「延期清缴与流量治理」5 条优化主线交付后的阶段收口回归。
+- 本轮覆盖：全仓 typecheck + ESLint、5 条主线全部交付。
+
+### 验证结果
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| `pnpm typecheck` | Pass | 0 errors |
+| `pnpm lint` | Pass | 0 errors, 0 warnings |
+| todo-archive.md 滚动归档 | 完成 | Phase 49 归档块已写入 |
+| todo.md 状态 | 清理 | 执行面已清空 |
+
+### Phase 49 交付清单
+
+| 主线 | 交付 | 提交 |
+|------|------|------|
+| Postgres 流量治理 | includeAuthorEmail:false + 移除 JSON 字段 | `95dc1a0f`, `80dc313c` |
+| formatDate 复用 | 6 处自定义 wrapper 消除 | `793e5af4` |
+| 延期测试回填 | friend-links.test 3 用例 + admin checkbox | `7907b793` |
+| 清理收口 | vendor.css 删除 + backlog.md | `455ced9c` |
+| type 收敛 | AdAdapterConfig 统一 (12→11) | `10eb6fff` |
+<!-- regression-window:end:phase49-close:第四十九阶段:2026-06-13 -->
+
 <!-- regression-window:start:phase48-close:第四十八阶段:2026-06-13 -->
 ## 2026-06-13 第四十八阶段收口回归
 
