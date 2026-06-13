@@ -148,7 +148,7 @@ describe('useAdminFriendLinksPage', () => {
         expect(exposed.getLinkStatusSeverity(FriendLinkStatus.ACTIVE)).toBe('success')
         expect(exposed.getHealthStatusSeverity(FriendLinkHealthStatus.UNREACHABLE)).toBe('danger')
         expect(exposed.getApplicationStatusSeverity(FriendLinkApplicationStatus.REJECTED)).toBe('danger')
-        expect(exposed.formatDate('2025-01-01T00:00:00.000Z')).toBe('formatted:2025-01-01T00:00:00.000Z')
+        expect(exposed.formatDateTime('2025-01-01T00:00:00.000Z')).toBe('formatted:2025-01-01T00:00:00.000Z')
         expect(exposed.shouldSuggestReviewOrDisable(exposed.links.value[0]!)).toBe(true)
         expect(exposed.tt('pages.admin.friend_links.statuses.active')).toBe('pages.admin.friend_links.statuses.active')
     })

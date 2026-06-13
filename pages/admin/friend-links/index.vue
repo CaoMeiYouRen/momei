@@ -73,7 +73,7 @@
                 <Column field="sortOrder" :header="tt('pages.admin.friend_links.sort_order')" />
                 <Column field="lastCheckedAt" :header="tt('pages.admin.friend_links.last_checked_at')">
                     <template #body="{data}">
-                        {{ formatDate(data.lastCheckedAt) }}
+                        {{ formatDateTime(data.lastCheckedAt) }}
                     </template>
                 </Column>
                 <Column :header="$t('common.actions')">
@@ -175,7 +175,7 @@
                     <Column field="submittedIp" :header="tt('pages.admin.friend_links.submitted_ip')" />
                     <Column field="createdAt" :header="$t('common.created_at')">
                         <template #body="{data}">
-                            {{ formatDate(data.createdAt) }}
+                            {{ formatDateTime(data.createdAt) }}
                         </template>
                     </Column>
                     <Column field="status" :header="tt('pages.admin.friend_links.application_status')">
@@ -415,7 +415,7 @@
                     <div><strong>{{ tt('components.friend_links.fields.site_url') }}:</strong> {{ selectedApplication.url }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.reciprocal_url') }}:</strong> {{ selectedApplication.reciprocalUrl || '-' }}</div>
                     <div><strong>{{ tt('pages.admin.friend_links.submitted_ip') }}:</strong> {{ selectedApplication.submittedIp || '-' }}</div>
-                    <div><strong>{{ $t('common.created_at') }}:</strong> {{ formatDate(selectedApplication.createdAt) }}</div>
+                    <div><strong>{{ $t('common.created_at') }}:</strong> {{ formatDateTime(selectedApplication.createdAt) }}</div>
                 </div>
 
                 <div class="admin-friend-links__field admin-friend-links__field--full">
@@ -546,7 +546,7 @@ const {
     getLinkStatusSeverity,
     getHealthStatusSeverity,
     getApplicationStatusSeverity,
-    formatDate,
+    formatDateTime,
     shouldSuggestReviewOrDisable,
     loadLinks,
     openLinkDialog,

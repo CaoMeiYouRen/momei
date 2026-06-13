@@ -217,7 +217,7 @@
                 <div class="stat-item">
                     <label>{{ $t('common.created_at') }}</label>
                     <div class="stat-value">
-                        {{ formatDate(currentStats.createdAt) }}
+                        {{ formatDateTime(currentStats.createdAt, 'YYYY-MM-DD HH:mm') }}
                     </div>
                 </div>
             </div>
@@ -404,10 +404,6 @@ function getExternalLinkStatusSeverity(status: LinkStatus): string {
         default:
             return 'secondary'
     }
-}
-
-function formatDate(date: string): string {
-    return formatDateTime(date, 'YYYY-MM-DD HH:mm')
 }
 
 onMounted(() => {

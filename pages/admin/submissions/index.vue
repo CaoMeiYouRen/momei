@@ -64,7 +64,7 @@
 
                 <Column field="createdAt" :header="$t('pages.admin.submissions.created_at')">
                     <template #body="{data}">
-                        {{ formatDate(data.createdAt) }}
+                        {{ formatDateTime(data.createdAt) }}
                     </template>
                 </Column>
 
@@ -235,8 +235,6 @@ const {
     openDeleteDialog,
     resetDeleteDialog,
 } = useDeleteDialogState<any>()
-
-const formatDate = (date: string) => formatDateTime(date)
 
 const getSubmissionStatusSeverity = (status: SubmissionStatus) => {
     switch (status) {

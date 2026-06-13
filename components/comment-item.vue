@@ -52,7 +52,7 @@
                 </div>
                 <div class="comment-item__meta">
                     <time :datetime="comment.createdAt" class="comment-item__date">
-                        {{ formatDate(comment.createdAt) }}
+                        {{ formatDateTime(comment.createdAt, 'YYYY-MM-DD HH:mm') }}
                     </time>
                 </div>
             </div>
@@ -267,9 +267,6 @@ watch([
 }, { immediate: true })
 
 // 格式化日期
-const formatDate = (date: string) => {
-    return formatDateTime(date, 'YYYY-MM-DD HH:mm')
-}
 </script>
 
 <style lang="scss" scoped>

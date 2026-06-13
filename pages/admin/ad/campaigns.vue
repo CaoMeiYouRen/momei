@@ -42,7 +42,7 @@
                     :header="$t('pages.admin.ad.campaigns.start_date')"
                 >
                     <template #body="{data}">
-                        {{ formatDate(data.startDate) }}
+                        {{ data.startDate ? formatDateTime(data.startDate, 'YYYY-MM-DD HH:mm') : '-' }}
                     </template>
                 </Column>
                 <Column
@@ -50,7 +50,7 @@
                     :header="$t('pages.admin.ad.campaigns.end_date')"
                 >
                     <template #body="{data}">
-                        {{ formatDate(data.endDate) }}
+                        {{ data.endDate ? formatDateTime(data.endDate, 'YYYY-MM-DD HH:mm') : '-' }}
                     </template>
                 </Column>
                 <Column
@@ -326,11 +326,6 @@ function getAdCampaignStatusSeverity(status: CampaignStatus): string {
         default:
             return 'secondary'
     }
-}
-
-function formatDate(date: string | null): string {
-    if (!date) return '-'
-    return formatDateTime(date, 'YYYY-MM-DD HH:mm')
 }
 </script>
 

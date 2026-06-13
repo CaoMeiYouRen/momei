@@ -191,8 +191,6 @@ export function useAdminFriendLinksPage() {
         }
     }
 
-    const formatDate = (value?: string | null) => formatDateTime(value)
-
     const shouldSuggestReviewOrDisable = (item: FriendLinkItem) => item.status === FriendLinkStatus.ACTIVE && item.healthStatus === FriendLinkHealthStatus.UNREACHABLE
 
     const loadLinks = async () => {
@@ -454,7 +452,7 @@ export function useAdminFriendLinksPage() {
         getLinkStatusSeverity,
         getHealthStatusSeverity,
         getApplicationStatusSeverity,
-        formatDate,
+        formatDateTime,
         shouldSuggestReviewOrDisable,
         loadLinks,
         openLinkDialog,
