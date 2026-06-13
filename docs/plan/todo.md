@@ -39,11 +39,11 @@
 	- 当前进度：已完成（2026-06-13）。
 	- 交付摘要：friend-links.test.ts 新增 3 用例（feed 渲染/空状态/降级），15→18 全部通过；admin-friend-links/index.test.ts 新增 showRssFeed 标签测试（页面测试基础设施限制，最佳努力交付）；≥3 达标。
 
-- [ ] **主线：清理收口 (P1)**
+- [x] **主线：清理收口 (P1)**
 	- 执行范围：`subscriptions` 删除、`vendor.css` 清理、backlog.md 清理（Blogroll #12、隐私分析状态、Phase 47/48 方向修正）。
 	- 非目标：不新增删除未确认端点。
-	- 当前进度：待开始。
-	- 最小验收：清理项全部完成，backlog.md 无 Phase 44-48 残留。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：vendor.css 删除（空文件）；backlog.md 清理（测试主线 Phase 44/49 记录更新、隐私分析 Phase 45-46 状态修正、合并 artifact 清理）；user/subscription 确认为用户订阅管理端点，保留。
 
 - [ ] **主线：type 收敛 + 归档索引修正 (P2)**
 	- 执行范围：同名 type/interface 12→≤10；`governance/archive/index.md` 计数同步。
