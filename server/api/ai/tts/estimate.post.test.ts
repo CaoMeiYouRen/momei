@@ -29,14 +29,13 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should return structured estimate contract', async () => {
-        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => {
-            void validator({
-                provider: 'openai',
-                voice: 'alloy',
-                text: 'Hello world',
-                mode: 'speech',
-            })
-        })
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
+            provider: 'openai',
+            voice: 'alloy',
+            text: 'Hello world',
+            mode: 'speech',
+        }))
         vi.mocked(calculateQuotaUnits).mockReturnValue(12)
         vi.mocked(TTSService.estimateCostBreakdown).mockResolvedValue({
             quotaUnits: 12,
@@ -83,13 +82,12 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should reject missing voice or text', async () => {
-        vi.mocked(readValidatedBody).mockImplementation((_event, validator) => {
-            void validator({
-                provider: 'openai',
-                voice: '',
-                text: '',
-            })
-        })
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
+            provider: 'openai',
+            voice: '',
+            text: '',
+        }))
 
         await expect(handler({ context: {} } as any)).rejects.toMatchObject({
             name: 'ZodError',
