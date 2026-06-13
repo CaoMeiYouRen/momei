@@ -212,16 +212,12 @@
 import { formatDecimal } from '@/utils/shared/number'
 import { formatAICost } from '@/utils/shared/ai-cost'
 import { getAIChargeStatusSeverity, getAITaskStatusSeverity, getAITaskTypeIcon } from '@/utils/shared/ai-admin'
+import type { AdminAiPageEvent } from '@/composables/use-admin-ai-page'
 import type {
     AIAdminTaskListFilters,
     AIAdminTaskListItem,
     AICostDisplay,
 } from '@/types/ai'
-
-type AdminAiPageEvent = {
-    page: number
-    rows: number
-}
 
 const props = defineProps<{
     tasks: AIAdminTaskListItem[]

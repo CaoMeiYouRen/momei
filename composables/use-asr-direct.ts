@@ -1,18 +1,11 @@
 import { computed, onUnmounted, ref } from 'vue'
-import type { ASRCredentials, ASRMode, ASRProvider, CompressionLevel } from '~/types/asr'
+import type { ASRCredentials, ASRDirectOptions, ASRMode, ASRProvider, CompressionLevel } from '~/types/asr'
 import {
     hasASRCredentialsExpired,
     shouldRefreshASRCredentials,
 } from '~/utils/shared/asr-credential-window'
 import { float32ToPcmInt16 } from '~/utils/web/audio-compression'
 import { isRecord } from '~/utils/shared/is-record'
-
-export interface ASRDirectOptions {
-    provider: ASRProvider
-    mode: ASRMode
-    language?: string
-    compressionLevel?: CompressionLevel
-}
 
 interface VolcengineResponsePacket {
     type: 'response'

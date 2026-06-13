@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { DEMO_TOUR_QUEUE_KEY } from '@/composables/use-onboarding'
+import { DEMO_TOUR_QUEUE_KEY, type DemoTourStage } from '@/composables/use-onboarding'
 
 const DEMO_BANNER_COLLAPSED_KEY = 'momei_demo_banner_collapsed'
 
@@ -71,8 +71,6 @@ const config = useRuntimeConfig()
 const { t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
-
-type DemoTourStage = 'public' | 'login' | 'editor'
 
 const currentStage = computed<DemoTourStage>(() => {
     if (route.path.includes('/admin')) {

@@ -9,7 +9,7 @@ interface TourStep {
     onHighlighted?: () => void
 }
 
-type DemoTourStage = 'public' | 'login' | 'editor'
+export type DemoTourStage = 'public' | 'login' | 'editor'
 
 interface DemoTourDriver {
     setSteps: (steps: TourStep[]) => void

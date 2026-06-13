@@ -10,7 +10,7 @@ import type {
     AICostDisplay,
 } from '@/types/ai'
 
-interface AdminAiPageEvent {
+export interface AdminAiPageEvent {
     page: number
     rows: number
 }
