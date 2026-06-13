@@ -1,10 +1,8 @@
 import type { H3Event } from 'h3'
 import { AdPlacement } from '@/server/entities/ad-placement'
+import type { AdAdapterConfig } from '@/types/ad'
 
-/**
- * 广告适配器配置接口
- */
-export type AdAdapterConfig = Record<string, unknown>
+export type { AdAdapterConfig }
 
 /**
  * 广告适配器错误类
