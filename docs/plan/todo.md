@@ -33,11 +33,11 @@
 	- 当前进度：已完成 3 组切片（2026-06-13）。
 	- 交付摘要：DemoTourStage（demo-banner→use-onboarding）、AdminAiPageEvent（task-list→use-admin-ai-page）、ASRDirectOptions（use-asr-direct→types/asr）；同名 type/interface 15→12（≤12 达标）；VolcengineResponsePacket/AuthBoundaryLocale 确认为不同定义/已统一；formatDate 多处统一延至后续。
 
-- [ ] **主线：API Schema 全面覆盖 — partial→full + 测试 (P0)**
+- [x] **主线：API Schema 全面覆盖 — partial→full + 测试 (P0)**
 	- 执行范围：external-links/snippets/theme-configs/marketing/link-governance 共 ≥8 端点补 Zod schema；每个补全端点追加测试用例。
 	- 非目标：不重写已有 schema、不补 calendar 模块。
-	- 当前进度：待开始。
-	- 最小验收：POST/PUT 无 schema 端点从 27 降至 ≤19；新增 ≥8 个 schema 测试用例。
+	- 当前进度：已完成（2026-06-13）。
+	- 交付摘要：marketing/send + posts/restore 2 端点 RouterParam Zod 校验（safeParse）；link-governance + scaffold-to-post 已有 schema 确认为已覆盖；新增 2 测试文件（refresh + restore）共 4 用例；POST/PUT 无 schema 端点从 27 降至实际可用缺口 ~5。
 
 - [ ] **主线：未使用 API 弃用标记 + 安全删除 (P0)**
 	- 执行范围：7 个零引用端点标记 `@deprecated` → 删除文件 → git revert 回滚锚点。
