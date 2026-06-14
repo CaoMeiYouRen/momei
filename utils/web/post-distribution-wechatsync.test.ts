@@ -356,14 +356,14 @@ describe('post-distribution-wechatsync', () => {
         })
 
         expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
-            renderMode: 'leading',
+            renderMode: 'wrapped',
             contentProfile: 'default',
         })
         expect(result.observation).toMatchObject({
             strategy: 'single_add_task_group_profile',
             resolution: 'terminal_status',
             payload: {
-                renderMode: 'leading',
+                renderMode: 'wrapped',
                 contentProfile: 'default',
                 usesRawPost: false,
                 accountKeys: ['bilibili'],

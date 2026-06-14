@@ -60,12 +60,12 @@ describe('post-distribution-preview', () => {
         expect(groups).toHaveLength(3)
         expect(bilibiliPreview).toBeTruthy()
         expect(bilibiliPreview?.accountsLabel).toBe('B 站专栏')
-        expect(bilibiliPreview?.tagLine).toBe('#Nuxt #Vue')
+        expect(bilibiliPreview?.tagLine).toBe('#Nuxt# #Vue#')
         expect(bilibiliPreview?.bodyMarkdown).toBe(post.content)
         expect(bilibiliPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
         expect(bilibiliPreview?.finalMarkdown).toContain(post.content)
         expect(bilibiliPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
-        expect(bilibiliPreview?.finalMarkdown).toContain('#Nuxt #Vue')
+        expect(bilibiliPreview?.finalMarkdown).toContain('#Nuxt# #Vue#')
 
         expect(weiboPreview).toBeTruthy()
         expect(weiboPreview?.accountsLabel).toBe('微博专栏')
@@ -89,7 +89,7 @@ describe('post-distribution-preview', () => {
         )
     })
 
-    it('keeps memos preview and bilibili preview aligned when tag names contain spaces', () => {
+    it('keeps bilibili wrapped tags consistent when tag names contain spaces', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,
             tags: [
@@ -106,8 +106,8 @@ describe('post-distribution-preview', () => {
         ]))
 
         expect(memosPreview.tagLine).toBe('#Nuxt3 #Vue')
-        expect(bilibiliPreview?.tagLine).toBe(memosPreview.tagLine)
-        expect(bilibiliPreview?.finalMarkdown).toContain(memosPreview.tagLine)
+        expect(bilibiliPreview?.tagLine).toBe('#Nuxt3# #Vue#')
+        expect(bilibiliPreview?.finalMarkdown).toContain('#Nuxt3# #Vue#')
     })
 
     it('builds a dedicated wechat_mp preview profile for official account channels', () => {

@@ -31,7 +31,7 @@ describe('post distribution wechatsync helpers', () => {
             { id: 'bilibili', type: 'bilibili_article', title: 'B 站专栏', checked: true },
         ])).toEqual({
             strategy: 'single_add_task_group_profile',
-            renderMode: 'leading',
+            renderMode: 'wrapped',
             contentProfile: 'default',
             usesRawPost: false,
         })
