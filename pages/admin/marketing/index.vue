@@ -64,6 +64,7 @@
             <MarketingCampaignList
                 ref="listRef"
                 @edit="handleEdit"
+                @changed="loadStats"
             />
         </div>
 

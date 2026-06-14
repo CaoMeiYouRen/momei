@@ -3,6 +3,13 @@
         "admin": {
             "marketing": {
                 "actions": {
+                    "cancel_failed": "予約配信のキャンセルに失敗しました",
+                    "cancel_scheduled": "予約配信をキャンセル",
+                    "cancel_success": "予約配信をキャンセルしました",
+                    "delete": "配信を削除",
+                    "delete_confirm_message": "この配信を削除してもよろしいですか？この操作は元に戻せません。",
+                    "delete_failed": "配信の削除に失敗しました",
+                    "delete_success": "配信を削除しました",
                     "send_failed": "配信開始に失敗しました",
                     "send_now": "今すぐ送信",
                     "send_success": "配信タスクを開始しました"

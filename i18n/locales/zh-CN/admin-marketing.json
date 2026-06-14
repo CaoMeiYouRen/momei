@@ -3,6 +3,13 @@
         "admin": {
             "marketing": {
                 "actions": {
+                    "cancel_failed": "取消推送失败",
+                    "cancel_scheduled": "取消定时推送",
+                    "cancel_success": "已取消定时推送",
+                    "delete": "删除推送",
+                    "delete_confirm_message": "确定要删除该推送记录吗？此操作不可恢复。",
+                    "delete_failed": "删除推送失败",
+                    "delete_success": "推送记录已删除",
                     "send_failed": "启动推送失败",
                     "send_now": "立即发送",
                     "send_success": "推送任务已启动"

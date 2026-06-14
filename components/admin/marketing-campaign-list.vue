@@ -64,13 +64,36 @@
                             icon="pi pi-send"
                             severity="success"
                             size="small"
+                            :loading="isProcessing(slotProps.data.id)"
+                            :disabled="isProcessing(slotProps.data.id)"
                             @click="handleSend(slotProps.data.id)"
+                        />
+                        <Button
+                            v-if="slotProps.data.status === 'SCHEDULED'"
+                            v-tooltip.top="$t('pages.admin.marketing.actions.cancel_scheduled')"
+                            icon="pi pi-stop-circle"
+                            severity="warn"
+                            size="small"
+                            :loading="isProcessing(slotProps.data.id)"
+                            :disabled="isProcessing(slotProps.data.id)"
+                            @click="handleCancel(slotProps.data.id)"
                         />
                         <Button
                             icon="pi pi-pencil"
                             severity="secondary"
                             size="small"
+                            :disabled="isProcessing(slotProps.data.id)"
                             @click="$emit('edit', slotProps.data.id)"
+                        />
+                        <Button
+                            v-if="slotProps.data.status !== 'SENDING'"
+                            v-tooltip.top="$t('pages.admin.marketing.actions.delete')"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            size="small"
+                            :loading="isProcessing(slotProps.data.id)"
+                            :disabled="isProcessing(slotProps.data.id)"
+                            @click="handleDelete(slotProps.data.id)"
                         />
                     </div>
                 </template>
@@ -88,16 +111,20 @@
 <script setup lang="ts">
 import type { MarketingCampaign, PaginatedData } from '@/types/marketing'
 import type { ApiResponse } from '@/types/api'
+import { useConfirm } from 'primevue/useconfirm'
 
 const { t } = useI18n()
 const toast = useToast()
+const confirm = useConfirm()
 const { formatDate } = useI18nDate()
+const emit = defineEmits(['edit', 'changed'])
 
 const items = ref<MarketingCampaign[]>([])
 const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
 const loading = ref(true)
+const processingIds = ref<string[]>([])
 
 const loadData = async () => {
     loading.value = true
@@ -128,6 +155,18 @@ const onPage = (event: { page: number }) => {
     loadData()
 }
 
+const startProcessing = (id: string) => {
+    if (!processingIds.value.includes(id)) {
+        processingIds.value = [...processingIds.value, id]
+    }
+}
+
+const stopProcessing = (id: string) => {
+    processingIds.value = processingIds.value.filter((itemId) => itemId !== id)
+}
+
+const isProcessing = (id: string) => processingIds.value.includes(id)
+
 const getMarketingCampaignStatusSeverity = (status: string) => {
     switch (status) {
         case 'COMPLETED': return 'success'
@@ -139,6 +178,7 @@ const getMarketingCampaignStatusSeverity = (status: string) => {
 }
 
 const handleSend = async (id: string) => {
+    startProcessing(id)
     try {
         await $fetch(`/api/admin/marketing/campaigns/${id}/send`, {
             method: 'POST',
@@ -158,14 +198,76 @@ const handleSend = async (id: string) => {
             detail: t('pages.admin.marketing.actions.send_failed'),
             life: 3000,
         })
+    } finally {
+        stopProcessing(id)
     }
+}
+
+const handleCancel = async (id: string) => {
+    startProcessing(id)
+    try {
+        await $fetch(`/api/admin/marketing/campaigns/${id}/cancel`, {
+            method: 'POST',
+        })
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.marketing.actions.cancel_success'),
+            life: 3000,
+        })
+        await loadData()
+        emit('changed')
+    } catch (e) {
+        console.error('Failed to cancel campaign:', e)
+        toast.add({
+            severity: 'error',
+            summary: t('common.error'),
+            detail: t('pages.admin.marketing.actions.cancel_failed'),
+            life: 3000,
+        })
+    } finally {
+        stopProcessing(id)
+    }
+}
+
+const handleDelete = (id: string) => {
+    confirm.require({
+        message: t('pages.admin.marketing.actions.delete_confirm_message'),
+        header: t('common.confirm_delete'),
+        icon: 'pi pi-exclamation-triangle',
+        accept: async () => {
+            startProcessing(id)
+            try {
+                await $fetch(`/api/admin/marketing/campaigns/${id}`, {
+                    method: 'DELETE',
+                })
+                toast.add({
+                    severity: 'success',
+                    summary: t('common.success'),
+                    detail: t('pages.admin.marketing.actions.delete_success'),
+                    life: 3000,
+                })
+                await loadData()
+                emit('changed')
+            } catch (e) {
+                console.error('Failed to delete campaign:', e)
+                toast.add({
+                    severity: 'error',
+                    summary: t('common.error'),
+                    detail: t('pages.admin.marketing.actions.delete_failed'),
+                    life: 3000,
+                })
+            } finally {
+                stopProcessing(id)
+            }
+        },
+    })
 }
 
 onMounted(() => {
     loadData()
 })
 
-defineEmits(['edit'])
 defineExpose({ refresh: loadData })
 </script>
 

@@ -3,6 +3,13 @@
         "admin": {
             "marketing": {
                 "actions": {
+                    "cancel_failed": "예약 캠페인 취소에 실패했습니다",
+                    "cancel_scheduled": "예약 발송 취소",
+                    "cancel_success": "예약 발송을 취소했습니다",
+                    "delete": "캠페인 삭제",
+                    "delete_confirm_message": "이 캠페인을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                    "delete_failed": "캠페인 삭제에 실패했습니다",
+                    "delete_success": "캠페인을 삭제했습니다",
                     "send_failed": "캠페인 시작에 실패했습니다",
                     "send_now": "지금 발송",
                     "send_success": "캠페인 작업이 시작되었습니다"
