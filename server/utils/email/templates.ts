@@ -10,6 +10,7 @@ import { loadEmailShellMessages } from './locale'
 import { getLocalizedSetting, resolveSetting } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import { htmlToPlainText } from '@/server/utils/html'
+import { SITE_URL } from '@/utils/shared/env'
 
 type EmailTemplateData = Record<string, string | number | boolean>
 
@@ -50,6 +51,7 @@ interface TemplateOptions {
     title: string
     preheader?: string
     locale?: string | null
+    greeting?: string
 }
 
 type FooterNoteKind = 'default' | 'code' | 'marketing'
@@ -191,9 +193,13 @@ export class EmailTemplateEngine {
             ? resolvedSiteName.value.trim()
             : ''
         const appName = localizedSiteTitleValue || siteNameValue || '墨梅博客'
-        const baseUrl = typeof resolvedSiteUrl.value === 'string' && resolvedSiteUrl.value.trim().length > 0
-            ? resolvedSiteUrl.value.trim().replace(/\/$/, '')
+        const resolvedSiteUrlValue = typeof resolvedSiteUrl.value === 'string'
+            ? resolvedSiteUrl.value.trim()
             : ''
+        const fallbackSiteUrl = typeof SITE_URL === 'string'
+            ? SITE_URL.trim()
+            : ''
+        const baseUrl = (resolvedSiteUrlValue || fallbackSiteUrl).replace(/\/$/, '')
         const contactEmail = typeof resolvedContactEmail.value === 'string' && resolvedContactEmail.value.trim().length > 0
             ? resolvedContactEmail.value.trim()
             : 'contact@momei.app'
@@ -211,7 +217,7 @@ export class EmailTemplateEngine {
             currentYear: dayjs().year(),
             headerIcon: config.headerIcon,
             headerSubtitle: shellMessages.headerSubtitle,
-            greeting: shellMessages.greeting,
+            greeting: options.greeting ?? shellMessages.greeting,
             helpText: shellMessages.helpText,
             contactLinkLabel: shellMessages.contactLinkLabel,
             privacyPolicyLabel: shellMessages.privacyPolicyLabel,

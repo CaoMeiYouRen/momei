@@ -117,6 +117,24 @@ describe('email template engine', () => {
         expect(result.text).not.toContain('{{reminderContent}}')
     })
 
+    it('supports overriding greeting and keeps action url clickable in footer link section', async () => {
+        const result = await emailTemplateEngine.generateActionEmailTemplate({
+            headerIcon: '🔐',
+            message: '请点击按钮完成邮箱验证。',
+            buttonText: '立即验证',
+            actionUrl: 'https://momei.app/verify?token=abc',
+            reminderContent: '验证链接仅可使用一次。',
+        }, {
+            title: '邮箱验证',
+            preheader: '请完成邮箱验证',
+            locale: 'zh-CN',
+            greeting: '',
+        })
+
+        expect(result.html).not.toContain('您好！')
+        expect(result.html).toContain('<a href="https://momei.app/verify?token=abc"')
+    })
+
     it('renders code emails with verification code and localized expiry copy', async () => {
         const result = await emailTemplateEngine.generateCodeEmailTemplate({
             headerIcon: '🔢',
@@ -229,5 +247,57 @@ describe('email template engine', () => {
         expect(result.html).not.toContain('验证码仅供本次操作使用')
         expect(result.html).not.toContain('undefined/privacy')
         expect(result.html).not.toContain('undefined/terms')
+    })
+
+    it('falls back to runtime site url for footer legal links when site_url setting is empty', async () => {
+        vi.mocked(resolveSetting).mockImplementation((key: string) => {
+            if (key === 'site_url') {
+                return Promise.resolve({
+                    key,
+                    value: '',
+                    description: '',
+                    level: 0,
+                    maskType: 'none',
+                    source: 'db',
+                    isLocked: false,
+                    envKey: null,
+                    defaultValue: null,
+                    defaultUsed: false,
+                    lockReason: null,
+                    requiresRestart: false,
+                    localized: null,
+                })
+            }
+
+            return Promise.resolve({
+                key,
+                value: key === 'contact_email' ? 'contact@momei.app' : 'Momei',
+                description: '',
+                level: 0,
+                maskType: key === 'contact_email' ? 'email' : 'none',
+                source: 'db',
+                isLocked: false,
+                envKey: null,
+                defaultValue: null,
+                defaultUsed: false,
+                lockReason: null,
+                requiresRestart: false,
+                localized: null,
+            })
+        })
+
+        const result = await emailTemplateEngine.generateSimpleMessageTemplate({
+            headerIcon: '🛡️',
+            message: '欢迎使用邮件模板预览。',
+        }, {
+            title: '测试邮件',
+            preheader: '测试摘要',
+            locale: 'zh-CN',
+        })
+
+        expect(result.html).toContain('http://localhost:3000/privacy')
+        expect(result.html).toContain('http://localhost:3000/terms')
+        expect(result.html).not.toContain('href="/privacy"')
+        expect(result.html).not.toContain('href="/terms"')
     })
 })

@@ -32,5 +32,5 @@ export function plainTextToHtml(input: string): string {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll('\'', '&#39;')
-        .replace(/\n/gu, '<br/>')
+        .replace(/\r\n|\r|\n/gu, '<br/>')
 }

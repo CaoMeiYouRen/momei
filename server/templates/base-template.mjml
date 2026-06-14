@@ -21,6 +21,8 @@
         border-radius: 8px !important;
         margin: 20px 0 !important;
         word-break: break-all !important;
+        overflow-wrap: anywhere !important;
+        line-break: anywhere !important;
         color: {{primaryColor}} !important;
         font-family: 'Fira Code', 'JetBrains Mono', monospace !important;
       }

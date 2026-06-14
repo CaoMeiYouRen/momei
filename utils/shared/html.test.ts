@@ -12,5 +12,6 @@ describe('shared html utilities', () => {
 
     it('escapes plain text for html output while preserving line breaks', () => {
         expect(plainTextToHtml('A&B\n<C>')).toBe('A&amp;B<br/>&lt;C&gt;')
+        expect(plainTextToHtml('line1\r\nline2\rline3')).toBe('line1<br/>line2<br/>line3')
     })
 })

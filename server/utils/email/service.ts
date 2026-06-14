@@ -25,6 +25,7 @@ interface SendActionTemplateEmailOptions {
     actionUrl: string
     defaultButtonText?: string
     params?: Record<string, unknown>
+    greeting?: string
 }
 
 interface SendCodeTemplateEmailOptions {
@@ -96,6 +97,7 @@ async function sendActionTemplateEmail(options: SendActionTemplateEmailOptions):
                 title: template.title,
                 preheader: template.preheader,
                 locale: options.locale,
+                greeting: options.greeting,
             },
         ),
     })
@@ -287,6 +289,7 @@ export const emailService = {
                     title: template.title,
                     preheader: template.preheader,
                     locale,
+                    greeting: '',
                 },
             ),
         })
@@ -303,6 +306,7 @@ export const emailService = {
             logType: 'subscription-confirm',
             actionUrl: '/',
             defaultButtonText: '访问博客',
+            greeting: '',
         })
     },
 
@@ -346,9 +350,9 @@ export const emailService = {
                     title: template.title,
                     preheader: template.preheader,
                     locale,
+                    greeting: '',
                 },
             ),
         })
     },
 }
-

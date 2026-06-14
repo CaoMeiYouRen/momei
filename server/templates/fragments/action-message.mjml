@@ -33,5 +33,7 @@
   background-color="#f7fafc"
   css-class="code-box"
 >
-  {{actionUrl}}
+  <a href="{{actionUrl}}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; word-break: break-all; overflow-wrap: anywhere; line-break: anywhere;">
+    {{actionUrl}}
+  </a>
 </mj-text>

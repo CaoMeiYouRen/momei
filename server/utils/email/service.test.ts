@@ -370,7 +370,12 @@ describe('server/utils/email/service', () => {
 
             await emailService.sendSubscriptionConfirmation(email)
 
-            expect(emailTemplateEngine.generateActionEmailTemplate).toHaveBeenCalled()
+            expect(emailTemplateEngine.generateActionEmailTemplate).toHaveBeenCalledWith(
+                expect.any(Object),
+                expect.objectContaining({
+                    greeting: '',
+                }),
+            )
             expect(sendEmail).toHaveBeenCalledWith({
                 to: email,
                 subject: expect.stringContaining('订阅'),
@@ -410,7 +415,9 @@ describe('server/utils/email/service', () => {
                     message: expect.stringContaining('本文链接: https://momei.app/posts/test-post<br/>版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） 许可协议。转载请注明出处！'),
                     articleTitle: '测试文章',
                 }),
-                expect.any(Object),
+                expect.objectContaining({
+                    greeting: '',
+                }),
             )
             expect(sendEmail).toHaveBeenCalledWith({
                 to: email,
