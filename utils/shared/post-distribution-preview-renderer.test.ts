@@ -67,4 +67,41 @@ describe('post-distribution-preview-renderer', () => {
         expect(html).toContain('border-collapse:collapse')
         expect(html).toContain('<td style=')
     })
+
+    it('renders wechat_mp references section in template style', () => {
+        const html = renderDistributionPreviewHtml(
+            '## 引用链接\n\n1. 墨梅博客: `https://momei.app`\n2. 草梅友仁的博客: `https://blog.cmyr.ltd`',
+            'empty',
+            { contentProfile: 'wechat_mp' },
+        )
+
+        expect(html).toContain('<h4 style=')
+        expect(html).toContain('font-size:80%')
+        expect(html).toContain('<code style="font-size: 90%; opacity: 0.6;">[1]</code>')
+        expect(html).toContain('<i>https://momei.app</i>')
+        expect(html).not.toContain('<ol')
+    })
+
+    it('styles wechat_mp inline reference markers in body content', () => {
+        const html = renderDistributionPreviewHtml(
+            '本文链接: 链接[12]\n\n版权声明: 协议[13] 许可。',
+            'empty',
+            { contentProfile: 'wechat_mp' },
+        )
+
+        expect(html).toContain('<span style="text-align:left;line-height:1.75;color:#576b95">链接<sup style=')
+        expect(html).toContain('[12]</sup></span>')
+        expect(html).toContain('协议<sup style=')
+    })
+
+    it('keeps full url label when styling inline reference markers', () => {
+        const html = renderDistributionPreviewHtml(
+            '来源: https://momei.app/posts/aliyun-openapi-manage-cdn[12]',
+            'empty',
+            { contentProfile: 'wechat_mp' },
+        )
+
+        expect(html).toContain('https://momei.app/posts/aliyun-openapi-manage-cdn<sup style=')
+        expect(html).not.toContain('https: <span')
+    })
 })

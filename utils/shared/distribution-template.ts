@@ -332,7 +332,7 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
             const referenceIndex = addWechatMpReference(references, indexByUrl, normalizedUrl, label)
 
             if (isAbsoluteHttpUrl(label)) {
-                return `${label} [${referenceIndex}]`
+                return `链接[${referenceIndex}]`
             }
 
             return `${label}[${referenceIndex}]`

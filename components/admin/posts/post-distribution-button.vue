@@ -106,6 +106,13 @@
                     @click="copyExpandedPreviewContent"
                 />
                 <Button
+                    v-if="expandedPreview?.channel === 'wechatsync' && expandedPreview?.contentProfile === 'wechat_mp'"
+                    :label="$t('pages.admin.posts.distribution.preview.copy_rendered_html')"
+                    icon="pi pi-code"
+                    severity="contrast"
+                    @click="copyExpandedPreviewRenderedHtml"
+                />
+                <Button
                     :label="$t('common.close')"
                     text
                     severity="secondary"
@@ -493,6 +500,7 @@ const {
     canRetry,
     closeExpandedPreview,
     copyExpandedPreviewContent,
+    copyExpandedPreviewRenderedHtml,
     dialogVisible,
     dispatchHexoRepositorySync,
     dispatchMemos,

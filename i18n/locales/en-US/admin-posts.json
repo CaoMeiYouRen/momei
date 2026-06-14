@@ -156,7 +156,10 @@
                         "tags": "Tag tail",
                         "copy_formatted_content": "Copy formatted content",
                         "copy_formatted_success": "Formatted Official Account content copied",
-                        "copy_formatted_failed": "Failed to copy formatted content"
+                        "copy_formatted_failed": "Failed to copy formatted content",
+                        "copy_rendered_html": "Copy rendered HTML",
+                        "copy_rendered_html_success": "Rendered HTML copied",
+                        "copy_rendered_html_failed": "Failed to copy rendered HTML"
                     },
                     "retry": "Retry",
                     "start_wechatsync": "Start WechatSync Delivery",

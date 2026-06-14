@@ -160,7 +160,10 @@
                         "tags": "태그 꼬리말",
                         "copy_formatted_content": "서식 적용 콘텐츠 복사",
                         "copy_formatted_success": "微信公众号용 서식 콘텐츠를 복사했습니다",
-                        "copy_formatted_failed": "서식 적용 콘텐츠 복사에 실패했습니다"
+                        "copy_formatted_failed": "서식 적용 콘텐츠 복사에 실패했습니다",
+                        "copy_rendered_html": "렌더링된 HTML 복사",
+                        "copy_rendered_html_success": "렌더링된 HTML을 복사했습니다",
+                        "copy_rendered_html_failed": "렌더링된 HTML 복사에 실패했습니다"
                     },
                     "start_wechatsync": "WechatSync 배포 시작",
                     "status": {

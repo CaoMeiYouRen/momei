@@ -189,7 +189,7 @@ describe('distribution-template', () => {
     it('converts markdown and bare external links to end references for wechat_mp payloads', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,
-            content: '外链示例：https://github.com/CaoMeiYouRen/momei\n\n微信内链：https://mp.weixin.qq.com/s/example\n\n重复外链：https://github.com/CaoMeiYouRen/momei\n\nMarkdown 外链：[RSSHub](https://github.com/DIYgod/RSSHub)',
+            content: '外链示例：https://github.com/CaoMeiYouRen/momei\n\n微信内链：https://mp.weixin.qq.com/s/example\n\n重复外链：https://github.com/CaoMeiYouRen/momei\n\nMarkdown 外链：[RSSHub](https://github.com/DIYgod/RSSHub)\n\nURL 标签外链：[https://letsencrypt.org](https://letsencrypt.org)',
         }, {
             siteUrl: 'https://momei.app',
             defaultLicense: 'all-rights-reserved',
@@ -202,6 +202,8 @@ describe('distribution-template', () => {
 
         expect(wechatMpPost.markdown).toContain('链接[')
         expect(wechatMpPost.markdown).toContain('RSSHub[')
+        expect(wechatMpPost.markdown).not.toContain('链接[1] [1]')
+        expect(wechatMpPost.markdown).toContain('https://letsencrypt.org[')
         expect(wechatMpPost.markdown).toContain('https://mp.weixin.qq.com/s/example')
         expect(wechatMpPost.markdown).toContain('## 引用链接')
         expect(wechatMpPost.markdown).toContain('链接: `https://')

@@ -160,7 +160,10 @@
                         "tags": "标签尾注",
                         "copy_formatted_content": "复制排版后内容",
                         "copy_formatted_success": "已复制公众号排版内容",
-                        "copy_formatted_failed": "复制排版内容失败"
+                        "copy_formatted_failed": "复制排版内容失败",
+                        "copy_rendered_html": "复制渲染后 HTML",
+                        "copy_rendered_html_success": "已复制渲染后 HTML",
+                        "copy_rendered_html_failed": "复制渲染后 HTML 失败"
                     },
                     "start_wechatsync": "开始 WechatSync 投递",
                     "status": {

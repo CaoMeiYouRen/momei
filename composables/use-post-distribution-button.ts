@@ -135,20 +135,19 @@ function createExpandedPreviewController(options: {
         openExpandedPreview(createWechatSyncExpandedPreview(group, options.t))
     }
 
-    async function copyExpandedPreviewContent() {
-        const currentPreview = options.expandedPreview.value
+    function resolveCurrentPreviewRenderResult(currentPreview: ExpandedDistributionPreview | null) {
         if (!currentPreview?.finalMarkdown?.trim()) {
             options.showErrorToast(new Error(options.t('pages.admin.posts.distribution.preview.empty')), {
                 fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
             })
-            return
+            return null
         }
 
         if (!import.meta.client || !navigator.clipboard) {
             options.showErrorToast(new Error(options.t('common.error_loading')), {
                 fallbackKey: 'pages.admin.posts.distribution.preview.copy_formatted_failed',
             })
-            return
+            return null
         }
 
         const markdown = currentPreview.finalMarkdown.trim()
@@ -157,6 +156,21 @@ function createExpandedPreviewController(options: {
             options.t('pages.admin.posts.distribution.preview.empty'),
             { contentProfile: currentPreview.contentProfile },
         )
+
+        return {
+            markdown,
+            html,
+        }
+    }
+
+    async function copyExpandedPreviewContent() {
+        const currentPreview = options.expandedPreview.value
+        const renderResult = resolveCurrentPreviewRenderResult(currentPreview)
+        if (!renderResult) {
+            return
+        }
+
+        const { markdown, html } = renderResult
 
         try {
             if (typeof navigator.clipboard.write === 'function' && typeof ClipboardItem !== 'undefined') {
@@ -177,8 +191,26 @@ function createExpandedPreviewController(options: {
         }
     }
 
+    async function copyExpandedPreviewRenderedHtml() {
+        const currentPreview = options.expandedPreview.value
+        const renderResult = resolveCurrentPreviewRenderResult(currentPreview)
+        if (!renderResult) {
+            return
+        }
+
+        try {
+            await navigator.clipboard.writeText(renderResult.html)
+            options.showSuccessToast('pages.admin.posts.distribution.preview.copy_rendered_html_success')
+        } catch (error) {
+            options.showErrorToast(error, {
+                fallbackKey: 'pages.admin.posts.distribution.preview.copy_rendered_html_failed',
+            })
+        }
+    }
+
     return {
         copyExpandedPreviewContent,
+        copyExpandedPreviewRenderedHtml,
         closeExpandedPreview,
         openMemosPreviewDialog,
         openWechatSyncPreviewDialog,
@@ -394,6 +426,7 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
     const expandedPreviewTitle = computed(() => expandedPreview.value?.title || t('common.preview'))
     const {
         copyExpandedPreviewContent,
+        copyExpandedPreviewRenderedHtml,
         closeExpandedPreview,
         openMemosPreviewDialog,
         openWechatSyncPreviewDialog,
@@ -764,6 +797,7 @@ export function usePostDistributionButton({ post }: UsePostDistributionButtonOpt
         canRetry,
         closeExpandedPreview,
         copyExpandedPreviewContent,
+        copyExpandedPreviewRenderedHtml,
         dialogVisible,
         dispatchHexoRepositorySync,
         dispatchMemos,

@@ -55,6 +55,8 @@ const wechatMpPreviewSanitizeOptions: sanitizeHtml.IOptions = {
         'a',
         'div',
         'section',
+        'span',
+        'sup',
         'p',
         'br',
         'strong',
@@ -84,6 +86,8 @@ const wechatMpPreviewSanitizeOptions: sanitizeHtml.IOptions = {
     ],
     allowedAttributes: {
         a: ['href', 'target', 'rel', 'style'],
+        span: ['style'],
+        sup: ['style'],
         p: ['style'],
         ul: ['style'],
         ol: ['style'],
@@ -205,6 +209,65 @@ interface DistributionPreviewRenderOptions {
     contentProfile?: 'default' | 'weibo' | 'xiaohongshu' | 'wechat_mp'
 }
 
+function stripHtml(value: string) {
+    return sanitizeHtml(value, {
+        allowedTags: [],
+        allowedAttributes: {},
+    }).trim()
+}
+
+function normalizeWechatMpReferenceItem(itemHtml: string, index: number) {
+    const codeMatch = /<code\b[^>]*>([\s\S]*?)<\/code>/iu.exec(itemHtml)
+    const url = stripHtml(codeMatch?.[1] || '')
+    const labelRaw = codeMatch
+        ? itemHtml.replace(codeMatch[0], '')
+        : itemHtml
+    const label = stripHtml(labelRaw).replace(/:\s*$/u, '').trim() || '链接'
+    const suffix = url ? `: <i>${url}</i>` : ''
+    return `<code style="font-size: 90%; opacity: 0.6;">[${index}]</code> ${label}${suffix}<br>`
+}
+
+function renderWechatMpReferencesAsTemplateStyle(renderedHtml: string) {
+    return renderedHtml.replace(
+        /<h[1-6][^>]*>(引用链接|外链引用)<\/h[1-6]>\s*<ol[^>]*>([\s\S]*?)<\/ol>/giu,
+        (_match, title, listHtml) => {
+            const listItems = Array.from((String(listHtml)).matchAll(/<li[^>]*>([\s\S]*?)<\/li>/giu))
+            const lines = listItems.map((entry, index) => normalizeWechatMpReferenceItem(entry[1] || '', index + 1)).join('')
+
+            return `<h4 style="text-align:left;line-height:1.75;font-family:${WECHAT_MP_FONT_FAMILY};font-size:14px;font-weight:bold;margin:2em 8px 0.5em;color:rgba(15, 76, 129, 1)">${title}</h4><p style="text-align:left;line-height:1.75;font-family:${WECHAT_MP_FONT_FAMILY};font-size:80%;margin:0.5em 8px;color:#3f3f3f">${lines}</p>`
+        },
+    )
+}
+
+function styleWechatMpInlineReferenceMarkers(renderedHtml: string) {
+    return renderedHtml.replace(/>([^<]+)</gu, (_match, rawText) => {
+        const styledText = String(rawText).replace(/([^\s[][^[]*?)\[(\d+)\]/gu, (_token, label, rawIndex) => {
+            const normalizedLabel = String(label || '').trimEnd()
+            if (!normalizedLabel) {
+                return _token
+            }
+
+            const shouldSplitByColon = !normalizedLabel.includes('://')
+            const colonIndex = shouldSplitByColon
+                ? Math.max(
+                    normalizedLabel.lastIndexOf(':'),
+                    normalizedLabel.lastIndexOf('：'),
+                )
+                : -1
+            const prefix = colonIndex >= 0 ? `${normalizedLabel.slice(0, colonIndex + 1)} ` : ''
+            const markerLabel = colonIndex >= 0
+                ? normalizedLabel.slice(colonIndex + 1).trim()
+                : normalizedLabel
+            if (!markerLabel) {
+                return _token
+            }
+
+            return `${prefix}<span style="text-align:left;line-height:1.75;color:#576b95">${markerLabel}<sup style="font-size:90%;opacity:0.8;margin-left:1px">[${rawIndex}]</sup></span>`
+        })
+        return `>${styledText}<`
+    })
+}
+
 export function renderDistributionPreviewHtml(
     value: string | null | undefined,
     emptyLabel: string,
@@ -220,7 +283,10 @@ export function renderDistributionPreviewHtml(
             wechatMpPreviewMarkdownRenderer.render(normalizedValue),
             wechatMpPreviewSanitizeOptions,
         )
-        return `<div style="width:750px;max-width:100%;margin:auto">${renderedHtml}</div>`
+        const styledHtml = styleWechatMpInlineReferenceMarkers(
+            renderWechatMpReferencesAsTemplateStyle(renderedHtml),
+        )
+        return `<div style="width:750px;max-width:100%;margin:auto">${styledHtml}</div>`
     }
 
     return sanitizeHtml(previewMarkdownRenderer.render(normalizedValue), previewSanitizeOptions)

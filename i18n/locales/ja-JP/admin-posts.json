@@ -160,7 +160,10 @@
                         "tags": "タグ追記",
                         "copy_formatted_content": "整形後コンテンツをコピー",
                         "copy_formatted_success": "微信公众号向け整形コンテンツをコピーしました",
-                        "copy_formatted_failed": "整形後コンテンツのコピーに失敗しました"
+                        "copy_formatted_failed": "整形後コンテンツのコピーに失敗しました",
+                        "copy_rendered_html": "レンダリング後 HTML をコピー",
+                        "copy_rendered_html_success": "レンダリング後 HTML をコピーしました",
+                        "copy_rendered_html_failed": "レンダリング後 HTML のコピーに失敗しました"
                     },
                     "start_wechatsync": "WechatSync 配信を開始",
                     "status": {
