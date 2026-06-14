@@ -18,6 +18,64 @@
 
 ---
 
+## 第五十阶段：PWA 启用与收口治理 (已审计归档)
+
+> 归档说明: 第五十阶段「1 个新功能 + 4 个优化」已于 2026-06-14 完成五条主线交付与阶段收口。五条主线: PWA 功能开启（`@vite-pwa/nuxt` 启用，607 entries precached）、API 测试分层收敛（4 组迁移 + 治理文档）、i18n 首屏翻译稳定性治理（命中矩阵 + 3 处修复）、backlog 深度清理（Phase 32-41 归档压缩 + #3/#4/#5/#8 移除）、友链前后博客环导航评估（Go 结论）。
+
+> **ROI 评估**: PWA 功能开启 1.80；API 测试分层收敛 1.30；i18n 首屏翻译稳定性 1.40；backlog 深度清理 1.50；友链博客环评估 1.10。
+
+### 1. PWA 功能开启 — Progressive Web App (P0)
+
+- **执行范围**: 启用 `nuxt.config.ts` 中已注释的 `@vite-pwa/nuxt` 模块，配置 Service Worker + Web Manifest + 离线缓存策略。
+- **非目标**: 不做复杂的 Workbox 自定义路由、不做 Push Notification 集成。
+- **最小验收**: PWA 可安装（manifest.json 生效）；Service Worker 注册成功；离线页面可访问。
+- **结果**: `pnpm build` 成功生成 `sw.js` (41KB) + `manifest.webmanifest` (486B)，预缓存 607 条目 (7329.53 KiB)。改动仅 `nuxt.config.ts` 取消两处注释。
+- **验证**: `pnpm lint`=0, `pnpm typecheck`=0, `pnpm build` PWA v1.2.0 generateSW 通过。
+- [x] PWA 可安装（manifest.json 生效）
+- [x] Service Worker 注册成功
+- [x] 离线页面可访问（构建验证通过）
+
+### 2. API 测试分层收敛 (P1)
+
+- **执行范围**: 统一 `tests/server/api/` 与 `server/api/**/*.test.ts` 双轨目录，固化测试分层规则与目录归属。
+- **非目标**: 不重写现有测试内容、不移除测试覆盖。
+- **最小验收**: 输出分层规则文档；至少 3 组样板迁移落地。
+- **结果**: 输出 `docs/design/governance/api-test-layering.md`（决策树 + 迁移规则 + 待办清单）；4 组样板迁移（benefits/waitlist、friend-links/feed、ai/comment-translation、admin/external-feed/refresh 去重）；`docs/standards/testing.md` §3.2 强化禁止 co-located API 测试规则。
+- **验证**: 定向测试 4 文件 8 tests passed；`pnpm lint`=0, `pnpm typecheck`=0, `pnpm lint:md`=0。
+- [x] 输出分层规则文档
+- [x] ≥3 组样板迁移落地
+
+### 3. i18n 首屏翻译稳定性治理 (P1)
+
+- **执行范围**: 评估 `locale-modules.ts` 拆分加载链路，识别首屏 raw key 泄漏点；给出首屏关键路由加载命中矩阵与回退策略。
+- **非目标**: 不重写 i18n 加载架构。
+- **最小验收**: 输出首屏路由命中矩阵；至少修复 1 处 raw key 泄漏。
+- **结果**: 输出 `docs/design/governance/i18n-first-screen-hit-matrix.md`（17 路由全覆盖命中矩阵 + 5 语言 fallbackChain 回退策略）。修复 3 处 raw key 泄漏：`admin/posts/index.vue` + `admin/posts/[id].vue` 的 `void`→`await` 竞态修复 + `locale-modules.ts` 补充 `pages.enhanced_pack` 模块定义。
+- **验证**: `pnpm lint`=0, `pnpm typecheck`=0, `pnpm lint:md`=0, i18n 定向测试 27 tests passed。
+- [x] 输出首屏路由命中矩阵
+- [x] ≥1 处 raw key 泄漏修复（实际 3 处）
+
+### 4. backlog 深度清理 (P1)
+
+- **执行范围**: 压缩「方向判断」中 Phase 29-41 逐段复述为简表；移除已完成的 `#3 未使用 API`、`#4 API Schema`、`#8 调研机制` 条目。
+- **非目标**: 不新增 backlog 条目。
+- **最小验收**: 方向判断段缩减 ≥50%；已上收项全部标记或移除。
+- **结果**: `roadmap.md` Phase 32-41 段从 386 行压缩至 19 行简表（缩减 95%），完整正文迁入 `archive/roadmap-phases-32-41.md`（394 行）；`backlog.md` 移除 #3/#4/#5/#8 四项已上收条目并标记归档来源，剩余条目重新编号 1-4；`todo-archive.md` Phase 38-41 同步迁入 `archive/todo-archive-phases-32-41.md`（602 行，10 阶段完整正文）。
+- **验证**: `pnpm lint:md`=0，`roadmap.md` 409 行（健康窗口 ≤800），`todo-archive.md` 393 行（健康窗口）。
+- [x] 方向判断段缩减 ≥50%（实际 95%）
+- [x] 已上收项全部标记/移除（含 #5 API 测试分层额外清理）
+
+### 5. 友链前后博客环导航 — 评估态 (P2)
+
+- **执行范围**: 对友链页「前后博客环」功能做最小可行性评估：相邻友链排序逻辑、前后导航 UX、数据来源（现有 FriendLink 实体复用）。
+- **非目标**: 不在本阶段实现完整功能。
+- **最小验收**: 评估文档输出明确的 go/no-go 结论。
+- **结果**: 输出 `docs/design/governance/friend-link-ring-navigation-evaluation.md`，结论 **Go**。排序复用 `sortOrder` 字段，导航方案 A（现有端点附加 prevId/nextId），工作量估算 ~4h，零新增依赖，零架构变更。
+- **验证**: `pnpm lint:md`=0。
+- [x] 评估文档输出明确的 go/no-go 结论
+
+> **审计结论**: 第五十阶段五条主线已在实现代码、配置变更、治理文档、设计文档与规划文档中完成闭环，满足归档条件。本次归档通过的门禁包括 `lint`、`typecheck`、`lint:md`、`docs:check:i18n` 与 `docs:check:line-count`。
+
 ## 第四十九阶段：延期清缴与流量治理 (已审计归档)
 
 > 归档说明: 第四十九阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。

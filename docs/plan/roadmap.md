@@ -364,10 +364,12 @@
     - **非目标**: 不推动生产代码大重构。
     - **最小验收**: 同名 type ≤10；archive/index.md 计数正确。
 
-### 第五十阶段：PWA 启用与收口治理 (PWA Enablement & Closure Governance)
+### 第五十阶段：PWA 启用与收口治理 (PWA Enablement & Closure Governance) (已审计归档)
 
-**时间表**: 2026-06-13 ~ 约 2 周
+**时间表**: 2026-06-13 ~ 2026-06-14
 **目标**: 经过 Phase 39-49 共 11 个阶段（5 新功能 + 46 治理）后，以「1 个新功能 + 4 个优化」组合重启新功能面：PWA 作为轻量新增能力，三条优化延续治理节奏（API 测试分层、i18n 首屏稳定性、backlog 深度清理），外加友链博客环导航评估。
+
+**审计结论**: 第五十阶段五条主线已于 2026-06-14 全部闭合并归档至 [todo-archive.md](./todo-archive.md)。PWA 模块已启用并验证构建通过（SW + Manifest 生成）；API 测试分层已固化规则并完成 4 组样板迁移；i18n 首屏翻译稳定性已完成命中矩阵并修复 3 处 raw key 泄漏；backlog 深度清理已完成 Phase 32-41 路线图归档压缩（772→409 行）与 backlog 候选条目去重；友链博客环导航评估已输出 Go 结论（~4h 工作量）。
 
 **准入结论**: PWA 配置已在 nuxt.config.ts 中预置（`@vite-pwa/nuxt` 已安装但注释），启用工作量低（~2h）；API 测试分层和 i18n 首屏稳定性为 backlog 中已识别的技术债；backlog 清理为常规维护。
 

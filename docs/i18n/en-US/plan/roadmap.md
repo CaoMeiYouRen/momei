@@ -1,6 +1,6 @@
----
+﻿---
 source_branch: master
-last_sync: 2026-06-10
+last_sync: 2026-06-14
 translation_tier: summary-sync
 ---
 
@@ -36,6 +36,8 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 40 has now been audited and archived**: The release guardrail pre-check gate has been unified across release/test/docker workflows, the TypeORM `1.0.0` assessment probe has been closed with `NO-GO (direct upgrade)` and `GO (assessment closeout)`, and closeout evidence has been consolidated into the Chinese regression window and archive docs.
 - **Stage 45 has now been audited and archived**: Umami privacy self-hosted analytics Phase 1, Digital Garden go/no-go evaluation, document-governance closeout, ESLint/type-debt slices, and structural-reuse convergence have all been closed and archived in the Chinese source of truth.
 - **Stage 46 has now been audited and archived**: Umami privacy self-hosted analytics Phase 2 deployment closure, ESLint/type-debt narrow slices, structural-reuse hotspots, coverage-governance hardening, periodic-regression closeout, and database-init/document synchronization have all been closed in the Chinese source of truth, with the latest weekly regression recorded as `Pass` (warning only: `duplicate-code:check`).
+- **Stages 47-49 have now been audited and archived**: Stage 47 closed ESLint/type-debt, structural reuse, API path normalization, unused-API inventory, and Schema coverage (6 governance tracks). Stage 48 expanded narrow ESLint slices, deepened structural reuse, pushed API Schema coverage to ~85%, and safely deleted unused endpoints. Stage 49 completed Postgres traffic governance (89% network budget alert), formatDate consolidation, deferred test backfill, and cleanup closeout.
+- **Stage 50 has now been audited and archived**: PWA enablement (`@vite-pwa/nuxt`, 607 entries precached), API test layering convergence (4 sample migrations + governance doc), i18n first-screen translation stability (17-route hit matrix + 3 raw-key fixes), backlog deep cleanup (Phase 32-41 roadmap archive compression, 772→409 lines), and friend-link ring navigation evaluation (Go conclusion, ~4h effort).
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
