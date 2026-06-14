@@ -103,8 +103,15 @@ function createExpandedPreviewController(options: {
         return value?.trim() || options.t('pages.admin.posts.distribution.preview.empty')
     }
 
-    function renderPreviewMarkdownHtml(value?: string | null) {
-        return renderDistributionPreviewHtml(value, options.t('pages.admin.posts.distribution.preview.empty'))
+    function renderPreviewMarkdownHtml(
+        value?: string | null,
+        contentProfile?: ExpandedDistributionPreview['contentProfile'],
+    ) {
+        return renderDistributionPreviewHtml(
+            value,
+            options.t('pages.admin.posts.distribution.preview.empty'),
+            { contentProfile },
+        )
     }
 
     function openExpandedPreview(preview: ExpandedDistributionPreview) {
@@ -145,7 +152,11 @@ function createExpandedPreviewController(options: {
         }
 
         const markdown = currentPreview.finalMarkdown.trim()
-        const html = renderDistributionPreviewHtml(markdown, options.t('pages.admin.posts.distribution.preview.empty'))
+        const html = renderDistributionPreviewHtml(
+            markdown,
+            options.t('pages.admin.posts.distribution.preview.empty'),
+            { contentProfile: currentPreview.contentProfile },
+        )
 
         try {
             if (typeof navigator.clipboard.write === 'function' && typeof ClipboardItem !== 'undefined') {

@@ -36,4 +36,35 @@ describe('post-distribution-preview-renderer', () => {
         expect(html).not.toContain('onerror=')
         expect(html).toContain('src="https://momei.app/cover.png"')
     })
+
+    it('renders wechat_mp profile with inline typography styles and no heading anchors', () => {
+        const html = renderDistributionPreviewHtml(
+            '## 标题\n\n这是正文\n\n[官网](https://momei.app)',
+            'empty',
+            { contentProfile: 'wechat_mp' },
+        )
+
+        expect(html).toContain('<div style="width:750px;max-width:100%;margin:auto">')
+        expect(html).toContain('<h2 style=')
+        expect(html).toContain('background:rgba(15, 76, 129, 1)')
+        expect(html).toContain('<p style=')
+        expect(html).toContain('letter-spacing:0.1em')
+        expect(html).toContain('href="https://momei.app"')
+        expect(html).toContain('text-decoration:none')
+        expect(html).not.toContain('header-anchor')
+    })
+
+    it('applies wechat_mp table and blockquote styling', () => {
+        const html = renderDistributionPreviewHtml(
+            '> 提示信息\n\n|A|B|\n|-|-|\n|1|2|',
+            'empty',
+            { contentProfile: 'wechat_mp' },
+        )
+
+        expect(html).toContain('<blockquote style=')
+        expect(html).toContain('background:#f7f7f7')
+        expect(html).toContain('<table style=')
+        expect(html).toContain('border-collapse:collapse')
+        expect(html).toContain('<td style=')
+    })
 })

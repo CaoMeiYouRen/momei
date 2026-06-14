@@ -63,7 +63,7 @@
                         <!-- eslint-disable vue/no-v-html -->
                         <div
                             class="post-distribution-dialog__preview-rich post-distribution-preview-dialog__tailnote-surface"
-                            v-html="renderPreviewMarkdownHtml(expandedPreview.copyrightMarkdown)"
+                            v-html="renderPreviewMarkdownHtml(expandedPreview.copyrightMarkdown, expandedPreview.contentProfile)"
                         />
                         <!-- eslint-enable vue/no-v-html -->
                     </div>
@@ -77,7 +77,7 @@
                         <!-- eslint-disable vue/no-v-html -->
                         <div
                             class="post-distribution-dialog__preview-rich post-distribution-preview-dialog__preview-surface"
-                            v-html="renderPreviewMarkdownHtml(expandedPreview.finalMarkdown)"
+                            v-html="renderPreviewMarkdownHtml(expandedPreview.finalMarkdown, expandedPreview.contentProfile)"
                         />
                         <!-- eslint-enable vue/no-v-html -->
                     </section>
