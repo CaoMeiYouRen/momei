@@ -120,6 +120,37 @@ describe('listmonk service', () => {
         }))
     })
 
+    it('should schedule remote campaign when scheduledAt is in the future', async () => {
+        const futureTime = new Date(Date.now() + 10 * 60 * 1000)
+        fetchMock
+            .mockResolvedValueOnce({ data: { id: 123 } })
+            .mockResolvedValueOnce({ success: true })
+
+        await dispatchListmonkCampaign({
+            id: 'campaign-scheduled',
+            title: 'Scheduled Newsletter',
+            content: 'Summary',
+            type: 'BLOG_POST',
+            scheduledAt: futureTime,
+            targetCriteria: {
+                articleTitle: 'Scheduled Newsletter',
+                authorName: 'Momei',
+                categoryName: 'General',
+                publishDate: '2026-03-17',
+                articleLink: '/posts/scheduled-newsletter',
+                articleLocale: 'zh-CN',
+            },
+        } as never)
+
+        expect(fetchMock).toHaveBeenCalledWith('https://listmonk.example.com/api/campaigns/123/status', expect.objectContaining({
+            method: 'PUT',
+            body: {
+                status: 'scheduled',
+                send_at: futureTime.toISOString(),
+            },
+        }))
+    })
+
     it('should fail when required config is missing', async () => {
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.LISTMONK_ENABLED]: 'true',

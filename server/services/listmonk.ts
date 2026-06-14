@@ -165,6 +165,23 @@ function buildCampaignPayload(campaign: MarketingCampaign, body: string, listIds
     return payload
 }
 
+function resolveListmonkStatusPayload(campaign: MarketingCampaign) {
+    if (campaign.scheduledAt) {
+        const scheduledAt = new Date(campaign.scheduledAt)
+
+        if (!Number.isNaN(scheduledAt.getTime()) && scheduledAt.getTime() > Date.now()) {
+            return {
+                status: 'scheduled',
+                send_at: scheduledAt.toISOString(),
+            } as const
+        }
+    }
+
+    return {
+        status: 'running',
+    } as const
+}
+
 async function requestListmonk<T>(config: ListmonkDispatchConfig, path: string, options: { method?: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown> } = {}) {
     return $fetch<T>(`${config.baseUrl}${path}`, {
         method: options.method || 'GET',
@@ -288,11 +305,11 @@ export async function dispatchListmonkCampaign(campaign: MarketingCampaign, conf
             }
         }
 
+        const statusPayload = resolveListmonkStatusPayload(campaign)
+
         await requestListmonk(config, `/api/campaigns/${currentRemoteCampaignId}/status`, {
             method: 'PUT',
-            body: {
-                status: 'running',
-            },
+            body: statusPayload,
         })
 
         return {
