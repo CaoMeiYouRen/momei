@@ -190,7 +190,7 @@ export function resolveWechatSyncTagRenderMode(platformType: string | null | und
     }
 
     if (normalizedType.includes('bilibili')) {
-        return 'leading'
+        return 'wrapped'
     }
 
     if (normalizedType.includes('weibo')) {
