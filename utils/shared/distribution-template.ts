@@ -331,10 +331,6 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
 
             const referenceIndex = addWechatMpReference(references, indexByUrl, normalizedUrl, label)
 
-            if (isAbsoluteHttpUrl(label)) {
-                return `链接[${referenceIndex}]`
-            }
-
             return `${label}[${referenceIndex}]`
         })
 
@@ -345,6 +341,10 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
             const offset = typeof offsetArg === 'number' ? offsetArg : 0
             const previousTwoChars = source.slice(Math.max(0, offset - 2), offset)
             if (previousTwoChars === '](') {
+                return match
+            }
+            const suffix = source.slice(offset + match.length)
+            if (/\[\d+$/u.test(match) && suffix.startsWith(']')) {
                 return match
             }
 
