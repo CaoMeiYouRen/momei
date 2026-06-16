@@ -56,7 +56,7 @@
     - 第四十三阶段（三组窄切片：require-explicit-emits + no-required-prop-with-default + max-lines + no-non-null-assertion 扩展）。
     - 第四十四阶段（三组窄切片：no-non-null-assertion + no-explicit-any + server/services 全清零）。
     - 第四十五阶段（两轮窄切片：require-await + no-explicit-any 子桶收敛）。
-    - 第四十六阶段（至少三组窄切片，实际完成 4 组：app.vue + 3 个 settings 组件 defineModel<any> 收敛）。
+    - 第四十六阶段（至少三组窄切片，实际完成 4 组：app.vue + 3 个 settings 组件 `defineModel<any>` 收敛）。
     - 第四十七阶段（6 处生产代码 as any 收敛，eslint-disable 维持 ≤13）。
     - 第四十八阶段（9 处 as any 清零：seed-demo.ts + translation.ts + typeorm-adapter.ts）。
     - 第五十一阶段（≥5 组窄切片，11 处 as any → 具体类型断言收敛，typecheck 零错误）。
