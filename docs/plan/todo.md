@@ -33,8 +33,8 @@
 - **执行范围**: 盘点 `packages/mcp-server` 与 `packages/cli` 共享代码（类型/函数/常量/配置），产出 go/no-go 评估文档。
 - **非目标**: 不抽取共享包、不进入代码实现。
 - **最小验收**: 共享代码清单 + 评估文档（覆盖共享面规模、抽包成本、替代方案）。
-- [ ] 盘点双包共享代码清单
-- [ ] 产出 go/no-go 评估文档
+- [x] 盘点双包共享代码清单 → [评估文档](../design/governance/cross-package-reuse-evaluation.md)
+- [x] 产出 go/no-go 评估文档（结论: 完整方案 No-Go / 轻量方案条件性 Go） → [评估文档](../design/governance/cross-package-reuse-evaluation.md)
 
 ### C. ESLint / 类型债治理 — ≥5 组窄切片 (P1)
 
