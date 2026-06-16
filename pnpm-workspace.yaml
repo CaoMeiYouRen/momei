@@ -45,7 +45,7 @@ overrides:
     defu: "6.1.5"
     unhead: "^2.1.13"
     qs: "6.15.2"
-    hono: "4.12.21"
+    hono: ">=4.12.25"
     uuid: "11.1.1"
     "@nuxt/test-utils>h3-next": "npm:h3@^2.0.1-rc.18"
     seroval: "^1.4.1"
