@@ -269,8 +269,8 @@ importers:
         specifier: ^7.0.0
         version: 7.0.0
       primelocale:
-        specifier: ^2.3.2
-        version: 2.3.2
+        specifier: ^2.4.0
+        version: 2.4.0
       primevue:
         specifier: ^4.5.5
         version: 4.5.5(vue@3.5.35(typescript@6.0.3))
@@ -10700,8 +10700,8 @@ packages:
   primeicons@7.0.0:
     resolution: {integrity: sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw==}
 
-  primelocale@2.3.2:
-    resolution: {integrity: sha512-V6cujJRKAbEjUfpC2zvqqJ+27hGZJo94UbbN43IkrnMnNyBQWH82gf33wfX3aEkLXVJJp7MN7Ua+wu0u/tf1ww==}
+  primelocale@2.4.0:
+    resolution: {integrity: sha512-+FxfN+NjImzSoFTE8n5TLidMucC+7pl1DZKrNokgcMPbN7iVWYtb9+zC+y9ZSkn81vDa328PiCPh966gSjW6zQ==}
     engines: {node: '>=18.0.0', npm: '>=8.6.0'}
 
   primevue@4.5.5:
@@ -24896,7 +24896,7 @@ snapshots:
 
   primeicons@7.0.0: {}
 
-  primelocale@2.3.2: {}
+  primelocale@2.4.0: {}
 
   primevue@4.5.5(vue@3.5.35(typescript@6.0.3)):
     dependencies:
