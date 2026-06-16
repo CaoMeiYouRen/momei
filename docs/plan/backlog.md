@@ -27,13 +27,11 @@
     - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从"继续冲数字"转为"围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理"。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
 - **最近一次上收阶段**:
-    - 第三十二阶段（当前切片已收口）。
-    - 第三十三阶段（已正式上收 `80%+` 冲刺切片）。
-    - 第三十五阶段（已正式上收 AI task 计量口径与 TTS 前端直连防回归切片）。
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
-    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）；第四十九阶段已补齐 Phase C feed 渲染/降级测试。
+    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
+    - 第四十六阶段（已上收 A/B/C/D 四组高风险补测切片，全仓 coverage 82%+ 收口）。
+    - 第四十九阶段（已补齐 Phase C feed 渲染/降级测试，关闭 Phase 44 剩余缺口）。
 - **下一次可切片方向**:
-    - Phase 44 测试回填剩余缺口已通过 Phase 49 延期测试回填主线关闭。
     - 若后续继续上收，优先进入“测试有效性第二轮切片”：补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径，避免高风险链路只剩服务端成功断言。
     - 保持“已有测试基座 + 失败 / 边界优先”的节奏，不回到低价值 coverage 铺量。
 
@@ -52,14 +50,20 @@
     - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
     - 当前仍缺少统一的规则债 inventory 脚本；现有 `lint`、定向 `eslint` 与阶段记录可以证明单次切片通过，但还不能稳定回答“全仓还剩多少命中、按目录如何分桶、每轮实际消掉了多少”。
 - **最近一次上收阶段**:
-    - 第三十二阶段（当前切片已收口）。
-    - 第三十三阶段（已正式上收 composables 子桶继续收紧切片）。
-    - 第三十五阶段（已正式上收下一轮服务端工具层 / 跨层 helper 窄切片候选）。
     - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
+    - 第四十一阶段（四组窄切片，26 文件 warning=0）。
+    - 第四十二阶段（三组 no-explicit-any 窄切片，治理范围 26→36 文件）。
+    - 第四十三阶段（三组窄切片：require-explicit-emits + no-required-prop-with-default + max-lines + no-non-null-assertion 扩展）。
+    - 第四十四阶段（三组窄切片：no-non-null-assertion + no-explicit-any + server/services 全清零）。
+    - 第四十五阶段（两轮窄切片：require-await + no-explicit-any 子桶收敛）。
+    - 第四十六阶段（至少三组窄切片，实际完成 4 组：app.vue + 3 个 settings 组件 defineModel<any> 收敛）。
+    - 第四十七阶段（6 处生产代码 as any 收敛，eslint-disable 维持 ≤13）。
+    - 第四十八阶段（9 处 as any 清零：seed-demo.ts + translation.ts + typeorm-adapter.ts）。
+    - 第五十一阶段（≥5 组窄切片，11 处 as any → 具体类型断言收敛，typecheck 零错误）。
 - **下一次可切片方向**:
     - 下一轮进入实现前，先补一条规则债 inventory 脚本，至少覆盖 `no-explicit-any`、`no-non-null-assertion`、warning 基线与目录分桶；正式切片默认以该脚本输出作为 baseline / delta 事实源。
-    - 若下一轮正式上收，继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在 AI provider 聚合层或高 ROI 测试桩历史断言中二选一推进，而不是回到全仓 `any` 清零。
-    - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵，不把规则收紧重新做成目录级工程。
+    - 继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在未覆盖的生产文件中推进。
+    - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵。
 
 3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
 - **目标**:
@@ -79,15 +83,23 @@
     - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖"重复导入 + 轻包装""局部类型同形状复制"与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
     - 当前缺少专门面向“未 export 的简单函数 / type / interface”重复盘点脚本，尚不能量化同名或近似名候选的规模，也无法稳定回答哪些候选已经人工判定为“可复用”或“保留局部实现”。
 - **最近一次上收阶段**:
-    - 第三十二阶段（当前切片已收口）。
-    - 第三十三阶段（已完成三轮追加切片，当前基线 31/575/0.48%）。
-    - 第三十五阶段（已正式扩充为结构复用治理，并上收零散类型与纯函数 / 工具函数首轮切片）。
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
+    - 第三十八阶段（admin 列表页结构复用）。
+    - 第三十九阶段（结构复用第三轮）。
+    - 第四十一阶段（2 组热点切片：SettingFieldMetadata + AgreementFormData 收敛）。
+    - 第四十二阶段（三组热点切片：jscpd clones 40→37，duplication 0.69%→0.63%）。
+    - 第四十三阶段（commercial-link-manager 自重复提取 + PostNavigationItem/DirectUploadStrategy/toErrorMessage 收敛，同名类型 24→20）。
+    - 第四十四阶段（两组热点切片）。
+    - 第四十五阶段（categories/tags 公共模板统一 + tts-http-shared 抽取）。
+    - 第四十六阶段（Umami 配置 + 邮件模板 payload + Volcengine 协议头三组收敛）。
+    - 第四十七阶段（FeedItem + TitleSuggestionOverlayRef 两组收敛，同名 type 17→14）。
+    - 第四十八阶段（DemoTourStage/AdminAiPageEvent/VolcengineResponsePacket 三组类型统一，同名 type 15→12）。
+    - 第四十九阶段（type 收敛 12→11，AdAdapterConfig 统一）。
+    - 第五十一阶段（≥5 组热点切片：commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）。
 - **下一次可切片方向**:
-    - 先补 `simple duplicate inventory` 脚本：按函数名、type/interface 名、近似签名与目录分桶输出候选清单，并把“确认可复用 / 保留局部实现 / 待观察”作为人工复核结论写入同一条事实源。
-    - 下一轮优先进入“结构复用第二轮”：至少继续处理 `3` 处热点，其中 `components/commercial-link-manager.vue` 文件内自重复为最高优先级。
-    - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹，不把复杂业务逻辑伪装成共享框架。
-    - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper，以及低耦合守卫函数。
+    - 下一轮优先进入 CLI 包与主项目的类型收敛：`MomeiPostStatus` → 从 `PostStatus` 枚举派生、`MomeiPostScaffoldMetadata` → 直接 import。
+    - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹。
+    - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper。
 
 4. **存量代码注释治理与注释漂移收敛**
 - **目标**:
@@ -105,15 +117,13 @@
     - 第三十三阶段已正式上收候选组 B 切片，聚焦 `server/services/upload.ts` 与 `server/utils/post-access.ts` 两条运行时安全敏感链路。
     - 当前仍缺少注释盘点脚本，尚不能稳定量化“复杂逻辑缺注释”和“低价值 / 漂移注释”候选规模，导致阶段叙述很难形成跨轮次可比较的进度口径。
 - **最近一次上收阶段**:
-    - 第三十阶段（已审计归档）。
-    - 第三十三阶段（已正式上收候选组 B 切片）。
-    - 第三十五阶段（已正式上收候选组 A 切片）。
+    - 第三十阶段（首轮注释治理切片，已审计归档）。
+    - 第三十三阶段（候选组 B 切片：`server/services/upload.ts` + `server/utils/post-access.ts`）。
+    - 第三十五阶段（候选组 A 切片）。
+    - 第三十九阶段（注释治理首轮：`server/services/ai/text.ts` 等）。
+- **状态**: 观察中（注释盘点脚本仍未补齐，暂不建议继续扩写新切片）。
 - **下一次可切片方向**:
-    - 首个切片前先补注释盘点脚本，至少覆盖导出函数 / 高复杂度函数的缺注释候选，以及 `TODO` / 过时口吻 / 逐行复述类低价值注释候选，再决定本轮``1 -`` 组模块。
-    - 候选组 A：`server/services/setting*`、`server/utils/locale.ts` / `server/middleware/i18n.ts`、`server/middleware/1-auth.ts`，优先覆盖设置来源判定、locale 归一化与鉴权上下文挂载。
-    - 候选组 B：`server/services/upload.ts`、`server/utils/post-access.ts`、`server/services/ai/base.ts` / `quota-governance.ts` / `text.ts`，优先覆盖上传存储解析、文章访问控制与 AI 任务治理等复杂服务层逻辑。
-    - 候选组 C：`server/api/posts/index.get.ts`、`server/api/posts/archive.get.ts`、`server/api/categories/index.get.ts`、`server/api/tags/index.get.ts` 与相关查询 helper，优先覆盖多语言聚合、宽查询裁剪、分页读取与热点读接口约束。
-    - 首轮上收时最多从候选组 A、B、C 中选``1 -`` 组，不把本轮扩大成全仓注释重写工程。
+    - 首个切片前先补注释盘点脚本。候选组 A/B/C 方向不变，首轮上收时最多选 1 组。
 
 5. **Postgres 查询、CPU 与连接生命周期平衡治理**
 - **目标**:
@@ -130,13 +140,13 @@
     - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在"连接长期不释放"的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
     - 2026-05-18 新增预算事实：免费额度在约 `17` 天内已消耗 `5GB` network transfer 与 `90 CU-hrs`，折算约 `301MB/天` 与 `5.29 CU-hrs/天`；相较约 `170MB/天` 的安全网络预算已明显超线，说明下一轮应优先复核公开热点读链路，而不是重新并行扩写初始化治理。
 - **最近一次上收阶段**:
-    - 第三十二阶段（已完成当前公开热点读链路切片）。
-    - 第三十五阶段（已正式上收首页公开热点读链路与数据库唤醒复核切片）。
-    - 第三十七阶段（已正式上收长窗口样本复核切片，优先回答热点 SQL 与连接活跃窗口问题）。
+    - 第三十七阶段（已正式上收长窗口样本复核切片，确认连接阻塞问题已消失）。
+    - 第四十一阶段（TypeORM 前置清障 + Postgres archive 查询字段裁剪）。
+    - 第四十九阶段（Postgres 流量治理：89% 耗尽警戒 → 减列 + 缓存 + 移除 author 冗余字段）。
 - **下一次可切片方向**:
-    - 下一轮只允许在“剩余显式 `initializeDB()` 调用点审计”和“公开热点读链路继续瘦身”中二选一；基于当前 network 超预算事实，默认优先候选组 B。
-    - 候选组 B：围绕 `posts / archive / categories / tags / settings / friend-links` 等公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略，并用 live sample 证明 calls / rows / 网络体量下降趋势。
-    - 只有在新增证据重新指向请求入口误触完整初始化时，才回退到候选组 A；否则不并行扩写成新的全站数据库治理。
+    - 基于 Phase 49 流量治理效果，决定下一轮是否需要继续瘦身。
+    - 候选组 B：围绕公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略，并用 live sample 证明下降趋势。
+    - 候选组 A（`initializeDB()` 调用点审计）：仅在新增证据指向请求入口误触完整初始化时回退到此组。
 
 
 6. **国际化运行时加载与文案复用治理**
@@ -157,10 +167,11 @@
     - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing`、`i18n:audit:duplicates` 与 `i18n:audit:unused` 均为``total:``。
 - **最近一次上收阶段**:
     - 第三十一阶段（当前切片已收口，长期主线继续保留）。
+    - 第四十三阶段（i18n 运行时验证扩面：app-footer/archives/categories/tags 四组链路纳入 runtime 回归 + duplicates 102→97 组收敛）。
+    - 第五十阶段（i18n 首屏翻译稳定性治理：17 路由命中矩阵 + 3 处 raw key 泄漏修复 + `enahnced_pack` 模块定义补齐）。
 - **下一次可切片方向**:
-    - 若后续继续上收，优先扩到 `app-footer` 友链区域与 `archives` / `categories` / `tags` 等公开页装配链路、共享组件命名空间沉淀与固定运行时回归入口，并同步执行 `pnpm i18n:audit:duplicates`，而不是继续做散点修补。
-    - 对仍需动态拼接 key 的场景，应优先评估“是否为有限集合”；若答案为是，默认用显式静态 key 映射替代扩充 allowlist，只有真正开放集合才进入 `scripts/i18n/dynamic-key-allowlist.mjs`。
-    - 下一轮专项治理应单列“locale parity、缺词阻断与重复键清理策略”，至少覆盖：哪些入口必须把 `i18n:audit:missing`、`i18n:audit:duplicates` 视为 blocker，i18n 变更后的最小检查矩阵、Review Gate 对 raw key / 缺词 / 重复键问题的定级口径，以及历史缺词债与重复键债的分批清偿顺序。
+    - 若后续继续上收，优先选择尚未纳入 runtime 回归的公开页装配链路（如档案/分类/标签列表页的 i18n 完整性审计）。
+    - 对仍需动态拼接 key 的场景，优先评估“是否为有限集合”，默认用显式静态 key 映射替代扩充 allowlist。
 
 7. **文档事实源、翻译与分层归档治理**
 - **合并来源**: 本条由原 backlog 长期主线 #7（模块设计与专项治理文档收敛）、#9（路线图 / Todo 深度归档治理）、#11（文档翻译 freshness 清偿与翻译治理）三条同类任务合并而成。原三条任务分别治理 `docs/design/`、`docs/plan/` 与 `docs/i18n/*/` 三个文档域，但治理动作本质相同：维护分层结构、设置膨胀阈值、定期清理漂移、保持 freshness。
@@ -177,21 +188,22 @@
     - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
     - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 的``must-sync 30 天 / summary-sync 45`` 对高频治理页仍偏宽松，尚未覆盖更多高频 Guide / Standards 文档的膨胀与 freshness 风险。
 - **最近一次上收阶段**:
-    - 第二十九阶段（原 #7，已审计归档）。
-    - 第三十阶段（原 #11，已审计归档）。
-    - 第三十一阶段（原 #9，已审计归档）。
+    - 第三十一阶段（原 #9 首轮深度归档收口：roadmap 主窗口回到健康范围，todo-archive 改为近线窗口模式）。
+    - 第四十阶段（文档证据自动回填 + 发布前 pre-check 统一化）。
+    - 第四十一阶段（文档门禁 warning 压缩）。
+    - 第四十五阶段（文档治理收口：governance/ 19 份历史文档归档 + performance.md 分层 + backlog.md Blogroll 条目清理）。
+    - 第五十阶段（backlog 深度清理：Phase 32-41 路线图 386→19 行简表 + #3/#4/#5/#8 移除 + 条目重新编号）。
 - **下一次可切片方向**:
-    - design 域：先清理仍直接引用当前 Todo 的设计 / 治理文档，再按模块逐个审计"当前实现 / 设计正文 / delta 文档 / 归档文档"的重叠与漂移程度。
-    - plan 域：按阈值触发滚动归档，跟进 `roadmap.md` / `todo-archive.md` 的当前行数并决定是否需要下一轮区间分片。
-    - 翻译域：优先清偿剩余高频设计页与对外 guide，继续把翻译范围治理从"是否有翻译"推进到"哪些翻译必须持续保持新鲜"。
-    - 下一轮优先上收“文档门禁收紧”切片：把 `docs/guide/translation-governance.md`、`docs/guide/deploy.md`、`docs/standards/planning.md`、`docs/standards/documentation.md` 等高频页纳入 `docs:check:line-count`，并同步评估 `must-sync` 收紧到 `21` 天、`summary-sync` 收紧到 `30` 天的可执行性；未落到脚本前，不把这些新门槛直接写成已生效规范。
+    - design 域：审计 governance/ 目录中已过期评估/报告的归档状态。
+    - plan 域：按阈值触发滚动归档，跟进 `roadmap.md` / `todo-archive.md` 当前行数。
+    - 翻译域：评估 `must-sync` 收紧到 21 天、`summary-sync` 收紧到 30 天的可执行性。
 
 8. **Windows 本地 Dev / Build 性能治理**
 - **目标**:
     - 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，避免继续以"体感慢"描述问题。
     - 优先收敛首请求阻塞与构建尾耗时两类高收益热点，不把范围扩写为全平台构建重构。
 - **状态**:
-    - 进行中。
+    - 暂停（Phase 43 确认平台级瓶颈：Linux CI 106s vs Windows >1800s，>17x 差距，非项目层面短期可收敛）。
 - **当前状态**:
     - 当前已经完成一轮 Windows 定向止血：`nuxt.config.ts` 已收窄 Nitro inline 依赖、关闭 Windows 下 Nitro trace，并在 Windows 本地默认关闭 PWA；`pnpm build` 已恢复可完成。
     - 2026-05-11 已通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集到第一轮基线：`pnpm perf:nuxt:dev` 中首页 `Local` 约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头；`--request-path=/api/settings/public` 同样 `60s` 超时，说明问题落在请求级全局冷路径而不是单页模板。
@@ -202,12 +214,10 @@
     - 同一轮实测中，首页与设置链路进入请求阶段后仍出现明显延迟：`[momei-perf] installation-probe` 于 `22:01:47` 进入 `/`，`22:02:02` 才进入 `/api/settings/public`，随后触发 `SELECT version()`、`CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"` 与 metadata 探测序列；说明冷启动数据库初始化与请求首跳仍需持续压缩。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收 Windows 本地 Dev / Build 性能治理切片）。
+    - 第四十三阶段（Vite warmup + resolve.extensions + Nitro inline 瘦身 + sourceMap + build:done 跳过，确认平台级瓶颈并上收关闭）。
 - **下一次可切片方向**:
-    - 先针对 2026-05-23 新样本补一轮“构建尾段 + 首请求首跳”复核：分别量化 `Nuxt Nitro server built` 长尾和 installation-probe 到公开设置接口的首跳耗时，作为下一轮动作的准入门槛。
-    - 先冻结安装状态探测方案：明确 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
-    - 再补齐 `initializeDB()` 分阶段耗时口径，避免直接开改后仍无法判断实际慢点。
-    - 最后再进入 `Server built -> Build complete` 的长尾专项剖析，并把 `.output/server` chunk / sourcemap / 文件写出规模纳入同一组证据。
-    - 所有后续切片继续复用 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json` 作为事实源。
+    - 暂停。仅在 Nuxt/Nitro 发布针对 Windows 的重大性能改进，或项目迁移到 WSL2/Linux 开发环境时重新评估。
+    - 所有历史数据继续保留在 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)。
 
 9. **站点性能与 Core Web Vitals 持续优化**
 - **与 #8 的区别**: #8 聚焦 Windows 本地 Dev / Build 性能（开发体验），本条聚焦**生产环境用户体验性能**（Lighthouse / LCP / CLS / INP）。
@@ -222,8 +232,9 @@
     - 竞品对标：Ghost 自托管站点通常 LCP 在 0.8s-1.5s，Astro 内容站点 LCP 可低至 0.5s；墨梅的目标应在 1.5s 以内（公共页）和 2.5s 以内（后台页）。
 - **最近一次上收阶段**:
     - 第二十七阶段（首屏优化第一阶段 Lighthouse >= 50，已审计归档）。
+    - 第四十二阶段（CWV 基线建设：Lighthouse CI 脚本 + 封面图懒加载 + PrimeVue 配置清理）。
+    - 第四十四阶段（CWV 优化：Logo 预加载 + CSS @import 扁平化）。
 - **下一次可切片方向**:
-    - 建立公开页 Core Web Vitals 基线（LCP / CLS / INP），优先收敛首页 banner 图片加载、mavon-editor bundle 懒加载、PrimeVue 组件 tree-shaking 三项热点。
     - 评估文章详情页的按需 hydration 策略，减少首屏 JS 体积。
     - 若移动端 LCP 超过 3s，启动专项移动端性能治理。
     - 所有切片继续复用 `test:perf:budget` 与 Lighthouse CI artifact 作为事实源。
@@ -242,11 +253,11 @@
     - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供独立 JSON / Markdown baseline。
     - 文档治理已补充 `pnpm docs:check:line-count:candidate` 与 `pnpm docs:check:source-of-truth:candidate` 两条候选入口，用于评估高频页扩面与翻译 freshness 收紧，但默认 blocker 行为仍保持不变。
 - **最近一次上收阶段**:
-    - 2026-05-19：已完成 5.1 - 5.5 的首轮 baseline 化，上收为独立脚本入口与候选文档门禁入口。
+    - 第三十九阶段（5.1-5.5 首轮 baseline 化：`check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` + 两条 docs candidate，上收为独立脚本入口）。
+    - 第四十阶段（发布前 pre-check 统一化：`release:check` / `release:check:full` 接入固定回归入口）。
 - **下一次可切片方向**:
-    - 先清理 `audit-comment-drift` 与两条 docs candidate 的误报 / warning 面，收敛人工判定口径与目录分桶视图。
-    - 再评估 `governance:audit:eslint-debt`、`governance:audit:comment-drift` 与 docs candidate 是否具备进入 `pnpm regression:weekly` warning 面的条件。
-    - 若某条脚本对发版或阶段收口形成放行影响，再沿 `warning -> blocker` 口径升级到 `pre-release` / `phase-close`，而不是长期停留在独立 baseline。
+    - 先清理 `audit-comment-drift` 与两条 docs candidate 的误报 / warning 面。
+    - 再评估是否将治理脚本从独立 baseline 升格进入 `regression:weekly` warning 面。
 
 ## 周期性回归验证层
 
