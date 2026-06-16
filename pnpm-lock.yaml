@@ -438,8 +438,8 @@ importers:
         specifier: ^9.1.7
         version: 9.1.7
       jscpd:
-        specifier: 5.0.5
-        version: 5.0.5
+        specifier: 5.0.9
+        version: 5.0.9
       lint-staged:
         specifier: 17.0.7
         version: 17.0.7
@@ -6300,36 +6300,36 @@ packages:
       typescript:
         optional: true
 
-  cpd-darwin-arm64@5.0.5:
-    resolution: {integrity: sha512-Ebbdu8Pzqbpsf2r+tHcY1S5tx23iSYwUrpYb8eYqh6kFlPlPciHpd6rJNA2KrmsABmgiZt/NDcyIzpXhxElaKw==}
+  cpd-darwin-arm64@5.0.9:
+    resolution: {integrity: sha512-hUYQKrUUmlYxl2MDD8GYESpcKc5M5eGMjiHTK+O8ooCj1ogPiNHXg+aIeDl6BuLu7v3jFDcCu5fVqtcpHzAKpw==}
     cpu: [arm64]
     os: [darwin]
 
-  cpd-darwin-x64@5.0.5:
-    resolution: {integrity: sha512-7hZ8Rjr06933B/i1A7MSc5KpK47Lj5V7zxKMzd4iSMGchQLZtov9zJnaNOldHGmbkNM40O4cL/r7iJpWtlMxqg==}
+  cpd-darwin-x64@5.0.9:
+    resolution: {integrity: sha512-viCFEUhUQnGundSMFq9ixi+RxfRiNDQsWP/CZErMlf20fM5h9zTtrHI9liNyRQn+ZtQUTTpabQ4PpzDV530bMg==}
     cpu: [x64]
     os: [darwin]
 
-  cpd-linux-arm64-gnu@5.0.5:
-    resolution: {integrity: sha512-2w8enNvAZTYq+qT5zn+a8GT0hcUjLa460xl75XWggM4Y/I9f+/hbpP/o7iA4BRxa/bVK7q//KtKSasIidHRDag==}
+  cpd-linux-arm64-gnu@5.0.9:
+    resolution: {integrity: sha512-BxiLx9haM+AhDlkyFoe1ro1w4/dvAteyEGytv4XraaRNntw2NMFX1Fsa9I8waegpXydM6E0lPWRWqkG59rin3A==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  cpd-linux-x64-gnu@5.0.5:
-    resolution: {integrity: sha512-m3V4s0FvrmFHCexqsjr1YpNr1/x0HKRMxg301SJcDkAm2CHYmpv0hz4JP5i6FnwJLzpJvpCRaESyMJFJzr6atw==}
+  cpd-linux-x64-gnu@5.0.9:
+    resolution: {integrity: sha512-VC2bUEJ0KRZ3fJijqqFcrBl6a69vmHrrNoJkSPtFwFju8x7ce2Vs9ntEmlxeB7Ho4mIzN8OYOrlCeqyNdAZcUA==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  cpd-linux-x64-musl@5.0.5:
-    resolution: {integrity: sha512-8Qvk7otkGNpkc8I0+ti8/KzXqU+0WLNg5Lhxl7FzauG5fDo4dAgsZmjUoSc/nQNvQE7pw5i0Ai7AtQ/QNh+xYw==}
+  cpd-linux-x64-musl@5.0.9:
+    resolution: {integrity: sha512-YJekKRRgAhez2+Rrbt42fp8cJuNi/PtGuBb8jIzEtegXRRBG9CE9HaoTy0mS3JeiQuwxiT0Fnz2j8hR9gDbq0w==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  cpd-windows-x64-msvc@5.0.5:
-    resolution: {integrity: sha512-dwu4CjxNXilMFXVKpPeBSeDApjqAYMj4Y5j3gNADuN5eNIhy/8wPEsF3gexOVdesExBVJR4q8irF3hnseJWJvg==}
+  cpd-windows-x64-msvc@5.0.9:
+    resolution: {integrity: sha512-Z54yLFmRjIgTMqzeUxbZzgxj8gWxB/jjMi/QOkBOLx9yHHwzhW8MukpY7JhCOmlvPOOn6pjSVrMTxChliDcYAw==}
     cpu: [x64]
     os: [win32]
 
@@ -8538,8 +8538,8 @@ packages:
     resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
     hasBin: true
 
-  jscpd@5.0.5:
-    resolution: {integrity: sha512-efwUuW4Uubf+uQ8z7c3rphFoO4Y1Uo4qtfEcqX945dwyuyaUKYmnFzLoNvW0T3y/0QSzn7iNvQxeqxHT4KMcrw==}
+  jscpd@5.0.9:
+    resolution: {integrity: sha512-52zn0erBrRCCLvKulOs/UNUsL2fAmnMRUUbwbJhfUmqI9jtVSQ2Hk20F7m58JnkmgBEoyNBSTTomrF8K+H4fLA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -19301,22 +19301,22 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
-  cpd-darwin-arm64@5.0.5:
+  cpd-darwin-arm64@5.0.9:
     optional: true
 
-  cpd-darwin-x64@5.0.5:
+  cpd-darwin-x64@5.0.9:
     optional: true
 
-  cpd-linux-arm64-gnu@5.0.5:
+  cpd-linux-arm64-gnu@5.0.9:
     optional: true
 
-  cpd-linux-x64-gnu@5.0.5:
+  cpd-linux-x64-gnu@5.0.9:
     optional: true
 
-  cpd-linux-x64-musl@5.0.5:
+  cpd-linux-x64-musl@5.0.9:
     optional: true
 
-  cpd-windows-x64-msvc@5.0.5:
+  cpd-windows-x64-msvc@5.0.9:
     optional: true
 
   crc-32@1.2.2: {}
@@ -21891,14 +21891,14 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jscpd@5.0.5:
+  jscpd@5.0.9:
     optionalDependencies:
-      cpd-darwin-arm64: 5.0.5
-      cpd-darwin-x64: 5.0.5
-      cpd-linux-arm64-gnu: 5.0.5
-      cpd-linux-x64-gnu: 5.0.5
-      cpd-linux-x64-musl: 5.0.5
-      cpd-windows-x64-msvc: 5.0.5
+      cpd-darwin-arm64: 5.0.9
+      cpd-darwin-x64: 5.0.9
+      cpd-linux-arm64-gnu: 5.0.9
+      cpd-linux-x64-gnu: 5.0.9
+      cpd-linux-x64-musl: 5.0.9
+      cpd-windows-x64-msvc: 5.0.9
 
   jsdoc-type-pratt-parser@7.1.1: {}
 
