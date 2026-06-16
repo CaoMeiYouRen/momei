@@ -311,29 +311,16 @@
 
 ### 2026-06 架构一致性治理候选（延期进入 backlog）
 
-> **已上收/已归档**: 以下 #3、#4、#5、#8 四项已在对应阶段完成上收并归档至 [todo-archive.md](./todo-archive.md)，此处仅保留索引不再维护正文。
+> **已上收/已归档**: 以下 #1、#2、#3、#4、#5、#8 六项已在对应阶段完成上收并归档至 [todo-archive.md](./todo-archive.md)，此处仅保留索引不再维护正文。
+> - ~~#1 页面与 API 路径规范化治理~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/route-api-path-governance.md`）
+> - ~~#2 `pages/admin` 路由文件风格统一~~ → 第四十七阶段已上收（主规范冻结 + 目录迁移样板）
 > - ~~#3 未使用 API 清单与清理可行性评估~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/unused-api-cleanup-assessment.md`）
 > - ~~#4 API Schema 覆盖与复用治理~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/api-schema-coverage-governance.md`）
 > - ~~#5 API 测试分层与目录收敛治理~~ → 第五十阶段已上收（分层规则: `docs/design/governance/api-test-layering.md`）
 > - ~~#8 i18n 拆分加载与首屏翻译稳定性治理~~ → 第五十阶段已上收（命中矩阵: `docs/design/governance/i18n-first-screen-hit-matrix.md`）
 > 分流结论：以下剩余事项均属于非阻塞治理优化，不作为当前阶段插队项，统一进入 backlog 候选池，待后续阶段按容量切片上收。
 
-1. **页面与 API 路径规范化治理**
-- **目标**:
-    - 推动页面路由与 API 路由在模块维度保持一致或相似（例如 `/admin/**` 对应 `/api/admin/**`）。
-    - 按功能聚合目录，减少文件平铺与跨模块散落。
-- **最小验收**:
-    - 输出现状映射清单（页面路径 ↔ API 路径）。
-    - 给出统一命名 / 分层规则与迁移优先级（高频模块先行）。
-
-2. **`pages/admin` 路由文件风格统一**
-- **背景**:
-    - 当前同时存在 `pages/admin/calendar.vue` 与 `pages/admin/waitlist/index.vue` 两种写法，均可工作但风格不统一。
-- **最小验收**:
-    - 固化测试分层规则与目录归属。
-    - 形成迁移与命名规范，避免新增测试继续双轨漂移。
-
-3. **`utils/shared` 与 `types` 职责边界收敛**
+1. **`utils/shared` 与 `types` 职责边界收敛**
 - **目标**:
     - 纯类型定义统一放 `types/`。
     - 含逻辑（函数、常量、订阅与副作用）的复用代码统一放 `utils/`。
@@ -341,12 +328,14 @@
     - 输出冲突样本清单（类型与逻辑混放位置）。
     - 给出迁移规则、导入路径策略与渐进式收敛顺序。
 
-4. **跨包复用治理：`packages/mcp-server` 与 `packages/cli`**
+2. **跨包复用治理：`packages/mcp-server` 与 `packages/cli`**
 - **目标**:
-    - 在保持拆包收益的同时，避免首屏出现未翻译字段 / raw key。
+    - 识别 `packages/mcp-server` 与 `packages/cli` 之间的共享类型、工具函数、配置常量与 Schema 定义。
+    - 建立合理的导入路径策略，避免代码重复与版本漂移，同时保持拆包的独立可发布性。
 - **最小验收**:
-    - 给出首屏关键路由的加载命中矩阵与回退策略。
-    - 明确“拆分收益与首屏稳定性”的平衡阈值及回归检查入口。
+    - 输出双包共享代码清单（类型 / 函数 / 常量 / 配置）。
+    - 给出导入路径规则（是否允许跨包引用、是否需要抽取共享包）。
+    - 形成去重方案与渐进式收敛顺序。
 
 ### 延后新增能力保留池（当前不建议优先上收）
 
