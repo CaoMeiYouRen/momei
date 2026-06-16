@@ -1,6 +1,5 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useI18nDate } from '@/composables/use-i18n-date'
 import type { ApiResponse } from '@/types/api'
 import type { AgreementPublicPayload } from '@/types/agreement'
 
@@ -98,12 +97,6 @@ export async function useLegalAgreementPage(options: UseLegalAgreementPageOption
     const agreement = computed(() => data.value?.data || fallbackAgreement.value)
     const copy = computed(() => createLegalAgreementPageCopy(t, agreementType))
 
-    const { formatDate: _formatDate } = useI18nDate()
-
-    /**
-     * 格式化日期，null 值时返回该协议类型的专属回退文案。
-     * 复用 `useI18nDate().formatDate`，仅对 null 值做协议类型区分。
-     */
     function formatDate(value?: null | string) {
         if (!value) {
             return agreementType === 'privacy_policy'
@@ -111,7 +104,11 @@ export async function useLegalAgreementPage(options: UseLegalAgreementPageOption
                 : t('pages.user_agreement.date_fallback')
         }
 
-        return _formatDate(value, 'MMM D, YYYY')
+        return new Intl.DateTimeFormat(locale.value, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        }).format(new Date(value))
     }
 
     return {

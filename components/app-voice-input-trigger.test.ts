@@ -48,8 +48,8 @@ vi.mock('vue-i18n', async (importOriginal) => ({
     }),
 }))
 
-vi.mock('@/composables/use-voice-input', () => ({
-    useVoiceInput: () => ({
+vi.mock('@/composables/use-post-editor-voice', () => ({
+    usePostEditorVoice: () => ({
         isListening: isListeningRef,
         isSupported: isSupportedRef,
         interimTranscript: interimTranscriptRef,

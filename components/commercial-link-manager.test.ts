@@ -155,7 +155,7 @@ describe('CommercialLinkManager', () => {
 
         const vm = wrapper.vm as any
 
-        vm.openDonationDialog()
+        vm.openDialog('donation')
         expect(vm.dialogVisible).toBe(true)
         expect(vm.editingIndex).toBe(-1)
         expect(vm.currentLink).toMatchObject({
@@ -188,7 +188,7 @@ describe('CommercialLinkManager', () => {
         })
 
         const originalLink = vm.donationLinks[0]
-        vm.openDonationDialog(originalLink, 0)
+        vm.openDialog('donation', originalLink, 0)
         expect(vm.editingIndex).toBe(0)
         expect(vm.currentLink.locales).toEqual(['en-US'])
 
@@ -238,7 +238,7 @@ describe('CommercialLinkManager', () => {
 
         const vm = wrapper.vm as any
 
-        vm.openSocialDialog()
+        vm.openDialog('social')
         expect(vm.socialDialogVisible).toBe(true)
         expect(vm.editingSocialIndex).toBe(-1)
         expect(vm.currentSocialLink).toMatchObject({
@@ -270,7 +270,7 @@ describe('CommercialLinkManager', () => {
         })
 
         const originalLink = vm.socialLinks[0]
-        vm.openSocialDialog(originalLink, 0)
+        vm.openDialog('social', originalLink, 0)
         expect(vm.editingSocialIndex).toBe(0)
         expect(vm.currentSocialLink.locales).toEqual(['en-US'])
 

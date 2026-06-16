@@ -2,7 +2,7 @@
  * PrimeVue 与 Vue-i18n 动态同步插件
  * 监听 Vue-i18n 语言变化，自动同步 PrimeVue 组件的内置文本
  */
-import { isRef, unref, watch } from 'vue'
+import { isRef, watch } from 'vue'
 import { usePrimeVue } from 'primevue/config'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { zh_TW } from 'primelocale/js/zh_TW.js'
