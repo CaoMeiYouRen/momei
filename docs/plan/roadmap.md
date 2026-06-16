@@ -400,7 +400,7 @@
     - **非目标**: 不在本阶段实现完整功能。
     - **最小验收**: 评估文档输出 go/no-go 结论。
 
-### 第五十一阶段：边界收敛与治理增压 (Boundary Convergence & Governance Boost) (规划中)
+### 第五十一阶段：边界收敛与治理增压 (Boundary Convergence & Governance Boost) (已审计归档)
 
 **时间表**: 2026-06-16 ~ 约 2 周
 **目标**: 在第五十阶段完成 PWA 启用与收口治理后，以「0 个新功能 + 5 个优化」组合推进：首次上收 backlog 短期候选中的 types/utils 边界收敛与跨包复用评估（评估态），同时将 ESLint/类型债与结构复用的治理切片增压至各 ≥5 组，并补齐 backlog 长期主线状态滞后补账。

@@ -28,6 +28,8 @@
 - **[国际化字段治理与共享文案边界收敛](./i18n-field-governance)**: `i18n.md` 的执行态治理补充，聚焦 missing blocker、运行时加载边界、共享 key 准入标准与第三十阶段关闭口径。
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。
 - **[文章批量翻译编排能力评估](./batch-translation-orchestration)**: `ai.md` / `cli-mcp-automation.md` 的专项评估文档，聚焦批次范围冻结、父子任务模型、确认流与 Serverless 边界。
+- **[types/ 与 utils/shared/ 职责边界收敛治理](./types-utils-boundary-governance)**: 第五十一阶段治理文档，聚焦类型与运行时代码的目录边界、迁移规则、冲突清单与渐进式收敛顺序。
+- **[跨包复用治理评估：packages/mcp-server 与 packages/cli](./cross-package-reuse-evaluation)**: 第五十一阶段评估文档，聚焦双包共享代码盘点、抽包成本评估、go/no-go 结论与替代方案。
 
 ## 内容分发、订阅与执行态补充
 

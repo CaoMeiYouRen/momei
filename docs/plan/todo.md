@@ -17,55 +17,9 @@
 
 ## 当前待办
 
-> 第五十一阶段（边界收敛与治理增压）已于 2026-06-16 启动。五条主线：types/utils 边界收敛、跨包复用评估、ESLint ≥5 组、结构复用 ≥5 组、backlog 状态同步。
+> 第五十一阶段（边界收敛与治理增压）已于 2026-06-16 完成归档，详细记录见 [待办事项归档](./todo-archive.md)。
 
-### A. `utils/shared` 与 `types` 职责边界收敛 (P1)
-
-- **执行范围**: 盘点类型与逻辑混放位置，纯类型→`types/`，含逻辑代码→`utils/`。输出冲突清单 + 迁移规则，≥3 处样本迁移。
-- **非目标**: 不跨目录大重构、不改变业务行为。
-- **最小验收**: 冲突清单落盘；迁移规则文档化；≥3 处迁移完成且 typecheck 通过。
-- [x] 输出冲突样本清单（类型与逻辑混放位置） → [治理文档](../design/governance/types-utils-boundary-governance.md)
-- [x] 给出迁移规则与渐进式收敛顺序 → [治理文档](../design/governance/types-utils-boundary-governance.md)
-- [x] ≥3 处样本迁移完成 + typecheck 通过（样本: copyright.ts → utils/shared/copyright.ts, utils.ts → type-guards.ts, email-template-preview.ts → types/）
-
-### B. 跨包复用治理 — 评估态 (P2)
-
-- **执行范围**: 盘点 `packages/mcp-server` 与 `packages/cli` 共享代码（类型/函数/常量/配置），产出 go/no-go 评估文档。
-- **非目标**: 不抽取共享包、不进入代码实现。
-- **最小验收**: 共享代码清单 + 评估文档（覆盖共享面规模、抽包成本、替代方案）。
-- [x] 盘点双包共享代码清单 → [评估文档](../design/governance/cross-package-reuse-evaluation.md)
-- [x] 产出 go/no-go 评估文档（结论: 完整方案 No-Go / 轻量方案条件性 Go） → [评估文档](../design/governance/cross-package-reuse-evaluation.md)
-
-### C. ESLint / 类型债治理 — ≥5 组窄切片 (P1)
-
-- **执行范围**: 「单规则 + 单文件/双文件」窄切片 ×5。保持 `warning=0`。
-- **非目标**: 不全仓 any 清零、不引入新规则族。
-- **最小验收**: ≥5 组切片完成；`pnpm governance:audit:eslint-debt` delta 可对照。
-- [x] 窄切片 1：`lib/auth.ts` — (user as any).language → 局部类型断言 + 变量收窄
-- [x] 窄切片 2：`lib/auth.ts` — AUTH_CAPTCHA_PROVIDER as any → as 'cloudflare-turnstile'
-- [x] 窄切片 3：`plugins/primevue-i18n.ts` — localeMap + config.locale 两处 as any → Record<string, object> / unknown cast
-- [x] 窄切片 4：`components/settings/settings-profile.vue` — session.user + updateUser + setLocale 四处 as any → 具体类型断言
-- [x] 窄切片 5：`pages/benefits.vue` — (user as any).name → 局部类型断言 + 变量收窄
-- [x] production code `as any` 从 14 降至 3（-11），typecheck 零错误
-
-### D. 结构复用治理 — ≥5 组热点切片 (P1)
-
-- **执行范围**: `commercial-link-manager.vue` 自重复 + ≥4 组其他（同名 type/函数/工具函数）。每组输出原始重复点、抽象边界与回滚方式。
-- **非目标**: 不跨目录大重构、不为复用而复用。
-- **最小验收**: ≥5 组切片完成；`duplicate-code` 基线不反弹。
-- [x] 热点切片 1：commercial-link-manager.vue 自重复（8 组重复收敛为参数化 handler）
-- [x] 热点切片 2：UploadType enum 重复定义 → `types/upload.ts` 统一事实源
-- [x] 热点切片 3：use-voice-input.ts 纯别名包装 → 删除文件，调用方直连 use-post-editor-voice
-- [x] 热点切片 4：use-legal-agreement-page.ts formatDate 局部实现 → 复用 useI18nDate
-- [x] 热点切片 5：ApiResponse 三处独立定义 → `types/api.ts` 统一事实源
-- [x] duplicate-code 基线不反弹（type/interface 候选 11→10，文件数 1229→1228）
-
-### E. Backlog 长期主线状态同步 (P1)
-
-- **执行范围**: 对照 Phase 38-50 归档记录，更新 10 条长期主线的状态字段。
-- **非目标**: 不重写条目正文、不新增条目。
-- **最小验收**: 10 条主线「最近一次上收阶段」全部 ≥Phase 48。
-- [x] 10 条长期主线状态字段更新至 ≥Phase 48（#1→49, #2→51, #3→51, #4→39, #5→49, #6→50, #7→50, #8→43/暂停, #9→44, #10→40）
+暂无进行中的待办事项。新任务请参考 [项目计划](./roadmap.md) 与 [backlog](./backlog.md)。
 
 ---
 

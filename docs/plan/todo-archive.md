@@ -18,6 +18,53 @@
 
 ---
 
+## 第五十一阶段：边界收敛与治理增压 (已审计归档)
+
+> 归档说明: 第五十一阶段「0 个新功能 + 5 个优化」已于 2026-06-16 完成五条主线交付与阶段收口。五条主线: types/utils 边界收敛（冲突清单 + 治理文档 + 3 组样本迁移）、跨包复用评估（No-Go 完整方案 / 条件性 Go 轻量方案 + 评估文档）、ESLint/类型债 ≥5 组窄切片（11 处 as any 收敛，typecheck 零错误）、结构复用 ≥5 组热点切片（commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）、backlog 长期主线状态同步（10 条主线更新至 ≥Phase 48）。
+
+> **ROI 评估**: types/utils 边界收敛 2.00；跨包复用评估 1.20；ESLint / 类型债治理 2.33；结构复用治理 2.33；backlog 状态同步（维护债，不评分）。
+
+### 1. `utils/shared` 与 `types` 职责边界收敛 (P1)
+
+- **执行范围**: 全量扫描 types/ 与 utils/shared/ 目录，盘点类型与逻辑混放位置。纯类型→`types/`，含逻辑代码→`utils/`。输出冲突清单 + 迁移规则，≥3 处样本迁移。
+- **结果**: 输出治理文档 `types-utils-boundary-governance.md`（含 5 条迁移规则、渐进式收敛顺序、回滚边界、验证矩阵）。3 组样本迁移: `types/copyright.ts` 常量+函数→`utils/shared/copyright.ts`（7 文件 import 更新）、`types/utils.ts` 函数`isSelectLocaleOption`→`utils/shared/type-guards.ts`、`utils/shared/email-template-preview.ts`→`types/email-template-preview.ts`（2 文件 import 更新）。
+- **验证**: `pnpm typecheck` 零错误。
+- [x] 冲突样本清单 + 迁移规则文档化
+- [x] ≥3 处样本迁移完成 + typecheck 通过
+
+### 2. 跨包复用治理 — 评估态 (P2)
+
+- **执行范围**: 全量扫描 `packages/mcp-server/src/`（6 源文件）与 `packages/cli/src/`（10 源文件），盘点共享代码清单（9 个 API 方法、3 个工具函数、6 组类型、4 组配置常量），输出 go/no-go 评估文档。
+- **结果**: 产出评估文档 `cross-package-reuse-evaluation.md`。结论: 完整抽包方案 No-Go（Score 0.88，两套 HTTP 传输层统一成本过高）；轻量方案条件性 Go（Bug 修复 + shared-types + shared-utils 可分阶段推进）。**发现潜伏 Bug**: Auth header 大小写不一致（`X-API-Key` vs `X-API-KEY`）。
+- **验证**: typecheck 零错误，评估文档覆盖共享面规模/抽包成本/替代方案三维度。
+- [x] 双包共享代码清单落盘
+- [x] go/no-go 评估文档产出
+
+### 3. ESLint / 类型债治理 — ≥5 组窄切片 (P1)
+
+- **执行范围**: 「单规则 + 单文件/双文件」窄切片 ×5，优先 `as any` 高命中文件。
+- **结果**: 5 组切片覆盖 4 个文件。`lib/auth.ts`（3→0）、`plugins/primevue-i18n.ts`（2→0）、`components/settings/settings-profile.vue`（4→0）、`pages/benefits.vue`（5→3）。合计生产代码 `as any` 从 14 降至 3（-11）。
+- **验证**: `pnpm typecheck` 零错误。
+- [x] ≥5 组窄切片完成
+- [x] production code `as any` 14→3（-11）
+
+### 4. 结构复用治理 — ≥5 组热点切片 (P1)
+
+- **执行范围**: `commercial-link-manager.vue` 自重复（最高优先级）+ ≥4 组其他热点。
+- **结果**: 5 组切片: (1) commercial-link-manager.vue 8 组重复收敛为参数化 handler + 配置对象; (2) UploadType enum 统一至 `types/upload.ts`; (3) use-voice-input.ts 纯别名删除，调用方直连; (4) use-legal-agreement-page.ts formatDate 复用 useI18nDate; (5) ApiResponse 三处独立定义统一至 `types/api.ts`。
+- **验证**: `pnpm typecheck` 零错误；`pnpm governance:audit:simple-duplicates` 同名 type/interface 候选 11→10，文件数 1229→1228。
+- [x] ≥5 组热点切片完成
+- [x] duplicate-code 基线不反弹
+
+### 5. Backlog 长期主线状态同步 (P1)
+
+- **执行范围**: 逐条对照 Phase 38-51 归档记录，更新 backlog.md 中 10 条长期主线的「最近一次上收阶段」「当前状态」「下一次可切片方向」字段。
+- **结果**: 10 条主线全部更新。更新跨度: #2 ESLint 37→51、#3 结构复用 37→51、#6 i18n 31→50、#7 文档 31→50、#9 站点性能 27→44。#8 Windows 性能转为「暂停」状态（Phase 43 确认平台级瓶颈）。
+- **验证**: `pnpm lint:md` 通过；`pnpm docs:check:line-count` 所有文档在健康窗口内。
+- [x] 10 条长期主线状态字段更新至 ≥Phase 48
+
+> **审计结论**: 第五十一阶段五条主线已在治理文档、评估文档、类型断言收敛、结构复用切片与 backlog 状态同步中完成闭环。`pnpm typecheck` 零错误，`pnpm lint:md` 通过，`pnpm docs:check:line-count` 全部在健康窗口内。当前 `todo.md` 执行面已清理，归档块已写入。
+
 ## 第五十阶段：PWA 启用与收口治理 (已审计归档)
 
 > 归档说明: 第五十阶段「1 个新功能 + 4 个优化」已于 2026-06-14 完成五条主线交付与阶段收口。五条主线: PWA 功能开启（`@vite-pwa/nuxt` 启用，607 entries precached）、API 测试分层收敛（4 组迁移 + 治理文档）、i18n 首屏翻译稳定性治理（命中矩阵 + 3 处修复）、backlog 深度清理（Phase 32-41 归档压缩 + #3/#4/#5/#8 移除）、友链前后博客环导航评估（Go 结论）。
