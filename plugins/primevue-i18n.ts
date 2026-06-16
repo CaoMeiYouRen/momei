@@ -23,7 +23,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         const localeSource = i18n?.locale
 
         // PrimeVue 语言映射表
-        const localeMap: Record<string, any> = {
+        const localeMap: Record<string, object> = {
             'zh-CN': zh_CN,
             'en-US': en,
             'zh-TW': zh_TW,
@@ -43,7 +43,7 @@ export default defineNuxtPlugin((nuxtApp) => {
                 // 深度更新所有字段而不是替换整个对象引用
                 // 这样可以确保 Password 等组件能正确响应语言变化
                 Object.entries(newLocale).forEach(([key, value]) => {
-                    ;(primevue.config.locale as any)[key] = value
+                    ;(primevue.config.locale as unknown as Record<string, unknown>)[key] = value
                 })
             }
         }
@@ -53,7 +53,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         }
 
         // 初始化时同步当前语言
-        syncPrimeVueLocale(unref(localeSource as any) || APP_DEFAULT_LOCALE)
+        syncPrimeVueLocale((typeof localeSource === 'string' ? localeSource : (localeSource as { value?: string }).value) || APP_DEFAULT_LOCALE)
 
         // 监听 Vue-i18n 语言变化，自动同步 PrimeVue
         if (isRef(localeSource)) {

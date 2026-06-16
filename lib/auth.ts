@@ -165,8 +165,9 @@ export const auth = betterAuth({
                         const subscriber = await subscriberRepo.findOne({
                             where: { email: user.email },
                         })
-                        if (subscriber && (user as any).language) {
-                            subscriber.language = (user as any).language
+                        const userLang = (user as { language?: string | null }).language
+                        if (subscriber && userLang) {
+                            subscriber.language = userLang
                             await subscriberRepo.save(subscriber)
                         }
                     } catch (error) {
@@ -477,7 +478,7 @@ export const auth = betterAuth({
         ...(AUTH_CAPTCHA_PROVIDER && AUTH_CAPTCHA_SECRET_KEY
             ? [
                 captcha({
-                    provider: AUTH_CAPTCHA_PROVIDER as any,
+                    provider: AUTH_CAPTCHA_PROVIDER as 'cloudflare-turnstile',
                     secretKey: AUTH_CAPTCHA_SECRET_KEY,
                     endpoints: [
                         '/sign-up/email',

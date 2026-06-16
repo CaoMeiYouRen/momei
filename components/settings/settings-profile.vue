@@ -125,8 +125,8 @@ watchEffect(() => {
     if (session.value?.data?.user) {
         profileForm.name = session.value.data.user.name || ''
         profileForm.image = session.value.data.user.image || ''
-        profileForm.language = (session.value.data.user as any).language || ''
-        profileForm.timezone = (session.value.data.user as any).timezone || ''
+        profileForm.language = (session.value.data.user as { language?: string; timezone?: string }).language || ''
+        profileForm.timezone = (session.value.data.user as { language?: string; timezone?: string }).timezone || ''
     }
 })
 
@@ -174,7 +174,7 @@ const handleUpdateProfile = async () => {
             image: profileForm.image,
             language: profileForm.language || undefined,
             timezone: profileForm.timezone || undefined,
-        } as any, {
+        } as { name?: string; image?: string; language?: string; timezone?: string }, {
             disableSignal: true,
         })
 
@@ -185,7 +185,7 @@ const handleUpdateProfile = async () => {
             await refreshAuthSession()
 
             if (profileForm.language) {
-                await setLocale(profileForm.language as any)
+                await setLocale(profileForm.language as 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP')
             }
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.success'), life: 3000 })
         }

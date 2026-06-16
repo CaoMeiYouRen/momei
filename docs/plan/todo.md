@@ -41,12 +41,12 @@
 - **执行范围**: 「单规则 + 单文件/双文件」窄切片 ×5。保持 `warning=0`。
 - **非目标**: 不全仓 any 清零、不引入新规则族。
 - **最小验收**: ≥5 组切片完成；`pnpm governance:audit:eslint-debt` delta 可对照。
-- [ ] 窄切片 1
-- [ ] 窄切片 2
-- [ ] 窄切片 3
-- [ ] 窄切片 4
-- [ ] 窄切片 5
-- [ ] governance:audit:eslint-debt delta 对照
+- [x] 窄切片 1：`lib/auth.ts` — (user as any).language → 局部类型断言 + 变量收窄
+- [x] 窄切片 2：`lib/auth.ts` — AUTH_CAPTCHA_PROVIDER as any → as 'cloudflare-turnstile'
+- [x] 窄切片 3：`plugins/primevue-i18n.ts` — localeMap + config.locale 两处 as any → Record<string, object> / unknown cast
+- [x] 窄切片 4：`components/settings/settings-profile.vue` — session.user + updateUser + setLocale 四处 as any → 具体类型断言
+- [x] 窄切片 5：`pages/benefits.vue` — (user as any).name → 局部类型断言 + 变量收窄
+- [x] production code `as any` 从 14 降至 3（-11），typecheck 零错误
 
 ### D. 结构复用治理 — ≥5 组热点切片 (P1)
 

@@ -277,8 +277,9 @@ watch(loggedInUser, (user) => {
         return
     }
 
-    if (!form.name && (user as any).name) {
-        form.name = (user as any).name
+    const userName = (user as { name?: string | null }).name
+    if (!form.name && userName) {
+        form.name = userName
     }
 
     if (!form.email && user.email) {
