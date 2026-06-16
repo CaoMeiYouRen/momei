@@ -28,10 +28,5 @@ export interface SelectLocaleOption {
 }
 
 /**
- * SelectLocaleOption 的类型定义。
- * 其运行时类型守卫 `isSelectLocaleOption` 已迁入 `utils/shared/type-guards.ts`。
+ * 运行时类型守卫 `isSelectLocaleOption` 已迁入 `utils/shared/type-guards.ts`。
  */
-export interface SelectLocaleOption {
-    label: string
-    code: string
-}
