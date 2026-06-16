@@ -1,4 +1,5 @@
-import { resolveCopyrightType, type CopyrightType } from '@/types/copyright'
+import { resolveCopyrightType } from '@/utils/shared/copyright'
+import type { CopyrightType } from '@/types/copyright'
 
 export interface CopyrightLicenseOption {
     label: string

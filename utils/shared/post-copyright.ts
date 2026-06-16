@@ -4,7 +4,8 @@ import enUsComponents from '../../i18n/locales/en-US/components.json'
 import zhTwComponents from '../../i18n/locales/zh-TW/components.json'
 import koKrComponents from '../../i18n/locales/ko-KR/components.json'
 import jaJpComponents from '../../i18n/locales/ja-JP/components.json'
-import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
+import { COPYRIGHT_LICENSES } from '@/utils/shared/copyright'
+import type { CopyrightType } from '@/types/copyright'
 
 type SupportedLocale = AppLocaleCode
 type NoticeFormat = 'text' | 'markdown'

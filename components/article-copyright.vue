@@ -45,7 +45,8 @@
 
 <script setup lang="ts">
 import { getCreativeCommonsDeedSuffix } from '@/i18n/config/locale-registry'
-import { COPYRIGHT_LICENSES, type CopyrightType } from '@/types/copyright'
+import { COPYRIGHT_LICENSES } from '@/utils/shared/copyright'
+import type { CopyrightType } from '@/types/copyright'
 
 const props = defineProps<{
     authorName: string

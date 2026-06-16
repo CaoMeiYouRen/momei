@@ -11,7 +11,7 @@ import type {
     PostTranslationTagOption,
 } from '@/types/post-translation'
 import { createPostSchema, updatePostSchema } from '@/utils/schemas/post'
-import { COPYRIGHT_LICENSES } from '@/types/copyright'
+import { COPYRIGHT_LICENSES } from '@/utils/shared/copyright'
 import { usePostEditorAI, type TitleSuggestionOverlayRef } from '@/composables/use-post-editor-ai'
 import { usePostEditorAutoSave } from '@/composables/use-post-editor-auto-save'
 import { usePostEditorDirtyState } from '@/composables/use-post-editor-dirty-state'

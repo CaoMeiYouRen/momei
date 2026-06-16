@@ -3,7 +3,7 @@ import type { ApiResponse } from '@/server/utils/response'
 import type { InstallationDiagnostics, InstallationRuntime } from '@/utils/shared/installation-diagnostics'
 import type { InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
-import { isCopyrightType } from '@/types/copyright'
+import { isCopyrightType } from '@/utils/shared/copyright'
 import { getCopyrightLicenseOptions, resolveDefaultCopyrightLicense } from '@/utils/shared/copyright-options'
 import { getInstallationChecklist, type InstallationChecklistMode } from '@/utils/shared/installation-checklist'
 import {

@@ -180,7 +180,7 @@ import {
     resolveEmailTemplateLocalizedField,
     updateEmailTemplateCustomConfig,
 } from '@/utils/shared/email-template-config'
-import type { EmailTemplatePreviewPayload } from '@/utils/shared/email-template-preview'
+import type { EmailTemplatePreviewPayload } from '@/types/email-template-preview'
 import { createEmptyLocalizedSettingValue, isLocalizedSettingValue } from '@/utils/shared/localized-settings'
 import type { LocalizedSettingValueV1, SettingSource } from '@/types/setting'
 

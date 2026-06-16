@@ -20,7 +20,7 @@ import type {
     EmailTemplatePreviewMeta,
     EmailTemplatePreviewPayload,
     EmailTemplatePreviewVariableMeta,
-} from '@/utils/shared/email-template-preview'
+} from '@/types/email-template-preview'
 
 type LocaleMessages = Record<string, any>
 

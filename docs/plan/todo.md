@@ -24,9 +24,9 @@
 - **执行范围**: 盘点类型与逻辑混放位置，纯类型→`types/`，含逻辑代码→`utils/`。输出冲突清单 + 迁移规则，≥3 处样本迁移。
 - **非目标**: 不跨目录大重构、不改变业务行为。
 - **最小验收**: 冲突清单落盘；迁移规则文档化；≥3 处迁移完成且 typecheck 通过。
-- [ ] 输出冲突样本清单（类型与逻辑混放位置）
-- [ ] 给出迁移规则与渐进式收敛顺序
-- [ ] ≥3 处样本迁移完成 + typecheck 通过
+- [x] 输出冲突样本清单（类型与逻辑混放位置） → [治理文档](../design/governance/types-utils-boundary-governance.md)
+- [x] 给出迁移规则与渐进式收敛顺序 → [治理文档](../design/governance/types-utils-boundary-governance.md)
+- [x] ≥3 处样本迁移完成 + typecheck 通过（样本: copyright.ts → utils/shared/copyright.ts, utils.ts → type-guards.ts, email-template-preview.ts → types/）
 
 ### B. 跨包复用治理 — 评估态 (P2)
 

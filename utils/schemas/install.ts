@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { isAppLocale } from '@/i18n/config/locale-registry'
-import { isCopyrightType } from '@/types/copyright'
+import { isCopyrightType } from '@/utils/shared/copyright'
 
 const localizedTextValueSchema = z.object({
     version: z.literal(1),
