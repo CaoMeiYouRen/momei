@@ -10,14 +10,9 @@ import { limiterStorage } from '@/server/database/storage'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 
-/**
- * 上传类型枚举
- */
-export enum UploadType {
-    IMAGE = 'image',
-    AUDIO = 'audio',
-    FILE = 'file',
-}
+import { UploadType } from '@/types/upload'
+
+export { UploadType }
 
 const UPLOAD_TYPE_DIRECTORIES: Record<UploadType, string> = {
     [UploadType.IMAGE]: 'image',

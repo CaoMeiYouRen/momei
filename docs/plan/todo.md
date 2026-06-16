@@ -53,12 +53,12 @@
 - **执行范围**: `commercial-link-manager.vue` 自重复 + ≥4 组其他（同名 type/函数/工具函数）。每组输出原始重复点、抽象边界与回滚方式。
 - **非目标**: 不跨目录大重构、不为复用而复用。
 - **最小验收**: ≥5 组切片完成；`duplicate-code` 基线不反弹。
-- [ ] 热点切片 1：commercial-link-manager.vue 自重复
-- [ ] 热点切片 2
-- [ ] 热点切片 3
-- [ ] 热点切片 4
-- [ ] 热点切片 5
-- [ ] duplicate-code 基线不反弹
+- [x] 热点切片 1：commercial-link-manager.vue 自重复（8 组重复收敛为参数化 handler）
+- [x] 热点切片 2：UploadType enum 重复定义 → `types/upload.ts` 统一事实源
+- [x] 热点切片 3：use-voice-input.ts 纯别名包装 → 删除文件，调用方直连 use-post-editor-voice
+- [x] 热点切片 4：use-legal-agreement-page.ts formatDate 局部实现 → 复用 useI18nDate
+- [x] 热点切片 5：ApiResponse 三处独立定义 → `types/api.ts` 统一事实源
+- [x] duplicate-code 基线不反弹（type/interface 候选 11→10，文件数 1229→1228）
 
 ### E. Backlog 长期主线状态同步 (P1)
 

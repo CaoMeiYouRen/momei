@@ -2,12 +2,9 @@ import { computed, ref, unref, type MaybeRefOrGetter } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { DirectUploadProxyStrategy, DirectUploadPresignStrategy } from '@/server/services/direct-upload'
+import { UploadType } from '@/types/upload'
 
-export enum UploadType {
-    IMAGE = 'image',
-    AUDIO = 'audio',
-    FILE = 'file',
-}
+export { UploadType }
 
 export interface UseUploadOptions {
     type?: UploadType

@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { VoiceInputMode } from '@/composables/use-voice-input'
+import type { VoiceTranscriptionMode as VoiceInputMode } from '@/composables/use-post-editor-voice'
 
 interface VoiceModeOption {
     label: string

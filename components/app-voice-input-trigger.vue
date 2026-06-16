@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, unref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useVoiceInput } from '@/composables/use-voice-input'
+import { usePostEditorVoice as useVoiceInput } from '@/composables/use-post-editor-voice'
 import { insertVoiceText, type VoiceTextInsertStrategy } from '@/utils/web/voice-text'
 
 type MaybeTextareaTarget = HTMLTextAreaElement | HTMLElement | { $el?: HTMLElement } | null | undefined

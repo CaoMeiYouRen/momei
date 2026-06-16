@@ -1,11 +1,7 @@
 import { t, getLocale } from './i18n'
+import type { ApiResponse } from '@/types/api'
 
-export interface ApiResponse<T = any> {
-    code: number
-    data?: T
-    message?: string
-    locale?: string
-}
+export type { ApiResponse }
 
 /**
  * 成功响应

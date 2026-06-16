@@ -72,7 +72,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ArchiveMonth, ArchiveYear, ApiResponse } from '@/types/archive'
+import type { ArchiveMonth, ArchiveYear } from '@/types/archive'
+import type { ApiResponse } from '@/types/api'
 import Skeleton from 'primevue/skeleton'
 
 const { t, locale } = useI18n()
