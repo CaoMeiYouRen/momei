@@ -165,7 +165,7 @@ describe('CommercialLinkManager', () => {
             locales: [],
         })
 
-        vm.addLink()
+        vm.addLink('donation')
         expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'warn',
             summary: 'warn',
@@ -176,7 +176,7 @@ describe('CommercialLinkManager', () => {
 
         vm.currentLink.url = 'https://paypal.me/new'
         vm.currentLink.locales = ['zh-CN']
-        vm.addLink()
+        vm.addLink('donation')
         await nextTick()
 
         expect(vm.dialogVisible).toBe(false)
@@ -196,7 +196,7 @@ describe('CommercialLinkManager', () => {
         vm.currentLink.locales.push('zh-CN')
         expect(originalLink.locales).toEqual(['en-US'])
 
-        vm.addLink()
+        vm.addLink('donation')
         await nextTick()
 
         expect(vm.donationLinks[0]).toMatchObject({
@@ -205,7 +205,7 @@ describe('CommercialLinkManager', () => {
             locales: ['en-US', 'zh-CN'],
         })
 
-        vm.confirmDeleteDonationLink(0)
+        vm.confirmDelete('donation', 0)
         expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
             message: 'delete confirm',
             header: 'confirmation',
@@ -247,7 +247,7 @@ describe('CommercialLinkManager', () => {
             locales: [],
         })
 
-        vm.addSocialLink()
+        vm.addLink('social')
         expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'warn',
             summary: 'warn',
@@ -258,7 +258,7 @@ describe('CommercialLinkManager', () => {
 
         vm.currentSocialLink.url = 'https://github.com/new'
         vm.currentSocialLink.locales = ['zh-CN']
-        vm.addSocialLink()
+        vm.addLink('social')
         await nextTick()
 
         expect(vm.socialDialogVisible).toBe(false)
@@ -278,7 +278,7 @@ describe('CommercialLinkManager', () => {
         vm.currentSocialLink.locales.push('zh-CN')
         expect(originalLink.locales).toEqual(['en-US'])
 
-        vm.addSocialLink()
+        vm.addLink('social')
         await nextTick()
 
         expect(vm.socialLinks[0]).toMatchObject({
@@ -287,7 +287,7 @@ describe('CommercialLinkManager', () => {
             locales: ['en-US', 'zh-CN'],
         })
 
-        vm.confirmDeleteSocial(0)
+        vm.confirmDelete('social', 0)
         expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
             message: 'delete confirm',
             header: 'confirmation',
