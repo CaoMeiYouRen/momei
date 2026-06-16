@@ -6,7 +6,7 @@ import { authClient } from '@/lib/auth-client'
 /**
  * 将 i18n 的 locale 转换为日期库（如 dayjs）识别的 locale
  */
-const dateLocaleMap: Record<string, string> = {
+export const dateLocaleMap: Record<string, string> = {
     'zh-CN': 'zh-cn',
     'en-US': 'en',
     'zh-TW': 'zh-tw',

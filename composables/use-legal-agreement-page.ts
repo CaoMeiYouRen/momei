@@ -1,5 +1,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { formatDate as _formatDate } from '@/utils/shared/date'
+import { dateLocaleMap } from '@/composables/use-i18n-date'
 import type { ApiResponse } from '@/types/api'
 import type { AgreementPublicPayload } from '@/types/agreement'
 
@@ -104,11 +106,7 @@ export async function useLegalAgreementPage(options: UseLegalAgreementPageOption
                 : t('pages.user_agreement.date_fallback')
         }
 
-        return new Intl.DateTimeFormat(locale.value, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        }).format(new Date(value))
+        return _formatDate(value, 'll', dateLocaleMap[locale.value] || locale.value.toLowerCase())
     }
 
     return {
