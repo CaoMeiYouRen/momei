@@ -164,8 +164,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       dom-to-image-more:
-        specifier: ^3.7.2
-        version: 3.9.0
+        specifier: ^3.10.0
+        version: 3.10.0
       dompurify:
         specifier: ^3.4.10
         version: 3.4.10
@@ -6732,8 +6732,8 @@ packages:
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
 
-  dom-to-image-more@3.9.0:
-    resolution: {integrity: sha512-9h1dEJ5+pAnWp2QH5YsBdR4couy2778LaJl6t0w0/AUoe1CQFkLgHL86rIICOK0WWJ5pN5o0x5IIgv0oK14epQ==}
+  dom-to-image-more@3.10.0:
+    resolution: {integrity: sha512-APrFEimSmH4phJKs8DlURuSr3BFwDqNi62l14bx73Wrhx0OhE4dd0qzZR+4E3sH8PnHxvax1LOrosC9oXRFA5A==}
 
   domelementtype@2.3.0:
     resolution: {integrity: sha512-OLETBj6w0OsagBwdXnPdN0cnMfF9opN69co+7ZrbfPGrdpPVNBUj02spi6B1N7wChLQiPn4CSH/zJvXw56gmHw==}
@@ -19826,7 +19826,7 @@ snapshots:
       domhandler: 5.0.3
       entities: 4.5.0
 
-  dom-to-image-more@3.9.0: {}
+  dom-to-image-more@3.10.0: {}
 
   domelementtype@2.3.0: {}
 
