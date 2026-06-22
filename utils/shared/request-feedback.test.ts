@@ -91,4 +91,41 @@ describe('request-feedback', () => {
             },
         }, translate)).toBe('translated:common.error')
     })
+
+    it('uses the server error message when no translation key matches', () => {
+        const options = {
+            fallbackKey: 'common.error',
+            statusKeyMap: { '404': 'common.not_found' },
+        }
+
+        expect(resolveRequestErrorMessage({
+            statusCode: 400,
+            data: {
+                message: 'Only published posts can be distributed manually',
+            },
+        }, options, translate)).toBe('Only published posts can be distributed manually')
+
+        expect(resolveRequestErrorMessage({
+            statusCode: 500,
+            data: {
+                message: 'Internal server error: database connection lost',
+            },
+        }, options, translate)).toBe('Internal server error: database connection lost')
+
+        // When data.message is empty, still fall back to the translation key
+        expect(resolveRequestErrorMessage({
+            statusCode: 400,
+            data: {
+                message: '',
+            },
+        }, options, translate)).toBe('translated:common.error')
+
+        // When data.message is not a string, still fall back to the translation key
+        expect(resolveRequestErrorMessage({
+            statusCode: 400,
+            data: {
+                message: { nested: 'value' },
+            },
+        }, options, translate)).toBe('translated:common.error')
+    })
 })
