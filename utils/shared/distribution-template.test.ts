@@ -186,6 +186,34 @@ describe('distribution-template', () => {
         expect(xiaohongshuDispatchPost.markdown).toContain('#Nuxt #Vue')
     })
 
+    it('strips copyright separator and converts markdown soft breaks to paragraphs for xiaohongshu payloads', () => {
+        const materialBundle = buildDistributionMaterialBundle({
+            ...post,
+            content: '## 标题\n\n正文内容。',
+        }, {
+            siteUrl: 'https://momei.app',
+            defaultLicense: 'all-rights-reserved',
+        })
+
+        const xiaohongshuPost = buildWechatSyncPostFromMaterialBundle(materialBundle, {
+            renderMode: 'leading',
+            contentProfile: 'xiaohongshu',
+        })
+
+        // 版权声明分隔线应被移除
+        expect(xiaohongshuPost.markdown).not.toContain('----------')
+        // Markdown 双空格软换行应被替换为段落换行
+        expect(xiaohongshuPost.markdown).not.toMatch(/ {2}\n/)
+        // 每个版权字段应包含独立段落（由 \n\n 分隔）
+        expect(xiaohongshuPost.markdown).toMatch(/本文作者:.*\n\n本文链接:/)
+        expect(xiaohongshuPost.markdown).toMatch(/本文链接:.*\n\n版权声明:/)
+        // 版权声明中的链接应保留
+        expect(xiaohongshuPost.markdown).toContain('[https://momei.app/posts/nuxt-distribution-test](https://momei.app/posts/nuxt-distribution-test)')
+        // 正文内容应正常保留
+        expect(xiaohongshuPost.markdown).toContain('## 标题')
+        expect(xiaohongshuPost.markdown).toContain('正文内容')
+    })
+
     it('converts markdown and bare external links to end references for wechat_mp payloads', () => {
         const materialBundle = buildDistributionMaterialBundle({
             ...post,

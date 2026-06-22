@@ -535,7 +535,12 @@ export function buildWechatSyncPostFromMaterialBundle(
     const usesWechatMpCompatibility = contentProfile === 'wechat_mp'
     const copyrightMarkdown = contentProfile === 'weibo'
         ? materialBundle.canonical.copyrightMarkdown.replace(/^\s*[-*_]{3,}\s*\n?/u, '').trim()
-        : materialBundle.canonical.copyrightMarkdown
+        : usesXiaohongshuCompatibility
+            ? materialBundle.canonical.copyrightMarkdown
+                .replace(/^\s*[-*_]{3,}\s*\n?/u, '')
+                .replace(/ {2}\n/g, '\n\n')
+                .trim()
+            : materialBundle.canonical.copyrightMarkdown
     const rawMarkdown = joinSections([
         materialBundle.channels.wechatsync.basePost.markdown,
         tagLine,

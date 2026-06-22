@@ -82,7 +82,10 @@ describe('post-distribution-preview', () => {
         expect(xiaohongshuPreview?.accountsLabel).toBe('小红书专栏')
         expect(xiaohongshuPreview?.tagLine).toBe('')
         expect(xiaohongshuPreview?.copyrightMarkdown).toBe(materialBundle.canonical.copyrightMarkdown)
-        expect(xiaohongshuPreview?.finalMarkdown).toContain(materialBundle.canonical.copyrightMarkdown)
+        expect(xiaohongshuPreview?.finalMarkdown).not.toContain('----------')
+        expect(xiaohongshuPreview?.finalMarkdown).not.toMatch(/ {2}\n/)
+        expect(xiaohongshuPreview?.finalMarkdown).toContain('本文作者')
+        expect(xiaohongshuPreview?.finalMarkdown).toContain('版权声明')
         expect(xiaohongshuPreview?.finalMarkdown).toContain('#Nuxt #Vue')
         expect(xiaohongshuPreview?.compatibility.adjustments).toEqual(
             expect.arrayContaining(['heading-anchor']),

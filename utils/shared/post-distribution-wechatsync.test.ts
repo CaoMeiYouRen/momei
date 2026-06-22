@@ -41,9 +41,9 @@ describe('post distribution wechatsync helpers', () => {
             { id: 'weibo', type: 'weibo', title: '微博专栏', checked: true },
         ])).toEqual({
             strategy: 'single_add_task_default_raw',
-            renderMode: 'none',
+            renderMode: 'leading',
             contentProfile: 'default',
-            usesRawPost: true,
+            usesRawPost: false,
         })
 
         expect(resolveWechatSyncDispatchPayloadProfile([

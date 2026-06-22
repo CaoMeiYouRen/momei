@@ -115,9 +115,9 @@ describe('post-distribution-wechatsync', () => {
 
             return {
                 strategy: 'single_add_task_default_raw',
-                renderMode: 'none',
+                renderMode: 'leading',
                 contentProfile: 'default',
-                usesRawPost: true,
+                usesRawPost: false,
             }
         })
     })
@@ -417,7 +417,7 @@ describe('post-distribution-wechatsync', () => {
         })
 
         expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
-            renderMode: 'none',
+            renderMode: 'leading',
             contentProfile: 'default',
         })
     })

@@ -45,9 +45,9 @@ export function resolveWechatSyncDispatchPayloadProfile(accounts: readonly Wecha
 
     return {
         strategy: 'single_add_task_default_raw',
-        renderMode: 'none',
+        renderMode: 'leading',
         contentProfile: 'default',
-        usesRawPost: true,
+        usesRawPost: false,
     }
 }
 
