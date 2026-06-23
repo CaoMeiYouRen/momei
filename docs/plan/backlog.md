@@ -320,19 +320,7 @@
 
 > 共享说明：除非单项另有说明，本区块条目当前均处于“候选评估中”，默认尚未满足正式上收前置条件；只有当条目内约束、门槛或预研结论闭环后，才允许写入 roadmap / todo。
 
-### 2026-06 架构一致性治理候选（延期进入 backlog）
-
-> **已上收/已归档**: 以下 #1、#2、#3、#4、#5、#8 六项已在对应阶段完成上收并归档至 [todo-archive.md](./todo-archive.md)，此处仅保留索引不再维护正文。
-> - ~~#1 页面与 API 路径规范化治理~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/route-api-path-governance.md`）
-> - ~~#2 `pages/admin` 路由文件风格统一~~ → 第四十七阶段已上收（主规范冻结 + 目录迁移样板）
-> - ~~#3 未使用 API 清单与清理可行性评估~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/unused-api-cleanup-assessment.md`）
-> - ~~#4 API Schema 覆盖与复用治理~~ → 第四十七阶段已上收（治理文档: `docs/design/governance/api-schema-coverage-governance.md`）
-> - ~~#5 API 测试分层与目录收敛治理~~ → 第五十阶段已上收（分层规则: `docs/design/governance/api-test-layering.md`）
-> - ~~#8 i18n 拆分加载与首屏翻译稳定性治理~~ → 第五十阶段已上收（命中矩阵: `docs/design/governance/i18n-first-screen-hit-matrix.md`）
-> - ~~#1 `utils/shared` 与 `types` 职责边界收敛~~ → 第五十一阶段已上收
-> - ~~#2 跨包复用治理：`packages/mcp-server` 与 `packages/cli`~~ → 第五十一阶段已上收（评估态）
->
-> 本区块 8 项候选已全部上收归档，无剩余活跃项。后续新增短期候选直接在下方续写。
+> 2026-06 批次 8 项短期候选已全部上收归档（Phase 47-51），详细记录见 [todo-archive.md](./todo-archive.md)。后续新增短期候选直接在下方续写。
 
 ### 延后新增能力保留池（当前不建议优先上收）
 

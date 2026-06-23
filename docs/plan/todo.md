@@ -17,9 +17,41 @@
 
 ## 当前待办
 
-> 第五十一阶段（边界收敛与治理增压）已于 2026-06-16 完成归档，详细记录见 [待办事项归档](./todo-archive.md)。
+### 第五十二阶段：治理补账与移动性能基线
 
-暂无进行中的待办事项。新任务请参考 [项目计划](./roadmap.md) 与 [backlog](./backlog.md)。
+> 2026-06-23 启动。五条主线均来自 backlog 长期主线。ESLint / 结构复用本轮刻意休息，聚焦最被忽视的治理欠账。
+
+- [ ] **主线 1：脚本治理 warning 清理与升格评估 (P0)**
+    - [ ] 清理 `audit-comment-drift` 误报与 warning 面
+    - [ ] 清理 `docs:check:line-count:candidate` warning
+    - [ ] 清理 `docs:check:source-of-truth:candidate` warning
+    - [ ] 升格评估：≥1 脚本进入 `regression:weekly` warning 面，输出 go/no-go 结论与理由
+    - **验收**: 三条脚本输出清洁；至少 1 个升格评估完成并落盘
+
+- [ ] **主线 2：文档治理归档审计与阈值收紧评估 (P0)**
+    - [ ] 审计 `docs/design/governance/` 过期文档
+    - [ ] 按规则归档至 `archive/` 子目录
+    - [ ] 评估 `must-sync` 30→21 天可行性
+    - [ ] 评估 `summary-sync` 45→30 天可行性
+    - **验收**: governance/ 条目数下降；阈值评估 go/no-go 结论落盘；`docs:check:source-of-truth` 通过
+
+- [ ] **主线 3：移动端 CWV 性能基线采集与评估 (P1)**
+    - [ ] 采集移动端 LCP/CLS/INP 基线（首页 + 文章详情 + 分类/标签列表）
+    - [ ] 评估移动端 LCP 是否超过 3s 阈值
+    - [ ] 若超阈值：至少一项可量化优化 + 前后对比数据
+    - **验收**: 基线数据落盘；阈值评估完成；超阈值时有优化对比证据
+
+- [ ] **主线 4：i18n 运行时验证扩面 (P1)**
+    - [ ] 盘点未纳入 `i18n:verify:runtime` 的公开页装配链路
+    - [ ] ≥2 组新页面链路纳入 runtime 回归
+    - [ ] 修复新链路中发现的 raw key 泄漏或归属漂移
+    - **验收**: ≥2 组新链路通过 runtime 验证；`i18n:audit:missing` / `i18n:audit:duplicates` = 0
+
+- [ ] **主线 5：测试有效性第二轮切片 (P1)**
+    - [ ] 补组件层 direct TTS 失败映射断言
+    - [ ] 补页面级 auth degradation 场景断言
+    - [ ] 补 `settings public` 或 `friend-links` 失败口径断言
+    - **验收**: ≥5 个失败路径断言；覆盖 ≥2 模块；coverage 基线不回退
 
 ---
 
