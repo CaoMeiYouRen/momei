@@ -1,6 +1,32 @@
 {
     "devCommand": "pnpm dev",
     "framework": "nuxtjs",
+    "headers": [
+        {
+            "source": "/_nuxt/(.*)",
+            "headers": [
+                { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+            ]
+        },
+        {
+            "source": "/(.*)\\.(png|svg|ico|webp|jpg|jpeg|woff2?)",
+            "headers": [
+                { "key": "Cache-Control", "value": "public, max-age=2592000" }
+            ]
+        },
+        {
+            "source": "/robots.txt",
+            "headers": [
+                { "key": "Cache-Control", "value": "public, max-age=86400" }
+            ]
+        },
+        {
+            "source": "/sitemap(.*)\\.xml",
+            "headers": [
+                { "key": "Cache-Control", "value": "public, max-age=3600" }
+            ]
+        }
+    ],
     "crons": [
         {
             "path": "/api/tasks/run-scheduled",

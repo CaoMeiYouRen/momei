@@ -11,6 +11,7 @@ export default defineEventHandler((event) => {
     const robots = [
         'User-agent: *',
         'Allow: /',
+        'Crawl-Delay: 10',
         'Allow: /sitemap.xml',
         'Allow: /llms.txt',
         'Allow: /llms-full.txt',
@@ -41,8 +42,9 @@ export default defineEventHandler((event) => {
         `Sitemap: ${sitemapUrl}`,
     ].join('\n')
 
-    // 设置响应头为文本格式
+    // 设置响应头为文本格式，并启用 CDN 缓存（Tier 1 止血）
     setHeader(event, 'Content-Type', 'text/plain; charset=utf-8')
+    setHeader(event, 'Cache-Control', 'public, max-age=86400')
 
     return robots
 })

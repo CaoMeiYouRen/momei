@@ -143,9 +143,13 @@
     - 第三十七阶段（已正式上收长窗口样本复核切片，确认连接阻塞问题已消失）。
     - 第四十一阶段（TypeORM 前置清障 + Postgres archive 查询字段裁剪）。
     - 第四十九阶段（Postgres 流量治理：89% 耗尽警戒 → 减列 + 缓存 + 移除 author 冗余字段）。
+- **2026-06-23 新证据**:
+    - 跨 Vercel 函数日志 + Neon 操作日志联合分析发现：Postgres compute 频繁启停（~40 次/天）的根本原因不是 SQL 查询本身，而是 **Vercel 100% Cache MISS + 76% Bot 流量 → 持续触发 SSR 冷启动 → 每次冷启动唤醒 Neon compute**。
+    - 每条 bot 请求穿透完整 SSR 流水线（Cron 检查 ~250ms → DB 连接 ~400-1200ms → SSR 渲染），函数平均耗时 3.25s。Neon 5 分钟 autosuspend 在 bot 2-4 分钟间隔下形同虚设。
+    - 治理文档：[Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)
 - **下一次可切片方向**:
-    - 基于 Phase 49 流量治理效果，决定下一轮是否需要继续瘦身。
-    - 候选组 B：围绕公开热点读路径继续补最小字段集、短 TTL 缓存与请求去重策略，并用 live sample 证明下降趋势。
+    - **优先：Vercel CDN 缓存 + Nitro ISR/SWR**（堵源头，阻断 Bot → SSR → DB 的连锁反应）。具体方案分三层：Tier 1 止血（vercel.json headers + Crawl-Delay + robots.txt 缓存，~45min），Tier 2 架构（nuxt.config.ts routeRules ISR/SWR + SSG 预渲染，~3.5h），Tier 3 深度（Bot 分级缓存 + Vercel KV，评估中）。
+    - **其次：继续 SQL 瘦身**（基于 Phase 49 效果，在缓存层部署后重新评估网络传输配额消耗速度）。
     - 候选组 A（`initializeDB()` 调用点审计）：仅在新增证据指向请求入口误触完整初始化时回退到此组。
 
 
