@@ -76,8 +76,8 @@ export const RULES = [
 export const TRANSLATION_LOCALES = ['en-US', 'zh-TW', 'ko-KR', 'ja-JP']
 
 export const TRANSLATION_TIER_RULES = {
-    'must-sync': { maxAge: 30 },
-    'summary-sync': { maxAge: 45 },
+    'must-sync': { maxAge: 21 },
+    'summary-sync': { maxAge: 30 },
     'source-only': { maxAge: null },
 }
 

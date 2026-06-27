@@ -10,18 +10,23 @@
 - [phase-37-plan.md](./phase-37-plan.md)
 - [phase-38-plan.md](./phase-38-plan.md)
 
-## 已完成评估（11）
+## 已完成评估（16）
 
 - [ai-setup-assistant-evaluation.md](./ai-setup-assistant-evaluation.md)
 - [caomei-auth-oauth-evaluation.md](./caomei-auth-oauth-evaluation.md)
 - [cloudflare-runtime-study.md](./cloudflare-runtime-study.md)
 - [commercialization-reassessment-framework.md](./commercialization-reassessment-framework.md)
+- [cross-package-reuse-evaluation.md](./cross-package-reuse-evaluation.md)
 - [digital-garden-evaluation.md](./digital-garden-evaluation.md)
+- [friend-link-ring-navigation-evaluation.md](./friend-link-ring-navigation-evaluation.md)
 - [hexo-repository-sync.md](./hexo-repository-sync.md)
 - [harness-engineering-adoption.md](./harness-engineering-adoption.md)
 - [phase-8-feasibility-report.md](./phase-8-feasibility-report.md)
+- [privacy-analytics-evaluation.md](./privacy-analytics-evaluation.md)
 - [tts-frontend-direct-evaluation.md](./tts-frontend-direct-evaluation.md)
 - [typeorm-v1-upgrade-assessment.md](./typeorm-v1-upgrade-assessment.md)
+- [unused-api-cleanup-assessment.md](./unused-api-cleanup-assessment.md)
+- [unused-api-round2-assessment.md](./unused-api-round2-assessment.md)
 - [wechat-mp-preview-export-assist.md](./wechat-mp-preview-export-assist.md)
 
 ## 已完成工程文档（6）

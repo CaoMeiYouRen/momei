@@ -28,11 +28,11 @@
     - [x] 升格评估：`audit-comment-drift` → `regression:weekly`（GO，已添加）
     - **验收**: 三条脚本输出清洁；升格评估完成并落盘
 
-- [ ] **主线 2：文档治理归档审计与阈值收紧评估 (P0)**
-    - [ ] 审计 `docs/design/governance/` 过期文档
-    - [ ] 按规则归档至 `archive/` 子目录
-    - [ ] 评估 `must-sync` 30→21 天可行性
-    - [ ] 评估 `summary-sync` 45→30 天可行性
+- [x] **主线 2：文档治理归档审计与阈值收紧评估 (P0)**
+    - [x] 审计 `docs/design/governance/` 过期文档（5 个已完成评估文档）
+    - [x] 按规则归档至 `archive/` 子目录（governance/ 条目 35→30）
+    - [x] 评估 `must-sync` 30→21 天可行性（GO，已收紧）
+    - [x] 评估 `summary-sync` 45→30 天可行性（GO，已收紧）
     - **验收**: governance/ 条目数下降；阈值评估 go/no-go 结论落盘；`docs:check:source-of-truth` 通过
 
 - [ ] **主线 3：移动端 CWV 性能基线采集与评估 (P1)**

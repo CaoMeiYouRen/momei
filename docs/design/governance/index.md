@@ -29,7 +29,6 @@
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。
 - **[文章批量翻译编排能力评估](./batch-translation-orchestration)**: `ai.md` / `cli-mcp-automation.md` 的专项评估文档，聚焦批次范围冻结、父子任务模型、确认流与 Serverless 边界。
 - **[types/ 与 utils/shared/ 职责边界收敛治理](./types-utils-boundary-governance)**: 第五十一阶段治理文档，聚焦类型与运行时代码的目录边界、迁移规则、冲突清单与渐进式收敛顺序。
-- **[跨包复用治理评估：packages/mcp-server 与 packages/cli](./cross-package-reuse-evaluation)**: 第五十一阶段评估文档，聚焦双包共享代码盘点、抽包成本评估、go/no-go 结论与替代方案。
 
 ## 内容分发、订阅与执行态补充
 
@@ -41,4 +40,4 @@
 ## 已归档文档入口
 
 - 历史阶段规划稿、已完成评估、已完成工程文档与阶段分析报告已迁入 [archive/](./archive/index.md)。
-- **已完成评估归档**: [Cloudflare 运行时研究](./archive/cloudflare-runtime-study.md)、[Harness Engineering 方案](./archive/harness-engineering-adoption.md)、[微信公众号预览](./archive/wechat-mp-preview-export-assist.md)、[第八阶段复盘](./archive/phase-8-feasibility-report.md)。
+- **已完成评估归档**: [Cloudflare 运行时研究](./archive/cloudflare-runtime-study.md)、[Harness Engineering 方案](./archive/harness-engineering-adoption.md)、[微信公众号预览](./archive/wechat-mp-preview-export-assist.md)、[第八阶段复盘](./archive/phase-8-feasibility-report.md)、[跨包复用治理评估](./archive/cross-package-reuse-evaluation.md)、[隐私分析集成评估](./archive/privacy-analytics-evaluation.md)、[友链导航评估](./archive/friend-link-ring-navigation-evaluation.md)、[未使用 API 清理评估](./archive/unused-api-cleanup-assessment.md)、[未使用 API 第二轮评估](./archive/unused-api-round2-assessment.md)。
