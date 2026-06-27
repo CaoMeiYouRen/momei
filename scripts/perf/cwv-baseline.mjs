@@ -34,6 +34,7 @@ function parseArgs(argv) {
             output: '.lighthouseci/cwv-baseline.json',
             runs: RUNS_PER_URL,
             mode: 'dev',
+            formFactor: 'desktop',
         },
         values: {
             '--port': { key: 'port', parse: Number },
@@ -44,6 +45,11 @@ function parseArgs(argv) {
                 key: 'mode',
                 allowedValues: ['dev', 'prod'],
                 invalidMessage: (value) => `Unsupported mode: ${value} (use 'dev' or 'prod')`,
+            },
+            '--form-factor': {
+                key: 'formFactor',
+                allowedValues: ['mobile', 'desktop'],
+                invalidMessage: (value) => `Unsupported form factor: ${value} (use 'mobile' or 'desktop')`,
             },
         },
     })
@@ -159,20 +165,26 @@ function resolveLhciBin() {
     return `node ${cliPath}`
 }
 
-async function runLhciCollect(url, host, port, runs, workDir) {
+async function runLhciCollect(url, host, port, runs, workDir, formFactor = 'desktop') {
     const fullUrl = `http://${host}:${port}${url}`
     const lhciBin = resolveLhciBin()
 
     return new Promise((resolve, reject) => {
+        const isMobile = formFactor === 'mobile'
         const args = [
             'collect',
             `--url=${fullUrl}`,
             `--numberOfRuns=${runs}`,
             '--settings.chromeFlags=--headless=new --no-sandbox --disable-gpu',
-            '--settings.formFactor=desktop',
+            `--settings.formFactor=${formFactor}`,
             '--settings.screenEmulation.disabled=true',
-            '--settings.throttling.cpuSlowdownMultiplier=1',
+            `--settings.throttling.cpuSlowdownMultiplier=${isMobile ? 4 : 1}`,
         ]
+
+        if (isMobile) {
+            args.push('--settings.throttling.rttMs=150')
+            args.push('--settings.throttling.throughputKbps=1.6 * 1024')
+        }
 
         const child = spawn(lhciBin, args, {
             cwd: workDir,
@@ -336,8 +348,10 @@ async function main() {
     const args = parseArgs(process.argv)
 
     const modeLabel = args.mode === 'dev' ? 'Nuxt Dev (dev mode)' : 'Nuxt Prod (.output/server)'
+    const formFactorLabel = args.formFactor === 'mobile' ? 'Mobile (4G throttling)' : 'Desktop (no throttling)'
     console.info('=== CWV Baseline Collection ===')
     console.info(`Mode: ${modeLabel}`)
+    console.info(`Form Factor: ${formFactorLabel}`)
     console.info(`Target: ${TARGET_URLS.length} pages, ${args.runs} runs each`)
     if (args.mode === 'dev') {
         console.info('Note: Dev mode metrics include HMR/dev overhead and may differ from production.')
@@ -369,9 +383,9 @@ async function main() {
 
             await clearLhrFiles(lhciDir)
 
-            console.info(`  Running lhci collect (${args.runs} runs)...`)
+            console.info(`  Running lhci collect (${args.runs} runs, ${args.formFactor})...`)
             try {
-                await runLhciCollect(target.path, args.host, args.port, args.runs, process.cwd())
+                await runLhciCollect(target.path, args.host, args.port, args.runs, process.cwd(), args.formFactor)
             } catch (err) {
                 console.warn(`  Failed: ${err.message}`)
                 results[target.name] = {
@@ -408,6 +422,7 @@ async function main() {
         const report = {
             timestamp: new Date().toISOString(),
             mode: args.mode,
+            formFactor: args.formFactor,
             environment: {
                 host: args.host,
                 port: args.port,
