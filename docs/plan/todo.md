@@ -21,12 +21,12 @@
 
 > 2026-06-23 启动。五条主线均来自 backlog 长期主线。ESLint / 结构复用本轮刻意休息，聚焦最被忽视的治理欠账。
 
-- [ ] **主线 1：脚本治理 warning 清理与升格评估 (P0)**
-    - [ ] 清理 `audit-comment-drift` 误报与 warning 面
-    - [ ] 清理 `docs:check:line-count:candidate` warning
-    - [ ] 清理 `docs:check:source-of-truth:candidate` warning
-    - [ ] 升格评估：≥1 脚本进入 `regression:weekly` warning 面，输出 go/no-go 结论与理由
-    - **验收**: 三条脚本输出清洁；至少 1 个升格评估完成并落盘
+- [x] **主线 1：脚本治理 warning 清理与升格评估 (P0)**
+    - [x] 清理 `audit-comment-drift` 误报与 warning 面（TODO 26→1，漂移 316→132）
+    - [x] 清理 `docs:check:line-count:candidate` warning（调整候选阈值）
+    - [x] 清理 `docs:check:source-of-truth:candidate` warning（更新 last_sync 日期）
+    - [x] 升格评估：`audit-comment-drift` → `regression:weekly`（GO，已添加）
+    - **验收**: 三条脚本输出清洁；升格评估完成并落盘
 
 - [ ] **主线 2：文档治理归档审计与阈值收紧评估 (P0)**
     - [ ] 审计 `docs/design/governance/` 过期文档

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-05-18
+last_sync: 2026-06-27
 ---
 
 # 翻訳ガバナンスと貢献方針

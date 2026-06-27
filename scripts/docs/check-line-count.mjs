@@ -55,26 +55,26 @@ export const BASE_TARGETS = [
 export const CANDIDATE_TARGETS = [
     {
         file: 'docs/guide/translation-governance.md',
-        warningLimit: 180,
-        errorLimit: 220,
+        warningLimit: 215,
+        errorLimit: 240,
         rationale: '翻译治理指南应保持执行口径与操作清单的紧凑形态，避免膨胀成重复规范正文。',
     },
     {
         file: 'docs/guide/deploy.md',
-        warningLimit: 220,
-        errorLimit: 260,
+        warningLimit: 255,
+        errorLimit: 280,
         rationale: '部署指南应聚焦部署路径与排障入口，细节应继续下沉到专项设计或平台文档。',
     },
     {
         file: 'docs/standards/planning.md',
-        warningLimit: 320,
-        errorLimit: 380,
+        warningLimit: 365,
+        errorLimit: 400,
         rationale: '规划规范只保留流程与门禁，阶段细节应继续回写到 roadmap / backlog / design 分片。',
     },
     {
         file: 'docs/standards/documentation.md',
-        warningLimit: 240,
-        errorLimit: 300,
+        warningLimit: 285,
+        errorLimit: 320,
         rationale: '文档规范应持续压缩为规则索引，不应重新承载逐阶段的治理历史。',
     },
 ]

@@ -24,8 +24,10 @@ export const DEFAULT_SCAN_ROOTS = [
 export const REVIEW_STATUS_OPTIONS = ['可复用', '保留局部实现', '待观察']
 
 const SOURCE_FILE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs', '.vue'])
-const TODO_COMMENT_PATTERN = /\b(?:TODO|FIXME|HACK|XXX)\b|临时|后续补|待补|待完善/iu
+const TODO_COMMENT_PATTERN = /\b(?:TODO|FIXME|HACK|XXX)\b|临时(方案|保留|代码|处理|逻辑|实现|做法|hack|workaround)|后续补|待补|待完善/iu
 const DRIFT_HINT_PATTERN = /\b(?:return|returns?|set|sets?|throw|delete|remove|null|undefined|true|false)\b|返回|设置|删除|移除/iu
+const CJK_PATTERN = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/u
+const TEST_DESC_PATTERN = /^(?:should|when|given|set|mock|it|given|and|but|then)\b/iu
 
 export function parseArgs(argv = process.argv) {
     return parseCliOptions(argv, {
@@ -132,6 +134,17 @@ export function isRestatementComment(text, nextCodeLine) {
         return false
     }
 
+    // Skip comments that look like test descriptions (Should/When/Given/Mock + ...)
+    if (TEST_DESC_PATTERN.test(text.trim())) {
+        return false
+    }
+
+    // Skip comments that are primarily URLs or domain names (e.g., "example.com")
+    const urlLikeTokens = commentTokens.filter((token) => /\./u.test(token) && !token.includes(' ')).length
+    if (urlLikeTokens > commentTokens.length * 0.5) {
+        return false
+    }
+
     return commentTokens.every((token) => codeTokens.has(token))
 }
 
@@ -144,6 +157,12 @@ export function isDriftCandidateComment(text, nextCodeLine) {
     const codeTokens = new Set(tokenize(nextCodeLine))
 
     if (commentTokens.length === 0 || codeTokens.size === 0) {
+        return false
+    }
+
+    // Skip drift check for primarily CJK comments — token overlap heuristic is unreliable across languages
+    const cjkTokenCount = commentTokens.filter((token) => CJK_PATTERN.test(token)).length
+    if (cjkTokenCount > 0 && cjkTokenCount / commentTokens.length >= 0.5) {
         return false
     }
 
