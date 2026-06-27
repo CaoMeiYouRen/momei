@@ -28,6 +28,8 @@ const i18nRuntimeTestFiles = [
     'pages/tags/index.test.ts',
     'tests/pages/taxonomy-rss-discovery.test.ts',
     'pages/admin/friend-links/index.test.ts',
+    'pages/index-i18n.test.ts',
+    'pages/posts/[id]-i18n.test.ts',
 ]
 
 const baseVitestOptions = {
