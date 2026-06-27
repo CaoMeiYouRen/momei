@@ -58,7 +58,7 @@ async function switchPreset(presetName) {
     } catch {
         console.error(`❌ 配置预设 "${presetName}" 不存在`)
         const presets = await listPresets()
-        console.log(`\n可用预设：${presets.join(', ')}`)
+        console.info(`\n可用预设：${presets.join(', ')}`)
         process.exit(1)
     }
 
@@ -66,17 +66,17 @@ async function switchPreset(presetName) {
     await writeFile(TARGET_CONFIG, content, 'utf-8')
 
     const json = JSON.parse(content)
-    console.log(`✅ 已切换到 "${presetName}" 配置`)
-    console.log(`   顶级模型：${json.model}`)
-    console.log(`   Agent 数量：${Object.keys(json.agent).length}`)
-    console.log(`\n⚠️  请重启 opencode 使配置生效`)
+    console.info(`✅ 已切换到 "${presetName}" 配置`)
+    console.info(`   顶级模型：${json.model}`)
+    console.info(`   Agent 数量：${Object.keys(json.agent).length}`)
+    console.info(`\n⚠️  请重启 opencode 使配置生效`)
 }
 
 async function main() {
     const args = process.argv.slice(2)
 
     if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
-        console.log(`
+        console.info(`
 用法：node scripts/setup/switch-models.mjs <preset>
       node scripts/setup/switch-models.mjs --list
       node scripts/setup/switch-models.mjs --current
@@ -91,10 +91,10 @@ async function main() {
     if (args[0] === '--list' || args[0] === '-l') {
         const presets = await listPresets()
         const current = await getCurrentPreset()
-        console.log('可用配置预设：\n')
+        console.info('可用配置预设：\n')
         for (const preset of presets) {
             const marker = preset === current ? ' ← 当前' : ''
-            console.log(`  • ${preset}${marker}`)
+            console.info(`  • ${preset}${marker}`)
         }
         return
     }
@@ -102,9 +102,9 @@ async function main() {
     if (args[0] === '--current' || args[0] === '-c') {
         const current = await getCurrentPreset()
         if (current) {
-            console.log(`当前配置：${current}`)
+            console.info(`当前配置：${current}`)
         } else {
-            console.log('当前配置：自定义（不匹配任何预设）')
+            console.info('当前配置：自定义（不匹配任何预设）')
         }
         return
     }

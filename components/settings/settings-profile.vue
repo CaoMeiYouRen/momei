@@ -125,8 +125,8 @@ watchEffect(() => {
     if (session.value?.data?.user) {
         profileForm.name = session.value.data.user.name || ''
         profileForm.image = session.value.data.user.image || ''
-        profileForm.language = (session.value.data.user as { language?: string; timezone?: string }).language || ''
-        profileForm.timezone = (session.value.data.user as { language?: string; timezone?: string }).timezone || ''
+        profileForm.language = (session.value.data.user as { language?: string, timezone?: string }).language || ''
+        profileForm.timezone = (session.value.data.user as { language?: string, timezone?: string }).timezone || ''
     }
 })
 
@@ -174,7 +174,7 @@ const handleUpdateProfile = async () => {
             image: profileForm.image,
             language: profileForm.language || undefined,
             timezone: profileForm.timezone || undefined,
-        } as { name?: string; image?: string; language?: string; timezone?: string }, {
+        } as { name?: string, image?: string, language?: string, timezone?: string }, {
             disableSignal: true,
         })
 

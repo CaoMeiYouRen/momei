@@ -165,7 +165,7 @@ function resolveLhciBin() {
     return `node ${cliPath}`
 }
 
-async function runLhciCollect(url, host, port, runs, workDir, formFactor = 'desktop') {
+async function runLhciCollect(url, { host, port, runs, workDir, formFactor = 'desktop' }) {
     const fullUrl = `http://${host}:${port}${url}`
     const lhciBin = resolveLhciBin()
 
@@ -385,7 +385,7 @@ async function main() {
 
             console.info(`  Running lhci collect (${args.runs} runs, ${args.formFactor})...`)
             try {
-                await runLhciCollect(target.path, args.host, args.port, args.runs, process.cwd(), args.formFactor)
+                await runLhciCollect(target.path, { host: args.host, port: args.port, runs: args.runs, workDir: process.cwd(), formFactor: args.formFactor })
             } catch (err) {
                 console.warn(`  Failed: ${err.message}`)
                 results[target.name] = {
