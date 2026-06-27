@@ -67,3 +67,5 @@ tests/e2e/.auth
 .eslintcache
 temp.md
 research-output
+
+opencode.json

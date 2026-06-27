@@ -1,0 +1,118 @@
+#!/usr/bin/env node
+
+/**
+ * switch-models.mjs
+ * 快速切换 opencode.json 中的模型配置
+ *
+ * 用法：
+ *   node scripts/setup/switch-models.mjs <preset>
+ *   node scripts/setup/switch-models.mjs --list
+ *   node scripts/setup/switch-models.mjs --current
+ *
+ * 示例：
+ *   node scripts/setup/switch-models.mjs xiaomi      # 切换到小米模型
+ *   node scripts/setup/switch-models.mjs opencode-go  # 切换到 opencode-go 模型
+ */
+
+import { readFile, writeFile, readdir } from 'node:fs/promises'
+import { join, dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const ROOT = resolve(__dirname, '../..')
+const CONFIGS_DIR = join(ROOT, '.opencode/configs')
+const TARGET_CONFIG = join(ROOT, 'opencode.json')
+
+async function listPresets() {
+    const files = await readdir(CONFIGS_DIR)
+    const presets = files
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => f.replace('opencode.', '').replace('.json', ''))
+
+    return presets
+}
+
+async function getCurrentPreset() {
+    const targetContent = await readFile(TARGET_CONFIG, 'utf-8')
+    const targetJson = JSON.parse(targetContent)
+
+    const presets = await listPresets()
+    for (const preset of presets) {
+        const presetPath = join(CONFIGS_DIR, `opencode.${preset}.json`)
+        const presetContent = await readFile(presetPath, 'utf-8')
+        const presetJson = JSON.parse(presetContent)
+
+        if (presetJson.model === targetJson.model) {
+            return preset
+        }
+    }
+
+    return null
+}
+
+async function switchPreset(presetName) {
+    const presetPath = join(CONFIGS_DIR, `opencode.${presetName}.json`)
+
+    try {
+        await readFile(presetPath, 'utf-8')
+    } catch {
+        console.error(`❌ 配置预设 "${presetName}" 不存在`)
+        const presets = await listPresets()
+        console.log(`\n可用预设：${presets.join(', ')}`)
+        process.exit(1)
+    }
+
+    const content = await readFile(presetPath, 'utf-8')
+    await writeFile(TARGET_CONFIG, content, 'utf-8')
+
+    const json = JSON.parse(content)
+    console.log(`✅ 已切换到 "${presetName}" 配置`)
+    console.log(`   顶级模型：${json.model}`)
+    console.log(`   Agent 数量：${Object.keys(json.agent).length}`)
+    console.log(`\n⚠️  请重启 opencode 使配置生效`)
+}
+
+async function main() {
+    const args = process.argv.slice(2)
+
+    if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
+        console.log(`
+用法：node scripts/setup/switch-models.mjs <preset>
+      node scripts/setup/switch-models.mjs --list
+      node scripts/setup/switch-models.mjs --current
+
+示例：
+  node scripts/setup/switch-models.mjs xiaomi-mimo       切换到小米模型
+  node scripts/setup/switch-models.mjs opencode-go   切换到 opencode-go 模型
+`)
+        return
+    }
+
+    if (args[0] === '--list' || args[0] === '-l') {
+        const presets = await listPresets()
+        const current = await getCurrentPreset()
+        console.log('可用配置预设：\n')
+        for (const preset of presets) {
+            const marker = preset === current ? ' ← 当前' : ''
+            console.log(`  • ${preset}${marker}`)
+        }
+        return
+    }
+
+    if (args[0] === '--current' || args[0] === '-c') {
+        const current = await getCurrentPreset()
+        if (current) {
+            console.log(`当前配置：${current}`)
+        } else {
+            console.log('当前配置：自定义（不匹配任何预设）')
+        }
+        return
+    }
+
+    await switchPreset(args[0])
+}
+
+main().catch((err) => {
+    console.error('错误：', err.message)
+    process.exit(1)
+})
