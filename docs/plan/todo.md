@@ -47,11 +47,11 @@
     - [x] 修复新链路中发现的 raw key 泄漏或归属漂移（无泄漏）
     - **验收**: ≥2 组新链路通过 runtime 验证；`i18n:audit:missing` / `i18n:audit:duplicates` = 0
 
-- [ ] **主线 5：测试有效性第二轮切片 (P1)**
-    - [ ] 补组件层 direct TTS 失败映射断言
-    - [ ] 补页面级 auth degradation 场景断言
-    - [ ] 补 `settings public` 或 `friend-links` 失败口径断言
-    - **验收**: ≥5 个失败路径断言；覆盖 ≥2 模块；coverage 基线不回退
+- [x] **主线 5：测试有效性第二轮切片 (P1)**
+    - [x] 补组件层 direct TTS 失败映射断言（2 个失败路径测试）
+    - [x] 补页面级 auth degradation 场景断言（1 个失败路径测试）
+    - [x] 补 `settings public` 或 `friend-links` 失败口径断言（6 个失败路径测试）
+    - **验收**: ≥5 个失败路径断言（9 个）；覆盖 ≥2 模块（4 个）；coverage 基线不回退
 
 ---
 
