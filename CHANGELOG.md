@@ -1,5 +1,43 @@
 # momei
 
+# [1.21.0](https://github.com/CaoMeiYouRen/momei/compare/v1.20.0...v1.21.0) (2026-06-27)
+
+
+### ✨ 新功能
+
+* **listmonk:** 添加远程活动调度功能 ([d47bef3](https://github.com/CaoMeiYouRen/momei/commit/d47bef3))
+* **marketing:** 添加定时推送的取消和删除功能 ([b7e5673](https://github.com/CaoMeiYouRen/momei/commit/b7e5673))
+* **post-distribution:** 增强预览渲染功能以支持内容配置文件 ([5821095](https://github.com/CaoMeiYouRen/momei/commit/5821095))
+* **post-distribution:** 添加复制渲染后 HTML 功能 ([ef0e1f6](https://github.com/CaoMeiYouRen/momei/commit/ef0e1f6))
+
+
+### 🐛 Bug 修复
+
+* **distribution-tags:** 修复微信同步标签渲染模式返回值 ([9e98264](https://github.com/CaoMeiYouRen/momei/commit/9e98264))
+* **distribution-template:** 修复公众号 URL 标签链接被二次替换 ([60aeb8f](https://github.com/CaoMeiYouRen/momei/commit/60aeb8f))
+* **distribution:** 修复 WechatSync 标签尾注缺失和小红书版权格式问题 ([5a23e87](https://github.com/CaoMeiYouRen/momei/commit/5a23e87))
+* **distribution:** 添加扩展预览控制器功能 ([a987a0e](https://github.com/CaoMeiYouRen/momei/commit/a987a0e))
+* **i18n:** 修复首屏翻译模块加载及回退策略 ([78f3d85](https://github.com/CaoMeiYouRen/momei/commit/78f3d85))
+* **nuxt.config:** 启用 PWA 功能并配置相关选项 ([e7bdc7b](https://github.com/CaoMeiYouRen/momei/commit/e7bdc7b))
+* **perf:** 支持移动端 CWV 基线采集 ([f77158d](https://github.com/CaoMeiYouRen/momei/commit/f77158d))
+* **request-feedback:** 添加服务器错误消息处理逻辑 ([a199f5b](https://github.com/CaoMeiYouRen/momei/commit/a199f5b))
+* **security:** bump hono override to >=4.12.25 to resolve CVE GHSA-88fw-hqm2-52qc ([89a7731](https://github.com/CaoMeiYouRen/momei/commit/89a7731))
+* **security:** resolve 3 high-risk dependency CVEs via pnpm overrides ([efbe95c](https://github.com/CaoMeiYouRen/momei/commit/efbe95c)), closes [hi#risk](https://github.com/hi/issues/risk)
+* **settings:** 优化用户会话数据处理 ([9e114b4](https://github.com/CaoMeiYouRen/momei/commit/9e114b4))
+* **tests:** complete commercial-link-manager.test API migration ([b60a55e](https://github.com/CaoMeiYouRen/momei/commit/b60a55e))
+* **tests:** repair Phase 51 regressions in test suites ([f3a501f](https://github.com/CaoMeiYouRen/momei/commit/f3a501f))
+
+
+### 📦 代码重构
+
+* **distribution:** 重构扩展预览控制器逻辑 ([2884d62](https://github.com/CaoMeiYouRen/momei/commit/2884d62))
+* **email:** 添加问候语选项并优化邮件模板链接 ([5c14222](https://github.com/CaoMeiYouRen/momei/commit/5c14222))
+* **i18n:** 导出日期语言映射以供其他模块使用 ([5b051fe](https://github.com/CaoMeiYouRen/momei/commit/5b051fe))
+* **types:** 收敛 SelectLocaleOption 类型定义至单一事实源 ([8d98574](https://github.com/CaoMeiYouRen/momei/commit/8d98574))
+* **types:** 收窄类型断言与变量定义 ([d9a36b8](https://github.com/CaoMeiYouRen/momei/commit/d9a36b8))
+* **types:** 迁移类型定义与运行时代码至正确目录 ([a48b698](https://github.com/CaoMeiYouRen/momei/commit/a48b698))
+* 收敛重复代码与类型定义至统一事实源 ([a688a57](https://github.com/CaoMeiYouRen/momei/commit/a688a57))
+
 # [1.20.0](https://github.com/CaoMeiYouRen/momei/compare/v1.19.0...v1.20.0) (2026-06-13)
 
 
