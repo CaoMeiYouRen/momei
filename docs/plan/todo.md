@@ -36,9 +36,9 @@
 - **执行范围**: 执行 Phase 52 评估结论，将 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天。
 - **非目标**: 不做翻译同步、不创建新文档。
 - **最小验收**: 脚本阈值更新完成；`docs:check:source-of-truth` 通过。
-- [ ] 更新 `docs:check:source-of-truth` 脚本阈值
-- [ ] 同步受影响文档的 `last_sync` 字段
-- [ ] 验证 `docs:check:source-of-truth` 通过
+- [x] 更新 `docs:check:source-of-truth` 脚本阈值（已在 Phase 52 实施：must-sync=21 天, summary-sync=30 天）
+- [x] 同步受影响文档的 `last_sync` 字段（zh-TW/ko-KR/ja-JP guide/quick-start.md 更新至 2026-06-29）
+- [x] 验证 `docs:check:source-of-truth` 通过
 
 #### 3. ESLint / 类型债治理 — 清零剩余 3 处 as any (P1)
 
