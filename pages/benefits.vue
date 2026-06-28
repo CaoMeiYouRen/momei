@@ -233,8 +233,24 @@ const localePath = useLocalePath()
 const session = authClient.useSession()
 const loggedInUser = computed(() => session.value?.data?.user)
 
-const freeCoreItems = computed(() => tm('pages.enhanced_pack.free_core.items') as any[])
-const premiumItems = computed(() => tm('pages.enhanced_pack.premium.items') as any[])
+interface FreeCoreItem {
+    title: string
+    desc: string
+}
+
+interface PremiumItem {
+    icon: string
+    title: string
+    desc: string
+}
+
+interface FaqItem {
+    q: string
+    a: string
+}
+
+const freeCoreItems = computed(() => tm('pages.enhanced_pack.free_core.items') as FreeCoreItem[])
+const premiumItems = computed(() => tm('pages.enhanced_pack.premium.items') as PremiumItem[])
 
 interface ComparisonRow {
     feature: string
@@ -252,7 +268,7 @@ const comparisonRows = computed<ComparisonRow[]>(() => [
     { feature: t('pages.enhanced_pack.comparison.row_8'), free: false },
 ])
 
-const faqItems = computed(() => tm('pages.enhanced_pack.faq.items') as any[])
+const faqItems = computed(() => tm('pages.enhanced_pack.faq.items') as FaqItem[])
 
 usePageSeo({
     type: 'website',
