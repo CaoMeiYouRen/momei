@@ -26,10 +26,10 @@
 - **执行范围**: 基于 Phase 52 根因分析（Vercel 100% Cache MISS + 76% Bot 流量 → SSR 冷启动 → Neon compute 频繁启停），在 Tier 1 已执行基础上，实施 Tier 2 架构治理：`nuxt.config.ts` routeRules 配置 ISR/SWR + SSG 预渲染。
 - **非目标**: 不做全量 SSG 预渲染、不引入新缓存框架、不改页面渲染逻辑。
 - **最小验收**: ISR/SWR 配置生效；公开页面缓存命中率可验证；Neon compute 启停频率下降。
-- [ ] 分析当前路由结构，确定 ISR/SWR 策略
-- [ ] 配置 `nuxt.config.ts` routeRules
-- [ ] 验证缓存命中与页面更新机制
-- [ ] 监控 Neon compute 启停频率变化
+- [x] 分析当前路由结构，确定 ISR/SWR 策略
+- [x] 配置 `nuxt.config.ts` routeRules + Vercel KV storage
+- [ ] 验证缓存命中与页面更新机制（部署后验证）
+- [ ] 监控 Neon compute 启停频率变化（部署后验证）
 
 #### 2. 文档治理阈值收紧 (P1)
 

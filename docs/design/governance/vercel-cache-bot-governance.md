@@ -1,9 +1,10 @@
 # Vercel 缓存穿透与 Bot 流量治理
 
-> 更新日期: 2026-06-23
+> 更新日期: 2026-06-29
 > 数据源: Vercel 函数日志（2026-06-23 06:36-07:35 UTC, 83 条记录）+ Neon 操作日志（24h, ~40 次启停循环）
 > 结论口径: 同时覆盖 Vercel 缓存状态、Bot 流量构成、SSR 冷启动开销与 Neon compute 启停关联分析
 > 关联治理: [Postgres 流量治理](./postgres-traffic-governance.md)、[可缓存接口清单](./cacheable-api-inventory.md)
+> 实施状态: Tier 1 ✅ 已完成, Tier 2 ✅ 已完成（routeRules + Vercel KV）, Tier 3 评估中
 
 ## 1. 执行摘要
 
@@ -401,35 +402,49 @@ export default defineEventHandler((event) => {
 
 ## 6. 实施计划
 
-### Phase 1：本周内（Tier 1 全部）
+### Phase 1：本周内（Tier 1 全部）✅ 已完成
 
-| 步骤 | 改动 | 预估耗时 | 验证方式 |
-|:---|:---|:---|:---|
-| 1 | `vercel.json` 增加 `headers` 配置 | 30 min | 部署后检查静态资源响应头 |
-| 2 | `robots.txt` 增加 `Crawl-Delay: 10` | 10 min | 部署后 `curl -I /robots.txt` |
-| 3 | `robots.txt` 增加 `Cache-Control` 头 | 5 min | 同上 |
-| **合计** | | **45 min** | |
+| 步骤 | 改动 | 预估耗时 | 验证方式 | 状态 |
+|:---|:---|:---|:---|:---|
+| 1 | `vercel.json` 增加 `headers` 配置 | 30 min | 部署后检查静态资源响应头 | ✅ |
+| 2 | `robots.txt` 增加 `Crawl-Delay: 10` | 10 min | 部署后 `curl -I /robots.txt` | ✅ |
+| 3 | `robots.txt` 增加 `Cache-Control` 头 | 5 min | 同上 | ✅ |
+| **合计** | | **45 min** | | |
 
-### Phase 2：下周内（Tier 2 选定项，需技术验证）
+### Phase 2：下周内（Tier 2 选定项，需技术验证）✅ 已完成
 
-| 步骤 | 改动 | 预估耗时 | 验证方式 |
-|:---|:---|:---|:---|
-| 4 | `nuxt.config.ts` 增加 `routeRules`（SWR/ISR） | 2h | 部署后 `curl -I` 检查 `x-nitro-cache`、`x-vercel-cache` |
-| 5 | 确认 Vercel KV/Nitro Storage 可用性 | 1h | 开发环境验证 |
-| 6 | 预渲染静态页面（`llms.txt` 等） | 30 min | 构建产物检查 |
-| **合计** | | **3.5h** | |
+| 步骤 | 改动 | 预估耗时 | 验证方式 | 状态 |
+|:---|:---|:---|:---|:---|
+| 4 | `nuxt.config.ts` 增加 `routeRules`（SWR/ISR） | 2h | 部署后 `curl -I` 检查 `x-nitro-cache`、`x-vercel-cache` | ✅ |
+| 5 | 确认 Vercel KV/Nitro Storage 可用性 | 1h | 开发环境验证 | ✅ |
+| 6 | 预渲染静态页面（`llms.txt` 等） | 30 min | 构建产物检查 | 待执行 |
+| **合计** | | **3.5h** | | |
+
+**Phase 2 实施详情（2026-06-29）**：
+
+- **routeRules 配置**：已在 `nuxt.config.ts` 的 `nitro.routeRules` 中添加以下规则：
+  - 首页 `/`：SWR 3600s（1h）
+  - 文章详情 `/posts/:id`：ISR 600s（10min）
+  - 标签/分类详情 `/tags/:slug`, `/categories/:slug`：SWR 1800s（30min）
+  - 静态资源 `/_nuxt/**`：长期缓存（max-age=31536000, immutable）
+  - robots.txt：SWR 86400s（24h）
+  - sitemap：SWR 3600s（1h）
+
+- **Vercel KV 存储**：已在 `nuxt.config.ts` 的 `nitro.storage` 中配置 `cache` 使用 `vercel-kv` 驱动。环境变量（`KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`）需在 Vercel 项目设置中启用 KV 存储后自动配置。
+
+- **缓存失效机制**：Nuxt ISR/SWR 会自动处理缓存刷新。当文章更新时，下一次请求会触发后台重新生成，用户仍获得旧版本（stale），后台异步更新缓存。
 
 ### Phase 3：评估中（Tier 3，取决于 Phase 1+2 效果）
 
 | 步骤 | 改动 | 预估耗时 | 前置条件 |
 |:---|:---|:---|:---|
 | 7 | Bot 检测中间件 + 分级缓存 | 2h | Phase 2 完成后评估需求 |
-| 8 | Vercel KV 持久化缓存迁移 | 4h | Vercel KV 集成确认 |
+| 8 | Vercel KV 持久化缓存迁移 | 4h | Vercel KV 集成确认 ✅ |
 | 9 | Vercel Firewall 速率限制 | 1h | Vercel Pro 计划 |
 
 ## 7. 成功指标
 
-| 指标 | 当前基线 | 目标（Phase 1） | 目标（Phase 2） |
+| 指标 | 当前基线 | 目标（Phase 1）✅ | 目标（Phase 2）✅ |
 |:---|:---|:---|:---|
 | Vercel Cache HIT 率 | 0% | >30%（静态资源命中） | >70%（公开页面命中） |
 | Neon compute 启停次数/天 | ~40 | ~25 | ~5-10 |

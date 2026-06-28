@@ -376,6 +376,29 @@ export default defineNuxtConfig({
             // 为匹配 Cloudflare 路由匹配规则，设置 nitro 选项 autoSubfolderIndex 为 false 。
             autoSubfolderIndex: false,
         },
+        // Vercel CDN 缓存 Tier 2：配置 ISR/SWR 路由规则
+        // 参考：docs/design/governance/vercel-cache-bot-governance.md §4.2
+        routeRules: {
+            // 首页：SWR 缓存 1h，高频访问但内容更新不频繁
+            '/': { swr: 3600 },
+            // 文章详情：ISR 10min，新发布文章最多延迟 10min 被索引
+            '/posts/:id': { isr: 600 },
+            // 标签/分类详情：SWR 30min，非核心排名页
+            '/tags/:slug': { swr: 1800 },
+            '/categories/:slug': { swr: 1800 },
+            // 静态资源：长期缓存
+            '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
+            // robots + sitemap：长期缓存
+            '/robots.txt': { swr: 86400 },
+            '/sitemap_index.xml': { swr: 3600 },
+        },
+        // Vercel KV 持久化存储：跨 serverless 实例共享 ISR/SWR 缓存
+        // 环境变量需在 Vercel 项目设置中配置：KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN, KV_REST_API_READ_ONLY_TOKEN
+        storage: {
+            cache: {
+                driver: 'vercel-kv',
+            },
+        },
         // 禁用 unenv 对 debug 的默认适配
         unenv: {
             external: ['debug'],
