@@ -486,6 +486,63 @@
     - 当前进度：已完成。三组热点切片收敛。jscpd clones 40→37 (-3)，duplication % 0.69%→0.63%。typecheck 通过。
     - 最小验收: duplicate-code 基线不反弹 ✅
 
+## 第五十二阶段：治理补账与移动性能基线 (已审计归档)
+
+> 归档说明: 第五十二阶段「0 个新功能 + 5 个优化」已于 2026-06-28 完成五条主线交付与阶段收口。五条主线: 脚本治理 warning 清理与升格评估（audit-comment-drift 误报清理、line-count 阈值调整、source-of-truth 同步、升格 audit-comment-drift→regression:weekly）、文档治理归档审计与阈值收紧评估（归档 5 个评估文档、must-sync 30→21 天、summary-sync 45→30 天）、移动端 CWV 性能基线采集与评估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 运行时验证扩面（新增首页+文章详情 2 个页面链路）、测试有效性第二轮切片（9 个失败路径断言，覆盖 4 个模块）。
+
+> **ROI 评估**: 脚本治理 warning 清理 1.60；文档治理归档审计 1.70；移动端 CWV 基线 1.60；i18n runtime 扩面 1.40；测试有效性第二轮 1.50。
+
+### 1. 脚本治理 warning 清理与升格评估 (P0)
+
+- **执行范围**: 清理 `audit-comment-drift` 的误报与 warning 面，清理 `docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 两条候选入口的 warning。清理完成后，评估是否将治理脚本从独立 baseline 升格进入 `regression:weekly` warning 面。
+- **结果**: `audit-comment-drift` TODO 26→1，漂移 316→132；`line-count` 阈值调整；`source-of-truth` 同步日期更新。升格评估完成：audit-comment-drift→regression:weekly（GO，已添加）。
+- **验证**: 三条脚本输出清洁；升格评估完成并落盘。
+- [x] `audit-comment-drift` 误报与 warning 面清理
+- [x] `docs:check:line-count:candidate` warning 清理
+- [x] `docs:check:source-of-truth:candidate` warning 清理
+- [x] 升格评估完成并落盘
+
+### 2. 文档治理归档审计与阈值收紧评估 (P0)
+
+- **执行范围**: 审计 `docs/design/governance/` 目录中已过期的评估/报告/规划稿，按既定规则归档至 `archive/` 子目录。评估 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天的可执行性，输出 go/no-go 结论。
+- **结果**: governance/ 条目 35→30（归档 5 个已完成评估文档）。阈值收紧评估完成：must-sync 30→21 天（GO）、summary-sync 45→30 天（GO）。
+- **验证**: governance/ 条目数下降；阈值评估 go/no-go 结论落盘；`docs:check:source-of-truth` 通过。
+- [x] 审计 `docs/design/governance/` 过期文档
+- [x] 按规则归档至 `archive/` 子目录
+- [x] 评估 `must-sync` 30→21 天可行性
+- [x] 评估 `summary-sync` 45→30 天可行性
+
+### 3. 移动端 CWV 性能基线采集与评估 (P1)
+
+- **执行范围**: 采集首页、文章详情页、分类/标签列表页的移动端 LCP/CLS/INP 基线。评估移动端 LCP 是否超过 3s 阈值；若超过，启动至少一项可量化优化。
+- **结果**: 移动端 LCP 基线采集完成：首页 1.6s、文章详情 2.2s、分类/标签列表 1.8s，均在 2.5s 以下，未超阈值。
+- **验证**: 基线数据落盘；阈值评估完成；LCP 均在 2.5s 以下。
+- [x] 采集移动端 LCP/CLS/INP 基线
+- [x] 评估移动端 LCP 是否超过 3s 阈值
+- [-] 若超阈值：至少一项可量化优化（不适用）
+
+### 4. i18n 运行时验证扩面 (P1)
+
+- **执行范围**: 识别尚未纳入 `i18n:verify:runtime` 的公开页装配链路，至少新增 2 组页面纳入运行时回归。优先选择：首页、文章详情页。
+- **结果**: 新增首页 + 文章详情 2 个页面链路纳入 runtime 回归。17 个测试文件 117 个测试全部通过。
+- **验证**: ≥2 组新链路通过 runtime 验证；`i18n:audit:missing` / `i18n:audit:duplicates` = 0。
+- [x] 盘点未纳入 `i18n:verify:runtime` 的公开页装配链路
+- [x] ≥2 组新页面链路纳入 runtime 回归
+- [x] 修复新链路中发现的 raw key 泄漏或归属漂移
+
+### 5. 测试有效性第二轮切片 (P1)
+
+- **执行范围**: 围绕已有测试基座但缺少失败/边界覆盖的高风险模块，补齐：组件层 direct TTS 失败映射断言、页面级 auth degradation 场景断言、`settings public` 或 `friend-links` 的失败口径断言。
+- **结果**: 9 个失败路径断言，覆盖 4 个模块（TTS 失败映射 2 个、auth degradation 1 个、settings public 3 个、friend-links 3 个）。
+- **验证**: ≥5 个失败路径断言（9 个）；覆盖 ≥2 模块（4 个）；coverage 基线不回退。
+- [x] 补组件层 direct TTS 失败映射断言
+- [x] 补页面级 auth degradation 场景断言
+- [x] 补 `settings public` 或 `friend-links` 失败口径断言
+
+> **审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。当前 `todo.md` 已清理执行面，归档块已写入。
+
+---
+
 ## 第三十八至第四十一阶段概览（已归档）
 
 > 以下四阶段的完整正文已迁入 [todo-archive-phases-32-41.md](./archive/todo-archive-phases-32-41.md)。

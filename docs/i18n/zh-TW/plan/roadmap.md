@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-06-14
+last_sync: 2026-06-28
 ---
 
 # 墨梅專案路線圖
@@ -70,6 +70,7 @@ last_sync: 2026-06-14
 - **第四十七至第四十九階段已完成審計歸檔**：第四十七階段完成 ESLint/型別債、結構復用、API 路徑規範化、未使用 API 清單與 Schema 覆蓋六條治理主線；第四十八階段完成 ESLint 窄切片擴展、結構復用深度收斂、API Schema 全面覆蓋（→85%）、未使用 API 安全刪除與第二輪調研；第四十九階段完成 Postgres 流量治理（網路 89% 耗盡警戒）、formatDate 復用、延期測試回填與清理收口。
 - **第五十階段已完成審計歸檔**：PWA 功能開啟（`@vite-pwa/nuxt` 啟用）、API 測試分層收斂（4 組遷移）、i18n 首屏翻譯穩定性治理（命中矩陣 + 3 處修復）、backlog 深度清理（Phase 32-41 歸檔壓縮）、友鏈前後部落格環導航評估（Go 結論）。已在中文事實源完成收口。
 - **第五十一階段已完成審計歸檔**：types/utils 邊界收斂（衝突清單 + 治理文檔 + 3 組樣本遷移）、跨包複用評估（完整方案 No-Go / 輕量方案條件性 Go + 評估文檔）、ESLint / 型別債 ≥5 組窄切片（11 處 as any 消除）、結構複用 ≥5 組熱點切片（commercial-link-manager 參數化 + UploadType/ApiResponse 統一事實源 + use-voice-input 刪除 + formatDate 複用）、backlog 長期主線狀態同步（10 條主線更新至 ≥Phase 48）。已在中文事實源完成收口。
+- **第五十二階段已完成審計歸檔**：腳本治理 warning 清理與升格評估（audit-comment-drift 誤報清理、line-count 閾值調整、source-of-truth 同步、audit-comment-drift→regression:weekly 升格）、文檔治理歸檔審計與閾值收緊評估（5 個評估文檔歸檔、must-sync 30→21 天、summary-sync 45→30 天）、移動端 CWV 性能基線採集與評估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 運行時驗證擴面（首頁 + 文章詳情頁面新增）、測試有效性第二輪切片（9 個失敗路徑斷言，覆蓋 4 個模組）。已在中文事實源完成收口。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

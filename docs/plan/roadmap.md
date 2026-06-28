@@ -436,10 +436,12 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第五十二阶段：治理补账与移动性能基线 (Governance Debt Clearance & Mobile Performance Baseline) (规划中)
+### 第五十二阶段：治理补账与移动性能基线 (Governance Debt Clearance & Mobile Performance Baseline) (已审计归档)
 
-**时间表**: 2026-06-23 ~ 约 2 周
+**时间表**: 2026-06-23 ~ 2026-06-28（5 天）
 **目标**: 在 Phase 47-51 连续五轮治理后，ESLint 已连续切片 9 个阶段、结构复用已连续切片 11 个阶段。Phase 52 刻意让这两条主线休息一轮，转而清偿最被忽视的四条治理债（脚本 warning 清理 — 已逾期 11 阶段、文档归档审计、站点性能移动端、i18n runtime 扩面），外加测试有效性第二轮。
+
+**审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。详细归档见 [todo-archive.md](./todo-archive.md#第五十二阶段治理补账与移动性能基线-已审计归档)。
 
 **准入结论**: 五条主线均来自 backlog 长期主线已验证候选，容量控制在 `5` 项内，符合规划规范。脚本治理（Phase 40 后未碰）和文档治理（governance 目录膨胀）为当前最明显治理欠账；站点性能移动端（Phase 44 后未碰）和测试有效性（Phase 49 后未碰）已有明确可切片方向；i18n 扩面延续 Phase 50 节奏。无新功能面，短期候选池已干涸。
 

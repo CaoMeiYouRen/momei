@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-06-14
+last_sync: 2026-06-28
 translation_tier: summary-sync
 ---
 
@@ -39,6 +39,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stages 47-49 have now been audited and archived**: Stage 47 closed ESLint/type-debt, structural reuse, API path normalization, unused-API inventory, and Schema coverage (6 governance tracks). Stage 48 expanded narrow ESLint slices, deepened structural reuse, pushed API Schema coverage to ~85%, and safely deleted unused endpoints. Stage 49 completed Postgres traffic governance (89% network budget alert), formatDate consolidation, deferred test backfill, and cleanup closeout.
 - **Stage 50 has now been audited and archived**: PWA enablement (`@vite-pwa/nuxt`, 607 entries precached), API test layering convergence (4 sample migrations + governance doc), i18n first-screen translation stability (17-route hit matrix + 3 raw-key fixes), backlog deep cleanup (Phase 32-41 roadmap archive compression, 772→409 lines), and friend-link ring navigation evaluation (Go conclusion, ~4h effort).
 - **Stage 51 has now been audited and archived**: types/utils boundary convergence (conflict inventory + governance doc + 3 sample migrations), cross-package reuse evaluation (No-Go for full extraction / conditional Go for lightweight approach + evaluation doc), ESLint/type-debt ≥5 narrow slices (11 `as any` eliminated, zero typecheck errors), structural reuse ≥5 hotspot slices (commercial-link-manager parameterization + UploadType/ApiResponse single-source unification + use-voice-input deletion + formatDate consolidation, type/interface candidates 11→10), and backlog long-term mainline status sync (10 mainlines updated to ≥Phase 48).
+- **Stage 52 has now been audited and archived**: Script governance warning cleanup and escalation evaluation (audit-comment-drift false positive cleanup, line-count threshold adjustment, source-of-truth sync, audit-comment-drift→regression:weekly escalation), document governance archive audit and threshold tightening evaluation (5 evaluation docs archived, must-sync 30→21 days, summary-sync 45→30 days), mobile CWV performance baseline collection and evaluation (LCP 1.6s-2.2s, all below 2.5s), i18n runtime verification expansion (homepage + article detail pages added), test effectiveness second-round slice (9 failure-path assertions covering 4 modules).
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
