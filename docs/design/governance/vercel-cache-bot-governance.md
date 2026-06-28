@@ -430,7 +430,7 @@ export default defineEventHandler((event) => {
   - robots.txt：SWR 86400s（24h）
   - sitemap：SWR 3600s（1h）
 
-- **Vercel KV 存储**：已在 `nuxt.config.ts` 的 `nitro.storage` 中配置 `cache` 使用 `vercel-kv` 驱动。环境变量（`KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`）需在 Vercel 项目设置中启用 KV 存储后自动配置。
+- **Vercel KV / Upstash Redis 存储**：已在 `nuxt.config.ts` 的 `nitro.storage` 中配置 `cache` 使用 `upstash` 驱动（Vercel KV 基于 Upstash Redis）。环境变量（`KV_REST_API_URL`, `KV_REST_API_TOKEN`）在 Vercel 项目中集成 KV 后自动配置。未配置时自动降级为内存存储。
 
 - **缓存失效机制**：Nuxt ISR/SWR 会自动处理缓存刷新。当文章更新时，下一次请求会触发后台重新生成，用户仍获得旧版本（stale），后台异步更新缓存。
 

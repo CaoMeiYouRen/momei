@@ -1,5 +1,5 @@
-import Aura from '@primevue/themes/aura'
-import { definePreset } from '@primevue/themes'
+import Aura from '@primeuix/themes/aura'
+import { definePreset } from '@primeuix/themes'
 import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
 import { repairRolldownClientInitImports } from './scripts/build/repair-rolldown-client-init-imports.mjs'
@@ -392,11 +392,12 @@ export default defineNuxtConfig({
             '/robots.txt': { swr: 86400 },
             '/sitemap_index.xml': { swr: 3600 },
         },
-        // Vercel KV 持久化存储：跨 serverless 实例共享 ISR/SWR 缓存
-        // 环境变量需在 Vercel 项目设置中配置：KV_URL, KV_REST_API_URL, KV_REST_API_TOKEN, KV_REST_API_READ_ONLY_TOKEN
+        // Upstash Redis 持久化存储：跨 serverless 实例共享 ISR/SWR 缓存
+        // Vercel KV 基于 Upstash Redis，环境变量可复用：KV_REST_API_URL, KV_REST_API_TOKEN
+        // 本地开发环境或未配置时自动降级为内存存储
         storage: {
             cache: {
-                driver: 'vercel-kv',
+                driver: process.env.KV_REST_API_URL ? 'upstash' : 'memory',
             },
         },
         // 禁用 unenv 对 debug 的默认适配
