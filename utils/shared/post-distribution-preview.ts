@@ -53,9 +53,8 @@ export function buildWechatSyncDistributionPreviewGroups(
     accounts: readonly WechatSyncAccount[],
 ) {
     return groupWechatSyncAccountsByTagRenderMode(accounts).map<WechatSyncDistributionPreviewGroup>((group) => {
-        const tagLine = group.contentProfile === 'default'
-            ? renderDistributionTags(materialBundle.canonical.tags, group.renderMode)
-            : ''
+        // 标签尾注的显示由 renderMode 决定：'wrapped' 或 'leading' 时显示，'none' 时不显示
+        const tagLine = renderDistributionTags(materialBundle.canonical.tags, group.renderMode)
         const runtimePayload = buildWechatSyncPostFromMaterialBundle(materialBundle, {
             renderMode: group.renderMode,
             contentProfile: group.contentProfile,

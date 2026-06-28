@@ -54,9 +54,11 @@ describe('distribution-tags', () => {
     it('maps platforms to the correct tag render mode', () => {
         expect(resolveWechatSyncTagRenderMode('bilibili_article')).toBe('wrapped')
         expect(resolveWechatSyncTagRenderMode('weibo')).toBe('none')
-        expect(resolveWechatSyncTagRenderMode('xiaohongshu')).toBe('leading')
+        // xiaohongshu 不再有标签尾注
+        expect(resolveWechatSyncTagRenderMode('xiaohongshu')).toBe('none')
         expect(resolveWechatSyncTagRenderMode('official_account')).toBe('none')
         expect(resolveWechatSyncTagRenderMode('twitter')).toBe('leading')
+        expect(resolveWechatSyncTagRenderMode('memos')).toBe('leading')
         expect(resolveWechatSyncTagRenderMode('unknown-platform')).toBe('none')
     })
 
@@ -101,7 +103,7 @@ describe('distribution-tags', () => {
                 ],
             },
             {
-                renderMode: 'leading',
+                renderMode: 'none',
                 contentProfile: 'xiaohongshu',
                 accounts: [
                     { id: 'c', type: 'xiaohongshu', title: '小红书', checked: true },

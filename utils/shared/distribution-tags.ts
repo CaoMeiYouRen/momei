@@ -185,22 +185,17 @@ export function resolveWechatSyncTagRenderMode(platformType: string | null | und
         return 'none'
     }
 
-    if (normalizedType === 'x' || normalizedType.includes('twitter') || normalizedType.includes('xiaohongshu') || normalizedType.includes('memos')) {
-        return 'leading'
-    }
-
+    // bilibili 使用 wrapped 格式（#标签#）
     if (normalizedType.includes('bilibili')) {
         return 'wrapped'
     }
 
-    if (normalizedType.includes('weibo')) {
-        return 'none'
+    // memos 和 twitter 使用 leading 格式（#标签）
+    if (normalizedType.includes('memos') || normalizedType === 'x' || normalizedType.includes('twitter')) {
+        return 'leading'
     }
 
-    if (normalizedType.includes('wechat_mp')) {
-        return 'none'
-    }
-
+    // 其他平台（weibo、xiaohongshu、wechat_mp 等）不追加标签
     return 'none'
 }
 

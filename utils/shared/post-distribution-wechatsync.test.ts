@@ -36,14 +36,15 @@ describe('post distribution wechatsync helpers', () => {
             usesRawPost: false,
         })
 
+        // 多组 fallback 时，无法为每个平台单独设置标签策略，使用 'none'
         expect(resolveWechatSyncDispatchPayloadProfile([
             { id: 'bilibili', type: 'bilibili_article', title: 'B 站专栏', checked: true },
             { id: 'weibo', type: 'weibo', title: '微博专栏', checked: true },
         ])).toEqual({
             strategy: 'single_add_task_default_raw',
-            renderMode: 'leading',
+            renderMode: 'none',
             contentProfile: 'default',
-            usesRawPost: false,
+            usesRawPost: true,
         })
 
         expect(resolveWechatSyncDispatchPayloadProfile([

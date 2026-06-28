@@ -103,6 +103,16 @@ describe('post-distribution-wechatsync', () => {
             const group = groupedAccounts[0]
 
             if (groupedAccounts.length === 1 && group) {
+                // wechat_mp 平台特殊处理
+                if (group.contentProfile === 'wechat_mp') {
+                    return {
+                        strategy: 'single_add_task_default_raw',
+                        renderMode: 'none',
+                        contentProfile: 'default',
+                        usesRawPost: true,
+                    }
+                }
+
                 const usesRawPost = group.renderMode === 'none' && group.contentProfile === 'default'
 
                 return {
@@ -113,11 +123,12 @@ describe('post-distribution-wechatsync', () => {
                 }
             }
 
+            // 多组 fallback 时，无法为每个平台单独设置标签策略，使用 'none'
             return {
                 strategy: 'single_add_task_default_raw',
-                renderMode: 'leading',
+                renderMode: 'none',
                 contentProfile: 'default',
-                usesRawPost: false,
+                usesRawPost: true,
             }
         })
     })
@@ -223,14 +234,14 @@ describe('post-distribution-wechatsync', () => {
         expect(shouldFinalizeWechatSyncStatusMock).toHaveBeenCalledWith({ accounts: taskAccounts })
         expect(mapWechatSyncTaskAccountsForCompletionMock).toHaveBeenCalledWith(taskAccounts, accounts)
         expect(result.observation).toMatchObject({
-            strategy: 'single_add_task_group_profile',
+            strategy: 'single_add_task_default_raw',
             resolution: 'terminal_status',
             readyEventCount: 1,
             statusEventCount: 1,
             payload: {
                 renderMode: 'none',
                 contentProfile: 'default',
-                usesRawPost: false,
+                usesRawPost: true,
                 accountKeys: ['wechat'],
             },
         })
@@ -417,7 +428,7 @@ describe('post-distribution-wechatsync', () => {
         })
 
         expect(buildWechatSyncDispatchPostFromMaterialBundleMock).toHaveBeenCalledWith(materialBundle, {
-            renderMode: 'leading',
+            renderMode: 'none',
             contentProfile: 'default',
         })
     })
@@ -645,7 +656,7 @@ describe('post-distribution-wechatsync', () => {
         expect(result.completionAccounts).toBe(failureResults)
         expect(buildWechatSyncFailureResultsMock).toHaveBeenCalledWith([{ id: 'wechat', type: 'wechat', title: '公众号 A', checked: true }], 'sync failed')
         expect(result.observation).toMatchObject({
-            strategy: 'single_add_task_group_profile',
+            strategy: 'single_add_task_default_raw',
             resolution: 'start_error',
         })
         expect(result.observation.events.at(-1)?.phase).toBe('start_failed')

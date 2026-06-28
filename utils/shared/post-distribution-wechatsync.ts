@@ -43,11 +43,12 @@ export function resolveWechatSyncDispatchPayloadProfile(accounts: readonly Wecha
         }
     }
 
+    // 多组 fallback 时，无法为每个平台单独设置标签策略，使用 'none' 避免所有平台都显示标签
     return {
         strategy: 'single_add_task_default_raw',
-        renderMode: 'leading',
+        renderMode: 'none',
         contentProfile: 'default',
-        usesRawPost: false,
+        usesRawPost: true,
     }
 }
 
