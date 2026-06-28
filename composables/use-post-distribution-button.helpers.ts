@@ -11,7 +11,7 @@ import {
     type ExpandedDistributionPreview,
 } from '@/utils/web/post-distribution-dialog'
 
-type TranslateFn = ReturnType<typeof useI18n>['t']
+export type TranslateFn = ReturnType<typeof useI18n>['t']
 
 export type DistributionSourcePost = Omit<Post, 'tags'> & {
     tags?: Post['tags'] | string[] | null

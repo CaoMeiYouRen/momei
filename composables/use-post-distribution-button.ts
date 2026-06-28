@@ -4,6 +4,7 @@ import {
     createExpandedPreviewController,
     mergeDistributionSourcePost,
     type DistributionSourcePost,
+    type TranslateFn,
 } from './use-post-distribution-button.helpers'
 import type {
     Post,
@@ -65,7 +66,6 @@ interface UsePostDistributionButtonOptions {
     post: Ref<Partial<Post>>
 }
 
-type TranslateFn = ReturnType<typeof useI18n>['t']
 type HexoRepositorySyncState = PostDistributionSummary['channels']['hexoRepositorySync']
 type DistributionContext = {
     postId: string
