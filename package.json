@@ -138,7 +138,7 @@
     "normalize.css": "^8.0.1",
     "nuxt": "^4.4.8",
     "p-queue": "^9.3.0",
-    "pg": "^8.21.0",
+    "pg": "^8.22.0",
     "primeicons": "^7.0.0",
     "primelocale": "^2.4.0",
     "primevue": "^4.5.5",
