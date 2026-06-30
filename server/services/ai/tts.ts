@@ -1,3 +1,4 @@
+import { ms } from 'ms'
 import { buildPostUploadPrefix, buildUploadStoredFilename, uploadFromBuffer, UploadType } from '../upload'
 import { getSettings } from '../setting'
 import { AIBaseService } from './base'
@@ -31,6 +32,9 @@ function resolveProviderModel(provider: AIProvider): string {
 }
 
 const MAX_AUDIO_COMPENSATION_ATTEMPTS = 2
+
+/** 任务执行时长业务上限（24 小时），防止历史遗留任务导致 integer 溢出 */
+const MAX_TASK_DURATION_MS = ms('24h')
 
 type PodcastTaskCheckpointPhase = 'queued' | 'asset_uploaded'
 
@@ -165,7 +169,9 @@ export class TTSService extends AIBaseService {
         task.failureStage = null
         task.usageSnapshot = serializeUsageSnapshot(usageSnapshot)
         task.completedAt = new Date()
-        task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+        task.durationMs = task.startedAt
+            ? Math.min(task.completedAt.getTime() - task.startedAt.getTime(), MAX_TASK_DURATION_MS)
+            : task.durationMs
         task.result = JSON.stringify({
             url: uploadedFile.url,
             audioUrl: uploadedFile.url,
@@ -655,7 +661,9 @@ export class TTSService extends AIBaseService {
             task.quotaUnits = task.chargeStatus === 'waived' ? 0 : (task.quotaUnits || task.estimatedQuotaUnits)
             task.actualCost = task.chargeStatus === 'waived' ? 0 : (task.actualCost || task.estimatedCost)
             task.completedAt = new Date()
-            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+            task.durationMs = task.startedAt
+                ? Math.min(task.completedAt.getTime() - task.startedAt.getTime(), MAX_TASK_DURATION_MS)
+                : task.durationMs
             await taskRepo.save(task)
 
             await sendInAppNotification({
@@ -722,7 +730,9 @@ export class TTSService extends AIBaseService {
                 settlementSource: 'estimated',
             })
             task.completedAt = new Date()
-            task.durationMs = task.startedAt ? task.completedAt.getTime() - task.startedAt.getTime() : task.durationMs
+            task.durationMs = task.startedAt
+                ? Math.min(task.completedAt.getTime() - task.startedAt.getTime(), MAX_TASK_DURATION_MS)
+                : task.durationMs
             await taskRepo.save(task)
             return 'failed' as const
         }
