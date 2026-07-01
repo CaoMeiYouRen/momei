@@ -24,7 +24,7 @@ test.describe('Responsive Design E2E Tests', () => {
         await expect(drawer).toBeVisible({ timeout: 10000 })
 
         // 检查移动端导航链接 (Articles/文章)
-        await expect(drawer.getByText(/Articles|文章/)).toBeVisible()
+        await expect(drawer.getByRole('link', { name: /Articles|文章/ })).toBeVisible()
     })
 
     test.skip('should handle post reading on mobile', async ({ page }) => {
