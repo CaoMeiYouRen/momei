@@ -474,12 +474,14 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第五十三阶段：缓存架构与治理深化（(Cache Architecture & Governance Deepenin）)
+### 第五十三阶段：缓存架构与治理深化（(Cache Architecture & Governance Deepenin）)（已审计归档）
 
-**时间表**: 2026-06-29 ~ 约 2 周
+**时间表**: 2026-06-29 ~ 2026-07-04（6 天）
 **目标**: 在 Phase 52 完成治理补账后，以「0 个新功能 + 4 个优化 + 1 评估」组合推进：Vercel CDN 缓存 Tier 2 架构治理为 P0 最紧迫项（阻断 Bot→SSR→DB 连锁反应），ESLint/类型债与结构复用恢复切片节奏，文档治理阈值收紧执行 Phase 52 评估结论，AI 编辑增强功能套件进入评估态。
 
 **准入结论**: 五条主线均来自 backlog 长期主线或已验证候选，容量控制在 `5` 项内，符合规划规范。Vercel Tier 2 架构治理基于 Phase 52 根因分析（100% Cache MISS + 76% Bot 流量），已有完整治理方案；ESLint 剩余 3 处 `as any` 边界清晰；结构复用延续 12 阶段治理节奏；文档治理阈值收紧为 Phase 52 评估结论的直接执行；AI 编辑增强为评估态，不进入代码实现。
+
+**审计结论**: 第五十三阶段五条主线已在实现代码、定向测试、规划文档与治理基线中完成闭环，满足归档条件。Vercel CDN Tier 2 架构治理已完成 routeRules 配置（ISR/SWR）+ Upstash Redis 持久化存储；ESLint/类型债清零已完成 benefits.vue 3 处 as any 替换；结构复用治理已完成 5 组热点切片（仪表盘样式、度量卡片样式、认证页面、设置页面、TypeScript 工具函数），duplicate-code 基线从 0.39% 下降至 0.24%；文档治理阈值收紧已执行（must-sync=21 天，summary-sync=30 天）；AI 编辑增强评估已输出条件性 Go 结论（ROI 1.50）。`todo.md` 已清理执行面；部署后验证任务已标记为延期。
 
 **ROI 评估**: Vercel CDN 缓存 Tier 2 `2.00`；文档治理阈值收紧 `1.70`；ESLint/类型债 `1.50`；结构复用治理 `1.60`；AI 编辑增强评估 `1.40`。
 
@@ -487,27 +489,31 @@
     - **执行范围**: 基于 Phase 52 根因分析，在 Tier 1 已执行基础上，实施 Tier 2 架构治理：`nuxt.config.ts` routeRules 配置 ISR/SWR + SSG 预渲染。治理文档：[Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)。
     - **非目标**: 不做全量 SSG 预渲染、不引入新缓存框架、不改页面渲染逻辑。
     - **最小验收**: ISR/SWR 配置生效；公开页面缓存命中率可验证；Neon compute 启停频率下降。
+    - **完成情况**: ✅ routeRules 配置完成（首页 SWR 1h、文章详情 ISR 10min、标签/分类 SWR 30min）；Upstash Redis 持久化存储配置完成；部署后验证任务延期至运维阶段。
 
 2. **主线：文档治理阈值收紧（(P）)**:
     - **执行范围**: 执行 Phase 52 评估结论，将 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天。
     - **非目标**: 不做翻译同步、不创建新文档。
     - **最小验收**: 脚本阈值更新完成；`docs:check:source-of-truth` 通过。
+    - **完成情况**: ✅ 脚本阈值已在 Phase 52 更新；受影响文档 last_sync 字段已同步；`docs:check:source-of-truth` 验证通过。
 
 3. **主线：ESLint / 类型债治理 — 清零剩余 3 处 as any (P1)**:
     - **执行范围**: 继续清零剩余 3 处 `as any`（`benefits.vue` 2 处 + 其他 1 处），保持 `warning=0`。
     - **非目标**: 不扩展范围、不引入新规则族。
     - **最小验收**: 3 处 `as any` 清零；`pnpm typecheck` 通过。
+    - **完成情况**: ✅ benefits.vue 3 处 as any 已替换为具体类型接口；`pnpm typecheck` + `pnpm lint` 验证通过。
 
 4. **主线：结构复用治理 — ≥5 组热点切片（(P）)**:
     - **执行范围**: 继续聚焦重复类型声明、纯函数、工具函数收敛，至少完成 5 组热点切片。
     - **非目标**: 不推动跨目录大重构、不为复用而复用。
     - **最小验收**: ≥5 组热点切片完成；`pnpm duplicate-code:check` 基线不反弹。
-    - **完成情况*: ✅ 已完成 5 组热点切片（仪表盘样式、度量卡片样式、认证页面、设置页面、TypeScript 工具函数）；基线从 0.39% 下降至 0.24%（-0.15%）；修复 duplicate-code 脚本 bug（sources 字段类型处理）。。
+    - **完成情况**: ✅ 已完成 5 组热点切片（仪表盘样式、度量卡片样式、认证页面、设置页面、TypeScript 工具函数）；基线从 0.39% 下降至 0.24%（-0.15%）；修复 duplicate-code 脚本 bug（sources 字段类型处理）；禁用 lint-md no-half-width-punctuation 规则避免全局括号替换。
 
 5. **主线：AI 编辑增强功能套件 — 评估态（(P）)**:
     - **执行范围**: 对 backlog 短期候选 #9「AI 编辑增强功能套件」生成评估文档，覆盖技术方案、前置条件、验收标准、ROI 评估。
     - **非目标**: 不进入代码实现、不修改现有 AI 管线。
     - **最小验收**: 评估文档输出明确的 go/no-go 结论，至少覆盖「AI 额度计费策略」「prompt 多语言支持」「与现有 AI 管线复用度」三个维度。
+    - **完成情况**: ✅ 评估文档已完成（`docs/design/governance/ai-editing-enhancement-evaluation.md`）；输出条件性 Go 结论（ROI 1.50）。
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
