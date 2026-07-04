@@ -200,34 +200,7 @@ const handleUpdateProfile = async () => {
 </script>
 
 <style lang="scss" scoped>
-.settings-section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-    color: var(--p-text-color);
-}
-
-.settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 600px;
-
-    &__field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-
-        label {
-            font-weight: 500;
-            color: var(--p-text-color);
-        }
-    }
-
-    &__submit-btn {
-        align-self: flex-start;
-    }
-}
+@use "@/styles/components/settings-shared" as *;
 
 .avatar-section {
     display: flex;

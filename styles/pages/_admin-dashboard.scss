@@ -1,0 +1,210 @@
+@use "@/styles/variables" as *;
+
+.admin-dashboard {
+    &__hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
+        gap: $spacing-xl;
+        border: 1px solid color-mix(in srgb, var(--p-primary-300) 24%, transparent);
+        background:
+            linear-gradient(135deg, color-mix(in srgb, #f8fafc 80%, transparent), color-mix(in srgb, #fff7ed 72%, transparent)),
+            var(--p-surface-0);
+    }
+
+    &__hero-copy {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    &__eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9a3412;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    &__headline {
+        margin: 0;
+        font-size: clamp(1.6rem, 3vw, 2.35rem);
+        line-height: 1.15;
+    }
+
+    &__summary {
+        margin: 0;
+        color: var(--p-text-muted-color);
+        max-width: 42rem;
+    }
+
+    &__controls {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+    }
+
+    &__ranges {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: $spacing-sm;
+    }
+
+    &__range-button {
+        border: 1px solid color-mix(in srgb, var(--p-surface-400) 24%, transparent);
+        background: color-mix(in srgb, var(--p-surface-0) 94%, transparent);
+        border-radius: $border-radius-lg;
+        padding: $spacing-md;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: left;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgb(15 23 42 / 0.08);
+        }
+
+        &--active {
+            border-color: color-mix(in srgb, #ea580c 58%, transparent);
+            box-shadow: 0 0 0 1px color-mix(in srgb, #ea580c 14%, transparent);
+            background: linear-gradient(180deg, color-mix(in srgb, #fff7ed 88%, transparent), var(--p-surface-0));
+        }
+    }
+
+    &__range-label,
+    &__range-caption {
+        color: var(--p-text-muted-color);
+    }
+
+    &__range-value {
+        font-size: 1.4rem;
+        line-height: 1;
+    }
+
+    &__notes {
+        display: flex;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+    }
+
+    &__loading-state,
+    &__empty-state {
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--p-text-muted-color);
+    }
+
+    &__metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: $spacing-md;
+    }
+
+    &__rankings {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(0, 1fr));
+        gap: $spacing-md;
+    }
+
+    &__ranking-card {
+        border: 1px solid color-mix(in srgb, var(--p-surface-400) 18%, transparent);
+
+        &--wide {
+            min-width: 0;
+        }
+    }
+
+    &__ranking-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+
+        &--compact {
+            gap: $spacing-sm;
+        }
+    }
+
+    &__ranking-item {
+        display: flex;
+        justify-content: space-between;
+        gap: $spacing-md;
+        align-items: center;
+        padding-bottom: $spacing-sm;
+        border-bottom: 1px solid color-mix(in srgb, var(--p-surface-300) 28%, transparent);
+
+        &:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+    }
+
+    &__ranking-copy {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+
+        strong,
+        small {
+            line-height: 1.4;
+        }
+
+        small {
+            color: var(--p-text-muted-color);
+        }
+    }
+
+    &__ranking-stats {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+        color: var(--p-text-muted-color);
+        font-size: 0.85rem;
+        justify-content: flex-end;
+        flex-shrink: 0;
+
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+    }
+}
+
+@include respond-to("md") {
+    .admin-dashboard {
+        &__hero,
+        &__rankings,
+        &__metrics {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+@media (width <= 640px) {
+    .admin-dashboard {
+        &__ranges {
+            grid-template-columns: 1fr;
+        }
+
+        &__ranking-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        &__ranking-stats {
+            justify-content: flex-start;
+        }
+    }
+}

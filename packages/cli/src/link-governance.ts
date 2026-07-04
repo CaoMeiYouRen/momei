@@ -1,4 +1,5 @@
 import { basename } from 'node:path'
+import { normalizeAsciiSlug } from './slug'
 import type {
     CliLinkGovernanceMappingSeed,
     CliLinkGovernanceRequest,
@@ -6,7 +7,6 @@ import type {
     CliLinkGovernanceValidationMode,
     ParsedHexoPost,
 } from './types'
-import { normalizeAsciiSlug } from './slug'
 
 const DEFAULT_GOVERNANCE_SCOPES: CliLinkGovernanceScope[] = ['asset-url', 'post-link', 'permalink-rule']
 const SUPPORTED_GOVERNANCE_SCOPES = new Set<CliLinkGovernanceScope>([

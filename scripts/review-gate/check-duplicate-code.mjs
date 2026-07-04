@@ -132,8 +132,13 @@ function collectTopFiles(formats) {
     const entries = []
 
     for (const [formatName, formatValue] of Object.entries(normalizedFormats)) {
-        const sources = ensureObject(formatValue?.sources ?? {}, `statistics.formats.${formatName}.sources`)
+        // sources 可能是数字（jscpd 统计）或对象（按文件统计），需要兼容处理
+        const rawSources = formatValue?.sources ?? {}
+        if (typeof rawSources !== 'object' || rawSources === null || Array.isArray(rawSources)) {
+            continue
+        }
 
+        const sources = rawSources
         for (const [filePath, fileStats] of Object.entries(sources)) {
             const normalizedFileStats = normalizeStats(fileStats)
 

@@ -325,6 +325,8 @@ definePageMeta({
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/pages/auth-pages" as *;
+
 .register-page {
     display: flex;
     justify-content: center;
@@ -334,78 +336,15 @@ definePageMeta({
 }
 
 .register-card {
-    width: 100%;
-    max-width: 400px;
-    background: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
-
-    &__header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    &__logo {
-        height: 48px;
-        width: auto;
-    }
-
-    &__title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--p-text-color);
-        line-height: 1.5;
-    }
-
-    &__footer {
-        text-align: center;
-        font-size: 0.875rem;
-        margin-top: 1rem;
-        line-height: 1.5;
-    }
+    @extend %auth-card;
 
     &__login-link {
-        color: var(--p-primary-color);
-        text-decoration: none;
-        transition: color 0.2s;
-        line-height: 1.5;
-
-        &:hover {
-            color: var(--p-primary-700);
-            text-decoration: underline;
-        }
+        @extend %auth-card-link;
     }
 }
 
 .register-form {
-    &__social {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    &__fields {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    &__field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-
-        label {
-            line-height: 1.5;
-        }
-    }
-
-    &__input {
-        width: 100%;
-    }
+    @extend %auth-form;
 
     &__submit-btn {
         width: 100%;
