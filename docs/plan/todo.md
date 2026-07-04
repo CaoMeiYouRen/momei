@@ -69,6 +69,16 @@
 - [x] 评估 prompt 多语言支持
 - [x] 输出 go/no-go 结论与 ROI 评估（条件性 Go，ROI 1.50）
 
+#### 6. E2E 测试 seed-test 插件失效排查 （P0）
+
+- **执行范围**: 排查 CI 环境中 `seed-test` 插件未创建测试用户的根因，恢复受影响的 19 个 admin 相关 E2E 测试。
+- **非目标**: 不重写 E2E 测试框架、不改变测试账号体系。
+- **最小验收**: CI E2E 测试全部通过；`[Test Seed]` 日志正常输出。
+- [ ] 排查 seed-test 插件执行条件（TEST_MODE 内联时机、Nitro 插件加载顺序）
+- [ ] 验证 `auth.api.signUpEmail` 在 Nitro 插件上下文中的可用性
+- [ ] 恢复受影响测试（admin-posts-shortcut、auth-session-governance、admin、mobile-critical）
+- [ ] CI E2E 全量通过
+
 ---
 
 ## 待准入（筹备中）
