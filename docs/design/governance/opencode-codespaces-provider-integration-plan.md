@@ -61,6 +61,38 @@
 3. 统一通过仓库脚本完成模型切换与治理，不依赖人工手改 JSON。
 4. 以最小改动优先，先完成可运行，再做收紧。
 
+### 4.3 Codespaces 手动设置 vs OpenCode 配置文件
+
+当前有两条可行路径：
+
+1. 在 GitHub Codespaces 中手动执行 `/connect`、`/model`，逐个设置提供商与模型。
+2. 在仓库配置（`.opencode/configs/*.json` + `opencode.json`）中声明提供商与模型，通过脚本切换激活态。
+
+对比结论如下：
+
+| 维度 | Codespaces 手动设置 | OpenCode 配置文件声明 |
+| :--- | :--- | :--- |
+| 可复现性 | 低：依赖个人操作顺序与习惯 | 高：配置与脚本可审计、可复用 |
+| 团队一致性 | 低：多人环境容易漂移 | 高：同一分支默认一致 |
+| 治理成本 | 高：需要反复口头同步 | 低：规则集中在仓库文件 |
+| 首次上手速度 | 中：单人试用快 | 中：首次需要理解预设与切换脚本 |
+| 临时调试灵活性 | 高：可即时切换 | 中：推荐通过脚本切换而非手改 |
+
+建议：本项目采用“配置文件优先、手动设置兜底”的策略。
+
+1. 日常开发与协作：以 `.opencode/configs/` 为事实源。
+2. 紧急排障或临时试验：允许在 Codespace 手动切换，但任务结束后必须回到仓库预设并记录原因。
+
+### 4.4 OpenCode Go 为内置提供商时，写入配置会发生什么
+
+OpenCode Go 是 OpenCode 内置 provider。将模型写入配置后，行为是“显式选择内置 provider”，不是“新增自定义 provider”。
+
+1. 当模型写为 `opencode-go/<model-id>`（例如 `opencode-go/deepseek-v4-pro`）时，OpenCode 会按内置 OpenCode Go 路由请求。
+2. 这不会破坏 `/connect` 流程；`/connect` 仍可用于交互式录入凭据。
+3. 在自动化场景（Codespaces / CI）中，推荐通过配置映射环境变量到 `provider.options.apiKey`，避免依赖交互式录入。
+
+补充说明：官方文档明确支持 `{env:VARIABLE}` 通用变量替换机制，但未强制规定 OpenCode Go 必须使用某个固定环境变量名。因此 `OPENCODE_GO_API_KEY` 可作为本仓库约定命名，而非官方硬编码键名。
+
 ## 5. 具体改动方案 (File-level Change Plan)
 
 ### 5.1 P0：必须改动
@@ -101,14 +133,32 @@
 
 GitHub Codespaces Secrets 最小集合：
 
-1. `OPENROUTER_API_KEY`（若通过 OpenRouter 调度）
+1. `OPENCODE_GO_API_KEY`（推荐命名；用于 OpenCode Go）
 2. `DEEPSEEK_API_KEY`（若直连 DeepSeek）
-3. `GITHUB_TOKEN` 或等效 PAT（用于仓库操作与 API 调用）
+3. `OPENROUTER_API_KEY`（若通过 OpenRouter 调度）
+4. `GITHUB_TOKEN` 或等效 PAT（用于仓库操作与 API 调用）
 
 约束：
 
 1. 不在仓库内提交任何明文密钥。
 2. 不在文档中写入真实密钥示例。
+
+推荐配置写法（示意）：
+
+```json
+{
+	"provider": {
+		"opencode-go": {
+			"options": {
+				"apiKey": "{env:OPENCODE_GO_API_KEY}",
+				"timeout": 300000
+			}
+		}
+	}
+}
+```
+
+说明：`timeout` 可按任务时延需求调整；抓取或长上下文任务建议提高超时，交互式任务保持默认即可。
 
 ## 8. Hermes 编排改动点 (Hermes Orchestration Plan)
 
