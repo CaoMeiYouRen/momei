@@ -124,6 +124,7 @@ jobs:
         env:
           AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
           BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+          FORCE_E2E_BUILD: "true"
         run: pnpm run test:e2e
 
   build:
