@@ -89,7 +89,7 @@ export async function seedTestData(ds: DataSource) {
                         logger.error('[Test Seed] signUpEmail returned no user:', data)
                     }
                 } else {
-                    logger.error('[Test Seed] signUpEmail failed:', response.status, responseBody)
+                    logger.error(`[Test Seed] signUpEmail failed: ${response.status} ${responseBody}`)
                 }
             } catch (e: any) {
                 logger.error('[Test Seed] Failed to create user via Better-Auth:', e.message)
