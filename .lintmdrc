@@ -5,6 +5,7 @@
         "no-trailing-punctuation": 0,
         "no-long-code": 0,
         "no-empty-code-lang": 0,
-        "no-empty-inlinecode": 0
+        "no-empty-inlinecode": 0,
+        "no-half-width-punctuation": 0
     }
 }
