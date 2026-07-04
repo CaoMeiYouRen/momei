@@ -96,10 +96,15 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      - run: pnpm run build
+      - name: Build for E2E
+        env:
+          AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+          BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+        run: pnpm run build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - run: pnpm run test:e2e
+      - name: Run E2E tests
+        run: pnpm run test:e2e
 
   build-lighthouse:
     name: Build & Lighthouse
