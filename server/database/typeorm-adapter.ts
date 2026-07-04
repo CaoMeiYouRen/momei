@@ -589,6 +589,53 @@ export const typeormAdapter =
                     )
                 }
             },
+
+            async incrementOne<T>(data: {
+                model: string
+                where: Where[]
+                increment: Record<string, number>
+                set?: Record<string, unknown>
+            }): Promise<T | null> {
+                const { model, where, increment, set } = data
+                const repositoryName = transformHelpers.getModelName(model)
+                const repository = manager.getRepository(repositoryName)
+
+                try {
+                    const findOptions = transformHelpers.convertWhereToFindOptions(model, where)
+                    const target = await repository.findOne({ where: findOptions })
+
+                    if (!target) {
+                        return null
+                    }
+
+                    // Build increment expressions
+                    const qb = repository.createQueryBuilder()
+                        .update()
+                        .set({
+                            ...Object.fromEntries(
+                                Object.entries(increment).map(([field, delta]) => [
+                                    field,
+                                    () => `"${field}" + ${delta}`,
+                                ]),
+                            ),
+                            ...(set ? transformHelpers.transformInput(set, model, 'update') : {}),
+                        })
+                        .where(findOptions)
+
+                    const result = await qb.execute()
+
+                    if (result.affected && result.affected > 0) {
+                        const updated = await repository.findOne({ where: findOptions })
+                        return transformHelpers.transformOutput(updated, model) as T
+                    }
+
+                    return null
+                } catch (error: unknown) {
+                    throw new BetterAuthError(
+                        `Failed to increment ${model}: ${error instanceof Error ? error.message : String(error)}`,
+                    )
+                }
+            },
         })
 
         return {
