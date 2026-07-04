@@ -101,12 +101,14 @@ describe('calendar-view', () => {
         })
 
         it('shows posts as chips in cells', () => {
+            const today = new Date()
+            const dateStr = today.toISOString().slice(0, 10)
             const posts: CalendarDayGroup[] = [
                 {
-                    date: '2026-06-15',
+                    date: dateStr,
                     posts: [
-                        { id: 'p1', title: 'Post One', status: 'published', publishedAt: '2026-06-15T10:00:00Z', language: 'zh-CN', slug: 'p1' },
-                        { id: 'p2', title: 'Post Two', status: 'scheduled', publishedAt: '2026-06-15T12:00:00Z', language: 'zh-CN', slug: 'p2' },
+                        { id: 'p1', title: 'Post One', status: 'published', publishedAt: `${dateStr}T10:00:00Z`, language: 'zh-CN', slug: 'p1' },
+                        { id: 'p2', title: 'Post Two', status: 'scheduled', publishedAt: `${dateStr}T12:00:00Z`, language: 'zh-CN', slug: 'p2' },
                     ],
                 },
             ]
@@ -118,14 +120,16 @@ describe('calendar-view', () => {
         })
 
         it('shows more count indicator when posts exceed 3', () => {
+            const today = new Date()
+            const dateStr = today.toISOString().slice(0, 10)
             const posts: CalendarDayGroup[] = [
                 {
-                    date: '2026-06-15',
+                    date: dateStr,
                     posts: Array.from({ length: 5 }, (_, i) => ({
                         id: `p${i}`,
                         title: `Post ${i}`,
                         status: 'published' as const,
-                        publishedAt: '2026-06-15T10:00:00Z',
+                        publishedAt: `${dateStr}T10:00:00Z`,
                         language: 'zh-CN',
                         slug: `p${i}`,
                     })),
