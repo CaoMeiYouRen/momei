@@ -45,9 +45,9 @@
 - **执行范围**: 继续清零剩余 3 处 `as any`（`benefits.vue` 2 处 + 其他 1 处），保持 `warning=0`。
 - **非目标**: 不扩展范围、不引入新规则族。
 - **最小验收**: 3 处 `as any` 清零；`pnpm typecheck` 通过。
-- [ ] `benefits.vue` 2 处 `as any` 清零
-- [ ] 定位并清零第 3 处 `as any`
-- [ ] `pnpm typecheck` + `pnpm lint` 验证
+- [x] `benefits.vue` 2 处 `as any` 清零
+- [x] 定位并清零第 3 处 `as any`
+- [x] `pnpm typecheck` + `pnpm lint` 验证
 
 #### 4. 结构复用治理 — ≥5 组热点切片 （P1）
 
