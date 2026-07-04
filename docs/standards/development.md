@@ -397,6 +397,7 @@ pnpm build
 
     - 若改动涉及 Vue / SCSS、全局样式或样式治理，需额外执行 `pnpm run lint:css`。
     - 若改动涉及 Markdown、规划、规范、README 或其他文档，需额外执行 `pnpm run lint:md`。
+    - **注意**: `lint-md` 的 `no-half-width-punctuation` 规则已禁用（会将 `()` 全局替换为 `（）`）。详见 `.lintmdrc` 配置。
 
 5.  **测试检查**:
 
