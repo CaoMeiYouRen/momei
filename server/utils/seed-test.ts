@@ -66,6 +66,9 @@ export async function seedTestData(ds: DataSource) {
                         password: testPassword,
                         name: 'Test Admin',
                     },
+                    headers: new Headers({
+                        'Content-Type': 'application/json',
+                    }),
                 })
 
                 if (response?.user) {
