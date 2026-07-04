@@ -60,6 +60,7 @@ export async function seedTestData(ds: DataSource) {
             // 如果报错，可以尝试直接操作数据库，但这需要手动处理密码哈希
             // 幸好 Better-Auth 的底层逻辑通常是解耦的
             try {
+                logger.info('[Test Seed] Calling auth.api.signUpEmail...')
                 const response = await auth.api.signUpEmail({
                     body: {
                         email: testEmail,
@@ -69,17 +70,30 @@ export async function seedTestData(ds: DataSource) {
                     headers: new Headers({
                         'Content-Type': 'application/json',
                     }),
+                    asResponse: true,
                 })
 
-                if (response?.user) {
-                    await userRepo.update(response.user.id, {
-                        role: 'admin',
-                        emailVerified: true,
-                    })
-                    logger.info('[Test Seed] Test admin created and promoted to admin')
+                logger.info('[Test Seed] signUpResponse status:', response.status)
+                const responseBody = await response.text()
+                logger.info('[Test Seed] signUpResponse body:', responseBody)
+
+                if (response.ok) {
+                    const data = JSON.parse(responseBody)
+                    if (data?.user?.id) {
+                        await userRepo.update(data.user.id, {
+                            role: 'admin',
+                            emailVerified: true,
+                        })
+                        logger.info('[Test Seed] Test admin created and promoted to admin')
+                    } else {
+                        logger.error('[Test Seed] signUpEmail returned no user:', data)
+                    }
+                } else {
+                    logger.error('[Test Seed] signUpEmail failed:', response.status, responseBody)
                 }
             } catch (e: any) {
                 logger.error('[Test Seed] Failed to create user via Better-Auth:', e.message)
+                logger.error('[Test Seed] Error stack:', e.stack)
                 // 备选方案：如果 auth.api 还没准备好，我们暂时跳过，
                 // 但通常在 Nitro Plugin 中是可用的
             }
