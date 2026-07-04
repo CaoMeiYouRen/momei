@@ -114,7 +114,10 @@ jobs:
       - run: pnpm run build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - run: pnpm run test:e2e
+      - name: Run E2E tests
+        env:
+          AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+        run: pnpm run test:e2e
 
   build:
     needs: [qa, e2e, unit] # 等待 QA 和 E2E 执行成功
