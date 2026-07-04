@@ -98,6 +98,8 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - name: Build for E2E
         env:
+          TEST_MODE: "true"
+          NUXT_PUBLIC_TEST_MODE: "true"
           AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
           BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
         run: pnpm run build
