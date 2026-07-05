@@ -9,6 +9,7 @@ import type {
     CliLinkGovernanceRequest,
     CliTranslatePostRequest,
     ImportResult,
+    MomeiPost,
 } from './types'
 
 /**
@@ -33,6 +34,38 @@ export class MomeiApiClient {
    */
     async createPost(post: CliImportPostRequest): Promise<{ code: number, data: { id: string | number } }> {
         const response = await this.client.post('/api/external/posts', post)
+        return response.data
+    }
+
+    /**
+     * 获取文章列表
+     */
+    async listPosts(query?: {
+        status?: 'draft' | 'pending' | 'published' | 'rejected' | 'hidden'
+        language?: string
+        search?: string
+        page?: number
+        limit?: number
+        orderBy?: string
+        order?: 'ASC' | 'DESC'
+    }): Promise<{ code: number, data: { items: MomeiPost[], total: number, page: number, limit: number } }> {
+        const response = await this.client.get('/api/external/posts', { params: query })
+        return response.data
+    }
+
+    /**
+     * 更新文章
+     */
+    async updatePost(postId: string, data: Partial<MomeiPost>): Promise<{ code: number, data: MomeiPost }> {
+        const response = await this.client.patch(`/api/external/posts/${postId}`, data)
+        return response.data
+    }
+
+    /**
+     * 删除文章
+     */
+    async deletePost(postId: string): Promise<{ code: number, message: string }> {
+        const response = await this.client.delete(`/api/external/posts/${postId}`)
         return response.data
     }
 

@@ -153,4 +153,29 @@ export class MomeiApi {
     async getAITask(taskId: string): Promise<ApiEnvelope<JsonRecord>> {
         return this.request<JsonRecord>(`/api/external/ai/tasks/${taskId}`)
     }
+
+    async validateImportPost(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/posts/validate', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async dryRunLinkGovernance(request: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/migrations/link-governance/dry-run', {
+            method: 'POST',
+            body: JSON.stringify(request),
+        })
+    }
+
+    async applyLinkGovernance(request: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/migrations/link-governance/apply', {
+            method: 'POST',
+            body: JSON.stringify(request),
+        })
+    }
+
+    async getLinkGovernanceReport(reportId: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/migrations/link-governance/reports/${reportId}`)
+    }
 }

@@ -30,21 +30,22 @@
 
 #### 主线 1：CLI 与 MCP 包 API 客户端代码复用优化 — 阶段一
 
-- [ ] **CLI 包补充接口**
-    - [ ] 新增 `listPosts()` — 调用 `GET /api/external/posts`
-    - [ ] 新增 `updatePost()` — 调用 `PATCH /api/external/posts/[id]`
-    - [ ] 新增 `deletePost()` — 调用 `DELETE /api/external/posts/[id]`
+- [x] **CLI 包补充接口**
+    - [x] 新增 `listPosts()` — 调用 `GET /api/external/posts`
+    - [x] 新增 `updatePost()` — 调用 `PATCH /api/external/posts/[id]`
+    - [x] 新增 `deletePost()` — 调用 `DELETE /api/external/posts/[id]`
 
-- [ ] **MCP 包补充接口**
-    - [ ] 新增 `validateImportPost()` — 调用 `POST /api/external/posts/validate`
-    - [ ] 新增 `dryRunLinkGovernance()` — 调用 `POST /api/external/migrations/link-governance/dry-run`
-    - [ ] 新增 `applyLinkGovernance()` — 调用 `POST /api/external/migrations/link-governance/apply`
-    - [ ] 新增 `getLinkGovernanceReport()` — 调用 `GET /api/external/migrations/link-governance/reports/[reportId]`
+- [x] **MCP 包补充接口**
+    - [x] 新增 `validateImportPost()` — 调用 `POST /api/external/posts/validate`
+    - [x] 新增 `dryRunLinkGovernance()` — 调用 `POST /api/external/migrations/link-governance/dry-run`
+    - [x] 新增 `applyLinkGovernance()` — 调用 `POST /api/external/migrations/link-governance/apply`
+    - [x] 新增 `getLinkGovernanceReport()` — 调用 `GET /api/external/migrations/link-governance/reports/[reportId]`
 
-- [ ] **验收**
-    - [ ] 两个包 API 方法覆盖率达到 100%
-    - [ ] `pnpm typecheck` 通过
-    - [ ] `pnpm lint` 通过
+- [x] **验收**
+    - [x] 两个包 API 方法覆盖率达到 100%
+    - [x] `pnpm typecheck` 通过
+    - [x] `pnpm lint` 通过
+    - [x] 补充必要的测试用例
 
 ---
 

@@ -218,4 +218,121 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
             }
         },
     )
+
+    server.registerTool(
+        'validate_import_post',
+        {
+            description: 'Validate import path aliases for a post before importing',
+            inputSchema: {
+                title: z.string(),
+                content: z.string(),
+                language: z.string().optional(),
+                slug: z.string().optional(),
+                abbrlink: z.string().optional(),
+                permalink: z.string().optional(),
+                sourceFile: z.string().optional(),
+            },
+        },
+        async (data) => {
+            try {
+                const result = await api.validateImportPost(data)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
+
+    server.registerTool(
+        'dry_run_link_governance',
+        {
+            description: 'Preview link governance changes without applying them',
+            inputSchema: {
+                scopes: z.array(z.enum(['asset-url', 'post-link', 'category-link', 'tag-link', 'archive-link', 'page-link', 'permalink-rule'])),
+                filters: z.object({
+                    domains: z.array(z.string()).optional(),
+                    pathPrefixes: z.array(z.string()).optional(),
+                    contentTypes: z.array(z.enum(['post', 'category', 'tag', 'page', 'asset-record'])).optional(),
+                }).optional(),
+                options: z.object({
+                    reportFormat: z.enum(['json', 'markdown']).optional(),
+                    validationMode: z.enum(['static', 'static+online']).optional(),
+                    allowRelativeLinks: z.boolean().optional(),
+                }).optional(),
+            },
+        },
+        async (request) => {
+            try {
+                const result = await api.dryRunLinkGovernance(request)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
+
+    server.registerTool(
+        'apply_link_governance',
+        {
+            description: 'Apply link governance changes to rewrite or redirect links',
+            inputSchema: {
+                scopes: z.array(z.enum(['asset-url', 'post-link', 'category-link', 'tag-link', 'archive-link', 'page-link', 'permalink-rule'])),
+                filters: z.object({
+                    domains: z.array(z.string()).optional(),
+                    pathPrefixes: z.array(z.string()).optional(),
+                    contentTypes: z.array(z.enum(['post', 'category', 'tag', 'page', 'asset-record'])).optional(),
+                }).optional(),
+                seeds: z.array(z.object({
+                    source: z.string(),
+                    sourceKind: z.enum(['absolute', 'root-relative', 'relative', 'path-rule']),
+                    matchMode: z.enum(['exact', 'prefix', 'pattern']),
+                    scope: z.enum(['asset-url', 'post-link', 'category-link', 'tag-link', 'archive-link', 'page-link', 'permalink-rule']),
+                    targetType: z.enum(['asset', 'post', 'category', 'tag', 'archive', 'page']),
+                    targetRef: z.record(z.string(), z.unknown()),
+                    redirectMode: z.enum(['rewrite-only', 'redirect-seed', 'alias-only']).optional(),
+                    notes: z.string().optional(),
+                })).optional(),
+                options: z.object({
+                    reportFormat: z.enum(['json', 'markdown']).optional(),
+                    validationMode: z.enum(['static', 'static+online']).optional(),
+                    allowRelativeLinks: z.boolean().optional(),
+                    skipConfirmation: z.boolean().optional(),
+                }).optional(),
+            },
+        },
+        async (request) => {
+            try {
+                const result = await api.applyLinkGovernance(request)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
+
+    server.registerTool(
+        'get_link_governance_report',
+        {
+            description: 'Get a link governance report by ID',
+            inputSchema: {
+                reportId: z.string(),
+            },
+        },
+        async ({ reportId }) => {
+            try {
+                const result = await api.getLinkGovernanceReport(reportId)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
 }

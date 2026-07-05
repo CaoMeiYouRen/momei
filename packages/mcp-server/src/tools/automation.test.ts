@@ -18,6 +18,10 @@ const {
     mockGenerateCoverImage,
     mockCreateTTSTask,
     mockGetAITask,
+    mockValidateImportPost,
+    mockDryRunLinkGovernance,
+    mockApplyLinkGovernance,
+    mockGetLinkGovernanceReport,
 } = vi.hoisted(() => ({
     mockGetPost: vi.fn(),
     mockSuggestTitles: vi.fn(),
@@ -27,6 +31,10 @@ const {
     mockGenerateCoverImage: vi.fn(),
     mockCreateTTSTask: vi.fn(),
     mockGetAITask: vi.fn(),
+    mockValidateImportPost: vi.fn(),
+    mockDryRunLinkGovernance: vi.fn(),
+    mockApplyLinkGovernance: vi.fn(),
+    mockGetLinkGovernanceReport: vi.fn(),
 }))
 
 vi.mock('../lib/api', () => ({
@@ -39,6 +47,10 @@ vi.mock('../lib/api', () => ({
         generateCoverImage = mockGenerateCoverImage
         createTTSTask = mockCreateTTSTask
         getAITask = mockGetAITask
+        validateImportPost = mockValidateImportPost
+        dryRunLinkGovernance = mockDryRunLinkGovernance
+        applyLinkGovernance = mockApplyLinkGovernance
+        getLinkGovernanceReport = mockGetLinkGovernanceReport
     },
 }))
 
@@ -80,6 +92,10 @@ describe('Automation Tools Registration', () => {
         expect(registeredTools).toContain('generate_cover_image')
         expect(registeredTools).toContain('generate_post_audio')
         expect(registeredTools).toContain('get_ai_task')
+        expect(registeredTools).toContain('validate_import_post')
+        expect(registeredTools).toContain('dry_run_link_governance')
+        expect(registeredTools).toContain('apply_link_governance')
+        expect(registeredTools).toContain('get_link_governance_report')
     })
 
     it('should call suggest_titles handler with post content and language', async () => {
@@ -231,5 +247,147 @@ describe('Automation Tools Registration', () => {
         expect(coverResult?.content[0]?.text).toContain('task_cover')
         expect(audioResult?.content[0]?.text).toContain('task_audio')
         expect(taskResult?.content[0]?.text).toContain('completed')
+    })
+
+    it('should call validate_import_post handler with post data', async () => {
+        const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
+        const registerSpy = vi.spyOn(server, 'registerTool')
+
+        mockValidateImportPost.mockResolvedValue({
+            data: {
+                language: 'zh-CN',
+                canonicalSlug: 'validated-post',
+                canImport: true,
+                requiresConfirmation: false,
+                hasBlockingIssues: false,
+                summary: { accepted: 2, fallback: 0, repaired: 0, invalid: 0, conflict: 0, 'needs-confirmation': 0, skipped: 0 },
+                items: [],
+            },
+        })
+
+        registerAutomationTools(server, config)
+
+        const handler = getRegisteredHandler(registerSpy, 'validate_import_post')
+        const result = await handler({
+            title: 'Test Post',
+            content: 'Test content',
+            sourceFile: 'test-post.md',
+        })
+
+        expect(mockValidateImportPost).toHaveBeenCalledWith({
+            title: 'Test Post',
+            content: 'Test content',
+            sourceFile: 'test-post.md',
+        })
+        expect(result?.isError).toBeUndefined()
+        expect(result?.content[0]?.text).toContain('validated-post')
+    })
+
+    it('should call dry_run_link_governance handler with request payload', async () => {
+        const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
+        const registerSpy = vi.spyOn(server, 'registerTool')
+
+        mockDryRunLinkGovernance.mockResolvedValue({
+            data: {
+                reportId: 'report_1',
+                mode: 'dry-run',
+                summary: {
+                    total: 10,
+                    resolved: 8,
+                    rewritten: 2,
+                    unchanged: 0,
+                    skipped: 0,
+                    failed: 0,
+                    needsConfirmation: 0,
+                },
+                items: [],
+                redirectSeeds: [],
+            },
+        })
+
+        registerAutomationTools(server, config)
+
+        const handler = getRegisteredHandler(registerSpy, 'dry_run_link_governance')
+        const result = await handler({
+            scopes: ['post-link', 'asset-url'],
+            options: { validationMode: 'static' },
+        })
+
+        expect(mockDryRunLinkGovernance).toHaveBeenCalledWith({
+            scopes: ['post-link', 'asset-url'],
+            options: { validationMode: 'static' },
+        })
+        expect(result?.isError).toBeUndefined()
+        expect(result?.content[0]?.text).toContain('report_1')
+    })
+
+    it('should call apply_link_governance handler with request payload', async () => {
+        const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
+        const registerSpy = vi.spyOn(server, 'registerTool')
+
+        mockApplyLinkGovernance.mockResolvedValue({
+            data: {
+                reportId: 'report_2',
+                mode: 'apply',
+                summary: {
+                    total: 10,
+                    resolved: 10,
+                    rewritten: 0,
+                    unchanged: 0,
+                    skipped: 0,
+                    failed: 0,
+                    needsConfirmation: 0,
+                },
+                items: [],
+                redirectSeeds: [],
+            },
+        })
+
+        registerAutomationTools(server, config)
+
+        const handler = getRegisteredHandler(registerSpy, 'apply_link_governance')
+        const result = await handler({
+            scopes: ['post-link'],
+            options: { skipConfirmation: true },
+        })
+
+        expect(mockApplyLinkGovernance).toHaveBeenCalledWith({
+            scopes: ['post-link'],
+            options: { skipConfirmation: true },
+        })
+        expect(result?.isError).toBeUndefined()
+        expect(result?.content[0]?.text).toContain('apply')
+    })
+
+    it('should call get_link_governance_report handler with report ID', async () => {
+        const config = { apiUrl: 'http://localhost:3000', apiKey: 'test', enableDangerousTools: false }
+        const registerSpy = vi.spyOn(server, 'registerTool')
+
+        mockGetLinkGovernanceReport.mockResolvedValue({
+            data: {
+                reportId: 'report_1',
+                mode: 'dry-run',
+                summary: {
+                    total: 10,
+                    resolved: 8,
+                    rewritten: 2,
+                    unchanged: 0,
+                    skipped: 0,
+                    failed: 0,
+                    needsConfirmation: 0,
+                },
+                items: [],
+                redirectSeeds: [],
+            },
+        })
+
+        registerAutomationTools(server, config)
+
+        const handler = getRegisteredHandler(registerSpy, 'get_link_governance_report')
+        const result = await handler({ reportId: 'report_1' })
+
+        expect(mockGetLinkGovernanceReport).toHaveBeenCalledWith('report_1')
+        expect(result?.isError).toBeUndefined()
+        expect(result?.content[0]?.text).toContain('report_1')
     })
 })
