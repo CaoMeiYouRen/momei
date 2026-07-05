@@ -1,5 +1,24 @@
 # momei
 
+## [1.21.1](https://github.com/CaoMeiYouRen/momei/compare/v1.21.0...v1.21.1) (2026-07-05)
+
+
+### 🐛 Bug 修复
+
+* **ci:** build 步骤设置 TEST_MODE，修复 seed-test 插件未执行的根因 ([1106639](https://github.com/CaoMeiYouRen/momei/commit/1106639))
+* **seed-test:** 为 signUpEmail 添加 headers 参数，修复 CSRF 保护导致的用户创建失败 ([fe80263](https://github.com/CaoMeiYouRen/momei/commit/fe80263))
+* **seed-test:** 修复 logger.error 参数数量超限 ([45c1a61](https://github.com/CaoMeiYouRen/momei/commit/45c1a61))
+* **seed-test:** 添加详细日志和 asResponse 参数，调试 signUpEmail 失败原因 ([919119f](https://github.com/CaoMeiYouRen/momei/commit/919119f))
+* **tags:** 更新平台标签渲染模式逻辑 ([8e0d1f3](https://github.com/CaoMeiYouRen/momei/commit/8e0d1f3))
+* **tts:** 限制任务执行时长以防止整数溢出 ([4dbc0c4](https://github.com/CaoMeiYouRen/momei/commit/4dbc0c4))
+
+
+### 📦 代码重构
+
+* **benefits:** 优化项目结构和类型定义 ([bf0a9a0](https://github.com/CaoMeiYouRen/momei/commit/bf0a9a0))
+* **dashboard:** 重构仪表盘样式和组件结构 ([21fd7b8](https://github.com/CaoMeiYouRen/momei/commit/21fd7b8))
+* **helpers:** 导出 TranslateFn 类型以供其他模块使用 ([ca245d5](https://github.com/CaoMeiYouRen/momei/commit/ca245d5))
+
 # [1.21.0](https://github.com/CaoMeiYouRen/momei/compare/v1.20.0...v1.21.0) (2026-06-27)
 
 
