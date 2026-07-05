@@ -421,6 +421,58 @@
     - 复用现有 AI 计费和额度管理
     - 提供操作前后对比视图
 
+### 2026-07 新增候选任务
+
+10. **CLI 与 MCP 包 API 客户端代码复用优化 (P1, 候选)**
+- **背景**: `packages/cli` 和 `packages/mcp-server` 都通过 HTTP 调用 `server/api/external/` 下的外部接口，但两者独立实现了 HTTP 客户端、API 方法和类型定义，存在大量代码重复。
+- **问题分析**:
+    - HTTP 客户端重复：CLI 使用 `axios`，MCP 使用原生 `fetch`
+    - API 方法重复：CLI 18 个方法，MCP 13 个方法，核心逻辑重复
+    - 类型定义重复：CLI 有完整 types.ts (335 行)，MCP 使用内联类型
+    - 工具函数重复：`extractTagNames` 等函数实现几乎相同
+- **功能缺失**:
+    - CLI 缺失：`listPosts`、`updatePost`、`deletePost`
+    - MCP 缺失：`validateImportPost`、链接治理相关 3 个接口
+- **优化方案**:
+    - 阶段一：补齐现有外部接口的客户端支持（低风险，2-3h）
+    - 阶段二：新增高优先级外部接口（需服务端配合，8-12h）
+    - 阶段三：提取共享 API 客户端库 `packages/shared-api-client`（6-8h）
+- **预期收益**:
+    - 消除 60-70% 重复代码
+    - 统一类型安全和错误处理
+    - 两个包功能完全对齐
+- **前置条件**:
+    - 完成阶段一的接口补齐
+    - 评估共享包的依赖管理和发布流程
+- **验收标准**:
+    - 代码重复率下降 60%+
+    - CLI 和 MCP 包 API 方法覆盖率达到 100%
+    - `duplicate-code:check` 基线不反弹
+    - 所有现有测试通过
+- **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+
+11. **外部接口扩展：分类/标签/灵感管理 (P1, 候选)**
+- **背景**: 当前外部接口 (`server/api/external/`) 仅覆盖文章管理和 AI 功能，缺少分类、标签、灵感等管理接口，限制了 CLI/MCP 的完整管理能力。
+- **接口清单**:
+    - 分类管理：`GET/POST/PUT/DELETE /api/external/categories`
+    - 标签管理：`GET/POST/PUT/DELETE /api/external/tags`
+    - 灵感管理：`GET/POST/PUT/DELETE /api/external/snippets`
+    - 灵感转文章：`POST /api/external/snippets/[id]/convert`
+    - 文章版本：`GET/POST /api/external/posts/[id]/versions`
+- **技术方案**:
+    - 复用现有的内部 API 实现
+    - 添加 API Key 鉴权（复用 `validateApiKeyRequest`）
+    - 为每个接口添加 Zod schema 验证
+- **非目标**: 不暴露管理后台的全部接口，只暴露适合外部集成的子集
+- **前置条件**:
+    - 完成 CLI/MCP 包的 API 客户端统一（候选 #10）
+    - 评估每个接口的安全性和权限控制
+- **验收标准**:
+    - 新增 15+ 个外部接口
+    - 所有接口有 Zod schema 验证
+    - CLI 和 MCP 包有对应的方法实现
+    - 接口文档更新
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
