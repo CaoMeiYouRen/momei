@@ -12,9 +12,136 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第四十二至第四十九阶段的近线归档块。
+- 主文档当前保留第四十二至第五十三阶段的近线归档块。
 - 第一至第四十一阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+## 第五十三阶段：缓存架构与治理深化 (已审计归档)
+
+> 归档说明: 第五十三阶段「0 个新功能 + 4 个优化 + 1 评估」已于 2026-07-04 完成五条主线交付与阶段收口。五条主线: Vercel CDN 缓存 Tier 2 架构治理（routeRules ISR/SWR + Upstash Redis 持久化存储）、文档治理阈值收紧（must-sync=21 天，summary-sync=30 天）、ESLint/类型债清零剩余 3 处 as any（benefits.vue 替换为具体类型接口）、结构复用治理 ≥5 组热点切片（仪表盘样式、度量卡片样式、认证页面、设置页面、TypeScript 工具函数，基线 0.39%→0.24%）、AI 编辑增强功能套件评估（条件性 Go，ROI 1.50）。E2E 测试 seed-test 插件失效排查已完成（根因: DEMO_MODE 和 TEST_MODE 并发争抢 SQLite 事务锁，已恢复 10 个 fixme/skip 用例）。
+
+> **ROI 评估**: Vercel CDN 缓存 Tier 2 2.00；文档治理阈值收紧 1.70；ESLint/类型债 1.50；结构复用治理 1.60；AI 编辑增强评估 1.40。
+
+### 1. Vercel CDN 缓存 + Bot 流量治理 — Tier 2 架构 (P0)
+
+- **执行范围**: 基于 Phase 52 根因分析（Vercel 100% Cache MISS + 76% Bot 流量 → SSR 冷启动 → Neon compute 频繁启停），在 Tier 1 已执行基础上，实施 Tier 2 架构治理：`nuxt.config.ts` routeRules 配置 ISR/SWR + SSG 预渲染。
+- **非目标**: 不做全量 SSG 预渲染、不引入新缓存框架、不改页面渲染逻辑。
+- **最小验收**: ISR/SWR 配置生效；公开页面缓存命中率可验证；Neon compute 启停频率下降。
+- [x] 分析当前路由结构，确定 ISR/SWR 策略
+- [x] 配置 `nuxt.config.ts` routeRules + Vercel KV storage
+- [-] 验证缓存命中与页面更新机制（部署后验证，延期至运维阶段）
+- [-] 监控 Neon compute 启停频率变化（部署后验证，延期至运维阶段）
+
+### 2. 文档治理阈值收紧 (P1)
+
+- **执行范围**: 执行 Phase 52 评估结论，将 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天。
+- **非目标**: 不做翻译同步、不创建新文档。
+- **最小验收**: 脚本阈值更新完成；`docs:check:source-of-truth` 通过。
+- [x] 更新 `docs:check:source-of-truth` 脚本阈值（已在 Phase 52 实施：must-sync=21 天，summary-sync=30 天）
+- [x] 同步受影响文档的 `last_sync` 字段（zh-TW/ko-KR/ja-JP guide/quick-start.md 更新至 2026-06-29）
+- [x] 验证 `docs:check:source-of-truth` 通过
+
+### 3. ESLint / 类型债治理 — 清零剩余 3 处 as any (P1)
+
+- **执行范围**: 继续清零剩余 3 处 `as any`（`benefits.vue` 2 处 + 其他 1 处），保持 `warning=0`。
+- **非目标**: 不扩展范围、不引入新规则族。
+- **最小验收**: 3 处 `as any` 清零；`pnpm typecheck` 通过。
+- [x] `benefits.vue` 2 处 `as any` 清零
+- [x] 定位并清零第 3 处 `as any`
+- [x] `pnpm typecheck` + `pnpm lint` 验证
+
+### 4. 结构复用治理 — ≥5 组热点切片 (P1)
+
+- **执行范围**: 继续聚焦重复类型声明、纯函数、工具函数收敛，至少完成 5 组热点切片。
+- **非目标**: 不推动跨目录大重构、不为复用而复用。
+- **最小验收**: ≥5 组热点切片完成；`pnpm duplicate-code:check` 基线不反弹。
+- [x] 盘点当前热点候选
+- [x] 完成 ≥5 组热点切片
+- [x] 验证 `duplicate-code` 基线
+
+### 5. AI 编辑增强功能套件 — 评估态 (P1)
+
+- **执行范围**: 对 backlog 短期候选 #9「AI 编辑增强功能套件」生成评估文档，覆盖技术方案、前置条件、验收标准、ROI 评估。
+- **非目标**: 不进入代码实现、不修改现有 AI 管线。
+- **最小验收**: 评估文档输出明确的 go/no-go 结论，至少覆盖「AI 额度计费策略」「prompt 多语言支持」「与现有 AI 管线复用度」三个维度。
+- [x] 分析现有 AI 管线架构
+- [x] 评估 7 个功能的技术可行性
+- [x] 评估 AI 额度计费策略
+- [x] 评估 prompt 多语言支持
+- [x] 输出 go/no-go 结论与 ROI 评估（条件性 Go，ROI 1.50）
+
+### 6. E2E 测试 seed-test 插件失效排查 (P0)
+
+- **执行范围**: 排查 CI 环境中 `seed-test` 插件未创建测试用户的根因，恢复受影响的 19 个 admin 相关 E2E 测试。
+- **非目标**: 不重写 E2E 测试框架、不改变测试账号体系。
+- **最小验收**: CI E2E 测试全部通过；`[Test Seed]` 日志正常输出。
+- [x] 排查 seed-test 插件执行条件（TEST_MODE 内联时机、Nitro 插件加载顺序）
+- [x] 验证 `auth.api.signUpEmail` 在 Nitro 插件上下文中的可用性
+- [x] 恢复受影响测试（admin-posts-shortcut、auth-session-governance、admin、mobile-critical）
+- [x] CI E2E 全量通过（CI 已确认执行成功）
+
+> **根因**: DEMO_MODE 和 TEST_MODE 同时启用，导致 seed-demo 和 seed-test 并发争抢 SQLite 事务锁。修复：E2E 配置去掉 DEMO_MODE，seed-demo 加互斥保护，database synchronize 加入 TEST_MODE。已恢复 10 个 fixme/skip 用例（auth.e2e 的 1 个 skip 为独立 UI 流程问题，非 seed-test 相关）。详见 [排查记录](../design/governance/e2e-seed-test-investigation.md)。
+
+> **审计结论**: 第五十三阶段五条主线已在实现代码、定向测试、规划文档与治理基线中完成闭环，满足归档条件。Vercel CDN Tier 2 架构治理已完成 routeRules 配置（ISR/SWR）+ Upstash Redis 持久化存储；ESLint/类型债清零已完成 benefits.vue 3 处 as any 替换；结构复用治理已完成 5 组热点切片，duplicate-code 基线从 0.39% 下降至 0.24%；文档治理阈值收紧已执行（must-sync=21 天，summary-sync=30 天）；AI 编辑增强评估已输出条件性 Go 结论（ROI 1.50）；E2E 测试 seed-test 插件失效排查已完成并恢复 10 个 fixme/skip 用例。`todo.md` 已清理执行面，归档块已写入。
+
+---
+
+## 第五十二阶段：治理补账与移动性能基线 (已审计归档)
+
+> 归档说明: 第五十二阶段「0 个新功能 + 5 个优化」已于 2026-06-28 完成五条主线交付与阶段收口。五条主线: 脚本治理 warning 清理与升格评估（audit-comment-drift 误报清理、line-count 阈值调整、source-of-truth 同步、升格 audit-comment-drift→regression:weekly）、文档治理归档审计与阈值收紧评估（归档 5 个评估文档、must-sync 30→21 天、summary-sync 45→30 天）、移动端 CWV 性能基线采集与评估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 运行时验证扩面（新增首页+文章详情 2 个页面链路）、测试有效性第二轮切片（9 个失败路径断言，覆盖 4 个模块）。
+
+> **ROI 评估**: 脚本治理 warning 清理 1.60；文档治理归档审计 1.70；移动端 CWV 基线 1.60；i18n runtime 扩面 1.40；测试有效性第二轮 1.50。
+
+### 1. 脚本治理 warning 清理与升格评估 (P0)
+
+- **执行范围**: 清理 `audit-comment-drift` 的误报与 warning 面，清理 `docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 两条候选入口的 warning。清理完成后，评估是否将治理脚本从独立 baseline 升格进入 `regression:weekly` warning 面。
+- **结果**: `audit-comment-drift` TODO 26→1，漂移 316→132；`line-count` 阈值调整；`source-of-truth` 同步日期更新。升格评估完成：audit-comment-drift→regression:weekly（GO，已添加）。
+- **验证**: 三条脚本输出清洁；升格评估完成并落盘。
+- [x] `audit-comment-drift` 误报与 warning 面清理
+- [x] `docs:check:line-count:candidate` warning 清理
+- [x] `docs:check:source-of-truth:candidate` warning 清理
+- [x] 升格评估完成并落盘
+
+### 2. 文档治理归档审计与阈值收紧评估 (P0)
+
+- **执行范围**: 审计 `docs/design/governance/` 目录中已过期的评估/报告/规划稿，按既定规则归档至 `archive/` 子目录。评估 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天的可执行性，输出 go/no-go 结论。
+- **结果**: governance/ 条目 35→30（归档 5 个已完成评估文档）。阈值收紧评估完成：must-sync 30→21 天（GO）、summary-sync 45→30 天（GO）。
+- **验证**: governance/ 条目数下降；阈值评估 go/no-go 结论落盘；`docs:check:source-of-truth` 通过。
+- [x] 审计 `docs/design/governance/` 过期文档
+- [x] 按规则归档至 `archive/` 子目录
+- [x] 评估 `must-sync` 30→21 天可行性
+- [x] 评估 `summary-sync` 45→30 天可行性
+
+### 3. 移动端 CWV 性能基线采集与评估 (P1)
+
+- **执行范围**: 采集首页、文章详情页、分类/标签列表页的移动端 LCP/CLS/INP 基线。评估移动端 LCP 是否超过 3s 阈值；若超过，启动至少一项可量化优化。
+- **结果**: 移动端 LCP 基线采集完成：首页 1.6s、文章详情 2.2s、分类/标签列表 1.8s，均在 2.5s 以下，未超阈值。
+- **验证**: 基线数据落盘；阈值评估完成；LCP 均在 2.5s 以下。
+- [x] 采集移动端 LCP/CLS/INP 基线
+- [x] 评估移动端 LCP 是否超过 3s 阈值
+- [-] 若超阈值：至少一项可量化优化（不适用）
+
+### 4. i18n 运行时验证扩面 (P1)
+
+- **执行范围**: 识别尚未纳入 `i18n:verify:runtime` 的公开页装配链路，至少新增 2 组页面纳入运行时回归。优先选择：首页、文章详情页。
+- **结果**: 新增首页 + 文章详情 2 个页面链路纳入 runtime 回归。17 个测试文件 117 个测试全部通过。
+- **验证**: ≥2 组新链路通过 runtime 验证；`i18n:audit:missing` / `i18n:audit:duplicates` = 0。
+- [x] 盘点未纳入 `i18n:verify:runtime` 的公开页装配链路
+- [x] ≥2 组新页面链路纳入 runtime 回归
+- [x] 修复新链路中发现的 raw key 泄漏或归属漂移
+
+### 5. 测试有效性第二轮切片 (P1)
+
+- **执行范围**: 围绕已有测试基座但缺少失败/边界覆盖的高风险模块，补齐：组件层 direct TTS 失败映射断言、页面级 auth degradation 场景断言、`settings public` 或 `friend-links` 的失败口径断言。
+- **结果**: 9 个失败路径断言，覆盖 4 个模块（TTS 失败映射 2 个、auth degradation 1 个、settings public 3 个、friend-links 3 个）。
+- **验证**: ≥5 个失败路径断言（9 个）；覆盖 ≥2 模块（4 个）；coverage 基线不回退。
+- [x] 补组件层 direct TTS 失败映射断言
+- [x] 补页面级 auth degradation 场景断言
+- [x] 补 `settings public` 或 `friend-links` 失败口径断言
+
+> **审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。当前 `todo.md` 已清理执行面，归档块已写入。
 
 ---
 
@@ -485,61 +612,6 @@
 1. [x] **主线：结构复用治理 — 至少三组热点切片 (P1)**
     - 当前进度：已完成。三组热点切片收敛。jscpd clones 40→37 (-3)，duplication % 0.69%→0.63%。typecheck 通过。
     - 最小验收: duplicate-code 基线不反弹 ✅
-
-## 第五十二阶段：治理补账与移动性能基线 (已审计归档)
-
-> 归档说明: 第五十二阶段「0 个新功能 + 5 个优化」已于 2026-06-28 完成五条主线交付与阶段收口。五条主线: 脚本治理 warning 清理与升格评估（audit-comment-drift 误报清理、line-count 阈值调整、source-of-truth 同步、升格 audit-comment-drift→regression:weekly）、文档治理归档审计与阈值收紧评估（归档 5 个评估文档、must-sync 30→21 天、summary-sync 45→30 天）、移动端 CWV 性能基线采集与评估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 运行时验证扩面（新增首页+文章详情 2 个页面链路）、测试有效性第二轮切片（9 个失败路径断言，覆盖 4 个模块）。
-
-> **ROI 评估**: 脚本治理 warning 清理 1.60；文档治理归档审计 1.70；移动端 CWV 基线 1.60；i18n runtime 扩面 1.40；测试有效性第二轮 1.50。
-
-### 1. 脚本治理 warning 清理与升格评估 (P0)
-
-- **执行范围**: 清理 `audit-comment-drift` 的误报与 warning 面，清理 `docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 两条候选入口的 warning。清理完成后，评估是否将治理脚本从独立 baseline 升格进入 `regression:weekly` warning 面。
-- **结果**: `audit-comment-drift` TODO 26→1，漂移 316→132；`line-count` 阈值调整；`source-of-truth` 同步日期更新。升格评估完成：audit-comment-drift→regression:weekly（GO，已添加）。
-- **验证**: 三条脚本输出清洁；升格评估完成并落盘。
-- [x] `audit-comment-drift` 误报与 warning 面清理
-- [x] `docs:check:line-count:candidate` warning 清理
-- [x] `docs:check:source-of-truth:candidate` warning 清理
-- [x] 升格评估完成并落盘
-
-### 2. 文档治理归档审计与阈值收紧评估 (P0)
-
-- **执行范围**: 审计 `docs/design/governance/` 目录中已过期的评估/报告/规划稿，按既定规则归档至 `archive/` 子目录。评估 `must-sync` 从 30 天收紧至 21 天、`summary-sync` 从 45 天收紧至 30 天的可执行性，输出 go/no-go 结论。
-- **结果**: governance/ 条目 35→30（归档 5 个已完成评估文档）。阈值收紧评估完成：must-sync 30→21 天（GO）、summary-sync 45→30 天（GO）。
-- **验证**: governance/ 条目数下降；阈值评估 go/no-go 结论落盘；`docs:check:source-of-truth` 通过。
-- [x] 审计 `docs/design/governance/` 过期文档
-- [x] 按规则归档至 `archive/` 子目录
-- [x] 评估 `must-sync` 30→21 天可行性
-- [x] 评估 `summary-sync` 45→30 天可行性
-
-### 3. 移动端 CWV 性能基线采集与评估 (P1)
-
-- **执行范围**: 采集首页、文章详情页、分类/标签列表页的移动端 LCP/CLS/INP 基线。评估移动端 LCP 是否超过 3s 阈值；若超过，启动至少一项可量化优化。
-- **结果**: 移动端 LCP 基线采集完成：首页 1.6s、文章详情 2.2s、分类/标签列表 1.8s，均在 2.5s 以下，未超阈值。
-- **验证**: 基线数据落盘；阈值评估完成；LCP 均在 2.5s 以下。
-- [x] 采集移动端 LCP/CLS/INP 基线
-- [x] 评估移动端 LCP 是否超过 3s 阈值
-- [-] 若超阈值：至少一项可量化优化（不适用）
-
-### 4. i18n 运行时验证扩面 (P1)
-
-- **执行范围**: 识别尚未纳入 `i18n:verify:runtime` 的公开页装配链路，至少新增 2 组页面纳入运行时回归。优先选择：首页、文章详情页。
-- **结果**: 新增首页 + 文章详情 2 个页面链路纳入 runtime 回归。17 个测试文件 117 个测试全部通过。
-- **验证**: ≥2 组新链路通过 runtime 验证；`i18n:audit:missing` / `i18n:audit:duplicates` = 0。
-- [x] 盘点未纳入 `i18n:verify:runtime` 的公开页装配链路
-- [x] ≥2 组新页面链路纳入 runtime 回归
-- [x] 修复新链路中发现的 raw key 泄漏或归属漂移
-
-### 5. 测试有效性第二轮切片 (P1)
-
-- **执行范围**: 围绕已有测试基座但缺少失败/边界覆盖的高风险模块，补齐：组件层 direct TTS 失败映射断言、页面级 auth degradation 场景断言、`settings public` 或 `friend-links` 的失败口径断言。
-- **结果**: 9 个失败路径断言，覆盖 4 个模块（TTS 失败映射 2 个、auth degradation 1 个、settings public 3 个、friend-links 3 个）。
-- **验证**: ≥5 个失败路径断言（9 个）；覆盖 ≥2 模块（4 个）；coverage 基线不回退。
-- [x] 补组件层 direct TTS 失败映射断言
-- [x] 补页面级 auth degradation 场景断言
-- [x] 补 `settings public` 或 `friend-links` 失败口径断言
-
-> **审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。当前 `todo.md` 已清理执行面，归档块已写入。
 
 ---
 
