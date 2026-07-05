@@ -1,11 +1,11 @@
 {
     // 配置名称（可自定义，用于在 Codespaces 中识别）
-    "name": "Claude Code Ready Environment",
-    // 基础镜像：选择官方 Node.js 镜像（预装 Node.js/npm，兼容 Claude Code 多种安装方式）
+    "name": "OpenCode Ready Environment",
+    // 基础镜像：选择官方 Node.js 镜像（预装 Node.js/npm，兼容 OpenCode 多种安装方式）
     // Node 24 版本，和项目运行时要求保持一致
     "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
-    // 【核心】Codespace 创建完成后自动执行的命令（预装 Claude Code 及依赖）
-    "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && corepack enable && pnpm install && (curl -fsSL https://claude.ai/install.sh | bash || true) && (command -v opencode >/dev/null 2>&1 && opencode --version || echo \"[devcontainer] opencode CLI 未安装，已跳过版本检查\")'",
+    // 【核心】Codespace 创建完成后自动执行的命令（安装依赖并初始化 OpenCode CLI）
+    "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && corepack enable && pnpm install && (command -v opencode >/dev/null 2>&1 || npm install -g opencode-ai || true) && (command -v opencode >/dev/null 2>&1 && opencode --version || echo \"[devcontainer] opencode CLI 安装失败或不可用，请手动检查 npm registry 与包名\")'",
     // 定制化配置（终端 + VS Code）
     "customizations": {
         // 终端配置：默认使用 zsh（更友好的终端体验），兼容 claude 命令
@@ -35,11 +35,12 @@
     // 方式1：直接填写（不推荐，存在密钥泄露风险，仅用于本地测试）
     // 方式2：后续配置 GitHub Codespaces Secrets（推荐，安全可靠）
     "remoteEnv": {
-        // Claude Code 认证密钥占位符（二选一即可）
-        "ANTHROPIC_BASE_URL": "${localEnv:ANTHROPIC_BASE_URL}",
-        "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
-        "ANTHROPIC_AUTH_TOKEN": "${localEnv:ANTHROPIC_AUTH_TOKEN}",
-        // 可选：GitHub PAT 环境变量（用于 Claude Code 操作 GitHub 仓库/PR）
+        // OpenCode 三提供商与调度所需密钥（从本地或 Codespaces Secrets 注入）
+        "OPENCODE_GO_API_KEY": "${localEnv:OPENCODE_GO_API_KEY}",
+        "DEEPSEEK_API_KEY": "${localEnv:DEEPSEEK_API_KEY}",
+        "OPENROUTER_API_KEY": "${localEnv:OPENROUTER_API_KEY}",
+        // GitHub Token（用于仓库与 API 访问）
+        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
     },
     // 容器资源限制（可选，根据自身 Codespaces 额度调整）
@@ -48,10 +49,10 @@
         "memory": "16gb" // 最低 16G 内存，确保多任务处理流畅
         // "storage": "32gb" // 最低 32G 存储，预留足够空间安装依赖和缓存
     },
-    // 持久化配置（保留 Claude Code 认证信息和配置，下次创建无需重新安装）
+    // 持久化配置（保留 OpenCode 配置和缓存，下次创建无需重新初始化）
     "mounts": [
-        "source=claude-code-config,target=/home/node/.config/claude,type=volume",
-        "source=claude-code-cache,target=/home/node/.cache/claude,type=volume"
+        "source=opencode-config,target=/home/node/.config/opencode,type=volume",
+        "source=opencode-cache,target=/home/node/.cache/opencode,type=volume"
     ],
     // 特权模式（可选，解决部分权限问题，无需手动授权）
     "runArgs": [
