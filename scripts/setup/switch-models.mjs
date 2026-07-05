@@ -10,7 +10,7 @@
  *   node scripts/setup/switch-models.mjs --current
  *
  * 示例：
- *   node scripts/setup/switch-models.mjs xiaomi      # 切换到小米模型
+ *   node scripts/setup/switch-models.mjs xiaomi-mimo      # 切换到小米模型
  *   node scripts/setup/switch-models.mjs opencode-go  # 切换到 opencode-go 模型
  */
 
