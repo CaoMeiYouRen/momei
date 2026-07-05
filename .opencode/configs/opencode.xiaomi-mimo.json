@@ -1,64 +1,41 @@
 {
-    "$schema": "https://opencode.ai/config.json",
     "model": "xiaomi-mimo/mimo-v2.5-pro",
-    "default_agent": "full-stack-master",
-    "instructions": [
-        "AGENTS.md"
-    ],
     "agent": {
         "full-stack-master": {
-            "mode": "primary",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "默认开发主责角色，统一负责需求理解、方案设计与前后端落地，编排 PDTFC+ 全流程。",
-            "prompt": "{file:.github/agents/full-stack-master.agent.md}"
+            "mode": "primary"
         },
         "product-manager": {
-            "mode": "primary",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "需求守门员，负责需求挖掘、意图抽离、范围判断、验收标准定义与路线图对齐。",
-            "prompt": "{file:.github/agents/product-manager.agent.md}"
+            "mode": "primary"
         },
         "code-auditor": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "Review Gate 负责人，对代码、文档、配置、脚本与治理定义执行审计，输出 Pass/Reject 结论。",
-            "prompt": "{file:.github/agents/code-auditor.agent.md}"
+            "mode": "subagent"
         },
         "qa-assistant": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5",
-            "description": "只读问答角色，负责基于现有代码和文档回答问题、定位信息并解释架构。严禁修改代码。",
-            "prompt": "{file:.github/agents/qa-assistant.agent.md}"
+            "mode": "subagent"
         },
         "ui-validator": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5",
-            "description": "浏览器验证角色，负责在真实渲染环境中确认 UI 变更的可用性、响应式与主题表现。",
-            "prompt": "{file:.github/agents/ui-validator.agent.md}"
+            "mode": "subagent"
         },
         "frontend-developer": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "前端专项角色，负责页面、组件、样式和 i18n UI 的局部实现。",
-            "prompt": "{file:.github/agents/frontend-developer.agent.md}"
+            "mode": "subagent"
         },
         "backend-developer": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "后端专项角色，负责 API、数据库、权限和服务端逻辑的局部实现。",
-            "prompt": "{file:.github/agents/backend-developer.agent.md}"
+            "mode": "subagent"
         },
         "test-engineer": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "测试主责角色，负责测试补强、回归验证和覆盖率守门。",
-            "prompt": "{file:.github/agents/test-engineer.agent.md}"
+            "mode": "subagent"
         },
         "documentation-specialist": {
-            "mode": "subagent",
             "model": "xiaomi-mimo/mimo-v2.5-pro",
-            "description": "文档资产守护者，负责把已确认的实现、规划和治理结论沉淀为文档。",
-            "prompt": "{file:.github/agents/documentation-specialist.agent.md}"
+            "mode": "subagent"
         }
     }
 }

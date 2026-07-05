@@ -21,26 +21,81 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../..')
 const CONFIGS_DIR = join(ROOT, '.opencode/configs')
+const SHARED_CONFIG = join(CONFIGS_DIR, 'opencode.shared.json')
 const TARGET_CONFIG = join(ROOT, 'opencode.json')
+
+function mergeConfig(baseConfig, overrideConfig) {
+    if (Array.isArray(baseConfig) || Array.isArray(overrideConfig)) {
+        return overrideConfig ?? baseConfig
+    }
+
+    if (baseConfig === null || overrideConfig === null) {
+        return overrideConfig ?? baseConfig
+    }
+
+    if (typeof baseConfig !== 'object' || typeof overrideConfig !== 'object') {
+        return overrideConfig ?? baseConfig
+    }
+
+    const result = { ...baseConfig }
+    for (const [key, value] of Object.entries(overrideConfig)) {
+        if (key in baseConfig) {
+            result[key] = mergeConfig(baseConfig[key], value)
+        } else {
+            result[key] = value
+        }
+    }
+
+    return result
+}
+
+function normalizeConfig(config) {
+    const orderedKeys = ['$schema', 'model', 'default_agent', 'instructions', 'mcp', 'agent']
+    const normalized = {}
+
+    for (const key of orderedKeys) {
+        if (key in config) {
+            normalized[key] = config[key]
+        }
+    }
+
+    for (const [key, value] of Object.entries(config)) {
+        if (!(key in normalized)) {
+            normalized[key] = value
+        }
+    }
+
+    return normalized
+}
+
+async function readJson(filePath) {
+    const content = await readFile(filePath, 'utf-8')
+    return JSON.parse(content)
+}
+
+async function buildPresetConfig(presetName) {
+    const sharedConfig = await readJson(SHARED_CONFIG)
+    const presetPath = join(CONFIGS_DIR, `opencode.${presetName}.json`)
+    const presetConfig = await readJson(presetPath)
+
+    return normalizeConfig(mergeConfig(sharedConfig, presetConfig))
+}
 
 async function listPresets() {
     const files = await readdir(CONFIGS_DIR)
     const presets = files
-        .filter((f) => f.endsWith('.json'))
+        .filter((f) => f.startsWith('opencode.') && f.endsWith('.json') && f !== 'opencode.shared.json')
         .map((f) => f.replace('opencode.', '').replace('.json', ''))
 
     return presets
 }
 
 async function getCurrentPreset() {
-    const targetContent = await readFile(TARGET_CONFIG, 'utf-8')
-    const targetJson = JSON.parse(targetContent)
+    const targetJson = await readJson(TARGET_CONFIG)
 
     const presets = await listPresets()
     for (const preset of presets) {
-        const presetPath = join(CONFIGS_DIR, `opencode.${preset}.json`)
-        const presetContent = await readFile(presetPath, 'utf-8')
-        const presetJson = JSON.parse(presetContent)
+        const presetJson = await buildPresetConfig(preset)
 
         if (presetJson.model === targetJson.model) {
             return preset
@@ -62,7 +117,7 @@ async function switchPreset(presetName) {
         process.exit(1)
     }
 
-    const content = await readFile(presetPath, 'utf-8')
+    const content = `${JSON.stringify(await buildPresetConfig(presetName), null, 4)}\n`
     await writeFile(TARGET_CONFIG, content, 'utf-8')
 
     const json = JSON.parse(content)

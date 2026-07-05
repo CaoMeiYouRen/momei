@@ -41,7 +41,10 @@
         "OPENROUTER_API_KEY": "${localEnv:OPENROUTER_API_KEY}",
         // GitHub Token（用于仓库与 API 访问）
         "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${localEnv:GITHUB_PERSONAL_ACCESS_TOKEN}",
+        // Tinyfish MCP（用于搜索）
+        "TINYFISH_MCP_URL": "${localEnv:TINYFISH_MCP_URL}",
+        "TINYFISH_MCP_TOKEN": "${localEnv:TINYFISH_MCP_TOKEN}"
     },
     // 容器资源限制（可选，根据自身 Codespaces 额度调整）
     "hostRequirements": {
