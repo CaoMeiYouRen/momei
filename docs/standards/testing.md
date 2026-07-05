@@ -84,6 +84,15 @@ components/
 -   **适用改动**: 认证会话、后台受保护页访问、文章编辑器基础输入链路、语言切换与移动端后台入口。
 -   **升级条件**: 只有当改动涉及注册/找回密码、后台 CRUD、投稿、导航或公共页面行为时，才从 `test:e2e:critical` 升级到更大范围的 Playwright 定向集或全量 `pnpm test:e2e`。
 -   **执行前置**: `pnpm test:e2e` 与 `pnpm test:e2e:critical` 必须先检查 `.output` 是否陈旧；若源文件晚于构建产物，应先触发重建，避免把旧服务误当成当前结果。
+-   **E2E 环境模式约束**:
+    -   `TEST_MODE` 和 `DEMO_MODE` **不得同时启用**。两者定位不同：`TEST_MODE` 用于 E2E 测试（创建 `test@momei.test` 测试用户），`DEMO_MODE` 用于演示环境（创建 `admin@example.com` 演示用户）。同时启用会导致 `seed-demo` 和 `seed-test` 两个 Nitro 插件并发争抢 SQLite 事务锁。
+    -   E2E 配置（`playwright.config.ts`）只设置 `TEST_MODE=true`，不设置 `DEMO_MODE`。
+    -   `server/plugins/seed-demo.ts` 有兜底保护：`if (DEMO_MODE && !TEST_MODE)`，即使两个模式被误同时启用也会跳过 demo seed。
+    -   `server/database/index.ts` 的 `synchronize` 包含 `TEST_MODE`，确保测试环境下自动建表。
+-   **排查"插件未执行"的方法**:
+    -   检查构建产物：`grep -n "关键字" .output/server/chunks/nitro/nitro.mjs` 确认插件代码是否存在。
+    -   检查运行时日志：`[Test Seed]` 前缀表示 seed-test 插件执行，`[Demo Seed]` 前缀表示 seed-demo 插件执行。
+    -   如果日志中完全没有这些输出，说明插件未被加载（tree-shake）或 `TEST_MODE`/`DEMO_MODE` 未正确设置。
 
 ### 3.5 UI 真实环境验证分层 (UI Real Environment Validation Layers)
 
