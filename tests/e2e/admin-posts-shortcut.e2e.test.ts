@@ -44,7 +44,7 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 20000 })
     })
 
-    test.fixme('keeps compact desktop shortcut on narrower layouts and navigates to posts management', async ({ page }) => {
+    test('keeps compact desktop shortcut on narrower layouts and navigates to posts management', async ({ page }) => {
         await ensureAdminSession(page)
 
         await page.setViewportSize({ width: 1024, height: 900 })
@@ -62,7 +62,7 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 20000 })
     })
 
-    test.fixme('shows mobile shortcut and navigates to posts management', async ({ page }) => {
+    test('shows mobile shortcut and navigates to posts management', async ({ page }) => {
         await ensureAdminSession(page)
 
         await page.setViewportSize({ width: 390, height: 844 })

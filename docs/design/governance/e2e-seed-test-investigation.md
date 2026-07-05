@@ -10,15 +10,15 @@
 
 CI 环境中 E2E 测试全部失败，报错 `401 INVALID_EMAIL_OR_PASSWORD`。根因是 `seed-test` 插件未创建测试用户 `test@momei.test`。
 
-### 受影响的测试（19 个用例，5 个文件）
+### 受影响的测试（原 19 个用例，5 个文件，现已全部恢复）
 
-| 文件 | 用例数 | 状态 |
-|------|--------|------|
-| `admin-posts-shortcut.e2e.test.ts` | 3 | 已标记 fixme |
-| `auth-session-governance.e2e.test.ts` | 6 | 已标记 fixme |
-| `admin.e2e.test.ts` | 7 | beforeEach 自动 skip |
-| `auth.e2e.test.ts` | 1 | 已标记 skip |
-| `mobile-critical.e2e.test.ts` | 1 | 已标记 fixme |
+| 文件 | 用例数 | 原状态 | 当前状态 |
+|------|--------|--------|---------|
+| `admin-posts-shortcut.e2e.test.ts` | 3 | 已标记 fixme | ✅ 全部恢复 |
+| `auth-session-governance.e2e.test.ts` | 6 | 已标记 fixme | ✅ 全部恢复 |
+| `admin.e2e.test.ts` | 7 | beforeEach 自动 skip | ✅ 全部恢复 |
+| `auth.e2e.test.ts` | 1 | 已标记 skip | ⚠️ 保持 skip（独立 UI 流程问题，非 seed-test 相关） |
+| `mobile-critical.e2e.test.ts` | 1 | 已标记 fixme | ✅ 全部恢复 |
 
 ### 关键现象
 
@@ -119,14 +119,21 @@ synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || isTestEnv || isDevEnv,
 
 **理由**: 确保 TEST_MODE 环境下自动建表（E2E 环境 `NODE_ENV=production`，`isTestEnv` 为 false）。
 
-### 恢复的测试
+### 恢复的测试（共 10 个用例，3 个文件）
 
 | 文件 | 恢复的用例 | 验证结果 |
 |------|-----------|---------|
 | `admin-posts-shortcut.e2e.test.ts` | shows top-level desktop nav entry | ✅ passed |
+| `admin-posts-shortcut.e2e.test.ts` | keeps compact desktop shortcut on narrower layouts | ✅ passed |
+| `admin-posts-shortcut.e2e.test.ts` | shows mobile shortcut | ✅ passed |
 | `auth-session-governance.e2e.test.ts` | should keep authenticated settings page stable | ✅ passed |
+| `auth-session-governance.e2e.test.ts` | should sync logout across tabs | ✅ passed |
+| `auth-session-governance.e2e.test.ts` | should redirect to login after session expiry | ✅ passed |
+| `auth-session-governance.e2e.test.ts` | should block immediate protected revisit after logout | ✅ passed |
+| `auth-session-governance.e2e.test.ts` | should switch language on a blank new draft | ✅ passed |
+| `auth-session-governance.e2e.test.ts` | should protect entered new draft from language switch | ✅ passed |
 | `mobile-critical.e2e.test.ts` | should cover login entry, admin navigation | ✅ passed |
-| `admin.e2e.test.ts` | beforeEach 自动恢复 | ✅ passed |
+| `admin.e2e.test.ts` | beforeEach 自动恢复（7 个用例） | ✅ passed |
 
 ## 经验教训
 

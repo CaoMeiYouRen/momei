@@ -155,7 +155,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         expect(sessionRequestCount).toBeLessThanOrEqual(2)
     })
 
-    test.fixme('should sync logout across tabs and deny protected navigation in the other tab', async ({ browser, baseURL }) => {
+    test('should sync logout across tabs and deny protected navigation in the other tab', async ({ browser, baseURL }) => {
         const context = await browser.newContext({
             baseURL,
             ...(hasStoredAuth() ? { storageState: authFile } : {}),
@@ -178,7 +178,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         }
     })
 
-    test.fixme('should redirect to login after session expiry invalidates stale client state', async ({ page }) => {
+    test('should redirect to login after session expiry invalidates stale client state', async ({ page }) => {
         await new AuthHelper(page).ensureAdminSession()
 
         await ensureAuthenticatedSettings(page)
@@ -187,7 +187,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await expectProtectedRouteRedirectsToLogin(page, '/admin/posts')
     })
 
-    test.fixme('should block immediate protected revisit after logout in the current tab', async ({ page }) => {
+    test('should block immediate protected revisit after logout in the current tab', async ({ page }) => {
         await new AuthHelper(page).ensureAdminSession()
 
         await ensureAuthenticatedSettings(page)
@@ -196,7 +196,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await expectProtectedRouteRedirectsToLogin(page, '/admin/posts')
     })
 
-    test.fixme('should switch language on a blank new draft without requiring save first', async ({ page }) => {
+    test('should switch language on a blank new draft without requiring save first', async ({ page }) => {
         await new AuthHelper(page).ensureAdminSession()
 
         await openNewDraftEditor(page)
@@ -225,7 +225,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
         await expect(getActiveLanguageBadge(page)).not.toContainText(currentLanguage)
     })
 
-    test.fixme('should protect entered new draft from language switch before saving', async ({ page, browserName }) => {
+    test('should protect entered new draft from language switch before saving', async ({ page, browserName }) => {
         test.skip(browserName === 'firefox', 'Flaky in Firefox CI — Playwright fill() + PrimeVue InputText v-model timing issue (2026-06)')
         await new AuthHelper(page).ensureAdminSession()
 
