@@ -26,9 +26,7 @@ test.describe('Admin Posts Shortcut E2E Tests', () => {
         storageState: hasStoredAuth() ? authFile : undefined,
     })
 
-    // FIXME: E2E 测试环境 seed-test 插件未正确创建测试用户，待排查后恢复
-    // 参见: https://github.com/CaoMeiYouRen/momei/actions/runs/28716174986
-    test.fixme('shows top-level desktop nav entry on wide screens and navigates to posts management', async ({ page }) => {
+    test('shows top-level desktop nav entry on wide screens and navigates to posts management', async ({ page }) => {
         await ensureAdminSession(page)
 
         await page.setViewportSize({ width: 1440, height: 900 })

@@ -134,8 +134,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     test.describe.configure({ timeout: 90_000 })
     test.use({ storageState: hasStoredAuth() ? authFile : undefined })
 
-    // FIXME: E2E 测试环境 seed-test 插件未正确创建测试用户，待排查后恢复
-    test.fixme('should keep authenticated settings page stable after refresh with bounded session fetches', async ({ page }) => {
+    test('should keep authenticated settings page stable after refresh with bounded session fetches', async ({ page }) => {
         let sessionRequestCount = 0
         page.on('request', (request) => {
             if (request.url().includes('/api/auth/get-session')) {

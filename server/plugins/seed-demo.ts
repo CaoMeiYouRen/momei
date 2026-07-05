@@ -1,9 +1,9 @@
 import { defineNitroPlugin } from 'nitropack/runtime'
-import { DEMO_MODE } from '@/utils/shared/env'
+import { DEMO_MODE, TEST_MODE } from '@/utils/shared/env'
 
 export default defineNitroPlugin(() => {
-    // 仅在演示模式下预填充假数据
-    if (DEMO_MODE) {
+    // 仅在演示模式下预填充假数据；TEST_MODE 时跳过（由 seed-test 插件负责）
+    if (DEMO_MODE && !TEST_MODE) {
         void (async () => {
             try {
                 const [{ dataSource, initializeDB }, { seedDemoData }] = await Promise.all([

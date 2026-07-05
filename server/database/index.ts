@@ -52,6 +52,7 @@ import {
     DATABASE_ENTITY_PREFIX,
     DATABASE_SYNCHRONIZE,
     DEMO_MODE,
+    TEST_MODE,
     ADMIN_USER_IDS,
 } from '@/utils/shared/env'
 
@@ -176,7 +177,7 @@ function getDataSourceContext() {
     const dataSource = new DataSource({
         ...options,
         entities,
-        synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || isTestEnv || isDevEnv,
+        synchronize: DATABASE_SYNCHRONIZE || DEMO_MODE || TEST_MODE || isTestEnv || isDevEnv,
         logging: isTestEnv ? false : process.env.NODE_ENV === 'development',
         logger: isTestEnv ? undefined : new CustomLogger(),
         entityPrefix: DATABASE_ENTITY_PREFIX,

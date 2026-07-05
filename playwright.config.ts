@@ -31,8 +31,6 @@ if (Number.isFinite(configuredCiWorkers) && configuredCiWorkers > 0) {
 // ]
 
 const e2eServerEnv = [
-    'DEMO_MODE=true',
-    'NUXT_PUBLIC_DEMO_MODE=true',
     'TEST_MODE=true',
     'NUXT_PUBLIC_TEST_MODE=true',
     'MOMEI_INSTALLED=true',
