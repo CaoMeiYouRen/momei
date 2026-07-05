@@ -517,6 +517,46 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第五十四阶段：CLI/MCP 复用与治理深水区（CLI/MCP Reuse & Governance Deepwater）
+
+**时间表**: 2026-07-06 ~ 约 1-2 周
+**目标**: 在第五十三阶段完成 Vercel CDN 缓存架构治理后，以「1 个新功能 + 4 个优化」组合推进：CLI/MCP API 客户端复用优化作为用户明确需求的轻量新增能力，结构复用治理进入深水区（文件整合 + 逻辑重复排查），ESLint 补规则债 inventory 脚本为长期治理奠基，测试有效性延续 Phase 52 节奏，脚本治理承接 Phase 52 评估结论完成升格评估。
+
+**准入结论**: 五条主线均来自用户明确需求或 backlog 长期主线，容量控制在 `5` 项内，符合规划规范。CLI/MCP 复用阶段一工作量小（2-3h）、风险低；结构复用进入深水区需要新的治理脚本支撑；ESLint 补 inventory 脚本为长期治理的事实源；测试有效性延续 Phase 52 节奏；脚本治理承接 Phase 52 评估结论。
+
+**ROI 评估**: CLI/MCP 复用 `2.00`；结构复用深水区 `1.80`；ESLint/类型债 `1.50`；测试有效性 `1.50`；脚本治理升格 `1.60`。
+
+1. **主线：CLI 与 MCP 包 API 客户端代码复用优化 — 阶段一（(P）)**:
+    - **执行范围**: 补齐两个包缺失的接口（CLI +3, MCP +4），统一 API 方法覆盖。CLI 新增：`listPosts()`、`updatePost()`、`deletePost()`；MCP 新增：`validateImportPost()`、`dryRunLinkGovernance()`、`applyLinkGovernance()`、`getLinkGovernanceReport()`。
+    - **非目标**: 不提取共享包（留到后续阶段）、不新增外部接口。
+    - **最小验收**: 两个包 API 方法覆盖率达到 100%；`pnpm typecheck` + `pnpm lint` 通过。
+    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+
+2. **主线：结构复用治理深水区 — 文件整合 + 逻辑重复排查（(P）)**:
+    - **执行范围**:
+        - **文件整合**: 将单函数单文件的工具函数按功能/模块整合，减少文件碎片化。目标：将 `utils/` 下的单函数文件（如 `isPlainRecord.ts`、`isRecord.ts`）按功能域合并（如 `utils/type-guards.ts`、`utils/format.ts`）。
+        - **逻辑重复排查**: 在 `jscpd` 行级重复检测基础上，新增逻辑重复检测能力。检测"不同函数名但逻辑相似"、"重复导入后轻包装"、"相似参数组合 + 相似处理流程"的情况。
+        - **写法优化**: 对识别出的逻辑重复，评估是否可以抽象为高阶函数或策略模式。
+    - **非目标**: 不推动跨模块大重构、不为复用而复用、不改变业务行为。
+    - **最小验收**: ≥3 组单函数文件完成整合（文件数减少 ≥3）；逻辑重复检测脚本原型输出（至少覆盖 `utils/` 和 `server/utils/`）；≥2 组逻辑重复完成抽象收敛；`pnpm duplicate-code:check` 基线不反弹。
+
+3. **主线：ESLint / 类型债治理 — 规则债 inventory 脚本 + ≥3 组窄切片（(P）)**:
+    - **执行范围**: 先补规则债 inventory 脚本（覆盖 `no-explicit-any`、`no-non-null-assertion`、warning 基线与目录分桶），再完成 ≥3 组独立窄切片。复用现有 `governance:audit:eslint-debt` 脚本基础结构。
+    - **非目标**: 不扩写为全仓 `any` 清零、不引入新规则族。
+    - **最小验收**: inventory 脚本输出 JSON baseline；≥3 组窄切片完成并通过定向验证；`pnpm governance:audit:eslint-debt` 显示 delta 可对照。
+
+4. **主线：测试有效性第二轮切片（(P）)**:
+    - **执行范围**: 补组件层 direct TTS 失败映射断言、页面级 auth degradation 场景断言、`settings public` 或 `friend-links` 的失败口径断言。
+    - **非目标**: 不做 coverage 数字冲刺、不做低价值全量补测。
+    - **最小验收**: ≥5 个新增失败路径断言；覆盖 ≥2 个模块；全仓 coverage 基线不回退。
+
+5. **主线：脚本治理 — 治理脚本升格评估与 warning 清理（(P）)**:
+    - **执行范围**: 基于 Phase 52 评估结论，将 `governance:audit:simple-duplicates`、`governance:audit:eslint-debt`、`governance:audit:comment-drift` 从独立 baseline 评估是否升格进入 `regression:weekly` warning 面；清理 `audit-comment-drift` 的误报与 warning 面，清理两条 docs candidate 的 warning。
+    - **非目标**: 不新增脚本、不改脚本 API、不引入新的治理基线。
+    - **最小验收**: ≥1 个治理脚本完成升格评估并输出明确 go/no-go 结论与理由；`audit-comment-drift` 误报与 warning 面可见下降；两条 docs candidate 产出清洁输出。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
