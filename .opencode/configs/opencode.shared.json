@@ -4,16 +4,6 @@
     "instructions": [
         "AGENTS.md"
     ],
-    "mcp": {
-        "tinyfish-search": {
-            "type": "remote",
-            "url": "{env:TINYFISH_MCP_URL}",
-            "enabled": false,
-            "headers": {
-                "Authorization": "Bearer {env:TINYFISH_MCP_TOKEN}"
-            }
-        }
-    },
     "agent": {
         "full-stack-master": {
             "mode": "primary",
