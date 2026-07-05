@@ -3,39 +3,48 @@
     "agent": {
         "full-stack-master": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "high"
         },
         "product-manager": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "medium"
         },
         "code-auditor": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "high"
         },
         "qa-assistant": {
             "model": "xiaomi/mimo-v2.5",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         },
         "ui-validator": {
             "model": "xiaomi/mimo-v2.5",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         },
         "frontend-developer": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "backend-developer": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "test-engineer": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "documentation-specialist": {
             "model": "xiaomi/mimo-v2.5-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         }
     }
 }

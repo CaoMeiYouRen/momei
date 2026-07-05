@@ -3,19 +3,23 @@
     "agent": {
         "full-stack-master": {
             "model": "opencode-go/deepseek-v4-pro",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "high"
         },
         "product-manager": {
             "model": "opencode-go/glm-5.2",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "high"
         },
         "code-auditor": {
             "model": "opencode-go/glm-5.2",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "high"
         },
         "qa-assistant": {
             "model": "opencode-go/deepseek-v4-flash",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         },
         "ui-validator": {
             "model": "opencode-go/qwen3.7-plus",
@@ -23,19 +27,23 @@
         },
         "frontend-developer": {
             "model": "opencode-go/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "backend-developer": {
             "model": "opencode-go/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "test-engineer": {
             "model": "opencode-go/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "documentation-specialist": {
             "model": "opencode-go/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         }
     }
 }

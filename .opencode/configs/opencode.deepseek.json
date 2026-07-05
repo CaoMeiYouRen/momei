@@ -3,35 +3,43 @@
     "agent": {
         "full-stack-master": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "high"
         },
         "product-manager": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "primary"
+            "mode": "primary",
+            "variant": "medium"
         },
         "code-auditor": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "high"
         },
         "qa-assistant": {
             "model": "deepseek/deepseek-v4-flash",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         },
         "frontend-developer": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "backend-developer": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "test-engineer": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "medium"
         },
         "documentation-specialist": {
             "model": "deepseek/deepseek-v4-pro",
-            "mode": "subagent"
+            "mode": "subagent",
+            "variant": "low"
         }
     }
 }
