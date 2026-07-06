@@ -79,22 +79,22 @@
 
 #### 主线 3：ESLint / 类型债治理 — 规则债 inventory 脚本 + 窄切片
 
-- [ ] **规则债 inventory 脚本**
-    - [ ] 复用现有 `governance:audit:eslint-debt` 脚本基础结构
-    - [ ] 覆盖规则：`no-explicit-any`、`no-non-null-assertion`
-    - [ ] 输出维度：rule / 目录 / 命中数 / 清零数 / warning 基线
-    - [ ] 输出格式：JSON baseline
+- [x] **规则债 inventory 脚本**
+    - [x] 复用现有 `governance:audit:eslint-debt` 脚本基础结构
+    - [x] 覆盖规则：`no-explicit-any`、`no-non-null-assertion`
+    - [x] 输出维度：rule / 目录 / 命中数 / 清零数 / warning 基线
+    - [x] 输出格式：JSON baseline
 
-- [ ] **窄切片**（≥3 组）
-    - [ ] 切片 1：待选（基于 inventory 脚本输出）
-    - [ ] 切片 2：待选
-    - [ ] 切片 3：待选
-    - [ ] 每组切片：单规则 + 单文件/双文件，保持 `warning=0`
+- [x] **窄切片**（≥3 组）
+    - [x] 切片 1：`types/marketing.ts` + `server/entities/marketing-campaign.ts`（no-explicit-any：`targetCriteria: any` → `MarketingCampaignTargetCriteria`）
+    - [x] 切片 2：`server/api/categories/slug/[slug].get.ts`（no-explicit-any：`any[]` → `Pick<Category, 'language' | 'slug'>[]`）
+    - [x] 切片 3：`server/api/snippets/index.post.ts`（no-explicit-any：`let user: any` → `let user: User`）
+    - [x] 每组切片：单规则 + 单文件/双文件，保持 `warning=0`
 
-- [ ] **验收**
-    - [ ] inventory 脚本输出 baseline JSON
-    - [ ] ≥3 组窄切片完成并通过定向验证
-    - [ ] `pnpm governance:audit:eslint-debt` 显示 delta 可对照
+- [x] **验收**
+    - [x] inventory 脚本输出 baseline JSON
+    - [x] ≥3 组窄切片完成并通过定向验证
+    - [x] `pnpm governance:audit:eslint-debt` 显示 delta 可对照
 
 ---
 

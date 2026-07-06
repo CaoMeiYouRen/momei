@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch translations
-    let translations: any[] = []
+    let translations: Pick<Category, 'language' | 'slug'>[] = []
     if (category.translationId) {
         translations = await categoryRepo.find({
             where: { translationId: category.translationId },

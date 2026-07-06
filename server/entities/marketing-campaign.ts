@@ -3,6 +3,7 @@ import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
+import type { MarketingCampaignTargetCriteria } from '@/types/marketing'
 
 @Entity('marketing_campaign')
 export class MarketingCampaign extends BaseEntity {
@@ -27,7 +28,7 @@ export class MarketingCampaign extends BaseEntity {
      * 格式如: { categoryIds: [], tagIds: [] }
      */
     @CustomColumn({ type: 'simple-json', nullable: true })
-    targetCriteria: any
+    targetCriteria: MarketingCampaignTargetCriteria
 
     @CustomColumn({ type: 'varchar', length: 36, nullable: false })
     senderId: string

@@ -21,6 +21,7 @@
     "governance:check:scripts": "node scripts/governance/check-script-governance.mjs --mode=warn --output=artifacts/governance/script-governance-latest.json",
     "governance:audit:simple-duplicates": "node scripts/governance/audit-simple-duplicates.mjs --output=artifacts/governance/simple-duplicates-latest.json",
     "governance:audit:eslint-debt": "node scripts/governance/audit-eslint-debt.mjs --output=artifacts/governance/eslint-debt-latest.json",
+    "governance:inventory:eslint-rules": "node scripts/governance/inventory-eslint-rules.mjs --output=artifacts/governance/eslint-rules-inventory-latest.json",
     "governance:audit:comment-drift": "node scripts/governance/audit-comment-drift.mjs --output=artifacts/governance/comment-drift-latest.json",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "i18n:audit:missing": "node scripts/i18n/audit-locale-keys.mjs --only=missing --fail-on-missing",

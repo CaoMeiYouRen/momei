@@ -1,6 +1,44 @@
 import type { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
 
 /**
+ * Listmonk 分发配置
+ */
+export interface ListmonkDistributionConfig {
+    provider?: string
+    remoteCampaignId?: number
+    action?: string
+    listIds?: number[]
+    lastAttemptAt?: string
+    lastSuccessfulAt?: string
+    lastError?: string | null
+    manualAction?: string | null
+    failureCode?: string
+}
+
+/**
+ * 外部分发配置
+ */
+export interface ExternalDistributionConfig {
+    listmonk?: ListmonkDistributionConfig
+}
+
+/**
+ * 营销推送目标条件
+ */
+export interface MarketingCampaignTargetCriteria {
+    categoryIds?: string[]
+    tagIds?: string[]
+    articleLocale?: string
+    articleId?: string
+    articleTitle?: string
+    authorName?: string
+    categoryName?: string
+    publishDate?: string
+    articleLink?: string
+    externalDistribution?: ExternalDistributionConfig
+}
+
+/**
  * 营销推送记录
  */
 export interface MarketingCampaign {
@@ -14,10 +52,7 @@ export interface MarketingCampaign {
     /**
      * 推送目标条件
      */
-    targetCriteria: {
-        categoryIds?: string[]
-        tagIds?: string[]
-    }
+    targetCriteria: MarketingCampaignTargetCriteria
     senderId: string
     sentAt: string | null
     scheduledAt: string | null

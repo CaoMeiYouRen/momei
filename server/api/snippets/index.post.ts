@@ -6,8 +6,12 @@ import { toPlainObject } from '@/server/utils/object'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { snippetBodySchema } from '@/utils/schemas/snippet'
 
+interface AuthenticatedUser {
+    id: string
+}
+
 export default defineEventHandler(async (event) => {
-    let user: any
+    let user: AuthenticatedUser
 
     // 尝试 API Key 鉴权 (供外部工具使用)
     try {
