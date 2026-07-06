@@ -73,6 +73,7 @@ describe('listmonk service', () => {
             remoteCampaignId: 42,
             action: 'created',
             listIds: [1, 2],
+            scheduledAt: null,
         })
         expect(fetchMock).toHaveBeenCalledWith('https://listmonk.example.com/api/campaigns', expect.objectContaining({
             method: 'POST',
@@ -114,6 +115,7 @@ describe('listmonk service', () => {
             remoteCampaignId: 77,
             action: 'updated',
             listIds: [1, 2, 3, 4],
+            scheduledAt: null,
         })
         expect(fetchMock).toHaveBeenCalledWith('https://listmonk.example.com/api/campaigns/77', expect.objectContaining({
             method: 'PUT',

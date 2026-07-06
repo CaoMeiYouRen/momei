@@ -26,6 +26,7 @@ export interface ListmonkDispatchResult {
     remoteCampaignId: number
     action: ListmonkDispatchAction
     listIds: number[]
+    scheduledAt: string | null
 }
 
 export class ListmonkDispatchError extends Error {
@@ -316,6 +317,7 @@ export async function dispatchListmonkCampaign(campaign: MarketingCampaign, conf
             remoteCampaignId: currentRemoteCampaignId,
             action,
             listIds,
+            scheduledAt: 'send_at' in statusPayload ? (statusPayload.send_at as string) : null,
         }
     } catch (error) {
         if (error instanceof ListmonkDispatchError) {

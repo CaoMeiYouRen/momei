@@ -15,7 +15,7 @@ import { htmlToPlainText } from '@/server/utils/html'
 import { appendPostCopyrightNotice } from '@/utils/shared/post-copyright'
 import { sendWebPushToUser } from '@/server/services/web-push'
 import { recordNotificationDeliveryLog } from '@/server/services/notification-delivery'
-import { dispatchListmonkCampaign, getListmonkDispatchConfig, ListmonkDispatchError, type ListmonkDispatchConfig } from '@/server/services/listmonk'
+import { dispatchListmonkCampaign, getListmonkDispatchConfig, ListmonkDispatchError, type ListmonkDispatchConfig, type ListmonkDispatchResult } from '@/server/services/listmonk'
 
 type MarketingDispatchMode = 'email' | 'listmonk'
 
@@ -115,7 +115,7 @@ async function sendCampaignByEmail(campaign: MarketingCampaign) {
     logger.info(`Campaign "${campaign.title}" finished. Success: ${successCount}, Fail: ${failCount}`)
 }
 
-async function sendCampaignByListmonk(campaign: MarketingCampaign, config: ListmonkDispatchConfig) {
+async function sendCampaignByListmonk(campaign: MarketingCampaign, config: ListmonkDispatchConfig): Promise<ListmonkDispatchResult> {
     const result = await dispatchListmonkCampaign(campaign, config)
 
     updateCampaignExternalDistribution(campaign, {
@@ -138,6 +138,8 @@ async function sendCampaignByListmonk(campaign: MarketingCampaign, config: Listm
             listIds: result.listIds,
         },
     })
+
+    return result
 }
 
 async function isWebPushEnabledForUser(userId: string, type: NotificationType) {
@@ -355,23 +357,39 @@ export async function sendMarketingCampaign(campaignId: string) {
     const listmonkConfig = await getListmonkDispatchConfig()
     const deliveryMode = getCampaignDeliveryMode(listmonkConfig)
 
-    if (campaign.status === MarketingCampaignStatus.COMPLETED && deliveryMode === 'email') {
-        return
+    if (campaign.status === MarketingCampaignStatus.COMPLETED) {
+        if (deliveryMode === 'email') {
+            return
+        }
+
+        const listmonkState = campaign.targetCriteria?.externalDistribution?.listmonk
+        if (listmonkState?.lastSuccessfulAt) {
+            return
+        }
     }
 
     campaign.status = MarketingCampaignStatus.SENDING
     await campaignRepo.save(campaign)
 
     try {
+        let isScheduledByListmonk = false
+
         if (deliveryMode === 'listmonk') {
-            await sendCampaignByListmonk(campaign, listmonkConfig)
+            const result = await sendCampaignByListmonk(campaign, listmonkConfig)
+            isScheduledByListmonk = result.scheduledAt !== null
         } else {
             await sendCampaignByEmail(campaign)
         }
 
-        campaign.status = MarketingCampaignStatus.COMPLETED
-        campaign.sentAt = new Date()
-        await campaignRepo.save(campaign)
+        if (isScheduledByListmonk) {
+            campaign.status = MarketingCampaignStatus.SCHEDULED
+            await campaignRepo.save(campaign)
+            logger.info(`Campaign "${campaign.title}" scheduled by listmonk, keeping SCHEDULED status`)
+        } else {
+            campaign.status = MarketingCampaignStatus.COMPLETED
+            campaign.sentAt = new Date()
+            await campaignRepo.save(campaign)
+        }
     } catch (error) {
         logger.error(`Failed to execute campaign "${campaign.title}":`, error)
 
@@ -434,10 +452,20 @@ export async function startMarketingCampaignDispatch(campaignId: string): Promis
         }
     }
 
-    if (campaign.status === MarketingCampaignStatus.COMPLETED && mode === 'email') {
-        return {
-            state: 'already_completed',
-            mode,
+    if (campaign.status === MarketingCampaignStatus.COMPLETED) {
+        if (mode === 'email') {
+            return {
+                state: 'already_completed',
+                mode,
+            }
+        }
+
+        const listmonkState = campaign.targetCriteria?.externalDistribution?.listmonk
+        if (listmonkState?.lastSuccessfulAt) {
+            return {
+                state: 'already_completed',
+                mode,
+            }
         }
     }
 

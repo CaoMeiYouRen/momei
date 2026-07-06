@@ -132,6 +132,36 @@
 
 ---
 
+### 插队任务：定时推送功能修复（Bug Fix）✅ 已完成
+
+**插入原因**: 阻塞性 Bug，影响营销推送核心功能
+**插入时间**: 2026-07-07
+**完成时间**: 2026-07-07
+**来源**: 用户反馈
+
+---
+
+- [x] **定时推送功能修复**
+    - [x] **问题 1：定时任务未触发**
+        - [x] 检查 `task-scheduler.ts` 插件中 Cron 任务配置
+        - [x] 验证 Serverless 环境下 `/api/tasks/run-scheduled` 端点是否正确触发
+        - [x] 检查 `processScheduledCampaigns` 函数是否被正确调用
+    - [x] **问题 2：Listmonk 渠道定时任务缺失**
+        - [x] 检查 `sendMarketingCampaign` 函数中 listmonk 渠道的处理逻辑
+        - [x] 验证 `resolveListmonkStatusPayload` 函数是否正确处理定时状态
+        - [x] 确认定时推送创建时 listmonk 渠道的状态设置
+    - [x] **问题 3：定时时间未同步**
+        - [x] 检查 `repush.post.ts` 中 `scheduledAt` 参数的传递
+        - [x] 验证 `createCampaignFromPost` 函数中 `scheduledAt` 的保存逻辑
+        - [x] 确认 `MarketingCampaign` 实体的 `scheduledAt` 字段映射
+    - [x] **验收**
+        - [x] 定时推送能正确触发
+        - [x] Listmonk 渠道的定时推送能正常工作
+        - [x] 定时时间能正确同步到营销推送
+        - [x] 补充相关测试用例（40 个测试通过）
+
+---
+
 ## 待准入（筹备中）
 
 > 当前阶段执行中，新增需求请写入 [backlog.md](./backlog.md)。
