@@ -25,6 +25,7 @@ describe('run-periodic-regression', () => {
             'i18n:audit:missing',
             'duplicate-code:check',
             'governance:check:scripts',
+            'governance:audit:eslint-debt',
             'governance:audit:comment-drift',
         ])
         expect(resolveRegressionProfile('phase-close').steps.at(-1)).toMatchObject({
