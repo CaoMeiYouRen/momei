@@ -274,7 +274,17 @@ function extractCommentEntries(content, filePath) {
 
     for (const match of content.matchAll(/\/\/[^\n]*|\/\*[\s\S]*?\*\//gu)) {
         const rawText = match[0]
-        const line = computeLineNumber(content, match.index ?? 0)
+        const matchIndex = match.index ?? 0
+
+        // Skip `//` that is part of a URL scheme (e.g., `https://`, `ftp://`)
+        if (rawText.startsWith('//') && matchIndex > 0) {
+            const charBeforeSlash = content[matchIndex - 1]
+            if (charBeforeSlash === ':') {
+                continue
+            }
+        }
+
+        const line = computeLineNumber(content, matchIndex)
         const text = normalizeCommentText(rawText)
 
         if (!text) {
