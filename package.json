@@ -111,7 +111,7 @@
     "dotenv": "^17.4.2",
     "driver.js": "^1.4.0",
     "fast-xml-parser": "^5.9.3",
-    "feed": "^5.2.1",
+    "feed": "^6.0.0",
     "fs-extra": "^11.3.6",
     "google-libphonenumber": "^3.2.44",
     "highlight.js": "^11.11.0",
