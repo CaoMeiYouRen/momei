@@ -559,6 +559,43 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第五十五阶段：AI 降级与接口扩展（AI Fallback & API Expansion）
+
+**时间表**: 2026-07-07 ~ 约 1-2 周
+**目标**: 在第五十四阶段完成 CLI/MCP 阶段一与治理深水区后，以「2 个新功能 + 3 个优化」组合推进：CLI/MCP 外部接口扩展作为用户明确需求的延续，AI 功能备用路线与自动降级提升 AI 可用性，三条优化延续治理节奏（结构复用逻辑重复收敛、ESLint/类型债窄切片、测试有效性第三轮）。
+
+**准入结论**: 五条主线均来自用户明确需求或 backlog 长期主线，容量控制在 `5` 项内，符合规划规范。CLI/MCP 阶段二延续 Phase 54 工作；AI 降级为 backlog #12 已验证候选；结构复用、ESLint 和测试有效性延续治理节奏。Vercel CDN 相关优化因计划迁移 Docker 部署而延期。
+
+**ROI 评估**: CLI/MCP 外部接口扩展 `1.80`；AI 功能备用路线 `1.70`；结构复用逻辑重复收敛 `1.60`；ESLint/类型债治理 `1.50`；测试有效性第三轮 `1.50`。
+
+1. **主线：CLI/MCP 阶段二 — 新增外部接口（P1）**:
+    - **执行范围**: 基于 Phase 54 阶段一已完成的接口补齐，新增高优先级外部接口：分类管理（`GET/POST/PUT/DELETE /api/external/categories`）、标签管理（`GET/POST/PUT/DELETE /api/external/tags`）、灵感管理（`GET/POST/PUT/DELETE /api/external/snippets`）、灵感转文章（`POST /api/external/snippets/[id]/convert`）、文章版本（`GET/POST /api/external/posts/[id]/versions`）。CLI 和 MCP 包同步实现对应客户端方法。
+    - **非目标**: 不暴露管理后台全部接口，只暴露适合外部集成的子集。
+    - **最小验收**: 新增 ≥15 个外部接口；所有接口有 Zod schema 验证；CLI 和 MCP 包方法覆盖率达到 100%；接口文档更新；`pnpm typecheck` + `pnpm lint` 通过。
+    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+
+2. **主线：AI 功能备用路线与自动降级（P1）**:
+    - **执行范围**: 实现 backlog #12 中 P1 项：文本生成备用路线（主提供商失败 → 自动切换备用）和图片生成备用路线（主提供商失败 → 自动切换备用）。新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项（按类别：text/image），修改 `getAIProvider` 函数支持 fallback 链，实现重试逻辑，记录降级日志。
+    - **非目标**: 不改变现有提供商实现、不引入新 AI 提供商、不做负载均衡、不实现 TTS/ASR 备用路线（P2，留后续）。
+    - **最小验收**: 主提供商失败时自动切换备用；降级过程对用户透明；降级日志可追踪；所有现有测试通过。
+
+3. **主线：结构复用逻辑重复收敛（P1）**:
+    - **执行范围**: 基于 Phase 54 已完成的逻辑重复检测脚本输出，收敛识别出的逻辑重复。重点方向：不同函数名但逻辑相似的函数抽象、重复导入后轻包装的 helper 收敛、相似参数组合 + 相似处理流程的策略模式提取。
+    - **非目标**: 不推动跨模块大重构、不为复用而复用、不改变业务行为。
+    - **最小验收**: ≥2 组逻辑重复完成抽象收敛；`pnpm duplicate-code:check` 基线不反弹；每组切片给出原始重复点、抽象边界与回滚方式。
+
+4. **主线：ESLint/类型债 — ≥3 组窄切片（P1）**:
+    - **执行范围**: 继续「单规则 + 单文件/双文件」窄切片策略，复用 Phase 54 已完成的规则债 inventory 脚本作为 baseline，优先选择命中数多、回滚边界清晰的规则族。
+    - **非目标**: 不扩写为全仓 `any` 清零、不引入新规则族。
+    - **最小验收**: ≥3 组窄切片完成并通过定向验证；`pnpm governance:audit:eslint-debt` 显示 delta 可对照；`warning=0` 保持。
+
+5. **主线：测试有效性第三轮切片（P1）**:
+    - **执行范围**: 延续 Phase 54 节奏，继续围绕已有测试基座但缺少失败/边界覆盖的高风险模块。重点方向：补组件层 AI 失败映射断言、补页面级 auth degradation 场景断言、补 `settings public` 或 `friend-links` 失败口径断言。
+    - **非目标**: 不做 coverage 数字冲刺、不做低价值全量补测。
+    - **最小验收**: ≥5 个新增失败路径断言；覆盖 ≥2 个模块；全仓 coverage 基线不回退。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
