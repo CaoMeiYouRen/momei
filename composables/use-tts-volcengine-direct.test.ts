@@ -6,12 +6,15 @@ const mockFetch = vi.fn()
 
 // ---- WebSocket Mock ----
 
+type MockWSBehavior = 'default' | 'error' | 'close-no-audio'
+
 class MockWebSocket {
     static OPEN = 1
     static CONNECTING = 0
     static CLOSING = 2
     static CLOSED = 3
     static instances: MockWebSocket[] = []
+    static behavior: MockWSBehavior = 'default'
 
     url: string
     readyState = 0
@@ -24,11 +27,27 @@ class MockWebSocket {
     constructor(url: string) {
         this.url = url
         MockWebSocket.instances.push(this)
-        // 异步触发 onopen 模拟真实 WebSocket 行为
-        setTimeout(() => {
-            this.readyState = MockWebSocket.OPEN
-            this.onopen?.()
-        }, 0)
+
+        if (MockWebSocket.behavior === 'error') {
+            // 模拟连接错误：直接触发 onerror
+            setTimeout(() => {
+                this.onerror?.(new Event('error'))
+            }, 0)
+        } else if (MockWebSocket.behavior === 'close-no-audio') {
+            // 模拟连接成功后立即关闭（无音频数据）
+            setTimeout(() => {
+                this.readyState = MockWebSocket.OPEN
+                this.onopen?.()
+                this.readyState = MockWebSocket.CLOSED
+                this.onclose?.()
+            }, 0)
+        } else {
+            // 默认行为：异步触发 onopen
+            setTimeout(() => {
+                this.readyState = MockWebSocket.OPEN
+                this.onopen?.()
+            }, 0)
+        }
     }
 
     send(_data: ArrayBuffer) {
@@ -218,7 +237,10 @@ function createCredentialResponse() {
 describe('useTTSVolcengineDirect', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockFetch.mockReset()
+        mockUploadFile.mockReset()
         MockWebSocket.instances = []
+        MockWebSocket.behavior = 'default'
         // 恢复 MockWebSocket.prototype.send
         MockWebSocket.prototype.send = vi.fn()
     })
@@ -446,6 +468,100 @@ describe('useTTSVolcengineDirect', () => {
         expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'error',
             detail: 'metadata failed',
+        }))
+    })
+
+    it('rejects when TTS credentials are expired or about to expire', async () => {
+        mockFetch.mockResolvedValueOnce({
+            data: {
+                provider: 'volcengine',
+                mode: 'speech',
+                authType: 'query',
+                issuedAt: 0,
+                expiresInMs: 60000,
+                expiresAt: Date.now() - 1000, // 已过期
+                endpoint: 'wss://tts.example.com',
+                connectId: 'connect-1',
+                appId: 'app-1',
+                jwtToken: 'jwt',
+                authQuery: {
+                    api_resource_id: 'volc.service_type.10029',
+                    api_access_key: 'Jwt; jwt',
+                },
+                resourceId: 'volc.service_type.10029',
+                temporaryUserId: 'temp-user',
+            },
+        })
+
+        const direct = useTTSVolcengineDirect()
+
+        await expect(direct.generateAndUpload({
+            mode: 'speech',
+            text: 'hello world',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+        })).rejects.toThrow('TTS credentials expired or about to expire')
+
+        expect(direct.error.value).toBe('TTS credentials expired or about to expire')
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'TTS credentials expired or about to expire',
+        }))
+    })
+
+    it('rejects when WebSocket connection fails', async () => {
+        MockWebSocket.behavior = 'error'
+        mockFetch.mockResolvedValueOnce(createCredentialResponse())
+
+        const direct = useTTSVolcengineDirect()
+
+        await expect(direct.generateAndUpload({
+            mode: 'speech',
+            text: 'hello world',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+        })).rejects.toThrow('Volcengine TTS WebSocket connection error')
+
+        expect(direct.error.value).toBe('Volcengine TTS WebSocket connection error')
+    })
+
+    it('rejects when WebSocket closes without receiving audio', async () => {
+        MockWebSocket.behavior = 'close-no-audio'
+        mockFetch.mockResolvedValueOnce(createCredentialResponse())
+
+        const direct = useTTSVolcengineDirect()
+
+        await expect(direct.generateAndUpload({
+            mode: 'speech',
+            text: 'hello world',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+        })).rejects.toThrow('Volcengine TTS WebSocket closed without audio')
+
+        expect(direct.error.value).toBe('Volcengine TTS WebSocket closed without audio')
+    })
+
+    it('rejects when audio upload fails', async () => {
+        // 模拟 WebSocket 成功返回音频数据
+        simulateSpeechWebSocketFrames([1, 2, 3, 4])
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true, audioUrl: null })
+
+        // 模拟上传失败
+        mockUploadFile.mockRejectedValueOnce(new Error('Upload failed'))
+
+        const direct = useTTSVolcengineDirect()
+
+        await expect(direct.generateAndUpload({
+            mode: 'speech',
+            text: 'This is a valid sample text.',
+            voice: 'zh_female_shuangkuaisisi_moon_bigtts',
+            postId: 'post-1',
+        })).rejects.toThrow('Upload failed')
+
+        expect(direct.error.value).toBe('Upload failed')
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'Upload failed',
         }))
     })
 })

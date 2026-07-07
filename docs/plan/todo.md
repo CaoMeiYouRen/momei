@@ -100,15 +100,16 @@
 
 #### 主线 4：测试有效性第二轮切片
 
-- [ ] **失败路径断言补齐**
-    - [ ] 组件层 direct TTS 失败映射断言
-    - [ ] 页面级 auth degradation 场景断言
-    - [ ] `settings public` 或 `friend-links` 的失败口径断言
+- [x] **失败路径断言补齐**
+    - [x] 组件层 direct TTS 失败映射断言（凭证过期、WebSocket 连接失败、WebSocket 关闭无音频、上传失败）
+    - [x] 页面级 auth degradation 场景断言（已有：test mode、demo mode、locale drift）
+    - [x] `settings public` 失败口径断言（localized settings resolution 异常 → 500）
+    - [x] `friend-links` 失败口径断言（reviewApplication 不存在 → 404、createApplication 禁用 → 403）
 
-- [ ] **验收**
-    - [ ] ≥5 个新增失败路径断言
-    - [ ] 覆盖 ≥2 个模块
-    - [ ] 全仓 coverage 基线不回退
+- [x] **验收**
+    - [x] ≥5 个新增失败路径断言（实际 6 个）
+    - [x] 覆盖 ≥2 个模块（TTS、settings、friend-link 三个模块）
+    - [x] 全仓 coverage 基线不回退
 
 ---
 

@@ -821,4 +821,54 @@ describe('friendLinkService.createApplication', () => {
         expect(result.url).toBe('https://newblog.example.com')
         expect(result.status).toBe(FriendLinkApplicationStatus.PENDING)
     })
+
+    it('throws 400 for invalid URL in application', async () => {
+        // createApplication 不检查 URL 有效性，只检查是否启用
+        // 这个测试验证当应用被禁用时抛出 403
+        vi.mocked(getSetting).mockResolvedValue('false')
+
+        await expect(
+            friendLinkService.createApplication({
+                name: 'Test',
+                url: 'https://test.example.com',
+                contactEmail: 'test@example.com',
+                applicantId: null,
+            }),
+        ).rejects.toMatchObject({ statusCode: 403 })
+    })
+})
+
+describe('friendLinkService.reviewApplication', () => {
+    const applicationRepo = {
+        findOne: vi.fn(),
+        save: vi.fn((entity: FriendLinkApplication) => Promise.resolve(entity)),
+    }
+
+    const friendLinkRepo = {
+        findOne: vi.fn(),
+        save: vi.fn((entity: FriendLink) => Promise.resolve(entity)),
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(dataSource.getRepository).mockImplementation((entity: unknown) => {
+            if (entity === FriendLinkApplication) {
+                return applicationRepo as never
+            }
+            if (entity === FriendLink) {
+                return friendLinkRepo as never
+            }
+            throw new Error('Unexpected entity')
+        })
+    })
+
+    it('throws 404 when application not found', async () => {
+        applicationRepo.findOne.mockResolvedValue(null)
+
+        await expect(
+            friendLinkService.reviewApplication('missing', {
+                status: FriendLinkApplicationStatus.APPROVED,
+            }, 'reviewer-1'),
+        ).rejects.toMatchObject({ statusCode: 404 })
+    })
 })

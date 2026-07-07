@@ -190,4 +190,14 @@ describe('GET /api/settings/public', () => {
         expect(getPublicSettings).toHaveBeenCalledTimes(2)
         expect(resolvePublicLocalizedSettingsFromValues).toHaveBeenCalledTimes(1)
     })
+
+    it('should return 500 when localized settings resolution throws unexpectedly', async () => {
+        vi.mocked(resolvePublicLocalizedSettingsFromValues).mockImplementationOnce(() => {
+            throw new Error('Resolution failed')
+        })
+
+        await expect(publicSettingsHandler({} as any)).rejects.toMatchObject({
+            statusCode: 500,
+        })
+    })
 })
