@@ -242,8 +242,8 @@ export async function getListmonkDispatchConfig(): Promise<ListmonkDispatchConfi
 }
 
 export function resolveListmonkTargetListIds(campaign: MarketingCampaign, config: ListmonkDispatchConfig) {
-    const categoryIds = Array.isArray(campaign.targetCriteria?.categoryIds) ? campaign.targetCriteria.categoryIds as string[] : []
-    const tagIds = Array.isArray(campaign.targetCriteria?.tagIds) ? campaign.targetCriteria.tagIds as string[] : []
+    const categoryIds = Array.isArray(campaign.targetCriteria?.categoryIds) ? campaign.targetCriteria.categoryIds : []
+    const tagIds = Array.isArray(campaign.targetCriteria?.tagIds) ? campaign.targetCriteria.tagIds : []
 
     const mappedCategoryIds = categoryIds.flatMap((categoryId) => config.categoryListMap[categoryId] || [])
     const mappedTagIds = tagIds.flatMap((tagId) => config.tagListMap[tagId] || [])
