@@ -525,6 +525,150 @@
     - RSS 阅读器仍能正常解析 feed
 - **详细方案**: 待设计
 
+### 2026-07 迁移功能增强候选任务
+
+14. **本地图片自动上传与迁移 (P0, 候选)**
+- **背景**: 当前迁移 CLI 明确声明"暂不处理本地图片上传，建议用户先将图片托管至云端"。这是迁移体验最大的短板——用户需要手动将 Hexo 的 `source/images/` 目录中的图片上传到对象存储，再手动替换 Markdown 中的相对路径引用，门槛极高。
+- **问题分析**:
+    - Hexo 文章常使用相对路径引用本地图片：`![](../images/cover.png)`、`![](/posts/xxx/image.jpg)`
+    - 迁移后这些相对路径全部失效，导致图片 broken
+    - 手动托管+替换 URL 的流程对非技术用户极不友好
+- **技术方案**:
+    - CLI 扫描 Markdown 正文中的相对路径图片引用（`![](...)` 和 `<img src="...">`）
+    - 解析相对路径为本地文件系统绝对路径
+    - 调用 `POST /api/upload/direct-auth` 获取上传凭证
+    - 批量上传图片到对象存储
+    - 替换正文中的图片 URL 为上传后的公共地址
+    - 支持 `--upload-images` 开关，默认关闭（向后兼容）
+- **非目标**: 不处理视频/音频等大文件上传、不做图片压缩/裁剪、不自动检测外部图床链接
+- **前置条件**:
+    - 确认对象存储上传 API 的批量并发限制
+    - 评估大量图片上传的超时策略
+- **验收标准**:
+    - 扫描并上传本地相对路径图片
+    - 正文中的图片 URL 自动替换为对象存储公共地址
+    - 封面图（`coverImage`）如果是本地路径也同步处理
+    - 上传失败的图片在报告中明确标记，不阻塞文章导入
+    - `pnpm typecheck` + `pnpm lint` 通过
+- **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **2.33**
+- **详细方案**: 待设计
+
+15. **CLI 导出命令 (P1, 候选)**
+- **背景**: 当前迁移 CLI 只支持"导入"方向，不支持"导出"。服务端已有 `server/services/post-export.ts` 实现 `formatPostToMarkdown` 逻辑，但 CLI 未暴露对应命令。导出能力对于备份、跨平台迁移、本地编辑等工作流有实际价值。
+- **技术方案**:
+    - CLI 新增 `momei export <output-dir>` 命令
+    - 调用 `GET /api/external/posts` 获取文章列表
+    - 调用 `GET /api/external/posts/:id` 获取单篇文章详情
+    - 使用 `formatPostToMarkdown` 转换为 Markdown + Front-matter
+    - 支持过滤参数：`--language`、`--status`、`--category`、`--limit`
+    - 支持输出格式：`--format markdown`（默认）、`--format json`
+    - 保持目录结构：按 `{slug}.md` 或 `{id}.md` 命名
+- **非目标**: 不导出用户数据/评论/设置、不做增量导出、不做自动同步
+- **前置条件**:
+    - 确认 `GET /api/external/posts` 接口的分页和过滤能力
+    - 评估大批量导出的内存和超时策略
+- **验收标准**:
+    - 导出的 Markdown 文件保留完整 Front-matter（title、date、tags、category、slug 等）
+    - 正文内容完整保留
+    - 支持 `--language zh-CN` 等过滤条件
+    - 导出报告统计成功/失败数量
+    - `pnpm typecheck` + `pnpm lint` 通过
+- **ROI**: 价值 3 / 契合度 3 / 复杂度 2 / 风险 1 = **2.00**
+- **详细方案**: 待设计
+
+16. **迁移元数据字段扩展 (P1, 候选)**
+- **背景**: 当前 CLI 的字段映射已覆盖核心字段（title、date、tags、category、slug、summary、coverImage、audio 等），但部分对 SEO 和历史数据继承有意义的字段尚未支持。CLI README 已列出不支持字段清单。
+- **待扩展字段**:
+    | 字段 | 优先级 | 说明 |
+    |:---|:---|:---|
+    | `updatedAt` | P1 | 文章更新时间，对 SEO `article:modified_time` 有意义 |
+    | `views` | P2 | 历史浏览量，数据继承场景需要 |
+    | `disableComment` | P2 | 用户显式关闭评论的设置 |
+    | `updated` | P2 | Hexo 的 `updated` 字段别名 |
+- **技术方案**:
+    - 扩展 `packages/cli/src/parser.ts` 的 `convertToMomeiPost` 函数
+    - 扩展 `utils/schemas/external-post-import.ts` 的 Zod schema
+    - 扩展 `server/api/external/posts.post.ts` 的处理逻辑
+    - 补充单元测试
+- **非目标**: 不支持 `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent` 等内部结构的导入
+- **前置条件**:
+    - 确认 `Post` 实体是否已有 `updatedAt` 字段
+    - 评估 `views` 字段是否允许外部写入
+- **验收标准**:
+    - `updatedAt` 字段正确映射并落库
+    - 扩展字段的 Front-matter 别名正确解析
+    - 不影响现有字段映射的向后兼容性
+    - 新增测试覆盖扩展字段场景
+- **ROI**: 价值 2 / 契合度 3 / 复杂度 1 / 风险 1 = **2.00**
+- **详细方案**: 待设计
+
+17. **安装引导向导 (P2, 候选)**
+- **背景**: 设计文档 `docs/design/modules/migration.md` §3 已完整规划了安装引导向导（Onboarding Wizard），包括环境自检、管理员创建、站点基本配置、数据迁移建议四个步骤。该功能是首次用户体验的关键入口，但尚未实现。
+- **技术方案**:
+    - 新增 `/onboarding` 页面（基于 PrimeVue Stepper 组件）
+    - 新增 `server/api/system/initialize` 接口，处理管理员创建、配置写入及"初始化锁定"逻辑
+    - 实现 `RuntimeConfig = Merged(Environment, Database Settings)` 配置混合模式
+    - 创建 `server/utils/settings.ts` 工具，用于从数据库加载动态配置
+    - 在 App 顶层增加重定向逻辑：当数据库用户表为空时自动跳转 `/onboarding`
+- **非目标**: 不支持多管理员批量创建、不做数据导入向导（仅展示 CLI 使用说明）、不做主题配置
+- **前置条件**:
+    - 完成配置层级升级的设计评审
+    - 评估数据库 Settings 表的 schema 变更影响
+- **验收标准**:
+    - 首次访问时自动跳转到 `/onboarding`
+    - 环境自检正确显示数据库、Node 版本、环境参数
+    - 管理员创建成功后可正常登录
+    - 站点配置正确写入数据库
+    - 初始化完成后禁止再次访问向导
+    - `pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
+- **ROI**: 价值 4 / 契合度 5 / 复杂度 4 / 风险 3 = **1.50**
+- **详细方案**: [迁移与集成设计文档 - 引导安装向导](../design/modules/migration.md#3-引导安装向导-installation-wizard)
+
+18. **多平台迁移适配器 (P2, 候选)**
+- **背景**: 当前迁移 CLI 仅支持 Hexo 格式的 Markdown 文件解析。WordPress、Hugo、Jekyll 等其他主流博客平台的用户无法直接使用 CLI 迁移。虽然 Hexo 是目标用户群的主要来源，但扩展多平台支持可以降低更多用户的迁移门槛。
+- **技术方案**:
+    - 抽象 `ContentParser` 接口：`parse(sourceDir): Promise<ParsedPost[]>`
+    - 实现适配器：
+        - `HexoParser`（已有，从 `parser.ts` 重构）
+        - `WordPressParser`（解析 WordPress XML 导出文件）
+        - `HugoParser`（解析 Hugo Front-matter，TOML/YAML/JSON）
+        - `JekyllParser`（解析 Jekyll Front-matter）
+    - CLI 命令增加 `--format hexo|wordpress|hugo|jekyll` 参数
+    - 统一输出为 `ParsedPost` 结构，复用现有导入链路
+- **非目标**: 不支持在线 API 导入（如 WordPress REST API）、不做自动格式检测、不做平台特定的插件/主题迁移
+- **前置条件**:
+    - 评估各平台 Front-matter 的差异和兼容性
+    - 确认是否需要引入 XML 解析库（WordPress 导出格式）
+- **验收标准**:
+    - 至少支持 Hugo 格式（TOML/YAML Front-matter）
+    - 各平台的 title、date、tags、categories、content 正确映射
+    - `--format` 参数正确选择解析器
+    - 新增适配器有对应的单元测试
+    - 现有 Hexo 解析行为无回归
+- **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
+- **详细方案**: 待设计
+
+19. **迁移进度可视化与断点续传 (P3, 候选)**
+- **背景**: 当前 CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇文章）迁移时，如果中途失败需要从头开始。断点续传能力可以显著改善大型迁移的体验。
+- **技术方案**:
+    - CLI 在本地维护迁移状态文件（`.momei-migration-state.json`）
+    - 记录每篇文章的导入状态：pending / success / failed / skipped
+    - 导入前检查状态文件，跳过已成功的文章
+    - 支持 `--resume` 参数启用断点续传
+    - 支持 `--clean` 参数清除状态文件重新开始
+    - 进度条显示：已成功 / 已失败 / 待处理 / 总数
+- **非目标**: 不做分布式迁移、不做跨机器续传、不做自动重试失败项
+- **前置条件**:
+    - 评估状态文件的格式和兼容性
+    - 确认状态文件的存放位置（源目录 vs 当前目录）
+- **验收标准**:
+    - 中断后重新运行可跳过已成功的文章
+    - `--resume` 参数正确启用续传模式
+    - 进度显示实时更新
+    - 状态文件格式清晰可读
+- **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
+- **详细方案**: 待设计
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
