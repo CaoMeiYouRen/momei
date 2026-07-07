@@ -76,7 +76,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1081.0",
     "@aws-sdk/s3-request-presigner": "^3.1081.0",
-    "@axiomhq/winston": "^1.6.1",
+    "@axiomhq/winston": "^1.8.0",
     "@better-auth/sso": "^1.6.23",
     "@mdi/font": "^7.4.47",
     "@microsoft/clarity": "^1.0.2",
