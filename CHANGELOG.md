@@ -1,5 +1,19 @@
 # momei
 
+# [1.22.0](https://github.com/CaoMeiYouRen/momei/compare/v1.21.1...v1.22.0) (2026-07-11)
+
+
+### ✨ 新功能
+
+* **api:** 新增文章管理功能 ([0e98e8e](https://github.com/CaoMeiYouRen/momei/commit/0e98e8e))
+
+
+### 📦 代码重构
+
+* **eslint:** 规则债 inventory 脚本 + no-explicit-any 窄切片 ([eae3a62](https://github.com/CaoMeiYouRen/momei/commit/eae3a62))
+* **notification:** 添加调度时间字段支持 ([d977ad3](https://github.com/CaoMeiYouRen/momei/commit/d977ad3))
+* **utils:** 完成单函数文件整合与逻辑重复检测脚本 ([8d098f2](https://github.com/CaoMeiYouRen/momei/commit/8d098f2))
+
 ## [1.21.1](https://github.com/CaoMeiYouRen/momei/compare/v1.21.0...v1.21.1) (2026-07-05)
 
 
