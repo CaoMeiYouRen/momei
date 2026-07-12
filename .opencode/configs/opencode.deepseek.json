@@ -37,7 +37,7 @@
             "variant": "medium"
         },
         "documentation-specialist": {
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "opencode-go/deepseek-v4-flash",
             "mode": "subagent",
             "variant": "low"
         }
