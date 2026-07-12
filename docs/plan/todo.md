@@ -25,15 +25,15 @@
 
 #### 1. 主线：CLI/MCP 阶段二 — 新增外部接口（P1）
 
-- [ ] 实现分类管理接口：`GET/POST/PUT/DELETE /api/external/categories`
-- [ ] 实现标签管理接口：`GET/POST/PUT/DELETE /api/external/tags`
-- [ ] 实现灵感管理接口：`GET/POST/PUT/DELETE /api/external/snippets`
-- [ ] 实现灵感转文章接口：`POST /api/external/snippets/[id]/convert`
-- [ ] 实现文章版本接口：`GET/POST /api/external/posts/[id]/versions`
-- [ ] CLI 包新增对应客户端方法
-- [ ] MCP 包新增对应客户端方法
-- [ ] 所有接口添加 Zod schema 验证
-- [ ] 接口文档更新
+- [x] 实现分类管理接口：`GET/POST/PUT/DELETE /api/external/categories`
+- [x] 实现标签管理接口：`GET/POST/PUT/DELETE /api/external/tags`
+- [x] 实现灵感管理接口：`GET/POST/GET/PUT/DELETE /api/external/snippets`
+- [x] 实现灵感转文章接口：`POST /api/external/snippets/[id]/convert`
+- [x] 实现文章版本接口：`GET/POST /api/external/posts/[id]/versions`
+- [x] CLI 包新增对应客户端方法（15 个新方法）
+- [x] MCP 包新增对应客户端方法 + 16 个新工具
+- [x] 所有接口基于 Zod schema 验证（复用现有 schemas + 内联验证）
+- [x] 接口文档更新
 
 **验收标准**: 新增 ≥15 个外部接口；CLI 和 MCP 包方法覆盖率达到 100%；`pnpm typecheck` + `pnpm lint` 通过
 

@@ -123,6 +123,48 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig): vo
         },
     )
 
+    // 7. List Post Versions
+    server.registerTool(
+        'list_post_versions',
+        {
+            description: 'List all versions of a specific post',
+            inputSchema: {
+                postId: z.string(),
+            },
+        },
+        async ({ postId }) => {
+            try {
+                const result = await api.listPostVersions(postId)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
+
+    // 8. Create Post Version Snapshot
+    server.registerTool(
+        'create_post_version',
+        {
+            description: 'Create a new version snapshot of a post',
+            inputSchema: {
+                postId: z.string(),
+            },
+        },
+        async ({ postId }) => {
+            try {
+                const result = await api.createPostVersion(postId)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
+
     // 6. Delete Post (Dangerous tool, conditionally registered)
     if (config.enableDangerousTools) {
         server.registerTool(

@@ -319,6 +319,93 @@ export interface CliCategoryRecommendationResult {
     } | null
 }
 
+// ===== Category, Tag, Snippet types for external API =====
+
+export interface CliCategory {
+    id: string
+    name: string
+    slug: string
+    description: string | null
+    parentId: string | null
+    language: string
+    translationId: string | null
+    postCount?: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface CliCategoryBody {
+    name: string
+    slug: string
+    description?: string | null
+    parentId?: string | null
+    language?: string
+    translationId?: string | null
+}
+
+export interface CliTag {
+    id: string
+    name: string
+    slug: string
+    language: string
+    translationId: string | null
+    postCount?: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface CliTagBody {
+    name: string
+    slug: string
+    language?: string
+    translationId?: string | null
+}
+
+export interface CliSnippet {
+    id: string
+    content: string
+    media: string[] | null
+    audioUrl: string | null
+    audioTranscription: string | null
+    source: string
+    metadata: Record<string, unknown> | null
+    status: 'inbox' | 'converted' | 'archived'
+    postId: string | null
+    authorId: string
+    createdAt: string
+    updatedAt: string
+}
+
+export interface CliSnippetBody {
+    content: string
+    media?: string[]
+    audioUrl?: string
+    source?: string
+    status?: 'inbox' | 'converted' | 'archived'
+    metadata?: Record<string, unknown>
+}
+
+export interface CliPostVersion {
+    id: string
+    postId: string
+    sequence: number
+    parentVersionId: string | null
+    restoredFromVersionId: string | null
+    source: string
+    commitSummary: string
+    changedFields: string[]
+    snapshotHash: string
+    createdAt: string
+    authorId: string
+    author: { id: string, name: string, image?: string | null } | null
+}
+
+export interface CliSnippetConvertResult {
+    postId: string
+    snippetId: string
+    url: string
+}
+
 export interface CliTranslatePostRequest {
     sourcePostId: string
     targetLanguage: string

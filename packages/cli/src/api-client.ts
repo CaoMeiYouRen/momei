@@ -2,11 +2,19 @@ import axios, { type AxiosInstance } from 'axios'
 import type {
     CliAutomationTaskStartResponse,
     CliAutomationTaskStatusResponse,
+    CliCategory,
+    CliCategoryBody,
     CliCategoryRecommendationResult,
     CliImportPathAliasReport,
     CliImportPostRequest,
     CliLinkGovernanceReportData,
     CliLinkGovernanceRequest,
+    CliPostVersion,
+    CliSnippet,
+    CliSnippetBody,
+    CliSnippetConvertResult,
+    CliTag,
+    CliTagBody,
     CliTranslatePostRequest,
     ImportResult,
     MomeiPost,
@@ -223,5 +231,116 @@ export class MomeiApiClient {
     async getAITask(taskId: string) {
         const response = await this.client.get(`/api/external/ai/tasks/${taskId}`)
         return response.data as { code: number, data: CliAutomationTaskStatusResponse }
+    }
+
+    // ===== Category API Methods =====
+
+    async listCategories(query?: {
+        language?: string
+        search?: string
+        parentId?: string
+        aggregate?: boolean
+        page?: number
+        limit?: number
+        orderBy?: string
+        order?: 'ASC' | 'DESC'
+    }): Promise<{ code: number, data: { items: CliCategory[], total: number, page: number, limit: number } }> {
+        const response = await this.client.get('/api/external/categories', { params: query })
+        return response.data
+    }
+
+    async createCategory(data: CliCategoryBody): Promise<{ code: number, data: CliCategory }> {
+        const response = await this.client.post('/api/external/categories', data)
+        return response.data
+    }
+
+    async updateCategory(id: string, data: Partial<CliCategoryBody>): Promise<{ code: number, data: CliCategory }> {
+        const response = await this.client.put(`/api/external/categories/${id}`, data)
+        return response.data
+    }
+
+    async deleteCategory(id: string): Promise<{ code: number, message: string }> {
+        const response = await this.client.delete(`/api/external/categories/${id}`)
+        return response.data
+    }
+
+    // ===== Tag API Methods =====
+
+    async listTags(query?: {
+        language?: string
+        search?: string
+        aggregate?: boolean
+        page?: number
+        limit?: number
+        orderBy?: string
+        order?: 'ASC' | 'DESC'
+    }): Promise<{ code: number, data: { items: CliTag[], total: number, page: number, limit: number } }> {
+        const response = await this.client.get('/api/external/tags', { params: query })
+        return response.data
+    }
+
+    async createTag(data: CliTagBody): Promise<{ code: number, data: CliTag }> {
+        const response = await this.client.post('/api/external/tags', data)
+        return response.data
+    }
+
+    async updateTag(id: string, data: Partial<CliTagBody>): Promise<{ code: number, data: CliTag }> {
+        const response = await this.client.put(`/api/external/tags/${id}`, data)
+        return response.data
+    }
+
+    async deleteTag(id: string): Promise<{ code: number, message: string }> {
+        const response = await this.client.delete(`/api/external/tags/${id}`)
+        return response.data
+    }
+
+    // ===== Snippet API Methods =====
+
+    async listSnippets(query?: {
+        status?: 'inbox' | 'converted' | 'archived'
+        source?: string
+        search?: string
+        page?: number
+        limit?: number
+    }): Promise<{ code: number, data: { items: CliSnippet[], total: number, page: number, limit: number } }> {
+        const response = await this.client.get('/api/external/snippets', { params: query })
+        return response.data
+    }
+
+    async createSnippet(data: CliSnippetBody): Promise<{ code: number, message: string, data: CliSnippet }> {
+        const response = await this.client.post('/api/external/snippets', data)
+        return response.data
+    }
+
+    async getSnippet(id: string): Promise<{ code: number, data: CliSnippet }> {
+        const response = await this.client.get(`/api/external/snippets/${id}`)
+        return response.data
+    }
+
+    async updateSnippet(id: string, data: Partial<CliSnippetBody>): Promise<{ code: number, data: CliSnippet }> {
+        const response = await this.client.put(`/api/external/snippets/${id}`, data)
+        return response.data
+    }
+
+    async deleteSnippet(id: string): Promise<{ code: number, message: string }> {
+        const response = await this.client.delete(`/api/external/snippets/${id}`)
+        return response.data
+    }
+
+    async convertSnippetToPost(id: string): Promise<{ code: number, data: CliSnippetConvertResult }> {
+        const response = await this.client.post(`/api/external/snippets/${id}/convert`)
+        return response.data
+    }
+
+    // ===== Post Version API Methods =====
+
+    async listPostVersions(postId: string): Promise<{ code: number, data: { items: CliPostVersion[], total: number } }> {
+        const response = await this.client.get(`/api/external/posts/${postId}/versions`)
+        return response.data
+    }
+
+    async createPostVersion(postId: string): Promise<{ code: number, data: { created: boolean, version: CliPostVersion } }> {
+        const response = await this.client.post(`/api/external/posts/${postId}/versions`)
+        return response.data
     }
 }

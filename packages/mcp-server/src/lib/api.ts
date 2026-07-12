@@ -178,4 +178,125 @@ export class MomeiApi {
     async getLinkGovernanceReport(reportId: string): Promise<ApiEnvelope<JsonRecord>> {
         return this.request<JsonRecord>(`/api/external/migrations/link-governance/reports/${reportId}`)
     }
+
+    // ===== Category API Methods =====
+
+    async listCategories(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
+        const searchParams = new URLSearchParams()
+        Object.entries(query).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                searchParams.append(key, String(value))
+            }
+        })
+        const queryString = searchParams.toString()
+        return this.request<JsonRecord>(`/api/external/categories${queryString ? `?${queryString}` : ''}`)
+    }
+
+    async createCategory(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/categories', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async updateCategory(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/categories/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async deleteCategory(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/categories/${id}`, {
+            method: 'DELETE',
+        })
+    }
+
+    // ===== Tag API Methods =====
+
+    async listTags(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
+        const searchParams = new URLSearchParams()
+        Object.entries(query).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                searchParams.append(key, String(value))
+            }
+        })
+        const queryString = searchParams.toString()
+        return this.request<JsonRecord>(`/api/external/tags${queryString ? `?${queryString}` : ''}`)
+    }
+
+    async createTag(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/tags', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async updateTag(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/tags/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async deleteTag(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/tags/${id}`, {
+            method: 'DELETE',
+        })
+    }
+
+    // ===== Snippet API Methods =====
+
+    async listSnippets(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
+        const searchParams = new URLSearchParams()
+        Object.entries(query).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                searchParams.append(key, String(value))
+            }
+        })
+        const queryString = searchParams.toString()
+        return this.request<JsonRecord>(`/api/external/snippets${queryString ? `?${queryString}` : ''}`)
+    }
+
+    async createSnippet(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>('/api/external/snippets', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async getSnippet(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/snippets/${id}`)
+    }
+
+    async updateSnippet(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/snippets/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        })
+    }
+
+    async deleteSnippet(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/snippets/${id}`, {
+            method: 'DELETE',
+        })
+    }
+
+    async convertSnippetToPost(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/snippets/${id}/convert`, {
+            method: 'POST',
+        })
+    }
+
+    // ===== Post Version API Methods =====
+
+    async listPostVersions(postId: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/posts/${postId}/versions`)
+    }
+
+    async createPostVersion(postId: string): Promise<ApiEnvelope<JsonRecord>> {
+        return this.request<JsonRecord>(`/api/external/posts/${postId}/versions`, {
+            method: 'POST',
+        })
+    }
 }

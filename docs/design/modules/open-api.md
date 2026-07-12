@@ -155,6 +155,157 @@
     }
     ```
 
+### 3.3 分类管理 (Categories)
+
+#### `GET /api/external/categories`
+
+-   **用途**: 获取分类列表，支持分页、搜索、翻译聚合。
+-   **查询参数**: `language`, `search`, `parentId`, `aggregate` (布尔，聚合翻译簇), `page`, `limit`, `orderBy`, `order`
+-   **响应示例**:
+    ```json
+    {
+        "code": 200,
+        "data": {
+            "items": [{ "id": "cat_...", "name": "技术", "slug": "tech", "postCount": 5, "language": "zh-CN" }],
+            "total": 1,
+            "page": 1,
+            "limit": 10,
+            "totalPages": 1
+        }
+    }
+    ```
+
+#### `POST /api/external/categories`
+
+-   **用途**: 创建新分类（需要 Admin 权限）。
+-   **请求体 (Body)**:
+    ```json
+    {
+        "name": "技术",
+        "slug": "tech",
+        "description": "技术相关文章",
+        "parentId": null,
+        "language": "zh-CN"
+    }
+    ```
+
+#### `PUT /api/external/categories/[id]`
+
+-   **用途**: 更新分类信息（需要 Admin 权限）。
+-   **请求体**: 与 POST 类似，所有字段可选。
+
+#### `DELETE /api/external/categories/[id]`
+
+-   **用途**: 删除分类（需要 Admin 权限）。有关联文章或子分类时拒绝删除。
+
+### 3.4 标签管理 (Tags)
+
+#### `GET /api/external/tags`
+
+-   **用途**: 获取标签列表，支持分页、搜索、翻译聚合。
+-   **查询参数**: `language`, `search`, `aggregate`, `page`, `limit`, `orderBy`, `order`
+
+#### `POST /api/external/tags`
+
+-   **用途**: 创建新标签（需要 Admin 或 Author 权限）。
+-   **请求体 (Body)**:
+    ```json
+    {
+        "name": "Vue.js",
+        "slug": "vuejs",
+        "language": "zh-CN"
+    }
+    ```
+
+#### `PUT /api/external/tags/[id]`
+
+-   **用途**: 更新标签信息（需要 Admin 权限）。
+
+#### `DELETE /api/external/tags/[id]`
+
+-   **用途**: 删除标签（需要 Admin 权限）。自动清理多对多关联。
+
+### 3.5 灵感碎片管理 (Snippets)
+
+#### `GET /api/external/snippets`
+
+-   **用途**: 获取灵感碎片列表，支持按状态/来源/内容搜索过滤。
+-   **查询参数**: `status` (inbox/converted/archived), `source`, `search`, `page`, `limit`
+-   **权限**: 非管理员只能看到自己的碎片。
+
+#### `POST /api/external/snippets`
+
+-   **用途**: 创建新灵感碎片。
+-   **请求体 (Body)**:
+    ```json
+    {
+        "content": "灵感内容...",
+        "media": ["https://..."],
+        "source": "web",
+        "status": "inbox"
+    }
+    ```
+
+#### `GET /api/external/snippets/[id]`
+
+-   **用途**: 获取单个灵感碎片详情（包含关联文章和作者信息）。
+-   **权限**: 非管理员只能访问自己的碎片。
+
+#### `PUT /api/external/snippets/[id]`
+
+-   **用途**: 更新灵感碎片内容或状态。不能将已转换/已归档的碎片恢复为收纳箱状态。
+-   **权限**: 非管理员只能更新自己的碎片。
+
+#### `DELETE /api/external/snippets/[id]`
+
+-   **用途**: 删除灵感碎片。
+-   **权限**: 非管理员只能删除自己的碎片。
+
+### 3.6 灵感转文章 (Snippet Conversion)
+
+#### `POST /api/external/snippets/[id]/convert`
+
+-   **用途**: 将「收纳箱」状态的灵感碎片一键转换为文章草稿。转换后将自动标记碎片为 `converted` 并关联新文章。
+-   **权限**: 非管理员只能转换自己的碎片。
+-   **响应示例**:
+    ```json
+    {
+        "code": 200,
+        "data": {
+            "postId": "post_...",
+            "snippetId": "snp_...",
+            "url": "https://domain.com/posts/generated-slug"
+        }
+    }
+    ```
+
+### 3.7 文章版本管理 (Post Versions)
+
+#### `GET /api/external/posts/[id]/versions`
+
+-   **用途**: 获取指定文章的所有版本历史（按序号降序排列）。
+-   **权限**: 非管理员只能查看自己的文章版本。
+
+#### `POST /api/external/posts/[id]/versions`
+
+-   **用途**: 手动创建文章版本快照。自动检测与前一个版本的差异并记录变更字段。
+-   **权限**: 非管理员只能为自己的文章创建版本。
+-   **响应示例**:
+    ```json
+    {
+        "code": 200,
+        "data": {
+            "created": true,
+            "version": {
+                "id": "ver_...",
+                "sequence": 2,
+                "changedFields": ["title", "content"],
+                "commitSummary": "Manual edit: title, content"
+            }
+        }
+    }
+    ```
+
 ## 4. 管理接口 (Management APIs)
 
 API Key 的管理功能（创建/撤销）通常集成在用户个人设置中。
