@@ -1,5 +1,5 @@
 import { AIBaseService } from './base'
-import { getAIProvider } from '@/server/utils/ai'
+import { getAIProviderWithFallback } from '@/server/utils/ai'
 import { formatPrompt } from '@/server/utils/ai/prompt'
 import { CONTENT_AUDIT_PROMPT } from '@/server/utils/ai/prompts/content-audit'
 import { dataSource } from '@/server/database'
@@ -40,7 +40,7 @@ export class ContentAuditService extends AIBaseService {
             payload: { title, contentLength: content.length, language: responseLocale },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('AI provider does not support chat')
         }

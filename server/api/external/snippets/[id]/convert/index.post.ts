@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const postInput: CreatePostInput = {
         title: snippet.content.slice(0, 100).replace(/\n/g, ' ').trim() || 'Untitled',
         content: snippet.content,
-        language: 'zh-CN',
+        language: user.language || 'zh-CN',
         status: PostStatus.DRAFT,
         visibility: PostVisibility.PUBLIC,
         pushOption: 'none',

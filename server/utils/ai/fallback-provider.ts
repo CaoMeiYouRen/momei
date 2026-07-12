@@ -129,8 +129,14 @@ export class FallbackAIProvider implements AIProvider {
 
     /**
      * 带 fallback 的流式 chat 调用。
-     * 注意：流式调用在 primary 中途失败时切换 fallback 成本较高，
-     * 因此先尝试 primary，捕获初始连接错误后降级到 fallback。
+     *
+     * 注意（设计约束）：
+     * 1. AsyncGenerator 是惰性的——生成器函数执行返回 Generator 对象，但实际流逻辑在调用方
+     *    迭代 `.next()` 时才发生。因此 try/catch 只能捕获创建 Generator 时的同步异常，
+     *    无法捕获流式传输中途的 SSE 断连等异步错误。
+     * 2. 流式调用在中途失败时切换 fallback 成本极高（已发送的部分无法回滚），
+     *    因此采取保守策略：仅在初始连接阶段检测 primary 不可用时降级到 fallback。
+     * 3. 若需要流式中途的完整容错，需在调用层实现 wrapper AsyncGenerator 拦截 yield 异常。
      */
     chatStream?(options: AIChatOptions): AsyncGenerator<import('@/types/ai').AIChatStreamChunk, void, void> {
         if (this.primary.chatStream) {

@@ -1,5 +1,5 @@
 import { AIBaseService } from './base'
-import { getAIProvider } from '@/server/utils/ai'
+import { getAIProviderWithFallback } from '@/server/utils/ai'
 import { formatPrompt } from '@/server/utils/ai/prompt'
 import { SOCIAL_POST_PROMPT } from '@/server/utils/ai/prompts/social-post'
 import { getSocialPostPlatform, SOCIAL_POST_PLATFORMS } from '@/utils/shared/social-post-platforms'
@@ -33,7 +33,7 @@ export class SocialPostService extends AIBaseService {
             payload: { title, contentLength: content.length, platform, language },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('AI provider does not support chat')
         }
