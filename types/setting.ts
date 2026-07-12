@@ -22,6 +22,10 @@ export enum SettingKey {
     AI_API_KEY = 'ai_api_key',
     AI_MODEL = 'ai_model',
     AI_ENDPOINT = 'ai_endpoint',
+    AI_FALLBACK_PROVIDER = 'ai_fallback_provider',
+    AI_FALLBACK_API_KEY = 'ai_fallback_api_key',
+    AI_FALLBACK_MODEL = 'ai_fallback_model',
+    AI_FALLBACK_ENDPOINT = 'ai_fallback_endpoint',
     GEMINI_API_TOKEN = 'gemini_api_token',
     AI_QUOTA_ENABLED = 'ai_quota_enabled',
     AI_QUOTA_POLICIES = 'ai_quota_policies',
@@ -34,6 +38,10 @@ export enum SettingKey {
     AI_IMAGE_API_KEY = 'ai_image_api_key',
     AI_IMAGE_MODEL = 'ai_image_model',
     AI_IMAGE_ENDPOINT = 'ai_image_endpoint',
+    AI_IMAGE_FALLBACK_PROVIDER = 'ai_image_fallback_provider',
+    AI_IMAGE_FALLBACK_API_KEY = 'ai_image_fallback_api_key',
+    AI_IMAGE_FALLBACK_MODEL = 'ai_image_fallback_model',
+    AI_IMAGE_FALLBACK_ENDPOINT = 'ai_image_fallback_endpoint',
 
     // AI ASR (Speech to Text)
     ASR_ENABLED = 'asr_enabled',
@@ -460,6 +468,10 @@ export interface AISettingsFields {
     ai_model: string | null
     ai_api_key: string | null
     ai_endpoint: string | null
+    ai_fallback_provider: AdminAIProvider | null
+    ai_fallback_api_key: string | null
+    ai_fallback_model: string | null
+    ai_fallback_endpoint: string | null
     gemini_api_token: string | null
     ai_quota_enabled: boolean
     ai_quota_policies: string | null
@@ -470,6 +482,10 @@ export interface AISettingsFields {
     ai_image_model: string | null
     ai_image_api_key: string | null
     ai_image_endpoint: string | null
+    ai_image_fallback_provider: AdminAIImageProvider | null
+    ai_image_fallback_api_key: string | null
+    ai_image_fallback_model: string | null
+    ai_image_fallback_endpoint: string | null
     asr_enabled: boolean
     asr_provider: AdminASRProvider | null
     asr_api_key: string | null

@@ -24,7 +24,7 @@ import {
     type ScaffoldOptions,
     type SuggestImagePromptOptions,
 } from './text.shared'
-import { getAIProvider } from '@/server/utils/ai'
+import { getAIProviderWithFallback } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import logger from '@/server/utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
@@ -100,7 +100,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw createError({
                 statusCode: 500,
@@ -161,7 +161,7 @@ export class TextService extends AIBaseService {
             payload: { content: content.slice(0, AI_CHUNK_SIZE), language },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_TITLES, {
             content: content.slice(0, AI_CHUNK_SIZE),
             language,
@@ -216,7 +216,7 @@ export class TextService extends AIBaseService {
             payload: { title, content: content.slice(0, AI_CHUNK_SIZE) },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG, {
             title,
             content: content.slice(0, AI_CHUNK_SIZE),
@@ -295,7 +295,7 @@ export class TextService extends AIBaseService {
             payload: { content: content.slice(0, AI_CHUNK_SIZE), language },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
@@ -336,7 +336,7 @@ export class TextService extends AIBaseService {
             payload: { content: content.slice(0, AI_CHUNK_SIZE), language, mode },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
@@ -397,7 +397,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
@@ -451,7 +451,7 @@ export class TextService extends AIBaseService {
             },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
@@ -566,7 +566,7 @@ export class TextService extends AIBaseService {
             payload: { name, to },
         })
 
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
         if (!provider.chat) {
             throw new Error('Provider does not support chat')
         }
@@ -735,7 +735,7 @@ export class TextService extends AIBaseService {
         }
 
         const chunks = ContentProcessor.splitMarkdownLossless(content, { chunkSize: AI_CHUNK_SIZE })
-        const provider = await getAIProvider('text')
+        const provider = await getAIProviderWithFallback('text')
 
         for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i]

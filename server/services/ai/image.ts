@@ -1,6 +1,6 @@
 import { uploadFromUrl } from '../upload'
 import { AIBaseService } from './base'
-import { getAIImageProvider } from '@/server/utils/ai'
+import { getAIImageProviderWithFallback } from '@/server/utils/ai'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import { Post } from '@/server/entities/post'
@@ -209,7 +209,7 @@ export class ImageService extends AIBaseService {
             let providerResponse = checkpoint?.providerResponse
 
             if (!providerResponse) {
-                const provider = await getAIImageProvider()
+                const provider = await getAIImageProviderWithFallback()
 
                 if (!provider.generateImage) {
                     throw new Error(`Provider ${provider.name} does not support image generation`)

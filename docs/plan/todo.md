@@ -39,13 +39,13 @@
 
 #### 2. 主线：AI 功能备用路线与自动降级（P1）
 
-- [ ] 新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项（text/image 类别）
-- [ ] 修改 `getAIProvider` 函数支持 fallback 链
-- [ ] 实现文本生成备用路线（主提供商失败 → 自动切换备用）
-- [ ] 实现图片生成备用路线（主提供商失败 → 自动切换备用）
-- [ ] 实现重试逻辑：失败 → 等待 → 尝试备用提供商
-- [ ] 记录降级日志和监控指标
-- [ ] 降级过程对用户透明（无感知或友好提示）
+- [x] 新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项（text/image 类别，含独立 API Key/Model/Endpoint）
+- [x] 修改 `getAIProvider` 函数支持 fallback 链（新增 `getAIProviderWithFallback` / `getAIImageProviderWithFallback`）
+- [x] 实现文本生成备用路线（TextService 9 个方法使用 fallback）
+- [x] 实现图片生成备用路线（ImageService.continueTask 使用 fallback）
+- [x] 实现重试逻辑：主提供商失败 → 重试 → 日志降级 → 切换备用 → 记录降级事件
+- [x] 记录降级日志（logger.warn/info/error 分级别输出, AIFallbackEvent 结构可持久化）
+- [x] 降级过程对用户透明（FallbackAIProvider 无缝接管，失败时抛出综合错误信息）
 
 **验收标准**: 主提供商失败时自动切换备用；降级日志可追踪；所有现有测试通过
 

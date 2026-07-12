@@ -1,11 +1,12 @@
 import { dataSource } from '@/server/database'
 import { Snippet } from '@/server/entities/snippet'
 import { SnippetStatus } from '@/types/snippet'
+import { PostStatus, PostVisibility } from '@/types/post'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { isAdmin } from '@/utils/shared/roles'
 import { getRequiredRouterParam } from '@/server/utils/router'
 import { ensureFound } from '@/server/utils/response'
-import { createPostService } from '@/server/services/post'
+import { createPostService, type CreatePostInput } from '@/server/services/post'
 
 export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
@@ -27,11 +28,16 @@ export default defineEventHandler(async (event) => {
     }
 
     // Use the snippet content to create a new post draft
-    const post = await createPostService({
+    const postInput: CreatePostInput = {
         title: snippet.content.slice(0, 100).replace(/\n/g, ' ').trim() || 'Untitled',
         content: snippet.content,
-        status: 'draft',
-    }, user.id, {
+        language: 'zh-CN',
+        status: PostStatus.DRAFT,
+        visibility: PostVisibility.PUBLIC,
+        pushOption: 'none',
+        syncToMemos: false,
+    }
+    const post = await createPostService(postInput, user.id, {
         isAdmin: isAdmin(user.role),
         auditContext: {
             ipAddress: getRequestIP(event, { xForwardedFor: true }) || null,

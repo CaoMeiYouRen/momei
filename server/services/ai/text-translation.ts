@@ -1,4 +1,4 @@
-import { getAIProvider } from '@/server/utils/ai'
+import { getAIProvider, getAIProviderWithFallback } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import { ContentProcessor, preserveMarkdownChunkBoundary } from '@/utils/shared/content-processor'
 import {
@@ -194,7 +194,7 @@ export async function translateInChunks(
         minChunkSize: Math.min(200, chunkSize),
     })
 
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     if (!provider.chat) {
         throw new Error('Provider does not support chat')
     }

@@ -8,11 +8,13 @@ import { VolcengineASRProvider } from './asr-volcengine'
 import { OpenAITTSProvider } from './tts-openai'
 import { SiliconFlowTTSProvider } from './tts-siliconflow'
 import { VolcengineTTSProvider } from './tts-volcengine'
+import { FallbackAIProvider } from './fallback-provider'
 import type { AIConfig, AIProvider, AICategory, AIProviderType } from '@/types/ai'
 import {
     AI_MAX_TOKENS,
     AI_TEMPERATURE,
 } from '@/utils/shared/env'
+import logger from '@/server/utils/logger'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
 
@@ -35,6 +37,57 @@ function resolveAIProviderType(value: string | null | undefined): AIProviderType
     return value && isAIProviderType(value) ? value : 'openai'
 }
 
+interface CategorySettingKeys {
+    enabled: SettingKey
+    provider: SettingKey
+    apiKey: SettingKey
+    model: SettingKey
+    endpoint: SettingKey
+    fallbackProvider?: SettingKey
+    fallbackApiKey?: SettingKey
+    fallbackModel?: SettingKey
+    fallbackEndpoint?: SettingKey
+}
+
+const categorySettingKeys: Partial<Record<AICategory, CategorySettingKeys>> = {
+    text: {
+        enabled: SettingKey.AI_ENABLED,
+        provider: SettingKey.AI_PROVIDER,
+        apiKey: SettingKey.AI_API_KEY,
+        model: SettingKey.AI_MODEL,
+        endpoint: SettingKey.AI_ENDPOINT,
+        fallbackProvider: SettingKey.AI_FALLBACK_PROVIDER,
+        fallbackApiKey: SettingKey.AI_FALLBACK_API_KEY,
+        fallbackModel: SettingKey.AI_FALLBACK_MODEL,
+        fallbackEndpoint: SettingKey.AI_FALLBACK_ENDPOINT,
+    },
+    image: {
+        enabled: SettingKey.AI_IMAGE_ENABLED,
+        provider: SettingKey.AI_IMAGE_PROVIDER,
+        apiKey: SettingKey.AI_IMAGE_API_KEY,
+        model: SettingKey.AI_IMAGE_MODEL,
+        endpoint: SettingKey.AI_IMAGE_ENDPOINT,
+        fallbackProvider: SettingKey.AI_IMAGE_FALLBACK_PROVIDER,
+        fallbackApiKey: SettingKey.AI_IMAGE_FALLBACK_API_KEY,
+        fallbackModel: SettingKey.AI_IMAGE_FALLBACK_MODEL,
+        fallbackEndpoint: SettingKey.AI_IMAGE_FALLBACK_ENDPOINT,
+    },
+    asr: {
+        enabled: SettingKey.ASR_ENABLED,
+        provider: SettingKey.ASR_PROVIDER,
+        apiKey: SettingKey.ASR_API_KEY,
+        model: SettingKey.ASR_MODEL,
+        endpoint: SettingKey.ASR_ENDPOINT,
+    },
+    tts: {
+        enabled: SettingKey.TTS_ENABLED,
+        provider: SettingKey.TTS_PROVIDER,
+        apiKey: SettingKey.TTS_API_KEY,
+        model: SettingKey.TTS_MODEL,
+        endpoint: SettingKey.TTS_ENDPOINT,
+    },
+}
+
 /**
  * 获取指定类别的 AI 提供者
  * 支持从主 AI 配置继承（如果子配置未设置）
@@ -44,43 +97,6 @@ function resolveAIProviderType(value: string | null | undefined): AIProviderType
 export async function getAIProvider(categoryOrConfig: AICategory | Partial<AIConfig> = 'text', configOverride?: Partial<AIConfig>): Promise<AIProvider> {
     const category = typeof categoryOrConfig === 'string' ? categoryOrConfig : 'text'
     const manualConfig = typeof categoryOrConfig === 'object' ? categoryOrConfig : configOverride
-
-    const categorySettingKeys: Partial<Record<AICategory, {
-        enabled: SettingKey
-        provider: SettingKey
-        apiKey: SettingKey
-        model: SettingKey
-        endpoint: SettingKey
-    }>> = {
-        text: {
-            enabled: SettingKey.AI_ENABLED,
-            provider: SettingKey.AI_PROVIDER,
-            apiKey: SettingKey.AI_API_KEY,
-            model: SettingKey.AI_MODEL,
-            endpoint: SettingKey.AI_ENDPOINT,
-        },
-        image: {
-            enabled: SettingKey.AI_IMAGE_ENABLED,
-            provider: SettingKey.AI_IMAGE_PROVIDER,
-            apiKey: SettingKey.AI_IMAGE_API_KEY,
-            model: SettingKey.AI_IMAGE_MODEL,
-            endpoint: SettingKey.AI_IMAGE_ENDPOINT,
-        },
-        asr: {
-            enabled: SettingKey.ASR_ENABLED,
-            provider: SettingKey.ASR_PROVIDER,
-            apiKey: SettingKey.ASR_API_KEY,
-            model: SettingKey.ASR_MODEL,
-            endpoint: SettingKey.ASR_ENDPOINT,
-        },
-        tts: {
-            enabled: SettingKey.TTS_ENABLED,
-            provider: SettingKey.TTS_PROVIDER,
-            apiKey: SettingKey.TTS_API_KEY,
-            model: SettingKey.TTS_MODEL,
-            endpoint: SettingKey.TTS_ENDPOINT,
-        },
-    }
 
     // 确定需要获取的设置键
     const resolvedCategoryKeys = categorySettingKeys[category] ?? categorySettingKeys.text!
@@ -199,44 +215,11 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     }
     // 通用图像提供者 (OpenAI 兼容)
     if (category === 'image') {
-        switch (finalConfig.provider) {
-            case 'openai':
-            case 'doubao':
-            case 'siliconflow':
-            case 'volcengine':
-                return new OpenAIProvider(finalConfig)
-            case 'gemini':
-                return new GeminiProvider({
-                    ...finalConfig,
-                    // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
-                    apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
-                })
-            case 'stable-diffusion':
-                return new StableDiffusionProvider(finalConfig)
-            default:
-                return new OpenAIProvider(finalConfig)
-        }
+        return createImageProvider(finalConfig, dbSettings)
     }
 
     // 通用文本提供者 (OpenAI 兼容)
-    switch (finalConfig.provider) {
-        case 'openai':
-        case 'doubao':
-        case 'siliconflow':
-        case 'volcengine':
-        case 'deepseek':
-            return new OpenAIProvider(finalConfig)
-        case 'anthropic':
-            return new AnthropicProvider(finalConfig)
-        case 'gemini':
-            return new GeminiProvider({
-                ...finalConfig,
-                // Gemini 可能需要额外的 apiToken 用于鉴权，优先从环境变量获取
-                apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
-            })
-        default:
-            return new OpenAIProvider(finalConfig)
-    }
+    return createTextProvider(finalConfig, dbSettings)
 }
 
 /**
@@ -244,4 +227,144 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
  */
 export async function getAIImageProvider(): Promise<AIProvider> {
     return getAIProvider('image')
+}
+
+/**
+ * 获取带有自动降级能力的 AI Provider。
+ *
+ * 当主提供商失败时，自动切换至备用提供商重试。
+ * 降级事件会记录到日志和可选的监控指标中。
+ *
+ * @param category 类别 (text/image)
+ * @param extraSettings 额外设置键（可选，用于在 getAIProvider 已有获取基础上补充）
+ * @returns 包装后的 FallbackAIProvider 或普通 Provider（无备用时）
+ */
+export async function getAIProviderWithFallback(
+    category: 'text' | 'image',
+): Promise<AIProvider> {
+    const primaryProvider = await getAIProvider(category)
+
+    const resolvedCategoryKeys = categorySettingKeys[category]
+    const fbProviderKey = resolvedCategoryKeys?.fallbackProvider
+    const fbApiKeyKey = resolvedCategoryKeys?.fallbackApiKey
+    const fbModelKey = resolvedCategoryKeys?.fallbackModel
+    const fbEndpointKey = resolvedCategoryKeys?.fallbackEndpoint
+
+    // 如果类别没有 fallback 配置定义（如 asr/tts），不包装
+    if (!fbProviderKey) {
+        return primaryProvider
+    }
+
+    const dbSettings = await getSettings([
+        fbProviderKey,
+        fbApiKeyKey!,
+        fbModelKey!,
+        fbEndpointKey!,
+        SettingKey.AI_ENABLED,
+        SettingKey.AI_FALLBACK_PROVIDER,
+        SettingKey.AI_FALLBACK_API_KEY,
+        SettingKey.AI_FALLBACK_MODEL,
+        SettingKey.AI_FALLBACK_ENDPOINT,
+        SettingKey.GEMINI_API_TOKEN,
+        SettingKey.VOLCENGINE_APP_ID,
+        SettingKey.VOLCENGINE_ACCESS_KEY,
+        SettingKey.VOLCENGINE_SECRET_KEY,
+    ].filter(Boolean))
+
+    // 获取 fallback 提供商名称，优先使用独立配置，否则使用主 fallback 配置
+    const fallbackProviderSetting = dbSettings[fbProviderKey] || dbSettings[SettingKey.AI_FALLBACK_PROVIDER]
+
+    // 如果未配置 fallback 提供商，不包装
+    if (!fallbackProviderSetting) {
+        return primaryProvider
+    }
+
+    const fallbackProviderName = resolveAIProviderType(fallbackProviderSetting)
+
+    // 如果 fallback 提供商与主提供商相同，不包装
+    if (fallbackProviderName === primaryProvider.name) {
+        return primaryProvider
+    }
+
+    // 构建 fallback 配置（优先独立配置，否则继承主 AI fallback 配置）
+    const fallbackConfig: AIConfig = {
+        enabled: true,
+        provider: fallbackProviderName,
+        apiKey: dbSettings[fbApiKeyKey!]
+            || dbSettings[SettingKey.AI_FALLBACK_API_KEY]
+            || '',
+        model: dbSettings[fbModelKey!]
+            || dbSettings[SettingKey.AI_FALLBACK_MODEL]
+            || '',
+        endpoint: dbSettings[fbEndpointKey!]
+            || dbSettings[SettingKey.AI_FALLBACK_ENDPOINT]
+            || '',
+        maxTokens: AI_MAX_TOKENS,
+        temperature: AI_TEMPERATURE,
+    }
+
+    // 创建 fallback 提供商实例（复用与 getAIProvider 相同的逻辑）
+    let fallbackProvider: AIProvider
+
+    if (category === 'image') {
+        fallbackProvider = createImageProvider(fallbackConfig, dbSettings)
+    } else {
+        fallbackProvider = createTextProvider(fallbackConfig, dbSettings)
+    }
+
+    logger.info(`[FallbackAI] Fallback configured: ${primaryProvider.name} → ${fallbackProviderName} for ${category}`, {
+        category,
+        primaryProvider: primaryProvider.name,
+        fallbackProvider: fallbackProviderName,
+    })
+
+    return new FallbackAIProvider(primaryProvider, fallbackProvider, category)
+}
+
+/**
+ * 获取带有自动降级能力的图片生成提供者（快捷方式）
+ */
+export async function getAIImageProviderWithFallback(): Promise<AIProvider> {
+    return getAIProviderWithFallback('image')
+}
+
+// ===== Provider creation helpers (used by both getAIProvider and getAIProviderWithFallback) =====
+
+function createTextProvider(config: AIConfig, dbSettings: Record<string, string | null>): AIProvider {
+    switch (config.provider) {
+        case 'openai':
+        case 'doubao':
+        case 'siliconflow':
+        case 'volcengine':
+        case 'deepseek':
+            return new OpenAIProvider(config)
+        case 'anthropic':
+            return new AnthropicProvider(config)
+        case 'gemini':
+            return new GeminiProvider({
+                ...config,
+                apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
+            })
+        default:
+            return new OpenAIProvider(config)
+    }
+}
+
+function createImageProvider(config: AIConfig, dbSettings: Record<string, string | null>): AIProvider {
+    switch (config.provider) {
+        case 'openai':
+        case 'doubao':
+        case 'siliconflow':
+        case 'volcengine':
+            return new OpenAIProvider(config)
+        case 'gemini':
+            return new GeminiProvider({
+                ...config,
+                apiToken: dbSettings[SettingKey.GEMINI_API_TOKEN] || process.env.GEMINI_API_TOKEN,
+            })
+        case 'stable-diffusion':
+            return new StableDiffusionProvider(config)
+        default:
+            return new OpenAIProvider(config)
+    }
 }

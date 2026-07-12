@@ -1,4 +1,4 @@
-import { getAIProvider } from '@/server/utils/ai'
+import { getAIProviderWithFallback } from '@/server/utils/ai'
 import { AI_PROMPTS, formatPrompt } from '@/server/utils/ai/prompt'
 import logger from '@/server/utils/logger'
 import { ContentProcessor } from '@/utils/shared/content-processor'
@@ -32,7 +32,7 @@ export async function summarizeTextContent(content: string, maxLength: number, l
         })
     }
 
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     const chat = assertChatProvider(provider)
 
     if (content.length <= AI_CHUNK_SIZE) {
@@ -113,7 +113,7 @@ export async function translateNamesContent(names: string[], to: string, userId?
         }
     }
 
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.TRANSLATE_NAMES, {
         names: JSON.stringify(normalizedNames),
@@ -149,7 +149,7 @@ export async function translateNamesContent(names: string[], to: string, userId?
 }
 
 export async function suggestSlugFromNameContent(name: string, userId?: string) {
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.SUGGEST_SLUG_FROM_NAME, { name })
 
@@ -170,7 +170,7 @@ export async function suggestSlugFromNameContent(name: string, userId?: string) 
 }
 
 export async function recommendTagsContent(content: string, existingTags: string[], language: string, userId?: string) {
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_TAGS, {
         content: content.slice(0, AI_CHUNK_SIZE),
@@ -217,7 +217,7 @@ export async function recommendCategoriesContent(options: RecommendCategoriesReq
     }
 
     const language = options.language || 'zh-CN'
-    const provider = await getAIProvider('text')
+    const provider = await getAIProviderWithFallback('text')
     const chat = assertChatProvider(provider)
     const prompt = formatPrompt(AI_PROMPTS.RECOMMEND_CATEGORIES, {
         title: options.title,
