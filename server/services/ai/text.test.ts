@@ -46,7 +46,7 @@ describe('TextService', () => {
         })
 
         it('should reject when provider does not support chat', async () => {
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue({
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue({
                 name: 'mock-provider',
             })
 
@@ -75,7 +75,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.suggestImagePrompt({
                 title: 'AI 写作工作流',
@@ -114,7 +114,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.suggestTitles('测试内容', 'zh-CN', 'user-1')
 
@@ -136,7 +136,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.suggestTitles('测试内容', 'zh-CN')
 
@@ -153,7 +153,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const longContent = 'a'.repeat(10000)
             await TextService.suggestTitles(longContent, 'zh-CN')
@@ -173,7 +173,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.suggestSlug('My Awesome Post!', 'content', 'user-1')
 
@@ -195,7 +195,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.suggestSlug('测试', 'content')
 
@@ -214,7 +214,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.summarize('短内容', 200, 'zh-CN', 'user-1')
 
@@ -251,7 +251,7 @@ describe('TextService', () => {
                     }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             // Create content that splits into exactly 2 chunks
             // Each chunk is 3500 chars, separated by double newlines
@@ -274,7 +274,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.generateScaffold(
                 { topic: 'AI 技术发展' },
@@ -295,7 +295,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.generateScaffold(
                 { snippets: ['片段1', '片段2'] },
@@ -321,7 +321,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             await TextService.generateScaffold({
                 topic: 'Test',
@@ -349,7 +349,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.optimizeManuscript(
                 '原始播客口播稿',
@@ -386,7 +386,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.expandSection({
                 topic: 'AI 写作',
@@ -425,7 +425,7 @@ describe('TextService', () => {
                     }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             await expect(TextService.translateName('Hello', 'zh-CN', 'user-1')).resolves.toBe('中文标题')
             await expect(TextService.suggestSlugFromName('Hello World', 'user-1')).resolves.toBe('hello-world')
@@ -433,7 +433,7 @@ describe('TextService', () => {
 
         it('should short-circuit empty translated name batches after normalization', async () => {
             await expect(TextService.translateNames(['   ', ''], 'zh-CN', 'user-1')).resolves.toEqual([])
-            expect(aiUtils.getAIProvider).not.toHaveBeenCalled()
+            expect(aiUtils.getAIProviderWithFallback).not.toHaveBeenCalled()
         })
 
         it('should reject invalid translated name batch payloads', async () => {
@@ -446,7 +446,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             await expect(TextService.translateNames(['Alpha', 'Beta'], 'zh-CN', 'user-1')).rejects.toThrow('Invalid translated names response')
         })
@@ -461,7 +461,7 @@ describe('TextService', () => {
                 language: 'zh-CN',
             }, 'user-1')).resolves.toEqual([])
 
-            expect(aiUtils.getAIProvider).not.toHaveBeenCalled()
+            expect(aiUtils.getAIProviderWithFallback).not.toHaveBeenCalled()
         })
 
         it('should map provider results back to the provided category list and dedupe them', async () => {
@@ -474,7 +474,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.recommendCategories({
                 title: 'AI 可观测性',
@@ -496,7 +496,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.recommendCategories({
                 title: 'AI 可观测性',
@@ -520,7 +520,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.recommendTags(
                 '关于 AI 技术的文章',
@@ -551,7 +551,7 @@ describe('TextService', () => {
                 temperature: 0.7,
             })
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(provider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(provider)
 
             const result = await TextService.recommendTags(
                 '关于 AI 技术的文章',
@@ -579,7 +579,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.recommendTags('内容')
 
@@ -596,7 +596,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.recommendTags('内容')
 
@@ -624,7 +624,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const longContent = 'a'.repeat(2000)
             const chunks: any[] = []
@@ -678,7 +678,7 @@ describe('TextService', () => {
                     }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const longContent = `${'a'.repeat(2500)}\n\n${'b'.repeat(2500)}`
             const chunks: any[] = []
@@ -722,7 +722,7 @@ describe('TextService', () => {
                     }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.translateInChunks(
                 `${'a'.repeat(3500)}\n\n${'b'.repeat(3500)}`,
@@ -752,7 +752,7 @@ describe('TextService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
 
             const result = await TextService.refineVoice(
                 '嗯...那个...我想说的是...',

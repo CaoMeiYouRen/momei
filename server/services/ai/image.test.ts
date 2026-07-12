@@ -95,7 +95,7 @@ describe('ImageService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIImageProviderWithFallback).mockResolvedValue(mockProvider)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
                 url: '/uploads/posts/post-123/image/ai/generated.png',
                 path: '/uploads/posts/post-123/image/ai/generated.png',
@@ -172,7 +172,7 @@ describe('ImageService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIImageProviderWithFallback).mockResolvedValue(mockProvider)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
                 url: '/uploads/posts/post-123/image/ai/generated.png',
                 path: '/uploads/posts/post-123/image/ai/generated.png',
@@ -229,7 +229,7 @@ describe('ImageService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIImageProviderWithFallback).mockResolvedValue(mockProvider)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
                 url: '/uploads/posts/post-123/image/ai/generated.png',
                 path: '/uploads/posts/post-123/image/ai/generated.png',
@@ -291,7 +291,7 @@ describe('ImageService', () => {
                 }),
             }
 
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIImageProviderWithFallback).mockResolvedValue(mockProvider)
             vi.mocked(uploadService.uploadFromUrl).mockResolvedValue({
                 url: '/uploads/posts/post-123/image/ai/generated.png',
                 path: '/uploads/posts/post-123/image/ai/generated.png',
@@ -329,7 +329,7 @@ describe('ImageService', () => {
                 generateImage: vi.fn().mockRejectedValue(new Error('API quota exceeded')),
             }
 
-            vi.mocked(aiUtils.getAIImageProvider).mockResolvedValue(mockProvider)
+            vi.mocked(aiUtils.getAIImageProviderWithFallback).mockResolvedValue(mockProvider)
 
             await ImageService.generateImage({ prompt: 'Test' }, 'user-1')
 
@@ -372,7 +372,7 @@ describe('ImageService', () => {
             const outcome = await ImageService.compensateStaleTask('task-123')
 
             expect(outcome).toBe('completed')
-            expect(aiUtils.getAIImageProvider).not.toHaveBeenCalled()
+            expect(aiUtils.getAIImageProviderWithFallback).not.toHaveBeenCalled()
             expect(uploadService.uploadFromUrl).toHaveBeenCalledWith(
                 'https://example.com/recover.png',
                 'image/ai/',
