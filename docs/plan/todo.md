@@ -57,12 +57,16 @@
 
 **验收标准**: ✅ 3 组窄切片完成（`utils/schemas/submission.ts`、`pages/settings.vue`、`components/commercial-link-manager.vue`）；`pnpm governance:audit:eslint-debt` 显示 3 组新切片 warning=0；`pnpm typecheck` 通过
 
-#### 4. 主线：结构复用治理 — ≥2 组热点切片（P1）
+#### 4. 主线：结构复用治理 — ≥2 组热点切片（P1）✅
 
-- [ ] 聚焦同名函数/重复类型/工具函数收敛
-- [ ] ≥2 组切片，每组给出原始重复点、抽象边界与回滚方式
+- [x] 聚焦工具函数收敛（`content-processor.ts` 公共初始化）与 API 参数解析复用（`_translate-shared.ts`）
+- [x] 2 组切片，每组给出原始重复点、抽象边界与回滚方式（见本文下方记录）
+- [x] `pnpm typecheck` + 定向测试全部通过
 
-**验收标准**: ≥2 组热点切片完成；`pnpm duplicate-code:check` 基线不反弹
+**验收标准**: ✅ ≥2 组热点切片完成；`pnpm duplicate-code:check` 重复片段 45→43 组，0.31%→0.30%；基线不反弹
+
+> **切片 1**: `utils/shared/content-processor.ts` — 提取 `prepareSplitContent()` 私有静态方法，消除 `splitMarkdown` / `splitMarkdownLossless` 之间 13 行重复初始化逻辑。回滚：删除该方法 + 恢复两个方法内联代码。
+> **切片 2**: `server/api/ai/translate.post.ts` + `translate.stream.post.ts` — 抽取 `parseTranslateBody()` 共享函数至 `_translate-shared.ts`，消除两个路由间 18 行重复参数校验/解析逻辑。回滚：删除 `_translate-shared.ts` + 恢复两个 route 内联代码。
 
 #### 5. 主线：测试有效性第四轮切片 — server 层错误码覆盖（P1）
 

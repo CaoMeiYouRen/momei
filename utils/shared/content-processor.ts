@@ -71,6 +71,25 @@ export function preserveMarkdownChunkBoundary(sourceChunk: string, translatedChu
 
 export class ContentProcessor {
     /**
+     * 提取 splitMarkdown / splitMarkdownLossless 公共的拆分初始化逻辑。
+     * 返回 null 表示内容为空，调用方直接返回空数组。
+     */
+    private static prepareSplitContent(
+        content: string,
+        options: SplitOptions,
+    ): { chunkSize: number; minChunkSize: number; rawSegments: string[] } | null {
+        const { chunkSize = 4000, minChunkSize = 200 } = options
+
+        if (!content?.trim()) {
+            return null
+        }
+
+        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
+
+        return { chunkSize, minChunkSize, rawSegments }
+    }
+
+    /**
      * 将 Markdown 内容拆分为多个块
      * 优先在标题处拆分，其次在段落处拆分
      */
@@ -78,17 +97,15 @@ export class ContentProcessor {
         content: string,
         options: SplitOptions = {},
     ): string[] {
-        const { chunkSize = 4000, minChunkSize = 200 } = options
+        const prepared = ContentProcessor.prepareSplitContent(content, options)
 
-        if (!content?.trim()) {
+        if (!prepared) {
             return []
         }
 
+        const { chunkSize, minChunkSize, rawSegments } = prepared
         const chunks: string[] = []
         let currentChunk = ''
-
-        // 识别 Markdown 标题和段落，保留分隔符
-        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
 
         for (const segment of rawSegments) {
             if (!segment) {
@@ -165,15 +182,15 @@ export class ContentProcessor {
         content: string,
         options: SplitOptions = {},
     ): string[] {
-        const { chunkSize = 4000, minChunkSize = 200 } = options
+        const prepared = ContentProcessor.prepareSplitContent(content, options)
 
-        if (!content?.trim()) {
+        if (!prepared) {
             return []
         }
 
+        const { chunkSize, minChunkSize, rawSegments } = prepared
         const chunks: string[] = []
         let currentChunk = ''
-        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
 
         for (const segment of rawSegments) {
             if (!segment) {

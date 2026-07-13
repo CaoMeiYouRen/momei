@@ -1,9 +1,6 @@
-import { z } from 'zod'
-import { TextService } from '@/server/services/ai'
 import { isServerlessEnvironment } from '@/server/utils/env'
-import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
-import { aiTranslateSchema } from '@/utils/schemas/ai'
+import { parseTranslateBody, TextService } from './_translate-shared'
 
 interface SseWritableResponse {
     write: (chunk: string) => unknown
@@ -12,23 +9,7 @@ interface SseWritableResponse {
 }
 
 export default defineEventHandler(async (event) => {
-    const session = await requireAdminOrAuthor(event)
-
-    const body = await readBody(event)
-    const result = aiTranslateSchema.safeParse(body)
-
-    if (!result.success) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Invalid parameters',
-            data: z.treeifyError(result.error),
-        })
-    }
-
-    const { content, targetLanguage, sourceLanguage, field } = result.data
-    const translationOptions = sourceLanguage || field
-        ? { sourceLanguage, field }
-        : undefined
+    const { content, session, targetLanguage, translationOptions } = await parseTranslateBody(event)
 
     if (isServerlessEnvironment() && content.length >= AI_TEXT_DIRECT_RETURN_MAX_CHARS) {
         throw createError({
