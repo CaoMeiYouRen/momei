@@ -399,7 +399,7 @@ const {
 } = useTaxonomyTranslationAssociation<TaxonomyItem>({
     endpoint: props.config.endpoint,
     dialogVisible,
-    locales: locales as any,
+    locales: locales as Ref<{ code: string }[]>,
     multiForm,
 })
 
@@ -419,7 +419,7 @@ const hasTranslationData = (langCode: string) => {
 }
 
 const initializeLocaleBuckets = () => {
-    locales.value.forEach((languageOption: any) => {
+    locales.value.forEach((languageOption) => {
         multiForm.value[languageOption.code] = props.config.buildEmptyForm(languageOption.code)
         multiErrors.value[languageOption.code] = {}
         parentOptionsMulti.value[languageOption.code] = []
@@ -467,7 +467,7 @@ const syncTranslationIdFromSlugMulti = (lang: string) => {
     }
 
     formState.translationId = translationClusterId
-    locales.value.forEach((languageOption: any) => {
+    locales.value.forEach((languageOption: { code: string }) => {
         const localeFormState = getFormState(languageOption.code)
         if (!localeFormState.translationId) {
             localeFormState.translationId = translationClusterId
@@ -480,7 +480,7 @@ const fetchParentOptionsMulti = async (lang: string) => {
         return
     }
 
-    const response = await $fetch<any>(props.config.endpoint, {
+    const response = await $fetch<{ data: { items: TaxonomyItem[] } }>(props.config.endpoint, {
         query: {
             limit: 100,
             language: lang,
@@ -511,7 +511,7 @@ const populateExistingTranslations = async (item: TaxonomyItem) => {
         return
     }
 
-    const response = await $fetch<any>(props.config.endpoint, {
+    const response = await $fetch<{ data: { items: TaxonomyItem[] } }>(props.config.endpoint, {
         query: { translationId: translationClusterId, limit: 10 },
     })
 
@@ -534,7 +534,7 @@ const openDialog = async (item?: TaxonomyItem) => {
     dialogVisible.value = true
 
     if (props.config.showParentField) {
-        locales.value.forEach((languageOption: any) => {
+        locales.value.forEach((languageOption: { code: string }) => {
             void fetchParentOptionsMulti(languageOption.code)
         })
     }
@@ -551,7 +551,7 @@ const openMissingTranslationDialog = async (item: TaxonomyItem, langCode: string
     dialogVisible.value = true
 
     if (props.config.showParentField) {
-        locales.value.forEach((languageOption: any) => {
+        locales.value.forEach((languageOption: { code: string }) => {
             void fetchParentOptionsMulti(languageOption.code)
         })
     }
@@ -567,7 +567,7 @@ const openDraftDialog = async (draft: TaxonomyFormState) => {
     dialogVisible.value = true
 
     if (props.config.showParentField) {
-        locales.value.forEach((languageOption: any) => {
+        locales.value.forEach((languageOption: { code: string }) => {
             void fetchParentOptionsMulti(languageOption.code)
         })
     }
@@ -591,7 +591,7 @@ const saveItemMulti = async () => {
     submitted.value = true
     let hasErrors = false
 
-    const modifiedLocales = locales.value.filter((languageOption: any) => hasTranslationData(languageOption.code))
+    const modifiedLocales = locales.value.filter((languageOption: { code: string }) => hasTranslationData(languageOption.code))
 
     for (const languageOption of modifiedLocales) {
         multiErrors.value[languageOption.code] = {}
@@ -615,7 +615,7 @@ const saveItemMulti = async () => {
     saving.value = true
     try {
         let sharedTranslationId = modifiedLocales
-            .map((languageOption: any) => resolveTranslationClusterId(
+            .map((languageOption: { code: string }) => resolveTranslationClusterId(
                 getFormState(languageOption.code).translationId,
                 getFormState(languageOption.code).slug,
                 getFormState(languageOption.code).id,
@@ -628,13 +628,13 @@ const saveItemMulti = async () => {
 
             if (formData.id) {
                 await $fetch(`${props.config.endpoint}/${formData.id}`, {
-                    method: 'PUT' as any,
+                    method: 'PUT' as const,
                     body: formData,
                 })
                 continue
             }
 
-            const response = await $fetch<any>(props.config.endpoint, {
+            const response = await $fetch<{ data: { translationId: string } }>(props.config.endpoint, {
                 method: 'POST',
                 body: formData,
             })
@@ -679,7 +679,7 @@ const deleteItem = async () => {
 
     try {
         await $fetch(`${props.config.endpoint}/${deleteDialog.item.id}`, {
-            method: 'DELETE' as any,
+            method: 'DELETE' as const,
         })
         showSuccessToast(props.config.deleteSuccessKey)
         loadData()

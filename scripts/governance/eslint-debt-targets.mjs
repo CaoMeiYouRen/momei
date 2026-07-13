@@ -49,6 +49,14 @@ const NO_EXPLICIT_ANY_ADMIN_SETTINGS_FILES = [
     'components/admin/settings/security-settings.vue',
 ]
 
+const NO_EXPLICIT_ANY_CONFIG_FILES = [
+    'nuxt.config.ts',
+]
+
+const NO_EXPLICIT_ANY_ADMIN_FILES = [
+    'components/admin/admin-taxonomy-page.vue',
+]
+
 export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_UTILITY_FILES,
     ...NO_EXPLICIT_ANY_API_FILES,
@@ -57,6 +65,8 @@ export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_AI_UTILS_FILES,
     ...NO_EXPLICIT_ANY_APP_FILES,
     ...NO_EXPLICIT_ANY_ADMIN_SETTINGS_FILES,
+    ...NO_EXPLICIT_ANY_CONFIG_FILES,
+    ...NO_EXPLICIT_ANY_ADMIN_FILES,
     'composables/use-admin-ai.ts',
     'composables/use-admin-i18n.ts',
     'composables/use-asr-task.ts',
@@ -79,6 +89,7 @@ export const NO_NON_NULL_ASSERTION_FILES = [
     'server/services/ai/text.ts',
     'server/api/posts/index.get.ts',
     'server/services/notification.ts',
+    'utils/shared/social-post-platforms.ts',
 ]
 
 export const ESLINT_DEBT_RULE_SLICES = [

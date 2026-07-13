@@ -79,7 +79,7 @@ export default defineNuxtConfig({
         '@sentry/nuxt/module',
         '@nuxtjs/sitemap',
         !process.env.VITEST && '@vite-pwa/nuxt',
-    ].filter(Boolean) as any,
+    ].filter((entry): entry is string => Boolean(entry)),
     hooks: {
         'build:done': async () => {
             // Windows 性能优化: repair 脚本仅在非 Windows 环境运行（Windows 构建耗时已不可接受）

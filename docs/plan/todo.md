@@ -59,11 +59,11 @@
 
 #### 4. 主线：ESLint/类型债 — ≥3 组窄切片（P1）
 
-- [ ] 复用 Phase 54 规则债 inventory 脚本作为 baseline
-- [ ] ≥3 组独立窄切片（单规则 + 单文件/双文件）
-- [ ] 保持 `warning=0`
+- [x] 复用 Phase 54 规则债 inventory 脚本作为 baseline
+- [x] ≥3 组独立窄切片（单规则 + 单文件/双文件）
+- [x] 保持 `warning=0`
 
-**验收标准**: ≥3 组窄切片完成；`pnpm governance:audit:eslint-debt` 显示 delta 可对照
+**验收标准**: ≥3 组窄切片完成；`pnpm governance:audit:eslint-debt` 显示 delta 可对照（✅ 切片 1/2/3 已同步到 targets）
 
 #### 5. 主线：测试有效性第三轮切片（P1）
 
