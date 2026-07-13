@@ -11,7 +11,7 @@ export const submissionSchema = z.object({
 })
 
 export const submissionReviewSchema = z.object({
-    status: z.enum(SubmissionStatus as any),
+    status: z.enum(SubmissionStatus),
     adminNote: z.string().optional().nullable(),
     acceptOptions: z.object({
         categoryId: z.string().optional().nullable(),

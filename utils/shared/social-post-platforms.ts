@@ -17,7 +17,7 @@ const SOCIAL_PLATFORM_LOOKUP = new Map(
     SOCIAL_PLATFORMS.map((p) => [p.key, { icon: p.icon, color: p.color }] as const),
 )
 
-function getSocialPlatformLookup(key: string): { icon: string; color: string } {
+function getSocialPlatformLookup(key: string): { icon: string, color: string } {
     const entry = SOCIAL_PLATFORM_LOOKUP.get(key)
     if (!entry) {
         // 兜底：不应发生，仅防御性处理

@@ -88,7 +88,7 @@ definePageMeta({
 const session = authClient.useSession()
 const route = useRoute()
 const canViewCommercial = computed(() => {
-    return isAdminOrAuthor((session.value as any)?.data?.user?.role)
+    return isAdminOrAuthor(session.value?.data?.user?.role)
 })
 
 const availableTabs = ['profile', 'security', 'apiKeys', 'notifications', 'commercial'] as const

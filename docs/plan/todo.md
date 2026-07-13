@@ -48,13 +48,14 @@
 
 **验收标准**: 导出的 Markdown 保留完整 Front-matter；支持过滤条件；导出报告可追踪；`pnpm typecheck` + `pnpm lint` 通过
 
-#### 3. 主线：ESLint/类型债 — ≥3 组窄切片（P1）
+#### 3. 主线：ESLint/类型债 — ≥3 组窄切片（P1）✅
 
-- [ ] 继续「单规则 + 单文件/双文件」窄切片策略
-- [ ] ≥3 组独立窄切片，优先选择未覆盖的生产文件
-- [ ] 保持 `warning=0`
+- [x] 继续「单规则 + 单文件/双文件」窄切片策略
+- [x] 3 组独立窄切片（schema/component/page 各一），均为未覆盖生产文件
+- [x] 均保持 `warning=0`
+- [x] 更新 `eslint-debt-targets.mjs` 追加 `NO_EXPLICIT_ANY_SCHEMA_FILES` / `PAGE_FILES` / `COMPONENT_FILES`
 
-**验收标准**: ≥3 组窄切片完成；`pnpm governance:audit:eslint-debt` 显示 delta 可对照
+**验收标准**: ✅ 3 组窄切片完成（`utils/schemas/submission.ts`、`pages/settings.vue`、`components/commercial-link-manager.vue`）；`pnpm governance:audit:eslint-debt` 显示 3 组新切片 warning=0；`pnpm typecheck` 通过
 
 #### 4. 主线：结构复用治理 — ≥2 组热点切片（P1）
 

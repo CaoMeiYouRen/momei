@@ -57,6 +57,18 @@ const NO_EXPLICIT_ANY_ADMIN_FILES = [
     'components/admin/admin-taxonomy-page.vue',
 ]
 
+const NO_EXPLICIT_ANY_SCHEMA_FILES = [
+    'utils/schemas/submission.ts',
+]
+
+const NO_EXPLICIT_ANY_PAGE_FILES = [
+    'pages/settings.vue',
+]
+
+const NO_EXPLICIT_ANY_COMPONENT_FILES = [
+    'components/commercial-link-manager.vue',
+]
+
 export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_UTILITY_FILES,
     ...NO_EXPLICIT_ANY_API_FILES,
@@ -67,6 +79,9 @@ export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_ADMIN_SETTINGS_FILES,
     ...NO_EXPLICIT_ANY_CONFIG_FILES,
     ...NO_EXPLICIT_ANY_ADMIN_FILES,
+    ...NO_EXPLICIT_ANY_SCHEMA_FILES,
+    ...NO_EXPLICIT_ANY_PAGE_FILES,
+    ...NO_EXPLICIT_ANY_COMPONENT_FILES,
     'composables/use-admin-ai.ts',
     'composables/use-admin-i18n.ts',
     'composables/use-asr-task.ts',

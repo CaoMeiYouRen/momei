@@ -168,7 +168,7 @@ function openDialog(kind: CommercialPlatformKind, link?: SocialLink | DonationLi
 // ── 通用 add/save handler（消除 F 组重复） ──
 function addLink(kind: CommercialPlatformKind) {
     if (kind === 'social') {
-        if (!currentSocialLink.value.url && !(currentSocialLink.value as any).image) {
+        if (!currentSocialLink.value.url && !currentSocialLink.value.image) {
             toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.validation_error'), life: 3000 })
             return
         }
