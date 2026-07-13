@@ -210,6 +210,9 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build dependency before typecheck — each CI job runs in an isolated checkout
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
       - run: pnpm run lint
       - run: pnpm run typecheck
       - run: pnpm run test
@@ -234,6 +237,9 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build dependency before typecheck — each CI job runs in an isolated checkout
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
       - run: pnpm run lint
       - run: pnpm run typecheck
       - run: pnpm run test
