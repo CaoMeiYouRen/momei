@@ -23,7 +23,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "11"
+          version: "11.11.0"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -60,7 +60,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "11"
+          version: "11.11.0"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -84,7 +84,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "11"
+          version: "11.11.0"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
@@ -104,7 +104,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: "11"
+          version: "11.11.0"
       - name: Setup Node.js@lts environment
         uses: actions/setup-node@v6
         with:
