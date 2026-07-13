@@ -60,38 +60,40 @@ export function resolveWechatSyncCompletionAccountKey(account: Pick<WechatSyncCo
     return account.id.trim() || account.title.trim()
 }
 
+/**
+ * 通用数组合并去重函数。
+ * 按 `keyFn` 返回的唯一键合并两个数组，后出现的元素覆盖先出现的。
+ */
+function mergeAccountsByKey<T>(
+    currentAccounts: readonly T[],
+    nextAccounts: readonly T[],
+    keyFn: (account: T) => string,
+): T[] {
+    const mergedAccounts = new Map<string, T>()
+
+    for (const account of currentAccounts) {
+        mergedAccounts.set(keyFn(account), account)
+    }
+
+    for (const account of nextAccounts) {
+        mergedAccounts.set(keyFn(account), account)
+    }
+
+    return Array.from(mergedAccounts.values())
+}
+
 export function mergeWechatSyncTaskAccounts(
     currentAccounts: readonly WechatSyncTaskAccount[],
     nextAccounts: readonly WechatSyncTaskAccount[],
 ) {
-    const mergedAccounts = new Map<string, WechatSyncTaskAccount>()
-
-    for (const account of currentAccounts) {
-        mergedAccounts.set(resolveWechatSyncTaskAccountKey(account), account)
-    }
-
-    for (const account of nextAccounts) {
-        mergedAccounts.set(resolveWechatSyncTaskAccountKey(account), account)
-    }
-
-    return Array.from(mergedAccounts.values())
+    return mergeAccountsByKey(currentAccounts, nextAccounts, resolveWechatSyncTaskAccountKey)
 }
 
 export function mergeWechatSyncCompletionAccounts(
     currentAccounts: readonly WechatSyncCompletionAccount[],
     nextAccounts: readonly WechatSyncCompletionAccount[],
 ) {
-    const mergedAccounts = new Map<string, WechatSyncCompletionAccount>()
-
-    for (const account of currentAccounts) {
-        mergedAccounts.set(resolveWechatSyncCompletionAccountKey(account), account)
-    }
-
-    for (const account of nextAccounts) {
-        mergedAccounts.set(resolveWechatSyncCompletionAccountKey(account), account)
-    }
-
-    return Array.from(mergedAccounts.values())
+    return mergeAccountsByKey(currentAccounts, nextAccounts, resolveWechatSyncCompletionAccountKey)
 }
 
 export function mapCompletionAccountsToTaskAccounts(accounts: readonly WechatSyncCompletionAccount[]): WechatSyncTaskAccount[] {
