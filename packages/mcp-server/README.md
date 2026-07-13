@@ -6,14 +6,44 @@
 
 ### 功能特性
 
-当前服务向 AI 客户端暴露文章管理与自动化工具：
+当前服务向 AI 客户端暴露 **33 个** MCP 工具，涵盖文章管理、分类法管理、灵感碎片管理与自动化能力：
+
+#### 文章管理
 
 - `list_posts`：分页查询文章列表，支持状态、语言过滤和搜索。
 - `get_post`：根据 ID 获取文章的完整元数据与正文。
 - `create_post`：创建新文章草稿。
 - `update_post`：更新文章标题、内容或标签。
 - `publish_post`：将草稿或待审核文章发布上线。
+- `list_post_versions`：列出指定文章的所有历史版本。
+- `create_post_version`：为指定文章创建新版本快照。
 - `delete_post`：删除文章，默认关闭，需显式启用危险工具开关。
+
+#### 分类管理
+
+- `list_categories`：分页查询分类列表，支持语言、搜索和父级过滤。
+- `create_category`：创建新分类。
+- `update_category`：更新已有分类的名称、别名或描述。
+- `delete_category`：删除分类，默认关闭，需显式启用危险工具开关。
+
+#### 标签管理
+
+- `list_tags`：分页查询标签列表，支持语言和搜索过滤。
+- `create_tag`：创建新标签。
+- `update_tag`：更新已有标签的名称或别名。
+- `delete_tag`：删除标签，默认关闭，需显式启用危险工具开关。
+
+#### 灵感碎片管理
+
+- `list_snippets`：分页查询灵感碎片列表，支持状态、来源和搜索过滤。
+- `create_snippet`：创建新的灵感碎片。
+- `get_snippet`：根据 ID 获取灵感碎片的详细信息。
+- `update_snippet`：更新灵感碎片的内容、来源或状态。
+- `convert_snippet_to_post`：将灵感碎片一键转换为文章草稿。
+- `delete_snippet`：删除灵感碎片，默认关闭，需显式启用危险工具开关。
+
+#### AI 自动化
+
 - `suggest_titles`：基于文章正文生成标题建议。
 - `recommend_tags`：基于文章正文与现有标签生成标签建议。
 - `recommend_categories`：基于文章正文、源分类与目标语言现有 taxonomy 生成分类建议。
@@ -22,7 +52,14 @@
 - `generate_post_audio`：生成 TTS / 播客音频并在任务完成后自动回填文章音频字段。
 - `get_ai_task`：查询自动化任务状态、进度与结果。
 
-其中标题建议、标签推荐、分类推荐属于同步工具；翻译、封面图、音频属于长任务工具，默认返回 `taskId` 后由客户端按需继续查询。
+#### 导入与迁移工具
+
+- `validate_import_post`：在导入前校验文章正文中的路径别名。
+- `dry_run_link_governance`：预览链接治理变更而不实际应用。
+- `apply_link_governance`：应用链接治理变更以重写或重定向链接。
+- `get_link_governance_report`：根据报告 ID 获取链接治理报告。
+
+其中标题建议、标签推荐、分类推荐属于同步工具；翻译、封面图、音频属于长任务工具，默认返回 `taskId` 后由客户端按需继续查询。导入验证、链接治理预览与执行提供对博客迁移场景的高效支持。
 
 ### 安装与构建
 

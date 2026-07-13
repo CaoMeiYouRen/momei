@@ -6,14 +6,44 @@ MCP (Model Context Protocol) server for Momei. It enables MCP-compatible AI clie
 
 ## Features
 
-The server currently exposes post-management and automation tools:
+The server currently exposes **33** MCP tools covering post management, taxonomy management, snippet (inspiration) management, and automation:
+
+### Post Management
 
 - `list_posts`: paginate posts with status, locale, and search filters.
 - `get_post`: fetch full metadata and content for a post by ID.
 - `create_post`: create a new draft post.
 - `update_post`: update title, content, or tags for an existing post.
 - `publish_post`: publish a draft or pending post.
+- `list_post_versions`: list all historical versions of a specific post.
+- `create_post_version`: create a new version snapshot of a post.
 - `delete_post`: remove a post; disabled by default and gated behind the dangerous-tools flag.
+
+### Category Management
+
+- `list_categories`: paginate categories with language, search, and parent filters.
+- `create_category`: create a new category.
+- `update_category`: update an existing category's name, slug, or description.
+- `delete_category`: delete a category; disabled by default and gated behind the dangerous-tools flag.
+
+### Tag Management
+
+- `list_tags`: paginate tags with language and search filters.
+- `create_tag`: create a new tag.
+- `update_tag`: update an existing tag's name or slug.
+- `delete_tag`: delete a tag; disabled by default and gated behind the dangerous-tools flag.
+
+### Snippet (Inspiration) Management
+
+- `list_snippets`: paginate snippets with status, source, and search filters.
+- `create_snippet`: create a new snippet.
+- `get_snippet`: fetch detailed information about a snippet by ID.
+- `update_snippet`: update a snippet's content, source, or status.
+- `convert_snippet_to_post`: convert an inbox snippet into a blog post draft.
+- `delete_snippet`: delete a snippet; disabled by default and gated behind the dangerous-tools flag.
+
+### AI Automation
+
 - `suggest_titles`: generate title suggestions from the post body.
 - `recommend_tags`: recommend tags based on post content and current tags.
 - `recommend_categories`: recommend categories using the post body, source category context, and target-language taxonomy.
@@ -22,7 +52,14 @@ The server currently exposes post-management and automation tools:
 - `generate_post_audio`: generate TTS or podcast audio and backfill the post audio field when the task finishes.
 - `get_ai_task`: inspect automation task status, progress, and final result.
 
-Title suggestions, tag recommendations, and category recommendations are synchronous tools. Translation, cover generation, and audio generation are long-running tools that return a `taskId` by default so the client can continue polling on demand.
+### Import and Migration Tools
+
+- `validate_import_post`: validate path aliases in post content before importing.
+- `dry_run_link_governance`: preview link governance changes without applying them.
+- `apply_link_governance`: apply link governance changes to rewrite or redirect links.
+- `get_link_governance_report`: retrieve a link governance report by ID.
+
+Title suggestions, tag recommendations, and category recommendations are synchronous tools. Translation, cover generation, and audio generation are long-running tools that return a `taskId` by default so the client can continue polling on demand. Import validation and link governance tools provide efficient support for blog migration scenarios.
 
 ## Install and Build
 

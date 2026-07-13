@@ -71,6 +71,9 @@ last_sync: 2026-06-28
 - **第五十階段已完成審計歸檔**：PWA 功能開啟（`@vite-pwa/nuxt` 啟用）、API 測試分層收斂（4 組遷移）、i18n 首屏翻譯穩定性治理（命中矩陣 + 3 處修復）、backlog 深度清理（Phase 32-41 歸檔壓縮）、友鏈前後部落格環導航評估（Go 結論）。已在中文事實源完成收口。
 - **第五十一階段已完成審計歸檔**：types/utils 邊界收斂（衝突清單 + 治理文檔 + 3 組樣本遷移）、跨包複用評估（完整方案 No-Go / 輕量方案條件性 Go + 評估文檔）、ESLint / 型別債 ≥5 組窄切片（11 處 as any 消除）、結構複用 ≥5 組熱點切片（commercial-link-manager 參數化 + UploadType/ApiResponse 統一事實源 + use-voice-input 刪除 + formatDate 複用）、backlog 長期主線狀態同步（10 條主線更新至 ≥Phase 48）。已在中文事實源完成收口。
 - **第五十二階段已完成審計歸檔**：腳本治理 warning 清理與升格評估（audit-comment-drift 誤報清理、line-count 閾值調整、source-of-truth 同步、audit-comment-drift→regression:weekly 升格）、文檔治理歸檔審計與閾值收緊評估（5 個評估文檔歸檔、must-sync 30→21 天、summary-sync 45→30 天）、移動端 CWV 性能基線採集與評估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 運行時驗證擴面（首頁 + 文章詳情頁面新增）、測試有效性第二輪切片（9 個失敗路徑斷言，覆蓋 4 個模組）。已在中文事實源完成收口。
+- **第五十三階段已完成審計歸檔**：Vercel CDN 快取 Tier 2 架構治理（routeRules ISR/SWR + Upstash Redis）、文檔治理閾值收緊（must-sync 21 天、summary-sync 30 天）、ESLint/型別債清零（最後 3 處 as any）、結構複用 5 組熱點切片（duplicate-code 0.39%→0.24%）、AI 編輯增強評估（條件性 Go）。
+- **第五十四階段已完成審計歸檔**：CLI/MCP API 用戶端複用優化階段一（CLI +3、MCP +4）、結構複用深水區（單函數檔案整合 + 邏輯重複檢測腳本）、ESLint/型別債治理（規則債 inventory 腳本 + 3 組窄切片）、測試有效性第二輪（6 個新斷言、3 個模組）、腳本治理（eslint-debt 升格到 regression:weekly）。
+- **第五十五階段已完成審計歸檔**：CLI/MCP 階段二外部介面擴展（4 組 REST + 靈感轉文章 + 文章版本、CLI +15、MCP +16）、AI 降級備用路線（fallback 鏈 + 透明切換）、結構複用邏輯重複收斂（2 組抽象切片、duplicate-code 0.33% < 基線 1.22%）、ESLint/型別債 3 組窄切片（消除 22 處）、測試有效性第三輪（7 個新斷言、3 個模組）。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

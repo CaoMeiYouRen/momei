@@ -225,7 +225,7 @@ describe('Admin Settings Page', () => {
     })
 
     it('does not crash and keeps settings empty on initial fetch failure', async () => {
-        mockFetch.mockImplementationOnce(() => Promise.reject(new Error('Network error')))
+        mockFetch.mockRejectedValue(new Error('Network error'))
 
         const wrapper = await mountSuspended(SettingsPage, {
             global: {
@@ -307,7 +307,7 @@ describe('Admin Settings Page', () => {
 
         // @ts-expect-error access exposed script setup binding for test
         wrapper.vm.settings.site_title = 'Updated Momei'
-        mockFetch.mockImplementationOnce(() => Promise.reject(new Error('Save failed')))
+        mockFetch.mockRejectedValueOnce(new Error('Save failed'))
 
         // @ts-expect-error access exposed script setup binding for test
         await wrapper.vm.saveSettings()

@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-Command-line toolkit for migrating Hexo content into Momei. It currently provides three capabilities: bulk post import, migration link governance backed by the Momei migration API, and AI automation powered by the external automation API.
+Command-line toolkit for migrating Hexo content into Momei. It currently provides six capabilities: bulk post import, migration link governance backed by the Momei migration API, AI automation powered by the external automation API, category and tag management, snippet (inspiration) management, and post version management.
 
 ## Features
 
@@ -14,6 +14,10 @@ Command-line toolkit for migrating Hexo content into Momei. It currently provide
 - ✅ Generates mapping seeds and runs migration link governance
 - ✅ Calls the external automation API for title suggestions, tag recommendations, category recommendations, full-post translation, cover generation, audio generation, and task lookup
 - ✅ Supports dry runs, concurrent import, report export, failure retry, and task polling
+- ✅ CRUD management for categories with multilingual pagination support
+- ✅ CRUD management for tags with multilingual pagination support
+- ✅ CRUD + detail query for snippets (inspirations) and convert to post
+- ✅ Post version creation and version history listing
 
 ## Installation
 
@@ -239,6 +243,192 @@ momei publish <post-id> --api-key <your-api-key>
 ```
 
 This command calls the external publish API to publish a draft or pending post. It can be chained with `translate-post`, `generate-cover`, and `generate-audio` in script-based delivery flows.
+
+## Command 5: Manage Categories
+
+Category management commands provide CRUD operations on categories through the external API, supporting multilingual queries, parent categories, and pagination.
+
+### List Categories
+
+```bash
+momei categories list --api-key <your-api-key>
+```
+
+### Create a Category
+
+```bash
+momei categories create \
+  --name "Technology" \
+  --slug tech \
+  --api-key <your-api-key>
+```
+
+### Update a Category
+
+```bash
+momei categories update <category-id> \
+  --name "New Name" \
+  --slug new-slug \
+  --api-key <your-api-key>
+```
+
+### Delete a Category
+
+```bash
+momei categories delete <category-id> --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
+| `--name <name>` | Category name | - |
+| `--slug <slug>` | Category URL slug | - |
+| `--description <text>` | Category description | - |
+| `--parent-id <id>` | Parent category ID | - |
+| `--language <locale>` | Category language | - |
+| `--search <text>` | Search keyword | - |
+| `--page <num>` | Page number | - |
+| `--limit <num>` | Items per page | - |
+| `--order-by <field>` | Sort field | - |
+| `--order <ASC\|DESC>` | Sort direction | - |
+
+## Command 6: Manage Tags
+
+Tag management commands provide CRUD operations on tags through the external API, supporting multilingual queries and pagination.
+
+### List Tags
+
+```bash
+momei tags list --api-key <your-api-key>
+```
+
+### Create a Tag
+
+```bash
+momei tags create \
+  --name "Vue.js" \
+  --slug vuejs \
+  --api-key <your-api-key>
+```
+
+### Update a Tag
+
+```bash
+momei tags update <tag-id> \
+  --name "New Name" \
+  --slug new-slug \
+  --api-key <your-api-key>
+```
+
+### Delete a Tag
+
+```bash
+momei tags delete <tag-id> --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
+| `--name <name>` | Tag name | - |
+| `--slug <slug>` | Tag URL slug | - |
+| `--language <locale>` | Tag language | - |
+| `--search <text>` | Search keyword | - |
+| `--page <num>` | Page number | - |
+| `--limit <num>` | Items per page | - |
+| `--order-by <field>` | Sort field | - |
+| `--order <ASC\|DESC>` | Sort direction | - |
+
+## Command 7: Manage Snippets (Inspirations)
+
+Snippet management commands let you handle fragmented inspiration material, with full CRUD, detail query, and one-click conversion from a snippet into a full post.
+
+### List Snippets
+
+```bash
+momei snippets list --api-key <your-api-key>
+```
+
+### Create a Snippet
+
+```bash
+momei snippets create \
+  --content "Inspiration note content" \
+  --source twitter \
+  --api-key <your-api-key>
+```
+
+### Get Snippet Details
+
+```bash
+momei snippets get <snippet-id> --api-key <your-api-key>
+```
+
+### Update a Snippet
+
+```bash
+momei snippets update <snippet-id> \
+  --content "Updated content" \
+  --status archived \
+  --api-key <your-api-key>
+```
+
+### Delete a Snippet
+
+```bash
+momei snippets delete <snippet-id> --api-key <your-api-key>
+```
+
+### Convert Snippet to Post
+
+Convert an inspiration snippet into a formal post with one command:
+
+```bash
+momei snippets convert <snippet-id> --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
+| `--content <text>` | Snippet content | - |
+| `--source <source>` | Snippet source (e.g. `twitter`, `manual`, `wechat`) | `manual` |
+| `--status <status>` | Snippet status: `inbox`, `converted`, or `archived` | `inbox` |
+| `--search <text>` | Search keyword | - |
+| `--page <num>` | Page number | - |
+| `--limit <num>` | Items per page | - |
+
+## Command 8: Manage Post Versions
+
+Post version management commands let you create and inspect version snapshots of a post, making it easy to track content changes over time.
+
+### List Post Versions
+
+```bash
+momei versions list <post-id> --api-key <your-api-key>
+```
+
+### Create a Version Snapshot
+
+Create a version snapshot of the current post content:
+
+```bash
+momei versions create <post-id> --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
 
 ## Current Field Mapping
 

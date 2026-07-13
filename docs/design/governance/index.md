@@ -28,6 +28,7 @@
 - **[国际化字段治理与共享文案边界收敛](./i18n-field-governance)**: `i18n.md` 的执行态治理补充，聚焦 missing blocker、运行时加载边界、共享 key 准入标准与第三十阶段关闭口径。
 - **[CLI / MCP 自动化能力扩展设计](./cli-mcp-automation)**: 自动化工具链专项文档，聚焦 CLI、MCP 与脚本化协作边界。
 - **[OpenCode + GitHub Codespaces 提供商收敛集成方案](./opencode-codespaces-provider-integration-plan)**: 聚焦 Hermes 编排下的 Codespaces 执行链路，并将模型提供商收敛为 opencode-go / deepseek。
+- **[CLI / MCP API 客户端代码复用优化方案](./cli-mcp-api-client-reuse)**: CLI 与 MCP 包的 API 客户端代码复用治理文档，覆盖 Phase 54 阶段一与 Phase 55 阶段二的接口扩展与方法补齐。
 - **[文章批量翻译编排能力评估](./batch-translation-orchestration)**: `ai.md` / `cli-mcp-automation.md` 的专项评估文档，聚焦批次范围冻结、父子任务模型、确认流与 Serverless 边界。
 - **[types/ 与 utils/shared/ 职责边界收敛治理](./types-utils-boundary-governance)**: 第五十一阶段治理文档，聚焦类型与运行时代码的目录边界、迁移规则、冲突清单与渐进式收敛顺序。
 

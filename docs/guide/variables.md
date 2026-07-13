@@ -54,6 +54,10 @@
 | `AI_API_ENDPOINT` | `ai_endpoint` | 2 | none | API 代理/转发地址 |
 | `AI_HEAVY_TASK_TIMEOUT` | - | 3 | none | TTS / ASR / 图片生成等重任务的统一超时窗口 |
 | `AI_TEXT_DIRECT_RETURN_MAX_CHARS` | - | 3 | none | 文本翻译在同步直返和异步任务之间切换的字符阈值 |
+| `AI_FALLBACK_PROVIDER` | `ai_fallback_provider` | 2 | none | 备用 AI 提供商（openai/siliconflow 等），主提供商失败时自动切换；分 text/image 两套独立配置 |
+| `AI_FALLBACK_API_KEY` | `ai_fallback_api_key` | 2 | key | 备用 AI API 密钥 |
+| `AI_FALLBACK_MODEL` | `ai_fallback_model` | 2 | none | 备用执行模型名称 |
+| `AI_FALLBACK_ENDPOINT` | `ai_fallback_endpoint` | 2 | none | 备用 API 代理/转发地址 |
 | `AI_TEXT_TASK_CHUNK_SIZE` | - | 3 | none | 长文本翻译任务的默认分块大小 |
 | `AI_TEXT_TASK_CONCURRENCY` | - | 3 | none | 长文本翻译任务的默认并发度 |
 | `GEMINI_API_TOKEN` | `gemini_api_token` | 2 | key | Gemini 独立 Token 鉴权 |

@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供三类能力：批量导入文章、基于迁移 API 的旧链接治理，以及基于外部自动化 API 的 AI 内容编排。
+用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供六类能力：批量导入文章、基于迁移 API 的旧链接治理、基于外部自动化 API 的 AI 内容编排、分类与标签管理、灵感片段（Snippet）管理以及文章版本管理。
 
 ## 功能特性
 
@@ -14,6 +14,10 @@
 - ✅ 生成旧链接 mapping seeds，并调用迁移链接治理接口
 - ✅ 调用外部自动化 API 执行标题建议、标签推荐、分类推荐、整篇翻译、封面图生成、音频生成与任务查询
 - ✅ 支持 dry run、并发导入、报告导出与失败重试
+- ✅ 分类的增删改查管理，支持多语言与分页
+- ✅ 标签的增删改查管理，支持多语言与分页
+- ✅ 灵感片段（Snippet）的增删改查、详情查询与转文章
+- ✅ 文章版本创建与版本列表查看
 
 ## 安装
 
@@ -243,6 +247,192 @@ momei publish <post-id> --api-key <your-api-key>
 ```
 
 该命令用于调用外部发布接口，将草稿或待审核文章发布上线，可与 `translate-post`、`generate-cover`、`generate-audio` 组合成脚本式发布流程。
+
+## 命令五：分类管理
+
+分类管理命令用于对外部 API 的分类进行增删改查操作，支持多语言、父分类和分页查询。
+
+### 列出分类
+
+```bash
+momei categories list --api-key <your-api-key>
+```
+
+### 创建分类
+
+```bash
+momei categories create \
+  --name "技术" \
+  --slug tech \
+  --api-key <your-api-key>
+```
+
+### 更新分类
+
+```bash
+momei categories update <category-id> \
+  --name "新名称" \
+  --slug new-slug \
+  --api-key <your-api-key>
+```
+
+### 删除分类
+
+```bash
+momei categories delete <category-id> --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
+| `--api-key <key>` | 墨梅 API Key | - |
+| `--name <name>` | 分类名称 | - |
+| `--slug <slug>` | 分类 URL 标识 | - |
+| `--description <text>` | 分类描述 | - |
+| `--parent-id <id>` | 父分类 ID | - |
+| `--language <locale>` | 分类语言 | - |
+| `--search <text>` | 搜索关键词 | - |
+| `--page <num>` | 分页页码 | - |
+| `--limit <num>` | 每页数量 | - |
+| `--order-by <field>` | 排序字段 | - |
+| `--order <ASC\|DESC>` | 排序方向 | - |
+
+## 命令六：标签管理
+
+标签管理命令用于对外部 API 的标签进行增删改查操作，支持多语言和分页查询。
+
+### 列出标签
+
+```bash
+momei tags list --api-key <your-api-key>
+```
+
+### 创建标签
+
+```bash
+momei tags create \
+  --name "Vue.js" \
+  --slug vuejs \
+  --api-key <your-api-key>
+```
+
+### 更新标签
+
+```bash
+momei tags update <tag-id> \
+  --name "新名称" \
+  --slug new-slug \
+  --api-key <your-api-key>
+```
+
+### 删除标签
+
+```bash
+momei tags delete <tag-id> --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
+| `--api-key <key>` | 墨梅 API Key | - |
+| `--name <name>` | 标签名称 | - |
+| `--slug <slug>` | 标签 URL 标识 | - |
+| `--language <locale>` | 标签语言 | - |
+| `--search <text>` | 搜索关键词 | - |
+| `--page <num>` | 分页页码 | - |
+| `--limit <num>` | 每页数量 | - |
+| `--order-by <field>` | 排序字段 | - |
+| `--order <ASC\|DESC>` | 排序方向 | - |
+
+## 命令七：灵感片段管理
+
+灵感片段（Snippet）管理命令用于管理碎片化灵感素材，支持增删改查、详情查询，以及将片段一键转为正式文章。
+
+### 列出片段
+
+```bash
+momei snippets list --api-key <your-api-key>
+```
+
+### 创建片段
+
+```bash
+momei snippets create \
+  --content "灵感笔记内容" \
+  --source twitter \
+  --api-key <your-api-key>
+```
+
+### 查看片段详情
+
+```bash
+momei snippets get <snippet-id> --api-key <your-api-key>
+```
+
+### 更新片段
+
+```bash
+momei snippets update <snippet-id> \
+  --content "更新后的内容" \
+  --status archived \
+  --api-key <your-api-key>
+```
+
+### 删除片段
+
+```bash
+momei snippets delete <snippet-id> --api-key <your-api-key>
+```
+
+### 片段转文章
+
+将灵感片段一键转换为正式文章：
+
+```bash
+momei snippets convert <snippet-id> --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
+| `--api-key <key>` | 墨梅 API Key | - |
+| `--content <text>` | 片段内容 | - |
+| `--source <source>` | 片段来源（如 `twitter`、`manual`、`wechat`） | `manual` |
+| `--status <status>` | 片段状态：`inbox`、`converted`、`archived` | `inbox` |
+| `--search <text>` | 搜索关键词 | - |
+| `--page <num>` | 分页页码 | - |
+| `--limit <num>` | 每页数量 | - |
+
+## 命令八：文章版本管理
+
+文章版本管理命令用于创建和查看文章的版本快照，便于追踪内容变更历史。
+
+### 列出文章版本
+
+```bash
+momei versions list <post-id> --api-key <your-api-key>
+```
+
+### 创建版本快照
+
+为当前文章内容创建版本快照：
+
+```bash
+momei versions create <post-id> --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
+| `--api-key <key>` | 墨梅 API Key | - |
 
 ## 当前字段映射
 
