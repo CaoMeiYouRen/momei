@@ -288,7 +288,7 @@ describe('VersionsApi', () => {
         const result = await api.list('p1')
 
         expect(result.items).toHaveLength(1)
-        expect(result.items[0].sequence).toBe(1)
+        expect(result.items[0]?.sequence).toBe(1)
     })
 
     it('should create version', async () => {
