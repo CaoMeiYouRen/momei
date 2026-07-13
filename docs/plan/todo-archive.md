@@ -18,6 +18,61 @@
 
 ---
 
+## 第五十五阶段：AI 降级与接口扩展 (已审计归档)
+
+> 归档说明: 第五十五阶段「2 个新功能 + 3 个优化」已于 2026-07-13 完成五条主线交付与阶段收口。五条主线: CLI/MCP 阶段二新增外部接口（4 组 REST + 灵感转文章 + 文章版本，CLI +15, MCP +16）；AI 功能备用路线与自动降级（fallback 链 + 降级日志 + 透明切换）；结构复用逻辑重复收敛（≥2 组抽象切片，duplicate-code 0.33% < 基线 1.22%）；ESLint/类型债 ≥3 组窄切片（social-post-platforms no-non-null-assertion, nuxt.config.ts no-explicit-any, admin-taxonomy-page no-explicit-any，累计消除 22 处）；测试有效性第三轮切片（7 个新增失败路径断言，覆盖 3 个模块）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: CLI/MCP 阶段二 1.80；AI 降级 1.70；结构复用收敛 1.60；ESLint/类型债 1.50；测试有效性第三轮 1.50。
+
+### 1. CLI/MCP 阶段二 — 新增外部接口 (P1)
+
+- **执行范围**: 补齐 4 组外部 REST 接口（分类、标签、灵感 CRUD）+ 灵感转文章 + 文章版本查询/创建，CLI 包新增 15 个客户端方法，MCP 包新增 16 个工具。
+- **实现对照**:
+  - 外部 API：`/api/external/categories` (GET/POST/PUT/DELETE)、`/api/external/tags` (GET/POST/PUT/DELETE)、`/api/external/snippets` (GET/POST/GET/PUT/DELETE)、`/api/external/snippets/[id]/convert` (POST)、`/api/external/posts/[id]/versions` (GET/POST)
+  - CLI：15 个新方法覆盖所有外部接口
+  - MCP：15 个新 API 方法 + 16 个新工具
+- **验收对照**: ≥15 个外部接口；CLI/MCP 方法覆盖率 100%；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 2. AI 功能备用路线与自动降级 (P1)
+
+- **执行范围**: 新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项，实现 `getAIProviderWithFallback` / `getAIImageProviderWithFallback`，TextService 9 个方法 + ImageService 使用 fallback 链，降级日志可持久化，FallbackAIProvider 透明接管。
+- **验收对照**: 主提供商失败时自动切换备用；降级日志可追踪；现有测试全部通过。
+
+### 3. 结构复用逻辑重复收敛 (P1)
+
+- **执行范围**: 基于 Phase 54 逻辑重复检测脚本输出，完成 ≥2 组抽象收敛。
+- **收敛切片**:
+  - 切片 1：`server/utils/taxonomy-post-count.ts` — `buildCategoryPostCountSubquery` 与 `buildTagPostCountSubquery` 抽取 `buildTaxonomyPostCountSubquery(alias, joinFn)` 内部函数
+  - 切片 2：`utils/shared/post-distribution-wechatsync.ts` — `mergeWechatSyncTaskAccounts` 与 `mergeWechatSyncCompletionAccounts` 抽取泛型 `mergeAccountsByKey<T>(keyFn)` 内部函数
+- **验收对照**: ≥2 组收敛；`pnpm duplicate-code:check` 0.33% < 基线 1.22%；每组给出原始重复点、抽象边界与回滚方式。
+
+### 4. ESLint/类型债 — ≥3 组窄切片 (P1)
+
+- **执行范围**: 复用 Phase 54 规则债 inventory 脚本，完成 3 组窄切片。
+- **收敛切片**:
+  - 切片 1：`utils/shared/social-post-platforms.ts` — 8 处 `!.` 非空断言消除（`SOCIAL_PLATFORMS.find` → `Map` 查找映射）
+  - 切片 2：`nuxt.config.ts` — 1 处 `as any` 消除（`filter(Boolean) as any` → 类型谓词 `filter((entry): entry is string => Boolean(entry))`）
+  - 切片 3：`components/admin/admin-taxonomy-page.vue` — 13 处 `no-explicit-any` 消除（`languageOption: any` → `{ code: string }`, `$fetch<any>` → 精确响应类型, `as any` → `as const`）
+- **验收对照**: ≥3 组切片完成；warning=0；同步更新 `eslint-debt-targets.mjs`。
+
+### 5. 测试有效性第三轮切片 (P1)
+
+- **执行范围**: 补齐组件层 AI 失败映射断言、页面级 auth degradation 场景断言、friend-links 失败口径断言。
+- **失败路径断言补齐**:
+  - AI 编辑器（`use-post-editor-ai`）：suggestTitles/suggestSlug/suggestSummary API 失败 → error toast + loading 复位（3 个）
+  - Friend-links（`use-admin-friend-links-page`）：初始加载全失败 → error toast + 空状态；分类部分失败 → 部分数据（2 个）
+  - Admin settings（`tests/pages/admin/settings/index.test.ts`）：初始 fetch 失败 → 页面不崩溃 + settings 为空；save 失败 → saving 复位（2 个）
+- **验收对照**: ≥5 个新增失败路径断言（实际 7 个）；覆盖 ≥2 个模块（3 个）；`pnpm typecheck` 通过。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 文档检查已执行：`pnpm lint`、`pnpm typecheck`
+- [x] 测试通过（全量主线验证 + Code Auditor 审计通过）
+
+---
+
 ## 第五十四阶段：CLI/MCP 复用与治理深水区 (已审计归档)
 
 > 归档说明: 第五十四阶段「1 个新功能 + 4 个优化」已于 2026-07-07 完成五条主线交付与阶段收口。五条主线: CLI/MCP API 客户端复用优化阶段一（CLI +3, MCP +4 接口）、结构复用治理深水区（单函数文件整合 + 逻辑重复检测脚本）、ESLint/类型债治理（规则债 inventory 脚本 + 3 组窄切片）、测试有效性第二轮切片（6 个新增失败路径断言，覆盖 3 个模块）、脚本治理（eslint-debt 升格到 regression:weekly + comment-drift 误报修复）。插队任务：定时推送功能修复已完成。

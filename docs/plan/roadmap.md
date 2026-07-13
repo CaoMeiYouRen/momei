@@ -559,7 +559,7 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第五十五阶段：AI 降级与接口扩展（AI Fallback & API Expansion）
+### 第五十五阶段：AI 降级与接口扩展（AI Fallback & API Expansion）（已审计归档）
 
 **时间表**: 2026-07-07 ~ 约 1-2 周
 **目标**: 在第五十四阶段完成 CLI/MCP 阶段一与治理深水区后，以「2 个新功能 + 3 个优化」组合推进：CLI/MCP 外部接口扩展作为用户明确需求的延续，AI 功能备用路线与自动降级提升 AI 可用性，三条优化延续治理节奏（结构复用逻辑重复收敛、ESLint/类型债窄切片、测试有效性第三轮）。
@@ -593,6 +593,8 @@
     - **执行范围**: 延续 Phase 54 节奏，继续围绕已有测试基座但缺少失败/边界覆盖的高风险模块。重点方向：补组件层 AI 失败映射断言、补页面级 auth degradation 场景断言、补 `settings public` 或 `friend-links` 失败口径断言。
     - **非目标**: 不做 coverage 数字冲刺、不做低价值全量补测。
     - **最小验收**: ≥5 个新增失败路径断言；覆盖 ≥2 个模块；全仓 coverage 基线不回退。
+
+**审计结论**: 第五十五阶段五条主线已在实现代码、测试、治理脚本与规划文档中完成闭环。CLI/MCP 阶段二已完成 4 组外部 REST 接口 + 灵感转文章 + 文章版本接口，CLI +15, MCP +16；AI 降级已完成 fallback 链透明切换机制；结构复用逻辑重复收敛已完成 2 组抽象切片（taxonomy-post-count 子查询构建器、post-distribution-wechatsync 泛型 mergeByKey），duplicate-code 基线 0.33% < 1.22%；ESLint/类型债已完成 3 组窄切片（累计消除 22 处 any/non-null-assertion），同步更新 eslint-debt-targets.mjs；测试有效性第三轮已完成 7 个新增失败路径断言，覆盖 3 个模块（AI 编辑器、friend-links、admin settings）。typecheck + lint 通过，Code Auditor 审计问题已修复并提交。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块。
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
