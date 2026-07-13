@@ -1,10 +1,11 @@
-import type { CliImportPathAliasReport, CliImportPathAliasStatus, CliImportPostRequest } from './types'
+import type { MomeiImportPathAliasReport, MomeiImportPathAliasStatus } from '@momei-blog/api-client'
+import type { CliImportPostRequest } from './types'
 
 export interface CliImportValidationCandidate {
     file: string
     relativeFile: string
     request: CliImportPostRequest
-    report: CliImportPathAliasReport
+    report: MomeiImportPathAliasReport
 }
 
 export interface CliImportExecutionItem extends CliImportValidationCandidate {
@@ -29,7 +30,7 @@ export interface CliImportExecutionPlan {
     items: CliImportExecutionItem[]
 }
 
-function sumStatus(reports: CliImportPathAliasReport[], status: CliImportPathAliasStatus) {
+function sumStatus(reports: MomeiImportPathAliasReport[], status: MomeiImportPathAliasStatus) {
     return reports.reduce((count, report) => count + (report.summary[status] || 0), 0)
 }
 

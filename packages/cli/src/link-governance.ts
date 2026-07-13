@@ -1,15 +1,15 @@
 import { basename } from 'node:path'
-import { normalizeAsciiSlug } from './slug'
 import type {
-    CliLinkGovernanceMappingSeed,
-    CliLinkGovernanceRequest,
-    CliLinkGovernanceScope,
-    CliLinkGovernanceValidationMode,
-    ParsedHexoPost,
-} from './types'
+    MomeiLinkGovernanceMappingSeed,
+    MomeiLinkGovernanceRequest,
+    MomeiLinkGovernanceScope,
+    MomeiLinkGovernanceValidationMode,
+} from '@momei-blog/api-client'
+import { normalizeAsciiSlug } from './slug'
+import type { ParsedHexoPost } from './types'
 
-const DEFAULT_GOVERNANCE_SCOPES: CliLinkGovernanceScope[] = ['asset-url', 'post-link', 'permalink-rule']
-const SUPPORTED_GOVERNANCE_SCOPES = new Set<CliLinkGovernanceScope>([
+const DEFAULT_GOVERNANCE_SCOPES: MomeiLinkGovernanceScope[] = ['asset-url', 'post-link', 'permalink-rule']
+const SUPPORTED_GOVERNANCE_SCOPES = new Set<MomeiLinkGovernanceScope>([
     'asset-url',
     'post-link',
     'category-link',
@@ -77,7 +77,7 @@ function renderLegacyPermalink(entry: ParsedHexoPost) {
     return rendered.startsWith('/') ? rendered : `/${rendered}`
 }
 
-function toSeedSourceKind(source: string): CliLinkGovernanceMappingSeed['sourceKind'] {
+function toSeedSourceKind(source: string): MomeiLinkGovernanceMappingSeed['sourceKind'] {
     if (/^https?:\/\//i.test(source)) {
         return 'absolute'
     }
@@ -103,21 +103,21 @@ function resolvePrimaryCategory(entry: ParsedHexoPost) {
     return rawCategory
 }
 
-export function parseCliLinkGovernanceScopes(scopes?: string[]): CliLinkGovernanceScope[] {
+export function parseCliLinkGovernanceScopes(scopes?: string[]): MomeiLinkGovernanceScope[] {
     if (!scopes || scopes.length === 0) {
         return [...DEFAULT_GOVERNANCE_SCOPES]
     }
 
-    const invalidScopes = scopes.filter((scope) => !SUPPORTED_GOVERNANCE_SCOPES.has(scope as CliLinkGovernanceScope))
+    const invalidScopes = scopes.filter((scope) => !SUPPORTED_GOVERNANCE_SCOPES.has(scope as MomeiLinkGovernanceScope))
     if (invalidScopes.length > 0) {
         throw new Error(`Unsupported scopes: ${invalidScopes.join(', ')}`)
     }
 
-    return scopes as CliLinkGovernanceScope[]
+    return scopes as MomeiLinkGovernanceScope[]
 }
 
 export function buildLinkGovernanceSeeds(entries: ParsedHexoPost[], options: { legacyOrigin?: string } = {}) {
-    const seeds: CliLinkGovernanceMappingSeed[] = []
+    const seeds: MomeiLinkGovernanceMappingSeed[] = []
 
     for (const entry of entries) {
         const renderedPermalink = renderLegacyPermalink(entry)
@@ -162,17 +162,17 @@ export function buildLinkGovernanceSeeds(entries: ParsedHexoPost[], options: { l
 }
 
 export function buildLinkGovernanceRequest(entries: ParsedHexoPost[], options: {
-    scopes?: CliLinkGovernanceScope[]
+    scopes?: MomeiLinkGovernanceScope[]
     domains?: string[]
     pathPrefixes?: string[]
-    validationMode?: CliLinkGovernanceValidationMode
+    validationMode?: MomeiLinkGovernanceValidationMode
     allowRelativeLinks?: boolean
     retryFailuresFromReportId?: string
     skipConfirmation?: boolean
     legacyOrigin?: string
     reportFormat?: 'json' | 'markdown'
-} = {}): CliLinkGovernanceRequest {
-    const scopes: CliLinkGovernanceScope[] = options.scopes && options.scopes.length > 0
+} = {}): MomeiLinkGovernanceRequest {
+    const scopes: MomeiLinkGovernanceScope[] = options.scopes && options.scopes.length > 0
         ? options.scopes
         : [...DEFAULT_GOVERNANCE_SCOPES]
 

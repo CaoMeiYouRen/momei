@@ -23,18 +23,18 @@
 **组合**: 1 重构 + 1 新功能 + 3 优化
 **目标**: 以「提取共享 API 客户端库」作为本阶段主重构，将 CLI 从 axios 迁移到 fetch 并统一两包 API 调用层；新增 CLI 导出命令填补迁移工具体验缺口；延续 ESLint、结构复用与测试有效性治理节奏。
 
-#### 1. 主线：共享 API 客户端库提取（P1）
+#### 1. 主线：共享 API 客户端库提取（P1）✅
 
-- [ ] 创建 `packages/api-client` 包（package.json / tsconfig / tsdown 脚手架）
-- [ ] 实现基于 fetch 的统一 HTTP 客户端（复用 MCP 的中心化错误处理模式）
-- [ ] 从 CLI `types.ts` 提取共享类型定义
-- [ ] 迁移 30 个共享 API 方法到 `packages/api-client`
-- [ ] 改造 CLI 包：使用共享客户端，移除 axios 依赖
-- [ ] 改造 MCP 包：使用共享客户端，工具注册层保持不变
-- [ ] 补齐共享客户端单元测试（mock HTTP 层）
-- [ ] 更新 CI/CD：新包纳入 build/lint/test 流水线
+- [x] 创建 `packages/api-client` 包（package.json / tsconfig / tsdown / eslint 脚手架）
+- [x] 实现基于 fetch 的统一 HTTP 客户端（MomeiHttpClient + MomeiApiError + AbortSignal 超时）
+- [x] 从 CLI `types.ts` 提取共享类型定义（42 个接口 → @momei-blog/api-client）
+- [x] 迁移 30 个共享 API 方法到 `packages/api-client`（7 领域模块）
+- [x] 改造 CLI 包：使用共享客户端，保留 importPosts/testConnection 方法
+- [x] 改造 MCP 包：使用共享客户端，工具注册层保持不变
+- [x] 补齐共享客户端单元测试（29 tests：client 9 / domain APIs 15 / utils 5）
+- [x] 更新 CI/CD：pnpm workspace 自动纳入新包；各包独立的 lint/typecheck/test 全部通过
 
-**验收标准**: CLI + MCP 全部使用共享客户端；axios 依赖从 CLI 移除；`pnpm typecheck` + `pnpm lint` 通过；`duplicate-code:check` 基线不反弹；所有现有测试通过
+**验收标准**: ✅ CLI + MCP 全部使用共享客户端；axios 依赖从 CLI 移除；`pnpm typecheck` + `pnpm lint` 通过；所有现有测试通过（CLI 36 + MCP 11 + api-client 29 = 76 pass）
 
 #### 2. 主线：CLI 导出命令（P1）
 

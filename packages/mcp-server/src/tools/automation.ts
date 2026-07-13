@@ -1,25 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { extractTagNames } from '@momei-blog/api-client'
 import { MomeiApi } from '../lib/api'
 import type { MomeiApiConfig } from '../lib/config'
 import { getErrorMessage } from '../lib/error'
-
-function extractTagNames(post: Record<string, unknown>) {
-    const tags = Array.isArray(post.tags) ? post.tags : []
-    return tags
-        .map((tag) => {
-            if (typeof tag === 'string') {
-                return tag
-            }
-
-            if (tag && typeof tag === 'object' && typeof (tag as { name?: unknown }).name === 'string') {
-                return (tag as { name: string }).name
-            }
-
-            return null
-        })
-        .filter((tag): tag is string => Boolean(tag))
-}
 
 export function registerAutomationTools(server: McpServer, config: MomeiApiConfig): void {
     const api = new MomeiApi(config)
@@ -35,9 +19,10 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
         async ({ postId }) => {
             try {
                 const post = await api.getPost(postId)
+                const postData = post.data as { content?: string, language?: string }
                 const result = await api.suggestTitles({
-                    content: post.data.content,
-                    language: post.data.language,
+                    content: postData.content ?? '',
+                    language: postData.language,
                 })
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
@@ -59,10 +44,11 @@ export function registerAutomationTools(server: McpServer, config: MomeiApiConfi
         async ({ postId }) => {
             try {
                 const post = await api.getPost(postId)
+                const postData = post.data as { content?: string, language?: string }
                 const result = await api.recommendTags({
-                    content: post.data.content,
+                    content: postData.content ?? '',
                     existingTags: extractTagNames(post.data),
-                    language: post.data.language,
+                    language: postData.language,
                 })
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],

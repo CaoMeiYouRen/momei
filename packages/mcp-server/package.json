@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@momei-blog/api-client": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

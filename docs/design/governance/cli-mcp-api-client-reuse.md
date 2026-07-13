@@ -54,10 +54,10 @@
 
 ### 3.1 方案一：提取共享 API 客户端库（推荐）
 
-创建新包 `packages/shared-api-client`，包含：
+创建新包 `packages/api-client`（`@momei-blog/api-client`），包含：
 
 ```
-packages/shared-api-client/
+packages/api-client/
 ├── src/
 │   ├── index.ts           # 导出入口
 │   ├── client.ts          # 统一 HTTP 客户端
@@ -307,7 +307,7 @@ export function createMomeiApi(config: MomeiApiClientConfig) {
 
 ### 4.3 阶段三：提取共享 API 客户端库
 
-1. 创建 `packages/shared-api-client` 包
+1. 创建 `packages/api-client` 包
 2. 迁移 CLI 的 `types.ts` 到共享包
 3. 实现统一的 HTTP 客户端类
 4. 迁移所有 API 方法到共享包
@@ -336,7 +336,7 @@ export function createMomeiApi(config: MomeiApiClientConfig) {
 
 ### 5.3 阶段三验收标准
 
-- [ ] `packages/shared-api-client` 包创建完成
+- [ ] `@momei-blog/api-client` 包创建完成
 - [ ] CLI 和 MCP 包使用共享客户端
 - [ ] 代码重复率下降 60%+
 - [ ] `duplicate-code:check` 基线不反弹

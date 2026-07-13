@@ -1,16 +1,15 @@
 {
-  "name": "momei-cli",
+  "name": "@momei-blog/api-client",
   "version": "0.1.0",
-  "description": "Momei CLI - Migration tool for importing posts from Hexo to Momei",
+  "description": "Momei shared API client library - unified HTTP client for CLI and MCP server",
   "type": "module",
-  "bin": {
-    "momei": "dist/index.mjs"
-  },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
     }
   },
   "files": [
@@ -19,7 +18,6 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "start": "node dist/index.mjs",
     "lint": "eslint src --fix --no-warn-ignored --max-warnings 5",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -27,21 +25,11 @@
   },
   "keywords": [
     "momei",
-    "hexo",
-    "migration",
-    "blog",
-    "cli"
+    "api-client",
+    "http"
   ],
   "author": "CaoMeiYouRen",
   "license": "MIT",
-  "dependencies": {
-    "@momei-blog/api-client": "workspace:*",
-    "cac": "^7.0.0",
-    "chalk": "^5.4.1",
-    "glob": "^13.0.6",
-    "gray-matter": "^4.0.3",
-    "ora": "^9.4.1"
-  },
   "devDependencies": {
     "@types/node": "^26.1.0",
     "eslint": "^9.39.2",

@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import ora from 'ora'
+import { extractTagNames, type MomeiAutomationTaskStatusResponse } from '@momei-blog/api-client'
 import { MomeiApiClient } from './api-client'
-import type { CliAutomationTaskStatusResponse } from './types'
 
 export interface ApiClientOptions {
     apiUrl?: string
@@ -23,25 +23,10 @@ export function createAutomationClient(options: ApiClientOptions) {
 
 export async function fetchPostForAutomation(client: MomeiApiClient, postId: string) {
     const response = await client.getPost(postId)
-    return response.data
+    return response.data as Record<string, unknown>
 }
 
-export function extractExistingTagNames(post: Record<string, unknown>) {
-    const tags = Array.isArray(post.tags) ? post.tags : []
-    return tags
-        .map((tag) => {
-            if (typeof tag === 'string') {
-                return tag
-            }
-
-            if (tag && typeof tag === 'object' && typeof (tag as { name?: unknown }).name === 'string') {
-                return (tag as { name: string }).name
-            }
-
-            return null
-        })
-        .filter((tag): tag is string => Boolean(tag))
-}
+export { extractTagNames as extractExistingTagNames }
 
 export function displayTaskCreated(label: string, data: { taskId: string, status: string }) {
     console.log(chalk.blue(`\n⚙️ ${label}\n`))
@@ -49,7 +34,7 @@ export function displayTaskCreated(label: string, data: { taskId: string, status
     console.log(chalk.gray(`Status: ${data.status}\n`))
 }
 
-export function displayTaskCompletion(task: CliAutomationTaskStatusResponse) {
+export function displayTaskCompletion(task: MomeiAutomationTaskStatusResponse) {
     console.log(chalk.blue('\n✅ Task Result\n'))
     console.log(JSON.stringify(task, null, 2))
 

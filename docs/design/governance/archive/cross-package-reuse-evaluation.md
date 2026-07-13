@@ -53,7 +53,7 @@
 
 | 事项 | 工作量 | 风险 |
 |:---|:---|:---|
-| 创建 `@momei/api-client` 共享包 | ~6-8h | **高**：需统一两套 HTTP 客户端的返回格式、错误处理、类型系统 |
+| 创建 `@momei-blog/api-client` 共享包 | ~6-8h | **高**：需统一两套 HTTP 客户端的返回格式、错误处理、类型系统 |
 | 创建 `@momei/shared-types` | ~2-3h | 低：纯类型导出 |
 | 创建 `@momei/shared-utils` | ~1-2h | 低：3 个纯函数 |
 | 修改 mcp-server 引用新共享包 | ~2-3h | 中：fetch→axios 迁移可能改变 MCP 运行时行为 |
@@ -69,7 +69,7 @@
 | **A. 修复已知 Bug**（Auth header 对齐） | ~0.5h | 解决即时的生产风险 |
 | **B. 内联代码对齐**（手动同步重复函数） | ~1h | 低维护，但未来仍会漂移 |
 | **C. 仅创建 `@momei/shared-types` + `@momei/shared-utils`** | ~5-8h | 消除函数/类型重复，API 客户端仍各自维护 |
-| **D. 完整方案**（含 `@momei/api-client`） | ~15-21h | 根本性消除重复，但风险最高 |
+| **D. 完整方案**（含 `@momei-blog/api-client`） | ~15-21h | 根本性消除重复，但风险最高 |
 
 ## 4. 维度评估
 
@@ -88,7 +88,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk} = \frac{4 + 3}{4 + 4} = 0.
 
 ## 5. 结论：No-Go（完整方案）/ 条件性 Go（轻量方案）
 
-### 5.1 完整方案（含 `@momei/api-client`）
+### 5.1 完整方案（含 `@momei-blog/api-client`）
 
 **结论：No-Go**。Score 0.88 低于 1.5 准入线。核心原因是两包使用不同的 HTTP 传输层（`fetch` vs `axios`）和返回格式，统一需要运行时行为变更，风险与工作量不成比例于当前阶段的 ROI。
 

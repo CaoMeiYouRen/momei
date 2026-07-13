@@ -3,11 +3,11 @@ import { resolve } from 'node:path'
 import type { CAC } from 'cac'
 import chalk from 'chalk'
 import ora from 'ora'
+import type { MomeiImportPostRequest } from '@momei-blog/api-client'
 import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
 import type {
-    CliImportPostRequest,
     ImportResult,
     ImportStats,
 } from './types'
@@ -22,7 +22,7 @@ interface ImportCommandOptions {
     confirmPathAliases: boolean
 }
 
-function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): CliImportPostRequest {
+function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): MomeiImportPostRequest {
     return {
         ...entry.post,
         slug: typeof entry.frontMatter.slug === 'string' ? entry.frontMatter.slug : undefined,

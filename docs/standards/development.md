@@ -358,6 +358,40 @@ pnpm build
 6.  **接入门槛**: 一旦某条治理脚本成为长期主线的正式事实源，应在同一轮把 `package.json` 入口、相应规范文档和回归接入口径同步落齐；不得长期保持“脚本文件已存在，但团队流程仍不可发现”的状态。
 7.  **文档同步**: 当脚本改变团队日常开发、验证、发布或治理流程时，必须同步更新对应的规范文档与使用入口，而不是只把脚本文件留在 `scripts/` 中等待别人自行发现。
 
+### 4.5 包命名规范 （Package Naming Convention）
+
+本规范适用于 `packages/*` 下的 npm 包命名，以建立一致的项目标识体系。
+
+#### 4.5.1 现有包一览
+
+| 包路径 | npm 包名 | 类型 | 说明 |
+|--------|----------|------|------|
+| `packages/cli/` | `momei-cli` | CLI 工具 | 用户通过 `npx momei-cli` 或 `momei` 命令调用 |
+| `packages/mcp-server/` | `momei-mcp-server` | MCP 服务 | 通过 stdio 协议供 AI 助手调用 |
+| `packages/api-client/` | `@momei-blog/api-client` | 库包 | 内部共享 HTTP 客户端，供 CLI/MCP 等消费 |
+
+#### 4.5.2 命名规则
+
+- **CLI / 可执行工具**：使用 **unscoped** `momei-*` 前缀。理由：CLI 工具的包名会被用户直接引用（`npx momei-cli`），unscoped 更简洁，且社区惯例如此（`vue`、`nuxt`、`create-vite` 均 unscoped）。
+- **库 / 内部依赖包**：使用 **scoped** `@momei-blog/*` 前缀。理由：库包作为模块被其他包导入，scope 标识项目归属，避免与社区同名包冲突，且 `@momei-blog` 是已注册的 npm 组织。
+- **测试 / 内部工具包**：遵循同上规则，按实质用途判定归属 CLI 还是库包。
+
+#### 4.5.3 决策依据
+
+| 维度 | CLI 工具 (`momei-*`) | 库包 (`@momei-blog/*`) |
+|------|----------------------|------------------------|
+| 示例 | `momei-cli`, `momei-export` | `@momei-blog/api-client` |
+| 用户可见性 | 用户直接调用 | 作为依赖被其他代码引用 |
+| npm 命名空间 | 全局 unrestricted | 受 org scope 保护 |
+| `npx` 体验 | `npx momei-cli`（短） | `npx @momei-blog/cli`（长） |
+| 迁移成本 | 已有发布，不宜变更 | 新包直接从 scope 开始 |
+
+#### 4.5.4 执行约束
+
+- **新增包时**：根据上述规则选择命名，并在本规范中更新「现有包一览」表。
+- **已有包不追溯**：`momei-cli`、`momei-mcp-server` 保持现有名称不变，不因规范变更而强行重命名。
+- **例外申请**：若新增包无法按规则命名（如需要与第三方生态对齐），应在 PR 中说明理由并在本规范中注明例外。
+
 ## 5. 安全规范 （Security）
 
 - **XSS 防护**:

@@ -1,5 +1,6 @@
 import type { CAC } from 'cac'
 import chalk from 'chalk'
+import type { MomeiTranslatePostRequest } from '@momei-blog/api-client'
 import {
     createAutomationClient,
     displayTaskCompletion,
@@ -9,7 +10,6 @@ import {
     parseCsvList,
     waitForAutomationTask,
 } from './cli-shared'
-import type { CliTranslatePostRequest } from './types'
 
 interface ApiOptions {
     apiUrl?: string
@@ -28,8 +28,8 @@ interface TranslatePostOptions extends ApiOptions {
     targetPostId?: string
     scopes?: string
     targetStatus?: 'draft' | 'pending'
-    slugStrategy?: CliTranslatePostRequest['slugStrategy']
-    categoryStrategy?: CliTranslatePostRequest['categoryStrategy']
+    slugStrategy?: MomeiTranslatePostRequest['slugStrategy']
+    categoryStrategy?: MomeiTranslatePostRequest['categoryStrategy']
     preview?: boolean
     confirmPreviewTask?: string
     approvedSlug?: string
@@ -155,7 +155,7 @@ function registerTranslationCommands(cli: CAC) {
         .action(async (postId: string, options: TranslatePostOptions) => {
             const targetLanguage = assertRequiredOption(options.targetLanguage, '--target-language')
 
-            let confirmationMode: CliTranslatePostRequest['confirmationMode'] = 'auto'
+            let confirmationMode: MomeiTranslatePostRequest['confirmationMode'] = 'auto'
             if (options.confirmPreviewTask) {
                 confirmationMode = 'confirmed'
             } else if (options.preview) {
@@ -163,13 +163,13 @@ function registerTranslationCommands(cli: CAC) {
             }
 
             const client = createAutomationClient(options)
-            const payload: CliTranslatePostRequest = {
+            const payload: MomeiTranslatePostRequest = {
                 sourcePostId: postId,
                 targetLanguage,
                 sourceLanguage: options.sourceLanguage,
                 targetPostId: options.confirmPreviewTask ? undefined : options.targetPostId,
                 targetStatus: options.targetStatus,
-                scopes: parseCsvList(options.scopes) as CliTranslatePostRequest['scopes'],
+                scopes: parseCsvList(options.scopes) as MomeiTranslatePostRequest['scopes'],
                 slugStrategy: options.slugStrategy,
                 categoryStrategy: options.categoryStrategy,
                 confirmationMode,
@@ -179,7 +179,7 @@ function registerTranslationCommands(cli: CAC) {
             }
 
             const response = await client.translatePost(payload)
-            displayTaskCreated('Translate Post', response.data)
+            displayTaskCreated('Translate Post', { taskId: response.data.taskId, status: response.data.status })
 
             if (!options.wait) {
                 return
@@ -215,7 +215,7 @@ function registerGenerationCommands(cli: CAC) {
                 style: options.style,
                 n: 1,
             })
-            displayTaskCreated('Generate Cover', response.data)
+            displayTaskCreated('Generate Cover', { taskId: response.data.taskId, status: response.data.status })
 
             if (!options.wait) {
                 return
@@ -246,7 +246,7 @@ function registerGenerationCommands(cli: CAC) {
                 model: options.model,
                 script: options.script,
             })
-            displayTaskCreated('Generate Audio', response.data)
+            displayTaskCreated('Generate Audio', { taskId: response.data.taskId, status: response.data.status })
 
             if (!options.wait) {
                 return
@@ -286,4 +286,3 @@ export function registerAutomationCommands(cli: CAC) {
     registerGenerationCommands(cli)
     registerTaskCommands(cli)
 }
-

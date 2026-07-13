@@ -167,8 +167,32 @@ jobs:
           path: .lighthouseci/bundle-budget-report.json
           overwrite: true
           if-no-files-found: warn
+  api-client:
+    name: API Client Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/api-client
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run typecheck
+      - run: pnpm run test
+      - run: pnpm run build
   cli:
     name: CLI Test
+    needs: [api-client]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -192,6 +216,7 @@ jobs:
       - run: pnpm run build
   mcp-server:
     name: MCP Test
+    needs: [api-client]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:

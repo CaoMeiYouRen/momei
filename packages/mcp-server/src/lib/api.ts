@@ -1,3 +1,4 @@
+import { createMomeiApi, type MomeiApiClientConfig } from '@momei-blog/api-client'
 import type { MomeiApiConfig } from './config'
 
 type JsonRecord = Record<string, unknown>
@@ -8,295 +9,200 @@ interface ApiEnvelope<TData> {
     message?: string
 }
 
-interface RemotePostRecord extends JsonRecord {
-    content: string
-    language?: string
-    tags?: unknown
-}
-
+/**
+ * MCP API Client
+ *
+ * Thin wrapper around @momei-blog/api-client that keeps the same method signatures
+ * for backward compatibility with existing tool registration files.
+ * Tool registration layer stays unchanged.
+ */
 export class MomeiApi {
-    constructor(private config: MomeiApiConfig) {}
+    private api: ReturnType<typeof createMomeiApi>
 
-    private async request<TData>(path: string, options: RequestInit = {}): Promise<ApiEnvelope<TData>> {
-        const url = `${this.config.apiUrl}${path}`
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': this.config.apiKey,
-                ...options.headers,
-            },
-        })
-
-        if (!response.ok) {
-            const errorText = await response.text()
-            throw new Error(`API Error (${response.status} ${response.statusText}): ${errorText}`)
+    constructor(config: MomeiApiConfig) {
+        const clientConfig: MomeiApiClientConfig = {
+            apiUrl: config.apiUrl,
+            apiKey: config.apiKey,
         }
-
-        return response.json() as Promise<ApiEnvelope<TData>>
+        this.api = createMomeiApi(clientConfig)
     }
+
+    // ===== Post Methods =====
 
     async listPosts(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
-        const searchParams = new URLSearchParams()
-        Object.entries(query).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                searchParams.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value))
-            }
-        })
-        const queryString = searchParams.toString()
-        return this.request<JsonRecord>(`/api/external/posts${queryString ? `?${queryString}` : ''}`)
+        const data = await this.api.posts.list(query as Parameters<typeof this.api.posts.list>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    async getPost(id: string): Promise<ApiEnvelope<RemotePostRecord>> {
-        return this.request<RemotePostRecord>(`/api/external/posts/${id}`)
+    async getPost(id: string): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.posts.get(id)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async createPost(data: JsonRecord): Promise<ApiEnvelope<JsonRecord & { id: string }>> {
-        return this.request<JsonRecord & { id: string }>('/api/external/posts', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.posts.create(data as unknown as Parameters<typeof this.api.posts.create>[0])
+        return { code: 200, data: result as JsonRecord & { id: string } }
     }
 
     async updatePost(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/posts/${id}`, {
-            method: 'PATCH',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.posts.update(id, data)
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async publishPost(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/posts/${id}/publish`, {
-            method: 'POST',
-        })
+        const result = await this.api.posts.publish(id)
+        return { code: 200, data: result }
     }
 
     async deletePost(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/posts/${id}`, {
-            method: 'DELETE',
-        })
+        await this.api.posts.delete(id)
+        return { code: 200, data: { deleted: true } }
     }
 
+    // ===== AI Methods =====
+
     async suggestTitles(payload: { content: string, language?: string }): Promise<ApiEnvelope<string[]>> {
-        return this.request<string[]>('/api/external/ai/suggest-titles', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+        const data = await this.api.ai.suggestTitles(payload)
+        return { code: 200, data }
     }
 
     async recommendTags(payload: { content: string, existingTags?: string[], language?: string }): Promise<ApiEnvelope<string[]>> {
-        return this.request<string[]>('/api/external/ai/recommend-tags', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+        const data = await this.api.ai.recommendTags(payload)
+        return { code: 200, data }
     }
 
-    async recommendCategories(payload: { postId: string, targetLanguage: string, sourceLanguage?: string, limit?: number }): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/ai/recommend-categories', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+    async recommendCategories(payload: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.ai.recommendCategories(payload as unknown as Parameters<typeof this.api.ai.recommendCategories>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    async translatePost(payload: {
-        sourcePostId: string
-        targetLanguage: string
-        sourceLanguage?: string
-        targetPostId?: string | null
-        scopes?: string[]
-        targetStatus?: 'draft' | 'pending'
-        slugStrategy?: 'source' | 'translate' | 'ai'
-        categoryStrategy?: 'cluster' | 'suggest'
-        confirmationMode?: 'auto' | 'require' | 'confirmed'
-        previewTaskId?: string
-        approvedSlug?: string | null
-        approvedCategoryId?: string | null
-    }): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/ai/translate-post', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+    async translatePost(payload: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.ai.translatePost(payload as unknown as Parameters<typeof this.api.ai.translatePost>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    async generateCoverImage(payload: {
-        postId: string
-        prompt: string
-        model?: string
-        size?: string
-        aspectRatio?: string
-        quality?: 'standard' | 'hd'
-        style?: 'vivid' | 'natural'
-        n?: number
-    }): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/ai/image/generate', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+    async generateCoverImage(payload: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.ai.generateCoverImage(payload as unknown as Parameters<typeof this.api.ai.generateCoverImage>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    async createTTSTask(payload: {
-        postId?: string
-        text?: string
-        provider?: string
-        mode?: 'speech' | 'podcast'
-        voice: string
-        model?: string
-        script?: string
-        options?: Record<string, unknown>
-    }): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/ai/tts/task', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        })
+    async createTTSTask(payload: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.ai.createTTSTask(payload as unknown as Parameters<typeof this.api.ai.createTTSTask>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async getAITask(taskId: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/ai/tasks/${taskId}`)
+        const data = await this.api.ai.getTask(taskId)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
+    // ===== Migration Methods =====
+
     async validateImportPost(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/posts/validate', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.posts.validate(data as unknown as Parameters<typeof this.api.posts.validate>[0])
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async dryRunLinkGovernance(request: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/migrations/link-governance/dry-run', {
-            method: 'POST',
-            body: JSON.stringify(request),
-        })
+        const data = await this.api.migrations.dryRunLinkGovernance(request as unknown as Parameters<typeof this.api.migrations.dryRunLinkGovernance>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async applyLinkGovernance(request: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/migrations/link-governance/apply', {
-            method: 'POST',
-            body: JSON.stringify(request),
-        })
+        const data = await this.api.migrations.applyLinkGovernance(request as unknown as Parameters<typeof this.api.migrations.applyLinkGovernance>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async getLinkGovernanceReport(reportId: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/migrations/link-governance/reports/${reportId}`)
+        const data = await this.api.migrations.getLinkGovernanceReport(reportId)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    // ===== Category API Methods =====
+    // ===== Category Methods =====
 
     async listCategories(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
-        const searchParams = new URLSearchParams()
-        Object.entries(query).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                searchParams.append(key, String(value))
-            }
-        })
-        const queryString = searchParams.toString()
-        return this.request<JsonRecord>(`/api/external/categories${queryString ? `?${queryString}` : ''}`)
+        const data = await this.api.categories.list(query as Parameters<typeof this.api.categories.list>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async createCategory(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/categories', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.categories.create(data as unknown as Parameters<typeof this.api.categories.create>[0])
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async updateCategory(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/categories/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.categories.update(id, data)
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async deleteCategory(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/categories/${id}`, {
-            method: 'DELETE',
-        })
+        await this.api.categories.delete(id)
+        return { code: 200, data: { deleted: true } }
     }
 
-    // ===== Tag API Methods =====
+    // ===== Tag Methods =====
 
     async listTags(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
-        const searchParams = new URLSearchParams()
-        Object.entries(query).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                searchParams.append(key, String(value))
-            }
-        })
-        const queryString = searchParams.toString()
-        return this.request<JsonRecord>(`/api/external/tags${queryString ? `?${queryString}` : ''}`)
+        const data = await this.api.tags.list(query as Parameters<typeof this.api.tags.list>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async createTag(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/tags', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.tags.create(data as unknown as Parameters<typeof this.api.tags.create>[0])
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async updateTag(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/tags/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.tags.update(id, data)
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async deleteTag(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/tags/${id}`, {
-            method: 'DELETE',
-        })
+        await this.api.tags.delete(id)
+        return { code: 200, data: { deleted: true } }
     }
 
-    // ===== Snippet API Methods =====
+    // ===== Snippet Methods =====
 
     async listSnippets(query: JsonRecord = {}): Promise<ApiEnvelope<JsonRecord>> {
-        const searchParams = new URLSearchParams()
-        Object.entries(query).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                searchParams.append(key, String(value))
-            }
-        })
-        const queryString = searchParams.toString()
-        return this.request<JsonRecord>(`/api/external/snippets${queryString ? `?${queryString}` : ''}`)
+        const data = await this.api.snippets.list(query as Parameters<typeof this.api.snippets.list>[0])
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async createSnippet(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>('/api/external/snippets', {
-            method: 'POST',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.snippets.create(data as unknown as Parameters<typeof this.api.snippets.create>[0])
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async getSnippet(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/snippets/${id}`)
+        const data = await this.api.snippets.get(id)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async updateSnippet(id: string, data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/snippets/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(data),
-        })
+        const result = await this.api.snippets.update(id, data)
+        return { code: 200, data: result as unknown as JsonRecord }
     }
 
     async deleteSnippet(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/snippets/${id}`, {
-            method: 'DELETE',
-        })
+        await this.api.snippets.delete(id)
+        return { code: 200, data: { deleted: true } }
     }
 
     async convertSnippetToPost(id: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/snippets/${id}/convert`, {
-            method: 'POST',
-        })
+        const data = await this.api.snippets.convertToPost(id)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
-    // ===== Post Version API Methods =====
+    // ===== Post Version Methods =====
 
     async listPostVersions(postId: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/posts/${postId}/versions`)
+        const data = await this.api.versions.list(postId)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 
     async createPostVersion(postId: string): Promise<ApiEnvelope<JsonRecord>> {
-        return this.request<JsonRecord>(`/api/external/posts/${postId}/versions`, {
-            method: 'POST',
-        })
+        const data = await this.api.versions.create(postId)
+        return { code: 200, data: data as unknown as JsonRecord }
     }
 }

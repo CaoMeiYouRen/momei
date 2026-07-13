@@ -2,7 +2,8 @@ import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
 import { glob } from 'glob'
-import type { HexoFrontMatter, MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata, ParsedHexoPost } from './types'
+import type { MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata } from '@momei-blog/api-client'
+import type { HexoFrontMatter, ParsedHexoPost } from './types'
 
 function pickFirstString(...values: unknown[]) {
     for (const value of values) {

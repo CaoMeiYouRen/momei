@@ -3,19 +3,16 @@ import { resolve } from 'node:path'
 import type { CAC } from 'cac'
 import chalk from 'chalk'
 import ora from 'ora'
+import type { MomeiLinkGovernanceMode, MomeiLinkGovernanceReportData, MomeiLinkGovernanceRequest } from '@momei-blog/api-client'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
 import { buildLinkGovernanceRequest, parseCliLinkGovernanceScopes } from './link-governance'
 import { parseCsvList } from './cli-shared'
-import type {
-    CliLinkGovernanceMode,
-    CliLinkGovernanceReportData,
-} from './types'
 
 interface GovernLinksCommandOptions {
     apiUrl: string
     apiKey?: string
-    mode: CliLinkGovernanceMode
+    mode: MomeiLinkGovernanceMode
     domains?: string
     pathPrefixes?: string
     scopes?: string
@@ -28,7 +25,7 @@ interface GovernLinksCommandOptions {
     verbose?: boolean
 }
 
-function displayGovernanceSummary(report: CliLinkGovernanceReportData) {
+function displayGovernanceSummary(report: MomeiLinkGovernanceReportData) {
     console.log(chalk.blue('\n🧭 Link Governance Summary\n'))
     console.log(chalk.gray(`  Report ID: ${report.reportId}`))
     console.log(chalk.gray(`  Mode: ${report.mode}`))
@@ -40,7 +37,7 @@ function displayGovernanceSummary(report: CliLinkGovernanceReportData) {
     console.log(chalk.magenta(`  Needs Confirmation: ${report.summary.needsConfirmation}\n`))
 }
 
-async function maybeWriteGovernanceReport(report: CliLinkGovernanceReportData, reportFile?: string) {
+async function maybeWriteGovernanceReport(report: MomeiLinkGovernanceReportData, reportFile?: string) {
     if (!reportFile) {
         return
     }
@@ -64,7 +61,7 @@ async function runGovernLinks(source: string, options: GovernLinksCommandOptions
 
     try {
         const entries = await parseHexoFiles(sourceDir, options.verbose)
-        const request = buildLinkGovernanceRequest(entries, {
+        const request: MomeiLinkGovernanceRequest = buildLinkGovernanceRequest(entries, {
             scopes: parseCliLinkGovernanceScopes(parseCsvList(options.scopes)),
             domains: parseCsvList(options.domains),
             pathPrefixes: parseCsvList(options.pathPrefixes),
