@@ -18,6 +18,61 @@
 
 ---
 
+## 第五十六阶段：API 客户端统一与 CLI 导出 (已审计归档)
+
+> 归档说明: 第五十六阶段「1 重构 + 1 新功能 + 3 优化」已于 2026-07-14 完成五条主线交付与阶段收口。五条主线: 共享 API 客户端库提取（`packages/api-client` 包 + `MomeiHttpClient` + 7 领域模块 + 29 测试，CLI/MCP 全部脱 axios）；CLI 导出命令（`momei export` + Hexo 兼容 Front-matter + 过滤参数 + 导出报告）；ESLint/类型债 ≥3 组窄切片（`submission.ts`、`settings.vue`、`commercial-link-manager.vue` no-explicit-any 收敛，均加入 eslint-debt-targets）；结构复用治理 ≥2 组热点切片（`content-processor.ts` 公共初始化 + translate API 共享参数解析）；测试有效性第四轮切片（6 个新增错误路径断言，覆盖 translate + tts-task-get 2 模块）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: 共享 API 客户端库 2.00；CLI 导出命令 2.00；ESLint/类型债 1.50；结构复用治理 1.60；测试有效性第四轮 1.50。
+
+### 1. 共享 API 客户端库提取 (P1)
+
+- **执行范围**: 创建 `packages/api-client` 包（package.json / tsconfig / tsdown / eslint），实现 `MomeiHttpClient` + `MomeiApiError` + AbortSignal 超时，从 CLI `types.ts` 提取 42 个共享接口，迁移 7 领域 30 个 API 方法。改造 CLI/MCP 全部使用共享客户端，移除 axios 依赖。
+- **实现对照**:
+  - `packages/api-client`：`client.ts`（HTTP 客户端）、`types.ts`（共享类型）、7 领域模块（`posts`、`ai`、`categories`、`tags`、`snippets`、`versions`、`migrations`）
+  - CLI：保留 `importPosts`/`testConnection` 方法，其余委托给共享客户端
+  - MCP：`MomeiApi` 委托给共享客户端，工具注册层不变
+- **验收对照**: CLI + MCP 全部使用共享客户端；axios 依赖从 CLI 移除；`pnpm typecheck` + `pnpm lint` 通过；CLI 36 + MCP 11 + api-client 29 = 76 tests pass。
+
+### 2. CLI 导出命令 (P1)
+
+- **执行范围**: 新增 `momei export <output-dir>`，调用 `GET /api/external/posts` 列表 + `GET /api/external/posts/:id` 详情，`formatPostToMarkdown`（Hexo 兼容 Front-matter）+ `formatPostToJson`。支持 `--language` / `--status` / `--category` / `--limit` 过滤和 `--format markdown|json`。
+- **验收对照**: 导出的 Markdown 保留完整 Front-matter；过滤条件生效；导出报告可追踪；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 3. ESLint/类型债 — ≥3 组窄切片 (P1)
+
+- **执行范围**: 继续「单规则 + 单文件/双文件」窄切片策略，聚焦 `@typescript-eslint/no-explicit-any`。
+- **收敛切片**:
+  - 切片 1：`utils/schemas/submission.ts` — `z.enum(SubmissionStatus as any)` → `z.enum(SubmissionStatus)`
+  - 切片 2：`components/commercial-link-manager.vue` — `(currentSocialLink.value as any).image` → `currentSocialLink.value.image`
+  - 切片 3：`pages/settings.vue` — `(session.value as any)?.data?.user?.role` → `session.value?.data?.user?.role`
+- **验收对照**: 3 组切片完成；warning=0；`eslint-debt-targets.mjs` 新增 `NO_EXPLICIT_ANY_SCHEMA_FILES` / `PAGE_FILES` / `COMPONENT_FILES` 分组。
+
+### 4. 结构复用治理 — ≥2 组热点切片 (P1)
+
+- **执行范围**: 聚焦工具函数收敛与 API 参数解析复用，每组给出原始重复点、抽象边界与回滚方式。
+- **收敛切片**:
+  - 切片 1：`utils/shared/content-processor.ts` — 提取 `prepareSplitContent()` 私有静态方法，消除 `splitMarkdown` / `splitMarkdownLossless` 之间 13 行重复初始化逻辑。
+  - 切片 2：`server/api/ai/translate.post.ts` + `translate.stream.post.ts` — 抽取 `parseTranslateBody()` 共享函数至 `_translate-shared.ts`，消除两个路由间 18 行重复参数校验/解析逻辑。
+- **验收对照**: ≥2 组切片完成；`pnpm duplicate-code:check` 重复片段 45→43 组，0.31%→0.30%；基线不反弹。
+
+### 5. 测试有效性第四轮切片 — server 层错误码覆盖 (P1)
+
+- **执行范围**: 聚焦 server API 层标准错误码覆盖，为已有测试基座的模块补 401/403/404/500 错误面断言。
+- **失败路径断言补齐**:
+  - translate 模块（`server/api/ai/translate.post`）：未认证 → 401；无效请求体 → 400；服务异常 → 500（3 个测试）
+  - TTS 任务查询模块（`server/api/tasks/tts/[id].get`）：未认证 → 401；任务不存在 → 404；缺少参数 → 400（3 个测试）
+- **验收对照**: ≥5 个新增失败路径断言（实际 6 个）；覆盖 ≥2 个模块（2 个）；`pnpm typecheck` 通过；全量测试通过。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm typecheck` 通过
+- [x] 测试通过（全量主线验证 + Code Auditor 审计通过）
+
+---
+
 ## 第五十五阶段：AI 降级与接口扩展 (已审计归档)
 
 > 归档说明: 第五十五阶段「2 个新功能 + 3 个优化」已于 2026-07-13 完成五条主线交付与阶段收口。五条主线: CLI/MCP 阶段二新增外部接口（4 组 REST + 灵感转文章 + 文章版本，CLI +15, MCP +16）；AI 功能备用路线与自动降级（fallback 链 + 降级日志 + 透明切换）；结构复用逻辑重复收敛（≥2 组抽象切片，duplicate-code 0.33% < 基线 1.22%）；ESLint/类型债 ≥3 组窄切片（social-post-platforms no-non-null-assertion, nuxt.config.ts no-explicit-any, admin-taxonomy-page no-explicit-any，累计消除 22 处）；测试有效性第三轮切片（7 个新增失败路径断言，覆盖 3 个模块）。所有主线均通过 Review Gate 审计。

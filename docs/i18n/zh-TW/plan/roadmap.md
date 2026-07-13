@@ -74,6 +74,7 @@ last_sync: 2026-06-28
 - **第五十三階段已完成審計歸檔**：Vercel CDN 快取 Tier 2 架構治理（routeRules ISR/SWR + Upstash Redis）、文檔治理閾值收緊（must-sync 21 天、summary-sync 30 天）、ESLint/型別債清零（最後 3 處 as any）、結構複用 5 組熱點切片（duplicate-code 0.39%→0.24%）、AI 編輯增強評估（條件性 Go）。
 - **第五十四階段已完成審計歸檔**：CLI/MCP API 用戶端複用優化階段一（CLI +3、MCP +4）、結構複用深水區（單函數檔案整合 + 邏輯重複檢測腳本）、ESLint/型別債治理（規則債 inventory 腳本 + 3 組窄切片）、測試有效性第二輪（6 個新斷言、3 個模組）、腳本治理（eslint-debt 升格到 regression:weekly）。
 - **第五十五階段已完成審計歸檔**：CLI/MCP 階段二外部介面擴展（4 組 REST + 靈感轉文章 + 文章版本、CLI +15、MCP +16）、AI 降級備用路線（fallback 鏈 + 透明切換）、結構複用邏輯重複收斂（2 組抽象切片、duplicate-code 0.33% < 基線 1.22%）、ESLint/型別債 3 組窄切片（消除 22 處）、測試有效性第三輪（7 個新斷言、3 個模組）。
+- **第五十六階段已完成審計歸檔**：共享 API 客戶端庫提取（`packages/api-client` + `MomeiHttpClient` + 7 領域模組 + 29 測試、CLI/MCP axios 移除）、CLI 匯出命令（`momei export` + Hexo 相容 Front-matter + 篩選參數 + JSON 輸出）、ESLint/型別債 3 組窄切片（`submission.ts`、`settings.vue`、`commercial-link-manager.vue` no-explicit-any 消除）、結構複用 2 組熱點切片（`prepareSplitContent` + `parseTranslateBody` 共享函數、duplicate-code 0.30%）、測試有效性第四輪（6 個新錯誤路徑斷言、translate + tts-task-get 2 模組）。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

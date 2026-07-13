@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供六类能力：批量导入文章、基于迁移 API 的旧链接治理、基于外部自动化 API 的 AI 内容编排、分类与标签管理、灵感片段（Snippet）管理以及文章版本管理。
+用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供九类能力：批量导入文章、基于迁移 API 的旧链接治理、基于外部自动化 API 的 AI 内容编排、分类与标签管理、灵感片段（Snippet）管理、文章版本管理以及文章导出。
 
 ## 功能特性
 
@@ -409,22 +409,14 @@ momei snippets convert <snippet-id> --api-key <your-api-key>
 | `--page <num>` | 分页页码 | - |
 | `--limit <num>` | 每页数量 | - |
 
-## 命令八：文章版本管理
+## 命令九：导出文章
 
-文章版本管理命令用于创建和查看文章的版本快照，便于追踪内容变更历史。
+导出命令用于将博客文章批量导出为 Markdown 或 JSON 格式，方便本地归档或迁移到其他系统。
 
-### 列出文章版本
-
-```bash
-momei versions list <post-id> --api-key <your-api-key>
-```
-
-### 创建版本快照
-
-为当前文章内容创建版本快照：
+基础用法：
 
 ```bash
-momei versions create <post-id> --api-key <your-api-key>
+momei export <output-directory> --api-key <your-api-key>
 ```
 
 常用选项：
@@ -433,6 +425,26 @@ momei versions create <post-id> --api-key <your-api-key>
 | --- | --- | --- |
 | `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
 | `--api-key <key>` | 墨梅 API Key | - |
+| `--format <format>` | 输出格式：`markdown` 或 `json` | `markdown` |
+| `--language <locale>` | 按语言过滤（如 `zh-CN`、`en-US`） | 全部 |
+| `--status <status>` | 按状态过滤（`draft`、`published`、`archived`） | 全部 |
+| `--category <slug>` | 按分类 slug 过滤 | 全部 |
+| `--limit <num>` | 最大导出数量 | 全部 |
+
+Markdown 输出包含完整的 Hexo 兼容 Front-matter（标题、日期、分类、标签、摘要、封面、slug、语言、版权等）。导出完成后会输出统计数据报告。
+
+示例：
+
+```bash
+# 导出所有已发布文章为 Markdown
+momei export ./backup --api-key your-api-key --status published
+
+# 导出英文文章为 JSON
+momei export ./backup --api-key your-api-key --language en-US --format json
+
+# 导出最近 10 篇草稿
+momei export ./backup --api-key your-api-key --status draft --limit 10
+```
 
 ## 当前字段映射
 

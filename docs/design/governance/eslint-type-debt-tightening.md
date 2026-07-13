@@ -154,6 +154,22 @@
 - 若要继续推进 `@typescript-eslint/no-non-null-assertion`，优先保持“单一 composable / 单一链路”切片策略，而不是直接把规则外溢到整个 `composables/**`。
 - 若要处理 warning 债，优先评估生产源码范围的 `@typescript-eslint/no-unused-vars` 是否适合从 warning 升为 error，但必须先确认当前命中已足够窄。
 
+### 7.3 第五十六阶段（2026-07-14）：新增 3 组 `no-explicit-any` 窄切片
+
+第五十六阶段沿 No-Explicit-Any 单规则继续推进 3 组独立窄切片，分别覆盖 schema、component 与 page 三类文件：
+
+| # | 文件 | 原始代码 | 替换后 | 架构分组 |
+|:---|:---|:---|:---|:---|
+| 1 | `utils/schemas/submission.ts` | `z.enum(SubmissionStatus as any)` | `z.enum(SubmissionStatus)`（Zod 原生 enum 支持） | `NO_EXPLICIT_ANY_SCHEMA_FILES` |
+| 2 | `components/commercial-link-manager.vue` | `(currentSocialLink.value as any).image` | `currentSocialLink.value.image`（SocialLink.image 已定义） | `NO_EXPLICIT_ANY_COMPONENT_FILES` |
+| 3 | `pages/settings.vue` | `(session.value as any)?.data?.user?.role` | `session.value?.data?.user?.role`（类型可选链） | `NO_EXPLICIT_ANY_PAGE_FILES` |
+
+**配置变更**: `eslint-debt-targets.mjs` 新增 `NO_EXPLICIT_ANY_SCHEMA_FILES`、`NO_EXPLICIT_ANY_PAGE_FILES`、`NO_EXPLICIT_ANY_COMPONENT_FILES` 三个分组常量，均汇入 `NO_EXPLICIT_ANY_FILES` 聚合列表。
+
+**验证结果**: 三条新切片 lint warning=0；`pnpm governance:audit:eslint-debt` 确认全部清零；`pnpm typecheck` 通过。
+
+**回滚边界**: 只需从对应分组常量中移除文件条目 + 回退单文件改动。
+
 ## 8. 证据落点
 
 - 实施结果与验证记录：`docs/reports/regression/current.md`
