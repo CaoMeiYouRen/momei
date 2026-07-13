@@ -532,6 +532,9 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      js-yaml:
+        specifier: ^4.1.2
+        version: 4.3.0
       ora:
         specifier: ^9.4.1
         version: 9.4.1

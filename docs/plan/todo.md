@@ -38,13 +38,13 @@
 
 #### 2. 主线：CLI 导出命令（P1）
 
-- [ ] CLI 新增 `momei export <output-dir>` 命令
-- [ ] 调用 `GET /api/external/posts` 获取文章列表
-- [ ] 调用 `GET /api/external/posts/:id` 获取单篇文章
-- [ ] 使用 `formatPostToMarkdown` 转换为 Markdown + Front-matter
-- [ ] 支持过滤参数：`--language`、`--status`、`--category`、`--limit`
-- [ ] 支持输出格式：`--format markdown`（默认）、`--format json`
-- [ ] 导出报告统计成功/失败数量
+- [x] CLI 新增 `momei export <output-dir>` 命令
+- [x] 调用 `GET /api/external/posts` 获取文章列表
+- [x] 调用 `GET /api/external/posts/:id` 获取单篇文章
+- [x] 使用 `formatPostToMarkdown` 转换为 Markdown + Front-matter
+- [x] 支持过滤参数：`--language`、`--status`、`--category`、`--limit`
+- [x] 支持输出格式：`--format markdown`（默认）、`--format json`
+- [x] 导出报告统计成功/失败数量
 
 **验收标准**: 导出的 Markdown 保留完整 Front-matter；支持过滤条件；导出报告可追踪；`pnpm typecheck` + `pnpm lint` 通过
 

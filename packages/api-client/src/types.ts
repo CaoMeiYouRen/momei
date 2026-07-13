@@ -72,6 +72,8 @@ export interface MomeiPostListQuery {
     status?: MomeiPostStatus
     language?: string
     search?: string
+    /** Category slug or ID */
+    category?: string
     page?: number
     limit?: number
     orderBy?: string
