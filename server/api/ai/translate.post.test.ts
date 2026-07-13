@@ -94,5 +94,38 @@ describe('POST /api/ai/translate', () => {
             },
         )
     })
+
+    it('should reject unauthenticated requests with 401', async () => {
+        vi.mocked(requireAdminOrAuthor).mockRejectedValue(
+            Object.assign(new Error('Unauthorized'), { statusCode: 401 }),
+        )
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({
+            statusCode: 401,
+        })
+    })
+
+    it('should return 400 for invalid request body', async () => {
+        vi.mocked(readBody).mockResolvedValue({})
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({
+            statusCode: 400,
+        })
+
+        expect(TextService.translate).not.toHaveBeenCalled()
+    })
+
+    it('should return 500 when translation service fails unexpectedly', async () => {
+        vi.mocked(readBody).mockResolvedValue({
+            content: 'test content',
+            targetLanguage: 'en-US',
+        })
+        vi.mocked(TextService.shouldUseAsyncTranslateTask).mockReturnValue(false)
+        vi.mocked(TextService.translate).mockRejectedValue(new Error('Unexpected service failure'))
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({
+            statusCode: 500,
+        })
+    })
 })
 

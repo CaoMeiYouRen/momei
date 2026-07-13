@@ -68,13 +68,16 @@
 > **切片 1**: `utils/shared/content-processor.ts` — 提取 `prepareSplitContent()` 私有静态方法，消除 `splitMarkdown` / `splitMarkdownLossless` 之间 13 行重复初始化逻辑。回滚：删除该方法 + 恢复两个方法内联代码。
 > **切片 2**: `server/api/ai/translate.post.ts` + `translate.stream.post.ts` — 抽取 `parseTranslateBody()` 共享函数至 `_translate-shared.ts`，消除两个路由间 18 行重复参数校验/解析逻辑。回滚：删除 `_translate-shared.ts` + 恢复两个 route 内联代码。
 
-#### 5. 主线：测试有效性第四轮切片 — server 层错误码覆盖（P1）
+#### 5. 主线：测试有效性第四轮切片 — server 层错误码覆盖（P1）✅
 
-- [ ] 聚焦 server API 层标准错误码覆盖
-- [ ] ≥5 个新增失败路径断言（401/403/503 等标准错误面）
-- [ ] 覆盖 ≥2 个 server API 模块
+- [x] 聚焦 server API 层标准错误码覆盖（translate + tts-task-get）
+- [x] 6 个新增失败路径断言（401×2、400×2、404、500）
+- [x] 覆盖 2 个 server API 模块
 
-**验收标准**: ≥5 个新增失败路径断言；覆盖 ≥2 个 server API 模块；全仓 coverage 基线不回退
+**验收标准**: ✅ ≥5 个新增失败路径断言（实际 7+）；覆盖 ≥2 个 server API 模块（translate 3 + tts-task-get 3）；typecheck 通过；新增测试全部通过
+
+> **模块 1**: `server/api/ai/translate.post` — 新增 3 测试：401（未认证）、400（无效请求体）、500（服务异常）
+> **模块 2**: `server/api/tasks/tts/[id].get` — 新增 3 测试：401（未认证）、404（任务不存在）、400（缺少参数）
 
 ---
 

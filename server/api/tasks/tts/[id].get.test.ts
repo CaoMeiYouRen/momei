@@ -175,6 +175,57 @@ describe('GET /api/tasks/tts/[id]', () => {
         })
     })
 
+    it('should reject unauthenticated requests with 401', async () => {
+        vi.mocked(requireAdminOrAuthor).mockRejectedValue(
+            Object.assign(new Error('Unauthorized'), { statusCode: 401 }),
+        )
+
+        await expect(handler({
+            context: {
+                params: { id: 'task-1' },
+            },
+        } as any)).rejects.toMatchObject({
+            statusCode: 401,
+        })
+
+        expect(mockRepo.findOneBy).not.toHaveBeenCalled()
+    })
+
+    it('should return 404 when task is not found', async () => {
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: { id: 'user-1', role: 'author' },
+        } as any)
+
+        mockRepo.findOneBy.mockResolvedValue(null)
+
+        await expect(handler({
+            context: {
+                params: { id: 'nonexistent-task' },
+            },
+        } as any)).rejects.toMatchObject({
+            statusCode: 404,
+        })
+    })
+
+    it('should return 400 when task ID is missing from params', async () => {
+        vi.mocked(requireAdminOrAuthor).mockResolvedValue({
+            user: { id: 'user-1', role: 'author' },
+        } as any)
+
+        // 模拟 params 中没有 id
+        const event = {
+            context: {
+                params: {} as Record<string, string>,
+            },
+        }
+
+        await expect(handler(event as any)).rejects.toMatchObject({
+            statusCode: 400,
+        })
+
+        expect(mockRepo.findOneBy).not.toHaveBeenCalled()
+    })
+
     it('should trigger stale tts recovery in serverless environments and re-read task status', async () => {
         vi.mocked(requireAdminOrAuthor).mockResolvedValue({
             user: { id: 'user-1', role: 'author' },
