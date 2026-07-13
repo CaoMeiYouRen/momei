@@ -75,6 +75,81 @@ describe('usePostEditorAI', () => {
         expect(overlayShow).toHaveBeenCalledTimes(1)
     })
 
+    it('shows error toast when suggestTitles API fails', async () => {
+        mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+        const post = ref({
+            title: '',
+            content: 'This is a long enough article body for AI suggestions.',
+            summary: '',
+            language: 'zh-CN',
+            slug: '',
+        })
+        const overlayShow = vi.fn()
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+        ai.titleOp.value = { show: overlayShow }
+
+        const triggerEvent = {
+            currentTarget: document.createElement('button'),
+        }
+
+        await ai.suggestTitles(triggerEvent)
+
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'pages.admin.posts.ai_error',
+        }))
+        expect(ai.titleSuggestions.value).toEqual([])
+        expect(ai.aiLoading.value.title).toBe(false)
+    })
+
+    it('shows error toast when suggestSlug API fails', async () => {
+        mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+        const post = ref({
+            title: 'Test Title',
+            content: 'This is a long enough article body for AI slug.',
+            summary: '',
+            language: 'zh-CN',
+            slug: '',
+        })
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+
+        await ai.suggestSlug()
+
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'pages.admin.posts.ai_error',
+        }))
+        expect(post.value.slug).toBe('')
+        expect(ai.aiLoading.value.slug).toBe(false)
+    })
+
+    it('shows error toast when suggestSummary API fails', async () => {
+        mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+        const post = ref({
+            title: '',
+            content: 'This is a long enough article body for AI summary.',
+            summary: '',
+            language: 'zh-CN',
+            slug: '',
+        })
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+
+        await ai.suggestSummary()
+
+        expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+            severity: 'error',
+            detail: 'pages.admin.posts.ai_error',
+        }))
+        expect(post.value.summary).toBe('')
+        expect(ai.aiLoading.value.summary).toBe(false)
+    })
+
     it('translates title, summary and content, then reports success', async () => {
         mockFetch
             .mockResolvedValueOnce({ data: { data: 'Translated title' }.data })

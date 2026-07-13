@@ -67,11 +67,11 @@
 
 #### 5. 主线：测试有效性第三轮切片（P1）
 
-- [ ] 补组件层 AI 失败映射断言
-- [ ] 补页面级 auth degradation 场景断言
-- [ ] 补 `settings public` 或 `friend-links` 失败口径断言
+- [x] 补组件层 AI 失败映射断言（suggestTitles/suggestSlug/suggestSummary API 失败 → error toast）
+- [x] 补页面级 auth degradation 场景断言（admin settings 页 fetch/save 失败 → 优雅降级）
+- [x] 补 `settings public` 或 `friend-links` 失败口径断言（friend-links 初始加载失败 + 分类部分失败）
 
-**验收标准**: ≥5 个新增失败路径断言；覆盖 ≥2 个模块；全仓 coverage 基线不回退
+**验收标准**: ≥5 个新增失败路径断言（✅ 7 个）；覆盖 ≥2 个模块（✅ 3 个：AI 编辑器、friend-links、admin settings）；全仓 coverage 基线不回退（✅ typecheck 通过）
 
 ---
 

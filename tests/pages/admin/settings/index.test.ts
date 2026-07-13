@@ -224,6 +224,99 @@ describe('Admin Settings Page', () => {
         })
     })
 
+    it('does not crash and keeps settings empty on initial fetch failure', async () => {
+        mockFetch.mockImplementationOnce(() => Promise.reject(new Error('Network error')))
+
+        const wrapper = await mountSuspended(SettingsPage, {
+            global: {
+                mocks: { $t: translate },
+                stubs: {
+                    AdminPageHeader: { template: '<div><slot name="actions" /></div>' },
+                    AdminFloatingActions: { template: '<div />' },
+                    GeneralSettings: { template: '<div>General</div>' },
+                    AISettings: { template: '<div>AI</div>' },
+                    EmailSettings: { template: '<div>Email</div>' },
+                    StorageSettings: { template: '<div>Storage</div>' },
+                    AnalyticsSettings: { template: '<div>Analytics</div>' },
+                    AuthSettings: { template: '<div>Auth</div>' },
+                    SecuritySettings: { template: '<div>Security</div>' },
+                    AdminNotificationSettings: { template: '<div>Notifications</div>' },
+                    LimitsSettings: { template: '<div>Limits</div>' },
+                    AgreementsSettings: { template: '<div>Agreements</div>' },
+                    CommercialSettings: { template: '<div>Commercial</div>' },
+                    SettingAuditLogList: { template: '<div>Audit Logs</div>' },
+                    SetupFollowUpCard: { template: '<div>Setup Follow Up</div>' },
+                    ThirdPartySettings: { template: '<div>Third Party</div>' },
+                    Card: { template: '<div><slot name="content" /></div>' },
+                    Tabs: { template: '<div><slot /></div>' },
+                    TabList: { template: '<div><slot /></div>' },
+                    Tab: { template: '<div><slot /></div>' },
+                    TabPanels: { template: '<div><slot /></div>' },
+                    TabPanel: { template: '<div><slot /></div>' },
+                    Button: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+                    Message: { template: '<div><slot /></div>' },
+                    Tag: { props: ['value'], template: '<span>{{ value }}</span>' },
+                },
+            },
+        })
+
+        await flushPromises()
+
+        // Page should mount without crashing
+        expect(wrapper.exists()).toBe(true)
+        // Settings should remain empty on initial fetch failure
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.settings).toEqual({})
+    })
+
+    it('resets saving state on settings save failure', async () => {
+        const wrapper = await mountSuspended(SettingsPage, {
+            global: {
+                mocks: { $t: translate },
+                stubs: {
+                    AdminPageHeader: { template: '<div><slot name="actions" /></div>' },
+                    AdminFloatingActions: { template: '<div />' },
+                    GeneralSettings: { template: '<div>General</div>' },
+                    AISettings: { template: '<div>AI</div>' },
+                    EmailSettings: { template: '<div>Email</div>' },
+                    StorageSettings: { template: '<div>Storage</div>' },
+                    AnalyticsSettings: { template: '<div>Analytics</div>' },
+                    AuthSettings: { template: '<div>Auth</div>' },
+                    SecuritySettings: { template: '<div>Security</div>' },
+                    AdminNotificationSettings: { template: '<div>Notifications</div>' },
+                    LimitsSettings: { template: '<div>Limits</div>' },
+                    AgreementsSettings: { template: '<div>Agreements</div>' },
+                    CommercialSettings: { template: '<div>Commercial</div>' },
+                    SettingAuditLogList: { template: '<div>Audit Logs</div>' },
+                    SetupFollowUpCard: { template: '<div>Setup Follow Up</div>' },
+                    ThirdPartySettings: { template: '<div>Third Party</div>' },
+                    Card: { template: '<div><slot name="content" /></div>' },
+                    Tabs: { template: '<div><slot /></div>' },
+                    TabList: { template: '<div><slot /></div>' },
+                    Tab: { template: '<div><slot /></div>' },
+                    TabPanels: { template: '<div><slot /></div>' },
+                    TabPanel: { template: '<div><slot /></div>' },
+                    Button: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+                    Message: { template: '<div><slot /></div>' },
+                    Tag: { props: ['value'], template: '<span>{{ value }}</span>' },
+                },
+            },
+        })
+
+        await flushPromises()
+
+        // @ts-expect-error access exposed script setup binding for test
+        wrapper.vm.settings.site_title = 'Updated Momei'
+        mockFetch.mockImplementationOnce(() => Promise.reject(new Error('Save failed')))
+
+        // @ts-expect-error access exposed script setup binding for test
+        await wrapper.vm.saveSettings()
+
+        // saveSettings should complete without throwing, loading reset to false
+        // @ts-expect-error access exposed script setup binding for test
+        expect(wrapper.vm.saving).toBe(false)
+    })
+
     it('renders smart mode summary and saves wrapped payload', async () => {
         const wrapper = await mountSuspended(SettingsPage, {
             global: {

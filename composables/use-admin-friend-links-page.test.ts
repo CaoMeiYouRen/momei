@@ -153,6 +153,82 @@ describe('useAdminFriendLinksPage', () => {
         expect(exposed.tt('pages.admin.friend_links.statuses.active')).toBe('pages.admin.friend_links.statuses.active')
     })
 
+    it('handles initial load failure with error toast and empty state', async () => {
+        fetchMock.mockRejectedValue(new Error('Network error'))
+
+        vi.stubGlobal('$fetch', fetchMock)
+        const wrapper = await mountSuspended(Harness)
+        const exposed = (wrapper.vm as any).$?.exposed as ReturnType<typeof useAdminFriendLinksPage>
+
+        await vi.waitFor(() => {
+            expect(showErrorToastMock).toHaveBeenCalled()
+        })
+
+        expect(exposed.links.value).toEqual([])
+        expect(exposed.categories.value).toEqual([])
+        expect(exposed.applications.value).toEqual([])
+    })
+
+    it('handles categories fetch failure with partial state', async () => {
+        fetchMock.mockImplementation((url: string, options?: { method?: string }) => {
+            if (url === '/api/admin/friend-links' && !options?.method) {
+                return {
+                    data: {
+                        items: [
+                            {
+                                id: 'link-1',
+                                name: 'Momei',
+                                url: 'https://momei.app',
+                                contactEmail: 'contact@momei.app',
+                                status: FriendLinkStatus.ACTIVE,
+                                healthStatus: FriendLinkHealthStatus.UNREACHABLE,
+                                isPinned: false,
+                                isFeatured: false,
+                                showRssFeed: true,
+                                sortOrder: 1,
+                                createdAt: '2025-01-01T00:00:00.000Z',
+                            },
+                        ],
+                    },
+                }
+            }
+
+            if (url === '/api/admin/friend-link-categories' && !options?.method) {
+                return Promise.reject(new Error('Categories fetch failed'))
+            }
+
+            if (url === '/api/admin/friend-link-applications' && !options?.method) {
+                return {
+                    data: {
+                        items: [
+                            {
+                                id: 'application-1',
+                                name: 'Applicant',
+                                url: 'https://friend.example.com',
+                                contactEmail: 'friend@example.com',
+                                status: FriendLinkApplicationStatus.PENDING,
+                            },
+                        ],
+                    },
+                }
+            }
+
+            return { data: { items: [] } }
+        })
+
+        vi.stubGlobal('$fetch', fetchMock)
+        const wrapper = await mountSuspended(Harness)
+        const exposed = (wrapper.vm as any).$?.exposed as ReturnType<typeof useAdminFriendLinksPage>
+
+        await vi.waitFor(() => {
+            expect(showErrorToastMock).toHaveBeenCalled()
+        })
+
+        expect(exposed.links.value).toHaveLength(1)
+        expect(exposed.categories.value).toEqual([])
+        expect(exposed.applications.value).toHaveLength(1)
+    })
+
     it('opens the link dialog in create and edit modes', async () => {
         const { exposed } = await mountComposable()
         const link = exposed.links.value[0]!
