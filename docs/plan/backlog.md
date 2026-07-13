@@ -1,4 +1,4 @@
-﻿# 墨梅博客 长期规划与积压项 (Backlog)
+# 墨梅博客 长期规划与积压项 (Backlog)
 
 本文档用于维护尚未进入正式阶段执行面的统一候选池，并按“长期主线任务”与“短期 / 一次性候选任务”双轨区分。当前阶段执行面请参阅 [项目计划](./roadmap.md)、[待办事项](./todo.md) 与 [待办归档](./todo-archive.md)。
 
@@ -31,6 +31,7 @@
     - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
     - 第四十六阶段（已上收 A/B/C/D 四组高风险补测切片，全仓 coverage 82%+ 收口）。
     - 第四十九阶段（已补齐 Phase C feed 渲染/降级测试，关闭 Phase 44 剩余缺口）。
+    - 第五十五阶段（已上收测试有效性第三轮切片：7 个新增失败路径断言，覆盖 AI 编辑器、friend-links、admin settings 三个模块）。
 - **下一次可切片方向**:
     - 若后续继续上收，优先进入“测试有效性第二轮切片”：补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径，避免高风险链路只剩服务端成功断言。
     - 保持“已有测试基座 + 失败 / 边界优先”的节奏，不回到低价值 coverage 铺量。
@@ -60,6 +61,7 @@
     - 第四十七阶段（6 处生产代码 as any 收敛，eslint-disable 维持 ≤13）。
     - 第四十八阶段（9 处 as any 清零：seed-demo.ts + translation.ts + typeorm-adapter.ts）。
     - 第五十一阶段（≥5 组窄切片，11 处 as any → 具体类型断言收敛，typecheck 零错误）。
+    - 第五十五阶段（3 组窄切片：social-post-platforms 非空断言 + nuxt.config.ts explicit-any + admin-taxonomy-page 13 处 any，累计消除 22 处；同步更新 eslint-debt-targets.mjs）。
 - **下一次可切片方向**:
     - 下一轮进入实现前，先补一条规则债 inventory 脚本，至少覆盖 `no-explicit-any`、`no-non-null-assertion`、warning 基线与目录分桶；正式切片默认以该脚本输出作为 baseline / delta 事实源。
     - 继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在未覆盖的生产文件中推进。
@@ -96,6 +98,7 @@
     - 第四十八阶段（DemoTourStage/AdminAiPageEvent/VolcengineResponsePacket 三组类型统一，同名 type 15→12）。
     - 第四十九阶段（type 收敛 12→11，AdAdapterConfig 统一）。
     - 第五十一阶段（≥5 组热点切片：commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）。
+    - 第五十五阶段（2 组逻辑重复抽象收敛：taxonomy-post-count.ts 子查询构建器抽取 + post-distribution-wechatsync.ts 泛型 mergeByKey；duplicate-code 0.33% < 基线 1.22%）。
 - **下一次可切片方向**:
     - 下一轮优先进入 CLI 包与主项目的类型收敛：`MomeiPostStatus` → 从 `PostStatus` 枚举派生、`MomeiPostScaffoldMetadata` → 直接 import。
     - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹。
@@ -421,93 +424,15 @@
     - 复用现有 AI 计费和额度管理
     - 提供操作前后对比视图
 
-### 2026-07 新增候选任务
+### 2026-07 批次 — 已上收并完成
 
-10. **CLI 与 MCP 包 API 客户端代码复用优化 (P1, 候选)**
-- **背景**: `packages/cli` 和 `packages/mcp-server` 都通过 HTTP 调用 `server/api/external/` 下的外部接口，但两者独立实现了 HTTP 客户端、API 方法和类型定义，存在大量代码重复。
-- **问题分析**:
-    - HTTP 客户端重复：CLI 使用 `axios`，MCP 使用原生 `fetch`
-    - API 方法重复：CLI 18 个方法，MCP 13 个方法，核心逻辑重复
-    - 类型定义重复：CLI 有完整 types.ts (335 行)，MCP 使用内联类型
-    - 工具函数重复：`extractTagNames` 等函数实现几乎相同
-- **功能缺失**:
-    - CLI 缺失：`listPosts`、`updatePost`、`deletePost`
-    - MCP 缺失：`validateImportPost`、链接治理相关 3 个接口
-- **优化方案**:
-    - 阶段一：补齐现有外部接口的客户端支持（低风险，2-3h）
-    - 阶段二：新增高优先级外部接口（需服务端配合，8-12h）
-    - 阶段三：提取共享 API 客户端库 `packages/shared-api-client`（6-8h）
-- **预期收益**:
-    - 消除 60-70% 重复代码
-    - 统一类型安全和错误处理
-    - 两个包功能完全对齐
-- **前置条件**:
-    - 完成阶段一的接口补齐
-    - 评估共享包的依赖管理和发布流程
-- **验收标准**:
-    - 代码重复率下降 60%+
-    - CLI 和 MCP 包 API 方法覆盖率达到 100%
-    - `duplicate-code:check` 基线不反弹
-    - 所有现有测试通过
-- **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+> #10 CLI/MCP API 客户端复用优化 → Phase 54-55 完成阶段一+阶段二，CLI +15、MCP +16 方法覆盖率达 100%。
+> #11 外部接口扩展 → Phase 55 完成全部 5 组外部接口（分类/标签/灵感 CRUD + 灵感转文章 + 文章版本）。
+> #12 AI 功能备用路线与自动降级 → Phase 55 完成文本+图片 fallback 链、透明切换与降级日志。
 
-11. **外部接口扩展：分类/标签/灵感管理 (P1, 候选)**
-- **背景**: 当前外部接口 (`server/api/external/`) 仅覆盖文章管理和 AI 功能，缺少分类、标签、灵感等管理接口，限制了 CLI/MCP 的完整管理能力。
-- **接口清单**:
-    - 分类管理：`GET/POST/PUT/DELETE /api/external/categories`
-    - 标签管理：`GET/POST/PUT/DELETE /api/external/tags`
-    - 灵感管理：`GET/POST/PUT/DELETE /api/external/snippets`
-    - 灵感转文章：`POST /api/external/snippets/[id]/convert`
-    - 文章版本：`GET/POST /api/external/posts/[id]/versions`
-- **技术方案**:
-    - 复用现有的内部 API 实现
-    - 添加 API Key 鉴权（复用 `validateApiKeyRequest`）
-    - 为每个接口添加 Zod schema 验证
-- **非目标**: 不暴露管理后台的全部接口，只暴露适合外部集成的子集
-- **前置条件**:
-    - 完成 CLI/MCP 包的 API 客户端统一（候选 #10）
-    - 评估每个接口的安全性和权限控制
-- **验收标准**:
-    - 新增 15+ 个外部接口
-    - 所有接口有 Zod schema 验证
-    - CLI 和 MCP 包有对应的方法实现
-    - 接口文档更新
+### 2026-07 批次剩余候选
 
-12. **AI 功能备用路线与自动降级 (P1, 候选)**
-- **背景**: 当前 AI 功能（文本生成、图片生成、TTS、ASR）支持多个提供商，但缺乏主提供商失败时的自动降级机制，导致服务中断需要人工干预。
-- **问题分析**:
-    - 主提供商 API 故障时，整个 AI 功能不可用
-    - 图片生成同样需要备用路线支持
-    - 当前 `getAIProvider` 函数只返回单一提供商实例
-- **功能清单**:
-    | 功能 | 优先级 | 说明 |
-    |:---|:---|:---|
-    | **文本生成备用路线** | P1 | 主提供商（如 OpenAI）失败时自动切换到备用（如 Gemini、DeepSeek） |
-    | **图片生成备用路线** | P1 | 主提供商（如 Gemini）失败时自动切换到备用（如 OpenAI、Stable Diffusion） |
-    | **TTS 备用路线** | P2 | 主提供商（如 Volcengine）失败时自动切换到备用（如 OpenAI、SiliconFlow） |
-    | **ASR 备用路线** | P2 | 主提供商（如 Volcengine）失败时自动切换到备用（如 SiliconFlow） |
-- **技术方案**:
-    - 新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项（按类别：text/image/tts/asr）
-    - 修改 `getAIProvider` 函数，支持 fallback 链
-    - 实现重试逻辑：主提供商失败 → 等待 → 尝试备用提供商
-    - 记录降级日志和监控指标
-- **非目标**: 不改变现有提供商的实现、不引入新的 AI 提供商、不做负载均衡
-- **前置条件**:
-    - 确认现有提供商的错误处理机制
-    - 评估重试策略对用户体验的影响
-- **验收标准**:
-    - 主提供商失败时，自动切换到备用提供商
-    - 降级过程对用户透明（无感知或有友好提示）
-    - 降级日志可追踪
-    - 所有现有测试通过
-- **验收标准**:
-    - 代码重复率下降 60%+
-    - CLI 和 MCP 包 API 方法覆盖率达到 100%
-    - `duplicate-code:check` 基线不反弹
-    - 所有现有测试通过
-- **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
-
-13. **RSS 订阅链接美化 (P2, 候选)**
+10. **RSS 订阅链接美化 (P2, 候选)**
 - **背景**: 当前 RSS feed 输出为原始 XML，浏览器直接显示时可读性差。由于 XSLT 即将被 Chrome/Firefox/Safari 弃用，需要采用 XML + CSS 方案进行美化。
 - **技术方案**:
     - 在 RSS feed 的 XML 头部添加 `<?xml-stylesheet?>` 指令
@@ -527,7 +452,7 @@
 
 ### 2026-07 迁移功能增强候选任务
 
-14. **本地图片自动上传与迁移 (P0, 候选)**
+11. **本地图片自动上传与迁移 (P0, 候选)**
 - **背景**: 当前迁移 CLI 明确声明"暂不处理本地图片上传，建议用户先将图片托管至云端"。这是迁移体验最大的短板——用户需要手动将 Hexo 的 `source/images/` 目录中的图片上传到对象存储，再手动替换 Markdown 中的相对路径引用，门槛极高。
 - **问题分析**:
     - Hexo 文章常使用相对路径引用本地图片：`![](../images/cover.png)`、`![](/posts/xxx/image.jpg)`
@@ -553,7 +478,7 @@
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **2.33**
 - **详细方案**: 待设计
 
-15. **CLI 导出命令 (P1, 候选)**
+12. **CLI 导出命令 (P1, 候选)**
 - **背景**: 当前迁移 CLI 只支持"导入"方向，不支持"导出"。服务端已有 `server/services/post-export.ts` 实现 `formatPostToMarkdown` 逻辑，但 CLI 未暴露对应命令。导出能力对于备份、跨平台迁移、本地编辑等工作流有实际价值。
 - **技术方案**:
     - CLI 新增 `momei export <output-dir>` 命令
@@ -576,7 +501,7 @@
 - **ROI**: 价值 3 / 契合度 3 / 复杂度 2 / 风险 1 = **2.00**
 - **详细方案**: 待设计
 
-16. **迁移元数据字段扩展 (P1, 候选)**
+13. **迁移元数据字段扩展 (P1, 候选)**
 - **背景**: 当前 CLI 的字段映射已覆盖核心字段（title、date、tags、category、slug、summary、coverImage、audio 等），但部分对 SEO 和历史数据继承有意义的字段尚未支持。CLI README 已列出不支持字段清单。
 - **待扩展字段**:
     | 字段 | 优先级 | 说明 |
@@ -602,7 +527,7 @@
 - **ROI**: 价值 2 / 契合度 3 / 复杂度 1 / 风险 1 = **2.00**
 - **详细方案**: 待设计
 
-17. **安装引导向导 (P2, 候选)**
+14. **安装引导向导 (P2, 候选)**
 - **背景**: 设计文档 `docs/design/modules/migration.md` §3 已完整规划了安装引导向导（Onboarding Wizard），包括环境自检、管理员创建、站点基本配置、数据迁移建议四个步骤。该功能是首次用户体验的关键入口，但尚未实现。
 - **技术方案**:
     - 新增 `/onboarding` 页面（基于 PrimeVue Stepper 组件）
@@ -624,7 +549,7 @@
 - **ROI**: 价值 4 / 契合度 5 / 复杂度 4 / 风险 3 = **1.50**
 - **详细方案**: [迁移与集成设计文档 - 引导安装向导](../design/modules/migration.md#3-引导安装向导-installation-wizard)
 
-18. **多平台迁移适配器 (P2, 候选)**
+15. **多平台迁移适配器 (P2, 候选)**
 - **背景**: 当前迁移 CLI 仅支持 Hexo 格式的 Markdown 文件解析。WordPress、Hugo、Jekyll 等其他主流博客平台的用户无法直接使用 CLI 迁移。虽然 Hexo 是目标用户群的主要来源，但扩展多平台支持可以降低更多用户的迁移门槛。
 - **技术方案**:
     - 抽象 `ContentParser` 接口：`parse(sourceDir): Promise<ParsedPost[]>`
@@ -648,7 +573,7 @@
 - **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
 - **详细方案**: 待设计
 
-19. **迁移进度可视化与断点续传 (P3, 候选)**
+16. **迁移进度可视化与断点续传 (P3, 候选)**
 - **背景**: 当前 CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇文章）迁移时，如果中途失败需要从头开始。断点续传能力可以显著改善大型迁移的体验。
 - **技术方案**:
     - CLI 在本地维护迁移状态文件（`.momei-migration-state.json`）
@@ -675,3 +600,7 @@
 - [待办事项](./todo.md)
 - [待办归档](./todo-archive.md)
 - [项目规划规范](../standards/planning.md)
+
+
+
+

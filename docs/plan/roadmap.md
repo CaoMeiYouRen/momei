@@ -598,6 +598,42 @@
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第五十六阶段：API 客户端统一与 CLI 导出（API Client Unification & CLI Export）（规划中）
+
+**时间表**: 2026-07-13 ~ 约 2 周
+**目标**: 在第五十五阶段完成 CLI/MCP 外部接口扩展与 AI 降级后，以「1 重构 + 1 新功能 + 3 优化」组合推进：共享 API 客户端库提取作为本阶段主重构，将 CLI 从 axios 迁移到 fetch 消除两包代码重复；CLI 导出命令填补迁移工具体验缺口；三条优化延续治理节奏（ESLint/类型债窄切片、结构复用治理、测试有效性 server 层错误码覆盖）。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或长期主线，容量控制在 `5` 项内，符合规划规范。共享客户端库提取基于 Phase 54-55 完成阶段一+二后的自然演进；CLI 导出命令复用已有 `formatPostToMarkdown` 和外部 API 基础设施，增量风险低；ESLint、结构复用和测试有效性延续治理节奏。
+
+**ROI 评估**: 共享 API 客户端库 `2.00`；CLI 导出命令 `2.00`；ESLint/类型债治理 `1.50`；结构复用治理 `1.60`；测试有效性第四轮 `1.50`。
+
+1. **主线：共享 API 客户端库提取（P1）**:
+    - **执行范围**: 创建 `packages/api-client` 包，实现基于 fetch 的统一 HTTP 客户端，提取 CLI `types.ts` 共享类型，迁移 30 个共享 API 方法。改造 CLI 包使用共享客户端并移除 axios 依赖，改造 MCP 包使用共享客户端。
+    - **非目标**: 不改变 CLI 命令签名和 MCP 工具注册层；不迁移 `importPosts`（CLI 特有批量导入逻辑，保留在 CLI 包）。
+    - **最小验收**: CLI + MCP 全部使用共享客户端；axios 依赖移除；`pnpm typecheck` + `pnpm lint` 通过；`duplicate-code:check` 基线不反弹；所有现有测试通过。
+
+2. **主线：CLI 导出命令（P1）**:
+    - **执行范围**: CLI 新增 `momei export <output-dir>` 命令，调用 `GET /api/external/posts` 获取列表、`GET /api/external/posts/:id` 获取详情，使用 `formatPostToMarkdown` 转换为 Markdown + Front-matter。支持 `--language`、`--status`、`--category`、`--limit` 过滤和 `--format markdown|json` 输出格式。
+    - **非目标**: 不导出用户数据/评论/设置、不做增量导出、不做自动同步。
+    - **最小验收**: 导出的 Markdown 保留完整 Front-matter；过滤条件生效；导出报告可追踪；`pnpm typecheck` + `pnpm lint` 通过。
+
+3. **主线：ESLint/类型债 — ≥3 组窄切片（P1）**:
+    - **执行范围**: 继续「单规则 + 单文件/双文件」窄切片策略。优先选择未覆盖的生产文件。
+    - **非目标**: 不扩写为全仓 `any` 清零、不引入新规则族。
+    - **最小验收**: ≥3 组窄切片完成并通过定向验证；warning=0 保持。
+
+4. **主线：结构复用治理 — ≥2 组热点切片（P1）**:
+    - **执行范围**: 聚焦同名函数、重复类型、轻量工具函数的收敛。每组切片给出原始重复点、抽象边界与回滚方式。
+    - **非目标**: 不推动跨目录大重构、不为复用而复用、不改变业务行为。
+    - **最小验收**: ≥2 组热点切片完成；`pnpm duplicate-code:check` 基线不反弹。
+
+5. **主线：测试有效性第四轮切片 — server 层错误码覆盖（P1）**:
+    - **执行范围**: 聚焦 server API 层标准错误码覆盖，为已有测试基座的模块补 401/403/503 等标准错误面的断言验证。
+    - **非目标**: 不做 coverage 数字冲刺、不做低价值全量补测。
+    - **最小验收**: ≥5 个新增失败路径断言；覆盖 ≥2 个 server API 模块；全仓 coverage 基线不回退。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
