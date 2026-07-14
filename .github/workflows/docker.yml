@@ -67,6 +67,9 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build api-client first so nuxt typecheck resolves its type declarations
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
       - run: pnpm run lint
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
