@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish",
     "release": "pnpm regression:pre-release && pnpm release:semantic",
     "release:check": "node scripts/release/pre-release-check.mjs --skip-test --skip-e2e",
     "release:check:full": "node scripts/release/pre-release-check.mjs",
@@ -159,6 +162,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "@intlify/core-base": "^11.4.6",
     "@intlify/eslint-plugin-vue-i18n": "4.5.1",
     "@intlify/shared": "^11.4.6",

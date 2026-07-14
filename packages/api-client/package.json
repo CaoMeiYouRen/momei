@@ -30,6 +30,13 @@
   ],
   "author": "CaoMeiYouRen",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaoMeiYouRen/momei.git"
+  },
   "devDependencies": {
     "@types/node": "^26.1.0",
     "eslint": "^9.39.2",

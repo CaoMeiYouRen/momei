@@ -89,6 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
+      id-token: write          # OIDC for npm publish
       packages: write
       contents: write
       issues: write
@@ -98,6 +99,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          fetch-depth: 0        # semantic-release 和 changesets 都需要完整 git 历史
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
@@ -107,10 +109,25 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
       - run: pnpm i --frozen-lockfile
-      - env:
+
+      # 步骤 1：semantic-release — 根包版本 + CHANGELOG + GitHub Release
+      - name: Semantic Release (root)
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run release:semantic
+
+      # 步骤 2：changeset publish — 子包版本 + CHANGELOG + npm publish
+      - name: Build sub-packages
+        run: pnpm -r --filter "./packages/*" build
+      - name: Changeset Publish (packages)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 无需 NPM_TOKEN — 通过 OIDC 自动认证
+        run: pnpm changeset publish
+
+      # 步骤 3：Docker build — 基于 semantic-release 的 git tag
       # 发布到 docker
       - name: Get git tag
         id: git_tag

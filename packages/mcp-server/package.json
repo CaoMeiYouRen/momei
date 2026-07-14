@@ -27,6 +27,10 @@
     "test:bench": "vitest bench",
     "stress-test": "node scripts/stress-test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaoMeiYouRen/momei.git"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@momei-blog/api-client": "workspace:*",
