@@ -113,7 +113,7 @@
     "dompurify": "^3.4.11",
     "dotenv": "^17.4.2",
     "driver.js": "^1.7.0",
-    "fast-xml-parser": "^5.9.3",
+    "fast-xml-parser": "^5.10.0",
     "feed": "^6.0.0",
     "fs-extra": "^11.3.6",
     "google-libphonenumber": "^3.2.44",
