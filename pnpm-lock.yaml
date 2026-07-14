@@ -244,8 +244,8 @@ importers:
         specifier: ^4.0.0-nightly.202508271359
         version: 4.0.0-nightly.202508271359
       music-metadata:
-        specifier: ^11.13.0
-        version: 11.13.0
+        specifier: ^11.14.0
+        version: 11.14.0
       mysql2:
         specifier: ^3.22.6
         version: 3.22.6(@types/node@26.1.0)
@@ -9591,8 +9591,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  music-metadata@11.13.0:
-    resolution: {integrity: sha512-uXRaov9dfjSpQufXIU7sMxVZnh+FilCQv2mXn+K5EJ/decP3dTWrgvPYa5r6MtRbieNSCE708Da4J0u1UGfQIw==}
+  music-metadata@11.14.0:
+    resolution: {integrity: sha512-RyOSq98kuVfXB1emJ+NjBF0av8Ph3oBuqNy+Z5sFFfLhjYrkBQEB53V8u+U0RNTVwNo20WoPUwNkfKwZfrOqmQ==}
     engines: {node: '>=18'}
 
   mute-stream@0.0.7:
@@ -23467,7 +23467,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  music-metadata@11.13.0:
+  music-metadata@11.14.0:
     dependencies:
       '@borewit/text-codec': 0.2.2
       '@tokenizer/token': 0.3.0
