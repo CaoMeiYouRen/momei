@@ -311,7 +311,7 @@ importers:
         version: 5.0.0(winston@3.19.0)
       ws:
         specifier: ^8.21.0
-        version: 8.21.0
+        version: 8.21.1
       zhlint:
         specifier: ^0.8.2
         version: 0.8.2
@@ -13024,8 +13024,8 @@ packages:
     resolution: {integrity: sha512-OTIk8iR8/aCRWBqvxrzxR0hgxWpnYBblY1S5hDWBQfk/VFmJwzmJgQFN3WsoUKHISv2eAwe+PpbUzyL1CKTLXg==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  ws@8.21.0:
-    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+  ws@8.21.1:
+    resolution: {integrity: sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -15834,7 +15834,7 @@ snapshots:
       vite-plugin-inspect: 11.4.1(@nuxt/kit@4.4.8(magicast@0.5.3))(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.49.0)(yaml@2.9.0))
       vite-plugin-vue-tracer: 1.3.0(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.101.0)(terser@5.49.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3))
       which: 6.0.1
-      ws: 8.21.0
+      ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -19969,7 +19969,7 @@ snapshots:
       nostics: 0.2.0
       pathe: 2.0.3
       valibot: 1.4.1(typescript@6.0.3)
-      ws: 8.21.0
+      ws: 8.21.1
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
     transitivePeerDependencies:
@@ -21318,7 +21318,7 @@ snapshots:
       buffer-image-size: 0.6.4
       entities: 7.0.1
       whatwg-mimetype: 3.0.0
-      ws: 8.21.0
+      ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -22180,7 +22180,7 @@ snapshots:
       speedline-core: 1.4.3
       third-party-web: 0.26.7
       tldts-icann: 6.1.86
-      ws: 8.21.0
+      ws: 8.21.1
       yargs: 17.7.2
       yargs-parser: 21.1.1
     transitivePeerDependencies:
@@ -22951,7 +22951,7 @@ snapshots:
       sharp: 0.34.5
       undici: 6.27.0
       workerd: 1.20260706.1
-      ws: 8.21.0
+      ws: 8.21.1
       youch: 4.1.0-beta.10
     transitivePeerDependencies:
       - bufferutil
@@ -25034,7 +25034,7 @@ snapshots:
       devtools-protocol: 0.0.1551306
       typed-query-selector: 2.12.0
       webdriver-bidi-protocol: 0.4.0
-      ws: 8.21.0
+      ws: 8.21.1
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -27664,7 +27664,7 @@ snapshots:
     dependencies:
       signal-exit: 4.1.0
 
-  ws@8.21.0: {}
+  ws@8.21.1: {}
 
   wsl-utils@0.3.1:
     dependencies:
