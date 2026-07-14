@@ -175,8 +175,8 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
       driver.js:
-        specifier: ^1.4.0
-        version: 1.6.0
+        specifier: ^1.7.0
+        version: 1.7.0
       fast-xml-parser:
         specifier: ^5.8.0
         version: 5.9.3
@@ -6972,8 +6972,8 @@ packages:
     resolution: {integrity: sha512-GUE3gqcDCaMltj2++g6bRQ5rBJWtkWTmqmD0fo1RnnMuUqHNCt2oTPeDnS9n6fKYvlhn7AeBkb38lymBtWBQdA==}
     engines: {node: '>=8'}
 
-  driver.js@1.6.0:
-    resolution: {integrity: sha512-gryo9QS7AZhz8J0bmdf42dwaTzcd1BgSJLnaSM7cPJbu8bTW8wIEuiGDy4MoCvB4Sr8wA9g5o2G9EFNVYZGeVQ==}
+  driver.js@1.7.0:
+    resolution: {integrity: sha512-IWkESaVWaoxIWu3TqTpLRDgOFmDdjZsg/Oz7hrrr4ApBUapTFm9YCXYnptu3mKN8l4eAdtrxpU54l7kHLK96tw==}
 
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
@@ -20055,7 +20055,7 @@ snapshots:
 
   dotenv@8.1.0: {}
 
-  driver.js@1.6.0: {}
+  driver.js@1.7.0: {}
 
   dts-resolver@3.0.0: {}
 
