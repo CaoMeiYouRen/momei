@@ -109,7 +109,7 @@
     "dayjs": "^1.11.21",
     "debug": "^4.4.0",
     "diff": "^9.0.0",
-    "dom-to-image-more": "^3.10.0",
+    "dom-to-image-more": "^3.10.2",
     "dompurify": "^3.4.11",
     "dotenv": "^17.4.2",
     "driver.js": "^1.4.0",
