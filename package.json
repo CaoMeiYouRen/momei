@@ -149,7 +149,7 @@
     "push-all-in-one": "^4.5.2",
     "quill": "^2.0.3",
     "reflect-metadata": "^0.2.2",
-    "sanitize-html": "^2.17.5",
+    "sanitize-html": "^2.17.6",
     "typeorm": "^1.1.0",
     "validator": "^13.15.35",
     "vue": "^3.5.39",
