@@ -411,6 +411,9 @@ export default defineNuxtConfig({
                 // TypeORM v1.1.0 通过 PlatformTools.load() 动态 require 加载 postgres 驱动，
                 // Vercel trace 可能漏收录 pg。显式 inline 确保部署产物包含 Postgres runtime 依赖。
                 'pg',
+                // sanitize-html 内部 require('htmlparser2') 会加载 ESM-only 的 v12，
+                // 需一起 inline 让 Rolldown 在构建时处理 CJS→ESM 转换
+                'sanitize-html',
                 'mjml',
                 'mjml-core',
                 'html-minifier',
