@@ -408,6 +408,9 @@ export default defineNuxtConfig({
             // Windows 性能优化: 缩小 inline 列表，仅保留运行时必需的服务端包
             // PrimeVue 等前端包已在 Vite 客户端构建中处理，不需在 Nitro 服务端重复打包
             inline: [
+                // TypeORM 通过动态 require 加载 postgres 驱动，Vercel trace 可能漏收录 pg。
+                // 显式 inline 后可确保部署产物始终包含 Postgres runtime 依赖。
+                'pg',
                 'mjml',
                 'mjml-core',
                 'html-minifier',

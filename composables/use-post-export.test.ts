@@ -27,9 +27,11 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
-global.fetch = vi.fn()
-global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
-global.URL.revokeObjectURL = vi.fn()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const g = globalThis as any
+g.fetch = vi.fn()
+g.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+g.URL.revokeObjectURL = vi.fn()
 
 describe('usePostExport', () => {
     let mockAnchorElement: HTMLAnchorElement | null = null
@@ -190,8 +192,8 @@ describe('usePostExport', () => {
             const { exportPost } = usePostExport()
             await exportPost('post-123')
 
-            expect(global.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
-            expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+            expect(g.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
+            expect(g.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
         })
     })
 

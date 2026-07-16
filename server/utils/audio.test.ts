@@ -21,6 +21,7 @@ vi.mock('@tokenizer/http', () => ({
 describe('audio utils', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        vi.unstubAllGlobals()
     })
 
     describe('probeRemoteAudio', () => {
@@ -34,7 +35,7 @@ describe('audio utils', () => {
             }
 
             // Mock fetch for HEAD request
-            global.fetch = vi.fn().mockResolvedValue({
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
                 ok: true,
                 headers: {
                     get: vi.fn((key: string) => {
@@ -47,7 +48,7 @@ describe('audio utils', () => {
                         return null
                     }),
                 },
-            })
+            }))
 
             // Mock tokenizer
             const mockTokenizer = {
@@ -79,7 +80,7 @@ describe('audio utils', () => {
             }
 
             // Mock fetch to fail for HEAD request
-            global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
+            vi.stubGlobal('fetch', vi.fn().mockRejectedValueOnce(new Error('Network error')))
 
             const mockTokenizer = {
                 fileInfo: { size: 3145728 },
@@ -104,7 +105,7 @@ describe('audio utils', () => {
             const mockUrl = 'https://example.com/audio.mp3'
 
             // Mock fetch for HEAD request
-            global.fetch = vi.fn().mockResolvedValue({
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
                 ok: true,
                 headers: {
                     get: vi.fn((key: string) => {
@@ -117,7 +118,7 @@ describe('audio utils', () => {
                         return null
                     }),
                 },
-            })
+            }))
 
             const { makeTokenizer } = await import('@tokenizer/http')
             const { parseFromTokenizer } = await import('music-metadata')
@@ -138,7 +139,7 @@ describe('audio utils', () => {
             const mockUrl = 'https://example.com/audio.mp3'
 
             // Mock all requests to fail
-            global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+            vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')))
 
             const { makeTokenizer } = await import('@tokenizer/http')
             const { parseFromTokenizer } = await import('music-metadata')
@@ -158,12 +159,12 @@ describe('audio utils', () => {
                 },
             }
 
-            global.fetch = vi.fn().mockResolvedValue({
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
                 ok: true,
                 headers: {
                     get: vi.fn(() => 'application/octet-stream'),
                 },
-            })
+            }))
 
             const mockTokenizer = {
                 fileInfo: { size: 1048576 },
@@ -189,12 +190,12 @@ describe('audio utils', () => {
                 },
             }
 
-            global.fetch = vi.fn().mockResolvedValue({
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
                 ok: true,
                 headers: {
                     get: vi.fn(() => 'audio/mpeg'),
                 },
-            })
+            }))
 
             const mockTokenizer = {
                 fileInfo: { size: 1048576 },

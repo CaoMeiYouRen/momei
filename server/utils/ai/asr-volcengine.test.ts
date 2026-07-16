@@ -91,7 +91,7 @@ function buildErrorPacket(code: number, message: string) {
     raw.writeUInt8(0x00, 3)
     raw.writeUInt32BE(code, 4)
     raw.writeUInt32BE(messageBuffer.length, 8)
-    messageBuffer.copy(raw, 12)
+    messageBuffer.copy(raw as unknown as Uint8Array, 12)
     return raw
 }
 

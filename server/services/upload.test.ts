@@ -350,7 +350,7 @@ describe('UploadService', () => {
             const mockFiles = [
                 { filename: 'test.jpg', data: Buffer.from('data'), type: 'image/jpeg' },
             ]
-            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles)
+            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles as any)
             const mockStorage = { upload: vi.fn().mockResolvedValue({ url: 'http://test.com/test.jpg' }) }
             vi.mocked(getFileStorage).mockReturnValue(mockStorage)
 
@@ -378,7 +378,7 @@ describe('UploadService', () => {
             const mockFiles = [
                 { filename: 'test.mp3', data: Buffer.from('data'), type: 'audio/mpeg' },
             ]
-            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles)
+            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles as any)
             const mockStorage = { upload: vi.fn().mockResolvedValue({ url: 'http://test.com/test.mp3' }) }
             vi.mocked(getFileStorage).mockReturnValue(mockStorage)
 
@@ -393,7 +393,7 @@ describe('UploadService', () => {
             const mockFiles = [
                 { filename: 'test.jpg', data: Buffer.from('data'), type: 'image/jpeg' },
             ]
-            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles)
+            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles as any)
 
             await expect(handleFileUploads(mockEvent, { prefix: 'test/', type: UploadType.AUDIO }))
                 .rejects.toThrow('仅支持音频上传')
@@ -405,7 +405,7 @@ describe('UploadService', () => {
             const mockFiles = [
                 { filename: 'test.mp3', data: largeData, type: 'audio/mpeg' },
             ]
-            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles)
+            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles as any)
             const mockStorage = { upload: vi.fn().mockResolvedValue({ url: 'http://test.com/test.mp3' }) }
             vi.mocked(getFileStorage).mockReturnValue(mockStorage)
 
@@ -420,7 +420,7 @@ describe('UploadService', () => {
             const mockFiles = [
                 { filename: 'test.mp3', data: tooLargeData, type: 'audio/mpeg' },
             ]
-            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles)
+            vi.mocked(readMultipartFormData).mockResolvedValue(mockFiles as any)
 
             await expect(handleFileUploads(mockEvent, { prefix: 'test/', type: UploadType.AUDIO }))
                 .rejects.toThrow(/文件大小超出/)
