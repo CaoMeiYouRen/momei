@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -66,7 +67,7 @@ describe('run-e2e-critical', () => {
         expect(spawnMock).toHaveBeenCalledWith(
             process.execPath,
             expect.arrayContaining([
-                expect.stringContaining('scripts/testing/run-e2e.mjs'),
+                expect.stringContaining(path.join('scripts', 'testing', 'run-e2e.mjs')),
                 'tests/e2e/auth-session-governance.e2e.test.ts',
             ]),
             expect.objectContaining({
@@ -96,14 +97,15 @@ describe('run-e2e-critical', () => {
         const firstCallArgs = (spawnMock.mock.calls[0]?.[1] ?? []) as string[]
         const secondCallArgs = (spawnMock.mock.calls[1]?.[1] ?? []) as string[]
 
-        expect(firstCallArgs[0]).toContain('scripts/testing/run-e2e.mjs')
+        const scriptPath = path.join('scripts', 'testing', 'run-e2e.mjs')
+        expect(firstCallArgs[0]).toContain(scriptPath)
         expect(firstCallArgs).toEqual(expect.arrayContaining([
             'tests/e2e/auth-session-governance.e2e.test.ts',
             '--project=chromium',
             '--project=firefox',
             '--project=webkit',
         ]))
-        expect(secondCallArgs[0]).toContain('scripts/testing/run-e2e.mjs')
+        expect(secondCallArgs[0]).toContain(scriptPath)
         expect(secondCallArgs).toEqual(expect.arrayContaining([
             'tests/e2e/mobile-critical.e2e.test.ts',
             '--project=mobile-chrome-critical',

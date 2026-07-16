@@ -217,8 +217,9 @@ describe('run-review-gate-ui-baseline', () => {
 
         const result = await resultPromise
         expect(result.ok).toBe(true)
-        expect(result.logPath).toContain('/tmp/ui-baseline/playwright.log')
-        expect(writes[0]?.path).toContain('/tmp/ui-baseline/playwright.log')
+        const expectedLogPath = path.normalize('/tmp/ui-baseline/playwright.log')
+        expect(result.logPath).toContain(expectedLogPath)
+        expect(writes[0]?.path).toContain(expectedLogPath)
         expect(writes[0]?.content).toContain('stdout line')
     })
 
