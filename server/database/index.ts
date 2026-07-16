@@ -1,12 +1,10 @@
-import { createRequire } from 'node:module'
 import { ms } from 'ms'
 import { DataSource, In, type DataSourceOptions } from 'typeorm'
-// better-sqlite3 和 mysql2 可直接 ESM import，无 CJS/ESM 互操作问题
 import betterSqlite3 from 'better-sqlite3'
 import mysql2 from 'mysql2'
-// pg 有 CJS/ESM 互操作问题（内部 require('pg-pool') 在 ESM 中返回 Module 对象），
-// 需要在 case 分支中通过 createRequire 惰性加载，避免模块级加载触发错误。
-const _require = createRequire(import.meta.url)
+// pg 通过 ESM import 导入，Nitro 的 Rolldown 可以静态分析并将其链接到内联模块。
+// Vitest 中通过 deps.interopDefault 配置处理 CJS/ESM 互操作（见 vitest.shared.ts）。
+import pg from 'pg'
 import { Account } from '../entities/account'
 import { Session } from '../entities/session'
 import { User } from '../entities/user'
@@ -169,14 +167,13 @@ function getDataSourceContext() {
             break
         }
         case 'postgres': {
-            // pg 有 CJS/ESM 互操作问题，使用 createRequire 惰性加载（只在 postgres 分支执行时触发）
-            const pgDriver = _require('pg')
             options = {
                 type: actualDbType,
                 url: DATABASE_URL,
                 parseInt8: true,
                 // 显式传入驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
-                driver: pgDriver,
+                // pg 通过顶层 ESM import 导入，Nitro Rolldown 可静态分析并链接到内联模块
+                driver: pg,
                 ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
                 extra: {
                     max: 20,

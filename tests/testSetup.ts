@@ -67,6 +67,25 @@ vi.stubGlobal('useRuntimeConfig', () => ({
     },
 }))
 
+// Mock pg 模块，避免 pg 内部 CJS require('pg-pool') 在 Vitest ESM 上下文中返回 Module 对象导致崩溃。
+// 测试使用 SQLite，pg mock 仅需满足 TypeORM PostgresDriver 的类型检查。
+vi.mock('pg', () => {
+    class MockPool { }
+    class MockClient { }
+    return {
+        default: {
+            Pool: MockPool,
+            Client: MockClient,
+            Query: class MockQuery { },
+            types: { setTypeParser: () => { }, getTypeParser: () => { } },
+            defaults: {},
+            DatabaseError: class MockDatabaseError extends Error { },
+        },
+        Pool: MockPool,
+        Client: MockClient,
+    }
+})
+
 // Mock PrimeVue useToast
 vi.mock('primevue/usetoast', async (importOriginal) => {
     const actual = await importOriginal<any>()
