@@ -220,7 +220,7 @@ describe('usePostEditorVoice', () => {
             value: MockSpeechRecognition,
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'mediaDevices', {
             configurable: true,
             value: {
@@ -434,7 +434,7 @@ describe('usePostEditorVoice', () => {
             writable: true,
             value: undefined,
         })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'mediaDevices', {
             configurable: true,
             value: undefined,

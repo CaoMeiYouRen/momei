@@ -1,5 +1,5 @@
-import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 import { parseTranslateBody, TextService } from './_translate-shared'
+import { AI_TEXT_DIRECT_RETURN_MAX_CHARS } from '@/utils/shared/env'
 
 export default defineEventHandler(async (event) => {
     const { content, session, targetLanguage, translationOptions } = await parseTranslateBody(event)

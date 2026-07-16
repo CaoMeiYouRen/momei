@@ -16,7 +16,7 @@ export const signCookieValue = (value: string): string => {
     const signature = crypto
         .createHmac('sha256', AUTH_SECRET)
         .update(value)
-        .digest('base64url' as any)
+        .digest('base64url')
     return `${value}.${signature}`
 }
 
@@ -48,7 +48,7 @@ export const verifyCookieValue = (signedValue: string | undefined): string | nul
     const expectedSignature = crypto
         .createHmac('sha256', AUTH_SECRET)
         .update(value)
-        .digest('base64url' as any)
+        .digest('base64url')
 
     if (signature === expectedSignature) {
         return value

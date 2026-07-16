@@ -166,7 +166,7 @@ describe('useNotifications', () => {
             value: vi.fn((value: string) => Buffer.from(value, 'base64').toString('binary')),
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'serviceWorker', {
             configurable: true,
             value: {
@@ -180,7 +180,7 @@ describe('useNotifications', () => {
             },
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'permissions', {
             configurable: true,
             value: {
@@ -356,7 +356,7 @@ describe('useNotifications', () => {
                 requestPermission: vi.fn().mockResolvedValue('denied'),
             },
         })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'serviceWorker', {
             configurable: true,
             value: {
@@ -388,7 +388,7 @@ describe('useNotifications', () => {
             state: 'granted',
             onchange: null as null | (() => void),
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         Object.defineProperty((globalThis as any).navigator, 'permissions', {
             configurable: true,
             value: {

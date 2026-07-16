@@ -77,7 +77,7 @@ export class ContentProcessor {
     private static prepareSplitContent(
         content: string,
         options: SplitOptions,
-    ): { chunkSize: number; minChunkSize: number; rawSegments: string[] } | null {
+    ): { chunkSize: number, minChunkSize: number, rawSegments: string[] } | null {
         const { chunkSize = 4000, minChunkSize = 200 } = options
 
         if (!content?.trim()) {

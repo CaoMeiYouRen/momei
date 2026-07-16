@@ -27,7 +27,7 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const g = globalThis as any
 g.fetch = vi.fn()
 g.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
