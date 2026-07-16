@@ -1,5 +1,8 @@
+import { createRequire } from 'node:module'
 import { ms } from 'ms'
 import { DataSource, In, type DataSourceOptions } from 'typeorm'
+
+const _require = createRequire(import.meta.url)
 import { Account } from '../entities/account'
 import { Session } from '../entities/session'
 import { User } from '../entities/user'
@@ -137,29 +140,40 @@ function getDataSourceContext() {
 
     // 配置数据库连接
     switch (actualDbType) {
-        case 'sqlite':
+        case 'sqlite': {
+            // 显式传入 better-sqlite3 驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
+            const sqliteDriver = _require('better-sqlite3')
             options = {
                 type: 'better-sqlite3',
                 database: DATABASE_PATH,
+                driver: sqliteDriver,
             }
             break
-        case 'mysql':
+        }
+        case 'mysql': {
+            // 显式传入 mysql2 驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
+            const mysqlDriver = _require('mysql2')
             options = {
                 type: actualDbType,
                 url: DATABASE_URL,
                 supportBigNumbers: true,
                 bigNumberStrings: false,
+                driver: mysqlDriver,
                 ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
                 connectTimeout: ms('60 s'),
                 charset: DATABASE_CHARSET,
                 timezone: DATABASE_TIMEZONE,
             }
             break
-        case 'postgres':
+        }
+        case 'postgres': {
+            // 显式传入 pg 驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
+            const pgDriver = _require('pg')
             options = {
                 type: actualDbType,
                 url: DATABASE_URL,
                 parseInt8: true,
+                driver: pgDriver,
                 ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
                 extra: {
                     max: 20,
@@ -167,6 +181,7 @@ function getDataSourceContext() {
                 },
             }
             break
+        }
         default:
             throw new Error(`Unsupported database type: ${actualDbType}. Please use one of: ${SUPPORTED_DATABASE_TYPES.join(', ')}`)
     }
