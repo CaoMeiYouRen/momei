@@ -1,13 +1,15 @@
-import { createRequire } from 'node:module'
 import { ms } from 'ms'
 import { DataSource, In, type DataSourceOptions } from 'typeorm'
-// pg 通过 ESM import 导入（唯一，因为需要被 Nitro Rolldown 静态分析以链接到内联模块）。
-// Vitest 中通过 vi.mock('pg') 避免 CJS/ESM 互操作问题。
+// 通过 ESM import 三个数据库驱动，让 Nitro Rolldown 可静态分析并链接：
+// - pg：Vercel 部署需要与内联模块链接
+// - better-sqlite3：原生插件，CI 环境（含 node_modules）可正常加载
+// - mysql2：JS 模块，可正常加载
+// Vitest 中通过 vi.mock('pg') 避免 pg 的 CJS/ESM 互操作问题。
+// 注意：Docker 生产镜像不含 node_modules，无法加载 better-sqlite3 原生插件，
+// 但 Docker 部署应配置外部 PostgreSQL，不会触发 sqlite 分支。
 import pg from 'pg'
-// better-sqlite3（原生插件）和 mysql2：使用 createRequire 惰性加载。
-// 原生插件无法被 Rolldown 内联，且 Docker 生产镜像不含 node_modules，
-// 顶层 import 会强制在服务器启动时加载，导致 Docker 环境崩溃。
-const _require = createRequire(import.meta.url)
+import betterSqlite3 from 'better-sqlite3'
+import mysql2 from 'mysql2'
 import { Account } from '../entities/account'
 import { Session } from '../entities/session'
 import { User } from '../entities/user'
@@ -146,25 +148,22 @@ function getDataSourceContext() {
     // 配置数据库连接
     switch (actualDbType) {
         case 'sqlite': {
-            // better-sqlite3 是原生插件，惰性加载避免 Docker 等无 node_modules 环境启动崩溃
-            const sqliteDriver = _require('better-sqlite3')
             options = {
                 type: 'better-sqlite3',
                 database: DATABASE_PATH,
                 // 显式传入驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
-                driver: sqliteDriver,
+                driver: betterSqlite3,
             }
             break
         }
         case 'mysql': {
-            const mysqlDriver = _require('mysql2')
             options = {
                 type: actualDbType,
                 url: DATABASE_URL,
                 supportBigNumbers: true,
                 bigNumberStrings: false,
                 // 显式传入驱动，绕过 TypeORM v1.1.0 PlatformTools.load() 动态 require
-                driver: mysqlDriver,
+                driver: mysql2,
                 ssl: DATABASE_SSL ? { rejectUnauthorized: false } : false,
                 connectTimeout: ms('60 s'),
                 charset: DATABASE_CHARSET,
