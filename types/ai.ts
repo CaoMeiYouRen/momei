@@ -296,7 +296,7 @@ export interface AIChatResponse {
         completionTokens: number
         totalTokens: number
     }
-    raw?: any
+    raw?: unknown
 }
 
 // --- Image ---
@@ -348,7 +348,7 @@ export interface AIImageResponse {
         totalTokens: number
     }
     model?: string
-    raw?: any
+    raw?: unknown
 }
 
 // --- TTS (Text to Speech) ---

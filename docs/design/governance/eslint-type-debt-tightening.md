@@ -170,6 +170,22 @@
 
 **回滚边界**: 只需从对应分组常量中移除文件条目 + 回退单文件改动。
 
+### 7.4 第五十七阶段（2026-07-19）：新增 3 组 `no-explicit-any` 窄切片
+
+第五十七阶段主线 4 延续同一规则的单文件窄切片策略，覆盖鉴权工具、翻译聚合工具与 AI 类型契约三类高复用文件：
+
+| # | 文件 | 原始代码 | 替换后 | 架构分组 |
+|:---|:---|:---|:---|:---|
+| 1 | `server/utils/validate-api-key.ts` | `potentialKeys.find((k: any) => verifyApiKey(token, k.key))` | `potentialKeys.find((keyCandidate) => verifyApiKey(token, keyCandidate.key))` | `NO_EXPLICIT_ANY_SERVER_AUTH_FILES` |
+| 2 | `server/utils/translation.ts` | `const trans: any = { ... }` | `const trans: Record<string, unknown> = { ... }` | `NO_EXPLICIT_ANY_TRANSLATION_FILES` |
+| 3 | `types/ai.ts` | `raw?: any`（AIChatResponse / AIImageResponse） | `raw?: unknown` | `NO_EXPLICIT_ANY_AI_TYPE_FILES` |
+
+**配置变更**: `eslint-debt-targets.mjs` 新增 `NO_EXPLICIT_ANY_SERVER_AUTH_FILES`、`NO_EXPLICIT_ANY_TRANSLATION_FILES`、`NO_EXPLICIT_ANY_AI_TYPE_FILES` 三个分组常量，并统一并入 `NO_EXPLICIT_ANY_FILES` 聚合列表。
+
+**验证结果**: `node scripts/governance/audit-eslint-debt.mjs --output=artifacts/governance/eslint-debt-latest.json` 输出 `warning=0`、`显式豁免=0`；定向 ESLint 与 Nuxt typecheck 通过。
+
+**回滚边界**: 只需从三组分组常量中移除新增文件条目，并回退对应单文件改动。
+
 ## 8. 证据落点
 
 - 实施结果与验证记录：`docs/reports/regression/current.md`

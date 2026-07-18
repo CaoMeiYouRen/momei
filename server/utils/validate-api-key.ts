@@ -26,7 +26,7 @@ export const validateApiKeyRequest = async (event: H3Event) => {
         relations: { user: true },
     })
 
-    const matchedKey = potentialKeys.find((k: any) => verifyApiKey(token, k.key))
+    const matchedKey = potentialKeys.find((keyCandidate) => verifyApiKey(token, keyCandidate.key))
 
     if (!matchedKey) {
         throw createError({ statusCode: 401, statusMessage: 'Invalid API Key' })

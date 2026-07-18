@@ -28,9 +28,11 @@
 - [x] 主线 3（P1）：测试有效性第五轮切片
 	- 执行范围：围绕已有测试基座的高风险链路补失败路径与边界断言，优先迁移相关 API/CLI 失败口径。
 	- 最小验收：新增失败路径断言 ≥ 6 条，覆盖模块 ≥ 2 个，coverage 基线不回退。
-- [ ] 主线 4（P1）：ESLint / 类型债下一轮窄切片
+- [x] 主线 4（P1）：ESLint / 类型债下一轮窄切片
 	- 执行范围：继续单规则、单文件/双文件窄切片，优先命中高、回滚清晰的生产文件。
 	- 最小验收：完成 ≥3 组切片，`warning=0` 保持，规则债 delta 可对照。
+	- 实现对照：完成 3 组 `@typescript-eslint/no-explicit-any` 窄切片（`server/utils/validate-api-key.ts`、`server/utils/translation.ts`、`types/ai.ts`），并将文件纳入 `eslint-debt-targets` 规则切片清单。
+	- 验证结果：`node scripts/governance/audit-eslint-debt.mjs --output=artifacts/governance/eslint-debt-latest.json` 输出 `warning=0`、`exemption=0`；定向 ESLint 与 Nuxt typecheck 均通过。
 - [ ] 主线 5（P1）：结构复用下一轮热点切片
 	- 执行范围：继续收敛高频重复逻辑与轻量类型重复，优先迁移工具链路中复用收益高的候选点。
 	- 最小验收：完成 ≥2 组热点切片，`duplicate-code` 基线不反弹。

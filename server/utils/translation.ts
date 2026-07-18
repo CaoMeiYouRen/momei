@@ -110,7 +110,7 @@ export async function attachTranslations<T extends ObjectLiteral & { translation
             (item as T & { translations: unknown[] }).translations = allTranslations
                 .filter((t) => t.translationId === item.translationId)
                 .map((t) => {
-                    const trans: any = {
+                    const trans: Record<string, unknown> = {
                         id: t.id,
                         language: t.language,
                         translationId: t.translationId,

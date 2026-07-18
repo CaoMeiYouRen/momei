@@ -69,6 +69,18 @@ const NO_EXPLICIT_ANY_COMPONENT_FILES = [
     'components/commercial-link-manager.vue',
 ]
 
+const NO_EXPLICIT_ANY_SERVER_AUTH_FILES = [
+    'server/utils/validate-api-key.ts',
+]
+
+const NO_EXPLICIT_ANY_TRANSLATION_FILES = [
+    'server/utils/translation.ts',
+]
+
+const NO_EXPLICIT_ANY_AI_TYPE_FILES = [
+    'types/ai.ts',
+]
+
 export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_UTILITY_FILES,
     ...NO_EXPLICIT_ANY_API_FILES,
@@ -82,6 +94,9 @@ export const NO_EXPLICIT_ANY_FILES = [
     ...NO_EXPLICIT_ANY_SCHEMA_FILES,
     ...NO_EXPLICIT_ANY_PAGE_FILES,
     ...NO_EXPLICIT_ANY_COMPONENT_FILES,
+    ...NO_EXPLICIT_ANY_SERVER_AUTH_FILES,
+    ...NO_EXPLICIT_ANY_TRANSLATION_FILES,
+    ...NO_EXPLICIT_ANY_AI_TYPE_FILES,
     'composables/use-admin-ai.ts',
     'composables/use-admin-i18n.ts',
     'composables/use-asr-task.ts',
