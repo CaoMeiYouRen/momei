@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import ora from 'ora'
 import type { MomeiImportPostRequest } from '@momei-blog/api-client'
 import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
+import { migrateImportEntriesLocalImages, type LocalImageMigrationReport } from './import-image-migration'
 import { parseHexoFiles } from './parser'
 import { MomeiApiClient } from './api-client'
 import type {
@@ -20,6 +21,7 @@ interface ImportCommandOptions {
     concurrency: number | string
     reportFile?: string
     confirmPathAliases: boolean
+    uploadImages: boolean
 }
 
 function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): MomeiImportPostRequest {
@@ -108,8 +110,17 @@ function displaySummary(stats: ImportStats) {
     }
 }
 
+function displayImageMigrationSummary(report: LocalImageMigrationReport) {
+    console.log(chalk.blue('\n🖼️ Local Image Migration Summary\n'))
+    console.log(chalk.gray(`  Scanned: ${report.summary.scanned}`))
+    console.log(chalk.green(`  Replaced: ${report.summary.replaced}`))
+    console.log(chalk.green(`  Uploaded Files: ${report.summary.uploaded}`))
+    console.log(chalk.yellow(`  Skipped: ${report.summary.skipped}`))
+    console.log(chalk.red(`  Failed: ${report.summary.failed}\n`))
+}
+
 async function runImport(source: string, options: ImportCommandOptions) {
-    const { apiUrl, apiKey, dryRun, verbose, reportFile, confirmPathAliases } = options
+    const { apiUrl, apiKey, dryRun, verbose, reportFile, confirmPathAliases, uploadImages } = options
     const concurrency = Number.parseInt(String(options.concurrency), 10)
 
     if (!apiKey && !dryRun) {
@@ -122,6 +133,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
     console.log(chalk.gray(`Source: ${sourceDir}`))
     console.log(chalk.gray(`API URL: ${apiUrl}`))
     console.log(chalk.gray(`Dry Run: ${dryRun ? 'Yes' : 'No'}`))
+    console.log(chalk.gray(`Upload Local Images: ${uploadImages ? 'Yes' : 'No'}`))
     console.log(chalk.gray(`Concurrency: ${concurrency}\n`))
 
     const spinner = ora('Scanning and parsing Hexo files...').start()
@@ -141,14 +153,42 @@ async function runImport(source: string, options: ImportCommandOptions) {
             })
         }
 
+        const client = apiKey ? new MomeiApiClient(apiUrl, apiKey) : null
+        let imageMigrationReport: LocalImageMigrationReport | null = null
+
+        if (uploadImages) {
+            const imageSpinner = ora(dryRun
+                ? 'Scanning local image references (dry run)...'
+                : 'Uploading local images and rewriting references...').start()
+
+            imageMigrationReport = await migrateImportEntriesLocalImages(posts, {
+                sourceDir,
+                dryRun,
+                uploadPrefix: 'migrations/image/',
+                authorizeDirectUpload: dryRun
+                    ? undefined
+                    : async (payload) => {
+                        if (!client) {
+                            throw new Error('API client is unavailable for image upload')
+                        }
+
+                        const response = await client.authorizeDirectUpload(payload)
+                        return response.data
+                    },
+            })
+
+            imageSpinner.succeed(chalk.green('Local image migration finished'))
+            displayImageMigrationSummary(imageMigrationReport)
+        }
+
         if (!apiKey && dryRun) {
             console.log(chalk.yellow('\n⚠️  Dry run completed with local parsing only. Provide --api-key for alias validation and conflict checks.'))
             process.exit(0)
         }
 
-        const client = new MomeiApiClient(apiUrl, apiKey!)
+        const activeClient = client || new MomeiApiClient(apiUrl, apiKey!)
         const validationSpinner = ora('Validating import path aliases...').start()
-        const candidates = await validateImportCandidates(client, posts, concurrency)
+        const candidates = await validateImportCandidates(activeClient, posts, concurrency)
         validationSpinner.succeed(chalk.green(`Validated ${candidates.length} posts`))
 
         const executionPlan = buildImportExecutionPlan(candidates, { confirmPathAliases })
@@ -157,6 +197,13 @@ async function runImport(source: string, options: ImportCommandOptions) {
             generatedAt: new Date().toISOString(),
             dryRun,
             summary: executionPlan.summary,
+            imageMigration: imageMigrationReport
+                ? {
+                    enabled: imageMigrationReport.enabled,
+                    summary: imageMigrationReport.summary,
+                    items: imageMigrationReport.items,
+                }
+                : undefined,
             items: executionPlan.items.map((item) => ({
                 file: item.relativeFile,
                 action: item.action,
@@ -197,7 +244,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         const progressSpinner = ora('Importing...').start()
 
-        const results = await client.importPosts(importablePosts, {
+        const results = await activeClient.importPosts(importablePosts, {
             concurrency,
             onProgress: (_current: number, total: number, result: ImportResult) => {
                 progressSpinner.text = `Importing... (${stats.success + stats.failed + 1}/${total})`
@@ -240,6 +287,7 @@ export function registerImportCommand(cli: CAC) {
         .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
         .option('--api-key <key>', 'Momei API Key (required)')
         .option('--dry-run', 'Dry run mode (parse files without importing)', { default: false })
+        .option('--upload-images', 'Upload local markdown/cover images through direct upload auth before import', { default: false })
         .option('--report-file <file>', 'Save the validation/import report to a file')
         .option('--confirm-path-aliases', 'Approve fallback or repaired path aliases returned by validation', { default: false })
         .option('--verbose', 'Verbose output', { default: false })

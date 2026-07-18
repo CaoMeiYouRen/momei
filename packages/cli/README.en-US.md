@@ -56,6 +56,7 @@ Common options:
 | `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
 | `--api-key <key>` | Momei API key; required unless using dry run | - |
 | `--dry-run` | Parse files without importing | `false` |
+| `--upload-images` | Scan local Markdown/cover image paths, request direct upload auth, and rewrite URLs automatically (dry run only scans) | `false` |
 | `--verbose` | Print verbose logs | `false` |
 | `--concurrency <num>` | Concurrent import workers | `3` |
 

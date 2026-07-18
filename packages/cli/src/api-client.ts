@@ -7,6 +7,8 @@
  */
 import { createMomeiApi, MomeiHttpClient, MomeiApiError, type MomeiApiClientConfig } from '@momei-blog/api-client'
 import type {
+    CliDirectUploadAuthorization,
+    CliDirectUploadRequest,
     CliImportPostRequest,
     ImportResult,
 } from './types'
@@ -57,6 +59,11 @@ export class MomeiApiClient {
 
     async validateImportPost(post: CliImportPostRequest): Promise<{ code: number, data: import('@momei-blog/api-client').MomeiImportPathAliasReport }> {
         const data = await this.api.posts.validate(post)
+        return { code: 200, data }
+    }
+
+    async authorizeDirectUpload(payload: CliDirectUploadRequest): Promise<{ code: number, data: CliDirectUploadAuthorization }> {
+        const data = await this.client.post<CliDirectUploadAuthorization>('/api/external/upload/direct-auth', payload).then((response) => response.data)
         return { code: 200, data }
     }
 

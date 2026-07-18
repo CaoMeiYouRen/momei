@@ -177,6 +177,48 @@ describe('MomeiApiClient', () => {
         expect(response.data.canonicalSlug).toBe('validated-post')
     })
 
+    it('should request direct upload authorization from external upload endpoint', async () => {
+        mockFetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve({
+                code: 200,
+                data: {
+                    strategy: 'put-presign',
+                    method: 'PUT',
+                    url: 'https://storage.example.com/upload',
+                    headers: {
+                        'content-type': 'image/png',
+                        'content-length': '1024',
+                    },
+                    publicUrl: 'https://cdn.example.com/migrations/image/cover.png',
+                    objectKey: 'migrations/image/cover.png',
+                    expiresIn: 300,
+                },
+            }),
+        })
+
+        const client = new MomeiApiClient('http://localhost:3000', 'test-key')
+        const response = await client.authorizeDirectUpload({
+            filename: 'cover.png',
+            contentType: 'image/png',
+            size: 1024,
+            type: 'image',
+            prefix: 'migrations/image/',
+        })
+
+        expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/external/upload/direct-auth', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                filename: 'cover.png',
+                contentType: 'image/png',
+                size: 1024,
+                type: 'image',
+                prefix: 'migrations/image/',
+            }),
+        }))
+        expect(response.data.strategy).toBe('put-presign')
+    })
+
     it('should call listPosts with query parameters', async () => {
         mockFetch.mockResolvedValueOnce({
             ok: true,

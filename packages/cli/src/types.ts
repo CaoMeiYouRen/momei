@@ -101,3 +101,29 @@ export interface ImportStats {
     skipped: number
     results: ImportResult[]
 }
+
+export type CliUploadType = 'image' | 'audio' | 'file'
+
+export interface CliDirectUploadRequest {
+    filename: string
+    contentType: string
+    size: number
+    type?: CliUploadType
+    prefix?: string
+}
+
+export interface CliDirectUploadProxyStrategy {
+    strategy: 'proxy'
+}
+
+export interface CliDirectUploadPresignStrategy {
+    strategy: 'put-presign'
+    method: 'PUT'
+    url: string
+    headers: Record<string, string>
+    publicUrl: string
+    objectKey: string
+    expiresIn: number
+}
+
+export type CliDirectUploadAuthorization = CliDirectUploadProxyStrategy | CliDirectUploadPresignStrategy

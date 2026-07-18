@@ -56,6 +56,7 @@ momei import <source-directory> --api-key <your-api-key>
 | `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
 | `--api-key <key>` | 墨梅 API Key；非 dry run 必填；提供后 dry run 会额外执行远端别名校验 | - |
 | `--dry-run` | 仅解析文件，不实际导入 | `false` |
+| `--upload-images` | 扫描 Markdown 与封面中的本地图片路径，调用上传鉴权接口后自动替换为公共 URL（dry run 仅扫描不上传） | `false` |
 | `--report-file <file>` | 保存导入校验 / 导入结果报告（JSON） | - |
 | `--confirm-path-aliases` | 接受 fallback / repaired 的路径别名决策 | `false` |
 | `--verbose` | 输出详细日志 | `false` |

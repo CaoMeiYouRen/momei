@@ -1,15 +1,15 @@
 import { authorizeDirectUpload } from '@/server/services/direct-upload'
 import { UploadType } from '@/server/services/upload'
-import { requireAuth } from '@/server/utils/permission'
 import { success } from '@/server/utils/response'
+import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
 import { directUploadRequestSchema } from '@/utils/schemas/upload'
 
 export default defineEventHandler(async (event) => {
-    const session = await requireAuth(event)
+    const { user } = await validateApiKeyRequest(event)
     const body = await readValidatedBody(event, (payload) => directUploadRequestSchema.parse(payload))
 
     const authorization = await authorizeDirectUpload({
-        userId: session.user.id,
+        userId: user.id,
         ...body,
         type: body.type as UploadType | undefined,
     })
