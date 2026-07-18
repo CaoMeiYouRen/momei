@@ -1,5 +1,33 @@
 # momei
 
+# [1.23.0](https://github.com/CaoMeiYouRen/momei/compare/v1.22.0...v1.23.0) (2026-07-18)
+
+
+### ✨ 新功能
+
+* **ai-fallback:** 实现 AI 功能备用路线与自动降级 ([bbbd399](https://github.com/CaoMeiYouRen/momei/commit/bbbd399))
+* **cli:** 添加导出命令以支持博客文章导出 ([1d00d4c](https://github.com/CaoMeiYouRen/momei/commit/1d00d4c))
+* **external-api:** 新增分类/标签/灵感/文章版本外部接口及 CLI/MCP 支持 ([146dd23](https://github.com/CaoMeiYouRen/momei/commit/146dd23))
+
+
+### 🐛 Bug 修复
+
+* **ai-fallback:** 补齐 social-post 和 content-audit 的 fallback 支持 ([dc4b068](https://github.com/CaoMeiYouRen/momei/commit/dc4b068))
+* **commercial-link-manager:** 修复社交链接验证逻辑 ([97da6e1](https://github.com/CaoMeiYouRen/momei/commit/97da6e1))
+* **database:** 回退到 ESM import 方式，移除 createRequire 解决 CI 构建崩溃 ([d7951d7](https://github.com/CaoMeiYouRen/momei/commit/d7951d7))
+* **database:** 惰性加载 better-sqlite3/mysql2 避免 Docker 等无 node_modules 环境启动崩溃 ([e784383](https://github.com/CaoMeiYouRen/momei/commit/e784383))
+* **database:** 显式传入数据库驱动以绕过动态 require 问题 ([b873b92](https://github.com/CaoMeiYouRen/momei/commit/b873b92))
+* **database:** 显式传入数据库驱动以绕过动态 require 问题 ([a40460e](https://github.com/CaoMeiYouRen/momei/commit/a40460e))
+* **database:** 显式引入 Postgres 驱动以避免动态加载问题 ([4a35f5a](https://github.com/CaoMeiYouRen/momei/commit/4a35f5a))
+
+
+### 📦 代码重构
+
+* **api:** 提取公共请求参数解析逻辑 ([0d9b7a8](https://github.com/CaoMeiYouRen/momei/commit/0d9b7a8))
+* **cli:** 重构命令行工具以使用共享的 API 客户端类型 ([96a6558](https://github.com/CaoMeiYouRen/momei/commit/96a6558))
+* ESLint/类型债 3 组窄切片收敛 ([7e0cdad](https://github.com/CaoMeiYouRen/momei/commit/7e0cdad))
+* 结构复用逻辑重复收敛 — 2 组抽象切片 ([e4cc0c3](https://github.com/CaoMeiYouRen/momei/commit/e4cc0c3))
+
 # [1.22.0](https://github.com/CaoMeiYouRen/momei/compare/v1.21.1...v1.22.0) (2026-07-11)
 
 
