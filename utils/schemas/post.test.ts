@@ -57,6 +57,21 @@ describe('utils/schemas/post', () => {
             }
         })
 
+        it('应该解析更新日期字段', () => {
+            const validData = {
+                title: '带更新时间的文章',
+                content: '内容',
+                updatedAt: '2024-01-02T03:04:05.000Z',
+            }
+
+            const result = createPostSchema.safeParse(validData)
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.updatedAt).toBeInstanceOf(Date)
+                expect(result.data.updatedAt?.toISOString()).toBe('2024-01-02T03:04:05.000Z')
+            }
+        })
+
         it('应该拒绝空标题', () => {
             const invalidData = {
                 title: '',

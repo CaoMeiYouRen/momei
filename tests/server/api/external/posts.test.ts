@@ -101,6 +101,30 @@ describe('external posts import api', () => {
         expect(result.data.url).toContain('/posts/about-post')
     })
 
+    it('normalizes updated/view aliases and forwards them to createPostService', async () => {
+        createPostService.mockResolvedValue({ id: 'post-legacy', slug: 'legacy-post' })
+
+        const handler = (await import('@/server/api/external/posts.post')).default
+        await handler({
+            body: {
+                title: 'Legacy Metadata',
+                content: 'body',
+                updated: '2024-03-01T10:20:30.000Z',
+                view: '9',
+                disableComment: true,
+            },
+        } as never)
+
+        expect(createPostService).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'Legacy Metadata',
+            views: 9,
+            updatedAt: expect.any(Date),
+        }), 'user-1', expect.any(Object))
+
+        const [createInput] = createPostService.mock.calls[0] as [{ updatedAt?: Date }]
+        expect(createInput.updatedAt?.toISOString()).toBe('2024-03-01T10:20:30.000Z')
+    })
+
     it('rejects imports that still require confirmation', async () => {
         validateImportPathAliases.mockResolvedValue({
             language: 'zh-CN',

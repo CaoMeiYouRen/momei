@@ -60,6 +60,40 @@ describe('externalPostImportSchema', () => {
         }
     })
 
+    it('normalizes legacy updated alias to updatedAt', () => {
+        const result = externalPostImportSchema.safeParse({
+            ...basePost,
+            updated: '2024-01-02T03:04:05.000Z',
+        })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.updatedAt).toBeInstanceOf(Date)
+            expect(result.data.updatedAt?.toISOString()).toBe('2024-01-02T03:04:05.000Z')
+        }
+    })
+
+    it('normalizes legacy view alias to views', () => {
+        const result = externalPostImportSchema.safeParse({
+            ...basePost,
+            view: '7',
+        })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.views).toBe(7)
+        }
+    })
+
+    it('accepts and strips legacy disableComment flag', () => {
+        const result = externalPostImportSchema.safeParse({
+            ...basePost,
+            disableComment: true,
+        })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect('disableComment' in result.data).toBe(false)
+        }
+    })
+
     it('fails when title is missing', () => {
         const result = externalPostImportSchema.safeParse({ content: 'Hello' })
         expect(result.success).toBe(false)

@@ -65,6 +65,7 @@ export interface MomeiPost {
     pushCriteria?: MomeiPublishIntent['pushCriteria']
     createdAt?: string | Date
     publishedAt?: string | Date
+    updatedAt?: string | Date
     views?: number
 }
 
@@ -444,6 +445,10 @@ export interface MomeiImportPostRequest {
     password?: string | null
     pushOption?: 'none' | 'draft' | 'now'
     syncToMemos?: boolean
+    createdAt?: string | Date
+    publishedAt?: string | Date
+    updatedAt?: string | Date
+    views?: number
     abbrlink?: string
     permalink?: string
     sourceFile?: string

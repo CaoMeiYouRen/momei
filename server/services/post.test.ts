@@ -329,6 +329,32 @@ function registerCreatePostServiceSuite() {
             expect(result.createdAt).toBe(customDate)
         })
 
+        it('应该允许管理员设置自定义更新时间', async () => {
+            const customUpdatedAt = new Date('2024-01-02T08:30:00Z')
+            const mockPostRepo = {
+                findOne: vi.fn().mockResolvedValue(null),
+                save: vi.fn().mockImplementation((post) => Promise.resolve(post)),
+            }
+
+            vi.mocked(dataSource.getRepository).mockImplementation((entity: any) => {
+                if (entity.name === 'Post') {
+                    return mockPostRepo as any
+                }
+                if (entity.name === 'Category') {
+                    return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
+                }
+                return { findOne: vi.fn().mockResolvedValue(null), save: vi.fn().mockImplementation((v) => Promise.resolve(v)), count: vi.fn().mockResolvedValue(0), find: vi.fn().mockResolvedValue([]), remove: vi.fn().mockResolvedValue(null) } as any
+            })
+
+            const result = await createPostService(
+                createTestPostData({ updatedAt: customUpdatedAt }),
+                'author1',
+                { isAdmin: true },
+            )
+
+            expect(result.updatedAt).toBe(customUpdatedAt)
+        })
+
         it('应该在发布时创建营销推送（pushOption=now）', async () => {
             const { createCampaignFromPost, sendMarketingCampaign } = await import('./notification')
 

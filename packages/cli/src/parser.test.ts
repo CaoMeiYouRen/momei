@@ -239,6 +239,21 @@ describe('Parser - convertToMomeiPost: Status and Date Handling', () => {
         expect(result.status).toBe('published')
         expect(result.createdAt).toBeDefined()
     })
+
+    it('should map legacy updated/view aliases to updatedAt and views', () => {
+        const frontMatter: HexoFrontMatter = {
+            title: 'Legacy Metadata Post',
+            date: '2024-01-01T00:00:00.000Z',
+            updated: '2024-01-03T12:00:00.000Z',
+            view: '42',
+            disableComment: true,
+        }
+
+        const result = convertToMomeiPost(frontMatter, 'Content', 'legacy.md')
+
+        expect(result.updatedAt).toBe('2024-01-03T12:00:00.000Z')
+        expect(result.views).toBe(42)
+    })
 })
 
 describe('Parser - convertToMomeiPost: Edge Cases', () => {

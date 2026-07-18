@@ -95,6 +95,15 @@ function toInteger(value: unknown) {
     return Number.isNaN(parsed) ? undefined : parsed
 }
 
+function toNonNegativeInteger(value: unknown) {
+    const parsed = toInteger(value)
+    if (parsed === undefined || parsed < 0) {
+        return undefined
+    }
+
+    return parsed
+}
+
 function toDurationSeconds(value: unknown) {
     if (typeof value === 'number' && Number.isFinite(value)) {
         return Math.trunc(value)
@@ -216,13 +225,18 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
     const category = resolveCategory(frontMatter)
     const slug = resolveSlug(frontMatter, filePath)
     const importedAt = toIsoDateString(frontMatter.date)
+    const importedUpdatedAt = toIsoDateString(frontMatter.updatedAt ?? frontMatter.updated ?? frontMatter.updated_at)
     const summary = pickFirstString(frontMatter.description, frontMatter.desc, frontMatter.excerpt) || null
     const language = pickFirstString(frontMatter.language, frontMatter.lang) || 'zh-CN'
     const translationId = pickFirstString(frontMatter.translationId, frontMatter.translation_id) || null
     const coverImage = pickFirstString(frontMatter.image, frontMatter.cover, frontMatter.thumb) || null
     const copyright = pickFirstString(frontMatter.copyright, frontMatter.license) || null
     const metadata = buildMetadata(frontMatter)
+    const views = toNonNegativeInteger(frontMatter.views ?? frontMatter.view)
     const status = importedAt ? 'published' : 'draft'
+
+    // Compatibility read: keep ingesting legacy Hexo comment switches even though Momei has no per-post comment toggle field.
+    void (frontMatter.disableComment ?? frontMatter.disable_comment)
 
     const post: MomeiPost = {
         title: pickFirstString(frontMatter.title) || 'Untitled',
@@ -240,6 +254,14 @@ export function convertToMomeiPost(frontMatter: HexoFrontMatter, content: string
         copyright,
         createdAt: importedAt,
         publishedAt: importedAt,
+    }
+
+    if (importedUpdatedAt !== undefined) {
+        post.updatedAt = importedUpdatedAt
+    }
+
+    if (views !== undefined) {
+        post.views = views
     }
 
     return post

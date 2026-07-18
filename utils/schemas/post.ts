@@ -284,6 +284,7 @@ export const createPostSchema = z.object({
     visibility: sharedPostFields.visibility.default(PostVisibility.PUBLIC),
     createdAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
     publishedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
+    updatedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
     views: z.coerce.number().int().min(0).optional(),
 })
 
@@ -291,6 +292,7 @@ export const updatePostSchema = z.object(sharedPostFields).partial().extend({
     slug: sharedPostFields.slug.optional(),
     createdAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
     publishedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
+    updatedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
     views: z.coerce.number().int().min(0).optional(),
 })
 

@@ -12,6 +12,8 @@ export interface HexoFrontMatter {
     title?: string
     date?: string | Date
     updated?: string | Date
+    updatedAt?: string | Date
+    updated_at?: string | Date
     tags?: string | string[]
     categories?: string | string[]
     category?: string | string[]
@@ -21,7 +23,10 @@ export interface HexoFrontMatter {
     excerpt?: string
     description?: string
     desc?: string
+    views?: number | string
+    view?: number | string
     disableComment?: boolean
+    disable_comment?: boolean
     image?: string
     cover?: string
     thumb?: string

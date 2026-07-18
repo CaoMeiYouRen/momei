@@ -130,6 +130,9 @@ async function applyPostChanges(
         if (body.createdAt) {
             post.createdAt = body.createdAt
         }
+        if (body.updatedAt) {
+            post.updatedAt = body.updatedAt
+        }
         if (body.views !== undefined) {
             post.views = body.views
         }
