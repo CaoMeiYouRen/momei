@@ -594,6 +594,35 @@
 - **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
 - **详细方案**: 待设计
 
+17. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选)**
+- **背景**:
+    - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。生产代码主要集中在表单状态、筛选器状态、弹窗状态和少量复合对象状态。
+    - 已识别高频文件包括：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）、`pages/admin/comments/index.vue`（2 处）、`pages/admin/submissions/index.vue`（2 处）、`pages/login.vue`（2 处）、`pages/register.vue`（2 处）。
+    - 现状虽能正常工作，但“是否为响应式变量”的可见性不足，且在类型收窄、泛型边界、重构时行为判断上，`ref` 的显式 `.value` 语义更有利于长期维护。
+- **准入结论**:
+    - 该事项不属于当前阶段收口项，也非阻塞型修复；应先作为短期候选进入 backlog，待下一阶段按窄切片方式上收。
+- **可迁移性分级（基于当前代码结构）**:
+    - **高（优先）**：单对象表单/错误对象（如 `form`、`errors`、`passwordForm`、`profileForm`、`deleteDialog`），可直接迁移为 `ref<{ ... }>()`，模板改动可控。
+    - **中（次优先）**：筛选器/分页/排序对象（如 `filters`、`pagination`、`sort`），通常伴随 watch、debounce 或请求参数拼装，需配套调整读取和赋值路径。
+    - **低（后置）**：深层嵌套且大量 `Object.assign` 的复合对象（如 `use-admin-friend-links-page.ts`、`settings-notifications.vue` 的聚合订阅状态），迁移收益存在但回归面较大，应后置并配测试先行。
+- **执行范围（拟分三步上收）**:
+    - **Step 1（低风险首批）**：登录、注册、评论、权益页、个人设置与安全设置中的 `form/errors` 类对象。
+    - **Step 2（中风险）**：后台列表页和筛选组件中的 `filters/pagination/sort/dialog` 类对象；同步补齐 composable 返回值类型约束。
+    - **Step 3（高风险）**：`use-admin-friend-links-page.ts`、`settings-notifications.vue` 等复合状态对象，按“单模块单切片”推进。
+- **非目标**:
+    - 不追求“全仓清零 reactive”。
+    - 不在同一阶段同时重构业务流程与状态模型。
+    - 不改动当前 API 契约或页面交互语义。
+- **最小验证矩阵 / 证据落点**:
+    - 质量门：`pnpm lint`、`pnpm typecheck`。
+    - 定向验证：首批上收时至少补齐受影响组件/页面的失败路径断言（表单校验失败、提交失败、弹窗开关、筛选触发）。
+    - 证据落点：`docs/reports/regression/current.md` + 对应阶段 `todo-archive.md`。
+- **回滚边界**:
+    - 以文件为单位回滚，不做跨模块混合回滚。
+    - 若某切片出现 `.value` 传播导致的可读性/缺陷回归，可在该切片内保留原 `reactive` 并记录原因，不阻断其他切片推进。
+- **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
+- **详细方案**: 待设计（建议上收前先输出“reactive 使用清单 + 迁移优先级 + 验证用例映射”）。
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
