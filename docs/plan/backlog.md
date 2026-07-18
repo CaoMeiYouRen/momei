@@ -478,30 +478,7 @@
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **2.33**
 - **详细方案**: 待设计
 
-12. **CLI 导出命令 (P1, 候选)**
-- **背景**: 当前迁移 CLI 只支持"导入"方向，不支持"导出"。服务端已有 `server/services/post-export.ts` 实现 `formatPostToMarkdown` 逻辑，但 CLI 未暴露对应命令。导出能力对于备份、跨平台迁移、本地编辑等工作流有实际价值。
-- **技术方案**:
-    - CLI 新增 `momei export <output-dir>` 命令
-    - 调用 `GET /api/external/posts` 获取文章列表
-    - 调用 `GET /api/external/posts/:id` 获取单篇文章详情
-    - 使用 `formatPostToMarkdown` 转换为 Markdown + Front-matter
-    - 支持过滤参数：`--language`、`--status`、`--category`、`--limit`
-    - 支持输出格式：`--format markdown`（默认）、`--format json`
-    - 保持目录结构：按 `{slug}.md` 或 `{id}.md` 命名
-- **非目标**: 不导出用户数据/评论/设置、不做增量导出、不做自动同步
-- **前置条件**:
-    - 确认 `GET /api/external/posts` 接口的分页和过滤能力
-    - 评估大批量导出的内存和超时策略
-- **验收标准**:
-    - 导出的 Markdown 文件保留完整 Front-matter（title、date、tags、category、slug 等）
-    - 正文内容完整保留
-    - 支持 `--language zh-CN` 等过滤条件
-    - 导出报告统计成功/失败数量
-    - `pnpm typecheck` + `pnpm lint` 通过
-- **ROI**: 价值 3 / 契合度 3 / 复杂度 2 / 风险 1 = **2.00**
-- **详细方案**: 待设计
-
-13. **迁移元数据字段扩展 (P1, 候选)**
+12. **迁移元数据字段扩展 (P1, 候选)**
 - **背景**: 当前 CLI 的字段映射已覆盖核心字段（title、date、tags、category、slug、summary、coverImage、audio 等），但部分对 SEO 和历史数据继承有意义的字段尚未支持。CLI README 已列出不支持字段清单。
 - **待扩展字段**:
     | 字段 | 优先级 | 说明 |
@@ -527,7 +504,7 @@
 - **ROI**: 价值 2 / 契合度 3 / 复杂度 1 / 风险 1 = **2.00**
 - **详细方案**: 待设计
 
-14. **安装引导向导 (P2, 候选)**
+13. **安装引导向导 (P2, 候选)**
 - **背景**: 设计文档 `docs/design/modules/migration.md` §3 已完整规划了安装引导向导（Onboarding Wizard），包括环境自检、管理员创建、站点基本配置、数据迁移建议四个步骤。该功能是首次用户体验的关键入口，但尚未实现。
 - **技术方案**:
     - 新增 `/onboarding` 页面（基于 PrimeVue Stepper 组件）
@@ -549,7 +526,7 @@
 - **ROI**: 价值 4 / 契合度 5 / 复杂度 4 / 风险 3 = **1.50**
 - **详细方案**: [迁移与集成设计文档 - 引导安装向导](../design/modules/migration.md#3-引导安装向导-installation-wizard)
 
-15. **多平台迁移适配器 (P2, 候选)**
+14. **多平台迁移适配器 (P2, 候选)**
 - **背景**: 当前迁移 CLI 仅支持 Hexo 格式的 Markdown 文件解析。WordPress、Hugo、Jekyll 等其他主流博客平台的用户无法直接使用 CLI 迁移。虽然 Hexo 是目标用户群的主要来源，但扩展多平台支持可以降低更多用户的迁移门槛。
 - **技术方案**:
     - 抽象 `ContentParser` 接口：`parse(sourceDir): Promise<ParsedPost[]>`
@@ -573,7 +550,7 @@
 - **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
 - **详细方案**: 待设计
 
-16. **迁移进度可视化与断点续传 (P3, 候选)**
+15. **迁移进度可视化与断点续传 (P3, 候选)**
 - **背景**: 当前 CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇文章）迁移时，如果中途失败需要从头开始。断点续传能力可以显著改善大型迁移的体验。
 - **技术方案**:
     - CLI 在本地维护迁移状态文件（`.momei-migration-state.json`）
@@ -594,7 +571,7 @@
 - **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
 - **详细方案**: 待设计
 
-17. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选)**
+16. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选)**
 - **背景**:
     - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。生产代码主要集中在表单状态、筛选器状态、弹窗状态和少量复合对象状态。
     - 已识别高频文件包括：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）、`pages/admin/comments/index.vue`（2 处）、`pages/admin/submissions/index.vue`（2 处）、`pages/login.vue`（2 处）、`pages/register.vue`（2 处）。
