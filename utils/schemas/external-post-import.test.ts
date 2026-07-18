@@ -60,6 +60,18 @@ describe('externalPostImportSchema', () => {
         }
     })
 
+    it('does not override explicit updatedAt with legacy updated alias', () => {
+        const result = externalPostImportSchema.safeParse({
+            ...basePost,
+            updatedAt: '2024-01-05T00:00:00.000Z',
+            updated: '2024-01-02T03:04:05.000Z',
+        })
+        expect(result.success).toBe(true)
+        if (result.success) {
+            expect(result.data.updatedAt?.toISOString()).toBe('2024-01-05T00:00:00.000Z')
+        }
+    })
+
     it('normalizes legacy updated alias to updatedAt', () => {
         const result = externalPostImportSchema.safeParse({
             ...basePost,
@@ -96,6 +108,21 @@ describe('externalPostImportSchema', () => {
 
     it('fails when title is missing', () => {
         const result = externalPostImportSchema.safeParse({ content: 'Hello' })
+        expect(result.success).toBe(false)
+    })
+
+    it('fails when abbrlink is not a string', () => {
+        const result = externalPostImportSchema.safeParse({ ...basePost, abbrlink: 123 })
+        expect(result.success).toBe(false)
+    })
+
+    it('fails when confirmPathAliases is not a boolean', () => {
+        const result = externalPostImportSchema.safeParse({ ...basePost, confirmPathAliases: 'yes' })
+        expect(result.success).toBe(false)
+    })
+
+    it('fails when payload root is an array', () => {
+        const result = externalPostImportSchema.safeParse([{ ...basePost }])
         expect(result.success).toBe(false)
     })
 })
