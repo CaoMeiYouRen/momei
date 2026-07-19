@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供九类能力：批量导入文章、基于迁移 API 的旧链接治理、基于外部自动化 API 的 AI 内容编排、分类与标签管理、灵感片段（Snippet）管理、文章版本管理以及文章导出。
+用于将 Hexo 内容迁移到墨梅的命令行工具。当前提供十类能力：批量导入文章、基于迁移 API 的旧链接治理、基于外部自动化 API 的 AI 内容编排、分类与标签管理、灵感片段（Snippet）管理、文章版本管理、阅读量同步以及文章导出。内置请求频率限制器（令牌桶算法），遇到 429 自动指数退避重试。
 
 ## 功能特性
 
@@ -18,6 +18,8 @@
 - ✅ 标签的增删改查管理，支持多语言与分页
 - ✅ 灵感片段（Snippet）的增删改查、详情查询与转文章
 - ✅ 文章版本创建与版本列表查看
+- ✅ 从 D1 (hexo-cloudflare-counter) 同步阅读量到 Momei，`max(现有, D1)` 防累加
+- ✅ 请求频率限制（令牌桶算法），429 自动重试（指数退避）
 
 ## 安装
 
@@ -61,6 +63,8 @@ momei import <source-directory> --api-key <your-api-key>
 | `--confirm-path-aliases` | 接受 fallback / repaired 的路径别名决策 | `false` |
 | `--verbose` | 输出详细日志 | `false` |
 | `--concurrency <num>` | 并发导入数量 | `3` |
+| `--rate-limit <num>` | 每秒最大请求数，防止触发服务端 429 限流 | `3` |
+| `--max-retries <num>` | 429 限流时的最大重试次数（指数退避 1s/2s/4s） | `3` |
 
 示例：
 
@@ -409,6 +413,56 @@ momei snippets convert <snippet-id> --api-key <your-api-key>
 | `--search <text>` | 搜索关键词 | - |
 | `--page <num>` | 分页页码 | - |
 | `--limit <num>` | 每页数量 | - |
+
+## 命令八：同步阅读量
+
+`sync-views` 从 [hexo-cloudflare-counter](https://github.com/CaoMeiYouRen/hexo-cloudflare-counter)（D1）导出的阅读量数据同步到 Momei 的 PostgreSQL。
+合并策略为取 `max(现有阅读量, D1 阅读量)`，避免重复执行导致累加。
+
+### D1 导出
+
+```bash
+# 从 D1 导出阅读量数据到 JSON 文件
+wrangler d1 execute hexo-cloudflare-counter \
+  --command "SELECT url, time FROM counters WHERE time > 0" \
+  --json > d1-views.json
+```
+
+### 同步到 Momei
+
+```bash
+momei sync-views ./d1-views.json --api-key <your-api-key>
+```
+
+常用选项：
+
+| 选项 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
+| `--api-key <key>` | 墨梅 API Key | - |
+| `--dry-run` | 仅解析文件，不实际同步 | `false` |
+| `--verbose` | 输出详细日志（含错误和未找到的 URL） | `false` |
+| `--rate-limit <num>` | 每秒最大请求数 | `5` |
+| `--max-retries <num>` | 429 限流时的最大重试次数 | `3` |
+
+示例：
+
+```bash
+# 预览同步效果
+momei sync-views ./d1-views.json --api-key your-api-key --dry-run
+
+# 执行同步
+momei sync-views ./d1-views.json --api-key your-api-key --verbose
+
+# 导出后同步（一行命令）
+wrangler d1 execute hexo-cloudflare-counter \
+  --command "SELECT url, time FROM counters WHERE time > 0" \
+  --json | momei sync-views - --api-key your-api-key
+```
+
+> 输入文件格式支持：
+> - **裸数组**：`[{ "url": "...", "time": 123 }, ...]`
+> - **D1 导出格式**：`{ "results": [{ "url": "...", "time": 123 }, ...], "success": true, "meta": {...} }`<br>即 `wrangler d1 execute --command "SELECT url, time FROM counters" --json` 的直接输出，无需额外转换。
 
 ## 命令九：导出文章
 

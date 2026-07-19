@@ -158,7 +158,26 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `LOG_LEVEL` | - | 3 | none | Logging level |
 | `NUXT_PUBLIC_LIVE2D_ENABLED` | `live2d_enabled` | 0 | none | Live2D widget switch |
 
-### 2.6 Third-party And Distribution
+### 2.6 API Rate Limiting
+
+Rate limit rules are defined in `server/utils/rate-limit-config.ts`. Each rule can be overridden by environment variables.
+
+Naming: `NUXT_RATE_LIMIT_<RULE_NAME>_MAX` (max requests) / `NUXT_RATE_LIMIT_<RULE_NAME>_WINDOW` (window in seconds)
+
+| Environment Variable | Default | Description |
+| :--- | :--- | :--- |
+| `NUXT_RATE_LIMIT_EXTERNAL_MAX` | 300 | External API (CLI/MCP import/export) max requests per window |
+| `NUXT_RATE_LIMIT_EXTERNAL_WINDOW` | 60 | External API window (seconds) |
+| `NUXT_RATE_LIMIT_AI_MAX` | 10 | AI API max requests per window |
+| `NUXT_RATE_LIMIT_AI_WINDOW` | 60 | AI API window (seconds) |
+| `NUXT_RATE_LIMIT_AI_STATUS_MAX` | 30 | AI task polling max requests per window |
+| `NUXT_RATE_LIMIT_SEARCH_MAX` | 5 | Search max requests per window |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_MAX` | 20 | Default write (POST/PATCH/PUT/DELETE) max requests per window |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_WINDOW` | 60 | Default write window (seconds) |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_MAX` | 60 | Default read (GET) max requests per window |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_WINDOW` | 60 | Default read window (seconds) |
+
+### 2.7 Third-party And Distribution
 
 | Environment Variable | SettingKey | Level | Mask | Notes |
 | :--- | :--- | :--- | :--- | :--- |

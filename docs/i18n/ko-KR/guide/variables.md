@@ -58,6 +58,22 @@ last_sync: 2026-06-05
 
 참고: `HEXO_SYNC_*` 는 이제 관리자 화면의 시스템 설정 > 통합 섹션에서 관리할 수 있습니다. `HEXO_SYNC_ACCESS_TOKEN` 은 UI 에서 마스킹되며, 동일한 환경 변수가 배포 계층에 있으면 계속 ENV 잠금 상태로 읽기 전용을 유지합니다.
 
+### 2.5 API 속도 제한
+
+속도 제한 규칙은 `server/utils/rate-limit-config.ts` 에 정의되어 있으며, 환경 변수로 덮어쓸 수 있습니다.
+
+| 환경 변수 | 기본값 | 설명 |
+| :--- | :--- | :--- |
+| `NUXT_RATE_LIMIT_EXTERNAL_MAX` | 300 | 외부 API (CLI/MCP 가져오기/내보내기) 분당 최대 요청 수 |
+| `NUXT_RATE_LIMIT_EXTERNAL_WINDOW` | 60 | 외부 API 제한 시간(초) |
+| `NUXT_RATE_LIMIT_AI_MAX` | 10 | AI API 분당 최대 요청 수 |
+| `NUXT_RATE_LIMIT_AI_STATUS_MAX` | 30 | AI 작업 폴링 분당 최대 요청 수 |
+| `NUXT_RATE_LIMIT_SEARCH_MAX` | 5 | 검색 분당 최대 요청 수 |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_MAX` | 20 | 일반 쓰기(POST/PATCH/PUT/DELETE) 분당 최대 요청 수 |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_MAX` | 60 | 일반 읽기(GET) 분당 최대 요청 수 |
+
+이름 규칙: `NUXT_RATE_LIMIT_<RULE_NAME>_MAX` (최대 요청 수) / `NUXT_RATE_LIMIT_<RULE_NAME>_WINDOW` (시간 창, 초)
+
 ## 3. 운영 시 유의점
 
 - `AUTH_SECRET`, `DATABASE_URL`, `REDIS_URL`, `HEXO_SYNC_ACCESS_TOKEN` 같은 항목은 항상 배포 계층에서 관리해야 합니다.

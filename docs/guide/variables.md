@@ -147,7 +147,26 @@
 | `LOG_LEVEL` | - | 3 | none | 日志等级 (debug/info/error) |
 | `NUXT_PUBLIC_LIVE2D_ENABLED`| `live2d_enabled` | 0 | none | 看板娘系统开关 |
 
-### 2.6 第三方与内容分发 (Third-party & Distribution)
+### 2.6 API 限流配置 (Rate Limiting)
+
+限流规则定义在 `server/utils/rate-limit-config.ts` 中，每条规则可通过同名环境变量覆盖默认值。
+
+命名规则：`NUXT_RATE_LIMIT_<RULE_NAME>_MAX`（最大请求数） / `NUXT_RATE_LIMIT_<RULE_NAME>_WINDOW`（时间窗口秒数）
+
+| 环境变量 | 默认值 | 说明 |
+| :--- | :--- | :--- |
+| `NUXT_RATE_LIMIT_EXTERNAL_MAX` | 300 | 外部 API（CLI/MCP 导入导出等批量操作）每分钟最大请求数 |
+| `NUXT_RATE_LIMIT_EXTERNAL_WINDOW` | 60 | 外部 API 限流窗口（秒） |
+| `NUXT_RATE_LIMIT_AI_MAX` | 10 | AI 接口每分钟最大请求数，防止 API 费用超支 |
+| `NUXT_RATE_LIMIT_AI_WINDOW` | 60 | AI 接口限流窗口（秒） |
+| `NUXT_RATE_LIMIT_AI_STATUS_MAX` | 30 | AI 任务轮询每分钟最大请求数 |
+| `NUXT_RATE_LIMIT_SEARCH_MAX` | 5 | 搜索每分钟最大请求数，防止全文搜索压力过大 |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_MAX` | 20 | 通用写请求（POST/PATCH/PUT/DELETE）每分钟最大请求数 |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_WINDOW` | 60 | 通用写请求限流窗口（秒） |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_MAX` | 60 | 通用读请求（GET）每分钟最大请求数 |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_WINDOW` | 60 | 通用读请求限流窗口（秒） |
+
+### 2.7 第三方与内容分发 (Third-party & Distribution)
 
 | 环境变量 | 系统设置键名 (SettingKey) | 等级 | 脱敏 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |

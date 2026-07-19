@@ -112,6 +112,25 @@ last_sync: 2026-06-05
 
 補充：`HEXO_SYNC_*` 已接入後台「系統設定 > 第三方整合」面板。`HEXO_SYNC_ACCESS_TOKEN` 在後台會以密碼欄位遮罩顯示；若部署層同時提供同名環境變數，該欄位仍會保持 ENV 鎖定只讀。
 
+### 2.6 API 限流配置
+
+限流規則定義在 `server/utils/rate-limit-config.ts` 中，每條規則可透過同名環境變數覆蓋預設值。
+
+命名規則：`NUXT_RATE_LIMIT_<RULE_NAME>_MAX`（最大請求數）/ `NUXT_RATE_LIMIT_<RULE_NAME>_WINDOW`（時間窗口秒數）
+
+| 環境變數 | 預設值 | 說明 |
+| :--- | :--- | :--- |
+| `NUXT_RATE_LIMIT_EXTERNAL_MAX` | 300 | 外部 API（CLI/MCP 導入導出等批量操作）每分鐘最大請求數 |
+| `NUXT_RATE_LIMIT_EXTERNAL_WINDOW` | 60 | 外部 API 限流窗口（秒） |
+| `NUXT_RATE_LIMIT_AI_MAX` | 10 | AI 接口每分鐘最大請求數，防止 API 費用超支 |
+| `NUXT_RATE_LIMIT_AI_WINDOW` | 60 | AI 接口限流窗口（秒） |
+| `NUXT_RATE_LIMIT_AI_STATUS_MAX` | 30 | AI 任務輪詢每分鐘最大請求數 |
+| `NUXT_RATE_LIMIT_SEARCH_MAX` | 5 | 搜索每分鐘最大請求數，防止全文搜索壓力過大 |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_MAX` | 20 | 通用寫請求（POST/PATCH/PUT/DELETE）每分鐘最大請求數 |
+| `NUXT_RATE_LIMIT_DEFAULT_POST_WINDOW` | 60 | 通用寫請求限流窗口（秒） |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_MAX` | 60 | 通用讀請求（GET）每分鐘最大請求數 |
+| `NUXT_RATE_LIMIT_DEFAULT_GET_WINDOW` | 60 | 通用讀請求限流窗口（秒） |
+
 ## 3. 鎖定機制與注意事項
 
 1. **環境變數鎖定**：由於部分第三方庫會直接讀取 `process.env`，某些配置會被強制鎖定為部署層管理，後台無法修改。

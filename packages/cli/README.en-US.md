@@ -2,7 +2,7 @@
 
 [简体中文](./README.md) | [English](./README.en-US.md)
 
-Command-line toolkit for migrating Hexo content into Momei. It currently provides six capabilities: bulk post import, migration link governance backed by the Momei migration API, AI automation powered by the external automation API, category and tag management, snippet (inspiration) management, and post version management.
+Command-line toolkit for migrating Hexo content into Momei. It currently provides ten capabilities: bulk post import, migration link governance backed by the Momei migration API, AI automation powered by the external automation API, category and tag management, snippet (inspiration) management, post version management, view-count syncing from D1, and post export. An embedded token-bucket rate limiter automatically retries 429 responses with exponential backoff.
 
 ## Features
 
@@ -18,6 +18,9 @@ Command-line toolkit for migrating Hexo content into Momei. It currently provide
 - ✅ CRUD management for tags with multilingual pagination support
 - ✅ CRUD + detail query for snippets (inspirations) and convert to post
 - ✅ Post version creation and version history listing
+- ✅ Export posts to Markdown or JSON with Hexo-compatible front matter
+- ✅ Sync view counts from D1 (hexo-cloudflare-counter) to Momei, using `max(existing, D1)` to prevent accumulation
+- ✅ Built-in request rate limiter (token bucket) with automatic 429 retry (exponential backoff)
 
 ## Installation
 
@@ -59,6 +62,10 @@ Common options:
 | `--upload-images` | Scan local Markdown/cover image paths, request direct upload auth, and rewrite URLs automatically (dry run only scans) | `false` |
 | `--verbose` | Print verbose logs | `false` |
 | `--concurrency <num>` | Concurrent import workers | `3` |
+| `--report-file <file>` | Save validation/import report as JSON | - |
+| `--confirm-path-aliases` | Accept fallback/repaired path aliases from validation | `false` |
+| `--rate-limit <num>` | Max requests per second (prevents 429) | `3` |
+| `--max-retries <num>` | Max retries on 429 errors (exponential backoff) | `3` |
 
 Examples:
 
@@ -430,6 +437,91 @@ Common options:
 | --- | --- | --- |
 | `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
 | `--api-key <key>` | Momei API key | - |
+
+## Command 9: Export Posts
+
+Export blog posts from Momei to local Markdown or JSON files, useful for local archiving or migrating to another system.
+
+Basic usage:
+
+```bash
+momei export <output-directory> --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
+| `--format <format>` | Output format: `markdown` or `json` | `markdown` |
+| `--language <locale>` | Filter by language (e.g. `zh-CN`, `en-US`) | all |
+| `--status <status>` | Filter by status (`draft`, `published`, `archived`) | all |
+| `--category <slug>` | Filter by category slug | all |
+| `--limit <num>` | Max number of posts to export | all |
+
+Markdown output includes full Hexo-compatible front matter. A statistical summary is printed after completion.
+
+Examples:
+
+```bash
+# Export all published posts as Markdown
+momei export ./backup --api-key your-api-key --status published
+
+# Export English posts as JSON
+momei export ./backup --api-key your-api-key --language en-US --format json
+
+# Export the 10 most recent drafts
+momei export ./backup --api-key your-api-key --status draft --limit 10
+```
+
+## Command 10: Sync View Counts
+
+`sync-views` synchronizes view-count data exported from [hexo-cloudflare-counter](https://github.com/CaoMeiYouRen/hexo-cloudflare-counter) (D1) into Momei's PostgreSQL. The merge strategy is `max(existing, D1)`, preventing accumulation on repeated runs.
+
+### Export from D1
+
+```bash
+wrangler d1 execute hexo-cloudflare-counter \
+  --command "SELECT url, time FROM counters WHERE time > 0" \
+  --json > d1-views.json
+```
+
+### Sync to Momei
+
+```bash
+momei sync-views ./d1-views.json --api-key <your-api-key>
+```
+
+Common options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
+| `--api-key <key>` | Momei API key | - |
+| `--dry-run` | Parse file without syncing | `false` |
+| `--verbose` | Print verbose logs (errors and not-found URLs) | `false` |
+| `--rate-limit <num>` | Max requests per second | `5` |
+| `--max-retries <num>` | Max retries on 429 errors | `3` |
+
+Examples:
+
+```bash
+# Preview the sync
+momei sync-views ./d1-views.json --api-key your-api-key --dry-run
+
+# Execute sync
+momei sync-views ./d1-views.json --api-key your-api-key --verbose
+
+# Export and sync in one pipeline
+wrangler d1 execute hexo-cloudflare-counter \
+  --command "SELECT url, time FROM counters WHERE time > 0" \
+  --json | momei sync-views - --api-key your-api-key
+```
+
+> Input file formats:
+> - **Raw array**: `[{ "url": "...", "time": 123 }, ...]`
+> - **D1 export wrapper**: `{ "results": [...], "success": true, "meta": {...} }`<br>(direct output of `wrangler d1 execute --json`, no extra conversion needed)
 
 ## Current Field Mapping
 
