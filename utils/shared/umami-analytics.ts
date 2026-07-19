@@ -15,24 +15,24 @@ export function parseUmamiAnalyticsOptions(rawValue: unknown): UmamiAnalyticsOpt
         return null
     }
 
+    let parsed: Record<string, unknown>
     try {
-        const parsed = JSON.parse(trimmedRawValue) as Record<string, unknown>
-        const websiteId = typeof parsed.websiteId === 'string' ? parsed.websiteId.trim() : ''
-        const scriptUrl = typeof parsed.scriptUrl === 'string' ? parsed.scriptUrl.trim() : ''
-
-        if (!websiteId) {
-            return null
-        }
-
-        return {
-            websiteId,
-            scriptUrl: scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
-        }
+        parsed = JSON.parse(trimmedRawValue) as Record<string, unknown>
     } catch {
-        return {
-            websiteId: trimmedRawValue,
-            scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-        }
+        // 非 JSON 字符串(如意外写入的脏数据)不视为有效配置，拒绝注入
+        return null
+    }
+
+    const websiteId = typeof parsed.websiteId === 'string' ? parsed.websiteId.trim() : ''
+    if (!websiteId) {
+        return null
+    }
+
+    const scriptUrl = typeof parsed.scriptUrl === 'string' ? parsed.scriptUrl.trim() : ''
+
+    return {
+        websiteId,
+        scriptUrl: scriptUrl || DEFAULT_UMAMI_SCRIPT_URL,
     }
 }
 

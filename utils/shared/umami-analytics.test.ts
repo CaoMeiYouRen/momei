@@ -37,11 +37,8 @@ describe('umami-analytics shared utils', () => {
             expect(parseUmamiAnalyticsOptions('{"websiteId":"  "}')).toBeNull()
         })
 
-        it('falls back to legacy plain websiteId format when raw is non-json', () => {
-            expect(parseUmamiAnalyticsOptions('legacy-website-id')).toEqual({
-                websiteId: 'legacy-website-id',
-                scriptUrl: DEFAULT_UMAMI_SCRIPT_URL,
-            })
+        it('rejects non-json raw string (legacy plain format no longer accepted)', () => {
+            expect(parseUmamiAnalyticsOptions('legacy-website-id')).toBeNull()
         })
     })
 
