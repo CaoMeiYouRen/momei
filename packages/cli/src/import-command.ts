@@ -162,7 +162,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
         }
 
         const rateLimiterOptions = {
-            rps: Number.parseInt(String(options.rateLimit), 10) || 5,
+            rps: Number.parseInt(String(options.rateLimit), 10) || 3,
             concurrency: Number.parseInt(String(options.concurrency), 10) || 3,
             maxRetries: Number.parseInt(String(options.maxRetries), 10) || 3,
         }
@@ -307,7 +307,7 @@ export function registerImportCommand(cli: CAC) {
         .option('--report-file <file>', 'Save the validation/import report to a file')
         .option('--confirm-path-aliases', 'Approve fallback or repaired path aliases returned by validation', { default: false })
         .option('--verbose', 'Verbose output', { default: false })
-        .option('--rate-limit <num>', 'Max requests per second (prevents 429)', { default: 5 })
+        .option('--rate-limit <num>', 'Max requests per second (prevents 429)', { default: 3 })
         .option('--max-retries <num>', 'Max retries on 429 rate limit errors', { default: 3 })
         .option('--concurrency <num>', 'Number of concurrent imports', { default: 3 })
         .action(async (source: string, options: ImportCommandOptions) => {

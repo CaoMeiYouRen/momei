@@ -202,7 +202,12 @@ export async function parseHexoMarkdown(filePath: string): Promise<{ frontMatter
     const { data, content } = matter(fileContent, {
         engines: {
             yaml: {
-                parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+                parse: (input: string) => {
+                    // Hexo 旧版 frontmatter 可能使用 Tab 缩进，js-yaml 不支持
+                    // 在解析前将 Tab 替换为 2 个空格
+                    const normalized = input.replace(/\t/g, '  ')
+                    return yaml.load(normalized) as Record<string, unknown>
+                },
             },
         },
     })

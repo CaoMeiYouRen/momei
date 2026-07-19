@@ -27,16 +27,28 @@ export class MomeiApiClient {
         this.client = this.api.client
         if (rateLimiterOptions) {
             this.rateLimiter = new RateLimiter(rateLimiterOptions)
+            this.wrapHttpClient()
+        }
+    }
+
+    /**
+     * 在 HTTP 传输层注入限流，所有 API 调用自动受控
+     */
+    private wrapHttpClient(): void {
+        const rateLimiter = this.rateLimiter!
+        const rawMethods: (keyof MomeiHttpClient)[] = ['get', 'post', 'put', 'patch', 'delete']
+
+        for (const method of rawMethods) {
+            const original = this.client[method] as (...args: unknown[]) => Promise<unknown>
+            const bound = original.bind(this.client)
+            this.client[method] = ((path: string, data?: unknown) => rateLimiter.execute(() => bound(path, data))) as any
         }
     }
 
     // ===== Delegated post methods =====
 
     async createPost(post: CliImportPostRequest): Promise<{ code: number, data: { id: string | number } }> {
-        const execute = () => this.api.posts.create(post)
-        const data = this.rateLimiter
-            ? await this.rateLimiter.execute(execute)
-            : await execute()
+        const data = await this.api.posts.create(post)
         return { code: 200, data }
     }
 
@@ -66,10 +78,7 @@ export class MomeiApiClient {
     }
 
     async validateImportPost(post: CliImportPostRequest): Promise<{ code: number, data: import('@momei-blog/api-client').MomeiImportPathAliasReport }> {
-        const execute = () => this.api.posts.validate(post)
-        const data = this.rateLimiter
-            ? await this.rateLimiter.execute(execute)
-            : await execute()
+        const data = await this.api.posts.validate(post)
         return { code: 200, data }
     }
 
