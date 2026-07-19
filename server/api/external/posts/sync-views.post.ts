@@ -53,7 +53,7 @@ function extractSlugFromUrl(url: string): string | null {
     return match[1]
 }
 
-export default defineEventHandler(async (event): Promise<SyncViewsResponse> => {
+export default defineEventHandler(async (event) => {
     const { user } = await validateApiKeyRequest(event)
 
     // 仅管理员可同步阅读量
@@ -142,11 +142,14 @@ export default defineEventHandler(async (event): Promise<SyncViewsResponse> => {
     const errors = details.filter((d) => d.status === 'error').length
 
     return {
-        synced,
-        skipped,
-        notFound,
-        errors,
-        total: details.length,
-        details,
+        code: 200,
+        data: {
+            synced,
+            skipped,
+            notFound,
+            errors,
+            total: details.length,
+            details,
+        },
     }
 })

@@ -57,14 +57,26 @@ interface SyncViewsCliOptions {
 /**
  * 从 D1 条目中提取阅读量。
  * D1 schema 中阅读量字段名为 time，也兼容常见的 views 字段名。
+ * 支持数字和数字字符串两种格式。
  */
 function extractViews(entry: D1ViewEntry): number | undefined {
-    if (typeof entry.time === 'number' && entry.time >= 0) {
-        return entry.time
+    const rawTime = entry.time
+    const rawViews = entry.views
+
+    const time = typeof rawTime === 'number' ? rawTime
+        : typeof rawTime === 'string' ? Number(rawTime)
+        : undefined
+    if (time !== undefined && !Number.isNaN(time) && time >= 0) {
+        return time
     }
-    if (typeof entry.views === 'number' && entry.views >= 0) {
-        return entry.views
+
+    const views = typeof rawViews === 'number' ? rawViews
+        : typeof rawViews === 'string' ? Number(rawViews)
+        : undefined
+    if (views !== undefined && !Number.isNaN(views) && views >= 0) {
+        return views
     }
+
     return undefined
 }
 
@@ -91,18 +103,41 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
     console.log(chalk.gray(`Dry Run: ${dryRun ? 'Yes' : 'No'}\n`))
 
     // 读取并解析 JSON 文件
-    let entries: D1ViewEntry[]
+    let rawEntries: unknown[]
     try {
         const content = await readFile(filePath, 'utf-8')
-        entries = JSON.parse(content) as D1ViewEntry[]
-        if (!Array.isArray(entries)) {
-            throw new Error('文件内容必须是 JSON 数组')
+        const parsed = JSON.parse(content)
+
+        // wrangler d1 execute --json 输出格式：
+        //   1) [{ results: [...], success: true, meta: {...} }]  — 数组包对象
+        //   2) { results: [...], success: true, meta: {...} }     — 裸对象
+        //   3) [{ url: "...", time: 123 }, ...]                  — 裸数组
+        if (Array.isArray(parsed)) {
+            // 情况 1：数组包对象，取第一个元素的 results
+            if (parsed.length === 1 && parsed[0] && typeof parsed[0] === 'object' && 'results' in parsed[0]) {
+                const innerResults = (parsed[0] as Record<string, unknown>).results
+                if (Array.isArray(innerResults)) {
+                    rawEntries = innerResults
+                } else {
+                    rawEntries = parsed
+                }
+            } else {
+                // 情况 3：裸数组
+                rawEntries = parsed
+            }
+        } else if (parsed && typeof parsed === 'object' && Array.isArray((parsed as Record<string, unknown>).results)) {
+            // 情况 2：裸对象
+            rawEntries = (parsed as Record<string, unknown>).results as unknown[]
+        } else {
+            throw new Error('JSON 文件必须是数组、包含 results 数组的对象（wrangler d1 execute 输出格式），或裸条目数组')
         }
     } catch (error) {
         console.error(chalk.red(`\nError: 无法读取文件: ${error instanceof Error ? error.message : 'Unknown error'}`))
         process.exitCode = 1
         return
     }
+
+    const entries = rawEntries as D1ViewEntry[]
 
     // 过滤出有效的条目（必须有 url 和 有效的阅读量）
     // D1 的 wrangler d1 execute --json 输出中包含 url 和 time 字段
@@ -114,7 +149,20 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
 
     console.log(chalk.gray(`Total entries: ${entries.length}`))
     console.log(chalk.gray(`Valid entries: ${validEntries.length}`))
-    console.log(chalk.gray(`Invalid entries: ${entries.length - validEntries.length}\n`))
+    console.log(chalk.gray(`Invalid entries: ${entries.length - validEntries.length}`))
+
+    // 诊断：显示第一条无效条目的结构
+    if (verbose && entries.length > 0 && validEntries.length === 0) {
+        const sample = entries[0]
+        if (!sample) return
+        console.log(chalk.gray(`\nFirst entry sample:`))
+        console.log(chalk.gray(`  url: ${JSON.stringify(sample.url)} (${typeof sample.url})`))
+        console.log(chalk.gray(`  time: ${JSON.stringify(sample.time)} (${typeof sample.time})`))
+        console.log(chalk.gray(`  views: ${JSON.stringify(sample.views)} (${typeof sample.views})`))
+        console.log(chalk.gray(`  keys: ${Object.keys(sample as object).join(', ')}`))
+    }
+
+    console.log()
 
     if (validEntries.length === 0) {
         console.log(chalk.yellow('No valid entries found. Nothing to sync.'))
@@ -140,15 +188,11 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
 
     try {
         // 保持原始字段名传给服务端（time 或 views），由服务端解析
-        const rawEntries = validEntries.map((e) => {
-            const entry: Record<string, unknown> = { url: e.url }
-            if (typeof e.time === 'number') {
-                entry.time = e.time
-            } else if (typeof e.views === 'number') {
-                entry.views = e.views
-            }
-            return entry
-        })
+        // 统一将阅读量映射为 views 字段发送给服务端
+        const rawEntries = validEntries.map((e) => ({
+            url: e.url,
+            views: extractViews(e)!,
+        }))
         const response = await client.api.client.post<SyncViewsResponse>('/api/external/posts/sync-views', {
             entries: rawEntries,
         })
