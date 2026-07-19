@@ -10,7 +10,7 @@ export interface CliImportValidationCandidate {
 
 export interface CliImportExecutionItem extends CliImportValidationCandidate {
     action: 'import' | 'skip'
-    actionReason: 'ready' | 'blocking-issues' | 'confirmation-required'
+    actionReason: 'ready' | 'blocking-issues' | 'confirmation-required' | 'already-synced'
 }
 
 export interface CliImportExecutionPlan {
@@ -20,6 +20,7 @@ export interface CliImportExecutionPlan {
         skipped: number
         requiresConfirmation: number
         blockingIssues: number
+        alreadySynced: number
         accepted: number
         fallback: number
         repaired: number
@@ -39,11 +40,22 @@ export function buildImportExecutionPlan(
     options: { confirmPathAliases: boolean },
 ): CliImportExecutionPlan {
     const items = candidates.map<CliImportExecutionItem>((candidate) => {
-        if (candidate.report.hasBlockingIssues || !candidate.report.canImport) {
+        if (candidate.report.hasBlockingIssues) {
             return {
                 ...candidate,
                 action: 'skip',
                 actionReason: 'blocking-issues',
+            }
+        }
+
+        if (!candidate.report.canImport) {
+            const isAlreadySynced = candidate.report.items.some(
+                (item) => item.status === 'skipped' && item.reason === 'already-synced',
+            )
+            return {
+                ...candidate,
+                action: 'skip',
+                actionReason: isAlreadySynced ? 'already-synced' : 'blocking-issues',
             }
         }
 
@@ -71,6 +83,7 @@ export function buildImportExecutionPlan(
             skipped: items.filter((item) => item.action === 'skip').length,
             requiresConfirmation: items.filter((item) => item.actionReason === 'confirmation-required').length,
             blockingIssues: items.filter((item) => item.actionReason === 'blocking-issues').length,
+            alreadySynced: items.filter((item) => item.actionReason === 'already-synced').length,
             accepted: sumStatus(reports, 'accepted'),
             fallback: sumStatus(reports, 'fallback'),
             repaired: sumStatus(reports, 'repaired'),

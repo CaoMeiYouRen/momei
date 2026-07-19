@@ -77,6 +77,7 @@ export interface ImportPathAliasReportItem {
     resolvedValue: string | null
     reason:
         | 'accepted'
+        | 'already-synced'
         | 'derived-from-source-file'
         | 'fallback-to-abbrlink'
         | 'fallback-to-derived-slug'
@@ -513,6 +514,44 @@ export async function validateImportPathAliases(input: ImportPathAliasValidation
     } else if (derivedCandidate) {
         const derivedConflict = await checkSlugConflict(derivedCandidate.value, language)
         if (!derivedConflict) {
+            // === 检查是否已同步：当显式别名冲突且标题匹配时，说明文章已导入过 ===
+            if (input.title) {
+                let conflictedField: CanonicalCandidateResult | null = null
+                if (slugCandidate?.item.status === 'conflict') {
+                    conflictedField = slugCandidate
+                } else if (abbrlinkCandidate?.item.status === 'conflict') {
+                    conflictedField = abbrlinkCandidate
+                }
+                if (conflictedField) {
+                    const conflictedSlug = conflictedField.item.resolvedValue || conflictedField.item.originalValue
+                    if (conflictedSlug) {
+                        const existingPost = await dataSource.getRepository(Post).findOne({
+                            where: { slug: conflictedSlug, language },
+                        })
+                        if (existingPost?.title === input.title) {
+                            items.push({
+                                field: 'canonical',
+                                status: 'skipped',
+                                originalValue: derivedCandidate.originalValue,
+                                resolvedValue: existingPost.slug,
+                                reason: 'already-synced',
+                                message: '该文章已存在（slug/abbrlink 冲突且标题匹配），跳过导入。',
+                            })
+                            return {
+                                language,
+                                canonicalSlug: existingPost.slug,
+                                canonicalSource: null,
+                                canImport: false,
+                                requiresConfirmation: false,
+                                hasBlockingIssues: false,
+                                summary: createSummary(items),
+                                items,
+                            }
+                        }
+                    }
+                }
+            }
+
             const explicitAliasProvided = Boolean(normalizeOptionalString(input.slug) || normalizeOptionalString(input.abbrlink))
             canonicalSlug = derivedCandidate.value
             canonicalSource = derivedCandidate.source

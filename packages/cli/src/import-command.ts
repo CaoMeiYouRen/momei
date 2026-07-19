@@ -75,6 +75,7 @@ function displayImportValidationSummary(plan: ReturnType<typeof buildImportExecu
     console.log(chalk.green(`  Ready: ${plan.summary.ready}`))
     console.log(chalk.yellow(`  Confirmation Required: ${plan.summary.requiresConfirmation}`))
     console.log(chalk.red(`  Blocking Issues: ${plan.summary.blockingIssues}`))
+    console.log(chalk.blue(`  Already Synced: ${plan.summary.alreadySynced}`))
     console.log(chalk.gray(`  Skipped: ${plan.summary.skipped}`))
     console.log(chalk.gray(`  Accepted: ${plan.summary.accepted}`))
     console.log(chalk.yellow(`  Fallback: ${plan.summary.fallback}`))
