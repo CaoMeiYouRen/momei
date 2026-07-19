@@ -186,9 +186,7 @@ const {
     data: latestData,
     pending: latestPending,
     error: latestError,
-} = await useAppFetch<ApiResponse<Pick<PostListData, 'items'>>>('/api/posts/home', {
-    // server: !shouldDeferLatestPostsSsr,
-})
+} = await useAppFetch<ApiResponse<Pick<PostListData, 'items'>>>('/api/posts/home')
 
 const latestPosts = computed(() => latestData.value?.data?.items || [])
 

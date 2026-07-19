@@ -117,7 +117,7 @@ describe('IndexPage', () => {
 
         const latestCall = vi.mocked(useAppFetch).mock.calls[0]
         expect(latestCall?.[0]).toBe('/api/posts/home')
-        expect(latestCall?.[1]).toMatchObject({ server: true })
+        expect(latestCall?.[1]).toBeUndefined()
 
         const popularCall = vi.mocked(useAppFetch).mock.calls[1]
         expect(popularCall?.[1]).toMatchObject({

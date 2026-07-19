@@ -64,6 +64,7 @@ vi.stubGlobal('useRuntimeConfig', () => ({
     public: {
         siteUrl: 'https://momei.app',
         appName: '墨梅博客',
+        windowsLocalDevMode: false,
     },
 }))
 
