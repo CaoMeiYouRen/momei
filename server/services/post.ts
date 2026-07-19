@@ -1,6 +1,7 @@
 import { kebabCase } from 'lodash-es'
 import type { Repository } from 'typeorm'
 import type { z } from 'zod'
+import { ensureCategory } from './category'
 import { ensureTags } from './tag'
 import { executePublishEffects } from './post-publish'
 import { dataSource } from '@/server/database'
@@ -96,14 +97,14 @@ async function applyPostChanges(
             targetCategoryId = null
         } else {
             const targetLang = body.language || post.language
-            const category = await categoryRepo.findOne({
+            let category = await categoryRepo.findOne({
                 where: [
                     { slug: body.category, language: targetLang },
                     { name: body.category, language: targetLang },
                 ],
             })
             if (!category) {
-                throw createError({ statusCode: 400, statusMessage: `Category "${body.category}" not found` })
+                category = await ensureCategory(body.category, targetLang)
             }
             targetCategoryId = category.id
         }

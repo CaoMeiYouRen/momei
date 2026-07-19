@@ -219,13 +219,38 @@ export async function ensureTags(tagNames: (string | PostTagBindingInput)[], lan
                 existingTagSlug = await tagRepo.findOne({ where: { slug, language } })
             }
 
-            // 调用统一的创建逻辑
-            tag = await createTag({
-                name: input.name,
-                slug,
-                language,
-                translationId: clusterId,
-            })
+            // 调用统一的创建逻辑（并发冲突时自动重试）
+            try {
+                tag = await createTag({
+                    name: input.name,
+                    slug,
+                    language,
+                    translationId: clusterId,
+                })
+            } catch (error: unknown) {
+                const errMsg = (error as Error).message || ''
+                const isConflict = errMsg.includes('duplicate key')
+                    || errMsg.includes('unique constraint')
+                    || errMsg.includes('already exists')
+                    || (error as { statusCode?: number }).statusCode === 409
+                if (isConflict) {
+                    // 并发创建冲突：另一个请求刚创建了同名标签 → 重新读取
+                    const created = await tagRepo.findOne({ where: { name: input.name, language } })
+                    if (created) {
+                        tag = created
+                    } else {
+                        // slug 冲突但名称不同 → 换个 slug 再试
+                        tag = await createTag({
+                            name: input.name,
+                            slug: `${slug}-${generateRandomString(4)}`,
+                            language,
+                            translationId: clusterId,
+                        })
+                    }
+                } else {
+                    throw error
+                }
+            }
         }
         result.push(tag)
     }

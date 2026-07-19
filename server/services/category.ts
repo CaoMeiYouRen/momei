@@ -1,8 +1,10 @@
 import { Not } from 'typeorm'
+import { kebabCase } from 'lodash-es'
 import { dataSource } from '@/server/database'
 import { Category } from '@/server/entities/category'
 import { assignDefined } from '@/server/utils/object'
 import { resolveTranslationClusterId } from '@/utils/shared/translation-cluster'
+import { generateRandomString } from '@/utils/shared/random'
 
 export interface CategoryData {
     name: string
@@ -155,4 +157,60 @@ export async function updateCategory(id: string, data: Partial<CategoryData>): P
     category.translationId = targetTranslationId
 
     return categoryRepo.save(category)
+}
+
+/**
+ * 检查错误是否为分类创建冲突（并发创建或已存在）
+ */
+function isCategoryConflictError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+        return false
+    }
+    const msg = error.message || ''
+    return msg.includes('duplicate key')
+        || msg.includes('unique constraint')
+        || msg.includes('already exists')
+        || (error as { statusCode?: number }).statusCode === 409
+}
+
+/**
+ * 获取或创建分类。常在文章创建/更新时自动处理不存在的分类。
+ * 如果分类不存在，将根据名称自动生成 slug 并创建。
+ */
+export async function ensureCategory(name: string, language: string): Promise<Category> {
+    const categoryRepo = dataSource.getRepository(Category)
+
+    // 先按名称查找
+    const existing = await categoryRepo.findOne({ where: { name, language } })
+    if (existing) {
+        return existing
+    }
+
+    // 自动生成 slug
+    let slug = kebabCase(name)
+    if (!slug) {
+        slug = generateRandomString(8)
+    }
+
+    // 检查 slug 冲突，如果冲突则加随机后缀
+    let existingBySlug = await categoryRepo.findOne({ where: { slug, language } })
+    while (existingBySlug) {
+        slug = `${slug}-${generateRandomString(4)}`
+        existingBySlug = await categoryRepo.findOne({ where: { slug, language } })
+    }
+
+    try {
+        return await createCategory({ name, slug, language })
+    } catch (error: unknown) {
+        // 并发创建冲突：另一个请求刚创建了同名/同slug分类 → 重新读取
+        if (isCategoryConflictError(error)) {
+            const created = await categoryRepo.findOne({ where: { name, language } })
+            if (created) {
+                return created
+            }
+            // 名称不存在但 slug 冲突 → 换个 slug 再试
+            return createCategory({ name, slug: `${slug}-${generateRandomString(4)}`, language })
+        }
+        throw error
+    }
 }
