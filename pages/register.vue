@@ -59,6 +59,7 @@
                                 v-model="form.name"
                                 type="text"
                                 :invalid="!!errors.name"
+                                fluid
                                 class="register-form__input"
                             />
                             <Message
@@ -80,6 +81,7 @@
                                 v-model="form.email"
                                 type="email"
                                 :invalid="!!errors.email"
+                                fluid
                                 class="register-form__input"
                             />
                             <Message
@@ -345,6 +347,18 @@ definePageMeta({
 
 .register-form {
     @extend %auth-form;
+
+    &__fields {
+        @extend %auth-form-fields;
+    }
+
+    &__field {
+        @extend %auth-form-field;
+    }
+
+    &__input {
+        @extend %auth-form-input;
+    }
 
     &__submit-btn {
         width: 100%;

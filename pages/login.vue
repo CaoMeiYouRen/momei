@@ -58,6 +58,7 @@
                             v-model="form.email"
                             type="email"
                             :invalid="!!errors.email"
+                            fluid
                             class="login-form__input"
                         />
                         <Message
@@ -341,6 +342,18 @@ definePageMeta({
 
 .login-form {
     @extend %auth-form;
+
+    &__fields {
+        @extend %auth-form-fields;
+    }
+
+    &__field {
+        @extend %auth-form-field;
+    }
+
+    &__input {
+        @extend %auth-form-input;
+    }
 
     &__actions {
         display: flex;
