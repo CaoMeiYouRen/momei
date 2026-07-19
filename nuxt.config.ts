@@ -428,6 +428,8 @@ export default defineNuxtConfig({
                 'postgres-bytea',
                 'postgres-date',
                 'postgres-interval',
+                // postgres-interval@1.x 依赖于 xtend 并通过 require('xtend/mutable') 引用
+                'xtend',
                 // sanitize-html 内部 require('htmlparser2') 会加载 ESM-only 的 v12，
                 // 需一起 inline 让 Rolldown 在构建时处理 CJS→ESM 转换
                 'sanitize-html',
