@@ -1,4 +1,5 @@
 import { LessThan, In } from 'typeorm'
+import dayjs from 'dayjs'
 import { dataSource } from '@/server/database'
 import { AITask } from '@/server/entities/ai-task'
 import logger from '@/server/utils/logger'
@@ -25,7 +26,7 @@ function getRetentionDays(): number {
  */
 export async function purgeExpiredAiTasks(): Promise<{ deleted: number }> {
     const retentionDays = getRetentionDays()
-    const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000)
+    const cutoff = dayjs().subtract(retentionDays, 'day').toDate()
     const finalStatuses = ['completed', 'failed']
 
     try {

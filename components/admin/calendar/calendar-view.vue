@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import dayjs from 'dayjs'
 import type { CalendarDayGroup } from '@/types/calendar'
 
 const props = defineProps<{
@@ -142,17 +143,15 @@ const viewOptions = computed(() => [
 ])
 
 const weekdays = computed(() => {
-    const base = new Date(2024, 0, 7) // Sunday
+    const base = dayjs().year(2024).month(0).date(7) // Sunday
     return Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(base)
-        d.setDate(d.getDate() + i)
-        return d.toLocaleDateString(locale.value, { weekday: 'short' })
+        return base.add(i, 'day').toDate().toLocaleDateString(locale.value, { weekday: 'short' })
     })
 })
 
 const titleText = computed(() => {
-    const d = currentDate.value
-    return `${d.getFullYear()} ${t('common.year')} ${d.getMonth() + 1} ${t('common.month')}`
+    const d = dayjs(currentDate.value)
+    return `${d.year()} ${t('common.year')} ${d.month() + 1} ${t('common.month')}`
 })
 
 interface CalendarCell {
@@ -167,18 +166,13 @@ interface CalendarCell {
 const monthCells = computed<CalendarCell[]>(() => {
     const year = currentDate.value.getFullYear()
     const month = currentDate.value.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const today = new Date()
-    const todayKey = today.toISOString().slice(0, 10)
+    const firstDay = dayjs(new Date(year, month, 1))
+    const lastDay = dayjs(new Date(year, month + 1, 0))
+    const todayKey = dayjs().format('YYYY-MM-DD')
 
-    const start = new Date(firstDay)
-    start.setDate(start.getDate() - start.getDay())
+    const start = firstDay.subtract(firstDay.day(), 'day')
 
-    const end = new Date(lastDay)
-    if (end.getDay() < 6) {
-        end.setDate(end.getDate() + (6 - end.getDay()))
-    }
+    const end = lastDay.day() < 6 ? lastDay.add(6 - lastDay.day(), 'day') : lastDay
 
     const postsMap = new Map<string, CalendarDayGroup['posts']>()
     for (const group of props.calendarPosts) {
@@ -186,28 +180,24 @@ const monthCells = computed<CalendarCell[]>(() => {
     }
 
     const cells: CalendarCell[] = []
-    const cursor = new Date(start)
-    while (cursor <= end) {
-        const dateKey = cursor.toISOString().slice(0, 10)
+    let cursor = start
+    while (cursor.isBefore(end) || cursor.isSame(end, 'day')) {
+        const dateKey = cursor.format('YYYY-MM-DD')
         cells.push({
             dateKey,
-            day: cursor.getDate(),
-            isCurrentMonth: cursor.getMonth() === month,
+            day: cursor.date(),
+            isCurrentMonth: cursor.month() === month,
             isToday: dateKey === todayKey,
             posts: postsMap.get(dateKey) || [],
         })
-        cursor.setDate(cursor.getDate() + 1)
+        cursor = cursor.add(1, 'day')
     }
     return cells
 })
 
 const weekCells = computed<CalendarCell[]>(() => {
-    const today = new Date()
-    const todayKey = today.toISOString().slice(0, 10)
-    const cursor = new Date(currentDate.value)
-    // Set cursor to the Sunday of the week containing currentDate
-    const dayOfWeek = cursor.getDay()
-    cursor.setDate(cursor.getDate() - dayOfWeek)
+    const todayKey = dayjs().format('YYYY-MM-DD')
+    const startOfWeek = dayjs(currentDate.value).startOf('week')
 
     const postsMap = new Map<string, CalendarDayGroup['posts']>()
     for (const group of props.calendarPosts) {
@@ -216,45 +206,38 @@ const weekCells = computed<CalendarCell[]>(() => {
 
     const cells: CalendarCell[] = []
     for (let i = 0; i < 7; i++) {
-        const d = new Date(cursor)
-        const dateKey = d.toISOString().slice(0, 10)
+        const d = startOfWeek.add(i, 'day')
+        const dateKey = d.format('YYYY-MM-DD')
         cells.push({
             dateKey,
-            day: d.getDate(),
+            day: d.date(),
             isCurrentMonth: true,
             isToday: dateKey === todayKey,
-            weekday: d.toLocaleDateString(locale.value, { weekday: 'short' }),
+            weekday: d.toDate().toLocaleDateString(locale.value, { weekday: 'short' }),
             posts: postsMap.get(dateKey) || [],
         })
-        cursor.setDate(cursor.getDate() + 1)
     }
     return cells
 })
 
 function prevPeriod() {
-    const d = new Date(currentDate.value)
-    if (currentView.value === 'month') {
-        d.setMonth(d.getMonth() - 1)
-    } else {
-        d.setDate(d.getDate() - 7)
-    }
+    const d = currentView.value === 'month'
+        ? dayjs(currentDate.value).subtract(1, 'month').toDate()
+        : dayjs(currentDate.value).subtract(7, 'day').toDate()
     currentDate.value = d
     emit('navigate', d)
 }
 
 function nextPeriod() {
-    const d = new Date(currentDate.value)
-    if (currentView.value === 'month') {
-        d.setMonth(d.getMonth() + 1)
-    } else {
-        d.setDate(d.getDate() + 7)
-    }
+    const d = currentView.value === 'month'
+        ? dayjs(currentDate.value).add(1, 'month').toDate()
+        : dayjs(currentDate.value).add(7, 'day').toDate()
     currentDate.value = d
     emit('navigate', d)
 }
 
 function goToToday() {
-    const d = new Date()
+    const d = dayjs().toDate()
     currentDate.value = d
     emit('navigate', d)
 }
