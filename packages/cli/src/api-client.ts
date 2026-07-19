@@ -12,23 +12,31 @@ import type {
     CliImportPostRequest,
     ImportResult,
 } from './types'
+import { RateLimiter, type RateLimiterOptions } from './rate-limiter'
 
 export type { MomeiApiClientConfig }
 
 export class MomeiApiClient {
     public api: ReturnType<typeof createMomeiApi>
     private client: MomeiHttpClient
+    private rateLimiter?: RateLimiter
 
-    constructor(apiUrl: string, apiKey: string) {
+    constructor(apiUrl: string, apiKey: string, rateLimiterOptions?: RateLimiterOptions) {
         const config: MomeiApiClientConfig = { apiUrl, apiKey }
         this.api = createMomeiApi(config)
         this.client = this.api.client
+        if (rateLimiterOptions) {
+            this.rateLimiter = new RateLimiter(rateLimiterOptions)
+        }
     }
 
     // ===== Delegated post methods =====
 
     async createPost(post: CliImportPostRequest): Promise<{ code: number, data: { id: string | number } }> {
-        const data = await this.api.posts.create(post)
+        const execute = () => this.api.posts.create(post)
+        const data = this.rateLimiter
+            ? await this.rateLimiter.execute(execute)
+            : await execute()
         return { code: 200, data }
     }
 
@@ -58,7 +66,10 @@ export class MomeiApiClient {
     }
 
     async validateImportPost(post: CliImportPostRequest): Promise<{ code: number, data: import('@momei-blog/api-client').MomeiImportPathAliasReport }> {
-        const data = await this.api.posts.validate(post)
+        const execute = () => this.api.posts.validate(post)
+        const data = this.rateLimiter
+            ? await this.rateLimiter.execute(execute)
+            : await execute()
         return { code: 200, data }
     }
 

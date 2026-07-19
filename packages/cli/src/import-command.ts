@@ -22,6 +22,8 @@ interface ImportCommandOptions {
     reportFile?: string
     confirmPathAliases: boolean
     uploadImages: boolean
+    rateLimit: number | string
+    maxRetries: number | string
 }
 
 function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): MomeiImportPostRequest {
@@ -137,7 +139,9 @@ async function runImport(source: string, options: ImportCommandOptions) {
     console.log(chalk.gray(`API URL: ${apiUrl}`))
     console.log(chalk.gray(`Dry Run: ${dryRun ? 'Yes' : 'No'}`))
     console.log(chalk.gray(`Upload Local Images: ${uploadImages ? 'Yes' : 'No'}`))
-    console.log(chalk.gray(`Concurrency: ${concurrency}\n`))
+    console.log(chalk.gray(`Concurrency: ${concurrency}`))
+    console.log(chalk.gray(`Rate Limit: ${String(options.rateLimit)} req/s`))
+    console.log(chalk.gray(`Max Retries: ${String(options.maxRetries)}\n`))
 
     const spinner = ora('Scanning and parsing Hexo files...').start()
     try {
@@ -157,7 +161,12 @@ async function runImport(source: string, options: ImportCommandOptions) {
             })
         }
 
-        const client = apiKey ? new MomeiApiClient(apiUrl, apiKey) : null
+        const rateLimiterOptions = {
+            rps: Number.parseInt(String(options.rateLimit), 10) || 5,
+            concurrency: Number.parseInt(String(options.concurrency), 10) || 3,
+            maxRetries: Number.parseInt(String(options.maxRetries), 10) || 3,
+        }
+        const client = apiKey ? new MomeiApiClient(apiUrl, apiKey, rateLimiterOptions) : null
         let imageMigrationReport: LocalImageMigrationReport | null = null
 
         if (uploadImages) {
@@ -191,7 +200,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
             return
         }
 
-        const activeClient = client || new MomeiApiClient(apiUrl, apiKey!)
+        const activeClient = client || new MomeiApiClient(apiUrl, apiKey!, rateLimiterOptions)
         const validationSpinner = ora('Validating import path aliases...').start()
         const candidates = await validateImportCandidates(activeClient, posts, concurrency)
         validationSpinner.succeed(chalk.green(`Validated ${candidates.length} posts`))
@@ -298,6 +307,8 @@ export function registerImportCommand(cli: CAC) {
         .option('--report-file <file>', 'Save the validation/import report to a file')
         .option('--confirm-path-aliases', 'Approve fallback or repaired path aliases returned by validation', { default: false })
         .option('--verbose', 'Verbose output', { default: false })
+        .option('--rate-limit <num>', 'Max requests per second (prevents 429)', { default: 5 })
+        .option('--max-retries <num>', 'Max retries on 429 rate limit errors', { default: 3 })
         .option('--concurrency <num>', 'Number of concurrent imports', { default: 3 })
         .action(async (source: string, options: ImportCommandOptions) => {
             await runImport(source, options)
