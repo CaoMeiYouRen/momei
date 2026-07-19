@@ -136,6 +136,12 @@ export default defineEventHandler(async (event) => {
                     '/api/auth',
                     '/api/settings/theme',
                     '/api/settings/public',
+                    // posts/home 与 categories、tags 一样属于懒初始化路由(0b-db-ready)，
+                    // 其 handler 内部自行调用 ensureDatabaseConnectionReady 并拥有独立的降级 503。
+                    // 安装探针的 SELECT 1 如因驱动层错误(false negative)不应连带阻断这些路由。
+                    '/api/posts/home',
+                    '/api/categories',
+                    '/api/tags',
                 ]
                 const isBypass = bypassApis.some((api) => pathname.startsWith(api))
 

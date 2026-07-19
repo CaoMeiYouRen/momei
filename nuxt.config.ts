@@ -178,6 +178,10 @@ export default defineNuxtConfig({
             testMode:
                 process.env.NUXT_PUBLIC_TEST_MODE === 'true'
                 || process.env.TEST_MODE === 'true',
+            // 公共设置
+            windowsLocalDevMode:
+                process.env.NUXT_PUBLIC_WINDOWS_LOCAL_DEV_MODE === 'true'
+                || process.env.WINDOWS_LOCAL_DEV_MODE === 'true',
             demoUserEmail:
                 process.env.NUXT_PUBLIC_DEMO_USER_EMAIL
                 || process.env.DEMO_USER_EMAIL
