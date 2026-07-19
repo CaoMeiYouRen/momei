@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import matter from 'gray-matter'
+import yaml from 'js-yaml'
 import { glob } from 'glob'
 import type { MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata } from '@momei-blog/api-client'
 import type { HexoFrontMatter, ParsedHexoPost } from './types'
@@ -196,7 +197,15 @@ function buildMetadata(frontMatter: HexoFrontMatter): MomeiPostMetadata | undefi
  */
 export async function parseHexoMarkdown(filePath: string): Promise<{ frontMatter: HexoFrontMatter, content: string }> {
     const fileContent = await readFile(filePath, 'utf-8')
-    const { data, content } = matter(fileContent)
+    // gray-matter v4 内部使用 js-yaml 的 safeLoad，但该函数在 js-yaml v4 中已被移除，
+    // 因此需要传入自定义 YAML 引擎，使用 yaml.load 替代
+    const { data, content } = matter(fileContent, {
+        engines: {
+            yaml: {
+                parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+            },
+        },
+    })
 
     return {
         frontMatter: data as HexoFrontMatter,
@@ -208,7 +217,10 @@ export async function parseHexoMarkdown(filePath: string): Promise<{ frontMatter
  * 扫描目录中的所有 Markdown 文件
  */
 export async function scanMarkdownFiles(sourceDir: string): Promise<string[]> {
-    const pattern = resolve(sourceDir, '**/*.md')
+    // glob v13 在 Windows 上无法正确处理包含非 ASCII 字符的反斜杠路径，
+    // 因此需要将路径归一化为正斜杠后再传给 glob
+    const normalizedDir = sourceDir.replace(/\\/g, '/')
+    const pattern = `${normalizedDir}/**/*.md`
     const files = await glob(pattern, {
         ignore: ['**/node_modules/**', '**/dist/**', '**/.git/**'],
         absolute: true,

@@ -13,6 +13,10 @@ export default defineConfig({
     dts: true,
     minify: false, // 不压缩代码，便于调试
     shims: true, // 注入 cjs 和 esm 填充代码，解决 import.meta.url 和 __dirname 的兼容问题
+    // 注入 shebang，确保 CLI 可执行
+    outputOptions: {
+        banner: '#!/usr/bin/env node',
+    },
     // exports: true, // 自动生成包导出
     // splitting: false, // 代码拆分
     // external: [], // 排除的依赖项
