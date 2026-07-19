@@ -98,8 +98,12 @@ export class MomeiApi {
 
     // ===== Sync Views =====
 
-    async syncViews(entries: { url: string, views: number }[]): Promise<ApiEnvelope<JsonRecord>> {
-        const data = await this.api.client.post<JsonRecord>('/api/external/posts/sync-views', { entries })
+    async syncViews(entries: { url: string, views: number }[], language?: string): Promise<ApiEnvelope<JsonRecord>> {
+        const body: Record<string, unknown> = { entries }
+        if (language) {
+            body.language = language
+        }
+        const data = await this.api.client.post<JsonRecord>('/api/external/posts/sync-views', body)
         return data
     }
 

@@ -419,6 +419,8 @@ momei snippets convert <snippet-id> --api-key <your-api-key>
 `sync-views` 从 [hexo-cloudflare-counter](https://github.com/CaoMeiYouRen/hexo-cloudflare-counter)（D1）导出的阅读量数据同步到 Momei 的 PostgreSQL。
 合并策略为取 `max(现有阅读量, D1 阅读量)`，避免重复执行导致累加。
 
+默认同步到 **zh-CN** 版本，可通过 `--language` 选项指定其他语言版本，或由服务端根据 `Accept-Language` 请求头自动推断。
+
 ### D1 导出
 
 ```bash
@@ -442,6 +444,7 @@ momei sync-views ./d1-views.json --api-key <your-api-key>
 | `--api-key <key>` | 墨梅 API Key | - |
 | `--dry-run` | 仅解析文件，不实际同步 | `false` |
 | `--verbose` | 输出详细日志（含错误和未找到的 URL） | `false` |
+| `--language <lang>` | 目标语言（留空则服务端自动推断或回退 zh-CN） | 自动推断 |
 | `--rate-limit <num>` | 每秒最大请求数 | `5` |
 | `--max-retries <num>` | 429 限流时的最大重试次数 | `3` |
 

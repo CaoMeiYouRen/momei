@@ -479,6 +479,8 @@ momei export ./backup --api-key your-api-key --status draft --limit 10
 
 `sync-views` synchronizes view-count data exported from [hexo-cloudflare-counter](https://github.com/CaoMeiYouRen/hexo-cloudflare-counter) (D1) into Momei's PostgreSQL. The merge strategy is `max(existing, D1)`, preventing accumulation on repeated runs.
 
+By default, views are synced to the **zh-CN** version. Use `--language` to target a different language, or let the server auto-detect from the `Accept-Language` header.
+
 ### Export from D1
 
 ```bash
@@ -501,6 +503,7 @@ Common options:
 | `--api-key <key>` | Momei API key | - |
 | `--dry-run` | Parse file without syncing | `false` |
 | `--verbose` | Print verbose logs (errors and not-found URLs) | `false` |
+| `--language <lang>` | Target language (auto-detect / zh-CN fallback if omitted) | auto-detect |
 | `--rate-limit <num>` | Max requests per second | `5` |
 | `--max-retries <num>` | Max retries on 429 errors | `3` |
 

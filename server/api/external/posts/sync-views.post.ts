@@ -5,12 +5,18 @@
  * 合并策略：取 `max(现有阅读量, D1 阅读量)`，避免重复执行导致累加。
  *
  * 请求体：
- *   { entries: Array<{ url: string, views?: number, time?: number }> }
+ *   { language?: string, entries: Array<{ url: string, views?: number, time?: number }> }
+ *
+ * language 可选，默认策略：
+ *   1. 显式传入的 language 字段
+ *   2. Accept-Language 请求头自动推断
+ *   3. 回退到 zh-CN
  *
  * url 格式：/archives/<slug>.html
  * views/time 格式：非负整数
  */
 import { z } from 'zod'
+import { getHeader } from 'h3'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
@@ -23,8 +29,21 @@ const syncViewsEntrySchema = z.object({
 })
 
 const syncViewsSchema = z.object({
+    /** 目标语言（可选），默认从 Accept-Language 推断或回退 zh-CN */
+    language: z.string().min(2).max(10).optional(),
     entries: z.array(syncViewsEntrySchema).min(1).max(1000),
 })
+
+/** 从 Accept-Language 请求头提取用户偏好语言（取第一个标记） */
+function detectLanguageFromHeader(event: any): string | undefined {
+    const acceptLanguage = getHeader(event, 'accept-language')
+    if (!acceptLanguage) {
+        return undefined
+    }
+    // 取第一个语言标记，如 "zh-CN,zh;q=0.9" → "zh-CN"
+    const first = acceptLanguage.split(',')[0]?.trim().split(';')[0]?.trim()
+    return first || undefined
+}
 
 interface SyncViewsEntryResult {
     url: string
@@ -55,6 +74,9 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, (b) => syncViewsSchema.parse(b))
     const postRepo = dataSource.getRepository(Post)
 
+    // 确定目标语言：显式传入 > Accept-Language 推断 > 回退 zh-CN
+    const targetLanguage = body.language ?? detectLanguageFromHeader(event) ?? 'zh-CN'
+
     const details: SyncViewsEntryResult[] = []
 
     for (const entry of body.entries) {
@@ -83,9 +105,9 @@ export default defineEventHandler(async (event) => {
         }
 
         try {
-            // 通过 slug 查找文章（不限制语言，因为 slug 在同一语言内唯一）
+            // 按目标语言查找文章
             const post = await postRepo.findOne({
-                where: { slug },
+                where: { slug, language: targetLanguage },
                 select: { id: true, slug: true, views: true },
             })
 
@@ -94,7 +116,7 @@ export default defineEventHandler(async (event) => {
                     url: entry.url,
                     slug,
                     status: 'not-found',
-                    message: `未找到 slug 为 "${slug}" 的文章`,
+                    message: `未找到语言为 "${targetLanguage}"、slug 为 "${slug}" 的文章`,
                 })
                 continue
             }

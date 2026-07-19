@@ -52,6 +52,7 @@ interface SyncViewsCliOptions {
     verbose?: boolean
     rateLimit?: number | string
     maxRetries?: number | string
+    language?: string
 }
 
 /**
@@ -200,9 +201,11 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
             url: e.url,
             views: extractViews(e)!,
         }))
-        const response = await client.api.client.post<SyncViewsResponse>('/api/external/posts/sync-views', {
-            entries: syncEntries,
-        })
+        const syncBody: Record<string, unknown> = { entries: syncEntries }
+        if (options.language) {
+            syncBody.language = options.language
+        }
+        const response = await client.api.client.post<SyncViewsResponse>('/api/external/posts/sync-views', syncBody)
 
         spinner.succeed(chalk.green('Sync completed\n'))
 
@@ -255,6 +258,7 @@ export function registerSyncViewsCommand(cli: CAC): void {
         .option('--dry-run', 'Parse file without syncing', { default: false })
         .option('--rate-limit <num>', 'Max requests per second', { default: 5 })
         .option('--max-retries <num>', 'Max retries on 429 errors', { default: 3 })
+        .option('--language <lang>', 'Target language (default: auto-detect from Accept-Language / zh-CN)', { default: '' })
         .option('--verbose', 'Verbose output', { default: false })
         .action(async (file: string, options: SyncViewsCliOptions) => {
             await runSyncViews(file, options)

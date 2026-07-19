@@ -197,17 +197,21 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig): vo
         {
             description: 'Sync view counts from D1 (hexo-cloudflare-counter) export to Momei. '
                 + 'Merge strategy: max(existing, D1) — prevents accumulation on repeated runs. '
-                + 'Only updates posts whose slug matches the URL in each entry.',
+                + 'Only updates posts whose slug matches the URL in each entry. '
+                + 'Optional language parameter to target a specific language version; '
+                + 'default auto-detects from Accept-Language header / zh-CN.',
             inputSchema: {
+                language: z.string().min(2).max(10).optional()
+                    .describe('Target language. Default: auto-detect from Accept-Language / zh-CN'),
                 entries: z.array(z.object({
                     url: z.string().describe('Post URL path, e.g. /archives/ee9ad14.html'),
                     views: z.number().int().min(0).describe('View count from D1'),
                 })).min(1).max(1000).describe('Array of URL → view-count mappings'),
             },
         },
-        async ({ entries }) => {
+        async ({ language, entries }) => {
             try {
-                const result = await api.syncViews(entries)
+                const result = await api.syncViews(entries, language)
                 return {
                     content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
                 }
