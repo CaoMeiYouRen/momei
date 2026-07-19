@@ -171,7 +171,6 @@ const { runWhenIdle } = useClientEffectGuard()
 const secondarySectionsTrigger = useTemplateRef<HTMLElement>('secondarySectionsTrigger')
 const shouldHydrateSecondarySections = ref(import.meta.test || import.meta.env.MODE === 'test')
 let secondarySectionsObserver: IntersectionObserver | null = null
-const shouldDeferLatestPostsSsr = config.public.windowsLocalDevMode
 
 const revealSecondarySections = () => {
     shouldHydrateSecondarySections.value = true
@@ -188,7 +187,7 @@ const {
     pending: latestPending,
     error: latestError,
 } = await useAppFetch<ApiResponse<Pick<PostListData, 'items'>>>('/api/posts/home', {
-    server: !shouldDeferLatestPostsSsr,
+    // server: !shouldDeferLatestPostsSsr,
 })
 
 const latestPosts = computed(() => latestData.value?.data?.items || [])
