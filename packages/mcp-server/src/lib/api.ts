@@ -96,6 +96,13 @@ export class MomeiApi {
         return { code: 200, data: data as unknown as JsonRecord }
     }
 
+    // ===== Sync Views =====
+
+    async syncViews(entries: { url: string, views: number }[]): Promise<ApiEnvelope<JsonRecord>> {
+        const data = await this.api.client.post<JsonRecord>('/api/external/posts/sync-views', { entries })
+        return data
+    }
+
     // ===== Migration Methods =====
 
     async validateImportPost(data: JsonRecord): Promise<ApiEnvelope<JsonRecord>> {

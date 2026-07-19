@@ -187,4 +187,30 @@ export function registerPostTools(server: McpServer, config: MomeiApiConfig): vo
             },
         )
     }
+
+    // 7. Sync Views from D1 export
+    server.registerTool(
+        'sync_views',
+        {
+            description: 'Sync view counts from D1 (hexo-cloudflare-counter) export to Momei. '
+                + 'Merge strategy: max(existing, D1) — prevents accumulation on repeated runs. '
+                + 'Only updates posts whose slug matches the URL in each entry.',
+            inputSchema: {
+                entries: z.array(z.object({
+                    url: z.string().describe('Post URL path, e.g. /archives/ee9ad14.html'),
+                    views: z.number().int().min(0).describe('View count from D1'),
+                })).min(1).max(1000).describe('Array of URL → view-count mappings'),
+            },
+        },
+        async ({ entries }) => {
+            try {
+                const result = await api.syncViews(entries)
+                return {
+                    content: [{ type: 'text', text: JSON.stringify(result.data, null, 2) }],
+                }
+            } catch (error: unknown) {
+                return { content: [{ type: 'text', text: getErrorMessage(error) }], isError: true }
+            }
+        },
+    )
 }
