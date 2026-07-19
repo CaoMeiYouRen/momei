@@ -132,11 +132,14 @@ export class ImageService extends AIBaseService {
             })
         }
 
+        // 存入任务结果的 finalResponse 显式剥离 raw，
+        // raw 为 AI provider 原始响应（如 Gemini 的 generateContent 响应中可能包含
+        // base64 内联图片），任务完成并上传后已不再需要，可节省大量存储空间。
+        // 若需要调试或重试恢复可用中间 checkpoint（persistTaskCheckpoint 阶段保留 raw）。
         const finalResponse: AIImageResponse = {
             images: persistedImages,
             usage: providerResponse.usage,
             model: providerResponse.model,
-            raw: providerResponse.raw,
         }
 
         if (post && persistedImages[0]?.url && shouldApplyGeneratedCover(post, options)) {

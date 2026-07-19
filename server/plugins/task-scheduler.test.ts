@@ -101,7 +101,7 @@ describe('task scheduler plugin', () => {
 
         plugin(nitroApp as any)
 
-        expect(mocks.cronJobs).toHaveLength(2)
+        expect(mocks.cronJobs).toHaveLength(3)
         expect(mocks.friendLinkHealthCheck).not.toHaveBeenCalled()
         const scheduledTaskJob = mocks.cronJobs.find((job) => job.cronTime === '*/5 * * * *')
         expect(scheduledTaskJob).toBeTruthy()

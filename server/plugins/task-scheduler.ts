@@ -94,14 +94,31 @@ export default defineNitroPlugin((nitroApp) => {
             logger.info('[TaskScheduler] Skipping eager friend link health check outside production.')
         }
 
+        // AI 任务清理 Cron (每天凌晨 3 点)
+        const AI_TASK_CLEANUP_CRON = '0 3 * * *'
+        const aiTaskCleanupJob = new CronJob(
+            AI_TASK_CLEANUP_CRON,
+            async () => {
+                const { purgeExpiredAiTasks } = await import('../services/ai/cleanup')
+                const { deleted } = await purgeExpiredAiTasks()
+                if (deleted > 0) {
+                    logger.info(`[TaskScheduler] AI task cleanup completed: ${deleted} tasks purged.`)
+                }
+            },
+            null,
+            true,
+            'UTC',
+        )
+
         nitroApp.hooks.hook('close', () => {
             logger.info('[TaskScheduler] Stopping cron jobs.')
 
             void friendLinkHealthCheckJob.stop()
             void scheduledTaskJob.stop()
+            void aiTaskCleanupJob.stop()
         })
 
-        logger.info(`[TaskScheduler] Cron jobs registered successfully. Tasks: ${cronExpression}, FriendLinks: ${friendLinkCron}`)
+        logger.info(`[TaskScheduler] Cron jobs registered successfully. Tasks: ${cronExpression}, FriendLinks: ${friendLinkCron}, AITaskCleanup: ${AI_TASK_CLEANUP_CRON}`)
     } catch (err) {
         logger.error('[TaskScheduler] Failed to register cron jobs:', err)
     }
