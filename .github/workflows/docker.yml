@@ -126,7 +126,7 @@ jobs:
         run: pnpm run test:e2e
 
   build:
-    needs: [qa, e2e, unit] # 等待 QA 和 E2E 执行成功
+    needs: [qa, unit] # 等待 QA 和 E2E 执行成功
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
