@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { resolve, relative } from 'node:path'
+import { relative } from 'node:path'
 import matter from 'gray-matter'
 import yaml from 'js-yaml'
 import { glob } from 'glob'
