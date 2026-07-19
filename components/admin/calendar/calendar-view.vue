@@ -119,7 +119,11 @@ import type { CalendarDayGroup } from '@/types/calendar'
 const props = defineProps<{
     loading: boolean
     calendarPosts: CalendarDayGroup[]
+    /** 每周的第一天: 0=周日, 1=周一, … 6=周六, 默认 1 (周一) */
+    firstDayOfWeek?: number
 }>()
+
+const firstDayOfWeek = computed(() => props.firstDayOfWeek ?? 1)
 
 const emit = defineEmits<{
     'edit-post': [id: string]
@@ -142,8 +146,16 @@ const viewOptions = computed(() => [
     { label: t('pages.admin.calendar.week_view'), value: 'week' as const },
 ])
 
+/**
+ * 计算指定日期所在周的开始日（基于 firstDayOfWeek）
+ */
+function weekStart(date: dayjs.Dayjs, firstDay: number): dayjs.Dayjs {
+    return date.subtract((date.day() - firstDay + 7) % 7, 'day')
+}
+
 const weekdays = computed(() => {
-    const base = dayjs().year(2024).month(0).date(7) // Sunday
+    // 2024-01-07 是周日; +firstDay 即得到对应的起始日
+    const base = dayjs().year(2024).month(0).date(7 + firstDayOfWeek.value)
     return Array.from({ length: 7 }, (_, i) => {
         return base.add(i, 'day').toDate().toLocaleDateString(locale.value, { weekday: 'short' })
     })
@@ -170,9 +182,10 @@ const monthCells = computed<CalendarCell[]>(() => {
     const lastDay = dayjs(new Date(year, month + 1, 0))
     const todayKey = dayjs().format('YYYY-MM-DD')
 
-    const start = firstDay.subtract(firstDay.day(), 'day')
+    const start = weekStart(firstDay, firstDayOfWeek.value)
 
-    const end = lastDay.day() < 6 ? lastDay.add(6 - lastDay.day(), 'day') : lastDay
+    const daysToAdd = (firstDayOfWeek.value + 6 - lastDay.day() + 7) % 7
+    const end = daysToAdd > 0 ? lastDay.add(daysToAdd, 'day') : lastDay
 
     const postsMap = new Map<string, CalendarDayGroup['posts']>()
     for (const group of props.calendarPosts) {
@@ -197,7 +210,7 @@ const monthCells = computed<CalendarCell[]>(() => {
 
 const weekCells = computed<CalendarCell[]>(() => {
     const todayKey = dayjs().format('YYYY-MM-DD')
-    const startOfWeek = dayjs(currentDate.value).startOf('week')
+    const startOfWeek = weekStart(dayjs(currentDate.value), firstDayOfWeek.value)
 
     const postsMap = new Map<string, CalendarDayGroup['posts']>()
     for (const group of props.calendarPosts) {
