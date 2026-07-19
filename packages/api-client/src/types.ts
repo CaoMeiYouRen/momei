@@ -75,6 +75,8 @@ export interface MomeiPostListQuery {
     search?: string
     /** Category slug or ID */
     category?: string
+    /** Filter by tag ID */
+    tagId?: string
     page?: number
     limit?: number
     orderBy?: string

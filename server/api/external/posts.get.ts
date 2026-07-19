@@ -43,6 +43,10 @@ export default defineEventHandler(async (event) => {
         qb.andWhere('post.title LIKE :search', { search: `%${query.search}%` })
     }
 
+    if (query.tagId) {
+        qb.innerJoin('post.tags', 'filterTag', 'filterTag.id = :tagId', { tagId: query.tagId })
+    }
+
     qb.orderBy(`post.${query.orderBy}`, query.order)
 
     applyPagination(qb, query)
