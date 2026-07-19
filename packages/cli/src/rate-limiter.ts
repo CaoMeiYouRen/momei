@@ -8,6 +8,8 @@
  * - 可配置最大重试次数
  */
 
+import { MomeiApiError } from '@momei-blog/api-client'
+
 const kMinDelay = 1 // 最小延迟间隔（秒）
 
 export interface RateLimiterOptions {
@@ -65,17 +67,19 @@ export class RateLimiter {
      * 获取一个令牌（阻塞直到可用）
      */
     private async acquireToken(): Promise<void> {
-        this.refillTokens()
+         
+        while (true) {
+            this.refillTokens()
 
-        if (this.tokens >= 1 && this.inflight < this.maxConcurrency) {
-            this.tokens -= 1
-            this.inflight += 1
-            return
+            if (this.tokens >= 1 && this.inflight < this.maxConcurrency) {
+                this.tokens -= 1
+                this.inflight += 1
+                return
+            }
+
+            // 等待 kMinDelay 秒再重试
+            await new Promise((resolve) => setTimeout(resolve, kMinDelay * 1000))
         }
-
-        // 等待至少 kMinDelay 秒再重试
-        await new Promise((resolve) => setTimeout(resolve, kMinDelay * 1000))
-        return this.acquireToken()
     }
 
     /**
@@ -105,12 +109,20 @@ export class RateLimiter {
      * 判断错误是否为 429（可重试）
      */
     private isRetryableError(error: unknown): boolean {
-        if (error && typeof error === 'object') {
-            const err = error as { statusCode?: number, message?: string, status?: number }
-            return err.statusCode === 429 || err.status === 429
-                || (typeof err.message === 'string' && err.message.includes('429'))
+        if (!error || typeof error !== 'object') {
+            return false
         }
-        return false
+
+        // MomeiApiError 有明确的 status 字段
+        if (error instanceof MomeiApiError) {
+            return error.status === 429
+        }
+
+        // 兜底：duck-typing 检查
+        const err = error as { statusCode?: number, status?: number, message?: string }
+        return err.statusCode === 429
+            || err.status === 429
+            || (typeof err.message === 'string' && err.message.includes('429'))
     }
 
     /**

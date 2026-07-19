@@ -54,10 +54,10 @@ export const DEFAULT_RULES: RateLimitRule[] = [
     { name: 'AI', prefix: '/api/ai', window: 60, max: 10, description: 'AI API' },
 
     // 搜索（全文搜索压力大）
-    { name: 'SEARCH', prefix: '/api/search', window: 60, max: 5, description: 'Search' },
+    { name: 'SEARCH', prefix: '/api/search', window: 60, max: 10, description: 'Search' },
 
     // 外部 API（CLI/MCP 等批量操作，容忍度更高）
-    { name: 'EXTERNAL', prefix: '/api/external', window: 60, max: 30, description: 'External API (import/export)' },
+    { name: 'EXTERNAL', prefix: '/api/external', window: 60, max: 60, description: 'External API (import/export)' },
 
     // 通用写请求
     { name: 'DEFAULT_POST', prefix: '/api', window: 60, max: 20, methods: ['POST', 'PATCH', 'PUT', 'DELETE'], description: 'Default write' },
