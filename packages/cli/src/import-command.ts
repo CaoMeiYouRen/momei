@@ -106,7 +106,8 @@ function displaySummary(stats: ImportStats) {
         console.log(chalk.yellow('\n⚠️  Some posts failed to import. Please check the errors above.\n'))
     } else {
         console.log(chalk.red('\n❌ All posts failed to import. Please check your API key and connection.\n'))
-        process.exit(1)
+        process.exitCode = 1
+
     }
 }
 
@@ -125,7 +126,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
     if (!apiKey && !dryRun) {
         console.error(chalk.red('Error: --api-key is required (unless using --dry-run)'))
-        process.exit(1)
+        process.exitCode = 1
+        return
     }
 
     const sourceDir = resolve(process.cwd(), source)
@@ -143,7 +145,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         if (posts.length === 0) {
             console.log(chalk.yellow('\n⚠️  No posts found. Please check the source directory.'))
-            process.exit(0)
+            process.exitCode = 0
+            return
         }
 
         if (verbose) {
@@ -183,7 +186,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         if (!apiKey && dryRun) {
             console.log(chalk.yellow('\n⚠️  Dry run completed with local parsing only. Provide --api-key for alias validation and conflict checks.'))
-            process.exit(0)
+            process.exitCode = 0
+            return
         }
 
         const activeClient = client || new MomeiApiClient(apiUrl, apiKey!)
@@ -214,7 +218,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         if (dryRun) {
             console.log(chalk.yellow('\n✓ Dry run completed. No posts were imported.'))
-            process.exit(0)
+            process.exitCode = 0
+            return
         }
 
         console.log(chalk.blue('\n📤 Importing posts to Momei...\n'))
@@ -231,7 +236,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         if (importablePosts.length === 0) {
             console.log(chalk.yellow('No posts passed validation. Nothing was imported.'))
-            process.exit(0)
+            process.exitCode = 0
+            return
         }
 
         const stats: ImportStats = {
@@ -277,7 +283,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
             }
         }
 
-        process.exit(1)
+        process.exitCode = 1
     }
 }
 
