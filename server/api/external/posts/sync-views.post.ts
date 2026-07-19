@@ -33,15 +33,6 @@ interface SyncViewsEntryResult {
     message: string
 }
 
-interface SyncViewsResponse {
-    synced: number
-    skipped: number
-    notFound: number
-    errors: number
-    total: number
-    details: SyncViewsEntryResult[]
-}
-
 const ARCHIVES_URL_RE = /^\/archives\/(.+)\.html$/
 
 function extractSlugFromUrl(url: string): string | null {

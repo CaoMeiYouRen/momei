@@ -63,16 +63,22 @@ function extractViews(entry: D1ViewEntry): number | undefined {
     const rawTime = entry.time
     const rawViews = entry.views
 
-    const time = typeof rawTime === 'number' ? rawTime
-        : typeof rawTime === 'string' ? Number(rawTime)
-        : undefined
+    let time
+    if (typeof rawTime === 'number') {
+        time = rawTime
+    } else if (typeof rawTime === 'string') {
+        time = Number(rawTime)
+    }
     if (time !== undefined && !Number.isNaN(time) && time >= 0) {
         return time
     }
 
-    const views = typeof rawViews === 'number' ? rawViews
-        : typeof rawViews === 'string' ? Number(rawViews)
-        : undefined
+    let views
+    if (typeof rawViews === 'number') {
+        views = rawViews
+    } else if (typeof rawViews === 'string') {
+        views = Number(rawViews)
+    }
     if (views !== undefined && !Number.isNaN(views) && views >= 0) {
         return views
     }
@@ -154,7 +160,9 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
     // 诊断：显示第一条无效条目的结构
     if (verbose && entries.length > 0 && validEntries.length === 0) {
         const sample = entries[0]
-        if (!sample) return
+        if (!sample) {
+            return
+        }
         console.log(chalk.gray(`\nFirst entry sample:`))
         console.log(chalk.gray(`  url: ${JSON.stringify(sample.url)} (${typeof sample.url})`))
         console.log(chalk.gray(`  time: ${JSON.stringify(sample.time)} (${typeof sample.time})`))
@@ -187,14 +195,13 @@ async function runSyncViews(file: string, options: SyncViewsCliOptions) {
     const client = new MomeiApiClient(apiUrl, apiKey, rateLimiterOptions)
 
     try {
-        // 保持原始字段名传给服务端（time 或 views），由服务端解析
         // 统一将阅读量映射为 views 字段发送给服务端
-        const rawEntries = validEntries.map((e) => ({
+        const syncEntries = validEntries.map((e) => ({
             url: e.url,
             views: extractViews(e)!,
         }))
         const response = await client.api.client.post<SyncViewsResponse>('/api/external/posts/sync-views', {
-            entries: rawEntries,
+            entries: syncEntries,
         })
 
         spinner.succeed(chalk.green('Sync completed\n'))
