@@ -13,6 +13,7 @@ vi.mock('@/server/database', () => ({
 vi.mock('@/server/utils/feed', () => ({
     generateFeed: vi.fn(),
     getFeedLanguage: vi.fn(),
+    injectRssStylesheet: vi.fn((xml: string) => xml),
 }))
 
 describe('server/utils/feed-taxonomy-route', () => {

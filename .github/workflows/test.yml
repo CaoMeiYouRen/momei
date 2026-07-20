@@ -36,9 +36,11 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       # Root nuxt typecheck covers all workspace packages via `../**/*` include pattern
-      # Build api-client first so dependent packages can resolve type declarations
+      # Build api-client + mcp-server first so dependent packages can resolve type declarations
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run lint
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
@@ -60,9 +62,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build api-client first so dependent packages (cli, mcp-server) can resolve it
+      # Build api-client + mcp-server first so dependent packages (cli, mcp-server, root) can resolve them
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run test
 
   coverage:
@@ -81,9 +85,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build api-client first so dependent packages (cli, mcp-server) can resolve it
+      # Build api-client + mcp-server first so dependent packages (cli, mcp-server, root) can resolve them
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run test:coverage
       # 上传代码覆盖率报告到 Codecov
       - name: Upload coverage reports to Codecov
@@ -106,6 +112,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build workspace dependencies before e2e — the e2e runner calls nuxt build internally
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run E2E tests
@@ -133,6 +144,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build workspace dependencies before Nuxt build — server/plugins/mcp-http.ts imports momei-mcp-server
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run build
       - name: Download bundle baseline report (master)
         if: github.event_name == 'pull_request'

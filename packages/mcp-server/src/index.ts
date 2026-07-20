@@ -5,8 +5,7 @@ import { registerAutomationTools } from './tools/automation.js'
 import { registerPostTools } from './tools/posts.js'
 import { registerTaxonomyTools } from './tools/taxonomy.js'
 import { registerSnippetTools } from './tools/snippets.js'
-import { loadConfig } from './lib/config.js'
-import type { MomeiApiConfig } from './lib/config.js'
+import { loadConfig, type MomeiApiConfig } from './lib/config.js'
 
 // Re-export tool registration functions and config for external use
 export { registerPostTools } from './tools/posts.js'
