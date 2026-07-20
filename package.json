@@ -82,6 +82,8 @@
     "@axiomhq/winston": "^1.8.0",
     "@better-auth/sso": "^1.6.23",
     "@mdi/font": "^7.4.47",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "momei-mcp-server": "workspace:*",
     "@microsoft/clarity": "^1.0.2",
     "@nuxtjs/i18n": "^10.4.1",
     "@primeuix/styled": "^0.7.4",

@@ -446,6 +446,8 @@ export default defineNuxtConfig({
                 'lodash',
                 'lodash-es',
                 'dayjs',
+                // momei-mcp-server 是 workspace 包，生产部署时需 inline 确保可用
+                'momei-mcp-server',
             ],
         },
         esbuild: {

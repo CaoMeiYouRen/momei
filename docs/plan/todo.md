@@ -19,8 +19,8 @@
 
 ### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）
 
-- [ ] 主线 1（P2）：MCP HTTP 传输与本体挂载
-	- 执行范围：在墨梅主应用中挂载 MCP HTTP 服务。新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`；新增环境变量 `MOMEI_ENABLE_MCP_HTTP`（默认 false）；根依赖新增 `@modelcontextprotocol/sdk`；复用外部 API Key 鉴权。
+- [x] 主线 1（P2）：MCP HTTP 传输与本体挂载
+	- 执行范围：在墨梅主应用中挂载 MCP HTTP 服务。新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `WebStandardStreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`；新增环境变量 `MOMEI_ENABLE_MCP_HTTP`（默认 false）；根依赖新增 `@modelcontextprotocol/sdk`；复用外部 API Key 鉴权；全量 33 个工具注册。
 	- 设计文档：[MCP HTTP 传输与本体挂载设计](../design/modules/mcp-http.md)
 	- 非目标：不替换现有 stdio 模式；不做 MCP 共享层抽取（延后）；不新增独立端口。
 	- 最小验收：`MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用，工具调用正常返回；未设置时 SDK 不加载，零冷启动影响；Serverless 环境静默降级；API Key 缺失返回 401；`pnpm typecheck` + `pnpm lint` 通过。

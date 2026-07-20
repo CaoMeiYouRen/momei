@@ -61,6 +61,39 @@
 
 其中标题建议、标签推荐、分类推荐属于同步工具；翻译、封面图、音频属于长任务工具，默认返回 `taskId` 后由客户端按需继续查询。导入验证、链接治理预览与执行提供对博客迁移场景的高效支持。
 
+### 运行模式
+
+`momei-mcp-server` 支持两种运行模式：
+
+| 模式 | 传输 | 启动方式 | 适用场景 |
+|------|------|---------|---------|
+| **Stdio（默认）** | stdio | `node dist/index.mjs`（CLI） | Claude Desktop、Cursor 本地集成 |
+| **HTTP（程序化）** | Streamable HTTP | 宿主应用调用 `createMcpHttpServer()` | 远程访问、云部署、主应用挂载 |
+
+#### Stdio 模式（CLI）
+
+```bash
+MOMEI_API_KEY=your_key node dist/index.mjs
+```
+
+#### HTTP 模式（程序化调用）
+
+HTTP 模式通过包导出的 `createMcpHttpServer()` 函数嵌入到宿主应用中（如 Nuxt/Nitro 插件）：
+
+```typescript
+import { createMcpHttpServer, SERVER_NAME, SERVER_VERSION } from 'momei-mcp-server'
+
+const { transport, server, close } = await createMcpHttpServer({
+    apiKey: 'your_momei_api_key',
+    enableDangerousTools: false,
+})
+
+// transport.handleRequest(request) → Response 用于路由分发
+// await close() 用于优雅关闭
+```
+
+墨梅主应用已内置 MCP HTTP 挂载：设置 `MOMEI_ENABLE_MCP_HTTP=true` 后，`/api/mcp` 端点自动可用。
+
 ### 安装与构建
 
 ```bash
@@ -69,7 +102,7 @@ pnpm install
 pnpm build
 ```
 
-构建产物入口为 `dist/index.mjs`。
+构建产物入口为 `dist/index.mjs`。包含所有导出（`createMcpHttpServer`、工具注册函数、类型定义）。
 
 ### 配置
 
@@ -155,6 +188,21 @@ pnpm run stress-test -- -u http://localhost:3000 -k YOUR_API_KEY -n 1000 -c 10
 3. 对长任务工具配合 `get_ai_task` 与主应用审计日志跟踪回填结果。
 4. 不要把 MCP 工具当作高并发批处理入口；批量自动化优先使用 CLI 或直接调外部 API。
 5. `translate_post` 支持 `confirmationMode=require|confirmed`，可先拿到预览结果，再由上层代理决定是否应用。
+
+### 程序化导出
+
+| 导出名 | 类型 | 说明 |
+|--------|------|------|
+| `createMcpHttpServer(options)` | async function | 创建 McpServer + HTTP Transport，返回 `{ transport, server, close }` |
+| `McpTransport` | interface | `{ handleRequest(request, options?) → Promise<Response> }` |
+| `McpHttpServer` | interface | `{ transport, server, close() }` |
+| `SERVER_NAME` | `'momei-blog'` | 服务器名称常量 |
+| `SERVER_VERSION` | `'1.0.0'` | 服务器版本常量 |
+| `registerPostTools(server, config)` | function | 注册文章管理工具集 |
+| `registerTaxonomyTools(server, config)` | function | 注册分类/标签管理工具集 |
+| `registerSnippetTools(server, config)` | function | 注册灵感碎片管理工具集 |
+| `registerAutomationTools(server, config)` | function | 注册 AI 自动化工具集 |
+| `loadConfig()` | function | 从环境变量加载 `MomeiApiConfig` |
 
 ### 开发
 
