@@ -14,6 +14,10 @@ RUN pnpm i --frozen-lockfile
 
 COPY . /app
 
+# 预构建 workspace 依赖包（api-client 由 cli/mcp-server 依赖，mcp-server 由 Nuxt build 导入）
+RUN pnpm --filter @momei-blog/api-client build
+RUN pnpm --filter momei-mcp-server build
+
 RUN pnpm run build
 
 # 阶段二：缩小阶段
