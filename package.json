@@ -12,6 +12,7 @@
     "release:semantic": "semantic-release",
     "ci:precheck": "node scripts/ci/workflow-precheck.mjs",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=6144 nuxt build",
+    "vercel-build": "pnpm --filter @momei-blog/api-client build && pnpm --filter momei-mcp-server build && cross-env NODE_OPTIONS=--max-old-space-size=6144 nuxt build",
     "dev": "nuxt dev -o",
     "generate": "cross-env NODE_OPTIONS=--max-old-space-size=6144 nuxt generate",
     "preview": "nuxt preview",
