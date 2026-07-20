@@ -600,6 +600,39 @@
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
 - **详细方案**: 待设计（建议上收前先输出“reactive 使用清单 + 迁移优先级 + 验证用例映射”）。
 
+### 2026-07 基础设施增强候选任务
+
+17. **MCP HTTP 传输与本体挂载 (P2, 候选)**
+- **背景**: 当前 MCP 服务器仅支持 stdio 协议，AI 客户端需通过本地子进程方式启动独立 Node.js 进程。这限制了远程访问、云上部署及多客户端复用一个服务端的场景。
+- **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
+- **决策记录**:
+    | 决策项 | 结论 |
+    |--------|------|
+    | 依赖策略 | `@modelcontextprotocol/sdk` 添加为根依赖，动态导入不影响冷启动 |
+    | HTTP 路径 | `/api/mcp` |
+    | Serverless 策略 | SSE 不可用时静默降级，不阻塞启动 |
+    | 认证策略 | 复用外部 API Key（`X-API-Key`） |
+- **核心变更**:
+    - 新增 `server/plugins/mcp-http.ts`：条件守卫 + 动态导入 + HTTP Transport
+    - 新增环境变量 `MOMEI_ENABLE_MCP_HTTP`（默认 `false`）
+    - 根依赖新增 `@modelcontextprotocol/sdk`
+    - 复用现有外部 API Key 鉴权和速率限制
+- **非目标**:
+    - 不替换现有 stdio 模式，两种模式可共存
+    - 不做 MCP 共享层抽取（延后 Phase 2/3）
+    - 不新增独立端口，挂载于主应用已有端口
+- **前置条件**:
+    - 确认 `packages/mcp-server` 的 `exports` 映射是否包含 `tools/` 子路径
+    - 验证 `StreamableHTTPServerTransport` 在 Nitro h3 环境中的兼容性
+- **验收标准**:
+    - `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用，工具调用正常返回
+    - 未设置环境变量时 SDK 不被加载，零冷启动影响
+    - Serverless 环境（Vercel/CF）静默降级，不报错不阻塞
+    - API Key 缺失返回 401，与外部 API 鉴权行为一致
+    - `pnpm typecheck` + `pnpm lint` 通过
+- **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 2 = **1.40**
+- **详细方案**: [MCP HTTP 传输与本体挂载设计](../design/modules/mcp-http.md)
+
 ## 相关文档
 
 - [项目计划](./roadmap.md)
