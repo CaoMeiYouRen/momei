@@ -3,10 +3,36 @@
  * Extracted from CLI and MCP packages to eliminate duplication
  */
 
-// ===== Enums & Literal Types =====
+// ===== Enums & Derived Types =====
 
-export type MomeiPostStatus = 'draft' | 'pending' | 'published' | 'rejected' | 'hidden' | 'scheduled'
-export type MomeiPostVisibility = 'public' | 'private' | 'password' | 'registered' | 'subscriber'
+/**
+ * Post status enum, matching the canonical PostStatus in the main project.
+ * MomeiPostStatus is derived from this enum to ensure type consistency.
+ */
+export enum PostStatus {
+    DRAFT = 'draft',
+    PENDING = 'pending',
+    PUBLISHED = 'published',
+    REJECTED = 'rejected',
+    HIDDEN = 'hidden',
+    SCHEDULED = 'scheduled',
+}
+/** String union type derived from PostStatus enum values */
+export type MomeiPostStatus = `${PostStatus}`
+
+/**
+ * Post visibility enum, matching the canonical PostVisibility in the main project.
+ * MomeiPostVisibility is derived from this enum to ensure type consistency.
+ */
+export enum PostVisibility {
+    PUBLIC = 'public',
+    PRIVATE = 'private',
+    PASSWORD = 'password',
+    REGISTERED = 'registered',
+    SUBSCRIBER = 'subscriber',
+}
+/** String union type derived from PostVisibility enum values */
+export type MomeiPostVisibility = `${PostVisibility}`
 
 // ===== Post Types =====
 
@@ -18,12 +44,26 @@ export interface MomeiPostAudioMetadata {
     language?: string | null
 }
 
-export interface MomeiPostScaffoldMetadata {
+/**
+ * Scaffold metadata, matching the canonical PostScaffoldMetadata in the main project.
+ *
+ * @deprecated Use PostScaffoldMetadata instead (kept as alias for backward compatibility).
+ *     This alias will be removed in a future version — prefer importing PostScaffoldMetadata directly.
+ */
+export interface PostScaffoldMetadata {
     outline?: string | null
     metadata?: Record<string, unknown> | null
 }
+/** @deprecated Use PostScaffoldMetadata */
+export type MomeiPostScaffoldMetadata = PostScaffoldMetadata
 
-export interface MomeiPublishIntent {
+/**
+ * Publish intent, matching the canonical PublishIntent in the main project.
+ *
+ * @deprecated Use PublishIntent instead (kept as alias for backward compatibility).
+ *     This alias will be removed in a future version — prefer importing PublishIntent directly.
+ */
+export interface PublishIntent {
     syncToMemos?: boolean
     pushOption?: 'none' | 'draft' | 'now'
     pushCriteria?: {
@@ -31,12 +71,14 @@ export interface MomeiPublishIntent {
         tagIds?: string[]
     }
 }
+/** @deprecated Use PublishIntent */
+export type MomeiPublishIntent = PublishIntent
 
 export interface MomeiPostMetadata {
     audio?: MomeiPostAudioMetadata
-    scaffold?: MomeiPostScaffoldMetadata
+    scaffold?: PostScaffoldMetadata
     publish?: {
-        intent?: MomeiPublishIntent | null
+        intent?: PublishIntent | null
     }
     integration?: {
         memosId?: string | null
@@ -62,7 +104,7 @@ export interface MomeiPost {
     password?: string | null
     pushOption?: 'none' | 'draft' | 'now'
     syncToMemos?: boolean
-    pushCriteria?: MomeiPublishIntent['pushCriteria']
+    pushCriteria?: PublishIntent['pushCriteria']
     createdAt?: string | Date
     publishedAt?: string | Date
     updatedAt?: string | Date
