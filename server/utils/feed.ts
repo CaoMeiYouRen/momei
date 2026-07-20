@@ -193,3 +193,25 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
 
     return feed
 }
+
+/**
+ * Inject `<?xml-stylesheet?>` processing instruction into RSS 2.0 XML output,
+ * referencing the beautification CSS file served from `/feed-style.css`.
+ *
+ * The replacement is performed after the `<?xml version="1.0" encoding="utf-8"?>`
+ * declaration, which is always the first line of a `feed.rss2()` output.
+ *
+ * Browser RSS readers apply the CSS for visual styling; feed reader clients
+ * ignore it and parse the XML normally.
+ */
+export function injectRssStylesheet(xml: string, href = '/feed-style.css'): string {
+    const decl = '<?xml version="1.0" encoding="utf-8"?>'
+    const pi = `${decl}<?xml-stylesheet href="${href}" type="text/css"?>`
+
+    if (xml.startsWith(decl)) {
+        return xml.replace(decl, pi)
+    }
+
+    // Fallback: prepend to root if declaration is not found or differs
+    return `${pi}\n${xml}`
+}

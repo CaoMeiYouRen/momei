@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import type { EntityTarget, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { dataSource } from '@/server/database'
-import { generateFeed, getFeedLanguage } from '@/server/utils/feed'
+import { generateFeed, getFeedLanguage, injectRssStylesheet } from '@/server/utils/feed'
 import { toQueryString } from '@/server/utils/query-params'
 
 export type ScopedFeedFormat = 'rss2' | 'atom1' | 'json1'
@@ -102,6 +102,7 @@ export function createTaxonomyFeedRoute<T extends FeedTaxonomyEntity>(options: T
         const feed = await generateFeed(event, feedOptions)
 
         appendHeader(event, 'Content-Type', contentType)
-        return feed[format]()
+        const output = feed[format]()
+        return format === 'rss2' ? injectRssStylesheet(output) : output
     })
 }

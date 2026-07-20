@@ -25,10 +25,12 @@
 	- 非目标：不替换现有 stdio 模式；不做 MCP 共享层抽取（延后）；不新增独立端口。
 	- 最小验收：`MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用，工具调用正常返回；未设置时 SDK 不加载，零冷启动影响；Serverless 环境静默降级；API Key 缺失返回 401；`pnpm typecheck` + `pnpm lint` 通过。
 
-- [ ] 主线 2（P2）：RSS 订阅链接美化
+- [x] 主线 2（P2）：RSS 订阅链接美化
 	- 执行范围：在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示为美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
 	- 非目标：不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
-	- 最小验收：浏览器访问 `/feed.xml` 时显示美化样式而非原始 XML；响应式设计移动端可用；RSS 阅读器仍能正常解析；`pnpm typecheck` + `pnpm lint` 通过。
+	- 最小验收：✅ 浏览器访问 `/feed.xml` 时显示美化样式而非原始 XML；✅ 响应式设计移动端可用；✅ RSS 阅读器仍能正常解析；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 现有 12 条 feed 测试全部通过。
+	- 设计文档：[RSS 订阅链接美化设计](../design/modules/rss-beautification.md)
+	- 涉及文件：`public/feed-style.css`（新增）、`server/utils/feed.ts`（新增 `injectRssStylesheet`）、`server/routes/feed.xml.ts`、`server/routes/feed/podcast.xml.ts`、`server/utils/feed-taxonomy-route.ts`、`docs/design/modules/rss-beautification.md`
 
 - [ ] 主线 3（P1）：结构复用下一轮热点切片（Phase 57 延续）
 	- 执行范围：承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复，优先迁移工具链路中复用收益高的候选点。

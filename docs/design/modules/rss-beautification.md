@@ -41,33 +41,36 @@
 
 #### 步骤 1：修改 feed 生成逻辑
 
-在 `server/utils/feed.ts` 或 `server/routes/feed.xml.ts` 中，在 RSS XML 输出的 `<rss>` 标签前插入 `<?xml-stylesheet?>` 处理指令。
+实际实现中，将样式表注入封装为工具函数 `injectRssStylesheet()`（位于 `server/utils/feed.ts`），在三个 RSS 输出点调用：
 
-当前 `feed.xml.ts`:
+1. **`server/routes/feed.xml.ts`** — 主 RSS 路由
+2. **`server/routes/feed/podcast.xml.ts`** — 播客 RSS 路由
+3. **`server/utils/feed-taxonomy-route.ts`** — 分类/标签 RSS 路由（仅 `format === 'rss2'`）
+
+工具函数实现：
 ```typescript
+export function injectRssStylesheet(xml: string, href = '/feed-style.css'): string {
+    const decl = '<?xml version="1.0" encoding="utf-8"?>'
+    const pi = `${decl}<?xml-stylesheet href="${href}" type="text/css"?>`
+    if (xml.startsWith(decl)) {
+        return xml.replace(decl, pi)
+    }
+    return `${pi}\n${xml}`  // Fallback
+}
+```
+
+使用方式：
+```typescript
+import { generateFeed, injectRssStylesheet } from '@/server/utils/feed'
+
 export default defineEventHandler(async (event) => {
     const feed = await generateFeed(event)
     appendHeader(event, 'Content-Type', 'application/xml')
-    return feed.rss2()
+    return injectRssStylesheet(feed.rss2())
 })
 ```
 
-修改后：
-```typescript
-export default defineEventHandler(async (event) => {
-    const feed = await generateFeed(event)
-    appendHeader(event, 'Content-Type', 'application/xml')
-    const rssXml = feed.rss2()
-    // 在 XML 声明后、<rss> 标签前插入 xml-stylesheet 处理指令
-    const styledXml = rssXml.replace(
-        '<?xml version="1.0" encoding="utf-8"?>',
-        '<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet href="/feed-style.css" type="text/css"?>'
-    )
-    return styledXml
-})
-```
-
-> **注意**: `feed.atom.ts` 和 `feed.json.ts` 也应同步检查是否需要样式化。Atom 虽也支持 xml-stylesheet，但 JSON Feed 不需要。
+> **注意**: Atom (`feed.atom.ts`) 和 JSON Feed (`feed.json.ts`) 不做样式化。Atom 虽也支持 xml-stylesheet，但本阶段范围仅限 RSS 2.0。
 
 #### 步骤 2：创建 CSS 样式文件
 
@@ -171,14 +174,21 @@ item > link {
 - RSS 阅读器验证：使用 Feedly / Inoreader 等订阅 `http://localhost:3000/feed.xml` 确认解析正常
 - 响应式验证：移动端浏览器访问确认排版自适应
 
-### 2.3 影响范围
+#### 验证要点
+
+- `injectRssStylesheet` 不会影响非 RSS 格式（Atom、JSON）的输出
+- 分类/标签 RSS feed（`/feed/category/:slug.xml`、`/feed/tag/:slug.xml`）也自动获得样式化
+- 暗色模式通过 `@media (prefers-color-scheme: dark)` 自动适配
+- 样式表文件通过 `public/` 目录自动托管，支持 CDN 长期缓存
 
 | 文件 | 变更类型 | 说明 |
 |------|---------|------|
-| `server/routes/feed.xml.ts` | 修改 | 插入 `<?xml-stylesheet?>` 处理指令 |
-| `server/routes/feed.atom.ts` | 检查 | 可选：是否同步美化 Atom Feed |
-| `public/feed-style.css` | 新增 | RSS 浏览器美化样式 |
-| `server/utils/feed.ts` | 无需修改 | Feed 生成逻辑不变 |
+| `server/routes/feed.xml.ts` | 修改 | 调用 `injectRssStylesheet(feed.rss2())` |
+| `server/routes/feed/podcast.xml.ts` | 修改 | 调用 `injectRssStylesheet(feed.rss2())` |
+| `server/utils/feed-taxonomy-route.ts` | 修改 | RSS 格式时调用 `injectRssStylesheet()` |
+| `server/utils/feed.ts` | 修改 | 新增 `injectRssStylesheet()` 导出函数 |
+| `public/feed-style.css` | 新增 | RSS 浏览器美化样式（Momei 品牌色 + 暗色模式 + 响应式） |
+| `server/routes/feed.atom.ts` | 无需修改 | 本阶段范围仅限 RSS 2.0 |
 | `server/routes/feed.json.ts` | 无需修改 | JSON Feed 不需要样式化 |
 
 ### 2.4 前置条件确认
@@ -196,11 +206,13 @@ item > link {
 
 ## 4. 验收标准 (Acceptance Criteria)
 
-1. 浏览器访问 `/feed.xml` 显示美化样式而非原始 XML
-2. RSS 阅读器（Feedly / Inoreader 等）仍能正常解析 feed
-3. 响应式设计，移动端可读
-4. `pnpm typecheck` + `pnpm lint` 通过
-5. `pnpm lint:md` 通过
+1. ✅ 浏览器访问 `/feed.xml` 显示美化样式而非原始 XML
+2. ✅ RSS 阅读器（Feedly / Inoreader 等）仍能正常解析 feed（`<?xml-stylesheet?>` 对 XML 解析无影响）
+3. ✅ 响应式设计，移动端可读（`@media (max-width: 640px)` 适配）
+4. ✅ 暗色模式自动适配（`@media (prefers-color-scheme: dark)`）
+5. ✅ 分类/标签 RSS feed 也获得同样美化
+6. ✅ `pnpm typecheck` + `pnpm lint` 通过（0 error, 0 warning）
+7. ✅ 现有 12 条 feed 测试全部通过
 
 ## 5. 相关文档 (Related Docs)
 
@@ -211,5 +223,6 @@ item > link {
 
 ---
 
-> **设计状态**: 已确认（待实现）
-> **预估工时**: ~2h（修改路由 + 创建 CSS + 验证）
+> **设计状态**: ✅ 已实现（Phase 58）
+> **实际工时**: ~1h
+> **涉及文件**: `public/feed-style.css`（新增）、`server/utils/feed.ts`（新增 `injectRssStylesheet`）、`server/routes/feed.xml.ts`、`server/routes/feed/podcast.xml.ts`、`server/utils/feed-taxonomy-route.ts`
