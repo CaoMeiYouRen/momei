@@ -597,6 +597,64 @@
 
 ---
 
+## 第五十七阶段：迁移体验增强与治理续航（已完成归档）
+
+> 归档说明: 第五十七阶段「2 新功能 + 3 优化」已完成 4/5 主线交付。两条迁移增强主线（本地图片自动上传、迁移元数据字段扩展）已完整实施并通过验证；测试有效性第五轮切片（8+ 失败路径断言）、ESLint/类型债 ≥3 组窄切片均已交付。结构复用主线因容量限制延期至第五十八阶段继续。
+>
+> **ROI 评估**: 本地图片自动上传与迁移 2.33；迁移元数据字段扩展 2.00；测试有效性第五轮 1.50；ESLint/类型债 1.50；结构复用延期至 Phase 58。
+
+### 1. 本地图片自动上传与迁移 (P0)
+
+- **执行范围**: CLI 扫描 Markdown 相对路径图片（`![](...)` 与 `<img src="...">`），解析本地路径，调用 `POST /api/external/upload/direct-auth` 批量上传，回写正文 URL。支持 `--upload-images`（默认关闭，向后兼容）。
+- **实现对照**:
+  - `packages/cli/src/import-image-migration.ts`（454 行）：核心上传迁移实现
+  - `packages/cli/src/import-command.ts`：`--upload-images` CLI 参数
+  - `packages/cli/src/import-image-migration.test.ts`（206 行）：覆盖干跑、上传成功、文件缺失等场景
+  - `tests/server/api/external/upload-direct-auth.test.ts`：外部 API 端点验证
+- **验收对照**: 正文与封面本地图片可自动上传替换；失败项在报告中标记且不阻塞导入；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 2. 迁移元数据字段扩展 (P1)
+
+- **执行范围**: 扩展 `packages/cli/src/parser.ts`、`utils/schemas/external-post-import.ts` 与 `server/api/external/posts.post.ts`，补齐 `updatedAt` 字段映射与别名归一化（`updated`/`updated_at`）。
+- **实现对照**:
+  - Parser 层：`parser.ts:245` 映射 `updatedAt`/`updated`/`updated_at` 三种别名
+  - Schema 层：`external-post-import.ts:32` 别名归一化逻辑
+  - API 层：`posts.post.ts:45` 转发至 `createPostService`
+  - 测试覆盖：parser + schema + API 三层均有测试用例
+- **验收对照**: `updatedAt` 正确落库；向后兼容；新增测试覆盖；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 3. 测试有效性第五轮切片 (P1)
+
+- **执行范围**: 围绕外部 API 和 CLI 的高风险链路补失败路径与边界断言。
+- **失败路径断言**:
+  - 外部 API 端点：8 条（权限校验、无效请求体、服务异常传播、导入确认拒绝、阻塞拒绝、view 别名校验）
+  - CLI 图片迁移：5 条（缺少授权、上传异常、429 重试逻辑、重试耗尽、非 429 不重试）
+- **验收对照**: ≥6 条（实际 13+）；覆盖 ≥2 个模块（实际 4+）；coverage 基线不回退。
+
+### 4. ESLint/类型债 — ≥3 组窄切片 (P1)
+
+- **执行范围**: 继续「单规则 + 单文件/双文件」窄切片，聚焦 `@typescript-eslint/no-explicit-any`。
+- **收敛切片**:
+  - 切片 1：`server/utils/validate-api-key.ts` — no-explicit-any 收敛
+  - 切片 2：`server/utils/translation.ts` — no-explicit-any 收敛
+  - 切片 3：`types/ai.ts` — no-explicit-any 收敛
+- **验收对照**: 3 组切片完成；`warning=0`、`exemption=0`；eslint-debt-targets.mjs 已纳入目标文件。
+
+### 5. 结构复用热点切片 (P1) — 延期至 Phase 58
+
+- **当前状态**: 未开始实施，移至第五十八阶段继续。
+- **原因**: 阶段容量约束，优先保障两条迁移增强主线和两条治理切片交付。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段已完成条目清理
+- [x] `roadmap.md` 已同步阶段状态
+- [x] 多语路线图已同步（en-US 摘要）
+- [x] 文档检查已执行（`pnpm lint:md`、`check-i18n-duplicates`、`check-source-of-truth`）
+- [x] 主干质量门通过（typecheck + lint）
+
+---
+
 ## 第四十二至第四十五阶段（已归档）
 
 > 以下四阶段的完整正文已迁入 [todo-archive-phases-42-45.md](./archive/todo-archive-phases-42-45.md)。

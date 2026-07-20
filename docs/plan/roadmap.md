@@ -607,39 +607,45 @@
 
 > 详细条目见 [待办归档](./todo-archive.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第五十七阶段：迁移体验增强与治理续航（Migration UX Enhancement & Governance Continuity）（规划中）
+### 第五十七阶段：迁移体验增强与治理续航（Migration UX Enhancement & Governance Continuity）（已审计归档）
 
-**时间表**: 2026-07-19 ~ 约 1-2 周
-**目标**: 在第五十六阶段完成 API 客户端统一与 CLI 导出后，以「2 个迁移增强 + 3 个治理优化」推进下一阶段：优先补齐迁移体验短板（本地图片自动上传、元数据字段扩展），并延续测试有效性、ESLint/类型债、结构复用三条长期主线的小步快跑节奏。
+> 第五十七阶段已完成归档，详细记录见 [待办归档](./todo-archive.md#第五十七阶段迁移体验增强与治理续航-已完成归档)。结构复用主线因容量限制延期至第五十八阶段。
 
-**准入结论**: 五条主线均来自 backlog 现有候选与长期主线切片，容量控制在 `5` 项内，符合规划规范。两条迁移增强与当前 CLI 能力连续，实施面聚焦且回滚边界清晰；三条治理优化沿用既有脚本口径，避免阶段目标漂移。
+### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）（规划中）
 
-**ROI 评估**: 本地图片自动上传与迁移 `2.33`；迁移元数据字段扩展 `2.00`；测试有效性第五轮 `1.50`；ESLint / 类型债窄切片 `1.50`；结构复用热点切片 `1.60`。
+**时间表**: 2026-07-20 ~ 约 1-2 周
+**目标**: 在第五十七阶段完成迁移体验增强与治理续航后，以「2 个新功能 + 3 个治理延续」组合推进：MCP HTTP 传输与本体挂载作为基础设施增强，RSS 订阅链接美化作为展示体验优化，三条长期治理主线（结构复用、ESLint/类型债、测试有效性）延续小步快跑节奏。
 
-1. **主线：本地图片自动上传与迁移（P0）**:
-    - **执行范围**: 扫描 Markdown 中相对路径图片引用（`![](...)` 与 `<img src="...">`），解析本地路径，调用 `POST /api/upload/direct-auth` 获取上传凭证并批量上传，回写正文 URL；支持 `--upload-images`（默认关闭，向后兼容）。
-    - **非目标**: 不处理视频/音频等大文件上传，不做图片压缩/裁剪，不自动改写外部图床链接。
-    - **最小验收**: 正文与封面本地图片可自动上传并替换为公共 URL；失败项在导入报告中明确标记且不阻塞文章导入；`pnpm typecheck` + `pnpm lint` 通过。
+**准入结论**: 五条主线均来自 backlog 已验证候选或长期主线延续，容量控制在 `5` 项内，符合规划规范。MCP HTTP 已完成设计文档和全部决策确认；RSS 美化范围明确、改动量小（~2h）；三条治理主线均有成熟脚本基线，实施面聚焦且回滚边界清晰。
 
-2. **主线：迁移元数据字段扩展（P1）**:
-    - **执行范围**: 扩展 `packages/cli/src/parser.ts`、`utils/schemas/external-post-import.ts` 与 `server/api/external/posts.post.ts`，优先补齐 `updatedAt`（P1）并保留 `views` / `disableComment` / `updated` 的向后兼容解析入口。
-    - **非目标**: 不导入内部控制字段（如 `metadata.tts`、`metadata.scaffold`、`metadata.publish.intent`），不改动现有基础字段映射语义。
-    - **最小验收**: `updatedAt` 映射与落库正确；扩展字段解析不破坏旧导入行为；新增测试覆盖扩展字段；`pnpm typecheck` + `pnpm lint` 通过。
+**ROI 评估**: MCP HTTP 传输与本体挂载 `1.40`；RSS 订阅链接美化 `1.30`；结构复用热点切片 `1.60`；ESLint/类型债窄切片 `1.50`；测试有效性第六轮 `1.50`。
 
-3. **主线：测试有效性第五轮切片（P1）**:
-    - **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先迁移增强相关 API/CLI 与导入失败口径。
-    - **非目标**: 不做 coverage 数字冲刺，不做低价值铺量补测。
-    - **最小验收**: 新增失败路径断言 ≥6 条；覆盖模块 ≥2 个；coverage 基线不回退。
+1. **主线：MCP HTTP 传输与本体挂载（P2）**:
+    - **执行范围**: 新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`。新增 `MOMEI_ENABLE_MCP_HTTP` 环境变量（默认 false）。根依赖新增 `@modelcontextprotocol/sdk`。复用现有外部 API Key 鉴权和速率限制。Serverless 环境静默降级。
+    - **非目标**: 不替换现有 stdio 模式，双模式共存；不做 MCP 共享层抽取；不新增独立端口。
+    - **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
+    - **最小验收**: `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用；未设置时不加载 SDK；Serverless 静默降级不阻塞；API Key 缺失返回 401；`pnpm typecheck` + `pnpm lint` 通过。
 
-4. **主线：ESLint / 类型债下一轮窄切片（P1）**:
-    - **执行范围**: 继续“单规则 + 单文件/双文件”窄切片，优先命中集中且回滚边界清晰的生产文件。
-    - **非目标**: 不扩写为全仓 `any` 清零，不新增规则族大范围治理。
-    - **最小验收**: 完成 ≥3 组窄切片；`warning=0` 保持；`governance:audit:eslint-debt` delta 可对照。
+2. **主线：RSS 订阅链接美化（P2）**:
+    - **执行范围**: 在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
+    - **非目标**: 不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
+    - **设计文档**: [`docs/design/modules/rss-beautification.md`](../design/modules/rss-beautification.md)
+    - **最小验收**: 浏览器访问 `/feed.xml` 显示美化样式而非原始 XML；响应式设计；RSS 阅读器正常解析；`pnpm typecheck` + `pnpm lint` 通过。
 
-5. **主线：结构复用下一轮热点切片（P1）**:
-    - **执行范围**: 延续高收益热点收敛，优先处理迁移工具链路中可复用的轻量 helper、重复类型与重复逻辑。
+3. **主线：结构复用下一轮热点切片（P1）**:
+    - **执行范围**: 承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复，优先迁移工具链路中复用收益高的候选点。
     - **非目标**: 不做跨模块大重构，不为抽象而抽象。
     - **最小验收**: 完成 ≥2 组热点切片；`pnpm duplicate-code:check` 基线不反弹；每组切片保留原始重复点、抽象边界与回滚方式。
+
+4. **主线：ESLint / 类型债下一轮窄切片（P1）**:
+    - **执行范围**: 继续「单规则 + 单文件/双文件」窄切片策略，优先选择命中集中且回滚边界清晰的生产文件。保持 `warning=0`。
+    - **非目标**: 不扩写为全仓 `any` 清零，不新增规则族大范围治理。
+    - **最小验收**: 完成 ≥3 组窄切片；`warning=0` 保持；`pnpm governance:audit:eslint-debt` delta 可对照。
+
+5. **主线：测试有效性第六轮切片（P1）**:
+    - **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径（MCP HTTP 端点、RSS feed 路由等）。
+    - **非目标**: 不做 coverage 数字冲刺，不做低价值铺量补测。
+    - **最小验收**: 新增失败路径断言 ≥5 条；覆盖模块 ≥2 个；coverage 基线不回退。
 
 ## 3. 相关文档
 
