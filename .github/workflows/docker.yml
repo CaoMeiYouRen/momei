@@ -70,6 +70,8 @@ jobs:
       # Build api-client first so nuxt typecheck resolves its type declarations
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run lint
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
@@ -114,6 +116,10 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run E2E tests
