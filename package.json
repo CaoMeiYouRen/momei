@@ -155,7 +155,7 @@
     "sanitize-html": "^2.17.6",
     "typeorm": "^1.1.0",
     "validator": "^13.15.35",
-    "vue": "^3.5.39",
+    "vue": "^3.5.40",
     "vue-router": "^5.2.0",
     "web-push": "^3.6.7",
     "winston": "^3.19.0",
