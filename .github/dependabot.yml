@@ -109,17 +109,26 @@ updates:
           - "@aws-sdk/s3-request-presigner"
     ignore:
       # TypeScript 7.x 实验性 API，typescript-eslint 8.x 尚不兼容。等待 TS 7 稳定且
-      # typescript-eslint 发布正式支持版本后再解除屏蔽。评估见 docs/design/governance/archive/dependency-upgrade-evaluation-2026-07.md
+      # typescript-eslint 发布正式支持版本后再解除屏蔽。评估见 docs/design/governance/2026-07-22-dependency-upgrade-evaluation.md
       - dependency-name: "typescript"
         versions:
           - ">=7.0.0"
 
       # ESLint 10.x 移除了 sourceCode.getTokenOrCommentBefore API，导致
       # eslint-plugin-import@2.32.0 运行时崩溃。等待上游发版支持后再解除屏蔽。
-      # 评估见 docs/design/governance/archive/dependency-upgrade-evaluation-2026-07.md
+      # 评估见 docs/design/governance/2026-07-22-dependency-upgrade-evaluation.md
       - dependency-name: "eslint"
         versions:
           - ">=10.0.0"
+
+      # h3 v2 RC 与 Nuxt 4.x 运行时不兼容（Nuxt v5 才会统一使用 h3 v2）。
+      # pnpm 解析到其他依赖的 h3 v2 RC 时，Nitro dev server 会生成
+      # 调用 event.req.headers.get() 等 v2 风格 API 的代码，但运行时事件
+      # 仍是 h3 v1 结构（Node IncomingMessage），导致 TypeError 崩溃。
+      # 详情见 docs/design/governance/2026-07-22-h3-version-pinning.md
+      - dependency-name: "h3"
+        versions:
+          - ">=2.0.0"
   - package-ecosystem: github-actions
     directory: /
     open-pull-requests-limit: 20
