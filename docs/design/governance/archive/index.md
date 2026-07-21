@@ -10,8 +10,9 @@
 - [phase-37-plan.md](./phase-37-plan.md)
 - [phase-38-plan.md](./phase-38-plan.md)
 
-## 已完成评估（16）
+## 已完成评估（17）
 
+- [dependency-upgrade-evaluation-2026-07.md](./dependency-upgrade-evaluation-2026-07.md)
 - [ai-setup-assistant-evaluation.md](./ai-setup-assistant-evaluation.md)
 - [caomei-auth-oauth-evaluation.md](./caomei-auth-oauth-evaluation.md)
 - [cloudflare-runtime-study.md](./cloudflare-runtime-study.md)

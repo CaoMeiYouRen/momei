@@ -108,16 +108,18 @@ updates:
           - "@aws-sdk/client-s3"
           - "@aws-sdk/s3-request-presigner"
     ignore:
-      # 由于 playwright 高版本镜像无法拉取，故暂时锁定在 1.48.1 版本
-      - dependency-name: "playwright"
+      # TypeScript 7.x 实验性 API，typescript-eslint 8.x 尚不兼容。等待 TS 7 稳定且
+      # typescript-eslint 发布正式支持版本后再解除屏蔽。评估见 docs/design/governance/archive/dependency-upgrade-evaluation-2026-07.md
+      - dependency-name: "typescript"
         versions:
-          - ">=1.48.1"
-      - dependency-name: "playwright-core"
+          - ">=7.0.0"
+
+      # ESLint 10.x 移除了 sourceCode.getTokenOrCommentBefore API，导致
+      # eslint-plugin-import@2.32.0 运行时崩溃。等待上游发版支持后再解除屏蔽。
+      # 评估见 docs/design/governance/archive/dependency-upgrade-evaluation-2026-07.md
+      - dependency-name: "eslint"
         versions:
-          - ">=1.48.1"
-      - dependency-name: "@playwright/test"
-        versions:
-          - ">=1.48.1"
+          - ">=10.0.0"
   - package-ecosystem: github-actions
     directory: /
     open-pull-requests-limit: 20
