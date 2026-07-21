@@ -139,7 +139,7 @@
     "mjml": "^5.4.0",
     "ms": "^4.0.0-nightly.202508271359",
     "music-metadata": "^11.14.0",
-    "mysql2": "^3.22.6",
+    "mysql2": "^3.23.1",
     "nest-winston": "^1.10.2",
     "nodemailer": "^9.0.3",
     "normalize.css": "^8.0.1",
