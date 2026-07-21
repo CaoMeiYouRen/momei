@@ -120,6 +120,7 @@
     "feed": "^6.0.0",
     "fs-extra": "^11.3.6",
     "google-libphonenumber": "^3.2.44",
+    "h3": "^1.15.11",
     "highlight.js": "^11.11.0",
     "html-minifier": "npm:html-minifier-terser@^7.2.0",
     "html-to-text": "^10.0.0",
