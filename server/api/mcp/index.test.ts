@@ -57,7 +57,7 @@ describe('MCP HTTP endpoint with h3 mocks', () => {
 
     it('should construct correct web request and delegate to transport', async () => {
         const { validateApiKeyRequest } = await import('@/server/utils/validate-api-key')
-        vi.mocked(validateApiKeyRequest).mockResolvedValue(undefined)
+        vi.mocked(validateApiKeyRequest).mockResolvedValue({} as any)
 
         const mockHandleRequest = vi.fn().mockResolvedValue(
             new Response(JSON.stringify({ result: 'ok' }), { status: 200 }),
@@ -78,7 +78,7 @@ describe('MCP HTTP endpoint with h3 mocks', () => {
         expect(mockHandleRequest).toHaveBeenCalledTimes(1)
 
         // Verify the web request was constructed with correct method, body and url
-        const webRequest = mockHandleRequest.mock.calls[0][0] as Request
+        const webRequest = mockHandleRequest.mock.calls[0]![0] as Request
         expect(webRequest.method).toBe('POST')
         expect(webRequest.url).toBe('http://localhost/api/mcp')
         const reqBody = await webRequest.text()
@@ -87,7 +87,7 @@ describe('MCP HTTP endpoint with h3 mocks', () => {
 
     it('should skip body reading for GET requests', async () => {
         const { validateApiKeyRequest } = await import('@/server/utils/validate-api-key')
-        vi.mocked(validateApiKeyRequest).mockResolvedValue(undefined)
+        vi.mocked(validateApiKeyRequest).mockResolvedValue({} as any)
 
         const mockHandleRequest = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
         ;(globalThis as Record<string, unknown>).__momei_mcp_transport = { handleRequest: mockHandleRequest }
@@ -107,7 +107,7 @@ describe('MCP HTTP endpoint with h3 mocks', () => {
 
     it('should return null for responses without body', async () => {
         const { validateApiKeyRequest } = await import('@/server/utils/validate-api-key')
-        vi.mocked(validateApiKeyRequest).mockResolvedValue(undefined)
+        vi.mocked(validateApiKeyRequest).mockResolvedValue({} as any)
 
         const mockHandleRequest = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
         ;(globalThis as Record<string, unknown>).__momei_mcp_transport = { handleRequest: mockHandleRequest }

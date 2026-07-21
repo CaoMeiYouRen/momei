@@ -31,12 +31,11 @@ describe('h3 v1 兼容性', () => {
         expect(typeof readRawBody).toBe('function')
     })
 
-    it('getRequestHeader 应正确处理 h3 v1 事件', async () => {
+    it('getRequestHeader 应正确处理 h3 v1 事件', () => {
         const socket = new Socket()
         const req = new IncomingMessage(socket)
         req.url = '/'
         req.method = 'GET'
-        // 通过 _addHeaderLine 等效方式设置请求头
         req.headers = { 'content-type': 'application/json', 'x-custom': 'hello' } as any
         const res = new ServerResponse(req)
         const event = createEvent(req, res)
@@ -45,7 +44,7 @@ describe('h3 v1 兼容性', () => {
         expect(getRequestHeader(event, 'x-custom')).toBe('hello')
     })
 
-    it('getRequestHeader 应返回 undefined 不存在的请求头', async () => {
+    it('getRequestHeader 应返回 undefined 不存在的请求头', () => {
         const socket = new Socket()
         const req = new IncomingMessage(socket)
         req.url = '/'
@@ -56,7 +55,7 @@ describe('h3 v1 兼容性', () => {
         expect(getRequestHeader(event, 'x-not-exist')).toBeUndefined()
     })
 
-    it('getRequestIP 应正确处理 h3 v1 事件（x-forwarded-for 模式）', async () => {
+    it('getRequestIP 应正确处理 h3 v1 事件（x-forwarded-for 模式）', () => {
         const socket = new Socket()
         const req = new IncomingMessage(socket)
         req.url = '/'
@@ -69,7 +68,7 @@ describe('h3 v1 兼容性', () => {
         expect(ip).toBe('192.168.1.1')
     })
 
-    it('getRequestIP 应在无 IP 请求头时返回 undefined', async () => {
+    it('getRequestIP 应在无 IP 请求头时返回 undefined', () => {
         const socket = new Socket()
         const req = new IncomingMessage(socket)
         req.url = '/'
