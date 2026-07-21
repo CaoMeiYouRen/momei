@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { H3Event } from 'h3'
 import { createTaxonomyFeedRoute, parseScopedFeedRequest, buildTaxonomyFeedTitle } from './feed-taxonomy-route'
 import { dataSource } from '@/server/database'
-import { generateFeed, getFeedLanguage } from '@/server/utils/feed'
+import { generateFeed, getFeedLanguage, injectRssStylesheet } from '@/server/utils/feed'
 
 vi.mock('@/server/database', () => ({
     dataSource: {
@@ -104,6 +104,7 @@ describe('server/utils/feed-taxonomy-route', () => {
         expect(mockAppendHeader).toHaveBeenCalledWith(event, 'Content-Type', 'application/atom+xml')
         expect(atomFeed).toHaveBeenCalled()
         expect(result).toBe('<atom />')
+        expect(vi.mocked(injectRssStylesheet)).not.toHaveBeenCalled()
     })
 
     it('creates a category handler that returns rss xml output by default', async () => {
@@ -141,6 +142,7 @@ describe('server/utils/feed-taxonomy-route', () => {
         expect(mockAppendHeader).toHaveBeenCalledWith(event, 'Content-Type', 'application/xml')
         expect(rssFeed).toHaveBeenCalled()
         expect(result).toBe('<rss />')
+        expect(vi.mocked(injectRssStylesheet)).toHaveBeenCalledWith('<rss />')
     })
 
     it('creates a tag handler that returns json feed output', async () => {
@@ -177,6 +179,7 @@ describe('server/utils/feed-taxonomy-route', () => {
         })
         expect(mockAppendHeader).toHaveBeenCalledWith(event, 'Content-Type', 'application/feed+json')
         expect(result).toBe('{"version":"https://jsonfeed.org/version/1.1"}')
+        expect(vi.mocked(injectRssStylesheet)).not.toHaveBeenCalled()
     })
 
     it('prefers explicit language query over request locale for taxonomy discovery urls', async () => {

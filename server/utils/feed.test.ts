@@ -6,7 +6,7 @@ import { Category } from '@/server/entities/category'
 import { Tag } from '@/server/entities/tag'
 import { PostStatus, PostVisibility } from '@/types/post'
 import { generateRandomString } from '@/utils/shared/random'
-import { generateFeed } from '@/server/utils/feed'
+import { generateFeed, injectRssStylesheet } from '@/server/utils/feed'
 
 describe('Feed Generation Utility', () => {
     let author: User
@@ -386,5 +386,50 @@ describe('Feed Generation Utility', () => {
 
         expect(json.feed_url).toBe('https://momei.app/feed/tag/feed-tag.json')
         expect(json.home_page_url).toBe('https://momei.app')
+    })
+})
+
+describe('injectRssStylesheet', () => {
+    const DEFAULT_STYLESHEET_PI = '<?xml-stylesheet href="/feed-style.css" type="text/css"?>'
+
+    it('should replace XML declaration with declaration + stylesheet PI in primary path', () => {
+        const xml = '<?xml version="1.0" encoding="utf-8"?><feed><entry>test</entry></feed>'
+        const result = injectRssStylesheet(xml)
+        expect(result).toBe(
+            `<?xml version="1.0" encoding="utf-8"?>${DEFAULT_STYLESHEET_PI}<feed><entry>test</entry></feed>`,
+        )
+    })
+
+    it('should prepend stylesheet PI when XML lacks a standard declaration (fallback path)', () => {
+        const xml = '<feed><entry>no declaration</entry></feed>'
+        const result = injectRssStylesheet(xml)
+        expect(result).toBe(
+            `<?xml version="1.0" encoding="utf-8"?>${DEFAULT_STYLESHEET_PI}\n<feed><entry>no declaration</entry></feed>`,
+        )
+    })
+
+    it('should prepend stylesheet PI when declaration format differs (alternate fallback)', () => {
+        const xml = '<?xml version="1.0"?><feed><entry>short decl</entry></feed>'
+        const result = injectRssStylesheet(xml)
+        expect(result).toBe(
+            `<?xml version="1.0" encoding="utf-8"?>${DEFAULT_STYLESHEET_PI}\n${xml}`,
+        )
+    })
+
+    it('should use custom href when provided', () => {
+        const xml = '<?xml version="1.0" encoding="utf-8"?><feed><entry>custom</entry></feed>'
+        const result = injectRssStylesheet(xml, '/custom-feed.css')
+        expect(result).toContain('<?xml-stylesheet href="/custom-feed.css" type="text/css"?>')
+        expect(result).not.toContain('/feed-style.css')
+    })
+
+    it('should wrap entire XML without altering content order when declaration is present', () => {
+        const content = '<feed><entry id="1">hello</entry></feed>'
+        const xml = `<?xml version="1.0" encoding="utf-8"?>${content}`
+        const result = injectRssStylesheet(xml)
+        // Declaration then PI then original content in correct order
+        expect(result.indexOf('<?xml version="1.0"')).toBe(0)
+        expect(result.indexOf(DEFAULT_STYLESHEET_PI)).toBeGreaterThan(0)
+        expect(result.indexOf(content)).toBeGreaterThan(result.indexOf(DEFAULT_STYLESHEET_PI))
     })
 })

@@ -45,10 +45,14 @@
 	- 说明：所有文件已在 Phase 51-57 逐批收敛完毕，本轮不做新切片而是关闭已完成的治理循环。
 - 附加产出：全量 TypeScript 规则基线扫描报告 [`docs/reports/eslint-typescript-baseline.md`](../reports/eslint-typescript-baseline.md)，覆盖 9 条已禁用规则的数据基线，供后续阶段决策参考。
 
-- [ ] 主线 5（P1）：测试有效性第六轮切片
+- [x] 主线 5（P1）：测试有效性第六轮切片
 	- 执行范围：围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径（MCP HTTP 端点、RSS feed 路由等）。
 	- 非目标：不做 coverage 数字冲刺，不做低价值铺量补测。
-	- 最小验收：新增失败路径断言 ≥5 条；覆盖模块 ≥2 个；coverage 基线不回退。
+	- 最小验收：✅ 新增失败路径断言 ≥5 条（实际 12 条）；✅ 覆盖模块 ≥3 个（feed utils、feed-taxonomy-route、MCP endpoint）；✅ `pnpm test` 全部通过。
+	- 涉及文件：
+		- `server/utils/feed.test.ts`（新增 `injectRssStylesheet` 5 条测试：主路径/回退路径/自定义 href/内容顺序）
+		- `server/utils/feed-taxonomy-route.test.ts`（新增 3 条样式注入条件断言：rss2 注入 / atom 不注入 / json 不注入）
+		- `server/api/mcp/index.test.ts`（新增 4 条失败路径+行为验证：401 鉴权失败/Web Request 正确构造/GET 跳过 body/null body 返回）
 
 ---
 
