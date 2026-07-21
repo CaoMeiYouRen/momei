@@ -205,7 +205,7 @@
     "eslint": "^9.39.2",
     "eslint-config-cmyr": "^2.3.0",
     "eslint-plugin-vue": "^10.9.2",
-    "happy-dom": "^20.10.6",
+    "happy-dom": "^20.11.0",
     "husky": "^9.1.7",
     "jscpd": "5.0.12",
     "lint-staged": "17.0.8",
