@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import CommentForm from './comment-form.vue'
 import { authClient } from '@/lib/auth-client'
 
@@ -35,6 +35,10 @@ vi.mock('primevue/usetoast', async (importOriginal) => ({
     ...await importOriginal<any>(),
     useToast: () => mockToast,
 }))
+
+// Shared $fetch mock (Nuxt auto-import)
+const mockFetch = vi.fn()
+mockNuxtImport('$fetch', () => mockFetch)
 
 describe('CommentForm', () => {
     beforeEach(() => {
@@ -98,9 +102,8 @@ describe('CommentForm', () => {
     })
 
     it('submits the form successfully', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({})
+        mockFetch.mockResolvedValue({})
         const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined)
-        vi.stubGlobal('$fetch', mockFetch)
 
         const wrapper = await mountSuspended(CommentForm, {
             props: {
@@ -171,9 +174,8 @@ describe('CommentForm', () => {
     })
 
     it('submits with the signed-in user profile and skips guest persistence', async () => {
-        const mockFetch = vi.fn().mockResolvedValue({})
+        mockFetch.mockResolvedValue({})
         const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined)
-        vi.stubGlobal('$fetch', mockFetch)
         // @ts-expect-error - mock function
         authClient.useSession.mockReturnValue({
             value: {
@@ -216,10 +218,9 @@ describe('CommentForm', () => {
 
     it('shows an error toast when comment submission fails', async () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-        const mockFetch = vi.fn().mockRejectedValue({
+        mockFetch.mockRejectedValue({
             statusMessage: 'Submission failed',
         })
-        vi.stubGlobal('$fetch', mockFetch)
 
         const wrapper = await mountSuspended(CommentForm, {
             props: {

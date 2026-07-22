@@ -50,7 +50,7 @@ mockNuxtImport('useI18n', () => () => ({
     locale: localeRef,
 }))
 
-vi.stubGlobal('$fetch', fetchMock)
+mockNuxtImport('$fetch', () => fetchMock)
 
 const stubs = {
     IconField: { template: '<div class="icon-field"><slot /></div>' },

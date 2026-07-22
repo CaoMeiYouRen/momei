@@ -1,6 +1,6 @@
 import { defineComponent, h, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AppVoiceInputTrigger from './app-voice-input-trigger.vue'
 
 const {
@@ -70,7 +70,7 @@ vi.mock('@/utils/web/voice-text', () => ({
     insertVoiceText: insertVoiceTextMock,
 }))
 
-vi.stubGlobal('$fetch', fetchMock)
+mockNuxtImport('$fetch', () => fetchMock)
 
 const ButtonStub = defineComponent({
     inheritAttrs: false,

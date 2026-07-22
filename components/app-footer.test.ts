@@ -11,7 +11,7 @@ const mockSiteConfig = ref({
 })
 const mockCurrentTitle = ref('Momei Blog')
 
-vi.stubGlobal('$fetch', mockFetch)
+mockNuxtImport('$fetch', () => mockFetch)
 
 mockNuxtImport('useMomeiConfig', () => () => ({
     currentTitle: computed(() => mockCurrentTitle.value),

@@ -27,11 +27,11 @@ mockNuxtImport('useI18n', () => () => ({
 
 mockNuxtImport('useToast', () => () => mockToast)
 
+mockNuxtImport('$fetch', () => mockFetch)
+
 vi.mock('@/utils/shared/validate', () => ({
     isPureEnglish: (...args: unknown[]) => mockIsPureEnglish(...args),
 }))
-
-vi.stubGlobal('$fetch', mockFetch)
 
 import { useAdminAI } from './use-admin-ai'
 
