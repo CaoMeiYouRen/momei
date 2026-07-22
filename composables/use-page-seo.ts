@@ -161,7 +161,7 @@ export function usePageSeo(options: UsePageSeoOptions) {
     })
 
     useHead(() => {
-        const meta: Record<string, string>[] = [
+        const meta = [
             { name: 'description', content: metaDescription.value },
             { name: 'robots', content: shouldNoIndex.value ? 'noindex, nofollow' : 'index, follow' },
             { property: 'og:title', content: metaTitle.value },

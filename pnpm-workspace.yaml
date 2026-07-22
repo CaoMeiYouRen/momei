@@ -44,7 +44,7 @@ overrides:
     diff: "^9.0.0"
     devalue: "^5.8.1"
     defu: "6.1.5"
-    unhead: "^2.1.13"
+    unhead: "^3.2.2"
     qs: "6.15.2"
     hono: "^4.12.27"
     "@hono/node-server": "^2.0.5"
