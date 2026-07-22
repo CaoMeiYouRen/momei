@@ -12,9 +12,12 @@
         "latest_posts": {
             "title": "最新記事"
         },
-        "popular_posts": {
-            "title": "人気記事"
-        },
+    "recent_hot_posts": {
+      "title": "近期人気"
+    },
+    "popular_posts": {
+      "title": "全期間人気"
+    },
         "external_feed": {
             "title": "外部アップデート",
             "subtitle": "あとで深掘りしたくなる最近の更新をまとめて紹介し、気になったらそのまま元記事へ移動できます。",

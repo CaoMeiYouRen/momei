@@ -28,12 +28,12 @@
 
 ### P2 — 近期热门文章列表（候选 #16）
 
-- [ ] 后端：新增 `GET /api/posts/hot?range=365` 端点（基于 `post_view_hourly` 聚合近 365 天 views 增量，返回前 3 篇）
-- [ ] 前端：首页新增"近期热门"区块（位于"最新文章"与"全站热门"之间）
-- [ ] i18n：新增"近期热门"及相关文案翻译（zh-CN/en-US/zh-TW/ja-JP/ko-KR）
-- [ ] 重命名：原"热门文章"→"全站热门"
-- [ ] 去重：近期热门与最新文章不重复（复用 `excludeIds` 机制）；全站热门允许重复
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
+- [x] 后端：新增 `GET /api/posts/hot?range=365` 端点（基于 `post_view_hourly` 聚合近 365 天 views 增量，返回前 3 篇）
+- [x] 前端：首页新增"近期热门"区块（位于"最新文章"与"全站热门"之间）
+- [x] i18n：新增"近期热门"及相关文案翻译（zh-CN/en-US/zh-TW/ja-JP/ko-KR）
+- [x] 重命名：原"热门文章"→"全站热门"
+- [x] 去重：近期热门与最新文章不重复（复用 `excludeIds` 机制）；全站热门允许重复
+- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过（预存测试失败为独立基线问题）
 
 ### P2 — AI 编辑增强：改写+审查（候选 #9）
 

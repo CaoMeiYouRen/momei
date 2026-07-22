@@ -12,8 +12,11 @@
     "latest_posts": {
       "title": "最新文章"
     },
+    "recent_hot_posts": {
+      "title": "近期熱門"
+    },
     "popular_posts": {
-      "title": "熱門文章"
+      "title": "全站熱門"
     },
     "external_feed": {
       "title": "外部動態",

@@ -12,8 +12,11 @@
     "latest_posts": {
       "title": "최신 글"
     },
+    "recent_hot_posts": {
+      "title": "최근 인기"
+    },
     "popular_posts": {
-      "title": "인기 글"
+      "title": "전체 인기"
     },
     "external_feed": {
       "title": "외부 업데이트",

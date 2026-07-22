@@ -71,6 +71,48 @@
             aria-hidden="true"
         />
 
+        <section v-if="shouldHydrateSecondarySections && (recentHotPending || recentHotError || recentHotPosts.length > 0)" class="recent-hot-posts section">
+            <div class="container">
+                <div class="section__header">
+                    <h2 class="section__title">
+                        {{ $t('home.recent_hot_posts.title') }}
+                    </h2>
+                    <NuxtLink :to="localePath('/posts')" class="link-more">
+                        {{ $t('common.view_all') }} &rarr;
+                    </NuxtLink>
+                </div>
+
+                <div v-if="recentHotPending" class="posts-grid">
+                    <div
+                        v-for="i in 3"
+                        :key="`recent-hot-${i}`"
+                        class="post-card-skeleton"
+                    >
+                        <Skeleton height="200px" class="mb-4" />
+                        <Skeleton
+                            width="60%"
+                            height="1.5rem"
+                            class="mb-2"
+                        />
+                        <Skeleton width="40%" height="1rem" />
+                    </div>
+                </div>
+
+                <div v-else-if="recentHotError" class="error-state">
+                    <p>{{ $t('common.error_loading') }}</p>
+                </div>
+
+                <div v-else class="posts-grid">
+                    <ArticleCard
+                        v-for="(post, index) in recentHotPosts"
+                        :key="post.id"
+                        :post="post"
+                        :priority="index === 0"
+                    />
+                </div>
+            </div>
+        </section>
+
         <section v-if="shouldHydrateSecondarySections && (popularPending || popularError || popularPosts.length > 0)" class="popular-posts section">
             <div class="container">
                 <div class="section__header">
@@ -218,6 +260,27 @@ const popularPosts = computed(() => {
 })
 
 const {
+    data: recentHotData,
+    pending: recentHotPending,
+    error: recentHotError,
+    execute: loadRecentHotPosts,
+} = useAppFetch<ApiResponse<{ items: PostListData['items'] }>>('/api/posts/hot', {
+    query: {
+        range: 365,
+        excludeIds: latestPostIds,
+    },
+    server: false,
+    lazy: true,
+    immediate: false,
+    watch: [latestPostIds],
+})
+
+const recentHotPosts = computed(() => {
+    const latestIds = new Set(latestPostIds.value)
+    return (recentHotData.value?.data?.items || []).filter((post) => !latestIds.has(String(post.id)))
+})
+
+const {
     data: externalFeedData,
     pending: externalFeedPending,
     error: externalFeedError,
@@ -233,6 +296,7 @@ watch(shouldHydrateSecondarySections, (ready) => {
         return
     }
 
+    void loadRecentHotPosts?.()
     void loadPopularPosts?.()
     void loadExternalFeed?.()
 }, { immediate: true })

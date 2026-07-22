@@ -12,9 +12,12 @@
         "latest_posts": {
             "title": "Latest Posts"
         },
-        "popular_posts": {
-            "title": "Popular Posts"
-        },
+    "recent_hot_posts": {
+      "title": "Trending Now"
+    },
+    "popular_posts": {
+      "title": "All-Time Popular"
+    },
         "external_feed": {
             "title": "External Updates",
             "subtitle": "A handpicked stream of recent updates worth exploring further, with direct links to the original posts.",
