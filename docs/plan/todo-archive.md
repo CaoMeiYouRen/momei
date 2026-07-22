@@ -8,13 +8,148 @@
 - 第十一至第二十一阶段全文: [archive/todo-archive-phases-11-21.md](./archive/todo-archive-phases-11-21.md)
 - 第二十二至第二十四阶段全文: [archive/todo-archive-phases-22-24.md](./archive/todo-archive-phases-22-24.md)
 - 第二十五至第四十一阶段全文: [archive/todo-archive-phases-25-31.md](./archive/todo-archive-phases-25-31.md)、[archive/todo-archive-phases-32-41.md](./archive/todo-archive-phases-32-41.md)
+- 第四十二至第四十五阶段全文: [archive/todo-archive-phases-42-45.md](./archive/todo-archive-phases-42-45.md)
+- 第四十六至第四十九阶段全文: [archive/todo-archive-phases-46-49.md](./archive/todo-archive-phases-46-49.md)
 - 深度归档治理规则: [archive/index.md](./archive/index.md)
 
 ## 主窗口保留范围
 
-- 主文档当前保留第四十二至第五十四阶段的近线归档块。
-- 第一至第四十一阶段的完整待办归档正文已迁入区间分片。
-- 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+- 主文档当前保留第五十至第五十八阶段的近线归档块。
+    - 第一至第四十九阶段的完整待办归档正文已迁入区间分片。
+    - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+
+---
+
+## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）
+
+> 归档说明: 第五十八阶段「2 新功能 + 3 治理延续」已于 2026-07-22 完成五条主线交付与阶段收口。两条新功能主线（MCP HTTP 传输与本体挂载、RSS 订阅链接美化）均已实施并通过验证；结构复用主线承接 Phase 57 延期项，完成 api-client 类型枚举收敛 + 接口重命名 2 组热点切片；ESLint/类型债主线关闭已完成治理循环（NO_EXPLICIT_ANY_FILES 全部 65+ 项已在前序阶段收敛，豁免列表清零，全量 TypeScript 规则基线报告落盘）；测试有效性第六轮切片完成 12 个失败路径断言，覆盖 3 个模块（feed utils、feed-taxonomy-route、MCP endpoint）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: MCP HTTP 传输与本体挂载 1.40；RSS 订阅链接美化 1.30；结构复用热点切片 1.60；ESLint/类型债窄切片 1.50；测试有效性第六轮 1.50。
+
+### 1. MCP HTTP 传输与本体挂载 (P2)
+
+- **执行范围**: 新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`。新增 `MOMEI_ENABLE_MCP_HTTP` 环境变量（默认 false）。根依赖新增 `@modelcontextprotocol/sdk`。复用外部 API Key 鉴权。Serverless 环境静默降级。
+- **非目标**: 不替换现有 stdio 模式，双模式共存；不做 MCP 共享层抽取；不新增独立端口。
+- **实现对照**:
+  - `server/plugins/mcp-http.ts`：Nitro 插件，条件守卫 + 动态导入 SDK + `StreamableHTTPServerTransport`
+  - `server/api/mcp/index.ts`：MCP HTTP 端点路由，GET/POST/DELETE 处理
+  - `server/api/mcp/index.test.ts`：覆盖 401 鉴权失败、Web Request 构造、GET 跳过 body、null body 返回
+- **验收对照**: ✅ `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用；✅ 未设置时不加载 SDK（零冷启动影响）；✅ Serverless 环境静默降级；✅ API Key 缺失返回 401；✅ `pnpm typecheck` + `pnpm lint` 通过。
+- **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
+
+### 2. RSS 订阅链接美化 (P2)
+
+- **执行范围**: 在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
+- **非目标**: 不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
+- **实现对照**:
+  - `public/feed-style.css`：新增 RSS 显示美化样式（响应式设计）
+  - `server/utils/feed.ts`：新增 `injectRssStylesheet` 函数
+  - `server/routes/feed.xml.ts` + `server/routes/feed/podcast.xml.ts` + `server/utils/feed-taxonomy-route.ts`：集成样式注入
+- **验收对照**: ✅ 浏览器访问 `/feed.xml` 时显示美化样式而非原始 XML；✅ 响应式设计移动端可用；✅ RSS 阅读器仍能正常解析；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 现有 12 条 feed 测试全部通过。
+- **设计文档**: [`docs/design/modules/rss-beautification.md`](../design/modules/rss-beautification.md)
+
+### 3. 结构复用下一轮热点切片 — Phase 57 延续 (P1)
+
+- **执行范围**: 承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复。
+- **收敛切片**:
+  - Slice 1：`MomeiPostStatus`/`MomeiPostVisibility` 从 `string` union 改为 `enum` 派生类型，与主项目 `types/post.ts` 规范值自动对齐
+  - Slice 2：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata`、`MomeiPublishIntent` → `PublishIntent`（保留类型别名向后兼容 + `@deprecated` 标记）
+- **涉及文件**: `packages/api-client/src/types.ts`
+- **验收对照**: ✅ 完成 ≥2 组热点切片；✅ `duplicate-code` 基线不反弹（45 clones, 0.31%）；✅ `pnpm typecheck` + `pnpm lint` + api-client `29/29 tests` 全部通过。
+
+### 4. ESLint / 类型债下一轮窄切片 — 治理循环关闭 (P1)
+
+- **执行范围**: 确认 `NO_EXPLICIT_ANY_FILES` 全部 65+ 项已在前序阶段（Phase 51-57）逐批收敛完毕，本轮不做新切片而是关闭已完成的治理循环。
+- **关键交付**:
+  - 全量 TypeScript 规则基线扫描报告：`docs/reports/eslint-typescript-baseline.md`（覆盖 9 条已禁用规则的数据基线，供后续阶段决策参考）
+  - NO_EXPLICIT_ANY_FILES 中 47 个目标文件全部清零（as any 使用量降为 0）
+- **涉及文件**: `scripts/governance/eslint-debt-targets.mjs`（清理已失效分组变量）、`eslint.config.js`（条件展开 override）
+- **验收对照**: ✅ 全部 65+ 项已确认收敛完毕；✅ `warning=0` 保持；✅ `pnpm typecheck` + `eslint types/ad.ts` 0 warning 通过；✅ `duplicate-code` 基线不反弹。
+
+### 5. 测试有效性第六轮切片 (P1)
+
+- **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径。
+- **失败路径断言**:
+  - `server/utils/feed.test.ts`：`injectRssStylesheet` 5 条测试（主路径/回退路径/自定义 href/内容顺序）
+  - `server/utils/feed-taxonomy-route.test.ts`：3 条样式注入条件断言（rss2 注入 / atom 不注入 / json 不注入）
+  - `server/api/mcp/index.test.ts`：4 条失败路径+行为验证（401 鉴权失败/Web Request 正确构造/GET 跳过 body/null body 返回）
+- **验收对照**: ✅ 新增失败路径断言 ≥5 条（实际 12 条）；✅ 覆盖模块 ≥3 个（feed utils、feed-taxonomy-route、MCP endpoint）；✅ `pnpm test` 通过。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm lint:md`、`pnpm typecheck` 通过
+- [x] 主干质量门通过（typecheck + lint + test）
+
+---
+
+
+---
+
+## 第五十七阶段：迁移体验增强与治理续航（已完成归档）
+
+> 归档说明: 第五十七阶段「2 新功能 + 3 优化」已完成 4/5 主线交付。两条迁移增强主线（本地图片自动上传、迁移元数据字段扩展）已完整实施并通过验证；测试有效性第五轮切片（8+ 失败路径断言）、ESLint/类型债 ≥3 组窄切片均已交付。结构复用主线因容量限制延期至第五十八阶段继续。
+>
+> **ROI 评估**: 本地图片自动上传与迁移 2.33；迁移元数据字段扩展 2.00；测试有效性第五轮 1.50；ESLint/类型债 1.50；结构复用延期至 Phase 58。
+
+### 1. 本地图片自动上传与迁移 (P0)
+
+- **执行范围**: CLI 扫描 Markdown 相对路径图片（`![](...)` 与 `<img src="...">`），解析本地路径，调用 `POST /api/external/upload/direct-auth` 批量上传，回写正文 URL。支持 `--upload-images`（默认关闭，向后兼容）。
+- **实现对照**:
+  - `packages/cli/src/import-image-migration.ts`（454 行）：核心上传迁移实现
+  - `packages/cli/src/import-command.ts`：`--upload-images` CLI 参数
+  - `packages/cli/src/import-image-migration.test.ts`（206 行）：覆盖干跑、上传成功、文件缺失等场景
+  - `tests/server/api/external/upload-direct-auth.test.ts`：外部 API 端点验证
+- **验收对照**: 正文与封面本地图片可自动上传替换；失败项在报告中标记且不阻塞导入；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 2. 迁移元数据字段扩展 (P1)
+
+- **执行范围**: 扩展 `packages/cli/src/parser.ts`、`utils/schemas/external-post-import.ts` 与 `server/api/external/posts.post.ts`，补齐 `updatedAt` 字段映射与别名归一化（`updated`/`updated_at`）。
+- **实现对照**:
+  - Parser 层：`parser.ts:245` 映射 `updatedAt`/`updated`/`updated_at` 三种别名
+  - Schema 层：`external-post-import.ts:32` 别名归一化逻辑
+  - API 层：`posts.post.ts:45` 转发至 `createPostService`
+  - 测试覆盖：parser + schema + API 三层均有测试用例
+- **验收对照**: `updatedAt` 正确落库；向后兼容；新增测试覆盖；`pnpm typecheck` + `pnpm lint` 通过。
+
+### 3. 测试有效性第五轮切片 (P1)
+
+- **执行范围**: 围绕外部 API 和 CLI 的高风险链路补失败路径与边界断言。
+- **失败路径断言**:
+  - 外部 API 端点：8 条（权限校验、无效请求体、服务异常传播、导入确认拒绝、阻塞拒绝、view 别名校验）
+  - CLI 图片迁移：5 条（缺少授权、上传异常、429 重试逻辑、重试耗尽、非 429 不重试）
+- **验收对照**: ≥6 条（实际 13+）；覆盖 ≥2 个模块（实际 4+）；coverage 基线不回退。
+
+### 4. ESLint/类型债 — ≥3 组窄切片 (P1)
+
+- **执行范围**: 继续「单规则 + 单文件/双文件」窄切片，聚焦 `@typescript-eslint/no-explicit-any`。
+- **收敛切片**:
+  - 切片 1：`server/utils/validate-api-key.ts` — no-explicit-any 收敛
+  - 切片 2：`server/utils/translation.ts` — no-explicit-any 收敛
+  - 切片 3：`types/ai.ts` — no-explicit-any 收敛
+- **验收对照**: 3 组切片完成；`warning=0`、`exemption=0`；eslint-debt-targets.mjs 已纳入目标文件。
+
+### 5. 结构复用热点切片 (P1) — 延期至 Phase 58
+
+- **当前状态**: 未开始实施，移至第五十八阶段继续。
+- **原因**: 阶段容量约束，优先保障两条迁移增强主线和两条治理切片交付。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段已完成条目清理
+- [x] `roadmap.md` 已同步阶段状态
+- [x] 多语路线图已同步（en-US 摘要）
+- [x] 文档检查已执行（`pnpm lint:md`、`check-i18n-duplicates`、`check-source-of-truth`）
+- [x] 主干质量门通过（typecheck + lint）
+
+---
+
+
 
 ---
 
@@ -73,6 +208,9 @@
 
 ---
 
+
+---
+
 ## 第五十五阶段：AI 降级与接口扩展 (已审计归档)
 
 > 归档说明: 第五十五阶段「2 个新功能 + 3 个优化」已于 2026-07-13 完成五条主线交付与阶段收口。五条主线: CLI/MCP 阶段二新增外部接口（4 组 REST + 灵感转文章 + 文章版本，CLI +15, MCP +16）；AI 功能备用路线与自动降级（fallback 链 + 降级日志 + 透明切换）；结构复用逻辑重复收敛（≥2 组抽象切片，duplicate-code 0.33% < 基线 1.22%）；ESLint/类型债 ≥3 组窄切片（social-post-platforms no-non-null-assertion, nuxt.config.ts no-explicit-any, admin-taxonomy-page no-explicit-any，累计消除 22 处）；测试有效性第三轮切片（7 个新增失败路径断言，覆盖 3 个模块）。所有主线均通过 Review Gate 审计。
@@ -125,6 +263,9 @@
 - [x] `roadmap.md` 已同步阶段状态与收口结论
 - [x] 文档检查已执行：`pnpm lint`、`pnpm typecheck`
 - [x] 测试通过（全量主线验证 + Code Auditor 审计通过）
+
+---
+
 
 ---
 
@@ -198,6 +339,9 @@
 
 ---
 
+
+---
+
 ## 第五十三阶段：缓存架构与治理深化 (已审计归档)
 
 > 归档说明: 第五十三阶段「0 个新功能 + 4 个优化 + 1 评估」已于 2026-07-04 完成五条主线交付与阶段收口。五条主线: Vercel CDN 缓存 Tier 2 架构治理（routeRules ISR/SWR + Upstash Redis 持久化存储）、文档治理阈值收紧（must-sync=21 天，summary-sync=30 天）、ESLint/类型债清零剩余 3 处 as any（benefits.vue 替换为具体类型接口）、结构复用治理 ≥5 组热点切片（仪表盘样式、度量卡片样式、认证页面、设置页面、TypeScript 工具函数，基线 0.39%→0.24%）、AI 编辑增强功能套件评估（条件性 Go，ROI 1.50）。E2E 测试 seed-test 插件失效排查已完成（根因: DEMO_MODE 和 TEST_MODE 并发争抢 SQLite 事务锁，已恢复 10 个 fixme/skip 用例）。
@@ -268,6 +412,9 @@
 
 ---
 
+
+---
+
 ## 第五十二阶段：治理补账与移动性能基线 (已审计归档)
 
 > 归档说明: 第五十二阶段「0 个新功能 + 5 个优化」已于 2026-06-28 完成五条主线交付与阶段收口。五条主线: 脚本治理 warning 清理与升格评估（audit-comment-drift 误报清理、line-count 阈值调整、source-of-truth 同步、升格 audit-comment-drift→regression:weekly）、文档治理归档审计与阈值收紧评估（归档 5 个评估文档、must-sync 30→21 天、summary-sync 45→30 天）、移动端 CWV 性能基线采集与评估（LCP 1.6s-2.2s，均在 2.5s 以下）、i18n 运行时验证扩面（新增首页+文章详情 2 个页面链路）、测试有效性第二轮切片（9 个失败路径断言，覆盖 4 个模块）。
@@ -325,6 +472,9 @@
 
 ---
 
+
+---
+
 ## 第五十一阶段：边界收敛与治理增压 (已审计归档)
 
 > 归档说明: 第五十一阶段「0 个新功能 + 5 个优化」已于 2026-06-16 完成五条主线交付与阶段收口。五条主线: types/utils 边界收敛（冲突清单 + 治理文档 + 3 组样本迁移）、跨包复用评估（No-Go 完整方案 / 条件性 Go 轻量方案 + 评估文档）、ESLint/类型债 ≥5 组窄切片（11 处 as any 收敛，typecheck 零错误）、结构复用 ≥5 组热点切片（commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）、backlog 长期主线状态同步（10 条主线更新至 ≥Phase 48）。
@@ -371,6 +521,9 @@
 - [x] 10 条长期主线状态字段更新至 ≥Phase 48
 
 > **审计结论**: 第五十一阶段五条主线已在治理文档、评估文档、类型断言收敛、结构复用切片与 backlog 状态同步中完成闭环。`pnpm typecheck` 零错误，`pnpm lint:md` 通过，`pnpm docs:check:line-count` 全部在健康窗口内。当前 `todo.md` 执行面已清理，归档块已写入。
+
+
+---
 
 ## 第五十阶段：PWA 启用与收口治理 (已审计归档)
 
@@ -430,293 +583,23 @@
 
 > **审计结论**: 第五十阶段五条主线已在实现代码、配置变更、治理文档、设计文档与规划文档中完成闭环，满足归档条件。本次归档通过的门禁包括 `lint`、`typecheck`、`lint:md`、`docs:check:i18n` 与 `docs:check:line-count`。
 
-## 第四十九阶段：延期清缴与流量治理 (已审计归档)
 
-> 归档说明: 第四十九阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。
-> 五条主线: Postgres 网络传输削减（89% 耗尽警戒）、formatDate 函数级复用、Phase C 延期测试回填、清理收口（vendor.css + backlog.md）、type 收敛 + 归档索引修正。
-> todo.md 当前执行面已清理，等待下一阶段候选池评估。
-
-### 1. Postgres 流量治理 — 网络传输削减 (P0)
-
-- 分析文档: `docs/design/governance/postgres-traffic-governance.md`
-- P0-1: posts/index+search+archive.get 设为 `includeAuthorEmail: false`（-3 列/行）
-- P0-2: post-detail-read.ts 移除 author.socialLinks/donationLinks
-- Settings 已有 60s 缓存, 31 次单 key=cache hit, 无需优化
-- 提交: `95dc1a0f`, `80dc313c`, `037b0856`
-
-### 2. formatDate 函数级复用 (P0)
-
-- 消除 6 处自定义 wrapper: campaigns.vue, external-links/index.vue, comment-item.vue, submissions/index.vue, friend-links/index.vue, use-admin-friend-links-page.ts
-- 保留 2 处有自定义 fallback: agreements-settings, legal-agreement-page
-- 提交: `793e5af4`, `e871b6c5`
-
-### 3. 延期测试回填 (P1)
-
-- Phase C: friend-links.test.ts 新增 3 用例（feed 渲染/空状态/降级）
-- Admin: friend-links/index.test.ts 新增 showRssFeed 标签测试
-- 提交: `7907b793`, `22609ca6`
-
-### 4. 清理收口 (P1)
-
-- vendor.css 空文件删除
-- backlog.md: 测试主线 Phase 44/49 更新、隐私分析 Phase 45-46 修正、artifact 清理
-- 提交: `455ced9c`, `370db523`
-
-### 5. type 收敛 + 归档索引修正 (P2)
-
-- AdAdapterConfig 统一至 types/ad.ts (12→11)
-- 归档索引计数已确认正确 (11+6+1)
-- 提交: `10eb6fff`, `e0d631cf`
-
-## 第四十八阶段：深度治理与清理收口 (已审计归档)
-
-> 归档说明: 第四十八阶段「0 个新功能 + 5 个优化」已于 2026-06-13 完成五条主线交付与阶段收口。
-> 五条主线: ESLint/类型债窄切片扩展、结构复用深度收敛、API Schema RouterParam Zod 校验、未使用 API 安全删除（含前端引用验证）、第二轮闲置端点扩大调研。
-> todo.md 当前执行面已清理，等待下一阶段候选池评估。
-
-### 1. ESLint / 类型债 — 窄切片扩展（9 处 as any 清零）
-
-- `seed-demo.ts`: 6 处 `'published' as any` → `PostStatus.PUBLISHED`
-- `translation.ts`: 1 处残留 `(item as any)` →``T & { translations: unknown[]``
-- `typeorm-adapter.ts`: 2 处 `as any` → `Record<string, unknown>`
-- 提交: `a9499974`, `47233bab`
-
-### 2. 结构复用 — 类型收敛（3 组，15→12）
-
-- `DemoTourStage`: demo-banner → import from use-onboarding
-- `AdminAiPageEvent`: task-list → import from use-admin-ai-page
-- `ASRDirectOptions`: use-asr-direct → import from types/asr
-- 提交: `2f099780`, `baa65136`
-
-### 3. API Schema — RouterParam Zod 校验（2 端点 + 2 测试文件）
-
-- `marketing/send`: safeParse({ id }) 校验
-- `posts/restore`: safeParse({ id, versionId }) 校验
-- 新增 refresh/restore 2 测试文件（4 用例）
-- 提交: `cf1a2035`, `44e9e25c`
-
-### 4. 未使用 API — 安全删除（2 端点 + 前端引用验证）
-
-- 实际删除: notifications/broadcast + theme-configs/[id].put
-- 保留（经 typecheck 引用验证）: 5 个端点
-- 关键发现: typecheck 删除时捕获 3 个"假零引用"（前端实际调用）
-- 提交: `15658bd1`, `fd72487b`
-
-### 5. 第二轮未使用 API 扩大调研
-
-- 调研 4 端点：subscriptions（无文件）、waitlist/export（有调用）、scaffold-to-post（有调用）、versions/restore（有测试）
-- 文档: `docs/design/governance/unused-api-round2-assessment.md`
-- 提交: `f9013bcc`
-
-## 第四十七阶段：接口契约与路由治理深化 (已审计归档)
-
-> 归档说明: 第四十七阶段「0 个新功能 + 6 个优化」已于 2026-06-11 完成六条主线交付与阶段收口。
-> 六条优化主线: ESLint/类型债继续窄切片、结构复用治理继续推进、页面与 API 路径规范化、路由风格统一、未使用 API 清单评估、API Schema 覆盖与复用治理。
-> todo.md 当前执行面已清理，等待下一阶段候选池评估。
-
-### 1. ESLint / 类型债继续治理（窄切片）
-
-- 收敛 6 处生产代码 `as any`: `link.ts`（`Record<string, unknown>`）、`translation.ts` ×4（`(item as T & { translations })`）、`email/i18n.ts`（`{} as Record<...>`）
-- eslint-disable 总量维持 13 处（≤13 达标）
-- 提交: `b704618f`
-
-### 2. 结构复用治理继续推进
-
-- Slice 1: `FeedItem` — page+service → `types/friend-link.ts` 统一来源
-- Slice 2: `TitleSuggestionOverlayRef` — `use-post-editor-page.ts` → import from `use-post-editor-ai.ts`
-- 同名 type/interface 候选 17→14 (-3)
-- 提交: `7ef401b0`, `516daa45`
-
-### 3. 页面与 API 路径规范化治理
-
-- 治理文档: `docs/design/governance/route-api-path-governance.md`（46 page ↔ ~120 api 全量映射）
-- P0 修复: `calendar.vue` + `marketing.vue` → `index.vue` 目录模式
-- 提交: `102b107b`, `db2a54e0`
-
-### 4. `pages/admin` 路由文件风格统一
-
-- 主规范: 第一级强制目录，第二级允许平铺
-- 迁移: `calendar.vue` + `marketing.vue` → `index.vue`（2 处）
-- 提交: `4f6686a6`, `9e3ddad1`
-
-### 5. 未使用 API 清单与清理可行性评估
-
-- 三层交叉验证 ~120→识别 7 个零引用端点
-- 三档分流: 可删除 7 / 观察 2 / 保留 ~111
-- 治理文档: `docs/design/governance/unused-api-cleanup-assessment.md`
-- 提交: `e3864b1a`, `5d690e5e`
-
-### 6. API Schema 覆盖与复用治理
-
-- 覆盖率: 完整 11 / 部分 7 / 缺失 1
-- 3 组复用样板 + 新增 `utils/schemas/taxonomy.ts`
-- 治理文档: `docs/design/governance/api-schema-coverage-governance.md`
-- 提交: `09924a42`, `8259fa75`
-
-## 第四十六阶段：隐私部署收口与治理深化 (已审计归档)
-
-> 归档说明: 第四十六阶段「1 个新功能 + 5 个优化」已完成并通过阶段收口检查。  
-> 对照结果：`todo.md` 六条主线均已勾选，`pnpm regression:weekly` 最新结果为 `Pass`（warning: `duplicate-code:check failed`），并已回填回归窗口与 Review Gate artifact。
-
-### 1. Umami 隐私自托管分析集成 — Phase 2 部署化 (P0)
-
-- **实现对照**: 已补齐 Umami 部署模板、部署变量说明与脚本化入口，且保持与 GA4 / Clarity / 百度统计并行开关，不互相覆盖。
-- **验收对照**: 达成“可配置 + 可部署 + 可运维”的最小闭环，满足 Phase 2 部署化目标。
-
-### 2. ESLint / 类型债治理 — 至少 3 组窄切片 (P1)
-
-- **收口对照**: 已完成至少 3 组窄切片，本轮实际完成 4 组（`app.vue` 会话语言 `as any` 收敛；`analytics-settings.vue`、`auth-settings.vue`、`security-settings.vue` 的 `defineModel<any>` 收敛）。
-- **验收对照**: 持续满足“单规则 + 小范围”治理约束，可与规则债盘点产物对照。
-
-### 3. 结构复用治理 — 至少 3 组热点切片 (P1)
-
-- **收口对照**: 已完成 3 组热点收敛（Umami 配置解析/序列化逻辑抽离、邮件模板预览 payload 类型统一、Volcengine 协议头与错误包类型复用）。
-- **验收对照**: 达成本阶段最小切片目标，并保持重复代码治理基线可追溯。
-
-### 4. 测试覆盖率治理 — 提升至 82% (P1)
-
-- **收口对照**: 已完成 A/B/C/D 四组高风险补测切片，覆盖 Umami 共享工具、分析插件、文章 repush 失败路径、邮件模板 fallback/override、AI 图片生成上游状态码透传等关键边界。
-- **验证证据**: 最新周级固定入口 `pnpm regression:weekly` 已回填 `test:coverage=PASS`，覆盖率治理主线达到本阶段收口条件。
-
-### 5. 周期性回归任务 + 项目现状调研 (P0)
-
-- **收口对照**: 阶段内已完成“先 Reject 后收敛为 Pass”的固定入口闭环，`artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` 与 `docs/reports/regression/current.md` 已同步。
-- **Review Gate 结论**: `Pass`（warning），当前唯一非阻塞项为 `duplicate-code:check failed`。
-
-### 6. 数据库初始化脚本与文档同步 (P1)
-
-- **收口对照**: 三套 `database/**/init.sql` 已补齐 AI 任务额度/计费相关字段（`category`、`estimated_quota_units`、`quota_units`、`charge_status`、`failure_stage`、`usage_snapshot`、`duration_ms`）。
-- **文档同步**: `database/README.md`、`docs/design/database.md` 与部署指南（含 `en-US`）已对齐初始化字段说明。
-
-### 阶段收口检查清单
-
-- [x] `todo.md` 当前阶段条目已完成并清理执行面
-- [x] `roadmap.md` 已同步阶段状态与收口结论
-- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
-- [x] 回归证据已落盘：`docs/reports/regression/current.md` 与 `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}`
 
 ---
 
-## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）
+## 第四十六至第四十九阶段（已归档）
 
-> 归档说明: 第五十八阶段「2 新功能 + 3 治理延续」已于 2026-07-22 完成五条主线交付与阶段收口。两条新功能主线（MCP HTTP 传输与本体挂载、RSS 订阅链接美化）均已实施并通过验证；结构复用主线承接 Phase 57 延期项，完成 api-client 类型枚举收敛 + 接口重命名 2 组热点切片；ESLint/类型债主线关闭已完成治理循环（NO_EXPLICIT_ANY_FILES 全部 65+ 项已在前序阶段收敛，豁免列表清零，全量 TypeScript 规则基线报告落盘）；测试有效性第六轮切片完成 12 个失败路径断言，覆盖 3 个模块（feed utils、feed-taxonomy-route、MCP endpoint）。所有主线均通过 Review Gate 审计。
+> 以下四阶段的完整正文已迁入 [todo-archive-phases-46-49.md](./archive/todo-archive-phases-46-49.md)。
 
-> **ROI 评估**: MCP HTTP 传输与本体挂载 1.40；RSS 订阅链接美化 1.30；结构复用热点切片 1.60；ESLint/类型债窄切片 1.50；测试有效性第六轮 1.50。
-
-### 1. MCP HTTP 传输与本体挂载 (P2)
-
-- **执行范围**: 新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`。新增 `MOMEI_ENABLE_MCP_HTTP` 环境变量（默认 false）。根依赖新增 `@modelcontextprotocol/sdk`。复用外部 API Key 鉴权。Serverless 环境静默降级。
-- **非目标**: 不替换现有 stdio 模式，双模式共存；不做 MCP 共享层抽取；不新增独立端口。
-- **实现对照**:
-  - `server/plugins/mcp-http.ts`：Nitro 插件，条件守卫 + 动态导入 SDK + `StreamableHTTPServerTransport`
-  - `server/api/mcp/index.ts`：MCP HTTP 端点路由，GET/POST/DELETE 处理
-  - `server/api/mcp/index.test.ts`：覆盖 401 鉴权失败、Web Request 构造、GET 跳过 body、null body 返回
-- **验收对照**: ✅ `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用；✅ 未设置时不加载 SDK（零冷启动影响）；✅ Serverless 环境静默降级；✅ API Key 缺失返回 401；✅ `pnpm typecheck` + `pnpm lint` 通过。
-- **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
-
-### 2. RSS 订阅链接美化 (P2)
-
-- **执行范围**: 在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
-- **非目标**: 不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
-- **实现对照**:
-  - `public/feed-style.css`：新增 RSS 显示美化样式（响应式设计）
-  - `server/utils/feed.ts`：新增 `injectRssStylesheet` 函数
-  - `server/routes/feed.xml.ts` + `server/routes/feed/podcast.xml.ts` + `server/utils/feed-taxonomy-route.ts`：集成样式注入
-- **验收对照**: ✅ 浏览器访问 `/feed.xml` 时显示美化样式而非原始 XML；✅ 响应式设计移动端可用；✅ RSS 阅读器仍能正常解析；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 现有 12 条 feed 测试全部通过。
-- **设计文档**: [`docs/design/modules/rss-beautification.md`](../design/modules/rss-beautification.md)
-
-### 3. 结构复用下一轮热点切片 — Phase 57 延续 (P1)
-
-- **执行范围**: 承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复。
-- **收敛切片**:
-  - Slice 1：`MomeiPostStatus`/`MomeiPostVisibility` 从 `string` union 改为 `enum` 派生类型，与主项目 `types/post.ts` 规范值自动对齐
-  - Slice 2：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata`、`MomeiPublishIntent` → `PublishIntent`（保留类型别名向后兼容 + `@deprecated` 标记）
-- **涉及文件**: `packages/api-client/src/types.ts`
-- **验收对照**: ✅ 完成 ≥2 组热点切片；✅ `duplicate-code` 基线不反弹（45 clones, 0.31%）；✅ `pnpm typecheck` + `pnpm lint` + api-client `29/29 tests` 全部通过。
-
-### 4. ESLint / 类型债下一轮窄切片 — 治理循环关闭 (P1)
-
-- **执行范围**: 确认 `NO_EXPLICIT_ANY_FILES` 全部 65+ 项已在前序阶段（Phase 51-57）逐批收敛完毕，本轮不做新切片而是关闭已完成的治理循环。
-- **关键交付**:
-  - 全量 TypeScript 规则基线扫描报告：`docs/reports/eslint-typescript-baseline.md`（覆盖 9 条已禁用规则的数据基线，供后续阶段决策参考）
-  - NO_EXPLICIT_ANY_FILES 中 47 个目标文件全部清零（as any 使用量降为 0）
-- **涉及文件**: `scripts/governance/eslint-debt-targets.mjs`（清理已失效分组变量）、`eslint.config.js`（条件展开 override）
-- **验收对照**: ✅ 全部 65+ 项已确认收敛完毕；✅ `warning=0` 保持；✅ `pnpm typecheck` + `eslint types/ad.ts` 0 warning 通过；✅ `duplicate-code` 基线不反弹。
-
-### 5. 测试有效性第六轮切片 (P1)
-
-- **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径。
-- **失败路径断言**:
-  - `server/utils/feed.test.ts`：`injectRssStylesheet` 5 条测试（主路径/回退路径/自定义 href/内容顺序）
-  - `server/utils/feed-taxonomy-route.test.ts`：3 条样式注入条件断言（rss2 注入 / atom 不注入 / json 不注入）
-  - `server/api/mcp/index.test.ts`：4 条失败路径+行为验证（401 鉴权失败/Web Request 正确构造/GET 跳过 body/null body 返回）
-- **验收对照**: ✅ 新增失败路径断言 ≥5 条（实际 12 条）；✅ 覆盖模块 ≥3 个（feed utils、feed-taxonomy-route、MCP endpoint）；✅ `pnpm test` 通过。
-
-### 阶段收口检查清单
-
-- [x] `todo.md` 当前阶段条目已完成并清理执行面
-- [x] `roadmap.md` 已同步阶段状态与收口结论
-- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
-- [x] 文档检查已执行：`pnpm lint:md`、`pnpm typecheck` 通过
-- [x] 主干质量门通过（typecheck + lint + test）
+| 阶段 | 时间 | 核心交付 |
+|:---|:---|:---|
+| **49** | 2026-06-13 | Postgres 流量治理（89% 耗尽警戒→减列+缓存）；formatDate 函数级复用；Phase C 延期测试回填；清理收口；type 收敛 12→11 |
+| **48** | 2026-06-12~13 | ESLint/类型债 9 处 as any 清零（seed-demo/translation/typeorm-adapter）；结构复用 3 组类型收敛 15→12；API Schema RouterParam Zod 校验；未使用 API 安全删除；第二轮闲置端点调研 |
+| **47** | 2026-06-10~11 | ESLint/类型债 6 处 as any 收敛；结构复用 FeedItem/TitleSuggestion 收敛 17→14；页面与 API 路径规范化治理；admin 路由风格统一；未使用 API 清单评估（7 零引用端点）；API Schema 覆盖与复用治理 |
+| **46** | 2026-06-08~10 | Umami Phase 2 部署化；ESLint/类型债 4 组窄切片；结构复用 3 组热点收敛；测试覆盖率 82%+ 收口；周期性回归；数据库初始化脚本同步 |
 
 ---
 
-## 第五十七阶段：迁移体验增强与治理续航（已完成归档）
-
-> 归档说明: 第五十七阶段「2 新功能 + 3 优化」已完成 4/5 主线交付。两条迁移增强主线（本地图片自动上传、迁移元数据字段扩展）已完整实施并通过验证；测试有效性第五轮切片（8+ 失败路径断言）、ESLint/类型债 ≥3 组窄切片均已交付。结构复用主线因容量限制延期至第五十八阶段继续。
->
-> **ROI 评估**: 本地图片自动上传与迁移 2.33；迁移元数据字段扩展 2.00；测试有效性第五轮 1.50；ESLint/类型债 1.50；结构复用延期至 Phase 58。
-
-### 1. 本地图片自动上传与迁移 (P0)
-
-- **执行范围**: CLI 扫描 Markdown 相对路径图片（`![](...)` 与 `<img src="...">`），解析本地路径，调用 `POST /api/external/upload/direct-auth` 批量上传，回写正文 URL。支持 `--upload-images`（默认关闭，向后兼容）。
-- **实现对照**:
-  - `packages/cli/src/import-image-migration.ts`（454 行）：核心上传迁移实现
-  - `packages/cli/src/import-command.ts`：`--upload-images` CLI 参数
-  - `packages/cli/src/import-image-migration.test.ts`（206 行）：覆盖干跑、上传成功、文件缺失等场景
-  - `tests/server/api/external/upload-direct-auth.test.ts`：外部 API 端点验证
-- **验收对照**: 正文与封面本地图片可自动上传替换；失败项在报告中标记且不阻塞导入；`pnpm typecheck` + `pnpm lint` 通过。
-
-### 2. 迁移元数据字段扩展 (P1)
-
-- **执行范围**: 扩展 `packages/cli/src/parser.ts`、`utils/schemas/external-post-import.ts` 与 `server/api/external/posts.post.ts`，补齐 `updatedAt` 字段映射与别名归一化（`updated`/`updated_at`）。
-- **实现对照**:
-  - Parser 层：`parser.ts:245` 映射 `updatedAt`/`updated`/`updated_at` 三种别名
-  - Schema 层：`external-post-import.ts:32` 别名归一化逻辑
-  - API 层：`posts.post.ts:45` 转发至 `createPostService`
-  - 测试覆盖：parser + schema + API 三层均有测试用例
-- **验收对照**: `updatedAt` 正确落库；向后兼容；新增测试覆盖；`pnpm typecheck` + `pnpm lint` 通过。
-
-### 3. 测试有效性第五轮切片 (P1)
-
-- **执行范围**: 围绕外部 API 和 CLI 的高风险链路补失败路径与边界断言。
-- **失败路径断言**:
-  - 外部 API 端点：8 条（权限校验、无效请求体、服务异常传播、导入确认拒绝、阻塞拒绝、view 别名校验）
-  - CLI 图片迁移：5 条（缺少授权、上传异常、429 重试逻辑、重试耗尽、非 429 不重试）
-- **验收对照**: ≥6 条（实际 13+）；覆盖 ≥2 个模块（实际 4+）；coverage 基线不回退。
-
-### 4. ESLint/类型债 — ≥3 组窄切片 (P1)
-
-- **执行范围**: 继续「单规则 + 单文件/双文件」窄切片，聚焦 `@typescript-eslint/no-explicit-any`。
-- **收敛切片**:
-  - 切片 1：`server/utils/validate-api-key.ts` — no-explicit-any 收敛
-  - 切片 2：`server/utils/translation.ts` — no-explicit-any 收敛
-  - 切片 3：`types/ai.ts` — no-explicit-any 收敛
-- **验收对照**: 3 组切片完成；`warning=0`、`exemption=0`；eslint-debt-targets.mjs 已纳入目标文件。
-
-### 5. 结构复用热点切片 (P1) — 延期至 Phase 58
-
-- **当前状态**: 未开始实施，移至第五十八阶段继续。
-- **原因**: 阶段容量约束，优先保障两条迁移增强主线和两条治理切片交付。
-
-### 阶段收口检查清单
-
-- [x] `todo.md` 当前阶段已完成条目清理
-- [x] `roadmap.md` 已同步阶段状态
-- [x] 多语路线图已同步（en-US 摘要）
-- [x] 文档检查已执行（`pnpm lint:md`、`check-i18n-duplicates`、`check-source-of-truth`）
-- [x] 主干质量门通过（typecheck + lint）
 
 ---
 
@@ -730,6 +613,10 @@
 | **44** | 2026-06-07 | 友链 RSS 聚合（Blogroll Feed）；Umami 评估条件性 Go；ESLint / 类型债 3 组窄切片；结构复用 2 组热点切片；CWV 性能优化；Phase 44 测试回填 |
 | **43** | 2026-06-05 | AI 内容多格式复用（Twitter/LinkedIn）；ESLint / 类型债 3 组窄切片；结构复用治理；Windows Dev/Build 性能治理；i18n duplicates 收敛 |
 | **42** | 2026-06-04 | CWV 基线建立；AI 内容审计评分徽章；内容日历与编辑排期；ESLint / 类型债 3 组窄切片；结构复用 3 组热点切片 |
+
+---
+
+
 
 ---
 
