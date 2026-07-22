@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-07-20
+last_sync: 2026-07-22
 translation_tier: summary-sync
 ---
 
@@ -44,7 +44,8 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 54 has now been audited and archived**: CLI/MCP API client reuse optimization Stage 1 (CLI +3, MCP +4 methods), structural reuse deep water (single-function file consolidation + logical duplicate detection script detecting 467 functions/40 candidates), ESLint/type-debt governance (rule debt inventory script + 3 narrow slices), test effectiveness second-round slice (6 new failure-path assertions across 3 modules), and script governance (eslint-debt escalation to regression:weekly + comment-drift false positive fix).
 - **Stage 55 has now been audited and archived**: CLI/MCP Stage 2 external API expansion (4 REST groups + snippet convert + post versions, CLI +15, MCP +16), AI fallback provider chain with transparent degradation switching, structural reuse logical duplicate convergence (2 abstraction slices, duplicate-code 0.33% < baseline 1.22%), ESLint/type-debt 3 narrow slices (social-post-platforms non-null-assertion, nuxt.config.ts explicit-any, admin-taxonomy-page explicit-any, 22 issues eliminated), and test effectiveness round 3 (7 new failure-path assertions across 3 modules).
 - **Stage 56 has now been audited and archived**: Shared API client library extraction (`packages/api-client` with `MomeiHttpClient` + 7 domain modules + 29 tests, CLI/MCP axios removal), CLI export command (`momei export` with Hexo-compatible Front-matter + filter params + JSON output), ESLint/type-debt 3 narrow slices (`submission.ts`, `settings.vue`, `commercial-link-manager.vue` no-explicit-any eliminated), structural reuse 2 hotspot slices (`prepareSplitContent` + `parseTranslateBody` shared functions, duplicate-code 0.30%), and test effectiveness round 4 (6 new error-path assertions across 2 modules: translate + tts-task-get).
-- **Stage 57 (in progress)**: Migration UX enhancement (local image auto-upload, metadata field expansion for `updatedAt`), test effectiveness round 5 (8+ failure-path assertions covering 4 modules), ESLint/type-debt 3 narrow slices, structural reuse still pending. 4/5 tracks completed.
+- **Stage 57 has now been audited and archived**: Migration UX enhancement (local image auto-upload + `updatedAt` metadata expansion), test effectiveness round 5 (13+ failure-path assertions covering 4 modules), ESLint/type-debt 3 narrow slices (validate-api-key, translation, types/ai). Structural reuse deferred to Stage 58.
+- **Stage 58 has now been audited and archived**: MCP HTTP transport and mount (`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`), RSS feed beautification (`feed-style.css` + `injectRssStylesheet`), structural reuse 2 api-client type convergence slices (enum derivation + interface rename, duplicate-code 0.31%), ESLint/type-debt governance cycle closure (NO_EXPLICIT_ANY_FILES exhausted, TypeScript rule baseline report), test effectiveness round 6 (12 failure-path assertions covering 3 modules: feed utils, feed-taxonomy-route, MCP endpoint).
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview

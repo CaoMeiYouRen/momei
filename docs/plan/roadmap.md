@@ -611,41 +611,16 @@
 
 > 第五十七阶段已完成归档，详细记录见 [待办归档](./todo-archive.md#第五十七阶段迁移体验增强与治理续航-已完成归档)。结构复用主线因容量限制延期至第五十八阶段。
 
-### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）（规划中）
+### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）（已审计归档）
 
-**时间表**: 2026-07-20 ~ 约 1-2 周
-**目标**: 在第五十七阶段完成迁移体验增强与治理续航后，以「2 个新功能 + 3 个治理延续」组合推进：MCP HTTP 传输与本体挂载作为基础设施增强，RSS 订阅链接美化作为展示体验优化，三条长期治理主线（结构复用、ESLint/类型债、测试有效性）延续小步快跑节奏。
+**时间表**: 2026-07-20 ~ 2026-07-22（3 天，密集交付）
+**目标**: 以「2 个新功能 + 3 个治理延续」组合推进：MCP HTTP 传输与本体挂载作为基础设施增强，RSS 订阅链接美化作为展示体验优化，三条长期治理主线（结构复用、ESLint/类型债、测试有效性）延续小步快跑节奏。
 
 **准入结论**: 五条主线均来自 backlog 已验证候选或长期主线延续，容量控制在 `5` 项内，符合规划规范。MCP HTTP 已完成设计文档和全部决策确认；RSS 美化范围明确、改动量小（~2h）；三条治理主线均有成熟脚本基线，实施面聚焦且回滚边界清晰。
 
 **ROI 评估**: MCP HTTP 传输与本体挂载 `1.40`；RSS 订阅链接美化 `1.30`；结构复用热点切片 `1.60`；ESLint/类型债窄切片 `1.50`；测试有效性第六轮 `1.50`。
 
-1. **主线：MCP HTTP 传输与本体挂载（P2）**:
-    - **执行范围**: 新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`。新增 `MOMEI_ENABLE_MCP_HTTP` 环境变量（默认 false）。根依赖新增 `@modelcontextprotocol/sdk`。复用现有外部 API Key 鉴权和速率限制。Serverless 环境静默降级。
-    - **非目标**: 不替换现有 stdio 模式，双模式共存；不做 MCP 共享层抽取；不新增独立端口。
-    - **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
-    - **最小验收**: `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用；未设置时不加载 SDK；Serverless 静默降级不阻塞；API Key 缺失返回 401；`pnpm typecheck` + `pnpm lint` 通过。
-
-2. **主线：RSS 订阅链接美化（P2）**:
-    - **执行范围**: 在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
-    - **非目标**: 不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
-    - **设计文档**: [`docs/design/modules/rss-beautification.md`](../design/modules/rss-beautification.md)
-    - **最小验收**: 浏览器访问 `/feed.xml` 显示美化样式而非原始 XML；响应式设计；RSS 阅读器正常解析；`pnpm typecheck` + `pnpm lint` 通过。
-
-3. **主线：结构复用下一轮热点切片（P1）**:
-    - **执行范围**: 承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复，优先迁移工具链路中复用收益高的候选点。
-    - **非目标**: 不做跨模块大重构，不为抽象而抽象。
-    - **最小验收**: 完成 ≥2 组热点切片；`pnpm duplicate-code:check` 基线不反弹；每组切片保留原始重复点、抽象边界与回滚方式。
-
-4. **主线：ESLint / 类型债下一轮窄切片（P1）**:
-    - **执行范围**: 继续「单规则 + 单文件/双文件」窄切片策略，优先选择命中集中且回滚边界清晰的生产文件。保持 `warning=0`。
-    - **非目标**: 不扩写为全仓 `any` 清零，不新增规则族大范围治理。
-    - **最小验收**: 完成 ≥3 组窄切片；`warning=0` 保持；`pnpm governance:audit:eslint-debt` delta 可对照。
-
-5. **主线：测试有效性第六轮切片（P1）**:
-    - **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径（MCP HTTP 端点、RSS feed 路由等）。
-    - **非目标**: 不做 coverage 数字冲刺，不做低价值铺量补测。
-    - **最小验收**: 新增失败路径断言 ≥5 条；覆盖模块 ≥2 个；coverage 基线不回退。
+**审计结论**: 第五十八阶段五条主线已在实现代码、测试、设计文档与规划文档中完成闭环。MCP HTTP 传输（`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`）与 RSS 订阅链接美化（`public/feed-style.css` + `injectRssStylesheet`）两条新功能主线均已交付；结构复用完成 2 组 api-client 类型收敛切片，duplicate-code 基线 0.31% 未反弹；ESLint/类型债完成治理循环关闭（全量 TypeScript 规则基线扫描报告落盘，NO_EXPLICIT_ANY_FILES 目标文件全部清零）；测试有效性第六轮完成 12 个失败路径断言（feed utils 5 + feed-taxonomy-route 3 + MCP endpoint 4）。`pnpm typecheck` + `pnpm lint` 通过，Code Auditor 审计问题已修复并提交。归档记录已写入 todo-archive.md。
 
 ## 3. 相关文档
 

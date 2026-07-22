@@ -597,6 +597,71 @@
 
 ---
 
+## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）
+
+> 归档说明: 第五十八阶段「2 新功能 + 3 治理延续」已于 2026-07-22 完成五条主线交付与阶段收口。两条新功能主线（MCP HTTP 传输与本体挂载、RSS 订阅链接美化）均已实施并通过验证；结构复用主线承接 Phase 57 延期项，完成 api-client 类型枚举收敛 + 接口重命名 2 组热点切片；ESLint/类型债主线关闭已完成治理循环（NO_EXPLICIT_ANY_FILES 全部 65+ 项已在前序阶段收敛，豁免列表清零，全量 TypeScript 规则基线报告落盘）；测试有效性第六轮切片完成 12 个失败路径断言，覆盖 3 个模块（feed utils、feed-taxonomy-route、MCP endpoint）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: MCP HTTP 传输与本体挂载 1.40；RSS 订阅链接美化 1.30；结构复用热点切片 1.60；ESLint/类型债窄切片 1.50；测试有效性第六轮 1.50。
+
+### 1. MCP HTTP 传输与本体挂载 (P2)
+
+- **执行范围**: 新增 `server/plugins/mcp-http.ts`（Nitro Plugin），条件守卫 + 动态导入 `@modelcontextprotocol/sdk`，使用 `StreamableHTTPServerTransport` 处理 `GET/POST/DELETE /api/mcp`。新增 `MOMEI_ENABLE_MCP_HTTP` 环境变量（默认 false）。根依赖新增 `@modelcontextprotocol/sdk`。复用外部 API Key 鉴权。Serverless 环境静默降级。
+- **非目标**: 不替换现有 stdio 模式，双模式共存；不做 MCP 共享层抽取；不新增独立端口。
+- **实现对照**:
+  - `server/plugins/mcp-http.ts`：Nitro 插件，条件守卫 + 动态导入 SDK + `StreamableHTTPServerTransport`
+  - `server/api/mcp/index.ts`：MCP HTTP 端点路由，GET/POST/DELETE 处理
+  - `server/api/mcp/index.test.ts`：覆盖 401 鉴权失败、Web Request 构造、GET 跳过 body、null body 返回
+- **验收对照**: ✅ `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用；✅ 未设置时不加载 SDK（零冷启动影响）；✅ Serverless 环境静默降级；✅ API Key 缺失返回 401；✅ `pnpm typecheck` + `pnpm lint` 通过。
+- **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
+
+### 2. RSS 订阅链接美化 (P2)
+
+- **执行范围**: 在 RSS feed 输出 XML 头部添加 `<?xml-stylesheet?>` 指令指向 CSS 样式文件（`/feed-style.css`），使浏览器直接访问 RSS 时显示美观的 HTML 样式页面。CSS 支持响应式设计，保留 RSS 阅读器正常解析能力。
+- **非目标**: 不改变 feed 内容结构、不引入 JavaScript 交互、不做完整 RSS 阅读器。
+- **实现对照**:
+  - `public/feed-style.css`：新增 RSS 显示美化样式（响应式设计）
+  - `server/utils/feed.ts`：新增 `injectRssStylesheet` 函数
+  - `server/routes/feed.xml.ts` + `server/routes/feed/podcast.xml.ts` + `server/utils/feed-taxonomy-route.ts`：集成样式注入
+- **验收对照**: ✅ 浏览器访问 `/feed.xml` 时显示美化样式而非原始 XML；✅ 响应式设计移动端可用；✅ RSS 阅读器仍能正常解析；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 现有 12 条 feed 测试全部通过。
+- **设计文档**: [`docs/design/modules/rss-beautification.md`](../design/modules/rss-beautification.md)
+
+### 3. 结构复用下一轮热点切片 — Phase 57 延续 (P1)
+
+- **执行范围**: 承接 Phase 57 未完成的结构复用主线，继续收敛高频重复逻辑与轻量类型重复。
+- **收敛切片**:
+  - Slice 1：`MomeiPostStatus`/`MomeiPostVisibility` 从 `string` union 改为 `enum` 派生类型，与主项目 `types/post.ts` 规范值自动对齐
+  - Slice 2：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata`、`MomeiPublishIntent` → `PublishIntent`（保留类型别名向后兼容 + `@deprecated` 标记）
+- **涉及文件**: `packages/api-client/src/types.ts`
+- **验收对照**: ✅ 完成 ≥2 组热点切片；✅ `duplicate-code` 基线不反弹（45 clones, 0.31%）；✅ `pnpm typecheck` + `pnpm lint` + api-client `29/29 tests` 全部通过。
+
+### 4. ESLint / 类型债下一轮窄切片 — 治理循环关闭 (P1)
+
+- **执行范围**: 确认 `NO_EXPLICIT_ANY_FILES` 全部 65+ 项已在前序阶段（Phase 51-57）逐批收敛完毕，本轮不做新切片而是关闭已完成的治理循环。
+- **关键交付**:
+  - 全量 TypeScript 规则基线扫描报告：`docs/reports/eslint-typescript-baseline.md`（覆盖 9 条已禁用规则的数据基线，供后续阶段决策参考）
+  - NO_EXPLICIT_ANY_FILES 中 47 个目标文件全部清零（as any 使用量降为 0）
+- **涉及文件**: `scripts/governance/eslint-debt-targets.mjs`（清理已失效分组变量）、`eslint.config.js`（条件展开 override）
+- **验收对照**: ✅ 全部 65+ 项已确认收敛完毕；✅ `warning=0` 保持；✅ `pnpm typecheck` + `eslint types/ad.ts` 0 warning 通过；✅ `duplicate-code` 基线不反弹。
+
+### 5. 测试有效性第六轮切片 (P1)
+
+- **执行范围**: 围绕已有测试基座但失败路径不足的高风险链路补断言，优先覆盖 Phase 58 新增代码路径。
+- **失败路径断言**:
+  - `server/utils/feed.test.ts`：`injectRssStylesheet` 5 条测试（主路径/回退路径/自定义 href/内容顺序）
+  - `server/utils/feed-taxonomy-route.test.ts`：3 条样式注入条件断言（rss2 注入 / atom 不注入 / json 不注入）
+  - `server/api/mcp/index.test.ts`：4 条失败路径+行为验证（401 鉴权失败/Web Request 正确构造/GET 跳过 body/null body 返回）
+- **验收对照**: ✅ 新增失败路径断言 ≥5 条（实际 12 条）；✅ 覆盖模块 ≥3 个（feed utils、feed-taxonomy-route、MCP endpoint）；✅ `pnpm test` 通过。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm lint:md`、`pnpm typecheck` 通过
+- [x] 主干质量门通过（typecheck + lint + test）
+
+---
+
 ## 第五十七阶段：迁移体验增强与治理续航（已完成归档）
 
 > 归档说明: 第五十七阶段「2 新功能 + 3 优化」已完成 4/5 主线交付。两条迁移增强主线（本地图片自动上传、迁移元数据字段扩展）已完整实施并通过验证；测试有效性第五轮切片（8+ 失败路径断言）、ESLint/类型债 ≥3 组窄切片均已交付。结构复用主线因容量限制延期至第五十八阶段继续。
