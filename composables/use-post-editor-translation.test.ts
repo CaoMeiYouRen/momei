@@ -23,10 +23,12 @@ const { mockFetch, mockNavigateTo } = vi.hoisted(() => ({
 
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
 beforeEach(() => {
     mockNavigateTo.mockReset()
     mockFetch.mockReset()
-    vi.stubGlobal('$fetch', mockFetch)
 })
 
 function createPostEditorState(language = 'en-US') {

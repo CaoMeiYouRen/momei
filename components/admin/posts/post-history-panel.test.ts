@@ -6,9 +6,14 @@ import PostHistoryPanel from './post-history-panel.vue'
 import { PostVisibility } from '@/types/post'
 import { PostVersionDiffField, PostVersionSource } from '@/types/post-version'
 
-const mockAppFetch = vi.fn()
-const mockToastAdd = vi.fn()
-const mockConfirmRequire = vi.fn(({ accept }: { accept?: () => void }) => accept?.())
+const { mockAppFetch, mockToastAdd, mockConfirmRequire } = vi.hoisted(() => ({
+    mockAppFetch: vi.fn(),
+    mockToastAdd: vi.fn(),
+    mockConfirmRequire: vi.fn(({ accept }: { accept?: () => void }) => accept?.()),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockAppFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockAppFetch }))
 
 vi.mock('primevue/usetoast', async (importOriginal) => {
     const actual = await importOriginal<typeof import('primevue/usetoast')>()
@@ -48,8 +53,6 @@ vi.mock('@/composables/use-i18n-date', () => ({
         formatDateTime: (value: string) => value,
     }),
 }))
-
-vi.stubGlobal('$fetch', mockAppFetch)
 
 const SelectStub = defineComponent({
     props: {

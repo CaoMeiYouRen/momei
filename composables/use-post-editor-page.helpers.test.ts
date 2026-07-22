@@ -17,10 +17,14 @@ import {
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 
-const fetchMock = vi.fn()
-const navigateToMock = vi.fn()
+const { fetchMock, navigateToMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+    navigateToMock: vi.fn(),
+}))
 
-vi.stubGlobal('$fetch', fetchMock)
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 vi.stubGlobal('navigateTo', navigateToMock)
 
 beforeEach(() => {

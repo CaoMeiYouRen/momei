@@ -51,6 +51,9 @@ vi.mock('primevue/useconfirm', async (importOriginal) => {
     }
 })
 
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 function installDefaultFetchMock() {
     fetchMock.mockImplementation((url: string, options?: { method?: string, body?: unknown, query?: unknown }) => {
         if (url === '/api/admin/friend-links' && !options?.method) {
@@ -118,7 +121,6 @@ const Harness = defineComponent({
 })
 
 async function mountComposable() {
-    vi.stubGlobal('$fetch', fetchMock)
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
 
     const wrapper = await mountSuspended(Harness)
@@ -156,7 +158,6 @@ describe('useAdminFriendLinksPage', () => {
     it('handles initial load failure with error toast and empty state', async () => {
         fetchMock.mockRejectedValue(new Error('Network error'))
 
-        vi.stubGlobal('$fetch', fetchMock)
         const wrapper = await mountSuspended(Harness)
         const exposed = (wrapper.vm as any).$?.exposed as ReturnType<typeof useAdminFriendLinksPage>
 
@@ -216,7 +217,6 @@ describe('useAdminFriendLinksPage', () => {
             return { data: { items: [] } }
         })
 
-        vi.stubGlobal('$fetch', fetchMock)
         const wrapper = await mountSuspended(Harness)
         const exposed = (wrapper.vm as any).$?.exposed as ReturnType<typeof useAdminFriendLinksPage>
 

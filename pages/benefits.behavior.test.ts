@@ -21,6 +21,9 @@ vi.mock('@/lib/auth-client', () => ({
     },
 }))
 
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => key,
     tm: (key: string) => {
@@ -69,7 +72,6 @@ describe('BenefitsPage form behavior', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         sessionRef.value = null
-        vi.stubGlobal('$fetch', fetchMock)
         fetchMock.mockResolvedValue({
             code: 200,
         })

@@ -60,8 +60,13 @@ const stubs = {
     ConfirmDeleteDialog: { template: '<div class="confirm-delete-dialog" />', props: ['visible', 'title', 'message'] },
 }
 
-const loadData = vi.fn()
-const fetchMock: any = vi.fn(() => Promise.resolve({ data: { items: [] } }))
+const { fetchMock, loadData } = vi.hoisted(() => ({
+    fetchMock: vi.fn(() => Promise.resolve({ data: { items: [] } })),
+    loadData: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 vi.stubGlobal('useI18n', () => ({
     t: (key: string) => key,
@@ -92,7 +97,6 @@ vi.stubGlobal('useAdminList', () => ({
     onFilterChange: vi.fn(),
     refresh: loadData,
 }))
-vi.stubGlobal('$fetch', fetchMock)
 
 const taxonomySchema = z.object({
     id: z.string().nullable().optional(),
@@ -168,7 +172,7 @@ describe('AdminTaxonomyPage', () => {
                             parentId: null,
                         }],
                     },
-                })
+                } as any)
             }
 
             return Promise.resolve({ data: { items: [] } })

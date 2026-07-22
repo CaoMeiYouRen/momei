@@ -13,7 +13,9 @@ const mockToast = {
     add: vi.fn(),
 }
 
-const mockFetch = vi.fn()
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
 const mockIsPureEnglish = vi.fn()
 
 mockNuxtImport('useI18n', () => () => ({

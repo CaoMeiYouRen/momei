@@ -4,6 +4,13 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const mockLocale = ref('zh-CN')
 
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
 const mockT = vi.fn((key: string) => {
     const translations: Record<string, string> = {
         'app.name': 'Momei Blog',
@@ -17,10 +24,6 @@ mockNuxtImport('useI18n', () => () => ({
     t: mockT,
     locale: mockLocale,
 }))
-
-// Mock $fetch
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
 
 import { useMomeiConfig } from './use-momei-config'
 

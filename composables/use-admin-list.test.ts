@@ -2,9 +2,15 @@ import { defineComponent, nextTick, reactive, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+const { fetchMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 const mockLocale = ref('zh-CN')
 const mockContentLanguage = ref<string | null>('en-US')
-const fetchMock = vi.fn()
 
 mockNuxtImport('useI18n', () => () => ({
     locale: mockLocale,
@@ -15,8 +21,6 @@ vi.mock('./use-admin-i18n', () => ({
         contentLanguage: mockContentLanguage,
     }),
 }))
-
-vi.stubGlobal('$fetch', fetchMock)
 
 import { useAdminList } from './use-admin-list'
 

@@ -37,7 +37,9 @@ vi.mock('primevue/usetoast', async (importOriginal) => ({
 }))
 
 // Shared $fetch mock (Nuxt auto-import)
-const mockFetch = vi.fn()
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
 mockNuxtImport('$fetch', () => mockFetch)
 
 describe('CommentForm', () => {

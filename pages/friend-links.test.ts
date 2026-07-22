@@ -50,11 +50,17 @@ const createDefaultLinksData = (): TestFriendLinksData => ({
     groups: [],
 })
 
-const mockRefreshMeta = vi.fn()
-const mockRefreshLinks = vi.fn()
-const mockToastAdd = vi.fn()
-const mockFetch = vi.fn()
-const mockUsePageSeo = vi.fn()
+const { mockRefreshMeta, mockRefreshLinks, mockToastAdd, mockFetch, mockUsePageSeo } = vi.hoisted(() => ({
+    mockRefreshMeta: vi.fn(),
+    mockRefreshLinks: vi.fn(),
+    mockToastAdd: vi.fn(),
+    mockFetch: vi.fn(),
+    mockUsePageSeo: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
 const mockAsyncDataMode = ref<'stub' | 'handler'>('stub')
 const mockSession = ref<{
     data: {
@@ -86,8 +92,6 @@ const mockRuntimeConfig: {
 }
 const mockMetaData = ref<TestFriendLinksMeta>(createDefaultMeta())
 const mockLinksData = ref<TestFriendLinksData>(createDefaultLinksData())
-
-vi.stubGlobal('$fetch', mockFetch)
 
 const translations: Record<string, string> = {
     'common.friend_links': 'Friend Links',
@@ -205,7 +209,6 @@ const stubs = {
 describe('FriendLinksPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.stubGlobal('$fetch', mockFetch)
         mockFetch.mockReset()
         mockUsePageSeo.mockReset()
         mockAsyncDataMode.value = 'stub'

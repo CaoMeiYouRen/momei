@@ -33,7 +33,8 @@ vi.mock('dom-to-image-more', () => ({
     },
 }))
 
-vi.stubGlobal('$fetch', fetchMock)
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 const stubs = {
     Dialog: {

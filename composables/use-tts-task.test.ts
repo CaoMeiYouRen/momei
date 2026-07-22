@@ -1,13 +1,17 @@
 import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { intervalState } = vi.hoisted(() => ({
+const { intervalState, fetchMock } = vi.hoisted(() => ({
     intervalState: {
         callback: null as null | (() => void),
         pause: vi.fn(),
         resume: vi.fn(),
     },
+    fetchMock: vi.fn(),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 vi.mock('@vueuse/core', () => ({
     useIntervalFn: (callback: () => void) => {
@@ -18,9 +22,6 @@ vi.mock('@vueuse/core', () => ({
         }
     },
 }))
-
-const fetchMock = vi.fn()
-vi.stubGlobal('$fetch', fetchMock)
 
 import { useTTSTask } from './use-tts-task'
 

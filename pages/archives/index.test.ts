@@ -39,13 +39,16 @@ mockNuxtImport('usePageSeo', () => (...args: Parameters<typeof mockUsePageSeo>) 
 mockNuxtImport('useState', () => () => showSummaryState)
 
 // Mock dependencies
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
 vi.mock('@/composables/use-app-fetch', () => ({
     useAppFetch: vi.fn(),
 }))
-
-// Mock global $fetch
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
 
 const mockArchiveData = {
     data: [

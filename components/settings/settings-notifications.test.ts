@@ -30,6 +30,9 @@ const {
     toastAddMock: vi.fn(),
 }))
 
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => key,
     locale: {
@@ -262,7 +265,6 @@ async function mountComponent() {
 describe('SettingsNotifications', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.stubGlobal('$fetch', fetchMock)
         siteConfigRef.value = {
             webPushEnabled: false,
             webPushPublicKey: '',

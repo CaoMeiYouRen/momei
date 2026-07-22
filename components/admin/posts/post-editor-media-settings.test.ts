@@ -6,9 +6,14 @@ import PostEditorMediaSettings from './post-editor-media-settings.vue'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 
-const mockFetch = vi.fn()
-const mockShowErrorToast = vi.fn()
-const mockShowSuccessToast = vi.fn()
+const { mockFetch, mockShowErrorToast, mockShowSuccessToast } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+    mockShowErrorToast: vi.fn(),
+    mockShowSuccessToast: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 const AppUploaderStub = defineComponent({
     name: 'AppUploader',
@@ -90,7 +95,6 @@ const PostTtsDialogStub = defineComponent({
     template: '<div class="post-tts-dialog-stub"></div>',
 })
 
-vi.stubGlobal('$fetch', mockFetch)
 vi.stubGlobal('useRequestFeedback', () => ({
     showErrorToast: mockShowErrorToast,
     showSuccessToast: mockShowSuccessToast,

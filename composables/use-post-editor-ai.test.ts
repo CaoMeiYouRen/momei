@@ -1,8 +1,13 @@
 import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockToastAdd = vi.fn()
-const mockFetch = vi.fn()
+const { mockFetch, mockToastAdd } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+    mockToastAdd: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 vi.mock('vue-i18n', async (importOriginal) => {
     const actual = await importOriginal<typeof import('vue-i18n')>()
@@ -34,8 +39,6 @@ vi.mock('@vueuse/core', () => ({
         }),
     }),
 }))
-
-vi.stubGlobal('$fetch', mockFetch)
 
 import { usePostEditorAI } from './use-post-editor-ai'
 

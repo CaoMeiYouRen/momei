@@ -3,10 +3,15 @@ import { defineComponent, nextTick } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SubmitPage from './submit.vue'
 
-const fetchMock = vi.fn()
-const toastAddMock = vi.fn()
-const usePageSeoMock = vi.fn()
-const resetCaptchaMock = vi.fn()
+const { fetchMock, toastAddMock, usePageSeoMock, resetCaptchaMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+    toastAddMock: vi.fn(),
+    usePageSeoMock: vi.fn(),
+    resetCaptchaMock: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 const routeState = {
     query: {} as Record<string, unknown>,
@@ -165,7 +170,6 @@ describe('SubmitPage', () => {
             siteKey: 'submit-site-key',
         }
         fetchMock.mockResolvedValue({ code: 200 })
-        vi.stubGlobal('$fetch', fetchMock)
     })
 
     it('renders localized copy and configures SEO without raw keys', async () => {

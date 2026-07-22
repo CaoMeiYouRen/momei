@@ -1,16 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SiliconFlowASRProvider } from './asr-siliconflow'
 
-const fetchMock = vi.fn()
+const { fetchMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 describe('siliconflow asr provider', () => {
     beforeEach(() => {
         fetchMock.mockReset()
-        vi.stubGlobal('$fetch', fetchMock)
     })
 
     afterEach(() => {
-        vi.unstubAllGlobals()
         vi.restoreAllMocks()
     })
 

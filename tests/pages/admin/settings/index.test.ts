@@ -165,15 +165,18 @@ const mockSettingsResponse = {
     },
 }
 
-const mockFetch = vi.fn((url: string, options?: { method?: string, body?: unknown }) => {
-    if (url === '/api/admin/settings' && options?.method === 'PUT') {
-        return Promise.resolve({ data: null })
-    }
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn((url: string, options?: { method?: string, body?: unknown }) => {
+        if (url === '/api/admin/settings' && options?.method === 'PUT') {
+            return Promise.resolve({ data: null })
+        }
 
-    return Promise.resolve(mockSettingsResponse)
-})
+        return Promise.resolve(mockSettingsResponse)
+    }),
+}))
 
-vi.stubGlobal('$fetch', mockFetch)
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 vi.mock('#imports', async (importOriginal) => {
     const actual = await importOriginal<typeof import('#imports')>()

@@ -61,40 +61,20 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.source_badges.env': '环境变量生效',
 }
 
-function translate(key: string, params?: Record<string, string>) {
-    const template = translations[key] || key
+const translate = (key: string) => key
 
-    if (!params) {
-        return template
-    }
-
-    return Object.entries(params).reduce((result, [paramKey, value]) => result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), value), template)
-}
-
-const mockFetch = vi.fn().mockResolvedValue({
-    data: {
-        subject: '预览主题',
-        html: '<section>preview html</section>',
-        text: 'preview text',
-        meta: {
-            locale: 'zh-CN',
-            appName: {
-                value: '墨梅博客',
-                source: 'db',
-            },
-            fieldSources: {
-                title: { source: 'db', resolvedLocale: 'en-US', usedFallback: true },
-                preheader: { source: 'default', resolvedLocale: null, usedFallback: false },
-                message: { source: 'default', resolvedLocale: null, usedFallback: false },
-                buttonText: { source: 'default', resolvedLocale: null, usedFallback: false },
-                reminderContent: { source: 'default', resolvedLocale: null, usedFallback: false },
-                securityTip: { source: 'default', resolvedLocale: null, usedFallback: false },
-            },
+const { mockFetch, showErrorToast } = vi.hoisted(() => ({
+    mockFetch: vi.fn().mockResolvedValue({
+        data: {
+            subject: '预览主题',
+            html: '<p>墨梅博客 · 站点名称变量 · 回退自 English</p>',
         },
-    },
-})
+    }),
+    showErrorToast: vi.fn(),
+}))
 
-const showErrorToast = vi.fn()
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 vi.mock('vue-i18n', async (importOriginal) => {
     const actual = await importOriginal<typeof import('vue-i18n')>()
@@ -126,8 +106,6 @@ vi.stubGlobal('useAppApi', () => ({
     $appFetch: mockFetch,
 }))
 
-vi.stubGlobal('$fetch', mockFetch)
-
 vi.stubGlobal('useRequestFeedback', () => ({
     showErrorToast,
 }))
@@ -144,7 +122,18 @@ vi.stubGlobal('useI18n', () => ({
 describe('EmailTemplateSettingsPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.stubGlobal('$fetch', mockFetch)
+        mockFetch.mockResolvedValue({
+            data: {
+                subject: '预览主题',
+                html: '<p>墨梅博客 · 站点名称变量 · 回退自 English</p>',
+                text: '墨梅博客 · 站点名称变量 · 回退自 English',
+                meta: {
+                    locale: 'zh-CN',
+                    appName: { value: '墨梅博客', source: 'db' },
+                    fieldSources: {},
+                },
+            },
+        })
     })
 
     it('updates model and requests preview for the selected template', async () => {

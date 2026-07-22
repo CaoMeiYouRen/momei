@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mockToastAdd = vi.fn()
-const mockUploadFile = vi.fn()
-const mockFetch = vi.fn()
+const { mockFetch, mockToastAdd, mockUploadFile } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+    mockToastAdd: vi.fn(),
+    mockUploadFile: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 // ---- WebSocket Mock ----
 
@@ -60,7 +65,6 @@ class MockWebSocket {
 }
 
 vi.stubGlobal('WebSocket', MockWebSocket)
-vi.stubGlobal('$fetch', mockFetch)
 vi.stubGlobal('crypto', {
     randomUUID: () => 'uuid-1',
 })

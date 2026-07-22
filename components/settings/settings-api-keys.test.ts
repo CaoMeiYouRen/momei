@@ -129,10 +129,12 @@ async function mountComponent() {
     })
 }
 
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 describe('SettingsApiKeys', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.stubGlobal('$fetch', fetchMock)
         Object.defineProperty(navigator, 'clipboard', {
             configurable: true,
             value: {

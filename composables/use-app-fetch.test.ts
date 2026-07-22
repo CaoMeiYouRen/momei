@@ -4,7 +4,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const sharedLocale = ref('zh-CN')
 
-const { mockUseFetch } = vi.hoisted(() => ({
+const { mockUseFetch, mockFetch } = vi.hoisted(() => ({
     mockUseFetch: vi.fn((url: any, options: any) => ({
         data: ref(null),
         pending: ref(false),
@@ -13,7 +13,11 @@ const { mockUseFetch } = vi.hoisted(() => ({
         url,
         options,
     })),
+    mockFetch: vi.fn(),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 mockNuxtImport('useI18n', () => () => ({
     locale: sharedLocale,
@@ -22,7 +26,6 @@ mockNuxtImport('useI18n', () => () => ({
 mockNuxtImport('useFetch', () => mockUseFetch)
 
 // $fetch 比较特殊，它是 ofetch 提供的
-vi.stubGlobal('$fetch', vi.fn())
 
 import { useAppApi, useAppFetch } from './use-app-fetch'
 
@@ -92,7 +95,7 @@ describe('useAppApi', () => {
         const { $appFetch } = useAppApi()
         await $appFetch('/api/posts')
 
-        expect(globalThis.$fetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
+        expect(mockFetch).toHaveBeenCalledWith('/api/posts', expect.objectContaining({
             query: expect.objectContaining({
                 language: 'en-US',
             }),
@@ -110,7 +113,7 @@ describe('useAppApi', () => {
             },
         })
 
-        expect(globalThis.$fetch).toHaveBeenCalledWith('/api/admin/agreements', expect.objectContaining({
+        expect(mockFetch).toHaveBeenCalledWith('/api/admin/agreements', expect.objectContaining({
             query: {
                 type: 'user_agreement',
                 language: undefined,

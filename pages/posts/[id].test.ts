@@ -3,18 +3,25 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import PostDetailPage from './[id].vue'
 
-const { mockUsePageSeo } = vi.hoisted(() => ({
+const {
+    mockPostFetch,
+    mockUsePageSeo,
+    mockUseHead,
+    navigateToMock,
+} = vi.hoisted(() => ({
+    mockPostFetch: vi.fn(),
     mockUsePageSeo: vi.fn(),
-}))
-const { mockUseHead, navigateToMock } = vi.hoisted(() => ({
     mockUseHead: vi.fn(),
     navigateToMock: vi.fn(),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: mockPostFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockPostFetch }))
+
 const mockFetchPending = ref(false)
 const mockFetchError = ref<any>(null)
 const mockRefresh = vi.fn(() => Promise.resolve())
 const mockFetchData = ref<{ data: any } | null>(null)
-const mockPostFetch = vi.fn()
 
 function createPostData(overrides: Record<string, any> = {}) {
     return {
@@ -243,8 +250,6 @@ vi.stubGlobal('usePageSeo', mockUsePageSeo)
 vi.stubGlobal('useHead', mockUseHead)
 vi.stubGlobal('useRequestURL', () => ({ href: 'http://localhost:3000/posts/test' }))
 vi.stubGlobal('onMounted', (fn: () => void) => fn())
-vi.stubGlobal('$fetch', mockPostFetch)
-
 describe('PostDetailPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()

@@ -30,13 +30,16 @@ vi.mock('@/server/utils/email/templates', () => ({
 
 import { getSettings } from '@/server/services/setting'
 
-describe('listmonk service', () => {
-    let fetchMock: ReturnType<typeof vi.fn>
+const { fetchMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+}))
 
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
+describe('listmonk service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        fetchMock = vi.fn()
-        vi.stubGlobal('$fetch', fetchMock)
         vi.mocked(getSettings).mockResolvedValue({
             [SettingKey.LISTMONK_ENABLED]: 'true',
             [SettingKey.LISTMONK_INSTANCE_URL]: 'https://listmonk.example.com',

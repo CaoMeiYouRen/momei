@@ -9,10 +9,15 @@ vi.mock('vue', async () => {
     }
 })
 
+const { fetchMock } = vi.hoisted(() => ({
+    fetchMock: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
+
 import { useASRDirect } from './use-asr-direct'
 import type { ASRCredentials } from '@/types/asr'
-
-const fetchMock = vi.fn()
 
 class MockWebSocket {
     static readonly CONNECTING = 0
@@ -113,12 +118,12 @@ describe('useASRDirect', () => {
     beforeEach(() => {
         MockWebSocket.instances = []
         fetchMock.mockReset()
-        vi.stubGlobal('$fetch', fetchMock)
         vi.stubGlobal('WebSocket', MockWebSocket)
     })
 
     afterEach(() => {
         vi.unstubAllGlobals()
+        vi.restoreAllMocks()
     })
 
     it('ignores stale socket close events after a reconnect succeeds', async () => {

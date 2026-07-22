@@ -4,8 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import PostTTSDialog from './post-tts-dialog.vue'
 
-const mockAppFetch = vi.fn()
-const mockResolveErrorMessage = vi.fn(() => 'fallback error')
+const { mockAppFetch, mockResolveErrorMessage } = vi.hoisted(() => ({
+    mockAppFetch: vi.fn(),
+    mockResolveErrorMessage: vi.fn(() => 'fallback error'),
+}))
 const { mockGenerateAndUpload, directProgress, directError, directIsGenerating } = vi.hoisted(() => ({
     mockGenerateAndUpload: vi.fn(),
     directProgress: { value: 0 },
@@ -61,7 +63,8 @@ mockNuxtImport('useRequestFeedback', () => () => ({
     resolveErrorMessage: mockResolveErrorMessage,
 }))
 
-vi.stubGlobal('$fetch', mockAppFetch)
+vi.mock('ofetch', () => ({ $fetch: mockAppFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockAppFetch }))
 
 describe('PostTTSDialog', () => {
     beforeEach(() => {

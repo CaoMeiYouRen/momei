@@ -45,10 +45,15 @@ mockNuxtImport('useToast', () => () => ({
     add: mockToastAdd,
 }))
 
-vi.stubGlobal('$fetch', vi.fn().mockResolvedValue({
-    code: 200,
-    data: { url: 'https://cdn.momei.dev/avatar.png' },
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn().mockResolvedValue({
+        code: 200,
+        data: { url: 'https://cdn.momei.dev/avatar.png' },
+    }),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 const stubs = {
     AppAvatar: { template: '<div class="avatar-preview" />' },

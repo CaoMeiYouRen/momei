@@ -14,6 +14,13 @@ vi.mock('@/server/utils/ai')
 vi.mock('../upload')
 vi.mock('@/server/utils/logger')
 
+const { mockFetch: hoistedMockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: hoistedMockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: hoistedMockFetch }))
+
 describe('TextService', () => {
     let mockRepo: any
 
@@ -533,13 +540,11 @@ describe('TextService', () => {
         })
 
         it('should preserve provider context when using class-based chat providers', async () => {
-            const mockFetch = vi.fn().mockResolvedValue({
+            hoistedMockFetch.mockResolvedValue({
                 choices: [{ message: { content: '["技术","AI","开发"]' } }],
                 model: 'gpt-4o',
                 usage: { prompt_tokens: 8, completion_tokens: 6, total_tokens: 14 },
             })
-
-            vi.stubGlobal('$fetch', mockFetch)
 
             const provider = new OpenAIProvider({
                 enabled: true,
@@ -561,7 +566,7 @@ describe('TextService', () => {
             )
 
             expect(result).toEqual(['技术', 'AI', '开发'])
-            expect(mockFetch).toHaveBeenCalledWith(
+            expect(hoistedMockFetch).toHaveBeenCalledWith(
                 'https://api.openai.com/v1/chat/completions',
                 expect.objectContaining({
                     method: 'POST',

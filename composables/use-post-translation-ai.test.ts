@@ -109,16 +109,21 @@ function createChunkEvent(content: string, chunkIndex = 0, totalChunks = 1, isCh
     return createDataEvent({ content, chunkIndex, totalChunks, isChunkComplete })
 }
 
+const { apiFetchMock } = vi.hoisted(() => ({
+    apiFetchMock: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: apiFetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: apiFetchMock }))
+
 describe('usePostTranslationAI', () => {
     const fetchMock = vi.fn()
-    const apiFetchMock = vi.fn()
 
     beforeEach(() => {
         fetchMock.mockReset()
         apiFetchMock.mockReset()
         toastAdd.mockReset()
         vi.stubGlobal('fetch', fetchMock)
-        vi.stubGlobal('$fetch', apiFetchMock)
     })
 
     afterEach(() => {

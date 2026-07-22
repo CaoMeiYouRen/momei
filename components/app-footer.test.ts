@@ -3,7 +3,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AppFooter from './app-footer.vue'
 
-const mockFetch = vi.fn()
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
 const mockSiteConfig = ref({
     siteOperator: '',
     siteCopyrightOwner: '',

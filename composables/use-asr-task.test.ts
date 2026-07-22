@@ -1,13 +1,17 @@
 import { ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { intervalState } = vi.hoisted(() => ({
+const { intervalState, fetchMock } = vi.hoisted(() => ({
     intervalState: {
         callback: null as null | (() => void),
         pause: vi.fn(),
         resume: vi.fn(),
     },
+    fetchMock: vi.fn(),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 vi.mock('vue', async () => {
     const actual = await vi.importActual<typeof import('vue')>('vue')
@@ -27,9 +31,6 @@ vi.mock('@vueuse/core', () => ({
         }
     },
 }))
-
-const fetchMock = vi.fn()
-vi.stubGlobal('$fetch', fetchMock)
 
 class MockEventSource {
     static instances: MockEventSource[] = []
@@ -64,7 +65,6 @@ describe('useASRTask', () => {
         intervalState.resume.mockReset()
         fetchMock.mockReset()
         MockEventSource.instances = []
-        vi.stubGlobal('$fetch', fetchMock)
         vi.stubGlobal('EventSource', MockEventSource)
     })
 

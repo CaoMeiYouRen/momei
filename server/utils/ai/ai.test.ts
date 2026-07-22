@@ -24,12 +24,15 @@ vi.mock('~/server/services/setting', () => ({
     }),
 }))
 
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
 // Now import the code
 import { getAIProvider } from './index'
-
-// Mock $fetch
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
 
 describe('AI Infrastructure', () => {
     beforeEach(() => {

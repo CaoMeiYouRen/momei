@@ -4,13 +4,19 @@ import { ref } from 'vue'
 import ThemePage from '@/pages/admin/settings/theme.vue'
 import * as useThemeComposable from '@/composables/use-theme'
 
-const { mockToast, mockShowErrorToast, mockShowSuccessToast } = vi.hoisted(() => ({
+const { mockFetch, mockToast, mockShowErrorToast, mockShowSuccessToast } = vi.hoisted(() => ({
+    mockFetch: vi.fn().mockResolvedValue({}),
     mockToast: {
         add: vi.fn(),
     },
     mockShowErrorToast: vi.fn(),
     mockShowSuccessToast: vi.fn(),
 }))
+
+// Mock ofetch and #build/fetch.mjs to intercept Nuxt 4.5.0+ auto-imported $fetch
+// These must be outside vi.hoisted() but will be hoisted by Vitest's transform
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 const mockOpenFeedbackEntry = vi.fn()
 const mockFetchTheme = vi.fn().mockResolvedValue(undefined)
@@ -130,10 +136,6 @@ vi.mock('@vueuse/core', async () => {
         useDark: () => ref(false),
     }
 })
-
-// Mock $fetch
-const mockFetch = vi.fn().mockResolvedValue({})
-vi.stubGlobal('$fetch', mockFetch)
 
 describe('Admin Theme Settings Page', () => {
     beforeEach(() => {

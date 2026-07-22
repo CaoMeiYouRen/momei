@@ -57,7 +57,8 @@ vi.mock('@/utils/web/setup-journey', () => ({
     queueSetupJourneyStage: queueSetupJourneyStageMock,
 }))
 
-vi.stubGlobal('$fetch', fetchMock)
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 
 function createInstallationStatus(overrides: Partial<Record<string, unknown>> = {}) {

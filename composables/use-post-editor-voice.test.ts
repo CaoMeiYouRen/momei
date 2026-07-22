@@ -3,7 +3,7 @@ import { defineComponent, nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { usePostEditorVoice } from './use-post-editor-voice'
 
-const { directBatchMock, directStreamMock, useASRDirectMock } = vi.hoisted(() => ({
+const { directBatchMock, directStreamMock, useASRDirectMock, mockFetch } = vi.hoisted(() => ({
     directBatchMock: {
         transcribeBatch: vi.fn(),
     },
@@ -20,7 +20,11 @@ const { directBatchMock, directStreamMock, useASRDirectMock } = vi.hoisted(() =>
     useASRDirectMock: vi.fn((options: { mode: 'batch' | 'stream' }) => (options.mode === 'batch'
         ? directBatchMock
         : directStreamMock)),
+    mockFetch: vi.fn(),
 }))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 vi.mock('./use-asr-direct', () => ({
     useASRDirect: useASRDirectMock,
@@ -130,7 +134,6 @@ class MockWebSocket {
     })
 }
 
-const mockFetch = vi.fn()
 const getUserMediaMock = vi.fn()
 
 async function flushVoiceUpdates() {
@@ -201,7 +204,6 @@ describe('usePostEditorVoice', () => {
             getTracks: () => [{ stop: vi.fn() }],
         })
 
-        vi.stubGlobal('$fetch', mockFetch)
         vi.stubGlobal('MediaRecorder', MockMediaRecorder)
         vi.stubGlobal('AudioContext', MockAudioContext)
         vi.stubGlobal('WebSocket', MockWebSocket)
@@ -230,7 +232,6 @@ describe('usePostEditorVoice', () => {
     })
 
     afterEach(() => {
-        vi.unstubAllGlobals()
         vi.useRealTimers()
     })
 

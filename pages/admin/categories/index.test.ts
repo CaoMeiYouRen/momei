@@ -93,9 +93,14 @@ const stubs = {
     ConfirmDeleteDialog: { template: '<div class="confirm-delete-dialog" />', props: ['visible', 'title', 'message'] },
 }
 
-const loadData = vi.fn()
-const addToast = vi.fn()
-const fetchMock: any = vi.fn(() => Promise.resolve({ data: { items: [] } }))
+const { fetchMock, addToast, loadData } = vi.hoisted(() => ({
+    fetchMock: vi.fn(() => Promise.resolve({ data: { items: [] } })),
+    addToast: vi.fn(),
+    loadData: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: fetchMock }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 // Mock Nuxt auto-imports
 vi.mock('#imports', async (importOriginal) => {
@@ -144,7 +149,6 @@ vi.stubGlobal('useAdminList', () => ({
     onFilterChange: vi.fn(),
     refresh: loadData,
 }))
-vi.stubGlobal('$fetch', fetchMock)
 
 describe('AdminCategoriesPage', () => {
     beforeEach(() => {
@@ -241,7 +245,7 @@ describe('AdminCategoriesPage', () => {
                             { id: 'cat-en', name: 'Technology', language: 'en-US', slug: 'technology', translationId: 'tech-group' },
                         ],
                     },
-                })
+                } as any)
             }
 
             return Promise.resolve({ data: { items: [] } })

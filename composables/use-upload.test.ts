@@ -27,9 +27,14 @@ vi.mock('primevue/usetoast', async (importOriginal) => ({
     }),
 }))
 
-// Mock $fetch
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
+
+// Mock browser fetch
 vi.stubGlobal('fetch', mockBrowserFetch)
 
 import { useUpload, UploadType } from './use-upload'
