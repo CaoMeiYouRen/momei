@@ -144,7 +144,7 @@
     "nest-winston": "^1.10.2",
     "nodemailer": "^9.0.3",
     "normalize.css": "^8.0.1",
-    "nuxt": "^4.4.8",
+    "nuxt": "^4.5.0",
     "p-queue": "^9.3.2",
     "pg": "^8.22.0",
     "primeicons": "^8.0.0",
