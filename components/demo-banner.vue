@@ -455,8 +455,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
             color: $demo-banner-icon-dark;
         }
 
-        .demo-banner__path-description,
-        .demo-banner__stage {
+        .demo-banner__path-description {
             color: rgba($demo-banner-text-dark, 0.82);
         }
 

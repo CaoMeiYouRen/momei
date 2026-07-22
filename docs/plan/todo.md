@@ -22,9 +22,9 @@
 
 ### P0 — Demo Banner 暗色模式修复
 
-- [ ] `components/demo-banner.vue` 暗色模式下 `.demo-banner__stage` 透明度修复（`rgba(#f1f5f9, 0.82)` → `#f1f5f9`）
-- [ ] 同样处理 `.demo-banner__text` 透明度
-- [ ] 验证：暗色模式下文字清晰可见；`pnpm typecheck` + `pnpm lint` 通过
+- [x] `components/demo-banner.vue` 暗色模式下 `.demo-banner__stage` 透明度修复（`rgba(#f1f5f9, 0.82)` → `#f1f5f9`）
+- [x] 同样处理 `.demo-banner__text` 透明度（确认已为实色无需修改）
+- [x] 验证：暗色模式下文字清晰可见；`pnpm typecheck` + `pnpm lint` 通过
 
 ### P2 — 近期热门文章列表（候选 #16）
 
