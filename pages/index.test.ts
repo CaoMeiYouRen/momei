@@ -22,21 +22,19 @@ vi.mock('@/composables/use-app-fetch', () => ({
     useAppFetch: vi.fn(),
 }))
 
-const mockLatestPostsData = {
+const mockHomePostsData = {
     data: {
         items: [
             { id: 1, title: 'Pinned Post', slug: 'pinned-post', summary: 'Pinned summary', createdAt: '2024-01-01', updatedAt: '2024-01-01', status: 'published', isPinned: true },
             { id: 2, title: 'Post 2', slug: 'post-2', summary: 'Summary 2', createdAt: '2024-01-02', updatedAt: '2024-01-02', status: 'published' },
             { id: 3, title: 'Post 3', slug: 'post-3', summary: 'Summary 3', createdAt: '2024-01-03', updatedAt: '2024-01-03', status: 'published' },
         ],
-    },
-}
-
-const mockPopularPostsData = {
-    data: {
-        items: [
+        popular: [
             { id: 4, title: 'Post 4', slug: 'post-4', summary: 'Summary 4', createdAt: '2024-01-04', updatedAt: '2024-01-04', status: 'published' },
             { id: 5, title: 'Post 5', slug: 'post-5', summary: 'Summary 5', createdAt: '2024-01-05', updatedAt: '2024-01-05', status: 'published' },
+        ],
+        hot: [
+            { id: 6, title: 'Hot Post', slug: 'hot-post', summary: 'Hot summary', createdAt: '2024-01-06', updatedAt: '2024-01-06', status: 'published' },
         ],
     },
 }
@@ -75,12 +73,7 @@ describe('IndexPage', () => {
         vi.mocked(useAppFetch).mockReset()
         vi.mocked(useAppFetch)
             .mockReturnValueOnce({
-                data: ref(mockLatestPostsData),
-                pending: ref(false),
-                error: ref(null),
-            } as any)
-            .mockReturnValueOnce({
-                data: ref(mockPopularPostsData),
+                data: ref(mockHomePostsData),
                 pending: ref(false),
                 error: ref(null),
             } as any)
@@ -91,7 +84,7 @@ describe('IndexPage', () => {
             } as any)
     })
 
-    it('renders latest section with one pinned post and keeps popular posts free of pinned content', async () => {
+    it('renders all sections from unified home endpoint', async () => {
         const wrapper = await mountSuspended(IndexPage, {
             global: {
                 stubs: {
@@ -105,38 +98,29 @@ describe('IndexPage', () => {
             },
         })
 
-        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(3)
-        expect(wrapper.findAll('.article-card').length).toBe(5)
+        // 现在只有 2 次 useAppFetch 调用（home + external），不再有独立 popular/hot 请求
+        expect(vi.mocked(useAppFetch)).toHaveBeenCalledTimes(2)
+        expect(wrapper.findAll('.article-card').length).toBe(6)
         expect(wrapper.text()).toContain('Pinned Post')
         expect(wrapper.text()).toContain('Post 2')
         expect(wrapper.text()).toContain('Post 3')
         expect(wrapper.text()).toContain('Post 4')
         expect(wrapper.text()).toContain('Post 5')
+        expect(wrapper.text()).toContain('Hot Post')
         expect(wrapper.text()).toContain('External Feed Item')
         expect(wrapper.text()).toContain('External Source')
 
-        const latestCall = vi.mocked(useAppFetch).mock.calls[0]
-        expect(latestCall?.[0]).toBe('/api/posts/home')
-        expect(latestCall?.[1]).toBeUndefined()
+        const homeCall = vi.mocked(useAppFetch).mock.calls[0]
+        expect(homeCall?.[0]).toBe('/api/posts/home')
+        expect(homeCall?.[1]).toBeUndefined()
 
-        const popularCall = vi.mocked(useAppFetch).mock.calls[1]
-        expect(popularCall?.[1]).toMatchObject({
-            query: expect.objectContaining({
-                isPinned: false,
-                orderBy: 'views',
-                order: 'DESC',
-            }),
-        })
+        const externalCall = vi.mocked(useAppFetch).mock.calls[1]
+        expect(externalCall?.[0]).toBe('/api/external-feed/home')
     })
 
     it('shows loading state', async () => {
         vi.mocked(useAppFetch).mockReset()
         vi.mocked(useAppFetch)
-            .mockReturnValueOnce({
-                data: ref(null),
-                pending: ref(true),
-                error: ref(null),
-            } as any)
             .mockReturnValueOnce({
                 data: ref(null),
                 pending: ref(true),
@@ -167,11 +151,6 @@ describe('IndexPage', () => {
                 data: ref(null),
                 pending: ref(false),
                 error: ref(new Error('Failed')),
-            } as any)
-            .mockReturnValueOnce({
-                data: ref(null),
-                pending: ref(false),
-                error: ref(null),
             } as any)
             .mockReturnValueOnce({
                 data: ref(null),

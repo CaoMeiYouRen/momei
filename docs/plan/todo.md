@@ -33,6 +33,7 @@
 - [x] i18n：新增"近期热门"及相关文案翻译（zh-CN/en-US/zh-TW/ja-JP/ko-KR）
 - [x] 重命名：原"热门文章"→"全站热门"
 - [x] 去重：近期热门与最新文章不重复（复用 `excludeIds` 机制）；全站热门允许重复
+- [x] 规范化：三个独立端点合并为 `/api/posts/home` 统一返回 `{ items, popular, hot }`，移除 `/api/posts/hot` 独立端点；日期计算统一使用 dayjs
 - [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过（预存测试失败为独立基线问题）
 
 ### P2 — AI 编辑增强：改写+审查（候选 #9）

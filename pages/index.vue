@@ -224,61 +224,32 @@ usePageSeo({
     description: () => t('home.meta.description'),
 })
 
+/**
+ * 首页聚合端点 /api/posts/home 返回：
+ * - items: 最新文章（SSR 渲染）
+ * - popular: 全站热门（延迟渲染）
+ * - hot: 近期热门（延迟渲染）
+ */
+interface HomePostsPayload {
+    items: PostListData['items']
+    popular: PostListData['items']
+    hot: PostListData['items']
+}
+
 const {
-    data: latestData,
+    data: homeData,
     pending: latestPending,
     error: latestError,
-} = await useAppFetch<ApiResponse<Pick<PostListData, 'items'>>>('/api/posts/home')
+} = await useAppFetch<ApiResponse<HomePostsPayload>>('/api/posts/home')
 
-const latestPosts = computed(() => latestData.value?.data?.items || [])
+const latestPosts = computed(() => homeData.value?.data?.items || [])
+const popularPosts = computed(() => homeData.value?.data?.popular || [])
+const recentHotPosts = computed(() => homeData.value?.data?.hot || [])
 
-const latestPostIds = computed(() => latestPosts.value.map((post) => String(post.id)))
-
-const {
-    data: popularData,
-    pending: popularPending,
-    error: popularError,
-    execute: loadPopularPosts,
-} = useAppFetch<ApiResponse<PostListData>>('/api/posts', {
-    query: {
-        limit: 3,
-        isPinned: false,
-        status: 'published',
-        orderBy: 'views',
-        order: 'DESC',
-        excludeIds: latestPostIds,
-    },
-    server: false,
-    lazy: true,
-    immediate: false,
-    watch: [latestPostIds],
-})
-
-const popularPosts = computed(() => {
-    const latestIds = new Set(latestPostIds.value)
-    return (popularData.value?.data?.items || []).filter((post) => !latestIds.has(String(post.id)))
-})
-
-const {
-    data: recentHotData,
-    pending: recentHotPending,
-    error: recentHotError,
-    execute: loadRecentHotPosts,
-} = useAppFetch<ApiResponse<{ items: PostListData['items'] }>>('/api/posts/hot', {
-    query: {
-        range: 365,
-        excludeIds: latestPostIds,
-    },
-    server: false,
-    lazy: true,
-    immediate: false,
-    watch: [latestPostIds],
-})
-
-const recentHotPosts = computed(() => {
-    const latestIds = new Set(latestPostIds.value)
-    return (recentHotData.value?.data?.items || []).filter((post) => !latestIds.has(String(post.id)))
-})
+const popularPending = ref(true)
+const popularError = ref<unknown>(null)
+const recentHotPending = ref(true)
+const recentHotError = ref<unknown>(null)
 
 const {
     data: externalFeedData,
@@ -296,8 +267,9 @@ watch(shouldHydrateSecondarySections, (ready) => {
         return
     }
 
-    void loadRecentHotPosts?.()
-    void loadPopularPosts?.()
+    // 数据已在 SSR 阶段通过 /api/posts/home 获取，标记为就绪
+    popularPending.value = false
+    recentHotPending.value = false
     void loadExternalFeed?.()
 }, { immediate: true })
 
