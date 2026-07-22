@@ -96,6 +96,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # Build api-client + mcp-server first so dependent packages can resolve them
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - run: pnpm run test
   e2e:
     name: E2E

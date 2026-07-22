@@ -43,7 +43,7 @@ overrides:
   path-to-regexp@8.3.0: ^8.4.0
   picomatch@2.3.1: ^2.3.2
   picomatch@4.0.3: ^4.0.4
-  svgo: ^4.0.1
+  svgo: ^4.0.2
   lodash: ^4.18.1
   ajv@^6.0.0: ^6.14.0
   ajv@^8.0.0: ^8.18.0
@@ -61,7 +61,7 @@ overrides:
   form-data: ^4.0.6
   ws: ^8.21.0
   typescript-eslint: 8.63.0
-  fast-uri: ^3.1.2
+  fast-uri: ^3.1.4
   piscina: ^4.9.3
   '@babel/plugin-transform-modules-systemjs': ^7.29.4
   launch-editor: ^2.14.1
@@ -246,7 +246,7 @@ importers:
         version: 3.0.2
       mjml:
         specifier: ^5.4.0
-        version: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+        version: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
       momei-mcp-server:
         specifier: workspace:*
         version: link:packages/mcp-server
@@ -7605,8 +7605,8 @@ packages:
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
 
-  fast-uri@3.1.3:
-    resolution: {integrity: sha512-i70LwGWUduXqzicKXWshooq+sWL1K3WUU5rKZNG/0i3a1OSoX3HqhH5WbWwTmqWfor4urUakGPiRQcleRZTwOg==}
+  fast-uri@3.1.4:
+    resolution: {integrity: sha512-8JnbkQ4juDyvYs4mgFGQqg4yCYtFDtUtmp2QIQq11ZZe5CFQ5wcqm1rqDgAh/QdMySuBnPzMUiJUNZG5N/AiQw==}
 
   fast-wrap-ansi@0.1.6:
     resolution: {integrity: sha512-HlUwET7a5gqjURj70D5jl7aC3Zmy4weA1SHUfM0JFI0Ptq987NH2TwbBFLoERhfwk+E+eaq4EK3jXoT+R3yp3w==}
@@ -8162,7 +8162,7 @@ packages:
       purgecss: ^8.0.0
       relateurl: ^0.2.7
       srcset: ^5.0.1
-      svgo: ^4.0.1
+      svgo: ^4.0.2
       terser: ^5.21.0
       uncss: ^0.17.3
     peerDependenciesMeta:
@@ -12010,8 +12010,8 @@ packages:
   svg-tags@1.0.0:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
 
-  svgo@4.0.1:
-    resolution: {integrity: sha512-XDpWUOPC6FEibaLzjfe0ucaV0YrOjYotGJO1WpF0Zd+n6ZGEQUsSugaoLq9QkEZtAfQIxT42UChcssDVPP3+/w==}
+  svgo@4.0.2:
+    resolution: {integrity: sha512-ekx94z1rRc5LDi6oSUaeRnYhd0UOJxdtQCL2rF8xpWxD3TPAsISWOrxezqGovqS38GRZOdpDfvQe3ts6F7nsng==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -18971,7 +18971,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.3
+      fast-uri: 3.1.4
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -21253,7 +21253,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@3.1.3: {}
+  fast-uri@3.1.4: {}
 
   fast-wrap-ansi@0.1.6:
     dependencies:
@@ -21869,7 +21869,7 @@ snapshots:
 
   html-void-elements@3.0.0: {}
 
-  htmlnano@3.3.2(cssnano@7.1.9(postcss@8.5.21))(postcss@8.5.21)(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  htmlnano@3.3.2(cssnano@7.1.9(postcss@8.5.21))(postcss@8.5.21)(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@types/relateurl': 0.2.33
       commander: 14.0.3
@@ -21879,7 +21879,7 @@ snapshots:
       cssnano: 7.1.9(postcss@8.5.21)
       postcss: 8.5.21
       relateurl: 0.2.7
-      svgo: 4.0.1
+      svgo: 4.0.2
       terser: 5.49.0
     transitivePeerDependencies:
       - typescript
@@ -23462,11 +23462,11 @@ snapshots:
 
   mitt@3.0.1: {}
 
-  mjml-accordion@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-accordion@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23476,11 +23476,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-body@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-body@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23490,11 +23490,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-button@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-button@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23504,11 +23504,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-carousel@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-carousel@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23518,16 +23518,16 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-cli@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-cli@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       chokidar: 4.0.3
       glob: 11.1.0
       lodash: 4.18.1
       minimatch: 10.2.5
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
       mjml-parser-xml: 5.4.0
-      mjml-preset-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-preset-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
       mjml-validator: 5.4.0
       yargs: 17.7.3
     transitivePeerDependencies:
@@ -23539,11 +23539,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-column@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-column@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23553,14 +23553,14 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-core@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-core@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       cheerio: 1.0.0
       cssnano: 7.1.9(postcss@8.5.21)
       cssnano-preset-lite: 4.0.6(postcss@8.5.21)
       detect-node: 2.1.0
-      htmlnano: 3.3.2(cssnano@7.1.9(postcss@8.5.21))(postcss@8.5.21)(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      htmlnano: 3.3.2(cssnano@7.1.9(postcss@8.5.21))(postcss@8.5.21)(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
       js-beautify: 1.15.4
       juice: 11.1.1
       lodash: 4.18.1
@@ -23576,11 +23576,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-divider@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-divider@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23590,11 +23590,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-group@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-group@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23604,11 +23604,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-attributes@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-attributes@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23618,11 +23618,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-breakpoint@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-breakpoint@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23632,11 +23632,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-font@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-font@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23646,11 +23646,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-html-attributes@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-html-attributes@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23660,11 +23660,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-preview@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-preview@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23674,11 +23674,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-style@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-style@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23688,11 +23688,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head-title@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head-title@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23702,11 +23702,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-head@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-head@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23716,11 +23716,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-hero@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-hero@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23730,11 +23730,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-image@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-image@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23744,11 +23744,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-navbar@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-navbar@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23765,34 +23765,34 @@ snapshots:
       htmlparser2: 9.1.0
       lodash: 4.18.1
 
-  mjml-preset-core@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-preset-core@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
-      mjml-accordion: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-body: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-button: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-carousel: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-column: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-divider: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-group: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-attributes: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-breakpoint: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-font: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-html-attributes: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-preview: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-style: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-head-title: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-hero: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-image: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-navbar: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-raw: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-section: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-social: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-spacer: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-table: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-text: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-wrapper: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-accordion: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-body: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-button: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-carousel: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-column: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-divider: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-group: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-attributes: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-breakpoint: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-font: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-html-attributes: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-preview: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-style: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-head-title: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-hero: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-image: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-navbar: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-raw: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-section: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-social: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-spacer: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-table: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-text: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-wrapper: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23802,11 +23802,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-raw@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-raw@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23816,11 +23816,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-section@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-section@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23830,11 +23830,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-social@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-social@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23844,11 +23844,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-spacer@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-spacer@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23858,11 +23858,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-table@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-table@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23872,11 +23872,11 @@ snapshots:
       - typescript
       - uncss
 
-  mjml-text@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-text@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23890,12 +23890,12 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
 
-  mjml-wrapper@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml-wrapper@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
       lodash: 4.18.1
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-section: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-section: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - purgecss
       - relateurl
@@ -23905,12 +23905,12 @@ snapshots:
       - typescript
       - uncss
 
-  mjml@5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3):
+  mjml@5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.7
-      mjml-cli: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
-      mjml-preset-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.1)(terser@5.49.0)(typescript@6.0.3)
+      mjml-cli: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
+      mjml-preset-core: 5.4.0(relateurl@0.2.7)(svgo@4.0.2)(terser@5.49.0)(typescript@6.0.3)
       mjml-validator: 5.4.0
     transitivePeerDependencies:
       - purgecss
@@ -25405,13 +25405,13 @@ snapshots:
     dependencies:
       postcss: 8.5.21
       postcss-value-parser: 4.2.0
-      svgo: 4.0.1
+      svgo: 4.0.2
 
   postcss-svgo@8.0.0(postcss@8.5.21):
     dependencies:
       postcss: 8.5.21
       postcss-value-parser: 4.2.0
-      svgo: 4.0.1
+      svgo: 4.0.2
 
   postcss-unique-selectors@7.0.7(postcss@8.5.21):
     dependencies:
@@ -26844,7 +26844,7 @@ snapshots:
 
   svg-tags@1.0.0: {}
 
-  svgo@4.0.1:
+  svgo@4.0.2:
     dependencies:
       commander: 11.1.0
       css-select: 5.2.2

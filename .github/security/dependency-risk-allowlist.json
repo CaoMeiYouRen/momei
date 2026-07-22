@@ -1,4 +1,16 @@
 {
     "version": 1,
-    "entries": []
+    "entries": [
+        {
+            "advisoryId": "GHSA-f88m-g3jw-g9cj",
+            "packageName": "sharp",
+            "severity": "high",
+            "source": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            "reason": "miniflare 4.x pins sharp@0.34.5 exactly; upstream not yet updated to >=0.35.0",
+            "temporaryException": "awaiting miniflare/wrangler upstream bump to sharp >=0.35.0",
+            "approvedPaths": [
+                ".>wrangler>miniflare>sharp"
+            ]
+        }
+    ]
 }
