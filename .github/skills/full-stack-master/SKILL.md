@@ -29,7 +29,7 @@ metadata:
 - 本节只保留全栈编排视角下的执行摘要，不再复制完整项目级规则；权威口径分别以 [AI 协作规范](../../../docs/standards/ai-collaboration.md)、[开发规范](../../../docs/standards/development.md) 与 [测试规范](../../../docs/standards/testing.md) 为准。
 - 编排默认遵循四步判断顺序：先暴露假设，再选最小方案，再限制改动范围，最后用最小充分验证决定是否继续扩写。
 
-## 四、标准 PDTFC+ 2.1 工作流 (Standard Workflow)
+## 四、标准 PDTFC+ 2.2 工作流 (Standard Workflow)
 
 1. **P (Plan) - 需求分析与规划**
     1. **读取文档**：确认 `todo.md`、`roadmap.md`、当前验收标准与必要规范。
@@ -46,10 +46,11 @@ metadata:
     5. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
     - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`nuxt-code-editor`、`devops-specialist`
 
-3. **A (Audit) - 审计放行**
-    1. **Review Gate**：所有代码、文档、配置、脚本与治理定义改动都必须进入 `code-quality-auditor` 审计。
-    2. **安全与一致性**：同时核对安全边界、Todo 验收点、验证矩阵、证据链与剩余风险。
-    3. **退回策略**：若审计失败或发现超出当前范围的新问题，退回 D 或回流 P，而不是带着 blocker 进入后续阶段。
+3. **A (Audit) - 审计放行（强制阶段）**
+    1. **强制入口**：D 阶段完成后，必须加载 `code-quality-auditor` skill 执行完整的结构化审查。不得以自我审查或"已本地验证"替代正式审计。A 阶段未被 `@code-auditor` 放行前，不得进入 V / T / F 任何阶段。
+    2. **审查范围**：所有代码、文档、配置、脚本与治理定义改动都必须进入审查，不只审业务代码。
+    3. **安全与一致性**：核对安全边界、Todo 验收点、验证矩阵、证据链与剩余风险。
+    4. **退回策略**：若审计发现 blocker，退回 D 或回流 P 重新规划，不得携带未关闭的 blocker 进入后续阶段。
     - **技能**：`code-quality-auditor`、`security-guardian`
 
 4. **V (Validate) - 浏览器与流程验证**
@@ -63,10 +64,10 @@ metadata:
     3. **测试回流**：若测试新增了代码改动或暴露 blocker，必须回到 D，并重新经过 A 阶段审计。
     - **技能**：`test-engineer`、`code-quality-auditor`
 
-6. **F (Finish) - 文档与收口**
+6. **F (Finish) - 文档收口与单次提交**
     1. **文档同步**：更新 `todo.md` 状态，并按需同步 README、Guide、Standards、Design、Plan 文档。
-    2. **证据收口**：发布或治理收口时，优先用 `scripts/review-gate/generate-evidence.mjs` 刷新 Review Gate 证据文件，再汇总验证记录、Review Gate 结论、未覆盖边界与后续补跑计划。
-    3. **提交说明**：`Commit` 不是本技能默认的独立主阶段；只有在用户明确要求提交，或当前流程被明确委派为提交流程时，才在 F 阶段收口后调用 `conventional-committer`。
+    2. **证据收口**：汇总验证记录、Review Gate 结论、未覆盖边界与后续补跑计划。发布或治理收口时，优先用 `scripts/review-gate/generate-evidence.mjs` 刷新证据文件。
+    3. **单次提交**：整个任务所有改动（业务代码 + 测试代码 + 文档）在 F 阶段一次性提交。提交前必须加载 `conventional-committer` skill，确认 A 阶段已放行且 `pnpm lint`、`pnpm typecheck`、定向测试均通过，然后生成符合 Conventional Commits 格式（使用中文或用户使用的语言）的消息并执行 `git commit`。
     - **技能**：`documentation-specialist`、`todo-manager`、`conventional-committer`
 
 ## 五、需求挖掘方法论 (Intent Extraction Methodology)
