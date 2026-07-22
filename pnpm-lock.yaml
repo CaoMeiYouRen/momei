@@ -345,6 +345,9 @@ importers:
       '@intlify/eslint-plugin-vue-i18n':
         specifier: 4.5.1
         version: 4.5.1(eslint@9.39.5(jiti@2.7.0))(jsonc-eslint-parser@2.4.2)(vue-eslint-parser@10.4.1(eslint@9.39.5(jiti@2.7.0)))(yaml-eslint-parser@1.3.2)
+      '@intlify/message-compiler':
+        specifier: ^11.4.7
+        version: 11.4.7
       '@intlify/shared':
         specifier: ^11.4.7
         version: 11.4.7
@@ -2348,16 +2351,8 @@ packages:
     resolution: {integrity: sha512-BtL5+U3Dd9Qz6so+ArOMQWZ+nV21rOqqYUXnqwvW6J3VUXr66A9+9+vUFb/NAQvOU4kdfkO3c/9LMRGU9WZ8vw==}
     engines: {node: '>= 20'}
 
-  '@intlify/message-compiler@11.4.5':
-    resolution: {integrity: sha512-IEOZiHtbQopyPc/Dz2M869lOlZYX1SdcniNJwphATDYHhovvIneEKf1EFF37DE7NAABZtza1FNtnwwqZWInfpw==}
-    engines: {node: '>= 22'}
-
   '@intlify/message-compiler@11.4.7':
     resolution: {integrity: sha512-bHxmh7n94N4N1evADeb7XTkc3jTw6Ki5biMFZVSX6Jmk+iehy8/maeH2XUsBI27rtKIK+Hzc6QnVAKggUwylKw==}
-    engines: {node: '>= 22'}
-
-  '@intlify/shared@11.4.5':
-    resolution: {integrity: sha512-g/i5mtdUa9ia/8BaJ4w6ZRHgAXYQd9XyCaQPRMvsd8d5qmZwkjoTmHrNsI28Q/7I8h+2ijUkI4uEnnMCziKupQ==}
     engines: {node: '>= 22'}
 
   '@intlify/shared@11.4.7':
@@ -15493,7 +15488,7 @@ snapshots:
     dependencies:
       '@eslint/eslintrc': 3.3.5
       '@intlify/core-base': 11.4.7
-      '@intlify/message-compiler': 11.4.5
+      '@intlify/message-compiler': 11.4.7
       debug: 4.4.3
       eslint: 9.39.5(jiti@2.7.0)
       eslint-compat-utils: 0.6.5(eslint@9.39.5(jiti@2.7.0))
@@ -15518,17 +15513,10 @@ snapshots:
       '@intlify/core': 11.4.7
       '@intlify/utils': 0.13.0
 
-  '@intlify/message-compiler@11.4.5':
-    dependencies:
-      '@intlify/shared': 11.4.5
-      source-map-js: 1.2.1
-
   '@intlify/message-compiler@11.4.7':
     dependencies:
       '@intlify/shared': 11.4.7
       source-map-js: 1.2.1
-
-  '@intlify/shared@11.4.5': {}
 
   '@intlify/shared@11.4.7': {}
 
