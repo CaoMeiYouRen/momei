@@ -1,8 +1,11 @@
 import { describe, expect, it, vi, beforeAll, beforeEach } from 'vitest'
 
-const mockFetch = vi.fn()
-// @ts-expect-error test-internal
-globalThis.$fetch = mockFetch
+const { mockFetch } = vi.hoisted(() => ({
+    mockFetch: vi.fn(),
+}))
+
+vi.mock('ofetch', () => ({ $fetch: mockFetch }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 // 导入要测试的函数
 import { verifyCaptcha } from './captcha'
