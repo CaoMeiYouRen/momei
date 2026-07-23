@@ -44,6 +44,17 @@ jobs:
         run: pnpm --filter momei-mcp-server build
       - name: Build Nuxt
         run: pnpm run build
+      - name: Debug — check .output/ exists
+        shell: bash
+        run: |
+          echo "=== pwd ==="
+          pwd
+          echo "=== ls -la ==="
+          ls -la
+          echo "=== ls -la .output/ ==="
+          ls -la .output/ || echo ".output/ does not exist"
+          echo "=== find .output/ ==="
+          find .output/ -maxdepth 3 -name "*.mjs" 2>/dev/null || echo "no .mjs in .output/"
       - name: Upload api-client dist
         uses: actions/upload-artifact@v7
         with:
@@ -58,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: nuxt-output
-          path: .output/
+          path: ${{ github.workspace }}/.output/
 
   # ===============================================================
   #  Lint & Typecheck
@@ -188,10 +199,15 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download Nuxt build output
+        id: download-nuxt
+        continue-on-error: true
         uses: actions/download-artifact@v7
         with:
           name: nuxt-output
           path: .output/
+      - name: Build Nuxt (fallback — no cached build)
+        if: steps.download-nuxt.outcome == 'failure'
+        run: pnpm run build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run E2E tests (shard ${{ matrix.shard }}/4)
@@ -266,10 +282,15 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download Nuxt build output
+        id: download-nuxt-lh
+        continue-on-error: true
         uses: actions/download-artifact@v7
         with:
           name: nuxt-output
           path: .output/
+      - name: Build Nuxt (fallback — no cached build)
+        if: steps.download-nuxt-lh.outcome == 'failure'
+        run: pnpm run build
       - name: Download bundle baseline report (master)
         if: github.event_name == 'pull_request'
         uses: dawidd6/action-download-artifact@v21

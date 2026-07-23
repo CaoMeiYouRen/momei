@@ -416,8 +416,8 @@ export function usePostEditorAI(
      * 如果没有选中文本，返回 null。
      */
     const getEditorSelectedText = (): { text: string, start: number, end: number } | null => {
-        const textarea = document.querySelector('.auto-textarea-input') as HTMLTextAreaElement | null
-        if (!textarea) {
+        const textarea = document.querySelector('.auto-textarea-input')
+        if (!(textarea instanceof HTMLTextAreaElement)) {
             return null
         }
 
@@ -437,8 +437,8 @@ export function usePostEditorAI(
      * 替换编辑器中指定范围的文本。
      */
     const replaceEditorSelection = (start: number, end: number, replacement: string) => {
-        const textarea = document.querySelector('.auto-textarea-input') as HTMLTextAreaElement | null
-        if (!textarea) {
+        const textarea = document.querySelector('.auto-textarea-input')
+        if (!(textarea instanceof HTMLTextAreaElement)) {
             return
         }
 

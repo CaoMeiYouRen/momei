@@ -21,15 +21,15 @@ describe('POST /api/ai/review', () => {
     it('should return structured review suggestions', async () => {
         const mockSuggestions = [
             {
-                type: 'grammar',
-                severity: 'major',
+                type: 'grammar' as const,
+                severity: 'major' as const,
                 original: '这是一个错误句。',
                 suggestion: '建议修改为正确的语法结构',
                 replacement: '这是一个正确的句子。',
             },
             {
-                type: 'style',
-                severity: 'minor',
+                type: 'style' as const,
+                severity: 'minor' as const,
                 original: '然后然后',
                 suggestion: '重复词语建议删除一个',
                 replacement: '然后',
@@ -77,9 +77,9 @@ describe('POST /api/ai/review', () => {
 
     it('should handle various suggestion types', async () => {
         const mockSuggestions = [
-            { type: 'spelling', severity: 'critical', original: 'recieve', suggestion: 'Misspelled word', replacement: 'receive' },
-            { type: 'logic', severity: 'major', original: 'Therefore the conclusion...', suggestion: 'Missing premise', replacement: undefined },
-            { type: 'fact', severity: 'minor', original: 'In 2020...', suggestion: 'Date may be inaccurate', replacement: undefined },
+            { type: 'spelling' as const, severity: 'critical' as const, original: 'recieve', suggestion: 'Misspelled word', replacement: 'receive' },
+            { type: 'logic' as const, severity: 'major' as const, original: 'Therefore the conclusion...', suggestion: 'Missing premise', replacement: undefined },
+            { type: 'fact' as const, severity: 'minor' as const, original: 'In 2020...', suggestion: 'Date may be inaccurate', replacement: undefined },
         ]
 
         vi.mocked(readValidatedBody).mockResolvedValue({
@@ -92,9 +92,9 @@ describe('POST /api/ai/review', () => {
 
         expect(result.code).toBe(200)
         expect(result.data).toHaveLength(3)
-        expect(result.data[0].type).toBe('spelling')
-        expect(result.data[0].severity).toBe('critical')
-        expect(result.data[1].type).toBe('logic')
-        expect(result.data[2].type).toBe('fact')
+        expect(result.data[0]!.type).toBe('spelling')
+        expect(result.data[0]!.severity).toBe('critical')
+        expect(result.data[1]!.type).toBe('logic')
+        expect(result.data[2]!.type).toBe('fact')
     })
 })
