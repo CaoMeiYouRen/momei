@@ -14,4 +14,9 @@ describe('shared html utilities', () => {
         expect(plainTextToHtml('A&B\n<C>')).toBe('A&amp;B<br/>&lt;C&gt;')
         expect(plainTextToHtml('line1\r\nline2\rline3')).toBe('line1<br/>line2<br/>line3')
     })
+
+    it('returns empty string for empty inputs', () => {
+        expect(sanitizeHtmlToText('')).toBe('')
+        expect(plainTextToHtml('')).toBe('')
+    })
 })

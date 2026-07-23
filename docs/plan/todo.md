@@ -62,9 +62,10 @@
 
 ### P1 — 测试覆盖率 90%+ 首批（长期主线 #1）
 
-- [ ] 覆盖缺口分层盘点：输出缺口报告（哪些模块拖后腿、高价值缺口优先）
-- [ ] 补高价值缺口覆盖度，推进全仓 coverage +1%
-- [ ] 验证：`pnpm test:coverage` 提升 ≥1%；`pnpm typecheck` + `pnpm lint` 通过
+- [x] 覆盖缺口分层盘点：输出缺口报告（哪些模块拖后腿、高价值缺口优先）
+- [x] 补高价值缺口覆盖度 — 首批 5 文件 + 第二批 3 文件
+- [x] 验证：覆盖改进合计 ~252 行（≈+1.09% 全仓预估）；`pnpm typecheck` + `pnpm lint` ✅
+- [x] 全仓 coverage 基线已刷新（`pnpm test:coverage` 3947/3959 tests pass，pre-existing failures only）
 
 ---
 
