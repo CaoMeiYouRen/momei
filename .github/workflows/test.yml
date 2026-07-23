@@ -38,23 +38,13 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # 构建依赖链：api-client → mcp-server → Nuxt（Nuxt 构建需要 mcp-server 产物）
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
       - name: Build mcp-server dependency
         run: pnpm --filter momei-mcp-server build
       - name: Build Nuxt
         run: pnpm run build
-      - name: Debug — check .output/ exists
-        shell: bash
-        run: |
-          echo "=== pwd ==="
-          pwd
-          echo "=== ls -la ==="
-          ls -la
-          echo "=== ls -la .output/ ==="
-          ls -la .output/ || echo ".output/ does not exist"
-          echo "=== find .output/ ==="
-          find .output/ -maxdepth 3 -name "*.mjs" 2>/dev/null || echo "no .mjs in .output/"
       - name: Upload api-client dist
         uses: actions/upload-artifact@v7
         with:
@@ -65,11 +55,17 @@ jobs:
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
+      # include-hidden-files: true 必需 — .output/ 以点开头，upload-artifact v4+ 默认排除隐藏文件
+      # 参见 https://github.com/actions/upload-artifact/issues/602
       - name: Upload Nuxt build output
         uses: actions/upload-artifact@v7
         with:
           name: nuxt-output
-          path: ${{ github.workspace }}/.output/
+          path: .output/
+          include-hidden-files: true
+      - name: Debug — verify .output/
+        shell: bash
+        run: ls -la .output/ && ls -la .output/server/
 
   # ===============================================================
   #  Lint & Typecheck
@@ -205,8 +201,8 @@ jobs:
         with:
           name: nuxt-output
           path: .output/
-      - name: Build Nuxt (fallback — no cached build)
-        if: steps.download-nuxt.outcome == 'failure'
+      - name: Build Nuxt (fallback)
+        if: steps.download-nuxt.outcome == 'failure' || steps.download-nuxt.outcome == 'skipped'
         run: pnpm run build
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -288,8 +284,8 @@ jobs:
         with:
           name: nuxt-output
           path: .output/
-      - name: Build Nuxt (fallback — no cached build)
-        if: steps.download-nuxt-lh.outcome == 'failure'
+      - name: Build Nuxt (fallback)
+        if: steps.download-nuxt-lh.outcome == 'failure' || steps.download-nuxt-lh.outcome == 'skipped'
         run: pnpm run build
       - name: Download bundle baseline report (master)
         if: github.event_name == 'pull_request'

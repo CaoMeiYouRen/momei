@@ -10,6 +10,12 @@ vi.mock('@/server/database/storage', () => ({
     },
 }))
 
+// 对 rateLimit 工具函数的单元测试必须禁用 TEST_MODE，否则守卫会跳过所有逻辑
+// 全局 E2E 场景中 TEST_MODE 守卫的跳过行为由 playwright.config.ts 的 e2eServerEnv 保障
+vi.mock('@/utils/shared/env', () => ({
+    TEST_MODE: false,
+}))
+
 vi.stubGlobal('getRequestIP', vi.fn())
 
 import { rateLimit } from './rate-limit'
