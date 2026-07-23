@@ -242,84 +242,13 @@ pnpm run test:coverage
 
 **注意**: 任何未通过上述检查的提交将被视为不合规，CI 流水线将会拦截此类合并请求。
 
-## 9. Nuxt 4.5.0+ 测试兼容性：\$fetch 与 Auto-Import Mock
+## 9. Nuxt Auto-Import Mock 变更
 
-### 9.1 背景
+Nuxt 大版本升级可能导致 auto-import 机制变化（如 `$fetch` 从全局变量改为编译时模块注入），使 `vi.stubGlobal` 等传统 mock 方式失效。排查方法与修复方案详见 [Nuxt 4.5.0 \$fetch 修复报告](../reports/2026-07-23-nuxt-450-fetch-mock.md)。
 
-Nuxt 4.5.0 将 `$fetch` 的 auto-import 机制从"全局变量"改为通过 `unimport` 从 `ofetch` 包（经由 `#build/fetch.mjs` 虚拟模块）注入。组件中的 `$fetch(...)` 在编译时生成本地导入引用，绕过 `vi.stubGlobal`。
+## 10. 修复工作流
 
-### 9.2 症状
-
-- 测试中 `vi.stubGlobal('$fetch', mockFetch)` 不生效，`mockFetch` 调用次数为 0
-- API 调用返回 404（因为真实 `$fetch` 在测试环境中无路由可寻）
-- 使用 `globalThis.$fetch = mockFetch` 同样不生效
-
-### 9.3 正确 Mock 模式
-
-```typescript
-// ❌ 错误：Nuxt 4.5.0+ 不生效
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
-
-// ❌ 错误：同样不生效
-globalThis.$fetch = mockFetch
-
-// ✅ 正确：拦截 auto-import 源头
-const { mockFetch } = vi.hoisted(() => ({
-    mockFetch: vi.fn().mockResolvedValue({}),
-}))
-vi.mock('ofetch', () => ({ $fetch: mockFetch }))
-vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
-// ↑ 第二个 mock 可选，作为冗余保障
-```
-
-**关键点**：
-- `mockFetch` 必须在 `vi.hoisted()` 中创建，确保在 `vi.mock` 工厂捕获前已初始化
-- `vi.mock` 调用必须在 `vi.hoisted()` **之后**（Vitest 会提升 `vi.mock`，但工厂执行时 `vi.hoisted` 变量已就绪）
-- 如果测试同时 mock `#imports`，`importOriginal` 会获取到已 mock 的 `ofetch.$fetch`，无需额外配置
-
-### 9.4 `mockNuxtImport` 兼容性
-
-`mockNuxtImport('$fetch', () => mockFetch)` 内部依赖 `vi.mock`，同样有 hoisting 问题：
-
-```typescript
-// ❌ 错误：mockFetch 在 hoisting 时未初始化
-const mockFetch = vi.fn()
-mockNuxtImport('$fetch', () => mockFetch)
-
-// ✅ 正确
-const { mockFetch } = vi.hoisted(() => ({
-    mockFetch: vi.fn(),
-}))
-mockNuxtImport('$fetch', () => mockFetch)
-```
-
-### 9.5 调试方法
-
-根因不明确时，先编写**最小复现测试**（`__debug.test.ts`）而非跑全量测试。通过对比 `globalThis.$fetch` 和 bare `$fetch` 的行为差异，快速判断是否为 auto-import 问题。具体案例见 [Nuxt 4.5.0 \$fetch 修复复盘](../retrospectives/2026-07-23-nuxt-450-fetch-mock.md)。
-
-## 10. 修复工作流：CI 作为最终裁决
-
-### 10.1 原则
-
-修复类任务的最终验收标准是 **CI 流水线全部通过**，而非"本地测试通过"。本地测试范围可能与 CI 不一致。
-
-### 10.2 验证成本金字塔
-
-| 验证方式 | 耗时 | 使用时机 |
-|---------|------|---------|
-| 最小复现测试 | ~5s | 根因排查 |
-| 定向 subset (3-5 文件) | 1-2min | 方案验证 |
-| 全量本地 | 10-15min | 提交前最终确认 |
-| **CI 验证** | 5-15min | **最终裁决** |
-
-### 10.3 工作流
-
-```
-根因排查: 最小复现测试 → 方案验证: 定向 subset → 批量修复 → 本地 typecheck+lint → 提交 → CI 裁决
-                                                                                      ↕
-                                                                           CI 失败 → 针对性补修 → 再提交
-```
+修复类任务遵循"最小复现测试 → 定向 subset → 批量修复 → CI 裁决"的工作流，详见 [修复工作流补充](../reports/2026-07-23-nuxt-450-fetch-mock.md#修复工作流)。
 
 ## 11. 相关文档
 

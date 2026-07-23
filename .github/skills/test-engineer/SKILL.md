@@ -22,47 +22,5 @@ metadata:
 7.  **用例设计**: 同时覆盖正常流程、异常流程和边缘情况，但每个测试块应尽量围绕单一风险命名与归因。
 8.  **Mock 配置**: 在测试文件中配置必要的 mock（如 `useI18n`）。
 9.  **执行验证**: 编写完后必须运行测试确保其通过；若首轮定向测试未能区分风险，再决定是否升级验证范围。
-10. **CI 最终验证**: 所有修复类任务的最终通过了断是 CI 流水线全部通过。本地通过 ≠ CI 通过。提交后必须等待 CI 结果，发现遗漏则针对性补修。
-
-## Nuxt 4.5.0+ Auto-Import Mock 模式
-
-### 背景
-
-Nuxt 4.5.0 将 `$fetch` 的 auto-import 从"全局变量"改为通过 `unimport` 从 `ofetch`（经由 `#build/fetch.mjs`）注入编译时本地引用，导致以下传统模式失效：
-
-```typescript
-// ❌ 失效模式
-const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
-
-// ❌ 同样失效
-globalThis.$fetch = mockFetch
-```
-
-### 正确模式
-
-```typescript
-// ✅ Nuxt 4.5.0+ 兼容
-const { mockFetch } = vi.hoisted(() => ({
-    mockFetch: vi.fn().mockResolvedValue({}),
-}))
-vi.mock('ofetch', () => ({ $fetch: mockFetch }))
-vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
-```
-
-**要点**：
-- `mockFetch` 必须在 `vi.hoisted()` 中创建（确保 `vi.mock` 工厂捕获时已初始化）
-- 同时 mock `ofetch` 和 `#build/fetch.mjs`（后者作为虚拟模块的冗余保障）
-- 如果测试 mock 了 `#imports`，`importOriginal` 会获取到已 mock 的 `$fetch`，无需额外配置
-
-### mockNuxtImport 兼容
-
-```typescript
-// ❌ 失效
-const mockFetch = vi.fn()
-mockNuxtImport('$fetch', () => mockFetch)
-
-// ✅ 正确
-const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
-mockNuxtImport('$fetch', () => mockFetch)
-```
+10. **CI 最终验证**: 修复的最终了断是 CI 流水线全部通过，本地通过 ≠ CI 通过。
+11. **Mock 策略变更**: 当 `vi.stubGlobal` 或 `globalThis.X = mock` 失效时，表明该 API 可能被框架 auto-import 机制劫持。排查方法与具体方案见 [Nuxt 4.5.0 \$fetch 修复报告](../../docs/reports/2026-07-23-nuxt-450-fetch-mock.md)。
