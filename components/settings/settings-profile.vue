@@ -85,7 +85,7 @@ const toast = useToast()
 const loading = ref(false)
 
 const session = authClient.useSession()
-const profileForm = reactive({
+const profileForm = ref({
     name: '',
     image: '',
     language: '',
@@ -123,10 +123,10 @@ const profileSchema = z.object({
 
 watchEffect(() => {
     if (session.value?.data?.user) {
-        profileForm.name = session.value.data.user.name || ''
-        profileForm.image = session.value.data.user.image || ''
-        profileForm.language = (session.value.data.user as { language?: string, timezone?: string }).language || ''
-        profileForm.timezone = (session.value.data.user as { language?: string, timezone?: string }).timezone || ''
+        profileForm.value.name = session.value.data.user.name || ''
+        profileForm.value.image = session.value.data.user.image || ''
+        profileForm.value.language = (session.value.data.user as { language?: string, timezone?: string }).language || ''
+        profileForm.value.timezone = (session.value.data.user as { language?: string, timezone?: string }).timezone || ''
     }
 })
 
@@ -144,7 +144,7 @@ const handleAvatarUpload = async (event: any) => {
         })
 
         if (response.data?.url) {
-            profileForm.image = response.data.url
+            profileForm.value.image = response.data.url
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.upload_success'), life: 3000 })
             invalidateAuthSessionState()
             await refreshAuthSession()
@@ -156,7 +156,7 @@ const handleAvatarUpload = async (event: any) => {
 }
 
 const handleUpdateProfile = async () => {
-    const result = profileSchema.safeParse(profileForm)
+    const result = profileSchema.safeParse(profileForm.value)
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
@@ -170,10 +170,10 @@ const handleUpdateProfile = async () => {
         invalidateAuthSessionState()
 
         const { error } = await authClient.updateUser({
-            name: profileForm.name,
-            image: profileForm.image,
-            language: profileForm.language || undefined,
-            timezone: profileForm.timezone || undefined,
+            name: profileForm.value.name,
+            image: profileForm.value.image,
+            language: profileForm.value.language || undefined,
+            timezone: profileForm.value.timezone || undefined,
         } as { name?: string, image?: string, language?: string, timezone?: string }, {
             disableSignal: true,
         })
@@ -184,8 +184,8 @@ const handleUpdateProfile = async () => {
         } else {
             await refreshAuthSession()
 
-            if (profileForm.language) {
-                await setLocale(profileForm.language as 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP')
+            if (profileForm.value.language) {
+                await setLocale(profileForm.value.language as 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP')
             }
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.success'), life: 3000 })
         }

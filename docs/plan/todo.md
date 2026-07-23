@@ -39,11 +39,11 @@
 
 ### P1 — 响应式状态模型收敛：reactive 到 ref 渐进迁移 Step 1（候选 #14）
 
-- [ ] 识别 Step 1 目标文件清单：登录页、注册页、权益页、个人设置、安全设置中的 `form`/`errors` 类 `reactive` 对象
-- [ ] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径
-- [ ] 同步调整模板中对应变量的引用方式（`.value` 传播仅在 script 层，模板不变）
-- [ ] 定向验证：受影响页面的表单校验失败、提交成功/失败、弹窗开关行为不回退
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 识别 Step 1 目标文件清单：登录页、注册页、权益页、个人设置、安全设置中的 `form`/`errors` 类 `reactive` 对象
+- [x] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径
+- [x] 同步调整模板中对应变量的引用方式（`.value` 传播仅在 script 层，模板不变）
+- [x] 定向验证：受影响页面的表单校验失败、提交成功/失败、弹窗开关行为不回退
+- [x] 验证：`pnpm typecheck` + `pnpm lint` 通过
 
 ### P1 — Zod Schema 复用治理首批：Ad Campaign + Ad Placement（候选 #18）
 

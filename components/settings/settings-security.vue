@@ -145,7 +145,7 @@ const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
 
-const passwordForm = reactive({
+const passwordForm = ref({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -216,7 +216,7 @@ const handleLink = async (provider: 'github' | 'google') => {
 }
 
 const handleChangePassword = async () => {
-    const result = passwordSchema.safeParse(passwordForm)
+    const result = passwordSchema.safeParse(passwordForm.value)
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
@@ -228,8 +228,8 @@ const handleChangePassword = async () => {
     loading.value = true
     try {
         const { error } = await authClient.changePassword({
-            currentPassword: passwordForm.currentPassword,
-            newPassword: passwordForm.newPassword,
+            currentPassword: passwordForm.value.currentPassword,
+            newPassword: passwordForm.value.newPassword,
             revokeOtherSessions: true,
         })
 
@@ -237,9 +237,9 @@ const handleChangePassword = async () => {
             toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {
             toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.security.password_updated'), life: 3000 })
-            passwordForm.currentPassword = ''
-            passwordForm.newPassword = ''
-            passwordForm.confirmPassword = ''
+            passwordForm.value.currentPassword = ''
+            passwordForm.value.newPassword = ''
+            passwordForm.value.confirmPassword = ''
         }
     } catch (e) {
         console.error(e)

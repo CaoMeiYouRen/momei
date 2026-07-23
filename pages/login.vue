@@ -212,12 +212,12 @@ const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
 const hasSocialLogin = computed(() => Object.values(socialProviders).some((v) => !!v))
-const form = reactive({
+const form = ref({
     email: '',
     password: '',
     rememberMe: false,
 })
-const errors = reactive({
+const errors = ref({
     email: '',
     password: '',
 })
@@ -227,12 +227,12 @@ onMounted(() => {
         return
     }
 
-    if (!form.email) {
-        form.email = runtimeConfig.public.demoUserEmail || ''
+    if (!form.value.email) {
+        form.value.email = runtimeConfig.public.demoUserEmail || ''
     }
 
-    if (!form.password) {
-        form.password = runtimeConfig.public.demoPassword || ''
+    if (!form.value.password) {
+        form.value.password = runtimeConfig.public.demoPassword || ''
     }
 })
 
@@ -259,16 +259,16 @@ const refreshAuthSessionSafely = async () => {
 }
 
 const handleEmailLogin = async () => {
-    errors.email = ''
-    errors.password = ''
+    errors.value.email = ''
+    errors.value.password = ''
 
-    const result = loginSchema.safeParse(form)
+    const result = loginSchema.safeParse(form.value)
 
     if (!result.success) {
         result.error.issues.forEach((issue) => {
-            const key = issue.path[0] as keyof typeof errors
-            if (key in errors) {
-                errors[key] = t(issue.message)
+            const key = issue.path[0] as keyof typeof errors.value
+            if (key in errors.value) {
+                errors.value[key] = t(issue.message)
             }
         })
         return
@@ -279,9 +279,9 @@ const handleEmailLogin = async () => {
         invalidateAuthSessionState()
 
         const { error } = await authClient.signIn.email({
-            email: form.email,
-            password: form.password,
-            rememberMe: form.rememberMe,
+            email: form.value.email,
+            password: form.value.password,
+            rememberMe: form.value.rememberMe,
             callbackURL: redirectTarget.value,
             fetchOptions: {
                 headers: {

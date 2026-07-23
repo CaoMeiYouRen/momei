@@ -277,7 +277,7 @@ usePageSeo({
     image: '/logo.png',
 })
 
-const form = reactive({
+const form = ref({
     name: '',
     email: '',
 })
@@ -294,15 +294,15 @@ watch(loggedInUser, (user) => {
     }
 
     const userName = (user as { name?: string | null }).name
-    if (!form.name && userName) {
-        form.name = userName
+    if (!form.value.name && userName) {
+        form.value.name = userName
     }
 
-    if (!form.email && user.email) {
-        form.email = user.email
+    if (!form.value.email && user.email) {
+        form.value.email = user.email
     }
 
-    if (form.email) {
+    if (form.value.email) {
         hasAutoFilled = true
     }
 }, { immediate: true })
@@ -320,16 +320,16 @@ async function handleSubmit() {
         const response = await $fetch('/api/benefits/waitlist', {
             method: 'POST',
             body: {
-                name: form.name,
-                email: form.email,
+                name: form.value.name,
+                email: form.value.email,
                 locale: locale.value || null,
             },
         })
 
         if (response.code === 200) {
             submitSuccess.value = true
-            form.name = ''
-            form.email = ''
+            form.value.name = ''
+            form.value.email = ''
         } else {
             submitError.value = t('pages.enhanced_pack.cta_form.error')
         }

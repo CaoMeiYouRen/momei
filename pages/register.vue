@@ -221,14 +221,14 @@ const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
 const hasSocialLogin = computed(() => Object.values(socialProviders).some((v) => !!v))
-const form = reactive({
+const form = ref({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
     agreed: false,
 })
-const errors = reactive({
+const errors = ref({
     name: '',
     email: '',
     password: '',
@@ -256,17 +256,17 @@ const handleLoginNavigation = () => {
 
 const handleRegister = async () => {
     // Reset errors
-    Object.keys(errors).forEach(
-        (key) => (errors[key as keyof typeof errors] = ''),
+    Object.keys(errors.value).forEach(
+        (key) => (errors.value[key as keyof typeof errors.value] = ''),
     )
 
-    const result = registerSchema.safeParse(form)
+    const result = registerSchema.safeParse(form.value)
 
     if (!result.success) {
         result.error.issues.forEach((issue) => {
-            const key = issue.path[0] as keyof typeof errors
-            if (key in errors) {
-                errors[key] = t(issue.message)
+            const key = issue.path[0] as keyof typeof errors.value
+            if (key in errors.value) {
+                errors.value[key] = t(issue.message)
             }
         })
         return
@@ -277,9 +277,9 @@ const handleRegister = async () => {
         invalidateAuthSessionState()
 
         const { error } = await authClient.signUp.email({
-            email: form.email,
-            password: form.password,
-            name: form.name,
+            email: form.value.email,
+            password: form.value.password,
+            name: form.value.name,
             language: locale.value,
             callbackURL: localePath('/'),
             fetchOptions: {
