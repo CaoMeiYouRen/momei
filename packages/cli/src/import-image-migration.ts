@@ -5,8 +5,7 @@ import type {
     CliDirectUploadAuthorization,
     CliDirectUploadPresignStrategy,
     CliDirectUploadRequest,
-} from './types'
-import type { ParsedPost } from './types'
+    ParsedPost } from './types'
 
 const markdownImagePattern = /!\[[^\]]*\]\(\s*(<[^>\n]+>|[^)\s]+)(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)/gu
 const htmlImagePattern = /<img\b[^>]*?\bsrc\s*=\s*(['"])([^'"]+)\1[^>]*>/giu

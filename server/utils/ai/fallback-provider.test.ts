@@ -1,26 +1,29 @@
+/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unused-vars */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { FallbackAIProvider, type AIFallbackEvent } from './fallback-provider'
+import { FallbackAIProvider } from './fallback-provider'
 import type { AIProvider, AIChatOptions, AIChatResponse, AIChatStreamChunk, AIImageOptions, AIImageResponse } from '@/types/ai'
 
 function createMockProvider(name: string, failOn?: string[]): AIProvider {
-    return {
+    const mock = {
         name,
-        async chat(options: AIChatOptions): Promise<AIChatResponse> {
+        async chat(_options: AIChatOptions): Promise<AIChatResponse> {
             if (failOn?.includes('chat')) {
                 throw new Error(`${name} chat failed`)
             }
             return { content: `${name} response`, model: name }
         },
-        async generateImage(options: AIImageOptions): Promise<AIImageResponse> {
+        async generateImage(_options: AIImageOptions): Promise<AIImageResponse> {
             if (failOn?.includes('image')) {
                 throw new Error(`${name} image failed`)
             }
             return { images: [{ url: `https://${name}.com/img.png` }] }
         },
-        async check(): Promise<boolean> {
-            return !failOn?.includes('check')
+        check(): Promise<boolean> {
+            return Promise.resolve(!failOn?.includes('check'))
         },
     }
+    return mock
 }
 
 // Mock logger

@@ -44,9 +44,9 @@ export interface HugoFrontMatter {
 
 function pickFirstString(...values: unknown[]) {
     for (const value of values) {
-        if (typeof value !== 'string') continue
+        if (typeof value !== 'string') { continue }
         const trimmed = value.trim()
-        if (trimmed) return trimmed
+        if (trimmed) { return trimmed }
     }
     return undefined
 }
@@ -65,10 +65,10 @@ function normalizeStringArray(value?: string | string[]) {
 }
 
 function toIsoDateString(value: unknown) {
-    if (!value) return undefined
-    if (typeof value !== 'string' && !(value instanceof Date)) return undefined
+    if (!value) { return undefined }
+    if (typeof value !== 'string' && !(value instanceof Date)) { return undefined }
     const date = typeof value === 'string' ? new Date(value) : value
-    if (Number.isNaN(date.getTime())) return undefined
+    if (Number.isNaN(date.getTime())) { return undefined }
     return date.toISOString()
 }
 
@@ -77,7 +77,7 @@ function normalizeTags(value: unknown): string[] | undefined {
     if (Array.isArray(value)) {
         const tags = value
             .map((item) => {
-                if (typeof item === 'string') return item.trim()
+                if (typeof item === 'string') { return item.trim() }
                 // Handle TOML array of inline tables like [{tag: "value"}]
                 if (item && typeof item === 'object' && 'tag' in item) {
                     return String((item as Record<string, unknown>).tag).trim()
@@ -97,7 +97,7 @@ function normalizeTags(value: unknown): string[] | undefined {
 function normalizeCategories(value: unknown): string | null {
     if (Array.isArray(value)) {
         const first = value[0]
-        if (typeof first === 'string') return first.trim() || null
+        if (typeof first === 'string') { return first.trim() || null }
         return null
     }
     if (typeof value === 'string') {
@@ -122,10 +122,9 @@ function createYamlEngine() {
 
 function createTomlEngine() {
     return {
-        parse: (input: string) => {
+        parse: (input: string) =>
             // smol-toml parses TOML strings into objects
-            return parseToml(input) as Record<string, unknown>
-        },
+            parseToml(input) as Record<string, unknown>,
     }
 }
 
