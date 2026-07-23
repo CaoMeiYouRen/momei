@@ -26,7 +26,8 @@
     - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
     - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从"继续冲数字"转为"围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理"。
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
-    - 第五十八阶段完成后，目标正式上调至 `90%+`，采用分批渐进策略（每批 1-2 个百分点），覆盖率提升与测试有效性并行不偏废。
+     - 第五十八阶段完成后，目标正式上调至 `90%+`，采用分批渐进策略（每批 1-2 个百分点），覆盖率提升与测试有效性并行不偏废。
+     - 第五十九阶段已完成首批缺口盘点与两批次 8 文件覆盖改进（~252 行 +1.09%），全仓 coverage 基线已通过 `pnpm test:coverage` 验证；后续继续按 1-2 个百分点分批渐进推进。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
     - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
@@ -35,7 +36,8 @@
     - 第五十四阶段（已上收测试有效性第二轮切片：6 个新增失败路径断言，覆盖 TTS/settings/friend-link 三个模块）。
     - 第五十五阶段（已上收测试有效性第三轮切片：7 个新增失败路径断言，覆盖 AI 编辑器、friend-links、admin settings 三个模块）。
     - 第五十六阶段（已上收测试有效性第四轮切片：6 个新增错误路径断言，覆盖 translate/tts-task-get 两个模块）。
-    - 第五十八阶段（已上收测试有效性第六轮切片：12 个新增失败路径断言，覆盖 feed utils/feed-taxonomy-route/MCP endpoint 三个模块；同时完成 90%+ 目标上调）。
+     - 第五十八阶段（已上收测试有效性第六轮切片：12 个新增失败路径断言，覆盖 feed utils/feed-taxonomy-route/MCP endpoint 三个模块；同时完成 90%+ 目标上调）。
+     - 第五十九阶段（已上收测试覆盖率 90%+ 首批：缺口分层盘点报告 + 两批次共 8 文件补测，覆盖改进 ~252 行 ≈+1.09% 全仓预估；全仓 coverage 基线已刷新）。
 - **下一次可切片方向**:
     - 覆盖率提升方向：先对覆盖缺口做分层盘点（哪些模块拖后腿？哪些是高价值缺口？），按 1-2 个百分点分批推进至 90%+。
     - 测试有效性方向：继续“已有测试基座 + 失败/边界优先”节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
@@ -69,9 +71,10 @@
     - 第五十四阶段（已完成规则债 inventory 脚本 + 3 组窄切片：types/marketing.ts、categories slug get、snippets post）。
     - 第五十五阶段（3 组窄切片：social-post-platforms 非空断言 + nuxt.config.ts explicit-any + admin-taxonomy-page 13 处 any，累计消除 22 处；同步更新 eslint-debt-targets.mjs）。
     - 第五十六阶段（3 组窄切片：`submission.ts`、`settings.vue`、`commercial-link-manager.vue` no-explicit-any 收敛，均加入 eslint-debt-targets）。
-    - 第五十八阶段（完成全量 TypeScript 规则基线扫描报告落盘，NO_EXPLICIT_ANY_FILES 目标文件全部清零）。
+     - 第五十八阶段（完成全量 TypeScript 规则基线扫描报告落盘，NO_EXPLICIT_ANY_FILES 目标文件全部清零；治理循环正式关闭）。
 - **下一次可切片方向**:
-    - 下一轮进入实现前，先补一条规则债 inventory 脚本，至少覆盖 `no-explicit-any`、`no-non-null-assertion`、warning 基线与目录分桶；正式切片默认以该脚本输出作为 baseline / delta 事实源。
+    - 治理循环已关闭（NO_EXPLICIT_ANY_FILES 全部清零，全量 TypeScript 规则基线已落盘），短期无新切片方向。
+    - 若后续因新代码引入 `explicit-any` 或 `non-null-assertion`，监控入口由 `regression:weekly` 的 eslint-debt 脚本覆盖，无需主动上收切片。
     - 继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在未覆盖的生产文件中推进。
     - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵。
 
@@ -91,7 +94,9 @@
     - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
     - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
     - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖"重复导入 + 轻包装""局部类型同形状复制"与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
-    - 当前缺少专门面向“未 export 的简单函数 / type / interface”重复盘点脚本，尚不能量化同名或近似名候选的规模，也无法稳定回答哪些候选已经人工判定为“可复用”或“保留局部实现”。
+     - 当前缺少专门面向“未 export 的简单函数 / type / interface”重复盘点脚本，尚不能量化同名或近似名候选的规模，也无法稳定回答哪些候选已经人工判定为“可复用”或“保留局部实现”。
+     - 第五十八阶段已完成 api-client 类型收敛切片（enum 派生 + interface 重命名），Phase 57 延期项已闭环；duplicate-code 维持在 0.31% 健康基线。
+     - 第五十九阶段未上收结构复用切片，下一轮可继续优先推进 CLI 包与主项目类型收敛。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
     - 第三十八阶段（admin 列表页结构复用）。
@@ -108,8 +113,8 @@
     - 第五十一阶段（≥5 组热点切片：commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）。
     - 第五十四阶段（深水区首轮：单函数文件整合—类型守卫/杂项函数合并 + 逻辑重复检测脚本原型）。
     - 第五十五阶段（2 组逻辑重复抽象收敛：taxonomy-post-count.ts 子查询构建器抽取 + post-distribution-wechatsync.ts 泛型 mergeByKey；duplicate-code 0.33% < 基线 1.22%）。
-    - 第五十六阶段（2 组热点切片：`content-processor.ts` 公共初始化 + translate API 共享参数解析；duplicate-code 0.30% < 基线）。
-    - 第五十八阶段（2 组 api-client 类型收敛切片；duplicate-code 基线 0.31% 未反弹）。
+     - 第五十六阶段（2 组热点切片：`content-processor.ts` 公共初始化 + translate API 共享参数解析；duplicate-code 0.30% < 基线）。
+     - 第五十八阶段（2 组 api-client 类型收敛切片；duplicate-code 基线 0.31% 未反弹；Phase 57 结构复用延期项已闭环）。
 - **下一次可切片方向**:
     - 下一轮优先进入 CLI 包与主项目的类型收敛：`MomeiPostStatus` → 从 `PostStatus` 枚举派生、`MomeiPostScaffoldMetadata` → 直接 import。
     - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹。
@@ -515,79 +520,32 @@
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
 - **详细方案**: 待设计（建议上收前先输出“reactive 使用清单 + 迁移优先级 + 验证用例映射”）。
 
-### 2026-07 基础设施增强候选任务（MCP HTTP 已上收至第五十八阶段）
+### 2026-07 批次已上收（MCP HTTP → Phase 58，近期热门文章 + E2E CI → Phase 59）
 
-15. ~~**MCP HTTP 传输与本体挂载 (P2, 候选)**~~ 已上收 Phase 58
-- **背景**: 当前 MCP 服务器仅支持 stdio 协议，AI 客户端需通过本地子进程方式启动独立 Node.js 进程。这限制了远程访问、云上部署及多客户端复用一个服务端的场景。
-- **设计文档**: [`docs/design/modules/mcp-http.md`](../design/modules/mcp-http.md)
-- **决策记录**:
-    | 决策项 | 结论 |
-    |--------|------|
-    | 依赖策略 | `@modelcontextprotocol/sdk` 添加为根依赖，动态导入不影响冷启动 |
-    | HTTP 路径 | `/api/mcp` |
-    | Serverless 策略 | SSE 不可用时静默降级，不阻塞启动 |
-    | 认证策略 | 复用外部 API Key（`X-API-Key`） |
-- **核心变更**:
-    - 新增 `server/plugins/mcp-http.ts`：条件守卫 + 动态导入 + HTTP Transport
-    - 新增环境变量 `MOMEI_ENABLE_MCP_HTTP`（默认 `false`）
-    - 根依赖新增 `@modelcontextprotocol/sdk`
-    - 复用现有外部 API Key 鉴权和速率限制
-- **非目标**:
-    - 不替换现有 stdio 模式，两种模式可共存
-    - 不做 MCP 共享层抽取（延后 Phase 2/3）
-    - 不新增独立端口，挂载于主应用已有端口
-- **前置条件**:
-    - 确认 `packages/mcp-server` 的 `exports` 映射是否包含 `tools/` 子路径
-    - 验证 `StreamableHTTPServerTransport` 在 Nitro h3 环境中的兼容性
+15. ~~**MCP HTTP 传输与本体挂载 (P2, 候选)**~~ 已上收 Phase 58 且已审计归档
+16. ~~**近期热门文章列表 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
+17. ~~**E2E 测试 CI 运行时间优化 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
+
+---
+
+### 2026-07 新候选：代码质量与架构治理
+
+18. **Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选)**
+- **背景**: 当前部分 Zod Schema 在同一个模型的 Create/Update 间存在字段定义重复。已有 `sharedPostFields`、`.partial()` 等良好模式，但 Ad Campaign（5 字段重复）、Ad Placement（10 字段重复）在 API handler 中内联定义独立 schema，Category/Tag 的 `updateSchema` 存在不必要的 `.extend({slug})` 覆写，Post 的 4 个日期字段在 create/update 间重复定义，Marketing Campaign 缺少独立的 update schema。
+- **技术方案**: 按严重程度分两批推进：
+  - **首批（高收益）**：将 Ad Campaign 和 Ad Placement 的内联 schema 抽取到 `utils/schemas/ad.ts`，使用基对象 + `.partial()` 模式定义 create/update，预计消除 ~25 行重复定义。
+  - **第二批（清理）**：移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）、将 Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段抽取为共享对象、为 Marketing Campaign 创建 `marketingCampaignUpdateSchema = marketingCampaignSchema.partial()`。
+- **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）、不改动 API 行为或验证语义、不为复用而引入过度抽象。
+- **前置条件**: 确认 Ad Campaign/Placement 的 create/update 参数语义是否有一致性差异（如某字段在 create 时必填但在 update 时不可改）。
 - **验收标准**:
-    - `MOMEI_ENABLE_MCP_HTTP=true` 时 `/api/mcp` 端点可用，工具调用正常返回
-    - 未设置环境变量时 SDK 不被加载，零冷启动影响
-    - Serverless 环境（Vercel/CF）静默降级，不报错不阻塞
-    - API Key 缺失返回 401，与外部 API 鉴权行为一致
-    - `pnpm typecheck` + `pnpm lint` 通过
-- **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 2 = **1.40**
-- **详细方案**: [MCP HTTP 传输与本体挂载设计](../design/modules/mcp-http.md)
-16. **近期热门文章列表 (P2, 候选)**
-- **背景**: 首页已存在“最新文章”和“热门文章”两个区块，但热门文章基于全站累计阅读量排序，缺少时间维度。新增“近期热门”区块，展示一年内阅读量增量最多的文章，提升首页内容时效性与发现性。
-- **技术方案**:
-    - 后端：新增 `GET /api/posts/hot` 端点（或给 `/api/posts` 加 `timeRange` 参数），聚合 `post_view_hourly` 表近 365 天数据，按 views 增量降序排列，返回前 3 篇。
-    - 前端：首页新增“近期热门”区块（3 篇），位于“最新文章”与“全站热门”之间。
-    - 重命名：原“热门文章”改为“全站热门”，保持现有 `/api/posts?orderBy=views` 逻辑不变。
-    - 去重：近期热门与最新文章不重复（复用现有 `excludeIds` 机制）；全站热门允许与近期热门重复。
-    - 限流处理：浏览量计数端点 `POST /api/posts/[id]/views` 在 E2E 测试期间通过环境变量调高限流阈值。
-- **非目标**: 不做 Admin 分析面板的扩展、不替换现有热门文章排序逻辑。
-- **前置条件**:
-    - 确认 `post_view_hourly` 表的数据回溯周期足够覆盖 365 天。
-    - 评估是否需要为 365 天窗口新增数据库索引（当前 7/30/90 天已有覆盖）。
-- **验收标准**:
-    - 首页展示三个区块：最新文章（3 篇）→ 近期热门（3 篇）→ 全站热门（3 篇）。
-    - 近期热门基于近 365 天 `post_view_hourly` 聚合排序。
-    - 近期热门与最新文章无重复；全站热门允许与近期热门重复。
-    - 全站热门保持原有 `/api/posts?orderBy=views` 逻辑。
-    - `pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
-- **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 1 = **1.50**
-- **详细方案**: 待设计
-17. **E2E 测试 CI 运行时间优化 (P2, 候选)**
-- **背景**: 当前 E2E 测试在 GitHub Actions 上的运行时间超过 28 分钟，严重影响 CI 反馈速度。经分析，三个主要瓶颈：
-    1. 浏览量计数端点 `POST /api/posts/[id]/views` 硬编码限流 3 次/10 分钟（`server/api/posts/[id]/views.post.ts`），无 `TEST_MODE` 守卫，E2E 中触发 429 后 Playwright 重试（CI retries=2）大幅拖慢总时间。
-    2. 未启用 GitHub Actions 分片，17 个测试文件 × 5 浏览器项目全部在单 runner 上串行/有限并行执行。
-    3. 每次 CI 运行需重新构建 Nuxt 应用（`pnpm build`），`.output` 未被缓存复用。
-- **优化方案**:
-    - **限流修复（P0）**：在 E2E 测试期间通过环境变量调高浏览量计数端点限流阈值。可在 `playwright.config.ts` 的 `e2eServerEnv` 中添加 `NUXT_RATE_LIMIT_DEFAULT_POST_MAX=9999` 等覆盖值，或直接修改 `views.post.ts` 使其在 `TEST_MODE` 下跳过限流。
-    - **GHA 分片（P1）**：按浏览器项目分片（chromium/firefox/webkit 各一 runner，mobile 合并或独立）。预计从 28 分钟降至 10-15 分钟。
-    - **构建缓存（P1）**：缓存 `pnpm build` 产物 `.output/`，仅在依赖变更时重构建。
-    - **测试筛选（P2）**：考虑将完整 E2E 与关键 E2E（`test:e2e:critical`）分离触发器——PR push 只跑关键 E2E，合并前跑完整 E2E。
-- **非目标**: 不重写测试内容、不减少测试覆盖率、不改变 E2E 测试框架。
-- **前置条件**:
-    - 确认 GHA runner 的并发 quota 是否支持分片后同时运行多个 E2E 作业。
-    - 确认 `@playwright/test` 的 `shard` 配置与当前 `fullyParallel` 模式的兼容性。
-- **验收标准**:
-    - E2E CI 总运行时间 < 25 分钟（预期 < 20 分钟）。
-    - 分片后各 runner 测试结果正常聚合（`merge-reports`）。
-    - E2E 测试零回归。
-    - 构建缓存有效减少重复构建时间（cache hit 时跳过 `pnpm build`）。
-- **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 4 = **1.67**
-- **详细方案**: 待设计
+  - Ad Campaign/Placement 的 create/update schema 共享同一字段基对象，差异仅通过 `.partial()` / `.omit()` / `.extend()` 实现
+  - Category/Tag 的 `updateSchema` 不再包含冗余的 `.extend({slug})`
+  - Post 的 4 个日期/视图字段从 `sharedPostFields` 或独立共享对象派生
+  - Marketing Campaign 有独立的 `marketingCampaignUpdateSchema`
+  - `pnpm typecheck` + `pnpm lint` + 受影响 API 的定向测试通过
+  - 无 API 行为回归
+- **ROI**: 价值 3 / 契合度 4 / 复杂度 2 / 风险 1 = **1.60**
+- **详细方案**: 待设计（建议上收前先输出 "CRUD Schema 复用缺口清单"）
 
 
 ## 相关文档
