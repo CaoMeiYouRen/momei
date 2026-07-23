@@ -1,20 +1,7 @@
 import { z } from 'zod'
 import { createPlacement } from '../../../services/ad'
-import { AdFormat, AdLocation } from '@/types/ad'
 import { requireAdmin } from '@/server/utils/permission'
-
-const createPlacementSchema = z.object({
-    name: z.string().trim().min(1),
-    format: z.enum(AdFormat),
-    location: z.enum(AdLocation),
-    adapterId: z.string().trim().min(1),
-    metadata: z.record(z.string(), z.unknown()).optional().default({}),
-    enabled: z.boolean().optional(),
-    targeting: z.record(z.string(), z.unknown()).optional().default({}),
-    priority: z.number().int().min(0).optional(),
-    customCss: z.string().nullable().optional(),
-    campaignId: z.string().nullable().optional(),
-})
+import { createPlacementSchema } from '@/utils/schemas/ad'
 
 /**
  * 创建广告位

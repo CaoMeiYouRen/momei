@@ -2,14 +2,7 @@ import { z } from 'zod'
 import { createCampaign } from '../../../services/ad'
 import { CampaignStatus } from '@/types/ad'
 import { requireAdmin } from '@/server/utils/permission'
-
-const createCampaignSchema = z.object({
-    name: z.string().trim().min(1),
-    status: z.enum(CampaignStatus).optional(),
-    startDate: z.union([z.string(), z.date()]).nullable().optional(),
-    endDate: z.union([z.string(), z.date()]).nullable().optional(),
-    targeting: z.record(z.string(), z.unknown()).optional().default({}),
-})
+import { createCampaignSchema } from '@/utils/schemas/ad'
 
 function toDateOrNull(value?: string | Date | null): Date | null {
     if (!value) {

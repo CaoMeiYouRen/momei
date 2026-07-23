@@ -47,11 +47,11 @@
 
 ### P1 — Zod Schema 复用治理首批：Ad Campaign + Ad Placement（候选 #18）
 
-- [ ] 将 Ad Campaign 的 `createCampaignSchema`（`campaigns.post.ts`）和 `updateCampaignSchema`（`campaigns/[id].put.ts`）抽取到 `utils/schemas/ad.ts`：共享基对象 + `.partial()` 派生 update
-- [ ] 将 Ad Placement 的 `createPlacementSchema`（`placements.post.ts`）和 `updatePlacementSchema`（`placements/[id].put.ts`）抽取到 `utils/schemas/ad.ts`：共享基对象 + `.partial()` 派生 update
-- [ ] 确认 Ad Campaign/Placement 的 create/update 参数语义一致性（如有字段在 create 时必填但在 update 时不可改，使用 `.omit()` 而非 `.partial()`）
-- [ ] 更新 API handler 中的 import 路径指向共享 schema
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + 受影响 API（campaign/create/update、placement/create/update）的定向测试通过
+- [x] 将 Ad Campaign 的 `createCampaignSchema`（`campaigns.post.ts`）和 `updateCampaignSchema`（`campaigns/[id].put.ts`）抽取到 `utils/schemas/ad.ts`：共享基对象 + `.partial()` 派生 update
+- [x] 将 Ad Placement 的 `createPlacementSchema`（`placements.post.ts`）和 `updatePlacementSchema`（`placements/[id].put.ts`）抽取到 `utils/schemas/ad.ts`：共享基对象 + `.partial()` 派生 update
+- [x] 确认 Ad Campaign/Placement 的 create/update 参数语义一致性（无 create 必填但 update 不可改字段，使用 `.partial()` 正确；update 独有字段 `impressions/clicks/revenue` 通过 `.extend()` 追加）
+- [x] 更新 API handler 中的 import 路径指向共享 schema
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint`（定向文件）✅ + 受影响的定向测试（`placements.post.test.ts` 4/4 + `ad.service.test.ts` 6/6 + `ad.test.ts` + `post.test.ts` 46/46）全部通过 ✅
 
 ### P2 — 测试覆盖率 90%+ 第二批（长期主线 #1）
 
