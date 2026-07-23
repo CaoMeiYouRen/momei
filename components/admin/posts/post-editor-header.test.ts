@@ -36,6 +36,8 @@ describe('PostEditorHeader', () => {
         hasUnsavedContent: false,
         aiLoading: {},
         titleSuggestions: [],
+        reviewSuggestions: [],
+        reviewPanelVisible: false,
     }
 
     const mountHeader = (props = defaultProps) => mountSuspended(PostEditorHeader, {
@@ -61,7 +63,7 @@ describe('PostEditorHeader', () => {
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
-        expect(aiGroup.findAll('button').length).toBe(4) // Suggest, Translate, Format, Voice
+        expect(aiGroup.findAll('button').length).toBe(6) // Suggest, Rewrite, Review, Translate, Format, Voice
     })
 
     it('renders status tag and translation badges in right bar', async () => {

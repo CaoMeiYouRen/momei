@@ -89,6 +89,23 @@ export const AI_PROMPTS = {
         + 'Available categories: {{categories}}\n\n'
         + 'Title: {{title}}\n\n'
         + 'Content: {{content}}',
+    REWRITE:
+        'Rewrite the following content in {{language}} with a {{style}} style. '
+        + 'Maintain the original meaning, factual accuracy, and markdown formatting. '
+        + 'Improve clarity, flow, and readability. '
+        + 'Output ONLY the rewritten content, no explanations or prefixes:\n\n{{content}}',
+    REVIEW:
+        'Review the following content in {{language}} for grammar, spelling, logical coherence, style consistency, '
+        + 'and factual accuracy. Provide specific, actionable improvement suggestions as a JSON array. '
+        + 'Each suggestion should have these fields:\n'
+        + '- "type": one of "grammar", "spelling", "logic", "style", "fact"\n'
+        + '- "severity": one of "minor", "major", "critical"\n'
+        + '- "original": the original problematic text segment (exact substring)\n'
+        + '- "suggestion": explanation of the issue and suggested improvement\n'
+        + '- "replacement" (optional): suggested replacement text\n\n'
+        + 'IMPORTANT: Return ONLY a valid JSON array, no markdown fences, no explanations before or after.\n'
+        + 'If no issues found, return an empty array [].\n\n'
+        + 'Content to review:\n{{content}}',
 }
 
 export function formatPrompt(

@@ -433,3 +433,14 @@ export interface AIConfig {
 export type AIImageConfig = AIConfig
 export type AITTSConfig = AIConfig
 export type AIASRConfig = AIConfig
+
+// --- AI Edit Enhancement ---
+export type RewriteStyle = 'formal' | 'casual' | 'academic'
+
+export interface AIReviewSuggestion {
+    type: 'grammar' | 'spelling' | 'logic' | 'style' | 'fact'
+    severity: 'minor' | 'major' | 'critical'
+    original: string
+    suggestion: string
+    replacement?: string
+}

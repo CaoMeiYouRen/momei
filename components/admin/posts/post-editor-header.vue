@@ -26,6 +26,25 @@
                     @click="emit('suggest-titles', $event)"
                 />
                 <Button
+                    id="ai-rewrite-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.rewrite')"
+                    icon="pi pi-pencil"
+                    text
+                    outlined
+                    :loading="aiLoading.rewrite"
+                    @click="rewriteOp.toggle($event)"
+                />
+                <Button
+                    id="ai-review-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.review')"
+                    icon="pi pi-search"
+                    text
+                    outlined
+                    :loading="aiLoading.review"
+                    :badge="reviewSuggestions.length > 0 ? String(reviewSuggestions.length) : undefined"
+                    @click="emit('review-content')"
+                />
+                <Button
                     id="ai-translate-btn"
                     v-tooltip="$t('pages.admin.posts.ai.translate')"
                     icon="pi pi-language"
@@ -50,6 +69,25 @@
                     button-class="top-bar__voice-trigger"
                 />
             </ButtonGroup>
+            <Popover ref="rewriteOp" class="rewrite-menu">
+                <div class="rewrite-menu__content">
+                    <div class="rewrite-menu__title">
+                        {{ $t('pages.admin.posts.ai.rewrite_style_title') }}
+                    </div>
+                    <div
+                        v-for="style in rewriteStyles"
+                        :key="style.value"
+                        class="rewrite-menu__item"
+                        @click="handleRewriteSelect(style.value)"
+                    >
+                        <i :class="style.icon" class="rewrite-menu__item-icon" />
+                        <div class="rewrite-menu__item-text">
+                            <div class="rewrite-menu__item-label">{{ style.label }}</div>
+                            <div class="rewrite-menu__item-desc">{{ style.desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </Popover>
             <Popover ref="translateOp" class="translate-menu">
                 <div class="translate-menu__content">
                     <div
@@ -199,11 +237,18 @@
                 @click="emit('open-settings')"
             />
         </div>
+
+        <PostEditorReviewPanel
+            :visible="reviewPanelVisible"
+            :suggestions="reviewSuggestions"
+            @close="emit('update:review-panel-visible', false)"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
+import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -232,6 +277,8 @@ const props = defineProps<{
     hasUnsavedContent: boolean
     aiLoading: any
     titleSuggestions: string[]
+    reviewSuggestions: any[]
+    reviewPanelVisible: boolean
 }>()
 
 const emit = defineEmits([
@@ -243,12 +290,42 @@ const emit = defineEmits([
     'open-settings',
     'open-history',
     'translate-content',
+    'rewrite-content',
+    'review-content',
+    'update:review-panel-visible',
 ])
 
 const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
+const rewriteOp = ref<any>(null)
+
+const rewriteStyles = [
+    {
+        value: 'casual' as const,
+        icon: 'pi pi-comments',
+        label: t('pages.admin.posts.ai.rewrite_style_casual'),
+        desc: t('pages.admin.posts.ai.rewrite_style_casual_desc'),
+    },
+    {
+        value: 'formal' as const,
+        icon: 'pi pi-building',
+        label: t('pages.admin.posts.ai.rewrite_style_formal'),
+        desc: t('pages.admin.posts.ai.rewrite_style_formal_desc'),
+    },
+    {
+        value: 'academic' as const,
+        icon: 'pi pi-book',
+        label: t('pages.admin.posts.ai.rewrite_style_academic'),
+        desc: t('pages.admin.posts.ai.rewrite_style_academic_desc'),
+    },
+]
+
+const handleRewriteSelect = (style: 'formal' | 'casual' | 'academic') => {
+    rewriteOp.value?.hide()
+    emit('rewrite-content', style)
+}
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
 const lastFocusedEditorElement = ref<HTMLElement | null>(null)
 
@@ -533,6 +610,63 @@ defineExpose({
     }
 }
 
+.rewrite-menu {
+    &__content {
+        min-width: 220px;
+        padding: 0.5rem;
+    }
+
+    &__title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        color: var(--p-text-muted-color);
+        border-bottom: 1px solid var(--p-surface-border);
+        margin-bottom: 0.25rem;
+    }
+
+    &__item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: var(--p-border-radius-md);
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: var(--p-surface-hover);
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__item-icon {
+        font-size: 1.1rem;
+        margin-top: 0.125rem;
+        color: var(--p-primary-color);
+    }
+
+    &__item-text {
+        flex: 1;
+    }
+
+    &__item-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--p-text-color);
+    }
+
+    &__item-desc {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        margin-top: 0.125rem;
+        line-height: 1.4;
+    }
+}
+
 :global(.dark) {
     .translate-menu {
         &__item:hover {
@@ -549,6 +683,12 @@ defineExpose({
 
         &__footer-btn:hover {
             background-color: var(--p-primary-900-opacity-20);
+        }
+    }
+
+    .rewrite-menu {
+        &__item:hover {
+            background-color: var(--p-surface-800);
         }
     }
 }

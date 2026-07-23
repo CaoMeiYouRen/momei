@@ -3,6 +3,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
+import type { RewriteStyle, AIReviewSuggestion } from '@/types/ai'
 
 const MIN_TASK_POLLING_INTERVAL = 10000
 
@@ -46,6 +47,10 @@ interface StringResponse {
     data: string
 }
 
+interface ReviewResponse {
+    data: AIReviewSuggestion[]
+}
+
 /**
  * 封装文章编辑器里的 AI 辅助动作。
  *
@@ -66,6 +71,8 @@ export function usePostEditorAI(
         tags: false,
         slug: false,
         translate: false,
+        rewrite: false,
+        review: false,
     })
 
     const titleSuggestions = ref<string[]>([])
@@ -404,6 +411,135 @@ export function usePostEditorAI(
         }
     }
 
+    /**
+     * 获取编辑器 textarea 中选中的文本。
+     * 如果没有选中文本，返回 null。
+     */
+    const getEditorSelectedText = (): { text: string, start: number, end: number } | null => {
+        const textarea = document.querySelector('.auto-textarea-input') as HTMLTextAreaElement | null
+        if (!textarea) {
+            return null
+        }
+
+        const { selectionStart, selectionEnd, value } = textarea
+        if (selectionStart === selectionEnd) {
+            return null
+        }
+
+        return {
+            text: value.substring(selectionStart, selectionEnd),
+            start: selectionStart,
+            end: selectionEnd,
+        }
+    }
+
+    /**
+     * 替换编辑器中指定范围的文本。
+     */
+    const replaceEditorSelection = (start: number, end: number, replacement: string) => {
+        const textarea = document.querySelector('.auto-textarea-input') as HTMLTextAreaElement | null
+        if (!textarea) {
+            return
+        }
+
+        const before = post.value.content.substring(0, start)
+        const after = post.value.content.substring(end)
+        post.value.content = before + replacement + after
+
+        // 恢复焦点并将光标移动到替换文本末尾
+        textarea.focus()
+        textarea.setSelectionRange(start + replacement.length, start + replacement.length)
+    }
+
+    const rewriteContent = async (style: RewriteStyle = 'casual') => {
+        const selected = getEditorSelectedText()
+        const contentToRewrite = selected ? selected.text : post.value.content
+
+        if (!contentToRewrite || contentToRewrite.trim().length < 2) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.rewrite = true
+        try {
+            const { data } = await $fetch<StringResponse>('/api/ai/rewrite', {
+                method: 'POST',
+                body: {
+                    content: contentToRewrite,
+                    style,
+                    language: post.value.language,
+                },
+            })
+
+            if (selected) {
+                replaceEditorSelection(selected.start, selected.end, data)
+            } else {
+                post.value.content = data
+            }
+
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.ai.rewrite_success'),
+                life: 3000,
+            })
+        } catch (error) {
+            console.error('AI Rewrite error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.rewrite = false
+        }
+    }
+
+    const reviewSuggestions = ref<AIReviewSuggestion[]>([])
+    const reviewPanelVisible = ref(false)
+
+    const reviewContent = async () => {
+        if (!post.value.content || post.value.content.trim().length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.review = true
+        try {
+            const { data } = await $fetch<ReviewResponse>('/api/ai/review', {
+                method: 'POST',
+                body: {
+                    content: post.value.content,
+                    language: post.value.language,
+                },
+            })
+
+            reviewSuggestions.value = data || []
+            reviewPanelVisible.value = true
+        } catch (error) {
+            console.error('AI Review error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.review = false
+        }
+    }
+
     return {
         aiLoading,
         titleSuggestions,
@@ -414,5 +550,9 @@ export function usePostEditorAI(
         suggestSummary,
         recommendTags,
         translateContent,
+        rewriteContent,
+        reviewContent,
+        reviewSuggestions,
+        reviewPanelVisible,
     }
 }

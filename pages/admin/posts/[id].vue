@@ -19,10 +19,15 @@
             :has-unsaved-content="isNew && !post.id && hasUnsavedNewDraftContent(post)"
             :ai-loading="aiLoading"
             :title-suggestions="titleSuggestions"
+            :review-suggestions="reviewSuggestions"
+            :review-panel-visible="reviewPanelVisible"
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
             @handle-translation="(lang) => handleTranslationClick(lang)"
             @translate-content="(lang) => openTranslationWorkflow(lang)"
+            @rewrite-content="(style) => rewriteContent(style)"
+            @review-content="reviewContent"
+            @update:review-panel-visible="reviewPanelVisible = $event"
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
@@ -201,6 +206,10 @@ const {
     suggestSlug,
     suggestSummary,
     recommendTags,
+    rewriteContent,
+    reviewContent,
+    reviewSuggestions,
+    reviewPanelVisible,
     cancelFieldTranslation,
     retryFieldTranslation,
     translationProgress,

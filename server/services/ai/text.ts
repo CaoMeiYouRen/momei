@@ -729,6 +729,141 @@ export class TextService extends AIBaseService {
         return categories
     }
 
+    static async rewrite(
+        content: string,
+        style: 'formal' | 'casual' | 'academic' = 'casual',
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'rewrite',
+            payload: { content: inputContent, style, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const styles: Record<string, string> = {
+            formal: 'formal and professional',
+            casual: 'casual and conversational',
+            academic: 'academic and scholarly',
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.REWRITE, {
+            content: inputContent,
+            language,
+            style: styles[style] || style,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional editor. Rewrite content in ${language} with ${styles[style] || style} style.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+            userId,
+        })
+
+        this.logUsage({ task: 'rewrite', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'rewrite',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, style, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        return response.content.trim()
+    }
+
+    static async review(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'review',
+            payload: { content: inputContent, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.REVIEW, {
+            content: inputContent,
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional proofreader and editor. Review content in ${language} and provide structured suggestions.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.3,
+            userId,
+        })
+
+        this.logUsage({ task: 'review', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'review',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        // Parse structured suggestions from the response
+        try {
+            const cleanedContent = response.content
+                .replace(/```(?:json)?\s*/g, '')
+                .trim()
+            const suggestions = JSON.parse(cleanedContent) as Array<{
+                type: 'grammar' | 'spelling' | 'logic' | 'style' | 'fact'
+                severity: 'minor' | 'major' | 'critical'
+                original: string
+                suggestion: string
+                replacement?: string
+            }>
+            return Array.isArray(suggestions) ? suggestions : []
+        } catch {
+            // If parsing fails, return a single generic suggestion with raw content
+            logger.warn('Failed to parse AI review response as JSON, returning raw text')
+            return [{
+                type: 'style' as const,
+                severity: 'minor' as const,
+                original: '',
+                suggestion: response.content.trim(),
+                replacement: undefined,
+            }]
+        }
+    }
+
     static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         if (content.length > AI_MAX_CONTENT_LENGTH) {
             throw createError({ statusCode: 413, message: 'Content too long' })
