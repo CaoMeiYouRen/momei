@@ -45,6 +45,10 @@
                             "topic-hero": "特集ヒーロー"
                         }
                     },
+                    "continue": "AI 続きを書く",
+                    "continue_tooltip": "続きを書く（カーソルを置くかテキストを選択）",
+                    "continue_no_cursor": "続きを書きたい位置にカーソルを置いてください",
+                    "continue_success": "続きを書き追加しました",
                     "rewrite": "AI リライト",
                     "rewrite_tooltip": "リライト（先にテキストを選択）",
                     "rewrite_select_first": "リライトするテキストを先に選択してください",

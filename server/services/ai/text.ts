@@ -869,6 +869,58 @@ export class TextService extends AIBaseService {
         }
     }
 
+    static async continueWriting(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'continue',
+            payload: { content: inputContent, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.CONTINUE, {
+            content: inputContent,
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional writer. Continue writing content in ${language}, maintaining the same style and voice.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+            userId,
+        })
+
+        this.logUsage({ task: 'continue', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'continue',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        return response.content.trim()
+    }
+
     static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         if (content.length > AI_MAX_CONTENT_LENGTH) {
             throw createError({ statusCode: 413, message: 'Content too long' })

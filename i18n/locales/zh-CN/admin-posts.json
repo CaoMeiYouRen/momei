@@ -45,6 +45,10 @@
                             "topic-hero": "专题头图"
                         }
                     },
+                    "continue": "AI 续写",
+                    "continue_tooltip": "续写（将光标放在想继续写的位置或选中文本）",
+                    "continue_no_cursor": "请将光标放在想继续写的位置",
+                    "continue_success": "续写成功",
                     "rewrite": "AI 改写",
                     "rewrite_tooltip": "改写（请先选中文本）",
                     "rewrite_select_first": "请先选中要改写的文本",

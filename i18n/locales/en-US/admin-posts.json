@@ -45,6 +45,10 @@
                             "topic-hero": "Topic Hero Image"
                         }
                     },
+                    "continue": "AI Continue",
+                    "continue_tooltip": "Continue writing (place cursor or select text)",
+                    "continue_no_cursor": "Please place the cursor where you want to continue writing",
+                    "continue_success": "Content continued successfully",
                     "rewrite": "AI Rewrite",
                     "rewrite_tooltip": "Rewrite (select text first)",
                     "rewrite_select_first": "Please select the text to rewrite first",

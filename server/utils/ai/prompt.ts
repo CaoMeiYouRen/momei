@@ -94,6 +94,12 @@ export const AI_PROMPTS = {
         + 'Maintain the original meaning, factual accuracy, and markdown formatting. '
         + 'Improve clarity, flow, and readability. '
         + 'Output ONLY the rewritten content, no explanations or prefixes:\n\n{{content}}',
+    CONTINUE:
+        'Continue writing the following content in {{language}}. '
+        + 'Maintain the same style, tone, and markdown formatting as the provided content. '
+        + 'Generate a natural and coherent continuation (2-3 paragraphs). '
+        + 'Do NOT repeat or rephrase what has already been written. '
+        + 'Output ONLY the continued content, no explanations or prefixes:\n\n{{content}}',
     REVIEW:
         'Review the following content in {{language}} for grammar, spelling, logical coherence, style consistency, '
         + 'and factual accuracy. Provide specific, actionable improvement suggestions as a JSON array. '

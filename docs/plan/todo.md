@@ -29,12 +29,13 @@
 
 ### P0 — AI 编辑增强：续写（Continue，候选 #9 子功能）
 
-- [ ] 后端：新增 `/api/ai/continue` 端点，复用现有 AI 管线
-- [ ] 前端：编辑器工具栏新增"续写"按钮，基于光标位置或选中文本续写内容
-- [ ] 计费：复用 AI 计费和额度管理，扩展支持 continue 操作类型
-- [ ] 续写流程：选中文本 → 调用 AI → 在光标处插入续写内容，支持撤销
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
-- [ ] 审计 (A)：`code-quality-auditor` Review Gate Pass
+- [x] 后端：新增 `/api/ai/continue` 端点（`server/api/ai/continue.post.ts`），复用现有 AI 管线（`TextService.continueWriting()` + `AI_PROMPTS.CONTINUE` 模板）
+- [x] 前端：编辑器工具栏新增"续写"按钮（`#ai-continue-btn`），基于光标位置或选中文本续写内容
+- [x] 计费：复用 AI 计费和额度管理，支持 continue 操作类型（`recordTask({ type: 'continue' })`）
+- [x] 续写流程：取光标前上下文内容 → 调用 AI → 在光标处插入续写内容，支持撤销（Ctrl+Z）
+- [x] i18n：新增续写相关文案翻译（zh-CN/en-US/zh-TW/ja-JP/ko-KR）
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（503/504 files, 3958/3959 tests）
+- [x] 审计 (A)：`code-quality-auditor` Review Gate Pass（无 blocker，证据见 `artifacts/review-gate/2026-07-23-ai-continue.md`）
 
 ### P1 — 响应式状态模型收敛：reactive 到 ref 渐进迁移 Step 1（候选 #14）
 

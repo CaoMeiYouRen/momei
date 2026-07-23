@@ -26,6 +26,15 @@
                     @click="emit('suggest-titles', $event)"
                 />
                 <Button
+                    id="ai-continue-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.continue_tooltip')"
+                    icon="pi pi-forward"
+                    text
+                    outlined
+                    :loading="aiLoading.continue"
+                    @click="emit('continue-content')"
+                />
+                <Button
                     id="ai-rewrite-btn"
                     v-tooltip="$t('pages.admin.posts.ai.rewrite_tooltip')"
                     icon="pi pi-pencil"
@@ -296,6 +305,7 @@ const emit = defineEmits<{
     (e: 'translate-content', lang: string | null): void
     (e: 'rewrite-content', style: string): void
     (e: 'review-content'): void
+    (e: 'continue-content'): void
     (e: 'update:review-panel-visible', visible: boolean): void
 }>()
 

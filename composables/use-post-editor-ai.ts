@@ -73,6 +73,7 @@ export function usePostEditorAI(
         translate: false,
         rewrite: false,
         review: false,
+        continue: false,
     })
 
     const titleSuggestions = ref<string[]>([])
@@ -451,6 +452,35 @@ export function usePostEditorAI(
         textarea.setSelectionRange(start + replacement.length, start + replacement.length)
     }
 
+    /**
+     * 获取编辑器光标位置的上下文（光标前的文本）。
+     * 如果存在选中文本，返回选中文本作为上下文。
+     * 返回 { context, cursorPosition }。
+     */
+    const getEditorCursorContext = (): { context: string, cursorPosition: number } | null => {
+        const textarea = document.querySelector('.auto-textarea-input')
+        if (!(textarea instanceof HTMLTextAreaElement)) {
+            return null
+        }
+
+        const { selectionStart, selectionEnd, value } = textarea
+
+        // 如果有选中文本，使用选中文本作为上下文，光标在选中末尾
+        if (selectionStart !== selectionEnd) {
+            return {
+                context: value.substring(selectionStart, selectionEnd),
+                cursorPosition: selectionEnd,
+            }
+        }
+
+        // 没有选中文本：取光标前的内容作为上下文（最多 3000 字符）
+        const start = Math.max(0, selectionStart - 3000)
+        return {
+            context: value.substring(start, selectionStart),
+            cursorPosition: selectionStart,
+        }
+    }
+
     // --- 改写：对比模式 ---
     const rewriteCompareData = ref<RewriteCompareData | null>(null)
     const rewriteCompareVisible = ref(false)
@@ -618,6 +648,76 @@ export function usePostEditorAI(
         }
     }
 
+    // --- 续写：在光标位置插入 ---
+    const continueContent = async () => {
+        const cursorContext = getEditorCursorContext()
+        if (!cursorContext) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.ai.continue_no_cursor'),
+                life: 3000,
+            })
+            return
+        }
+
+        if (cursorContext.context.trim().length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.continue = true
+        try {
+            const { data } = await $fetch<StringResponse>('/api/ai/continue', {
+                method: 'POST',
+                body: {
+                    content: cursorContext.context,
+                    language: post.value.language,
+                },
+            })
+
+            if (!data) {
+                throw new Error('Empty response from AI')
+            }
+
+            // 在光标位置插入续写内容
+            const insertPos = cursorContext.cursorPosition
+            post.value.content = post.value.content.substring(0, insertPos)
+                + data
+                + post.value.content.substring(insertPos)
+
+            // 光标移动到续写内容末尾
+            const newCursorPos = insertPos + data.length
+            const textarea = document.querySelector('.auto-textarea-input')
+            if (textarea instanceof HTMLTextAreaElement) {
+                textarea.focus()
+                textarea.setSelectionRange(newCursorPos, newCursorPos)
+            }
+
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.ai.continue_success'),
+                life: 3000,
+            })
+        } catch (error) {
+            console.error('AI Continue error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.continue = false
+        }
+    }
+
     return {
         aiLoading,
         titleSuggestions,
@@ -637,5 +737,6 @@ export function usePostEditorAI(
         reviewSuggestions,
         reviewPanelVisible,
         lastReviewAt,
+        continueContent,
     }
 }

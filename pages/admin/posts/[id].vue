@@ -27,6 +27,7 @@
             @translate-content="(lang) => openTranslationWorkflow(lang)"
             @rewrite-content="(style) => rewriteContent(style)"
             @review-content="reviewContent"
+            @continue-content="continueContent"
             @update:review-panel-visible="reviewPanelVisible = $event"
             @preview="handlePreview"
             @save="savePost"
@@ -223,6 +224,7 @@ const {
     reviewSuggestions,
     reviewPanelVisible,
     lastReviewAt,
+    continueContent,
     cancelFieldTranslation,
     retryFieldTranslation,
     translationProgress,
