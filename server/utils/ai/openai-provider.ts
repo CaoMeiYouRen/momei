@@ -245,7 +245,7 @@ export class OpenAIProvider implements AIProvider {
         let finalSize = options.size
         const aspectRatio = normalizeAspectRatio(options.aspectRatio || '1:1')
 
-        if (!finalSize || ['1K', '2K', '4K', '512px'].includes(finalSize.toUpperCase())) {
+        if (!finalSize || ['1K', '2K', '4K', '512PX'].includes(finalSize.toUpperCase())) {
             const semanticSize = finalSize || '1K'
             const provider = (this.config.provider as string || 'openai').toLowerCase()
 
