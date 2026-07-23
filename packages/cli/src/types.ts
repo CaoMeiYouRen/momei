@@ -132,3 +132,22 @@ export interface CliDirectUploadPresignStrategy {
 }
 
 export type CliDirectUploadAuthorization = CliDirectUploadProxyStrategy | CliDirectUploadPresignStrategy
+
+/**
+ * 通用 Content Parser 接口
+ * 所有平台适配器（Hexo、Hugo 等）都实现该接口
+ */
+export interface ContentParser {
+    /** 解析指定目录中的 Markdown 文件 */
+    parse(sourceDir: string, verbose?: boolean): Promise<ParsedPost[]>
+}
+
+/**
+ * 通用解析后文章结构
+ */
+export interface ParsedPost {
+    file: string
+    relativeFile: string
+    content: string
+    post: MomeiPost
+}

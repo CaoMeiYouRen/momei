@@ -55,18 +55,18 @@
 
 ### P2 — 测试覆盖率 90%+ 第二批（长期主线 #1）
 
-- [ ] 基于 Phase 59 缺口报告，选择下一批高价值覆盖缺口模块
-- [ ] 补高价值缺口覆盖度，推进全仓 coverage +1%
-- [ ] 验证：覆盖改进确认；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过
+- [x] 基于 Phase 59 缺口报告，选择下一批高价值覆盖缺口模块（AI Provider 层：openai-provider / fallback-provider / stable-diffusion-provider）
+- [x] 补高价值缺口覆盖度：新增 69 个测试，覆盖 3 个 AI Provider 模块的错误路径/降级逻辑/流式 SSE/图片尺寸映射/鉴权 header
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅(0 error) + 69/69 定向测试 ✅
 
 ### P2 — 多平台迁移适配器：Hugo 格式支持（候选 #12）
 
-- [ ] 设计 `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`
-- [ ] 调研 Hugo Front-matter 格式差异（TOML/YAML/JSON），产出差异清单
-- [ ] 实现 `HugoParser` 适配器（解析 TOML/YAML Front-matter → `ParsedPost` 结构）
-- [ ] CLI 命令增加 `--format hugo` 参数，复用现有导入链路
-- [ ] 添加适配器单元测试：title/date/tags/categories/content 正确映射
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo 解析无回归
+- [x] 设计 `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`（`packages/cli/src/types.ts`）
+- [x] 调研 Hugo Front-matter 格式差异（TOML/YAML/JSON），产出差异清单：YAML/TOML/JSON 三种格式通过 gray-matter 自动检测 + smol-toml 作为 TOML 引擎
+- [x] 实现 `HugoParser` 适配器（`packages/cli/src/hugo-parser.ts`）：支持 TOML/YAML Front-matter → `ParsedPost` 映射
+- [x] CLI 命令增加 `--format hugo` 参数（`import-command.ts`），复用现有导入链路
+- [x] 添加 17 个适配器单元测试：title/date/tags/categories/content/slug/draft/cover/lastmod 正确映射
+- [x] 验证：`pnpm typecheck` ✅ + 86/86 CLI 测试通过 ✅ + Hexo 解析无回归（21 个现有 parser 测试全部通过 ✅）
 
 ---
 

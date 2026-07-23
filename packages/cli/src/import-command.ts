@@ -7,10 +7,13 @@ import type { MomeiImportPostRequest } from '@momei-blog/api-client'
 import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
 import { migrateImportEntriesLocalImages, type LocalImageMigrationReport } from './import-image-migration'
 import { parseHexoFiles } from './parser'
+import { HugoParser } from './hugo-parser'
 import { MomeiApiClient } from './api-client'
 import type {
     ImportResult,
     ImportStats,
+    ContentParser,
+    ParsedPost,
 } from './types'
 
 interface ImportCommandOptions {
@@ -24,21 +27,27 @@ interface ImportCommandOptions {
     uploadImages: boolean
     rateLimit: number | string
     maxRetries: number | string
+    format?: string
 }
 
-function buildImportRequest(entry: Awaited<ReturnType<typeof parseHexoFiles>>[number]): MomeiImportPostRequest {
+function getParser(format: string | undefined): ContentParser {
+    if (format === 'hugo') {
+        return new HugoParser()
+    }
+    // Default to Hexo
+    return { parse: parseHexoFiles as (sourceDir: string, verbose?: boolean) => Promise<ParsedPost[]> }
+}
+
+function buildImportRequest(entry: ParsedPost): MomeiImportPostRequest {
     return {
         ...entry.post,
-        slug: typeof entry.frontMatter.slug === 'string' ? entry.frontMatter.slug : undefined,
-        abbrlink: typeof entry.frontMatter.abbrlink === 'string' ? entry.frontMatter.abbrlink : undefined,
-        permalink: typeof entry.frontMatter.permalink === 'string' ? entry.frontMatter.permalink : undefined,
         sourceFile: entry.relativeFile,
     }
 }
 
 async function validateImportCandidates(
     client: MomeiApiClient,
-    entries: Awaited<ReturnType<typeof parseHexoFiles>>,
+    entries: ParsedPost[],
     concurrency: number,
 ): Promise<CliImportValidationCandidate[]> {
     const candidates: CliImportValidationCandidate[] = []
@@ -124,8 +133,9 @@ function displayImageMigrationSummary(report: LocalImageMigrationReport) {
 }
 
 async function runImport(source: string, options: ImportCommandOptions) {
-    const { apiUrl, apiKey, dryRun, verbose, reportFile, confirmPathAliases, uploadImages } = options
+    const { apiUrl, apiKey, dryRun, verbose, reportFile, confirmPathAliases, uploadImages, format } = options
     const concurrency = Number.parseInt(String(options.concurrency), 10)
+    const parser = getParser(format)
 
     if (!apiKey && !dryRun) {
         console.error(chalk.red('Error: --api-key is required (unless using --dry-run)'))
@@ -134,8 +144,10 @@ async function runImport(source: string, options: ImportCommandOptions) {
     }
 
     const sourceDir = resolve(process.cwd(), source)
+    const formatLabel = format || 'hexo'
     console.log(chalk.blue('\n🚀 Momei Migration Tool\n'))
     console.log(chalk.gray(`Source: ${sourceDir}`))
+    console.log(chalk.gray(`Format: ${formatLabel}`))
     console.log(chalk.gray(`API URL: ${apiUrl}`))
     console.log(chalk.gray(`Dry Run: ${dryRun ? 'Yes' : 'No'}`))
     console.log(chalk.gray(`Upload Local Images: ${uploadImages ? 'Yes' : 'No'}`))
@@ -143,9 +155,9 @@ async function runImport(source: string, options: ImportCommandOptions) {
     console.log(chalk.gray(`Rate Limit: ${String(options.rateLimit)} req/s`))
     console.log(chalk.gray(`Max Retries: ${String(options.maxRetries)}\n`))
 
-    const spinner = ora('Scanning and parsing Hexo files...').start()
+    const spinner = ora(`Scanning and parsing ${formatLabel} files...`).start()
     try {
-        const posts = await parseHexoFiles(sourceDir, verbose)
+        const posts = await parser.parse(sourceDir, verbose)
         spinner.succeed(chalk.green(`Found ${posts.length} posts`))
 
         if (posts.length === 0) {
@@ -299,7 +311,8 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
 export function registerImportCommand(cli: CAC) {
     cli
-        .command('import <source>', 'Import posts from Hexo to Momei')
+        .command('import <source>', 'Import posts from a source directory to Momei')
+        .option('--format <format>', 'Source format (hexo or hugo)', { default: 'hexo' })
         .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
         .option('--api-key <key>', 'Momei API Key (required)')
         .option('--dry-run', 'Dry run mode (parse files without importing)', { default: false })

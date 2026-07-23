@@ -5,8 +5,8 @@ import type {
     CliDirectUploadAuthorization,
     CliDirectUploadPresignStrategy,
     CliDirectUploadRequest,
-    ParsedHexoPost,
 } from './types'
+import type { ParsedPost } from './types'
 
 const markdownImagePattern = /!\[[^\]]*\]\(\s*(<[^>\n]+>|[^)\s]+)(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)/gu
 const htmlImagePattern = /<img\b[^>]*?\bsrc\s*=\s*(['"])([^'"]+)\1[^>]*>/giu
@@ -278,7 +278,7 @@ function rewriteContentLocalImageReferences(content: string, replacements: Map<s
     })
 }
 
-export async function migrateImportEntriesLocalImages(entries: ParsedHexoPost[], options: LocalImageMigrationOptions): Promise<LocalImageMigrationReport> {
+export async function migrateImportEntriesLocalImages(entries: ParsedPost[], options: LocalImageMigrationOptions): Promise<LocalImageMigrationReport> {
     if (!options.dryRun && !options.authorizeDirectUpload) {
         throw new Error('authorizeDirectUpload is required when local image upload is enabled outside dry-run mode')
     }
@@ -343,7 +343,7 @@ export async function migrateImportEntriesLocalImages(entries: ParsedHexoPost[],
         return pendingUpload
     }
 
-    async function processReference(entry: ParsedHexoPost, field: LocalImageReferenceField, reference: string): Promise<LocalImageMigrationReportItem> {
+    async function processReference(entry: ParsedPost, field: LocalImageReferenceField, reference: string): Promise<LocalImageMigrationReportItem> {
         const resolvedPath = resolveLocalImagePath(reference, entry.file, options.sourceDir)
         if (!resolvedPath) {
             return {
