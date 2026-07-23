@@ -1,4 +1,8 @@
 name: Test
+# ⚠️ upload-artifact 注意：actions/upload-artifact@v4+（2024-09 起）默认排除隐藏文件（以 . 开头）。
+# Nuxt 的 .output/、.nuxt/ 等目录属于隐藏目录，上传时必须加 include-hidden-files: true。
+# 详见 https://github.com/actions/upload-artifact/issues/602
+# 另见 .session/wisdom.md 2026-07-23 条目
 on:
   push:
     branches:
