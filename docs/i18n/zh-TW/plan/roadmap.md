@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-07-22
+last_sync: 2026-07-23
 ---
 
 # 墨梅專案路線圖
@@ -75,6 +75,9 @@ last_sync: 2026-07-22
 - **第五十四階段已完成審計歸檔**：CLI/MCP API 用戶端複用優化階段一（CLI +3、MCP +4）、結構複用深水區（單函數檔案整合 + 邏輯重複檢測腳本）、ESLint/型別債治理（規則債 inventory 腳本 + 3 組窄切片）、測試有效性第二輪（6 個新斷言、3 個模組）、腳本治理（eslint-debt 升格到 regression:weekly）。
 - **第五十五階段已完成審計歸檔**：CLI/MCP 階段二外部介面擴展（4 組 REST + 靈感轉文章 + 文章版本、CLI +15、MCP +16）、AI 降級備用路線（fallback 鏈 + 透明切換）、結構複用邏輯重複收斂（2 組抽象切片、duplicate-code 0.33% < 基線 1.22%）、ESLint/型別債 3 組窄切片（消除 22 處）、測試有效性第三輪（7 個新斷言、3 個模組）。
 - **第五十六階段已完成審計歸檔**：共享 API 客戶端庫提取（`packages/api-client` + `MomeiHttpClient` + 7 領域模組 + 29 測試、CLI/MCP axios 移除）、CLI 匯出命令（`momei export` + Hexo 相容 Front-matter + 篩選參數 + JSON 輸出）、ESLint/型別債 3 組窄切片（`submission.ts`、`settings.vue`、`commercial-link-manager.vue` no-explicit-any 消除）、結構複用 2 組熱點切片（`prepareSplitContent` + `parseTranslateBody` 共享函數、duplicate-code 0.30%）、測試有效性第四輪（6 個新錯誤路徑斷言、translate + tts-task-get 2 模組）。
+- **第五十七階段已完成審計歸檔**：遷移體驗增強（本地圖片自動上傳、`updatedAt` 元資料欄位擴展）、測試有效性第五輪（13+ 失敗路徑斷言覆蓋 4 模組）、ESLint/型別債 3 組窄切片（validate-api-key、translation、types/ai）。結構複用延期至第五十八階段。
+- **第五十八階段已完成審計歸檔**：MCP HTTP 傳輸與掛載（`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`）、RSS 美化（`feed-style.css` + `injectRssStylesheet`）、結構複用 2 組 api-client 型別收斂切片（duplicate-code 0.31%）、ESLint/型別債治理循環關閉（NO_EXPLICIT_ANY_FILES 全部清零）、測試有效性第六輪（12 個失敗路徑斷言覆蓋 3 模組）。
+- **第五十九階段已完成審計歸檔**：AI 編輯增強改寫+審查（6 種風格 + 快取）、近期熱門文章列表（`post_view_hourly` 聚合 + `/api/posts/home` 三合一）、Demo Banner 暗色模式修復（透明度實色化）、E2E CI 限流修復 + GHA 分片（共享 build job + 4 矩陣分片，程式碼已提交 `b6b567a7`）、測試覆蓋率 90%+ 首批（缺口報告 + 兩批次 8 文件，~252 行 +1.09%）。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

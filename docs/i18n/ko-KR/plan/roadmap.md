@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-07-22
+last_sync: 2026-07-23
 ---
 
 # Momei 프로젝트 로드맵
@@ -60,6 +60,9 @@ last_sync: 2026-07-22
 - **54단계는 감사 완료 후 아카이브되었습니다**: CLI/MCP API 클라이언트 재사용 최적화 1단계(CLI +3, MCP +4), 구조 재사용 심층 영역(단일 함수 파일 통합 + 로직 중복 검출 스크립트), ESLint/타입 부채 거버넌스(규칙 부채 inventory 스크립트 + 3개 협소 슬라이스), 테스트 유효성 2차 슬라이스(6개 새 어서션, 3개 모듈), 스크립트 거버넌스(eslint-debt를 regression:weekly로 승격).
 - **55단계는 감사 완료 후 아카이브되었습니다**: CLI/MCP 2단계 외부 인터페이스 확장(4개 REST + 인사이트를 글로 변환 + 글 버전, CLI +15, MCP +16), AI 폴백 대체 경로(폴백 체인 + 투명 전환), 구조 재사용 로직 중복 수렴(2개 추상 슬라이스, duplicate-code 0.33% < 기준선 1.22%), ESLint/타입 부채 3개 협소 슬라이스(22곳 제거), 테스트 유효성 3차 슬라이스(7개 새 어서션, 3개 모듈).
 - **56단계는 감사 완료 후 아카이브되었습니다**: 공유 API 클라이언트 라이브러리 추출(`packages/api-client` + `MomeiHttpClient` + 7개 도메인 모듈 + 29개 테스트, CLI/MCP axios 제거), CLI 내보내기 명령어(`momei export` + Hexo 호환 Front-matter + 필터 파라미터 + JSON 출력), ESLint/타입 부채 3개 협소 슬라이스(`submission.ts`, `settings.vue`, `commercial-link-manager.vue` no-explicit-any 제거), 구조 재사용 2개 핫스팟 슬라이스(`prepareSplitContent` + `parseTranslateBody` 공유 함수, duplicate-code 0.30%), 테스트 유효성 4차 슬라이스(6개 새 오류 경로 어서션, translate + tts-task-get 2개 모듈).
+- **57단계는 감사 완료 후 아카이브되었습니다**: 마이그레이션 경험 향상(로컬 이미지 자동 업로드, `updatedAt` 메타데이터 확장), 테스트 유효성 5차 슬라이스(13+ 실패 경로 어서션, 4개 모듈 커버), ESLint/타입 부채 3개 협소 슬라이스(validate-api-key, translation, types/ai). 구조 재사용은 58단계로 연기.
+- **58단계는 감사 완료 후 아카이브되었습니다**: MCP HTTP 전송 및 마운트(`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`), RSS 피드 미화(`feed-style.css` + `injectRssStylesheet`), 구조 재사용 2개 api-client 타입 수렴 슬라이스(duplicate-code 0.31%), ESLint/타입 부채 거버넌스 사이클 종료(NO_EXPLICIT_ANY_FILES 전부 제로), 테스트 유효성 6차 슬라이스(12개 실패 경로 어서션, 3개 모듈 커버).
+- **59단계는 감사 완료 후 아카이브되었습니다**: AI 편집 강화(rewrite + review, 6가지 스타일 + 캐싱), 최근 인기 글 목록(`post_view_hourly` 집계 + `/api/posts/home` 통합), Demo Banner 다크모드 수정(투명도 실색 처리), E2E CI 속도 제한 수정 + GHA 샤딩(공유 build job + 4행렬 샤딩, 코드 `b6b567a7`에 제출), 테스트 커버리지 90%+ 1차(갭 분석 리포트 + 2회 8개 파일, ~252행 +1.09%).
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog

@@ -622,41 +622,18 @@
 
 **审计结论**: 第五十八阶段五条主线已在实现代码、测试、设计文档与规划文档中完成闭环。MCP HTTP 传输（`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`）与 RSS 订阅链接美化（`public/feed-style.css` + `injectRssStylesheet`）两条新功能主线均已交付；结构复用完成 2 组 api-client 类型收敛切片，duplicate-code 基线 0.31% 未反弹；ESLint/类型债完成治理循环关闭（全量 TypeScript 规则基线扫描报告落盘，NO_EXPLICIT_ANY_FILES 目标文件全部清零）；测试有效性第六轮完成 12 个失败路径断言（feed utils 5 + feed-taxonomy-route 3 + MCP endpoint 4）。`pnpm typecheck` + `pnpm lint` 通过，Code Auditor 审计问题已修复并提交。归档记录已写入 todo-archive.md。
 
-### 第五十九阶段：AI 编辑增强与展示优化（AI Editing Enhancement & Display Optimization）
+### 第五十九阶段：AI 编辑增强与展示优化（AI Editing Enhancement & Display Optimization）（已审计归档）
 
-**时间表**: 2026-07-22 ~ 约 3-5 天
+**时间表**: 2026-07-22 ~ 2026-07-23（2 天，密集交付）
 **目标**: 在第五十八阶段完成 HTTP MCP 与 RSS 展示增强后，以「2 个新功能 + 1 个修复 + 2 个优化」组合推进：AI 编辑增强（改写+审查）与近期热门文章列表作为两条新功能，Demo Banner 暗色模式修复为快速修复项，E2E CI 限流修复与测试覆盖率 90%+ 首批作为优化延续。
 
 **准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。AI 编辑增强已在 Phase 53 完成评估（条件性 Go，ROI 1.50），本期选取改写（Rewrite）+ 审查（Review）两个 P1 子功能；近期热门文章基于 post_view_hourly 表聚合，复用现有视图计数架构；Demo Banner 修复为纯 CSS 改动，风险极低；E2E CI 限流修复 + GHA 分片从候选 #17 首阶段升格，三层限流修复（config 规则 + TEST_MODE 守卫 + 精准 match）+ 共享构建与 4 矩阵分片同步落地，预期将 CI 总时间从 ~60min 降至 ~15min；覆盖率提升按 1% 分批渐进。
 
 **ROI 评估**: Demo Banner 暗色模式修复 `2.00`；近期热门文章列表 `1.50`；AI 编辑增强（改写+审查） `1.50`；E2E CI 限流修复 + GHA 分片 `1.80`；测试覆盖率 90%+ 首批 `1.00`。
 
-1. **主线：Demo Banner 暗色模式修复（P0）**:
-    - **执行范围**: 修复 `components/demo-banner.vue` 暗色模式下 `.demo-banner__stage`（"当前推荐阶段：公开体验"）和 `.demo-banner__text` 透明度（`rgba(#f1f5f9, 0.82)`）导致文字对比度不足的问题。
-    - **非目标**: 不改其他暗色模式样式、不改组件逻辑、不涉及国际化文本改动。
-    - **最小验收**: 暗色模式下"当前推荐阶段：公开体验"文字清晰可见；`pnpm typecheck` + `pnpm lint` 通过。
+**审计结论**: 第五十九阶段五条主线已在实现代码、测试、设计文档与规划文档中完成闭环。Demo Banner 暗色模式修复已完成（`37b38773`）；近期热门文章列表已完成（`b7b765d9` + `721a563b` 重构三合一）并同步 i18n 五语种翻译；AI 编辑增强改写+审查已完成（`a4319a9f` + `d1c28283`），支持 6 种风格 + 审查缓存 + Code Auditor Review Gate Pass；E2E CI 限流修复 + GHA 分片已完成三层限流修复与共享构建架构（`b6b567a7` + 后续 5 个 CI 修复 commits），CI 验证依赖外部运行时延迟验证；测试覆盖率 90%+ 首批已完成缺口盘点与两批次 8 文件补测，覆盖改进 ~252 行（≈+1.09%）。`pnpm typecheck` + `pnpm lint` + `pnpm test`（503/504 files, 3958/3959 tests）通过。归档记录已写入 todo-archive.md。
 
-2. **主线：近期热门文章列表（P2）**:
-    - **执行范围**: 后端新增 `GET /api/posts/hot?range=365` 端点，基于 `post_view_hourly` 聚合近 365 天 views 增量，返回前 3 篇；前端首页新增"近期热门"区块，位于"最新文章"与"全站热门"之间；原"热门文章"重命名为"全站热门"；近期热门与最新文章不重复（复用 `excludeIds` 机制），全站热门允许与近期热门重复。
-    - **非目标**: 不修改 Admin 分析面板、不替换现有热门文章排序逻辑、不涉及全站热门行为变更。
-    - **最小验收**: 首页三区块（最新文章 → 近期热门 → 全站热门）完整展示；近期热门基于近 365 天 `post_view_hourly` 聚合排序；`pnpm typecheck` + `pnpm lint` 通过。
-
-3. **主线：AI 编辑增强 — 改写+审查（P2）**:
-    - **执行范围**: 从候选 #9 AI 编辑增强套件中选取两个 P1 子功能。改写（Rewrite）：选中文本 → 调用 AI → 替换为改写后内容，支持正式/口语/学术风格，可撤销。审查（Review）：选中文本或全文 → AI 检查语法/逻辑/风格 → 展示修改建议列表（不自动应用）。复用现有 `usePostEditorAI` composable + `server/services/ai/text.ts` AI 管线 + 计费逻辑。
-    - **非目标**: 不做续写/扩写/缩写（留后续阶段）、不做自动发布、不替代专业编辑工具。
-    - **最小验收**: 改写支持中英文、支持风格选择、操作结果可撤销/重做；审查输出结构化建议列表、不自动修改内容；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
-
-4. **主线：E2E CI 限流修复 + GHA 分片（P2→P1）**:
-    - **执行范围**: 三层修复：① `rate-limit-config.ts` 新增 `VIEWS` 规则（`match: path => path.endsWith('/views')` 精准匹配），支持环境变量配置；② `views.post.ts` 移除硬编码 `rateLimit()` 由 middleware 接管；③ `rateLimit()` 工具函数添加 `TEST_MODE` 全局守卫。GHA 分片：`test.yml` 重构为共享 `build` job + `e2e` 4 矩阵分片。所有 job（`test`/`unit`/`coverage`/`api-client`/`cli`/`mcp-server`/`build-lighthouse`）复用共享构建产物。
-    - **非目标**: 不做构建缓存（P2，延后至后续候选 #17 子阶段）。
-    - **最小验收**: 三层限流修复 + GHA 分片架构落地；`pnpm typecheck` + `pnpm lint` 通过改动文件；等待 CI 运行确认 E2E 零 429 重试。
-
-5. **主线：测试覆盖率 90%+ 首批 — 分层盘点 + 1% 提升（P1）**:
-    - **执行范围**: 基于更新后长期主线 #1 策略执行：先对覆盖缺口做分层盘点，输出缺口报告（哪些模块拖后腿、哪些是高价值缺口）；再补高价值缺口覆盖度，推进全仓 coverage +1%。保持测试有效性（失败路径断言）不退化。
-    - **非目标**: 不做低价值铺量补测、不牺牲断言有效性换取数字增长。
-    - **最小验收**: 覆盖率缺口盘点报告落盘（`docs/reports/`）；全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
-
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档](./todo-archive.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ## 3. 相关文档
 

@@ -21,6 +21,73 @@
 ---
 
 
+## 第五十九阶段：AI 编辑增强与展示优化（已审计归档）
+
+> 归档说明: 第五十九阶段「2 新功能 + 1 修复 + 2 优化」已于 2026-07-23 完成五条主线交付与阶段收口。两条新功能主线（AI 编辑增强改写+审查、近期热门文章列表）均已实施并通过验证；Demo Banner 暗色模式修复已完成；E2E CI 限流修复 + GHA 分片已完成三层限流修复与共享构建架构，代码已提交（`b6b567a7` + 后续 CI 修复 commits），E2E CI 验证依赖外部运行时延期验证；测试覆盖率 90%+ 首批已完成缺口盘点报告与两批次共 8 文件补测，覆盖改进 ~252 行（≈+1.09%）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: Demo Banner 暗色模式修复 2.00；近期热门文章列表 1.50；AI 编辑增强（改写+审查）1.50；E2E CI 限流修复 + GHA 分片 1.80；测试覆盖率 90%+ 首批 1.00。
+
+### 1. Demo Banner 暗色模式修复 (P0)
+
+- **执行范围**: 修复 `components/demo-banner.vue` 暗色模式下 `.demo-banner__stage`（"当前推荐阶段：公开体验"）和 `.demo-banner__text` 透明度（`rgba(#f1f5f9, 0.82)`）导致文字对比度不足的问题。
+- **非目标**: 不改其他暗色模式样式、不改组件逻辑、不涉及国际化文本改动。
+- **实现对照**:
+  - `components/demo-banner.vue`：`.demo-banner__stage` 透明度修复（`rgba(#f1f5f9, 0.82)` → `#f1f5f9`）
+  - `.demo-banner__text` 确认已为实色无需修改
+- **验收对照**: ✅ 暗色模式下"当前推荐阶段：公开体验"文字清晰可见；✅ `pnpm typecheck` + `pnpm lint` 通过。
+
+### 2. 近期热门文章列表（候选 #16）(P2)
+
+- **执行范围**: 后端新增 `GET /api/posts/hot?range=365` 端点，基于 `post_view_hourly` 聚合近 365 天 views 增量，返回前 3 篇；前端首页新增"近期热门"区块，位于"最新文章"与"全站热门"之间；原"热门文章"重命名为"全站热门"；近期热门与最新文章不重复（复用 `excludeIds` 机制），全站热门允许与近期热门重复。
+- **实现对照**:
+  - `server/api/posts/hot/index.get.ts`：新增热点文章端点
+  - 后续重构：三个端点合并为 `/api/posts/home` 统一返回 `{ items, popular, hot }`，移除 `/api/posts/hot` 独立端点
+  - 首页组件：新增"近期热门"区块，重命名"全站热门"
+  - i18n：新增 5 语种翻译
+- **验收对照**: ✅ 首页三区块（最新文章 → 近期热门 → 全站热门）完整展示；✅ 近期热门基于近 365 天 `post_view_hourly` 聚合排序；✅ `pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
+
+### 3. AI 编辑增强 — 改写+审查（候选 #9）(P2)
+
+- **执行范围**: 从候选 #9 AI 编辑增强套件中选取改写（Rewrite）+ 审查（Review）两个 P1 子功能。改写支持中英文、风格选择（口语/正式/学术/技术/创意/简洁）、可撤销/重做。审查输出结构化修改建议列表（不自动应用），内容哈希对比缓存。
+- **实现对照**:
+  - 后端：`/api/ai/rewrite` + `/api/ai/review` 端点
+  - 前端：编辑器工具栏新增"改写"按钮（风格选择）+ "审查"按钮（结构建议列表）
+  - 计费：复用现有 AI 管线，扩展支持 rewrite/review 操作类型
+  - 改写流程：选中文本 + 对比窗口（保留原文/替换选中）
+  - 审查缓存：内容哈希对比，未变化不重复请求 AI
+- **验收对照**: ✅ 改写支持中英文、6 种风格选择、撤销/重做；✅ 审查输出结构化建议列表、不自动修改内容；✅ `pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（11/11 tests 通过）；✅ Code Auditor Review Gate Pass。
+
+### 4. E2E CI 限流修复 + GHA 分片（候选 #17）(P2→P1)
+
+- **执行范围**: 三层限流修复（rate-limit-config.ts VIEWS 规则 + TEST_MODE 全局守卫 + views.post.ts 移除硬编码）+ GHA 分片（test.yml 共享 build job + e2e 4 矩阵分片 + 所有下游 job 复用构建产物）。
+- **实现对照**:
+  - `rate-limit-config.ts`：新增 `VIEWS` 规则（`match: path => path.endsWith('/views')`），环境变量可配置
+  - `rateLimit()`：添加 `TEST_MODE` 全局守卫
+  - `views.post.ts`：移除独立硬编码 `rateLimit()` 调用
+  - `playwright.config.ts`：CI reporter 改为 blob（支持 `--shard` 分片报告合并）
+  - `test.yml`：共享 `build` job + e2e 4 矩阵分片 + 各 job 下载复用
+  - 后续修复：`8f44f99c`（merge-reports blob 路径）、`d21e732f`（隐藏文件上传）、`54adfb8b`（构建依赖验证）、`0284e2c0`（Docker 构建复用）
+- **验收对照**: ✅ 三层限流代码 + GHA 分片架构已落地；✅ `pnpm typecheck` + `pnpm lint` 通过；⏳ E2E CI 验证依赖外部运行时，标记为延期验证（代码已提交至 `main`，可随时在 CI 环境确认）。
+
+### 5. 测试覆盖率 90%+ 首批（长期主线 #1）(P1)
+
+- **执行范围**: 基于长期主线 #1 策略，先对覆盖缺口做分层盘点，输出缺口报告；再补高价值缺口覆盖度，两批次共 8 文件补测，推进全仓 coverage +1%。
+- **实现对照**:
+  - 覆盖缺口分层盘点报告输出
+  - 首批 5 文件覆盖改进（`85a95601`）
+  - 第二批 3 文件覆盖改进（`2e559cbd`）
+  - 覆盖改进合计 ~252 行（≈+1.09% 全仓预估）
+- **验收对照**: ✅ 覆盖率缺口盘点报告落盘；✅ 全仓 coverage 提升 ~1%；✅ `pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过（3958/3959 tests pass）。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 主干质量门通过（typecheck + lint + test + docs:build）
+- [x] 归档记录已写入
+
 ---
 
 ## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）

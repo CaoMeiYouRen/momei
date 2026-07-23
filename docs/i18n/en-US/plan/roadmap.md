@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-07-22
+last_sync: 2026-07-23
 translation_tier: summary-sync
 ---
 
@@ -46,6 +46,7 @@ This document outlines the development blueprint for the project. For specific t
 - **Stage 56 has now been audited and archived**: Shared API client library extraction (`packages/api-client` with `MomeiHttpClient` + 7 domain modules + 29 tests, CLI/MCP axios removal), CLI export command (`momei export` with Hexo-compatible Front-matter + filter params + JSON output), ESLint/type-debt 3 narrow slices (`submission.ts`, `settings.vue`, `commercial-link-manager.vue` no-explicit-any eliminated), structural reuse 2 hotspot slices (`prepareSplitContent` + `parseTranslateBody` shared functions, duplicate-code 0.30%), and test effectiveness round 4 (6 new error-path assertions across 2 modules: translate + tts-task-get).
 - **Stage 57 has now been audited and archived**: Migration UX enhancement (local image auto-upload + `updatedAt` metadata expansion), test effectiveness round 5 (13+ failure-path assertions covering 4 modules), ESLint/type-debt 3 narrow slices (validate-api-key, translation, types/ai). Structural reuse deferred to Stage 58.
 - **Stage 58 has now been audited and archived**: MCP HTTP transport and mount (`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`), RSS feed beautification (`feed-style.css` + `injectRssStylesheet`), structural reuse 2 api-client type convergence slices (enum derivation + interface rename, duplicate-code 0.31%), ESLint/type-debt governance cycle closure (NO_EXPLICIT_ANY_FILES exhausted, TypeScript rule baseline report), test effectiveness round 6 (12 failure-path assertions covering 3 modules: feed utils, feed-taxonomy-route, MCP endpoint).
+- **Stage 59 has now been audited and archived**: AI editing enhancement (rewrite + review with 6 style options and review caching), hot articles list (based on `post_view_hourly` aggregation, with `/api/posts/home` consolidation), Demo Banner dark mode fix (transparency `rgba→solid`), E2E CI rate-limit fix + GHA sharding (shared build job + 4-matrix sharding, code committed in `b6b567a7`), test coverage 90%+ first batch (gap analysis report + 2 rounds of 8 files, ~252 lines ≈+1.09% estimated). All mainlines closed in code, tests, and docs. `pnpm typecheck` + `pnpm lint` + `pnpm test` (503/504 files, 3958/3959 tests) passed.
 - **Scope note**: Full acceptance criteria and task decomposition remain Chinese-only in the canonical [roadmap](../../../plan/roadmap.md) and [todo](../../../plan/todo.md).
 
 ## 1. Project Overview
