@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { convertHugoToMomeiPost } from './hugo-parser'
-import type { HugoFrontMatter } from './hugo-parser'
+import { convertHugoToMomeiPost, type HugoFrontMatter } from './hugo-parser'
 
 describe('Hugo Parser - convertHugoToMomeiPost: Basic Conversion', () => {
     it('should convert basic YAML front-matter to Momei post', () => {
