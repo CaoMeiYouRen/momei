@@ -24,10 +24,48 @@ permissions:
 
 jobs:
   # ===============================================================
-  #  Shared Build — produces all build artifacts consumed downstream
+  #  Build Dependencies — api-client + mcp-server, consumed by
+  #  build-nuxt and all jobs that only need workspace deps
+  #  (test, unit, coverage, api-client, etc.)
   # ===============================================================
-  build:
-    name: Build (shared)
+  build-deps:
+    name: Build (deps)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
+      - name: Upload api-client dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-api-client
+          path: packages/api-client/dist/
+      - name: Upload mcp-server dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-mcp-server
+          path: packages/mcp-server/dist/
+
+  # ===============================================================
+  #  Build Nuxt — depends on build-deps artifacts; produces
+  #  nuxt-output for e2e, lighthouse and other downstream jobs
+  # ===============================================================
+  build-nuxt:
+    name: Build (Nuxt)
+    needs: [build-deps]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -42,23 +80,18 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # 构建依赖链：api-client → mcp-server → Nuxt（Nuxt 构建需要 mcp-server 产物）
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
-      - name: Build mcp-server dependency
-        run: pnpm --filter momei-mcp-server build
-      - name: Build Nuxt
-        run: pnpm run build
-      - name: Upload api-client dist
-        uses: actions/upload-artifact@v7
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
         with:
           name: dist-api-client
           path: packages/api-client/dist/
-      - name: Upload mcp-server dist
-        uses: actions/upload-artifact@v7
+      - name: Download mcp-server dist
+        uses: actions/download-artifact@v7
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
+      - name: Build Nuxt
+        run: pnpm run build
       # include-hidden-files: true 必需 — .output/ 以点开头，upload-artifact v4+ 默认排除隐藏文件
       # 参见 https://github.com/actions/upload-artifact/issues/602
       - name: Upload Nuxt build output
@@ -76,7 +109,7 @@ jobs:
   # ===============================================================
   test:
     name: Test
-    needs: [build]
+    needs: [build-deps]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -111,7 +144,7 @@ jobs:
   # ===============================================================
   unit:
     name: Unit
-    needs: [build]
+    needs: [build-deps]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -143,7 +176,7 @@ jobs:
   # ===============================================================
   coverage:
     name: Coverage
-    needs: [build]
+    needs: [build-deps]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -179,7 +212,7 @@ jobs:
   # ===============================================================
   e2e:
     name: E2E (${{ matrix.shard }}/4)
-    needs: [build]
+    needs: [build-nuxt]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -266,7 +299,7 @@ jobs:
   # ===============================================================
   build-lighthouse:
     name: Build & Lighthouse
-    needs: [build]
+    needs: [build-nuxt]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -339,7 +372,7 @@ jobs:
   # ===============================================================
   api-client:
     name: API Client Test
-    needs: [build]
+    needs: [build-deps]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:

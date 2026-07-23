@@ -12,12 +12,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false # Release 作业不取消，因为要确保版本发布成功
 jobs:
-  precheck:
-    name: Pre-check
+  regression:
+    name: Pre-check & Regression Gate
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 135  # 15 (precheck) + 120 (regression)
     permissions:
       contents: read
+      security-events: read
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -30,6 +31,8 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+
+      # ── Phase 1: Pre-check ──────────────────────────────
       - name: Run shared CI pre-check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,26 +51,7 @@ jobs:
             artifacts/review-gate/*-ci-precheck-release.json
           if-no-files-found: warn
 
-  regression:
-    name: Regression Gate
-    needs: precheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    permissions:
-      contents: read
-      security-events: read
-    steps:
-      - uses: actions/checkout@v7
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "11.11.0"
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v7
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-      - run: pnpm i --frozen-lockfile
+      # ── Phase 2: Regression ─────────────────────────────
       # Build api-client first so `nuxt typecheck` can resolve type declarations
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build

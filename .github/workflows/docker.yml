@@ -77,6 +77,12 @@ jobs:
       - run: pnpm run lint:css
       - run: pnpm run typecheck
       - run: pnpm run build
+      - name: Upload Nuxt build output for Docker reuse
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuxt-output-docker
+          path: .output/
+          include-hidden-files: true
   unit:
     name: Unit
     needs: precheck
@@ -137,7 +143,7 @@ jobs:
         run: pnpm run test:e2e
 
   build:
-    needs: [qa, unit] # 等待 QA 和 E2E 执行成功
+    needs: [qa, unit] # 等待 QA 和 Unit 执行成功（E2E 较长，不影响 Docker 发布）
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
@@ -151,6 +157,54 @@ jobs:
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Get short commit hash
         run: echo "TAG=sha-${GITHUB_SHA::7}" >>${GITHUB_ENV}
+      # ── 复用 QA 构建产物 ──────────────────────────────────
+      # qa job 已经完成 Nuxt 构建并上传 nuxt-output-docker，
+      # 此处下载后通过 Dockerfile.ci 跳过 Dockerfile 内的源码构建阶段，
+      # 避免同一应用在 CI 中被重复构建两次。
+      - name: Download prebuilt Nuxt output
+        id: download-nuxt
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          name: nuxt-output-docker
+          path: .output/
+          include-hidden-files: true
+      - name: Prepare Docker context with prebuilt output
+        shell: bash
+        run: |
+          # 从原始 Dockerfile 提取基础镜像名
+          NODEJS_IMAGE="$(grep 'FROM.*AS nodejs' Dockerfile | head -1 | awk '{print $2}')"
+          RUNTIME_IMAGE="$(grep 'FROM.*AS runtime' Dockerfile | head -1 | awk '{print $2}')"
+
+          # 创建临时构建上下文目录
+          mkdir -p .docker-context
+
+          # 写入预构建产物的 Dockerfile（跳过源码构建阶段）
+          cat > .docker-context/Dockerfile << 'DOCKERFILE_INNER'
+          FROM __NODEJS_IMAGE__ AS nodejs
+          FROM __RUNTIME_IMAGE__ AS runtime
+
+          FROM nodejs AS docker-minifier
+          WORKDIR /app
+          COPY .output ./.output
+
+          FROM runtime
+          ENV NODE_ENV=production
+          WORKDIR /app
+          COPY --from=docker-minifier /app /app
+          EXPOSE 3000
+          CMD ["node", ".output/server/index.mjs"]
+          DOCKERFILE_INNER
+
+          # 替换占位符为真实镜像名
+          sed -i "s|__NODEJS_IMAGE__|${NODEJS_IMAGE}|g" .docker-context/Dockerfile
+          sed -i "s|__RUNTIME_IMAGE__|${RUNTIME_IMAGE}|g" .docker-context/Dockerfile
+
+          # 将预构建产物复制到上下文中
+          cp -r .output .docker-context/.output
+
+          echo "Docker context prepared at .docker-context/"
+          ls -la .docker-context/
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
@@ -189,9 +243,9 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: ./Dockerfile
-          # 推送到 dockerhub
+          context: .docker-context
+          file: .docker-context/Dockerfile
+          # 推送到 dockerhub / ghcr.io / 阿里云
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
