@@ -22,23 +22,12 @@
 
 ---
 
-## 第六十阶段：用户体验闭环与代码质量治理
+## 第六十阶段：编辑器延续与代码质量治理
 
 > 执行时间: 2026-07-23 ~ 约 3-4 天
-> 详细规划: [项目计划 - 第六十阶段](./roadmap.md#第六十阶段用户体验闭环与代码质量治理phase-60-ux-closure--code-quality-governance)
+> 详细规划: [项目计划 - 第六十阶段](./roadmap.md#第六十阶段编辑器延续与代码质量治理phase-60-editor-continuation--code-quality-governance)
 
-### P0 — 安装引导向导（候选 #11）
-
-- [ ] 新增 `/onboarding` 页面（基于 PrimeVue Stepper 组件），包含环境自检 → 管理员创建 → 站点基本配置 → 数据迁移建议四步
-- [ ] 新增 `server/api/system/initialize` 接口，处理管理员创建、配置写入及初始化锁定逻辑
-- [ ] 实现 `RuntimeConfig = Merged(Environment, Database Settings)` 配置混合模式
-- [ ] 创建 `server/utils/settings.ts` 工具函数，用于从数据库加载动态配置
-- [ ] App 顶层增加重定向逻辑：当数据库用户表为空时自动跳转 `/onboarding`
-- [ ] 初始化完成后禁止再次访问向导
-- [ ] i18n：新增引导向导相关文案翻译（zh-CN/en-US/zh-TW/ja-JP/ko-KR）
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
-
-### P1 — AI 编辑增强：续写（Continue，候选 #9 子功能）
+### P0 — AI 编辑增强：续写（Continue，候选 #9 子功能）
 
 - [ ] 后端：新增 `/api/ai/continue` 端点，复用现有 AI 管线
 - [ ] 前端：编辑器工具栏新增"续写"按钮，基于光标位置或选中文本续写内容
@@ -68,6 +57,15 @@
 - [ ] 基于 Phase 59 缺口报告，选择下一批高价值覆盖缺口模块
 - [ ] 补高价值缺口覆盖度，推进全仓 coverage +1%
 - [ ] 验证：覆盖改进确认；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过
+
+### P2 — 多平台迁移适配器：Hugo 格式支持（候选 #12）
+
+- [ ] 设计 `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`
+- [ ] 调研 Hugo Front-matter 格式差异（TOML/YAML/JSON），产出差异清单
+- [ ] 实现 `HugoParser` 适配器（解析 TOML/YAML Front-matter → `ParsedPost` 结构）
+- [ ] CLI 命令增加 `--format hugo` 参数，复用现有导入链路
+- [ ] 添加适配器单元测试：title/date/tags/categories/content 正确映射
+- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo 解析无回归
 
 ---
 

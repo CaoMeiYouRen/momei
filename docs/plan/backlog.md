@@ -424,27 +424,8 @@
 
 ### 2026-07 迁移功能增强候选任务（已上收本地图片上传和元数据字段扩展到第五十七阶段）
 
-11. **安装引导向导 (P2, 候选)**
-- **背景**: 设计文档 `docs/design/modules/migration.md` §3 已完整规划了安装引导向导（Onboarding Wizard），包括环境自检、管理员创建、站点基本配置、数据迁移建议四个步骤。该功能是首次用户体验的关键入口，但尚未实现。
-- **技术方案**:
-    - 新增 `/onboarding` 页面（基于 PrimeVue Stepper 组件）
-    - 新增 `server/api/system/initialize` 接口，处理管理员创建、配置写入及"初始化锁定"逻辑
-    - 实现 `RuntimeConfig = Merged(Environment, Database Settings)` 配置混合模式
-    - 创建 `server/utils/settings.ts` 工具，用于从数据库加载动态配置
-    - 在 App 顶层增加重定向逻辑：当数据库用户表为空时自动跳转 `/onboarding`
-- **非目标**: 不支持多管理员批量创建、不做数据导入向导（仅展示 CLI 使用说明）、不做主题配置
-- **前置条件**:
-    - 完成配置层级升级的设计评审
-    - 评估数据库 Settings 表的 schema 变更影响
-- **验收标准**:
-    - 首次访问时自动跳转到 `/onboarding`
-    - 环境自检正确显示数据库、Node 版本、环境参数
-    - 管理员创建成功后可正常登录
-    - 站点配置正确写入数据库
-    - 初始化完成后禁止再次访问向导
-    - `pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
-- **ROI**: 价值 4 / 契合度 5 / 复杂度 4 / 风险 3 = **1.50**
-- **详细方案**: [迁移与集成设计文档 - 引导安装向导](../design/modules/migration.md#3-引导安装向导-installation-wizard)
+11. ~~**安装引导向导 (P2, 候选)**~~ 已在 `/installation` 完整实现（Phase 前交付）
+- **实际实现**: 经代码审计确认（2026-07-23），安装引导向导在 `pages/installation.vue`（6 步 PrimeVue Stepper）+ `server/api/install/*`（6 API 端点）+ `server/services/installation.ts`（698 行）中完整实现。中间件 `0-installation.ts` 自动处理重定向。设计文档 `migration.md §3` 中规划的 `/onboarding` 路由实际实现为 `/installation`，功能一致。
 
 12. **多平台迁移适配器 (P2, 候选)**
 - **背景**: 当前迁移 CLI 仅支持 Hexo 格式的 Markdown 文件解析。WordPress、Hugo、Jekyll 等其他主流博客平台的用户无法直接使用 CLI 迁移。虽然 Hexo 是目标用户群的主要来源，但扩展多平台支持可以降低更多用户的迁移门槛。

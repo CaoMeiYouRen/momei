@@ -635,39 +635,39 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第六十阶段：用户体验闭环与代码质量治理（Phase 60: UX Closure & Code Quality Governance）
+### 第六十阶段：编辑器延续与代码质量治理（Phase 60: Editor Continuation & Code Quality Governance）
 
 **时间表**: 2026-07-23 ~ 约 3-4 天
-**目标**: 在第五十九阶段完成 AI 编辑改写+审查与展示优化后，以「2 个新功能 + 2 个重构 + 1 个优化」组合推进：安装引导向导作为首次用户体验关键入口，AI 续写作为编辑器增强的自然延续，响应式状态模型收敛（reactive→ref）与 Zod Schema 复用治理作为代码质量重构，测试覆盖率 90%+ 第二批作为长期治理延续。
+**目标**: 在第五十九阶段完成 AI 编辑改写+审查与展示优化后，以「1 个编辑增强 + 1 个新功能 + 3 个治理」组合推进：AI 续写作为编辑器增强的自然延续（提升为 P0），多平台迁移适配器（Hugo 格式）作为迁移体验扩展，响应式状态模型收敛（reactive→ref）与 Zod Schema 复用治理作为代码质量重构，测试覆盖率 90%+ 第二批作为长期治理延续。
 
-**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。安装引导向导已有完整设计文档（`migration.md §3`）；AI 续写在 Phase 53 评估中已有方案，复用 Phase 59 AI 管线；reactive→ref Step 1 已有完整文件清单与三步计划；Zod Schema 复用已有缺口清单，首批聚焦 Ad Campaign/Placement 两个高收益模型（~25 行消除）；覆盖率第二批可直接基于 Phase 59 缺口报告推进。
+**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。安装引导向导（原候选 #11）经核实已在 `/installation` 完整实现（6 步 Stepper + 6 API 端点 + 中间件守卫），无需重复开发，已从本阶段移除并将 backlog 状态更新为已交付。AI 续写在 Phase 53 评估中已有方案，复用 Phase 59 AI 管线；多平台迁移适配器首轮聚焦 Hugo 格式，边界清晰（仅解析层，不改导入链路）；reactive→ref Step 1 已有完整文件清单与三步计划；Zod Schema 复用已有缺口清单；覆盖率第二批可直接基于 Phase 59 缺口报告推进。
 
-**ROI 评估**: 安装引导向导 `1.50`；AI 续写 `1.40`；reactive→ref Step 1 `1.60`；Zod Schema 复用首批 `1.60`；测试覆盖率 90%+ 第二批 `1.00`。
+**ROI 评估**: AI 续写 `1.40`；reactive→ref Step 1 `1.60`；Zod Schema 复用首批 `1.60`；测试覆盖率 90%+ 第二批 `1.00`；多平台迁移适配器 `1.50`。
 
-1. **主线：安装引导向导（P0）**:
-    - **执行范围**: 新增 `/onboarding` 页面（PrimeVue Stepper），包含环境自检、管理员创建、站点基本配置、数据迁移建议四步。新增 `server/api/system/initialize` 接口与初始化锁定逻辑。App 顶层空用户表自动跳转。新增系统配置层级 `RuntimeConfig = Merged(Environment, Database Settings)`。
-    - **非目标**: 不支持多管理员批量创建、不做数据导入向导（仅展示 CLI 说明）、不做主题配置。
-    - **最小验收**: 首次访问自动跳转 `/onboarding`；环境自检正确显示；管理员创建后可正常登录；站点配置正确写入数据库；初始化后禁止再次访问；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
-
-2. **主线：AI 编辑增强 — 续写（P1）**:
+1. **主线：AI 编辑增强 — 续写（P0）**:
     - **执行范围**: 基于 Phase 59 已交付的改写+审查管线，新增续写（Continue）功能。后端新增 `/api/ai/continue` 端点，复用现有 AI 管线与计费体系。前端编辑器工具栏新增"续写"按钮，基于光标位置或选中文本续写内容，支持撤销。
     - **非目标**: 不做扩写/缩写/视角检查（P2，留后续阶段）。
     - **最小验收**: 续写内容在光标处正确插入；支持撤销；计费正确记录；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Code Auditor Review Gate Pass。
 
-3. **主线：响应式状态模型收敛 — reactive→ref Step 1（P1）**:
+2. **主线：响应式状态模型收敛 — reactive→ref Step 1（P1）**:
     - **执行范围**: 选取低风险首批文件（登录页、注册页、权益页、个人设置、安全设置中的 `form`/`errors` 类 `reactive` 对象），逐文件迁移为 `ref<{...}>()`，补齐 `.value` 读取路径。至少完成 5 个文件的迁移。
     - **非目标**: 不追求全仓 reactive 清零；不改动 API 契约或页面交互语义；不在同一阶段重构业务流程与状态模型。
     - **最小验收**: Step 1 目标文件全部迁移完成；`pnpm typecheck` + `pnpm lint` 通过；受影响页面的表单校验/提交/弹窗行为无回归。
 
-4. **主线：Zod Schema 复用治理首批 — Ad Campaign + Ad Placement（P1）**:
+3. **主线：Zod Schema 复用治理首批 — Ad Campaign + Ad Placement（P1）**:
     - **执行范围**: 将 Ad Campaign（`campaigns.post.ts` / `campaigns/[id].put.ts`）和 Ad Placement（`placements.post.ts` / `placements/[id].put.ts`）的内联 schema 抽取到 `utils/schemas/ad.ts`，使用共享基对象 + `.partial()` / `.omit()` 派生 update schema。消除 ~25 行重复定义。
     - **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）；不改动 API 行为或验证语义。
     - **最小验收**: Ad Campaign/Placement 共享基对象；update schema 通过 `.partial()` 派生；`pnpm typecheck` + `pnpm lint` + 受影响 API 定向测试通过；无 API 行为回归。
 
-5. **主线：测试覆盖率 90%+ 第二批（P2）**:
+4. **主线：测试覆盖率 90%+ 第二批（P2）**:
     - **执行范围**: 基于 Phase 59 缺口报告，选取下一批高价值覆盖缺口模块，推进全仓 coverage +1%。保持测试有效性不退化。
     - **非目标**: 不做低价值铺量补测、不牺牲断言有效性换取数字增长。
     - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+5. **主线：多平台迁移适配器 — Hugo 格式支持（P2）**:
+    - **执行范围**: 抽象 `ContentParser` 接口，调研 Hugo Front-matter 差异（TOML/YAML/JSON），实现 `HugoParser` 适配器。CLI 命令增加 `--format hugo` 参数，复用现有导入链路。新增适配器单元测试覆盖 title/date/tags/categories/content 映射。
+    - **非目标**: 不支持 WordPress/Jekyll（留后续阶段）、不做自动格式检测、不改变现有 Hexo 解析行为。
+    - **最小验收**: `--format hugo` 参数正确选择 HugoParser；TOML/YAML Front-matter 正确映射到 `ParsedPost`；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo 解析无回归。
 
 > 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
