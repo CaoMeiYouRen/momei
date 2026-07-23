@@ -69,8 +69,9 @@ export default defineConfig({
     /* Keep CI parallelism bounded instead of fully serializing the whole browser matrix. */
     workers: resolvedWorkers,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    /* CI: GitHub annotations + list + blob (for --shard merge-reports) */
     reporter: process.env.CI
-        ? [['github'], ['list'], ['json', { outputFile: 'test-results.json' }]]
+        ? [['github'], ['list'], ['blob', { outputDir: 'test-results/blob-report' }]]
         : [['html', { open: 'never' }], ['list']],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions */
     use: {

@@ -19,8 +19,11 @@ permissions:
 #   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Test
+  # ===============================================================
+  #  Shared Build — produces all build artifacts consumed downstream
+  # ===============================================================
+  build:
+    name: Build (shared)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -35,21 +38,71 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Root nuxt typecheck covers all workspace packages via `../**/*` include pattern
-      # Build api-client + mcp-server first so dependent packages can resolve type declarations
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
       - name: Build mcp-server dependency
         run: pnpm --filter momei-mcp-server build
+      - name: Build Nuxt
+        run: pnpm run build
+      - name: Upload api-client dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-api-client
+          path: packages/api-client/dist/
+      - name: Upload mcp-server dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-mcp-server
+          path: packages/mcp-server/dist/
+      - name: Upload Nuxt build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuxt-output
+          path: .output/
+
+  # ===============================================================
+  #  Lint & Typecheck
+  # ===============================================================
+  test:
+    name: Test
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: packages/api-client/dist/
+      - name: Download mcp-server dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-mcp-server
+          path: packages/mcp-server/dist/
       - run: pnpm run lint
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
       - run: pnpm run typecheck
 
+  # ===============================================================
+  #  Unit Tests
+  # ===============================================================
   unit:
     name: Unit
+    needs: [build]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -62,17 +115,26 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build api-client + mcp-server first so dependent packages (cli, mcp-server, root) can resolve them
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
-      - name: Build mcp-server dependency
-        run: pnpm --filter momei-mcp-server build
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: packages/api-client/dist/
+      - name: Download mcp-server dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-mcp-server
+          path: packages/mcp-server/dist/
       - run: pnpm run test
 
+  # ===============================================================
+  #  Coverage
+  # ===============================================================
   coverage:
     name: Coverage
+    needs: [build]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -85,21 +147,34 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build api-client + mcp-server first so dependent packages (cli, mcp-server, root) can resolve them
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
-      - name: Build mcp-server dependency
-        run: pnpm --filter momei-mcp-server build
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: packages/api-client/dist/
+      - name: Download mcp-server dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-mcp-server
+          path: packages/mcp-server/dist/
       - run: pnpm run test:coverage
-      # 上传代码覆盖率报告到 Codecov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ===============================================================
+  #  E2E — Matrix Shards
+  # ===============================================================
   e2e:
-    name: E2E Test
+    name: E2E (${{ matrix.shard }}/4)
+    needs: [build]
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -112,26 +187,37 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build workspace dependencies before e2e — the e2e runner calls nuxt build internally
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
-      - name: Build mcp-server dependency
-        run: pnpm --filter momei-mcp-server build
+      - name: Download Nuxt build output
+        uses: actions/download-artifact@v7
+        with:
+          name: nuxt-output
+          path: .output/
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
-      - name: Run E2E tests
+      - name: Run E2E tests (shard ${{ matrix.shard }}/4)
         env:
           TEST_MODE: "true"
           NUXT_PUBLIC_TEST_MODE: "true"
           AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
           BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
-          FORCE_E2E_BUILD: "true"
-        run: pnpm run test:e2e
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
+      - name: Upload blob report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-blob-report-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
 
-  build-lighthouse:
-    name: Build & Lighthouse
+  # ===============================================================
+  #  Merge E2E Reports (runs after all shards complete)
+  # ===============================================================
+  e2e-report:
+    name: E2E Report
+    if: always()
+    needs: [e2e]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -144,12 +230,46 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build workspace dependencies before Nuxt build — server/plugins/mcp-http.ts imports momei-mcp-server
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
-      - name: Build mcp-server dependency
-        run: pnpm --filter momei-mcp-server build
-      - run: pnpm run build
+      - name: Download all blob reports
+        uses: actions/download-artifact@v7
+        with:
+          pattern: e2e-blob-report-*
+          merge-multiple: true
+          path: test-results/
+      - name: Merge E2E reports
+        run: pnpm exec playwright merge-reports --reporter html ./test-results
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-html-report
+          path: playwright-report/
+          retention-days: 14
+
+  # ===============================================================
+  #  Lighthouse CI (reuses shared Nuxt build)
+  # ===============================================================
+  build-lighthouse:
+    name: Build & Lighthouse
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Download Nuxt build output
+        uses: actions/download-artifact@v7
+        with:
+          name: nuxt-output
+          path: .output/
       - name: Download bundle baseline report (master)
         if: github.event_name == 'pull_request'
         uses: dawidd6/action-download-artifact@v21
@@ -169,7 +289,6 @@ jobs:
           fi
           echo "Using baseline: ${BASELINE}"
           pnpm exec node scripts/perf/check-bundle-budget.mjs --mode=warn --output=.lighthouseci/bundle-budget-report.json --baseline="${BASELINE}"
-      # - run: pnpm run generate
       - name: Run Lighthouse CI
         run: pnpm exec lhci autorun
         env:
@@ -193,8 +312,13 @@ jobs:
           path: .lighthouseci/bundle-budget-report.json
           overwrite: true
           if-no-files-found: warn
+
+  # ===============================================================
+  #  API Client — tests only (build reused from shared build)
+  # ===============================================================
   api-client:
     name: API Client Test
+    needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -212,10 +336,19 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: ${{ github.workspace }}/packages/api-client/dist/
       - run: pnpm run lint
       - run: pnpm run typecheck
       - run: pnpm run test
-      - run: pnpm run build
+      # build 已由共享 build job 完成，此处跳过
+
+  # ===============================================================
+  #  CLI (depends on api-client tests passing)
+  # ===============================================================
   cli:
     name: CLI Test
     needs: [api-client]
@@ -236,13 +369,19 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build dependency before typecheck — each CI job runs in an isolated checkout
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: ${{ github.workspace }}/packages/api-client/dist/
       - run: pnpm run lint
       - run: pnpm run typecheck
       - run: pnpm run test
       - run: pnpm run build
+
+  # ===============================================================
+  #  MCP Server (depends on api-client tests passing)
+  # ===============================================================
   mcp-server:
     name: MCP Test
     needs: [api-client]
@@ -263,9 +402,11 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
-      # Build dependency before typecheck — each CI job runs in an isolated checkout
-      - name: Build api-client dependency
-        run: pnpm --filter @momei-blog/api-client build
+      - name: Download api-client dist
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-api-client
+          path: ${{ github.workspace }}/packages/api-client/dist/
       - run: pnpm run lint
       - run: pnpm run typecheck
       - run: pnpm run test

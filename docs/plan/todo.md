@@ -46,10 +46,16 @@
 - [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（8/8 tests 通过）
 - [x] 收口 (F)：Conventional Commits 已提交
 
-### P2 — E2E CI 限流修复（候选 #17 首阶段）
+### P2 — E2E CI 限流修复 + GHA 分片（候选 #17）
 
-- [ ] `playwright.config.ts` 的 `e2eServerEnv` 中添加 `NUXT_RATE_LIMIT_DEFAULT_POST_MAX=9999`
-- [ ] 验证：`pnpm test:e2e` 通过，无 429 重试阻塞
+- [x] `rate-limit-config.ts` 新增 `VIEWS` 规则（`prefix: '/api/posts'`, `match: path => path.endsWith('/views')`），通过环境变量 `NUXT_RATE_LIMIT_VIEWS_MAX` / `NUXT_RATE_LIMIT_VIEWS_WINDOW` 可配置
+- [x] `rateLimit()` 工具函数添加 `TEST_MODE` 全局守卫，所有硬编码限流在 E2E 中自动跳过
+- [x] `views.post.ts` 移除独立硬编码 `rateLimit()` 调用，由 middleware 接管限流
+- [x] `match` 函数签名：`RateLimitRule.match?: (path: string) => boolean`，精准匹配 `matchRateLimitRule`
+- [x] `.env.full.example` 新增 `VIEWS` 限流变量段
+- [x] `playwright.config.ts` CI reporter 改为 blob（支持 `--shard` 分片报告合并）
+- [x] `test.yml` 重构：共享 `build` job 产出所有构建产物（api-client/mcp-server/Nuxt），`test`/`unit`/`coverage`/`api-client`/`cli`/`mcp-server` 下载复用；`e2e` 4 矩阵分片 + `e2e-report` 合并；`build-lighthouse` 复用共享 `.output/`
+- [ ] **验证**：`pnpm typecheck` ✅ + `pnpm lint` ✅（改动文件）；等待 CI 实际运行确认 E2E 通过
 
 ### P1 — 测试覆盖率 90%+ 首批（长期主线 #1）
 

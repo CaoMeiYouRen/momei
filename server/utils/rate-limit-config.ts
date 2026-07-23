@@ -14,6 +14,7 @@
  *   SEARCH      — /api/search/* 搜索
  *   SUBSCRIBE   — /api/subscribers/subscribe 订阅
  *   FILE        — /api/file/* 文件上传
+ *   VIEWS       — POST /api/posts/:id/views 文章浏览量计数（通过 match 确保只匹配 /views 结尾路径）
  *   DEFAULT_POST — POST/PATCH/PUT/DELETE 通用写请求
  *   DEFAULT_GET — GET 通用读请求
  */
@@ -33,6 +34,8 @@ export interface RateLimitRule {
     skip?: boolean
     /** 规则说明 */
     description?: string
+    /** 可选的精准路径匹配函数，在 startsWith 通过后进一步过滤 */
+    match?: (path: string) => boolean
 }
 
 /**
@@ -58,6 +61,10 @@ export const DEFAULT_RULES: RateLimitRule[] = [
 
     // 外部 API（CLI/MCP 等批量操作，容忍度更高）
     { name: 'EXTERNAL', prefix: '/api/external', window: 60, max: 60, description: 'External API (import/export)' },
+
+    // 文章浏览量计数（POST /api/posts/:id/views），较严格的限流防止刷量
+    // match 确保只匹配 /api/posts/:id/views，不影响 POST /api/posts/ 创建文章
+    { name: 'VIEWS', prefix: '/api/posts', window: 600, max: 3, methods: ['POST'], description: 'Post view count', match: (path) => path.endsWith('/views') },
 
     // 通用写请求
     { name: 'DEFAULT_POST', prefix: '/api', window: 60, max: 20, methods: ['POST', 'PATCH', 'PUT', 'DELETE'], description: 'Default write' },
@@ -123,6 +130,10 @@ export function matchRateLimitRule(
     }
 
     if (rule.methods && rule.methods.length > 0 && !rule.methods.includes(method)) {
+        return false
+    }
+
+    if (rule.match && !rule.match(path)) {
         return false
     }
 

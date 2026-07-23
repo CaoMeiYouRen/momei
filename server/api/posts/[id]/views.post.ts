@@ -1,4 +1,3 @@
-import { rateLimit } from '@/server/utils/rate-limit'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { pvCache } from '@/server/utils/pv-cache'
@@ -12,13 +11,6 @@ export default defineEventHandler(async (event) => {
             message: '缺少文章 ID',
         })
     }
-
-    // Rate Limit: 同一 IP 10 分钟内限制 3 次请求
-    // 注意：这将基于 event.path (包含 ID) 进行限制
-    await rateLimit(event, {
-        window: 60 * 10,
-        max: 3,
-    })
 
     const postRepo = dataSource.getRepository(Post)
 
