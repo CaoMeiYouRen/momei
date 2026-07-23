@@ -39,12 +39,15 @@
 ### P2 — AI 编辑增强：改写+审查（候选 #9）
 
 - [x] 后端：新增 `/api/ai/rewrite` 和 `/api/ai/review` 端点
-- [x] 前端：编辑器工具栏新增"改写"按钮（支持风格选择：正式/口语/学术）
+- [x] 前端：编辑器工具栏新增"改写"按钮（支持风格选择：口语/正式/学术/技术/创意/简洁）
 - [x] 前端：编辑器新增"审查"按钮，输出结构化修改建议列表（不自动应用）
 - [x] 计费：复用现有 AI 计费和额度管理，扩展支持 rewrite/review 操作类型
+- [x] 改写流程：仅处理选中文本 + 对比窗口（保留原文/替换选中）
+- [x] 审查缓存：内容哈希对比，面板可重开，未变化不重复请求 AI
+- [x] 风格扩展：新增技术/创意/简洁三种风格，共 6 种可选
 - [x] 审计 (A)：`code-quality-auditor` Review Gate Pass（无 blocker）
-- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（8/8 tests 通过）
-- [x] 收口 (F)：Conventional Commits 已提交
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（11/11 tests 通过）
+- [x] 收口 (F)：Conventional Commits 已提交（`a4319a9f` + `34b565cd`）
 
 ### P2 — E2E CI 限流修复 + GHA 分片（候选 #17）
 

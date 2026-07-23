@@ -731,7 +731,7 @@ export class TextService extends AIBaseService {
 
     static async rewrite(
         content: string,
-        style: 'formal' | 'casual' | 'academic' = 'casual',
+        style: string = 'casual',
         language: string = 'zh-CN',
         userId?: string,
     ) {
@@ -752,21 +752,26 @@ export class TextService extends AIBaseService {
             throw new Error('Provider does not support chat')
         }
 
-        const styles: Record<string, string> = {
+        const styleMap: Record<string, string> = {
             formal: 'formal and professional',
             casual: 'casual and conversational',
             academic: 'academic and scholarly',
+            technical: 'technical and precise with clear terminology',
+            creative: 'creative and vivid with engaging language',
+            concise: 'concise and to-the-point without losing key information',
         }
+
+        const styleDesc = styleMap[style] || style
 
         const prompt = formatPrompt(AI_PROMPTS.REWRITE, {
             content: inputContent,
             language,
-            style: styles[style] || style,
+            style: styleDesc,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional editor. Rewrite content in ${language} with ${styles[style] || style} style.` },
+                { role: 'system', content: `You are a professional editor. Rewrite content in ${language} with ${styleDesc} style.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,

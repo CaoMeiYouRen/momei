@@ -91,6 +91,61 @@ describe('POST /api/ai/rewrite', () => {
         expect(TextService.rewrite).not.toHaveBeenCalled()
     })
 
+    it('should rewrite with technical style', async () => {
+        vi.mocked(readValidatedBody).mockResolvedValue({
+            content: 'This code does something.',
+            style: 'technical',
+            language: 'en-US',
+        })
+        vi.mocked(TextService.rewrite).mockResolvedValue('This function implements the core algorithm.')
+
+        const result = await handler({ context: {} } as any)
+
+        expect(TextService.rewrite).toHaveBeenCalledWith(
+            'This code does something.',
+            'technical',
+            'en-US',
+            'user-1',
+        )
+        expect(result).toEqual({
+            code: 200,
+            data: 'This function implements the core algorithm.',
+        })
+    })
+
+    it('should rewrite with creative style', async () => {
+        vi.mocked(readValidatedBody).mockResolvedValue({
+            content: 'The sun is shining.',
+            style: 'creative',
+            language: 'en-US',
+        })
+        vi.mocked(TextService.rewrite).mockResolvedValue('Golden rays dance across the morning sky.')
+
+        const result = await handler({ context: {} } as any)
+
+        expect(TextService.rewrite).toHaveBeenCalledWith('The sun is shining.', 'creative', 'en-US', 'user-1')
+        expect(result.data).toBe('Golden rays dance across the morning sky.')
+    })
+
+    it('should rewrite with concise style', async () => {
+        vi.mocked(readValidatedBody).mockResolvedValue({
+            content: 'In light of the fact that we are currently experiencing a situation where...',
+            style: 'concise',
+            language: 'en-US',
+        })
+        vi.mocked(TextService.rewrite).mockResolvedValue('Because we currently...')
+
+        const result = await handler({ context: {} } as any)
+
+        expect(TextService.rewrite).toHaveBeenCalledWith(
+            'In light of the fact that we are currently experiencing a situation where...',
+            'concise',
+            'en-US',
+            'user-1',
+        )
+        expect(result.data).toBe('Because we currently...')
+    })
+
     it('should handle TextService error gracefully', async () => {
         vi.mocked(readValidatedBody).mockResolvedValue({
             content: 'Some content.',

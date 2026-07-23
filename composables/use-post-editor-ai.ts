@@ -3,7 +3,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
-import type { RewriteStyle, AIReviewSuggestion } from '@/types/ai'
+import type { RewriteStyle, AIReviewSuggestion, RewriteCompareData } from '@/types/ai'
 
 const MIN_TASK_POLLING_INTERVAL = 10000
 
@@ -451,11 +451,23 @@ export function usePostEditorAI(
         textarea.setSelectionRange(start + replacement.length, start + replacement.length)
     }
 
-    const rewriteContent = async (style: RewriteStyle = 'casual') => {
-        const selected = getEditorSelectedText()
-        const contentToRewrite = selected ? selected.text : post.value.content
+    // --- 改写：对比模式 ---
+    const rewriteCompareData = ref<RewriteCompareData | null>(null)
+    const rewriteCompareVisible = ref(false)
 
-        if (!contentToRewrite || contentToRewrite.trim().length < 2) {
+    const rewriteContent = async (style: string = 'casual') => {
+        const selected = getEditorSelectedText()
+        if (!selected) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.ai.rewrite_select_first'),
+                life: 3000,
+            })
+            return
+        }
+
+        if (selected.text.trim().length < 2) {
             toast.add({
                 severity: 'warn',
                 summary: t('common.warn'),
@@ -470,24 +482,20 @@ export function usePostEditorAI(
             const { data } = await $fetch<StringResponse>('/api/ai/rewrite', {
                 method: 'POST',
                 body: {
-                    content: contentToRewrite,
+                    content: selected.text,
                     style,
                     language: post.value.language,
                 },
             })
 
-            if (selected) {
-                replaceEditorSelection(selected.start, selected.end, data)
-            } else {
-                post.value.content = data
+            rewriteCompareData.value = {
+                original: selected.text,
+                rewritten: data,
+                style,
+                selectionStart: selected.start,
+                selectionEnd: selected.end,
             }
-
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.ai.rewrite_success'),
-                life: 3000,
-            })
+            rewriteCompareVisible.value = true
         } catch (error) {
             console.error('AI Rewrite error:', error)
             toast.add({
@@ -501,8 +509,52 @@ export function usePostEditorAI(
         }
     }
 
+    const confirmRewrite = () => {
+        if (!rewriteCompareData.value) {
+            return
+        }
+
+        const { selectionStart, selectionEnd, rewritten } = rewriteCompareData.value
+        replaceEditorSelection(selectionStart, selectionEnd, rewritten)
+        rewriteCompareVisible.value = false
+        rewriteCompareData.value = null
+
+        toast.add({
+            severity: 'success',
+            summary: t('common.success'),
+            detail: t('pages.admin.posts.ai.rewrite_success'),
+            life: 3000,
+        })
+    }
+
+    const cancelRewrite = () => {
+        rewriteCompareVisible.value = false
+        rewriteCompareData.value = null
+
+        toast.add({
+            severity: 'info',
+            summary: t('common.info'),
+            detail: t('pages.admin.posts.ai.rewrite_cancelled'),
+            life: 2000,
+        })
+    }
+
+    // --- 审查：缓存 + 去重 ---
     const reviewSuggestions = ref<AIReviewSuggestion[]>([])
     const reviewPanelVisible = ref(false)
+    const lastReviewHash = ref('')
+    const lastReviewAt = ref<number | null>(null)
+
+    /** 计算内容的简单哈希，用于判断是否变化 */
+    const contentHash = (content: string): string => {
+        let hash = 0
+        for (let i = 0; i < content.length; i++) {
+            const char = content.charCodeAt(i)
+            hash = ((hash << 5) - hash) + char
+            hash |= 0 // Convert to 32bit integer
+        }
+        return String(hash)
+    }
 
     const reviewContent = async () => {
         if (!post.value.content || post.value.content.trim().length < 10) {
@@ -515,6 +567,21 @@ export function usePostEditorAI(
             return
         }
 
+        const currentHash = contentHash(post.value.content)
+
+        // 内容未变化且已有缓存 → 直接打开面板
+        if (currentHash === lastReviewHash.value && reviewSuggestions.value.length > 0) {
+            reviewPanelVisible.value = true
+            toast.add({
+                severity: 'info',
+                summary: t('common.info'),
+                detail: t('pages.admin.posts.ai.review_cached'),
+                life: 2000,
+            })
+            return
+        }
+
+        // 内容已变化 → 重新审查
         aiLoading.value.review = true
         try {
             const { data } = await $fetch<ReviewResponse>('/api/ai/review', {
@@ -526,7 +593,18 @@ export function usePostEditorAI(
             })
 
             reviewSuggestions.value = data || []
+            lastReviewHash.value = currentHash
+            lastReviewAt.value = Date.now()
             reviewPanelVisible.value = true
+
+            if (data.length === 0) {
+                toast.add({
+                    severity: 'success',
+                    summary: t('pages.admin.posts.ai.review_clean'),
+                    detail: t('pages.admin.posts.ai.review_clean_desc'),
+                    life: 3000,
+                })
+            }
         } catch (error) {
             console.error('AI Review error:', error)
             toast.add({
@@ -551,8 +629,13 @@ export function usePostEditorAI(
         recommendTags,
         translateContent,
         rewriteContent,
+        confirmRewrite,
+        cancelRewrite,
+        rewriteCompareData,
+        rewriteCompareVisible,
         reviewContent,
         reviewSuggestions,
         reviewPanelVisible,
+        lastReviewAt,
     }
 }

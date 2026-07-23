@@ -137,6 +137,13 @@
             v-model:visible="socialPostVisible"
         />
 
+        <PostEditorRewriteCompare
+            :visible="rewriteCompareVisible"
+            :data="rewriteCompareData"
+            @confirm="confirmRewrite"
+            @cancel="cancelRewrite"
+        />
+
         <!-- Drag Mask -->
         <PostEditorDragMask v-if="isDragging" />
 
@@ -163,6 +170,7 @@ import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.v
 import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
 import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
 import PostSocialDialog from '@/components/admin/posts/post-social-dialog.vue'
+import PostEditorRewriteCompare from '@/components/admin/posts/post-editor-rewrite-compare.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
 import { clearQueuedSetupJourneyStage, getQueuedSetupJourneyStage } from '@/utils/web/setup-journey'
 import type { PostAuditResult } from '@/types/post'
@@ -207,9 +215,14 @@ const {
     suggestSummary,
     recommendTags,
     rewriteContent,
+    confirmRewrite,
+    cancelRewrite,
+    rewriteCompareData,
+    rewriteCompareVisible,
     reviewContent,
     reviewSuggestions,
     reviewPanelVisible,
+    lastReviewAt,
     cancelFieldTranslation,
     retryFieldTranslation,
     translationProgress,

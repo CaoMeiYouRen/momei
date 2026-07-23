@@ -27,7 +27,7 @@
                 />
                 <Button
                     id="ai-rewrite-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.rewrite')"
+                    v-tooltip="$t('pages.admin.posts.ai.rewrite_tooltip')"
                     icon="pi pi-pencil"
                     text
                     outlined
@@ -78,7 +78,7 @@
                         v-for="style in rewriteStyles"
                         :key="style.value"
                         class="rewrite-menu__item"
-                        @click="handleRewriteSelect(style.value)"
+                        @click="handleRewriteSelect(style.value as string)"
                     >
                         <i :class="style.icon" class="rewrite-menu__item-icon" />
                         <div class="rewrite-menu__item-text">
@@ -281,19 +281,19 @@ const props = defineProps<{
     reviewPanelVisible: boolean
 }>()
 
-const emit = defineEmits([
-    'suggest-titles',
-    'select-title',
-    'handle-translation',
-    'preview',
-    'save',
-    'open-settings',
-    'open-history',
-    'translate-content',
-    'rewrite-content',
-    'review-content',
-    'update:review-panel-visible',
-])
+const emit = defineEmits<{
+    (e: 'suggest-titles', event: Event): void
+    (e: 'select-title', suggestion: string): void
+    (e: 'handle-translation', lang: string): void
+    (e: 'preview'): void
+    (e: 'save', publish: boolean): void
+    (e: 'open-settings'): void
+    (e: 'open-history'): void
+    (e: 'translate-content', lang: string | null): void
+    (e: 'rewrite-content', style: string): void
+    (e: 'review-content'): void
+    (e: 'update:review-panel-visible', visible: boolean): void
+}>()
 
 const localePath = useLocalePath()
 
@@ -320,9 +320,27 @@ const rewriteStyles = [
         label: t('pages.admin.posts.ai.rewrite_style_academic'),
         desc: t('pages.admin.posts.ai.rewrite_style_academic_desc'),
     },
+    {
+        value: 'technical' as const,
+        icon: 'pi pi-cog',
+        label: t('pages.admin.posts.ai.rewrite_style_technical'),
+        desc: t('pages.admin.posts.ai.rewrite_style_technical_desc'),
+    },
+    {
+        value: 'creative' as const,
+        icon: 'pi pi-palette',
+        label: t('pages.admin.posts.ai.rewrite_style_creative'),
+        desc: t('pages.admin.posts.ai.rewrite_style_creative_desc'),
+    },
+    {
+        value: 'concise' as const,
+        icon: 'pi pi-compass',
+        label: t('pages.admin.posts.ai.rewrite_style_concise'),
+        desc: t('pages.admin.posts.ai.rewrite_style_concise_desc'),
+    },
 ]
 
-const handleRewriteSelect = (style: 'formal' | 'casual' | 'academic') => {
+const handleRewriteSelect = (style: string) => {
     rewriteOp.value?.hide()
     emit('rewrite-content', style)
 }

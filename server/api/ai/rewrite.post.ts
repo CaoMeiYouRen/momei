@@ -4,7 +4,7 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 
 const schema = z.object({
     content: z.string().min(1),
-    style: z.enum(['formal', 'casual', 'academic']).optional().default('casual'),
+    style: z.enum(['formal', 'casual', 'academic', 'technical', 'creative', 'concise']).optional().default('casual'),
     language: z.string().optional().default('zh-CN'),
 })
 

@@ -435,7 +435,15 @@ export type AITTSConfig = AIConfig
 export type AIASRConfig = AIConfig
 
 // --- AI Edit Enhancement ---
-export type RewriteStyle = 'formal' | 'casual' | 'academic'
+export type RewriteStyle = 'formal' | 'casual' | 'academic' | 'technical' | 'creative' | 'concise'
+
+export interface RewriteCompareData {
+    original: string
+    rewritten: string
+    style: string
+    selectionStart: number
+    selectionEnd: number
+}
 
 export interface AIReviewSuggestion {
     type: 'grammar' | 'spelling' | 'logic' | 'style' | 'fact'
