@@ -2,7 +2,7 @@
     <Dialog
         :visible="visible"
         :header="$t('pages.admin.posts.ai.rewrite_compare_title')"
-        :style="{ width: '48rem' }"
+        :style="{width: '48rem'}"
         :modal="true"
         :closable="false"
         :draggable="false"
@@ -78,7 +78,7 @@ const styleLabels: Record<string, string> = {
 }
 
 const styleLabel = computed(() => {
-    if (!props.data) {return ''}
+    if (!props.data) { return '' }
     return styleLabels[props.data.style] || props.data.style
 })
 </script>

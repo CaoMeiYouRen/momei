@@ -848,13 +848,13 @@ export class TextService extends AIBaseService {
             const cleanedContent = response.content
                 .replace(/```(?:json)?\s*/g, '')
                 .trim()
-            const suggestions = JSON.parse(cleanedContent) as Array<{
+            const suggestions = JSON.parse(cleanedContent) as {
                 type: 'grammar' | 'spelling' | 'logic' | 'style' | 'fact'
                 severity: 'minor' | 'major' | 'critical'
                 original: string
                 suggestion: string
                 replacement?: string
-            }>
+            }[]
             return Array.isArray(suggestions) ? suggestions : []
         } catch {
             // If parsing fails, return a single generic suggestion with raw content

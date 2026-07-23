@@ -82,8 +82,12 @@
                     >
                         <i :class="style.icon" class="rewrite-menu__item-icon" />
                         <div class="rewrite-menu__item-text">
-                            <div class="rewrite-menu__item-label">{{ style.label }}</div>
-                            <div class="rewrite-menu__item-desc">{{ style.desc }}</div>
+                            <div class="rewrite-menu__item-label">
+                                {{ style.label }}
+                            </div>
+                            <div class="rewrite-menu__item-desc">
+                                {{ style.desc }}
+                            </div>
                         </div>
                     </div>
                 </div>

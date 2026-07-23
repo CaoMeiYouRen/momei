@@ -5,6 +5,7 @@
 *.ts
 _*
 /coverage
+packages/*/coverage/
 /playwright-report
 /node_modules
 /test-results

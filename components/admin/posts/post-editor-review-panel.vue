@@ -1,5 +1,5 @@
 <template>
-    <div class="review-panel" :class="{ 'review-panel--visible': visible }">
+    <div class="review-panel" :class="{'review-panel--visible': visible}">
         <div class="review-panel__header">
             <span class="review-panel__title">
                 {{ $t('pages.admin.posts.ai.review_panel_title') }}
