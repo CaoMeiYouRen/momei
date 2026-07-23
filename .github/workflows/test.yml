@@ -253,7 +253,7 @@ jobs:
           merge-multiple: true
           path: test-results/
       - name: Merge E2E reports
-        run: pnpm exec playwright merge-reports --reporter html ./test-results
+        run: pnpm exec playwright merge-reports --reporter html ./test-results/blob-report
       - name: Upload merged HTML report
         uses: actions/upload-artifact@v7
         with:
