@@ -673,9 +673,9 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第六十一阶段：AI 编辑增强扩展与治理延续（Phase 61: AI Editing Enhancement Extension & Governance Continuation）
+### 第六十一阶段：AI 编辑增强扩展与治理延续（Phase 61: AI Editing Enhancement Extension & Governance Continuation）（已审计归档）
 
-**时间表**: 2026-07-24 ~ 约 3-4 天
+**时间表**: 2026-07-24（密集交付）
 **目标**: 在第六十阶段完成编辑器延续与代码质量治理后，以「1 个新功能 + 4 个优化」组合推进：AI 编辑增强扩写+缩写作为候选 #9 的剩余 P2 子功能交付，结构复用治理恢复切片节奏（两阶段未碰），reactive→ref Step 2 延续状态模型收敛路线，测试覆盖率 90%+ 第三批与 Zod Schema 复用第二批作为长期治理延续。
 
 **准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。AI 扩写+缩写复用 Phase 59-60 成熟的 AI 管线（`usePostEditorAI` composable + `TextService`），增量风险低；结构复用从 CLI 包类型收敛和 `toDateOrNull`/`toDateOrUndefined` 抽取入手，边界清晰；reactive→ref Step 2 经 Step 1 已验证迁移模式可行（template 零改动），风险可控；覆盖率第三批基于 Phase 60 最新缺口报告；Zod Schema 第二批为纯清理型重构，无行为变更。
@@ -710,7 +710,9 @@
     - **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）；不改动 API 行为或验证语义。
     - **最小验收**: Category/Tag `updateSchema` 不再冗余；Post 日期/视图字段共享；Marketing Campaign 独立 update schema 可用；`pnpm typecheck` + `pnpm lint` + 受影响 API 定向测试通过；无 API 行为回归。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+**审计结论**: 第六十一阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。AI 编辑增强扩写+缩写已完成（`d980cf69`），后端 `/api/ai/expand` + `/api/ai/condense` 端点、前端工具栏按钮、提示词模板（`AI_PROMPTS.EXPAND` + `CONDENSE`）、AI 计费（`recordTask({ type: 'expand' | 'condense' })`）均以交付；结构复用治理已完成 CLI 包类型收敛（`MomeiPostStatus`/`MomeiPostVisibility` 枚举派生、`MomeiPostScaffoldMetadata` 别名 + `@deprecated`）与 `toDateOrNull`/`toDateOrUndefined` 共享函数抽取（`c3554a17`）；响应式状态模型 reactive→ref Step 2 已完成 9 处迁移（`a5bd2c7b`），覆盖 `use-admin-friend-links-page.ts`、`use-admin-list.ts`、`pages/admin/users/index.vue`；测试覆盖率 90%+ 第三批已完成 4 个高价值模块补测（`cac21db3` + `6d4a940f`），installation.ts 86.84%、comment.ts 86.82%、admin-drafts.ts 92.45%、post-automation-helpers.ts 全覆盖；Zod Schema 复用治理第二批已完成 Category/Tag 冗余清理、Post 4 字段共享、Marketing Campaign updateSchema（`db424e4b`）。`pnpm typecheck` + `pnpm lint` + `pnpm docs:build` 通过，Code Auditor 审计已放行。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
+
+> 详细条目见 [待办归档](./todo-archive.md#第六十一阶段ai-编辑增强扩展与治理延续-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ## 3. 相关文档
 

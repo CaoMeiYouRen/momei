@@ -79,6 +79,7 @@ last_sync: 2026-07-24
 - **第五十八階段已完成審計歸檔**：MCP HTTP 傳輸與掛載（`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`）、RSS 美化（`feed-style.css` + `injectRssStylesheet`）、結構複用 2 組 api-client 型別收斂切片（duplicate-code 0.31%）、ESLint/型別債治理循環關閉（NO_EXPLICIT_ANY_FILES 全部清零）、測試有效性第六輪（12 個失敗路徑斷言覆蓋 3 模組）。
 - **第五十九階段已完成審計歸檔**：AI 編輯增強改寫+審查（6 種風格 + 快取）、近期熱門文章列表（`post_view_hourly` 聚合 + `/api/posts/home` 三合一）、Demo Banner 暗色模式修復（透明度實色化）、E2E CI 限流修復 + GHA 分片（共享 build job + 4 矩陣分片，程式碼已提交 `b6b567a7`）、測試覆蓋率 90%+ 首批（缺口報告 + 兩批次 8 文件，~252 行 +1.09%）。
 - **第六十階段已完成審計歸檔**：AI 編輯增強續寫（Continue）（`server/api/ai/continue.post.ts` + 編輯器工具欄按鈕 + Ctrl+Z 撤銷 + AI 計費續寫類型）、reactive→ref Step 1 遷移（5 文件：登錄/註冊/權益/個人設置/安全設置）、Zod Schema 復用 Ad Campaign + Ad Placement（`utils/schemas/ad.ts` 共享基對象 + `.partial()` 派生）、測試覆蓋率 90%+ 第二批（69 新測試覆蓋 3 個 AI Provider 模組）、Hugo 格式多平台遷移適配器（`ContentParser` 介面 + `HugoParser` TOML/YAML/JSON + `--format hugo` CLI 參數 + 17 單元測試）。全部主線通過 Code Auditor 審計。
+- **第六十一階段已完成審計歸檔**：AI 編輯增強擴寫+縮寫（`/api/ai/expand` + `/api/ai/condense` 端點、編輯器工具欄按鈕、`AI_PROMPTS.EXPAND` + `CONDENSE` 模板、AI 計費擴寫/縮寫類型）、結構複用治理（CLI 包型別收斂：枚舉派生 + `@deprecated` 類型別名、`toDateOrNull`/`toDateOrUndefined` 抽取至 `server/utils/date.ts`）、reactive→ref Step 2 遷移（9 處後台列表頁 reactive 物件遷移）、測試覆蓋率 90%+ 第三批（4 個高價值模組：installation.ts 86.84%、comment.ts 86.82%、admin-drafts.ts 92.45%、post-automation-helpers.ts 全覆蓋）、Zod Schema 復用治理第二批（Category/Tag 冗餘清理、Post 4 字段共享、Marketing Campaign updateSchema）。全部主線通過 Code Auditor 審計。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向
