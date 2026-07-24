@@ -78,6 +78,89 @@ describe('admin draft services', () => {
         expect(result.value.locales['en-US']).toEqual(['keyword one', 'keyword two'])
     })
 
+    it('generates localized text drafts with explicit source locale', async () => {
+        vi.mocked(TextService.translate).mockResolvedValue('Japanese title')
+
+        const result = await generateLocalizedSettingDraft({
+            key: SettingKey.SITE_TITLE,
+            targetLocale: 'ja-JP',
+            sourceLocale: 'en-US',
+            value: {
+                version: 1,
+                type: 'localized-text',
+                locales: {
+                    'zh-CN': '中文标题',
+                    'en-US': 'English Title',
+                },
+                legacyValue: '旧标题',
+            },
+            userId: 'admin-1',
+        })
+
+        expect(TextService.translate).toHaveBeenCalledWith('English Title', 'ja-JP', 'admin-1', expect.objectContaining({
+            sourceLanguage: 'en-US',
+            field: 'title',
+        }))
+        expect(result.value.locales['ja-JP']).toBe('Japanese title')
+        expect(result.sourceLocale).toBe('en-US')
+    })
+
+    it('should throw error for non-localized setting key', async () => {
+        await expect(generateLocalizedSettingDraft({
+            key: SettingKey.SITE_URL,
+            targetLocale: 'en-US',
+            value: { version: 1, type: 'localized-text', locales: {}, legacyValue: null },
+            userId: 'admin-1',
+        })).rejects.toThrow('is not localized')
+    })
+
+    it('should throw error when no source content available', async () => {
+        await expect(generateLocalizedSettingDraft({
+            key: SettingKey.SITE_TITLE,
+            targetLocale: 'en-US',
+            value: { version: 1, type: 'localized-text', locales: {}, legacyValue: null },
+            userId: 'admin-1',
+        })).rejects.toThrow('No source content available')
+    })
+
+    it('should throw error when source has no meaningful value (empty array treated as no content)', async () => {
+        // Empty arrays are treated as not meaningful by hasMeaningfulLocalizedValue
+        await expect(generateLocalizedSettingDraft({
+            key: SettingKey.SITE_KEYWORDS,
+            targetLocale: 'en-US',
+            value: { version: 1, type: 'localized-string-list', locales: { 'zh-CN': [] }, legacyValue: null },
+            userId: 'admin-1',
+        })).rejects.toThrow('No source content available')
+    })
+
+    it('should throw error when source text is empty string (no meaningful value)', async () => {
+        // Empty strings are treated as not meaningful by hasMeaningfulLocalizedValue
+        await expect(generateLocalizedSettingDraft({
+            key: SettingKey.SITE_TITLE,
+            targetLocale: 'en-US',
+            value: { version: 1, type: 'localized-text', locales: { 'zh-CN': '' }, legacyValue: null },
+            userId: 'admin-1',
+        })).rejects.toThrow('No source content available')
+    })
+
+    it('should fall back to legacy value when no locale source exists', async () => {
+        vi.mocked(TextService.translate).mockResolvedValue('Translated legacy')
+
+        const result = await generateLocalizedSettingDraft({
+            key: SettingKey.SITE_TITLE,
+            targetLocale: 'en-US',
+            value: { version: 1, type: 'localized-text', locales: {}, legacyValue: '旧标题' },
+            userId: 'admin-1',
+        })
+
+        expect(TextService.translate).toHaveBeenCalledWith('旧标题', 'en-US', 'admin-1', expect.objectContaining({
+            sourceLanguage: undefined,
+            field: 'title',
+        }))
+        expect(result.sourceLocale).toBe('legacy')
+        expect(result.value.locales['en-US']).toBe('Translated legacy')
+    })
+
     it('creates agreement translation drafts from an existing source agreement', async () => {
         mockAgreementRepo.findOne.mockResolvedValue({
             id: 'agreement-source',
@@ -108,5 +191,32 @@ describe('admin draft services', () => {
             reviewStatus: 'draft',
         }))
         expect(result).toEqual({ id: 'agreement-draft' })
+    })
+
+    it('should throw error when source agreement not found', async () => {
+        mockAgreementRepo.findOne.mockResolvedValue(null)
+
+        await expect(generateAgreementTranslationDraft({
+            type: 'user_agreement',
+            sourceAgreementId: 'non-existent',
+            targetLanguage: 'en-US',
+            userId: 'admin-1',
+        })).rejects.toThrow('Source agreement not found')
+    })
+
+    it('should throw error when target language is same as source', async () => {
+        mockAgreementRepo.findOne.mockResolvedValue({
+            id: 'agreement-source',
+            type: 'user_agreement',
+            language: 'zh-CN',
+            content: '# 协议',
+        })
+
+        await expect(generateAgreementTranslationDraft({
+            type: 'user_agreement',
+            sourceAgreementId: 'agreement-source',
+            targetLanguage: 'zh-CN',
+            userId: 'admin-1',
+        })).rejects.toThrow('Target language must differ')
     })
 })

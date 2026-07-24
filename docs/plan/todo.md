@@ -62,9 +62,13 @@
 
 ### P2 — 测试覆盖率 90%+ 第三批（长期主线 #1）
 
-- [x] 基于 Phase 60 最新全仓覆盖率缺口报告，选择下一批高价值覆盖缺口模块（`server/services/installation.ts`、`server/services/comment.ts`）
-- [x] 补高价值缺口覆盖度：installation.ts lines 72.36%→86.84% branches 42.38%→84.28%，comment.ts lines 75.96%→86.82% branches 49.2%→71%
-- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + 57/57 tests ✅ + Audit Pass ✅
+- [x] 基于 Phase 60 最新全仓覆盖率缺口报告，选择下一批高价值覆盖缺口模块（`server/services/installation.ts`、`server/services/comment.ts`、`server/services/ai/admin-drafts.ts`、`server/services/ai/post-automation-helpers.ts`）
+- [x] 补高价值缺口覆盖度：
+  - installation.ts: lines 72.36%→86.84%, branches 42.38%→84.28%
+  - comment.ts: lines 75.96%→86.82%, branches 49.2%→71%
+  - admin-drafts.ts: lines 71.69%→92.45%, branches 44.68%→74.46%
+  - post-automation-helpers.ts: 新增测试文件，纯函数全覆盖
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + 109/109 tests ✅ + AI 全量 141/141 ✅ + Audit Pass ✅
 
 ### P2 — Zod Schema 复用治理第二批（候选 #18）
 
