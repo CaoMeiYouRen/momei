@@ -8,9 +8,7 @@ export const tagBodySchema = z.object({
     translationId: z.string().max(255).nullable().optional(),
 })
 
-export const tagUpdateSchema = tagBodySchema.partial().extend({
-    slug: taxonomyNameAndSlug.slug.optional(),
-})
+export const tagUpdateSchema = tagBodySchema.partial()
 
 export const tagQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({
     ...taxonomyLanguageAndTranslation,

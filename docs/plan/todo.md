@@ -68,10 +68,11 @@
 
 ### P2 — Zod Schema 复用治理第二批（候选 #18）
 
-- [ ] 移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）
-- [ ] 将 Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段抽取为共享对象
-- [ ] 为 Marketing Campaign 创建独立的 `marketingCampaignUpdateSchema = marketingCampaignSchema.partial()`
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + 受影响 API 定向测试通过 + 无行为回归
+- [x] 移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）
+- [x] 将 Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段抽取为共享对象
+- [x] 为 Marketing Campaign 创建 `marketingCampaignUpdateSchema`（不含默认值，避免局部更新重置字段）
+- [x] 更新 PUT 端点使用 `marketingCampaignUpdateSchema`，添加字段级 `!== undefined` 守卫
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + 139/139 schema 定向测试通过 ✅ + Audit Pass ✅
 
 ---
 

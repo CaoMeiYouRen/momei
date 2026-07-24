@@ -231,6 +231,14 @@ const postTagBindingSchema = z.object({
     sourceTagId: z.string().max(255).nullable().optional(),
 })
 
+/** createPostSchema 和 updatePostSchema 共享的时间戳与视图字段 */
+const postTimestampsAndViews = {
+    createdAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
+    publishedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
+    updatedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
+    views: z.coerce.number().int().min(0).optional(),
+}
+
 const sharedPostFields = {
     title: z.string().min(1).max(255),
     slug: z.string().min(1).max(255).refine((val) => !val || !isSnowflakeId(val), {
@@ -278,22 +286,16 @@ const sharedPostFields = {
 
 export const createPostSchema = z.object({
     ...sharedPostFields,
+    ...postTimestampsAndViews,
     slug: sharedPostFields.slug.optional(),
     language: sharedPostFields.language.default('zh-CN'),
     status: sharedPostFields.status.default(PostStatus.DRAFT),
     visibility: sharedPostFields.visibility.default(PostVisibility.PUBLIC),
-    createdAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    publishedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    updatedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    views: z.coerce.number().int().min(0).optional(),
 })
 
 export const updatePostSchema = z.object(sharedPostFields).partial().extend({
+    ...postTimestampsAndViews,
     slug: sharedPostFields.slug.optional(),
-    createdAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    publishedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    updatedAt: z.preprocess((val) => (val === null || val === '' ? undefined : val), z.coerce.date().optional()),
-    views: z.coerce.number().int().min(0).optional(),
 })
 
 export const postQuerySchema = paginationSchema.extend({

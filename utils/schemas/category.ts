@@ -10,9 +10,7 @@ export const categoryBodySchema = z.object({
     translationId: z.string().max(255).nullable().optional(),
 })
 
-export const categoryUpdateSchema = categoryBodySchema.partial().extend({
-    slug: taxonomyNameAndSlug.slug.optional(),
-})
+export const categoryUpdateSchema = categoryBodySchema.partial()
 
 export const categoryQuerySchema = paginationSchema.extend(sortingSchema.shape).extend({
     ...taxonomyLanguageAndTranslation,

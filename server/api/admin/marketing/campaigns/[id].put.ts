@@ -1,8 +1,8 @@
 import { dataSource } from '@/server/database'
 import { MarketingCampaign } from '@/server/entities/marketing-campaign'
 import { requireAdmin } from '@/server/utils/permission'
-import { marketingCampaignSchema } from '@/utils/schemas/notification'
-import { MarketingCampaignStatus, MarketingCampaignType } from '@/utils/shared/notification'
+import { marketingCampaignUpdateSchema } from '@/utils/schemas/notification'
+import { MarketingCampaignStatus } from '@/utils/shared/notification'
 
 export default defineEventHandler(async (event) => {
     await requireAdmin(event)
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    const result = await readValidatedBody(event, (body) => marketingCampaignSchema.safeParse(body))
+    const result = await readValidatedBody(event, (body) => marketingCampaignUpdateSchema.safeParse(body))
 
     if (!result.success) {
         throw createError({
@@ -44,10 +44,21 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    campaign.title = result.data.title
-    campaign.content = result.data.content
-    campaign.type = result.data.type ?? MarketingCampaignType.FEATURE
-    campaign.targetCriteria = result.data.targetCriteria
+    if (result.data.title !== undefined) {
+        campaign.title = result.data.title
+    }
+
+    if (result.data.content !== undefined) {
+        campaign.content = result.data.content
+    }
+
+    if (result.data.type !== undefined) {
+        campaign.type = result.data.type
+    }
+
+    if (result.data.targetCriteria !== undefined) {
+        campaign.targetCriteria = result.data.targetCriteria
+    }
 
     if (result.data.scheduledAt) {
         campaign.scheduledAt = new Date(result.data.scheduledAt)

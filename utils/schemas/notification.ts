@@ -20,16 +20,25 @@ export const webPushSubscriptionSchema = z.object({
     permission: z.enum(['default', 'granted', 'denied']).optional().default('default'),
 })
 
-export const marketingCampaignSchema = z.object({
+/** create/update 共享基础字段（不含默认值） */
+const marketingCampaignFields = {
     title: z.string().min(1).max(255),
     content: z.string().min(1),
-    type: z.enum(MarketingCampaignType).default(MarketingCampaignType.FEATURE),
+    type: z.enum(MarketingCampaignType),
     targetCriteria: z.object({
         categoryIds: z.array(z.string()).optional(),
         tagIds: z.array(z.string()).optional(),
-    }).optional().default({}),
+    }).optional(),
     scheduledAt: z.coerce.date().optional().nullable(),
+}
+
+export const marketingCampaignSchema = z.object({
+    ...marketingCampaignFields,
+    type: marketingCampaignFields.type.default(MarketingCampaignType.FEATURE),
+    targetCriteria: marketingCampaignFields.targetCriteria.default({}),
 })
+
+export const marketingCampaignUpdateSchema = z.object(marketingCampaignFields).partial()
 
 export const marketingCampaignListQuerySchema = paginationSchema
 
@@ -37,6 +46,7 @@ export type NotificationSettingInput = z.infer<typeof notificationSettingSchema>
 export type UpdateNotificationSettingsInput = z.infer<typeof updateNotificationSettingsSchema>
 export type WebPushSubscriptionInput = z.infer<typeof webPushSubscriptionSchema>
 export type MarketingCampaignInput = z.infer<typeof marketingCampaignSchema>
+export type MarketingCampaignUpdateInput = z.infer<typeof marketingCampaignUpdateSchema>
 export type MarketingCampaignListQueryInput = z.infer<typeof marketingCampaignListQuerySchema>
 
 export const adminNotificationSettingSchema = z.object({
