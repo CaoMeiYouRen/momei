@@ -2,23 +2,7 @@ import { z } from 'zod'
 import { updateCampaign } from '../../../../services/ad'
 import { requireAdmin } from '@/server/utils/permission'
 import { updateCampaignSchema } from '@/utils/schemas/ad'
-
-function toDateOrNull(value?: string | Date | null): Date | null | undefined {
-    if (value === undefined) {
-        return undefined
-    }
-
-    if (value === null || value === '') {
-        return null
-    }
-
-    if (value instanceof Date) {
-        return value
-    }
-
-    const date = new Date(value)
-    return Number.isNaN(date.getTime()) ? null : date
-}
+import { toDateOrUndefined } from '@/server/utils/date'
 
 /**
  * 更新广告活动
@@ -39,8 +23,8 @@ export default defineEventHandler(async (event) => {
         const body = await readValidatedBody(event, (payload) => updateCampaignSchema.parse(payload))
         const updateData = {
             ...body,
-            startDate: toDateOrNull(body.startDate),
-            endDate: toDateOrNull(body.endDate),
+            startDate: toDateOrUndefined(body.startDate),
+            endDate: toDateOrUndefined(body.endDate),
         }
 
         const campaign = await updateCampaign(id, updateData)

@@ -47,10 +47,10 @@
 
 ### P1 — 结构复用治理：CLI 包类型收敛 + 工具函数抽取（长期主线 #3）
 
-- [ ] 切片 1：`MomeiPostStatus`/`MomeiPostVisibility` → 从主项目 `PostStatus`/`PostVisibility` 枚举派生，消除 `string` union 重复定义
-- [ ] 切片 2：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata` 类型别名（保留向后兼容 + `@deprecated` 标记）
-- [ ] 切片 3（可选）：`toDateOrNull`/`toDateOrUndefined` 从 ad campaigns 抽取到 `server/utils/date.ts`
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` 通过 + `duplicate-code` 基线不反弹
+- [x] 切片 1：`MomeiPostStatus`/`MomeiPostVisibility` → 从 `PostStatus`/`PostVisibility` 枚举派生（自包含枚举，Phase 58 已完成）
+- [x] 切片 2：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata` 类型别名（保留向后兼容 + `@deprecated` 标记，Phase 58 已完成）
+- [x] 切片 3：`toDateOrNull`/`toDateOrUndefined` → 已抽取到 `server/utils/date.ts`（2 个 ad campaigns 文件改为导入共享函数）
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（注：api-client 为独立发布包，不应反向依赖主项目类型）
 
 ### P1 — 响应式状态模型收敛：reactive→ref Step 2（候选 #14）
 

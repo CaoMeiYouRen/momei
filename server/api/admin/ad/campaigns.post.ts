@@ -3,19 +3,7 @@ import { createCampaign } from '../../../services/ad'
 import { CampaignStatus } from '@/types/ad'
 import { requireAdmin } from '@/server/utils/permission'
 import { createCampaignSchema } from '@/utils/schemas/ad'
-
-function toDateOrNull(value?: string | Date | null): Date | null {
-    if (!value) {
-        return null
-    }
-
-    if (value instanceof Date) {
-        return value
-    }
-
-    const date = new Date(value)
-    return Number.isNaN(date.getTime()) ? null : date
-}
+import { toDateOrNull } from '@/server/utils/date'
 
 /**
  * 创建广告活动
