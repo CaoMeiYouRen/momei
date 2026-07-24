@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
 import { PostStatus } from '@/types/post'
+import type { PerspectiveMode } from '@/types/ai'
 
 const stubs = {
     AppVoiceInputTrigger: {
@@ -38,6 +39,9 @@ describe('PostEditorHeader', () => {
         titleSuggestions: [],
         reviewSuggestions: [],
         reviewPanelVisible: false,
+        perspectiveResults: [],
+        perspectivePanelVisible: false,
+        perspectiveMode: 'editor' as PerspectiveMode,
     }
 
     const mountHeader = (props = defaultProps) => mountSuspended(PostEditorHeader, {
@@ -63,7 +67,7 @@ describe('PostEditorHeader', () => {
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
-        expect(aiGroup.findAll('button').length).toBe(9) // Suggest, Continue, Expand, Condense, Rewrite, Review, Translate, Format, Voice
+        expect(aiGroup.findAll('button').length).toBe(10) // Suggest, Continue, Expand, Condense, Rewrite, Review, Perspective, Translate, Format, Voice
     })
 
     it('renders status tag and translation badges in right bar', async () => {

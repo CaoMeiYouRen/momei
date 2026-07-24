@@ -21,16 +21,21 @@
             :title-suggestions="titleSuggestions"
             :review-suggestions="reviewSuggestions"
             :review-panel-visible="reviewPanelVisible"
+            :perspective-results="perspectiveResults"
+            :perspective-panel-visible="perspectivePanelVisible"
+            :perspective-mode="perspectiveMode"
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
             @handle-translation="(lang) => handleTranslationClick(lang)"
             @translate-content="(lang) => openTranslationWorkflow(lang)"
             @rewrite-content="(style) => rewriteContent(style)"
             @review-content="reviewContent"
+            @perspective-check="(mode) => perspectiveCheck(mode)"
             @continue-content="continueContent"
             @expand-content="expandContent"
             @condense-content="condenseContent"
             @update:review-panel-visible="reviewPanelVisible = $event"
+            @update:perspective-panel-visible="perspectivePanelVisible = $event"
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
@@ -226,6 +231,10 @@ const {
     reviewSuggestions,
     reviewPanelVisible,
     lastReviewAt,
+    perspectiveCheck,
+    perspectiveResults,
+    perspectivePanelVisible,
+    perspectiveMode,
     continueContent,
     expandContent,
     condenseContent,

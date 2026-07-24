@@ -38,10 +38,11 @@
 
 ### P2 — AI 编辑视角/读者视角检查（候选 #9 剩余子功能）
 
-- [ ] 后端：新增 `/api/ai/perspective-check` 端点（`TextService.perspectiveCheck()` + `AI_PROMPTS.PERSPECTIVE_CHECK` 模板，支持 `mode: 'editor' | 'reader'`）
-- [ ] 前端：编辑器工具栏新增"视角检查"按钮，选中文本后调用 API，返回结构化建议列表（不自动修改）
-- [ ] 计费：复用 AI 计费和额度管理，支持 `perspective-check` 操作类型
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
+- [x] 后端：新增 `/api/ai/perspective-check` 端点（`TextService.perspectiveCheck()` + `AI_PROMPTS.PERSPECTIVE_CHECK` 模板，支持 `mode: 'editor' | 'reader'`）
+- [x] 前端：编辑器工具栏新增"视角检查"按钮，弹出菜单选择"编辑视角/读者视角"，返回结构化建议列表（侧边面板展示，不自动修改）
+- [x] 前端：新增 `PostEditorPerspectivePanel` 组件，支持在编辑/读者视角间切换
+- [x] 计费：复用 AI 计费和额度管理（`category: 'text'`, `type: 'perspective_check'`），`assertTextQuota` + `recordTask` 自动处理
+- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
 
 ### P1 — 响应式状态模型收敛：reactive→ref Step 3（候选 #14）
 

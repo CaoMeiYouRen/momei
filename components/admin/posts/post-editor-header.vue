@@ -72,6 +72,16 @@
                     @click="emit('review-content')"
                 />
                 <Button
+                    id="ai-perspective-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.perspective')"
+                    icon="pi pi-eye"
+                    text
+                    outlined
+                    :loading="aiLoading.perspective"
+                    :badge="perspectiveResults.length > 0 ? String(perspectiveResults.length) : undefined"
+                    @click="perspectiveOp.toggle($event)"
+                />
+                <Button
                     id="ai-translate-btn"
                     v-tooltip="$t('pages.admin.posts.ai.translate')"
                     icon="pi pi-language"
@@ -179,6 +189,41 @@
                     </div>
                 </div>
             </Popover>
+            <Popover ref="perspectiveOp" class="perspective-menu">
+                <div class="perspective-menu__content">
+                    <div class="perspective-menu__title">
+                        {{ $t('pages.admin.posts.ai.perspective_select_mode') }}
+                    </div>
+                    <div
+                        class="perspective-menu__item"
+                        @click="handlePerspectiveSelect('editor')"
+                    >
+                        <i class="perspective-menu__item-icon pi pi-pen-to-square" />
+                        <div class="perspective-menu__item-text">
+                            <div class="perspective-menu__item-label">
+                                {{ $t('pages.admin.posts.ai.perspective_editor') }}
+                            </div>
+                            <div class="perspective-menu__item-desc">
+                                {{ $t('pages.admin.posts.ai.perspective_editor_desc') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="perspective-menu__item"
+                        @click="handlePerspectiveSelect('reader')"
+                    >
+                        <i class="perspective-menu__item-icon pi pi-users" />
+                        <div class="perspective-menu__item-text">
+                            <div class="perspective-menu__item-label">
+                                {{ $t('pages.admin.posts.ai.perspective_reader') }}
+                            </div>
+                            <div class="perspective-menu__item-desc">
+                                {{ $t('pages.admin.posts.ai.perspective_reader_desc') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Popover>
             <Popover ref="titleOp" class="title-suggestions-panel">
                 <ul class="suggestion-list">
                     <li
@@ -274,12 +319,21 @@
             :suggestions="reviewSuggestions"
             @close="emit('update:review-panel-visible', false)"
         />
+        <PostEditorPerspectivePanel
+            :visible="perspectivePanelVisible"
+            :results="perspectiveResults"
+            :mode="perspectiveMode"
+            @close="emit('update:perspective-panel-visible', false)"
+            @switch-mode="(mode) => emit('perspective-check', mode)"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
+import PostEditorPerspectivePanel from '@/components/admin/posts/post-editor-perspective-panel.vue'
+import type { PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -310,6 +364,9 @@ const props = defineProps<{
     titleSuggestions: string[]
     reviewSuggestions: any[]
     reviewPanelVisible: boolean
+    perspectiveResults: PerspectiveCheckItem[]
+    perspectivePanelVisible: boolean
+    perspectiveMode: PerspectiveMode
 }>()
 
 const emit = defineEmits<{
@@ -323,10 +380,12 @@ const emit = defineEmits<{
     (e: 'translate-content', lang: string | null): void
     (e: 'rewrite-content', style: string): void
     (e: 'review-content'): void
+    (e: 'perspective-check', mode: PerspectiveMode): void
     (e: 'continue-content'): void
     (e: 'expand-content'): void
     (e: 'condense-content'): void
     (e: 'update:review-panel-visible', visible: boolean): void
+    (e: 'update:perspective-panel-visible', visible: boolean): void
 }>()
 
 const localePath = useLocalePath()
@@ -334,6 +393,7 @@ const localePath = useLocalePath()
 const titleOp = ref<any>(null)
 const translateOp = ref<any>(null)
 const rewriteOp = ref<any>(null)
+const perspectiveOp = ref<any>(null)
 
 const rewriteStyles = [
     {
@@ -377,6 +437,11 @@ const rewriteStyles = [
 const handleRewriteSelect = (style: string) => {
     rewriteOp.value?.hide()
     emit('rewrite-content', style)
+}
+
+const handlePerspectiveSelect = (mode: PerspectiveMode) => {
+    perspectiveOp.value?.hide()
+    emit('perspective-check', mode)
 }
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
 const lastFocusedEditorElement = ref<HTMLElement | null>(null)
@@ -738,7 +803,8 @@ defineExpose({
         }
     }
 
-    .rewrite-menu {
+    .rewrite-menu,
+    .perspective-menu {
         &__item:hover {
             background-color: var(--p-surface-800);
         }

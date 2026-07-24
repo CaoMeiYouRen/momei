@@ -134,6 +134,12 @@ export const aiRecommendCategoriesExternalSchema = z.object({
     limit: z.number().int().min(1).max(10).optional().default(5),
 })
 
+export const aiPerspectiveCheckSchema = z.object({
+    content: z.string().min(1),
+    mode: z.enum(['editor', 'reader']),
+    language: z.string().optional().default('zh-CN'),
+})
+
 export const aiTranslatePostSchema = z.object({
     sourcePostId: z.string().min(1),
     targetLanguage: z.string().min(2).max(10),

@@ -869,6 +869,102 @@ export class TextService extends AIBaseService {
         }
     }
 
+    static async perspectiveCheck(
+        content: string,
+        mode: 'editor' | 'reader',
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'perspective_check',
+            payload: { content: inputContent, mode, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const modeLabel = mode === 'editor' ? 'editor' : 'reader'
+        const modeInstructions = mode === 'editor'
+            ? ('As an experienced editor, evaluate the content for:\n'
+                + '- Structure: Is the overall flow logical? Are sections well-organized?\n'
+                + '- Clarity: Are ideas clearly expressed? Is there jargon or ambiguity?\n'
+                + '- Pacing: Does the content move at an appropriate speed? Are there slow or rushed sections?\n'
+                + '- Argument: Are claims well-supported? Is the reasoning sound?\n'
+                + '- Transitions: Do paragraphs and sections connect smoothly?\n'
+                + '- Tone: Is the tone consistent and appropriate for the target audience?')
+            : ('As an attentive reader, evaluate the content for:\n'
+                + '- Engagement: Is the content interesting and engaging from a reader perspective?\n'
+                + '- Confusion: What parts might confuse a reader? What questions remain unanswered?\n'
+                + '- Emotion: How does the content make a reader feel? Is the intended emotional impact achieved?\n'
+                + '- Completeness: Does the reader get enough context and background?\n'
+                + '- Clarity: Would a typical reader understand the concepts being presented?\n'
+                + '- Pacing: Does the reader feel rushed or bored at any point?')
+
+        const prompt = formatPrompt(AI_PROMPTS.PERSPECTIVE_CHECK, {
+            content: inputContent,
+            mode,
+            modeLabel,
+            modeInstructions,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are an expert content reviewer specializing in ${modeLabel} perspective analysis. Provide observations in ${language}.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.4,
+            userId,
+        })
+
+        this.logUsage({ task: `perspective_check_${mode}`, response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'perspective_check',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, mode, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        // Parse structured observations from the response
+        try {
+            const cleanedContent = response.content
+                .replace(/```(?:json)?\s*/g, '')
+                .trim()
+            const observations = JSON.parse(cleanedContent) as {
+                mode: 'editor' | 'reader'
+                type: string
+                severity: 'info' | 'minor' | 'major'
+                original?: string
+                suggestion: string
+                reason: string
+            }[]
+            return Array.isArray(observations) ? observations : []
+        } catch {
+            // If parsing fails, return a single generic observation with raw content
+            logger.warn('Failed to parse AI perspective check response as JSON, returning raw text')
+            return [{
+                mode,
+                type: 'clarity' as const,
+                severity: 'info' as const,
+                suggestion: response.content.trim(),
+                reason: 'Raw AI response could not be parsed as structured observations.',
+            }]
+        }
+    }
+
     static async continueWriting(
         content: string,
         language: string = 'zh-CN',

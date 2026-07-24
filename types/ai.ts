@@ -452,3 +452,15 @@ export interface AIReviewSuggestion {
     suggestion: string
     replacement?: string
 }
+
+// --- Perspective Check (编辑视角/读者视角) ---
+export type PerspectiveMode = 'editor' | 'reader'
+
+export interface PerspectiveCheckItem {
+    mode: PerspectiveMode
+    type: 'structure' | 'clarity' | 'pacing' | 'argument' | 'engagement' | 'transition' | 'tone' | 'confusion' | 'emotion' | 'completeness'
+    severity: 'info' | 'minor' | 'major'
+    original?: string
+    suggestion: string
+    reason: string
+}

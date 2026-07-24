@@ -124,6 +124,20 @@ export const AI_PROMPTS = {
         + 'IMPORTANT: Return ONLY a valid JSON array, no markdown fences, no explanations before or after.\n'
         + 'If no issues found, return an empty array [].\n\n'
         + 'Content to review:\n{{content}}',
+    PERSPECTIVE_CHECK:
+        'You are an expert content reviewer performing a {{modeLabel}} perspective check on the following content. '
+        + 'Analyze it and provide structured observations as a JSON array.\n\n'
+        + '{{modeInstructions}}\n\n'
+        + 'Each observation must have these fields:\n'
+        + '- "mode": "{{mode}}"\n'
+        + '- "type": one of "structure", "clarity", "pacing", "argument", "engagement", "transition", "tone", "confusion", "emotion", "completeness"\n'
+        + '- "severity": one of "info", "minor", "major"\n'
+        + '- "original" (optional, string): the relevant text segment, if applicable\n'
+        + '- "suggestion" (string): concise, actionable suggestion for improvement\n'
+        + '- "reason" (string): explanation of why this observation matters from the {{modeLabel}} perspective\n\n'
+        + 'IMPORTANT: Return ONLY a valid JSON array. No markdown fences, no explanations before or after.\n'
+        + 'If no issues found, return an empty array [].\n\n'
+        + 'Content to review:\n{{content}}',
 }
 
 export function formatPrompt(

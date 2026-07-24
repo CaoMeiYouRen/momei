@@ -4,7 +4,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
-import type { RewriteStyle, AIReviewSuggestion, RewriteCompareData } from '@/types/ai'
+import type { RewriteStyle, AIReviewSuggestion, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
 
 const MIN_TASK_POLLING_INTERVAL = 10000
 
@@ -74,6 +74,7 @@ export function usePostEditorAI(
         translate: false,
         rewrite: false,
         review: false,
+        perspective: false,
         continue: false,
         expand: false,
         condense: false,
@@ -651,6 +652,75 @@ export function usePostEditorAI(
         }
     }
 
+    // --- 视角检查：编辑视角 / 读者视角 ---
+    const perspectiveResults = ref<PerspectiveCheckItem[]>([])
+    const perspectivePanelVisible = ref(false)
+    const perspectiveMode = ref<PerspectiveMode>('editor')
+    const lastPerspectiveHash = ref('')
+
+    const perspectiveCheck = async (mode: PerspectiveMode = 'editor') => {
+        if (!post.value.content || post.value.content.trim().length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        const currentHash = contentHash(post.value.content + mode)
+
+        // 内容未变化且已有缓存 → 直接打开面板
+        if (currentHash === lastPerspectiveHash.value && perspectiveResults.value.length > 0) {
+            perspectiveMode.value = mode
+            perspectivePanelVisible.value = true
+            toast.add({
+                severity: 'info',
+                summary: t('common.info'),
+                detail: t('pages.admin.posts.ai.perspective_cached'),
+                life: 2000,
+            })
+            return
+        }
+
+        aiLoading.value.perspective = true
+        perspectiveMode.value = mode
+        try {
+            const { data } = await $fetch<{ data: PerspectiveCheckItem[] }>('/api/ai/perspective-check', {
+                method: 'POST',
+                body: {
+                    content: post.value.content,
+                    mode,
+                    language: post.value.language,
+                },
+            })
+
+            perspectiveResults.value = data || []
+            lastPerspectiveHash.value = currentHash
+            perspectivePanelVisible.value = true
+
+            if (data.length === 0) {
+                toast.add({
+                    severity: 'success',
+                    summary: t('pages.admin.posts.ai.perspective_clean'),
+                    detail: t('pages.admin.posts.ai.perspective_clean_desc'),
+                    life: 3000,
+                })
+            }
+        } catch (error) {
+            console.error('AI Perspective Check error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.perspective = false
+        }
+    }
+
     // --- 续写：在光标位置插入 ---
     const continueContent = async () => {
         const cursorContext = getEditorCursorContext()
@@ -856,6 +926,10 @@ export function usePostEditorAI(
         reviewSuggestions,
         reviewPanelVisible,
         lastReviewAt,
+        perspectiveCheck,
+        perspectiveResults,
+        perspectivePanelVisible,
+        perspectiveMode,
         continueContent,
         expandContent,
         condenseContent,
