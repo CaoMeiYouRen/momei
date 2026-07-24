@@ -69,7 +69,7 @@ export function useAdminFriendLinksPage() {
     const confirm = useConfirm()
     const tt = (key: string) => t(key as never)
 
-    const loading = reactive({
+    const loading = ref({
         links: false,
         categories: false,
         applications: false,
@@ -88,7 +88,7 @@ export function useAdminFriendLinksPage() {
     const editingCategory = ref<FriendLinkCategory | null>(null)
     const selectedApplication = ref<FriendLinkApplication | null>(null)
 
-    const linkForm = reactive({
+    const linkForm = ref({
         name: '',
         url: '',
         logo: '',
@@ -103,7 +103,7 @@ export function useAdminFriendLinksPage() {
         sortOrder: 0,
     })
 
-    const categoryForm = reactive({
+    const categoryForm = ref({
         name: '',
         slug: '',
         description: '',
@@ -111,7 +111,7 @@ export function useAdminFriendLinksPage() {
         isEnabled: true,
     })
 
-    const reviewForm = reactive({
+    const reviewForm = ref({
         reviewNote: '',
         linkData: {
             categoryId: '',
@@ -128,7 +128,7 @@ export function useAdminFriendLinksPage() {
     ])
 
     const resetLinkForm = () => {
-        Object.assign(linkForm, {
+        Object.assign(linkForm.value, {
             name: '',
             url: '',
             logo: '',
@@ -145,7 +145,7 @@ export function useAdminFriendLinksPage() {
     }
 
     const resetCategoryForm = () => {
-        Object.assign(categoryForm, {
+        Object.assign(categoryForm.value, {
             name: '',
             slug: '',
             description: '',
@@ -194,38 +194,38 @@ export function useAdminFriendLinksPage() {
     const shouldSuggestReviewOrDisable = (item: FriendLinkItem) => item.status === FriendLinkStatus.ACTIVE && item.healthStatus === FriendLinkHealthStatus.UNREACHABLE
 
     const loadLinks = async () => {
-        loading.links = true
+        loading.value.links = true
         try {
             const response = await $fetch<PaginatedResponse<FriendLinkItem>>('/api/admin/friend-links', { query: { limit: 100 } })
             links.value = response.data?.items || []
         } catch (error) {
             showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.load_links_failed' })
         } finally {
-            loading.links = false
+            loading.value.links = false
         }
     }
 
     const loadCategories = async () => {
-        loading.categories = true
+        loading.value.categories = true
         try {
             const response = await $fetch<ListResponse<FriendLinkCategory>>('/api/admin/friend-link-categories')
             categories.value = response.data || []
         } catch (error) {
             showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.load_categories_failed' })
         } finally {
-            loading.categories = false
+            loading.value.categories = false
         }
     }
 
     const loadApplications = async () => {
-        loading.applications = true
+        loading.value.applications = true
         try {
             const response = await $fetch<PaginatedResponse<FriendLinkApplication>>('/api/admin/friend-link-applications', { query: { limit: 100 } })
             applications.value = response.data?.items || []
         } catch (error) {
             showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.load_applications_failed' })
         } finally {
-            loading.applications = false
+            loading.value.applications = false
         }
     }
 
@@ -234,7 +234,7 @@ export function useAdminFriendLinksPage() {
         resetLinkForm()
 
         if (item) {
-            Object.assign(linkForm, {
+            Object.assign(linkForm.value, {
                 name: item.name,
                 url: item.url,
                 logo: item.logo || '',
@@ -258,7 +258,7 @@ export function useAdminFriendLinksPage() {
         resetCategoryForm()
 
         if (item) {
-            Object.assign(categoryForm, {
+            Object.assign(categoryForm.value, {
                 name: item.name,
                 slug: item.slug,
                 description: item.description || '',
@@ -272,7 +272,7 @@ export function useAdminFriendLinksPage() {
 
     const openReviewDialog = (item: FriendLinkApplication) => {
         selectedApplication.value = item
-        Object.assign(reviewForm, {
+        Object.assign(reviewForm.value, {
             reviewNote: item.reviewNote || '',
             linkData: {
                 categoryId: item.categoryId || '',
@@ -285,7 +285,7 @@ export function useAdminFriendLinksPage() {
     }
 
     const saveLink = async () => {
-        const validation = friendLinkSchema.safeParse(linkForm)
+        const validation = friendLinkSchema.safeParse(linkForm.value)
 
         if (!validation.success) {
             toast.add({
@@ -319,7 +319,7 @@ export function useAdminFriendLinksPage() {
         try {
             const url = editingCategory.value ? `/api/admin/friend-link-categories/${editingCategory.value.id}` : '/api/admin/friend-link-categories'
             const method = editingCategory.value ? 'PUT' : 'POST'
-            await $fetch(url, { method, body: categoryForm })
+            await $fetch(url, { method, body: categoryForm.value })
 
             showSuccessToast(editingCategory.value ? 'pages.admin.friend_links.messages.update_category_success' : 'pages.admin.friend_links.messages.create_category_success')
 
@@ -343,8 +343,8 @@ export function useAdminFriendLinksPage() {
                 method: 'PUT',
                 body: {
                     status,
-                    reviewNote: reviewForm.reviewNote,
-                    linkData: reviewForm.linkData,
+                    reviewNote: reviewForm.value.reviewNote,
+                    linkData: reviewForm.value.linkData,
                 },
             })
 

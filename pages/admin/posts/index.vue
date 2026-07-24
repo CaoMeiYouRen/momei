@@ -481,7 +481,7 @@ const getStatusLabel = (status: string) => {
 const handleExport = (post: Post) => {
     exportPost(post.id, {
         slug: post.slug,
-        all: !!filters.aggregate && (post.translations?.length || 0) > 1,
+        all: !!filters.value.aggregate && (post.translations?.length || 0) > 1,
     })
 }
 
@@ -490,7 +490,7 @@ const handleBatchExport = async () => {
     const ids: string[] = []
     selectedItems.value.forEach((item) => {
         ids.push(item.id)
-        if (filters.aggregate && item.translations) {
+        if (filters.value.aggregate && item.translations) {
             item.translations.forEach((t) => {
                 if (t.id !== item.id) {
                     ids.push(t.id)

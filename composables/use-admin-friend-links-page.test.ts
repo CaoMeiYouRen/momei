@@ -237,17 +237,17 @@ describe('useAdminFriendLinksPage', () => {
 
         expect(exposed.linkDialogVisible.value).toBe(true)
         expect(exposed.editingLink.value?.id).toBe('link-1')
-        expect(exposed.linkForm.name).toBe('Momei')
-        expect(exposed.linkForm.url).toBe('https://momei.app')
-        expect(exposed.linkForm.showRssFeed).toBe(true)
+        expect(exposed.linkForm.value.name).toBe('Momei')
+        expect(exposed.linkForm.value.url).toBe('https://momei.app')
+        expect(exposed.linkForm.value.showRssFeed).toBe(true)
 
-        exposed.linkForm.name = 'Changed'
+        exposed.linkForm.value.name = 'Changed'
         exposed.openLinkDialog()
 
         expect(exposed.editingLink.value).toBeNull()
-        expect(exposed.linkForm.name).toBe('')
-        expect(exposed.linkForm.showRssFeed).toBe(false)
-        expect(exposed.linkForm.status).toBe(FriendLinkStatus.ACTIVE)
+        expect(exposed.linkForm.value.name).toBe('')
+        expect(exposed.linkForm.value.showRssFeed).toBe(false)
+        expect(exposed.linkForm.value.status).toBe(FriendLinkStatus.ACTIVE)
     })
 
     it('fills showRssFeed from the existing link when editing and includes it in the save payload', async () => {
@@ -256,10 +256,10 @@ describe('useAdminFriendLinksPage', () => {
 
         // Editing a link with showRssFeed=true
         exposed.openLinkDialog(link)
-        expect(exposed.linkForm.showRssFeed).toBe(true)
+        expect(exposed.linkForm.value.showRssFeed).toBe(true)
 
         // Toggle it off
-        exposed.linkForm.showRssFeed = false
+        exposed.linkForm.value.showRssFeed = false
         fetchMock.mockClear()
         fetchMock.mockImplementation((url: string, options?: { method?: string, body?: string }) => {
             if (url === `/api/admin/friend-links/${link.id}` && options?.method === 'PUT') {
@@ -321,7 +321,7 @@ describe('useAdminFriendLinksPage', () => {
             return { code: 200 }
         })
 
-        Object.assign(exposed.linkForm, {
+        Object.assign(exposed.linkForm.value, {
             name: 'New link',
             url: 'https://new-link.example.com',
             logo: '',
@@ -351,7 +351,7 @@ describe('useAdminFriendLinksPage', () => {
 
         const category = exposed.categories.value[0]!
         exposed.openCategoryDialog(category)
-        Object.assign(exposed.categoryForm, {
+        Object.assign(exposed.categoryForm.value, {
             name: 'Updated Tech',
             slug: 'updated-tech',
             description: 'Updated description',
@@ -399,9 +399,9 @@ describe('useAdminFriendLinksPage', () => {
         })
 
         exposed.openReviewDialog(exposed.applications.value[0]!)
-        exposed.reviewForm.reviewNote = 'Looks good'
-        exposed.reviewForm.linkData.categoryId = 'category-1'
-        exposed.reviewForm.linkData.isFeatured = true
+        exposed.reviewForm.value.reviewNote = 'Looks good'
+        exposed.reviewForm.value.linkData.categoryId = 'category-1'
+        exposed.reviewForm.value.linkData.isFeatured = true
 
         await exposed.submitReview('approved')
 

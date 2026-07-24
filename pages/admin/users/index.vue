@@ -217,7 +217,7 @@ const {
     },
 })
 
-const dialogs = reactive({
+const dialogs = ref({
     role: {
         visible: false,
         user: null as any,
@@ -228,14 +228,14 @@ const dialogs = reactive({
     },
 })
 
-const drawers = reactive({
+const drawers = ref({
     sessions: {
         visible: false,
         user: null as any,
     },
 })
 
-const deleteDialog = reactive({
+const deleteDialog = ref({
     visible: false,
     user: null as any,
     message: '',
@@ -243,13 +243,13 @@ const deleteDialog = reactive({
 
 // Actions
 const openRoleDialog = (user: any) => {
-    dialogs.role.user = user
-    dialogs.role.visible = true
+    dialogs.value.role.user = user
+    dialogs.value.role.visible = true
 }
 
 const openBanDialog = (user: any) => {
-    dialogs.ban.user = user
-    dialogs.ban.visible = true
+    dialogs.value.ban.user = user
+    dialogs.value.ban.visible = true
 }
 
 const unbanUser = async (user: any) => {
@@ -287,21 +287,21 @@ const impersonateUser = async (user: any) => {
 }
 
 const openSessionsDrawer = (user: any) => {
-    drawers.sessions.user = user
-    drawers.sessions.visible = true
+    drawers.value.sessions.user = user
+    drawers.value.sessions.visible = true
 }
 
 const openUserDeleteDialog = (user: any) => {
-    deleteDialog.user = user
-    deleteDialog.message = t('pages.admin.users.confirm_delete', { name: user.name })
-    deleteDialog.visible = true
+    deleteDialog.value.user = user
+    deleteDialog.value.message = t('pages.admin.users.confirm_delete', { name: user.name })
+    deleteDialog.value.visible = true
 }
 
 const deleteUser = async () => {
-    if (!deleteDialog.user) return
+    if (!deleteDialog.value.user) return
     try {
         const { error } = await authClient.admin.removeUser({
-            userId: deleteDialog.user.id,
+            userId: deleteDialog.value.user.id,
         })
         if (error) throw error
         showSuccessToast('pages.admin.users.feedback.delete_user_success')

@@ -54,11 +54,11 @@
 
 ### P1 — 响应式状态模型收敛：reactive→ref Step 2（候选 #14）
 
-- [ ] 识别 Step 2 目标文件清单：后台列表页筛选/分页/排序/弹窗类 `reactive` 对象（`use-admin-friend-links-page.ts`、`use-admin-list.ts`、`pages/admin/users/index.vue` 等）
-- [ ] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径（≥5 处迁移）
-- [ ] 同步调整 composable 返回值类型约束
-- [ ] 定向验证：受影响页面的筛选/分页/弹窗/排序行为不回退
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 识别 Step 2 目标文件清单：后台列表页筛选/分页/排序/弹窗类 `reactive` 对象（`use-admin-friend-links-page.ts`、`use-admin-list.ts`、`pages/admin/users/index.vue` 等）
+- [x] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径（≥5 处迁移，实际 9 处）
+- [x] 同步调整 composable 返回值类型约束（`Ref<F>` + 移除 `reactive` 导入）
+- [x] 定向验证：受影响页面的筛选/分页/弹窗/排序行为不回退（30 tests pass）
+- [x] 验证：`pnpm typecheck` + `pnpm lint` 通过
 
 ### P2 — 测试覆盖率 90%+ 第三批（长期主线 #1）
 

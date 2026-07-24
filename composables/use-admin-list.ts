@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, type Ref } from 'vue'
 import { useAdminI18n } from './use-admin-i18n'
 import type { ApiResponse } from '@/types/api'
 
@@ -80,8 +80,8 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
     const loading = ref(false)
     const error = ref<AdminListError>(null)
 
-    const filters = reactive(initialFilters ?? {}) as F
-    const sort = reactive({
+    const filters = ref(initialFilters ?? {}) as Ref<F>
+    const sort = ref({
         field: initialSort?.field || 'createdAt',
         order: initialSort?.order || 'desc',
     })
@@ -91,7 +91,7 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
         error.value = null
         try {
             // 过滤掉 filters 中的 null, undefined 和空字符串
-            const cleanedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+            const cleanedFilters = Object.entries(filters.value).reduce((acc, [key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
                     acc[key] = value
                 }
@@ -102,12 +102,12 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
                 page: page.value,
                 offset: (page.value - 1) * limit.value,
                 limit: limit.value,
-                orderBy: sort.field,
-                order: sort.order === 'asc' ? 'ASC' : 'DESC',
-                sortBy: sort.field,
-                sortDirection: sort.order,
+                orderBy: sort.value.field,
+                order: sort.value.order === 'asc' ? 'ASC' : 'DESC',
+                sortBy: sort.value.field,
+                sortDirection: sort.value.order,
                 ...cleanedFilters,
-                language: contentLanguage.value || (hasAggregateFilter(filters) ? locale.value : undefined),
+                language: contentLanguage.value || (hasAggregateFilter(filters.value) ? locale.value : undefined),
                 scope: 'manage',
             } as AdminListRequestParams & F
 
@@ -148,8 +148,8 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
             return
         }
 
-        sort.field = event.sortField
-        sort.order = event.sortOrder === 1 ? 'asc' : 'desc'
+        sort.value.field = event.sortField
+        sort.value.order = event.sortOrder === 1 ? 'asc' : 'desc'
         void load()
     }
 
@@ -159,7 +159,7 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
     }
 
     const resetFilters = () => {
-        Object.assign(filters, initialFilters || {})
+        Object.assign(filters.value, initialFilters || {})
         page.value = 1
         void load()
     }
@@ -178,7 +178,7 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
 
     // Watch for global UI language changes (only when "All Languages" is selected and aggregation is on)
     watch(locale, () => {
-        if (contentLanguage.value === null && hasAggregateFilter(filters)) {
+        if (contentLanguage.value === null && hasAggregateFilter(filters.value)) {
             void load()
         }
     })
