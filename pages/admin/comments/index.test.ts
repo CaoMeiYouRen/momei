@@ -144,15 +144,14 @@ describe('AdminComments page', () => {
 
     it('renders empty state when no comments', async () => {
         fetchMock.mockResolvedValue({ code: 200, data: { items: [], total: 0 } })
-        const wrapper = await mountComponent()
+        await mountComponent()
         await vi.waitFor(() => {
-            // The empty slot renders "pages.posts.empty" - but templates use $t
             expect(fetchMock).toHaveBeenCalled()
         })
     })
 
     it('handles fetch error gracefully', async () => {
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
         fetchMock.mockRejectedValue(new Error('Network error'))
         await mountComponent()
         await vi.waitFor(() => {

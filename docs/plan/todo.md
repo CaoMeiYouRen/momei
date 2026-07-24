@@ -32,9 +32,9 @@
 
 ### P2 — 测试覆盖率 90%+ 第四批（长期主线 #1）
 
-- [ ] 基于 Phase 61 最新全仓覆盖率缺口报告，选择下一批高价值覆盖缺口模块
-- [ ] 补高价值缺口覆盖度（目标全仓 coverage 提升 ≥1%）
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过
+- [x] 基于 CI 覆盖率报告（All files 79.66% Stmts），选择 `server/utils/date.ts`（49 行）和 `server/utils/query-params.ts`（14 行）作为高价值缺口模块
+- [x] 补高价值缺口覆盖度：新增 26 个测试覆盖 4 个纯函数（`toDateOrNull`、`toDateOrUndefined`、`toQueryString`、`toQueryStringArray`），代码覆盖率从 0%/25%→100%
+- [x] 验证：`pnpm typecheck` + `pnpm lint` 通过；26 个定向测试全部通过
 
 ### P2 — AI 编辑视角/读者视角检查（候选 #9 剩余子功能）
 
