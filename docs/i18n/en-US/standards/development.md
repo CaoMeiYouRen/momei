@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-06-04
+last_sync: 2026-07-24
 ---
 
 # Momei Development Standards

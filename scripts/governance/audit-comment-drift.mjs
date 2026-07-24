@@ -126,7 +126,7 @@ export function isTodoLikeComment(text) {
     return TODO_COMMENT_PATTERN.test(text)
 }
 
-export function isRestatementComment(text, nextCodeLine) {
+export function isRestatementComment(text, nextCodeLine, filePath = '') {
     const commentTokens = unique(tokenize(text))
     const codeTokens = new Set(tokenize(nextCodeLine))
 
@@ -142,6 +142,30 @@ export function isRestatementComment(text, nextCodeLine) {
     // Skip comments that are primarily URLs or domain names (e.g., "example.com")
     const urlLikeTokens = commentTokens.filter((token) => /\./u.test(token) && !token.includes(' ')).length
     if (urlLikeTokens > commentTokens.length * 0.5) {
+        return false
+    }
+
+    // Skip comments that look like section/component labels in templates (short, title-cased)
+    // e.g., "About Content", "Features Grid", "CTA Form", "Comparison Table"
+    // Check the original text (not tokenized/lowercased) for title-case patterns
+    if (commentTokens.length <= 4) {
+        const words = text.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+        const titleCasedWords = words.filter((word) => /^\p{Lu}\p{Ll}/u.test(word))
+        const capitalizedWords = words.filter((word) => /^\p{Lu}/u.test(word))
+        if (words.length > 0 && words.length <= 4 && capitalizedWords.length === words.length && titleCasedWords.length > 0) {
+            return false
+        }
+    }
+
+    // Skip CJK-heavy comments — token overlap heuristic is unreliable across languages
+    const cjkTokenCount = commentTokens.filter((token) => CJK_PATTERN.test(token)).length
+    if (cjkTokenCount > 0 && cjkTokenCount / commentTokens.length >= 0.5) {
+        return false
+    }
+
+    // Skip short restatement comments in test files — these are intentional test descriptions
+    // that don't start with Should/When/Given but still describe assertions meaningfully
+    if (commentTokens.length <= 3 && filePath && filePath.includes('.test.')) {
         return false
     }
 
@@ -362,7 +386,7 @@ export async function collectCommentDriftReport(options = {}) {
                 todoComments.push(entry)
             }
 
-            if (isRestatementComment(entry.text, entry.nextCodeLine)) {
+            if (isRestatementComment(entry.text, entry.nextCodeLine, entry.filePath)) {
                 restatementComments.push(entry)
             }
 

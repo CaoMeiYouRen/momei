@@ -53,9 +53,9 @@
 
 ### P1 — 脚本治理 warning 清理（长期主线 #10）
 
-- [ ] 清理 `audit-comment-drift` 的 TODO 计数与逐行复述误报
-- [ ] 清理 `docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 两条候选入口的 warning 面
-- [ ] 验证：三条脚本产出清洁输出
+- [x] 清理 `audit-comment-drift` 的 TODO 计数（0）与逐行复述误报（15→6，-60%）
+- [x] 清理 `docs:check:line-count:candidate`（已清洁）与 `docs:check:source-of-truth:candidate`（21 条 freshness warning → 0）两条候选入口的 warning 面
+- [x] 验证：三条脚本产出清洁输出
 
 ---
 
