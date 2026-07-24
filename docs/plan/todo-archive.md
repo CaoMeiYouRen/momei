@@ -90,6 +90,80 @@
 
 ---
 
+## 第六十阶段：编辑器延续与代码质量治理（已审计归档）
+
+> 归档说明: 第六十阶段「1 新功能 + 1 重构 + 1 治理 + 1 覆盖率 + 1 新能力」已于 2026-07-24 完成五条主线交付与阶段收口。AI 续写（Continue）复用 Phase 59 AI 管线，支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型；响应式状态模型收敛完成 5 个文件 reactive→ref Step 1 迁移；Zod Schema 复用治理抽取 Ad Campaign + Ad Placement 共享基对象 + `.partial()` 派生，消除重复定义；测试覆盖率 90%+ 第二批新增 69 个测试覆盖 3 个 AI Provider 模块；多平台迁移适配器新增 Hugo 格式支持（TOML/YAML/JSON 自动检测 + `--format hugo` CLI 参数 + 17 个单元测试）。所有主线均通过 Review Gate 审计。
+
+> **ROI 评估**: AI 续写 1.40；reactive→ref Step 1 1.60；Zod Schema 复用首批 1.60；测试覆盖率 90%+ 第二批 1.00；多平台迁移适配器 Hugo 格式 1.50。
+
+### 1. AI 编辑增强 — 续写（候选 #9 子功能）(P0)
+
+- **执行范围**: 基于 Phase 59 已交付的改写+审查管线，新增续写（Continue）功能。后端新增 `/api/ai/continue` 端点，复用现有 AI 管线与计费体系。前端编辑器工具栏新增"续写"按钮，基于光标位置或选中文本续写内容，支持撤销。
+- **非目标**: 不做扩写/缩写/视角检查（P2，留后续阶段）。
+- **实现对照**:
+  - `server/api/ai/continue.post.ts`：POST 端点，复用 `TextService.continueWriting()` + `AI_PROMPTS.CONTINUE` 模板
+  - `composables/use-post-editor-ai.ts`：`continueContent()` + `getEditorCursorContext()` + loading 状态
+  - `components/admin/posts/post-editor-header.vue`：工具栏"续写"按钮（`#ai-continue-btn`）
+  - i18n：5 语种 4 个新 key（`editor.continue` 等）
+  - 计费：`recordTask({ type: 'continue' })` 复用现有 AI 计费体系
+- **验收对照**: ✅ 续写内容在光标处正确插入；✅ 支持 Ctrl+Z 撤销；✅ 计费正确记录；✅ `pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（503/504 files, 3958/3959 tests）；✅ Code Auditor Review Gate Pass。
+
+### 2. 响应式状态模型收敛：reactive→ref Step 1（候选 #14）(P1)
+
+- **执行范围**: 选取低风险首批文件（登录页、注册页、权益页、个人设置、安全设置中的 `form`/`errors` 类 `reactive` 对象），逐文件迁移为 `ref<{...}>()`。
+- **非目标**: 不追求全仓 reactive 清零；不改动 API 契约或页面交互语义。
+- **实现对照**:
+  - `pages/login.vue`：`form` + `errors` ref 迁移
+  - `pages/register.vue`：`form` + `errors` ref 迁移
+  - `pages/benefits.vue`：`form` ref 迁移
+  - `components/settings/settings-profile.vue`：`profileForm` ref 迁移
+  - `components/settings/settings-security.vue`：`passwordForm` ref 迁移
+- **验收对照**: ✅ Step 1 目标文件全部迁移完成（+56/-56，纯 script 层转换，模板零改动）；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ Code Auditor Review Gate Pass。
+
+### 3. Zod Schema 复用治理首批：Ad Campaign + Ad Placement（候选 #18）(P1)
+
+- **执行范围**: 将 Ad Campaign 和 Ad Placement 的 create/update schema 抽取到 `utils/schemas/ad.ts`，使用共享基对象 + `.partial()` 派生 update schema。
+- **非目标**: 不改动 API 行为或验证语义。
+- **实现对照**:
+  - `utils/schemas/ad.ts`（新建）：`campaignBase` + `placementBase` 共享基对象，`.partial()` 派生 update
+  - `server/api/admin/ad/campaigns.post.ts` / `campaigns/[id].put.ts`：import 共享 schema
+  - `server/api/admin/ad/placements.post.ts` / `placements/[id].put.ts`：import 共享 schema
+  - update 独有字段（`impressions/clicks/revenue`）通过 `.extend()` 追加
+- **验收对照**: ✅ Ad Campaign/Placement 共享基对象；✅ update schema 通过 `.partial()` 派生；✅ `pnpm typecheck` ✅ + `pnpm lint`（定向）✅ + 56/56 定向测试通过 ✅；✅ Code Auditor Review Gate Pass。
+
+### 4. 测试覆盖率 90%+ 第二批（长期主线 #1）(P2)
+
+- **执行范围**: 基于 Phase 59 缺口报告，选择 AI Provider 层（openai-provider / fallback-provider / stable-diffusion-provider）作为下一批高价值覆盖缺口模块。
+- **实现对照**:
+  - `server/utils/ai/openai-provider.test.ts：30 测试，覆盖构造器/chat 错误路径/流式 SSE/图片尺寸映射（1K/2K/4K/512PX））
+  - `server/utils/ai/fallback-provider.test.ts`：39 测试，覆盖降级重试/非重试判定（401/403/404/409 vs 429/500）/事件记录
+  - `server/utils/ai/stable-diffusion-provider.test.ts`：14 测试，覆盖尺寸解析/API 错误处理/鉴权 header
+  - 修复 bug：`openai-provider.ts` 中 `512px` → `512PX` 大小写不匹配
+- **验收对照**: ✅ 新增 69 个测试，覆盖 3 个 AI Provider 模块；✅ `pnpm typecheck` ✅ + `pnpm lint` ✅(0 error) + 69/69 定向测试 ✅。
+
+### 5. 多平台迁移适配器：Hugo 格式支持（候选 #12）(P2)
+
+- **执行范围**: 抽象 `ContentParser` 接口，实现 `HugoParser` 适配器支持 TOML/YAML/JSON Front-matter 自动检测。CLI 命令增加 `--format hugo` 参数。
+- **非目标**: 不支持 WordPress/Jekyll、不做自动格式检测、不改变现有 Hexo 解析。
+- **实现对照**:
+  - `packages/cli/src/types.ts`：`ContentParser` 接口 + `ParsedPost` 通用类型
+  - `packages/cli/src/hugo-parser.ts`（281 行）：`HugoParser` 实现，YAML+TOML+JSON 三种格式通过 `gray-matter` 自动检测 + `smol-toml` 作为 TOML 引擎
+  - `packages/cli/src/import-command.ts`：`--format hugo` CLI 参数
+  - `packages/cli/src/hugo-parser.test.ts`（224 行）：17 个测试覆盖 title/date/tags/categories/slug/draft/cover/lastmod 映射
+- **验收对照**: ✅ `--format hugo` 参数正确选择 HugoParser；✅ TOML/YAML Front-matter 正确映射；✅ `pnpm typecheck` ✅ + `pnpm lint` ✅(0 error) + 86/86 CLI 测试 ✅ + Hexo 21/21 无回归 ✅。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 主干质量门通过（typecheck + lint + test）
+- [x] Code Auditor Review Gate 通过
+- [x] 归档记录已写入
+
+---
+
 ## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）
 
 > 归档说明: 第五十八阶段「2 新功能 + 3 治理延续」已于 2026-07-22 完成五条主线交付与阶段收口。两条新功能主线（MCP HTTP 传输与本体挂载、RSS 订阅链接美化）均已实施并通过验证；结构复用主线承接 Phase 57 延期项，完成 api-client 类型枚举收敛 + 接口重命名 2 组热点切片；ESLint/类型债主线关闭已完成治理循环（NO_EXPLICIT_ANY_FILES 全部 65+ 项已在前序阶段收敛，豁免列表清零，全量 TypeScript 规则基线报告落盘）；测试有效性第六轮切片完成 12 个失败路径断言，覆盖 3 个模块（feed utils、feed-taxonomy-route、MCP endpoint）。所有主线均通过 Review Gate 审计。

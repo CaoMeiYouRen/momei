@@ -1,6 +1,6 @@
 ﻿---
 source_branch: master
-last_sync: 2026-07-23
+last_sync: 2026-07-24
 ---
 
 # Momei 프로젝트 로드맵
@@ -63,6 +63,7 @@ last_sync: 2026-07-23
 - **57단계는 감사 완료 후 아카이브되었습니다**: 마이그레이션 경험 향상(로컬 이미지 자동 업로드, `updatedAt` 메타데이터 확장), 테스트 유효성 5차 슬라이스(13+ 실패 경로 어서션, 4개 모듈 커버), ESLint/타입 부채 3개 협소 슬라이스(validate-api-key, translation, types/ai). 구조 재사용은 58단계로 연기.
 - **58단계는 감사 완료 후 아카이브되었습니다**: MCP HTTP 전송 및 마운트(`server/plugins/mcp-http.ts` + `server/api/mcp/index.ts`), RSS 피드 미화(`feed-style.css` + `injectRssStylesheet`), 구조 재사용 2개 api-client 타입 수렴 슬라이스(duplicate-code 0.31%), ESLint/타입 부채 거버넌스 사이클 종료(NO_EXPLICIT_ANY_FILES 전부 제로), 테스트 유효성 6차 슬라이스(12개 실패 경로 어서션, 3개 모듈 커버).
 - **59단계는 감사 완료 후 아카이브되었습니다**: AI 편집 강화(rewrite + review, 6가지 스타일 + 캐싱), 최근 인기 글 목록(`post_view_hourly` 집계 + `/api/posts/home` 통합), Demo Banner 다크모드 수정(투명도 실색 처리), E2E CI 속도 제한 수정 + GHA 샤딩(공유 build job + 4행렬 샤딩, 코드 `b6b567a7`에 제출), 테스트 커버리지 90%+ 1차(갭 분석 리포트 + 2회 8개 파일, ~252행 +1.09%).
+- **60단계는 감사 완료 후 아카이브되었습니다**: AI 편집 계속 쓰기(Continue)(`server/api/ai/continue.post.ts` + 에디터 도구 모음 버튼 + Ctrl+Z 실행 취소 + AI 과금 continue 유형), reactive→ref Step 1 마이그레이션(5개 파일: 로그인/등록/혜택/프로필 설정/보안 설정), Zod Schema 재사용 Ad Campaign + Ad Placement(`utils/schemas/ad.ts` 공유 베이스 + `.partial()` 파생), 테스트 커버리지 90%+ 2차(69개 새 테스트, 3개 AI Provider 모듈 대상), Hugo 형식 멀티플랫폼 마이그레이션 어댑터(`ContentParser` 인터페이스 + `HugoParser` TOML/YAML/JSON + `--format hugo` CLI 플래그 + 17개 유닛 테스트). 모든 주선이 Code Auditor 심사를 통과.
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog

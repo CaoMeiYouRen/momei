@@ -669,7 +669,9 @@
     - **非目标**: 不支持 WordPress/Jekyll（留后续阶段）、不做自动格式检测、不改变现有 Hexo 解析行为。
     - **最小验收**: `--format hugo` 参数正确选择 HugoParser；TOML/YAML Front-matter 正确映射到 `ParsedPost`；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo 解析无回归。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+**审计结论**: 第六十阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。AI 续写已完成（`697b00a4`），支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型；响应式状态模型迁移已完成（`d3f7314c`），5 个文件（登录页、注册页、权益页、个人设置、安全设置）从 `reactive` 迁移为 `ref`；Zod Schema 复用治理已完成（`6216fedf`），Ad Campaign + Ad Placement 的 create/update schema 抽取到 `utils/schemas/ad.ts`，共享基对象 + `.partial()` 派生；测试覆盖率 90%+ 第二批已完成（`9cea2f38`），新增 69 个测试覆盖 3 个 AI Provider 模块；多平台迁移适配器 Hugo 格式支持已完成（`6075d073`），新增 `ContentParser` 接口 + `HugoParser` 适配器（TOML/YAML/JSON）+ `--format hugo` CLI 参数 + 17 个单元测试。`pnpm typecheck` + `pnpm lint` + `pnpm test` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
+
+> 详细条目见 [待办归档](./todo-archive.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ## 3. 相关文档
 
