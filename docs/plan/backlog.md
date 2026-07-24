@@ -363,13 +363,15 @@
 - **评估依据**: [`docs/design/governance/archive/digital-garden-evaluation.md`](../design/governance/archive/digital-garden-evaluation.md)
 - **核心理由**: 存储模型（JSON 字段 vs 关联表）在当前文章体量下的性能影响不确定、非时序导航对现有路由/信息架构侵入度高、知识图谱可视化的前端依赖与 bundle 增量不匹配当前优化目标。
 - **保留条件**: 若后续引入双向链接需求且存储方案成熟，可重新评估。
-9. **AI 编辑增强功能套件 (P1, 已评估)**
+9. ~~**AI 编辑增强功能套件 (P1, 已实现)**~~
 - **评估结论**: 条件性 Go（第五十三阶段评估完成，ROI 1.50）
 - **评估依据**: [`docs/design/governance/ai-editing-enhancement-evaluation.md`](../design/governance/ai-editing-enhancement-evaluation.md)
-- **功能清单**: 改写 (Rewrite, P1) / 续写 (Continue, P1) / 审查 (Review, P1) / 扩写 (Expand, P2) / 缩写 (Condense, P2) / 编辑视角检查 (P2) / 读者视角检查 (P2)
-- **核心结论**: 技术方案可行（复用现有 usePostEditorAI composable + server/services/ai/text.ts AI 管线），额度计费需扩展支持新增操作类型，prompt 多语言支持需按功能单独设计。
-- **上收条件**: 可按 P1 子功能（改写/审查）分批上收，首轮建议 2 个 P1 子功能。
-- **已实现**: 改写 (Rewrite) + 审查 (Review) 已于第五十九阶段完成上收实现（`a4319a9f` + `d1c28283`）。改写支持中英文 + 6 种风格选择（口语/正式/学术/技术/创意/简洁）+ 撤销/重做；审查输出结构化修改建议列表 + 内容哈希对比缓存。续写 (Continue) 已于第六十阶段完成上收实现（`697b00a4`），支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型。扩写 (Expand) + 缩写 (Condense) 已于第六十一阶段完成上收实现（`d980cf69`），支持中英文扩写/缩写 + Ctrl+Z 撤销 + AI 计费 expand/condense 类型。后续 P2 子功能（编辑视角检查/读者视角检查）待上收。
+- **功能清单**: 改写 (Rewrite) / 审查 (Review) / 续写 (Continue) / 扩写 (Expand) / 缩写 (Condense) 均已上收实现。剩余子功能：编辑视角检查 (P2)、读者视角检查 (P2) 待上收。
+- **已实现**:
+    - 改写 (Rewrite) + 审查 (Review)：第五十九阶段（`a4319a9f` + `d1c28283`）。支持中英文 + 6 种风格选择 + 撤销/重做 + 内容哈希对比缓存。
+    - 续写 (Continue)：第六十阶段（`697b00a4`）。支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型。
+    - 扩写 (Expand) + 缩写 (Condense)：第六十一阶段（`d980cf69`）。支持中英文扩写/缩写 + Ctrl+Z 撤销 + AI 计费 expand/condense 类型。
+- **剩余方向**: 编辑视角检查 (P2)、读者视角检查 (P2) 可后续上收。
 ### 2026-07 批次剩余候选（RSS 订阅链接美化已上收至第五十八阶段）
 10. ~~**RSS 订阅链接美化 (P2, 候选)**~~ 已上收 Phase 58 且已审计归档
 ### 2026-07 迁移功能增强候选任务（已上收本地图片上传和元数据字段扩展到第五十七阶段）
@@ -419,7 +421,6 @@
 - **详细方案**: 待设计
 14. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选 — 已部分实现)**
 - **背景**:
-- **背景**:
     - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。Step 1 + Step 2 已覆盖 14 处生产代码，仍有 15 处生产代码等待后续迁移。
     - `ref` 的显式 `.value` 语义更有利于长期维护，已在 Step 1 验证迁移模式可行。
     - Step 1 聚焦低风险首批文件（登录/注册/权益/个人设置/安全设置），Step 2 已完成后台列表页 9 处迁移。
@@ -428,8 +429,8 @@
     - Step 2（中风险）：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）中的 `filters/pagination/sort/dialog` 类 `reactive` 对象已迁移为 `ref`，同步调整 composable 返回值类型约束（`Ref<F>` + 移除 `reactive` 导入）。迁移验证：template 零改动，受影响页面的筛选/分页/弹窗/排序行为无回归（30 tests pass）。详见第六十一阶段待办归档（`a5bd2c7b`）。
 - **可迁移性分级（基于当前代码结构）**:
     - **低（后置）**：深层嵌套且大量 `Object.assign` 的复合对象（如 `settings-notifications.vue` 的聚合订阅状态、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue`），迁移收益存在但回归面较大，应后置并配测试先行。
-- **执行范围（拟一步继续）**:
-    - **Step 3（高风险）**：`settings-notifications.vue`、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 等复合状态对象，按“单模块单切片”推进。
+- **执行范围**:
+    - **Step 3（高风险，建议后续上收）**：`settings-notifications.vue`、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 等复合状态对象，按“单模块单切片”推进。
     - 不追求“全仓清零 reactive”。
     - 不在同一阶段同时重构业务流程与状态模型。
     - 不改动当前 API 契约或页面交互语义。
@@ -441,25 +442,12 @@
     - 以文件为单位回滚，不做跨模块混合回滚。
     - 若某切片出现 `.value` 传播导致的可读性/缺陷回归，可在该切片内保留原 `reactive` 并记录原因，不阻断其他切片推进。
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
-- **详细方案**: 待设计（上收 Step 2 前应输出“reactive 剩余清单 + 迁移优先级 + 验证用例映射”）。
-### 2026-07 批次已上收（MCP HTTP → Phase 58，近期热门文章 + E2E CI → Phase 59，Hugo/Reactive/Zod → Phase 60，AI 扩写+缩写/Reactive Step 2/Zod 第二批 → Phase 61）
-15. ~~**MCP HTTP 传输与本体挂载 (P2, 候选)**~~ 已上收 Phase 58 且已审计归档
-16. ~~**近期热门文章列表 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
-17. ~~**E2E 测试 CI 运行时间优化 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
-18. ~~**Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选)**~~ 首批（Ad Campaign + Ad Placement）已上收 Phase 60 且已审计归档；第二批（Category/Tag/Post/Marketing Campaign）已上收 Phase 61 且已审计归档
-19. ~~**Hugo 格式支持 (P2, 候选)**~~ 已上收 Phase 60 且已审计归档
-20. ~~**reactive→ref Step 1 (P1, 候选)**~~ 已上收 Phase 60 且已审计归档
-21. ~~**reactive→ref Step 2 (P1, 候选)**~~ 已上收 Phase 61 且已审计归档
-22. ~~**AI 扩写+缩写 (P2, 候选)**~~ 已上收 Phase 61 且已审计归档
+### 2026-07 批次已上收（Phase 58-61 已全部审计归档）
+- ~~**Phase 58**：MCP HTTP 传输、RSS 订阅链接美化~~
+- ~~**Phase 59**：近期热门文章列表、E2E CI 限流修复 + GHA 分片、AI 改写+审查~~
+- ~~**Phase 60**：AI 续写、reactive→ref Step 1、Zod Schema 复用首批、Hugo 格式支持、测试覆盖率 90%+ 第二批~~
+- ~~**Phase 61**：AI 扩写+缩写、reactive→ref Step 2、Zod Schema 复用第二批、测试覆盖率 90%+ 第三批、结构复用治理~~
 ---
-### 2026-07 新候选：代码质量与架构治理
-18. **Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选 — 已部分实现)**
-- **背景**: 当前部分 Zod Schema 在同一个模型的 Create/Update 间存在字段定义重复。已有 `sharedPostFields`、`.partial()` 等良好模式。
-- **已实现**:
-  - 首批（Ad Campaign + Ad Placement）：已将内联 schema 抽取到 `utils/schemas/ad.ts`，使用 `campaignBase` + `placementBase` 共享基对象 + `.partial()` 派生 update schema，消除 ~25 行重复定义。详见第六十阶段待办归档（`6216fedf`）。
-  - **第二批（清理）**：已移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）；Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段已抽取为 `postTimestampsAndViews` 共享对象；Marketing Campaign 已创建独立 `marketingCampaignUpdateSchema`（不含默认值，避免局部更新重置字段）；PUT 端点已更新使用新 schema + 字段级 `!== undefined` 守卫。详见第六十一阶段待办归档（`db424e4b`）。
-- **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）、不改动 API 行为或验证语义、不为复用而引入过度抽象。
-- **ROI**: 价值 3 / 契合度 4 / 复杂度 2 / 风险 1 = **1.60**
 ## 相关文档
 - [项目计划](./roadmap.md)
 - [待办事项](./todo.md)

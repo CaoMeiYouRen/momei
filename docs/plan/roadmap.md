@@ -714,6 +714,42 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十一阶段ai-编辑增强扩展与治理延续-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第六十二阶段：迁移适配扩展与治理续航（Phase 62: Migration Adapter Expansion & Governance Continuation）
+
+**时间表**: 2026-07-24 ~ 约 3-4 天
+**目标**: 在第六十一阶段完成 AI 扩写+缩写与治理延续后，以「1 个新功能 + 4 个优化」组合推进：多平台迁移适配器 WordPressParser 作为轻量新增能力（复用 Phase 60 HugoParser 的 `ContentParser` 接口），四条优化延续治理节奏——测试覆盖率 90%+ 第四批、AI 编辑视角/读者视角检查（候选 #9 剩余子功能）、reactive→ref Step 3 高风险复合对象迁移、脚本治理 warning 清理（长期主线 #10）。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或长期主线，容量控制在 `5` 项内，符合规划规范。WordPressParser 复用已有 `ContentParser` 接口（`packages/cli/src/types.ts`）+ HugoParser 实现模式（`packages/cli/src/hugo-parser.ts`），使用 `fast-xml-parser` 解析 WordPress eXtended RSS (WXR) 格式，增量风险低；AI 视角检查复用现有 `usePostEditorAI` composable + `TextService`，纯增量 P2 子功能；reactive→ref Step 3 经 Step 1+2 已验证迁移模式可行，但涉及 `settings-notifications.vue` 等复合状态对象，回归面较大，需配测试先行；脚本治理为 Phase 52-54 已开面的延续，边界清晰。
+
+**ROI 评估**: 多平台迁移适配器 WordPressParser `1.50`；测试覆盖率 90%+ 第四批 `1.00`；AI 编辑视角/读者视角检查 `1.20`；reactive→ref Step 3 `1.60`；脚本治理 warning 清理 `1.30`。
+
+1. **主线：多平台迁移适配器 — WordPress Parser（P2）**:
+    - **执行范围**: 基于 Phase 60 已抽象的 `ContentParser` 接口（`packages/cli/src/types.ts`），实现 `WordPressParser` 适配器，支持解析 WordPress eXtended RSS (WXR) 导出文件中的文章（`item` → `ParsedPost`）。CLI 命令增加 `--format wordpress` 参数，复用现有导入链路。新增适配器单元测试覆盖 title/date/tags/categories/content/slug/draft 映射。
+    - **非目标**: 不支持 WordPress REST API 在线导入、不做自动格式检测、不改变现有 Hexo/Hugo 解析行为、不做 WordPress 插件/主题迁移。
+    - **最小验收**: `--format wordpress` 参数正确选择 WordPressParser；WXR 中的 title/date/content/tags/categories 正确映射到 `ParsedPost`；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo/Hugo 解析无回归。
+
+2. **主线：测试覆盖率 90%+ 第四批（P2）**:
+    - **执行范围**: 基于 Phase 61 最新全仓覆盖率缺口报告，选取下一批高价值覆盖缺口模块（优先 `server/utils/` 层或 `server/api/` 层尚未深度覆盖的模块），推进全仓 coverage +1%~2%。保持测试有效性不退化。
+    - **非目标**: 不做低价值铺量补测、不牺牲断言有效性换取数字增长。
+    - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+3. **主线：AI 编辑视角/读者视角检查（P2）**:
+    - **执行范围**: 基于 Phase 59-61 已交付的改写+审查+续写+扩写+缩写管线，新增编辑视角检查（Edit Perspective Check）和读者视角检查（Reader Perspective Check）功能。后端新增 `/api/ai/perspective-check` 端点（支持 `mode: 'editor' | 'reader'`），复用现有 `TextService` 方法与计费体系。前端编辑器工具栏新增"视角检查"按钮，选中文本后调用 API 返回结构化建议列表（不自动修改内容），支持撤销。
+    - **非目标**: 不自动修改文章内容；不涉及重写/扩写/缩写等生成式操作。
+    - **最小验收**: 视角检查端点正确返回结构化建议；前端按钮触发对应操作；计费正确记录；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
+
+4. **主线：响应式状态模型收敛 — reactive→ref Step 3（P1）**:
+    - **执行范围**: 在 Step 2（后台列表页 9 处迁移已验证模式可行）后，推进 Step 3 高风险复合对象：`components/settings/settings-notifications.vue`（聚合订阅状态）、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 中的深层嵌套 `reactive` 对象。按"单文件单切片"推进，每文件配定向测试验证表单校验/提交/弹窗/开关行为不回退。
+    - **非目标**: 不追求全仓 reactive 清零；不改动 API 契约或页面交互语义；某文件出问题不阻断其他切片推进。
+    - **最小验收**: ≥3 处生产代码 `reactive` 迁移完成（实际 ~15 处剩余中的一部分）；`pnpm typecheck` + `pnpm lint` 通过；受影响页面的表单/弹窗/开关行为无回归（配 ≥10 定向测试）。
+
+5. **主线：脚本治理 warning 清理（P1）**:
+    - **执行范围**: 继续 Phase 52-54 已开面的脚本治理工作：清理 `audit-comment-drift` 的 TODO 计数与逐行复述误报、清理 `docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 两条候选入口的 warning 面。
+    - **非目标**: 不新增脚本、不改脚本 API、不引入新的治理基线。
+    - **最小验收**: `audit-comment-drift` 的 TODO/漂移计数可见下降；两条 docs candidate 产出清洁输出。
+
+> 详细条目见 [待办事项](./todo.md#第六十二阶段迁移适配扩展与治理续航)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
