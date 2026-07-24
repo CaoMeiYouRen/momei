@@ -371,5 +371,270 @@ describe('commentService', () => {
             expect(tree[0]!.authorEmail).toBeUndefined()
             expect(tree[0]!.ip).toBeUndefined()
         })
+
+        it('should keep IP and userAgent visible for admins', async () => {
+            const comments = [
+                { id: '1', parentId: null, authorEmail: 'admin@test.com', ip: '10.0.0.1', userAgent: 'Chrome' },
+            ] as any
+
+            const tree = await commentService.buildCommentTree(comments, true)
+
+            expect(tree).toHaveLength(1)
+            expect(tree[0]!.id).toBe('1')
+            expect(tree[0]!.authorEmail).toBe('admin@test.com') // Admin sees email
+            expect(tree[0]!.ip).toBe('10.0.0.1') // Admin sees IP
+            expect(tree[0]!.userAgent).toBe('Chrome') // Admin sees user agent
+        })
+
+        it('should sort threads by language priority and sticked status', async () => {
+            const comments: any[] = [
+                { id: '1', postId: 'post-2', parentId: null, authorEmail: 'a@test.com', isSticked: false, createdAt: '2026-05-01T00:00:00.000Z', post: { id: 'post-2', language: 'zh-CN', title: '中文' } },
+                { id: '2', postId: 'post-1', parentId: null, authorEmail: 'b@test.com', isSticked: false, createdAt: '2026-04-01T00:00:00.000Z', post: { id: 'post-1', language: 'en-US', title: 'English' } },
+                { id: '3', postId: 'post-1', parentId: null, authorEmail: 'c@test.com', isSticked: true, createdAt: '2026-03-01T00:00:00.000Z', post: { id: 'post-1', language: 'en-US', title: 'English' } },
+            ]
+
+            const context = { currentPostId: 'post-1', currentLanguage: 'en-US' as any }
+            const tree = await commentService.buildCommentTree(comments, true, context as any)
+
+            // Pinned first, then current language, then other languages, then by date
+            expect(tree[0]!.id).toBe('3') // Pinned
+            expect(tree[1]!.id).toBe('2') // en-US (matches current language), earlier date
+            expect(tree[2]!.id).toBe('1') // zh-CN (cross-locale fallback)
+            expect(tree[1]!.isCrossLocaleFallback).toBe(false) // postId matches context
+            expect(tree[2]!.isCrossLocaleFallback).toBe(true) // postId differs from context
+        })
+    })
+
+    describe('getCommentById', () => {
+        it('should fetch single comment with visibility filter', async () => {
+            const mockComment = { id: 'comment-1', content: 'Test', postId: 'post-1' }
+            const mockQueryBuilder = {
+                leftJoinAndSelect: vi.fn().mockReturnThis(),
+                where: vi.fn().mockReturnThis(),
+                andWhere: vi.fn().mockReturnThis(),
+                getOne: vi.fn().mockResolvedValue(mockComment),
+            }
+            mockCommentRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
+
+            const result = await commentService.getCommentById('comment-1', { isAdmin: true })
+
+            expect(result).toEqual(mockComment)
+            expect(mockQueryBuilder.getOne).toHaveBeenCalled()
+        })
+
+        it('should return null for non-existent comment', async () => {
+            const mockQueryBuilder = {
+                leftJoinAndSelect: vi.fn().mockReturnThis(),
+                where: vi.fn().mockReturnThis(),
+                andWhere: vi.fn().mockReturnThis(),
+                getOne: vi.fn().mockResolvedValue(null),
+            }
+            mockCommentRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
+
+            const result = await commentService.getCommentById('non-existent')
+
+            expect(result).toBeNull()
+        })
+    })
+
+    describe('deleteComment', () => {
+        it('should delete comment by id', async () => {
+            mockCommentRepo.delete.mockResolvedValue({ affected: 1 })
+
+            await commentService.deleteComment('comment-1')
+
+            expect(mockCommentRepo.delete).toHaveBeenCalledWith('comment-1')
+        })
+    })
+
+    describe('createComment - additional branch coverage', () => {
+        it('should reject comments with blacklisted keywords', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: 'spam,bad word',
+                enable_comment_review: 'false',
+                comment_interval: '0',
+            })
+            mockCommentRepo.save.mockImplementation((c) => Promise.resolve(c))
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'This contains spam content',
+                authorName: 'User',
+                authorEmail: 'user@test.com',
+                authorId: 'user-1',
+            }
+
+            await expect(commentService.createComment(commentData)).rejects.toThrow('评论包含不当内容')
+        })
+
+        it('should set all comments to pending when review mode is enabled', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId, authorId: 'author-1', title: 'Test Post' })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: '',
+                enable_comment_review: 'true',
+                comment_interval: '0',
+            })
+            mockCommentRepo.save.mockImplementation((c) => Promise.resolve({ ...c, id: 'new-comment-1' }))
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Needs review',
+                authorName: 'User',
+                authorEmail: 'user@test.com',
+                authorId: 'user-1',
+            }
+
+            const result = await commentService.createComment(commentData)
+
+            expect(result.status).toBe(CommentStatus.PENDING) // Even logged-in user's comment is pending in review mode
+        })
+
+        it('should send in-app notification to post author when post has authorId', async () => {
+            const { sendInAppNotification } = await import('./notification')
+            vi.mocked(sendInAppNotification).mockResolvedValue({} as any)
+
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId, authorId: 'author-1', title: 'Test Post', slug: 'test-post' })
+            mockCommentRepo.save.mockImplementation((c) => Promise.resolve({
+                ...c,
+                id: 'new-comment-1',
+                authorName: 'Commenter',
+                content: 'Great post!',
+            }))
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Great post!',
+                authorName: 'Commenter',
+                authorEmail: 'commenter@test.com',
+                authorId: 'user-2', // Different from post author
+            }
+
+            await commentService.createComment(commentData)
+
+            expect(sendInAppNotification).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    userId: 'author-1',
+                    type: 'COMMENT_REPLY',
+                }),
+            )
+        })
+
+        it('should not send notification when comment is by the post author themselves', async () => {
+            const { sendInAppNotification } = await import('./notification')
+            vi.mocked(sendInAppNotification).mockClear()
+
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId, authorId: 'author-1', title: 'Test Post' })
+            mockCommentRepo.save.mockImplementation((c) => Promise.resolve({
+                ...c,
+                id: 'self-comment',
+                authorName: 'Author',
+                content: 'Self comment',
+            }))
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Self comment',
+                authorName: 'Author',
+                authorEmail: 'author@test.com',
+                authorId: 'author-1', // Same as post author
+            }
+
+            await commentService.createComment(commentData)
+
+            // Should NOT send notification to self
+            expect(sendInAppNotification).not.toHaveBeenCalledWith(
+                expect.objectContaining({ userId: 'author-1' }),
+            )
+        })
+
+        it('should use user-based interval key when authorId is provided', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: '',
+                enable_comment_review: 'false',
+                comment_interval: '30',
+            })
+            vi.mocked(limiterStorage.increment).mockResolvedValue(2)
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Test',
+                authorName: 'User',
+                authorEmail: 'user@test.com',
+                authorId: 'user-1',
+            }
+
+            await expect(commentService.createComment(commentData)).rejects.toThrow('评论过于频繁')
+            expect(limiterStorage.increment).toHaveBeenCalledWith('comment_interval:user:user-1', 30)
+        })
+
+        it('should use IP-based interval key when no authorId or email', async () => {
+            mockPostRepo.findOne.mockResolvedValue({ id: mockPostId })
+            vi.mocked(getSettings).mockResolvedValue({
+                blacklisted_keywords: '',
+                enable_comment_review: 'false',
+                comment_interval: '30',
+            })
+            vi.mocked(limiterStorage.increment).mockResolvedValue(2)
+
+            const commentData = {
+                postId: mockPostId,
+                content: 'Test',
+                authorName: 'Guest',
+                authorEmail: '',
+                ip: '192.168.1.1',
+            }
+
+            await expect(commentService.createComment(commentData)).rejects.toThrow('评论过于频繁')
+            expect(limiterStorage.increment).toHaveBeenCalledWith('comment_interval:ip:192.168.1.1', 30)
+        })
+
+        it('should refresh mocked module references after createComment test sequence', () => {
+            // Re-mock notification module to ensure it's properly referenced
+            vi.doMock('./notification', () => ({
+                notifyAdmins: vi.fn().mockResolvedValue(undefined),
+                sendInAppNotification: vi.fn().mockResolvedValue(undefined),
+            }))
+        })
+    })
+
+    describe('viewerId visibility filter', () => {
+        it('should allow viewer to see their own pending comments via viewerId', async () => {
+            const viewerId = 'viewer-123'
+            mockPostRepo.findOne.mockResolvedValue({
+                id: mockPostId,
+                language: 'zh-CN',
+                translationId: 'cluster-1',
+                slug: 'sample-post',
+                title: '中文文章',
+            })
+            mockPostRepo.find.mockResolvedValue([{ id: mockPostId }])
+
+            const mockComments = [
+                { id: '1', postId: mockPostId, content: 'Published', status: CommentStatus.PUBLISHED, isSticked: false, createdAt: '2026-04-20T00:00:00.000Z', post: { id: mockPostId, language: 'zh-CN', title: '中文文章' } },
+                { id: '2', postId: mockPostId, content: 'My Pending', status: CommentStatus.PENDING, authorId: viewerId, isSticked: false, createdAt: '2026-04-20T00:10:00.000Z', post: { id: mockPostId, language: 'zh-CN', title: '中文文章' } },
+            ]
+
+            const mockQueryBuilder = {
+                leftJoinAndSelect: vi.fn().mockReturnThis(),
+                leftJoin: vi.fn().mockReturnThis(),
+                addSelect: vi.fn().mockReturnThis(),
+                where: vi.fn().mockReturnThis(),
+                orderBy: vi.fn().mockReturnThis(),
+                addOrderBy: vi.fn().mockReturnThis(),
+                andWhere: vi.fn().mockReturnThis(),
+                getMany: vi.fn().mockResolvedValue(mockComments),
+            }
+
+            mockCommentRepo.createQueryBuilder.mockReturnValue(mockQueryBuilder)
+
+            const result = await commentService.getCommentsByPostId(mockPostId, {
+                isAdmin: false,
+                viewerId,
+            })
+
+            expect(result).toHaveLength(2)
+        })
     })
 })
