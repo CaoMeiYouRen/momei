@@ -673,6 +673,45 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第六十一阶段：AI 编辑增强扩展与治理延续（Phase 61: AI Editing Enhancement Extension & Governance Continuation）
+
+**时间表**: 2026-07-24 ~ 约 3-4 天
+**目标**: 在第六十阶段完成编辑器延续与代码质量治理后，以「1 个新功能 + 4 个优化」组合推进：AI 编辑增强扩写+缩写作为候选 #9 的剩余 P2 子功能交付，结构复用治理恢复切片节奏（两阶段未碰），reactive→ref Step 2 延续状态模型收敛路线，测试覆盖率 90%+ 第三批与 Zod Schema 复用第二批作为长期治理延续。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。AI 扩写+缩写复用 Phase 59-60 成熟的 AI 管线（`usePostEditorAI` composable + `TextService`），增量风险低；结构复用从 CLI 包类型收敛和 `toDateOrNull`/`toDateOrUndefined` 抽取入手，边界清晰；reactive→ref Step 2 经 Step 1 已验证迁移模式可行（template 零改动），风险可控；覆盖率第三批基于 Phase 60 最新缺口报告；Zod Schema 第二批为纯清理型重构，无行为变更。
+
+**ROI 评估**: AI 编辑增强（扩写+缩写）`1.20`；结构复用治理 `1.50`；reactive→ref Step 2 `1.40`；测试覆盖率 90%+ 第三批 `1.00`；Zod Schema 复用第二批 `1.30`。
+
+1. **主线：AI 编辑增强 — 扩写+缩写（P2）**:
+    - **执行范围**: 基于 Phase 59-60 已交付的改写+审查+续写管线，新增扩写（Expand）和缩写（Condense）功能。后端新增 `/api/ai/expand` + `/api/ai/condense` 端点，复用现有 `TextService` 方法与计费体系。前端编辑器工具栏新增"扩写"和"缩写"按钮，选中文本后调用对应 API，支持撤销。提示词模板复用现有 `AI_PROMPTS` 结构扩展。
+    - **非目标**: 不做编辑视角检查 / 读者视角检查（P2，留后续阶段）；不做扩写/缩写的自定义程度调节（如扩写幅度）。
+    - **最小验收**: 扩写/缩写端点正确返回 AI 结果；前端按钮触发对应操作；支持 Ctrl+Z 撤销；计费正确记录（`recordTask({ type: 'expand' | 'condense' })`）；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Code Auditor Review Gate Pass。
+
+2. **主线：结构复用治理 — CLI 包类型收敛 + 工具函数抽取（P1）**:
+    - **执行范围**: 聚焦 CLI 包（`packages/api-client`、`packages/cli/src/types.ts`）与主项目的类型收敛，以及 `toDateOrNull`/`toDateOrUndefined` 重复函数抽取。至少完成 2 组热点切片：
+        - **切片 1**：`MomeiPostStatus`/`MomeiPostVisibility` → 从主项目 `types/post.ts` 的 `PostStatus`/`PostVisibility` 枚举派生，消除 `string` union 重复定义
+        - **切片 2**：`MomeiPostScaffoldMetadata` → `PostScaffoldMetadata` 类型别名（保留向后兼容 + `@deprecated` 标记）
+        - **切片 3**（可选）：`toDateOrNull`/`toDateOrUndefined` 从 `server/api/admin/ad/campaigns.post.ts` 和 `campaigns/[id].put.ts` 抽取到 `server/utils/date.ts`
+    - **非目标**: 不推动跨目录大重构、不为复用而复用、不改动 API 契约与业务行为。
+    - **最小验收**: ≥2 组热点切片完成；`pnpm typecheck` + `pnpm lint` 通过；`pnpm duplicate-code:check` 基线不反弹。
+
+3. **主线：响应式状态模型收敛 — reactive→ref Step 2（P1）**:
+    - **执行范围**: 在 Step 1（5 文件低风险迁移）已验证模式可行后，推进 Step 2 中风险文件：后台列表页和筛选组件中的 `filters`/`pagination`/`sort`/`dialog` 类 `reactive` 对象。目标文件至少包括：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）等。逐文件迁移为 `ref<{...}>()`，补齐 `.value` 读取路径。
+    - **非目标**: 不追求全仓 reactive 清零；不触及 Step 3 高风险复合对象（`settings-notifications.vue` 等）；不改动 API 契约或页面交互语义。
+    - **最小验收**: ≥5 处 `reactive` 迁移完成；`pnpm typecheck` + `pnpm lint` 通过；受影响页面的筛选/分页/弹窗/排序行为无回归。
+
+4. **主线：测试覆盖率 90%+ 第三批（P2）**:
+    - **执行范围**: 基于 Phase 60 最新全仓覆盖率缺口报告，选取下一批高价值覆盖缺口模块（如 `server/services/` 层或 `server/utils/` 层尚未深度覆盖的模块），推进全仓 coverage +1%-2%。保持测试有效性不退化。
+    - **非目标**: 不做低价值铺量补测、不牺牲断言有效性换取数字增长。
+    - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+5. **主线：Zod Schema 复用治理第二批 — 清理（P2）**:
+    - **执行范围**: 在首批（Ad Campaign + Ad Placement）完成后，推进第二批清理任务：移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）、将 Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段抽取为共享对象、为 Marketing Campaign 创建 `marketingCampaignUpdateSchema = marketingCampaignSchema.partial()`。
+    - **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）；不改动 API 行为或验证语义。
+    - **最小验收**: Category/Tag `updateSchema` 不再冗余；Post 日期/视图字段共享；Marketing Campaign 独立 update schema 可用；`pnpm typecheck` + `pnpm lint` + 受影响 API 定向测试通过；无 API 行为回归。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)

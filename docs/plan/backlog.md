@@ -28,6 +28,7 @@
     - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
      - 第五十八阶段完成后，目标正式上调至 `90%+`，采用分批渐进策略（每批 1-2 个百分点），覆盖率提升与测试有效性并行不偏废。
      - 第五十九阶段已完成首批缺口盘点与两批次 8 文件覆盖改进（~252 行 +1.09%），全仓 coverage 基线已通过 `pnpm test:coverage` 验证；后续继续按 1-2 个百分点分批渐进推进。
+     - 第六十阶段已完成第二批缺口覆盖：新增 69 个测试，覆盖 3 个 AI Provider 模块（openai-provider / fallback-provider / stable-diffusion-provider）的错误路径/降级逻辑/流式 SSE/图片尺寸映射/鉴权 header，全仓 coverage 基线已刷新。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
     - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
@@ -38,9 +39,10 @@
     - 第五十六阶段（已上收测试有效性第四轮切片：6 个新增错误路径断言，覆盖 translate/tts-task-get 两个模块）。
      - 第五十八阶段（已上收测试有效性第六轮切片：12 个新增失败路径断言，覆盖 feed utils/feed-taxonomy-route/MCP endpoint 三个模块；同时完成 90%+ 目标上调）。
      - 第五十九阶段（已上收测试覆盖率 90%+ 首批：缺口分层盘点报告 + 两批次共 8 文件补测，覆盖改进 ~252 行 ≈+1.09% 全仓预估；全仓 coverage 基线已刷新）。
+     - 第六十阶段（已上收测试覆盖率 90%+ 第二批：69 测试覆盖 3 个 AI Provider 模块，已审计归档）。
 - **下一次可切片方向**:
-    - 覆盖率提升方向：先对覆盖缺口做分层盘点（哪些模块拖后腿？哪些是高价值缺口？），按 1-2 个百分点分批推进至 90%+。
-    - 测试有效性方向：继续“已有测试基座 + 失败/边界优先”节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
+    - 覆盖率提升方向：继续按 Phase 59-60 节奏，基于最新全仓覆盖率缺口报告选择下一批高价值模块（如 `server/services/` 层、`server/utils/` 层等尚未深度覆盖的模块），按 1-2 个百分点分批推进至 90%+。
+    - 测试有效性方向：继续"已有测试基座 + 失败/边界优先"节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
     - 两条线并行不冲突：覆盖率提升优先选高价值缺口模块，测试有效性优先选高风险链路，避免为了冲数字而做低价值铺量。
 
 2. **ESLint / 类型债与规则收紧治理**
@@ -48,15 +50,12 @@
     - 按批次继续收紧 ESLint 规则，至少再收紧 1-2 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
     - 治理进度默认以可重复执行的规则债盘点脚本作为事实源，至少能按 rule / 目录 / 豁免类型统计命中数、清零数与残余债务，而不是只靠阶段叙述判断“似乎有进展”。
 - **状态**:
-    - 进行中。
+    - 已关闭（治理循环已于第五十八阶段正式关闭）。
 - **当前状态**:
-    - 第二十四阶段已完成 `@typescript-eslint/no-dynamic-delete` 首轮生产代码收紧，warning 基线、回滚方式与最小验证矩阵已落盘。
-    - 第二十九阶段已完成新的规则收紧切片，当前已补齐 `mcp-server` 与 settings API 两组窄边界规则上收、命中清单、回滚边界与最小验证矩阵；后续仍不直接扩写到 `no-unsafe-*` 或全仓 `any` 清零工程。
-    - 第三十阶段已完成两轮 `@typescript-eslint/no-explicit-any` 收紧，当前已清零 `utils/shared/markdown.ts` 中 `7` 处显式 `any`，以及 `server/utils/object.ts`、`server/utils/pagination.ts` 中 `2` 处显式 `any`；同时已完成 `@typescript-eslint/no-non-null-assertion` 在 `server / composables / 前端表单` 三桶采样。
-    - 第三十一阶段已继续把 `@typescript-eslint/no-non-null-assertion` 缩到 `composables` 子桶，当前生产源码命中已收敛到 `composables/use-post-editor-io.ts` 单文件 `8` 处，并通过显式守卫、局部变量与类型收窄完成清理；目录级``pnpm exec eslint composables --max-warnings`` 已恢复通过。
-    - 第三十二阶段已完成"单规则窄切片 + 同规则归组 + 定向验证 + 残余债务说明"四条件收口，`@typescript-eslint/no-explicit-any` 在 `composables/use-post-editor-voice.ts`（9 处）与 `server/api/categories/index.get.ts`（1 处）已完成收敛；同规则配置已归并为单一 override。
-    - 第三十三阶段已正式上收下一轮切片，继续锁定 `@typescript-eslint/no-non-null-assertion` 在 `composables/` 子桶，并允许回退到单文件 `no-explicit-any` 切片。
-    - 当前仍缺少统一的规则债 inventory 脚本；现有 `lint`、定向 `eslint` 与阶段记录可以证明单次切片通过，但还不能稳定回答“全仓还剩多少命中、按目录如何分桶、每轮实际消掉了多少”。
+    - 第五十四阶段已完成规则债 inventory 脚本（`scripts/governance/inventory-eslint-rules.mjs`），覆盖 `no-explicit-any` 和 `no-non-null-assertion` 两条规则，按 rule / 目录 / 命中数 / 清零数 / warning 基线统计。
+    - 第五十五至五十六阶段持续窄切片收敛：social-post-platforms 非空断言消除、nuxt.config.ts explicit-any 消除、admin-taxonomy-page 13 处 any 清零、submission.ts/settings.vue/commercial-link-manager.vue no-explicit-any 清零。
+    - 第五十八阶段完成全量 TypeScript 规则基线扫描报告（`docs/reports/eslint-typescript-baseline.md`，覆盖 9 条已禁用规则的数据基线），NO_EXPLICIT_ANY_FILES 目标文件（65+ 项）全部清零，豁免列表清零，`warning=0` 保持。**治理循环正式关闭**。
+    - 第五十九至六十阶段 ESLint/类型债未上收新窄切片（因治理循环已关闭，后续由 `regression:weekly` 监控入口覆盖新代码引入的规则债）。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
     - 第四十一阶段（四组窄切片，26 文件 warning=0）。
@@ -75,8 +74,7 @@
 - **下一次可切片方向**:
     - 治理循环已关闭（NO_EXPLICIT_ANY_FILES 全部清零，全量 TypeScript 规则基线已落盘），短期无新切片方向。
     - 若后续因新代码引入 `explicit-any` 或 `non-null-assertion`，监控入口由 `regression:weekly` 的 eslint-debt 脚本覆盖，无需主动上收切片。
-    - 继续坚持“单规则 + 单文件 / 双文件”窄切片，优先在未覆盖的生产文件中推进。
-    - 进入实现前仍需冻结命中清单、回滚边界与最小验证矩阵。
+    - 不再需要主动上收 ESLint/类型债治理切片。
 
 3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
 - **目标**:
@@ -397,7 +395,7 @@
 ### 2026-06 调研发现的新增候选功能
 
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）已交付并从候选池移除。
+> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）已交付并从候选池移除。
 
 
 ### 已评估/已关闭（不进入当前实现）
@@ -416,7 +414,7 @@
 - **功能清单**: 改写 (Rewrite, P1) / 续写 (Continue, P1) / 审查 (Review, P1) / 扩写 (Expand, P2) / 缩写 (Condense, P2) / 编辑视角检查 (P2) / 读者视角检查 (P2)
 - **核心结论**: 技术方案可行（复用现有 usePostEditorAI composable + server/services/ai/text.ts AI 管线），额度计费需扩展支持新增操作类型，prompt 多语言支持需按功能单独设计。
 - **上收条件**: 可按 P1 子功能（改写/审查）分批上收，首轮建议 2 个 P1 子功能。
-- **已实现**: 改写 (Rewrite) + 审查 (Review) 已于第五十九阶段完成上收实现（`a4319a9f` + `d1c28283`）。改写支持中英文 + 6 种风格选择（口语/正式/学术/技术/创意/简洁）+ 撤销/重做；审查输出结构化修改建议列表 + 内容哈希对比缓存。后续 P1 子功能（续写）及 P2 子功能（扩写/缩写/编辑视角/读者视角）待上收。
+- **已实现**: 改写 (Rewrite) + 审查 (Review) 已于第五十九阶段完成上收实现（`a4319a9f` + `d1c28283`）。改写支持中英文 + 6 种风格选择（口语/正式/学术/技术/创意/简洁）+ 撤销/重做；审查输出结构化修改建议列表 + 内容哈希对比缓存。续写 (Continue) 已于第六十阶段完成上收实现（`697b00a4`），支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型。后续 P2 子功能（扩写/缩写/编辑视角/读者视角）待上收。
 
 ### 2026-07 批次剩余候选（RSS 订阅链接美化已上收至第五十八阶段）
 
@@ -427,27 +425,26 @@
 11. ~~**安装引导向导 (P2, 候选)**~~ 已在 `/installation` 完整实现（Phase 前交付）
 - **实际实现**: 经代码审计确认（2026-07-23），安装引导向导在 `pages/installation.vue`（6 步 PrimeVue Stepper）+ `server/api/install/*`（6 API 端点）+ `server/services/installation.ts`（698 行）中完整实现。中间件 `0-installation.ts` 自动处理重定向。设计文档 `migration.md §3` 中规划的 `/onboarding` 路由实际实现为 `/installation`，功能一致。
 
-12. **多平台迁移适配器 (P2, 候选)**
-- **背景**: 当前迁移 CLI 仅支持 Hexo 格式的 Markdown 文件解析。WordPress、Hugo、Jekyll 等其他主流博客平台的用户无法直接使用 CLI 迁移。虽然 Hexo 是目标用户群的主要来源，但扩展多平台支持可以降低更多用户的迁移门槛。
-- **技术方案**:
-    - 抽象 `ContentParser` 接口：`parse(sourceDir): Promise<ParsedPost[]>`
-    - 实现适配器：
-        - `HexoParser`（已有，从 `parser.ts` 重构）
-        - `WordPressParser`（解析 WordPress XML 导出文件）
-        - `HugoParser`（解析 Hugo Front-matter，TOML/YAML/JSON）
-        - `JekyllParser`（解析 Jekyll Front-matter）
-    - CLI 命令增加 `--format hexo|wordpress|hugo|jekyll` 参数
-    - 统一输出为 `ParsedPost` 结构，复用现有导入链路
+12. **多平台迁移适配器 (P2, 候选 — 已部分实现)**
+- **背景**: 当前迁移 CLI 支持 Hexo + Hugo 格式，WordPress、Jekyll 等其他主流博客平台的用户仍无法直接使用 CLI 迁移。
+- **已实现**:
+    - `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`（`packages/cli/src/types.ts`）
+    - HugoParser 适配器：支持 YAML/TOML/JSON Front-matter 自动检测，`smol-toml` 作为 TOML 引擎（`packages/cli/src/hugo-parser.ts`）
+    - CLI `--format hugo` 参数，复用现有导入链路
+    - 17 个单元测试覆盖 title/date/tags/categories/slug/draft/cover/lastmod 映射
+    - 详见第六十阶段待办归档（`697b00a4`）
+- **仍待实现**:
+    - `WordPressParser`（解析 WordPress XML 导出文件）
+    - `JekyllParser`（解析 Jekyll Front-matter）
 - **非目标**: 不支持在线 API 导入（如 WordPress REST API）、不做自动格式检测、不做平台特定的插件/主题迁移
 - **前置条件**:
     - 评估各平台 Front-matter 的差异和兼容性
     - 确认是否需要引入 XML 解析库（WordPress 导出格式）
 - **验收标准**:
-    - 至少支持 Hugo 格式（TOML/YAML Front-matter）
-    - 各平台的 title、date、tags、categories、content 正确映射
+    - 各平台 title、date、tags、categories、content 正确映射
     - `--format` 参数正确选择解析器
     - 新增适配器有对应的单元测试
-    - 现有 Hexo 解析行为无回归
+    - 现有 Hexo/Hugo 解析行为无回归
 - **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
 - **详细方案**: 待设计
 
@@ -472,19 +469,19 @@
 - **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
 - **详细方案**: 待设计
 
-14. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选)**
+14. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选 — 已部分实现)**
 - **背景**:
-    - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。生产代码主要集中在表单状态、筛选器状态、弹窗状态和少量复合对象状态。
-    - 已识别高频文件包括：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）、`pages/admin/comments/index.vue`（2 处）、`pages/admin/submissions/index.vue`（2 处）、`pages/login.vue`（2 处）、`pages/register.vue`（2 处）。
-    - 现状虽能正常工作，但“是否为响应式变量”的可见性不足，且在类型收窄、泛型边界、重构时行为判断上，`ref` 的显式 `.value` 语义更有利于长期维护。
-- **准入结论**:
-    - 该事项不属于当前阶段收口项，也非阻塞型修复；应先作为短期候选进入 backlog，待下一阶段按窄切片方式上收。
+    - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。Step 1 已覆盖 5 处生产代码，仍有 24 处生产代码等待后续迁移。
+    - 已识别高频文件包括：`composables/use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`composables/use-admin-list.ts`（2 处）、`pages/admin/comments/index.vue`（2 处）、`pages/admin/submissions/index.vue`（2 处）。
+    - `ref` 的显式 `.value` 语义更有利于长期维护，已在 Step 1 验证迁移模式可行。
+- **已实现**:
+    - Step 1（低风险首批）：登录（`pages/login.vue`）、注册（`pages/register.vue`）、权益（`pages/benefits.vue`）、个人设置（`components/settings/settings-profile.vue`）、安全设置（`components/settings/settings-security.vue`）中的 `form`/`errors` 类 `reactive` 对象已全部迁移为 `ref`。
+    - 迁移模式已验证：template 零改动，仅 script 层 `.value` 补齐，`typeof errors.value` 模式可复用。
+    - 详见第六十阶段待办归档（`d3f7314c`）。
 - **可迁移性分级（基于当前代码结构）**:
-    - **高（优先）**：单对象表单/错误对象（如 `form`、`errors`、`passwordForm`、`profileForm`、`deleteDialog`），可直接迁移为 `ref<{ ... }>()`，模板改动可控。
     - **中（次优先）**：筛选器/分页/排序对象（如 `filters`、`pagination`、`sort`），通常伴随 watch、debounce 或请求参数拼装，需配套调整读取和赋值路径。
     - **低（后置）**：深层嵌套且大量 `Object.assign` 的复合对象（如 `use-admin-friend-links-page.ts`、`settings-notifications.vue` 的聚合订阅状态），迁移收益存在但回归面较大，应后置并配测试先行。
-- **执行范围（拟分三步上收）**:
-    - **Step 1（低风险首批）**：登录、注册、评论、权益页、个人设置与安全设置中的 `form/errors` 类对象。
+- **执行范围（拟分两步继续）**:
     - **Step 2（中风险）**：后台列表页和筛选组件中的 `filters/pagination/sort/dialog` 类对象；同步补齐 composable 返回值类型约束。
     - **Step 3（高风险）**：`use-admin-friend-links-page.ts`、`settings-notifications.vue` 等复合状态对象，按“单模块单切片”推进。
 - **非目标**:
@@ -493,42 +490,43 @@
     - 不改动当前 API 契约或页面交互语义。
 - **最小验证矩阵 / 证据落点**:
     - 质量门：`pnpm lint`、`pnpm typecheck`。
-    - 定向验证：首批上收时至少补齐受影响组件/页面的失败路径断言（表单校验失败、提交失败、弹窗开关、筛选触发）。
+    - 定向验证：受影响组件/页面的失败路径断言（表单校验失败、提交失败、弹窗开关、筛选触发）。
     - 证据落点：`docs/reports/regression/current.md` + 对应阶段 `todo-archive.md`。
 - **回滚边界**:
     - 以文件为单位回滚，不做跨模块混合回滚。
     - 若某切片出现 `.value` 传播导致的可读性/缺陷回归，可在该切片内保留原 `reactive` 并记录原因，不阻断其他切片推进。
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
-- **详细方案**: 待设计（建议上收前先输出“reactive 使用清单 + 迁移优先级 + 验证用例映射”）。
+- **详细方案**: 待设计（上收 Step 2 前应输出“reactive 剩余清单 + 迁移优先级 + 验证用例映射”）。
 
-### 2026-07 批次已上收（MCP HTTP → Phase 58，近期热门文章 + E2E CI → Phase 59）
+### 2026-07 批次已上收（MCP HTTP → Phase 58，近期热门文章 + E2E CI → Phase 59，Hugo/Reactive/Zod → Phase 60）
 
 15. ~~**MCP HTTP 传输与本体挂载 (P2, 候选)**~~ 已上收 Phase 58 且已审计归档
 16. ~~**近期热门文章列表 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
 17. ~~**E2E 测试 CI 运行时间优化 (P2, 候选)**~~ 已上收 Phase 59 且已审计归档
+18. ~~**Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选)**~~ 首批（Ad Campaign + Ad Placement）已上收 Phase 60 且已审计归档
+19. ~~**Hugo 格式支持 (P2, 候选)**~~ 已上收 Phase 60 且已审计归档
+20. ~~**reactive→ref Step 1 (P1, 候选)**~~ 已上收 Phase 60 且已审计归档
 
 ---
 
 ### 2026-07 新候选：代码质量与架构治理
 
-18. **Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选)**
-- **背景**: 当前部分 Zod Schema 在同一个模型的 Create/Update 间存在字段定义重复。已有 `sharedPostFields`、`.partial()` 等良好模式，但 Ad Campaign（5 字段重复）、Ad Placement（10 字段重复）在 API handler 中内联定义独立 schema，Category/Tag 的 `updateSchema` 存在不必要的 `.extend({slug})` 覆写，Post 的 4 个日期字段在 create/update 间重复定义，Marketing Campaign 缺少独立的 update schema。
-- **技术方案**: 按严重程度分两批推进：
-  - **首批（高收益）**：将 Ad Campaign 和 Ad Placement 的内联 schema 抽取到 `utils/schemas/ad.ts`，使用基对象 + `.partial()` 模式定义 create/update，预计消除 ~25 行重复定义。
+18. **Zod Schema 复用治理：同模型 CRUD 字段共享 (P2, 候选 — 已部分实现)**
+- **背景**: 当前部分 Zod Schema 在同一个模型的 Create/Update 间存在字段定义重复。已有 `sharedPostFields`、`.partial()` 等良好模式，首批（Ad Campaign + Ad Placement）已于第六十阶段完成上收实施；Category/Tag/Post/Marketing Campaign 仍待清理。
+- **已实现**:
+  - 首批（Ad Campaign + Ad Placement）已将内联 schema 抽取到 `utils/schemas/ad.ts`，使用 `campaignBase` + `placementBase` 共享基对象 + `.partial()` 派生 update schema，消除 ~25 行重复定义。
+  - 详见第六十阶段待办归档（`6216fedf`）。
+- **技术方案**: 按严重程度继续推进第二批：
   - **第二批（清理）**：移除 Category/Tag `updateSchema` 中不必要的 `.extend({slug})`（`.partial()` 已覆盖）、将 Post 的 `createdAt`/`publishedAt`/`updatedAt`/`views` 4 字段抽取为共享对象、为 Marketing Campaign 创建 `marketingCampaignUpdateSchema = marketingCampaignSchema.partial()`。
 - **非目标**: 不重构已有良好模式（Snippet/ThemeConfig/Agreement/FriendLink）、不改动 API 行为或验证语义、不为复用而引入过度抽象。
-- **前置条件**: 确认 Ad Campaign/Placement 的 create/update 参数语义是否有一致性差异（如某字段在 create 时必填但在 update 时不可改）。
 - **验收标准**:
-  - Ad Campaign/Placement 的 create/update schema 共享同一字段基对象，差异仅通过 `.partial()` / `.omit()` / `.extend()` 实现
   - Category/Tag 的 `updateSchema` 不再包含冗余的 `.extend({slug})`
   - Post 的 4 个日期/视图字段从 `sharedPostFields` 或独立共享对象派生
   - Marketing Campaign 有独立的 `marketingCampaignUpdateSchema`
   - `pnpm typecheck` + `pnpm lint` + 受影响 API 的定向测试通过
   - 无 API 行为回归
 - **ROI**: 价值 3 / 契合度 4 / 复杂度 2 / 风险 1 = **1.60**
-- **详细方案**: 待设计（建议上收前先输出 "CRUD Schema 复用缺口清单"）
-
-
+- **详细方案**: 待设计（上收第二批前应输出 “CRUD Schema 复用剩余缺口清单”）。
 ## 相关文档
 
 - [项目计划](./roadmap.md)
