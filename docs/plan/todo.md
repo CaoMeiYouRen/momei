@@ -46,10 +46,10 @@
 
 ### P1 — 响应式状态模型收敛：reactive→ref Step 3（候选 #14）
 
-- [ ] 识别 Step 3 目标文件：`settings-notifications.vue`（聚合订阅状态）、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 中的深层嵌套 `reactive` 对象
-- [ ] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径（实际 ~15 处剩余中的一部分）
-- [ ] 定向验证：每文件配定向测试验证表单校验/提交/弹窗/开关行为不回退（≥10 tests）
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 识别 Step 3 目标文件：`settings-notifications.vue`（聚合订阅状态）、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 中的深层嵌套 `reactive` 对象
+- [x] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径（迁移 3 文件 6 处 `reactive` → `ref`）
+- [x] 定向验证：新增 11 个测试（comments 6 个 + submissions 4 个 + 已有 settings-notifications 6 个），总计 16 个测试覆盖表单/弹窗/开关/提交行为
+- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test`（4172 全部通过）
 
 ### P1 — 脚本治理 warning 清理（长期主线 #10）
 

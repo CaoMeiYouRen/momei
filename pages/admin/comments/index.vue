@@ -154,11 +154,11 @@ const {
 const loading = ref(false)
 const items = ref<Comment[]>([])
 const total = ref(0)
-const pagination = reactive({
+const pagination = ref({
     page: 1,
     pageSize: 20,
 })
-const filters = reactive({
+const filters = ref({
     keyword: '',
     status: null as CommentStatus | null,
 })
@@ -174,10 +174,10 @@ const loadData = async () => {
     loading.value = true
     try {
         const query = {
-            page: pagination.page,
-            limit: pagination.pageSize,
-            keyword: filters.keyword || undefined,
-            status: filters.status || undefined,
+            page: pagination.value.page,
+            limit: pagination.value.pageSize,
+            keyword: filters.value.keyword || undefined,
+            status: filters.value.status || undefined,
         }
         const res = await $fetch<any>('/api/comments', { query })
         if (res.code === 200) {
@@ -192,13 +192,13 @@ const loadData = async () => {
 }
 
 const onPage = (event: any) => {
-    pagination.page = event.page + 1
-    pagination.pageSize = event.rows
+    pagination.value.page = event.page + 1
+    pagination.value.pageSize = event.rows
     loadData()
 }
 
 const onFilterChange = useDebounceFn(() => {
-    pagination.page = 1
+    pagination.value.page = 1
     loadData()
 }, 500)
 

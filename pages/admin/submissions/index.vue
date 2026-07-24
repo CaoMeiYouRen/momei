@@ -214,7 +214,7 @@ const { formatDateTime } = useI18nDate()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const markdownRenderer = createMarkdownRenderer({ html: false })
 
-const filters = reactive({
+const filters = ref({
     keyword: '',
     status: null,
 })
@@ -227,7 +227,7 @@ const statusOptions = [
 
 const { items, loading, pagination, onPage, onFilterChange, refresh } = useAdminList<any>({
     url: '/api/admin/submissions',
-    initialFilters: filters,
+    initialFilters: filters.value,
 })
 const {
     visible: deleteVisible,
@@ -250,7 +250,7 @@ const reviewVisible = ref(false)
 const reviewLoading = ref(false)
 const selectedSubmission = ref<any>(null)
 const reviewAction = ref<'idle' | 'accept'>('idle')
-const reviewForm = reactive({
+const reviewForm = ref({
     adminNote: '',
     acceptOptions: {
         categoryId: null,
@@ -278,10 +278,10 @@ const previewContent = computed(() => {
 const openReview = (submission: any) => {
     selectedSubmission.value = submission
     reviewAction.value = 'idle'
-    reviewForm.adminNote = ''
-    reviewForm.acceptOptions.categoryId = null
-    reviewForm.acceptOptions.language = useI18n().locale.value
-    reviewForm.acceptOptions.publishImmediately = false
+    reviewForm.value.adminNote = ''
+    reviewForm.value.acceptOptions.categoryId = null
+    reviewForm.value.acceptOptions.language = useI18n().locale.value
+    reviewForm.value.acceptOptions.publishImmediately = false
     reviewVisible.value = true
     fetchCategories()
 }
@@ -293,8 +293,8 @@ const submitReview = async (status: SubmissionStatus) => {
             method: 'PUT',
             body: {
                 status,
-                adminNote: reviewForm.adminNote,
-                acceptOptions: status === SubmissionStatus.ACCEPTED ? reviewForm.acceptOptions : undefined,
+                adminNote: reviewForm.value.adminNote,
+                acceptOptions: status === SubmissionStatus.ACCEPTED ? reviewForm.value.acceptOptions : undefined,
             },
         })
         showSuccessToast('pages.admin.submissions.review_success')

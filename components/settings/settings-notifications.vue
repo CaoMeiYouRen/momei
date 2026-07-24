@@ -276,7 +276,7 @@ const notificationTypeBrowserDescriptionKeyMap: Record<ManagedNotificationType, 
     [NotificationType.SECURITY]: 'pages.settings.notifications.browser_type_desc.security',
 }
 
-const channelNotificationSettings = reactive<Record<ConfigurableNotificationChannel, Record<ManagedNotificationType, boolean>>>({
+const channelNotificationSettings = ref<Record<ConfigurableNotificationChannel, Record<ManagedNotificationType, boolean>>>({
     [NotificationChannel.EMAIL]: {
         [NotificationType.COMMENT_REPLY]: true,
         [NotificationType.SYSTEM]: true,
@@ -357,7 +357,7 @@ function normalizeNotificationSetting(type: ManagedNotificationType, isEnabled: 
     return isNotificationTypeLocked(type) ? true : isEnabled
 }
 
-const subscription = reactive({
+const subscription = ref({
     isActive: true,
     selectedCategoryIds: [] as string[], // 存储当前显示的分类 ID (聚合后的)
     selectedTagMap: {} as Record<string, boolean>, // 存储当前显示的标签选中状态
@@ -385,24 +385,24 @@ const loadData = async () => {
 
         if (subRes.data) {
             const data = subRes.data
-            subscription.isActive = data.isActive ?? true
-            subscription.isMarketingEnabled = data.isMarketingEnabled ?? true
+            subscription.value.isActive = data.isActive ?? true
+            subscription.value.isMarketingEnabled = data.isMarketingEnabled ?? true
 
             const serverCategoryIds = data.subscribedCategoryIds || []
             const serverTagIds = data.subscribedTagIds || []
 
             // 根据聚类的 ID 初始化本地展示状态
-            subscription.selectedCategoryIds = categories.value
+            subscription.value.selectedCategoryIds = categories.value
                 .filter((cat) => {
                     const clusterIds = cat.translations?.map((t) => t.id) || [cat.id]
                     return clusterIds.some((id) => serverCategoryIds.includes(id))
                 })
                 .map((cat) => cat.id)
 
-            subscription.selectedTagMap = {}
+            subscription.value.selectedTagMap = {}
             tags.value.forEach((tag) => {
                 const clusterIds = tag.translations?.map((t) => t.id) || [tag.id]
-                subscription.selectedTagMap[tag.id] = clusterIds.some((id) => serverTagIds.includes(id))
+                subscription.value.selectedTagMap[tag.id] = clusterIds.some((id) => serverTagIds.includes(id))
             })
         }
 
@@ -413,7 +413,7 @@ const loadData = async () => {
                 const channel = item.channel as ConfigurableNotificationChannel
                 const type = item.type as ManagedNotificationType
 
-                channelNotificationSettings[channel][type] = normalizeNotificationSetting(type, item.isEnabled)
+                channelNotificationSettings.value[channel][type] = normalizeNotificationSetting(type, item.isEnabled)
             })
     } catch (error) {
         console.error('Failed to load settings:', error)
@@ -433,7 +433,7 @@ onMounted(() => {
 })
 
 const toggleSubscription = (val: boolean) => {
-    subscription.isActive = val
+    subscription.value.isActive = val
 }
 
 const handleEnableBrowserPush = async () => {
@@ -452,7 +452,7 @@ const handleSave = async () => {
         // 将选中的聚合 ID 展开为全语言 ID 列表
         const finalCategoryIds = new Set<string>()
         categories.value.forEach((cat) => {
-            if (subscription.selectedCategoryIds.includes(cat.id)) {
+            if (subscription.value.selectedCategoryIds.includes(cat.id)) {
                 cat.translations?.forEach((t) => finalCategoryIds.add(t.id))
                 finalCategoryIds.add(cat.id)
             }
@@ -460,7 +460,7 @@ const handleSave = async () => {
 
         const finalTagIds = new Set<string>()
         tags.value.forEach((tag) => {
-            if (subscription.selectedTagMap[tag.id]) {
+            if (subscription.value.selectedTagMap[tag.id]) {
                 tag.translations?.forEach((t) => finalTagIds.add(t.id))
                 finalTagIds.add(tag.id)
             }
@@ -470,7 +470,7 @@ const handleSave = async () => {
             return notificationTypes.map((type) => ({
                 type,
                 channel,
-                isEnabled: normalizeNotificationSetting(type, channelNotificationSettings[channel][type]),
+                isEnabled: normalizeNotificationSetting(type, channelNotificationSettings.value[channel][type]),
             }))
         })
 
@@ -478,10 +478,10 @@ const handleSave = async () => {
             $fetch('/api/user/subscription', {
                 method: 'PUT' as any,
                 body: {
-                    isActive: subscription.isActive,
+                    isActive: subscription.value.isActive,
                     subscribedCategoryIds: Array.from(finalCategoryIds),
                     subscribedTagIds: Array.from(finalTagIds),
-                    isMarketingEnabled: subscription.isMarketingEnabled,
+                    isMarketingEnabled: subscription.value.isMarketingEnabled,
                 },
             }),
             $fetch('/api/user/notifications/settings', {
