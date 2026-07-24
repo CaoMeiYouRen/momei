@@ -28,6 +28,8 @@
             @rewrite-content="(style) => rewriteContent(style)"
             @review-content="reviewContent"
             @continue-content="continueContent"
+            @expand-content="expandContent"
+            @condense-content="condenseContent"
             @update:review-panel-visible="reviewPanelVisible = $event"
             @preview="handlePreview"
             @save="savePost"
@@ -225,6 +227,8 @@ const {
     reviewPanelVisible,
     lastReviewAt,
     continueContent,
+    expandContent,
+    condenseContent,
     cancelFieldTranslation,
     retryFieldTranslation,
     translationProgress,

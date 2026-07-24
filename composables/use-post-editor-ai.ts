@@ -1,3 +1,4 @@
+/* eslint-disable max-lines, max-lines-per-function */
 import { ref, type Ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
@@ -74,6 +75,8 @@ export function usePostEditorAI(
         rewrite: false,
         review: false,
         continue: false,
+        expand: false,
+        condense: false,
     })
 
     const titleSuggestions = ref<string[]>([])
@@ -718,6 +721,122 @@ export function usePostEditorAI(
         }
     }
 
+    // --- 扩写：选中文本后扩写 ---
+    const expandContent = async () => {
+        const selected = getEditorSelectedText()
+        if (!selected) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.ai.expand_select_first'),
+                life: 3000,
+            })
+            return
+        }
+
+        if (selected.text.trim().length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.expand = true
+        try {
+            const { data } = await $fetch<StringResponse>('/api/ai/expand', {
+                method: 'POST',
+                body: {
+                    content: selected.text,
+                    language: post.value.language,
+                },
+            })
+
+            if (!data) {
+                throw new Error('Empty response from AI')
+            }
+
+            replaceEditorSelection(selected.start, selected.end, data)
+
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.ai.expand_success'),
+                life: 3000,
+            })
+        } catch (error) {
+            console.error('AI Expand error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.expand = false
+        }
+    }
+
+    // --- 缩写：选中文本后缩写 ---
+    const condenseContent = async () => {
+        const selected = getEditorSelectedText()
+        if (!selected) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.ai.condense_select_first'),
+                life: 3000,
+            })
+            return
+        }
+
+        if (selected.text.trim().length < 10) {
+            toast.add({
+                severity: 'warn',
+                summary: t('common.warn'),
+                detail: t('pages.admin.posts.content_too_short'),
+                life: 3000,
+            })
+            return
+        }
+
+        aiLoading.value.condense = true
+        try {
+            const { data } = await $fetch<StringResponse>('/api/ai/condense', {
+                method: 'POST',
+                body: {
+                    content: selected.text,
+                    language: post.value.language,
+                },
+            })
+
+            if (!data) {
+                throw new Error('Empty response from AI')
+            }
+
+            replaceEditorSelection(selected.start, selected.end, data)
+
+            toast.add({
+                severity: 'success',
+                summary: t('common.success'),
+                detail: t('pages.admin.posts.ai.condense_success'),
+                life: 3000,
+            })
+        } catch (error) {
+            console.error('AI Condense error:', error)
+            toast.add({
+                severity: 'error',
+                summary: t('common.error'),
+                detail: t('pages.admin.posts.ai_error'),
+                life: 3000,
+            })
+        } finally {
+            aiLoading.value.condense = false
+        }
+    }
+
     return {
         aiLoading,
         titleSuggestions,
@@ -738,5 +857,7 @@ export function usePostEditorAI(
         reviewPanelVisible,
         lastReviewAt,
         continueContent,
+        expandContent,
+        condenseContent,
     }
 }

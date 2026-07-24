@@ -204,6 +204,8 @@ export function usePostEditorPage() {
         reviewPanelVisible,
         lastReviewAt,
         continueContent,
+        expandContent,
+        condenseContent,
     } = usePostEditorAI(
         post,
         allTags,
@@ -612,6 +614,8 @@ export function usePostEditorPage() {
         reviewPanelVisible,
         lastReviewAt,
         continueContent,
+        expandContent,
+        condenseContent,
         cancelFieldTranslation,
         retryFieldTranslation,
         translationProgress,

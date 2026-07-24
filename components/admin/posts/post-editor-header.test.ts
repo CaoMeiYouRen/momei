@@ -63,7 +63,7 @@ describe('PostEditorHeader', () => {
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
-        expect(aiGroup.findAll('button').length).toBe(7) // Suggest, Continue, Rewrite, Review, Translate, Format, Voice
+        expect(aiGroup.findAll('button').length).toBe(9) // Suggest, Continue, Expand, Condense, Rewrite, Review, Translate, Format, Voice
     })
 
     it('renders status tag and translation badges in right bar', async () => {

@@ -36,14 +36,14 @@
 
 ### P2 — AI 编辑增强：扩写+缩写（候选 #9 子功能）
 
-- [ ] 后端：新增 `/api/ai/expand` 端点（`TextService.expandContent()` + `AI_PROMPTS.EXPAND` 模板）
-- [ ] 后端：新增 `/api/ai/condense` 端点（`TextService.condenseContent()` + `AI_PROMPTS.CONDENSE` 模板）
-- [ ] 前端：编辑器工具栏新增"扩写"按钮，选中文本后调用 expand API，支持 Ctrl+Z 撤销
-- [ ] 前端：编辑器工具栏新增"缩写"按钮，选中文本后调用 condense API，支持 Ctrl+Z 撤销
-- [ ] 计费：复用 AI 计费和额度管理，支持 expand/condense 操作类型（`recordTask({ type: 'expand' })` / `recordTask({ type: 'condense' })`）
-- [ ] 提示词模板：在 `AI_PROMPTS` 中新增 `EXPAND` / `CONDENSE` 模板，支持中英文
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
-- [ ] 审计 (A)：`code-quality-auditor` Review Gate 通过
+- [x] 后端：新增 `/api/ai/expand` 端点（`TextService.expandContent()` + `AI_PROMPTS.EXPAND` 模板）
+- [x] 后端：新增 `/api/ai/condense` 端点（`TextService.condenseContent()` + `AI_PROMPTS.CONDENSE` 模板）
+- [x] 前端：编辑器工具栏新增"扩写"按钮（`#ai-expand-btn`），选中文本后调用 expand API，支持 Ctrl+Z 撤销
+- [x] 前端：编辑器工具栏新增"缩写"按钮（`#ai-condense-btn`），选中文本后调用 condense API，支持 Ctrl+Z 撤销
+- [x] 计费：复用 AI 计费和额度管理，支持 expand/condense 操作类型（`recordTask({ type: 'expand' })` / `recordTask({ type: 'condense' })`）
+- [x] 提示词模板：在 `AI_PROMPTS` 中新增 `EXPAND` / `CONDENSE` 模板，支持中英文
+- [x] 验证：`pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅（49/49 AI 测试通过）
+- [x] 审计 (A)：`code-quality-auditor` Review Gate Pass（证据见 `artifacts/review-gate/2026-07-24-ai-expand-condense.md`）
 
 ### P1 — 结构复用治理：CLI 包类型收敛 + 工具函数抽取（长期主线 #3）
 

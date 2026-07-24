@@ -35,6 +35,24 @@
                     @click="emit('continue-content')"
                 />
                 <Button
+                    id="ai-expand-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.expand_tooltip')"
+                    icon="pi pi-arrow-right"
+                    text
+                    outlined
+                    :loading="aiLoading.expand"
+                    @click="emit('expand-content')"
+                />
+                <Button
+                    id="ai-condense-btn"
+                    v-tooltip="$t('pages.admin.posts.ai.condense_tooltip')"
+                    icon="pi pi-arrow-left"
+                    text
+                    outlined
+                    :loading="aiLoading.condense"
+                    @click="emit('condense-content')"
+                />
+                <Button
                     id="ai-rewrite-btn"
                     v-tooltip="$t('pages.admin.posts.ai.rewrite_tooltip')"
                     icon="pi pi-pencil"
@@ -306,6 +324,8 @@ const emit = defineEmits<{
     (e: 'rewrite-content', style: string): void
     (e: 'review-content'): void
     (e: 'continue-content'): void
+    (e: 'expand-content'): void
+    (e: 'condense-content'): void
     (e: 'update:review-panel-visible', visible: boolean): void
 }>()
 

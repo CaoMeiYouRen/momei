@@ -921,6 +921,110 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
+    static async expandContent(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'expand',
+            payload: { content: inputContent, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.EXPAND, {
+            content: inputContent,
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional writer. Expand content in ${language}, adding details and depth while preserving the original meaning.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+            userId,
+        })
+
+        this.logUsage({ task: 'expand', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'expand',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        return response.content.trim()
+    }
+
+    static async condenseContent(
+        content: string,
+        language: string = 'zh-CN',
+        userId?: string,
+    ) {
+        if (!content || content.trim().length === 0) {
+            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
+        }
+
+        const inputContent = content.slice(0, AI_CHUNK_SIZE)
+
+        await this.assertTextQuota({
+            userId,
+            type: 'condense',
+            payload: { content: inputContent, language },
+        })
+
+        const provider = await getAIProviderWithFallback('text')
+        if (!provider.chat) {
+            throw new Error('Provider does not support chat')
+        }
+
+        const prompt = formatPrompt(AI_PROMPTS.CONDENSE, {
+            content: inputContent,
+            language,
+        })
+
+        const response = await provider.chat({
+            messages: [
+                { role: 'system', content: `You are a professional editor. Condense content in ${language}, making it concise while preserving key information.` },
+                { role: 'user', content: prompt },
+            ],
+            temperature: 0.7,
+            userId,
+        })
+
+        this.logUsage({ task: 'condense', response, userId })
+        await this.recordTask({
+            userId,
+            category: 'text',
+            type: 'condense',
+            provider: provider.name,
+            model: response.model,
+            payload: { content: inputContent, language },
+            response,
+            textLength: content.length,
+            settlementSource: 'actual',
+        })
+
+        return response.content.trim()
+    }
+
     static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
         if (content.length > AI_MAX_CONTENT_LENGTH) {
             throw createError({ statusCode: 413, message: 'Content too long' })
