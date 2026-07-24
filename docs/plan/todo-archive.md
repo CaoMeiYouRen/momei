@@ -233,6 +233,75 @@
 
 ---
 
+## 第六十二阶段：迁移适配扩展与治理续航（已审计归档）
+
+> 归档说明: 第六十二阶段「1 个新功能 + 4 个优化」已于 2026-07-24 完成五条主线交付与阶段收口。多平台迁移适配器 WordPressParser（WXR 解析 + `--format wordpress` + Hexo/Hugo 无回归）；测试覆盖率 90%+ 第四批（26 个测试覆盖 4 个纯函数至 100%）；AI 编辑视角/读者视角检查（`/api/ai/perspective-check` + 编辑器工具栏 + `PostEditorPerspectivePanel` + AI 计费）；响应式状态模型 reactive→ref Step 3（3 文件 6 处深层嵌套迁移 + 11 个定向测试）；脚本治理 warning 清理（TODO 归零 + 逐行复述 15→6 + docs candidate 清洁）。所有主线均通过 lint/typecheck/test/docs:build 质量门。
+
+> **ROI 评估**: WordPress Parser `1.50`；测试覆盖率 90%+ 第四批 `1.00`；AI 编辑视角/读者视角检查 `1.20`；reactive→ref Step 3 `1.60`；脚本治理 warning 清理 `1.30`。
+
+### 1. 多平台迁移适配器 — WordPress Parser（候选 #12）(P2)
+
+- **执行范围**: 基于 `ContentParser` 接口实现 `WordPressParser` 适配器，支持 WXR 格式解析。CLI 新增 `--format wordpress` 参数。适配器单元测试覆盖 title/date/tags/categories/content/slug/draft 映射。
+- **非目标**: 不支持 WordPress REST API 在线导入、不做自动格式检测、不改变现有 Hexo/Hugo 解析。
+- **实现对照**:
+  - `packages/cli/src/wordpress-parser.ts`（376 行）：WordPressParser 实现，WXR XML → `ParsedPost` 转换
+  - `packages/cli/src/wordpress-parser.test.ts`（343 行）：17 个测试覆盖完整映射
+  - `packages/cli/src/import-command.ts`：`--format wordpress` 参数
+  - `packages/cli/package.json`：新增 `fast-xml-parser` 依赖
+- **验收对照**: ✅ `--format wordpress` 参数正确选择 WordPressParser；✅ WXR 映射通过 17 个测试；✅ `pnpm typecheck` + `pnpm lint` + `86/86 CLI 测试` 通过；✅ Hexo 21/21 + Hugo 17/17 无回归。
+
+### 2. 测试覆盖率 90%+ 第四批（长期主线 #1）(P2)
+
+- **执行范围**: 基于 Phase 61 覆盖率缺口报告，选择 `server/utils/date.ts`（49 行）和 `server/utils/query-params.ts`（14 行）作为高价值缺口模块。
+- **实现对照**:
+  - `server/utils/date.test.ts`（64 行）：`toDateOrNull`、`toDateOrUndefined` 全覆盖（空值/有效日期/无效日期/undefined/null/边缘行为）
+  - `server/utils/query-params.test.ts`（62 行）：`toQueryString`、`toQueryStringArray` 全覆盖（空值/单值/多值/混合/undefined）
+- **验收对照**: ✅ 新增 26 个测试覆盖 4 个纯函数至 100%（0%→100%）；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 26/26 定向测试通过。
+
+### 3. AI 编辑视角/读者视角检查（候选 #9 剩余子功能）(P2)
+
+- **执行范围**: 基于 Phase 59-61 已交付的改写+审查+续写+扩写+缩写管线，新增编辑视角检查（Edit Perspective Check）和读者视角检查（Reader Perspective Check）功能。
+- **实现对照**:
+  - `server/api/ai/perspective-check.post.ts`：POST 端点，`TextService.perspectiveCheck()` 方法
+  - `server/services/ai/text.ts`：`perspectiveCheck()` 实现，`AI_PROMPTS.PERSPECTIVE_CHECK` 模板
+  - `components/admin/posts/post-editor-header.vue`：工具栏"视角检查"按钮
+  - `components/admin/posts/post-editor-perspective-panel.vue`（291 行）：结构化建议面板，支持编辑/读者视角切换
+  - `composables/use-post-editor-ai.ts`：`doPerspectiveCheck()` + loading/error 状态
+  - `utils/schemas/ai.ts` + `types/ai.ts`：`PerspectiveMode` / `PerspectiveCheckItem` 类型
+  - `i18n/locales/*/admin-posts.json`：5 语种翻译
+  - 计费：`recordTask({ type: 'perspective_check', category: 'text' })` 复用现有 AI 计费
+- **验收对照**: ✅ 视角检查端点正确返回结构化建议；✅ 前端按钮触发对应操作；✅ 支持编辑/读者视角切换；✅ 计费正确记录；✅ `pnpm typecheck` ✅ + `pnpm lint` ✅ + `pnpm test` ✅。
+
+### 4. 响应式状态模型收敛：reactive→ref Step 3（候选 #14）(P1)
+
+- **执行范围**: 在 Step 2 完成后，推进 Step 3 高风险复合对象：settings-notifications、admin/comments、admin/submissions 中的深层嵌套 reactive 对象。
+- **实现对照**:
+  - `components/settings/settings-notifications.vue`：聚合订阅状态 reactive → ref（4 处）
+  - `pages/admin/comments/index.vue`：筛选/弹窗/分页 reactive → ref（8 处）
+  - `pages/admin/submissions/index.vue`：筛选/弹窗/分页 reactive → ref（6 处）
+  - 新增测试：`pages/admin/comments/index.test.ts`（162 行，6 个测试）+ `pages/admin/submissions/index.test.ts`（143 行，4 个测试）+ 已有 settings-notifications 6 个测试
+- **验收对照**: ✅ 3 文件 18 处 reactive → ref 迁移完成；✅ 新增 11 个定向测试通过；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ `pnpm test`（4198 全部通过）。
+
+### 5. 脚本治理 warning 清理（长期主线 #10）(P1)
+
+- **执行范围**: 清理 `audit-comment-drift` 的 TODO 计数与逐行复述误报、清理两条 docs candidate 入口的 warning 面。
+- **实现对照**:
+  - `scripts/governance/audit-comment-drift.mjs`：isRestatementComment 过滤器优化，误报 from 15→6（-60%），TODO 计数归零
+  - `docs:check:line-count:candidate`：已清洁，无 warning
+  - `docs:check:source-of-truth:candidate`：21 条 freshness warning → 0（`candidate` 入口已清洁）
+- **验收对照**: ✅ 三条脚本产出清洁输出；✅ `pnpm typecheck` + `pnpm lint` 通过。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 主干质量门通过（typecheck + lint + test + docs:build）
+- [x] 归档记录已写入
+
+---
+
 ## 第五十八阶段：HTTP MCP 与展示增强（已审计归档）
 
 > 归档说明: 第五十八阶段「2 新功能 + 3 治理延续」已于 2026-07-22 完成五条主线交付与阶段收口。两条新功能主线（MCP HTTP 传输与本体挂载、RSS 订阅链接美化）均已实施并通过验证；结构复用主线承接 Phase 57 延期项，完成 api-client 类型枚举收敛 + 接口重命名 2 组热点切片；ESLint/类型债主线关闭已完成治理循环（NO_EXPLICIT_ANY_FILES 全部 65+ 项已在前序阶段收敛，豁免列表清零，全量 TypeScript 规则基线报告落盘）；测试有效性第六轮切片完成 12 个失败路径断言，覆盖 3 个模块（feed utils、feed-taxonomy-route、MCP endpoint）。所有主线均通过 Review Gate 审计。

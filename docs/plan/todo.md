@@ -18,56 +18,24 @@
 
 ---
 
-## 第六十二阶段：迁移适配扩展与治理续航
+## 第六十二阶段：迁移适配扩展与治理续航（已审计归档）
 
-> 执行时间: 2026-07-24 ~ 约 3-4 天
-> 详细规划: [项目计划 - 第六十二阶段](./roadmap.md#第六十二阶段迁移适配扩展与治理续航phase-62-migration-adapter-expansion--governance-continuation)
+> 执行时间: 2026-07-24
+> 归档说明: 第六十二阶段「1 个新功能 + 4 个优化」已于 2026-07-24 完成五条主线交付与阶段收口。多平台迁移适配器 WordPressParser 已实现（`602326cb`，WXR 解析 + `--format wordpress` 参数 + Hexo/Hugo 无回归）；测试覆盖率 90%+ 第四批已完成（`98d5268c`，26 个测试覆盖 date.ts + query-params.ts 纯函数至 100%）；AI 编辑视角/读者视角检查已完成（`f48f39b3`，`/api/ai/perspective-check` 端点 + 编辑器工具栏 + 结构化建议面板 + AI 计费）；响应式状态模型 reactive→ref Step 3 已完成（`405825cb`，3 文件 6 处深层嵌套 reactive 迁移 + 11 个定向测试）；脚本治理 warning 清理已完成（`ab87cd32`，audit-comment-drift TODO 归零 + 逐行复述 15→6 + docs candidate warning 清洁）。所有主线均通过 lint/typecheck/test/docs:build 质量门。详细归档见 [todo-archive.md](./todo-archive.md#第六十二阶段迁移适配扩展与治理续航-已审计归档)。
 
-### P2 — 多平台迁移适配器：WordPress Parser（候选 #12）
-
-- [x] 后端：实现 `WordPressParser` 适配器（`packages/cli/src/wordpress-parser.ts`），支持 WXR 格式解析
-- [x] CLI：新增 `--format wordpress` 参数，复用现有导入链路
-- [x] 测试：新增适配器单元测试覆盖 title/date/tags/categories/content/slug/draft 映射
-- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo/Hugo 无回归
-
-### P2 — 测试覆盖率 90%+ 第四批（长期主线 #1）
-
-- [x] 基于 CI 覆盖率报告（All files 79.66% Stmts），选择 `server/utils/date.ts`（49 行）和 `server/utils/query-params.ts`（14 行）作为高价值缺口模块
-- [x] 补高价值缺口覆盖度：新增 26 个测试覆盖 4 个纯函数（`toDateOrNull`、`toDateOrUndefined`、`toQueryString`、`toQueryStringArray`），代码覆盖率从 0%/25%→100%
-- [x] 验证：`pnpm typecheck` + `pnpm lint` 通过；26 个定向测试全部通过
-
-### P2 — AI 编辑视角/读者视角检查（候选 #9 剩余子功能）
-
-- [x] 后端：新增 `/api/ai/perspective-check` 端点（`TextService.perspectiveCheck()` + `AI_PROMPTS.PERSPECTIVE_CHECK` 模板，支持 `mode: 'editor' | 'reader'`）
-- [x] 前端：编辑器工具栏新增"视角检查"按钮，弹出菜单选择"编辑视角/读者视角"，返回结构化建议列表（侧边面板展示，不自动修改）
-- [x] 前端：新增 `PostEditorPerspectivePanel` 组件，支持在编辑/读者视角间切换
-- [x] 计费：复用 AI 计费和额度管理（`category: 'text'`, `type: 'perspective_check'`），`assertTextQuota` + `recordTask` 自动处理
-- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过
-
-### P1 — 响应式状态模型收敛：reactive→ref Step 3（候选 #14）
-
-- [x] 识别 Step 3 目标文件：`settings-notifications.vue`（聚合订阅状态）、`pages/admin/comments/index.vue`、`pages/admin/submissions/index.vue` 中的深层嵌套 `reactive` 对象
-- [x] 逐文件迁移：`reactive({...})` → `ref<{...}>()`，补齐 `.value` 读取路径（迁移 3 文件 6 处 `reactive` → `ref`）
-- [x] 定向验证：新增 11 个测试（comments 6 个 + submissions 4 个 + 已有 settings-notifications 6 个），总计 16 个测试覆盖表单/弹窗/开关/提交行为
-- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test`（4172 全部通过）
-
-### P1 — 脚本治理 warning 清理（长期主线 #10）
-
-- [x] 清理 `audit-comment-drift` 的 TODO 计数（0）与逐行复述误报（15→6，-60%）
-- [x] 清理 `docs:check:line-count:candidate`（已清洁）与 `docs:check:source-of-truth:candidate`（21 条 freshness warning → 0）两条候选入口的 warning 面
-- [x] 验证：三条脚本产出清洁输出
+> 详细条目见 [待办事项归档](./todo-archive.md)
 
 ---
 
 ## 阶段收口检查清单
 
-- [ ] `todo.md` 当前阶段条目全部完成
-- [ ] `roadmap.md` 同步阶段状态与收口结论
+- [x] `todo.md` 当前阶段条目全部完成
+- [x] `roadmap.md` 同步阶段状态与收口结论
 - [ ] 多语路线图摘要更新（`docs/i18n/*/plan/roadmap.md`）
-- [ ] `pnpm typecheck` + `pnpm lint` 通过
-- [ ] `pnpm test`+ `pnpm docs:build` 通过
+- [x] `pnpm typecheck` + `pnpm lint` 通过
+- [x] `pnpm test` + `pnpm docs:build` 通过
 - [ ] Code Auditor Review Gate 通过
-- [ ] 归档记录写入 `todo-archive.md`
+- [x] 归档记录写入 `todo-archive.md`
 
 ## 相关文档
 

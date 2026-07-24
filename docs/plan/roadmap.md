@@ -714,7 +714,7 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十一阶段ai-编辑增强扩展与治理延续-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第六十二阶段：迁移适配扩展与治理续航（Phase 62: Migration Adapter Expansion & Governance Continuation）
+### 第六十二阶段：迁移适配扩展与治理续航（Phase 62: Migration Adapter Expansion & Governance Continuation）（已审计归档）
 
 **时间表**: 2026-07-24 ~ 约 3-4 天
 **目标**: 在第六十一阶段完成 AI 扩写+缩写与治理延续后，以「1 个新功能 + 4 个优化」组合推进：多平台迁移适配器 WordPressParser 作为轻量新增能力（复用 Phase 60 HugoParser 的 `ContentParser` 接口），四条优化延续治理节奏——测试覆盖率 90%+ 第四批、AI 编辑视角/读者视角检查（候选 #9 剩余子功能）、reactive→ref Step 3 高风险复合对象迁移、脚本治理 warning 清理（长期主线 #10）。
@@ -748,7 +748,9 @@
     - **非目标**: 不新增脚本、不改脚本 API、不引入新的治理基线。
     - **最小验收**: `audit-comment-drift` 的 TODO/漂移计数可见下降；两条 docs candidate 产出清洁输出。
 
-> 详细条目见 [待办事项](./todo.md#第六十二阶段迁移适配扩展与治理续航)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+**审计结论**: 第六十二阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。多平台迁移适配器 WordPressParser 已完成（`602326cb`），支持 WXR 格式 title/date/tags/categories/content/slug/draft 映射 + `--format wordpress` 参数 + Hexo/Hugo 无回归；测试覆盖率 90%+ 第四批已完成（`98d5268c`），新增 26 个测试覆盖 4 个纯函数（`toDateOrNull`、`toDateOrUndefined`、`toQueryString`、`toQueryStringArray`）至 100%；AI 编辑视角/读者视角检查已完成（`f48f39b3`），新增 `/api/ai/perspective-check` 端点（`mode: 'editor' | 'reader'`）+ 编辑器工具栏按钮 + `PostEditorPerspectivePanel` 组件 + AI 计费；响应式状态模型 reactive→ref Step 3 已完成（`405825cb`），3 文件 6 处深层嵌套 reactive 迁移（settings-notifications/comments/submissions）+ 11 个定向测试通过；脚本治理 warning 清理已完成（`ab87cd32`），audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ docs candidate warning 全部清洁。`pnpm typecheck` + `pnpm lint` + `pnpm test`（4198 passed） + `pnpm docs:build` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
+
+> 详细条目见 [待办归档](./todo-archive.md#第六十二阶段迁移适配扩展与治理续航-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ## 3. 相关文档
 

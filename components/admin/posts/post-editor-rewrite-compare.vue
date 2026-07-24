@@ -78,7 +78,9 @@ const styleLabels: Record<string, string> = {
 }
 
 const styleLabel = computed(() => {
-    if (!props.data) { return '' }
+    if (!props.data) {
+        return ''
+    }
     return styleLabels[props.data.style] || props.data.style
 })
 </script>

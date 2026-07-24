@@ -1,65 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import EmailTemplateSettingsPanel from './email-template-settings-panel.vue'
 import type { EmailTemplateSettingsFormValue } from '@/utils/shared/email-template-config'
-
-const translations: Record<string, string> = {
-    'pages.admin.settings.system.email_templates.title': '邮件模板',
-    'pages.admin.settings.system.email_templates.description': '邮件模板说明',
-    'pages.admin.settings.system.email_templates.selector_label': '模板类型',
-    'pages.admin.settings.system.email_templates.selector_hint': '选择模板',
-    'pages.admin.settings.system.email_templates.preview_locale_label': '预览语种',
-    'pages.admin.settings.system.email_templates.preview_locale_hint': '选择语种',
-    'pages.admin.settings.system.email_templates.custom_enabled': '启用自定义文案',
-    'pages.admin.settings.system.email_templates.custom_enabled_hint': '启用后覆盖默认值',
-    'pages.admin.settings.system.email_templates.variables_title': '可用变量',
-    'pages.admin.settings.system.email_templates.no_variables': '没有变量',
-    'pages.admin.settings.system.email_templates.preview_action': '生成预览',
-    'pages.admin.settings.system.email_templates.preview_subject': '邮件主题',
-    'pages.admin.settings.system.email_templates.preview_text': '查看纯文本版本',
-    'pages.admin.settings.system.email_templates.preview_app_name': '站点名称变量',
-    'pages.admin.settings.system.email_templates.preview_source_fallback': '回退自 {locale}',
-    'pages.admin.settings.system.email_templates.preview_source_legacy': '回退自 legacy 值',
-    'pages.admin.settings.system.email_templates.fields.title': '主题',
-    'pages.admin.settings.system.email_templates.fields.preheader': '预览摘要',
-    'pages.admin.settings.system.email_templates.fields.message': '正文主文案',
-    'pages.admin.settings.system.email_templates.fields.buttonText': '按钮文案',
-    'pages.admin.settings.system.email_templates.fields.reminderContent': '提醒说明',
-    'pages.admin.settings.system.email_templates.fields.securityTip': '安全提示',
-    'pages.admin.settings.system.email_templates.field_hints.title': 'hint',
-    'pages.admin.settings.system.email_templates.field_hints.preheader': 'hint',
-    'pages.admin.settings.system.email_templates.field_hints.message': 'hint',
-    'pages.admin.settings.system.email_templates.field_hints.buttonText': 'hint',
-    'pages.admin.settings.system.email_templates.field_hints.reminderContent': 'hint',
-    'pages.admin.settings.system.email_templates.field_hints.securityTip': 'hint',
-    'pages.admin.settings.system.email_templates.variables.appName': '站点名',
-    'pages.admin.settings.system.email_templates.variables.expiresIn': '有效期',
-    'pages.admin.settings.system.email_templates.catalog.verification.label': '邮箱验证链接',
-    'pages.admin.settings.system.email_templates.catalog.verification.description': '发送验证链接',
-    'pages.admin.settings.system.email_templates.catalog.passwordReset.label': '密码重置链接',
-    'pages.admin.settings.system.email_templates.catalog.passwordReset.description': '重置密码',
-    'pages.admin.settings.system.email_templates.catalog.loginOTP.label': '登录验证码',
-    'pages.admin.settings.system.email_templates.catalog.loginOTP.description': '登录验证码',
-    'pages.admin.settings.system.email_templates.catalog.emailVerificationOTP.label': '邮箱验证验证码',
-    'pages.admin.settings.system.email_templates.catalog.emailVerificationOTP.description': '邮箱验证验证码',
-    'pages.admin.settings.system.email_templates.catalog.passwordResetOTP.label': '密码重置验证码',
-    'pages.admin.settings.system.email_templates.catalog.passwordResetOTP.description': '密码重置验证码',
-    'pages.admin.settings.system.email_templates.catalog.magicLink.label': '无密码登录链接',
-    'pages.admin.settings.system.email_templates.catalog.magicLink.description': '无密码登录链接',
-    'pages.admin.settings.system.email_templates.catalog.emailChangeVerification.label': '邮箱变更确认',
-    'pages.admin.settings.system.email_templates.catalog.emailChangeVerification.description': '邮箱变更确认',
-    'pages.admin.settings.system.email_templates.catalog.securityNotification.label': '安全通知',
-    'pages.admin.settings.system.email_templates.catalog.securityNotification.description': '安全通知',
-    'pages.admin.settings.system.email_templates.catalog.subscriptionConfirmation.label': '订阅确认',
-    'pages.admin.settings.system.email_templates.catalog.subscriptionConfirmation.description': '订阅确认',
-    'pages.admin.settings.system.email_templates.catalog.marketingCampaign.label': '营销/文章分发',
-    'pages.admin.settings.system.email_templates.catalog.marketingCampaign.description': '营销/文章分发',
-    'pages.admin.settings.system.source_badges.db': '数据库生效',
-    'pages.admin.settings.system.source_badges.default': '默认值生效',
-    'pages.admin.settings.system.source_badges.env': '环境变量生效',
-}
 
 const translate = (key: string) => key
 

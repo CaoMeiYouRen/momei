@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
         if (installed) {
             // 如果系统已安装，却访问安装页面，重定向到首页
             if (isInstallationPage) {
-                return sendRedirect(event, '/', 302)
+                return await sendRedirect(event, '/', 302)
             }
             // 如果系统已安装，且试图调用安装 API（状态查询除外），返回已经安装的提示
             if (isInstallationApi && pathname !== '/api/install/status') {
@@ -176,7 +176,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // 页面请求重定向到安装页面
-        return sendRedirect(event, '/installation', 302)
+        return await sendRedirect(event, '/installation', 302)
     } catch (error: any) {
         // 抛出已知的控制流错误
         if (error.statusCode === 403 || error.statusCode === 503) {
@@ -195,7 +195,7 @@ export default defineEventHandler(async (event) => {
 
         // 其他页面请求在错误时尝试重定向到安装页
         if (!pathname.startsWith('/api')) {
-            return sendRedirect(event, '/installation', 302)
+            return await sendRedirect(event, '/installation', 302)
         }
     }
 })

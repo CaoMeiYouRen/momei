@@ -78,7 +78,7 @@ vi.mock('pg', () => {
             Pool: MockPool,
             Client: MockClient,
             Query: class MockQuery { },
-            types: { setTypeParser: () => { }, getTypeParser: () => { } },
+            types: { setTypeParser: () => undefined, getTypeParser: () => undefined },
             defaults: {},
             DatabaseError: class MockDatabaseError extends Error { },
         },

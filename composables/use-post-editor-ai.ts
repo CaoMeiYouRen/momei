@@ -4,7 +4,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
-import type { RewriteStyle, AIReviewSuggestion, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
+import type { AIReviewSuggestion, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
 
 const MIN_TASK_POLLING_INTERVAL = 10000
 

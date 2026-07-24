@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { DEFAULT_RULES, getRateLimitRules, matchRateLimitRule } from './rate-limit-config'
 
 describe('rate-limit-config', () => {
