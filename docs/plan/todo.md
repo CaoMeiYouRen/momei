@@ -25,10 +25,10 @@
 
 ### P2 — 多平台迁移适配器：WordPress Parser（候选 #12）
 
-- [ ] 后端：实现 `WordPressParser` 适配器（`packages/cli/src/wordpress-parser.ts`），支持 WXR 格式解析
-- [ ] CLI：新增 `--format wordpress` 参数，复用现有导入链路
-- [ ] 测试：新增适配器单元测试覆盖 title/date/tags/categories/content/slug/draft 映射
-- [ ] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo/Hugo 无回归
+- [x] 后端：实现 `WordPressParser` 适配器（`packages/cli/src/wordpress-parser.ts`），支持 WXR 格式解析
+- [x] CLI：新增 `--format wordpress` 参数，复用现有导入链路
+- [x] 测试：新增适配器单元测试覆盖 title/date/tags/categories/content/slug/draft 映射
+- [x] 验证：`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过；Hexo/Hugo 无回归
 
 ### P2 — 测试覆盖率 90%+ 第四批（长期主线 #1）
 
