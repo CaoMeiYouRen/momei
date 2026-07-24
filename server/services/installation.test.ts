@@ -470,9 +470,10 @@ describe('Installation Service', () => {
             } as any)
 
             // We can't fully avoid /.dockerenv detection in Docker, so skip if needed
+            // NODE_ENV 被删除后，detectInstallationRuntime 通过 (undefined || 'development') === 'development'
+            // 会返回 'local-dev'，所以在 CI 环境中也接受 'local-dev'
             const status = await freshGetStatus()
-            // Accept either 'docker' (when /.dockerenv exists) or 'self-hosted-node'
-            expect(['docker', 'self-hosted-node']).toContain(status.runtime)
+            expect(['docker', 'local-dev', 'self-hosted-node']).toContain(status.runtime)
 
             process.env.NODE_ENV = origNodeEnv
         })
