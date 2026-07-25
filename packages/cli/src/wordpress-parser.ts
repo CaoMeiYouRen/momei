@@ -125,7 +125,8 @@ function parseWpDate(value: unknown): string | undefined {
         return undefined
     }
     // 尝试直接解析（WXR 中常用 "YYYY-MM-DD HH:MM:SS" 格式）
-    const date = new Date(trimmed.replace(' ', 'T'))
+    // 后缀 Z 确保被解析为 UTC 而非本地时区
+    const date = new Date(`${trimmed.replace(' ', 'T')}Z`)
     if (Number.isNaN(date.getTime())) {
         return undefined
     }
@@ -217,7 +218,11 @@ export function convertWxrItemToMomeiPost(
         item['wp:post_date_gmt'],
         item['wp:post_date'],
     )
-    const date = dateStr ? toIsoDateString(dateStr) : undefined
+    // 裸日期格式 "YYYY-MM-DD HH:MM:SS" 无时区信息，按 UTC 解析
+    const normalizedDateStr = dateStr?.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+        ? `${dateStr.replace(' ', 'T')}Z`
+        : dateStr
+    const date = normalizedDateStr ? toIsoDateString(normalizedDateStr) : undefined
 
     const modifiedDateStr = pickFirstString(
         item['wp:post_modified_gmt'],
