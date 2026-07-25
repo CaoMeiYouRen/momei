@@ -12,6 +12,19 @@
 <!-- regression-window:start:phase42-close:第四十二阶段:2026-06-04 -->
 
 <!-- regression-window:start:periodic-regression:weekly:2026-06-10 -->
+
+<!-- regression-window:start:workflow-precheck:release:2026-07-25 -->
+## 2026-07-25 workflow pre-check（release，自动回填）
+
+- 执行入口: `pnpm run ci:precheck -- --profile=release`
+- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-25-ci-precheck-release.md) / [json](../../../artifacts/review-gate/2026-07-25-ci-precheck-release.json)
+- 结果摘要: `Reject`；blocker=1，warning=0。
+- 已执行验证: release critical files=PASS，release environment=FAIL
+- Review Gate: `Reject` / `blocker`；主要问题=release environment failed。
+- 未覆盖边界: 真实发布凭据链路仍以 GitHub Actions runtime 为准。
+
+<!-- regression-window:end:workflow-precheck:release:2026-07-25 -->
+
 ## 2026-06-10 周级周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:weekly`
