@@ -52,9 +52,11 @@ jobs:
           if-no-files-found: warn
 
       # ── Phase 2: Regression ─────────────────────────────
-      # Build api-client first so `nuxt typecheck` can resolve type declarations
+      # Build api-client & mcp-server first so `nuxt typecheck` can resolve type declarations
       - name: Build api-client dependency
         run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
       - name: Run pre-release regression gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
