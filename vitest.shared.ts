@@ -51,6 +51,7 @@ const baseVitestOptions = {
         alias: {
             '@': rootDir,
             '@momei-blog/api-client': resolve(__dirname, './packages/api-client/src/index.ts'),
+            'momei-mcp-server': resolve(__dirname, './packages/mcp-server/src/index.ts'),
             'bun:test': resolve(__dirname, './tests/mocks/bun-test.ts'),
         },
     },
