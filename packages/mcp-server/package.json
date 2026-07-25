@@ -10,9 +10,11 @@
   "module": "./dist/index.mjs",
   "exports": {
     ".": {
+      "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     }
   },
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
