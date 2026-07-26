@@ -355,7 +355,7 @@
     - 若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估，再进入正式阶段规划。
 ### 2026-06 调研发现的新增候选功能
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）已交付并从候选池移除。
+> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）、AI 编辑视角/读者视角检查（Phase 62）、WordPressParser（Phase 62）已交付并从候选池移除。
 ### 已评估/已关闭（不进入当前实现）
 > 以下条目已完成评估并输出明确 go/no-go 结论，当前不进入实现阶段，保留为后续参考。
 8. **Digital Garden / 知识花园模式 (P2, 已评估)**
@@ -366,18 +366,14 @@
 9. ~~**AI 编辑增强功能套件 (P1, 已实现)**~~
 - **评估结论**: 条件性 Go（第五十三阶段评估完成，ROI 1.50）
 - **评估依据**: [`docs/design/governance/ai-editing-enhancement-evaluation.md`](../design/governance/ai-editing-enhancement-evaluation.md)
-- **功能清单**: 改写 (Rewrite) / 审查 (Review) / 续写 (Continue) / 扩写 (Expand) / 缩写 (Condense) 均已上收实现。剩余子功能：编辑视角检查 (P2)、读者视角检查 (P2) 待上收。
+- **功能清单**: 改写 (Rewrite) / 审查 (Review) / 续写 (Continue) / 扩写 (Expand) / 缩写 (Condense) / 编辑视角检查 / 读者视角检查 — 全部子功能已上收交付。
 - **已实现**:
     - 改写 (Rewrite) + 审查 (Review)：第五十九阶段（`a4319a9f` + `d1c28283`）。支持中英文 + 6 种风格选择 + 撤销/重做 + 内容哈希对比缓存。
     - 续写 (Continue)：第六十阶段（`697b00a4`）。支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型。
     - 扩写 (Expand) + 缩写 (Condense)：第六十一阶段（`d980cf69`）。支持中英文扩写/缩写 + Ctrl+Z 撤销 + AI 计费 expand/condense 类型。
-- **剩余方向**: 编辑视角检查 (P2)、读者视角检查 (P2) 可后续上收。
-### 2026-07 批次剩余候选（RSS 订阅链接美化已上收至第五十八阶段）
-10. ~~**RSS 订阅链接美化 (P2, 候选)**~~ 已上收 Phase 58 且已审计归档
-### 2026-07 迁移功能增强候选任务（已上收本地图片上传和元数据字段扩展到第五十七阶段）
-11. ~~**安装引导向导 (P2, 候选)**~~ 已在 `/installation` 完整实现（Phase 前交付）
-- **实际实现**: 经代码审计确认（2026-07-23），安装引导向导在 `pages/installation.vue`（6 步 PrimeVue Stepper）+ `server/api/install/*`（6 API 端点）+ `server/services/installation.ts`（698 行）中完整实现。中间件 `0-installation.ts` 自动处理重定向。设计文档 `migration.md §3` 中规划的 `/onboarding` 路由实际实现为 `/installation`，功能一致。
-12. **多平台迁移适配器 (P2, 候选 — 已部分实现)**
+    - 编辑视角检查 + 读者视角检查：第六十二阶段（`f48f39b3`）。新增 `/api/ai/perspective-check` 端点 + 编辑器工具栏按钮 + `PostEditorPerspectivePanel` 组件 + AI 计费。
+- **实现状态**: 全部子功能已上收交付，候选已关闭。
+10. **多平台迁移适配器 (P2, 候选 — 已部分实现)**
 - **背景**: 当前迁移 CLI 支持 Hexo + Hugo 格式，WordPress、Jekyll 等其他主流博客平台的用户仍无法直接使用 CLI 迁移。
 - **已实现**:
     - `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`（`packages/cli/src/types.ts`）
@@ -399,7 +395,7 @@
     - 现有 Hexo/Hugo 解析行为无回归
 - **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
 - **详细方案**: 待设计
-13. **迁移进度可视化与断点续传 (P3, 候选)**
+11. **迁移进度可视化与断点续传 (P3, 候选)**
 - **背景**: 当前 CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇文章）迁移时，如果中途失败需要从头开始。断点续传能力可以显著改善大型迁移的体验。
 - **技术方案**:
     - CLI 在本地维护迁移状态文件（`.momei-migration-state.json`）
@@ -419,7 +415,7 @@
     - 状态文件格式清晰可读
 - **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
 - **详细方案**: 待设计
-14. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选 — 已部分实现)**
+12. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 候选 — 已部分实现)**
 - **背景**:
     - 当前仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。Step 1 + Step 2 已覆盖 14 处生产代码，仍有 15 处生产代码等待后续迁移。
     - `ref` 的显式 `.value` 语义更有利于长期维护，已在 Step 1 验证迁移模式可行。
@@ -442,11 +438,29 @@
     - 以文件为单位回滚，不做跨模块混合回滚。
     - 若某切片出现 `.value` 传播导致的可读性/缺陷回归，可在该切片内保留原 `reactive` 并记录原因，不阻断其他切片推进。
 - **ROI**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
-### 2026-07 批次已上收（Phase 58-61 已全部审计归档）
-- ~~**Phase 58**：MCP HTTP 传输、RSS 订阅链接美化~~
-- ~~**Phase 59**：近期热门文章列表、E2E CI 限流修复 + GHA 分片、AI 改写+审查~~
-- ~~**Phase 60**：AI 续写、reactive→ref Step 1、Zod Schema 复用首批、Hugo 格式支持、测试覆盖率 90%+ 第二批~~
-- ~~**Phase 61**：AI 扩写+缩写、reactive→ref Step 2、Zod Schema 复用第二批、测试覆盖率 90%+ 第三批、结构复用治理~~
+13. **为尚无后台 UI 的配置项补充设置表单组件 (P2, 候选)**
+- **背景**: 当前 `.env.full.example` 已有 117+ 个环境变量，`SETTING_ENV_MAP` 涉及 183+ 个唯一 env 键名，后台设置管理已有 13 个分类标签页。但仍有部分配置项缺少对应设置表单 UI，或仅有底层 `SettingKey`/DB 存储但没有前台组件，或仅在 `env.ts` 直读而无法通过后台修改。具体存在两类缺口：
+    - **缺口 A（无 SettingKey 映射，需先补齐映射 + UI）**：部分配置仅在 `env.ts` 直读，没有对应的 `SettingKey` 和后台 UI。按其性质可分为：
+        - **适合后台管理的**：AI 调优参数（`AI_MAX_TOKENS`、`AI_TEMPERATURE`、`AI_CHUNK_SIZE` 等）、TTS 默认值（`TTS_FRONTEND_DIRECT`、`TTS_DEFAULT_VOICE`）、邮件调优参数（`EMAIL_SECURE`、`EMAIL_EXPIRES_IN`、`TEMP_EMAIL_DOMAIN_NAME`）、Webhook 参数（`WEBHOOK_TIMESTAMP_TOLERANCE`）、安全代理（`NUXT_PUBLIC_HF_PROXY`、`NUXT_PUBLIC_SECURITY_URL_WHITELIST`）等 — 优先补充 `SettingKey` + `SETTING_ENV_MAP` 映射 + 对应 UI 组件。
+        - **不适后台管理、保持 env-only 的**：基础设施密钥（`DATABASE_URL`、`AUTH_SECRET`、`REDIS_URL`、`AXIOM_API_TOKEN`）、运维标志（`MOMEI_ENABLE_MCP_HTTP`、`DISABLE_CRON_JOB`、`TASK_CRON_EXPRESSION`）、Demo 模式标志、速率限制调优（`NUXT_RATE_LIMIT_*`）等 — 明确标注为 `INTERNAL_ONLY` 并更新文档。
+    - **缺口 B（有 SettingKey 但无 admin UI）**：`external_feed_sources`、`hexo_sync_*` 等已存在 DB 底层，但后台没有对应的表单组件来管理这些配置。用户不知晓该配置存在或无法直接操作。
+- **技术方案**: 沿袭现有 13 个标签页的模式，为缺口 A/B 中适合后台管理的配置项逐一开发配套表单 UI 组件（输入框、开关、下拉选择、JSON 编辑器等），归入已有标签页或在必要时新增标签页。
+    - **Phase 1 — 盘点与 SoT 映射补齐**：产出完整清单，将缺口 A 中适合后台管理的 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 条目；不适后台管理的明确标注为 `INTERNAL_ONLY` 并更新 `env.ts` 文档注释。
+    - **Phase 2 — UI 组件化**：按优先级逐组开发配置项的表单 UI 组件，归入现有标签页（如 AI 调优参数归入"AI"标签页，TTS 默认值归入"AI"标签页，邮件调优归入"邮件"标签页，`external_feed_sources` 归入现有的"第三方"或"系统"标签页等）。保持与现有组件一致的 PrimeVue 风格、i18n 翻译、脱敏逻辑和审核日志写入。
+- **非目标**:
+    - 不暴露基础设施密钥到后台管理。
+    - 不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略。
+    - 不做只读"环境变量一览"页或通用 Key-Value 编辑器 — 每个配置项都应有专门的表单控件。
+    - 不一次性覆盖所有缺口 — 采用分批渐进，每组 2-5 个配置项。
+- **前置条件**:
+    - 产出缺口 A/B 的完整清单，按"适合后台管理 / 保持 env-only"分流，并标注目标标签页归属。
+    - 评估首批优先级：可从"已有 SettingKey 但只缺 UI（缺口 B）"或"新增 AI/邮件/Webhook 调优参数（缺口 A 中高 ROI 项）"入手。
+- **验收标准**:
+    - Phase 1：缺口 A 中至少 3-5 个 env var 完成 `SettingKey` + `SETTING_ENV_MAP` 映射补齐；`env.ts` 注释和 `SETTING_ENV_MAP` 同步更新；`pnpm typecheck` + `pnpm lint` 通过。
+    - Phase 2（首批）：至少完成 2 组配置项的表单 UI —— 每组含表单组件、i18n 五语种翻译、值校验、保存后即时生效（DB 写 + audit log）、env 锁定时的禁用/提示逻辑。已存在对应标签页的归入已有标签页，无合适标签页的经评估后决定是否新增标签页。
+- **ROI 预估**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
+- **详细方案**: 待设计
+
 ---
 ## 相关文档
 - [项目计划](./roadmap.md)
