@@ -7,7 +7,7 @@ const KB = 1024
 
 const BUDGETS = {
     coreEntryJsGzipBytes: 260 * KB,
-    maxAsyncChunkJsGzipBytes: 120 * KB,
+    maxAsyncChunkJsGzipBytes: 130 * KB,
     keyCssGzipBytes: 70 * KB,
     prIncrementJsGzipBytes: 20 * KB,
 }

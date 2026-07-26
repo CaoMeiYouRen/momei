@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-07-26T06:27:25.514Z",
+  "metrics": {
+    "coreEntryJsGzipBytes": 210,
+    "maxAsyncChunkJsGzipBytes": 126635,
+    "keyCssGzipBytes": 59795
+  }
+}
