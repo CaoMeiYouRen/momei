@@ -31,6 +31,8 @@ metadata:
 10. **归档更新顺序**: 先清理 `todo.md`，再写 `todo-archive.md`，再同步 `roadmap.md`，最后按需更新 `docs/i18n/*/plan/roadmap.md`；`todo.md` 与 `backlog.md` 默认保持中文，不为归档动作单独翻译。
 11. **最低检查不可跳过**: 阶段归档属于正式规划变更，至少补齐 `lint-md`、`pnpm docs:check:i18n`、质量门状态确认与错误面检查；若缺失这些证据，不得标记"已归档"。
 12. **下一阶段闸门**: 当前阶段未完成归档前，只允许输出"候选方案 / 准入分析"，不得直接把下一阶段写入 `todo.md` 或 `roadmap.md`。
+13. **归档一致性检查**: 阶段归档时同步检查 `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片的覆盖范围是否对齐。若 roadmap 归档分片落后于 todo-archive（如 roadmap 只归档到 Phase X 但 todo 已到 Phase X+N），必须先补齐 roadmap 的缺失归档分片再继续。归档前如需压缩 `roadmap.md` 中已完成阶段的详情正文，必须先将原始完整内容提取到归档分片文件，禁止直接丢弃。
+14. **新阶段评估前工作区清洁**: 进入新阶段评估前，先执行一次规划文档的清洁检查——确认 `todo.md` 无已归档阶段残留、`roadmap.md` 无已归档阶段的规划细节残留、`backlog.md` 无已完成候选条目的正文残留、归档分片覆盖范围对齐、文档格式无混用括号 / 异常反引号等漂移。详见 `docs/standards/planning.md` Step 8。
 
 ### Session 级任务协议管理
 
