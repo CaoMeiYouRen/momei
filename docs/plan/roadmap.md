@@ -321,6 +321,43 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十二阶段迁移适配扩展与治理续航-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第六十三阶段：设置 UI 盘点与治理续航（Phase 63: Settings UI Inventory & Governance Continuation）
+
+**时间表**: 2026-07-26 ~ 约 3-5 天
+**目标**: 在第六十二阶段完成迁移适配扩展与治理续航后，以「5 个优化」组合推进：设置表单 UI Phase 1（盘点映射）作为后台管理体验的前置分析，reactive→ref Step 4 延续状态模型收敛路线（≥5 处），结构复用治理恢复切片节奏，测试覆盖率 90%+ 第五批作为长期治理延续，翻译质量审计（ko-KR/ja-JP）提升 i18n 品质。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。设置表单 UI Phase 1 为纯盘点/映射，不涉及 UI 组件开发，风险极低；reactive→ref Step 4 经前三步已验证迁移模式可行（template 零改动），本次优先筛选/简单类后表单类；结构复用基于 0.39% 健康基线做增量切片；覆盖率第五批基于最新缺口报告推进；翻译质量审计不改变 key 覆盖，仅提升已有翻译的自然度与一致性。
+
+**ROI 评估**: 设置表单 UI Phase 1 `1.60`；reactive→ref Step 4 `1.60`；结构复用治理 `1.50`；测试覆盖率 90%+ 第五批 `1.00`；翻译质量审计 `1.30`。
+
+1. **主线：设置表单 UI Phase 1 — 盘点与 SoT 映射补齐（P2）**:
+    - **执行范围**: 产出现有配置项的缺口清单（缺口 A：env-only 直读适合加 SettingKey 的；缺口 B：已有 SettingKey 但缺 UI 的）。为 ≥3-5 个适合后台管理的 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射。不适合后台管理的（基础设施密钥等）标记 `INTERNAL_ONLY` 并更新 `env.ts` 文档注释。Phase 1 不涉及任何 UI 组件开发。
+    - **非目标**: 不做 UI 组件、不改 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略、不做通用 Key-Value 编辑器。
+    - **最小验收**: ≥3-5 个 env var 完成 SettingKey + SETTING_ENV_MAP 映射；`env.ts` 注释和 `SETTING_ENV_MAP` 同步更新；`pnpm typecheck` + `pnpm lint` 通过。
+
+2. **主线：响应式状态模型收敛 — reactive→ref Step 4（P1）**:
+    - **执行范围**: 在 Step 3（3 文件 18 处深层嵌套迁移已验证模式可行）后，推进 Step 4 剩余生产代码 `reactive()` 迁移。从 8 处剩余中选取 ≥5 处优先迁移：筛选类（`user-filters.vue`、`notification-delivery-log-list.vue`、`waitlist/index.vue`、`subscribers/index.vue`）和简单错误类（`submit.vue`）优先，表单/弹窗类（`admin-taxonomy-page.vue`、`marketing-campaign-form.vue`、`comment-form.vue`）视时间推进。每文件配定向测试验证表单/筛选/弹窗行为不回退。
+    - **非目标**: 不追求全仓 reactive 清零；不改动 API 契约或页面交互语义；某文件出问题不阻断其他切片推进。
+    - **最小验收**: ≥5 处生产代码 `reactive` 迁移完成；`pnpm typecheck` + `pnpm lint` 通过；受影响页面的筛选/表单/弹窗行为无回归。
+
+3. **主线：结构复用治理 — 下一轮热点切片（P1）**:
+    - **执行范围**: 基于 `duplicate-code: 0.39%` 最新基线，识别新的重复热点。优先方向：检查 Phase 62 新增代码（WordPressParser、perspective-check 等）是否引入重复；检查 CLI/MCP 包与主项目间的残留类型/工具函数重复。选取 ≥2 组逻辑简单、收益明确的切片收敛。
+    - **非目标**: 不推动跨模块大重构、不为复用而复用、不改变业务行为。
+    - **最小验收**: ≥2 组热点切片完成；`pnpm duplicate-code:check` 基线 ≤0.39%；`pnpm typecheck` + `pnpm lint` 通过。
+
+4. **主线：测试覆盖率 90%+ 第五批（P2）**:
+    - **执行范围**: 基于最新全仓覆盖率缺口报告，选取 `server/services/` 或 `server/utils/` 层高价值缺口模块。优先选择已有测试基座但覆盖不足的模块，推进全仓 coverage +≥1%。保持测试有效性不退化。
+    - **非目标**: 不做低价值铺量补测、不牺牲断言有效性换取数字增长。
+    - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+5. **主线：翻译质量审计 — ko-KR/ja-JP（P2）**:
+    - **执行范围**:
+        - **Phase A**: 产出翻译质量审计报告。遍历 ko-KR/ja-JP 的 26 个 locale 文件中用户可见模块（home、auth、common、components、public、settings、posts），标记不自然、不一致或机器翻译味重的条目。
+        - **Phase B**: 修复审计发现的 ≥10 个问题条目。
+        - **Phase C（可选）**: 清理 `i18n:audit:duplicates` 中可合并的 duplicate key 组。
+    - **非目标**: 不新增语种、不做全量翻译重写、不改变 key 结构。
+    - **最小验收**: 翻译质量审计报告输出；≥10 个问题修复（以 commit 可见）；`pnpm i18n:audit:missing` = 0 保持；`pnpm typecheck` + `pnpm lint` 通过。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
