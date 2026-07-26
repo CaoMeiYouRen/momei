@@ -1,5 +1,73 @@
 # momei
 
+# [1.24.0](https://github.com/CaoMeiYouRen/momei/compare/v1.23.0...v1.24.0) (2026-07-26)
+
+
+### ✨ 新功能
+
+* **ai:** 增强 AI 改写功能与审查流程 ([d1c2828](https://github.com/CaoMeiYouRen/momei/commit/d1c2828))
+* **ai:** 实现 AI 续写功能 — 编辑器工具栏新增续写按钮 ([697b00a](https://github.com/CaoMeiYouRen/momei/commit/697b00a))
+* **ai:** 实现 AI 编辑增强 — 改写+审查功能 ([a4319a9](https://github.com/CaoMeiYouRen/momei/commit/a4319a9))
+* **ai:** 实现 AI 编辑视角/读者视角检查功能 ([f48f39b](https://github.com/CaoMeiYouRen/momei/commit/f48f39b))
+* **ai:** 添加 AI 任务清理功能 ([694b8ce](https://github.com/CaoMeiYouRen/momei/commit/694b8ce))
+* **ai:** 添加扩写和缩写功能 ([d980cf6](https://github.com/CaoMeiYouRen/momei/commit/d980cf6))
+* **api-client:** 添加文章标签筛选功能 ([1d0eb12](https://github.com/CaoMeiYouRen/momei/commit/1d0eb12))
+* **calendar:** 支持自定义每周起始日 ([276c2d3](https://github.com/CaoMeiYouRen/momei/commit/276c2d3))
+* **category:** 新增自动创建分类功能并支持并发冲突处理 ([88afa17](https://github.com/CaoMeiYouRen/momei/commit/88afa17))
+* **cli:** 实现 Hugo 格式导入支持 — 多平台迁移适配器 ([6075d07](https://github.com/CaoMeiYouRen/momei/commit/6075d07))
+* **cli:** 实现 WordPress WXR 解析适配器，支持 --format wordpress 参数 ([602326c](https://github.com/CaoMeiYouRen/momei/commit/602326c))
+* **cli:** 添加 API 请求频率限制功能 ([7962bc9](https://github.com/CaoMeiYouRen/momei/commit/7962bc9))
+* **cli:** 添加从 D1 同步阅读量到 Momei 的命令 ([95218ef](https://github.com/CaoMeiYouRen/momei/commit/95218ef))
+* **cli:** 添加已同步文章的检测与显示 ([65c32c0](https://github.com/CaoMeiYouRen/momei/commit/65c32c0))
+* **cli:** 添加语言选项以支持多语言同步 ([4226974](https://github.com/CaoMeiYouRen/momei/commit/4226974))
+* **feed:** RSS 订阅链接美化 — 增加 xml-stylesheet 指向 feed-style.css ([c13b663](https://github.com/CaoMeiYouRen/momei/commit/c13b663))
+* **image-migration:** 添加本地图片迁移功能 ([11e3314](https://github.com/CaoMeiYouRen/momei/commit/11e3314))
+* **mcp-http:** 增加 MCP HTTP 传输与挂载功能 ([3f405e7](https://github.com/CaoMeiYouRen/momei/commit/3f405e7))
+* **posts:** 新增近期热门文章列表（P2/[#16](https://github.com/CaoMeiYouRen/momei/issues/16)） ([b7b765d](https://github.com/CaoMeiYouRen/momei/commit/b7b765d))
+* **post:** 添加更新时间和浏览量字段支持 ([193e0fc](https://github.com/CaoMeiYouRen/momei/commit/193e0fc))
+* **rate-limit:** 新增 VIEWS 规则 + TEST_MODE 守卫 + test.yml 共享构建与 E2E 分片 ([b6b567a](https://github.com/CaoMeiYouRen/momei/commit/b6b567a))
+* **sync-views:** 增强阅读量同步功能 ([bbf84b5](https://github.com/CaoMeiYouRen/momei/commit/bbf84b5))
+
+
+### 🐛 Bug 修复
+
+* **auth:** 为登录和注册表单添加 fluid 属性并优化样式 ([b0eefc3](https://github.com/CaoMeiYouRen/momei/commit/b0eefc3))
+* **ci:** Release 工作流中缺少 momei-mcp-server 构建步骤，导致 nuxt typecheck 失败 ([b960945](https://github.com/CaoMeiYouRen/momei/commit/b960945))
+* **ci:** 修复 CI 构建与测试失败 — mcp-server dist 缺失及 lint/test mock 不同步 ([3dc573b](https://github.com/CaoMeiYouRen/momei/commit/3dc573b))
+* **cli:** WordPress WXR 解析中 GMT 日期字段应按 UTC 而非本地时区解析 ([0c316a7](https://github.com/CaoMeiYouRen/momei/commit/0c316a7))
+* **cli:** 修复依赖兼容性及路径处理问题 ([57c5166](https://github.com/CaoMeiYouRen/momei/commit/57c5166))
+* **demo-banner:** 修复暗色模式下 .demo-banner__stage 透明度问题 ([37b3877](https://github.com/CaoMeiYouRen/momei/commit/37b3877)), closes [#f1f5f9](https://github.com/CaoMeiYouRen/momei/issues/f1f5f9)
+* **governance:** 新增 ESLint 类型债收紧治理的第五十七阶段切片 ([a7f0c60](https://github.com/CaoMeiYouRen/momei/commit/a7f0c60))
+* **h3:** 锁定 h3 v1 版本并添加兼容性测试 ([d4807c1](https://github.com/CaoMeiYouRen/momei/commit/d4807c1))
+* **i18n:** 补全 ja-JP、ko-KR、zh-TW 缺失的 perspective 国际化键 ([f7d1a58](https://github.com/CaoMeiYouRen/momei/commit/f7d1a58))
+* **index.vue:** 移除不必要的 SSR 配置变量 ([e98221d](https://github.com/CaoMeiYouRen/momei/commit/e98221d))
+* **mcp-server:** 在 package.json exports 中添加 types 条件以支持 TypeScript 类型解析 ([3476529](https://github.com/CaoMeiYouRen/momei/commit/3476529))
+* **perf:** 上调 maxAsyncChunkJs 预算至 130KB 并创建 bundle 基线文件 ([06d4915](https://github.com/CaoMeiYouRen/momei/commit/06d4915)), closes [#30172701724](https://github.com/CaoMeiYouRen/momei/issues/30172701724)
+* **test:** 修复 captcha 测试 \ mock 方式 ([36dcfdb](https://github.com/CaoMeiYouRen/momei/commit/36dcfdb))
+* **test:** 适配 Nuxt 4.5.0 \ auto-import 变更，修复 40 个测试文件 ([966af0c](https://github.com/CaoMeiYouRen/momei/commit/966af0c))
+* **typecheck:** 恢复 email-template-settings-panel.test.ts 中的 beforeEach 导入 ([42826fa](https://github.com/CaoMeiYouRen/momei/commit/42826fa))
+* **umami-analytics:** 拒绝非 JSON 格式的原始字符串输入 ([dbc7430](https://github.com/CaoMeiYouRen/momei/commit/dbc7430))
+* **vercel:** 添加 vercel-build 脚本预构建 momei-mcp-server ([999ac2a](https://github.com/CaoMeiYouRen/momei/commit/999ac2a))
+* **vitest:** 添加 momei-mcp-server resolve alias 以修复 CI 模块解析失败 ([a90e31a](https://github.com/CaoMeiYouRen/momei/commit/a90e31a))
+
+
+### 📦 代码重构
+
+* **ai:** 使用 dayjs 优化 AI 任务清理时间计算 ([b56bfae](https://github.com/CaoMeiYouRen/momei/commit/b56bfae))
+* **api-client:** 结构复用 — api-client 类型枚举收敛 + 接口重命名 ([2ab13f1](https://github.com/CaoMeiYouRen/momei/commit/2ab13f1))
+* **api:** 合并首页三个 API 端点为单一 /api/posts/home ([721a563](https://github.com/CaoMeiYouRen/momei/commit/721a563))
+* **cli:** 使用 exitCode 替代 process.exit 以改善异步流程 ([456f34f](https://github.com/CaoMeiYouRen/momei/commit/456f34f))
+* **cli:** 重构限流器实现并修复 Hexo 解析兼容性 ([bcc9803](https://github.com/CaoMeiYouRen/momei/commit/bcc9803))
+* **composables:** 响应式状态模型收敛 reactive→ref Step 2 - 后台列表页 9 处 reactive 对象迁移 ([a5bd2c7](https://github.com/CaoMeiYouRen/momei/commit/a5bd2c7))
+* **middleware:** 重构限流中间件为可配置规则引擎 ([4556ee5](https://github.com/CaoMeiYouRen/momei/commit/4556ee5))
+* **rate-limiter:** 优化令牌获取逻辑和错误检测 ([d74db19](https://github.com/CaoMeiYouRen/momei/commit/d74db19))
+* **reactivity:** 完成 reactive→ref Step 1 迁移（5 文件登录/注册/权益/个人设置/安全设置） ([d3f7314](https://github.com/CaoMeiYouRen/momei/commit/d3f7314))
+* **reactivity:** 完成 reactive→ref Step 3 迁移（settings-notifications/comments/submissions） ([405825c](https://github.com/CaoMeiYouRen/momei/commit/405825c))
+* **schemas:** Zod Schema 复用治理第二批（候选 [#18](https://github.com/CaoMeiYouRen/momei/issues/18)） ([db424e4](https://github.com/CaoMeiYouRen/momei/commit/db424e4))
+* **schemas:** 抽取 Ad Campaign + Ad Placement Zod schema 到 utils/schemas/ad.ts ([6216fed](https://github.com/CaoMeiYouRen/momei/commit/6216fed))
+* **server:** 抽取 toDateOrNull/toDateOrUndefined 到独立工具文件，消除两处重复定义 ([c3554a1](https://github.com/CaoMeiYouRen/momei/commit/c3554a1)), closes [#3](https://github.com/CaoMeiYouRen/momei/issues/3)
+* **sync-views:** 重构阅读量同步逻辑 ([00eb978](https://github.com/CaoMeiYouRen/momei/commit/00eb978))
+
 # [1.23.0](https://github.com/CaoMeiYouRen/momei/compare/v1.22.0...v1.23.0) (2026-07-18)
 
 
