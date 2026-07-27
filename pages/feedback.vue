@@ -41,7 +41,18 @@
 
             <article class="feedback-page__card">
                 <div class="feedback-page__card-header">
-                    <i class="pi pi-life-ring" aria-hidden="true" />
+                    <img
+                        v-if="siteLogo"
+                        class="feedback-page__card-icon"
+                        :src="siteLogo"
+                        :alt="siteOperatorName"
+                        aria-hidden="true"
+                    >
+                    <i
+                        v-else
+                        class="pi pi-life-ring"
+                        aria-hidden="true"
+                    />
                     <div>
                         <h2>{{ $t('pages.feedback.deployment.title', {site: siteOperatorName}) }}</h2>
                         <p>{{ $t('pages.feedback.deployment.description', {site: siteOperatorName}) }}</p>
@@ -80,6 +91,7 @@ const { t } = useI18n()
 const {
     siteConfig,
     currentTitle,
+    siteLogo,
 } = useMomeiConfig()
 
 const siteOperatorName = computed(() => siteConfig.value.siteOperator || currentTitle.value)
@@ -183,6 +195,13 @@ useHead({
             color: var(--p-text-muted-color);
             line-height: 1.6;
         }
+    }
+
+    &__card-icon {
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 999px;
+        object-fit: cover;
     }
 
     &__list {
