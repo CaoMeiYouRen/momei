@@ -28,7 +28,7 @@
                     :model="writingMenuItems"
                     @click="showRewritePopover"
                 />
-                <!-- AI 审校: 触发审查 + 视角检查（编辑视角） -->
+                <!-- AI 审校: 触发审查 + 视角检查（编辑视角），badge 显示合并总数 -->
                 <Button
                     id="ai-review-btn"
                     v-tooltip="$t('pages.admin.posts.ai.review')"
@@ -36,7 +36,7 @@
                     text
                     outlined
                     :loading="aiLoading.review || aiLoading.perspective"
-                    :badge="reviewSuggestions.length > 0 ? String(reviewSuggestions.length) : undefined"
+                    :badge="combinedFindings > 0 ? String(combinedFindings) : undefined"
                     @click="handleReviewClick"
                 />
                 <!-- AI 翻译: SplitButton with language selection -->
@@ -190,6 +190,7 @@
             :visible="perspectivePanelVisible"
             :results="perspectiveResults"
             :mode="perspectiveMode"
+            :style="reviewPanelVisible && perspectivePanelVisible ? 'right: 26rem' : undefined"
             @close="emit('update:perspective-panel-visible', false)"
             @switch-mode="(mode) => emit('perspective-check', mode)"
         />
@@ -266,6 +267,11 @@ const writingBtnRef = ref<any>(null)
 const writingLoading = computed(() =>
     props.aiLoading.title || props.aiLoading.rewrite || props.aiLoading.continue
     || props.aiLoading.expand || props.aiLoading.condense,
+)
+
+/** Combined findings count (review suggestions + perspective items) */
+const combinedFindings = computed(() =>
+    props.reviewSuggestions.length + props.perspectiveResults.length,
 )
 
 /** Get the AI Writing SplitButton's root DOM element via template ref */
