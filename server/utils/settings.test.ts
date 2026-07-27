@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { inferSettingMaskType, isMaskedSettingPlaceholder, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from './settings'
+import { inferSettingMaskType, isMaskedSettingPlaceholder, isPublicSettingKey, maskSettingValue, resolveSettingLevel, resolveSettingMaskType } from './settings'
 import { SettingKey } from '@/types/setting'
 
 // Mock dependencies
@@ -153,6 +153,50 @@ describe('settings utils', () => {
             expect(inferSettingMaskType('SOME_KEY')).toBe('key')
             expect(inferSettingMaskType('SOME_EMAIL')).toBe('none')
         })
+
+        it('should not match password when key lacks underscore prefix', () => {
+            // Behavior change: now requires _pass (not just pass)
+            expect(inferSettingMaskType('DBPASSWORD')).toBe('none')
+            expect(inferSettingMaskType('PASSCODE')).toBe('none')
+        })
+
+        it('should not match when key lacks underscore suffix for token', () => {
+            // Behavior change: now requires endsWith _token
+            expect(inferSettingMaskType('TOKEN_VALUE')).toBe('none')
+        })
+
+        it('should not match key when key lacks underscore suffix', () => {
+            // Behavior change: now requires endsWith _key
+            expect(inferSettingMaskType('APIKEY')).toBe('none')
+            expect(inferSettingMaskType('KEYSTONE')).toBe('none')
+        })
+
+        it('should match password for keys with _pass suffix', () => {
+            expect(inferSettingMaskType('SMTP_PASS')).toBe('password')
+            expect(inferSettingMaskType('DB_USER_PASS')).toBe('password')
+        })
+
+        it('should match password for keys ending with _token', () => {
+            expect(inferSettingMaskType('ACCESS_TOKEN')).toBe('password')
+            expect(inferSettingMaskType('REFRESH_TOKEN')).toBe('password')
+        })
+
+        it('should match password for keys containing _secret', () => {
+            // 'MY_SECRET_KEY' -> lower is 'my_secret_key', includes '_secret'
+            expect(inferSettingMaskType('MY_SECRET_KEY')).toBe('password')
+            expect(inferSettingMaskType('MY_SECRET')).toBe('password')
+            expect(inferSettingMaskType('THE_SECRET_VALUE')).toBe('password')
+        })
+
+        it('should match key for keys ending with _key', () => {
+            expect(inferSettingMaskType('PRIVATE_KEY')).toBe('key')
+            expect(inferSettingMaskType('SSH_KEY')).toBe('key')
+        })
+
+        it('should match key for keys containing _key at end', () => {
+            expect(inferSettingMaskType('ENCRYPTION_KEY')).toBe('key')
+            expect(inferSettingMaskType('API_KEY_V2')).toBe('none') // doesn't end with _key
+        })
     })
 
     describe('resolveSettingMaskType', () => {
@@ -180,6 +224,23 @@ describe('settings utils', () => {
 
         it('should return none for empty key with no explicit type', () => {
             expect(resolveSettingMaskType('')).toBe('none')
+        })
+    })
+
+    describe('isPublicSettingKey', () => {
+        it('returns true for known public setting keys', () => {
+            expect(isPublicSettingKey(SettingKey.CONTACT_EMAIL)).toBe(true)
+            expect(isPublicSettingKey(SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY)).toBe(true)
+        })
+
+        it('returns false for non-public setting keys', () => {
+            expect(isPublicSettingKey(SettingKey.SITE_URL)).toBe(false)
+            expect(isPublicSettingKey(SettingKey.AI_PROVIDER)).toBe(false)
+            expect(isPublicSettingKey('UNKNOWN_KEY')).toBe(false)
+        })
+
+        it('returns false for empty string', () => {
+            expect(isPublicSettingKey('')).toBe(false)
         })
     })
 
