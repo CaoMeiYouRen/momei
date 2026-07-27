@@ -100,7 +100,7 @@
 | Tier | freshness 口径 | 允许内容形态 | 当前典型范围 |
 | :-- | :-- | :-- | :-- |
 | `must-sync` | `30` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
-| `summary-sync` | `45` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页 |
+| `summary-sync` | `45` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页与高频 Guide |
 | `source-only` | 不做天数 SLA，但必须显式声明“中文事实源优先” | locale URL 保留页，不承诺持续翻译正文 | 低频设计页、低频 Guide、当前不再维护的深层 Standards |
 
 当前 locale 范围矩阵：
@@ -110,7 +110,7 @@
 | `en-US` | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance` | `plan/roadmap`、`guide/development`、`guide/features`、`guide/variables`、`standards/planning`、`standards/documentation`、`standards/security`、`standards/testing`、`standards/development`、`standards/ai-collaboration` | `design/*`、`guide/ai-development`、`guide/comparison`、`standards/api` |
 | `zh-TW` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap` | `design/*`、`guide/development`、`guide/ai-development`、`guide/comparison`、`standards/*` |
 | `ko-KR` | 无 | 与 `zh-TW` 相同 | 与 `zh-TW` 相同 |
-| `ja-JP` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`plan/roadmap` | 其他路径默认不新增翻译承诺 |
+| `ja-JP` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap` | 与 `ko-KR` 相同 |
 
 ### 4.4 翻译件规范 (Standard for Translated Docs)
 
