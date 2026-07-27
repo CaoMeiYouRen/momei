@@ -298,6 +298,70 @@
 
 ---
 
+## 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（已审计归档）
+
+> 归档说明: 第六十五阶段「2 个增量功能 + 3 个治理切片」于 2026-07-27~28 完成 4/5 主线交付。编辑器工具栏收敛 Phase A（10→5 按钮折叠 + 标题栏弹性宽度）验收通过；设置表单 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER UI + tts_credential_ttl_seconds + ExternalFeedSourcesEditor + 五语种翻译 + SettingKey 映射）验收通过；结构复用治理（Categories/Tags 共享查询层，-226 行重复，基线 0.34%→0.30%）验收通过；脚本治理升格评估（simple-duplicates 升格至 regression:weekly）验收通过；测试覆盖率 90%+ 第七批新增 3 个测试文件（external-links-shared.test.ts + settings.test.ts + setting.constants.test.ts），全仓覆盖率 79.48%（未达 ≥1% 目标，未通过验收，转入长期治理）。vitest.shared.ts 统一为 forks 池修复 D:\tmp 竞态问题；新增 regression-weekly.yml 定时 CI 回归工作流。所有已交付主线均通过 typecheck + lint + test 质量门。
+
+> **ROI 评估**: 编辑器工具栏收敛 Phase A `2.33`；设置表单 UI Phase 3 `1.75`；测试覆盖率 90%+ 第七批 `1.00`；结构复用治理 `1.60`；脚本治理升格评估 `2.50`。
+
+### 1. 编辑器工具栏收敛 Phase A（候选 #14）（P1）
+
+- **执行范围**: 将文章编辑器的 10 个独立 AI 按钮折叠为 5 个入口：「AI 写作（SplitButton: 改写/续写/扩写/缩写）」+「AI 审校（审查）」+「AI 翻译」+「格式化」+「语音」，标题输入框获得完整弹性宽度。
+- **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
+- **设计文档**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
+- **验收对照**: ✅ 5 个入口代替原有 10 个按钮；✅ 标题输入框宽度恢复正常；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 编辑器功能无回归（4 单元测试通过 + 14/14 UI 验证通过）。
+- **交付**: `e936ec1e`
+
+### 2. 设置表单 UI Phase 3（候选 #13 延续）（P1）
+
+- **执行范围**: 基于 Phase 1 缺口清单，新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `external_feed_sources` 组件；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。
+- **非目标**: 不新增独立标签页（归入现有 AI/第三方标签页）；不改动 `FORCED_ENV_LOCKED_KEYS`；不做 AI_IMAGE_FALLBACK 系列（留 Phase 4）。
+- **详细方案**: [`docs/design/governance/settings-form-ui-phase1-gap-inventory.md`](../design/governance/settings-form-ui-phase1-gap-inventory.md)
+- **验收对照**: ✅ ≥4 个字段 UI 完成（5/5）；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 受影响表单保存/验证通过。
+- **交付**: `01ce9670`
+
+### 3. 测试覆盖率 90%+ 第七批（长期主线 #1）（P2）
+
+- **执行范围**: 基于最新全仓覆盖率缺口报告，选取 3-5 个高价值缺口模块（优先 `server/services/` 或 `server/utils/` 层尚未深度覆盖的模块），推进全仓 coverage +≥1%。
+- **非目标**: 不做低价值铺量补测；不牺牲断言有效性换取数字增长。
+- **测试新增**:
+  - `server/utils/external-links-shared.test.ts`：handleExternalLinkError 覆盖
+  - `server/utils/settings.test.ts`：inferSettingMaskType 行为变更 + isPublicSettingKey
+  - `server/services/setting.constants.test.ts`：isSettingEnvLocked / resolveSettingEnvEntry / getSettingLockReason 覆盖
+- **验收对照**: ❌ 全仓覆盖率 Statements 79.48%（未达 ≥1% 提升目标）；✅ 516/517 测试文件通过，0 失败；✅ `pnpm typecheck` + `pnpm lint` 通过。
+- **结论**: 未通过验收，转入长期治理继续推进。
+
+### 4. 结构复用治理（长期主线 #3）（P1）
+
+- **执行范围**: 基于 `duplicate-code` 0.35% 最新基线识别 ≥2 组重复热点；优先检查 Phase 63-64 新增代码是否引入重复。
+- **非目标**: 不推动跨模块大重构；不为复用而复用；不改变业务行为。
+- **实现对照**:
+  - 新建 `server/utils/category-public-list.ts`：`queryCategoryPublicList()` 共享函数
+  - 新建 `server/utils/tag-public-list.ts`：`queryTagPublicList()` 共享函数
+  - 4 端点 handler 简化：`api/categories/index.get.ts` / `api/external/categories/index.get.ts` / `api/tags/index.get.ts` / `api/external/tags/index.get.ts`
+  - 累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%
+- **验收对照**: ✅ ≥2 组热点切片完成；✅ `duplicate-code` 基线 0.30% ≤ 0.35%；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 22/22 测试通过。
+
+### 5. 脚本治理升格评估（长期主线 #10）（P1）
+
+- **执行范围**: 评估将 `governance:audit:simple-duplicates` 和 `governance:audit:comment-drift` 从独立 baseline 升格进入 `regression:weekly` warning 面；输出明确 go/no-go 结论与理由；确保所有治理脚本当前清洁运行。
+- **非目标**: 不新增脚本；不改脚本 API；不引入新治理基线。
+- **实现对照**:
+  - 升格评估报告输出：`docs/design/governance/script-promotion-eval-phase65.md`
+  - `audit:simple-duplicates` Go → 已加入 `regression:weekly` step 11（required: false）
+  - `audit:comment-drift` 确认已升格（Phase 54 已接入）
+  - 四组治理脚本清洁运行（simple-duplicates 114/11/10, comment-drift TODO=0 restatement=6 drift=136, eslint-debt 0w, check-scripts 50/50/50）
+- **验收对照**: ✅ 升格评估报告输出；✅ `regression:weekly` 步骤列表更新；✅ 治理脚本清洁运行。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 主干质量门通过（typecheck + lint + test）
+
+---
+
 ## 第六十四阶段：设置 UI Phase 2 与治理续航（已审计归档）
 
 > 归档说明: 第六十四阶段「1 个新功能 + 4 个优化」已于 2026-07-27 完成五条主线交付与阶段收口。设置表单 UI Phase 2（首批 UI 组件）将 Phase 63 的 SoT 映射落地为 5 个可交互表单控件（EMAIL_SECURE/EMAIL_EXPIRES_IN/TEMP_EMAIL_DOMAIN_NAME/AI_MAX_TOKENS/TTS_DEFAULT_VOICE）并补齐五语种翻译；reactive→ref Step 5 收尾剩余 3 个表单/弹窗类文件（admin-taxonomy-page/marketing-campaign-form/comment-form）；结构复用治理完成 2 组热点切片（safeDeleteCategory + handleExternalLinkError），duplicate-code 基线保持 0.35%；测试覆盖率第六批为 privacy.ts 新增 7 个边缘 case 测试；ko-KR/ja-JP 文档治理完成 freshness 审计报告、ko-KR 13 文件 last_sync 刷新、ja-JP 语种升格为已支持、补齐 features/variables 翻译。所有主线均通过 typecheck + lint + test 质量门。
