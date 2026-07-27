@@ -366,7 +366,7 @@
 
 已完成 5 项主线：设置表单 UI Phase 2（5 字段 + 五语种翻译）；reactive→ref Step 5（3 文件收尾）；结构复用 2 组热点切片（safeDeleteCategory + handleExternalLinkError）；测试覆盖率第六批（privacy 7 边缘 case）；ko-KR/ja-JP 文档治理（审计报告 + 13 日期修复 + ja-JP 升格 + features/variables 翻译）。所有主线通过 typecheck + lint + test 质量门。
 
-### 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（Phase 65: Editor Toolbar Consolidation & Settings UI Continuation）（规划中）
+### 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（Phase 65: Editor Toolbar Consolidation & Settings UI Continuation）（进行中）
 
 **时间表**: 2026-07-27 ~ 约 1-2 周
 **目标**: 在第六十四阶段完成设置 UI Phase 2 与治理续航后，以「2 个增量功能 + 3 个治理切片」组合推进：编辑器工具栏收敛 Phase A 与设置表单 UI Phase 3 作为两条增量功能，测试覆盖率 90%+ 第七批、结构复用治理与脚本治理升格评估作为三条治理切片延续。

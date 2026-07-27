@@ -22,12 +22,13 @@
 
 **ROI 评估**: 编辑器工具栏收敛 Phase A `2.33`；设置表单 UI Phase 3 `1.75`；测试覆盖率 90%+ 第七批 `1.00`；结构复用治理 `1.60`；脚本治理升格评估 `2.50`。
 
-### 1. 编辑器工具栏收敛 Phase A（候选 #14）（P1）
+### 1. ✅ 编辑器工具栏收敛 Phase A（候选 #14）（P1）
 
 - **执行范围**: 将文章编辑器的 10 个独立 AI 按钮折叠为 5 个入口：「AI 写作（SplitButton: 改写/续写/扩写/缩写）」+「AI 审校（审查）」+「AI 翻译」+「格式化」+「语音」，标题输入框获得完整弹性宽度。
 - **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
 - **设计文档**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
-- **最小验收**: 5 个入口代替原有 10 个按钮；标题输入框宽度恢复正常；`pnpm typecheck` + `pnpm lint` 通过；编辑器功能无回归。
+- **最小验收**: ✅ 5 个入口代替原有 10 个按钮；✅ 标题输入框宽度恢复正常；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 编辑器功能无回归（4 单元测试通过 + 14/14 UI 验证通过）。
+- **交付**: `e936ec1e`
 
 ### 2. 设置表单 UI Phase 3（候选 #13 延续）（P1）
 
