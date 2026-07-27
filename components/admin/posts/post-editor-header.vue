@@ -16,34 +16,33 @@
                 @focus="rememberFocusedEditorElement"
             />
             <ButtonGroup class="ai-tools-group">
-                <!-- AI 写作 SplitButton: 5 writing actions consolidated -->
+                <!-- AI 写作 SplitButton: 主按钮→改写风格选择, 下拉→标题建议/续写/扩写/缩写 -->
                 <SplitButton
                     id="ai-writing-btn"
                     ref="writingBtnRef"
-                    :label="$t('pages.admin.posts.ai.ai_writing')"
+                    v-tooltip="$t('pages.admin.posts.ai.ai_writing')"
                     icon="pi pi-pencil"
                     text
                     outlined
                     :loading="writingLoading"
                     :model="writingMenuItems"
-                    @click="emit('rewrite-content', 'casual')"
+                    @click="showRewritePopover"
                 />
-                <!-- AI 审校: review + perspective check (single button) -->
+                <!-- AI 审校: 触发审查 + 视角检查（编辑视角） -->
                 <Button
                     id="ai-review-btn"
                     v-tooltip="$t('pages.admin.posts.ai.review')"
                     icon="pi pi-search"
                     text
                     outlined
-                    :loading="aiLoading.review"
+                    :loading="aiLoading.review || aiLoading.perspective"
                     :badge="reviewSuggestions.length > 0 ? String(reviewSuggestions.length) : undefined"
-                    @click="emit('review-content')"
+                    @click="handleReviewClick"
                 />
                 <!-- AI 翻译: SplitButton with language selection -->
                 <SplitButton
                     id="ai-translate-btn"
-                    ref="translateBtnRef"
-                    :label="$t('pages.admin.posts.ai.translate')"
+                    v-tooltip="$t('pages.admin.posts.ai.translate')"
                     icon="pi pi-language"
                     text
                     outlined
@@ -262,7 +261,6 @@ const localePath = useLocalePath()
 const titleOp = ref<any>(null)
 const rewriteOp = ref<any>(null)
 const writingBtnRef = ref<any>(null)
-const translateBtnRef = ref<any>(null)
 
 /** True when any AI writing operation is loading */
 const writingLoading = computed(() =>
@@ -270,28 +268,29 @@ const writingLoading = computed(() =>
     || props.aiLoading.expand || props.aiLoading.condense,
 )
 
-/** Menu items for the AI 写作 SplitButton */
+/**
+ * Show the rewrite style Popover anchored to the AI Writing SplitButton.
+ * Called when the SplitButton's main button is clicked.
+ */
+const showRewritePopover = () => {
+    const btnEl = document.getElementById('ai-writing-btn')
+    if (btnEl) {
+        rewriteOp.value?.show?.(null, btnEl)
+    }
+}
+
+/** Menu items for the AI 写作 SplitButton (改写为主按钮, 菜单含标题建议/续写/扩写/缩写) */
 const writingMenuItems = computed<MenuItem[]>(() => [
     {
         label: t('pages.admin.posts.ai.suggest_titles'),
         icon: 'pi pi-sparkles',
         command: () => {
-            // Use the writing SplitButton element as anchor for title suggestion Popover
-            const anchor = writingBtnRef.value?.$el?.querySelector('.p-splitbutton-button')
+            // Use the SplitButton element as anchor for title suggestion Popover
+            const anchor = document.getElementById('ai-writing-btn')
             if (anchor) {
-                const fakeEvent = { currentTarget: anchor }
-                emit('suggest-titles', fakeEvent as unknown as Event)
-            }
-        },
-    },
-    {
-        label: t('pages.admin.posts.ai.rewrite'),
-        icon: 'pi pi-pencil',
-        command: () => {
-            // Show rewrite style Popover anchored to the writing SplitButton
-            const anchor = writingBtnRef.value?.$el?.querySelector('.p-splitbutton-button')
-            if (anchor) {
-                rewriteOp.value?.show?.(null, anchor)
+                const event = new MouseEvent('click', { bubbles: true })
+                Object.defineProperty(event, 'currentTarget', { value: anchor, writable: false })
+                emit('suggest-titles', event)
             }
         },
     },
@@ -371,6 +370,15 @@ const rewriteStyles = [
 const handleRewriteSelect = (style: string) => {
     rewriteOp.value?.hide()
     emit('rewrite-content', style)
+}
+
+/**
+ * Handle AI 审校 click: triggers both review + perspective check (editor mode).
+ * Both panels remain accessible; calls are parallel.
+ */
+const handleReviewClick = () => {
+    emit('review-content')
+    emit('perspective-check', 'editor')
 }
 
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
@@ -516,6 +524,7 @@ defineExpose({
 
 .ai-tools-group {
     margin-left: 0.5rem;
+    flex-shrink: 0;
 }
 
 .status-tag {
@@ -525,8 +534,8 @@ defineExpose({
 .title-input {
     font-size: 1.25rem;
     font-weight: 700;
-    flex: 1;
-    min-width: 10rem;
+    flex: 1 1 auto;
+    min-width: 6rem;
     border: none;
     box-shadow: none;
     background: transparent;
