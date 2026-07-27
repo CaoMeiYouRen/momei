@@ -68,10 +68,10 @@ export const isMaskedSettingPlaceholder = (inputValue: string, maskType: string)
 export const inferSettingMaskType = (key: string, value: string = ''): string => {
     const lowerKey = key.toLowerCase()
 
-    if (lowerKey.includes('pass') || lowerKey.includes('secret') || lowerKey.includes('_token')) {
+    if (lowerKey.includes('_pass') || lowerKey.includes('_secret') || lowerKey.endsWith('_token')) {
         return 'password'
     }
-    if (lowerKey.includes('key')) {
+    if (lowerKey.endsWith('_key')) {
         return 'key'
     }
     if (lowerKey.includes('email') || lowerKey.includes('user')) {

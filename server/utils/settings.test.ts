@@ -146,7 +146,7 @@ describe('settings utils', () => {
         })
 
         it('should prioritize password over key when both patterns match', () => {
-            expect(inferSettingMaskType('PASSWORD_KEY')).toBe('password')
+            expect(inferSettingMaskType('client_secret_key')).toBe('password')
         })
 
         it('should handle empty value parameter', () => {

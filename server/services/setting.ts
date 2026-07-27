@@ -407,7 +407,7 @@ function createResolvedSettingItem(
         rawStringValue = value
     }
 
-    const maskType = resolveSettingMaskType(key, rawStringValue ?? '', effectiveDbSetting?.maskType)
+    const maskType = resolveSettingMaskType(key, rawStringValue ?? '')
     const level = inferSettingLevel(key, effectiveDbSetting?.level)
 
     return {
