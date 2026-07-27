@@ -56,6 +56,7 @@ import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
 import { useToast } from 'primevue/usetoast'
+import { getErrorDetail } from '@/utils/shared/error-detail'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -88,20 +89,6 @@ const actionStatusLabel = computed(() => isDirty.value
     ? t('pages.admin.settings.system.floating_actions.unsaved')
     : t('pages.admin.settings.system.floating_actions.saved'))
 const actionStatusTone = computed<'warn' | 'success'>(() => isDirty.value ? 'warn' : 'success')
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
-}
 
 // 数据获取
 const loadSettings = async () => {

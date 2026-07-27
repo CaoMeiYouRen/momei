@@ -107,6 +107,7 @@
 <script setup lang="ts">
 import type { ApiResponse } from '@/types/api'
 import type { SettingAuditItem } from '@/types/setting'
+import { getErrorDetail } from '@/utils/shared/error-detail'
 
 const { $appFetch } = useAppApi()
 const { formatDateTime } = useI18nDate()
@@ -128,20 +129,6 @@ type AuditLogResponse = ApiResponse<{
     totalPages: number
     demoPreview?: boolean
 }>
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
-}
 
 const formatAuditValue = (value: string | null) => {
     if (value === null) {

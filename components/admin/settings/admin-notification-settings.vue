@@ -141,6 +141,7 @@ import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingLockReason, SettingSource } from '@/types/setting'
+import { getErrorDetail } from '@/utils/shared/error-detail'
 
 interface AdminNotificationSettingItem {
     event: string
@@ -238,20 +239,6 @@ function getFieldDescription(field: AdminNotificationWebPushField, unlockedHint:
     }
 
     return unlockedHint
-}
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
 }
 
 const load = async () => {

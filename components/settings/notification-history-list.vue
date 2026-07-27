@@ -112,6 +112,7 @@ import { authClient } from '@/lib/auth-client'
 import type { NotificationHistoryResponseData, UserNotificationHistoryItem } from '@/types/notification'
 import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
 import { isAdmin } from '@/utils/shared/roles'
+import { getErrorDetail } from '@/utils/shared/error-detail'
 
 const { $appFetch } = useAppApi()
 const { formatDateTime } = useI18nDate()
@@ -139,20 +140,6 @@ function resolveNotificationTarget(link: string | null) {
     }
 
     return localePath(resolved)
-}
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
 }
 
 function translateNotificationType(type: string) {

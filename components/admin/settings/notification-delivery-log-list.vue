@@ -198,6 +198,7 @@ import {
     NotificationType,
     resolveNotificationLinkTarget,
 } from '@/utils/shared/notification'
+import { getErrorDetail } from '@/utils/shared/error-detail'
 
 const { $appFetch } = useAppApi()
 const { formatDateTime } = useI18nDate()
@@ -237,20 +238,6 @@ const statusOptions = computed(() => Object.values(NotificationDeliveryStatus).m
     label: translateStatus(value),
     value,
 })))
-
-function getErrorDetail(error: unknown, fallback: string) {
-    const candidate = error as {
-        data?: { message?: string, statusMessage?: string }
-        statusMessage?: string
-        message?: string
-    }
-
-    return candidate?.data?.message
-        || candidate?.data?.statusMessage
-        || candidate?.statusMessage
-        || candidate?.message
-        || fallback
-}
 
 function translateNotificationType(type: string) {
     const key = `pages.settings.notifications.notification_types.${type.toLowerCase()}`

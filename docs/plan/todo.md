@@ -37,12 +37,15 @@
 - [x] **验收**: 5 处 reactive→ref 迁移完成；typecheck + lint + tests 通过；交互无回归
 - **迁移清单**: user-filters.vue（internalFilters）、notification-delivery-log-list.vue（filters）、waitlist/index.vue（filters）、subscribers/index.vue（filters）、submit.vue（errors）
 
-### 3. 结构复用治理 — 下一轮热点切片 (P1)
+### 3. 结构复用治理 — 下一轮热点切片 (P1) ✅
 
-- [ ] 检查 duplicate-code 基线热点分区，识别重复候选
-- [ ] 优先检查 Phase 62 新增代码是否引入重复
-- [ ] 完成 ≥2 组热点切片收敛
-- [ ] **验收**: ≥2 组切片完成；duplicate-code 基线 ≤0.39%；typecheck + lint 通过
+- [x] 检查 duplicate-code 基线热点分区，识别重复候选
+- [x] 优先检查 Phase 62 新增代码是否引入重复（perspective-panel SCSS）
+- [x] 完成 ≥2 组热点切片收敛
+- [x] **验收**: 2 组切片完成；duplicate-code 基线 0.35% ≤ 0.39%；typecheck + lint + tests 通过
+- **Slice 1**: `getErrorDetail` 从 5 文件抽取到 `utils/shared/error-detail.ts`，消除 5×13 行重复
+- **Slice 2**: `_editor-panel-shared.scss` 抽取，消除 perspective/review panel 3 组 SCSS 克隆
+- **基线变化**: 0.39% / 53 clones → 0.35% / 50 clones（-92 行 / -3 克隆）
 
 ### 4. 测试覆盖率 90%+ 第五批 (P2)
 

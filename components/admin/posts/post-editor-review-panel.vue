@@ -108,105 +108,61 @@ const typeLabel = (type: AIReviewSuggestion['type']) => {
 </script>
 
 <style lang="scss" scoped>
+@use './editor-panel-shared' as panel;
+
 .review-panel {
-    position: fixed;
-    top: 4rem;
-    right: 0;
-    width: 24rem;
-    height: calc(100vh - 4rem);
-    background: var(--p-surface-card);
-    border-left: 1px solid var(--p-surface-border);
-    box-shadow: -2px 0 8px rgb(0 0 0 / 0.08);
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
+    @extend %editor-panel;
 
     &--visible {
-        transform: translateX(0);
+        @extend %editor-panel--visible;
     }
 
     &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid var(--p-surface-border);
+        @extend %editor-panel__header;
     }
 
     &__title {
-        font-size: 1rem;
-        font-weight: 600;
+        @extend %editor-panel__title;
     }
 
     &__body {
-        flex: 1;
-        overflow-y: auto;
-        padding: 0.75rem;
+        @extend %editor-panel__body;
     }
 
     &__empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: var(--p-text-muted-color);
-        text-align: center;
-        gap: 0.75rem;
+        @extend %editor-panel__empty;
 
         &-icon {
-            font-size: 2.5rem;
-            color: var(--p-green-500);
+            @extend %editor-panel__empty-icon;
         }
     }
 }
 
 .review-suggestion {
-    padding: 0.75rem;
-    border-radius: var(--p-border-radius-md);
-    border: 1px solid var(--p-surface-border);
-    margin-bottom: 0.75rem;
-    background: var(--p-surface-50);
+    @extend %editor-panel-item;
 
     &--critical {
-        border-color: var(--p-red-300);
-        background: var(--p-red-50);
+        @extend %editor-panel-item--critical;
     }
 
     &--major {
-        border-color: var(--p-orange-300);
-        background: var(--p-orange-50);
+        @extend %editor-panel-item--major;
     }
 
     &__header {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
+        @extend %editor-panel-item__header;
     }
 
     &__original {
-        margin-bottom: 0.5rem;
+        @extend %editor-panel-item__original;
     }
 
     &__label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--p-text-muted-color);
-        display: block;
-        margin-bottom: 0.25rem;
+        @extend %editor-panel-item__label;
     }
 
     &__text {
-        display: block;
-        padding: 0.375rem 0.5rem;
-        background: var(--p-surface-100);
-        border-radius: var(--p-border-radius-sm);
-        font-size: 0.8125rem;
-        line-height: 1.4;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
+        @extend %editor-panel-item__text;
     }
 
     &__message {
@@ -220,31 +176,29 @@ const typeLabel = (type: AIReviewSuggestion['type']) => {
     }
 
     &__type {
-        margin-left: auto;
+        @extend %editor-panel-item__type;
     }
 }
 
 :global(.dark) {
     .review-suggestion {
-        background: var(--p-surface-800);
+        @extend %editor-panel-dark-item;
 
         &--critical {
-            background: color-mix(in srgb, var(--p-red-900) 40%, transparent);
-            border-color: var(--p-red-700);
+            @extend %editor-panel-dark-item--critical;
         }
 
         &--major {
-            background: color-mix(in srgb, var(--p-orange-900) 40%, transparent);
-            border-color: var(--p-orange-700);
+            @extend %editor-panel-dark-item--major;
         }
 
         &__text {
-            background: var(--p-surface-700);
+            @extend %editor-panel-dark-item__text;
         }
     }
 
     .review-panel__empty-icon {
-        color: var(--p-green-400);
+        @extend %editor-panel-dark__empty-icon;
     }
 }
 </style>
