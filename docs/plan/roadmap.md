@@ -366,6 +366,44 @@
 
 已完成 5 项主线：设置表单 UI Phase 2（5 字段 + 五语种翻译）；reactive→ref Step 5（3 文件收尾）；结构复用 2 组热点切片（safeDeleteCategory + handleExternalLinkError）；测试覆盖率第六批（privacy 7 边缘 case）；ko-KR/ja-JP 文档治理（审计报告 + 13 日期修复 + ja-JP 升格 + features/variables 翻译）。所有主线通过 typecheck + lint + test 质量门。
 
+### 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（Phase 65: Editor Toolbar Consolidation & Settings UI Continuation）（规划中）
+
+**时间表**: 2026-07-27 ~ 约 1-2 周
+**目标**: 在第六十四阶段完成设置 UI Phase 2 与治理续航后，以「2 个增量功能 + 3 个治理切片」组合推进：编辑器工具栏收敛 Phase A 与设置表单 UI Phase 3 作为两条增量功能，测试覆盖率 90%+ 第七批、结构复用治理与脚本治理升格评估作为三条治理切片延续。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或长期主线延续，容量控制在 `5` 项内，符合规划规范。编辑器工具栏收敛 Phase A 已有完整设计文档（`editor-toolbar-consolidation-eval.md`），阶段一仅聚焦 UI 分组折叠，不涉及 MavonEditor 原生改动与 AI 逻辑变更，风险低。设置表单 UI Phase 3 延续 Phase 1+2 成熟模式，基于已有缺口清单推进。三条治理主线均有成熟脚本基线，实施面聚焦且回滚边界清晰。
+
+**ROI 评估**: 编辑器工具栏收敛 Phase A `2.33`；设置表单 UI Phase 3 `1.75`；测试覆盖率 90%+ 第七批 `1.00`；结构复用治理 `1.60`；脚本治理升格评估 `2.50`。
+
+1. **主线：编辑器工具栏收敛 Phase A（P1）**:
+    - **执行范围**: 将文章编辑器的 10 个独立 AI 按钮折叠为 5 个入口：「AI 写作（SplitButton: 改写/续写/扩写/缩写）」+「AI 审校（审查）」+「AI 翻译」+「格式化」+「语音」，标题输入框获得完整弹性宽度。
+    - **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
+    - **最小验收**: 5 个入口代替原有 10 个按钮；标题输入框宽度恢复正常；`pnpm typecheck` + `pnpm lint` 通过；编辑器功能无回归。
+    - **设计文档**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
+
+2. **主线：设置表单 UI Phase 3（P1）**:
+    - **执行范围**: 基于 Phase 1 缺口清单，新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `external_feed_sources` 组件（表单或表格模式）；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。
+    - **非目标**: 不新增独立标签页（归入现有 AI/第三方标签页）；不改动 `FORCED_ENV_LOCKED_KEYS`；不做 AI_IMAGE_FALLBACK 系列（留 Phase 4）。
+    - **最小验收**: ≥4 个字段 UI 完成；`pnpm typecheck` + `pnpm lint` 通过；受影响表单保存/验证通过。
+    - **详细方案**: [`docs/design/governance/settings-form-ui-phase1-gap-inventory.md`](../design/governance/settings-form-ui-phase1-gap-inventory.md)
+
+3. **主线：测试覆盖率 90%+ 第七批（P2）**:
+    - **执行范围**: 基于最新全仓覆盖率缺口报告，选取 3-5 个高价值缺口模块（优先 `server/services/` 或 `server/utils/` 层尚未深度覆盖的模块），推进全仓 coverage +≥1%。
+    - **非目标**: 不做低价值铺量补测；不牺牲断言有效性换取数字增长。
+    - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+4. **主线：结构复用治理（P1）**:
+    - **执行范围**: 基于 `duplicate-code` 0.35% 最新基线识别 ≥2 组重复热点；优先检查 Phase 63-64 新增代码是否引入重复。
+    - **非目标**: 不推动跨模块大重构；不为复用而复用；不改变业务行为。
+    - **最小验收**: ≥2 组热点切片完成；`duplicate-code` 基线 ≤0.35%；`pnpm typecheck` + `pnpm lint` 通过。
+
+5. **主线：脚本治理升格评估（P1）**:
+    - **执行范围**: 评估将 `governance:audit:simple-duplicates` 和 `governance:audit:comment-drift` 从独立 baseline 升格进入 `regression:weekly` warning 面；输出明确 go/no-go 结论与理由；确保所有治理脚本当前清洁运行。
+    - **非目标**: 不新增脚本；不改脚本 API；不引入新治理基线。
+    - **最小验收**: 升格评估报告输出（含影响分析、warning 阈值建议）；当前治理脚本无 warning 清洁运行。
+
+> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
