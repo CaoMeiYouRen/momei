@@ -24,7 +24,7 @@ translation_tier: summary-sync
 
 - `draft`: 로컬 검증 전용
 - `ui-ready`: 핵심 UI, 진입점, fallback 체인, 기본 품질 검사 완료
-- `seo-ready`: 이메일, SEO, sitemap, 회귀 검사까지 완료
+- `seo-ready`: 이메일, SEO, sitemap, 회귀 검사까지 완료（ja-JP는 해당 단계를 통과하여 현재 **지원 완료** 상태입니다）
 
 ## 3. 필수 게이트
 
