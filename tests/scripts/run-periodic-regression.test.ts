@@ -27,6 +27,7 @@ describe('run-periodic-regression', () => {
             'governance:check:scripts',
             'governance:audit:eslint-debt',
             'governance:audit:comment-drift',
+            'governance:audit:simple-duplicates',
         ])
         expect(resolveRegressionProfile('phase-close').steps.at(-1)).toMatchObject({
             label: 'review-gate:generate:check',

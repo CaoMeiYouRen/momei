@@ -16,6 +16,20 @@
 <!-- regression-window:start:workflow-precheck:release:2026-07-25 -->
 
 <!-- regression-window:start:periodic-regression:weekly:2026-07-27 -->
+
+<!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
+## 2026-07-27 阶段收口前周期性回归（自动回填）
+
+- 执行入口: `pnpm regression:phase-close`
+- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-27-phase-close-regression.md) / [json](../../../artifacts/review-gate/2026-07-27-phase-close-regression.json)
+- 结果摘要: `Reject`；blocker=2，warning=0。
+- 已执行验证: test:coverage=PASS，release:check:full=FAIL
+- 回归窗口: 322 行 / 13 条，归档判定=需要滚动归档。
+- Review Gate: `Reject` / `blocker`；主要问题=release:check:full failed -> test (Vitest)；regression-log window exceeded: 活动日志当前 13 条记录，超过 8 条窗口。
+- 未覆盖边界: 活动日志当前 13 条记录，超过 8 条窗口
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-07-27 -->
+
 ## 2026-07-27 周级周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:weekly -- --dry-run`
