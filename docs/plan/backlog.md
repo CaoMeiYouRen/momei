@@ -461,6 +461,17 @@
 - **ROI 预估**: 价值 4 / 契合度 4 / 复杂度 3 / 风险 2 = **1.60**
 - **详细方案**: 待设计
 
+14. **编辑器工具栏收敛：AI 功能分组 + 审查视角合并 + 风格扩展 (P2, 候选)**
+- **背景**: 当前文章编辑器顶部栏左侧包含 10 个独立 AI 功能按钮 + 1 个语音组件，全部平铺在单行 4rem 高度内，导致标题输入框被严重挤压，长标题无法完整展示。同时 AI 审查与视角检查存在功能重叠，续写/扩写/缩写缺少风格控制。
+- **评估结论**: 已产出完整方案，详见 [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)。
+- **推荐实施**:
+    - **Phase A**（2-3 天）：UI 分组收敛 — 10 个按钮折叠为「AI 写作（SplitButton）」+「AI 审校」+「AI 翻译」+「格式化」+「语音」共 5 个入口，标题输入框获得完整弹性宽度。
+    - **Phase B**（1-2 天）：风格扩展 — 为续写/扩写/缩写新增 `style` 参数，复用改写的 6 种风格定义。
+    - **Phase C**（2-3 天）：审查+视角合并 — 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。
+- **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
+- **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 1 = **1.60**
+- **详细方案**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
+
 ---
 ## 相关文档
 - [项目计划](./roadmap.md)
