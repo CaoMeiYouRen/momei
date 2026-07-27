@@ -14,6 +14,20 @@
 <!-- regression-window:start:periodic-regression:weekly:2026-06-10 -->
 
 <!-- regression-window:start:workflow-precheck:release:2026-07-25 -->
+
+<!-- regression-window:start:periodic-regression:weekly:2026-07-27 -->
+## 2026-07-27 周级周期性回归（自动回填）
+
+- 执行入口: `pnpm regression:weekly -- --dry-run`
+- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-27-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-07-27-weekly-regression.json)
+- 结果摘要: `Prepared`；blocker=0，warning=1。
+- 已执行验证: test:coverage=DRY RUN，security:audit-deps=DRY RUN，docs:check:source-of-truth=DRY RUN，docs:check:i18n=DRY RUN，docs:check:line-count=DRY RUN，i18n:audit:missing=DRY RUN，duplicate-code:check=DRY RUN，governance:check:scripts=DRY RUN，governance:audit:eslint-debt=DRY RUN，governance:audit:comment-drift=DRY RUN，governance:audit:simple-duplicates=DRY RUN
+- 回归窗口: 294 行 / 11 条，归档判定=需要滚动归档。
+- Review Gate: `Prepared` / `warning`；主要问题=regression-log window exceeded: 活动日志当前 11 条记录，超过 8 条窗口。
+- 未覆盖边界: 本轮为 dry-run，仅验证编排与回填，不代表真实回归执行结果。
+
+<!-- regression-window:end:periodic-regression:weekly:2026-07-27 -->
+
 ## 2026-07-25 workflow pre-check（release，自动回填）
 
 - 执行入口: `pnpm run ci:precheck -- --profile=release`

@@ -88,6 +88,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('governance:check:scripts', 'governance:check:scripts', { required: false, timeoutBudget: '10m' }),
             createPnpmStep('governance:audit:eslint-debt', 'governance:audit:eslint-debt', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:audit:comment-drift', 'governance:audit:comment-drift', { required: false, timeoutBudget: '5m' }),
+            createPnpmStep('governance:audit:simple-duplicates', 'governance:audit:simple-duplicates', { required: false, timeoutBudget: '5m' }),
         ],
     },
     'pre-release': {

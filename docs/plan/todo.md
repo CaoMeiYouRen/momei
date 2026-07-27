@@ -54,11 +54,11 @@
   - 4 端点 handler 简化：`api/categories/index.get.ts` / `api/external/categories/index.get.ts` / `api/tags/index.get.ts` / `api/external/tags/index.get.ts`
   - 累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%
 
-### 5. 脚本治理升格评估（长期主线 #10）（P1）
+### 5. ✅ 脚本治理升格评估（长期主线 #10）（P1）
 
 - **执行范围**: 评估将 `governance:audit:simple-duplicates` 和 `governance:audit:comment-drift` 从独立 baseline 升格进入 `regression:weekly` warning 面；输出明确 go/no-go 结论与理由；确保所有治理脚本当前清洁运行。
 - **非目标**: 不新增脚本；不改脚本 API；不引入新治理基线。
-- **最小验收**: 升格评估报告输出（含影响分析、warning 阈值建议）；当前治理脚本无 warning 清洁运行。
+- **最小验收**: ✅ 升格评估报告输出（`docs/design/governance/script-promotion-eval-phase65.md`）；✅ `audit:simple-duplicates` Go → 已加入 `regression:weekly` step 11（required: false）；✅ `audit:comment-drift` 确认已升格（Phase 54 已接入）；✅ 四组治理脚本清洁运行（simple-duplicates 114/11/10, comment-drift TODO=0 restatement=6 drift=136, eslint-debt 0w, check-scripts 50/50/50）。
 
 ### 阶段收口检查清单
 

@@ -116,7 +116,7 @@
 
 当前稳定入口：`pnpm governance:audit:simple-duplicates`
 
-当前状态：已形成独立 baseline 入口，暂不接入固定回归
+当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly`（Phase 65）
 
 建议最小输出：
 
@@ -128,7 +128,8 @@
 
 当前验收状态：
 
-- 已作为结构复用主线的独立 baseline 落地，不直接阻断回归
+- 已作为结构复用主线的独立 baseline 落地
+- 已接入 `regression:weekly` Phase 65，作为 non-blocking warning 面
 - 后续待人工判定口径稳定后，再考虑与 `duplicate-code:check` 组合输出
 
 ### 5.3 ESLint / 类型债 inventory
@@ -167,7 +168,7 @@
 
 当前稳定入口：`pnpm governance:audit:comment-drift`
 
-当前状态：已形成独立 baseline 入口，当前仅作为只读 inventory，不接入固定回归
+当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly` warning 面（Phase 54），当前清洁运行（TODO=0，restatement=6，较 Phase 62 的 15 再降 60%）
 
 建议最小输出：
 
@@ -179,8 +180,9 @@
 当前验收状态：
 
 - 已按四类候选与目录分桶输出 JSON + Markdown baseline
-- 首轮以 inventory 和人工复核清单为主，不自动判定 blocker
-- 只有在误报可控后，才考虑纳入周级治理的 warning 面
+- 已接入 `regression:weekly` Phase 54，作为 non-blocking warning 面
+- Phase 62 完成 warning 清理（TODO 归零，restatement 15→6，-60%）
+- 当前清洁运行，不产生 blocker
 
 ### 5.5 文档门禁扩面与 freshness 收紧
 
