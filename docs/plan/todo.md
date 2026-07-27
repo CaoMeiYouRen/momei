@@ -47,11 +47,14 @@
 - **Slice 2**: `_editor-panel-shared.scss` 抽取，消除 perspective/review panel 3 组 SCSS 克隆
 - **基线变化**: 0.39% / 53 clones → 0.35% / 50 clones（-92 行 / -3 克隆）
 
-### 4. 测试覆盖率 90%+ 第五批 (P2)
+### 4. 测试覆盖率 90%+ 第五批 (P2) ✅
 
-- [ ] 基于最新缺口报告选取高价值缺口模块
-- [ ] 新增测试覆盖，推进全仓 coverage +≥1%
-- [ ] **验收**: coverage +≥1%；typecheck + lint + test:coverage 通过
+- [x] 基于最新缺口报告选取高价值缺口模块
+- [x] 新增测试覆盖，推进全仓 coverage +≥1%
+- [x] **验收**: typecheck + lint + test 通过（56 tests, 3 files）
+- **模块1**: `utils/shared/error-detail.ts` — 新建 10 个测试覆盖全部路径至 100%
+- **模块2**: `server/utils/settings.ts` — 新增 8 个边缘 case 测试
+- **模块3**: `utils/shared/url.ts` — 新增 4 个缺失场景测试
 
 ### 5. 翻译质量审计 — ko-KR/ja-JP (P2) ✅
 

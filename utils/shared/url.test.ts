@@ -27,4 +27,18 @@ describe('shared url helpers', () => {
     it('joins relative base paths without duplicating slashes', () => {
         expect(joinBaseUrlAndPath('/uploads/', 'image/test.jpg')).toBe('/uploads/image/test.jpg')
     })
+
+    it('joins http base urls with paths', () => {
+        expect(joinBaseUrlAndPath('https://cdn.example.com/assets', 'images/logo.png')).toBe('https://cdn.example.com/assets/images/logo.png')
+    })
+
+    it('joins http base urls with leading slash path', () => {
+        expect(joinBaseUrlAndPath('https://cdn.example.com/assets/', '/images/logo.png')).toBe('https://cdn.example.com/assets/images/logo.png')
+    })
+
+    it('normalizes base url with nullish input', () => {
+        expect(normalizeBaseUrl(null)).toBeNull()
+        expect(normalizeBaseUrl(undefined)).toBeNull()
+        expect(normalizeBaseUrl(123 as any)).toBeNull()
+    })
 })

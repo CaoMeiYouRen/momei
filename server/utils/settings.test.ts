@@ -50,6 +50,11 @@ describe('settings utils', () => {
             const result = maskSettingValue('', 'password')
             expect(result).toBe('')
         })
+
+        it('should mask key type with short value using fallback mask', () => {
+            const result = maskSettingValue('ab', 'key')
+            expect(result).toBe('****')
+        })
     })
 
     describe('isMaskedSettingPlaceholder', () => {
@@ -87,6 +92,15 @@ describe('settings utils', () => {
 
         it('should return false for key placeholder that is too short', () => {
             expect(isMaskedSettingPlaceholder('ab****', 'key')).toBe(false)
+        })
+
+        it('should return false for non-mask types', () => {
+            expect(isMaskedSettingPlaceholder('some-value', 'none')).toBe(false)
+            expect(isMaskedSettingPlaceholder('********', 'none')).toBe(false)
+        })
+
+        it('should return false for email placeholder without @', () => {
+            expect(isMaskedSettingPlaceholder('***example', 'email')).toBe(false)
         })
     })
 
@@ -150,6 +164,22 @@ describe('settings utils', () => {
         it('should keep publicly exposed settings unmasked in admin', () => {
             expect(resolveSettingMaskType(SettingKey.CONTACT_EMAIL, 'public@example.com', 'email')).toBe('none')
             expect(resolveSettingMaskType(SettingKey.WEB_PUSH_VAPID_PUBLIC_KEY, 'public-key-value', 'key')).toBe('none')
+        })
+
+        it('should return inferred type when explicit type is lower priority', () => {
+            expect(resolveSettingMaskType('DB_PASSWORD', 'secret', 'none')).toBe('password')
+        })
+
+        it('should return explicit type when it has higher priority than inferred', () => {
+            expect(resolveSettingMaskType('SOME_KEY', 'value', 'password')).toBe('password')
+        })
+
+        it('should handle unknown explicit mask type by falling back to inferred', () => {
+            expect(resolveSettingMaskType('API_KEY', 'secret-value', 'unknown' as any)).toBe('key')
+        })
+
+        it('should return none for empty key with no explicit type', () => {
+            expect(resolveSettingMaskType('')).toBe('none')
         })
     })
 
