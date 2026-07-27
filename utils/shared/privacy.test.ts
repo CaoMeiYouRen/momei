@@ -139,5 +139,39 @@ describe('privacy.ts', () => {
             // @ts-expect-error testing
             expect(maskString(null)).toBe(null)
         })
+
+        it('should mask with custom showStart/showEnd', () => {
+            expect(maskString('1234567890', 3, 3)).toBe('123***890')
+            expect(maskString('1234567890', 1, 3)).toBe('1***890')
+        })
+
+        it('should handle undefined string', () => {
+            // @ts-expect-error testing
+            expect(maskString(undefined)).toBe(undefined)
+        })
+    })
+
+    describe('extra edge cases', () => {
+        it('should handle maskEmail with @ at start', () => {
+            expect(maskEmail('@example.com')).toBe('@example.com')
+        })
+
+        it('should handle maskPhone very short fallback', () => {
+            expect(maskPhone('ab')).toBe('ab')
+        })
+
+        it('should handle maskUserId undefined', () => {
+            // @ts-expect-error testing
+            expect(maskUserId(undefined)).toBe(undefined)
+        })
+
+        it('should handle maskUsername undefined', () => {
+            // @ts-expect-error testing
+            expect(maskUsername(undefined)).toBe(undefined)
+        })
+
+        it('should handle maskIP short IPv4', () => {
+            expect(maskIP('192.168')).toBe('192.168')
+        })
     })
 })
