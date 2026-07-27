@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-10
+last_sync: 2026-07-27
 translation_tier: source-only
 source_origin: ../../../standards/security.md
 ---
