@@ -157,6 +157,54 @@ AI 在生成代码时应严格遵守以下约定：
 }
 ```
 
+#### `%placeholder` 嵌套禁止
+
+**禁止将 `%placeholder` 嵌套在另一个 `%placeholder` 内部。**
+
+嵌套时，Sass 会将内部 placeholder 编译为**复合选择器**（如 `%parent %child`），导致组件以 `.component__child` 独立调用 `@extend %child` 时无法匹配，样式**静默不输出**（无构建警告、无运行时错误）。
+
+**错误示例**（本项目中真实出现的 BUG）：
+```scss
+// ❌ 错误：%auth-card-header 嵌套在 %auth-card 内部
+%auth-card {
+    width: 100%;
+    // ...
+    
+    %auth-card-header {          // → 编译为 %auth-card %auth-card-header
+        display: flex;
+        align-items: center;
+    }
+}
+
+// 页面组件尝试使用：
+.login-card__header {
+    @extend %auth-card-header;   // ❌ 无法匹配复合选择器，样式静默不生效
+}
+```
+
+**正确示例**：
+```scss
+// ✅ 正确：所有 %placeholder 保持顶层平坦
+%auth-card {
+    width: 100%;
+    // ...
+}
+
+%auth-card-header {
+    display: flex;
+    align-items: center;
+}
+
+// 页面组件分别 extend：
+.login-card {
+    @extend %auth-card;
+}
+
+.login-card__header {
+    @extend %auth-card-header;   // ✅ 正确匹配
+}
+```
+
 #### 样式重复治理策略
 
 当多个组件共享相同时式时，应按以下优先级选择治理方案：
