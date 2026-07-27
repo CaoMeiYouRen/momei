@@ -477,6 +477,7 @@ export interface AISettingsFields {
     ai_fallback_api_key: string | null
     ai_fallback_model: string | null
     ai_fallback_endpoint: string | null
+    ai_max_tokens: number | null
     gemini_api_token: string | null
     ai_quota_enabled: boolean
     ai_quota_policies: string | null
@@ -505,6 +506,7 @@ export interface AISettingsFields {
     tts_provider: AdminTTSProvider | null
     tts_api_key: string | null
     tts_model: string | null
+    tts_default_voice: string | null
     tts_endpoint: string | null
 }
 

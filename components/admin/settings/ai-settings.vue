@@ -68,6 +68,24 @@
         </SettingFormField>
 
         <SettingFormField
+            field-key="ai_max_tokens"
+            input-id="ai_max_tokens"
+            :metadata="metadata.ai_max_tokens"
+            :description="$t('pages.admin.settings.system.hints.ai_max_tokens')"
+        >
+            <InputNumber
+                id="ai_max_tokens"
+                v-model="settings.ai_max_tokens"
+                :disabled="metadata.ai_max_tokens?.isLocked"
+                :min="256"
+                :max="128000"
+                :step="256"
+                fluid
+                :use-grouping="false"
+            />
+        </SettingFormField>
+
+        <SettingFormField
             v-if="settings.ai_provider === 'google' || settings.ai_image_provider === 'gemini'"
             field-key="gemini_api_token"
             input-id="gemini_api_token"
@@ -445,6 +463,23 @@
                         fluid
                     />
                 </SettingFormField>
+
+                <SettingFormField
+                    field-key="tts_default_voice"
+                    input-id="tts_default_voice"
+                    :metadata="metadata.tts_default_voice"
+                    :description="$t('pages.admin.settings.system.hints.tts_default_voice')"
+                >
+                    <Select
+                        id="tts_default_voice"
+                        v-model="settings.tts_default_voice"
+                        :options="ttsVoiceOptions"
+                        option-label="label"
+                        option-value="value"
+                        :disabled="metadata.tts_default_voice?.isLocked"
+                        fluid
+                    />
+                </SettingFormField>
             </div>
 
             <div v-if="settings.tts_provider === 'volcengine'" class="ai-settings__provider-group">
@@ -496,6 +531,15 @@ const ttsProviders: Array<{ label: string, value: AdminTTSProvider }> = [
     { label: 'SiliconFlow', value: 'siliconflow' },
     { label: 'Volcengine', value: 'volcengine' },
 ]
+
+const ttsVoiceOptions = computed(() => [
+    { label: 'Alloy', value: 'alloy' },
+    { label: 'Echo', value: 'echo' },
+    { label: 'Fable', value: 'fable' },
+    { label: 'Onyx', value: 'onyx' },
+    { label: 'Nova', value: 'nova' },
+    { label: 'Shimmer', value: 'shimmer' },
+])
 </script>
 
 <style lang="scss" scoped>

@@ -85,6 +85,6 @@ describe('EmailSettings', () => {
         expect(settings.email_limit_window).toBe('48h')
         expect(settings.email_template_configs).toEqual({ welcome: { subject: 'Hello' } })
         expect((wrapper.get('#email_single_user_daily_limit').element as HTMLInputElement).disabled).toBe(true)
-        expect(wrapper.findAll('.setting-field')).toHaveLength(8)
+        expect(wrapper.findAll('.setting-field')).toHaveLength(11)
     })
 })

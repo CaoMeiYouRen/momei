@@ -34,6 +34,7 @@ const stubs = {
         emits: ['update:modelValue'],
     },
     InputText: { template: '<input :id="id" :value="modelValue" :disabled="disabled" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'placeholder'], emits: ['update:modelValue'] },
+    InputNumber: { template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'useGrouping', 'min', 'max', 'step'], emits: ['update:modelValue'] },
     Password: { template: '<input :id="id" class="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'toggleMask', 'fluid'], emits: ['update:modelValue'] },
     Divider: { template: '<div class="divider" />' },
     AiQuotaPoliciesEditor: { template: '<div class="ai-quota-policies-editor" />', props: ['modelValue', 'metadata'] },
@@ -48,6 +49,7 @@ const defaultSettings: AISettingsModel = {
     ai_model: 'gemini-2.5-pro',
     ai_api_key: 'secret',
     ai_endpoint: 'https://api.example.com/ai',
+    ai_max_tokens: 4096,
     gemini_api_token: 'gemini-token',
     ai_quota_enabled: true,
     ai_quota_policies: '[{"role":"user","limit":100}]',
@@ -72,6 +74,7 @@ const defaultSettings: AISettingsModel = {
     tts_provider: 'volcengine',
     tts_api_key: 'tts-secret',
     tts_model: 'tts-model',
+    tts_default_voice: 'alloy',
     tts_endpoint: 'https://api.example.com/tts',
 }
 

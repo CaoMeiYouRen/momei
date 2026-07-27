@@ -67,6 +67,51 @@
             />
         </SettingFormField>
 
+        <SettingFormField
+            input-id="email_secure"
+            :label="$t('pages.admin.settings.system.keys.email_secure')"
+            :description="$t('pages.admin.settings.system.hints.email_secure')"
+            :metadata="metadata.email_secure"
+            inline
+        >
+            <ToggleSwitch
+                id="email_secure"
+                v-model="settings.email_secure"
+                :disabled="metadata.email_secure?.isLocked"
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="email_expires_in"
+            input-id="email_expires_in"
+            :metadata="metadata.email_expires_in"
+            :description="$t('pages.admin.settings.system.hints.email_expires_in')"
+        >
+            <InputNumber
+                id="email_expires_in"
+                v-model="settings.email_expires_in"
+                :disabled="metadata.email_expires_in?.isLocked"
+                :min="60"
+                :max="86400"
+                fluid
+                :use-grouping="false"
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="temp_email_domain_name"
+            input-id="temp_email_domain_name"
+            :metadata="metadata.temp_email_domain_name"
+            :description="$t('pages.admin.settings.system.hints.temp_email_domain_name')"
+        >
+            <InputText
+                id="temp_email_domain_name"
+                v-model="settings.temp_email_domain_name"
+                :disabled="metadata.temp_email_domain_name?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
         <Divider />
 
         <SettingFormField
