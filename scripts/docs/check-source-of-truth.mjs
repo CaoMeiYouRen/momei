@@ -201,7 +201,7 @@ function resolveTranslationTier(filePath) {
     }
 
     if (locale === 'ja-JP') {
-        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md', 'guide/enhanced-pack.md', 'plan/roadmap.md'].includes(relativePath)) {
+        if (['index.md', 'guide/quick-start.md', 'guide/deploy.md', 'guide/translation-governance.md', 'guide/enhanced-pack.md', 'guide/features.md', 'guide/variables.md', 'plan/roadmap.md'].includes(relativePath)) {
             return 'summary-sync'
         }
     }

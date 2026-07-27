@@ -1,6 +1,7 @@
 ---
 source_branch: master
 last_sync: 2026-07-27
+translation_tier: summary-sync
 ---
 
 # 環境変数と設定マッピング (Variables & Settings Mapping)

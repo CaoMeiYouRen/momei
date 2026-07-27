@@ -99,8 +99,8 @@
 
 | Tier | freshness 口径 | 允许内容形态 | 当前典型范围 |
 | :-- | :-- | :-- | :-- |
-| `must-sync` | `30` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
-| `summary-sync` | `45` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页与高频 Guide |
+| `must-sync` | `21` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
+| `summary-sync` | `30` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页与高频 Guide |
 | `source-only` | 不做天数 SLA，但必须显式声明“中文事实源优先” | locale URL 保留页，不承诺持续翻译正文 | 低频设计页、低频 Guide、当前不再维护的深层 Standards |
 
 当前 locale 范围矩阵：
@@ -232,12 +232,12 @@
 
 1. **禁止重复定义**：低层级文档不得重复高层级已定义的规则
 2. **引用优先**：同一内容在多处出现时，应引用唯一事实源而非重复描述
-3. **版本溯源**：翻译文档必须标注 `last_sync` 日期，过期超过 30 天应触发 review
+3. **版本溯源**：翻译文档必须标注 `last_sync` 日期，`must-sync` 过期超过 21 天应触发 review，`summary-sync` 过期超过 30 天应触发 review
 
 ### 6.3 过时内容识别
 
-- `must-sync` 页面的 `last_sync` 超过 `30` 天应触发 review
-- `summary-sync` 页面的 `last_sync` 超过 `45` 天应触发 review
+- `must-sync` 页面的 `last_sync` 超过 `21` 天应触发 review
+- `summary-sync` 页面的 `last_sync` 超过 `30` 天应触发 review
 - `source-only` 页面不以天数判断 freshness，但必须持续保留明确的中文事实源回链与 tier 声明
 - 智能体在引用文档时，应检查文件头部的时间戳
 - 定期运行 `pnpm i18n:audit` 检查未同步的翻译键
