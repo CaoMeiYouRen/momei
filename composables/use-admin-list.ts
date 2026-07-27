@@ -2,7 +2,7 @@ import { ref, onMounted, computed, watch, type Ref } from 'vue'
 import { useAdminI18n } from './use-admin-i18n'
 import type { ApiResponse } from '@/types/api'
 
-type AdminListFilterValue = string | number | boolean | null | undefined
+export type AdminListFilterValue = string | number | boolean | null | undefined
 
 type AdminListFilters = Record<string, AdminListFilterValue>
 

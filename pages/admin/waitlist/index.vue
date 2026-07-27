@@ -98,6 +98,8 @@
 </template>
 
 <script setup lang="ts">
+import type { AdminListFilterValue } from '@/composables/use-admin-list'
+
 interface WaitlistEntry {
     id: number
     name: string
@@ -106,8 +108,6 @@ interface WaitlistEntry {
     locale: string | null
     createdAt: string
 }
-
-type AdminListFilterValue = string | number | boolean | null | undefined
 
 interface WaitlistFilters {
     search: string
