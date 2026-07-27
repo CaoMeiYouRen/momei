@@ -258,7 +258,10 @@
                         "email_expires_in": "郵件驗證碼的有效時間（秒），範圍 60-86400。",
                         "email_secure": "啟用後 SMTP 連接使用 SSL/TLS 加密。",
                         "temp_email_domain_name": "臨時郵箱域名，用於攔截使用一次性郵箱的註冊請求。",
-                        "tts_default_voice": "TTS 生成時默認使用的音色。"
+                        "tts_default_voice": "TTS 生成使用的預設音色。",
+                        "ai_temperature": "控制 AI 生成文字的隨機程度。較低的值會產生更確定的結果；較高的值會增加創造性。範圍：0.00–2.00。",
+                        "ai_chunk_size": "控制處理大文字時每個區塊的最大 Token 數。較大的區塊可減少上下文丟失但會增加記憶體使用。",
+                        "tts_credential_ttl_seconds": "控制 TTS 憑證的預設有效期。支援 600、10m、15m 等值，並會自動限制在提供者安全範圍內。"
                     },
                     "keys": {
                         "ai_alert_thresholds": "AI 告警閾值",
@@ -275,8 +278,11 @@
                         "ai_image_provider": "AI 圖像服務商",
                         "ai_image_title": "AI 圖像生成",
                         "ai_max_tokens": "AI 最大 Token 數",
+                        "ai_temperature": "AI 溫度",
+                        "ai_chunk_size": "AI 區塊大小",
                         "ai_model": "模型名称",
                         "ai_provider": "AI 服務商",
+                        "ai_fallback_provider": "AI 備用提供商",
                         "ai_quota_description": "按 global、role、user 三層設定請求數、額度單位、成本與重任務並發限制。",
                         "ai_quota_policies": "AI 額度策略",
                         "ai_quota_title": "AI 分級額度治理",
@@ -408,6 +414,7 @@
                         "temp_email_domain_name": "臨時郵箱域名",
                         "tts_api_key": "TTS API 密钥",
                         "tts_default_voice": "TTS 默認音色",
+                        "tts_credential_ttl_seconds": "TTS 鑑權有效期",
                         "tts_endpoint": "TTS API 地址 (API Endpoint)",
                         "tts_model": "TTS 模型",
                         "tts_provider": "TTS 服務商",

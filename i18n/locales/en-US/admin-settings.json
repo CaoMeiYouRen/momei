@@ -258,7 +258,10 @@
                         "email_expires_in": "Validity period of email verification codes in seconds (range: 60-86400).",
                         "email_secure": "Enables SSL/TLS encryption for SMTP connections.",
                         "temp_email_domain_name": "Temp email domain used to block registration attempts from disposable email addresses.",
-                        "tts_default_voice": "Default voice used for TTS generation."
+                        "tts_default_voice": "Default voice used for TTS generation.",
+                        "ai_temperature": "Controls the randomness of AI-generated text. Lower values produce more deterministic results; higher values increase creativity. Range: 0.00–2.00.",
+                        "ai_chunk_size": "Controls the maximum number of tokens per chunk when processing large texts. Larger chunks reduce context loss but increase memory usage.",
+                        "tts_credential_ttl_seconds": "Controls the default lifetime for TTS credentials. Supports values like 600, 10m, or 15m, and is automatically clamped to the provider-safe range."
                     },
                     "keys": {
                         "ai_alert_thresholds": "AI Alert Thresholds",
@@ -275,8 +278,11 @@
                         "ai_image_provider": "AI Image Provider",
                         "ai_image_title": "AI Image Generation",
                         "ai_max_tokens": "AI Max Tokens",
+                        "ai_temperature": "AI Temperature",
+                        "ai_chunk_size": "AI Chunk Size",
                         "ai_model": "Model Name",
                         "ai_provider": "AI Provider",
+                        "ai_fallback_provider": "AI Fallback Provider",
                         "ai_quota_description": "Configure requests, quota units, cost, and heavy task concurrency limits across global, role, and user tiers.",
                         "ai_quota_policies": "AI Quota Policies",
                         "ai_quota_title": "AI Tiered Quota Governance",
@@ -408,6 +414,7 @@
                         "temp_email_domain_name": "Temp Email Domain",
                         "tts_api_key": "TTS API Key",
                         "tts_default_voice": "TTS Default Voice",
+                        "tts_credential_ttl_seconds": "TTS credential lifetime",
                         "tts_endpoint": "TTS API Endpoint",
                         "tts_model": "TTS Model",
                         "tts_provider": "TTS Provider",

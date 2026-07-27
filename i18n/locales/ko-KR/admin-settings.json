@@ -258,7 +258,10 @@
                         "email_expires_in": "이메일 인증 코드의 유효 기간(초)입니다. 범위: 60-86400.",
                         "email_secure": "SMTP 연결에 SSL/TLS 암호화를 활성화합니다.",
                         "temp_email_domain_name": "일회용 이메일 주소를 통한 가입 시도를 차단하는 데 사용되는 임시 이메일 도메인입니다.",
-                        "tts_default_voice": "TTS 생성 시 기본으로 사용되는 음성입니다."
+                        "tts_default_voice": "TTS 생성에 사용되는 기본 음성입니다.",
+                        "ai_temperature": "AI 생성 텍스트의 무작위성을 제어합니다. 값이 낮을수록 결정론적 결과를 생성하고, 값이 높을수록 창의성이 증가합니다. 범위: 0.00–2.00.",
+                        "ai_chunk_size": "대용량 텍스트 처리 시 청크당 최대 토큰 수를 제어합니다. 청크가 클수록 컨텍스트 손실이 줄어들지만 메모리 사용량이 증가합니다.",
+                        "tts_credential_ttl_seconds": "TTS 자격 증명의 기본 수명을 제어합니다. 600, 10m, 15m 등의 값을 지원하며 공급자 안전 범위 내로 자동 제한됩니다."
                     },
                     "keys": {
                         "ai_alert_thresholds": "AI 알림 임계값",
@@ -275,8 +278,11 @@
                         "ai_image_provider": "AI 이미지 제공자",
                         "ai_image_title": "AI 이미지 생성",
                         "ai_max_tokens": "AI 최대 토큰 수",
+                        "ai_temperature": "AI 온도",
+                        "ai_chunk_size": "AI 청크 크기",
                         "ai_model": "모델 이름",
                         "ai_provider": "AI 제공자",
+                        "ai_fallback_provider": "AI 대체 제공자",
                         "ai_quota_description": "전역, 역할, 사용자 계층별로 요청 수, 쿼터 단위, 비용, 중작업 동시성 한도를 설정합니다.",
                         "ai_quota_policies": "AI 쿼터 정책",
                         "ai_quota_title": "AI 단계별 쿼터 거버넌스",
@@ -408,6 +414,7 @@
                         "temp_email_domain_name": "임시 이메일 도메인",
                         "tts_api_key": "TTS API 키",
                         "tts_default_voice": "TTS 기본 음성",
+                        "tts_credential_ttl_seconds": "TTS 인증 유효기간",
                         "tts_endpoint": "TTS API 엔드포인트",
                         "tts_model": "TTS 모델",
                         "tts_provider": "TTS 제공자",

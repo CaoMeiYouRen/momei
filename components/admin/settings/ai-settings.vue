@@ -28,6 +28,20 @@
         </SettingFormField>
 
         <SettingFormField
+            field-key="ai_fallback_provider"
+            input-id="ai_fallback_provider"
+            :metadata="metadata.ai_fallback_provider"
+        >
+            <Select
+                id="ai_fallback_provider"
+                v-model="settings.ai_fallback_provider"
+                :options="aiProviders"
+                :disabled="metadata.ai_fallback_provider?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
             field-key="ai_model"
             input-id="ai_model"
             :metadata="metadata.ai_model"
@@ -79,6 +93,44 @@
                 :disabled="metadata.ai_max_tokens?.isLocked"
                 :min="256"
                 :max="128000"
+                :step="256"
+                fluid
+                :use-grouping="false"
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="ai_temperature"
+            input-id="ai_temperature"
+            :metadata="metadata.ai_temperature"
+            :description="$t('pages.admin.settings.system.hints.ai_temperature')"
+        >
+            <InputNumber
+                id="ai_temperature"
+                v-model="settings.ai_temperature"
+                :disabled="metadata.ai_temperature?.isLocked"
+                :min="0"
+                :max="2"
+                :step="0.01"
+                :min-fraction-digits="2"
+                :max-fraction-digits="2"
+                fluid
+                :use-grouping="false"
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            field-key="ai_chunk_size"
+            input-id="ai_chunk_size"
+            :metadata="metadata.ai_chunk_size"
+            :description="$t('pages.admin.settings.system.hints.ai_chunk_size')"
+        >
+            <InputNumber
+                id="ai_chunk_size"
+                v-model="settings.ai_chunk_size"
+                :disabled="metadata.ai_chunk_size?.isLocked"
+                :min="256"
+                :max="32768"
                 :step="256"
                 fluid
                 :use-grouping="false"
@@ -419,6 +471,21 @@
                     option-label="label"
                     option-value="value"
                     :disabled="metadata.tts_provider?.isLocked"
+                    fluid
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                field-key="tts_credential_ttl_seconds"
+                input-id="tts_credential_ttl_seconds"
+                :metadata="metadata.tts_credential_ttl_seconds"
+                :description="$t('pages.admin.settings.system.hints.tts_credential_ttl_seconds')"
+            >
+                <InputText
+                    id="tts_credential_ttl_seconds"
+                    v-model="settings.tts_credential_ttl_seconds"
+                    :disabled="metadata.tts_credential_ttl_seconds?.isLocked"
+                    placeholder="10m"
                     fluid
                 />
             </SettingFormField>

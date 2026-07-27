@@ -225,11 +225,14 @@ const durationSettingFallbacks: Record<string, { fallback: number, unit: 'second
     upload_limit_window: { fallback: 86400, unit: 'seconds' },
     friend_links_check_interval_minutes: { fallback: 1440, unit: 'minutes' },
     asr_credential_ttl_seconds: { fallback: 600, unit: 'seconds' },
+    tts_credential_ttl_seconds: { fallback: 600, unit: 'seconds' },
     external_feed_cache_ttl_seconds: { fallback: 900, unit: 'seconds' },
     external_feed_stale_while_error_seconds: { fallback: 86400, unit: 'seconds' },
 }
 
 const numberSettingFallbacks: Record<string, number> = {
+    ai_temperature: 0.7,
+    ai_chunk_size: 4096,
     posts_per_page: 10,
     email_port: 587,
     email_daily_limit: 100,
@@ -281,7 +284,7 @@ function normalizeFormValue(setting: SettingItem): SettingFormValue {
 
     if (setting.key in numberSettingFallbacks) {
         const fallback = numberSettingFallbacks[setting.key] ?? 0
-        const parsedValue = Number.parseInt(setting.value ?? '', 10)
+        const parsedValue = Number(setting.value ?? '')
         return Number.isNaN(parsedValue) ? fallback : parsedValue
     }
 

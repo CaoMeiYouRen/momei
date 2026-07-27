@@ -706,7 +706,7 @@ export const setSettings = async (settings: Record<string, unknown>, auditContex
         const nextValue: string | null = isExistingMaskedPlaceholder
             ? existingSetting.value
             : normalizedIncomingValue
-        const nextMaskType = resolveSettingMaskType(key, nextValue ?? '', extraMaskType ?? existingSetting?.maskType)
+        const nextMaskType = resolveSettingMaskType(key, nextValue ?? '', extraMaskType)
         const nextLevel = inferSettingLevel(key, extraLevel ?? existingSetting?.level)
 
         if (setting) {

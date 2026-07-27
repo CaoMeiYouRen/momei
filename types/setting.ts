@@ -32,6 +32,8 @@ export enum SettingKey {
     AI_ALERT_THRESHOLDS = 'ai_alert_thresholds',
     AI_COST_FACTORS = 'ai_cost_factors',
     AI_MAX_TOKENS = 'ai_max_tokens',
+    AI_TEMPERATURE = 'ai_temperature',
+    AI_CHUNK_SIZE = 'ai_chunk_size',
 
     // AI Image
     AI_IMAGE_ENABLED = 'ai_image_enabled',
@@ -478,6 +480,8 @@ export interface AISettingsFields {
     ai_fallback_model: string | null
     ai_fallback_endpoint: string | null
     ai_max_tokens: number | null
+    ai_temperature: number | null
+    ai_chunk_size: number | null
     gemini_api_token: string | null
     ai_quota_enabled: boolean
     ai_quota_policies: string | null
@@ -508,6 +512,7 @@ export interface AISettingsFields {
     tts_model: string | null
     tts_default_voice: string | null
     tts_endpoint: string | null
+    tts_credential_ttl_seconds: string | null
 }
 
 export type AISettingsModel = Record<string, SettingFormValue> & Partial<AISettingsFields>

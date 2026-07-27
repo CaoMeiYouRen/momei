@@ -258,7 +258,10 @@
                         "email_expires_in": "メール認証コードの有効期間（秒）です。範囲: 60-86400。",
                         "email_secure": "SMTP 接続に SSL/TLS 暗号化を有効にします。",
                         "temp_email_domain_name": "使い捨てメールアドレスによる登録試行をブロックするための一時メールドメインです。",
-                        "tts_default_voice": "TTS 生成時にデフォルトで使用される音声です。"
+                        "tts_default_voice": "TTS生成に使用するデフォルトの音声。",
+                        "ai_temperature": "AI生成テキストのランダム性を制御します。値が低いほど決定論的な結果になり、値が高いほど創造性が増します。範囲：0.00～2.00。",
+                        "ai_chunk_size": "大きなテキストを処理する際のチャンクあたりの最大トークン数を制御します。チャンクを大きくするとコンテキスト損失は減少しますが、メモリ使用量が増加します。",
+                        "tts_credential_ttl_seconds": "TTS認証情報のデフォルト有効期限を制御します。600、10m、15mなどの値をサポートし、プロバイダーの安全範囲内に自動的に制限されます。"
                     },
                     "keys": {
                         "ai_alert_thresholds": "AI アラートしきい値",
@@ -275,8 +278,11 @@
                         "ai_image_provider": "AI 画像プロバイダー",
                         "ai_image_title": "AI 画像生成",
                         "ai_max_tokens": "AI 最大トークン数",
+                        "ai_temperature": "AI 温度",
+                        "ai_chunk_size": "AI チャンクサイズ",
                         "ai_model": "モデル名",
                         "ai_provider": "AI プロバイダー",
+                        "ai_fallback_provider": "AI フォールバックプロバイダー",
                         "ai_quota_description": "global、role、user の 3 層でリクエスト、クォータ単位、コスト、重タスク並列数を設定します。",
                         "ai_quota_policies": "AI クォータポリシー",
                         "ai_quota_title": "AI 段階別クォータガバナンス",
@@ -408,6 +414,7 @@
                         "temp_email_domain_name": "一時メールドメイン",
                         "tts_api_key": "TTS API キー",
                         "tts_default_voice": "TTS デフォルト音声",
+                        "tts_credential_ttl_seconds": "TTS 認証有効期限",
                         "tts_endpoint": "TTS API アドレス (API Endpoint)",
                         "tts_model": "TTS モデル",
                         "tts_provider": "TTS プロバイダー",
