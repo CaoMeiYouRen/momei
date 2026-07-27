@@ -4,7 +4,10 @@ import os from 'os'
 const rootDir = resolve(__dirname, './')
 const isCoverageRun = process.argv.includes('--coverage')
 const availableCpuCount = os.cpus().length
-const testPool = isCoverageRun ? 'forks' : 'threads'
+// 统一使用 forks 池：threads 池下 @nuxt/test-utils 在多文件并发初始化时
+// 存在 worker thread CWD 竞态，导致 pnpm 在 D:\tmp 目录执行并报
+// ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND。forks 池无此问题。
+const testPool = 'forks'
 const maxWorkerCount = isCoverageRun
     ? Math.ceil(availableCpuCount / 2)
     : availableCpuCount
@@ -43,7 +46,8 @@ const baseVitestOptions = {
         testTimeout: 60000,
         hookTimeout: 60000,
         teardownTimeout: 60000,
-        // Coverage 模式优先用 child process 和更低并发换稳定性，避免 Nuxt worker threads 在全仓运行时 OOM。
+        // 统一使用 forks（child process）池：threads 池下 @nuxt/test-utils 在多文件并发初始化时存在
+        // worker thread CWD 竞态，导致 pnpm 在错误目录执行。forks 池无此问题。
         pool: testPool,
         maxWorkers: maxWorkerCount,
     },

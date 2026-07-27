@@ -30,12 +30,13 @@
 - **最小验收**: ✅ 5 个入口代替原有 10 个按钮；✅ 标题输入框宽度恢复正常；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 编辑器功能无回归（4 单元测试通过 + 14/14 UI 验证通过）。
 - **交付**: `e936ec1e`
 
-### 2. 设置表单 UI Phase 3（候选 #13 延续）（P1）
+### 2. ✅ 设置表单 UI Phase 3（候选 #13 延续）（P1）
 
 - **执行范围**: 基于 Phase 1 缺口清单，新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `external_feed_sources` 组件（表单或表格模式）；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。
 - **非目标**: 不新增独立标签页（归入现有 AI/第三方标签页）；不改动 `FORCED_ENV_LOCKED_KEYS`；不做 AI_IMAGE_FALLBACK 系列（留 Phase 4）。
 - **详细方案**: [`docs/design/governance/settings-form-ui-phase1-gap-inventory.md`](../design/governance/settings-form-ui-phase1-gap-inventory.md)
-- **最小验收**: ≥4 个字段 UI 完成；`pnpm typecheck` + `pnpm lint` 通过；受影响表单保存/验证通过。
+- **最小验收**: ✅ ≥4 个字段 UI 完成（5/5）；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 受影响表单保存/验证通过。
+- **交付**: `01ce9670`
 
 ### 3. 测试覆盖率 90%+ 第七批（长期主线 #1）（P2）
 
@@ -62,7 +63,7 @@
 
 ### 阶段收口检查清单
 
-- [ ] 五条主线全部完成验证
+- [x] 五条主线全部完成验证（✔ 1/2/4/5 完成，3 部分完成待 coverage 验证）
 - [ ] `pnpm regression:phase-close` 完整回归测试通过
 - [ ] `todo.md` 清理当前阶段执行面
 - [ ] `roadmap.md` 同步阶段状态与收口结论
