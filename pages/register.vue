@@ -5,8 +5,10 @@
                 <div class="register-card__header">
                     <img
                         src="/logo.png"
-                        alt="Logo"
+                        alt="Momei Logo"
                         class="register-card__logo"
+                        width="56"
+                        height="56"
                     >
                     <h1 class="register-card__title">
                         {{ $t("pages.register.title") }}
@@ -340,6 +342,22 @@ definePageMeta({
 .register-card {
     @extend %auth-card;
 
+    &__header {
+        @extend %auth-card-header;
+    }
+
+    &__logo {
+        @extend %auth-card-logo;
+    }
+
+    &__title {
+        @extend %auth-card-title;
+    }
+
+    &__footer {
+        @extend %auth-card-footer;
+    }
+
     &__login-link {
         @extend %auth-card-link;
     }
@@ -347,6 +365,10 @@ definePageMeta({
 
 .register-form {
     @extend %auth-form;
+
+    &__social {
+        @extend %auth-form-social;
+    }
 
     &__fields {
         @extend %auth-form-fields;
@@ -361,15 +383,13 @@ definePageMeta({
     }
 
     &__submit-btn {
-        width: 100%;
-        margin-top: 1rem;
+        @extend %auth-form-submit;
     }
 
     &__agreement {
         display: flex;
         align-items: flex-start;
         gap: 0.5rem;
-        margin-top: 1.5rem;
 
         &-label {
             font-size: 0.875rem;

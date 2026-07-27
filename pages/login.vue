@@ -7,8 +7,8 @@
                         src="/logo.png"
                         alt="Momei Logo"
                         class="login-card__logo"
-                        width="48"
-                        height="48"
+                        width="56"
+                        height="56"
                     >
                     <h1 class="login-card__title">
                         {{ $t("pages.login.title") }}
@@ -16,134 +16,136 @@
                 </div>
             </template>
             <template #content>
-                <div
-                    v-if="hasSocialLogin"
-                    class="login-form__social"
-                >
-                    <Button
-                        v-if="socialProviders.github"
-                        :label="$t('pages.login.github_login')"
-                        icon="pi pi-github"
-                        class="github-btn social-btn"
-                        severity="secondary"
-                        outlined
-                        @click="handleGithubLogin"
-                    />
-                    <Button
-                        v-if="socialProviders.google"
-                        :label="$t('pages.login.google_login')"
-                        icon="pi pi-google"
-                        class="google-btn social-btn"
-                        severity="secondary"
-                        outlined
-                        @click="handleGoogleLogin"
-                    />
-                </div>
-
-                <Divider
-                    v-if="hasSocialLogin"
-                    align="center"
-                >
-                    {{ $t("pages.login.or_continue_with_email") }}
-                </Divider>
-
-                <form
-                    class="login-form__fields"
-                    @submit.prevent="handleEmailLogin"
-                >
-                    <div class="login-form__field">
-                        <label for="email">{{ $t("pages.login.email") }}</label>
-                        <InputText
-                            id="email"
-                            v-model="form.email"
-                            type="email"
-                            :invalid="!!errors.email"
-                            fluid
-                            class="login-form__input"
+                <div class="login-form">
+                    <div
+                        v-if="hasSocialLogin"
+                        class="login-form__social"
+                    >
+                        <Button
+                            v-if="socialProviders.github"
+                            :label="$t('pages.login.github_login')"
+                            icon="pi pi-github"
+                            class="github-btn social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGithubLogin"
                         />
-                        <Message
-                            v-if="errors.email"
-                            severity="error"
-                            size="small"
-                            variant="simple"
-                        >
-                            {{ errors.email }}
-                        </Message>
+                        <Button
+                            v-if="socialProviders.google"
+                            :label="$t('pages.login.google_login')"
+                            icon="pi pi-google"
+                            class="google-btn social-btn"
+                            severity="secondary"
+                            outlined
+                            @click="handleGoogleLogin"
+                        />
                     </div>
 
-                    <div class="login-form__field">
-                        <label for="password">{{
-                            $t("pages.login.password")
-                        }}</label>
-                        <Password
-                            id="password"
-                            v-model="form.password"
-                            :feedback="false"
-                            toggle-mask
-                            :invalid="!!errors.password"
-                            fluid
-                        />
-                        <Message
-                            v-if="errors.password"
-                            severity="error"
-                            size="small"
-                            variant="simple"
-                        >
-                            {{ errors.password }}
-                        </Message>
-                    </div>
+                    <Divider
+                        v-if="hasSocialLogin"
+                        align="center"
+                    >
+                        {{ $t("pages.login.or_continue_with_email") }}
+                    </Divider>
 
-                    <div class="login-form__actions">
-                        <div class="login-form__remember">
-                            <Checkbox
-                                v-model="form.rememberMe"
-                                binary
-                                input-id="rememberMe"
+                    <form
+                        class="login-form__fields"
+                        @submit.prevent="handleEmailLogin"
+                    >
+                        <div class="login-form__field">
+                            <label for="email">{{ $t("pages.login.email") }}</label>
+                            <InputText
+                                id="email"
+                                v-model="form.email"
+                                type="email"
+                                :invalid="!!errors.email"
+                                fluid
+                                class="login-form__input"
                             />
-                            <label for="rememberMe">{{
-                                $t("pages.login.remember_me")
-                            }}</label>
+                            <Message
+                                v-if="errors.email"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                            >
+                                {{ errors.email }}
+                            </Message>
                         </div>
-                        <NuxtLink
-                            :to="localePath('/forgot-password')"
-                            class="login-form__forgot"
-                        >
-                            {{ $t("pages.login.forgot_password") }}
-                        </NuxtLink>
-                    </div>
 
-                    <p class="login-form__legal-notice">
-                        <i18n-t keypath="legal.login_notice">
-                            <template #agreement>
-                                <NuxtLink
-                                    :to="localePath('/user-agreement')"
-                                    target="_blank"
-                                    class="legal-link"
-                                >
-                                    {{ $t("legal.user_agreement") }}
-                                </NuxtLink>
-                            </template>
-                            <template #privacy>
-                                <NuxtLink
-                                    :to="localePath('/privacy-policy')"
-                                    target="_blank"
-                                    class="legal-link"
-                                >
-                                    {{ $t("legal.privacy_policy") }}
-                                </NuxtLink>
-                            </template>
-                        </i18n-t>
-                    </p>
+                        <div class="login-form__field">
+                            <label for="password">{{
+                                $t("pages.login.password")
+                            }}</label>
+                            <Password
+                                id="password"
+                                v-model="form.password"
+                                :feedback="false"
+                                toggle-mask
+                                :invalid="!!errors.password"
+                                fluid
+                            />
+                            <Message
+                                v-if="errors.password"
+                                severity="error"
+                                size="small"
+                                variant="simple"
+                            >
+                                {{ errors.password }}
+                            </Message>
+                        </div>
 
-                    <app-captcha ref="captchaRef" v-model="captchaToken" />
+                        <div class="login-form__actions">
+                            <div class="login-form__remember">
+                                <Checkbox
+                                    v-model="form.rememberMe"
+                                    binary
+                                    input-id="rememberMe"
+                                />
+                                <label for="rememberMe">{{
+                                    $t("pages.login.remember_me")
+                                }}</label>
+                            </div>
+                            <NuxtLink
+                                :to="localePath('/forgot-password')"
+                                class="login-form__forgot"
+                            >
+                                {{ $t("pages.login.forgot_password") }}
+                            </NuxtLink>
+                        </div>
 
-                    <Button
-                        type="submit"
-                        :label="$t('pages.login.submit')"
-                        :loading="loading"
-                        class="login-form__submit-btn"
-                    />
-                </form>
+                        <p class="login-form__legal-notice">
+                            <i18n-t keypath="legal.login_notice">
+                                <template #agreement>
+                                    <NuxtLink
+                                        :to="localePath('/user-agreement')"
+                                        target="_blank"
+                                        class="legal-link"
+                                    >
+                                        {{ $t("legal.user_agreement") }}
+                                    </NuxtLink>
+                                </template>
+                                <template #privacy>
+                                    <NuxtLink
+                                        :to="localePath('/privacy-policy')"
+                                        target="_blank"
+                                        class="legal-link"
+                                    >
+                                        {{ $t("legal.privacy_policy") }}
+                                    </NuxtLink>
+                                </template>
+                            </i18n-t>
+                        </p>
+
+                        <app-captcha ref="captchaRef" v-model="captchaToken" />
+
+                        <Button
+                            type="submit"
+                            :label="$t('pages.login.submit')"
+                            :loading="loading"
+                            class="login-form__submit-btn"
+                        />
+                    </form>
+                </div>
             </template>
             <template #footer>
                 <div class="login-card__footer">
@@ -335,6 +337,22 @@ definePageMeta({
 .login-card {
     @extend %auth-card;
 
+    &__header {
+        @extend %auth-card-header;
+    }
+
+    &__logo {
+        @extend %auth-card-logo;
+    }
+
+    &__title {
+        @extend %auth-card-title;
+    }
+
+    &__footer {
+        @extend %auth-card-footer;
+    }
+
     &__register-link {
         @extend %auth-card-link;
     }
@@ -342,6 +360,10 @@ definePageMeta({
 
 .login-form {
     @extend %auth-form;
+
+    &__social {
+        @extend %auth-form-social;
+    }
 
     &__fields {
         @extend %auth-form-fields;
@@ -386,13 +408,13 @@ definePageMeta({
     }
 
     &__submit-btn {
-        width: 100%;
+        @extend %auth-form-submit;
     }
 
     &__legal-notice {
         font-size: 0.75rem;
         color: var(--p-text-muted-color);
-        margin: 1rem 0;
+        margin: 0;
         text-align: center;
         line-height: 1.4;
 
