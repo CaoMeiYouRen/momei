@@ -62,12 +62,16 @@ describe('PostEditorHeader', () => {
         expect((input.element as HTMLInputElement).value).toBe('Test Post')
     })
 
-    it('groups AI tools in ButtonGroup', async () => {
+    it('groups AI tools in ButtonGroup (5 consolidated entries)', async () => {
         const wrapper = await mountHeader()
 
         const aiGroup = wrapper.find('.ai-tools-group')
         expect(aiGroup.exists()).toBe(true)
-        expect(aiGroup.findAll('button').length).toBe(10) // Suggest, Continue, Expand, Condense, Rewrite, Review, Perspective, Translate, Format, Voice
+        // 5 entries: AI 写作 (SplitButton→2 buttons), AI 审校 (1), AI 翻译 (SplitButton→2), 格式化 (1), 语音 input (1) = 7 button elements total
+        expect(aiGroup.findAll('button').length).toBe(7)
+        // Verify the 5 key entry points exist
+        const buttons = aiGroup.findAll('button')
+        expect(buttons.length).toBeGreaterThanOrEqual(5)
     })
 
     it('renders status tag and translation badges in right bar', async () => {

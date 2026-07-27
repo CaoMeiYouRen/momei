@@ -3,6 +3,7 @@
         "admin": {
             "posts": {
                 "ai": {
+                    "ai_writing": "AI 寫作",
                     "article_illustration_hint": "文章配圖會在確認後插入正文，並同步記錄到視覺資產中繼資料。",
                     "cover_generator": {
                         "confirm_candidate_notice": "目前編輯器預設只生成候選圖，確認後才會回填封面或插入正文。",

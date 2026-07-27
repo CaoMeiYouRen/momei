@@ -3,6 +3,7 @@
         "admin": {
             "posts": {
                 "ai": {
+                    "ai_writing": "AI 글쓰기",
                     "article_illustration_hint": "본문 삽화는 확인 후에만 본문에 삽입되며 시각 자산 메타데이터에도 기록됩니다.",
                     "cover_generator": {
                         "confirm_candidate_notice": "현재 편집기에서는 후보 이미지만 생성하며, 선택을 확인해야 실제로 적용됩니다.",

@@ -3,6 +3,7 @@
         "admin": {
             "posts": {
                 "ai": {
+                    "ai_writing": "AI 写作",
                     "article_illustration_hint": "文章配图会在确认后插入正文，并同步记录到视觉资产元数据。",
                     "cover_generator": {
                         "confirm_candidate_notice": "当前编辑器默认只生成候选图，确认后才会写回封面或插入正文。",

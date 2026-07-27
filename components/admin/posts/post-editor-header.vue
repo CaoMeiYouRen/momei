@@ -16,51 +16,19 @@
                 @focus="rememberFocusedEditorElement"
             />
             <ButtonGroup class="ai-tools-group">
-                <Button
-                    id="ai-title-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.suggest_titles')"
-                    icon="pi pi-sparkles"
-                    text
-                    outlined
-                    :loading="aiLoading.title"
-                    @click="emit('suggest-titles', $event)"
-                />
-                <Button
-                    id="ai-continue-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.continue_tooltip')"
-                    icon="pi pi-forward"
-                    text
-                    outlined
-                    :loading="aiLoading.continue"
-                    @click="emit('continue-content')"
-                />
-                <Button
-                    id="ai-expand-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.expand_tooltip')"
-                    icon="pi pi-arrow-right"
-                    text
-                    outlined
-                    :loading="aiLoading.expand"
-                    @click="emit('expand-content')"
-                />
-                <Button
-                    id="ai-condense-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.condense_tooltip')"
-                    icon="pi pi-arrow-left"
-                    text
-                    outlined
-                    :loading="aiLoading.condense"
-                    @click="emit('condense-content')"
-                />
-                <Button
-                    id="ai-rewrite-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.rewrite_tooltip')"
+                <!-- AI 写作 SplitButton: 5 writing actions consolidated -->
+                <SplitButton
+                    id="ai-writing-btn"
+                    ref="writingBtnRef"
+                    :label="$t('pages.admin.posts.ai.ai_writing')"
                     icon="pi pi-pencil"
                     text
                     outlined
-                    :loading="aiLoading.rewrite"
-                    @click="rewriteOp.toggle($event)"
+                    :loading="writingLoading"
+                    :model="writingMenuItems"
+                    @click="emit('rewrite-content', 'casual')"
                 />
+                <!-- AI 审校: review + perspective check (single button) -->
                 <Button
                     id="ai-review-btn"
                     v-tooltip="$t('pages.admin.posts.ai.review')"
@@ -71,25 +39,19 @@
                     :badge="reviewSuggestions.length > 0 ? String(reviewSuggestions.length) : undefined"
                     @click="emit('review-content')"
                 />
-                <Button
-                    id="ai-perspective-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.perspective')"
-                    icon="pi pi-eye"
-                    text
-                    outlined
-                    :loading="aiLoading.perspective"
-                    :badge="perspectiveResults.length > 0 ? String(perspectiveResults.length) : undefined"
-                    @click="perspectiveOp.toggle($event)"
-                />
-                <Button
+                <!-- AI 翻译: SplitButton with language selection -->
+                <SplitButton
                     id="ai-translate-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.translate')"
+                    ref="translateBtnRef"
+                    :label="$t('pages.admin.posts.ai.translate')"
                     icon="pi pi-language"
                     text
                     outlined
                     :loading="aiLoading.translate"
-                    @click="translateOp.toggle($event)"
+                    :model="translateMenuItems"
+                    @click="emit('translate-content', null)"
                 />
+                <!-- 格式化 Markdown -->
                 <Button
                     id="format-markdown-btn"
                     v-tooltip="$t('pages.admin.posts.ai.format_markdown')"
@@ -98,6 +60,7 @@
                     outlined
                     @click="handleFormatMarkdown"
                 />
+                <!-- 语音输入 -->
                 <AppVoiceInputTrigger
                     id="ai-voice-btn"
                     v-model="post.content"
@@ -124,101 +87,6 @@
                             </div>
                             <div class="rewrite-menu__item-desc">
                                 {{ style.desc }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Popover>
-            <Popover ref="translateOp" class="translate-menu">
-                <div class="translate-menu__content">
-                    <div
-                        v-for="l in locales"
-                        :key="l.code"
-                        class="translate-menu__item"
-                        :class="{
-                            'translate-menu__item--active':
-                                post.language === l.code
-                        }"
-                        @click="handleTranslateSelection(l.code)"
-                    >
-                        <div class="translate-menu__item-left">
-                            <i
-                                :class="getLangIcon(l.code)"
-                                class="translate-menu__flag"
-                            />
-                            <span class="translate-menu__lang-name">{{
-                                l.name || l.code.toUpperCase()
-                            }}</span>
-                        </div>
-                        <div class="translate-menu__item-right">
-                            <Tag
-                                v-if="post.language === l.code"
-                                :value="$t('common.current')"
-                                severity="info"
-                                size="small"
-                                class="translate-menu__status-tag"
-                            />
-                            <Tag
-                                v-else-if="hasTranslation(l.code)"
-                                :value="$t('common.switch')"
-                                severity="success"
-                                size="small"
-                                class="translate-menu__status-tag"
-                            />
-                            <Tag
-                                v-else
-                                :value="$t('common.ai_translate')"
-                                severity="warn"
-                                size="small"
-                                class="translate-menu__status-tag"
-                            />
-                        </div>
-                    </div>
-                    <Divider class="my-2" />
-                    <div class="translate-menu__footer">
-                        <Button
-                            :label="
-                                $t('pages.admin.posts.ai.translate_current')
-                            "
-                            icon="pi pi-sparkles"
-                            text
-                            size="small"
-                            class="translate-menu__footer-btn"
-                            @click="handleTranslateSelection(null)"
-                        />
-                    </div>
-                </div>
-            </Popover>
-            <Popover ref="perspectiveOp" class="perspective-menu">
-                <div class="perspective-menu__content">
-                    <div class="perspective-menu__title">
-                        {{ $t('pages.admin.posts.ai.perspective_select_mode') }}
-                    </div>
-                    <div
-                        class="perspective-menu__item"
-                        @click="handlePerspectiveSelect('editor')"
-                    >
-                        <i class="perspective-menu__item-icon pi pi-pen-to-square" />
-                        <div class="perspective-menu__item-text">
-                            <div class="perspective-menu__item-label">
-                                {{ $t('pages.admin.posts.ai.perspective_editor') }}
-                            </div>
-                            <div class="perspective-menu__item-desc">
-                                {{ $t('pages.admin.posts.ai.perspective_editor_desc') }}
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="perspective-menu__item"
-                        @click="handlePerspectiveSelect('reader')"
-                    >
-                        <i class="perspective-menu__item-icon pi pi-users" />
-                        <div class="perspective-menu__item-text">
-                            <div class="perspective-menu__item-label">
-                                {{ $t('pages.admin.posts.ai.perspective_reader') }}
-                            </div>
-                            <div class="perspective-menu__item-desc">
-                                {{ $t('pages.admin.posts.ai.perspective_reader_desc') }}
                             </div>
                         </div>
                     </div>
@@ -334,6 +202,7 @@ import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
 import PostEditorPerspectivePanel from '@/components/admin/posts/post-editor-perspective-panel.vue'
 import type { PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
+import type { MenuItem } from 'primevue/menuitem'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -391,9 +260,74 @@ const emit = defineEmits<{
 const localePath = useLocalePath()
 
 const titleOp = ref<any>(null)
-const translateOp = ref<any>(null)
 const rewriteOp = ref<any>(null)
-const perspectiveOp = ref<any>(null)
+const writingBtnRef = ref<any>(null)
+const translateBtnRef = ref<any>(null)
+
+/** True when any AI writing operation is loading */
+const writingLoading = computed(() =>
+    props.aiLoading.title || props.aiLoading.rewrite || props.aiLoading.continue
+    || props.aiLoading.expand || props.aiLoading.condense,
+)
+
+/** Menu items for the AI 写作 SplitButton */
+const writingMenuItems = computed<MenuItem[]>(() => [
+    {
+        label: t('pages.admin.posts.ai.suggest_titles'),
+        icon: 'pi pi-sparkles',
+        command: () => {
+            // Use the writing SplitButton element as anchor for title suggestion Popover
+            const anchor = writingBtnRef.value?.$el?.querySelector('.p-splitbutton-button')
+            if (anchor) {
+                const fakeEvent = { currentTarget: anchor }
+                emit('suggest-titles', fakeEvent as unknown as Event)
+            }
+        },
+    },
+    {
+        label: t('pages.admin.posts.ai.rewrite'),
+        icon: 'pi pi-pencil',
+        command: () => {
+            // Show rewrite style Popover anchored to the writing SplitButton
+            const anchor = writingBtnRef.value?.$el?.querySelector('.p-splitbutton-button')
+            if (anchor) {
+                rewriteOp.value?.show?.(null, anchor)
+            }
+        },
+    },
+    {
+        label: t('pages.admin.posts.ai.continue'),
+        icon: 'pi pi-forward',
+        command: () => { emit('continue-content') },
+    },
+    {
+        label: t('pages.admin.posts.ai.expand'),
+        icon: 'pi pi-arrow-right',
+        command: () => { emit('expand-content') },
+    },
+    {
+        label: t('pages.admin.posts.ai.condense'),
+        icon: 'pi pi-arrow-left',
+        command: () => { emit('condense-content') },
+    },
+])
+
+/** Menu items for the AI 翻译 SplitButton */
+const translateMenuItems = computed<MenuItem[]>(() =>
+    props.locales.map((l: any) => ({
+        label: l.name || l.code.toUpperCase(),
+        icon: getLangIcon(l.code),
+        command: () => {
+            if (l.code === post.value.language) return
+            const existingTrans = props.hasTranslation(l.code)
+            if (existingTrans) {
+                emit('handle-translation', l.code)
+            } else {
+                emit('translate-content', l.code)
+            }
+        },
+    })),
+)
 
 const rewriteStyles = [
     {
@@ -439,10 +373,6 @@ const handleRewriteSelect = (style: string) => {
     emit('rewrite-content', style)
 }
 
-const handlePerspectiveSelect = (mode: PerspectiveMode) => {
-    perspectiveOp.value?.hide()
-    emit('perspective-check', mode)
-}
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
 const lastFocusedEditorElement = ref<HTMLElement | null>(null)
 
@@ -494,23 +424,6 @@ const onTranslationBadgeClick = async (langCode: string) => {
     await blurEditorBeforeTranslation()
 
     emit('handle-translation', langCode)
-}
-
-const handleTranslateSelection = (langCode: string | null) => {
-    translateOp.value?.hide()
-    if (langCode === null) {
-        emit('translate-content', null)
-        return
-    }
-
-    if (langCode === post.value.language) return
-
-    const existingTrans = props.hasTranslation(langCode)
-    if (existingTrans) {
-        emit('handle-translation', langCode)
-    } else {
-        emit('translate-content', langCode)
-    }
 }
 
 const handleFormatMarkdown = async () => {
@@ -612,8 +525,8 @@ defineExpose({
 .title-input {
     font-size: 1.25rem;
     font-weight: 700;
-    width: 100%;
-    max-width: 40rem;
+    flex: 1;
+    min-width: 10rem;
     border: none;
     box-shadow: none;
     background: transparent;
@@ -650,79 +563,6 @@ defineExpose({
 
         & + & {
             border-top: 1px solid var(--p-surface-border);
-        }
-    }
-}
-
-.translate-menu {
-    &__content {
-        min-width: 220px;
-        padding: 0.25rem;
-    }
-
-    &__item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.625rem 0.75rem;
-        border-radius: var(--p-border-radius-md);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        gap: 1.5rem;
-
-        &:hover {
-            background-color: var(--p-surface-100);
-        }
-
-        &--active {
-            background-color: var(--p-primary-50);
-            cursor: default;
-
-            &:hover {
-                background-color: var(--p-primary-50);
-            }
-        }
-    }
-
-    &__item-left {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    &__flag {
-        font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.25rem;
-    }
-
-    &__lang-name {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--p-surface-900);
-    }
-
-    &__status-tag {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.4rem;
-        font-weight: 600;
-    }
-
-    &__footer {
-        padding-top: 0.25rem;
-    }
-
-    &__footer-btn {
-        width: 100%;
-        justify-content: flex-start;
-        font-weight: 500;
-        color: var(--p-primary-color);
-        padding: 0.5rem 0.75rem;
-
-        &:hover {
-            background-color: var(--p-primary-50);
         }
     }
 }
@@ -785,26 +625,7 @@ defineExpose({
 }
 
 :global(.dark) {
-    .translate-menu {
-        &__item:hover {
-            background-color: var(--p-surface-800);
-        }
-
-        &__item--active {
-            background-color: var(--p-primary-900-opacity-20);
-        }
-
-        &__lang-name {
-            color: var(--p-surface-100);
-        }
-
-        &__footer-btn:hover {
-            background-color: var(--p-primary-900-opacity-20);
-        }
-    }
-
-    .rewrite-menu,
-    .perspective-menu {
+    .rewrite-menu {
         &__item:hover {
             background-color: var(--p-surface-800);
         }

@@ -3,6 +3,7 @@
         "admin": {
             "posts": {
                 "ai": {
+                    "ai_writing": "AI Writing",
                     "article_illustration_hint": "Article illustrations will be inserted into the body after confirmation and recorded in the visual asset metadata.",
                     "cover_generator": {
                         "confirm_candidate_notice": "The current editor only generates candidate images by default. They will be written back to the cover or inserted into the body only after confirmation.",
