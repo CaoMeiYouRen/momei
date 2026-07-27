@@ -51,7 +51,7 @@
 | 8 | `AI_IMAGE_FALLBACK_ENDPOINT` | `ai_image_fallback_endpoint` | AI Image fallback，缺 env 覆盖 | P2 |
 | 9 | `TTS_CREDENTIAL_TTL_SECONDS` | `tts_credential_ttl_seconds` | ASR 版已映射，TTS 版未映射 | P2 |
 
-> **P2延期理由**：以上 SettingKey 均为 Phase 55-62 新增的 fallback/辅助功能键，
+> **P2 延期理由**：以上 SettingKey 均为 Phase 55-62 新增的 fallback/辅助功能键，
 > 核心功能（AI Image、AI Fallback 等）为 P2 优先级；TTS_CREDENTIAL_TTL_SECONDS 与 ASR 复用同一逻辑路径，影响有限。
 
 ### 3.3 缺 SettingKey/Env 映射但适合保持 Internal 的

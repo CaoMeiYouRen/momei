@@ -360,44 +360,11 @@
     - **非目标**: 不新增语种、不做全量翻译重写、不改变 key 结构。
     - **最小验收**: 翻译质量审计报告输出；≥10 个问题修复（以 commit 可见）；`pnpm i18n:audit:missing` = 0 保持；`pnpm typecheck` + `pnpm lint` 通过。
 
-### 第六十四阶段：设置 UI Phase 2 与治理续航（Phase 64: Settings UI Phase 2 & Governance Continuation）
+### 第六十四阶段：设置 UI Phase 2 与治理续航（已审计归档）
 
-**时间表**: 2026-07-27 ~ 约 3-5 天
-**目标**: 在第六十三阶段完成 5 个优化项后，以「1 个新功能 + 4 个优化」组合推进：设置表单 UI Phase 2（首批 UI 组件）将 Phase 63 的 SoT 映射落地为可交互的表单控件；reactive→ref Step 5 收尾剩余 3 个表单/弹窗类文件；结构复用治理延续热点切片节奏；测试覆盖率 90%+ 第六批拓宽覆盖模块；ko-KR/ja-JP 文档治理提升多语文档品质。
+> 详细条目见 [归档记录](./todo-archive.md#第六十四阶段设置-ui-phase-2-与治理续航已审计归档)。backlog 来源: [长期规划与积压项](./backlog.md)。
 
-**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。设置表单 UI Phase 2 直接承接 Phase 63 盘点成果，5 个新 SettingKey 已有完整映射，UI 开发边界清晰；reactive→ref Step 5 经前四步已验证迁移模式可行，本次仅收尾 3 个延期文件；结构复用基于 0.35% 健康基线做增量切片；覆盖率第六批基于最新缺口报告选高价值模块并兼顾低覆盖文件（privacy.ts 0% + logger.ts ~72%）；文档治理聚焦 ko-KR/ja-JP 的翻译 freshness 与术语一致性。
-
-**ROI 评估**: 设置表单 UI Phase 2 `1.60`；reactive→ref Step 5 `1.60`；结构复用治理 `1.80`；测试覆盖率 90%+ 第六批 `1.50`；ko-KR/ja-JP 文档治理 `1.50`。
-
-**审计结论**: 待阶段完成。
-
-1. **主线：设置表单 UI Phase 2 — 首批 UI 组件（P1）**:
-    - **执行范围**: 为 Phase 63 新映射的 5 个 SettingKey（EMAIL_SECURE、EMAIL_EXPIRES_IN、TEMP_EMAIL_DOMAIN_NAME、AI_MAX_TOKENS、TTS_DEFAULT_VOICE）开发 PrimeVue 表单控件。归入已有标签页（Email / AI）。每控件包含：i18n 五语种翻译、值校验、env 锁定禁用逻辑、保存后即时生效。
-    - **非目标**: 不新增标签页；不改动 FORCED_ENV_LOCKED_KEYS；不做通用 Key-Value 编辑器。
-    - **最小验收**: ≥2 组配置项完成 UI 组件；`pnpm typecheck` + `pnpm lint` 通过。
-
-2. **主线：响应式状态模型收敛 — reactive→ref Step 5（P1）**:
-    - **执行范围**: 补齐 Phase 63 延期的 3 个表单/弹窗类文件（admin-taxonomy-page.vue、marketing-campaign-form.vue、comment-form.vue），从 `reactive` 迁移为 `ref`。每文件配定向测试验证表单/弹窗行为不回退。
-    - **非目标**: 不追求全仓 reactive 清零；不改动 API 契约或页面交互语义。
-    - **最小验收**: ≥3 处 `reactive` 迁移完成；`pnpm typecheck` + `pnpm lint` + 定向测试通过。
-
-3. **主线：结构复用治理 — 下一轮热点切片（P1）**:
-    - **执行范围**: 基于 duplicate-code 0.35% 基线，优先收敛通知翻译 helper（`translateNotificationType` / `translateChannel` / `translateStatus` 在 `notification-delivery-log-list.vue` 和 `notification-history-list.vue` 间的重复）。检查 Phase 63 新增代码是否引入新重复。选取 ≥2 组逻辑简单、收益明确的切片收敛。
-    - **非目标**: 不推动跨模块大重构；不改变业务行为。
-    - **最小验收**: ≥2 组热点切片完成；`pnpm duplicate-code:check` 基线 ≤0.39%；`pnpm typecheck` + `pnpm lint` 通过。
-
-4. **主线：测试覆盖率 90%+ 第六批（P2）**:
-    - **执行范围**: 基于最新全仓覆盖率缺口报告，选取高价值缺口模块。优先覆盖 `server/utils/logger.ts`（当前 ~72%）和 `utils/shared/privacy.ts`（当前 ~0%），再视时间推进其他高价值模块。
-    - **非目标**: 不做低价值铺量补测；不牺牲断言有效性换取数字增长。
-    - **最小验收**: 新增覆盖 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
-
-5. **主线：ko-KR/ja-JP 文档治理（P2）**:
-    - **执行范围**:
-        - **Phase A**: 产出翻译文档 freshness 审计报告。遍历 `docs/i18n/ko-KR/` 和 `docs/i18n/ja-JP/` 下所有文档，标记 `last_sync` 落后项、内容漂移和不一致的术语翻译。
-        - **Phase B**: 修复审计发现的翻译问题（更新 `last_sync`、修复漂移内容、对齐术语）。涉及 `docs/standards/`、`docs/guide/` 等规范文档的翻译一致性。
-        - **Phase C（可选）**: 评估是否需补充缺失的文档翻译。
-    - **非目标**: 不做全量文档重翻；不新增文档语种。
-    - **最小验收**: 审计报告输出；≥5 个文档问题修复；`docs:check:source-of-truth` 通过。
+已完成 5 项主线：设置表单 UI Phase 2（5 字段 + 五语种翻译）；reactive→ref Step 5（3 文件收尾）；结构复用 2 组热点切片（safeDeleteCategory + handleExternalLinkError）；测试覆盖率第六批（privacy 7 边缘 case）；ko-KR/ja-JP 文档治理（审计报告 + 13 日期修复 + ja-JP 升格 + features/variables 翻译）。所有主线通过 typecheck + lint + test 质量门。
 
 ## 3. 相关文档
 
