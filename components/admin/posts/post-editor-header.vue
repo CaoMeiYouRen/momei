@@ -268,14 +268,21 @@ const writingLoading = computed(() =>
     || props.aiLoading.expand || props.aiLoading.condense,
 )
 
+/** Get the AI Writing SplitButton's root DOM element via template ref */
+const getWritingBtnEl = (): HTMLElement | null => {
+    return (writingBtnRef.value as any)?.$el ?? document.getElementById('ai-writing-btn')
+}
+
 /**
  * Show the rewrite style Popover anchored to the AI Writing SplitButton.
- * Called when the SplitButton's main button is clicked.
+ * Uses the template ref for reliable DOM access.
  */
 const showRewritePopover = () => {
-    const btnEl = document.getElementById('ai-writing-btn')
-    if (btnEl) {
-        rewriteOp.value?.show?.(null, btnEl)
+    const el = getWritingBtnEl()
+    if (el) {
+        const event = new MouseEvent('click', { bubbles: true })
+        Object.defineProperty(event, 'currentTarget', { value: el, writable: false })
+        rewriteOp.value?.show?.(event, el)
     }
 }
 
@@ -285,8 +292,8 @@ const writingMenuItems = computed<MenuItem[]>(() => [
         label: t('pages.admin.posts.ai.suggest_titles'),
         icon: 'pi pi-sparkles',
         command: () => {
-            // Use the SplitButton element as anchor for title suggestion Popover
-            const anchor = document.getElementById('ai-writing-btn')
+            // Get anchor via template ref for reliable DOM access
+            const anchor = getWritingBtnEl()
             if (anchor) {
                 const event = new MouseEvent('click', { bubbles: true })
                 Object.defineProperty(event, 'currentTarget', { value: anchor, writable: false })
@@ -534,8 +541,8 @@ defineExpose({
 .title-input {
     font-size: 1.25rem;
     font-weight: 700;
-    flex: 1 1 auto;
-    min-width: 6rem;
+    flex: 1;
+    min-width: 8rem;
     border: none;
     box-shadow: none;
     background: transparent;
