@@ -9,17 +9,12 @@
  * ## 文章计数子查询
  * - 通过 `buildCategoryPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
  */
-import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
-import { Category } from '@/server/entities/category'
+import { ensureDatabaseConnectionReady } from '@/server/database'
 import { categoryQuerySchema } from '@/utils/schemas/category'
-import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
-import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
-import { buildCategoryPostCountSubquery } from '@/server/utils/taxonomy-post-count'
+import { queryCategoryPublicList } from '@/server/utils/category-public-list'
 import { withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 import {
-    applyTaxonomyPublicListFilters,
-    applyTaxonomyPublicListOrdering,
     buildTaxonomyPublicListCacheKey,
 } from '@/server/utils/taxonomy-public-list'
 
@@ -63,58 +58,9 @@ export default defineEventHandler(async (event) => {
                 })
             }
 
-            const categoryRepo = dataSource.getRepository(Category)
-            const baseQueryBuilder = categoryRepo.createQueryBuilder('category')
-                .leftJoin('category.parent', 'parent')
-                .addSelect(['parent.id', 'parent.name', 'parent.slug'])
+            const result = await queryCategoryPublicList(query)
 
-            // Handle Aggregation
-            if (query.aggregate) {
-                applyTranslationAggregation(baseQueryBuilder, categoryRepo, {
-                    language: query.language,
-                    mainAlias: 'category',
-                })
-            }
-
-            applyTaxonomyPublicListFilters(baseQueryBuilder, {
-                alias: 'category',
-                aggregate: query.aggregate,
-                language: query.language,
-                search: query.search,
-                translationId: query.translationId,
-            })
-
-            if (query.parentId) {
-                baseQueryBuilder.andWhere('category.parentId = :parentId', { parentId: query.parentId })
-            }
-
-            const total = await baseQueryBuilder.clone().getCount()
-
-            const publishedStatus = 'published'
-            const postCountQuery = buildCategoryPostCountSubquery(publishedStatus)
-            const queryBuilder = baseQueryBuilder.clone()
-                .leftJoin(`(${postCountQuery.getQuery()})`, 'post_count_summary', 'post_count_summary.taxonomy_id = COALESCE(category.translationId, category.id)')
-                .addSelect('COALESCE(post_count_summary.post_count, 0)', 'category_post_count')
-                .setParameters(postCountQuery.getParameters())
-
-            applyTaxonomyPublicListOrdering(queryBuilder, {
-                alias: 'category',
-                orderBy: query.orderBy,
-                order: query.order,
-                postCountAlias: 'category_post_count',
-            })
-
-            const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
-            const items = entities.map((item, index) => Object.assign(item, {
-                postCount: Number(raw[index]?.category_post_count || 0),
-            }))
-
-            // Attach translation information
-            await attachTranslations<Category>(items, categoryRepo, {
-                select: { id: true, language: true, translationId: true, name: true, slug: true, description: true, parentId: true },
-            })
-
-            return success(paginate(items, total, query.page, query.limit))
+            return success(paginate(result.items, result.total, result.page, result.limit))
         },
     })
 })

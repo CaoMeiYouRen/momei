@@ -43,11 +43,16 @@
 - **非目标**: 不做低价值铺量补测；不牺牲断言有效性换取数字增长。
 - **最小验收**: 全仓 coverage 提升 ≥1%；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
 
-### 4. 结构复用治理（长期主线 #3）（P1）
+### 4. ✅ 结构复用治理（长期主线 #3）（P1）
 
 - **执行范围**: 基于 `duplicate-code` 0.35% 最新基线识别 ≥2 组重复热点；优先检查 Phase 63-64 新增代码是否引入重复。
 - **非目标**: 不推动跨模块大重构；不为复用而复用；不改变业务行为。
-- **最小验收**: ≥2 组热点切片完成；`duplicate-code` 基线 ≤0.35%；`pnpm typecheck` + `pnpm lint` 通过。
+- **最小验收**: ✅ ≥2 组热点切片完成（Categories + Tags 列表查询共享层抽取）；✅ `duplicate-code` 基线 0.30% ≤ 0.35%；✅ `pnpm typecheck` + `pnpm lint` 通过；✅ 22/22 测试通过。
+- **交付**:
+  - 新建 `server/utils/category-public-list.ts`：`queryCategoryPublicList()` 共享函数
+  - 新建 `server/utils/tag-public-list.ts`：`queryTagPublicList()` 共享函数
+  - 4 端点 handler 简化：`api/categories/index.get.ts` / `api/external/categories/index.get.ts` / `api/tags/index.get.ts` / `api/external/tags/index.get.ts`
+  - 累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%
 
 ### 5. 脚本治理升格评估（长期主线 #10）（P1）
 

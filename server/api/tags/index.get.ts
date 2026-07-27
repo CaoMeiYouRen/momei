@@ -9,17 +9,12 @@
  * - 通过 `buildTagPostCountSubquery` 注入关联文章数（仅统计已发布、可见文章）。
  * - Tag 与 Post 是多对多关系，子查询需要 JOIN `post_tags_tag` 中间表。
  */
-import { dataSource, ensureDatabaseConnectionReady } from '@/server/database'
-import { Tag } from '@/server/entities/tag'
+import { ensureDatabaseConnectionReady } from '@/server/database'
 import { tagQuerySchema } from '@/utils/schemas/tag'
-import { applyPagination } from '@/server/utils/pagination'
 import { success, paginate } from '@/server/utils/response'
-import { applyTranslationAggregation, attachTranslations } from '@/server/utils/translation'
-import { buildTagPostCountSubquery } from '@/server/utils/taxonomy-post-count'
+import { queryTagPublicList } from '@/server/utils/tag-public-list'
 import { withRuntimeApiCache } from '@/server/utils/api-runtime-cache'
 import {
-    applyTaxonomyPublicListFilters,
-    applyTaxonomyPublicListOrdering,
     buildTaxonomyPublicListCacheKey,
 } from '@/server/utils/taxonomy-public-list'
 
@@ -61,52 +56,9 @@ export default defineEventHandler(async (event) => {
                 })
             }
 
-            const tagRepo = dataSource.getRepository(Tag)
-            const baseQueryBuilder = tagRepo.createQueryBuilder('tag')
+            const result = await queryTagPublicList(query)
 
-            // Handle Aggregation
-            if (query.aggregate) {
-                applyTranslationAggregation(baseQueryBuilder, tagRepo, {
-                    language: query.language,
-                    mainAlias: 'tag',
-                })
-            }
-
-            applyTaxonomyPublicListFilters(baseQueryBuilder, {
-                alias: 'tag',
-                aggregate: query.aggregate,
-                language: query.language,
-                search: query.search,
-                translationId: query.translationId,
-            })
-
-            const total = await baseQueryBuilder.clone().getCount()
-
-            const publishedStatus = 'published'
-            const postCountQuery = buildTagPostCountSubquery(publishedStatus)
-            const queryBuilder = baseQueryBuilder.clone()
-                .leftJoin(`(${postCountQuery.getQuery()})`, 'post_count_summary', 'post_count_summary.taxonomy_id = COALESCE(tag.translationId, tag.id)')
-                .addSelect('COALESCE(post_count_summary.post_count, 0)', 'tag_post_count')
-                .setParameters(postCountQuery.getParameters())
-
-            applyTaxonomyPublicListOrdering(queryBuilder, {
-                alias: 'tag',
-                orderBy: query.orderBy,
-                order: query.order,
-                postCountAlias: 'tag_post_count',
-            })
-
-            const { entities, raw } = await applyPagination(queryBuilder, query).getRawAndEntities()
-            const items = entities.map((item, index) => Object.assign(item, {
-                postCount: Number(raw[index]?.tag_post_count || 0),
-            }))
-
-            // Attach translation information
-            await attachTranslations<Tag>(items, tagRepo, {
-                select: { id: true, language: true, translationId: true, name: true, slug: true },
-            })
-
-            return success(paginate(items, total, query.page, query.limit))
+            return success(paginate(result.items, result.total, result.page, result.limit))
         },
     })
 })
