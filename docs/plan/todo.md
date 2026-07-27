@@ -19,12 +19,14 @@
 
 > 本阶段以「5 个优化」组合推进。详细规划见 [项目计划](./roadmap.md#第六十三阶段设置-ui-盘点与治理续航phase-63-settings-ui-inventory--governance-continuation)。
 
-### 1. 设置表单 UI Phase 1 — 盘点与 SoT 映射补齐 (P2)
+### 1. 设置表单 UI Phase 1 — 盘点与 SoT 映射补齐 (P2) ✅
 
-- [ ] 产出现有配置项缺口清单（缺口 A/B 分类）
-- [ ] 为 ≥3-5 个 env var 补充 SettingKey + SETTING_ENV_MAP 映射
-- [ ] 不适合后台管理的标记 INTERNAL_ONLY，更新 env.ts 注释
-- [ ] **验收**: typecheck + lint 通过；3-5 个映射补齐
+- [x] 产出现有配置项缺口清单（缺口 A/B 分类）
+- [x] 为 ≥3-5 个 env var 补充 SettingKey + SETTING_ENV_MAP 映射
+- [x] 不适合后台管理的标记 INTERNAL_ONLY，更新 env.ts 注释
+- [x] **验收**: typecheck + lint 通过；5 个映射补齐
+- **产出**: `docs/design/governance/settings-form-ui-phase1-gap-inventory.md`
+- **变更**: 5 个新 SettingKey + SETTING_ENV_MAP 映射 + INTERNAL_ONLY 扩充 + env.ts 注释
 
 ### 2. 响应式状态模型收敛 — reactive→ref Step 4 (P1)
 

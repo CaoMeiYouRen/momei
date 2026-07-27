@@ -51,8 +51,9 @@ export const LOG_LEVEL =
 // 日志文件目录
 export const LOG_DIR = process.env.LOG_DIR || 'logs'
 
-// Axiom 日志配置
+// Axiom 日志配置 (部分 @internalOnly — 不适合后台管理)
 export const AXIOM_DATASET_NAME = process.env.AXIOM_DATASET_NAME
+// @internalOnly 基础设施鉴权密钥
 export const AXIOM_API_TOKEN = process.env.AXIOM_API_TOKEN
 
 /**
@@ -150,6 +151,7 @@ export const DATABASE_SYNCHRONIZE = process.env.DATABASE_SYNCHRONIZE === 'true'
 
 /**
  * Redis配置（可选）
+ * @internalOnly — 基础设施，不适合后台管理
  */
 // Redis 连接地址
 export const REDIS_URL = process.env.REDIS_URL
@@ -157,12 +159,20 @@ export const REDIS_URL = process.env.REDIS_URL
 /**
  * 邮件服务配置
  * SMTP 服务器配置和邮件发送限制
+ *
+ * @settingKey EMAIL_HOST    — SettingKey.EMAIL_HOST
+ * @settingKey EMAIL_PORT    — SettingKey.EMAIL_PORT
+ * @settingKey EMAIL_SECURE   — SettingKey.EMAIL_SECURE   (Phase 63 新增)
+ * @settingKey EMAIL_USER    — SettingKey.EMAIL_USER
+ * @settingKey EMAIL_PASS    — SettingKey.EMAIL_PASS
+ * @settingKey EMAIL_FROM    — SettingKey.EMAIL_FROM
+ * @settingKey EMAIL_EXPIRES_IN — SettingKey.EMAIL_EXPIRES_IN (Phase 63 新增)
  */
 // SMTP 服务器地址
 export const EMAIL_HOST = process.env.EMAIL_HOST
 // SMTP 服务器端口
 export const EMAIL_PORT = Number(process.env.EMAIL_PORT) || 587
-// 是否使用SSL连接邮件服务器
+// @settingKey 是否使用SSL连接邮件服务器
 export const EMAIL_SECURE = process.env.EMAIL_SECURE === 'true'
 // 邮件发送者地址
 export const EMAIL_USER = process.env.EMAIL_USER
@@ -180,10 +190,10 @@ export const EMAIL_SINGLE_USER_DAILY_LIMIT = Number(
 export const EMAIL_LIMIT_WINDOW = Number(
     normalizeDurationSeconds(process.env.EMAIL_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 }),
 )
-// 邮件验证码有效时间（秒）
+// @settingKey 邮件验证码有效时间（秒）
 export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
 
-// 临时邮箱配置
+// @settingKey 临时邮箱配置
 export const TEMP_EMAIL_DOMAIN_NAME =
     process.env.TEMP_EMAIL_DOMAIN_NAME || 'example.com'
 
@@ -270,6 +280,12 @@ export const LOCAL_STORAGE_MIN_FREE_SPACE = process.env.LOCAL_STORAGE_MIN_FREE_S
 
 /**
  * AI 服务配置
+ *
+ * @settingKey AI_PROVIDER  — SettingKey.AI_PROVIDER
+ * @settingKey AI_API_KEY   — SettingKey.AI_API_KEY
+ * @settingKey AI_ENABLED   — SettingKey.AI_ENABLED
+ * @settingKey AI_MODEL     — SettingKey.AI_MODEL
+ * @settingKey AI_MAX_TOKENS — SettingKey.AI_MAX_TOKENS (Phase 63 新增)
  */
 // AI 提供商 (openai, anthropic)
 export const AI_PROVIDER = (process.env.AI_PROVIDER || 'openai') as
@@ -285,7 +301,7 @@ export const AI_ENABLED =
 export const AI_MODEL = process.env.AI_MODEL || 'gpt-4o'
 // API 代理地址 (可选)
 export const AI_API_ENDPOINT = process.env.AI_API_ENDPOINT
-// 最大 Token 数
+// @settingKey 最大 Token 数
 export const AI_MAX_TOKENS = Number(process.env.AI_MAX_TOKENS || 2048)
 // 温度因子
 export const AI_TEMPERATURE = Number(process.env.AI_TEMPERATURE || 0.7)
@@ -333,6 +349,12 @@ export const AI_IMAGE_ENDPOINT = process.env.AI_IMAGE_ENDPOINT
 
 /**
  * TTS 配置
+ *
+ * @settingKey TTS_PROVIDER      — SettingKey.TTS_PROVIDER
+ * @settingKey TTS_ENABLED       — SettingKey.TTS_ENABLED
+ * @settingKey TTS_API_KEY       — SettingKey.TTS_API_KEY
+ * @settingKey TTS_MODEL         — SettingKey.TTS_MODEL
+ * @settingKey TTS_DEFAULT_VOICE — SettingKey.TTS_DEFAULT_VOICE (Phase 63 新增)
  */
 // TTS 提供商 (openai, siliconflow)
 export const TTS_PROVIDER = (process.env.TTS_PROVIDER || 'openai') as

@@ -31,6 +31,7 @@ export enum SettingKey {
     AI_QUOTA_POLICIES = 'ai_quota_policies',
     AI_ALERT_THRESHOLDS = 'ai_alert_thresholds',
     AI_COST_FACTORS = 'ai_cost_factors',
+    AI_MAX_TOKENS = 'ai_max_tokens',
 
     // AI Image
     AI_IMAGE_ENABLED = 'ai_image_enabled',
@@ -69,6 +70,7 @@ export enum SettingKey {
     TTS_MODEL = 'tts_model',
     TTS_ENDPOINT = 'tts_endpoint',
     TTS_CREDENTIAL_TTL_SECONDS = 'tts_credential_ttl_seconds',
+    TTS_DEFAULT_VOICE = 'tts_default_voice',
     TTS_VOLCENGINE_APP_ID = 'tts_volcengine_app_id',
     TTS_VOLCENGINE_ACCESS_KEY = 'tts_volcengine_access_key',
 
@@ -78,11 +80,14 @@ export enum SettingKey {
     EMAIL_USER = 'email_user',
     EMAIL_PASS = 'email_pass',
     EMAIL_FROM = 'email_from',
+    EMAIL_SECURE = 'email_secure',
     EMAIL_REQUIRE_VERIFICATION = 'email_require_verification',
     EMAIL_DAILY_LIMIT = 'email_daily_limit',
     EMAIL_SINGLE_USER_DAILY_LIMIT = 'email_single_user_daily_limit',
     EMAIL_LIMIT_WINDOW = 'email_limit_window',
     EMAIL_TEMPLATE_CONFIGS = 'email_template_configs',
+    EMAIL_EXPIRES_IN = 'email_expires_in',
+    TEMP_EMAIL_DOMAIN_NAME = 'temp_email_domain_name',
 
     // Storage
     STORAGE_TYPE = 'storage_type',
