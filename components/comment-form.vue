@@ -97,7 +97,7 @@ const emit = defineEmits<{
 
 const submitting = ref(false)
 
-const form = reactive({
+const form = ref({
     authorName: '',
     authorEmail: '',
     authorUrl: '',
@@ -107,17 +107,17 @@ const form = reactive({
 // 初始化用户信息
 watchEffect(() => {
     if (user.value) {
-        form.authorName = user.value.name || ''
-        form.authorEmail = user.value.email || ''
+        form.value.authorName = user.value.name || ''
+        form.value.authorEmail = user.value.email || ''
     } else if (import.meta.browser) {
         // 尝试从本地存储读取游客信息
         const saved = localStorage.getItem('momei_guest_info')
         if (saved) {
             try {
                 const data = JSON.parse(saved)
-                form.authorName = data.name || ''
-                form.authorEmail = data.email || ''
-                form.authorUrl = data.url || ''
+                form.value.authorName = data.name || ''
+                form.value.authorEmail = data.email || ''
+                form.value.authorUrl = data.url || ''
             } catch (e) {}
         }
     }
@@ -127,7 +127,7 @@ const handleSubmit = async () => {
     submitting.value = true
     try {
         const payload = {
-            ...form,
+            ...form.value,
             postId: props.postId,
             parentId: props.parentId || null,
         }
@@ -140,13 +140,13 @@ const handleSubmit = async () => {
         // 保存游客信息到本地
         if (!user.value) {
             localStorage.setItem('momei_guest_info', JSON.stringify({
-                name: form.authorName,
-                email: form.authorEmail,
-                url: form.authorUrl,
+                name: form.value.authorName,
+                email: form.value.authorEmail,
+                url: form.value.authorUrl,
             }))
         }
 
-        form.content = ''
+        form.value.content = ''
         toast.add({
             severity: 'success',
             summary: t('common.success'),

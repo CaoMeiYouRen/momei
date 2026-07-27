@@ -163,7 +163,7 @@ const campaignTypes = computed(() => [
     { label: t('pages.admin.marketing.type.service'), value: MarketingCampaignType.SERVICE },
 ])
 
-const form = reactive({
+const form = ref({
     type: MarketingCampaignType.FEATURE,
     title: '',
     content: '',
@@ -200,30 +200,30 @@ const loadCampaign = async () => {
         const res = await $fetch<ApiResponse<MarketingCampaign>>(`/api/admin/marketing/campaigns/${props.campaignId}`)
         const data = res.data
         if (data) {
-            form.type = data.type || MarketingCampaignType.FEATURE
-            form.title = data.title || ''
-            form.content = data.content || ''
-            form.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null
+            form.value.type = data.type || MarketingCampaignType.FEATURE
+            form.value.title = data.title || ''
+            form.value.content = data.content || ''
+            form.value.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null
 
             const serverCategoryIds = data.targetCriteria?.categoryIds || []
             const serverTagIds = data.targetCriteria?.tagIds || []
 
             // 对于回显逻辑，由于后端可能存了多个 ID，我们需要反向还原到当前语言的聚合 ID
-            form.targetCriteria.categoryIds = categories.value
+            form.value.targetCriteria.categoryIds = categories.value
                 .filter((cat) => {
                     const clusterIds = cat.translations?.map((t) => t.id) || [cat.id]
                     return clusterIds.some((id) => serverCategoryIds.includes(id))
                 })
                 .map((cat) => cat.id)
 
-            form.targetCriteria.tagIds = tags.value
+            form.value.targetCriteria.tagIds = tags.value
                 .filter((tag) => {
                     const clusterIds = tag.translations?.map((t) => t.id) || [tag.id]
                     return clusterIds.some((id) => serverTagIds.includes(id))
                 })
                 .map((tag) => tag.id)
 
-            if (form.targetCriteria.categoryIds.length || form.targetCriteria.tagIds.length) {
+            if (form.value.targetCriteria.categoryIds.length || form.value.targetCriteria.tagIds.length) {
                 targetType.value = 'criteria'
             } else {
                 targetType.value = 'all'
@@ -248,7 +248,7 @@ onMounted(async () => {
 })
 
 const handleSendTest = async () => {
-    if (!form.title || !form.content) {
+    if (!form.value.title || !form.value.content) {
         toast.add({
             severity: 'warn',
             summary: t('common.warn'),
@@ -263,9 +263,9 @@ const handleSendTest = async () => {
         await $fetch('/api/admin/marketing/campaigns/test', {
             method: 'POST',
             body: {
-                type: form.type,
-                title: form.title,
-                content: form.content,
+                type: form.value.type,
+                title: form.value.title,
+                content: form.value.content,
                 targetCriteria: {},
             },
         })
@@ -290,7 +290,7 @@ const handleSendTest = async () => {
 }
 
 const handleSave = async () => {
-    if (!form.title || !form.content) {
+    if (!form.value.title || !form.value.content) {
         toast.add({
             severity: 'warn',
             summary: t('common.warn'),
@@ -305,7 +305,7 @@ const handleSave = async () => {
         // 展开目标条件中的 ID 到所有语言版本
         const finalCategoryIds = new Set<string>()
         categories.value.forEach((cat) => {
-            if (form.targetCriteria.categoryIds.includes(cat.id)) {
+            if (form.value.targetCriteria.categoryIds.includes(cat.id)) {
                 cat.translations?.forEach((t) => finalCategoryIds.add(t.id))
                 finalCategoryIds.add(cat.id)
             }
@@ -313,23 +313,23 @@ const handleSave = async () => {
 
         const finalTagIds = new Set<string>()
         tags.value.forEach((tag) => {
-            if (form.targetCriteria.tagIds.includes(tag.id)) {
+            if (form.value.targetCriteria.tagIds.includes(tag.id)) {
                 tag.translations?.forEach((t) => finalTagIds.add(t.id))
                 finalTagIds.add(tag.id)
             }
         })
 
         const payload = {
-            type: form.type,
-            title: form.title,
-            content: form.content,
+            type: form.value.type,
+            title: form.value.title,
+            content: form.value.content,
             targetCriteria: targetType.value === 'all'
                 ? {}
                 : {
                         categoryIds: Array.from(finalCategoryIds),
                         tagIds: Array.from(finalTagIds),
                     },
-            scheduledAt: form.scheduledAt ? form.scheduledAt.toISOString() : null,
+            scheduledAt: form.value.scheduledAt ? form.value.scheduledAt.toISOString() : null,
         }
 
         if (props.campaignId) {

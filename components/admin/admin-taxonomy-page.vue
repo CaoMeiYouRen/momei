@@ -388,7 +388,7 @@ const syncToAllLanguages = ref(false)
 const multiForm = ref<Record<string, TaxonomyFormState>>({})
 const multiErrors = ref<Record<string, Record<string, string>>>({})
 const parentOptionsMulti = ref<Record<string, Category[]>>({})
-const deleteDialog = reactive({
+const deleteDialog = ref({
     visible: false,
     item: null as TaxonomyItem | null,
     message: '',
@@ -661,24 +661,24 @@ const confirmDeleteActionMulti = () => {
         return
     }
 
-    deleteDialog.item = { id: currentItem.id } as TaxonomyItem
-    deleteDialog.message = t(props.config.deleteConfirmKey)
-    deleteDialog.visible = true
+    deleteDialog.value.item = { id: currentItem.id } as TaxonomyItem
+    deleteDialog.value.message = t(props.config.deleteConfirmKey)
+    deleteDialog.value.visible = true
 }
 
 const confirmDeleteAction = (item: TaxonomyItem) => {
-    deleteDialog.item = item
-    deleteDialog.message = t(props.config.deleteConfirmKey)
-    deleteDialog.visible = true
+    deleteDialog.value.item = item
+    deleteDialog.value.message = t(props.config.deleteConfirmKey)
+    deleteDialog.value.visible = true
 }
 
 const deleteItem = async () => {
-    if (!deleteDialog.item) {
+    if (!deleteDialog.value.item) {
         return
     }
 
     try {
-        await $fetch(`${props.config.endpoint}/${deleteDialog.item.id}`, {
+        await $fetch(`${props.config.endpoint}/${deleteDialog.value.item.id}`, {
             method: 'DELETE' as const,
         })
         showSuccessToast(props.config.deleteSuccessKey)
