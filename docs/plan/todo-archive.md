@@ -233,6 +233,71 @@
 
 ---
 
+## 第六十三阶段：设置 UI 盘点与治理续航（已审计归档）
+
+> 归档说明: 第六十三阶段「5 个优化」已于 2026-07-27 完成五条主线交付与阶段收口。设置表单 UI Phase 1（盘点+SoT 映射 5 项）已完成缺口清单与映射补齐；响应式状态模型 reactive→ref Step 4 完成 5 处迁移（user-filters/notification-delivery-log-list/waitlist/subscribers/submit）；结构复用治理完成 2 组热点切片（`getErrorDetail` 共享抽取 + 编辑器面板 SCSS 共享），duplicate-code 基线 0.39%→0.35%；测试覆盖率 90%+ 第五批新增 22 个测试覆盖 3 个模块；翻译质量审计（ko-KR/ja-JP）修复 10 项问题。所有主线均通过 typecheck + lint + test 质量门。
+
+> **ROI 评估**: 设置表单 UI Phase 1 `1.60`；reactive→ref Step 4 `1.60`；结构复用治理 `1.50`；测试覆盖率 90%+ 第五批 `1.00`；翻译质量审计 `1.30`。
+
+### 1. 设置表单 UI Phase 1 — 盘点与 SoT 映射补齐（候选 #7）(P2)
+
+- **执行范围**: 产出现有配置项缺口清单（Gap A/B 分类），为 5 个 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射（EMAIL_SECURE/EMAIL_EXPIRES_IN/TEMP_EMAIL_DOMAIN_NAME/TTS_DEFAULT_VOICE/AI_MAX_TOKENS），`INTERNAL_ONLY_ENV_KEYS` 扩充 5 项运维级 key。
+- **非目标**: 不做 UI 组件、不改 `FORCED_ENV_LOCKED_KEYS`。
+- **实现对照**:
+  - `types/setting.ts`：新增 5 个 SettingKey
+  - `server/services/setting.constants.ts`：新增 5 条 SETTING_ENV_MAP + 5 条 INTERNAL_ONLY
+  - `utils/shared/env.ts`：添加 `@settingKey` / `@internalOnly` 注释
+  - `docs/design/governance/settings-form-ui-phase1-gap-inventory.md`：缺口清单
+- **验收对照**: ✅ 5 个映射补齐（超要求 3-5）；✅ `pnpm typecheck` + `pnpm lint` 通过。
+
+### 2. 响应式状态模型收敛：reactive→ref Step 4（候选 #14）(P1)
+
+- **执行范围**: 筛选类（`user-filters.vue`/`notification-delivery-log-list.vue`/`waitlist/index.vue`/`subscribers/index.vue`）和表单错误类（`submit.vue`）中的 `reactive` → `ref` 迁移。
+- **非目标**: 不追求全仓 reactive 清零；表单/弹窗类延期。
+- **实现对照**:
+  - `components/admin/users/user-filters.vue`：`internalFilters` reactive → ref
+  - `components/admin/settings/notification-delivery-log-list.vue`：`filters` reactive → ref
+  - `pages/admin/waitlist/index.vue`：`filters` reactive → ref + 显式类型
+  - `pages/admin/subscribers/index.vue`：`filters` reactive → ref
+  - `pages/submit.vue`：`errors` reactive → ref
+- **验收对照**: ✅ 5 处迁移完成；✅ 所有 template 零改动；✅ `pnpm typecheck` + `pnpm lint` + tests 通过。
+
+### 3. 结构复用治理 — 下一轮热点切片（候选 #2）(P1)
+
+- **执行范围**: 基于 duplicate-code 基线 0.39% 识别重复热点，优先检查 Phase 62 新增代码。
+- **收敛切片**:
+  - Slice 1：`getErrorDetail` 从 5 文件抽取到 `utils/shared/error-detail.ts`，消除 5×13 行重复
+  - Slice 2：`_editor-panel-shared.scss` 共享 placeholder 抽取，消除 perspective/review panel 3 组 SCSS 克隆
+- **验收对照**: ✅ 2 组切片完成；✅ duplicate-code 基线 0.35% ≤ 0.39%（-92 行 / -3 克隆）；✅ `pnpm typecheck` + `pnpm lint` + tests 通过。
+
+### 4. 测试覆盖率 90%+ 第五批（长期主线 #1）(P2)
+
+- **执行范围**: 选取高价值缺口模块：新文件 `error-detail.ts` 全覆盖、`server/utils/settings.ts` 边缘 case、`utils/shared/url.ts` 缺失场景。
+- **实现对照**:
+  - `utils/shared/error-detail.test.ts`：10 个测试覆盖全部路径至 100%
+  - `server/utils/settings.test.ts`：新增 8 个边缘 case（mask 短值/非 mask 类型/类型优先级）
+  - `utils/shared/url.test.ts`：新增 4 个场景（HTTP base 拼接/nullish normalizeBaseUrl）
+- **验收对照**: ✅ 新 22 个测试通过；✅ `pnpm typecheck` + `pnpm lint` 通过。
+
+### 5. 翻译质量审计 — ko-KR/ja-JP（候选 #18）(P2)
+
+- **执行范围**: 审计 home/auth/common/components/public/settings 模块的翻译质量，修复中国语残留、品牌名未本地化、格式/标点问题。
+- **实现对照**:
+  - ja-JP：中国语残留修复（"近期人気"→"最近の人気"、"全期間人気"→"総合人気"）、品牌名本地化（Momei ブログ）、标语本地化、缩进修复
+  - ko-KR：品牌名本地化（모메이 블로그 3 处）、archives 缩进修复、settings 标点修复
+  - `docs/design/governance/i18n-quality-audit-ko-ja.md`：审计报告
+- **验收对照**: ✅ 10 项问题修复；✅ `i18n:audit:missing = 0` 保持。
+
+### 阶段收口检查清单
+
+- [x] `todo.md` 当前阶段条目已完成并清理执行面
+- [x] `roadmap.md` 已同步阶段状态与收口结论
+- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
+- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
+- [x] 主干质量门通过（typecheck + lint + test）
+
+---
+
 ## 第六十二阶段：迁移适配扩展与治理续航（已审计归档）
 
 > 归档说明: 第六十二阶段「1 个新功能 + 4 个优化」已于 2026-07-24 完成五条主线交付与阶段收口。多平台迁移适配器 WordPressParser（WXR 解析 + `--format wordpress` + Hexo/Hugo 无回归）；测试覆盖率 90%+ 第四批（26 个测试覆盖 4 个纯函数至 100%）；AI 编辑视角/读者视角检查（`/api/ai/perspective-check` + 编辑器工具栏 + `PostEditorPerspectivePanel` + AI 计费）；响应式状态模型 reactive→ref Step 3（3 文件 6 处深层嵌套迁移 + 11 个定向测试）；脚本治理 warning 清理（TODO 归零 + 逐行复述 15→6 + docs candidate 清洁）。所有主线均通过 lint/typecheck/test/docs:build 质量门。

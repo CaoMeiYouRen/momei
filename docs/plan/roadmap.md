@@ -321,7 +321,7 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十二阶段迁移适配扩展与治理续航-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第六十三阶段：设置 UI 盘点与治理续航（Phase 63: Settings UI Inventory & Governance Continuation）
+### 第六十三阶段：设置 UI 盘点与治理续航（Phase 63: Settings UI Inventory & Governance Continuation）（已审计归档）
 
 **时间表**: 2026-07-26 ~ 约 3-5 天
 **目标**: 在第六十二阶段完成迁移适配扩展与治理续航后，以「5 个优化」组合推进：设置表单 UI Phase 1（盘点映射）作为后台管理体验的前置分析，reactive→ref Step 4 延续状态模型收敛路线（≥5 处），结构复用治理恢复切片节奏，测试覆盖率 90%+ 第五批作为长期治理延续，翻译质量审计（ko-KR/ja-JP）提升 i18n 品质。
@@ -329,6 +329,8 @@
 **准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。设置表单 UI Phase 1 为纯盘点/映射，不涉及 UI 组件开发，风险极低；reactive→ref Step 4 经前三步已验证迁移模式可行（template 零改动），本次优先筛选/简单类后表单类；结构复用基于 0.39% 健康基线做增量切片；覆盖率第五批基于最新缺口报告推进；翻译质量审计不改变 key 覆盖，仅提升已有翻译的自然度与一致性。
 
 **ROI 评估**: 设置表单 UI Phase 1 `1.60`；reactive→ref Step 4 `1.60`；结构复用治理 `1.50`；测试覆盖率 90%+ 第五批 `1.00`；翻译质量审计 `1.30`。
+
+**审计结论**: 第六十三阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。设置表单 UI Phase 1 已完成缺口清单（Gap A/B 分类）与 5 个新 SettingKey + SETTING_ENV_MAP 映射；响应式状态模型 reactive→ref Step 4 已完成 5 处筛选/表单错误类迁移；结构复用治理已完成 2 组热点切片（`getErrorDetail` 共享抽取 + 编辑器面板 SCSS 共享），duplicate-code 基线 0.35% ≤ 0.39%；测试覆盖率 90%+ 第五批已完成 22 个新增测试覆盖 3 个模块；翻译质量审计已完成 10 项问题修复（ja-JP 5 + ko-KR 5），`i18n:audit:missing = 0` 保持。`pnpm typecheck` + `pnpm lint` + `pnpm test` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
 1. **主线：设置表单 UI Phase 1 — 盘点与 SoT 映射补齐（P2）**:
     - **执行范围**: 产出现有配置项的缺口清单（缺口 A：env-only 直读适合加 SettingKey 的；缺口 B：已有 SettingKey 但缺 UI 的）。为 ≥3-5 个适合后台管理的 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射。不适合后台管理的（基础设施密钥等）标记 `INTERNAL_ONLY` 并更新 `env.ts` 文档注释。Phase 1 不涉及任何 UI 组件开发。
