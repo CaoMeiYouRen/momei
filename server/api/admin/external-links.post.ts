@@ -2,6 +2,7 @@ import { defineEventHandler, readBody } from 'h3'
 import { z } from 'zod'
 import { createLink } from '@/server/services/link'
 import { requireAdmin } from '@/server/utils/permission'
+import { handleExternalLinkError } from '@/server/utils/external-links-shared'
 
 const createExternalLinkSchema = z.object({
     originalUrl: z.string().trim().min(1),
@@ -34,23 +35,6 @@ export default defineEventHandler(async (event) => {
             message: 'Link created successfully',
         }
     } catch (error: unknown) {
-        if (error instanceof z.ZodError) {
-            return {
-                code: 400,
-                message: error.issues[0]?.message || 'Invalid request body',
-            }
-        }
-
-        if (error instanceof Error && (error.message === 'Invalid URL' || error.message === 'URL is blacklisted')) {
-            return {
-                code: 400,
-                message: error.message,
-            }
-        }
-
-        return {
-            code: 500,
-            message: error instanceof Error ? error.message : 'Internal server error',
-        }
+        return handleExternalLinkError(error, 'Internal server error')
     }
 })

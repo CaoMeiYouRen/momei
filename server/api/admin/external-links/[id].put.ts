@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { updateLink, updateLinkStatus } from '@/server/services/link'
 import { LinkStatus } from '@/types/ad'
 import { requireAdmin } from '@/server/utils/permission'
+import { handleExternalLinkError } from '@/server/utils/external-links-shared'
 
 const updateExternalLinkSchema = z.object({
     originalUrl: z.string().trim().min(1).optional(),
@@ -67,23 +68,6 @@ export default defineEventHandler(async (event) => {
             message: 'Link updated successfully',
         }
     } catch (error: unknown) {
-        if (error instanceof z.ZodError) {
-            return {
-                code: 400,
-                message: error.issues[0]?.message || 'Invalid request body',
-            }
-        }
-
-        if (error instanceof Error && (error.message === 'Invalid URL' || error.message === 'URL is blacklisted')) {
-            return {
-                code: 400,
-                message: error.message,
-            }
-        }
-
-        return {
-            code: 500,
-            message: error instanceof Error ? error.message : 'Internal server error',
-        }
+        return handleExternalLinkError(error, 'Internal server error')
     }
 })
