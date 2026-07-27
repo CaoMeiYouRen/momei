@@ -1,0 +1,161 @@
+name: Weekly Regression
+
+on:
+  schedule:
+    # UTC+0 每周五中午 12 点触发（UTC+8 每周五晚上 20 点触发）
+    - cron: "0 12 * * 5"
+  workflow_dispatch: # 支持手动触发
+
+permissions:
+  contents: read
+  security-events: read
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  说明
+# ═══════════════════════════════════════════════════════════════════════════════
+#  本工作流执行周级深度健康检查，覆盖 test.yml（快速反馈环）未覆盖的维度：
+#  依赖安全、文档事实源、i18n 键完整性、重复代码、治理脚本债等。
+#
+#  与 test.yml 的定位区别：
+#    - test.yml: 每次 push/PR，快速反馈（~15-30min），阻断合并
+#    - 本工作流: 每周定时，深度检查（~60-90min），不阻断合并，监测趋势
+#
+#  超时配置说明：
+#    regression:weekly 各 step timeoutBudget 累加约 80min（test:coverage 30m
+#    + security:audit-deps 10m + docs 检查 30m + i18n 审计 10m + governance 审计 20m），
+#    补充检查（typecheck + build + lint:css + lint:md + perf:budget）约 15min，
+#    整体设为 120min 弹性余量。
+
+jobs:
+  # ═════════════════════════════════════════════════════════════════════════════
+  #  Build Dependencies — api-client + mcp-server, consumed by all downstream
+  #  jobs that need workspace deps
+  # ═════════════════════════════════════════════════════════════════════════════
+  build-deps:
+    name: Build (deps)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-artifacts
+          path: |
+            packages/api-client/dist/
+            packages/mcp-server/dist/
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  #  Core Regression — runs regression:weekly + supplementary checks
+  # ═════════════════════════════════════════════════════════════════════════════
+  regression:
+    name: Core Regression
+    needs: [build-deps]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: "11.11.0"
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: dist-artifacts
+          path: ${{ github.workspace }}
+
+      # ── Phase 1: 核心回归（regression:weekly profile） ─────────────────
+      #  包含：test:coverage + security:audit-deps + docs:check:*
+      #  + i18n:audit:missing + duplicate-code:check + governance:audit:*
+      - name: Run weekly regression gate
+        run: pnpm run regression:weekly
+        env:
+          # security:audit-deps 和 governance 脚本可能需要 GitHub API
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Phase 2: 补充检查（regression:weekly profile 未覆盖的维度） ───
+      - name: Nuxt typecheck
+        if: always()
+        run: pnpm run typecheck
+
+      - name: Nuxt build
+        if: always()
+        run: pnpm run build
+
+      - name: CSS lint
+        if: always()
+        run: pnpm run lint:css
+
+      - name: Markdown lint
+        if: always()
+        run: pnpm run lint:md
+
+      - name: Bundle budget check
+        if: always()
+        continue-on-error: true
+        run: pnpm run test:perf:budget
+
+      # ── Phase 3: 证据与报告 ──────────────────────────────────────────
+      - name: Upload regression artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: weekly-regression-${{ github.run_id }}
+          path: |
+            artifacts/review-gate/*-weekly-regression.*
+            artifacts/review-gate/*-weekly.*
+          if-no-files-found: warn
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      # ── Phase 4: Job Summary ─────────────────────────────────────────
+      - name: Write job summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## 📊 周级回归完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 步骤 | 状态 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+
+          echo "| 核心回归 (regression:weekly) | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
+
+          # 从 artifact JSON 提取结论
+          for f in artifacts/review-gate/*-weekly-regression.json; do
+            if [ -f "$f" ]; then
+              CONCLUSION=$(node -e "const d=require('$(pwd)/$f'); console.log(d.summary.conclusion)")
+              BLOCKERS=$(node -e "const d=require('$(pwd)/$f'); console.log(d.summary.blockers.length)")
+              WARNINGS=$(node -e "const d=require('$(pwd)/$f'); console.log(d.summary.warnings.length)")
+              echo "| 回归门禁 | ${CONCLUSION} |" >> $GITHUB_STEP_SUMMARY
+              echo "| Blocker | ${BLOCKERS} |" >> $GITHUB_STEP_SUMMARY
+              echo "| Warning | ${WARNINGS} |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "详见 Artifacts 中的完整报告。" >> $GITHUB_STEP_SUMMARY
