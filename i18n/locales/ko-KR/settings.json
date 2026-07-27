@@ -17,7 +17,7 @@
             "security": {
                 "title": "계정 보안",
                 "change_password": "비밀번호 변경",
-                "set_password_hint": "아직 비밀번호를 설정하지 않았거나(예: OAuth 로그인), 현재 비밀번호를 잊어버린 경우 다음 기능을 사용해 주세요",
+                "set_password_hint": "아직 비밀번호를 설정하지 않았거나(예: OAuth 로그인) 현재 비밀번호를 잊어버린 경우 다음 기능을 사용해 주세요",
                 "current_password": "현재 비밀번호",
                 "new_password": "새 비밀번호",
                 "confirm_password": "새 비밀번호 확인",

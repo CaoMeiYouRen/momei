@@ -1,7 +1,7 @@
 {
     "app": {
-        "name": "Momei Blog",
-        "description": "Momei Blog - AI 駆動・ネイティブ国際化対応の開発者向けブログプラットフォーム。AI Powered, Global Creation.",
+        "name": "Momei ブログ",
+        "description": "Momei ブログ - AI 駆動・ネイティブ国際化対応の開発者向けブログプラットフォーム。AIがつなぐ、世界への発信。",
         "keywords": "ブログ, AI, Nuxt, Vue, TypeScript",
         "locale": "ja-JP"
     },

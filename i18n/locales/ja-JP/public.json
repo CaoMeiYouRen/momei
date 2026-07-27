@@ -226,9 +226,9 @@
                 "description": "Momei のタグクラウドから、技術トピックごとの関連記事やコンテンツ群を探せます。"
             }
         },
-            "archives": {
+        "archives": {
             "meta": {
-                "description": "Momei Blog の過去記事アーカイブを年・月別にたどり、以前の更新やエッセイを振り返れます。"
+                "description": "Momei ブログの過去記事アーカイブを年・月別にたどり、以前の更新やエッセイを振り返れます。"
             },
             "title": "アーカイブ",
             "count": "{count} 件の記事",

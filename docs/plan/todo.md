@@ -53,12 +53,14 @@
 - [ ] 新增测试覆盖，推进全仓 coverage +≥1%
 - [ ] **验收**: coverage +≥1%；typecheck + lint + test:coverage 通过
 
-### 5. 翻译质量审计 — ko-KR/ja-JP (P2)
+### 5. 翻译质量审计 — ko-KR/ja-JP (P2) ✅
 
-- [ ] Phase A：产出翻译质量审计报告（home/auth/common/components/public/settings/posts 模块）
-- [ ] Phase B：修复 ≥10 个问题条目
-- [ ] Phase C（可选）：清理可合并的 duplicate key 组
-- [ ] **验收**: 审计报告输出；≥10 个问题修复；i18n:audit:missing = 0 保持
+- [x] Phase A：产出翻译质量审计报告（home/auth/common/components/public/settings/posts 模块）
+- [x] Phase B：修复 ≥10 个问题条目
+- [ ] ~~Phase C（可选）：清理可合并的 duplicate key 组~~（101 组，超容量，延后）
+- [x] **验收**: 审计报告输出；10 个问题修复；i18n:audit:missing = 0 保持
+- **报告**: `docs/design/governance/i18n-quality-audit-ko-ja.md`
+- **修复统计**: ja-JP 5 项（中国语残留 2 + 品牌名 1 + 标语 1 + 格式 1）+ ko-KR 5 项（品牌名 3 + 格式 1 + 标点 1）= **10 项**
 
 ## 相关文档
 
