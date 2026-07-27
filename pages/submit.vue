@@ -168,7 +168,7 @@ const form = ref({
     captchaToken: '',
 })
 
-const errors = reactive({
+const errors = ref({
     title: '',
     content: '',
     contributorName: '',
@@ -182,14 +182,14 @@ const captchaRef = ref<any>(null)
 
 const handleSubmit = async () => {
     // Clear previous errors
-    Object.keys(errors).forEach((key) => (errors[key as keyof typeof errors] = ''))
+    Object.keys(errors.value).forEach((key) => (errors.value[key as keyof typeof errors.value] = ''))
 
     const result = submissionSchema.safeParse(form.value)
     if (!result.success) {
         result.error.issues.forEach((issue) => {
-            const key = issue.path[0] as keyof typeof errors
-            if (key in errors) {
-                errors[key] = issue.message
+            const key = issue.path[0] as keyof typeof errors.value
+            if (key in errors.value) {
+                errors.value[key] = issue.message
             }
         })
         return
@@ -197,7 +197,7 @@ const handleSubmit = async () => {
 
     // 验证验证码（如果启用）
     if (isCaptchaEnabled.value && !form.value.captchaToken) {
-        errors.captchaToken = t('pages.submit.form.captcha_required')
+        errors.value.captchaToken = t('pages.submit.form.captcha_required')
         return
     }
 

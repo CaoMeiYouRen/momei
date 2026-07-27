@@ -44,7 +44,7 @@ const emit = defineEmits(['update:filters', 'change'])
 const { t } = useI18n()
 
 // Use a proxy object for internal state to avoid mutating props
-const internalFilters = reactive({
+const internalFilters = ref({
     searchValue: props.filters.searchValue,
     role: props.filters.role,
     status: props.filters.status,
@@ -52,9 +52,9 @@ const internalFilters = reactive({
 
 // Sync props to internal state
 watch(() => props.filters, (newFilters) => {
-    internalFilters.searchValue = newFilters.searchValue
-    internalFilters.role = newFilters.role
-    internalFilters.status = newFilters.status
+    internalFilters.value.searchValue = newFilters.searchValue
+    internalFilters.value.role = newFilters.role
+    internalFilters.value.status = newFilters.status
 }, { deep: true })
 
 // Sync internal state to parent and trigger change

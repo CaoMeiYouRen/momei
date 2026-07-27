@@ -122,7 +122,7 @@ definePageMeta({
     layout: 'default',
 })
 
-const filters = reactive({
+const filters = ref({
     email: '',
 })
 
@@ -133,8 +133,8 @@ const {
     onPage,
     onFilterChange: applyFilters,
     refresh,
-} = useAdminList<Subscriber, typeof filters>({
-    initialFilters: filters,
+} = useAdminList<Subscriber, { email: string }>({
+    initialFilters: filters.value,
     initialLimit: 20,
     fetchFn: async ({ page, limit, email }) => {
         const response = await $fetch<{

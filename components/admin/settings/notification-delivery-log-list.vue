@@ -212,7 +212,7 @@ const limit = ref(10)
 const loading = ref(true)
 const demoPreview = ref(false)
 
-const filters = reactive({
+const filters = ref({
     recipient: '',
     notificationType: null as NotificationType | null,
     channel: null as NotificationDeliveryChannel | null,
@@ -363,12 +363,12 @@ async function loadLogs() {
             query: {
                 page: page.value,
                 limit: limit.value,
-                recipient: filters.recipient || undefined,
-                notificationType: filters.notificationType || undefined,
-                channel: filters.channel || undefined,
-                status: filters.status || undefined,
-                startDate: filters.startDate?.toISOString(),
-                endDate: filters.endDate?.toISOString(),
+                recipient: filters.value.recipient || undefined,
+                notificationType: filters.value.notificationType || undefined,
+                channel: filters.value.channel || undefined,
+                status: filters.value.status || undefined,
+                startDate: filters.value.startDate?.toISOString(),
+                endDate: filters.value.endDate?.toISOString(),
             },
         })
 
@@ -393,12 +393,12 @@ function applyFilters() {
 }
 
 function resetFilters() {
-    filters.recipient = ''
-    filters.notificationType = null
-    filters.channel = null
-    filters.status = null
-    filters.startDate = null
-    filters.endDate = null
+    filters.value.recipient = ''
+    filters.value.notificationType = null
+    filters.value.channel = null
+    filters.value.status = null
+    filters.value.startDate = null
+    filters.value.endDate = null
     page.value = 1
     void loadLogs()
 }

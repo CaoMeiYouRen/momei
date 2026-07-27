@@ -28,13 +28,14 @@
 - **产出**: `docs/design/governance/settings-form-ui-phase1-gap-inventory.md`
 - **变更**: 5 个新 SettingKey + SETTING_ENV_MAP 映射 + INTERNAL_ONLY 扩充 + env.ts 注释
 
-### 2. 响应式状态模型收敛 — reactive→ref Step 4 (P1)
+### 2. 响应式状态模型收敛 — reactive→ref Step 4 (P1) ✅
 
-- [ ] 优先迁移筛选类 reactive（user-filters / notification-delivery-log-list / waitlist / subscribers）
-- [ ] 迁移简单表单错误类（submit.vue. errors）
-- [ ] 视时间推进表单/弹窗类（admin-taxonomy-page / marketing-campaign-form / comment-form）
-- [ ] 每文件配定向测试验证回归
-- [ ] **验收**: ≥5 处迁移完成；typecheck + lint 通过；交互无回归
+- [x] 优先迁移筛选类 reactive（user-filters / notification-delivery-log-list / waitlist / subscribers）
+- [x] 迁移简单表单错误类（submit.vue errors）
+- [ ] ~~视时间推进表单/弹窗类（admin-taxonomy-page / marketing-campaign-form / comment-form）~~
+- [x] 每文件配定向测试验证回归（submit.test.ts 6 passed + 关联测试覆盖）
+- [x] **验收**: 5 处 reactive→ref 迁移完成；typecheck + lint + tests 通过；交互无回归
+- **迁移清单**: user-filters.vue（internalFilters）、notification-delivery-log-list.vue（filters）、waitlist/index.vue（filters）、subscribers/index.vue（filters）、submit.vue（errors）
 
 ### 3. 结构复用治理 — 下一轮热点切片 (P1)
 

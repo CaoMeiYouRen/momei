@@ -107,6 +107,14 @@ interface WaitlistEntry {
     createdAt: string
 }
 
+type AdminListFilterValue = string | number | boolean | null | undefined
+
+interface WaitlistFilters {
+    search: string
+    purpose: string
+    [key: string]: AdminListFilterValue
+}
+
 definePageMeta({
     middleware: 'admin',
     layout: 'default',
@@ -120,7 +128,7 @@ const {
     resetDeleteDialog,
 } = useDeleteDialogState<WaitlistEntry>()
 
-const filters = reactive({
+const filters = ref<WaitlistFilters>({
     search: '',
     purpose: '',
 })
@@ -132,8 +140,8 @@ const {
     onPage,
     onFilterChange: applyFilters,
     refresh,
-} = useAdminList<WaitlistEntry, typeof filters>({
-    initialFilters: filters,
+} = useAdminList<WaitlistEntry, WaitlistFilters>({
+    initialFilters: filters.value,
     initialLimit: 20,
     fetchFn: async ({ page, limit, search, purpose }) => {
         const response = await $fetch<{
@@ -164,8 +172,8 @@ const onFilterChange = useDebounceFn(() => {
 
 const exportWaitlist = () => {
     const params = new URLSearchParams()
-    if (filters.purpose) {
-        params.set('purpose', filters.purpose)
+    if (filters.value.purpose) {
+        params.set('purpose', filters.value.purpose)
     }
     const url = `/api/admin/waitlist/export${params.toString() ? `?${params.toString()}` : ''}`
     window.open(url, '_blank')
