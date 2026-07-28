@@ -81,12 +81,12 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: packages/api-client/dist/
       - name: Download mcp-server dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
@@ -125,12 +125,12 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: packages/api-client/dist/
       - name: Download mcp-server dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
@@ -160,12 +160,12 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: packages/api-client/dist/
       - name: Download mcp-server dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
@@ -192,12 +192,12 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: packages/api-client/dist/
       - name: Download mcp-server dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-mcp-server
           path: packages/mcp-server/dist/
@@ -234,7 +234,7 @@ jobs:
       - name: Download Nuxt build output
         id: download-nuxt
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: nuxt-output
           path: .output/
@@ -280,7 +280,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download all blob reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: e2e-blob-report-*
           merge-multiple: true
@@ -317,7 +317,7 @@ jobs:
       - name: Download Nuxt build output
         id: download-nuxt-lh
         continue-on-error: true
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: nuxt-output
           path: .output/
@@ -391,7 +391,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: ${{ github.workspace }}/packages/api-client/dist/
@@ -424,7 +424,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: ${{ github.workspace }}/packages/api-client/dist/
@@ -457,7 +457,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-api-client
           path: ${{ github.workspace }}/packages/api-client/dist/
