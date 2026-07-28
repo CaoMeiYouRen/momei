@@ -346,8 +346,8 @@ importers:
         specifier: 4.5.1
         version: 4.5.1(eslint@9.39.5(jiti@2.7.0))(jsonc-eslint-parser@2.4.2)(vue-eslint-parser@10.4.1(eslint@9.39.5(jiti@2.7.0)))(yaml-eslint-parser@1.3.2)
       '@intlify/message-compiler':
-        specifier: ^11.4.7
-        version: 11.4.7
+        specifier: ^11.4.8
+        version: 11.4.8
       '@intlify/shared':
         specifier: ^11.4.7
         version: 11.4.7
@@ -15244,7 +15244,7 @@ snapshots:
     dependencies:
       '@eslint/eslintrc': 3.3.5
       '@intlify/core-base': 11.4.8
-      '@intlify/message-compiler': 11.4.7
+      '@intlify/message-compiler': 11.4.8
       debug: 4.4.3
       eslint: 9.39.5(jiti@2.7.0)
       eslint-compat-utils: 0.6.5(eslint@9.39.5(jiti@2.7.0))
