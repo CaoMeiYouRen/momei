@@ -237,8 +237,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       markdown-it-emoji:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.0
       markdown-it-github-alerts:
         specifier: ^1.0.1
         version: 1.0.1(markdown-it@14.3.0)
@@ -8909,8 +8909,8 @@ packages:
   markdown-it-container@4.0.0:
     resolution: {integrity: sha512-HaNccxUH0l7BNGYbFbjmGpf5aLHAMTinqRZQAEQbMr2cdD3z91Q6kIo1oUn1CQndkT03jat6ckrdRYuwwqLlQw==}
 
-  markdown-it-emoji@3.0.0:
-    resolution: {integrity: sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==}
+  markdown-it-emoji@3.1.0:
+    resolution: {integrity: sha512-NhmMEH2ywduD4Nty1E8uB5NqfLhAT1VR0dyvoJyStKOqCzbZmVdn/+8wj7zpDsb/fLBikpCPsWwxqKlvMmbz4g==}
 
   markdown-it-github-alerts@1.0.1:
     resolution: {integrity: sha512-NNATF4QdoGI07hyCitoB2YqJ1YcNVCKT89ut2VtfFY9rkeFCXe/V2lOonKQLpJiq5DjiZZepf97BJx5xOjFIAw==}
@@ -22503,7 +22503,7 @@ snapshots:
 
   markdown-it-container@4.0.0: {}
 
-  markdown-it-emoji@3.0.0: {}
+  markdown-it-emoji@3.1.0: {}
 
   markdown-it-github-alerts@1.0.1(markdown-it@14.3.0):
     dependencies:
