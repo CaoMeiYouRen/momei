@@ -117,7 +117,7 @@
     "driver.js": "^1.8.0",
     "fast-xml-parser": "^5.10.1",
     "feed": "^6.0.0",
-    "fs-extra": "^11.3.6",
+    "fs-extra": "^11.4.0",
     "google-libphonenumber": "^3.2.44",
     "h3": "^1.15.11",
     "highlight.js": "^11.11.0",
