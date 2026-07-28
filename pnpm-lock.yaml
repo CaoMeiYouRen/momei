@@ -565,8 +565,8 @@ importers:
         specifier: ^9.4.1
         version: 9.4.1
       smol-toml:
-        specifier: ^1.7.0
-        version: 1.7.0
+        specifier: ^1.7.1
+        version: 1.7.1
     devDependencies:
       '@types/node':
         specifier: ^26.1.1
@@ -11308,8 +11308,8 @@ packages:
     resolution: {integrity: sha512-RQsvleCbF8cVHEv+xuDGaA4pOizFqJ0GgjtMSRo6oP8pnN7WsigHgVGey6aILRBKv4W2YOMHLqbKdnB6hpB9fw==}
     engines: {node: '>=20.0.0'}
 
-  smol-toml@1.7.0:
-    resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
+  smol-toml@1.7.1:
+    resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
     engines: {node: '>= 18'}
 
   socks-proxy-agent@8.0.5:
@@ -25912,7 +25912,7 @@ snapshots:
 
   smob@1.6.2: {}
 
-  smol-toml@1.7.0: {}
+  smol-toml@1.7.1: {}
 
   socks-proxy-agent@8.0.5:
     dependencies:
