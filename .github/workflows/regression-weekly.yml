@@ -80,7 +80,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download dist artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist-artifacts
           path: ${{ github.workspace }}
