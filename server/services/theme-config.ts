@@ -31,7 +31,7 @@ export const getThemeConfigsService = async () => {
 /**
  * 创建新主题方案
  */
-export const createThemeConfigService = async (body: ThemeConfigInput) => {
+export const createThemeConfigService = (body: ThemeConfigInput) => {
     const themeConfigRepo = dataSource.getRepository(ThemeConfig)
     const themeConfig = new ThemeConfig()
 

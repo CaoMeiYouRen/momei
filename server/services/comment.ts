@@ -228,7 +228,7 @@ export const commentService = {
     /**
      * 获取单条评论并复用评论可见性规则。
      */
-    async getCommentById(commentId: string, options: CommentViewerOptions = {}) {
+    getCommentById(commentId: string, options: CommentViewerOptions = {}) {
         const commentRepo = dataSource.getRepository(CommentEntity)
         const qb = commentRepo.createQueryBuilder('comment')
             .leftJoinAndSelect('comment.author', 'author')

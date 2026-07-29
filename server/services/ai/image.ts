@@ -76,7 +76,7 @@ function shouldApplyGeneratedCover(post: Post, options: AIImageOptions) {
 }
 
 export class ImageService extends AIBaseService {
-    private static async persistTaskCheckpoint(
+    private static persistTaskCheckpoint(
         task: AITask,
         checkpoint: ImageTaskCheckpoint,
         patch: Partial<AITask> = {},

@@ -98,7 +98,7 @@ function createTransformHelpers({
             case 'lte':
                 return LessThanOrEqual(value)
             case 'in':
-                return In(value as unknown[])
+                return In(value)
             case 'contains':
                 return Like(`%${value}%`)
             case 'starts_with':
@@ -640,7 +640,7 @@ export const typeormAdapter =
 
         return {
             ...createAdapter(dataSource.manager),
-            async transaction<R>(
+            transaction<R>(
                 callback: (trx: DBTransactionAdapter) => Promise<R>,
             ): Promise<R> {
                 return dataSource.transaction(async (manager) => {

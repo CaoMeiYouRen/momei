@@ -29,7 +29,7 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should return structured estimate contract', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+         
         vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
             provider: 'openai',
             voice: 'alloy',
@@ -82,7 +82,7 @@ describe('POST /api/ai/tts/estimate', () => {
     })
 
     it('should reject missing voice or text', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+         
         vi.mocked(readValidatedBody).mockImplementation(async (_event, validator) => await validator({
             provider: 'openai',
             voice: '',

@@ -65,7 +65,7 @@ function mapAuditLogItem(item: SettingAuditLog): SettingAuditItem {
     }
 }
 
-export async function recordSettingAuditLogs(changes: SettingAuditChange[], context: SettingAuditContext = {}) {
+export function recordSettingAuditLogs(changes: SettingAuditChange[], context: SettingAuditContext = {}) {
     if (!dataSource.isInitialized || changes.length === 0) {
         return []
     }

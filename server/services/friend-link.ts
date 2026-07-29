@@ -299,7 +299,7 @@ export const friendLinkService = {
         return resolveFriendLinkMeta(locale)
     },
 
-    async getCategories(options: { enabledOnly?: boolean } = {}) {
+    getCategories(options: { enabledOnly?: boolean } = {}) {
         const categoryRepo = dataSource.getRepository(FriendLinkCategory)
         const where = options.enabledOnly ? { isEnabled: true } : {}
 
@@ -312,7 +312,7 @@ export const friendLinkService = {
         })
     },
 
-    async createCategory(input: {
+    createCategory(input: {
         name: string
         slug?: string | null
         description?: string | null

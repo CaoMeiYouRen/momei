@@ -44,7 +44,7 @@ export const submissionService = {
     /**
      * 获取单个投稿详情
      */
-    async getSubmissionById(id: string) {
+    getSubmissionById(id: string) {
         const submissionRepo = dataSource.getRepository(Submission)
         return submissionRepo.findOne({
             where: { id },
@@ -55,7 +55,7 @@ export const submissionService = {
     /**
      * 创建投稿
      */
-    async createSubmission(data: {
+    createSubmission(data: {
         title: string
         content: string
         contributorName: string

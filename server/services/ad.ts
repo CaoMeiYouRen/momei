@@ -172,7 +172,7 @@ export function evaluateTargeting(
 /**
  * 获取所有广告活动
  */
-export async function getAllCampaigns(): Promise<AdCampaign[]> {
+export function getAllCampaigns(): Promise<AdCampaign[]> {
     const campaignRepo = dataSource.getRepository(AdCampaign)
     return campaignRepo.find({
         relations: { placements: true },
@@ -185,7 +185,7 @@ export async function getAllCampaigns(): Promise<AdCampaign[]> {
 /**
  * 根据 ID 获取广告活动
  */
-export async function getCampaignById(id: string): Promise<AdCampaign | null> {
+export function getCampaignById(id: string): Promise<AdCampaign | null> {
     const campaignRepo = dataSource.getRepository(AdCampaign)
     return campaignRepo.findOne({
         where: { id },
@@ -196,7 +196,7 @@ export async function getCampaignById(id: string): Promise<AdCampaign | null> {
 /**
  * 创建广告活动
  */
-export async function createCampaign(data: Partial<AdCampaign>): Promise<AdCampaign> {
+export function createCampaign(data: Partial<AdCampaign>): Promise<AdCampaign> {
     const campaignRepo = dataSource.getRepository(AdCampaign)
     const campaign = campaignRepo.create(data)
     return campaignRepo.save(campaign)
@@ -223,7 +223,7 @@ export async function deleteCampaign(id: string): Promise<boolean> {
 /**
  * 获取所有广告位
  */
-export async function getAllPlacements(): Promise<AdPlacement[]> {
+export function getAllPlacements(): Promise<AdPlacement[]> {
     const placementRepo = dataSource.getRepository(AdPlacement)
     return placementRepo.find({
         relations: { campaign: true },
@@ -237,7 +237,7 @@ export async function getAllPlacements(): Promise<AdPlacement[]> {
 /**
  * 根据 ID 获取广告位
  */
-export async function getPlacementById(id: string): Promise<AdPlacement | null> {
+export function getPlacementById(id: string): Promise<AdPlacement | null> {
     const placementRepo = dataSource.getRepository(AdPlacement)
     return placementRepo.findOne({
         where: { id },
@@ -248,7 +248,7 @@ export async function getPlacementById(id: string): Promise<AdPlacement | null> 
 /**
  * 创建广告位
  */
-export async function createPlacement(data: Partial<AdPlacement>): Promise<AdPlacement> {
+export function createPlacement(data: Partial<AdPlacement>): Promise<AdPlacement> {
     const placementRepo = dataSource.getRepository(AdPlacement)
     const placement = placementRepo.create(data)
     return placementRepo.save(placement)

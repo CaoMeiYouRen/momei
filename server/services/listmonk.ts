@@ -183,7 +183,7 @@ function resolveListmonkStatusPayload(campaign: MarketingCampaign) {
     } as const
 }
 
-async function requestListmonk<T>(config: ListmonkDispatchConfig, path: string, options: { method?: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown> } = {}) {
+function requestListmonk<T>(config: ListmonkDispatchConfig, path: string, options: { method?: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown> } = {}): Promise<T> {
     return $fetch<T>(`${config.baseUrl}${path}`, {
         method: options.method || 'GET',
         headers: {

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/require-await, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { FallbackAIProvider } from './fallback-provider'

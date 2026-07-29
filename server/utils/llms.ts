@@ -137,7 +137,7 @@ export function buildLlmsDocument(options: BuildLlmsDocumentOptions): string {
     ].join('\n').trim()
 }
 
-export async function fetchPublishedLlmsPosts(limit: number): Promise<LlmsPostSummary[]> {
+export function fetchPublishedLlmsPosts(limit: number): Promise<LlmsPostSummary[]> {
     const locales = getIndexableLocaleCodes()
     const postRepo = dataSource.getRepository(Post)
 

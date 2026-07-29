@@ -111,7 +111,7 @@ export function extractFaviconUrl(url: string): string {
 /**
  * 获取所有外链
  */
-export async function getAllLinks(): Promise<ExternalLink[]> {
+export function getAllLinks(): Promise<ExternalLink[]> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     return linkRepo.find({
         relations: { createdBy: true },
@@ -124,7 +124,7 @@ export async function getAllLinks(): Promise<ExternalLink[]> {
 /**
  * 根据 ID 获取外链
  */
-export async function getLinkById(id: string): Promise<ExternalLink | null> {
+export function getLinkById(id: string): Promise<ExternalLink | null> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     return linkRepo.findOne({
         where: { id },
@@ -135,7 +135,7 @@ export async function getLinkById(id: string): Promise<ExternalLink | null> {
 /**
  * 根据短码获取外链
  */
-export async function getLinkByShortCode(shortCode: string): Promise<ExternalLink | null> {
+export function getLinkByShortCode(shortCode: string): Promise<ExternalLink | null> {
     const linkRepo = dataSource.getRepository(ExternalLink)
     return linkRepo.findOne({
         where: { shortCode },

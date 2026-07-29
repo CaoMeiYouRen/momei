@@ -207,7 +207,7 @@ async function getVersionEntity(postId: string, versionId: string): Promise<Post
     return version
 }
 
-async function getLatestVersion(postId: string): Promise<PostVersion | null> {
+function getLatestVersion(postId: string): Promise<PostVersion | null> {
     const versionRepo = dataSource.getRepository(PostVersion)
     return versionRepo.findOne({
         where: { postId },

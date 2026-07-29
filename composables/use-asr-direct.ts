@@ -350,7 +350,7 @@ export function useASRDirect(options: ASRDirectOptions) {
      * 批量转录 (直连 SiliconFlow)
      */
     const transcribeBatch = async (audioBlob: Blob): Promise<string> => {
-        const requestTranscription = async (activeCredentials: ASRCredentials) => {
+        const requestTranscription = (activeCredentials: ASRCredentials) => {
             const formData = new FormData()
             formData.append('file', audioBlob, 'recording.webm')
             formData.append('model', activeCredentials.model || 'FunAudioLLM/SenseVoiceSmall')
