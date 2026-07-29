@@ -90,7 +90,8 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
     -   `session.updated_at`
 2.  若本 session 有失败发生，更新 `cognitive` 子段（`failure_count`、`active_mode`、`tried_approaches`、`switched_from`）。
 3.  若发现值得跨 session 复用的 pattern / bug / decision，追加到 `.session/wisdom.md`（按日期分组，每条一行要点）。
-4.  更新 `.session/runtime-state.json` 的 `last_verification`（填入最近的 lint / typecheck / test 结果）。
+4.  检查 `.session/wisdom.md` 活跃条目数：若 >= 20 条，附加一句提醒"wisdom 条目数已达 [N]，建议执行蒸馏"（详细流程见 [Session Wisdom 蒸馏机制](../docs/design/governance/session-wisdom-distillation.md)）。
+5.  更新 `.session/runtime-state.json` 的 `last_verification`（填入最近的 lint / typecheck / test 结果）。
 5.  向用户输出 **不超过 5 行** 的收尾摘要：
     -   本 session 完成的内容
     -   下一步

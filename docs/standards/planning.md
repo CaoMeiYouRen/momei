@@ -264,7 +264,8 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 1. 中文事实源必须先同步完成：`todo.md`、`todo-archive.md`、`roadmap.md`。
 2. 若本次阶段切换涉及 backlog 条目上收、长期主线切片或短期候选去重，必须同步更新 `docs/plan/backlog.md`，不能把 backlog 视为"可选补记"。
 3. 若阶段状态发生变化（例如"规划中"变为"已审计归档"），必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要是否需要更新。
-4. `todo.md` 与 `backlog.md` 默认保持中文，不为阶段归档单独创建翻译件。
+4. 运行 `node scripts/ai-hooks/distill-wisdom.mjs --check`：若返回 `WISDOM_NEEDS_DISTILL`，检查并执行 [Session Wisdom 蒸馏流程](../design/governance/session-wisdom-distillation.md)，将高价值知识点固化到 `docs/` 后再归档。
+5. `todo.md` 与 `backlog.md` 默认保持中文，不为阶段归档单独创建翻译件。
 5. 若本阶段伴随规范、指南、README 或模块设计文档漂移，必须在归档前一并判断是否需要同步，不能把"文档补写"留作隐性尾项。
 6. 若本阶段新增或重写设计文档，必须同步判断其应进入 `docs/design/modules/` 还是 `docs/design/governance/`，禁止为了省事继续把专项治理文档塞回模块目录。
 7. **归档一致性检查**：确认 `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片的覆盖范围匹配。若 roadmap 归档截止阶段落后于 todo-archive，应先补齐缺失的 roadmap 归档分片，再继续归档。同理，若 roadmap 详情正文已被压缩为摘要表，应先从 git HEAD 或 todo-archive 恢复原文创建归档分片，避免阶段细节不可追溯。

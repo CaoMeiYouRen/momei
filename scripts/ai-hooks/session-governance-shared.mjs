@@ -126,7 +126,21 @@ function createDefaultCurrentTask(currentPhase, timestamp) {
 }
 
 function createDefaultWisdomTemplate(timestamp) {
-    return `# Session Wisdom (跨 Session 复用发现)\n\n> 仅在发现值得跨 session 复用的非平凡 pattern/bug/decision 时记录。\n> 无则保持空文件。不要为了填而填。\n\n## ${timestamp.slice(0, 10)}\n\n`
+    return [
+        '# Session Wisdom (跨 Session 复用发现)',
+        '',
+        '> 跨 session 发现的知识点。已迁移条目仅保留摘要与链接，完整内容见对应文档。',
+        '> 详细蒸馏机制见 [Session Wisdom 蒸馏机制](../docs/design/governance/session-wisdom-distillation.md)。',
+        '> 辅助脚本: `node scripts/ai-hooks/distill-wisdom.mjs --check`',
+        '',
+        '## 当前条目 (Active)',
+        '',
+        `### ${timestamp.slice(0, 10)}`,
+        '',
+        '',
+        '## 已蒸馏条目 (Historical)',
+        '',
+    ].join('\n')
 }
 
 async function pathExists(targetPath) {

@@ -57,6 +57,7 @@ description: 负责需求挖掘、意图抽离与路线图对齐。是 PDTFC+ �
 
 1.  委托 `todo-manager` skill 执行 Session 收尾更新：将当前正在进行的规划任务、已形成的结论、待继续的部分写入 `.session/current-task.yaml`。
 2.  若本次 session 形成了值得复用的规划 pattern（例如"某类需求的评估口径""某种插队判定的经验"），追加到 `.session/wisdom.md`。
+3.  若 `.session/wisdom.md` 活跃条目数 >= 20，提醒执行蒸馏（详见 [Session Wisdom 蒸馏机制](../../docs/design/governance/session-wisdom-distillation.md)）。
 3.  确认 `todo.md` 中受本次规划影响的状态已同步更新（标记 in-progress / completed / 新建任务）。
 
 ### 关键防护

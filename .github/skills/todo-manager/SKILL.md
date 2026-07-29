@@ -62,6 +62,7 @@ metadata:
 
 另外：
 -   若有值得跨 session 复用的 pattern / bug / decision，追加到 `.session/wisdom.md`。
+-   若 `.session/wisdom.md` 活跃条目数 >= 20，提醒执行蒸馏（详见 [Session Wisdom 蒸馏机制](../../docs/design/governance/session-wisdom-distillation.md)）。
 -   更新 `.session/runtime-state.json` 的 `last_verification`。
 
 #### 关键边界
