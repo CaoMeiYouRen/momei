@@ -74,7 +74,7 @@ describe('ad service repo and filtering helpers', () => {
         find: vi.fn(),
         findOne: vi.fn(),
         create: vi.fn((data) => ({ ...data })),
-        save: vi.fn((data) => data),
+        save: vi.fn((data) => Promise.resolve(data)),
         update: vi.fn(),
         delete: vi.fn(),
     }
@@ -83,7 +83,7 @@ describe('ad service repo and filtering helpers', () => {
         find: vi.fn(),
         findOne: vi.fn(),
         create: vi.fn((data) => ({ ...data })),
-        save: vi.fn((data) => data),
+        save: vi.fn((data) => Promise.resolve(data)),
         update: vi.fn(),
         delete: vi.fn(),
         increment: vi.fn(),

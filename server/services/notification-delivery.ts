@@ -63,7 +63,7 @@ function mapNotificationDeliveryLogItem(
     }
 }
 
-export function recordNotificationDeliveryLog(input: RecordNotificationDeliveryInput) {
+export async function recordNotificationDeliveryLog(input: RecordNotificationDeliveryInput) {
     if (!dataSource.isInitialized) {
         return null
     }

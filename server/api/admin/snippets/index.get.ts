@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     const allowedSortFields = ['createdAt', 'updatedAt']
     const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt'
 
-    qb.orderBy(`snippet.${finalSortBy}`, sortDirection.toUpperCase())
+    qb.orderBy(`snippet.${finalSortBy}`, sortDirection.toUpperCase() as 'ASC' | 'DESC')
     qb.skip((page - 1) * limit)
     qb.take(limit)
 

@@ -98,7 +98,7 @@ function createTransformHelpers({
             case 'lte':
                 return LessThanOrEqual(value)
             case 'in':
-                return In(value)
+                return In(value as unknown[])
             case 'contains':
                 return Like(`%${value}%`)
             case 'starts_with':
