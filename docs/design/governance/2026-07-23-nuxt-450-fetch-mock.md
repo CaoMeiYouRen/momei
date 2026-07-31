@@ -53,7 +53,7 @@ Nuxt 4.5.0 是一次重大版本升级（Vite 8、unhead v3、unctx v3、框架�
 
 第一次只搜索了 `vi.stubGlobal('$fetch'`，漏掉了使用 `mockNuxtImport('$fetch', ...)` 和 `globalThis.$fetch =` 的文件，导致需要后续补修。
 
-## ## 修复工作流
+## 修复工作流
 
 本报告沉淀的修复工作流如下：
 

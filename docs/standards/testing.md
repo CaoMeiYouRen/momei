@@ -244,11 +244,11 @@ pnpm run test:coverage
 
 ## 9. Nuxt Auto-Import Mock 变更
 
-Nuxt 大版本升级可能导致 auto-import 机制变化（如 `$fetch` 从全局变量改为编译时模块注入），使 `vi.stubGlobal` 等传统 mock 方式失效。排查方法与修复方案详见 [Nuxt 4.5.0 \$fetch 修复报告](../reports/2026-07-23-nuxt-450-fetch-mock.md)。
+Nuxt 大版本升级可能导致 auto-import 机制变化（如 `$fetch` 从全局变量改为编译时模块注入），使 `vi.stubGlobal` 等传统 mock 方式失效。排查方法与修复方案详见 [Nuxt 4.5.0 \$fetch 修复报告](../design/governance/2026-07-23-nuxt-450-fetch-mock.md)。
 
 ## 10. 修复工作流
 
-修复类任务遵循"最小复现测试 → 定向 subset → 批量修复 → CI 裁决"的工作流，详见 [修复工作流补充](../reports/2026-07-23-nuxt-450-fetch-mock.md#修复工作流)。
+修复类任务遵循"最小复现测试 → 定向 subset → 批量修复 → CI 裁决"的工作流，详见 [修复工作流补充](../design/governance/2026-07-23-nuxt-450-fetch-mock.md#修复工作流)。
 
 ## 11. 相关文档
 
