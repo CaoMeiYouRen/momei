@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-06-27
+last_sync: 2026-07-31
 translation_tier: summary-sync
 ---
 
@@ -72,6 +72,16 @@ E2E test files are stored in the `tests/e2e/` directory at the project root.
 - `pnpm test:e2e:critical` is the default browser baseline for review and regression.
 - `pnpm test:e2e:review-gate --scope=<change>` is the structured evidence entry used by review-gate and regression records.
 - Review-gate evidence converges on one run directory containing `manifest.json`, `evidence.md`, `playwright.log`, `playwright-report/`, and `test-results/`.
+- **Execution prerequisite**: `pnpm test:e2e` / `pnpm test:e2e:critical` must first check whether `.output` is stale; rebuild before testing if sources are newer than the build output.
+- **E2E environment mode constraints**:
+  - `TEST_MODE` and `DEMO_MODE` **must not be enabled simultaneously**. `TEST_MODE` is for E2E tests (creates the `test@momei.test` test user), `DEMO_MODE` is for demo environments (creates the `admin@example.com` demo user). Enabling both makes the `seed-demo` and `seed-test` Nitro plugins race on the SQLite transaction lock.
+  - E2E config (`playwright.config.ts`) only sets `TEST_MODE=true`, never `DEMO_MODE`.
+  - `server/plugins/seed-demo.ts` has a guard: `if (DEMO_MODE && !TEST_MODE)`, so demo seeding is skipped even if both modes are misconfigured.
+  - The `synchronize` option in `server/database/index.ts` includes `TEST_MODE` to ensure automatic table creation in test environments.
+- **Troubleshooting "plugin did not run"**:
+  - Inspect the build output: `grep -n "keyword" .output/server/chunks/nitro/nitro.mjs` to confirm the plugin code exists.
+  - Check runtime logs: `[Test Seed]` prefix means seed-test ran, `[Demo Seed]` prefix means seed-demo ran.
+  - If neither prefix appears, the plugin was tree-shaken or `TEST_MODE`/`DEMO_MODE` was not set correctly.
 
 ## 4. Testing Requirements
 
@@ -140,3 +150,11 @@ To balance quality and development speed, especially since full test suites (spe
 | Verify | `pnpm verify` | 60 minutes |
 
 Periodic regression should prefer the fixed entries `pnpm regression:weekly`, `pnpm regression:pre-release`, and `pnpm regression:phase-close` instead of mixing ad-hoc bundles of commands.
+
+## 7. Nuxt Auto-Import Mock Changes
+
+Nuxt major upgrades may change the auto-import mechanism (e.g., `$fetch` moved from a global variable to compile-time module injection), breaking traditional mocks such as `vi.stubGlobal`. Troubleshooting steps and the fix are documented in the [Nuxt 4.5.0 $fetch fix report](../../../design/governance/2026-07-23-nuxt-450-fetch-mock.md).
+
+## 8. Fix Workflow
+
+Fix tasks follow the "minimal reproduction test → targeted subset → batch fix → CI verdict" workflow, see [Fix workflow supplement](../../../design/governance/2026-07-23-nuxt-450-fetch-mock.md#修复工作流).
