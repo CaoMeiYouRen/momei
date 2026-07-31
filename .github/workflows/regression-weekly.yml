@@ -79,11 +79,15 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+      # ⚠️ upload-artifact 对多目录合并上传会自动去除最小共同父目录前缀
+      # （dist-artifacts 内容为 api-client/dist/ 与 mcp-server/dist/，无 packages/ 前缀），
+      # 因此下载时必须落到 ${{ github.workspace }}/packages 才能与源码目录结构对齐，
+      # 否则 typecheck / build 会因 packages/*/dist 缺失而失败。
       - name: Download dist artifacts
         uses: actions/download-artifact@v8
         with:
           name: dist-artifacts
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/packages
 
       # ── Phase 1: 核心回归（regression:weekly profile） ─────────────────
       #  包含：test:coverage + security:audit-deps + docs:check:*
