@@ -1,5 +1,38 @@
 # momei
 
+# [1.25.0](https://github.com/CaoMeiYouRen/momei/compare/v1.24.0...v1.25.0) (2026-08-01)
+
+
+### ✨ 新功能
+
+* **settings:** 添加 AI 设置选项和国际化支持 ([01ce967](https://github.com/CaoMeiYouRen/momei/commit/01ce967))
+* **settings:** 设置表单 UI Phase 1 — 盘点与 SoT 映射补齐 ([2ac9365](https://github.com/CaoMeiYouRen/momei/commit/2ac9365))
+* **settings:** 设置表单 UI Phase 2 — 首批 UI 组件 ([1ce8e88](https://github.com/CaoMeiYouRen/momei/commit/1ce8e88))
+
+
+### 🐛 Bug 修复
+
+* **changeset:** 移除 ignore 列表中不存在的 momei 包 ([b8e2830](https://github.com/CaoMeiYouRen/momei/commit/b8e2830))
+* **editor:** AI 审校修复 - 合并 badge 计数与面板重叠 ([869f253](https://github.com/CaoMeiYouRen/momei/commit/869f253))
+* **editor:** 修复工具栏收敛中的交互问题 ([9cff016](https://github.com/CaoMeiYouRen/momei/commit/9cff016))
+* **editor:** 修复改写风格 Popover 定位与标题宽度 ([ed4ea79](https://github.com/CaoMeiYouRen/momei/commit/ed4ea79))
+* **feedback:** 修复反馈页面图标显示问题 ([1fc450a](https://github.com/CaoMeiYouRen/momei/commit/1fc450a))
+* **server:** 修复 typecheck 类型错误和单元测试 Promise 问题 ([e00da55](https://github.com/CaoMeiYouRen/momei/commit/e00da55))
+* **settings:** 修复设置掩码类型推断逻辑 ([fa6a565](https://github.com/CaoMeiYouRen/momei/commit/fa6a565))
+* **typecheck:** handleExternalLinkError 返回统一包含 data 字段 ([8584d1c](https://github.com/CaoMeiYouRen/momei/commit/8584d1c))
+
+
+### 📦 代码重构
+
+* **api:** 结构复用 — categories delete + external-links error 提取 ([d38a712](https://github.com/CaoMeiYouRen/momei/commit/d38a712))
+* **api:** 重构分类和标签的查询逻辑 ([543bb92](https://github.com/CaoMeiYouRen/momei/commit/543bb92))
+* **components:** reactive→ref Step 4 — 筛选类与表单错误类迁移 ([066d199](https://github.com/CaoMeiYouRen/momei/commit/066d199))
+* **components:** reactive→ref Step 5 — 表单/弹窗类收尾 ([7858288](https://github.com/CaoMeiYouRen/momei/commit/7858288))
+* **components:** 结构复用治理 — 热点切片收敛 ([1e754ab](https://github.com/CaoMeiYouRen/momei/commit/1e754ab))
+* **composables:** 导出 AdminListFilterValue 消除 waitlist 重复定义 ([374e83b](https://github.com/CaoMeiYouRen/momei/commit/374e83b)), closes [#1](https://github.com/CaoMeiYouRen/momei/issues/1)
+* **editor:** 将 AI 工具栏从 10 个按钮收敛为 5 个入口 ([e936ec1](https://github.com/CaoMeiYouRen/momei/commit/e936ec1))
+* **server:** 优化函数定义方式 ([6ce07df](https://github.com/CaoMeiYouRen/momei/commit/6ce07df))
+
 # [1.24.0](https://github.com/CaoMeiYouRen/momei/compare/v1.23.0...v1.24.0) (2026-07-26)
 
 
