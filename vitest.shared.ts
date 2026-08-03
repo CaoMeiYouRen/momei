@@ -50,6 +50,18 @@ const baseVitestOptions = {
         // worker thread CWD 竞态，导致 pnpm 在错误目录执行。forks 池无此问题。
         pool: testPool,
         maxWorkers: maxWorkerCount,
+        // 覆盖率阈值以 CI Coverage job（pnpm run test:coverage）实测基线为准：
+        // Statements 79.53 / Branches 67.94 / Functions 78.23 / Lines 79.54（2026-07-31），
+        // 设置留出安全余量，防止正常波动误伤门禁。
+        coverage: {
+            provider: 'v8',
+            thresholds: {
+                lines: 75,
+                functions: 75,
+                statements: 75,
+                branches: 60,
+            },
+        },
     },
     resolve: {
         alias: {
