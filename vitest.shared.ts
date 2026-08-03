@@ -54,7 +54,9 @@ const baseVitestOptions = {
         // Statements 79.53 / Branches 67.94 / Functions 78.23 / Lines 79.54（2026-07-31），
         // 设置留出安全余量，防止正常波动误伤门禁。
         coverage: {
-            provider: 'v8',
+            // as const 保留字面量类型，避免被推断为 string 导致
+            // defineVitestConfig 的 coverage.provider 类型不兼容（typecheck 报错）
+            provider: 'v8' as const,
             thresholds: {
                 lines: 75,
                 functions: 75,
