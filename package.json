@@ -225,7 +225,7 @@
     "vitepress": "^1.6.4",
     "vitest": "4.1.10",
     "vitest-environment-nuxt": "^2.0.0",
-    "vue-tsc": "3.3.8",
+    "vue-tsc": "3.3.9",
     "wrangler": "4.115.0"
   },
   "author": "CaoMeiYouRen",
