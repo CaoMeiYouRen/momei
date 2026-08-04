@@ -349,8 +349,8 @@ importers:
         specifier: ^11.4.8
         version: 11.4.8
       '@intlify/shared':
-        specifier: ^11.4.7
-        version: 11.4.7
+        specifier: ^11.4.8
+        version: 11.4.8
       '@lhci/cli':
         specifier: ^0.15.1
         version: 0.15.1
@@ -16362,7 +16362,7 @@ snapshots:
     dependencies:
       '@intlify/core': 11.4.7
       '@intlify/h3': 0.7.4
-      '@intlify/shared': 11.4.7
+      '@intlify/shared': 11.4.8
       '@intlify/unplugin-vue-i18n': 11.2.4(@vue/compiler-dom@3.5.40)(eslint@9.39.5(jiti@2.7.0))(rollup@4.62.3)(typescript@6.0.3)(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.49.1)(yaml@2.9.0))(vue-i18n@11.4.7(vue@3.5.40(typescript@6.0.3)))(vue@3.5.40(typescript@6.0.3))
       '@intlify/utils': 0.14.1
       '@miyaneee/rollup-plugin-json5': 1.2.0(rollup@4.62.3)
