@@ -130,7 +130,7 @@ function createDefaultWisdomTemplate(timestamp) {
         '# Session Wisdom (跨 Session 复用发现)',
         '',
         '> 跨 session 发现的知识点。已迁移条目仅保留摘要与链接，完整内容见对应文档。',
-        '> 详细蒸馏机制见 [Session Wisdom 蒸馏机制](../docs/design/governance/session-wisdom-distillation.md)。',
+        '> 详细蒸馏机制见 [Session Wisdom 蒸馏机制](../../docs/design/governance/session-wisdom-distillation.md)。',
         '> 辅助脚本: `node scripts/ai-hooks/distill-wisdom.mjs --check`',
         '',
         '## 当前条目 (Active)',
