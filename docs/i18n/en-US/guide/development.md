@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-04
+last_sync: 2026-08-07
 translation_tier: summary-sync
 ---
 
@@ -80,6 +80,9 @@ For deeper insights into code standards, directory structure, and security requi
 | `pnpm i18n:audit:missing` | Fail fast when locale parity is missing |
 | `pnpm i18n:audit:unused` | Review cleanup candidates without turning them into a default blocker |
 | `pnpm governance:check:scripts` | Check long-term script entry drift, missing references, and temporary-script residue |
+| `pnpm governance:audit:simple-duplicates` | Inventory simple duplicate candidates, outputting a same-name / similar-name structural reuse baseline |
+| `pnpm governance:audit:eslint-debt` | Inventory ESLint / type debt, outputting a rule / directory / explicit-exemption baseline |
+| `pnpm governance:audit:comment-drift` | Inventory comment governance, outputting high-complexity missing-comment, TODO, restatement, and drift candidates |
 | `pnpm docs:check:line-count:candidate` | Review the warning-only candidate baseline for high-frequency guide / standards pages |
 | `pnpm docs:check:source-of-truth:candidate` | Review the warning-only candidate freshness profile before promoting stricter doc gates |
 | `pnpm regression:weekly` | Run the fixed weekly regression entry for coverage, dependency risk, docs source-of-truth, i18n checks, and duplicate-code baseline |
@@ -94,13 +97,13 @@ For deeper insights into code standards, directory structure, and security requi
 
 `pnpm test:e2e` and `pnpm test:e2e:critical` now verify that `.output/server/index.mjs` is not older than the source tree before they start, so browser validation does not silently reuse a stale build.
 
-The regression flow is intentionally fixed around three entries instead of ad-hoc command bundles:
+When you need to bring real-environment UI validation into a Review Gate, prefer `pnpm test:e2e:review-gate --scope=<change>`: it cleans stale auth state, rebuilds the login state for this run, and collects the HTML report, failure screenshots / traces, `evidence.md`, and `manifest.json` into one run directory for later regression records to reference directly. `manifest.json` is the structured artifact for Review Gate / regression logs (run directory naming, environment-prep boundaries, key scenario matrix, and failure attribution categories); `evidence.md` is the human-readable V3 summary.
 
-- `pnpm regression:weekly`
-- `pnpm regression:pre-release`
-- `pnpm regression:phase-close`
+Periodic regression is intentionally fixed around three entries instead of ad-hoc command bundles:
 
-If `docs/reports/regression/current.md` exceeds the active-window limit, the phase-close entry stops and requires archive rotation before it can pass.
+- Weekly governance: run `pnpm regression:weekly` first.
+- Pre-release: run `pnpm regression:pre-release`; `release:check:full` inside it blocks `i18n:audit:missing`.
+- Before phase archive: run `pnpm regression:phase-close`; if `docs/reports/regression/current.md` exceeds `400` lines or `8` records, the script requires archive rotation to `docs/reports/regression/archive/` before it can pass.
 
 The docs candidate commands remain warning-only baselines for now. Treat them as planning evidence for future gate tightening rather than as release blockers.
 
@@ -111,3 +114,9 @@ The docs candidate commands remain warning-only baselines for now. Treat them as
 3. Commit your changes.
 4. Push to the branch (`git push origin feat/amazing-feature`).
 5. Open a Pull Request.
+
+---
+
+::: tip
+For deeper code-standard details, refer to the [Development Standards](../standards/development.md).
+:::

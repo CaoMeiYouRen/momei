@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-04
+last_sync: 2026-08-07
 translation_tier: summary-sync
 ---
 
@@ -69,6 +69,10 @@ These variables control the site-wide AI capabilities.
 | `AI_API_ENDPOINT` | `ai_endpoint` | 2 | none | API endpoint or proxy |
 | `AI_HEAVY_TASK_TIMEOUT` | - | 3 | none | Shared timeout window for TTS, ASR, image generation, and other heavy jobs |
 | `AI_TEXT_DIRECT_RETURN_MAX_CHARS` | - | 3 | none | Character threshold for switching long-text translation to async task mode |
+| `AI_FALLBACK_PROVIDER` | `ai_fallback_provider` | 2 | none | Backup AI provider (openai/siliconflow, etc.); auto-switches when the primary provider fails; two independent config sets for text and image |
+| `AI_FALLBACK_API_KEY` | `ai_fallback_api_key` | 2 | key | Backup AI API key |
+| `AI_FALLBACK_MODEL` | `ai_fallback_model` | 2 | none | Backup model name |
+| `AI_FALLBACK_ENDPOINT` | `ai_fallback_endpoint` | 2 | none | Backup API endpoint or proxy |
 | `AI_TEXT_TASK_CHUNK_SIZE` | - | 3 | none | Default chunk size for long-text translation tasks |
 | `AI_TEXT_TASK_CONCURRENCY` | - | 3 | none | Default concurrency for long-text translation tasks |
 | `GEMINI_API_TOKEN` | `gemini_api_token` | 2 | key | Dedicated Gemini token |
@@ -187,8 +191,12 @@ Naming: `NUXT_RATE_LIMIT_<RULE_NAME>_MAX` (max requests) / `NUXT_RATE_LIMIT_<RUL
 | `MEMOS_DEFAULT_VISIBILITY` | `memos_default_visibility` | 2 | none | Default Memos visibility |
 | `LISTMONK_ENABLED` | `listmonk_enabled` | 2 | none | Enables listmonk newsletter delivery |
 | `LISTMONK_INSTANCE_URL` | `listmonk_instance_url` | 2 | none | listmonk instance URL |
+| `LISTMONK_USERNAME` | `listmonk_username` | 2 | none | listmonk admin username |
 | `LISTMONK_ACCESS_TOKEN` | `listmonk_access_token` | 2 | password | listmonk API token |
 | `LISTMONK_DEFAULT_LIST_IDS` | `listmonk_default_list_ids` | 2 | none | Default list IDs for listmonk delivery |
+| `LISTMONK_CATEGORY_LIST_MAP` | `listmonk_category_list_map` | 2 | none | JSON mapping from categories to listmonk lists |
+| `LISTMONK_TAG_LIST_MAP` | `listmonk_tag_list_map` | 2 | none | JSON mapping from tags to listmonk lists |
+| `LISTMONK_TEMPLATE_ID` | `listmonk_template_id` | 2 | none | Optional listmonk template ID |
 | `HEXO_SYNC_ENABLED` | `hexo_sync_enabled` | 2 | none | Enables remote repository sync for Hexo-style article exports |
 | `HEXO_SYNC_PROVIDER` | `hexo_sync_provider` | 2 | none | Target provider, currently `github` or `gitee` |
 | `HEXO_SYNC_OWNER` | `hexo_sync_owner` | 2 | none | Target repository owner or namespace |
