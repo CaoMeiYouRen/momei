@@ -27,7 +27,8 @@
       - 第六十一阶段已完成第三批缺口覆盖：4 个高价值模块（installation.ts 86.84%、comment.ts 86.82%、admin-drafts.ts 92.45%、post-automation-helpers.ts 全覆盖），全仓 coverage 基线持续抬升。
       - 第六十二阶段已完成第四批缺口覆盖：26 个测试覆盖 4 个纯函数（toDateOrNull、toDateOrUndefined、toQueryString、toQueryStringArray）至 100%。
       - 第六十三阶段已完成第五批缺口覆盖：22 个测试覆盖 3 个模块（error-detail.ts 100%、settings.ts 边缘 case、url.ts 缺失场景）。
-      - 第六十四阶段已完成第六批缺口覆盖：7 个边缘 case 测试覆盖 privacy.ts 模块。
+       - 第六十四阶段已完成第六批缺口覆盖：7 个边缘 case 测试覆盖 privacy.ts 模块。
+       - 第六十五阶段已完成第七批缺口覆盖：新增 3 个测试文件（`external-links-shared.test.ts` / `settings.test.ts` / `setting.constants.test.ts`），覆盖 `handleExternalLinkError` / `inferSettingMaskType` 行为变更 / `isSettingEnvLocked` / `resolveSettingEnvEntry` / `getSettingLockReason` 等函数；但全仓覆盖率 Statements 仅 79.48%（未达 ≥1% 提升目标），未通过验收，转入长期治理继续推进。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
     - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
@@ -42,11 +43,12 @@
       - 第六十一阶段（已上收测试覆盖率 90%+ 第三批：4 个高价值模块补测，覆盖 installation/comment/admin-drafts/post-automation-helpers，已审计归档）。
       - 第六十二阶段（已上收测试覆盖率 90%+ 第四批：26 测试覆盖 4 个纯函数至 100%，已审计归档）。
       - 第六十三阶段（已上收测试覆盖率 90%+ 第五批：22 测试覆盖 3 个模块，已审计归档）。
-      - 第六十四阶段（已上收测试覆盖率 90%+ 第六批：privacy.ts 7 个边缘 case，已审计归档）。
+       - 第六十四阶段（已上收测试覆盖率 90%+ 第六批：privacy.ts 7 个边缘 case，已审计归档）。
+       - 第六十五阶段（已上收测试覆盖率 90%+ 第七批：3 个测试文件涵盖 external-links-shared/settings/setting.constants，全仓 79.48% 未达 ≥1% 目标，转入长期治理继续推进）。
 - **下一次可切片方向**:
-    - 覆盖率提升方向：继续按 Phase 59-60 节奏，基于最新全仓覆盖率缺口报告选择下一批高价值模块（如 `server/services/` 层、`server/utils/` 层等尚未深度覆盖的模块），按 1-2 个百分点分批推进至 90%+。
+    - 覆盖率提升方向：Phase 65 第七批新增 3 个测试文件但全仓 Statements 仅达 79.48%（未达 ≥1% 目标），说明需要更精准地选择可观测覆盖提升的高价值模块。下一批优先选代码量大、分支数多的 `server/services/` 层模块（而非 `server/utils/` 层小而精的工具函数），确保每批覆盖 ≥1% 的数字可见提升。
     - 测试有效性方向：继续"已有测试基座 + 失败/边界优先"节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
-    - 两条线并行不冲突：覆盖率提升优先选高价值缺口模块，测试有效性优先选高风险链路，避免为了冲数字而做低价值铺量。
+    - 两条线并行不冲突：覆盖率提升优先选高价值大模块，测试有效性优先选高风险链路，避免为了冲数字而做低价值铺量。
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
     - 按批次继续收紧 ESLint 规则，至少再收紧 1-2 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
@@ -98,7 +100,8 @@
       - 第五十九阶段未上收结构复用切片。
       - 第六十一阶段已完成 CLI 包类型收敛（MomeiPostStatus/MomeiPostVisibility 枚举派生 + MomeiPostScaffoldMetadata @deprecated 别名）+ toDateOrNull/toDateOrUndefined 共享函数抽取，duplicate-code 基线不反弹。
       - 第六十三阶段已完成 2 组热点切片（getErrorDetail 从 5 文件抽取到共享模块 + 编辑器面板 SCSS 共享），duplicate-code 基线 0.39%→0.35%。
-      - 第六十四阶段已完成 2 组热点切片（safeDeleteCategory 新建 + handleExternalLinkError 新建），duplicate-code 基线保持 0.35%。
+       - 第六十四阶段已完成 2 组热点切片（safeDeleteCategory 新建 + handleExternalLinkError 新建），duplicate-code 基线保持 0.35%。
+       - 第六十五阶段已完成 Categories/Tags 共享查询层收敛：新建 `category-public-list.ts` + `tag-public-list.ts`，4 端点 handler 简化，累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
     - 第三十八阶段（admin 列表页结构复用）。
@@ -119,10 +122,10 @@
       - 第五十八阶段（2 组 api-client 类型收敛切片；duplicate-code 基线 0.31% 未反弹；Phase 57 结构复用延期项已闭环）。
       - 第六十一阶段（CLI 包类型收敛 + toDateOrNull/toDateOrUndefined 抽取，duplicate-code 基线不反弹）。
       - 第六十三阶段（2 组热点切片：getErrorDetail + 编辑器面板 SCSS 共享，duplicate-code 0.39%→0.35%）。
-      - 第六十四阶段（2 组热点切片：safeDeleteCategory + handleExternalLinkError，duplicate-code 基线 0.35% 保持）。
+       - 第六十四阶段（2 组热点切片：safeDeleteCategory + handleExternalLinkError，duplicate-code 基线 0.35% 保持）。
+       - 第六十五阶段（Categories/Tags 共享查询层收敛，-226 行重复，基线 0.34%→0.30%）。
 - **下一次可切片方向**:
-    - 下一轮优先进入 CLI 包与主项目的类型收敛：`MomeiPostStatus` → 从 `PostStatus` 枚举派生、`MomeiPostScaffoldMetadata` → 直接 import。
-    - 其余候选优先从剩余轻量 shared helper 中选择，要求 `duplicate-code` baseline 不反弹。
+    - 下一轮优先基于当前 0.30% 基线继续收敛，候选包括：剩余轻量 shared helper、表单元数据/表单控件的类型共享、以及 `server/api/` 层请求上下文/参数校验的共性逻辑。
     - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper。
 4. **存量代码注释治理与注释漂移收敛**
 - **目标**:
@@ -284,16 +287,18 @@
     - `pnpm governance:check:scripts` 已作为 5.1 脚本资产自检稳定运行，并进入 `pnpm regression:weekly` 的 warning 基线。
     - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供独立 JSON / Markdown baseline。
     - 文档治理已补充 `pnpm docs:check:line-count:candidate` 与 `pnpm docs:check:source-of-truth:candidate` 两条候选入口，用于评估高频页扩面与翻译 freshness 收紧，但默认 blocker 行为仍保持不变。
-    - 第六十二阶段已完成脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ 两条 docs candidate warning 全部清洁。
+     - 第六十二阶段已完成脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ 两条 docs candidate warning 全部清洁。
+     - 第六十五阶段已完成 `governance:audit:simple-duplicates` 升格评估：从独立 baseline 升格至 `regression:weekly` warning 面，升格结论 go。
 - **最近一次上收阶段**:
     - 第三十九阶段（5.1-5.5 首轮 baseline 化：`check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` + 两条 docs candidate，上收为独立脚本入口）。
     - 第四十阶段（发布前 pre-check 统一化：`release:check` / `release:check:full` 接入固定回归入口）。
     - 第五十二阶段（脚本治理 warning 清理：`audit-comment-drift` 误报修复 + 两条 docs candidate 清洁输出；eslint-debt 升格评估）。
     - 第五十四阶段（eslint-debt 正式升格至 `regression:weekly` warning 面；comment-drift 误报修复完成）。
-    - 第六十二阶段（脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ docs candidate warning 全部清洁）。
+     - 第六十二阶段（脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ docs candidate warning 全部清洁）。
+     - 第六十五阶段（simple-duplicates 升格至 regression:weekly warning 面）。
 - **下一次可切片方向**:
-    - 两条 docs candidate 和 audit-comment-drift 的 warning 面已在 Phase 62 完成清洁。
-    - 后续评估是否将剩余治理脚本（audit:simple-duplicates、audit:comment-drift）从独立 baseline 升格进入 `regression:weekly` warning 面。
+    - `audit:simple-duplicates` 已在 Phase 65 完成升格至 `regression:weekly` warning 面。
+    - 后续评估是否将 `audit:comment-drift` 从独立 baseline 升格进入 `regression:weekly` warning 面。
 ## 周期性回归验证层
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
 ### 固定执行入口
@@ -450,8 +455,9 @@
 - **已实现**:
     - **Phase 1（Phase 63） — 盘点与 SoT 映射补齐**：产出缺口清单（Gap A/B 分类），为 5 个 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射（`EMAIL_SECURE`/`EMAIL_EXPIRES_IN`/`TEMP_EMAIL_DOMAIN_NAME`/`TTS_DEFAULT_VOICE`/`AI_MAX_TOKENS`），`INTERNAL_ONLY_ENV_KEYS` 扩充 5 项运维级 key。详见第六十三阶段待办归档。
     - **Phase 2（Phase 64） — 首批 UI 组件**：将 Phase 1 的 SoT 映射落地为 5 个可交互表单控件——email-settings.vue（EMAIL_SECURE ToggleSwitch、EMAIL_EXPIRES_IN InputNumber、TEMP_EMAIL_DOMAIN_NAME InputText）+ ai-settings.vue（AI_MAX_TOKENS InputNumber、TTS_DEFAULT_VOICE Select + ttsVoiceOptions computed），补齐五语种 20 个翻译条目。详见第六十四阶段待办归档。
+    - **Phase 3（Phase 65） — 第二批 UI 组件**：新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `ExternalFeedSourcesEditor` 组件；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。详见第六十五阶段待办归档。
 - **剩余方向**:
-    - 继续按缺口清单推进后续批次（缺口 A 中的 `AI_TEMPERATURE`/`AI_CHUNK_SIZE`/`WEBHOOK_TIMESTAMP_TOLERANCE` 等，以及缺口 B 中的 `external_feed_sources`/`hexo_sync_*`）。
+    - 继续按缺口清单推进后续批次（缺口 A 中剩余 `WEBHOOK_TIMESTAMP_TOLERANCE` 等尚未有后台 UI 的配置项；缺口 B 中剩余 `hexo_sync_*` 等运维/同步类配置项）。
     - 保持分批渐进策略，每组 2-5 个配置项。
 - **非目标**:
     - 不暴露基础设施密钥到后台管理。
@@ -462,7 +468,7 @@
 - **背景**: 当前文章编辑器顶部栏左侧包含 10 个独立 AI 功能按钮 + 1 个语音组件，全部平铺在单行 4rem 高度内，导致标题输入框被严重挤压，长标题无法完整展示。同时 AI 审查与视角检查存在功能重叠，续写/扩写/缩写缺少风格控制。
 - **评估结论**: 已产出完整方案，详见 [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)。
 - **推荐实施**:
-    - **Phase A**（2-3 天）：UI 分组收敛 — 10 个按钮折叠为「AI 写作（SplitButton）」+「AI 审校」+「AI 翻译」+「格式化」+「语音」共 5 个入口，标题输入框获得完整弹性宽度。
+    - **Phase A**（2-3 天）：UI 分组收敛 — 10 个按钮折叠为「AI 写作（SplitButton）」+「AI 审校」+「AI 翻译」+「格式化」+「语音」共 5 个入口，标题输入框获得完整弹性宽度。**✅ 已于第六十五阶段完成**（`e936ec1e`）。
     - **Phase B**（1-2 天）：风格扩展 — 为续写/扩写/缩写新增 `style` 参数，复用改写的 6 种风格定义。
     - **Phase C**（2-3 天）：审查+视角合并 — 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。
 - **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。

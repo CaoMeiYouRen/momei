@@ -373,6 +373,46 @@
 **时间表**: 2026-07-27 ~ 2026-07-28
 **交付摘要**: 4/5 主线交付（编辑器工具栏收敛 Phase A、设置表单 UI Phase 3、结构复用治理、脚本治理升格评估）；测试覆盖率第七批未达 ≥1% 目标，转入长期治理。同时修复 vitest threads 池竞态问题，新增 `regression-weekly.yml` CI 工作流。
 
+### 第六十六阶段：编辑器续航与覆盖率攻坚（Phase 66: Editor Continuation & Coverage Push）（进行中）
+
+**时间表**: 2026-08-07 ~ 约 3-5 天
+
+**目标**: 在第六十五阶段完成编辑器工具栏收敛 Phase A 与设置 UI Phase 3 后，以「5 个优化」组合推进：测试覆盖率 90%+ 第八批作为 Phase 65 第七批未达标的攻坚延续，编辑器工具栏收敛 Phase B 作为 Phase A 的自然延伸，设置表单 UI Phase 4 按缺口清单持续推进，结构复用治理继续缩减重复代码基线，脚本治理评估 audit:comment-drift 升格。
+
+**准入结论**: 五条主线均来自 backlog 已验证候选或已评估结论，容量控制在 `5` 项内，符合规划规范。覆盖率第八批吸取第七批教训，优先选 `server/services/` 层代码量大的模块而非小工具函数，确保每批 ≥1% 可见提升；编辑器 Phase B 复用 Phase A 已验证模式（1-2 天低风险）；设置表单 Phase 4 按 Phase 3 已验证的缺口清单分步推进；结构复用治理从 0.30% 基线继续收敛；comment-drift 升格为纯评估，不涉及代码改动。
+
+**ROI 评估**: 测试覆盖率 90%+ 第八批 `1.00`；编辑器工具栏收敛 Phase B `1.60`；设置表单 UI Phase 4 `1.75`；结构复用治理 `1.60`；脚本治理 comment-drift 升格 `2.00`。
+
+1. **主线：测试覆盖率 90%+ 第八批（长期主线 #1）（P2）**:
+
+    - **执行范围**: 基于最新全仓覆盖率缺口报告，吸取第七批教训——优先选择 `server/services/` 层代码量大、分支数多的模块（而非 `server/utils/` 层小而精的工具函数），确保每批覆盖 ≥1% 的数字可见提升。选取 3-5 个高价值缺口模块推进。保持测试有效性不退化。
+    - **非目标**: 不做低价值铺量补测；不牺牲断言有效性换取数字增长；不选代码量 <50 行的小模块。
+    - **最小验收**: 全仓 Statements 覆盖率 ≥80.48%（即提升 ≥1%）；`pnpm typecheck` + `pnpm lint` + `pnpm test:coverage` 通过。
+
+2. **主线：编辑器工具栏收敛 Phase B — 风格扩展（短期候选 #14）（P2）**:
+
+    - **执行范围**: 为续写（Continue）/ 扩写（Expand）/ 缩写（Condense）新增 `style` 参数，复用 Phase A 已完成的 6 种风格定义（专业/简洁/创意/学术/技术/友好）。后端 `TextService` 扩展 `style` 参数传递；前端工具栏 SplitButton 子项支持风格选择。Phase A 的 5 按钮分组不回归。
+    - **非目标**: 不新增 AI Provider；不改动 AI 计费/配额逻辑；不改写（Rewrite）已有风格参数。
+    - **最小验收**: 续写/扩写/缩写支持 6 种风格选择；Phase A 工具栏分组无回归；`pnpm typecheck` + `pnpm lint` + 受影响 AI 测试通过。
+
+3. **主线：设置表单 UI Phase 4（短期候选 #13）（P2）**:
+
+    - **执行范围**: 按 Phase 1 缺口清单持续推进。缺口 A 剩余 `WEBHOOK_TIMESTAMP_TOLERANCE` 等尚未有后台 UI 的配置项；缺口 B 剩余 `hexo_sync_*` 等运维/同步类配置项。选取 2-4 个适合后台管理的配置项补齐表单控件。保持分批渐进策略。
+    - **非目标**: 不暴露基础设施密钥到后台管理；不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略；不做通用 Key-Value 编辑器。
+    - **最小验收**: ≥2 个配置项新增后台 UI 控件；`pnpm typecheck` + `pnpm lint` 通过；受影响表单保存/验证通过。
+
+4. **主线：结构复用治理（长期主线 #3）（P1）**:
+
+    - **执行范围**: 基于 `duplicate-code: 0.30%` 最新基线识别 ≥1 组重复热点。优先方向：检查 Phase 64-65 新增代码（共享查询层、设置表单扩展等）是否引入重复；检查 `server/api/` 层请求上下文/参数校验的共性逻辑。选取 ≥1 组逻辑简单、收益明确的切片收敛。
+    - **非目标**: 不推动跨模块大重构；不为复用而复用；不改变业务行为。
+    - **最小验收**: ≥1 组热点切片完成；`pnpm duplicate-code:check` 基线 ≤0.30%；`pnpm typecheck` + `pnpm lint` 通过。
+
+5. **主线：脚本治理 — audit:comment-drift 升格评估（长期主线 #10）（P1）**:
+
+    - **执行范围**: 继 Phase 65 完成 `audit:simple-duplicates` 升格至 `regression:weekly` 后，评估 `audit:comment-drift` 是否满足升格条件——需确认脚本输出稳定、误报率可控、warning 面清洁。输出明确 go/no-go 结论与理由。
+    - **非目标**: 不新增脚本；不改脚本 API；不引入新治理基线。
+    - **最小验收**: 输出升格评估结论（go/no-go + 理由）；若 go，则完成 `regression:weekly` 配置更新；`pnpm governance:audit:comment-drift` 清洁输出。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
