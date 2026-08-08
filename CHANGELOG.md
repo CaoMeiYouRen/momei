@@ -1,5 +1,12 @@
 # momei
 
+## [1.25.1](https://github.com/CaoMeiYouRen/momei/compare/v1.25.0...v1.25.1) (2026-08-08)
+
+
+### 🐛 Bug 修复
+
+* **deps:** 修复 brace-expansion 高危漏洞 (GHSA-rgw5-rvv9-x895) ([5bf84cd](https://github.com/CaoMeiYouRen/momei/commit/5bf84cd))
+
 # [1.25.0](https://github.com/CaoMeiYouRen/momei/compare/v1.24.0...v1.25.0) (2026-08-01)
 
 
