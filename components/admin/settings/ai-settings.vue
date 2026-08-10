@@ -42,6 +42,49 @@
         </SettingFormField>
 
         <SettingFormField
+            v-if="settings.ai_fallback_provider"
+            field-key="ai_fallback_api_key"
+            input-id="ai_fallback_api_key"
+            :metadata="metadata.ai_fallback_api_key"
+        >
+            <Password
+                id="ai_fallback_api_key"
+                v-model="settings.ai_fallback_api_key"
+                :disabled="metadata.ai_fallback_api_key?.isLocked"
+                :toggle-mask="true"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            v-if="settings.ai_fallback_provider"
+            field-key="ai_fallback_model"
+            input-id="ai_fallback_model"
+            :metadata="metadata.ai_fallback_model"
+        >
+            <InputText
+                id="ai_fallback_model"
+                v-model="settings.ai_fallback_model"
+                :disabled="metadata.ai_fallback_model?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
+            v-if="settings.ai_fallback_provider"
+            field-key="ai_fallback_endpoint"
+            input-id="ai_fallback_endpoint"
+            :metadata="metadata.ai_fallback_endpoint"
+        >
+            <InputText
+                id="ai_fallback_endpoint"
+                v-model="settings.ai_fallback_endpoint"
+                :disabled="metadata.ai_fallback_endpoint?.isLocked"
+                fluid
+            />
+        </SettingFormField>
+
+        <SettingFormField
             field-key="ai_model"
             input-id="ai_model"
             :metadata="metadata.ai_model"

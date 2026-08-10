@@ -456,8 +456,11 @@
     - **Phase 1（Phase 63） — 盘点与 SoT 映射补齐**：产出缺口清单（Gap A/B 分类），为 5 个 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射（`EMAIL_SECURE`/`EMAIL_EXPIRES_IN`/`TEMP_EMAIL_DOMAIN_NAME`/`TTS_DEFAULT_VOICE`/`AI_MAX_TOKENS`），`INTERNAL_ONLY_ENV_KEYS` 扩充 5 项运维级 key。详见第六十三阶段待办归档。
     - **Phase 2（Phase 64） — 首批 UI 组件**：将 Phase 1 的 SoT 映射落地为 5 个可交互表单控件——email-settings.vue（EMAIL_SECURE ToggleSwitch、EMAIL_EXPIRES_IN InputNumber、TEMP_EMAIL_DOMAIN_NAME InputText）+ ai-settings.vue（AI_MAX_TOKENS InputNumber、TTS_DEFAULT_VOICE Select + ttsVoiceOptions computed），补齐五语种 20 个翻译条目。详见第六十四阶段待办归档。
     - **Phase 3（Phase 65） — 第二批 UI 组件**：新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `ExternalFeedSourcesEditor` 组件；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。详见第六十五阶段待办归档。
+    - **Phase 4（Phase 66） — AI Fallback 文本备用 3 项**：补齐 `AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT` 的 SETTING_ENV_MAP 映射、`.env.full.example` 注释示例、`ai-settings.vue` Password+InputText 表单控件（`v-if` 跟随 `ai_fallback_provider`）、5 语种翻译，新增 `setting.constants.test.ts` + `ai-settings.test.ts` 共 6 个用例；Code Auditor Review Gate Pass。详见第六十六阶段待办归档。
 - **剩余方向**:
-    - 继续按缺口清单推进后续批次（缺口 A 中剩余 `WEBHOOK_TIMESTAMP_TOLERANCE` 等尚未有后台 UI 的配置项；缺口 B 中剩余 `hexo_sync_*` 等运维/同步类配置项）。
+    - AI Image Fallback 4 项（`AI_IMAGE_FALLBACK_PROVIDER`/`API_KEY`/`MODEL`/`ENDPOINT`）留 Phase 5 继续推进（涉及 `ai_image_enabled` 二级嵌套 group 扩展）。
+    - `WEBHOOK_TIMESTAMP_TOLERANCE` 当前实现不读取（文档已多次声明固定 5 分钟容差），待后端实现 env 读取逻辑后再纳入 UI 候选。
+    - `hexo_sync_*` 已实现 UI 但被列入 `INTERNAL_ONLY_SETTING_KEYS` + `ADMIN_SETTINGS_EXCLUDED_KEYS`，定位为内部使用，不在本主线后续范围。
     - 保持分批渐进策略，每组 2-5 个配置项。
 - **非目标**:
     - 不暴露基础设施密钥到后台管理。

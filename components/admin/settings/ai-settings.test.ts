@@ -50,6 +50,10 @@ const defaultSettings: AISettingsModel = {
     ai_api_key: 'secret',
     ai_endpoint: 'https://api.example.com/ai',
     ai_max_tokens: 4096,
+    ai_fallback_provider: 'openai',
+    ai_fallback_api_key: 'fb-secret',
+    ai_fallback_model: 'gpt-fallback',
+    ai_fallback_endpoint: 'https://api.fallback.example.com',
     gemini_api_token: 'gemini-token',
     ai_quota_enabled: true,
     ai_quota_policies: '[{"role":"user","limit":100}]',
@@ -228,5 +232,50 @@ describe('AiSettings', () => {
         expect(settings.tts_model).toBe('volcengine-v3')
         expect(settings.volcengine_access_key).toBe('volc-ak-next')
         expect(settings.volcengine_secret_key).toBe('volc-sk-next')
+    })
+
+    it('renders AI fallback fields when a fallback provider is set, binds and respects locks', async () => {
+        const settings = createSettings({
+            ai_provider: 'openai',
+            ai_fallback_provider: 'openai',
+            ai_fallback_api_key: 'fb-initial',
+            ai_fallback_model: 'gpt-fallback-initial',
+            ai_fallback_endpoint: 'https://api.fallback.example.com/initial',
+        })
+        const wrapper = mountComponent(settings)
+
+        expect(wrapper.find('#ai_fallback_provider').exists()).toBe(true)
+        expect(wrapper.find('#ai_fallback_api_key').exists()).toBe(true)
+        expect(wrapper.find('#ai_fallback_model').exists()).toBe(true)
+        expect(wrapper.find('#ai_fallback_endpoint').exists()).toBe(true)
+
+        await wrapper.get('#ai_fallback_api_key').setValue('fb-secret-next')
+        await wrapper.get('#ai_fallback_model').setValue('gpt-fb-next')
+        await wrapper.get('#ai_fallback_endpoint').setValue('https://api.fallback.example.com/next')
+
+        expect(settings.ai_fallback_api_key).toBe('fb-secret-next')
+        expect(settings.ai_fallback_model).toBe('gpt-fb-next')
+        expect(settings.ai_fallback_endpoint).toBe('https://api.fallback.example.com/next')
+
+        await wrapper.get('#ai_fallback_provider').setValue('')
+        expect(settings.ai_fallback_provider).toBe('')
+        expect(wrapper.find('#ai_fallback_api_key').exists()).toBe(false)
+        expect(wrapper.find('#ai_fallback_model').exists()).toBe(false)
+        expect(wrapper.find('#ai_fallback_endpoint').exists()).toBe(false)
+    })
+
+    it('disables AI fallback fields when their metadata is locked', () => {
+        const settings = createSettings({ ai_fallback_provider: 'openai' })
+        const wrapper = mountComponent(settings, [
+            'ai_fallback_provider',
+            'ai_fallback_api_key',
+            'ai_fallback_model',
+            'ai_fallback_endpoint',
+        ])
+
+        expect(wrapper.get('#ai_fallback_provider').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_fallback_api_key').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_fallback_model').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_fallback_endpoint').attributes('disabled')).toBeDefined()
     })
 })

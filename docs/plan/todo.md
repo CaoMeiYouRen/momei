@@ -36,11 +36,11 @@
     - [x] Phase A 工具栏分组无回归验证
     - [x] `pnpm typecheck` + `pnpm lint` + 受影响 AI 测试通过
 
-- [ ] **主线 3：设置表单 UI Phase 4（P2）**
-    - [ ] 从缺口清单选取 2-4 个配置项（缺口 A: `WEBHOOK_TIMESTAMP_TOLERANCE` 等 + 缺口 B: `hexo_sync_*` 等）
-    - [ ] 补齐 SettingKey/SETTING_ENV_MAP 映射（如需）
-    - [ ] 实现表单控件并补齐五语种翻译
-    - [ ] `pnpm typecheck` + `pnpm lint` 通过，受影响表单保存/验证通过
+- [x] **主线 3：设置表单 UI Phase 4（P2）**
+    - [x] 从缺口清单选取 AI Fallback 3 项（`AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT`）；范围校准：`WEBHOOK_TIMESTAMP_TOLERANCE` 当前实现不读取、`hexo_sync_*` 已实现且定位 INTERNAL_ONLY/ADMIN_EXCLUDED，均不在本批处理；AI Image Fallback 4 项留 Phase 5
+    - [x] 补齐 SETTING_ENV_MAP 3 条映射 + `.env.full.example` 注释示例
+    - [x] `ai-settings.vue` 实现 Password + InputText + InputText 表单控件（`v-if` 跟随 `ai_fallback_provider`）并补齐五语种翻译
+    - [x] `pnpm typecheck` + `pnpm lint` + `pnpm lint:i18n` + `i18n:audit:missing = 0` 通过 + 定向测试 49/49 全绿；A 阶段 `@code-auditor` Review Gate Pass（RG-W01 同轮闭环、RG-W02 待手动浏览器验证）
 
 - [ ] **主线 4：结构复用治理（P1）**
     - [ ] 基于 0.30% 基线识别 ≥1 组重复热点

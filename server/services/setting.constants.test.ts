@@ -179,6 +179,22 @@ describe('setting.constants', () => {
             expect(result.envKey).toBeNull()
             expect(result.value).toBeUndefined()
         })
+
+        it('maps AI Fallback settings to their env keys', () => {
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_API_KEY).envKey).toBe('AI_FALLBACK_API_KEY')
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_MODEL).envKey).toBe('AI_FALLBACK_MODEL')
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_ENDPOINT).envKey).toBe('AI_FALLBACK_ENDPOINT')
+        })
+
+        it('reads AI Fallback env values when set', () => {
+            vi.stubEnv('AI_FALLBACK_API_KEY', 'fallback-secret')
+            vi.stubEnv('AI_FALLBACK_MODEL', 'gpt-fallback')
+            vi.stubEnv('AI_FALLBACK_ENDPOINT', 'https://api.fallback.example.com')
+
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_API_KEY).value).toBe('fallback-secret')
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_MODEL).value).toBe('gpt-fallback')
+            expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_ENDPOINT).value).toBe('https://api.fallback.example.com')
+        })
     })
 
     describe('getSettingEffectiveSource', () => {

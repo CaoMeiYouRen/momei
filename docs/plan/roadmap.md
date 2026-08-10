@@ -398,7 +398,8 @@
 3. **主线：设置表单 UI Phase 4（短期候选 #13）（P2）**:
 
     - **执行范围**: 按 Phase 1 缺口清单持续推进。缺口 A 剩余 `WEBHOOK_TIMESTAMP_TOLERANCE` 等尚未有后台 UI 的配置项；缺口 B 剩余 `hexo_sync_*` 等运维/同步类配置项。选取 2-4 个适合后台管理的配置项补齐表单控件。保持分批渐进策略。
-    - **非目标**: 不暴露基础设施密钥到后台管理；不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略；不做通用 Key-Value 编辑器。
+    - **进度更新（2026-08-11）**: 范围校准结论——`WEBHOOK_TIMESTAMP_TOLERANCE` 当前实现不读取（文档已多次声明固定 5 分钟容差），`hexo_sync_*` 已实现 UI 且定位 `INTERNAL_ONLY`/`ADMIN_EXCLUDED`，不在本批处理。实际选取缺口 B 的 AI Fallback 文本备用 3 项（`AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT`）；AI Image Fallback 4 项留 Phase 5。已完成 SETTING_ENV_MAP 映射、`ai-settings.vue` 表单控件、`.env.full.example` 注释示例、5 语种翻译、`setting.constants.test.ts` + `ai-settings.test.ts` 共 6 个新用例。`pnpm typecheck` + `pnpm lint` + `pnpm lint:i18n` + `i18n:audit:missing = 0` 通过；A 阶段 `@code-auditor` Review Gate Pass（RG-W01 同轮闭环、RG-W02 浏览器验证沿用既定降级策略待手动执行）。
+    - **非目标**: 不暴露基础设施密钥到后台管理；不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略；不做通用 Key-Value 编辑器；不做 AI Image Fallback 系列（留 Phase 5）。
     - **最小验收**: ≥2 个配置项新增后台 UI 控件；`pnpm typecheck` + `pnpm lint` 通过；受影响表单保存/验证通过。
 
 4. **主线：结构复用治理（长期主线 #3）（P1）**:
