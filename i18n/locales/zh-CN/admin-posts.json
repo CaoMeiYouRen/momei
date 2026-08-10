@@ -70,6 +70,7 @@
                     "rewrite_tooltip": "改写（请先选中文本）",
                     "rewrite_select_first": "请先选中要改写的文本",
                     "rewrite_style_title": "选择改写风格",
+                    "style_select_title": "选择风格",
                     "rewrite_style_casual": "口语风格",
                     "rewrite_style_casual_desc": "自然流畅、接近日常对话的表达",
                     "rewrite_style_formal": "正式风格",

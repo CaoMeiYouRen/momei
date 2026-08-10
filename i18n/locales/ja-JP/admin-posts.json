@@ -62,6 +62,7 @@
                     "rewrite_tooltip": "リライト（先にテキストを選択）",
                     "rewrite_select_first": "リライトするテキストを先に選択してください",
                     "rewrite_style_title": "リライトスタイルを選択",
+                    "style_select_title": "スタイルを選択",
                     "rewrite_style_casual": "カジュアル",
                     "rewrite_style_casual_desc": "自然で会話のような読みやすい表現",
                     "rewrite_style_formal": "フォーマル",

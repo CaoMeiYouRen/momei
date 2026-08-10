@@ -773,4 +773,98 @@ describe('TextService', () => {
             )
         })
     })
+
+    describe('continueWriting / expandContent / condenseContent styles', () => {
+        const createMockProvider = (content: string) => ({
+            name: 'openai',
+            chat: vi.fn().mockResolvedValue({
+                content,
+                model: 'gpt-4',
+                usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
+            }),
+        })
+
+        it('should continue writing with default casual style', async () => {
+            const mockProvider = createMockProvider('这是续写的内容')
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.continueWriting('开头段落', 'casual', 'zh-CN', 'user-1')
+
+            expect(result).toBe('这是续写的内容')
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[0]?.content).toContain('casual and conversational')
+            expect(chatCall.messages[1]?.content).toContain('casual and conversational')
+            expect(chatCall.messages[1]?.content).toContain('开头段落')
+        })
+
+        it('should continue writing with formal style and record payload', async () => {
+            const mockProvider = createMockProvider('这是正式风格的续写内容')
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.continueWriting('开头段落', 'formal', 'zh-CN', 'user-1')
+
+            expect(result).toBe('这是正式风格的续写内容')
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[1]?.content).toContain('formal and professional')
+            const savedTask = mockRepo.save.mock.calls[0]?.[0] as { payload?: string }
+            expect(JSON.parse(savedTask?.payload ?? '{}')).toMatchObject({ style: 'formal' })
+        })
+
+        it('should expand content with technical style', async () => {
+            const mockProvider = createMockProvider('扩写后的技术内容')
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.expandContent('简短内容', 'technical', 'zh-CN', 'user-1')
+
+            expect(result).toBe('扩写后的技术内容')
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[1]?.content).toContain('technical and precise with clear terminology')
+        })
+
+        it('should condense content with concise style', async () => {
+            const mockProvider = createMockProvider('缩写后的内容')
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.condenseContent('一段冗长的内容', 'concise', 'zh-CN', 'user-1')
+
+            expect(result).toBe('缩写后的内容')
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[1]?.content).toContain('concise and to-the-point')
+        })
+
+        it('should fall back to raw style key when style is unknown', async () => {
+            const mockProvider = createMockProvider('输出内容')
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            await TextService.condenseContent('一段内容', 'custom-style', 'zh-CN')
+
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[1]?.content).toContain('custom-style')
+        })
+
+        it('should reject empty content', async () => {
+            await expect(TextService.continueWriting('', 'casual', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+            await expect(TextService.expandContent('   ', 'casual', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+            await expect(TextService.condenseContent('', 'casual', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+        })
+    })
 })

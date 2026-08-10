@@ -68,10 +68,18 @@
                     button-class="top-bar__voice-trigger"
                 />
             </ButtonGroup>
-            <Popover ref="rewriteOp" class="rewrite-menu">
+            <Popover
+                ref="rewriteOp"
+                class="rewrite-menu"
+                @hide="pendingStyleAction = 'rewrite'"
+            >
                 <div class="rewrite-menu__content">
                     <div class="rewrite-menu__title">
-                        {{ $t('pages.admin.posts.ai.rewrite_style_title') }}
+                        {{
+                            pendingStyleAction === 'rewrite'
+                                ? $t('pages.admin.posts.ai.rewrite_style_title')
+                                : $t('pages.admin.posts.ai.style_select_title')
+                        }}
                     </div>
                     <div
                         v-for="style in rewriteStyles"
@@ -250,9 +258,9 @@ const emit = defineEmits<{
     (e: 'rewrite-content', style: string): void
     (e: 'review-content'): void
     (e: 'perspective-check', mode: PerspectiveMode): void
-    (e: 'continue-content'): void
-    (e: 'expand-content'): void
-    (e: 'condense-content'): void
+    (e: 'continue-content', style: string): void
+    (e: 'expand-content', style: string): void
+    (e: 'condense-content', style: string): void
     (e: 'update:review-panel-visible', visible: boolean): void
     (e: 'update:perspective-panel-visible', visible: boolean): void
 }>()
@@ -279,17 +287,25 @@ const getWritingBtnEl = (): HTMLElement | null => {
     return (writingBtnRef.value as any)?.$el ?? document.getElementById('ai-writing-btn')
 }
 
+/** 当前等待选择风格的 AI 写作动作（改写/续写/扩写/缩写） */
+const pendingStyleAction = ref<'rewrite' | 'continue' | 'expand' | 'condense'>('rewrite')
+
 /**
  * Show the rewrite style Popover anchored to the AI Writing SplitButton.
  * Uses the template ref for reliable DOM access.
  */
-const showRewritePopover = () => {
+const showStylePopover = (action: 'rewrite' | 'continue' | 'expand' | 'condense') => {
+    pendingStyleAction.value = action
     const el = getWritingBtnEl()
     if (el) {
         const event = new MouseEvent('click', { bubbles: true })
         Object.defineProperty(event, 'currentTarget', { value: el, writable: false })
         rewriteOp.value?.show?.(event, el)
     }
+}
+
+const showRewritePopover = () => {
+    showStylePopover('rewrite')
 }
 
 /** Menu items for the AI 写作 SplitButton (改写为主按钮, 菜单含标题建议/续写/扩写/缩写) */
@@ -310,17 +326,17 @@ const writingMenuItems = computed<MenuItem[]>(() => [
     {
         label: t('pages.admin.posts.ai.continue'),
         icon: 'pi pi-forward',
-        command: () => { emit('continue-content') },
+        command: () => { showStylePopover('continue') },
     },
     {
         label: t('pages.admin.posts.ai.expand'),
         icon: 'pi pi-arrow-right',
-        command: () => { emit('expand-content') },
+        command: () => { showStylePopover('expand') },
     },
     {
         label: t('pages.admin.posts.ai.condense'),
         icon: 'pi pi-arrow-left',
-        command: () => { emit('condense-content') },
+        command: () => { showStylePopover('condense') },
     },
 ])
 
@@ -382,7 +398,16 @@ const rewriteStyles = [
 
 const handleRewriteSelect = (style: string) => {
     rewriteOp.value?.hide()
-    emit('rewrite-content', style)
+    const action = pendingStyleAction.value
+    if (action === 'continue') {
+        emit('continue-content', style)
+    } else if (action === 'expand') {
+        emit('expand-content', style)
+    } else if (action === 'condense') {
+        emit('condense-content', style)
+    } else {
+        emit('rewrite-content', style)
+    }
 }
 
 /**

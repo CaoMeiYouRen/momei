@@ -46,6 +46,16 @@ export type {
     SuggestImagePromptOptions,
 } from './text.shared'
 
+/** AI 写作风格 key → 英文风格描述映射（改写/续写/扩写/缩写共用） */
+export const AI_TEXT_STYLES: Record<string, string> = {
+    formal: 'formal and professional',
+    casual: 'casual and conversational',
+    academic: 'academic and scholarly',
+    technical: 'technical and precise with clear terminology',
+    creative: 'creative and vivid with engaging language',
+    concise: 'concise and to-the-point without losing key information',
+}
+
 export class TextService extends AIBaseService {
     private static async assertTextQuota(options: {
         userId?: string
@@ -752,16 +762,7 @@ export class TextService extends AIBaseService {
             throw new Error('Provider does not support chat')
         }
 
-        const styleMap: Record<string, string> = {
-            formal: 'formal and professional',
-            casual: 'casual and conversational',
-            academic: 'academic and scholarly',
-            technical: 'technical and precise with clear terminology',
-            creative: 'creative and vivid with engaging language',
-            concise: 'concise and to-the-point without losing key information',
-        }
-
-        const styleDesc = styleMap[style] || style
+        const styleDesc = AI_TEXT_STYLES[style] || style
 
         const prompt = formatPrompt(AI_PROMPTS.REWRITE, {
             content: inputContent,
@@ -967,6 +968,7 @@ export class TextService extends AIBaseService {
 
     static async continueWriting(
         content: string,
+        style: string = 'casual',
         language: string = 'zh-CN',
         userId?: string,
     ) {
@@ -975,11 +977,12 @@ export class TextService extends AIBaseService {
         }
 
         const inputContent = content.slice(0, AI_CHUNK_SIZE)
+        const styleDesc = AI_TEXT_STYLES[style] || style
 
         await this.assertTextQuota({
             userId,
             type: 'continue',
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
         })
 
         const provider = await getAIProviderWithFallback('text')
@@ -990,11 +993,12 @@ export class TextService extends AIBaseService {
         const prompt = formatPrompt(AI_PROMPTS.CONTINUE, {
             content: inputContent,
             language,
+            style: styleDesc,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional writer. Continue writing content in ${language}, maintaining the same style and voice.` },
+                { role: 'system', content: `You are a professional writer. Continue writing content in ${language} with ${styleDesc} style, maintaining the same voice.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
@@ -1008,7 +1012,7 @@ export class TextService extends AIBaseService {
             type: 'continue',
             provider: provider.name,
             model: response.model,
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
             response,
             textLength: content.length,
             settlementSource: 'actual',
@@ -1019,6 +1023,7 @@ export class TextService extends AIBaseService {
 
     static async expandContent(
         content: string,
+        style: string = 'casual',
         language: string = 'zh-CN',
         userId?: string,
     ) {
@@ -1027,11 +1032,12 @@ export class TextService extends AIBaseService {
         }
 
         const inputContent = content.slice(0, AI_CHUNK_SIZE)
+        const styleDesc = AI_TEXT_STYLES[style] || style
 
         await this.assertTextQuota({
             userId,
             type: 'expand',
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
         })
 
         const provider = await getAIProviderWithFallback('text')
@@ -1042,11 +1048,12 @@ export class TextService extends AIBaseService {
         const prompt = formatPrompt(AI_PROMPTS.EXPAND, {
             content: inputContent,
             language,
+            style: styleDesc,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional writer. Expand content in ${language}, adding details and depth while preserving the original meaning.` },
+                { role: 'system', content: `You are a professional writer. Expand content in ${language} with ${styleDesc} style, adding details and depth while preserving the original meaning.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
@@ -1060,7 +1067,7 @@ export class TextService extends AIBaseService {
             type: 'expand',
             provider: provider.name,
             model: response.model,
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
             response,
             textLength: content.length,
             settlementSource: 'actual',
@@ -1071,6 +1078,7 @@ export class TextService extends AIBaseService {
 
     static async condenseContent(
         content: string,
+        style: string = 'casual',
         language: string = 'zh-CN',
         userId?: string,
     ) {
@@ -1079,11 +1087,12 @@ export class TextService extends AIBaseService {
         }
 
         const inputContent = content.slice(0, AI_CHUNK_SIZE)
+        const styleDesc = AI_TEXT_STYLES[style] || style
 
         await this.assertTextQuota({
             userId,
             type: 'condense',
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
         })
 
         const provider = await getAIProviderWithFallback('text')
@@ -1094,11 +1103,12 @@ export class TextService extends AIBaseService {
         const prompt = formatPrompt(AI_PROMPTS.CONDENSE, {
             content: inputContent,
             language,
+            style: styleDesc,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional editor. Condense content in ${language}, making it concise while preserving key information.` },
+                { role: 'system', content: `You are a professional editor. Condense content in ${language} with ${styleDesc} style, making it concise while preserving key information.` },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
@@ -1112,7 +1122,7 @@ export class TextService extends AIBaseService {
             type: 'condense',
             provider: provider.name,
             model: response.model,
-            payload: { content: inputContent, language },
+            payload: { content: inputContent, style, language },
             response,
             textLength: content.length,
             settlementSource: 'actual',

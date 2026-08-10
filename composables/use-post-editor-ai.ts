@@ -722,7 +722,7 @@ export function usePostEditorAI(
     }
 
     // --- 续写：在光标位置插入 ---
-    const continueContent = async () => {
+    const continueContent = async (style: string = 'casual') => {
         const cursorContext = getEditorCursorContext()
         if (!cursorContext) {
             toast.add({
@@ -750,6 +750,7 @@ export function usePostEditorAI(
                 method: 'POST',
                 body: {
                     content: cursorContext.context,
+                    style,
                     language: post.value.language,
                 },
             })
@@ -792,7 +793,7 @@ export function usePostEditorAI(
     }
 
     // --- 扩写：选中文本后扩写 ---
-    const expandContent = async () => {
+    const expandContent = async (style: string = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
             toast.add({
@@ -820,6 +821,7 @@ export function usePostEditorAI(
                 method: 'POST',
                 body: {
                     content: selected.text,
+                    style,
                     language: post.value.language,
                 },
             })
@@ -850,7 +852,7 @@ export function usePostEditorAI(
     }
 
     // --- 缩写：选中文本后缩写 ---
-    const condenseContent = async () => {
+    const condenseContent = async (style: string = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
             toast.add({
@@ -878,6 +880,7 @@ export function usePostEditorAI(
                 method: 'POST',
                 body: {
                     content: selected.text,
+                    style,
                     language: post.value.language,
                 },
             })

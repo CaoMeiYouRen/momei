@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockFetch, mockToastAdd } = vi.hoisted(() => ({
     mockFetch: vi.fn(),
@@ -45,6 +45,7 @@ import { usePostEditorAI } from './use-post-editor-ai'
 describe('usePostEditorAI', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockFetch.mockReset()
     })
 
     it('shows title suggestions and opens the overlay', async () => {
@@ -177,6 +178,96 @@ describe('usePostEditorAI', () => {
         expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'success',
             detail: 'pages.admin.posts.translate_success',
+        }))
+    })
+
+    // --- 续写 / 扩写 / 缩写：style 参数传递 ---
+
+    const mountEditorTextarea = (value = '这是一段足够长的文章内容，用于 AI 续写与扩写测试。') => {
+        const textarea = document.createElement('textarea')
+        textarea.className = 'auto-textarea-input'
+        textarea.value = value
+        document.body.appendChild(textarea)
+        return textarea
+    }
+
+    const setupPost = () => ref({
+        title: '',
+        content: '这是一段足够长的文章内容，用于 AI 续写与扩写测试。',
+        summary: '',
+        language: 'zh-CN',
+        slug: '',
+    })
+
+    afterEach(() => {
+        document.body.innerHTML = ''
+    })
+
+    it('passes style to continue API and inserts result at cursor', async () => {
+        mockFetch.mockResolvedValueOnce({ data: '这是续写的后续内容。' })
+
+        const post = setupPost()
+        const textarea = mountEditorTextarea()
+        // 光标前需要有足够长的上下文（>=10 字符）
+        textarea.setSelectionRange(15, 15)
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+        await ai.continueContent('formal')
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/ai/continue', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({ style: 'formal' }),
+        }))
+        expect(post.value.content).toContain('这是续写的后续内容。')
+    })
+
+    it('passes style to expand API and replaces selection', async () => {
+        mockFetch.mockResolvedValueOnce({ data: '扩写后的更详细内容。' })
+
+        const post = setupPost()
+        const textarea = mountEditorTextarea()
+        textarea.setSelectionRange(0, 10)
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+        await ai.expandContent('technical')
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/ai/expand', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({ style: 'technical' }),
+        }))
+        expect(post.value.content).toContain('扩写后的更详细内容。')
+    })
+
+    it('passes style to condense API and replaces selection', async () => {
+        mockFetch.mockResolvedValueOnce({ data: '精简后的内容。' })
+
+        const post = setupPost()
+        const textarea = mountEditorTextarea()
+        textarea.setSelectionRange(0, 10)
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+        await ai.condenseContent('concise')
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/ai/condense', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({ style: 'concise' }),
+        }))
+        expect(post.value.content).toContain('精简后的内容。')
+    })
+
+    it('defaults to casual style when none is passed', async () => {
+        mockFetch.mockResolvedValueOnce({ data: '扩写结果。' })
+
+        const post = setupPost()
+        const textarea = mountEditorTextarea()
+        textarea.setSelectionRange(0, 10)
+
+        const ai = usePostEditorAI(post as never, ref([]), ref([]))
+        await ai.expandContent()
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/ai/expand', expect.objectContaining({
+            method: 'POST',
+            body: expect.objectContaining({ style: 'casual' }),
         }))
     })
 })

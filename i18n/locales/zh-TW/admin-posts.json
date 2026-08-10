@@ -62,6 +62,7 @@
                     "rewrite_tooltip": "改寫（請先選中文字）",
                     "rewrite_select_first": "請先選中要改寫的文字",
                     "rewrite_style_title": "選擇改寫風格",
+                    "style_select_title": "選擇風格",
                     "rewrite_style_casual": "口語風格",
                     "rewrite_style_casual_desc": "自然流暢、接近日常對話的表達",
                     "rewrite_style_formal": "正式風格",

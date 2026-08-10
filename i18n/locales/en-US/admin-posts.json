@@ -62,6 +62,7 @@
                     "rewrite_tooltip": "Rewrite (select text first)",
                     "rewrite_select_first": "Please select the text to rewrite first",
                     "rewrite_style_title": "Choose Rewrite Style",
+                    "style_select_title": "Select Style",
                     "rewrite_style_casual": "Casual",
                     "rewrite_style_casual_desc": "Natural, conversational, easy-to-read expression",
                     "rewrite_style_formal": "Formal",

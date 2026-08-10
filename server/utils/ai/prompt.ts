@@ -97,19 +97,24 @@ export const AI_PROMPTS = {
     CONTINUE:
         'Continue writing the following content in {{language}}. '
         + 'Maintain the same style, tone, and markdown formatting as the provided content. '
+        + 'Write in a {{style}} style. '
         + 'Generate a natural and coherent continuation (2-3 paragraphs). '
         + 'Do NOT repeat or rephrase what has already been written. '
         + 'Output ONLY the continued content, no explanations or prefixes:\n\n{{content}}',
     EXPAND:
         'Expand the following content in {{language}}. '
         + 'Enrich the text with more details, examples, and deeper explanations while preserving the original meaning, '
-        + 'factual accuracy, and markdown formatting. Make it more comprehensive and informative. '
+        + 'factual accuracy, and markdown formatting. '
+        + 'Use a {{style}} style when expanding. '
+        + 'Make it more comprehensive and informative. '
         + 'The output should be approximately 50-100% longer than the original. '
         + 'Output ONLY the expanded content, no explanations or prefixes:\n\n{{content}}',
     CONDENSE:
         'Condense the following content in {{language}}. '
         + 'Make it more concise while preserving the key information, main arguments, factual accuracy, '
-        + 'and markdown formatting. Remove redundancy and unnecessary words. '
+        + 'and markdown formatting. '
+        + 'Use a {{style}} style when condensing. '
+        + 'Remove redundancy and unnecessary words. '
         + 'The output should be approximately 30-50% shorter than the original. '
         + 'Output ONLY the condensed content, no explanations or prefixes:\n\n{{content}}',
     REVIEW:

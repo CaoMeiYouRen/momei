@@ -30,11 +30,11 @@
     - [ ] 全仓 `pnpm test:coverage` 验证 Statements ≥80.48%（CI 为准，预估 +1.3~1.5%）
     - [ ] `pnpm typecheck` + `pnpm lint` 通过
 
-- [ ] **主线 2：编辑器工具栏收敛 Phase B — 风格扩展（P2）**
-    - [ ] 后端 `TextService` 扩展续写/扩写/缩写 `style` 参数
-    - [ ] 前端工具栏 SplitButton 子项支持风格选择（复用 6 种风格定义）
-    - [ ] Phase A 工具栏分组无回归验证
-    - [ ] `pnpm typecheck` + `pnpm lint` + 受影响 AI 测试通过
+- [x] **主线 2：编辑器工具栏收敛 Phase B — 风格扩展（P2）**
+    - [x] 后端 `TextService` 扩展续写/扩写/缩写 `style` 参数
+    - [x] 前端工具栏 SplitButton 子项支持风格选择（复用 6 种风格定义）
+    - [x] Phase A 工具栏分组无回归验证
+    - [x] `pnpm typecheck` + `pnpm lint` + 受影响 AI 测试通过
 
 - [ ] **主线 3：设置表单 UI Phase 4（P2）**
     - [ ] 从缺口清单选取 2-4 个配置项（缺口 A: `WEBHOOK_TIMESTAMP_TOLERANCE` 等 + 缺口 B: `hexo_sync_*` 等）
