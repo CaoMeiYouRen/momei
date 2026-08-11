@@ -100,16 +100,18 @@
 <script setup lang="ts">
 import {
     useTheme,
-    PRESETS,
-    type ThemeMode,
     type ThemePresetColorKey,
-    type ThemePresetKey,
     type ThemePresetValueKey,
     type ThemePreviewColorSettingKey,
 } from '@/composables/use-theme'
 import ArticleCard from '@/components/article-card.vue'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 import { useThemeMode } from '@/composables/use-theme-mode'
+import {
+    createThemeColorModel,
+    createThemeColorPickerModel,
+    getPresetValue,
+} from '@/composables/use-theme-color-models'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
@@ -127,10 +129,6 @@ const previewColorTypeMap: Record<ThemePreviewColorSettingKey, ThemePresetColorK
     themeDarkSurfaceColor: 'surface',
     themeDarkTextColor: 'text',
     themeBackgroundValue: 'surface',
-}
-
-function resolvePresetKey(preset: string | null | undefined): ThemePresetKey {
-    return preset && preset in PRESETS ? preset as ThemePresetKey : 'default'
 }
 
 defineExpose({
@@ -161,22 +159,8 @@ const previewPost = computed<Post>(() => ({
     language: 'zh-CN',
 }))
 
-const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) => {
-    if (!settings.value) {
-        return ''
-    }
-    const presetKey = resolvePresetKey(settings.value.themePreset)
-    const preset = PRESETS[presetKey] || PRESETS.default
-    if (!preset) {
-        return ''
-    }
-    if (type === 'radius') {
-        return preset.radius || ''
-    }
-    const mode: ThemeMode = forceDark ? 'dark' : 'light'
-    const value = preset[type][mode]
-    return value || ''
-}
+const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) =>
+    getPresetValue(settings.value, type, forceDark)
 
 const backgroundOptions = computed<Array<{ label: string, value: 'none' | 'color' | 'image' }>>(() => [
     { label: t('pages.admin.settings.theme.background_none'), value: 'none' },
@@ -185,44 +169,10 @@ const backgroundOptions = computed<Array<{ label: string, value: 'none' | 'color
 ])
 
 // 专门为 ColorPicker 创建的 Model，处理 fallback 到 Preset 默认值，且去掉 # 号
-const createColorPickerModel = (key: ThemePreviewColorSettingKey) => {
-    return computed({
-        get: () => {
-            let val = settings.value?.[key]
-            if (!val) {
-                const isDarkField = key.toLowerCase().includes('dark') || (key === 'themeBackgroundValue' && isDark.value)
-                val = getCurrentPresetValue(previewColorTypeMap[key], isDarkField)
-            }
-            return val ? val.replace('#', '') : ''
-        },
-        set: (newVal: string) => {
-            if (settings.value) {
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
-            }
-        },
-    })
-}
+const createColorPickerModel = (key: ThemePreviewColorSettingKey) =>
+    createThemeColorPickerModel(settings, key, previewColorTypeMap, (k) => k === 'themeBackgroundValue' && isDark.value)
 
-const createColorModel = (key: ThemePreviewColorSettingKey) => {
-    return computed({
-        get: () => {
-            const val = settings.value?.[key]
-            if (!val) {
-                return ''
-            }
-            return val.startsWith('#') ? val : `#${val}`
-        },
-        set: (newVal: string) => {
-            if (settings.value) {
-                if (!newVal) {
-                    settings.value[key] = null
-                    return
-                }
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
-            }
-        },
-    })
-}
+const createColorModel = (key: ThemePreviewColorSettingKey) => createThemeColorModel(settings, key)
 
 const backgroundPickerModel = createColorPickerModel('themeBackgroundValue')
 const backgroundColorModel = createColorModel('themeBackgroundValue')

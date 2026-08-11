@@ -42,10 +42,10 @@
     - [x] `ai-settings.vue` 实现 Password + InputText + InputText 表单控件（`v-if` 跟随 `ai_fallback_provider`）并补齐五语种翻译
     - [x] `pnpm typecheck` + `pnpm lint` + `pnpm lint:i18n` + `i18n:audit:missing = 0` 通过 + 定向测试 49/49 全绿；A 阶段 `@code-auditor` Review Gate Pass（RG-W01 同轮闭环、RG-W02 待手动浏览器验证）
 
-- [ ] **主线 4：结构复用治理（P1）**
-    - [ ] 基于 0.30% 基线识别 ≥1 组重复热点
-    - [ ] 切片收敛并验证 `pnpm duplicate-code:check` 基线 ≤0.30%
-    - [ ] `pnpm typecheck` + `pnpm lint` 通过
+- [x] **主线 4：结构复用治理（P1）**
+    - [x] 基于 0.30% 基线识别 ≥1 组重复热点
+    - [x] 切片收敛并验证 `pnpm duplicate-code:check` 基线 ≤0.30%
+    - [x] `pnpm typecheck` + `pnpm lint` 通过
 
 - [ ] **主线 5：脚本治理 — audit:comment-drift 升格评估（P1）**
     - [ ] 确认 `audit:comment-drift` 输出稳定、误报可控、warning 清洁

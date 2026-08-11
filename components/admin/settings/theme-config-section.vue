@@ -165,14 +165,17 @@
 import type { WritableComputedRef } from 'vue'
 import {
     useTheme,
-    PRESETS,
     type ThemeColorSettingKey,
-    type ThemeMode,
     type ThemePresetColorKey,
     type ThemePresetKey,
     type ThemePresetValueKey,
 } from '@/composables/use-theme'
 import { useThemeMode } from '@/composables/use-theme-mode'
+import {
+    createThemeColorModel,
+    createThemeColorPickerModel,
+    getPresetValue,
+} from '@/composables/use-theme-color-models'
 
 const { t } = useI18n()
 const { settings, isLocked } = useTheme()
@@ -191,26 +194,8 @@ const colorTypeMap: Record<ThemeColorSettingKey, ThemePresetColorKey> = {
     themeDarkTextColor: 'text',
 }
 
-function resolvePresetKey(preset: string | null | undefined): ThemePresetKey {
-    return preset && preset in PRESETS ? preset as ThemePresetKey : 'default'
-}
-
-const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) => {
-    if (!settings.value) {
-        return ''
-    }
-    const presetKey = resolvePresetKey(settings.value.themePreset)
-    const preset = PRESETS[presetKey] || PRESETS.default
-    if (!preset) {
-        return ''
-    }
-    if (type === 'radius') {
-        return preset.radius || ''
-    }
-    const mode: ThemeMode = forceDark ? 'dark' : 'light'
-    const value = preset[type][mode]
-    return value || ''
-}
+const getCurrentPresetValue = (type: ThemePresetValueKey, forceDark = false) =>
+    getPresetValue(settings.value, type, forceDark)
 
 const presetOptions = computed<Array<{ label: string, value: ThemeSelectablePresetKey }>>(() => [
     { label: t('pages.admin.settings.theme.presets.default'), value: 'default' },
@@ -237,45 +222,11 @@ const onPresetChange = () => {
 }
 
 // 处理颜色值的双向绑定
-const createColorModel = (key: ThemeColorSettingKey) => {
-    return computed({
-        get: () => {
-            const val = settings.value?.[key]
-            if (!val) {
-                return ''
-            }
-            return val.startsWith('#') ? val : `#${val}`
-        },
-        set: (newVal: string) => {
-            if (settings.value) {
-                if (!newVal) {
-                    settings.value[key] = null
-                    return
-                }
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
-            }
-        },
-    })
-}
+const createColorModel = (key: ThemeColorSettingKey) => createThemeColorModel(settings, key)
 
 // 专门为 ColorPicker 创建的 Model
-const createColorPickerModel = (key: ThemeColorSettingKey) => {
-    return computed({
-        get: () => {
-            let val = settings.value?.[key]
-            if (!val) {
-                const isDarkField = key.toLowerCase().includes('dark')
-                val = getCurrentPresetValue(colorTypeMap[key], isDarkField)
-            }
-            return val ? val.replace('#', '') : ''
-        },
-        set: (newVal: string) => {
-            if (settings.value) {
-                settings.value[key] = newVal.startsWith('#') ? newVal : `#${newVal}`
-            }
-        },
-    })
-}
+const createColorPickerModel = (key: ThemeColorSettingKey) =>
+    createThemeColorPickerModel(settings, key, colorTypeMap)
 
 const primaryColorModel = createColorModel('themePrimaryColor')
 const accentColorModel = createColorModel('themeAccentColor')

@@ -102,6 +102,7 @@
       - 第六十三阶段已完成 2 组热点切片（getErrorDetail 从 5 文件抽取到共享模块 + 编辑器面板 SCSS 共享），duplicate-code 基线 0.39%→0.35%。
        - 第六十四阶段已完成 2 组热点切片（safeDeleteCategory 新建 + handleExternalLinkError 新建），duplicate-code 基线保持 0.35%。
        - 第六十五阶段已完成 Categories/Tags 共享查询层收敛：新建 `category-public-list.ts` + `tag-public-list.ts`，4 端点 handler 简化，累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%。
+       - 第六十六阶段已完成 1 组热点切片（`theme-config-section.vue` ↔ `theme-preview-section.vue` 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`），消除 id 12+13 共 41 行重复，duplicate-code 基线 0.31%→0.30%。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
     - 第三十八阶段（admin 列表页结构复用）。
@@ -124,6 +125,7 @@
       - 第六十三阶段（2 组热点切片：getErrorDetail + 编辑器面板 SCSS 共享，duplicate-code 0.39%→0.35%）。
        - 第六十四阶段（2 组热点切片：safeDeleteCategory + handleExternalLinkError，duplicate-code 基线 0.35% 保持）。
        - 第六十五阶段（Categories/Tags 共享查询层收敛，-226 行重复，基线 0.34%→0.30%）。
+       - 第六十六阶段（theme 颜色 model composable 抽取：`use-theme-color-models.ts` 新建 + config/preview 两个 Vue 组件改 1 行委托，duplicate-code 基线 0.31%→0.30%）。
 - **下一次可切片方向**:
     - 下一轮优先基于当前 0.30% 基线继续收敛，候选包括：剩余轻量 shared helper、表单元数据/表单控件的类型共享、以及 `server/api/` 层请求上下文/参数校验的共性逻辑。
     - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper。
