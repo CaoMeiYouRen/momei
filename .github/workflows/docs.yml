@@ -39,6 +39,8 @@ jobs:
         run: pnpm i --frozen-lockfile
       - name: Lint Markdown files
         run: pnpm run lint:md
+      - name: Check Markdown links
+        run: pnpm run docs:check:links
       - name: Build with VitePress
         run: pnpm run docs:build
       - name: Upload artifact
