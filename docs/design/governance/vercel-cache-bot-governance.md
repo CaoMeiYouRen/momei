@@ -456,5 +456,5 @@ export default defineEventHandler((event) => {
 
 - [Postgres 流量治理](./postgres-traffic-governance.md) — SQL 层优化（减列、索引、缓存），与本方案互补
 - [可缓存接口清单](./cacheable-api-inventory.md) — API 运行时缓存（进程内 Map, 60s TTL）
-- [性能优化历史记录](../../reports/performance-optimization-log.md) — 已完成的性能优化条目
+- [性能优化历史记录](./performance-optimization-log.md) — 已完成的性能优化条目
 - [backlog Postgres 主线 #5](../../plan/backlog.md) — 长期 Postgres 治理方向

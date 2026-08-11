@@ -14,10 +14,10 @@ RSS、Atom 与 JSON Feed 属于订阅分发链路，相关内容在其他模块�
 
 | 路径 | 文件 | 作用 |
 | :--- | :--- | :--- |
-| `/.well-known/webfinger` | [server/routes/.well-known/webfinger.ts](../../server/routes/.well-known/webfinger.ts) | 发现用户 Actor |
-| `/fed/actor/:username` | [server/routes/fed/actor/[username].ts](../../server/routes/fed/actor/[username].ts) | 返回 Actor 对象 |
-| `/fed/note/:id` | [server/routes/fed/note/[id].ts](../../server/routes/fed/note/[id].ts) | 返回公开文章的 ActivityPub Article |
-| `/fed/outbox/:username` | [server/routes/fed/outbox/[username].ts](../../server/routes/fed/outbox/[username].ts) | 返回用户公开文章活动流 |
+| `/.well-known/webfinger` | [server/routes/.well-known/webfinger.ts](../../../server/routes/.well-known/webfinger.ts) | 发现用户 Actor |
+| `/fed/actor/:username` | [server/routes/fed/actor/[username].ts](../../../server/routes/fed/actor/[username].ts) | 返回 Actor 对象 |
+| `/fed/note/:id` | [server/routes/fed/note/[id].ts](../../../server/routes/fed/note/[id].ts) | 返回公开文章的 ActivityPub Article |
+| `/fed/outbox/:username` | [server/routes/fed/outbox/[username].ts](../../../server/routes/fed/outbox/[username].ts) | 返回用户公开文章活动流 |
 
 ## 3. 协议映射现状
 
@@ -30,18 +30,18 @@ WebFinger 端点当前行为已经明确：
 3. 返回 Actor 地址、作者页面、头像与关注模板。
 4. 输出 `application/jrd+json`。
 
-这部分真实逻辑以 [server/routes/.well-known/webfinger.ts](../../server/routes/.well-known/webfinger.ts) 为准，不再沿用旧版伪代码示例。
+这部分真实逻辑以 [server/routes/.well-known/webfinger.ts](../../../server/routes/.well-known/webfinger.ts) 为准，不再沿用旧版伪代码示例。
 
 ### 3.2 Actor
 
-Actor 映射已经统一收敛到 [server/utils/fed/mapper.ts](../../server/utils/fed/mapper.ts) 的 `userToActor()`：
+Actor 映射已经统一收敛到 [server/utils/fed/mapper.ts](../../../server/utils/fed/mapper.ts) 的 `userToActor()`：
 
 - `preferredUsername` 来自用户名
 - `url` 指向作者页
 - `publicKey` 通过用户密钥对生成工具提供
 - `sharedInbox` 指向站点级联邦入口占位地址
 
-协议类型定义则统一维护在 [types/federation.ts](../../types/federation.ts)。
+协议类型定义则统一维护在 [types/federation.ts](../../../types/federation.ts)。
 
 ### 3.3 Note / Article
 
@@ -52,7 +52,7 @@ Actor 映射已经统一收敛到 [server/utils/fed/mapper.ts](../../server/util
 - 标签与分类都会映射为 `Hashtag`
 - 封面图会映射为附件对象
 
-实现入口在 [server/routes/fed/note/[id].ts](../../server/routes/fed/note/[id].ts) 与 [server/utils/fed/mapper.ts](../../server/utils/fed/mapper.ts)。
+实现入口在 [server/routes/fed/note/[id].ts](../../../server/routes/fed/note/[id].ts) 与 [server/utils/fed/mapper.ts](../../../server/utils/fed/mapper.ts)。
 
 ### 3.4 Outbox
 

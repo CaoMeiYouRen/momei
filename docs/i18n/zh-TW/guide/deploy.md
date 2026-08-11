@@ -190,15 +190,15 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel**：適合 Serverless 部署。
 	- 建議 `STORAGE_TYPE=vercel_blob` 或外接 S3 / R2。
 	- 應配置 `CRON_SECRET` 供平台自動注入 Bearer Header。
-	- 內建排程由 [vercel.json](../../../vercel.json) 觸發。
+	- 內建排程由 [vercel.json](../../../../vercel.json) 觸發。
 - **Docker / 自託管主機**：適合需要本機磁碟、排程控制與較高可控性的場景。
 	- 建議掛載 `database/` 與上傳目錄。
 	- 若需內建 Cron，可使用 `TASK_CRON_EXPRESSION` 自訂頻率。
 - **Cloudflare（外圍能力接入）**：
 	- 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers，根因是專案仍依賴 TypeORM 與 Node 執行時能力。
-	- 研究結論與止損條件請參考 [Cloudflare 執行時相容研究與止損結論](../../design/governance/cloudflare-runtime-study.md)。
+	- 研究結論與止損條件請參考 [Cloudflare 執行時相容研究與止損結論](../../../design/governance/archive/cloudflare-runtime-study.md)。
 	- Cloudflare R2 可繼續作為物件儲存接入。
-	- Scheduled Events 相關觸發適配與 [wrangler.toml](../../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，不應被解讀為整站 Cloudflare 執行時已受支援。
+	- Scheduled Events 相關觸發適配與 [wrangler.toml](../../../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，不應被解讀為整站 Cloudflare 執行時已受支援。
 	- `pnpm deploy:wrangler` 目前僅用於 wrangler 側適配調試，不應作為生產環境整站部署指令。
 
 ## 6. 排障指引
@@ -218,7 +218,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ## 7. 延伸閱讀
 
 - [變數與設定映射](./variables.md)：查看環境變數與設定中心鍵名的大致對應。
-- [完整環境變數示例](../../../.env.full.example)：查看當前版本支援的完整矩陣。
+- [完整環境變數示例](../../../../.env.full.example)：查看當前版本支援的完整矩陣。
 - [系統集成設計文檔](../design/api.md)：從高層理解後端、儲存與外部服務的整合邊界。
 
 墨梅的部署原則很直接：**先把核心變數配齊讓系統穩定跑起來，再按模組逐步啟用 AI、儲存、任務與營運能力。**

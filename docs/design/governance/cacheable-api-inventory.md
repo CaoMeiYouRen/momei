@@ -4,7 +4,7 @@
 
 ## 1. 适用范围
 
-- 事实源: 当前阶段已接入 [server/utils/api-runtime-cache.ts](../../server/utils/api-runtime-cache.ts) 的公开读接口。
+- 事实源: 当前阶段已接入 [server/utils/api-runtime-cache.ts](../../../server/utils/api-runtime-cache.ts) 的公开读接口。
 - 目标: 统一记录接口、TTL、共享边界、失效策略与观测 namespace，支撑后续 TTL 调优和回归审计。
 - 非目标: 不描述 CDN、Redis、Nitro 多实例一致性缓存，也不替代运行期 `pg_stat_statements` 样本。
 
@@ -12,16 +12,16 @@
 
 | 接口 | 代码入口 | TTL | 共享边界 | 失效策略 | 观测 namespace |
 | :-- | :-- | :-- | :-- | :-- | :-- |
-| 公开站点设置 | [server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) | `60s` | 仅匿名公共响应共享；非公共响应走 `private, no-store` | 当前以短 TTL 自然过期为主；后续若后台设置写接口统一接入 namespace 失效，可进一步缩短陈旧窗口 | `settings:public` |
-| 公开友情链接列表 | [server/api/friend-links/index.get.ts](../../server/api/friend-links/index.get.ts) | `60s` | 公开读共享 | 当前以短 TTL 自然过期为主；后续可在友链管理写接口补 namespace 失效 | `friend-links:public` |
-| 文章归档摘要 / 明细 | [server/api/posts/archive.get.ts](../../server/api/posts/archive.get.ts) | `60s` | 仅 `scope=public` 且匿名请求共享；管理态与带会话请求强制 `private, no-store` | 当前以短 TTL 自然过期为主，避免把文章写入链路立即扩写成全链路缓存工程 | `posts:archive` |
-| 公开搜索结果 | [server/api/search/index.get.ts](../../server/api/search/index.get.ts) | `60s` | 仅匿名公开搜索响应共享；带会话请求强制 `private, no-store` | 当前以短 TTL 自然过期为主；后续若搜索读链路继续上收，再结合 live sample 决定是否补 namespace 失效或请求去重 | `search:public-results` |
-| 分类公开列表 | [server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) | `60s` | 公开列表共享 | 分类新增 / 更新 / 删除时，通过 [server/api/categories/index.post.ts](../../server/api/categories/index.post.ts)、[server/api/categories/[id].put.ts](../../server/api/categories/%5Bid%5D.put.ts)、[server/api/categories/[id].delete.ts](../../server/api/categories/%5Bid%5D.delete.ts) 执行 namespace 级失效 | `categories:public-list` |
-| 标签公开列表 | [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) | `60s` | 公开列表共享 | 标签新增 / 更新 / 删除时，通过 [server/api/tags/index.post.ts](../../server/api/tags/index.post.ts)、[server/api/tags/[id].put.ts](../../server/api/tags/%5Bid%5D.put.ts)、[server/api/tags/[id].delete.ts](../../server/api/tags/%5Bid%5D.delete.ts) 执行 namespace 级失效 | `tags:public-list` |
+| 公开站点设置 | [server/api/settings/public.get.ts](../../../server/api/settings/public.get.ts) | `60s` | 仅匿名公共响应共享；非公共响应走 `private, no-store` | 当前以短 TTL 自然过期为主；后续若后台设置写接口统一接入 namespace 失效，可进一步缩短陈旧窗口 | `settings:public` |
+| 公开友情链接列表 | [server/api/friend-links/index.get.ts](../../../server/api/friend-links/index.get.ts) | `60s` | 公开读共享 | 当前以短 TTL 自然过期为主；后续可在友链管理写接口补 namespace 失效 | `friend-links:public` |
+| 文章归档摘要 / 明细 | [server/api/posts/archive.get.ts](../../../server/api/posts/archive.get.ts) | `60s` | 仅 `scope=public` 且匿名请求共享；管理态与带会话请求强制 `private, no-store` | 当前以短 TTL 自然过期为主，避免把文章写入链路立即扩写成全链路缓存工程 | `posts:archive` |
+| 公开搜索结果 | [server/api/search/index.get.ts](../../../server/api/search/index.get.ts) | `60s` | 仅匿名公开搜索响应共享；带会话请求强制 `private, no-store` | 当前以短 TTL 自然过期为主；后续若搜索读链路继续上收，再结合 live sample 决定是否补 namespace 失效或请求去重 | `search:public-results` |
+| 分类公开列表 | [server/api/categories/index.get.ts](../../../server/api/categories/index.get.ts) | `60s` | 公开列表共享 | 分类新增 / 更新 / 删除时，通过 [server/api/categories/index.post.ts](../../../server/api/categories/index.post.ts)、[server/api/categories/[id].put.ts](../../../server/api/categories/%5Bid%5D.put.ts)、[server/api/categories/[id].delete.ts](../../../server/api/categories/%5Bid%5D.delete.ts) 执行 namespace 级失效 | `categories:public-list` |
+| 标签公开列表 | [server/api/tags/index.get.ts](../../../server/api/tags/index.get.ts) | `60s` | 公开列表共享 | 标签新增 / 更新 / 删除时，通过 [server/api/tags/index.post.ts](../../../server/api/tags/index.post.ts)、[server/api/tags/[id].put.ts](../../../server/api/tags/%5Bid%5D.put.ts)、[server/api/tags/[id].delete.ts](../../../server/api/tags/%5Bid%5D.delete.ts) 执行 namespace 级失效 | `tags:public-list` |
 
 ## 3. 观测口径
 
-[server/utils/api-runtime-cache.ts](../../server/utils/api-runtime-cache.ts) 当前为每个 namespace 维护以下运行期计数器：
+[server/utils/api-runtime-cache.ts](../../../server/utils/api-runtime-cache.ts) 当前为每个 namespace 维护以下运行期计数器：
 
 | 字段 | 含义 |
 | :-- | :-- |

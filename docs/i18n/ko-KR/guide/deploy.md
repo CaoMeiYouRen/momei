@@ -91,7 +91,7 @@ translation_tier: summary-sync
 - **Vercel**: Serverless 배포에 적합하며 `CRON_SECRET` 설정을 권장합니다.
 - **Docker / 자가 호스팅**: 로컬 디스크와 자체 cron 제어가 필요한 경우 적합합니다.
 - **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 다만 Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
-- **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 현재 연구 및 손절 결론은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../design/governance/cloudflare-runtime-study.md)에 정리되어 있습니다. Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
+- **Cloudflare(외곽 기능 연계)**: 현재 버전은 TypeORM 및 Node 런타임 의존성 때문에 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포할 수 없습니다. 현재 연구 및 손절 결론은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../../design/governance/archive/cloudflare-runtime-study.md)에 정리되어 있습니다. Cloudflare R2는 계속 객체 스토리지로 사용할 수 있으며, Scheduled Events 관련 트리거 적응과 `wrangler.toml`은 외곽 기능 설계 / 실험 진입점으로만 유지됩니다. `pnpm deploy:wrangler` 역시 wrangler 측 적응 디버깅 용도일 뿐, 운영 환경의 전체 사이트 배포 명령으로 보면 안 됩니다.
 
 ## 4. 자주 겪는 문제
 

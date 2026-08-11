@@ -2,7 +2,7 @@
 
 > 评估日期: 2026-06-29
 > 评估类型: Go/No-Go 评估（评估态，不进入代码实现）
-> 关联文档: [backlog.md #9](../../plan/backlog.md#9-ai-编辑增强功能套件-p1-p2-候选)
+> 关联文档: [backlog.md #9](../../plan/backlog.md)
 
 ## 1. 执行摘要
 
@@ -208,7 +208,7 @@ REVIEW: 'Review the following content in {{language}} for: '
 
 ## 7. 关联文档
 
-- [backlog.md #9](../../plan/backlog.md#9-ai-编辑增强功能套件-p1-p2-候选) - 原始需求
-- [server/services/ai/text.ts](../../server/services/ai/text.ts) - AI 文本服务
-- [server/utils/ai/prompt.ts](../../server/utils/ai/prompt.ts) - Prompt 模板
-- [server/services/ai/quota-governance.ts](../../server/services/ai/quota-governance.ts) - 额度计费策略
+- [backlog.md #9](../../plan/backlog.md) - 原始需求
+- [server/services/ai/text.ts](../../../server/services/ai/text.ts) - AI 文本服务
+- [server/utils/ai/prompt.ts](../../../server/utils/ai/prompt.ts) - Prompt 模板
+- [server/services/ai/quota-governance.ts](../../../server/services/ai/quota-governance.ts) - 额度计费策略

@@ -96,7 +96,7 @@ docker-compose up -d
 
 현재 버전은 애플리케이션 본체를 Cloudflare Pages / Workers에 완전 배포하는 것을 지원하지 않습니다. 프로젝트가 아직 TypeORM과 Node 런타임 기능에 의존하고 있어 유지 가능한 Cloudflare 적응 계층이 없기 때문입니다.
 
-현재 blocker 목록, 최소 프로토타입 경계, 중단 기준은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../design/governance/cloudflare-runtime-study.md)을 참고하세요.
+현재 blocker 목록, 최소 프로토타입 경계, 중단 기준은 [Cloudflare 런타임 호환성 연구 및 손절 결론](../../../design/governance/archive/cloudflare-runtime-study.md)을 참고하세요.
 
 Cloudflare가 필요하다면 현재는 다음과 같은 외곽 기능에만 한정하는 것을 권장합니다.
 

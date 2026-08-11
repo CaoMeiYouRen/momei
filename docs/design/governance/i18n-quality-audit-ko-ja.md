@@ -1,7 +1,7 @@
 # 翻译质量审计报告 — ko-KR / ja-JP
 
 > 范围：home / auth / common / components / public / settings 模块
-> 日期：2026-07-27 | 阶段：[第六十三阶段](../../plan/todo.md#5-翻译质量审计--ko-krja-jp-p2)
+> 日期：2026-07-27 | 阶段：[第六十三阶段](../../plan/todo.md)
 
 ---
 

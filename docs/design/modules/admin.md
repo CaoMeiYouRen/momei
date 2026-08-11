@@ -8,7 +8,7 @@
 
 为了简化部署流程并确保安全性，系统采用以下管理员确权机制：
 
--   **安装向导 (Recommended)**: 系统首运行会进入[安装向导](./system#安装向导)，在向导中直接创建首个超级管理员账号。
+-   **安装向导 (Recommended)**: 系统首运行会进入[安装向导](./system#3-安装向导-installation-wizard)，在向导中直接创建首个超级管理员账号。
 -   **首位自动提权 (Legacy/Fallback)**: 在未使用安装向导的情况下，若系统检测到数据库用户表为空，第一个成功登录/注册的账号将获得 `admin` 角色。
 -   **环境变量手动提权**: 后续若需添加其他管理员，可通过修改环境变量 `ADMIN_USER_IDS`，填入对应用户的唯一 ID（Snowflake ID），并以逗号分隔。
 -   **后台管理授权**: 已登录的管理员可以在“用户管理”页面手动调整其他用户的角色。
@@ -212,7 +212,7 @@
 #### 5.5.4 写入链路设计
 
 -   **现状**:
-    -   [server/api/posts/[id]/views.post.ts](server/api/posts/%5Bid%5D/views.post.ts) 调用 [server/utils/pv-cache.ts](server/utils/pv-cache.ts) 记录阅读。
+    -   `server/api/posts/[id]/views.post.ts` 调用 `server/utils/pv-cache.ts` 记录阅读。
     -   `pvCache.flush()` 当前会同时把聚合后的增量写回 `Post.views` 与 `post_view_hourly`。
 -   **当前写入口径**:
     -   `record(postId)` 默认仍然只做内存 / Redis 缓冲；仅在无 Redis 的 serverless 回退分支里，会直接事务写入 `Post.views` 与 `post_view_hourly` 以避免丢数。

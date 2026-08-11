@@ -11,9 +11,9 @@
 当前已确认的事实如下：
 
 - `Setting` 实体仍采用轻量 KV 模型，`value` 是字符串，不区分 locale。
-- [server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) 当前直接返回单语言扁平字段，公开页、SEO、邮件和通知尚未共用一套“配置值回退解析器”。
-- [components/admin/settings/general-settings.vue](../../components/admin/settings/general-settings.vue) 仍按单输入框编辑 `site_title`、`site_description`、`site_keywords` 等字段，后台尚未提供逐语言编辑能力。
-- `Locale Registry` 已在 [i18n/config/locale-registry.ts](../../i18n/config/locale-registry.ts) 固化回退链，其中 `zh-TW -> zh-CN -> en-US`、`en-US -> zh-CN`、`ko-KR -> en-US -> zh-CN` 已是运行时事实。
+- [server/api/settings/public.get.ts](../../../server/api/settings/public.get.ts) 当前直接返回单语言扁平字段，公开页、SEO、邮件和通知尚未共用一套“配置值回退解析器”。
+- [components/admin/settings/general-settings.vue](../../../components/admin/settings/general-settings.vue) 仍按单输入框编辑 `site_title`、`site_description`、`site_keywords` 等字段，后台尚未提供逐语言编辑能力。
+- `Locale Registry` 已在 [i18n/config/locale-registry.ts](../../../i18n/config/locale-registry.ts) 固化回退链，其中 `zh-TW -> zh-CN -> en-US`、`en-US -> zh-CN`、`ko-KR -> en-US -> zh-CN` 已是运行时事实。
 - 法律协议正文已经由 `AgreementContent` 实体承担版本治理；这次仅新增“法律文本简介 / 提示文案”类配置的多语言能力，不把完整协议正文重新塞回 `setting`。
 
 ## 2. 设计目标与非目标
@@ -200,7 +200,7 @@ ENV -> DB -> Default
 
 ### 6.1 公开设置接口
 
-[server/api/settings/public.get.ts](../../server/api/settings/public.get.ts) 后续应从“读取纯值”切换为“读取已按 locale 解析的值”，但保持对外字段名尽量稳定。
+[server/api/settings/public.get.ts](../../../server/api/settings/public.get.ts) 后续应从“读取纯值”切换为“读取已按 locale 解析的值”，但保持对外字段名尽量稳定。
 
 建议输出形态：
 

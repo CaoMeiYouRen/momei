@@ -1,6 +1,6 @@
 # 性能优化历史记录
 
-本文档用于记录已实施的性能优化条目与验证口径。规范阈值、门禁策略与预算标准请以 [性能规范](../standards/performance.md) 为准。
+本文档用于记录已实施的性能优化条目与验证口径。规范阈值、门禁策略与预算标准请以 [性能规范](../../standards/performance.md) 为准。
 
 ## Phase 52 前置分析 (2026-06-23) — Vercel 缓存穿透与 Bot 流量根因分析
 
@@ -24,7 +24,7 @@
 
 ### 详细分析
 
-见 [Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)。
+见 [Vercel 缓存穿透与 Bot 流量治理](./vercel-cache-bot-governance.md)。
 
 ---
 

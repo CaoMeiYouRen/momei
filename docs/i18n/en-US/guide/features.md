@@ -79,7 +79,7 @@ Momei treats subscription and external delivery as part of the same operating su
 
 -   **Markdown Policy Management**: Manage Terms of Service and Privacy Policy in Markdown format.
 -   **Multi-language Policies**: Set independent legal texts for different languages.
--   **Built-in Templates**: Provides default legal templates for quick copy-pasting. See [Legal Templates](./legal-templates.md) for details.
+-   **Built-in Templates**: Provides default legal templates for quick copy-pasting. See [Legal Templates](../../../guide/legal-templates.md) for details.
 
 ## 9. Developer, Deployment, and Demo Modes
 

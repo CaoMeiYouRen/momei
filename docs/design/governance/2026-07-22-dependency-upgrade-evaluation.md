@@ -79,7 +79,7 @@ Dependabot 于 2026-07-20 自动提出两组大版本升级 PR：
 
 ## 5. 相关链接
 
-- [Dependabot 配置](../../../../.github/dependabot.yml) — 已添加对应忽略规则
+- [Dependabot 配置](../../../.github/dependabot.yml) — 已添加对应忽略规则
 - [TypeScript 7 Release Notes](https://devblogs.microsoft.com/typescript/typescript-7-rc/)
 - [ESLint 10 Migration Guide](https://eslint.org/docs/latest/use/migrating-to-10.0.0)
 - [eslint-plugin-import #3019 — ESLint 10 compatibility](https://github.com/import-js/eslint-plugin-import/issues/3019)

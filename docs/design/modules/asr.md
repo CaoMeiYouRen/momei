@@ -36,9 +36,9 @@
 
 相关实现分布在：
 
-- [server/api/ai/asr/credentials.post.ts](../../server/api/ai/asr/credentials.post.ts)
-- [server/api/ai/asr/transcribe/async.post.ts](../../server/api/ai/asr/transcribe/async.post.ts)
-- [server/services/ai/asr.ts](../../server/services/ai/asr.ts)
+- [server/api/ai/asr/credentials.post.ts](../../../server/api/ai/asr/credentials.post.ts)
+- [server/api/ai/asr/transcribe/async.post.ts](../../../server/api/ai/asr/transcribe/async.post.ts)
+- [server/services/ai/asr.ts](../../../server/services/ai/asr.ts)
 
 ### 3.3 配置来源
 
@@ -75,10 +75,10 @@ ASR 配置已经接入系统设置服务，凭证生成会优先读取专用 ASR
 
 | 文件 | 说明 |
 | :--- | :--- |
-| [server/utils/ai/asr-credentials.ts](../../server/utils/ai/asr-credentials.ts) | 厂商临时凭证生成 |
-| [composables/use-asr-direct.ts](../../composables/use-asr-direct.ts) | 前端直连能力 |
-| [composables/use-asr-task.ts](../../composables/use-asr-task.ts) | 异步任务状态追踪 |
-| [utils/audio-compression.ts](../../utils/audio-compression.ts) | 轻量音频压缩与重采样 |
+| [server/utils/ai/asr-credentials.ts](../../../server/utils/ai/asr-credentials.ts) | 厂商临时凭证生成 |
+| [composables/use-asr-direct.ts](../../../composables/use-asr-direct.ts) | 前端直连能力 |
+| [composables/use-asr-task.ts](../../../composables/use-asr-task.ts) | 异步任务状态追踪 |
+| [utils/audio-compression.ts](../../../utils/web/audio-compression.ts) | 轻量音频压缩与重采样 |
 
 ## 6. 相关文档
 

@@ -6,7 +6,7 @@
 
 ### 1.1 决策来源
 
-- [商业化转型可行性重评框架](./commercialization-reassessment-framework.md) 得出「降级观察」结论，明确下一步必须先补统一承接层，再验证付费兴趣。
+- [商业化转型可行性重评框架](./archive/commercialization-reassessment-framework.md) 得出「降级观察」结论，明确下一步必须先补统一承接层，再验证付费兴趣。
 - 当前公开站点缺少「入口 → 承接 → 行动」的统一转化链，首页 Hero 注释、Demo Banner 分流、About 页仅品牌说明。
 
 ### 1.2 本轮定位
@@ -167,7 +167,7 @@ pages.enhanced_pack:
 
 ## 10. 相关文档
 
-- [商业化转型可行性重评框架](./commercialization-reassessment-framework.md)
+- [商业化转型可行性重评框架](./archive/commercialization-reassessment-framework.md)
 - [项目路线图](../../plan/roadmap.md) — 第三十二阶段
 - [待办事项](../../plan/todo.md)
 - [开发规范](../../standards/development.md)

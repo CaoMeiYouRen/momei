@@ -199,4 +199,4 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   [项目规划规范](./planning.md)
 -   [开发规范](./development.md)
 -   [测试规范](./testing.md)
--   [性能优化历史记录](../reports/performance-optimization-log.md)
+-   [性能优化历史记录](../design/governance/performance-optimization-log.md)

@@ -55,14 +55,14 @@
 
 ## 5. 技术配置 (Technical Configuration)
 
-邮件订阅功能属于 **[核心推荐 (Level 2)](../guide/deploy#level-2-核心推荐-core-recommended)** 部署项，依赖以下系统配置：
+邮件订阅功能属于 **[核心推荐 (Level 2)](../../guide/deploy#2-生产推荐-level-2-recommended)** 部署项，依赖以下系统配置：
 
 | 配置项 | 环境变量 (ENV) | 说明 |
 | :--- | :--- | :--- |
 | SMTP 服务 | `NUXT_SMTP_HOST`, `NUXT_SMTP_USER`... | 必须配置 SMTP 才能发送确认邮件 |
 | 验证码 (Turnstile) | `NUXT_TURNSTILE_SECRET_KEY` | 强烈建议配置验证码防止垃圾订阅 |
 
-详细配置参考：[环境与系统设置映射表](../guide/variables)
+详细配置参考：[环境与系统设置映射表](../../guide/variables)
 
 ## 6. 待办计划 (Roadmap)
 

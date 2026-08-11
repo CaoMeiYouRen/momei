@@ -393,7 +393,7 @@ HTTP 模式下暴露的工具体系与 stdio 模式完全一致，共享同一�
 - [MCP 服务器设计](./mcp.md) — 现有 MCP stdio 服务器设计
 - [CLI/MCP 自动化能力扩展设计](../governance/cli-mcp-automation.md) — 外部契约与能力分层
 - [CLI/MCP API 客户端复用治理](../governance/cli-mcp-api-client-reuse.md) — API Client 共享治理
-- [任务调度器插件](../../server/plugins/task-scheduler.ts) — 条件启停 + 动态导入参考实现
+- [任务调度器插件](../../../server/plugins/task-scheduler.ts) — 条件启停 + 动态导入参考实现
 - [MCP SDK Streamable HTTP 规范](https://github.com/modelcontextprotocol/specification/blob/main/README.md) — 官方协议规范
 
 ---

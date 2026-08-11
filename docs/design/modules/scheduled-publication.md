@@ -22,15 +22,15 @@
 
 相关文件：
 
-- [server/services/task.ts](../../server/services/task.ts)
-- [server/services/ai/media-task-monitor.ts](../../server/services/ai/media-task-monitor.ts)
-- [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts)
-- [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts)
-- [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts)
+- [server/services/task.ts](../../../server/services/task.ts)
+- [server/services/ai/media-task-monitor.ts](../../../server/services/ai/media-task-monitor.ts)
+- [server/plugins/task-scheduler.ts](../../../server/plugins/task-scheduler.ts)
+- [server/api/tasks/run-scheduled.post.ts](../../../server/api/tasks/run-scheduled.post.ts)
+- [server/routes/_scheduled.ts](../../../server/routes/_scheduled.ts)
 
 ### 2.2 自部署触发
 
-[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 在非 Serverless 环境下注册 CronJob：
+[server/plugins/task-scheduler.ts](../../../server/plugins/task-scheduler.ts) 在非 Serverless 环境下注册 CronJob：
 
 - 主任务默认表达式：`*/5 * * * *`
 - 时区：`UTC`
@@ -48,15 +48,15 @@
 
 当前项目已正式支持一类 Serverless 触发方式，并保留一条 Cloudflare 实验入口：
 
-- Vercel Cron：通过 [vercel.json](../../vercel.json) 调用 `/api/tasks/run-scheduled`
-- Cloudflare 实验入口：通过 [wrangler.toml](../../wrangler.toml) 与 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 保留外围能力探索痕迹
+- Vercel Cron：通过 [vercel.json](../../../vercel.json) 调用 `/api/tasks/run-scheduled`
+- Cloudflare 实验入口：通过 [wrangler.toml](../../../wrangler.toml) 与 [server/routes/_scheduled.ts](../../../server/routes/_scheduled.ts) 保留外围能力探索痕迹
 
-其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404；但根据 Cloudflare 官方文档，正式 Cron Trigger 入口应为 `scheduled()` 处理器，因此这一路径当前只能视为实验性适配入口，不构成整站 Cloudflare 运行时支持承诺。完整研究见 [Cloudflare 运行时兼容研究与止损结论](../governance/cloudflare-runtime-study.md)。
+其中 Cloudflare 路由要求存在 `cf-scheduled` 请求头，否则直接返回 404；但根据 Cloudflare 官方文档，正式 Cron Trigger 入口应为 `scheduled()` 处理器，因此这一路径当前只能视为实验性适配入口，不构成整站 Cloudflare 运行时支持承诺。完整研究见 [Cloudflare 运行时兼容研究与止损结论](../governance/archive/cloudflare-runtime-study.md)。
 
 补充说明：
 
-- 自部署环境下，主 Cron 会补充执行 AI 媒体超时补偿；友链巡检由 [server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
-- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与实验性 [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次 AI 媒体超时补偿和友链巡检。
+- 自部署环境下，主 Cron 会补充执行 AI 媒体超时补偿；友链巡检由 [server/plugins/task-scheduler.ts](../../../server/plugins/task-scheduler.ts) 中的独立 Cron 表达式驱动。
+- Serverless 或手动触发入口下，`/api/tasks/run-scheduled` 与实验性 [server/routes/_scheduled.ts](../../../server/routes/_scheduled.ts) 会在执行统一调度任务后补充执行一次 AI 媒体超时补偿和友链巡检。
 - AI 媒体巡检会先做分布式锁与数据库级 claim/lease 认领，再尝试补偿 stale 任务，以降低 Vercel / 自部署多实例并发下的重复补偿风险。
 - 友链实际探测仍会受到最小巡检间隔与失败退避冷却约束。
 
@@ -64,7 +64,7 @@
 
 ### 3.1 HMAC 模式
 
-当前推荐模式为 HMAC 签名校验，实际实现位于 [server/utils/webhook-security.ts](../../server/utils/webhook-security.ts)。
+当前推荐模式为 HMAC 签名校验，实际实现位于 [server/utils/webhook-security.ts](../../../server/utils/webhook-security.ts)。
 
 请求头约定：
 
@@ -95,10 +95,10 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 
 由于 Vercel Hobby 套餐限制单个 Cron 任务每天仅能执行一次，本项目采取了**多任务分发策略**：
 
-- **实现方式**：在 [vercel.json](../../vercel.json) 中配置多个独立的 Cron 任务（默认为 12 个）。
+- **实现方式**：在 [vercel.json](../../../vercel.json) 中配置多个独立的 Cron 任务（默认为 12 个）。
 - **调度频率**：采取**隔小时触发**策略（如 00:00, 02:00 等），以规避 Vercel Hobby 套餐 $\pm 59$ 分钟的调度偏移导致的并发冲突。
-- **自定义建议**：若用户不需要高频执行，建议删除 [vercel.json](../../vercel.json) 中的冗余任务以节省 Serverless 额度；若需更高频率，可继续添加任务并保持至少 1 小时的理论间隔。
-- **鉴权机制**：Vercel 使用 [server/api/tasks/run-scheduled.get.ts](../../server/api/tasks/run-scheduled.get.ts) 处理平台默认 GET 调用。
+- **自定义建议**：若用户不需要高频执行，建议删除 [vercel.json](../../../vercel.json) 中的冗余任务以节省 Serverless 额度；若需更高频率，可继续添加任务并保持至少 1 小时的理论间隔。
+- **鉴权机制**：Vercel 使用 [server/api/tasks/run-scheduled.get.ts](../../../server/api/tasks/run-scheduled.get.ts) 处理平台默认 GET 调用。
 - **配置要求**：需在 Vercel 项目控制面板添加 `CRON_SECRET` 环境变量。
 
 ### 3.4 环境行为
@@ -115,7 +115,7 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 
 ### 4.1 Vercel
 
-[vercel.json](../../vercel.json) 当前配置为每天执行一次：
+[vercel.json](../../../vercel.json) 当前配置为每天执行一次：
 
 - 路径：`/api/tasks/run-scheduled`
 - 计划：`0 0 * * *`
@@ -130,7 +130,7 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 
 ### 4.2 Cloudflare（实验性外围入口）
 
-[wrangler.toml](../../wrangler.toml) 当前配置为每 15 分钟一次：
+[wrangler.toml](../../../wrangler.toml) 当前配置为每 15 分钟一次：
 
 - 计划：`*/15 * * * *`
 
@@ -139,8 +139,8 @@ Vercel Cron 会自动把项目中的 `CRON_SECRET` 作为 `Authorization: Bearer
 但需要明确：
 
 - 这里记录的是当前仓库保留的探索入口，不代表 Cloudflare Pages / Workers 已成为正式运行环境。
-- 当前更推荐的 Cloudflare 任务接入方式，是让 Cloudflare 作为外围调度器调用 [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts)，而不是把完整任务执行链迁到 Cloudflare 运行时。
-- 是否重新推进 Cloudflare 正式任务模型，应以 [Cloudflare 运行时兼容研究与止损结论](../governance/cloudflare-runtime-study.md) 为准。
+- 当前更推荐的 Cloudflare 任务接入方式，是让 Cloudflare 作为外围调度器调用 [server/api/tasks/run-scheduled.post.ts](../../../server/api/tasks/run-scheduled.post.ts)，而不是把完整任务执行链迁到 Cloudflare 运行时。
+- 是否重新推进 Cloudflare 正式任务模型，应以 [Cloudflare 运行时兼容研究与止损结论](../governance/archive/cloudflare-runtime-study.md) 为准。
 
 补充说明：高频的统一调度入口并不意味着友链会被高频重复探测。友链服务会基于 `friend_links_check_interval_minutes` 和失败退避窗口筛选“已到期”的候选项，仅对到期记录执行网络请求。
 

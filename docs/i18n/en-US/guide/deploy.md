@@ -222,7 +222,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel**: Best for serverless deployments.
 	- Prefer `STORAGE_TYPE=vercel_blob` or an external S3/R2 bucket.
 	- Configure `CRON_SECRET` so Vercel can inject the Bearer token automatically. Add `TASKS_TOKEN` or `WEBHOOK_SECRET` only if you also need manual or external triggers.
-	- Built-in scheduled triggers are defined in [vercel.json](../../../vercel.json) and currently run once per day.
+	- Built-in scheduled triggers are defined in [vercel.json](../../../../vercel.json) and currently run once per day.
 - **Docker / Self-hosted server**: Best when you need local disk, built-in cron, and tighter operational control.
 	- Mount `database/` and upload directories.
 	- Use `TASK_CRON_EXPRESSION` to customize the main cron schedule and `FRIEND_LINKS_CHECK_CRON` when friend-links inspection needs an independent cadence.
@@ -235,9 +235,9 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 	- For guided output, run `pnpm setup:umami` (`--website-id`, `--script-url`, and `--json` are supported).
 - **Cloudflare (Peripheral integrations only)**:
 	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
-	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).
+	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../../design/governance/archive/cloudflare-runtime-study.md).
 	- Cloudflare R2 can still be used as object storage.
-	- Scheduled Events-related trigger adaptation and [wrangler.toml](../../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points and should not be read as full Cloudflare runtime support.
+	- Scheduled Events-related trigger adaptation and [wrangler.toml](../../../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points and should not be read as full Cloudflare runtime support.
 	- `pnpm deploy:wrangler` is currently only for wrangler-side integration debugging and should not be treated as a production full-site deployment command.
 
 ## 6. Troubleshooting
@@ -261,7 +261,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ## 7. References
 
 - [Variables & Settings Mapping](./variables): Overview of how environment variables map to settings keys.
-- [Full environment variable example (.env.full.example)](../../../.env.full.example): Complete configuration matrix supported by the current version.
+- [Full environment variable example (.env.full.example)](../../../../.env.full.example): Complete configuration matrix supported by the current version.
 - [System integration design docs](../../../design/modules/index): Module-level integration boundaries and implementation notes.
 
 Momei keeps the same deployment principle: configure the essential variables first so the site runs reliably, then enable AI, storage, tasks, and monetization step by step.

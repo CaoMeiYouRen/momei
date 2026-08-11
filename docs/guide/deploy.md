@@ -220,7 +220,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
     - `docker compose -f docker-compose.yml -f docker-compose.umami.yml --env-file .env --env-file .env.umami up -d`
   - 若需快速生成建议配置，可执行 `pnpm setup:umami`（支持 `--website-id` / `--script-url` / `--json`）。
 - **Cloudflare（外围能力接入）**:
-  - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力；研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/cloudflare-runtime-study.md)。
+  - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力；研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/archive/cloudflare-runtime-study.md)。
   - Cloudflare R2 可继续作为对象存储接入；Scheduled Events 相关触发适配与 [wrangler.toml](../../wrangler.toml) 配置当前保留为外围能力设计 / 实验入口，不应解读为整站 Cloudflare 运行时已受支持。
   - `pnpm deploy:wrangler` 当前仅用于 wrangler 侧适配调试，不应作为生产环境整站部署命令。
 
@@ -239,7 +239,7 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 - **Vercel / Netlify 首启后数据重置或管理员丢失**: 先确认当前是否仍在使用 SQLite 默认值。Serverless 路径必须切换到外部 `DATABASE_URL`。
 - **Vercel / Netlify 能打开站点但上传失败**: 多半仍在使用 `STORAGE_TYPE=local`。这属于已知组合冲突，请改为 `s3`、`r2` 或 `vercel_blob`。
 - **Cloudflare Pages / Workers 运行时报 TypeORM / Node 兼容错误**: 这是当前已知边界，不是部署步骤遗漏。请改用 Vercel、Docker 或自托管 Node 环境作为应用主体；如需 Cloudflare，当前仅保留 R2 / Scheduled Events 等外围能力接入。
-- **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/cloudflare-runtime-study.md)。
+- **Cloudflare D1 是否能直接替代当前数据库**: 不能。当前主栈仍围绕 TypeORM 与 `sqlite/mysql/postgres` 三类驱动组织，D1 只应继续保留为后续条件触发型研究项，详见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/archive/cloudflare-runtime-study.md)。
 - **Umami 启动成功但站点无统计数据**: 先确认 `NUXT_PUBLIC_UMAMI_ANALYTICS` 的 `websiteId` 与 `scriptUrl` 指向同一 Umami 实例，并检查 Umami 映射端口（默认 `3001`）是否可从公网访问。
 
 ## 7. 更多参考资源 (References)

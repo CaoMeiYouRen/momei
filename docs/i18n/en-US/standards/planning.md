@@ -175,7 +175,7 @@ Additional constraints: generated artifacts are only reference evidence; formal 
 -   **Format**: Archives should preserve the original hierarchy, checkbox status, and acceptance criteria for historical traceability.
 -   **Simplicity**: After archiving, `docs/plan/todo.md` should only retain active tasks for the current iteration. Long-term mainlines and short-term candidates are managed in `docs/plan/backlog.md`; `roadmap.md` keeps only formal phase plans and archive conclusions.
 
-Deep-archive thresholds (see the [deep archive governance](../plan/archive/index.md) entry): root `README*` `<= 300` lines healthy, `301 - 400` warning, over `400` before pushing details back to `docs/` topic pages; `roadmap.md` `<= 800` / `801 - 900` warning / over `900` must split earlier phase shards first; `backlog.md` and `todo-archive.md` `<= 500` / `501 - 700` warning / over `700` must converge candidate summaries or split phase-range shards; `docs/reports/regression/current.md` `<= 500` / `501 - 700` warning / over `700` must rotate old records to the archive. Thresholds are enforced by `pnpm docs:check:line-count`.
+Deep-archive thresholds (see the [deep archive governance](../../../plan/archive/index.md) entry): root `README*` `<= 300` lines healthy, `301 - 400` warning, over `400` before pushing details back to `docs/` topic pages; `roadmap.md` `<= 800` / `801 - 900` warning / over `900` must split earlier phase shards first; `backlog.md` and `todo-archive.md` `<= 500` / `501 - 700` warning / over `700` must converge candidate summaries or split phase-range shards; `docs/reports/regression/current.md` `<= 500` / `501 - 700` warning / over `700` must rotate old records to the archive. Thresholds are enforced by `pnpm docs:check:line-count`.
 
 ### 4.5 Phase Archive Workflow
 
@@ -198,7 +198,7 @@ Any "current phase done, ready to archive and evaluate the next phase" action mu
 1.  Chinese source of truth must be synced first: `todo.md`, `todo-archive.md`, `roadmap.md`.
 2.  If backlog promotion, mainline slicing, or candidate de-duplication is involved, update `docs/plan/backlog.md`; backlog is not "optional notes".
 3.  If phase status changes (e.g. "planning" to "audited & archived"), check whether `docs/i18n/*/plan/roadmap.md` summaries need updates.
-4.  Run `node scripts/ai-hooks/distill-wisdom.mjs --check`: if it returns `WISDOM_NEEDS_DISTILL`, follow the [Session Wisdom distillation process](../design/governance/session-wisdom-distillation.md) and solidify high-value knowledge into `docs/` before archiving.
+4.  Run `node scripts/ai-hooks/distill-wisdom.mjs --check`: if it returns `WISDOM_NEEDS_DISTILL`, follow the [Session Wisdom distillation process](../../../design/governance/session-wisdom-distillation.md) and solidify high-value knowledge into `docs/` before archiving.
 5.  `todo.md` and `backlog.md` stay Chinese by default; no separate translation files are created for phase archives.
 6.  If the phase comes with standards, guides, README, or module design doc drift, judge whether to sync them before archiving; do not leave "doc backfill" as a hidden tail item.
 7.  If new or rewritten design docs are involved, decide `docs/design/modules/` vs `docs/design/governance/` placement; do not stuff governance docs back into the module directory for convenience.
@@ -277,7 +277,7 @@ When an item meets "new module / cross-module / contract rewrite / standalone go
 ## 6. Related Documents
 
 -   [Project Roadmap](../plan/roadmap.md)
--   [TODO](../plan/todo.md)
+-   [TODO](../../../plan/todo.md)
 -   [Development Standards](./development.md)
--   [Design Doc Index](../design/modules/index.md)
--   [Governance & Special Design Index](../design/governance/index.md)
+-   [Design Doc Index](../../../design/modules/index.md)
+-   [Governance & Special Design Index](../../../design/governance/index.md)

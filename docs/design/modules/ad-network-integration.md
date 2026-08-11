@@ -12,16 +12,16 @@
 
 广告平台能力已经以“适配器 + 配置解析 + 广告位实体”的方式落地：
 
-- 适配器抽象定义在 [server/services/adapters/base.ts](../../server/services/adapters/base.ts)
-- 内置适配器注册在 [server/services/adapters/index.ts](../../server/services/adapters/index.ts)
-- 广告网络配置解析位于 [server/utils/ad-network-config.ts](../../server/utils/ad-network-config.ts)
-- 公共脚本接口位于 [server/api/ads/script.get.ts](../../server/api/ads/script.get.ts)
+- 适配器抽象定义在 [server/services/adapters/base.ts](../../../server/services/adapters/base.ts)
+- 内置适配器注册在 [server/services/adapters/index.ts](../../../server/services/adapters/index.ts)
+- 广告网络配置解析位于 [server/utils/ad-network-config.ts](../../../server/utils/ad-network-config.ts)
+- 公共脚本接口位于 [server/api/ads/script.get.ts](../../../server/api/ads/script.get.ts)
 
 当前脚本接口并不是凭空生成，而是先从 `COMMERCIAL_SPONSORSHIP` 中解析可用广告网络配置，再按适配器生成脚本内容。
 
 ### 2.2 广告位与广告活动
 
-广告位选择与定向逻辑已经落地在 [server/services/ad.ts](../../server/services/ad.ts)，并依赖以下实体：
+广告位选择与定向逻辑已经落地在 [server/services/ad.ts](../../../server/services/ad.ts)，并依赖以下实体：
 
 - `AdPlacement`
 - `AdCampaign`
@@ -33,16 +33,16 @@
 - 校验广告活动状态和生效时间
 - 基于 `maxViewsPerSession` 做会话级展示频控
 
-公开查询入口为 [server/api/ads/placements.get.ts](../../server/api/ads/placements.get.ts)。该接口会为访问者建立 `momei_ad_session_id` Cookie，用于频控统计。
+公开查询入口为 [server/api/ads/placements.get.ts](../../../server/api/ads/placements.get.ts)。该接口会为访问者建立 `momei_ad_session_id` Cookie，用于频控统计。
 
 ### 2.3 前端渲染与内容注入
 
 当前前端已具备两类广告消费方式：
 
-- 独立广告位组件：[components/ad-placement.vue](../../components/ad-placement.vue)
-- 文章正文广告注入：[composables/use-ad-injection.ts](../../composables/use-ad-injection.ts)
+- 独立广告位组件：[components/ad-placement.vue](../../../components/ad-placement.vue)
+- 文章正文广告注入：[composables/use-ad-injection.ts](../../../composables/use-ad-injection.ts)
 
-脚本加载则由 [composables/use-ad-script.ts](../../composables/use-ad-script.ts) 统一处理，避免同一适配器脚本重复注入。
+脚本加载则由 [composables/use-ad-script.ts](../../../composables/use-ad-script.ts) 统一处理，避免同一适配器脚本重复注入。
 
 ## 3. 外链短链与跳转门
 
@@ -50,8 +50,8 @@
 
 外链管理能力已在代码中形成独立链路：
 
-- 业务服务：[server/services/link.ts](../../server/services/link.ts)
-- 跳转接口：[server/api/goto/[code].get.ts](../../server/api/goto/[code].get.ts)
+- 业务服务：[server/services/link.ts](../../../server/services/link.ts)
+- 跳转接口：[server/api/goto/[code].get.ts](../../../server/api/goto/[code].get.ts)
 
 当前行为包括：
 
@@ -83,11 +83,11 @@
 
 | 文件 | 说明 |
 | :--- | :--- |
-| [server/services/ad.ts](../../server/services/ad.ts) | 广告位筛选、活动状态判断与频控 |
-| [server/services/link.ts](../../server/services/link.ts) | 短链生成、黑名单过滤与点击追踪 |
-| [components/ad-placement.vue](../../components/ad-placement.vue) | 广告位渲染组件 |
-| [composables/use-ad-injection.ts](../../composables/use-ad-injection.ts) | 正文广告注入 |
-| [composables/use-ad-script.ts](../../composables/use-ad-script.ts) | 广告脚本去重加载 |
+| [server/services/ad.ts](../../../server/services/ad.ts) | 广告位筛选、活动状态判断与频控 |
+| [server/services/link.ts](../../../server/services/link.ts) | 短链生成、黑名单过滤与点击追踪 |
+| [components/ad-placement.vue](../../../components/ad-placement.vue) | 广告位渲染组件 |
+| [composables/use-ad-injection.ts](../../../composables/use-ad-injection.ts) | 正文广告注入 |
+| [composables/use-ad-script.ts](../../../composables/use-ad-script.ts) | 广告脚本去重加载 |
 
 ## 5. 当前边界
 

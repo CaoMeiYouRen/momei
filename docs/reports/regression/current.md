@@ -21,7 +21,7 @@
 ## 2026-07-27 阶段收口前周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:phase-close`
-- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-27-phase-close-regression.md) / [json](../../../artifacts/review-gate/2026-07-27-phase-close-regression.json)
+- 证据 artifact: `artifacts/review-gate/2026-07-27-phase-close-regression.md` / `artifacts/review-gate/2026-07-27-phase-close-regression.json`
 - 结果摘要: `Reject`；blocker=2，warning=0。
 - 已执行验证: test:coverage=PASS，release:check:full=FAIL
 - 回归窗口: 322 行 / 13 条，归档判定=需要滚动归档。
@@ -33,7 +33,7 @@
 ## 2026-07-27 周级周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:weekly -- --dry-run`
-- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-27-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-07-27-weekly-regression.json)
+- 证据 artifact: `artifacts/review-gate/2026-07-27-weekly-regression.md` / `artifacts/review-gate/2026-07-27-weekly-regression.json`
 - 结果摘要: `Prepared`；blocker=0，warning=1。
 - 已执行验证: test:coverage=DRY RUN，security:audit-deps=DRY RUN，docs:check:source-of-truth=DRY RUN，docs:check:i18n=DRY RUN，docs:check:line-count=DRY RUN，i18n:audit:missing=DRY RUN，duplicate-code:check=DRY RUN，governance:check:scripts=DRY RUN，governance:audit:eslint-debt=DRY RUN，governance:audit:comment-drift=DRY RUN，governance:audit:simple-duplicates=DRY RUN
 - 回归窗口: 294 行 / 11 条，归档判定=需要滚动归档。
@@ -45,7 +45,7 @@
 ## 2026-07-25 workflow pre-check（release，自动回填）
 
 - 执行入口: `pnpm run ci:precheck -- --profile=release`
-- 证据 artifact: [md](../../../artifacts/review-gate/2026-07-25-ci-precheck-release.md) / [json](../../../artifacts/review-gate/2026-07-25-ci-precheck-release.json)
+- 证据 artifact: `artifacts/review-gate/2026-07-25-ci-precheck-release.md` / `artifacts/review-gate/2026-07-25-ci-precheck-release.json`
 - 结果摘要: `Reject`；blocker=1，warning=0。
 - 已执行验证: release critical files=PASS，release environment=FAIL
 - Review Gate: `Reject` / `blocker`；主要问题=release environment failed。
@@ -56,7 +56,7 @@
 ## 2026-06-10 周级周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:weekly`
-- 证据 artifact: [md](../../../artifacts/review-gate/2026-06-10-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-06-10-weekly-regression.json)
+- 证据 artifact: `artifacts/review-gate/2026-06-10-weekly-regression.md` / `artifacts/review-gate/2026-06-10-weekly-regression.json`
 - 结果摘要: `Pass`；blocker=0，warning=1。
 - 已执行验证: test:coverage=PASS，security:audit-deps=PASS，docs:check:source-of-truth=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，i18n:audit:missing=PASS，duplicate-code:check=FAIL，governance:check:scripts=PASS
 - 回归窗口: 189 行 / 7 条，归档判定=窗口健康。

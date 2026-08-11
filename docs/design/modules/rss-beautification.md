@@ -218,8 +218,8 @@ item > link {
 
 - [订阅系统设计](./subscription.md) — 站内 Feed 输出能力
 - [MCP HTTP 传输与本体挂载设计](./mcp-http.md) — 本阶段另一条主线
-- [feed.xml.ts](../../server/routes/feed.xml.ts) — RSS feed 路由
-- [feed.ts](../../server/utils/feed.ts) — Feed 生成工具
+- [feed.xml.ts](../../../server/routes/feed.xml.ts) — RSS feed 路由
+- [feed.ts](../../../server/utils/feed.ts) — Feed 生成工具
 
 ---
 

@@ -10,7 +10,7 @@
 
 ### 2.1 凭证颁发接口
 
-当前前端直连统一通过 [server/api/ai/asr/credentials.post.ts](../../server/api/ai/asr/credentials.post.ts) 获取临时凭证，特点如下：
+当前前端直连统一通过 [server/api/ai/asr/credentials.post.ts](../../../server/api/ai/asr/credentials.post.ts) 获取临时凭证，特点如下：
 
 - 仅允许管理员和作者角色调用
 - 默认有效期 10 分钟，并支持通过 `ASR_CREDENTIAL_TTL_SECONDS` / `asr_credential_ttl_seconds` 调整
@@ -32,11 +32,11 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 2. 返回 WebSocket Endpoint、鉴权 Query 参数与临时用户标识。
 3. 前端通过 Query 参数建立 WebSocket 连接，不暴露永久密钥。
 
-具体实现在 [server/utils/ai/asr-credentials.ts](../../server/utils/ai/asr-credentials.ts) 与 [composables/use-asr-direct.ts](../../composables/use-asr-direct.ts)。
+具体实现在 [server/utils/ai/asr-credentials.ts](../../../server/utils/ai/asr-credentials.ts) 与 [composables/use-asr-direct.ts](../../../composables/use-asr-direct.ts)。
 
 ## 3. 流式识别客户端
 
-[composables/use-asr-direct.ts](../../composables/use-asr-direct.ts) 已经实现：
+[composables/use-asr-direct.ts](../../../composables/use-asr-direct.ts) 已经实现：
 
 - 凭证提前续期与过期重取
 - 基于 `expiresInMs` + 本地接收时间的时钟偏差缓冲
@@ -51,7 +51,7 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 ### 4.1 当前策略
 
-项目当前没有接入 FFmpeg.wasm，而是采用浏览器原生能力做轻量压缩与重采样，核心实现位于 [utils/audio-compression.ts](../../utils/audio-compression.ts)。
+项目当前没有接入 FFmpeg.wasm，而是采用浏览器原生能力做轻量压缩与重采样，核心实现位于 [utils/audio-compression.ts](../../../utils/web/audio-compression.ts)。
 
 当前策略如下：
 
@@ -73,7 +73,7 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 ### 5.1 任务创建
 
-[server/api/ai/asr/transcribe/async.post.ts](../../server/api/ai/asr/transcribe/async.post.ts) 已支持：
+[server/api/ai/asr/transcribe/async.post.ts](../../../server/api/ai/asr/transcribe/async.post.ts) 已支持：
 
 - 50MB 文件上限
 - `audio/webm`、`audio/mp3`、`audio/wav`、`audio/mpeg`、`audio/ogg` 等格式校验
@@ -81,7 +81,7 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 ### 5.2 服务端执行
 
-[server/services/ai/asr.ts](../../server/services/ai/asr.ts) 当前会：
+[server/services/ai/asr.ts](../../../server/services/ai/asr.ts) 当前会：
 
 - 创建 AI 任务记录
 - 异步执行转录
@@ -90,7 +90,7 @@ Volcengine 当前采用 STS JWT + Query 鉴权模式：
 
 ### 5.3 前端追踪
 
-[composables/use-asr-task.ts](../../composables/use-asr-task.ts) 采用“双保险”策略：
+[composables/use-asr-task.ts](../../../composables/use-asr-task.ts) 采用“双保险”策略：
 
 - 优先连接现有通知 SSE 流
 - 同时保留轮询兜底

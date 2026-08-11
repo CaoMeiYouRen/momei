@@ -102,7 +102,7 @@ docker-compose up -d
 
 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers。原因是專案目前仍依賴 TypeORM 與 Node 執行時能力，尚未形成可維護的 Cloudflare 適配層。
 
-詳細阻塞清單、最小樣機邊界與後續觸發條件，請參考 [Cloudflare 執行時相容研究與止損結論](../../design/governance/cloudflare-runtime-study.md)。
+詳細阻塞清單、最小樣機邊界與後續觸發條件，請參考 [Cloudflare 執行時相容研究與止損結論](../../../design/governance/archive/cloudflare-runtime-study.md)。
 
 如果你需要使用 Cloudflare，當前建議僅接入以下外圍能力：
 

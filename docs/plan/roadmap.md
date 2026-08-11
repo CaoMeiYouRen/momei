@@ -178,7 +178,7 @@
 
 ### 第五十七阶段：迁移体验增强与治理续航（Migration UX Enhancement & Governance Continuity）（已审计归档）
 
-> 第五十七阶段已完成归档，详细记录见 [待办归档](./todo-archive.md#第五十七阶段迁移体验增强与治理续航-已完成归档)。结构复用主线因容量限制延期至第五十八阶段。
+> 第五十七阶段已完成归档，详细记录见 [待办归档](./todo-archive.md#第五十二至第五十七阶段-已归档)。结构复用主线因容量限制延期至第五十八阶段。
 
 ### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）（已审计归档）
 

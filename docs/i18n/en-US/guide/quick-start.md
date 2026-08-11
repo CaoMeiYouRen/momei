@@ -96,7 +96,7 @@ docker-compose up -d
 
 The current version does not support deploying the application itself to Cloudflare Pages / Workers. The main reason is that the project still depends on TypeORM and Node runtime capabilities, and there is no maintainable Cloudflare runtime adaptation layer yet.
 
-For the current blocker matrix, minimum prototype boundary, and stop-loss criteria, see [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../design/governance/cloudflare-runtime-study.md).
+For the current blocker matrix, minimum prototype boundary, and stop-loss criteria, see [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../../design/governance/archive/cloudflare-runtime-study.md).
 
 If you need Cloudflare, limit it to peripheral capabilities for now:
 

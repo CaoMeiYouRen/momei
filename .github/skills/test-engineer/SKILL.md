@@ -14,7 +14,7 @@ metadata:
 ## 指令 (Instructions)
 
 1.  **Worktree 意识**: 务必在 `../momei-test` 工作树中运行测试命令。如果尚不存在该路径，应引导用户或自动创建之。
-2.  **规范对齐**: 在运行测试前必须阅读并遵循 [测试规范](../../../docs/standards/testing.md) 和 [Nuxt 4.5.0+ \$fetch Mock 模式](#nuxt-450-auto-import-mock-模式)。
+2.  **规范对齐**: 在运行测试前必须阅读并遵循 [测试规范](../../../docs/standards/testing.md) 和 **Nuxt 4.5.0+ \$fetch Mock 模式**。
 3.  **测试策略**: 优先执行**定向测试** (Targeted Testing)，仅运行与改动相关的测试文件。
 4.  **全量测试条件**: 除非涉及大规模重构或安全风险，否则避免全量测试。全量测试通常仅在专门的"测试增强"任务中进行。
 5.  **风险优先**: 先锁定当前要证明或否证的行为风险，再决定写哪条测试；不要为了铺 coverage 同时扩写多个低相关场景。
@@ -23,4 +23,4 @@ metadata:
 8.  **Mock 配置**: 在测试文件中配置必要的 mock（如 `useI18n`）。
 9.  **执行验证**: 编写完后必须运行测试确保其通过；若首轮定向测试未能区分风险，再决定是否升级验证范围。
 10. **CI 最终验证**: 修复的最终了断是 CI 流水线全部通过，本地通过 ≠ CI 通过。
-11. **Mock 策略变更**: 当 `vi.stubGlobal` 或 `globalThis.X = mock` 失效时，表明该 API 可能被框架 auto-import 机制劫持。排查方法与具体方案见 [Nuxt 4.5.0 \$fetch 修复报告](../../docs/reports/2026-07-23-nuxt-450-fetch-mock.md)。
+11. **Mock 策略变更**: 当 `vi.stubGlobal` 或 `globalThis.X = mock` 失效时，表明该 API 可能被框架 auto-import 机制劫持。排查方法与具体方案见 [Nuxt 4.5.0 \$fetch 修复报告](../../../docs/design/governance/2026-07-23-nuxt-450-fetch-mock.md)。

@@ -4,7 +4,7 @@
 
 本文档作为商业化模块的主文档，只描述当前已经落地的作者社交链接、打赏配置与文章页赞助展示链路。
 
-为避免重复，广告位投放、广告脚本加载、外链短链跳转与点击追踪已收敛到 [广告投放与外链跳转](./ad-network-integration.md)，这里不再重复展开。文章页统一分享入口、平台拼链 / 复制分享策略与分享链接口径则统一收敛到 [文章分享系统设计文档](../governance/post-sharing.md)。
+为避免重复，广告位投放、广告脚本加载、外链短链跳转与点击追踪已收敛到 [广告投放与外链跳转](./ad-network-integration.md)，这里不再重复展开。文章页统一分享入口、平台拼链 / 复制分享策略与分享链接口径则统一收敛到 [文章分享系统设计文档](../governance/archive/post-sharing.md)。
 
 ## 2. 当前已实现范围
 
@@ -17,7 +17,7 @@
 
 ### 2.2 按语言过滤与回退
 
-渲染逻辑已在 [components/article-sponsor.vue](../../components/article-sponsor.vue) 落地，实际行为如下：
+渲染逻辑已在 [components/article-sponsor.vue](../../../components/article-sponsor.vue) 落地，实际行为如下：
 
 1. 先筛选作者配置中符合当前语言的社交链接和打赏项。
 2. 若作者当前语言下无可展示项，则回退到全局商业化配置。
@@ -27,7 +27,7 @@
 
 ### 2.3 前后台编辑能力
 
-当前已存在统一的商业化编辑组件 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)，同时服务于：
+当前已存在统一的商业化编辑组件 [components/commercial-link-manager.vue](../../../components/commercial-link-manager.vue)，同时服务于：
 
 - 用户个人设置页：维护自己的社交链接与打赏项。
 - 管理后台系统设置页：维护站点级的默认商业化配置。
@@ -62,12 +62,12 @@
 
 其中：
 
-- [server/api/settings/commercial.get.ts](../../server/api/settings/commercial.get.ts) 会返回 `meta.isLocked`，用于标识全局配置是否被环境变量锁定。
-- [server/api/admin/settings/commercial.put.ts](../../server/api/admin/settings/commercial.put.ts) 通过系统设置服务写入 `COMMERCIAL_SPONSORSHIP`，因此天然复用了第八阶段落地的配置审计链路。
+- [server/api/settings/commercial.get.ts](../../../server/api/settings/commercial.get.ts) 会返回 `meta.isLocked`，用于标识全局配置是否被环境变量锁定。
+- [server/api/admin/settings/commercial.put.ts](../../../server/api/admin/settings/commercial.put.ts) 通过系统设置服务写入 `COMMERCIAL_SPONSORSHIP`，因此天然复用了第八阶段落地的配置审计链路。
 
 ### 3.3 文章页渲染规则
 
-[components/article-sponsor.vue](../../components/article-sponsor.vue) 当前已经支持：
+[components/article-sponsor.vue](../../../components/article-sponsor.vue) 当前已经支持：
 
 - 社交链接与打赏链接分区展示
 - 二维码类配置通过对话框弹出预览
