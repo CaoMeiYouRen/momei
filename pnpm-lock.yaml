@@ -382,8 +382,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       '@types/google-libphonenumber':
-        specifier: ^7.4.30
-        version: 7.4.30
+        specifier: ^7.4.31
+        version: 7.4.31
       '@types/html-to-text':
         specifier: ^9.0.4
         version: 9.0.4
@@ -4536,8 +4536,8 @@ packages:
   '@types/fs-extra@11.0.4':
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
 
-  '@types/google-libphonenumber@7.4.30':
-    resolution: {integrity: sha512-Td1X1ayRxePEm6/jPHUBs2tT6TzW1lrVB6ZX7ViPGellyzO/0xMNi+wx5nH6jEitjznq276VGIqjK5qAju0XVw==}
+  '@types/google-libphonenumber@7.4.31':
+    resolution: {integrity: sha512-NqtRPbLfRbCsqYTVb2UHM67AhMUfTYarxy32u14QilQq7i2C37jtvxbEmb0U0oCMMZtFfpoAtbuhrXwF7/EyVg==}
 
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
@@ -17847,7 +17847,7 @@ snapshots:
       '@types/jsonfile': 6.1.4
       '@types/node': 26.2.0
 
-  '@types/google-libphonenumber@7.4.30': {}
+  '@types/google-libphonenumber@7.4.31': {}
 
   '@types/hast@3.0.4':
     dependencies:
