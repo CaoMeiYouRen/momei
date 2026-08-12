@@ -300,7 +300,7 @@
 
 ## 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（已审计归档）
 
-> 归档说明: 第六十五阶段「2 个增量功能 + 3 个治理切片」于 2026-07-27~28 完成 4/5 主线交付。编辑器工具栏收敛 Phase A（10→5 按钮折叠 + 标题栏弹性宽度）验收通过；设置表单 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER UI + tts_credential_ttl_seconds + ExternalFeedSourcesEditor + 五语种翻译 + SettingKey 映射）验收通过；结构复用治理（Categories/Tags 共享查询层，-226 行重复，基线 0.34%→0.30%）验收通过；脚本治理升格评估（simple-duplicates 升格至 regression:weekly）验收通过；测试覆盖率 90%+ 第七批新增 3 个测试文件（external-links-shared.test.ts + settings.test.ts + setting.constants.test.ts），全仓覆盖率 79.48%（未达 ≥1% 目标，未通过验收，转入长期治理）。vitest.shared.ts 统一为 forks 池修复 <repo-root>/tmp 竞态问题；新增 regression-weekly.yml 定时 CI 回归工作流。所有已交付主线均通过 typecheck + lint + test 质量门。
+> 归档说明: 第六十五阶段「2 个增量功能 + 3 个治理切片」于 2026-07-27~28 完成 4/5 主线交付。编辑器工具栏收敛 Phase A（10→5 按钮折叠 + 标题栏弹性宽度）验收通过；设置表单 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER UI + tts_credential_ttl_seconds + ExternalFeedSourcesEditor + 五语种翻译 + SettingKey 映射）验收通过；结构复用治理（Categories/Tags 共享查询层，-226 行重复，基线 0.34%→0.30%）验收通过；脚本治理升格评估（simple-duplicates 升格至 regression:weekly）验收通过；测试覆盖率 90%+ 第七批新增 3 个测试文件（external-links-shared.test.ts + settings.test.ts + setting.constants.test.ts），全仓覆盖率 79.48%（未达 ≥1% 目标，未通过验收，转入长期治理）。vitest.shared.ts 统一为 forks 池修复 `<repo-root>/tmp` 竞态问题；新增 regression-weekly.yml 定时 CI 回归工作流。所有已交付主线均通过 typecheck + lint + test 质量门。
 
 > **ROI 评估**: 编辑器工具栏收敛 Phase A `2.33`；设置表单 UI Phase 3 `1.75`；测试覆盖率 90%+ 第七批 `1.00`；结构复用治理 `1.60`；脚本治理升格评估 `2.50`。
 
