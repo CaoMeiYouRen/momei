@@ -15,14 +15,14 @@
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。
 - **[脚本治理与量化基线设计](./script-governance)**: 聚合 backlog、planning、development 中分散的 script-first 规则，聚焦长期脚本资产、量化口径、固定回归接入顺序与首批新增治理脚本候选。
 - **[配置项多语言国际化与回退治理](./settings-i18n-fallback-governance)**: `system.md` / `i18n.md` 的联合治理补充，聚焦管理员可编辑配置的结构化多语言存储、旧值兼容与统一回退链。
-- **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
+- **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 `research-output/nuxt-windows-build-slow-2026-06-04.md`。
 - **[Post 元数据统一化迁移方案](./post-metadata-unification)**: `blog.md` / `system.md` 之间的跨模块专项文档，聚焦 `Post` 元数据模型统一与迁移。
 
 ## AI、国际化与自动化专项
 
 - **[AI 成本治理与多用户配额](./ai-cost-governance)**: `ai.md` 的治理补充，聚焦额度、失败扣额与后台审计口径。
 - **[ASR 性能与体验优化](./asr-performance-optimization)**: `asr.md` 的专项优化，聚焦临时凭证、压缩与异步追踪。
-- **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
+- **[Windows 本地 Dev / Build 性能治理](./windows-dev-build-performance-governance)**: 本地 Windows 生命周期治理文档，聚焦首请求阻塞、构建尾耗时、量化脚本与后续切片边界。外部调研报告见 `research-output/nuxt-windows-build-slow-2026-06-04.md`。
 - **[文档翻译 freshness 清偿与分层治理](./docs-translation-freshness-governance)**: 文档翻译专项治理文档，聚焦 tier 化 freshness 规则、locale 范围矩阵与 `source-only` 降级口径。
 - **[国际化扩展与多语言 SEO 统一设计](./i18n-seo-unification)**: `i18n.md` 的专项扩展，聚焦 Locale Registry、语言就绪度与 SEO 契约统一。
 - **[国际化字段治理与共享文案边界收敛](./i18n-field-governance)**: `i18n.md` 的执行态治理补充，聚焦 missing blocker、运行时加载边界、共享 key 准入标准与第三十阶段关闭口径。

@@ -20,7 +20,7 @@ Windows 下 Nuxt/Vite 构建慢是行业共性问题，并非本项目特有：
 - **Vite build 可能挂起（hangs）**：常见原因包括 `build.watch: true`、插件生成大量 CSS 规则、i18n 配置错误、或 `@nabla/vite-plugin-eslint` 等检查插件在构建阶段引入长尾。[StackOverflow 讨论](https://stackoverflow.com/questions/75839993/vite-build-hangs-forever)
 - **Vite Performance Guide** 提供跨平台通用的优化建议：[官方文档](https://vite.dev/guide/performance) 建议审核插件 hooks、减少 resolve 路径猜测、避免 barrel files、使用 `server.warmup`、减少非原生工具链。
 
-以上外部调研的完整报告见：[research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)。
+以上外部调研的完整报告见：`research-output/nuxt-windows-build-slow-2026-06-04.md`（本地调研产物，不纳入版本控制）。
 
 ## 1.1 当前计划边界
 
@@ -99,7 +99,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - 当前事实源已经确认：`scripts/perf/measure-nuxt-lifecycle.mjs` 在 Windows 上可以稳定拉起 `nuxt dev`，因此“测量脚本自己没把服务起起来”已经被证伪。
 - 最新基线命令 `node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=60000` 的结果已落在 `artifacts/nuxt-dev-favicon-performance.json`：`Local ready` 约 `24419ms`，但 `/favicon.ico` 的首次请求在 `60000ms` 窗口内仍无响应，最终于约 `84422ms` 记录 `warmRequestFailed`。
 - 为排除测量脚本干扰，另起一个独立 `nuxt dev` 进程并从外部直接请求 `http://127.0.0.1:34568/favicon.ico`；该请求同样在约 `60231ms` 后因 `HttpClient.Timeout` 超时失败。这说明当前问题不在量化脚本，而在 Nuxt / Nitro 自身于 `Local ready` 之后仍无法在 `60s` 内返回最小静态请求。
-- 随后用独立 `nuxt dev` 进程加外部 `curl` 轮询重新测了一次真正的“启动到首个成功响应”基线，结果已落在 [artifacts/nuxt-dev-startup-baseline.json](../../../artifacts/nuxt-dev-startup-baseline.json) 与 [artifacts/dev-startup-baseline-34571.log](../../../artifacts/dev-startup-baseline-34571.log)：`/favicon.ico` 首个 `HTTP 200` 的 wall-clock 约为 `502279ms`，`curl` 自身等待约 `485.29s`，同一轮日志里记录 `Nuxt Nitro server built in 426190ms`。这说明当前 Windows 本地 dev 已经不是“起不来”，而是“首个成功响应约需 8.37 分钟”，可作为后续优化前的正式基线。
+- 随后用独立 `nuxt dev` 进程加外部 `curl` 轮询重新测了一次真正的“启动到首个成功响应”基线，结果已落在 `artifacts/nuxt-dev-startup-baseline.json` 与 `artifacts/dev-startup-baseline-34571.log`（本地产物，不纳入版本控制）：`/favicon.ico` 首个 `HTTP 200` 的 wall-clock 约为 `502279ms`，`curl` 自身等待约 `485.29s`，同一轮日志里记录 `Nuxt Nitro server built in 426190ms`。这说明当前 Windows 本地 dev 已经不是“起不来”，而是“首个成功响应约需 8.37 分钟”，可作为后续优化前的正式基线。
 - 对已经完成 Nitro build 并 warmed 的独立 dev 进程再次请求 `/favicon.ico` 时，响应仅约 `203ms`。这进一步说明当前主要问题集中在首次服务端构建与首响冷路径，而不是服务进入 warmed 状态后的稳态响应。
 - 在一轮 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 的 `60s` 窗口里，首次请求约在 `Local ready` 后 `31.4s` 才触发 `nitro-dev-build:build-before`，并在约 `32.5s` 后进入 `rollup-before`；直到超时都没有出现 `compiled`。这说明当前真正卡住的是 Nitro dev 首次服务端构建本身，而不是 Vite client/server 预热。
 - 期间曾尝试把 Windows-local-dev 的大批 API / install / auth / middleware / plugin surface 一次性排除出默认扫描面，但该方向没有恢复首响，反而把 `Local ready` 拉长到约 `36.89s`。这组试探性 ignore 已回滚，不作为后续优化方向继续保留。
@@ -107,9 +107,9 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 ### 3.5 2026-05-14 Dev 基线收敛
 
-- 在继续收窄 always-loaded install/auth/logger/database cluster 后，最新命令 `pnpm perf:nuxt:dev -- --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=120000` 的结果已覆盖到 [artifacts/nuxt-dev-favicon-performance.json](../../../artifacts/nuxt-dev-favicon-performance.json)：`Local ready` 约 `2729ms`，`Nuxt Nitro server built` 约 `44067ms`，`/favicon.ico` 首个 `HTTP 200` 约 `58549ms`，首个响应块约 `55821ms`。
+- 在继续收窄 always-loaded install/auth/logger/database cluster 后，最新命令 `pnpm perf:nuxt:dev -- --repeat=1 --request-path=/favicon.ico --warm-request-timeout-ms=120000` 的结果已覆盖到 `artifacts/nuxt-dev-favicon-performance.json`（本地产物，不纳入版本控制）：`Local ready` 约 `2729ms`，`Nuxt Nitro server built` 约 `44067ms`，`/favicon.ico` 首个 `HTTP 200` 约 `58549ms`，首个响应块约 `55821ms`。
 - 相比 2026-05-13 外部直连基线中约 `502279ms` 的首个成功响应，本轮已把首响压缩约 `446s`，降幅约 `88.9%`；当前 Windows dev 的主问题已经从“`Local ready` 后长时间无响应”收敛成“首个请求会同步触发约 `44s` 的 Nitro 首次服务端构建”。
-- 同日的 probe 口径结果已落在 [artifacts/nitro-resolve-probe.json](../../../artifacts/nitro-resolve-probe.json)。需要注意的是，启用 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 会把同一路径放大到约 `83s`，因此 probe 只用于拓扑分析，不作为正式性能基线。
+- 同日的 probe 口径结果已落在 `artifacts/nitro-resolve-probe.json`（本地产物，不纳入版本控制）。需要注意的是，启用 `NUXT_ENABLE_NITRO_RESOLVE_PROBE=true` 会把同一路径放大到约 `83s`，因此 probe 只用于拓扑分析，不作为正式性能基线。
 - 最新 probe 的 `topSpecifiers` 显示，当前 repo-local 热点已经从单一 install/auth/logger cluster 转向更广的共享图：`server/database/index.ts`、`server/utils/permission.ts`、`types/setting.ts`、`utils/shared/roles.ts` 与 `server/utils/logger.ts` 仍位于前列；其中 logger 已降到约 `56` 次命中，不再是唯一主导项，而 `server/database` / `permission` / `types/setting` 这几条共享入口成为下一轮更直接的收敛对象。
 
 ### 3.6 2026-05-16 真实环境复核与 bisect 结论
@@ -260,7 +260,7 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 
 ## 7. 2026-06-05 Phase 43 Vite 优化
 
-基于 [2026-06-04 外部调研报告](../../../research-output/nuxt-windows-build-slow-2026-06-04.md) 中 Vite Performance Guide 的建议，本轮实施 2 项优化：
+基于 2026-06-04 外部调研报告（`research-output/nuxt-windows-build-slow-2026-06-04.md`，本地调研产物，不纳入版本控制）中 Vite Performance Guide 的建议，本轮实施 2 项优化：
 
 1. **`vite.server.warmup`** — 预热 app.vue / index.vue / layout / app-header / app-footer，避免首个页面请求才触发 on-demand 转换链。预期减少 dev 首请求延迟。
 2. **`vite.resolve.extensions` 收紧** — 从默认 `['.mjs','.js','.mts','.ts','.jsx','.tsx','.json']` 移除未使用的 `.jsx`/`.tsx`，每次 import 减少 2 次 FS stat。全仓无 JSX/TSX 文件，零兼容风险。
@@ -318,4 +318,4 @@ node scripts/perf/measure-nuxt-lifecycle.mjs --mode=dev --request-path=/api/sett
 - [server/database/index.ts](../../../server/database/index.ts)
 - [scripts/perf/measure-nuxt-lifecycle.mjs](../../../scripts/perf/measure-nuxt-lifecycle.mjs)
 - [docs/plan/backlog.md](../../plan/backlog.md)
-- [research-output/nuxt-windows-build-slow-2026-06-04.md](../../../research-output/nuxt-windows-build-slow-2026-06-04.md)（外部调研报告）
+- `research-output/nuxt-windows-build-slow-2026-06-04.md`（外部调研报告，本地调研产物，不纳入版本控制）

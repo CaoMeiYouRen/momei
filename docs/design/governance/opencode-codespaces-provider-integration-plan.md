@@ -20,7 +20,7 @@
 
 当前仓库已具备以下基础：
 
-1. OpenCode 主配置已存在：[opencode.json](../../../opencode.json)
+1. OpenCode 主配置已存在：`opencode.json`（本地生成物，不纳入版本控制）
 2. 多个 OpenCode 预设已存在：[.opencode/configs/](../../../.opencode/configs)
 3. 模型切换脚本已存在：[scripts/setup/switch-models.mjs](../../../scripts/setup/switch-models.mjs)
 4. AI 工作树软链接脚本已存在：[scripts/setup/setup-ai.mjs](../../../scripts/setup/setup-ai.mjs)
@@ -100,7 +100,7 @@ OpenCode Go 是 OpenCode 内置 provider。将模型写入配置后，行为是�
 | 文件 | 改动类型 | 具体改动 |
 | :--- | :--- | :--- |
 | [devcontainer.json](../../../devcontainer.json) | Update | 基础镜像升级到 Node 24（推荐 `mcr.microsoft.com/devcontainers/typescript-node:24-bookworm`）；`postCreateCommand` 中保留 `pnpm install`，并新增 OpenCode 可用性检查（安装或版本检测）。 |
-| [opencode.json](../../../opencode.json) | Update | 默认模型收敛到三提供商之一（`opencode-go/deepseek-v4-pro`、`deepseek/deepseek-v4-pro`、`xiaomi/mimo-v2.5-pro`）；`instructions` 继续指向 `AGENTS.md`。 |
+| `opencode.json`（本地生成物，不纳入版本控制） | Update | 默认模型收敛到三提供商之一（`opencode-go/deepseek-v4-pro`、`deepseek/deepseek-v4-pro`、`xiaomi/mimo-v2.5-pro`）；`instructions` 继续指向 `AGENTS.md`。 |
 | [.opencode/configs/opencode.opencode-go.json](../../../.opencode/configs/opencode.opencode-go.json) | Update | 所有 agent 模型统一为 `opencode-go/deepseek-v4-pro` 或 `opencode-go/deepseek-v4-flash`，移除 `opencode-go/glm-*` 与 `opencode-go/qwen*`。 |
 | [.opencode/configs/opencode.deepseek.json](../../../.opencode/configs/opencode.deepseek.json) | Verify | 校验所有 agent 仅使用 `deepseek/*`，保持与目标策略一致。 |
 | [.opencode/configs/opencode.xiaomi.json](../../../.opencode/configs/opencode.xiaomi.json) | Verify | 保持 xiaomi 预设可用，并校验模型字段只落在 `xiaomi/*`。 |
