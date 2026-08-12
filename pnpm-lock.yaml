@@ -325,7 +325,7 @@ importers:
         version: 5.0.0(winston@3.19.0)
       ws:
         specifier: ^8.21.0
-        version: 8.21.1
+        version: 8.21.3
       zhlint:
         specifier: ^0.8.2
         version: 0.8.2
@@ -13083,8 +13083,8 @@ packages:
     resolution: {integrity: sha512-OTIk8iR8/aCRWBqvxrzxR0hgxWpnYBblY1S5hDWBQfk/VFmJwzmJgQFN3WsoUKHISv2eAwe+PpbUzyL1CKTLXg==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  ws@8.21.1:
-    resolution: {integrity: sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw==}
+  ws@8.21.3:
+    resolution: {integrity: sha512-201TZ/kPWxoPr/OKWjquZR1SWKXcvxdH+e1xrx89b3YbmzLMFCLfnaG1HFIgWzJOEWZ7MvpK++odZufgYR50Rw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -15920,7 +15920,7 @@ snapshots:
       vite-plugin-inspect: 11.4.1(@nuxt/kit@4.5.1(magic-string@1.1.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.0)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.0)(rollup@4.62.3)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0))))(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0))
       vite-plugin-vue-tracer: 1.4.0(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
       which: 6.0.1
-      ws: 8.21.1
+      ws: 8.21.3
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -20246,7 +20246,7 @@ snapshots:
       nostics: 0.2.0(esbuild@0.28.1)(rolldown@1.2.0)(rollup@4.62.3)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0))
       pathe: 2.0.3
       valibot: 1.4.1(typescript@6.0.3)
-      ws: 8.21.1
+      ws: 8.21.3
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.30.0(zod@4.4.3)
     transitivePeerDependencies:
@@ -21703,7 +21703,7 @@ snapshots:
       buffer-image-size: 0.6.4
       entities: 7.0.1
       whatwg-mimetype: 3.0.0
-      ws: 8.21.1
+      ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -22615,7 +22615,7 @@ snapshots:
       speedline-core: 1.4.3
       third-party-web: 0.26.7
       tldts-icann: 6.1.86
-      ws: 8.21.1
+      ws: 8.21.3
       yargs: 17.7.3
       yargs-parser: 21.1.1
     transitivePeerDependencies:
@@ -23377,7 +23377,7 @@ snapshots:
       sharp: 0.35.3(@types/node@26.2.0)
       undici: 6.28.0
       workerd: 1.20260730.1
-      ws: 8.21.1
+      ws: 8.21.3
       youch: 4.1.0-beta.10
     transitivePeerDependencies:
       - '@types/node'
@@ -25464,7 +25464,7 @@ snapshots:
       devtools-protocol: 0.0.1551306
       typed-query-selector: 2.12.0
       webdriver-bidi-protocol: 0.4.0
-      ws: 8.21.1
+      ws: 8.21.3
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
@@ -28164,7 +28164,7 @@ snapshots:
     dependencies:
       signal-exit: 4.1.0
 
-  ws@8.21.1: {}
+  ws@8.21.3: {}
 
   wsl-utils@0.3.1:
     dependencies:
