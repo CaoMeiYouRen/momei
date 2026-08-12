@@ -44,6 +44,10 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 1.  需求不清、范围可疑或可能插队时，先交 `@product-manager`。
 2.  代码实现阶段只保留一个主责执行者，避免前后端或全栈角色重做同一事项。
 3.  **强制审计**：D 阶段完成后，必须立即加载 `code-quality-auditor` skill 并移交 `@code-auditor` agent 执行 Review Gate。此步骤不可跳过、不可自我审查替代。A 阶段放行后方可进入 V / T / F。
+    -   **审计调用协议**：审计 prompt 必须携带 `audit-depth` 声明（`quick` / `standard` / `deep` + 理由）、变更文件清单、已验证证据摘要（lint/typecheck/test 结果 + 关键断言行号）、是否为复审（复审附上轮问题编号清单）。未声明 depth 时审计默认按 `deep` 执行（防御方向），但会显著拖长用时——小改动必须主动声明 `quick`。
+    -   **并发审计**：diff 文件数 > 8 或涉及 ≥ 2 个独立模块（如 `server/` + 前端 `components/`/`pages/` + `packages/*` 子包 + docs）时，按模块分区并行发起多个 `@code-auditor` 审计任务，主审汇总合并去重、取最严结论。小改动不得并发。
+    -   **复审只审修复点**：第 2+ 轮审计只移交上轮问题编号对应的修复 diff，不重发全量 diff。
+    -   **证据前置**：执行角色把调研结论/实验证据写进审计任务，避免审计者从头翻源码（见 [AI 协作规范 - 审计调用协议](../../docs/standards/ai-collaboration.md)）。
 4.  涉及界面时交 `@ui-validator`，涉及测试补强时交 `@test-engineer`。
 5.  设计、规范、README、Guide 或 Plan 文档变化交 `@documentation-specialist` 收口。
 6.  **单次提交**：F 阶段收口时必须加载 `conventional-committer` skill 执行单次提交，生成符合 Conventional Commits 格式的消息（使用中文或用户使用的语言）。未通过 A 阶段 Review Gate 的改动不得提交。

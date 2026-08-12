@@ -72,6 +72,7 @@ metadata:
 - 改动类型:
 - 最低验证要求:
 - 审查轮次:
+- 实际用时 / 是否超时间盒:（按 [审计调用协议](../../../docs/standards/ai-collaboration.md) 回填，audit-depth 未声明时按 `deep` 计）
 - 失败原因或通过条件:
 - 复查基线:
 
