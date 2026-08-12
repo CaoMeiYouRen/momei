@@ -349,7 +349,7 @@
 - **实现对照**:
   - 升格评估报告输出：`docs/design/governance/script-promotion-eval-phase65.md`
   - `audit:simple-duplicates` Go → 已加入 `regression:weekly` step 11（required: false）
-  - `audit:comment-drift` 确认已升格（Phase 54 已接入）
+  - `audit:comment-drift` 确认已升格（Phase 52 已接入）
   - 四组治理脚本清洁运行（simple-duplicates 114/11/10, comment-drift TODO=0 restatement=6 drift=136, eslint-debt 0w, check-scripts 50/50/50）
 - **验收对照**: ✅ 升格评估报告输出；✅ `regression:weekly` 步骤列表更新；✅ 治理脚本清洁运行。
 

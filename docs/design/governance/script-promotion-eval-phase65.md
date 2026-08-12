@@ -53,7 +53,7 @@
 
 | 维度 | 发现 | 判定 |
 |:--|:--|:--|
-| **当前状态** | 该脚本已在 `regression:weekly` 中作为第 10 步运行（`required: false`），于 Phase 54 升格 | ✅ 已接入 |
+| **当前状态** | 该脚本已在 `regression:weekly` 中作为第 10 步运行（`required: false`），于 Phase 52 升格 | ✅ 已接入 |
 | **稳定性** | 输出四类候选（高复杂度缺注释 182、TODO 0、逐行复述 6、漂移 136），字段稳定 | ✅ 稳定 |
 | **清洁度** | TODO 计数归零（Phase 62 治理成果），逐行复述 6（较 Phase 62 的 15 下降 60%），清洁运行 | ✅ 清洁 |
 | **运行时开销** | 执行时间 ~5-10s（含文件扫描），在 weekly timeout budget 内 | ✅ 轻量 |
@@ -92,14 +92,14 @@
 ### 5.2 对 `script-governance.md` 的影响
 
 第 5.2 节（简单重复盘点）当前状态描述"暂不接入固定回归"需更新为"已接入 `regression:weekly`（Phase 65）"。
-第 5.4 节（注释治理 inventory）当前状态描述"不接入固定回归"需更新为"已接入 `regression:weekly`（Phase 54）"。
+第 5.4 节（注释治理 inventory）当前状态描述"不接入固定回归"需更新为"已接入 `regression:weekly`（Phase 52）"。
 
 ### 5.3 对长期主线 #10 的影响
 
 本次评估闭环后，长期主线 #10（脚本治理）的四条治理脚本全部进入 `regression:weekly` warning 面：
 - `check-script-governance` ✅（Phase 52）
 - `audit-eslint-debt` ✅（Phase 54）
-- `audit-comment-drift` ✅（Phase 54）
+- `audit-comment-drift` ✅（Phase 52）
 - `audit-simple-duplicates` ✅（本阶段 Phase 65）
 
 ---

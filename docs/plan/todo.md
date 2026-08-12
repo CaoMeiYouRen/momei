@@ -47,10 +47,10 @@
     - [x] 切片收敛并验证 `pnpm duplicate-code:check` 基线 ≤0.30%
     - [x] `pnpm typecheck` + `pnpm lint` 通过
 
-- [ ] **主线 5：脚本治理 — audit:comment-drift 升格评估（P1）**
-    - [ ] 确认 `audit:comment-drift` 输出稳定、误报可控、warning 清洁
-    - [ ] 输出 go/no-go 结论与理由
-    - [ ] 若 go：更新 `regression:weekly` 配置纳入 comment-drift 检查
+- [x] **主线 5：脚本治理 — audit:comment-drift 升格评估（P1）**
+    - [x] 确认 `audit:comment-drift` 输出稳定、误报可控、warning 清洁（实测 exit 0：扫描 1294 文件，TODO=0 / restatement=6 / drift=139，五维评估满足）
+    - [x] 输出 go/no-go 结论与理由（GO：维持 Phase 52 已升格状态，无需重复升格操作；评估文档 `docs/design/governance/script-promotion-eval-phase66.md`）
+    - [x] 若 go：更新 `regression:weekly` 配置纳入 comment-drift 检查（配置已就绪 Phase 52 第 10 步，测试断言同步；本轮仅收口 7 处文档漂移）
 
 ---
 

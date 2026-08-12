@@ -116,7 +116,7 @@
 
 当前稳定入口：`pnpm governance:audit:simple-duplicates`
 
-当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly`（Phase 65）
+当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly` warning 面（Phase 65）
 
 建议最小输出：
 
@@ -128,7 +128,7 @@
 
 当前验收状态：
 
-- 已作为结构复用主线的独立 baseline 落地
+- 已作为结构复用主线的独立 baseline 落地（独立入口与 weekly 双轨运行）
 - 已接入 `regression:weekly` Phase 65，作为 non-blocking warning 面
 - 后续待人工判定口径稳定后，再考虑与 `duplicate-code:check` 组合输出
 
@@ -142,7 +142,7 @@
 
 当前稳定入口：`pnpm governance:audit:eslint-debt`
 
-当前状态：已形成独立 baseline 入口，并复用 `scripts/governance/eslint-debt-targets.mjs` 与 `eslint.config.js` 的同一规则切片事实源
+当前状态：已形成独立 baseline 入口（并已接入 `regression:weekly` warning 面，Phase 54），并复用 `scripts/governance/eslint-debt-targets.mjs` 与 `eslint.config.js` 的同一规则切片事实源
 
 建议最小输出：
 
@@ -168,7 +168,7 @@
 
 当前稳定入口：`pnpm governance:audit:comment-drift`
 
-当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly` warning 面（Phase 54），当前清洁运行（TODO=0，restatement=6，较 Phase 62 的 15 再降 60%）
+当前状态：已形成独立 baseline 入口，并已接入 `regression:weekly` warning 面（Phase 52），当前清洁运行（TODO=0，restatement=6，较 Phase 62 的 15 再降 60%）
 
 建议最小输出：
 
@@ -180,7 +180,7 @@
 当前验收状态：
 
 - 已按四类候选与目录分桶输出 JSON + Markdown baseline
-- 已接入 `regression:weekly` Phase 54，作为 non-blocking warning 面
+- 已接入 `regression:weekly` Phase 52，作为 non-blocking warning 面
 - Phase 62 完成 warning 清理（TODO 归零，restatement 15→6，-60%）
 - 当前清洁运行，不产生 blocker
 

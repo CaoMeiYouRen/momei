@@ -171,7 +171,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 2. `duplicate-code:check` 在周级 / 发版前入口中默认只作为 warning 基线；进入 `phase-close` 时必须升级到 strict 口径。
 3. `docs/reports/regression/current.md` 触发滚动归档的条件继续保持唯一事实源：超过 `500 - 700` 行、或超过 `6 - 8` 条完整记录且已影响当前阶段阅读效率；`phase-close` 入口将其中的上限口径编码为正式 blocker。
 4. 当某条长期主线已经形成稳定的治理脚本时，应优先把该脚本接入固定入口或明确写出暂不接入的原因；不得长期保持“脚本存在，但仍只靠人工补跑或阶段叙述”的漂移状态。
-5. `governance:check:scripts` 当前仅在 weekly 中以 warning 基线运行；`governance:audit:simple-duplicates` 仍保留为结构复用的独立基线入口，暂不阻断固定回归。
+5. `governance:check:scripts` 与 `governance:audit:simple-duplicates` / `governance:audit:eslint-debt` / `governance:audit:comment-drift` 均已在 weekly 中以 warning 基线运行（`required: false`），不阻断固定回归。
 
 推荐输出模板：
 

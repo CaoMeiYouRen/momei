@@ -287,10 +287,11 @@
     - 进行中。
 - **当前状态**:
     - `pnpm governance:check:scripts` 已作为 5.1 脚本资产自检稳定运行，并进入 `pnpm regression:weekly` 的 warning 基线。
-    - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供独立 JSON / Markdown baseline。
+    - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供 JSON / Markdown baseline，并均已接入 `regression:weekly` warning 面（comment-drift 于 Phase 52 升格、eslint-debt 于 Phase 54 升格、simple-duplicates 于 Phase 65 升格）。
     - 文档治理已补充 `pnpm docs:check:line-count:candidate` 与 `pnpm docs:check:source-of-truth:candidate` 两条候选入口，用于评估高频页扩面与翻译 freshness 收紧，但默认 blocker 行为仍保持不变。
      - 第六十二阶段已完成脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ 两条 docs candidate warning 全部清洁。
      - 第六十五阶段已完成 `governance:audit:simple-duplicates` 升格评估：从独立 baseline 升格至 `regression:weekly` warning 面，升格结论 go。
+     - 第六十六阶段已完成 `governance:audit:comment-drift` 升格复核：五维评估全部满足（输出稳定、warning 清洁、轻量、互补、可消费），结论 go（维持 Phase 52 已升格状态，无需重复操作），并同步收口 7 处文档漂移（含 Phase 归属更正）。
 - **最近一次上收阶段**:
     - 第三十九阶段（5.1-5.5 首轮 baseline 化：`check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` + 两条 docs candidate，上收为独立脚本入口）。
     - 第四十阶段（发布前 pre-check 统一化：`release:check` / `release:check:full` 接入固定回归入口）。
@@ -300,7 +301,7 @@
      - 第六十五阶段（simple-duplicates 升格至 regression:weekly warning 面）。
 - **下一次可切片方向**:
     - `audit:simple-duplicates` 已在 Phase 65 完成升格至 `regression:weekly` warning 面。
-    - 后续评估是否将 `audit:comment-drift` 从独立 baseline 升格进入 `regression:weekly` warning 面。
+    - `audit:comment-drift` 已在 Phase 66 完成升格复核（结论 go，维持 Phase 52 已升格状态）；后续切片方向为按周级回归趋势跟踪 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理。
 ## 周期性回归验证层
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
 ### 固定执行入口
@@ -310,7 +311,7 @@
 | 周级 | `pnpm regression:weekly` | coverage + deps audit + source-of-truth + i18n + duplicate-code + script-governance | 每周一次 |
 | 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
 | 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
-- 当前固定入口已覆盖 `script-governance` 的 5.1 脚本自检：`pnpm governance:check:scripts` 已进入 weekly warning 基线；5.2 `pnpm governance:audit:simple-duplicates`、5.3 `pnpm governance:audit:eslint-debt`、5.4 `pnpm governance:audit:comment-drift` 与 5.5 docs candidate 入口仍保持独立 baseline，待误报与 warning 面收敛后再评估是否进入更高频回归。
+- 当前固定入口已覆盖 `script-governance` 的脚本治理面：5.1 `pnpm governance:check:scripts` 与 5.2 `pnpm governance:audit:simple-duplicates`、5.3 `pnpm governance:audit:eslint-debt`、5.4 `pnpm governance:audit:comment-drift` 均已进入 weekly warning 基线；5.5 docs candidate 入口仍保持独立 baseline，待误报与 warning 面收敛后再评估是否进入更高频回归。
 ### 覆盖矩阵（每条长期主线的回归覆盖状态）
 | 长期主线 | 周级覆盖 | 发版前覆盖 | 阶段收口覆盖 |
 |:---|:---|:---|:---|
@@ -323,7 +324,7 @@
 | #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
 | #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
 | #9 站点性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
-| #10 脚本治理 | ✅ `governance:check:scripts` | — | — (`audit:simple-duplicates` / `audit:eslint-debt` / `audit:comment-drift` / docs candidate 暂保持独立 baseline) |
+| #10 脚本治理 | ✅ `governance:check:scripts` + `governance:audit:simple-duplicates` + `governance:audit:eslint-debt` + `governance:audit:comment-drift` | — | — (docs candidate 暂保持独立 baseline) |
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 ### 漂移路由规则
 回归验证发现的问题不自行修复，而是按以下规则路由到对应长期主线的下一次切片候选：
