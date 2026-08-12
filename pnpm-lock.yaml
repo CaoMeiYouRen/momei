@@ -219,8 +219,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       katex:
-        specifier: ^0.18.1
-        version: 0.18.1
+        specifier: ^0.18.2
+        version: 0.18.2
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
@@ -8706,8 +8706,8 @@ packages:
     resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
     hasBin: true
 
-  katex@0.18.1:
-    resolution: {integrity: sha512-Td8GCYSxDAoMhHOlKmCFMJ/hz5qlAAb71n66Dryw9nfCVfumLo7nhuotbvKom/XPADmrYC3O5QR71EPq4DarJQ==}
+  katex@0.18.2:
+    resolution: {integrity: sha512-3snve4y0SXTMequLim1FMiPvLGElySam0blN5xQZBqEY3lOJz1TnuaaiugnBZBqHzlSAGmFTYL7MCQkORuLKCA==}
     hasBin: true
 
   keyv@4.5.4:
@@ -18032,8 +18032,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.65.0(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.66.0(typescript@6.0.3)
-      '@typescript-eslint/types': 8.66.0
+      '@typescript-eslint/tsconfig-utils': 8.65.0(typescript@6.0.3)
+      '@typescript-eslint/types': 8.65.0
       debug: 4.4.3
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -22512,7 +22512,7 @@ snapshots:
     dependencies:
       commander: 8.3.0
 
-  katex@0.18.1:
+  katex@0.18.2:
     dependencies:
       commander: 8.3.0
 
