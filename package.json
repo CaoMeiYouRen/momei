@@ -216,7 +216,7 @@
     "playwright-core": "^1.62.1",
     "postcss": "8.5.26",
     "sass": "1.102.0",
-    "semantic-release": "^25.0.8",
+    "semantic-release": "^25.0.9",
     "semantic-release-cmyr-config": "^1.0.2",
     "stylelint": "17.14.1",
     "stylelint-config-cmyr": "^1.0.0",
