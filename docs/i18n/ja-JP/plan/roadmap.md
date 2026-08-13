@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-27
+last_sync: 2026-08-13
 ---
 
 # ロードマップ要約
@@ -67,6 +67,8 @@ Momei は、AI 駆動・ネイティブ国際化対応の開発者向けブロ�
 - **第六十二段階は監査完了でアーカイブ済みです**: マルチプラットフォーム移行アダプタ WordPress Parser（`602326cb`、WXR 解析 + `--format wordpress` CLI フラグ + 17 テスト、Hexo/Hugo 後退なし）、テストカバレッジ 90%+ 第四弾（`98d5268c`、26 テストで 4 つのユーティリティ関数を 100% カバー）、AI 編集者/読者視点チェック（`f48f39b3`、`/api/ai/perspective-check` エンドポイント `mode: 'editor' | 'reader'` 対応 + エディタツールバーボタン + `PostEditorPerspectivePanel` + AI 課金）、reactive→ref Step 3 移行（`405825cb`、3 ファイル 18 箇所の深いネスト reactive 置換：settings-notifications/comments/submissions + 11 テスト合格）、スクリプトガバナンス warning クリーンアップ（`ab87cd32`、audit-comment-drift TODO ゼロ + 言い換え誤検出 15→6 -60% + docs candidate warning クリーン）。全主線が lint/typecheck/test/docs:build 品質ゲートを通過（4198 テスト合格）。
 - **第六十三段階は監査完了でアーカイブ済みです**: 設定フォーム UI Phase 1 棚卸し（5 つの SettingKey+SETTING_ENV_MAP マッピング）; reactive→ref Step 4 移行（5 ファイル）; 構造再利用 2 組スライス（getErrorDetail 抽出 + エディタ SCSS 共有、duplicate-code 0.39%→0.35%）; テストカバレッジ 90%+ 第五弾（22 新テスト・3 モジュール）; i18n 品質監査 ko-KR/ja-JP（10 項目修正）。全主線が typecheck+lint+test 通過。
 - **第六十四段階は監査完了でアーカイブ済みです**: 設定フォーム UI Phase 2 初回 UI コンポーネント（5 フィールド + 5 ロケール翻訳）; reactive→ref Step 5 収束（3 ファイル）; 構造再利用 2 組スライス（safeDeleteCategory + handleExternalLinkError、duplicate-code ベースライン 0.35%）; テストカバレッジ第六弾（privacy.ts 7 エッジケース）; ko-KR/ja-JP 文書治理（freshness 監査報告書、ko-KR 13 ファイル日付修正、ja-JP 完全サポート昇格、features/variables 翻訳）。全主線が typecheck+lint+test 通過。
+- **第六十五段階は監査完了でアーカイブ済みです**: エディタツールバー統合 Phase A（10→5 ボタン折りたたみ + タイトル欄の弾力的な幅、`e936ec1e`）; 設定フォーム UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor、`01ce9670`）; 構造再利用ガバナンス（Categories/Tags 共有クエリ層、重複 226 行削減、duplicate-code ベースライン 0.34%→0.30%）; スクリプトガバナンス昇格評価（simple-duplicates を regression:weekly warning 面へ昇格）; テストカバレッジ 90%+ 第七弾（テストファイル 3 件新規、全体 79.48% で ≥1% 目標未達、長期ガバナンスへ移行）。vitest.shared.ts を forks プールに統一し `<repo-root>/tmp` 競合状態を修正; regression-weekly.yml 定期 CI ワークフロー新設。全主線が typecheck+lint+test 通過。
+- **第六十六段階は監査完了でアーカイブ済みです**: エディタツールバー統合 Phase B（続き書き/拡張/要約に `style` パラメータ追加、6 スタイル定義を再利用）; 設定フォーム UI Phase 4（AI_FALLBACK_API_KEY/MODEL/ENDPOINT フォームコントロール + 5 ロケール翻訳、AI Image Fallback 4 項目は Phase 5 へ延期）; 構造再利用ガバナンス（`use-theme-color-models.ts` コンポーザブル抽出、duplicate-code ベースライン 0.31%→0.30%、`8fb91ecd`）; テストカバレッジ 90%+ 第八弾（`85d69d7d`、高価値モジュール 5 件にテスト 58 件追加: text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%、全体 Statements 79.55%→80.63% で ≥80.48% 目標達成）; スクリプトガバナンス comment-drift 昇格再確認（`1fc73e54`、Phase 52 昇格状態を維持する go 結論、文書ドリフト 7 件整理）。全主線が typecheck+lint 通過および Code Auditor Review Gate 完了。
 - **要約ページとしての範囲**: 本ページは直近で完了した監査済み段階の要約を保持します。詳細な受け入れ条件とタスク分解は中国語の `roadmap.md` と `todo.md` を優先します。
 
 ## 4. 参照先

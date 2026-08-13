@@ -1,6 +1,6 @@
-﻿---
+---
 source_branch: master
-last_sync: 2026-07-27
+last_sync: 2026-08-13
 ---
 
 # 墨梅專案路線圖
@@ -83,6 +83,8 @@ last_sync: 2026-07-27
 - **第六十二階段已完成審計歸檔**：多平台遷移適配器 WordPress Parser（`602326cb`，WXR 解析 + `--format wordpress` CLI 參數 + 17 測試，Hexo/Hugo 無回歸）、測試覆蓋率 90%+ 第四批（`98d5268c`，26 測試覆蓋 4 個工具函數至 100%）、AI 編輯視角/讀者視角檢查（`f48f39b3`，`/api/ai/perspective-check` 端點支援 `mode: 'editor' | 'reader'` + 編輯器工具欄按鈕 + `PostEditorPerspectivePanel` + AI 計費）、reactive→ref Step 3 遷移（`405825cb`，3 文件 18 處深層巢狀 reactive 替代：settings-notifications/comments/submissions + 11 個定向測試通過）、腳本治理 warning 清理（`ab87cd32`，audit-comment-drift TODO 歸零 + 逐行複述誤報 15→6 -60% + docs candidate warning 清潔）。全部主線通過 lint/typecheck/test/docs:build 品質門（4198 測試通過）。
 - **第六十三階段已完成審計歸檔**：設置表單 UI Phase 1 盤點（5 個 SettingKey+SETTING_ENV_MAP 映射）；reactive→ref Step 4 遷移（5 文件）；結構複用 2 組切片（getErrorDetail 抽取 + 編輯器 SCSS 共享，duplicate-code 0.39%→0.35%）；測試覆蓋率 90%+ 第五批（22 新測試覆蓋 3 模組）；翻譯品質審計 ko-KR/ja-JP（10 問題修復）。全部主線通過 typecheck+lint+test。
 - **第六十四階段已完成審計歸檔**：設置表單 UI Phase 2 首批 UI 組件（EMAIL_SECURE/EMAIL_EXPIRES_IN/TEMP_EMAIL_DOMAIN_NAME/AI_MAX_TOKENS/TTS_DEFAULT_VOICE 5 字段 + 五語種翻譯）；reactive→ref Step 5 收尾（admin-taxonomy-page/marketing-campaign-form/comment-form 3 文件）；結構複用 2 組切片（safeDeleteCategory + handleExternalLinkError，duplicate-code 基線 0.35%）；測試覆蓋率第六批（privacy.ts 7 邊緣 case）；ko-KR/ja-JP 文檔治理（freshness 審計報告、ko-KR 13 文件日期修復、ja-JP 升級為已支援、features/variables 翻譯）。全部主線通過 typecheck+lint+test。
+- **第六十五階段已完成審計歸檔**：編輯器工具欄收斂 Phase A（10→5 按鈕摺疊 + 標題欄彈性寬度，`e936ec1e`）；設置表單 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor，`01ce9670`）；結構複用治理（Categories/Tags 共享查詢層，消除 226 行重複，duplicate-code 基線 0.34%→0.30%）；腳本治理升格評估（simple-duplicates 升格至 regression:weekly warning 面）；測試覆蓋率 90%+ 第七批（新增 3 個測試文件，全倉 79.48% 未達 ≥1% 目標，轉入長期治理）。vitest.shared.ts 統一為 forks 池修復 `<repo-root>/tmp` 競態；新增 regression-weekly.yml 定時 CI 回歸工作流。所有已交付主線均通過 typecheck+lint+test。
+- **第六十六階段已完成審計歸檔**：編輯器工具欄收斂 Phase B（續寫/擴寫/縮寫新增 `style` 參數，複用 6 種風格定義）；設置表單 UI Phase 4（AI_FALLBACK_API_KEY/MODEL/ENDPOINT 表單控件 + 五語種翻譯，AI Image Fallback 4 項留 Phase 5）；結構複用治理（`use-theme-color-models.ts` composable 抽取，duplicate-code 基線 0.31%→0.30%，`8fb91ecd`）；測試覆蓋率 90%+ 第八批（`85d69d7d`，5 個高價值模組補測 58 用例：text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%，全倉 Statements 79.55%→80.63% 達到 ≥80.48% 目標）；腳本治理 comment-drift 升格複核（`1fc73e54`，結論 go 維持 Phase 52 已升格狀態，收口 7 處文檔漂移）。全部主線通過 typecheck+lint 並完成 Code Auditor Review Gate。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

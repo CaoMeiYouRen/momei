@@ -202,9 +202,9 @@
 
 **审计结论**: 第五十九阶段五条主线已在实现代码、测试、设计文档与规划文档中完成闭环。Demo Banner 暗色模式修复已完成（`37b38773`）；近期热门文章列表已完成（`b7b765d9` + `721a563b` 重构三合一）并同步 i18n 五语种翻译；AI 编辑增强改写+审查已完成（`a4319a9f` + `d1c28283`），支持 6 种风格 + 审查缓存 + Code Auditor Review Gate Pass；E2E CI 限流修复 + GHA 分片已完成三层限流修复与共享构建架构（`b6b567a7` + 后续 5 个 CI 修复 commits），CI 验证依赖外部运行时延迟验证；测试覆盖率 90%+ 首批已完成缺口盘点与两批次 8 文件补测，覆盖改进 ~252 行（≈+1.09%）。`pnpm typecheck` + `pnpm lint` + `pnpm test`（503/504 files, 3958/3959 tests）通过。归档记录已写入 todo-archive.md。
 
-> 详细条目见 [待办归档](./todo-archive.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档分片](./archive/todo-archive-phases-58-60.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
-### 第六十阶段：编辑器延续与代码质量治理（Phase 60: Editor Continuation & Code Quality Governance）
+### 第六十阶段：编辑器延续与代码质量治理（Phase 60: Editor Continuation & Code Quality Governance）（已审计归档）
 
 **时间表**: 2026-07-23 ~ 约 3-4 天
 **目标**: 在第五十九阶段完成 AI 编辑改写+审查与展示优化后，以「1 个编辑增强 + 1 个新功能 + 3 个治理」组合推进：AI 续写作为编辑器增强的自然延续（提升为 P0），多平台迁移适配器（Hugo 格式）作为迁移体验扩展，响应式状态模型收敛（reactive→ref）与 Zod Schema 复用治理作为代码质量重构，测试覆盖率 90%+ 第二批作为长期治理延续。
@@ -240,7 +240,7 @@
 
 **审计结论**: 第六十阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。AI 续写已完成（`697b00a4`），支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型；响应式状态模型迁移已完成（`d3f7314c`），5 个文件（登录页、注册页、权益页、个人设置、安全设置）从 `reactive` 迁移为 `ref`；Zod Schema 复用治理已完成（`6216fedf`），Ad Campaign + Ad Placement 的 create/update schema 抽取到 `utils/schemas/ad.ts`，共享基对象 + `.partial()` 派生；测试覆盖率 90%+ 第二批已完成（`9cea2f38`），新增 69 个测试覆盖 3 个 AI Provider 模块；多平台迁移适配器 Hugo 格式支持已完成（`6075d073`），新增 `ContentParser` 接口 + `HugoParser` 适配器（TOML/YAML/JSON）+ `--format hugo` CLI 参数 + 17 个单元测试。`pnpm typecheck` + `pnpm lint` + `pnpm test` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
-> 详细条目见 [待办归档](./todo-archive.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档分片](./archive/todo-archive-phases-58-60.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ### 第六十一阶段：AI 编辑增强扩展与治理延续（Phase 61: AI Editing Enhancement Extension & Governance Continuation）（已审计归档）
 
@@ -373,7 +373,7 @@
 **时间表**: 2026-07-27 ~ 2026-07-28
 **交付摘要**: 4/5 主线交付（编辑器工具栏收敛 Phase A、设置表单 UI Phase 3、结构复用治理、脚本治理升格评估）；测试覆盖率第七批未达 ≥1% 目标，转入长期治理。同时修复 vitest threads 池竞态问题，新增 `regression-weekly.yml` CI 工作流。
 
-### 第六十六阶段：编辑器续航与覆盖率攻坚（Phase 66: Editor Continuation & Coverage Push）（进行中）
+### 第六十六阶段：编辑器续航与覆盖率攻坚（Phase 66: Editor Continuation & Coverage Push）（已审计归档）
 
 **时间表**: 2026-08-07 ~ 约 3-5 天
 
@@ -413,6 +413,10 @@
     - **执行范围**: 继 Phase 65 完成 `audit:simple-duplicates` 升格至 `regression:weekly` 后，评估 `audit:comment-drift` 是否满足升格条件——需确认脚本输出稳定、误报率可控、warning 面清洁。输出明确 go/no-go 结论与理由。
     - **非目标**: 不新增脚本；不改脚本 API；不引入新治理基线。
     - **最小验收**: 输出升格评估结论（go/no-go + 理由）；若 go，则完成 `regression:weekly` 配置更新；`pnpm governance:audit:comment-drift` 清洁输出。
+
+**审计结论**: 第六十六阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。编辑器工具栏收敛 Phase B 已完成（续写/扩写/缩写支持 6 种风格选择，Phase A 分组无回归）；设置表单 UI Phase 4 已完成（`AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT` 表单控件 + 五语种翻译 + 6 个新用例，RG Pass）；测试覆盖率 90%+ 第八批已完成（`85d69d7d`，5 个高价值模块补测 58 用例：text 94.82% / tts 88.63% / parser 92.00% / aggregator 97.56% / category 98.63%，全仓 Statements 79.55%→80.63% 达到 ≥80.48% 目标，+1.08%）；结构复用治理已完成（`8fb91ecd`，theme 颜色 model composable 抽取，duplicate-code 基线 0.31%→0.30%）；脚本治理 comment-drift 升格复核已完成（`1fc73e54`，结论 go 维持 Phase 52 已升格状态，更正 7 处文档漂移含 Phase 归属）。`pnpm typecheck` + `pnpm lint` 全部通过，Code Auditor Review Gate 三轮审计闭环。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
+
+> 详细条目见 [待办归档](./todo-archive.md#第六十六阶段编辑器续航与覆盖率攻坚已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
 ## 3. 相关文档
 

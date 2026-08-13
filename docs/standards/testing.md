@@ -18,6 +18,24 @@
 -   **端对端测试 (E2E)**: Playwright (推荐) 或 Cypress (视具体配置而定)。
 -   **测试运行器**: `pnpm test`
 
+### 2.1 Nuxt 环境测试运行约束 (Nuxt Environment Test Runtime Constraints)
+
+-   **内存与 Worker 配置**: Nuxt 环境（`@nuxt/test-utils`）下单 worker 跑大测试文件可能触发 `JavaScript heap out of memory`（表现为 `Worker exited unexpectedly` 且 `tests 0ms`）。稳定配置为 `NODE_OPTIONS=--max-old-space-size=10240` + `--pool=forks --maxWorkers=1`；多个测试文件合跑比单跑更稳（环境初始化成本分摊）。
+-   **覆盖率报告目录**: coverage 报告必须显式 `--coverage.reportsDirectory` 到 `artifacts/` 下；默认 `coverage/` 目录可能残留旧报告，解析 `coverage-final.json` 前先核对 `LastWriteTime`。
+-   **全量 coverage 执行节奏**: 全仓 `vitest run --coverage` 在 Nuxt 环境下约 8-9 分钟，本地验证用定向 subset（3-5 文件）+ `--coverage.include` 限定目标文件，最终以 CI 为准。
+
+### 2.2 Mock 与断言实践 (Mock & Assertion Practices)
+
+-   **once 队列跨测试累积陷阱**: `vi.clearAllMocks()` 只清调用记录与 instances，**不清** `mockResolvedValueOnce`/`mockImplementationOnce` 队列。多个测试各自 `mockResolvedValueOnce` 而未被消费会污染后续断言。修复：beforeEach 中对相关 mock 追加 `mockReset()`（如 `mockRepo.findOne.mockReset()`），或确保每条链路恰好消费一次。
+-   **类型安全 mock**: `vi.mocked(x).mockResolvedValue({...} as never)` 会绕过联合类型完整性检查（如 `AIProvider`），接口签名漂移时测试会静默失配。改用 `as unknown as AIProvider` 或与签名对齐的显式类型（如 `as Record<string, string | null>`），并 `import type` 生产类型。
+-   **外部解析器行为先探测再断言**: 编写依赖第三方解析器行为的测试前（如 fast-xml-parser），先写探测脚本确认实际行为。已确认：`parseTagValue: false` 下数字字符引用（`&#x41;`）保留原样不解码、命名实体（`&amp;`）解码；stopNodes 列表内节点全文保留（含 CDATA 标记）；malformed XML（未闭合标签）被宽容解析不抛错。
+
+### 2.3 覆盖率补测节奏 (Coverage Batch Pacing)
+
+-   小模块先行（category → parser → aggregator），大模块殿后（tts → text）；每模块写完立即定向跑 + 定向 coverage 验证数字，避免最后一次性排错。
+-   用 `it.each` 批量覆盖同构降级分支（如"provider 无 chat"），降低审计对"低价值铺量"的疑虑。
+-   覆盖率基线以 `pnpm test:coverage` 输出或 `coverage/coverage-final.json` 为准，禁止拿可能滞后的报告做 ROI 规划（详见 §5.1）。
+
 ## 3. 目录结构与命名规范 (Directory Structure & Naming)
 
 ### 3.1 单元测试 (Unit Tests)

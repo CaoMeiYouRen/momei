@@ -1,6 +1,6 @@
-﻿---
+---
 source_branch: master
-last_sync: 2026-07-27
+last_sync: 2026-08-13
 ---
 
 # Momei 프로젝트 로드맵
@@ -68,6 +68,8 @@ last_sync: 2026-07-27
 - **62단계는 감사 완료 후 아카이브되었습니다**: 멀티플랫폼 마이그레이션 어댑터 WordPress Parser(`602326cb`, WXR 파싱 + `--format wordpress` CLI 플래그 + 17개 테스트, Hexo/Hugo 회귀 없음), 테스트 커버리지 90%+ 4차(`98d5268c`, 26개 테스트로 4개 유틸리티 함수 100% 커버), AI 편집자/독자 관점 체크(`f48f39b3`, `/api/ai/perspective-check` 엔드포인트 `mode: 'editor' | 'reader'` 지원 + 에디터 도구 모음 버튼 + `PostEditorPerspectivePanel` + AI 과금), reactive→ref Step 3 마이그레이션(`405825cb`, 3개 파일 18곳 깊은 중첩 reactive 대체: settings-notifications/comments/submissions + 11개 테스트 통과), 스크립트 거버넌스 warning 정리(`ab87cd32`, audit-comment-drift TODO 제로 + 재진술 오탐 15→6 -60% + docs candidate warning 클린). 모든 주선이 lint/typecheck/test/docs:build 품질 게이트 통과(4198개 테스트 통과).
 - **63단계는 감사 완료 후 아카이브되었습니다**: 설정 양식 UI Phase 1 인벤토리(5개 SettingKey+SETTING_ENV_MAP 매핑); reactive→ref Step 4 마이그레이션(5개 파일); 구조 재사용 2개 슬라이스(getErrorDetail 추출 + 에디터 SCSS 공유, duplicate-code 0.39%→0.35%); 테스트 커버리지 90%+ 5차(22개 새 테스트, 3개 모듈 커버); i18n 품질 감사 ko-KR/ja-JP(10개 문제 수정). 모든 주선이 typecheck+lint+test 통과.
 - **64단계는 감사 완료 후 아카이브되었습니다**: 설정 양식 UI Phase 2 첫 번째 UI 컴포넌트(5개 필드 + 5개 로케일 번역); reactive→ref Step 5 마무리(3개 파일); 구조 재사용 2개 슬라이스(safeDeleteCategory + handleExternalLinkError, duplicate-code 기준 0.35%); 테스트 커버리지 6차(privacy.ts 7개 엣지 케이스); ko-KR/ja-JP 문서 거버넌스(freshness 감사 보고서, ko-KR 13개 파일 날짜 수정, ja-JP 완전 지원으로 승격, features/variables 번역). 모든 주선이 typecheck+lint+test 통과.
+- **65단계는 감사 완료 후 아카이브되었습니다**: 편집기 도구 모음 통합 Phase A(10→5 버튼 폴딩 + 제목 입력 폭 탄력적, `e936ec1e`); 설정 양식 UI Phase 3(AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor, `01ce9670`); 구조 재사용 거버넌스(Categories/Tags 공유 쿼리 레이어, 중복 226줄 제거, duplicate-code 기준 0.34%→0.30%); 스크립트 거버넌스 승격 평가(simple-duplicates를 regression:weekly warning 영역으로 승격); 테스트 커버리지 90%+ 7차(테스트 파일 3개 신규, 전체 79.48%로 ≥1% 목표 미달, 장기 거버넌스로 이관). vitest.shared.ts를 forks 풀로 통일해 `<repo-root>/tmp` 경쟁 상태 수정; regression-weekly.yml 정기 CI 워크플로 신설. 모든 주선이 typecheck+lint+test 통과.
+- **66단계는 감사 완료 후 아카이브되었습니다**: 편집기 도구 모음 통합 Phase B(계속/확장/축약에 `style` 파라미터 추가, 6가지 스타일 정의 재사용); 설정 양식 UI Phase 4(AI_FALLBACK_API_KEY/MODEL/ENDPOINT 폼 컨트롤 + 5개 로케일 번역, AI Image Fallback 4항목은 Phase 5로 연기); 구조 재사용 거버넌스(`use-theme-color-models.ts` 컴포저블 추출, duplicate-code 기준 0.31%→0.30%, `8fb91ecd`); 테스트 커버리지 90%+ 8차(`85d69d7d`, 고가치 모듈 5개에 테스트 58개 추가: text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%, 전체 Statements 79.55%→80.63%로 ≥80.48% 목표 달성); 스크립트 거버넌스 comment-drift 승격 재검토(`1fc73e54`, Phase 52 승격 상태 유지 go 결론, 문서 표류 7건 정리). 모든 주선이 typecheck+lint 통과 및 Code Auditor Review Gate 완료.
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog

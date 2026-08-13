@@ -28,7 +28,8 @@
       - 第六十二阶段已完成第四批缺口覆盖：26 个测试覆盖 4 个纯函数（toDateOrNull、toDateOrUndefined、toQueryString、toQueryStringArray）至 100%。
       - 第六十三阶段已完成第五批缺口覆盖：22 个测试覆盖 3 个模块（error-detail.ts 100%、settings.ts 边缘 case、url.ts 缺失场景）。
        - 第六十四阶段已完成第六批缺口覆盖：7 个边缘 case 测试覆盖 privacy.ts 模块。
-       - 第六十五阶段已完成第七批缺口覆盖：新增 3 个测试文件（`external-links-shared.test.ts` / `settings.test.ts` / `setting.constants.test.ts`），覆盖 `handleExternalLinkError` / `inferSettingMaskType` 行为变更 / `isSettingEnvLocked` / `resolveSettingEnvEntry` / `getSettingLockReason` 等函数；但全仓覆盖率 Statements 仅 79.48%（未达 ≥1% 提升目标），未通过验收，转入长期治理继续推进。
+        - 第六十五阶段已完成第七批缺口覆盖：新增 3 个测试文件（`external-links-shared.test.ts` / `settings.test.ts` / `setting.constants.test.ts`），覆盖 `handleExternalLinkError` / `inferSettingMaskType` 行为变更 / `isSettingEnvLocked` / `resolveSettingEnvEntry` / `getSettingLockReason` 等函数；但全仓覆盖率 Statements 仅 79.48%（未达 ≥1% 提升目标），未通过验收，转入长期治理继续推进。
+        - 第六十六阶段已完成第八批缺口覆盖：5 个高价值模块补测 58 用例（text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%），全仓 Statements 79.55%→80.63%（+1.08%，≥80.48% 目标达成），Branches 69.26%（+1.32%）/ Lines 80.68%（+1.12%）。
 - **最近一次上收阶段**:
     - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
     - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
@@ -45,10 +46,12 @@
       - 第六十三阶段（已上收测试覆盖率 90%+ 第五批：22 测试覆盖 3 个模块，已审计归档）。
        - 第六十四阶段（已上收测试覆盖率 90%+ 第六批：privacy.ts 7 个边缘 case，已审计归档）。
        - 第六十五阶段（已上收测试覆盖率 90%+ 第七批：3 个测试文件涵盖 external-links-shared/settings/setting.constants，全仓 79.48% 未达 ≥1% 目标，转入长期治理继续推进）。
+       - 第六十六阶段（已上收测试覆盖率 90%+ 第八批：5 个高价值模块补测 58 用例，全仓 Statements 80.63% 达到 ≥80.48% 目标，已审计归档）。
 - **下一次可切片方向**:
-    - 覆盖率提升方向：Phase 65 第七批新增 3 个测试文件但全仓 Statements 仅达 79.48%（未达 ≥1% 目标），说明需要更精准地选择可观测覆盖提升的高价值模块。下一批优先选代码量大、分支数多的 `server/services/` 层模块（而非 `server/utils/` 层小而精的工具函数），确保每批覆盖 ≥1% 的数字可见提升。
+    - 覆盖率提升方向：第八批已达成 ≥80.48% 阶段性目标（80.63%），距离 90%+ 长期目标仍有约 9.4% 空间。下一批继续优先选代码量大、分支数多的 `server/services/` 层模块（当前低覆盖候选：`server/services/ai/task-detail.ts` 28.57%、`server/services/external-feed/cache.ts` 50.00%、`server/services/friend-link.ts` 73.06%、`server/services/notification.ts` 70.10%、`server/services/post-distribution.ts` 75.31%、`server/services/upload.ts` 74.85%）。
     - 测试有效性方向：继续"已有测试基座 + 失败/边界优先"节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
     - 两条线并行不冲突：覆盖率提升优先选高价值大模块，测试有效性优先选高风险链路，避免为了冲数字而做低价值铺量。
+    - 遗留治理项：`text.test.ts` 1112 行超 1000 上限（建议拆文件）、`tts.test.ts` beforeEach 对齐 mockReset（与 category.test.ts 同款修复）。
 2. **ESLint / 类型债与规则收紧治理**
 - **目标**:
     - 按批次继续收紧 ESLint 规则，至少再收紧 1-2 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
@@ -383,7 +386,7 @@
     - 若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估，再进入正式阶段规划。
 ### 2026-06 调研发现的新增候选功能
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）、AI 编辑视角/读者视角检查（Phase 62）、WordPressParser（Phase 62）已交付并从候选池移除。
+> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）、AI 编辑视角/读者视角检查（Phase 62）、WordPressParser（Phase 62）已交付并从候选池移除。编辑器工具栏 Phase B 风格扩展（Phase 66）已交付，候选 #14 仅剩 Phase C 保留。
 ### 已评估/已关闭（不进入当前实现）
 > 以下条目已完成评估并输出明确 go/no-go 结论，当前不进入实现阶段，保留为后续参考。
 8. **Digital Garden / 知识花园模式 (P2, 已评估)**
@@ -461,7 +464,7 @@
     - **Phase 3（Phase 65） — 第二批 UI 组件**：新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `ExternalFeedSourcesEditor` 组件；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。详见第六十五阶段待办归档。
     - **Phase 4（Phase 66） — AI Fallback 文本备用 3 项**：补齐 `AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT` 的 SETTING_ENV_MAP 映射、`.env.full.example` 注释示例、`ai-settings.vue` Password+InputText 表单控件（`v-if` 跟随 `ai_fallback_provider`）、5 语种翻译，新增 `setting.constants.test.ts` + `ai-settings.test.ts` 共 6 个用例；Code Auditor Review Gate Pass。详见第六十六阶段待办归档。
 - **剩余方向**:
-    - AI Image Fallback 4 项（`AI_IMAGE_FALLBACK_PROVIDER`/`API_KEY`/`MODEL`/`ENDPOINT`）留 Phase 5 继续推进（涉及 `ai_image_enabled` 二级嵌套 group 扩展）。
+    - AI Image Fallback 4 项（`AI_IMAGE_FALLBACK_PROVIDER`/`API_KEY`/`MODEL`/`ENDPOINT`）留 Phase 5 继续推进（涉及 `ai_image_enabled` 二级嵌套 group 扩展）。**已登记为下一阶段候选（backlog 待上收）。**
     - `WEBHOOK_TIMESTAMP_TOLERANCE` 当前实现不读取（文档已多次声明固定 5 分钟容差），待后端实现 env 读取逻辑后再纳入 UI 候选。
     - `hexo_sync_*` 已实现 UI 但被列入 `INTERNAL_ONLY_SETTING_KEYS` + `ADMIN_SETTINGS_EXCLUDED_KEYS`，定位为内部使用，不在本主线后续范围。
     - 保持分批渐进策略，每组 2-5 个配置项。
@@ -470,13 +473,13 @@
     - 不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略。
 - **详细方案**: 见 Phase 1 缺口清单文档 [`docs/design/governance/settings-form-ui-phase1-gap-inventory.md`](../design/governance/settings-form-ui-phase1-gap-inventory.md)
 
-14. **编辑器工具栏收敛：AI 功能分组 + 审查视角合并 + 风格扩展 (P2, 候选)**
+14. **编辑器工具栏收敛：AI 功能分组 + 审查视角合并 + 风格扩展 (P2, 已部分实现)**
 - **背景**: 当前文章编辑器顶部栏左侧包含 10 个独立 AI 功能按钮 + 1 个语音组件，全部平铺在单行 4rem 高度内，导致标题输入框被严重挤压，长标题无法完整展示。同时 AI 审查与视角检查存在功能重叠，续写/扩写/缩写缺少风格控制。
 - **评估结论**: 已产出完整方案，详见 [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)。
 - **推荐实施**:
     - **Phase A**（2-3 天）：UI 分组收敛 — 10 个按钮折叠为「AI 写作（SplitButton）」+「AI 审校」+「AI 翻译」+「格式化」+「语音」共 5 个入口，标题输入框获得完整弹性宽度。**✅ 已于第六十五阶段完成**（`e936ec1e`）。
-    - **Phase B**（1-2 天）：风格扩展 — 为续写/扩写/缩写新增 `style` 参数，复用改写的 6 种风格定义。
-    - **Phase C**（2-3 天）：审查+视角合并 — 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。
+    - **Phase B**（1-2 天）：风格扩展 — 为续写/扩写/缩写新增 `style` 参数，复用改写的 6 种风格定义。**✅ 已于第六十六阶段完成**。
+    - **Phase C**（2-3 天）：审查+视角合并 — 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。**候选保留，待后续阶段上收。**
 - **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
 - **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 1 = **1.60**
 - **详细方案**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
