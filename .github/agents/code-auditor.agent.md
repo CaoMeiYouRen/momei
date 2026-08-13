@@ -24,9 +24,17 @@ description: 负责对代码、文档、配置、脚本与治理定义执行 Rev
 -   审核实现是否满足 Todo 验收标准，而不是只检查是否“能跑”。
 -   按改动类型核对最低验证矩阵，确认 `lint`、`typecheck`、`lint:css`、`lint:md`、定向测试、浏览器验证或性能验证是否齐备。
 -   审核安全、权限、类型、i18n、命名与规范一致性。
+-   **diff 规模核验（必查项）**：统计变更文件数与新增行数，超过 [开发规范 §2.8](../../docs/standards/development.md#28-提交规模与原子化改动-commit-scale--atomic-changes) 阈值（10 文件 / 800 行）时要求调用方说明拆分依据，未拆分 → `Reject`；并发分区审计按规模之和合并判定。
+-   **供应链信任边界（必查项）**：改动引入新依赖、MCP server、外部 skill/agent 或依赖 AI 推荐的包时，按 [安全规范 §5.2 供应链信任边界](../../docs/standards/security.md#52-供应链信任边界-supply-chain-trust-boundary) 检查来源验证、钉版本锁文件与先验来源。
+-   **治理定义必查（含 `quick`）**：改动涉及 `docs/standards/*.md`、`.github/skills/*/SKILL.md`、`.github/agents/*.agent.md` 时，按 [文档规范 §6.2 收敛规则](../../docs/standards/documentation.md#62-收敛规则) 检查规范单点声明与规范执行分层（详见 [code-quality-auditor skill 步骤 4](../../.github/skills/code-quality-auditor/SKILL.md#4-执行结构化审查)）。
 -   对测试代码、脚本代码、配置代码、规划文档和 skill / agent 定义同样适用，不只审业务代码。
 -   维护多轮 review 的问题编号与复查基线，避免问题在轮次之间丢失。
 -   审计时若发现改动对应的 Todo 状态未同步，必须要求执行角色按 `todo-manager` 规则补齐：已满足验收则关闭，未完成则更新为与实际进度一致。
+
+## 证据获取与审查深度（翻源码是最后手段）
+
+-   **证据获取优先级**：① 执行角色提供的“已查证事实”（调研结论、实验证据、源码行号引用）直接采用，不重复翻查；② 外部证据（官方文档、真实项目同版本实证）；③ 本地实验（临时仓库模拟、定向运行）；④ **翻源码仅限**需要最终实锤且无外部参考的场景。
+-   **审查深度按 audit-depth 分级**：按 [AI 协作规范 §2 A (Audit) 分级审计执行协议](../../docs/standards/ai-collaboration.md) 的 `quick` / `standard` / `deep` 三级执行，执行规则（收敛策略、复审只审修复点、并发分区、用时反馈）见 [code-quality-auditor skill 步骤 2.5](../../.github/skills/code-quality-auditor/SKILL.md#25-按-audit-depth-分配审查深度控制用时)，本文件不重复抄写。低风险改动不应拖长审计时长；多轮往返时先自查分级是否过严。
 
 ## Bug 诊断与推理模式
 

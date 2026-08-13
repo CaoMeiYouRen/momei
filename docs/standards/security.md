@@ -22,6 +22,9 @@
 - `requireAdmin(event)`: 校验用户是否为管理员
 - `requireAdminOrAuthor(event)`: 校验用户是否为管理员或作者
 - `requireRole(event, roles)`: 校验用户是否具有指定角色
+- `requireWsAuth(request)`: WebSocket 场景校验用户是否已登录
+- `requireWsRole(request, roles)`: WebSocket 场景校验用户是否具有指定角色
+- `requireWsAdminOrAuthor(request)`: WebSocket 场景校验用户是否为管理员或作者
 
 ## 1. 身份验证与授权 (Authentication & Authorization)
 
@@ -47,10 +50,22 @@
 -   **日志审计**: 重要操作（登录、删除、权限变更）必须记录审计日志。
 -   **无敏感信息日志**: 日志输出中严禁包含密码、Token、详细身份证据等信息。
 
-## 5. 依赖安全 (Dependency Security)
+## 5. 依赖与供应链安全 (Dependency & Supply Chain Security)
 
--   **定期更新**: 关注依赖包的安全漏洞公告。
+### 5.1 依赖审计
+
+-   **定期更新**: 关注依赖包的安全漏洞公告（Dependabot / `pnpm audit`），高危告警优先处理。
 -   **最小化依赖**: 引入新包需经过必要性评估，优先使用官方或社区公认的安全库。
+-   **审计进 CI**: 依赖安全审计应纳入 CI 或定期回归任务，本地抽查不能代替流水线检查。
+
+### 5.2 供应链信任边界 (Supply Chain Trust Boundary)
+
+引入新依赖、MCP server、外部 skill/agent，或采纳 AI 推荐的包时，必须执行来源验证，不得默认信任：
+
+1.  **AI 推荐包来源验证**: AI 推荐的包名常有相当比例在官方 registry 中不存在（幻觉包，研究实测至少 5.2% 的商业模型与 21.7% 的开源模型会推荐不存在的包，见 *We Have a Package for You! A Comprehensive Analysis of Package Hallucinations in Code-Generating LLMs*，Spracklen et al.，arXiv:2406.10279，USENIX Security 2025）。引入前必须在官方 registry 实际检索确认存在性，并核验拼写（typosquatting，如 `lodahs` vs `lodash`），不得凭包名直接安装。
+2.  **钉版本 + 锁文件**: 依赖必须钉版本并提交锁文件（`pnpm-lock.yaml`）；CI / Dockerfile / 自动化脚本中的工具版本使用不可变版本（tag / SHA），禁止浮动标签。
+3.  **外部技能 / agent / MCP 先验来源**: 引入外部 skill、agent 或 MCP server 前，必须核对来源仓库 URL 与维护组织是否为可信主体；警惕伪装成"有用文档 / 技能"诱导信任的投毒载体（TrustFall 教训），先验来源核验详见 [AI 资产治理规范 §2.2](./ai-governance.md#22-外部同步或平台提供资产)。
+4.  **依赖方向约束**: 新增内部包或依赖时，遵守 [开发规范 §2.4 目录规划与依赖约束](./development.md#24-目录规划与依赖约束-directory-structure--dependencies) 的单向依赖约束，禁止循环依赖与应用层互依。
 
 ## 6. 终端命令与自动化安全 (CLI & Automation Security)
 
