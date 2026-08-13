@@ -248,6 +248,7 @@
     "AI博客"
   ],
   "license": "MIT",
+  "packageManager": "pnpm@11.17.0",
   "engines": {
     "node": ">=20"
   },

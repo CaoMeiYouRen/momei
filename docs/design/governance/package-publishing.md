@@ -67,7 +67,7 @@ momei/                                    # 根包 (private, Nuxt app)
 | 维度 | 状态 |
 |------|------|
 | Monorepo 工具 | pnpm workspace |
-| 包管理器 | pnpm v11.11.0 |
+| 包管理器 | pnpm v11.17.0（根 package.json `packageManager` 字段为单一来源） |
 | 发布工具 | semantic-release v25 + semantic-release-cmyr-config |
 | 提交规范 | Conventional Commits（commitlint + commitizen + husky） |
 | CHANGELOG | 根 CHANGELOG.md 已生成（中文分类，v1.11.0 ~ v1.22.0） |
@@ -296,8 +296,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0        # semantic-release 和 changesets 都需要完整 git 历史
       - uses: pnpm/action-setup@v6
-        with:
-          version: "11.11.0"
+        # pnpm 版本由根 package.json 的 packageManager 字段声明（单一来源），不显式传 version
       - uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
