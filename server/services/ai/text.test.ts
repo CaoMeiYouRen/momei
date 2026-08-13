@@ -867,4 +867,246 @@ describe('TextService', () => {
             })
         })
     })
+
+    describe('rewrite', () => {
+        it('should rewrite content with the requested style', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '改写后的内容',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.rewrite('原始内容', 'formal', 'zh-CN', 'user-1')
+
+            expect(result).toBe('改写后的内容')
+            const chatCall = vi.mocked(mockProvider.chat).mock.calls[0]?.[0] as {
+                messages: { role: string, content: string }[]
+            }
+            expect(chatCall.messages[1]?.content).toContain('formal and professional')
+        })
+
+        it('should reject empty content', async () => {
+            await expect(TextService.rewrite('', 'casual', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+        })
+
+        it('should throw when provider does not support chat', async () => {
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue({
+                name: 'mock',
+            })
+
+            await expect(TextService.rewrite('内容', 'casual', 'zh-CN'))
+                .rejects.toThrow('Provider does not support chat')
+        })
+    })
+
+    describe('review', () => {
+        it('should parse structured review suggestions from JSON response', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: JSON.stringify([
+                        {
+                            type: 'grammar',
+                            severity: 'major',
+                            original: 'bad grammar',
+                            suggestion: 'better grammar',
+                        },
+                    ]),
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.review('需要审阅的内容', 'zh-CN', 'user-1')
+
+            expect(result).toHaveLength(1)
+            expect(result[0]).toMatchObject({
+                type: 'grammar',
+                severity: 'major',
+                original: 'bad grammar',
+            })
+        })
+
+        it('should return empty array for non-array JSON', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '{"not": "an array"}',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.review('内容', 'zh-CN')
+
+            expect(result).toEqual([])
+        })
+
+        it('should fall back to a generic suggestion when JSON parsing fails', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: 'plain text review result',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.review('内容', 'zh-CN')
+
+            expect(result).toHaveLength(1)
+            expect(result[0]).toMatchObject({
+                type: 'style',
+                severity: 'minor',
+                suggestion: 'plain text review result',
+            })
+        })
+
+        it('should reject empty content', async () => {
+            await expect(TextService.review('', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+        })
+    })
+
+    describe('perspectiveCheck', () => {
+        it('should parse structured observations for editor mode', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: JSON.stringify([
+                        {
+                            mode: 'editor',
+                            type: 'structure',
+                            severity: 'minor',
+                            suggestion: 'reorder sections',
+                            reason: 'flow improves',
+                        },
+                    ]),
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.perspectiveCheck('文章内容', 'editor', 'zh-CN', 'user-1')
+
+            expect(result).toHaveLength(1)
+            expect(result[0]).toMatchObject({
+                mode: 'editor',
+                type: 'structure',
+                suggestion: 'reorder sections',
+            })
+        })
+
+        it('should fall back to generic observation for reader mode when parsing fails', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: 'raw reader feedback text',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.perspectiveCheck('内容', 'reader', 'zh-CN')
+
+            expect(result).toHaveLength(1)
+            expect(result[0]).toMatchObject({
+                mode: 'reader',
+                type: 'clarity',
+                severity: 'info',
+            })
+        })
+
+        it('should reject empty content', async () => {
+            await expect(TextService.perspectiveCheck('', 'editor', 'zh-CN')).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Content is required',
+            })
+        })
+    })
+
+    describe('translate', () => {
+        it('should translate content and record the task', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: 'Translated content',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            // requestTranslation 直接调用 getAIProvider('text')（不走 fallback）
+            vi.mocked(aiUtils.getAIProvider).mockResolvedValue(mockProvider)
+
+            const result = await TextService.translate('Hello world', 'zh-CN', 'user-1')
+
+            expect(result).toBe('Translated content')
+        })
+    })
+
+    describe('provider without chat support', () => {
+        const noChatProvider = { name: 'mock' }
+
+        it.each([
+            ['suggestSlug', () => TextService.suggestSlug('标题', '内容')],
+            ['refineVoice', () => TextService.refineVoice('转写文本')],
+            ['optimizeManuscript', () => TextService.optimizeManuscript('稿件')],
+            ['expandSection', () => TextService.expandSection({
+                topic: '主题',
+                sectionTitle: '小节',
+                sectionContent: '内容',
+                expandType: 'case',
+            })],
+            ['generateScaffold', () => TextService.generateScaffold({ topic: '主题' })],
+            ['translateName', () => TextService.translateName('名字', 'zh-CN')],
+            ['suggestTitles', () => TextService.suggestTitles('内容')],
+            ['continueWriting', () => TextService.continueWriting('内容', 'casual', 'zh-CN')],
+            ['expandContent', () => TextService.expandContent('内容', 'casual', 'zh-CN')],
+            ['condenseContent', () => TextService.condenseContent('内容', 'casual', 'zh-CN')],
+        ])('%s should throw when provider does not support chat', async (_name, invoke) => {
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(noChatProvider)
+
+            await expect(invoke()).rejects.toThrow('Provider does not support chat')
+        })
+    })
+
+    describe('suggestTitles JSON fallback', () => {
+        it('should split newline response when JSON parse fails', async () => {
+            const mockProvider = {
+                name: 'openai',
+                chat: vi.fn().mockResolvedValue({
+                    content: '标题A\n标题B',
+                    model: 'gpt-4',
+                    usage: {},
+                }),
+            }
+
+            vi.mocked(aiUtils.getAIProviderWithFallback).mockResolvedValue(mockProvider)
+
+            const result = await TextService.suggestTitles('内容', 'zh-CN')
+
+            expect(result).toEqual(['标题A', '标题B'])
+        })
+    })
 })

@@ -19,16 +19,16 @@
 
 > **时间表**: 2026-08-07 ~ 约 3-5 天 | **路线图**: [Phase 66](./roadmap.md#第六十六阶段编辑器续航与覆盖率攻坚phase-66-editor-continuation--coverage-push进行中)
 
-- [ ] **主线 1：测试覆盖率 90%+ 第八批（P2）**
+- [x] **主线 1：测试覆盖率 90%+ 第八批（P2）**
     - [x] 全仓覆盖率缺口盘点（CI 数据）：Stmts 79.55% / Branches 67.94% / Funcs 78.25% / Lines 79.56%，报告见 [`docs/design/governance/phase-66-coverage-gap-analysis.md`](../design/governance/phase-66-coverage-gap-analysis.md)
-    - [ ] 补测 `server/services/ai/text.ts`（1202 行，55.64%）→ 目标 ≥80%
-    - [ ] 补测 `server/services/ai/tts.ts`（771 行，59.84%）→ 目标 ≥80%
-    - [ ] 补测 `server/services/external-feed/parser.ts`（248 行，60.00%，分支 36.29%）→ 目标 ≥90%
-    - [ ] 补测 `server/services/external-feed/aggregator.ts`（254 行，68.29%，分支 50.00%）→ 目标 ≥90%
-    - [ ] 补测 `server/services/category.ts`（216 行，63.01%）→ 目标 ≥90%
-    - [ ] 定向测试 subset（3-5 文件）逐模块验证通过
-    - [ ] 全仓 `pnpm test:coverage` 验证 Statements ≥80.48%（CI 为准，预估 +1.3~1.5%）
-    - [ ] `pnpm typecheck` + `pnpm lint` 通过
+    - [x] 补测 `server/services/ai/text.ts`（1202 行，55.64%）→ **94.82%**（目标 ≥80%，新增 18 用例：rewrite/review/perspectiveCheck/translate/无 chat 分支/JSON fallback）
+    - [x] 补测 `server/services/ai/tts.ts`（771 行，59.84%）→ **88.63%**（目标 ≥80%，新增 14 用例：compensate 分支/generateSpeech/getVoices/成本估算/提供商盘点/失败路径）
+    - [x] 补测 `server/services/external-feed/parser.ts`（248 行，60.00%，分支 36.29%）→ **92.00%**（目标 ≥90%，新增 12 用例：实体解码/链接/封面/atom/CDATA/异常）
+    - [x] 补测 `server/services/external-feed/aggregator.ts`（254 行，68.29%，分支 50.00%）→ **97.56%**（目标 ≥90%，新增 7 用例：locale 过滤/去重排序/refresh 失败/缓存刷新计数）
+    - [x] 补测 `server/services/category.ts`（216 行，63.01%）→ **98.63%**（目标 ≥90%，新增 7 用例：ensureCategory 全分支/updateCategory 冲突）
+    - [x] 定向测试 subset（5 文件）逐模块验证通过（134/134 全绿 + 周边 14/14 无回归）
+    - [x] 全仓 `pnpm test:coverage` 验证 Statements **80.63% ≥ 80.48%**（+1.08%，Branches 69.26% / Lines 80.68% / Funcs 78.64%）
+    - [x] `pnpm typecheck` + `pnpm lint` 通过（0 errors）
 
 - [x] **主线 2：编辑器工具栏收敛 Phase B — 风格扩展（P2）**
     - [x] 后端 `TextService` 扩展续写/扩写/缩写 `style` 参数

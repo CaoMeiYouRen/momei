@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getExternalFeedHomePayload } from '@/server/services/external-feed/aggregator'
+import { getExternalFeedHomePayload, refreshExternalFeedCaches } from '@/server/services/external-feed/aggregator'
 
 vi.mock('@/server/services/external-feed/registry', () => ({
     getExternalFeedRegistryConfig: vi.fn(),
@@ -294,5 +294,350 @@ describe('getExternalFeedHomePayload', () => {
         expect(result.stale).toBe(false)
         expect(result.items).toHaveLength(1)
         expect(result.items[0]?.title).toBe('Bilibili dynamic item')
+    })
+
+    it('returns empty payload when registry or home feed is disabled', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: false,
+            homeEnabled: false,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [],
+        })
+
+        const result = await getExternalFeedHomePayload('en-US')
+
+        expect(result).toEqual({
+            items: [],
+            degraded: false,
+            stale: false,
+            fetchedAt: null,
+            sourceCount: 0,
+        })
+    })
+
+    it('returns degraded without snapshot when refresh fails and no stale cache exists', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: true,
+            homeEnabled: true,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [
+                {
+                    id: 'source-a',
+                    enabled: true,
+                    provider: 'rss',
+                    title: 'Source A',
+                    sourceUrl: 'https://example.com/a.xml',
+                    siteUrl: 'https://example.com',
+                    siteName: null,
+                    defaultLocale: 'en-US',
+                    localeStrategy: 'inherit-current',
+                    includeInHome: true,
+                    badgeLabel: 'RSS',
+                    priority: 10,
+                    timeoutMs: null,
+                    cacheTtlSeconds: null,
+                    staleWhileErrorSeconds: null,
+                    maxItems: 10,
+                },
+            ],
+        })
+        vi.mocked(getExternalFeedSnapshot).mockResolvedValue(null)
+        vi.mocked(fetchExternalFeedSource).mockRejectedValue(new Error('connection refused'))
+
+        const result = await getExternalFeedHomePayload('en-US')
+
+        expect(result.degraded).toBe(true)
+        expect(result.stale).toBe(false)
+        expect(result.items).toEqual([])
+        expect(result.fetchedAt).toBeNull()
+    })
+
+    it('replaces existing dedupe item when same timestamp has higher priority', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: true,
+            homeEnabled: true,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [
+                {
+                    id: 'source-low',
+                    enabled: true,
+                    provider: 'rss',
+                    title: 'Source Low',
+                    sourceUrl: 'https://example.com/low.xml',
+                    siteUrl: 'https://example.com',
+                    siteName: null,
+                    defaultLocale: 'en-US',
+                    localeStrategy: 'all',
+                    includeInHome: true,
+                    badgeLabel: 'RSS',
+                    priority: 1,
+                    timeoutMs: null,
+                    cacheTtlSeconds: null,
+                    staleWhileErrorSeconds: null,
+                    maxItems: 10,
+                },
+            ],
+        })
+        vi.mocked(getExternalFeedSnapshot).mockResolvedValue(null)
+        vi.mocked(fetchExternalFeedSource).mockResolvedValue('<rss />')
+        vi.mocked(parseExternalFeedXml).mockReturnValue([
+            {
+                id: 'a',
+                sourceId: 'source-low',
+                title: 'Same time low priority',
+                summary: null,
+                url: 'https://example.com/post-same',
+                canonicalUrl: 'https://example.com/post-same',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: null,
+                language: null,
+                coverImage: null,
+                sourceTitle: 'Source Low',
+                sourceSiteUrl: 'https://example.com',
+                sourceBadge: 'RSS',
+                dedupeKey: 'https://example.com/post-same',
+                priority: 1,
+            },
+            {
+                id: 'b',
+                sourceId: 'source-high',
+                title: 'Same time high priority',
+                summary: null,
+                url: 'https://example.com/post-same',
+                canonicalUrl: 'https://example.com/post-same',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: null,
+                language: null,
+                coverImage: null,
+                sourceTitle: 'Source High',
+                sourceSiteUrl: 'https://example.com',
+                sourceBadge: 'RSS',
+                dedupeKey: 'https://example.com/post-same',
+                priority: 9,
+            },
+        ])
+
+        const result = await getExternalFeedHomePayload('en-US')
+
+        expect(result.items).toHaveLength(1)
+        expect(result.items[0]?.title).toBe('Same time high priority')
+    })
+
+    it('sorts same-timestamp items by priority then source id', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: true,
+            homeEnabled: true,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [
+                {
+                    id: 'source-a',
+                    enabled: true,
+                    provider: 'rss',
+                    title: 'Source A',
+                    sourceUrl: 'https://example.com/a.xml',
+                    siteUrl: 'https://example.com',
+                    siteName: null,
+                    defaultLocale: 'en-US',
+                    localeStrategy: 'all',
+                    includeInHome: true,
+                    badgeLabel: 'RSS',
+                    priority: 1,
+                    timeoutMs: null,
+                    cacheTtlSeconds: null,
+                    staleWhileErrorSeconds: null,
+                    maxItems: 10,
+                },
+            ],
+        })
+        vi.mocked(getExternalFeedSnapshot).mockResolvedValue(null)
+        vi.mocked(fetchExternalFeedSource).mockResolvedValue('<rss />')
+        vi.mocked(parseExternalFeedXml).mockReturnValue([
+            {
+                id: 'b',
+                sourceId: 'source-b',
+                title: 'B source',
+                summary: null,
+                url: 'https://example.org/post-b',
+                canonicalUrl: 'https://example.org/post-b',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: null,
+                language: null,
+                coverImage: null,
+                sourceTitle: 'B',
+                sourceSiteUrl: 'https://example.org',
+                sourceBadge: 'RSS',
+                dedupeKey: 'dedupe-b',
+                priority: 1,
+            },
+            {
+                id: 'a',
+                sourceId: 'source-a',
+                title: 'A source',
+                summary: null,
+                url: 'https://example.com/post-a',
+                canonicalUrl: 'https://example.com/post-a',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: null,
+                language: null,
+                coverImage: null,
+                sourceTitle: 'A',
+                sourceSiteUrl: 'https://example.com',
+                sourceBadge: 'RSS',
+                dedupeKey: 'dedupe-a',
+                priority: 1,
+            },
+        ])
+
+        const result = await getExternalFeedHomePayload('en-US')
+
+        expect(result.items.map((item) => item.sourceId)).toEqual(['source-a', 'source-b'])
+    })
+
+    it('filters fixed-locale items by source default locale', async () => {
+        vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+            enabled: true,
+            homeEnabled: true,
+            homeLimit: 6,
+            defaultCacheTtlSeconds: 900,
+            defaultStaleWhileErrorSeconds: 86400,
+            sources: [
+                {
+                    id: 'fixed-zh',
+                    enabled: true,
+                    provider: 'rss',
+                    title: 'Fixed zh',
+                    sourceUrl: 'https://example.com/zh.xml',
+                    siteUrl: 'https://example.com',
+                    siteName: null,
+                    defaultLocale: 'zh-CN',
+                    localeStrategy: 'fixed',
+                    includeInHome: true,
+                    badgeLabel: 'RSS',
+                    priority: 10,
+                    timeoutMs: null,
+                    cacheTtlSeconds: null,
+                    staleWhileErrorSeconds: null,
+                    maxItems: 10,
+                },
+            ],
+        })
+        vi.mocked(getExternalFeedSnapshot).mockResolvedValue(null)
+        vi.mocked(fetchExternalFeedSource).mockResolvedValue('<rss />')
+        vi.mocked(parseExternalFeedXml).mockReturnValue([
+            {
+                id: '1',
+                sourceId: 'fixed-zh',
+                title: 'Zh item',
+                summary: null,
+                url: 'https://example.com/zh/1',
+                canonicalUrl: 'https://example.com/zh/1',
+                publishedAt: '2026-04-03T10:00:00.000Z',
+                authorName: null,
+                language: null,
+                coverImage: null,
+                sourceTitle: 'Fixed zh',
+                sourceSiteUrl: 'https://example.com',
+                sourceBadge: 'RSS',
+                dedupeKey: 'https://example.com/zh/1',
+                priority: 10,
+            },
+        ])
+
+        // 请求 zh-CN 时命中 defaultLocale → 包含
+        const zhResult = await getExternalFeedHomePayload('zh-CN')
+        // 请求 en-US 时与 defaultLocale 不匹配 → 排除
+        const enResult = await getExternalFeedHomePayload('en-US')
+
+        expect(zhResult.items).toHaveLength(1)
+        expect(enResult.items).toHaveLength(0)
+    })
+
+    describe('refreshExternalFeedCaches', () => {
+        it('returns empty summary when registry disabled', async () => {
+            vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+                enabled: false,
+                homeEnabled: false,
+                homeLimit: 6,
+                defaultCacheTtlSeconds: 900,
+                defaultStaleWhileErrorSeconds: 86400,
+                sources: [],
+            })
+
+            const result = await refreshExternalFeedCaches(['en-US'])
+
+            expect(result).toMatchObject({
+                sourceCount: 0,
+                snapshotCount: 0,
+                failureCount: 0,
+            })
+        })
+
+        it('refreshes each locale bucket and counts failures', async () => {
+            vi.mocked(getExternalFeedRegistryConfig).mockResolvedValue({
+                enabled: true,
+                homeEnabled: true,
+                homeLimit: 6,
+                defaultCacheTtlSeconds: 900,
+                defaultStaleWhileErrorSeconds: 86400,
+                sources: [
+                    {
+                        id: 'source-a',
+                        enabled: true,
+                        provider: 'rss',
+                        title: 'Source A',
+                        sourceUrl: 'https://example.com/a.xml',
+                        siteUrl: 'https://example.com',
+                        siteName: null,
+                        defaultLocale: 'en-US',
+                        localeStrategy: 'inherit-current',
+                        includeInHome: true,
+                        badgeLabel: 'RSS',
+                        priority: 10,
+                        timeoutMs: null,
+                        cacheTtlSeconds: null,
+                        staleWhileErrorSeconds: null,
+                        maxItems: 10,
+                    },
+                    {
+                        id: 'source-b',
+                        enabled: true,
+                        provider: 'rss',
+                        title: 'Source B',
+                        sourceUrl: 'https://example.com/b.xml',
+                        siteUrl: 'https://example.com',
+                        siteName: null,
+                        defaultLocale: 'zh-CN',
+                        localeStrategy: 'fixed',
+                        includeInHome: true,
+                        badgeLabel: 'RSS',
+                        priority: 5,
+                        timeoutMs: null,
+                        cacheTtlSeconds: null,
+                        staleWhileErrorSeconds: null,
+                        maxItems: 10,
+                    },
+                ],
+            })
+            vi.mocked(fetchExternalFeedSource)
+                .mockResolvedValueOnce('<rss />')
+                .mockRejectedValueOnce(new Error('boom'))
+                .mockResolvedValueOnce('<rss />')
+                .mockRejectedValueOnce(new Error('boom'))
+
+            const result = await refreshExternalFeedCaches(['en-US', 'zh-CN'])
+
+            expect(result.sourceCount).toBe(2)
+            expect(result.snapshotCount).toBe(2)
+            expect(result.failureCount).toBe(2)
+            expect(setExternalFeedSnapshot).toHaveBeenCalledTimes(2)
+        })
     })
 })
