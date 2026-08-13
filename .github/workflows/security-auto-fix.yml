@@ -90,5 +90,8 @@ jobs:
           cleanup-branches-auto: ${{ inputs.cleanup-branches-auto || 'true' }}
           # momei 验证链：Nuxt 4 项目，lint/typecheck 依赖 .nuxt/tsconfig.json
           # （nuxt prepare 生成物），故在 install 后显式 prepare；
+          # workspace 子包（api-client / mcp-server）的 dist 不入库（.gitignore），
+          # typecheck 前必须先构建子包，否则 TS2307 找不到 '@momei-blog/api-client' / 'momei-mcp-server'
+          # （与 test.yml 的 build-deps job 口径对齐）；
           # lint 带 --fix（修复分支上产生的格式化改动随 PR 一并提交）。
-          commands: ${{ inputs.commands || 'pnpm install --frozen-lockfile, pnpm exec nuxt prepare, pnpm lint, pnpm typecheck, pnpm build' }}
+          commands: ${{ inputs.commands || 'pnpm install --frozen-lockfile, pnpm --filter @momei-blog/api-client build, pnpm --filter momei-mcp-server build, pnpm exec nuxt prepare, pnpm lint, pnpm typecheck, pnpm build' }}
