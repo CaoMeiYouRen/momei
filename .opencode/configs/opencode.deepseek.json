@@ -1,20 +1,20 @@
 {
-    "model": "deepseek/deepseek-v4-pro",
+    "model": "deepseek/deepseek-v4-flash",
     "agent": {
         "full-stack-master": {
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "deepseek/deepseek-v4-flash",
             "mode": "primary",
-            "variant": "high"
+            "variant": "max"
         },
         "product-manager": {
             "model": "deepseek/deepseek-v4-pro",
             "mode": "primary",
-            "variant": "medium"
+            "variant": "max"
         },
         "code-auditor": {
             "model": "deepseek/deepseek-v4-pro",
             "mode": "subagent",
-            "variant": "high"
+            "variant": "max"
         },
         "qa-assistant": {
             "model": "deepseek/deepseek-v4-flash",
@@ -22,24 +22,24 @@
             "variant": "low"
         },
         "frontend-developer": {
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "deepseek/deepseek-v4-flash",
             "mode": "subagent",
-            "variant": "medium"
+            "variant": "max"
         },
         "backend-developer": {
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "deepseek/deepseek-v4-flash",
             "mode": "subagent",
-            "variant": "medium"
+            "variant": "max"
         },
         "test-engineer": {
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "deepseek/deepseek-v4-flash",
             "mode": "subagent",
-            "variant": "medium"
+            "variant": "max"
         },
         "documentation-specialist": {
             "model": "opencode-go/deepseek-v4-flash",
             "mode": "subagent",
-            "variant": "low"
+            "variant": "medium"
         }
     }
 }
