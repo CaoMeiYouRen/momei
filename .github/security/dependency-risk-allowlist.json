@@ -1,4 +1,17 @@
 {
     "version": 1,
-    "entries": []
+    "entries": [
+        {
+            "advisoryId": "GHSA-jmr9-qjv8-65gv",
+            "packageName": "extract-zip",
+            "severity": "high",
+            "reason": "上游无可用补丁：GitHub Advisory 官方标注 Patched versions: None（extract-zip 在 npm registry 上的最新版本即 2.0.1，pnpm audit 报告的 patched >=2.0.2 为误导数据，该版本并不存在）。依赖链被锁定无法升级规避：@lhci/cli@0.15.1（npm 最新版）-> @lhci/utils 精确依赖 lighthouse@12.6.1 -> puppeteer-core@^24.10.0 -> @puppeteer/browsers@2.x -> extract-zip@^2.0.1；仅 @puppeteer/browsers@3.x 移除 extract-zip，但其要求 puppeteer-core@25.x，与 lighthouse 12.6.1 的依赖约束冲突。风险实际暴露面有限：@lhci/cli 为 devDependencies（仅本地/CI 执行 Lighthouse 性能审计），不处理不可信 zip 输入，生产运行时不受影响。",
+            "source": "https://github.com/advisories/GHSA-jmr9-qjv8-65gv",
+            "temporaryException": "有效至 extract-zip 上游发布 >=2.0.2 可用补丁并完成依赖升级，或 @lhci/cli / lighthouse / puppeteer-core 升级解除锁定链后立即移除",
+            "approvedPaths": [
+                ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip",
+                ".>@lhci/cli>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip"
+            ]
+        }
+    ]
 }
