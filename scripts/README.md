@@ -14,6 +14,7 @@
 | `security` | `pnpm security:audit-deps` / `pnpm security:audit-deps:daily` / `pnpm security:alerts` | allowlist / exceptions、策略档位、可选快照输入 | High+ 风险结论；JSON / Markdown 证据落盘 | `audit-deps` 与 `audit-deps:daily` 共用同一份依赖风险策略表；同类 high+ 风险在 release 与 daily 下保持同级结论，区别只在触发时机与告警收口 | 正式入口 |
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:line-count` / `pnpm docs:check:links` / `pnpm docs:check:source-of-truth` / `pnpm docs:check:line-count:candidate` / `pnpm docs:check:source-of-truth:candidate` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页、文档膨胀、本地链接有效性与事实源 / freshness 漂移结论 | 默认入口维持 blocker；`candidate` 入口只输出 warning baseline，用于评估扩面与收紧影响 | 正式入口 |
+| `maintenance` | `pnpm clean:temp` | 可选 `--tier=safe,logs,audit,deep`、`--apply`、`--keep-logs-days=<天数>` | 本地临时文件 / 构建产物的清理计划或删除结果 | 默认 dry-run 只输出计划；`audit`（一次性调研数据）与 `deep`（依赖目录）需显式指定；`artifacts/` 根级散落文件因可能被 docs 引用为证据，仅提示不自动清理 | 正式入口 |
 | `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` / `pnpm i18n:audit:duplicates` / `pnpm i18n:verify:runtime` | 可选 CLI 参数、locale / module 过滤器、`--output` | locale key 缺口、同步偏差、跨语言重复文案候选、高频运行时回归 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
 | `setup` | `pnpm setup:ai` / `pnpm web-push:generate-vapid` | worktree / 软链接上下文；可选 `--subject`、`--json` | AI 工作树链接同步结果；VAPID 公私钥 | 会产生本地副作用；执行前确认目标环境与路径 | 正式入口 |
 | `hooks` | `scripts/hooks/*.ps1` | 当前机器的 Hook 宿主、Git / pnpm 环境 | 本地日志、lint 副作用、会话摘要 | 仅限本地手工脚本，不纳入 CI / 团队通用入口；若后续退役应优先清理 | 本地实验 |
@@ -35,7 +36,8 @@
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
 | `scripts/perf/` | `check-bundle-budget.mjs`、`cwv-baseline.mjs`、`capture-remote-cpuprofile.mjs`、`fs-watch-probe.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`pnpm test:perf:cwv`、`pnpm perf:cpuprofile:remote`、`pnpm perf:fs-watch:probe:dev`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出，采集 CWV 基线（LCP / CLS / TBT），按需采集远端 CPU profile，并支持 dev `fs.watch` 注册分布探针 | 保留 |
 | `scripts/setup/` | `generate-web-push-vapid.mjs`、`setup-ai.mjs` | `pnpm web-push:generate-vapid`；`pnpm setup:ai` | 生成 VAPID 密钥；批量同步 worktree 内 AI 目录链接 | `generate-web-push-vapid.mjs` 保留；`setup-ai.mjs` 作为跨平台正式入口 |
-| `scripts/shared/` | `cli.mjs` | 被 `security/`、`testing/`、`review-gate/`、`release/`、`perf/`、`i18n/`、`setup/` 等脚本内部复用 | 提供公共 CLI helper，如直跑判断、`argv` 切片、声明式 flag / `--key=value` 白名单解析、枚举校验；不直接暴露为包管理器入口 | 新增保留 |
+| `scripts/maintenance/` | `cleanup-temp.mjs` | `pnpm clean:temp` | 按 tier 清理本地构建 / 测试产物、日志与一次性调研数据；默认 dry-run | 保留 |
+| `scripts/shared/` | `cli.mjs` | 被 `security/`、`testing/`、`review-gate/`、`release/`、`perf/`、`i18n/`、`setup/`、`maintenance/` 等脚本内部复用 | 提供公共 CLI helper，如直跑判断、`argv` 切片、声明式 flag / `--key=value` 白名单解析、枚举校验；不直接暴露为包管理器入口 | 新增保留 |
 | `scripts/hooks/` | `pre-tool.ps1`、`post-tool.ps1`、`session-end.ps1` | 无 `package.json` 或 CI 稳定入口；仅面向本地 Copilot / Claude Hook 实验 | 拦截工具调用、尝试自动 lint、记录会话摘要 | 保留为本地手工脚本，不纳入常规团队入口 |
 
 ## 入口说明
@@ -47,6 +49,7 @@
 ```bash
 pnpm ai:check  
 pnpm ci:precheck -- --profile=test
+pnpm clean:temp
 pnpm governance:check:scripts
 pnpm governance:audit:simple-duplicates
 pnpm governance:audit:eslint-debt
