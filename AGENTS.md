@@ -113,9 +113,9 @@ AI 代理在遇到以下情况时，**必须优先使用搜索工具获取一手
 ### 6.3 主定义、镜像与 Skills 复用治理
 
 -   `.github/agents/` 与 `.github/skills/` 是项目内 agent / skill 的主定义目录，负责维护角色名、职责边界、引用关系与推荐路径。
--   `.claude/agents/` 与 `.claude/skills/` 是 Claude 发现入口的兼容镜像，必须与 `.github/` 保持同名、同库存、同职责边界，不得独立发明另一套角色体系。
+-   `.claude/agents/` 与 `.claude/skills/` 是 Claude 发现入口的兼容镜像，`.opencode/agents/` 与 `.opencode/skills/` 是 OpenCode 发现入口的兼容镜像，`.agents/skills/` 是通用 Agent 入口的兼容镜像；所有平台镜像必须与 `.github/` 保持同名、同库存、同职责边界（本地以链接形式指向主定义，由 `scripts/setup/setup-ai.mjs` 维护），不得独立发明另一套角色体系。
 -   Agent 文件应优先引用既有 skills 与项目规范文档，只保留角色定位、输入输出、交接点和禁区；PDTFC+ 全流程、Lint/Typecheck/Test 门禁及专项规则应沉淀在 `AGENTS.md`、专项 skills 与规范文档中，不再在多个 agent 文件里重复抄写。
--   任何 agent / skill 库存变更，都应同步更新 `AGENTS.md`、平台适配入口文档，以及受影响的 `.github/` / `.claude/` 镜像文件，避免角色名、路径和 fallback 约定漂移。
+-   任何 agent / skill 库存变更，都应同步更新 `AGENTS.md`、平台适配入口文档，以及受影响的 `.github/` / `.claude/` / `.opencode/` / `.agents/` 镜像文件，避免角色名、路径和 fallback 约定漂移。
 
 ### 6.4 CLAUDE.md 维护约定
 
@@ -162,6 +162,6 @@ AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中
 ## 9. 相关文档
 
 -   **规划**: [项目路线图](./docs/plan/roadmap.md) | [待办事项](./docs/plan/todo.md)
--   **规范**: [开发规范](./docs/standards/development.md) | [Git 规范](./docs/standards/git.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md) | [文档规范](./docs/standards/documentation.md)
+-   **规范**: [开发规范](./docs/standards/development.md) | [Git 规范](./docs/standards/git.md) | [安全规范](./docs/standards/security.md) | [API 规范](./docs/standards/api.md) | [测试规范](./docs/standards/testing.md) | [AI 协作规范](./docs/standards/ai-collaboration.md) | [文档规范](./docs/standards/documentation.md) | [AI 资产治理规范](./docs/standards/ai-governance.md)
 -   **设计**: [UI 设计](./docs/design/ui.md) | [API 设计](./docs/design/api.md) | [项目规划规范](./docs/standards/planning.md)
 -   **适配与入口**: [Claude 适配说明](./CLAUDE.md) | [AI 协同开发指南](./docs/guide/ai-development.md) | [项目主页入口](./README.md)

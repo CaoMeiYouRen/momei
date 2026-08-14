@@ -12,4 +12,4 @@ alwaysApply: true
     -   开发： [docs/standards/development.md](../../docs/standards/development.md)、[docs/standards/security.md](../../docs/standards/security.md)、[docs/standards/testing.md](../../docs/standards/testing.md)
     -   文档： [docs/standards/documentation.md](../../docs/standards/documentation.md)
 4.  默认开发路径：由 `@full-stack-master` 统一负责实现；前后端角色只处理边界已切清的局部专项；部署、CI/CD、Docker 与环境配置变更也默认沿用该路径，并按需复用 `.github/skills/devops-specialist/SKILL.md`。
-5.  目录治理：`.github/agents/` 与 `.github/skills/` 为主定义；`.claude/` 仅为兼容镜像。不要只修改镜像而跳过主定义。
+5.  目录治理：`.github/agents/` 与 `.github/skills/` 为主定义；`.claude/`、`.opencode/` 与 `.agents/` 下的对应目录仅为各平台兼容镜像（本地以链接形式指向主定义）。不要只修改镜像而跳过主定义。

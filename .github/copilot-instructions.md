@@ -18,5 +18,5 @@
 ## 目录约束
 
 1.  `.github/agents/` 与 `.github/skills/` 是主定义目录。
-2.  `.claude/agents/` 与 `.claude/skills/` 仅为 Claude 兼容镜像，不得独立扩展职责边界。
+2.  `.claude/agents/`、`.claude/skills/`、`.opencode/agents/`、`.opencode/skills/` 与 `.agents/skills/` 仅为各平台兼容镜像（本地以链接形式指向 `.github/` 主定义），不得独立扩展职责边界。
 3.  若需要新增 GitHub Copilot 专属规则，优先保持轻量，只写平台差异与入口提示，不复制项目级总规范。
