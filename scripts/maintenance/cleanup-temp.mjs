@@ -42,9 +42,11 @@ export const TIER_DESCRIPTIONS = {
 
 /** 目录型清理条目：整目录删除 */
 export const DIR_ENTRIES = [
+    // 注意：根目录 `.nuxt` 是 ESLint（./.nuxt/eslint.config.mjs）与 typecheck
+    // （tsconfig.json extends ./.nuxt/tsconfig.json）的生成依赖，删除后 lint / 类型
+    // 检查立即失效，必须重新 nuxt prepare 才能恢复，故不列入清理清单。
     // tier: safe —— 构建 / 测试产物
     { tier: 'safe', relPath: '.output', description: 'Nuxt 生产构建产物（pnpm build 重建）' },
-    { tier: 'safe', relPath: '.nuxt', description: 'Nuxt dev 构建缓存（pnpm dev/build 重建）' },
     { tier: 'safe', relPath: '.data', description: 'Nuxt 数据目录（自动重建）' },
     { tier: 'safe', relPath: 'docs/.vitepress/dist', description: 'VitePress 文档构建产物（pnpm docs:build 重建）' },
     { tier: 'safe', relPath: 'docs/.vitepress/cache', description: 'VitePress 依赖缓存（自动重建）' },
