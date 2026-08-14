@@ -21,7 +21,7 @@
 | 类别 | 文件 / 入口 | 作用 | 允许承载的内容 |
 | :--- | :--- | :--- | :--- |
 | **权威事实源** | `AGENTS.md` | 定义项目级 AI 行为准则、职责边界、PDTFC+ 工作流与安全红线 | 核心规则、角色矩阵、红线、冲突顺序 |
-| **平台适配文件** | `CLAUDE.md`、各类 Rules / Instructions 入口、`.claude/` / `.github/` 下的平台镜像 | 说明工具差异与加载方式 | 目录发现顺序、回退路径、能力差异、最小门禁 |
+| **平台适配文件** | `CLAUDE.md`、各类 Rules / Instructions 入口、`.claude/` / `.opencode/` / `.agents/` 下的平台镜像 | 说明工具差异与加载方式 | 目录发现顺序、回退路径、能力差异、最小门禁 |
 | **开发入口说明** | `README.md`、本文档、文档站导航 | 帮助人类和 AI 快速找到正确入口 | 导览、示例、推荐路径、跳转说明 |
 
 冲突顺序遵循以下原则：
@@ -32,11 +32,11 @@
 
 补充约束：
 
--   治理上以 `.github/agents/` 与 `.github/skills/` 作为主定义目录；`.claude/` 目录只承担 Claude 兼容镜像职责。
+-   治理上以 `.github/agents/` 与 `.github/skills/` 作为主定义目录；`.claude/`、`.opencode/` 与 `.agents/` 下的对应目录只承担平台兼容镜像职责（链接由 `scripts/setup/setup-ai.mjs` 维护，内容以 `.github/` 为准）。
 -   若 agent 或 skill 需要调整职责边界，应优先更新主定义与权威文档，再同步镜像，不要只修补某一个平台入口。
 -   关于 Skills / Agents 的分层、命名、库存、镜像、生命周期、弃用与清理规则，以 [AI 资产治理规范](../standards/ai-governance.md) 为准。
 -   外部参考 skills 的首批准入名单、更新频率和失效处理，以 [外部 Skills 准入清单](../standards/external-skills-intake.md) 为准。
--   平台或编辑器自带的外部 skill / agent 只作为参考来源或调用入口，不纳入项目内部库存，也不应被镜像到 `.github/` / `.claude/`。
+-   平台或编辑器自带的外部 skill / agent 只作为参考来源或调用入口，不纳入项目内部库存，也不应被镜像到 `.github/` / `.claude/` / `.opencode/` / `.agents/`。
 
 ## 3. 智能体体系 (Agent System)
 

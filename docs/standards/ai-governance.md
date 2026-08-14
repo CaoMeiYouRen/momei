@@ -21,17 +21,19 @@
 - `.github/skills/<skill-name>/scripts/`
 - `.github/skills/<skill-name>/assets/`
 - `.claude/agents/**` 与 `.claude/skills/**` 中与上述主定义逐文件对应的镜像内容
+- `.opencode/agents/**` 与 `.opencode/skills/**` 中与上述主定义逐文件对应的镜像内容
+- `.agents/skills/**` 中与上述主定义逐文件对应的镜像内容
 
 约束如下：
 
 1.  `.github/` 是主定义目录。
-2.  `.claude/` 只承担 Claude 兼容镜像职责，不允许独立扩展另一套角色体系。
-3.  任何内部定义调整都必须先改 `.github/` 主定义，再同步 `.claude/` 镜像。
+2.  `.claude/`、`.opencode/` 与 `.agents/` 只承担平台兼容镜像职责（由 `scripts/setup/setup-ai.mjs` 维护链接），不允许独立扩展另一套角色体系。
+3.  任何内部定义调整都必须先改 `.github/` 主定义，再同步 `.claude/`、`.opencode/` 与 `.agents/` 镜像。
 4.  项目内部维护的 skill 必须在 frontmatter 中显式声明 `metadata.internal: true`，作为内部可见性边界的唯一机器可读标识。
 
 ### 2.2 外部同步或平台提供资产
 
-以下内容属于外部来源，不纳入项目内部库存，也不应镜像进 `.github/` / `.claude/`：
+以下内容属于外部来源，不纳入项目内部库存，也不应镜像进 `.github/` / `.claude/` / `.opencode/` / `.agents/`：
 
 - 编辑器或扩展自带的外部 skill，例如 `copilot-skill:/...`
 - VS Code 扩展目录、用户目录或第三方仓库中的示例 skill / agent
@@ -71,15 +73,15 @@
 2.  长期未被引用的定义，不得以“以后可能用得上”为理由无限保留，应进入弃用或清理流程。
 3.  任何 inventory 变更都必须同步核对以下位置是否仍一致：
     - 物理目录 `.github/agents/`、`.github/skills/`
-    - 镜像目录 `.claude/agents/`、`.claude/skills/`
+    - 镜像目录 `.claude/agents/`、`.claude/skills/`、`.opencode/agents/`、`.opencode/skills/`、`.agents/skills/`
     - 开发入口与导览文档
     - 治理脚本的校验范围
 
 ## 5. 镜像同步规则
 
-1.  `.github/` 与 `.claude/` 的镜像必须逐文件一致，包含主定义和配套资源，而不只是 `SKILL.md` 或 `.agent.md` 本体。
+1.  `.github/` 与各平台镜像（`.claude/`、`.opencode/`、`.agents/`）必须逐文件一致，包含主定义和配套资源，而不只是 `SKILL.md` 或 `.agent.md` 本体。
 2.  镜像漂移、缺失文件、额外残留文件或额外残留目录都属于治理缺陷。
-3.  若平台能力差异需要补充说明，应写在 `CLAUDE.md` 或平台入口文档中，而不是在 `.claude/` 镜像中偷偷改职责边界。
+3.  若平台能力差异需要补充说明，应写在 `CLAUDE.md` 或平台入口文档中，而不是在镜像目录中偷偷改职责边界。
 4.  修改内部定义后，至少执行以下校验：
     - `pnpm ai:check`
     - `pnpm lint:md`
@@ -107,7 +109,7 @@
 
 1.  **项目内部维护资产**：由仓库维护者负责长期治理；当前执行该治理任务的主责角色负责本轮改动的同步、校验与收口。
 2.  **外部资产**：由上游维护；本仓库负责记录接入边界、引用方式和失效后的清理策略。
-3.  **镜像责任**：任何修改内部主定义的人，必须在同一次任务中同步 `.claude/` 镜像，不能把镜像修正留给后续“顺手处理”。
+3.  **镜像责任**：任何修改内部主定义的人，必须在同一次任务中同步 `.claude/`、`.opencode/` 与 `.agents/` 镜像（或确认其为指向 `.github/` 的链接），不能把镜像修正留给后续“顺手处理”。
 
 ## 8. 清理与审计要求
 
@@ -132,7 +134,7 @@
 ## 9. 变更前检查
 
 - 是否明确区分了内部资产与外部参考资产。
-- 是否先改 `.github/` 主定义，再同步 `.claude/`。
+- 是否先改 `.github/` 主定义，再同步各平台镜像。
 - 是否补齐了引用关系，而不是只创建物理文件。
 - 是否为弃用或清理提供了明确理由和替代方案。
 - 是否执行了 `pnpm ai:check` 与相应的 Markdown / 脚本校验。

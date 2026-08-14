@@ -13,7 +13,17 @@ const governanceRoots = {
     claudeAgents: path.join(projectRoot, '.claude', 'agents'),
     githubSkills: path.join(projectRoot, '.github', 'skills'),
     claudeSkills: path.join(projectRoot, '.claude', 'skills'),
+    opencodeAgents: path.join(projectRoot, '.opencode', 'agents'),
+    opencodeSkills: path.join(projectRoot, '.opencode', 'skills'),
+    agentsSkills: path.join(projectRoot, '.agents', 'skills'),
 }
+
+/** 平台镜像组：镜像目录与主定义逐文件一致（由 scripts/setup/setup-ai.mjs 维护链接，agentRoot/skillRoot 为空表示该平台无对应镜像） */
+const mirrorGroups = [
+    { name: 'claude', agentRoot: governanceRoots.claudeAgents, skillRoot: governanceRoots.claudeSkills },
+    { name: 'opencode', agentRoot: governanceRoots.opencodeAgents, skillRoot: governanceRoots.opencodeSkills },
+    { name: 'agents', agentRoot: null, skillRoot: governanceRoots.agentsSkills },
+]
 
 const governanceDocs = [
     path.join(projectRoot, 'AGENTS.md'),
@@ -537,56 +547,57 @@ async function main() {
     const issues = []
 
     const githubSkillRelFiles = await listFilesRecursive(governanceRoots.githubSkills, (name) => name === 'SKILL.md')
-    const claudeSkillRelFiles = await listFilesRecursive(governanceRoots.claudeSkills, (name) => name === 'SKILL.md')
     const githubAgentRelFiles = await listFilesRecursive(governanceRoots.githubAgents, (name) => name.endsWith('.agent.md'))
-    const claudeAgentRelFiles = await listFilesRecursive(governanceRoots.claudeAgents, (name) => name.endsWith('.agent.md'))
     const githubSkillMirrorFiles = await listFilesRecursive(governanceRoots.githubSkills, () => true)
-    const claudeSkillMirrorFiles = await listFilesRecursive(governanceRoots.claudeSkills, () => true)
     const githubAgentMirrorFiles = await listFilesRecursive(governanceRoots.githubAgents, () => true)
-    const claudeAgentMirrorFiles = await listFilesRecursive(governanceRoots.claudeAgents, () => true)
     const githubSkillDirs = await listDirectoriesRecursive(governanceRoots.githubSkills)
-    const claudeSkillDirs = await listDirectoriesRecursive(governanceRoots.claudeSkills)
     const githubAgentDirs = await listDirectoriesRecursive(governanceRoots.githubAgents)
-    const claudeAgentDirs = await listDirectoriesRecursive(governanceRoots.claudeAgents)
 
-    const missingSkillMirrors = findMissingRelativeFiles(githubSkillMirrorFiles, claudeSkillMirrorFiles)
-    const missingAgentMirrors = findMissingRelativeFiles(githubAgentMirrorFiles, claudeAgentMirrorFiles)
-    const extraSkillMirrors = findExtraRelativeFiles(githubSkillMirrorFiles, claudeSkillMirrorFiles)
-    const extraAgentMirrors = findExtraRelativeFiles(githubAgentMirrorFiles, claudeAgentMirrorFiles)
-    const extraSkillDirs = findExtraRelativeFiles(githubSkillDirs, claudeSkillDirs)
-    const extraAgentDirs = findExtraRelativeFiles(githubAgentDirs, claudeAgentDirs)
+    for (const group of mirrorGroups) {
+        const skillRoot = group.skillRoot
+        const agentRoot = group.agentRoot
+        const mirrorSkillFiles = skillRoot ? await listFilesRecursive(skillRoot, () => true) : []
+        const mirrorAgentFiles = agentRoot ? await listFilesRecursive(agentRoot, () => true) : []
+        const mirrorSkillDirs = skillRoot ? await listDirectoriesRecursive(skillRoot) : []
+        const mirrorAgentDirs = agentRoot ? await listDirectoriesRecursive(agentRoot) : []
 
-    for (const relativeFile of missingSkillMirrors) {
-        issues.push(buildIssue('missing-mirror-file', `.github/skills/${relativeFile}`, `缺少 .claude skill 镜像: .claude/skills/${relativeFile}`))
-    }
+        if (skillRoot) {
+            for (const relativeFile of findMissingRelativeFiles(githubSkillMirrorFiles, mirrorSkillFiles)) {
+                issues.push(buildIssue('missing-mirror-file', `.github/skills/${relativeFile}`, `缺少 .${group.name} skill 镜像: .${group.name}/skills/${relativeFile}`))
+            }
 
-    for (const relativeFile of missingAgentMirrors) {
-        issues.push(buildIssue('missing-mirror-file', `.github/agents/${relativeFile}`, `缺少 .claude agent 镜像: .claude/agents/${relativeFile}`))
-    }
+            for (const relativeFile of findExtraRelativeFiles(githubSkillMirrorFiles, mirrorSkillFiles)) {
+                issues.push(buildIssue('extra-mirror-file', `.${group.name}/skills/${relativeFile}`, `发现多余的 .${group.name} skill 镜像定义: .${group.name}/skills/${relativeFile}`))
+            }
 
-    for (const relativeFile of extraSkillMirrors) {
-        issues.push(buildIssue('extra-mirror-file', `.claude/skills/${relativeFile}`, `发现多余的 .claude skill 镜像定义: .claude/skills/${relativeFile}`))
-    }
+            for (const directoryName of findExtraRelativeFiles(githubSkillDirs, mirrorSkillDirs)) {
+                issues.push(buildIssue('extra-mirror-directory', `.${group.name}/skills/${directoryName}`, `发现未在 .github/skills 中定义的残留镜像目录: .${group.name}/skills/${directoryName}`))
+            }
 
-    for (const relativeFile of extraAgentMirrors) {
-        issues.push(buildIssue('extra-mirror-file', `.claude/agents/${relativeFile}`, `发现多余的 .claude agent 镜像定义: .claude/agents/${relativeFile}`))
-    }
+            await compareMirrorTrees(governanceRoots.githubSkills, skillRoot, githubSkillMirrorFiles, issues, 'skill')
+        }
 
-    for (const directoryName of extraSkillDirs) {
-        issues.push(buildIssue('extra-mirror-directory', `.claude/skills/${directoryName}`, `发现未在 .github/skills 中定义的残留镜像目录: .claude/skills/${directoryName}`))
-    }
+        if (agentRoot) {
+            for (const relativeFile of findMissingRelativeFiles(githubAgentMirrorFiles, mirrorAgentFiles)) {
+                issues.push(buildIssue('missing-mirror-file', `.github/agents/${relativeFile}`, `缺少 .${group.name} agent 镜像: .${group.name}/agents/${relativeFile}`))
+            }
 
-    for (const directoryName of extraAgentDirs) {
-        issues.push(buildIssue('extra-mirror-directory', `.claude/agents/${directoryName}`, `发现未在 .github/agents 中定义的残留镜像目录: .claude/agents/${directoryName}`))
+            for (const relativeFile of findExtraRelativeFiles(githubAgentMirrorFiles, mirrorAgentFiles)) {
+                issues.push(buildIssue('extra-mirror-file', `.${group.name}/agents/${relativeFile}`, `发现多余的 .${group.name} agent 镜像定义: .${group.name}/agents/${relativeFile}`))
+            }
+
+            for (const directoryName of findExtraRelativeFiles(githubAgentDirs, mirrorAgentDirs)) {
+                issues.push(buildIssue('extra-mirror-directory', `.${group.name}/agents/${directoryName}`, `发现未在 .github/agents 中定义的残留镜像目录: .${group.name}/agents/${directoryName}`))
+            }
+
+            await compareMirrorTrees(governanceRoots.githubAgents, agentRoot, githubAgentMirrorFiles, issues, 'agent')
+        }
     }
 
     const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
     const githubAgentFiles = githubAgentRelFiles.map((relativeFile) => path.join(governanceRoots.githubAgents, relativeFile))
     const scriptGovernanceReport = await collectScriptGovernanceReport({ projectRoot })
     const projectScriptFiles = scriptGovernanceReport.scripts.map((entry) => path.join(projectRoot, entry.scriptPath))
-
-    await compareMirrorTrees(governanceRoots.githubSkills, governanceRoots.claudeSkills, githubSkillMirrorFiles, issues, 'skill')
-    await compareMirrorTrees(governanceRoots.githubAgents, governanceRoots.claudeAgents, githubAgentMirrorFiles, issues, 'agent')
 
     for (const skillFile of githubSkillFiles) {
         await validateSkillFile(skillFile, issues)
@@ -618,7 +629,7 @@ async function main() {
             ? '移除 skill 相对链接中的锚点，仅保留实际文件路径。'
             : null,
         blockingIssues.some((issue) => ['skill-internal-mismatch', 'invalid-frontmatter-yaml'].includes(issue.type))
-            ? '为内部 skill 统一补齐合法的 metadata.internal: true，并保持 .github 与 .claude 镜像一致。'
+            ? '为内部 skill 统一补齐合法的 metadata.internal: true，并保持 .github 与各平台镜像一致。'
             : null,
         blockingIssues.some((issue) => issue.type === 'missing-link-target')
             ? '修正治理文档中的相对路径，确保目标文件真实存在。'
@@ -627,7 +638,7 @@ async function main() {
             ? '补齐外部 skill 准入清单与说明文档，并确保文档描述与事实源一致。'
             : null,
         blockingIssues.some((issue) => ['mirror-drift', 'missing-mirror-file', 'extra-mirror-file', 'extra-mirror-directory'].includes(issue.type))
-            ? '以 .github 作为主定义，并将 .claude 镜像同步到逐文件一致。'
+            ? '以 .github 作为主定义，并将各平台镜像（.claude/.opencode/.agents）同步到逐文件一致。'
             : null,
         deferredIssues.some((issue) => issue.type === 'unreferenced-script')
             ? '为长期脚本补充 package.json、工作流或规范文档入口；若仅服务于单次任务，则改为短期脚本并在收口前删除。'
