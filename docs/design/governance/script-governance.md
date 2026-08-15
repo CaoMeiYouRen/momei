@@ -79,6 +79,15 @@
 2. **P1 正式入口阶段**：接入 `package.json`，并在专项治理文档与相关长期主线中被明确引用。
 3. **P2 回归接入阶段**：进入 `regression:weekly`；若对发版或阶段收口构成 blocker，再逐步升级到 `pre-release` / `phase-close`。
 
+### 4.4 同类门禁共享豁免基线（经验）
+
+同一风险面存在多个独立门禁脚本时（如 `security:audit-deps` 与 `security:alerts` 都审计 pnpm audit 风险），豁免机制必须打通共享，否则会出现"一个门禁 Pass、另一个门禁 Reject"的分裂结论：
+
+- **豁免源单一化**：`dependency-risk-allowlist.json`（依赖路径级豁免）应同时被两个门禁读取。`security:alerts` 通过 `--allowlist` 参数读取同一文件，用 `matchAllowlistEntry`（advisoryId + packageName + severity + paths 覆盖校验）在分类桶判定前先查 allowlist，保证与 `audit-deps` 结论一致。
+- **分类语义陷阱**：`security:alerts` 的 `classifyAlert` 只对 `defer` 桶查 exceptionEntries，`immediate-fix` 桶直接 blocking——因此"向 exceptions 文件加条目"对 immediate-fix 告警无效，必须走 allowlist 通道（针对"有 patched 版本号但版本实际不存在"的误导数据场景）。
+- **数据源差异适配**：GitHub API 源告警无依赖链 paths，allowlist 匹配退化为三元组（advisoryId + packageName + severity）即豁免；pnpm audit fallback 源有 paths 时要求全部覆盖 approvedPaths。该差异需注释说明并补测试锁定。
+- **排查指引**：遇到双门禁结论分裂时，先通读两个门禁的评估函数与既有测试（如 `tests/scripts/check-github-security-alerts.test.ts` 已锁定 immediate-fix 不查例外语义），再决定是补数据还是打通机制。
+
 ## 5. 首批应统一纳管的主题
 
 ### 5.1 脚本资产自身治理

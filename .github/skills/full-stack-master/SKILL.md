@@ -41,9 +41,10 @@ metadata:
 2. **D (Do) - 开发实现**
     1. **单一主责**：同一事项在同一时点只保留一个实现主责；默认由 `full-stack-master` 统筹，边界稳定后才委派前后端专项角色。
     2. **核心实现**：遵循 [开发规范](../../../docs/standards/development.md)；若涉及持久化，优先处理数据模型或实体，再落业务逻辑和界面。
-    3. **基础设施例外**：涉及 Docker、CI/CD、部署、构建环境或运维脚本时，仍由全栈主责统一编排，并按需复用 `devops-specialist`。
-    4. **发布脚本入口**：发布前统一校验优先使用 `scripts/release/pre-release-check.mjs`；涉及 Review Gate 证据时，优先使用 `scripts/review-gate/generate-evidence.mjs` 生成初始记录，再进入人工审计或补充证据。
-    5. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
+    3. **行数预算（改动前必查）**：修改既有文件前核对目标文件行数与 eslint `max-lines` 上限（全局默认 800，测试放宽 1000），超余量时在方案阶段规划压缩或拆模块，禁止"改完 → 超限 → 压缩 → 重验"循环；行数压缩属纯格式化，与逻辑改动解耦、最后一次性处理。完整条款见 [开发规范 §2.5](../../../docs/standards/development.md)。
+    4. **基础设施例外**：涉及 Docker、CI/CD、部署、构建环境或运维脚本时，仍由全栈主责统一编排，并按需复用 `devops-specialist`。
+    5. **发布脚本入口**：发布前统一校验优先使用 `scripts/release/pre-release-check.mjs`；涉及 Review Gate 证据时，优先使用 `scripts/review-gate/generate-evidence.mjs` 生成初始记录，再进入人工审计或补充证据。
+    6. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
     - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`nuxt-code-editor`、`devops-specialist`
 
 3. **A (Audit) - 审计放行（强制阶段）**

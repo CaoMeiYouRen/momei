@@ -603,6 +603,12 @@ async function main() {
         await validateSkillFile(skillFile, issues)
     }
 
+    const githubSkillRefFiles = (await listFilesRecursive(governanceRoots.githubSkills, (name) => name.endsWith('.md') && name !== 'SKILL.md'))
+        .map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
+    for (const refFile of githubSkillRefFiles) {
+        await validateAgentOrDocLinks(refFile, issues)
+    }
+
     for (const agentFile of githubAgentFiles) {
         await validateAgentOrDocLinks(agentFile, issues)
     }
