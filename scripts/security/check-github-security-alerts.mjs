@@ -16,6 +16,7 @@ import {
     normalizeSeverity,
     parseArgs,
     printAlert,
+    readAllowlist,
     readExceptionEntries,
     resolveGitHubToken,
     resolveRepository,
@@ -33,6 +34,9 @@ async function main() {
     const args = parseArgs(process.argv)
     const artifactPaths = buildArtifactPaths(args, repoRoot)
     const exceptionEntries = await readExceptionEntries(args.exceptions)
+    const allowlistEntries = args.allowlist
+        ? await readAllowlist(args.allowlist)
+        : []
 
     const snapshot = args.input
         ? await loadInputSnapshot(args.input)
@@ -45,6 +49,7 @@ async function main() {
     ])
     const result = evaluateSecurityAlertGate({
         alerts,
+        allowlistEntries,
         exceptionEntries,
         minSeverity: args.minSeverity,
     })
@@ -58,7 +63,16 @@ async function main() {
     console.info(`- open alerts: ${alerts.length}`)
     console.info(`- high+ relevant alerts: ${result.relevantAlerts.length}`)
     console.info(`- high+ excepted alerts: ${result.excepted.length}`)
+    console.info(`- high+ allowlisted alerts: ${result.allowlisted.length}`)
     console.info(`- high+ blocking alerts: ${result.blocking.length}`)
+
+    if (result.allowlisted.length > 0) {
+        console.info('\nAllowlisted alerts:')
+        result.allowlisted.forEach((item) => {
+            printAlert(item.alert)
+            console.info(`  allowlist reason: ${item.allowlistEntry.reason}; temporary exception: ${item.allowlistEntry.temporaryException}`)
+        })
+    }
 
     if (result.blocking.length > 0) {
         console.info('\nBlocking alerts:')
@@ -95,6 +109,7 @@ export {
     normalizeExceptionEntries,
     normalizeSeverity,
     parseArgs,
+    readAllowlist,
     resolveGitHubToken,
     severityAtLeast,
 }

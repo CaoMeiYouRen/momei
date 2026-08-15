@@ -58,7 +58,7 @@
     "test:perf:cwv": "node scripts/perf/cwv-baseline.mjs --output=.lighthouseci/cwv-baseline.json",
     "security:audit-deps": "node scripts/security/check-dependency-risk.mjs --policy=release --allowlist=.github/security/dependency-risk-allowlist.json --registry=https://registry.npmjs.org/",
     "security:audit-deps:daily": "node scripts/security/run-daily-dependency-audit.mjs --policy=daily --allowlist=.github/security/dependency-risk-allowlist.json --registry=https://registry.npmjs.org/",
-    "security:alerts": "node scripts/security/check-github-security-alerts.mjs --mode=error --exceptions=.github/security/security-alert-exceptions.json --min-severity=high --registry=https://registry.npmjs.org/",
+    "security:alerts": "node scripts/security/check-github-security-alerts.mjs --mode=error --exceptions=.github/security/security-alert-exceptions.json --allowlist=.github/security/dependency-risk-allowlist.json --min-severity=high --registry=https://registry.npmjs.org/",
     "regression:weekly": "node scripts/regression/run-periodic-regression.mjs --profile=weekly",
     "regression:pre-release": "node scripts/regression/run-periodic-regression.mjs --profile=pre-release",
     "regression:phase-close": "node scripts/regression/run-periodic-regression.mjs --profile=phase-close",

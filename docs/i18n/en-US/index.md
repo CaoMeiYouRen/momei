@@ -3,7 +3,7 @@
 layout: home
 
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-15
 translation_tier: must-sync
 
 hero:

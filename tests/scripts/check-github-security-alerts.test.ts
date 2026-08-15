@@ -227,6 +227,108 @@ describe('check-github-security-alerts', () => {
         expect(result.blocking[0]).toBe(immediateFixAlert)
     })
 
+    it('allowlists matching dependency-risk entries even when a patch version is claimed', () => {
+        const alert = {
+            advisoryId: 'GHSA-jmr9-qjv8-65gv',
+            alertNumber: 'audit:extract-zip:GHSA-jmr9-qjv8-65gv',
+            classification: {
+                bucket: 'immediate-fix',
+                reason: 'open Dependabot alert with patched version available',
+            },
+            packageName: 'extract-zip',
+            paths: ['.>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip'],
+            severity: 'high',
+            source: 'dependabot',
+        }
+
+        const result = evaluateSecurityAlertGate({
+            alerts: [alert],
+            allowlistEntries: [{
+                advisoryId: 'GHSA-jmr9-qjv8-65gv',
+                approvedPaths: ['.>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip'],
+                packageName: 'extract-zip',
+                reason: 'no usable upstream patch',
+                severity: 'high',
+                temporaryException: 'remove after upstream patch',
+            }],
+            exceptionEntries: [],
+            minSeverity: 'high',
+        })
+
+        expect(result.allowlisted).toHaveLength(1)
+        expect(result.blocking).toHaveLength(0)
+        expect(result.allowlisted[0].alert).toBe(alert)
+        expect(result.allowlisted[0].allowlistEntry.reason).toBe('no usable upstream patch')
+    })
+
+    it('keeps blocking when allowlist entry does not cover the alert paths', () => {
+        const alert = {
+            advisoryId: 'GHSA-jmr9-qjv8-65gv',
+            alertNumber: 'audit:extract-zip:GHSA-jmr9-qjv8-65gv',
+            classification: {
+                bucket: 'immediate-fix',
+                reason: 'open Dependabot alert with patched version available',
+            },
+            packageName: 'extract-zip',
+            paths: ['.>some-other-chain>extract-zip'],
+            severity: 'high',
+            source: 'dependabot',
+        }
+
+        const result = evaluateSecurityAlertGate({
+            alerts: [alert],
+            allowlistEntries: [{
+                advisoryId: 'GHSA-jmr9-qjv8-65gv',
+                approvedPaths: ['.>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip'],
+                packageName: 'extract-zip',
+                reason: 'no usable upstream patch',
+                severity: 'high',
+                temporaryException: 'remove after upstream patch',
+            }],
+            exceptionEntries: [],
+            minSeverity: 'high',
+        })
+
+        expect(result.allowlisted).toHaveLength(0)
+        expect(result.blocking).toHaveLength(1)
+        expect(result.blocking[0]).toBe(alert)
+    })
+
+    it('allowlists on advisory triple match when the alert has no dependency paths', () => {
+        // GitHub API 源（normalizeDependabotAlert）不产生 paths 字段，
+        // 此时退化为 advisoryId + packageName + severity 三元组匹配即豁免。
+        const alert = {
+            advisoryId: 'GHSA-jmr9-qjv8-65gv',
+            alertNumber: '123',
+            classification: {
+                bucket: 'immediate-fix',
+                reason: 'open Dependabot alert with patched version available',
+            },
+            packageName: 'extract-zip',
+            paths: [],
+            severity: 'high',
+            source: 'dependabot',
+        }
+
+        const result = evaluateSecurityAlertGate({
+            alerts: [alert],
+            allowlistEntries: [{
+                advisoryId: 'GHSA-jmr9-qjv8-65gv',
+                approvedPaths: ['.>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip'],
+                packageName: 'extract-zip',
+                reason: 'no usable upstream patch',
+                severity: 'high',
+                temporaryException: 'remove after upstream patch',
+            }],
+            exceptionEntries: [],
+            minSeverity: 'high',
+        })
+
+        expect(result.allowlisted).toHaveLength(1)
+        expect(result.blocking).toHaveLength(0)
+        expect(result.allowlisted[0].alert).toBe(alert)
+    })
+
     it('prefers SECURITY_ALERTS_TOKEN over other GitHub tokens', () => {
         process.env.GITHUB_TOKEN = 'github-token'
         process.env.GH_TOKEN = 'gh-token'

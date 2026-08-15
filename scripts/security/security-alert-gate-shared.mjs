@@ -4,11 +4,12 @@ import path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
 import { parseCliOptions } from '../shared/cli.mjs'
-import { assertSupportedAuditReport, parseAuditReport } from './check-dependency-risk.mjs'
+import { assertSupportedAuditReport, parseAuditReport, readAllowlist } from './check-dependency-risk.mjs'
 
 const execFileAsync = promisify(execFile)
 
 const DEFAULTS = {
+    allowlist: '.github/security/dependency-risk-allowlist.json',
     exceptions: '.github/security/security-alert-exceptions.json',
     input: null,
     minSeverity: 'high',
@@ -102,6 +103,7 @@ function parseArgs(argv) {
     const args = parseCliOptions(argv, {
         defaults: { ...DEFAULTS },
         values: {
+            '--allowlist': { key: 'allowlist' },
             '--exceptions': { key: 'exceptions' },
             '--input': { key: 'input' },
             '--min-severity': { key: 'minSeverity' },
@@ -163,6 +165,7 @@ function normalizeDependabotAlert(alert) {
             || null
 
     return {
+        advisoryId: advisory?.ghsa_id || null,
         alertNumber: String(alert?.number ?? 'unknown'),
         classification: null,
         createdAt: alert?.created_at || null,
@@ -210,6 +213,7 @@ function mapAuditRiskToDependabotAlert(risk) {
     const patchedVersion = normalizePatchedVersionValue(risk.patchedVersions)
 
     return {
+        advisoryId: String(risk.advisoryId || '').trim() || null,
         alertNumber: `audit:${risk.packageName}:${risk.advisoryId}`,
         classification: null,
         createdAt: null,
@@ -288,8 +292,25 @@ function classifyAlert(alert) {
     }
 }
 
-function evaluateSecurityAlertGate({ alerts, exceptionEntries, minSeverity }) {
+// 与 evaluateDependencyRiskGate 共享豁免语义（advisoryId + packageName + severity + paths 覆盖校验）；
+// GitHub API 源无依赖链 paths，alert 无 paths 时三元组匹配即豁免（数据源适配，非语义放宽）。
+function matchAllowlistEntry(alert, allowlistEntries) {
+    if (!alert.advisoryId || !alert.packageName) {
+        return null
+    }
+    const alertPaths = toArray(alert.paths)
+    return toArray(allowlistEntries).find((entry) => (
+        entry.advisoryId === alert.advisoryId
+        && entry.packageName === alert.packageName
+        && entry.severity === alert.severity
+        && (alertPaths.length === 0 || alertPaths.every((riskPath) => toArray(entry.approvedPaths).includes(riskPath)))
+    )) || null
+}
+
+/** @param {{ alerts: object[], exceptionEntries: object[], allowlistEntries?: Array<{ advisoryId: string, packageName: string, severity: string, approvedPaths: string[], reason?: string, temporaryException?: string }>, minSeverity: string }} params */
+function evaluateSecurityAlertGate({ alerts, exceptionEntries, allowlistEntries = [], minSeverity }) {
     const relevantAlerts = alerts.filter((alert) => severityAtLeast(alert.severity, minSeverity))
+    const allowlisted = []
     const blocking = []
     const excepted = []
     const observe = []
@@ -297,6 +318,12 @@ function evaluateSecurityAlertGate({ alerts, exceptionEntries, minSeverity }) {
     relevantAlerts.forEach((alert) => {
         if (alert.classification.bucket === 'observe') {
             observe.push(alert)
+            return
+        }
+
+        const allowlistEntry = matchAllowlistEntry(alert, allowlistEntries)
+        if (allowlistEntry) {
+            allowlisted.push({ alert, allowlistEntry })
             return
         }
 
@@ -312,6 +339,7 @@ function evaluateSecurityAlertGate({ alerts, exceptionEntries, minSeverity }) {
     })
 
     return {
+        allowlisted,
         blocking,
         excepted,
         observe,
@@ -328,12 +356,7 @@ function normalizeSourceStatus(status) {
 }
 
 function resolveGitHubToken() {
-    const candidates = [
-        process.env.SECURITY_ALERTS_TOKEN,
-        process.env.GH_TOKEN,
-        process.env.GITHUB_TOKEN,
-    ]
-
+    const candidates = [process.env.SECURITY_ALERTS_TOKEN, process.env.GH_TOKEN, process.env.GITHUB_TOKEN]
     return candidates.find((value) => typeof value === 'string' && value.trim())?.trim() || null
 }
 
@@ -569,8 +592,7 @@ function annotateAlerts(alerts) {
 
 function countByBucket(alerts) {
     return alerts.reduce((result, alert) => {
-        const key = alert.classification.bucket
-        result[key] = (result[key] || 0) + 1
+        result[alert.classification.bucket] = (result[alert.classification.bucket] || 0) + 1
         return result
     }, {
         defer: 0,
@@ -642,6 +664,7 @@ function buildMarkdownArtifact({ alerts, artifactPaths, gateConclusion, reposito
         `- observe: ${counts.observe}`,
         `- high+ relevant alerts: ${result.relevantAlerts.length}`,
         `- high+ deferred via baseline: ${result.excepted.length}`,
+        `- high+ allowlisted via dependency-risk allowlist: ${toArray(result.allowlisted).length}`,
         `- high+ blocking alerts: ${result.blocking.length}`,
         '',
         '### blocker',
@@ -664,16 +687,26 @@ function buildMarkdownArtifact({ alerts, artifactPaths, gateConclusion, reposito
 
     lines.push('')
     lines.push('### warning')
-    if (result.excepted.length === 0 && sourceStatuses.codeScanning.kind === 'ok') {
+    const allowlistedItems = toArray(result.allowlisted)
+    if (result.excepted.length === 0 && allowlistedItems.length === 0 && sourceStatuses.codeScanning.kind === 'ok') {
         lines.push('无')
     } else {
-        result.excepted.forEach((item, index) => {
+        let seq = 0
+        result.excepted.forEach((item) => {
             const subject = item.alert.source === 'dependabot'
                 ? `${item.alert.packageName} (${item.alert.alertNumber})`
                 : `${item.alert.ruleId} (${item.alert.alertNumber})`
-            lines.push(`${index + 1}. ${subject} [${item.alert.severity}] 通过延期基线放行`)
+            lines.push(`${++seq}. ${subject} [${item.alert.severity}] 通过延期基线放行`)
             lines.push(`   - reason: ${item.exceptionEntry.reason}`)
             lines.push(`   - temporary exception: ${item.exceptionEntry.temporaryException}`)
+        })
+        allowlistedItems.forEach((item) => {
+            const subject = item.alert.source === 'dependabot'
+                ? `${item.alert.packageName} (${item.alert.alertNumber})`
+                : `${item.alert.ruleId} (${item.alert.alertNumber})`
+            lines.push(`${++seq}. ${subject} [${item.alert.severity}] 通过 dependency-risk allowlist 豁免`)
+            lines.push(`   - reason: ${item.allowlistEntry.reason}`)
+            lines.push(`   - temporary exception: ${item.allowlistEntry.temporaryException}`)
         })
         if (sourceStatuses.codeScanning.kind !== 'ok') {
             lines.push(`- Code Scanning 官方源不可直接访问: ${sourceStatuses.codeScanning.detail}`)
@@ -714,6 +747,7 @@ async function writeArtifacts({ alerts, artifactPaths, gateConclusion, repositor
         minSeverity,
         repository,
         results: {
+            allowlisted: toArray(result.allowlisted),
             blocking: result.blocking,
             excepted: result.excepted,
             observe: result.observe,
@@ -747,12 +781,14 @@ export {
     fetchRepositoryAlerts,
     loadInputSnapshot,
     mapAuditRiskToDependabotAlert,
+    matchAllowlistEntry,
     normalizeCodeScanningAlert,
     normalizeDependabotAlert,
     normalizeExceptionEntries,
     normalizeSeverity,
     parseArgs,
     printAlert,
+    readAllowlist,
     readExceptionEntries,
     resolveRepository,
     resolveGitHubToken,
