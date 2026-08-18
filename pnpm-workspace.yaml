@@ -18,6 +18,7 @@ allowBuilds:
     workerd: true
 
 overrides:
+    deepmerge-ts: "^8.0.0"
     "@nuxt/kit": "^4.4.6"
     axios: "^1.16.0"
     js-cookie: "^3.0.7"
