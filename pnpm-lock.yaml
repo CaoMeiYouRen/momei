@@ -356,8 +356,8 @@ importers:
         specifier: ^0.15.1
         version: 0.15.1(supports-color@10.2.2)
       '@lint-md/cli':
-        specifier: 2.2.4
-        version: 2.2.4
+        specifier: 2.3.0
+        version: 2.3.0
       '@nuxt/eslint':
         specifier: ^1.17.0
         version: 1.17.0(@typescript-eslint/utils@8.67.0(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(@vue/compiler-sfc@3.5.41)(esbuild@0.28.1)(eslint-import-resolver-node@0.3.10(supports-color@10.2.2))(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(magic-string@1.1.0)(magicast@0.5.3)(oxc-parser@0.140.0)(rolldown@1.2.0)(rollup@4.62.3)(srvx@0.11.22)(supports-color@10.2.2)(typescript@6.0.3)(unplugin@3.3.0(esbuild@0.28.1)(rolldown@1.2.0)(rollup@4.62.3)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0)))(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.102.0)(terser@5.50.0)(yaml@2.9.0))
@@ -2475,22 +2475,22 @@ packages:
   '@lhci/utils@0.15.1':
     resolution: {integrity: sha512-WclJnUQJeOMY271JSuaOjCv/aA0pgvuHZS29NFNdIeI14id8eiFsjith85EGKYhljgoQhJ2SiW4PsVfFiakNNw==}
 
-  '@lint-md/cli@2.2.4':
-    resolution: {integrity: sha512-cSdXi6/IlWSe4fkOtb/TTH1clnGGlb8snE6kk0AF3camGLxdy3im7yA1jz759pmZkort22fCxg1s0IKvNJVRnA==}
+  '@lint-md/cli@2.3.0':
+    resolution: {integrity: sha512-QGuppDO7mERAoqaQGVCATfDrQRKzZSV6mXUWtoNTooyNcbqjWH7bnN+542pj4grzbSdn+WXxicBhcCIxjAXmTQ==}
     hasBin: true
 
   '@lint-md/core@2.0.0':
     resolution: {integrity: sha512-DbjU4NhmddVM2GaeUz+f+urFLt0IoTomwJglrRGuUKBCr4udpVe/rnh26R02zQKXm/+ocQ5WfU0iLCCWBsXoYA==}
 
-  '@lint-md/core@2.3.0':
-    resolution: {integrity: sha512-LzMAhmaoIn/jgbaln9by9pMoTAPF8JWyvbUsQgXVzuVdMIfT/Z6wmJz2Gxpd6krkU5KSEIL06iNm+xhGJ3T/qw==}
+  '@lint-md/core@2.4.0':
+    resolution: {integrity: sha512-Fp2drWoAd6GDdxqx64U+9rdoYOqTYbGtaQeV4NCd3zb2RL+Xi0JGamax9xT3+U9g9ktgwZnPkx9Hy8GpGpxUmA==}
     engines: {node: '>=20'}
 
   '@lint-md/parser@0.0.14':
     resolution: {integrity: sha512-kFFq6TowN2MBe+EFctnn6VluPWHV/9i/mHGQG/d5qGcR7EnA7JSURaxw9kQDHG11bwUK+pHOoXjSOp/6VzM/1w==}
 
-  '@lint-md/parser@0.2.0':
-    resolution: {integrity: sha512-goi4GlmfgCfpk26u5MMLwc8qi1StdXc7/VzC2zLsME4d3hprvXAJXYkRCc4b6b9QSGViM3gBb4CmSRqyPWjW9w==}
+  '@lint-md/parser@0.2.1':
+    resolution: {integrity: sha512-tgnfSiid5qxFs+i9gFeJcuQDhWmPNQnVns8G2FwIhE0PhbKglEXiuVvowE3cns+4scRBE+VWI4JXzAvBQYK69g==}
     engines: {node: '>=20'}
 
   '@lukeed/csprng@1.1.0':
@@ -5102,6 +5102,7 @@ packages:
   '@xmldom/xmldom@0.8.13':
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@yuku-codegen/binding-darwin-arm64@0.8.1':
     resolution: {integrity: sha512-Ck0RmDBLc+R0dZpfTXmJFAvcuPf+npbJF1T/VhC9pPDGjNEOGwn4DwFcjhg//DfNIO+xgktsLSt5S4v0MFrToA==}
@@ -7084,6 +7085,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -7589,7 +7591,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -15379,9 +15381,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@lint-md/cli@2.2.4':
+  '@lint-md/cli@2.3.0':
     dependencies:
-      '@lint-md/core': 2.3.0
+      '@lint-md/core': 2.4.0
       chalk: 4.1.2
       commander: 9.5.0
       glob: 13.0.6
@@ -15396,9 +15398,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lint-md/core@2.3.0':
+  '@lint-md/core@2.4.0':
     dependencies:
-      '@lint-md/parser': 0.2.0
+      '@lint-md/parser': 0.2.1
 
   '@lint-md/parser@0.0.14(supports-color@10.2.2)':
     dependencies:
@@ -15412,7 +15414,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lint-md/parser@0.2.0':
+  '@lint-md/parser@0.2.1':
     dependencies:
       '@types/mdast': 3.0.15
 
