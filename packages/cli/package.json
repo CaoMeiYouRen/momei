@@ -47,7 +47,7 @@
     "gray-matter": "^4.0.3",
     "js-yaml": "^5.2.3",
     "ora": "^9.4.1",
-    "smol-toml": "^1.7.1"
+    "smol-toml": "^1.8.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
