@@ -50,7 +50,7 @@ translation_tier: summary-sync
 
 ## 3.1 文件 freshness 分層
 
-文件翻譯不再使用一條通吃的 30 天規則，而是依 tier 分層治理。判定語義見 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-翻譯-freshness-判定)。
+文件翻譯不再使用一條通吃的 30 天規則，而是依 tier 分層治理。判定語義見 [`docs/standards/documentation.md` § 6.3](../../../standards/documentation.md)。
 
 | tier | freshness 軟上限（僅 warning） | 適用形態 |
 | :--- | :--- | :--- |

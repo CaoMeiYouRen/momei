@@ -28,7 +28,7 @@
 
 ## 2.1 文档翻译 freshness 分层
 
-文档翻译不再统一按“所有页面都必须 30 天内同步”处理，而是按页面职责分层治理。判定语义见 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-翻译-freshness-判定)。
+文档翻译不再统一按“所有页面都必须 30 天内同步”处理，而是按页面职责分层治理。判定语义见 [`docs/standards/documentation.md` § 6.3](../standards/documentation.md#63-翻译-freshness-判定)。
 
 | Tier | freshness 软上限（仅 warning） | 允许内容形态 | 当前典型范围 |
 | :-- | :-- | :-- | :-- |

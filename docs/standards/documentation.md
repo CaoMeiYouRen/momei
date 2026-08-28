@@ -68,7 +68,7 @@
 4.  **规范变更必须同 PR 收口**：不允许"先改规范 + 推迟写治理文档"或"先写治理文档 + 推迟改规范"。两者必须落在同一提交或紧邻提交里。
 5.  **审查条件**：本条直接列为 `code-quality-auditor` skill 的强制审查项（见 `.github/skills/code-quality-auditor/references/review-checklist.md`）；审计员在涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 的改动时，**必须**扫描时间锚叙述并 Reject 违反者。
 
-规范生效日期 / 历史改动回顾：当规范文件本身确有改动需要时，请访问对应 `docs/design/governance/` 下以日期命名的治理说明文档。当前生效示例：[`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)（译 freshness 判定语义重构）。
+规范生效日期 / 历史改动回顾：当规范文件本身确有改动需要时，请访问对应 `docs/design/governance/` 下以日期命名的治理说明文档。当前生效示例：[`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)（译 freshness 判定语义重构）。
 
 ## 4. 国际化 (Internationalization)
 
@@ -256,7 +256,7 @@
 
 ### 6.3 翻译 freshness 判定
 
-由 `scripts/docs/check-source-of-truth.mjs` 执行（详见脚本头部 docblock 与 `tests/scripts/check-source-of-truth.test.ts`）。为何采用此判定见 [`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)。
+由 `scripts/docs/check-source-of-truth.mjs` 执行（详见脚本头部 docblock 与 `tests/scripts/check-source-of-truth.test.ts`）。为何采用此判定见 [`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)。
 
 | 判定 | 行为 |
 |:---|:---|

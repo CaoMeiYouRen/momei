@@ -23,7 +23,7 @@ Every AI agent must clarify its role (see `AGENTS.md`) before starting a task.
 2.  **Explicit Assumptions**: When requirements are ambiguous, boundaries undefined, or context is insufficient, assumptions, alternatives, and risks must be stated first. Proceeding silently with one interpretation at scale is forbidden.
 3.  **Simplicity First**: Default to the smallest implementation that satisfies current acceptance criteria. Do not introduce unrelated abstractions, configuration layers, or future capabilities as a side effect.
 4.  **Surgical Changes**: The scope of changes must map one-to-one with user requests, Todo checkpoints, or blockers. Unrelated issues may be noted but must not be merged into the current implementation.
-    - **Line Budget (Check Before Changing)**: Before editing an existing file, verify the target file's line count against the ESLint `max-lines` ceiling (default 800 globally, 1000 for tests). When there is little headroom, plan how to compress or split the module in the Plan stage; mechanical line-count cleanup is formatting and should be decoupled from logic changes, performed as a final pass. Full clauses live in [Development Standards §2.5 item 7](./development.md#25-代码生成准则-code-generation-guidelines).
+    - **Line Budget (Check Before Changing)**: Before editing an existing file, verify the target file's line count against the ESLint `max-lines` ceiling (default 800 globally, 1000 for tests). When there is little headroom, plan how to compress or split the module in the Plan stage; mechanical line-count cleanup is formatting and should be decoupled from logic changes, performed as a final pass. Full clauses live in [Development Standards §2.5 Code Generation Guidelines](./development.md#25-code-generation-guidelines-for-ai).
 5.  **Goal-Driven Verification**: Define success criteria, minimum verification matrix, and a distinguishing check before starting implementation. After the first substantive change, perform minimum-sufficient verification before deciding to expand.
 
 ### 1.4 Search-First
@@ -94,7 +94,7 @@ All write-operation tasks must follow this sequence. **Crossing quality threshol
 
 #### Tiered Audit Execution Protocol (audit-depth)
 
-Audit effort must match change risk; not every change should warrant a long analysis pass. This protocol is **orthogonal** to [§2.2 Verification Tier Matrix](#22-验证分级矩阵与-review-gate): the tier matrix sets the **minimum evidence threshold** (which verification evidence must exist, missing ⇒ Reject), while `audit-depth` sets the **review effort** (how the auditor verifies and for how long). Execution roles collect verification evidence per §2.2; the auditor verifies per the matrix below:
+Audit effort must match change risk; not every change should warrant a long analysis pass. This protocol is **orthogonal** to [§2 Core Workflow: PDTFC+ 2.0 Cycle](#2-core-workflow-pdtfc-20-cycle): the cycle and audit tier matrix set the **minimum evidence threshold** (which verification evidence must exist, missing ⇒ Reject), while `audit-depth` sets the **review effort** (how the auditor verifies and for how long). Execution roles collect verification evidence per §2.2; the auditor verifies per the matrix below:
 
 | audit-depth | Applicable changes | Review scope | Time box |
 | :---: | :--- | :--- | :---: |
@@ -107,7 +107,7 @@ Audit effort must match change risk; not every change should warrant a long anal
 Companion practices:
 
 - **Audit prompt carries "verified facts"**: Execution roles dump investigation conclusions / experimental evidence into the audit task so the auditor does not re-derive from scratch; this materially lifts efficiency and hit rate.
-- **Tiering reuses blocker / warning / suggest**: see [`code-quality-auditor` skill — Issue Severity](../../.github/skills/code-quality-auditor/SKILL.md#5-判定问题分级).
+- **Tiering reuses blocker / warning / suggest**: see [`code-quality-auditor` skill — Issue Severity](../../../../.github/skills/code-quality-auditor/SKILL.md#5-判定问题分级).
 - **`audit-depth` declaration**: When `@full-stack-master` kicks off an audit, the audit prompt must explicitly declare `audit-depth` (`quick` / `standard` / `deep` + rationale), the changed-file list, the verified-evidence summary (lint/typecheck/test results plus key assertion line numbers), and the previous-round issue list for re-reviews. Undeclared depth defaults to `deep` for defence. The audit verdict must record actual time used and whether the time box was exceeded.
 - **Re-reviews only on the fix points**: Round 2+ audits only hand over the fix diff for the previous-round issue numbers, never the full diff again; the auditor must not re-read everything.
 - **Concurrent audits**: When diff file count > 8 or the change spans ≥ 2 independent modules (e.g. `server/` + front-end `components/` / `pages/` + `packages/*` subpackages + docs), fan out multiple `@code-auditor` tasks partitioned by module in parallel; the lead auditor merges, deduplicates, and picks the strictest result. Small changes must not be concurrent (token cost scales linearly; only large changes are worth fanning out).

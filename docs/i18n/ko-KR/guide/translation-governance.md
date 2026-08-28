@@ -36,7 +36,7 @@ translation_tier: summary-sync
 
 ## 3.1 문서 freshness tier
 
-문서 번역은 더 이상 하나의 30일 규칙으로 처리하지 않고, 아래 tier로 나누어 관리합니다. 판단 의미는 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-번역-freshness-판정) 참조.
+문서 번역은 더 이상 하나의 30일 규칙으로 처리하지 않고, 아래 tier로 나누어 관리합니다. 판단 의미는 [`docs/standards/documentation.md` § 6.3](../../../standards/documentation.md) 참조.
 
 | tier | freshness 소프트 상한 (warning 전용) | 허용되는 형태 |
 | :--- | :--- | :--- |

@@ -56,7 +56,7 @@ Every language rollout should verify these five gates:
 
 ## 4. Document Freshness Tiers
 
-Documentation translations no longer use one blanket 30-day rule. They now follow three tiers. The judgement semantics live in [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-translation-freshness-judgement).
+Documentation translations no longer use one blanket 30-day rule. They now follow three tiers. The judgement semantics live in [Documentation Standards § 6.3](../standards/documentation.md#63-translation-freshness-judgement).
 
 | Tier | Soft ceiling (warning-only) | Allowed shape | Current examples |
 | :--- | :--- | :--- | :--- |
