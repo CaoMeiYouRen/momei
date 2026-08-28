@@ -45,6 +45,7 @@ metadata:
     4. **基础设施例外**：涉及 Docker、CI/CD、部署、构建环境或运维脚本时，仍由全栈主责统一编排，并按需复用 `devops-specialist`。
     5. **发布脚本入口**：发布前统一校验优先使用 `scripts/release/pre-release-check.mjs`；涉及 Review Gate 证据时，优先使用 `scripts/review-gate/generate-evidence.mjs` 生成初始记录，再进入人工审计或补充证据。
     6. **范围闸门**：开发过程中若发现新的优化点或非阻塞事项，必须返回 P 阶段重新分流，不得静默扩写当前任务。
+    7. **规范文档改写纪律**：若改动触及 `docs/standards/**/*.md` / `docs/guide/**/*.md` / `docs/design/modules/**/*.md`，必须遵守 [文档规范 §3.5 无历史叙述原则](../../../docs/standards/documentation.md#35-无历史叙述原则-no-historical-narrative)：规范正文只写"现在是什么"，"为什么改 / 改了什么 / 影响面"全部下沉到 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明文档，并在提交中**同 PR** 落地（commit message 点出对应规范章节）。改动 commit 之间若只规范无治理文档、或只治理文档无规范，审计阶段会被 `@code-auditor` 直接 `Reject`。
     - **技能**：`database-expert`、`backend-logic-expert`、`vue-frontend-expert`、`nuxt-code-editor`、`devops-specialist`
 
 3. **A (Audit) - 审计放行（强制阶段）**

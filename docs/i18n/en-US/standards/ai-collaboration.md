@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-29
 ---
 
 # AI Collaboration Standards
@@ -23,6 +23,7 @@ Every AI agent must clarify its role (see `AGENTS.md`) before starting a task.
 2.  **Explicit Assumptions**: When requirements are ambiguous, boundaries undefined, or context is insufficient, assumptions, alternatives, and risks must be stated first. Proceeding silently with one interpretation at scale is forbidden.
 3.  **Simplicity First**: Default to the smallest implementation that satisfies current acceptance criteria. Do not introduce unrelated abstractions, configuration layers, or future capabilities as a side effect.
 4.  **Surgical Changes**: The scope of changes must map one-to-one with user requests, Todo checkpoints, or blockers. Unrelated issues may be noted but must not be merged into the current implementation.
+    - **Line Budget (Check Before Changing)**: Before editing an existing file, verify the target file's line count against the ESLint `max-lines` ceiling (default 800 globally, 1000 for tests). When there is little headroom, plan how to compress or split the module in the Plan stage; mechanical line-count cleanup is formatting and should be decoupled from logic changes, performed as a final pass. Full clauses live in [Development Standards §2.5 item 7](./development.md#25-代码生成准则-code-generation-guidelines).
 5.  **Goal-Driven Verification**: Define success criteria, minimum verification matrix, and a distinguishing check before starting implementation. After the first substantive change, perform minimum-sufficient verification before deciding to expand.
 
 ### 1.4 Search-First
@@ -88,6 +89,29 @@ All write-operation tasks must follow this sequence. **Crossing quality threshol
 - **Security Scan**: Check for XSS, SQL injection, auth logic, and credential leaks.
 - **Consistency**: Ensure implementation matches the P-stage design and todo description.
 - **Comment Audit**: Check whether complex logic and key functions, especially exported functions, have comments that are accurate, proportionate, and still aligned with the current implementation. Treat stale, misleading, or line-by-line comments as review issues.
+- **Review Scope**: Code, docs, configuration, scripts, and governance definitions (including agent / skill definitions) must all be reviewed; never review business code alone.
+- **Rejection Strategy**: If a blocker is found, return to D or flow back to P. Do not carry open blockers into the next stage.
+
+#### Tiered Audit Execution Protocol (audit-depth)
+
+Audit effort must match change risk; not every change should warrant a long analysis pass. This protocol is **orthogonal** to [§2.2 Verification Tier Matrix](#22-验证分级矩阵与-review-gate): the tier matrix sets the **minimum evidence threshold** (which verification evidence must exist, missing ⇒ Reject), while `audit-depth` sets the **review effort** (how the auditor verifies and for how long). Execution roles collect verification evidence per §2.2; the auditor verifies per the matrix below:
+
+| audit-depth | Applicable changes | Review scope | Time box |
+| :---: | :--- | :--- | :---: |
+| `quick` | Doc wording, simple configuration, renames, test augmentation | Verify declared evidence (lint/typecheck/targeted test results) + summary diff consistency + obvious errors. **Forbidden** to run experiments, targeted tests, or full-source review | ≤ 5 min |
+| `standard` | Regular business logic, intra-module changes | Correctness + boundaries + test coverage; spot-check up to 3 key files | ≤ 10 min |
+| `deep` | Release flow, security / auth, external calls, data writes, configuration & dependency changes, agent / skill definitions | Full checklist + targeted verification (temp repo, local experiments, verification commands on demand) | ≤ 20 min |
+
+#### Audit Invocation Protocol
+
+Companion practices:
+
+- **Audit prompt carries "verified facts"**: Execution roles dump investigation conclusions / experimental evidence into the audit task so the auditor does not re-derive from scratch; this materially lifts efficiency and hit rate.
+- **Tiering reuses blocker / warning / suggest**: see [`code-quality-auditor` skill — Issue Severity](../../.github/skills/code-quality-auditor/SKILL.md#5-判定问题分级).
+- **`audit-depth` declaration**: When `@full-stack-master` kicks off an audit, the audit prompt must explicitly declare `audit-depth` (`quick` / `standard` / `deep` + rationale), the changed-file list, the verified-evidence summary (lint/typecheck/test results plus key assertion line numbers), and the previous-round issue list for re-reviews. Undeclared depth defaults to `deep` for defence. The audit verdict must record actual time used and whether the time box was exceeded.
+- **Re-reviews only on the fix points**: Round 2+ audits only hand over the fix diff for the previous-round issue numbers, never the full diff again; the auditor must not re-read everything.
+- **Concurrent audits**: When diff file count > 8 or the change spans ≥ 2 independent modules (e.g. `server/` + front-end `components/` / `pages/` + `packages/*` subpackages + docs), fan out multiple `@code-auditor` tasks partitioned by module in parallel; the lead auditor merges, deduplicates, and picks the strictest result. Small changes must not be concurrent (token cost scales linearly; only large changes are worth fanning out).
+- **Skill reference paths**: Audit-related skills (`code-quality-auditor`, `security-guardian`, etc.) always resolve to the in-project `.github/skills/` version; agent definitions must spell out the relative path — bare-name references that could resolve to a global same-named skill are forbidden.
 
 ### C (Commit 1)
 - **Atomic Commit**: Submit only the business logic changes using `conventional-committer`.

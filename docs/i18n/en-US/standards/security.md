@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-29
 translation_tier: summary-sync
 ---
 
@@ -14,7 +14,7 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 
 - `AGENTS.md` remains the project-level security red line source.
 - This page is the implementation summary for security development details.
-- The permission implementation authority is `server/utils/permission.ts`, especially `requireAuth`, `requireAdmin`, `requireAdminOrAuthor`, and `requireRole`.
+- The permission implementation authority is `server/utils/permission.ts`, especially `requireAuth`, `requireAdmin`, `requireAdminOrAuthor`, `requireRole`, and their WebSocket variants (`requireWsAuth`, `requireWsRole`, `requireWsAdminOrAuthor`).
 
 ## 1. Authentication & Authorization
 
@@ -40,10 +40,22 @@ This document has been translated from Chinese. In case of any discrepancy, the 
 -   **Audit Logging**: Important operations (login, deletions, permission changes) must be recorded in audit logs.
 -   **No Sensitive Data in Logs**: Logs must not contain passwords, tokens, or detailed identification credentials.
 
-## 5. Dependency Security
+## 5. Dependency & Supply Chain Security
 
--   **Regular Updates**: Stay informed about security advisories for dependency packages.
--   **Minimal Dependencies**: Assess the necessity of new packages before adding them. Prefer official or community-recognized secure libraries.
+### 5.1 Dependency Auditing
+
+-   **Regular Updates**: Track dependency security advisories (Dependabot / `pnpm audit`) and prioritise high-severity findings.
+-   **Minimal Dependencies**: Assess the necessity of new packages before adding them; prefer official or community-recognised secure libraries.
+-   **CI Integration**: Dependency auditing must live in CI or a recurring regression job; local spot-checks are not a substitute for pipeline checks.
+
+### 5.2 Supply Chain Trust Boundary
+
+Before adopting a new dependency, MCP server, external skill/agent, or AI-recommended package, perform source verification. Do not assume trust:
+
+1.  **AI-recommended package verification**: A non-trivial fraction of AI-recommended packages do not exist in the official registry (package hallucinations: at least 5.2% of commercial models and 21.7% of open-source models in *We Have a Package for You! A Comprehensive Analysis of Package Hallucinations in Code-Generating LLMs*, Spracklen et al., arXiv:2406.10279, USENIX Security 2025). Verify the package actually exists in the registry, check spelling for typosquatting (e.g. `lodahs` vs `lodash`), and never install by name alone.
+2.  **Pin versions + lockfile**: Dependencies must be pinned and committed with a lockfile (`pnpm-lock.yaml`). Tooling versions in CI / Dockerfile / automation scripts must use immutable versions (git tag / SHA), never floating tags.
+3.  **External skill / agent / MCP source verification**: Before pulling in an external skill, agent, or MCP server, verify the source repository URL and the maintaining organisation are trustworthy subjects. Be alert to vectors that disguise themselves as "helpful docs / skills" (TrustFall lessons); full pre-source checks live in [AI Asset Governance §2.2](./ai-governance.md#22-外部同步或平台提供资产).
+4.  **Dependency direction constraints**: When adding internal packages or dependencies, follow the one-way dependency constraints in [Development Standards §2.4 Directory Layout & Dependencies](./development.md#24-目录规划与依赖约束-directory-structure--dependencies). Circular dependencies and cross-layer application dependencies are forbidden.
 
 ## 6. CLI & Automation Security
 

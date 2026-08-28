@@ -51,6 +51,25 @@
 -   **图表**: 复杂逻辑、架构或时序图优先使用 **Mermaid** 语法编写，禁止使用位图截图展示架构。
 -   **提示信息**: 使用 VitePress 的自定义容器语语法（::: info, ::: tip, ::: warning, ::: danger）。
 
+### 3.5 无历史叙述原则 (No Historical Narrative)
+
+规范文件**只表达当前规范**——禁止以历史叙述锚点呈现规则。这条规则的目的是让规范随时间演变时不会逐次堆积"自 N 年 M 月起"、"widened from X"、"as of YYYY-MM"、"since YYYY"、"软上限由 X 调整为 Y"等锚点理由。
+
+具体约束：
+
+1.  **禁止时间锚叙述**：不得在 `docs/standards/*.md`、`docs/guide/*.md`、`docs/design/modules/*.md`、`docs/plan/*.md` 与 `docs/plan/archive/*.md`（除 `todo.md` / `todo-archive.md` / `backlog.md` / `roadmap.md` 与分片归档文件 `todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md` 外）中使用以下表达：
+    - 中文："自 <日期> 起"、"由 <旧值> 放宽到 <新值>"、"由 X 调整为 Y"、"自 <日期> 由 X 放宽"、"前版本 Y 现改为 Z"、"新策略（<N-MM-DD> 落地）"、"as of" 中文意译
+    - 英文：`as of <date>`、`widened from X`、`since <YYYY-MM>`、`<legacy YYYY> previously X`、`soft ceiling raised from X to Y`、`prior tier was X, now Y`、`we previously required X, now Z`、`new signal (effective <N-MM-DD>)`
+    - 翻译同步：`自 <日期> 起` 的 i18n 译文一律不写
+2.  **历史必须单点收纳**：规范为何被改、改了什么、有何影响 **必须** 写到 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明文档中，再以单点链接反向挂到规范章节。同步链路一旦发现正文带历史叙述而治理文档不存在对应单点说明，**视为违反**。
+3.  **执行节奏**：
+    - 改规范时先 commit `docs/design/governance/<date>-*.md`，commit message 中点出对应的 `docs/standards/*.md` 章节；该规范文件的 commit 在后续到达即可单点链接引用。
+    - `todo.md` / `backlog.md` / `todo-archive.md` / `roadmap.md` 与 `docs/plan/archive/` 下的分片归档文件（`todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md`）等纯规划文件**可以**使用历史性语句（"已于 <date> 完成"、"X 阶段已上收"等），因为它们本身承担记录历史与状态变化的职责。
+4.  **规范变更必须同 PR 收口**：不允许"先改规范 + 推迟写治理文档"或"先写治理文档 + 推迟改规范"。两者必须落在同一提交或紧邻提交里。
+5.  **审查条件**：本条直接列为 `code-quality-auditor` skill 的强制审查项（见 `.github/skills/code-quality-auditor/references/review-checklist.md`）；审计员在涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 的改动时，**必须**扫描时间锚叙述并 Reject 违反者。
+
+规范生效日期 / 历史改动回顾：当规范文件本身确有改动需要时，请访问对应 `docs/design/governance/` 下以日期命名的治理说明文档。当前生效示例：[`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)（译 freshness 判定语义重构）。
+
 ## 4. 国际化 (Internationalization)
 
 本项目文档采用“多语言分治”策略，优先保证核心文档的同步，针对快速迭代的模块文档采取“原文为主、只翻稳定”原则。

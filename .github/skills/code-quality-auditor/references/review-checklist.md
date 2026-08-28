@@ -68,6 +68,29 @@
 - [ ] **外部资产先验来源**：引入的外部 skill / agent / MCP 是否核对过来源仓库 URL 与维护组织，是否登记到外部技能准入清单（投毒面防御，TrustFall 教训）。
 - [ ] 治理定义改动是否补了 `pnpm ai:check` 与 `pnpm lint:md`。
 
+### 4.6 规范无历史叙述强制审查 (No Historical Narrative in Standards)
+
+**适用场景**：改动涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 时强制触发；同样适用于 `docs/design/governance/` 下"治理说明"文档的写作纪律（避免反向漂移）。
+
+规范约束的完整定义见 [文档规范 §3.5](../../../../docs/standards/documentation.md#35-无历史叙述原则-no-historical-narrative)。本审查项强制落地：
+
+- [ ] **时间锚叙述扫描**：检查上述目录的改动是否引入以下历史叙述表达；发现即 **Reject**，要求去掉时间锚或下沉到 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明。
+  - 中文："自 YYYY-MM 起"、"由 X 放宽到 Y"、"由 X 调整为 Y"、"自 N 年 M 月由 X 放宽"、"前版本 Y 现改为 Z"、"新策略（N-MM-DD 落地）"、"as of" 中文意译
+  - 英文：`as of <date>`、`widened from X`、`<since YYYY-MM>`、`<legacy YYYY> previously X`、`soft ceiling raised from X to Y`、`prior tier was X, now Y`、`we previously required X, now Z`、`new signal (effective N-MM-DD)`
+  - 翻译件中的时间锚表达（i18n 镜像同样不能保留"自 YYYY-MM 起"）
+- [ ] **治理说明文件存在性**：若规范文件去掉时间锚后必须保留"为什么这样规定"的语境，确认是否有匹配的 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明文档，**没有则视为违反**。
+- [ ] **同 PR 落地**：改动里同时含规范正文 + 对应治理说明文档，二者必须同一 PR 落地（或相邻 commit），不可只改一边。
+- [ ] **规划文件例外（含 archive 分片）**：以下 4 个根级规划文件 + `docs/plan/archive/` 下所有分片文件 `todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md` 天然承担记录历史与状态变化的职责——不视为本条违反：
+  - `docs/plan/todo.md`
+  - `docs/plan/todo-archive.md`
+  - `docs/plan/backlog.md`
+  - `docs/plan/roadmap.md`
+  - `docs/plan/archive/todo-archive-phases-*.md`
+  - `docs/plan/archive/roadmap-phases-*.md`
+  - `docs/plan/archive/index.md`
+- [ ] **本审查项触发标准**：被审改动如果未触碰 `docs/standards/**/*.md` / `docs/guide/**/*.md` / `docs/design/modules/**/*.md`，**跳过本审查项不视为漏审**；若触碰上述目录但审计执行跳过本项，**立即 `Reject` 整个 Review Gate**（措辞同 §3.5 与 `code-auditor.agent.md`、`code-quality-auditor` skill / 步骤 4 必查项保持一致）。
+
+
 ## 5. 验证与证据链
 
 - [ ] 已执行验证是否达到最低验证矩阵要求。

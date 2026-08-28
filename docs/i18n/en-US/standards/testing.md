@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-31
+last_sync: 2026-08-29
 translation_tier: summary-sync
 ---
 
@@ -20,6 +20,24 @@ This document outlines the testing process for the Momei blog to ensure code qua
     -   Chosen for its speed, seamless integration with the Vite/Nuxt ecosystem, and Jest-compatible API.
 -   **End-to-End (E2E) Testing**: Playwright (Recommended).
 -   **Test Runner**: `pnpm test`
+
+### 2.1 Nuxt Environment Test Runtime Constraints
+
+-   **Memory & Worker Configuration**: Running a Nuxt test file (`@nuxt/test-utils`) in a single worker can trigger `JavaScript heap out of memory` (symptom: `Worker exited unexpectedly` plus `tests 0ms`). A stable configuration is `NODE_OPTIONS=--max-old-space-size=10240` plus `--pool=forks --maxWorkers=1`; batching multiple test files together is more stable than running them one-by-one (environment-startup cost amortises).
+-   **Coverage Report Directory**: Coverage output must explicitly point `--coverage.reportsDirectory` to `artifacts/`; the default `coverage/` directory may carry stale reports, so verify `LastWriteTime` before parsing `coverage-final.json`.
+-   **Full Coverage Cadence**: A full `vitest run --coverage` in the Nuxt environment takes about 8–9 minutes. Local validation should use a targeted subset (3–5 files) with `--coverage.include` restricted to the files under review; trust CI for the final numbers.
+
+### 2.2 Mock & Assertion Practices
+
+-   **`once`-queue accumulation between tests**: `vi.clearAllMocks()` only clears call records and instances, **not** the `mockResolvedValueOnce` / `mockImplementationOnce` queues. Calling `mockResolvedValueOnce` in multiple tests without consuming the queue pollutes later assertions. Fix: add `mockReset()` to the affected mocks in `beforeEach` (e.g. `mockRepo.findOne.mockReset()`), or guarantee each call site consumes its queue exactly once.
+-   **Type-safe mocks**: `vi.mocked(x).mockResolvedValue({...} as never)` bypasses union-type integrity checks (such as `AIProvider`); signature drift then silently mismatches. Prefer `as unknown as AIProvider` (or alignment with the production signature, e.g. `as Record<string, string | null>`) plus `import type` of the production type.
+-   **Probe before you assert external parser behaviour**: When writing tests that depend on third-party parser behaviour (e.g. fast-xml-parser), start with a probe script to confirm the actual behaviour. Known facts: with `parseTagValue: false`, numeric character references (`&#x41;`) are left intact, while named entities (`&amp;`) are decoded; nodes listed in `stopNodes` keep their full text (including the CDATA markers); malformed XML (unclosed tags) is parsed leniently without throwing.
+
+### 2.3 Coverage Batch Pacing
+
+-   Tackle small modules first (category → parser → aggregator) and large modules last (tts → text); after each module, immediately run a targeted subset plus a targeted coverage check rather than waiting to debug everything at the end.
+-   Use `it.each` to cover isomorphic fallback branches (e.g. "provider without chat") so audit reviews don't mistake them for "low-value bulk coverage".
+-   The coverage baseline comes from `pnpm test:coverage` output or `coverage/coverage-final.json`; never plan ROI against a possibly-stale report (see §5.1).
 
 ## 3. Directory Structure & Naming
 
