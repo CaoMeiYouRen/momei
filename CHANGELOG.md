@@ -1,5 +1,30 @@
 # momei
 
+# [1.26.0](https://github.com/CaoMeiYouRen/momei/compare/v1.25.1...v1.26.0) (2026-08-22)
+
+
+### ✨ 新功能
+
+* **ai-settings:** AI 备用提供商补齐 API 密钥/模型/端点表单 (Phase 4) ([cfb2eb1](https://github.com/CaoMeiYouRen/momei/commit/cfb2eb1))
+* **docs:** 引入文档链接校验脚本与 CI 门禁 ([5dee955](https://github.com/CaoMeiYouRen/momei/commit/5dee955)), closes [#L](https://github.com/CaoMeiYouRen/momei/issues/L)
+* **editor:** 续写/扩写/缩写支持风格选择 (Phase B) ([456f97e](https://github.com/CaoMeiYouRen/momei/commit/456f97e))
+
+
+### 🐛 Bug 修复
+
+* **deps:** 强制升级 deepmerge-ts 至 ^8.0.0 修复 GHSA-ggr8-5vv4-36mx ([d043230](https://github.com/CaoMeiYouRen/momei/commit/d043230))
+* **docs:** governance 文档中指向 gitignored 产物的链接改纯文本 ([09580c6](https://github.com/CaoMeiYouRen/momei/commit/09580c6))
+* **docs:** 修复 code-quality-auditor 审查清单安全规范链接层级 ([cfd3d43](https://github.com/CaoMeiYouRen/momei/commit/cfd3d43))
+* **docs:** 修复 todo-archive 中裸 <repo-root> 标签导致 VitePress 构建失败 ([0259805](https://github.com/CaoMeiYouRen/momei/commit/0259805))
+* **docs:** 修复存量文档断链、失效锚点与路径层级 ([9364f66](https://github.com/CaoMeiYouRen/momei/commit/9364f66))
+* **security:** 临时豁免 extract-zip 高危漏洞 GHSA-jmr9-qjv8-65gv ([419feb5](https://github.com/CaoMeiYouRen/momei/commit/419feb5))
+* **security:** 打通 security:alerts 与 dependency-risk allowlist 豁免并修复翻译文档超期 ([9a01f5c](https://github.com/CaoMeiYouRen/momei/commit/9a01f5c))
+
+
+### 📦 代码重构
+
+* **theme-color-models:** 主题颜色 model 工厂抽取到共享 composable 消除两组件 41 行重复 (Phase 4) ([8fb91ec](https://github.com/CaoMeiYouRen/momei/commit/8fb91ec))
+
 ## [1.25.1](https://github.com/CaoMeiYouRen/momei/compare/v1.25.0...v1.25.1) (2026-08-08)
 
 
