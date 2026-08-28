@@ -45,7 +45,7 @@
     "glob": "^13.0.6",
     "fast-xml-parser": "^5.11.0",
     "gray-matter": "^4.0.3",
-    "js-yaml": "^5.3.0",
+    "js-yaml": "^5.4.0",
     "ora": "^9.4.1",
     "smol-toml": "^1.8.0"
   },
