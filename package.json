@@ -172,7 +172,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.0",
     "@changesets/cli": "^3.0.1",
-    "@intlify/core-base": "^11.4.8",
+    "@intlify/core-base": "^11.4.10",
     "@intlify/eslint-plugin-vue-i18n": "4.5.1",
     "@intlify/message-compiler": "^11.4.10",
     "@intlify/shared": "^11.4.8",
