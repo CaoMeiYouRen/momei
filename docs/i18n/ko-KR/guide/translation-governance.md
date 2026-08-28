@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-29
 translation_tier: summary-sync
 ---
 
@@ -36,12 +36,12 @@ translation_tier: summary-sync
 
 ## 3.1 문서 freshness tier
 
-문서 번역은 더 이상 하나의 30일 규칙으로 처리하지 않고, 아래 tier로 나누어 관리합니다.
+문서 번역은 더 이상 하나의 30일 규칙으로 처리하지 않고, 아래 tier로 나누어 관리합니다. 판단 의미는 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-번역-freshness-판정) 참조.
 
-| tier | freshness | 허용되는 형태 |
+| tier | freshness 소프트 상한 (warning 전용) | 허용되는 형태 |
 | :--- | :--- | :--- |
-| `must-sync` | 30일 | 중국어 원문과 운영상 동등해야 하는 공개 진입 페이지 |
-| `summary-sync` | 45일 | 더 짧을 수 있지만 최신 규칙을 반영해야 하는 유지 요약 페이지 |
+| `must-sync` | 60일 | 중국어 원문과 운영상 동등해야 하는 공개 진입 페이지 |
+| `summary-sync` | 120일 | 더 짧을 수 있지만 최신 규칙을 반영해야 하는 유지 요약 페이지 |
 | `source-only` | 일수 기반 SLA 없음 | locale URL과 중국어 원문 진입점만 남기고 본문 유지 약속은 하지 않는 페이지 |
 
 현재 `ko-KR`가 공개적으로 유지하는 핵심 범위는 홈, 빠른 시작, 배포 가이드, 번역 거버넌스, 기능 소개, 변수 및 설정 매핑, 로드맵 요약입니다. 깊은 guide / standards / design 페이지는 `source-only`로 내려갔습니다.

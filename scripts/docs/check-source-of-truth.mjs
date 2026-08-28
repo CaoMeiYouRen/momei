@@ -8,6 +8,16 @@
  * - L2: docs/design/*.md
  * - L3: CLAUDE.md / 平台适配文件
  *
+ * 翻译 freshness 语义（自 2026-08 调整）：
+ * - Blocker：源文档自翻译 last_sync 时点以来在 git 中有提交（"源变了"）。
+ * - Soft warning：源未变但 last_sync 超过 tier 的 maxAge 软上限（仅提示，不阻断）。
+ * - last_sync 缺失 / 无法定位源 / 源缺失：error。
+ *
+ * 之所以用 git 提交而不是 mtime：
+ *   - mtime 会被 checkout / touch / CI 行为触碰，造成 false positive；
+ *   - mtime 不能区分"实质内容变更"和"无意义的时间戳变化"；
+ *   - "检测原文件是否更改"的可靠信号是 git 提交历史。
+ *
  * 约束规则：
  * 1. 低层级文档不得重复高层级已定义的规则
  * 2. CLAUDE.md 不应包含层级定义（如 L0, L1 等）
@@ -17,6 +27,7 @@
 import fs from 'fs'
 import path from 'path'
 import process from 'node:process'
+import { execSync } from 'node:child_process'
 import { fileURLToPath } from 'url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
@@ -75,12 +86,23 @@ export const RULES = [
 
 export const TRANSLATION_LOCALES = ['en-US', 'zh-TW', 'ko-KR', 'ja-JP']
 
+/**
+ * 每个 tier 的 freshness 软上限（天）。
+ *
+ * 自 2026-08 起，时效判定由"硬上限"改为"软上限"（仅作为 warning 信号）。
+ * Blocker 仅在源文档 git 中自 last_sync 以来有提交时触发；开发频率降低后，
+ * 不再因 last_sync 自然过期阻断 CI。详见 docs/standards/documentation.md § 4.3.1。
+ */
 export const TRANSLATION_TIER_RULES = {
-    'must-sync': { maxAge: 21 },
-    'summary-sync': { maxAge: 30 },
+    'must-sync': { maxAge: 60 },
+    'summary-sync': { maxAge: 120 },
     'source-only': { maxAge: null },
 }
 
+/**
+ * candidate profile 保留旧的更紧凑阈值，用于评估收紧效果。
+ * candidate 不阻断 release gate，但会输出 warning baseline。
+ */
 export const SOURCE_OF_TRUTH_PROFILES = {
     candidate: {
         translationTierRules: {
@@ -93,6 +115,12 @@ export const SOURCE_OF_TRUTH_PROFILES = {
         translationTierRules: { ...TRANSLATION_TIER_RULES },
     },
 }
+
+/**
+ * docs/i18n/<locale>/ 与 docs/ 的目录镜像约定。
+ * 用于自动推导 source_origin（fallback 第 3 层）。
+ */
+export const TRANSLATION_DIR_CONVENTION = /^docs\/i18n\/([^/]+)\//
 
 export function parseArgs(argv = process.argv) {
     return parseCliOptions(argv, {
@@ -113,13 +141,16 @@ export function parseArgs(argv = process.argv) {
     })
 }
 
-function readFile(filePath) {
+function readFile(filePath, root = ROOT) {
     try {
-        return fs.readFileSync(path.join(ROOT, filePath), 'utf-8')
+        return fs.readFileSync(path.join(root, filePath), 'utf-8')
     } catch {
         return null
     }
 }
+
+// alias 用于让 checkTranslatedDocs 的 root 参数在内部就显式传
+const readFileWithRoot = readFile
 
 function normalizePath(filePath) {
     return filePath.replace(/\\/g, '/')
@@ -144,6 +175,9 @@ function parseFrontmatter(content) {
 
     return data
 }
+
+// 仅暴露给单测；不影响 CLI 行为。
+export { parseFrontmatter }
 
 function resolveTranslationTier(filePath) {
     const normalized = normalizePath(filePath)
@@ -217,10 +251,34 @@ function getFrontmatterDate(content) {
     return null
 }
 
-function daysSince(date) {
-    const now = new Date()
+// 仅暴露给单测；不影响 CLI 行为。
+export { getFrontmatterDate }
+
+function daysSince(date, now = new Date()) {
     const diff = now.getTime() - date.getTime()
     return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
+function toIsoDate(date) {
+    if (!date) {
+        return null
+    }
+    if (date instanceof Date) {
+        return date.toISOString().slice(0, 10)
+    }
+    const parsed = new Date(date)
+    if (Number.isNaN(parsed.getTime())) {
+        return null
+    }
+    return parsed.toISOString().slice(0, 10)
+}
+
+function fileExists(absolutePath) {
+    try {
+        return fs.statSync(absolutePath).isFile()
+    } catch {
+        return false
+    }
 }
 
 function checkFile(filePath, rule) {
@@ -250,12 +308,165 @@ function checkFile(filePath, rule) {
     return { pass: true }
 }
 
-export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULES) {
+/**
+ * 三层 fallback 解析翻译文件对应的源文档路径：
+ *   1. frontmatter.source_origin（显式声明）
+ *   2. 正文 "original Chinese version" 后第一个相对路径
+ *   3. 目录约定 docs/i18n/<locale>/<path> ⇄ docs/<path>
+ *
+ * 返回仓库根相对路径（统一正斜杠）或 null。
+ */
+export function resolveSourceOrigin(translationFilePath, content, frontmatter = {}) {
+    if (frontmatter.source_origin) {
+        return normalizePath(frontmatter.source_origin)
+    }
+
+    if (content) {
+        // 匹配正文里指回中文原文的相对链接；兼容多种锚文本写法。
+        // 例：...see the [Chinese version](../../../guide/deploy.md)
+        //    ...the [original Chinese version](../../../guide/deploy.md)...
+        const linkMatch = content.match(/\[[^\]]*(?:Chinese version|原始中文|中文原文|中文版本)[^\]]*\]\(([^)]+)\)/)
+        if (linkMatch) {
+            const raw = linkMatch[1].split('#')[0].split(' ')[0].trim()
+            if (raw && !raw.startsWith('http') && !raw.startsWith('mailto:')) {
+                // 正文里的相对路径是相对于当前翻译文件所在目录的；
+                // 需要相对于仓库根解析（translationFilePath 是仓库根相对路径）。
+                const absoluteFromRoot = path.resolve(
+                    path.dirname(path.join(ROOT, translationFilePath)),
+                    raw,
+                )
+                const repoRelative = path.relative(ROOT, absoluteFromRoot)
+                const normalized = normalizePath(repoRelative)
+                if (normalized && !normalized.startsWith('..')) {
+                    return normalized
+                }
+            }
+        }
+    }
+
+    const dirMatch = translationFilePath.match(TRANSLATION_DIR_CONVENTION)
+    if (dirMatch) {
+        const relativePath = translationFilePath.slice(dirMatch[0].length)
+        return normalizePath(`docs/${relativePath}`)
+    }
+
+    return null
+}
+
+/**
+ * 用 git 历史判定"自 last_sync 以来，源是否被改过"。
+ *
+ * 实现要点：
+ * - `git log --since` 是 inclusive：last_sync 当天的 commit 会被算进来，
+ *   这在"commit 时间与 last_sync 日期同时区、同日"时会造成 false positive。
+ * - 解决：拉取 author date (`%aI`) 后在 Node 端做字典序比较（ISO 日期字符串正好字典序 = 时序）。
+ *   当 commit 日期严格大于 last_sync 日期时，才计入"源有改动"。
+ *
+ * 返回提交数（number）；git 查询失败 / 参数无效时返回 null。
+ * root 参数允许测试注入临时仓库根（默认走模块常量 ROOT）。
+ */
+export function getSourceCommitCountSince(sourcePath, lastSyncIso, root = ROOT) {
+    if (!sourcePath || !lastSyncIso) {
+        return null
+    }
+    try {
+        const out = execSync(
+            `git log --format="%aI" -- ${JSON.stringify(sourcePath)}`,
+            { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
+        )
+        let count = 0
+        for (const line of out.split('\n')) {
+            const isoDate = line.slice(0, 10)
+            // 严格大于 last_sync 日期才算有改动；同日不算
+            if (isoDate && isoDate > lastSyncIso) {
+                count++
+            }
+        }
+        return count
+    } catch {
+        return null
+    }
+}
+
+/**
+ * 纯函数：判定翻译文件时效状态。
+ * 返回 { severity: 'pass' | 'warning' | 'error', reason }
+ *
+ * 判定优先级：
+ *   1. last_sync 缺失 -> 'error'
+ *   2. sourceCommitCountSinceLastSync === null（git 不可用 / 源缺失）-> 'warning'
+ *   3. sourceCommitCountSinceLastSync > 0 -> 'error'（源自从翻译同步以来被改过）
+ *   4. sourceCommitCountSinceLastSync === 0 且 now - lastSync > maxAge -> 'warning'
+ *      （源未变但长期未维护；仅作为软上限提示）
+ *   5. 否则 -> 'pass'
+ *
+ * lastSync 接受 Date | ISO 字符串 | YYYY-MM-DD；内部归一为字符串。
+ * 纯函数形式便于单测；不涉及 git 与文件系统。
+ *
+ * @typedef {Object} DecideTranslationStatusInput
+ * @property {Date|string|null|undefined} [lastSync]
+ * @property {number|null|undefined} [sourceCommitCountSinceLastSync]
+ * @property {number|null} [maxAge]
+ * @property {Date} [now]
+ */
+
+/**
+ * @param {DecideTranslationStatusInput} [input]
+ */
+export function decideTranslationStatus({
+    lastSync,
+    sourceCommitCountSinceLastSync,
+    maxAge = null,
+    now = new Date(),
+} = {}) {
+    const lastSyncIso = toIsoDate(lastSync)
+    if (!lastSyncIso) {
+        return { severity: 'error', reason: '翻译文档缺少 last_sync 元数据' }
+    }
+
+    if (sourceCommitCountSinceLastSync === null || sourceCommitCountSinceLastSync === undefined) {
+        return { severity: 'warning', reason: '无法访问源文档的 git 历史，跳过硬判定' }
+    }
+
+    if (sourceCommitCountSinceLastSync > 0) {
+        return {
+            severity: 'error',
+            reason: `自上次同步（${lastSyncIso}）以来源已发生 ${sourceCommitCountSinceLastSync} 次提交，需要重新同步`,
+        }
+    }
+
+    if (typeof maxAge === 'number') {
+        const age = daysSince(new Date(lastSyncIso), now)
+        if (age > maxAge) {
+            return {
+                severity: 'warning',
+                reason: `源未变但翻译已 ${age} 天未维护（${maxAge} 天软上限，仅 warning）`,
+            }
+        }
+    }
+
+    return { severity: 'pass' }
+}
+
+/**
+ * 把 severity 归一化为布尔 pass：severity === 'pass' 时 pass 为真。
+ * 仅为兼容旧 contract（pass: boolean）；新代码应直接使用 severity 字段。
+ */
+function severityToPass(severity) {
+    return severity === 'pass'
+}
+
+export function checkTranslatedDocs(options = {}) {
+    const {
+        translationTierRules = TRANSLATION_TIER_RULES,
+        root = ROOT,
+    } = options
+
     const results = []
 
     for (const locale of TRANSLATION_LOCALES) {
         const dir = `docs/i18n/${locale}/`
-        const fullPath = path.join(ROOT, dir)
+        const fullPath = path.join(root, dir)
         if (!fs.existsSync(fullPath)) {
             continue
         }
@@ -265,7 +476,7 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
 
         for (const file of files) {
             const filePath = normalizePath(path.join(dir, file))
-            const content = readFile(filePath)
+            const content = readFileWithRoot(filePath, root)
             if (!content) {
                 continue
             }
@@ -275,22 +486,24 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
                 results.push({
                     file: filePath,
                     pass: false,
+                    severity: 'error',
                     reason: `翻译文档未映射到 freshness tier，请更新治理矩阵或目录范围: ${filePath}`,
                 })
                 continue
             }
 
             const frontmatter = parseFrontmatter(content)
+            const lastSyncDate = getFrontmatterDate(content)
+            const lastSyncIso = toIsoDate(lastSyncDate)
 
-            const lastSync = getFrontmatterDate(content)
-
-            if (!lastSync) {
+            // frontmatter translation_tier 与治理矩阵不一致（仅在 frontmatter 显式声明时检查）
+            if (frontmatter.translation_tier && frontmatter.translation_tier !== tier) {
                 results.push({
                     file: filePath,
                     pass: false,
-                    reason: `翻译文档缺少 last_sync 元数据: ${filePath}`,
+                    severity: 'error',
+                    reason: `翻译文档的 translation_tier 与当前治理矩阵不一致（期望 ${tier}）: ${filePath}`,
                 })
-                continue
             }
 
             if (tier === 'source-only') {
@@ -298,6 +511,7 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
                     results.push({
                         file: filePath,
                         pass: false,
+                        severity: 'error',
                         reason: `source-only 页面必须显式声明 translation_tier: source-only: ${filePath}`,
                     })
                 }
@@ -306,6 +520,7 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
                     results.push({
                         file: filePath,
                         pass: false,
+                        severity: 'error',
                         reason: `source-only 页面必须提供 source_origin 回链: ${filePath}`,
                     })
                 }
@@ -313,25 +528,65 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
                 continue
             }
 
-            if (frontmatter.translation_tier && frontmatter.translation_tier !== tier) {
+            const maxAge = translationTierRules[tier]?.maxAge ?? null
+            const sourcePath = resolveSourceOrigin(filePath, content, frontmatter)
+
+            if (!lastSyncIso) {
                 results.push({
                     file: filePath,
                     pass: false,
-                    reason: `翻译文档的 translation_tier 与当前治理矩阵不一致（期望 ${tier}）: ${filePath}`,
+                    severity: 'error',
+                    reason: `翻译文档缺少 last_sync 元数据: ${filePath}`,
                 })
+                continue
             }
 
-            const maxAge = translationTierRules[tier]?.maxAge ?? null
-            const age = daysSince(lastSync)
-            if (typeof maxAge === 'number' && age > maxAge) {
+            if (!sourcePath) {
                 results.push({
                     file: filePath,
-                    age,
-                    maxAge,
                     pass: false,
-                    reason: `翻译文档已 ${age} 天未同步（${tier} 限制：${maxAge} 天）`,
+                    severity: 'error',
+                    reason: `翻译文档无法定位源文档（缺少 source_origin / 正文回链 / 目录约定）: ${filePath}`,
                 })
+                continue
             }
+
+            if (!fileExists(path.join(root, sourcePath))) {
+                results.push({
+                    file: filePath,
+                    pass: false,
+                    severity: 'error',
+                    reason: `翻译文档声明的源文档不存在（${sourcePath}）: ${filePath}`,
+                })
+                continue
+            }
+
+            const sourceCommitCountSinceLastSync = getSourceCommitCountSince(sourcePath, lastSyncIso, root)
+
+            const decision = decideTranslationStatus({
+                lastSync: lastSyncIso,
+                sourceCommitCountSinceLastSync,
+                maxAge,
+            })
+
+            if (decision.severity === 'pass') {
+                continue
+            }
+
+            const entry = {
+                file: filePath,
+                severity: decision.severity,
+                reason: decision.reason,
+                sourcePath,
+                tier,
+                maxAge,
+                sourceCommitCountSinceLastSync,
+                pass: severityToPass(decision.severity),
+                age: daysSince(new Date(lastSyncIso)),
+                lastSync: lastSyncIso,
+            }
+
+            results.push(entry)
         }
     }
 
@@ -340,20 +595,39 @@ export function checkTranslatedDocs(translationTierRules = TRANSLATION_TIER_RULE
 
 export function collectSourceOfTruthReport(options = {}) {
     const profile = options.profile ?? DEFAULT_PROFILE
+    const root = options.root ?? ROOT
     const profileConfig = SOURCE_OF_TRUTH_PROFILES[profile] ?? SOURCE_OF_TRUTH_PROFILES.default
     const baseRuleResults = RULES.map((rule) => ({
         file: rule.file,
         ...checkFile(rule.file, rule),
     }))
-    const translationResults = checkTranslatedDocs(profileConfig.translationTierRules)
+    const translationResults = checkTranslatedDocs({
+        translationTierRules: profileConfig.translationTierRules,
+        root,
+    })
+
+    const hasErrors = baseRuleResults.some((result) => !result.pass)
+        || translationResults.some((result) => result.severity === 'error')
+    const hasWarnings = translationResults.some((result) => result.severity === 'warning')
 
     return {
         baseRuleResults,
-        hasErrors: baseRuleResults.some((result) => !result.pass) || translationResults.length > 0,
+        hasErrors,
+        hasWarnings,
         profile,
         translationResults,
         translationTierRules: profileConfig.translationTierRules,
     }
+}
+
+function iconFor(severity) {
+    if (severity === 'error') {
+        return '❌'
+    }
+    if (severity === 'warning') {
+        return '⚠️ '
+    }
+    return '✅'
 }
 
 export function printSourceOfTruthReport(report, mode = DEFAULT_MODE) {
@@ -369,13 +643,23 @@ export function printSourceOfTruthReport(report, mode = DEFAULT_MODE) {
 
     console.info('\n📚 翻译文档时效性检查:')
     if (report.translationResults.length === 0) {
-        console.info('✅ 所有翻译文档均在时效范围内')
+        console.info('✅ 所有翻译文档均通过（源未变或已跟进同步）')
     } else {
-        const writer = mode === 'error' ? console.error : console.warn
         for (const result of report.translationResults) {
-            writer(`❌ ${result.file}`)
+            // mode === 'warn' 时把 error 降级为 warning 呈现，但 hasErrors 不变（按 mode 决定 exit）
+            const effectiveSeverity = mode === 'warn' && result.severity === 'error'
+                ? 'warning'
+                : result.severity
+            const writer = effectiveSeverity === 'error' ? console.error : console.warn
+            writer(`${iconFor(effectiveSeverity)} ${result.file}`)
             writer(`   └─ ${result.reason}`)
         }
+    }
+
+    // soft warning（仅长期未维护）单独展示：CI 通过但提示治理
+    if (mode === 'error' && report.hasWarnings && !report.hasErrors) {
+        console.info(`\n${'─'.repeat(50)}`)
+        console.info('ℹ️  soft warning（不阻断）：翻译文档长期未维护，请关注但不强制同步')
     }
 
     console.info(`\n${'='.repeat(50)}`)

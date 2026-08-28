@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-07
+last_sync: 2026-08-29
 translation_tier: summary-sync
 ---
 
@@ -96,10 +96,10 @@ Package READMEs under `packages/` are provided in Chinese and English only, and 
 
 ### 4.3.1 Freshness Tiers & Locale Scope
 
-| Tier | Freshness window | Allowed content form | Current typical scope |
+| Tier | Soft freshness ceiling (warning-only) | Allowed content form | Current typical scope |
 | :-- | :-- | :-- | :-- |
-| `must-sync` | `21` days | Operationally equivalent translation covering the real current entry and flows | `en-US` home, Quick Start, deploy, translation governance |
-| `summary-sync` | `30` days | Summary sync keeping the Chinese source link | `en-US` roadmap / development guide / core high-frequency standards; `zh-TW` / `ko-KR` / `ja-JP` public entries and high-frequency guides |
+| `must-sync` | `60` days | Operationally equivalent translation covering the real current entry and flows | `en-US` home, Quick Start, deploy, translation governance |
+| `summary-sync` | `120` days | Summary sync keeping the Chinese source link | `en-US` roadmap / development guide / core high-frequency standards; `zh-TW` / `ko-KR` / `ja-JP` public entries and high-frequency guides |
 | `source-only` | No day SLA; must declare "Chinese source first" | Locale URL kept, no ongoing translation promise | Low-frequency design pages, low-frequency guides, deprecated deep standards |
 
 Current locale scope matrix:
@@ -189,14 +189,45 @@ Each `README.<locale>.md` mirror must include: project intro and core value prop
 
 1. **No duplicate definitions**: lower-layer docs must not re-define rules already defined at higher layers.
 2. **Reference first**: when the same content appears in multiple places, reference the unique source of truth instead of repeating it.
-3. **Version traceability**: translated docs must carry `last_sync`; `must-sync` pages older than `21` days and `summary-sync` pages older than `30` days trigger review.
+3. **Version traceability**: translated docs must carry `last_sync`. The exact freshness semantics live in [§ 6.3](#63-translation-freshness-judgement).
 
-### 6.3 Staleness Detection
+### 6.3 Translation Freshness Judgement
 
-- `must-sync` pages whose `last_sync` exceeds `21` days trigger review.
-- `summary-sync` pages whose `last_sync` exceeds `30` days trigger review.
-- `source-only` pages are not judged by days but must keep a clear Chinese source link and tier declaration.
-- Agents should check the frontmatter timestamp before citing a document, and run `pnpm i18n:audit` periodically for unsynced translation keys.
+Enforced by `scripts/docs/check-source-of-truth.mjs` (see the script-level docblock plus `tests/scripts/check-source-of-truth.test.ts`). Why this judgement is used is recorded in [`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../../../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md).
+
+| Condition | Behaviour |
+|:---|:---|
+| Source has any git commit after `last_sync` | **error** (translation must catch up) |
+| Source has no git commit after `last_sync`, and `last_sync` within the tier ceiling | pass |
+| Source has no git commit after `last_sync`, but `last_sync` exceeds the tier ceiling | **warning** (soft signal, no block) |
+| Translated doc has no `last_sync` | error |
+| Source cannot be located / missing | error |
+
+**Tier soft ceilings** (warning-only):
+
+| Tier | Soft `maxAge` |
+|:---|:---|
+| `must-sync` | 60 days |
+| `summary-sync` | 120 days |
+| `source-only` | `null` |
+
+**Source-path resolution** (three-layer fallback; on miss the next layer is tried):
+
+1. `frontmatter.source_origin` (explicit declaration, repo-relative)
+2. The first relative path after an anchor such as `original Chinese version` / `Chinese version` / `原始中文` / `中文原文` inside the document body
+3. The directory convention `docs/i18n/<locale>/<path>` ⇄ `docs/<path>`
+
+**`source-only` pages** must declare `translation_tier: source-only` and `source_origin` in their frontmatter, and their freshness is not checked by days.
+
+**Entry points**:
+
+| Command | Behaviour | Blocking? |
+|:---|:---|:---|
+| `pnpm docs:check:source-of-truth` (default profile, error mode) | Used by weekly regression. error blocks. | **Yes**, and only when the source actually changed in git |
+| `pnpm docs:check:source-of-truth --mode=warn` | Demotes every error to a warning for display; exit code is unchanged | Display only |
+| `pnpm docs:check:source-of-truth:candidate` (candidate profile, warn mode) | Keeps the legacy 21/30-day thresholds as a tightening baseline | Display only |
+
+Agents citing a doc should still check the `last_sync` timestamp in its frontmatter, and cross-check `git blame` on the corresponding source path to see whether the source moved after `last_sync`. Run `pnpm i18n:audit` periodically for unsynced translation keys.
 
 ### 6.4 Maintenance Ownership
 

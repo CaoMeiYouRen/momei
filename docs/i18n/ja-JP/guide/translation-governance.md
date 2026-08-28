@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-31
+last_sync: 2026-08-29
 ---
 
 # 翻訳ガバナンスと貢献方針
@@ -37,6 +37,8 @@ ja-JP は現在 **対応済み** 段階です（以前の `seo-ready` から昇�
 2. ロードマップは要約のみ提供し、詳細は中国語原文へリンクします。
 3. まだ翻訳していないページは、空欄のまま公開せず、原文へのリンクを残します。
 4. `ja-JP` は現在、公開入口ページを `summary-sync` として維持し、それ以外の深い Guide / Standards / Design ページは中国語原文優先で運用します。
+
+判定のセマンティクスは [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-翻訳-freshness-判定) を参照してください。
 
 ## 4. 提出前の最低確認
 

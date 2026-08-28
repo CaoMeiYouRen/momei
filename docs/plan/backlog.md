@@ -223,8 +223,10 @@
 - **当前状态（按原域追踪）**:
     - **design 域**（原 #7）：第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；当前剩余工作从"继续混放目录"转为"持续清理漂移内容与残留任务口吻"，避免新文档回流到错误目录。
     - **plan 域**（原 #9）：第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 已改为"深度归档索引 + 近线阶段窗口"的维护模式。后续治理重点转为按阈值滚动归档。
-    - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；当前 `docs:check:source-of-truth` 已恢复通过，深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
-    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 在 Phase 53 已收紧为``must-sync 21 天 / summary-sync 30 天``。
+    - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
+    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`。
+    - `docs:check:source-of-truth` 当前语义：以 `git log` 比较源文档自 `last_sync` 以来是否被提交过作为 hard blocker；tier 软上限为 `must-sync 60 天 / summary-sync 120 天`（仅 warning）。详见 [`docs/standards/documentation.md` § 6.3](./../standards/documentation.md#63-翻译-freshness-判定)。
+    - **`candidate` profile 收紧评估登记**：`pnpm docs:check:source-of-truth:candidate` 保留 21/30 天旧阈值，仅作为收敛评估基线输出 warning baseline；何时把 candidate 阈值回升到 default、是否进一步收紧 default 阈值，由下一阶段复评估决定。本条用于避免半年后无人记得 candidate 用途。
     - 第六十四阶段已完成 ko-KR/ja-JP 文档专项目治理：freshness 审计报告、ko-KR 13 文件 last_sync 刷新、ja-JP 语种升格为已支持并补全 features/variables 翻译。
 - **最近一次上收阶段**:
     - 第三十一阶段（原 #9 首轮深度归档收口：roadmap 主窗口回到健康范围，todo-archive 改为近线窗口模式）。

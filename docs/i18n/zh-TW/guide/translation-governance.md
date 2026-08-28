@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-29
 translation_tier: summary-sync
 ---
 
@@ -50,12 +50,12 @@ translation_tier: summary-sync
 
 ## 3.1 文件 freshness 分層
 
-文件翻譯不再使用一條通吃的 30 天規則，而是依 tier 分層治理：
+文件翻譯不再使用一條通吃的 30 天規則，而是依 tier 分層治理。判定語義見 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-翻譯-freshness-判定)。
 
-| tier | freshness | 適用形態 |
+| tier | freshness 軟上限（僅 warning） | 適用形態 |
 | :--- | :--- | :--- |
-| `must-sync` | 30 天 | 與中文原文保持操作等價的公共入口頁 |
-| `summary-sync` | 45 天 | 可以較短，但必須同步現行規則的摘要頁 |
+| `must-sync` | 60 天 | 與中文原文保持操作等價的公共入口頁 |
+| `summary-sync` | 120 天 | 可以較短，但必須同步現行規則的摘要頁 |
 | `source-only` | 無天數 SLA | 只保留 locale URL 與中文原文入口，不承諾持續維護正文 |
 
 目前 `zh-TW` 對外承諾的主要範圍是首頁、快速開始、部署指南、翻譯治理、功能特色、變數與設定映射與路線圖摘要。深層 guide / standards / design 頁面已改為 `source-only`。

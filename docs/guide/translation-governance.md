@@ -28,12 +28,12 @@
 
 ## 2.1 文档翻译 freshness 分层
 
-文档翻译不再统一按“所有页面都必须 30 天内同步”处理，而是按页面职责分层治理：
+文档翻译不再统一按“所有页面都必须 30 天内同步”处理，而是按页面职责分层治理。判定语义见 [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-翻译-freshness-判定)。
 
-| Tier | freshness 口径 | 允许内容形态 | 当前典型范围 |
+| Tier | freshness 软上限（仅 warning） | 允许内容形态 | 当前典型范围 |
 | :-- | :-- | :-- | :-- |
-| `must-sync` | `30` 天 | 面向公开入口的操作等价翻译 | `en-US` 首页、快速开始、部署、翻译治理 |
-| `summary-sync` | `45` 天 | 摘要同步，保留原文回链 | 路线图摘要、`en-US` 核心高频规范页、`zh-TW` / `ko-KR` / `ja-JP` 公开入口页 |
+| `must-sync` | `60` 天 | 面向公开入口的操作等价翻译 | `en-US` 首页、快速开始、部署、翻译治理 |
+| `summary-sync` | `120` 天 | 摘要同步，保留原文回链 | 路线图摘要、`en-US` 核心高频规范页、`zh-TW` / `ko-KR` / `ja-JP` 公开入口页 |
 | `source-only` | 不做天数 SLA，但必须显式声明“中文事实源优先” | 保留 locale URL 的入口页，不承诺持续维护正文 | 低频设计页、低频 Guide、当前不再维护的深层 Standards |
 
 补充约束：

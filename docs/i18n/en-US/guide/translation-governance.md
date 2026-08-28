@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-15
+last_sync: 2026-08-29
 translation_tier: must-sync
 ---
 
@@ -56,12 +56,12 @@ Every language rollout should verify these five gates:
 
 ## 4. Document Freshness Tiers
 
-Documentation translations no longer use one blanket 30-day rule. They now follow three tiers:
+Documentation translations no longer use one blanket 30-day rule. They now follow three tiers. The judgement semantics live in [`docs/standards/documentation.md` § 6.3](../../standards/documentation.md#63-translation-freshness-judgement).
 
-| Tier | Freshness window | Allowed shape | Current examples |
+| Tier | Soft ceiling (warning-only) | Allowed shape | Current examples |
 | :--- | :--- | :--- | :--- |
-| `must-sync` | 30 days | Operationally equivalent public-entry translation | `en-US` home, quick start, deploy, translation governance |
-| `summary-sync` | 45 days | Maintained summary that may be shorter than the Chinese source | English roadmap summary, development guide, planning / documentation / security / testing standards, public entry pages in `zh-TW`, `ko-KR`, and `ja-JP` |
+| `must-sync` | `60` days | Operationally equivalent public-entry translation | `en-US` home, quick start, deploy, translation governance |
+| `summary-sync` | `120` days | Maintained summary that may be shorter than the Chinese source | English roadmap summary, development guide, planning / documentation / security / testing standards, public entry pages in `zh-TW`, `ko-KR`, and `ja-JP` |
 | `source-only` | No day-based SLA | Locale URL kept as a source link instead of a maintained translation body | Design pages, de-scoped deep guides, and low-frequency standards |
 
 ## 5. Current Locale Scope

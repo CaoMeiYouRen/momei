@@ -97,10 +97,10 @@
 
 ### 4.3.1 freshness 分层与 locale 范围
 
-| Tier | freshness 口径 | 允许内容形态 | 当前典型范围 |
+| Tier | freshness 软上限（仅 warning） | 允许内容形态 | 当前典型范围 |
 | :-- | :-- | :-- | :-- |
-| `must-sync` | `21` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
-| `summary-sync` | `30` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页与高频 Guide |
+| `must-sync` | `60` 天 | 操作等价翻译，覆盖当前真实入口与操作路径 | `en-US` 首页、快速开始、部署、翻译治理 |
+| `summary-sync` | `120` 天 | 摘要同步，保留中文原文回链 | `en-US` 路线图 / 开发指南 / 核心高频规范页；`zh-TW` / `ko-KR` / `ja-JP` 公开入口页与高频 Guide |
 | `source-only` | 不做天数 SLA，但必须显式声明“中文事实源优先” | locale URL 保留页，不承诺持续翻译正文 | 低频设计页、低频 Guide、当前不再维护的深层 Standards |
 
 当前 locale 范围矩阵：
@@ -232,16 +232,46 @@
 
 1. **禁止重复定义**：低层级文档不得重复高层级已定义的规则
 2. **引用优先**：同一内容在多处出现时，应引用唯一事实源而非重复描述
-3. **版本溯源**：翻译文档必须标注 `last_sync` 日期，`must-sync` 过期超过 21 天应触发 review，`summary-sync` 过期超过 30 天应触发 review
+3. **版本溯源**：翻译文档必须标注 `last_sync` 日期。具体时效语义见 § 6.3
 4. **规范执行分层**：规范条款必须区分宽松指引与严格约束——"应当 / 建议"类宽松指引由执行阶段声明即可；"必须 / 阈值 / 禁令"类严格约束必须同时挂接 Review Gate 检查点（`code-quality-auditor` skill、references 清单或 `@code-auditor` 必查项），未挂接的严格约束视为未生效，由审计退回补挂或登记 backlog 并标记"待补挂"。**检查点阈值内联豁免**：检查点为了可执行性而内联的阈值 / 关键数字（如"10 文件 / 800 行"、供应链信任边界的幻觉包比例）视为检查点参数而非条款重复，不违反"引用优先"原则；完整条款与教训仍在权威文档单点声明
 
-### 6.3 过时内容识别
+### 6.3 翻译 freshness 判定
 
-- `must-sync` 页面的 `last_sync` 超过 `21` 天应触发 review
-- `summary-sync` 页面的 `last_sync` 超过 `30` 天应触发 review
-- `source-only` 页面不以天数判断 freshness，但必须持续保留明确的中文事实源回链与 tier 声明
-- 智能体在引用文档时，应检查文件头部的时间戳
-- 定期运行 `pnpm i18n:audit` 检查未同步的翻译键
+由 `scripts/docs/check-source-of-truth.mjs` 执行（详见脚本头部 docblock 与 `tests/scripts/check-source-of-truth.test.ts`）。为何采用此判定见 [`docs/design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md`](../../design/governance/2026-08-29-docs-source-of-truth-freshness-redesign.md)。
+
+| 判定 | 行为 |
+|:---|:---|
+| 源文档自 `last_sync` 以来在 git 中有提交 | **error**（必须重新翻译） |
+| 源文档自 `last_sync` 以来无 git 提交，且 last_sync 未越 tier 上限 | pass |
+| 源文档自 `last_sync` 以来无 git 提交，但 last_sync 超过 tier 软上限 | **warning**（仅提示，不阻断） |
+| 翻译文档 `last_sync` 缺失 | error |
+| 源文档无法定位 / 不存在 | error |
+
+**Tier 软上限**（仅作 warning 信号）：
+
+| Tier | Soft maxAge |
+|:---|:---|
+| `must-sync` | 60 天 |
+| `summary-sync` | 120 天 |
+| `source-only` | `null` |
+
+**源路径解析**（三层 fallback，缺一即降至下一层）：
+
+1. `frontmatter.source_origin`（显式声明，相对仓库根）
+2. 正文里 `original Chinese version` / `Chinese version` / `原始中文` / `中文原文` 等锚文本后的**第一个相对路径**
+3. 目录约定：`docs/i18n/<locale>/<path>` ⇄ `docs/<path>`
+
+**`source-only` 页面强约束**：必须在 frontmatter 显式声明 `translation_tier: source-only` 与 `source_origin`；不检查时效。
+
+**运行入口**：
+
+| 入口 | 语义 | 阻断？ |
+|:---|:---|:---|
+| `pnpm docs:check:source-of-truth`（默认 `default` profile + `error` mode） | CI 周级回归用，error 阻断 | **是**（仅对源有真实改动的情况） |
+| `pnpm docs:check:source-of-truth --mode=warn` | 把所有 error 降级为 warning 呈现，不改 exit code | 仅展示 |
+| `pnpm docs:check:source-of-truth:candidate`（`candidate` profile + `warn` mode） | 保留 21/30 天旧阈值作为收紧评估 baseline | 仅展示 |
+
+智能体在引用文档时，应检查文件头部的 `last_sync` 时间戳，结合 git blame 看对应源文件是否在 `last_sync` 之后被改过。定期运行 `pnpm i18n:audit` 检查未同步的翻译键。
 
 ### 6.4 维护职责
 
