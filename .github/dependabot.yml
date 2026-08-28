@@ -121,6 +121,36 @@ updates:
         versions:
           - ">=10.0.0"
 
+      # PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布：包以编译产物分发、
+      # 需注入 license key、缺 key 时可能显示 license notice，且 Community 许可禁止
+      # 再分发给最终用户自行构建。与本项目 MIT + 自部署模型冲突，官方亦指引开源项目
+      # 继续使用 MIT 版本（PrimeVue 4 及更早）。@primeuix/* 是 v5 的样式与主题引擎层，
+      # 必须与主包一同屏蔽，否则会与锁定在 4.x 的 primevue 版本错配。
+      # 评估见 docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md
+      - dependency-name: "primevue"
+        versions:
+          - ">=5.0.0"
+
+      - dependency-name: "@primevue/*"
+        versions:
+          - ">=5.0.0"
+
+      - dependency-name: "@primeuix/styled"
+        versions:
+          - ">=1.0.0"
+
+      - dependency-name: "@primeuix/styles"
+        versions:
+          - ">=3.0.0"
+
+      - dependency-name: "@primeuix/themes"
+        versions:
+          - ">=3.0.0"
+
+      - dependency-name: "@primeuix/utils"
+        versions:
+          - ">=0.8.0"
+
       # h3 v2 RC 与 Nuxt 4.x 运行时不兼容（Nuxt v5 才会统一使用 h3 v2）。
       # pnpm 解析到其他依赖的 h3 v2 RC 时，Nitro dev server 会生成
       # 调用 event.req.headers.get() 等 v2 风格 API 的代码，但运行时事件
