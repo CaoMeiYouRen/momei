@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-15
+last_sync: 2026-08-29
 translation_tier: must-sync
 ---
 

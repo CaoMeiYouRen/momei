@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-24
+last_sync: 2026-08-29
 ---
 
 # 기능 소개

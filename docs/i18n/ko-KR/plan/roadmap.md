@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-13
+last_sync: 2026-08-29
 ---
 
 # Momei 프로젝트 로드맵
