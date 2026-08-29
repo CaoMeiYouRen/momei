@@ -76,7 +76,7 @@ jobs:
         # schedule 触发时 inputs 为空 → 下方回退值生效（fix-and-pr / high / 50 / cleanup=true），
         # 设计意图：定时巡检保守（聚焦 high+，与 security:alerts 的 --min-severity=high 口径对齐）；
         # 手动触发可用 inputs 覆盖（可更激进）。
-        uses: dependfix/dependfix@v0.3.2
+        uses: dependfix/dependfix@v0.4.0
         with:
           mode: ${{ inputs.mode || 'fix-and-pr' }}
           severity-threshold: ${{ inputs.severity-threshold || 'high' }}
