@@ -47,13 +47,35 @@ updates:
           - "@vitest/*"
           - "happy-dom"
 
+      # @intlify/* 与 vue-i18n 共享同一条发布线：core-base / shared / message-compiler /
+      # devtools-types / vue-i18n-extensions 等子包常常以同一 minor 一起发版，新导出（如
+      # shared@11.4.10 引入的 toDevtoolsGroupId）只在最新版本里可用，若 Dependabot 单独
+      # 抬升 core-base 而 shared 未升，会被 Vite/Rollup 阶段以 [MISSING_EXPORT] 拒绝构建。
+      # 必须锁步升级。@intlify/eslint-plugin-vue-i18n 同样是这条发布线的一部分，跟
+      # eslint 主线节拍不同步，所以从 eslint-stack 拆出来并入此处。
+      intlify-stack:
+        patterns:
+          - "vue-i18n"
+          - "@intlify/core"
+          - "@intlify/core-base"
+          - "@intlify/shared"
+          - "@intlify/message-compiler"
+          - "@intlify/devtools-types"
+          - "@intlify/devtools-if"
+          - "@intlify/vue-devtools"
+          - "@intlify/bundle-utils"
+          - "@intlify/unplugin-vue-i18n"
+          - "@intlify/vue-i18n-extensions"
+          - "@intlify/utils"
+          - "@intlify/eslint-plugin-vue-i18n"
+
       # ESLint 主包、配置和核心插件存在直接 peer 约束。
+      # 注：@intlify/eslint-plugin-vue-i18n 跟随 intlify 主线发版，已移入 intlify-stack。
       eslint-stack:
         patterns:
           - "eslint"
           - "eslint-plugin-vue"
           - "eslint-config-cmyr"
-          - "@intlify/eslint-plugin-vue-i18n"
 
       # Stylelint 主包与配置包保持小粒度同步升级即可。
       stylelint-stack:
