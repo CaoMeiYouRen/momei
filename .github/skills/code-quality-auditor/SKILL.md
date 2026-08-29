@@ -65,7 +65,7 @@ metadata:
 - **治理定义必查（含 `quick`）**：改动涉及 `docs/standards/*.md`、`.github/skills/*/SKILL.md`、`.github/agents/*.agent.md` 时，按 [文档规范 §6.2 收敛规则](../../../docs/standards/documentation.md) 检查：**规范单点声明**（不得与权威文档重复抄写完整条款/阈值/教训，应一行链接引用）与**规范执行分层**（新增严格约束须声明并挂接 review 检查点；宽松指引留在执行层）。治理定义改动多为 `deep` 全量执行，`quick` 仅限措辞级改动，至少完成新增 diff 文本与权威文档的比对目检。
 - **供应链信任边界必查**：改动引入新依赖、MCP server、外部 skill/agent，或依赖 AI 推荐的包时，按 [安全规范 §5.2 供应链信任边界](../../../docs/standards/security.md) 检查来源验证、钉版本锁文件与先验来源。
 - **开发流程编号标记检查（必查项）**：按 [开发规范 §2.2.1 注释规范](../../../docs/standards/development.md) 的"禁止流程编号残留"条款检查 diff 中新增/修改的注释与测试名，是否残留规划/任务/审计编号（如 `T405`、`P1-1`、`RG-B01`、`Phase 66`、`候选 #14` 等形态，含中文冒号形式与 `it('C1: xxx')` 测试名），例外与清理要求以该条款为准。
-- **规范无历史叙述强制审查（必查项）**：改动涉及 `docs/standards/**/*.md` / `docs/guide/**/*.md` / `docs/design/modules/**/*.md` 时，按 [文档规范 §3.5 无历史叙述原则](../../../docs/standards/documentation.md#35-无历史叙述原则-no-historical-narrative) 与 [审查清单 §4.6](./references/review-checklist.md#46-规范无历史叙述强制审查-no-historical-narrative-in-standards) 检查规范正文是否带时间锚叙述（"自 N-MM-DD 起"、"widened from X"、"as of" 等）；命中即 Reject，要求下沉到 `docs/design/governance/<date>-*.md` 单点说明。若改动未触碰上述目录，本审查项不触发；若触碰但审计执行跳过，立即 Reject 整个 Review Gate。
+- **规范无历史叙述强制审查（必查项）**：改动涉及 `docs/standards/**/*.md` / `docs/guide/**/*.md` / `docs/design/modules/**/*.md` 时，按 [文档规范 §3.5 无历史叙述原则](../../../docs/standards/documentation.md#35-无历史叙述原则-no-historical-narrative) 与 [审查清单 §4.6](./references/review-checklist.md#46-规范无历史叙述强制审查-no-historical-narrative-in-standards) 检查规范正文是否带时间锚叙述（"自 N-MM-DD 起"、"widened from X"、"as of" 等）；命中即 Reject，要求下沉到 `docs/design/governance/[YYYY-MM-DD]-*.md` 单点说明。若改动未触碰上述目录，本审查项不触发；若触碰但审计执行跳过，立即 Reject 整个 Review Gate。
 - 优先寻找会阻塞放行的问题，而不是按文件顺序复述 diff。
 - 重点检查是否存在遗漏 mock、异常吞掉、权限边界缺失、证据链不闭环、超出当前 Todo 范围的静默扩写。
 

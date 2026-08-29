@@ -74,11 +74,11 @@
 
 规范约束的完整定义见 [文档规范 §3.5](../../../../docs/standards/documentation.md#35-无历史叙述原则-no-historical-narrative)。本审查项强制落地：
 
-- [ ] **时间锚叙述扫描**：检查上述目录的改动是否引入以下历史叙述表达；发现即 **Reject**，要求去掉时间锚或下沉到 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明。
+- [ ] **时间锚叙述扫描**：检查上述目录的改动是否引入以下历史叙述表达；发现即 **Reject**，要求去掉时间锚或下沉到 `docs/design/governance/[YYYY-MM-DD]-*.md` 单点说明。
   - 中文："自 YYYY-MM 起"、"由 X 放宽到 Y"、"由 X 调整为 Y"、"自 N 年 M 月由 X 放宽"、"前版本 Y 现改为 Z"、"新策略（N-MM-DD 落地）"、"as of" 中文意译
   - 英文：`as of <date>`、`widened from X`、`<since YYYY-MM>`、`<legacy YYYY> previously X`、`soft ceiling raised from X to Y`、`prior tier was X, now Y`、`we previously required X, now Z`、`new signal (effective N-MM-DD)`
   - 翻译件中的时间锚表达（i18n 镜像同样不能保留"自 YYYY-MM 起"）
-- [ ] **治理说明文件存在性**：若规范文件去掉时间锚后必须保留"为什么这样规定"的语境，确认是否有匹配的 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明文档，**没有则视为违反**。
+- [ ] **治理说明文件存在性**：若规范文件去掉时间锚后必须保留"为什么这样规定"的语境，确认是否有匹配的 `docs/design/governance/[YYYY-MM-DD]-*.md` 单点说明文档，**没有则视为违反**。
 - [ ] **同 PR 落地**：改动里同时含规范正文 + 对应治理说明文档，二者必须同一 PR 落地（或相邻 commit），不可只改一边。
 - [ ] **规划文件例外（含 archive 分片）**：以下 4 个根级规划文件 + `docs/plan/archive/` 下所有分片文件 `todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md` 天然承担记录历史与状态变化的职责——不视为本条违反：
   - `docs/plan/todo.md`

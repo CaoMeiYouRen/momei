@@ -58,13 +58,13 @@
 具体约束：
 
 1.  **禁止时间锚叙述**：不得在 `docs/standards/*.md`、`docs/guide/*.md`、`docs/design/modules/*.md`、`docs/plan/*.md` 与 `docs/plan/archive/*.md`（除 `todo.md` / `todo-archive.md` / `backlog.md` / `roadmap.md` 与分片归档文件 `todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md` 外）中使用以下表达：
-    - 中文："自 <日期> 起"、"由 <旧值> 放宽到 <新值>"、"由 X 调整为 Y"、"自 <日期> 由 X 放宽"、"前版本 Y 现改为 Z"、"新策略（<N-MM-DD> 落地）"、"as of" 中文意译
+    - 中文：`"自 <日期> 起"`、`"由 <旧值> 放宽到 <新值>"`、`"由 X 调整为 Y"`、`"自 <日期> 由 X 放宽"`、`"前版本 Y 现改为 Z"`、`"新策略（<N-MM-DD> 落地）"`、`"as of"` 中文意译
     - 英文：`as of <date>`、`widened from X`、`since <YYYY-MM>`、`<legacy YYYY> previously X`、`soft ceiling raised from X to Y`、`prior tier was X, now Y`、`we previously required X, now Z`、`new signal (effective <N-MM-DD>)`
     - 翻译同步：`自 <日期> 起` 的 i18n 译文一律不写
-2.  **历史必须单点收纳**：规范为何被改、改了什么、有何影响 **必须** 写到 `docs/design/governance/<YYYY-MM-DD>-*.md` 单点说明文档中，再以单点链接反向挂到规范章节。同步链路一旦发现正文带历史叙述而治理文档不存在对应单点说明，**视为违反**。
+2.  **历史必须单点收纳**：规范为何被改、改了什么、有何影响 **必须** 写到 `docs/design/governance/[YYYY-MM-DD]-*.md` 单点说明文档中，再以单点链接反向挂到规范章节。同步链路一旦发现正文带历史叙述而治理文档不存在对应单点说明，**视为违反**。
 3.  **执行节奏**：
     - 改规范时先 commit `docs/design/governance/<date>-*.md`，commit message 中点出对应的 `docs/standards/*.md` 章节；该规范文件的 commit 在后续到达即可单点链接引用。
-    - `todo.md` / `backlog.md` / `todo-archive.md` / `roadmap.md` 与 `docs/plan/archive/` 下的分片归档文件（`todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md`）等纯规划文件**可以**使用历史性语句（"已于 <date> 完成"、"X 阶段已上收"等），因为它们本身承担记录历史与状态变化的职责。
+    - `todo.md` / `backlog.md` / `todo-archive.md` / `roadmap.md` 与 `docs/plan/archive/` 下的分片归档文件（`todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md`）等纯规划文件**可以**使用历史性语句（"已于 `<date>` 完成"、"X 阶段已上收"等），因为它们本身承担记录历史与状态变化的职责。
 4.  **规范变更必须同 PR 收口**：不允许"先改规范 + 推迟写治理文档"或"先写治理文档 + 推迟改规范"。两者必须落在同一提交或紧邻提交里。
 5.  **审查条件**：本条直接列为 `code-quality-auditor` skill 的强制审查项（见 `.github/skills/code-quality-auditor/references/review-checklist.md`）；审计员在涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 的改动时，**必须**扫描时间锚叙述并 Reject 违反者。
 
