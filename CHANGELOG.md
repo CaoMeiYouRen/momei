@@ -1,5 +1,18 @@
 # momei
 
+## [1.26.1](https://github.com/CaoMeiYouRen/momei/compare/v1.26.0...v1.26.1) (2026-08-29)
+
+
+### 🐛 Bug 修复
+
+* **docs:** 修复 VitePress 构建：§3.5 反例占位符被 markdown-it 误识别为 HTML 标签 ([ee47625](https://github.com/CaoMeiYouRen/momei/commit/ee47625))
+* **docs:** 修正 docs:check:links 12 处链接错位 ([9c528cf](https://github.com/CaoMeiYouRen/momei/commit/9c528cf))
+
+
+### 📦 代码重构
+
+* **docs:** 重写 docs:check:source-of-truth freshness 判定为 git log + 软上限 ([d8e5cff](https://github.com/CaoMeiYouRen/momei/commit/d8e5cff))
+
 # [1.26.0](https://github.com/CaoMeiYouRen/momei/compare/v1.25.1...v1.26.0) (2026-08-22)
 
 
