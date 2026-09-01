@@ -146,7 +146,7 @@
     "music-metadata": "^11.15.0",
     "mysql2": "^3.24.2",
     "nest-winston": "^1.10.2",
-    "nodemailer": "^9.0.5",
+    "nodemailer": "^9.0.6",
     "normalize.css": "^8.0.1",
     "nuxt": "^4.5.2",
     "p-queue": "^9.3.3",
