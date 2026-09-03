@@ -79,7 +79,7 @@ overrides:
     ws: "^8.21.0"
     typescript-eslint: "8.63.0"
     sharp: "^0.35.0"
-    fast-uri: "^3.1.4"
+    fast-uri: "^3.1.6"
     "piscina": "^4.9.3"
     "@babel/plugin-transform-modules-systemjs": "^7.29.4"
     launch-editor: "^2.14.1"
