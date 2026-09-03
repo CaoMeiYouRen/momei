@@ -112,7 +112,8 @@ describe('IndexPage', () => {
 
         const homeCall = vi.mocked(useAppFetch).mock.calls[0]
         expect(homeCall?.[0]).toBe('/api/posts/home')
-        expect(homeCall?.[1]).toBeUndefined()
+        // 首页 latest 区段已改为 CSR：useAppFetch 第二个参数显式声明 lazy + server:false
+        expect(homeCall?.[1]).toEqual({ lazy: true, server: false })
 
         const externalCall = vi.mocked(useAppFetch).mock.calls[1]
         expect(externalCall?.[0]).toBe('/api/external-feed/home')

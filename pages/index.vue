@@ -226,7 +226,8 @@ usePageSeo({
 
 /**
  * 首页聚合端点 /api/posts/home 返回：
- * - items: 最新文章（SSR 渲染）
+ * - items: 最新文章（CSR 渲染，避免 SSR 阻塞；
+ *   见 wisdom.md 2026-09-03 与 docs/plan/todo.md 待排期）
  * - popular: 全站热门（延迟渲染）
  * - hot: 近期热门（延迟渲染）
  */
@@ -236,11 +237,20 @@ interface HomePostsPayload {
     hot: PostListData['items']
 }
 
+// 首页 latest 区段改为客户端渲染（lazy + server:false）：
+// 1) 跳过 SSR 顶层 await，避免 Vercel 函数冷启动 / 跨实例缓存失效导致 4-10s 阻塞；
+// 2) 失败兜底：homeData.value undefined 时由现有 `<Skeleton>` 块渲染，
+//    `homeData.value?.data?.items || []` 链保护；
+// 3) SEO 影响：搜索引擎首屏 HTML 不含文章列表，靠 ISR/sitemap/详情页承载，
+//    已在 wisdom.md 2026-09-03 记录并排到下一阶段重新评估 SSR 可行性。
 const {
     data: homeData,
     pending: latestPending,
     error: latestError,
-} = await useAppFetch<ApiResponse<HomePostsPayload>>('/api/posts/home')
+} = useAppFetch<ApiResponse<HomePostsPayload>>('/api/posts/home', {
+    lazy: true,
+    server: false,
+})
 
 const latestPosts = computed(() => homeData.value?.data?.items || [])
 const popularPosts = computed(() => homeData.value?.data?.popular || [])
