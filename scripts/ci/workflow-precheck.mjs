@@ -88,6 +88,15 @@ function createDependencyRiskGateStep() {
     })
 }
 
+function createOverridePatchedVersionStep() {
+    const releasePolicy = resolveDependencyRiskPolicy('release')
+
+    return createCommandStep('security:validate-overrides', 'pnpm', ['run', 'security:validate-overrides'], {
+        failureLevel: releasePolicy.findingLevels.blockingRisk,
+        timeoutBudget: '5m',
+    })
+}
+
 function dedupeItems(items) {
     return Array.from(new Set(items))
 }
@@ -127,6 +136,7 @@ const COMMON_REQUIRED_FILES = [
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
     'scripts/security/check-dependency-risk.mjs',
+    'scripts/security/validate-override-patched-versions.mjs',
     '.github/security/dependency-risk-allowlist.json',
 ]
 
@@ -169,6 +179,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 ...COMMON_ENV_REQUIREMENTS,
                 ...RELEASE_PUBLISH_ENV_REQUIREMENTS,
             ]),
+            createOverridePatchedVersionStep(),
             createDependencyRiskGateStep(),
         ],
     },
@@ -183,6 +194,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 'scripts/testing/run-e2e.mjs',
             ])),
             createEnvCheckStep('test environment', COMMON_ENV_REQUIREMENTS),
+            createOverridePatchedVersionStep(),
             createDependencyRiskGateStep(),
         ],
     },
@@ -199,6 +211,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 ...COMMON_ENV_REQUIREMENTS,
                 ...DOCKER_PUBLISH_ENV_REQUIREMENTS,
             ]),
+            createOverridePatchedVersionStep(),
             createDependencyRiskGateStep(),
         ],
     },
