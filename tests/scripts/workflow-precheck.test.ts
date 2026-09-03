@@ -42,6 +42,7 @@ describe('workflow-precheck', () => {
         expect(resolveWorkflowPrecheckProfile('release').steps.map((step) => step.label)).toEqual([
             'release critical files',
             'release environment',
+            'security:validate-overrides',
             'security:audit-deps',
         ])
         expect(resolveWorkflowPrecheckProfile('docker').steps.at(-1)).toMatchObject({
