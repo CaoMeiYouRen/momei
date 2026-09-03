@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 translation_tier: summary-sync
 ---
 
@@ -125,6 +125,12 @@ translation_tier: summary-sync
 	- `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`
 	- `NUXT_PUBLIC_CLARITY_PROJECT_ID`
 	- `NUXT_PUBLIC_SENTRY_DSN`
+- **日誌聚合（Axiom）**：
+	- `AXIOM_DATASET_NAME`
+	- `AXIOM_API_TOKEN`
+	- `LOG_LEVEL`（建議生產環境固定為 `info` 或 `warn`，避免 `http` / `silly` 造成攝取暴增）
+	- `LOGFILES`（Docker / 自託管環境可設 `true`，Vercel / Serverless 必須保持 `false`）
+	- 啟用後所有 Winston 日誌（含未捕獲例外與 Promise 拒絕）會一併推送到 Axiom Dataset，可在 Axiom 控制台使用 APL 查詢與設定告警。詳細變數與欄位說明見 [變數與設定映射 §2.5](./variables.md#25-任務通知與第三方服務)。
 - **視覺特效**：
 	- `NUXT_PUBLIC_LIVE2D_ENABLED`
 	- `NUXT_PUBLIC_CANVAS_NEST_ENABLED`
@@ -184,6 +190,22 @@ MEMOS_INSTANCE_URL=https://memos.yourdomain.com
 MEMOS_ACCESS_TOKEN=xxx
 MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ```
+
+### 4.4 Axiom 日誌聚合
+
+```dotenv
+# Axiom Dataset 名稱（與控制台一致）
+AXIOM_DATASET_NAME=momei-prod
+# Axiom Ingest Token（在 Settings → API Tokens 產生）
+AXIOM_API_TOKEN=xaat-xxxxxxxx
+
+# 生產環境建議：明確等級，避免 http/silly 攝取暴增
+LOG_LEVEL=info
+# Docker / 自託管環境可開啟檔案日誌，Vercel 必須保持 false
+LOGFILES=true
+```
+
+啟用後 Winston 會自動組合 `console + file + Axiom` 三路日誌；未捕獲例外與 Promise 拒絕會透過 Axiom 的 `exceptionHandlers` 一併上報。詳細欄位說明、查詢範例與告警接入見 [中文原文 §2.5.1](../../../guide/variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 
 ## 5. 部署到主流平台
 

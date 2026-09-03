@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 translation_tier: summary-sync
 ---
 
@@ -159,8 +159,53 @@ Browser direct upload currently prefers presigned `PUT` mode when `STORAGE_TYPE=
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | `baidu_analytics` | 0 | none | Baidu Analytics ID |
 | `NUXT_PUBLIC_UMAMI_ANALYTICS` | `umami_analytics` | 0 | none | Umami analytics config as JSON (`websiteId` + `scriptUrl`) |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Shared Sentry DSN for frontend and backend |
-| `LOG_LEVEL` | - | 3 | none | Logging level |
+| `LOG_LEVEL` | - | 3 | none | Global log level: `silly` / `debug` / `http` / `info` / `warn` / `error`; defaults to `silly` in development and `http` in production |
+| `LOGFILES` | - | 3 | none | Enables file logging; when `true`, files are written daily into `LOG_DIR` and auto-disabled in Serverless environments |
+| `LOG_DIR` | - | 3 | none | Output directory for file logs; relative paths are resolved from the project root, default `logs` |
+| `AXIOM_DATASET_NAME` | - | 3 | none | Axiom dataset name; the Axiom transport is enabled only when paired with `AXIOM_API_TOKEN` |
+| `AXIOM_API_TOKEN` | - | 3 | password | Axiom API token, treated as an infrastructure credential; not exposed via the admin UI |
 | `NUXT_PUBLIC_LIVE2D_ENABLED` | `live2d_enabled` | 0 | none | Live2D widget switch |
+
+#### 2.5.1 Logging and Axiom Integration
+
+The blog uses [Winston](https://github.com/winstonjs/winston) as the unified logging pipeline and streams logs to [Axiom](https://axiom.co/) through [`@axiomhq/winston`](https://github.com/axiomhq/axiom-js/tree/main/packages/winston). `server/utils/logger.ts` composes the following transports:
+
+- **Console** — always on, with color in development and auto-disabled in Serverless environments.
+- **File rotation** — only when `LOGFILES=true` and the runtime is not Serverless. Daily rotation (`%DATE%.log` + `%DATE%.errors.log`), 20m per file, 31-day retention.
+- **Axiom** — enabled when both `AXIOM_DATASET_NAME` and `AXIOM_API_TOKEN` are set; also wired into `exceptionHandlers` and `rejectionHandlers` so uncaught exceptions and Promise rejections are reported.
+
+**Enable Axiom (recommended)**:
+
+1. Create a Dataset in the Axiom dashboard (suggested name: `momei-prod`).
+2. Generate an `Ingest` token in Settings → API Tokens.
+3. Fill in `.env`:
+   ```dotenv
+   AXIOM_DATASET_NAME=momei-prod
+   AXIOM_API_TOKEN=xaat-xxxxxxxx
+   ```
+4. Redeploy the application. No code changes required.
+
+**Querying logs**:
+
+- Open the Axiom dashboard → Datasets → select the dataset → Query, and use APL (Axiom Processing Language) to filter on `level`, `msg`, tags, etc.
+- Common examples:
+  ```apl
+  ['momei-prod']
+  | where ['level'] == "error"
+  | where _time > ago(24h)
+  | summarize count() by bin(_time, 1h)
+  ```
+- Connect Monitors and Notifiers (Slack / Email / Webhook, etc.) for alerting.
+
+**Disabling Axiom**:
+
+- Clear `AXIOM_DATASET_NAME` or `AXIOM_API_TOKEN` and restart the service. The Axiom transport is removed from the Winston pipeline automatically; console and file logs are unaffected.
+
+**Notes**:
+
+- `AXIOM_API_TOKEN` is an `@internalOnly` infrastructure credential. It must be supplied via environment variables and is never stored in the database or shown in the admin UI.
+- `LOGFILES=true` is auto-disabled with a warning in Serverless environments to avoid writing to a read-only filesystem.
+- Axiom's free tier includes 500GB ingestion per month with 30-day retention; overage is billed by usage — estimate against your log volume.
 
 ### 2.6 API Rate Limiting
 

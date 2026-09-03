@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 translation_tier: summary-sync
 ---
 
@@ -50,6 +50,7 @@ Momei は **環境変数優先** の戦略を採用しています：
 |  analytics | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID` | アクセス解析設定 |
 | レート制限 | `NUXT_RATE_LIMIT_*` | API レート制限の調整 |
 | 運用 | `ADMIN_USER_IDS`, `CRON_SECRET` | 管理者権限・タスクスケジューラ |
+| ログ集約 (Axiom) | `LOG_LEVEL`, `LOGFILES`, `LOG_DIR`, `AXIOM_DATASET_NAME`, `AXIOM_API_TOKEN` | Winston と `@axiomhq/winston` 経由で Axiom に送信。`LOGFILES` は Serverless 環境で自動無効化 |
 
 ## 3. 管理画面から設定可能な項目
 

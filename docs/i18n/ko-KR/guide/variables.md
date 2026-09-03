@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 ---
 
 # 변수 및 설정 매핑
@@ -55,8 +55,12 @@ last_sync: 2026-08-29
 - `MEMOS_ENABLED`, `MEMOS_INSTANCE_URL`, `MEMOS_ACCESS_TOKEN`
 - `HEXO_SYNC_ENABLED`, `HEXO_SYNC_PROVIDER`, `HEXO_SYNC_OWNER`, `HEXO_SYNC_REPO`
 - `HEXO_SYNC_BRANCH`, `HEXO_SYNC_POSTS_DIR`, `HEXO_SYNC_ACCESS_TOKEN`
+- `LOG_LEVEL`, `LOGFILES`, `LOG_DIR` — Winston 로그 채널 (개발 `silly` / 운영 `http` 기본값, `LOGFILES` 는 Serverless 환경에서 자동 비활성)
+- `AXIOM_DATASET_NAME`, `AXIOM_API_TOKEN` — `@axiomhq/winston` 을 통해 Axiom Dataset 으로 전송. 두 변수가 모두 설정된 경우에만 활성화되며, exceptionHandlers 와 rejectionHandlers 도 함께 Axiom 으로 보고됩니다.
 
 참고: `HEXO_SYNC_*` 는 이제 관리자 화면의 시스템 설정 > 통합 섹션에서 관리할 수 있습니다. `HEXO_SYNC_ACCESS_TOKEN` 은 UI 에서 마스킹되며, 동일한 환경 변수가 배포 계층에 있으면 계속 ENV 잠금 상태로 읽기 전용을 유지합니다.
+
+로그와 Axiom: Docker / 자가 호스팅에서는 `LOGFILES=true`, Vercel / Serverless 에서는 반드시 `false` 로 유지하고, 운영 환경에서는 `LOG_LEVEL` 을 `info` 또는 `warn` 으로 고정해 섭취량 폭주를 방지하는 것을 권장합니다. 상세 필드 설명과 조회 예시는 [중국어 원문 §2.5.1](../../../guide/variables.md#251-日志与-axiom-集成-logging-and-axiom-integration) 을 참조하세요.
 
 ### 2.5 API 속도 제한
 

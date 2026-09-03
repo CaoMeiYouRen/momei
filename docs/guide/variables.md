@@ -144,8 +144,53 @@
 | `NUXT_PUBLIC_BAIDU_ANALYTICS_ID`| `baidu_analytics` | 0 | none | 百度统计 ID |
 | `NUXT_PUBLIC_UMAMI_ANALYTICS` | `umami_analytics` | 0 | none | Umami 统计配置（JSON，含 `websiteId` 与 `scriptUrl`） |
 | `NUXT_PUBLIC_SENTRY_DSN` | - | 0 | key | Sentry 前后端共享监控 DSN |
-| `LOG_LEVEL` | - | 3 | none | 日志等级 (debug/info/error) |
+| `LOG_LEVEL` | - | 3 | none | 全局日志等级，可选 `silly` / `debug` / `http` / `info` / `warn` / `error`；未设置时开发环境默认 `silly`、生产环境默认 `http` |
+| `LOGFILES` | - | 3 | none | 是否开启文件日志；`true` 时按日写入 `LOG_DIR` 目录并在 Serverless 环境下自动降级为关闭 |
+| `LOG_DIR` | - | 3 | none | 文件日志输出目录，相对路径以项目根目录为基准，默认 `logs` |
+| `AXIOM_DATASET_NAME` | - | 3 | none | Axiom 数据集名称；与 `AXIOM_API_TOKEN` 同时配置后才会启用 Axiom 日志传输 |
+| `AXIOM_API_TOKEN` | - | 3 | password | Axiom API Token，基础设施鉴权密钥；不在管理后台暴露 |
 | `NUXT_PUBLIC_LIVE2D_ENABLED`| `live2d_enabled` | 0 | none | 看板娘系统开关 |
+
+#### 2.5.1 日志与 Axiom 集成 (Logging and Axiom Integration)
+
+墨梅博客使用 [Winston](https://github.com/winstonjs/winston) 作为统一日志通道，并通过 [`@axiomhq/winston`](https://github.com/axiomhq/axiom-js/tree/main/packages/winston) 将日志按需推送到 [Axiom](https://axiom.co/)。`server/utils/logger.ts` 负责组装以下传输：
+
+- **控制台输出** — 始终启用，开发环境带颜色，Serverless 环境自动关闭颜色。
+- **文件日志** — 仅当 `LOGFILES=true` 且不在 Serverless 环境时启用，按日轮转（`%DATE%.log` + `%DATE%.errors.log`），单文件最大 20m，保留 31 天。
+- **Axiom 传输** — 当 `AXIOM_DATASET_NAME` 与 `AXIOM_API_TOKEN` 同时配置时启用；同时接管 `exceptionHandlers` 与 `rejectionHandlers`，未捕获异常与 Promise 拒绝也会一并上报。
+
+**启用 Axiom（推荐方式）**：
+
+1. 在 Axiom 控制台创建 Dataset（建议命名 `momei-prod`）。
+2. 在 Settings → API Tokens 生成一个 `Ingest` 权限的 Token。
+3. 在 `.env` 中填写：
+   ```dotenv
+   AXIOM_DATASET_NAME=momei-prod
+   AXIOM_API_TOKEN=xaat-xxxxxxxx
+   ```
+4. 重新部署应用即可，无需修改代码。
+
+**查询指引**：
+
+- 进入 Axiom 控制台 → Datasets → 选择对应 Dataset → Query，使用 APL（Axiom Processing Language）按 `level`、`msg`、tag 等字段检索。
+- 常用示例：
+  ```apl
+  ['momei-prod']
+  | where ['level'] == "error"
+  | where _time > ago(24h)
+  | summarize count() by bin(_time, 1h)
+  ```
+- 通过 Monitor 与 Notifier 接入告警（Slack / Email / Webhook 等）。
+
+**关闭方式**：
+
+- 任意时刻清空 `AXIOM_DATASET_NAME` 或 `AXIOM_API_TOKEN`，重启服务后 Axiom 传输自动从 Winston transport 列表中移除，控制台与文件日志不受影响。
+
+**注意事项**：
+
+- `AXIOM_API_TOKEN` 属于 `@internalOnly` 基础设施密钥，仅通过环境变量注入，不进入数据库与系统设置页。
+- `LOGFILES=true` 在 Serverless 环境中会输出告警并自动降级为关闭，避免写入只读文件系统。
+- Axiom 免费额度为每月 500GB 摄入 + 30 天保留；超出后按用量计费，请结合日志量评估。
 
 ### 2.6 API 限流配置 (Rate Limiting)
 

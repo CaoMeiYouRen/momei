@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 translation_tier: summary-sync
 ---
 
@@ -76,6 +76,7 @@ translation_tier: summary-sync
 - `FRIEND_LINKS_CHECK_TIMEOUT_MS`: 사이트별 probe timeout. 기본 `8000`ms.
 - `FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`: 연속 실패 사이트의 최대 냉각 시간. 기본 `10080`분(7일).
 - `FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`: 연속 실패가 임계값에 도달하면 `inactive`로 자동 전환할 수 있습니다. 기본은 비활성화입니다.
+- **로그 집계 (Axiom)**: `LOG_LEVEL`, `LOGFILES`, `LOG_DIR`, `AXIOM_DATASET_NAME`, `AXIOM_API_TOKEN`. `AXIOM_DATASET_NAME` 과 `AXIOM_API_TOKEN` 을 동시에 설정하면 Winston transport, exceptionHandlers, rejectionHandlers 가 Axiom Dataset 으로 전송되며 Axiom 콘솔에서 APL 쿼리와 알림을 설정할 수 있습니다. Docker / 자가 호스팅에서는 `LOGFILES=true`, Vercel / Serverless 에서는 반드시 `false` 로 유지하세요. 운영 환경은 `LOG_LEVEL` 을 `info` 또는 `warn` 으로 고정하는 것을 권장합니다.
 
 `WEBHOOK_TIMESTAMP_TOLERANCE`는 예시 파일에 아직 남아 있지만 현재 구현은 읽지 않습니다. webhook 검증은 고정 5분 허용 오차를 사용합니다.
 

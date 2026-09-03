@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 ---
 
 # デプロイガイド
@@ -56,6 +56,7 @@ Momei のデプロイ構成は環境変数を中心に設計されており、�
 - ストレージ: `STORAGE_TYPE`、S3 / R2 / local / Vercel Blob 系の対応変数
 - メールと通知: `EMAIL_*`、必要に応じて Web Push / listmonk 関連
 - 定時タスク: `CRON_SECRET`、`TASKS_TOKEN`、`WEBHOOK_SECRET`
+- ログ集約 (Axiom): `LOG_LEVEL`、`LOGFILES`、`LOG_DIR`、`AXIOM_DATASET_NAME`、`AXIOM_API_TOKEN`。`AXIOM_DATASET_NAME` と `AXIOM_API_TOKEN` を同時に設定すると Winston transport・exceptionHandlers・rejectionHandlers が Axiom に送信され、APL クエリやモニターでアラート通知を設定可能。Docker / 自前ホストでは `LOGFILES=true`、Vercel / Serverless では `false` を維持。
 
 ## 4. Cloudflare の扱い
 

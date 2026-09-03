@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 translation_tier: must-sync
 ---
 
@@ -156,6 +156,12 @@ These settings round out observability, branding, visual effects, and monetizati
 	- `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`
 	- `NUXT_PUBLIC_CLARITY_PROJECT_ID`
 	- `NUXT_PUBLIC_SENTRY_DSN`
+- **Log aggregation (Axiom)**:
+	- `AXIOM_DATASET_NAME`
+	- `AXIOM_API_TOKEN`
+	- `LOG_LEVEL` (recommended `info` or `warn` in production to avoid ingestion storms from `http` / `silly`)
+	- `LOGFILES` (set `true` only for Docker / self-hosted deployments; Vercel / Serverless must keep it `false`)
+	- Once enabled, every Winston log — including uncaught exceptions and Promise rejections — is shipped to the Axiom dataset. You can query with APL and configure alerts in the Axiom dashboard. See [Environment configuration → Logging and Axiom integration](./variables.md#251-logging-and-axiom-integration) for the full variable matrix.
 - **Visual effects**:
 	- `NUXT_PUBLIC_LIVE2D_ENABLED`
 	- `NUXT_PUBLIC_CANVAS_NEST_ENABLED`
@@ -216,6 +222,22 @@ MEMOS_INSTANCE_URL=https://memos.yourdomain.com
 MEMOS_ACCESS_TOKEN=xxx
 MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ```
+
+### 4.4 Axiom Log Aggregation
+
+```dotenv
+# Axiom dataset name (matches the dashboard)
+AXIOM_DATASET_NAME=momei-prod
+# Axiom Ingest token (generate from Settings → API Tokens)
+AXIOM_API_TOKEN=xaat-xxxxxxxx
+
+# Recommended for production: pin a stable level
+LOG_LEVEL=info
+# Enable file logs for Docker / self-hosted deployments; keep false on Vercel
+LOGFILES=true
+```
+
+When these are set, Winston composes the `console + file + Axiom` pipeline automatically; uncaught exceptions and Promise rejections are routed through Axiom's `exceptionHandlers`. For field-level details, query examples, and alert setup see [Environment configuration → Logging and Axiom integration](./variables.md#251-logging-and-axiom-integration).
 
 ## 5. Deploying To Major Platforms
 

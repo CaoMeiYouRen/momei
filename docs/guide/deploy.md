@@ -143,6 +143,12 @@ psql "<DATABASE_URL>" -f database/postgres/init.sql
   - `NUXT_PUBLIC_GOOGLE_ANALYTICS_ID`
   - `NUXT_PUBLIC_CLARITY_PROJECT_ID`
   - `NUXT_PUBLIC_SENTRY_DSN`
+- **日志聚合 (Axiom)**:
+  - `AXIOM_DATASET_NAME`
+  - `AXIOM_API_TOKEN`
+  - `LOG_LEVEL`（推荐生产环境固定为 `info` 或 `warn`，避免 `http` / `silly` 上报量过大）
+  - `LOGFILES`（仅在 Docker / 自部署环境设为 `true`，Vercel / Serverless 环境必须为 `false`）
+  - 启用后所有 Winston 日志（含未捕获异常与 Promise 拒绝）会同时推送到 Axiom Dataset，可在 Axiom 控制台使用 APL 查询、配置告警。详细变量与字段说明见 [环境配置与系统设置映射 (Variables and Settings Mapping)](./variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 - **视觉特效**:
   - `NUXT_PUBLIC_LIVE2D_ENABLED`
   - `NUXT_PUBLIC_CANVAS_NEST_ENABLED`
@@ -203,6 +209,22 @@ MEMOS_INSTANCE_URL=https://memos.yourdomain.com
 MEMOS_ACCESS_TOKEN=xxx
 MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ```
+
+### 4.4 Axiom 日志聚合
+
+```dotenv
+# Axiom Dataset 名称（与控制台保持一致）
+AXIOM_DATASET_NAME=momei-prod
+# Axiom Ingest Token（在 Settings → API Tokens 生成）
+AXIOM_API_TOKEN=xaat-xxxxxxxx
+
+# 生产环境推荐：明确等级，避免 http/silly 上报风暴
+LOG_LEVEL=info
+# Docker / 自部署环境可开启文件日志，Vercel 必须保持 false
+LOGFILES=true
+```
+
+启用后，Winston 会把 `console + file + Axiom` 三路日志统一组装，未捕获异常和 Promise 拒绝也会通过 Axiom 的 `exceptionHandlers` 上报。详细字段说明、查询示例与告警接入见 [环境配置 → 日志与 Axiom 集成](./variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 
 ## 5. 部署到主流平台
 

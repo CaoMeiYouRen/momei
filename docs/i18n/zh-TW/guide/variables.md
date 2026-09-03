@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-08-29
+last_sync: 2026-09-03
 ---
 
 # 變數與設定映射
@@ -109,8 +109,15 @@ last_sync: 2026-08-29
 | `HEXO_SYNC_BRANCH` | `hexo_sync_branch` | 2 | 目標分支，預設 `main` |
 | `HEXO_SYNC_POSTS_DIR` | `hexo_sync_posts_dir` | 2 | 倉庫內文章目錄，預設 `source/_posts` |
 | `HEXO_SYNC_ACCESS_TOKEN` | `hexo_sync_access_token` | 3 | 倉庫寫入令牌，僅服務端可讀 |
+| `LOG_LEVEL` | - | 3 | 全域日誌等級，可選 `silly` / `debug` / `http` / `info` / `warn` / `error`；未設置時開發環境預設 `silly`、生產環境預設 `http` |
+| `LOGFILES` | - | 3 | 是否開啟檔案日誌；`true` 時按日寫入 `LOG_DIR`，在 Serverless 環境會自動降級為關閉 |
+| `LOG_DIR` | - | 3 | 檔案日誌輸出目錄，預設 `logs` |
+| `AXIOM_DATASET_NAME` | - | 3 | Axiom 資料集名稱；與 `AXIOM_API_TOKEN` 同時配置後才會啟用 Axiom 日誌傳輸 |
+| `AXIOM_API_TOKEN` | - | 3 | Axiom API Token，基礎設施鑑權密鑰，僅透過 ENV 注入 |
 
 補充：`HEXO_SYNC_*` 已接入後台「系統設定 > 第三方整合」面板。`HEXO_SYNC_ACCESS_TOKEN` 在後台會以密碼欄位遮罩顯示；若部署層同時提供同名環境變數，該欄位仍會保持 ENV 鎖定只讀。
+
+日誌與 Axiom：墨梅使用 Winston 作為統一日誌通道，並透過 `@axiomhq/winston` 將日誌按需推送到 Axiom。`AXIOM_DATASET_NAME` 與 `AXIOM_API_TOKEN` 同時設定時，Winston transport、exceptionHandlers、rejectionHandlers 都會一併上報到 Axiom；任意清空其中一項重啟即可關閉。生產環境建議固定 `LOG_LEVEL` 為 `info` 或 `warn`，`LOGFILES` 在 Docker / 自託管環境可開啟，Vercel / Serverless 環境必須保持 `false`。完整欄位說明、查詢指引與告警接入見 [中文原文 §2.5.1](../../../guide/variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 
 ### 2.6 API 限流配置
 
