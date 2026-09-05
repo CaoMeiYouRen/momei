@@ -1,5 +1,12 @@
 # momei
 
+# [1.27.0](https://github.com/CaoMeiYouRen/momei/compare/v1.26.1...v1.27.0) (2026-09-05)
+
+
+### ✨ 新功能
+
+* **security:** 新增 override 区间与 patched 版本对齐校验脚本 + CI 集成 ([e697289](https://github.com/CaoMeiYouRen/momei/commit/e697289))
+
 ## [1.26.1](https://github.com/CaoMeiYouRen/momei/compare/v1.26.0...v1.26.1) (2026-08-29)
 
 
