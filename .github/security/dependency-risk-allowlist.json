@@ -12,6 +12,18 @@
                 ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip",
                 ".>@lhci/cli>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip"
             ]
+        },
+        {
+            "advisoryId": "GHSA-7pqw-9j4j-h8q3",
+            "packageName": "extract-zip",
+            "severity": "high",
+            "reason": "上游仍无可用补丁：GitHub Advisory GHSA-7pqw-9j4j-h8q3（CVE-2026-19693）官方标注 Patched versions: None，npm registry 上 extract-zip 最新版本仍为 2.0.1。与 GHSA-jmr9-qjv8-65gv 共享同一条锁定依赖链：@lhci/cli@0.15.1（npm 最新版）-> @lhci/utils 精确依赖 lighthouse@12.6.1 -> puppeteer-core@^24.10.0 -> @puppeteer/browsers@2.x -> extract-zip@^2.0.1；@puppeteer/browsers@3.x 已移除 extract-zip，但要求 puppeteer-core@25.x，与 lighthouse 12.6.1 的依赖约束冲突，无法在不动 Lighthouse 主线的前提下规避。风险实际暴露面有限：@lhci/cli 为 devDependencies（仅本地/CI 执行 Lighthouse 性能审计），处理的 zip 来源可控，生产运行时不受影响。",
+            "source": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3",
+            "temporaryException": "有效至 extract-zip 上游发布 >=2.0.2 可用补丁并完成依赖升级，或 @lhci/cli / lighthouse / puppeteer-core 升级解除锁定链后立即移除；建议优先合并 GHSA-jmr9-qjv8-65gv / GHSA-7pqw-9j4j-h8q3 的临时例外，待上游补丁就绪后一次性退出 allowlist",
+            "approvedPaths": [
+                ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip",
+                ".>@lhci/cli>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip"
+            ]
         }
     ]
 }
