@@ -362,7 +362,14 @@ export function resolveSourceOrigin(translationFilePath, content, frontmatter = 
  * - 解决：拉取 author date (`%aI`) 后在 Node 端做字典序比较（ISO 日期字符串正好字典序 = 时序）。
  *   当 commit 日期严格大于 last_sync 日期时，才计入"源有改动"。
  *
- * 返回提交数（number）；git 查询失败 / 参数无效时返回 null。
+ * 浅克隆防御（2026-09 起）：
+ * - 浅克隆下（`actions/checkout@v7` 默认 `fetch-depth: 1`）`git log -- <path>`
+ *   只能看到当前 commit，会把"本 workflow run"本身的 commit 误判为源变更。
+ * - 此时判定毫无意义（仅 1 个 commit 一定 >= last_sync），应让上层走 warning
+ *   分支而不是 error，避免批量误报。
+ * - 判定方法：`git rev-parse --is-shallow-repository` 返回 `true` 即浅克隆。
+ *
+ * 返回提交数（number）；git 查询失败 / 参数无效 / 浅克隆时返回 null。
  * root 参数允许测试注入临时仓库根（默认走模块常量 ROOT）。
  */
 export function getSourceCommitCountSince(sourcePath, lastSyncIso, root = ROOT) {
@@ -382,9 +389,33 @@ export function getSourceCommitCountSince(sourcePath, lastSyncIso, root = ROOT) 
                 count++
             }
         }
+        // 浅克隆下结果无意义：仅一个 commit，且必然 >= last_sync，
+        // 直接计数会让上层把所有翻译文档都判定为"源有变更"。
+        if (isShallowRepository(root)) {
+            return null
+        }
         return count
     } catch {
         return null
+    }
+}
+
+/**
+ * 判定当前仓库是否为浅克隆（CI 浅克隆会破坏 source-of-truth 的 git log 比较）。
+ * 仅暴露给单测。
+ */
+export function isShallowRepository(root = ROOT) {
+    try {
+        const out = execSync('git rev-parse --is-shallow-repository', {
+            cwd: root,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+        })
+        return out.trim() === 'true'
+    } catch {
+        // 命令本身失败时（极老的 git 不支持）按非浅克隆处理：
+        // 与旧行为一致，避免引入新的回归。
+        return false
     }
 }
 

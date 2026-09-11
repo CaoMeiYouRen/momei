@@ -7,6 +7,8 @@ import {
     TRANSLATION_TIER_RULES,
     collectSourceOfTruthReport,
     decideTranslationStatus,
+    getSourceCommitCountSince,
+    isShallowRepository,
     resolveSourceOrigin,
 } from '@/scripts/docs/check-source-of-truth.mjs'
 
@@ -351,6 +353,99 @@ describe('check-source-of-truth / collectSourceOfTruthReport severity 区分', (
 
         expect(hasErrorsFromErrorsOnly).toBe(true)
         expect(hasErrorsFromWarningsOnly).toBe(false)
+    })
+})
+
+describe('check-source-of-truth / 浅克隆防御', () => {
+    // 浅克隆下 actions/checkout 默认 fetch-depth: 1，git log -- <path>
+    // 只能看到当前 commit，会把"本 workflow run"本身误判为源变更。
+    // 修复后：getSourceCommitCountSince 在浅克隆下必须返回 null，让上层走
+    // warning 分支而不是批量报 error。
+    async function setupShallowCloneLikeRepo(): Promise<string> {
+        const repoRoot = await createTempRoot()
+        await setupGitRepo(repoRoot)
+
+        await writeProjectFile(repoRoot, 'CLAUDE.md', '# Platform Adaptation\n\n')
+        await writeProjectFile(
+            repoRoot,
+            'docs/standards/documentation.md',
+            '# Documentation Standard\n\nThis file covers the source-of-truth 收敛 rule.\n',
+        )
+        await writeProjectFile(repoRoot, 'docs/guide/deploy.md', '# 部署 v1\n')
+
+        gitExec(repoRoot, 'add -A')
+        // 把 commit 日期设为 2099-12-31，故意晚于 last_sync，让浅克隆
+        // （只看得到这个 commit）下"源有变更"这个错误判定会浮出水面。
+        gitExec(repoRoot, 'commit -q -m "initial"', {
+            ...process.env,
+            GIT_AUTHOR_DATE: '2099-12-31T00:00:00',
+            GIT_COMMITTER_DATE: '2099-12-31T00:00:00',
+        })
+
+        const translationFm = (tier: string) =>
+            `---\nsource_branch: master\nlast_sync: 2099-01-01\ntranslation_tier: ${tier}\n---\n`
+        await writeProjectFile(
+            repoRoot,
+            'docs/i18n/en-US/guide/deploy.md',
+            `${translationFm('must-sync')}# EN Deploy\n\nSee the [original Chinese version](../../../guide/deploy.md) for source.\n`,
+        )
+        gitExec(repoRoot, 'add -A')
+        gitExec(repoRoot, 'commit -q -m "translations"')
+
+        // 模拟 CI 的浅克隆：把仓库 reflog 设为只剩 1 个 commit，
+        // 并改写 shallow 文件，让 git rev-parse --is-shallow-repository 返回 true。
+        // 直接 `git clone --depth 1` 在本地沙箱里更可靠，但需要外层 cwd，
+        // 这里用 file:// 上游重新浅克隆一次。
+        const upstream = repoRoot
+        const shallowClone = `${repoRoot}-shallow`
+        realExecSync(
+            `git clone --depth 1 --no-local ${upstream} ${shallowClone}`,
+            { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
+        )
+        tempRoots.push(shallowClone)
+        return shallowClone
+    }
+
+    it('isShallowRepository: 在浅克隆仓库里返回 true', async () => {
+        const shallow = await setupShallowCloneLikeRepo()
+        expect(isShallowRepository(shallow)).toBe(true)
+    })
+
+    it('isShallowRepository: 在普通仓库里返回 false', async () => {
+        const repoRoot = await createTempRoot()
+        await setupGitRepo(repoRoot)
+        expect(isShallowRepository(repoRoot)).toBe(false)
+    })
+
+    it('getSourceCommitCountSince: 浅克隆下必须返回 null 而非 1', async () => {
+        const shallow = await setupShallowCloneLikeRepo()
+        const count = getSourceCommitCountSince(
+            'docs/guide/deploy.md',
+            '2099-01-01',
+            shallow,
+        )
+        // 关键断言：浅克隆下 git log 只能看到 1 个 commit 且 author date
+        // 必然 >= last_sync，若不防御会上层判定为"源有 1 次变更" → error。
+        // 修复后必须返回 null，让上层走 warning 分支。
+        expect(count).toBeNull()
+    })
+
+    it('集成：浅克隆下 collectSourceOfTruthReport 不应触发 hasErrors', async () => {
+        const shallow = await setupShallowCloneLikeRepo()
+        const report = collectSourceOfTruthReport({ profile: 'default', root: shallow })
+
+        const erroredTranslations = report.translationResults.filter(
+            (r) => r.severity === 'error',
+        )
+        // 浅克隆下所有翻译文件应当走 warning（"无法访问源文档的 git 历史"），
+        // 而非 error（"源自 last_sync 以来有 1 次提交"）。
+        expect(erroredTranslations).toHaveLength(0)
+
+        // 同时报告里应当至少有 warning 项——否则说明浅克隆防御没起作用。
+        const warnedTranslations = report.translationResults.filter(
+            (r) => r.severity === 'warning',
+        )
+        expect(warnedTranslations.length).toBeGreaterThan(0)
     })
 })
 

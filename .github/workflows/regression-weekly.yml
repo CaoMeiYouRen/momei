@@ -37,6 +37,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # 必须拉取完整 git 历史：regression:weekly 内部 docs:check:source-of-truth
+          # 通过 `git log -- <sourcePath>` 比较源文档自 last_sync 以来的提交；
+          # 浅克隆（默认 fetch-depth: 1）会让脚本只看得到当前 commit，
+          # 把"本 workflow run"本身误判为源变更，触发大批量误报。
+          fetch-depth: 0
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
       - name: Setup Node.js@lts environment
@@ -67,6 +73,9 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
+        with:
+          # 必须拉取完整 git 历史：见 build-deps job 的同名 with 块说明。
+          fetch-depth: 0
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
       - name: Setup Node.js@lts environment
