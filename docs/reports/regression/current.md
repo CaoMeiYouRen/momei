@@ -23,7 +23,7 @@
 ## 2026-09-11 周级周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:weekly`
-- 证据 artifact: [md](../../../artifacts/review-gate/2026-09-11-weekly-regression.md) / [json](../../../artifacts/review-gate/2026-09-11-weekly-regression.json)
+- 证据 artifact: `../../../artifacts/review-gate/2026-09-11-weekly-regression.md` / `../../../artifacts/review-gate/2026-09-11-weekly-regression.json`
 - 结果摘要: `Reject`；blocker=1，warning=1。
 - 已执行验证: test:coverage=PASS，security:audit-deps=FAIL
 - 回归窗口: 323 行 / 13 条，归档判定=需要滚动归档。

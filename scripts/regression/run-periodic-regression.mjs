@@ -375,7 +375,7 @@ export function buildRegressionWindowEntry({
     return {
         body: [
             `- 执行入口: \`pnpm regression:${profile.key}${dryRun ? ' -- --dry-run' : ''}\``,
-            `- 证据 artifact: [md](${artifactMarkdownRelative}) / [json](${artifactJsonRelative})`,
+            `- 证据 artifact: \`${artifactMarkdownRelative}\` / \`${artifactJsonRelative}\``,
             `- 结果摘要: \`${summary.conclusion}\`；blocker=${summary.blockers.length}，warning=${summary.warnings.length}。`,
             `- 已执行验证: ${executedSummary || '无'}`,
             `- 回归窗口: ${logHealth.lineCount} 行 / ${logHealth.entryCount} 条，归档判定=${logHealth.shouldArchive ? '需要滚动归档' : '窗口健康'}。`,

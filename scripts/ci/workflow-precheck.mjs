@@ -563,7 +563,7 @@ export function buildWorkflowPrecheckWindowEntry({
     return {
         body: [
             `- 执行入口: \`pnpm run ci:precheck -- --profile=${profile.key}${dryRun ? ' --dry-run' : ''}\``,
-            `- 证据 artifact: [md](${artifactMarkdownRelative}) / [json](${artifactJsonRelative})`,
+            `- 证据 artifact: \`${artifactMarkdownRelative}\` / \`${artifactJsonRelative}\``,
             `- 结果摘要: \`${summary.conclusion}\`；blocker=${summary.blockers.length}，warning=${summary.warnings.length}。`,
             `- 已执行验证: ${executedSummary || '无'}`,
             `- Review Gate: \`${summary.conclusion}\` / \`${resolveGateSeverity(summary)}\`；主要问题=${formatFindingList(summary.blockers.length > 0 ? summary.blockers : summary.warnings)}。`,
