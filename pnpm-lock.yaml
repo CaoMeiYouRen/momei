@@ -283,8 +283,8 @@ importers:
         specifier: ^8.23.0
         version: 8.23.0
       primeicons:
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^8.0.1
+        version: 8.0.1
       primelocale:
         specifier: ^2.5.0
         version: 2.5.0
@@ -7562,7 +7562,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -10575,8 +10575,8 @@ packages:
     resolution: {integrity: sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==}
     engines: {node: '>=18'}
 
-  primeicons@8.0.0:
-    resolution: {integrity: sha512-eZGk+Mgb4fE+LkJi9LvllbnB4RVUF9kzmnLVnT3ZMY6stqKVh7TUJ0mFoMNIEgTnJSvhaGcJotDiSvtVvkHd7g==}
+  primeicons@8.0.1:
+    resolution: {integrity: sha512-5O1zIpEKUk0pKfEQSdNVJRxPivo0271zAe7vnZGl+fughxixv4PnVou2J6pPy2wy83nrDn58BqeBwWnpCZmjkw==}
 
   primelocale@2.5.0:
     resolution: {integrity: sha512-if5sKywlbltSJbuojKEHpiQu7MDVXGUCpAETjZtqchjRglV9dXgOnFQ4LL/YkYBYAgHPBoel2JhAd67sDIhZVg==}
@@ -24899,7 +24899,7 @@ snapshots:
     dependencies:
       parse-ms: 4.0.0
 
-  primeicons@8.0.0: {}
+  primeicons@8.0.1: {}
 
   primelocale@2.5.0: {}
 
