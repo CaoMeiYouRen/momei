@@ -117,7 +117,7 @@
     "debug": "^4.4.0",
     "diff": "^9.0.0",
     "dom-to-image-more": "^3.10.2",
-    "dompurify": "^3.4.14",
+    "dompurify": "^3.4.15",
     "dotenv": "^17.4.2",
     "driver.js": "^1.8.0",
     "fast-xml-parser": "^5.11.1",
