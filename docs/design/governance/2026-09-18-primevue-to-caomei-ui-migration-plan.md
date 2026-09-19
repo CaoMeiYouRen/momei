@@ -1,6 +1,6 @@
 # 2026-09-18 PrimeVue → caomei-ui UI 组件库迁移方案（已授权执行）
 
-- 日期：2026-09-18（2026-09-19 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权）
+- 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权）
 - 性质：**迁移评估与执行方案**。本文档为文档产物，**不含任何代码改动**；迁移已授权开工。
 - 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；消费路径已定为 npm `caomei-ui@0.1.0`（本地联调可用 `file:` 协议）；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段。
 - 事实源边界：库侧能力面、映射表、有意差异与验收判定口径以 caomei-ui 仓库的治理文档为**唯一事实源**（见 §13）；本文档只承载 momei 侧现状基线、批次编排、momei 侧执行动作与开工前置条件，不重复库侧明细。
@@ -57,39 +57,50 @@ PrimeVue 5 起并入 **PrimeUI 商业许可**、不再作为开源软件发布�
 
 ### 3.2 用量与耦合面（迁移工作量驱动项）
 
-统计口径见 §3.4；核心计数与 caomei-ui 资产文档 §1.3 / §1.4 的已裁定口径一致（token 1403 处 / 114 唯一；图标 629 处 / 145 文件 / 128 唯一），组件用量与库侧使用复核台账一致。
+统计口径见 §3.4；**下表数字已于 2026-09-20（第六十七阶段 M1）用 `pnpm governance:count:primevue-usage` 重新取数**，命令与脚本入口见 §3.4。
 
-| 类别 | 计数 | 口径 / 说明 |
+| 类别 | 计数（2026-09-20 重取） | 口径 / 说明 |
 | :--- | ---: | :--- |
-| PrimeVue 组件种类 | **59** | `.vue` 开标签识别 |
-| 组件开标签用法 | **1515** | 分布于 148 个 `.vue`（应用 `.vue` 共 179 个，占比 83%） |
-| 图标字符串 `pi pi-*` | **629 处 / 145 文件 / 128 唯一** | 图标体系整体改写；另含 `pi-spin` 旋转修饰类 |
-| 主题 token `--p-*` | **1403 处**（`var()` 实际引用 **1323**）/ **114 唯一** / 134 文件 | Top 前缀：`--p-surface` 494、`--p-text` 381、`--p-primary` 259、`--p-content` 126 |
-| PrimeVue 组件 class `p-*` | **190 处 / 47 文件** | Top：`p-button`、`p-error`、`p-datatable`、`p-dialog`、`p-invalid` |
-| 含 PrimeVue 选择器的 SCSS/CSS | **20 文件**（口径见 §3.4） | `.p-*` 选择器 61 处；`:deep(` 119、`:global(` 47（打穿组件内部结构） |
-| 列模板体系 | `<Column>` **153 / 20 文件**、`#body` **123**、`slotProps` **163** | 迁移的最大结构性改写面 |
+| PrimeVue 组件种类 | **59** | `.vue` 开标签识别，组件名取自 `@primevue/metadata@4.5.5` |
+| 组件开标签用法 | **1515** | 分布于 **148** 个 `.vue`（应用 `.vue` 共 179 个，占比 83%） |
+| 图标字符串 `pi pi-*` | **629 处 / 145 文件 / 129 唯一** | 唯一数比 2026-09-18 记录的 128 多 1，因本次口径含 `pi pi-spin` 旋转修饰类 |
+| 主题 token `--p-*` | **1403 处**（`var()` 实际引用 **1323**）/ **114 唯一** / **134 文件** | Top 前缀（按**唯一 token 名数**）：`surface` 18、`primary` 17、`orange` 7、`red` 7、`blue` 6、`green` 6 |
+| PrimeVue 组件 class `p-*` | **211 处 / 50 文件** | 口径 `(?<![\w-])p-[a-z][a-z0-9-]*`（比 2026-09-18 的 190/47 更宽，含 `p-button-label` 等内部类）；Top：`p-error`、`p-datatable-sm`、`p-dialog-content`、`p-invalid` |
+| 含 PrimeVue 选择器（`.p-*`） | **122 处**；**SCSS/CSS 6 文件** + **`.vue` 26 文件** | 2026-09-18 记录的「20 文件」承自库侧资产文档、口径不可复现（审计 RG-W03），已由本行替换 |
+| 选择器打穿 | `:deep(` **119**、`:global(` **47** | 打穿组件内部结构，是样式耦合的主要风险面 |
+| 列模板体系 | `<Column>` **153**、`#body` **123**、`slotProps` **163** | 迁移的最大结构性改写面（`<Column>` 涉及 20 个文件） |
 
 Top 10 组件热点：Button 356、InputText 178、Column 153、Tag 127、Select 73、Message 51、ToggleSwitch 47、InputNumber 39、Dialog 37、Divider 37。
 
 ### 3.3 命令式 API、浮层锚点与测试耦合
 
-| 类别 | 现状 | 迁移影响 |
+| 类别 | 现状（2026-09-20 重取） | 迁移影响 |
 | :--- | :--- | :--- |
-| `useToast` | 33 个 `.vue`（含 composables / `.ts` 共 45 文件） | 机械映射到 caomei-ui `useToast` |
-| `useConfirm` | 10 个 `.vue`（含 `.ts` 共 15 文件） | 回调式 `require()` → Promise 式 `confirm()` |
-| `.toggle(event)` 锚点浮层 | 6 处 / 5 个生产 `.vue`（另有 1 处测试文件命中） | 依赖「以事件坐标为锚点」定位，需结构改写为声明式 trigger（或待库侧命令式入口） |
+| `useToast` | **42 文件**（口径：出现 `useToast(` 的文件数） | 机械映射到 caomei-ui `useToast` |
+| `useConfirm` | **14 文件** | 回调式 `require()` → Promise 式 `confirm()` |
+| `.toggle(event)` 锚点浮层 | **7 处**（生产 `.vue` 6 处 / 5 文件，另有 1 处测试文件命中） | 依赖「以事件坐标为锚点」定位，需结构改写为声明式 trigger（库侧 M5-4 已定案为声明式写法） |
 | `useDialog` / `$primevue` | 0 | 无影响 |
-| vitest `vi.mock('primevue/*')` | 18 个测试文件 + `tests/testSetup.ts` | 需同步改写 |
-| E2E `p-*` class 断言 | 23 处 / 3 文件 | 需同步改写 |
+| vitest `vi.mock('primevue/*')` | **19 文件**（18 个测试文件 + `tests/testSetup.ts`） | 需同步改写 |
+| E2E `p-*` class 断言 | **23 处 / 3 文件** | 需同步改写 |
 
 ### 3.4 口径与可复现性
 
-- 组件用量按「`.vue` 内开标签计数」，带 TS 泛型守卫；属性计数 quote-aware 并合并 `attr` 与 `:attr`。
-- token 按 `--p-*` 字符串命中计数；图标按 `pi pi-[a-z0-9-]+` 命中计数。
-- 「含 PrimeVue 选择器的 SCSS/CSS 文件数」（§3.2 的 20 文件）承自 caomei-ui 资产文档 §1.1，其计数高度依赖「是否含 `.vue` 内 `<style>` 块」的口径定义；本仓库按不同口径复算结果差异显著，故该数字**仅作量级参考**，开工前必须连同其他计数按上一行命令重新取数。
-- 计数会随源码演进失效；**迁移开工前必须按 caomei-ui 资产文档 §1.2 的命令在同一 commit 上重新取数**，不得直接沿用本文档数字作为验收基准。
+**取数入口（第六十七阶段 M1 新增，取代此前的一次性人工统计）**：
 
-### 3.5 目标依赖（2026-09-19 核实）
+```bash
+pnpm governance:count:primevue-usage
+# 等价：node scripts/governance/count-primevue-usage.mjs --output=artifacts/governance/primevue-usage-latest.json
+```
+
+输出 `artifacts/governance/primevue-usage-latest.json`（机器可读）与同名 `.md`（人读摘要）。组件名清单来自仓库内提交的 `scripts/governance/data/primevue-components.json`（由 `@primevue/metadata@4.5.5` 生成，升级 primevue 主版本时需重新生成），避免运行期依赖传递依赖解析。
+
+- 组件用量按「`.vue` 内开标签计数」：`(?<![\w$])<Name(?=[\s/>]|$)`，前置守卫排除 TS 泛型（如 `ref<Tag[]>`）与更长名字的前缀误命中。
+- 图标按 `pi pi-[a-z0-9-]+` 命中计数（含 `pi pi-spin`，故唯一数比库侧口径多 1）。
+- token 按 `--p-[a-z0-9-]+` 命中计数，`var()` 引用另行统计。
+- 「含 PrimeVue 选择器」按 `.p-[a-z][a-z0-9-]*` 在 SCSS / CSS 与 `.vue` 内分别统计；**此前「20 文件」为库侧口径、不可复现，已废弃**。
+- 计数会随源码演进失效；**迁移开工前与每批收尾都必须在目标 commit 上重新取数**（`pnpm governance:count:primevue-usage`），不得直接沿用本文档数字作为验收基准。
+
+### 3.5 目标依赖（2026-09-20 核实）
 
 | 项 | 目标值 | 说明 |
 | :--- | :--- | :--- |
@@ -153,7 +164,7 @@ Top 10 组件热点：Button 356、InputText 178、Column 153、Tag 127、Select
 ### 5.3 图标体系迁移
 
 - `icon="pi pi-x"` 字符串 → `@lucide/vue` 组件，放入 `#icon` 插槽或直接作为组件使用。
-- 128 个唯一图标逐项落点、语义改名项与填充变体处理见 caomei-ui 资产文档 §3。
+- 唯一图标逐项落点、语义改名项与填充变体处理见 caomei-ui 资产文档 §3（库侧口径为 128 项；本仓库含 `pi pi-spin` 时为 129，差异原因见 §3.2）。
 - **11 项品牌图标**（github / google / twitter / linkedin / facebook / instagram / youtube / discord / twitch / tiktok / paypal）lucide 无对应，需在 B4 择一：`@iconify/vue` + Simple Icons、保留 `@mdi/font`、或自建 SVG 组件。
 - `pi-spin` 旋转修饰类不是图标；旋转动效改由加载指示组件（`ProgressSpinner` 或 Button / AutoComplete 加载态）承载。
 
@@ -177,6 +188,22 @@ Top 10 组件热点：Button 356、InputText 178、Column 153、Tag 127、Select
 - **本地联调降级路径**：仅在需要验证库侧未发布改动时，临时改为 `file:../caomei-ui`；该形态**不得进入提交**（否则 CI / Docker / Vercel 会因解析不到 `../caomei-ui` 而失败）。
 - **锁定策略**：迁移在飞期使用精确版本（`0.1.0`，不加 `^`），避免库侧 minor 发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
 - **升级动作**：每次升级 caomei-ui 版本须重跑该批次的视觉回归与定向测试，不得静默升级。
+
+### 5.7 样式层叠与 `@layer` 决策（第六十七阶段落地）
+
+**事实**：`caomei-ui/styles.css` 内**没有任何 `@layer`**（实测 `grep -c @layer` = 0），也不含 `html` / `body` / `button` / `*` 等全局元素规则；其规则全部落在 `:root` token、`[data-preset="…"]` 与 `.caomei-*` 组件类上。PrimeVue 侧则继续由其 `cssLayer` 注入到具名层 `primevue`。
+
+**决策**：**保留 `@layer primevue, momei-base, momei-overrides` 顺序不变，caomei-ui 样式以「未分层（unlayered）」形态加载。**
+
+- 依据 1：CSS 层叠规则中未分层样式优先于任何具名层。因此 caomei-ui 规则在所有 `momei-*` 层之上。
+- 依据 2：不采用「把 caomei-ui 塞进具名层」的写法。该写法需放弃模块 `injectStyles`、改用 `@import 'caomei-ui/styles.css' layer(caomei-ui)` 或 SCSS 包装层，而 Vite / PostCSS 对 `@import … layer()` 的处理未经验证，接入基座阶段不值得引入构建期不确定性。
+- 依据 3：类名空间不重叠（`.caomei-*` vs `.p-*` vs momei 自有类），未分层并不会造成实际互相覆盖。
+
+**由此产生的约束（迁移期与收尾均适用）**：
+
+1. momei 对 caomei-ui 组件的定制**走 `--caomei-*` token**（库的文档化定制路径），不通过 `momei-overrides` 层做选择器覆盖——后者对未分层样式无效。
+2. 若确需选择器级覆盖，必须写在与 caomei-ui 样式**同级或更高特异性**、且加载顺序在后的位置，不得依赖 `@layer` 取胜。
+3. B4 卸载 PrimeVue 后，若 caomei-ui 仍未分层，须重新评估是否需要在**库侧**引入分层（属库侧变更，走 caomei-ui 流程），本方案不单方面改造。
 
 ## 6. 组件映射方案
 
@@ -249,7 +276,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 | 批次 | momei 侧内容 | momei 侧产出物 | 依赖 |
 | :--- | :--- | :--- | :--- |
-| **接入基座**（momei 侧新增） | 引入 `caomei-ui@0.1.0` 与 `caomei-ui/nuxt` 模块、`CaomeiConfigProvider` + `useLocale`、CSS `@layer` 顺序、双库并存白名单载体、开工重新取数（§3.4） | 双库可同时加载的最小可用基座 + 白名单单点配置 | npm `caomei-ui@0.1.0` 已发布 |
+| **接入基座**（momei 侧新增） | 引入 `caomei-ui@0.1.0` 与 `caomei-ui/nuxt` 模块、模块自动导入的 `useLocale` / `provideLocale`（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）、CSS `@layer` 顺序、双库并存白名单载体、开工重新取数（§3.4） | 双库可同时加载的最小可用基座 + 白名单单点配置 | npm `caomei-ui@0.1.0` 已发布 |
 | **B0b 视觉验证回归基座** | 在迁移前采集基线，并升级为可自动比对的三层回归（单元 / E2E / 截图，见 §8.2）：列表页 / 表单（设置）页 / 浮层各 1 页，含关键元素计算样式快照与环境元数据（浏览器与版本、视口、主题与明暗、locale、`@layer`） | 基线采集脚本 / 命令、比对脚本、CI 接入、阈值策略、环境、两仓 commit、快照日期齐全的可复现记录 | 接入基座；**不依赖 M5** |
 | **全局 token 语义层**（momei 侧新增） | 按 §5.2 第 ① 层，以并存桥接方式引入 `--caomei-*` 语义 token 与 caomei `momei` 预设，保留 `--p-*` 供给未迁移组件 | 语义层映射说明 + `@layer` 顺序记录 + 视觉回归无差异证据 | 接入基座 + B0b（需先有比对能力才可判定无回退） |
 | **B2 数据类页面** | 先做**试点页 1-2 个**（端到端验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路），再推 20 个 `<Column>` 文件：`pages/admin/posts`、`users`、`friend-links`、`comments`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance`、`components/admin/admin-taxonomy-page.vue`、`components/admin/ai/task-list.vue`、`components/admin/marketing-campaign-list.vue`、`components/admin/settings/{admin-notification-settings,agreements-settings,notification-delivery-log-list,setting-audit-log-list}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue` | 试点结论（链路可行性 + 耗时画像）、逐页功能回归（排序 / 分页 / 选择 / 列插槽）+「文件 → 改动点」清单 | 接入基座 + B0b + 全局 token 语义层 |
@@ -308,7 +335,23 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 - 对比点：B0b 基线（PrimeVue 在产物内）↔ B4 收尾（PrimeVue 卸载后）。
 - 记录项：构建命令与两仓 commit；产物总量与 gzip / brotli 体积；按 chunk 体积；PrimeVue 与 primeicons 相关 chunk 是否归零；快照日期。
-- 判定口径：记录含命令 + commit + 日期即视为可复现；PrimeVue 与 primeicons 相关 chunk 归零；总量与主 chunk 体积变化有数值。阈值由 momei 既有包体预算（`test:perf:budget` / `.github/perf/bundle-baseline.json`）承担，本方案不预设新阈值。
+- 判定口径：记录含命令 + commit + 日期即视为可复现；PrimeVue 与 primeicons 相关 chunk 归零；总量与主 chunk 体积变化有数值。阈值由 momei 既有包体预算（`test:perf:budget` / `.github/perf/bundle-baseline.json`）承担；除 §8.4.1 记录的并存期配额（`keyCss` 临时 85KB）外，本方案不预设其他新阈值。
+
+#### 8.4.1 并存期 `keyCss` 配额（2026-09-20 用户决策）
+
+并存期两套组件库样式必须同时进产物，而 caomei-ui 的 `styles.css` 是**单一全量文件**（167KB 原始 / 约 25.8KB gzip），无法按组件裁剪。M1 接入基座后实测：
+
+| 指标（gzip） | 迁移前基线 | M1 接入后 | 并存期配额 | 结论 |
+| :--- | ---: | ---: | ---: | :--- |
+| `keyCssGzipBytes` | 59,795 | **75,110**（+15.3KB，+25.6%） | 70KB → **85KB** | 配额内 |
+| `maxAsyncChunkJsGzipBytes` | 126,635 | 126,807（+172B） | 130KB | 配额内 |
+| `coreEntryJsGzipBytes` | 210 | 210 | 260KB | 配额内（该行以字节列示，配额以 KB 表示） |
+
+该增长即风险登记 #3「双库并存期包体膨胀」的预期代价。经用户决策采用**显式且可撤销**的并存期配额：
+
+- `scripts/perf/check-bundle-budget.mjs` 的 `keyCssGzipBytes` 放开至 `85 * KB`，并在脚本内注明原因与回落要求。
+- `.github/perf/bundle-baseline.json` 同步刷新为并存期基线（含 `note` 字段说明）。
+- **B4 卸载 PrimeVue 后必须回落**：`keyCssGzipBytes` 恢复 `70 * KB` 并刷新基线；届时 PrimeVue 主题样式退出产物，预期 CSS 重新低于 70KB。未回落即视为 B4 未完成。
 
 ### 8.5 逐批清单
 
@@ -318,21 +361,21 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
 
 | # | 风险 | 影响 | 缓解 |
 | :-: | :--- | :--- | :--- |
-| 1 | **样式 / 主题耦合是最大盲区**：1403 处 `--p-*` + 约 20 个含 PrimeVue 选择器的样式文件（口径见 §3.2 / §3.4，开工前重取）+ 119 处 `:deep()`，momei 已把 Aura 调成自己的设计语言 | 无法靠计数判断完成度，易出现观感回退 | token 对照表 + 计算样式 / 截图基线逐项闭环；按消费点核对多义色阶；B4 前保持"不属于差异清单的变化不得静默出现" |
+| 1 | **样式 / 主题耦合是最大盲区**：1403 处 `--p-*` + `.p-*` 选择器 122 处（SCSS/CSS 6 文件 + `.vue` 26 文件）+ 119 处 `:deep()`，momei 已把 Aura 调成自己的设计语言 | 无法靠计数判断完成度，易出现观感回退 | token 对照表 + 计算样式 / 截图基线逐项闭环；按消费点核对多义色阶；B4 前保持"不属于差异清单的变化不得静默出现" |
 | 2 | **B4 依赖库侧 M5** | ~~浮层 / 展示类 8 个组件无法按现行 API 迁移~~ **已解除（2026-09-19）** | M5 十项已交付、B1 出口条件达成、caomei-ui Phase 7 第二阶段已归档；B2 / B3 / B4 均不再受库侧阻塞 |
 | 2b | **截图回归的环境脆弱性**：跨 OS / 浏览器渲染差异、字体、动画、动态数据导致假阳性 | 视觉回归被误判为失败或被迫放宽阈值，失去守线意义 | 固定浏览器 / viewport / locale / 时区、关闭动画、mask 动态区域；以 CI 生成为唯一基线来源；阈值调整必须显式评审 |
 | 2c | **npm 本地联调形态误提交**：临时改用 `file:../caomei-ui` 后忘记改回 | CI / Docker / Vercel 解析失败 | 提交前检查 `package.json` 与 `pnpm-lock.yaml` 中 `caomei-ui` 协议；把该检查写入批次清单 |
-| 3 | **双库并存期**：两套 token 与组件样式同时进产物，组件同名不同源 | 包体膨胀、主题互相覆盖、同路由混用风险 | 按路由白名单隔离、整路由迁移完成才切换；包体监控；白名单状态可从单点配置读出 |
-| 4 | **命令式 API 与锚点定位**：6 处 `.toggle(event)` 依赖事件坐标定位 | 需结构改写，可能引发浮层定位回归 | 优先等库侧 M5-4 / M5-6 结论；逐处 UI 复核；改写点登记到 B4 清单 |
+| 3 | **双库并存期**：两套 token 与组件样式同时进产物，组件同名不同源 | 包体膨胀（keyCss +15.3KB gzip，见 §8.4.1）、主题互相覆盖、同路由混用风险 | 按路由白名单隔离（`lib/ui-library.ts` 单点事实源）、整路由迁移完成才切换；并存期 `keyCss` 配额 70→85KB 且 **B4 必须回落**；同名 composables 由 `modules/caomei-ui-coexistence.ts` 隔离 |
+| 4 | **命令式 API 与锚点定位**：7 处 `.toggle(event)`（生产 6 / 测试 1）依赖事件坐标定位 | 需结构改写，可能引发浮层定位回归 | 库侧 M5-4 / M5-6 已定案为声明式写法；逐处 UI 复核；改写点登记到 B4 清单 |
 | 5 | **SSR / hydration 稳定性**：两侧组件均用 portal / teleport，momei 为 Nuxt 4 SSR | hydration 不匹配或样式闪烁 | 迁移后对受影响路由做 SSR + hydration 复核；E2E 覆盖关键路径 |
-| 6 | **测试与 E2E 耦合**：18 个 vitest mock 文件 + 3 个 E2E 文件的 `p-*` 断言 | 迁移期间测试大面积失败，掩盖真实回归 | 与迁移同批改写 mock 与断言；按批次定向跑，收尾全量 |
+| 6 | **测试与 E2E 耦合**：19 个 vitest mock 文件（18 测试文件 + `tests/testSetup.ts`）+ 3 个 E2E 文件的 23 处 `p-*` 断言 | 迁移期间测试大面积失败，掩盖真实回归 | 与迁移同批改写 mock 与断言；按批次定向跑，收尾全量 |
 | 7 | **行为差异未预期**：`Switch change` 载荷由原生事件改为布尔值、`Password feedback` 默认关闭、`InputNumber useGrouping` 默认开启、`Select filter` 改组件等 | 用户可感知的行为变化 | 16 条差异逐条核对；变更点显式记录；必要处显式传参保持原行为 |
 | 8 | **品牌图标无直接对应** | 11 项品牌图标需额外方案 | B4 择一并登记；候选见 §5.3 |
 | 9 | **PrimeVue 4 期间的安全窗口**：迁移完成前仍依赖终点版本 | 迁移周期内无安全更新 | 缩短迁移周期；迁移未完成期关注 dependabot / audit 告警，必要时局部打补丁 |
 
 ## 10. 工作量画像与排期建议
 
-- 迁移面：**1515 个组件开标签 / 148 个 `.vue`**（占应用页面 83%）；图标 629 处 / 145 文件；token 1403 处；命令式 API 43 个 `.vue`；测试耦合 21 个文件。
+- 迁移面：**1515 个组件开标签 / 148 个 `.vue`**（占应用页面 83%）；图标 629 处 / 145 文件；token 1403 处；命令式 API `useToast` 42 文件 / `useConfirm` 14 文件；测试耦合 19 个 mock 文件 + 3 个 E2E 文件。
 - 批次容量建议：B2 以 20 个列表页为一批（可按管理端主路径再拆 2-3 个子批）；B3 以设置 / 安装 / auth 分组推进；B4 因涉及全量图标、浮层与卸载，体量最大，建议单独成阶段。
 - **排期落地（2026-09-19 用户授权）**：采用**方案 A 三阶段轨迹**，迁移从第六十七阶段起正式上收为阶段主线：
   1. **第六十七阶段**：接入基座 + 视觉验证回归基座 + 全局 token 语义层 + B2 试点页（先验证全链路再全量）。

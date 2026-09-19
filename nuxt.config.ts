@@ -74,6 +74,7 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
         '@primevue/nuxt-module',
+        'caomei-ui/nuxt',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
@@ -251,6 +252,13 @@ export default defineNuxtConfig({
         sourceMapsUploadOptions: {
             enabled: false,
         },
+    },
+    // 与 PrimeVue 并存：darkMode 契约保持 `.dark`（与既有 `darkModeSelector: '.dark'` 一致）；
+    // 并存期只接入模块与样式，品牌预设 / token 语义映射在全局 token 语义层主线中处理。
+    caomeiUI: {
+        prefix: 'Caomei',
+        darkMode: 'class',
+        injectStyles: true,
     },
     primevue: {
         options: {

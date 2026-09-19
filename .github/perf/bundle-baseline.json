@@ -1,8 +1,9 @@
 {
-  "timestamp": "2026-07-26T06:27:25.514Z",
+  "timestamp": "2026-09-19T17:26:57.000Z",
+  "note": "并存期（PrimeVue + caomei-ui）基线，实测于 2026-09-19T17:26:57Z（本地 2026-09-20 01:26）。keyCss 增长源于 caomei-ui 全量样式注入；PrimeVue 卸载后须回落 keyCss 预算与基线，依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
   "metrics": {
     "coreEntryJsGzipBytes": 210,
-    "maxAsyncChunkJsGzipBytes": 126635,
-    "keyCssGzipBytes": 59795
+    "maxAsyncChunkJsGzipBytes": 126807,
+    "keyCssGzipBytes": 75110
   }
 }

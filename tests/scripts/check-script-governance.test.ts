@@ -35,6 +35,15 @@ describe('check-script-governance', () => {
         ])
     })
 
+    it('does not treat non-script extensions like .json as script references', () => {
+        expect(extractScriptReferences([
+            '- `scripts/governance/data/primevue-components.json`',
+            '- `scripts/governance/count-primevue-usage.mjs`',
+        ].join('\n'))).toEqual([
+            'scripts/governance/count-primevue-usage.mjs',
+        ])
+    })
+
     it('reports temporary residue, unreferenced scripts and documented missing entries', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'script-governance-'))
 

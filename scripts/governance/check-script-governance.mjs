@@ -231,7 +231,7 @@ function buildFinding(code, filePath, message, severity = 'warning') {
 }
 
 export function extractScriptReferences(content, sourceFilePath = null, projectRoot = repoRoot) {
-    const matches = content.matchAll(/(?:^|[^A-Za-z0-9_/-])((?:(?:\.\.\/)|(?:\.\/))*scripts\/[A-Za-z0-9._/-]+\.(?:mjs|js|cjs|ts|ps1))/gu)
+    const matches = content.matchAll(/(?:^|[^A-Za-z0-9_/-])((?:(?:\.\.\/)|(?:\.\/))*scripts\/[A-Za-z0-9._/-]+\.(?:mjs|js|cjs|ts|ps1))(?![A-Za-z0-9])/gu)
 
     const directReferences = [...matches].map((match) => match[1].replace(/^((?:\.\.\/)|(?:\.\/))+/u, ''))
 

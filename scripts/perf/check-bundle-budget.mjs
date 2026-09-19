@@ -5,10 +5,24 @@ import { parseCliOptions } from '../shared/cli.mjs'
 
 const KB = 1024
 
+/**
+ * 包体预算（gzip 口径）。
+ *
+ * `keyCssGzipBytes` 采用**并存期配额**：PrimeVue → caomei-ui 迁移期间两套组件库样式必须同时进产物，
+ * 而 caomei-ui 的 `styles.css` 是单一全量文件（167KB 原始 / 约 25.8KB gzip），无法按组件裁剪；
+ * 叠加后实测 59,795 → 75,110 字节。该增长属迁移方案「双库并存期」风险的预期代价，故放开 70KB → 85KB。
+ *
+ * **迁移收尾、PrimeVue 卸载后必须回落**：把 `keyCssGzipBytes` 恢复为 `70 * KB`，并同步刷新
+ * `.github/perf/bundle-baseline.json`。届时 PrimeVue 主题样式退出产物，预期 CSS 重新低于 70KB；
+ * 若不回落，本配额会长期掩盖并存期结束后的真实回归。
+ *
+ * 依据与验收口径见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md`
+ * 的「包体对比」章节（含并存期配额小节）。
+ */
 const BUDGETS = {
     coreEntryJsGzipBytes: 260 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
-    keyCssGzipBytes: 70 * KB,
+    keyCssGzipBytes: 85 * KB,
     prIncrementJsGzipBytes: 20 * KB,
 }
 

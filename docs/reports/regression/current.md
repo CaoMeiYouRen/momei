@@ -19,6 +19,38 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase67-m1-integration:第六十七阶段-M1:2026-09-20 -->
+## 2026-09-20 第六十七阶段 M1 接入基座验证（PrimeVue → caomei-ui）
+
+### 范围
+
+- 接入 npm `caomei-ui@0.1.0`（迁移期精确锁定）；`caomei-ui/nuxt` 与 `@primevue/nuxt-module` 并存。（`@lucide/vue` 延后到真正直连图标的批次再声明为直接依赖。）
+- 新增同名自动导入隔离模块 `modules/caomei-ui-coexistence.ts`（`useToast` / `useConfirm` / `useTheme`）。
+- 新增并存期白名单载体 `lib/ui-library.ts`（路由 → 组件来源单一事实源）。
+- 新增迁移基线重取脚本 `scripts/governance/count-primevue-usage.mjs` 与 npm 入口 `governance:count:primevue-usage`（含组件名清单再生成入口）。
+- 包体预算并存期配额调整（`keyCssGzipBytes` 70KB → 85KB）与基线刷新。
+
+### 验证结果
+
+- `pnpm typecheck`：PASS。
+- `pnpm lint`：PASS（0 error；7 warning 为既有、与本次改动无关）。
+- `pnpm test`：PASS（524 文件 / 4448 用例通过，1 skipped）。
+- `pnpm build`：PASS；产物同时包含 `--caomei-color-primary` / `.caomei-button` 与 `--p-*`，双库同产物共存已实证。
+- `pnpm test:perf:budget`：PASS（`keyCss` 73.35KB / 85KB 并存期配额；口径与决策见迁移方案 §8.4.1）。
+- 定向测试：`lib/ui-library.test.ts` 8 用例 + `tests/modules/caomei-ui-coexistence.test.ts` 6 用例，共 14 用例 PASS。
+- 自动导入隔离实证：`nuxt prepare` 无 `Duplicated imports` 警告；`.nuxt/imports.d.ts` 中 `useToast` 归 `primevue/usetoast`、`useConfirm` 归 `primevue/useconfirm`、`useTheme` 归 `composables/use-theme.ts`，caomei-ui 仅保留 `useLocale` / `provideLocale`。
+- 迁移基线重取：组件 59 类 / 1515 处 / 148 文件；图标 629 处 / 145 文件；token 1403 处（`var()` 1323）/ 114 唯一 / 134 文件；`<Column>` 153；`.toggle()` 7。
+
+### 未覆盖边界
+
+- **E2E 关键集未稳定通过**：`pnpm test:e2e:critical` 首次运行 `auth-session-governance` 超时失败。已取证判定为 **flaky 而非回归**——firefox 单独运行全通过、chromium `--repeat-each=3` 为 2 通过 / 1 失败、两次运行失败的不是同一条测试、失败形态均为 timeout。**M2 采集 E2E 基线时必须显式登记已知 flaky 集**，并对比 M1 前后的 flaky 率是否有实质上升。
+- **`CaomeiConfigProvider` 与组件内建文案 locale 注入延后**：本批只接入模块与自动导入的 `useLocale` / `provideLocale`，Provider 包裹与 `plugins/primevue-i18n.ts` 替换推迟到真正启用 caomei-ui 组件的批次，避免在 PrimeVue 仍在使用时提前切换文案来源。
+- **CSS `@layer` 顺序决策已落盘**：保持既有层序 `primevue, momei-base, momei-overrides` 不变，caomei-ui 以未分层形态加载（依据：其实测无 `@layer`、无全局元素规则）。由此产生的定制约束见迁移方案「样式层叠与 @layer 决策」章节。
+- 视觉验证回归（单元 / E2E / 截图三层）尚未建立，属 M2 范围；本批无 UI 可见变化。
+- 白名单初始为空（尚无路由迁移），路由级隔离规则未被真实用例触发。
+
+<!-- regression-window:end:phase67-m1-integration:第六十七阶段-M1:2026-09-20 -->
+
 <!-- regression-window:start:periodic-regression:weekly:2026-09-11 -->
 ## 2026-09-11 周级周期性回归（自动回填）
 

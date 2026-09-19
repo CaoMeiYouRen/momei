@@ -434,9 +434,9 @@
 
 1. **主线：接入基座与消费路径（backlog #11）（P1）**:
 
-    - **执行范围**: 以 npm 依赖引入 `caomei-ui@0.1.0`（迁移在飞期锁定精确版本）；在 `nuxt.config.ts` 接入 `caomei-ui/nuxt` 模块与 `caomei-ui/styles.css`，与既有 `@primevue/nuxt-module` 并存；接入 `CaomeiConfigProvider` 并保留现有 i18n 链路；确定 CSS `@layer` 顺序；落地双库并存白名单载体（路由级隔离、单点可读）；确认 `@lucide/vue` 是否需在 momei 侧显式声明为直接依赖（试点页在 momei 模板直接引用图标时必需，pnpm 严格 node_modules 不允许引用传递依赖）；按迁移方案 §3.4 在目标 commit 上重新取数并更新基线数字。
+    - **执行范围**: 以 npm 依赖引入 `caomei-ui@0.1.0`（迁移在飞期锁定精确版本）；在 `nuxt.config.ts` 接入 `caomei-ui/nuxt` 模块与 `caomei-ui/styles.css`，与既有 `@primevue/nuxt-module` 并存；接入模块自动导入的 `useLocale` / `provideLocale`（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）；确定 CSS `@layer` 顺序；落地双库并存白名单载体（路由级隔离、单点可读）；确认 `@lucide/vue` 是否需在 momei 侧显式声明为直接依赖（试点页在 momei 模板直接引用图标时必需，pnpm 严格 node_modules 不允许引用传递依赖）；按迁移方案 §3.4 在目标 commit 上重新取数并更新基线数字。
     - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
-    - **最小验收**: 两套库可在同一构建中同时加载且互不覆盖；白名单载体可单点读出当前路由的组件来源；所需依赖在 momei 侧声明完整、无 pnpm 严格 node_modules 解析报错；重新取数结果落盘；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
+    - **最小验收**: 两套库可在同一构建中同时加载且互不覆盖；白名单载体可单点读出当前路由的组件来源；所需依赖在 momei 侧声明完整、无 pnpm 严格 node_modules 解析报错；重新取数结果落盘；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线（`keyCss` 按迁移方案 §8.4.1 的并存期配额 85KB 判定）。
     - **证据落点**: 取数结果与白名单说明写入迁移方案文档；构建与预算结果写入 `docs/reports/regression/current.md`。
 
 2. **主线：视觉验证回归基座（backlog #11）（P1）**:
@@ -467,7 +467,7 @@
 - 全局 token 语义层：移除 `--caomei-*` 桥接与 `momei` 预设注册即可恢复原 token 体系；因未改动消费点，回滚面限于样式层。
 - B2 试点页：该路由白名单切回 PrimeVue 并 `git revert` 该路由改动；双库并存使单路由回滚可独立执行、成本低。
 
-**后续阶段轨迹（方案 A，已授权方向，未展开规划）**: 第六十八阶段承接 B2 剩余数据页 + B3 表单与设置；第六十九阶段承接 B4 展示、浮层与收尾（含卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` 与包体对比）。各阶段范围须在其准入时按规划规范单独评估，本阶段不提前落盘其原子条目。
+**后续阶段轨迹（方案 A，已授权方向，未展开规划）**: 第六十八阶段承接 B2 剩余数据页 + B3 表单与设置；第六十九阶段承接 B4 展示、浮层与收尾（含卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` 与包体对比）。**B4 必须回落并存期包体配额**（`keyCssGzipBytes` 85KB → 70KB + 刷新基线，见迁移方案 §8.4.1），未回落即视为 B4 未完成。各阶段范围须在其准入时按规划规范单独评估，本阶段不提前落盘其原子条目。
 
 > 事实源: [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；迁移动因见 [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 11 条。
 
