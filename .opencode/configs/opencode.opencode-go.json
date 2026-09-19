@@ -1,47 +1,48 @@
 {
-    "model": "opencode-go/deepseek-v4-flash",
+    "model": "opencode-go/deepseek-v4.1-flash",
     "agent": {
         "full-stack-master": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "primary",
-            "variant": "max"
+            "variant": "high"
         },
         "product-manager": {
-            "model": "opencode-go/deepseek-v4-pro",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "primary",
             "variant": "max"
         },
         "code-auditor": {
-            "model": "opencode-go/deepseek-v4-pro",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
-            "variant": "max"
+            "variant": "high"
         },
         "qa-assistant": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
             "variant": "low"
         },
         "ui-validator": {
-            "model": "opencode-go/qwen3.7-plus",
-            "mode": "subagent"
+            "model": "opencode-go/deepseek-v4.1-flash",
+            "mode": "subagent",
+            "variant": "high"
         },
         "frontend-developer": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
-            "variant": "max"
+            "variant": "high"
         },
         "backend-developer": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
-            "variant": "max"
+            "variant": "high"
         },
         "test-engineer": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
-            "variant": "max"
+            "variant": "high"
         },
         "documentation-specialist": {
-            "model": "opencode-go/deepseek-v4-flash",
+            "model": "opencode-go/deepseek-v4.1-flash",
             "mode": "subagent",
             "variant": "medium"
         }

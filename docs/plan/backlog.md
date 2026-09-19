@@ -311,16 +311,19 @@
 - **目标**:
     - 跟踪 PrimeVue 锁定在 MIT 版本（4.x）后形成的终点依赖风险，并评估迁移到其他 UI 组件库的可行性与成本，输出明确 go/no-go 结论，而不是在依赖升级 PR 中被动决策。
 - **专项设计事实源**:
-    - [docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)，评估维度与后续议题以该文档为准。
+    - [docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)，迁移动因、许可证事实与屏蔽策略以该文档为准。
+    - [docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)，momei 侧迁移方案（现状基线、批次编排、验收与风险）以该文档为准；库侧能力面与验收判定口径以 caomei-ui 仓库治理文档为唯一事实源。
 - **状态**:
-    - 观察中。
+    - 评估完成：判定迁移到 caomei-ui **可行（Go）**，采用分批全量（B0b / B2 / B3 / B4）。
 - **最近一次上收阶段**:
-    - 尚未上收（新增主线，等待评估窗口）。
+    - 尚未上收（评估已落盘；等待 caomei-ui 库侧 M5 交付后按阶段准入上收）。
 - **当前状态**:
     - PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布，Dependabot PR #688 已判定 No-Go；`primevue` / `@primevue/*` / `@primeuix/*` 已在 `.github/dependabot.yml` 中按版本屏蔽。
     - 当前锁定在 `primevue@4.5.5`，MIT 授权永久有效但官方未承诺 v4 长期安全维护窗口。
+    - 迁移评估已完成：59 个组件 / 1515 处用法 / 629 处图标 / 1403 处 token 待迁移；无不可逾越的能力阻塞。
+    - **开工阻塞**：caomei-ui B1 的 M5（浮层与展示类 10 项）未交付；B0b 视觉基线可先行。
 - **下一次可切片方向**:
-    - 先盘点现有 PrimeVue 用法基线（组件种类、主题体系、层叠约定、暗色模式与 locale 接入点），再启动候选库调研。
+    - B0b 视觉基线（列表 / 表单 / 浮层各 1 页）先行；M5 交付后按 B2 数据类页面 → B3 表单与设置 → B4 展示、浮层与收尾顺序上收为正式阶段主线。
 ## 周期性回归验证层
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
 ### 固定执行入口
