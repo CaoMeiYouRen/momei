@@ -185,7 +185,7 @@
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/eslint-config": "^1.17.0",
     "@nuxt/test-utils": "^4.3.2",
-    "@nuxtjs/sitemap": "^8.5.0",
+    "@nuxtjs/sitemap": "^8.5.1",
     "@playwright/test": "^1.63.0",
     "@primevue/nuxt-module": "^4.5.5",
     "@types/debug": "^4.1.13",
