@@ -309,21 +309,20 @@
     - `audit:comment-drift` 已在 Phase 66 完成升格复核（结论 go，维持 Phase 52 已升格状态）；后续切片方向为按周级回归趋势跟踪 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理。
 11. **UI 组件库许可证风险与迁移可行性治理**
 - **目标**:
-    - 跟踪 PrimeVue 锁定在 MIT 版本（4.x）后形成的终点依赖风险，并评估迁移到其他 UI 组件库的可行性与成本，输出明确 go/no-go 结论，而不是在依赖升级 PR 中被动决策。
+    - 消除 PrimeVue 锁定在 MIT 终点版本（4.x）后形成的许可证与维护风险，按已评估方案迁移到许可证可控的 caomei-ui，而不是在依赖升级 PR 中被动决策。
 - **专项设计事实源**:
-    - [docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)，迁移动因、许可证事实与屏蔽策略以该文档为准。
-    - [docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)，momei 侧迁移方案（现状基线、批次编排、验收与风险）以该文档为准；库侧能力面与验收判定口径以 caomei-ui 仓库治理文档为唯一事实源。
+    - [2026-08-29 PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)，迁移动因、许可证事实与屏蔽策略以该文档为准。
+    - [2026-09-18 PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)，momei 侧现状基线、批次编排、消费路径、视觉验证回归与验收口径以该文档为准；库侧能力面与验收判定口径以 caomei-ui 仓库治理文档为唯一事实源。
 - **状态**:
-    - 评估完成：判定迁移到 caomei-ui **可行（Go）**，采用分批全量（B0b / B2 / B3 / B4）。
+    - 进行中（已上收第六十七阶段，方案 A 三阶段轨迹）。
 - **最近一次上收阶段**:
-    - 尚未上收（评估已落盘；等待 caomei-ui 库侧 M5 交付后按阶段准入上收）。
+    - 第六十七阶段（2026-09-19 授权上收首个执行阶段：接入基座 + 视觉验证回归基座 + 全局 token 语义层 + B2 试点页）。
 - **当前状态**:
-    - PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布，Dependabot PR #688 已判定 No-Go；`primevue` / `@primevue/*` / `@primeuix/*` 已在 `.github/dependabot.yml` 中按版本屏蔽。
-    - 当前锁定在 `primevue@4.5.5`，MIT 授权永久有效但官方未承诺 v4 长期安全维护窗口。
-    - 迁移评估已完成：59 个组件 / 1515 处用法 / 629 处图标 / 1403 处 token 待迁移；无不可逾越的能力阻塞。
-    - **开工阻塞**：caomei-ui B1 的 M5（浮层与展示类 10 项）未交付；B0b 视觉基线可先行。
+    - PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布，Dependabot PR #688 已判定 No-Go；`primevue` / `@primevue/*` / `@primeuix/*` 已在 `.github/dependabot.yml` 中按版本屏蔽；当前锁定 `primevue@4.5.5`。
+    - 迁移面：59 个组件 / 1515 处用法 / 629 处图标 / 1403 处 token 待迁移；无不可逾越的能力阻塞。
+    - **原开工阻塞已解除（2026-09-19）**：caomei-ui M5 十项已交付、Phase 7 第二阶段已归档、B1 出口条件达成（71 文件 / 1368 例 `pnpm verify` 通过）；`caomei-ui@0.1.0` 已发布至 npm（本地联调用 `file:`）。
 - **下一次可切片方向**:
-    - B0b 视觉基线（列表 / 表单 / 浮层各 1 页）先行；M5 交付后按 B2 数据类页面 → B3 表单与设置 → B4 展示、浮层与收尾顺序上收为正式阶段主线。
+    - 第六十八阶段：B2 剩余数据页 + B3 表单与设置；第六十九阶段：B4 展示、浮层与收尾（含卸载 PrimeVue 与包体对比）。
 ## 周期性回归验证层
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
 ### 固定执行入口

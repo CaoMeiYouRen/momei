@@ -418,6 +418,59 @@
 
 > 详细条目见 [待办归档](./todo-archive.md#第六十六阶段编辑器续航与覆盖率攻坚已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
 
+### 第六十七阶段：PrimeVue → caomei-ui 迁移（一）——接入基座、视觉回归与试点（Phase 67: PrimeVue to caomei-ui Migration I — Integration Baseline, Visual Regression & Pilot）
+
+**时间表**: 2026-09-19 ~ 待定（按里程碑滚动，不预设结束日）
+
+**目标**: 承接 backlog 长期主线第 11 条「UI 组件库许可证风险与迁移可行性治理」，按已授权的**方案 A 三阶段轨迹**落地第一个执行阶段。本阶段不追求批量迁移，而是先把**迁移链路打通并建立可自动比对的守线能力**：引入 npm `caomei-ui@0.1.0` 与双库并存基座、建立单元 / E2E / 截图三层视觉验证回归并采集迁移前基线、以桥接方式完成全局 token 语义层、用 1-2 个数据页试点验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路可闭环。
+
+**准入结论**: 四条主线均来自 [迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [backlog](./backlog.md) 长期主线第 11 条，属用户 2026-09-19 授权上收的长期主线切片（方案 A + 试点先行 + 建立视觉回归），容量控制在 `4` 项内，符合规划规范。其中「全局 token 语义层」ROI `1.13` 落在规划规范 §3.3 的积压带（`1.0 < Score ≤ 1.5`），此处按**使能项例外**上收：它本身不产生用户可见价值，但决定后续批次能否在无观感回退的前提下推进，理由见 ROI 评估。
+
+**准入前置（已核对）**: 库侧 caomei-ui Phase 7 第二阶段（含 M5 十项）已于 2026-09-19 归档；B1 出口条件达成（最后一次全量 `pnpm verify` 71 文件 / 1368 例通过）；`caomei-ui@0.1.0` 已发布至 npm（MIT，导出 `.` / `./nuxt` / `./resolver` / `./styles.css`）；原阻塞（M5 未交付）已解除。
+
+**ROI 评估**: 接入基座与消费路径 `1.67`；视觉验证回归基座 `1.80`；全局 token 语义层 `1.13`（矩阵分数偏低，因本线为纯使能项且样式盲区风险高，其价值体现在解除后续批次的观感回退风险）；B2 试点页 `1.29`。
+
+**长期主线容量说明**: 本阶段迁移工作占满阶段容量，测试覆盖率 / ESLint / 结构复用等长期主线本期不上收新切片，改由 `pnpm regression:weekly` 保持不回退；迁移期间若出现非阻塞治理债，按规划规范 §3.4 归入 backlog。
+
+1. **主线：接入基座与消费路径（backlog #11）（P1）**:
+
+    - **执行范围**: 以 npm 依赖引入 `caomei-ui@0.1.0`（迁移在飞期锁定精确版本）；在 `nuxt.config.ts` 接入 `caomei-ui/nuxt` 模块与 `caomei-ui/styles.css`，与既有 `@primevue/nuxt-module` 并存；接入 `CaomeiConfigProvider` 并保留现有 i18n 链路；确定 CSS `@layer` 顺序；落地双库并存白名单载体（路由级隔离、单点可读）；确认 `@lucide/vue` 是否需在 momei 侧显式声明为直接依赖（试点页在 momei 模板直接引用图标时必需，pnpm 严格 node_modules 不允许引用传递依赖）；按迁移方案 §3.4 在目标 commit 上重新取数并更新基线数字。
+    - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
+    - **最小验收**: 两套库可在同一构建中同时加载且互不覆盖；白名单载体可单点读出当前路由的组件来源；所需依赖在 momei 侧声明完整、无 pnpm 严格 node_modules 解析报错；重新取数结果落盘；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
+    - **证据落点**: 取数结果与白名单说明写入迁移方案文档；构建与预算结果写入 `docs/reports/regression/current.md`。
+
+2. **主线：视觉验证回归基座（backlog #11）（P1）**:
+
+    - **执行范围**: 建立三层回归能力——① 单元层（Vitest + Vue Test Utils 组件渲染 / 关键 DOM、类名、ARIA 断言）；② E2E 功能层（复用既有 Playwright 17 个 spec，确认迁移前全绿）；③ 截图识别层（新增 Playwright `toHaveScreenshot` 视觉回归工程，**独立 project / config**，不并入既有 `test:e2e` 的 `testMatch`）。完成迁移前基线采集（列表页 / 表单（设置）页 / 浮层各 1 页，覆盖浅色 / 深色主题与目标 viewport）。固化环境可复现配置（浏览器渠道与版本、viewport、locale、时区、关闭动画、隐藏光标）、阈值策略与 CI 接入方式；动态区域以 `mask` 显式遮蔽；声明 CI 增量耗时预算与基线快照体积 / 保留策略。
+    - **非目标**: 不做全站截图覆盖；不与 caomei-ui 仓库做跨仓触发；不改变既有 `pnpm test:e2e` / `test:e2e:critical` / `test:e2e:review-gate`（`run-review-gate-ui-baseline.mjs`）的断言语义与证据产出；不以放宽阈值代替差异归因。
+    - **最小验收**: 三层入口各自可独立运行且可复现；迁移前基线快照随仓库提交；故意改动一处样式可被截图层稳定检出（假阳性与假阴性各验证一次）；既有 E2E / review-gate 入口行为不变；CI 增量为可解释数值；`pnpm typecheck` + `pnpm lint` 通过。
+    - **证据落点**: 采集与比对命令、环境元数据、基线快照、阈值策略、CI 耗时与基线体积数据落盘；CI 接入写入 `.github/workflows/`。
+
+3. **主线：全局 token 语义层桥接（backlog #11）（P1）**:
+
+    - **执行范围**: 按迁移方案 §5.2 第 ① 层，为 `styles/_variables.scss`、`styles/main.scss`、`layouts/**`、`nuxt.config.ts` 的 `MomeiPreset` 建立 `--caomei-*` 语义 token 与 caomei `momei` 预设的并存桥接；派生档位统一用 `color-mix()` 表达；确定与 PrimeVue 并存的 `@layer` 顺序。
+    - **非目标**: **不做消费点提前清理**——87 个 components、27 个 pages 内的 `--p-*` 与 `p-*` 消费点保留至各批整页迁移时删除；不重命名未迁移页面依赖的 `--p-*`；不移除 PrimeVue 预设。
+    - **最小验收**: 语义层桥接后，未迁移页面在三层视觉回归下**无差异**；`--caomei-*` 语义 token 可被新页面直接消费；`pnpm lint:css` + `pnpm typecheck` + `pnpm build` 通过。
+    - **证据落点**: 语义映射说明 + 视觉回归无差异证据 + `@layer` 顺序记录。
+
+4. **主线：B2 试点页迁移（backlog #11）（P1）**:
+
+    - **执行范围**: 从 B2 数据类页面范围中选取 1-2 个试点页（优先管理端主路径、覆盖 DataTable 列插槽 / 分页 / 选择 / Tag / Button / InputText 等高频组件），按**路由整体切换**完成 PrimeVue → caomei-ui 迁移，含该路由涉及的图标替换、`useToast` / `useConfirm` 调用改写（如涉及）、相关测试与 mock 改写。产出试点结论：链路可行性、实际耗时画像、发现的阻塞与后续批次修正建议。
+    - **非目标**: 不迁移试点页以外的任何路由；不处理浮层类（Dialog / Drawer / Popover / DropdownMenu，留第六十九阶段）；不做图标全量替换；不卸载 PrimeVue。
+    - **最小验收**: 试点页在浅色 / 深色主题下三层视觉回归通过（差异逐项归因，不属于 16 条有意差异者不得静默出现）；该路由从白名单切换到 caomei-ui 且路由内无混用；相关定向测试与 mock 改写后通过；`pnpm typecheck` + `pnpm lint` 通过。
+    - **证据落点**: 「文件 → 改动点 → 依据指针」清单；试点结论（含耗时画像与阻塞项）；视觉回归记录。
+
+**回滚边界**:
+
+- 接入基座：移除 `caomei-ui` 依赖与模块 / 样式注册即可回到单库状态；无数据与业务逻辑改动，无数据回滚需求。
+- 视觉验证回归基座：移除截图层工程与对应 CI 步骤，保留既有单元与 E2E 回归；基线快照可整体删除，不影响应用产物。
+- 全局 token 语义层：移除 `--caomei-*` 桥接与 `momei` 预设注册即可恢复原 token 体系；因未改动消费点，回滚面限于样式层。
+- B2 试点页：该路由白名单切回 PrimeVue 并 `git revert` 该路由改动；双库并存使单路由回滚可独立执行、成本低。
+
+**后续阶段轨迹（方案 A，已授权方向，未展开规划）**: 第六十八阶段承接 B2 剩余数据页 + B3 表单与设置；第六十九阶段承接 B4 展示、浮层与收尾（含卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` 与包体对比）。各阶段范围须在其准入时按规划规范单独评估，本阶段不提前落盘其原子条目。
+
+> 事实源: [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；迁移动因见 [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 11 条。
+
 ## 3. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
