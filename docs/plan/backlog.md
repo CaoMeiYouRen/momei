@@ -269,7 +269,7 @@
     - 进行中（已有 Lighthouse CI + bundle budget 体系，但尚未形成持续优化节奏）。
 - **当前状态**:
     - 已有 `test:perf:budget:strict` 与 `lighthouse` 配置，并在发版前 / 阶段收口入口中作为 blocker 运行。
-    - 当前 `maxAsyncChunkJs`（gzip）为 `123.83KB / 130KB`、`keyCss` 为 `73.35KB / 85KB`（并存期配额，见长期主线第 11 条「收尾必办」），核心预算仍在守线范围内。
+    - 当前 `coreEntryJs`（gzip）为 `328.45KB / 360KB`、`maxAsyncChunkJs` 为 `47.91KB / 130KB`、`keyCss` 为 `73.35KB / 85KB`（并存期配额，见长期主线第 11 条「收尾必办」），核心预算仍在守线范围内。
     - 竞品对标：Ghost 自托管站点通常 LCP 在 0.8s-1.5s，Astro 内容站点 LCP 可低至 0.5s；墨梅的目标应在 1.5s 以内（公共页）和 2.5s 以内（后台页）。
 - **最近一次上收阶段**:
     - 第二十七阶段（首屏优化第一阶段 Lighthouse >= 50，已审计归档）。
@@ -278,6 +278,7 @@
     - 第五十二阶段（移动端 CWV 性能基线采集与评估：首页/文章详情/分类标签列表页的 LCP/CLS/INP 移动端基线数据落盘）。
 - **下一次可切片方向**:
     - 评估文章详情页的按需 hydration 策略，减少首屏 JS 体积。
+    - **门禁度量修正后暴露的两个目标**（2026-09-20 起）：① 入口启动载荷实测 **328.45KB gzip**（88 个 JS，manifest 口径），对内容站点偏大，需专项分析（Sentry / PrimeVue / 依赖预载），2026-09-20 的门禁配额 `360KB` 只是「度量失效后重新定标的临时真值」，不作为长期目标；② `maxAsyncChunkJs` 实测 47.91KB 而配额仍为 130KB，余量偏松，且 **shared chunk 目前无独立预算**（最大 shared chunk 已达 187KB），需评估收紧配额并为 shared chunk 单列预算。
     - 若移动端 LCP 超过 3s，启动专项移动端性能治理。
     - 所有切片继续复用 `test:perf:budget` 与 Lighthouse CI artifact 作为事实源。
  

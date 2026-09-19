@@ -337,15 +337,21 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 - 记录项：构建命令与两仓 commit；产物总量与 gzip / brotli 体积；按 chunk 体积；PrimeVue 与 primeicons 相关 chunk 是否归零；快照日期。
 - 判定口径：记录含命令 + commit + 日期即视为可复现；PrimeVue 与 primeicons 相关 chunk 归零；总量与主 chunk 体积变化有数值。阈值由 momei 既有包体预算（`test:perf:budget` / `.github/perf/bundle-baseline.json`）承担；除 §8.4.1 记录的并存期配额（`keyCss` 临时 85KB）外，本方案不预设其他新阈值。
 
-#### 8.4.1 并存期 `keyCss` 配额（2026-09-20 用户决策）
+#### 8.4.1 并存期配额与门禁度量口径修正（2026-09-20 用户决策）
 
 并存期两套组件库样式必须同时进产物，而 caomei-ui 的 `styles.css` 是**单一全量文件**（167KB 原始 / 约 25.8KB gzip），无法按组件裁剪。M1 接入基座后实测：
 
-| 指标（gzip） | 迁移前基线 | M1 接入后 | 并存期配额 | 结论 |
+| 指标（gzip） | 口径修正前 | 修正后实测 | 门禁配额 | 说明 |
 | :--- | ---: | ---: | ---: | :--- |
-| `keyCssGzipBytes` | 59,795 | **75,110**（+15.3KB，+25.6%） | 70KB → **85KB** | 配额内 |
-| `maxAsyncChunkJsGzipBytes` | 126,635 | 126,807（+172B） | 130KB | 配额内 |
-| `coreEntryJsGzipBytes` | 210 | 210 | 260KB | 配额内（该行以字节列示，配额以 KB 表示） |
+| `keyCssGzipBytes` | 59,795 | **75,110**（+15.3KB，+25.6%） | 70KB → **85KB** | caomei-ui 全量样式注入导致的并存期增长 |
+| `coreEntryJsGzipBytes` | 210（无意义代理） | **336,333**（88 个 JS） | 260KB → **360KB** | 度量对象修复后重新定标 |
+| `maxAsyncChunkJsGzipBytes` | 126,807（含 admin chunk） | **49,055** | 130KB | 修正 manifest 路径后 admin chunk 正确排除 |
+
+**同期修正的两个既有度量缺陷**（非本迁移引入，但会使上表数字失真，故一并修正）：
+
+1. `coreEntryJsGzipBytes` 原先在入口识别失败时回退为「gzip 体积最小的 3 个 chunk」，实测只量到 3 个 70 字节的运行时垫片，使该检查恒真。现改为读取 **Nuxt 客户端 manifest** 的 `entrypoints` + `preload` JS（`scripts/perf/check-bundle-budget.mjs` 的 `collectEntryPayloadFilesFromManifest`），实测入口启动载荷为 **88 个 JS / 336,333 B**。因该预算从未真正生效、无有效基线可沿用，按实测值重新定标为 `360 * KB`（约 10% 余量）；若后续要收紧，应作为独立的性能目标而非迁移前置。
+2. `maxAsyncChunkJsGzipBytes` 原先读取的 manifest 路径（`chunks/build/client.precomputed.mjs`）已被 Nitro 改为 `chunks/virtual/precomputed.mjs`，异常被 `catch` 吞掉，导致 admin 路由 chunk 长期未被排除而虚高（旧值 126,807 中含 admin chunk）。修正路径后 admin 侧共排除 24 个路由 chunk 与 47 个关联 chunk，实测降至 **49,055 B**。
+3. `mode=error`（阶段收口 / 发版前检查使用的 `test:perf:budget:strict`）下，预算项「无法度量」（skipped）现计为失败，避免入口识别失效时被静默放过。
 
 该增长即风险登记 #3「双库并存期包体膨胀」的预期代价。经用户决策采用**显式且可撤销**的并存期配额：
 

@@ -1,9 +1,55 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
-import { parseCliOptions } from '../shared/cli.mjs'
+import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const KB = 1024
+
+/**
+ * Nuxt 客户端 manifest 的实际产物路径。
+ *
+ * Nitro 会把它输出到 `virtual/` 目录；历史代码读取的 `chunks/build/client.precomputed.mjs` 已不存在，
+ * 导致依赖它的路由 chunk 排除逻辑长期静默失效（catch 吞掉异常）。
+ */
+export const CLIENT_MANIFEST_RELATIVE_PATH = '.output/server/chunks/virtual/precomputed.mjs'
+
+/**
+ * 从 Nuxt 客户端 manifest 解析「入口启动载荷」的 JS 文件集合。
+ *
+ * 语义：`entrypoints` 登记的入口模块 + 该入口 `dependencies[entry].preload` 中被声明为 JS 的依赖，
+ * 即访客启动应用时浏览器必须拉取的 JS。CSS 不计入（由 `keyCssGzipBytes` 单独度量）。
+ *
+ * 必须优先使用 manifest 而非文件名约定：Nuxt 产物入口名为 hash（如 `lYDoQxs6.js`），
+ * 任何 `entry|app|index` 前缀匹配都会落空并退回不可靠的代理口径。
+ *
+ * @param {object} manifest 客户端 manifest（`precomputed.mjs` 的 default 导出）。
+ * @returns {{ files: string[], strategy: string }} 去重后的入口 JS 文件名与所用口径标识。
+ */
+export function collectEntryPayloadFilesFromManifest(manifest) {
+    const entryKeys = Array.isArray(manifest?.entrypoints) ? manifest.entrypoints : []
+    const files = new Set()
+
+    for (const entryKey of entryKeys) {
+        const entryModule = manifest?.modules?.[entryKey]
+        if (typeof entryModule?.file === 'string' && entryModule.file.endsWith('.js')) {
+            files.add(entryModule.file)
+        }
+
+        const preload = manifest?.dependencies?.[entryKey]?.preload ?? {}
+        for (const dependency of Object.values(preload)) {
+            const file = dependency?.file
+            if (typeof file === 'string' && file.endsWith('.js')) {
+                files.add(file)
+            }
+        }
+    }
+
+    return {
+        files: [...files].toSorted(),
+        strategy: files.size > 0 ? 'manifest-entry-preload' : 'unavailable',
+    }
+}
 
 /**
  * 包体预算（gzip 口径）。
@@ -20,7 +66,9 @@ const KB = 1024
  * 的「包体对比」章节（含并存期配额小节）。
  */
 const BUDGETS = {
-    coreEntryJsGzipBytes: 260 * KB,
+    // 入口启动载荷（manifest entrypoints + preload 的 JS，去重后）实测 336,333 B ≈ 328.5KB；
+    // 原 260KB 从未真正生效（旧度量对象错误、检查恒真），故按实测重新定标并留约 10% 余量。
+    coreEntryJsGzipBytes: 360 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
     keyCssGzipBytes: 85 * KB,
     prIncrementJsGzipBytes: 20 * KB,
@@ -96,6 +144,24 @@ function isRuntimeShellChunk(content) {
         'builds/meta/${yn().app.buildId}.json',
         'versions:{get nuxt()',
     ].some((marker) => content.includes(marker))
+}
+
+
+/**
+ * 读取并解析 Nuxt 客户端 manifest，返回入口启动载荷的 JS 文件名。
+ *
+ * manifest 缺失或结构不符时返回空集合（strategy 为 `unavailable`），交由调用方标记 skipped，
+ * 绝不退化为无意义的代理口径。
+ */
+async function resolveManifestEntryPayload() {
+    try {
+        const manifestUrl = pathToFileURL(path.resolve(CLIENT_MANIFEST_RELATIVE_PATH)).href
+        const manifest = (await import(manifestUrl)).default
+
+        return collectEntryPayloadFilesFromManifest(manifest)
+    } catch {
+        return { files: [], strategy: 'unavailable' }
+    }
 }
 
 function extractImportedJsFiles(content) {
@@ -192,10 +258,6 @@ async function main() {
 
     const entryCandidates = jsWithSize.filter((item) => isEntryLikeFile(item.file))
 
-    const proxyCandidates = [...jsWithSize].sort((a, b) => a.gzipBytes - b.gzipBytes).slice(0, 3)
-    const entryFiles = entryCandidates.length > 0 ? entryCandidates : proxyCandidates
-    const entryFileSet = new Set(entryFiles.map((item) => item.file))
-
     const fileByName = new Map(jsWithSize.map((item) => [path.basename(item.file), item]))
     const importerMap = new Map(jsWithSize.map((item) => [item.file, new Set()]))
     const importGraph = new Map(jsWithSize.map((item) => [item.file, new Set()]))
@@ -215,6 +277,34 @@ async function main() {
     const runtimeShellFiles = new Set(jsWithSize
         .filter((item) => isRuntimeShellChunk(item.content))
         .map((item) => item.file))
+
+    /*
+     * 入口启动载荷的口径优先级：
+     * 1. Nuxt 客户端 manifest 的 `entrypoints` + `preload`（权威：反映浏览器实际拉取内容）；
+     * 2. 兜底：`entry|app|index` 命名产物（非 Nuxt 产物约定时可用）；
+     * 3. 均不可用时置空，由上层把该检查标记为 skipped。
+     *
+     * 历史缺陷：此处曾回退为「gzip 体积最小的 3 个 chunk」，实测只量到 3 个 70 字节的运行时垫片，
+     * 使 260KB 预算恒真。任何代理口径都必须能代表真实下载量，否则应显式不可用。
+     */
+    const manifestEntry = await resolveManifestEntryPayload()
+    const manifestEntryItems = manifestEntry.files
+        .map((fileName) => fileByName.get(fileName))
+        .filter(Boolean)
+
+    let entryFiles = []
+    let entryStrategy = 'unavailable'
+    if (manifestEntryItems.length > 0) {
+        entryFiles = manifestEntryItems
+        entryStrategy = manifestEntry.strategy
+    } else if (entryCandidates.length > 0) {
+        // 兜底口径：仅计入口命名产物本身（不含其导入闭包），范围窄于 manifest 口径。
+        // 因此 `strategy` 必须随报告一同输出，供使用者判断该次数值的口径；不要把两者当作同一 metric 比较。
+        entryFiles = entryCandidates
+        entryStrategy = 'entry-app-index'
+    }
+
+    const entryFileSet = new Set(entryFiles.map((item) => item.file))
 
     const routeChunkUsage = new Map()
     for (const runtimeShellFile of runtimeShellFiles) {
@@ -236,7 +326,7 @@ async function main() {
     }
 
     try {
-        const clientPrecomputed = await fs.readFile(path.resolve('.output/server/chunks/build/client.precomputed.mjs'), 'utf8')
+        const clientPrecomputed = await fs.readFile(path.resolve(CLIENT_MANIFEST_RELATIVE_PATH), 'utf8')
         for (const [chunkName, routePaths] of extractPrecomputedRouteChunkUsage(clientPrecomputed)) {
             const chunk = fileByName.get(chunkName)
             if (!chunk) {
@@ -248,7 +338,7 @@ async function main() {
             routeChunkUsage.set(chunk.file, existing)
         }
     } catch {
-        // client.precomputed.mjs is generated by Nuxt build; fall back to runtime shell only when absent.
+        // 客户端 manifest 由 Nuxt 构建生成；缺失时回退为仅用运行时外壳推断路由归属。
     }
 
     const adminOnlyRouteChunks = new Set([...routeChunkUsage.entries()]
@@ -309,7 +399,9 @@ async function main() {
         .filter((item) => !entryFileSet.has(item.file) && !runtimeShellFiles.has(item.file) && !adminOnlyRelatedChunks.has(item.file) && (importerMap.get(item.file)?.size ?? 0) > 1)
         .map((item) => item.file))
 
-    const coreEntryJsGzipBytes = entryFiles.reduce((sum, item) => sum + item.gzipBytes, 0)
+    const coreEntryJsGzipBytes = entryFiles.length > 0
+        ? entryFiles.reduce((sum, item) => sum + item.gzipBytes, 0)
+        : null
 
     const asyncChunkCandidates = jsWithSize.filter((item) => !entryFileSet.has(item.file)
         && !isVendorChunk(item.file)
@@ -337,7 +429,7 @@ async function main() {
     try {
         const baselineContent = await fs.readFile(path.resolve(args.baseline), 'utf8')
         const baseline = JSON.parse(baselineContent)
-        if (typeof baseline?.metrics?.coreEntryJsGzipBytes === 'number') {
+        if (typeof baseline?.metrics?.coreEntryJsGzipBytes === 'number' && coreEntryJsGzipBytes !== null) {
             prIncrementJsGzipBytes = coreEntryJsGzipBytes - baseline.metrics.coreEntryJsGzipBytes
             baselineUsed = true
             baselineMessage = 'Baseline file loaded successfully.'
@@ -351,7 +443,11 @@ async function main() {
             key: 'coreEntryJsGzipBytes',
             expected: BUDGETS.coreEntryJsGzipBytes,
             actual: coreEntryJsGzipBytes,
-            passed: coreEntryJsGzipBytes <= BUDGETS.coreEntryJsGzipBytes,
+            passed: coreEntryJsGzipBytes === null ? null : coreEntryJsGzipBytes <= BUDGETS.coreEntryJsGzipBytes,
+            skipped: coreEntryJsGzipBytes === null,
+            skipReason: coreEntryJsGzipBytes === null
+                ? '未能识别入口启动载荷（客户端 manifest 不可用，且无 entry/app/index 命名产物）'
+                : undefined,
         },
         {
             key: 'maxAsyncChunkJsGzipBytes',
@@ -378,7 +474,8 @@ async function main() {
         })
     }
 
-    const failedChecks = checks.filter((check) => !check.passed)
+    const failedChecks = checks.filter((check) => check.passed === false)
+    const skippedChecks = checks.filter((check) => check.skipped === true)
 
     const report = {
         mode: args.mode,
@@ -395,7 +492,7 @@ async function main() {
             keyCssGzipBytes: keyCss.gzipBytes,
             prIncrementJsGzipBytes,
             entryCalculation: {
-                strategy: entryCandidates.length > 0 ? 'entry-app-index' : 'proxy-smallest-3-js',
+                strategy: entryStrategy,
                 files: entryFiles.map((item) => ({
                     file: rel(path.relative(process.cwd(), item.file)),
                     gzipBytes: item.gzipBytes,
@@ -414,7 +511,7 @@ async function main() {
                     .filter((file) => !adminOnlyRouteChunks.has(file))
                     .map((file) => rel(path.relative(process.cwd(), file))),
                 candidates: asyncChunkCandidates.length,
-                entryProxyFiles: entryFiles.map((item) => rel(path.relative(process.cwd(), item.file))),
+                entryPayloadFiles: entryFiles.map((item) => rel(path.relative(process.cwd(), item.file))),
             },
             largestKeyCss: {
                 file: rel(path.relative(process.cwd(), keyCss.file)),
@@ -428,13 +525,24 @@ async function main() {
     await fs.writeFile(path.resolve(args.output), JSON.stringify(report, null, 2), 'utf8')
 
     console.info('Bundle Budget Report (MVP):')
-    console.info(`- coreEntryJs: ${toKBString(coreEntryJsGzipBytes)} / ${toKBString(BUDGETS.coreEntryJsGzipBytes)}`)
+    console.info(coreEntryJsGzipBytes === null
+        ? '- coreEntryJs: skipped (未能识别入口 chunk)'
+        : `- coreEntryJs: ${toKBString(coreEntryJsGzipBytes)} / ${toKBString(BUDGETS.coreEntryJsGzipBytes)}`)
     console.info(`- maxAsyncChunkJs: ${toKBString(maxAsyncChunkJs.gzipBytes)} / ${toKBString(BUDGETS.maxAsyncChunkJsGzipBytes)} (${rel(path.relative(process.cwd(), maxAsyncChunkJs.file))})`)
     console.info(`- keyCss: ${toKBString(keyCss.gzipBytes)} / ${toKBString(BUDGETS.keyCssGzipBytes)} (${rel(path.relative(process.cwd(), keyCss.file))})`)
     if (prIncrementJsGzipBytes !== null) {
         console.info(`- prIncrementJs: ${toKBString(prIncrementJsGzipBytes)} / ${toKBString(BUDGETS.prIncrementJsGzipBytes)}`)
+    } else if (coreEntryJsGzipBytes === null) {
+        console.info('- prIncrementJs: skipped (入口启动载荷不可用)')
     } else {
         console.info(`- prIncrementJs: baseline missing (${args.baseline}), skip in MVP phase`)
+    }
+
+    if (skippedChecks.length > 0) {
+        console.info('\nBudget checks skipped:')
+        skippedChecks.forEach((check) => {
+            console.info(`- ${check.key}: ${check.skipReason}`)
+        })
     }
 
     if (failedChecks.length > 0) {
@@ -446,9 +554,32 @@ async function main() {
             process.exit(1)
         }
     }
+
+    /*
+     * `mode=error`（`test:perf:budget:strict`，被阶段收口与发版前检查调用）下，
+     * 「预算已登记但无法度量」必须计为失败：否则一旦产物结构或标记文案变化使入口识别失效，
+     * 核心入口预算会在最需要守线的场景被静默放过。
+     */
+    if (skippedChecks.length > 0 && args.mode === 'error') {
+        console.error('\nBudget checks could not be measured (treated as failure because mode=error):')
+        skippedChecks.forEach((check) => {
+            console.error(`- ${check.key}: ${check.skipReason}`)
+        })
+        process.exit(1)
+    }
+
+    /*
+     * 非权威口径警示：兜底 `entry-app-index` 只计入口命名产物本身、不含其导入闭包，数值偏小。
+     * 在 error 模式（阶段收口 / 发版前检查）下必须显式警示，避免以偏小口径「假通过」。
+     */
+    if (entryStrategy !== 'manifest-entry-preload' && args.mode === 'error') {
+        console.error(`\n[bundle-budget] coreEntryJs 使用了非权威口径 \`${entryStrategy}\`，数值可能偏小，请核对产物结构。`)
+    }
 }
 
-main().catch((error) => {
-    console.error(`[bundle-budget] ${error.message}`)
-    process.exit(1)
-})
+if (isDirectExecution(import.meta.url)) {
+    main().catch((error) => {
+        console.error(`[bundle-budget] ${error.message}`)
+        process.exit(1)
+    })
+}

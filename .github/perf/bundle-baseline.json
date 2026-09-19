@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-19T17:26:57.000Z",
-  "note": "并存期（PrimeVue + caomei-ui）基线，实测于 2026-09-19T17:26:57Z（本地 2026-09-20 01:26）。keyCss 增长源于 caomei-ui 全量样式注入；PrimeVue 卸载后须回落 keyCss 预算与基线，依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
+  "timestamp": "2026-09-19T17:53:21Z",
+  "note": "并存期（PrimeVue + caomei-ui）基线。coreEntryJsGzipBytes 改为「Nuxt 客户端 manifest 的 entrypoints + preload JS 去重后」口径（原「最小 3 个 chunk」代理无语义、检查恒真）；maxAsyncChunkJsGzipBytes 同时修正：此前读取的 manifest 路径已失效，admin 路由 chunk 未被排除而虚高。keyCss 增长源于 caomei-ui 全量样式注入。PrimeVue 卸载后须回落 keyCss 预算与基线，依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
   "metrics": {
-    "coreEntryJsGzipBytes": 210,
-    "maxAsyncChunkJsGzipBytes": 126807,
+    "coreEntryJsGzipBytes": 336333,
+    "maxAsyncChunkJsGzipBytes": 49055,
     "keyCssGzipBytes": 75110
   }
 }

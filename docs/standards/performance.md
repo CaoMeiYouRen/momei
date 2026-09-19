@@ -112,9 +112,17 @@ pnpm build && pnpm test:perf:cwv
 
 ### 4.1 JS/CSS 预算
 
--   核心页面首屏客户端 JS（gzip 合计）：<= 260KB
--   单异步 Chunk（gzip）：<= 120KB
--   首屏关键 CSS（gzip）：<= 70KB
+-   核心页面首屏客户端 JS（gzip 合计，口径：Nuxt 客户端 manifest 的 `entrypoints` + `preload` JS 去重）：<= 360KB
+-   单异步 Chunk（gzip）：<= 130KB
+-   首屏关键 CSS（gzip）：<= 85KB
+
+> 以上数值与 `scripts/perf/check-bundle-budget.mjs` 的 `BUDGETS` 保持一致，是**唯一的门禁口径**。
+> 两类变更的来源不同，**不要一并处理**：
+>
+> - **首屏 JS 360KB = 度量口径修复后的重新定标**：原 260KB 对应的口径（入口识别失败时回退为「最小的 3 个 chunk」）从未真正生效、实测只有 210 字节，故该检查此前恒真。改用 Nuxt 客户端 manifest 口径后实测 328.45KB，据此重新定标并留约 10% 余量。它**不是**并存期配额，后续要收紧应作为独立的性能目标（见 [backlog 长期主线 #9](./../plan/backlog.md)），**不得**在迁移收尾时机械回落到 260KB。
+> - **关键 CSS 85KB = 并存期临时配额**（原 70KB）：源于 caomei-ui 全量样式注入，迁移收尾、PrimeVue 卸载后必须回落。
+>
+> 配额来源、度量口径修正与回落要求见 [迁移方案 §8.4.1](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；修改任一数值时必须同步脚本、基线与本文件三处，并说明属于上述哪一类。
 
 ### 4.2 变更预算
 
