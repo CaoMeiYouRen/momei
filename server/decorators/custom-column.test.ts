@@ -126,4 +126,45 @@ describe('CustomColumn', () => {
         expect(decorators.find((d) => d.type === 'Index')).toBeUndefined()
         expect(decorators.find((d) => d.type === 'Column')).toBeDefined()
     })
+
+    it('boolean: injects a normalizing transformer', async () => {
+        vi.spyOn(env, 'DATABASE_TYPE', 'get').mockReturnValue('postgres')
+        const { CustomColumn, normalizeBooleanColumnValue } = await import('./custom-column')
+        const options: any = { type: 'boolean', default: false }
+
+        CustomColumn(options)
+        expect(options.transformer).toBeDefined()
+        // PostgreSQL 驱动解析器退化时返回 't' / 'f'，必须归一化为真实布尔。
+        expect(options.transformer.from('f')).toBe(false)
+        expect(options.transformer.from('t')).toBe(true)
+        expect(options.transformer.to(true)).toBe(true)
+        expect(normalizeBooleanColumnValue(false)).toBe(false)
+    })
+
+    it('boolean: keeps an existing transformer untouched', async () => {
+        vi.spyOn(env, 'DATABASE_TYPE', 'get').mockReturnValue('postgres')
+        const { CustomColumn } = await import('./custom-column')
+        const existingTransformer = { to: (value: unknown) => value, from: (value: unknown) => value }
+        const options: any = { type: 'boolean', transformer: existingTransformer }
+
+        CustomColumn(options)
+        expect(options.transformer).toBe(existingTransformer)
+    })
+
+    it('normalizeBooleanColumnValue: handles driver-specific boolean shapes', async () => {
+        const { normalizeBooleanColumnValue } = await import('./custom-column')
+
+        expect(normalizeBooleanColumnValue(true)).toBe(true)
+        expect(normalizeBooleanColumnValue(false)).toBe(false)
+        expect(normalizeBooleanColumnValue(null)).toBeNull()
+        expect(normalizeBooleanColumnValue(undefined)).toBeUndefined()
+        expect(normalizeBooleanColumnValue(1)).toBe(true)
+        expect(normalizeBooleanColumnValue(0)).toBe(false)
+        expect(normalizeBooleanColumnValue('t')).toBe(true)
+        expect(normalizeBooleanColumnValue('TRUE')).toBe(true)
+        expect(normalizeBooleanColumnValue('f')).toBe(false)
+        expect(normalizeBooleanColumnValue('false')).toBe(false)
+        expect(normalizeBooleanColumnValue('1')).toBe(true)
+        expect(normalizeBooleanColumnValue('0')).toBe(false)
+    })
 })

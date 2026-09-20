@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { CustomColumn } from '../decorators/custom-column'
 import { AdminNotificationEvent } from '@/utils/shared/notification'
 
 @Entity('admin_notification_settings')
@@ -14,10 +15,10 @@ export class AdminNotificationSettings {
     })
     event: AdminNotificationEvent
 
-    @Column({ type: 'boolean', default: true })
+    @CustomColumn({ type: 'boolean', default: true })
     isEmailEnabled: boolean
 
-    @Column({ type: 'boolean', default: false })
+    @CustomColumn({ type: 'boolean', default: false })
     isBrowserEnabled: boolean
 
     @CreateDateColumn()

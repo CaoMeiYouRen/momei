@@ -48,6 +48,7 @@ import { BenefitWaitlist } from '../entities/benefit-waitlist'
 import logger from '../utils/logger'
 import { isServerlessEnvironment } from '../utils/env'
 import { repairLegacyPostVersionRecords } from './post-version-repair'
+import { checkPostgresValueTypes } from './pg-value-types'
 import { CustomLogger } from './logger'
 import { SnakeCaseNamingStrategy } from './naming-strategy'
 import { isAdmin } from '@/utils/shared/roles'
@@ -247,6 +248,33 @@ async function syncAdminRoles(ds: DataSource) {
     }
 }
 
+/**
+ * PostgreSQL 值类型自检：确认驱动仍返回真实布尔/整型/JSON。
+ *
+ * 仅记录 error 日志（不抛出）：真正的修复在构建层（`pg-types` 副作用白名单），
+ * 自检的价值是让「解析器再次退化」不再静默通过。
+ */
+async function runPostgresValueTypeCheck(ds: DataSource) {
+    const startedAt = Date.now()
+
+    try {
+        const result = await checkPostgresValueTypes(ds)
+        if (!result.ok) {
+            logger.error(
+                `[db-type-guard] PostgreSQL 值类型解析异常，布尔/整型/JSON 列会以字符串返回，`
+                + `可能导致「所有文章显示置顶」等真值误判。请检查构建产物中 pg-types 默认解析器是否被摇树：${
+                    result.issues.join('；')}`,
+            )
+        }
+    } catch (error) {
+        logger.warn('PostgreSQL value type probe failed:', error)
+    }
+
+    logPerformanceStage('db-init', 'pg-value-type-check', Date.now() - startedAt, {
+        databaseType: 'postgres',
+    })
+}
+
 function reportDatabaseInitializationFailure(error: unknown, actualDbType: string, isTestEnv: boolean) {
     if (!(error instanceof Error)) {
         logger.error('Database initialization failed with a non-Error value')
@@ -355,6 +383,10 @@ export const initializeDB = async () => {
             logPerformanceStage('db-init', 'repair-post-versions', Date.now() - repairPostVersionsStartedAt, {
                 databaseType: actualDbType,
             })
+
+            if (actualDbType === 'postgres' && !isTestEnv) {
+                await runPostgresValueTypeCheck(initializedDataSource)
+            }
 
             logPerformanceStage('db-init', 'full-initialize', Date.now() - initializationStartedAt, {
                 databaseType: actualDbType,

@@ -1,4 +1,5 @@
 import { Entity, Column, ManyToOne, Index } from 'typeorm'
+import { CustomColumn } from '../decorators/custom-column'
 import { BaseEntity } from './base-entity'
 import { User } from './user'
 import { NotificationType } from '@/utils/shared/notification'
@@ -47,6 +48,6 @@ export class InAppNotification extends BaseEntity {
     /**
      * 是否已读
      */
-    @Column({ type: 'boolean', default: false })
+    @CustomColumn({ type: 'boolean', default: false })
     isRead: boolean
 }
