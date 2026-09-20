@@ -341,6 +341,40 @@ describe('UploadService', () => {
                 },
             })).not.toThrow()
         })
+
+        it('should allow audio uploads when wildcard rules include audio', () => {
+            const settings = {
+                allowed_file_types: 'image/*,audio/*',
+            }
+
+            expect(() => validateUploadPayload({
+                type: UploadType.AUDIO,
+                size: 1024,
+                contentType: 'audio/mpeg',
+                filename: 'podcast.mp3',
+                settings,
+            })).not.toThrow()
+
+            expect(() => validateUploadPayload({
+                type: UploadType.IMAGE,
+                size: 1024,
+                contentType: 'image/png',
+                filename: 'cover.png',
+                settings,
+            })).not.toThrow()
+        })
+
+        it('should reject audio uploads when allowed file types only list images', () => {
+            expect(() => validateUploadPayload({
+                type: UploadType.AUDIO,
+                size: 1024,
+                contentType: 'audio/mpeg',
+                filename: 'podcast.mp3',
+                settings: {
+                    allowed_file_types: 'image/jpeg,image/png,image/webp,image/gif',
+                },
+            })).toThrow('文件类型不被允许')
+        })
     })
 
     describe('handleFileUploads', () => {
