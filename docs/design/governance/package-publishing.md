@@ -62,6 +62,8 @@ momei/                                    # 根包 (private, Nuxt app)
               └── registry.cn-hangzhou.aliyuncs.com/CaoMeiYouRen/momei
 ```
 
+镜像发布目标分级：`docker.io` 与 `ghcr.io` 为主目标，登录或推送失败即作业失败；阿里云 ACR 为可选目标，**网络类**登录失败（重试 3 次仍失败）降级为仅发布主目标并输出 warning annotation，不阻断发布；**鉴权类**失败（401 / denied / 凭据错误）按配置错误处理，硬失败中止发布。凭据未配置时仍由 `ci:precheck --profile=docker|release` 直接阻断。`release.yml` 与 `docker.yml` 采用同一策略。
+
 ### 2.3 现有基础设施
 
 | 维度 | 状态 |

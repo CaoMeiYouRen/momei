@@ -129,21 +129,64 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      # 阿里云 ACR 属于可选发布目标：登录失败时降级为仅发布 docker.io / ghcr.io，
+      # 避免第三方 registry 网络抖动阻断全部镜像发布。
       - name: Login to Alibaba Cloud Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: registry.cn-hangzhou.aliyuncs.com
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
+        id: login_aliyun
+        continue-on-error: true
+        env:
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+        run: |
+          for attempt in 1 2 3; do
+            if log=$(printf '%s' "$ALIYUN_PASSWORD" | timeout 60 docker login registry.cn-hangzhou.aliyuncs.com --username "$ALIYUN_USERNAME" --password-stdin 2>&1); then
+              echo "$log"
+              echo "阿里云 ACR 登录成功（第 ${attempt} 次尝试）"
+              echo "status=ok" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            echo "$log"
+            if printf '%s' "$log" | grep -Eiq 'unauthorized|40[13]|forbidden|access ?denied|authentication required|incorrect username or password|wrong username or password|denied:'; then
+              echo "::error::阿里云 ACR 鉴权失败，疑似凭据失效或权限变更（非网络问题）"
+              echo "status=auth_failed" >> "${GITHUB_OUTPUT}"
+              exit 1
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::阿里云 ACR 登录失败（第 ${attempt}/3 次尝试），10 秒后重试"
+              sleep 10
+            fi
+          done
+          echo "::error::阿里云 ACR 登录连续 3 次失败（网络类错误），本次跳过 ACR 发布目标"
+          echo "status=network_failed" >> "${GITHUB_OUTPUT}"
+          exit 1
+      # 凭据失效属于配置错误，必须硬失败，避免 ACR 长期静默缺更。
+      - name: Fail fast on invalid Alibaba Cloud credentials
+        if: ${{ steps.login_aliyun.outputs.status == 'auth_failed' }}
+        run: |
+          echo "::error::阿里云 ACR 凭据无效，发布中止（请检查 ALIYUN_USERNAME / ALIYUN_PASSWORD）"
+          exit 1
+      - name: Resolve registry targets
+        id: registries
+        env:
+          ACR_AVAILABLE: ${{ steps.login_aliyun.outputs.status == 'ok' }}
+        run: |
+          images=$(printf '%s\n%s' "${GITHUB_REPOSITORY}" "ghcr.io/${GITHUB_REPOSITORY}")
+          if [ "$ACR_AVAILABLE" = "true" ]; then
+            images=$(printf '%s\n%s' "${images}" "registry.cn-hangzhou.aliyuncs.com/${GITHUB_REPOSITORY}")
+          else
+            echo "::warning::阿里云 ACR 不可用，本次仅发布 docker.io 与 ghcr.io"
+          fi
+          {
+            echo 'images<<EOF'
+            echo "${images}"
+            echo 'EOF'
+          } >> "${GITHUB_OUTPUT}"
       - name: Extract Docker metadata
         id: metadata
         uses: docker/metadata-action@v6
         with:
-          # 发布到 docker.io / ghcr.io / registry.cn-hangzhou.aliyuncs.com
-          images: |
-            ${{ github.repository }}
-            ghcr.io/${{ github.repository }}
-            registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
+          # 发布到 docker.io / ghcr.io；阿里云 ACR 可用时一并发布
+          images: ${{ steps.registries.outputs.images }}
           tags: |
             type=raw,value=latest,enable=true
             type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
