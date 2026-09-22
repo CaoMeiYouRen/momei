@@ -113,7 +113,7 @@ prop 类型由 `string` 收紧为 `number`，7 处字符串型 `stroke-width` �
 - 无障碍能力、SSR / Nuxt 兼容性、bundle 体积与首屏性能影响。
 - 迁移可否分模块渐进推进，以及「维持 4.x 不动」作为基线方案的可接受年限。
 
-**后续进展**：该独立议题已评估落盘，结论为迁移到 caomei-ui **可行（Go）**、按 B0b / B2 / B3 / B4 分批全量推进，开工阻塞于 caomei-ui 库侧 M5 交付。详见 [2026-09-18 PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
+**后续进展**：该独立议题已评估落盘，结论为迁移到 caomei-ui **可行（Go）**、按方案 A 三阶段（第六十七 / 六十八 / 六十九阶段）分批全量推进。库侧 M5 十项已于 2026-09-19 交付、B1 出口条件达成；`caomei-ui@0.2.0` 已于 2026-09-22 发布（含样式入口 `styles.css → theme.css` 的破坏性形态变更）。momei 侧已上收第六十七阶段并落地接入基座（`caomei-ui@0.1.0`），待重锚到 `0.2.0`。详见 [2026-09-18 PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
 
 ---
 

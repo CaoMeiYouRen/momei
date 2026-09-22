@@ -26,11 +26,12 @@
 **准入前置（已核对 2026-09-22）**: 库侧 M5 十项已交付、caomei-ui Phase 7 第二阶段已归档、B1 出口条件达成；`caomei-ui@0.2.0` 已发布至 npm（2026-09-22，含包形态破坏性变更：`styles.css` → `theme.css` + 逐模块组件样式）。**目标依赖由 `0.1.0` 上移到 `0.2.0`**，接入基座待重锚（迁移方案 §3.6）。
 
 - [ ] **1. 接入基座与消费路径（P1）**
-    - **进度（2026-09-20）**: 基座已按 `caomei-ui@0.1.0` 落地并验证（`90344418`，见回归记录 M1 节）；因 0.2.0 发布含破坏性样式入口变更，本项**待重锚到 0.2.0** 后收口。
-    - **执行范围**: 以 npm 引入 `caomei-ui@0.2.0`（迁移期锁定精确版本）；`nuxt.config.ts` 接入 `caomei-ui/nuxt` 模块与**基础层 `caomei-ui/theme.css`**（0.2.0 起取代 `caomei-ui/styles.css`；组件样式随模块自带、由打包器按需 tree-shaking），与 `@primevue/nuxt-module` 并存；接入模块自动导入的 `useLocale` / `provideLocale`（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）；确定 CSS `@layer` 顺序并核对**基础层注入点唯一**；落地双库并存白名单载体（路由级隔离、单点可读）；确认 `@lucide/vue` 是否需在 momei 侧显式声明为直接依赖（试点页直接引用图标时必需）；按迁移方案 §3.4 在目标 commit 重新取数并更新基线数字。
-    - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
-    - **最小验收**: 两套库可在同一构建中同时加载且互不覆盖；白名单载体可单点读出当前路由的组件来源；所需依赖声明完整、无 pnpm 严格 node_modules 解析报错；重新取数结果落盘；**`theme.css` 在产物中仅注入一次且 `keyCss` 复测后按迁移方案 §8.4.1 回落配额（85KB → 70KB）并刷新基线**；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
-    - **证据落点**: 取数与白名单说明写入迁移方案文档；构建与预算结果写入 [回归记录](../reports/regression/current.md)。
+    - **1a. 基座落地（已完成 2026-09-20）**: 以 `caomei-ui@0.1.0` 引入 npm 依赖、接入 `caomei-ui/nuxt` 与 `@primevue/nuxt-module` 并存、同名自动导入隔离（`modules/caomei-ui-coexistence.ts`）、白名单载体（`lib/ui-library.ts`）、迁移基线重取脚本（`governance:count:primevue-usage`）。**已验证**：两套库同构建共存、白名单载体可单点读出、依赖声明完整、§3.4 基线重新取数已落盘。提交 `90344418`，验证见 [回归记录](../reports/regression/current.md) M1 节。
+    - **1b. 重锚到 `caomei-ui@0.2.0`（待办，本项收口条件）**
+        - **执行范围**: 依赖 `0.1.0 → 0.2.0`（迁移期锁定精确版本）；确认 `injectStyles` 注入物为**基础层 `caomei-ui/theme.css`**（0.2.0 起取代 `styles.css`；组件样式随模块自带、由打包器按需 tree-shaking）且**基础层注入点唯一**（模块 / resolver / 显式 import 三选一）；确认 CSS `@layer` 顺序不变；确认模块自动导入的 `useLocale` / `provideLocale` 不变（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换仍延后到启用 caomei-ui 组件的批次）；复测 `pnpm test:perf:budget` 的 `keyCss` 并按迁移方案 §8.4.1 回落并存期配额；复核 §3.4 基线未漂移（如需可重取）；`@lucide/vue` 是否需在 momei 侧显式声明仍按试点页实际引用决定。
+        - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
+        - **最小验收**: `theme.css` 在产物中仅注入一次；`keyCss` 复测后按迁移方案 §8.4.1 **回落配额（85KB → 70KB）并刷新基线**；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
+        - **证据落点**: 复测数值与配额回落写入 [回归记录](../reports/regression/current.md)；决策回链迁移方案 §3.6 / §8.4.1。
 
 - [ ] **2. 视觉验证回归基座（P1）**
     - **执行范围**: 建立三层回归——① 单元层（Vitest + Vue Test Utils 组件渲染 / 关键 DOM、类名、ARIA 断言）；② E2E 功能层（复用既有 Playwright 17 个 spec，确认迁移前全绿）；③ 截图识别层（新增 Playwright `toHaveScreenshot` 视觉回归工程，**独立 project / config**，不并入既有 `test:e2e` 的 `testMatch`）。完成迁移前基线采集（列表页 / 表单（设置）页 / 浮层各 1 页，覆盖浅色 / 深色主题与目标 viewport）。固化环境可复现配置（浏览器渠道与版本、viewport、locale、时区、`animations: 'disabled'`、`caret: 'hide'`）、阈值策略与 CI 接入；动态区域以 `mask` 显式遮蔽；声明 CI 增量耗时预算与基线快照体积 / 保留策略。**基线采集须在接入基座重锚到 `0.2.0` 之后进行**（避免建立在 0.1.0 的单体样式形态上，见迁移方案 §3.6）。
@@ -52,7 +53,7 @@
 
 **回滚边界**:
 
-- 接入基座：移除 `caomei-ui` 依赖与模块 / 样式注册即可回到单库状态；无数据与业务逻辑改动。
+- 接入基座：1a / 1b 均为配置级改动——移除 `caomei-ui` 依赖与模块 / 样式注册即可回到单库状态；1b 的配额回落若需撤销，恢复 `85 * KB` 与并存期基线即可；无数据与业务逻辑改动。
 - 视觉验证回归基座：移除截图层工程与对应 CI 步骤，保留既有单元与 E2E 回归；基线快照可整体删除。
 - 全局 token 语义层：移除 `--caomei-*` 桥接与 `momei` 预设注册即可恢复原 token 体系；回滚面限于样式层。
 - B2 试点页：该路由白名单切回 PrimeVue 并 `git revert` 该路由改动；单路由回滚可独立执行。

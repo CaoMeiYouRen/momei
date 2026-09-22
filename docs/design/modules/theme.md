@@ -4,6 +4,8 @@
 
 墨梅博客提供高度灵活的外观定制能力，允许管理员通过后台直接调整博客的视觉风格。系统支持预设主题切换、主色调微调、圆角配置以及自定义 CSS 注入。
 
+> **组件库迁移进行中（2026-09-22）**：主题与 token 体系正随 [PrimeVue → caomei-ui 迁移方案](../governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)从 PrimeVue（`--p-*`）迁移到 caomei-ui（`--caomei-*`）。本章描述的 PrimeVue 色阶生成与变量注入在**迁移收尾前仍是现行实现**。
+
 ## 2. 核心功能 (Core Features)
 
 ### 2.1 主题预设 (Theme Presets)

@@ -1,5 +1,7 @@
 # 墨梅博客 UI 设计文档
 
+> **组件库迁移进行中（2026-09-22）**：本文档的组件库与主题章节当前仍以 **PrimeVue** 描述，项目正按 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)迁移到 **caomei-ui**（自研、MIT 许可）。接入基座已按 `caomei-ui@0.1.0` 落地并与 PrimeVue 并存，待重锚到 `0.2.0`；相关章节将在迁移收尾（第六十九阶段）整体改写。**迁移完成前，本文以 PrimeVue 为现行实现的描述仍然有效。**
+
 ## 1. 设计理念 (Design Philosophy)
 
 **"墨梅" (Momei)** 的设计灵感源自中国传统文化中的"墨"与"梅"，结合现代 Web 设计趋势，旨在打造一个**简洁 (Minimalist)**、**优雅 (Elegant)** 且**高效 (Efficient)** 的跨语言博客平台。
@@ -61,6 +63,8 @@
 ## 3. 组件库与规范 (Component Library)
 
 使用 **PrimeVue** 作为基础组件库，配合 **SCSS** 进行布局和微调。
+
+> 迁移进行中：目标组件库为 **caomei-ui**；本章将在迁移收尾整体改写，当前仍以 PrimeVue 为现行实现（见文首迁移指针）。
 
 ### 3.1 核心组件配置
 

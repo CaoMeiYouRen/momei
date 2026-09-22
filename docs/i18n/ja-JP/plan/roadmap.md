@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-22
+last_sync: 2026-09-23
 ---
 
 # ロードマップ要約
