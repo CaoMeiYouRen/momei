@@ -149,7 +149,7 @@
     "ms": "^4.0.0-nightly.202508271359",
     "music-metadata": "^11.15.0",
     "mysql2": "^3.24.4",
-    "nest-winston": "^1.10.2",
+    "nest-winston": "^2.0.0",
     "nodemailer": "^10.0.10",
     "normalize.css": "^8.0.1",
     "nuxt": "^4.5.2",
