@@ -45,7 +45,7 @@
 - **已知 flaky 集登记**：`tests/e2e/auth-session-governance.e2e.test.ts`（判定依据见 M1 节：失败形态均为 timeout、两次运行失败项不同、firefox 单独运行全通过）。**M1 前后 flaky 率对比**：M1 采样 chromium `--repeat-each=3` 为 2 通过 / 1 失败（当次 33%）；M2 采样 chromium `--repeat-each=3`（18/18）+ 全量 critical（3 浏览器各 1 次）**共 21 次执行 0 失败**。结论：属**负载相关超时**而非迁移回归，登记为已知 flaky，不因偶发失败判定迁移回归。
 - 单元层：保留既有设置页 / 主题页测试；新增浮层目标组件 `components/admin/settings/agreement-edit-dialog.vue` 的**同目录**结构契约测试 `components/admin/settings/agreement-edit-dialog.test.ts`（对话框 `role` / label-`for` 与控件 `id` 绑定 / 编辑态与创建态渲染差异 / `update:formData` v-model 契约 / `save` 事件），断言只覆盖**迁移无关**的可访问性与事件契约；新增 `tests/scripts/run-visual.test.ts` 覆盖视觉入口编排。
 - 既有入口未变：`tests/scripts/run-e2e.test.ts` + `run-e2e-critical.test.ts` 共 25 用例通过（`run-e2e.mjs` 仅新增 `export`，无行为改动）；新增 `tests/scripts/run-visual.test.ts` 覆盖 `run-visual.mjs` 的编排顺序与独立 config 参数。
-- 基线快照体积与保留策略：6 张合计 **663,994 字节（约 664KB）**（`tests/visual/__screenshots__/`）；基线随仓库提交、由 `pnpm test:visual:update` 原地覆盖，不做历史版本堆积（历史即 git 记录）；CI 失败产物（actual/diff）落 `test-results/visual/`，按 `retention-days: 7` 上传。CI 增量耗时：本机实测约 1.4–2.4 分钟（6 用例，串行 1 worker，不含构建复用）。
+- 基线快照体积与保留策略：6 张合计 **663,994 字节（约 664KB）**（`tests/visual/__screenshots__/`）；基线随仓库提交、由 `pnpm test:visual:update` 原地覆盖，不做历史版本堆积（历史即 git 记录）；CI 失败产物（actual/diff）落 `test-results/visual/`，按 `retention-days: 7` 上传。**不引入 Git LFS**（2026-09-24 决策，体量与单文件尺寸远低于 LFS 适用区间，且 LFS 会带来指针文件失真 / tarball 不可复现等硬成本；再评估触发线见迁移方案 §8.2 成本预算段）。CI 增量耗时：本机实测约 1.4–2.4 分钟（6 用例，串行 1 worker，不含构建复用）。
 
 ### 审计建议处置（M2 两分区 Review Gate）
 
