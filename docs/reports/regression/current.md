@@ -19,6 +19,48 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase67-m2-visual-base:第六十七阶段-M2:2026-09-24 -->
+## 2026-09-24 第六十七阶段 M2 视觉验证回归基座（PrimeVue → caomei-ui）
+
+### 范围
+
+- 建立迁移期三层视觉验证回归基座（迁移方案 §8.2）：① 单元层、② E2E 功能层、③ 截图识别层。
+- 截图识别层落地为**独立工程**：新增 `playwright.visual.config.ts`（独立 config / project）与 `tests/visual/`，入口 `pnpm test:visual` / `pnpm test:visual:update`（经 `scripts/testing/run-visual.mjs` 复用 e2e 的构建新鲜度检查与浏览器安装前置）。**不并入**既有 `pnpm test:e2e` / `test:e2e:critical` / `test:e2e:review-gate` 的 `testMatch` 与断言语义。
+- 采集对象：列表页 `/admin/posts`、表单 / 设置页 `/admin/settings`、浮层（`/admin/settings` → 协议管理 → 新增 → 创建协议对话框），各覆盖浅色 / 深色两套主题，共 6 张基线快照，随仓库提交。
+- CI 接入：`test.yml` 新增 `visual` job（下载共享 Nuxt 构建 → 安装 chromium → `pnpm test:visual` → 失败产物上传）。
+- `vitest.shared.ts` 排除 `tests/visual/**`，避免 Vitest 误收集 Playwright spec。
+
+### 验证结果
+
+- `pnpm typecheck`：PASS。
+- `pnpm lint`：PASS（0 error；7 warning 为既有、与本次无关）。
+- `pnpm test`：PASS（530 文件（529 通过 / 1 跳过）· 用例 4479 通过 / 1 跳过；视觉 spec 未被 Vitest 收集）。
+- 截图识别层环境可复现配置：chromium（`devices['Desktop Chrome']`）/ viewport 1440×900 / deviceScaleFactor 1 / locale `zh-CN` / timezone `Asia/Shanghai` / `colorScheme: light` + 显式 `localStorage.theme` 覆盖 / `reducedMotion: reduce` / `animations: 'disabled'` / `caret: 'hide'`。
+- 阈值策略：仅配置绝对上限 `maxDiffPixels: 200` + 单像素容差 `threshold: 0.2`（不设比例兜底；绝对值口径保证细粒度 token 改动不被视口比例吞掉）。禁止为让测试变绿而放宽。
+- 动态区域策略：统一以 `[data-visual-mask]` 显式遮蔽（辅助函数 `dynamicMask`）。列表页「发布时间」单元格（`pages/admin/posts/index.vue` 的 `.user-created-at`，含绝对时间 `formatDateTime` 与相对时间 `relativeTime`）**整体标注 `data-visual-mask`**：两者均源自运行时种子 `publishedAt: new Date()`（`server/utils/seed-test.ts`），既随真实时间漂移，也会因 CI 重建数据库而与本地基线不同；此前未遮蔽时仅靠「被 frozen actions 列遮挡」侥幸稳定，属布局巧合，现改为显式遮蔽以消除隐患。因遮蔽改变该页基线像素，已重新生成列表页 2 张基线快照并复验全绿。
+- **假阳性验证**：无样式变更时连续两次运行 6/6 全绿（逐像素稳定）。
+- **假阴性验证**：故意将 `--p-surface-card` 改为 `#ff0000` 后，3 项浅色用例稳定失败（深色用例因 `.dark` 覆盖该 token 而未受影响，符合预期）；还原后恢复全绿。
+- 灵敏度边界（实测登记）：仅影响**未进入捕获区域**的元素时不会产生差异——如 `$border-radius-md`（命中 `components/app-header.vue`）改动进产物（`.output` CSS 出现 `border-radius:1.5rem` 2 处）但在 3 个目标页捕获区域内无可见差异。此类 token 级改动由单元层 DOM/ARIA 断言与 E2E 行为层兜底。
+- E2E 功能层：`pnpm test:e2e:critical` 两阶段（`auth-session-governance` × chromium/firefox/webkit + `mobile-critical` × mobile-chrome/safari）全绿。
+- **已知 flaky 集登记**：`tests/e2e/auth-session-governance.e2e.test.ts`（判定依据见 M1 节：失败形态均为 timeout、两次运行失败项不同、firefox 单独运行全通过）。**M1 前后 flaky 率对比**：M1 采样 chromium `--repeat-each=3` 为 2 通过 / 1 失败（当次 33%）；M2 采样 chromium `--repeat-each=3`（18/18）+ 全量 critical（3 浏览器各 1 次）**共 21 次执行 0 失败**。结论：属**负载相关超时**而非迁移回归，登记为已知 flaky，不因偶发失败判定迁移回归。
+- 单元层：保留既有设置页 / 主题页测试；新增浮层目标组件 `components/admin/settings/agreement-edit-dialog.vue` 的**同目录**结构契约测试 `components/admin/settings/agreement-edit-dialog.test.ts`（对话框 `role` / label-`for` 与控件 `id` 绑定 / 编辑态与创建态渲染差异 / `update:formData` v-model 契约 / `save` 事件），断言只覆盖**迁移无关**的可访问性与事件契约；新增 `tests/scripts/run-visual.test.ts` 覆盖视觉入口编排。
+- 既有入口未变：`tests/scripts/run-e2e.test.ts` + `run-e2e-critical.test.ts` 共 25 用例通过（`run-e2e.mjs` 仅新增 `export`，无行为改动）；新增 `tests/scripts/run-visual.test.ts` 覆盖 `run-visual.mjs` 的编排顺序与独立 config 参数。
+- 基线快照体积与保留策略：6 张合计 **663,994 字节（约 664KB）**（`tests/visual/__screenshots__/`）；基线随仓库提交、由 `pnpm test:visual:update` 原地覆盖，不做历史版本堆积（历史即 git 记录）；CI 失败产物（actual/diff）落 `test-results/visual/`，按 `retention-days: 7` 上传。CI 增量耗时：本机实测约 1.4–2.4 分钟（6 用例，串行 1 worker，不含构建复用）。
+
+### 审计建议处置（M2 两分区 Review Gate）
+
+- 分区一（截图工程 + CI）：S1 config 注释口径 / `.gitignore` 死规则 → **已修复**；S2 `maxDiffPixelRatio` 被绝对上限压制 → **已修复**（删除，仅留 `maxDiffPixels: 200`）；S3 `run-visual.mjs` 死变量与缺单测 → **已修复**（删变量 + 新增 `tests/scripts/run-visual.test.ts`）；**S4 `snapshotPathTemplate` 未含 `{-projectName}` → 接受延后**（当前单 project；后续若加 firefox / webkit project 须补 `{-projectName}` 防路径冲突，此处登记为约束）；S5 `reuseExistingServer` 与 e2e 不一致 → **已修复**（改为 `!process.env.CI` 并注明与 e2e 共用端口 3001 的本地并发约束）；**S6 `continue-on-error` 无到期跟踪 → 已登记**（见「未覆盖边界」首条，CI 确认基线后须转阻断）。
+- 分区二（单元层 + 文档）：S1 单测目录 → **已修复**（移至与源码同级的 `components/admin/settings/agreement-edit-dialog.test.ts`）；S2 断言强度 / S3 契约遗漏 → **已修复**（补 `update:formData` v-model 断言、`sourceAgreementId` / `content` label 断言）；S4 快照体积 → **已修复**（663,994 字节）；S5 保留策略 → **已修复**（补声明）；S6 绝对时间漂移 → **已修复**（整体遮蔽 + 说明）；**S7 「todo 标 `[x]` 但 CI 未阻断」→ 已登记**（第 2 项「完成」以「CI 确认基线并转阻断」为最终界；CI 未实跑属已声明边界）。
+
+### 未覆盖边界
+
+- **基线来源跨环境风险（需 CI 确认）**：本批基线在本地 Linux（WSL2）环境生成；迁移方案 §8.2 要求跨环境差异无法消除时以 **CI 生成为唯一基线来源**。因此 `visual` CI job 初期设 `continue-on-error: true`，首次 CI 运行用于在 ubuntu runner 上确认基线；若与本地基线不一致，须以 CI 产物重建基线后提交，再将 job 转为阻断门禁。
+- 列表页（`/admin/posts`）暂无页面级 Vitest 单元测试（其行为由 E2E 功能层 + 截图层覆盖）；如需补页面级结构契约测试，登记为后续项。
+- 浮层基线仅覆盖「协议创建对话框」；Dialog / Drawer / Popover 全量浮层留待 B3 / B4 批次逐类建立。
+- 未在 CI 实跑验证 `visual` job（本地无 CI 环境），job 语法与步骤按既有 e2e job 模式镜像。
+
+<!-- regression-window:end:phase67-m2-visual-base:第六十七阶段-M2:2026-09-24 -->
+
 <!-- regression-window:start:phase67-m1b-reanchor:第六十七阶段-M1b:2026-09-24 -->
 ## 2026-09-24 第六十七阶段 M1b caomei-ui 重锚到 0.2.0（PrimeVue → caomei-ui）
 
