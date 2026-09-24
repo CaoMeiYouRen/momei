@@ -54,13 +54,14 @@ export function collectEntryPayloadFilesFromManifest(manifest) {
 /**
  * 包体预算（gzip 口径）。
  *
- * `keyCssGzipBytes` 采用**并存期配额**：PrimeVue → caomei-ui 迁移期间两套组件库样式必须同时进产物，
- * 而 caomei-ui 的 `styles.css` 是单一全量文件（167KB 原始 / 约 25.8KB gzip），无法按组件裁剪；
- * 叠加后实测 59,795 → 75,110 字节。该增长属迁移方案「双库并存期」风险的预期代价，故放开 70KB → 85KB。
+ * `keyCssGzipBytes` 曾于 PrimeVue → caomei-ui 迁移并存期临时放开至 85KB：`caomei-ui@0.1.0` 的
+ * `styles.css` 是单一全量文件（167KB 原始 / 约 25.8KB gzip），无法按组件裁剪，叠加后实测
+ * 59,795 → 75,110 字节。该增长属迁移方案「双库并存期」风险的预期代价。
  *
- * **迁移收尾、PrimeVue 卸载后必须回落**：把 `keyCssGzipBytes` 恢复为 `70 * KB`，并同步刷新
- * `.github/perf/bundle-baseline.json`。届时 PrimeVue 主题样式退出产物，预期 CSS 重新低于 70KB；
- * 若不回落，本配额会长期掩盖并存期结束后的真实回归。
+ * **配额已于 `caomei-ui@0.2.0` 重锚批次回落至 `70 * KB`**：0.2.0 移除单体 `styles.css`，改为
+ * 基础层 `theme.css`（gzip ~1KB）+ 逐模块组件样式（由打包器 tree-shaking 按需丢弃）。momei 当前
+ * 零 caomei 组件消费，故组件样式零进入产物，实测 `keyCss` 回落至 60,684 字节（59.26KB），
+ * 仅比迁移前 59,795 字节多出基础层约 0.87KB。B4 卸载 PrimeVue 后只需确认未反弹。
  *
  * 依据与验收口径见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md`
  * 的「包体对比」章节（含并存期配额小节）。
@@ -70,7 +71,7 @@ const BUDGETS = {
     // 原 260KB 从未真正生效（旧度量对象错误、检查恒真），故按实测重新定标并留约 10% 余量。
     coreEntryJsGzipBytes: 360 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
-    keyCssGzipBytes: 85 * KB,
+    keyCssGzipBytes: 70 * KB,
     prIncrementJsGzipBytes: 20 * KB,
 }
 

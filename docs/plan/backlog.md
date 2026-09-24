@@ -269,7 +269,7 @@
     - 进行中（已有 Lighthouse CI + bundle budget 体系，但尚未形成持续优化节奏）。
 - **当前状态**:
     - 已有 `test:perf:budget:strict` 与 `lighthouse` 配置，并在发版前 / 阶段收口入口中作为 blocker 运行。
-    - 当前 `coreEntryJs`（gzip）为 `328.45KB / 360KB`、`maxAsyncChunkJs` 为 `47.91KB / 130KB`、`keyCss` 为 `73.35KB / 85KB`（并存期配额，见长期主线第 11 条「收尾必办」），核心预算仍在守线范围内。
+    - 当前 `coreEntryJs`（gzip）为 `328.45KB / 360KB`、`maxAsyncChunkJs` 为 `47.91KB / 130KB`、`keyCss` 为 `59.26KB / 70KB`（并存期配额已于 2026-09-24 随 caomei-ui 重锚到 0.2.0 回落，见长期主线第 11 条「收尾必办」），核心预算仍在守线范围内。
     - 竞品对标：Ghost 自托管站点通常 LCP 在 0.8s-1.5s，Astro 内容站点 LCP 可低至 0.5s；墨梅的目标应在 1.5s 以内（公共页）和 2.5s 以内（后台页）。
 - **最近一次上收阶段**:
     - 第二十七阶段（首屏优化第一阶段 Lighthouse >= 50，已审计归档）。
@@ -322,10 +322,10 @@
     - PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布，Dependabot PR #688 已判定 No-Go；`primevue` / `@primevue/*` / `@primeuix/*` 已在 `.github/dependabot.yml` 中按版本屏蔽；当前锁定 `primevue@4.5.5`。
     - 迁移面：59 个组件 / 1515 处用法 / 629 处图标 / 1403 处 token 待迁移；无不可逾越的能力阻塞。
     - **原开工阻塞已解除（2026-09-19）**：caomei-ui M5 十项已交付、Phase 7 第二阶段已归档、B1 出口条件达成；`caomei-ui@0.1.0` 已发布至 npm（本地联调用 `file:`）。
-    - **目标依赖上移到 0.2.0（2026-09-22）**：`caomei-ui@0.2.0` 已发布（覆盖库侧 Phase 11 M1~M5），含**破坏性包形态变更**——移除 `./styles.css`、改为基础层 `./theme.css` + 逐模块组件样式（打包器按需 tree-shaking）；模块选项面不变，但 `injectStyles` 注入物变为基础层。该变更**消除了并存期 `keyCss` 膨胀前提**（原 +15.3KB gzip 来自 0.1.0 单体 167KB 样式）。接入基座待重锚到 0.2.0；0.x 不承诺语义化兼容，迁移期继续精确锁定版本。详见[迁移方案 §3.6](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
+    - **目标依赖上移到 0.2.0（2026-09-22）**：`caomei-ui@0.2.0` 已发布（覆盖库侧 Phase 11 M1~M5），含**破坏性包形态变更**——移除 `./styles.css`、改为基础层 `./theme.css` + 逐模块组件样式（打包器按需 tree-shaking）；模块选项面不变，但 `injectStyles` 注入物变为基础层。该变更**消除了并存期 `keyCss` 膨胀前提**（原 +15.3KB gzip 来自 0.1.0 单体 167KB 样式）。接入基座**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB）；0.x 不承诺语义化兼容，迁移期继续精确锁定版本。详见[迁移方案 §3.6](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
 - **下一次可切片方向**:
     - 第六十八阶段：B2 剩余数据页 + B3 表单与设置；第六十九阶段：B4 展示、浮层与收尾（含卸载 PrimeVue 与包体对比）。
-    - **收尾必办**：并存期包体配额须回落（`keyCssGzipBytes` 85KB → 70KB）并刷新 `.github/perf/bundle-baseline.json`；0.2.0 已移除单体样式，预期可在接入基座重锚批次内即回落，届时 B4 只需确认未反弹；未回落不得视为收尾完成。
+    - **收尾必办**：并存期包体配额须回落（`keyCssGzipBytes` 85KB → 70KB）并刷新 `.github/perf/bundle-baseline.json`；**已于 2026-09-24 随 caomei-ui 重锚到 0.2.0 完成回落**（实测 60,684 字节），届时 B4 只需确认未反弹；未回落不得视为收尾完成。
 ## 周期性回归验证层
 > **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
 ### 固定执行入口

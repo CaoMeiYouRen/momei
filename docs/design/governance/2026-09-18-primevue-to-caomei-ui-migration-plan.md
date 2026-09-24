@@ -2,7 +2,7 @@
 
 - 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权；2026-09-22 更新：目标依赖由 `caomei-ui@0.1.0` 上移到 `0.2.0`，样式入口与并存期包体口径随上游破坏性变更重定，见 §3.6）
 - 性质：**迁移评估与执行方案**。本文档为文档产物，**不含任何代码改动**；迁移已授权开工。
-- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**待重锚到 0.2.0**（见 §3.6 与 §8.4.1）。
+- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）。
 - 事实源边界：库侧能力面、映射表、有意差异与验收判定口径以 caomei-ui 仓库的治理文档为**唯一事实源**（见 §13）；本文档只承载 momei 侧现状基线、批次编排、momei 侧执行动作与开工前置条件，不重复库侧明细。
 - 回链主文档：[UI 设计](../ui.md)（组件库章节在迁移收尾前仍描述 PrimeVue，迁移执行时同步）。
 - 上游动因：[2026-08 PrimeVue 5 许可证变更专项评估](./2026-08-29-primevue-5-license-change-evaluation.md)。
@@ -129,7 +129,7 @@ pnpm governance:count:primevue-usage
 | **组件清单** | 自动导入组件由 78 → **79**（新增 `CaomeiSelectGroup`）；包根导出 88 项 | §5.1 的「组件清单 77 项」口径更新为 79 |
 | **0.x 兼容策略** | 库侧新增「版本与兼容策略」页：0.x **不承诺**语义化兼容；破坏性变更在 CHANGELOG 与发布指南披露；建议下游**精确锁定**并升级后复跑 typecheck / build | §5.6 的精确锁定策略由库侧策略背书；每次升级必须重跑该批回归 |
 
-**momei 侧由此产生的动作**（登记到第六十七阶段接入基座主线）：把已落地的 `caomei-ui@0.1.0` 基座**重锚到 0.2.0**——升级依赖、确认 `injectStyles` 注入物为 `theme.css`、复测 `pnpm test:perf:budget` 的 `keyCss` 并按 §8.4.1 回落并存期配额。**该动作须在 B0b 视觉基线采集之前完成**，以免基线建立在 0.1.0 形态上。
+**momei 侧由此产生的动作**（登记到第六十七阶段接入基座主线）：把已落地的 `caomei-ui@0.1.0` 基座**重锚到 0.2.0**——升级依赖、确认 `injectStyles` 注入物为 `theme.css`、复测 `pnpm test:perf:budget` 的 `keyCss` 并按 §8.4.1 回落并存期配额。**该动作须在 B0b 视觉基线采集之前完成**，以免基线建立在 0.1.0 形态上。**已于 2026-09-24 完成**（第六十七阶段 M1b，验证见 [回归记录](../../reports/regression/current.md) M1b 节）。
 
 ## 4. 目标与非目标
 
@@ -314,7 +314,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 | 批次 | momei 侧内容 | momei 侧产出物 | 依赖 |
 | :--- | :--- | :--- | :--- |
-| **接入基座**（momei 侧新增） | 引入 `caomei-ui@0.2.0`（基础层 `theme.css`，0.2.0 起取代 `styles.css`）与 `caomei-ui/nuxt` 模块、模块自动导入的 `useLocale` / `provideLocale`（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）、CSS `@layer` 顺序、双库并存白名单载体、开工重新取数（§3.4）。**0.1.0 基座已落地，待重锚到 0.2.0**（§3.6） | 双库可同时加载的最小可用基座 + 白名单单点配置 + `keyCss` 复测与配额回落 | npm `caomei-ui@0.2.0` 已发布 |
+| **接入基座**（momei 侧新增） | 引入 `caomei-ui@0.2.0`（基础层 `theme.css`，0.2.0 起取代 `styles.css`）与 `caomei-ui/nuxt` 模块、模块自动导入的 `useLocale` / `provideLocale`（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）、CSS `@layer` 顺序、双库并存白名单载体、开工重新取数（§3.4）。**0.1.0 基座已落地，已于 2026-09-24 重锚到 0.2.0**（§3.6） | 双库可同时加载的最小可用基座 + 白名单单点配置 + `keyCss` 复测与配额回落 | npm `caomei-ui@0.2.0` 已发布 |
 | **B0b 视觉验证回归基座** | 在迁移前采集基线，并升级为可自动比对的三层回归（单元 / E2E / 截图，见 §8.2）：列表页 / 表单（设置）页 / 浮层各 1 页，含关键元素计算样式快照与环境元数据（浏览器与版本、视口、主题与明暗、locale、`@layer`） | 基线采集脚本 / 命令、比对脚本、CI 接入、阈值策略、环境、两仓 commit、快照日期齐全的可复现记录 | 接入基座；**不依赖 M5** |
 | **全局 token 语义层**（momei 侧新增） | 按 §5.2 第 ① 层，以并存桥接方式引入 `--caomei-*` 语义 token 与 caomei `momei` 预设，保留 `--p-*` 供给未迁移组件 | 语义层映射说明 + `@layer` 顺序记录 + 视觉回归无差异证据 | 接入基座 + B0b（需先有比对能力才可判定无回退） |
 | **B2 数据类页面** | 先做**试点页 1-2 个**（端到端验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路），再推 20 个 `<Column>` 文件：`pages/admin/posts`、`users`、`friend-links`、`comments`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance`、`components/admin/admin-taxonomy-page.vue`、`components/admin/ai/task-list.vue`、`components/admin/marketing-campaign-list.vue`、`components/admin/settings/{admin-notification-settings,agreements-settings,notification-delivery-log-list,setting-audit-log-list}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue` | 试点结论（链路可行性 + 耗时画像）、逐页功能回归（排序 / 分页 / 选择 / 列插槽）+「文件 → 改动点」清单 | 接入基座 + B0b + 全局 token 语义层 |
@@ -373,7 +373,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 - 对比点：B0b 基线（PrimeVue 在产物内）↔ B4 收尾（PrimeVue 卸载后）。
 - 记录项：构建命令与两仓 commit；产物总量与 gzip / brotli 体积；按 chunk 体积；PrimeVue 与 primeicons 相关 chunk 是否归零；快照日期。
-- 判定口径：记录含命令 + commit + 日期即视为可复现；PrimeVue 与 primeicons 相关 chunk 归零；总量与主 chunk 体积变化有数值。阈值由 momei 既有包体预算（`test:perf:budget` / `.github/perf/bundle-baseline.json`）承担；除 §8.4.1 记录的并存期配额（`keyCss` 临时 85KB，按 0.2.0 已重定方案为在升级批次内回落至 70KB，**尚未生效**）外，本方案不预设其他新阈值。
+- 判定口径：记录含命令 + commit + 日期即视为可复现；PrimeVue 与 primeicons 相关 chunk 归零；总量与主 chunk 体积变化有数值。阈值由 momei 既有包体预算（`test:perf:budget` / `.github/perf/bundle-baseline.json`）承担；除 §8.4.1 记录的并存期配额（`keyCss` 临时 85KB，**已于 2026-09-24 在 0.2.0 重锚批次内回落至 70KB 并刷新基线，实测 60,684 字节**）外，本方案不预设其他新阈值。
 
 #### 8.4.1 并存期配额与门禁度量口径修正（2026-09-20 用户决策；2026-09-22 按 0.2.0 重定）
 
@@ -401,13 +401,13 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 **2026-09-22 按 0.2.0 重定（重要）**：上表的并存期增长（`keyCssGzipBytes` **59,795 → 75,110**，+15.3KB gzip；门禁配额同步由 70KB 放开至 85KB）**其唯一驱动是 0.1.0 的单体 `styles.css`（167,585 B / gzip 25.60 KB）**。`caomei-ui@0.2.0` 已移除该单体文件，改为：
 
-- 基础层 `caomei-ui/theme.css` 实测 **5,880 B / gzip 1,089 B**（`injectStyles` 的注入物）；
-- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。
+- 基础层 `caomei-ui/theme.css` 实测 **5,880 B / gzip ~1,089 B**（`injectStyles` 的注入物；gzip 值随压缩实现可有 ±1 B 差异）；
+- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。**复测已确认零进入产物**（产物仅含基础层 `.caomei-root` 与 `--caomei-*` token，`caomei-button` 出现 0 次，见 [回归记录](../../reports/regression/current.md) M1b 节）。
 
 因此：
 
-1. **升级到 0.2.0 后必须复测 `pnpm test:perf:budget` 的 `keyCss`**；预期其回落到 `70KB` 预算以内（相对 0.1.0 的 75,110 至少下降约 14KB gzip）。
-2. 复测确认后，**在 0.2.0 升级批次内即回落配额与基线**（`scripts/perf/check-bundle-budget.mjs` 的 `keyCssGzipBytes` 恢复 `70 * KB`；`.github/perf/bundle-baseline.json` 刷新），**不再顺延到 B4**；原「B4 必须回落」的约束随之改为「若 0.2.0 升级批次已回落，B4 只需确认未反弹」。
+1. **升级到 0.2.0 后必须复测 `pnpm test:perf:budget` 的 `keyCss`**；预期其回落到 `70KB` 预算以内（相对 0.1.0 的 75,110 至少下降约 14KB gzip）。**已于 2026-09-24 复测：实测 60,684 字节，组件样式零进入产物，符合预期。**
+2. 复测确认后，**在 0.2.0 升级批次内即回落配额与基线**（`scripts/perf/check-bundle-budget.mjs` 的 `keyCssGzipBytes` 恢复 `70 * KB`；`.github/perf/bundle-baseline.json` 刷新），**不再顺延到 B4**；原「B4 必须回落」的约束随之改为「若 0.2.0 升级批次已回落，B4 只需确认未反弹」。**已于 2026-09-24 完成（第六十七阶段 M1b）。**
 3. 后续 B2~B4 逐批迁移时，caomei-ui 组件样式按实际消费组件进入产物；每批收尾的 `keyCss` 变化应可归因到「本批新消费的组件样式」，不得出现无法解释的跃升。
 
 > 说明：上表同时记录的两个既有度量缺陷修正（`coreEntryJsGzipBytes` 入口口径、`maxAsyncChunkJsGzipBytes` manifest 路径）与本迁移无关，继续有效，不随 0.2.0 回退。
@@ -455,7 +455,7 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
 3. **消费路径确定**：npm `caomei-ui@0.2.0` 可用（已核实发布、导出面 `./theme.css` 与许可证）；本地联调 `file:` 形态不得进入提交。
 4. momei 工作区干净、与远端同步。
 5. 开工前按 §3.4 在目标 commit 上重新取数，更新本文档基线数字。
-6. **接入基座重锚到 0.2.0（2026-09-22 新增）**：依赖升级、`injectStyles` 注入物确认为 `theme.css`、注入点唯一、`keyCss` 复测并按 §8.4.1 回落配额——须在 B0b 基线采集**之前**完成。
+6. **接入基座重锚到 0.2.0（2026-09-22 新增）**：依赖升级、`injectStyles` 注入物确认为 `theme.css`、注入点唯一、`keyCss` 复测并按 §8.4.1 回落配额——须在 B0b 基线采集**之前**完成。**已完成（2026-09-24，第六十七阶段 M1b）。**
 
 **B. 批次迁移前置（进入 B2 实际页面迁移前必须满足，属第六十七阶段内任务）**
 
@@ -473,7 +473,7 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
 5. **PrimeVue 4 的最终安全窗口**：迁移完成前若出现 4.x 安全告警，需要局部打补丁还是加速迁移，待实际发生时的风险处置。
 6. **截图回归的初值与阈值**：基线快照在哪一环境生成、`maxDiffPixelRatio` / `maxDiffPixels` 初值、是否纳入每批强制门禁，需在第六十七阶段确定并落盘（不预先在本文档写死）。
 7. **B2 试点页选择**：以哪 1-2 个数据页作为试点（覆盖度 vs 风险），需在第六十七阶段开工时定稿。
-8. **0.2.0 升级批次的粒度（2026-09-22 新增）**：接入基座重锚到 0.2.0 建议作为独立原子条目（依赖升级 + `theme.css` 注入核对 + `keyCss` 复测与配额回落），在 B0b 之前完成；是否拆分及与既有「接入基座」条目的归属关系，由第六十七阶段开工时定稿。
+8. ~~**0.2.0 升级批次的粒度（2026-09-22 新增）**~~ **已定稿（2026-09-24）**：接入基座重锚到 0.2.0 已作为独立原子条目（第六十七阶段 1b，依赖升级 + `theme.css` 注入核对 + `keyCss` 复测与配额回落）并在 B0b 之前完成，与「接入基座」条目（1a）同属第 1 项。
 
 ## 13. 相关文档
 

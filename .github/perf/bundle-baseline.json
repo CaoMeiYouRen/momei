@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-19T17:53:21Z",
-  "note": "并存期（PrimeVue + caomei-ui）基线。coreEntryJsGzipBytes 改为「Nuxt 客户端 manifest 的 entrypoints + preload JS 去重后」口径（原「最小 3 个 chunk」代理无语义、检查恒真）；maxAsyncChunkJsGzipBytes 同时修正：此前读取的 manifest 路径已失效，admin 路由 chunk 未被排除而虚高。keyCss 增长源于 caomei-ui 全量样式注入。PrimeVue 卸载后须回落 keyCss 预算与基线，依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
+  "timestamp": "2026-09-24T05:29:57Z",
+  "note": "caomei-ui 重锚到 0.2.0 后的基线（PrimeVue + caomei-ui 并存）。keyCss 已由并存期临时配额 85KB 回落至 70KB 并刷新基线：0.2.0 移除单体 styles.css，改为基础层 theme.css（gzip ~1KB）+ 逐模块组件样式（tree-shaking 按需丢弃），momei 当前零 caomei 组件消费故组件样式零进入产物，实测 75,110 → 60,684 字节（仅比迁移前 59,795 多出基础层约 0.87KB）。coreEntryJsGzipBytes 为「Nuxt 客户端 manifest 的 entrypoints + preload JS 去重后」口径；maxAsyncChunkJsGzipBytes 已修正 manifest 路径并排除 admin 路由 chunk。B4 卸载 PrimeVue 后只需确认 keyCss 未反弹。依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
   "metrics": {
     "coreEntryJsGzipBytes": 336333,
     "maxAsyncChunkJsGzipBytes": 49055,
-    "keyCssGzipBytes": 75110
+    "keyCssGzipBytes": 60684
   }
 }

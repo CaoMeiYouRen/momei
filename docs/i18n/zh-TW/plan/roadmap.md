@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-23
+last_sync: 2026-09-24
 ---
 
 # 墨梅專案路線圖
@@ -85,7 +85,7 @@ last_sync: 2026-09-23
 - **第六十四階段已完成審計歸檔**：設置表單 UI Phase 2 首批 UI 組件（EMAIL_SECURE/EMAIL_EXPIRES_IN/TEMP_EMAIL_DOMAIN_NAME/AI_MAX_TOKENS/TTS_DEFAULT_VOICE 5 字段 + 五語種翻譯）；reactive→ref Step 5 收尾（admin-taxonomy-page/marketing-campaign-form/comment-form 3 文件）；結構複用 2 組切片（safeDeleteCategory + handleExternalLinkError，duplicate-code 基線 0.35%）；測試覆蓋率第六批（privacy.ts 7 邊緣 case）；ko-KR/ja-JP 文檔治理（freshness 審計報告、ko-KR 13 文件日期修復、ja-JP 升級為已支援、features/variables 翻譯）。全部主線通過 typecheck+lint+test。
 - **第六十五階段已完成審計歸檔**：編輯器工具欄收斂 Phase A（10→5 按鈕摺疊 + 標題欄彈性寬度，`e936ec1e`）；設置表單 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor，`01ce9670`）；結構複用治理（Categories/Tags 共享查詢層，消除 226 行重複，duplicate-code 基線 0.34%→0.30%）；腳本治理升格評估（simple-duplicates 升格至 regression:weekly warning 面）；測試覆蓋率 90%+ 第七批（新增 3 個測試文件，全倉 79.48% 未達 ≥1% 目標，轉入長期治理）。vitest.shared.ts 統一為 forks 池修復 `<repo-root>/tmp` 競態；新增 regression-weekly.yml 定時 CI 回歸工作流。所有已交付主線均通過 typecheck+lint+test。
 - **第六十六階段已完成審計歸檔**：編輯器工具欄收斂 Phase B（續寫/擴寫/縮寫新增 `style` 參數，複用 6 種風格定義）；設置表單 UI Phase 4（AI_FALLBACK_API_KEY/MODEL/ENDPOINT 表單控件 + 五語種翻譯，AI Image Fallback 4 項留 Phase 5）；結構複用治理（`use-theme-color-models.ts` composable 抽取，duplicate-code 基線 0.31%→0.30%，`8fb91ecd`）；測試覆蓋率 90%+ 第八批（`85d69d7d`，5 個高價值模組補測 58 用例：text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%，全倉 Statements 79.55%→80.63% 達到 ≥80.48% 目標）；腳本治理 comment-drift 升格複核（`1fc73e54`，結論 go 維持 Phase 52 已升格狀態，收口 7 處文檔漂移）。全部主線通過 typecheck+lint 並完成 Code Auditor Review Gate。
-- **第六十七階段已登記（規劃中，尚未歸檔）**：PrimeVue → caomei-ui UI 組件庫遷移第一階段——接入基座與消費路徑（npm `caomei-ui@0.2.0` 精確鎖定 + 雙庫並存 + 同名 composables 隔離 + 路由級白名單載體；0.2.0 起基礎層入口由 `styles.css` 改為 `theme.css`；基座已按 0.1.0 落地，待重錨到 0.2.0）、單元 / E2E / 截圖三層視覺驗證回歸基座、全局 token 語義層橋接、B2 試點頁遷移。遷移動因與批次編排見[遷移方案](../../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；後續批次為第六十八 / 六十九階段。
+- **第六十七階段已登記（規劃中，尚未歸檔）**：PrimeVue → caomei-ui UI 組件庫遷移第一階段——接入基座與消費路徑（npm `caomei-ui@0.2.0` 精確鎖定 + 雙庫並存 + 同名 composables 隔離 + 路由級白名單載體；0.2.0 起基礎層入口由 `styles.css` 改為 `theme.css`；基座已按 0.1.0 落地，已於 2026-09-24 重錨到 0.2.0）、單元 / E2E / 截圖三層視覺驗證回歸基座、全局 token 語義層橋接、B2 試點頁遷移。遷移動因與批次編排見[遷移方案](../../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；後續批次為第六十八 / 六十九階段。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

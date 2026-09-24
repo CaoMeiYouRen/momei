@@ -19,6 +19,39 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase67-m1b-reanchor:第六十七阶段-M1b:2026-09-24 -->
+## 2026-09-24 第六十七阶段 M1b caomei-ui 重锚到 0.2.0（PrimeVue → caomei-ui）
+
+### 范围
+
+- 依赖 `caomei-ui` 由 `0.1.0` 精确锁定上移到 `0.2.0`（迁移期仍精确锁定，不加 `^`）；`pnpm install` 后 lockfile 同步。
+- 上游 0.2.0 含包形态破坏性变更：移除单体 `caomei-ui/styles.css`，改为基础层 `caomei-ui/theme.css`（落点 `dist/styles/index.css`，5,880 B / gzip ~1,089 B，0 个 `@layer`）+ 逐模块组件样式（`dist/` 下共 75 个 CSS）。
+- 按迁移方案 §8.4.1 在本次升级批次内回落并存期配额（`keyCss` 85KB → 70KB）并刷新基线。
+- 口径与事实源同步：`docs/standards/performance.md` 的现行首屏 CSS 预算同步为 `70KB`（该文件 §4.1 要求脚本 / 基线 / 规范三处一致）；`docs/plan/{todo,roadmap,backlog}.md`、`docs/design/ui.md`、迁移方案与 2026-08-29 许可证评估、`docs/i18n/{en-US,ja-JP,ko-KR,zh-TW}/plan/roadmap.md` 四份镜像摘要随重锚完成同步（镜像 `last_sync` → `2026-09-24`，避免提交后 `docs:check:source-of-truth` 判 stale）。
+
+### 验证结果
+
+- `pnpm typecheck`：PASS。
+- `pnpm lint`：PASS（0 error；7 warning 为既有、与本次改动无关）。
+- `pnpm test`：PASS（527 文件 / 4473 用例通过，1 skipped；相对 2026-09-21 窗口 +2，来自 `0fab59d7` 的 `server/services/upload.test.ts`）。
+- `pnpm build`：PASS。
+- `pnpm test:perf:budget`：PASS（`keyCss` 59.26KB / 70KB 回落配额；`coreEntryJs` 328.45KB / 360KB；`maxAsyncChunkJs` 47.91KB / 130KB）。
+- `keyCss` 复测：75,110 → **60,684** 字节（gzip）；相对迁移前基线 59,795 仅多出基础层约 0.87KB。产物 `entry.*.css` 含 49 个 `--caomei-*` token 与唯一类 `.caomei-root`，**零 caomei 组件样式**（`caomei-button` 出现 0 次，符合「momei 当前零 caomei 组件消费」预期）。
+- 注入点唯一性（`loadNuxt` 读取解析后的 `nuxt.options.css`）：`caomei-ui/theme.css` 恰好 **1** 次，`caomei-ui/styles.css` 0 次；`_installedModules` 中 `caomei-ui` 无重复安装。
+- `@layer` 顺序不变：产物仍为 `primevue, momei-base, momei-overrides`；caomei-ui 基础层以未分层形态加载。
+- 自动导入隔离不变：`.nuxt/imports.d.ts` 中 `useToast` 归 `primevue/usetoast`、`useConfirm` 归 `primevue/useconfirm`、`useTheme` 归 `composables/use-theme.ts`；caomei-ui 仅保留 `useLocale` / `provideLocale`。
+- §3.4 基线未漂移：`pnpm governance:count:primevue-usage` 重取 = 组件 59 类 / 1515 处；图标 629 处；token 1403 处（与 M1 完全一致）。
+- `@lucide/vue` 未在 momei 源码直接引用，本批不新增直接依赖（留待试点页按实际引用决定）。
+
+### 未覆盖边界
+
+- 视觉验证回归（单元 / E2E / 截图三层）仍未建立，属 M2 范围；本批无 UI 可见变化，仅样式形态与包体口径变更。
+- 未逐 preset 验证 dev / Vercel / Cloudflare 产物（与 M1 同口径，依据 node-server 产物判定因果充分）。
+- 白名单初始仍为空（尚无路由迁移），路由级隔离规则未被真实用例触发。
+- 本批未采集 E2E 基线；已知 flaky 集 `auth-session-governance` 的显式登记与 M1 前后 flaky 率对比仍属 M2 待办。
+
+<!-- regression-window:end:phase67-m1b-reanchor:第六十七阶段-M1b:2026-09-24 -->
+
 <!-- regression-window:start:hotfix-pinned-pg-types:PostgreSQL 值类型解析修复:2026-09-21 -->
 ## 2026-09-21 PostgreSQL 值类型解析退化导致「所有文章显示置顶」修复
 
@@ -85,7 +118,7 @@
 
 ### 窗口结论适用性（2026-09-22 追加）
 
-- **样式形态将被 0.2.0 取代**：本批基于 `caomei-ui@0.1.0` 的单体 `styles.css`；上游 `0.2.0` 已改为基础层 `theme.css` + 逐模块组件样式，接入基座待重锚（迁移方案 §3.6 / §8.4.1），届时 `keyCss` 复测并回落配额。本窗口的 `keyCss 73.35KB / 85KB` 结论**不代表重锚后状态**。
+- **样式形态将被 0.2.0 取代**：本批基于 `caomei-ui@0.1.0` 的单体 `styles.css`；上游 `0.2.0` 已改为基础层 `theme.css` + 逐模块组件样式，接入基座待重锚（迁移方案 §3.6 / §8.4.1），届时 `keyCss` 复测并回落配额。本窗口的 `keyCss 73.35KB / 85KB` 结论**不代表重锚后状态**。**已于 2026-09-24 重锚完成**（见上方 M1b 窗口：`keyCss` 回落 60,684 字节 / 70KB 配额）。
 
 <!-- regression-window:end:phase67-m1-integration:第六十七阶段-M1:2026-09-20 -->
 

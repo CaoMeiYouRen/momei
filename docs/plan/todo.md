@@ -23,14 +23,15 @@
 
 **时间表**: 2026-09-19 ~ 待定（按里程碑滚动）
 
-**准入前置（已核对 2026-09-22）**: 库侧 M5 十项已交付、caomei-ui Phase 7 第二阶段已归档、B1 出口条件达成；`caomei-ui@0.2.0` 已发布至 npm（2026-09-22，含包形态破坏性变更：`styles.css` → `theme.css` + 逐模块组件样式）。**目标依赖由 `0.1.0` 上移到 `0.2.0`**，接入基座待重锚（迁移方案 §3.6）。
+**准入前置（已核对 2026-09-22）**: 库侧 M5 十项已交付、caomei-ui Phase 7 第二阶段已归档、B1 出口条件达成；`caomei-ui@0.2.0` 已发布至 npm（2026-09-22，含包形态破坏性变更：`styles.css` → `theme.css` + 逐模块组件样式）。**目标依赖由 `0.1.0` 上移到 `0.2.0`，接入基座已于 2026-09-24 重锚完成**（迁移方案 §3.6）。
 
-- [ ] **1. 接入基座与消费路径（P1）**
+- [x] **1. 接入基座与消费路径（P1）**
     - **1a. 基座落地（已完成 2026-09-20）**: 以 `caomei-ui@0.1.0` 引入 npm 依赖、接入 `caomei-ui/nuxt` 与 `@primevue/nuxt-module` 并存、同名自动导入隔离（`modules/caomei-ui-coexistence.ts`）、白名单载体（`lib/ui-library.ts`）、迁移基线重取脚本（`governance:count:primevue-usage`）。**已验证**：两套库同构建共存、白名单载体可单点读出、依赖声明完整、§3.4 基线重新取数已落盘。提交 `90344418`，验证见 [回归记录](../reports/regression/current.md) M1 节。
-    - **1b. 重锚到 `caomei-ui@0.2.0`（待办，本项收口条件）**
+    - **1b. 重锚到 `caomei-ui@0.2.0`（已完成 2026-09-24，本项收口条件）**
         - **执行范围**: 依赖 `0.1.0 → 0.2.0`（迁移期锁定精确版本）；确认 `injectStyles` 注入物为**基础层 `caomei-ui/theme.css`**（0.2.0 起取代 `styles.css`；组件样式随模块自带、由打包器按需 tree-shaking）且**基础层注入点唯一**（模块 / resolver / 显式 import 三选一）；确认 CSS `@layer` 顺序不变；确认模块自动导入的 `useLocale` / `provideLocale` 不变（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换仍延后到启用 caomei-ui 组件的批次）；复测 `pnpm test:perf:budget` 的 `keyCss` 并按迁移方案 §8.4.1 回落并存期配额；复核 §3.4 基线未漂移（如需可重取）；`@lucide/vue` 是否需在 momei 侧显式声明仍按试点页实际引用决定。
         - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
         - **最小验收**: `theme.css` 在产物中仅注入一次；`keyCss` 复测后按迁移方案 §8.4.1 **回落配额（85KB → 70KB）并刷新基线**；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
+        - **已验证**: `theme.css` 在 `nuxt.options.css` 中恰好 1 次（`styles.css` 0 次）、`caomei-ui` 模块无重复安装；`keyCss` 75,110 → **60,684** 字节（gzip），并存期配额回落 70KB 并刷新基线；`@layer` 顺序与自动导入隔离均不变；§3.4 基线未漂移（59 类 / 1515 处）；typecheck / lint / test（527 文件 / 4473 用例）/ build / test:perf:budget 全部通过。验证见 [回归记录](../reports/regression/current.md) M1b 节。
         - **证据落点**: 复测数值与配额回落写入 [回归记录](../reports/regression/current.md)；决策回链迁移方案 §3.6 / §8.4.1。
 
 - [ ] **2. 视觉验证回归基座（P1）**

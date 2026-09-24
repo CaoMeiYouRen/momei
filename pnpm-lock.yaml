@@ -157,8 +157,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       caomei-ui:
-        specifier: 0.1.0
-        version: 0.1.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.42(typescript@6.0.3))
+        specifier: 0.2.0
+        version: 0.2.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.42(typescript@6.0.3))
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -5875,8 +5875,8 @@ packages:
   canvas-nest.js@2.0.4:
     resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==}
 
-  caomei-ui@0.1.0:
-    resolution: {integrity: sha512-FKrIrt9mJsFnsMwLGIpQpp0kCayMLXmY6B59WM3lMCzZ11rWy93P9BHNpt+JLdjnZXdcvvf57pCwAX8vYV+UVA==}
+  caomei-ui@0.2.0:
+    resolution: {integrity: sha512-op41Pj95Pw2HAwJc//kOsxM6D9SRfEiJwaHLqsshGbFDMVXcSw7e5LK1OI3HBGw/ZprZyxvRHVDoJusOK51ENA==}
     engines: {node: '>=20'}
     peerDependencies:
       '@nuxt/kit': ^4.4.6
@@ -19240,7 +19240,7 @@ snapshots:
     dependencies:
       size-sensor: 0.2.6
 
-  caomei-ui@0.1.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.42(typescript@6.0.3)):
+  caomei-ui@0.2.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.104.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.42(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
       '@lucide/vue': 1.47.0(vue@3.5.42(typescript@6.0.3))
