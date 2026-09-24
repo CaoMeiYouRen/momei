@@ -61,6 +61,9 @@ tests/e2e/.auth
 
 *.png
 
+# 视觉回归基线快照随仓库提交（迁移方案 §8.2）；失败产物 -actual/-diff 落于 test-results/visual/（已被忽略）
+!tests/visual/__screenshots__/**/*.png
+
 /artifacts
 /opc-doc
 /.session

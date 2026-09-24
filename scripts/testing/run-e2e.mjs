@@ -113,7 +113,7 @@ export function quoteWindowsArg(arg) {
     return `"${arg.replaceAll('"', '\\"')}"`
 }
 
-function run(command, args, env = process.env) {
+export function run(command, args, env = process.env) {
     return new Promise((resolve, reject) => {
         const spawnCommand = process.platform === 'win32' ? 'cmd.exe' : command
         const spawnArgs = process.platform === 'win32'

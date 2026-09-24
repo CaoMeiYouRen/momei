@@ -47,6 +47,8 @@
     "test:e2e:critical": "node scripts/testing/run-e2e-critical.mjs",
     "test:e2e:review-gate": "node scripts/testing/run-review-gate-ui-baseline.mjs",
     "test:e2e:ui": "node scripts/testing/run-e2e.mjs --ui",
+    "test:visual": "node scripts/testing/run-visual.mjs",
+    "test:visual:update": "node scripts/testing/run-visual.mjs --update-snapshots",
     "typecheck": "nuxt typecheck",
     "commit": "cz",
     "prepare": "husky",

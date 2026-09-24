@@ -188,7 +188,7 @@
                     header-style="min-width: 9rem"
                 >
                     <template #body="slotProps">
-                        <div class="user-created-at">
+                        <div class="user-created-at" data-visual-mask>
                             <span class="user-created-at__date">{{ formatDateTime(slotProps.data.publishedAt) }}</span>
                             <small
                                 v-if="slotProps.data.publishedAt"

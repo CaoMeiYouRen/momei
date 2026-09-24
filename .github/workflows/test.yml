@@ -282,6 +282,59 @@ jobs:
           retention-days: 14
 
   # ===============================================================
+  #  Visual Regression (screenshot layer, migration §8.2)
+  #  Independent Playwright config — does NOT touch e2e testMatch.
+  #  ⚠️ 初期非阻断：基线在本地（WSL2）生成，需先在 ubuntu runner 上确认。
+  #     若与本地基线不一致，以 CI 产物为准重建基线（pnpm test:visual:update
+  #     后提交 __screenshots__），确认后移除 continue-on-error 转为阻断门禁。
+  # ===============================================================
+  visual:
+    name: Visual Regression
+    needs: [build-nuxt]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Download Nuxt build output
+        id: download-nuxt-visual
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: nuxt-output
+          path: .output/
+      - name: Build Nuxt (fallback)
+        if: steps.download-nuxt-visual.outcome == 'failure' || steps.download-nuxt-visual.outcome == 'skipped'
+        run: pnpm run build
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run visual regression
+        env:
+          TEST_MODE: "true"
+          NUXT_PUBLIC_TEST_MODE: "true"
+          AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+          BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+        run: pnpm test:visual
+      - name: Upload visual diff artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-regression-artifacts
+          path: |
+            test-results/visual/
+            playwright-report/visual/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ===============================================================
   #  Lighthouse CI (reuses shared Nuxt build)
   # ===============================================================
   build-lighthouse:
