@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-24T05:29:57Z",
-  "note": "caomei-ui 重锚到 0.2.0 后的基线（PrimeVue + caomei-ui 并存）。keyCss 已由并存期临时配额 85KB 回落至 70KB 并刷新基线：0.2.0 移除单体 styles.css，改为基础层 theme.css（gzip ~1KB）+ 逐模块组件样式（tree-shaking 按需丢弃），momei 当前零 caomei 组件消费故组件样式零进入产物，实测 75,110 → 60,684 字节（仅比迁移前 59,795 多出基础层约 0.87KB）。coreEntryJsGzipBytes 为「Nuxt 客户端 manifest 的 entrypoints + preload JS 去重后」口径；maxAsyncChunkJsGzipBytes 已修正 manifest 路径并排除 admin 路由 chunk。B4 卸载 PrimeVue 后只需确认 keyCss 未反弹。依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节。",
+  "timestamp": "2026-09-26T03:35:00Z",
+  "note": "caomei-ui 0.3.0 升级批次（第六十八阶段条目 1）刷新的基线（PrimeVue + caomei-ui 并存）。keyCss 配额维持 70KB。包体口径：组件样式随消费方 chunk 归属——当前消费面（B2 试点 5 族）的组件样式落在路由 chunk（comments.*.css），入口 keyCss 只含基础层 theme.css 与全局 token 桥接（.caomei-root 与 --caomei-*），在册组件类零命中（caomei-select / caomei-input / caomei-skeleton 的命中均为 --caomei-* token 名）；入口 / 全局壳消费组件时其样式将计入 keyCss。归因更正：0.2.0 与 0.3.0 的基础层字节级一致（dist/styles/index.css 同 sha256），0.3.0 升级对三项指标贡献 0；现行 keyCss 60,896 字节为 0.2.0 期（M3 token 桥接后）既达值，较 M1b 期（2026-09-24）60,684 的 +212、coreEntryJs +675、maxAsyncChunkJs +92 均为相对 M1b 期基线的累计差（入口 CSS 侧净增量，主因 M3 html:root 桥接块），非 0.3.0 单批增量。coreEntryJsGzipBytes 为「Nuxt 客户端 manifest entrypoints + preload JS 去重」口径；maxAsyncChunkJsGzipBytes 排除 admin 路由 chunk。B4 卸载 PrimeVue 后只需确认 keyCss 未反弹。依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md 的包体对比章节与 docs/reports/regression/current.md 第六十八阶段条目 1 节。",
   "metrics": {
-    "coreEntryJsGzipBytes": 336333,
-    "maxAsyncChunkJsGzipBytes": 49055,
-    "keyCssGzipBytes": 60684
+    "coreEntryJsGzipBytes": 337008,
+    "maxAsyncChunkJsGzipBytes": 49147,
+    "keyCssGzipBytes": 60896
   }
 }

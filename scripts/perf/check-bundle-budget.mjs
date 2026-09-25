@@ -59,9 +59,12 @@ export function collectEntryPayloadFilesFromManifest(manifest) {
  * 59,795 → 75,110 字节。该增长属迁移方案「双库并存期」风险的预期代价。
  *
  * **配额已于 `caomei-ui@0.2.0` 重锚批次回落至 `70 * KB`**：0.2.0 移除单体 `styles.css`，改为
- * 基础层 `theme.css`（gzip ~1KB）+ 逐模块组件样式（由打包器 tree-shaking 按需丢弃）。momei 当前
- * 零 caomei 组件消费，故组件样式零进入产物，实测 `keyCss` 回落至 60,684 字节（59.26KB），
- * 仅比迁移前 59,795 字节多出基础层约 0.87KB。B4 卸载 PrimeVue 后只需确认未反弹。
+ * 基础层 `theme.css`（gzip ~1KB）+ 逐模块组件样式（未消费则由打包器 tree-shaking 丢弃、消费则随
+ * 消费方 chunk 归属）。0.2.0 重锚时点零组件消费，实测 `keyCss` 回落至 60,684 字节（59.26KB），
+ * 仅比迁移前 59,795 字节多出基础层约 0.87KB。当前消费面（B2 试点 5 族）的组件样式落路由 chunk，
+ * 入口 CSS 只含基础层与全局 token 桥接；入口 / 全局壳消费组件时其样式计入 `keyCss`。0.2.0 与
+ * 0.3.0 基础层字节一致，升级本身对指标贡献 0；现行 60,896 字节为 M3 桥接后既达值（较 M1b 期的
+ * +212 系入口 CSS 侧净增量）。B4 卸载 PrimeVue 后只需确认未反弹。
  *
  * 依据与验收口径见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md`
  * 的「包体对比」章节（含并存期配额小节）。

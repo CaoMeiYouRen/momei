@@ -91,7 +91,7 @@
 - **专项设计事实源**: [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；[PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（批次编排、消费路径、视觉验证回归与验收口径）。
 - **状态**: 进行中（方案 A 轨迹经第六十八阶段准入重划为第六十七 ~ 第七十阶段四段，本阶段已立项执行 0.3.0 复测与 B2 切片）。
 - **最近一次上收阶段**: 第六十七阶段（接入基座 + 三层视觉验证回归基座 + 全局 token 语义层 + B2 试点页，已审计归档）。
-- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定，`0.3.0` 升级与基线复测已上收至第六十八阶段（含「零 caomei 组件消费」口径澄清与组件消费清单重数）；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节）。
+- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.3.0` 精确锁定（第六十八阶段条目 1 已于 2026-09-26 完成升级与基线复测；升级本身对包体指标贡献 0）；`keyCss` 配额 70KB（组件样式随消费方 chunk 归属）。
 - **下一次可切片方向**: 0.3.0 升级复测与 B2 剩余数据页（10 个数据列表路由 + 组件型目标 host 路由 + 共享壳过渡组件）已上收至第六十八阶段，见 [todo.md](./todo.md)；后续按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：B4 只需确认 `keyCss` 未反弹。
 
 ## 周期性回归验证层
