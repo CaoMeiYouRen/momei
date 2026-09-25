@@ -33,6 +33,7 @@ metadata:
 12. **下一阶段闸门**: 当前阶段未完成归档前，只允许输出"候选方案 / 准入分析"，不得直接把下一阶段写入 `todo.md` 或 `roadmap.md`。
 13. **归档一致性检查**: 阶段归档时同步检查 `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片的覆盖范围是否对齐。若 roadmap 归档分片落后于 todo-archive（如 roadmap 只归档到 Phase X 但 todo 已到 Phase X+N），必须先补齐 roadmap 的缺失归档分片再继续。归档前如需压缩 `roadmap.md` 中已完成阶段的详情正文，必须先将原始完整内容提取到归档分片文件，禁止直接丢弃。
 14. **新阶段评估前工作区清洁**: 进入新阶段评估前，先执行一次规划文档的清洁检查——确认 `todo.md` 无已归档阶段残留、`roadmap.md` 无已归档阶段的规划细节残留、`backlog.md` 无已完成候选条目的正文残留、归档分片覆盖范围对齐、文档格式无混用括号 / 异常反引号等漂移。详见 `docs/standards/planning.md` Step 8。
+15. **归档迁出后零残留**: 阶段归档把 `todo.md` 的阶段正文迁入 `todo-archive.md` 后，`todo.md` 与 `backlog.md` 不得保留已完成或已归档项目的任何正文，包括「归档摘要」「闭环整理」之类留痕（`backlog.md` 短期候选上收后删除）。`backlog.md` 的「长期主线任务」区**只保留可跨阶段反复切片的条目**，主线一旦关闭（如治理循环正式关闭）整条移除，不留摘要或历史叙述。
 
 ### Session 级任务协议管理
 

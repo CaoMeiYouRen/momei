@@ -249,6 +249,26 @@ pnpm run test:coverage
 3.  **排查慢速测试**:
     若发现测试异常缓慢，请检查是否在每个 `test` 中重复进行了昂贵的数据库连接/销毁操作，应尽量利用 `beforeAll` 和 `afterAll`。
 
+### 7.1 视觉回归与测试环境陷阱
+
+迁移期视觉回归工程（`playwright.visual.config.ts` + `tests/visual/`）沉淀的硬约束：
+
+| 陷阱 | 结论 |
+|:---|:---|
+| `maxDiffPixels` 与 `maxDiffPixelRatio` 同时配置 | Playwright 取 `Math.min(absolute, ratio*w*h)`，有效阈值为两者取小；典型配置下绝对值更小即生效，比例项沦为误导性旋钮。细粒度灵敏度只用绝对像素上限。 |
+| 失败产物位置 | `-actual.png` / `-diff.png` 落在 `outputDir`（默认 `test-results/`），**不在** `snapshotPathTemplate` 指定的快照目录；针对快照目录写 `*-actual.png` 的 gitignore 规则是死规则。 |
+| 仓库全局 `*.png` 忽略 | 会连基线快照一起挡掉；新增基线前用 `git check-ignore -q <png>` 验证（看 exit code，不能只看 `-v` 输出）。本仓库 `.gitignore` 已放行 `tests/visual/__screenshots__/**/*.png`。 |
+| Vitest 收集面 | `include: ['./**/*.spec.ts', './**/*.test.ts']` 会收集任何新增目录下的 spec / test；新增 Playwright 专用目录必须同步加入 `vitest.shared.ts` 的 `exclude`，否则 `pnpm test` 会尝试用 Vitest 跑 Playwright spec。 |
+| `data-visual-mask` | 加遮蔽会改变基线像素（Playwright 用实心色块覆盖），必须重新生成该页基线；不要以为遮蔽零成本。 |
+| 运行期种子 | 种子用 `new Date()` 时，页面上任何时间展示都随运行漂移，必须整体遮蔽该单元格而非只遮蔽相对时间；判断「某动态值是否进入捕获区」要看遮蔽前后基线是否变化，不能只看 DOM 存在性。 |
+| 计算后 CSS 变量可作守卫 | 视觉工程可兼作「级联契约守卫」：用 `page.evaluate` 读 `getComputedStyle(document.documentElement)` 的 `--x`，断言其等于来源 token 且不等于库默认值；比较的是**计算后字符串**（不归一化单位 / hex，如 `#fff ≠ #ffffff`、`0.5rem ≠ 8px`）。 |
+| 差异逐项归因（无图像库） | 可用浏览器 canvas（`Image` + `drawImage` + `getImageData`）算差异像素的 y 带与每带 x 跨度，再与 `getBoundingClientRect` 对齐，把像素差异映射到元素；`node_modules` 通常没有 `sharp` / `pngjs`。 |
+| 组件 stub | Vue 手写 stub 必须在 **render 函数内**读取 `props`；在 `setup` 阶段捕获会拿到挂载时初值并永不更新，表现为「用例假红」（父组件 `setupState` 里数据已就位而 stub 收到的仍为空）。 |
+| `onMounted` 内发起请求 | `@vue/test-utils` 的 `flushPromises` 需**连调两次**（第一次触发 mounted、第二次等 promise 续延写回状态）。 |
+| 「数据写坏」类假设的快速证伪 | 对同字段发一个过滤查询（如 `?isPinned=true`）；若 `total` 与 UI 现象矛盾，即可判定是读取 / 序列化层问题而非数据问题，省去翻迁移脚本。 |
+| 证伪 E2E flaky | 回到 HEAD 复现：`git stash push` → `pnpm build` → 跑同一 spec（可按浏览器单独跑）→ `git stash pop`；仅「清理环境后重跑通过」不足以排除自身改动。 |
+| 采集迁移前基线 | 改动 `git stash`（不带 `-u`，保留未跟踪的视觉 spec 与基线文件）→ 构建 → `--update-snapshots` → `pop`；恢复后基线文件仍在，即可与迁移后逐项对照。 |
+
 ## 8. 提交前检查 (Pre-commit Checks)
 
 在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过质量校验。详细流程请参阅 [开发规范 - 提交前检查](./development.md#6-提交前检查-pre-commit-checks)。

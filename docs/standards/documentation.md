@@ -236,6 +236,19 @@
 5. 若阶段状态从“规划中 / 进行中”变为“已归档 / 已审计归档”，必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要状态与 `last_sync`，但 `todo.md` 与 `backlog.md` 仍保持中文事实源，不为归档动作单独扩展翻译件。
 6. 阶段归档块必须能独立说明“为什么可以归档”，至少包含审计结论、主线完成情况、关键验证或回归入口，以及残余风险或后续观察项；不得只写一句“已完成”。
 
+### 5.4 规划与治理维护陷阱
+
+| 陷阱 | 结论 |
+|:---|:---|
+| `regression-window` marker | `docs/reports/regression/current.md` 的 marker 必须成对（`start` + `## 标题` + 正文 + `end`，且 marker 日期与标题日期一致）；只写 `start` 会让下一轮自动回填把新块插进 marker 与标题之间，导致分组错乱。 |
+| 改 `roadmap.md` 连带翻译镜像 | `docs/i18n/{en-US,ja-JP,ko-KR,zh-TW}/plan/roadmap.md` 为 summary-sync tier，blocker 判据是「源文档自镜像 `last_sync` 起在 git 中有提交（**严格大于**日期）」；必须同一提交内更新镜像摘要并把 `last_sync` 提升到源提交日（同日不算 stale）。**提交前的 `docs:check:*` PASS 不能作为提交后证据。** |
+| 规划文档口径混写 | 「实测值」与「门禁配额」不可混写（如把 `keyCss` 配额当成迁移前实测值写进增长对比，会使算式自相矛盾）；写数值对比前先回读同节表格的三列口径。 |
+| 阈值类改动的同步点 | 改包体预算阈值时 `docs/standards/performance.md` 是第三处必同步点（与脚本 `BUDGETS`、基线 JSON 并列，规范中明写「三处同步」）；只改脚本 + 基线会被 Review Gate 判 blocker。 |
+| 阶段范围口径 | 确认「本阶段还剩哪些待办」只以 `todo.md` / `roadmap.md` 为准：迁移方案等文档的「分批执行计划」是**跨阶段批次表**，不是本阶段 todo（roadmap 明写「本阶段不提前落盘其原子条目」），不能据此直接开工。 |
+| 归档一致性 | 归档前确认 `docs/plan/archive/` 的 roadmap 分片与 todo-archive 分片覆盖区间匹配；压缩已完成阶段正文前必须先创建归档分片（可从 git HEAD 恢复原文），禁止未建分片直接丢弃阶段详情。 |
+| 长文本替换 | 用「截断的 oldString」做替换会把原行残余拼成重复句；`lint-md` 与 i18n 检查都检测不到句内重复，替换后必须回读该行。 |
+| 新增型路径也要查存在性 | 写「新增」文件前先 `git log --oneline -- <path>` / `git status` 确认该路径未被跟踪；改写既有测试必须先用 `git show HEAD:<path>` 取回原文，逐条核对覆盖面后再改写。 |
+
 ## 6. 事实源收敛机制 (Source of Truth Convergence)
 
 ### 6.1 权威层级定义

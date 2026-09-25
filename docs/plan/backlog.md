@@ -1,518 +1,213 @@
 # 墨梅博客 长期规划与积压项 (Backlog)
+
 本文档用于维护尚未进入正式阶段执行面的统一候选池，并按“长期主线任务”与“短期 / 一次性候选任务”双轨区分。当前阶段执行面请参阅 [项目计划](./roadmap.md)、[待办事项](./todo.md) 与 [待办归档](./todo-archive.md)。
+
 > **维护规则**:
 > 1. 新功能需求、非阻塞优化与长期治理事项优先写入本文件，而不是直接写入 `todo.md`。
-> 2. backlog 必须区分"长期主线任务""周期性回归验证层"和"短期 / 一次性候选任务"：长期主线可跨阶段保留，回归验证层有固定节奏不参与阶段排队，短期 / 一次性候选在正式上收后必须去重。
-> 3. 长期主线被某阶段抽取后，不删除主线卡片，只补记最近一次上收阶段、当前状态与下一次可切片方向。
-> 4. 周期性回归验证层不是"一个任务"，而是所有长期主线的健康检查层。它按固定日历节奏执行（周级/发版前/阶段收口），不参与阶段切片容量竞争。回归发现的问题回灌到对应长期主线。
+> 2. backlog 必须区分“长期主线任务”“周期性回归验证层”和“短期 / 一次性候选任务”：长期主线可跨阶段保留，回归验证层有固定节奏不参与阶段排队，短期 / 一次性候选在正式上收后必须去重。
+> 3. 长期主线被某阶段抽取后，不删除主线卡片，只补记最近一次上收阶段、当前状态与下一次可切片方向；主线**已关闭**时整条移除，不在本文件留痕。
+> 4. 周期性回归验证层不是“一个任务”，而是所有长期主线的健康检查层。它按固定日历节奏执行（周级 / 发版前 / 阶段收口），不参与阶段切片容量竞争。回归发现的问题回灌到对应长期主线。
 > 5. 当前仓库的 backlog 以中文为唯一事实源；翻译文档只保留摘要或跳转说明。
+
 ## 长期主线任务（可跨阶段保留）
-> 状态口径统一使用：进行中 / 观察中 / 暂停 / 已关闭。
-> 共 11 条（2026-05-19 增补脚本治理主线，2026-06-03 增补站点性能主线，2026-08-29 增补 UI 组件库许可证风险主线）：原 12 条长期主线中，4 条文档类任务已合并为 1 条，周期性回归已提级为独立验证层；本轮新增 1 条“脚本资产、量化口径与回归入口治理”主线，用于承接长期治理的 script-first 基座。
-1. **测试覆盖率与有效性治理**
-- **目标**:
-    - 在全仓 coverage 越过 `80%+` 的基础上，持续推进至 `90%+`，同时保持高风险链路的红绿测试有效性与回归价值，避免单一数字冲刺。
-    - 覆盖率提升与测试有效性并行推进：每次 1-2 个百分点的覆盖率提升（分批渐进），同时继续围绕前端直连 TTS、AI task 计量口径、认证退化与公开热点读链路补失败断言、边界断言与统计一致性验证。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - 第二十六阶段已将全仓覆盖率推进到约 `72%`，第二十八阶段也已完成本轮切片并把全仓 coverage 推进到 `76%+`。
-    - 第三十一阶段已继续围绕共享文案 raw key 暴露、认证配置退化与 coverage blocker 三条高风险链路补齐失败断言，并把 `AppFooter` 与公开友链页纳入固定 runtime 回归入口；当前全仓 coverage 已稳定在 statements `76.03%` / lines `76.08%`。
-    - 第三十二阶段已正式上收切片，沿公开页 runtime / auth 配置退化 / 认证页 raw key 暴露方向补多轮高价值断言，全仓覆盖率持续抬升但尚未达到 `80%+` 冲刺目标。
-    - 第三十四阶段已正式完成 `80%+` 收口，当前全仓 coverage 为 statements `80.03%` / lines `80.05%`；下一轮重点从"继续冲数字"转为"围绕前端直连 TTS / AI task 计量口径 / 高风险运行时链路做防回归与统计一致性治理"。
-    - 长期主线仍未结束，后续目标继续朝 `80%+` 推进，但下一轮仍应优先选择已有测试基座且回归风险高的模块，而不是回到低价值铺量测试。
-     - 第五十八阶段完成后，目标正式上调至 `90%+`，采用分批渐进策略（每批 1-2 个百分点），覆盖率提升与测试有效性并行不偏废。
-     - 第五十九阶段已完成首批缺口盘点与两批次 8 文件覆盖改进（~252 行 +1.09%），全仓 coverage 基线已通过 `pnpm test:coverage` 验证；后续继续按 1-2 个百分点分批渐进推进。
-      - 第六十阶段已完成第二批缺口覆盖：新增 69 个测试，覆盖 3 个 AI Provider 模块（openai-provider / fallback-provider / stable-diffusion-provider）的错误路径/降级逻辑/流式 SSE/图片尺寸映射/鉴权 header，全仓 coverage 基线已刷新。
-      - 第六十一阶段已完成第三批缺口覆盖：4 个高价值模块（installation.ts 86.84%、comment.ts 86.82%、admin-drafts.ts 92.45%、post-automation-helpers.ts 全覆盖），全仓 coverage 基线持续抬升。
-      - 第六十二阶段已完成第四批缺口覆盖：26 个测试覆盖 4 个纯函数（toDateOrNull、toDateOrUndefined、toQueryString、toQueryStringArray）至 100%。
-      - 第六十三阶段已完成第五批缺口覆盖：22 个测试覆盖 3 个模块（error-detail.ts 100%、settings.ts 边缘 case、url.ts 缺失场景）。
-       - 第六十四阶段已完成第六批缺口覆盖：7 个边缘 case 测试覆盖 privacy.ts 模块。
-        - 第六十五阶段已完成第七批缺口覆盖：新增 3 个测试文件（`external-links-shared.test.ts` / `settings.test.ts` / `setting.constants.test.ts`），覆盖 `handleExternalLinkError` / `inferSettingMaskType` 行为变更 / `isSettingEnvLocked` / `resolveSettingEnvEntry` / `getSettingLockReason` 等函数；但全仓覆盖率 Statements 仅 79.48%（未达 ≥1% 提升目标），未通过验收，转入长期治理继续推进。
-        - 第六十六阶段已完成第八批缺口覆盖：5 个高价值模块补测 58 用例（text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%），全仓 Statements 79.55%→80.63%（+1.08%，≥80.48% 目标达成），Branches 69.26%（+1.32%）/ Lines 80.68%（+1.12%）。
-- **最近一次上收阶段**:
-    - 第三十七阶段（已正式上收高风险测试有效性切片，聚焦前端直连 TTS / AI task 口径一致性 / 认证退化 / 公开热点读链路）。
-    - 第四十四阶段（已上收友链 RSS 聚合测试回填切片）。
-    - 第四十六阶段（已上收 A/B/C/D 四组高风险补测切片，全仓 coverage 82%+ 收口）。
-    - 第四十九阶段（已补齐 Phase C feed 渲染/降级测试，关闭 Phase 44 剩余缺口）。
-    - 第五十四阶段（已上收测试有效性第二轮切片：6 个新增失败路径断言，覆盖 TTS/settings/friend-link 三个模块）。
-    - 第五十五阶段（已上收测试有效性第三轮切片：7 个新增失败路径断言，覆盖 AI 编辑器、friend-links、admin settings 三个模块）。
-    - 第五十六阶段（已上收测试有效性第四轮切片：6 个新增错误路径断言，覆盖 translate/tts-task-get 两个模块）。
-      - 第五十八阶段（已上收测试有效性第六轮切片：12 个新增失败路径断言，覆盖 feed utils/feed-taxonomy-route/MCP endpoint 三个模块；同时完成 90%+ 目标上调）。
-      - 第五十九阶段（已上收测试覆盖率 90%+ 首批：缺口分层盘点报告 + 两批次共 8 文件补测，覆盖改进 ~252 行 ≈+1.09% 全仓预估；全仓 coverage 基线已刷新）。
-      - 第六十阶段（已上收测试覆盖率 90%+ 第二批：69 测试覆盖 3 个 AI Provider 模块，已审计归档）。
-      - 第六十一阶段（已上收测试覆盖率 90%+ 第三批：4 个高价值模块补测，覆盖 installation/comment/admin-drafts/post-automation-helpers，已审计归档）。
-      - 第六十二阶段（已上收测试覆盖率 90%+ 第四批：26 测试覆盖 4 个纯函数至 100%，已审计归档）。
-      - 第六十三阶段（已上收测试覆盖率 90%+ 第五批：22 测试覆盖 3 个模块，已审计归档）。
-       - 第六十四阶段（已上收测试覆盖率 90%+ 第六批：privacy.ts 7 个边缘 case，已审计归档）。
-       - 第六十五阶段（已上收测试覆盖率 90%+ 第七批：3 个测试文件涵盖 external-links-shared/settings/setting.constants，全仓 79.48% 未达 ≥1% 目标，转入长期治理继续推进）。
-       - 第六十六阶段（已上收测试覆盖率 90%+ 第八批：5 个高价值模块补测 58 用例，全仓 Statements 80.63% 达到 ≥80.48% 目标，已审计归档）。
-- **下一次可切片方向**:
-    - 覆盖率提升方向：第八批已达成 ≥80.48% 阶段性目标（80.63%），距离 90%+ 长期目标仍有约 9.4% 空间。下一批继续优先选代码量大、分支数多的 `server/services/` 层模块（当前低覆盖候选：`server/services/ai/task-detail.ts` 28.57%、`server/services/external-feed/cache.ts` 50.00%、`server/services/friend-link.ts` 73.06%、`server/services/notification.ts` 70.10%、`server/services/post-distribution.ts` 75.31%、`server/services/upload.ts` 74.85%）。
-    - 测试有效性方向：继续"已有测试基座 + 失败/边界优先"节奏，补组件层 direct TTS 失败映射、页面级 auth degradation，以及 `settings public` 或 `friend-links` 的失败口径。
-    - 两条线并行不冲突：覆盖率提升优先选高价值大模块，测试有效性优先选高风险链路，避免为了冲数字而做低价值铺量。
-    - 遗留治理项：`text.test.ts` 1112 行超 1000 上限（建议拆文件）、`tts.test.ts` beforeEach 对齐 mockReset（与 category.test.ts 同款修复）。
-2. **ESLint / 类型债与规则收紧治理**
-- **目标**:
-    - 按批次继续收紧 ESLint 规则，至少再收紧 1-2 条高 ROI 规则，减少豁免、漂移写法与隐性债务，而不是一次性大爆炸式收口。
-    - 治理进度默认以可重复执行的规则债盘点脚本作为事实源，至少能按 rule / 目录 / 豁免类型统计命中数、清零数与残余债务，而不是只靠阶段叙述判断“似乎有进展”。
-- **状态**:
-    - 已关闭（治理循环已于第五十八阶段正式关闭）。
-- **当前状态**:
-    - 第五十四阶段已完成规则债 inventory 脚本（`scripts/governance/inventory-eslint-rules.mjs`），覆盖 `no-explicit-any` 和 `no-non-null-assertion` 两条规则，按 rule / 目录 / 命中数 / 清零数 / warning 基线统计。
-    - 第五十五至五十六阶段持续窄切片收敛：social-post-platforms 非空断言消除、nuxt.config.ts explicit-any 消除、admin-taxonomy-page 13 处 any 清零、submission.ts/settings.vue/commercial-link-manager.vue no-explicit-any 清零。
-    - 第五十八阶段完成全量 TypeScript 规则基线扫描报告（`docs/reports/eslint-typescript-baseline.md`，覆盖 9 条已禁用规则的数据基线），NO_EXPLICIT_ANY_FILES 目标文件（65+ 项）全部清零，豁免列表清零，`warning=0` 保持。**治理循环正式关闭**。
-    - 第五十九至六十阶段 ESLint/类型债未上收新窄切片（因治理循环已关闭，后续由 `regression:weekly` 监控入口覆盖新代码引入的规则债）。
-- **最近一次上收阶段**:
-    - 第三十七阶段（已正式上收 `server/services/ai/asr.ts` 为优先窄切片候选）。
-    - 第四十一阶段（四组窄切片，26 文件 warning=0）。
-    - 第四十二阶段（三组 no-explicit-any 窄切片，治理范围 26→36 文件）。
-    - 第四十三阶段（三组窄切片：require-explicit-emits + no-required-prop-with-default + max-lines + no-non-null-assertion 扩展）。
-    - 第四十四阶段（三组窄切片：no-non-null-assertion + no-explicit-any + server/services 全清零）。
-    - 第四十五阶段（两轮窄切片：require-await + no-explicit-any 子桶收敛）。
-    - 第四十六阶段（至少三组窄切片，实际完成 4 组：app.vue + 3 个 settings 组件 `defineModel<any>` 收敛）。
-    - 第四十七阶段（6 处生产代码 as any 收敛，eslint-disable 维持 ≤13）。
-    - 第四十八阶段（9 处 as any 清零：seed-demo.ts + translation.ts + typeorm-adapter.ts）。
-    - 第五十一阶段（≥5 组窄切片，11 处 as any → 具体类型断言收敛，typecheck 零错误）。
-    - 第五十四阶段（已完成规则债 inventory 脚本 + 3 组窄切片：types/marketing.ts、categories slug get、snippets post）。
-    - 第五十五阶段（3 组窄切片：social-post-platforms 非空断言 + nuxt.config.ts explicit-any + admin-taxonomy-page 13 处 any，累计消除 22 处；同步更新 eslint-debt-targets.mjs）。
-    - 第五十六阶段（3 组窄切片：`submission.ts`、`settings.vue`、`commercial-link-manager.vue` no-explicit-any 收敛，均加入 eslint-debt-targets）。
-     - 第五十八阶段（完成全量 TypeScript 规则基线扫描报告落盘，NO_EXPLICIT_ANY_FILES 目标文件全部清零；治理循环正式关闭）。
-- **下一次可切片方向**:
-    - 治理循环已关闭（NO_EXPLICIT_ANY_FILES 全部清零，全量 TypeScript 规则基线已落盘），短期无新切片方向。
-    - 若后续因新代码引入 `explicit-any` 或 `non-null-assertion`，监控入口由 `regression:weekly` 的 eslint-debt 脚本覆盖，无需主动上收切片。
-    - 不再需要主动上收 ESLint/类型债治理切片。
-3. **结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛**
-- **目标**:
-    - 继续压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型、简单工具函数与轻量响应壳层纳入受控复用范围，降低后续变更的维护成本与行为漂移风险。
-    - 优先治理逻辑简单、跨文件重复率高、适合稳定上收到共享层的类型与工具函数，而不是把所有局部实现都强行抽象。
-    - 对 `jscpd` 覆盖不到的“简单内部函数 / type / interface 重复”建立脚本盘点口径，优先统计同名、近似名与同形状声明候选，再逐个判断是否真的值得复用。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - 第二十四阶段已完成两轮小切片治理，重复代码基线已收敛到 `34 clones / 879 duplicated lines / 0.79%`。
-    - 第二十九阶段已完成新的复用收敛切片，当前已收敛共享 CSV 列表解析、前台 legal pages 与公共页模板片段等高收益重复区；剩余热点继续聚焦 categories / tags 公共页及读模型组装边界。
-    - 第三十阶段已正式上收下一轮复用治理切片，当前优先聚焦公共页模板片段、列表型查询 helper、查询参数归一化与读模型组装边界，并要求每组切片先写清拟抽象边界、收益与回滚方式。
-    - 第三十二阶段已完成当前组合切片：`privacy-policy` / `user-agreement` 的公共 legal 页面模板与取数逻辑已收敛到共享组件 / composable，`categories` / `tags` 公开列表端点的 cache key、通用过滤与排序逻辑已收敛到 `server/utils/taxonomy-public-list.ts`；当前 `pnpm duplicate-code:check` 基线为 `32 clones / 697 duplicated lines / 0.59%`，较此前 `34 clones / 879 duplicated lines / 0.79%` 继续下降。
-    - 本轮收口后，剩余高优先级热点继续聚焦 `pages/categories/[slug].vue` vs `pages/tags/[slug].vue`、公开认证相关页模板（如 `forgot-password` / `reset-password`），以及首页 / 公开列表读模型装配边界；长期主线继续保留，但当前阶段这条正式待办已可关闭。
-    - 第三十三阶段已正式上收认证页模板收敛切片，聚焦 `forgot-password.vue` vs `reset-password.vue` 的公共模板片段与表单逻辑。本轮次同时追加两轮额外切片：提取 `components/taxonomy-post-page.vue` 统一 `categories/[slug]` 与 `tags/[slug]` 页面；提取 `styles/voice-popover.scss` 共享 SCSS 收敛两个 voice-overlay 组件。
-    - 当前 `pnpm duplicate-code:check` 基线为 `31 clones / 575 duplicated lines / 0.48%`，较 Phase 32 收口时的 `32 clones / 697 lines / 0.59%` 继续下降（-1 clone, -122 dup lines, ↓0.11%）。
-    - 当前 `check-duplicate-code` 仍主要基于 `jscpd` 行级重复，尚不能稳定覆盖"重复导入 + 轻包装""局部类型同形状复制"与 `isPlainRecord` / `isRecord` 这类简单纯函数 / 工具函数的结构性重复；下一轮已正式扩充治理口径，要求在保留现有基线的同时补做零散类型与简单工具函数盘点。
-     - 当前缺少专门面向“未 export 的简单函数 / type / interface”重复盘点脚本，尚不能量化同名或近似名候选的规模，也无法稳定回答哪些候选已经人工判定为“可复用”或“保留局部实现”。
-      - 第五十八阶段已完成 api-client 类型收敛切片（enum 派生 + interface 重命名），Phase 57 延期项已闭环；duplicate-code 维持在 0.31% 健康基线。
-      - 第五十九阶段未上收结构复用切片。
-      - 第六十一阶段已完成 CLI 包类型收敛（MomeiPostStatus/MomeiPostVisibility 枚举派生 + MomeiPostScaffoldMetadata @deprecated 别名）+ toDateOrNull/toDateOrUndefined 共享函数抽取，duplicate-code 基线不反弹。
-      - 第六十三阶段已完成 2 组热点切片（getErrorDetail 从 5 文件抽取到共享模块 + 编辑器面板 SCSS 共享），duplicate-code 基线 0.39%→0.35%。
-       - 第六十四阶段已完成 2 组热点切片（safeDeleteCategory 新建 + handleExternalLinkError 新建），duplicate-code 基线保持 0.35%。
-       - 第六十五阶段已完成 Categories/Tags 共享查询层收敛：新建 `category-public-list.ts` + `tag-public-list.ts`，4 端点 handler 简化，累计消除 226 行重复（+14/-226），2 克隆消除，基线 0.34%→0.30%。
-       - 第六十六阶段已完成 1 组热点切片（`theme-config-section.vue` ↔ `theme-preview-section.vue` 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`），消除 id 12+13 共 41 行重复，duplicate-code 基线 0.31%→0.30%。
-- **最近一次上收阶段**:
-    - 第三十七阶段（已正式上收至少 3 处热点复用切片，优先处理 admin 列表页、自重复邮件服务与商业链接管理器）。
-    - 第三十八阶段（admin 列表页结构复用）。
-    - 第三十九阶段（结构复用第三轮）。
-    - 第四十一阶段（2 组热点切片：SettingFieldMetadata + AgreementFormData 收敛）。
-    - 第四十二阶段（三组热点切片：jscpd clones 40→37，duplication 0.69%→0.63%）。
-    - 第四十三阶段（commercial-link-manager 自重复提取 + PostNavigationItem/DirectUploadStrategy/toErrorMessage 收敛，同名类型 24→20）。
-    - 第四十四阶段（两组热点切片）。
-    - 第四十五阶段（categories/tags 公共模板统一 + tts-http-shared 抽取）。
-    - 第四十六阶段（Umami 配置 + 邮件模板 payload + Volcengine 协议头三组收敛）。
-    - 第四十七阶段（FeedItem + TitleSuggestionOverlayRef 两组收敛，同名 type 17→14）。
-    - 第四十八阶段（DemoTourStage/AdminAiPageEvent/VolcengineResponsePacket 三组类型统一，同名 type 15→12）。
-    - 第四十九阶段（type 收敛 12→11，AdAdapterConfig 统一）。
-    - 第五十一阶段（≥5 组热点切片：commercial-link-manager 参数化 + UploadType/ApiResponse 统一事实源 + use-voice-input 删除 + formatDate 复用，同名 type/interface 候选 11→10）。
-    - 第五十四阶段（深水区首轮：单函数文件整合—类型守卫/杂项函数合并 + 逻辑重复检测脚本原型）。
-    - 第五十五阶段（2 组逻辑重复抽象收敛：taxonomy-post-count.ts 子查询构建器抽取 + post-distribution-wechatsync.ts 泛型 mergeByKey；duplicate-code 0.33% < 基线 1.22%）。
-      - 第五十六阶段（2 组热点切片：`content-processor.ts` 公共初始化 + translate API 共享参数解析；duplicate-code 0.30% < 基线）。
-      - 第五十八阶段（2 组 api-client 类型收敛切片；duplicate-code 基线 0.31% 未反弹；Phase 57 结构复用延期项已闭环）。
-      - 第六十一阶段（CLI 包类型收敛 + toDateOrNull/toDateOrUndefined 抽取，duplicate-code 基线不反弹）。
-      - 第六十三阶段（2 组热点切片：getErrorDetail + 编辑器面板 SCSS 共享，duplicate-code 0.39%→0.35%）。
-       - 第六十四阶段（2 组热点切片：safeDeleteCategory + handleExternalLinkError，duplicate-code 基线 0.35% 保持）。
-       - 第六十五阶段（Categories/Tags 共享查询层收敛，-226 行重复，基线 0.34%→0.30%）。
-       - 第六十六阶段（theme 颜色 model composable 抽取：`use-theme-color-models.ts` 新建 + config/preview 两个 Vue 组件改 1 行委托，duplicate-code 基线 0.31%→0.30%）。
-- **下一次可切片方向**:
-    - 下一轮优先基于当前 0.30% 基线继续收敛，候选包括：剩余轻量 shared helper、表单元数据/表单控件的类型共享、以及 `server/api/` 层请求上下文/参数校验的共性逻辑。
-    - 结构性重复候选继续保留：轻量壳层类型、重复导入后再轻包装的纯函数 / helper。
-4. **存量代码注释治理与注释漂移收敛**
-- **目标**:
-    - 按现行注释规范为存量代码逐步补充高价值注释，优先覆盖复杂逻辑、兼容性兜底、跨层契约、关键副作用与核心导出函数，而不是做全仓平均铺开式补注释。
-    - 同步清理失效、误导性或逐行复述代码的低价值注释，避免"注释数量增加但可维护性没有提升"。
-    - 让注释治理与 Review Gate 形成闭环：每轮切片都保留受影响范围、已补注释类型、未覆盖边界与注释漂移检查结论。
-    - 注释治理默认以脚本化盘点输出作为事实源，至少回答“高复杂度导出函数缺注释数、疑似逐行复述注释数、漂移注释候选数”的变化，而不是只写本轮补了哪些注释。
-- **状态**:
-    - 暂停。
-- **当前状态**:
-    - 新注释规范已经写入开发规范与 Audit 口径，下一轮可正式启动首轮存量补注释切片。
-    - 现阶段更适合优先覆盖设置读取 / 来源判定、locale 归一化、鉴权上下文挂载、上传存储解析、文章访问控制、AI 配额 / 文本服务，以及数据库查询收敛逻辑等高复杂度链路，而不是回头给低风险展示组件平均补注释。
-    - 编辑器链路的下一轮切片可以优先围绕 `mavon-editor` 工具栏与背景栏配色、Markdown 能力补齐，以及与文章页渲染能力保持一致的扩展项收口，而不是直接切换底层编辑器实现。
-    - 第三十阶段已正式上收首轮注释治理切片，当前明确要求只选 1-2 组高复杂度链路推进，并同步清理失效 / 低价值注释，避免把注释治理做成全仓平均铺量工程。
-    - 第三十三阶段已正式上收候选组 B 切片，聚焦 `server/services/upload.ts` 与 `server/utils/post-access.ts` 两条运行时安全敏感链路。
-    - 当前仍缺少注释盘点脚本，尚不能稳定量化“复杂逻辑缺注释”和“低价值 / 漂移注释”候选规模，导致阶段叙述很难形成跨轮次可比较的进度口径。
-    - 自第三十九阶段后已连续 19 个阶段未上收切片；注释盘点脚本仍未补齐，暂不建议继续扩写新切片。
-- **最近一次上收阶段**:
-    - 第三十阶段（首轮注释治理切片，已审计归档）。
-    - 第三十三阶段（候选组 B 切片：`server/services/upload.ts` + `server/utils/post-access.ts`）。
-    - 第三十五阶段（候选组 A 切片）。
-    - 第三十九阶段（注释治理首轮：`server/services/ai/text.ts` 等）。
-    - 第四十五至五十八阶段均未上收（已在 Phase 45 确认“观察中”，后续因盘点脚本未补齐持续搁置）。
-- **下一次可切片方向**:
-    - 首个切片前先补注释盘点脚本。候选组 A/B/C 方向不变，首轮上收时最多选 1 组。
-5. **Postgres 查询、CPU 与连接生命周期平衡治理**
-- **目标**:
-    - 在保证公开页面、鉴权与安装体验不回退的前提下，重新平衡 PostgreSQL 查询体量、CPU 使用与连接生命周期，减少不必要的数据库唤醒与长期活跃连接。
-    - 建立"哪些请求不该碰数据库 -> 必须查库请求如何继续瘦身 -> `pg_stat_statements` 或等价 live sample 复核"的闭环，不再只用数据库出网流量作为单一目标。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - 历史专项已完成公开设置链路与定时任务扫描的首轮治理，并验证过 `setting` 读取与定时发布扫描的结果集体量已下降。
-    - 第二十八阶段已完成新的平衡型治理切片，重点收紧了请求级数据库预热、匿名鉴权触发面与公开热点读路径缓存边界；结合后台最新运行期观测，本轮查询、重复读取与连接活跃窗口下降趋势已成立。
-    - 第三十二阶段已完成本轮"公开热点读链路"单路径切片：`/api/search` 匿名请求接入 `60s` 运行时缓存，带会话请求继续旁路共享缓存，当前阶段只对这一条公共热读路径做实现与断言闭环。
-    - 2026-05-01 Neon live sample 显示，当前 Top SQL 中 `settings/public` 维持单次 batched `IN (...)` 读取（`5.8ms / 5.4ms`）、精选友链维持 `4.3ms / 4.1ms` 的 `DISTINCT + IN (...)` 跟进查询，`/api/search` 未继续停留在当前热点 SQL 顶部；剩余较重样本集中在 `AITask` stale scan 与首页 posts public list 查询对，转入后续候选。
-    - 同日后续单路径派生切片已优先选择 `AITask` stale compensation 路径：`scanAndCompensateTimedOutMediaTasks()` 首轮扫描已收紧为最小字段集，首页 posts public list 的 `DISTINCT + IN (...)` 查询对继续保留为下一候选，待后续 live sample 复核。
-    - 2026-05-14 Neon 长窗口样本已完成第三十七阶段 P1 关闭复核：最重热点仍是冷启动 TypeORM metadata introspection，System Operations 在 `5` 分钟 autosuspend 延迟下全天保持成功的 `start / suspend` 交替，说明当前已不再存在"连接长期不释放"的阻塞级现象；第三十七阶段落地的 Cron 默认门禁收紧与请求入口 connection-only 初始化已完成收口，剩余候选继续回到 backlog 管理。
-    - 2026-05-18 新增预算事实：免费额度在约 `17` 天内已消耗 `5GB` network transfer 与 `90 CU-hrs`，折算约 `301MB/天` 与 `5.29 CU-hrs/天`；相较约 `170MB/天` 的安全网络预算已明显超线，说明下一轮应优先复核公开热点读链路，而不是重新并行扩写初始化治理。
-- **最近一次上收阶段**:
-    - 第三十七阶段（已正式上收长窗口样本复核切片，确认连接阻塞问题已消失）。
-    - 第四十一阶段（TypeORM 前置清障 + Postgres archive 查询字段裁剪）。
-    - 第四十九阶段（Postgres 流量治理：89% 耗尽警戒 → 减列 + 缓存 + 移除 author 冗余字段）。
-    - 第五十三阶段（Vercel CDN 缓存 Tier 2 架构治理—routeRules ISR/SWR + Upstash Redis，从源头阻断 Bot→SSR→DB 连锁反应，Neon compute 启停频率预期下降）。
-- **2026-06-23 新证据**:
-    - 跨 Vercel 函数日志 + Neon 操作日志联合分析发现：Postgres compute 频繁启停（~40 次/天）的根本原因不是 SQL 查询本身，而是 **Vercel 100% Cache MISS + 76% Bot 流量 → 持续触发 SSR 冷启动 → 每次冷启动唤醒 Neon compute**。
-    - 每条 bot 请求穿透完整 SSR 流水线（Cron 检查 ~250ms → DB 连接 ~400-1200ms → SSR 渲染），函数平均耗时 3.25s。Neon 5 分钟 autosuspend 在 bot 2-4 分钟间隔下形同虚设。
-    - 治理文档：[Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)
-- **下一次可切片方向**:
-    - **优先：Vercel CDN 缓存 + Nitro ISR/SWR**（堵源头，阻断 Bot → SSR → DB 的连锁反应）。具体方案分三层：Tier 1 止血（vercel.json headers + Crawl-Delay + robots.txt 缓存，~45min），Tier 2 架构（nuxt.config.ts routeRules ISR/SWR + SSG 预渲染，~3.5h），Tier 3 深度（Bot 分级缓存 + Vercel KV，评估中）。
-    - **其次：继续 SQL 瘦身**（基于 Phase 49 效果，在缓存层部署后重新评估网络传输配额消耗速度）。
-    - 候选组 A（`initializeDB()` 调用点审计）：仅在新增证据指向请求入口误触完整初始化时回退到此组。
-6. **国际化运行时加载与文案复用治理**
-- **目标**:
-    - 建立“翻译字段定义 -> locale 模块注册 -> 路由动态加载 -> 运行时命中 -> 回退 / raw key 暴露 -> 文案重复键审计（i18n:audit:duplicates）”的周期性治理闭环，避免问题只在 `lint:i18n` 通过后于运行时才暴露。
-    - 审慎推进跨页面相同组件文案的复用治理；只有在组件职责、文案语义和 locale 模块归属都稳定一致时，才允许上收到共享命名空间，避免为了去重而引入新的运行时加载漂移。
-    - 明确将 `pnpm i18n:audit:duplicates`（国际化文案重复键审计）纳入治理必需脚本，要求与 `i18n:audit:missing`、`i18n:verify:runtime` 同步定期执行，并保留执行证据。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - 仓库已具备 Locale Registry、按路由动态加载 message module、后台 locale 拆分、`lint:i18n` 质量门与 `i18n:audit:missing`、`i18n:verify:runtime`、`i18n:audit:duplicates` 等脚本，但近期运行时问题说明“翻译资源已存在”并不等于“当前页面一定能加载并命中正确命名空间或无重复键”。
-    - 最新案例暴露出文章编辑页复用了设置页 key，导致 `/admin/posts` 路由未加载 `admin-settings` 模块时直接显示 raw key；这类问题的根因在于模块归属与组件复用边界不清，而不只是某个语言包缺词。
-    - 2026-04-18 新增证据表明，`en-US/admin-posts.json` 曾长期存在大面积 parity 缺口，导致 `pages.admin.posts.media.audio_missing` 之类低级 raw key 直接漏到后台 UI。当前已补齐该模块英文词条，并把 `i18n:audit:missing`、`i18n:audit:duplicates` 接入 release / 周级回归入口，但仓库级历史缺词债与重复键债仍需专项治理，不能把本轮修补视为问题已根除。
-    - 当前治理优先级明确区分三类审计结果：`missing` 缺失字段必须优先修复；`duplicates` 重复键必须及时清理；`unused` 默认先观察，但若当前切片已经定位到一批有限集合动态 key 误报或确认废弃字段，则应优先在同一切片内完成显式化或删除，避免审计噪音长期堆积。
-    - 当前仍有一批“不同页面文案完全一致”的组件存在潜在复用空间，但是否上收为共享 key，必须先区分它是页面私有语义、模块级共享语义，还是可以稳定沉淀到 `common` / 组件级命名空间的真正公共文案。
-    - 第二十八阶段已完成运行时治理首轮切片；第二十九阶段已完成下一轮治理切片，当前已明确 missing blocker 分级、duplicates/unused 字段排查策略与共享命名空间继续收敛方向。
-    - 第三十阶段切片已完成正式收口：`i18n:audit:missing`、`i18n:audit:duplicates` 当前``total:``，`i18n:verify:runtime` 与 `components/public/admin-friend-links` 定向 parity 已通过，并已把友链公开页 / 后台页共享字段标签统一上收到 `components.friend_links.fields`。
-    - 第三十一阶段已完成当前治理切片归档：固定运行时回归入口已扩到 About 公开页装配链路，并将友链公开页 / 后台页共享字段场景并入 `i18n:verify:runtime`；同时已把友链后台页、通知设置页中的有限集合动态 key 改为显式静态引用，删除 `settings` 模块一组确认废弃的浏览器通知字段，当前 `i18n:audit:missing`、`i18n:audit:duplicates` 与 `i18n:audit:unused` 均为``total:``。
-    - 第六十三阶段已完成 ko-KR/ja-JP 翻译质量审计：产出审计报告，修复 10 项问题（ja-JP 中国语残留 5 项、品牌名本地化、标点修复；ko-KR 品牌名本地化、缩进修复），`i18n:audit:missing = 0` 保持。
-    - 第六十四阶段已完成 ko-KR/ja-JP 文档治理：13 个文档 last_sync 刷新、ja-JP 由 seo-ready 升格为已支持语种、补全 features/variables 翻译。
-- **最近一次上收阶段**:
-    - 第三十一阶段（当前切片已收口，长期主线继续保留）。
-    - 第四十三阶段（i18n 运行时验证扩面：app-footer/archives/categories/tags 四组链路纳入 runtime 回归 + duplicates 102→97 组收敛）。
-    - 第五十阶段（i18n 首屏翻译稳定性治理：17 路由命中矩阵 + 3 处 raw key 泄漏修复 + `enahnced_pack` 模块定义补齐）。
-    - 第五十二阶段（i18n 运行时验证扩面第二轮：≥2 组新页面链路纳入 runtime 回归并通过验证）。
-    - 第六十三阶段（ko-KR/ja-JP 翻译质量审计：10 项问题修复，中国语残留/品牌名本地化/标点修复，`i18n:audit:missing = 0` 保持）。
-    - 第六十四阶段（ko-KR/ja-JP 文档治理：freshness 审计报告、ko-KR 13 文件 last_sync 刷新、ja-JP 语种升格为已支持、补全 features/variables 翻译）。
-- **下一次可切片方向**:
-    - 若后续继续上收，优先选择尚未纳入 runtime 回归的公开页装配链路（如档案/分类/标签列表页的 i18n 完整性审计）。
-    - 对仍需动态拼接 key 的场景，优先评估“是否为有限集合”，默认用显式静态 key 映射替代扩充 allowlist。
-7. **文档事实源、翻译与分层归档治理**
-- **合并来源**: 本条由原 backlog 长期主线 #7（模块设计与专项治理文档收敛）、#9（路线图 / Todo 深度归档治理）、#11（文档翻译 freshness 清偿与翻译治理）三条同类任务合并而成。原三条任务分别治理 `docs/design/`、`docs/plan/` 与 `docs/i18n/*/` 三个文档域，但治理动作本质相同：维护分层结构、设置膨胀阈值、定期清理漂移、保持 freshness。
-- **目标**:
-    - 统一维护项目全文档体系的分层边界、膨胀阈值与 freshness 治理：包括 `docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 分层与同步。
-    - 清理无效、过时或漂移的设计 / 治理 / 规划文档，对已失效且无参考价值的内容允许直接归档或删除。
-    - 保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过状态，不靠临时补 `last_sync` 应付检查。
-    - 文档治理默认以脚本输出为准；当行数阈值或翻译 freshness 被证明过宽时，必须先回写到 `docs:check:line-count` / `docs:check:source-of-truth` 对应脚本，再更新规范与阶段结论。
-- **状态**:
-    - 观察中（合并后首次综合评估）。
-- **当前状态（按原域追踪）**:
-    - **design 域**（原 #7）：第二十九阶段已完成 `docs/design/modules/` 与 `docs/design/governance/` 的物理拆分；当前剩余工作从"继续混放目录"转为"持续清理漂移内容与残留任务口吻"，避免新文档回流到错误目录。
-    - **plan 域**（原 #9）：第三十一阶段已完成首轮深度归档收口：`roadmap.md` 主窗口已回到健康范围，`todo-archive.md` 已改为"深度归档索引 + 近线阶段窗口"的维护模式。后续治理重点转为按阈值滚动归档。
-    - **翻译域**（原 #11）：第三十阶段已完成翻译 freshness 首轮清偿与 tier 化治理收口；深层 design / guide / standards 页按规则降级到 `source-only` 或摘要同步口径。
-    - 当前 `docs:check:line-count` 仍只覆盖 README、plan 主文档与 `docs/reports/regression/current.md`。
-    - `docs:check:source-of-truth` 当前语义：以 `git log` 比较源文档自 `last_sync` 以来是否被提交过作为 hard blocker；tier 软上限为 `must-sync 60 天 / summary-sync 120 天`（仅 warning）。详见 [`docs/standards/documentation.md` § 6.3](./../standards/documentation.md#63-翻译-freshness-判定)。
-    - **`candidate` profile 收紧评估登记**：`pnpm docs:check:source-of-truth:candidate` 保留 21/30 天旧阈值，仅作为收敛评估基线输出 warning baseline；何时把 candidate 阈值回升到 default、是否进一步收紧 default 阈值，由下一阶段复评估决定。本条用于避免半年后无人记得 candidate 用途。
-    - 第六十四阶段已完成 ko-KR/ja-JP 文档专项目治理：freshness 审计报告、ko-KR 13 文件 last_sync 刷新、ja-JP 语种升格为已支持并补全 features/variables 翻译。
-- **最近一次上收阶段**:
-    - 第三十一阶段（原 #9 首轮深度归档收口：roadmap 主窗口回到健康范围，todo-archive 改为近线窗口模式）。
-    - 第四十阶段（文档证据自动回填 + 发布前 pre-check 统一化）。
-    - 第四十一阶段（文档门禁 warning 压缩）。
-    - 第四十五阶段（文档治理收口：governance/ 19 份历史文档归档 + performance.md 分层 + backlog.md Blogroll 条目清理）。
-    - 第五十阶段（backlog 深度清理：Phase 32-41 路线图 386→19 行简表 + #3/#4/#5/#8 移除 + 条目重新编号）。
-    - 第五十三阶段（文档治理阈值收紧：must-sync 30→21 天、summary-sync 45→30 天；受影响文档 last_sync 字段已同步）。
-    - 第六十四阶段（ko-KR/ja-JP 文档专项目治理：freshness 审计报告 + 13 文档 last_sync 刷新 + ja-JP 升格 + features/variables 翻译补齐）。
-- **下一次可切片方向**:
-    - design 域：审计 governance/ 目录中已过期评估/报告的归档状态。
-    - plan 域：按阈值触发滚动归档，跟进 `roadmap.md` / `todo-archive.md` 当前行数。
-    - 翻译域：评估 `must-sync` 收紧到 21 天、`summary-sync` 收紧到 30 天的可执行性。
-8. **Windows 本地 Dev / Build 性能治理**
-- **目标**:
-    - 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，避免继续以"体感慢"描述问题。
-    - 优先收敛首请求阻塞与构建尾耗时两类高收益热点，不把范围扩写为全平台构建重构。
-- **状态**:
-    - 暂停（Phase 43 确认平台级瓶颈：Linux CI 106s vs Windows >1800s，>17x 差距，非项目层面短期可收敛）。
-- **当前状态**:
-    - 当前已经完成一轮 Windows 定向止血：`nuxt.config.ts` 已收窄 Nitro inline 依赖、关闭 Windows 下 Nitro trace，并在 Windows 本地默认关闭 PWA；`pnpm build` 已恢复可完成。
-    - 2026-05-11 已通过 [scripts/perf/measure-nuxt-lifecycle.mjs](../../scripts/perf/measure-nuxt-lifecycle.mjs) 采集到第一轮基线：`pnpm perf:nuxt:dev` 中首页 `Local` 约 `8.09s`，但 `/` 首请求 `60s` 内未拿到响应头；`--request-path=/api/settings/public` 同样 `60s` 超时，说明问题落在请求级全局冷路径而不是单页模板。
-    - 同日 `pnpm perf:nuxt:build` 基线显示总耗时约 `542.77s`，`Client built` 约 `26.36s`、`Server built` 约 `28.01s`，`Server built` 里程碑出现在约 `121.14s`，之后仍有约 `421.63s` 长尾；主要压力已从 Vite bundling 转移到 Nitro / `.output/server` 收尾阶段。
-    - 代码排查表明 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 在安装状态缓存为空时会同步 `initializeDB()`，而 [server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) 又明确跳过 `/` 与 `/api/settings/public`，这与"所有首请求都卡住"的实测现象一致。
-    - 2026-05-11 本轮规划补充了两级目标：先把 Windows 本地 build 总耗时中位数压进 `500s` 内，再在热点拆解完成后继续向 Linux 侧约 `120s` 的参考体验逼近；当前 `120s` 仍只作为对照目标，不视为已验证承诺。
-    - 2026-05-23 最新 `npm run dev` 实测显示，依赖重优化后 `Nuxt Nitro server built in 372904ms`（约 `6m13s`），说明构建长尾仍然显著；本轮应把“`Server built -> Build complete` / Nitro 构建尾段”重新列为优先复核对象。
-    - 同一轮实测中，首页与设置链路进入请求阶段后仍出现明显延迟：`[momei-perf] installation-probe` 于 `22:01:47` 进入 `/`，`22:02:02` 才进入 `/api/settings/public`，随后触发 `SELECT version()`、`CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"` 与 metadata 探测序列；说明冷启动数据库初始化与请求首跳仍需持续压缩。
-- **最近一次上收阶段**:
-    - 第三十七阶段（已正式上收 Windows 本地 Dev / Build 性能治理切片）。
-    - 第四十三阶段（Vite warmup + resolve.extensions + Nitro inline 瘦身 + sourceMap + build:done 跳过，确认平台级瓶颈并上收关闭）。
-- **下一次可切片方向**:
-    - 暂停。仅在 Nuxt/Nitro 发布针对 Windows 的重大性能改进，或项目迁移到 WSL2/Linux 开发环境时重新评估。
-    - 所有历史数据继续保留在 [docs/design/governance/windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)。
-9. **站点性能与 Core Web Vitals 持续优化**
-- **与 #8 的区别**: #8 聚焦 Windows 本地 Dev / Build 性能（开发体验），本条聚焦**生产环境用户体验性能**（Lighthouse / LCP / CLS / INP）。
-- **目标**:
-    - 持续追踪核心页面的 Core Web Vitals，建立跨版本性能回归基线，并在竞品对标（Ghost 0.8s LCP、Astro 零 JS 输出）中保持优势。
-    - 优先级：公开首页 > 文章详情页 > 分类/标签列表 > 后台管理页。
-- **状态**:
-    - 进行中（已有 Lighthouse CI + bundle budget 体系，但尚未形成持续优化节奏）。
-- **当前状态**:
-    - 已有 `test:perf:budget:strict` 与 `lighthouse` 配置，并在发版前 / 阶段收口入口中作为 blocker 运行。
-    - 当前 `coreEntryJs`（gzip）为 `328.45KB / 360KB`、`maxAsyncChunkJs` 为 `47.91KB / 130KB`、`keyCss` 为 `59.26KB / 70KB`（并存期配额已于 2026-09-24 随 caomei-ui 重锚到 0.2.0 回落，见长期主线第 11 条「收尾必办」），核心预算仍在守线范围内。
-    - 竞品对标：Ghost 自托管站点通常 LCP 在 0.8s-1.5s，Astro 内容站点 LCP 可低至 0.5s；墨梅的目标应在 1.5s 以内（公共页）和 2.5s 以内（后台页）。
-- **最近一次上收阶段**:
-    - 第二十七阶段（首屏优化第一阶段 Lighthouse >= 50，已审计归档）。
-    - 第四十二阶段（CWV 基线建设：Lighthouse CI 脚本 + 封面图懒加载 + PrimeVue 配置清理）。
-    - 第四十四阶段（CWV 优化：Logo 预加载 + CSS @import 扁平化）。
-    - 第五十二阶段（移动端 CWV 性能基线采集与评估：首页/文章详情/分类标签列表页的 LCP/CLS/INP 移动端基线数据落盘）。
-- **下一次可切片方向**:
-    - 评估文章详情页的按需 hydration 策略，减少首屏 JS 体积。
-    - **门禁度量修正后暴露的两个目标**（2026-09-20 起）：① 入口启动载荷实测 **328.45KB gzip**（88 个 JS，manifest 口径），对内容站点偏大，需专项分析（Sentry / PrimeVue / 依赖预载），2026-09-20 的门禁配额 `360KB` 只是「度量失效后重新定标的临时真值」，不作为长期目标；② `maxAsyncChunkJs` 实测 47.91KB 而配额仍为 130KB，余量偏松，且 **shared chunk 目前无独立预算**（最大 shared chunk 已达 187KB），需评估收紧配额并为 shared chunk 单列预算。
-    - 若移动端 LCP 超过 3s，启动专项移动端性能治理。
-    - 所有切片继续复用 `test:perf:budget` 与 Lighthouse CI artifact 作为事实源。
- 
-10. **脚本资产、量化口径与回归入口治理**
-- **目标**:
-    - 把脚本作为长期治理主线的事实源，优先为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出，而不是长期依赖叙述性阶段总结。
-    - 治理 `scripts/**` 目录的长期脚本入口、孤儿脚本、临时脚本残留与输出漂移，避免“脚本存在但没人跑”或“治理口径停留在文档、没有落到脚本”。
-    - 让脚本治理进入固定回归入口：一旦某类治理脚本稳定，应优先并入 `regression:weekly`，再视风险升级到发版前和阶段收口入口。
-- **专项设计事实源**:
-    - 统一收敛到 [docs/design/governance/script-governance.md](../design/governance/script-governance.md)，后续新增脚本、接入顺序与非目标优先在该文档维护，再回写规划摘要。
-- **状态**:
-    - 进行中。
-- **当前状态**:
-    - `pnpm governance:check:scripts` 已作为 5.1 脚本资产自检稳定运行，并进入 `pnpm regression:weekly` 的 warning 基线。
-    - `pnpm governance:audit:simple-duplicates`、`pnpm governance:audit:eslint-debt`、`pnpm governance:audit:comment-drift` 已分别为结构复用、ESLint / 类型债与注释治理提供 JSON / Markdown baseline，并均已接入 `regression:weekly` warning 面（comment-drift 于 Phase 52 升格、eslint-debt 于 Phase 54 升格、simple-duplicates 于 Phase 65 升格）。
-    - 文档治理已补充 `pnpm docs:check:line-count:candidate` 与 `pnpm docs:check:source-of-truth:candidate` 两条候选入口，用于评估高频页扩面与翻译 freshness 收紧，但默认 blocker 行为仍保持不变。
-     - 第六十二阶段已完成脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ 两条 docs candidate warning 全部清洁。
-     - 第六十五阶段已完成 `governance:audit:simple-duplicates` 升格评估：从独立 baseline 升格至 `regression:weekly` warning 面，升格结论 go。
-     - 第六十六阶段已完成 `governance:audit:comment-drift` 升格复核：五维评估全部满足（输出稳定、warning 清洁、轻量、互补、可消费），结论 go（维持 Phase 52 已升格状态，无需重复操作），并同步收口 7 处文档漂移（含 Phase 归属更正）。
-- **最近一次上收阶段**:
-    - 第三十九阶段（5.1-5.5 首轮 baseline 化：`check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` + 两条 docs candidate，上收为独立脚本入口）。
-    - 第四十阶段（发布前 pre-check 统一化：`release:check` / `release:check:full` 接入固定回归入口）。
-    - 第五十二阶段（脚本治理 warning 清理：`audit-comment-drift` 误报修复 + 两条 docs candidate 清洁输出；eslint-debt 升格评估）。
-    - 第五十四阶段（eslint-debt 正式升格至 `regression:weekly` warning 面；comment-drift 误报修复完成）。
-     - 第六十二阶段（脚本治理 warning 清理：audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ docs candidate warning 全部清洁）。
-     - 第六十五阶段（simple-duplicates 升格至 regression:weekly warning 面）。
-- **下一次可切片方向**:
-    - `audit:simple-duplicates` 已在 Phase 65 完成升格至 `regression:weekly` warning 面。
-    - `audit:comment-drift` 已在 Phase 66 完成升格复核（结论 go，维持 Phase 52 已升格状态）；后续切片方向为按周级回归趋势跟踪 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理。
-11. **UI 组件库许可证风险与迁移可行性治理**
-- **目标**:
-    - 消除 PrimeVue 锁定在 MIT 终点版本（4.x）后形成的许可证与维护风险，按已评估方案迁移到许可证可控的 caomei-ui，而不是在依赖升级 PR 中被动决策。
-- **专项设计事实源**:
-    - [2026-08-29 PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)，迁移动因、许可证事实与屏蔽策略以该文档为准。
-    - [2026-09-18 PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)，momei 侧现状基线、批次编排、消费路径、视觉验证回归与验收口径以该文档为准；库侧能力面与验收判定口径以 caomei-ui 仓库治理文档为唯一事实源。
-- **状态**:
-    - 进行中（已上收第六十七阶段，方案 A 三阶段轨迹）。
-- **最近一次上收阶段**:
-    - 第六十七阶段（2026-09-19 授权上收首个执行阶段：接入基座 + 视觉验证回归基座 + 全局 token 语义层 + B2 试点页）。
-- **当前状态**:
-    - PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布，Dependabot PR #688 已判定 No-Go；`primevue` / `@primevue/*` / `@primeuix/*` 已在 `.github/dependabot.yml` 中按版本屏蔽；当前锁定 `primevue@4.5.5`。
-    - 迁移面：59 个组件 / 1515 处用法 / 629 处图标 / 1403 处 token 待迁移；无不可逾越的能力阻塞。
-    - **原开工阻塞已解除（2026-09-19）**：caomei-ui M5 十项已交付、Phase 7 第二阶段已归档、B1 出口条件达成；`caomei-ui@0.1.0` 已发布至 npm（本地联调用 `file:`）。
-    - **目标依赖上移到 0.2.0（2026-09-22）**：`caomei-ui@0.2.0` 已发布（覆盖库侧 Phase 11 M1~M5），含**破坏性包形态变更**——移除 `./styles.css`、改为基础层 `./theme.css` + 逐模块组件样式（打包器按需 tree-shaking）；模块选项面不变，但 `injectStyles` 注入物变为基础层。该变更**消除了并存期 `keyCss` 膨胀前提**（原 +15.3KB gzip 来自 0.1.0 单体 167KB 样式）。接入基座**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB）；0.x 不承诺语义化兼容，迁移期继续精确锁定版本。详见[迁移方案 §3.6](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
-- **下一次可切片方向**:
-    - 第六十八阶段：B2 剩余数据页 + B3 表单与设置；第六十九阶段：B4 展示、浮层与收尾（含卸载 PrimeVue 与包体对比）。
-    - **收尾必办**：并存期包体配额须回落（`keyCssGzipBytes` 85KB → 70KB）并刷新 `.github/perf/bundle-baseline.json`；**已于 2026-09-24 随 caomei-ui 重锚到 0.2.0 完成回落**（实测 60,684 字节），届时 B4 只需确认未反弹；未回落不得视为收尾完成。
+
+> 状态口径统一使用：进行中 / 观察中 / 暂停 / 已关闭；**已关闭的条目即整条移除，故本区不会出现「已关闭」状态**。
+> 本区**只保留可跨阶段反复切片的主线**；已关闭的主线已整条移除，不保留任何摘要或历史叙述。
+
+### 1. 测试覆盖率与有效性治理
+
+- **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第六十六阶段（第八批：5 个高价值模块补测 58 用例，全仓 Statements 79.55% → 80.63%）。
+- **当前基线**: Statements `80.63%` / Branches `69.26%` / Lines `80.68%`（距 `90%+` 长期目标约 9.4%）。
+- **下一次可切片方向**: 优先选代码量大、分支多的 `server/services/` 层模块（低覆盖候选：`ai/task-detail.ts` 28.57%、`external-feed/cache.ts` 50.00%、`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%）；测试有效性延续“已有测试基座 + 失败 / 边界优先”。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
+
+### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
+
+- **目标**: 压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型与轻量响应壳层纳入受控复用；优先治理跨文件重复率高、适合稳定上收的候选，而不是把所有局部实现强行抽象。默认以 `pnpm duplicate-code:check` 作为事实源。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`，基线 0.31% → 0.30%）。
+- **当前基线**: `duplicate-code` 0.30%（jscpd 行级口径）。
+- **下一次可切片方向**: 基于 0.30% 基线继续收敛——剩余轻量 shared helper、表单元数据 / 表单控件的类型共享、`server/api/` 层请求上下文与参数校验的共性逻辑；结构性重复候选保留轻量壳层类型与“重复导入后轻包装”的纯函数。
+
+### 3. 存量代码注释治理与注释漂移收敛
+
+- **目标**: 为存量代码补高价值注释（复杂逻辑、兼容性兜底、跨层契约、关键副作用、核心导出函数），同步清理失效 / 误导 / 逐行复述注释；以 `pnpm governance:audit:comment-drift` 为事实源，每轮保留受影响范围、注释类型、未覆盖边界与漂移检查结论。
+- **状态**: 暂停（自第三十九阶段后未上收切片，注释盘点脚本仍未补齐）。
+- **最近一次上收阶段**: 第三十九阶段（首轮：`server/services/ai/text.ts` 等）。
+- **下一次可切片方向**: 首个切片前先补注释盘点脚本；候选组 A/B/C 方向不变，首轮最多选 1 组。
+
+### 4. Postgres 查询、CPU 与连接生命周期平衡治理
+
+- **目标**: 在公开页面、鉴权与安装体验不回退的前提下平衡 PostgreSQL 查询体量、CPU 与连接生命周期；闭环“哪些请求不该碰库 → 必须查库请求如何瘦身 → `pg_stat_statements` 或等价 live sample 复核”。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第五十三阶段（Vercel CDN 缓存 Tier 2 架构：`routeRules` ISR/SWR + Upstash Redis，从源头阻断 Bot → SSR → DB 连锁反应）。
+- **当前基线**: 2026-06-23 跨 Vercel 函数日志 + Neon 操作日志联合分析确认——compute 频繁启停（约 40 次/天）根因不是 SQL，而是 `100% Cache MISS + 76% Bot 流量` 持续触发 SSR 冷启动；治理文档 [Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)。
+- **下一次可切片方向**: 优先 Tier 3（Bot 分级缓存 + Vercel KV，评估中）；缓存层部署后重新评估网络传输配额消耗速度；SQL 瘦身候选（首页 posts public list 的 `DISTINCT + IN (...)` 查询对）。
+
+### 5. 国际化运行时加载与文案复用治理
+
+- **目标**: 建立“翻译字段定义 → locale 模块注册 → 路由动态加载 → 运行时命中 → 回退 / raw key 暴露 → 重复键审计”的周期性闭环；`pnpm i18n:audit:duplicates` 与 `i18n:audit:missing`、`i18n:verify:runtime` 同步定期执行并保留证据。跨页面相同组件文案的复用只在职责、语义与模块归属都稳定一致时上收。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第六十四阶段（ko-KR / ja-JP 文档治理：13 文件 `last_sync` 刷新、ja-JP 由 seo-ready 升格、补全 features / variables 翻译）。
+- **当前基线**: `i18n:audit:missing = 0`；缺失字段优先修复、重复键及时清理、`unused` 默认观察。
+- **下一次可切片方向**: 尚未纳入 runtime 回归的公开页装配链路（档案 / 分类 / 标签列表页 i18n 完整性审计）；仍需动态拼接 key 的场景优先评估“是否为有限集合”，默认改显式静态 key 映射而非扩 allowlist。
+
+### 6. 文档事实源、翻译与分层归档治理
+
+- **目标**: 统一维护全文档体系的分层边界、膨胀阈值与 freshness——`docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 与同步；清理无效 / 过时 / 漂移文档；保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过，不靠临时补 `last_sync` 应付检查。阈值被证明过宽时先回写脚本，再更新规范与阶段结论。
+- **状态**: 观察中。
+- **最近一次上收阶段**: 第六十四阶段（ko-KR / ja-JP 专项治理：freshness 审计报告 + 13 文档 `last_sync` 刷新 + ja-JP 升格 + features / variables 翻译补齐）。
+- **当前基线**: `docs:check:line-count` 覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 以 git 提交判定 hard blocker，tier 软上限 `must-sync 60 天 / summary-sync 120 天`（`candidate` profile 保留 21/30 天基线，仅作收敛评估）。
+- **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 行数）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。
+
+### 7. Windows 本地 Dev / Build 性能治理
+
+- **目标**: 为 Windows 本地 `nuxt dev` / `nuxt build` 建立统一量化口径，优先收敛首请求阻塞与构建尾耗时，不扩写为全平台构建重构。
+- **状态**: 暂停（第四十三阶段确认平台级瓶颈：Linux CI 106s vs Windows >1800s，>17x 差距，非项目层面短期可收敛）。
+- **最近一次上收阶段**: 第四十三阶段（Vite warmup + `resolve.extensions` 收窄 + Nitro inline 瘦身 + sourceMap 关闭 + `build:done` 跳过，确认平台级瓶颈后上收关闭）。
+- **下一次可切片方向**: 暂停。仅在 Nuxt / Nitro 发布针对 Windows 的重大性能改进，或项目迁移到 WSL2 / Linux 开发环境时重新评估；历史数据见 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)。
+
+### 8. 站点性能与 Core Web Vitals 持续优化
+
+- **目标**: 持续追踪核心页面 Core Web Vitals，建立跨版本性能回归基线；优先级：公开首页 > 文章详情页 > 分类 / 标签列表 > 后台管理页。与 #7 的区别：本条聚焦生产环境用户体验性能。
+- **状态**: 进行中（已有 Lighthouse CI + bundle budget 体系，尚未形成持续优化节奏）。
+- **最近一次上收阶段**: 第五十二阶段（移动端 CWV 基线采集与评估：首页 / 文章详情 / 分类标签列表页 LCP / CLS / INP 基线落盘）。
+- **当前基线**: `coreEntryJs` 329.11KB / 360KB；`maxAsyncChunkJs` 48.00KB / 130KB；`keyCss` 59.47KB / 70KB（并存期配额已随 caomei-ui 重锚回落）。
+- **下一次可切片方向**: 文章详情页按需 hydration；入口启动载荷专项分析（Sentry / PrimeVue / 依赖预载）；评估收紧 `maxAsyncChunkJs` 并为 shared chunk 单列预算；移动端 LCP 超 3s 时启动专项治理。
+
+### 9. 脚本资产、量化口径与回归入口治理
+
+- **目标**: 把脚本作为长期治理主线的事实源，为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出；治理 `scripts/**` 的长期入口、孤儿脚本、临时脚本残留与输出漂移；稳定后并入固定回归入口。
+- **专项设计事实源**: [script-governance.md](../design/governance/script-governance.md)。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第六十五阶段（`governance:audit:simple-duplicates` 升格至 `regression:weekly` warning 面，结论 Go）。
+- **当前基线**: `governance:check:scripts` 与 `audit:simple-duplicates`、`audit:eslint-debt`、`audit:comment-drift` 均已进入 `regression:weekly` warning 面；`docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 仍为独立 baseline。
+- **下一次可切片方向**: 按周级回归趋势跟踪 comment-drift 的 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理；评估 docs candidate 入口是否进入更高频回归。
+
+### 10. UI 组件库许可证风险与迁移可行性治理
+
+- **目标**: 消除 PrimeVue 锁定在 MIT 终点版本（4.x）后形成的许可证与维护风险，按已评估方案迁移到许可证可控的 caomei-ui，而不是在依赖升级 PR 中被动决策。
+- **专项设计事实源**: [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；[PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（批次编排、消费路径、视觉验证回归与验收口径）。
+- **状态**: 进行中（方案 A 三阶段轨迹，第一阶段已归档）。
+- **最近一次上收阶段**: 第六十七阶段（接入基座 + 三层视觉验证回归基座 + 全局 token 语义层 + B2 试点页，已审计归档）。
+- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节）。
+- **下一次可切片方向**: 按迁移方案 §7 分批计划继续（B2 剩余数据页 / B3 表单与设置 / B4 展示、浮层与收尾）；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：B4 只需确认 `keyCss` 未反弹。
+
 ## 周期性回归验证层
-> **定位**：本层不是"一个任务"，而是所有长期主线的健康检查层。它不产生直接改进，只验证"没有回退"。按固定日历节奏执行，不参与阶段切片容量竞争。
+
+> **定位**：本层不是“一个任务”，而是所有长期主线的健康检查层。它不产生直接改进，只验证“没有回退”。按固定日历节奏执行，不参与阶段切片容量竞争。
+
 ### 固定执行入口
+
 三条入口及其命令组合在 [项目规划规范 §4.2 固定调度入口](../standards/planning.md) 中完整定义，此处仅列出摘要：
+
 | 节奏 | 入口 | 最小固定组合 | 触发条件 |
 |:---|:---|:---|:---|
 | 周级 | `pnpm regression:weekly` | coverage + deps audit + source-of-truth + i18n + duplicate-code + script-governance | 每周一次 |
 | 发版前 | `pnpm regression:pre-release` | release:check:full + i18n + perf:budget:strict + duplicate-code | 每次发版前 |
 | 阶段收口前 | `pnpm regression:phase-close` | coverage + release:check:full + i18n + perf:budget:strict + duplicate-code:strict + review-gate | 阶段归档前 |
-- 当前固定入口已覆盖 `script-governance` 的脚本治理面：5.1 `pnpm governance:check:scripts` 与 5.2 `pnpm governance:audit:simple-duplicates`、5.3 `pnpm governance:audit:eslint-debt`、5.4 `pnpm governance:audit:comment-drift` 均已进入 weekly warning 基线；5.5 docs candidate 入口仍保持独立 baseline，待误报与 warning 面收敛后再评估是否进入更高频回归。
+
 ### 覆盖矩阵（每条长期主线的回归覆盖状态）
+
 | 长期主线 | 周级覆盖 | 发版前覆盖 | 阶段收口覆盖 |
 |:---|:---|:---|:---|
 | #1 测试覆盖率治理 | ✅ `test:coverage` | — | ✅ `test:coverage` |
-| #2 ESLint / 类型债治理 | ✅ `lint` | ✅ `release:check:full` (内含) | ✅ `release:check:full` (内含) |
-| #3 结构复用治理 | ✅ `duplicate-code:check` | ✅ `duplicate-code:check` | ✅ `duplicate-code:check:strict` |
-| #4 注释治理 | — | — | — (暂无自动检查) |
-| #5 Postgres 治理 | — | — | — (依赖 live sample，非自动) |
-| #6 国际化治理 | ✅ `i18n:audit:missing` + `i18n:audit:duplicates` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
-| #7 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
-| #8 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
-| #9 站点性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
-| #10 脚本治理 | ✅ `governance:check:scripts` + `governance:audit:simple-duplicates` + `governance:audit:eslint-debt` + `governance:audit:comment-drift` | — | — (docs candidate 暂保持独立 baseline) |
+| #2 结构复用治理 | ✅ `duplicate-code:check` | ✅ `duplicate-code:check` | ✅ `duplicate-code:check:strict` |
+| #3 注释治理 | — | — | —（暂无自动检查，待补盘点脚本） |
+| #4 Postgres 治理 | — | — | —（依赖 live sample，非自动） |
+| #5 国际化治理 | ✅ `i18n:audit:missing` + `i18n:audit:duplicates` + `docs:check:i18n` | ✅ `docs:check:i18n` | ✅ `docs:check:i18n` |
+| #6 文档治理 | ✅ `docs:check:source-of-truth` + `docs:check:line-count` | ✅ `docs:check:source-of-truth` | ✅ `docs:check:source-of-truth` |
+| #7 Windows 性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
+| #8 站点性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
+| #9 脚本治理 | ✅ `governance:check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` | — | —（docs candidate 暂保持独立 baseline） |
+| #10 UI 组件库迁移治理 | ✅ `test`（含路由迁移守卫单测） | ✅ `release:check:full`（内含 lint / typecheck） | ✅ `test:visual`（初期非阻断）+ `review-gate` |
+
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
+
 ### 漂移路由规则
+
 回归验证发现的问题不自行修复，而是按以下规则路由到对应长期主线的下一次切片候选：
+
 | 回归发现问题 | 路由目标 |
 |:---|:---|
 | coverage 下降或测试有效性退化 | → 长期主线 #1（测试覆盖率治理） |
-| ESLint warning 反弹或新 type 债 | → 长期主线 #2（ESLint 治理） |
-| duplicate-code 基线反弹 | → 长期主线 #3（结构复用治理） |
-| i18n missing / duplicate keys / raw key 暴露 | → 长期主线 #6（国际化治理） |
-| 文档事实源 stale 或行数超阈值 | → 长期主线 #7（文档治理） |
-| 性能预算超标（bundle / Lighthouse） | → 长期主线 #9（站点性能治理） |
-| Windows Dev / Build 性能退化 | → 长期主线 #8（Windows 性能治理） |
-| 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #10（脚本治理） |
+| duplicate-code 基线反弹 | → 长期主线 #2（结构复用治理） |
+| i18n missing / duplicate keys / raw key 暴露 | → 长期主线 #5（国际化治理） |
+| 文档事实源 stale 或行数超阈值 | → 长期主线 #6（文档治理） |
+| 性能预算超标（bundle / Lighthouse） | → 长期主线 #8（站点性能治理） |
+| Windows Dev / Build 性能退化 | → 长期主线 #7（Windows 性能治理） |
+| 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #9（脚本治理） |
+| caomei-ui 迁移相关视觉 / 路由结构回归失败 | → 长期主线 #10（UI 组件库迁移治理） |
 | 依赖安全 high+ 漏洞 | → 直接 blocker，在当前阶段修复 |
 | 跨多条主线的问题 | → 取最匹配的一条路由，其他在路由备注中引用 |
+
 ### 回归记录管理
+
 - 每次回归执行后，结果写入 `docs/reports/regression/current.md`。
 - 当 `current.md` 超过 500-700 行 warning、700+ 行 blocker 时，触发滚动归档：将旧记录整体迁移到 `docs/reports/regression/archive/`，主窗口仅保留近线记录。
 - 滚动归档的执行由回归层在阶段收口时统一触发，不另设独立的长期主线。
-- （本条吸收了原 backlog 长期主线 #8 "回归记录独立归档与深度分层" 的全部职责。）
+
 ## 短期 / 一次性候选任务（上收后去重）
+
 > 共享说明：除非单项另有说明，本区块条目当前均处于“候选评估中”，默认尚未满足正式上收前置条件；只有当条目内约束、门槛或预研结论闭环后，才允许写入 roadmap / todo。
-> 2026-06 批次 8 项短期候选已全部上收归档（Phase 47-51），详细记录见 [todo-archive.md](./todo-archive.md)。后续新增短期候选直接在下方续写。
+> 管理规则：一旦被正式上收到 roadmap / todo，必须从本区块删除（或改写为一行历史说明），避免与正式阶段正文重复。
+
 ### 延后新增能力保留池（当前不建议优先上收）
-以下条目自纳入以来无实质进展，保留为远期参考：
+
 | # | 条目 | 说明 | 状态 |
 |:---|:---|:---|:---|
-| 1 | 桌面端应用 (Tauri) | 桌面客户端骨架，支持单站点/多站点管理 + 离线写作 | 休眠 |
-| 2 | 极客技术增强 | Markdown 可执行代码块支持（JS/Python/Shell） | 休眠 |
-| 3 | 主题生态系统 | 主题社区/发布平台/画廊/安全审核 | 休眠 |
-4. **付费增强验证候选（源自商业化转型重评）**
-- **状态说明**:
-    - 第三十二阶段已按"多语言内容资产化增强包的统一承接入口"完成首轮交付，独立说明 / 申请页、单一主卖点文案与三条公开入口（Demo Banner / About 页 / Footer）已形成"入口 -> 承接页 -> 申请 / 候补名单"最小闭环。
-    - 自第三十二阶段交付以来已间隔 26 个阶段，候补名单转化信号未见明显增长；暂不追加新的付费增强实现条线。
-- **2026-06 扩展：会员 / 付费订阅体系 (P2, 长期)**:
-    - **背景**: Ghost 的核心差异化在会员付费闭环。墨梅已有完整订阅者管理、邮件推送和 Better-Auth 用户体系，差距在于支付集成和内容付费墙。竞品对标：Ghost 的 Membership Tiers + Stripe 集成 ([source](https://ghost.org/features/))。
-    - **最小范围**: 会员等级（Free / Supporter / Premium）、文章级付费墙（公开 / 订阅者可见 / 付费可见）、Stripe 支付集成、会员管理后台、收入仪表盘。
-    - **非目标**: 不建课程/数字产品商城、不做复杂定价/折扣/优惠券引擎、不与 Patreon 模式竞争。
-    - **前置条件**:
-        - 先确认候补名单的转化信号是否支持继续投入。
-        - 评估 Stripe 在目标区域（含中国大陆）的可用性，必要时预留支付宝/微信支付扩展点。
-        - 确认 Better-Auth 的角色扩展模型足以支撑会员等级。
-5. **播客与多媒体扩展 (Podcast & Multimedia)**
-- **全站沉浸式播放**:
-    - 全站悬浮播放器，支持跨页面断点续播与内容同步。
-6. **AI 视频生成与增强 (AI Video Generation & Enhancement)**
-- **多模态内容产出**:
-    - 探索集成视频生成模型（如 Seedance 2.0、~~Sora 2.0~~ 等），支持基于文章内容或脚本生成动态视频素材。
-    - 实现“文章转视频”工作流，为技术博文自动生成短视频概览或演示。
-7. **国际化语种扩展留档（西语 / 葡语 / 法语 / 俄语 / 德语）**
-- **留档范围**:
-    - 记录未来可扩展语种候选：西班牙语（es）、葡萄牙语（pt）、法语（fr）、俄语（ru）、德语（de）。
-    - 本条仅用于 backlog 留档与前置评估，不代表当前或下一短期阶段承诺上线。
-- **当前结论**:
-    - 短期内不规划新增更多语言支持，继续优先保障现有语言链路稳定性、翻译质量与性能基线。
-    - 若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估，再进入正式阶段规划。
-8. **js-yaml 升级到 5.x（依赖现代化，候选）**
-- **背景**: `js-yaml@5.4.2` 已是 npm `latest`（4.x 标记 `v4-legacy`，无安全更新预期）；但 `pnpm-workspace.yaml` 存在裸名 override `js-yaml: ^4.3.2`（安全升级引入），长期压制 dependabot 对 `package.json` 的 `^5.4.2` bump，造成声明与解析不一致（2026-09-24 已回退声明至 `^4.3.2`）。
-- **不可直接升级的实测依据（2026-09-24）**: 把 override 改到 `^5.4.2` 后 `pnpm run security:validate-overrides` 抛 `SyntaxError: The requested module 'js-yaml' does not provide an export named 'default'`——js-yaml 5 的 ESM 构建不再提供 default 导出，而仓库有 8 处 `import yaml from 'js-yaml'` 默认导入（3 个治理脚本 + `server/services/post-export.ts` + `packages/cli/src/{parser,post-formatter,hugo-parser}.ts` + `composables/use-post-editor-io.ts`）。
-- **最小范围**: ① 8 处改为命名导入（`load` / `dump`）并核对 API 兼容（`packages/cli/src/parser.ts` 有 js-yaml v4 移除 `safeLoad` 的历史包袱，hexo frontmatter 需重点回归）→ ② CLI / server / composable 定向测试 → ③ 评估裸名 override 是否改为定向 override（避免强制声明 `^4` 的传递消费者越界升 5）→ ④ 更新 override 并跑 `security:validate-overrides`。
-- **非目标**: 不连带其他依赖升级；不改动 frontmatter 兼容策略。
-- **上收前置**: 定 override 归属（裸名 vs 定向）并列出 js-yaml 5 的 API 差异清单。
-### 2026-06 调研发现的新增候选功能
-> **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
-> **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）、AI 编辑视角/读者视角检查（Phase 62）、WordPressParser（Phase 62）已交付并从候选池移除。编辑器工具栏 Phase B 风格扩展（Phase 66）已交付，候选 #14 仅剩 Phase C 保留。
-### 已评估/已关闭（不进入当前实现）
-> 以下条目已完成评估并输出明确 go/no-go 结论，当前不进入实现阶段，保留为后续参考。
-8. **Digital Garden / 知识花园模式 (P2, 已评估)**
-- **评估结论**: No-Go（第四十五阶段评估完成）
-- **评估依据**: [`docs/design/governance/archive/digital-garden-evaluation.md`](../design/governance/archive/digital-garden-evaluation.md)
-- **核心理由**: 存储模型（JSON 字段 vs 关联表）在当前文章体量下的性能影响不确定、非时序导航对现有路由/信息架构侵入度高、知识图谱可视化的前端依赖与 bundle 增量不匹配当前优化目标。
-- **保留条件**: 若后续引入双向链接需求且存储方案成熟，可重新评估。
-9. ~~**AI 编辑增强功能套件 (P1, 已实现)**~~
-- **评估结论**: 条件性 Go（第五十三阶段评估完成，ROI 1.50）
-- **评估依据**: [`docs/design/governance/ai-editing-enhancement-evaluation.md`](../design/governance/ai-editing-enhancement-evaluation.md)
-- **功能清单**: 改写 (Rewrite) / 审查 (Review) / 续写 (Continue) / 扩写 (Expand) / 缩写 (Condense) / 编辑视角检查 / 读者视角检查 — 全部子功能已上收交付。
-- **已实现**:
-    - 改写 (Rewrite) + 审查 (Review)：第五十九阶段（`a4319a9f` + `d1c28283`）。支持中英文 + 6 种风格选择 + 撤销/重做 + 内容哈希对比缓存。
-    - 续写 (Continue)：第六十阶段（`697b00a4`）。支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型。
-    - 扩写 (Expand) + 缩写 (Condense)：第六十一阶段（`d980cf69`）。支持中英文扩写/缩写 + Ctrl+Z 撤销 + AI 计费 expand/condense 类型。
-    - 编辑视角检查 + 读者视角检查：第六十二阶段（`f48f39b3`）。新增 `/api/ai/perspective-check` 端点 + 编辑器工具栏按钮 + `PostEditorPerspectivePanel` 组件 + AI 计费。
-- **实现状态**: 全部子功能已上收交付，候选已关闭。
-10. **多平台迁移适配器 (P2, 候选 — 已部分实现)**
-- **背景**: 当前迁移 CLI 支持 Hexo + Hugo + WordPress 格式，Jekyll 等其他主流博客平台的用户仍无法直接使用 CLI 迁移。
-- **已实现**:
-    - `ContentParser` 接口抽象：`parse(sourceDir): Promise<ParsedPost[]>`（`packages/cli/src/types.ts`）
-    - HugoParser 适配器：支持 YAML/TOML/JSON Front-matter 自动检测，`smol-toml` 作为 TOML 引擎（`packages/cli/src/hugo-parser.ts`）
-    - WordPressParser 适配器：支持 WXR XML 导出文件解析，使用 `fast-xml-parser` 作为 XML 引擎（`packages/cli/src/wordpress-parser.ts`）
-    - CLI `--format hugo` / `--format wordpress` 参数，复用现有导入链路
-    - HugoParser 17 个 + WordPressParser 17 个单元测试覆盖 title/date/tags/categories/slug/draft/cover/lastmod 映射
-    - 详见第六十阶段（`697b00a4`）+ 第六十二阶段（`602326cb`）待办归档
-- **仍待实现**:
-    - `JekyllParser`（解析 Jekyll Front-matter）
-- **非目标**: 不支持在线 API 导入（如 WordPress REST API）、不做自动格式检测、不做平台特定的插件/主题迁移
-- **前置条件**:
-    - 评估 Jekyll Front-matter 的差异和兼容性（YAML 格式为主）
-- **验收标准**:
-    - 各平台 title、date、tags、categories、content 正确映射
-    - `--format` 参数正确选择解析器
-    - 新增适配器有对应的单元测试
-    - 现有 Hexo/Hugo/WordPress 解析行为无回归
-- **ROI**: 价值 3 / 契合度 3 / 复杂度 3 / 风险 2 = **1.50**
-- **详细方案**: 待设计
-11. **迁移进度可视化与断点续传 (P3, 候选)**
-- **背景**: 当前 CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇文章）迁移时，如果中途失败需要从头开始。断点续传能力可以显著改善大型迁移的体验。
-- **技术方案**:
-    - CLI 在本地维护迁移状态文件（`.momei-migration-state.json`）
-    - 记录每篇文章的导入状态：pending / success / failed / skipped
-    - 导入前检查状态文件，跳过已成功的文章
-    - 支持 `--resume` 参数启用断点续传
-    - 支持 `--clean` 参数清除状态文件重新开始
-    - 进度条显示：已成功 / 已失败 / 待处理 / 总数
-- **非目标**: 不做分布式迁移、不做跨机器续传、不做自动重试失败项
-- **前置条件**:
-    - 评估状态文件的格式和兼容性
-    - 确认状态文件的存放位置（源目录 vs 当前目录）
-- **验收标准**:
-    - 中断后重新运行可跳过已成功的文章
-    - `--resume` 参数正确启用续传模式
-    - 进度显示实时更新
-    - 状态文件格式清晰可读
-- **ROI**: 价值 2 / 契合度 2 / 复杂度 3 / 风险 2 = **1.00**
-- **详细方案**: 待设计
-12. **响应式状态模型收敛：reactive 到 ref 的渐进迁移 (P1, 已完成)**
-- **背景**:
-    - 原始仓库 `reactive()` 使用总量为 `56` 处，其中生产代码 `29` 处、测试代码 `27` 处。经过 Step 1-5 全部分批迁移，所有生产代码 `reactive()` 已迁移为 `ref()`。
-    - `ref` 的显式 `.value` 语义更有利于长期维护，迁移全程 template 零改动。
-- **已实现**:
-    - **Step 1**（Phase 60，低风险首批）：登录页、注册页、权益页、个人设置、安全设置中的 `form`/`errors` 类 `reactive` 对象已全部迁移为 `ref`（`d3f7314c`）。
-    - **Step 2**（Phase 61，中风险）：`use-admin-friend-links-page.ts`（4 处）、`pages/admin/users/index.vue`（3 处）、`use-admin-list.ts`（2 处）中的 `filters/pagination/sort/dialog` 类迁移（`a5bd2c7b`）。
-    - **Step 3**（Phase 62，高风险）：`settings-notifications.vue`（4 处）、`pages/admin/comments/index.vue`（8 处）、`pages/admin/submissions/index.vue`（6 处）深层嵌套迁移 + 11 个定向测试（`405825cb`）。
-    - **Step 4**（Phase 63，筛选/错误类）：`user-filters.vue`、`notification-delivery-log-list.vue`、`waitlist/index.vue`、`subscribers/index.vue`、`submit.vue` 共 5 处迁移。
-    - **Step 5**（Phase 64，终轮）：`admin-taxonomy-page.vue`（deleteDialog）、`marketing-campaign-form.vue`（form）、`comment-form.vue`（form）3 个表单/弹窗类文件收尾迁移。
-- **当前状态**: 全量生产代码 `reactive()` 迁移完毕。测试代码中 `reactive()` 仍保留（共 27 处，为 Vue Test Utils 挂载和 mock 所需，属于测试惯用法，不做强制迁移）。候选已关闭。
-13. **为尚无后台 UI 的配置项补充设置表单组件 (P2, 已部分实现)**
-- **背景**: 当前 `.env.full.example` 已有 117+ 个环境变量，`SETTING_ENV_MAP` 涉及 183+ 个唯一 env 键名，后台设置管理已有 13 个分类标签页。但仍有部分配置项缺少对应设置表单 UI，或仅有底层 `SettingKey`/DB 存储但没有前台组件，或仅在 `env.ts` 直读而无法通过后台修改。
-- **已实现**:
-    - **Phase 1（Phase 63） — 盘点与 SoT 映射补齐**：产出缺口清单（Gap A/B 分类），为 5 个 env var 补充 `SettingKey` + `SETTING_ENV_MAP` 映射（`EMAIL_SECURE`/`EMAIL_EXPIRES_IN`/`TEMP_EMAIL_DOMAIN_NAME`/`TTS_DEFAULT_VOICE`/`AI_MAX_TOKENS`），`INTERNAL_ONLY_ENV_KEYS` 扩充 5 项运维级 key。详见第六十三阶段待办归档。
-    - **Phase 2（Phase 64） — 首批 UI 组件**：将 Phase 1 的 SoT 映射落地为 5 个可交互表单控件——email-settings.vue（EMAIL_SECURE ToggleSwitch、EMAIL_EXPIRES_IN InputNumber、TEMP_EMAIL_DOMAIN_NAME InputText）+ ai-settings.vue（AI_MAX_TOKENS InputNumber、TTS_DEFAULT_VOICE Select + ttsVoiceOptions computed），补齐五语种 20 个翻译条目。详见第六十四阶段待办归档。
-    - **Phase 3（Phase 65） — 第二批 UI 组件**：新增 5 个表单控件——ai-settings.vue 扩展（`AI_TEMPERATURE` InputNumber + `AI_CHUNK_SIZE` InputNumber + `AI_FALLBACK_PROVIDER` Select + `TTS_CREDENTIAL_TTL_SECONDS` InputNumber）+ 第三方标签页新增 `ExternalFeedSourcesEditor` 组件；补齐五语种翻译条目及 SettingKey/SETTING_ENV_MAP 映射。详见第六十五阶段待办归档。
-    - **Phase 4（Phase 66） — AI Fallback 文本备用 3 项**：补齐 `AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT` 的 SETTING_ENV_MAP 映射、`.env.full.example` 注释示例、`ai-settings.vue` Password+InputText 表单控件（`v-if` 跟随 `ai_fallback_provider`）、5 语种翻译，新增 `setting.constants.test.ts` + `ai-settings.test.ts` 共 6 个用例；Code Auditor Review Gate Pass。详见第六十六阶段待办归档。
-- **剩余方向**:
-    - AI Image Fallback 4 项（`AI_IMAGE_FALLBACK_PROVIDER`/`API_KEY`/`MODEL`/`ENDPOINT`）留 Phase 5 继续推进（涉及 `ai_image_enabled` 二级嵌套 group 扩展）。**已登记为下一阶段候选（backlog 待上收）。**
-    - `WEBHOOK_TIMESTAMP_TOLERANCE` 当前实现不读取（文档已多次声明固定 5 分钟容差），待后端实现 env 读取逻辑后再纳入 UI 候选。
-    - `hexo_sync_*` 已实现 UI 但被列入 `INTERNAL_ONLY_SETTING_KEYS` + `ADMIN_SETTINGS_EXCLUDED_KEYS`，定位为内部使用，不在本主线后续范围。
-    - 保持分批渐进策略，每组 2-5 个配置项。
-- **非目标**:
-    - 不暴露基础设施密钥到后台管理。
-    - 不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略。
-- **详细方案**: 见 Phase 1 缺口清单文档 [`docs/design/governance/settings-form-ui-phase1-gap-inventory.md`](../design/governance/settings-form-ui-phase1-gap-inventory.md)
+| 1 | 桌面端应用 (Tauri) | 桌面客户端骨架，支持单站点 / 多站点管理 + 离线写作 | 休眠 |
+| 2 | 极客技术增强 | Markdown 可执行代码块支持（JS / Python / Shell） | 休眠 |
+| 3 | 主题生态系统 | 主题社区 / 发布平台 / 画廊 / 安全审核 | 休眠 |
 
-14. **编辑器工具栏收敛：AI 功能分组 + 审查视角合并 + 风格扩展 (P2, 已部分实现)**
-- **背景**: 当前文章编辑器顶部栏左侧包含 10 个独立 AI 功能按钮 + 1 个语音组件，全部平铺在单行 4rem 高度内，导致标题输入框被严重挤压，长标题无法完整展示。同时 AI 审查与视角检查存在功能重叠，续写/扩写/缩写缺少风格控制。
-- **评估结论**: 已产出完整方案，详见 [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)。
-- **推荐实施**:
-    - **Phase A**（2-3 天）：UI 分组收敛 — 10 个按钮折叠为「AI 写作（SplitButton）」+「AI 审校」+「AI 翻译」+「格式化」+「语音」共 5 个入口，标题输入框获得完整弹性宽度。**✅ 已于第六十五阶段完成**（`e936ec1e`）。
-    - **Phase B**（1-2 天）：风格扩展 — 为续写/扩写/缩写新增 `style` 参数，复用改写的 6 种风格定义。**✅ 已于第六十六阶段完成**。
-    - **Phase C**（2-3 天）：审查+视角合并 — 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。**候选保留，待后续阶段上收。**
-- **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费/配额逻辑；不新增 AI Provider。
-- **ROI**: 价值 3 / 契合度 4 / 复杂度 3 / 风险 1 = **1.60**
-- **详细方案**: [`docs/design/governance/editor-toolbar-consolidation-eval.md`](../design/governance/editor-toolbar-consolidation-eval.md)
+### 待上收候选
+
+1. **会员 / 付费订阅体系 (P2, 长期)**
+    - **背景**: Ghost 的核心差异化在会员付费闭环；墨梅已有订阅者管理、邮件推送与 Better-Auth 用户体系，差距在支付集成与内容付费墙。
+    - **最小范围**: 会员等级（Free / Supporter / Premium）、文章级付费墙（公开 / 订阅者可见 / 付费可见）、Stripe 支付集成、会员管理后台、收入仪表盘。
+    - **非目标**: 不建课程 / 数字产品商城、不做复杂定价 / 折扣 / 优惠券引擎、不与 Patreon 模式竞争。
+    - **前置条件**: 先确认候补名单的转化信号是否支持继续投入；评估 Stripe 在目标区域（含中国大陆）的可用性并预留支付宝 / 微信支付扩展点；确认 Better-Auth 角色扩展模型足以支撑会员等级。
+2. **播客与多媒体扩展 (Podcast & Multimedia)**
+    - **全站沉浸式播放**: 全站悬浮播放器，支持跨页面断点续播与内容同步。
+3. **AI 视频生成与增强 (AI Video Generation & Enhancement)**
+    - **多模态内容产出**: 探索集成视频生成模型（如 Seedance 2.0 等），支持基于文章内容或脚本生成动态视频素材，并实现“文章转视频”工作流。
+4. **国际化语种扩展留档（西语 / 葡语 / 法语 / 俄语 / 德语）**
+    - **留档范围**: 记录未来可扩展语种候选（es / pt / fr / ru / de），仅用于前置评估，不代表承诺上线。
+    - **当前结论**: 短期内不规划新增语种，继续优先保障现有语言链路稳定性、翻译质量与性能基线；若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估。
+5. **js-yaml 升级到 5.x（依赖现代化，候选）**
+    - **背景**: `js-yaml@5.4.2` 已是 npm `latest`（4.x 标记 `v4-legacy`，无安全更新预期）；`pnpm-workspace.yaml` 存在裸名 override `js-yaml: ^4.3.2` 压制 dependabot 的 `^5.4.2` bump，造成声明与解析不一致（2026-09-24 已回退声明至 `^4.3.2`）。
+    - **不可直接升级的实测依据（2026-09-24）**: override 改到 `^5.4.2` 后 `pnpm run security:validate-overrides` 抛 `SyntaxError: The requested module 'js-yaml' does not provide an export named 'default'`——js-yaml 5 的 ESM 构建不再提供 default 导出，而仓库有 8 处 `import yaml from 'js-yaml'` 默认导入。
+    - **最小范围**: ① 8 处改为命名导入（`load` / `dump`）并核对 API 兼容（`packages/cli/src/parser.ts` 有 v4 移除 `safeLoad` 的历史包袱，hexo frontmatter 需重点回归）→ ② CLI / server / composable 定向测试 → ③ 评估裸名 override 是否改为定向 override → ④ 更新 override 并跑 `security:validate-overrides`。
+    - **非目标**: 不连带其他依赖升级；不改动 frontmatter 兼容策略。
+    - **上收前置**: 定 override 归属（裸名 vs 定向）并列出 js-yaml 5 的 API 差异清单。
+6. **多平台迁移适配器 — JekyllParser（剩余部分）**
+    - **背景**: 迁移 CLI 已支持 Hexo / Hugo / WordPress（`ContentParser` 接口 + 三个适配器 + `--format` 参数，均已有单测），仅剩 Jekyll。
+    - **最小范围**: 新增 `JekyllParser`（解析 Jekyll Front-matter），复用现有导入链路与 `--format` 参数。
+    - **非目标**: 不支持在线 API 导入（如 WordPress REST API）、不做自动格式检测、不做平台特定的插件 / 主题迁移。
+    - **前置条件**: 评估 Jekyll Front-matter 差异与兼容性（YAML 为主）。
+    - **验收标准**: 各平台 title / date / tags / categories / content 正确映射；`--format` 正确选择解析器；新增适配器有单测；现有 Hexo / Hugo / WordPress 行为无回归。
+7. **迁移进度可视化与断点续传 (P3, 候选)**
+    - **背景**: CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇）中途失败需从头开始；断点续传可显著改善体验。
+    - **技术方案**: CLI 本地维护迁移状态文件（`.momei-migration-state.json`），记录每篇 pending / success / failed / skipped；导入前检查并跳过已成功项；支持 `--resume` / `--clean`；显示进度（成功 / 失败 / 待处理 / 总数）。
+    - **非目标**: 不做分布式迁移、不做跨机器续传、不做失败项自动重试。
+    - **前置条件**: 评估状态文件格式与兼容性；确认存放位置（源目录 vs 当前目录）。
+    - **验收标准**: 中断后重跑可跳过已成功项；`--resume` 正确启用续传；进度实时更新；状态文件格式清晰可读。
+8. **设置表单 UI — AI Image Fallback 4 项（剩余部分）**
+    - **背景**: 设置表单 UI 主线已分四批交付（Phase 1 盘点映射、Phase 2-4 共 15 个控件 + 五语种翻译）；剩余 `AI_IMAGE_FALLBACK_PROVIDER` / `API_KEY` / `MODEL` / `ENDPOINT` 4 项。
+    - **最小范围**: 补齐 4 项 `SETTING_ENV_MAP` 映射、`.env.full.example` 注释示例、`ai-settings.vue` 表单控件（涉及 `ai_image_enabled` 二级嵌套 group 扩展）与五语种翻译。
+    - **非目标**: 不暴露基础设施密钥到后台；不改变 `FORCED_ENV_LOCKED_KEYS` 安全锁定策略。
+    - **详细方案**: [settings-form-ui-phase1-gap-inventory.md](../design/governance/settings-form-ui-phase1-gap-inventory.md)
+9. **编辑器工具栏收敛 Phase C — 审查 + 视角合并 (P2, 剩余部分)**
+    - **背景**: Phase A（5 入口分组，第六十五阶段）与 Phase B（续写 / 扩写 / 缩写风格扩展，第六十六阶段）已交付；Phase C 为审查与视角检查合并。
+    - **最小范围**: 新建双 Tab 合并侧面板 `PostEditorConsolidatedReviewPanel`，双 API 并行调用。
+    - **非目标**: 不改动 MavonEditor 原生工具栏；不改动编辑器页面整体布局；不改动 AI 计费 / 配额逻辑；不新增 AI Provider。
+    - **详细方案**: [editor-toolbar-consolidation-eval.md](../design/governance/editor-toolbar-consolidation-eval.md)
 
 ---
+
 ## 相关文档
+
 - [项目计划](./roadmap.md)
 - [待办事项](./todo.md)
 - [待办归档](./todo-archive.md)

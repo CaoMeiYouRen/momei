@@ -444,6 +444,22 @@ pnpm build
 - **已有包不追溯**：`momei-cli`、`momei-mcp-server` 保持现有名称不变，不因规范变更而强行重命名。
 - **例外申请**：若新增包无法按规则命名（如需要与第三方生态对齐），应在 PR 中说明理由并在本规范中注明例外。
 
+### 4.6 构建与样式陷阱（Nuxt / Vite / Nitro / CSS）
+
+| 陷阱 | 结论 |
+|:---|:---|
+| `modules/` 自动加载 | Nuxt 会自动加载 `modules/*.{ext}` 与 `modules/*/index.{ext}`；若同时在 `nuxt.config.modules` 显式登记同一文件会**重复安装**（显式项是相对路径、自动发现项是绝对路径，去重不命中）。 |
+| `@nuxt/kit` `addImports()` 顺序 | 其注册的是 `imports:extend` 钩子，而 `nuxt.config` 的 `hooks` **先注册先执行**；「必须在某模块之后执行」的导入过滤写在 `nuxt.config` 的 hooks 里无效，须由排在目标模块之后的 Nuxt 模块注册。 |
+| 同名自动导入冲突 | 多库并存时冲突是**静默**的（仅打印 duplicated imports，后注册者胜出）；隔离必须配「否则直接失败」的构建期护栏，不能只靠注释约定顺序。 |
+| CSS 未分层优先 | 未分层样式优先于任何具名层，且该比较**先于特异性**；要覆盖未分层的第三方样式，只能用未分层 + 不低于其特异性的选择器（写在 `@layer` 内必然失效）。 |
+| Nitro treeshake | `treeshake.moduleSideEffects` 白名单会摇掉未列入包的顶层副作用（如 `pg-types` 的 `textParsers.init`），使 pg 类型解析整体退化为字符串；定位方式是产物 grep 关键字为 0 次。 |
+| TypeORM 布尔列 | `type: Boolean`（构造函数）由驱动层先行 `value ? true : false`（`'f'` → `true`，transformer 无法挽救）；`type: 'boolean'`（字符串）不强转、原样透传驱动值，必须由 `CustomColumn` 的归一化 transformer 兜底——仓库统一用后者。 |
+| Sass 插值 | `#{$scss-value}` 会剥掉字体名引号；需保留引号时用 `@use "sass:meta"` + `#{meta.inspect($value)}`。 |
+| 不要用 `.output` 产物做验证 | Nitro 静态资源会缓存 `Content-Length`，改动产物后响应头与响应体不一致会让浏览器判定传输截断（整张样式表 `cssRules.length === 0`），制造「CSS 失效」假象；验证类实验一律改**源**后重建。 |
+| `pnpm install` churn | 会重解析 specifier 为 `latest` 的传递依赖，造成无关 lockfile 变更；保持提交原子性时手工回退该处，并跑 `--frozen-lockfile` 验证一致性。 |
+| 治理脚本引用传递依赖 | pnpm 严格 `node_modules` 下不可直接 `import` 传递依赖（如 `@primevue/metadata`）；回退解析 `node_modules/.pnpm/<pkg>@*/...` 并把结果落成仓库内 JSON（运行期零传递依赖）。 |
+| 校验注入点与加载顺序 | 用 `nuxt/kit` 的 `loadNuxt({ cwd, dev: false, ready: false })` + `nuxt.ready()` 读 `nuxt.options.css` 与 `_installedModules`，比看产物更直接；临时脚本必须放在项目目录内（`/tmp` 下解析不到 `node_modules`），用完即删。 |
+
 ## 5. 安全规范 （Security）
 
 - **XSS 防护**:

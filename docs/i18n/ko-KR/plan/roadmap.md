@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-24
+last_sync: 2026-09-25
 ---
 
 # Momei 프로젝트 로드맵
@@ -70,7 +70,7 @@ last_sync: 2026-09-24
 - **64단계는 감사 완료 후 아카이브되었습니다**: 설정 양식 UI Phase 2 첫 번째 UI 컴포넌트(5개 필드 + 5개 로케일 번역); reactive→ref Step 5 마무리(3개 파일); 구조 재사용 2개 슬라이스(safeDeleteCategory + handleExternalLinkError, duplicate-code 기준 0.35%); 테스트 커버리지 6차(privacy.ts 7개 엣지 케이스); ko-KR/ja-JP 문서 거버넌스(freshness 감사 보고서, ko-KR 13개 파일 날짜 수정, ja-JP 완전 지원으로 승격, features/variables 번역). 모든 주선이 typecheck+lint+test 통과.
 - **65단계는 감사 완료 후 아카이브되었습니다**: 편집기 도구 모음 통합 Phase A(10→5 버튼 폴딩 + 제목 입력 폭 탄력적, `e936ec1e`); 설정 양식 UI Phase 3(AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor, `01ce9670`); 구조 재사용 거버넌스(Categories/Tags 공유 쿼리 레이어, 중복 226줄 제거, duplicate-code 기준 0.34%→0.30%); 스크립트 거버넌스 승격 평가(simple-duplicates를 regression:weekly warning 영역으로 승격); 테스트 커버리지 90%+ 7차(테스트 파일 3개 신규, 전체 79.48%로 ≥1% 목표 미달, 장기 거버넌스로 이관). vitest.shared.ts를 forks 풀로 통일해 `<repo-root>/tmp` 경쟁 상태 수정; regression-weekly.yml 정기 CI 워크플로 신설. 모든 주선이 typecheck+lint+test 통과.
 - **66단계는 감사 완료 후 아카이브되었습니다**: 편집기 도구 모음 통합 Phase B(계속/확장/축약에 `style` 파라미터 추가, 6가지 스타일 정의 재사용); 설정 양식 UI Phase 4(AI_FALLBACK_API_KEY/MODEL/ENDPOINT 폼 컨트롤 + 5개 로케일 번역, AI Image Fallback 4항목은 Phase 5로 연기); 구조 재사용 거버넌스(`use-theme-color-models.ts` 컴포저블 추출, duplicate-code 기준 0.31%→0.30%, `8fb91ecd`); 테스트 커버리지 90%+ 8차(`85d69d7d`, 고가치 모듈 5개에 테스트 58개 추가: text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%, 전체 Statements 79.55%→80.63%로 ≥80.48% 목표 달성); 스크립트 거버넌스 comment-drift 승격 재검토(`1fc73e54`, Phase 52 승격 상태 유지 go 결론, 문서 표류 7건 정리). 모든 주선이 typecheck+lint 통과 및 Code Auditor Review Gate 완료.
-- **67단계가 등록되었습니다(계획 중, 아직 아카이브되지 않음)**: PrimeVue → caomei-ui UI 컴포넌트 라이브러리 마이그레이션의 첫 단계——통합 기반과 소비 경로(npm `caomei-ui@0.2.0` 정확 고정, 두 라이브러리 병존, 동명 composables 격리, 라우트 단위 화이트리스트 기반. 0.2.0에서 베이스 레이어 진입점이 `styles.css`에서 `theme.css`로 변경. 베이스는 0.1.0으로 착지했으며 2026-09-24에 0.2.0으로 재앵커 완료), 단위 / E2E / 스크린샷 3계층 시각 검증 회귀 기반, 전역 token 시맨틱 레이어 브리지, B2 파일럿 페이지 마이그레이션. 배경과 배치 편성은 [마이그레이션 계획](../../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)을 참고하세요. 후속 배치는 68 / 69단계입니다.
+- **67단계는 감사 완료 후 아카이브되었습니다**: PrimeVue → caomei-ui 마이그레이션의 첫 단계. 통합 기반을 `caomei-ui@0.2.0`으로 재앵커(`theme.css` 주입 지점 1개, `keyCss` 쿼터를 70KB로 되돌리고 기준선 갱신); 3계층 시각 검증 회귀 기반을 독립 스크린샷 프로젝트로 착지(6개 기준선 + 거짓 양성/거짓 음성 검증 + CI `visual` 잡은 초기 `continue-on-error`); 전역 token 시맨틱 레이어 브리지를 unlayered `html:root`로 착지하고 캐스케이드 계약 가드 추가; B2 파일럿 페이지 `/admin/comments`를 라우트 단위로 일괄 이관(재적 컴포넌트 패밀리 제로 잔존 가드 + 3계층 회귀 + 차이 항목별 귀속). 공유 셸 과도 컴포넌트 교체 목록과 상류 caomei-ui 피드백 목록도 함께 산출. 후속 배치 방향은 [마이그레이션 계획 §7](../../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)을 참고하세요.
 - **요약 범위 안내**: 이 페이지는 최근 감사가 완료된 단계의 요약을 함께 제공합니다. 상세 수용 기준과 작업 분해는 중국어 원문 `roadmap.md` 및 `todo.md`를 기준으로 합니다.
 
 ## 4. 장기 backlog
