@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-25
+last_sync: 2026-09-26
 ---
 
 # 墨梅專案路線圖
@@ -86,6 +86,7 @@ last_sync: 2026-09-25
 - **第六十五階段已完成審計歸檔**：編輯器工具欄收斂 Phase A（10→5 按鈕摺疊 + 標題欄彈性寬度，`e936ec1e`）；設置表單 UI Phase 3（AI_TEMPERATURE/AI_CHUNK_SIZE/AI_FALLBACK_PROVIDER/TTS_CREDENTIAL_TTL_SECONDS + ExternalFeedSourcesEditor，`01ce9670`）；結構複用治理（Categories/Tags 共享查詢層，消除 226 行重複，duplicate-code 基線 0.34%→0.30%）；腳本治理升格評估（simple-duplicates 升格至 regression:weekly warning 面）；測試覆蓋率 90%+ 第七批（新增 3 個測試文件，全倉 79.48% 未達 ≥1% 目標，轉入長期治理）。vitest.shared.ts 統一為 forks 池修復 `<repo-root>/tmp` 競態；新增 regression-weekly.yml 定時 CI 回歸工作流。所有已交付主線均通過 typecheck+lint+test。
 - **第六十六階段已完成審計歸檔**：編輯器工具欄收斂 Phase B（續寫/擴寫/縮寫新增 `style` 參數，複用 6 種風格定義）；設置表單 UI Phase 4（AI_FALLBACK_API_KEY/MODEL/ENDPOINT 表單控件 + 五語種翻譯，AI Image Fallback 4 項留 Phase 5）；結構複用治理（`use-theme-color-models.ts` composable 抽取，duplicate-code 基線 0.31%→0.30%，`8fb91ecd`）；測試覆蓋率 90%+ 第八批（`85d69d7d`，5 個高價值模組補測 58 用例：text.ts 94.82% / tts.ts 88.63% / parser.ts 92.00% / aggregator.ts 97.56% / category.ts 98.63%，全倉 Statements 79.55%→80.63% 達到 ≥80.48% 目標）；腳本治理 comment-drift 升格複核（`1fc73e54`，結論 go 維持 Phase 52 已升格狀態，收口 7 處文檔漂移）。全部主線通過 typecheck+lint 並完成 Code Auditor Review Gate。
 - **第六十七階段已完成審計歸檔**：PrimeVue → caomei-ui 遷移第一階段——接入基座重錨至 `caomei-ui@0.2.0`（`theme.css` 注入點唯一、`keyCss` 配額回落 70KB 並刷新基線）；三層視覺驗證回歸基座落地為獨立截圖工程（6 張基線 + 假陽性/假陰性雙向驗證 + CI `visual` job 初期 `continue-on-error`）；全局 token 語義層橋接以 unlayered `html:root` 落地並配級聯契約守衛；B2 試點頁 `/admin/comments` 完成整路由切換（在冊組件族零殘留守衛 + 三層回歸 + 視覺差異逐項歸因）。本階段另產出共享殼過渡組件替換清單與上游 caomei-ui 回饋問題清單；後續批次方向見[遷移方案 §7](../../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。`caomei-ui@0.3.0` 已於 2026-09-24 發布且無破壞性變更，為目標基線；升級與基線複測已登記為該長期主線的待執行條目。
+- **第六十八階段已規劃立項**：PrimeVue → caomei-ui 遷移第二階段（0.3.0 基線複測 + B2 數據頁全量）已立項為當前階段——`caomei-ui` 0.2.0→0.3.0 升級與基線複測（含 bundle-baseline 口徑澄清）、`pages/admin` 數據列表 10 路由 + 帶 host 路由的組件型目標（含共享殼過渡組件）、測試覆蓋率第九批（server/services 低覆蓋模組）。B3 表單與設置、浮層類延至第六十九階段，B4 收尾與 PrimeVue 卸載為第七十階段。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向

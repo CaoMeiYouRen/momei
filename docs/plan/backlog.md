@@ -20,7 +20,7 @@
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第六十六阶段（第八批：5 个高价值模块补测 58 用例，全仓 Statements 79.55% → 80.63%）。
 - **当前基线**: Statements `80.63%` / Branches `69.26%` / Lines `80.68%`（距 `90%+` 长期目标约 9.4%）。
-- **下一次可切片方向**: 优先选代码量大、分支多的 `server/services/` 层模块（低覆盖候选：`ai/task-detail.ts` 28.57%、`external-feed/cache.ts` 50.00%、`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%）；测试有效性延续“已有测试基座 + 失败 / 边界优先”。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
+- **下一次可切片方向**: 优先选代码量大、分支多的 `server/services/` 层模块（低覆盖候选：`ai/task-detail.ts` 28.57%、`external-feed/cache.ts` 50.00%、`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%）；测试有效性延续“已有测试基座 + 失败 / 边界优先”。**第九批（`server/services/` 低覆盖 3-5 模块）已上收至第六十八阶段，见 [todo.md](./todo.md)**。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
 
@@ -89,12 +89,10 @@
 
 - **目标**: 消除 PrimeVue 锁定在 MIT 终点版本（4.x）后形成的许可证与维护风险，按已评估方案迁移到许可证可控的 caomei-ui，而不是在依赖升级 PR 中被动决策。
 - **专项设计事实源**: [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；[PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（批次编排、消费路径、视觉验证回归与验收口径）。
-- **状态**: 进行中（方案 A 三阶段轨迹，第一阶段已归档）。
+- **状态**: 进行中（方案 A 轨迹经第六十八阶段准入重划为第六十七 ~ 第七十阶段四段，本阶段已立项执行 0.3.0 复测与 B2 切片）。
 - **最近一次上收阶段**: 第六十七阶段（接入基座 + 三层视觉验证回归基座 + 全局 token 语义层 + B2 试点页，已审计归档）。
-- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定，升级尚未执行；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`，为下一目标基线；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节，口径待复测）。
-- **下一次可切片方向**: 按迁移方案 §7 分批计划继续（B2 剩余数据页 / B3 表单与设置 / B4 展示、浮层与收尾）；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：B4 只需确认 `keyCss` 未反弹。
-- **待执行条目**: `caomei-ui` `0.2.0` → `0.3.0` 升级与基线复测——升级依赖（保持精确锁定）→ 读 `0.3.0` `BREAKING CHANGES`（已知无）→ 重跑该批视觉回归与定向测试（0.x 不承诺语义化兼容，不得静默升级）→ 重测 `keyCss` 并按需刷新 `.github/perf/bundle-baseline.json`（含下条基线口径漂移的澄清）→ 组件消费清单按 `0.3.0` 口径重数。
-- **基线口径待复测指针**: `.github/perf/bundle-baseline.json` 的「零 caomei 组件消费」表述与 B2 试点页已消费 5 个组件的事实冲突，待升级批次实测澄清。
+- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定，`0.3.0` 升级与基线复测已上收至第六十八阶段（含「零 caomei 组件消费」口径澄清与组件消费清单重数）；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节）。
+- **下一次可切片方向**: 0.3.0 升级复测与 B2 剩余数据页（10 个数据列表路由 + 组件型目标 host 路由 + 共享壳过渡组件）已上收至第六十八阶段，见 [todo.md](./todo.md)；后续按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：B4 只需确认 `keyCss` 未反弹。
 
 ## 周期性回归验证层
 
