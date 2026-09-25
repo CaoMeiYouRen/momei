@@ -253,8 +253,10 @@ export default defineNuxtConfig({
             enabled: false,
         },
     },
-    // 与 PrimeVue 并存：darkMode 契约保持 `.dark`（与既有 `darkModeSelector: '.dark'` 一致）；
-    // 并存期只接入模块与样式，品牌预设 / token 语义映射在全局 token 语义层主线中处理。
+    // 与 PrimeVue 并存：darkMode 契约保持 `.dark`（与既有 `darkModeSelector: '.dark'` 一致）。
+    // token 语义桥接已在 `styles/main.scss` 落地（unlayered `html:root`，取值方向 `--p-*` → `--caomei-*`）；
+    // 此处不设置 `data-preset="momei"`——其暗色选择器特异性（0,2,0）会压过桥接并冻结运行时主题，
+    // 详见迁移方案 §5.2 / §5.7 与 main.scss 桥接段注释。
     caomeiUI: {
         prefix: 'Caomei',
         darkMode: 'class',
@@ -266,6 +268,9 @@ export default defineNuxtConfig({
                 preset: MomeiPreset,
                 options: {
                     darkModeSelector: '.dark',
+                    // 迁移方案 §5.7 决策：保留 `primevue, momei-base, momei-overrides` 顺序不变；
+                    // caomei-ui 基础层与逐模块组件样式以「未分层」形态加载（未分层优先于任何具名层），
+                    // 故 caomei-ui 的定制走 `--caomei-*` token（见 styles/main.scss 桥接段），不做选择器覆盖。
                     cssLayer: {
                         name: 'primevue',
                         order: 'primevue, momei-base, momei-overrides',

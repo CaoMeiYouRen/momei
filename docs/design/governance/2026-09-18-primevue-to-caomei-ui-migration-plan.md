@@ -183,6 +183,32 @@ pnpm governance:count:primevue-usage
 
 排序理由：`--p-*` 同时被 PrimeVue 组件内部与 momei 自研样式消费。若在组件迁移前整体改名，未迁移页面会同时失去 PrimeVue 主题与自研样式来源，属不可接受的观感回退。因此「全局 token 早做」的正确含义是**语义层与预设桥接早做**，而非**消费点提前清空**。
 
+**第 ① 层已落地（2026-09-25，第六十七阶段第 3 项）**：桥接实现与逐项依据以 `styles/main.scss` 末尾的「caomei-ui 语义 token 并存桥接」段及其注释为准；下表为口径记录（取值方向 `--p-* → --caomei-*`，因此用户切换主题预设 / 主色 / 圆角时 caomei-ui 侧同步生效，momei 侧不硬编码新色值）。
+
+| `--caomei-*` | 取值来源 | 说明 |
+| :--- | :--- | :--- |
+| `-color-primary` | `var(--p-primary-color)` | 主色基准 |
+| `-color-primary-foreground` | `var(--p-primary-contrast-color)` | 配套前景色（随明暗切换） |
+| `-color-primary-solid` | `var(--p-primary-700)` | 实底深档；恒配 `-on-solid`(#fff)，故须取深档 |
+| `-color-danger` / `-color-success` / `-color-warning` | `var(--p-red-500)` / `var(--p-green-500)` / `var(--p-orange-500)` | 见下「幻影 token」注 |
+| `-color-danger-solid` / `-color-success-solid` / `-color-warning-solid` | `var(--p-red-700)` / `var(--p-green-700)` / `var(--p-orange-700)` | 深档，与 caomei `momei` 预设取值一致 |
+| `-color-bg` | `var(--p-surface-card)` | caomei `bg` 在组件中承载**内容面**（卡片 / 输入 / 表格 / 浮层 / 工具栏），非页面底 |
+| `-color-bg-elevated` | `color-mix(in srgb, var(--p-surface-card) 96%, var(--p-text-color))` | 次级面（表头 / 斑马纹 / 悬停 / 骨架）；派生档位用 `color-mix()` |
+| `-color-text` / `-color-text-muted` | `var(--p-text-color)` / `var(--p-text-muted-color)` | |
+| `-color-border` | `var(--p-content-border-color)` | momei 既有 `--p-surface-border` 在 Aura 中不存在（见下注） |
+| `-color-mask` | `var(--p-mask-background)` | 遮罩 |
+| `-radius-md` | `var(--p-content-border-radius)` | `sm` / `lg` 用 `calc()` 按半 / 双派生 |
+| `-font-sans` | `$font-sans`（`styles/_variables.scss`） | 沿用 momei 字体栈 |
+
+落点与层叠约束（与 §5.7 一致）：
+
+- 桥接段必须 **unlayered**：caomei-ui 基础层未分层（§5.7 事实）且在 `nuxt.options.css` 中排在 `@/styles/main.scss` **之后**，按层叠规则「未分层优先于任何具名层」，写在 `@layer momei-base` 内的桥接会被 caomei-ui 的 `:root` 覆盖并**静默失效**（像素与构建均不报错）。因此选择器取 `html:root`（特异性 `0,1,1`）高于库侧 `:root` / `:is(.dark, [data-theme="dark"])`（均 `0,1,0`），使桥接与加载顺序解耦；这是「不单方面改造库侧构建形态」（§5.7 依据 2）下的最小方案。
+- **不启用** `data-preset="momei"`：其暗色选择器 `:is([data-preset="momei"].dark, …)` 特异性为 `0,2,0`，会压过桥接并把暗色 token 冻结为静态预设值，使运行时主题失效；桥接已覆盖 momei 主题驱动的全部**映射项**，故预设保持「可用但不启用」。**已知偏离（留待 B2 试点页按实际用法复核）**：① caomei `momei` 预设的暗色状态色微调（`danger` / `success` / `warning` 暗色为 `#f87171` / `#4ade80` / `#fb923c`）未被桥接采用——桥接状态色恒取模式无关、且被 `components/**` 直接消费的原始色板（`--p-red-500` 等），形态与 `$color-*`「模式无关单一声明」一致（注意 `$color-*` 引用的 `--p-{error,success,warning}-500` 为幻影 token，见下注）；② 主色 `-solid` 取 `--p-primary-700` 深档，与预设「实底跨主题同值」的约定不同（状态色 `-solid` 取固定 `-700`，两主题同值，与预设一致）。
+- 未映射项保留 caomei-ui 默认，不做逐点搬运：组件内部 token 与 `space` / `control-height` / `font-size` / `z-index` / `shadow` / `skeleton-highlight` / 等宽字体 / `info` / `neutral-solid`（后两类属 §5.2 第 4 条「无对应语义者」）。这些档位随各批「文件 → 改动点」清单按消费点确认后再处理。
+- 级联契约由 `tests/visual/caomei-token-bridge.visual.test.ts` 守卫（在真实浏览器读取计算后的 `--caomei-*`，断言其等于对应 `--p-*` 且不等于 caomei-ui 基础层默认值）；`layouts/**` 与 `styles/_variables.scss` 的消费点不在本层改动范围内（前者无对应语义，后者属 §5.2 第 ② 层）。
+
+**幻影 token 注（2026-09-25 实测）**：momei 侧既有 `--p-error-500` / `--p-success-500` / `--p-warning-500` / `--p-surface-border` / `--p-text-color-secondary` 等 token 在 Aura / MomeiPreset 的产物中**并不存在**——Aura 语义层只有 `primary|surface|highlight|mask|formField|text|content|overlay|list|navigation`，不含 `success|warning|error|info`；上述名字仅以 `var()` 被消费、从未被定义（即未迁移页面上这些声明本就按 `unset` 生效）。故桥接**不按幻影 token 直译**，状态色改引由库 `primitive-variables` 样式表真实产出的原始色板（`--p-red-500` / `--p-green-500` / `--p-orange-500` 等），边框改引真实语义 `--p-content-border-color`。该缺口是否顺带修正由各批「文件 → 改动点」清单决定，本层不做消费点清理。
+
 ### 5.3 图标体系迁移
 
 - `icon="pi pi-x"` 字符串 → `@lucide/vue` 组件，放入 `#icon` 插槽或直接作为组件使用。

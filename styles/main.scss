@@ -1,3 +1,4 @@
+@use "sass:meta";
 @use "./variables" as *;
 @use "./mixins" as *;
 @use "./layout" as *;
@@ -460,4 +461,64 @@
         }
     }
 }
+}
+
+/* ---------------------------------------------------------------------------
+ * caomei-ui 语义 token 并存桥接（第六十七阶段第 3 项｜迁移方案 §5.2 第 ① 层）
+ *
+ * 目的：双库并存期让 caomei-ui 组件经其文档化定制路径（`--caomei-*` CSS 变量，见 §5.7 约束 1）
+ * 复用 momei 现行主题，使「未迁移页面不失去主题」与「新页面可直接消费 `--caomei-*`」同时成立。
+ *
+ * 取值方向：`--p-*`（momei 现行语义，含 `useTheme` 运行时按用户主题生成的覆盖）
+ *   → `--caomei-*`。因此用户切换主题预设 / 主色 / 圆角时 caomei-ui 侧同步生效，momei 侧不硬编码新色值。
+ *
+ * ⚠️ 本段必须置于任何 `@layer` 之外（unlayered），选择器取 `html:root`：
+ *   - caomei-ui 基础层（`caomei-ui/theme.css`）未分层，且在 `nuxt.options.css` 中排在
+ *     `@/styles/main.scss` 之后；按 CSS 层叠规则，未分层样式优先于任何具名层，故写在
+ *     `@layer momei-base` 内的桥接会被 caomei-ui 的 `:root` 覆盖而失效。
+ *   - `html:root`（特异性 0,1,1）高于 caomei-ui 的 `:root` / `:is(.dark, [data-theme="dark"])`
+ *     （均 0,1,0），使桥接与加载顺序解耦，是「不单方面改造库侧构建形态」（§5.7 依据 2）下的最小方案。
+ *   - 不启用 `data-preset="momei"`：其暗色选择器 `:is([data-preset="momei"].dark, …)` 特异性为
+ *     0,2,0，会压过本桥接并把暗色 token 冻结为静态预设值，使运行时主题失效；本桥接已覆盖 momei
+ *     主题驱动的全部映射项（预设的暗色状态色微调与主色 `-solid` 深档为已知偏离，见迁移方案 §5.2），
+ *     故保留预设「可用但不启用」。
+ * ------------------------------------------------------------------------ */
+html:root {
+    /* 主色：tone 用于文字 / 边框 / soft 底；foreground 为配套前景色（随明暗） */
+    --caomei-color-primary: var(--p-primary-color);
+    --caomei-color-primary-foreground: var(--p-primary-contrast-color);
+
+    /* 状态色：Aura 未产出 `--p-{error,success,warning}-*` 语义 token（momei 侧既有同名声明为幻影
+     * token），故改引真实存在的原始色板；取值与 caomei `momei` 预设一致（red / green / orange）。 */
+    --caomei-color-danger: var(--p-red-500);
+    --caomei-color-success: var(--p-green-500);
+    --caomei-color-warning: var(--p-orange-500);
+
+    /* 实底（`-solid`）：caomei 约定恒配 `--caomei-color-on-solid`（#fff），故取各自色阶深档以保证
+     * 白字对比度，避免暗色下主色变浅后白字不可读。 */
+    --caomei-color-primary-solid: var(--p-primary-700);
+    --caomei-color-danger-solid: var(--p-red-700);
+    --caomei-color-success-solid: var(--p-green-700);
+    --caomei-color-warning-solid: var(--p-orange-700);
+
+    /* 面：caomei `bg` 承载卡片 / 输入 / 表格 / 浮层 / 工具栏等内容面（见其组件用法），对应 momei 的
+     * `--p-surface-card`；`bg-elevated` 为向文字色偏移的次级面（表头 / 斑马纹 / 悬停 / 骨架），
+     * 与 caomei 预设中二者的相对关系一致。 */
+    --caomei-color-bg: var(--p-surface-card);
+    --caomei-color-bg-elevated: color-mix(in srgb, var(--p-surface-card) 96%, var(--p-text-color));
+
+    /* 文本 / 边框 / 遮罩 */
+    --caomei-color-text: var(--p-text-color);
+    --caomei-color-text-muted: var(--p-text-muted-color);
+    --caomei-color-border: var(--p-content-border-color);
+    --caomei-color-mask: var(--p-mask-background);
+
+    /* 圆角：以运行时主题圆角为基准按档位派生（默认 0.5rem → sm 0.25 / md 0.5 / lg 1rem，与
+     * `styles/_variables.scss` 的 $border-radius-* 口径一致） */
+    --caomei-radius-md: var(--p-content-border-radius);
+    --caomei-radius-sm: calc(var(--p-content-border-radius) / 2);
+    --caomei-radius-lg: calc(var(--p-content-border-radius) * 2);
+
+    /* 字体：沿用 momei 字体栈，避免迁移后组件字体族与正文不一致 */
+    --caomei-font-sans: #{meta.inspect($font-sans)};
 }

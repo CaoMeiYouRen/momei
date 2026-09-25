@@ -19,6 +19,42 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase67-m3-token-bridge:第六十七阶段-M3:2026-09-25 -->
+## 2026-09-25 第六十七阶段 M3 全局 token 语义层桥接（PrimeVue → caomei-ui）
+
+### 范围
+
+- 落地迁移方案 §5.2 第 ① 层「语义层与预设桥接」：在 `styles/main.scss` 末尾新增 **unlayered `html:root`** 桥接块，把 `--caomei-*` 语义 token 指向 momei 现行 `--p-*` 语义（含 `useTheme` 运行时按用户主题生成的覆盖）；派生档位（次级面、实底深档）统一用 `color-mix()` / 色阶深档表达。
+- `nuxt.config.ts`：更新 `caomeiUI` 与 PrimeVue `cssLayer` 注释，记录「caomei-ui 保持未分层」「不启用 `data-preset="momei"`」的决策依据。
+- 新增级联契约守卫 `tests/visual/caomei-token-bridge.visual.test.ts`（真实浏览器读取**计算后**的 `--caomei-*`）。
+- 未改动 `styles/_variables.scss` 与 `layouts/**`：桥接为 token 级、SCSS 别名会成死代码；`layouts/**` 消费的 `--p-surface-ground`（页面底）在 caomei 侧无对应语义（caomei `bg` 实为内容面），改写即造成观感回退，按最小改动保留。
+
+### 关键决策与依据（实测）
+
+- **落点必须 unlayered**：实测 `nuxt.options.css` 顺序为 `… @/styles/main.scss(4) → caomei-ui/theme.css(5)`，且 caomei 基础层 `grep -c @layer` = 0；按层叠规则未分层优先于任何具名层，故 `@layer momei-base` 内的桥接会被 caomei 的 `:root` 覆盖。选择器取 `html:root`（特异性 `0,1,1`）高于库侧 `:root` / `:is(.dark, [data-theme="dark"])`（均 `0,1,0`），与加载顺序解耦。
+- **不启用 `data-preset="momei"`**：其暗色选择器 `:is([data-preset="momei"].dark, …)` 特异性 `0,2,0` 会压过桥接并把暗色 token 冻结为静态预设值，使运行时主题失效；桥接覆盖 momei 主题驱动的全部**映射项**（预设的暗色状态色微调与主色 `-solid` 深档为已知偏离），故预设保持「可用但不启用」。
+- **`bg` 语义核对**：caomei 组件用法显示 `--caomei-color-bg` 承载卡片 / 输入 / 表格 / 浮层 / 工具栏（内容面），对应 `--p-surface-card`；`bg-elevated` 为表头 / 斑马纹 / 悬停 / 骨架等次级面，按 `color-mix(--p-surface-card 96%, --p-text-color)` 派生（与 caomei 预设中二者的相对关系一致）。
+- **幻影 token**：`--p-error-500` / `--p-success-500` / `--p-warning-500` / `--p-surface-border` 等 momei 既有声明在 Aura 产物中**并不存在**（Aura 语义层无 `success|warning|error|info`），状态色改引真实存在的原始色板 `--p-red-500` / `--p-green-500` / `--p-orange-500`（由 `primitive-variables` 样式表产出），边框改引 `--p-content-border-color`。
+
+### 验证结果
+
+- `pnpm lint:css`：PASS。
+- `pnpm typecheck`：PASS。
+- `pnpm build`：PASS（由 `test:visual` 的构建新鲜度前置执行 `pnpm run build`；产物 `Σ 71.5 MB / 18.4 MB gzip`）。
+- `pnpm test:visual`：**8/8 通过**——6 张既有基线浅 / 深逐像素无差异（未迁移页面观感无回退）+ 2 项桥接级联契约（浅 / 深）。
+- 定向单测：`pnpm exec vitest run tests/scripts tests/modules` = 23 文件 / 197 用例全通过。
+- **假阴性（守卫非空转）**：在真实页面仿真「桥接回落到 caomei 基础层默认值」（追加同特异性更靠后的 `html:root` 覆盖）后，守卫在浅 / 深两主题均稳定失败（`--caomei-color-primary(#2563eb/#60a5fa) != --p-primary-color(#64748b/#94a3b8)`，并命中「等于库默认值」断言）；未仿真时 0 失败。
+- 附带确认：向页面追加更靠后的未分层 `:root{--caomei-color-primary:…}`（特异性 `0,1,0`）**无法**覆盖桥接，从反面验证 `html:root` 特异性设计生效。
+
+### 未覆盖边界
+
+- 本层仅保证「token 可被消费且与 momei 主题一致」；caomei-ui 组件在未迁移页面上尚未渲染，故截图层「无差异」是必然结果而非对桥接的验证——桥接正确性由级联契约守卫承担。
+- 桥接守卫位于 `visual` CI job（初期 `continue-on-error: true`），待该 job 确认基线转阻断后才成为硬门禁；守卫内 `CAOMEI_BASE_DEFAULT_PRIMARY`（caomei 基础层默认主色）须随 caomei-ui 升级复核（§5.6 升级纪律）。
+- 已知偏离：主色 `-solid`（`--p-primary-700`）在暗色下随主题重算，与 caomei「实底跨主题同值」的约定不同；状态色 `-color` / `-solid` 取固定原始色板、两主题同值，且 caomei 预设的暗色状态色微调（`#f87171` / `#4ade80` / `#fb923c`）未被采用。两类偏离留待 B2 试点页按实际用法定案。
+- 未运行全量 `pnpm test` 与 `pnpm test:e2e:critical`（本次改动仅样式层 + 注释 + 一个 Playwright spec，未触及 TS 逻辑与既有断言语义；定向单测已覆盖受影响入口）。
+
+<!-- regression-window:end:phase67-m3-token-bridge:第六十七阶段-M3:2026-09-25 -->
+
 <!-- regression-window:start:phase67-m2-visual-base:第六十七阶段-M2:2026-09-24 -->
 ## 2026-09-24 第六十七阶段 M2 视觉验证回归基座（PrimeVue → caomei-ui）
 

@@ -41,10 +41,11 @@
     - **已验证（2026-09-24）**: 截图识别层落地为独立工程 `playwright.visual.config.ts` + `tests/visual/`（入口 `pnpm test:visual` / `test:visual:update`，复用 e2e 构建与浏览器前置），不触碰既有 e2e `testMatch`；采集列表页（`/admin/posts`）/ 表单页（`/admin/settings`）/ 浮层（协议创建对话框）× 浅色 / 深色共 **6 张基线快照**（随仓库提交，合计约 664KB）；环境固定 chromium / 1440×900 / DSF 1 / `zh-CN` / `Asia/Shanghai` / 关闭动画 / 隐藏光标，动态区域以 `[data-visual-mask]` 遮蔽；阈值 `maxDiffPixels 200` + 单像素容差 0.2（绝对值口径，不以比例兜底）。**假阳性**：无变更连续多次全绿；**假阴性**：故意改 `--p-surface-card` 后 3 项浅色用例稳定失败（深色因 `.dark` 覆盖未受影响，符合预期）。E2E 功能层：`pnpm test:e2e:critical` 两阶段全绿，`auth-session-governance` chromium `--repeat-each=3` = 18/18 通过（M2 采样 0 失败）。单元层：既有设置页测试保留，新增浮层组件结构契约测试（`components/admin/settings/agreement-edit-dialog.test.ts`）。CI 接入为 `test.yml` 的 `visual` job（**初期 `continue-on-error`**，待 CI 环境确认基线后转阻断）。详见 [回归记录](../reports/regression/current.md) M2 节。
     - **证据落点**: 采集 / 比对命令、环境元数据、基线快照、阈值策略、CI 耗时与基线体积数据落盘；CI 接入写入 `.github/workflows/`。
 
-- [ ] **3. 全局 token 语义层桥接（P1）**
+- [x] **3. 全局 token 语义层桥接（P1）**
     - **执行范围**: 按迁移方案 §5.2 第 ① 层，为 `styles/_variables.scss`、`styles/main.scss`、`layouts/**`、`nuxt.config.ts` 的 `MomeiPreset` 建立 `--caomei-*` 语义 token 与 caomei `momei` 预设的并存桥接；派生档位统一用 `color-mix()` 表达；确定与 PrimeVue 并存的 `@layer` 顺序。
     - **非目标**: 不做消费点提前清理（87 个 components / 27 个 pages 内的 `--p-*` 与 `p-*` 保留至各批整页迁移时删除）；不重命名未迁移页面依赖的 `--p-*`；不移除 PrimeVue 预设。
     - **最小验收**: 语义层桥接后未迁移页面在三层视觉回归下**无差异**；`--caomei-*` 语义 token 可被新页面直接消费；`pnpm lint:css` + `pnpm typecheck` + `pnpm build` 通过。
+    - **已验证（2026-09-25）**: 桥接落在 `styles/main.scss` 末尾（**unlayered `html:root`**，取值方向 `--p-* → --caomei-*`，派生档位用 `color-mix()`），映射与层叠依据见迁移方案 §5.2 与回归记录 M3 节。**无差异**：`pnpm test:visual` 8/8（6 张既有基线逐像素无差异 + 2 项新增桥接级联契约，浅 / 深双主题）。**可消费性有实证**：新增 `tests/visual/caomei-token-bridge.visual.test.ts` 在真实浏览器读取**计算后**的 `--caomei-*`，断言其等于对应 `--p-*` 且**不等于 caomei-ui 基础层默认值**（非空断言）。**假阴性**：仿真「桥接回落到库默认」后该 guard 双断言稳定失败。`pnpm lint:css` / `pnpm typecheck` / `pnpm build` 全部通过。**未改 `styles/_variables.scss` 与 `layouts/**`**：桥接为 token 级、无需 SCSS 别名（避免死代码）；`layouts/**` 消费的 `--p-surface-ground`（页面底）在 caomei 侧无对应语义（caomei `bg` 实为内容面），改写会造成观感回退，故按「最小改动」保留。
     - **证据落点**: 语义映射说明 + 视觉回归无差异证据 + `@layer` 顺序记录。
 
 - [ ] **4. B2 试点页迁移（P1）**
