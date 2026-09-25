@@ -91,8 +91,10 @@
 - **专项设计事实源**: [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；[PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（批次编排、消费路径、视觉验证回归与验收口径）。
 - **状态**: 进行中（方案 A 三阶段轨迹，第一阶段已归档）。
 - **最近一次上收阶段**: 第六十七阶段（接入基座 + 三层视觉验证回归基座 + 全局 token 语义层 + B2 试点页，已审计归档）。
-- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节）。
+- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.2.0` 精确锁定，升级尚未执行；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`，为下一目标基线；`keyCss` 配额已回落 70KB 并刷新基线（实测 60,684 字节，口径待复测）。
 - **下一次可切片方向**: 按迁移方案 §7 分批计划继续（B2 剩余数据页 / B3 表单与设置 / B4 展示、浮层与收尾）；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：B4 只需确认 `keyCss` 未反弹。
+- **待执行条目**: `caomei-ui` `0.2.0` → `0.3.0` 升级与基线复测——升级依赖（保持精确锁定）→ 读 `0.3.0` `BREAKING CHANGES`（已知无）→ 重跑该批视觉回归与定向测试（0.x 不承诺语义化兼容，不得静默升级）→ 重测 `keyCss` 并按需刷新 `.github/perf/bundle-baseline.json`（含下条基线口径漂移的澄清）→ 组件消费清单按 `0.3.0` 口径重数。
+- **基线口径待复测指针**: `.github/perf/bundle-baseline.json` 的「零 caomei 组件消费」表述与 B2 试点页已消费 5 个组件的事实冲突，待升级批次实测澄清。
 
 ## 周期性回归验证层
 
