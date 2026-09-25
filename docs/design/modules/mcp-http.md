@@ -155,6 +155,7 @@ MCP HTTP 的实现分为三层：
                        │
 ┌──────────────────────▼────────────────────────────────┐
 │  momei-mcp-server (packages/mcp-server/src/index.ts)   │
+│  无副作用库入口；stdio CLI 入口为 src/cli.ts           │
 │                                                        │
 │  export async function createMcpHttpServer(options) {   │
 │    const server = new McpServer({ name, version })      │
@@ -231,7 +232,7 @@ const { transport, server } = await createMcpHttpServer({
 
 相比原设计中的策略 A（导入工具注册函数），最终实现更进一步：
 
-- `momei-mcp-server` 包自身支持 **双模式**：stdio（CLI）和 HTTP（`createMcpHttpServer`）
+- `momei-mcp-server` 包自身支持 **双模式**：stdio（CLI）和 HTTP（`createMcpHttpServer`）；`src/index.ts` 为无副作用库入口（HTTP 挂载导入），`src/cli.ts` 为 stdio CLI 入口（`bin.momei-mcp` → `dist/cli.mjs`）
 - 工具注册、Server 创建、Transport 连接全部封装在包内，Nitro Plugin 只需一行调用
 - 包内的 `McpTransport` 接口被导出，供路由处理器做类型提示
 

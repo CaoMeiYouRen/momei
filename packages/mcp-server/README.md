@@ -67,13 +67,13 @@
 
 | 模式 | 传输 | 启动方式 | 适用场景 |
 |------|------|---------|---------|
-| **Stdio（默认）** | stdio | `node dist/index.mjs`（CLI） | Claude Desktop、Cursor 本地集成 |
+| **Stdio（默认）** | stdio | `node dist/cli.mjs`（CLI） | Claude Desktop、Cursor 本地集成 |
 | **HTTP（程序化）** | Streamable HTTP | 宿主应用调用 `createMcpHttpServer()` | 远程访问、云部署、主应用挂载 |
 
 #### Stdio 模式（CLI）
 
 ```bash
-MOMEI_API_KEY=your_key node dist/index.mjs
+MOMEI_API_KEY=your_key node dist/cli.mjs
 ```
 
 #### HTTP 模式（程序化调用）
@@ -102,7 +102,10 @@ pnpm install
 pnpm build
 ```
 
-构建产物入口为 `dist/index.mjs`。包含所有导出（`createMcpHttpServer`、工具注册函数、类型定义）。
+构建产物入口分为两个：
+
+- `dist/index.mjs`：库入口（无副作用），包含所有导出（`createMcpHttpServer`、工具注册函数、类型定义），可被宿主应用安全 import / inline。
+- `dist/cli.mjs`：stdio CLI 入口（对应 `bin.momei-mcp`），仅在作为可执行文件运行时才启动 MCP 服务。
 
 ### 配置
 
@@ -128,7 +131,7 @@ pnpm build
   "mcpServers": {
     "momei": {
       "command": "node",
-      "args": ["D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"],
+      "args": ["D:/Projects/typescript-projects/momei/packages/mcp-server/dist/cli.mjs"],
       "env": {
         "MOMEI_API_URL": "http://localhost:3000",
         "MOMEI_API_KEY": "your_api_key_here"
@@ -148,7 +151,7 @@ pnpm build
 4. 命令示例：
 
 ```bash
-node "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"
+node "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/cli.mjs"
 ```
 
 5. 在对应配置中添加环境变量：

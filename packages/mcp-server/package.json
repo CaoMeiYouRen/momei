@@ -4,7 +4,7 @@
   "description": "Momei MCP Server - AI automation via Model Context Protocol",
   "type": "module",
   "bin": {
-    "momei-mcp": "dist/index.mjs"
+    "momei-mcp": "dist/cli.mjs"
   },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "start": "node dist/index.mjs",
+    "start": "node dist/cli.mjs",
     "lint": "eslint src --fix --no-warn-ignored --max-warnings 5",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

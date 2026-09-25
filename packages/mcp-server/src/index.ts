@@ -1,11 +1,16 @@
-#!/usr/bin/env node
+/**
+ * momei-mcp-server 库入口（无副作用）。
+ *
+ * 本文件只导出 API（`createMcpHttpServer`、工具注册函数、配置加载等），**不含任何顶层副作用**，
+ * 可被宿主应用（如 Nuxt Nitro 插件 `server/plugins/mcp-http.ts`）安全 import / inline。
+ * stdio CLI 入口在 `src/cli.ts`，由 `package.json` 的 `bin.momei-mcp` 指向。
+ */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { registerAutomationTools } from './tools/automation.js'
 import { registerPostTools } from './tools/posts.js'
 import { registerTaxonomyTools } from './tools/taxonomy.js'
 import { registerSnippetTools } from './tools/snippets.js'
-import { loadConfig, type MomeiApiConfig } from './lib/config.js'
+import type { MomeiApiConfig } from './lib/config.js'
 
 // Re-export tool registration functions and config for external use
 export { registerPostTools } from './tools/posts.js'
@@ -103,41 +108,3 @@ export async function createMcpHttpServer(options: CreateMcpHttpServerOptions = 
     }
 }
 
-// ============================================================
-// Stdio Mode (CLI entry point)
-// ============================================================
-
-async function main() {
-    const config = loadConfig()
-
-    if (!config.apiKey) {
-        console.error('Error: MOMEI_API_KEY environment variable is required')
-        process.exit(1)
-    }
-
-    const server = new McpServer({
-        name: SERVER_NAME,
-        version: SERVER_VERSION,
-    })
-
-    // Register Tools
-    registerPostTools(server, config)
-    registerTaxonomyTools(server, config)
-    registerSnippetTools(server, config)
-    registerAutomationTools(server, config)
-
-    // Use stdio transport
-    const transport = new StdioServerTransport()
-    await server.connect(transport)
-
-    console.error(`Momei MCP Server v${SERVER_VERSION} running on stdio`)
-    console.error(`Connected to: ${config.apiUrl}`)
-    if (config.enableDangerousTools) {
-        console.error('WARNING: Dangerous tools (delete) are ENABLED.')
-    }
-}
-
-main().catch((error) => {
-    console.error('Fatal error starting MCP server:', error)
-    process.exit(1)
-})

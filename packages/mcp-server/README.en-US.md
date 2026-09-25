@@ -67,13 +67,13 @@ Title suggestions, tag recommendations, and category recommendations are synchro
 
 | Mode | Transport | How to Start | Use Case |
 |------|-----------|-------------|----------|
-| **Stdio (default)** | stdio | `node dist/index.mjs` (CLI) | Claude Desktop, Cursor local integration |
+| **Stdio (default)** | stdio | `node dist/cli.mjs` (CLI) | Claude Desktop, Cursor local integration |
 | **HTTP (programmatic)** | Streamable HTTP | Host calls `createMcpHttpServer()` | Remote access, cloud deployment, host mount |
 
 ### Stdio Mode (CLI)
 
 ```bash
-MOMEI_API_KEY=your_key node dist/index.mjs
+MOMEI_API_KEY=your_key node dist/cli.mjs
 ```
 
 ### HTTP Mode (Programmatic)
@@ -102,7 +102,10 @@ pnpm install
 pnpm build
 ```
 
-The built entry file is `dist/index.mjs`. It includes all exports (`createMcpHttpServer`, tool registration functions, type definitions).
+There are two built entries:
+
+- `dist/index.mjs`: library entry (side-effect free), exporting everything (`createMcpHttpServer`, tool registration functions, type definitions). Safe for hosts to import or inline.
+- `dist/cli.mjs`: stdio CLI entry (`bin.momei-mcp`); starts the MCP server only when executed as a binary.
 
 ## Configuration
 
@@ -128,7 +131,7 @@ Example:
   "mcpServers": {
     "momei": {
       "command": "node",
-      "args": ["D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"],
+      "args": ["D:/Projects/typescript-projects/momei/packages/mcp-server/dist/cli.mjs"],
       "env": {
         "MOMEI_API_URL": "http://localhost:3000",
         "MOMEI_API_KEY": "your_api_key_here"
@@ -148,7 +151,7 @@ Replace the path with the actual absolute path on your machine.
 4. Example command:
 
 ```bash
-node "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"
+node "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/cli.mjs"
 ```
 
 5. Add these environment variables to the server config:

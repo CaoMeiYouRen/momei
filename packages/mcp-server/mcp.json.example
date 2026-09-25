@@ -3,7 +3,7 @@
     "momei": {
       "command": "node",
       "args": [
-        "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/index.mjs"
+        "D:/Projects/typescript-projects/momei/packages/mcp-server/dist/cli.mjs"
       ],
       "env": {
         "MOMEI_API_URL": "http://localhost:3000",
