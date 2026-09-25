@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-09-25
 translation_tier: summary-sync
 ---
 
@@ -173,6 +173,20 @@ Periodic regression should prefer the fixed entries `pnpm regression:weekly`, `p
 
 Nuxt major upgrades may change the auto-import mechanism (e.g., `$fetch` moved from a global variable to compile-time module injection), breaking traditional mocks such as `vi.stubGlobal`. Troubleshooting steps and the fix are documented in the [Nuxt 4.5.0 $fetch fix report](../../../design/governance/2026-07-23-nuxt-450-fetch-mock.md).
 
-## 8. Fix Workflow
+## 8. Visual Regression & Test-Env Pitfalls
+
+Summary of the pitfalls distilled from the migration-period visual regression project (`playwright.visual.config.ts` + `tests/visual/`):
+
+- `maxDiffPixels` and `maxDiffPixelRatio` are combined with `Math.min`; when an absolute cap is smaller it wins and the ratio option becomes a misleading knob.
+- Failure artifacts (`-actual.png` / `-diff.png`) land in `outputDir` (`test-results/`), not in the snapshot directory.
+- A repo-wide `*.png` ignore rule also blocks baseline snapshots; verify with `git check-ignore -q` (check the exit code). This repo whitelists `tests/visual/__screenshots__/**/*.png`.
+- Vitest `include` collects `./**/*.spec.ts` and `./**/*.test.ts`; Playwright-only dirs must be added to `vitest.shared.ts` `exclude`.
+- `data-visual-mask` changes baseline pixels; runtime-seeded values (`new Date()`) must mask the whole cell.
+- Computed custom properties can act as a cascade-contract guard (`getComputedStyle(...).getPropertyValue('--x')` compares computed strings such as `#fff` vs `#ffffff`).
+- Pixel diffs can be attributed per region via a browser canvas (`Image` + `drawImage` + `getImageData`) aligned to element boxes.
+- Vue test stubs must read `props` inside the render function; `flushPromises` from `@vue/test-utils` needs two calls when the request starts in `onMounted`.
+- Falsify E2E flakiness by reproducing on the HEAD build (`git stash` → build → run → `git stash pop`); capture pre-migration baselines the same way.
+
+## 9. Fix Workflow
 
 Fix tasks follow the "minimal reproduction test → targeted subset → batch fix → CI verdict" workflow, see [Fix workflow supplement](../../../design/governance/2026-07-23-nuxt-450-fetch-mock.md#修复工作流).

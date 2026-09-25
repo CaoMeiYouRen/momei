@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-09-25
 translation_tier: summary-sync
 ---
 
@@ -254,6 +254,10 @@ Before formally evaluating a new phase, run a workspace cleanliness check to ens
 #### Minimal Phase Archive Checklist
 
 Confirm each item per archive: core items complete or explicitly converted to non-blocking observations; `todo.md` cleaned; `todo-archive.md` archive block appended; `roadmap.md` status and conclusion synced; required `docs/i18n/*/plan/roadmap.md` updated; regression records / Review Gate evidence traceable; `lint-md`, `docs:check:i18n`, and minimal quality gates confirmed; `Pass / Reject` conclusion formed.
+
+### 4.5.1 Backlog dual-track rule update
+
+Closed long-term mainlines must be removed from `docs/plan/backlog.md` entirely (no archive summaries or historical narration). The long-term mainline section keeps only threads that can be sliced across phases repeatedly. After archiving, `todo.md` and `backlog.md` must keep zero residual content for completed or archived items.
 
 ## 5. Cross-Module Change Evaluation
 

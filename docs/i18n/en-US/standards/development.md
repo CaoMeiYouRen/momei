@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-09-25
 ---
 
 # Momei Development Standards
@@ -176,9 +176,25 @@ Avoid using `process.env` directly in business logic (except for `DATABASE_URL`)
 - For code changes, review must also assess whether comments are sufficient, accurate, and proportionate, with extra attention on complex logic and exported functions.
 - Stale, misleading, line-by-line, or otherwise low-value comments should be treated as review findings instead of being ignored.
 
-## 6. Code Examples
+## 6. Build & Style Pitfalls (Nuxt / Vite / Nitro / CSS)
 
-### 6.1 Vue Component Template
+Summary of the pitfalls distilled from the caomei-ui integration work:
+
+- Nuxt auto-loads `modules/**`; explicit registration in `nuxt.config.modules` causes duplicate module installation (different path forms defeat dedup).
+- `@nuxt/kit` `addImports()` registers `imports:extend`, while `nuxt.config` hooks register first — ordering-sensitive import filters must live in a later module.
+- Same-name auto-import conflicts between coexisting libraries are silent (last registration wins); isolation needs a fail-fast build guard.
+- Unlayered CSS beats any named layer (before specificity); covering unlayered third-party styles requires unlayered declarations with sufficient specificity.
+- Nitro `treeshake.moduleSideEffects` can drop top-level side effects (e.g. `pg-types` parser registration) and silently degrade type parsing; locate by grepping the build output for 0 occurrences.
+- TypeORM boolean columns: `type: Boolean` is coerced by the driver (`'f'` → `true`, unfixable downstream); `type: 'boolean'` passes driver values through and needs a `CustomColumn` normalizing transformer (the pattern used in this repo).
+- Sass interpolation `#{...}` strips quotes from font-family names; use `@use "sass:meta"` + `meta.inspect()` to keep quotes.
+- Do not validate against `.output` artifacts: Nitro caches `Content-Length`, so edited files make browsers drop the whole stylesheet; validate by changing sources and rebuilding.
+- `pnpm install` re-resolves `latest`-specifier transitive deps and creates unrelated lockfile churn; pin back and verify with `--frozen-lockfile`.
+- Verify CSS injection points and load order with `nuxt/kit` `loadNuxt(...)` + `nuxt.options.css` / `_installedModules`.
+- Governance scripts cannot import transitive deps under strict `node_modules` (e.g. `@primevue/metadata`); resolve via `node_modules/.pnpm/<pkg>@*/...` and snapshot results as in-repo JSON.
+
+## 7. Code Examples
+
+### 7.1 Vue Component Template
 
 ```vue
 <template>
@@ -222,7 +238,7 @@ defineProps<{
 </style>
 ```
 
-### 6.2 API Route Template
+### 7.2 API Route Template
 
 ```typescript
 // server/api/posts.get.ts

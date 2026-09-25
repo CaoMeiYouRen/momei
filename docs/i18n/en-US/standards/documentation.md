@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-09-25
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -195,6 +195,19 @@ Each `README.<locale>.md` mirror must include: project intro and core value prop
 - When a current-phase item hits the Design-First Gate, `roadmap.md` / `todo.md` must explicitly state "complete the design doc first, then implement".
 - All planning/standards/Markdown changes need at least one review round before commit; "docs only" is not an excuse to skip review.
 - Regression records migrate to `docs/reports/regression/`; planning docs keep only phase-related summaries and links.
+
+### 5.4 Plan & Governance Maintenance Pitfalls
+
+Summary of the pitfalls distilled from the phase-67 archiving work:
+
+- `regression-window` markers in `docs/reports/regression/current.md` must be paired (`start` + `## title` + body + `end`, marker date matching the title).
+- Editing `roadmap.md` invalidates the four `docs/i18n/*/plan/roadmap.md` mirrors; update their summaries and bump `last_sync` to the source commit date in the same change (a same-day commit does not count as stale). A pre-commit `docs:check:*` pass is not post-commit evidence.
+- Never mix measured values with gate quotas in planning docs.
+- Bundle-budget threshold changes must sync three places: the script `BUDGETS`, the baseline JSON, and `docs/standards/performance.md`.
+- Scope for "what remains in the current phase" comes only from `todo.md` / `roadmap.md`; batch tables in design docs span phases and are not phase todos.
+- Before compressing archived phase text, create the archive shard first (recover from git HEAD if needed).
+- Replacing text with a truncated `oldString` can splice duplicated sentences that lint tools cannot detect; re-read the line afterwards.
+- Before creating a "new" file, check `git log --oneline -- <path>` / `git status` to confirm the path is untracked; when rewriting existing tests, recover the original with `git show HEAD:<path>` and verify coverage item by item.
 
 ## 6. Source of Truth Convergence
 
