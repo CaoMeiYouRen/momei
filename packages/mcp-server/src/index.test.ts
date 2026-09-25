@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import manifest from '../package.json' with { type: 'json' }
 
 /**
  * CLI / 库入口拆分回归测试。
@@ -33,14 +32,13 @@ describe('momei-mcp-server 入口拆分回归', () => {
         expect(mod).not.toHaveProperty('main')
     })
 
+    /**
+     * 直接 import JSON 读取清单，不走 `fileURLToPath(import.meta.url)`：
+     * 根 vitest 配置为 `environment: 'nuxt'`，模块 URL 形如 `http://localhost/...`，
+     * `fileURLToPath` 会抛 `ERR_INVALID_URL_SCHEME`。JSON import 由打包器解析，与运行环境无关。
+     */
     it('package.json 的 bin/start 应指向 CLI 产物 dist/cli.mjs', () => {
-        const pkgPath = fileURLToPath(new URL('../package.json', import.meta.url))
-        const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
-            bin: Record<string, string>
-            scripts: Record<string, string>
-        }
-
-        expect(pkg.bin['momei-mcp']).toBe('dist/cli.mjs')
-        expect(pkg.scripts.start).toBe('node dist/cli.mjs')
+        expect(manifest.bin['momei-mcp']).toBe('dist/cli.mjs')
+        expect(manifest.scripts.start).toBe('node dist/cli.mjs')
     })
 })
