@@ -1,48 +1,48 @@
 {
-    "model": "xiaomi/mimo-v2.5-pro",
+    "model": "xiaomi/mimo-v2.6-pro",
     "agent": {
         "full-stack-master": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "primary",
             "variant": "high"
         },
         "product-manager": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "primary",
             "variant": "medium"
         },
         "code-auditor": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "high"
         },
         "qa-assistant": {
-            "model": "xiaomi/mimo-v2.5",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "low"
         },
         "ui-validator": {
-            "model": "xiaomi/mimo-v2.5",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "low"
         },
         "frontend-developer": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "medium"
         },
         "backend-developer": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "medium"
         },
         "test-engineer": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "medium"
         },
         "documentation-specialist": {
-            "model": "xiaomi/mimo-v2.5-pro",
+            "model": "xiaomi/mimo-v2.6-pro",
             "mode": "subagent",
             "variant": "low"
         }
