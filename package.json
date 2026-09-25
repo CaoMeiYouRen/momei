@@ -91,6 +91,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1136.0",
     "@axiomhq/winston": "^2.0.0",
     "@better-auth/sso": "^1.6.26",
+    "@lucide/vue": "^1.45.0",
     "@mdi/font": "^7.4.47",
     "@microsoft/clarity": "^1.0.2",
     "@modelcontextprotocol/sdk": "^1.30.0",

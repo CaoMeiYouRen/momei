@@ -230,6 +230,13 @@ pnpm governance:count:primevue-usage
 - **切换粒度**：某路由涉及的组件全部迁移完成并通过该批回归后，才从白名单移除；不做半路由切换。
 - **阻断项**：任一路由同时出现两套组件，须在对应批次的「文件 → 改动点」清单中体现切换时点。
 
+**批次在册范围与共享壳例外（2026-09-25 裁定，B2 试点落地）**：落地时确认「同一路由内组件来源必须唯一」无法按字面执行——`app.vue` 全局渲染 PrimeVue `Toast` / `ConfirmDialog`（任何路由都含），浮层类（Dialog / Drawer / Popover / DropdownMenu）显式延后到第六十九阶段，且 B2 候选页的 render tree 普遍引用跨路由共享组件（`ConfirmDeleteDialog`、`AdminContentLanguageSwitcher`、`AppAvatar` 等）。故「无混用」按**批次在册组件族**判定：
+
+- **在册（B2）**：DataTable / Column（列插槽·选择·排序·lazy·分页）、Paginator、Tag、Button、InputText、Select、Badge、ToggleSwitch、IconField / InputIcon、Skeleton、Avatar。
+- **显式豁免**：全局壳 `Toast` / `ConfirmDialog`；延后批次的浮层（含 `ConfirmDeleteDialog`）；`v-tooltip` 指令（随浮层批次处理）。
+- **跨路由共享组件**：不直接改写（否则未迁移路由会立刻出现「共享壳 caomei + 页面 PrimeVue」混用），改为**过渡组件 + 路由选择**——新增 `components/admin/content-language-switcher-v2.vue`，由 `AdminPageHeader` 经 `lib/ui-library.ts` 的路由 → 组件来源单一事实源选择实现，待全站迁完后再回收统一。
+- **守卫**：`tests/modules/ui-library-route-migration-guard.test.ts` 遍历已登记前缀，断言其页面文件不残留在册族 PrimeVue 组件、且至少使用一个 caomei-ui 组件；`CAOMEI_UI_ROUTE_PREFIXES` 由此获得首个消费者（此前为纯登记）。
+
 ### 5.6 消费路径与版本锁定
 
 - **默认消费路径**：npm 常规依赖 `caomei-ui@0.2.0`，CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
@@ -350,6 +357,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 **开工顺序（2026-09-19 更新）**：库侧 B0a 资产（已交付）→ 库侧 B1 补齐（已交付，含 M5）→ **接入基座（momei 侧）** → **B0b 视觉验证回归基座** → **全局 token 语义层** → B2 试点页 → B2 全量 → B3 → B4。
 
 > **momei 侧新增批次说明**：「接入基座」与「全局 token 语义层」两项在 caomei-ui 交接计划的既有批次表（B0b / B2 / B3 / B4）中没有编号，属本文档按开工实际依赖补充的 momei 侧执行面，不改变库侧既定批次编号。
+
+**B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../reports/regression/current.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
 
 
 ## 8. 验收与质量门

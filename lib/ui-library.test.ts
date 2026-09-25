@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CAOMEI_UI_ROUTE_PREFIXES, resolveUiLibraryForRoute } from './ui-library'
+import { CAOMEI_UI_ROUTE_PREFIXES, resolveUiLibraryForRoute, resolveUiLibraryForRoutePath } from './ui-library'
 
 describe('resolveUiLibraryForRoute', () => {
     it('未命中任何登记前缀时回退为 PrimeVue', () => {
@@ -56,5 +56,27 @@ describe('resolveUiLibraryForRoute', () => {
         expect(resolveUiLibraryForRoute('/admin/../posts', migrated)).toBe('primevue')
         expect(resolveUiLibraryForRoute('/ADMIN/POSTS', migrated)).toBe('primevue')
         expect(resolveUiLibraryForRoute('/admin%2Fposts', migrated)).toBe('primevue')
+    })
+})
+
+describe('resolveUiLibraryForRoutePath', () => {
+    it('登记项命中（含子路由）', () => {
+        expect(CAOMEI_UI_ROUTE_PREFIXES).toContain('/admin/comments')
+        expect(resolveUiLibraryForRoutePath('/admin/comments')).toBe('caomei-ui')
+    })
+
+    it('剥离已知 locale 前缀后再匹配', () => {
+        expect(resolveUiLibraryForRoutePath('/en-US/admin/comments')).toBe('caomei-ui')
+        expect(resolveUiLibraryForRoutePath('/zh-CN/admin/comments')).toBe('caomei-ui')
+        expect(resolveUiLibraryForRoutePath('/KO-kr/admin/comments')).toBe('caomei-ui')
+    })
+
+    it('未登记的 locale 前缀路由仍回退 PrimeVue', () => {
+        expect(resolveUiLibraryForRoutePath('/en-US/admin/posts')).toBe('primevue')
+        expect(resolveUiLibraryForRoutePath('/admin/posts')).toBe('primevue')
+    })
+
+    it('不把两字母业务段误判为 locale 前缀', () => {
+        expect(resolveUiLibraryForRoutePath('/ai/admin/comments')).toBe('primevue')
     })
 })

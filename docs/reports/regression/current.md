@@ -19,6 +19,78 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase67-m4-pilot-comments:第六十七阶段-M4:2026-09-25 -->
+## 2026-09-25 第六十七阶段 M4 B2 试点页迁移（PrimeVue → caomei-ui）
+
+### 范围
+
+- 试点页 `/admin/comments`（管理端评论列表）按**路由整体切换**到 caomei-ui，并登记进 `CAOMEI_UI_ROUTE_PREFIXES`（`lib/ui-library.ts`）。覆盖 DataTable 列插槽 / 分页 / Tag / Button / InputText / Select 与共享头部择库。
+- 共享壳过渡策略：新增 `components/admin/content-language-switcher-v2.vue`（caomei `Select` 版），由 `AdminPageHeader` 经路由 → 组件来源单一事实源选择，避免未迁移路由出现「共享壳 caomei + 页面 PrimeVue」；`ConfirmDeleteDialog` / 全局 `Toast` / `ConfirmDialog` / `v-tooltip` 按 §5.5 显式豁免（浮层留第六十九阶段）。
+- `@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标；§5.6 / 1b 已登记该前置）。
+- 新增「在册组件族零残留」守卫 `tests/modules/ui-library-route-migration-guard.test.ts`；为试点页补截图基线（迁移前采集、归因后更新）与单元层用例。
+
+### 「文件 → 改动点」清单
+
+| 文件 | 改动点 | 依据 |
+| :--- | :--- | :--- |
+| `pages/admin/comments/index.vue` | `IconField`+`InputIcon`+`InputText` → `CaomeiInput`（`#prefix` + lucide `Search`）；`Select` → `CaomeiSelect`（`option-label/value`、`@change`→`@update:model-value`）；`DataTable`+`Column` → `CaomeiDataTable`+`columns`（`#body`→`#cell-{key}`、列 `class` 宽度→`width`、`text-align`→`align`）；`Tag severity`→`tone`；`Button text/rounded/severity/icon`→`variant="ghost"`/`rounded`/`tone`/`#icon`+`label`；`@page` 由 0 基偏移改 1 基页码；样式 `--p-*`→`--caomei-*` | 迁移方案 §6.1/§6.2/§6.3 |
+| `pages/admin/comments/index.vue` | 「全部状态」选项值 `null` → 哨兵 `__all__`（caomei `Select` 的 `optionValue` 非 string/number 不渲染），边界还原为 `null` | caomei Select 文档「对象选项」 |
+| `pages/admin/comments/index.vue` | 内容列限宽由 scoped `class` 改为列定义 `bodyStyle`（caomei 内联到单元格）；scoped 类不会命中子组件渲染的 `<td>`，避免留下死规则 | caomei DataTable 列定义 |
+| `pages/admin/comments/index.vue` | 图标按钮：caomei Button 无「图标按钮」形态，按 `--caomei-button-padding-x: 0` + 方形宽度收敛（文档化 token 定制路径） | §5.7 约束 1 |
+| `components/admin-page-header.vue` | 语言切换器按 `resolveUiLibraryForRoutePath(route.path)` 择库（`<component :is>`），默认仍 PrimeVue | §5.5 共享壳例外 |
+| `components/admin/content-language-switcher-v2.vue` | 新增过渡组件（哨兵映射，保持 `null` = 全部语言 的共享语义） | 本批裁定 |
+| `lib/ui-library.ts` | 登记 `/admin/comments`；新增 `resolveUiLibraryForRoutePath`（剥离 locale 前缀，`prefix_and_default` 下 `/en-US/...` 亦可命中） | §5.5 |
+| `lib/ui-library.test.ts` | 新增 `resolveUiLibraryForRoutePath` 用例（登记项命中 / 三种 locale 前缀剥离 / 未登记回退 / 两字母业务段不误判） | §5.5 |
+| `tests/e2e/admin.e2e.test.ts` | `/admin/comments` 就绪选择器由 `.p-datatable` 改为 `.caomei-data-table`（保留 `.admin-page-container` 兜底） | 层 ② 改写 |
+| `tests/visual/admin-comments-list.visual.test.ts` + 基线 | 新增试点页浅 / 深 2 张基线（迁移前采集，逐项归因后按迁移后状态更新，见「未覆盖边界」） | §8.2 层 ③ |
+| `pages/admin/comments/index.test.ts` | 改写为 caomei 版组件栈的 stub：保留并强化原有 6 项覆盖（页头契约 / 表格渲染 / 筛选控件 / 挂载即加载 / 空态 / 请求失败记录错误），新增列定义与列插槽、tone 映射、动作集合、1 基分页、筛选哨兵往返、PUT 后就地更新 | §8.2 层 ① |
+| `components/admin/content-language-switcher-v2.test.ts` | 新增过渡组件契约（哨兵不泄漏到共享状态） | §8.2 层 ① |
+| `tests/modules/ui-library-route-migration-guard.test.ts` | 新增守卫（已登记路由不得残留在册族 PrimeVue 组件且至少含一个 caomei 组件） | 本批裁定 |
+| `package.json` / `pnpm-lock.yaml` | 新增 `@lucide/vue@^1.45.0`（解析 1.47.0，与 caomei-ui 依赖同版本） | §5.6 |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm test` = **532 文件（531 通过 / 1 跳过）· 4494 用例通过 / 1 跳过（4495）**；本批新增/改写用例全部通过。
+- **层 ②（E2E 功能）**：`tests/e2e/admin.e2e.test.ts`（含 `/admin/comments` 就绪断言，已改用 caomei 选择器）chromium **7/7** 通过；`mobile-critical` 两项目全绿。`pnpm test:e2e:critical` 中 `auth-session-governance.e2e.test.ts` 出现 firefox/webkit 失败，形态为 `page.goto('/settings')` **超时**（与 M2 登记的已知 flaky 一致）——**已用 HEAD 构建（`997313c5`，本批改动全部 `git stash`）做对照复现**：firefox 单独运行同样 `1 failed / 4 passed / 1 skipped`（同一用例、同一超时）；迁移后同 spec 在 chromium 单独 / webkit 单独均 **6/6 通过**，且 `pnpm test:e2e:critical` 曾整体通过一次。判定为**既有 flaky，非本批回归**。
+- **层 ③（截图识别）**：`pnpm test:visual` **10/10**（试点页浅/深 + 既有 6 张 + 桥接契约 2 项）；既有页面（posts / settings / 浮层）逐像素无差异。
+- `pnpm lint:css` / `pnpm typecheck` / `pnpm build` / `pnpm test:perf:budget`：通过（`keyCss` 59.47KB / 70KB，未因本批上升）。
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：迁移前基线在本批改动前用 `git stash` 回到 `997313c5` 构建后采集，迁移后用同环境（chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画）截图，再以像素级「行内容跨度」与差异区域定位做**人工逐项归因**（`toHaveScreenshot` 阈值 `maxDiffPixels 200` 不参与该对照，故差异总量高于阈值属预期）；归因完成后基线已按迁移后状态更新（见「未覆盖边界」）。差异总量 0.6%~1.2%：
+
+| 区域 | 迁移前 | 迁移后 | 归因 |
+| :--- | :--- | :--- | :--- |
+| 头部语言切换器（y80-108，x152-301） | PrimeVue `Select` | caomei `Select`（V2 过渡组件） | **有意**（共享壳择库，用户 2026-09-25 裁定 (a)） |
+| 筛选行（y152-200） | 搜索框 + 状态选择器（左对齐） | 同区间 | **组件替换**；几何已刻意对齐——首版误用 `flex` 撑满 + 把宽度 `class` 置于 `<CaomeiSelect>`（caomei 的 `class` 落触发器）致输入 ~990px / 选择器 ~305px，已改为「包装元素约束 + 输入 260px」 |
+| 表头列位置（y212-240） | 表头文本 x48/259/472/682/894/1211 | x43/144/365/596/828/1366 | **有意**：迁移前 SCSS 声明的列宽未被 PrimeVue 自动布局生效；caomei 按列定义渲染（status 100px / author 220px / actions 右对齐），方向与作者意图一致（属组件语义差异，非本批新引入） |
+| 空态 + 表格样式（y216-256 / y312-336） | PrimeVue DataTable 空态 | caomei DataTable 空态（`bg-elevated` 系表头 / 边框 / 字体） | **组件替换**（§6.3 有意差异范围内） |
+| 分页器（y408-448） | PrimeVue 分页器居中 | caomei 分页器右对齐 | **组件替换**；caomei 分页器对齐无 token 钩子，登记为后续批次可选项（如需居中需选择器级覆盖，§5.7 约束 2） |
+
+> 口径说明：上表「跨度」为**行内容可见跨度**（含控件边框与文本，不含外部留白），故与元素盒模型宽度不等（如筛选行内容跨度 56-301 对应盒宽 260px）；迁移前几行的判断依据是迁移前采集记录与组件语义（基线已更新，不能从仓库复现），标注为推断而非可复核实测。
+
+### 试点结论（链路可行性与耗时画像）
+
+- **链路可行**：`接入 → token → 图标 → 组件 → 测试改写 → 三层回归` 全链路闭合；`--caomei-*` 桥接（M3）在真实组件上生效，无需为本页追加任何样式 token。
+- **耗时画像（本批实测）**：范围裁定与 API/差异对照 ≈ 1.5h（含 20 个候选页 × 共享组件扫描）；实现 ≈ 1.5h；全量构建 ≈ 8 次（含迁移前基线采集 1 次、HEAD 对照复现 1 次；单次约 4–6 min）；视觉全量 1 轮约 1.5–2.0 min；全量单测 156s；E2E critical 约 4–6 min（含已知 flaky 复跑与 HEAD 对照）。
+- **发现的阻塞与修正建议（供后续批次）**：
+    1. **共享壳是主线成本**：`AdminContentLanguageSwitcher` / `ConfirmDeleteDialog` / `AppAvatar` 等跨路由共享组件决定「路由内无双库混用」能否成立；建议 B2 全量前先完成共享壳的**过渡组件化清单**（本批已为语言切换器打样），否则每页都要处理同类冲突。
+    2. **`optionValue` 不接受 `null`** 是高频坑（「全部 / 不限」选项普遍以 `null` 表达），建议后续批次统一采用「哨兵 + 边界还原」写法并抽公共常量。
+    3. **`class` 落点在 caomei 组件上不一致**（Button/Input 落根元素；Select 落触发器，宽度需约束字段外层），建议在迁移写法里固化「Select 宽度用包装元素」规则。
+    4. **无「图标按钮」形态**：表格行内动作按钮需按 `--caomei-button-padding-x` 收敛，建议评估是否在库侧提供 `iconOnly` 档位（属库侧变更，走 caomei-ui 流程）。
+    5. **分页器对齐 / 列宽生效差异**需在各页「文件 → 改动点」清单中显式登记，避免被当作回归。
+
+### 未覆盖边界
+
+- TEST_MODE 未播种评论数据，截图基线为**空态**渲染；表格行级结构由单元层用例承担（列插槽 / tone / 动作集合 / 分页 / 筛选映射）。
+- **截图基线 provenance**：仓库内 `tests/visual/__screenshots__/admin-comments-list.visual.test.ts/` 的两张 PNG 是**逐项归因后按迁移后状态更新**的结果（`test:visual:update`）；迁移前对照图仅作一次性本地记录、不随仓库保存，因此「迁移前基线」对照无法从仓库复现，归因表属文本记录（推断已显式标注）。
+- 列排序、行选择在本页无用量（未覆盖）；`useToast` / `useConfirm` 本页未使用（B3 覆盖）。
+- 共享壳 `ConfirmDeleteDialog` 仍为 PrimeVue（豁免）；`v-tooltip` 仍为 PrimeVue 指令（豁免，随浮层批次处理）。
+- **包体归因**：`admin-page-header.vue` 静态导入 V1 + V2，使每个 admin 页的 `admin-page-header` chunk 含 caomei `Select` 组件样式（约 6KB，仅 admin 域，未进入 `entry` / 公共页）；`keyCss` 预算未受影响（59.47KB / 70KB）。后续批次可评估 V2 懒加载或共享壳整体回收。
+- 未在 CI 实跑（本地无 CI 环境）；`visual` job 仍为 `continue-on-error`。
+
+<!-- regression-window:end:phase67-m4-pilot-comments:第六十七阶段-M4:2026-09-25 -->
+
 <!-- regression-window:start:phase67-m3-token-bridge:第六十七阶段-M3:2026-09-25 -->
 ## 2026-09-25 第六十七阶段 M3 全局 token 语义层桥接（PrimeVue → caomei-ui）
 

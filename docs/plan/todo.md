@@ -48,10 +48,11 @@
     - **已验证（2026-09-25）**: 桥接落在 `styles/main.scss` 末尾（**unlayered `html:root`**，取值方向 `--p-* → --caomei-*`，派生档位用 `color-mix()`），映射与层叠依据见迁移方案 §5.2 与回归记录 M3 节。**无差异**：`pnpm test:visual` 8/8（6 张既有基线逐像素无差异 + 2 项新增桥接级联契约，浅 / 深双主题）。**可消费性有实证**：新增 `tests/visual/caomei-token-bridge.visual.test.ts` 在真实浏览器读取**计算后**的 `--caomei-*`，断言其等于对应 `--p-*` 且**不等于 caomei-ui 基础层默认值**（非空断言）。**假阴性**：仿真「桥接回落到库默认」后该 guard 双断言稳定失败。`pnpm lint:css` / `pnpm typecheck` / `pnpm build` 全部通过。**未改 `styles/_variables.scss` 与 `layouts/**`**：桥接为 token 级、无需 SCSS 别名（避免死代码）；`layouts/**` 消费的 `--p-surface-ground`（页面底）在 caomei 侧无对应语义（caomei `bg` 实为内容面），改写会造成观感回退，故按「最小改动」保留。
     - **证据落点**: 语义映射说明 + 视觉回归无差异证据 + `@layer` 顺序记录。
 
-- [ ] **4. B2 试点页迁移（P1）**
+- [x] **4. B2 试点页迁移（P1）**
     - **执行范围**: 从 B2 数据类页面范围中选取 1-2 个试点页（优先管理端主路径，覆盖 DataTable 列插槽 / 分页 / 选择 / Tag / Button / InputText 等高频组件），按**路由整体切换**完成迁移，含该路由涉及的图标替换、`useToast` / `useConfirm` 调用改写（如涉及）、相关测试与 mock 改写。产出试点结论：链路可行性、实际耗时画像、发现的阻塞与后续批次修正建议。
     - **非目标**: 不迁移试点页以外的任何路由；不处理浮层类（Dialog / Drawer / Popover / DropdownMenu，留第六十九阶段）；不做图标全量替换；不卸载 PrimeVue。
     - **最小验收**: 试点页在浅色 / 深色主题下三层视觉回归通过（差异逐项归因，不属于 16 条有意差异者不得静默出现）；该路由从白名单切换到 caomei-ui 且路由内无混用；相关定向测试与 mock 改写后通过；`pnpm typecheck` + `pnpm lint` 通过。
+    - **已验证（2026-09-25）**: 试点页定为 `/admin/comments` 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。**三层回归**：层 ① `pnpm test` 532 文件 / 4494 用例通过（含保留并强化原有用例：页头契约、表格、筛选、加载、空态、请求失败）；层 ② `tests/e2e/admin.e2e.test.ts`（已改用 caomei 选择器）chromium 7/7 + `mobile-critical` 两项目全绿；层 ③ `pnpm test:visual` 10/10（试点页浅/深 + 既有 6 张 + 桥接契约 2 项，既有页面逐像素无差异）。`pnpm lint:css` / `typecheck` / `build` / `test:perf:budget` 通过。**「无混用」判定口径经裁定收窄为「批次在册组件族」**（全局壳 / 延后浮层 / 跨路由共享壳显式豁免，见迁移方案 §5.5），并由新增守卫 `tests/modules/ui-library-route-migration-guard.test.ts` 强制（该守卫同时让白名单首次具备可验证语义）。共享 `AdminContentLanguageSwitcher` 以过渡组件 `…-v2.vue` + `AdminPageHeader` 路由择库处理，避免影响未迁移路由。**E2E 已知 flaky**：`auth-session-governance` 的 firefox `/settings` 导航超时已用 HEAD 构建（`997313c5`）对照复现，判定为既有 flaky、非本批回归。**视觉差异逐项归因**、**耗时画像**与**阻塞项/修正建议**见 [回归记录](../reports/regression/current.md) M4 节；顺带闭合 `@lucide/vue` 直接依赖前置。
     - **证据落点**: 「文件 → 改动点 → 依据指针」清单；试点结论（含耗时画像与阻塞项）；视觉回归记录。
 
 **回滚边界**:

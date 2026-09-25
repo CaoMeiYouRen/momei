@@ -19,8 +19,37 @@ export type UiLibrarySource = 'primevue' | 'caomei-ui'
  * 迁移期初始为空数组；每完成一个路由的整体迁移后在此登记（批次划分见
  * `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` 的分批执行计划章节）。
  * 登记项使用路由前缀语义：登记 `/admin/posts` 表示该路由及其子路由已迁移。
+ *
+ * 在册组件族（本批）范围：DataTable / Column（列插槽·选择·排序·lazy·分页）、Paginator、Tag、
+ * Button、InputText、Select、Badge、ToggleSwitch、IconField / InputIcon、Skeleton、Avatar。
+ * 显式豁免：全局壳 `Toast` / `ConfirmDialog`、延后批次的浮层（Dialog / Drawer / Popover /
+ * DropdownMenu，含 `ConfirmDeleteDialog`）、跨路由共享壳与 `v-tooltip` 指令。
  */
-export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = []
+export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
+    '/admin/comments',
+]
+
+import { APP_LOCALE_CODES } from '@/i18n/config/locale-registry'
+
+/**
+ * 剥离 `route.path` 上可能存在的 locale 前缀（本项目 i18n `strategy: 'prefix_and_default'`，
+ * 非默认语言的实际路径形如 `/en-US/admin/comments`）。
+ *
+ * 只剥离**已知 locale 码**的首段，避免把两字母业务段（如 `/ai`）误判为语言前缀。
+ */
+function stripLocalePrefix(routePath: string): string {
+    const withLeadingSlash = routePath.startsWith('/') ? routePath : `/${routePath}`
+    const [firstSegment = ''] = withLeadingSlash.slice(1).split('/', 1)
+    const isLocalePrefix = APP_LOCALE_CODES.some((code) => code.toLowerCase() === firstSegment.toLowerCase())
+
+    if (!isLocalePrefix) {
+        return withLeadingSlash
+    }
+
+    const stripped = withLeadingSlash.slice(1 + firstSegment.length)
+
+    return stripped === '' ? '/' : stripped
+}
 
 /**
  * 归一化路由路径：补齐前导 `/`、去掉尾部 `/`，根路由统一表示为 `/`。
@@ -61,4 +90,17 @@ export function resolveUiLibraryForRoute(
     })
 
     return isMigrated ? 'caomei-ui' : 'primevue'
+}
+
+/**
+ * 面向 `useRoute().path` 的便捷入口：先剥离 locale 前缀再解析组件库来源。
+ *
+ * 组件内（如 `AdminPageHeader`）应使用本函数，避免各处重复实现 locale 前缀剥离；
+ * 纯路径判断场景（已是业务路径）可继续直接用 `resolveUiLibraryForRoute`。
+ */
+export function resolveUiLibraryForRoutePath(
+    routePath: string,
+    migratedPrefixes: readonly string[] = CAOMEI_UI_ROUTE_PREFIXES,
+): UiLibrarySource {
+    return resolveUiLibraryForRoute(stripLocalePrefix(routePath), migratedPrefixes)
 }
