@@ -405,6 +405,12 @@
 - **当前结论**:
     - 短期内不规划新增更多语言支持，继续优先保障现有语言链路稳定性、翻译质量与性能基线。
     - 若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估，再进入正式阶段规划。
+8. **js-yaml 升级到 5.x（依赖现代化，候选）**
+- **背景**: `js-yaml@5.4.2` 已是 npm `latest`（4.x 标记 `v4-legacy`，无安全更新预期）；但 `pnpm-workspace.yaml` 存在裸名 override `js-yaml: ^4.3.2`（安全升级引入），长期压制 dependabot 对 `package.json` 的 `^5.4.2` bump，造成声明与解析不一致（2026-09-24 已回退声明至 `^4.3.2`）。
+- **不可直接升级的实测依据（2026-09-24）**: 把 override 改到 `^5.4.2` 后 `pnpm run security:validate-overrides` 抛 `SyntaxError: The requested module 'js-yaml' does not provide an export named 'default'`——js-yaml 5 的 ESM 构建不再提供 default 导出，而仓库有 8 处 `import yaml from 'js-yaml'` 默认导入（3 个治理脚本 + `server/services/post-export.ts` + `packages/cli/src/{parser,post-formatter,hugo-parser}.ts` + `composables/use-post-editor-io.ts`）。
+- **最小范围**: ① 8 处改为命名导入（`load` / `dump`）并核对 API 兼容（`packages/cli/src/parser.ts` 有 js-yaml v4 移除 `safeLoad` 的历史包袱，hexo frontmatter 需重点回归）→ ② CLI / server / composable 定向测试 → ③ 评估裸名 override 是否改为定向 override（避免强制声明 `^4` 的传递消费者越界升 5）→ ④ 更新 override 并跑 `security:validate-overrides`。
+- **非目标**: 不连带其他依赖升级；不改动 frontmatter 兼容策略。
+- **上收前置**: 定 override 归属（裸名 vs 定向）并列出 js-yaml 5 的 API 差异清单。
 ### 2026-06 调研发现的新增候选功能
 > **核实说明**：首轮调研误将已实现的邮件/订阅/评论系统列为缺口。第二轮基于 CHANGELOG、源码审计、模块索引重新核实后，确认墨梅在这些领域已非常成熟。以下候选聚焦于**核实后确认的真实盲区**。
 > **已上收并移除项**：AI 内容审计（Phase 42）、内容日历（Phase 42）、AI 内容多格式复用（Phase 43）、Blogroll 友链 RSS 聚合（Phase 44）、隐私优先自托管分析集成（Phase 45-46）、AI 编辑增强改写+审查（Phase 59）、近期热门文章列表（Phase 59）、AI 续写（Phase 60）、Hugo 格式支持（Phase 60）、reactive→ref Step 1（Phase 60）、Zod Schema 复用首批（Phase 60）、AI 编辑视角/读者视角检查（Phase 62）、WordPressParser（Phase 62）已交付并从候选池移除。编辑器工具栏 Phase B 风格扩展（Phase 66）已交付，候选 #14 仅剩 Phase C 保留。
