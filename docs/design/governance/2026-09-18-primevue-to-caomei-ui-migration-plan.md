@@ -237,6 +237,23 @@ pnpm governance:count:primevue-usage
 - **跨路由共享组件**：不直接改写（否则未迁移路由会立刻出现「共享壳 caomei + 页面 PrimeVue」混用），改为**过渡组件 + 路由选择**——新增 `components/admin/content-language-switcher-v2.vue`，由 `AdminPageHeader` 经 `lib/ui-library.ts` 的路由 → 组件来源单一事实源选择实现，待全站迁完后再回收统一。
 - **守卫**：`tests/modules/ui-library-route-migration-guard.test.ts` 遍历已登记前缀，断言其页面文件不残留在册族 PrimeVue 组件、且至少使用一个 caomei-ui 组件；`CAOMEI_UI_ROUTE_PREFIXES` 由此获得首个消费者（此前为纯登记）。
 
+**共享壳过渡组件替换清单（2026-09-25 扫描 B2 全部目标 + 共享组件依赖后产出）**：
+
+| 类别 | 组件 | PrimeVue 依赖 | 消费者 | 处置 |
+| :--- | :--- | :--- | :--- | :--- |
+| 无需处理 | `AdminPageHeader` / `AdminListShell` / `AdminTableEmptyState` / `useDeleteDialogState` | 无 | 多路由 | 已是 PrimeVue-free（`AdminPageHeader` 已完成路由择库） |
+| 已完成 | `AdminContentLanguageSwitcher` → `…-v2.vue` | `Select` | 共享头部 | M4 已落地（路由择库） |
+| **待新增过渡组件** | `AppAvatar` → `AppAvatarV2` | `Avatar` | B2：users / subscribers；非 B2：`pages/posts/[id]`、`comment-item`、`settings-profile` | 过渡组件 + 组件内按路由择库（避免公开页头像被动改变） |
+| **待新增过渡组件** | `AppUploader` → `AppUploaderV2` | `InputGroup` / `InputText` / `Button` | B2：friend-links；非 B2：`friend-links`（公开页）、`general-settings`、`post-editor-media-settings`、`commercial-link-dialog` | 同上 |
+| 显式豁免 | `ConfirmDeleteDialog` | `Dialog` / `Button` | 8 个 admin 列表页 | 浮层类，随第六十九阶段 |
+| 显式豁免 | 页面内 `Dialog` / `Drawer` / `ConfirmDialog` / `Popover` / `useConfirm` / `v-tooltip` | 多种 | 各页 | 浮层/指令类，随第六十九阶段 |
+| 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡） |
+| 跨路由共享（延后） | `components/admin/posts/{post-audit-badge,post-audit-dialog,publish-push-dialog}.vue` | `Tag` / `Image` / `Dialog` / `ProgressBar` / `RadioButton` / `DatePicker` / `Button` | B2：posts 列表；非 B2：`/admin/posts/[id]` | 与 `/admin/posts/[id]` 同期迁移，或列表批次内做过渡（否则编辑器路由被动混用） |
+| 跨路由共享（延后） | `components/admin/settings/{agreements-settings,notification-delivery-log-list,setting-audit-log-list,admin-notification-settings}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue`、`setting-form-field`、`admin-floating-actions` | `DataTable` / `Tag` / `Button` 等 | host 路由 `/admin/settings`（B3） | **随 B3 迁移**（否则 B3 页面被动混用、且 `/admin/settings` 已有截图基线） |
+| 组件型目标 | `admin-taxonomy-page.vue`、`ai/task-list.vue`、`marketing-campaign-list.vue` | `DataTable` / `Tabs` / `Dialog` 等 | host：`/admin/categories` + `/admin/tags`、`/admin/ai`、`/admin/marketing` | 随各自 host 路由整路由迁移 |
+
+> 结论：本清单为**工程事实记录**，作为后续批次（第六十八阶段：B2 剩余数据页 + B3）准入评估的输入；批次划分与原子条目在该阶段准入时按规划规范单独评估，本阶段不提前落盘。
+
 ### 5.6 消费路径与版本锁定
 
 - **默认消费路径**：npm 常规依赖 `caomei-ui@0.2.0`，CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
@@ -358,7 +375,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 > **momei 侧新增批次说明**：「接入基座」与「全局 token 语义层」两项在 caomei-ui 交接计划的既有批次表（B0b / B2 / B3 / B4）中没有编号，属本文档按开工实际依赖补充的 momei 侧执行面，不改变库侧既定批次编号。
 
-**B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../reports/regression/current.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
+**B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../../reports/regression/current.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
 
 
 ## 8. 验收与质量门
@@ -442,7 +459,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 **2026-09-22 按 0.2.0 重定（重要）**：上表的并存期增长（`keyCssGzipBytes` **59,795 → 75,110**，+15.3KB gzip；门禁配额同步由 70KB 放开至 85KB）**其唯一驱动是 0.1.0 的单体 `styles.css`（167,585 B / gzip 25.60 KB）**。`caomei-ui@0.2.0` 已移除该单体文件，改为：
 
 - 基础层 `caomei-ui/theme.css` 实测 **5,880 B / gzip ~1,089 B**（`injectStyles` 的注入物；gzip 值随压缩实现可有 ±1 B 差异）；
-- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。**复测已确认零进入产物**（产物仅含基础层 `.caomei-root` 与 `--caomei-*` token，`caomei-button` 出现 0 次，见 [回归记录](../../reports/regression/current.md) M1b 节）。
+- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。**复测已确认零进入产物**（产物仅含基础层 `.caomei-root` 与 `--caomei-*` token，`caomei-button` 出现 0 次，见 [回归记录](../../reports/regression/current.md) M1b 节）。注：该结论对应「尚未消费任何 caomei-ui 组件」的重锚时点；自 B2 开始消费组件后，按需组件样式会进入对应路由 chunk（首个实例见 [回归记录](../../reports/regression/current.md) M4 节「包体归因」）。
 
 因此：
 
