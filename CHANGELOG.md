@@ -1,5 +1,23 @@
 # momei
 
+# [1.28.0](https://github.com/CaoMeiYouRen/momei/compare/v1.27.0...v1.28.0) (2026-09-26)
+
+
+### ✨ 新功能
+
+* **migration:** B2 试点页 /admin/comments 迁移到 caomei-ui ([4477414](https://github.com/CaoMeiYouRen/momei/commit/4477414)), closes [#prefix](https://github.com/CaoMeiYouRen/momei/issues/prefix)
+* **migration:** 建立 caomei-ui 全局 token 语义层并存桥接 ([997313c](https://github.com/CaoMeiYouRen/momei/commit/997313c))
+* **migration:** 接入 caomei-ui 与 PrimeVue 并存基座 ([9034441](https://github.com/CaoMeiYouRen/momei/commit/9034441))
+* **test:** 新增截图识别层视觉回归工程与迁移前基线 ([df67679](https://github.com/CaoMeiYouRen/momei/commit/df67679))
+
+
+### 🐛 Bug 修复
+
+* **db:** 修复 pg-types 被摇树导致 PostgreSQL 值类型退化为字符串 ([79216c9](https://github.com/CaoMeiYouRen/momei/commit/79216c9))
+* **mcp-server:** 拆分 stdio CLI 与库入口，修复 Nuxt 启动误执行 MCP 服务 ([1c2983a](https://github.com/CaoMeiYouRen/momei/commit/1c2983a))
+* **perf:** 修正包体预算入口度量恒真与 admin chunk 误算 ([ed115a9](https://github.com/CaoMeiYouRen/momei/commit/ed115a9))
+* **upload:** 添加音频上传支持和文件类型验证 ([0fab59d](https://github.com/CaoMeiYouRen/momei/commit/0fab59d))
+
 # [1.27.0](https://github.com/CaoMeiYouRen/momei/compare/v1.26.1...v1.27.0) (2026-09-05)
 
 
