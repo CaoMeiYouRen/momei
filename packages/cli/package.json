@@ -50,7 +50,7 @@
     "smol-toml": "^1.9.0"
   },
   "devDependencies": {
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "eslint": "^9.39.5",
     "eslint-config-cmyr": "2.3.1",
     "tsdown": "^0.23.0",
