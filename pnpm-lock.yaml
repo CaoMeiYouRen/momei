@@ -265,8 +265,8 @@ importers:
         specifier: ^4.0.0-nightly.202508271359
         version: 4.0.0-nightly.202508271359
       music-metadata:
-        specifier: ^11.16.1
-        version: 11.16.1(supports-color@10.2.2)
+        specifier: ^12.0.0
+        version: 12.0.0(supports-color@10.2.2)
       mysql2:
         specifier: ^3.24.4
         version: 3.24.4(@types/node@26.6.2)
@@ -6280,6 +6280,10 @@ packages:
     resolution: {integrity: sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag==}
     engines: {node: '>=18'}
 
+  content-type@3.1.1:
+    resolution: {integrity: sha512-GW4qUsfFo59d0HbUibDlWv5wPz+vAAcaTWbKIuKCf0JkC7wWkSyf8f13IpXn5JkeMlB2P8iTSSIjwXljorg2vA==}
+    engines: {node: '>=22'}
+
   conventional-changelog-angular@8.3.1:
     resolution: {integrity: sha512-6gfI3otXK5Ph5DfCOI1dblr+kN3FAm5a97hYoQkqNZxOaYa5WKfXH+AnpsmS+iUH2mgVC2Cg2Qw9m5OKcmNrIg==}
     engines: {node: '>=18'}
@@ -9492,9 +9496,9 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  music-metadata@11.16.1:
-    resolution: {integrity: sha512-uR/mHK6eyfl8h3jVCobF5b38Mfg1IDJMiBxIVbmm5F+G1OXEFcUpQHveO84tJBAqvY93GCRY2R4kDyx7s06Rug==}
-    engines: {node: '>=18'}
+  music-metadata@12.0.0:
+    resolution: {integrity: sha512-+yVgI1WNa0S9aAZch1WMAsmBrP7+5YGmhgPaRHiqF5KmuRJ7vuynn7OmKZRu3pr2W83N3bE+6Bw/pn8r4hf5sQ==}
+    engines: {node: '>=22'}
 
   mute-stream@0.0.7:
     resolution: {integrity: sha512-r65nCZhrbXXb6dXOACihYApHw2Q6pV0M3V0PSxd74N0+D8nzAdEAITq2oAjA1jVnKI+tGvEBUpqiMh0+rW6zDQ==}
@@ -19706,6 +19710,8 @@ snapshots:
 
   content-type@2.1.0: {}
 
+  content-type@3.1.1: {}
+
   conventional-changelog-angular@8.3.1:
     dependencies:
       compare-func: 2.0.0
@@ -23792,11 +23798,11 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  music-metadata@11.16.1(supports-color@10.2.2):
+  music-metadata@12.0.0(supports-color@10.2.2):
     dependencies:
       '@borewit/text-codec': 0.2.2
       '@tokenizer/token': 0.3.0
-      content-type: 2.1.0
+      content-type: 3.1.1
       debug: 4.4.3(supports-color@10.2.2)
       file-type: 21.3.4(supports-color@10.2.2)
       media-typer: 2.0.0
