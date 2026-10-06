@@ -160,8 +160,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       caomei-ui:
-        specifier: 0.3.0
-        version: 0.3.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3))
+        specifier: 0.5.0
+        version: 0.5.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3))
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -2524,6 +2524,11 @@ packages:
     peerDependencies:
       vue: '>=3.0.1'
 
+  '@lucide/vue@1.51.0':
+    resolution: {integrity: sha512-zMkTAMP8OsPESz/GDedsZfr3VUF2IiHlj25mBZG6Pc8A8J8BdygkE8k1HhRFXEUNzytp5DqxiBQNm3RG/U2bVg==}
+    peerDependencies:
+      vue: '>=3.0.1'
+
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
@@ -4295,8 +4300,8 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@tanstack/store@0.11.1':
-    resolution: {integrity: sha512-mzTOBhypOuDJAy/D8n2MfUZ1HFkXnmSETviRyhqEC8LUE7/IZQExOTxMANj3KjTofYTkFNpBY67qaVrT41YccA==}
+  '@tanstack/store@0.11.2':
+    resolution: {integrity: sha512-sJ4mjol8uQsHV0gOJzzjwXfh2Fwm+Sz0+8deqiTm4jGbMdjzNSW+xZCFm0kUa870uhd8yi+DpKnZb5Kc4apa0Q==}
 
   '@tanstack/table-core@9.2.4':
     resolution: {integrity: sha512-GwdDyGGr6UXAtubF14yAwcXvdaogqfsQgIk89Suebjxob/Rjq2xvfmXsjDF1rQmKmhHsJm9TOY7myxv3i6geJw==}
@@ -4819,6 +4824,17 @@ packages:
     resolution: {integrity: sha512-3qkmU6KXWh8GIThEAW3kuRHPQBMjWkKy+Ppz3WkUucx53DTpOa6siMn4xDGSOhlVyMrDaJTCTMLYPZVAIk1P0A==}
     peerDependencies:
       valibot: ^1.4.0
+
+  '@vavt/cm-extension@2.0.0':
+    resolution: {integrity: sha512-rqnNrggye6BUZqI8suQrdJloYt30HVtwqw+s+p9fQrLQQbVAuWCaQUYxt/Tawh/zf1qJQ6VEiRSvdDRP5WgkQA==}
+    peerDependencies:
+      md-editor-rt: ^7.0.0
+      md-editor-v3: ^7.0.0
+    peerDependenciesMeta:
+      md-editor-rt:
+        optional: true
+      md-editor-v3:
+        optional: true
 
   '@vercel/blob@2.8.0':
     resolution: {integrity: sha512-Nu+HWKpkgovCh/ezlG7wCVwF7RErTzLzZMbGKFBdGBCbTKyK+s5VXPLl+0+TpNEQPH8AVaGzOpIsXUOtkqylCQ==}
@@ -5933,14 +5949,17 @@ packages:
   canvas-nest.js@2.0.4:
     resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==}
 
-  caomei-ui@0.3.0:
-    resolution: {integrity: sha512-ReSOhcgO8oLjI1mqfytE/drXEwE426+EXBNU7PgrKULTs6jZzDzyasDUrFL8jpgJh6b/rQ4wWKgFJYJlI8oezQ==}
+  caomei-ui@0.5.0:
+    resolution: {integrity: sha512-53OovGvwIlwEg6fcHEUY1yV1lja0dN6J4bgwDYaotsomaBalfAPoZDbTuHxAz7brP4cUzGv9K/VzqqKRHPWZ+g==}
     engines: {node: '>=20'}
     peerDependencies:
       '@nuxt/kit': ^4.4.6
+      md-editor-v3: ^7.1.0
       vue: ^3.5.0
     peerDependenciesMeta:
       '@nuxt/kit':
+        optional: true
+      md-editor-v3:
         optional: true
 
   ccount@2.0.1:
@@ -15522,6 +15541,10 @@ snapshots:
     dependencies:
       vue: 3.5.43(typescript@6.0.3)
 
+  '@lucide/vue@1.51.0(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      vue: 3.5.43(typescript@6.0.3)
+
   '@lukeed/csprng@1.1.0': {}
 
   '@manypkg/find-root@3.1.0':
@@ -17592,17 +17615,17 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/store@0.11.1': {}
+  '@tanstack/store@0.11.2': {}
 
   '@tanstack/table-core@9.2.4':
     dependencies:
-      '@tanstack/store': 0.11.1
+      '@tanstack/store': 0.11.2
 
   '@tanstack/virtual-core@3.17.11': {}
 
   '@tanstack/vue-table@9.2.4(vue@3.5.43(typescript@6.0.3))':
     dependencies:
-      '@tanstack/store': 0.11.1
+      '@tanstack/store': 0.11.2
       '@tanstack/table-core': 9.2.4
       vue: 3.5.43(typescript@6.0.3)
 
@@ -18160,6 +18183,8 @@ snapshots:
     dependencies:
       valibot: 1.4.2(typescript@6.0.3)
     optional: true
+
+  '@vavt/cm-extension@2.0.0': {}
 
   '@vercel/blob@2.8.0':
     dependencies:
@@ -19324,17 +19349,19 @@ snapshots:
     dependencies:
       size-sensor: 0.2.6
 
-  caomei-ui@0.3.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3)):
+  caomei-ui@0.5.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
       '@lucide/vue': 1.51.0(vue@3.5.43(typescript@6.0.3))
       '@tanstack/vue-table': 9.2.4(vue@3.5.43(typescript@6.0.3))
+      '@vavt/cm-extension': 2.0.0
       reka-ui: 2.10.4(vue@3.5.43(typescript@6.0.3))
       vue: 3.5.43(typescript@6.0.3)
     optionalDependencies:
       '@nuxt/kit': 4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)))
     transitivePeerDependencies:
       - '@vue/composition-api'
+      - md-editor-rt
 
   ccount@2.0.1: {}
 
