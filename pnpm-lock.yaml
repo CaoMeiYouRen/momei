@@ -441,7 +441,7 @@ importers:
         version: 2.5.1(@vue/compiler-dom@3.5.43)(@vue/server-renderer@3.5.43)(vue@3.5.43(typescript@6.0.3))
       commitizen:
         specifier: ^4.3.1
-        version: 4.3.2(@types/node@26.6.3)(typescript@6.0.3)
+        version: 4.3.2(@types/node@26.6.4)(typescript@6.0.3)
       commitlint:
         specifier: ^21.2.3
         version: 21.2.3(@types/node@26.6.2)(conventional-commits-parser@7.1.2)(typescript@6.0.3)
@@ -453,7 +453,7 @@ importers:
         version: 10.1.0
       cz-conventional-changelog-cmyr:
         specifier: ^2.0.0
-        version: 2.0.0(@types/node@26.2.0)(commitizen@4.3.2(@types/node@26.6.3)(typescript@6.0.3))(supports-color@10.2.2)(typescript@6.0.3)
+        version: 2.0.0(@types/node@26.2.0)(commitizen@4.3.2(@types/node@26.6.4)(typescript@6.0.3))(supports-color@10.2.2)(typescript@6.0.3)
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
@@ -527,8 +527,8 @@ importers:
   packages/api-client:
     devDependencies:
       '@types/node':
-        specifier: ^26.6.3
-        version: 26.6.3
+        specifier: ^26.6.4
+        version: 26.6.4
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
@@ -543,7 +543,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
 
   packages/cli:
     dependencies:
@@ -576,8 +576,8 @@ importers:
         version: 1.9.0
     devDependencies:
       '@types/node':
-        specifier: ^26.6.3
-        version: 26.6.3
+        specifier: ^26.6.4
+        version: 26.6.4
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
@@ -592,7 +592,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
 
   packages/mcp-server:
     dependencies:
@@ -607,8 +607,8 @@ importers:
         version: 4.6.2
     devDependencies:
       '@types/node':
-        specifier: ^26.6.3
-        version: 26.6.3
+        specifier: ^26.6.4
+        version: 26.6.4
       eslint:
         specifier: ^9.39.5
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
@@ -623,7 +623,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: ^4.1.11
-        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
 
 packages:
 
@@ -4437,8 +4437,8 @@ packages:
   '@types/node@26.6.2':
     resolution: {integrity: sha512-X1P21scMv4zGKLYqjdGjaKa7COa0RKVYYZZN/NfvLQ1JegxFhdhpZG/Lyn8AXx6CDUavKAd11v6BvfpkDByK8g==}
 
-  '@types/node@26.6.3':
-    resolution: {integrity: sha512-dsqMQQoeTLqu9wynDD00q573mNzso3IdQOAfHRJqLCcmCFPoGo9A1bDpUcv/9tnKpErQWv9uKeGfl37EIS02Yg==}
+  '@types/node@26.6.4':
+    resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
 
   '@types/nodemailer@8.0.2':
     resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
@@ -14619,14 +14619,14 @@ snapshots:
       - '@types/node'
       - typescript
 
-  '@commitlint/load@20.5.2(@types/node@26.6.3)(typescript@6.0.3)':
+  '@commitlint/load@20.5.2(@types/node@26.6.4)(typescript@6.0.3)':
     dependencies:
       '@commitlint/config-validator': 20.5.0
       '@commitlint/execute-rule': 20.0.0
       '@commitlint/resolve-extends': 20.5.2
       '@commitlint/types': 20.5.0
       cosmiconfig: 9.0.2(typescript@6.0.3)
-      cosmiconfig-typescript-loader: 6.3.0(@types/node@26.6.3)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3)
+      cosmiconfig-typescript-loader: 6.3.0(@types/node@26.6.4)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3)
       is-plain-obj: 4.1.0
       lodash.mergewith: 4.6.2
       picocolors: 1.1.1
@@ -15252,12 +15252,12 @@ snapshots:
   '@img/sharp-win32-x64@0.35.4':
     optional: true
 
-  '@inquirer/external-editor@1.0.3(@types/node@26.6.3)':
+  '@inquirer/external-editor@1.0.3(@types/node@26.6.4)':
     dependencies:
       chardet: 2.2.0
       iconv-lite: 0.7.3
     optionalDependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
 
   '@internationalized/date@3.12.4':
     dependencies:
@@ -17672,7 +17672,7 @@ snapshots:
 
   '@types/conventional-commits-parser@5.0.2':
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
 
   '@types/debug@4.1.13':
     dependencies:
@@ -17707,7 +17707,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
 
   '@types/katex@0.16.8': {}
 
@@ -17764,7 +17764,7 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/node@26.6.3':
+  '@types/node@26.6.4':
     dependencies:
       undici-types: 8.9.0
 
@@ -17806,7 +17806,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.63.0(@typescript-eslint/parser@8.63.0(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3))(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)':
@@ -18313,13 +18313,13 @@ snapshots:
     optionalDependencies:
       vite: 8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)
 
-  '@vitest/mocker@4.1.11(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))':
+  '@vitest/mocker@4.1.11(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)
+      vite: 8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -19254,7 +19254,7 @@ snapshots:
 
   buffer-image-size@0.6.4:
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
 
   buffer@5.7.1:
     dependencies:
@@ -19466,7 +19466,7 @@ snapshots:
 
   chrome-launcher@0.13.4(supports-color@10.2.2):
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       escape-string-regexp: 1.0.5
       is-wsl: 2.2.0
       lighthouse-logger: 1.2.0(supports-color@10.2.2)
@@ -19477,7 +19477,7 @@ snapshots:
 
   chrome-launcher@1.2.1(supports-color@10.2.2):
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 2.0.2(supports-color@10.2.2)
@@ -19636,17 +19636,17 @@ snapshots:
 
   comment-parser@1.4.8: {}
 
-  commitizen@4.3.2(@types/node@26.6.3)(typescript@6.0.3):
+  commitizen@4.3.2(@types/node@26.6.4)(typescript@6.0.3):
     dependencies:
       cachedir: 2.4.0
-      cz-conventional-changelog: 3.3.0(@types/node@26.6.3)(typescript@6.0.3)
+      cz-conventional-changelog: 3.3.0(@types/node@26.6.4)(typescript@6.0.3)
       dedent: 0.7.0
       detect-indent: 6.1.0
       find-node-modules: 2.1.3
       find-root: 1.1.0
       fs-extra: 9.1.0
       glob: 7.2.3
-      inquirer: 8.2.7(@types/node@26.6.3)
+      inquirer: 8.2.7(@types/node@26.6.4)
       is-utf8: 0.2.1
       lodash: 4.18.1
       minimist: 1.2.8
@@ -19831,9 +19831,9 @@ snapshots:
       jiti: 2.6.1
       typescript: 6.0.3
 
-  cosmiconfig-typescript-loader@6.3.0(@types/node@26.6.3)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3):
+  cosmiconfig-typescript-loader@6.3.0(@types/node@26.6.4)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3):
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       cosmiconfig: 9.0.2(typescript@6.0.3)
       jiti: 2.6.1
       typescript: 6.0.3
@@ -20034,13 +20034,13 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cz-conventional-changelog-cmyr@2.0.0(@types/node@26.2.0)(commitizen@4.3.2(@types/node@26.6.3)(typescript@6.0.3))(supports-color@10.2.2)(typescript@6.0.3):
+  cz-conventional-changelog-cmyr@2.0.0(@types/node@26.2.0)(commitizen@4.3.2(@types/node@26.6.4)(typescript@6.0.3))(supports-color@10.2.2)(typescript@6.0.3):
     dependencies:
       '@commitlint/load': 19.8.1(@types/node@26.2.0)(typescript@6.0.3)
       '@commitlint/types': 19.8.1
       '@lint-md/core': 2.0.0(supports-color@10.2.2)
       chalk: 4.1.2
-      commitizen: 4.3.2(@types/node@26.6.3)(typescript@6.0.3)
+      commitizen: 4.3.2(@types/node@26.6.4)(typescript@6.0.3)
       conventional-commit-types: 3.0.0
       longest: 2.0.1
       word-wrap: 1.2.5
@@ -20049,16 +20049,16 @@ snapshots:
       - supports-color
       - typescript
 
-  cz-conventional-changelog@3.3.0(@types/node@26.6.3)(typescript@6.0.3):
+  cz-conventional-changelog@3.3.0(@types/node@26.6.4)(typescript@6.0.3):
     dependencies:
       chalk: 2.4.2
-      commitizen: 4.3.2(@types/node@26.6.3)(typescript@6.0.3)
+      commitizen: 4.3.2(@types/node@26.6.4)(typescript@6.0.3)
       conventional-commit-types: 3.0.0
       lodash.map: 4.6.0
       longest: 2.0.1
       word-wrap: 1.2.5
     optionalDependencies:
-      '@commitlint/load': 20.5.2(@types/node@26.6.3)(typescript@6.0.3)
+      '@commitlint/load': 20.5.2(@types/node@26.6.4)(typescript@6.0.3)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
@@ -21970,9 +21970,9 @@ snapshots:
       strip-ansi: 5.2.0
       through: 2.3.8
 
-  inquirer@8.2.7(@types/node@26.6.3):
+  inquirer@8.2.7(@types/node@26.6.4):
     dependencies:
-      '@inquirer/external-editor': 1.0.3(@types/node@26.6.3)
+      '@inquirer/external-editor': 1.0.3(@types/node@26.6.4)
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       cli-cursor: 3.1.0
@@ -26274,7 +26274,7 @@ snapshots:
 
   speedline-core@1.4.3:
     dependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       image-ssim: 0.2.0
       jpeg-js: 0.4.4
 
@@ -27545,7 +27545,7 @@ snapshots:
       terser: 5.50.0
       yaml: 2.9.1
 
-  vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1):
+  vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -27553,7 +27553,7 @@ snapshots:
       rolldown: 1.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.7.0
@@ -27675,10 +27675,10 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)):
+  vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.4)(@vitest/coverage-v8@4.1.11)(happy-dom@20.12.0)(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
+      '@vitest/mocker': 4.1.11(vite@8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -27695,11 +27695,11 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 8.0.16(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)
+      vite: 8.0.16(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0)(terser@5.50.0)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
-      '@types/node': 26.6.3
+      '@types/node': 26.6.4
       '@vitest/coverage-v8': 4.1.11(vitest@4.1.11)
       happy-dom: 20.12.0
     transitivePeerDependencies:
