@@ -187,7 +187,7 @@
     "@lint-md/cli": "2.4.0",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/eslint-config": "^1.17.0",
-    "@nuxt/test-utils": "^4.3.2",
+    "@nuxt/test-utils": "^4.3.3",
     "@nuxtjs/sitemap": "^8.5.0",
     "@playwright/test": "^1.63.0",
     "@primevue/nuxt-module": "^4.5.5",
