@@ -310,8 +310,8 @@ importers:
         specifier: ^2.18.0
         version: 2.18.0
       typeorm:
-        specifier: ^1.1.1
-        version: 1.1.1(better-sqlite3@12.11.1)(ioredis@5.11.1(supports-color@10.2.2))(mysql2@3.24.5(@types/node@26.6.4))(pg@8.23.0)(supports-color@10.2.2)
+        specifier: ^1.1.2
+        version: 1.1.2(better-sqlite3@12.11.1)(ioredis@5.11.1(supports-color@10.2.2))(mysql2@3.24.5(@types/node@26.6.4))(pg@8.23.0)(supports-color@10.2.2)
       validator:
         specifier: ^13.15.35
         version: 13.15.35
@@ -5417,6 +5417,10 @@ packages:
 
   ansis@4.3.1:
     resolution: {integrity: sha512-BJ8/l4R5LRE7hW9WdSuGYrLSHi2ynxeFpDFbH0K/CgNeY/tyhk+vO6TYxXC5r5CpUhNVX310xzPsN/H9lCdfOA==}
+    engines: {node: '>=14'}
+
+  ansis@4.4.0:
+    resolution: {integrity: sha512-9k3v7xcHwgdO/DruxGIg4HtjvlAZlcnsX/mzqUb1t3NkYnl9kK2UJ+Gq0io+vQf7iT//BD/HB/NBkUR1LWxoeA==}
     engines: {node: '>=14'}
 
   any-promise@1.3.0:
@@ -12076,8 +12080,8 @@ packages:
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
 
-  typeorm@1.1.1:
-    resolution: {integrity: sha512-og9mG4Lwlvj6MfvYd8yRCzXy73gETtwgTKQ/ISLYvEOpJPy4IrjU/89HK4ZAFmRIbEg1hkIk04v8phTrxfgPmQ==}
+  typeorm@1.1.2:
+    resolution: {integrity: sha512-UDQ8++2oFCK4fETiRKEC0eCES/i+/1SB4NBqXWeJNosI1i2SVFCDPhqIsXHWpFzFHTBOA553upQZj0NKVbNdUQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.11.0}
     hasBin: true
     peerDependencies:
@@ -13144,6 +13148,10 @@ packages:
 
   yargs@18.1.0:
     resolution: {integrity: sha512-2rAgRKu54VsHkqI0/tYkmluGXHD4KW7yZoycuqDQ15QOTnc2VVfy0nN/1eMhnQLO00A+dwtK20xuCnc1YGeUyg==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
+
+  yargs@18.2.0:
+    resolution: {integrity: sha512-9OpKOLeaoNFecEp7P6iYbzze/5CqWoH7N3SMs/6y1XF4nMvFMspEGZzJ6uFi9MmQwXhyzqYoSEKO3tvA3Z/o2w==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yauzl@3.3.1:
@@ -14497,7 +14505,7 @@ snapshots:
       '@commitlint/read': 21.2.3(conventional-commits-parser@7.1.2)
       '@commitlint/types': 21.2.3
       tinyexec: 1.3.1
-      yargs: 18.1.0
+      yargs: 18.2.0
     transitivePeerDependencies:
       - '@types/node'
       - conventional-commits-filter
@@ -18723,6 +18731,8 @@ snapshots:
   ansi-styles@6.2.3: {}
 
   ansis@4.3.1: {}
+
+  ansis@4.4.0: {}
 
   any-promise@1.3.0: {}
 
@@ -25667,7 +25677,7 @@ snapshots:
       open: 11.0.1
       picomatch: 4.0.7
       source-map: 0.8.0
-      yargs: 18.1.0
+      yargs: 18.2.0
     optionalDependencies:
       rolldown: 1.2.7
       rollup: 4.63.0
@@ -26867,10 +26877,10 @@ snapshots:
     dependencies:
       is-typedarray: 1.0.0
 
-  typeorm@1.1.1(better-sqlite3@12.11.1)(ioredis@5.11.1(supports-color@10.2.2))(mysql2@3.24.5(@types/node@26.6.4))(pg@8.23.0)(supports-color@10.2.2):
+  typeorm@1.1.2(better-sqlite3@12.11.1)(ioredis@5.11.1(supports-color@10.2.2))(mysql2@3.24.5(@types/node@26.6.4))(pg@8.23.0)(supports-color@10.2.2):
     dependencies:
       '@sqltools/formatter': 1.2.5
-      ansis: 4.3.1
+      ansis: 4.4.0
       dayjs: 1.11.23
       debug: 4.4.3(supports-color@10.2.2)
       dedent: 1.7.2
@@ -26878,7 +26888,7 @@ snapshots:
       sql-highlight: 6.1.0
       tinyglobby: 0.2.17
       tslib: 2.8.1
-      yargs: 18.1.0
+      yargs: 18.2.0
     optionalDependencies:
       better-sqlite3: 12.11.1
       ioredis: 5.11.1(supports-color@10.2.2)
@@ -27377,7 +27387,7 @@ snapshots:
 
   vite-plugin-inspect@11.4.1(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1))))(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1)):
     dependencies:
-      ansis: 4.3.1
+      ansis: 4.4.0
       error-stack-parser-es: 1.0.5
       obug: 2.1.4
       ohash: 2.0.12
@@ -28131,6 +28141,15 @@ snapshots:
       yargs-parser: 21.1.1
 
   yargs@18.1.0:
+    dependencies:
+      cliui: 9.0.1
+      escalade: 3.2.0
+      get-caller-file: 2.0.5
+      string-width: 8.3.0
+      y18n: 5.0.8
+      yargs-parser: 22.0.0
+
+  yargs@18.2.0:
     dependencies:
       cliui: 9.0.1
       escalade: 3.2.0
