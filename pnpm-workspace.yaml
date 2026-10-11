@@ -21,12 +21,14 @@ overrides:
     deepmerge-ts: "^8.0.0"
     # `nuxt` 与 `@nuxt/nitro-server` 都以「精确版本」声明 `@nuxt/kit`，而第三方 Nuxt
     # 模块声明的是 `^3.x` / `^4.x` 宽范围。此 override 只应承担「把第三方 3.x 消费者
-    # 抬到 4.x 线」的职责，绝不能让 kit 跨到 nuxt 未要求的次版本：
-    # nuxt@4.5.2 的 nitro-server 会从 `@nuxt/kit` 导入 `bundlerDiagnostics`，
-    # 而 kit 4.6.x 已不再导出该符号，一旦被抬到 4.6.x，`nuxt prepare`（即 postinstall）
-    # 会直接以 `SyntaxError: does not provide an export named 'bundlerDiagnostics'` 失败。
+    # 抬到 4.x 线」的职责，绝不能让 kit 跨到 nuxt 未要求的次版本：Nuxt 运行时会按自身
+    # 主次版本从 `@nuxt/kit` 导入对应的内部符号与子路径导出（如 4.5 线用
+    # `bundlerDiagnostics`、4.6 线用 `./internal`），一旦 kit 的次版本与 nuxt 不一致，
+    # `nuxt prepare`（即 root postinstall）会直接以「缺少导出」失败。
     # 故上界锁死在当前 nuxt 的主次版本线内；升级 nuxt 时必须同步抬升此行。
-    "@nuxt/kit": "~4.5.2"
+    # 反向同样成立：本行未同步抬升时，nuxt 升级类 PR 会在 postinstall 阶段转红
+    # （tests/modules/nuxt-kit-version-lockstep.test.ts 亦会拦截 kit 与 nuxt 版本线不一致）。
+    "@nuxt/kit": "~4.6.0"
     axios: "^1.20.0"
     js-cookie: "^3.0.7"
     samlify: "^2.13.0"
