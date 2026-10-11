@@ -160,8 +160,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       caomei-ui:
-        specifier: 0.5.0
-        version: 0.5.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3))
+        specifier: 0.6.0
+        version: 0.6.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3))
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -2332,8 +2332,8 @@ packages:
   '@internationalized/date@3.12.4':
     resolution: {integrity: sha512-M1dEn4c1U1HsSlaVR8upZtSqvXrTkHDfv18H01uCSJyjVLDxnBR38v/fMxecmlwXKR4i9HeZcmgQAPE6A+aGJQ==}
 
-  '@internationalized/number@3.6.8':
-    resolution: {integrity: sha512-8UmMFia46DUt+k97zKd9fKWXcWHR+k8ae3eYzILETuT2KbIvLyOfac7zesw+sJdRAAZ7Q9pM1Mk22aXp2LD0Ig==}
+  '@internationalized/number@3.6.9':
+    resolution: {integrity: sha512-GgWy2caO/+hV9sT/oCTWGHvbjmJMPT9kkXzoKRLnkEq7adghhR7UprhvY9sXrKfrp3NcDfhF6QQHXR1KfQbB8g==}
 
   '@intlify/bundle-utils@11.2.4':
     resolution: {integrity: sha512-eE18yR9eM9k5n8snCkHIYp2MuVTxa19aF8z9OMyxXWv0frz2HlBZDGIPFjA38pP3OJ1IlRBXC/dW5GILeLMSCQ==}
@@ -2522,6 +2522,11 @@ packages:
   '@lint-md/parser@0.2.2':
     resolution: {integrity: sha512-ROpRwsrZusefphz4fCy1ia8JWBLvEgOuBD4wUfkouzfyj77vRJiwx6rNFLoW2Pyf3WEoe5m5BP+WJHuYpz13PQ==}
     engines: {node: '>=20'}
+
+  '@lucide/vue@1.53.0':
+    resolution: {integrity: sha512-WtBYxiwNVd9yP/UKeMbxAntZqrd50pWxhkXrxxOcYJc4XhsO0pkKbUed+sEh08C1u07zj5I3Rz6AU1v9wHEDqA==}
+    peerDependencies:
+      vue: '>=3.0.1'
 
   '@lucide/vue@1.53.0':
     resolution: {integrity: sha512-WtBYxiwNVd9yP/UKeMbxAntZqrd50pWxhkXrxxOcYJc4XhsO0pkKbUed+sEh08C1u07zj5I3Rz6AU1v9wHEDqA==}
@@ -5930,8 +5935,8 @@ packages:
   canvas-nest.js@2.0.4:
     resolution: {integrity: sha512-Wgc+39fQBIP8fm9+Rq+Zt6+QLHZRsIKpaOQPL5KcWPlXTAalCKY4KCuklY7qzzZqBRF/t2APIrk+PuRw6ZlOog==}
 
-  caomei-ui@0.5.0:
-    resolution: {integrity: sha512-53OovGvwIlwEg6fcHEUY1yV1lja0dN6J4bgwDYaotsomaBalfAPoZDbTuHxAz7brP4cUzGv9K/VzqqKRHPWZ+g==}
+  caomei-ui@0.6.0:
+    resolution: {integrity: sha512-0+b0buVSIVLP4BvkMc6cnQrC1uYkJqmSRxTlourb91IHps6veEii++RH2PUQ2hQ1kUm23Y48ok+6nPp0DOmbqg==}
     engines: {node: '>=20'}
     peerDependencies:
       '@nuxt/kit': ~4.5.2
@@ -15218,7 +15223,7 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.23
 
-  '@internationalized/number@3.6.8':
+  '@internationalized/number@3.6.9':
     dependencies:
       '@swc/helpers': 0.5.23
 
@@ -15491,6 +15496,10 @@ snapshots:
   '@lint-md/parser@0.2.2':
     dependencies:
       '@types/mdast': 3.0.15
+
+  '@lucide/vue@1.53.0(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      vue: 3.5.43(typescript@6.0.3)
 
   '@lucide/vue@1.53.0(vue@3.5.43(typescript@6.0.3))':
     dependencies:
@@ -19254,7 +19263,7 @@ snapshots:
     dependencies:
       size-sensor: 0.2.6
 
-  caomei-ui@0.5.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3)):
+  caomei-ui@0.6.0(@nuxt/kit@4.5.2(magic-string@1.2.2)(magicast@0.5.4)(oxc-parser@0.141.0)(rolldown@1.2.7)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.7)(rollup@4.63.0)(vite@8.0.16(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.1)(terser@5.50.0)(yaml@2.9.1))))(vue@3.5.43(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
       '@lucide/vue': 1.53.0(vue@3.5.43(typescript@6.0.3))
@@ -25450,7 +25459,7 @@ snapshots:
       '@floating-ui/dom': 1.8.0
       '@floating-ui/vue': 1.1.11(vue@3.5.43(typescript@6.0.3))
       '@internationalized/date': 3.12.4
-      '@internationalized/number': 3.6.8
+      '@internationalized/number': 3.6.9
       '@tanstack/vue-virtual': 3.13.39(vue@3.5.43(typescript@6.0.3))
       '@vueuse/core': 14.4.0(vue@3.5.43(typescript@6.0.3))
       '@vueuse/shared': 14.4.0(vue@3.5.43(typescript@6.0.3))
