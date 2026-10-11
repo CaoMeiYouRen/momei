@@ -13,6 +13,12 @@ vi.mock('@/lib/auth', () => ({
     },
 }))
 
+vi.mock('@/server/utils/permission', () => ({
+    requireAdminOrAuthor: vi.fn().mockResolvedValue({
+        user: { id: 'admin-1', role: 'admin' },
+    }),
+}))
+
 describe('/api/posts/calendar-posts', () => {
     let author: User
     let enPost: Post
@@ -23,12 +29,6 @@ describe('/api/posts/calendar-posts', () => {
             (_event: { query?: unknown }, parser: (query: unknown) => unknown) =>
                 Promise.resolve(parser(_event.query || {})),
         ))
-        vi.mock('@/server/utils/permission', () => ({
-            requireAdminOrAuthor: vi.fn().mockResolvedValue({
-                user: { id: 'admin-1', role: 'admin' },
-            }),
-        }))
-
         const { initializeDB } = await import('@/server/database')
         await initializeDB()
 
