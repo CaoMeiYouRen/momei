@@ -2524,11 +2524,6 @@ packages:
     peerDependencies:
       vue: '>=3.0.1'
 
-  '@lucide/vue@1.51.0':
-    resolution: {integrity: sha512-zMkTAMP8OsPESz/GDedsZfr3VUF2IiHlj25mBZG6Pc8A8J8BdygkE8k1HhRFXEUNzytp5DqxiBQNm3RG/U2bVg==}
-    peerDependencies:
-      vue: '>=3.0.1'
-
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
@@ -15536,10 +15531,6 @@ snapshots:
   '@lint-md/parser@0.2.2':
     dependencies:
       '@types/mdast': 3.0.15
-
-  '@lucide/vue@1.51.0(vue@3.5.43(typescript@6.0.3))':
-    dependencies:
-      vue: 3.5.43(typescript@6.0.3)
 
   '@lucide/vue@1.51.0(vue@3.5.43(typescript@6.0.3))':
     dependencies:
