@@ -20,6 +20,17 @@ updates:
           - "@nuxt/test-utils"
           - "vitest-environment-nuxt"
 
+      # nuxt 与这些 @nuxt/* 包互相以「精确版本」耦合：nuxt 与 @nuxt/nitro-server 都精确
+      # 声明 @nuxt/kit（如 nuxt@4.5.2 → "@nuxt/kit": "4.5.2"）。拆开抬升会让 nitro-server
+      # 在 nuxt prepare 阶段导入到缺失的符号（如 4.6.x 已不再导出 bundlerDiagnostics），
+      # 直接导致 postinstall 失败。必须锁步升级，故归入同一分组。
+      nuxt-runtime:
+        patterns:
+          - "nuxt"
+          - "@nuxt/kit"
+          - "@nuxt/nitro-server"
+          - "@nuxt/schema"
+
       # VueUse Nuxt 模块直接包裹 VueUse core，升级时适合一起验证。
       vueuse:
         patterns:
