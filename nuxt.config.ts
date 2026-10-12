@@ -249,8 +249,15 @@ export default defineNuxtConfig({
         },
     },
     sentry: {
-        sourceMapsUploadOptions: {
-            enabled: false,
+        // Sentry v11 移除了 v10 的 `sourceMapsUploadOptions`，改由 `sourcemaps.disable` 统一控制。
+        // v10 的判定是三分支：显式 `sourcemaps.disable` 优先，其次才回退到
+        // `sourceMapsUploadOptions.enabled ?? true`。本仓库从未设置 Sentry 模块的 `sourcemaps` 选项，故旧的
+        // `enabled: false` 落在回退分支上，与 `disable: true` 结果一致：跳过 source map 的
+        // 构建期生成、debug id 注入与自动上传。
+        // 不取 `'disable-upload'`：那会重新开启 hidden sourcemap 生成与 debug id 注入，属行为变更。
+        // 本项目为自部署实例，不向 Sentry 上传 source map，故保持关闭。
+        sourcemaps: {
+            disable: true,
         },
     },
     // 与 PrimeVue 并存：darkMode 契约保持 `.dark`（与既有 `darkModeSelector: '.dark'` 一致）。
