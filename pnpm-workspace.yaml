@@ -28,7 +28,12 @@ overrides:
     # 因此**本行与 package.json 的 `nuxt` 版本必须同一次原子变更**：拆分抬升会让
     # nuxt 升级类 PR 在 postinstall 阶段长期转红（tests/modules/nuxt-kit-version-lockstep.test.ts
     # 亦会拦截 kit 与 nuxt 版本线不一致）。
-    "@nuxt/kit": "~4.6.0"
+    # 必须是**精确版本**而非 `~4.6.0` 这类区间：pnpm 会**复用**锁文件中仍满足区间的既有解析，
+    # 不会主动把同一主次线内的多个补丁位收敛为一个。锁文件一旦已并存 4.6.0 / 4.6.1 两个实例
+    # （依赖 PR 重解析留下的产物），保持区间不变的重解析不会自愈（实测产物逐字节不变）。
+    # 精确版本会让不再满足的陈旧条目失效，从而强制收敛为单一实例——这正是
+    # tests/modules/nuxt-kit-version-lockstep.test.ts 要求的「kit 单一实例」不变量。
+    "@nuxt/kit": "4.6.1"
     axios: "^1.20.0"
     js-cookie: "^3.0.7"
     samlify: "^2.13.0"
