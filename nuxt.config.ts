@@ -468,6 +468,12 @@ export default defineNuxtConfig({
                 'dayjs',
                 // momei-mcp-server 是 workspace 包，生产部署时需 inline 确保可用
                 'momei-mcp-server',
+                // Nuxt 4.6 / Nitro 的 node-file-trace 对 pnpm 布局下经子路径导出
+                // （`@primeuix/utils/object` 等）访问的包只收集到 package.json，漏收 dist/**，
+                // 导致产物启动即 `ERR_MODULE_NOT_FOUND: .../@primeuix/utils/dist/object/index.mjs`。
+                // 顶层 utils 只被服务端 bundle 自身引用（@primeuix/styled 走的是它自己的嵌套副本，
+                // 不受影响），故 inline 后由 bundler 处理，不再依赖被漏收的目录副本。
+                '@primeuix/utils',
             ],
         },
         esbuild: {
