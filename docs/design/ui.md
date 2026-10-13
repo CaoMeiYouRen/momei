@@ -1,6 +1,6 @@
 # 墨梅博客 UI 设计文档
 
-> **组件库迁移进行中（2026-09-22）**：本文档的组件库与主题章节当前仍以 **PrimeVue** 描述，项目正按 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)迁移到 **caomei-ui**（自研、MIT 许可）。接入基座已落地并与 PrimeVue 并存，已升级到 `caomei-ui@0.3.0`（升级与基线复测已完成，见迁移方案 §3.7）；相关章节将在迁移收尾（第七十阶段）整体改写。**迁移完成前，本文以 PrimeVue 为现行实现的描述仍然有效。**
+> **组件库迁移进行中（2026-09-22；2026-10-13 更新版本口径）**：本文档的组件库与主题章节当前仍以 **PrimeVue** 描述，项目正按 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)迁移到 **caomei-ui**（自研、MIT 许可）。接入基座已落地并与 PrimeVue 并存，`caomei-ui` 当前精确锁定 **`0.6.0`**（`0.3.0` 升级与基线复测已于 2026-09-26 完成，其后抬版已按升级纪律于 2026-10-13 补做复测与文档对齐，见迁移方案 §3.7 / §3.8）；相关章节将在迁移收尾（第七十阶段）整体改写。**迁移完成前，本文以 PrimeVue 为现行实现的描述仍然有效。**
 
 ## 1. 设计理念 (Design Philosophy)
 

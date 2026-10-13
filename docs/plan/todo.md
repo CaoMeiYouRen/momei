@@ -23,13 +23,14 @@
 
 **时间表**: 2026-09-26 ~ 待定（按里程碑滚动，不预设结束日）
 
-**准入前置（已核对 2026-09-26）**: 第六十七阶段已审计归档、`todo.md` 无残留；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`（目标基线）；共享壳过渡组件替换清单与上游反馈清单已产出；阶段构成（构成方案 A：0.3.0 复测 + B2 剩余 + 覆盖率第九批，B3 与浮层留待第六十九阶段）经用户确认。
+**准入前置（已核对 2026-09-26；2026-10-13 更新）**: 第六十七阶段已审计归档、`todo.md` 无残留；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`（立项时目标基线），**实际执行基线与当前锁定版本于 2026-10-13 对齐为 `caomei-ui@0.6.0`**（漂移收口见条目 1 补记）；共享壳过渡组件替换清单与上游反馈清单已产出（其中 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合）；阶段构成（构成方案 A：基线复测 + B2 剩余 + 覆盖率第九批，B3 与浮层留待第六十九阶段）经用户确认。
 
 - [x] **1. caomei-ui 0.3.0 升级与基线复测（P1）**
-    - **执行范围**: `caomei-ui` 由 `0.2.0` 精确锁定升级到 `0.3.0`（保持精确锁定、不加 `^`）；升级前先读 `0.3.0` 的 `BREAKING CHANGES` 并留阅读记录（已知无破坏性变更，仍不得静默升级）；重跑视觉回归（`pnpm test:visual`）与定向测试（路由迁移守卫单测、试点页 `/admin/comments` 相关单测 / E2E）；重测 `keyCss` 并按需刷新 `.github/perf/bundle-baseline.json`（数值变更须脚本 `BUDGETS` / 基线 JSON / [性能规范](../standards/performance.md) 三处联动）；澄清基线口径——「零 caomei 组件消费」表述与 B2 试点页已消费 5 个组件的事实冲突，按实测口径改写；组件消费清单按 `0.3.0` 口径重数。
+    - **执行范围（立项时口径 2026-09-26）**: `caomei-ui` 由 `0.2.0` 精确锁定升级到 `0.3.0`（保持精确锁定、不加 `^`）；升级前先读 `0.3.0` 的 `BREAKING CHANGES` 并留阅读记录（已知无破坏性变更，仍不得静默升级）；重跑视觉回归（`pnpm test:visual`）与定向测试（路由迁移守卫单测、试点页 `/admin/comments` 相关单测 / E2E）；重测 `keyCss` 并按需刷新 `.github/perf/bundle-baseline.json`（数值变更须脚本 `BUDGETS` / 基线 JSON / [性能规范](../standards/performance.md) 三处联动）；澄清基线口径——「零 caomei 组件消费」表述与 B2 试点页已消费 5 个组件的事实冲突，按实测口径改写；组件消费清单按 `0.3.0` 口径重数。
     - **非目标**: 不迁移新页面；不连带其他依赖升级；不改动包体其他阈值。
-    - **最小验收**: `package.json` / `pnpm-lock.yaml` 中 `caomei-ui` 为 `0.3.0` 精确锁定且无 `file:` 形态；视觉回归与定向测试通过并在回归记录留痕；`keyCss` 实测值与基线 JSON 一致、口径表述已修正；`pnpm test:perf:budget` 不越线；`pnpm typecheck` + `pnpm lint` 通过。
+    - **最小验收（立项时口径 2026-09-26）**: `package.json` / `pnpm-lock.yaml` 中 `caomei-ui` 为 `0.3.0` 精确锁定且无 `file:` 形态；视觉回归与定向测试通过并在回归记录留痕；`keyCss` 实测值与基线 JSON 一致、口径表述已修正；`pnpm test:perf:budget` 不越线；`pnpm typecheck` + `pnpm lint` 通过。
     - **证据落点**: `BREAKING CHANGES` 阅读结论、升级记录、`keyCss` 复测数据写入 [回归记录](../reports/regression/current.md)；基线 JSON 与口径表述修正落对应文件。
+    - **漂移收口（2026-10-13 补记，条目实际收口结论以本条为准）**: 本项完成后 `caomei-ui` 经 Dependabot 单包路径静默抬版至 `0.6.0`（`0.3.0 → 0.5.0 → 0.6.0`，只改 `package.json` / 锁文件，未留阅读记录与复测）。已按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、组件清单 `0.6.0` 口径重数（81 项）、三层视觉回归（10/10 零像素差异）与包体复测（`keyCss` 61,311 B / 70KB，未越线），并同步迁移方案 §3.5 / §3.8 / §5.1 / §5.5 / §5.6 / §8.4.1 与上游反馈清单。**与上面「立项时口径」验收行的差异**：实际锁定版本为 `0.6.0`，且 `keyCss` 不再与基线 JSON 一致（实测 61,311 B，基线沿用 0.3.0 批次的 60,896 B）——该差异已显式记录，基线保留待 B2 / B4 重取，不以刷新基线掩盖。本批为纯文档收口、无代码改动；升级纪律补强（收尾前为 `caomei-ui` 配置 Dependabot `ignore`）登记为迁移主线收尾必办项。证据见 [回归记录](../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节。
 
 - [ ] **2. B2 剩余数据页迁移（一）：`pages/admin` 数据列表页（P1）**
     - **执行范围**: 按路由整体切换迁移 `pages/admin/posts`、`users`、`friend-links`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance` 共 10 个数据列表路由；新增共享壳过渡组件 `AppAvatarV2`（users / subscribers 用）与 `AppUploaderV2`（friend-links 用），按迁移方案 §5.5 过渡策略以路由择库实现；`pages/admin/posts` 的 3 个跨路由共享组件按 §5.5 处置——`post-audit-badge` 的在册族依赖（`Tag`）以过渡组件 + 路由择库隔离，`post-audit-dialog` / `publish-push-dialog` 属浮层显式豁免、维持 PrimeVue 至第六十九阶段；`users` 路由自有组件族（filters / role-dialog / ban-dialog / sessions-drawer）随该路由迁移；各路由登记 `CAOMEI_UI_ROUTE_PREFIXES` 并扩面 `tests/modules/ui-library-route-migration-guard.test.ts` 守卫；同步改写相关测试与 mock。

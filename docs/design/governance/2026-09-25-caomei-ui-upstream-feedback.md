@@ -3,7 +3,8 @@
 > 来源：momei 侧 PrimeVue → caomei-ui 迁移（第六十七阶段：接入基座 / 视觉回归基座 / token 语义层 / B2 试点页 `/admin/comments`），以及对 B2 全部目标页与共享组件依赖的扫描。
 > 口径：只收录**迁移中实际踩到或实测确认**的问题；已在库文档中明确声明的「有意差异」不重复列入（见文末「非问题」）。
 > 状态：**上游已评估落档**（上游 commit `bedd2de`，2026-09-25）：真实缺口 3 条（1.3 / 1.4 / 1.5）入上游 Backlog §1.1 待决策；文档缺口 3 条（1.1 / 2.2 / 2.3）入上游 Backlog §1.6；设计如此 2 条（1.2 / 2.1）；`Select` `null` 值支持不纳入（有意契约），结论留档上游 Backlog §3。逐条处置见各条「上游处置」，落点记录见文末指针。
-> 事实源：`caomei-ui@0.2.0` 产物与仓库文档（本机 `/root/projects/caomei-ui`）。
+> **后续（2026-10-13 复核）**：3 条真实缺口（1.3 / 1.4 / 1.5）**已由库侧 `caomei-ui@0.4.0` 交付**并在 `0.6.0` 产物中实测存在（见各条「交付复核」）；文档缺口 1.1 / 2.2 / 2.3 的补齐情况未在本轮复核，仍以库侧文档为事实源。复测证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节。
+> 事实源：`caomei-ui@0.2.0` 产物与仓库文档（本机 `/root/projects/caomei-ui`）；「交付复核」条目按 `caomei-ui@0.6.0` 产物复测（2026-10-13）。
 
 ## 1. 建议优先处理（会在下游造成静默失效或重复补丁）
 
@@ -29,6 +30,7 @@
 - **实测**：B2 试点页为 3 个行内动作按钮各加一条本地类；`posts`/`users` 等页面预计同样重复。
 - **建议**：提供 `iconOnly`（或「无默认插槽内容时自动收敛为方形」）；并在 Button 页给出迁移写法。
 - **上游处置**：判定为**真实缺口**，登记上游 Backlog **§1.1 待决策**。
+- **交付复核（2026-10-13）**：**已交付** —— `caomei-ui@0.4.0` 为 Button 新增 `iconOnly` prop（`dist/components/button/types.d.ts` 有 `iconOnly?: boolean`）。momei 侧行内图标按钮的本地类补丁写法**不再是必需项**，B2 剩余页应改用 `iconOnly`（见迁移方案 §5.5）。
 
 ### 1.4 分页器对齐不可配置
 
@@ -36,6 +38,7 @@
 - **影响**：列表页分页位置发生视觉变化；下游若要保持原样必须做**选择器级覆盖**，与「优先用 `--caomei-*` token 定制」的指引冲突。
 - **建议**：提供对齐 token（如 `--caomei-data-table-pagination-justify`）。
 - **上游处置**：判定为**真实缺口**，登记上游 Backlog **§1.1 待决策**。
+- **交付复核（2026-10-13）**：**已交付** —— `caomei-ui@0.4.0` 新增 `--caomei-data-table-pagination-justify` token（`0.6.0` 产物中实测存在）。需要与 PrimeVue 对齐时用该 token 定制，不再做选择器级覆盖。
 
 ### 1.5 `Select` 缺少触发器 `#value` 插槽
 
@@ -43,6 +46,7 @@
 - **影响**：语言切换器一类的「图标 + 文案」触发器无法等价迁移（momei 因该图标类本身无样式定义而视觉无损，属巧合）。
 - **建议**：补 `#value`（或 `#selected`）插槽。
 - **上游处置**：判定为**真实缺口**，登记上游 Backlog **§1.1 待决策**。
+- **交付复核（2026-10-13）**：**已交付** —— `caomei-ui@0.4.0` 为 Select 新增触发器 `#value` 插槽（`0.6.0` 产物中实测存在）。「图标 + 文案」触发器可等价迁移，原文「属巧合」的迁移限制已解除。
 
 ## 2. 建议补充文档或档位
 
@@ -79,4 +83,5 @@
 - 上述 1.1~1.5 属**静默失效或重复补丁**类问题，建议优先在库侧处理或在文档补齐；2.x 属文档/档位完善项。
 - momei 侧在库侧处理前均已有可行写法（哨兵映射、包装元素约束 token、本地图标按钮类、`--caomei-avatar-size` 覆盖、列 `bodyStyle`），并已记录在 [迁移方案 §5.5 / §6](./2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [回归记录](../../reports/regression/current.md)。
 - **上游已评估落档**（上游 commit `bedd2de`，2026-09-25）：真实缺口 3 条（1.3 / 1.4 / 1.5）→ 上游 Backlog **§1.1 待决策**；文档缺口 3 条（1.1 / 2.2 / 2.3）→ 上游 Backlog **§1.6**；设计如此 2 条（1.2 / 2.1）；`Select` `null` 值支持**不纳入**，判为有意契约，结论留档上游 Backlog **§3**。
+- **交付复核**（2026-10-13，`caomei-ui@0.6.0`）：3 条真实缺口（1.3 / 1.4 / 1.5）**已在 `0.4.0` 全部交付**并在 `0.6.0` 产物中实测存在，momei 侧对应的行内补丁写法可从 B2 剩余页移除；2.x 文档 / 档位项未在本轮复核。
 - 上游落点记录：`caomei-ui` 仓库 [momei 上游反馈评估](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/design/governance/2026-09-25-momei-upstream-feedback-evaluation.md) 与 [docs/plan/backlog.md](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/plan/backlog.md) §1.1 / §1.6 / §3。

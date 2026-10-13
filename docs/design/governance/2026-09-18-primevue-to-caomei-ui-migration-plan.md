@@ -1,8 +1,8 @@
 # 2026-09-18 PrimeVue → caomei-ui UI 组件库迁移方案（已授权执行）
 
-- 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权；2026-09-22 更新：目标依赖由 `caomei-ui@0.1.0` 上移到 `0.2.0`，样式入口与并存期包体口径随上游破坏性变更重定，见 §3.6；2026-09-25 更新：上游 0.3.0 已发布并调整目标基线口径，见 §3.7）
+- 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权；2026-09-22 更新：目标依赖由 `caomei-ui@0.1.0` 上移到 `0.2.0`，样式入口与并存期包体口径随上游破坏性变更重定，见 §3.6；2026-09-25 更新：上游 0.3.0 已发布并调整目标基线口径，见 §3.7；2026-10-13 更新：补记上游 0.4.0~0.6.0 变更基线与目标依赖静默漂移的复测收口，见 §3.8）
 - 性质：**迁移评估与执行方案**。本文档为文档产物，**不含任何代码改动**；迁移已授权开工。
-- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`，为**目标基线**，**已于 2026-09-26 完成升级与基线复测**（第六十八阶段条目 1，见 §3.7 与 [回归记录](../../reports/regression/current.md) 第六十八阶段条目 1 节）。
+- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 升级与基线复测**已于 2026-09-26 完成**（第六十八阶段条目 1，见 §3.7），其后依赖经 Dependabot 单包路径静默抬版到 **`0.6.0`**（当前精确锁定版本），漂移已**于 2026-10-13 按升级纪律补做阅读、复测与文档对齐**（见 §3.8 与 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节）。
 - 事实源边界：库侧能力面、映射表、有意差异与验收判定口径以 caomei-ui 仓库的治理文档为**唯一事实源**（见 §13）；本文档只承载 momei 侧现状基线、批次编排、momei 侧执行动作与开工前置条件，不重复库侧明细。
 - 回链主文档：[UI 设计](../ui.md)（组件库章节在迁移收尾前仍描述 PrimeVue，迁移执行时同步）。
 - 上游动因：[2026-08 PrimeVue 5 许可证变更专项评估](./2026-08-29-primevue-5-license-change-evaluation.md)。
@@ -103,15 +103,15 @@ pnpm governance:count:primevue-usage
 - 「含 PrimeVue 选择器」按 `.p-[a-z][a-z0-9-]*` 在 SCSS / CSS 与 `.vue` 内分别统计；**此前「20 文件」为库侧口径、不可复现，已废弃**。
 - 计数会随源码演进失效；**迁移开工前与每批收尾都必须在目标 commit 上重新取数**（`pnpm governance:count:primevue-usage`），不得直接沿用本文档数字作为验收基准。
 
-### 3.5 目标依赖（2026-09-25 核实）
+### 3.5 目标依赖（2026-10-13 复核）
 
 | 项 | 目标值 | 说明 |
 | :--- | :--- | :--- |
-| 包名与版本 | 当前锁定 `caomei-ui@0.3.0`（目标基线） | npm `dist-tags.latest = 0.3.0`（registry 发布时间 2026-09-24T10:47:52Z）；`0.2.0` registry 发布时间 2026-09-22T12:21:29Z；许可证 MIT；`0.3.0` 升级已于 2026-09-26 完成（第六十八阶段条目 1） |
+| 包名与版本 | 当前锁定 `caomei-ui@0.6.0`（目标基线） | 许可证 MIT；`0.2.0` 发布于 2026-09-22T12:21:29Z、`0.3.0` 发布于 2026-09-24T10:47:52Z；`0.3.0` 升级与基线复测已于 2026-09-26 完成（第六十八阶段条目 1），其后经 Dependabot 单包路径抬版至 `0.5.0`（2026-09-30 发布）与 `0.6.0`（2026-10-08 发布），**已于 2026-10-13 补做升级纪律要求的阅读、复测与文档对齐**（见 §3.8） |
 | 导出面 | `.` / `./nuxt` / `./resolver` / `./theme.css` / `./package.json` | **`./styles.css` 已在 0.2.0 移除**；`./theme.css` → `dist/styles/index.css`（基础层）。接入面所需入口齐备 |
 | peer 依赖 | `vue@^3.5.0`、`@nuxt/kit@^4.0.0` | momei 侧均已满足 |
 | 运行时依赖 | `reka-ui@2.10.4`、`@lucide/vue@^1.45.0`、`@tanstack/vue-table@9.2.4`、`@internationalized/date@3.12.4` | 由 caomei-ui 自带；**momei 若在自身模板中直接使用 `@lucide/vue` 图标，须在 momei 侧显式声明该依赖**（pnpm 严格 node_modules 不允许直接引用传递依赖） |
-| 版本策略 | 迁移期间**锁定精确版本**（当前 `0.3.0`，不加 `^`） | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须重跑该批回归，不得静默升级 |
+| 版本策略 | 迁移期间**锁定精确版本**（当前 `0.6.0`，不加 `^`） | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须先读目标版本 `BREAKING CHANGES` 并重跑该批回归，不得静默升级。**2026-10-13 补强**：精确锁定并不阻止依赖机器人在精确值上继续抬版（`0.3.0 → 0.5.0 → 0.6.0` 即由此发生），迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级路径，见 §3.8 |
 | 消费前提 | 产物保留逐模块 CSS import，**裸 Node ESM 不能直接 `import` 包根**（`ERR_UNKNOWN_FILE_EXTENSION: .css`） | momei 走 Nuxt / Vite 打包器，满足前提；momei 侧任何 Node 脚本不得直接 import `caomei-ui` 包根 |
 | 本地联调 | `"caomei-ui": "file:../caomei-ui"` | 仅在需要使用未发布改动时启用；切换后需重跑 `pnpm install`（`file:` 为硬链接，重建后须重装）；**该形态不得进入提交** |
 
@@ -145,6 +145,21 @@ pnpm governance:count:primevue-usage
 
 **momei 侧由此产生的动作**：`0.3.0` 升级（含组件清单按 `0.3.0` 重数、`keyCss` 口径复测，见 §8.4.1）**已于 2026-09-26 完成**（第六十八阶段条目 1）——升级前已读 `0.3.0` `CHANGELOG` 确认无 `BREAKING CHANGES`；`package.json` / `pnpm-lock.yaml` 精确锁定 `0.3.0`；视觉回归 10/10、定向单测 25/25 与试点页 E2E 7/7 通过；`keyCss` 实测 60,896 字节（口径澄清见 §8.4.1）；组件消费清单按 `0.3.0` 重数仍为 B2 试点 5 族 8 处。验证见 [回归记录](../../reports/regression/current.md) 第六十八阶段条目 1 节。
 
+### 3.8 上游 0.4.0~0.6.0 变更基线与目标依赖漂移收口（2026-10-13）
+
+第六十八阶段条目 1 完成后，`caomei-ui` 经两次 Dependabot 单包升级再次抬版（`0.3.0 → 0.5.0`，2026-10-06；`0.5.0 → 0.6.0`，2026-10-11），两次提交只改 `package.json` / `pnpm-lock.yaml`，未按 §5.6 的升级纪律留阅读记录与复测，本文档与规划文档也仍停在 `0.3.0` 口径。本节的收口动作与证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节；此处只落 momei 侧结论。库侧明细仍以 caomei-ui 的 [CHANGELOG](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/CHANGELOG.md) 与[发布指南 §9 包形态与兼容性](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/guide/release.md)为唯一事实源。
+
+| 项 | 事实（上游披露 / momei 侧实测） | 对本方案的影响 |
+| :--- | :--- | :--- |
+| **BREAKING CHANGES** | `0.4.0` / `0.5.0` / `0.6.0` 三段 `CHANGELOG` 均**无** `BREAKING CHANGES`；exports 面与 `0.3.0` 一致 | 不需重定样式入口、不需重定 `injectStyles` 唯一性口径（§5.7 约束 3 继续有效） |
+| **主题 token 取值** | `src/styles/theme.css` 的 `v0.3.0 → v0.6.0` 差异仅选择器 `:root` → `:root, [data-preset='minimal']` 与注释（既有默认预设正式命名为「极简」），**无 token 值增删改**；`presets/*.css` 未变 | §5.2 的桥接映射与「不启用 `data-preset='momei'`」决策不受影响；缺省渲染与 `0.3.0` 逐值一致（视觉回归零像素差异佐证） |
+| **基础层字节变化** | 新增 `@import './field-shell.css'`（0.4.0「抽离字段外壳共享样式层并迁移 4 组件」），基础层 5,880 B / gzip 1,089 B → **9,492 B / gzip 1,719 B** | 该层是 `keyCss` 唯一的 caomei-ui 贡献来源；`keyCss` 实测 60,896 → **61,311 B**（+415 B），未越 70KB 配额，见 §8.4.1 |
+| **组件清单** | 自动导入组件 `80 → 81` 项，唯一新增为 `0.5.0` 的 `CaomeiRichTextEditor`（momei 零用量） | §5.1 的组件清单口径更新为 **81 项** |
+| **上游缺口闭合** | `0.4.0` 交付 Button `iconOnly`、DataTable `--caomei-data-table-pagination-justify` token、Select 触发器 `#value` 插槽，正好闭合 [上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md) 的 1.3 / 1.4 / 1.5（三项均标为「真实缺口」） | §5.5 / §6 的行内补丁建议（本地图标按钮类、分页对齐选择器覆盖）不再是必需项；B2 剩余页应改按库侧原生能力与 `0.6.0` 口径引用依据指针 |
+| **其余变更面** | 0.4.0 soft 变体底色 8%、选择器拼写修正、字段外壳归一；0.5.0 浮层 z-index 语义门禁、模态内浮层层级修正；0.6.0 DataTable 排序指示条常驻占位、组件背景色与阴影更新、Tabs 与 a11y 修正 | 均为库侧能力增强与缺陷修正，momei 当前消费面（试点 5 族）零命中；第六十九阶段处理浮层时需按 `0.6.0` 的 z-index / 层级契约复核 |
+
+**升级纪律补强**：精确锁定只能固定声明值，**不能阻止依赖机器人在精确值上继续抬版**（本次即 `0.3.0 → 0.5.0 → 0.6.0`）。迁移收尾（第七十阶段）之前，须为 `caomei-ui` 在 `.github/dependabot.yml` 配置 `ignore`（或改为人工升级），使「读 `BREAKING CHANGES` + 重跑该批回归」成为唯一入口；该动作登记为迁移主线的收尾必办项。
+
 ## 4. 目标与非目标
 
 **目标**
@@ -168,7 +183,7 @@ pnpm governance:count:primevue-usage
 
 | 能力 | caomei-ui 落点 | momei 迁移动作 |
 | :--- | :--- | :--- |
-| 组件与 composables 自动导入 | `caomei-ui/nuxt` 模块（组件清单 **80** 项，0.3.0 口径 = 0.2.0 的 79 项 + `TagsInput`，2026-09-26 重数） | 以模块替换 `@primevue/nuxt-module` |
+| 组件与 composables 自动导入 | `caomei-ui/nuxt` 模块（组件清单 **81** 项，0.6.0 口径 = 0.3.0 的 80 项 + `RichTextEditor`，2026-10-13 按库侧 `v0.3.0` / `v0.6.0` 标签逐项对账） | 以模块替换 `@primevue/nuxt-module` |
 | 自动导入 resolver | `caomei-ui/resolver` | 如需精细化控制时接入；其 `sideEffects` 注入基础层，与模块注入同源去重 |
 | 样式注入 | **基础层 `caomei-ui/theme.css`**（0.2.0 起取代 `caomei-ui/styles.css`）+ 组件样式随模块自带（打包器 tree-shaking 按需） | 接入基础层与主题，承接原 PrimeVue preset / theme 的职责；移除 `primeicons/primeicons.css`（图标改组件，无字体 CSS）。**基础层注入点须唯一**（模块 `injectStyles` / resolver / 显式 import 三选一，重复注入会引发覆盖丢失，见 §5.7） |
 | 主题预设 | `caomei` / `momei` 预设（含暗色与 `auto`）；`theme.css` 支持 `.dark` / `[data-theme=dark]` / `prefers-color-scheme` | 以 `momei` 预设承接现有 `MomeiPreset` 的语义；`.dark` 选择器契约保持 |
@@ -266,14 +281,27 @@ pnpm governance:count:primevue-usage
 | 跨路由共享（延后） | `components/admin/settings/{agreements-settings,notification-delivery-log-list,setting-audit-log-list,admin-notification-settings}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue`、`setting-form-field`、`admin-floating-actions` | `DataTable` / `Tag` / `Button` 等 | host 路由 `/admin/settings`（B3） | **随 B3 迁移**（否则 B3 页面被动混用、且 `/admin/settings` 已有截图基线） |
 | 组件型目标 | `admin-taxonomy-page.vue`、`ai/task-list.vue`、`marketing-campaign-list.vue` | `DataTable` / `Tabs` / `Dialog` 等 | host：`/admin/categories` + `/admin/tags`、`/admin/ai`、`/admin/marketing` | 随各自 host 路由整路由迁移 |
 
+**上游缺口已闭合的差异（2026-10-13 补记，`caomei-ui@0.4.0+`）**：本清单产出时（基于 `0.2.0`）记录的 3 条「真实缺口」已由库侧 `0.4.0` 交付，B2 剩余页**不再需要**下列行内补丁：
+
+| 原缺口 | 现状（库侧已交付） | B2 动作调整 |
+| :--- | :--- | :--- |
+| 无图标按钮形态（反馈 1.3） | Button 新增 `iconOnly` prop | **B2 剩余页新增用法**直接使用 `iconOnly`，不再复制「本地类 + `--caomei-button-padding-x: 0`」补丁写法 |
+| 分页器对齐不可配置（反馈 1.4） | DataTable 新增 `--caomei-data-table-pagination-justify` token | 分页位置需要与 PrimeVue 对齐时用该 token 定制，不做选择器级覆盖（同样只应用于本批新增页面） |
+| Select 缺触发器 `#value` 插槽（反馈 1.5） | Select 新增 `#value` 插槽 | 「图标 + 文案」触发器可直接等价迁移，不再受迁移限制 |
+
+> 范围限定（2026-10-13 审计提示）：本表只指导 **B2 剩余页的新增迁移**，**不构成对已上线试点页 `/admin/comments` 的回改要求**——该页仍带 `--caomei-button-padding-x` 本地类补丁，且其 10 条视觉基线是在现行写法下采集的；若后续要把试点页改用 `iconOnly`，属**行为变更**，须按迁移方案 §8.2 重新采集该页基线并逐项归因，不能顺带改。
+
+> 依据指针：B2 各批「文件 → 改动点」清单应按 `0.6.0` 能力口径引用本节；逐条证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节与 [上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)。
+
 > 结论：本清单为**工程事实记录**，作为后续批次（第六十八阶段：B2 剩余数据页 + B3）准入评估的输入；批次划分与原子条目在该阶段准入时按规划规范单独评估，本阶段不提前落盘。
 
 ### 5.6 消费路径与版本锁定
 
-- **默认消费路径**：npm 常规依赖 `caomei-ui@0.2.0`，CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
+- **默认消费路径**：npm 常规依赖 `caomei-ui@0.6.0`，CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
 - **本地联调降级路径**：仅在需要验证库侧未发布改动时，临时改为 `file:../caomei-ui`；该形态**不得进入提交**（否则 CI / Docker / Vercel 会因解析不到 `../caomei-ui` 而失败）。
-- **锁定策略**：迁移在飞期使用精确版本（当前 `0.2.0`、目标 `0.3.0`，不加 `^`），避免库侧 minor 发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
-- **升级纪律（0.2.0 / 0.3.0 对照背书）**：库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容——`0.1.0 → 0.2.0` 的 `styles.css → theme.css` 破坏性形态变更即为例证；`0.3.0` 无 `BREAKING CHANGES`，作为反面印证进一步说明「不得静默升级、升级前先读目标版本 `BREAKING CHANGES`」的必要性（无破坏性变更的版本同样须读过再升）。因此每次升级 caomei-ui 版本都须重跑该批次视觉回归与定向测试，并在提交信息与回归记录中留痕，不得静默升级；升级前先读目标版本的 `BREAKING CHANGES`。
+- **锁定策略**：迁移在飞期使用精确版本（当前 `0.6.0`，不加 `^`），避免库侧 minor 发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
+- **升级纪律（0.2.0 / 0.3.0 / 0.6.0 对照背书）**：库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容——`0.1.0 → 0.2.0` 的 `styles.css → theme.css` 破坏性形态变更即为例证；`0.3.0` 与 `0.4.0~0.6.0` 无 `BREAKING CHANGES`，作为反面印证进一步说明「不得静默升级、升级前先读目标版本 `BREAKING CHANGES`」的必要性（无破坏性变更的版本同样须读过再升）。因此每次升级 caomei-ui 版本都须重跑该批次视觉回归与定向测试，并在提交信息与回归记录中留痕，不得静默升级；升级前先读目标版本的 `BREAKING CHANGES`。
+- **精确锁定不足以拦截依赖机器人（2026-10-13 实证）**：精确值只固定声明，不能阻止 Dependabot 在精确值上继续抬版——`0.3.0 → 0.5.0 → 0.6.0` 正是这样绕过升级纪律发生的（仅改 `package.json` / 锁文件，无阅读记录、无复测）。**收尾必办**：第七十阶段前须在 `.github/dependabot.yml` 为 `caomei-ui` 配置 `ignore`（或改为人工升级），使升级只能经「读 `BREAKING CHANGES` + 重跑该批回归」的入口进入；详见 §3.8。
 
 ### 5.7 样式层叠与 `@layer` 决策（第六十七阶段落地）
 
@@ -486,6 +514,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 3. 后续 B2~B4 逐批迁移时，caomei-ui 组件样式随消费方 chunk 归属（路由页消费进路由 chunk，入口 / 全局壳消费进 `keyCss`）；每批收尾的 `keyCss` 变化应归因到基础层 / 入口 CSS 侧变更（含全局壳新消费组件的样式），不得出现无法解释的跃升。
 
 **口径复测结论（2026-09-26，`caomei-ui@0.3.0` 升级批次，第六十八阶段条目 1）**：`.github/perf/bundle-baseline.json` 原「momei 当前零 caomei 组件消费故组件样式零进入产物」的前提仅成立于 0.2.0 重锚时点，与 B2 试点页已消费 5 个 caomei-ui 组件的冲突已按实测澄清——组件样式**随消费方 chunk 归属**：当前消费面（B2 试点 5 族）的组件样式落在路由 chunk（`comments.*.css` 含 `caomei-badge` 等），入口 `entry.*.css` 仅含基础层（`.caomei-root` 与 `--caomei-*` token；在册组件类零命中，`caomei-select` / `caomei-input` / `caomei-skeleton` 的命中均为 `--caomei-*` token 名）；若入口 / 全局壳消费组件，其样式将计入 `keyCss`。**归因更正**：`0.2.0` 与 `0.3.0` 的基础层字节级一致（`dist/styles/index.css` 同 sha256），**`0.3.0` 升级对包体三项指标贡献 0**；现行 `keyCss` 60,896 字节（59.47KB / 70KB 配额）为 0.2.0 期（M3 token 桥接后）既达值，较 M1b 期（2026-09-24）60,684 的 +212、`coreEntryJs` 337,008（+675）、`maxAsyncChunkJs` 49,147（+92）均为**相对 M1b 期基线的累计差**（入口 CSS 侧净增量，主因 M3 `html:root` 桥接块），非 0.3.0 单批增量。基线 JSON 指标与 `note` 已按该口径刷新，`docs/standards/performance.md` 同步闭环。
+
+**复测结论（2026-10-13，`caomei-ui@0.6.0` 漂移收口）**：基础层因库侧 0.4.0 新增 `field-shell.css` 由 5,880 B / gzip 1,089 B 增至 **9,492 B / gzip 1,719 B**，`keyCss` 实测随之由 60,896 B 升至 **61,311 B**（59.87KB / 70KB 配额，**+415 B，未越线**）。同口径（gzip）对照：基础层 **+630 B** 对 `keyCss` **+415 B**，差 215 B 为与入口既有 CSS 合并压缩的收益。同期 `coreEntryJs` 343,968 B（+6,960，未越 360KB）与 `maxAsyncChunkJs` 50,346 B（+1,199，未越 130KB）**不落在 caomei-ui**（其 JS 产物未变），系 0.3.0 批次之后其他依赖变更（nuxt 4.5.2→4.6.1、`@sentry/nuxt` 10→11 等）的累计差，本批未做逐提交字节对照、不作归因结论。**基线状态显式记录**：`.github/perf/bundle-baseline.json` 保持 0.3.0 批次口径不变，其 `keyCssGzipBytes` 参考值 60,896 已**低于**当前实测 61,311（差 415 B）、`coreEntryJsGzipBytes` 参考值 337,008 亦低于当前 343,968（差 6,960），本批**不刷新基线**；是否重取交由 B2 各批或 B4 决定。
 
 > 说明：上表同时记录的两个既有度量缺陷修正（`coreEntryJsGzipBytes` 入口口径、`maxAsyncChunkJsGzipBytes` manifest 路径）与本迁移无关，继续有效，不随 0.2.0 回退。
 
