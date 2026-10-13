@@ -90,7 +90,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/submissions', '.caomei-data-table, .admin-page-container'],
             ['/admin/friend-links', '.admin-friend-links, .p-datatable'],
             ['/admin/subscribers', '.p-datatable, .admin-page-container'],
-            ['/admin/external-links', '.p-datatable, .admin-page-container'],
+            ['/admin/external-links', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/placements', '.p-datatable, .admin-page-container'],
         ] as const
 

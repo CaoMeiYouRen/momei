@@ -19,6 +19,62 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
+## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一）的第二个路由 `/admin/external-links` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 455 行 / 6 个 PrimeVue 列组件 / 17 个在册族标签，是**客户端分页**列表（迁移前 PrimeVue 表格即消费整份 `value`、不接服务端分页），与首路由 `/admin/submissions`（服务端分页 + `useAdminList`）不同：本页不引入 `pageIndexBase` 契约，分页完全委托 caomei `DataTable` 自持的 1 基内部态。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/external-links/index.vue` | PrimeVue `DataTable` + 6 个 PrimeVue 列组件 → `CaomeiDataTable` + `columns` 数组（`#body` → `#cell-{key}`）；`Tag severity` → `tone`；页头与行内 PrimeVue 按钮 → `CaomeiButton`（行内图标按钮用 0.6.0 `iconOnly` + lucide `#icon`，不再复制 M4 的 padding 补丁）；跳转页 PrimeVue 勾选 / 叉号图标 → lucide `Check` / `X`（保留 `text-success` / `text-secondary` 色类） | §6.1 / §6.2 / §6.3 / §5.3 |
+| 同上 | 浮层内**在册族**组件随路由迁移：编辑弹窗 `InputText`×2 → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、弹窗页脚与页头 `Button` → `CaomeiButton`；`Dialog` / `Checkbox` / `ConfirmDialog` / `useConfirm` / `v-tooltip` 维持 PrimeVue | §5.5（豁免只覆盖浮层**自身**；其内部在册族仍须迁移，否则命中零残留守卫） |
+| 同上 | `p-invalid` 类 → `:invalid` 布尔（`CaomeiInput` / `CaomeiSelect` 的校验态入口） | §6.2 校验态 |
+| 同上 | 客户端分页委托：`DataTable` 不传 `page` / `lazy` / `total-records`、不监听 `@page`，页码由 caomei 1 基内部态自持——本页不存在 PrimeVue（0 基）与 caomei（1 基）之间的换算，故无需 `pageIndexBase` | 跨组件库事件语义（本页与首路由的差异项） |
+| 同上 | 分页容器水平对齐用 `--caomei-data-table-pagination-justify: center` 保持 PrimeVue 原居中口径 | §3.8 / §6.2 |
+| 同上 | 动作列沿用迁移前声明的 `text-right` + `min-width: 8rem`（PrimeVue 的 `class` / `style` 同时落在表头与表体单元格），以 `align: 'right'` + `headerStyle` / `bodyStyle` 的 `minWidth: 8rem` 等价还原；其余列不新增显式宽度 | 迁移不改几何 |
+| 同上 | 删除迁移后无意义的 PrimeVue 表格尺寸类 `p-datatable-sm`（caomei `DataTable` 无对应压缩档，保留只会成为死类） | 可删除代码收敛 |
+| 同上 | `getExternalLinkStatusSeverity` → `getExternalLinkStatusTone`：`success` / `danger` / `warning` 直通，PrimeVue `secondary` 取有损近似 `neutral` | §6.2 / §6.3 有意差异 |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/external-links` | §5.5 |
+| `tests/e2e/admin.e2e.test.ts` | 路由矩阵中 `/admin/external-links` 就绪选择器 `.p-datatable` → `.caomei-data-table` | 层 ② 改写 |
+| `tests/visual/admin-external-links-list.visual.test.ts` + 2 张基线 | 新增浅 / 深基线（**迁移前采集 → 逐项归因 → 按迁移后状态更新**） | §8.2 层 ③ |
+| `pages/admin/external-links/index.test.ts` | 新增页面单测 13 条：列定义、6 个 `#cell-{key}` 插槽按 row 渲染、Tag tone 四态、跳转页图标分支、动作集合、`iconOnly` 形态、客户端分页委托（无 `page` / `lazy` / 无服务端请求）、弹窗字段映射与 `:invalid` 校验、删除确认、统计弹窗 | §8.2 层 ① |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：迁移前基线以 `git stash push -- pages/admin/external-links/index.vue`（仅回退该页）在同一工作树（`lib/ui-library.ts` 已登记本路由，故页头语言切换器在两态均为 caomei 版）下构建采集；迁移后用同环境（chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画）截图。因本批执行环境**无视觉模型**，归因采用「纯标准库 PNG 逐像素 + 行带 / 列带分布」做区域定位（容差 24/通道），再按组件语义对照；`toHaveScreenshot` 阈值（`maxDiffPixels 200`）不参与该对照，故对照差异量级高于阈值属预期。
+
+- 差异总量：浅色 **7,030 px（Playwright 口径）/ 12,096 px（区域分析口径 0.93%）**；深色 **9,554 px / 12,009 px（0.93%）**；包围盒 浅色 `x[66,1375] y[112,369]`、深色 `x[88,1375] y[112,344]` —— 页头左侧标题、侧栏、页脚零差异。
+- 过程中收敛掉**一处本批自行引入的非必要对齐改动**：`DataTable` 分页容器水平对齐。caomei 默认右对齐、PrimeVue 默认居中，直接用会改变分页器水平位置；已按 §3.8 用 `--caomei-data-table-pagination-justify: center` 收敛为居中。列带证据：收敛前右侧 `x[1280,1360)` 差异 3,311 px、中部 `x[680,760)` 742 px → 收敛后 2,290 px / 1,775 px（分页器由右移回中部）。区域指标**总量未下降**（收敛前 ~12.1k → 收敛后 ~12.1k），因该分页器在两态同时存在**垂直偏移**（PrimeVue 与 caomei 空态行高不同，见下表），水平对齐收敛只改变差异落点、不改变像素总量。
+
+| 区域（浅色坐标） | 迁移前 | 迁移后 | 归因 |
+| :--- | :--- | :--- | :--- |
+| 页头动作按钮 `y[111,150] x[1294,1375]` | PrimeVue 按钮（label + `pi` 图标） | `CaomeiButton`（label + lucide 图标） | **组件替换**（按钮外壳 / 内边距 / 高度由 caomei 按钮提供） |
+| 表头 `y[210,237] x[88,1351]` | PrimeVue `DataTable` 表头 | caomei `DataTable` 表头 | **组件替换**（表头底色 / 边框 / 字体 / 单元格内边距；列宽由表格自动分配，列头文本 x 位置随各列宽微移，非页面声明所致） |
+| 空态文案 `y[243,261]`（左 `x[96,159]`） / `y[261,276]`（中 `x[692,747]`） | PrimeVue 空态行内**左对齐**文案 | caomei 空态行**居中**文案 | **组件替换**（空态行对齐与行高差异；页面 `#empty` 插槽写法未变） |
+| 分页器 `y[288,300] x[646,793]` / `y[312,345] x[704,735]` | PrimeVue 分页器（居中，文本式按钮） | caomei 分页器（居中，实边框按钮） | **组件替换**（水平对齐已用 token 收敛；垂直偏移来自空态行高差） |
+| 表格容器横线 `y[234,237]` / `y[348,351]` / `y[369,372]`（深色 `y[234,237]` / `y[264,267]` / `y[321,324]`） | PrimeVue 表头底边框与表格边框所在 y | caomei 对应边框所在 y | **组件替换**（表头 / 空态行高度不同，导致下方边框整体下移） |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/external-links/index.test.ts tests/modules/ composables/use-admin-list.test.ts` = **7 文件 / 43 用例通过**（本页 13 条）；扩面后的路由迁移守卫（在册族零残留 + 至少一个 caomei 组件）已覆盖 `/admin/external-links`。`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` 通过；`pnpm lint:i18n` 通过。
+- **层 ②（E2E 功能）**：`tests/e2e/admin.e2e.test.ts` 的路由矩阵就绪选择器已由 `.p-datatable` 改为 `.caomei-data-table`；本路由实际加载由层 ③ 的 `page.goto('/admin/external-links')` 与页头可见断言覆盖（未单独复跑全量 E2E，见「未覆盖边界」）。
+- **层 ③（截图识别）**：迁移前基线对照见上；归因与收敛完成后已按迁移后状态刷新基线，`pnpm test:visual` **14/14 通过**（本批新增浅 / 深 2 张 + 既有 12 张，既有页面逐像素零差异——本批未污染其他基线）。
+- **包体**：`pnpm test:perf:budget` 全项不越线（`keyCss` 59.87KB / 70KB；本路由的组件样式进入路由 chunk，未抬升入口 `keyCss`）。
+
+### 未覆盖边界 / 观察项
+
+- TEST_MODE 未播种外链数据，截图基线为**空态**渲染，故截图层不覆盖行级渲染；行级结构（列定义与列插槽 / Tag tone / 跳转页图标分支 / 动作集合 / 客户端分页委托 / 弹窗字段映射与校验）已由本页单元层用例逐项断言。**截图基线 provenance**：迁移前 actual / diff 产物未入库，仓库仅存迁移后快照（浅 / 深 2 张），如需以「迁移前基线」作为判定依据应由 CI 复采。
+- **客户端分页与压缩档**：本页为客户端分页（无服务端分页），caomei `DataTable` 无 PrimeVue `p-datatable-sm` 一类的压缩档，已有数据行时的行高 / 内边距将随组件替换变化——该差异不在空态基线覆盖范围内，登记为观察项；因 TEST_MODE 无种子数据，本轮未做行级截图对照。
+- **遗留 PrimeVue v3 幻影 token（本页未清理，属有意保留）**：页面 scoped 样式保留 `var(--surface-ground)` / `var(--border-radius)` / `var(--text-color-secondary)` 三处声明。经核验这些名字在 Aura / MomeiPreset 产物中**从未被定义**（真实名为 `--p-surface-*`），当前按 `unset` 生效；若改写为 `--caomei-*` 会使 `.short-code` / 统计弹窗**首次显现背景色与圆角**，属超出「路由迁移不改观感」的行为变更，故本批保留。同类幻影 token 在仓库内十余处页面 / 组件（`pages/goto/[code].vue`、`components/admin/ai/*` 等）普遍存在，宜作为跨批清理项统一处置，不在本路由内顺带修改。
+- **信息损失映射（§6.2 有损近似）**：行内「统计 / 编辑」按钮的 PrimeVue `severity="info"` 按 §6.2 映射为 `tone="primary"`（品牌主色，非 info 色）；`Tag` 的 `secondary` → `neutral`。两者均在空态基线覆盖范围外，登记为已接受的损失项。
+- 其余 8 个路由（含 `AppAvatarV2` / `AppUploaderV2` / `PostAuditBadge` 过渡件）仍待办。
+
+<!-- regression-window:end:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
+
 <!-- regression-window:start:phase68-b2-submissions:第六十八阶段-条目2-首路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 首路由 B2 迁移（`/admin/submissions`）
 

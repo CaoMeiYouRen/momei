@@ -2,117 +2,122 @@
     <div class="admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.external_links.title')" show-language-switcher>
             <template #actions>
-                <Button
+                <CaomeiButton
                     :label="$t('common.create')"
-                    icon="pi pi-plus"
                     @click="openDialog()"
-                />
+                >
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
         <div class="admin-content-card">
-            <DataTable
-                :value="links"
+            <!-- 客户端分页：不传 `page` / 不设 `lazy`，由 caomei `DataTable` 按 `rows` 自持切片，
+                 与迁移前 PrimeVue 表格消费整份 `value` 的行为一致。 -->
+            <CaomeiDataTable
+                :data="links"
+                :columns="columns"
                 :loading="loading"
                 paginator
                 :rows="10"
-                class="p-datatable-sm"
+                class="admin-external-links__table"
             >
-                <Column
-                    field="shortCode"
-                    :header="$t('pages.admin.external_links.short_code')"
-                >
-                    <template #body="{data}">
-                        <div class="flex gap-2 items-center">
-                            <code class="short-code">{{ data.shortCode }}</code>
-                            <Button
-                                v-tooltip="$t('common.copy')"
-                                icon="pi pi-copy"
-                                text
-                                rounded
-                                size="small"
-                                @click="copyShortCode(data.shortCode)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-                <Column
-                    field="originalUrl"
-                    :header="$t('pages.admin.external_links.original_url')"
-                >
-                    <template #body="{data}">
-                        <div class="url-truncate" :title="data.originalUrl">
-                            {{ data.originalUrl }}
-                        </div>
-                    </template>
-                </Column>
-                <Column
-                    field="status"
-                    :header="$t('pages.admin.external_links.status')"
-                >
-                    <template #body="{data}">
-                        <Tag
-                            :value="data.status"
-                            :severity="getExternalLinkStatusSeverity(data.status)"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    field="clickCount"
-                    :header="$t('pages.admin.external_links.clicks')"
-                    sortable
-                />
-                <Column
-                    field="showRedirectPage"
-                    :header="$t('pages.admin.external_links.show_redirect')"
-                >
-                    <template #body="{data}">
-                        <i
-                            :class="[
-                                data.showRedirectPage ? 'pi pi-check' : 'pi pi-times',
-                                data.showRedirectPage ? 'text-success' : 'text-secondary'
-                            ]"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    :header="$t('common.actions')"
-                    class="text-right"
-                    style="min-width: 8rem"
-                >
-                    <template #body="{data}">
-                        <Button
-                            v-tooltip="$t('pages.admin.external_links.stats')"
-                            icon="pi pi-chart-bar"
-                            text
+                <template #cell-shortCode="{row}">
+                    <div class="flex gap-2 items-center">
+                        <code class="short-code">{{ row.shortCode }}</code>
+                        <CaomeiButton
+                            v-tooltip="$t('common.copy')"
+                            icon-only
+                            variant="ghost"
                             rounded
-                            severity="info"
-                            @click="showStats(data)"
-                        />
-                        <Button
-                            icon="pi pi-pencil"
-                            text
-                            rounded
-                            severity="info"
-                            @click="openDialog(data)"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="confirmDeleteExternalLink(data)"
-                        />
-                    </template>
-                </Column>
+                            size="sm"
+                            :label="$t('common.copy')"
+                            @click="copyShortCode(row.shortCode)"
+                        >
+                            <template #icon>
+                                <Copy :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </div>
+                </template>
+
+                <template #cell-originalUrl="{row}">
+                    <div class="url-truncate" :title="row.originalUrl">
+                        {{ row.originalUrl }}
+                    </div>
+                </template>
+
+                <template #cell-status="{row}">
+                    <CaomeiTag :tone="getExternalLinkStatusTone(row.status)">
+                        {{ row.status }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-showRedirectPage="{row}">
+                    <Check
+                        v-if="row.showRedirectPage"
+                        :size="16"
+                        class="text-success"
+                    />
+                    <X
+                        v-else
+                        :size="16"
+                        class="text-secondary"
+                    />
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        v-tooltip="$t('pages.admin.external_links.stats')"
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="primary"
+                        :label="$t('pages.admin.external_links.stats')"
+                        @click="showStats(row)"
+                    >
+                        <template #icon>
+                            <ChartBar :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="primary"
+                        :label="$t('common.edit')"
+                        @click="openDialog(row)"
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="danger"
+                        :label="$t('common.delete')"
+                        @click="confirmDeleteExternalLink(row)"
+                    >
+                        <template #icon>
+                            <Trash :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+
                 <template #empty>
                     <div class="empty-state">
                         {{ $t('pages.admin.external_links.empty') }}
                     </div>
                 </template>
-            </DataTable>
+            </CaomeiDataTable>
         </div>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / Checkbox / ConfirmDialog / v-tooltip 维持 PrimeVue 至第六十九阶段。
+             其**内部**的 InputText / Select / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
         <Dialog
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
@@ -121,18 +126,18 @@
         >
             <div class="field">
                 <label for="originalUrl">{{ $t('pages.admin.external_links.original_url') }} *</label>
-                <InputText
+                <CaomeiInput
                     id="originalUrl"
                     v-model.trim="formData.originalUrl"
                     :placeholder="$t('pages.admin.external_links.url_placeholder')"
-                    :class="{'p-invalid': errors.originalUrl}"
+                    :invalid="Boolean(errors.originalUrl)"
                 />
                 <small v-if="errors.originalUrl" class="p-error">{{ errors.originalUrl }}</small>
             </div>
 
             <div class="field">
                 <label for="metadata_title">{{ $t('common.title') }}</label>
-                <InputText
+                <CaomeiInput
                     id="metadata_title"
                     v-model.trim="formData.metadata.title"
                     :placeholder="$t('pages.admin.external_links.title_placeholder')"
@@ -141,13 +146,13 @@
 
             <div class="field">
                 <label for="status">{{ $t('pages.admin.external_links.status') }} *</label>
-                <Dropdown
+                <CaomeiSelect
                     id="status"
                     v-model="formData.status"
                     :options="statusOptions"
                     option-label="label"
                     option-value="value"
-                    :class="{'p-invalid': errors.status}"
+                    :invalid="Boolean(errors.status)"
                 />
                 <small v-if="errors.status" class="p-error">{{ errors.status }}</small>
             </div>
@@ -175,12 +180,12 @@
             </div>
 
             <template #footer>
-                <Button
+                <CaomeiButton
                     :label="$t('common.cancel')"
-                    severity="secondary"
+                    variant="secondary"
                     @click="dialogVisible = false"
                 />
-                <Button
+                <CaomeiButton
                     :label="$t('common.save')"
                     :loading="saving"
                     @click="save"
@@ -229,7 +234,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { ChartBar, Check, Copy, Pencil, Plus, Trash, X } from '@lucide/vue'
 import { useConfirm } from 'primevue/useconfirm'
+import type { DataTableColumn } from 'caomei-ui'
 import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
 
 const { t } = useI18n()
@@ -271,6 +278,24 @@ const statusOptions = computed(() => [
     { label: t('pages.admin.external_links.statuses.active'), value: LinkStatus.ACTIVE },
     { label: t('pages.admin.external_links.statuses.blocked'), value: LinkStatus.BLOCKED },
     { label: t('pages.admin.external_links.statuses.expired'), value: LinkStatus.EXPIRED },
+])
+
+// 列定义与迁移前 PrimeVue 列组件一一对应：默认取值的短码 / 原始链接 / 状态 / 点击次数 / 跳转页 / 动作。
+// 不新增显式 `width`；动作列沿用迁移前声明的 `text-right` + `min-width: 8rem`（PrimeVue 的 `class` / `style`
+// 同时落在表头与表体单元格，故此处以 `align: 'right'` + 双 style 等价还原，不改列宽与对齐）。
+const columns = computed<DataTableColumn<any>[]>(() => [
+    { key: 'shortCode', header: t('pages.admin.external_links.short_code') },
+    { key: 'originalUrl', header: t('pages.admin.external_links.original_url') },
+    { key: 'status', header: t('pages.admin.external_links.status') },
+    { key: 'clickCount', header: t('pages.admin.external_links.clicks'), sortable: true },
+    { key: 'showRedirectPage', header: t('pages.admin.external_links.show_redirect') },
+    {
+        key: 'actions',
+        header: t('common.actions'),
+        align: 'right',
+        headerStyle: { minWidth: '8rem' },
+        bodyStyle: { minWidth: '8rem' },
+    },
 ])
 
 async function loadLinks() {
@@ -393,7 +418,9 @@ function copyShortCode(code: string) {
     })
 }
 
-function getExternalLinkStatusSeverity(status: LinkStatus): string {
+// caomei Tag 无 `severity`，改用 `tone`（迁移方案 §6.2 / §6.3 有意差异）：
+// `success` / `danger` / `warning` 直接对应，PrimeVue `secondary` 取有损近似 `neutral`。
+function getExternalLinkStatusTone(status: LinkStatus): 'success' | 'danger' | 'warning' | 'neutral' {
     switch (status) {
         case LinkStatus.ACTIVE:
             return 'success'
@@ -402,7 +429,7 @@ function getExternalLinkStatusSeverity(status: LinkStatus): string {
         case LinkStatus.EXPIRED:
             return 'warning'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 
@@ -412,6 +439,12 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+.admin-external-links__table {
+    // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+    // `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+    --caomei-data-table-pagination-justify: center;
+}
+
 .short-code {
     background: var(--surface-ground);
     padding: 0.25rem 0.5rem;
