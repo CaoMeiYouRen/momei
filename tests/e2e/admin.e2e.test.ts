@@ -87,7 +87,7 @@ test.describe('Admin E2E Tests', () => {
         const routeMatrix = [
             ['/admin/users', '.p-datatable, .admin-page-container'],
             ['/admin/comments', '.caomei-data-table, .admin-page-container'],
-            ['/admin/submissions', '.p-datatable, .admin-page-container'],
+            ['/admin/submissions', '.caomei-data-table, .admin-page-container'],
             ['/admin/friend-links', '.admin-friend-links, .p-datatable'],
             ['/admin/subscribers', '.p-datatable, .admin-page-container'],
             ['/admin/external-links', '.p-datatable, .admin-page-container'],

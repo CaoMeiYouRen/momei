@@ -11,3 +11,7 @@ packages/*/coverage/
 /test-results
 .vercel
 .lighthouseci
+# 构建 / 测试产物：单行压缩 CSS 会被误判为大量样式错误（CI 为干净检出故不暴露）
+/.output
+/.nuxt
+/artifacts

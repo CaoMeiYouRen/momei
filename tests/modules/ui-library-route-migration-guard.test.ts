@@ -43,6 +43,22 @@ function resolvePageFile(prefix: string): string {
     return path.join(process.cwd(), 'pages', normalizedPrefix, 'index.vue')
 }
 
+/**
+ * 剥离注释后再扫描。
+ *
+ * 守卫按源码文本匹配组件标签，而页面注释里常需要引用旧标签名做说明
+ * （如「迁移前 PrimeVue 列组件的写法」）——不剥离注释会把这类说明误判为残留标签
+ * （2026-10-13 `/admin/submissions` 首版即因此假阳性）。
+ *
+ * 行注释只剥离**整行**注释，避免误伤字符串中的 URL（如 `https://…`）。
+ */
+function stripComments(source: string): string {
+    return source
+        .replace(/<!--[\s\S]*?-->/gu, '')
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/^\s*\/\/.*$/gmu, '')
+}
+
 describe('已迁移路由：在册组件族零残留', () => {
     it('事实源至少登记一个路由前缀，且格式为绝对前缀', () => {
         expect(CAOMEI_UI_ROUTE_PREFIXES.length).toBeGreaterThan(0)
@@ -60,11 +76,12 @@ describe('已迁移路由：在册组件族零残留', () => {
         it(`${prefix}：页面文件不得残留在册族 PrimeVue 组件，且至少使用一个 caomei-ui 组件`, async () => {
             const pageFile = resolvePageFile(prefix)
             const source = await readFile(pageFile, 'utf8')
+            const scanned = stripComments(source)
 
-            const residual = IN_SCOPE_PRIMEVUE_COMPONENTS.filter((name) => buildComponentTagPattern(name).test(source))
+            const residual = IN_SCOPE_PRIMEVUE_COMPONENTS.filter((name) => buildComponentTagPattern(name).test(scanned))
 
             expect(residual, `${prefix} 仍残留在册族 PrimeVue 组件：${residual.join(', ')}`).toEqual([])
-            expect(/<Caomei[A-Z]/u.test(source), `${prefix} 未检出任何 caomei-ui 组件`).toBe(true)
+            expect(/<Caomei[A-Z]/u.test(scanned), `${prefix} 未检出任何 caomei-ui 组件`).toBe(true)
         })
     }
 })

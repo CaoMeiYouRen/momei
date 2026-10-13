@@ -48,6 +48,16 @@ interface UseAdminListOptions<T, F extends AdminListFilters> {
     initialSort?: { field: string, order: 'asc' | 'desc' }
     initialPage?: number
     initialLimit?: number
+    /**
+     * `onPage` 收到的 `event.page` 的页码基准。
+     *
+     * - `0`（默认）：PrimeVue `DataTable` 的 `@page` 为**0 基**（`pageIndex`），故内部做 `+1` 归一为 1 基。
+     * - `1`：caomei-ui `DataTable` 的 `@page` 为**1 基**（`pageIndex + 1`），无需再抬升。
+     *
+     * 迁移期同一 composable 会同时服务两套组件库，故以显式选项区分，避免页面侧各写一份「减一」包装
+     * （见迁移方案 §5.5：路由内组件来源唯一，但共享 composable 需同时兼容两侧事件语义）。
+     */
+    pageIndexBase?: 0 | 1
 }
 
 function getErrorDetail(error: unknown): AdminListError {
@@ -69,7 +79,7 @@ function hasAggregateFilter(filters: AdminListFilters) {
 }
 
 export function useAdminList<T = unknown, F extends AdminListFilters = AdminListFilters>(options: UseAdminListOptions<T, F>) {
-    const { url, fetchFn, initialFilters, initialSort, initialPage = 1, initialLimit = 10 } = options
+    const { url, fetchFn, initialFilters, initialSort, initialPage = 1, initialLimit = 10, pageIndexBase = 0 } = options
     const { contentLanguage } = useAdminI18n()
     const { locale } = useI18n()
 
@@ -138,7 +148,7 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
     }
 
     const onPage = (event: AdminPageEvent) => {
-        page.value = event.page + 1
+        page.value = event.page + (pageIndexBase === 1 ? 0 : 1)
         limit.value = event.rows
         void load()
     }

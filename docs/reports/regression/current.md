@@ -19,6 +19,60 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase68-b2-submissions:第六十八阶段-条目2-首路由:2026-10-13 -->
+## 2026-10-13 第六十八阶段 条目 2 首路由 B2 迁移（`/admin/submissions`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一，10 个 `pages/admin` 数据列表路由）的首个路由 `/admin/submissions` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。选它作为首个执行项（用户 2026-10-13 裁定「先做最小路由验证口径」）：388 行 / 19 个在册族标签 / 5 个 `<Column>`，且不依赖任何待新增的共享壳过渡组件——用于先把「每路由例行改写范式」固定下来，其余 9 个路由按难度递增推进。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/submissions/index.vue` | `IconField`+`InputIcon`+`InputText` → `CaomeiInput`（`#prefix` + lucide `Search`）；`Select`×3 → `CaomeiSelect`（`@change`→`@update:model-value`）；`DataTable`+5×`Column` → `CaomeiDataTable` + `columns` 数组（`#body`→`#cell-{key}`）；`Tag severity`→`tone`；行内图标 `Button` → `CaomeiButton icon-only` + lucide `#icon`；样式 `--p-*`→`--caomei-*` | 迁移方案 §6.1 / §6.2 / §6.3 / §5.3 |
+| 同上 | 浮层内**在册族**组件（审核弹窗 `Button`×5、`Select`×2）随路由迁移；`Dialog`/`Divider`/`Textarea`/`Checkbox`/`Toast`/`ConfirmDeleteDialog`/`v-tooltip` 维持 PrimeVue | §5.5（豁免只覆盖浮层**自身**；其内部在册族仍须迁移，否则命中零残留守卫） |
+| 同上 | `getSubmissionStatusTone`：`PENDING` 由 PrimeVue `info` 取 `warning`——**偏离** §6.2 的属性级映射（`info → primary`），属本批**新增登记**的有意差异（`primary` 为品牌主色，用于「待审核」状态辨识度不足）；`ACCEPTED → success` / `REJECTED → danger` 与 §6.2 一致 | §6.3 有意差异（本批新增条目） |
+| 同上 | 行内动作按钮改用 0.6.0 `iconOnly`（**不再复制** M4 的 `--caomei-button-padding-x: 0` 补丁） | §3.8 / §5.5（0.4.0 缺口闭合） |
+| 同上 | 分页容器对齐使用 0.4.0 新增的 `--caomei-data-table-pagination-justify: center`，保持 PrimeVue 原居中口径 | §3.8 |
+| 同上 | 删除无引用的 `admin-submissions__col--*` 死类（原 `<Column class>` 无对应样式规则） | 可删除代码收敛 |
+| `composables/use-admin-list.ts` | 新增 `pageIndexBase?: 0 \| 1`（默认 `0` 保持既有行为；本页传 `1`）——caomei `@page` 为 1 基（`pageIndex + 1`），PrimeVue 为 0 基，原 `onPage` 恒 `+1` 会二次抬升页码 | 跨组件库事件语义差异（本批新增的跨路由共性项） |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/submissions` | §5.5 |
+| `tests/e2e/admin.e2e.test.ts` | 路由矩阵中 `/admin/submissions` 就绪选择器 `.p-datatable` → `.caomei-data-table` | 层 ② 改写 |
+| `tests/visual/admin-submissions-list.visual.test.ts` + 2 张基线 | 新增浅 / 深基线（**迁移前采集 → 逐项归因 → 按迁移后状态更新**） | §8.2 层 ③ |
+| `pages/admin/submissions/index.test.ts` | stub 由 PrimeVue 组件栈换成 caomei 组件栈（保留页头 / 表格 / 筛选 / Toast 四项既有覆盖），并补齐列定义与 `#cell-{key}` 插槽、Tag tone 映射、动作集合、1 基分页转发、筛选映射（含 `null` 往返）契约 | §8.2 层 ① |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：迁移前基线以 `git stash push -- pages/admin/submissions/index.vue`（仅回退该页）在既有 HEAD 下构建采集；迁移后用同环境（chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画）截图。因本批执行环境**无视觉模型**，归因采用「纯标准库 PNG 逐像素 + 行带分布」做区域定位（容差 24/通道），再按组件语义对照；`toHaveScreenshot` 阈值（`maxDiffPixels 200`）不参与该对照，故对照差异量级高于阈值属预期。
+
+- 差异总量：浅色 **7,222 px（Playwright 口径）/ 10,256 px（区域分析口径 0.79%）**；深色 **9,849 / 12,814 px（0.99%）**；包围盒 `x[56,1383] y[164,460]` —— **仅卡片区域**，页头 / 侧栏 / 页脚零差异。
+- 过程中收敛掉两处**本批自行引入的非必要几何改动**（列显式 `width`、actions 列 `align: 'right'`）——迁移不应顺带改变列宽与对齐；收敛后浅色差异由 11,196 px 降至 10,256 px。
+
+| 区域 | 迁移前 | 迁移后 | 归因 |
+| :--- | :--- | :--- | :--- |
+| 筛选行 y[160,200) | PrimeVue `IconField`+`InputIcon`+`InputText` + `Select` | `CaomeiInput`(`#prefix`) + `CaomeiSelect` | **组件替换**（字段外壳 / 触发器 / 聚焦态由 caomei 字段外壳层提供；0.4.0 起统一到基础层 `field-shell.css`） |
+| 表头 / 表体 y[200,360) | PrimeVue `DataTable` 表头与网格 | caomei `DataTable` 表头与网格 | **组件替换**（表头底色 / 边框 / 字体；§6.3 有意差异范围内，与 M4 同口径） |
+| 空态 y[320,360) | PrimeVue 内建空态文案 | `#empty` 插槽 + `common.no_data` | **有意**（与试点页同口径：空态容器由页面提供） |
+| 分页器 y[420,460) | PrimeVue 分页器（居中） | caomei 分页器（居中，经 `pagination-justify` token 对齐） | **组件替换**（分页器自身样式差异约 1.0k px；对齐已保持——残留量级与 M4 记录的对齐错位不符） |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run tests/modules/ pages/admin/submissions/index.test.ts` = **6 文件 / 35 用例通过**（本页 12 条 = 既有 4 项覆盖 + 新增 8 条）；本页断言覆盖列定义（status / contributor / title / createdAt / actions）与 `#cell-{key}` 插槽按 row 渲染、Tag tone 四态（pending / accepted / rejected / 默认）映射、pending 与非 pending 的动作集合差异、1 基分页事件原样转发、关键词与状态筛选模型映射（`null` 往返）及 `useAdminList` 收到 `pageIndexBase: 1`；扩面后的路由迁移守卫（在册族零残留 + 至少一个 caomei 组件）已覆盖 `/admin/submissions`。`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` 通过。
+- **层 ②（E2E 功能）**：`tests/e2e/admin.e2e.test.ts` 的 `should load extended admin management pages`（7 路由矩阵，含 `/admin/submissions`，就绪选择器已改用 `.caomei-data-table`）在**全量并行套件**下两次 30s 超时；按 M4 口径**隔离复跑**（chromium 单 worker、仅该用例）**1 passed / 11.2s**。同轮全量套件另有 webkit `user-workflow` 公开页失败与 `mobile-safari-critical` 失败、chromium `auth-session-governance` 1.5m 超时（后经重跑记为 flaky）。
+- **层 ② 验收 spec 的 flaky 定性（本批新增 HEAD 对照证据）**：`pnpm test:e2e:review-gate`（`auth-session-governance.e2e.test.ts`，chromium / firefox / webkit）**12 failed / 6 passed**，与本批改动面（`/admin/submissions` 与 `useAdminList` 分页路径）无交集。按 M4 口径做 **HEAD 对照复现**：`git stash push`（回退全部已跟踪改动）后以同环境跑 chromium 单浏览器同一 spec → **1 failed / 1 flaky / 4 passed**，与迁移后同形。判定：**该 spec 在 master 自身即失败 / flaky（既有问题，非本批回归）**；本批不扩修该 spec（C 类），登记为已知既有 flaky，并把「`auth-session-governance` 在 master 上的稳定失败」作为**阶段内遗留项**另行处理。本路由未做行级 E2E 补强。
+- **层 ③（截图识别）**：迁移前基线对照见上；归因完成后已按迁移后状态刷新基线，`pnpm test:visual` **12/12 通过**（新增浅 / 深 2 张 + 既有 10 张，既有页面逐像素零差异——本批未污染其他基线）。
+
+### 未覆盖边界 / 观察项
+
+- TEST_MODE 未播种稿件数据，截图基线为**空态**渲染，故截图层不覆盖行级渲染；行级结构（列定义与列插槽 / Tag tone / 动作集合 / 1 基分页转发 / 筛选映射）已由本页单元层用例逐项断言（见「验证结果」层 ①），本路由未新增行级 E2E。**截图基线 provenance**：迁移前 actual / diff 产物未入库，仓库仅存迁移后快照（浅 / 深 2 张），如需以「迁移前基线」作为判定依据应由 CI 复采。
+- 审核弹窗为浮层（PrimeVue 豁免），其内部 caomei `Select` 的浮层层级与 PrimeVue `Dialog` 共存未做截图覆盖（无自动化用例），登记为观察项；异常时按 caomei 0.5.0「模态内浮层面板层级 / z-index 覆盖钩子」复核。
+- 分页 `pagination-justify` token 的实际效果未做单页对照实验（仅由差异量级间接判定）；后续路由若要精确还原对齐，应先做对照再定论。
+- 本批次写入前已按 [index.md](./index.md) §3.1 完成**滚动归档**（第四十二 ~ 第四十九阶段窗口迁入 [archive/2026-06-04-to-2026-06-13.md](./archive/2026-06-04-to-2026-06-13.md)，`current.md` 由 676 → 448 行）；`index.md` §3.1（300-400 行）与 `docs:check:line-count`（500/700）两套阈值仍不一致，待治理。
+- 其余 9 个路由（含 `AppAvatarV2` / `AppUploaderV2` / `PostAuditBadge` 过渡件）仍待办。
+
+<!-- regression-window:end:phase68-b2-submissions:第六十八阶段-条目2-首路由:2026-10-13 -->
+
 <!-- regression-window:start:phase68-caomei-drift-060:第六十八阶段-caomei漂移收口:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 caomei-ui 0.3.0 → 0.6.0 版本漂移收口
 
@@ -445,232 +499,3 @@ B2 试点页 5 族 / 8 处，与升级前一致：`CaomeiButton` ×3、`CaomeiSe
 - `pnpm lint:i18n` 未在本轮单独执行，新增 i18n 键依赖 typecheck + 运行时验证。
 
 <!-- regression-window:end:phase42-close:第四十二阶段:2026-06-04 -->
-
-<!-- regression-window:start:phase42-docs-sync:第四十二阶段收口后:2026-06-04 -->
-## 2026-06-04 第四十二阶段收口后文档同步
-
-### 范围
-
-- 目标：执行第四十二阶段归档后的文档收口，包括 todo.md 清理、搜索优先原则规范文档同步、英文翻译同步。
-- 本轮覆盖：todo.md（Phase 42 完成项归档）、AGENTS.md（4.5 搜索优先摘要）、ai-collaboration.md（1.4 搜索优先详细规则）、development.md（搜索优先原则）、ai-development.md（搜索优先指引）、CLAUDE.md（搜索优先触发规则）、full-stack-master/code-auditor/qa-assistant agent 定义（搜索优先强化）。
-- 非目标：不新增功能、不改变代码。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | — | 仅文档改动，不涉及代码 |
-| `pnpm lint` | — | 仅文档改动 |
-| `pnpm docs:check:source-of-truth` | Pass | 文档事实源层级正确 |
-| `pnpm docs:check:i18n` | Pass | 翻译文档时效性通过 |
-| en-US 翻译同步 | 完成 | ai-collaboration.md（1.3/1.4 搜索优先）、development.md（搜索优先原则） |
-| todo.md 清理 | 完成 | Phase 42 完成项归档，当前执行面清空 |
-
-### 未覆盖边界
-
-- `en-US/standards/ai-collaboration.md` 仅同步搜索优先相关章节（1.3/1.4），完整 PDTFC+ 2.0 细节仍待后续同步。
-- `zh-TW` / `ko-KR` 翻译保持 source-only，无需更新。
-
-<!-- regression-window:end:phase42-docs-sync:第四十二阶段收口后:2026-06-04 -->
-
-<!-- regression-window:start:phase43-close:第四十三阶段:2026-06-05 -->
-## 2026-06-05 第四十三阶段收口回归
-
-### 范围
-
-- 目标：第四十三阶段「AI 分发复用与治理深化」5 条主线全部交付后的阶段收口回归。
-- 本轮覆盖：全仓 typecheck + ESLint、Code Auditor 审计及修复、i18n nesting bug 修复、sourceMap 跨平台修正。
-- 非目标：不包含 Windows 本地 perf 测量（确认为平台级瓶颈，已关闭）。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 0 errors |
-| `pnpm lint` | Pass | 0w（pre-existing 4 个除外） |
-| `pnpm i18n:audit:missing` | Pass | total: 0 |
-| `pnpm i18n:audit:duplicates` | Pass | 97 组（Phase 43 收敛后） |
-| `pnpm governance:audit:simple-duplicates` | Pass | 同名函数 110, 同名类型 20 |
-| Code Auditor | Pass | 2 blocker 已修复（i18n nesting + sourceMap） |
-| roadmap.md 归档 | 完成 | Phase 43 审计结论已写入 |
-| todo-archive.md 滚动归档 | 完成 | Phase 43 归档块已写入 |
-| todo.md 状态 | 清理 | Phase 43 5/5 主线完成，执行面清空 |
-
-### Phase 43 交付清单
-
-| 主线 | 交付 | 提交 |
-|---|---|---|
-| AI 内容多格式复用 | social-post API + Service + Prompt + Dialog + 5 locale i18n | `e749f3de` |
-| ESLint / 类型债 | vue emits/props + max-statements + max-lines + no-non-null-assertion 扩展 | `d3068ab5` |
-| 结构复用治理 | commercial-link-manager 自重复 + PostNavigationItem/DirectUploadStrategy/toErrorMessage | `a9cf62ff` |
-| Windows 性能治理 | warmup + extensions + inline 瘦身 + sourceMap + build:done；平台级瓶颈确认关闭 | `227eca85`, `c8e5ba39`, `9afe8553` |
-| i18n duplicates 收敛 | voice/actions 键统一至 common，-5 组 -11 keys | `7bc309df` |
-
-### 未覆盖边界
-
-- AI 社交帖子 API 无速率限制（审计 warning #3）
-- AI 服务 + API 无测试覆盖（审计 warning #4）
-- Windows 本地 perf 采集受平台瓶颈阻塞，对比数据仅 CI Linux 对照（106s）
-
-<!-- regression-window:end:phase43-close:第四十三阶段:2026-06-05 -->
-
-<!-- regression-window:start:phase49-close:第四十九阶段:2026-06-13 -->
-## 2026-06-13 第四十九阶段收口回归
-
-### 范围
-
-- 目标：第四十九阶段「延期清缴与流量治理」5 条优化主线交付后的阶段收口回归。
-- 本轮覆盖：全仓 typecheck + ESLint、5 条主线全部交付。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 0 errors |
-| `pnpm lint` | Pass | 0 errors, 0 warnings |
-| todo-archive.md 滚动归档 | 完成 | Phase 49 归档块已写入 |
-| todo.md 状态 | 清理 | 执行面已清空 |
-
-### Phase 49 交付清单
-
-| 主线 | 交付 | 提交 |
-|------|------|------|
-| Postgres 流量治理 | includeAuthorEmail:false + 移除 JSON 字段 | `95dc1a0f`, `80dc313c` |
-| formatDate 复用 | 6 处自定义 wrapper 消除 | `793e5af4` |
-| 延期测试回填 | friend-links.test 3 用例 + admin checkbox | `7907b793` |
-| 清理收口 | vendor.css 删除 + backlog.md | `455ced9c` |
-| type 收敛 | AdAdapterConfig 统一 (12→11) | `10eb6fff` |
-<!-- regression-window:end:phase49-close:第四十九阶段:2026-06-13 -->
-
-<!-- regression-window:start:phase48-close:第四十八阶段:2026-06-13 -->
-## 2026-06-13 第四十八阶段收口回归
-
-### 范围
-
-- 目标：第四十八阶段「深度治理与清理收口」5 条优化主线全部交付后的阶段收口回归。
-- 本轮覆盖：全仓 typecheck + ESLint、治理文档 2 份、todo-archive 滚动归档。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 0 errors（删除 API 时捕获 3 处前端引用） |
-| `pnpm lint` | Pass | 0 errors |
-| todo-archive.md 滚动归档 | 完成 | Phase 48 归档块已写入 |
-| todo.md 状态 | 清理 | 执行面已清空 |
-
-### Phase 48 交付清单
-
-| 主线 | 交付 | 提交 |
-|------|------|------|
-| ESLint / 类型债 | 9 处 as any 清零 | `a9499974`, `47233bab` |
-| 结构复用 | 3 组类型收敛 (15→12) | `2f099780`, `baa65136` |
-| API Schema | 2 端点 RouterParam Zod + 2 测试 | `cf1a2035`, `44e9e25c` |
-| 未使用 API 删除 | 2 端点删除 + 前端引用验证 | `15658bd1`, `fd72487b` |
-| 第二轮调研 | 4 端点评估 + 1 确认候选 | `f9013bcc` |
-
-### 关键发现
-
-- 删除 API 时 typecheck 捕获 3 处"假零引用"（前端实际调用）：posts/audit、theme-configs/delete、snippets/convert
-<!-- regression-window:end:phase48-close:第四十八阶段:2026-06-13 -->
-
-<!-- regression-window:start:phase47-close:第四十七阶段:2026-06-11 -->
-## 2026-06-11 第四十七阶段收口回归
-
-### 范围
-
-- 目标：第四十七阶段「接口契约与路由治理深化」6 条优化主线全部交付后的阶段收口回归。
-- 本轮覆盖：全仓 typecheck + ESLint、治理文档 4 份、todo-archive 滚动归档。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 0 errors |
-| `pnpm lint` | Pass | 0 errors |
-| todo-archive.md 滚动归档 | 完成 | Phase 47 归档块已写入 |
-| todo.md 状态 | 清理 | 执行面已清空 |
-
-### Phase 47 交付清单
-
-| 主线 | 交付 | 提交 |
-|------|------|------|
-| ESLint / 类型债 | 6 处 as any 收敛 | `b704618f` |
-| 结构复用治理 | 3 组类型收敛 (FeedItem/TitleSuggestionOverlayRef) | `7ef401b0`, `516daa45` |
-| API 路径规范化 | route-api-path-governance.md + 2 处 P0 修复 | `102b107b`, `db2a54e0` |
-| 路由风格统一 | 规范冻结 + calendar/marketing → index.vue | `4f6686a6`, `9e3ddad1` |
-| 未使用 API 评估 | unused-api-cleanup-assessment.md | `e3864b1a`, `5d690e5e` |
-| API Schema 治理 | taxonomy.ts + 3 组复用样板 | `09924a42`, `8259fa75` |
-
-### 未覆盖边界
-
-- Phase 44-46 的回归窗口不在本轮扫描范围（已有独立窗口）。
-<!-- regression-window:end:phase47-close:第四十七阶段:2026-06-11 -->
-
-<!-- regression-window:start:phase44-close:第四十四阶段:2026-06-07 -->
-## 2026-06-07 第四十四阶段收口回归
-
-### 范围
-
-- 目标：第四十四阶段「友链生态与性能闭环」6 条主线全部交付后的阶段收口回归。
-- 本轮覆盖：全仓 typecheck + ESLint、i18n 键完整性、Phase 44 全部主线、docs 归档。
-- 非目标：不包含 CWV 实际数值采集（需 CI `build-lighthouse` 产出）。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 0 errors |
-| `pnpm lint` | Pass | 0 errors, 10 pre-existing warnings |
-| i18n key 覆盖 | Pass | feed_title / feed_empty / show_rss_feed 在 5 locale 中完整 |
-| todo-archive.md 滚动归档 | 完成 | Phase 44 归档块已写入 |
-| todo.md 状态 | 清理 | Phase 44 6/6 主线完成，执行面已清空 |
-
-### Phase 44 交付清单
-
-| 主线 | 交付 | 提交 |
-|------|------|------|
-| 友链 RSS 聚合 | showRssFeed 管理配置 + RSS/Atom 抓取/解析/缓存 + 公开页最近更新 | `3fa5b924`, `d580d6c0`, `b06314b6` |
-| 隐私自托管分析评估 | Umami 评估文档，条件性 Go 结论 | `2d41ae1d` |
-| ESLint / 类型债 | 3 组窄切片: no-non-null-assertion + no-explicit-any | `28e171f8` |
-| 结构复用治理 | SettingFieldMetadata + AgreementFormData 收敛 | `249eb90a` |
-| CWV 性能优化 | Logo 预加载 + CSS @import 扁平化 | `8669d0c0` |
-| Phase 44 测试回填 | Phase A (19 用例) + Phase B (7 用例) | `2d41ae1d`, `8d35652f` |
-
-### 未覆盖边界
-
-- CWV 基线数值待 CI 运行 `pnpm build && pnpm test:perf:cwv` 后回填。
-- 友链管理页 Checkbox 渲染测试及公开页 feed 渲染/降级测试已回灌 backlog。
-<!-- regression-window:end:phase44-close:第四十四阶段:2026-06-07 -->
-
-<!-- regression-window:start:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->
-## 2026-06-10 第四十六阶段周级回归执行结果（已收口）
-
-### 范围
-
-- 目标：完成第四十六阶段 P0 主线「周期性回归任务 + 项目现状调研」的固定入口执行，并沉淀可复查证据。
-- 本轮覆盖：执行 `pnpm regression:weekly`，完成 `test:coverage` 全量运行并落盘 Review Gate artifact。
-- 非目标：本条记录不直接修复 blocker，仅输出本轮回归结论与后续治理入口。
-
-### 执行快照
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| 固定入口 `pnpm regression:weekly` | 已完成 | 本轮执行完成，退出码 `1` |
-| `test:coverage` | 失败 | `485` 个测试文件中 `2` 个失败文件，`3` 条失败用例 |
-| 周级回归 artifact | 已生成 | `artifacts/review-gate/2026-06-10-weekly-regression.{md,json}` |
-| 回归窗口记录 | 已更新 | 自动回填条目已写入当前窗口（`Reject` / blocker=1） |
-
-### 项目现状调研（阶段候选）
-
-- 候选 1：后台与设置页测试链路存在高频 i18n 缺词告警（如 `pages.admin.*`、`pages.admin.settings.theme.*`），应优先治理“测试环境 locale 装配与键完整性”基线。
-- 候选 2：全量 coverage 成本高且输出噪音大，建议补“周级回归稳定执行策略”（隔离日志、分段回归或覆盖率分片），降低周期性任务被中断风险。
-- 候选 3：部分组件测试暴露第三方 mock 契约噪音（如 `primevue/usetoast` 导出提示），建议纳入“测试 mock 契约一致性”专项窄切片。
-
-### 后续治理计划
-
-- 优先修复 `tests/scripts/run-e2e.test.ts` 中 `walks directories recursively while skipping ignored entries` 的不稳定断言。
-- 对齐 `server/api/ai/tts/estimate.post.test.ts` 与最新 Zod 校验契约，修复 `voice/text` 缺失时断言口径漂移。
-- 修复后再次执行 `pnpm regression:weekly`，将本轮 `Reject` 收敛为可放行结论。
-
-<!-- regression-window:end:phase46-weekly-kickoff:第四十六阶段:2026-06-10 -->

@@ -219,4 +219,28 @@ describe('useAdminList', () => {
 
         expect(thrownList.error.value).toBe('request_failed')
     })
+
+    it('pageIndexBase=1 时按 1 基页码直取（caomei-ui DataTable 语义）', async () => {
+        const fetchFn = vi.fn().mockResolvedValue({
+            data: [],
+            total: 0,
+        })
+
+        const list = await mountAdminList({
+            fetchFn,
+            pageIndexBase: 1,
+        })
+
+        fetchFn.mockClear()
+
+        // caomei-ui `DataTable` 的 `@page` 载荷本身即 1 基（`pageIndex + 1`），
+        // 故 Composable 不应再 `+1`；offset 仍由 1 基页码换算。
+        list.onPage({ page: 3, rows: 20 })
+        await flushPromises()
+        expect(fetchFn).toHaveBeenLastCalledWith(expect.objectContaining({
+            page: 3,
+            offset: 40,
+            limit: 20,
+        }))
+    })
 })

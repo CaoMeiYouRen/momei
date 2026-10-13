@@ -4,95 +4,103 @@
 
         <div class="admin-submissions__card">
             <div class="admin-submissions__filters">
-                <IconField icon-position="left">
-                    <InputIcon class="pi pi-search" />
-                    <InputText
-                        v-model="filters.keyword"
-                        :placeholder="$t('pages.admin.submissions.search_placeholder')"
-                        @input="onFilterChange"
-                    />
-                </IconField>
+                <CaomeiInput
+                    v-model="filters.keyword"
+                    class="admin-submissions__keyword"
+                    :placeholder="$t('pages.admin.submissions.search_placeholder')"
+                    @update:model-value="onFilterChange"
+                >
+                    <template #prefix>
+                        <Search :size="16" />
+                    </template>
+                </CaomeiInput>
 
-                <Select
-                    v-model="filters.status"
-                    :options="statusOptions"
-                    option-label="label"
-                    option-value="value"
-                    :placeholder="$t('pages.admin.submissions.status')"
-                    class="admin-submissions__status-select"
-                    @change="onFilterChange"
-                />
+                <div class="admin-submissions__status-select">
+                    <CaomeiSelect
+                        :model-value="filters.status"
+                        :options="statusOptions"
+                        option-label="label"
+                        option-value="value"
+                        :placeholder="$t('pages.admin.submissions.status')"
+                        @update:model-value="handleStatusChange"
+                    />
+                </div>
             </div>
 
-            <DataTable
-                :value="items"
+            <CaomeiDataTable
+                :data="items"
+                :columns="columns"
                 :loading="loading"
                 lazy
                 :total-records="pagination.total"
                 :rows="pagination.limit"
+                :page="pagination.page"
                 paginator
                 class="admin-submissions__table"
                 @page="onPage"
             >
-                <Column
-                    field="status"
-                    :header="$t('pages.admin.submissions.status')"
-                    class="admin-submissions__col--status"
-                >
-                    <template #body="{data}">
-                        <Tag
-                            :severity="getSubmissionStatusSeverity(data.status)"
-                            :value="$t(`pages.admin.submissions.status_${data.status}`)"
-                        />
-                    </template>
-                </Column>
+                <template #cell-status="{row}">
+                    <CaomeiTag :tone="getSubmissionStatusTone(row.status)">
+                        {{ $t(`pages.admin.submissions.status_${row.status}`) }}
+                    </CaomeiTag>
+                </template>
 
-                <Column :header="$t('pages.admin.submissions.contributor')" class="admin-submissions__col--author">
-                    <template #body="{data}">
-                        <div class="contributor-info">
-                            <div class="contributor-info__name">
-                                {{ data.contributorName }}
-                            </div>
-                            <div class="contributor-info__email">
-                                {{ data.contributorEmail }}
-                            </div>
+                <template #cell-contributor="{row}">
+                    <div class="contributor-info">
+                        <div class="contributor-info__name">
+                            {{ row.contributorName }}
                         </div>
-                    </template>
-                </Column>
-
-                <Column field="title" :header="$t('pages.admin.submissions.article_title')" />
-
-                <Column field="createdAt" :header="$t('pages.admin.submissions.created_at')">
-                    <template #body="{data}">
-                        {{ formatDateTime(data.createdAt) }}
-                    </template>
-                </Column>
-
-                <Column :header="$t('common.actions')" class="admin-submissions__col--actions">
-                    <template #body="{data}">
-                        <div class="admin-submissions__actions">
-                            <Button
-                                v-if="data.status === SubmissionStatus.PENDING"
-                                v-tooltip.top="$t('pages.admin.submissions.review')"
-                                icon="pi pi-eye"
-                                text
-                                rounded
-                                @click="openReview(data)"
-                            />
-                            <Button
-                                v-tooltip.top="$t('common.delete')"
-                                icon="pi pi-trash"
-                                text
-                                rounded
-                                severity="danger"
-                                @click="openDeleteDialog(data)"
-                            />
+                        <div class="contributor-info__email">
+                            {{ row.contributorEmail }}
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                    </div>
+                </template>
+
+                <template #cell-createdAt="{row}">
+                    {{ formatDateTime(row.createdAt) }}
+                </template>
+
+                <template #cell-actions="{row}">
+                    <div class="admin-submissions__actions">
+                        <CaomeiButton
+                            v-if="row.status === SubmissionStatus.PENDING"
+                            v-tooltip.top="$t('pages.admin.submissions.review')"
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            :label="$t('pages.admin.submissions.review')"
+                            @click="openReview(row)"
+                        >
+                            <template #icon>
+                                <Eye :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
+                            v-tooltip.top="$t('common.delete')"
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            tone="danger"
+                            :label="$t('common.delete')"
+                            @click="openDeleteDialog(row)"
+                        >
+                            <template #icon>
+                                <Trash :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </div>
+                </template>
+
+                <template #empty>
+                    <div class="empty-state">
+                        {{ $t('common.no_data') }}
+                    </div>
+                </template>
+            </CaomeiDataTable>
         </div>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5 / §非目标）：Dialog / Divider / Textarea / Checkbox 维持 PrimeVue 至第六十九阶段。
+             其**内部**的 Button / Select 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
         <Dialog
             v-model:visible="reviewVisible"
             :header="$t('pages.admin.submissions.review')"
@@ -129,22 +137,20 @@
                     <div v-if="reviewAction === 'accept'" class="accept-options">
                         <div class="field">
                             <label>{{ $t('pages.admin.submissions.language') }}</label>
-                            <Select
+                            <CaomeiSelect
                                 v-model="reviewForm.acceptOptions.language"
                                 :options="locales"
                                 option-label="name"
                                 option-value="code"
-                                fluid
                             />
                         </div>
                         <div class="field">
                             <label>{{ $t('pages.admin.submissions.category') }}</label>
-                            <Select
+                            <CaomeiSelect
                                 v-model="reviewForm.acceptOptions.categoryId"
                                 :options="categories"
                                 option-label="name"
                                 option-value="id"
-                                fluid
                             />
                         </div>
                         <div class="field-checkbox">
@@ -161,28 +167,28 @@
 
             <template #footer>
                 <div class="dialog-footer">
-                    <Button
+                    <CaomeiButton
+                        variant="ghost"
                         :label="$t('common.cancel')"
-                        text
                         @click="reviewVisible = false"
                     />
-                    <Button
+                    <CaomeiButton
                         v-if="reviewAction !== 'accept'"
+                        tone="success"
                         :label="$t('pages.admin.submissions.accept')"
-                        severity="success"
                         @click="reviewAction = 'accept'"
                     />
-                    <Button
+                    <CaomeiButton
                         v-if="reviewAction === 'accept'"
+                        tone="success"
                         :label="$t('common.confirm')"
-                        severity="success"
                         :loading="reviewLoading"
                         @click="submitReview(SubmissionStatus.ACCEPTED)"
                     />
-                    <Button
+                    <CaomeiButton
                         v-if="reviewAction !== 'accept'"
+                        tone="danger"
                         :label="$t('pages.admin.submissions.reject')"
-                        severity="danger"
                         :loading="reviewLoading"
                         @click="submitReview(SubmissionStatus.REJECTED)"
                     />
@@ -200,6 +206,8 @@
 </template>
 
 <script setup lang="ts">
+import { Eye, Search, Trash } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import { SubmissionStatus } from '@/types/submission'
 import { useAdminList } from '@/composables/use-admin-list'
 import { createMarkdownRenderer } from '@/utils/shared/markdown'
@@ -216,7 +224,7 @@ const markdownRenderer = createMarkdownRenderer({ html: false })
 
 const filters = ref({
     keyword: '',
-    status: null,
+    status: null as SubmissionStatus | null,
 })
 
 const statusOptions = [
@@ -225,9 +233,12 @@ const statusOptions = [
     { label: t('pages.admin.submissions.status_rejected'), value: SubmissionStatus.REJECTED },
 ]
 
+// caomei `DataTable` 的 `page` 为 1 基（PrimeVue 为 0 基），故显式声明页码基准，
+// 由共享 composable 统一归一（避免在页面侧写「减一」包装）。
 const { items, loading, pagination, onPage, onFilterChange, refresh } = useAdminList<any>({
     url: '/api/admin/submissions',
     initialFilters: filters.value,
+    pageIndexBase: 1,
 })
 const {
     visible: deleteVisible,
@@ -236,13 +247,35 @@ const {
     resetDeleteDialog,
 } = useDeleteDialogState<any>()
 
-const getSubmissionStatusSeverity = (status: SubmissionStatus) => {
+const columns = computed<DataTableColumn<any>[]>(() => [
+    // 不设显式 `width`：迁移前 PrimeVue `Column` 未声明宽度，列宽由内容 / 表格均分决定，
+    // 迁移应保持几何不变（避免顺带改变列宽成为无法归因的差异）。
+    { key: 'status', header: t('pages.admin.submissions.status') },
+    { key: 'contributor', header: t('pages.admin.submissions.contributor') },
+    // 标题列走默认取值（`accessor` 缺省用 key），无需自定义单元格。
+    { key: 'title', header: t('pages.admin.submissions.article_title') },
+    { key: 'createdAt', header: t('pages.admin.submissions.created_at') },
+    // 不设 `align: 'right'`：单元格内已有 `justify-content: flex-end` 容器承载右对齐，
+    // 与迁移前 PrimeVue 列组件无对齐声明的形态一致。
+    { key: 'actions', header: t('common.actions') },
+])
+
+// caomei Tag 无 `severity`，改用 `tone`（迁移方案 §6.3 已接受的「Tag severity → tone」有意差异）。
+// 本页 `PENDING` 源为 PrimeVue `info`，§6.2 属性级映射为 `info → primary`；此处改用 `warning`
+// 属**新增的一条有意差异**（与 §6.2 不同）：`primary` 承载品牌主色语义，用于「待审核」状态
+// 辨识度不足，故按状态语义取 `warning`。该偏离已登记在回归记录的本批窗口。
+const getSubmissionStatusTone = (status: SubmissionStatus) => {
     switch (status) {
-        case SubmissionStatus.PENDING: return 'info'
+        case SubmissionStatus.PENDING: return 'warning'
         case SubmissionStatus.ACCEPTED: return 'success'
         case SubmissionStatus.REJECTED: return 'danger'
-        default: return 'secondary'
+        default: return 'neutral'
     }
+}
+
+const handleStatusChange = (value: string | number | null | undefined) => {
+    filters.value.status = (value ?? null) as SubmissionStatus | null
+    onFilterChange()
 }
 
 // 审核弹窗逻辑
@@ -327,15 +360,42 @@ const handleDelete = async () => {
 <style lang="scss" scoped>
 .admin-submissions {
     &__card {
-        background: var(--p-content-background);
+        background: var(--caomei-color-bg);
         padding: 1.5rem;
-        border-radius: var(--p-content-border-radius);
+        border-radius: var(--caomei-radius-md);
     }
 
     &__filters {
         display: flex;
         gap: 1rem;
         margin-bottom: 1.5rem;
+    }
+
+    // 宽度与迁移前 PrimeVue `InputText` 在 `IconField` 内的固有宽度保持一致（筛选行几何属迁移不改项）。
+    &__keyword {
+        width: 260px;
+        max-width: 100%;
+    }
+
+    // 宽度须落在 caomei Select 的字段外层（`class` 会透传到触发器），故以包装元素约束宽度。
+    &__status-select {
+        width: 100%;
+
+        @media screen and (width >= 768px) {
+            width: 180px;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.25rem;
+        justify-content: flex-end;
+    }
+
+    // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；0.4.0 起提供
+    // `--caomei-data-table-pagination-justify` token，用它保持迁移前布局（迁移不改几何）。
+    &__table {
+        --caomei-data-table-pagination-justify: center;
     }
 
     .contributor-info {
@@ -345,19 +405,25 @@ const handleDelete = async () => {
 
         &__email {
             font-size: 0.85rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
         }
     }
+}
+
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--caomei-color-text-muted);
 }
 
 .review-content {
     .markdown-preview {
         padding: 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 4px;
         max-height: 400px;
         overflow-y: auto;
-        background: var(--p-content-hover-background);
+        background: var(--caomei-color-bg-elevated);
     }
 }
 
