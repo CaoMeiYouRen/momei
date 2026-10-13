@@ -79,6 +79,9 @@ overrides:
     # `SyntaxError: does not provide an export named 'default'`。当前依赖 nuxt.config.ts 的
     # `devtools: { enabled: false }` 规避（setup 提前 return，不会加载该 chunk）；
     # 一旦开启 devtools 会直接失败，届时须先确认 devtools 已支持 simple-git 4 再放开。
+    # ⚠️ 另有第二条规避点：Dockerfile builder 阶段在 `COPY . /app` 之前执行 `pnpm i`，
+    # 该时点没有 `nuxt.config.ts`，上述规避会失效，故在那里写入占位配置；
+    # 两处必须同步维护（详见 Dockerfile 中该步骤的注释）。
     simple-git: "^4.0.2"
     "@simple-git/argv-parser": "^2.0.1"
     immutable: "^5.1.5"
