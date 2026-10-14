@@ -74,6 +74,13 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-link-governance',
+        path: '/admin/migrations/link-governance',
+        heading: '迁移链接治理',
+        tier: 'admin',
+        migrated: true,
+    },
 ]
 
 export const PENDING_ROUTES: ParityRoute[] = [
@@ -107,13 +114,6 @@ export const PENDING_ROUTES: ParityRoute[] = [
         name: 'admin-friend-links-list',
         path: '/admin/friend-links',
         heading: '友链管理',
-        tier: 'admin',
-        migrated: false,
-    },
-    {
-        name: 'admin-link-governance',
-        path: '/admin/migrations/link-governance',
-        heading: '迁移链接治理',
         tier: 'admin',
         migrated: false,
     },
