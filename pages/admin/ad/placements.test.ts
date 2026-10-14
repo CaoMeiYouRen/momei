@@ -430,7 +430,7 @@ describe('AdminAdPlacements page', () => {
         expect(selects.map((select) => select.findAll('option').length)).toEqual([6, 4, 3])
         expect(selects.every((select) => select.attributes('data-invalid') === 'false')).toBe(true)
         // 选项文本必须来自 i18n / 适配器名（而非 key 或空白），否则「只数 option 个数」会掩盖
-        // `option-label` 丢失（本页 ii18n 键在测试里被 stub 为原样返回，故断言 key 文本）。
+        // `option-label` 丢失（本页 i18n 键在测试里被 stub 为原样返回，故断言 key 文本）。
         expect(selects[0]!.findAll('option')[0]!.text()).toBe('pages.admin.ad.placements.locations.header')
         expect(selects[1]!.findAll('option')[0]!.text()).toBe('pages.admin.ad.placements.formats.display')
         // 适配器选项的文本取 `name` 字段（`option-label="name"`），不是 `label` / 空串。

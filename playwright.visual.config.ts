@@ -23,7 +23,7 @@ const visualBaseURL = `http://${visualHost}:${visualPort}`
 const visualAuthSecret = 'lhci-test-secret-0123456789abcdef'
 
 // 有意镜像 playwright.config.ts 的 e2e webServer（同一构建产物 + TEST_MODE 种子）。
-// 上游若调整该 server env，须同步此处（见回归记录归档 [2026-09-20-to-2026-09-25-phase67-migration.md](docs/reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) 的 M2 节「webServer 镜像」）。
+// 上游若调整该 server env，须同步此处（见回归记录归档 [2026-09-20-to-2026-09-25-phase67-migration.md](docs/reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) 的 M2 节（该窗口记录了视觉层与 e2e 的 webServer 镜像关系））。
 const visualServerEnv = [
     'TEST_MODE=true',
     'NUXT_PUBLIC_TEST_MODE=true',
