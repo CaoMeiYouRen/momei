@@ -7,100 +7,99 @@
             show-language-switcher
         >
             <template #actions>
-                <Button
-                    :label="$t('common.create')"
-                    icon="pi pi-plus"
-                    @click="openDialog()"
-                />
+                <CaomeiButton @click="openDialog()">
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('common.create') }}
+                </CaomeiButton>
             </template>
 
-            <DataTable
-                :value="placements"
+            <!-- 客户端分页：不传 `page` / 不设 `lazy`，由 caomei `DataTable` 按 `rows` 自持切片，
+                 与迁移前 PrimeVue 表格消费整份 `value` 的行为一致。 -->
+            <CaomeiDataTable
+                :data="placements"
+                :columns="columns"
                 :loading="loading"
                 paginator
                 :rows="10"
-                class="p-datatable-sm"
+                class="admin-placements__table"
             >
-                <Column
-                    field="name"
-                    :header="$t('common.name')"
-                    sortable
-                />
-                <Column
-                    field="location"
-                    :header="$t('pages.admin.ad.placements.location')"
-                >
-                    <template #body="{data}">
-                        <Tag :value="data.location" severity="secondary" />
-                    </template>
-                </Column>
-                <Column
-                    field="format"
-                    :header="$t('pages.admin.ad.placements.format')"
-                >
-                    <template #body="{data}">
-                        <Tag :value="data.format" severity="info" />
-                    </template>
-                </Column>
-                <Column
-                    field="adapterId"
-                    :header="$t('pages.admin.ad.placements.adapter')"
-                >
-                    <template #body="{data}">
-                        {{ getAdapterName(data.adapterId) }}
-                    </template>
-                </Column>
-                <Column
-                    field="enabled"
-                    :header="$t('pages.admin.ad.placements.status')"
-                >
-                    <template #body="{data}">
-                        <Tag
-                            :value="data.enabled ? $t('pages.admin.ad.placements.enabled') : $t('pages.admin.ad.placements.disabled')"
-                            :severity="data.enabled ? 'success' : 'danger'"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    field="priority"
-                    :header="$t('pages.admin.ad.placements.priority')"
-                    sortable
-                />
-                <Column
-                    :header="$t('common.actions')"
-                    class="text-right"
-                    style="min-width: 8rem"
-                >
-                    <template #body="{data}">
-                        <Button
-                            icon="pi pi-pencil"
-                            text
-                            rounded
-                            severity="info"
-                            @click="openDialog(data)"
-                        />
-                        <Button
-                            :icon="data.enabled ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                            text
-                            rounded
-                            severity="warning"
-                            @click="toggleEnabled(data)"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="confirmDeletePlacement(data)"
-                        />
-                    </template>
-                </Column>
+                <template #cell-location="{row}">
+                    <CaomeiTag tone="neutral">
+                        {{ row.location }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-format="{row}">
+                    <CaomeiTag tone="primary">
+                        {{ row.format }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-adapterId="{row}">
+                    {{ getAdapterName(row.adapterId) }}
+                </template>
+
+                <template #cell-enabled="{row}">
+                    <CaomeiTag :tone="row.enabled ? 'success' : 'danger'">
+                        {{ row.enabled ? $t('pages.admin.ad.placements.enabled') : $t('pages.admin.ad.placements.disabled') }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="primary"
+                        :label="$t('common.edit')"
+                        @click="openDialog(row)"
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <!-- 迁移前该按钮为无可见文本 / 无可访问名的纯图标按钮（`:icon` 在 eye / eye-slash
+                         之间动态切换）。迁移到 caomei `CaomeiButton icon-only` 时按库契约补齐可访问名
+                         （`iconOnly` 要求 `label`），故新增 actions.enable / actions.disable 两个 i18n 键。 -->
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="warning"
+                        :label="row.enabled ? $t('pages.admin.ad.placements.actions.disable') : $t('pages.admin.ad.placements.actions.enable')"
+                        @click="toggleEnabled(row)"
+                    >
+                        <template #icon>
+                            <EyeOff v-if="row.enabled" :size="16" />
+                            <Eye v-else :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="danger"
+                        :label="$t('common.delete')"
+                        @click="confirmDeletePlacement(row)"
+                    >
+                        <template #icon>
+                            <Trash :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+
                 <template #empty>
                     <AdminTableEmptyState :label="$t('pages.admin.ad.placements.empty')" />
                 </template>
-            </DataTable>
+            </CaomeiDataTable>
         </AdminListShell>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / ConfirmDialog / useConfirm 维持 PrimeVue 至第六十九阶段。
+             其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
+             `InputNumber` / `Checkbox` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单批次；
+             弹窗上的 `p-fluid` 亦为它们保留，待其迁移后一并移除。 -->
         <Dialog
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
@@ -109,58 +108,56 @@
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
-                <InputText
+                <CaomeiInput
                     id="name"
                     v-model.trim="formData.name"
-                    required
-                    autofocus
-                    :class="{'p-invalid': errors.name}"
+                    :invalid="Boolean(errors.name)"
                 />
                 <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
             </div>
 
             <div class="field">
                 <label for="location">{{ $t('pages.admin.ad.placements.location') }} *</label>
-                <Dropdown
+                <CaomeiSelect
                     id="location"
                     v-model="formData.location"
                     :options="locationOptions"
                     option-label="label"
                     option-value="value"
-                    :class="{'p-invalid': errors.location}"
+                    :invalid="Boolean(errors.location)"
                 />
                 <small v-if="errors.location" class="p-error">{{ errors.location }}</small>
             </div>
 
             <div class="field">
                 <label for="format">{{ $t('pages.admin.ad.placements.format') }} *</label>
-                <Dropdown
+                <CaomeiSelect
                     id="format"
                     v-model="formData.format"
                     :options="formatOptions"
                     option-label="label"
                     option-value="value"
-                    :class="{'p-invalid': errors.format}"
+                    :invalid="Boolean(errors.format)"
                 />
                 <small v-if="errors.format" class="p-error">{{ errors.format }}</small>
             </div>
 
             <div class="field">
                 <label for="adapterId">{{ $t('pages.admin.ad.placements.adapter') }} *</label>
-                <Dropdown
+                <CaomeiSelect
                     id="adapterId"
                     v-model="formData.adapterId"
                     :options="adapterOptions"
                     option-label="name"
                     option-value="id"
-                    :class="{'p-invalid': errors.adapterId}"
+                    :invalid="Boolean(errors.adapterId)"
                 />
                 <small v-if="errors.adapterId" class="p-error">{{ errors.adapterId }}</small>
             </div>
 
             <div class="field">
                 <label for="metadata_slot">{{ $t('pages.admin.ad.placements.slot_id') }}</label>
-                <InputText
+                <CaomeiInput
                     id="metadata_slot"
                     v-model.trim="formData.metadata.slot"
                     :placeholder="$t('pages.admin.ad.placements.slot_id_placeholder')"
@@ -188,16 +185,18 @@
             </div>
 
             <template #footer>
-                <Button
-                    :label="$t('common.cancel')"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
                     @click="closeDialog()"
-                />
-                <Button
-                    :label="$t('common.save')"
+                >
+                    {{ $t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :loading="saving"
                     @click="save"
-                />
+                >
+                    {{ $t('common.save') }}
+                </CaomeiButton>
             </template>
         </Dialog>
 
@@ -206,7 +205,9 @@
 </template>
 
 <script setup lang="ts">
+import { Eye, EyeOff, Pencil, Plus, Trash } from '@lucide/vue'
 import { useConfirm } from 'primevue/useconfirm'
+import type { DataTableColumn } from 'caomei-ui'
 import { AdFormat, AdLocation, type AdPlacement, type AdPlacementMetadata } from '@/types/ad'
 
 interface PlacementFormState {
@@ -301,6 +302,25 @@ const formatOptions = computed(() => [
     { label: t('pages.admin.ad.placements.formats.native'), value: AdFormat.NATIVE },
     { label: t('pages.admin.ad.placements.formats.video'), value: AdFormat.VIDEO },
     { label: t('pages.admin.ad.placements.formats.responsive'), value: AdFormat.RESPONSIVE },
+])
+
+// 列定义与迁移前 PrimeVue 列组件一一对应：名称 / 位置 / 格式 / 适配器 / 状态 / 优先级 / 动作。
+// 不新增显式 `width`；动作列沿用迁移前声明的 `text-right` + `min-width: 8rem`（PrimeVue 的 `class` / `style`
+// 同时落在表头与表体单元格，故以 `align: 'right'` + 双 style 等价还原，不改列宽与对齐）。
+const columns = computed<DataTableColumn<AdPlacement>[]>(() => [
+    { key: 'name', header: t('common.name'), sortable: true },
+    { key: 'location', header: t('pages.admin.ad.placements.location') },
+    { key: 'format', header: t('pages.admin.ad.placements.format') },
+    { key: 'adapterId', header: t('pages.admin.ad.placements.adapter') },
+    { key: 'enabled', header: t('pages.admin.ad.placements.status') },
+    { key: 'priority', header: t('pages.admin.ad.placements.priority'), sortable: true },
+    {
+        key: 'actions',
+        header: t('common.actions'),
+        align: 'right',
+        headerStyle: { minWidth: '8rem' },
+        bodyStyle: { minWidth: '8rem' },
+    },
 ])
 
 async function save() {
@@ -405,4 +425,11 @@ function getAdapterName(adapterId: string): string {
 </script>
 
 <style scoped lang="scss">
+.admin-placements {
+    // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+    // `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+    &__table {
+        --caomei-data-table-pagination-justify: center;
+    }
+}
 </style>

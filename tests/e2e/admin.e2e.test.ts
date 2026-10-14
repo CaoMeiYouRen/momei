@@ -98,7 +98,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/external-links', '.caomei-data-table, .admin-page-container'],
             ['/admin/waitlist', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/campaigns', '.caomei-data-table, .admin-page-container'],
-            ['/admin/ad/placements', '.p-datatable, .admin-page-container'],
+            ['/admin/ad/placements', '.caomei-data-table, .admin-page-container'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {

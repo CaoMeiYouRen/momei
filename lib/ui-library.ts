@@ -32,6 +32,7 @@ export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
     '/admin/external-links',
     '/admin/waitlist',
     '/admin/ad/campaigns',
+    '/admin/ad/placements',
 ]
 
 import { APP_LOCALE_CODES } from '@/i18n/config/locale-registry'
