@@ -39,6 +39,13 @@
 - **[外部 RSS / RSSHub 聚合挂载设计](./subscription-external-feed-aggregation)**: `subscription.md` 的专项增量文档，聚焦外部源统一接入、缓存降级与首页挂载模型。
 - **[可缓存公开接口清单](./cacheable-api-inventory)**: `blog.md` / `system.md` 的运行期治理补充，聚焦已接入统一缓存复用层的公开读接口、TTL、失效策略与观测 namespace。
 
+## 组件库迁移与视觉一致性
+
+- **[PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan)**: 迁移批次、组件映射、样式层叠与验收质量门（§8.2 截图识别层）。
+- **[视觉一致性门禁](./2026-10-13-visual-parity-gate)**: 逐路由「当前渲染 vs 迁移前 PrimeVue 参考态」门禁的落地方式、分级预算、参考态采集与上游反馈路径。
+- **[视觉一致性偏差处置表](./visual-parity-deviation-register)**: 已接受偏差的区域 / 差异像素 / 通道①~④ 处置 / 责任人登记。
+- **[需向上游 caomei-ui 反馈的问题清单](./2026-09-25-caomei-ui-upstream-feedback)**: 迁移中实测确认的库侧缺口与文档缺口及上游落点。
+
 ## 已归档文档入口
 
 - 历史阶段规划稿、已完成评估、已完成工程文档与阶段分析报告已迁入 [archive/](./archive/index.md)。

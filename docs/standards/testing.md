@@ -269,6 +269,49 @@ pnpm run test:coverage
 | 证伪 E2E flaky | 回到 HEAD 复现：`git stash push` → `pnpm build` → 跑同一 spec（可按浏览器单独跑）→ `git stash pop`；仅「清理环境后重跑通过」不足以排除自身改动。 |
 | 采集迁移前基线 | 改动 `git stash`（不带 `-u`，保留未跟踪的视觉 spec 与基线文件）→ 构建 → `--update-snapshots` → `pop`；恢复后基线文件仍在，即可与迁移后逐项对照。 |
 
+### 7.2 视觉一致性门禁 (Visual Parity Gate)
+
+组件迁移（PrimeVue → caomei-ui）逐路由校验「当前渲染 vs 迁移前原貌」的门禁层，与基线层（§7.1）职责分离、产物隔离。
+
+**命令**
+
+| 命令 | 用途 |
+|:---|:---|
+| `pnpm test:visual:parity` | 比对「当前渲染 ↔ 迁移前参考态」，按分级预算 + 允许清单判定（CI / Review Gate 用） |
+| `pnpm test:visual:parity -- --grep=<testName>` | 定向运行单个 / 一组用例。脚本会剔除 pnpm 透传的 `--` 分隔符后再转发（不带 `--` 的 `pnpm test:visual:parity --grep=<testName>` 亦可）；等价直连命令为 `pnpm exec playwright test --config=playwright.visual-parity.config.ts --grep=<testName>` |
+| `pnpm test:visual:reference` | 对 HEAD 采集待迁移路由参考态（`--update-snapshots`） |
+| `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>` | 采集已迁移路由的「迁移前」参考态（`git worktree` 检出 + 回退该提交源码到父提交 + 构建） |
+
+> 定向运行注意：若直接对 Playwright 传入 `-- --grep=...`（即 `pnpm exec playwright test --config=playwright.visual-parity.config.ts -- --grep=...`），Playwright 会把 `--` 当作选项终止符，忽略其后的 `--grep` 并运行全部用例；应省略 `--` 或走上面的脚本入口。
+
+**分层与分级口径**
+
+- 基线层：`tests/visual/*.visual.test.ts` + `playwright.visual.config.ts`，对比仓库自提交的 `<name>.png`。
+- 门禁层：`tests/visual/parity/*.visual-parity.test.ts` + `playwright.visual-parity.config.ts`，对比 `<name>.reference.png`。
+- 分级：`reader`（面向读者 / 公开页）布局必须基本不变、极小容差；`admin`（面向管理员）容许一定偏差但需「看起来差不多」。口径声明于 `tests/visual/parity-budget.json` 的 `tiers`，逐 testName 覆盖于 `entries`。
+
+**预算与允许清单（`tests/visual/parity-budget.json`）**
+
+- `entries[<testName>] = { tier, maxDiffPixels, maxDiffPixelRatio, allowlist, note }`；两者同时生效时**任一超限即失败**（与 Playwright 取严语义一致）。
+- `allowlist[] = { region, pixels, reason, owner }`：按区域扣减差异像素，扣减上限为条目 `pixels`；**超出声明值即视为偏差增长并触发失败**。每一处已接受的偏差都必须登记区域 + 像素量 + 归因 + 责任人。
+- 预算不得为了让门禁变绿而放宽；调整须附实测依据（`note` 注明校准时点与样值），并同步 `docs/design/governance/visual-parity-deviation-register.md`。
+- 偏差解决通道优先级：① `--caomei-*` token 覆盖（`styles/main.scss` 桥接）→ ② caomei 具名预设（`theme` 选项）→ ③ 组件外层包装 + 选择器级覆盖（迁移方案 §5.7 约束 2，须逐条留理由）→ ④ 上游反馈（issue 草稿：现象 / 最小复现 / 期望 token / 影响面）。
+
+**参考态采集与更新流程**
+
+1. 已迁移路由：用 `--revert=<迁移提交>` 采集，例如 `pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list`（脚本以 `git worktree` 检出 HEAD、按当前锁文件安装依赖、把该迁移提交的源码改动回退到父提交、构建后以 `--update-snapshots` 采集）。如此参考态与当前态的差异**只来自组件迁移本身**，隔离依赖漂移。`--ref=<历史 ref>` 的直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃。
+2. 待迁移路由：`pnpm test:visual:reference` 在 HEAD 采集；脚本会自动跳过已由历史 ref 采集过的 testName，避免覆盖迁移前参考态。
+3. 参考态与基线层 `<name>.png` 并存、互不覆盖；参考快照随仓库提交（`.gitignore` 已放行 `tests/visual/parity/reference/**/*.png`）。
+4. 环境元数据（浏览器版本、playwright 版本、node、平台、视口、locale、时区、DSF、动画 / 光标、pixel threshold）记录于 `tests/visual/parity/reference-manifest.json`；跨环境（CI 与本地）渲染差异若无法消除，以 CI 产物为准重新采集。
+
+**报告**
+
+- 每个用例无论通过与否都打印一行：`testName / tier / 预算 / 实测差异 / 允许清单命中 / 未归因差异 / 超差区域 / 结果`。
+- 机器可读行落盘 `test-results/visual-parity/report/<name>.json`，供 CI 工件与人工归因。
+- 差异算法内联实现（像素级 YIQ 距离，对齐 pixelmatch 口径），**不引入第三方图像依赖**。
+
+溯源与偏差处置表见 [视觉一致性门禁与偏差处置](../design/governance/2026-10-13-visual-parity-gate.md) 与 [偏差处置表](../design/governance/visual-parity-deviation-register.md)。
+
 ## 8. 提交前检查 (Pre-commit Checks)
 
 在提交代码 (Git Commit) 之前，开发者**必须**确保本地环境通过质量校验。详细流程请参阅 [开发规范 - 提交前检查](./development.md#6-提交前检查-pre-commit-checks)。
