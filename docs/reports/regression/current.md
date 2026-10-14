@@ -8,6 +8,7 @@
 
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
+- 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
 <!-- regression-window:start:workflow-precheck:test:2026-10-13 -->
 ## 2026-10-13 workflow pre-check（test，自动回填）
@@ -66,7 +67,7 @@
 
 ### 范围
 
-条目 2（B2 剩余数据页迁移一）的第三个路由 `/admin/waitlist` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 202 行 / 6 个 PrimeVue 列组件 / 6 个在册族标签，是**懒加载服务端分页**列表（`useAdminList` + `lazy` + `total-records` + `@page`），与首路由 `/admin/submissions` 同类：必须声明 `pageIndexBase: 1`（PrimeVue `@page` 为 0 基、caomei 为 1 基，否则页码被二次抬升）。不依赖任何待新增共享壳过渡组件，故在 `subscribers` / `users` / `posts` / `friend-links` 四个待落基建的路由之前推进。
+条目 2（B2 剩余数据页迁移一）的第三个路由 `/admin/waitlist` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 202 行 / 6 个 PrimeVue 列组件 / 17 处在册族开口标签（7 个组件名），是**懒加载服务端分页**列表（`useAdminList` + `lazy` + `total-records` + `@page`），与首路由 `/admin/submissions` 同类：必须声明 `pageIndexBase: 1`（PrimeVue `@page` 为 0 基、caomei 为 1 基，否则页码被二次抬升）。不依赖任何待新增共享壳过渡组件，故在 `subscribers` / `users` / `posts` / `friend-links` 四个待落基建的路由之前推进。
 
 ### 「文件 → 改动点 → 依据指针」清单
 
@@ -168,12 +169,69 @@
 
 <!-- regression-window:end:phase68-fix-button-visible-label:第六十八阶段-CaomeiButton可见文案回归修复:2026-10-14 -->
 
+<!-- regression-window:start:phase68-b2-ad-campaigns:第六十八阶段-条目2-第四路由:2026-10-14 -->
+## 2026-10-14 第六十八阶段 条目 2 第四路由 B2 迁移（`/admin/ad/campaigns`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一）的第四个路由 `/admin/ad/campaigns` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 333 行 / 8 个 PrimeVue 列组件 / 17 处在册族开口标签（6 个组件名），是**客户端分页 + 行内编辑弹窗**形态（`useAdminEntityList` 消费整份 `value`，不接服务端分页；弹窗内 `InputText` / `Dropdown` / `Button` 属在册族）。**该路由是以「同名文件」形态存在的页面**（`pages/admin/ad/campaigns.vue`，非 `index.vue`），故本批同时把零残留守卫的页面文件解析扩展到两种形态。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/ad/campaigns.vue` | `DataTable` + 8 个 PrimeVue 列组件 → `CaomeiDataTable` + `columns` 数组（`#body` → `#cell-{key}`）；页头创建与行内动作按钮 → `CaomeiButton`（行内用 0.6.0 `iconOnly` + lucide `#icon`）；`Tag severity` → `tone`；弹窗内 `InputText` → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、页脚 `Button` → `CaomeiButton`（**可见文案落默认插槽**）；`p-invalid` 类 → `:invalid` 布尔 | §6.1 / §6.2 / §6.3 / §5.3 / §5.5 |
+| 同上 | 动作列沿用迁移前 `class="text-right"` + `style="min-width: 8rem"`，以 `align: 'right'` + `headerStyle` / `bodyStyle` 的 `minWidth: 8rem` 等价还原；其余列不新增显式宽度 | 迁移不改几何 |
+| 同上 | 客户端分页：`paginator` + `:rows="10"`，不传 `page` / `lazy` / `total-records` 且不监听 `@page`（无页码换算）；分页对齐用 `--caomei-data-table-pagination-justify: center` 保持 PrimeVue 原居中口径；删除失效的 `p-datatable-sm` | §3.8 / §6.2；可删除代码收敛 |
+| 同上 | `getAdCampaignStatusSeverity` → `getAdCampaignStatusTone`：`success` / `warning` / `danger` 直通，PrimeVue `secondary` 取有损近似 `neutral` | §6.2 / §6.3 |
+| 同上 | `Dialog` / `ConfirmDialog` / `useConfirm` 维持 PrimeVue（显式豁免）；`DatePicker`×2 **不在 B2 在册族清单内**，保持 PrimeVue（随浮层 / 表单批次） | §5.5 / 条目 2 非目标 |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/ad/campaigns` | §5.5 |
+| `tests/modules/ui-library-route-migration-guard.test.ts` | 页面文件解析由「只认 `pages/<prefix>/index.vue`」扩展为**候选两种形态**（`index.vue` 优先，其次 `<prefix>.vue`），两种都不存在时报错并列出已尝试路径（避免同名文件形态的守卫静默失效）；在册族补入 `Dropdown`（PrimeVue `Select` 的旧名，§6.1 C 组；否则改用旧名即可绕过「Select 零残留」）；新增 4 条形态解析用例 | 守卫最小假阴性口径 |
+| `pages/admin/ad/campaigns.test.ts`（新增） | 11 条契约用例：页头创建按钮（含**可见文案**断言）、列定义与 `align`、`#cell-*` 插槽按 row 渲染（日期空值回落 / 收益 `toFixed` 与 `undefined` 回落）、Tag tone 四态 + 默认分支、动作集合与 `iconOnly` 形态、客户端分页委托（不传 `page` / `lazy`、翻页无请求）、弹窗字段映射与 `:invalid`、编辑态回填、保存校验、删除确认 | §8.2 层 ① |
+| `tests/e2e/admin.e2e.test.ts` | 路由矩阵新增 `/admin/ad/campaigns` → `.caomei-data-table, .admin-page-container` | 层 ② 扩面 |
+| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-ad-campaigns-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：`pnpm test:visual:parity`（参考态取自迁移前 HEAD；chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画 / pixel threshold 0.2）。归因前先用**参考态行 / 列带扫描 + 实时 `getBoundingClientRect` 探针**核验几何：
+
+- 表格左 / 上边界两态一致（`x=88`，`y≈235`，实测 `boundingRect` `x88 y204 w1264`）；页头创建按钮两态均右边缘对齐 `x=1375`、高 36px（参考 81px 宽 vs 现 73px 宽，属按钮排版差异）。
+- 分页器两态**均居中**：参考态内容 `x[646,793]`、当前态 `x[668,771]`，中心均落在页面中线 `x=720` —— 说明 `--caomei-data-table-pagination-justify: center` 生效；差异是**空态行高**导致的垂直下移（参考 `y≈390` vs 现 `y≈410`），与既有 `submissions` / `external-links` / `comments` 同型。
+
+| 区域（浅色坐标） | 迁移前 | 迁移后 | 实测（浅 / 深） | 归因 |
+| :--- | :--- | :--- | :--- | :--- |
+| 表头行 `y[200,240] x[80,1360]` | PrimeVue `DataTable` 表头（`p-datatable-sm` 压缩档） | caomei `DataTable` 表头 | 5735 / 5845 | **组件替换**（表头底色 / 边框 / 字号 / 单元格内边距；压缩档删除后行高改由 caomei token 推导） |
+| 空态 + 分页区 `x[640,800] y[280,480]`（深色 `x[80,1360] y[280,480]`） | PrimeVue 空态 + 文本式分页器（居中，`y≈390`） | caomei 空态 + 实边框分页器（居中，`y≈410`） | 2146 / 4656 | **组件替换**（空态行高差异导致分页器垂直下移；水平对齐已用 token 收敛） |
+| 头部语言切换字段 `x[160,360] y[80,160]` | PrimeVue `Select` 字段外壳 | caomei 字段外壳（过渡组件 `ContentLanguageSwitcherV2`） | 863 / 878 | **组件替换**（与既有 3 路由同区域同量级） |
+| 头部创建按钮 `x[1280,1400] y[80,160]` | PrimeVue `Button`（`label` + `pi` 图标） | `CaomeiButton`（primary 实底 + lucide 图标） | 599 / 617 | **组件替换**（边框 / 底纹 / 排版；右边缘与高度已对齐） |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/ad/campaigns.test.ts tests/modules/ui-library-route-migration-guard.test.ts` = 33 用例通过（本页 11 条 + 守卫 22 条，后者含新增 4 条形态解析用例与 2 条 `Dropdown` 口径用例——成员清单含 `Dropdown`、无显式导入时 `<Dropdown>` 被检出，以及 `<DropdownMenu` / `<DropdownTrigger` 前缀不误判）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css`（含本页）通过。
+- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` —— 首次隔离调用**连续两次尝试超时失败**（31.5s / 35.5s），随后**连续 3 次隔离复跑均 1 passed**（15.9s / 17.6s / 24.7s，其中 24.7s 已占默认 30s 预算 82%）。
+    - **flaky 定性（保守口径，未证伪即按观察项登记）**：仓库已有同类记录（首路由窗口层 ②：**全量并行套件**下两次 30s 超时、隔离复跑 1 passed / 11.2s），但**触发条件不同型**——本轮失败发生在**隔离调用**而非并行负载下，故「既有负载相关 flaky」这一根因归因**未获证明**。可确证的负面证据：矩阵断言面未变（仅新增一行选择器）、本页两个就绪选择器（`.caomei-data-table` / `.admin-page-container`）均由层 ③ 实测渲染确认存在、3 次复跑连续通过。已采两条处置：① 为该用例显式 `test.setTimeout(60000)`，把「矩阵随迁移逐批增长」与超时瓶颈解耦（本批生效）；② 登记「补一次 HEAD 对照（矩阵去掉新增行）或 `--repeat-each` 对比以证实/证伪既有性」为**未覆盖边界**（见下）。
+- **firefox / webkit**：本机缺失对应版本目录（playwright 1.64.0 期望 `firefox-1555` / `webkit-2370`，本机仅有更早版本目录），`browserType.launch` 报 `Executable doesn't exist`，属环境限制而非断言失败。
+- **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**；本路由浅 9343px / 0.721%、深 11996px / 0.926%，允许清单扣减后未归因 **0px**；其余 20 条零回归。
+- **全量单测**：`pnpm test` 538 文件 / 4575 用例通过（1 skipped；较上一路由批次 +2，即本批新增的 2 条 `Dropdown` 守卫用例）。
+- **包体**：本批未新增依赖，`pnpm build` 通过；包体由后续批次统一复测。
+
+### 未覆盖边界 / 观察项
+
+- **本路由未新增基线层用例**（`tests/visual/*.visual.test.ts`）。理由同第三路由：§8.2 层 ③ 的采集对象要求为「列表 / 表单 / 浮层各 1」，已由既有 6 条基线满足；本路由的逐路由观感守线由**门禁层**承担（相对迁移前原貌，允许清单上限收紧到实测值本身）。
+- TEST_MODE 未播种广告活动数据，故门禁基线为**空态**渲染，行级渲染（列插槽 / Tag tone / 日期与收益格式 / 动作集合）由单元层逐项断言覆盖；因此本批允许清单的 reason **不含 Tag tone 类归因**（空态无数据行，未渲染 Tag）。
+- `DatePicker` 仍为 PrimeVue：它不在 §5.5 的 B2 在册族清单内，按条目 2 非目标随浮层 / 表单批次的处置口径保持现状；该「同页两库并存」是 §5.5 收窄后「无混用」口径允许的形态（按**批次在册族**判定），本页已在代码注释中显式标注。
+- `/admin/ad/placements`（同为「同名文件」形态且同样使用 `Dropdown` / `InputNumber` / `Checkbox`）为下一条候选路由，本批已为其铺好守卫形态解析。
+- **E2E 超时既有性未证实**：本轮已把该矩阵用例超时显式抬到 60s 并连续 3 次复跑通过，但「两次超时是否与本批新增路由无关」尚无 HEAD 对照（去掉新增行）或 `--repeat-each` 对比证据；已登记为待补跑项，不作为「flaky 已定性」的结论使用。
+- `DatePicker` 维持 PrimeVue 的口径出处本批已补入迁移方案 §5.5 显式豁免枚举（此前既不在在册族也不在豁免清单）；本页 `label for` 与 caomei 字段 `id` 的真实关联由库源码实证（`input.js` / `select.js` 均把 `props.id` 绑到内层控件），浏览器侧点击聚焦未由本批验证。
+
+<!-- regression-window:end:phase68-b2-ad-campaigns:第六十八阶段-条目2-第四路由:2026-10-14 -->
+
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
 
 ### 范围
 
-条目 2（B2 剩余数据页迁移一）的第二个路由 `/admin/external-links` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 455 行 / 6 个 PrimeVue 列组件 / 17 个在册族标签，是**客户端分页**列表（迁移前 PrimeVue 表格即消费整份 `value`、不接服务端分页），与首路由 `/admin/submissions`（服务端分页 + `useAdminList`）不同：本页不引入 `pageIndexBase` 契约，分页完全委托 caomei `DataTable` 自持的 1 基内部态。
+条目 2（B2 剩余数据页迁移一）的第二个路由 `/admin/external-links` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 455 行 / 6 个 PrimeVue 列组件 / 18 处在册族开口标签（6 个组件名），是**客户端分页**列表（迁移前 PrimeVue 表格即消费整份 `value`、不接服务端分页），与首路由 `/admin/submissions`（服务端分页 + `useAdminList`）不同：本页不引入 `pageIndexBase` 契约，分页完全委托 caomei `DataTable` 自持的 1 基内部态。
 
 ### 「文件 → 改动点 → 依据指针」清单
 
@@ -229,7 +287,7 @@
 
 ### 范围
 
-条目 2（B2 剩余数据页迁移一，10 个 `pages/admin` 数据列表路由）的首个路由 `/admin/submissions` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。选它作为首个执行项（用户 2026-10-13 裁定「先做最小路由验证口径」）：388 行 / 19 个在册族标签 / 5 个 `<Column>`，且不依赖任何待新增的共享壳过渡组件——用于先把「每路由例行改写范式」固定下来，其余 9 个路由按难度递增推进。
+条目 2（B2 剩余数据页迁移一，10 个 `pages/admin` 数据列表路由）的首个路由 `/admin/submissions` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。选它作为首个执行项（用户 2026-10-13 裁定「先做最小路由验证口径」）：388 行 / 19 处在册族开口标签（8 个组件名）/ 5 个 `<Column>`，且不依赖任何待新增的共享壳过渡组件——用于先把「每路由例行改写范式」固定下来，其余 9 个路由按难度递增推进。
 
 ### 「文件 → 改动点 → 依据指针」清单
 
@@ -547,40 +605,6 @@ B2 试点页 5 族 / 8 处，与升级前一致：`CaomeiButton` ×3、`CaomeiSe
 - 本批未采集 E2E 基线；已知 flaky 集 `auth-session-governance` 的显式登记与 M1 前后 flaky 率对比仍属 M2 待办。
 
 <!-- regression-window:end:phase67-m1b-reanchor:第六十七阶段-M1b:2026-09-24 -->
-
-<!-- regression-window:start:hotfix-pinned-pg-types:PostgreSQL 值类型解析修复:2026-09-21 -->
-## 2026-09-21 PostgreSQL 值类型解析退化导致「所有文章显示置顶」修复
-
-### 范围
-
-- 现象：后台文章管理列表所有行「置顶」列显示「是」；友链页 `isPinned` / `isFeatured`、站内通知 `isRead` 等布尔徽章存在同类误判风险。
-- 根因：Nitro 2.13 的 Rollup `treeshake.moduleSideEffects` 白名单默认不含 `pg-types`，其顶层 `textParsers.init(...)` / `binaryParsers.init(...)` 被摇树；`getTypeParser` 永久回退 `noParse`，PostgreSQL 的 `bool` / `int4` / `json` 等全部以原始文本返回（`isPinned: 'f'`、`views: '0'`、`metadata` 为 JSON 字符串）。前端 `data.isPinned ? 是 : 否` 把非空字符串 `'f'` 判为真值。
-- 取证：线上 `GET /api/posts` 返回 `"isPinned":"f"`；`isPinned=true` 过滤 `total: 0`（库内为真实 false，排除数据迁移）；修复前构建产物中 `textParsers` / `binaryParsers` 出现 0 次。
-- 修复：
-    - 新增 `modules/nitro-pg-types-side-effects.ts`：`nitro:init` 阶段把 `pg-types` 追加进 `nitro.options.moduleSideEffects`，并以 `nitro:build:before` 护栏断言注入生效。
-    - 新增 `server/database/pg-value-types.ts`，并在 `initializeDB` 接入启动自检：PostgreSQL 下跑 `SELECT true, 1::integer, '{"ok":true}'::json` 探针，类型退化时记录 `[db-type-guard]` error（不抛出）。
-    - `server/decorators/custom-column.ts`：`type: 'boolean'` 列统一注入归一化 transformer（`'t'/'1'/1` → true，`'f'/'0'/0` → false）。
-    - `AdminNotificationSettings` / `InAppNotification` 的布尔列改用 `CustomColumn`，消除绕过点。
-
-### 验证结果
-
-- `pnpm typecheck`：PASS。
-- `pnpm lint`：PASS（0 error；7 warning 为既有、与本次改动无关）。
-- `pnpm test`：PASS（527 文件 / 4471 用例通过，1 skipped）。
-- `pnpm build`：PASS；产物 `chunks/nitro/nitro.mjs` 已包含 `textParsers.init` / `binaryParsers.init`。
-- 真实 PostgreSQL 16 端到端（Docker + 重建产物）：修复前 `/api/posts` 返回 `isPinned: 'f'` / `views: '0'`；修复后返回 `isPinned=True/False (bool)`、`views=7/0 (int)`、`metadata` 为对象、`audioUrl` 由 `metadata.audio` 正确回填；`isPinned=true` 过滤 `total: 0`；启动日志出现 `pg-value-type-check` 且无 `db-type-guard` 报错。
-- 定向测试：`server/decorators/custom-column.test.ts` + `tests/modules/nitro-pg-types-side-effects.test.ts` + `server/database/pg-value-types.test.ts` 共 26 用例 PASS。
-- Review Gate：初审 Pass（0 blocker / 3 warning / 7 suggest）→ 修复 W1/W2/W3 与 S1/S3 后复审 Pass（0 blocker / 0 warning）。审计记录见 `artifacts/review-gate/2026-09-21-pinned-boolean-pg-types.md`。
-
-### 未覆盖边界
-
-- 未逐 preset 验证 dev / Vercel / Cloudflare 产物（依据 nitropack 源码与 node-server 产物判定因果充分）。
-- 启动自检为 log-only（不 fail-fast），依赖日志可观测性；后续可选在 CI 增加产物断言（grep `textParsers.init`）。
-- 未在真实 MySQL / SQLite 实例复核水合（仅单测覆盖归一化语义）。
-- 本批无 UI 模板 / 样式 / 交互变更，UI 浏览器验证按「数据契约修复」口径豁免；用户可见行为已由真实 PostgreSQL API 契约验证。
-- S7（补「非布尔列不注入 transformer」负向断言）仍敞口，非阻塞。
-
-<!-- regression-window:end:hotfix-pinned-pg-types:PostgreSQL 值类型解析修复:2026-09-21 -->
 
 <!-- regression-window:start:phase67-m1-integration:第六十七阶段-M1:2026-09-20 -->
 ## 2026-09-20 第六十七阶段 M1 接入基座验证（PrimeVue → caomei-ui）
