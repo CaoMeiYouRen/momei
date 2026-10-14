@@ -7,98 +7,79 @@
             show-language-switcher
         >
             <template #actions>
-                <Button
-                    :label="$t('common.create')"
-                    icon="pi pi-plus"
-                    @click="openDialog()"
-                />
+                <CaomeiButton @click="openDialog()">
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('common.create') }}
+                </CaomeiButton>
             </template>
 
-            <DataTable
-                :value="campaigns"
+            <!-- 客户端分页：不传 `page` / 不设 `lazy`，由 caomei `DataTable` 按 `rows` 自持切片，
+                 与迁移前 PrimeVue 表格消费整份 `value` 的行为一致。 -->
+            <CaomeiDataTable
+                :data="campaigns"
+                :columns="columns"
                 :loading="loading"
                 paginator
                 :rows="10"
-                class="p-datatable-sm"
+                class="admin-campaigns__table"
             >
-                <Column
-                    field="name"
-                    :header="$t('common.name')"
-                    sortable
-                />
-                <Column
-                    field="status"
-                    :header="$t('pages.admin.ad.campaigns.status')"
-                >
-                    <template #body="{data}">
-                        <Tag
-                            :value="data.status"
-                            :severity="getAdCampaignStatusSeverity(data.status)"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    field="startDate"
-                    :header="$t('pages.admin.ad.campaigns.start_date')"
-                >
-                    <template #body="{data}">
-                        {{ data.startDate ? formatDateTime(data.startDate, 'YYYY-MM-DD HH:mm') : '-' }}
-                    </template>
-                </Column>
-                <Column
-                    field="endDate"
-                    :header="$t('pages.admin.ad.campaigns.end_date')"
-                >
-                    <template #body="{data}">
-                        {{ data.endDate ? formatDateTime(data.endDate, 'YYYY-MM-DD HH:mm') : '-' }}
-                    </template>
-                </Column>
-                <Column
-                    field="impressions"
-                    :header="$t('pages.admin.ad.campaigns.impressions')"
-                    sortable
-                />
-                <Column
-                    field="clicks"
-                    :header="$t('pages.admin.ad.campaigns.clicks')"
-                    sortable
-                />
-                <Column
-                    field="revenue"
-                    :header="$t('pages.admin.ad.campaigns.revenue')"
-                >
-                    <template #body="{data}">
-                        ${{ data.revenue?.toFixed(2) || '0.00' }}
-                    </template>
-                </Column>
-                <Column
-                    :header="$t('common.actions')"
-                    class="text-right"
-                    style="min-width: 8rem"
-                >
-                    <template #body="{data}">
-                        <Button
-                            icon="pi pi-pencil"
-                            text
-                            rounded
-                            severity="info"
-                            @click="openDialog(data)"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="confirmDeleteAdCampaign(data)"
-                        />
-                    </template>
-                </Column>
+                <template #cell-status="{row}">
+                    <CaomeiTag :tone="getAdCampaignStatusTone(row.status)">
+                        {{ row.status }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-startDate="{row}">
+                    {{ row.startDate ? formatDateTime(row.startDate, 'YYYY-MM-DD HH:mm') : '-' }}
+                </template>
+
+                <template #cell-endDate="{row}">
+                    {{ row.endDate ? formatDateTime(row.endDate, 'YYYY-MM-DD HH:mm') : '-' }}
+                </template>
+
+                <template #cell-revenue="{row}">
+                    ${{ row.revenue?.toFixed(2) || '0.00' }}
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="primary"
+                        :label="$t('common.edit')"
+                        @click="openDialog(row)"
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="danger"
+                        :label="$t('common.delete')"
+                        @click="confirmDeleteAdCampaign(row)"
+                    >
+                        <template #icon>
+                            <Trash :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+
                 <template #empty>
                     <AdminTableEmptyState :label="$t('pages.admin.ad.campaigns.empty')" />
                 </template>
-            </DataTable>
+            </CaomeiDataTable>
         </AdminListShell>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / ConfirmDialog / useConfirm 维持 PrimeVue 至第六十九阶段。
+             其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
+             `DatePicker` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单 / 浮层批次；
+             弹窗上的 `p-fluid` 亦为仍是 PrimeVue 的 `DatePicker` 保留，待其迁移后一并移除。 -->
         <Dialog
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"
@@ -107,25 +88,23 @@
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
-                <InputText
+                <CaomeiInput
                     id="name"
                     v-model.trim="formData.name"
-                    required
-                    autofocus
-                    :class="{'p-invalid': errors.name}"
+                    :invalid="Boolean(errors.name)"
                 />
                 <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
             </div>
 
             <div class="field">
                 <label for="status">{{ $t('pages.admin.ad.campaigns.status') }} *</label>
-                <Dropdown
+                <CaomeiSelect
                     id="status"
                     v-model="formData.status"
                     :options="statusOptions"
                     option-label="label"
                     option-value="value"
-                    :class="{'p-invalid': errors.status}"
+                    :invalid="Boolean(errors.status)"
                 />
                 <small v-if="errors.status" class="p-error">{{ errors.status }}</small>
             </div>
@@ -153,16 +132,18 @@
             </div>
 
             <template #footer>
-                <Button
-                    :label="$t('common.cancel')"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
                     @click="closeDialog()"
-                />
-                <Button
-                    :label="$t('common.save')"
+                >
+                    {{ $t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :loading="saving"
                     @click="save"
-                />
+                >
+                    {{ $t('common.save') }}
+                </CaomeiButton>
             </template>
         </Dialog>
 
@@ -171,7 +152,9 @@
 </template>
 
 <script setup lang="ts">
+import { Pencil, Plus, Trash } from '@lucide/vue'
 import { useConfirm } from 'primevue/useconfirm'
+import type { DataTableColumn } from 'caomei-ui'
 import { CampaignStatus, type AdCampaign } from '@/types/ad'
 
 interface CampaignFormState {
@@ -245,6 +228,26 @@ const statusOptions = computed(() => [
     { label: t('pages.admin.ad.campaigns.statuses.ended'), value: CampaignStatus.ENDED },
 ])
 
+// 列定义与迁移前 PrimeVue 列组件一一对应：名称 / 状态 / 开始 / 结束 / 展示 / 点击 / 收益 / 动作。
+// 不新增显式 `width`；动作列沿用迁移前声明的 `text-right` + `min-width: 8rem`（PrimeVue 的 `class` / `style`
+// 同时落在表头与表体单元格，故以 `align: 'right'` + 双 style 等价还原，不改列宽与对齐）。
+const columns = computed<DataTableColumn<AdCampaign>[]>(() => [
+    { key: 'name', header: t('common.name'), sortable: true },
+    { key: 'status', header: t('pages.admin.ad.campaigns.status') },
+    { key: 'startDate', header: t('pages.admin.ad.campaigns.start_date') },
+    { key: 'endDate', header: t('pages.admin.ad.campaigns.end_date') },
+    { key: 'impressions', header: t('pages.admin.ad.campaigns.impressions'), sortable: true },
+    { key: 'clicks', header: t('pages.admin.ad.campaigns.clicks'), sortable: true },
+    { key: 'revenue', header: t('pages.admin.ad.campaigns.revenue') },
+    {
+        key: 'actions',
+        header: t('common.actions'),
+        align: 'right',
+        headerStyle: { minWidth: '8rem' },
+        bodyStyle: { minWidth: '8rem' },
+    },
+])
+
 async function save() {
     resetErrors()
 
@@ -315,7 +318,9 @@ async function deleteItem(item: AdCampaign) {
     }
 }
 
-function getAdCampaignStatusSeverity(status: CampaignStatus): string {
+// caomei Tag 无 `severity`，改用 `tone`（迁移方案 §6.2 / §6.3 有意差异）：
+// `success` / `warning` / `danger` 直接对应，PrimeVue `secondary` 取有损近似 `neutral`。
+function getAdCampaignStatusTone(status: CampaignStatus): 'success' | 'warning' | 'danger' | 'neutral' {
     switch (status) {
         case CampaignStatus.ACTIVE:
             return 'success'
@@ -324,10 +329,17 @@ function getAdCampaignStatusSeverity(status: CampaignStatus): string {
         case CampaignStatus.ENDED:
             return 'danger'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 </script>
 
 <style scoped lang="scss">
+.admin-campaigns {
+    // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+    // `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+    &__table {
+        --caomei-data-table-pagination-justify: center;
+    }
+}
 </style>

@@ -60,6 +60,13 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-ad-campaigns-list',
+        path: '/admin/ad/campaigns',
+        heading: '广告活动',
+        tier: 'admin',
+        migrated: true,
+    },
 ]
 
 export const PENDING_ROUTES: ParityRoute[] = [
@@ -93,13 +100,6 @@ export const PENDING_ROUTES: ParityRoute[] = [
         name: 'admin-friend-links-list',
         path: '/admin/friend-links',
         heading: '友链管理',
-        tier: 'admin',
-        migrated: false,
-    },
-    {
-        name: 'admin-ad-campaigns-list',
-        path: '/admin/ad/campaigns',
-        heading: '广告活动',
         tier: 'admin',
         migrated: false,
     },

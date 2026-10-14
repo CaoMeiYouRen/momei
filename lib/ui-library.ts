@@ -21,7 +21,8 @@ export type UiLibrarySource = 'primevue' | 'caomei-ui'
  * 登记项使用路由前缀语义：登记 `/admin/posts` 表示该路由及其子路由已迁移。
  *
  * 在册组件族（本批）范围：DataTable / Column（列插槽·选择·排序·lazy·分页）、Paginator、Tag、
- * Button、InputText、Select、Badge、ToggleSwitch、IconField / InputIcon、Skeleton、Avatar。
+ * Button、InputText、Select（含旧名 Dropdown，见迁移方案 §6.1 C 组）、Badge、ToggleSwitch、
+ * IconField / InputIcon、Skeleton、Avatar。
  * 显式豁免：全局壳 `Toast` / `ConfirmDialog`、延后批次的浮层（Dialog / Drawer / Popover /
  * DropdownMenu，含 `ConfirmDeleteDialog`）、跨路由共享壳与 `v-tooltip` 指令。
  */
@@ -30,6 +31,7 @@ export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
     '/admin/submissions',
     '/admin/external-links',
     '/admin/waitlist',
+    '/admin/ad/campaigns',
 ]
 
 import { APP_LOCALE_CODES } from '@/i18n/config/locale-registry'

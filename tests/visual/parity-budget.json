@@ -4,7 +4,7 @@
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 8 条实测值的 +19%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 10 条实测值的 +19%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
     },
     "tiers": {
         "reader": {
@@ -363,15 +363,105 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 40
+                    },
+                    "pixels": 5735,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异（迁移后删除 `p-datatable-sm` 压缩档，行高改由 caomei 表格 token 推导）。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 280,
+                        "width": 160,
+                        "height": 200
+                    },
+                    "pixels": 2146,
+                    "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 599,
+                    "reason": "头部操作区：`CaomeiButton`（primary 实底 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异；按钮右边缘（x=1375）与高度（36px）已对齐。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5735 + 2146 + 863 + 599 = 9343px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +32%）即红。"
         },
         "admin-ad-campaigns-list-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 40
+                    },
+                    "pixels": 5845,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异（迁移后删除 `p-datatable-sm` 压缩档，行高改由 caomei 表格 token 推导）。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 280,
+                        "width": 1280,
+                        "height": 200
+                    },
+                    "pixels": 4656,
+                    "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 617,
+                    "reason": "头部操作区：`CaomeiButton`（primary 实底 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异；按钮右边缘（x=1375）与高度（36px）已对齐。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5845 + 4656 + 878 + 617 = 11996px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +25%）即红。"
         },
         "admin-ad-placements-list-light": {
             "tier": "admin",

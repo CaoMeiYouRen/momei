@@ -84,6 +84,11 @@ test.describe('Admin E2E Tests', () => {
     })
 
     test('should load extended admin management pages', async ({ page }) => {
+        /* 该用例是单函数内的多路由串行矩阵（每条一次导航 + 可见性等待），随迁移路由逐批增长，
+         * 已贴默认 30s 预算；显式抬高超时，使「新增路由」不再挤压既有等待余量
+         * （2026-10-14 审计提示：8 → 9 行后隔离复跑最高 24.7s ≈ 82% 预算）。 */
+        test.setTimeout(60000)
+
         const routeMatrix = [
             ['/admin/users', '.p-datatable, .admin-page-container'],
             ['/admin/comments', '.caomei-data-table, .admin-page-container'],
@@ -92,6 +97,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/subscribers', '.p-datatable, .admin-page-container'],
             ['/admin/external-links', '.caomei-data-table, .admin-page-container'],
             ['/admin/waitlist', '.caomei-data-table, .admin-page-container'],
+            ['/admin/ad/campaigns', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/placements', '.p-datatable, .admin-page-container'],
         ] as const
 
