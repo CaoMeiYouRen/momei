@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-25
+last_sync: 2026-10-14
 translation_tier: summary-sync
 ---
 
@@ -190,3 +190,7 @@ Summary of the pitfalls distilled from the migration-period visual regression pr
 ## 9. Fix Workflow
 
 Fix tasks follow the "minimal reproduction test → targeted subset → batch fix → CI verdict" workflow, see [Fix workflow supplement](../../../design/governance/2026-07-23-nuxt-450-fetch-mock.md#修复工作流).
+
+---
+
+> Sync note (2026-10-14): the Chinese source of truth added **§7.2 Visual Parity Gate** (tiered parity budget, allowlist maintenance, reference-capture flow, CI flip conditions) and fixed a malformed fenced block in §7.1/§7.2 area. Full text remains Chinese-only.

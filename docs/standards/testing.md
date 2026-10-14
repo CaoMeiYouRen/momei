@@ -229,6 +229,9 @@ pnpm run test:coverage
 3.  若命令超时，必须记录停止位置、已完成项与后续补跑计划。
 
 ## 7. 高效运行技巧 (Running Tips)
+
+1.  **单独运行特定测试文件**:
+    ```bash
     # 仅运行 Header 组件测试
     pnpm test app-header
 
