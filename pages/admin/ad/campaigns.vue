@@ -79,7 +79,8 @@
         <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / ConfirmDialog / useConfirm 维持 PrimeVue 至第六十九阶段。
              其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
              `DatePicker` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单 / 浮层批次；
-             弹窗上的 `p-fluid` 亦为仍是 PrimeVue 的 `DatePicker` 保留，待其迁移后一并移除。 -->
+             弹窗 class 上的 `p-fluid` 为迁移前既有写法（实测构建产物中不存在 `.p-fluid` 规则，字段全宽由
+             `styles/main.scss` 提供），按「最小改动」原样保留，死类清理登记在 backlog 的迁移期幻影类收尾项。 -->
         <Dialog
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"

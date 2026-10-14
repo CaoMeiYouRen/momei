@@ -98,8 +98,11 @@
 
         <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / ConfirmDialog / useConfirm 维持 PrimeVue 至第六十九阶段。
              其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
-             `InputNumber` / `Checkbox` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单批次；
-             弹窗上的 `p-fluid` 亦为它们保留，待其迁移后一并移除。 -->
+             `InputNumber` / `Checkbox` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单批次。
+             弹窗 class 上的 `p-fluid` 是迁移前既有写法：实测构建产物中**不存在 `.p-fluid` 规则**（PrimeVue 4
+             只注册类名不产样式），字段全宽由 `styles/main.scss` 的 `.p-inputtext/.p-select/.p-inputnumber/
+             .p-datepicker { width: 100% }` 提供；本批按「最小改动」原样保留，死类清理与 `admin-placements__dialog`
+             一并登记在 backlog 的迁移期幻影类收尾项。 -->
         <Dialog
             v-model:visible="dialogVisible"
             :header="editingItem ? $t('common.edit') : $t('common.create')"

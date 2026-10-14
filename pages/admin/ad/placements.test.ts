@@ -386,10 +386,14 @@ describe('AdminAdPlacements page', () => {
 
         expect(actionButtons(wrapper, 0)[1]!.attributes('data-label')).toBe('pages.admin.ad.placements.actions.disable')
         expect(actionButtons(wrapper, 1)[1]!.attributes('data-label')).toBe('pages.admin.ad.placements.actions.enable')
-        // 图标分支：启用中显示「禁用」图标（lucide EyeOff），未启用显示 Eye —— 两态均渲染图标。
-        for (const rowIndex of [0, 1]) {
-            expect(actionButtons(wrapper, rowIndex)[1]!.find('svg').exists()).toBe(true)
-        }
+        // 图标分支必须**可判别**：仅断言「渲染了 svg」无法发现 EyeOff / Eye 写反
+        // （lucide 会把组件名落到 `svg.lucide-*` 类上）。
+        const toggle0 = actionButtons(wrapper, 0)[1]!
+        const toggle1 = actionButtons(wrapper, 1)[1]!
+        expect(toggle0.find('svg.lucide-eye-off').exists()).toBe(true)
+        expect(toggle0.find('svg.lucide-eye').exists()).toBe(false)
+        expect(toggle1.find('svg.lucide-eye').exists()).toBe(true)
+        expect(toggle1.find('svg.lucide-eye-off').exists()).toBe(false)
     })
 
     it('客户端分页委托给 caomei DataTable（不传 page / lazy / total-records，也不监听 @page）', async () => {
@@ -425,6 +429,16 @@ describe('AdminAdPlacements page', () => {
         expect(selects.map((select) => select.attributes('data-id'))).toEqual(['location', 'format', 'adapterId'])
         expect(selects.map((select) => select.findAll('option').length)).toEqual([6, 4, 3])
         expect(selects.every((select) => select.attributes('data-invalid') === 'false')).toBe(true)
+        // 选项文本必须来自 i18n / 适配器名（而非 key 或空白），否则「只数 option 个数」会掩盖
+        // `option-label` 丢失（本页 ii18n 键在测试里被 stub 为原样返回，故断言 key 文本）。
+        expect(selects[0]!.findAll('option')[0]!.text()).toBe('pages.admin.ad.placements.locations.header')
+        expect(selects[1]!.findAll('option')[0]!.text()).toBe('pages.admin.ad.placements.formats.display')
+        // 适配器选项的文本取 `name` 字段（`option-label="name"`），不是 `label` / 空串。
+        expect(selects[2]!.findAll('option').map((option) => option.text())).toEqual([
+            'Google AdSense',
+            '百度联盟',
+            '腾讯广告 (广点通)',
+        ])
 
         // 弹窗页脚按钮渲染默认插槽文案（非纯图标）。
         expect(findButtonByText(wrapper, 'common.cancel').attributes('data-icon-only')).toBe('false')

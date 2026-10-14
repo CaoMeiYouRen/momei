@@ -83,7 +83,7 @@
 | `tests/modules/ui-library-route-migration-guard.test.ts` | 守卫加固：扫描前扣除**显式非 PrimeVue 导入**的标识符（lucide `Tag` 与在册族 PrimeVue `Tag` 同名，直接扫描会假阳性）；同时**不排除** `primevue/*` 导入；新增 5 条假阳性 / 假阴性双向验证用例 | 守卫最小假阳性口径 |
 | `tests/e2e/admin.e2e.test.ts` | 路由矩阵新增 `/admin/waitlist` → `.caomei-data-table, .admin-page-container` | 层 ② 扩面 |
 | `pages/admin/waitlist/index.test.ts`（新增） | 12 条契约用例：页头导出按钮（含**可见文案**断言）、筛选 `CaomeiInput`、列定义与 `align: 'right'`、`#cell-*` 插槽按 row 渲染、Tag tone 与空值回落、`pageIndexBase: 1` / `initialLimit: 20` 声明、1 基 `@page` 原样转发、空态插槽、导出查询串 | §8.2 层 ① |
-| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-waitlist-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单。参考态 provenance（迁移前 HEAD 就地采集 ≡ 对该迁移提交 `--revert`）**不写回机器生成的 `reference-manifest.json`**（重采会被覆盖），改记于门禁规范 §5 / §7.2 与偏差处置表 | §8.2 层 ③（门禁层） |
+| `tests/visual/parity/routes.ts` + `tests/visual/parity-budget.json` | `admin-waitlist-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单。参考态 provenance（迁移前 HEAD 就地采集 ≡ 对该迁移提交 `--revert`）**不写回机器生成的 `reference-manifest.json`**（重采会被覆盖），改记于门禁规范 §5 / §7.2 与偏差处置表 | §8.2 层 ③（门禁层） |
 | `scripts/testing/capture-visual-reference.mjs` | 参考态覆盖保护口径由「只保护 `source` 以 `worktree` 开头的清单条目」改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**（含就地采集的待迁移路由）」——旧口径下就地采集的路由在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自；`getProtectedTestNames` / `buildHeadCaptureGrepArgs` 增加可注入 `root` 以便单测 | §7.2 / 门禁 §5「就地采集的等价性」 |
 | `tests/scripts/capture-visual-reference.test.ts`（新增） | 7 条用例：磁盘快照保护、`worktree` 清单保护、`in-place` 清单条目不单独作保护依据、去重排序、空输入不进 `--grep-invert`、全量采集排除表达式、`--only` 不参与排除 | §8.2 层 ①（脚本契约） |
 
@@ -189,7 +189,7 @@
 | `tests/modules/ui-library-route-migration-guard.test.ts` | 页面文件解析由「只认 `pages/<prefix>/index.vue`」扩展为**候选两种形态**（`index.vue` 优先，其次 `<prefix>.vue`），两种都不存在时报错并列出已尝试路径（避免同名文件形态的守卫静默失效）；在册族补入 `Dropdown`（PrimeVue `Select` 的旧名，§6.1 C 组；否则改用旧名即可绕过「Select 零残留」）；新增 4 条形态解析用例 | 守卫最小假阴性口径 |
 | `pages/admin/ad/campaigns.test.ts`（新增） | 11 条契约用例：页头创建按钮（含**可见文案**断言）、列定义与 `align`、`#cell-*` 插槽按 row 渲染（日期空值回落 / 收益 `toFixed` 与 `undefined` 回落）、Tag tone 四态 + 默认分支、动作集合与 `iconOnly` 形态、客户端分页委托（不传 `page` / `lazy`、翻页无请求）、弹窗字段映射与 `:invalid`、编辑态回填、保存校验、删除确认 | §8.2 层 ① |
 | `tests/e2e/admin.e2e.test.ts` | 路由矩阵新增 `/admin/ad/campaigns` → `.caomei-data-table, .admin-page-container` | 层 ② 扩面 |
-| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-ad-campaigns-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
+| `tests/visual/parity/routes.ts` + `tests/visual/parity-budget.json` | `admin-ad-campaigns-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
 
 ### 视觉差异逐项归因（迁移前基线 → 迁移后）
 
@@ -246,7 +246,7 @@
 | `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/ad/placements` | §5.5 |
 | `pages/admin/ad/placements.test.ts`（新增） | 14 条契约用例：页头创建按钮（含可见文案）、列定义与 `align`、`#cell-*` 插槽按 row 渲染（适配器名解析与未知回退、状态文案翻转）、Tag tone 四态、动作集合与 `iconOnly` 形态、**启停按钮可访问名随状态翻转 + 图标两态**、客户端分页委托、弹窗字段映射与 `:invalid`（含 `optionLabel` / `optionValue` 语义）、编辑态回填、保存校验、删除确认、启停 PUT 请求体与成功提示分支、空态 | §8.2 层 ① |
 | `tests/e2e/admin.e2e.test.ts` | 路由矩阵 `/admin/ad/placements` 就绪选择器 `.p-datatable` → `.caomei-data-table` | 层 ② 改写 |
-| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-ad-placements-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
+| `tests/visual/parity/routes.ts` + `tests/visual/parity-budget.json` | `admin-ad-placements-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
 
 ### 视觉差异逐项归因（迁移前基线 → 迁移后）
 
@@ -264,10 +264,13 @@
 
 ### 验证结果
 
-- **层 ①（单元）**：`pnpm exec vitest run pages/admin/ad/placements.test.ts tests/modules/ui-library-route-migration-guard.test.ts` = 36 用例通过（本页 14 条 + 守卫 22 条）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` / `pnpm lint:i18n` 通过。
-- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` = **1 passed / 18.8s**（矩阵现覆盖 10 路由；该用例已显式 `test.setTimeout(60000)`）；firefox / webkit 本机缺失对应版本目录，属环境限制。
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/ad/placements.test.ts tests/modules/ui-library-route-migration-guard.test.ts` = **37 用例通过（本页 14 条 + 守卫 23 条）**；守卫用例数随 `CAOMEI_UI_ROUTE_PREFIXES` 增长——其中一组为 `for (const prefix of …)` 的循环用例，**每登记一个路由前缀即 +1 条**（本批 5 → 6 前缀，故 22 → 23）。`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` / `pnpm lint:i18n` 通过。
+- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` = **1 passed / 18.8s**（矩阵现覆盖 9 路由；本批只把 placements 行的就绪选择器由 `.p-datatable` 改为 `.caomei-data-table`，**未新增矩阵行**；该用例已显式 `test.setTimeout(60000)`）；firefox / webkit 本机缺失对应版本目录，属环境限制。
 - **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**；本路由浅 7991px / 0.617%、深 10643px / 0.821%，允许清单扣减后未归因 **0px**；其余 20 条零回归。
-- **全量单测**：`pnpm test` 539 文件 / 4590 用例通过（1 skipped；较上一路由批次 +15，即本页 14 条 + `Dropdown` 守卫口径 1 条净增）。
+- **全量单测**：`pnpm test` 539 文件 / 4590 用例通过（1 skipped；较上一路由批次 +15 = 本页 14 条 + **因新登记前缀触发的守卫循环用例 1 条**）。
+- **计数 / 声明更正（本窗口初版与提交 `717740ae`、`d3aadfb2` 的信息有误，以此为准）**：
+    1. 初版层 ① 记为「36 用例（守卫 22 条）」、层 ② 记为「矩阵覆盖 10 路由」，均与提交态不符——实测为 **37 用例（守卫 23 条）** 与 **9 路由**。成因：守卫含一条随登记前缀增长的循环用例（易被漏计），而 E2E 矩阵本批只改选择器未加行。
+    2. `d3aadfb2` 的信息称「单语种提交会让 `lint:i18n` 的键集合一致性检查失败」——**实测不成立**：仅删 `en-US` 的一个键后 `pnpm lint:i18n` EXIT 0。跨语种键漂移实际由 `pnpm i18n:audit:missing`（`--fail-on-missing`，在 `regression:weekly` 内执行）检出（EXIT 1 并列出缺失键）；`pnpm i18n:check-sync` 默认只报告（EXIT 0），需 `--fail-on-diff` 才阻断（实测 EXIT 1）。五语种同批提交的结论不变，但**把关者是 `i18n:audit:missing`，不是 per-PR 的 `lint:i18n`**——该覆盖面差异已登记 backlog。
 - **i18n**：新增 2 键在 5 个语种镜像中键集合完全一致（脚本比对 missing 0 / extra 0）；`pnpm lint:i18n` 通过。
 - **包体**：本批未新增依赖，`pnpm build` 通过。
 
