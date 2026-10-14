@@ -17,7 +17,7 @@
 | 通道③ | 外层包装 + 选择器级覆盖（须留理由） |
 | 通道④ | 上游反馈（issue 草稿） |
 | 责任人 | 处置与复核责任角色 |
-| 状态 | 已覆盖 / 已接受（进允许清单）/ 待上游 / 已闭环 |
+| 状态 | 已覆盖 / 已接受（进允许清单）/ 待上游 / 已修复 / 已闭环 |
 
 ## 处置表
 
@@ -25,11 +25,11 @@
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 | DataTable 分页器对齐（列表页底部） | 居中 | 右对齐（`justify-content: flex-end`） | submissions L1018 / D1022；comments L1177；waitlist L1168 | `--caomei-data-table-pagination-justify`（0.4.0 已交付） | 不适用 | 不需要（token 已够） | 已在 2026-09-25 反馈并交付 | `@full-stack-master` | 对齐已覆盖（token）；分页按钮自身渲染差异仍接受（同区域 comments L1177 / submissions L1018 / D1022 / waitlist L1168 进允许清单） |
 | DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034；waitlist L7008 / D10696 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
-| 字段外壳（输入 / 选择 / 按钮）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L1660+863 / D1685+878；waitlist L494（页头 secondary 按钮）+ L863（头部语言切换）/ D4028+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
+| 字段外壳（输入 / 选择 / 按钮）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L599+863 / D617+878（2026-10-14 可见文案修复后；修复前为 L1660+863 / D1685+878）；waitlist L494（页头 secondary 按钮）+ L863（头部语言切换）/ D4028+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
 | 空态对齐 | PrimeVue `EmptyMessage` 居中 | caomei 空态居中参数 | submissions L1018 / D1022；comments L1177；waitlist L1168 | 不适用 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | `p-datatable-sm` 行高 | 紧凑行高（sm 尺寸） | caomei 表格行高 token 推导值 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-*` 行高 token 或 `size` 属性 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | Tag tone 映射（severity → tone） | `severity` 语义色 | `tone` 语义色 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-color-*` | 预设色板 | 不需要 | 已声明为有意差异（迁移方案 §6.3） | `@full-stack-master` | 有意差异（映射核对） |
-| `CaomeiButton` 可见文案丢失 | PrimeVue `Button` 的 `label` 渲染可见文本 | `CaomeiButton` 的 `label` 仅映射 `aria-label`；可见文本须落默认插槽 | external 头部创建按钮 L1660 区域由 82px 退化为 42px 纯图标；submissions 审核弹窗 4 按钮同型 | 不适用（非样式问题） | 不适用 | 不适用 | —（组件 API 差异，待随修复批次登记上游文档缺口） | `@full-stack-master` | **待修**：2026-10-14 经用户裁定作为独立 fix 提交处置（修正可见文案 + 重采两条路由允许清单）；该提交落地前，本条状态与「已修复」表述均不成立 |
+| `CaomeiButton` 可见文案丢失 | PrimeVue `Button` 的 `label` 渲染可见文本 | `CaomeiButton` 的 `label` 仅映射 `aria-label`；可见文本须落默认插槽 | 修复前 external 头部创建按钮区域 L1660 / D1685；修复后降至 L599 / D617（仅剩按钮渲染差异） | 不适用（非样式问题） | 不适用 | 不适用 | 已在上游反馈清单 §2.4 登记，**待上游落档**（尚未取得上游 commit / PR 锚点） | `@full-stack-master` | **已修复**（2026-10-14 独立 fix 提交：外链页头部 + 弹窗页脚、投稿审核弹窗页脚改为默认插槽渲染；外链页允许清单与基线层快照已重新校准，投稿页差异总量不变——其弹窗不在截图内）。连带修复同页同批发现的 `openReview` 内 `useI18n()` 抛错（审核弹窗打不开） |
 
 > 说明：表中「有意差异」条目不进允许清单（属迁移方案 §6.3 已声明项，按映射核对），其余「已接受」条目必须同时登记到 `tests/visual/parity-budget.json` 的 `allowlist`。
 
@@ -66,6 +66,15 @@
 几何核验（先于归因）：筛选输入两态边界均为 `x[56,316]` / `x[332,592]`（260px，±1px）；页头导出按钮两态均右对齐、高 36px。故上表差异全部为**组件替换**（字段外壳盒模型 / 表头底色 / 行高 / 按钮排版），无几何漂移。
 
 > 全量门禁复跑（2026-10-14）：`pnpm test:visual:parity` **22/22 通过**，已迁移 4 路由（8 testName）未归因差异均为 0；待迁移 7 路由（14 testName）实测 0px。
+
+**2026-10-14 可见文案修复后外链页重校准（2 个 testName）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-external-links-list-light | admin | 3000 / 0.350% | 8992 → **7931** / 0.612% | 3/3 条，7931px | 0px / 0.000% | PASS |
+| admin-external-links-list-dark | admin | 3000 / 0.350% | 11597 → **10529** / 0.812% | 3/3 条，10529px | 0px / 0.000% | PASS |
+
+> 重校准原因：`CaomeiButton` 可见文案修复后页头按钮区域差异由 L1660 / D1685 降至 L599 / D617（文案像素恢复），允许清单同步下调到实测值本身。投稿页两条**未变**（浅 8344 / 深 10959）——其弹窗不在截图范围内。基线层仅外链页 2 张快照刷新。
 
 > 预算与允许清单的权威值以 `tests/visual/parity-budget.json` 为准；本表为校准快照，重跑后若数值变化须同步更新。
 

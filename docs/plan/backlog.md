@@ -210,6 +210,12 @@
     - **非目标**: 不引入 GitHub 原生 merge queue（无 batch、无 `conflict_resolvers`，对 lockfile 反复冲突场景不对症）；不改变依赖升级节奏、override 体系与 `security:audit-deps` 门禁口径；不借本次调整改动分支保护策略。
     - **上收前置**: 先闭环详细方案 §7 的 6 项待验证——尤其是「当前套餐是否覆盖 Batch / `conflict_resolvers`」「`conflict_resolvers` 对与 base 冲突是否生效」「机械消解后 lockfile 是否内部自洽」。必须在测试仓库用真实 `pnpm-lock.yaml` 冲突跑通一轮后再动生产配置。
     - **详细方案**: [2026-10-12-mergify-merge-queue-adoption-evaluation.md](../design/governance/2026-10-12-mergify-merge-queue-adoption-evaluation.md)
+11. **`useI18n()` 内联调用形态收敛（正确性治理，2026-10-14 登记）**
+    - **背景**: `vue-i18n@11` 的 `useI18n()` 在 `getCurrentInstance() === null` 时**抛错**（`MUST_BE_CALL_SETUP_TOP`）。在**事件处理器 / 异步函数**内内联调用（而非使用 setup 顶层解构的 `t` / `locale`）会静默失效——`/admin/submissions` 的 `openReview` 即因此让「审核」按钮点击后弹窗永不打开（2026-10-14 修复可见文案时发现，已单独修复该一处）。
+    - **现状盘点（2026-10-14）**: `pages/admin/submissions/index.vue` 的 1 处已修复；`components/admin/dashboard/creator-stats-panel.vue` 3 处位于 `computed` 内（模板渲染期求值，当前可用但不稳健）；`components/admin/snippets/snippet-aggregate-dialog.vue` 2 处位于事件处理器 / 异步函数内，**同属会抛错的形态**。
+    - **最小范围**: ① 全仓检索「`useI18n()` 非 setup 顶层调用」，逐处改为使用顶层解构的 `t` / `locale` / `locales`；② 为 `snippet-aggregate-dialog` 的两处补失败 / 边界断言（点击即触发路径）；③ 评估加一条 lint 规则或治理脚本防回归（若规则成本过高，至少纳入 `governance:audit:*` 巡检清单）。
+    - **非目标**: 不重构 i18n 装配方式；不改 vue-i18n 版本；不动 `useI18nDate` 等自有 composable。
+    - **验收标准**: 全仓无「非 setup 顶层」的 `useI18n()` 调用；涉及页面 / 组件的交互路径有单测覆盖；`pnpm typecheck` + `pnpm lint` + 定向测试通过。
 
 ---
 

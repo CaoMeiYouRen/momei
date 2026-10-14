@@ -9,16 +9,6 @@
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 
-<!-- regression-window:start:phase42-close:第四十二阶段:2026-06-04 -->
-
-<!-- regression-window:start:periodic-regression:weekly:2026-06-10 -->
-
-<!-- regression-window:start:workflow-precheck:release:2026-07-25 -->
-
-<!-- regression-window:start:periodic-regression:weekly:2026-07-27 -->
-
-<!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
-
 <!-- regression-window:start:workflow-precheck:test:2026-10-13 -->
 ## 2026-10-13 workflow pre-check（test，自动回填）
 
@@ -120,6 +110,63 @@
 - `docs/reports/regression/current.md` 本批后约 660 行，仍高于 `docs:check:line-count` 的 500 行 warning 线（未越 700 行 error 线）；滚动归档（含 `2026-06-04 ~ 2026-07-27` 段遗留窗口）登记在 [backlog](../../plan/backlog.md) #6，与既有双阈值口径问题一并处置。
 
 <!-- regression-window:end:phase68-b2-waitlist:第六十八阶段-条目2-第三路由:2026-10-14 -->
+
+<!-- regression-window:start:phase68-fix-button-visible-label:第六十八阶段-CaomeiButton可见文案回归修复:2026-10-14 -->
+## 2026-10-14 第六十八阶段 `CaomeiButton` 可见文案回归修复（`/admin/external-links`、`/admin/submissions`）
+
+### 问题溯源
+
+- **现象**：`/admin/external-links` 头部「创建」按钮在参考态（PrimeVue）为 **82px 宽**（图标 + 文案，实测 `x[1294,1375] y[113,148]`），迁移后退化为 **42px 纯图标**（`x[1334,1376]`）；同页编辑弹窗页脚「取消 / 保存」、`/admin/submissions` 审核弹窗页脚「取消 / 受理 / 确认 / 驳回」同型——**可见文案整体丢失**。
+- **根因（5-Why）**：① 按钮无字 → ② `CaomeiButton` 未渲染默认插槽内容 → ③ 页面只写了 `:label`，未写默认插槽 → ④ caomei `CaomeiButton` 的 `label` 经 `useLabelAttrs` 仅输出 `aria-label`，可见文本只来自 `!iconOnly && $slots.default`，而 PrimeVue `Button` 的 `label` 直接渲染可见文本 → ⑤ 「标签替换 + 属性改名」式机械迁移在**同名 prop 语义不同**时静默失真：不报错、不被 `typecheck` / 零残留守卫 / parity 允许清单捕获（被记为「头部操作区差异」）。
+- **引入点**：`04d12c17`（外链页）与 `ff443447`（投稿页）的迁移批次；缺陷代码形态与 `029ee324` 起的原实现一致，属**迁移改写时未察觉的 API 语义差异**，非本批次引入。
+- **发现路径**：第六十八阶段条目 2 第三路由（`/admin/waitlist`）迁移时以 `getBoundingClientRect` 探针核对按钮几何，发现「参考 118px vs 实际 107px」偏差后回查同型写法，从而暴露两页历史缺陷（用户 2026-10-14 裁定作为**独立 fix 提交**处置）。
+
+### 范围
+
+- 修复两页**全部**非 icon-only 按钮的可见文案：改写为默认插槽渲染，保留可访问名语义（`label` 不再传，可访问名由插槽文本提供）。
+- 顺带修复同页同批发现的**第二个缺陷**：`/admin/submissions` 的 `openReview` 在**事件处理器内**调用 `useI18n()`，而 vue-i18n 11 的 `useI18n()` 在 `getCurrentInstance() === null` 时**抛错**（`MUST_BE_CALL_SETUP_TOP`），使 `reviewVisible = true` 永不执行——即「审核」按钮点击后弹窗打不开（功能阻塞，非观感问题）。修复方式为改用 setup 内已解构的 `locale`。
+- **非目标**：不改按钮视觉样式 / 布局；不动 `/admin/comments` 的本地 padding 补丁（有意保留，见迁移方案 §5.5 范围限定）；不处理仓库内其余 `useI18n()` 内联用法（登记 backlog）。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/external-links/index.vue` | 头部「创建」按钮与弹窗页脚「取消 / 保存」：`:label` → **默认插槽文本** | caomei-ui 组件 API（`label` 仅映射 `aria-label`） |
+| `pages/admin/submissions/index.vue` | 审核弹窗页脚 4 个按钮同样改为默认插槽文本；新增代码注释固化该陷阱 | 同上 |
+| `pages/admin/submissions/index.vue` | `openReview` 内的 `useI18n().locale.value` → setup 已解构的 `locale.value`（`const { t, locales, locale } = useI18n()`） | vue-i18n 11 `useI18n` 契约（setup 外调用抛错） |
+| `pages/admin/external-links/index.test.ts` | 新增 `findButtonByText` 助手（有字按钮按文本定位、`data-label` 只对纯图标按钮有效）；创建按钮断言补**可见文案 + 非 icon-only**；新增弹窗页脚可见文案用例；原「按 `data-label` 定位创建 / 保存按钮」改为按文本定位 | §8.2 层 ① |
+| `pages/admin/submissions/index.test.ts` | `CaomeiButton` stub 改为渲染默认插槽（忠实镜像组件语义）；新增 2 条用例：审核弹窗页脚可见文案（idle 分支 3 按钮 / accept 分支 2 按钮） | §8.2 层 ① |
+| `tests/visual/parity-budget.json` | 外链页允许清单按修复后实测重新校准（浅 8992 → **7931**、深 11597 → **10529**）；头部区域 reason 收敛为「按钮渲染差异」事实（历史演进叙述下沉本记录）；`meta.note` / `tiers.admin` 的检出阈值上界 +36% → **+38%** | §8.2 层 ③ |
+| `tests/visual/__screenshots__/admin-external-links-list.visual.test.ts/*.png` | 迁移后基线按修复后状态刷新（浅 / 深 2 张）；投稿页基线经比对**无需改动**（审核弹窗不在截图内） | §8.2 层 ③（基线层） |
+| `docs/design/governance/2026-09-25-caomei-ui-upstream-feedback.md` | 新增 §2.4（`Button` 的 `label` 只映射可访问名 / 可见文本须落默认插槽），并补 §4 说明 | 通道④ 文档缺口 |
+| `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` | §5.5 补「按钮可见文案陷阱」blockquote，约束 B2 剩余页写法 | §5.5 / §6 |
+| `docs/design/governance/visual-parity-deviation-register.md` | 「`CaomeiButton` 可见文案丢失」行 待修 → **已修复**；「字段外壳」行数值同步为修复后实测；校准记录新增外链页重校准表；状态列词汇表补入「已修复」 | 偏差处置表 |
+| `docs/reports/regression/current.md` + `archive/{index.md,2026-06-04-to-2026-09-11.md}` | 本批写入前 `current.md` 已 **712 行（越过 error 700）**，故先滚动归档 6 个最旧窗口（2026-06-04 ~ 2026-09-11；含 5 个历史遗留的孤立 `start` marker 一并归位），`current.md` 回落 **616 行**；分片按时间升序、正文逐字未改，登记入 `archive/index.md` | 文档规范 §5.4；`docs:check:line-count` |
+| `docs/plan/todo.md` / `docs/plan/backlog.md` | todo 条目 2 的跨批遗留条目改为「已修复」并写明证据落点；backlog 新增待上收候选 #11（`useI18n()` 内联调用形态收敛，含现状盘点） | `planning.md` §3.4 |
+
+### 视觉差异逐项归因（修复前 → 修复后）
+
+- 外链页差异总量：浅色 **8992 → 7931px（-11.8%）**、深色 **11597 → 10529px（-9.2%）**；减少量集中在页头按钮区域（浅 1660 → 599、深 1685 → 617），即文案恢复后「按钮宽度 / 文本像素」类差异被消除，剩余差异为该按钮 primary 实底的边框 / 底纹 / 排版与高度差（属组件替换）。
+- 外链页主体（`x[80,1360] y[200,360]` 浅 6469 / 深 9034）与语言切换字段（浅 863 / 深 878）**未变**，说明本批未波及其它区域。
+- 投稿页差异总量**未变**（浅 8344 / 深 10959）：其截图基线为空态表格，审核弹窗不在截图范围内；本批对该页的修复由单元层 2 条用例覆盖（页脚可见文案 + accept 分支）。
+- 全量门禁：`pnpm test:visual:parity` **22/22 通过**（未归因差异全为 0px）；基线层 `pnpm test:visual` **14/14 通过**。
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/external-links/index.test.ts pages/admin/submissions/index.test.ts` = **28 用例通过**（各 14 条；本批新增 3 条、改写 3 条定位方式）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error。
+- **层 ②（E2E 功能）**：本批未改路由就绪选择器与 E2E 断言面；功能修复（弹窗可打开）由单元层覆盖（见「未覆盖边界」）。
+- **层 ③（截图识别）**：门禁层 22/22、基线层 14/14 通过（见上）。
+- **文档门禁**：`pnpm docs:check:line-count` passed（`current.md` 616 行；归档前 712 行曾越 error 线）；`pnpm docs:check:source-of-truth` / `docs:check:links`（247 md）/ `lint-md` 均通过。
+- **全量单测**：`pnpm test` 537 文件 / 4557 用例通过（1 skipped）。
+- **可复算证据**：`test-results/visual-parity/report/admin-external-links-list-{light,dark}.json` 的 `measured.diffPixels` 与允许清单扣减后 `remaining.pixels = 0`。
+
+### 未覆盖边界 / 观察项
+
+- **`useI18n()` 内联调用为仓库级形态问题（登记 backlog）**：同一缺陷形态在 `components/admin/dashboard/creator-stats-panel.vue`（3 处，位于 `computed` 内，模板渲染期求值故当前可用）与 `components/admin/snippets/snippet-aggregate-dialog.vue`（2 处，位于事件处理器 / 异步函数内，**同属会抛错的形态**）存在。本批只修 `/admin/submissions` 一处（为解除审核弹窗功能阻塞），其余登记为跨批治理项，不在本批顺带修改。
+- 本批修复后「有字按钮必须按可见文本定位」成为测试约定：`data-label` 仅对 `:label` + `iconOnly` 的纯图标按钮有效，已写入两页测试的助手注释。
+- 截图层不覆盖弹窗内部（Dialog 类浮层属第六十九阶段），故页脚文案回归由单元层把关；外链页页脚同理。
+
+<!-- regression-window:end:phase68-fix-button-visible-label:第六十八阶段-CaomeiButton可见文案回归修复:2026-10-14 -->
 
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
@@ -571,89 +618,3 @@ B2 试点页 5 族 / 8 处，与升级前一致：`CaomeiButton` ×3、`CaomeiSe
 
 <!-- regression-window:end:phase67-m1-integration:第六十七阶段-M1:2026-09-20 -->
 
-<!-- regression-window:start:periodic-regression:weekly:2026-09-11 -->
-## 2026-09-11 周级周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:weekly`
-- 证据 artifact: `../../../artifacts/review-gate/2026-09-11-weekly-regression.md` / `../../../artifacts/review-gate/2026-09-11-weekly-regression.json`
-- 结果摘要: `Reject`；blocker=1，warning=1。
-- 已执行验证: test:coverage=PASS，security:audit-deps=FAIL
-- 回归窗口: 323 行 / 13 条，归档判定=需要滚动归档。
-- Review Gate: `Reject` / `blocker`；主要问题=security:audit-deps failed。
-- 未覆盖边界: 活动日志当前 13 条记录，超过 8 条窗口
-
-<!-- regression-window:end:periodic-regression:weekly:2026-09-11 -->
-
-## 2026-07-27 阶段收口前周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:phase-close`
-- 证据 artifact: `artifacts/review-gate/2026-07-27-phase-close-regression.md` / `artifacts/review-gate/2026-07-27-phase-close-regression.json`
-- 结果摘要: `Reject`；blocker=2，warning=0。
-- 已执行验证: test:coverage=PASS，release:check:full=FAIL
-- 回归窗口: 322 行 / 13 条，归档判定=需要滚动归档。
-- Review Gate: `Reject` / `blocker`；主要问题=release:check:full failed -> test (Vitest)；regression-log window exceeded: 活动日志当前 13 条记录，超过 8 条窗口。
-- 未覆盖边界: 活动日志当前 13 条记录，超过 8 条窗口
-
-<!-- regression-window:end:periodic-regression:phase-close:2026-07-27 -->
-
-## 2026-07-27 周级周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:weekly -- --dry-run`
-- 证据 artifact: `artifacts/review-gate/2026-07-27-weekly-regression.md` / `artifacts/review-gate/2026-07-27-weekly-regression.json`
-- 结果摘要: `Prepared`；blocker=0，warning=1。
-- 已执行验证: test:coverage=DRY RUN，security:audit-deps=DRY RUN，docs:check:source-of-truth=DRY RUN，docs:check:i18n=DRY RUN，docs:check:line-count=DRY RUN，i18n:audit:missing=DRY RUN，duplicate-code:check=DRY RUN，governance:check:scripts=DRY RUN，governance:audit:eslint-debt=DRY RUN，governance:audit:comment-drift=DRY RUN，governance:audit:simple-duplicates=DRY RUN
-- 回归窗口: 294 行 / 11 条，归档判定=需要滚动归档。
-- Review Gate: `Prepared` / `warning`；主要问题=regression-log window exceeded: 活动日志当前 11 条记录，超过 8 条窗口。
-- 未覆盖边界: 本轮为 dry-run，仅验证编排与回填，不代表真实回归执行结果。
-
-<!-- regression-window:end:periodic-regression:weekly:2026-07-27 -->
-
-## 2026-07-25 workflow pre-check（release，自动回填）
-
-- 执行入口: `pnpm run ci:precheck -- --profile=release`
-- 证据 artifact: `artifacts/review-gate/2026-07-25-ci-precheck-release.md` / `artifacts/review-gate/2026-07-25-ci-precheck-release.json`
-- 结果摘要: `Reject`；blocker=1，warning=0。
-- 已执行验证: release critical files=PASS，release environment=FAIL
-- Review Gate: `Reject` / `blocker`；主要问题=release environment failed。
-- 未覆盖边界: 真实发布凭据链路仍以 GitHub Actions runtime 为准。
-
-<!-- regression-window:end:workflow-precheck:release:2026-07-25 -->
-
-## 2026-06-10 周级周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:weekly`
-- 证据 artifact: `artifacts/review-gate/2026-06-10-weekly-regression.md` / `artifacts/review-gate/2026-06-10-weekly-regression.json`
-- 结果摘要: `Pass`；blocker=0，warning=1。
-- 已执行验证: test:coverage=PASS，security:audit-deps=PASS，docs:check:source-of-truth=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，i18n:audit:missing=PASS，duplicate-code:check=FAIL，governance:check:scripts=PASS
-- 回归窗口: 189 行 / 7 条，归档判定=窗口健康。
-- Review Gate: `Pass` / `warning`；主要问题=duplicate-code:check failed。
-- 未覆盖边界: 无新增未覆盖边界。
-
-<!-- regression-window:end:periodic-regression:weekly:2026-06-10 -->
-
-## 2026-06-04 第四十二阶段收口回归
-
-### 范围
-
-- 目标：第四十二阶段「AI 深化与运营闭环」5 条主线全部交付后的阶段收口回归，覆盖 typecheck、lint、CWV 基线、代码审计与归档操作。
-- 本轮覆盖：全仓 typecheck + ESLint (`--max-warnings 0`)，Code Auditor 审计及修复，plan 文档归档（roadmap 深度分片 + todo-archive 滚动归档）。
-- 非目标：不包含浏览器端 E2E 回归测试，不包含 CWV 实际数值采集（由 CI `build-lighthouse` job 产出）。
-
-### 验证结果
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `pnpm typecheck` | Pass | 无静态错误 |
-| `pnpm lint` | Pass | ESLint `--max-warnings 0` 通过 |
-| Code Auditor | Pass | 4 个问题（1H+3M）已修复提交 |
-| CWV 基线 | 待 CI | 基础设施就绪，实际数值由 CI 产出 |
-| roadmap.md 深度归档 | 完成 | Phase 22-24 迁入 `roadmap-phases-22-24.md`，主文档 799→719 行 |
-| todo-archive.md 滚动归档 | 完成 | Phase 32-37 迁入 `todo-archive-phases-32-37.md`，主文档保留 Phase 38-42 |
-| todo.md 状态 | 清理 | Phase 42 5/5 主线 `[x]`，进度与验收均已填写 |
-
-### 未覆盖边界
-
-- CWV 中位数基线需等待 CI 运行 `pnpm build && pnpm test:perf:cwv` 产出后，回填到性能规范 `docs/standards/performance.md`。
-- `pnpm lint:i18n` 未在本轮单独执行，新增 i18n 键依赖 typecheck + 运行时验证。
-
-<!-- regression-window:end:phase42-close:第四十二阶段:2026-06-04 -->

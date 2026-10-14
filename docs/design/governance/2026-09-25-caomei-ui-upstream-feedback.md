@@ -69,6 +69,18 @@
 - **建议**：文档说明 `hasValue` 口径，或提供「按语义空值」判断的钩子。
 - **上游处置**：判定为**文档缺口**，登记上游 Backlog **§1.6**。
 
+### 2.4 `Button` 的 `label` 只映射可访问名，可见文本须落默认插槽
+
+- **现象**：caomei `CaomeiButton` 的 `label` prop 仅经 `useLabelAttrs` 输出 `aria-label`，**可见文本只来自默认插槽**（`!iconOnly && $slots.default`）。PrimeVue `Button` 的 `label` 则直接渲染可见文本，因此「标签替换 + 属性改名」式机械迁移会得到**无文案的按钮**（外形退化为图标按钮），且不报错、不被类型检查捕获。
+- **实测（momei 侧）**：`/admin/external-links` 头部「创建」按钮由参考态的 82px（图标 + 文案）静默退化为 42px 纯图标；同页弹窗页脚「取消 / 保存」与 `/admin/submissions` 审核弹窗页脚 4 个按钮同型。逐像素门禁最初把该退化当作「头部操作区差异」**接受**，直到按 `getBoundingClientRect` 复核几何才暴露。
+- **建议**：在 Button 页 / PrimeVue 迁移指引中显式提示——「`label` 是可访问名；可见文本写默认插槽」，并在文档给出最小对照：
+    ```vue
+    <Button label="保存" />
+    <!-- ↓ -->
+    <CaomeiButton>保存</CaomeiButton>
+    ```
+- **上游处置**：判定为**文档缺口**类，登记于本清单 §2.4（**待上游落档**）。momei 侧已修正两处历史用法并把该陷阱写入迁移方案 §5.5 与本清单。
+
 ## 3. 非问题（已在库文档声明为有意差异，仅记录）
 
 - `DataTable` 的 `page` 为 **1 基**（PrimeVue 0 基偏移）——迁移时不要沿用 `+1`；库文档已说明。
@@ -81,7 +93,8 @@
 ## 4. 结论与后续
 
 - 上述 1.1~1.5 属**静默失效或重复补丁**类问题，建议优先在库侧处理或在文档补齐；2.x 属文档/档位完善项。
-- momei 侧在库侧处理前均已有可行写法（哨兵映射、包装元素约束 token、本地图标按钮类、`--caomei-avatar-size` 覆盖、列 `bodyStyle`），并已记录在 [迁移方案 §5.5 / §6](./2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [回归记录](../../reports/regression/current.md)。
+- **2026-10-14 补记**：2.4（`Button` 的 `label` 与默认插槽）与 2.2 同属**文档缺口**类；**待上游落档**——本清单已登记，但尚未取得上游 commit / PR 锚点（与 1.1 / 2.2 / 2.3 的「上游已评估落档 `bedd2de`」不同，不得读作上游已受理）。
+- momei 侧在库侧处理前均已有可行写法（哨兵映射、包装元素约束 token、本地图标按钮类、`--caomei-avatar-size` 覆盖、列 `bodyStyle`、按钮文案置默认插槽），并已记录在 [迁移方案 §5.5 / §6](./2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [回归记录](../../reports/regression/current.md)。
 - **上游已评估落档**（上游 commit `bedd2de`，2026-09-25）：真实缺口 3 条（1.3 / 1.4 / 1.5）→ 上游 Backlog **§1.1 待决策**；文档缺口 3 条（1.1 / 2.2 / 2.3）→ 上游 Backlog **§1.6**；设计如此 2 条（1.2 / 2.1）；`Select` `null` 值支持**不纳入**，判为有意契约，结论留档上游 Backlog **§3**。
 - **交付复核**（2026-10-13，`caomei-ui@0.6.0`）：3 条真实缺口（1.3 / 1.4 / 1.5）**已在 `0.4.0` 全部交付**并在 `0.6.0` 产物中实测存在，momei 侧对应的行内补丁写法可从 B2 剩余页移除；2.x 文档 / 档位项未在本轮复核。
 - 上游落点记录：`caomei-ui` 仓库 [momei 上游反馈评估](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/design/governance/2026-09-25-momei-upstream-feedback-evaluation.md) 与 [docs/plan/backlog.md](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/plan/backlog.md) §1.1 / §1.6 / §3。
