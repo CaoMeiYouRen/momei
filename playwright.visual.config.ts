@@ -40,6 +40,9 @@ const visualServerCommand = `pnpm exec cross-env ${visualServerEnv} node .output
 
 export default defineConfig({
     testDir: './tests/visual',
+    /* 只纳入迁移基线层用例；门禁层（tests/visual/parity/*.visual-parity.test.ts）
+     * 由 playwright.visual-parity.config.ts 单独运行，避免互相污染。 */
+    testMatch: '**/*.visual.test.ts',
     /* 复用既有 e2e 认证态准备逻辑（生成 tests/e2e/.auth/admin.json）；不改变其语义 */
     globalSetup: './tests/e2e/global-setup.ts',
     /* 截图层串行：避免并行渲染导致字体 / 布局抖动 */

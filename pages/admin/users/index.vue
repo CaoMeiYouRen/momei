@@ -77,7 +77,7 @@
                     sortable
                 >
                     <template #body="{data}">
-                        <div class="user-created-at">
+                        <div class="user-created-at" data-visual-mask>
                             <span class="user-created-at__date">{{ d(data.createdAt) }}</span>
                             <small class="user-created-at__relative">{{ relativeTime(data.createdAt) }}</small>
                         </div>

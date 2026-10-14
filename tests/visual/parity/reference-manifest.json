@@ -1,0 +1,174 @@
+{
+    "generatedAt": "2026-10-13T18:33:42.706Z",
+    "environment": {
+        "browser": "chromium 156.0.8078.4",
+        "playwright": "1.64.0",
+        "node": "v24.19.0",
+        "platform": "linux 5.15.167.4-microsoft-standard-WSL2",
+        "viewport": "1440x900",
+        "deviceScaleFactor": 1,
+        "locale": "zh-CN",
+        "timezoneId": "Asia/Shanghai",
+        "colorScheme": "light",
+        "reducedMotion": "reduce",
+        "animations": "disabled",
+        "caret": "hide",
+        "pixelThreshold": 0.2
+    },
+    "captures": {
+        "admin-comments-list-dark": {
+            "ref": "44774147^",
+            "commit": "997313c5286cbf1fe8c26955cd2698dec8eda8af",
+            "source": "worktree-revert",
+            "label": "revert 44774147",
+            "capturedAt": "2026-10-13T17:09:57.503Z"
+        },
+        "admin-comments-list-light": {
+            "ref": "44774147^",
+            "commit": "997313c5286cbf1fe8c26955cd2698dec8eda8af",
+            "source": "worktree-revert",
+            "label": "revert 44774147",
+            "capturedAt": "2026-10-13T17:09:57.503Z"
+        },
+        "admin-submissions-list-dark": {
+            "ref": "ff443447^",
+            "commit": "863437ce44bb5fde6d47f1c951d7a4cce893ab76",
+            "source": "worktree-revert",
+            "label": "revert ff443447",
+            "capturedAt": "2026-10-13T17:14:25.582Z"
+        },
+        "admin-submissions-list-light": {
+            "ref": "ff443447^",
+            "commit": "863437ce44bb5fde6d47f1c951d7a4cce893ab76",
+            "source": "worktree-revert",
+            "label": "revert ff443447",
+            "capturedAt": "2026-10-13T17:14:25.582Z"
+        },
+        "admin-external-links-list-dark": {
+            "ref": "04d12c17^",
+            "commit": "ff4434477f02066cae6383d659fe71bac0610cfd",
+            "source": "worktree-revert",
+            "label": "revert 04d12c17",
+            "capturedAt": "2026-10-13T17:18:20.062Z"
+        },
+        "admin-external-links-list-light": {
+            "ref": "04d12c17^",
+            "commit": "ff4434477f02066cae6383d659fe71bac0610cfd",
+            "source": "worktree-revert",
+            "label": "revert 04d12c17",
+            "capturedAt": "2026-10-13T17:18:20.062Z"
+        },
+        "admin-ad-campaigns-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-ad-campaigns-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-ad-placements-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-ad-placements-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-friend-links-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-friend-links-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-link-governance-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-link-governance-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-posts-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-posts-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-subscribers-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-subscribers-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-users-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T18:33:42.706Z"
+        },
+        "admin-users-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T18:33:42.706Z"
+        },
+        "admin-waitlist-list-dark": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-waitlist-list-light": {
+            "ref": "HEAD",
+            "commit": "04d12c178e74bad79a14afccc40764cb57a759dc",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-13T17:28:36.185Z"
+        }
+    }
+}

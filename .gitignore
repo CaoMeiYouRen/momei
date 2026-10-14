@@ -63,6 +63,8 @@ tests/e2e/.auth
 
 # 视觉回归基线快照随仓库提交（迁移方案 §8.2）；失败产物 -actual/-diff 落于 test-results/visual/（已被忽略）
 !tests/visual/__screenshots__/**/*.png
+# 视觉一致性门禁参考态快照（迁移前 PrimeVue 原貌）随仓库提交，命名 <name>.reference.png
+!tests/visual/parity/reference/**/*.png
 
 /artifacts
 /opc-doc

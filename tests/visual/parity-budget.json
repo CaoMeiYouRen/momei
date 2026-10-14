@@ -1,0 +1,326 @@
+{
+    "meta": {
+        "updatedAt": "2026-10-14",
+        "viewport": "1440x900 (deviceScaleFactor 1)",
+        "pixelThreshold": 0.2,
+        "referenceDir": "tests/visual/parity/reference",
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 6 条实测值的 +23%~+36%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+    },
+    "tiers": {
+        "reader": {
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "description": "面向读者 / 公开页：布局必须基本不变，极小容差。"
+        },
+        "admin": {
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "description": "面向管理员：容许一定偏差，但需「看起来差不多」；允许清单已按实测登记，未归因差异 > 3000px（约实测 +23%~+36%）即判红。"
+        }
+    },
+    "entries": {
+        "admin-comments-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 80,
+                        "width": 1440,
+                        "height": 280
+                    },
+                    "pixels": 9122,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 400,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1177,
+                    "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9122 + 1177 = 10299px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +29%）即红。"
+        },
+        "admin-comments-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 80,
+                        "width": 1440,
+                        "height": 400
+                    },
+                    "pixels": 13052,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（13052px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +23%）即红。"
+        },
+        "admin-submissions-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 160,
+                        "width": 1360,
+                        "height": 200
+                    },
+                    "pixels": 7326,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 400,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 1018,
+                    "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（7326 + 1018 = 8344px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +36%）即红。"
+        },
+        "admin-submissions-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 160,
+                        "width": 1360,
+                        "height": 200
+                    },
+                    "pixels": 9937,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 400,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 1022,
+                    "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9937 + 1022 = 10959px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +27%）即红。"
+        },
+        "admin-external-links-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 160
+                    },
+                    "pixels": 6469,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 1660,
+                    "reason": "头部操作区：图标按钮与语言切换字段外壳差异。处置走通道① token 覆盖 + 0.4.0 `iconOnly`，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部操作区：图标按钮与语言切换字段外壳差异。处置走通道① token 覆盖 + 0.4.0 `iconOnly`，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8992px/0.694%、dark 11597px/0.895%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（6469 + 1660 + 863 = 8992px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +33%）即红。"
+        },
+        "admin-external-links-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 160
+                    },
+                    "pixels": 9034,
+                    "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 1685,
+                    "reason": "头部操作区：图标按钮与语言切换字段外壳差异。处置走通道① token 覆盖 + 0.4.0 `iconOnly`，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部操作区：图标按钮与语言切换字段外壳差异。处置走通道① token 覆盖 + 0.4.0 `iconOnly`，见偏差处置表。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8992px/0.694%、dark 11597px/0.895%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9034 + 1685 + 878 = 11597px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +26%）即红。"
+        },
+        "admin-posts-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-posts-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-waitlist-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-waitlist-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-subscribers-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-subscribers-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-users-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）。2026-10-14 修复参考态不可复现：时间列加 `data-visual-mask` 遮蔽动态相对时间，并把视觉等待锚定到用户列表渲染完成（list-users 响应 + 首行出现）后重采参考态，实测差异回到 0px。admin 档预算收紧至 3000px / 0.35%。"
+        },
+        "admin-users-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）。2026-10-14 修复参考态不可复现：时间列加 `data-visual-mask` 遮蔽动态相对时间，并把视觉等待锚定到用户列表渲染完成（list-users 响应 + 首行出现）后重采参考态，实测差异回到 0px。admin 档预算收紧至 3000px / 0.35%。"
+        },
+        "admin-friend-links-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-friend-links-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-ad-campaigns-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-ad-campaigns-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-ad-placements-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-ad-placements-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-link-governance-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        },
+        "admin-link-governance-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+        }
+    }
+}
