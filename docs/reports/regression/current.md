@@ -226,6 +226,61 @@
 
 <!-- regression-window:end:phase68-b2-ad-campaigns:第六十八阶段-条目2-第四路由:2026-10-14 -->
 
+<!-- regression-window:start:phase68-b2-ad-placements:第六十八阶段-条目2-第五路由:2026-10-14 -->
+## 2026-10-14 第六十八阶段 条目 2 第五路由 B2 迁移（`/admin/ad/placements`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一）的第五个路由 `/admin/ad/placements` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 409 行 / 7 个 PrimeVue 列组件 / 22 处在册族开口标签（6 个组件名），同为**同名文件形态**（`pages/admin/ad/placements.vue`）与**客户端分页 + 行内编辑弹窗**形态，额外含「启用 / 停用」行内切换动作。守卫的两种页面文件形态与 `Dropdown` 在册口径已由上一路由批次铺好，本批无需再改守卫。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/ad/placements.vue` | `DataTable` + 7 个 PrimeVue 列组件 → `CaomeiDataTable` + `columns` 数组（`#body` → `#cell-{key}`）；页头创建与行内动作按钮 → `CaomeiButton`（行内用 0.6.0 `iconOnly` + lucide `#icon`）；`Tag severity` → `tone`（位置 `secondary` → `neutral`、格式 `info` → `primary`、状态 `success` / `danger` 直通）；弹窗内 `InputText`×2 → `CaomeiInput`、`Dropdown`×3 → `CaomeiSelect`、页脚 `Button` → `CaomeiButton`（**可见文案落默认插槽**）；`p-invalid` 类 → `:invalid` 布尔 | §6.1 / §6.2 / §6.3 / §5.3 / §5.5 |
+| 同上 | 「启用 / 停用」切换按钮的 `:icon`（`pi pi-eye-slash` / `pi pi-eye` 动态切换）→ `#icon` 插槽内的 `EyeOff` / `Eye` 条件渲染 | §6.2 图标 |
+| 同上 | 动作列沿用迁移前 `class="text-right"` + `style="min-width: 8rem"`，以 `align: 'right'` + `headerStyle` / `bodyStyle` 等价还原；其余列不新增显式宽度 | 迁移不改几何 |
+| 同上 | 客户端分页：`paginator` + `:rows="10"`，不传 `page` / `lazy` / `total-records` 且不监听 `@page`；分页对齐用 `--caomei-data-table-pagination-justify: center` 保持 PrimeVue 原居中口径；删除失效的 `p-datatable-sm` | §3.8 / §6.2；可删除代码收敛 |
+| 同上 | `Dialog` / `ConfirmDialog` / `useConfirm` 维持 PrimeVue（显式豁免）；`InputNumber`（优先级）/ `Checkbox`（启用）不在 B2 在册族（§5.5 显式豁免枚举），保持 PrimeVue；弹窗 `p-fluid` 为其保留并已注释说明 | §5.5 / 条目 2 非目标 |
+| `i18n/locales/{zh-CN,en-US,ja-JP,ko-KR,zh-TW}/admin-ad.json` | 新增 `pages.admin.ad.placements.actions.{enable,disable}` 两键（五语种同步）——迁移前该切换按钮**既无可见文本也无可访问名**，而 caomei `iconOnly` 契约要求 `label` 提供可访问名，故按 `:label` 补齐 | caomei `CaomeiButton` API；§6.2 可访问名 |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/ad/placements` | §5.5 |
+| `pages/admin/ad/placements.test.ts`（新增） | 14 条契约用例：页头创建按钮（含可见文案）、列定义与 `align`、`#cell-*` 插槽按 row 渲染（适配器名解析与未知回退、状态文案翻转）、Tag tone 四态、动作集合与 `iconOnly` 形态、**启停按钮可访问名随状态翻转 + 图标两态**、客户端分页委托、弹窗字段映射与 `:invalid`（含 `optionLabel` / `optionValue` 语义）、编辑态回填、保存校验、删除确认、启停 PUT 请求体与成功提示分支、空态 | §8.2 层 ① |
+| `tests/e2e/admin.e2e.test.ts` | 路由矩阵 `/admin/ad/placements` 就绪选择器 `.p-datatable` → `.caomei-data-table` | 层 ② 改写 |
+| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-ad-placements-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单（见下） | §8.2 层 ③（门禁层） |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：`pnpm test:visual:parity`（参考态取自迁移前 HEAD；chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画 / pixel threshold 0.2）。归因前先用**参考态行 / 列带扫描 + 实时 `getBoundingClientRect` 探针**核验几何：
+
+- 表格左 / 上边界两态一致（`x=88`，参考态与当前态的下边框均在 `y≈235`，实测 `boundingRect` `x88 y204 w1264`）；页头创建按钮两态均右边缘对齐 `x=1375`、高 36px（参考 81px 宽 vs 现 73px 宽，属按钮排版差异）。
+- 分页器两态**均居中**：参考态内容 `x[646,793]`、当前态 `x[668,771]`，中心均落在页面中线 `x=720` —— `--caomei-data-table-pagination-justify: center` 生效；差异为空态行高导致的垂直下移（参考 `y≈390` vs 现 `y≈410`），与既有 4 条列表路由同型。
+
+| 区域（浅色坐标） | 迁移前 | 迁移后 | 实测（浅 / 深） | 归因 |
+| :--- | :--- | :--- | :--- | :--- |
+| 表头行 `y[200,240] x[80,1360]` | PrimeVue `DataTable` 表头（`p-datatable-sm` 压缩档） | caomei `DataTable` 表头 | 4564 / 4676 | **组件替换**（表头底色 / 边框 / 字号 / 单元格内边距；压缩档删除后行高改由 caomei token 推导） |
+| 空态 + 分页区 `x[640,800] y[280,480]`（深色 `x[80,1360] y[280,480]`） | PrimeVue 空态 + 文本式分页器（居中，`y≈390`） | caomei 空态 + 实边框分页器（居中，`y≈410`） | 1965 / 4472 | **组件替换**（空态行高差异导致分页器垂直下移；水平对齐已用 token 收敛） |
+| 头部语言切换字段 `x[200,360] y[80,160]` | PrimeVue `Select` 字段外壳 | caomei 字段外壳（过渡组件 `ContentLanguageSwitcherV2`） | 863 / 878 | **组件替换**（与既有 4 路由同区域同量级） |
+| 头部创建按钮 `x[1280,1400] y[80,160]` | PrimeVue `Button`（`label` + `pi` 图标） | `CaomeiButton`（primary 实底 + lucide 图标） | 599 / 617 | **组件替换**（边框 / 底纹 / 排版；右边缘与高度已对齐） |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/ad/placements.test.ts tests/modules/ui-library-route-migration-guard.test.ts` = 36 用例通过（本页 14 条 + 守卫 22 条）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` / `pnpm lint:i18n` 通过。
+- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` = **1 passed / 18.8s**（矩阵现覆盖 10 路由；该用例已显式 `test.setTimeout(60000)`）；firefox / webkit 本机缺失对应版本目录，属环境限制。
+- **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**；本路由浅 7991px / 0.617%、深 10643px / 0.821%，允许清单扣减后未归因 **0px**；其余 20 条零回归。
+- **全量单测**：`pnpm test` 539 文件 / 4590 用例通过（1 skipped；较上一路由批次 +15，即本页 14 条 + `Dropdown` 守卫口径 1 条净增）。
+- **i18n**：新增 2 键在 5 个语种镜像中键集合完全一致（脚本比对 missing 0 / extra 0）；`pnpm lint:i18n` 通过。
+- **包体**：本批未新增依赖，`pnpm build` 通过。
+
+### 未覆盖边界 / 观察项
+
+- **新增 i18n 键属「可访问名补齐」而非文本变更**：迁移前该切换按钮为无可见文本、无可访问名的纯图标按钮；caomei `iconOnly` 要求 `label`，故按 `actions.enable` / `actions.disable` 补齐可访问名（五语种同步）。该补齐**不改变任何渲染**（`label` 只落 `aria-label`），故视觉门禁基线不受影响；由于是行为面（可访问性）的唯一变化，特此显式登记。
+- 本路由未新增基线层用例：理由同第四 / 第三路由（§8.2 层 ③ 采集对象「列表 / 表单 / 浮层各 1」已由既有 6 条基线满足，逐路由守线由门禁层承担）。
+- TEST_MODE 未播种广告位数据，门禁基线为**空态**渲染；行级渲染（列插槽 / Tag tone / 适配器解析 / 动作集合与可访问名 / 启停请求体）由单元层逐项断言覆盖。
+- `InputNumber` / `Checkbox` 仍为 PrimeVue（§5.5 显式豁免枚举，随 B3 表单批次）；本页 `label for` 与 caomei 字段 `id` 的真实关联由库源码实证（`input.js` / `select.js` 把 `props.id` 绑到内层控件），浏览器侧点击聚焦未由本批验证。
+- 剩余 4 条路由均需先落基建：`subscribers` / `users`（+`AppAvatarV2`）、`posts`（+`PostAuditBadge` 过渡件）、`friend-links`（+`AppUploaderV2`）；`migrations/link-governance` 可直接推进（守卫形态与 `Dropdown` 口径已铺好，且其页面无待新增过渡组件）。
+
+<!-- regression-window:end:phase68-b2-ad-placements:第六十八阶段-条目2-第五路由:2026-10-14 -->
+
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
 

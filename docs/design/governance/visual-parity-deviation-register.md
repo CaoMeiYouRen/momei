@@ -24,9 +24,9 @@
 | 区域 | 迁移前（PrimeVue） | 迁移后（caomei-ui） | 差异像素（2026-10-14 实测） | 通道① | 通道② | 通道③ | 通道④ | 责任人 | 状态 |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 | DataTable 分页器对齐（列表页底部） | 居中 | 右对齐（`justify-content: flex-end`） | submissions L1018 / D1022；comments L1177；waitlist L1168 | `--caomei-data-table-pagination-justify`（0.4.0 已交付） | 不适用 | 不需要（token 已够） | 已在 2026-09-25 反馈并交付 | `@full-stack-master` | 对齐已覆盖（token）；分页按钮自身渲染差异仍接受（同区域 comments L1177 / submissions L1018 / D1022 / waitlist L1168 进允许清单） |
-| DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034；waitlist L7008 / D10696；campaigns L5735 / D5845 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
-| 字段外壳（输入 / 选择 / 按钮）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L599+863 / D617+878（2026-10-14 可见文案修复后；修复前为 L1660+863 / D1685+878）；waitlist L494（页头 secondary 按钮）+ L863（头部语言切换）/ D4028+878；campaigns L599（页头 primary 按钮）+ L863（头部语言切换）/ D617+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
-| 空态对齐 | PrimeVue `EmptyMessage` 居中 | caomei 空态居中参数 | submissions L1018 / D1022；comments L1177；waitlist L1168；campaigns L2146 / D4656（与分页器垂直下移合并为一个区域） | 不适用 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
+| DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034；waitlist L7008 / D10696；campaigns L5735 / D5845；placements L4564 / D4676 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
+| 字段外壳（输入 / 选择 / 按钮）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L599+863 / D617+878（2026-10-14 可见文案修复后；修复前为 L1660+863 / D1685+878）；waitlist L494（页头 secondary 按钮）+ L863（头部语言切换）/ D4028+878；campaigns L599（页头 primary 按钮）+ L863（头部语言切换）/ D617+878；placements L599+863 / D617+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
+| 空态对齐 | PrimeVue `EmptyMessage` 居中 | caomei 空态居中参数 | submissions L1018 / D1022；comments L1177；waitlist L1168；campaigns L2146 / D4656（与分页器垂直下移合并为一个区域）；placements L1965 / D4472 | 不适用 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | `p-datatable-sm` 行高 | 紧凑行高（sm 尺寸） | caomei 表格行高 token 推导值 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-*` 行高 token 或 `size` 属性 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | Tag tone 映射（severity → tone） | `severity` 语义色 | `tone` 语义色 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-color-*` | 预设色板 | 不需要 | 已声明为有意差异（迁移方案 §6.3） | `@full-stack-master` | 有意差异（映射核对） |
 | `CaomeiButton` 可见文案丢失 | PrimeVue `Button` 的 `label` 渲染可见文本 | `CaomeiButton` 的 `label` 仅映射 `aria-label`；可见文本须落默认插槽 | 修复前 external 头部创建按钮区域 L1660 / D1685；修复后降至 L599 / D617（仅剩按钮渲染差异） | 不适用（非样式问题） | 不适用 | 不适用 | 已在上游反馈清单 §2.4 登记，**待上游落档**（尚未取得上游 commit / PR 锚点） | `@full-stack-master` | **已修复**（2026-10-14 独立 fix 提交：外链页头部 + 弹窗页脚、投稿审核弹窗页脚改为默认插槽渲染；外链页允许清单与基线层快照已重新校准，投稿页差异总量不变——其弹窗不在截图内）。连带修复同页同批发现的 `openReview` 内 `useI18n()` 抛错（审核弹窗打不开） |
@@ -86,6 +86,17 @@
 几何核验（先于归因）：表格左 / 上边界两态一致（`x=88`、`y≈235`）；页头创建按钮两态右边缘均 `x=1375`、高 36px；分页器两态**均居中**（参考内容 `x[646,793]` vs 当前 `x[668,771]`，中心均落在页面中线 `x=720`），差异为**空态行高**导致的垂直下移（参考 `y≈390` vs 当前 `y≈410`）。故上表差异全部为**组件替换**，无几何漂移；本路由门禁基线为空态，未渲染数据行，故 reason 不含 Tag tone 类归因。
 
 > 全量门禁复跑（2026-10-14）：`pnpm test:visual:parity` **22/22 通过**，已迁移 5 路由（10 testName）未归因差异均为 0；待迁移 6 路由（12 testName）实测 0px。
+
+**2026-10-14 第五路由实测（`/admin/ad/placements`，2 个 testName）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-ad-placements-list-light | admin | 3000 / 0.350% | 7991 / 0.617% | 4/4 条，7991px | 0px / 0.000% | PASS |
+| admin-ad-placements-list-dark | admin | 3000 / 0.350% | 10643 / 0.821% | 4/4 条，10643px | 0px / 0.000% | PASS |
+
+几何核验（先于归因）：表格左 / 上边界两态一致（`x=88`、下边框 `y≈235`）；页头创建按钮两态右边缘均 `x=1375`、高 36px；分页器两态**均居中**（参考内容 `x[646,793]` vs 当前 `x[668,771]`，中心均 `x=720`），差异为**空态行高**导致的垂直下移（参考 `y≈390` vs 当前 `y≈410`）。故上表差异全部为**组件替换**，无几何漂移；本路由门禁基线为空态，未渲染数据行，reason 不含 Tag tone 类归因。
+
+> 全量门禁复跑（2026-10-14，第五路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 6 路由（12 testName）未归因差异均为 0；待迁移 5 路由（10 testName）实测 0px。
 
 > 预算与允许清单的权威值以 `tests/visual/parity-budget.json` 为准；本表为校准快照，重跑后若数值变化须同步更新。
 
