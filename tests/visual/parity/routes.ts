@@ -53,6 +53,13 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-waitlist-list',
+        path: '/admin/waitlist',
+        heading: '候补名单',
+        tier: 'admin',
+        migrated: true,
+    },
 ]
 
 export const PENDING_ROUTES: ParityRoute[] = [
@@ -60,13 +67,6 @@ export const PENDING_ROUTES: ParityRoute[] = [
         name: 'admin-posts-list',
         path: '/admin/posts',
         heading: '文章管理',
-        tier: 'admin',
-        migrated: false,
-    },
-    {
-        name: 'admin-waitlist-list',
-        path: '/admin/waitlist',
-        heading: '候补名单',
         tier: 'admin',
         migrated: false,
     },

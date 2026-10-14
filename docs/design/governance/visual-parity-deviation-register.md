@@ -23,12 +23,13 @@
 
 | 区域 | 迁移前（PrimeVue） | 迁移后（caomei-ui） | 差异像素（2026-10-14 实测） | 通道① | 通道② | 通道③ | 通道④ | 责任人 | 状态 |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| DataTable 分页器对齐（列表页底部） | 居中 | 右对齐（`justify-content: flex-end`） | submissions L1018 / D1022；comments L1177 | `--caomei-data-table-pagination-justify`（0.4.0 已交付） | 不适用 | 不需要（token 已够） | 已在 2026-09-25 反馈并交付 | `@full-stack-master` | 对齐已覆盖（token）；分页按钮自身渲染差异仍接受（同区域 comments L1177 / submissions L1018 / D1022 进允许清单） |
-| DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
-| 字段外壳（输入 / 选择）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L1660+863 / D1685+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
-| 空态对齐 | PrimeVue `EmptyMessage` 居中 | caomei 空态居中参数 | submissions L1018 / D1022；comments L1177 | 不适用 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
+| DataTable 分页器对齐（列表页底部） | 居中 | 右对齐（`justify-content: flex-end`） | submissions L1018 / D1022；comments L1177；waitlist L1168 | `--caomei-data-table-pagination-justify`（0.4.0 已交付） | 不适用 | 不需要（token 已够） | 已在 2026-09-25 反馈并交付 | `@full-stack-master` | 对齐已覆盖（token）；分页按钮自身渲染差异仍接受（同区域 comments L1177 / submissions L1018 / D1022 / waitlist L1168 进允许清单） |
+| DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034；waitlist L7008 / D10696 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
+| 字段外壳（输入 / 选择 / 按钮）宽度与内边距 | PrimeVue 字段盒模型 | caomei `field-shell` 包裹模型 | external L1660+863 / D1685+878；waitlist L494（页头 secondary 按钮）+ L863（头部语言切换）/ D4028+878 | `--caomei-*` 字段类 token | 不适用 | 触发 `class` 落点陷阱时用外层包装 | 文档缺口（2026-09-25 §1.1 已反馈） | `@frontend-developer` | 已接受（进允许清单） |
+| 空态对齐 | PrimeVue `EmptyMessage` 居中 | caomei 空态居中参数 | submissions L1018 / D1022；comments L1177；waitlist L1168 | 不适用 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | `p-datatable-sm` 行高 | 紧凑行高（sm 尺寸） | caomei 表格行高 token 推导值 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-*` 行高 token 或 `size` 属性 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
 | Tag tone 映射（severity → tone） | `severity` 语义色 | `tone` 语义色 | 含于「表头底色」所在的「页面主体」区域 | `--caomei-color-*` | 预设色板 | 不需要 | 已声明为有意差异（迁移方案 §6.3） | `@full-stack-master` | 有意差异（映射核对） |
+| `CaomeiButton` 可见文案丢失 | PrimeVue `Button` 的 `label` 渲染可见文本 | `CaomeiButton` 的 `label` 仅映射 `aria-label`；可见文本须落默认插槽 | external 头部创建按钮 L1660 区域由 82px 退化为 42px 纯图标；submissions 审核弹窗 4 按钮同型 | 不适用（非样式问题） | 不适用 | 不适用 | —（组件 API 差异，待随修复批次登记上游文档缺口） | `@full-stack-master` | **待修**：2026-10-14 经用户裁定作为独立 fix 提交处置（修正可见文案 + 重采两条路由允许清单）；该提交落地前，本条状态与「已修复」表述均不成立 |
 
 > 说明：表中「有意差异」条目不进允许清单（属迁移方案 §6.3 已声明项，按映射核对），其余「已接受」条目必须同时登记到 `tests/visual/parity-budget.json` 的 `allowlist`。
 
@@ -42,6 +43,8 @@
 
 **2026-10-14 首次实测（已迁移 3 路由，6 个 testName）**
 
+> 预算列（16000 / 1.200%）为该次实测时的口径快照；admin 档随后于 2026-10-14 收紧为 3000px / 0.35%，现行值以 `tests/visual/parity-budget.json` 为准（下表与第 2 张表分属收紧前后两个快照，不做直接比较）。
+
 | testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
 |:---|:---|:---|:---|:---|:---|:---|
 | admin-comments-list-light | admin | 16000 / 1.200% | 10299 / 0.795% | 2/2 条，10299px | 0px / 0.000% | PASS |
@@ -52,6 +55,17 @@
 | admin-external-links-list-dark | admin | 16000 / 1.200% | 11597 / 0.895% | 3/3 条，11597px | 0px / 0.000% | PASS |
 
 观察：深色主题差异普遍高于浅色（+0.1~0.3 个百分点）；已迁移 3 路由的实测差异全部落在 `admin` 默认预算内，且可被登记的区域完整覆盖。待迁移 8 路由的参考态即当前 PrimeVue 渲染（HEAD 采集），迁移落地后其用例将开始反映漂移。
+
+**2026-10-14 第四路由实测（`/admin/waitlist`，2 个 testName）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-waitlist-list-light | admin | 3000 / 0.350% | 9533 / 0.736% | 4/4 条，9533px | 0px / 0.000% | PASS |
+| admin-waitlist-list-dark | admin | 3000 / 0.350% | 15602 / 1.204% | 3/3 条，15602px | 0px / 0.000% | PASS |
+
+几何核验（先于归因）：筛选输入两态边界均为 `x[56,316]` / `x[332,592]`（260px，±1px）；页头导出按钮两态均右对齐、高 36px。故上表差异全部为**组件替换**（字段外壳盒模型 / 表头底色 / 行高 / 按钮排版），无几何漂移。
+
+> 全量门禁复跑（2026-10-14）：`pnpm test:visual:parity` **22/22 通过**，已迁移 4 路由（8 testName）未归因差异均为 0；待迁移 7 路由（14 testName）实测 0px。
 
 > 预算与允许清单的权威值以 `tests/visual/parity-budget.json` 为准；本表为校准快照，重跑后若数值变化须同步更新。
 

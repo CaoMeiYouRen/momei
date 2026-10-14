@@ -6,89 +6,94 @@
             show-language-switcher
         >
             <template #actions>
-                <Button
-                    :label="$t('pages.admin.waitlist.export')"
-                    icon="pi pi-download"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
                     @click="exportWaitlist"
-                />
+                >
+                    <template #icon>
+                        <Download :size="16" />
+                    </template>
+                    {{ $t('pages.admin.waitlist.export') }}
+                </CaomeiButton>
             </template>
 
             <template #filters>
-                <IconField icon-position="left">
-                    <InputIcon class="pi pi-search" />
-                    <InputText
-                        v-model="filters.search"
-                        :placeholder="$t('pages.admin.waitlist.search_placeholder')"
-                        @input="onFilterChange"
-                    />
-                </IconField>
-                <IconField icon-position="left">
-                    <InputIcon class="pi pi-tag" />
-                    <InputText
-                        v-model="filters.purpose"
-                        :placeholder="$t('pages.admin.waitlist.purpose_filter')"
-                        class="admin-waitlist__purpose-input"
-                        @input="onFilterChange"
-                    />
-                </IconField>
+                <CaomeiInput
+                    v-model="filters.search"
+                    class="admin-waitlist__search-input"
+                    :placeholder="$t('pages.admin.waitlist.search_placeholder')"
+                    @update:model-value="onFilterChange"
+                >
+                    <template #prefix>
+                        <Search :size="16" />
+                    </template>
+                </CaomeiInput>
+
+                <CaomeiInput
+                    v-model="filters.purpose"
+                    class="admin-waitlist__purpose-input"
+                    :placeholder="$t('pages.admin.waitlist.purpose_filter')"
+                    @update:model-value="onFilterChange"
+                >
+                    <template #prefix>
+                        <Tag :size="16" />
+                    </template>
+                </CaomeiInput>
             </template>
 
-            <DataTable
-                :value="items"
+            <!-- 懒加载服务端分页：`page` 为 1 基受控值，`@page` 载荷亦为 1 基（由共享
+                 composable 的 `pageIndexBase: 1` 归一），与迁移前 PrimeVue 0 基行为对等。 -->
+            <CaomeiDataTable
+                :data="items"
+                :columns="columns"
                 :loading="loading"
                 lazy
                 :total-records="pagination.total"
                 :rows="pagination.limit"
+                :page="pagination.page"
                 paginator
-                class="p-datatable-sm"
+                class="admin-waitlist__table"
                 @page="onPage"
             >
-                <Column
-                    field="name"
-                    :header="$t('pages.admin.waitlist.columns.name')"
-                />
-                <Column
-                    field="email"
-                    :header="$t('pages.admin.waitlist.columns.email')"
-                />
-                <Column field="purpose" :header="$t('pages.admin.waitlist.columns.purpose')">
-                    <template #body="{data}">
-                        <Tag :value="data.purpose || 'benefit'" severity="info" />
-                    </template>
-                </Column>
-                <Column field="locale" :header="$t('pages.admin.waitlist.columns.locale')">
-                    <template #body="{data}">
-                        <Tag
-                            v-if="data.locale"
-                            :value="data.locale"
-                            severity="secondary"
-                        />
-                        <span v-else>—</span>
-                    </template>
-                </Column>
-                <Column field="createdAt" :header="$t('pages.admin.waitlist.columns.createdAt')">
-                    <template #body="{data}">
-                        {{ formatDate(data.createdAt) }}
-                    </template>
-                </Column>
-                <Column :header="$t('common.actions')" class="text-right">
-                    <template #body="{data}">
-                        <Button
-                            icon="pi pi-trash"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="openDeleteDialog(data)"
-                        />
-                    </template>
-                </Column>
+                <template #cell-purpose="{row}">
+                    <CaomeiTag tone="primary">
+                        {{ row.purpose || 'benefit' }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-locale="{row}">
+                    <CaomeiTag v-if="row.locale" tone="neutral">
+                        {{ row.locale }}
+                    </CaomeiTag>
+                    <span v-else>—</span>
+                </template>
+
+                <template #cell-createdAt="{row}">
+                    {{ formatDate(row.createdAt) }}
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="danger"
+                        :label="$t('common.delete')"
+                        @click="openDeleteDialog(row)"
+                    >
+                        <template #icon>
+                            <Trash :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+
                 <template #empty>
                     <AdminTableEmptyState :label="$t('pages.posts.empty')" />
                 </template>
-            </DataTable>
+            </CaomeiDataTable>
         </AdminListShell>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：ConfirmDeleteDialog 属延后批次的浮层，维持 PrimeVue 至第六十九阶段。 -->
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"
             :message="$t('pages.admin.waitlist.delete_confirm')"
@@ -98,6 +103,8 @@
 </template>
 
 <script setup lang="ts">
+import { Download, Search, Tag, Trash } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import type { AdminListFilterValue } from '@/composables/use-admin-list'
 
 interface WaitlistEntry {
@@ -120,6 +127,7 @@ definePageMeta({
     layout: 'default',
 })
 
+const { t } = useI18n()
 const { formatDate } = useI18nDate()
 const {
     visible: deleteVisible,
@@ -133,6 +141,17 @@ const filters = ref<WaitlistFilters>({
     purpose: '',
 })
 
+// 列定义与迁移前 PrimeVue 列组件一一对应：姓名 / 邮箱 / 目的 / 语言 / 加入时间 / 动作。
+const columns = computed<DataTableColumn<WaitlistEntry>[]>(() => [
+    { key: 'name', header: t('pages.admin.waitlist.columns.name') },
+    { key: 'email', header: t('pages.admin.waitlist.columns.email') },
+    { key: 'purpose', header: t('pages.admin.waitlist.columns.purpose') },
+    { key: 'locale', header: t('pages.admin.waitlist.columns.locale') },
+    { key: 'createdAt', header: t('pages.admin.waitlist.columns.createdAt') },
+    // 迁移前动作列以 `class="text-right"` 右对齐，迁移后用列级 `align` 等价还原（不改几何）。
+    { key: 'actions', header: t('common.actions'), align: 'right' },
+])
+
 const {
     items,
     loading,
@@ -143,6 +162,8 @@ const {
 } = useAdminList<WaitlistEntry, WaitlistFilters>({
     initialFilters: filters.value,
     initialLimit: 20,
+    // caomei `DataTable` 的 `page` / `@page` 为 1 基（PrimeVue 为 0 基），显式声明页码基准。
+    pageIndexBase: 1,
     fetchFn: async ({ page, limit, search, purpose }) => {
         const response = await $fetch<{
             code: number
@@ -195,8 +216,19 @@ const doDelete = async () => {
 
 <style lang="scss" scoped>
 .admin-waitlist {
+    // 宽度与迁移前 PrimeVue `InputText` 在 `IconField` 内的固有宽度（实测 260px）保持一致，
+    // 避免迁移顺带改变筛选行几何（caomei 字段默认 `width: 100%`，须显式约束）。
+    // 迁移前 `&__purpose-input { min-width: 160px }` 对 260px 固有宽度为恒真值，属等价还原。
+    &__search-input,
     &__purpose-input {
-        min-width: 160px;
+        width: 260px;
+        max-width: 100%;
+    }
+
+    // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+    // `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+    &__table {
+        --caomei-data-table-pagination-justify: center;
     }
 }
 </style>

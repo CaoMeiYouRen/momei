@@ -50,6 +50,7 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 - 采集环境固定：chromium、1440×900、DSF1、zh-CN、Asia/Shanghai、浅色、`reducedMotion: reduce`、关闭动画、隐藏光标；
 - 环境元数据与逐 testName 的 ref / commit 记录于 `tests/visual/parity/reference-manifest.json`；
 - 采集顺序建议：**先**历史 ref（已迁移路由），**再** HEAD（待迁移路由）；HEAD 全量采集会自动 `--grep-invert` 已由历史 ref 采集的用例，防止覆盖。
+- **就地采集的等价性**：若某路由的参考态是在其迁移提交**之前**于 HEAD 就地采集（如 `/admin/waitlist`，2026-10-14），它与「对该迁移提交执行 `--revert`」等价（两者都是「迁移前源码 + 当前依赖」）；重采时应改用 `--revert` 以沿用统一口径，见 §7.2。
 
 ## 6. 上游反馈（通道④）
 
@@ -72,11 +73,19 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 2. `pnpm test:visual` 基线层同样连续 2 次全绿；
 3. **前置条件（非可选分支）：参考态由 CI 复采。** 依据迁移方案 §8.2 第 18 行口径——「跨环境差异（CI 与本地渲染差异）若无法消除，则**以 CI 生成为唯一基线来源，不采用本地快照作为判定依据**」。因此移除 `continue-on-error` 前，必须先在 ubuntu runner 上以 CI 产物为准复采参考态（`pnpm test:visual:reference`）并刷新预算；在完成该复采前，本地快照不得作为判定依据，`continue-on-error` 不得移除。该前置同步落于 `.github/workflows/test.yml` 的 visual job 注释。
 
-### 7.1 首次落地结果（2026-10-14）
+### 7.1 首次落地结果（2026-10-14，快照时点＝首次落地）
 
-- 参考态采集：22 个 testName 全部就绪（已迁移 3 路由用 `--revert` 取迁移前原貌；待迁移 8 路由取 HEAD）。环境元数据见 `tests/visual/parity/reference-manifest.json`。
+> 下述路由计数是**首次落地时点**的快照；逐路由迁移的最新状态以 §7.2 与 `tests/visual/parity/routes.ts` 为单点事实源。
+
+- 参考态采集：首轮 22 个 testName 全部就绪（当时已迁移 3 路由用 `--revert` 取迁移前原貌；待迁移 8 路由取 HEAD）。环境元数据见 `tests/visual/parity/reference-manifest.json`。
 - 门禁实测：`pnpm test:visual:parity` 22 用例全绿；已迁移 3 路由的未归因差异为 0（实测差异已全部登记进允许清单），详见 [偏差处置表 §校准记录](./visual-parity-deviation-register.md#校准记录)。
 - 注意：Playwright 的 `updateSnapshots` 默认值为 `'missing'`，不可用于判定「采集模式」；采集由显式环境变量 `PARITY_CAPTURE=1` 触发（见 `tests/visual/parity/helpers.ts`）。
+
+### 7.2 逐路由推进（2026-10-14 起滚动更新）
+
+- `/admin/waitlist` 于 2026-10-14 迁入 `MIGRATED_ROUTES`：参考态沿用其迁移前 HEAD 采集（等价 `--revert <迁移提交>`），允许清单按实测校准（浅 9533px / 深 15602px）。
+- 迁移路由的参考态若需以 `--revert` 重采，命令为 `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>`；就地采集的路由应改用 `--revert` 以消除依赖漂移后再复采。
+- **覆盖保护口径修正（2026-10-14）**：`buildHeadCaptureGrepArgs` 原先只排除 `source` 以 `worktree` 开头的清单条目，故**就地（`in-place`）采集的待迁移路由**在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自（`/admin/waitlist` 分区二审计发现）。现改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**」；需要专门刷新某条参考态时显式使用 `--only=<name>`。该契约由 `tests/scripts/capture-visual-reference.test.ts` 覆盖。
 
 ## 8. 相关文档
 

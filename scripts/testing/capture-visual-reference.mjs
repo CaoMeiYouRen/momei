@@ -160,27 +160,52 @@ function getGrepArg(only) {
     return ['--grep', only.length === 1 ? only[0] : `(${only.join('|')})`]
 }
 
-/** 已由历史 ref（worktree）采集过的 testName：HEAD 全量采集时须排除，避免覆盖迁移前参考态。 */
-function getWorktreeCapturedTestNames() {
-    const manifestPath = path.join(repoRoot, manifestRel)
-    if (!fs.existsSync(manifestPath)) {
-        return []
+/**
+ * HEAD 全量采集时必须排除的 testName：**磁盘上已存在参考态快照者**，以及历史 `--revert`
+ * （`source` 以 `worktree` 开头）采集过的条目。
+ *
+ * 为什么不能只保护 `worktree` 来源（2026-10-14 修正）：**就地（in-place）采集的待迁移路由**
+ * 一旦迁移落地，其参考态同样是「迁移前原貌」；旧的过滤口径不保护它，因此下一次
+ * `pnpm test:visual:reference`（HEAD 全量）会把它重采为「迁移后渲染」，门禁退化为自比自
+ * （2026-10-14 `/admin/waitlist` 分区二审计发现，见视觉一致性门禁 §7.2）。
+ *
+ * 需要**专门刷新**某条参考态时，显式使用 `--only=<name>`（该入口不参与排除）。
+ */
+export function getProtectedTestNames(options = {}) {
+    const root = options.root ?? repoRoot
+    const protectedNames = new Set()
+
+    const manifestPath = path.join(root, manifestRel)
+    if (fs.existsSync(manifestPath)) {
+        const manifest = readJson(manifestPath)
+        for (const [name, value] of Object.entries(manifest.captures ?? {})) {
+            if (value && typeof value.source === 'string' && value.source.startsWith('worktree')) {
+                protectedNames.add(name)
+            }
+        }
     }
-    const manifest = readJson(manifestPath)
-    return Object.entries(manifest.captures ?? {})
-        .filter(([, value]) => value && typeof value.source === 'string' && value.source.startsWith('worktree'))
-        .map(([name]) => name)
+
+    const referenceDir = path.join(root, referenceDirRel)
+    if (fs.existsSync(referenceDir)) {
+        for (const name of fs.readdirSync(referenceDir)) {
+            if (name.endsWith('.reference.png')) {
+                protectedNames.add(name.replace(/\.reference\.png$/, ''))
+            }
+        }
+    }
+
+    return [...protectedNames].sort()
 }
 
-function buildHeadCaptureGrepArgs(only) {
+export function buildHeadCaptureGrepArgs(only, options = {}) {
     if (only && only.length > 0) {
         return getGrepArg(only)
     }
-    const inverted = getWorktreeCapturedTestNames()
+    const inverted = getProtectedTestNames(options)
     if (inverted.length === 0) {
         return []
     }
-    console.log(`[visual-reference] HEAD 采集排除已由历史 ref 采集的用例：${inverted.join(', ')}`)
+    console.log(`[visual-reference] HEAD 采集排除已有参考态的用例：${inverted.join(', ')}`)
     return ['--grep-invert', inverted.join('|')]
 }
 

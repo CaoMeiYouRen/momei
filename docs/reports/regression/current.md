@@ -19,8 +19,6 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
-<!-- regression-window:start:phase68-fix-comments-pagination:第六十八阶段-试点页分页对齐回归修复:2026-10-13 -->
-
 <!-- regression-window:start:workflow-precheck:test:2026-10-13 -->
 ## 2026-10-13 workflow pre-check（test，自动回填）
 
@@ -33,6 +31,7 @@
 
 <!-- regression-window:end:workflow-precheck:test:2026-10-13 -->
 
+<!-- regression-window:start:phase68-fix-comments-pagination:第六十八阶段-试点页分页对齐回归修复:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 试点页分页对齐欠账回收（`/admin/comments`）
 
 ### 问题溯源
@@ -71,6 +70,56 @@
 - 本窗口写入后 `current.md` 为 **598 行**（脚本口径；写入前 557 行 / 本窗口 41 行），触发 `docs:check:line-count` 的 warning（>500）但未越 error 线（>700），且未超本次约定的 650 行归档触发线，故未做滚动归档；该 warning 在写入前即已存在（557 > 500），属既有治理项（见 0.6.0 漂移窗口的滚动归档逾期条目）。
 
 <!-- regression-window:end:phase68-fix-comments-pagination:第六十八阶段-试点页分页对齐回归修复:2026-10-13 -->
+
+<!-- regression-window:start:phase68-b2-waitlist:第六十八阶段-条目2-第三路由:2026-10-14 -->
+## 2026-10-14 第六十八阶段 条目 2 第三路由 B2 迁移（`/admin/waitlist`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一）的第三个路由 `/admin/waitlist` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 202 行 / 6 个 PrimeVue 列组件 / 6 个在册族标签，是**懒加载服务端分页**列表（`useAdminList` + `lazy` + `total-records` + `@page`），与首路由 `/admin/submissions` 同类：必须声明 `pageIndexBase: 1`（PrimeVue `@page` 为 0 基、caomei 为 1 基，否则页码被二次抬升）。不依赖任何待新增共享壳过渡组件，故在 `subscribers` / `users` / `posts` / `friend-links` 四个待落基建的路由之前推进。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/waitlist/index.vue` | `IconField` + `InputIcon` + `InputText`×2 → `CaomeiInput`（`#prefix` + lucide `Search` / `Tag`）；`DataTable` + 6 个 PrimeVue 列组件 → `CaomeiDataTable` + `columns` 数组（`#body` → `#cell-{key}`）；`Tag severity` → `tone`；行内删除与页头导出按钮 → `CaomeiButton`（行内图标按钮用 0.6.0 `iconOnly` + lucide `#icon`） | §6.1 / §6.2 / §6.3 / §5.3 |
+| 同上 | **可见文案必须落在默认插槽**：`CaomeiButton` 的 `label` 仅映射 `aria-label`，只写 `:label` 且无默认插槽会静默退化为纯图标按钮 | caomei-ui 组件 API（本轮首次命中；已回灌历史路由，见下条） |
+| 同上 | `severity` → `tone`：`purpose` 列 `info` → `primary`（§6.2 口径）；`locale` 列 `secondary` → `neutral`（有损近似）；`isActive` 断点在本页不存在 | §6.2 / §6.3 |
+| 同上 | 动作列由迁移前 `class="text-right"` 改为列级 `align: 'right'`（等价还原）；筛选输入显式 `width: 260px`（caomei 字段默认 `width: 100%`，PrimeVue `InputText` 在 `IconField` 内固有宽实测 260px） | 迁移不改几何 |
+| 同上 | `useAdminList` 增 `pageIndexBase: 1`；`CaomeiDataTable` 接收 1 基 `:page` 受控值 | 跨组件库事件语义（与首路由同源） |
+| 同上 | 分页容器对齐用 `--caomei-data-table-pagination-justify: center` 保持 PrimeVue 原居中口径；删除迁移后失效的 `p-datatable-sm` | §3.8 / §6.2；可删除代码收敛 |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/waitlist` | §5.5 |
+| `tests/modules/ui-library-route-migration-guard.test.ts` | 守卫加固：扫描前扣除**显式非 PrimeVue 导入**的标识符（lucide `Tag` 与在册族 PrimeVue `Tag` 同名，直接扫描会假阳性）；同时**不排除** `primevue/*` 导入；新增 5 条假阳性 / 假阴性双向验证用例 | 守卫最小假阳性口径 |
+| `tests/e2e/admin.e2e.test.ts` | 路由矩阵新增 `/admin/waitlist` → `.caomei-data-table, .admin-page-container` | 层 ② 扩面 |
+| `pages/admin/waitlist/index.test.ts`（新增） | 12 条契约用例：页头导出按钮（含**可见文案**断言）、筛选 `CaomeiInput`、列定义与 `align: 'right'`、`#cell-*` 插槽按 row 渲染、Tag tone 与空值回落、`pageIndexBase: 1` / `initialLimit: 20` 声明、1 基 `@page` 原样转发、空态插槽、导出查询串 | §8.2 层 ① |
+| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-waitlist-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；按实测校准允许清单。参考态 provenance（迁移前 HEAD 就地采集 ≡ 对该迁移提交 `--revert`）**不写回机器生成的 `reference-manifest.json`**（重采会被覆盖），改记于门禁规范 §5 / §7.2 与偏差处置表 | §8.2 层 ③（门禁层） |
+| `scripts/testing/capture-visual-reference.mjs` | 参考态覆盖保护口径由「只保护 `source` 以 `worktree` 开头的清单条目」改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**（含就地采集的待迁移路由）」——旧口径下就地采集的路由在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自；`getProtectedTestNames` / `buildHeadCaptureGrepArgs` 增加可注入 `root` 以便单测 | §7.2 / 门禁 §5「就地采集的等价性」 |
+| `tests/scripts/capture-visual-reference.test.ts`（新增） | 7 条用例：磁盘快照保护、`worktree` 清单保护、`in-place` 清单条目不单独作保护依据、去重排序、空输入不进 `--grep-invert`、全量采集排除表达式、`--only` 不参与排除 | §8.2 层 ①（脚本契约） |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+对照方法：`pnpm test:visual:parity`（参考态取自迁移前 HEAD；chromium / 1440×900 / DSF1 / zh-CN / Asia/Shanghai / 关闭动画 / pixel threshold 0.2）。本批在门禁层归因前先用「参考态行 / 列带扫描 + 实时 `getBoundingClientRect` 探针」核验几何：筛选输入两态边界均为 `x[56,316]` / `x[332,592]`（宽 260px，±1px），页头导出按钮两态均右对齐且高 36px（参考 118px vs 现 107px，差 11px 属按钮排版，非几何）。
+
+- 页面主体（筛选行 + 表格）浅 `x[40,1400] y[160,360]` 7,008px / 深 10,696px：字段外壳盒模型（`field-shell` 包裹 vs PrimeVue 字段）、表头底色、`p-datatable-sm` 行高、列内 Tag `tone` 综合差异 —— **组件替换**，处置走通道① `--caomei-*` token。
+- 空态 / 分页区 浅 `x[640,800] y[400,480]` 1,168px：caomei `DataTable` 分页容器默认右对齐（已用 `--caomei-data-table-pagination-justify: center` 收敛水平对齐）+ 空态行高差所致的垂直偏移 —— **组件替换**。
+- 页头语言切换字段 浅 `x[120,320] y[80,120]` 863px / 深 878px：跨路由共享壳过渡组件 `ContentLanguageSwitcherV2` 的字段外壳差异 —— **组件替换**（与 `/admin/external-links` 同区域同量级，属既有已接受项）。
+- 页头导出按钮 浅 `x[1280,1400] y[80,120]` 494px / 深 4,028px：`CaomeiButton variant="secondary"` 的边框 / 底纹 / 排版差异（几何已对齐）；深色差异被像素阈值放大 —— **组件替换**。
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run pages/admin/waitlist/index.test.ts tests/modules/ui-library-route-migration-guard.test.ts tests/scripts/capture-visual-reference.test.ts lib/ui-library.test.ts` = 本页 12 条 + 守卫 15 条 + 参考态保护 7 条通过；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` / `pnpm lint:i18n` 通过。
+- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` = 1 passed（矩阵现覆盖 8 路由，含新增 `/admin/waitlist`）；firefox / webkit 本机未安装浏览器二进制，`browserType.launch` 报 `Executable doesn't exist`，属环境限制而非断言失败。
+- **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**（本路由浅 / 深 2 条已迁入 `MIGRATED_ROUTES`，未归因差异 0px；其余 20 条为零回归（7 条待迁移路由 / 14 testName 实测 0px））。
+- **包体**：本批未新增依赖，`pnpm build` 通过；包体由后续批次统一复测。
+
+### 未覆盖边界 / 观察项
+
+- **`CaomeiButton` 可见文案陷阱（本轮新发现，属历史缺陷）**：`/admin/external-links`（头部「创建」按钮 + 弹窗页脚「取消 / 保存」）与 `/admin/submissions`（审核弹窗页脚 4 个按钮）在先前批次中写成 `:label` 无默认插槽，**可见文案已丢失**（外链页创建按钮由参考态 82px 退化为 42px 纯图标），却被既有 parity 允许清单按「头部操作区差异」接受。本页已按正确写法实现；两处历史缺陷经用户裁定**在本次迁移会话内单独修复**（独立 fix 提交 + 该两条路由的允许清单重新校准），不并入本批。
+- 本路由**未新增基线层用例**（`tests/visual/*.visual.test.ts`）。理由：§8.2 层 ③ 的采集对象要求为「列表 / 表单 / 浮层各 1」，已由既有 6 条基线满足；本路由的逐路由观感守线由**门禁层**（相对迁移前原貌，且允许清单上限收紧到实测值）承担，比「相对上一次迁移后基线」更强。若审计认为需与既有 3 路由保持同形，可在后续批次补齐。
+- TEST_MODE 未播种候补名单数据，故门禁基线为**空态**渲染，行级渲染（列插槽 / Tag tone / 动作集合）由单元层逐项断言覆盖。
+- `docs/reports/regression/current.md` 本批后约 660 行，仍高于 `docs:check:line-count` 的 500 行 warning 线（未越 700 行 error 线）；滚动归档（含 `2026-06-04 ~ 2026-07-27` 段遗留窗口）登记在 [backlog](../../plan/backlog.md) #6，与既有双阈值口径问题一并处置。
+
+<!-- regression-window:end:phase68-b2-waitlist:第六十八阶段-条目2-第三路由:2026-10-14 -->
 
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
