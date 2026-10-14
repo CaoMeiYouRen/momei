@@ -4,7 +4,7 @@
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 12 条实测值的 +19%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 14 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
     },
     "tiers": {
         "reader": {
@@ -15,7 +15,7 @@
         "admin": {
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "description": "面向管理员：容许一定偏差，但需「看起来差不多」；允许清单已按实测登记，未归因差异 > 3000px（约实测 +19%~+38%）即判红。"
+            "description": "面向管理员：容许一定偏差，但需「看起来差不多」；允许清单已按实测登记，未归因差异 > 3000px（约实测 +9%~+38%）即判红。"
         }
     },
     "entries": {
@@ -571,15 +571,215 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 120,
+                        "y": 80,
+                        "width": 260,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 346,
+                    "reason": "头部操作区：`CaomeiButton`（secondary 描边 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 260,
+                        "width": 1360,
+                        "height": 80
+                    },
+                    "pixels": 2229,
+                    "reason": "执行区「标题 + 描述」文本带的 **1px 垂直取整位移**（卡片内文本基线随下游字段行盒差异累计位移；该带无组件替换）。处置：属组件替换的连带几何效应，见偏差处置表「字段行盒高度」行。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 340,
+                        "width": 1360,
+                        "height": 205
+                    },
+                    "pixels": 10773,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 545,
+                        "width": 1360,
+                        "height": 55
+                    },
+                    "pixels": 2574,
+                    "reason": "执行选项复选框行的 **1px 垂直位移**（`Checkbox` 为 PrimeVue 未变，差异来自上游字段行盒的累计取整）。处置：组件替换连带效应。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 600,
+                        "width": 1360,
+                        "height": 65
+                    },
+                    "pixels": 2758,
+                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 665,
+                        "width": 1360,
+                        "height": 125
+                    },
+                    "pixels": 6141,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 790,
+                        "width": 1360,
+                        "height": 70
+                    },
+                    "pixels": 5799,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 860,
+                        "width": 1360,
+                        "height": 40
+                    },
+                    "pixels": 587,
+                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 32070px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。"
         },
         "admin-link-governance-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 120,
+                        "y": 80,
+                        "width": 260,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1280,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 525,
+                    "reason": "头部操作区：`CaomeiButton`（secondary 描边 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 260,
+                        "width": 1360,
+                        "height": 80
+                    },
+                    "pixels": 2263,
+                    "reason": "执行区「标题 + 描述」文本带的 **1px 垂直取整位移**（卡片内文本基线随下游字段行盒差异累计位移；该带无组件替换）。处置：属组件替换的连带几何效应，见偏差处置表「字段行盒高度」行。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 340,
+                        "width": 1360,
+                        "height": 205
+                    },
+                    "pixels": 12901,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 545,
+                        "width": 1360,
+                        "height": 55
+                    },
+                    "pixels": 2769,
+                    "reason": "执行选项复选框行的 **1px 垂直位移**（`Checkbox` 为 PrimeVue 未变，差异来自上游字段行盒的累计取整）。处置：组件替换连带效应。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 600,
+                        "width": 1360,
+                        "height": 65
+                    },
+                    "pixels": 2569,
+                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 665,
+                        "width": 1360,
+                        "height": 125
+                    },
+                    "pixels": 6336,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 790,
+                        "width": 1360,
+                        "height": 70
+                    },
+                    "pixels": 5993,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 860,
+                        "width": 1360,
+                        "height": 40
+                    },
+                    "pixels": 585,
+                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 34819px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。"
         }
     }
 }

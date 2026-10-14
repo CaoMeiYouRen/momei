@@ -2,13 +2,15 @@
     <div class="admin-link-governance page-container">
         <AdminPageHeader :title="$t('pages.admin.link_governance.title')" show-language-switcher>
             <template #actions>
-                <Button
-                    :label="$t('common.refresh')"
-                    icon="pi pi-refresh"
-                    severity="secondary"
-                    variant="outlined"
+                <CaomeiButton
+                    variant="secondary"
                     @click="loadReports"
-                />
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ $t('common.refresh') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
@@ -21,6 +23,9 @@
             </p>
         </div>
 
+        <!-- 展示类容器 `Card` 与表单控件 `MultiSelect` / `Checkbox`、展示类 `ProgressSpinner` 不在 B2
+             在册族清单内（§5.5 显式豁免枚举），维持 PrimeVue 至 B3 / B4 批次；本页页面级样式沿用
+             `--p-*` token 与 `:deep(.p-card-body)` 即因其仍在 PrimeVue 侧。 -->
         <Card class="admin-link-governance__card">
             <template #content>
                 <div class="admin-link-governance__section-header">
@@ -69,7 +74,7 @@
                         <label class="admin-link-governance__label" for="link-governance-domains">
                             {{ $t('pages.admin.link_governance.execution.domains') }}
                         </label>
-                        <InputText
+                        <CaomeiInput
                             id="link-governance-domains"
                             v-model="executionForm.domainsText"
                             :placeholder="$t('pages.admin.link_governance.execution.domains_placeholder')"
@@ -81,7 +86,7 @@
                         <label class="admin-link-governance__label" for="link-governance-path-prefixes">
                             {{ $t('pages.admin.link_governance.execution.path_prefixes') }}
                         </label>
-                        <InputText
+                        <CaomeiInput
                             id="link-governance-path-prefixes"
                             v-model="executionForm.pathPrefixesText"
                             :placeholder="$t('pages.admin.link_governance.execution.path_prefixes_placeholder')"
@@ -93,7 +98,7 @@
                         <label class="admin-link-governance__label" for="link-governance-validation-mode">
                             {{ $t('pages.admin.link_governance.execution.validation_mode') }}
                         </label>
-                        <Select
+                        <CaomeiSelect
                             id="link-governance-validation-mode"
                             v-model="executionForm.validationMode"
                             :options="validationModeOptions"
@@ -107,7 +112,7 @@
                         <label class="admin-link-governance__label" for="link-governance-report-format">
                             {{ $t('pages.admin.link_governance.execution.report_format') }}
                         </label>
-                        <Select
+                        <CaomeiSelect
                             id="link-governance-report-format"
                             v-model="executionForm.reportFormat"
                             :options="reportFormatOptions"
@@ -143,21 +148,27 @@
                 </div>
 
                 <div class="admin-link-governance__execution-actions">
-                    <Button
-                        :label="$t('pages.admin.link_governance.actions.dry_run')"
-                        icon="pi pi-search"
+                    <CaomeiButton
                         :loading="runMode === 'dry-run'"
                         :disabled="runMode !== null"
                         @click="executeGovernance('dry-run')"
-                    />
-                    <Button
-                        :label="$t('pages.admin.link_governance.actions.apply_now')"
-                        icon="pi pi-play"
-                        severity="warn"
+                    >
+                        <template #icon>
+                            <Search :size="16" />
+                        </template>
+                        {{ $t('pages.admin.link_governance.actions.dry_run') }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        tone="warning"
                         :loading="runMode === 'apply'"
                         :disabled="runMode !== null || !executionForm.applyConfirmed || !reviewedDryRunReportId"
                         @click="executeGovernance('apply')"
-                    />
+                    >
+                        <template #icon>
+                            <Play :size="16" />
+                        </template>
+                        {{ $t('pages.admin.link_governance.actions.apply_now') }}
+                    </CaomeiButton>
                 </div>
             </template>
         </Card>
@@ -173,7 +184,7 @@
                 </div>
 
                 <div class="admin-link-governance__filters">
-                    <Select
+                    <CaomeiSelect
                         v-model="filters.mode"
                         :options="modeOptions"
                         option-label="label"
@@ -183,7 +194,7 @@
                         class="admin-link-governance__filter"
                     />
 
-                    <Select
+                    <CaomeiSelect
                         v-model="filters.status"
                         :options="statusOptions"
                         option-label="label"
@@ -194,101 +205,98 @@
                     />
 
                     <div class="admin-link-governance__filter-actions">
-                        <Button
-                            :label="$t('pages.admin.link_governance.filters.apply')"
-                            size="small"
+                        <CaomeiButton
+                            size="sm"
                             @click="applyFilters"
-                        />
-                        <Button
-                            :label="$t('pages.admin.link_governance.filters.reset')"
-                            size="small"
-                            severity="secondary"
-                            variant="outlined"
+                        >
+                            {{ $t('pages.admin.link_governance.filters.apply') }}
+                        </CaomeiButton>
+                        <CaomeiButton
+                            size="sm"
+                            variant="secondary"
                             @click="resetFilters"
-                        />
+                        >
+                            {{ $t('pages.admin.link_governance.filters.reset') }}
+                        </CaomeiButton>
                     </div>
                 </div>
 
-                <DataTable
-                    :value="reports"
+                <!-- 懒加载服务端分页：`page` 为 1 基受控值，`@page` 载荷亦为 1 基
+                     （迁移前 PrimeVue 为 0 基，原实现恒 `+1`；迁移后直接取载荷页码）。 -->
+                <CaomeiDataTable
+                    :data="reports"
+                    :columns="columns"
                     :loading="loading"
-                    paginator
                     lazy
-                    :rows="limit"
                     :total-records="total"
+                    :rows="limit"
+                    :page="page"
+                    paginator
                     class="admin-link-governance__table"
                     @page="onPage"
                 >
-                    <Column :header="$t('pages.admin.link_governance.columns.created_at')">
-                        <template #body="slotProps">
-                            {{ formatDateTime(slotProps.data.createdAt) }}
-                        </template>
-                    </Column>
+                    <template #cell-createdAt="{row}">
+                        {{ formatDateTime(row.createdAt) }}
+                    </template>
 
-                    <Column :header="$t('pages.admin.link_governance.columns.mode')">
-                        <template #body="slotProps">
-                            <Tag :severity="getModeSeverity(slotProps.data.mode)">
-                                {{ translateMode(slotProps.data.mode) }}
-                            </Tag>
-                        </template>
-                    </Column>
+                    <template #cell-mode="{row}">
+                        <CaomeiTag :tone="getModeTone(row.mode)">
+                            {{ translateMode(row.mode) }}
+                        </CaomeiTag>
+                    </template>
 
-                    <Column :header="$t('pages.admin.link_governance.columns.status')">
-                        <template #body="slotProps">
-                            <Tag :severity="getLinkGovernanceReportStatusSeverity(slotProps.data.status)">
-                                {{ translateStatus(slotProps.data.status) }}
-                            </Tag>
-                        </template>
-                    </Column>
+                    <template #cell-status="{row}">
+                        <CaomeiTag :tone="getReportStatusTone(row.status)">
+                            {{ translateStatus(row.status) }}
+                        </CaomeiTag>
+                    </template>
 
-                    <Column :header="$t('pages.admin.link_governance.columns.requested_by')">
-                        <template #body="slotProps">
-                            <div class="admin-link-governance__requester">
-                                <strong>{{ getRequesterLabel(slotProps.data) }}</strong>
-                                <span v-if="slotProps.data.requestedByEmail" class="admin-link-governance__requester-email">
-                                    {{ slotProps.data.requestedByEmail }}
-                                </span>
-                            </div>
-                        </template>
-                    </Column>
+                    <template #cell-requestedBy="{row}">
+                        <div class="admin-link-governance__requester">
+                            <strong>{{ getRequesterLabel(row) }}</strong>
+                            <span v-if="row.requestedByEmail" class="admin-link-governance__requester-email">
+                                {{ row.requestedByEmail }}
+                            </span>
+                        </div>
+                    </template>
 
-                    <Column :header="$t('pages.admin.link_governance.columns.summary')">
-                        <template #body="slotProps">
-                            <div class="admin-link-governance__summary-cell">
-                                <span>{{ $t('pages.admin.link_governance.summary.total') }}: {{ slotProps.data.summary.total }}</span>
-                                <span>{{ $t('pages.admin.link_governance.summary.failed') }}: {{ slotProps.data.summary.failed }}</span>
-                                <span>{{ $t('pages.admin.link_governance.summary.needs_confirmation') }}: {{ slotProps.data.summary.needsConfirmation }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                    <template #cell-summary="{row}">
+                        <div class="admin-link-governance__summary-cell">
+                            <span>{{ $t('pages.admin.link_governance.summary.total') }}: {{ row.summary.total }}</span>
+                            <span>{{ $t('pages.admin.link_governance.summary.failed') }}: {{ row.summary.failed }}</span>
+                            <span>{{ $t('pages.admin.link_governance.summary.needs_confirmation') }}: {{ row.summary.needsConfirmation }}</span>
+                        </div>
+                    </template>
 
-                    <Column :header="$t('pages.admin.link_governance.columns.redirects')">
-                        <template #body="slotProps">
-                            {{ slotProps.data.redirectSeedCount }}
-                        </template>
-                    </Column>
+                    <template #cell-redirects="{row}">
+                        {{ row.redirectSeedCount }}
+                    </template>
 
-                    <Column :header="$t('common.actions')" class="text-right">
-                        <template #body="slotProps">
-                            <Button
-                                :label="$t('pages.admin.link_governance.actions.view')"
-                                icon="pi pi-eye"
-                                text
-                                rounded
-                                @click="openReportDetail(slotProps.data.reportId)"
-                            />
-                        </template>
-                    </Column>
+                    <template #cell-actions="{row}">
+                        <CaomeiButton
+                            variant="ghost"
+                            rounded
+                            :label="$t('pages.admin.link_governance.actions.view')"
+                            @click="openReportDetail(row.reportId)"
+                        >
+                            <template #icon>
+                                <Eye :size="16" />
+                            </template>
+                            {{ $t('pages.admin.link_governance.actions.view') }}
+                        </CaomeiButton>
+                    </template>
 
                     <template #empty>
                         <div class="admin-link-governance__empty">
                             {{ $t('pages.admin.link_governance.empty') }}
                         </div>
                     </template>
-                </DataTable>
+                </CaomeiDataTable>
             </template>
         </Card>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog 属延后批次，本批维持 PrimeVue；其内部的 Button / Tag
+             属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
         <Dialog
             v-model:visible="detailVisible"
             :header="$t('pages.admin.link_governance.detail.title')"
@@ -319,12 +327,13 @@
                 </div>
 
                 <div class="admin-link-governance__scope-list">
-                    <Tag
+                    <CaomeiTag
                         v-for="scope in selectedReport.scopes || []"
                         :key="scope"
-                        :value="scope"
-                        severity="secondary"
-                    />
+                        tone="neutral"
+                    >
+                        {{ scope }}
+                    </CaomeiTag>
                 </div>
 
                 <div class="admin-link-governance__summary-grid">
@@ -358,8 +367,12 @@
                             class="admin-link-governance__diff-item"
                         >
                             <div class="admin-link-governance__diff-item-header">
-                                <Tag :value="item.scope" severity="contrast" />
-                                <Tag :value="item.status" :severity="getItemStatusSeverity(item.status)" />
+                                <CaomeiTag tone="neutral">
+                                    {{ item.scope }}
+                                </CaomeiTag>
+                                <CaomeiTag :tone="getItemStatusTone(item.status)">
+                                    {{ item.status }}
+                                </CaomeiTag>
                             </div>
                             <p class="admin-link-governance__diff-source">
                                 {{ item.sourceValue }}
@@ -388,8 +401,12 @@
                             class="admin-link-governance__redirect-item"
                         >
                             <div class="admin-link-governance__diff-item-header">
-                                <Tag :value="String(seed.statusCode)" severity="info" />
-                                <Tag :value="seed.reason" severity="secondary" />
+                                <CaomeiTag tone="primary">
+                                    {{ String(seed.statusCode) }}
+                                </CaomeiTag>
+                                <CaomeiTag tone="neutral">
+                                    {{ seed.reason }}
+                                </CaomeiTag>
                             </div>
                             <p class="admin-link-governance__diff-source">
                                 {{ seed.source }}
@@ -403,31 +420,34 @@
             </div>
 
             <template #footer>
-                <Button
+                <CaomeiButton
                     v-if="selectedReport"
-                    :label="$t('pages.admin.link_governance.actions.export_json')"
-                    severity="secondary"
-                    variant="outlined"
+                    variant="secondary"
                     @click="downloadReport('json')"
-                />
-                <Button
+                >
+                    {{ $t('pages.admin.link_governance.actions.export_json') }}
+                </CaomeiButton>
+                <CaomeiButton
                     v-if="selectedReport?.markdown"
-                    :label="$t('pages.admin.link_governance.actions.export_markdown')"
-                    severity="secondary"
-                    variant="outlined"
+                    variant="secondary"
                     @click="downloadReport('markdown')"
-                />
-                <Button
-                    :label="$t('common.close')"
-                    severity="secondary"
+                >
+                    {{ $t('pages.admin.link_governance.actions.export_markdown') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="secondary"
                     @click="detailVisible = false"
-                />
+                >
+                    {{ $t('common.close') }}
+                </CaomeiButton>
             </template>
         </Dialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Eye, Play, RefreshCw, Search } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type {
     LinkGovernanceContentType,
@@ -531,6 +551,20 @@ const reportFormatOptions = computed(() => [
     },
 ])
 
+// 列定义与迁移前 PrimeVue 列组件一一对应：创建时间 / 模式 / 状态 / 发起人 / 摘要 / Redirect Seeds / 动作。
+// 迁移前列组件均未声明 `field`（全部走 `#body` 插槽），故此处只给出插槽所需的 `key`。
+// 不设显式 `width`：迁移前未声明宽度，列宽由内容 / 表格均分决定（迁移不改几何）。
+const columns = computed<DataTableColumn<LinkGovernanceReportListItem>[]>(() => [
+    { key: 'createdAt', header: t('pages.admin.link_governance.columns.created_at') },
+    { key: 'mode', header: t('pages.admin.link_governance.columns.mode') },
+    { key: 'status', header: t('pages.admin.link_governance.columns.status') },
+    { key: 'requestedBy', header: t('pages.admin.link_governance.columns.requested_by') },
+    { key: 'summary', header: t('pages.admin.link_governance.columns.summary') },
+    { key: 'redirects', header: t('pages.admin.link_governance.columns.redirects') },
+    // 迁移前动作列以 `class="text-right"` 右对齐，迁移后用列级 `align` 等价还原。
+    { key: 'actions', header: t('common.actions'), align: 'right' },
+])
+
 function translateMode(mode: LinkGovernanceMode) {
     return t(`pages.admin.link_governance.modes.${mode}`)
 }
@@ -539,25 +573,28 @@ function translateStatus(status: LinkGovernanceReportStatus) {
     return t(`pages.admin.link_governance.statuses.${status}`)
 }
 
-function getModeSeverity(mode: LinkGovernanceMode) {
-    return mode === 'apply' ? 'success' : 'info'
+// caomei Tag 无 `severity`，改用 `tone`（迁移方案 §6.2 / §6.3 有意差异）：
+// `success` / `warning` / `danger` 直通，PrimeVue `info` 按 §6.2 取 `primary`、
+// `secondary` / `contrast` 取有损近似 `neutral`。
+function getModeTone(mode: LinkGovernanceMode): 'success' | 'primary' {
+    return mode === 'apply' ? 'success' : 'primary'
 }
 
-function getLinkGovernanceReportStatusSeverity(status: LinkGovernanceReportStatus) {
+function getReportStatusTone(status: LinkGovernanceReportStatus): 'danger' | 'success' {
     return status === 'failed' ? 'danger' : 'success'
 }
 
-function getItemStatusSeverity(status: LinkGovernanceReportData['items'][number]['status']) {
+function getItemStatusTone(status: LinkGovernanceReportData['items'][number]['status']): 'success' | 'primary' | 'warning' | 'danger' {
     if (status === 'resolved' || status === 'unchanged') {
         return 'success'
     }
 
     if (status === 'rewritten') {
-        return 'info'
+        return 'primary'
     }
 
     if (status === 'needs-confirmation') {
-        return 'warn'
+        return 'warning'
     }
 
     return 'danger'
@@ -698,8 +735,10 @@ function resetFilters() {
     void loadReports()
 }
 
+// caomei `DataTable` 的 `page` / `@page` 为 **1 基**（PrimeVue 为 0 基）——迁移前原实现恒 `+1`，
+// 迁移后直接取载荷页码（本页自持 `page`，未走 `useAdminList` 的 `pageIndexBase` 归一）。
 function onPage(event: { page: number, rows: number }) {
-    page.value = event.page + 1
+    page.value = event.page
     limit.value = event.rows
     void loadReports()
 }

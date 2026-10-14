@@ -58,6 +58,15 @@
         gap: $spacing-xs;
     }
 
+    &__field,
+    &__filters {
+        // caomei Select 的字段外层默认带 `--caomei-select-max-width: 20rem` 上限（PrimeVue 无此限制），
+        // 会把执行区 / 筛选区的下拉截到 320px（迁移前占满其网格单元格约 420px）。按 §6.2「全宽需覆盖
+        // `*-max-width` token」还原为 100%——token 须作用于字段外层的**祖先**（`class` 只落到触发器，
+        // 自定义属性不会向上继承），故设在 `&__field` / `&__filters` 上（迁移不改几何）。
+        --caomei-select-max-width: 100%;
+    }
+
     &__label {
         font-size: 0.875rem;
         font-weight: 600;
@@ -111,6 +120,12 @@
         display: flex;
         flex-direction: column;
         gap: $spacing-xs;
+    }
+
+    &__table {
+        // caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+        // `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+        --caomei-data-table-pagination-justify: center;
     }
 
     &__requester-email,
