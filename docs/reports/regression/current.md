@@ -19,6 +19,59 @@
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-07-27 -->
 
+<!-- regression-window:start:phase68-fix-comments-pagination:第六十八阶段-试点页分页对齐回归修复:2026-10-13 -->
+
+<!-- regression-window:start:workflow-precheck:test:2026-10-13 -->
+## 2026-10-13 workflow pre-check（test，自动回填）
+
+- 执行入口: `pnpm run ci:precheck -- --profile=test`
+- 证据 artifact: `../../../artifacts/review-gate/2026-10-13-ci-precheck-test.md` / `../../../artifacts/review-gate/2026-10-13-ci-precheck-test.json`
+- 结果摘要: `Pass`；blocker=0，warning=0。
+- 已执行验证: test critical files=PASS，test environment=PASS，security:validate-overrides=PASS，security:audit-deps=PASS
+- Review Gate: `Pass` / `none`；主要问题=无。
+- 未覆盖边界: 真实发布凭据链路仍以 GitHub Actions runtime 为准。
+
+<!-- regression-window:end:workflow-precheck:test:2026-10-13 -->
+
+## 2026-10-13 第六十八阶段 试点页分页对齐欠账回收（`/admin/comments`）
+
+### 问题溯源
+
+- **现象**：`/admin/comments`（M4 试点页，迁移提交 `44774147`，2026-09-25）的 caomei `DataTable` **分页容器右对齐**，与迁移前 PrimeVue 的居中口径不符（用户截图确认横向位置明显偏移）；同批后续迁移的 `/admin/submissions`（`ff443447`）与 `/admin/external-links`（`04d12c17`）均已居中。
+- **根因（时间线）**：caomei `DataTable` 分页容器默认 `justify-content: flex-end`（PrimeVue 默认居中）。对齐 token `--caomei-data-table-pagination-justify` 由 `caomei-ui@0.4.0`（库侧提交 `b19f077`，2026-09-28）才交付，**晚于试点页迁移 4 天**；试点页迁移时（库锁 `0.2.0`）**没有可用的对齐 API**，故当时按协议登记为「组件替换」差异。本次属 token 到齐后的**欠账回收**，非新增变更。
+
+### 修复写法
+
+| 文件 | 改动点 |
+| :--- | :--- |
+| `pages/admin/comments/index.vue` | 在 `CaomeiDataTable` 的根 class（`admin-comments__table`）上补 `--caomei-data-table-pagination-justify: center`，并加注释说明「PrimeVue 默认居中 / caomei 默认右对齐 / `0.4.0` 起由该 token 还原」——与 `/admin/submissions`、`/admin/external-links` **同一写法**（token 落在表格根 class，不做选择器级覆盖、不新增依赖） |
+| `tests/visual/__screenshots__/admin-comments-list.visual.test.ts/*.png` | 浅 / 深 2 张基线按修复后状态刷新（刷新前先做修复前后区域级归因，见下节） |
+
+### 差异归因证据（修复前基线 → 修复后基线）
+
+方法：本环境**无视觉模型**，用纯标准库 PNG 逐像素（容差 24/通道）+ 行带分布做区域定位；`toHaveScreenshot` 阈值（`maxDiffPixels 200`）不参与归因，故对照量级高于阈值属预期。修复前基线取自 `git show HEAD:` 的已提交快照，并经同环境复采确认**逐字节一致**（同环境：chromium / 1440×900 / DSF1 / zh-CN / Asia-Shanghai / 关闭动画）；修复后用同环境 `--update-snapshots` 采集。
+
+- **差异总量**：浅色 **2,106 px（0.163% 视口）**；深色 **2,114 px（0.163%）**；包围盒 `x[461,1392] y[171,446]`（页头 / 侧栏 / 卡片外区域零差异）。
+- **行带分布**：`y[415,446]`（32 行）**2,066 / 2,074 px = 98.1%**（分页器行）；`y[171,178]`（8 行）**40 px = 1.9%**（残项，见末尾两条）。
+- **分页器行带 ink 横向分布**（带内众数色为背景，统计非背景像素）：修复前 ink **1,033（浅）/ 1,037（深）px**、`x[1317,1392]`、质心 `x=1354.5`（**94.1%** 视口宽 → 右端）；修复后 ink **同值**、`x[682,757]`、质心 `x=719.5`（**50.0%** 视口宽 → 正中）。三等分归属 `left / center / right`：修复前 `0 / 0 / 全部` → 修复后 `0 / 全部 / 0`。**ink 总量不变、仅横向平移**，即同一分页控件由右端移回中部（浅 / 深两套的位置与质心完全一致）。
+- **因果对照（同构建 token 注入实验）**：在修复后页面上把该 token 覆盖回 `flex-end` 后截图，与**修复前基线**的差异**只剩**上述 40 px 图标（分页器区域像素完全一致）；token 在 `center` / `flex-end` 间切换只影响 `y[415,446]` 行带（2,066 px）。即本次修复的效果面**严格等于**分页器行带，无外溢。
+- **残留 40 px 定位**：位于状态过滤器（caomei `Select`，`x[325,505] y[157,193]`）内的 `x[461,468] y[171,178]`，形状为 8×8 px 灰色「×」类图标，修复前有、修复后无。判定**与本次改动无因果关系**：① token 切换不改变该像素（见上条）；② 未改动路由 `/admin/submissions`、`/admin/external-links` 在**同一构建**下的渲染与各自已提交基线**逐像素零差异**（4 张基线 diff = 0），故非构建级漂移；③ 现构建下该页状态过滤器的 select 只渲染「值 + chevron」两个子节点、无 clear 类节点（caomei 的 clear 按钮仅在 `clearable` 形态下渲染，本页 4 处 select 均未声明该 prop）。据此判定为旧快照（迁移期构建）的一次性渲染状态差异、机制未进一步溯源。残留量 40 px 远低于 `maxDiffPixels 200`，不构成门禁风险，登记为观察项。
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm exec vitest run tests/modules/ pages/admin/comments/index.test.ts` = **6 文件 / 34 用例通过**（含「在册组件族零残留」路由守卫与试点页契约，本页契约未改）。
+- **层 ③（截图识别）**：修复后基线经 `--update-snapshots` 刷新，`pnpm test:visual` **14/14 通过**（浅 / 深 2 张刷新基线 + 既有 12 张）；门禁轮因 `package.json` / visual config 时间戳触发**重建**，重建后刷新基线与本地采集**逐字节一致**（`sha256` 相同），确认修复后渲染可复现。
+- **质量门（实测）**：`pnpm lint` 根工程 `eslint .` **0 error / 7 warning**（7 条与既往同源，均不在本窗口文件）+ `packages/*` 子工程 0 error / 3 warning；`pnpm lint:css` 通过（前置无 fix 轮同样 0 error）；`pnpm docs:check:line-count`、`pnpm docs:check:links`、`lint-md docs/reports/regression/current.md` 通过。**`pnpm typecheck`**：本轮窗口内曾因同工作区**另一并行会话的未跟踪在制品**（`tests/visual/parity/helpers.ts`，非本窗口文件、非本批引入）而红；该在制品已在视觉门禁批次完成，并复测 **0 error**（本窗口改动只有 6 行 SCSS + 2 张基线，不产生类型错误）。
+- **未跑项**：本窗口为几何对齐回收，未改分页语义与列定义，故未重跑 E2E 功能层；如需可在阶段收口时随 B2 批次统一覆盖。
+
+### 未覆盖边界 / 观察项
+
+- 修复前基线沿用 `HEAD` 已提交快照（同环境复采已证实逐字节一致），故本次未做 `git stash` 重建采集；归因方法（逐像素 + 行带 + token 因果对照）与既有口径一致。
+- 上述 40 px「×」类图标残项未做进一步溯源（跨构建的一次性渲染差异，低于阈值）；若后续路由出现同类残项，再按「先做同构建 token 对照、再做跨构建复采」的顺序判定。
+- 本窗口写入后 `current.md` 为 **598 行**（脚本口径；写入前 557 行 / 本窗口 41 行），触发 `docs:check:line-count` 的 warning（>500）但未越 error 线（>700），且未超本次约定的 650 行归档触发线，故未做滚动归档；该 warning 在写入前即已存在（557 > 500），属既有治理项（见 0.6.0 漂移窗口的滚动归档逾期条目）。
+
+<!-- regression-window:end:phase68-fix-comments-pagination:第六十八阶段-试点页分页对齐回归修复:2026-10-13 -->
+
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
 

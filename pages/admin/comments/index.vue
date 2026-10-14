@@ -337,6 +337,12 @@ onMounted(() => {
         justify-content: flex-end;
     }
 
+    // caomei `DataTable` 分页容器默认右对齐，PrimeVue 默认居中；该 token 由 0.4.0 才提供，
+    // 试点迁移时（0.2.0）不可用，故当时只能登记为组件替换差异；此处用它还原迁移前的居中口径。
+    &__table {
+        --caomei-data-table-pagination-justify: center;
+    }
+
     // caomei Button 无「图标按钮」形态，按 caomei 文档化定制路径（`--caomei-*` token）收敛为方形图标按钮。
     &__icon-button {
         --caomei-button-padding-x: 0;
