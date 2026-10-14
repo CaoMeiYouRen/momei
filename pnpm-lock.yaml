@@ -269,8 +269,8 @@ importers:
         specifier: ^4.0.0-nightly.202508271359
         version: 4.0.0-nightly.202508271359
       music-metadata:
-        specifier: ^12.0.0
-        version: 12.0.0(supports-color@10.2.2)
+        specifier: ^12.1.1
+        version: 12.1.1(supports-color@10.2.2)
       mysql2:
         specifier: ^3.24.5
         version: 3.24.5(@types/node@26.6.4)
@@ -7722,6 +7722,7 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.6:
@@ -7730,7 +7731,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -9466,8 +9467,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  music-metadata@12.0.0:
-    resolution: {integrity: sha512-+yVgI1WNa0S9aAZch1WMAsmBrP7+5YGmhgPaRHiqF5KmuRJ7vuynn7OmKZRu3pr2W83N3bE+6Bw/pn8r4hf5sQ==}
+  music-metadata@12.1.1:
+    resolution: {integrity: sha512-/QtXkigK7oHhMsSduDHGaueXF9tN9cT0vVdetw5PO2Lu5oMp7YnMaiiBuD9NCkSHhCaUCnJunuAS24Q4Mwnkzg==}
     engines: {node: '>=22'}
 
   mute-stream@0.0.7:
@@ -11614,8 +11615,8 @@ packages:
     resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
     engines: {node: '>=18'}
 
-  strtok3@10.3.5:
-    resolution: {integrity: sha512-ki4hZQfh5rX0QDLLkOCj+h+CVNkqmp/CMf8v8kZpkNVK6jGQooMytqzLZYUVYIZcFZ6yDB70EfD8POcFXiF5oA==}
+  strtok3@10.4.0:
+    resolution: {integrity: sha512-zzNQzrgQUNHyFFDzGCkzgWPgxiBcfwqg+/RNK9cZHKRH95KuCKxqXBXe+jC/1Xq+MRLAe/DkizyPe3kR37QV3w==}
     engines: {node: '>=18'}
 
   strtok3@9.1.1:
@@ -21078,7 +21079,7 @@ snapshots:
   file-type@21.3.4(supports-color@10.2.2):
     dependencies:
       '@tokenizer/inflate': 0.4.1(supports-color@10.2.2)
-      strtok3: 10.3.5
+      strtok3: 10.4.0
       token-types: 6.1.2
       uint8array-extras: 1.6.0
     transitivePeerDependencies:
@@ -23634,7 +23635,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  music-metadata@12.0.0(supports-color@10.2.2):
+  music-metadata@12.1.1(supports-color@10.2.2):
     dependencies:
       '@borewit/text-codec': 0.2.2
       '@tokenizer/token': 0.3.0
@@ -23642,7 +23643,7 @@ snapshots:
       debug: 4.4.3(supports-color@10.2.2)
       file-type: 21.3.4(supports-color@10.2.2)
       media-typer: 2.0.0
-      strtok3: 10.3.5
+      strtok3: 10.4.0
       token-types: 6.1.2
       uint8array-extras: 1.6.0
       win-guid: 0.2.1
@@ -26277,7 +26278,7 @@ snapshots:
     dependencies:
       '@tokenizer/token': 0.3.0
 
-  strtok3@10.3.5:
+  strtok3@10.4.0:
     dependencies:
       '@tokenizer/token': 0.3.0
 
