@@ -29,6 +29,10 @@
                     "title": "Ad Campaigns"
                 },
                 "placements": {
+                    "actions": {
+                        "enable": "Enable",
+                        "disable": "Disable"
+                    },
                     "adapter": "Adapter",
                     "disabled": "Disabled",
                     "empty": "No ad placements found",

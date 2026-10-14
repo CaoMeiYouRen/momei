@@ -29,6 +29,10 @@
                     "title": "广告活动"
                 },
                 "placements": {
+                    "actions": {
+                        "enable": "启用",
+                        "disable": "禁用"
+                    },
                     "adapter": "适配器",
                     "disabled": "未启用",
                     "empty": "暂无广告位",

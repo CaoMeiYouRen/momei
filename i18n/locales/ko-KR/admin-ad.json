@@ -29,6 +29,10 @@
                     "title": "광고 캠페인"
                 },
                 "placements": {
+                    "actions": {
+                        "enable": "활성화",
+                        "disable": "비활성화"
+                    },
                     "adapter": "어댑터",
                     "disabled": "비활성",
                     "empty": "등록된 광고 지면이 없습니다",

@@ -29,6 +29,10 @@
                     "title": "廣告活動"
                 },
                 "placements": {
+                    "actions": {
+                        "enable": "啟用",
+                        "disable": "停用"
+                    },
                     "adapter": "適配器",
                     "disabled": "未啟用",
                     "empty": "目前尚無廣告版位",

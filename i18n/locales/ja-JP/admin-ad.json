@@ -29,6 +29,10 @@
                     "title": "広告キャンペーン"
                 },
                 "placements": {
+                    "actions": {
+                        "enable": "有効化",
+                        "disable": "無効化"
+                    },
                     "adapter": "アダプター",
                     "disabled": "無効",
                     "empty": "広告枠はまだありません",
