@@ -262,7 +262,7 @@ pnpm governance:count:primevue-usage
 **批次在册范围与共享壳例外（2026-09-25 裁定，B2 试点落地）**：落地时确认「同一路由内组件来源必须唯一」无法按字面执行——`app.vue` 全局渲染 PrimeVue `Toast` / `ConfirmDialog`（任何路由都含），浮层类（Dialog / Drawer / Popover / DropdownMenu）显式延后到第六十九阶段，且 B2 候选页的 render tree 普遍引用跨路由共享组件（`ConfirmDeleteDialog`、`AdminContentLanguageSwitcher`、`AppAvatar` 等）。故「无混用」按**批次在册组件族**判定：
 
 - **在册（B2）**：DataTable / Column（列插槽·选择·排序·lazy·分页）、Paginator、Tag、Button、InputText、Select（含其旧名 `Dropdown`，§6.1 C 组）、Badge、ToggleSwitch、IconField / InputIcon、Skeleton、Avatar。
-- **显式豁免**：全局壳 `Toast` / `ConfirmDialog`；延后批次的浮层（含 `ConfirmDeleteDialog`）；`v-tooltip` 指令（随浮层批次处理）；**不在本批在册族的表单控件**（`DatePicker` / `InputNumber` / `Checkbox` / `ProgressSpinner` 等，随 B3 表单 / 浮层批次；2026-10-14 补入——此前它们既不在册族也不在豁免枚举，导致「为何可在已迁移路由内保留 PrimeVue」缺单点出处）。
+- **显式豁免**：全局壳 `Toast` / `ConfirmDialog`；延后批次的浮层（含 `ConfirmDeleteDialog`）；`v-tooltip` 指令（随浮层批次处理）；**不在本批在册族的表单控件与展示容器**（`DatePicker` / `InputNumber` / `Checkbox` / `MultiSelect` / `ProgressSpinner` / `Card` 等，随 B3 表单 / B4 展示批次；2026-10-14 补入、2026-10-15 补 `MultiSelect` / `Card`——此前它们既不在册族也不在豁免枚举，导致「为何可在已迁移路由内保留 PrimeVue」缺单点出处）。
 - **跨路由共享组件**：不直接改写（否则未迁移路由会立刻出现「共享壳 caomei + 页面 PrimeVue」混用），改为**过渡组件 + 路由选择**——新增 `components/admin/content-language-switcher-v2.vue`，由 `AdminPageHeader` 经 `lib/ui-library.ts` 的路由 → 组件来源单一事实源选择实现，待全站迁完后再回收统一。
 - **守卫**：`tests/modules/ui-library-route-migration-guard.test.ts` 遍历已登记前缀，断言其页面文件不残留在册族 PrimeVue 组件、且至少使用一个 caomei-ui 组件；`CAOMEI_UI_ROUTE_PREFIXES` 由此获得首个消费者（此前为纯登记）。
     - **页面文件形态（2026-10-14 扩展）**：解析按 `pages/<prefix>/index.vue` → `pages/<prefix>.vue` 顺序回退（两种形态在本仓并存，如 `pages/admin/waitlist/index.vue` 与 `pages/admin/ad/campaigns.vue`）；两种都不存在时报错并列出已尝试路径，避免同名文件形态的守卫**静默失效**。
