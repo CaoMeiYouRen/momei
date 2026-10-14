@@ -129,7 +129,7 @@ pnpm governance:count:primevue-usage
 | **组件清单** | 自动导入组件由 78 → **79**（新增 `CaomeiSelectGroup`）；包根导出 88 项 | §5.1 的「组件清单 77 项」口径更新为 79 |
 | **0.x 兼容策略** | 库侧新增「版本与兼容策略」页：0.x **不承诺**语义化兼容；破坏性变更在 CHANGELOG 与发布指南披露；建议下游**精确锁定**并升级后复跑 typecheck / build | §5.6 的精确锁定策略由库侧策略背书；每次升级必须重跑该批回归 |
 
-**momei 侧由此产生的动作**（登记到第六十七阶段接入基座主线）：把已落地的 `caomei-ui@0.1.0` 基座**重锚到 0.2.0**——升级依赖、确认 `injectStyles` 注入物为 `theme.css`、复测 `pnpm test:perf:budget` 的 `keyCss` 并按 §8.4.1 回落并存期配额。**该动作须在 B0b 视觉基线采集之前完成**，以免基线建立在 0.1.0 形态上。**已于 2026-09-24 完成**（第六十七阶段 M1b，验证见 [回归记录](../../reports/regression/current.md) M1b 节）。
+**momei 侧由此产生的动作**（登记到第六十七阶段接入基座主线）：把已落地的 `caomei-ui@0.1.0` 基座**重锚到 0.2.0**——升级依赖、确认 `injectStyles` 注入物为 `theme.css`、复测 `pnpm test:perf:budget` 的 `keyCss` 并按 §8.4.1 回落并存期配额。**该动作须在 B0b 视觉基线采集之前完成**，以免基线建立在 0.1.0 形态上。**已于 2026-09-24 完成**（第六十七阶段 M1b，验证见 [回归记录](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1b 节）。
 
 ### 3.7 上游 0.3.0 变更基线与影响
 
@@ -425,7 +425,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 > **momei 侧新增批次说明**：「接入基座」与「全局 token 语义层」两项在 caomei-ui 交接计划的既有批次表（B0b / B2 / B3 / B4）中没有编号，属本文档按开工实际依赖补充的 momei 侧执行面，不改变库侧既定批次编号。
 
-**B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../../reports/regression/current.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
+**B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
 
 
 ## 8. 验收与质量门
@@ -509,7 +509,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 **2026-09-22 按 0.2.0 重定（重要）**：上表的并存期增长（`keyCssGzipBytes` **59,795 → 75,110**，+15.3KB gzip；门禁配额同步由 70KB 放开至 85KB）**其唯一驱动是 0.1.0 的单体 `styles.css`（167,585 B / gzip 25.60 KB）**。`caomei-ui@0.2.0` 已移除该单体文件，改为：
 
 - 基础层 `caomei-ui/theme.css` 实测 **5,880 B / gzip ~1,089 B**（`injectStyles` 的注入物；gzip 值随压缩实现可有 ±1 B 差异）；
-- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。**复测已确认零进入产物**（产物仅含基础层 `.caomei-root` 与 `--caomei-*` token，`caomei-button` 出现 0 次，见 [回归记录](../../reports/regression/current.md) M1b 节）。注：该结论对应「尚未消费任何 caomei-ui 组件」的重锚时点；自 B2 开始消费组件后，按需组件样式会进入对应路由 chunk（首个实例见 [回归记录](../../reports/regression/current.md) M4 节「包体归因」）。
+- 组件样式逐模块产出（约 73 个组件 CSS；`dist/` 下共 75 个 CSS，含基础层与图标样式），由打包器 tree-shaking 按需丢弃——momei 当前零 caomei-ui 组件消费，故**预期组件样式零进入产物（以 0.2.0 升级批次的 `keyCss` 复测为准）**。**复测已确认零进入产物**（产物仅含基础层 `.caomei-root` 与 `--caomei-*` token，`caomei-button` 出现 0 次，见 [回归记录](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1b 节）。注：该结论对应「尚未消费任何 caomei-ui 组件」的重锚时点；自 B2 开始消费组件后，按需组件样式会进入对应路由 chunk（首个实例见 [回归记录](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M4 节「包体归因」）。
 
 因此：
 
