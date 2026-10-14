@@ -2,13 +2,11 @@
     <div class="admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.external_links.title')" show-language-switcher>
             <template #actions>
-                <CaomeiButton
-                    :label="$t('common.create')"
-                    @click="openDialog()"
-                >
+                <CaomeiButton @click="openDialog()">
                     <template #icon>
                         <Plus :size="16" />
                     </template>
+                    {{ $t('common.create') }}
                 </CaomeiButton>
             </template>
         </AdminPageHeader>
@@ -181,15 +179,17 @@
 
             <template #footer>
                 <CaomeiButton
-                    :label="$t('common.cancel')"
                     variant="secondary"
                     @click="dialogVisible = false"
-                />
+                >
+                    {{ $t('common.cancel') }}
+                </CaomeiButton>
                 <CaomeiButton
-                    :label="$t('common.save')"
                     :loading="saving"
                     @click="save"
-                />
+                >
+                    {{ $t('common.save') }}
+                </CaomeiButton>
             </template>
         </Dialog>
 

@@ -167,31 +167,37 @@
 
             <template #footer>
                 <div class="dialog-footer">
+                    <!-- caomei-ui 的 `CaomeiButton` 只在**默认插槽**渲染可见文本（`label` 仅映射
+                         `aria-label`）；写成 `:label` 且无默认插槽会静默退化为纯图标按钮。 -->
                     <CaomeiButton
                         variant="ghost"
-                        :label="$t('common.cancel')"
                         @click="reviewVisible = false"
-                    />
+                    >
+                        {{ $t('common.cancel') }}
+                    </CaomeiButton>
                     <CaomeiButton
                         v-if="reviewAction !== 'accept'"
                         tone="success"
-                        :label="$t('pages.admin.submissions.accept')"
                         @click="reviewAction = 'accept'"
-                    />
+                    >
+                        {{ $t('pages.admin.submissions.accept') }}
+                    </CaomeiButton>
                     <CaomeiButton
                         v-if="reviewAction === 'accept'"
                         tone="success"
-                        :label="$t('common.confirm')"
                         :loading="reviewLoading"
                         @click="submitReview(SubmissionStatus.ACCEPTED)"
-                    />
+                    >
+                        {{ $t('common.confirm') }}
+                    </CaomeiButton>
                     <CaomeiButton
                         v-if="reviewAction !== 'accept'"
                         tone="danger"
-                        :label="$t('pages.admin.submissions.reject')"
                         :loading="reviewLoading"
                         @click="submitReview(SubmissionStatus.REJECTED)"
-                    />
+                    >
+                        {{ $t('pages.admin.submissions.reject') }}
+                    </CaomeiButton>
                 </div>
             </template>
         </Dialog>
@@ -217,7 +223,7 @@ definePageMeta({
     layout: 'default',
 })
 
-const { t, locales } = useI18n()
+const { t, locales, locale } = useI18n()
 const { formatDateTime } = useI18nDate()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const markdownRenderer = createMarkdownRenderer({ html: false })
@@ -313,7 +319,7 @@ const openReview = (submission: any) => {
     reviewAction.value = 'idle'
     reviewForm.value.adminNote = ''
     reviewForm.value.acceptOptions.categoryId = null
-    reviewForm.value.acceptOptions.language = useI18n().locale.value
+    reviewForm.value.acceptOptions.language = locale.value
     reviewForm.value.acceptOptions.publishImmediately = false
     reviewVisible.value = true
     fetchCategories()

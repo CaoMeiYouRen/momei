@@ -181,13 +181,14 @@ const CaomeiButtonStub = defineComponent({
     },
     emits: ['click'],
     setup(props, { slots, emit }) {
+        // 忠实镜像 caomei-ui：可见文本仅来自默认插槽，`label` 只映射 `aria-label`。
         return () => h('button', {
             class: 'caomei-button',
             'data-label': props.label,
             'data-tone': props.tone,
             'data-icon-only': String(props.iconOnly),
             onClick: () => emit('click'),
-        }, slots.icon?.())
+        }, [slots.icon?.(), slots.default?.()])
     },
 })
 
@@ -406,5 +407,53 @@ describe('AdminSubmissions page', () => {
             url: '/api/admin/submissions',
             pageIndexBase: 1,
         }))
+    })
+
+    it('审核弹窗页脚按钮渲染可见文案（CaomeiButton 的可见文本来自默认插槽）', async () => {
+        const wrapper = await mountComponent()
+
+        // 打开待审核行的审核弹窗。
+        await wrapper.findAll('.stub-row')[0]!
+            .find('[data-key="actions"]')
+            .findAll('.caomei-button')[0]!
+            .trigger('click')
+        await nextTick()
+
+        const dialog = wrapper.find('.dialog')
+        expect(dialog.exists()).toBe(true)
+
+        // 未进入 accept 分支：取消 / 受理 / 驳回三个按钮，且文案必须在默认插槽（不能只靠 :label）。
+        const labels = dialog.findAll('.caomei-button').map((button) => button.text())
+        expect(labels).toEqual([
+            'common.cancel',
+            'pages.admin.submissions.accept',
+            'pages.admin.submissions.reject',
+        ])
+        // 非 icon-only 按钮必须真的渲染出文本，否则退化为纯图标按钮（历史缺陷回归守卫）。
+        for (const button of dialog.findAll('.caomei-button')) {
+            expect(button.attributes('data-icon-only')).toBe('false')
+            expect(button.text().length).toBeGreaterThan(0)
+        }
+    })
+
+    it('审核弹窗进入 accept 分支后，「确认」按钮同样渲染可见文案', async () => {
+        const wrapper = await mountComponent()
+
+        await wrapper.findAll('.stub-row')[0]!
+            .find('[data-key="actions"]')
+            .findAll('.caomei-button')[0]!
+            .trigger('click')
+        await nextTick()
+
+        // 点击「受理」进入 accept 分支。
+        await wrapper.find('.dialog').findAll('.caomei-button')[1]!.trigger('click')
+        await nextTick()
+
+        const labels = wrapper.find('.dialog').findAll('.caomei-button').map((button) => button.text())
+        // accept 分支下「驳回」按 `v-if="reviewAction !== 'accept'"` 隐藏，故只剩取消 / 确认。
+        expect(labels).toEqual([
+            'common.cancel',
+            'common.confirm',
+        ])
     })
 })

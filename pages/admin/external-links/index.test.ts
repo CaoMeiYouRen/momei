@@ -282,19 +282,43 @@ function actionLabels(wrapper: Awaited<ReturnType<typeof mountComponent>>, rowIn
         .map((button) => button.attributes('data-label'))
 }
 
+/**
+ * 按**可见文本**定位按钮。
+ *
+ * caomei `CaomeiButton` 的 `label` 仅映射 `aria-label`，可见文本来自默认插槽；
+ * 故「有字按钮」必须按文本定位，`data-label` 只对纯图标按钮（`:label` + `iconOnly`）有效。
+ *
+ * 未命中时直接抛出带文本与现有按钮清单的错误，避免失败信息落在 `undefined.trigger(...)` 上。
+ */
+function findButtonByText(wrapper: Awaited<ReturnType<typeof mountComponent>>, text: string) {
+    const match = wrapper.findAll('.caomei-button').find((button) => button.text().includes(text))
+
+    if (!match) {
+        const available = wrapper.findAll('.caomei-button')
+            .map((button) => `"${button.text()}"(label=${button.attributes('data-label') ?? '-'})`)
+            .join(', ')
+        throw new Error(`未找到含可见文本「${text}」的按钮；当前按钮：${available || '(无)'}`)
+    }
+
+    return match
+}
+
 describe('AdminExternalLinks page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
-    it('渲染页头与创建按钮', async () => {
+    it('渲染页头与创建按钮（可见文案来自默认插槽，非 label）', async () => {
         const wrapper = await mountComponent()
         expect(wrapper.find('.admin-header').exists()).toBe(true)
         expect(wrapper.find('.admin-header').attributes('data-title')).toBe('pages.admin.external_links.title')
 
-        const createButton = wrapper.findAll('.caomei-button')
-            .find((button) => button.attributes('data-label') === 'common.create')
+        const createButton = findButtonByText(wrapper, 'common.create')
         expect(createButton).toBeTruthy()
+        // caomei `CaomeiButton` 的 `label` 只映射可访问名，可见文本必须落默认插槽，
+        // 否则按钮静默退化为纯图标按钮（历史缺陷回归守卫）。
+        expect(createButton.attributes('data-icon-only')).toBe('false')
+        expect(createButton.text()).toContain('common.create')
     })
 
     it('渲染 caomei 数据表与全局确认浮层', async () => {
@@ -403,8 +427,7 @@ describe('AdminExternalLinks page', () => {
     it('打开创建弹窗时把字段映射到 CaomeiInput / CaomeiSelect，且校验态为 :invalid', async () => {
         const wrapper = await mountComponent()
 
-        const createButton = wrapper.findAll('.caomei-button')
-            .find((button) => button.attributes('data-label') === 'common.create')!
+        const createButton = findButtonByText(wrapper, 'common.create')
         await createButton.trigger('click')
         await nextTick()
 
@@ -428,18 +451,34 @@ describe('AdminExternalLinks page', () => {
         expect(dialog.find('.caomei-select').exists()).toBe(true)
     })
 
+    it('弹窗页脚按钮渲染可见文案（默认插槽；非纯图标）', async () => {
+        const wrapper = await mountComponent()
+
+        await findButtonByText(wrapper, 'common.create').trigger('click')
+        await nextTick()
+
+        const dialog = wrapper.find('.dialog')
+        // 页脚按钮是「有字按钮」（无 `data-label`）；过滤掉浮层内的纯图标控件。
+        const footerButtons = dialog.findAll('.caomei-button')
+            .filter((item) => !item.attributes('data-label'))
+
+        expect(footerButtons.map((item) => item.text())).toEqual(['common.cancel', 'common.save'])
+        for (const item of footerButtons) {
+            expect(item.attributes('data-icon-only')).toBe('false')
+            expect(item.text().length).toBeGreaterThan(0)
+        }
+    })
+
     it('保存校验：缺失原始链接时把 CaomeiInput 标为 invalid 且不发请求', async () => {
         const wrapper = await mountComponent()
 
-        const createButton = wrapper.findAll('.caomei-button')
-            .find((button) => button.attributes('data-label') === 'common.create')!
+        const createButton = findButtonByText(wrapper, 'common.create')
         await createButton.trigger('click')
         await nextTick()
 
         fetchMock.mockClear()
 
-        const saveButton = wrapper.findAll('.caomei-button')
-            .find((button) => button.attributes('data-label') === 'common.save')!
+        const saveButton = findButtonByText(wrapper, 'common.save')
         await saveButton.trigger('click')
         await nextTick()
 
