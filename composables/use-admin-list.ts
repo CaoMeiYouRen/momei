@@ -38,7 +38,15 @@ interface AdminPageEvent {
 
 interface AdminSortEvent {
     sortField?: string | ((item: unknown) => string)
-    sortOrder: number | null | undefined
+    /**
+     * 排序方向；两套组件库的载荷形态不同（迁移期需同时兼容）：
+     *
+     * - PrimeVue `DataTable` 的 `@sort` 为**数值**：`1`（升序）/ `-1`（降序）/ `0`（清除）；
+     * - caomei-ui `DataTable` 的 `@sort` 为**字符串**：`'asc'` / `'desc'` / `''`（无排序）。
+     *
+     * 页面侧不得各写一份归一包装（同 `pageIndexBase` 的口径，见迁移方案 §5.5）。
+     */
+    sortOrder: number | string | null | undefined
 }
 
 interface UseAdminListOptions<T, F extends AdminListFilters> {
@@ -159,7 +167,10 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
         }
 
         sort.value.field = event.sortField
-        sort.value.order = event.sortOrder === 1 ? 'asc' : 'desc'
+        // 归一化两套组件库的排序方向载荷：PrimeVue 为数值 `1`（升序），caomei 为字符串 `'asc'`；
+        // 其余（`-1` / `'desc'`）一律落到降序，与迁移前的行为一致。
+        // 注：两库的「清除排序」态（空 `sortField`）已由上方守卫短路返回，不会到达此处。
+        sort.value.order = event.sortOrder === 1 || event.sortOrder === 'asc' ? 'asc' : 'desc'
         void load()
     }
 

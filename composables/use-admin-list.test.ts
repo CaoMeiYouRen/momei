@@ -169,6 +169,40 @@ describe('useAdminList', () => {
         }))
     })
 
+    it('应归一化 caomei-ui 的字符串排序载荷（迁移期双语义）', async () => {
+        const fetchFn = vi.fn().mockResolvedValue({
+            data: [],
+            total: 0,
+        })
+
+        const list = await mountAdminList({ fetchFn })
+        fetchFn.mockClear()
+
+        // caomei `@sort` 的 `sortOrder` 为 `'asc' | 'desc' | ''`（PrimeVue 为数值 `1 | -1 | 0`）；
+        // 两套语义必须在共享 composable 内归一，页面侧不得各写一份包装。
+        list.onSort({ sortField: 'name', sortOrder: 'asc' })
+        await flushPromises()
+        expect(fetchFn).toHaveBeenLastCalledWith(expect.objectContaining({
+            orderBy: 'name',
+            order: 'ASC',
+            sortDirection: 'asc',
+        }))
+
+        list.onSort({ sortField: 'name', sortOrder: 'desc' })
+        await flushPromises()
+        expect(fetchFn).toHaveBeenLastCalledWith(expect.objectContaining({
+            orderBy: 'name',
+            order: 'DESC',
+            sortDirection: 'desc',
+        }))
+
+        // 清除排序：caomei 抛空 `sortField` → 不触发重新加载（与 PrimeVue 清除态一致）。
+        const callsBeforeClear = fetchFn.mock.calls.length
+        list.onSort({ sortField: '', sortOrder: '' })
+        await flushPromises()
+        expect(fetchFn).toHaveBeenCalledTimes(callsBeforeClear)
+    })
+
     it('应使用外部 filters 的最新值重新加载列表', async () => {
         const initialFilters = reactive({
             keyword: 'draft',
