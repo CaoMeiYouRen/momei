@@ -148,7 +148,7 @@
 - **层 ①（单元）**：`pnpm test` **553 文件通过 / 1 skipped（554 文件），4779 用例通过 / 1 skipped（4780 用例）**（较上一批 **+17 用例**：本页契约用例由 6 条扩为 23 条，媒体预览单元二态断言同量替换；216.7s）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（既有 7 条 warning，新增文件零警告）；`pnpm lint:css` 通过。
 - **层 ②（E2E 功能）**：管理端定向 `pnpm exec playwright test tests/e2e/admin.e2e.test.ts tests/e2e/admin-workflow.e2e.test.ts --project=chromium` = **8 passed / 11 skipped / 49.3s**（含扩展矩阵新增的 `/admin/posts` 行——矩阵 11 行在本机隔离复跑 30.6s，仍显著低于既有 `test.setTimeout(60000)` 预算；skipped 为既有登录前置跳过，与本批无关）。
 - **层 ③（截图识别 · 门禁层）**：本路由浅 **23277px / 1.796%**（允许清单命中 5/5）、深 **27886px / 2.152%**（命中 5/5），未归因 **0px**；全量 `pnpm test:visual:parity` **22/22 通过**（11 个已迁移路由 22 testName；`PENDING_ROUTES` 清空后待迁移层已无用例，且无消费者的 `ALL_PARITY_ROUTES` 兼容导出已随本批删除——待迁移层本身保留，作为 B3 / 条目 3 的落点）。
-- **归档**：第八次滚动归档迁出本条目第三批次 4 个窗口（`phase68-b2-ad-placements` / `phase68-transition-shells` / `phase68-b2-subscribers` / `phase68-b2-users`）至 `archive/2026-10-14-to-2026-10-15-phase68-b2-batch3.md`，并**同步改写** `docs/plan/todo.md` 中「过渡组件基建窗口」的节名短语引用（第四次归档后的既定口径：窗口归档与锚点改写一并执行）；`current.md` 由 464 行降至 182 行（归档后中间态，均取 `docs:check:line-count` 口径），写入本窗口后为 **269 行 / 5 个窗口**（`docs:check:line-count` 口径；`wc -l` 为 268）。
+- **归档**：第八次滚动归档迁出本条目第三批次 4 个窗口（`phase68-b2-ad-placements` / `phase68-transition-shells` / `phase68-b2-subscribers` / `phase68-b2-users`）至 `archive/2026-10-14-to-2026-10-15-phase68-b2-batch3.md`，并**同步改写** `docs/plan/todo.md` 中「过渡组件基建窗口」的节名短语引用（第四次归档后的既定口径：窗口归档与锚点改写一并执行）；`current.md` 由 464 行降至 182 行（归档后中间态，均取 `docs:check:line-count` 口径），写入本窗口后为 **271 行 / 5 个窗口**（`docs:check:line-count` 口径；`wc -l` 为 270）。
 - **口径沉淀**：迁移方案 §6.2 新增**执行提示**（字段宽度钩子 / 列定义 / 可见文案三条），闭合第九路由批次登记的「口径写入 §6.2」待办；上游反馈清单新增 **§2.7**（`DataTable` 无列最小宽契约、选择列宽度不可配置、`width` 单位口径）。
 
 ### 提交拆分依据（本批规模超 §2.8 单提交阈值的说明）
@@ -157,9 +157,11 @@
 
 | # | 提交主题 | 文件数 | 新增行（逐文件复算） | 依赖顺序 |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | 治理记录：第八次滚动归档（含「过渡组件基建窗口」锚点改写）+ 第十路由窗口 / 校准记录 / 上游 §2.7 / §6.2 执行提示 / 条目 2 收口 | 8 | 457 | 无 |
+| 1 | 治理记录：第八次滚动归档（含「过渡组件基建窗口」锚点改写）+ 第十路由窗口 / 校准记录 / 上游 §2.7 / §6.2 执行提示 / 条目 2 收口 | 8 | 458 | 无 |
 | 2 | 页面迁移 + 路由自有组件 + 路由登记 + E2E 矩阵 + parity 台账与待迁移层收口 + 采集脚本退出语义 + 基线层快照刷新 | 10（含 2 个 PNG） | 568 | 无（与 1 互补） |
 | 3 | 页面 / 组件 / 事实源契约用例 + 采集脚本守卫 | 4 | 764 | 依赖 2 |
+
+**提交后实测（`git show --numstat` 逐笔复算）**：`pre-commit` 的 `lint-staged` 会把被其覆盖的已暂存文件重新 `git add`，本批因此把 `tests/visual/parity/pending-routes.visual-parity.test.ts`（7 行）由第 2 笔扫入第 1 笔——落库实测为 **第 1 笔 9 文件 / 465 行、第 2 笔 9 文件 / 561 行、第 3 笔 4 文件 / 764 行（合计 22 路径 / 1790 行）**；三笔仍全部满足 ≤10 文件 / ≤800 行，拆分结论不变（同第九路由批次的同类校正）。
 
 拆分依据：① 按「治理记录 / 实现与台账 / 测试」切分；② 治理记录先行——`pre-commit` 的 `lint-md --fix` 会重排 `current.md` 并顺带 stage，先提交含该文档的一批可使后续批次的钩子对其无操作（既有踩坑口径）；③ 契约用例（700 行）独立成笔，确保每笔 ≤800 行。
 
