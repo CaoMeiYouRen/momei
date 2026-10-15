@@ -4,7 +4,7 @@
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 18 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
     },
     "tiers": {
         "reader": {
@@ -485,15 +485,105 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 240,
+                        "width": 1360,
+                        "height": 120
+                    },
+                    "pixels": 7925,
+                    "reason": "友链表区域（`DataTable` → `CaomeiDataTable`）：表头底色 / 边框 / 字号 + **空态行高度**（caomei 空态行 97px vs PrimeVue 约 76px）。**本路由在 parity 环境无种子数据**，三表均渲染 `#empty` 空态，故不含数据行 / 标签渲染差异（`Tag` 的渲染不在本门禁覆盖内，见回归记录第九路由窗口）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 400,
+                        "width": 1360,
+                        "height": 160
+                    },
+                    "pixels": 12065,
+                    "reason": "下半区（分类表 + 申请表）：同上表格差异，并叠加**首表空态行高度差带来的整段位移**（split 区顶边 373 → 403，+30px）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1200,
+                        "y": 80,
+                        "width": 240,
+                        "height": 40
+                    },
+                    "pixels": 1540,
+                    "reason": "页头两个动作按钮（`CaomeiButton` secondary / 默认 相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1360,
+                        "y": 160,
+                        "width": 40,
+                        "height": 80
+                    },
+                    "pixels": 107,
+                    "reason": "区块 / 表格右缘的边框与溢出差异（容器 padding 与表格边框口径）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 21637px / 1.67%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 21637px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +14%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。"
         },
         "admin-friend-links-list-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 240,
+                        "width": 1360,
+                        "height": 120
+                    },
+                    "pixels": 9457,
+                    "reason": "友链表区域（`DataTable` → `CaomeiDataTable`）：表头底色 / 边框 / 字号 + **空态行高度**（caomei 空态行 97px vs PrimeVue 约 76px）。**本路由在 parity 环境无种子数据**，三表均渲染 `#empty` 空态，故不含数据行 / 标签渲染差异（`Tag` 的渲染不在本门禁覆盖内，见回归记录第九路由窗口）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 400,
+                        "width": 1360,
+                        "height": 200
+                    },
+                    "pixels": 13638,
+                    "reason": "下半区（分类表 + 申请表）：同上表格差异，并叠加**首表空态行高度差带来的整段位移**（split 区顶边 373 → 403，+30px）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1160,
+                        "y": 80,
+                        "width": 280,
+                        "height": 40
+                    },
+                    "pixels": 3985,
+                    "reason": "页头两个动作按钮（`CaomeiButton` secondary / 默认 相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1360,
+                        "y": 160,
+                        "width": 40,
+                        "height": 80
+                    },
+                    "pixels": 110,
+                    "reason": "区块 / 表格右缘的边框与溢出差异（容器 padding 与表格边框口径）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27190px / 2.098%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 27190px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。"
         },
         "admin-ad-campaigns-list-light": {
             "tier": "admin",

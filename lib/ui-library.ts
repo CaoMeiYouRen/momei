@@ -59,6 +59,7 @@ export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
     '/admin/migrations/link-governance',
     '/admin/subscribers',
     '/admin/users',
+    '/admin/friend-links',
 ]
 
 import { APP_LOCALE_CODES } from '@/i18n/config/locale-registry'

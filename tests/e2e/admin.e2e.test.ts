@@ -93,7 +93,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/users', '.caomei-data-table, .user-management'],
             ['/admin/comments', '.caomei-data-table, .admin-page-container'],
             ['/admin/submissions', '.caomei-data-table, .admin-page-container'],
-            ['/admin/friend-links', '.admin-friend-links, .p-datatable'],
+            ['/admin/friend-links', '.caomei-data-table, .admin-friend-links'],
             ['/admin/external-links', '.caomei-data-table, .admin-page-container'],
             ['/admin/waitlist', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/campaigns', '.caomei-data-table, .admin-page-container'],
