@@ -81,6 +81,13 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-subscribers-list',
+        path: '/admin/subscribers',
+        heading: '订阅管理',
+        tier: 'admin',
+        migrated: true,
+    },
 ]
 
 export const PENDING_ROUTES: ParityRoute[] = [
@@ -88,13 +95,6 @@ export const PENDING_ROUTES: ParityRoute[] = [
         name: 'admin-posts-list',
         path: '/admin/posts',
         heading: '文章管理',
-        tier: 'admin',
-        migrated: false,
-    },
-    {
-        name: 'admin-subscribers-list',
-        path: '/admin/subscribers',
-        heading: '订阅管理',
         tier: 'admin',
         migrated: false,
     },

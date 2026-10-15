@@ -94,12 +94,12 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/comments', '.caomei-data-table, .admin-page-container'],
             ['/admin/submissions', '.caomei-data-table, .admin-page-container'],
             ['/admin/friend-links', '.admin-friend-links, .p-datatable'],
-            ['/admin/subscribers', '.p-datatable, .admin-page-container'],
             ['/admin/external-links', '.caomei-data-table, .admin-page-container'],
             ['/admin/waitlist', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/campaigns', '.caomei-data-table, .admin-page-container'],
             ['/admin/ad/placements', '.caomei-data-table, .admin-page-container'],
             ['/admin/migrations/link-governance', '.caomei-data-table, .admin-link-governance'],
+            ['/admin/subscribers', '.caomei-data-table, .admin-subscribers'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {

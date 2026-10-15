@@ -31,12 +31,17 @@ const CaomeiAvatarStub = defineComponent({
         shape: { type: String, default: 'circle' },
     },
     setup(props, { attrs }) {
+        const sizeToken = () => {
+            const style = attrs.style as Record<string, string> | undefined
+            return style?.['--caomei-avatar-size'] ?? ''
+        }
         return () => h('span', {
             class: ['caomei-avatar', ...(attrs.class ? [attrs.class as string] : [])],
             'data-src': props.src,
             'data-alt': props.alt,
             'data-fallback': props.fallback === undefined ? '<unset>' : props.fallback,
             'data-size': props.size,
+            'data-size-token': sizeToken(),
             'data-shape': props.shape,
         })
     },
@@ -117,24 +122,27 @@ describe('AppAvatarV2', () => {
         expect(legacy.find('.p-avatar').attributes('data-image')).toBe('https://gravatar.example.com/hash.png')
     })
 
-    it('档位映射：PrimeVue 档位 → caomei 档位（xlarge 有损落到 lg）', async () => {
-        const cases: [string | undefined, string][] = [
-            ['small', 'sm'],
-            ['normal', 'md'],
-            ['large', 'lg'],
-            ['xlarge', 'lg'],
-            // 已传入 caomei 档位时原样透传
-            ['sm', 'sm'],
-            ['md', 'md'],
-            ['lg', 'lg'],
-            // 缺省与未知值取 caomei 默认档位
-            [undefined, 'md'],
-            ['unknown', 'md'],
+    it('档位映射（几何保真）：PrimeVue 有效档位按 px 覆盖还原，非法 / 缺省回落 32px', async () => {
+        // PrimeVue `Avatar` 有效档位：normal(32) / large(48) / xlarge(64)；`small` 等非法值被忽略 → 默认 32px。
+        const cases: [string | undefined, string, string][] = [
+            ['normal', 'md', '32px'],
+            ['large', 'lg', '48px'],
+            ['xlarge', 'lg', '64px'],
+            // PrimeVue 不存在的档位（实测被忽略并回落默认 2rem）→ 与 PrimeVue 行为一致
+            ['small', 'md', '32px'],
+            ['unknown', 'md', '32px'],
+            [undefined, 'md', '32px'],
+            // 已传入 caomei 档位时原样透传，且不注入覆盖 token（用档位自身的 24 / 32 / 40px）
+            ['sm', 'sm', ''],
+            ['md', 'md', ''],
+            ['lg', 'lg', ''],
         ]
 
-        for (const [input, expected] of cases) {
+        for (const [input, expectedSize, expectedToken] of cases) {
             const wrapper = await mountAvatar({ name: 'Ada', size: input })
-            expect(wrapper.find('.caomei-avatar').attributes('data-size')).toBe(expected)
+            const avatar = wrapper.find('.caomei-avatar')
+            expect(avatar.attributes('data-size')).toBe(expectedSize)
+            expect(avatar.attributes('data-size-token')).toBe(expectedToken)
         }
     })
 

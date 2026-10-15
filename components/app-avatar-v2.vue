@@ -16,7 +16,8 @@
         :src="displayImage"
         :alt="altText"
         :fallback="fallbackText"
-        :size="caomeiSize"
+        :size="avatarSize.size"
+        :style="avatarSize.style"
         :shape="shape"
     />
     <AppAvatar
@@ -44,9 +45,11 @@ import { resolveUiLibraryForRoutePath } from '@/lib/ui-library'
  * 未迁移路由回退到 V1，因此本组件可在任意路由安全采用；待全站迁完后再删除 V1 分支。
  *
  * 与 V1 的差异（均为有意，见迁移方案 §6.2 与上游反馈清单 §2.1）：
- * - **尺寸档位映射**：PrimeVue 为 `normal` / `large` / `xlarge`，caomei 为 `md` / `lg`（`sm` / `md` / `lg`）。
- *   `xlarge` 在 caomei 侧无对应档位，按上游 §2.1 的有损映射落到 `lg`；需要更大尺寸时应由消费处覆盖
- *   `--caomei-avatar-size`。已传入 caomei 档位时原样透传。
+ * - **尺寸档位映射（边框盒尺寸保真）**：PrimeVue 有效档位为 `normal`(32px) / `large`(48px) / `xlarge`(64px)，
+ *   caomei 为 `sm`(24) / `md`(32) / `lg`(40)。`normal` 映射到 `md`（同尺寸）；`large` / `xlarge`
+ *   无对应档位，按上游 §2.1 的口径在 `lg` 之上用 `--caomei-avatar-size` 覆盖回 48 / 64px，
+ *   **不产生边框盒尺寸缩水**（`font-size` 未覆盖，属已登记残差）。缺省与非法档位（如 PrimeVue 不存在的 `small`，实测被忽略并回落默认）
+ *   一律回落 `md`（32px），与 PrimeVue 行为一致。已传入 caomei 档位时原样透传。
  * - **回退文案**：PrimeVue 由 `label` 承载首字母，caomei 由 `fallback` 承载；此处显式传入首字母，
  *   使两版回退内容一致（无姓名时传 `undefined` 而非空串，以便 caomei 回退到 `alt` 首字母）。
  * - **补 `alt` 可访问名**：V1 未设置 `alt`（PrimeVue 默认 `avatar`）；此处以「姓名 → 邮箱」补 `alt`，
@@ -57,7 +60,7 @@ const props = withDefaults(defineProps<{
     email?: string | null
     emailHash?: string | null
     name?: string | null
-    /** PrimeVue 档位（`small` / `normal` / `large` / `xlarge`）或 caomei 档位（`sm` / `md` / `lg`）。 */
+    /** 档位：caomei 档位（`sm` / `md` / `lg`）或 PrimeVue 风格档位（`normal` / `large` / `xlarge`，含历史遗留的非法值 `small`）。 */
     size?: string | null
     /** 形状；默认取 PrimeVue 的默认值 `square`，使两版缺省表现一致。 */
     shape?: 'circle' | 'square'
@@ -83,22 +86,39 @@ const fallbackText = computed(() => props.name?.charAt(0)?.toUpperCase() || unde
 
 const CAOMEI_AVATAR_SIZES = new Set(['sm', 'md', 'lg'])
 
-function toCaomeiAvatarSize(size?: string | null): 'sm' | 'md' | 'lg' {
-    if (size && CAOMEI_AVATAR_SIZES.has(size)) {
-        return size as 'sm' | 'md' | 'lg'
-    }
+type CaomeiAvatarSize = 'sm' | 'md' | 'lg'
 
-    switch (size) {
-        case 'small':
-            return 'sm'
-        case 'large':
-        case 'xlarge':
-            return 'lg'
-        case 'normal':
-        default:
-            return 'md'
-    }
+/**
+ * PrimeVue 档位 → caomei 档位 + 尺寸覆盖。
+ *
+ * PrimeVue `Avatar` 的**有效**档位只有 `normal`（默认 `2rem` = 32px）/ `large`（`3rem` = 48px）/
+ * `xlarge`（`4rem` = 64px）；`small` 等非法值会被忽略并回落默认 `2rem`（实测：`size="small"` 与
+ * `size="normal"` 渲染出完全相同的类名）。
+ *
+ * caomei 档位为 `sm`(24) / `md`(32) / `lg`(40)，因此 `large` / `xlarge` **没有对应档位**，
+ * 必须按上游反馈 §2.1 的口径用 `--caomei-avatar-size` 覆盖；否则头像会从 48 / 64px 缩到 40px，
+ * 属未登记的几何回归（`settings/profile` 的 `xlarge` 即为此类）。
+ */
+const PRIMEVUE_AVATAR_SIZE_MAP: Record<string, { size: CaomeiAvatarSize, px: string }> = {
+    normal: { size: 'md', px: '32px' },
+    large: { size: 'lg', px: '48px' },
+    xlarge: { size: 'lg', px: '64px' },
 }
 
-const caomeiSize = computed(() => toCaomeiAvatarSize(props.size))
+/**
+ * 解析档位：caomei 档位原样透传；PrimeVue 档位按映射表（含尺寸覆盖）；
+ * **缺省与非法值一律回落 `md`（32px）**，与 PrimeVue「忽略非法档位」的行为一致。
+ */
+function resolveAvatarSize(size?: string | null): { size: CaomeiAvatarSize, style?: Record<string, string> } {
+    if (size && CAOMEI_AVATAR_SIZES.has(size)) {
+        return { size: size as CaomeiAvatarSize }
+    }
+
+    const mapped = PRIMEVUE_AVATAR_SIZE_MAP[size ?? ''] ?? { size: 'md' as CaomeiAvatarSize, px: '32px' }
+
+    // 覆盖 token 走内联样式：caomei 的档位选择器用 `:where()` 归零特异性，内联变量可稳定压过它。
+    return { size: mapped.size, style: { '--caomei-avatar-size': mapped.px } }
+}
+
+const avatarSize = computed(() => resolveAvatarSize(props.size))
 </script>
