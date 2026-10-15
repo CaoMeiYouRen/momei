@@ -308,6 +308,7 @@ pnpm governance:count:primevue-usage
 > 范围限定（2026-10-13 审计提示）：本表只指导 **B2 剩余页的新增迁移**，**不构成对已上线试点页 `/admin/comments` 的回改要求**——该页仍带 `--caomei-button-padding-x` 本地类补丁，且其 10 条视觉基线是在现行写法下采集的；若后续要把试点页改用 `iconOnly`，属**行为变更**，须按迁移方案 §8.2 重新采集该页基线并逐项归因，不能顺带改。
 
 > **按钮可见文案陷阱（2026-10-14 补记，B2 第三路由批次发现）**：caomei `CaomeiButton` 的 `label` **只映射 `aria-label`**，可见文本只来自**默认插槽**；PrimeVue `Button` 的 `label` 直接渲染可见文本。因此「标签替换 + 属性改名」式机械迁移会得到**无文案按钮**（外形退化为图标按钮），不报错、不被类型检查或零残留守卫捕获，且可能被 parity 允许清单当作「按钮渲染差异」吸收。**B2 剩余页一律按「可见文本写默认插槽」迁移**；仅纯图标按钮保留 `:label` + `iconOnly`。已在 `/admin/external-links`（头部创建 + 弹窗页脚）与 `/admin/submissions`（审核弹窗页脚）修正历史用法。
+> **`Tag` 可见文案陷阱（2026-10-16 补记，B2 第九路由批次发现）**：PrimeVue `Tag` 用 `value` **prop** 渲染可见文案，而 caomei `CaomeiTag` **没有 `value` prop**（契约只有 `tone` / `variant` / `size` / `rounded` / `closable` / `disabled` / `closeLabel` / `selectable`），可见文本只来自**默认插槽**。因此「标签替换 + 属性改名」式机械迁移会得到**空标签**（`:value` 作为无用 HTML 属性落到 `<span>` 上），不报错、不被类型检查捕获（`vue-tsc` 对透传属性不报错，与上面的 `Button label` 同型），且会被 parity 允许清单当作「组件替换差异」吸收。**注意与 `CaomeiBadge` 区分**：`Badge` **确有** `value` prop（`/admin/users` 的角色 / 状态徽章即用 `:value`，属正确用法）。已在 `/admin/friend-links`（6 处状态标签）修正；B2 剩余页与后续批次一律按「`Tag` 可见文本写默认插槽、`Badge` 用 `:value`」迁移。
 
 > 依据指针：B2 各批「文件 → 改动点」清单应按 `0.6.0` 能力口径引用本节；逐条证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节与 [上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)。
 

@@ -80,92 +80,6 @@
 
 <!-- regression-window:end:phase68-b2-ad-placements:第六十八阶段-条目2-第五路由:2026-10-14 -->
 
-<!-- regression-window:start:phase68-b2-link-governance:第六十八阶段-条目2-第六路由:2026-10-15 -->
-## 2026-10-15 第六十八阶段 条目 2 第六路由 B2 迁移（`/admin/migrations/link-governance`）
-
-### 范围
-
-条目 2（B2 剩余数据页迁移一）的第六个路由 `/admin/migrations/link-governance` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`。该页 724 行 / 7 个 PrimeVue 列组件 / **30 处在册族开口标签（6 个组件名）**——是当前在册族标签最多的路由（`Button` 9 / `Tag` 7 / `Select` 4 / `InputText` 2 / `DataTable` 1 / `Column` 7），含**懒加载服务端分页 + 详情浮层 + 执行表单**三段交互。同名文件形态（`pages/admin/migrations/link-governance.vue`），守卫无需再改。
-
-**本路由是当前差异最大者**（浅 32070px / 深 34819px，约为既有 6 条路由的 2.2–4.0 倍），故本窗口的归因段落显著长于前五条——差异由「约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移」三部分构成，逐项证据见下。
-
-### 「文件 → 改动点 → 依据指针」清单
-
-| 文件 | 改动点 | 依据指针 |
-| :--- | :--- | :--- |
-| `pages/admin/migrations/link-governance.vue` | `DataTable` + 7 个 PrimeVue 列组件 → `CaomeiDataTable` + `columns` 数组（`#body` → `#cell-{key}`；迁移前列组件**均未声明 `field`**，故按插槽语义命名 key）；页头刷新 / 执行区 / 筛选区 / 行内 / 浮层页脚共 9 处 `Button` → `CaomeiButton`（**可见文案落默认插槽**、图标走 lucide `#icon`）；`InputText`×2 → `CaomeiInput`；`Select`×4 → `CaomeiSelect`（筛选两处保留 `show-clear`）；`Tag`×7 → `CaomeiTag`（`severity` → `tone`：`info`→`primary`、`secondary`/`contrast`→`neutral`、`warn`→`warning`） | §6.1 / §6.2 / §6.3 / §5.3 / §5.5 |
-| 同上 | **服务端分页页码基准切换**：`@page` 载荷由 PrimeVue 0 基改为 caomei 1 基，原实现恒 `page = event.page + 1` 改为直接取载荷；并补 `:page="page"` 进入受控分页 | 跨组件库事件语义（本页自持 `page`，未走 `useAdminList`） |
-| 同上 | 动作列 `class="text-right"` → 列级 `align: 'right'`；其余列不新增显式宽度 | 迁移不改几何 |
-| `pages/admin/migrations/link-governance.scss` | 新增 `&__field, &__filters { --caomei-select-max-width: 100% }`——**修复一处本批引入的几何回归**：caomei Select 字段外层默认带 `20rem` 上限（= 320px），会把执行区 / 筛选区下拉截到 **319px 内容宽**（迁移前占满网格单元格 421px）；token 须设在字段外层的**祖先**（`class` 只落触发器，自定义属性不向上继承） | §6.2「全宽：`fluid` → 默认 `width: 100%`；选择器家族另带 `20rem` 上限，需覆盖对应 `*-max-width` token」 |
-| 同上 | 新增 `&__table { --caomei-data-table-pagination-justify: center }` 保持 PrimeVue 原居中口径 | §3.8 / §6.2 |
-| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/migrations/link-governance` | §5.5 |
-| `pages/admin/migrations/link-governance.test.ts`（新增） | 14 条契约用例：页头刷新按钮、列定义与 `align`、`#cell-*` 插槽按 row 渲染（发起人 name→email→userId 回退链、摘要三行、`redirectSeedCount`）、Tag tone 四态映射、**服务端分页 1 基直接采用**（断言 `@page{page:2}` 写回 `page=2` 且按新页码重取）、筛选应用 / 重置的页码归位与查询参数、执行表单→请求体映射、apply 按钮启用门槛（需 `applyConfirmed` + `reviewedDryRunReportId`）、详情渲染（作用域 / 摘要 / 差异项 5 种状态 tone / redirect seeds）、空态、列表与详情失败分支、未在册族 PrimeVue 组件仍保留 | §8.2 层 ① |
-| `tests/e2e/admin.e2e.test.ts` | 路由矩阵新增 `/admin/migrations/link-governance` → `.caomei-data-table, .admin-link-governance`（矩阵 9 → 10 行） | 层 ② 扩面 |
-| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-link-governance` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；允许清单按 **9 个非重叠功能带**校准（各带声明值 = 该带实测差异像素本身，求和等于全图实测值） | §8.2 层 ③（门禁层） |
-
-### 视觉差异逐项归因（迁移前基线 → 迁移后）
-
-**几何核验方法**：本路由差异量级异常（约为既有 6 条路由的 2.2–4.0 倍），故除「参考态 PNG 行列带扫描」外，**额外把迁移前源码临时恢复到 HEAD 就地构建一次**（`git checkout HEAD -- <页面/scss/lib>` → `pnpm build` → 浏览器探针 → 恢复改动 → 重建），从而取得两态**同口径的 `getBoundingClientRect` 实测值**（而非仅靠 PNG 推断）。
-
-| 量测点 | 迁移前（PrimeVue） | 迁移后（caomei） | Δ |
-| :--- | :--- | :--- | :--- |
-| 文档高度 | 1247px | 1242px | **−5** |
-| 执行区网格 `y` / 高 | 336 / 201 | 336 / 201 | 0 |
-| 第 1 行 `MultiSelect` `y`（**未迁移，两态同为 PrimeVue**） | 356 / 36.39px | 356 / 36.39px（探针取整显示 36） | 0 |
-| 第 2 行 `InputText`/`Input` `y` | 429 | 428 | −1 |
-| 第 3 行 `Select` `y` | 501 | 501 | 0 |
-| 筛选行 `y` | 732 | 731 | −1 |
-| 复选框行 `y` | 562 | 561 | −1 |
-| 执行动作行 `y` | 606 | 605 | −1 |
-| 卡片 1 高 | 426 | 425 | −1 |
-| 卡片 2 `y` / 高 | 666 / 359 | 665 / 356 | −1 / **−3** |
-| 表格 `y` / 高 | 793 / 208 | 791 / 205 | −2 / −3 |
-| **表头行高** | **43px** | **33px** | **−10** |
-| 筛选下拉宽（网格单元格内） | 421px | 421px（修复后；修复前 319px） | 0 |
-| 字段行盒高度 / 字号 | 36.39px / 16px | 36px / 14px | −0.39 / −2 |
-
-> 表中「迁移前 / 迁移后」列为探针 `getBoundingClientRect` 的**整数取整**输出；仅当需要判定亚像素来源时才引用原始小数（见归因③）。故 Δ 列不代表逐点独立实测的精确差值。
-
-**三部分归因**：
-
-1. **组件替换（主体）**：约 20 个在册族组件（9 `Button` / 7 `Tag` / 4 `Select` / 2 `InputText` / 表格 7 列 + 分页器）替换为 caomei——字段外壳盒模型、字号（caomei 字段 14px vs PrimeVue 16px）、按钮边框 / 底纹 / 排版、Tag `tone` 色板均属 §6.2 / §6.3 已接受差异，处置走通道① `--caomei-*` token。
-2. **表头行高 −10px**：PrimeVue `DataTable` 表头行 43px → caomei 33px。**与表体的关系**：表头 −10px 会把表体起点上移 10px，但 caomei 空态行比 PrimeVue 高约 7px，两者相抵后**表格总高仅 −3px**（208 → 205，`y` 793 → 791）——即表头变化被空态行高部分抵消，**不存在「表体与分页器整体上移 10px」**；表体内部（空态行 / 分页器）的差异见归因表与带 I 说明。
-3. **字段行盒 0.39px 的亚像素累计 → 1px 级（整数取整）下游位移**：caomei 字段行盒 `36px`（固定高度 token `--caomei-control-height-md: 36px`，font 14px）vs PrimeVue `36.39px`（font 16px / line-height 18.4）——**第 1 行 `MultiSelect` 未迁移、两态同高**，真正缩短的是第 2 行（`CaomeiInput`）与第 3 行（`CaomeiSelect`），合计约 `2 × 0.39 ≈ 0.78px`。**该亚像素差是本批唯一可归因的几何来源，与观测到的下游 1px 级位移「量级一致」**（探针为亚像素输出：当前态字段行 `y=428.44`、筛选行 `y=730.92`；本表其余量测点的探针值为整数取整后的呈现，故 `429 → 428`、`732 → 731` 等记法是**取整表现**，不是逐点独立实测的完整 1px）。**本窗口不做逐点因果断言**：0.78px 的亚像素累计经浏览器行盒取整后，在下游不同元素上可能表现为 −1px 或 0px（例如第 3 行字段行顶实测两态均为 501），故只声明「量级一致 + 唯一可归因来源」，不声明每个量测点都发生 1px 位移。**该差异源于库侧字段设计口径，本批不做覆盖**（强行对齐需覆写 caomei 字段的 padding / line-height / font-size token，会改变库侧设计意图，超出「迁移不改几何」的可控范围）；已作为口径项登记上游反馈清单 §2.5。
-
-**允许清单（9 个非重叠功能带，声明值 = 各带实测值）**：
-
-| 带 | 区域（浅色坐标） | 浅 / 深（px） | 归因 |
-| :--- | :--- | :--- | :--- |
-| A | `x[120,380] y[80,160]` | 863 / 878 | 头部语言切换字段外壳（过渡组件 `ContentLanguageSwitcherV2`） |
-| B | `x[1280,1440] y[80,160]` | 346 / 525 | 头部刷新按钮（`CaomeiButton` secondary 描边 + lucide 图标） |
-| C | `x[40,1400] y[260,340]` | 2229 / 2263 | 执行区「标题 + 描述」文本带的 1px 位移（归因 3） |
-| D | `x[40,1400] y[340,545]` | 10773 / 12901 | 执行区字段行（`CaomeiInput`×2 / `CaomeiSelect`×2 + label）：盒模型 + 字号 + 行盒高（归因 1+3） |
-| E | `x[40,1400] y[545,600]` | 2574 / 2769 | 复选框行的 1px 位移（`Checkbox` 未迁移，差异全来自归因 3） |
-| F | `x[40,1400] y[600,665]` | 2758 / 2569 | 执行动作按钮（干跑 / 执行改写，含 `tone="warning"`） |
-| G | `x[40,1400] y[665,790]` | 6141 / 6336 | 报告列表卡片顶部 + 筛选行（`CaomeiSelect`×2 + 应用 / 重置按钮）+ 上游 1px 位移 |
-| H | `x[40,1400] y[790,860]` | 5799 / 5993 | 表格表头行（底色 / 边框 / 字号 / 内边距 + **行高 −10px**）。另含**动作列表头对齐差异**：迁移前 `class="text-right"` 在 PrimeVue 表头被 `.p-datatable-column-header-content{display:flex}` 抵消（表头仍左对齐），而 caomei `align:'right'` 同时作用于表头（「操作」表头 x1241 → x1328，+87px）——即「`align` 等价还原 `text-right`」仅对表体成立，表头对齐属本批**新增差异**（已进允许清单） |
-| I | `x[40,1400] y[860,900]` | 587 / 585 | **表体空态行**（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 `y≈952`，**在本路由的 900px 视口截图之外**，故本带不含分页器 |
-
-> 九带求和 = 全图实测值（浅 32070 / 深 34819），**带外像素为 0**、无余量、无低报——门禁复核时该路由的「未归因差异」应为 0px。
-
-### 验证结果
-
-- **层 ①（单元）**：`pnpm exec vitest run pages/admin/migrations/link-governance.test.ts tests/modules/ui-library-route-migration-guard.test.ts` = 41 用例通过（本页 17 条 + 守卫 24 条）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` 通过。
-- **层 ②（E2E 功能）**：`node scripts/testing/run-e2e.mjs --grep=extended --project=chromium` = **1 passed / 18.2s**（矩阵 9 → 10 行，含本路由；该用例已显式 `test.setTimeout(60000)`）。
-- **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**；本路由浅 32070px / 2.475%、深 34819px / 2.687%，允许清单 **命中 9/9 条**、扣减后未归因 **0px**；其余 20 条零回归。
-- **全量单测**：`pnpm test` 540 文件 / 4605 用例通过（1 skipped；较上一路由批次的 539 / 4590 为 **+1 文件 / +15 用例**）。**增量分解**：本页新增 **14** 条 + 守卫 **24** 条（守卫含一条随 `CAOMEI_UI_ROUTE_PREFIXES` 增长的循环用例，本批前缀 6 → 7 故 23 → 24）= 新增 15 条 ✓ 与全量 +15 一致。**计数口径提示**：仓库另有既有文件 `tests/pages/admin/migrations/link-governance.test.ts`（3 条，未改动），按 CLI 过滤器运行时会被一并命中，故 `vitest` 报「2 文件 / 17 条」——本窗口「本页 14 条」指**新增文件本身**。
-- **包体**：本批未新增依赖，`pnpm build` 通过。
-
-### 未覆盖边界 / 观察项
-
-- **本路由未新增基线层用例**：理由同前四条路由（§8.2 层 ③ 采集对象「列表 / 表单 / 浮层各 1」已由既有 6 条基线满足；逐路由守线由门禁层承担）。**但本路由是本批唯一「差异量级异常」者**，其 9 带允许清单已按功能带细粒度登记，任何单带内的漂移增长都会被捕获（`allowed = min(带内差异, 声明值)`）。
-- **字段行盒 0.39px 差异不做覆盖（已登记上游 §2.5）**：强行对齐需覆写 caomei 字段的 padding / line-height / font-size，会改变库侧设计意图并可能影响已迁移路由的既有基线；本批按「接受 + 登记」处置。该差异在多字段长页面上的可见后果是「文本 1px 重影」，单字段页面（前五条路由）几乎不可见。
-- **`Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner` 保持 PrimeVue**：四者均不在 B2 在册族清单内，本批已把 `Card` / `MultiSelect` 补入 §5.5 显式豁免枚举（此前仅列 `DatePicker` / `InputNumber` / `Checkbox` / `ProgressSpinner`），使「为何可在已迁移路由内保留 PrimeVue」有单点出处；页面级样式沿用 `--p-*` token 与 `:deep(.p-card-body)` 即因其仍在 PrimeVue 侧。
-- **约 27% 页面高度不在门禁覆盖内（本路由特有）**：门禁为 1440×900 视口截图，本页文档高 1242px，故 `y>900` 的内容（表体下半 + 分页器 `y≈952` + 卡片 2 尾部）**不参与比对**；其中 `--caomei-data-table-pagination-justify: center`（本页分页居中 token）在本路由**未被门禁验证**——两态分页器都在画面外。如需覆盖，应另采 fullPage 参考态（按门禁 §7 前置条件在 CI 复采）或补基线层用例；本批按现状登记为未覆盖边界。
-- 剩余 4 条路由（`subscribers` / `users` / `posts` / `friend-links`）均需先落共享壳过渡组件，条目 2 的剩余工作转入基建。
-
-<!-- regression-window:end:phase68-b2-link-governance:第六十八阶段-条目2-第六路由:2026-10-15 -->
-
 <!-- regression-window:start:phase68-transition-shells:第六十八阶段-条目2-过渡组件基建:2026-10-15 -->
 ## 2026-10-15 第六十八阶段 条目 2 过渡组件基建（共享壳 5 件套）
 
@@ -294,7 +208,7 @@
 
 | # | 提交主题 | 文件数 | 新增行（逐文件复算） | 依赖顺序 |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | 治理记录：第五次滚动归档 + 第七路由窗口 / 校准记录 / 进度与行数口径 | 7 | 230 | 无 |
+| 1 | 治理记录：第五次滚动归档 + 第七路由窗口 / 校准记录 / 进度与行数口径 | 7 | 187 | 无 |
 | 2 | 路由实现：页面迁移 + 过渡组件档位映射修复（含其单测）+ 路由登记 + E2E 矩阵 + parity 台账 | 7 | 285 | 依赖 1（台账与记录同批） |
 | 3 | 路由测试：`/admin/subscribers` 契约用例 | 1 | 484 | 依赖 2 |
 
@@ -393,6 +307,72 @@
 - **全量 E2E 的公开页失败**：10 处 `networkidle` 超时与既有环境一致，未在本批修复；如按「阻断非本地请求」收敛门禁，应同批处理 E2E 的同类等待。
 
 <!-- regression-window:end:phase68-b2-users:第六十八阶段-条目2-第八路由:2026-10-15 -->
+
+<!-- regression-window:start:phase68-b2-friend-links:第六十八阶段-条目2-第九路由:2026-10-16 -->
+## 2026-10-16 第六十八阶段 条目 2 第九路由 B2 迁移（`/admin/friend-links`）
+
+### 范围
+
+条目 2（B2 剩余数据页迁移一）的第九个路由 `/admin/friend-links` 按**路由整体切换**到 caomei-ui 并登记进 `CAOMEI_UI_ROUTE_PREFIXES`（第 10 项）。该路由为**单文件大页面**（`pages/admin/friend-links/index.vue` 565 行，逻辑全部在路由自有 composable `use-admin-friend-links-page` 中），迁移前在册族用量 **55 处 / 6 个组件名**：`Column` 21 / `Button` 16 / `Tag` 6 / `InputText` 6 / `Select` 3 / `DataTable` 3（**3 个表格 / 21 列**，为条目 2 中列数最多的路由）。
+
+**本路由是首个消费共享壳过渡组件 `AppUploaderV2` 的路由**（迁移方案 §5.5「组件内按路由择库」，跨边界展示型壳）；非在册族按批次口径保留 PrimeVue：`Dialog` ×3 / `ConfirmDialog` / `Toast` / `useConfirm` / `InputNumber` ×3 / `Textarea` ×3 / `Checkbox` ×6。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `pages/admin/friend-links/index.vue` | `DataTable` ×3 + `Column` ×21 → `CaomeiDataTable` ×3 + `columns`（`#body` → `#cell-{key}`；`field` 列沿用字段名作 key，无 `field` 的列按插槽语义命名 `category` / `isFeatured` / `isPinned` / `isEnabled` / `actions`；`#empty` 三个空态插槽原样保留）；`Button` ×16 → `CaomeiButton`（页头次要与主色、区块 icon-only 刷新、条件性「建议复核」ghost + warning + sm、行内编辑 / 删除 / 查看 icon-only ghost + rounded + tone，全部补 `:label` 可访问名）；`Tag` ×6 → `CaomeiTag`（`severity` → `tone`）；`InputText` ×6 → `CaomeiInput`、`Select` ×3 → `CaomeiSelect`（**移除 `fluid`**：caomei 字段默认 `width: 100%`）；`AppUploader` → `AppUploaderV2` | §6.1 / §6.2 / §5.3 / §5.5 |
+| `composables/use-admin-friend-links-page.ts` | **语义色口径统一为 caomei `tone` 词表**：`getLinkStatusSeverity` / `getHealthStatusSeverity` / `getApplicationStatusSeverity` → `…Tone`（`info→primary`、`secondary→neutral` 两档为有损近似），并导出 3 个表单 / 列表类型供列定义使用 | §6.2 |
+| `styles/pages/admin-friend-links.scss` | 字段容器 `.admin-friend-links__field` 增设 `--caomei-select-max-width: 100%`——caomei `Select` 的宽度 / `max-width` 钩子在**字段外层**（默认 20rem = 320px，`class` 只落触发器），本页表单为 2 列栅格（每列约 330px）、审阅弹窗更宽，不放开会截断（上游反馈 §1.1） | 上游 §1.1 |
+| `lib/ui-library.ts` | `CAOMEI_UI_ROUTE_PREFIXES` 登记 `/admin/friend-links`（第 10 项） | §5.5 |
+| `tests/e2e/admin.e2e.test.ts` | 矩阵内 `/admin/friend-links` 行**就地更新**为 `.caomei-data-table, .admin-friend-links` | 层 ② |
+| `tests/visual/parity/{routes.ts,parity-budget.json}` | `admin-friend-links-list` 由 `PENDING_ROUTES` 迁入 `MIGRATED_ROUTES`；允许清单按门禁报出的区域校准（浅 / 深各 4 区） | §8.2 层 ③ |
+| `pages/admin/friend-links/index.test.ts`（重写） | 13 条契约用例：页头两按钮、三表列定义与插槽接线、`Tag` tone 映射（含条件性按钮）、动作集合形态与可访问名、空态、`AppUploaderV2` 消费、浮层表单控件迁移（6 `CaomeiInput` / 3 `CaomeiSelect`）与非在册族保留计数、页脚按钮 tone | §8.2 层 ① |
+| `composables/use-admin-friend-links-page.test.ts` | 语义色用例改为 `tone` 词表并补边界档（`draft→primary`、`archived→neutral`、未知值→`neutral`） | §8.2 层 ① |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+**几何核验**（探针实测）：区块 `x32 y168 1376x215`、split `x32 y403 1376x199`、三表 `49,237 1342x129`（友链）/ `49,456 644x129`（分类）/ `747,456 644x129`（申请，同行并排）与参考态**区块位置一致**；差异为 caomei 表格的**空态行更高**（实测 tbody 行高 **97px** vs PrimeVue 约 76px）——**本路由在 parity 环境中三表均无数据**（种子数据为空，页面渲染 `#empty` 空态），故差异主体是空态行 + 表头 chrome，而非数据行或标签；该高度差使 split 区顶边由 `y373` 下移到 `y403`（**+30px**），已被允许清单区域 2 覆盖。
+
+**差异区域（门禁报出）**：
+
+| 区域 | 浅色 | 深色 | 归因 |
+| :--- | :--- | :--- | :--- |
+| `x[40,1400] y[240,360]` | 7925px | 9457px | 友链表（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 + **空态行高度**；本环境无数据，故不含数据行 / 标签渲染差异） |
+| `x[40,1400] y[400,560]`（深色至 y600） | 12065px | 13638px | 下半区（分类表 + 申请表）同上表格差异 + **首表空态行高度差带来的整段位移**（+30px） |
+| `x[1200,1440] y[80,120]` | 1540px | 3985px | 页头两个动作按钮（`CaomeiButton` secondary / 默认 vs PrimeVue `Button`，含暗色底纹差异） |
+| `x[1360,1400] y[160,240]` | 107px | 110px | 区块 / 表格右缘的边框与溢出差异 |
+
+### 验证结果
+
+- **层 ①（单元）**：`pnpm test` **553 文件 / 4762 用例通过**（1 skipped；较上一批 +12 用例）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` 通过。
+- **层 ②（E2E 功能）**：管理端定向 `admin.e2e.test.ts` + `admin-workflow.e2e.test.ts` = **8 passed / 50.1s**（含扩展矩阵 10 行，`/admin/friend-links` 行已就地更新）。
+- **层 ③（截图识别 · 门禁层）**：本路由浅 **21637px / 1.670%**（允许清单命中 4/4）、深 **27190px / 2.098%**（命中 4/4），未归因 **0px**；全量 `pnpm test:visual:parity` **22/22 通过**（10 个已迁移路由 20 testName + 1 个待迁移路由 2 testName）。
+- **归档**：第七次滚动归档迁出第六路由窗口（`phase68-b2-link-governance`，85 行）至 `archive/2026-10-15-phase68-b2-link-governance.md`；`current.md` 由 484 行降至 398 行（归档后中间态），写入本窗口后为 464 行（`docs:check:line-count` 口径）。
+- **依赖同步（本批开工前置）**：按用户指令 `git pull --rebase` 同步远端 15 个 Dependabot 提交（本地 27 笔全部干净重放，**无冲突**），并复跑基线层 `pnpm test:visual` **14/14**、全量单测与 lint 确认依赖升级（`@lucide/vue` 1.55 / `zod` 4.6.6 等）无回归；`caomei-ui` 未被抬版（仍 `0.6.0`），不触发升级纪律。
+
+### 提交拆分依据（本批规模超 §2.8 单提交阈值的说明）
+
+本批工作树合计 **16 个路径 / 982 行新增**（`git diff --numstat` 新增列 + 未跟踪文件逐文件计数；**含首轮审计修复增量**——迁移方案 §6.2 补记与 `backlog.md` 行数同步，随笔 1 提交），超过「单提交 ≤10 文件 / ≤800 行新增」，按职责拆为 **4 笔**，每笔均在双阈值内：
+
+| # | 提交主题 | 文件数 | 新增行（逐文件复算） | 依赖顺序 |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | 治理记录：第七次滚动归档 + 第九路由窗口 / 校准记录 / 进度 | 7 | 187 | 无 |
+| 2 | 路由自有 composable 语义色口径 + 字段容器宽度口径 | 3 | 30 | 无 |
+| 3 | 页面迁移 + 路由登记 + E2E 矩阵 + parity 台账 | 5 | 370 | 依赖 2 |
+| 4 | 页面契约用例 | 1 | 395 | 依赖 3 |
+
+拆分依据：① 按「治理记录 / composable 与样式 / 实现与台账 / 测试」切分；② 语义色口径（composable）与字段宽度口径（样式）同笔，二者均为页面的前置依赖；③ 页面测试单独成笔（368 行），确保每笔 ≤800 行。
+
+### 未覆盖边界 / 观察项
+
+- **表格空态行高度差异**：caomei 空态行 97px vs PrimeVue 约 76px，使含表格的区块整体更高；属组件替换本身，已进允许清单。
+- **门禁无法覆盖本路由的数据行 / 标签渲染**（重要）：parity 环境**种子数据为空**，三表均渲染 `#empty` 空态 → `Tag` 的渲染（含首轮审计发现的「`CaomeiTag` 无 `value` prop 导致空标签」缺陷）**不在任何自动门禁的覆盖内**；该缺陷由首轮审计以源码 + SSR 产物取证发现并修复，已同步在迁移方案 §6.2 补记 `Tag` 可见文案陷阱。**建议**：为含状态标签的列表路由补一条数据行级断言（E2E 或组件级），封堵同类「桩自造 prop」漂移。
+- **`Select` 宽度口径的第三次出现**：本批在**字段容器**上放开 `--caomei-select-max-width`（上游 §1.1）。三次处置位置不同（包装元素 / 字段容器 / 字段容器），根因同一：caomei `Select` 的 `class` 只落触发器、宽度钩子在字段外层。**建议后续把该口径写入迁移方案 §6.2 的执行提示**（避免每个新路由重新踩一次）。
+- **语义色口径迁移**：`info` / `secondary` 两档为有损近似（§6.2），本批把三处 severity 函数统一改名并返回 tone；公开页 `pages/friend-links.vue` 有**同名但独立**的 `getHealthStatusSeverity`（未迁移，不在本批范围）。
+- **`fluid` 移除**：本批在 6 个 `InputText` 与 3 个 `Select` 上移除 `fluid`（caomei 字段默认全宽）；非在册族的 `InputNumber` / `Textarea` 仍保留 `fluid`（PrimeVue 语义，随 B3 批次处理）。
+
+<!-- regression-window:end:phase68-b2-friend-links:第六十八阶段-条目2-第九路由:2026-10-16 -->
 
 <!-- regression-window:start:phase68-caomei-drift-060:第六十八阶段-caomei漂移收口:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 caomei-ui 0.3.0 → 0.6.0 版本漂移收口
