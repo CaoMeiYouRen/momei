@@ -19,7 +19,7 @@
 ### 1.2 `optionValue` 对 `null` 选项静默不渲染
 
 - **现象**：`optionValue` 解析结果非 `string` / `number` 的选项**不渲染**；既有下游（PrimeVue `optionValue` 允许任意值）普遍用 `value: null` 表达「全部 / 不限」，迁移后该选项**静默消失**。
-- **实测**：momei 状态筛选的「全部」选项需改为哨兵字符串（如 `'__all__'`）+ 边界还原 `null` 才能保留；同类写法在 B2 多个列表页重复出现。
+- **实测**：momei 状态筛选的「全部」选项需改为哨兵字符串（如 `'__all__'`）+ 边界还原 `null` 才能保留；同类写法在 B2 多个列表页重复出现（`/admin/comments` 状态筛选、`/admin/users` 的角色 / 状态筛选与封禁弹窗的「永不过期」，均按该口径处置）。
 - **影响**：筛选器丢失「全部」选项，用户无法重置筛选（无报错提示）。
 - **建议**：对解析为 `null` / `undefined` 的选项在开发期给出告警；或支持 `null` 值选项（用独立哨兵区分「未选择」）。
 - **上游处置**：判定为**设计如此**——`optionValue` 非 `string` / `number` 不渲染属有意契约；其中「支持 `null` 值选项」的建议**不纳入**，判为有意契约，结论留档上游 Backlog **§3**。
@@ -88,6 +88,13 @@
 - **实测（momei 侧）**：单字段页面几乎不可见；`/admin/migrations/link-governance` 有 2 行**迁移字段**（第 1 行 `MultiSelect` 未迁移、两态同高），经累计后在卡片内产生**下游 1px 文本位移**（描述带 / 复选框行 / 动作行 / 下一卡片），表现为跨带「文本重影」差异（浅色 C 带 2229px / E 带 2574px）。
 - **建议**：在「从 PrimeVue 迁移」指引中说明字段行盒口径（高度 / padding / line-height 组合），或提供可对齐 PrimeVue 行盒高度的 token；便于下游在「保持几何不变」与「采用库侧口径」之间显式选择。
 - **上游处置**：判定为**口径项（文档缺口）**，登记于本清单 §2.5（**待上游落档**）。momei 侧本批按「接受 + 登记」处置——强行对齐需覆写 caomei 字段的 padding / line-height / font-size token，会改变库侧设计意图并波及已迁移路由的既有基线。
+
+### 2.6 `lazy` 只关分页、不关排序（服务端排序场景下仍会本地重排）
+
+- **现象**：`DataTable` 的 `lazy` 只映射到 `manualPagination`（产物内无 `manualSorting`），TanStack 的 sorted row model 始终生效；受控排序（提供 `sortField` / `sortOrder`）下表格仍会按同一 key 对**当前页**再排一次。
+- **实测（momei 侧）**：`/admin/users` 是首个接线**服务端排序**的迁移路由（PrimeVue `lazy` + `@sort` 语义为「不本地排序」）。迁移后点击表头会同时触发服务端重排与当前页本地重排；两者排序口径不一致时（如 DB collation vs 内置 `alphanumeric`）当前页顺序会被本地重排覆盖。
+- **建议**：提供 `manualSorting`（或让 `lazy` 同时关闭排序）开关；至少在文档中说明 `lazy` 与排序的关系。
+- **上游处置**：**待上游确认**。momei 侧本批按「接受 + 登记」处置：保持与迁移前一致的**不绑定受控排序 prop** 形态（排序指示器初始态与迁移前相同），并把 `@sort` 载荷（caomei 字符串 `'asc' | 'desc' | ''` ↔ PrimeVue 数值 `1 | -1 | 0`）的归一收敛在共享 composable 内。
 
 ## 3. 非问题（已在库文档声明为有意差异，仅记录）
 
