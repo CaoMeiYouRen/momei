@@ -55,6 +55,7 @@
 - **现象**：caomei `Avatar` 档位为 `sm`(24) / `md`(32) / `lg`(40)；PrimeVue 为 `normal` / `large` / `xlarge`。迁移需档位映射，且当 PrimeVue 侧使用更大档位时 caomei 无对应档位，只能以 `--caomei-avatar-size` 覆盖。
 - **建议**：补 `xl` 档位，或在 Avatar 页给出与 PrimeVue 的档位对照表。
 - **上游处置**：判定为**设计如此**（Avatar 档位少于 PrimeVue）。
+- **momei 侧落地（2026-10-15）**：过渡组件 `AppAvatarV2` 已按本条目口径实现几何保真映射——PrimeVue 有效档位 `normal`(32px) → caomei `md`(32px)；`large`(48px) / `xlarge`(64px) → caomei `lg` + 内联 `--caomei-avatar-size` 覆盖回 48 / 64px；PrimeVue 不存在的档位（如 `small`，实测被忽略并回落默认 2rem）一律回落 `md`(32px)。**不再产生边框盒尺寸缩水**（`font-size` 未覆盖，属 momei 侧已登记残差）。
 
 ### 2.2 `DataTable` 列的 `class` 与 scoped 样式
 
