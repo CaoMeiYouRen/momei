@@ -82,6 +82,11 @@
     }
 
     &__field {
+        // caomei `Select` 的 `class` 只落触发器、宽度 / `max-width` 钩子在字段外层
+        // （默认 `--caomei-select-max-width: 20rem` = 320px，上游反馈 §1.1）；
+        // 本页表单为 2 列栅格（每列约 330px）、审阅弹窗更宽，故在字段容器上放开上限。
+        --caomei-select-max-width: 100%;
+
         display: flex;
         flex-direction: column;
         gap: 0.5rem;

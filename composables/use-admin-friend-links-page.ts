@@ -3,7 +3,7 @@ import { useToast } from 'primevue/usetoast'
 import { FriendLinkApplicationStatus, FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 import { friendLinkSchema } from '@/utils/schemas/friend-link'
 
-interface FriendLinkCategory {
+export interface FriendLinkCategory {
     id: string
     name: string
     slug: string
@@ -12,7 +12,7 @@ interface FriendLinkCategory {
     isEnabled: boolean
 }
 
-interface FriendLinkItem {
+export interface FriendLinkItem {
     id: string
     name: string
     url: string
@@ -37,7 +37,7 @@ interface FriendLinkApplicant {
     email?: string | null
 }
 
-interface FriendLinkApplication {
+export interface FriendLinkApplication {
     id: string
     name: string
     url: string
@@ -154,18 +154,21 @@ export function useAdminFriendLinksPage() {
         })
     }
 
-    const getLinkStatusSeverity = (status: FriendLinkStatus) => {
+    // 语义色统一返回 caomei-ui 的 `tone` 词表（迁移方案 §6.2：`success→success`、`warning→warning`、
+    // `error/danger→danger`、`secondary/contrast→neutral`、`info→primary`），供本页 `CaomeiTag` 直接消费；
+    // 迁移前返回的是 PrimeVue `severity` 词表（`info` / `secondary` 两档为有损近似）。
+    const getLinkStatusTone = (status: FriendLinkStatus) => {
         switch (status) {
             case FriendLinkStatus.ACTIVE:
                 return 'success'
             case FriendLinkStatus.DRAFT:
-                return 'info'
+                return 'primary'
             default:
-                return 'secondary'
+                return 'neutral'
         }
     }
 
-    const getHealthStatusSeverity = (status?: FriendLinkHealthStatus | null) => {
+    const getHealthStatusTone = (status?: FriendLinkHealthStatus | null) => {
         switch (status) {
             case FriendLinkHealthStatus.HEALTHY:
                 return 'success'
@@ -174,20 +177,20 @@ export function useAdminFriendLinksPage() {
             case FriendLinkHealthStatus.CHECKING:
                 return 'warning'
             default:
-                return 'secondary'
+                return 'neutral'
         }
     }
 
-    const getApplicationStatusSeverity = (status: FriendLinkApplicationStatus) => {
+    const getApplicationStatusTone = (status: FriendLinkApplicationStatus) => {
         switch (status) {
             case FriendLinkApplicationStatus.APPROVED:
                 return 'success'
             case FriendLinkApplicationStatus.REJECTED:
                 return 'danger'
             case FriendLinkApplicationStatus.ARCHIVED:
-                return 'secondary'
+                return 'neutral'
             default:
-                return 'info'
+                return 'primary'
         }
     }
 
@@ -449,9 +452,9 @@ export function useAdminFriendLinksPage() {
         categoryForm,
         reviewForm,
         linkStatusOptions,
-        getLinkStatusSeverity,
-        getHealthStatusSeverity,
-        getApplicationStatusSeverity,
+        getLinkStatusTone,
+        getHealthStatusTone,
+        getApplicationStatusTone,
         formatDateTime,
         shouldSuggestReviewOrDisable,
         loadLinks,
