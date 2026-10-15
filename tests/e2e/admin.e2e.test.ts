@@ -90,7 +90,7 @@ test.describe('Admin E2E Tests', () => {
         test.setTimeout(60000)
 
         const routeMatrix = [
-            ['/admin/users', '.p-datatable, .admin-page-container'],
+            ['/admin/users', '.caomei-data-table, .user-management'],
             ['/admin/comments', '.caomei-data-table, .admin-page-container'],
             ['/admin/submissions', '.caomei-data-table, .admin-page-container'],
             ['/admin/friend-links', '.admin-friend-links, .p-datatable'],

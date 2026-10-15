@@ -88,6 +88,19 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-users-list',
+        path: '/admin/users',
+        heading: '用户管理',
+        tier: 'admin',
+        migrated: true,
+        stable: 'lenient',
+        /* 用户列表数据由 better-auth admin 接口异步返回：锚定该响应 + 首个数据行，
+         * 避免固定超时下「空表 ↔ 1 行」导致参考态不可复现。
+         * 迁移后数据行选择器改为 caomei `DataTable` 的行类（迁移前为 `.p-datatable-tbody tr`）。 */
+        readyResponse: '/api/auth/admin/list-users',
+        readySelector: '.caomei-data-table__row',
+    },
 ]
 
 export const PENDING_ROUTES: ParityRoute[] = [
@@ -97,18 +110,6 @@ export const PENDING_ROUTES: ParityRoute[] = [
         heading: '文章管理',
         tier: 'admin',
         migrated: false,
-    },
-    {
-        name: 'admin-users-list',
-        path: '/admin/users',
-        heading: '用户管理',
-        tier: 'admin',
-        migrated: false,
-        stable: 'lenient',
-        /* 用户列表数据由 better-auth admin 接口异步返回：锚定该响应 + 首个数据行，
-         * 避免固定超时下「空表 ↔ 1 行」导致参考态不可复现。 */
-        readyResponse: '/api/auth/admin/list-users',
-        readySelector: '.p-datatable-tbody tr',
     },
     {
         name: 'admin-friend-links-list',

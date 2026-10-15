@@ -4,7 +4,7 @@
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 16 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 18 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
     },
     "tiers": {
         "reader": {
@@ -414,15 +414,72 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）。2026-10-14 修复参考态不可复现：时间列加 `data-visual-mask` 遮蔽动态相对时间，并把视觉等待锚定到用户列表渲染完成（list-users 响应 + 首行出现）后重采参考态，实测差异回到 0px。admin 档预算收紧至 3000px / 0.35%。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 160,
+                        "width": 1120,
+                        "height": 200
+                    },
+                    "pixels": 12613,
+                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1160,
+                        "y": 320,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 1020,
+                    "reason": "分页器（caomei 实边框按钮 vs PrimeVue 文本式，居中口径由 `--caomei-data-table-pagination-justify` 保持）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1200,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 386,
+                    "reason": "头部刷新按钮：`CaomeiButton`（secondary 描边）相对 PrimeVue `Button`（`severity=\"secondary\"`）的边框 / 底纹 / 排版差异；暗色主题下两者底色差异显著（区域像素与既有 `/admin/waitlist`、`/admin/subscribers` 同位置一致）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 14019px / 1.082%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 14019px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +21%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。"
         },
         "admin-users-list-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）。2026-10-14 修复参考态不可复现：时间列加 `data-visual-mask` 遮蔽动态相对时间，并把视觉等待锚定到用户列表渲染完成（list-users 响应 + 首行出现）后重采参考态，实测差异回到 0px。admin 档预算收紧至 3000px / 0.35%。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 160,
+                        "width": 1120,
+                        "height": 240
+                    },
+                    "pixels": 16079,
+                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1200,
+                        "y": 80,
+                        "width": 120,
+                        "height": 80
+                    },
+                    "pixels": 2752,
+                    "reason": "头部刷新按钮：`CaomeiButton`（secondary 描边）相对 PrimeVue `Button`（`severity=\"secondary\"`）的边框 / 底纹 / 排版差异；暗色主题下两者底色差异显著（区域像素与既有 `/admin/waitlist`、`/admin/subscribers` 同位置一致）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 18831px / 1.453%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 18831px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +16%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。"
         },
         "admin-friend-links-list-light": {
             "tier": "admin",

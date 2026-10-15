@@ -151,24 +151,27 @@ test.describe('Admin Workflow E2E Tests', () => {
     })
 
     test.describe('Admin Users Management', () => {
+        /* 本块为历史 `test.skip` 用例：选择器已随 `/admin/users` 迁移刷新，
+         * 但 `should filter users by role` 内的 `.role-select` 在迁移前后均不存在
+         * （筛选器为 `CaomeiSelect`，无该 class），启用前需一并重写。 */
         test.skip('should display users list', async ({ page }) => {
             await page.goto('/admin/users')
 
-            // 验证用户列表容器存在
-            await expect(page.locator('.admin-page-container')).toBeVisible()
+            // 验证用户列表容器存在（迁移后为 `.user-management`）
+            await expect(page.locator('.user-management')).toBeVisible()
 
-            // 验证搜索框存在
-            await expect(page.locator('.admin-filters')).toBeVisible()
+            // 验证筛选行存在（迁移后为 `.user-filters`）
+            await expect(page.locator('.user-filters')).toBeVisible()
 
-            // 验证数据表格存在
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            // 验证数据表格存在（`/admin/users` 已迁移到 caomei-ui）
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
 
         test.skip('should filter users by role', async ({ page }) => {
             await page.goto('/admin/users')
 
             // 等待页面加载
-            await page.waitForSelector('.p-datatable', { timeout: 5000 })
+            await page.waitForSelector('.caomei-data-table', { timeout: 5000 })
 
             // 点击角色下拉框
             await page.click('.role-select')
