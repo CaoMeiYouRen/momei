@@ -44,6 +44,7 @@
                 "last_active": "最后活跃",
                 "no_active_sessions": "暂无活跃会话",
                 "revoke_all": "一键下线所有会话",
+                "revoke_session": "下线该会话",
                 "role": "角色",
                 "roles": {
                     "admin": "管理员",

@@ -44,6 +44,7 @@
                 "last_active": "最後活躍",
                 "no_active_sessions": "目前沒有活躍工作階段",
                 "revoke_all": "一鍵下線所有工作階段",
+                "revoke_session": "下線該工作階段",
                 "role": "角色",
                 "roles": {
                     "admin": "管理員",

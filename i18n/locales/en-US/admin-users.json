@@ -44,6 +44,7 @@
                 "last_active": "Last Active",
                 "no_active_sessions": "No active sessions",
                 "revoke_all": "Revoke All Sessions",
+                "revoke_session": "Sign out this session",
                 "role": "Role",
                 "roles": {
                     "admin": "Administrator",

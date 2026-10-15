@@ -1,4 +1,5 @@
 <template>
+    <!-- `Drawer` 属浮层显式豁免（迁移方案 §5.5）：留待第六十九阶段，此处保持 PrimeVue。 -->
     <Drawer
         :visible="visible"
         position="right"
@@ -8,10 +9,10 @@
         <template #header>
             <div class="sessions-header">
                 <span class="sessions-header__title">{{ $t('pages.admin.users.sessions') }}</span>
-                <Badge
+                <CaomeiBadge
                     v-if="user"
                     :value="user.name || undefined"
-                    severity="info"
+                    tone="primary"
                 />
             </div>
         </template>
@@ -29,19 +30,25 @@
                 <div class="session-card__header">
                     <div class="session-card__info">
                         <span class="session-card__device">
+                            <!-- 图标全量替换属 B4 批次（迁移方案 §7）：此处 `<i class="pi ...">` 为非在册族用法，保持 primeicons。 -->
                             <i :class="getDeviceIcon(session.userAgent)" />
                             {{ parseUserAgent(session.userAgent) }}
                         </span>
                         <span class="session-card__meta">{{ session.ipAddress }}</span>
                     </div>
-                    <Button
-                        icon="pi pi-sign-out"
-                        severity="danger"
-                        size="small"
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
                         rounded
-                        text
+                        tone="danger"
+                        size="sm"
+                        :label="$t('pages.admin.users.revoke_session')"
                         @click="revokeSession(session.token)"
-                    />
+                    >
+                        <template #icon>
+                            <LogOut :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </div>
                 <div class="session-card__footer">
                     <span>{{ $t('pages.admin.users.last_active') }}: {{ d(session.updatedAt) }}</span>
@@ -53,20 +60,24 @@
                 {{ $t('pages.admin.users.no_active_sessions') }}
             </div>
 
-            <Button
+            <CaomeiButton
                 v-if="sessions.length > 0"
-                :label="$t('pages.admin.users.revoke_all')"
-                severity="danger"
-                icon="pi pi-power-off"
+                tone="danger"
                 class="sessions-revoke-all"
                 :loading="revokingAll"
                 @click="revokeAllUserSessions"
-            />
+            >
+                <template #icon>
+                    <Power :size="16" />
+                </template>
+                {{ $t('pages.admin.users.revoke_all') }}
+            </CaomeiButton>
         </div>
     </Drawer>
 </template>
 
 <script setup lang="ts">
+import { LogOut, Power } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 import { useConfirm } from 'primevue/useconfirm'
 import type { ManagedUser } from '@/types/admin-user-management'

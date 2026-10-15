@@ -44,6 +44,7 @@
                 "last_active": "最終アクティブ",
                 "no_active_sessions": "アクティブなセッションはありません",
                 "revoke_all": "全セッションを一括無効化",
+                "revoke_session": "このセッションからサインアウト",
                 "role": "ロール",
                 "roles": {
                     "admin": "管理者",

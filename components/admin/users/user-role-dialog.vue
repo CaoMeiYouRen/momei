@@ -1,4 +1,5 @@
 <template>
+    <!-- `Dialog` 属浮层显式豁免（迁移方案 §5.5）：留待第六十九阶段，此处保持 PrimeVue。 -->
     <Dialog
         :visible="visible"
         :header="$t('pages.admin.users.edit_role')"
@@ -8,26 +9,31 @@
     >
         <div class="user-management__dialog-content">
             <label class="user-management__dialog-label">{{ $t('pages.admin.users.select_role') }}</label>
-            <Select
-                v-model="selectedRole"
-                :options="roleValues"
-                option-label="label"
-                option-value="value"
-                class="w-full"
-            />
+            <!-- caomei `Select` 的 `class` 只落触发器、宽度钩子在字段外层（默认 `--caomei-select-max-width: 20rem`
+                 = 320px），故用包装元素放开上限取满容器（上游反馈 §1.1）；`class="w-full"` 直接写在组件上静默无效。 -->
+            <div class="user-management__select-field">
+                <CaomeiSelect
+                    v-model="selectedRole"
+                    :options="roleValues"
+                    option-label="label"
+                    option-value="value"
+                />
+            </div>
         </div>
         <template #footer>
-            <Button
-                :label="$t('common.cancel')"
-                severity="secondary"
-                text
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
                 @click="$emit('update:visible', false)"
-            />
-            <Button
-                :label="$t('common.save')"
+            >
+                {{ $t('common.cancel') }}
+            </CaomeiButton>
+            <CaomeiButton
                 :loading="loading"
                 @click="handleSave"
-            />
+            >
+                {{ $t('common.save') }}
+            </CaomeiButton>
         </template>
     </Dialog>
 </template>
@@ -84,6 +90,12 @@ const handleSave = async () => {
 </script>
 
 <style lang="scss" scoped>
+/* caomei `Select` 的宽度 / `max-width` 钩子在字段外层（`class` 只落触发器），
+   故以包装元素放开 `20rem` 上限取满容器（上游反馈 §1.1）。 */
+.user-management__select-field {
+    --caomei-select-max-width: 100%;
+}
+
 .user-management__dialog {
     width: 100%;
     max-width: 24rem;

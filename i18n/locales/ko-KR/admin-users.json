@@ -44,6 +44,7 @@
                 "last_active": "마지막 활동",
                 "no_active_sessions": "활성 세션이 없습니다",
                 "revoke_all": "모든 세션 종료",
+                "revoke_session": "이 세션에서 로그아웃",
                 "role": "역할",
                 "roles": {
                     "admin": "관리자",
