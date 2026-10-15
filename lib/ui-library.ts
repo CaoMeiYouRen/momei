@@ -14,17 +14,40 @@
 export type UiLibrarySource = 'primevue' | 'caomei-ui'
 
 /**
+ * 批次在册组件族（PrimeVue 名）：已迁移路由的页面文件中不得以 PrimeVue 组件形式残留。
+ *
+ * 与迁移方案 §5.5 的说明同源——本常量是该说明的**可执行形态**，供结构守卫直接消费，
+ * 避免「文档里的清单」与「守卫里的清单」两处漂移。
+ * `Dropdown` 是 PrimeVue `Select` 的旧名（迁移方案 §6.1 C 组：`Dropdown` → `CaomeiSelect`）：
+ * 计入在册族是**加固**，否则页面改用旧名即可绕过「Select 零残留」的意图。
+ */
+export const CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS = [
+    'Button',
+    'IconField',
+    'InputIcon',
+    'InputText',
+    'Select',
+    'Dropdown',
+    'DataTable',
+    'Column',
+    'Tag',
+    'Badge',
+    'Avatar',
+    'Skeleton',
+    'ToggleSwitch',
+    'Paginator',
+] as const
+
+/**
  * 已整路由迁移到 caomei-ui 的路由前缀（单点事实源）。
  *
  * 迁移期初始为空数组；每完成一个路由的整体迁移后在此登记（批次划分见
  * `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` 的分批执行计划章节）。
  * 登记项使用路由前缀语义：登记 `/admin/posts` 表示该路由及其子路由已迁移。
  *
- * 在册组件族（本批）范围：DataTable / Column（列插槽·选择·排序·lazy·分页）、Paginator、Tag、
- * Button、InputText、Select（含旧名 Dropdown，见迁移方案 §6.1 C 组）、Badge、ToggleSwitch、
- * IconField / InputIcon、Skeleton、Avatar。
- * 显式豁免：全局壳 `Toast` / `ConfirmDialog`、延后批次的浮层（Dialog / Drawer / Popover /
- * DropdownMenu，含 `ConfirmDeleteDialog`）、跨路由共享壳与 `v-tooltip` 指令。
+ * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，
+ * 避免与守卫各持一份）；显式豁免清单（全局壳 `Toast` / `ConfirmDialog`、延后批次浮层、`v-tooltip` 指令）
+ * 以迁移方案 §5.5 为唯一载体（跨路由共享壳走「过渡组件」而非豁免）。
  */
 export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
     '/admin/comments',
