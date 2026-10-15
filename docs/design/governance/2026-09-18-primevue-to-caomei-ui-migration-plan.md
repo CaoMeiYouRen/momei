@@ -273,15 +273,29 @@ pnpm governance:count:primevue-usage
 | 类别 | 组件 | PrimeVue 依赖 | 消费者 | 处置 |
 | :--- | :--- | :--- | :--- | :--- |
 | 无需处理 | `AdminPageHeader` / `AdminListShell` / `AdminTableEmptyState` / `useDeleteDialogState` | 无 | 多路由 | 已是 PrimeVue-free（`AdminPageHeader` 已完成路由择库） |
-| 已完成 | `AdminContentLanguageSwitcher` → `…-v2.vue` | `Select` | 共享头部 | M4 已落地（路由择库） |
-| **待新增过渡组件** | `AppAvatar` → `AppAvatarV2` | `Avatar` | B2：users / subscribers；非 B2：`pages/posts/[id]`、`comment-item`、`settings-profile` | 过渡组件 + 组件内按路由择库（避免公开页头像被动改变） |
-| **待新增过渡组件** | `AppUploader` → `AppUploaderV2` | `InputGroup` / `InputText` / `Button` | B2：friend-links；非 B2：`friend-links`（公开页）、`general-settings`、`post-editor-media-settings`、`commercial-link-dialog` | 同上 |
+| 已完成 | `AdminContentLanguageSwitcher` → `…-v2.vue` | `Select` | 共享头部 | M4 已落地——**消费处静态择库**（由 `AdminPageHeader` 按事实源选择实现，属下方机制表的第二类） |
+| **已落地**（2026-10-15） | `AppAvatar` → `components/app-avatar-v2.vue` | `Avatar` | B2：users / subscribers；非 B2：`pages/posts/[id]`、`comment-item`、`settings-profile` | **组件内按路由择库**（`resolveUiLibraryForRoutePath`）+ 未迁移路由回退 V1，故可在任意路由安全采用（避免公开页头像被动改变）；档位映射见上游反馈 §2.1 |
+| **已落地**（2026-10-15） | `AppUploader` → `components/app-uploader-v2.vue` | `InputGroup` / `InputText` / `Button` | B2：friend-links；非 B2：`friend-links`（公开页）、`general-settings`、`post-editor-media-settings`、`commercial-link-dialog` | 同上机制；字段行为（文件选择 / 拖放 / 上传回写）抽到 `composables/use-app-uploader-field.ts` 供两版共用，外壳样式抽到 `components/app-uploader.scss` |
 | 显式豁免 | `ConfirmDeleteDialog` | `Dialog` / `Button` | 8 个 admin 列表页 | 浮层类，随第六十九阶段 |
 | 显式豁免 | 页面内 `Dialog` / `Drawer` / `ConfirmDialog` / `Popover` / `useConfirm` / `v-tooltip` | 多种 | 各页 | 浮层/指令类，随第六十九阶段 |
-| 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡） |
-| 跨路由共享（延后） | `components/admin/posts/{post-audit-badge,post-audit-dialog,publish-push-dialog}.vue` | `Tag` / `Image` / `Dialog` / `ProgressBar` / `RadioButton` / `DatePicker` / `Button` | B2：posts 列表；非 B2：`/admin/posts/[id]` | 与 `/admin/posts/[id]` 同期迁移，或列表批次内做过渡（否则编辑器路由被动混用） |
+| 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡）。同理 `components/admin/posts/post-media-preview-cell.vue` 仅被列表页消费，亦随该页直接迁移 |
+| **已落地**（2026-10-15） | `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` | `Tag` / `Button`（浮层与表单控件保持 PrimeVue） | B2：posts 列表；非 B2：`/admin/posts/[id]`（继续用 V1） | **消费处静态择库**：本族为 admin 专属、消费者恰好两个（一迁移一未迁移）的有状态 / 多 prop 壳，组件内择库会让状态与 `open()` 语义出现第二份事实源；故由已迁移路由直接用 V2、编辑器路由继续用 V1。`publish-push-dialog` 的状态语义抽到 `composables/use-publish-push-dialog.ts` 供两版共用 |
 | 跨路由共享（延后） | `components/admin/settings/{agreements-settings,notification-delivery-log-list,setting-audit-log-list,admin-notification-settings}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue`、`setting-form-field`、`admin-floating-actions` | `DataTable` / `Tag` / `Button` 等 | host 路由 `/admin/settings`（B3） | **随 B3 迁移**（否则 B3 页面被动混用、且 `/admin/settings` 已有截图基线） |
 | 组件型目标 | `admin-taxonomy-page.vue`、`ai/task-list.vue`、`marketing-campaign-list.vue` | `DataTable` / `Tabs` / `Dialog` 等 | host：`/admin/categories` + `/admin/tags`、`/admin/ai`、`/admin/marketing` | 随各自 host 路由整路由迁移 |
+
+**过渡组件的两种择库机制与判定口径（2026-10-15 补记）**：
+
+同一批过渡组件采用两种机制，判定依据是**消费者数量与组件状态量**，不是偏好：
+
+| 机制 | 适用判定 | 已落地组件 | 收益 |
+| :--- | :--- | :--- | :--- |
+| **组件内按路由择库** | 跨边界展示型壳：消费者多（≥3）且横跨公开页与 admin，组件自身无业务状态 | `AppAvatarV2` / `AppUploaderV2` | 只有一个采用点，且可在任意路由安全采用（漏改 / 误用不会破坏未迁移路由）；V1 仅作为未迁移分支被引用 |
+| **消费处静态择库** | 消费者为**单一择库点**（共享头 / 路由入口），或消费者恰好两个（一迁移一未迁移）且组件**持有状态、`open()` / `expose` 语义，或承载多 prop / 事件契约（`emit`）**（后者使组件内择库会复制契约而非状态，同样应避免） | posts 三件套（`…-v2.vue`）、`admin/content-language-switcher-v2.vue`（择库点 `AdminPageHeader`） | 不产生第二份状态与 `open()` 语义；未迁移消费者保持 V1 不动 |
+
+两种机制都以 `lib/ui-library.ts` 为**路由 → 组件来源**的单一事实源：组件内择库直接调用 `resolveUiLibraryForRoutePath`；
+消费处择库的静态选择与登记表保持一致（已迁移路由用 V2，未迁移路由用 V1）。
+
+结构守卫：`tests/modules/ui-library-transition-component-guard.test.ts` 锁住「过渡组件的 caomei 分支不得残留在册族 PrimeVue 组件」与「机制声明与实现一致（组件内择库必须引用事实源；消费处择库不得引用）」。
 
 **上游缺口已闭合的差异（2026-10-13 补记，`caomei-ui@0.4.0+`）**：本清单产出时（基于 `0.2.0`）记录的 3 条「真实缺口」已由库侧 `0.4.0` 交付，B2 剩余页**不再需要**下列行内补丁：
 

@@ -370,6 +370,79 @@
 
 <!-- regression-window:end:phase68-b2-link-governance:第六十八阶段-条目2-第六路由:2026-10-15 -->
 
+<!-- regression-window:start:phase68-transition-shells:第六十八阶段-条目2-过渡组件基建:2026-10-15 -->
+## 2026-10-15 第六十八阶段 条目 2 过渡组件基建（共享壳 5 件套）
+
+### 范围
+
+条目 2 剩余 4 条路由（`subscribers` / `users` / `friend-links` / `posts`）均因**共享壳混用**而无法直接整路由切换，故先落过渡组件基建。本批**不迁移任何路由**（`CAOMEI_UI_ROUTE_PREFIXES` 不变），只交付过渡组件、共享行为/状态 composable、样式块抽取与结构守卫。
+
+产出：`AppAvatarV2`、`AppUploaderV2`、`PostAuditBadgeV2`、`PostAuditDialogV2`、`PublishPushDialogV2` 共 5 个过渡组件 + 2 个共享 composable + 3 个样式块抽取 + 1 个新守卫 + 在册族清单单点化。
+
+### 两种择库机制（判定口径见迁移方案 §5.5）
+
+| 机制 | 判定 | 组件 | 关键实现 |
+| :--- | :--- | :--- | :--- |
+| 组件内按路由择库 | 跨边界展示型壳：消费者 ≥3 且横跨公开页与 admin，组件自身无业务状态 | `AppAvatarV2`、`AppUploaderV2` | 内部调用 `resolveUiLibraryForRoutePath`，未迁移路由回退 V1；可在任意路由安全采用 |
+| 消费处静态择库 | admin 专属、消费者恰好两个（一迁移一未迁移）、组件持有状态或 `open()` / `expose` 语义 | posts 三件套（+ M4 既有 `content-language-switcher-v2`） | 组件为纯 caomei 实现；已迁移路由直接用 V2，编辑器路由继续用 V1（避免第二份 `open()` 语义） |
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `components/app-avatar-v2.vue`（新增） | 过渡头像：内部择库 + V1 回退；`image`→`src`、姓名首字母→`fallback`；**档位映射** `small/normal/large/xlarge` → `sm/md/lg`（`xlarge` 有损落 `lg`，上游 §2.1）；`shape` 缺省补 PrimeVue 默认值 `square` 以免两分支分叉 | §5.5 / §6.2 / 上游 §2.1 |
+| `components/app-uploader-v2.vue`（新增） | 过渡上传字段：内部择库 + V1 回退；`CaomeiInputGroup` + `CaomeiInput` + 纯图标 `CaomeiButton`（补可访问名）；`modelValue` 读写归一（caomei `Input` 的 model 为 `string`） | §5.5 / §6.2 |
+| `composables/use-app-uploader-field.ts`（新增） | 抽出两版共用的字段行为（文件选择 / 拖放 / 上传回写 / 上传中与禁用阻断），避免「只修好一版」 | 复用优先（全局规范） |
+| `composables/use-publish-push-dialog.ts`（新增） | 抽出两版共用的弹窗状态与语义（`open()` 回填、非法日期容错、`confirm` 载荷形状），不持有 `visible` | 同上 |
+| `components/admin/posts/post-audit-badge-v2.vue`（新增） | 过渡审计徽标：纯 caomei（消费处择库）；三态（图标按钮 / 加载 Tag / 结果 Tag）+ `tone` 映射（`info`→`primary`、`warn`→`warning`）+ 自备旋转动画 + 补可访问名 | §5.5 / §6.2 |
+| `components/admin/posts/post-audit-dialog-v2.vue`（新增） | 过渡审计详情浮层：**浮层 `Dialog` 与 `ProgressBar` 保持 PrimeVue**，仅内部 `Button` / `Tag` 迁移；页脚可见文案落默认插槽（`label` 只映射可访问名） | §5.5 / §6.2 |
+| `components/admin/posts/publish-push-dialog-v2.vue`（新增） | 过渡发布确认浮层：**`Dialog` / `RadioButton` / `DatePicker` 保持 PrimeVue**，仅页脚 `Button` 迁移；`severity="contrast"` → `tone="neutral"`（§6.2 有损近似）；与 V1 共用状态 composable 并保持同一 `open()` / `expose` 契约 | §5.5 / §6.2 |
+| `components/{app-uploader,admin/posts/post-audit-dialog,admin/posts/publish-push-dialog}.scss`（新增） | 样式块抽取为独立 scss，供 V1 / V2 共用（**逐字搬迁**：`post-audit-dialog` / `publish-push-dialog` 与 HEAD 样式块逐字一致；`app-uploader` 仅多共享说明注释与一行空行，规则体一致） | 复用优先（全局规范） |
+| `components/app-uploader.vue` / `components/admin/posts/{post-audit-dialog,publish-push-dialog}.vue`（改） | V1 改为引用共享 composable 与独立样式块（脚本逻辑等价搬移） | 同上 |
+| `lib/ui-library.ts`（改） | 新增并导出 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`——把原先只存在于「文档说明 + 守卫本地常量」的在册族清单收敛为**单点事实源**（含 `Dropdown` 加固项） | §5.5 |
+| `tests/modules/ui-library-guard-helpers.ts`（新增） | 抽出「零残留」扫描口径（注释剥离 / 显式导入扣除 / 标签边界匹配），供两个守卫共用 | 避免两处漂移 |
+| `tests/modules/ui-library-route-migration-guard.test.ts`（改） | 改为从单点事实源与共享辅助导入（原 24 条用例口径不变） | 同上 |
+| `tests/modules/ui-library-transition-component-guard.test.ts`（新增） | 过渡组件结构守卫：① `components/**` 下 `*-v2.vue` 必须全部登记；② 过渡组件内不得残留在册族 PrimeVue 组件且至少渲染一个 caomei 组件；③ 机制声明与实现一致（组件内择库必须**导入并调用**事实源、且保留 V1 回退分支；消费处择库不得引用） | §5.5 |
+| 5 个过渡组件测试文件 + 2 个「两版契约等价」测试文件（新增） | 77 条用例：过渡组件侧 53 条（两条分支渲染、档位 / 色调映射、事件与载荷、`open()` 回填与日期容错、`expose` 契约、`extra` 插槽、委托分支 props 透传与上传失败不写回、被替换组件保持 PrimeVue 的边界）；**契约等价侧 24 条**——`publish-push-dialog` 用**同一套行为断言跑 V1 与 V2**（9×2：含浮层标题 / 宽度 / 模态、三档选项 `input-id` 集合、criteria 提示文案）证明消费处替换安全并补齐此前无直接单测的 V1，`post-audit-dialog` 断言**两版正文与页脚内容逐项一致**（分值 / 区块标题 / 因子行 / 建议 / 缓存时间 / 进度条 / 浮层标题 / 页脚文案），使「V2 复刻 V1 正文」的临时重复漂移可被检出 | §8.2 层 ① |
+
+### 验证结果
+
+- **层 ①（单元）**：新增 **77** 条（过渡组件 53：`app-avatar-v2` 12 / `app-uploader-v2` 15 / `post-audit-badge-v2` 6 / `post-audit-dialog-v2` 11 / `publish-push-dialog-v2` 9；契约等价 24：`publish-push-dialog.contract` 18 / `post-audit-dialog.contract` 6）+ 过渡组件结构守卫 **16** 条；`pnpm test` **548 文件 / 4698 用例通过**（1 skipped；较上一批 540/4605 为 +8 文件 / +93 用例 = 77 + 16）；`pnpm typecheck` EXIT 0；`pnpm lint` 0 error（7 条既有 warning）；`pnpm lint:css` 通过。
+- **结构守卫负向验证（3 例，均已还原）**：① 向 `app-avatar-v2.vue` 注入 `<Button label="x" />` → 零残留用例失败；② 把 `resolveUiLibraryForRoutePath(` 改名为 `…Renamed(` → 机制用例失败；③ 把事实源导入改到 `@/lib/ui-library-other` → 机制用例失败。第 ② 例首轮**未被抓到**（裸字符串包含判定被改名骗过），故把判定改为「调用 + 导入来源」双正则后复验通过。
+- **层 ③（截图识别 · 门禁层）**：`pnpm test:visual:parity` **22/22 通过**（本批未改任何已迁移路由的渲染路径，属零回归确认）。
+- **层 ③（截图识别 · 基线层）**：`pnpm test:visual` **14/14 通过**（含 `/admin/posts` 列表页——其 `PostAuditBadge` 仍走 V1；`post-audit-dialog` / `publish-push-dialog` 的样式块抽取与脚本搬移随之验证）。
+- **首轮审计（4 分区并发）**：分区一（avatar / uploader）**Pass**、分区二（posts 三件套）**Pass**、分区三（测试质量）**Pass**；分区四（守卫 + 文档）**Reject**（2 blocker + 5 warning）。已闭环：`lib/ui-library.ts` 新常量**截断 `CAOMEI_UI_ROUTE_PREFIXES` 的 JSDoc 锚点**（文档丢失，已把常量移到该 JSDoc 之前并把在册族枚举改为指针）、**注释声称未迁移路由「已迁移」**（`/admin/posts`、`users` / `subscribers` / `friend-links` 实为「B2 目标路由，本批只交付壳」，已统一改为如实口径）、`AppAvatarV2` 改为**显式 `inheritAttrs: false` + `v-bind="$attrs"`**（不再依赖 Vue 对组件根的隐式 fallthrough）、`fallbackText` 无姓名时传 `undefined`（保留 caomei 回退到 `alt` 首字母的默认能力）、补 `alt` 与 `severity="secondary"` 口径到**组件级差异清单**（`AppAvatarV2` / `AppUploaderV2` 文件头注释；§6.2 表为跨组件映射规则，不逐属性收录组件级补充）、`app-uploader.scss` 补 `--p-primary-*` 的**收口指针**、`usePublishPushDialog` 不再对外暴露未被消费的 `parsePublishedAt`、按审计建议补 8 条断言（上传失败不写回 / 拖放离开清类 / 两分支 class 透传 / 契约侧浮层标题与选项集合与提示文案）；分区四 blocker/warning 闭环：`backlog.md` 行数口径改为脚本实测值（首轮修复时为 628 行；本窗口补「提交拆分依据」后最终为 **645 行 / 余量 55 行**，以 `backlog.md` 记载为准）、窗口构成数字同步、**守卫两处盲区**（机制判定「注释盲」——把真实导入与调用改成注释即可通过；注册表只扫 `components/**/*-v2.vue`——`*-v3.vue` / `FooV2.vue` / `pages/**` 形态漏扫）已修并复验（注释化注入与命名族外探针文件现均被拦下）、机制判定兼容别名 / 命名空间导入、§5.5 机制表补 `content-language-switcher-v2` 并把判定改写为「消费者为单一择库点或恰好两个」、`lib/ui-library.ts` JSDoc 方向与豁免清单指针修正、M4 行标签改为「消费处静态择库」。
+- **V1 重构等价性**：三个样式块抽取的**逐字一致性已用脚本核验**（见上表）；`app-uploader` 的 4 条原单测与 6 个消费方测试文件（`friend-links` 管理页 / 公开页、`general-settings`、`commercial-link-manager`、`post-editor-media-settings`、`posts/index`）共 35 条用例全部通过。
+
+### 提交拆分依据（本批规模超 §2.8 单提交阈值的说明）
+
+本批工作树合计 **28 个路径 / 3226 行新增**（`git diff --numstat` 的新增列 + 未跟踪文件行数），远超「单提交 ≤10 文件 / ≤800 行新增」。按模块与依赖顺序拆为 **7 个提交**，每笔均在双阈值内；**文件数合计 28、行数合计 3226，与工作树逐项吻合**：
+
+| # | 提交主题 | 文件数 | 新增行 | 依赖顺序 |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | avatar / uploader 过渡组件实现 + 共享字段 composable + 共享外壳样式 | 5 | 385 | 无（被 2 依赖） |
+| 2 | avatar / uploader 单元测试 | 2 | 553 | 依赖 1 |
+| 3 | posts 三件套实现 + 共享状态 composable + 两个样式块抽取 | 8 | 780 | 依赖 1 |
+| 4 | posts 三件套单元测试 | 3 | 591 | 依赖 3 |
+| 5 | 两版契约等价测试（`publish-push-dialog` / `post-audit-dialog`） | 2 | 473 | 依赖 3 |
+| 6 | 结构守卫（共享扫描辅助 / 过渡组件守卫 / 路由守卫重构）+ 在册族清单导出 | 4 | 350 | 依赖 1、3（守卫要遍历已落地的过渡组件；`lib` 导出被守卫消费） |
+| 7 | 文档与治理记录（迁移方案 §5.5、本窗口、`todo`、`backlog`） | 4 | 94 | 依赖全部（记录最终状态） |
+
+拆分依据：① 按「实现 / 测试 / 守卫 / 文档」四类职责切分，每笔可独立评审；② 保持依赖顺序，任何单笔 checkout 后守卫与测试都不会指向不存在的文件；③ 单笔规模上限由测试文件体量决定（`app-uploader-v2.test.ts` 343 行、`publish-push-dialog.contract.test.ts` 277 行等），故测试必须分笔（三件套单测与契约等价测试分开）才能不越 800 行线；④ 表中行数为**逐文件复算值**（`git diff --numstat` 新增列 + 未跟踪文件 `splitlines()` 计数），非估算。提交信息内亦逐笔记录拆分依据。
+
+### 未覆盖边界 / 观察项
+
+- **过渡组件尚未被任何路由采用**：5 个 V2 的 caomei 分支当前**只有单元层覆盖**（视觉层需等各路由迁移批次把它们纳入页面后才生效）。故本批不产生任何路由级视觉变化，门禁层 22/22 属「零回归确认」而非「新界面验证」。
+- **基线层不覆盖 `AppUploader`（实测结论）**：向 `app-uploader.scss` 注入 3px 红色描边后重跑 `admin-settings-form` 基线仍 **2 passed**——即该组件不在该基线视口内。因此本批三处 V1 重构的「零视觉漂移」证据**只到「样式块逐字搬迁 + 脚本等价搬移 + 单测」这一层**，不作更强的视觉断言；`friend-links` 迁移批次会把该组件带入门禁覆盖面。
+- **`posts` 三件套的消费处切换待办**：本批只交付 V2；`pages/admin/posts/index.vue` 改用 V2、`pages/admin/posts/[id].vue` **必须继续用 V1** 的动作在 posts 迁移批次执行。守卫当前只覆盖「过渡组件自身」的机制一致性，**不检查消费处的选择**——该点作为 posts 批次的显式检查项登记（见 `docs/plan/todo.md`）。
+- **`xlarge` 头像档位有损**：caomei 无 `xlarge` 对应档位（上游 §2.1 判定为「设计如此」），V2 落到 `lg`；`settings/profile`（非 B2）仍走 V1，故当前无实际影响。
+- **`publish-push-dialog.scss` 含预先存在的死规则**：`&__sync-field` / `&__sync-desc`（Memos 同步功能移除后遗留）两版模板均无引用；本批按「逐字抽取」原样带入共享文件，未顺手删除（属预先存在、非本批引入），登记为后续清理项。
+- **两版「`secondary` / `contrast` → `neutral`」落地形态不同**：审计对话框重审按钮走 `variant="secondary"`（既有范式），发布对话框确认按钮走 `tone="neutral"`（§6.2 语义色行）；两者均与仓库既有页面范式一致，`/admin/posts` 路由批次做 parity 时确认该差异是否被偏差处置表吸收。
+- **测试风格上的已知限制（审计 suggest，未在本批整改）**：① 多处断言落在 stub 自造的 `data-*` 属性上（真实产物是 `caomei-tag--{tone}` / `caomei-button--{variant}` 类名）——映射**取值**写错仍能被捕获，但断言验证的是 stub 编码而非真实类名（`typecheck` 兜住 prop 名与取值联合类型）；② stub 在 7 个测试文件间有重复且保真度不一致（`Dialog` 3 份、`CaomeiButton` 4 份），建议后续抽到 `tests/modules/` 共享工厂；③ `defineExpose` 暴露的 `visible` ref 未被直接断言（其受控渲染有覆盖）；④ `emailHash` 透传与 caomei `Input` 的输入回写路径（`caomeiModel` 的 `null → ''` 归一 setter）无用例驱动。
+- **`post-distribution-button.vue` 无消费者**：扫描显示其未被任何页面 / 组件引用（含 `Tag`），本批不动，作为观察项登记（后续若确认废弃应另行清理，不在本批范围）。
+
+<!-- regression-window:end:phase68-transition-shells:第六十八阶段-条目2-过渡组件基建:2026-10-15 -->
+
 <!-- regression-window:start:phase68-b2-external-links:第六十八阶段-条目2-第二路由:2026-10-13 -->
 ## 2026-10-13 第六十八阶段 条目 2 第二路由 B2 迁移（`/admin/external-links`）
 
