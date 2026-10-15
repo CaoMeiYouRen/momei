@@ -131,56 +131,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import {
+    usePublishPushDialog,
+    type PublishPushConfirmPayload,
+    type PublishPushOpenOptions,
+} from '@/composables/use-publish-push-dialog'
 
-const props = defineProps<{
+defineProps<{
     loading?: boolean
 }>()
 
 const emit = defineEmits<{
-    (e: 'confirm', options: {
-        pushOption: 'none' | 'draft' | 'now'
-        publishedAt?: Date | null
-        pushCriteria?: { categoryIds?: string[], tagIds?: string[] }
-    }): void
+    (e: 'confirm', options: PublishPushConfirmPayload): void
 }>()
 
 const visible = defineModel<boolean>('visible', { default: false })
-const pushOption = ref<'none' | 'draft' | 'now'>('none')
-const publishedAt = ref<Date | null>(null)
-const targetType = ref<'all' | 'criteria'>('criteria')
-const articleCriteria = ref<{ categoryIds?: string[], tagIds?: string[] }>({})
 
-const parsePublishedAt = (value?: string | Date | null) => {
-    if (!value) {
-        return null
-    }
-
-    const parsed = value instanceof Date ? value : new Date(value)
-    if (Number.isNaN(parsed.getTime()) || parsed.getTime() <= 0) {
-        return null
-    }
-
-    return parsed
-}
+// 弹窗状态与语义（`open()` 回填、日期容错、`confirm` 载荷形状）与 `PublishPushDialogV2` 共用，
+// 两版仅模板不同（组件来源按路由选择）。
+const {
+    pushOption,
+    publishedAt,
+    targetType,
+    articleCriteria,
+    resetFromOptions,
+    buildConfirmPayload,
+} = usePublishPushDialog()
 
 const handleConfirm = () => {
-    emit('confirm', {
-        pushOption: pushOption.value,
-        publishedAt: publishedAt.value,
-        pushCriteria: targetType.value === 'all' ? {} : articleCriteria.value,
-    })
+    emit('confirm', buildConfirmPayload())
 }
 
-const open = (options?: {
-    pushOption?: 'none' | 'draft' | 'now'
-    publishedAt?: string | Date | null
-    criteria?: { categoryIds?: string[], tagIds?: string[] }
-}) => {
-    pushOption.value = options?.pushOption || 'none'
-    publishedAt.value = parsePublishedAt(options?.publishedAt) || new Date()
-    targetType.value = 'criteria'
-    articleCriteria.value = options?.criteria || {}
+const open = (options?: PublishPushOpenOptions) => {
+    resetFromOptions(options)
     visible.value = true
 }
 
@@ -190,135 +173,4 @@ defineExpose({
 })
 </script>
 
-<style lang="scss" scoped>
-@use "@/styles/variables" as *;
-
-.publish-dialog {
-    &__message {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    &__icon {
-        font-size: 2rem;
-        color: var(--p-primary-500);
-    }
-
-    &__options {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        padding-left: 3rem;
-    }
-
-    &__option {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    &__option-label {
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-
-        strong {
-            display: block;
-            margin-bottom: 0.25rem;
-            line-height: 1.2;
-        }
-
-        small {
-            display: block;
-            color: var(--p-text-muted-color);
-            line-height: 1.4;
-        }
-    }
-
-    &__target-selection {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: var(--p-content-background);
-        border: 1px solid var(--p-surface-border);
-        border-radius: $border-radius-md;
-    }
-
-    &__target-label {
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        font-size: 0.875rem;
-    }
-
-    &__target-options {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 0.75rem;
-    }
-
-    &__target-option {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-
-        label {
-            cursor: pointer;
-            font-size: 0.875rem;
-        }
-    }
-
-    &__criteria-hint {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        color: var(--p-text-muted-color);
-        font-size: 0.75rem;
-        padding-left: 0.25rem;
-    }
-
-    &__footer-options {
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--p-surface-border);
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    &__publish-at {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    &__field-label {
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-
-    &__field-desc {
-        color: var(--p-text-muted-color);
-        font-size: 0.875rem;
-    }
-
-    &__sync-field {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-
-        label {
-            cursor: pointer;
-            font-weight: 600;
-        }
-    }
-
-    &__sync-desc {
-        display: block;
-        margin-top: 0.375rem;
-        margin-left: 3rem; // 对应 InputSwitch 的宽度 + gap 的偏移
-        color: var(--p-text-muted-color);
-        font-size: 0.875rem;
-    }
-}
-</style>
+<style lang="scss" scoped src="./publish-push-dialog.scss"></style>
