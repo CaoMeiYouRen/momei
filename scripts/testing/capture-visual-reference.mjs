@@ -313,6 +313,12 @@ async function captureInPlace({ only, environment }) {
         'exec', 'playwright', 'test',
         `--config=${parityConfigRel}`,
         '--update-snapshots',
+        /* 保护口径（`getProtectedTestNames`）会排除全部「磁盘上已有参考态」的用例；
+         * 当迁移批次把待迁移路由清空后（如 2026-10-16 条目 2 收口，`PENDING_ROUTES` 为空），
+         * 全量 HEAD 采集不再有任何候选用例——Playwright 默认会以 `No tests found` 退出码 1，
+         * 使这条文档化命令**硬失败**。此处显式声明「无待采目标也算成功」：
+         * 需要专门刷新某条参考态时改用 `--only=<name>`（该入口不参与排除）。 */
+        '--pass-with-no-tests',
         ...grepArgs,
     ], {
         ...process.env,

@@ -1,6 +1,6 @@
 {
     "meta": {
-        "updatedAt": "2026-10-14",
+        "updatedAt": "2026-10-16",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
@@ -214,15 +214,127 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1360,
+                        "height": 44
+                    },
+                    "pixels": 2143,
+                    "reason": "筛选行（`CaomeiInput` 搜索字段 / `CaomeiSwitch` 聚合开关 / `CaomeiSelect` 状态选择器）：控件外壳与高度渲染差异（字段行盒 36px vs PrimeVue 36.39px）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1360,
+                        "height": 188
+                    },
+                    "pixels": 17569,
+                    "reason": "表格区（`DataTable` → `CaomeiDataTable`）：表头行高 61.78px → 34.5px（PrimeVue 表头文本换行，caomei `nowrap`）、数据行高 145px → 125px（行内 icon-only 按钮 40px → 36px）、选择列宽 52px → 34px（PrimeVue 复选框 20px + 单元格 16px 内边距 vs caomei 18px + `space-2`）导致整表左移 18px、表头 / 行底色与冻结列渲染差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 432,
+                        "width": 1360,
+                        "height": 128
+                    },
+                    "pixels": 1747,
+                    "reason": "分页器与卡片下缘：分页器随表格总高下移（表格总高 263.78px → 204px），对齐口径由 `--caomei-data-table-pagination-justify: center` 保持（实测中心均落在 x≈720）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 955,
+                    "reason": "头部操作区：`CaomeiButton`（primary 实底 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异；按钮右边缘（x=1376）与高度（36px）已对齐。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 23277px / 1.796%。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 23277px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +13%）即红。"
         },
         "admin-posts-list-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "参考态取自 HEAD（PrimeVue 原貌）；迁移落地后按实测校准。admin 档预算已于 2026-10-14 收紧至 3000px / 0.35%，未迁移路由实测差异应为 0。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1360,
+                        "height": 44
+                    },
+                    "pixels": 2221,
+                    "reason": "筛选行（`CaomeiInput` 搜索字段 / `CaomeiSwitch` 聚合开关 / `CaomeiSelect` 状态选择器）：控件外壳与高度渲染差异（字段行盒 36px vs PrimeVue 36.39px）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1360,
+                        "height": 188
+                    },
+                    "pixels": 19488,
+                    "reason": "表格区（`DataTable` → `CaomeiDataTable`）：表头行高 61.78px → 34.5px（PrimeVue 表头文本换行，caomei `nowrap`）、数据行高 145px → 125px（行内 icon-only 按钮 40px → 36px）、选择列宽 52px → 34px（PrimeVue 复选框 20px + 单元格 16px 内边距 vs caomei 18px + `space-2`）导致整表左移 18px、表头 / 行底色与冻结列渲染差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 432,
+                        "width": 1360,
+                        "height": 128
+                    },
+                    "pixels": 4313,
+                    "reason": "分页器与卡片下缘：分页器随表格总高下移（表格总高 263.78px → 204px），对齐口径由 `--caomei-data-table-pagination-justify: center` 保持（实测中心均落在 x≈720）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 986,
+                    "reason": "头部操作区：`CaomeiButton`（primary 实底 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异；按钮右边缘（x=1376）与高度（36px）已对齐。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27886px / 2.152%（暗色下卡片下缘底色差更大，分页器带 1747 → 4313px）。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 27886px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。"
         },
         "admin-waitlist-list-light": {
             "tier": "admin",

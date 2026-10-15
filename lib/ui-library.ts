@@ -43,7 +43,17 @@ export const CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS = [
  *
  * 迁移期初始为空数组；每完成一个路由的整体迁移后在此登记（批次划分见
  * `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` 的分批执行计划章节）。
- * 登记项使用路由前缀语义：登记 `/admin/posts` 表示该路由及其子路由已迁移。
+ * 登记项使用路由前缀语义：登记 `/admin/posts` 表示**该路由**已迁移（匹配规则按 `/` 分段前缀比较，
+ * 故其子路径也命中同一来源）。
+ *
+ * **子路由例外（2026-10-16 补记）**：前缀语义会连带**子路由**，因此登记前必须核对子路由是否也在
+ * 迁移范围内。已知例外：`/admin/posts` 的编辑器子路由 `/admin/posts/[id]` **不在**条目 2 范围内
+ * （仍全面使用 PrimeVue；其共享组件走「消费处静态择库」，继续使用 V1）。
+ * 当前该子路由**未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
+ * `AdminPageHeader` / `AppAvatarV2` / `AppUploaderV2`，编辑器子树内均不可达，已逐处核对），
+ * 故无路由内混用；但该性质**目前无守卫兜底**——若后续把上述过渡组件引入编辑器子树，组件会静默切到
+ * caomei 而无门禁拦截，故登记为收尾项（见 `docs/plan/backlog.md` 迁移收尾跟踪：为「已登记前缀的
+ * 非 index 子路由页面」补结构守卫）。
  *
  * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，
  * 避免与守卫各持一份）；显式豁免清单（全局壳 `Toast` / `ConfirmDialog`、延后批次浮层、`v-tooltip` 指令）
@@ -60,6 +70,7 @@ export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = [
     '/admin/subscribers',
     '/admin/users',
     '/admin/friend-links',
+    '/admin/posts',
 ]
 
 import { APP_LOCALE_CODES } from '@/i18n/config/locale-registry'

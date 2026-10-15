@@ -100,6 +100,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/ad/placements', '.caomei-data-table, .admin-page-container'],
             ['/admin/migrations/link-governance', '.caomei-data-table, .admin-link-governance'],
             ['/admin/subscribers', '.caomei-data-table, .admin-subscribers'],
+            ['/admin/posts', '.caomei-data-table, .admin-page-container'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {

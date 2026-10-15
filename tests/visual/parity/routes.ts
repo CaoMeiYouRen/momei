@@ -108,16 +108,14 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         readyResponse: '/api/auth/admin/list-users',
         readySelector: '.caomei-data-table__row',
     },
-]
-
-export const PENDING_ROUTES: ParityRoute[] = [
     {
         name: 'admin-posts-list',
         path: '/admin/posts',
         heading: '文章管理',
         tier: 'admin',
-        migrated: false,
+        migrated: true,
     },
 ]
 
-export const ALL_PARITY_ROUTES: ParityRoute[] = [...MIGRATED_ROUTES, ...PENDING_ROUTES]
+/** 待迁移路由层：条目 2 收口后为空（10 条 admin 数据列表路由全部迁移）；保留为后续批次（B3 设置族 / 条目 3 组件型目标 host 路由）的落点。 */
+export const PENDING_ROUTES: ParityRoute[] = []

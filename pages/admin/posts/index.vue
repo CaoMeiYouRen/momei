@@ -2,282 +2,260 @@
     <div class="admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.posts.title')" show-language-switcher>
             <template #actions>
-                <Button
+                <CaomeiButton
                     v-if="selectedItems.length > 0"
-                    :label="$t('pages.admin.posts.export_selected')"
-                    icon="pi pi-download"
-                    severity="secondary"
+                    variant="secondary"
                     :loading="exporting"
                     class="mr-2"
                     @click="handleBatchExport"
-                />
-                <Button
-                    :label="$t('pages.admin.posts.create')"
-                    icon="pi pi-plus"
-                    @click="navigateTo(localePath('/admin/posts/new'))"
-                />
+                >
+                    <template #icon>
+                        <Download :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.export_selected') }}
+                </CaomeiButton>
+                <CaomeiButton @click="navigateTo(localePath('/admin/posts/new'))">
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.create') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
         <div class="admin-content-card">
             <div class="admin-filters">
-                <IconField icon-position="left">
-                    <InputIcon class="pi pi-search" />
-                    <InputText
-                        v-model="filters.search"
-                        :placeholder="$t('pages.admin.posts.search_placeholder')"
-                        @input="onFilterChange"
-                    />
-                </IconField>
+                <!-- 迁移前为 `IconField` + `InputIcon` + `InputText`；§6.1 C 组：IconField / InputIcon
+                     由 `CaomeiInput` 的 `#prefix` 插槽承接（图标同步换成 lucide `Search`）。
+                     宽度按迁移前实测固有宽（`IconField` 261px）显式约束——caomei 字段默认 `width: 100%`，
+                     在 flex 行内会撑满容器（「迁移不改几何」）。 -->
+                <CaomeiInput
+                    v-model="filters.search"
+                    class="admin-filters__search"
+                    :placeholder="$t('pages.admin.posts.search_placeholder')"
+                    @update:model-value="onFilterChange"
+                >
+                    <template #prefix>
+                        <Search :size="16" />
+                    </template>
+                </CaomeiInput>
                 <div class="admin-filters__right">
                     <div class="aggregate-toggle">
-                        <ToggleSwitch
+                        <!-- 迁移前 `ToggleSwitch` + `input-id` + 原生 `label[for]`：caomei `id` 落在
+                             Reka `SwitchRoot`（`<button role="switch">`，labelable），`label[for]` 的点击
+                             转发与可访问名推导（Reka 从 `label[for=id]` 取文本）均保持。 -->
+                        <CaomeiSwitch
+                            id="aggregate-switch"
                             v-model="filters.aggregate"
-                            input-id="aggregate-switch"
                             @change="onFilterChange"
                         />
                         <label for="aggregate-switch" class="cursor-pointer">{{ $t('common.aggregate_translations') }}</label>
                     </div>
-                    <Select
-                        v-model="filters.status"
-                        :options="statuses"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.admin.posts.status')"
-                        show-clear
-                        class="status-select"
-                        @change="load"
-                    />
+                    <div class="admin-filters__status">
+                        <!-- 迁移前 `.status-select { width: 10rem }` 作用于 PrimeVue `Select` 的根
+                             （字段外壳）；caomei `Select` 的 `class` 只落触发器、宽度钩子在字段外层
+                             （上游反馈 §1.1），故宽度改由包装元素承载。
+                             `show-clear` → `show-clear`；`@change`（PrimeVue 专有事件）→
+                             `@update:model-value`（caomei `Select` 仅抛该事件）。 -->
+                        <CaomeiSelect
+                            v-model="filters.status"
+                            :options="statuses"
+                            option-label="label"
+                            option-value="value"
+                            :placeholder="$t('pages.admin.posts.status')"
+                            show-clear
+                            @update:model-value="load"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <DataTable
+            <!-- 懒加载服务端分页 + 服务端排序 + 行多选：`page` / `@page` 为 1 基受控值
+                 （由共享 composable 的 `pageIndexBase: 1` 归一）；`selection-mode="multiple"`
+                 由 `CaomeiDataTable` 内建首列（迁移前为 `<Column selection-mode="multiple" />`）。
+
+                 受控分页口径（与既有 5 条已迁移路由一致）：迁移前 PrimeVue 未绑定 `v-model:first`，
+                 由组件自持页码；本页改为受控 `:page="pagination.page"`，使「筛选后回到第 1 页」
+                 由 `page` 状态统一驱动。已知边界：受控后 caomei 的
+                 `watch([rows, totalRecords])` 提前返回，故不再有「总条数收缩时自动夹取页码」的
+                 内部收敛——极端场景（删除末页最后一条后 `page` 越界）下分页器会停在越界页，
+                 与迁移前行为**可能不同**；本批按「迁移不改流程」处置并登记为观察项。 -->
+            <CaomeiDataTable
                 v-model:selection="selectedItems"
-                :value="items"
+                :data="items"
+                :columns="columns"
                 :loading="loading"
                 lazy
                 :total-records="pagination.total"
                 :rows="pagination.limit"
+                :page="pagination.page"
                 paginator
                 :rows-per-page-options="[5, 10, 20, 50]"
-                table-style="min-width: 80rem"
-                scrollable
+                selection-mode="multiple"
+                row-key="id"
+                class="admin-posts__table"
                 @page="onPage"
                 @sort="onSort"
             >
-                <Column selection-mode="multiple" header-style="width: 3rem" />
-                <Column
-                    field="title"
-                    :header="$t('common.title')"
-                    sortable
-                    header-style="min-width: 15rem"
-                />
-                <Column
-                    field="author.name"
-                    :header="$t('common.author')"
-                    class="hidden lg:table-cell"
-                    header-style="min-width: 8rem"
-                />
-                <Column
-                    field="status"
-                    :header="$t('pages.admin.posts.status')"
-                    sortable
-                    class="hidden md:table-cell"
-                    header-style="min-width: 7rem"
-                >
-                    <template #body="slotProps">
-                        <Tag :value="getStatusLabel(slotProps.data.status)" :severity="getPostListStatusSeverity(slotProps.data.status)" />
-                    </template>
-                </Column>
-                <Column
-                    field="isPinned"
-                    :header="$t('pages.admin.posts.pinned')"
-                    sortable
-                    class="hidden md:table-cell"
-                    header-style="min-width: 6rem"
-                    header-class="text-center"
-                    body-class="text-center"
-                >
-                    <template #body="slotProps">
-                        <Tag
-                            :value="slotProps.data.isPinned ? $t('common.yes') : $t('common.no')"
-                            :severity="slotProps.data.isPinned ? 'info' : 'secondary'"
+                <template #cell-status="{row}">
+                    <CaomeiTag :tone="getPostStatusTone(row.status)">
+                        {{ getStatusLabel(row.status) }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-isPinned="{row}">
+                    <CaomeiTag :tone="row.isPinned ? 'primary' : 'neutral'">
+                        {{ row.isPinned ? $t('common.yes') : $t('common.no') }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-coverImage="{row}">
+                    <PostMediaPreviewCell
+                        :post="row"
+                        mode="cover"
+                        :preferred-locale="preferredMediaLocale"
+                    />
+                </template>
+
+                <template #cell-audioUrl="{row}">
+                    <PostMediaPreviewCell
+                        :post="row"
+                        mode="audio"
+                        :preferred-locale="preferredMediaLocale"
+                    />
+                </template>
+
+                <template #cell-translations="{row}">
+                    <div class="justify-content-center translation-badges">
+                        <!-- `Badge` **确有** `value` prop（与 `Tag` 不同，见迁移方案 §6.2），故沿用 `:value`。 -->
+                        <CaomeiBadge
+                            v-for="lang in availableLocalesList"
+                            :key="lang.code"
+                            v-tooltip="$t('common.languages.' + lang.code)"
+                            :value="lang.code.toUpperCase()"
+                            :tone="hasTranslation(row, lang.code) ? 'success' : 'neutral'"
+                            class="translation-badge"
+                            :class="{'translation-badge--missing': !hasTranslation(row, lang.code)}"
+                            @click="handleTranslationClick(row, lang.code)"
                         />
-                    </template>
-                </Column>
-                <Column
-                    field="coverImage"
-                    :header="$t('pages.admin.posts.cover_column')"
-                    header-class="text-center"
-                    body-class="text-center"
-                    header-style="min-width: 7rem"
-                >
-                    <template #body="{data}">
-                        <PostMediaPreviewCell
-                            :post="data"
-                            mode="cover"
-                            :preferred-locale="preferredMediaLocale"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    field="audioUrl"
-                    :header="$t('pages.admin.posts.podcast_column')"
-                    header-class="text-center"
-                    body-class="text-center"
-                    header-style="min-width: 14rem"
-                >
-                    <template #body="{data}">
-                        <PostMediaPreviewCell
-                            :post="data"
-                            mode="audio"
-                            :preferred-locale="preferredMediaLocale"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    field="translations"
-                    :header="$t('common.translation_status')"
-                    header-style="min-width: 8rem"
-                    header-class="text-center"
-                    body-class="text-center"
-                >
-                    <template #body="{data}">
-                        <div class="justify-content-center translation-badges">
-                            <Badge
-                                v-for="lang in availableLocalesList"
-                                :key="lang.code"
-                                v-tooltip="$t('common.languages.' + lang.code)"
-                                :value="lang.code.toUpperCase()"
-                                :severity="hasTranslation(data, lang.code) ? 'success' : 'secondary'"
-                                class="translation-badge"
-                                :class="{'translation-badge--missing': !hasTranslation(data, lang.code)}"
-                                @click="handleTranslationClick(data, lang.code)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-                <Column
-                    field="category.name"
-                    :header="$t('common.category')"
-                    class="hidden sm:table-cell"
-                    header-style="min-width: 8rem"
-                />
-                <Column
-                    v-if="!filters.aggregate"
-                    field="language"
-                    :header="$t('common.language')"
-                    sortable
-                >
-                    <template #body="{data}">
-                        <Tag :value="$t(`common.languages.${data.language}`)" severity="secondary" />
-                    </template>
-                </Column>
-                <Column
-                    field="views"
-                    :header="$t('common.views')"
-                    sortable
-                    style="width: 6rem"
-                    header-class="text-center"
-                    body-class="text-center"
-                />
-                <Column
-                    field="publishedAt"
-                    :header="$t('common.published_at')"
-                    sortable
-                    header-style="min-width: 9rem"
-                >
-                    <template #body="slotProps">
-                        <div class="user-created-at" data-visual-mask>
-                            <span class="user-created-at__date">{{ formatDateTime(slotProps.data.publishedAt) }}</span>
-                            <small
-                                v-if="slotProps.data.publishedAt"
-                                class="user-created-at__relative"
-                                :class="{'user-created-at__relative--future': isFuture(slotProps.data.publishedAt)}"
-                            >
-                                {{ relativeTime(slotProps.data.publishedAt) }}
-                            </small>
-                        </div>
-                    </template>
-                </Column>
-                <Column
-                    :header="$t('pages.admin.posts.audit.column_header')"
-                    header-style="min-width: 7rem"
-                    header-class="text-center"
-                    body-class="text-center"
-                >
-                    <template #body="{data}">
-                        <PostAuditBadge
-                            :audit-result="auditResults.get(data.id) ?? null"
-                            :loading="auditingPostId === data.id"
-                            @run-audit="runAudit(data.id)"
-                            @show-detail="openAuditDialog(data.id)"
-                        />
-                    </template>
-                </Column>
-                <Column
-                    :header="$t('common.actions')"
-                    :exportable="false"
-                    style="min-width: 8rem"
-                    frozen
-                    align-frozen="right"
-                >
-                    <template #body="slotProps">
-                        <Button
-                            v-tooltip.top="$t('pages.admin.posts.distribution.tooltip')"
-                            icon="pi pi-sync"
-                            text
-                            rounded
-                            severity="secondary"
-                            @click="openDistribution(slotProps.data.id)"
-                        />
-                        <Button
-                            v-if="slotProps.data.status === 'published'"
-                            v-tooltip.top="$t('pages.admin.posts.repush')"
-                            icon="pi pi-send"
-                            text
-                            rounded
-                            severity="warn"
-                            @click="confirmRepush(slotProps.data)"
-                        />
-                        <Button
-                            v-tooltip.top="$t('common.export')"
-                            icon="pi pi-download"
-                            text
-                            rounded
-                            severity="secondary"
-                            @click="handleExport(slotProps.data)"
-                        />
-                        <Button
-                            icon="pi pi-pencil"
-                            text
-                            rounded
-                            severity="info"
-                            @click="editPost(slotProps.data.id)"
-                        />
-                        <Button
-                            icon="pi pi-trash"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="openPostDeleteDialog(slotProps.data)"
-                        />
-                    </template>
-                </Column>
+                    </div>
+                </template>
+
+                <template #cell-language="{row}">
+                    <CaomeiTag tone="neutral">
+                        {{ $t(`common.languages.${row.language}`) }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-publishedAt="{row}">
+                    <div class="user-created-at" data-visual-mask>
+                        <span class="user-created-at__date">{{ formatDateTime(row.publishedAt) }}</span>
+                        <small
+                            v-if="row.publishedAt"
+                            class="user-created-at__relative"
+                            :class="{'user-created-at__relative--future': isFuture(row.publishedAt)}"
+                        >
+                            {{ relativeTime(row.publishedAt) }}
+                        </small>
+                    </div>
+                </template>
+
+                <template #cell-audit="{row}">
+                    <PostAuditBadgeV2
+                        :audit-result="auditResults.get(row.id) ?? null"
+                        :loading="auditingPostId === row.id"
+                        @run-audit="runAudit(row.id)"
+                        @show-detail="openAuditDialog(row.id)"
+                    />
+                </template>
+
+                <template #cell-actions="{row}">
+                    <!-- 迁移前 5 个按钮均为 `text rounded` + 纯图标：caomei 侧用 0.6.0 `iconOnly` +
+                         lucide `#icon`（不再复制本地补丁写法），并按契约补 `:label` 可访问名——
+                         迁移前仅前三个有 `v-tooltip`，编辑 / 删除两个**既无可见文本也无可访问名**。 -->
+                    <CaomeiButton
+                        v-tooltip.top="$t('pages.admin.posts.distribution.tooltip')"
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="neutral"
+                        :label="$t('pages.admin.posts.distribution.tooltip')"
+                        @click="openDistribution(row.id)"
+                    >
+                        <template #icon>
+                            <RefreshCw :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        v-if="row.status === 'published'"
+                        v-tooltip.top="$t('pages.admin.posts.repush')"
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="warning"
+                        :label="$t('pages.admin.posts.repush')"
+                        @click="confirmRepush(row)"
+                    >
+                        <template #icon>
+                            <Send :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        v-tooltip.top="$t('common.export')"
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="neutral"
+                        :label="$t('common.export')"
+                        @click="handleExport(row)"
+                    >
+                        <template #icon>
+                            <Download :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="primary"
+                        :label="$t('common.edit')"
+                        @click="editPost(row.id)"
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        rounded
+                        tone="danger"
+                        :label="$t('common.delete')"
+                        @click="openPostDeleteDialog(row)"
+                    >
+                        <template #icon>
+                            <Trash2 :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+
                 <template #empty>
                     <div class="empty-state">
                         {{ $t('pages.posts.empty') }}
                     </div>
                 </template>
-            </DataTable>
+            </CaomeiDataTable>
         </div>
 
+        <!-- 浮层显式豁免（迁移方案 §5.5）：`ConfirmDeleteDialog` 维持 PrimeVue（随浮层批次收敛）。 -->
         <ConfirmDeleteDialog
             ref="deleteDialog"
             @confirm="handleDelete"
         />
 
-        <PostAuditDialog
+        <!-- 三件套过渡组件（消费处静态择库，迁移方案 §5.5）：已迁移路由用 `…V2`，
+             `/admin/posts/[id]` 编辑器路由继续用 V1。 -->
+        <PostAuditDialogV2
             :visible="showAuditDialog"
             :result="selectedAuditResult"
             :ai-pending="auditingPostId !== null"
@@ -286,7 +264,7 @@
             @re-audit="handleReAudit"
         />
 
-        <PublishPushDialog
+        <PublishPushDialogV2
             ref="repushDialog"
             @confirm="handleRepushConfirm"
         />
@@ -294,12 +272,13 @@
 </template>
 
 <script setup lang="ts">
+import { Download, Pencil, Plus, RefreshCw, Search, Send, Trash2 } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import { ref, computed } from 'vue'
-import { useToast } from 'primevue/usetoast'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
-import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
-import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
-import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
+import PostAuditBadgeV2 from '@/components/admin/posts/post-audit-badge-v2.vue'
+import PostAuditDialogV2 from '@/components/admin/posts/post-audit-dialog-v2.vue'
+import PublishPushDialogV2 from '@/components/admin/posts/publish-push-dialog-v2.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
 import { getPostStatusSeverity } from '@/composables/use-post-editor-page.helpers'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
@@ -349,6 +328,8 @@ const {
         field: 'publishedAt',
         order: 'desc',
     },
+    // caomei `DataTable` 的 `page` / `@page` 为 1 基（PrimeVue 为 0 基），显式声明页码基准。
+    pageIndexBase: 1,
 })
 
 const { locales } = useI18n()
@@ -357,10 +338,6 @@ const preferredMediaLocale = computed(() => contentLanguage.value || locale.valu
 
 const hasTranslation = (post: Post, lang: string) => {
     return post.translations?.some((t) => t.language === lang)
-}
-
-const isTranslationPublished = (post: Post, lang: string) => {
-    return post.translations?.some((t) => t.language === lang && t.status === 'published')
 }
 
 const handleTranslationClick = (post: Post, lang: string) => {
@@ -388,6 +365,135 @@ const statuses = computed(() => [
     { label: t('common.status.hidden'), value: 'hidden' },
 ])
 
+/**
+ * 列定义与迁移前 PrimeVue 列组件一一对应（12 列 + 条件列 `language`，条件列在聚合开启时不入列，共 13 列定义）：
+ *
+ * - 有 `field` 的列沿用字段名作 key；`author.name` / `category.name` 为点号路径，
+ *   用 `accessor` 承载（避免 `#cell-author.name` 这类含点号的插槽名）；
+ *   无 `field` 的两列按插槽语义命名（`translations` / `audit`）。
+ * - PrimeVue `Column` 的 `style` / `class` **同时落 `th` 与 `td`**（实测两态 inline style 与
+ *   class 逐字一致），caomei 侧 `headerStyle` / `bodyStyle` 分别对应 `th` / `td`，
+ *   故 `style` / `class` 一律两侧镜像，保持逐单元格声明等价。
+ * - `header-class="text-center"` 在迁移前落 `th`（与 `body-class` 一起构成「表头 + 单元格居中对齐」），
+ *   照原样映射为 `headerClass` / `bodyClass`。
+ * - `class="hidden md:table-cell"`（响应式隐藏）在本仓**无任何可命中表格单元格的样式规则**
+ *   （全仓 SCSS 与构建产物中均无 `table-cell` 定义；`components/app-uploader.scss` 内的 `.hidden`
+ *   是 `.app-uploader` 下的 scoped 嵌套规则，不命中表格 `th` / `td`）——属迁移期幻影类：保留原声明
+ *   以免静默丢弃既有意图，已登记为幻影类收尾项（见回归记录本批窗口）。
+ * - 迁移前动作列的 `:exportable="false"` **无对应落点**（caomei `DataTable` 无 CSV / 导出能力，
+ *   且本页导出走 `usePostExport`），属惰性声明，不迁移。
+ * - 条件列 `language` 在迁移前由 `v-if="!filters.aggregate"` 控制列的有无，这里以同一条件
+ *   决定是否加入 `columns`（列集合语义等价）。
+ */
+const columns = computed<DataTableColumn<Post>[]>(() => {
+    const list: DataTableColumn<Post>[] = [
+        {
+            key: 'title',
+            header: t('common.title'),
+            sortable: true,
+            headerStyle: { minWidth: '15rem' },
+        },
+        {
+            key: 'author',
+            accessor: 'author.name',
+            header: t('common.author'),
+            headerStyle: { minWidth: '8rem' },
+            headerClass: 'hidden lg:table-cell',
+            bodyClass: 'hidden lg:table-cell',
+        },
+        {
+            key: 'status',
+            header: t('pages.admin.posts.status'),
+            sortable: true,
+            headerStyle: { minWidth: '7rem' },
+            headerClass: 'hidden md:table-cell',
+            bodyClass: 'hidden md:table-cell',
+        },
+        {
+            key: 'isPinned',
+            header: t('pages.admin.posts.pinned'),
+            sortable: true,
+            headerStyle: { minWidth: '6rem' },
+            headerClass: 'text-center hidden md:table-cell',
+            bodyClass: 'text-center hidden md:table-cell',
+        },
+        {
+            key: 'coverImage',
+            header: t('pages.admin.posts.cover_column'),
+            headerStyle: { minWidth: '7rem' },
+            headerClass: 'text-center',
+            bodyClass: 'text-center',
+        },
+        {
+            key: 'audioUrl',
+            header: t('pages.admin.posts.podcast_column'),
+            headerStyle: { minWidth: '14rem' },
+            headerClass: 'text-center',
+            bodyClass: 'text-center',
+        },
+        {
+            key: 'translations',
+            header: t('common.translation_status'),
+            headerStyle: { minWidth: '8rem' },
+            headerClass: 'text-center',
+            bodyClass: 'text-center',
+        },
+        {
+            key: 'category',
+            accessor: 'category.name',
+            header: t('common.category'),
+            headerStyle: { minWidth: '8rem' },
+            headerClass: 'hidden sm:table-cell',
+            bodyClass: 'hidden sm:table-cell',
+        },
+    ]
+
+    if (!filters.value.aggregate) {
+        list.push({
+            key: 'language',
+            header: t('common.language'),
+            sortable: true,
+        })
+    }
+
+    list.push(
+        {
+            key: 'views',
+            header: t('common.views'),
+            sortable: true,
+            // 迁移前 `style="width: 6rem"` 同时落 `th` / `td`（实测 inline 声明一致），故两侧镜像。
+            headerStyle: { width: '6rem' },
+            bodyStyle: { width: '6rem' },
+            headerClass: 'text-center',
+            bodyClass: 'text-center',
+        },
+        {
+            key: 'publishedAt',
+            header: t('common.published_at'),
+            sortable: true,
+            headerStyle: { minWidth: '9rem' },
+        },
+        {
+            key: 'audit',
+            header: t('pages.admin.posts.audit.column_header'),
+            headerStyle: { minWidth: '7rem' },
+            headerClass: 'text-center',
+            bodyClass: 'text-center',
+        },
+        {
+            key: 'actions',
+            header: t('common.actions'),
+            // 迁移前动作列为 `style="min-width: 8rem"` + `frozen` + `align-frozen="right"`；
+            // caomei 以 `frozen: 'right'` 承接冻结语义，`min-width` 两侧镜像（`th` / `td` 均实测生效）。
+            headerStyle: { minWidth: '8rem' },
+            bodyStyle: { minWidth: '8rem' },
+            frozen: 'right',
+        },
+    )
+
+    return list
+})
+
 const editPost = (id: string) => {
     navigateTo(localePath(`/admin/posts/${id}`))
 }
@@ -401,7 +507,7 @@ const openDistribution = (id: string) => {
     }))
 }
 
-const repushDialog = ref<InstanceType<typeof PublishPushDialog> | null>(null)
+const repushDialog = ref<InstanceType<typeof PublishPushDialogV2> | null>(null)
 const repushPost = ref<Post | null>(null)
 
 const confirmRepush = (post: Post) => {
@@ -444,7 +550,25 @@ const handleRepushConfirm = async (options: {
 
 const deleteDialog = ref()
 const postToDelete = ref<Post | null>(null)
-const getPostListStatusSeverity = getPostStatusSeverity
+
+/**
+ * 状态 Tag 的语义色：caomei `Tag` 无 `severity`，改用 `tone`（迁移方案 §6.2 / §6.3 有意差异）。
+ *
+ * 状态 → `severity` 的映射由共享 helper `getPostStatusSeverity` 承载，而该 helper 同时服务
+ * `/admin/posts/[id]` 编辑器路由（本阶段仍为 PrimeVue）、且有单测锁定 PrimeVue 词表，
+ * 故按 §5.5「路由内组件来源唯一」的口径不在共享 helper 内改写，而是在本页做一次
+ * 有损近似转换（§6.2）：`success` / `danger` 直通、`warn` → `warning`、`info` → `primary`、
+ * `secondary` → `neutral`。helper 对未知状态兜底为 `info`，故本映射的兜底分支亦为 `primary`。
+ */
+const SEVERITY_TO_TONE_MAP: Record<string, 'success' | 'warning' | 'danger' | 'primary' | 'neutral'> = {
+    success: 'success',
+    warn: 'warning',
+    danger: 'danger',
+    info: 'primary',
+    secondary: 'neutral',
+}
+
+const getPostStatusTone = (status: string) => SEVERITY_TO_TONE_MAP[getPostStatusSeverity(status)] ?? 'neutral'
 
 const openPostDeleteDialog = (post: Post) => {
     postToDelete.value = post
@@ -574,8 +698,33 @@ async function handleReAudit() {
 </script>
 
 <style lang="scss" scoped>
-.status-select {
+// 搜索字段宽度：caomei 字段默认 `width: 100%`（`CaomeiInput` / `CaomeiSelect` 家族），
+// 在 `.admin-filters`（flex 行）内会撑满容器。迁移前 `IconField` 内 `InputText` 的固有宽实测 261px，
+// 故显式约束为同一值（「迁移不改几何」）。
+.admin-filters__search {
+    width: 261px;
+    max-width: 100%;
+}
+
+// caomei `Select` 的 `class` 只落触发器、宽度 / `max-width` 钩子在**字段外层**
+// （`.caomei-select__field`，上游反馈 §1.1）；迁移前 `.status-select { width: 10rem }` 作用于
+// PrimeVue `Select` 的根（字段外壳），故宽度改由包装元素承载（10rem < 字段默认 `20rem` 上限，无需改 token）。
+.admin-filters__status {
     width: 10rem;
+    max-width: 100%;
+}
+
+// caomei `DataTable` 分页容器默认右对齐（PrimeVue 默认居中）；用 0.4.0 起提供的
+// `--caomei-data-table-pagination-justify` token 保持迁移前布局（迁移不改几何）。
+.admin-posts__table {
+    --caomei-data-table-pagination-justify: center;
+
+    // 迁移前 `table-style="min-width: 80rem"`（配合 PrimeVue `scrollable` + 冻结动作列的等效声明，
+    // 落在 `<table>` 上）；caomei `DataTable` 无 `table-style` / `scrollable` 契约
+    // （根元素默认 `overflow-x: auto`，冻结列吸边由 `frozen` 提供），故以 scoped 深度选择器保持同一声明。
+    :deep(.caomei-data-table__table) {
+        min-width: 80rem;
+    }
 }
 
 .empty-state {
@@ -608,7 +757,17 @@ async function handleReAudit() {
     }
 }
 
+// caomei `Badge` 的尺寸档位与 PrimeVue `Badge` 不同（caomei 默认 20px 高 / `space-1` 横向内边距）。
+// 迁移前这几个翻译徽标的尺寸来源是三处叠加：PrimeVue Aura `Badge` 根 token `height: 1.5rem` /
+// `minWidth: 1.5rem` + 全局 `.translation-badge.p-badge { padding: 2px 4px; font-size: 0.7rem }` +
+// `.translation-badge { min-width: 2rem }`。故按实测口径覆盖 caomei token（token 是文档化定制路径，
+// 优先级 ①）：高 24px / 最小宽 32px / 横向内边距 4px / 字号 0.7rem。
 .translation-badge {
+    --caomei-badge-height: 1.5rem;
+    --caomei-badge-min-width: 2rem;
+    --caomei-badge-padding-x: 4px;
+    --caomei-badge-font-size: 0.7rem;
+
     cursor: pointer;
     transition: opacity 0.2s;
 

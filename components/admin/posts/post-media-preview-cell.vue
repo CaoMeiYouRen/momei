@@ -18,14 +18,24 @@
 
         <template v-else>
             <div v-if="audioPreview" class="post-media-cell__audio">
-                <Button
-                    :icon="isAudioOpen ? 'pi pi-times' : 'pi pi-play'"
-                    text
+                <!-- 本组件仅被 `/admin/posts` 列表页消费（迁移方案 §5.5：路由自有组件随该页整路由迁移），
+                     故批次在册族的 `Button` 直接切换为 `CaomeiButton`：`text rounded severity="secondary"`
+                     → `iconOnly variant="ghost" rounded tone="neutral"`（§6.2 有损近似
+                     `secondary → neutral`）；`pi pi-close` / `pi pi-play` 的 `:icon` 二态改为
+                     `#icon` 插槽内 lucide `X` / `Play` 条件渲染；`aria-label` → caomei `label`（可访问名契约）。
+                     非在册族的 `Image`（展示容器，随 B4 展示批次）与其预览浮层维持 PrimeVue。 -->
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
                     rounded
-                    severity="secondary"
-                    :aria-label="isAudioOpen ? t('common.close') : t('common.preview')"
+                    tone="neutral"
+                    :label="isAudioOpen ? t('common.close') : t('common.preview')"
                     @click="toggleAudioPreview"
-                />
+                >
+                    <template #icon>
+                        <component :is="isAudioOpen ? X : Play" :size="16" />
+                    </template>
+                </CaomeiButton>
                 <small class="post-media-cell__meta">{{ audioMetaText }}</small>
                 <audio
                     v-if="isAudioOpen"
@@ -45,6 +55,7 @@
 
 <script setup lang="ts">
 import { format as formatBytes } from 'better-bytes'
+import { Play, X } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 import type { Post } from '@/types/post'
