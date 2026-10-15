@@ -11,6 +11,7 @@
 ## 2. 入口说明
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
+- 2026-10-14 至 2026-10-15 第六十八阶段条目 2 第三批次 4 个窗口——第五路由（ad/placements）/ 过渡组件基建（共享壳 5 件套）/ 第七路由（subscribers）/ 第八路由（users）（2026-10-16 第八次自 `current.md` 滚动归档；`todo.md` 的「过渡组件基建窗口」引用已同步改写为本分片「过渡组件基建节」）: [2026-10-14-to-2026-10-15-phase68-b2-batch3.md](./2026-10-14-to-2026-10-15-phase68-b2-batch3.md)
 - 2026-10-15 第六十八阶段条目 2 第六路由窗口（`/admin/migrations/link-governance`，含页码基准切换与 `--caomei-select-max-width` 几何修复；2026-10-16 第七次自 `current.md` 滚动归档，无外部节名短语引用）: [2026-10-15-phase68-b2-link-governance.md](./2026-10-15-phase68-b2-link-governance.md)
 - 2026-10-14 第六十八阶段条目 2 第二批次 3 个窗口——第三路由（waitlist）/ `CaomeiButton` 可见文案回归修复 / 第四路由（ad/campaigns）（2026-10-15 第六次自 `current.md` 滚动归档；`todo.md` 的「可见文案回归节」引用已同步改写为本分片）: [2026-10-14-phase68-b2-batch2.md](./2026-10-14-phase68-b2-batch2.md)
 - 2026-10-13 第六十八阶段早期 3 个窗口——条目 2 首路由（submissions）/ 第二路由（external-links）/ 试点页分页对齐回归修复（2026-10-15 第五次自 `current.md` 滚动归档，为条目 2 的后续路由窗口恢复 `line-count` 余量；三条均无外部节名锚点引用）: [2026-10-13-phase68-early-windows.md](./2026-10-13-phase68-early-windows.md)

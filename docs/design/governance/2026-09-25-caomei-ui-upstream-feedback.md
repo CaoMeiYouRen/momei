@@ -96,6 +96,13 @@
 - **建议**：提供 `manualSorting`（或让 `lazy` 同时关闭排序）开关；至少在文档中说明 `lazy` 与排序的关系。
 - **上游处置**：**待上游确认**。momei 侧本批按「接受 + 登记」处置：保持与迁移前一致的**不绑定受控排序 prop** 形态（排序指示器初始态与迁移前相同），并把 `@sort` 载荷（caomei 字符串 `'asc' | 'desc' | ''` ↔ PrimeVue 数值 `1 | -1 | 0`）的归一收敛在共享 composable 内。
 
+### 2.7 `DataTable` 无「列最小宽」契约，且选择列宽度不可配置
+
+- **现象**：① PrimeVue `Column` 的 `style` / `class` **同时落 `th` 与 `td`**（实测两态 inline style 与 class 逐字一致），caomei 需分别用 `headerStyle` / `bodyStyle` 镜像，而 `DataTableColumn.width` **只落 `th`**（且只参与冻结列的 `tableMinWidth` 推导）；② caomei **没有「列最小宽」prop**——PrimeVue `header-style="min-width: 15rem"` 这类声明在 caomei 只能以 `headerStyle: { minWidth }` 承载；③ 冻结列的 `tableMinWidth` 只统计**以 `px` 结尾**的 `width`，`rem` 宽度既不参与 min-width 推导，也不参与冻结偏移估算（`columnWidth()` 回落 `DEFAULT_PINNED_WIDTH`）；④ **选择列宽度不可配置**：PrimeVue 可在 `<Column selection-mode="multiple" header-style="width: 3rem" />` 上声明，caomei 内建选择列固定 `width: 1%` + `--caomei-space-2` 横向内边距，无 prop / token 可覆盖。
+- **实测（momei 侧，2026-10-16 `/admin/posts`）**：逐列宽度两态**完全一致**（title 240 / author 128 / status 112 / pinned 96 / cover 112 / audio 224 / translations 128 / category 128 / views 70 / publishedAt 144 / audit 112 / actions 128），证明 `headerStyle` / `bodyStyle` 镜像可等价还原 min-width 声明；**唯一无法还原的是选择列**——PrimeVue 实测 **52px**（20px 复选框 + 单元格 `16px` 横向内边距）vs caomei **34px**（18px 复选框 + `space-2`），使整表宽度 1674px → 1656px、其余列**整体左移 18px**。
+- **建议**：① 在 DataTable 页给出一行对照表（`style` / `class` → `headerStyle` + `bodyStyle`，并显式说明 `width` 只落 `th`）；② 提供选择列宽度钩子（prop 或 token / class），便于下游保持几何不变；③ 明确 `width` 的单位口径（`px` 参与冻结偏移，`rem` 不参与）。
+- **上游处置**：**待上游确认**。momei 侧本批按「接受 + 登记」处置——不引入选择列的魔法数字选择器覆盖，差异进允许清单（`/admin/posts` 表格带内整列位移）并登记于本清单 §2.7 与迁移方案 §6.2 执行提示。
+
 ## 3. 非问题（已在库文档声明为有意差异，仅记录）
 
 - `DataTable` 的 `page` 为 **1 基**（PrimeVue 0 基偏移）——迁移时不要沿用 `+1`；库文档已说明。

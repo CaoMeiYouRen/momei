@@ -278,8 +278,8 @@ pnpm governance:count:primevue-usage
 | **已落地**（2026-10-15） | `AppUploader` → `components/app-uploader-v2.vue` | `InputGroup` / `InputText` / `Button` | B2：friend-links；非 B2：`friend-links`（公开页）、`general-settings`、`post-editor-media-settings`、`commercial-link-dialog` | 同上机制；字段行为（文件选择 / 拖放 / 上传回写）抽到 `composables/use-app-uploader-field.ts` 供两版共用，外壳样式抽到 `components/app-uploader.scss` |
 | 显式豁免 | `ConfirmDeleteDialog` | `Dialog` / `Button` | 8 个 admin 列表页 | 浮层类，随第六十九阶段 |
 | 显式豁免 | 页面内 `Dialog` / `Drawer` / `ConfirmDialog` / `Popover` / `useConfirm` / `v-tooltip` | 多种 | 各页 | 浮层/指令类，随第六十九阶段 |
-| 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡）。同理 `components/admin/posts/post-media-preview-cell.vue` 仅被列表页消费，亦随该页直接迁移 |
-| **已落地**（2026-10-15） | `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` | `Tag` / `Button`（浮层与表单控件保持 PrimeVue） | B2：posts 列表；非 B2：`/admin/posts/[id]`（继续用 V1） | **消费处静态择库**：本族为 admin 专属、消费者恰好两个（一迁移一未迁移）的有状态 / 多 prop 壳，组件内择库会让状态与 `open()` 语义出现第二份事实源；故由已迁移路由直接用 V2、编辑器路由继续用 V1。`publish-push-dialog` 的状态语义抽到 `composables/use-publish-push-dialog.ts` 供两版共用 |
+| 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡）。同理 `components/admin/posts/post-media-preview-cell.vue` 仅被列表页消费，亦随该页直接迁移（**2026-10-16 已随 `/admin/posts` 迁移**：批次在册族的 `Button` → `CaomeiButton`；非在册族的 `Image`（展示容器，随 B4）维持 PrimeVue） |
+| **已落地**（2026-10-15） | `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` | `Tag` / `Button`（浮层与表单控件保持 PrimeVue） | B2：posts 列表（**2026-10-16 已切换为消费 V2**）；非 B2：`/admin/posts/[id]`（继续用 V1） | **消费处静态择库**：本族为 admin 专属、消费者恰好两个（一迁移一未迁移）的有状态 / 多 prop 壳，组件内择库会让状态与 `open()` 语义出现第二份事实源；故由已迁移路由直接用 V2、编辑器路由继续用 V1。`publish-push-dialog` 的状态语义抽到 `composables/use-publish-push-dialog.ts` 供两版共用。**`/admin/posts` 迁移后本族仅剩 `/admin/posts/[id]` 一个 V1 消费者** |
 | 跨路由共享（延后） | `components/admin/settings/{agreements-settings,notification-delivery-log-list,setting-audit-log-list,admin-notification-settings}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue`、`setting-form-field`、`admin-floating-actions` | `DataTable` / `Tag` / `Button` 等 | host 路由 `/admin/settings`（B3） | **随 B3 迁移**（否则 B3 页面被动混用、且 `/admin/settings` 已有截图基线） |
 | 组件型目标 | `admin-taxonomy-page.vue`、`ai/task-list.vue`、`marketing-campaign-list.vue` | `DataTable` / `Tabs` / `Dialog` 等 | host：`/admin/categories` + `/admin/tags`、`/admin/ai`、`/admin/marketing` | 随各自 host 路由整路由迁移 |
 
@@ -416,6 +416,12 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | 提示条 | `severity` / `summary` / `detail` / `life` | `tone` / `title` / `description` / `duration` | |
 
 > 逐组件、逐 prop 的完整映射与已知行为差异，以 caomei-ui 设计规范 §7 为唯一事实源；本文档只保留迁移执行所需的总则。
+
+> **执行提示（2026-10-16 补记，B2 第七 ~ 第十路由批次沉淀）**：以下三条在两个以上路由重复出现，迁移新页面前先核对，避免重复踩坑：
+>
+> 1. **字段宽度钩子（上游 §1.1）**：caomei 字段家族的 `class` 只落**触发器**，宽度 / `max-width` 钩子在**字段外层**（`.caomei-select__field` 默认 `--caomei-select-max-width: 20rem`，自定义属性不向上继承）。受限宽度须由**包装元素**承载（`width` + 必要时 `--caomei-select-max-width: 100%`，token 生效位置是**字段外层或其祖先**）；直接写在组件 `<CaomeiSelect>` 上会静默无效。已在三个路由完成三处处置、落在两种位置（包装元素 ×1 / 字段容器 ×2）。
+> 2. **列定义（上游 §2.2 / §2.7）**：PrimeVue `Column` 的 `style` / `class` **同时落 `th` 与 `td`**（实测 inline 逐字一致），caomei 侧须分别以 `headerStyle` / `bodyStyle`、`headerClass` / `bodyClass` 两侧镜像；`DataTableColumn.width` **只落 `th`**，且只有 `px` 宽度参与冻结列的 `tableMinWidth` 与偏移估算（列宽优先写 `px`）。**选择列宽度不可配置**（PrimeVue 52px vs caomei 34px，整表左移），无 token 可覆盖，按「接受 + 登记」处置。
+> 3. **可见文案（§5.5 两条陷阱补记）**：`CaomeiButton` 的 `label` 只映射 `aria-label`、`CaomeiTag` **无** `value` prop——可见文本一律写**默认插槽**；`CaomeiBadge` 确有 `value`（勿混淆）。
 
 ### 6.3 有意差异
 

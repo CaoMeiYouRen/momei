@@ -21,7 +21,7 @@
 
 ## 处置表
 
-| 区域 | 迁移前（PrimeVue） | 迁移后（caomei-ui） | 差异像素（2026-10-15 实测） | 通道① | 通道② | 通道③ | 通道④ | 责任人 | 状态 |
+| 区域 | 迁移前（PrimeVue） | 迁移后（caomei-ui） | 差异像素（最新一次校准实测） | 通道① | 通道② | 通道③ | 通道④ | 责任人 | 状态 |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 | DataTable 分页器对齐（列表页底部） | 居中 | 右对齐（`justify-content: flex-end`） | submissions L1018 / D1022；comments L1177；waitlist L1168 | `--caomei-data-table-pagination-justify`（0.4.0 已交付） | 不适用 | 不需要（token 已够） | 已在 2026-09-25 反馈并交付 | `@full-stack-master` | 对齐已覆盖（token）；分页按钮自身渲染差异仍接受（同区域 comments L1177 / submissions L1018 / D1022 / waitlist L1168 进允许清单） |
 | DataTable 表头底色 | `--p-surface-*` 系列底色 | caomei 表头底色 token 推导值 | comments L9122 / D13052；submissions L7326 / D9937；external L6469 / D9034；waitlist L7008 / D10696；campaigns L5735 / D5845；placements L4564 / D4676 | `--caomei-color-*` 桥接后复核 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单） |
@@ -32,6 +32,9 @@
 | **字段行盒高度**（`Input` / `Select` 行；`MultiSelect` 未迁移不参与） | `36.39px`（font 16px / line-height 18.4px） | `36px`（固定高度 token `--caomei-control-height-md: 36px`；font 14px） | 单字段页几乎不可见；多字段长页面（link-governance）经 **2 行**迁移字段累计（≈0.78px）+ 卡片内边距取整后产生下游 **1px 文本位移**（浅 C 带 2229 / E 带 2574） | 需覆写 caomei 字段的 padding / line-height / font-size token（会改变库侧设计意图，本批不做） | 不适用 | 不适用 | 已登记上游反馈清单 §2.5（字段行盒口径，**待上游落档**） | `@full-stack-master` | 已接受（登记为口径项 + 1px 位移进允许清单） |
 | **DataTable 表头行高** | PrimeVue `43px` | caomei `33px` | link-governance 表头带浅 5799 / 深 5993（表头 −10px 被 caomei 空态行高 +7px 部分抵消，**表格总高仅 −3px**；**不存在「表体与分页器整体上移 10px」**） | `--caomei-*` 表头/行高 token 或 `size` 属性 | 不适用 | 不需要 | — | `@frontend-developer` | 已接受（进允许清单；与既有「表头底色 / 行高」同类） |
 | `CaomeiButton` 可见文案丢失 | PrimeVue `Button` 的 `label` 渲染可见文本 | `CaomeiButton` 的 `label` 仅映射 `aria-label`；可见文本须落默认插槽 | 修复前 external 头部创建按钮区域 L1660 / D1685；修复后降至 L599 / D617（仅剩按钮渲染差异） | 不适用（非样式问题） | 不适用 | 不适用 | 已在上游反馈清单 §2.4 登记，**待上游落档**（尚未取得上游 commit / PR 锚点） | `@full-stack-master` | **已修复**（2026-10-14 独立 fix 提交：外链页头部 + 弹窗页脚、投稿审核弹窗页脚改为默认插槽渲染；外链页允许清单与基线层快照已重新校准，投稿页差异总量不变——其弹窗不在截图内）。连带修复同页同批发现的 `openReview` 内 `useI18n()` 抛错（审核弹窗打不开） |
+| **DataTable 选择列宽度**（唯一含行多选的已迁移路由 `/admin/posts`） | PrimeVue 实测 **52px**（20px 复选框 + 单元格 `12px/16px` 内边距；`<Column selection-mode="multiple" header-style="width: 3rem" />`） | caomei 内建选择列实测 **34px**（`width: 1%` + `--caomei-space-2` 内边距 + 18px 复选框）；**无 prop / token 可覆盖** | posts 表格带内整列位移（表宽 1674px → 1656px，其余列整体左移 18px；含于表格带 17569px / 19488px） | 无（选择列内边距无 token） | 不适用 | 需魔法数字覆盖（本批不做） | 已登记上游反馈清单 §2.7（**待上游确认**） | `@full-stack-master` | 已接受（进允许清单；含于表格功能带）+ 上游登记 |
+| **行内 icon-only 按钮尺寸** | PrimeVue `p-button-icon-only` **40×40px** | caomei `CaomeiButton iconOnly` **36×36px**（`--caomei-control-height-md`） | posts 数据行高 **145px → 125px**（动作列 3 行按钮主导行高：120px → 108px），表格总高 263.78px → 204px，分页器连带上移 | `--caomei-button-height`（会偏离库侧控件高度档位，本批不做） | 不适用 | 不需要 | — | `@full-stack-master` | 已接受（进允许清单；含于表格带 / 分页带） |
+| **DataTable 表头行高（含换行形态）** | PrimeVue `/admin/posts` 实测 **61.78px**（表头文本在 `th` 内**换行**为两行：padding 12px×2 + 2 × 18.4px） | caomei 实测 **34.5px**（`th` 为 `white-space: nowrap`，单行） | posts 表格带内（与表格总高收缩合并计入 17569px / 19488px） | `--caomei-*` 表头 / 行高 token 或 `size` 属性（不改变 `nowrap` 行为） | 不适用 | 不需要 | — | `@full-stack-master` | 已接受（进允许清单；与既有「DataTable 表头行高」同类） |
 
 > 说明：表中「有意差异」条目不进允许清单（属迁移方案 §6.3 已声明项，按映射核对），其余「已接受」条目必须同时登记到 `tests/visual/parity-budget.json` 的 `allowlist`。
 
@@ -154,7 +157,36 @@
 
 几何核验（探针实测）：区块 `x32 y168 1376x215`、split `x32 y403 1376x199`、三表 `49,237 1342x129` / `49,456 644x129` / `747,456 644x129`——**区块位置与参考态一致**；差异为 caomei 表格的**空态行更高**（caomei 空态行 97px vs PrimeVue 约 76px）——**本路由 parity 环境无种子数据**（`server/utils/seed-test.ts` 只播种 settings + posts），三表均渲染 `#empty` 空态，故差异主体是空态行 + 表头 chrome，而非数据行或标签；该高度差使 split 区顶边 `y373 → y403`（+30px），已被允许清单区域 2 覆盖。**本门禁不覆盖数据行 / `Tag` 渲染**（标签不入画）——首轮审计发现的「`CaomeiTag` 无 `value` prop 导致空标签」即由此漏出，已修复并在迁移方案 §6.2 补记该陷阱。
 
-本批另处置上游 §1.1 的**第三次出现**（`Select` 的 `class` 只落触发器、宽度钩子在字段外层）：在**字段容器**上放开 `--caomei-select-max-width`；建议后续把该口径写入迁移方案 §6.2 的执行提示。
+本批另处置上游 §1.1 的**第三次出现**（`Select` 的 `class` 只落触发器、宽度钩子在字段外层）：在**字段容器**上放开 `--caomei-select-max-width`；该口径已随第十路由批次写入迁移方案 §6.2 的**执行提示**（见下）。
+
+**2026-10-16 第十路由实测（`/admin/posts`，2 个 testName）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-posts-list-light | admin | 3000 / 0.350% | 23277 / 1.796% | 5/5 条，23277px | 0px / 0.000% | PASS |
+| admin-posts-list-dark | admin | 3000 / 0.350% | 27886 / 2.152% | 5/5 条，27886px | 0px / 0.000% | PASS |
+
+本页是**含数据行的列表页**（parity 环境种子 1 篇文章），也是**唯一含行多选**的已迁移路由；差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列宽度差导致的**整表左移 18px** + 行高收缩导致的**纵向收缩**（表格总高 263.78px → 204px）。
+
+几何核验（探针实测，迁移前 → 迁移后）：
+
+| 元素 | 迁移前（PrimeVue） | 迁移后（caomei） | 判定 |
+|:---|:---|:---|:---|
+| 搜索字段 | `x88 y204.39 261×36.39` | `x88 y204 261×36` | 宽度**逐值一致**（按参考态实测约束 261px）；高差 0.39px 属字段行盒口径 |
+| 聚合开关 | 40×24（`y210.58`） | 40×22（`y211`） | 高度差 2px（`--caomei-switch-height: 22px`）；标签 `x1092 84×16.09` **两态一致** |
+| 状态选择器 | `x1192 160×36.39` | `x1192 160×36` | 宽度由包装元素承载（`10rem`）后**逐值一致** |
+| 表格宽 | 1674px（13 列） | 1656px（13 列） | **仅选择列 52 → 34px**；其余 12 列宽**逐值一致**（240/128/112/96/112/224/128/128/70/144/112/128） |
+| 表头行高 | 61.78px | 34.5px | PrimeVue 表头文本换行（2 行）vs caomei `nowrap`（1 行） |
+| 数据行高 | 145px | 125px | 动作列 icon-only 按钮 40px → 36px（3 行按钮 120 → 108px） |
+| 分页器中心 | `x≈720`（内容 `x568.09 w303.8`） | `x≈720`（`nav x618 w204`） | **水平居中两态一致**（token 生效）；垂直随表格总高上移 47.5px |
+| 翻译徽标 | 42.81 / 44.05 × 24（`min-width` 32px / `padding 2px 4px` / `font 11.2px`） | 44.81 / 46.05 × 24（同口径 token 覆盖） | 高度 / 最小宽 / 内边距 / 字号按 `.translation-badge.p-badge` 原口径以 `--caomei-badge-*` token 还原 |
+| 头部创建按钮 | `x1262 114×36.39` | `x1274 102×36` | 右边缘（x=1376）与高度对齐；宽度差属按钮排版差异 |
+
+允许清单按 **3 个非重叠功能带**（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（浅 2143 + 17569 + 1747 + 955 + 863 = 23277px；深 2221 + 19488 + 4313 + 986 + 878 = 27886px，均无带外像素、无余量）。
+
+> 全量门禁复跑（2026-10-16，第十路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 **11 路由（22 testName）**未归因差异均为 0；`PENDING_ROUTES` 至此为空（第六十八阶段条目 2 的 10 条 admin 数据列表路由全部迁移完成）。
+
+> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（22 张迁移前 PrimeVue 原貌）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
 
 > 全量门禁复跑（2026-10-16，第九路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 10 路由（20 testName）未归因差异均为 0；待迁移 1 路由（2 testName）实测 0px。
 
