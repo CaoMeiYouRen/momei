@@ -1,0 +1,30 @@
+@use "@/styles/variables" as *;
+
+/*
+  上传器外壳样式：由 `AppUploader`（PrimeVue 版）与 `AppUploaderV2`（caomei-ui 过渡版）共用，
+  避免两版各自维护后漂移。两版的差异仅在组合内的组件来源，外壳类名与拖放视觉完全一致。
+  颜色沿用 `--p-primary-*`：PrimeVue 预设仍全局加载，且两版共用同一份样式，
+  改造成 `--caomei-*` 会让已迁移路由与未迁移路由的拖放视觉出现分叉。
+
+  收口指针：`AppUploader`（V1）在 `/admin/friend-links` 迁移批次后不再被本文件的服务对象引用，
+  届时本文件的 `--p-primary-*` 应随 PrimeVue 预设卸载（B4）一并改为 `--caomei-color-primary-*`；
+  否则预设卸载后这些声明会静默变为 unset（无报错、无守卫）。
+*/
+.app-uploader {
+    transition: $transition-base;
+    border-radius: $border-radius-md;
+
+    &--dragging {
+        outline: 2px dashed var(--p-primary-500);
+        outline-offset: 2px;
+        background-color: var(--p-primary-50);
+    }
+
+    .hidden {
+        display: none;
+    }
+}
+
+:global(.dark) .app-uploader--dragging {
+    background-color: var(--p-primary-900);
+}

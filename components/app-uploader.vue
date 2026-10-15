@@ -36,8 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { UploadType, useUpload } from '@/composables/use-upload'
+import { computed } from 'vue'
+import { UploadType } from '@/composables/use-upload'
+import { useAppUploaderField } from '@/composables/use-app-uploader-field'
 
 const props = defineProps<{
     placeholder?: string
@@ -50,80 +51,24 @@ const props = defineProps<{
 
 const modelValue = defineModel<string | null>()
 
-const fileInput = ref<HTMLInputElement | null>(null)
-const isDragging = ref(false)
-
-const { uploading, uploadFile } = useUpload({
+// 字段行为与 `AppUploaderV2`（caomei-ui 过渡版）共用，两版仅模板不同。
+const {
+    fileInput,
+    isDragging,
+    uploading,
+    triggerFileSelect,
+    onFileChange,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+} = useAppUploaderField({
     type: props.type,
     postId: computed(() => props.postId || null),
+    disabled: computed(() => Boolean(props.disabled)),
+    onUploaded: (url) => {
+        modelValue.value = url
+    },
 })
-
-const triggerFileSelect = () => {
-    fileInput.value?.click()
-}
-
-const handleFile = async (file: File) => {
-    try {
-        const url = await uploadFile(file)
-        if (url) {
-            modelValue.value = url
-        }
-    } catch (error) {
-        // Error handled in useUpload
-    }
-}
-
-const onFileChange = (e: Event) => {
-    const files = (e.target as HTMLInputElement).files
-    if (files && files[0]) {
-        handleFile(files[0])
-    }
-    // Reset input
-    if (fileInput.value) {
-        fileInput.value.value = ''
-    }
-}
-
-const onDragOver = (e: DragEvent) => {
-    if (props.disabled || uploading.value) return
-    if (e.dataTransfer?.types?.includes('Files')) {
-        isDragging.value = true
-    }
-}
-
-const onDragLeave = () => {
-    isDragging.value = false
-}
-
-const onDrop = (e: DragEvent) => {
-    if (props.disabled || uploading.value) return
-    isDragging.value = false
-    const files = e.dataTransfer?.files
-    if (files && files[0]) {
-        handleFile(files[0])
-    }
-}
 </script>
 
-<style lang="scss" scoped>
-@use "@/styles/variables" as *;
-
-.app-uploader {
-    transition: $transition-base;
-    border-radius: $border-radius-md;
-
-    &--dragging {
-        outline: 2px dashed var(--p-primary-500);
-        outline-offset: 2px;
-        background-color: var(--p-primary-50);
-    }
-
-    .hidden {
-        display: none;
-    }
-}
-
-:global(.dark) .app-uploader--dragging {
-    background-color: var(--p-primary-900);
-}
-</style>
+<style lang="scss" scoped src="./app-uploader.scss"></style>
