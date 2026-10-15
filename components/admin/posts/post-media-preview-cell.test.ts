@@ -4,9 +4,9 @@ import PostMediaPreviewCell from './post-media-preview-cell.vue'
 import { PostStatus, PostVisibility, type Post } from '@/types/post'
 
 const stubs = {
-    Button: {
-        template: '<button :class="icon" @click="$emit(\'click\')"><slot /></button>',
-        props: ['icon', 'ariaLabel', 'text', 'rounded', 'severity'],
+    CaomeiButton: {
+        template: '<button :data-label="label" class="caomei-button" @click="$emit(\'click\')"><slot name="icon" /></button>',
+        props: ['iconOnly', 'variant', 'rounded', 'tone', 'label'],
         emits: ['click'],
     },
     Image: {
@@ -122,10 +122,22 @@ describe('PostMediaPreviewCell', () => {
         expect(wrapper.html()).not.toContain('pages.admin.posts.media.audio_available')
         expect(wrapper.text()).toContain('英语')
 
-        await wrapper.get('button.pi-play').trigger('click')
+        // 二态图标互斥断言：初始为播放（lucide `Play`），点击后切到关闭（lucide `X`）。
+        const toggle = wrapper.get('button.caomei-button')
+        expect(toggle.find('svg.lucide-play').exists()).toBe(true)
+        expect(toggle.find('svg.lucide-x').exists()).toBe(false)
+        // 可访问名随状态翻转（迁移前为 `aria-label`，迁移后为 caomei `label`）。
+        expect(toggle.attributes('data-label')).toBe('预览')
+
+        await toggle.trigger('click')
 
         const audio = wrapper.get('audio')
         expect(audio.attributes('src')).toBe('/audio/en-preview.mp3')
         expect(wrapper.html()).toContain('00:01:15')
+
+        const openedToggle = wrapper.get('button.caomei-button')
+        expect(openedToggle.find('svg.lucide-x').exists()).toBe(true)
+        expect(openedToggle.find('svg.lucide-play').exists()).toBe(false)
+        expect(openedToggle.attributes('data-label')).toBe('关闭')
     })
 })

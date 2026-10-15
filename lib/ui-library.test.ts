@@ -65,6 +65,14 @@ describe('resolveUiLibraryForRoutePath', () => {
         expect(resolveUiLibraryForRoutePath('/admin/comments')).toBe('caomei-ui')
     })
 
+    it('本批新增登记项经模块默认清单解析为 caomei-ui（防止登记被静默移除）', () => {
+        // 守卫按常量动态遍历，条目被删只会**静默降低覆盖**而不会报错，故在此对该事实显式加钉。
+        expect(CAOMEI_UI_ROUTE_PREFIXES).toContain('/admin/posts')
+        expect(resolveUiLibraryForRoutePath('/admin/posts')).toBe('caomei-ui')
+        // 前缀语义连带子路由（编辑器 `/admin/posts/[id]` 不在迁移范围，但按前缀比较仍命中）。
+        expect(resolveUiLibraryForRoutePath('/admin/posts/abc')).toBe('caomei-ui')
+    })
+
     it('剥离已知 locale 前缀后再匹配', () => {
         expect(resolveUiLibraryForRoutePath('/en-US/admin/comments')).toBe('caomei-ui')
         expect(resolveUiLibraryForRoutePath('/zh-CN/admin/comments')).toBe('caomei-ui')
@@ -72,8 +80,10 @@ describe('resolveUiLibraryForRoutePath', () => {
     })
 
     it('未登记的 locale 前缀路由仍回退 PrimeVue', () => {
-        expect(resolveUiLibraryForRoutePath('/en-US/admin/posts')).toBe('primevue')
-        expect(resolveUiLibraryForRoutePath('/admin/posts')).toBe('primevue')
+        // 锚点用**结构性不会登记**的非 admin 路由（`/settings` 不在迁移批次范围内），
+        // 避免随迁移批次推进反复改锚（`/admin/settings` 属待迁移路由，登记后会失效）。
+        expect(resolveUiLibraryForRoutePath('/en-US/settings')).toBe('primevue')
+        expect(resolveUiLibraryForRoutePath('/settings')).toBe('primevue')
     })
 
     it('不把两字母业务段误判为 locale 前缀', () => {

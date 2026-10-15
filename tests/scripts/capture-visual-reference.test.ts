@@ -90,3 +90,23 @@ describe('参考态覆盖保护', () => {
         expect(buildHeadCaptureGrepArgs(['a', 'b'], { root })).toEqual(['--grep', '(a|b)'])
     })
 })
+
+describe('HEAD 就地采集：无待采目标时的退出语义', () => {
+    it('就地采集必须声明 --pass-with-no-tests（参考态齐备后全量采集不应硬失败）', () => {
+        // 保护口径排除「磁盘上已有参考态」的全部用例；当迁移批次清空待迁移路由（`PENDING_ROUTES`
+        // 为空）时，HEAD 全量采集不再有任何候选用例，Playwright 默认以 `No tests found` 退出码 1
+        // 使 `pnpm test:visual:reference` 硬失败。该断言把「无待采目标 = 成功」的口径钉在
+        // **就地采集块**内，避免后续重构静默移除该 flag。
+        const source = fs.readFileSync(
+            path.join(process.cwd(), 'scripts', 'testing', 'capture-visual-reference.mjs'),
+            'utf8',
+        )
+        const start = source.indexOf('async function captureInPlace')
+        const end = source.indexOf('async function', start + 10)
+        const block = source.slice(start, end === -1 ? undefined : end)
+
+        expect(start).toBeGreaterThan(-1)
+        expect(block).toContain('--update-snapshots')
+        expect(block).toContain('--pass-with-no-tests')
+    })
+})
