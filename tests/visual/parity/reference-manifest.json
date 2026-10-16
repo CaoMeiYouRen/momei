@@ -1,5 +1,5 @@
 {
-    "generatedAt": "2026-10-13T18:33:42.706Z",
+    "generatedAt": "2026-10-16T04:10:59.436Z",
     "environment": {
         "browser": "chromium 156.0.8078.4",
         "playwright": "1.64.0",
@@ -169,6 +169,34 @@
             "source": "in-place",
             "label": "HEAD",
             "capturedAt": "2026-10-13T17:28:36.185Z"
+        },
+        "admin-categories-list-dark": {
+            "ref": "HEAD",
+            "commit": "fe1e4935299d99fa4e86f956f815e4b63e6a69f1",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T04:10:59.436Z"
+        },
+        "admin-categories-list-light": {
+            "ref": "HEAD",
+            "commit": "fe1e4935299d99fa4e86f956f815e4b63e6a69f1",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T04:10:59.436Z"
+        },
+        "admin-tags-list-dark": {
+            "ref": "HEAD",
+            "commit": "fe1e4935299d99fa4e86f956f815e4b63e6a69f1",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T04:10:59.436Z"
+        },
+        "admin-tags-list-light": {
+            "ref": "HEAD",
+            "commit": "fe1e4935299d99fa4e86f956f815e4b63e6a69f1",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T04:10:59.436Z"
         }
     }
 }

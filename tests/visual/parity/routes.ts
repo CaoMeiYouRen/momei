@@ -115,7 +115,33 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
     },
+    {
+        name: 'admin-categories-list',
+        path: '/admin/categories',
+        heading: '分类管理',
+        tier: 'admin',
+        migrated: true,
+        /* 服务端分页列表：数据由 `/api/categories` 异步返回。parity 环境种子数据不含分类 / 标签，
+         * 故参考态为**空表 + 空态**；弹窗内组件不在本层覆盖范围（参考态不打开弹窗），
+         * 由基线层用例 `admin-taxonomy-dialog.visual.test.ts` 覆盖。 */
+        readyResponse: '/api/categories',
+    },
+    {
+        name: 'admin-tags-list',
+        path: '/admin/tags',
+        heading: '标签管理',
+        tier: 'admin',
+        migrated: true,
+        readyResponse: '/api/tags',
+    },
 ]
 
-/** 待迁移路由层：条目 2 收口后为空（10 条 admin 数据列表路由全部迁移）；保留为后续批次（B3 设置族 / 条目 3 组件型目标 host 路由）的落点。 */
+/**
+ * 待迁移路由层：当前离线（无待迁移路由）。
+ *
+ * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集）；
+ * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
+ * 「与迁移前原貌」的偏差逐项归因。文件与其中的就绪口径（`stable` / `readyResponse` /
+ * `readySelector`）保留为后续批次（B3 设置族 / 组件型目标剩余路由）的模板。
+ */
 export const PENDING_ROUTES: ParityRoute[] = []

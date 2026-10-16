@@ -6,10 +6,10 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * **本文件当前不产出用例**：条目 2 收口后 `PENDING_ROUTES` 为空（10 条 admin
- * 数据列表路由全部迁移）。文件与其中的就绪口径（`stable` / `readyResponse` / `readySelector`）
- * 保留为**后续批次的模板**——B3（设置族）与条目 3（组件型目标 host 路由）新增待迁移路由时，
- * 在此登记即自动获得与已迁移层同口径的比对。
+ * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标首路由批次完成后，`/admin/categories`
+ * 与 `/admin/tags` 已移入 `MIGRATED_ROUTES`，待迁移层再次回到空集。文件与其中的就绪口径
+ * （`stable` / `readyResponse` / `readySelector`）保留为**后续批次的模板**（见 `docs/plan/todo.md`）：
+ * 新增待迁移路由时在此登记，即自动获得与已迁移层同口径的比对。
  *
  * 待迁移层的语义：这些路由当前仍是 PrimeVue 实现，参考态即当前 PrimeVue 渲染（HEAD 采集）；
  * 待其迁移到 caomei-ui 后，本文件中的用例会立即反映「与迁移前原貌」的偏差，
