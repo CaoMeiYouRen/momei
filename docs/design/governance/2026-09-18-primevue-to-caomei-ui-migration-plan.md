@@ -143,7 +143,7 @@ pnpm governance:count:primevue-usage
 
 其余 `0.3.0` 变更（docs 类 5 项与文档站导航栏 768–959px 横向溢出修复）经核对属库侧文档面，对 momei 接入面无影响、无动作。
 
-**momei 侧由此产生的动作**：`0.3.0` 升级（含组件清单按 `0.3.0` 重数、`keyCss` 口径复测，见 §8.4.1）**已于 2026-09-26 完成**（第六十八阶段条目 1）——升级前已读 `0.3.0` `CHANGELOG` 确认无 `BREAKING CHANGES`；`package.json` / `pnpm-lock.yaml` 精确锁定 `0.3.0`；视觉回归 10/10、定向单测 25/25 与试点页 E2E 7/7 通过；`keyCss` 实测 60,896 字节（口径澄清见 §8.4.1）；组件消费清单按 `0.3.0` 重数仍为 B2 试点 5 族 8 处。验证见 [回归记录](../../reports/regression/current.md) 第六十八阶段条目 1 节。
+**momei 侧由此产生的动作**：`0.3.0` 升级（含组件清单按 `0.3.0` 重数、`keyCss` 口径复测，见 §8.4.1）**已于 2026-09-26 完成**（第六十八阶段条目 1）——升级前已读 `0.3.0` `CHANGELOG` 确认无 `BREAKING CHANGES`；`package.json` / `pnpm-lock.yaml` 精确锁定 `0.3.0`；视觉回归 10/10、定向单测 25/25 与试点页 E2E 7/7 通过；`keyCss` 实测 60,896 字节（口径澄清见 §8.4.1）；组件消费清单按 `0.3.0` 重数仍为 B2 试点 5 族 8 处。验证见 [回归记录归档分片](../../reports/regression/archive/2026-09-26-phase68-item1-upgrade-030.md)。
 
 ### 3.8 上游 0.4.0~0.6.0 变更基线与目标依赖漂移收口（2026-10-13）
 
@@ -265,6 +265,7 @@ pnpm governance:count:primevue-usage
 - **显式豁免**：全局壳 `Toast` / `ConfirmDialog`；延后批次的浮层（含 `ConfirmDeleteDialog`）；`v-tooltip` 指令（随浮层批次处理）；**不在本批在册族的表单控件与展示容器**（`DatePicker` / `InputNumber` / `Checkbox` / `MultiSelect` / `ProgressSpinner` / `Card` / `Message` / `Image` 等，随 B3 表单 / B4 展示批次；2026-10-14 补入、2026-10-15 补 `MultiSelect` / `Card`——此前它们既不在册族也不在豁免枚举，导致「为何可在已迁移路由内保留 PrimeVue」缺单点出处。**2026-10-16 条目 3 首路由批次补注**：`Checkbox` / `Textarea` / `Tabs` 族 / `InputGroup` 四族在**该批次的两个 host 路由**上已由「路由级在册族增量」纳入（见下条），故对本批其余已收口路由仍是豁免族——豁免与增量的边界以 `lib/ui-library.ts` 的 `resolveInScopeComponents(scope)` 为可执行事实源）。
     
 - **路由级在册族增量（2026-10-16 条目 3 首路由批次新增）**：批次基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`）之外，某条路由因「整路由迁移、不做半路由切换」需要额外纳入的组件族，登记在同一条路由范围条目里（`CAOMEI_UI_ROUTE_SCOPES[].inScopeComponents`），由 `resolveInScopeComponents(scope)` 合并为「基准 + 增量」。**为什么不直接全局纳入**：`Checkbox` / `Textarea` 等族在已收口批次的页面里合法存在（实测 `pages/admin/submissions/index.vue` 命中两族），全局纳入会让这些完成路由重新判红、被迫回改，违背「已收口批次不因后续批次被动回改」的口径。本批的增量族为 `Tabs` / `TabList` / `Tab` / `TabPanels` / `TabPanel` / `InputGroup` / `Checkbox` / `Textarea`——其中 `InputGroup` 与 `InputText` **结构耦合**（PrimeVue `InputGroup` 依赖子元素 `.p-inputtext` 做 flex 与圆角拼接，只迁输入框会静默破版），是必须成组迁移的主因。
+- **子路由例外登记（2026-10-16 组件型目标第二批次新增）**：登记前缀是**前缀语义**，子路由会被连带解析为 caomei-ui。不在本批范围内的子路由（典型：与 B4 展示族同页、或与未迁移页面共享组件）必须在 `primeVueSubRoutes` 显式登记并给出理由；守卫据此放行其「在册族零残留」判定，但**仍强制**该页面不得引用组件内择库型过渡组件（`AppAvatarV2` / `AppUploaderV2`）或开启 `AdminPageHeader` 的 `show-language-switcher`——三者都会让子路由静默切到 caomei；同时，已登记前缀下**其他**未登记的非 `index.vue` 页面会触发守卫响亮失败。已登记两条例外：`/admin/posts` → `pages/admin/posts/[id].vue`（编辑器）、`/admin/ai` → `pages/admin/ai/tasks/[id].vue`（B4 展示族 + 共享内容组件）。
 - **路由自有实体文件的守卫扫描面（2026-10-16 条目 3 首路由批次新增）**：`CAOMEI_UI_ROUTE_SCOPES[].ownedFiles` 登记「随本路由迁移、但不在默认扫描面（页面文件）内」的文件，供守卫合并扫描。触发场景是本仓的**薄包装页**：`pages/admin/categories/index.vue` 只有一行 `<AdminTaxonomyPage :config="…" />`，实体在 `components/admin/admin-taxonomy-page.vue`；只扫页面文件时「在册族零残留」恒真、「至少使用一个 caomei-ui 组件」恒假，两条断言同时失效。
 - **跨路由共享组件**：不直接改写（否则未迁移路由会立刻出现「共享壳 caomei + 页面 PrimeVue」混用），改为**过渡组件 + 路由选择**——新增 `components/admin/content-language-switcher-v2.vue`，由 `AdminPageHeader` 经 `lib/ui-library.ts` 的路由 → 组件来源单一事实源选择实现，待全站迁完后再回收统一。
 - **守卫**：`tests/modules/ui-library-route-migration-guard.test.ts` 遍历已登记前缀，断言其页面文件不残留在册族 PrimeVue 组件、且至少使用一个 caomei-ui 组件；`CAOMEI_UI_ROUTE_PREFIXES` 由此获得首个消费者（此前为纯登记）。

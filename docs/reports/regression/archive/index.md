@@ -11,6 +11,8 @@
 ## 2. 入口说明
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
+- 2026-09-26 第六十八阶段条目 1（`caomei-ui` 升级到 `0.3.0` 与基线复测：升级记录 / `BREAKING CHANGES` 阅读 / `keyCss` 复测口径 / 组件消费清单重数；2026-10-16 第十次自 `current.md` 滚动归档，并同步改写 2 处节名锚点——迁移方案 1 处、`.github/perf/bundle-baseline.json` 1 处）: [2026-09-26-phase68-item1-upgrade-030.md](./2026-09-26-phase68-item1-upgrade-030.md)
+- 2026-10-13 workflow pre-check（test，自动化回填的非阶段记录；2026-10-16 第九次自 `current.md` 滚动归档，为组件型目标批次窗口腾出 `line-count` 余量，无外部节名锚点引用）: [2026-10-13-workflow-precheck.md](./2026-10-13-workflow-precheck.md)
 - 2026-10-14 至 2026-10-15 第六十八阶段条目 2 第三批次 4 个窗口——第五路由（ad/placements）/ 过渡组件基建（共享壳 5 件套）/ 第七路由（subscribers）/ 第八路由（users）（2026-10-16 第八次自 `current.md` 滚动归档；`todo.md` 的「过渡组件基建窗口」引用已同步改写为本分片「过渡组件基建节」）: [2026-10-14-to-2026-10-15-phase68-b2-batch3.md](./2026-10-14-to-2026-10-15-phase68-b2-batch3.md)
 - 2026-10-15 第六十八阶段条目 2 第六路由窗口（`/admin/migrations/link-governance`，含页码基准切换与 `--caomei-select-max-width` 几何修复；2026-10-16 第七次自 `current.md` 滚动归档，无外部节名短语引用）: [2026-10-15-phase68-b2-link-governance.md](./2026-10-15-phase68-b2-link-governance.md)
 - 2026-10-14 第六十八阶段条目 2 第二批次 3 个窗口——第三路由（waitlist）/ `CaomeiButton` 可见文案回归修复 / 第四路由（ad/campaigns）（2026-10-15 第六次自 `current.md` 滚动归档；`todo.md` 的「可见文案回归节」引用已同步改写为本分片）: [2026-10-14-phase68-b2-batch2.md](./2026-10-14-phase68-b2-batch2.md)

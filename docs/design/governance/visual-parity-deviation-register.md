@@ -41,12 +41,17 @@
 | **头部语言切换器（V2 触发）** | PrimeVue `Select` 版 `.content-language-switcher` 高 **30.09px** | caomei 版高 **28px** | categories L863 / D878；tags L863 / D878（头部切换器带） | 不适用 | 不适用 | 不需要 | — | `@full-stack-master` | 已接受（进允许清单；属路由登记后按迁移方案 §5.5「消费处静态择库」切换的既有过渡组件差异） |
 | **翻译徽标几何（`/admin/categories` + `/admin/tags`，数据行态）** | PrimeVue `Badge` 三处叠加口径：高 **24px** / 最小宽 **32px** / padding **2px 4px** / font **11.2px** | caomei `CaomeiBadge` 默认高 **20px** / font **12px**；元素类由 `p-badge` 变 `caomei-badge` 后全局 `.translation-badge.p-badge` 规则静默失效 | 本路由参考态为空表（**数据行不入画**）→ 门禁层无像素对照 | 不适用 | 不适用 | **已修复**：按 `/admin/posts` 同口径补 `--caomei-badge-height` / `--caomei-badge-min-width` / `--caomei-badge-padding-x` / `--caomei-badge-font-size` 还原块（token 通道） | — | `@full-stack-master` | **已修复**（2026-10-16 审计 W2：补 token 还原块；数据行态截图覆盖缺口登记为未覆盖边界） |
 | **taxonomy 弹窗宽度（内容驱动）** | PrimeVue 由内容驱动、实测 **444px**（`p-fluid` 字段撑满弹窗） | caomei 字段宽度只由容器决定 → 弹窗收窄到 **372px**（弹窗内控件同步收窄：输入框 328→271、复选 20→18、页脚按钮 82→74） | 弹窗不在门禁层截图内（parity 参考态无数据行 → 弹窗不打开），由基线层用例 `admin-taxonomy-dialog` 覆盖 | 不适用 | 不适用 | **已修复**：显式 `:style="{ width: 'min(90vw, 444px)' }"` 回到迁移前实测宽度（用属性而非 scoped 类：该浮层由 PrimeVue 组件渲染，类选择器与 scoped 作用域属性的落点依赖库内部结构） | — | `@full-stack-master` | **已修复**（弹窗宽度回到 444px；弹窗内控件自身差异按基线层快照接受——页签 51.39→37.59px 等） |
+| **`Tabs` 族替换（`/admin/ai` 页签）** | PrimeVue `Tabs` / `Tab`：页签高与内边距按 Aura 档位，激活态下边框指示 | caomei `CaomeiTabs` / `CaomeiTabTrigger`：页签高 37.59px（同 taxonomy 弹窗实测档位）、内边距与指示条渲染差异 | `admin-ai-stats` L2072 / D2127（页签行带）；页签高度变化触发的整体纵向位移计入内容带 | `--caomei-tabs-*` token（本批不做，与弹窗内 Tabs 同口径） | 不适用 | 不需要 | — | `@full-stack-master` | 已接受（进允许清单） |
+| **`Tag` → `CaomeiTag`（`/admin/ai` 统计卡片 7 处 + 任务列表状态标签）** | PrimeVue `Tag`：`severity` 语义色 + 尺寸档 | caomei `CaomeiTag`：`tone` 语义色（`secondary` / `contrast` → `neutral` 为有损近似）、尺寸档差异 | `admin-ai-stats` L24879 / D25661（内容带，与页签位移合并计）；`admin-ai-tasks-list` L20419 / D24039（单带） | `--caomei-tag-*` token（本批不做） | 不适用 | 不需要 | 不适用（属迁移方案 §6.3 有意差异 #2 的映射核对） | `@full-stack-master` | 已接受（进允许清单） |
+| **任务列表刷新按钮位置（caomei `DataTable` 无 `#header` 插槽）** | 按钮位于 PrimeVue `DataTable` 的 `#header` 插槽内（表格容器内右上角一行） | caomei 侧同一 `.table-header` 结构改置于**表格之上**（保持右对齐单个图标按钮意图） | `admin-ai-tasks-list` 单带内（L20419 / D24039 含该行位移） | 不适用 | 不适用 | 不需要（无插槽可对齐） | 已登记上游反馈清单 §2.8（`DataTable` 缺 `#header` / `#footer` 插槽，2026-10-16 新增条目） | `@full-stack-master` | 已接受（进允许清单）+ 登记为结构性差异（契约用例显式断言位置，避免静默丢失入口） |
+
 > 说明：表中「有意差异」条目不进允许清单（属迁移方案 §6.3 已声明项，按映射核对），其余「已接受」条目必须同时登记到 `tests/visual/parity-budget.json` 的 `allowlist`。
 
 ## 校准记录
 
 > 校准命令：`pnpm test:visual:parity`
 
+- 全量门禁复跑（2026-10-16，组件型目标第二批次：`/admin/ai`）：**30/30 通过**，未归因差异 **0px**；新增 4 条按 2 个对照面校准（stats 2 带 / tasks 1 带，声明值 = 各带实测值，求和 = 全图实测值：stats 浅 26951 / 深 27788；tasks 浅 20419 / 深 24039）。
 - 全量门禁复跑（2026-10-16，组件型目标首路由批次：`/admin/categories` + `/admin/tags`）：**26/26 通过**，未归因差异 **0px**；新增 4 条按 4 个非重叠功能带校准（声明值 = 各带实测值，四带求和 = 全图实测值：浅 8985 / 深 11520、浅 8363 / 深 10925）。
 > 参考态采集：`pnpm test:visual:reference`（待迁移路由，HEAD）与
 > `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route>`（已迁移路由）。
@@ -193,7 +198,7 @@
 
 > 全量门禁复跑（2026-10-16，第十路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 **11 路由（22 testName）** 未归因差异均为 0；当时 `PENDING_ROUTES` 为空（10 条 admin 数据列表路由全部迁移完成）。
 
-> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（截至第十路由批次为 22 张，现为 26 张）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
+> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（截至第十路由批次为 22 张，分类 / 标签批次后 26 张，`/admin/ai` 批次后 **30 张**）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
 
 > 全量门禁复跑（2026-10-16，第九路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 10 路由（20 testName）未归因差异均为 0；待迁移 1 路由（2 testName）实测 0px。
 
