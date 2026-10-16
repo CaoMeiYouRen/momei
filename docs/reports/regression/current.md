@@ -93,7 +93,7 @@
 | 3 | `test(visual)` | 门禁层两条对照面（`selectTab` 机制）+ 4 张迁移前参考态 + 预算校准 | 9 文件（含 4 张二进制） |
 | 4 | 本笔 `docs(migration)` | 治理记录（回归窗口 / 第十次滚动归档 / §5.5 / 上游反馈 §2.8 / 偏差处置表 / backlog / todo / 基线 note 锚点改写） | 10 文件 |
 
-**规模口径说明**：① `lint-staged` 的 `git add` 会把当时未暂存的改动一并 stage，故按**实测落库**记录；②「行尾归一」类改动共两处（`composables/use-admin-ai-page.ts` 与 `composables/use-admin-ai-page.test.ts` 的 CRLF → LF，净效果符合 `.editorconfig` 的 `end_of_line = lf`），分别落在第 1 / 第 2 笔并在提交信息中显式声明，不静默混入。
+**规模口径说明**：① `lint-staged` 的 `git add` 会把当时未暂存的改动一并 stage，故按**实测落库**记录；②「行尾归一」类改动共两处（`composables/use-admin-ai-page.ts` 与 `composables/use-admin-ai-page.test.ts` 的 CRLF → LF，净效果符合 `.editorconfig` 的 `end_of_line = lf`）：第 1 笔（`use-admin-ai-page.ts`）已在提交信息显式声明；第 2 笔（`use-admin-ai-page.test.ts`）的归一未在提交信息单列（表现为整文件重写），**在此显式补登**，不以「看不出来」的方式静默混入。
 
 ### 未覆盖边界 / 观察项
 

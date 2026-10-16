@@ -172,8 +172,8 @@ describe('AdminAiTaskList', () => {
         expect(filterButtons[0]?.attributes('data-variant')).toBe('secondary')
         expect(filterButtons[0]?.attributes('data-tone')).toBe('danger')
         expect(filterButtons[0]?.attributes('disabled')).toBeDefined()
-        // 迁移前该按钮为纯图标且无可访问名：`:label` 是本次补齐的可访问名，须加钉防回退。
-        expect(filterButtons[0]?.attributes('data-label')).toBeTruthy()
+        // 迁移前该按钮为纯图标且无可访问名：`:label` 是本次补齐的可访问名，按精确值加钉（`toBeTruthy` 放不过空串但不拦错值）。
+        expect(filterButtons[0]?.attributes('data-label')).toBe((wrapper.vm as unknown as { $t: (key: string) => string }).$t('common.delete'))
     })
 
     it('刷新按钮：caomei `DataTable` 无 `#header` 插槽，改置于表格之上且仍为单个右对齐图标按钮', async () => {
@@ -182,7 +182,7 @@ describe('AdminAiTaskList', () => {
         const refresh = wrapper.find('.table-header .caomei-button')
 
         expect(refresh.exists()).toBe(true)
-        expect(refresh.attributes('data-label')).toBeTruthy()
+        expect(refresh.attributes('data-label')).toBe((wrapper.vm as unknown as { $t: (key: string) => string }).$t('common.refresh'))
         // 表格之上（DOM 顺序在 DataTable 之前）——`#header` 插槽在 caomei 侧不存在，须避免静默丢失入口。
         const html = wrapper.html()
         expect(html.indexOf('table-header')).toBeLessThan(html.indexOf('caomei-data-table'))
