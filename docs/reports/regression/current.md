@@ -33,7 +33,7 @@
 | `lib/ui-library.ts` | 登记 `/admin/marketing` 范围（`ownedFiles` 两个自有组件；无增量、无子路由例外） | §5.5 |
 | `tests/modules/ui-library-guard-helpers.ts` | 新增 `stripNonTemplateBlocks`（剥离 `<script>` / `<style>` 块）并在 `findInScopePrimeVueResiduals` 内生效；子路由例外页面的标记扫描同步收窄 | §5.5 |
 | `tests/modules/ui-library-route-migration-guard.test.ts` | 新增 2 条口径用例（「脚本块内的 TS 泛型实参不被误判为组件标签」/「片段来源（无 `<script>` 块）不受剥离影响，外层标签仍被计入（防假阴性）」） | §5.5 / §8.2 |
-| `components/admin/marketing-campaign-list.test.ts`、`components/admin/marketing-campaign-form.test.ts`、`pages/admin/marketing/index.test.ts`（均新增） | 25 条契约用例：列定义与 `align` / 受控分页与 `@page` 1 基 / 状态 tone 与可见文案与图标 / 行内动作形态与裁剪 / 刷新按钮位置 / 标题与空态；表单的 `id` 透传与 `fluid` 删除 / 保留族仍在原位 / 按钮形态与文案；页面的创建按钮、统计卡片、弹窗标题、编辑与保存接线 | §8.2 |
+| `components/admin/marketing-campaign-list.test.ts`、`components/admin/marketing-campaign-form.test.ts`、`pages/admin/marketing/index.test.ts`（均新增） | 32 条契约用例（列表 14 / 表单 11 / 页面 7）：列定义与 `align` / 受控分页与 `@page` 1 基 / 状态 tone 与可见文案与图标 / 行内动作形态与裁剪 / 刷新按钮位置 / 标题与空态；表单的 `id` 透传与 `fluid` 删除 / 保留族仍在原位 / 按钮形态与文案；页面的创建按钮、统计卡片、弹窗标题、编辑与保存接线 | §8.2 |
 | `tests/helpers/caomei-component-stubs.ts` | `CaomeiInput` / `CaomeiSelect` 桩补 `data-id`（表单用例需断言 `id` 透传） | §8.2 |
 | `tests/visual/parity/routes.ts`、`parity-budget.json`、`reference/*.png` | `selectTab` → `activate` 泛化；`/admin/marketing` 两个对照面（默认视图 + 弹窗表单，各 2 主题 = 4 testName）；参考态 4 张（迁移前 HEAD 就地采集） | §8.2 |
 | `tests/e2e/admin.e2e.test.ts` | 路由矩阵 14 → 15 行；新增「营销页」用例（列表就绪 + 弹窗内出现 caomei 字段，`toPass` 重试 + 显式 `setTimeout(60s)`） | §8.2 |
@@ -64,8 +64,8 @@
 - 契约用例：列表 **14 条** / 表单 **11 条** / 页面 **7 条**（均为新增，共 32 条；含写路径、`confirm` 接线、处理中态、保存 payload、弹窗重开的编辑态复位）
 - 门禁层（截图）：`pnpm test:visual:parity` **34/34 通过**（30 既有 + 4 新增；新增 4 条未归因差异 0px）
 - 基线层（截图）：`pnpm test:visual` **16/16 通过**（既有快照零变化）
-- E2E：管理端 **7 用例通过**（路由矩阵 15 行 + 营销页弹窗断言）
-- 质量门：`pnpm typecheck` 0 error；`pnpm lint` 0 error / 8 warning（无新增）；`pnpm lint:css` 通过；`pnpm test` 全量通过
+- E2E：管理端 **7 用例通过**（路由矩阵 15 行 + 营销页弹窗断言）；为排除「首跑依赖 retry」的抖动疑点，另以 `--repeat-each=2` 复跑 **14 passed（2.3m，无 flaky）**——两个交互用例已显式 `test.setTimeout(60000)`（内部等待预算贴 60s，属失败路径上限）
+- 质量门：`pnpm typecheck` 0 error；`pnpm lint` 0 error / 8 warning（无新增）；`pnpm lint:css` 通过；`pnpm test` 全量通过（**559 文件 · 4870 用例通过 / 1 skipped**，2026-10-16 实跑）
 - 文档：`docs:check:*` 四项 + `lint-md` 通过
 
 ### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
@@ -102,7 +102,7 @@
 **本批三项「首次」**：
 
 1. **首个「子路由例外登记」**：新机制 `CAOMEI_UI_ROUTE_SCOPES[].primeVueSubRoutes`——登记前缀是**前缀语义**，子路由会被连带解析为 caomei-ui；不在批次范围内的子路由须显式登记并给出理由，守卫据此放行其「在册族零残留」判定，但**强制**其不得引用组件内择库型过渡组件或开启 `show-language-switcher`，且前缀下**其他**未登记的非 `index.vue` 页面会响亮失败。首个使用者为 `/admin/ai` → `pages/admin/ai/tasks/[id].vue`（B4 展示族 + 与未迁移共享组件），并**回溯登记**既有落差 `/admin/posts` → `pages/admin/posts/[id].vue`（编辑器路由）。
-2. **门禁层首个「同路由第二对照面」**：新增 `ParityRoute.selectTab`，`/admin/ai` 因此登记两条对照（默认「使用统计」页签 + 激活「任务记录」页签），使本批主要迁移面（任务列表）进入逐像素对照，而非只覆盖默认页签。
+2. **门禁层首个「同路由第二对照面」**：新增 `ParityRoute.selectTab`（**2026-10-16 第三批次已泛化为 `activate`**，见后文窗口），`/admin/ai` 因此登记两条对照（默认「使用统计」页签 + 激活「任务记录」页签），使本批主要迁移面（任务列表）进入逐像素对照，而非只覆盖默认页签。
 3. **首个「上游插槽缺失导致的结构性移动」处置**：caomei `DataTable` **无** `#header` 插槽（插槽面为 `cell-*` / `header-*` / `empty` / `groupheader` / `expansion`），迁移前位于表格容器内的刷新按钮改置于表格之上（保持「右对齐单个图标按钮」意图），差异登记于偏差处置表与下文「行为差异」。
 
 ### 「文件 → 改动点 → 依据指针」清单

@@ -6,9 +6,9 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标各批次完成后（分类 / 标签 → 首路由批次；`/admin/ai` → 第二批次），
- * 对应条目已移入 `MIGRATED_ROUTES`，待迁移层回到空集。文件与其中的就绪口径
- * （`stable` / `readyResponse` / `readySelector`）保留为**后续批次的模板**（见 `docs/plan/todo.md`）：
+ * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标各批次完成后（分类 / 标签 → 首路由批次；`/admin/ai` → 第二批次；
+ * `/admin/marketing` → 第三批次），对应条目已移入 `MIGRATED_ROUTES`，待迁移层回到空集。文件与其中的就绪口径
+ * （`stable` / `readyResponse` / `readySelector` / `activate`）保留为**后续批次的模板**（见 `docs/plan/todo.md`）：
  * 新增待迁移路由时在此登记，即自动获得与已迁移层同口径的比对。
  *
  * 待迁移层的语义：这些路由当前仍是 PrimeVue 实现，参考态即当前 PrimeVue 渲染（HEAD 采集）；
