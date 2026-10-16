@@ -2,11 +2,13 @@
     <div class="admin-marketing">
         <AdminPageHeader :title="$t('pages.admin.marketing.title')">
             <template #actions>
-                <Button
-                    :label="$t('pages.admin.marketing.create_btn')"
-                    icon="pi pi-plus"
-                    @click="showCreateDialog = true"
-                />
+                <!-- `icon="pi pi-plus"` → `#icon` 插槽 + lucide（§6.2 图标行）。 -->
+                <CaomeiButton @click="showCreateDialog = true">
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('pages.admin.marketing.create_btn') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
@@ -85,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { Plus } from '@lucide/vue'
 import AdminPageHeader from '@/components/admin-page-header.vue'
 import MarketingCampaignForm from '@/components/admin/marketing-campaign-form.vue'
 import MarketingCampaignList from '@/components/admin/marketing-campaign-list.vue'

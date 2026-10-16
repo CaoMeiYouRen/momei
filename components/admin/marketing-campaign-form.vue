@@ -2,23 +2,23 @@
     <div class="marketing-campaign-form">
         <div class="marketing-campaign-form__field">
             <label for="type" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.type') }}</label>
-            <Select
+            <!-- `fluid` 在 caomei 侧删除（字段默认 `width: 100%`，§6.2「全宽」行）；选择器家族另有
+                 `--caomei-select-max-width`（默认 20rem）上限，在样式块中于字段外层解除。 -->
+            <CaomeiSelect
                 id="type"
                 v-model="form.type"
                 :options="campaignTypes"
                 option-label="label"
                 option-value="value"
-                fluid
                 :placeholder="$t('pages.admin.marketing.form.type_placeholder')"
             />
         </div>
 
         <div class="marketing-campaign-form__field">
             <label for="title" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.title') }}</label>
-            <InputText
+            <CaomeiInput
                 id="title"
                 v-model="form.title"
-                fluid
                 :placeholder="$t('pages.admin.marketing.form.placeholder_title')"
             />
         </div>
@@ -107,31 +107,38 @@
         </div>
 
         <div class="marketing-campaign-form__actions">
-            <Button
-                :label="$t('pages.admin.marketing.form.send_test')"
-                icon="pi pi-send"
-                severity="info"
-                variant="outlined"
+            <CaomeiButton
+                variant="secondary"
+                tone="primary"
                 :loading="sendingTest"
                 @click="handleSendTest"
-            />
+            >
+                <template #icon>
+                    <Send :size="16" />
+                </template>
+                {{ $t('pages.admin.marketing.form.send_test') }}
+            </CaomeiButton>
             <div class="marketing-campaign-form__spacer" />
-            <Button
-                :label="$t('common.cancel')"
-                variant="outlined"
-                severity="secondary"
+            <CaomeiButton
+                variant="secondary"
+                tone="neutral"
                 @click="$emit('cancel')"
-            />
-            <Button
-                :label="$t('common.save')"
+            >
+                {{ $t('common.cancel') }}
+            </CaomeiButton>
+            <!-- 迁移前为默认 `severity`（实底）按钮；caomei `CaomeiButton` 的 `variant` 缺省即 `primary`（实底），故不写。 -->
+            <CaomeiButton
                 :loading="saving"
                 @click="handleSave"
-            />
+            >
+                {{ $t('common.save') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Send } from '@lucide/vue'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
 import type { ApiResponse } from '@/types/api'
@@ -378,6 +385,12 @@ const handleSave = async () => {
         display: flex;
         flex-direction: column;
         gap: $spacing-xs;
+
+        // caomei 字段家族的宽度上限在**字段外层** `.caomei-select__field`（默认 20rem = 320px，
+        // 上游反馈 §1.1）；弹窗内需真正全宽（迁移前由 PrimeVue `fluid` 提供）。
+        :deep(.caomei-select__field) {
+            --caomei-select-max-width: 100%;
+        }
     }
 
     &__label {

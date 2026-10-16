@@ -139,6 +139,22 @@ const AI_ROUTE_SCOPE = {
     ],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 组件型目标型路由 `/admin/marketing` 的迁移范围。
+ *
+ * - `ownedFiles`：路由自有实体组件（页面为薄包装，实体落在列表与表单两个组件）。
+ * - `inScopeComponents`：**无路由级增量**——本路由用到的在册族（`DataTable` / `Column` / `Button` /
+ *   `Tag` / `InputText` / `Select`）全部落在批次基准内；未迁移的 `Card` / `Dialog` /
+ *   `DatePicker` / `MultiSelect` / `RadioButton` 属 B3 / B4 展示族与浮层豁免，本批维持 PrimeVue。
+ * - 无子路由（`pages/admin/marketing/index.vue` 为唯一页面），故无 `primeVueSubRoutes`。
+ */
+const MARKETING_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/marketing-campaign-list.vue',
+        'components/admin/marketing-campaign-form.vue',
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -169,6 +185,9 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // **刻意不登记** `task-detail-content.vue`：它同时被豁免子路由 `/admin/ai/tasks/[id]` 消费，
     // 一旦迁移会在该子路由内造成库间混用（消费处静态择库需另立 V2 分支，本批不做，登记为延后项）。
     { prefix: '/admin/ai', ...AI_ROUTE_SCOPE },
+    // 组件型目标型路由（`/admin/marketing`）：页面 + 列表 + 表单（弹窗内表单控件随本批迁移，
+    // 其浮层本体 `Dialog` 与 `DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。
+    { prefix: '/admin/marketing', ...MARKETING_ROUTE_SCOPE },
 ]
 
 /**
