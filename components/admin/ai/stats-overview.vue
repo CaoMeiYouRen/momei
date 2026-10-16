@@ -24,9 +24,15 @@
                         </div>
 
                         <div class="alert-tags">
-                            <Tag :value="formatAlertSeverity(alert)" :severity="getAlertTagSeverity(alert)" />
-                            <Tag :value="formatAlertPeriod(alert)" severity="secondary" />
-                            <Tag :value="formatAlertScope(alert)" severity="contrast" />
+                            <CaomeiTag :tone="getAlertTagTone(alert)">
+                                {{ formatAlertSeverity(alert) }}
+                            </CaomeiTag>
+                            <CaomeiTag tone="neutral">
+                                {{ formatAlertPeriod(alert) }}
+                            </CaomeiTag>
+                            <CaomeiTag tone="neutral">
+                                {{ formatAlertScope(alert) }}
+                            </CaomeiTag>
                         </div>
                     </div>
                 </div>
@@ -59,7 +65,9 @@
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.statuses.${s.status}`) }}</span>
-                            <Tag :value="s.count" severity="secondary" />
+                            <CaomeiTag tone="neutral">
+                                {{ s.count }}
+                            </CaomeiTag>
                         </div>
                     </div>
                 </template>
@@ -77,7 +85,9 @@
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
-                            <Tag :value="formatDecimal(categoryItem.quotaUnits)" severity="info" />
+                            <CaomeiTag tone="primary">
+                                {{ formatDecimal(categoryItem.quotaUnits) }}
+                            </CaomeiTag>
                         </div>
                     </div>
                 </template>
@@ -95,7 +105,9 @@
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.charge_statuses.${chargeItem.chargeStatus}`) }}</span>
-                            <Tag :value="chargeItem.count" severity="contrast" />
+                            <CaomeiTag tone="neutral">
+                                {{ chargeItem.count }}
+                            </CaomeiTag>
                         </div>
                     </div>
                 </template>
@@ -113,7 +125,9 @@
                             class="stats-item"
                         >
                             <span class="label">{{ $t(`pages.admin.ai.failure_stages.${failureItem.failureStage}`) }}</span>
-                            <Tag :value="failureItem.count" severity="warning" />
+                            <CaomeiTag tone="warning">
+                                {{ failureItem.count }}
+                            </CaomeiTag>
                         </div>
                     </div>
                 </template>
@@ -222,14 +236,19 @@ const formatAlertSeverity = (alert: AIUsageAlert) => {
     return t(`pages.admin.ai.alerts.severity.${alert.severity}`)
 }
 
-const getAlertTagSeverity = (alert: AIUsageAlert) => {
+/**
+ * 告警标签的语义色：迁移前经 `severity` 词表（PrimeVue），现按迁移方案 §6.2 的 `severity → tone` 总则
+ * 落在 caomei `tone` 词表（`warn → warning`、`secondary / contrast → neutral` 为有损近似）。
+ * 名称同步改为 `…Tone`，避免「返回 tone 却叫 severity」的误导。
+ */
+const getAlertTagTone = (alert: AIUsageAlert) => {
     switch (alert.severity) {
         case 'critical':
             return 'danger'
         case 'warning':
-            return 'warn'
+            return 'warning'
         default:
-            return 'info'
+            return 'primary'
     }
 }
 

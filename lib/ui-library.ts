@@ -79,6 +79,19 @@ export interface CaomeiUiRouteScope {
      * 「整路由迁移、不做半路由切换」必须一次迁完，故按路由收敛范围。
      */
     inScopeComponents?: readonly string[]
+    /**
+     * 本前缀下**刻意维持 PrimeVue** 的子路由页面（相对仓库根、POSIX 分隔符）。
+     *
+     * 为什么需要它：登记前缀是**前缀语义**，子路由会被连带解析为 caomei-ui。若某子路由不在本批范围内
+     * （典型：与 B4 展示族同页、或与未迁移页面共享组件），就必须显式登记为例外，否则「已迁移」这一事实
+     * 与子路由实现相互矛盾且无门禁拦截。
+     *
+     * 守卫据此放行该页面的「在册族零残留」判定，但**仍强制三条**：① 每条必须给出理由；
+     * ② 该页面不得引用**组件内择库型**过渡组件（`AppAvatarV2` / `AppUploaderV2`），也不得开启
+     * `AdminPageHeader` 的 `show-language-switcher`——这三者都会因前缀登记而在子路由内静默切到 caomei，
+     * 造成路由内库间混用；③ 已登记前缀下的**其他**非 `index.vue` 页面若未登记则守卫响亮失败。
+     */
+    primeVueSubRoutes?: readonly { file: string, reason: string }[]
 }
 
 /**
@@ -99,6 +112,33 @@ const TAXONOMY_ROUTE_SCOPE = {
     inScopeComponents: ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel', 'InputGroup', 'Checkbox', 'Textarea'],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 组件型目标型路由 `/admin/ai` 的迁移范围。
+ *
+ * - `ownedFiles`：路由自有组件（不含 `task-detail-content.vue`，见登记处说明）。
+ * - `inScopeComponents`（路由级在册族增量）：页面本体使用 `Tabs` 族承载「使用统计 / 任务记录」两个面板，
+ *   按「整路由迁移、不做半路由切换」纳入；其余在册族均属批次基准（`DataTable` / `Column` / `Button` /
+ *   `InputText` / `Select` / `IconField` / `InputIcon` / `Tag` / `Avatar`）。
+ * - `primeVueSubRoutes`：任务详情子路由含 `Card` / `Message` / `ProgressSpinner`（B4 展示族）与共享的
+ *   `task-detail-content`，本批维持 PrimeVue。
+ */
+const AI_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/ai/task-list.vue',
+        'components/admin/ai/stats-overview.vue',
+        'components/admin/ai/task-details-dialog.vue',
+        'components/admin/ai/metric-card.vue',
+        'components/admin/ai/detail-metric.vue',
+    ],
+    inScopeComponents: ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel'],
+    primeVueSubRoutes: [
+        {
+            file: 'pages/admin/ai/tasks/[id].vue',
+            reason: '任务详情子路由含 `Card` / `Message` / `ProgressSpinner`（B4 展示族）并消费与未迁移页面共享的 `AdminAiTaskDetailContent`；其 `AdminPageHeader` 未开启 `show-language-switcher`，不渲染路由择库的切换器。',
+        },
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -110,11 +150,25 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/subscribers' },
     { prefix: '/admin/users' },
     { prefix: '/admin/friend-links' },
-    { prefix: '/admin/posts' },
+    {
+        prefix: '/admin/posts',
+        // 编辑器子路由不在数据列表批次的迁移范围内（仍全面使用 PrimeVue；其共享组件走
+        // 「消费处静态择库」，继续使用 V1 三件套）。已逐处核对：该页面不引用组件内择库型过渡组件。
+        primeVueSubRoutes: [
+            {
+                file: 'pages/admin/posts/[id].vue',
+                reason: '编辑器路由不在数据列表批次范围内（共享组件三件套走消费处静态择库）；其页面用 `PostEditorHeader`，不渲染路由择库的头部切换器。',
+            },
+        ],
+    },
     // 组件型目标型路由（`/admin/categories` + `/admin/tags`）：两个 host 共享同一份路由自有实体组件
     // 与同一组在册族增量，故复用同一范围常量——同一文件被两条口径分别判定的可能性在结构上被排除。
     { prefix: '/admin/categories', ...TAXONOMY_ROUTE_SCOPE },
     { prefix: '/admin/tags', ...TAXONOMY_ROUTE_SCOPE },
+    // 组件型目标型路由（`/admin/ai`）：路由自有组件位于 `components/admin/ai/`。
+    // **刻意不登记** `task-detail-content.vue`：它同时被豁免子路由 `/admin/ai/tasks/[id]` 消费，
+    // 一旦迁移会在该子路由内造成库间混用（消费处静态择库需另立 V2 分支，本批不做，登记为延后项）。
+    { prefix: '/admin/ai', ...AI_ROUTE_SCOPE },
 ]
 
 /**

@@ -15,7 +15,22 @@ export interface AdminAiPageEvent {
     rows: number
 }
 
-export function useAdminAiPage() {
+interface UseAdminAiPageOptions {
+    /**
+     * `page-change` 事件里 `page` 的页码基准。
+     *
+     * - `0`（默认）：PrimeVue `DataTable` 的 `@page` 为 **0 基**（`pageIndex`），内部 `+1` 归一为 1 基；
+     * - `1`：caomei-ui `DataTable` 的 `@page` 为 **1 基**，无需再抬升。
+     *
+     * 与 `composables/use-admin-list.ts` 的 `pageIndexBase` 同口径：迁移期同一 composable 服务两套组件库，
+     * 页面侧不得各写一份「减一」包装。
+     */
+    pageIndexBase?: 0 | 1
+}
+
+export function useAdminAiPage(options: UseAdminAiPageOptions = {}) {
+    const { pageIndexBase = 0 } = options
+
     const { t } = useI18n()
     const confirm = useConfirm()
     const { $appFetch } = useAppApi()
@@ -98,7 +113,7 @@ export function useAdminAiPage() {
     }
 
     const onPage = (event: AdminAiPageEvent) => {
-        page.value = event.page + 1
+        page.value = event.page + (pageIndexBase === 1 ? 0 : 1)
         pageSize.value = event.rows
         void loadTasks()
     }
@@ -232,6 +247,7 @@ export function useAdminAiPage() {
         totalTasks,
         loadingTasks,
         selectedTasks,
+        page,
         pageSize,
         filters,
         detailsVisible,

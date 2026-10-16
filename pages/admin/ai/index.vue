@@ -3,48 +3,48 @@
         <AdminPageHeader :title="$t('pages.admin.ai.title')" />
 
         <div class="admin-content">
-            <Tabs v-model:value="activeTab">
-                <TabList>
-                    <Tab value="stats">
-                        <i class="mr-2 pi pi-chart-bar" />
+            <!-- `Tabs` 族 → `CaomeiTabs` 族（本路由的路由级在册族增量）；`TabPanels` 由 `CaomeiTabContent` 承接。 -->
+            <CaomeiTabs v-model="activeTab">
+                <CaomeiTabList>
+                    <CaomeiTabTrigger value="stats">
+                        <ChartColumn :size="16" class="ai-tabs__icon" />
                         {{ $t('pages.admin.ai.stats') }}
-                    </Tab>
-                    <Tab value="tasks">
-                        <i class="mr-2 pi pi-list" />
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="tasks">
+                        <List :size="16" class="ai-tabs__icon" />
                         {{ $t('pages.admin.ai.tasks') }}
-                    </Tab>
-                </TabList>
+                    </CaomeiTabTrigger>
+                </CaomeiTabList>
 
-                <TabPanels>
-                    <!-- Statistics Panel -->
-                    <TabPanel value="stats">
-                        <AdminAiStatsOverview
-                            :stats="stats"
-                            :loading="loadingStats"
-                            :cost-display="costDisplay"
-                        />
-                    </TabPanel>
+                <!-- Statistics Panel -->
+                <CaomeiTabContent value="stats">
+                    <AdminAiStatsOverview
+                        :stats="stats"
+                        :loading="loadingStats"
+                        :cost-display="costDisplay"
+                    />
+                </CaomeiTabContent>
 
-                    <!-- Task List Panel -->
-                    <TabPanel value="tasks">
-                        <AdminAiTaskList
-                            v-model:selection="selectedTasks"
-                            v-model:filters="filters"
-                            :tasks="tasks"
-                            :total="totalTasks"
-                            :loading="loadingTasks"
-                            :page-size="pageSize"
-                            :cost-display="costDisplay"
-                            @refresh="loadTasks"
-                            @page-change="onPage"
-                            @filter-change="onFilterChange"
-                            @show-details="showDetails"
-                            @delete="confirmDelete"
-                            @bulk-delete="confirmBulkDelete"
-                        />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+                <!-- Task List Panel -->
+                <CaomeiTabContent value="tasks">
+                    <AdminAiTaskList
+                        v-model:selection="selectedTasks"
+                        v-model:filters="filters"
+                        :tasks="tasks"
+                        :total="totalTasks"
+                        :loading="loadingTasks"
+                        :page="page"
+                        :page-size="pageSize"
+                        :cost-display="costDisplay"
+                        @refresh="loadTasks"
+                        @page-change="onPage"
+                        @filter-change="onFilterChange"
+                        @show-details="showDetails"
+                        @delete="confirmDelete"
+                        @bulk-delete="confirmBulkDelete"
+                    />
+                </CaomeiTabContent>
+            </CaomeiTabs>
         </div>
 
         <AdminAiTaskDetailsDialog
@@ -60,6 +60,8 @@
 </template>
 
 <script setup lang="ts">
+import { ChartColumn, List } from '@lucide/vue'
+
 definePageMeta({
     middleware: 'admin',
 })
@@ -73,6 +75,7 @@ const {
     totalTasks,
     loadingTasks,
     selectedTasks,
+    page,
     pageSize,
     filters,
     detailsVisible,
@@ -85,11 +88,21 @@ const {
     showDetails,
     confirmDelete,
     confirmBulkDelete,
-} = useAdminAiPage()
+} = useAdminAiPage({
+    // caomei `DataTable` 的 `page` / `@page` 为 1 基（PrimeVue 为 0 基），显式声明页码基准。
+    pageIndexBase: 1,
+})
 </script>
 
 <style lang="scss" scoped>
 .admin-content {
     margin-top: 1.5rem;
+}
+
+// 迁移前为 `pi pi-chart-bar` / `pi pi-list`（primeicons 字体图标，`mr-2`）；换成 lucide SVG 后
+// 按实测补横向间距与基线补偿（SVG 默认贴基线，会比字体图标低约 2px）。
+.ai-tabs__icon {
+    margin-right: 0.5rem;
+    vertical-align: -0.15em;
 }
 </style>
