@@ -87,6 +87,8 @@
 - 弹窗对照面靠「点击创建按钮 + `[role="dialog"]` 就绪锚点」定位；若按钮文案（`create_btn`）或弹窗实现变更，需同步 `routes.ts` 的 `activate.name` / `expect`。
 - `MultiSelect` 仅在选择「按条件定向」后渲染，门禁层弹窗对照面停在默认（全量订阅者）态，故该族与其选项列表无截图覆盖（未迁移族，随 B3 批次处理）。
 - 守卫的「脚本块剥离」口径收窄了扫描面：脚本内以**字符串形式**出现的旧标签名不再计入（本仓无此写法，已登记为已知边界）。
+- 本批审计按 mutant 视角列出的**仍无断言**的行为（已登记、随后续批次处理）：① 状态图标的旋转动画与 `prefers-reduced-motion` 关闭（契约用例只钉类存在，门禁参考态为空列表、截图 `animations: 'disabled'`，三重盲区）；② 表格 `:loading="loading"` 透传；③ 表单回显时 categoryIds / tagIds 的**反聚合**（跨语言簇展开）与 `targetType` 还原；④ 保留族（`MultiSelect` / `DatePicker`）的 props 只做存在性计数（属 B3 / B4 待批）。
+- `onPage` 未同步 `event.rows`（同类自持分页页 `pages/admin/migrations/link-governance.vue` 有同步）：当前无实害（未传 `rows-per-page-options`，每页条数不可变），若后续补该选项需按 caomei `setPageSize` 口径一并取 `rows`。
 
 <!-- regression-window:end:phase68-b2-item3-marketing:第六十八阶段-条目3-组件型目标第三批次:2026-10-16 -->
 
