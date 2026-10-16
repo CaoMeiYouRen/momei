@@ -1,7 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS, CAOMEI_UI_ROUTE_PREFIXES } from '../../lib/ui-library'
+import {
+    CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS,
+    CAOMEI_UI_ROUTE_PREFIXES,
+    CAOMEI_UI_ROUTE_SCOPES,
+    resolveInScopeComponents,
+} from '../../lib/ui-library'
 import { findInScopePrimeVueResiduals, stripComments } from './ui-library-guard-helpers'
 
 /**
@@ -15,9 +20,14 @@ import { findInScopePrimeVueResiduals, stripComments } from './ui-library-guard-
  * 扫描口径（注释剥离、显式导入扣除）与在册族清单已抽到共享模块（`./ui-library-guard-helpers` 与 `lib/ui-library.ts`），
  * 与过渡组件守卫共用同一份实现，避免两处漂移。
  *
- * 覆盖边界：本守卫只扫描登记前缀对应的**页面文件**——目录形态 `pages/<prefix>/index.vue` 与
- * 同名文件形态 `pages/<prefix>.vue`（两种在本仓并存，解析按该顺序回退）；路由自有子组件、
- * 跨路由共享壳与 `v-tooltip` 指令由三层视觉回归与各批「文件 → 改动点」清单覆盖（显式豁免）。
+ * 覆盖边界：本守卫按 `CAOMEI_UI_ROUTE_SCOPES` 逐条扫描——**页面文件**（目录形态
+ * `pages/<prefix>/index.vue` 与同名文件形态 `pages/<prefix>.vue`，解析按该顺序回退）
+ * 加该路由登记的 **`ownedFiles`**（路由自有实体组件，2026-10-16 新增：薄包装页的
+ * 实体不在页面文件内，只扫页面文件会让两条断言同时退化为恒真 / 恒假）。
+ * 在册族按**批次基准 + 该路由增量**（`resolveInScopeComponents`）判定：本批新增的
+ * `Tabs` 族 / `InputGroup` / `Checkbox` / `Textarea` 只在登记了增量的路由上生效，
+ * 避免让已收口批次被动回改。
+ * 其余路由自有子组件、跨路由共享壳与 `v-tooltip` 指令由三层视觉回归与各批「文件 → 改动点」清单覆盖（显式豁免）。
  */
 
 /**
@@ -49,6 +59,31 @@ async function resolvePageFile(prefix: string): Promise<string> {
     throw new Error(`未找到 ${prefix} 对应的页面文件，已尝试：${candidates.map((item) => path.relative(process.cwd(), item)).join(', ')}`)
 }
 
+/**
+ * 一条登记项的完整扫描面：页面文件 + 登记的路由自有文件（`ownedFiles`，绝对路径）。
+ *
+ * `ownedFiles` 声明的是仓库相对路径（POSIX 分隔符），此处统一转绝对路径；
+ * 文件不存在时**响亮失败**（与页面文件解析同口径）——否则登记项写错路径会让守卫静默漏扫。
+ */
+async function resolveScopeFiles(scope: { prefix: string, ownedFiles?: readonly string[] }): Promise<string[]> {
+    const pageFile = await resolvePageFile(scope.prefix)
+    const ownedFiles: string[] = []
+
+    for (const relativePath of scope.ownedFiles ?? []) {
+        const absolutePath = path.join(process.cwd(), relativePath)
+
+        try {
+            await readFile(absolutePath, 'utf8')
+        } catch {
+            throw new Error(`登记项 ${scope.prefix} 的 ownedFiles 不存在：${relativePath}`)
+        }
+
+        ownedFiles.push(absolutePath)
+    }
+
+    return [pageFile, ...ownedFiles]
+}
+
 describe('已迁移路由：在册组件族零残留', () => {
     it('事实源至少登记一个路由前缀，且格式为绝对前缀', () => {
         expect(CAOMEI_UI_ROUTE_PREFIXES.length).toBeGreaterThan(0)
@@ -58,22 +93,110 @@ describe('已迁移路由：在册组件族零残留', () => {
         }
     })
 
+    it('前缀清单由范围登记派生（不允许两处各持一份）', () => {
+        expect(CAOMEI_UI_ROUTE_PREFIXES).toEqual(CAOMEI_UI_ROUTE_SCOPES.map((scope) => scope.prefix))
+    })
+
     it('在册组件族清单非空（防止守卫被清空而静默失效）', () => {
         expect(CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS.length).toBeGreaterThan(0)
     })
 
-    for (const prefix of CAOMEI_UI_ROUTE_PREFIXES) {
-        it(`${prefix}：页面文件不得残留在册族 PrimeVue 组件，且至少使用一个 caomei-ui 组件`, async () => {
-            const pageFile = await resolvePageFile(prefix)
-            const source = await readFile(pageFile, 'utf8')
-            const scanned = stripComments(source)
+    for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+        it(`${scope.prefix}：扫描面内不得残留在册族 PrimeVue 组件，且至少使用一个 caomei-ui 组件`, async () => {
+            const files = await resolveScopeFiles(scope)
+            const sources = await Promise.all(files.map(async (file) => ({ file, source: await readFile(file, 'utf8') })))
+            const inScopeComponents = resolveInScopeComponents(scope)
 
-            const residual = findInScopePrimeVueResiduals(source)
+            for (const { file, source } of sources) {
+                const residual = findInScopePrimeVueResiduals(source, inScopeComponents)
 
-            expect(residual, `${prefix} 仍残留在册族 PrimeVue 组件：${residual.join(', ')}`).toEqual([])
-            expect(/<Caomei[A-Z]/u.test(scanned), `${prefix} 未检出任何 caomei-ui 组件`).toBe(true)
+                expect(
+                    residual,
+                    `${scope.prefix} 的 ${path.relative(process.cwd(), file)} 仍残留在册族 PrimeVue 组件：${residual.join(', ')}`,
+                ).toEqual([])
+            }
+
+            // 「至少一个 caomei-ui 组件」按**扫描面聚合**判定：薄包装页（页面文件只有一行组件引用）
+            // 的实体在 ownedFiles 内，按单文件判定会让这类路由恒假。
+            const usesCaomei = sources.some(({ source }) => /<Caomei[A-Z]/u.test(stripComments(source)))
+
+            expect(usesCaomei, `${scope.prefix} 扫描面内未检出任何 caomei-ui 组件`).toBe(true)
         })
     }
+})
+
+describe('登记项扫描面：ownedFiles 登记与解析', () => {
+    it('ownedFiles 路径使用仓库相对 POSIX 形式', () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const relativePath of scope.ownedFiles ?? []) {
+                expect(path.isAbsolute(relativePath)).toBe(false)
+                expect(relativePath).not.toContain('\\')
+            }
+        }
+    })
+
+    it('不存在的 ownedFiles 会抛出并点名登记项（假阴性防线）', async () => {
+        await expect(resolveScopeFiles({
+            prefix: '/admin/categories',
+            ownedFiles: ['components/admin/__not-exist__.vue'],
+        })).rejects.toThrow(/ownedFiles 不存在/u)
+    })
+
+    it('薄包装页：页面文件本身不含任何组件，实体在 ownedFiles 内', async () => {
+        const scope = CAOMEI_UI_ROUTE_SCOPES.find((item) => item.prefix === '/admin/categories')
+        const files = await resolveScopeFiles(scope as { prefix: string, ownedFiles?: readonly string[] })
+        const pageFile = files[0] as string
+        const ownedFile = files[1] as string
+
+        // 页面文件：无 caomei 组件（故单文件判定会恒假）——这是 `ownedFiles` 机制存在的直接原因。
+        expect(/<Caomei[A-Z]/u.test(await readFile(pageFile, 'utf8'))).toBe(false)
+        // 路由自有实体文件：承载实际组件。
+        expect(/<Caomei[A-Z]/u.test(await readFile(ownedFile, 'utf8'))).toBe(true)
+        expect(path.relative(process.cwd(), ownedFile)).toBe(path.join('components', 'admin', 'admin-taxonomy-page.vue'))
+    })
+})
+
+describe('路由级在册族增量', () => {
+    it('基准在册族不含路由增量族（否则已收口批次会被动回改）', () => {
+        for (const name of ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel', 'InputGroup', 'Checkbox', 'Textarea']) {
+            expect(CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS).not.toContain(name)
+        }
+    })
+
+    it('无增量的登记沿用基准在册族（同一引用，避免每次合并产生新数组）', () => {
+        expect(resolveInScopeComponents({ prefix: '/admin/posts' })).toBe(CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS)
+        expect(resolveInScopeComponents()).toBe(CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS)
+    })
+
+    it('有增量的登记返回「基准 + 增量」，且与基准重复的成员不重复出现', () => {
+        const merged = resolveInScopeComponents({
+            prefix: '/admin/categories',
+            inScopeComponents: ['Tabs', 'Textarea', 'Button'],
+        })
+
+        expect(merged).toContain('Tabs')
+        expect(merged).toContain('Textarea')
+        expect(merged.filter((name) => name === 'Button')).toHaveLength(1)
+        expect(merged.filter((name) => name === 'Textarea')).toHaveLength(1)
+    })
+
+    it('共享同一个路由自有文件的多条登记，其有效在册族必须一致（防同一文件被两套口径判定）', () => {
+        const byOwnedFile = new Map<string, unknown[]>()
+
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const ownedFile of scope.ownedFiles ?? []) {
+                const merged = [...resolveInScopeComponents(scope)].sort()
+                const previous = byOwnedFile.get(ownedFile)
+
+                if (previous) {
+                    expect(merged, `${ownedFile} 在多条登记下的有效在册族不一致`).toEqual(previous)
+                    continue
+                }
+
+                byOwnedFile.set(ownedFile, merged)
+            }
+        }
+    })
 })
 
 describe('页面文件形态解析：目录形态与同名文件形态', () => {
