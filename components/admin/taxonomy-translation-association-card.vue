@@ -25,15 +25,19 @@
             v-if="relatedCandidates.length > 0"
             class="taxonomy-translation-association__actions"
         >
-            <Button
+            <!-- 可见文案写默认插槽（迁移方案 §6.2 执行提示 3：`CaomeiButton` 的 `label` 只映射 `aria-label`）；
+                 PrimeVue 的 `text` + `size="small"` + `severity="secondary"` → `variant="ghost"` + `size="sm"` +
+                 `tone="neutral"`。 -->
+            <CaomeiButton
                 v-for="candidate in relatedCandidates"
                 :key="candidate.id"
-                :label="`[${candidate.language}] ${candidate.name}`"
-                text
-                size="small"
-                severity="secondary"
+                variant="ghost"
+                tone="neutral"
+                size="sm"
                 @click="$emit('open-candidate', candidate)"
-            />
+            >
+                {{ `[${candidate.language}] ${candidate.name}` }}
+            </CaomeiButton>
         </div>
     </div>
 </template>

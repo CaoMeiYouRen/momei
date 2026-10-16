@@ -1118,6 +1118,214 @@
                 }
             ],
             "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 34819px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。"
+        },
+        "admin-categories-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 985,
+                    "reason": "头部创建按钮（`Button` → `CaomeiButton`）：字号 16px → 14px、圆角 6px → 8px，按钮宽 114px → 102px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 44
+                    },
+                    "pixels": 1455,
+                    "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1280,
+                        "height": 240
+                    },
+                    "pixels": 5682,
+                    "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8985px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+        },
+        "admin-categories-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1017,
+                    "reason": "头部创建按钮（`Button` → `CaomeiButton`）：字号 16px → 14px、圆角 6px → 8px，按钮宽 114px → 102px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 44
+                    },
+                    "pixels": 1521,
+                    "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1280,
+                        "height": 240
+                    },
+                    "pixels": 8104,
+                    "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 11520px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+        },
+        "admin-tags-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 863,
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 989,
+                    "reason": "头部创建按钮（`Button` → `CaomeiButton`）：字号 16px → 14px、圆角 6px → 8px，按钮宽 114px → 102px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 44
+                    },
+                    "pixels": 1436,
+                    "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1280,
+                        "height": 240
+                    },
+                    "pixels": 5075,
+                    "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8363px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+        },
+        "admin-tags-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 200,
+                        "height": 80
+                    },
+                    "pixels": 878,
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1019,
+                    "reason": "头部创建按钮（`Button` → `CaomeiButton`）：字号 16px → 14px、圆角 6px → 8px，按钮宽 114px → 102px。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 200,
+                        "width": 1280,
+                        "height": 44
+                    },
+                    "pixels": 1525,
+                    "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 80,
+                        "y": 244,
+                        "width": 1280,
+                        "height": 240
+                    },
+                    "pixels": 7503,
+                    "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 10925px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
         }
     }
 }
