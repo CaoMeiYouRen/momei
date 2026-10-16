@@ -132,6 +132,7 @@ jobs:
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
       - run: pnpm run docs:check:links
+      - run: pnpm run docs:check:markers
       - run: pnpm run typecheck
 
   # ===============================================================
