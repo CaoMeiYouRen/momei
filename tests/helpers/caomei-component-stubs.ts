@@ -11,7 +11,11 @@ import { z } from 'zod'
 export const caomeiInputFocusCalls = vi.fn((id: string) => id)
 
 /**
- * `admin-taxonomy-page.vue`（host：`/admin/categories` + `/admin/tags`）系列契约用例共用的组件桩与配置夹具。
+ * 迁移期组件桩与夹具（caomei-ui 组件 + 浮层豁免组件 + 路由自有子组件）。
+ *
+ * 服务范围：`admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）系列，以及
+ * `components/admin/ai/task-list.vue` 等「多文件渲染同一批 caomei 组件」的用例——
+ * 三处各持一份桩集会在后续批次只改一处、留下静默漂移（迁移期已多次出现该问题）。
  *
  * 抽出的原因：多个测试文件（路由自有组件 + 两个 host 页面 + 子组件）渲染的是同一批组件，
  * 迁移后所需桩集完全相同；三处各持一份会在后续批次只改一处、留下静默漂移
@@ -37,8 +41,10 @@ export const CaomeiDataTableStub = defineComponent({
         totalRecords: { type: Number, default: undefined },
         rowsPerPageOptions: { type: Array, default: () => [] },
         rowKey: { type: [String, Function], default: undefined },
+        selectionMode: { type: String, default: undefined },
+        selection: { type: [Array, Object], default: undefined },
     },
-    emits: ['page', 'sort'],
+    emits: ['page', 'sort', 'update:selection'],
     setup(props, { slots, emit }) {
         return () => {
             const columns = props.columns as { key: string, header?: string, headerClass?: string, bodyClass?: string, accessor?: unknown, sortable?: boolean }[]
@@ -218,11 +224,59 @@ const CaomeiAutoCompleteStub = defineComponent({
     },
 })
 
+export const CaomeiSelectStub = defineComponent({
+    name: 'CaomeiSelect',
+    props: {
+        modelValue: { type: [String, Number, Object], default: null },
+        options: { type: Array, default: () => [] },
+        optionLabel: { type: String, default: 'label' },
+        optionValue: { type: String, default: 'value' },
+        placeholder: { type: String, default: '' },
+        showClear: { type: Boolean, default: false },
+    },
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        return () => h('select', {
+            class: 'caomei-select',
+            'data-show-clear': String(props.showClear),
+            'data-options': (props.options as Record<string, string>[]).map((option) => option[props.optionValue]).join(','),
+            onChange: (event: Event) => emit('update:modelValue', (event.target as HTMLSelectElement).value),
+        }, (props.options as Record<string, string>[]).map((option) => h('option', {
+            value: option[props.optionValue] ?? '',
+        }, option[props.optionLabel] ?? '')))
+    },
+})
+
+/** 共享壳过渡组件（组件内按路由择库）：桩掉以免用例依赖路由上下文。 */
+export const AppAvatarV2Stub = defineComponent({
+    name: 'AppAvatarV2',
+    props: {
+        image: { type: String, default: null },
+        name: { type: String, default: null },
+        email: { type: String, default: null },
+        emailHash: { type: String, default: null },
+        size: { type: String, default: 'normal' },
+        shape: { type: String, default: 'square' },
+    },
+    setup: (props) => () => h('span', {
+        class: 'app-avatar-v2',
+        'data-name': props.name ?? '',
+        'data-shape': props.shape,
+    }),
+})
+
 const CaomeiTagStub = defineComponent({
     name: 'CaomeiTag',
-    props: { tone: { type: String, default: 'neutral' } },
+    props: {
+        tone: { type: String, default: 'neutral' },
+        variant: { type: String, default: 'soft' },
+    },
     setup(props, { slots }) {
-        return () => h('span', { class: 'caomei-tag', 'data-tone': props.tone }, slots.default?.())
+        return () => h('span', {
+            class: 'caomei-tag',
+            'data-tone': props.tone,
+            'data-variant': props.variant,
+        }, slots.default?.())
     },
 })
 
@@ -270,7 +324,7 @@ const CaomeiTabContentStub = defineComponent({
 })
 
 /** 浮层显式豁免组件（维持 PrimeVue，随浮层批次收敛）与路由自有子组件的轻量桩。 */
-export const taxonomyDialogStubs = {
+export const dialogStubs = {
     AdminPageHeader: defineComponent({
         name: 'AdminPageHeader',
         props: { title: String, showLanguageSwitcher: Boolean },
@@ -332,10 +386,12 @@ export const taxonomyDialogStubs = {
     }),
 }
 
-export const caomeiTaxonomyStubs = {
-    ...taxonomyDialogStubs,
+export const caomeiComponentStubs = {
+    ...dialogStubs,
+    AppAvatarV2: AppAvatarV2Stub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiInput: CaomeiInputStub,
+    CaomeiSelect: CaomeiSelectStub,
     CaomeiInputGroup: CaomeiInputGroupStub,
     CaomeiSwitch: CaomeiSwitchStub,
     CaomeiCheckbox: CaomeiCheckboxStub,

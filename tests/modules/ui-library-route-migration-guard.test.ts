@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
@@ -123,6 +123,105 @@ describe('已迁移路由：在册组件族零残留', () => {
             expect(usesCaomei, `${scope.prefix} 扫描面内未检出任何 caomei-ui 组件`).toBe(true)
         })
     }
+})
+
+/**
+ * 已登记前缀下的**子路由页面**（相对仓库根、POSIX 分隔符）：`pages/<prefix>/**` 中除 `index.vue`
+ * 之外的全部 `.vue` 页面（测试文件不计）。
+ *
+ * 为什么需要枚举：登记前缀是**前缀语义**，子路由会被连带解析为 caomei-ui；未在本批范围内的子路由
+ * 必须显式登记为例外，否则「已迁移」这一事实与子路由实现相互矛盾且无门禁拦截。
+ */
+async function listSubRoutePages(prefix: string): Promise<string[]> {
+    const normalizedPrefix = prefix === '/' ? '' : prefix.replace(/\/+$/u, '')
+    const base = path.join(process.cwd(), 'pages', normalizedPrefix)
+
+    let entries: string[] = []
+
+    try {
+        entries = await readdir(base, { recursive: true }) as string[]
+    } catch (error) {
+        /* 同名文件形态的路由（如 `pages/admin/ad/campaigns.vue`）没有同名目录 —— 无子路由即空集。
+         * 「页面文件是否存在」由 `resolvePageFile` 单独断言（两种形态都不存在时报错），此处不重复兜底。
+         * 只吞 ENOENT：权限 / 非目录等异常必须外抛，否则会静默把「扫不了」当成「没有子路由」。 */
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+            return []
+        }
+
+        throw error
+    }
+
+    return entries
+        .filter((entry) => entry.endsWith('.vue'))
+        /* 只豁免**前缀根**的 `index.vue`（页面文件本身）：嵌套目录形态的子路由页（如
+         * `pages/<prefix>/x/index.vue`）同样会被前缀登记连带解析，必须登记为例外，不能一并放过。 */
+        .filter((entry) => entry.replaceAll('\\', '/') !== 'index.vue')
+        .map((entry) => path.posix.join('pages', normalizedPrefix, entry.replaceAll('\\', '/')))
+        .sort()
+}
+
+/**
+ * 组件内择库型过渡组件与路由择库开关：出现在例外子路由内会因前缀登记而静默切到 caomei。
+ *
+ * 归一化匹配（去大小写与连字符）以覆盖 `<app-avatar-v2>` / `:showLanguageSwitcher` 等写法。
+ *
+ * **已知边界（不构成门禁保证，故显式声明）**：
+ * 1. 动态择库（`<component :is="…">`）与**把过渡组件再包一层**的写法无法由静态子串发现；
+ * 2. 只扫例外页面自身，**不扫其 import 子树**——共享组件若在别处引入过渡组件，本守卫不会响
+ *    （该维度登记在 `docs/plan/backlog.md` 的「例外背后的 `components/<prefix>/**` 子树」待跟踪项）；
+ * 3. 当前两条例外页面已逐处人工核对无触达，本守卫用于防**回退**，不替代一次性人工核对与三层视觉回归。
+ */
+const ROUTE_PICKING_MARKER_TOKENS = ['appavatarv2', 'appuploaderv2', 'showlanguageswitcher'] as const
+
+/** 归一化：去大小写与连字符，使 kebab / camel / Pascal 写法落在同一判定面上。 */
+function normalizeMarkerSource(source: string): string {
+    return source.toLowerCase().replaceAll('-', '')
+}
+
+describe('已登记前缀的子路由页面：例外登记与路由择库标记', () => {
+    it('已登记前缀下的每个非 index 子路由页面都必须显式登记为例外（否则响亮失败）', async () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            const declared = new Set((scope.primeVueSubRoutes ?? []).map((item) => item.file))
+            const found = await listSubRoutePages(scope.prefix)
+
+            for (const page of found) {
+                expect(
+                    declared.has(page),
+                    `${scope.prefix} 的子路由页面 ${page} 未在 primeVueSubRoutes 登记——请显式声明「本批是否迁移它的哪个部分」`,
+                ).toBe(true)
+            }
+        }
+    })
+
+    it('登记的例外页面必须存在（写错路径响亮失败，不静默漏扫）', async () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const item of scope.primeVueSubRoutes ?? []) {
+                await expect(readFile(path.join(process.cwd(), item.file), 'utf8')).resolves.toBeTypeOf('string')
+            }
+        }
+    })
+
+    it('例外页面不得引用组件内择库型过渡组件或开启路由择库的头部切换器', async () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const item of scope.primeVueSubRoutes ?? []) {
+                const source = normalizeMarkerSource(stripComments(await readFile(path.join(process.cwd(), item.file), 'utf8')))
+                const hits = ROUTE_PICKING_MARKER_TOKENS.filter((marker) => source.includes(marker))
+
+                expect(
+                    hits,
+                    `${item.file} 出现路由择库标记 ${hits.join(', ')}——前缀登记会让这些组件在该子路由内静默切到 caomei，须先决定子路由归属`,
+                ).toEqual([])
+            }
+        }
+    })
+
+    it('每条例外都给出理由（防止把「未迁移」写成静默默认）', () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const item of scope.primeVueSubRoutes ?? []) {
+                expect(item.reason.length).toBeGreaterThan(10)
+            }
+        }
+    })
 })
 
 describe('登记项扫描面：ownedFiles 登记与解析', () => {

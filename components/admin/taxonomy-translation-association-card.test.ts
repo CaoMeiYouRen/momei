@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { caomeiTaxonomyStubs } from '../../tests/helpers/taxonomy-page-stubs'
+import { caomeiComponentStubs } from '../../tests/helpers/caomei-component-stubs'
 import AssociationCard from './taxonomy-translation-association-card.vue'
 
 /**
@@ -24,7 +24,7 @@ const mountCard = (props: Record<string, unknown>) => mountSuspended(Association
         relatedCandidates: [],
         ...props,
     },
-    global: { stubs: caomeiTaxonomyStubs },
+    global: { stubs: caomeiComponentStubs },
 })
 
 describe('TaxonomyTranslationAssociationCard', () => {

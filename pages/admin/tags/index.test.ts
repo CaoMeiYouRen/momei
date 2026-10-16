@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { nextTick, reactive, ref } from 'vue'
-import { caomeiTaxonomyStubs } from '../../../tests/helpers/taxonomy-page-stubs'
+import { caomeiComponentStubs } from '../../../tests/helpers/caomei-component-stubs'
 import AdminTagsPage from './index.vue'
 
 vi.mock('vue-i18n', async (importOriginal) => {
@@ -24,10 +24,10 @@ vi.mock('vue-i18n', async (importOriginal) => {
 const listItems = ref<any[]>([])
 
 /*
- * 组件桩抽到 `tests/helpers/taxonomy-page-stubs.ts`：本页渲染的实体组件（`admin-taxonomy-page.vue`）
+ * 组件桩抽到 `tests/helpers/caomei-component-stubs.ts`：本页渲染的实体组件（`admin-taxonomy-page.vue`）
  * 同时被组件用例与两个 host 页面用例渲染，三处各持一份桩集会在后续批次产生静默漂移。
  */
-const stubs = caomeiTaxonomyStubs
+const stubs = caomeiComponentStubs
 
 const { fetchMock, addToast, loadData } = vi.hoisted(() => ({
     fetchMock: vi.fn(() => Promise.resolve({ data: { items: [] } })),

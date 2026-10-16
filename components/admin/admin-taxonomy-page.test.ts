@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { nextTick, reactive, ref } from 'vue'
-import { CaomeiDataTableStub, CaomeiTabsStub, caomeiInputFocusCalls, caomeiTaxonomyStubs, taxonomyTestConfig } from '../../tests/helpers/taxonomy-page-stubs'
+import { CaomeiDataTableStub, CaomeiTabsStub, caomeiInputFocusCalls, caomeiComponentStubs, taxonomyTestConfig } from '../../tests/helpers/caomei-component-stubs'
 import AdminTaxonomyPage from './admin-taxonomy-page.vue'
 
 vi.mock('vue-i18n', async (importOriginal) => {
@@ -22,10 +22,10 @@ vi.mock('vue-i18n', async (importOriginal) => {
 })
 
 /*
- * 组件桩与配置夹具抽到 `tests/helpers/taxonomy-page-stubs.ts`：同一组件被组件用例与两个 host 页面用例
+ * 组件桩与配置夹具抽到 `tests/helpers/caomei-component-stubs.ts`：同一组件被组件用例与两个 host 页面用例
  * 共同渲染，三处各持一份桩集会在后续批次产生静默漂移。
  */
-const stubs = caomeiTaxonomyStubs
+const stubs = caomeiComponentStubs
 
 const { fetchMock, loadData } = vi.hoisted(() => ({
     fetchMock: vi.fn(() => Promise.resolve({ data: { items: [] } })),

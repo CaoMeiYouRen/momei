@@ -109,6 +109,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/posts', '.caomei-data-table, .admin-page-container'],
             ['/admin/categories', '.caomei-data-table'],
             ['/admin/tags', '.caomei-data-table'],
+            ['/admin/ai', '.caomei-tabs'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {
@@ -157,6 +158,19 @@ test.describe('Admin E2E Tests', () => {
     test('should load admin ai page', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/ai')
         await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 15000 })
+
+        /* 默认页签为「使用统计」；「任务记录」页签承载本批主要迁移面（任务列表），
+         * 故断言其可激活并渲染 caomei 表格（Tabs 族 + 表格同页签内一体迁移）。
+         *
+         * 用 `toPass` 重试「点击 → 断言」：SSR 首屏可见但水合未完成时，单次点击会静默失效
+         * （实测：单次点击后页签仍停在「使用统计」）——重试整段才能既避开水合竞态、又不引入固定延时。 */
+        const tasksTab = page.getByRole('tab', { name: '任务记录' })
+        const tasksTable = page.locator('.caomei-data-table').first()
+
+        await expect(async () => {
+            await tasksTab.click()
+            await expect(tasksTable).toBeVisible({ timeout: 5000 })
+        }).toPass({ timeout: 20000 })
         await expect(page.getByRole('tab', { name: /统计|Stats/i })).toBeVisible({ timeout: 15000 })
     })
 })

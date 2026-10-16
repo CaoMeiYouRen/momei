@@ -35,13 +35,13 @@ async function flushPromises() {
     await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-async function mountComposable() {
+async function mountComposable(options: Record<string, unknown> = {}) {
     let composable: any = null
     const { useAdminAiPage } = await import('./use-admin-ai-page')
 
     const TestComponent = defineComponent({
         setup() {
-            composable = useAdminAiPage()
+            composable = useAdminAiPage(options)
             return () => null
         },
     })
@@ -235,5 +235,37 @@ describe('useAdminAiPage', () => {
         expect(showErrorToast).toHaveBeenCalledWith(expect.any(Error), {
             fallbackKey: 'pages.admin.ai.feedback.load_tasks_failed',
         })
+    })
+
+    it('pageIndexBase=1 时按 1 基页码直取（caomei-ui DataTable 语义）', async () => {
+        fetchMock.mockResolvedValue({ items: [], total: 0, costDisplay: null })
+        const composable = await mountComposable({ pageIndexBase: 1 })
+
+        await flushPromises()
+        fetchMock.mockClear()
+
+        // caomei `DataTable` 的 `@page` 载荷本身即 1 基（`pageIndex + 1`），故 Composable 不应再 `+1`。
+        composable.onPage({ page: 3, rows: 20 })
+        await flushPromises()
+
+        expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/ai/tasks', expect.objectContaining({
+            query: expect.objectContaining({ page: 3, pageSize: 20 }),
+        }))
+        expect(composable.page.value).toBe(3)
+    })
+
+    it('pageIndexBase 缺省时维持 PrimeVue 的 0 基语义（`+1` 归一）', async () => {
+        fetchMock.mockResolvedValue({ items: [], total: 0, costDisplay: null })
+        const composable = await mountComposable()
+
+        await flushPromises()
+        fetchMock.mockClear()
+
+        composable.onPage({ page: 3, rows: 20 })
+        await flushPromises()
+
+        expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/ai/tasks', expect.objectContaining({
+            query: expect.objectContaining({ page: 4, pageSize: 20 }),
+        }))
     })
 })
