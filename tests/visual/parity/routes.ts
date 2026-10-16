@@ -20,13 +20,21 @@ export interface ParityRoute {
     /** 稳定等待口径：`networkidle`（默认）或 `lenient`（该路由网络永不空闲）。 */
     stable?: 'networkidle' | 'lenient'
     /**
-     * 截图前需要激活的标签页（按可访问角色名匹配）。
+     * 截图前需要激活的目标元素（页签 / 按钮），按可访问角色名匹配。
      *
-     * 用途：默认标签页之外的分区也需要纳入对照时（如 `/admin/ai` 的「任务记录」页签承载了
-     * 本批的主要迁移面）。角色名在两套组件库上都稳定（两端均渲染 `role="tab"`），故同一段
-     * 准备逻辑在「参考态采集」与「当前态比对」两侧行为一致。
+     * 用途：默认视图之外的分区也需要纳入对照时——如 `/admin/ai` 的「任务记录」页签、
+     * `/admin/marketing` 的「创建活动」弹窗（表单承载本批迁移面）。角色名在两套组件库上都
+     * 稳定（页签两端均渲染 `role="tab"`；弹窗触发器两端均为 `button`），故同一段准备逻辑在
+     * 「参考态采集」与「当前态比对」两侧行为一致。
+     *
+     * `expect` 为激活后必须出现的就绪锚点：把「点击未生效」（SSR 首屏可见但未水合时会静默
+     * 失效）变成**响亮失败**，而不是静默截到默认视图后与参考态比出误导性差异。
      */
-    selectTab?: string
+    activate?: {
+        role: 'tab' | 'button'
+        name: string
+        expect?: string
+    }
     /**
      * 渲染就绪锚点：等待匹配该 URL 子串的响应完成后才截图，替代固定超时。
      * 用于列表数据异步加载的路由，避免「数据未就绪即截图」造成参考态/当前态抖动。
@@ -152,6 +160,29 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         readyResponse: '/api/admin/ai/stats',
     },
     {
+        name: 'admin-marketing-overview',
+        path: '/admin/marketing',
+        heading: '营销中心',
+        tier: 'admin',
+        migrated: true,
+        /* 默认视图：统计卡片（PrimeVue `Card`，未迁移族）+ 推送历史列表（本批迁移面）。
+         * 由 `/api/admin/marketing/campaigns` 决定列表就绪。 */
+        readyResponse: '/api/admin/marketing/campaigns',
+    },
+    {
+        name: 'admin-marketing-form-dialog',
+        path: '/admin/marketing',
+        heading: '营销中心',
+        tier: 'admin',
+        migrated: true,
+        /* 同路由的第二个对照面：表单在 PrimeVue `Dialog` 内（浮层豁免），先激活「创建推送」
+         * （`create_btn`）打开弹窗再截图——表单承载本批的在册族迁移面。
+         * 不声明 `readyResponse`：弹窗内表单的 `/api/categories` 与 `/api/tags` 请求只在**点击之后**发出，
+         * 而就绪等待发生在激活之前（注册即等满超时后被吞），语义与成本都不成立；
+         * 就绪由 `activate.expect`（`[role="dialog"]`）与激活后的稳定等待承担。 */
+        activate: { role: 'button', name: '创建推送', expect: '[role="dialog"]' },
+    },
+    {
         name: 'admin-ai-tasks-list',
         path: '/admin/ai',
         heading: 'AI 任务与统计',
@@ -160,7 +191,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         /* 同路由的第二个对照面：截图前激活「任务记录」页签（承载本批主要迁移面）。
          * 任务列表为服务端分页，数据由 `/api/admin/ai/tasks` 返回。 */
         readyResponse: '/api/admin/ai/tasks',
-        selectTab: '任务记录',
+        activate: { role: 'tab', name: '任务记录' },
     },
 ]
 

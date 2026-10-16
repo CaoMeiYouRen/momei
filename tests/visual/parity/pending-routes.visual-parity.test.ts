@@ -42,15 +42,21 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
 
                 /* 需要对照默认页签之外的分区时，先按可访问角色激活目标页签再截图
                  * （同一准备逻辑对「参考态采集」与「当前态比对」一致生效）。 */
-                if (route.selectTab) {
-                    /* 点击 → 断言目标页签已选中后再截图：SSR 首屏可见但未水合时单次点击会静默失效
+                if (route.activate) {
+                    /* 点击 → 断言目标状态后再截图：SSR 首屏可见但未水合时单次点击会静默失效
                      * （E2E 侧同类竞态改用 `toPass` 重试），故此处同样用有界重试，避免偶发假失败
-                     * 或截到默认页签。 */
-                    const targetTab = page.getByRole('tab', { name: route.selectTab })
+                     * 或截到默认视图。页签断言 `aria-selected`；`expect` 给出弹窗等目标锚点。 */
+                    const target = page.getByRole(route.activate.role, { name: route.activate.name })
+                    const expectation = route.activate.expect
 
                     await expect(async () => {
-                        await targetTab.click()
-                        await expect(targetTab).toHaveAttribute('aria-selected', 'true', { timeout: 2000 })
+                        await target.click()
+                        if (route.activate?.role === 'tab') {
+                            await expect(target).toHaveAttribute('aria-selected', 'true', { timeout: 2000 })
+                        }
+                        if (expectation) {
+                            await expect(page.locator(expectation)).toBeVisible({ timeout: 3000 })
+                        }
                     }).toPass({ timeout: 15000 })
 
                     if (route.stable === 'lenient') {

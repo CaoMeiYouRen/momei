@@ -110,6 +110,7 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/categories', '.caomei-data-table'],
             ['/admin/tags', '.caomei-data-table'],
             ['/admin/ai', '.caomei-tabs'],
+            ['/admin/marketing', '.caomei-data-table'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {
@@ -145,6 +146,25 @@ test.describe('Admin E2E Tests', () => {
         await expect(page.locator('.caomei-data-table').first()).toBeVisible({ timeout: 10000 })
     })
 
+    test('should load admin marketing page', async ({ page }) => {
+        // 同上：含弹窗打开重试（内层 `toPass` 20s），串行下需显式抬高超时。
+        test.setTimeout(60000)
+
+        await gotoAdminRoute(page, '/admin/marketing')
+        // 本页根容器为 `.admin-marketing`（不含通用的 `.admin-page-container`）。
+        await expect(page.locator('.admin-marketing')).toBeVisible({ timeout: 15000 })
+
+        /* 列表（本批迁移面）就绪；刷新入口在表格之上（caomei `DataTable` 无 `#header` 插槽）。 */
+        await expect(page.locator('.caomei-data-table').first()).toBeVisible({ timeout: 15000 })
+
+        /* 弹窗本体仍为 PrimeVue `Dialog`（浮层豁免），其内表单控件已迁移：断言打开后出现 caomei 字段。
+         * 用 `toPass` 重试「点击 → 断言」以规避 SSR 未水合的静默失效（同 `/admin/ai` 页的口径）。 */
+        await expect(async () => {
+            await page.getByRole('button', { name: '创建推送' }).click()
+            await expect(page.locator('[role="dialog"] .caomei-select').first()).toBeVisible({ timeout: 5000 })
+        }).toPass({ timeout: 20000 })
+    })
+
     test('should load notification management with translated delivery log copy', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/notifications')
 
@@ -156,6 +176,9 @@ test.describe('Admin E2E Tests', () => {
     })
 
     test('should load admin ai page', async ({ page }) => {
+        // 本用例含「就绪等待 + 页签点击重试」（内层 `toPass` 20s），默认 30s 在整文件串行下会被挤爆。
+        test.setTimeout(60000)
+
         await gotoAdminRoute(page, '/admin/ai')
         await expect(page.locator('.admin-page-container')).toBeVisible({ timeout: 15000 })
 

@@ -1,5 +1,5 @@
 {
-    "generatedAt": "2026-10-16T11:21:53.442Z",
+    "generatedAt": "2026-10-16T13:20:01.188Z",
     "environment": {
         "browser": "chromium 156.0.8078.4",
         "playwright": "1.64.0",
@@ -225,6 +225,34 @@
             "source": "in-place",
             "label": "HEAD",
             "capturedAt": "2026-10-16T11:21:53.442Z"
+        },
+        "admin-marketing-form-dialog-dark": {
+            "ref": "HEAD",
+            "commit": "24463608d08413a2612e7e06d32fc232b47f6044",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T13:20:01.188Z"
+        },
+        "admin-marketing-form-dialog-light": {
+            "ref": "HEAD",
+            "commit": "24463608d08413a2612e7e06d32fc232b47f6044",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T13:20:01.188Z"
+        },
+        "admin-marketing-overview-dark": {
+            "ref": "HEAD",
+            "commit": "24463608d08413a2612e7e06d32fc232b47f6044",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T13:20:01.188Z"
+        },
+        "admin-marketing-overview-light": {
+            "ref": "HEAD",
+            "commit": "24463608d08413a2612e7e06d32fc232b47f6044",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-10-16T13:20:01.188Z"
         }
     }
 }
