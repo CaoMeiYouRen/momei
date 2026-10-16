@@ -48,6 +48,17 @@ async function gotoAdminRoute(page: import('@playwright/test').Page, routePath: 
     }
 }
 
+/** 取元素边框盒（几何断言用；元素不可见时抛错，避免静默通过）。 */
+async function wrapperBoxOf(locator: { boundingBox: () => Promise<{ width: number, height: number } | null> }) {
+    const box = await locator.boundingBox()
+
+    if (!box) {
+        throw new Error('无法取得元素边框盒（元素不可见或未渲染）')
+    }
+
+    return box
+}
+
 test.describe('Admin E2E Tests', () => {
     // 如果全局设置已保存认证状态，使用它；否则尝试登录
     test.use({
@@ -70,14 +81,6 @@ test.describe('Admin E2E Tests', () => {
         await expect(page.locator('h1, .admin-page-header').first()).toBeVisible({ timeout: 15000 })
     })
 
-    test('should load admin categories and tags', async ({ page }) => {
-        await gotoAdminRoute(page, '/admin/categories')
-        await expect(page.locator('.p-datatable, .categories-list').first()).toBeVisible({ timeout: 15000 })
-
-        await gotoAdminRoute(page, '/admin/tags')
-        await expect(page.locator('.p-datatable, .tags-list').first()).toBeVisible({ timeout: 15000 })
-    })
-
     test('should load admin settings', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/settings')
         await expect(page.locator('form, .settings-content, .p-card').first()).toBeVisible({ timeout: 15000 })
@@ -86,8 +89,11 @@ test.describe('Admin E2E Tests', () => {
     test('should load extended admin management pages', async ({ page }) => {
         /* 该用例是单函数内的多路由串行矩阵（每条一次导航 + 可见性等待），随迁移路由逐批增长，
          * 已贴默认 30s 预算；显式抬高超时，使「新增路由」不再挤压既有等待余量
-         * （2026-10-14 审计提示：8 → 9 行后隔离复跑最高 24.7s ≈ 82% 预算）。 */
-        test.setTimeout(60000)
+         * （历史审计提示：8 → 9 行后隔离复跑最高 24.7s ≈ 82% 预算；
+         * 组件型目标首路由批次：原「should load admin categories and tags」单测折入本矩阵，
+         * 11 → 13 行，避免同一路由两次导航挤占预算；行数增加后隔离复跑实测 45.3s（本机负载较高时），
+         * 故超时同步抬到 90s 以保留余量）。 */
+        test.setTimeout(90000)
 
         const routeMatrix = [
             ['/admin/users', '.caomei-data-table, .user-management'],
@@ -101,6 +107,8 @@ test.describe('Admin E2E Tests', () => {
             ['/admin/migrations/link-governance', '.caomei-data-table, .admin-link-governance'],
             ['/admin/subscribers', '.caomei-data-table, .admin-subscribers'],
             ['/admin/posts', '.caomei-data-table, .admin-page-container'],
+            ['/admin/categories', '.caomei-data-table'],
+            ['/admin/tags', '.caomei-data-table'],
         ] as const
 
         for (const [routePath, readySelector] of routeMatrix) {
@@ -118,11 +126,22 @@ test.describe('Admin E2E Tests', () => {
         await searchInput.fill('tech')
         await expect(searchInput).toHaveValue('tech')
 
+        /* 迁移期几何还原断言（把此前只靠人工探针核对的「结构性还原」升级为门禁项）：
+         * ① 搜索字段宽度按迁移前实测固有宽显式约束为 261px（caomei 字段默认 `width: 100%`，
+         *    不约束会在 flex 行内撑满容器）；② 分页器水平居中由 `--caomei-data-table-pagination-justify`
+         *    承载（caomei 默认右对齐）。 */
+        const searchBox = await wrapperBoxOf(page.locator('.admin-filters__search').first())
+        expect(Math.round(searchBox.width), '搜索字段宽度应还原为迁移前实测值 261px').toBe(261)
+        const paginationJustify = await page.locator('.caomei-data-table__pagination').first().evaluate(
+            (element) => getComputedStyle(element as HTMLElement).justifyContent,
+        )
+        expect(paginationJustify, '分页器应水平居中（迁移前 PrimeVue 默认）').toContain('center')
+
         const aggregateSwitch = page.getByRole('switch', { name: '聚合翻译版本' })
         await expect(aggregateSwitch).toBeVisible({ timeout: 10000 })
         await aggregateSwitch.click()
 
-        await expect(page.locator('.p-datatable, .categories-list').first()).toBeVisible({ timeout: 10000 })
+        await expect(page.locator('.caomei-data-table').first()).toBeVisible({ timeout: 10000 })
     })
 
     test('should load notification management with translated delivery log copy', async ({ page }) => {

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { computed, defineComponent, h, inject, nextTick, provide, reactive, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
+import { caomeiTaxonomyStubs } from '../../../tests/helpers/taxonomy-page-stubs'
 import AdminTagsPage from './index.vue'
 
 vi.mock('vue-i18n', async (importOriginal) => {
@@ -22,74 +23,11 @@ vi.mock('vue-i18n', async (importOriginal) => {
 // Stub components
 const listItems = ref<any[]>([])
 
-const stubs = {
-    AdminPageHeader: {
-        template: '<div class="admin-header"><slot name="actions" /></div>',
-        props: ['title', 'showLanguageSwitcher'],
-    },
-    Button: {
-        template: '<button :class="icon" :disabled="disabled" @click="$emit(\'click\')"><slot />{{ label }}</button>',
-        props: ['label', 'loading', 'icon', 'severity', 'disabled'],
-        emits: ['click'],
-    },
-    IconField: { template: '<div class="icon-field"><slot /></div>' },
-    InputIcon: { template: '<i :class="$attrs.class" class="input-icon" />' },
-    InputText: {
-        template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" :placeholder="placeholder" />',
-        props: ['id', 'modelValue', 'placeholder'],
-        emits: ['update:modelValue', 'input'],
-    },
-    ToggleSwitch: {
-        template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
-        props: ['modelValue', 'inputId'],
-        emits: ['update:modelValue', 'change'],
-    },
-    DataTable: defineComponent({
-        props: ['value', 'loading', 'lazy', 'totalRecords', 'rows', 'paginator', 'rowsPerPageOptions', 'tableStyle'],
-        emits: ['page', 'sort'],
-        setup(props, { slots }) {
-            provideTableRows(computed(() => props.value || []))
-            return () => h('div', { class: 'datatable' }, slots.default ? slots.default() : [])
-        },
-    }),
-    Column: defineComponent({
-        props: ['field', 'header', 'sortable', 'headerStyle', 'bodyClass', 'headerClass', 'vIf'],
-        setup(_props, { slots }) {
-            const rows = inject<any>('data-table-rows', ref([]))
-            return () => {
-                let children: any[] = []
-
-                if (slots.body) {
-                    children = rows.value.flatMap((row: any) => slots.body?.({ data: row }) || [])
-                } else if (slots.default) {
-                    children = slots.default()
-                }
-
-                return h('div', { class: 'column' }, children)
-            }
-        },
-    }),
-    Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity'] },
-    Badge: {
-        template: '<button class="badge" :data-severity="severity" @click="$emit(\'click\')">{{ value }}</button>',
-        props: ['value', 'severity'],
-        emits: ['click'],
-    },
-    Dialog: { template: '<div v-if="visible" class="dialog"><slot /><slot name="footer" /></div>', props: ['visible', 'modal', 'header', 'style'] },
-    Tabs: { template: '<div class="tabs"><slot /></div>' },
-    TabList: { template: '<div class="tab-list"><slot /></div>' },
-    Tab: { template: '<button class="tab"><slot /></button>', props: ['value'] },
-    TabPanels: { template: '<div class="tab-panels"><slot /></div>' },
-    TabPanel: { template: '<div class="tab-panel"><slot /></div>', props: ['value'] },
-    Checkbox: { template: '<input class="checkbox" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['modelValue', 'binary', 'inputId'], emits: ['update:modelValue'] },
-    InputGroup: { template: '<div class="input-group"><slot /></div>' },
-    Select: { template: '<select class="select" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue'] },
-    TaxonomyTranslationAssociationCard: {
-        template: '<div class="taxonomy-translation-association" :class="{\'taxonomy-translation-association--warn\': Boolean(sameLanguageConflict)}"><span>{{ clusterId }}</span><span v-for="candidate in relatedCandidates" :key="candidate.id">{{ candidate.name }}</span></div>',
-        props: ['clusterId', 'usesSlugFallback', 'sameLanguageConflict', 'linkedPeers', 'relatedCandidates'],
-    },
-    ConfirmDeleteDialog: { template: '<div class="confirm-delete-dialog" />', props: ['visible', 'title', 'message'] },
-}
+/*
+ * 组件桩抽到 `tests/helpers/taxonomy-page-stubs.ts`：本页渲染的实体组件（`admin-taxonomy-page.vue`）
+ * 同时被组件用例与两个 host 页面用例渲染，三处各持一份桩集会在后续批次产生静默漂移。
+ */
+const stubs = caomeiTaxonomyStubs
 
 const { fetchMock, addToast, loadData } = vi.hoisted(() => ({
     fetchMock: vi.fn(() => Promise.resolve({ data: { items: [] } })),
@@ -173,15 +111,19 @@ describe('AdminTagsPage', () => {
     it('renders create button', async () => {
         const wrapper = await mountPage()
 
-        const html = wrapper.html()
-        expect(html).toContain('pi-plus')
+        // 迁移后创建按钮为 `CaomeiButton`：可见文案在默认插槽，图标走 lucide `#icon`。
+        const button = wrapper.find('.admin-header .caomei-button')
+        expect(button.exists()).toBe(true)
+        expect(button.find('svg').exists()).toBe(true)
     })
 
     it('renders search input', async () => {
         const wrapper = await mountPage()
 
-        const html = wrapper.html()
-        expect(html).toContain('pi-search')
+        // 迁移后搜索字段为 `CaomeiInput`：`IconField` / `InputIcon` 由 `#prefix` 承接（lucide `Search`）。
+        const search = wrapper.find('.admin-filters__search')
+        expect(search.exists()).toBe(true)
+        expect(search.find('svg').exists()).toBe(true)
     })
 
     it('renders data table', async () => {
@@ -199,7 +141,7 @@ describe('AdminTagsPage', () => {
     it('shows aligned sync controls when opening the create dialog', async () => {
         const wrapper = await mountPage()
 
-        await wrapper.find('button.pi-plus').trigger('click')
+        await wrapper.find('.admin-header .caomei-button').trigger('click')
         await nextTick()
 
         expect(wrapper.find('.taxonomy-dialog__sync-controls').exists()).toBe(true)
@@ -224,7 +166,7 @@ describe('AdminTagsPage', () => {
 
         const wrapper = await mountPage()
 
-        await wrapper.find('button.pi-plus').trigger('click')
+        await wrapper.find('.admin-header .caomei-button').trigger('click')
         await nextTick()
 
         await wrapper.find('input#slug_zh-CN').setValue('tag-group')
@@ -235,9 +177,4 @@ describe('AdminTagsPage', () => {
         expect(wrapper.find('.taxonomy-translation-association--warn').exists()).toBe(true)
         expect(wrapper.text()).toContain('回退标签')
     })
-
 })
-
-function provideTableRows(rows: any) {
-    provide('data-table-rows', rows)
-}
