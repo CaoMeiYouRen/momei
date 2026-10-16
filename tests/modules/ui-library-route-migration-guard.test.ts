@@ -7,7 +7,7 @@ import {
     CAOMEI_UI_ROUTE_SCOPES,
     resolveInScopeComponents,
 } from '../../lib/ui-library'
-import { findInScopePrimeVueResiduals, stripComments } from './ui-library-guard-helpers'
+import { findInScopePrimeVueResiduals, stripComments, stripNonTemplateBlocks } from './ui-library-guard-helpers'
 
 /**
  * 已迁移路由的「在册组件族零残留」守卫。
@@ -204,6 +204,10 @@ describe('已登记前缀的子路由页面：例外登记与路由择库标记'
     it('例外页面不得引用组件内择库型过渡组件或开启路由择库的头部切换器', async () => {
         for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
             for (const item of scope.primeVueSubRoutes ?? []) {
+                /* 此处**不做**模板块收窄：标记 token（`appavatarv2` / `appuploaderv2` /
+                 * `showlanguageswitcher`）不含尖括号，不存在「TS 泛型实参假阳性」这一动机；而
+                 * `lib/ui-library.ts` 对该守卫的契约是「例外页面**不得引用**组件内择库型过渡组件」，
+                 * 「引用」包含脚本块内的 `import`——收窄反而会静默丢掉脚本块覆盖。 */
                 const source = normalizeMarkerSource(stripComments(await readFile(path.join(process.cwd(), item.file), 'utf8')))
                 const hits = ROUTE_PICKING_MARKER_TOKENS.filter((marker) => source.includes(marker))
 
@@ -337,6 +341,37 @@ describe('守卫扫描口径：假阳性 / 假阴性双向验证', () => {
         ].join('\n')
 
         expect(findInScopePrimeVueResiduals(source)).toEqual([])
+    })
+
+    it('脚本块内的 TS 泛型实参不被误判为组件标签（`PaginatedData<Tag>`；/admin/marketing 实测）', () => {
+        const source = [
+            '<template>',
+            '    <CaomeiDataTable :data="items" />',
+            '</template>',
+            '',
+            '<script setup lang="ts">',
+            'const tags = ref<Tag[]>([])',
+            'const res = await $fetch<ApiResponse<PaginatedData<Tag>>>(\'/api/tags\')',
+            '</script>',
+        ].join('\n')
+
+        expect(findInScopePrimeVueResiduals(source)).toEqual([])
+    })
+
+    it('片段来源（无 `<script>` 块）不受剥离影响，外层标签仍被计入（防假阴性）', () => {
+        const fragment = [
+            '<DataTable :value="rows">',
+            '    <template #body="{data}"><Tag :size="16" /></template>',
+            '</DataTable>',
+        ].join('\n')
+
+        // 反向剥离对片段无操作：`<DataTable>` 必须仍被判定为残留（`Tag` 由下面的显式导入豁免）。
+        expect(stripNonTemplateBlocks(fragment)).toBe(fragment)
+        expect(findInScopePrimeVueResiduals(fragment)).toEqual(['DataTable', 'Tag'])
+        expect(findInScopePrimeVueResiduals([
+            'import { Tag } from \'@lucide/vue\'',
+            fragment,
+        ].join('\n'))).toEqual(['DataTable'])
     })
 
     it('显式值导入的 lucide 图标同名不被误判（<Tag /> 来自 @lucide/vue）', () => {

@@ -102,6 +102,7 @@ const CaomeiButtonStub = defineComponent({
         size: { type: String, default: '' },
         rounded: { type: Boolean, default: false },
         loading: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
     },
     emits: ['click'],
     setup(props, { slots, emit }) {
@@ -114,6 +115,8 @@ const CaomeiButtonStub = defineComponent({
             'data-icon-only': String(props.iconOnly),
             'data-rounded': String(props.rounded),
             'data-loading': String(props.loading),
+            'data-disabled': String(props.disabled),
+            disabled: props.disabled,
             onClick: () => emit('click'),
         }, [slots.icon?.(), slots.default?.()])
     },
@@ -131,7 +134,7 @@ const CaomeiInputStub = defineComponent({
     setup(props, { slots, emit, expose }) {
         expose({ focus: () => caomeiInputFocusCalls(props.id) })
 
-        return () => h('span', { class: 'caomei-input', 'data-invalid': String(props.invalid) }, [
+        return () => h('span', { class: 'caomei-input', 'data-id': props.id, 'data-invalid': String(props.invalid) }, [
             slots.prefix?.(),
             h('input', {
                 id: props.id,
@@ -227,6 +230,7 @@ const CaomeiAutoCompleteStub = defineComponent({
 export const CaomeiSelectStub = defineComponent({
     name: 'CaomeiSelect',
     props: {
+        id: { type: String, default: '' },
         modelValue: { type: [String, Number, Object], default: null },
         options: { type: Array, default: () => [] },
         optionLabel: { type: String, default: 'label' },
@@ -238,6 +242,7 @@ export const CaomeiSelectStub = defineComponent({
     setup(props, { emit }) {
         return () => h('select', {
             class: 'caomei-select',
+            'data-id': props.id,
             'data-show-clear': String(props.showClear),
             'data-options': (props.options as Record<string, string>[]).map((option) => option[props.optionValue]).join(','),
             onChange: (event: Event) => emit('update:modelValue', (event.target as HTMLSelectElement).value),

@@ -9,6 +9,26 @@ import { CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS } from '../../lib/ui-library'
  * `lib/ui-library.ts`（并存期「路由 → 组件来源」事实源），本模块只放扫描口径。
  */
 
+/**
+ * 去掉 `<script>` / `<style>` 块，只留模板区（组件标签的唯一合法位置）参与标签匹配。
+ *
+ * 为什么要收窄（2026-10-16 `/admin/marketing` 首次命中）：`.vue` 的**脚本块**里存在 TS 泛型实参
+ * （实测：`$fetch<ApiResponse<PaginatedData<Tag>>>`）——`<Tag>` 与组件标签在文本上无法区分，
+ * 整文件扫描会把类型实参误判为「残留在册族组件」。「模板块 + 显式导入扣除」是两道互补口径：
+ * 前者排除脚本块里的同名文本，后者排除模板块内的同名图标。
+ *
+ * 采用「**反向剥离**」（去掉脚本 / 样式块）而不是「正向提取根 `<template>`」：片段来源（如单测里
+ * 的内联模板）不含根 `<template>` 包裹，正向提取会从嵌套的 `<template #slot>` 起匹配、把外层标签
+ * 排除在扫描面之外（实测把 `<DataTable>` 漏判为无残留）。反向剥离对片段天然无操作。
+ *
+ * 已知边界：脚本块内以字符串形式出现的旧标签名不再计入（本仓无此写法）。
+ */
+export function stripNonTemplateBlocks(source: string): string {
+    return source
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gu, '')
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gu, '')
+}
+
 /** 组件标签匹配：`<Name` 后必须是空白 / `/` / `>`，避免 `<Button` 命中 `<ButtonGroup`。 */
 export function buildComponentTagPattern(name: string): RegExp {
     return new RegExp(`<${name}[\\s/>]`, 'u')
@@ -96,15 +116,24 @@ export function collectExplicitlyImportedIdentifiers(source: string): Set<string
     return identifiers
 }
 
-/** 返回源码中仍以 PrimeVue 组件形式出现的在册族组件名（已剥离注释并扣除显式非 PrimeVue 值导入）。 */
+/**
+ * 返回源码中仍以 PrimeVue 组件形式出现的在册族组件名。
+ *
+ * 口径：剥离注释 → 扣除显式非 PrimeVue 值导入 → 在**去掉 `<script>` / `<style>` 块后**的源码上匹配标签
+ * （见 `stripNonTemplateBlocks`；注意是反向剥离，不是正向提取根 `<template>`）。
+ *
+ * 该收窄只用于**残留扫描**：子路由例外页面的「路由择库标记」扫描仍用整份源码（其 token 不含尖括号，
+ * 无假阳性动机；收窄会丢掉脚本块内的 `import` 覆盖）。
+ */
 export function findInScopePrimeVueResiduals(
     source: string,
     components: readonly string[] = CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS,
 ): string[] {
     const scanned = stripComments(source)
     const explicitlyImported = collectExplicitlyImportedIdentifiers(scanned)
+    const templateOnly = stripNonTemplateBlocks(scanned)
 
     return components.filter(
-        (name) => !explicitlyImported.has(name) && buildComponentTagPattern(name).test(scanned),
+        (name) => !explicitlyImported.has(name) && buildComponentTagPattern(name).test(templateOnly),
     )
 }
