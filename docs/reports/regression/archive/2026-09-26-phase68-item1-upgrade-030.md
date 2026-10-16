@@ -56,4 +56,4 @@ B2 试点页 5 族 / 8 处，与升级前一致：`CaomeiButton` ×3、`CaomeiSe
 - 全量 E2E 三浏览器矩阵未完整重跑（迁移方案 §8.1 不要求每批全量）；gravatar 外链拖死 `load` 的环境 flaky 已登记，若后续阻塞可考虑测试侧拦截外链头像（属测试有效性主线候选，不进本批）。
 - DataTable 多列排序 / 行分组等新能力零用量，其行为差异清单待 B2 剩余页用到时再核对。
 
-<!-- regression-window:end:phase68-item1-upgrade-030:第六十
+<!-- regression-window:end:phase68-item1-upgrade-030:第六十八阶段-条目1:2026-09-26 -->

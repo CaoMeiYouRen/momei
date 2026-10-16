@@ -82,7 +82,7 @@
 - **语义色口径迁移**：`info` / `secondary` 两档为有损近似（§6.2），本批把三处 severity 函数统一改名并返回 tone；公开页 `pages/friend-links.vue` 有**同名但独立**的 `getHealthStatusSeverity`（未迁移，不在本批范围）。
 - **`fluid` 移除**：本批在 6 个 `InputText` 与 3 个 `Select` 上移除 `fluid`（caomei 字段默认全宽）；非在册族的 `InputNumber` / `Textarea` 仍保留 `fluid`（PrimeVue 语义，随 B3 批次处理）。
 
-<!-- regression-window:end:phase68-b2-friend-links:第六十
+<!-- regression-window:end:phase68-b2-friend-links:第六十八阶段-条目2-第九路由:2026-10-16 -->
 
 <!-- regression-window:start:phase68-b2-posts:第六十八阶段-条目2-第十路由:2026-10-16 -->
 ## 2026-10-16 第六十八阶段 条目 2 第十路由 B2 迁移（`/admin/posts`）+ 条目 2 收口
@@ -190,4 +190,4 @@
 - **单测覆盖的剩余缺口（审计建议项，未在本批补齐）**：`confirmRepush` → `PublishPushDialogV2.open` 的载荷、`handleRepushConfirm` 的 `$fetch` 与成功 / 失败分支、`handleDelete` 的 `$fetch → close → load` 链路、`runAudit` / `handleReAudit` 的请求与结果写回，以及 `handleExport` 在聚合关闭时的 `all: false` 分支——均属既有逻辑的旁路（本批未改动其实现），登记为后续测试补强候选；本批已补的是**新迁移引入**的两处高风险盲区（状态 tone 六态、路由登记加钉）与批量导出的正向对照。
 - **审计期内的收口（A 阶段三轮分区审计结论 → 修复）**：① 实现分区 `Pass`（1 warning + 8 suggest）——已按 warning 补 `lib/ui-library.ts` 的子路由例外与可达性核对结论，并修 4 条注释归因（幻影类口径 / 徽标 24px 来源 / `warn` 词表 / `:exportable="false"` 惰性），顺带删除本文件既有的两处死代码（未使用的 `useToast` 导入与 `isTranslationPublished`）；② 测试分区 `Pass`（2 warning + 7 suggest）——两个**存活 mutant** 已补测：状态 `tone` 六态逐档断言（原仅覆盖 2 态）与 `CAOMEI_UI_ROUTE_PREFIXES` 对本批登记项的显式加钉（原删条目不报错）；另补批量导出的正向对照与 `handleBatchExport` 的 id 展开断言，改锚点由 `/admin/settings`（待迁移路由）改为结构性不会登记的 `/settings`；③ 台账/文档分区 `Reject`（2 blocker + 2 warning + 7 suggest）——已修治理表脱离表格（空行断开）、提交拆分表数字重锚、中间态行数口径、迁出空行残留；并针对「参考态齐备后 HEAD 全量采集硬失败」在就地采集块补 `--pass-with-no-tests`（含静态守卫用例），删除无消费者的 `ALL_PARITY_ROUTES` 导出，更新待迁移层文件头语义与处置表列头日期口径。
 
-<!-- regression-window:end:phase68-b2-posts:第六十
+<!-- regression-window:end:phase68-b2-posts:第六十八阶段-条目2-第十路由:2026-10-16 -->
