@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { VISUAL_THEMES, applyTheme, waitForVisualStable } from '../helpers/visual'
 import { PENDING_ROUTES } from './routes'
 import { runVisualParity, waitForVisualStableLenient } from './helpers'
@@ -6,8 +6,8 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标首路由批次完成后，`/admin/categories`
- * 与 `/admin/tags` 已移入 `MIGRATED_ROUTES`，待迁移层再次回到空集。文件与其中的就绪口径
+ * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标各批次完成后（分类 / 标签 → 首路由批次；`/admin/ai` → 第二批次），
+ * 对应条目已移入 `MIGRATED_ROUTES`，待迁移层回到空集。文件与其中的就绪口径
  * （`stable` / `readyResponse` / `readySelector`）保留为**后续批次的模板**（见 `docs/plan/todo.md`）：
  * 新增待迁移路由时在此登记，即自动获得与已迁移层同口径的比对。
  *
@@ -39,6 +39,26 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
                 }
 
                 await readyResponse
+
+                /* 需要对照默认页签之外的分区时，先按可访问角色激活目标页签再截图
+                 * （同一准备逻辑对「参考态采集」与「当前态比对」一致生效）。 */
+                if (route.selectTab) {
+                    /* 点击 → 断言目标页签已选中后再截图：SSR 首屏可见但未水合时单次点击会静默失效
+                     * （E2E 侧同类竞态改用 `toPass` 重试），故此处同样用有界重试，避免偶发假失败
+                     * 或截到默认页签。 */
+                    const targetTab = page.getByRole('tab', { name: route.selectTab })
+
+                    await expect(async () => {
+                        await targetTab.click()
+                        await expect(targetTab).toHaveAttribute('aria-selected', 'true', { timeout: 2000 })
+                    }).toPass({ timeout: 15000 })
+
+                    if (route.stable === 'lenient') {
+                        await waitForVisualStableLenient(page)
+                    } else {
+                        await waitForVisualStable(page)
+                    }
+                }
                 if (route.readySelector) {
                     /* 数据行缺失（如空列表）时按有界超时放弃，不阻断截图。 */
                     await page.locator(route.readySelector).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined)

@@ -20,6 +20,14 @@ export interface ParityRoute {
     /** 稳定等待口径：`networkidle`（默认）或 `lenient`（该路由网络永不空闲）。 */
     stable?: 'networkidle' | 'lenient'
     /**
+     * 截图前需要激活的标签页（按可访问角色名匹配）。
+     *
+     * 用途：默认标签页之外的分区也需要纳入对照时（如 `/admin/ai` 的「任务记录」页签承载了
+     * 本批的主要迁移面）。角色名在两套组件库上都稳定（两端均渲染 `role="tab"`），故同一段
+     * 准备逻辑在「参考态采集」与「当前态比对」两侧行为一致。
+     */
+    selectTab?: string
+    /**
      * 渲染就绪锚点：等待匹配该 URL 子串的响应完成后才截图，替代固定超时。
      * 用于列表数据异步加载的路由，避免「数据未就绪即截图」造成参考态/当前态抖动。
      */
@@ -133,6 +141,26 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         tier: 'admin',
         migrated: true,
         readyResponse: '/api/tags',
+    },
+    {
+        name: 'admin-ai-stats',
+        path: '/admin/ai',
+        heading: 'AI 任务与统计',
+        tier: 'admin',
+        migrated: true,
+        /* 默认页签「使用统计」：AI 统计由 `/api/admin/ai/stats` 异步返回。 */
+        readyResponse: '/api/admin/ai/stats',
+    },
+    {
+        name: 'admin-ai-tasks-list',
+        path: '/admin/ai',
+        heading: 'AI 任务与统计',
+        tier: 'admin',
+        migrated: true,
+        /* 同路由的第二个对照面：截图前激活「任务记录」页签（承载本批主要迁移面）。
+         * 任务列表为服务端分页，数据由 `/api/admin/ai/tasks` 返回。 */
+        readyResponse: '/api/admin/ai/tasks',
+        selectTab: '任务记录',
     },
 ]
 
