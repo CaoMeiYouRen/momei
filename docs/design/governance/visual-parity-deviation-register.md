@@ -44,6 +44,15 @@
 | **`Tabs` 族替换（`/admin/ai` 页签）** | PrimeVue `Tabs` / `Tab`：页签高与内边距按 Aura 档位，激活态下边框指示 | caomei `CaomeiTabs` / `CaomeiTabTrigger`：页签高 37.59px（同 taxonomy 弹窗实测档位）、内边距与指示条渲染差异 | `admin-ai-stats` L2072 / D2127（页签行带）；页签高度变化触发的整体纵向位移计入内容带 | `--caomei-tabs-*` token（本批不做，与弹窗内 Tabs 同口径） | 不适用 | 不需要 | — | `@full-stack-master` | 已接受（进允许清单） |
 | **`Tag` → `CaomeiTag`（`/admin/ai` 统计卡片 7 处 + 任务列表状态标签）** | PrimeVue `Tag`：`severity` 语义色 + 尺寸档 | caomei `CaomeiTag`：`tone` 语义色（`secondary` / `contrast` → `neutral` 为有损近似）、尺寸档差异 | `admin-ai-stats` L24879 / D25661（内容带，与页签位移合并计）；`admin-ai-tasks-list` L20419 / D24039（单带） | `--caomei-tag-*` token（本批不做） | 不适用 | 不需要 | 不适用（属迁移方案 §6.3 有意差异 #2 的映射核对） | `@full-stack-master` | 已接受（进允许清单） |
 | **任务列表刷新按钮位置（caomei `DataTable` 无 `#header` 插槽）** | 按钮位于 PrimeVue `DataTable` 的 `#header` 插槽内（表格容器内右上角一行） | caomei 侧同一 `.table-header` 结构改置于**表格之上**（保持右对齐单个图标按钮意图） | `admin-ai-tasks-list` 单带内（L20419 / D24039 含该行位移） | 不适用 | 不适用 | 不需要（无插槽可对齐） | 已登记上游反馈清单 §2.8（`DataTable` 缺 `#header` / `#footer` 插槽，2026-10-16 新增条目） | `@full-stack-master` | 已接受（进允许清单）+ 登记为结构性差异（契约用例显式断言位置，避免静默丢失入口） |
+| **推送历史列表区（`/admin/marketing`）** | PrimeVue `DataTable` + 4 `Column`（`#header` 插槽内标题 + 刷新按钮）+ `Tag` 语义色 | caomei `CaomeiDataTable` + `columns`（`cell-*` 插槽）+ `CaomeiTag tone`（`secondary → neutral` 有损近似）；刷新按钮移出插槽到表格之上 | `admin-marketing-overview` L8384 / D8674（列表带）+ 分页器带 L1167 / D3800 | `--caomei-*` 表格 token（本批不做） | 不适用 | 不需要 | §2.8（同 `/admin/ai`，第 2 个使用者） | `@full-stack-master` | 已接受（进允许清单） |
+| **页头创建按钮（`/admin/marketing`）** | `Button icon="pi pi-plus"`（primeicons 字体图标） | `CaomeiButton` + `#icon` 内 lucide `Plus` | `admin-marketing-overview` L934 / D976 | 不适用 | 不适用 | 不需要 | 不适用（§6.2 图标行映射核对） | `@full-stack-master` | 已接受（进允许清单） |
+| **弹窗表单字段（`/admin/marketing`）** | PrimeVue `Select` / `InputText`（`fluid`）+ `outlined` + `severity` 按钮 | caomei `CaomeiSelect` / `CaomeiInput`（默认 100% 宽；选择器上限在字段外层解除）+ `variant="secondary"` + `tone` | `admin-marketing-form-dialog` L 四带 4950/6101/993/1956，D 四带 4580/5604/2215/1971（含字段高度变化引起的弹窗内纵向位移） | `--caomei-field-*`（本批不做） | 不适用 | 不需要 | 不适用（§6.2 全宽 / 按钮形态行映射核对） | `@full-stack-master` | 已接受（进允许清单） |
+
+**允许清单的灵敏度是单侧的**：判定为 `allowed = min(带内差异, 声明值)`、`剩余 = 全图差异 − Σ allowed`（`tests/visual/parity/helpers.ts`）——
+故「带内差异**增长**」会被检出（剩余超阈值即红），而「带内差异**减少**」（如某处被回退成更接近 PrimeVue）不会报警。声明值一律取实测值（无余量）以保证增长方向灵敏；
+如需「少则报」的对称口径，须在门禁层另设下限断言（当前未做，已登记为已知口径）。
+
+**icon-only 刷新按钮约定**：`variant="ghost"` + `rounded` + `:label` 可访问名是迁移后的统一形态（`/admin/ai` 与 `/admin/marketing` 两处）；迁移前 PrimeVue `variant="text"` 无 `rounded`，该形态差异计入对应路由的允许清单，**不作为漂移回退**。
 
 > 说明：表中「有意差异」条目不进允许清单（属迁移方案 §6.3 已声明项，按映射核对），其余「已接受」条目必须同时登记到 `tests/visual/parity-budget.json` 的 `allowlist`。
 
@@ -51,6 +60,7 @@
 
 > 校准命令：`pnpm test:visual:parity`
 
+- 全量门禁复跑（2026-10-16，组件型目标第三批次：`/admin/marketing`）：**34/34 通过**，未归因差异 **0px**；新增 4 条按 2 个对照面校准（默认视图 3 带 / 弹窗表单 4 带，声明值 = 各带实测值，求和 = 全图实测值：默认视图浅 10485 / 深 13450；弹窗表单浅 14000 / 深 14370——后者是首个**弹窗内**迁移面的逐像素对照）。
 - 全量门禁复跑（2026-10-16，组件型目标第二批次：`/admin/ai`）：**30/30 通过**，未归因差异 **0px**；新增 4 条按 2 个对照面校准（stats 2 带 / tasks 1 带，声明值 = 各带实测值，求和 = 全图实测值：stats 浅 26951 / 深 27788；tasks 浅 20419 / 深 24039）。
 - 全量门禁复跑（2026-10-16，组件型目标首路由批次：`/admin/categories` + `/admin/tags`）：**26/26 通过**，未归因差异 **0px**；新增 4 条按 4 个非重叠功能带校准（声明值 = 各带实测值，四带求和 = 全图实测值：浅 8985 / 深 11520、浅 8363 / 深 10925）。
 > 参考态采集：`pnpm test:visual:reference`（待迁移路由，HEAD）与
@@ -198,7 +208,7 @@
 
 > 全量门禁复跑（2026-10-16，第十路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 **11 路由（22 testName）** 未归因差异均为 0；当时 `PENDING_ROUTES` 为空（10 条 admin 数据列表路由全部迁移完成）。
 
-> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（截至第十路由批次为 22 张，分类 / 标签批次后 26 张，`/admin/ai` 批次后 **30 张**）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
+> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（截至第十路由批次为 22 张，分类 / 标签批次后 26 张，`/admin/ai` 批次后 30 张，`/admin/marketing` 批次后 **34 张**）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
 
 > 全量门禁复跑（2026-10-16，第九路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 10 路由（20 testName）未归因差异均为 0；待迁移 1 路由（2 testName）实测 0px。
 
