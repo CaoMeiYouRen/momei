@@ -324,6 +324,7 @@
 -   **目录重写 (Rewrites)**: 翻译页迁移到 `docs/i18n/<locale>/` 后，必须同步维护 rewrites，使外部 URL 仍保持 `/<locale>/...`。
 -   **编辑链接 (Edit Link)**: `editLink` 必须指向真实源文件路径，确保迁移后“编辑此页”不会落回旧目录。
 -   **重复页阻塞检查**: 所有文档构建前都必须执行 `pnpm docs:check:i18n`；若发现 `docs/<locale>/` 旧目录回流，或同一路由同时存在旧目录与 `docs/i18n/<locale>/` 两份翻译源文件，必须先清理后再继续构建。
+-   **标记完整性阻塞检查**: 所有文档构建前都必须执行 `pnpm docs:check:markers`；块级 `<!--`（含引用 / 列表前缀形态）未闭合会被 VitePress 当作 Vue SFC 语法错误，以 `Unexpected EOF in comment` 直接中断构建，而 `lint-md`、链接检查与行数检查均不覆盖此面。
 
 ## 8. AI 协同准则 (AI Synergy)
 

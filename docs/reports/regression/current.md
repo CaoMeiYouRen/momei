@@ -10,6 +10,99 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:phase68-fix-doc-markers:第六十八阶段-文档标记完整性修复与门禁补强:2026-10-16 -->
+## 2026-10-16 第六十八阶段 文档标记完整性修复与门禁补强（Deploy VitePress site to Pages 修复）
+
+### 范围
+
+修复 master 上 **Deploy VitePress site to Pages** 的构建失败（run `38925462341`，job `build` 的 `Build with VitePress` 步骤 8.24s 失败），并按「同类事故第三次」的判据把该缺陷类纳入门禁（本批只涉及文档与脚本，不触碰运行时代码）。
+
+### 根因与引入点
+
+- **直接故障**：两处归档分片中的 **3 行 `regression-window` 结束标记被截断**（只剩「第六十」，缺失后半段与 `-->`）：
+
+| 文件 | 行 | 实际落库形态 |
+| :--- | :--- | :--- |
+| `archive/2026-09-26-phase68-item1-upgrade-030.md` | 59 | 结束标记在 id 后的中文标题处断开 |
+| `archive/2026-10-16-phase68-b2-friend-links-and-posts.md` | 85 | 同上（第九路由窗口） |
+| 同上 | 193 | 同上（第十路由窗口） |
+
+- **失败机制**：VitePress 把 md 当 Vue SFC 编译，**块级**未闭合注释（行首 `<!--` 延续到文件末尾仍无 `-->`）触发 `RolldownError / SyntaxError: Unexpected EOF in comment`，构建在 `building client + server bundles...` 阶段中断（本地同命令复现，报错文件与行号与 CI 完全一致；用 `markdown-it` + `@vue/compiler-dom` 实测确认该报错的唯一来源就是这一形态——合法多行注释与正文中段的行内 `<!--` 都会被转义、编译通过）。
+- **引入点**（`git blame`）：三处均随归档提交落库——`f4496147`（第十次滚动归档，条目 1 分片）与 `b5d98bb6`（第十一次滚动归档，第九 / 第十路由分片），即**归档文本生成阶段被截断**，非后续编辑引入。
+- **门禁盲区（本批补强的靶点）**：同一 run 中 `Lint Markdown files` 与 `Check Markdown links` 均为通过，`docs:build` 前置的 `docs:check:i18n / line-count / links` 亦全部通过——四道检查都不校验注释完整性；更深一层是 `check-links` 的 `EXCLUDED_DIRS` **显式包含 `archive`**，归档分片正文整体不在其扫描面内。
+- **同类事故史**：窗口归档仍为人工 / 临时脚本操作，此前已两次留下「孤立注释尾行」（`current.md` 残留单行 `-->`）与一次「外部节名引用未改写」；本次为第三次，故按「补静态检查」而非「再修一次」处置。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| 上述 2 个归档分片 | 3 处结束标记按同文件对应 start 标记还原为完整形态（含 `-->`） | 既有归档口径（end 与 start 同 id） |
+| `scripts/docs/check-doc-markers.mjs`（新增） | 三类判据：① **块级注释未闭合**——模拟 markdown-it 的 HTML block type 2（块级 `<!--` 后本行及后续行被原样输出，直到某行出现 `-->` 或 EOF），只报原样输出文本中残留的未闭合 `<!--`（含「本行先闭合、行尾又开一个」形态）；块级开头识别含缩进口径（顶层 / 标记后 ≥4 列视为缩进代码块）、blockquote 与列表前缀、fence 采用「同字符 + 不短于开启长度 + 同 blockquote 深度」的闭合规则（容器边界会提前终止 fence）；**不拦**合法多行注释与 HTML5 空注释（`<!-->` / `<!--->`）、正文中段行内 `<!--`、缩进代码块与 fenced 内的 `<!--`；② 孤立注释尾行；③ 回归窗口 start / end 按栈配对（缺对、id 错配、文件结束仍未闭合，标记 token 大小写不敏感）与标记形态非法。**扫描面含 `archive`**（与 `check-links` 相反） | 本次根因；backlog「归档静态检查」条目 |
+| `tests/scripts/check-doc-markers.test.ts`（新增） | **19 条用例**：行级判定、块级未闭合（EOF / 同行先闭合后残留 / 引用与列表前缀）与**假阳性回归锁**（合法多行、空注释、行内、缩进代码块、Tab、标记后多余缩进、fenced（含 4 字符 fence、引用包裹 fence、容器边界）、行内代码闭合）、孤立尾行窄口径、三类配对缺陷、大小写变体、嵌套窗口合法、fence 行号收集、形态非法、扫描面（**断言不排除 `archive`**）、真实仓库 0 问题回归锁；**14 项语义变异全部被杀死**（见「验证结果」清单） | 层 ① |
+| `package.json` | 新增稳定入口 `docs:check:markers`，并接入 `docs:build` / `docs:dev` 链（构建前拦截，而非构建后报错） | 既有 `docs:build` 链式口径 |
+| `.github/workflows/test.yml` | build-deps job 在 `docs:check:links` 后新增 `docs:check:markers`，使该类缺陷在 push / PR 的主 CI 即失败，不依赖 docs 工作流 | 既有文档检查步骤位置 |
+| `scripts/README.md` | `docs` 高频入口与 `scripts/docs/` 目录索引登记新脚本与入口 | 脚本治理要求 |
+| `docs/standards/documentation.md` | §7 新增「标记完整性阻塞检查」条款 | 规范同步 |
+| `.github/skills/code-quality-auditor/references/review-checklist.md` | §5 验证与证据链新增文档站点改动的必查项，把上一条严格约束挂接到 Review Gate 检查点（规范 §6.2 规则 4 要求） | 审计 warning ① 闭环 |
+| `docs/plan/backlog.md` | 删除「待跟踪（责任人：回归归档流程）」条目 | backlog 维护规则：上收后去重 |
+
+### 验证结果
+
+- **修复前复现**：本地 `pnpm exec vitepress build docs` 以**同一报错**失败（同 2 个文件、同行号），确认根因唯一、与本地环境无关。
+- **修复后**：同命令 `build complete in 14.94s`。
+- **新门禁正向**：`pnpm docs:check:markers` → `263 个 md 文件的注释与回归窗口标记完整`。
+- **新门禁反向（回放修复前内容）**：对 `git show 5b0c6657^:<file>` 的两个分片运行判据，**8 项 finding / 3 处截断行无漏报**——第九 / 第十路由分片 5 项（L85 形态非法；L193 块级未闭合 + 形态非法；L6 / L87 两个 start 缺少 end），条目 1 分片 3 项（L59 块级未闭合 + 形态非法；L6 start 缺少 end）。其中 L85 属「块级被后续行 `-->` 意外闭合」形态（VitePress 编译不报错），由形态与配对判据暴露，与实测语义一致。
+- **层 ①（单元）**：`pnpm exec vitest run tests/scripts/check-doc-markers.test.ts` = **19 用例通过**；`pnpm exec eslint` 两个新文件 0 error；**14 项语义变异全部被杀死**——孤立尾行口径、顶层缩进上限、fence 跳过、行内代码剥离、start-end 大小写、token 大小写、栈配对 pop、区块跳过、空注释闭合起点、fence 闭合长度、标记空白贪婪、fence 行号豁免、容器深度约束、闭合容器深度（每项均有对应反例用例，变异后立即红）。
+- **判据语义对撞**：与 `markdown-it@14.3.1` + `@vue/compiler-dom@3.5.43` 的实测结果逐例比对（20 例：合法多行、空注释、缩进 / Tab、标记后多余缩进、引用与嵌套引用、引用包裹 fence、容器边界提前终止、4 字符与未闭合 fence、行内代码、同行先闭合后残留、跨行闭合、EOF、正文中段行内）；两处**已声明漏报边界**见「未覆盖边界」。
+- **质量门**：`pnpm lint` **0 error**（根工程与 `packages/*`；`packages/cli` 3 条既有 warning）、`pnpm typecheck` **EXIT 0**、`lint-md` 通过。
+- **脚本治理**：`pnpm governance:check:scripts` 通过（59 脚本 / 0 缺入口 / 6 仅文档引用 / 0 文档漂移）。
+- **文档门禁**：`pnpm docs:build` 全链（i18n → line-count → links → markers → VitePress build）通过，`current.md` 本窗口写入后 **456 行**（`docs:check:line-count` 的 `split` 口径；`wc -l` 为 455，差 1 为末行计法；< warn 500）。
+- **未重跑项**：本批无运行时代码改动，未重跑单测全量 / 管理端 E2E / 视觉两层。
+
+### A 阶段审计结论与修复（Round 1 → Round 4 → 本笔闭环）
+
+- **Round 1 结论**：`Pass`（audit-depth `standard`；无 blocker，3 条 warning + 4 条 suggest）。
+    - **warning ①（判据超集，含可复现假阳性）**：原「同一行内必须闭合」判据**严格强于** VitePress 的真实失败条件，会让 `docs/` 内未来的合法多行 HTML 注释阻断构建与 dev server；已改为块级 + 跨行寻闭合判定。
+    - **warning ②（严格约束未挂接 Review Gate 检查点）**：`docs/standards/documentation.md` §7 的「必须」条款按规范 §6.2 规则 4 挂接到 `code-quality-auditor` 审查清单 §5。
+    - **warning ③（回归记录数字失真）**：反向回放 finding 数改为实测值（8 项 / 5+3 分片拆分）。
+    - **suggest（存活 mutant / 大小写变体静默放过）**：补 `-->x` 窄口径用例、标记正则加 `i` 标志并补变体用例。
+- **Round 2 结论**：`Pass`（复审仅覆盖修复点；无 blocker，新增 3 条 warning + 3 条 suggest，其中含 1 条**实测会中断构建的漏报**与 2 条误报面）。
+    - **warning ①（缩进 ≥4 列的缩进代码块内 `<!--` 被误拦）**：按 markdown-it 的 `html_block` 缩进规则收口（Tab 计 4 列）。
+    - **warning ②（开放块被 fenced / 行内代码中的 `-->` 闭合时误报）**：改为对「原样输出区块」做**原文**扫描，区块内不跳过 fence、不剥离行内代码。
+    - **warning ③（`<!-- a --> 之后 <!-- b` 实测会中断构建却漏报）**：补「同一行先闭合、行尾又开一个」判据；该形态此前被错误理由固化在用例里，现已按实测改写并加锁。
+    - **suggest（引用 / 列表前缀、M3 / M6 覆盖缺口）**：补引用与列表前缀用例、`regression-window:End`（大写 + 缺 id）形态用例。
+- **Round 3 结论**：`Pass`（复审仅覆盖上轮修复点；无 blocker，新增 2 条 warning + 6 条 suggest）。
+    - **新 warning ①（`skipFencedBlock` 丢失 fence 长度：4 字符 fence 被 3 字符行误判为闭合，造成假阳性）**：闭合 fence 改为「同字符且不短于开启长度」（CommonMark），并新增 fence 行号收集供规则 2 / 3 复用同一套口径。
+    - **新 warning ②（判据与 VitePress 失败面仍有 5 类窄形态差异，且 docblock 表述超范围）**：① 标记后 ≥5 空格的误报（改为标记只吞一个空白 + 缩进上限判定）；② blockquote 包裹 fence 的误报（fence 支持 `>` 前缀）；③ `<!-->` / `<!--->` 空注释误报（闭合搜索起点与开启符重叠）；④ 顶层 ≥4 列缩进 fence 的漏报（保留，登记为边界）；⑤ 列表项内 ≥4 列缩进的漏报（保留，登记为边界）。docblock 已按实测改写并显式登记两条边界。
+    - **suggest（行数口径 / 表述中性化 / 变异清单 / backlog 指向）**：均已在窗口内修订（行数补脚本口径注、Round 2 表述改为中性、变异按项列名、锚点改写口径只指向 backlog §6）。
+    - **补充证据**：审计方对 263 个 `docs/**/*.md` 做「markdown-it + compiler-dom vs 判据」的全语料差分，修复前后均为 **0 假阳性 / 0 漏报**。
+- **Round 4 结论**：`Pass`（复审仅覆盖 Round 3 修复点；无 blocker，新增 2 条 warning + 2 条 suggest）。
+    - **新 warning ①（fence 的容器引用不一致，造成双向偏差）**：Round 3 引入的 `>` 前缀使 fence 闭合判定**容器无关**——「顶层 fence 内含引用形态行」会提前闭合（假阳性），「引用内 fence 由未引用行收尾」则漏报。已把闭合条件收紧为**同 blockquote 深度**，更浅的行视为容器提前结束并按普通 markdown 继续扫描；补「容器边界提前终止」与「更深引用行不关闭顶层 fence」两类用例。语义对撞扩至 20 例逐项一致。
+    - **新 warning ②（回归记录变异计数失真）**：Round 3 稿写「9 项」而 Round 4 认定值为 **12 项**（本轮再追加 2 项容器变异后为 14 项），已按项列名并复跑复核。
+    - **suggest（规范与 docblock 措辞）**：`documentation.md` §7 改为「块级 `<!--`（含引用 / 列表前缀形态）」，docblock 补记 fence 的容器边界口径。
+- **仍未闭环（非 blocker，已登记）**：两条**漏报侧**边界（列表项内 ≥4 列缩进；顶层 ≥4 列缩进 fence）；backlog 原条目第三项「引用已迁出窗口的节名短语需改写」本身仍未实现。
+
+### 提交拆分依据
+
+按「先修主分支构建阻断 → 再落加固与接线 → 最后治理记录」拆 **3 笔**，每笔均在单提交阈值内（≤10 文件 / ≤800 行新增；本批合计 9 路径 / 816 行新增，超阈值故必须拆）：
+
+| # | 提交 | 文件数 | 新增行 | 内容 |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | `fix(docs)` | 2 | 3 | 3 处截断标记还原（仅标记行），可独立 cherry-pick / 回退 |
+| 2 | 加固 + 接线 | 5 | 721 | 新脚本 395 + 单测 319 + `package.json` 入口与链 3 + CI 步骤 1 + `scripts/README.md` 登记 3 |
+| 3 | 治理记录 | 4 | 96 | 本回归窗口 93 + `documentation.md` §7 条款 1 + Review Gate 清单挂接 1 + backlog 去重净 1 |
+
+### 未覆盖边界 / 观察项
+
+- **锚点漏改未纳入门禁**：backlog 原条目所列第三项「引用了已迁出窗口的节名短语需改写」未实现（相似度判定成本高、误报风险大）；其承载为 [backlog.md](../../plan/backlog.md) §6 的「窗口归档与锚点改写一并执行」口径。若再次出现锚点漏改，建议改为「归档走确定性脚本 + 迁出清单核对」，而非文本相似度兜底。
+- **扫描面限定 `docs/`**：根目录 README 等其他 md 不在 VitePress 构建面内，故未纳入，避免为 GitHub 渲染场景引入新的误报面。
+- **孤立尾行判据保持窄口径**：只把「整行以 `-->` 起始」判为残留，正文中作为普通符号出现的 `-->` 不报错——宁可漏报也不引入假阳性。
+- **两条漏报侧边界（已在脚本 docblock 登记）**：① 列表项 / 嵌套列表内**缩进 ≥4 列**的块级开头按缩进代码块跳过（markdown-it 按列表内容缩进判定为列表内块级开头）；② 顶层**缩进 ≥4 列的 fence**（markdown-it 视其为缩进代码块）仍按 fence 跳过，其后的块级开头不被检查——后者为保留前者的真实用例（本仓多处列表内缩进 fence）所作的取舍。两条在当前语料均 0 命中。
+- **另有三条 0 命中的窄形态（同为已登记边界，无需改代码）**：① 「某行先闭合、行尾又开 `<!--`、由**后续块**的 `-->` 跨块闭合」会被误报（未建模跨块拼接）；② 列表项内开启、随后被转义或裁断的块级注释漏报；③ `blockquoteDepth` 对「标记间 ≥2 空格」的嵌套引用欠计一层（开启 / 闭合同风格时两侧抵消，实测无判定偏差）。审计方的随机对撞亦确认这些形态属既有边界、非本轮引入。
+- **`pnpm ai:check` 在 master 上已是红（非本批引入）**：`code-quality-auditor` / `full-stack-master` 两个 skill 的 3 处相对链接携带锚点，命中 `skill-anchor-link`；已登记 backlog（该入口未接入 workflow，故此前未暴露）。本批对 `code-quality-auditor` 的改动不新增锚点链接。
+
+<!-- regression-window:end:phase68-fix-doc-markers:第六十八阶段-文档标记完整性修复与门禁补强:2026-10-16 -->
+
 <!-- regression-window:start:phase68-b2-item3-marketing:第六十八阶段-条目3-组件型目标第三批次:2026-10-16 -->
 ## 2026-10-16 第六十八阶段 条目 3 组件型目标第三批次 B2 迁移（`/admin/marketing`）
 

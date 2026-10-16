@@ -95,6 +95,7 @@
 
 - [ ] 已执行验证是否达到最低验证矩阵要求。
 - [ ] 文档改动是否补了 `pnpm lint:md`。
+- [ ] 文档站点相关改动（含 `docs/reports/regression/**` 归档分片、规范条款）是否补了 `pnpm docs:check:markers`（块级 HTML 注释未闭合会直接中断 `docs:build`）。
 - [ ] skill / agent 改动是否补了 `pnpm ai:check`。
 - [ ] 代码改动是否补了 `pnpm lint`、`pnpm typecheck` 和匹配风险等级的测试。
 - [ ] 若无法完成某项验证，是否记录了原因、未覆盖边界和补跑计划。
