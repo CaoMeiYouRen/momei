@@ -22,6 +22,111 @@
 
 <!-- regression-window:end:workflow-precheck:test:2026-10-13 -->
 
+<!-- regression-window:start:phase68-b2-item3-taxonomy:第六十八阶段-条目3-首路由批次:2026-10-16 -->
+## 2026-10-16 第六十八阶段 条目 3 首路由批次 B2 迁移（`/admin/categories` + `/admin/tags`）
+
+### 范围
+
+条目 3（B2 剩余数据页迁移二：组件型目标与 host 路由）的**首批**：路由自有实体组件 `components/admin/admin-taxonomy-page.vue` 随两个 host 路由（`/admin/categories` + `/admin/tags`）整体迁移，并登记进 `CAOMEI_UI_ROUTE_PREFIXES`（第 12 / 13 项，共 13 项）。两页均为**薄包装页**（59 / 51 行，只有一行 `<AdminTaxonomyPage :config="…" />`），实体组件在册族用量 **39 处 / 18 个组件名** = **基准在册族 29 处 / 10 个组件名**（`Button` 11 / `Column` 7 / `InputText` 4 / `DataTable` 1 / `Badge` 1 / `IconField` 1 / `InputIcon` 1 / `Select` 1 / `Tag` 1 / `ToggleSwitch` 1，含路由自有子组件 `taxonomy-translation-association-card.vue` 的 `Button` 1）+ **路由级增量族 10 处 / 8 个组件名**（`Tabs` 族 5 / `InputGroup` 3 / `Checkbox` 1 / `Textarea` 1）。口径与复算：剥离注释后按守卫的标签边界规则计数（`tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单 + 本路由增量），可脚本复算。
+
+**本批三项「首次」**：
+
+1. **首个「路由级在册族增量」**：`Tabs` / `TabList` / `Tab` / `TabPanels` / `TabPanel` / `InputGroup` / `Checkbox` / `Textarea` 八族以 `CAOMEI_UI_ROUTE_SCOPES[].inScopeComponents` 按路由登记（用户 2026-10-16 裁定「全部纳入、整页迁移」）。主因是 `InputGroup` 与 `InputText` **结构耦合**——PrimeVue `InputGroup` 依赖子元素 `.p-inputtext` 做 flex 与圆角拼接，只迁输入框会静默破版；次因是「整路由迁移、不做半路由切换」。**不全局纳入的原因**：`Checkbox` / `Textarea` 在已收口批次页面中合法存在（实测 `pages/admin/submissions/index.vue` 命中两族），全局纳入会让完成路由被动回改。
+2. **首个 `ownedFiles` 登记**：守卫扫描面从「页面文件」扩展到「薄包装页背后的路由自有实体文件」——只扫页面文件时，本路由的「在册族零残留」恒真、「至少使用一个 caomei-ui 组件」恒假，两条断言同时失效。
+3. **首个「浮层内控件迁移」**：弹窗本体维持 PrimeVue `Dialog`（浮层豁免，随第六十九阶段），弹窗**内部**的 Tabs 族与表单控件已迁移。
+
+### 「文件 → 改动点 → 依据指针」清单
+
+| 文件 | 改动点 | 依据指针 |
+| :--- | :--- | :--- |
+| `components/admin/admin-taxonomy-page.vue` | 在册族 39 处 → caomei：`DataTable` → `CaomeiDataTable` + 7 个 `<Column>` → `columns` computed（4~6 列，`parent.name` 用 `accessor` 承载；`style` / `class` 两侧镜像为 `headerStyle`/`bodyStyle`、`headerClass`/`bodyClass`；条件列 `parent` / `description` / 「翻译状态 ↔ 语言」按 `config` 与聚合开关决定）；`p-datatable-sm` 移除、受控 `:page="pagination.page"` + `pageIndexBase: 1`、`--caomei-data-table-pagination-justify: center`；`IconField`+`InputIcon`+`InputText` → `CaomeiInput`+`#prefix`（宽度按实测 261px 显式约束）；`ToggleSwitch` → `CaomeiSwitch`（`input-id` → `id`，原生 `label[for]` 保持）；`Tag value` → `CaomeiTag` 默认插槽；`Badge severity` → `:value` + `tone`；行内动作 `text rounded` 纯图标 → `icon-only`+`variant="ghost"`+lucide `#icon` 并补 `:label`；**弹窗内**：`Tabs` 族 → `CaomeiTabs`/`CaomeiTabList`/`CaomeiTabTrigger`/`CaomeiTabContent`、`InputGroup`+`InputText` 成组 → `CaomeiInputGroup`+`CaomeiInput`（`.p-invalid` → `:invalid`）、`Checkbox :binary` → `CaomeiCheckbox`、`Textarea cols` 移除、`Select filter show-clear` → `CaomeiAutoComplete strict dropdown`（空串回写 `null` 归一）；弹窗宽度显式声明 `min(90vw, 444px)`；名称字段焦点交接机制 | §6.1 / §6.2（执行提示 1~3）/ §6.3 差异 #1 / §5.5 |
+| `components/admin/taxonomy-translation-association-card.vue` | `Button :label text size="small" severity="secondary"` → `CaomeiButton` + 默认插槽可见文案（`variant="ghost"` / `size="sm"` / `tone="neutral"`） | §6.2 执行提示 3 |
+| `lib/ui-library.ts` | 基准在册族不变；新增 `CaomeiUiRouteScope` 接口、`CAOMEI_UI_ROUTE_SCOPES`（含 `ownedFiles` / `inScopeComponents`）与 `resolveInScopeComponents(scope)`；`CAOMEI_UI_ROUTE_PREFIXES` 改为**派生**（11 → 13 项，消除「前缀清单与范围登记两处维护」的漂移面） | §5.5 |
+| `tests/modules/ui-library-route-migration-guard.test.ts` | 守卫改为按范围条目扫描（页面文件 + `ownedFiles`，聚合判定「至少一个 caomei 组件」）；新增 8 条断言（前缀派生一致 / `ownedFiles` 存在性与 POSIX 形态 / 不存在的 `ownedFiles` 抛出并点名 / 薄包装页两态 / 基准在册族不含增量族 / 合并去重 / 同一 `ownedFiles` 的多条登记增量一致） | §5.5 |
+| `tests/helpers/taxonomy-page-stubs.ts`（新增） | 三个用例文件共用的 caomei 组件桩 + `config` 夹具（同一组件被三条用例渲染，三处各持一份会在后续批次静默漂移） | §8.2 |
+| `components/admin/admin-taxonomy-page.test.ts`、`pages/admin/categories/index.test.ts`、`pages/admin/tags/index.test.ts` | 桩集改为共享模块并改用 caomei 契约断言；组件用例由 1 条扩到 **17 条**（列定义逐列镜像 / 聚合开关列切换 / `Tag` 插槽 / `Badge` tone 两态 / `Switch` id / Tabs 族与表单控件 / `AutoComplete strict` / `parentId` 归一 / icon-only `:label` / 页脚插槽 / 名称字段焦点交接） | §8.2 / §6.2 |
+| `tests/visual/parity/routes.ts`、`tests/visual/parity-budget.json` | 新增两条路由（先入 `PENDING_ROUTES` 采集参考态，迁移后移入 `MIGRATED_ROUTES`）；4 个 testName 的允许清单按 **4 个非重叠功能带** 校准（声明值 = 实测值本身） | §8.2 |
+| `tests/visual/parity/reference/*.reference.png`、`reference-manifest.json` | 新增 4 张参考态（`--ref=HEAD` 就地采集；**采集前临时回退路由登记**，确保参考态为纯 PrimeVue 原貌，避免「半迁移」的头部切换器进入参考态） | §8.2 |
+| `tests/visual/admin-taxonomy-dialog.visual.test.ts`（新增）+ 2 张基线 | 补弹窗截图覆盖——门禁层参考态无数据行 → 弹窗不会打开，弹窗内的 Tabs 族 / 表单控件在门禁层**无截图覆盖**（本批登记的覆盖缺口，由此用例闭合） | §8.2 |
+| `tests/e2e/admin.e2e.test.ts` | 原「should load admin categories and tags」单测**折入**路由矩阵（11 → 13 行，避免同一路由两次导航挤占预算），选择器 `.p-datatable` → `.caomei-data-table`，超时 60 → 90s（13 行隔离复跑实测 45.3s） | §8.2 |
+
+### 视觉差异逐项归因（迁移前基线 → 迁移后）
+
+| 功能带（非重叠） | categories L / D | tags L / D | 归因（处置通道） |
+| :--- | ---: | ---: | :--- |
+| 头部语言切换器（160,80 200×80） | 863 / 878 | 863 / 878 | 路由登记后 `.content-language-switcher` 由 V1（PrimeVue `Select` 版）切到 V2，控件高 30.09px → 28px（§5.5 消费处静态择库，既有过渡组件差异） |
+| 头部创建按钮（1240,80 160×80） | 985 / 1017 | 989 / 1019 | `CaomeiButton` 尺寸档：font 16 → 14px、圆角 6 → 8px、实测 114×36.39 → 102×36px（通道④ 上游反馈：库侧档位口径，本批不做） |
+| 筛选行（80,200 1280×44） | 1455 / 1521 | 1436 / 1525 | 字段外壳行盒 36.39px → 36px（font 16 → 14px）+ `CaomeiSwitch` 高度 24 → 22px |
+| 表格区（80,244 1280×240） | 5682 / 8104 | 5075 / 7503 | `DataTable` → `CaomeiDataTable`：表头行高 31.39 → 32.59px（font 16 → 14px、padding 8 → 12px、表头带底色）、空态行高 95.39 → 128.59px、分页器高度 56 → 44px |
+| **全图实测** | **8985 / 11520** | **8363 / 10925** | 四带求和 = 全图实测值（无带外像素、无余量）；有效检出阈值 = 未归因差异 > 3000px 即红 |
+
+参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集）。弹窗本体不在门禁层截图内（参考态无数据行），其差异单列于下。
+
+**弹窗（基线层覆盖）**：宽度由内容驱动 444px → 372px（caomei 字段宽度只由容器决定）——**已修复**，显式 `:style="{ width: 'min(90vw, 444px)' }"` 回到迁移前实测宽度（用属性而非 scoped 类：该浮层由 PrimeVue 组件渲染，类选择器与 scoped 作用域属性的落点依赖库内部结构）；弹窗内控件自身差异（页签 51.39 → 37.59px、复选框 20 → 18px、页脚按钮 82 → 74px、输入框 328 → 271px）由新增基线层用例接受。
+
+### 行为差异与处置
+
+| 项 | 迁移前 | 迁移后 | 处置 |
+| :--- | :--- | :--- | :--- |
+| 弹窗初始焦点 | 名称输入框（PrimeVue `Dialog.onAfterEnter` → `focus()` 命中默认插槽内的 `[autofocus]`） | 浮层 focus trap 回落到关闭按钮（caomei `CaomeiInput` 无 `autofocus` 契约，透传属性落在不可聚焦的字段外壳） | **已修复**：`@show` 置位 + 捕获浮层第一次 `focusin`（即 trap 落到关闭按钮那次）后把焦点交回当前语言页签的名称字段；实测 `document.activeElement === input#name_zh-CN` |
+| 页签切换焦点 | 逐页签重挂载触发原生 `autofocus` → 焦点进入新页签名称字段 | 焦点留在触发器上（Reka Tabs 的标准 WAI-ARIA 行为） | 登记 backlog，随浮层批次（第六十九阶段）复核 |
+| 父级下拉的筛选 | PrimeVue `Select` + `filter`（下拉内搜索） | `CaomeiAutoComplete` + `strict` + `dropdown`（输入即筛选，取值须来自选项） | 迁移方案 §6.3 **有意差异 #1**；空串回写 `null` 维持 `parentId: string \| null` 契约 |
+| `v-model.trim` | 声明存在但不生效（PrimeVue 4.5.5 未实现 `modelModifiers`） | 同前（caomei 亦未实现） | 保留原声明以维持意图，不引入新行为（实测确认双方一致） |
+| `required` / `Textarea cols` | `required` 打在原生输入上（无 `<form>` 提交路径，本无行为）；`cols` 在流体布局下不改变实际宽度 | 未迁移 | 明确不迁移，避免「属性落到字段外壳」的静默假象 |
+| 受控分页 | PrimeVue 自持页码 | 受控 `:page="pagination.page"` + `pageIndexBase: 1` | 与既有 6 条已迁移路由同口径；受控后失去「总条数收缩自动夹取页码」的内部收敛（观察项） |
+
+### 验证结果
+
+- 结构性守卫：`tests/modules/ui-library-route-migration-guard.test.ts` **38 用例通过**（含 13 条范围条目逐条扫描；与 `resolveScopeFiles` 运行时校验重复的 1 条用例已在审计中移除）
+- 单元测试：`pnpm test` **554 文件通过 / 1 skipped**；**4812 用例通过 / 1 skipped**
+- 契约用例：`admin-taxonomy-page.test.ts` 17 条；`taxonomy-translation-association-card.test.ts` 4 条（真实子组件，审计 S-M1 补强）；`categories/index.test.ts` 8 条；`tags/index.test.ts` 7 条
+- 门禁层（截图）：`pnpm test:visual:parity` **26/26 通过**（22 既有 + 4 新增；新增 4 条未归因差异 0px；两条新增路由按既定口径已移入 `MIGRATED_ROUTES`）
+- 基线层（截图）：`pnpm test:visual` **16/16 通过**（14 既有 + 新增弹窗 2；既有快照零变化）
+- E2E：管理端 **6 用例通过**（含 13 行路由矩阵，实测 44.7s / 90s 预算）；其中「分类搜索 + 聚合开关」用例新增**几何还原断言**（搜索字段 261px、分页器 `justify-content: center`），把此前只靠人工探针核对的「结构性还原」升级为门禁项
+- 质量门：`pnpm typecheck` 0 error；`pnpm lint` 0 error / **8 warning**（7 既有 + 1 新增，见下）；`pnpm lint:css` 通过
+- 文档：`docs:check:i18n` / `docs:check:line-count` / `docs:check:links`（247 文件）/ `docs:check:source-of-truth` 全通过
+
+### 审计结论与修复（A 阶段）
+
+两分区并发审计：**实现 / 事实源分区判 Pass（附 2 项强制条件）**、**测试 / 门禁 / 文档分区判 Reject（2 blocker + 3 warning）**。全部编号已闭环：
+
+| 编号 | 结论要点 | 处置 |
+| :--- | :--- | :--- |
+| B1（文档） | 新增 5 行偏差条目被空行踢出「处置表」，渲染为字面竖线段落 | 删除截断空行；用同一渲染器（`markdown-it`）复验「无 `<p>\|` 段落」且新行位于同一 `<table>` 内 |
+| B2（文档） | 「在册族 26 处」与自述口径矛盾（复算 = 39 = 基准 29 + 增量 10）；「884 行」与实测不符；「`#icon` 12 处」实为 10 处 | 三处数字按复算口径改写（并给出口径与复算方式） |
+| W1（门禁登记） | 两条路由已迁移却仍登记在 `PENDING_ROUTES`（`migrated: false`），与 4 处文档表述矛盾 | 移入 `MIGRATED_ROUTES`；同步 `routes.ts` / 待迁移层用例头注释 / 偏差处置表 / backlog 的表述与张数 |
+| W2（测试强度） | 5 类存活 mutant（可见文案、焦点交接身份、交接守卫、Tabs 双向、textarea rows） | 全部补断言：新增真实子组件用例（不桩化翻译关联卡片）+ 焦点 spy 记录 `id` + 二次 `focusin` 只交接一次 + 关闭复位 + `update:modelValue` 双向 + `rows="3"` |
+| W3（文档） | 「较迁移前 +28」缺可比基准 | 改写为「较上一窗口记录值 4779 → 4812」 |
+| W4 / S1（实现） | 派生机制收益表述过强（未声明「非薄包装页漏登记」仍是已知无守卫面）；两条登记逐字复制 | 注释补覆盖边界；抽出共用范围常量 `TAXONOMY_ROUTE_SCOPE` |
+| S2 / S3 / S5（实现 / 测试） | 交接标记无关闭复位；`vertical-align` 缺来源；几何还原无门禁项 | `hideDialog` 复位标记 + 补开关断言；补由来注释；E2E 增两条几何断言；基线层弹窗用例增真实 DOM 焦点断言 |
+| W2（实现分区） | 翻译徽标几何未按 `/admin/posts` 口径还原（`p-badge` 规则静默失效） | 补 `--caomei-badge-*` token 还原块（通道①），并在偏差处置表登记 |
+
+### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
+
+本批工作树规模 **23 个已改 / 新增文件、约 1300 行新增**（另含 6 张二进制快照），超 [开发规范](../../standards/development.md) §2.8 的「单次 commit ≤10 文件 / 800 行新增」阈值，故按「一个原子条目的六段产出」拆分提交（每笔均 ≤10 文件且 ≤800 行新增）：
+
+| 序号 | 提交 | 内容 | 实测落库规模 |
+| :--- | :--- | :--- | :--- |
+| 1 | `6bcad295` `feat(migration)` | 实现 + 事实源扩面（`admin-taxonomy-page.vue` / `taxonomy-translation-association-card.vue` / `lib/ui-library.ts`） | 4 文件 / 745 行新增（含被 lint-staged 扫入的门禁预算，见下） |
+| 2 | `6dc7ff6c` `test(migration)` | 结构性守卫扩面 + 共享组件桩与夹具 | 2 文件 / 551 行新增 |
+| 3 | `f0e2c6d7` `test(migration)` | 契约用例（组件 / 子组件 / 两个 host 页面）+ 管理端 E2E 矩阵 | 5 文件 / 423 行新增 |
+| 4 | `dbf177f3` `test(visual)` | 门禁层路由登记 + 4 张迁移前参考态 + 元数据 | 7 文件（含 4 张二进制快照） |
+| 5 | `ece4a8fc` `test(visual)` | 基线层弹窗用例 + 2 张基线快照 | 3 文件（含 2 张二进制快照） |
+| 6 | 本笔 `docs(migration)` | 治理记录（回归窗口 / §5.5 / 偏差处置表 / backlog / todo） | 5 文件 |
+
+**规模口径说明**：`lint-staged` 的 `git add` 会把当时未暂存的门禁预算改动一并 stage，故 `tests/visual/parity-budget.json`（208 行新增）实测落在**第 1 笔**而非第 4 笔——此处按**实测落库**记录，不按计划口径回填（与第十路由批次「提交拆分表按实测重锚」同口径）。
+
+### 未覆盖边界 / 观察项
+
+- **新增 lint warning**：`components/admin/admin-taxonomy-page.vue` 904 行 > `max-lines` 800（迁移前 732 行 → 迁移后 904 行）。增量来自 `#icon` 插槽 10 处（lucide 图标用法共 12 处）、焦点交接机制与依据注释；`pnpm lint --max-warnings 10` 仍通过（8/10），抽取方向（列定义 / 弹窗表单外置）登记 backlog（结构复用主线）。
+- 弹窗在门禁层无覆盖（参考态无数据行 → 弹窗不打开），已由基线层新增用例补上；**门禁层的两条新路由仅覆盖「筛选行 + 空表 + 空态 + 分页器」**，列表有数据行时 `Tag` / `Badge` / 行内按钮的渲染差异不在截图覆盖内（由契约用例断言承接）。
+- 幻影类 `hidden md:table-cell`（描述列）沿用 `/admin/posts` 批次口径：全仓无可命中表格单元格的规则，保留原声明并两侧镜像。
+- `CAOMEI_UI_ROUTE_PREFIXES` 前缀语义连带子路由：`/admin/categories` + `/admin/tags` 无子路由，本批无新增落差；条目 3 后续批次登记 `/admin/ai` 时须显式处置 `/admin/ai/tasks/[id]`（用户 2026-10-16 裁定：维持 PrimeVue + 补结构守卫例外登记）。
+- 用例增量对账：本批按 `it()` 可数增量 = +30（组件 +16 / 新增子组件用例 +4 / 守卫 +10），而窗口记录为「4779 → 4812」（+33）；两个记录数均为实测，差额 3 未闭环，登记为收尾对账项（不阻塞放行）。
+- 环境观察：本机全量 `pnpm test:e2e`（含 firefox 项目与公开页 `networkidle` 依赖）在无外网/高负载下大面积超时失败，本批据既往口径**隔离管理端用例**执行（`--project=chromium tests/e2e/admin.e2e.test.ts`）；该口径与 [backlog](../../plan/backlog.md) 中「`networkidle` 依赖外网可达性」待跟踪项同源。
+
+<!-- regression-window:end:phase68-b2-item3-taxonomy:第六十八阶段-条目3-首路由批次:2026-10-16 -->
+
 <!-- regression-window:start:phase68-b2-friend-links:第六十八阶段-条目2-第九路由:2026-10-16 -->
 ## 2026-10-16 第六十八阶段 条目 2 第九路由 B2 迁移（`/admin/friend-links`）
 
@@ -77,6 +182,21 @@
 | 4 | 页面契约用例 | 1 | 395 | 依赖 3 |
 
 拆分依据：① 按「治理记录 / composable 与样式 / 实现与台账 / 测试」切分；② 语义色口径（composable）与字段宽度口径（样式）同笔，二者均为页面的前置依赖；③ 页面测试单独成笔（368 行），确保每笔 ≤800 行。
+
+### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
+
+本批工作树规模 **23 个已改 / 新增文件、约 1300 行新增**（另含 6 张二进制快照），超 [开发规范](../../standards/development.md) §2.8 的「单次 commit ≤10 文件 / 800 行新增」阈值，故按「一个原子条目的六段产出」拆分提交（每笔均 ≤10 文件且 ≤800 行新增）：
+
+| 序号 | 提交 | 内容 | 实测落库规模 |
+| :--- | :--- | :--- | :--- |
+| 1 | `6bcad295` `feat(migration)` | 实现 + 事实源扩面（`admin-taxonomy-page.vue` / `taxonomy-translation-association-card.vue` / `lib/ui-library.ts`） | 4 文件 / 745 行新增（含被 lint-staged 扫入的门禁预算，见下） |
+| 2 | `6dc7ff6c` `test(migration)` | 结构性守卫扩面 + 共享组件桩与夹具 | 2 文件 / 551 行新增 |
+| 3 | `f0e2c6d7` `test(migration)` | 契约用例（组件 / 子组件 / 两个 host 页面）+ 管理端 E2E 矩阵 | 5 文件 / 423 行新增 |
+| 4 | `dbf177f3` `test(visual)` | 门禁层路由登记 + 4 张迁移前参考态 + 元数据 | 7 文件（含 4 张二进制快照） |
+| 5 | `ece4a8fc` `test(visual)` | 基线层弹窗用例 + 2 张基线快照 | 3 文件（含 2 张二进制快照） |
+| 6 | 本笔 `docs(migration)` | 治理记录（回归窗口 / §5.5 / 偏差处置表 / backlog / todo） | 5 文件 |
+
+**规模口径说明**：`lint-staged` 的 `git add` 会把当时未暂存的门禁预算改动一并 stage，故 `tests/visual/parity-budget.json`（208 行新增）实测落在**第 1 笔**而非第 4 笔——此处按**实测落库**记录，不按计划口径回填（与第十路由批次「提交拆分表按实测重锚」同口径）。
 
 ### 未覆盖边界 / 观察项
 
@@ -165,6 +285,21 @@
 
 拆分依据：① 按「治理记录 / 实现与台账 / 测试」切分；② 治理记录先行——`pre-commit` 的 `lint-md --fix` 会重排 `current.md` 并顺带 stage，先提交含该文档的一批可使后续批次的钩子对其无操作（既有踩坑口径）；③ 契约用例（700 行）独立成笔，确保每笔 ≤800 行。
 
+### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
+
+本批工作树规模 **23 个已改 / 新增文件、约 1300 行新增**（另含 6 张二进制快照），超 [开发规范](../../standards/development.md) §2.8 的「单次 commit ≤10 文件 / 800 行新增」阈值，故按「一个原子条目的六段产出」拆分提交（每笔均 ≤10 文件且 ≤800 行新增）：
+
+| 序号 | 提交 | 内容 | 实测落库规模 |
+| :--- | :--- | :--- | :--- |
+| 1 | `6bcad295` `feat(migration)` | 实现 + 事实源扩面（`admin-taxonomy-page.vue` / `taxonomy-translation-association-card.vue` / `lib/ui-library.ts`） | 4 文件 / 745 行新增（含被 lint-staged 扫入的门禁预算，见下） |
+| 2 | `6dc7ff6c` `test(migration)` | 结构性守卫扩面 + 共享组件桩与夹具 | 2 文件 / 551 行新增 |
+| 3 | `f0e2c6d7` `test(migration)` | 契约用例（组件 / 子组件 / 两个 host 页面）+ 管理端 E2E 矩阵 | 5 文件 / 423 行新增 |
+| 4 | `dbf177f3` `test(visual)` | 门禁层路由登记 + 4 张迁移前参考态 + 元数据 | 7 文件（含 4 张二进制快照） |
+| 5 | `ece4a8fc` `test(visual)` | 基线层弹窗用例 + 2 张基线快照 | 3 文件（含 2 张二进制快照） |
+| 6 | 本笔 `docs(migration)` | 治理记录（回归窗口 / §5.5 / 偏差处置表 / backlog / todo） | 5 文件 |
+
+**规模口径说明**：`lint-staged` 的 `git add` 会把当时未暂存的门禁预算改动一并 stage，故 `tests/visual/parity-budget.json`（208 行新增）实测落在**第 1 笔**而非第 4 笔——此处按**实测落库**记录，不按计划口径回填（与第十路由批次「提交拆分表按实测重锚」同口径）。
+
 ### 未覆盖边界 / 观察项
 
 - **选择列宽度不可配置**（上游 §2.7）：PrimeVue 52px vs caomei 34px，无 prop / token 可覆盖，使整表左移 18px。本批按「接受 + 登记」处置，不引入魔法数字选择器覆盖；若上游补齐钩子，须重跑本路由 parity 并重校准允许清单（已登记 backlog）。
@@ -218,6 +353,21 @@
 - **层 ②（E2E 功能）**：复用当前 `master`（`39e00f21`，即 `0.6.0` 状态）的 CI `Test` 全 job 证据——`E2E (1/4~4/4)` / `Unit` / `Coverage` / `Build & Lighthouse` 均 success；本批未重跑 E2E。
 - **质量门**：`pnpm typecheck` 通过；`pnpm test:perf:budget` 全项不越线。
 
+### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
+
+本批工作树规模 **23 个已改 / 新增文件、约 1300 行新增**（另含 6 张二进制快照），超 [开发规范](../../standards/development.md) §2.8 的「单次 commit ≤10 文件 / 800 行新增」阈值，故按「一个原子条目的六段产出」拆分提交（每笔均 ≤10 文件且 ≤800 行新增）：
+
+| 序号 | 提交 | 内容 | 实测落库规模 |
+| :--- | :--- | :--- | :--- |
+| 1 | `6bcad295` `feat(migration)` | 实现 + 事实源扩面（`admin-taxonomy-page.vue` / `taxonomy-translation-association-card.vue` / `lib/ui-library.ts`） | 4 文件 / 745 行新增（含被 lint-staged 扫入的门禁预算，见下） |
+| 2 | `6dc7ff6c` `test(migration)` | 结构性守卫扩面 + 共享组件桩与夹具 | 2 文件 / 551 行新增 |
+| 3 | `f0e2c6d7` `test(migration)` | 契约用例（组件 / 子组件 / 两个 host 页面）+ 管理端 E2E 矩阵 | 5 文件 / 423 行新增 |
+| 4 | `dbf177f3` `test(visual)` | 门禁层路由登记 + 4 张迁移前参考态 + 元数据 | 7 文件（含 4 张二进制快照） |
+| 5 | `ece4a8fc` `test(visual)` | 基线层弹窗用例 + 2 张基线快照 | 3 文件（含 2 张二进制快照） |
+| 6 | 本笔 `docs(migration)` | 治理记录（回归窗口 / §5.5 / 偏差处置表 / backlog / todo） | 5 文件 |
+
+**规模口径说明**：`lint-staged` 的 `git add` 会把当时未暂存的门禁预算改动一并 stage，故 `tests/visual/parity-budget.json`（208 行新增）实测落在**第 1 笔**而非第 4 笔——此处按**实测落库**记录，不按计划口径回填（与第十路由批次「提交拆分表按实测重锚」同口径）。
+
 ### 未覆盖边界 / 观察项
 
 - **治理缺口（本批触发原因）**：`caomei-ui` 作为精确锁定的迁移在飞依赖，仍被 Dependabot 单包升级路径抬版；在 `0.x` 不承诺语义兼容的前提下，该路径缺少「升级须读 `BREAKING CHANGES` + 重跑该批回归」的强制拦截。已在迁移方案 §5.6 补记「迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级」，避免再次静默漂移。
@@ -260,6 +410,21 @@ B2 试点页 5 族 / 8 处，与升级前一致：`CaomeiButton` ×3、`CaomeiSe
 - **层 ②（E2E 功能）**：试点页定向 `tests/e2e/admin.e2e.test.ts` chromium **7/7**（含 `/admin/comments` + `.caomei-data-table` 断言）。全量 E2E 抽查出现 `installation` / `posts` / `public-pages` / `seo-regression` 30s 超时，**隔离复跑 17 通过 / 1 flaky（`/archives` retry 过）/ 1 失败**，判定为负载超时；唯一稳定失败 `seo-regression` 文章详情 SEO 用例已**逐请求归因**：挂起资源为作者头像外链 `https://0.gravatar.com/avatar/…`（沙箱不可达拖死 `load` 事件，页面 DOM 完整渲染、该页零 caomei 消费），属**环境固有 flaky，非本批回归**（对照 M4 的 flaky 判定口径）。处置：不扩修测试代码（C 类），登记为已知环境 flaky。
 - **层 ③（截图识别）**：`pnpm test:visual` **10/10 通过**（列表 / 表单 / 浮层 / token 桥接，浅深双主题），无像素差异——0.3.0 对既有基线零影响，无需归因。
 - **质量门**：`pnpm typecheck` 通过；`pnpm lint` 0 error（3 条既有 warning 在 `packages/cli`，不在本次面）；`pnpm test:perf:budget` 全项不越线。
+
+### 提交拆分依据（本批规模超开发规范 §2.8 单提交阈值的说明）
+
+本批工作树规模 **23 个已改 / 新增文件、约 1300 行新增**（另含 6 张二进制快照），超 [开发规范](../../standards/development.md) §2.8 的「单次 commit ≤10 文件 / 800 行新增」阈值，故按「一个原子条目的六段产出」拆分提交（每笔均 ≤10 文件且 ≤800 行新增）：
+
+| 序号 | 提交 | 内容 | 实测落库规模 |
+| :--- | :--- | :--- | :--- |
+| 1 | `6bcad295` `feat(migration)` | 实现 + 事实源扩面（`admin-taxonomy-page.vue` / `taxonomy-translation-association-card.vue` / `lib/ui-library.ts`） | 4 文件 / 745 行新增（含被 lint-staged 扫入的门禁预算，见下） |
+| 2 | `6dc7ff6c` `test(migration)` | 结构性守卫扩面 + 共享组件桩与夹具 | 2 文件 / 551 行新增 |
+| 3 | `f0e2c6d7` `test(migration)` | 契约用例（组件 / 子组件 / 两个 host 页面）+ 管理端 E2E 矩阵 | 5 文件 / 423 行新增 |
+| 4 | `dbf177f3` `test(visual)` | 门禁层路由登记 + 4 张迁移前参考态 + 元数据 | 7 文件（含 4 张二进制快照） |
+| 5 | `ece4a8fc` `test(visual)` | 基线层弹窗用例 + 2 张基线快照 | 3 文件（含 2 张二进制快照） |
+| 6 | 本笔 `docs(migration)` | 治理记录（回归窗口 / §5.5 / 偏差处置表 / backlog / todo） | 5 文件 |
+
+**规模口径说明**：`lint-staged` 的 `git add` 会把当时未暂存的门禁预算改动一并 stage，故 `tests/visual/parity-budget.json`（208 行新增）实测落在**第 1 笔**而非第 4 笔——此处按**实测落库**记录，不按计划口径回填（与第十路由批次「提交拆分表按实测重锚」同口径）。
 
 ### 未覆盖边界 / 观察项
 

@@ -43,6 +43,7 @@
 
 - [ ] **3. B2 剩余数据页迁移（二）：组件型目标与 host 路由（P1）**
     - **执行范围**: `components/admin/admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）、`components/admin/ai/task-list.vue`（host `/admin/ai`）、`components/admin/marketing-campaign-list.vue`（host `/admin/marketing`）随各自 host 路由整路由迁移；若目标页涉及试点在册清单外的组件族（如 `Tabs`），先在迁移方案 §5.5 在册清单登记并同步守卫口径后方可迁移；含路由登记、守卫扩面、相关测试与 mock 改写。
+    - **进度（2026-10-16 首路由批次）**: 三目标中的 **`admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）已完成**——在册族 39 处 / 18 个组件名全部迁移，并按用户裁定把 `Tabs` 族 / `InputGroup` / `Checkbox` / `Textarea` 四族以**路由级在册族增量**登记进 §5.5（`CAOMEI_UI_ROUTE_SCOPES[].inScopeComponents`），弹窗本体因浮层豁免维持 PrimeVue。本批同时落地「守卫扩面」：路由范围条目新增 `ownedFiles`（薄包装页的实体文件并入扫描面），两条登记的路由前缀与路由自有文件均由守卫覆盖。剩余 2 个目标（`ai/task-list.vue` → `/admin/ai`、`marketing-campaign-list.vue` → `/admin/marketing`）待后续批次；`/admin/ai` 批次须显式处置其子路由 `/admin/ai/tasks/[id]`（维持 PrimeVue + 补结构守卫例外登记，经用户 2026-10-16 裁定）。
     - **非目标**: 同条目 2 的浮层 / settings / 图标 / 卸载豁免；不迁移 host 路由之外的页面。
     - **最小验收**: 同条目 2（在册族零残留守卫、无混用、三层回归差异逐项归因、质量门通过）。
     - **证据落点**: 「文件 → 改动点 → 依据指针」清单；视觉回归归因记录。
