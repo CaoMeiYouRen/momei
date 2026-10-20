@@ -159,7 +159,7 @@
     "nodemailer": "^10.1.2",
     "normalize.css": "^8.0.1",
     "nuxt": "^4.6.1",
-    "p-queue": "^9.3.5",
+    "p-queue": "^10.0.0",
     "pg": "^8.23.1",
     "primeicons": "^8.0.2",
     "primelocale": "^2.6.0",
