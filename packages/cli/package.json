@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@momei-blog/api-client": "workspace:*",
-    "cac": "^7.0.1",
+    "cac": "^7.1.0",
     "chalk": "^6.0.1",
     "glob": "^13.0.6",
     "fast-xml-parser": "^5.11.2",
