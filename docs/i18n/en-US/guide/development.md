@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-10-22
 translation_tier: summary-sync
 ---
 
@@ -16,7 +16,7 @@ This guide is designed to help developers quickly set up the local development e
 
 Ensure the following are installed on your system:
 
--   **Node.js**: >= 20.x
+-   **Node.js**: 24.22.1+ (22.x requires >= 22.23.4)
 -   **PNPM**: Latest stable version recommended.
 -   **Git**
 

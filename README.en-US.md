@@ -140,7 +140,7 @@ Main Sections:
 
 ## 📦 Requirements
 
--   Node.js >= 20
+-   Node.js 24.22.1+ (22.x requires >= 22.23.4)
 -   PNPM (Recommended)
 
 ## ☁️ Deployment

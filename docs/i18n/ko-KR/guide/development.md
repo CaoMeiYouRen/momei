@@ -19,7 +19,7 @@ source_origin: ../../../guide/development.md
 
 ## 1. 준비 사항
 
-- Node.js `>= 20`
+- Node.js `24.22.1+` (22.x는 >= 22.23.4 필요)
 - PNPM 최신 안정판
 - Git
 
