@@ -239,7 +239,7 @@
     "vitest": "5.0.5",
     "vitest-environment-nuxt": "^2.0.0",
     "vue-tsc": "3.3.13",
-    "wrangler": "4.151.1"
+    "wrangler": "4.151.2"
   },
   "author": "CaoMeiYouRen",
   "description": "墨梅博客 - AI 驱动、原生国际化的开发者博客平台。AI 赋能，全球创作。",
