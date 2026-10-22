@@ -1,4 +1,5 @@
 import logger from '@/server/utils/logger'
+import { fetchWithoutBrotli } from '@/server/utils/fetch'
 import type { ExternalFeedSourceConfig } from '@/types/external-feed'
 
 export type ExternalFeedFailureCategory = 'network_error' | 'upstream_4xx' | 'upstream_error'
@@ -20,7 +21,7 @@ export async function fetchExternalFeedSource(source: ExternalFeedSourceConfig) 
     const timeoutId = setTimeout(() => controller.abort(), source.timeoutMs ?? 5000)
 
     try {
-        const response = await fetch(source.sourceUrl, {
+        const response = await fetchWithoutBrotli(source.sourceUrl, {
             method: 'GET',
             redirect: 'follow',
             signal: controller.signal,

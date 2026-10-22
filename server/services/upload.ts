@@ -6,6 +6,7 @@ import { splitAndNormalizeStringList } from '@/utils/shared/string-list'
 import { normalizeDurationSeconds } from '@/utils/shared/duration'
 import { joinBaseUrlAndPath } from '@/utils/shared/url'
 import { resolveUploadSizeSetting } from '@/utils/shared/upload-size'
+import { fetchWithoutBrotli } from '@/server/utils/fetch'
 import { limiterStorage } from '@/server/database/storage'
 import { getSettings } from '~/server/services/setting'
 import { SettingKey } from '~/types/setting'
@@ -533,10 +534,15 @@ export async function uploadFromUrl(url: string, prefix: string, userId: string,
     const storageContext = await getUploadStorageContext()
     const { normalizedStorageType, env, bucketPrefix } = storageContext
     const storage = getFileStorage(normalizedStorageType, env)
-    const response = await $fetch.raw(url, { responseType: 'arrayBuffer' })
+    // 使用原生 fetch 以避免 ofetch 在读取 body 前无法拦截 br 响应；
+    // 这里不保留 ofetch 的 GET 自动重试，失败会由 AI 任务状态记录。
+    const response = await fetchWithoutBrotli(url)
+    if (!response.ok) {
+        throw createError({ statusCode: 502, statusMessage: `下载远程文件失败: HTTP ${response.status}` })
+    }
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const extension = contentType.split('/')[1]?.split(';')[0] || 'bin'
-    const buffer = Buffer.from(response._data as ArrayBuffer)
+    const buffer = Buffer.from(await response.arrayBuffer())
 
     const filename = buildUploadStoredFilename({
         basename: customFilename,

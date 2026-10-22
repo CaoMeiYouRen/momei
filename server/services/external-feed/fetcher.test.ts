@@ -20,10 +20,7 @@ describe('fetchExternalFeedSource', () => {
     })
 
     it('returns response text for successful request', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-            ok: true,
-            text: vi.fn().mockResolvedValue('<rss></rss>'),
-        }))
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<rss></rss>')))
 
         const result = await fetchExternalFeedSource({
             id: 'feed-1',
@@ -34,7 +31,7 @@ describe('fetchExternalFeedSource', () => {
     })
 
     it('classifies upstream 4xx failures', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 404 })))
 
         await expect(fetchExternalFeedSource({
             id: 'feed-1',
@@ -46,7 +43,7 @@ describe('fetchExternalFeedSource', () => {
     })
 
     it('classifies upstream 5xx failures', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 502 }))
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 502 })))
 
         await expect(fetchExternalFeedSource({
             id: 'feed-1',
@@ -55,6 +52,21 @@ describe('fetchExternalFeedSource', () => {
             category: 'upstream_error',
             httpStatus: 502,
         })
+    })
+
+    it('rejects brotli responses as network errors', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<rss></rss>', {
+            headers: { 'content-encoding': 'br' },
+        })))
+
+        await expect(fetchExternalFeedSource({
+            id: 'feed-1',
+            sourceUrl: 'https://example.com/rss.xml',
+        } as never)).rejects.toMatchObject({
+            category: 'network_error',
+            httpStatus: null,
+        })
+        expect(warnMock).toHaveBeenCalledOnce()
     })
 
     it('wraps network errors and logs warning', async () => {

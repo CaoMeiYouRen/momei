@@ -5,6 +5,7 @@ import { FriendLinkCategory } from '@/server/entities/friend-link-category'
 import { FriendLink } from '@/server/entities/friend-link'
 import { getLocalizedSetting, getSetting } from '@/server/services/setting'
 import { getUploadStorageContext } from '@/server/services/upload'
+import { fetchWithoutBrotli } from '@/server/utils/fetch'
 import logger from '@/server/utils/logger'
 import { assignDefined } from '@/server/utils/object'
 import { ensureFound, paginate } from '@/server/utils/response'
@@ -271,12 +272,16 @@ async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult
         })
 
         if (response.status === 403 || response.status === 405) {
-            response = await fetch(url, {
+            // GET 回退会返回响应体；用 guard 避免不可信 br 响应进入 Node 解压器
+            response = await fetchWithoutBrotli(url, {
                 method: 'GET',
                 redirect: 'follow',
                 signal: controller.signal,
             })
         }
+
+        // 健康检查只需要状态码，取消未消费的 body 以释放连接
+        await response.body?.cancel().catch(() => undefined)
 
         return {
             ok: response.ok,
