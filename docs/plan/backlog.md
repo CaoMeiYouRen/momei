@@ -18,9 +18,9 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第六十六阶段（第八批：5 个高价值模块补测 58 用例，全仓 Statements 79.55% → 80.63%）。
-- **当前基线**: Statements `80.63%` / Branches `69.26%` / Lines `80.68%`（距 `90%+` 长期目标约 9.4%）。
-- **下一次可切片方向**: 优先选代码量大、分支多的 `server/services/` 层模块（低覆盖候选：`ai/task-detail.ts` 28.57%、`external-feed/cache.ts` 50.00%、`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%）；测试有效性延续“已有测试基座 + 失败 / 边界优先”。**第九批（`server/services/` 低覆盖 3-5 模块）已上收至第六十八阶段，见 [todo.md](./todo.md)**。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
+- **最近一次上收阶段**: 第六十八阶段（第九批：`server/services/` 4 个低覆盖模块补测，新增 6 个测试文件 / 116 例 + 既有文件补 6 例；全仓 Statements 80.45% → 81.04%，Branches 69.81% → 70.83%，Lines 80.54% → 81.15%）。
+- **当前基线**: Statements `81.04%` / Branches `70.83%` / Lines `81.15%`（距 `90%+` 长期目标约 9.0%）。
+- **下一次可切片方向**: 按**绝对未覆盖语句数**而非百分比排序选模（当前 `server/services/` 前列：`setting.ts` 43 / `ai/text-translation-task.ts` 34 / `migration-link-governance.ts` 32 / `ai/post-automation.ts` 32 / `ai/tts.ts` 30）。第九批已把候选池（`friend-link` / `notification` / `post-distribution` / `upload`，合计 866 条语句）的未覆盖语句尽可能闭合，实际 +0.59pp ≈ 该池 100% 闭合上限（约 +0.66pp）的 89%，但受池体量限制无法达到单批 +1pp——后续批次应优先纳入语句基数更大的模块，并继续坚持“失败 / 边界优先”。**第九批（已上收，见 [todo.md](./todo.md) 第六十八阶段条目 4）**。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`、`friend-link` 的 name/url 归一化缺陷（见下方待跟踪）。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
 
@@ -235,6 +235,9 @@
 - **待跟踪（2026-10-16 新增，责任人：迁移收尾 / 结构复用）**：`components/admin/admin-taxonomy-page.vue` 迁移后 **904 行**（迁移前 732 行），越过 ESLint `max-lines` **warn>800** 线（`pnpm lint` 实测 8/10 warning，仍通过但已消耗预算）。增量来源：lucide 图标用法 12 处（其中 `#icon` 插槽 10 处，每处 3 行）、弹窗焦点交接机制、以及迁移依据注释。**处置方向**：把「多语言列定义」（`columns` computed，约 70 行）与「多语言弹窗表单」抽为路由自有 composable / 子组件（本仓暂无「列定义外置」先例，须先在结构复用主线上评估口径）；抽取后须同步 `CAOMEI_UI_ROUTE_SCOPES` 的 `ownedFiles` 登记，避免守卫扫描面漏掉新文件。
 - **待跟踪（2026-10-16 新增，责任人：迁移收尾，随浮层批次）**：`/admin/categories` + `/admin/tags` 弹窗的**初始焦点**在迁移后由「名称输入框」变为「浮层关闭按钮」——迁移前 PrimeVue `Dialog` 的 `onAfterEnter` → `focus()` 会命中默认插槽内的 `[autofocus]`（名称 `InputText`）；迁移后 caomei `CaomeiInput` 无 `autofocus` 契约（透传属性落在不可聚焦的字段外壳），命中项消失。**本批已用「事件交接」修复**：`@show` 置位 + 捕获浮层第一次 `focusin`（即 focus trap 落到关闭按钮的那次）后把焦点交回名称字段（实测 `document.activeElement === input#name_zh-CN`）。**遗留**：切换语言页签时焦点留在触发器上（Reka Tabs 的标准行为），与迁移前「逐页签重挂载触发原生 autofocus」不同；浮层本体迁到 caomei（第六十九阶段）后须按新的 `autofocus` / 焦点契约复核并决定是否统一。
 - **待跟踪（2026-10-16 新增，责任人：迁移收尾）**：`CAOMEI_UI_ROUTE_PREFIXES` 的**前缀语义连带子路由**与「已迁移路由」事实之间的落差——登记 `/admin/posts` 后，未迁移的编辑器子路由 `/admin/posts/[id]` 对**路由择库型**过渡组件（`AdminPageHeader` / `AppAvatarV2` / `AppUploaderV2`）同样解析为 caomei-ui；本批逐处核对确认该子路由**当时未触达**这三者（无路由内混用）；其后（见本条末）已补守卫兜底。收尾/后续批次应补结构守卫：断言「已登记前缀下**非 `index.vue` 的子路由页面**及其 `components/<prefix>/**` 子树不得渲染组件内择库型过渡组件」，或在编辑器路由迁移后自然消解。事实源侧已把该例外写入 `lib/ui-library.ts` 的常量注释（含可达性核对结论）。**部分机制已就绪（2026-10-16 条目 3 首路由批次）**：`CAOMEI_UI_ROUTE_SCOPES` 已支持 `ownedFiles`（路由自有实体文件并入守卫扫描面），并在同一处登记 `/admin/categories` + `/admin/tags`；**该维度已于 2026-10-16 闭环**：`primeVueSubRoutes` 例外登记落地（`/admin/ai` → `pages/admin/ai/tasks/[id].vue`，并回溯登记 `/admin/posts` → `pages/admin/posts/[id].vue`），守卫新增 4 条断言（未登记响亮失败 / 例外路径存在 / 例外页面不得含路由择库标记 / 每条须有理由）。**剩余缺口收窄为**：例外背后的「`components/<prefix>/**` 子树」尚未被标记扫描（漏登记某路由自有组件时仍只能靠该批清单发现，非薄包装页无响亮失败）。
+
+- **待跟踪（2026-10-22 新增，责任人：友链服务）**：`server/services/friend-link.ts` 的 `createFriendLink` / `updateFriendLink` 先对 `name` / `url` 做 `trim()`，随后 `saveFriendLinkEntity` 的 `assignDefined(entity, input, [...])` 用**未清洗的原始 input** 覆盖同名字段，导致首尾空白最终仍可能落库（例如传入 `url: '  https://x.example.com  '` 时持久化值保留空格）。最小范围：把 `name` / `url` 的归一化收敛到 `saveFriendLinkEntity`（或在 `assignDefined` 后统一 `trim`），并补「首尾空白不落库」的失败断言；注意与 `ensureUniqueFriendLinkUrl` 的去重口径保持同一次清洗结果。非目标：不改动友链其他字段的 `null` / `空串` 归一化语义。
+- **待跟踪（2026-10-22 新增，责任人：测试工程）**：本地 Nuxt 测试环境存在 `vitest` 转换缓存（`node_modules/.vitest-cache`）热命中后 `utils/shared/post-copyright.ts` 等文件报 `Cannot find module '/@id/virtual:intlify-i18n-N'` 的问题（冷缓存可正常加载，CI 未复现）；`tests/server/notification*.test.ts` 与 `post-distribution*.test.ts` 受影响。建议后续评估 `test:coverage` 入口是否需要显式 `--no-cache` 或隔离缓存目录，避免本地验证被环境噪声阻断。
 
 ## 相关文档
 

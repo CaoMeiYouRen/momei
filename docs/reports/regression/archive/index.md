@@ -12,6 +12,7 @@
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
 - 2026-09-26 第六十八阶段条目 1（`caomei-ui` 升级到 `0.3.0` 与基线复测：升级记录 / `BREAKING CHANGES` 阅读 / `keyCss` 复测口径 / 组件消费清单重数；2026-10-16 第十次自 `current.md` 滚动归档，并同步改写 2 处节名锚点——迁移方案 1 处、`.github/perf/bundle-baseline.json` 1 处）: [2026-09-26-phase68-item1-upgrade-030.md](./2026-09-26-phase68-item1-upgrade-030.md)
+- 2026-10-13 第六十八阶段 `caomei-ui@0.6.0` 版本漂移收口（`BREAKING CHANGES` 补读 / 组件清单 0.6.0 重数 / 三层视觉回归与包体复测 / 基线状态显式记录；2026-10-22 第十二次自 `current.md` 滚动归档，并同步改写 3 个文件共 5 处窗口节名引用——`todo.md` 1 处、上游反馈清单 1 处、迁移方案 3 处）: [2026-10-13-phase68-caomei-drift-060.md](./2026-10-13-phase68-caomei-drift-060.md)
 - 2026-10-13 workflow pre-check（test，自动化回填的非阶段记录；2026-10-16 第九次自 `current.md` 滚动归档，为组件型目标批次窗口腾出 `line-count` 余量，无外部节名锚点引用）: [2026-10-13-workflow-precheck.md](./2026-10-13-workflow-precheck.md)
 - 2026-10-16 第六十八阶段条目 2 第九 / 第十路由（友链 / 文章列表：`DataTable` 空态行高与语言切换区 token 处置、分页基准 1 基切换、`Tag`/`AppAvatarV2` 数据行态；2026-10-16 第十一次自 `current.md` 滚动归档，并同步改写 `tests/visual/parity-budget.json` 中 2 处节名短语引用）: [2026-10-16-phase68-b2-friend-links-and-posts.md](./2026-10-16-phase68-b2-friend-links-and-posts.md)
 - 2026-10-14 至 2026-10-15 第六十八阶段条目 2 第三批次 4 个窗口——第五路由（ad/placements）/ 过渡组件基建（共享壳 5 件套）/ 第七路由（subscribers）/ 第八路由（users）（2026-10-16 第八次自 `current.md` 滚动归档；`todo.md` 的「过渡组件基建窗口」引用已同步改写为本分片「过渡组件基建节」）: [2026-10-14-to-2026-10-15-phase68-b2-batch3.md](./2026-10-14-to-2026-10-15-phase68-b2-batch3.md)

@@ -30,7 +30,7 @@
     - **非目标**: 不迁移新页面；不连带其他依赖升级；不改动包体其他阈值。
     - **最小验收（立项时口径 2026-09-26）**: `package.json` / `pnpm-lock.yaml` 中 `caomei-ui` 为 `0.3.0` 精确锁定且无 `file:` 形态；视觉回归与定向测试通过并在回归记录留痕；`keyCss` 实测值与基线 JSON 一致、口径表述已修正；`pnpm test:perf:budget` 不越线；`pnpm typecheck` + `pnpm lint` 通过。
     - **证据落点**: `BREAKING CHANGES` 阅读结论、升级记录、`keyCss` 复测数据写入 [回归记录](../reports/regression/current.md)；基线 JSON 与口径表述修正落对应文件。
-    - **漂移收口（2026-10-13 补记，条目实际收口结论以本条为准）**: 本项完成后 `caomei-ui` 经 Dependabot 单包路径静默抬版至 `0.6.0`（`0.3.0 → 0.5.0 → 0.6.0`，只改 `package.json` / 锁文件，未留阅读记录与复测）。已按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、组件清单 `0.6.0` 口径重数（81 项）、三层视觉回归（10/10 零像素差异）与包体复测（`keyCss` 61,311 B / 70KB，未越线），并同步迁移方案 §3.5 / §3.8 / §5.1 / §5.5 / §5.6 / §8.4.1 与上游反馈清单。**与上面「立项时口径」验收行的差异**：实际锁定版本为 `0.6.0`，且 `keyCss` 不再与基线 JSON 一致（实测 61,311 B，基线沿用 0.3.0 批次的 60,896 B）——该差异已显式记录，基线保留待 B2 / B4 重取，不以刷新基线掩盖。本批为纯文档收口、无代码改动；升级纪律补强（收尾前为 `caomei-ui` 配置 Dependabot `ignore`）登记为迁移主线收尾必办项。证据见 [回归记录](../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节。
+    - **漂移收口（2026-10-13 补记，条目实际收口结论以本条为准）**: 本项完成后 `caomei-ui` 经 Dependabot 单包路径静默抬版至 `0.6.0`（`0.3.0 → 0.5.0 → 0.6.0`，只改 `package.json` / 锁文件，未留阅读记录与复测）。已按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、组件清单 `0.6.0` 口径重数（81 项）、三层视觉回归（10/10 零像素差异）与包体复测（`keyCss` 61,311 B / 70KB，未越线），并同步迁移方案 §3.5 / §3.8 / §5.1 / §5.5 / §5.6 / §8.4.1 与上游反馈清单。**与上面「立项时口径」验收行的差异**：实际锁定版本为 `0.6.0`，且 `keyCss` 不再与基线 JSON 一致（实测 61,311 B，基线沿用 0.3.0 批次的 60,896 B）——该差异已显式记录，基线保留待 B2 / B4 重取，不以刷新基线掩盖。本批为纯文档收口、无代码改动；升级纪律补强（收尾前为 `caomei-ui` 配置 Dependabot `ignore`）登记为迁移主线收尾必办项。证据见 [回归记录归档分片](../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)。
 
 - [x] **2. B2 剩余数据页迁移（一）：`pages/admin` 数据列表页（P1）**
     - **执行范围**: 按路由整体切换迁移 `pages/admin/posts`、`users`、`friend-links`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance` 共 10 个数据列表路由；新增共享壳过渡组件 `AppAvatarV2`（users / subscribers 用）与 `AppUploaderV2`（friend-links 用），按迁移方案 §5.5 过渡策略以路由择库实现；`pages/admin/posts` 的 3 个跨路由共享组件按 §5.5 处置——`post-audit-badge` 的在册族依赖（`Tag`）以过渡组件 + 路由择库隔离，`post-audit-dialog` / `publish-push-dialog` 属浮层显式豁免、维持 PrimeVue 至第六十九阶段；`users` 路由自有组件族（filters / role-dialog / ban-dialog / sessions-drawer）随该路由迁移；各路由登记 `CAOMEI_UI_ROUTE_PREFIXES` 并扩面 `tests/modules/ui-library-route-migration-guard.test.ts` 守卫；同步改写相关测试与 mock。
@@ -50,11 +50,12 @@
     - **最小验收**: 同条目 2（在册族零残留守卫、无混用、三层回归差异逐项归因、质量门通过）。
     - **证据落点**: 「文件 → 改动点 → 依据指针」清单；视觉回归归因记录。
 
-- [ ] **4. 测试覆盖率治理第九批（P2）**
+- [x] **4. 测试覆盖率治理第九批（P2）**
     - **执行范围**: 从 `server/services/` 低覆盖模块中选 3-5 个补测（优先候选：`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%；`ai/task-detail.ts` 28.57% 与 `external-feed/cache.ts` 50.00% 经缺口报告标记低收益 / 排除（体量过小），仅在优先候选不足 3-5 个时作为边界候选评估），失败 / 边界断言优先，不做低价值铺量。
     - **非目标**: 不追求全仓 `90%+` 一步到位；不为覆盖率重构被测模块。
     - **最小验收**: 目标模块覆盖率显著提升（各 +15pp 以上或达 85%+）；全仓 Statements 以 `80.63%` 为基线目标提升 ≥1pp，未达 ≥1pp 时显式记录原因并转长期治理；新增用例含失败 / 边界断言；`pnpm typecheck` + `pnpm lint` + 定向 `pnpm test` 通过。
     - **证据落点**: coverage 数值与模块清单写入回归记录；backlog 长期主线第 1 条基线随阶段归档同步。
+    - **完成（2026-10-22）**: 4 个候选模块全部补测（新增 6 个测试文件 / 116 例，既有 `friend-link.test.ts` 补 6 例，共 122 例），模块 Statements：`friend-link` 73.06% → **99.26%**（+26.20pp）、`notification` 70.10% → **98.45%**（+28.35pp）、`post-distribution` 75.32% → **91.91%**（+16.59pp）、`upload` 75.45% → **98.80%**（+23.35pp），**4/4 达成「+15pp 或 ≥85%」**。全仓 Statements 80.45% → **81.04%**（+0.59pp）、Branches 69.81% → 70.83%、Lines 80.54% → 81.15%；**全仓 +1pp 未达成**，原因已显式记录：4 个候选合计仅 866 条语句（全仓 34,857 的 2.48%），即使 100% 闭合约 +0.66pp，结构上无法达到 +1pp；本批实际达成 +0.59pp ≈ 该上限的 89%，余额按验收条款转长期主线 #1。基线取本批开始前实测（`upload` 75.45% / `post-distribution` 75.32%，与上面的立项口径 74.85% / 75.31% 分别差 0.60pp / 0.01pp，属来源差异，以实测为准）。验证：全量 `pnpm test` **5012 passed / 1 skipped（566 文件）**、`test:coverage` EXIT 0；`pnpm typecheck` / `pnpm lint` / `pnpm lint:css` 通过。附带观察：本批测试暴露 `friend-link` 的 name/url 归一化被 `assignDefined` 覆盖的既有缺陷，已登记 backlog 待跟踪（不在本批修复）。证据见 [回归记录](../reports/regression/current.md) 第六十八阶段条目 4 窗口。
 
 **回滚边界**:
 

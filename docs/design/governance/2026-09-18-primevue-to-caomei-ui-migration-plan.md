@@ -2,7 +2,7 @@
 
 - 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权；2026-09-22 更新：目标依赖由 `caomei-ui@0.1.0` 上移到 `0.2.0`，样式入口与并存期包体口径随上游破坏性变更重定，见 §3.6；2026-09-25 更新：上游 0.3.0 已发布并调整目标基线口径，见 §3.7；2026-10-13 更新：补记上游 0.4.0~0.6.0 变更基线与目标依赖静默漂移的复测收口，见 §3.8）
 - 性质：**迁移评估与执行方案**。本文档为文档产物，**不含任何代码改动**；迁移已授权开工。
-- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 升级与基线复测**已于 2026-09-26 完成**（第六十八阶段条目 1，见 §3.7），其后依赖经 Dependabot 单包路径静默抬版到 **`0.6.0`**（当前精确锁定版本），漂移已**于 2026-10-13 按升级纪律补做阅读、复测与文档对齐**（见 §3.8 与 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节）。
+- 状态：**已开工规划**。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 升级与基线复测**已于 2026-09-26 完成**（第六十八阶段条目 1，见 §3.7），其后依赖经 Dependabot 单包路径静默抬版到 **`0.6.0`**（当前精确锁定版本），漂移已**于 2026-10-13 按升级纪律补做阅读、复测与文档对齐**（见 §3.8 与 [回归记录归档分片](../../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)）。
 - 事实源边界：库侧能力面、映射表、有意差异与验收判定口径以 caomei-ui 仓库的治理文档为**唯一事实源**（见 §13）；本文档只承载 momei 侧现状基线、批次编排、momei 侧执行动作与开工前置条件，不重复库侧明细。
 - 回链主文档：[UI 设计](../ui.md)（组件库章节在迁移收尾前仍描述 PrimeVue，迁移执行时同步）。
 - 上游动因：[2026-08 PrimeVue 5 许可证变更专项评估](./2026-08-29-primevue-5-license-change-evaluation.md)。
@@ -147,7 +147,7 @@ pnpm governance:count:primevue-usage
 
 ### 3.8 上游 0.4.0~0.6.0 变更基线与目标依赖漂移收口（2026-10-13）
 
-第六十八阶段条目 1 完成后，`caomei-ui` 经两次 Dependabot 单包升级再次抬版（`0.3.0 → 0.5.0`，2026-10-06；`0.5.0 → 0.6.0`，2026-10-11），两次提交只改 `package.json` / `pnpm-lock.yaml`，未按 §5.6 的升级纪律留阅读记录与复测，本文档与规划文档也仍停在 `0.3.0` 口径。本节的收口动作与证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节；此处只落 momei 侧结论。库侧明细仍以 caomei-ui 的 [CHANGELOG](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/CHANGELOG.md) 与[发布指南 §9 包形态与兼容性](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/guide/release.md)为唯一事实源。
+第六十八阶段条目 1 完成后，`caomei-ui` 经两次 Dependabot 单包升级再次抬版（`0.3.0 → 0.5.0`，2026-10-06；`0.5.0 → 0.6.0`，2026-10-11），两次提交只改 `package.json` / `pnpm-lock.yaml`，未按 §5.6 的升级纪律留阅读记录与复测，本文档与规划文档也仍停在 `0.3.0` 口径。本节的收口动作与证据见 [回归记录归档分片](../../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)；此处只落 momei 侧结论。库侧明细仍以 caomei-ui 的 [CHANGELOG](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/CHANGELOG.md) 与[发布指南 §9 包形态与兼容性](https://github.com/CaoMeiYouRen/caomei-ui/blob/master/docs/guide/release.md)为唯一事实源。
 
 | 项 | 事实（上游披露 / momei 侧实测） | 对本方案的影响 |
 | :--- | :--- | :--- |
@@ -316,7 +316,7 @@ pnpm governance:count:primevue-usage
 > **按钮可见文案陷阱（2026-10-14 补记，B2 第三路由批次发现）**：caomei `CaomeiButton` 的 `label` **只映射 `aria-label`**，可见文本只来自**默认插槽**；PrimeVue `Button` 的 `label` 直接渲染可见文本。因此「标签替换 + 属性改名」式机械迁移会得到**无文案按钮**（外形退化为图标按钮），不报错、不被类型检查或零残留守卫捕获，且可能被 parity 允许清单当作「按钮渲染差异」吸收。**B2 剩余页一律按「可见文本写默认插槽」迁移**；仅纯图标按钮保留 `:label` + `iconOnly`。已在 `/admin/external-links`（头部创建 + 弹窗页脚）与 `/admin/submissions`（审核弹窗页脚）修正历史用法。
 > **`Tag` 可见文案陷阱（2026-10-16 补记，B2 第九路由批次发现）**：PrimeVue `Tag` 用 `value` **prop** 渲染可见文案，而 caomei `CaomeiTag` **没有 `value` prop**（契约只有 `tone` / `variant` / `size` / `rounded` / `closable` / `disabled` / `closeLabel` / `selectable`），可见文本只来自**默认插槽**。因此「标签替换 + 属性改名」式机械迁移会得到**空标签**（`:value` 作为无用 HTML 属性落到 `<span>` 上），不报错、不被类型检查捕获（`vue-tsc` 对透传属性不报错，与上面的 `Button label` 同型），且会被 parity 允许清单当作「组件替换差异」吸收。**注意与 `CaomeiBadge` 区分**：`Badge` **确有** `value` prop（`/admin/users` 的角色 / 状态徽章即用 `:value`，属正确用法）。已在 `/admin/friend-links`（6 处状态标签）修正；B2 剩余页与后续批次一律按「`Tag` 可见文本写默认插槽、`Badge` 用 `:value`」迁移。
 
-> 依据指针：B2 各批「文件 → 改动点」清单应按 `0.6.0` 能力口径引用本节；逐条证据见 [回归记录](../../reports/regression/current.md) 第六十八阶段 caomei-ui 漂移收口节与 [上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)。
+> 依据指针：B2 各批「文件 → 改动点」清单应按 `0.6.0` 能力口径引用本节；逐条证据见 [回归记录归档分片](../../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)与 [上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)。
 
 > 结论：本清单为**工程事实记录**，作为后续批次（第六十八阶段：B2 剩余数据页 + B3）准入评估的输入；批次划分与原子条目在该阶段准入时按规划规范单独评估，本阶段不提前落盘。
 
