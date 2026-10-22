@@ -262,7 +262,7 @@
   "license": "MIT",
   "packageManager": "pnpm@11.17.0",
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   },
   "homepage": "https://github.com/CaoMeiYouRen/momei#readme",
   "repository": {
