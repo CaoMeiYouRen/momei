@@ -21,7 +21,7 @@ source_origin: ../../../guide/development.md
 
 開始之前，請先確認你的系統已安裝：
 
-- **Node.js**：`>= 20.x`
+- **Node.js**：`24.22.1+`（22.x 線需 >= 22.23.4）
 - **PNPM**：建議使用最新穩定版
 - **Git**
 
