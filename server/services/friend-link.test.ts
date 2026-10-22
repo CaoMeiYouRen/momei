@@ -447,6 +447,78 @@ describe('friendLinkService.getPublicFriendLinks', () => {
         expect(result.items).toEqual([])
         expect(result.groups).toEqual([])
     })
+
+    it('友链功能关闭时公开列表直接返回空结果', async () => {
+        vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
+            if (String(key) === String(SettingKey.FRIEND_LINKS_ENABLED)) {
+                return Promise.resolve('false')
+            }
+            return Promise.resolve(typeof defaultValue === 'string' ? defaultValue : '')
+        })
+
+        const result = await friendLinkService.getPublicFriendLinks()
+
+        expect(friendLinkRepo.createQueryBuilder).not.toHaveBeenCalled()
+        expect(result.meta.enabled).toBe(false)
+        expect(result.items).toEqual([])
+        expect(result.groups).toEqual([])
+    })
+
+    it('按分类过滤公开友链', async () => {
+        queryBuilder.getMany.mockResolvedValue([])
+
+        await friendLinkService.getPublicFriendLinks({ categoryId: 'cat-9' })
+
+        expect(queryBuilder.andWhere).toHaveBeenCalledWith('friendLink.categoryId = :categoryId', { categoryId: 'cat-9' })
+    })
+
+    it('同一分类下的多个友链合并进同一个分组', async () => {
+        const category = Object.assign(new FriendLinkCategory(), { id: 'cat-1', name: 'Tech' })
+        const first = Object.assign(new FriendLink(), {
+            id: 'fl-1',
+            categoryId: 'cat-1',
+            category,
+            name: 'Alpha',
+        })
+        const second = Object.assign(new FriendLink(), {
+            id: 'fl-2',
+            categoryId: 'cat-1',
+            category,
+            name: 'Beta',
+        })
+        queryBuilder.getMany.mockResolvedValue([first, second])
+
+        const result = await friendLinkService.getPublicFriendLinks()
+
+        expect(result.groups).toHaveLength(1)
+        expect(result.groups[0]?.items).toEqual([first, second])
+        expect(result.groups[0]?.category).toBe(category)
+    })
+
+    it('featured 未显式指定 limit 时使用页脚配置数量', async () => {
+        queryBuilder.getMany.mockResolvedValue([])
+
+        await friendLinkService.getPublicFriendLinks({ featured: true })
+
+        expect(queryBuilder.limit).toHaveBeenCalledWith(6)
+    })
+
+    it('申请指南配置缺失时回退为空字符串', async () => {
+        vi.mocked(getLocalizedSetting).mockResolvedValue({
+            key: SettingKey.FRIEND_LINKS_APPLICATION_GUIDELINES,
+            value: null,
+            requestedLocale: 'zh-CN',
+            resolvedLocale: null,
+            fallbackChain: ['zh-CN', 'en-US'],
+            usedFallback: false,
+            usedLegacyValue: false,
+        })
+        queryBuilder.getMany.mockResolvedValue([])
+
+        const result = await friendLinkService.getPublicFriendLinks()
+
+        expect(result.meta.applicationGuidelines).toBe('')
+    })
 })
 
 describe('friendLinkService.createCategory', () => {
@@ -595,6 +667,13 @@ describe('friendLinkService.createFriendLink', () => {
         ).rejects.toMatchObject({ statusCode: 400, statusMessage: 'Invalid friend link URL' })
     })
 
+    it('throws 400 for URL that cannot be parsed', async () => {
+        await expect(
+            friendLinkService.createFriendLink({ name: 'Test', url: 'not a valid url' }, null),
+        ).rejects.toMatchObject({ statusCode: 400, statusMessage: 'Invalid friend link URL' })
+        expect(friendLinkRepo.save).not.toHaveBeenCalled()
+    })
+
     it('creates link with default status and source', async () => {
         friendLinkRepo.findOne.mockResolvedValue(null)
 
@@ -719,6 +798,27 @@ describe('friendLinkService.updateFriendLink', () => {
         }, 'operator-1')
 
         expect(result.showRssFeed).toBe(true)
+    })
+
+    it('更新 URL 时触发持久化并记录操作人', async () => {
+        const existing = Object.assign(new FriendLink(), {
+            id: 'fl-1',
+            name: 'Blog',
+            url: 'https://old.example.com',
+            createdById: null,
+        })
+        friendLinkRepo.findOne
+            .mockResolvedValueOnce(existing)
+            .mockResolvedValue(null)
+
+        const result = await friendLinkService.updateFriendLink('fl-1', {
+            url: 'https://new.example.com',
+        }, 'operator-1')
+
+        expect(result.url).toBe('https://new.example.com')
+        expect(result.createdById).toBe('operator-1')
+        expect(result.updatedById).toBe('operator-1')
+        expect(friendLinkRepo.save).toHaveBeenCalledOnce()
     })
 })
 
