@@ -1,6 +1,20 @@
-FROM caomeiyouren/alpine-nodejs:latest AS nodejs
+# 自建镜像 caomeiyouren/alpine-nodejs 依赖 Alpine 仓库的 nodejs 包；Alpine 3.24/edge
+# 目前仍停在 24.18.1，重建也无法拿到 2026-10-21 的安全修复（含 CVE-2026-111497）。
+# 因此固定到官方镜像；待自建镜像改为从官方 tarball 安装并发布 24.22.1 后，可通过
+# --build-arg 切回自建镜像。
+ARG NODE_BUILD_IMAGE=node:24.22.1-alpine
+ARG NODE_RUNTIME_IMAGE=node:24.22.1-alpine
 
-FROM caomeiyouren/alpine-nodejs-minimize:latest AS runtime
+FROM ${NODE_BUILD_IMAGE} AS nodejs
+
+# 官方镜像不含 pnpm；构建期校验 Node 版本，防止基础镜像回退到未修复版本
+RUN npm i -g pnpm@11.17.0 \
+    && node -e "const [M,m,p]=process.versions.node.split('.').map(Number);const fixed=(M===22&&(m>23||(m===23&&p>=4)))||(M===24&&(m>22||(m===22&&p>=1)))||(M===26&&(m>12||(m===12&&p>=1)))||M>26;if(!fixed){console.error('Node.js '+process.versions.node+' 未包含 2026-10-21 安全修复，请升级到 22.23.4 / 24.22.1 / 26.12.1 或更高版本');process.exit(1)}console.log('Node.js '+process.versions.node+' 已包含 2026-10-21 安全修复')"
+
+FROM ${NODE_RUNTIME_IMAGE} AS runtime
+
+# 生产阶段同样校验，防止 NODE_RUNTIME_IMAGE 被覆盖成未修复版本
+RUN node -e "const [M,m,p]=process.versions.node.split('.').map(Number);const fixed=(M===22&&(m>23||(m===23&&p>=4)))||(M===24&&(m>22||(m===22&&p>=1)))||(M===26&&(m>12||(m===12&&p>=1)))||M>26;if(!fixed){console.error('Node.js '+process.versions.node+' 未包含 2026-10-21 安全修复，请升级到 22.23.4 / 24.22.1 / 26.12.1 或更高版本');process.exit(1)}console.log('Node.js '+process.versions.node+' 已包含 2026-10-21 安全修复')"
 
 # 阶段一：构建阶段
 FROM nodejs AS builder
@@ -18,6 +32,9 @@ COPY packages /app/packages
 # 故先写入最小占位配置禁用 devtools，稍后由 `COPY . /app` 用仓库真实配置覆盖。
 # 详见 pnpm-workspace.yaml 的 simple-git override 注释。
 RUN printf "export default defineNuxtConfig({ devtools: { enabled: false } })\n" > nuxt.config.ts
+
+# 官方镜像不含编译工具；better-sqlite3 等原生模块在 prebuild 下载失败时会回退 node-gyp
+RUN apk add --no-cache python3 make g++
 
 RUN pnpm i --frozen-lockfile
 
@@ -37,7 +54,7 @@ WORKDIR /app
 COPY --from=builder /app/.output ./.output
 
 # 阶段三：生产阶段
-FROM runtime
+FROM runtime AS production
 
 ENV NODE_ENV=production
 

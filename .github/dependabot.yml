@@ -199,3 +199,10 @@ updates:
       interval: weekly
       time: "05:00"
       timezone: Asia/Shanghai
+  - package-ecosystem: docker
+    directory: /
+    open-pull-requests-limit: 5
+    schedule:
+      interval: weekly
+      time: "05:00"
+      timezone: Asia/Shanghai
