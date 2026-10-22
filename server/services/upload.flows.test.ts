@@ -1,5 +1,6 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
+import { brotliCompressSync } from 'node:zlib'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readMultipartFormData } from 'h3'
 import {
@@ -97,6 +98,17 @@ describe('uploadFromUrl', () => {
                     response.writeHead(200, { 'content-type': 'image/png' })
                     response.end(Buffer.alloc(2048, 'x'))
                     return
+                case '/brotli':
+                    response.writeHead(200, {
+                        'content-type': 'image/png',
+                        'content-encoding': 'br',
+                    })
+                    response.end(brotliCompressSync(Buffer.from('image-bytes')))
+                    return
+                case '/server-error':
+                    response.writeHead(500, { 'content-type': 'text/plain' })
+                    response.end('upstream failed')
+                    return
                 default:
                     response.writeHead(404)
                     response.end()
@@ -163,6 +175,24 @@ describe('uploadFromUrl', () => {
 
         await expect(uploadFromUrl(`${baseUrl}/large`, 'image/', 'user-1'))
             .rejects.toThrow(/文件大小超出/)
+        expect(storage.upload).not.toHaveBeenCalled()
+    })
+
+    it('拒绝 Brotli 编码的远程文件', async () => {
+        await expect(uploadFromUrl(`${baseUrl}/brotli`, 'image/', 'user-1'))
+            .rejects.toThrow(/Brotli/)
+        expect(storage.upload).not.toHaveBeenCalled()
+    })
+
+    it('上游返回非 2xx 时拒绝上传', async () => {
+        await expect(uploadFromUrl(`${baseUrl}/missing`, 'image/', 'user-1'))
+            .rejects.toThrow(/HTTP 404/)
+        expect(storage.upload).not.toHaveBeenCalled()
+    })
+
+    it('上游返回 5xx 时拒绝上传', async () => {
+        await expect(uploadFromUrl(`${baseUrl}/server-error`, 'image/', 'user-1'))
+            .rejects.toThrow(/HTTP 500/)
         expect(storage.upload).not.toHaveBeenCalled()
     })
 })

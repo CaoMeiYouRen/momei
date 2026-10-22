@@ -2,6 +2,7 @@ import { XMLParser } from 'fast-xml-parser'
 import { dataSource } from '@/server/database'
 import { FriendLink } from '@/server/entities/friend-link'
 import { type FeedItem, FriendLinkStatus } from '@/types/friend-link'
+import { fetchWithoutBrotli } from '@/server/utils/fetch'
 import logger from '@/server/utils/logger'
 import { limiterStorage } from '@/server/database/storage'
 
@@ -38,7 +39,7 @@ async function fetchXml(url: string): Promise<string | null> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
     try {
-        const response = await fetch(url, {
+        const response = await fetchWithoutBrotli(url, {
             signal: controller.signal,
             headers: { Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
         })
@@ -46,7 +47,11 @@ async function fetchXml(url: string): Promise<string | null> {
             return null
         }
         return await response.text()
-    } catch {
+    } catch (error) {
+        logger.warn('获取友链 RSS 失败', {
+            url,
+            message: error instanceof Error ? error.message : String(error),
+        })
         return null
     } finally {
         clearTimeout(timer)

@@ -163,10 +163,7 @@ describe('getFriendLinkFeeds', () => {
         it('parses RSS 2.0 feed with multiple items', async () => {
             mockFind.mockResolvedValue([mockLink()])
             // Mock fetch to return RSS XML
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(rssXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -195,10 +192,7 @@ describe('getFriendLinkFeeds', () => {
 
         it('parses RSS feed with single item (not wrapped in array)', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(rssSingleItemXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssSingleItemXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -211,10 +205,7 @@ describe('getFriendLinkFeeds', () => {
 
         it('parses Atom feed with multiple entries', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(atomXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(atomXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -240,10 +231,7 @@ ${manyItems}
 </channel></rss>`
 
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(largeRssXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(largeRssXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -258,10 +246,7 @@ ${manyItems}
                 { ...mockLink({ id: 'link-2' }), rssUrl: '' },
                 mockLink({ id: 'link-3' }),
             ])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(rssXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -271,10 +256,7 @@ ${manyItems}
 
         it('gracefully handles fetch returning non-ok status', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: false,
-                status: 404,
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 404 }))
 
             const result = await getFriendLinkFeeds()
 
@@ -285,6 +267,18 @@ ${manyItems}
                 JSON.stringify([]),
                 expect.any(Number),
             )
+        })
+
+        it('gracefully skips brotli encoded responses', async () => {
+            mockFind.mockResolvedValue([mockLink()])
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssXml, {
+                headers: { 'content-encoding': 'br' },
+            }))
+
+            const result = await getFriendLinkFeeds()
+
+            expect(result).toEqual([])
+            expect(mockLoggerWarn).toHaveBeenCalled()
         })
 
         it('gracefully handles fetch throwing network error (fetchXml catches internally)', async () => {
@@ -299,10 +293,7 @@ ${manyItems}
 
         it('gracefully handles empty XML response', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve('<empty/>'),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<empty/>'))
 
             const result = await getFriendLinkFeeds()
 
@@ -321,10 +312,7 @@ ${manyItems}
                 if ((url as unknown as string).includes('bad')) {
                     return Promise.reject(new Error('Bad link'))
                 }
-                return Promise.resolve({
-                    ok: true,
-                    text: () => Promise.resolve(rssXml),
-                } as Response)
+                return Promise.resolve(new Response(rssXml))
             })
 
             const result = await getFriendLinkFeeds()
@@ -339,10 +327,7 @@ ${manyItems}
     describe('sorting', () => {
         it('sorts results by publishedAt descending', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(rssXml), // Post One: 02 Jun, Post Two: 01 Jun
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssXml)) // Post One: 02 Jun, Post Two: 01 Jun
 
             const result = await getFriendLinkFeeds()
 
@@ -379,10 +364,7 @@ ${manyItems}
 </rss>`
 
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(noDateXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(noDateXml))
 
             const result = await getFriendLinkFeeds()
 
@@ -394,10 +376,7 @@ ${manyItems}
     describe('caching', () => {
         it('caches aggregated result after successful fetch', async () => {
             mockFind.mockResolvedValue([mockLink()])
-            vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-                ok: true,
-                text: () => Promise.resolve(rssXml),
-            } as Response)
+            vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(rssXml))
 
             await getFriendLinkFeeds()
 

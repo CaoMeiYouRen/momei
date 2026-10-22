@@ -153,8 +153,8 @@ describe('friendLinkService.runHealthCheck 分支', () => {
         queryBuilder.getMany.mockResolvedValue([createCandidate()])
 
         const fetchMock = vi.fn()
-            .mockResolvedValueOnce({ ok: false, status: 403 })
-            .mockResolvedValueOnce({ ok: true, status: 200 })
+            .mockResolvedValueOnce(new Response(null, { status: 403 }))
+            .mockResolvedValueOnce(new Response('ok', { status: 200 }))
         vi.stubGlobal('fetch', fetchMock)
 
         const checked = await friendLinkService.runHealthCheck()
@@ -174,8 +174,8 @@ describe('friendLinkService.runHealthCheck 分支', () => {
         queryBuilder.getMany.mockResolvedValue([createCandidate()])
 
         const fetchMock = vi.fn()
-            .mockResolvedValueOnce({ ok: false, status: 405 })
-            .mockResolvedValueOnce({ ok: false, status: 500 })
+            .mockResolvedValueOnce(new Response(null, { status: 405 }))
+            .mockResolvedValueOnce(new Response(null, { status: 500 }))
         vi.stubGlobal('fetch', fetchMock)
 
         await friendLinkService.runHealthCheck()
@@ -187,6 +187,24 @@ describe('friendLinkService.runHealthCheck 分支', () => {
         expect(saved.lastHttpStatus).toBe(500)
         expect(saved.lastErrorMessage).toBe('HTTP 500')
         expect(saved.consecutiveFailures).toBe(1)
+    })
+
+    it('GET 回退遇到 Brotli 响应时记录为不可达', async () => {
+        queryBuilder.getMany.mockResolvedValue([createCandidate()])
+
+        const fetchMock = vi.fn()
+            .mockResolvedValueOnce(new Response(null, { status: 403 }))
+            .mockResolvedValueOnce(new Response('feed', { headers: { 'content-encoding': 'br' } }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        await friendLinkService.runHealthCheck()
+
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+
+        const saved = friendLinkRepo.save.mock.calls[0]?.[0] as FriendLink
+        expect(saved.healthStatus).toBe(FriendLinkHealthStatus.UNREACHABLE)
+        expect(saved.lastHttpStatus).toBeNull()
+        expect(saved.lastErrorMessage).toContain('Brotli')
     })
 
     it('非 403/405 的失败响应不触发 GET 重试', async () => {
