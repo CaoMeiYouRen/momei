@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-25
+last_sync: 2026-10-17
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -282,6 +282,7 @@ Docs are built with VitePress; config lives in `docs/.vitepress/config.ts`.
 - **Rewrites**: after moving translated pages to `docs/i18n/<locale>/`, maintain rewrites so external URLs stay `/<locale>/...`.
 - **Edit link**: `editLink` must point to the real source file so "Edit this page" never falls back to old directories.
 - **Duplicate-page blocking**: run `pnpm docs:check:i18n` before every docs build; clean up any legacy `docs/<locale>/` recurrence or dual translation sources before continuing.
+- **Marker integrity blocking check**: run `pnpm docs:check:markers` before every docs build; an unclosed block-level `<!--` (including the blockquote / list-prefixed form) is read by VitePress as a Vue SFC syntax error and aborts the build with `Unexpected EOF in comment`, while `lint-md`, link checks, and line-count checks do not cover this surface.
 
 ## 8. AI Synergy
 
