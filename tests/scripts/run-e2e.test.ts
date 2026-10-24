@@ -143,6 +143,53 @@ describe('run-e2e', () => {
         }
     })
 
+    it('ignores directories created at the repo root after the build when they are excluded', async () => {
+        const tempRepoRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-run-e2e-root-dir-mtime-'))
+        const outputPath = path.join(tempRepoRoot, '.output', 'server', 'index.mjs')
+        const reportPath = path.join(tempRepoRoot, 'playwright-report', 'visual', 'index.html')
+
+        await mkdir(path.dirname(outputPath), { recursive: true })
+        await writeFile(outputPath, 'export default {}\n', 'utf8')
+        await utimes(outputPath, new Date('2026-06-07T00:00:00.000Z'), new Date('2026-06-07T00:00:00.000Z'))
+
+        // 模拟 Playwright 在仓库根新建被忽略的产物目录：根目录自身 mtime 被刷新，
+        // 但没有任何源文件内容变化，因此构建产物仍应视为新鲜。
+        await mkdir(path.dirname(reportPath), { recursive: true })
+        await writeFile(reportPath, '<html></html>\n', 'utf8')
+        await utimes(path.dirname(reportPath), new Date('2026-06-08T00:00:00.000Z'), new Date('2026-06-08T00:00:00.000Z'))
+
+        try {
+            await expect(shouldRebuildOutput({ repoRoot: tempRepoRoot })).resolves.toMatchObject({
+                needsBuild: false,
+                reason: 'build output is fresh',
+            })
+        } finally {
+            await rm(tempRepoRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('keeps subdirectory mtime as a deletion signal while ignoring the repo root mtime', async () => {
+        const tempRepoRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-run-e2e-dir-mtime-'))
+        const outputPath = path.join(tempRepoRoot, '.output', 'server', 'index.mjs')
+        const sourceDir = path.join(tempRepoRoot, 'components')
+
+        await mkdir(path.dirname(outputPath), { recursive: true })
+        await mkdir(sourceDir, { recursive: true })
+        await writeFile(outputPath, 'export default {}\n', 'utf8')
+        await utimes(outputPath, new Date('2026-06-07T00:00:00.000Z'), new Date('2026-06-07T00:00:00.000Z'))
+        await utimes(sourceDir, new Date('2026-06-08T00:00:00.000Z'), new Date('2026-06-08T00:00:00.000Z'))
+
+        try {
+            // 子目录 mtime 仍参与：删除 / 重命名源文件时文件 mtime 不变，只能靠目录项变化捕获。
+            await expect(shouldRebuildOutput({ repoRoot: tempRepoRoot })).resolves.toMatchObject({
+                needsBuild: true,
+                reason: 'source files changed after the last build',
+            })
+        } finally {
+            await rm(tempRepoRoot, { force: true, recursive: true })
+        }
+    })
+
     it('allows forcing rebuild through FORCE_E2E_BUILD', async () => {
         const tempRepoRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-run-e2e-force-build-'))
         const outputPath = path.join(tempRepoRoot, '.output', 'server', 'index.mjs')

@@ -236,6 +236,13 @@ export async function ensurePlaywrightBrowsers(options = {}) {
 
 export async function getLatestMtimeMs(targetPath, options = {}) {
     const ignoredEntries = options.ignoredEntries ?? defaultIgnoredEntries
+    /* 顶层目录自身的 mtime 只反映「目录项增删」。Playwright 在仓库根新建
+     * test-results/、playwright-report/ 等被忽略目录时会刷新根 mtime，若把它
+     * 计入，`shouldRebuildOutput` 会在只跑过浏览器测试后误判「源文件已变更」。
+     * 该开关只排除传入目录自身的 mtime，子目录 mtime 仍参与，用于捕获删除 /
+     * 重命名这类只改变目录项的变更。残留边界：仓库根一级文件的纯删除不再被
+     * 检测（如 nuxt.config.ts），必要时用 FORCE_E2E_BUILD=true 强制重建。 */
+    const ignoreSelfMtime = options.ignoreSelfMtime ?? false
 
     if (!existsSync(targetPath)) {
         return 0
@@ -246,7 +253,7 @@ export async function getLatestMtimeMs(targetPath, options = {}) {
         return targetStat.mtimeMs
     }
 
-    let latestMtimeMs = targetStat.mtimeMs
+    let latestMtimeMs = ignoreSelfMtime ? 0 : targetStat.mtimeMs
     const entries = await readdir(targetPath, { withFileTypes: true })
 
     for (const entry of entries) {
@@ -283,7 +290,7 @@ export async function shouldRebuildOutput(options = {}) {
     }
 
     const outputMtimeMs = (await stat(currentOutputEntry)).mtimeMs
-    const latestInputMtimeMs = await getLatestMtimeMs(currentRepoRoot)
+    const latestInputMtimeMs = await getLatestMtimeMs(currentRepoRoot, { ignoreSelfMtime: true })
 
     if (latestInputMtimeMs > outputMtimeMs) {
         return {
