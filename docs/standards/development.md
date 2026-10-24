@@ -460,6 +460,18 @@ pnpm build
 | 治理脚本引用传递依赖 | pnpm 严格 `node_modules` 下不可直接 `import` 传递依赖（如 `@primevue/metadata`）；回退解析 `node_modules/.pnpm/<pkg>@*/...` 并把结果落成仓库内 JSON（运行期零传递依赖）。 |
 | 校验注入点与加载顺序 | 用 `nuxt/kit` 的 `loadNuxt({ cwd, dev: false, ready: false })` + `nuxt.ready()` 读 `nuxt.options.css` 与 `_installedModules`，比看产物更直接；临时脚本必须放在项目目录内（`/tmp` 下解析不到 `node_modules`），用完即删。 |
 
+### 4.7 依赖与锁文件陷阱（Dependabot / pnpm / CI）
+
+| 陷阱 | 结论 |
+|:---|:---|
+| 精确锁定 ≠ 升级拦截 | Dependabot 仍会对精确值开抬版 PR（本仓实证见 [迁移方案 §3.8](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；此类 PR 只改 `package.json` 与锁文件），绕过「读 `BREAKING CHANGES` + 重跑回归」的纪律；在飞依赖须配 `.github/dependabot.yml` 的 `ignore` 或改走人工升级。 |
+| 区间 override 不收敛 | `"pkg": "~4.6.0"` 之类区间 override 不会把已并存的多个补丁位收敛成一个，`pnpm install --lockfile-only` 复用陈旧解析、产物逐字节不变；lockstep 类 override 一律写精确值。 |
+| CONFLICTING PR 不跑 CI | 有冲突的 PR 无法生成 merge ref，`pull_request` 工作流完全不触发（表现为「CI 没跑」）；且 `pull_request` 校验的是 merge commit，master 的坏状态会污染所有 PR——排查先确认 master 自身是否绿。 |
+| base 锁文件损坏 | master 锁文件不可解析会让 Dependabot 整体停摆（评论 `can't parse your pnpm-lock.yaml`），修好即恢复；「依赖 PR 全部冲突且不更新」优先怀疑此项。 |
+| 镜像源解析不到新版本 | 本地源为 npmmirror 时重解析刚发布的版本会 `ERR_PNPM_NO_MATCHING_VERSION`；锁文件重解析类操作统一加 `--registry=https://registry.npmjs.org/`。 |
+| 误用 `--ignore-scripts` | 它会连 `pnpm-workspace.yaml` 的 `allowBuilds`（`better-sqlite3` / `sharp` / `esbuild` 等）一并禁用，造成原生模块缺失且隐藏根因；用显式占位配置替代。 |
+| 多段提交信息的换行 | shell 双引号内的 `\n` 不会转义（bash 只在 `$'...'` 中解释），会写入字面 `\n`；用 `git commit -F <file>` 或 heredoc。 |
+
 ## 5. 安全规范 （Security）
 
 - **XSS 防护**:

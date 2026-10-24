@@ -11,6 +11,7 @@
 ## 2. 入口说明
 
 - 新归档入口应优先放入本目录下的模块 / 日期分片。
+- 2026-10-16 至 2026-10-22 第六十八阶段收口窗口 5 条记录——条目 3 首路由批次（categories + tags）/ 第二批次（ai）/ 第三批次（marketing）、文档标记完整性修复与门禁补强、条目 4 覆盖率治理第九批（2026-10-24 第十三次自 `current.md` 滚动归档，为阶段归档清空活动窗口；无外部窗口节名引用，引用方均为文档通用入口）: [2026-10-16-to-2026-10-22-phase68-close.md](./2026-10-16-to-2026-10-22-phase68-close.md)
 - 2026-09-26 第六十八阶段条目 1（`caomei-ui` 升级到 `0.3.0` 与基线复测：升级记录 / `BREAKING CHANGES` 阅读 / `keyCss` 复测口径 / 组件消费清单重数；2026-10-16 第十次自 `current.md` 滚动归档，并同步改写 2 处节名锚点——迁移方案 1 处、`.github/perf/bundle-baseline.json` 1 处）: [2026-09-26-phase68-item1-upgrade-030.md](./2026-09-26-phase68-item1-upgrade-030.md)
 - 2026-10-13 第六十八阶段 `caomei-ui@0.6.0` 版本漂移收口（`BREAKING CHANGES` 补读 / 组件清单 0.6.0 重数 / 三层视觉回归与包体复测 / 基线状态显式记录；2026-10-22 第十二次自 `current.md` 滚动归档，并同步改写 3 个文件共 5 处窗口节名引用——`todo.md` 1 处、上游反馈清单 1 处、迁移方案 3 处）: [2026-10-13-phase68-caomei-drift-060.md](./2026-10-13-phase68-caomei-drift-060.md)
 - 2026-10-13 workflow pre-check（test，自动化回填的非阶段记录；2026-10-16 第九次自 `current.md` 滚动归档，为组件型目标批次窗口腾出 `line-count` 余量，无外部节名锚点引用）: [2026-10-13-workflow-precheck.md](./2026-10-13-workflow-precheck.md)

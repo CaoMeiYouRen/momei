@@ -248,6 +248,9 @@
 | 归档一致性 | 归档前确认 `docs/plan/archive/` 的 roadmap 分片与 todo-archive 分片覆盖区间匹配；压缩已完成阶段正文前必须先创建归档分片（可从 git HEAD 恢复原文），禁止未建分片直接丢弃阶段详情。 |
 | 长文本替换 | 用「截断的 oldString」做替换会把原行残余拼成重复句；`lint-md` 与 i18n 检查都检测不到句内重复，替换后必须回读该行。 |
 | 新增型路径也要查存在性 | 写「新增」文件前先 `git log --oneline -- <path>` / `git status` 确认该路径未被跟踪；改写既有测试必须先用 `git show HEAD:<path>` 取回原文，逐条核对覆盖面后再改写。 |
+| 归档分片的相对链接深度 | 正文迁入 `docs/plan/archive/` 或 `docs/reports/regression/archive/` 后，原相对链接必须整体 +1 级（`../design/` → `../../design/`）；`docs:check:links` 的 `EXCLUDED_DIRS` 显式包含 `archive`，不会替你发现失效指针。 |
+| 滚动归档残行与引用 | 整块迁出后必须检查孤立 `-->` 尾行（VitePress 会渲染成正文，`docs:check:markers` 兜底）与全仓「窗口节名 / 节名短语」引用；引用改写与窗口迁移一并执行。 |
+| 新增文档门禁的扫描面 | 新写的文档检查必须显式包含 `archive`（`docs:check:markers` 已按此口径），否则归档产物长期处于门禁盲区；`lint-md` / line-count / links / i18n 四道检查都不校验注释完整性。 |
 
 ## 6. 事实源收敛机制 (Source of Truth Convergence)
 

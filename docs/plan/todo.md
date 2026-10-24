@@ -15,57 +15,12 @@
 
 ---
 
-## 第六十八阶段：PrimeVue → caomei-ui 迁移（二）——0.3.0 基线复测与 B2 数据页全量
+## 当前阶段
 
-> 阶段规划详情与 ROI 见 [项目计划](./roadmap.md)。
-> 迁移方案事实源见 [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
-> backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 10 条（UI 组件库迁移）与第 1 条（测试覆盖率）。
+第六十八阶段已归档（详见 [待办事项归档](./todo-archive.md)），当前**无进行中的阶段**。
 
-**时间表**: 2026-09-26 ~ 待定（按里程碑滚动，不预设结束日）
-
-**准入前置（已核对 2026-09-26；2026-10-13 更新）**: 第六十七阶段已审计归档、`todo.md` 无残留；`caomei-ui@0.3.0` 已于 2026-09-24 发布且无 `BREAKING CHANGES`（立项时目标基线），**实际执行基线与当前锁定版本于 2026-10-13 对齐为 `caomei-ui@0.6.0`**（漂移收口见条目 1 补记）；共享壳过渡组件替换清单与上游反馈清单已产出（其中 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合）；阶段构成（构成方案 A：基线复测 + B2 剩余 + 覆盖率第九批，B3 与浮层留待第六十九阶段）经用户确认。
-
-- [x] **1. caomei-ui 0.3.0 升级与基线复测（P1）**
-    - **执行范围（立项时口径 2026-09-26）**: `caomei-ui` 由 `0.2.0` 精确锁定升级到 `0.3.0`（保持精确锁定、不加 `^`）；升级前先读 `0.3.0` 的 `BREAKING CHANGES` 并留阅读记录（已知无破坏性变更，仍不得静默升级）；重跑视觉回归（`pnpm test:visual`）与定向测试（路由迁移守卫单测、试点页 `/admin/comments` 相关单测 / E2E）；重测 `keyCss` 并按需刷新 `.github/perf/bundle-baseline.json`（数值变更须脚本 `BUDGETS` / 基线 JSON / [性能规范](../standards/performance.md) 三处联动）；澄清基线口径——「零 caomei 组件消费」表述与 B2 试点页已消费 5 个组件的事实冲突，按实测口径改写；组件消费清单按 `0.3.0` 口径重数。
-    - **非目标**: 不迁移新页面；不连带其他依赖升级；不改动包体其他阈值。
-    - **最小验收（立项时口径 2026-09-26）**: `package.json` / `pnpm-lock.yaml` 中 `caomei-ui` 为 `0.3.0` 精确锁定且无 `file:` 形态；视觉回归与定向测试通过并在回归记录留痕；`keyCss` 实测值与基线 JSON 一致、口径表述已修正；`pnpm test:perf:budget` 不越线；`pnpm typecheck` + `pnpm lint` 通过。
-    - **证据落点**: `BREAKING CHANGES` 阅读结论、升级记录、`keyCss` 复测数据写入 [回归记录](../reports/regression/current.md)；基线 JSON 与口径表述修正落对应文件。
-    - **漂移收口（2026-10-13 补记，条目实际收口结论以本条为准）**: 本项完成后 `caomei-ui` 经 Dependabot 单包路径静默抬版至 `0.6.0`（`0.3.0 → 0.5.0 → 0.6.0`，只改 `package.json` / 锁文件，未留阅读记录与复测）。已按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、组件清单 `0.6.0` 口径重数（81 项）、三层视觉回归（10/10 零像素差异）与包体复测（`keyCss` 61,311 B / 70KB，未越线），并同步迁移方案 §3.5 / §3.8 / §5.1 / §5.5 / §5.6 / §8.4.1 与上游反馈清单。**与上面「立项时口径」验收行的差异**：实际锁定版本为 `0.6.0`，且 `keyCss` 不再与基线 JSON 一致（实测 61,311 B，基线沿用 0.3.0 批次的 60,896 B）——该差异已显式记录，基线保留待 B2 / B4 重取，不以刷新基线掩盖。本批为纯文档收口、无代码改动；升级纪律补强（收尾前为 `caomei-ui` 配置 Dependabot `ignore`）登记为迁移主线收尾必办项。证据见 [回归记录归档分片](../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)。
-
-- [x] **2. B2 剩余数据页迁移（一）：`pages/admin` 数据列表页（P1）**
-    - **执行范围**: 按路由整体切换迁移 `pages/admin/posts`、`users`、`friend-links`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance` 共 10 个数据列表路由；新增共享壳过渡组件 `AppAvatarV2`（users / subscribers 用）与 `AppUploaderV2`（friend-links 用），按迁移方案 §5.5 过渡策略以路由择库实现；`pages/admin/posts` 的 3 个跨路由共享组件按 §5.5 处置——`post-audit-badge` 的在册族依赖（`Tag`）以过渡组件 + 路由择库隔离，`post-audit-dialog` / `publish-push-dialog` 属浮层显式豁免、维持 PrimeVue 至第六十九阶段；`users` 路由自有组件族（filters / role-dialog / ban-dialog / sessions-drawer）随该路由迁移；各路由登记 `CAOMEI_UI_ROUTE_PREFIXES` 并扩面 `tests/modules/ui-library-route-migration-guard.test.ts` 守卫；同步改写相关测试与 mock。
-    - **非目标**: 不迁移 `/admin/posts/[id]` 编辑器路由；不做 settings 族组件（随 B3）；不处理浮层类（Dialog / Drawer / Popover / DropdownMenu / `ConfirmDeleteDialog` / `useConfirm` / `v-tooltip`，留第六十九阶段）；不做图标全量替换；不卸载 PrimeVue。
-    - **最小验收**: 各路由「批次在册组件族」零残留守卫通过且至少使用一个 caomei-ui 组件；共享壳按过渡组件路由择库口径无混用；逐页功能回归通过（排序 / 分页 / 选择 / 列插槽）；三层视觉回归通过且截图差异逐项归因（不属于迁移方案 §6.3 有意差异者不得静默出现）；`pnpm typecheck` + `pnpm lint` + `pnpm lint:css` 通过；定向单测与相关 E2E 通过。
-    - **证据落点**: 「文件 → 改动点 → 依据指针」清单（含过渡组件路由择库登记）；视觉回归归因记录写入回归记录。
-    - **进度（2026-10-14，第十路由落地前的历史快照；收口结论见下）**: 本条目 10 条数据列表路由中已迁移 **9 条**——`/admin/submissions`（首路由，含 `pageIndexBase` 契约与守卫加固）、`/admin/external-links`（客户端分页形态）、`/admin/waitlist`（懒加载服务端分页 + 守卫扣除显式非 PrimeVue 值导入的假阳性加固）、`/admin/ad/campaigns`（行内编辑弹窗形态 + 守卫页面文件解析扩展到**同名文件形态** `pages/<prefix>.vue`，在册族补入 `Dropdown`）、`/admin/ad/placements`（启停切换形态 + 补齐切换按钮可访问名，五语种同步 2 键）、`/admin/migrations/link-governance`（懒加载服务端分页 + 详情浮层 + 执行表单；含**页码基准切换**与一处 `--caomei-select-max-width` 几何回归修复；本路由为当前差异最大者，已在回归记录给出三段归因与 9 带允许清单）、`/admin/subscribers`（**首个采用共享壳过渡组件 `AppAvatarV2` 的路由**；含 `p-datatable-sm` 移除与状态 Tag 可点击类改造）、`/admin/users`（**首个接线服务端排序、且首个参考态含数据行的路由**；自带组件族 filters / role-dialog / ban-dialog / sessions-drawer 随路由迁移；含哨兵值承载「全部 / 永不过期」、`Select` 包装元素宽度口径、共享 composable 排序载荷归一）、`/admin/friend-links`（**首个消费共享壳过渡组件 `AppUploaderV2` 的路由**；含 3 个表格 / 21 列的大页面迁移、语义色口径由 composable 统一改为 caomei `tone` 词表）；每条路由的 parity 门禁允许清单按实测校准且未归因差异为 0。（`/admin/comments` 属第六十七阶段 M4 试点，不在本条目 10 条内；故本条目已迁移 9 条时 `CAOMEI_UI_ROUTE_PREFIXES` 实为 10 项。）最后 1 条（`posts`）的**共享壳过渡组件基建已落地**（2026-10-15）：`AppAvatarV2`（subscribers / users）、`AppUploaderV2`（friend-links）、posts 三件套（`PostAuditBadgeV2` / `PostAuditDialogV2` / `PublishPushDialogV2`）共 5 个过渡组件 + 2 个共享 composable + 结构守卫，依据与验证见 [回归记录归档分片](../reports/regression/archive/2026-10-14-to-2026-10-15-phase68-b2-batch3.md) 过渡组件基建节与迁移方案 §5.5。故剩余 1 条路由（`posts`）现已可推进；**执行 `posts` 批次时须显式核对**：`pages/admin/posts/index.vue` 改用三件套 V2，而 `pages/admin/posts/[id].vue` 必须继续使用 V1（守卫不检查消费处的选择）。
-    - **收口（2026-10-16）**: 本条目 10 条数据列表路由**全部迁移完成**。第十路由 `/admin/posts` 为在册族**组件名最多**（10 个组件名 / 31 处开口标签）且**唯一含行多选**的路由，并带来三项「首次」：首个消费 `CaomeiSwitch`、首个使用 `selection-mode="multiple"` + `frozen: 'right'`、首个以 `headerStyle` / `bodyStyle` 镜像 PrimeVue `Column` 的 `style` / `class`（实测其同时落 `th` / `td`）；连带按路由自有口径迁移 `post-media-preview-cell.vue` 的 `Button`（`Image` 属展示容器，维持 PrimeVue 至 B4）。状态 Tag 的 `severity` → `tone` 转换放在页面本地而非共享 helper（后者同时服务编辑器路由且有单测锁定 PrimeVue 词表）。本批另沉淀上游反馈 §2.7（`DataTable` 无列最小宽契约、选择列宽度不可配置）与迁移方案 §6.2 **执行提示**（字段宽度钩子 / 列定义 / 可见文案三条），后者闭合了第九路由批次登记的「口径写入 §6.2」待办。`CAOMEI_UI_ROUTE_PREFIXES` 至此共 **11 项**（含第六十七阶段 M4 试点 `/admin/comments`）；parity 门禁 `PENDING_ROUTES` **清空**，三件套过渡组件已切换到消费 V2（`/admin/posts/[id]` 是唯一剩余 V1 消费者）。证据见 [回归记录归档分片](../reports/regression/archive/2026-10-16-phase68-b2-friend-links-and-posts.md) 的第十路由节与 [偏差处置表](../design/governance/visual-parity-deviation-register.md)。
-    - **批次内发现的跨批遗留（2026-10-14，B 类插队）**: `CaomeiButton` 的 `label` 仅映射 `aria-label`、可见文案须落默认插槽；`/admin/external-links` 头部与弹窗页脚、`/admin/submissions` 审核弹窗页脚在先前批次丢失了可见文案。插队原因：属**明确功能回归**（管理员可见文案消失，却被 parity 允许清单当作「组件替换」吸收），非优化项；经用户 2026-10-14 裁定作为**独立 fix 提交**处置（不在本条目 2 的迁移批次内落地）。**已修复**（2026-10-14 独立 fix 提交）：两页非 icon-only 按钮改为默认插槽渲染，外链页允许清单由浅 8992 / 深 11597 重校准为浅 7931 / 深 10529，基线层 2 张快照刷新；连带修复 `/admin/submissions` 的 `openReview` 内 `useI18n()` 抛错（审核弹窗打不开）。证据见 [回归记录归档分片](../reports/regression/archive/2026-10-14-phase68-b2-batch2.md) 第六十八阶段 `CaomeiButton` 可见文案回归修复节与 [偏差处置表](../design/governance/visual-parity-deviation-register.md)。
-
-- [x] **3. B2 剩余数据页迁移（二）：组件型目标与 host 路由（P1）**
-    - **执行范围**: `components/admin/admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）、`components/admin/ai/task-list.vue`（host `/admin/ai`）、`components/admin/marketing-campaign-list.vue`（host `/admin/marketing`）随各自 host 路由整路由迁移；若目标页涉及试点在册清单外的组件族（如 `Tabs`），先在迁移方案 §5.5 在册清单登记并同步守卫口径后方可迁移；含路由登记、守卫扩面、相关测试与 mock 改写。
-    - **完成（2026-10-16 第三批次 / 收尾）**: 三目标全部完成——**`/admin/marketing` 已迁移**：页头创建按钮 1 处、推送历史列表 14 处 / 4 名、表单 5 处 / 3 名（合计在册族 **20 处 / 6 名**，**无路由级增量**）；`Card` / `Dialog`（浮层豁免 + B4）与 `RadioButton` / `MultiSelect` / `DatePicker`（B3 / B4）维持 PrimeVue。同批落地两项机制：① 门禁层 `selectTab` → **`activate` 泛化**（可激活页签或按钮 + `expect` 就绪锚点）——首个**弹窗内**迁移面的逐像素对照面；② 守卫扫描口径修正（`stripNonTemplateBlocks` 剥离脚本 / 样式块，消除 TS 泛型实参假阳性，两守卫共用）。另：`/admin/marketing` 是「caomei `DataTable` 无 `#header` 插槽」第 2 个使用者（上游反馈 §2.8）。契约用例 25 条（列表 11 / 表单 8 / 页面 6），门禁 34/34，管理端 E2E 7 用例。
-    - **进度（2026-10-16 第二批次）**: 三目标中的 **`ai/task-list.vue`（host `/admin/ai`）已完成**——任务列表 27 处 / 9 个组件名、页面 `Tabs` 族 7 处 / 5 名（路由级增量）、统计卡片 `Tag` 7 处全部迁移；同批落地**子路由例外机制**（`primeVueSubRoutes`，首个真实使用者 `/admin/ai/tasks/[id].vue`，并回溯登记 `/admin/posts/[id].vue`）与门禁层**同路由第二对照面**（`selectTab`：默认「使用统计」+ 激活「任务记录」）。`task-detail-content.vue` 因与豁免子路由共享而延后（已登记 backlog）。剩余 1 个目标（`marketing-campaign-list.vue` → `/admin/marketing`）待后续批次。
-    - **进度（2026-10-16 首路由批次）**: 三目标中的 **`admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）已完成**——在册族 39 处 / 18 个组件名全部迁移，并按用户裁定把 `Tabs` 族 / `InputGroup` / `Checkbox` / `Textarea` 四族以**路由级在册族增量**登记进 §5.5（`CAOMEI_UI_ROUTE_SCOPES[].inScopeComponents`），弹窗本体因浮层豁免维持 PrimeVue。本批同时落地「守卫扩面」：路由范围条目新增 `ownedFiles`（薄包装页的实体文件并入扫描面），两条登记的路由前缀与路由自有文件均由守卫覆盖。剩余 2 个目标（`ai/task-list.vue` → `/admin/ai`、`marketing-campaign-list.vue` → `/admin/marketing`）待后续批次；`/admin/ai` 批次须显式处置其子路由 `/admin/ai/tasks/[id]`（维持 PrimeVue + 补结构守卫例外登记，经用户 2026-10-16 裁定）。
-    - **非目标**: 同条目 2 的浮层 / settings / 图标 / 卸载豁免；不迁移 host 路由之外的页面。
-    - **最小验收**: 同条目 2（在册族零残留守卫、无混用、三层回归差异逐项归因、质量门通过）。
-    - **证据落点**: 「文件 → 改动点 → 依据指针」清单；视觉回归归因记录。
-
-- [x] **4. 测试覆盖率治理第九批（P2）**
-    - **执行范围**: 从 `server/services/` 低覆盖模块中选 3-5 个补测（优先候选：`friend-link.ts` 73.06%、`notification.ts` 70.10%、`post-distribution.ts` 75.31%、`upload.ts` 74.85%；`ai/task-detail.ts` 28.57% 与 `external-feed/cache.ts` 50.00% 经缺口报告标记低收益 / 排除（体量过小），仅在优先候选不足 3-5 个时作为边界候选评估），失败 / 边界断言优先，不做低价值铺量。
-    - **非目标**: 不追求全仓 `90%+` 一步到位；不为覆盖率重构被测模块。
-    - **最小验收**: 目标模块覆盖率显著提升（各 +15pp 以上或达 85%+）；全仓 Statements 以 `80.63%` 为基线目标提升 ≥1pp，未达 ≥1pp 时显式记录原因并转长期治理；新增用例含失败 / 边界断言；`pnpm typecheck` + `pnpm lint` + 定向 `pnpm test` 通过。
-    - **证据落点**: coverage 数值与模块清单写入回归记录；backlog 长期主线第 1 条基线随阶段归档同步。
-    - **完成（2026-10-22）**: 4 个候选模块全部补测（新增 6 个测试文件 / 116 例，既有 `friend-link.test.ts` 补 6 例，共 122 例），模块 Statements：`friend-link` 73.06% → **99.26%**（+26.20pp）、`notification` 70.10% → **98.45%**（+28.35pp）、`post-distribution` 75.32% → **91.91%**（+16.59pp）、`upload` 75.45% → **98.80%**（+23.35pp），**4/4 达成「+15pp 或 ≥85%」**。全仓 Statements 80.45% → **81.04%**（+0.59pp）、Branches 69.81% → 70.83%、Lines 80.54% → 81.15%；**全仓 +1pp 未达成**，原因已显式记录：4 个候选合计仅 866 条语句（全仓 34,857 的 2.48%），即使 100% 闭合约 +0.66pp，结构上无法达到 +1pp；本批实际达成 +0.59pp ≈ 该上限的 89%，余额按验收条款转长期主线 #1。基线取本批开始前实测（`upload` 75.45% / `post-distribution` 75.32%，与上面的立项口径 74.85% / 75.31% 分别差 0.60pp / 0.01pp，属来源差异，以实测为准）。验证：全量 `pnpm test` **5012 passed / 1 skipped（566 文件）**、`test:coverage` EXIT 0；`pnpm typecheck` / `pnpm lint` / `pnpm lint:css` 通过。附带观察：本批测试暴露 `friend-link` 的 name/url 归一化被 `assignDefined` 覆盖的既有缺陷，已登记 backlog 待跟踪（不在本批修复）。证据见 [回归记录](../reports/regression/current.md) 第六十八阶段条目 4 窗口。
-
-**回滚边界**:
-
-- 条目 1：版本锁定回退 `0.2.0` 并还原 `pnpm-lock.yaml` 与基线 JSON 即可，无业务代码改动。
-- 条目 2 / 3：逐路由独立回滚——路由前缀从 `CAOMEI_UI_ROUTE_PREFIXES` 移除并 `git revert` 该路由改动即可切回 PrimeVue；过渡组件随其消费者路由同进退。
-- 条目 4：测试文件独立可删，不影响业务代码。
-
-**长期主线容量说明**: 迁移主线占阶段主要容量；仅上收测试覆盖率第 1 条一个治理切片。结构复用 / 国际化 / 注释治理 / Postgres 等主线本期不上收新切片，由 `pnpm regression:weekly` 保持不回退；周期性回归发现的问题按 backlog 漂移路由规则回灌对应主线。
-
-**风险提示**: `0.x` 版本不承诺语义化兼容，`0.3.0` 升级后必须重跑该批回归并留痕（迁移方案 §5.6）；B2 批量路由迁移存在共享壳混用风险（`AppAvatar` / `AppUploader` 消费者跨路由），过渡组件必须按路由择库；上游 caomei-ui 已知能力缺口（见 [上游反馈清单](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)）可能在剩余数据页复现，命中时按清单既有处置口径执行并回灌上游；`pages/admin/posts` 迁移存在波及 `/admin/posts/[id]` 的被动混用风险，须按 §5.5 过渡策略隔离。
+- 下一阶段尚未立项：新需求与候选先进入 [backlog.md](./backlog.md)，待完成阶段准入评估后再提取到本文件（见 [项目规划规范 §4.5 Step 7](../standards/planning.md)）。
+- 本文件在阶段正式立项前不预置任何待办条目。
 
 ---
 

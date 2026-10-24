@@ -35,6 +35,12 @@
 -   小模块先行（category → parser → aggregator），大模块殿后（tts → text）；每模块写完立即定向跑 + 定向 coverage 验证数字，避免最后一次性排错。
 -   用 `it.each` 批量覆盖同构降级分支（如"provider 无 chat"），降低审计对"低价值铺量"的疑虑。
 -   覆盖率基线以 `pnpm test:coverage` 输出或 `coverage/coverage-final.json` 为准，禁止拿可能滞后的报告做 ROI 规划（详见 §5.1）。
+-   **立项先算候选池上限**：单批「全仓 +1pp」需候选池语句数接近全仓的 1% 且几近全闭合；池体量不足时按模块级验收（各 `+15pp` 或 `≥85%`）立项，全仓差值必须显式记录结构性原因并转长期主线，禁止用不可达的数字当验收线。
+-   **按绝对未覆盖语句数选模**，不按覆盖率百分比排序：百分比低但体量小的模块（几十条语句）对全仓贡献可忽略。
+-   **分支覆盖率一律用分支路径级计数**（逐 `d.b` 元素计一次），不要用「任一分支命中」口径——后者实测可高估 10pp 以上，数字类审计会逐项复算。
+-   **基线产物先落盘留档**：`vitest --coverage.reportsDirectory=artifacts/x` 仍会清理默认 `coverage/`；跑新批前把 `coverage-final.json` 复制到独立目录并记录数值。
+-   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞。
+-   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
 
 ## 3. 目录结构与命名规范 (Directory Structure & Naming)
 
