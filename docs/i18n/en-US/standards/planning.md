@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-25
+last_sync: 2026-10-24
 translation_tier: summary-sync
 ---
 
@@ -258,6 +258,13 @@ Confirm each item per archive: core items complete or explicitly converted to no
 ### 4.5.1 Backlog dual-track rule update
 
 Closed long-term mainlines must be removed from `docs/plan/backlog.md` entirely (no archive summaries or historical narration). The long-term mainline section keeps only threads that can be sliced across phases repeatedly. After archiving, `todo.md` and `backlog.md` must keep zero residual content for completed or archived items.
+
+### 4.6 Upstream Dependency Release Sync (Documentation-Only Batches)
+
+- **Where the upgrade lands**: register the upgrade as a "pending item" on the relevant backlog long-running line; do not write it into `todo.md` directly. With no active phase, triage it as a Class C item and wait for the phase gate in §4.5 Step 7.
+- **Scope of a documentation-only batch**: only `roadmap.md` / `backlog.md` / `todo.md` and the `docs/i18n/*/plan/roadmap.md` summaries; no architecture or implementation text.
+- **No premature conclusions**: when the bundle baseline note conflicts with measured consumption, mark it "pending re-measurement" instead of writing a conclusion in planning docs. Threshold numbers follow the three-place sync rule in the performance standards; this kind of batch changes pointers, not values.
+- **Upgrade discipline**: an in-flight dependency still goes through "read `BREAKING CHANGES` -> re-count components/abilities -> three-layer regression -> bundle re-measurement"; "it is only a version bump" is not an exemption.
 
 ## 5. Cross-Module Change Evaluation
 

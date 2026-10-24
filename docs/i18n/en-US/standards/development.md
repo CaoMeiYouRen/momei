@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-25
+last_sync: 2026-10-24
 ---
 
 # Momei Development Standards
@@ -191,10 +191,26 @@ Summary of the pitfalls distilled from the caomei-ui integration work:
 - `pnpm install` re-resolves `latest`-specifier transitive deps and creates unrelated lockfile churn; pin back and verify with `--frozen-lockfile`.
 - Verify CSS injection points and load order with `nuxt/kit` `loadNuxt(...)` + `nuxt.options.css` / `_installedModules`.
 - Governance scripts cannot import transitive deps under strict `node_modules` (e.g. `@primevue/metadata`); resolve via `node_modules/.pnpm/<pkg>@*/...` and snapshot results as in-repo JSON.
+- Dockerfile `COPY` order can defeat the `devtools: { enabled: false }` mitigation: if `COPY . /app` comes after `RUN pnpm i`, `nuxt prepare` sees no `nuxt.config.ts` and loads `@nuxt/devtools`, which fails on `simple-git`'s removed default export. Keep two avoidance points (config + a placeholder `nuxt.config.ts` before install) and a static guard.
+- Nitro `node-file-trace` can miss `dist/**` for packages reached via subpath exports (`@primeuix/utils/object`), producing `ERR_MODULE_NOT_FOUND` at runtime only; fix with `nitro.externals.inline`.
+- Sentry v11 removed `sourceMapsUploadOptions`; migrate `enabled: false` to `sourcemaps: { disable: true }` (never `'disable-upload'`, which re-enables hidden sourcemaps and debug ids).
+- `useI18n()` throws `MUST_BE_CALL_SETUP_TOP` outside setup (`vue-i18n@11`); use the destructured `t` / `locale` from setup instead of calling it in handlers.
+- A killed `pnpm test:visual` leaves `node_modules/.cache/nuxt/output-*.lock` and later builds fail with "Another Nuxt build is already running"; probe servers left running make parity/E2E connect to the wrong environment; `pkill -f "<pattern>"` can match and kill the invoking shell itself.
 
-## 7. Code Examples
+## 7. Dependency & Lockfile Pitfalls (Dependabot / pnpm / CI)
 
-### 7.1 Vue Component Template
+- Exact pins do not stop Dependabot bump PRs (it edits `package.json` + lockfile only); in-flight dependencies need a `.github/dependabot.yml` `ignore`.
+- Interval overrides (`~x.y.z`) do not collapse coexisting patch versions; `--lockfile-only` reuses stale resolutions. Use exact versions for lockstep overrides.
+- A conflicting PR cannot produce a merge ref, so `pull_request` workflows never run; PR CI validates the merge commit, so master breakage poisons every PR.
+- An unparseable base lockfile stalls Dependabot entirely; duplicate mapping keys coming from rebased bot lockfiles must be deleted byte-equivalently (never REGENERATE, which bumps version ranges).
+- When mirror registries cannot resolve a fresh release, re-resolve lockfiles with `--registry=https://registry.npmjs.org/`.
+- `--ignore-scripts` bypasses the `allowBuilds` contract and breaks native modules; prefer explicit placeholder config.
+- When `typecheck` fails after a lockfile repair, check whether the failing package was bumped (e.g. a dependency that removed an export); a passing `--frozen-lockfile` typecheck proves the drift is in the lockfile, not the code.
+- Multi-paragraph commit messages: see `docs/standards/git.md` §5 (`git commit -F <file>`).
+
+## 8. Code Examples
+
+### 8.1 Vue Component Template
 
 ```vue
 <template>
@@ -238,7 +254,7 @@ defineProps<{
 </style>
 ```
 
-### 7.2 API Route Template
+### 8.2 API Route Template
 
 ```typescript
 // server/api/posts.get.ts

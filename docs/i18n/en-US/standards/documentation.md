@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-17
+last_sync: 2026-10-24
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -208,6 +208,14 @@ Summary of the pitfalls distilled from the phase-67 archiving work:
 - Before compressing archived phase text, create the archive shard first (recover from git HEAD if needed).
 - Replacing text with a truncated `oldString` can splice duplicated sentences that lint tools cannot detect; re-read the line afterwards.
 - Before creating a "new" file, check `git log --oneline -- <path>` / `git status` to confirm the path is untracked; when rewriting existing tests, recover the original with `git show HEAD:<path>` and verify coverage item by item.
+- Archive shards moved one directory deeper must shift their relative links by one level (`../design/` -> `../../design/`); `docs:check:links` excludes `archive` and will not catch it.
+- VitePress compiles Markdown as a Vue SFC: only a **block-level** `<!--` that runs to EOF breaks the build, so the comment predicate must be calibrated with `markdown-it` + `@vue/compiler-dom` instead of intuition.
+- Wire a new doc gate by tier and declare the tier in `scripts/README.md`: a **build-time gate** needs script + `pnpm` entry + pre-build interception (`docs:build` / `docs:dev` or the matching build workflow) + PR coverage (`test.yml` or the docs build workflow); a **release / periodic gate** may instead be wired through `release:check:full` / `regression:weekly`, whose budgets and triggers differ. Either form must declare its tier and trigger in `scripts/README.md`, so a gate never exists as a script nobody runs.
+- When a figure (test count, component count, snapshot count) changes, grep the same noun across the whole repo and update every occurrence; fixing only one section leaves stale values that audits will reject.
+- Tables broken by a leading blank line render as literal pipe paragraphs that `lint-md` does not catch; verify with `markdown-it` that no `<p>|` paragraphs appear.
+- Numbers must be recomputable: gate ratios, branch percentages and rounding are checked item by item, and line counts always use the `docs:check:line-count` basis (`wc -l` + 1) in a single consistent wording.
+- New regression windows must be inserted before the first `## YYYY-MM-DD` heading (newest-first); a `re.sub(..., count=1)` over a long file hits the first match, so slice by window/section before replacing.
+- Phase summaries must not reuse figures captured at an earlier item's close-out; re-derive from the source of truth, and re-run line-count after the final content edit (merging sections changes totals).
 
 ## 6. Source of Truth Convergence
 

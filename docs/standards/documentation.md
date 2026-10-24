@@ -251,6 +251,14 @@
 | 归档分片的相对链接深度 | 正文迁入 `docs/plan/archive/` 或 `docs/reports/regression/archive/` 后，原相对链接必须整体 +1 级（`../design/` → `../../design/`）；`docs:check:links` 的 `EXCLUDED_DIRS` 显式包含 `archive`，不会替你发现失效指针。 |
 | 滚动归档残行与引用 | 整块迁出后必须检查孤立 `-->` 尾行（VitePress 会渲染成正文，`docs:check:markers` 兜底）与全仓「窗口节名 / 节名短语」引用；引用改写与窗口迁移一并执行。 |
 | 新增文档门禁的扫描面 | 新写的文档检查必须显式包含 `archive`（`docs:check:markers` 已按此口径），否则归档产物长期处于门禁盲区；`lint-md` / line-count / links / i18n 四道检查都不校验注释完整性。 |
+| 回归窗口的插入位置 | 新窗口必须插在**首个 `## YYYY-MM-DD` 标题之前**（newest-first，与 `scripts/shared/regression-window.mjs` 的定位规则一致）；手工把它贴在「同阶段父条目」旁边会让后续 `regression:weekly` 自动写入插到顶端，造成时间序错乱。 |
+| 表格插入行被空行截断 | 处置表 / 台账类表格插入新行时，前置空行会把行踢出表格、渲染成字面竖线段落，且 `lint-md` 不拦截。改完用 `markdown-it` 复验两件事：① 不存在以竖线开头的段落（表格未被截断）；② **每行列数与表头一致**（单元格内裸竖线同样会吞列，只查前者会漏报）。 |
+| 同一批次的数字改写 | 用例条数 / 组件处数 / 参考态张数等数字出现在多个文档与多节中时，必须**全仓 grep 同一名词**统一改写；只改正文会留下同文件其它节的旧值，审计按「可复算」直接判 blocker。 |
+| 长文件的正则替换 | 对 `current.md` 这类长文件用 `re.sub(..., count=1)` 会命中**首个**匹配（往往是别的窗口），必须按窗口 / 小节边界切片后再替换。 |
+| VitePress 的注释判据 | md 被当作 Vue SFC 编译，但**只有块级** `<!--`（行首起始，CommonMark HTML block type 2）延续到 EOF 才报 `Unexpected EOF in comment`；合法多行注释、正文中段的行内 `<!--`、缩进代码块与 fenced 内的 `<!--` 均无害。判据必须用 `markdown-it` + `@vue/compiler-dom` 实测校准，凭直觉写「同一行内必须闭合」会引入假阳性并阻断 `docs:build`。 |
+| 新增文档门禁的接线 | 按层级接线，并在 `scripts/README.md` 声明所属层级：**构建期门禁**＝脚本 + `pnpm` 入口 + 构建链前置拦截（`docs:build` / `docs:dev` 或对应构建 workflow）+ PR 覆盖（`test.yml` 或文档构建 workflow）；**发布 / 周期级门禁**＝走 `release:check:full` / `regression:weekly` 等固定入口作等效接线（不强行塞进 `docs:build`，两者的预算与触发点不同）。任一形式都须在 `scripts/README.md` 声明层级与触发点，避免「脚本存在但仍靠人工补跑」。 |
+| 数字的可复算性 | 审计会逐项复算派生比例（如闭环比、分支百分比、舍入口径）；无法从留存产物复算的派生数字宁可不写，改用「实际值 / 理论上限」的相对表述。行数声明一律取 `docs:check:line-count` 口径（= `wc -l` + 1），同一句内不得混用两套口径。 |
+| 终态数字与收口时点 | 阶段摘要里的数字不能沿用**条目收口时点**的值（如路由登记数在后续条目继续增长）；写摘要前回到事实源复算，并在归档改完后做最后一轮 line-count 回写（合并章节会改变总行数）。 |
 
 ## 6. 事实源收敛机制 (Source of Truth Convergence)
 

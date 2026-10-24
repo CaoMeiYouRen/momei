@@ -41,6 +41,7 @@
 -   **基线产物先落盘留档**：`vitest --coverage.reportsDirectory=artifacts/x` 仍会清理默认 `coverage/`；跑新批前把 `coverage-final.json` 复制到独立目录并记录数值。
 -   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞。
 -   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
+-   **新增用例的环境兜底**：涉及模块级连接 Map / `process.env` / fake timers 的用例必须补 `afterEach` 注销与 `useRealTimers` / `unstubAllGlobals`；即使当前 `isolate: true` 掩盖了污染，审计仍会以「前置断言失败会连锁误报」为由记 warning。
 
 ## 3. 目录结构与命名规范 (Directory Structure & Naming)
 
@@ -277,6 +278,8 @@ pnpm run test:coverage
 | 「数据写坏」类假设的快速证伪 | 对同字段发一个过滤查询（如 `?isPinned=true`）；若 `total` 与 UI 现象矛盾，即可判定是读取 / 序列化层问题而非数据问题，省去翻迁移脚本。 |
 | 证伪 E2E flaky | 回到 HEAD 复现：`git stash push` → `pnpm build` → 跑同一 spec（可按浏览器单独跑）→ `git stash pop`；仅「清理环境后重跑通过」不足以排除自身改动。 |
 | 采集迁移前基线 | 改动 `git stash`（不带 `-u`，保留未跟踪的视觉 spec 与基线文件）→ 构建 → `--update-snapshots` → `pop`；恢复后基线文件仍在，即可与迁移后逐项对照。 |
+| 参考态齐备后全量采集 | `capture-visual-reference.mjs` 的保护口径会排除**全部**已存在参考态的用例，HEAD 全量采集因此以 Playwright `No tests found` / exit 1 硬失败；就地采集块须补 `--pass-with-no-tests`（「无待采目标 = 成功」）并用静态守卫钉在函数边界内。 |
+| `Visual Regression` job 的绿灯 | 当该 job 为 `continue-on-error: true` 时（flip 条件见 `.github/workflows/test.yml` 注释与 [视觉一致性门禁](../design/governance/2026-10-13-visual-parity-gate.md)），其 success **不构成**视觉一致证据；判断升级是否改变渲染须用本地真实基线比对（`pnpm test:visual` / `pnpm test:visual:parity`）。 |
 
 ### 7.2 视觉一致性门禁 (Visual Parity Gate)
 
@@ -320,6 +323,25 @@ pnpm run test:coverage
 - 差异算法内联实现（像素级 YIQ 距离，对齐 pixelmatch 口径），**不引入第三方图像依赖**。
 
 溯源与偏差处置表见 [视觉一致性门禁与偏差处置](../design/governance/2026-10-13-visual-parity-gate.md) 与 [偏差处置表](../design/governance/visual-parity-deviation-register.md)。
+
+### 7.3 迁移与守卫测试陷阱
+
+组件库 / 路由批量迁移期沉淀的断言与守卫口径：
+
+| 陷阱 | 结论 |
+|:---|:---|
+| 动态遍历常量的守卫「静默降覆盖」 | 守卫按 `CAOMEI_UI_ROUTE_PREFIXES` 之类常量循环时，删掉某条登记只会**少跑用例**而非变红；迁移批次必须对新增登记项显式加钉（`toContain` + 走默认清单解析）。映射表同理：只断言部分分支时改错其余分支全绿，须按全部枚举值逐档锁定。 |
+| 守卫的「覆盖声明」与实现脱节 | 判定「引用了某函数」直接匹配原始源码时，把导入/调用改成**注释**即可通过（须先 `stripComments`）；枚举只扫 `*-v2.vue` 会静默漏掉 `*-v3.vue` / `pages/**`。每加一层判定都要做一次**注入式负向验证**（把条件取反 → 用例应变红 → 还原）。 |
+| 断言只钉形态 | 契约用例只断言 `tone` / `variant` / `label` 属性会漏掉写路径（发送 / 取消 / 删除 + `confirm.require` 回调）与处理中态（`:loading` + `:disabled`）——这两类才是迁移中最容易静默丢失的部分。 |
+| stub 自造契约 | 测试桩声明库中不存在的 prop（如给无 `value` 的组件加 `value`）会掩盖真实回归；桩必须镜像真实契约，且断言**可见文案**而非仅 data-* 属性。 |
+| 门槛用例不逐条件隔离 | 断言「按钮 disabled」时须先构造「仅满足条件 A」的中间态并断言仍禁用，否则删掉条件 B 的检查用例仍会通过；stub 也要镜像真实组件的 disabled / loading 抑制与 v-model 回写。 |
+| 调用点无断言 | 被调方（composable 的归一逻辑）有测试，不代表页面真的把参数传下去了（如漏传 `pageIndexBase: 1`，而 parity 只截第 1 页、E2E 不翻页 → 全绿）；同批路由应各有一份 `index.test.ts` 钉调用参数。 |
+| 两版并存的等价性 | 用 `describe.each` 把**同一套行为断言**跑 V1 与 V2，比各写一套更能证明可替换性；复刻正文的 V2 再加「内容快照逐项一致」断言，数组字段须加非空锚（否则 `[] == []` 恒等通过）。 |
+| Nuxt 自动导入的 mock | `vi.stubGlobal('useToast' / 'useAdminList' / '$fetch', …)` 对自动导入**无效**（组件解析到真实模块）：composable 用 `vi.mock('@/composables/xxx')`，`useToast` 用 `mockNuxtImport`；`mountSuspended` 的 `global.stubs` 只按组件名生效。 |
+| 组件实例 expose 被选项覆盖 | `defineComponent({ expose: ['focus'], setup(_, { expose }) { expose({ focus }) } })` 中**选项 `expose` 会覆盖运行时 `expose()`**，`:ref` 上方法为 undefined 且无报错；测试桩要暴露方法时只保留 `setup` 内的 `expose(...)`。 |
+| E2E 串行矩阵超时 | 「多路由串行」用例随迁移逐批增长并贴默认 30s 预算，应显式 `test.setTimeout` 把「新增路由」与超时瓶颈解耦；隔离调用下的超时与并行负载下的超时**不同型**，未证伪前按观察项登记并补 HEAD 对照。 |
+| parity 门禁无业务种子 | 门禁环境只播种 settings + posts，列表页多为空态；「未归因 0px」只对空态成立，数据行渲染（Tag / Avatar / 行内按钮）需另补断言。 |
+| 本机全量 E2E | 无外网 / 高负载下公开页 `networkidle` 与 firefox 项目会大面积超时；批次验证统一隔离管理端用例：`pnpm test:e2e --project=chromium tests/e2e/admin.e2e.test.ts`（位置参数直接透传）。 |
 
 ## 8. 提交前检查 (Pre-commit Checks)
 

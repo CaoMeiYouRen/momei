@@ -67,3 +67,13 @@ git worktree add ../momei-feature-search feature/search-improvements
 - **按需切换**：若当前任务明确需要独立验证环境，可优先检查是否已有合适的 Worktree；若不存在，也可以继续在当前仓库内完成，不强制新建 Worktree。
 - **环境隔离**：使用多个工作树时，不同目录的环境配置（如 `.env`）应保持逻辑一致但环境隔离，避免相互干扰。
 - **禁止擅自推送**：AI 代理在 `git commit` 后**不得**自动执行 `git push`。推送仅限用户明确发出"推送""push""推到远端""push to remote"等指令时方可执行。提交完成后应止步于本地 commit，并告知用户等待推送确认。
+
+## 5. 提交钩子与历史改写陷阱
+
+| 陷阱 | 结论 |
+|:---|:---|
+| `lint-staged` 的 `git add` | 钩子会把当时**未暂存**的改动一并 stage（可能把另一批文件或无关脏文件卷进本笔）。拆分提交后必须按 `git show --numstat` **实测落库**回填拆分表，不要按计划口径写；必要时提交前 `git stash push -- <path>` 隔离无关脏文件。 |
+| `lint-md --fix` 顺带 stage | pre-commit 会重排被覆盖的 Markdown 并 stage；若该文件不属于本批，会把无关文档卷进提交。拆分时把含该文档的那一批**先提交**，后续批次的钩子对其即无操作。 |
+| 多段提交信息的换行 | shell 双引号里的 `\n` 不会转义（bash 只在 `$'...'` 中解释），会写入字面 `\n`；一律用 `git commit -F <file>` 或 heredoc。 |
+| 改写已有提交信息 | 用 `git filter-branch --msg-filter` 修正时，range 起点必须取「**最后一个不受影响的提交**」；从更早的祖先起算会连带重写历史，使文档中引用的哈希失效。 |
+| 依赖 PR 的清理顺序 | ① 先修 master 自身红灯（否则 PR CI 结论不可信）→ ② 依赖 PR 走 `@dependabot rebase` + 自动合并 → ③ 人工 PR 最后逐个 rebase 并重解析锁文件。每次合并都会让其余改锁文件的 PR 失效，故人工 PR 不要提前 rebase。 |

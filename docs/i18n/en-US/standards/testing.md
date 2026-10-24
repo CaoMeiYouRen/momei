@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-14
+last_sync: 2026-10-24
 translation_tier: summary-sync
 ---
 
@@ -38,6 +38,10 @@ This document outlines the testing process for the Momei blog to ensure code qua
 -   Tackle small modules first (category → parser → aggregator) and large modules last (tts → text); after each module, immediately run a targeted subset plus a targeted coverage check rather than waiting to debug everything at the end.
 -   Use `it.each` to cover isomorphic fallback branches (e.g. "provider without chat") so audit reviews don't mistake them for "low-value bulk coverage".
 -   The coverage baseline comes from `pnpm test:coverage` output or `coverage/coverage-final.json`; never plan ROI against a possibly-stale report (see §5.1).
+-   Estimate the **candidate-pool ceiling** before planning a batch: a workspace-wide "+1pp" target requires the pool\'s uncovered statements to be close to 1% of the workspace; otherwise set module-level acceptance and record the structural reason.
+-   Pick modules by **absolute uncovered statements**, not by low coverage percentage; count branch coverage per branch path (never "any branch hit", which overstates by 10pp+); persist the baseline `coverage-final.json` (targeted runs still wipe the default `coverage/`).
+-   Prefer a new file over appending to a test file already near the `max-lines` warning; move `node_modules/.vitest-cache` aside before local runs (hot cache causes `@id/virtual:*` module errors that CI never sees).
+-   Tests touching module-level connection maps, `process.env` or fake timers need `afterEach` teardown plus `useRealTimers` / `unstubAllGlobals`; `isolate: true` only masks the pollution.
 
 ## 3. Directory Structure & Naming
 
@@ -194,3 +198,5 @@ Fix tasks follow the "minimal reproduction test → targeted subset → batch fi
 ---
 
 > Sync note (2026-10-14): the Chinese source of truth added **§7.2 Visual Parity Gate** (tiered parity budget, allowlist maintenance, reference-capture flow, CI flip conditions) and fixed a malformed fenced block in §7.1/§7.2 area. Full text remains Chinese-only.
+>
+> Sync note (2026-10-24): the Chinese source of truth added **§7.3 Migration & Guard Test Pitfalls** (silent coverage loss in constant-driven guards, guard claims vs. implementation, stub contracts, per-condition isolation of gate cases, call-site assertions, V1/V2 contract equivalence, auto-import mocking, `expose` overridden by component options, E2E matrix timeouts, parity seed data, isolated admin E2E runs) and added the `--pass-with-no-tests` / `continue-on-error` notes to §7.1; §7.3 also covers asserting shapes only (tone / variant / label) instead of write paths and loading states. Full text remains Chinese-only.

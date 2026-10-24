@@ -459,6 +459,13 @@ pnpm build
 | `pnpm install` churn | 会重解析 specifier 为 `latest` 的传递依赖，造成无关 lockfile 变更；保持提交原子性时手工回退该处，并跑 `--frozen-lockfile` 验证一致性。 |
 | 治理脚本引用传递依赖 | pnpm 严格 `node_modules` 下不可直接 `import` 传递依赖（如 `@primevue/metadata`）；回退解析 `node_modules/.pnpm/<pkg>@*/...` 并把结果落成仓库内 JSON（运行期零传递依赖）。 |
 | 校验注入点与加载顺序 | 用 `nuxt/kit` 的 `loadNuxt({ cwd, dev: false, ready: false })` + `nuxt.ready()` 读 `nuxt.options.css` 与 `_installedModules`，比看产物更直接；临时脚本必须放在项目目录内（`/tmp` 下解析不到 `node_modules`），用完即删。 |
+| Dockerfile 的 `COPY` 顺序 | 根 `postinstall` 是 `nuxt prepare`；若 `COPY . /app` 排在 `RUN pnpm i` 之后，安装时没有 `nuxt.config.ts` → Nuxt 回落默认启用 devtools → 加载 `@nuxt/devtools` 的 `simple-git` 默认导出 → `does not provide an export named 'default'`。修法为**双规避点**：常规路径靠 `nuxt.config.ts` 的 `devtools: { enabled: false }`，Docker 路径在 `RUN pnpm i` 前写入占位 `nuxt.config.ts`，并加静态守卫（`tests/modules/devtools-simple-git-override-guard.test.ts`）。 |
+| Nitro node-file-trace 漏收子路径导出 | 经**子路径导出**访问的包（如 `@primeuix/utils/object`）只被收集到 `package.json`、漏收 `dist/**`，构建成功但产物启动即 `ERR_MODULE_NOT_FOUND`（E2E / 视觉 / Lighthouse 才整片红）；对症手段是 `nitro.externals.inline` 交 bundler 处理，修复前确认无其他消费者依赖被漏收的副本。 |
+| Sentry v11 sourcemaps 迁移 | v11 移除 `sourceMapsUploadOptions`；v10 的 `enabled: false` 等价迁移是 `sourcemaps: { disable: true }`，**不要**改成 `'disable-upload'`（会重新开启 hidden sourcemap 生成与 debug id 注入，属行为变更）。 |
+| `useI18n()` 在 setup 外抛错 | `vue-i18n@11` 在 `getCurrentInstance() === null` 时抛 `MUST_BE_CALL_SETUP_TOP`；在事件处理器 / 异步函数内内联调用会静默失效（表现为点击后无反应）；须使用 setup 顶层解构的 `t` / `locale`。 |
+| Nuxt 构建锁残留 | `pnpm test:visual` 的构建进程被 kill 后会留下 `node_modules/.cache/nuxt/output-*.lock`，下一次 build 报 "Another Nuxt build is already running"；按提示清理 PID 或删除锁文件即可。 |
+| 探针服务未清理 | 手工启动 `.output/server/index.mjs` 做探针后必须显式 kill 并 `ps` 复核，否则后续 parity / E2E 会连到错误环境，表现为 `networkidle` 超时或 401 循环。 |
+| `pkill -f` 匹配自身 | `pkill -f "PORT=3011"` 会匹配到执行该命令的 shell 自身（命令行含同样字符串）并把自己杀掉；停服务应改用更精确的模式（如 `node .output/server/index.mjs`）或按 PID。 |
 
 ### 4.7 依赖与锁文件陷阱（Dependabot / pnpm / CI）
 
@@ -470,7 +477,9 @@ pnpm build
 | base 锁文件损坏 | master 锁文件不可解析会让 Dependabot 整体停摆（评论 `can't parse your pnpm-lock.yaml`），修好即恢复；「依赖 PR 全部冲突且不更新」优先怀疑此项。 |
 | 镜像源解析不到新版本 | 本地源为 npmmirror 时重解析刚发布的版本会 `ERR_PNPM_NO_MATCHING_VERSION`；锁文件重解析类操作统一加 `--registry=https://registry.npmjs.org/`。 |
 | 误用 `--ignore-scripts` | 它会连 `pnpm-workspace.yaml` 的 `allowBuilds`（`better-sqlite3` / `sharp` / `esbuild` 等）一并禁用，造成原生模块缺失且隐藏根因；用显式占位配置替代。 |
-| 多段提交信息的换行 | shell 双引号内的 `\n` 不会转义（bash 只在 `$'...'` 中解释），会写入字面 `\n`；用 `git commit -F <file>` 或 heredoc。 |
+| 多段提交信息的换行 | 统一口径见 [Git 规范 §5](./git.md)（`git commit -F <file>` 或 heredoc，勿用双引号内联 `\n`）。 |
+| lockfile 重复 mapping key | Dependabot 基于旧基线生成的锁文件被 rebase 合并后会残留重复 mapping key（同一包在 `packages` / `snapshots` 各一份），pnpm 报 `ERR_PNPM_BROKEN_LOCKFILE duplicated mapping key`；PR 阶段不暴露，scheduled 工作流首跑才炸。最小修复：逐字节确认重复块等价后删掉多余块（纯删除、零依赖漂移），**禁止 REGENERATE**（会把 `^` 范围整体抬版）。 |
+| typecheck 失败是否源于锁文件漂移 | 先看报错包是否被抬版：lockfile 损坏触发的重新解析可能把某依赖抬到移除了导出符号的版本（如 `genericOAuthClient`），表现为 `TS2305`；`--frozen-lockfile` 下 typecheck 通过即可证明是漂移而非代码问题。 |
 
 ## 5. 安全规范 （Security）
 
