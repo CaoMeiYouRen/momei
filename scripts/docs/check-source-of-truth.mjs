@@ -27,7 +27,7 @@
 import fs from 'fs'
 import path from 'path'
 import process from 'node:process'
-import { execSync } from 'node:child_process'
+import { execFileSync, execSync } from 'node:child_process'
 import { fileURLToPath } from 'url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
@@ -377,10 +377,14 @@ export function getSourceCommitCountSince(sourcePath, lastSyncIso, root = ROOT) 
         return null
     }
     try {
-        const out = execSync(
-            `git log --format="%aI" -- ${JSON.stringify(sourcePath)}`,
-            { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-        )
+        // 用 execFileSync 直接传 argv（不走 shell）：sourcePath 来自文档 frontmatter /
+        // 正文链接，拼进 shell 命令字符串时，路径里的 `$(...)` / 反引号会被执行
+        // （code scanning #37）；同时避免含空格 / 引号的路径被 shell 二次拆词。
+        const out = execFileSync('git', ['log', '--format=%aI', '--', sourcePath], {
+            cwd: root,
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+        })
         let count = 0
         for (const line of out.split('\n')) {
             const isoDate = line.slice(0, 10)

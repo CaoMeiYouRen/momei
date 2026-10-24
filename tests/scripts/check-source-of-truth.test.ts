@@ -1,4 +1,5 @@
 import { execSync as realExecSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -449,3 +450,28 @@ describe('check-source-of-truth / 浅克隆防御', () => {
     })
 })
 
+describe('check-source-of-truth / git 参数注入防御', () => {
+    // code scanning #37：sourcePath 来自 frontmatter.source_origin / 正文链接，
+    // 旧实现把它拼进 shell 命令字符串，路径里的 `$(...)` 会被 shell 执行。
+    // 改为 execFileSync 直接传 argv 后，路径必须按字面量交给 git。
+    it('getSourceCommitCountSince: 含 shell 元字符的源路径按字面量处理，不执行命令替换', async () => {
+        const repoRoot = await createTempRoot()
+        await setupGitRepo(repoRoot)
+
+        const injectedPath = 'docs/guide/$(touch PWNED).md'
+        await writeProjectFile(repoRoot, injectedPath, '# 源文档\n')
+        gitExec(repoRoot, 'add -A')
+        gitExec(repoRoot, 'commit -q -m "initial"', {
+            ...process.env,
+            GIT_AUTHOR_DATE: '2099-12-31T00:00:00',
+            GIT_COMMITTER_DATE: '2099-12-31T00:00:00',
+        })
+
+        const count = getSourceCommitCountSince(injectedPath, '2099-01-01', repoRoot)
+
+        // 字面量路径命中该 commit：shell 展开会把参数改成 `docs/guide/.md`，计数会变 0
+        expect(count).toBe(1)
+        // 命令替换未被执行：仓库根下不应出现注入副作用文件
+        expect(existsSync(join(repoRoot, 'PWNED'))).toBe(false)
+    })
+})
