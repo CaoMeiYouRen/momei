@@ -91,10 +91,10 @@
 
 - **目标**: 消除 PrimeVue 锁定在 MIT 终点版本（4.x）后形成的许可证与维护风险，按已评估方案迁移到许可证可控的 caomei-ui，而不是在依赖升级 PR 中被动决策。
 - **专项设计事实源**: [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；[PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（批次编排、消费路径、视觉验证回归与验收口径）。
-- **状态**: 进行中（方案 A 轨迹为第六十七 ~ 第七十阶段四段；**第六十八阶段（`0.3.0` 基线复测 + B2 剩余数据页全量）已审计归档**，下一阶段为 B3 + 浮层类，待阶段准入评估；当前锁定目标依赖为 `0.6.0`）。
+- **状态**: 进行中（方案 A 轨迹为第六十七 ~ 第七十阶段四段；**第六十八阶段（`0.3.0` 基线复测 + B2 剩余数据页全量）已审计归档**，下一阶段为 B3 + 浮层类，待阶段准入评估；当前锁定目标依赖为 `0.7.0`）。
 - **最近一次上收阶段**: 第六十八阶段（`caomei-ui` 0.3.0 升级与基线复测 + 版本口径校正至 `0.6.0` + B2 剩余 10 个数据列表路由与 3 个组件型目标 host 路由全量迁移，已审计归档）。
-- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.6.0` 精确锁定（第六十八阶段条目 1 已于 2026-09-26 完成 `0.3.0` 升级与基线复测；其后经 Dependabot 单包路径抬版到 `0.5.0` / `0.6.0`，**已于 2026-10-13 按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、三层视觉回归与包体复测、文档对齐**——基础层新增 `field-shell.css` 使 `keyCss` +415 字节至 61,311 字节）；`keyCss` 配额 70KB（组件样式随消费方 chunk 归属）；组件清单 `0.6.0` 口径 81 项，上游反馈清单 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合。
-- **下一次可切片方向**: 承接第六十八阶段已归档成果，按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。另有一项待上收小切片：状态色 tone 对比度修正（short 候选 #12，建议并入第六十九阶段前的独立切片）。**收尾必办**：① B4 只需确认 `keyCss` 未反弹；② 第七十阶段前须为 `caomei-ui` 配置 Dependabot `ignore`（或改走人工升级），阻断「精确锁定仍被单包抬版」的静默漂移路径（见迁移方案 §3.8 / §5.6）。
+- **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；**`caomei-ui@0.7.0` 精确锁定**（2026-10-24 维护批次升级：`0.7.0` 无运行时破坏面，唯一 BREAKING 为 locale 预注册 + 子路径化，而 momei 尚未接线 `provideLocale` 故无行为变化；基础层 sha256 与 0.6.0 相同、依赖解析零漂移、`keyCss` 59.84KB / 70KB 未反弹；详见迁移方案 §3.9 与回归记录窗口）；`keyCss` 配额 70KB（组件样式随消费方 chunk 归属）；组件清单 `0.7.0` 口径 **95 项**（0.6.0 为 81 项，+14 个新增组件名），上游反馈清单 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合。
+- **下一次可切片方向**: 承接第六十八阶段已归档成果，按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。待上收小切片：① 状态色 tone 对比度修正（short 候选 #12，建议并入第六十九阶段前的独立切片）；② **locale 接线**——`0.7.0` 起 `zh-TW` / `ja-JP` / `ko-KR` 须经 `caomei-ui/locale/<code>` + `registerLocale()` 注册，接入 `CaomeiConfigProvider` 后后台内建文案才会跟随应用语言（当前回落 `zh-CN`，属既有缺口，建议并入第六十九阶段）。**待跟踪**：`admin-marketing-form-dialog-light` 的 parity 参考态已漂移（弹窗宽 680→543，2026-10-24 在 0.6.0 上复跑同数值，与版本无关），需重采参考态并逐项归因后再回绿。**收尾必办**：① B4 只需确认 `keyCss` 未反弹；② 第七十阶段前须为 `caomei-ui` 配置 Dependabot `ignore`（或改走人工升级），阻断「精确锁定仍被单包抬版」的静默漂移路径（见迁移方案 §3.8 / §5.6）。
 
 ## 周期性回归验证层
 
