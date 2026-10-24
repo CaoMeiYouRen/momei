@@ -42,6 +42,7 @@
 ## 组件库迁移与视觉一致性
 
 - **[PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan)**: 迁移批次、组件映射、样式层叠与验收质量门（§8.2 截图识别层）。
+- **[caomei-ui 状态色 tone 对比度修正方案](./2026-10-24-caomei-status-tone-contrast)**: 状态 tone 的模式感知取值、与上游预设 / 迁移前观感的对照、契约测试调整与验收口径（候选，待上收）。
 - **[视觉一致性门禁](./2026-10-13-visual-parity-gate)**: 逐路由「当前渲染 vs 迁移前 PrimeVue 参考态」门禁的落地方式、分级预算、参考态采集与上游反馈路径。
 - **[视觉一致性偏差处置表](./visual-parity-deviation-register)**: 已接受偏差的区域 / 差异像素 / 通道①~④ 处置 / 责任人登记。
 - **[需向上游 caomei-ui 反馈的问题清单](./2026-09-25-caomei-ui-upstream-feedback)**: 迁移中实测确认的库侧缺口与文档缺口及上游落点。

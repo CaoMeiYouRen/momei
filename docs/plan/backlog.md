@@ -94,7 +94,7 @@
 - **状态**: 进行中（方案 A 轨迹经第六十八阶段准入重划为第六十七 ~ 第七十阶段四段，本阶段已立项执行 `0.3.0` 复测与 B2 切片；目标依赖于 2026-10-13 对齐为 `0.6.0`）。
 - **最近一次上收阶段**: 第六十七阶段（接入基座 + 三层视觉验证回归基座 + 全局 token 语义层 + B2 试点页，已审计归档）。
 - **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；`caomei-ui@0.6.0` 精确锁定（第六十八阶段条目 1 已于 2026-09-26 完成 `0.3.0` 升级与基线复测；其后经 Dependabot 单包路径抬版到 `0.5.0` / `0.6.0`，**已于 2026-10-13 按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、三层视觉回归与包体复测、文档对齐**——基础层新增 `field-shell.css` 使 `keyCss` +415 字节至 61,311 字节）；`keyCss` 配额 70KB（组件样式随消费方 chunk 归属）；组件清单 `0.6.0` 口径 81 项，上游反馈清单 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合。
-- **下一次可切片方向**: 0.3.0 升级复测与 B2 剩余数据页（10 个数据列表路由 + 组件型目标 host 路由 + 共享壳过渡组件）已上收至第六十八阶段，见 [todo.md](./todo.md)；后续按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。**收尾必办**：① B4 只需确认 `keyCss` 未反弹；② 第七十阶段前须为 `caomei-ui` 配置 Dependabot `ignore`（或改走人工升级），阻断「精确锁定仍被单包抬版」的静默漂移路径（见迁移方案 §3.8 / §5.6）。
+- **下一次可切片方向**: 0.3.0 升级复测与 B2 剩余数据页（10 个数据列表路由 + 组件型目标 host 路由 + 共享壳过渡组件）已上收至第六十八阶段，见 [todo.md](./todo.md)；后续按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。另有一项待上收小切片：状态色 tone 对比度修正（short 候选 #12，建议并入第六十九阶段前的独立切片）。**收尾必办**：① B4 只需确认 `keyCss` 未反弹；② 第七十阶段前须为 `caomei-ui` 配置 Dependabot `ignore`（或改走人工升级），阻断「精确锁定仍被单包抬版」的静默漂移路径（见迁移方案 §3.8 / §5.6）。
 
 ## 周期性回归验证层
 
@@ -218,6 +218,13 @@
     - **最小范围**: ① 全仓检索「`useI18n()` 非 setup 顶层调用」，逐处改为使用顶层解构的 `t` / `locale` / `locales`；② 为 `snippet-aggregate-dialog` 的两处补失败 / 边界断言（点击即触发路径）；③ 评估加一条 lint 规则或治理脚本防回归（若规则成本过高，至少纳入 `governance:audit:*` 巡检清单）。
     - **非目标**: 不重构 i18n 装配方式；不改 vue-i18n 版本；不动 `useI18nDate` 等自有 composable。
     - **验收标准**: 全仓无「非 setup 顶层」的 `useI18n()` 调用；涉及页面 / 组件的交互路径有单测覆盖；`pnpm typecheck` + `pnpm lint` + 定向测试通过。
+12. **caomei-ui 状态色 tone 对比度修正（2026-10-24 登记）**
+    - **背景**: token 桥接把状态 tone 取在 500 档，而 caomei 的 soft / outline / simple 变体把 tone 直接当文字 / 边框色；浅色 soft 8% 底上 success / warning / danger 仅 2.12 / 2.59 / 3.39，低于 WCAG AA 4.5，也是迁移后 success / warning 观感差异最大的直接来源。暗色 tone 亦未跟随上游 400 档。
+    - **最小范围**: 桥接状态 tone 改为模式感知——light 取 `-700`、dark 取 `-400`，solid 保持 `-700`；新增 unlayered `html.dark` 覆盖块；同步契约测试与迁移方案 §5.2 / 偏差处置表。
+    - **非目标**: 不改 solid（上游规范值且白字达标）、不改主色 / surface / 圆角 / 字体、不做选择器覆盖、不升级 `caomei-ui`、不重做状态色体系。
+    - **上收前置**: 视觉基线需覆盖带数据行与状态标签的页面（现状多为空态基线，本差异正是因此漏出）；确认浅色 `tone == solid` 的层次收敛可接受，并明确错误边框是否跟随变深。
+    - **验收标准**: light / dark 计算值分别等于对应 `-700` / `-400`，solid 恒 `-700`；soft 8% 底文字对比度两态均 ≥ 4.5；视觉差异仅限状态色区域且逐项归因；`keyCss` 不越线。
+    - **详细方案**: [2026-10-24-caomei-status-tone-contrast.md](../design/governance/2026-10-24-caomei-status-tone-contrast.md)
 
 ---
 
