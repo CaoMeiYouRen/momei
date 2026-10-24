@@ -90,8 +90,20 @@ overrides:
     "picomatch@2.3.1": "^2.3.2"
     "picomatch@4.0.3": "^4.0.4"
     svgo: "^4.1.0"
-    "body-parser@1": "^1.20.6"
-    "body-parser@2": "^2.3.0"
+    # GHSA-27r3-jxmh-p828：1.x 与 2.x 两条线必须分别抬到已修复版本，缺失任一条都会在
+    # express 4（@lhci/cli）或 express 5（@modelcontextprotocol/sdk）链路上残留 high 风险。
+    "body-parser@1": "^1.20.9"
+    "body-parser@2": "^2.4.0"
+    # GHSA-mrhx-c7xc-m3w5：@vercel/cli-config 0.3.1（npm 最新 0.3.3 亦然）把 zod 精确钉在
+    # 4.1.11，命中 vulnerable <4.6.6；该链路经 @vercel/blob > @vercel/oidc 进入生产依赖图，
+    # 故按路径定向抬到同 major 的 4.6.7（兼容 minor 升级），清除安装实例与依赖边。
+    # ⚠️ 该包入口 bundle `dist/index.js` 为预打包产物并内联了一份 zod 4.1.11 实现（只 require
+    # fs/os/path；同目录 cli-config.js / schema*.js 虽 require('zod')，但未被 exports 暴露也未进入
+    # .output），override 只能修正依赖边，实际执行的内联副本须等上游重新打包；其输入仅本地
+    # config.json / auth.json，不处理不可信远端数据，内存耗尽风险暴露面有限。
+    # 不写成裸 zod，是为了避免把 chromium-bidi（仅 @lhci/cli 开发链）的 zod 3 跨大版本升级，
+    # 其 lib 仍读取 ZodError.errors（zod 4 已改为 .issues）。该条链路由 allowlist 临时登记。
+    "@vercel/cli-config>zod": "^4.6.7"
     lodash: "^4.18.1"
     "ajv@^6.0.0": "^6.14.0"
     "ajv@^8.0.0": "^8.18.0"

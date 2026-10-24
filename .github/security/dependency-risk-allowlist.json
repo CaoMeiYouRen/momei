@@ -154,6 +154,18 @@
                 ".>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
                 ".>vitest-environment-nuxt>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge"
             ]
+        },
+        {
+            "advisoryId": "GHSA-mrhx-c7xc-m3w5",
+            "packageName": "zod",
+            "severity": "high",
+            "reason": "上游依赖链锁定，无法在不破坏 Lighthouse 审计能力的前提下升级：pnpm audit 报告的 patched >=4.6.6 仅由 zod 3.25.76 命中，而该实例来自 @lhci/cli@0.15.1（npm 最新版）精确依赖 lighthouse@12.6.1 -> puppeteer-core@^24 -> chromium-bidi@13.0.1 -> zod@^3.24.1；仅 chromium-bidi 157.x 声明 zod ^4.6.5（配套 puppeteer-core 25.x），而 @lhci/cli 与 @lhci/utils 均把 lighthouse 钉在 12.6.1，且 @lhci/cli 通过 require.resolve 拼接 lighthouse 私有路径启动，单独抬升 lighthouse / puppeteer-core 会破坏 LHCI 私有 API 调用。跨大版本强制 zod 4 亦不可行：chromium-bidi 13 的 protocol-parser 仍读取 ZodError.errors（zod 4 已改为 .issues），会让非法 BiDi 报文的错误格式化抛 TypeError。风险实际暴露面有限：@lhci/cli 为 devDependencies，仅本地 / CI 执行 Lighthouse 性能审计且走 CDP 路径，不触发 BiDi 解析；生产运行时依赖图（.output/server）不含 chromium-bidi 与 zod 3。生产侧可达的 @vercel/cli-config 依赖边（zod 4.1.11）已在 pnpm-workspace.yaml 定向 override 至 ^4.6.7，不在本例外范围内；但该包入口 bundle dist/index.js 内联了一份 zod 4.1.11 实现（同目录 cli-config.js / schema*.js 虽引用 zod，但未被 exports 暴露也未进入 .output），override 只清除安装实例与依赖边，内联副本需上游重新打包才消失，其输入仅本地 config.json / auth.json。",
+            "source": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+            "temporaryException": "有效至 @lhci/cli / @lhci/utils 解除对 lighthouse@12.6.1 的精确锁定（或 lighthouse 升级到 puppeteer-core 25.9+ 线）后立即移除；届时 zod 3 实例应随 chromium-bidi 157.x 一并退出依赖图",
+            "approvedPaths": [
+                ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>chromium-bidi>zod",
+                ".>@lhci/cli>lighthouse>puppeteer-core>chromium-bidi>zod"
+            ]
         }
     ]
 }
