@@ -1,5 +1,57 @@
 # momei
 
+# [1.29.0](https://github.com/CaoMeiYouRen/momei/compare/v1.28.0...v1.29.0) (2026-10-24)
+
+
+### ✨ 新功能
+
+* **admin-ad:** 补齐广告位启停按钮的可访问名文案（五语种） ([f67f195](https://github.com/CaoMeiYouRen/momei/commit/f67f195))
+* **migration:** /admin/friend-links 语义色口径与字段宽度口径 ([cae7370](https://github.com/CaoMeiYouRen/momei/commit/cae7370))
+* **migration:** /admin/users 路由自有组件族迁移到 caomei-ui ([5490bf9](https://github.com/CaoMeiYouRen/momei/commit/5490bf9))
+* **migration:** B2 第七路由 /admin/subscribers 迁移到 caomei-ui（含头像档位几何修复） ([74cb8bb](https://github.com/CaoMeiYouRen/momei/commit/74cb8bb))
+* **migration:** B2 第三路由 /admin/waitlist 迁移到 caomei-ui ([45e0470](https://github.com/CaoMeiYouRen/momei/commit/45e0470)), closes [#body](https://github.com/CaoMeiYouRen/momei/issues/body)
+* **migration:** B2 第九路由 /admin/friend-links 迁移到 caomei-ui ([d33dbba](https://github.com/CaoMeiYouRen/momei/commit/d33dbba))
+* **migration:** B2 第二路由 /admin/external-links 迁移到 caomei-ui ([04d12c1](https://github.com/CaoMeiYouRen/momei/commit/04d12c1)), closes [#6](https://github.com/CaoMeiYouRen/momei/issues/6)
+* **migration:** B2 第五路由 /admin/ad/placements 迁移到 caomei-ui ([1b0a577](https://github.com/CaoMeiYouRen/momei/commit/1b0a577)), closes [#body](https://github.com/CaoMeiYouRen/momei/issues/body) [#icon](https://github.com/CaoMeiYouRen/momei/issues/icon)
+* **migration:** B2 第八路由 /admin/users 迁移到 caomei-ui（含 parity 台账与就绪口径） ([3ea8c20](https://github.com/CaoMeiYouRen/momei/commit/3ea8c20))
+* **migration:** B2 第六路由 /admin/migrations/link-governance 迁移到 caomei-ui ([24bb422](https://github.com/CaoMeiYouRen/momei/commit/24bb422))
+* **migration:** B2 第十路由 /admin/posts 迁移到 caomei-ui（条目 2 收口） ([7802730](https://github.com/CaoMeiYouRen/momei/commit/7802730))
+* **migration:** B2 第四路由 /admin/ad/campaigns 迁移到 caomei-ui（含守卫形态扩展） ([d38589c](https://github.com/CaoMeiYouRen/momei/commit/d38589c)), closes [#body](https://github.com/CaoMeiYouRen/momei/issues/body)
+* **migration:** B2 首路由 /admin/submissions 迁移到 caomei-ui（含页码基准、守卫加固与滚动归档） ([ff44344](https://github.com/CaoMeiYouRen/momei/commit/ff44344)), closes [#body](https://github.com/CaoMeiYouRen/momei/issues/body) [#6](https://github.com/CaoMeiYouRen/momei/issues/6)
+* **migration:** 共享列表 composable 归一 caomei 字符串排序载荷 ([48afef4](https://github.com/CaoMeiYouRen/momei/commit/48afef4))
+* **migration:** 组件型目标路由 /admin/ai 迁移到 caomei-ui ([bd5f2c3](https://github.com/CaoMeiYouRen/momei/commit/bd5f2c3)), closes [#prefix](https://github.com/CaoMeiYouRen/momei/issues/prefix) [#header](https://github.com/CaoMeiYouRen/momei/issues/header)
+* **migration:** 组件型目标路由 /admin/marketing 迁移到 caomei-ui ([dc5a0e4](https://github.com/CaoMeiYouRen/momei/commit/dc5a0e4)), closes [#header](https://github.com/CaoMeiYouRen/momei/issues/header)
+* **migration:** 组件型目标路由分类与标签迁移到 caomei-ui ([6bcad29](https://github.com/CaoMeiYouRen/momei/commit/6bcad29))
+* **posts:** 新增 posts 共享壳三件套过渡组件（caomei-ui 版） ([927fa66](https://github.com/CaoMeiYouRen/momei/commit/927fa66))
+* **ui:** 新增头像与上传器共享壳过渡组件（caomei-ui 版） ([1e25cc4](https://github.com/CaoMeiYouRen/momei/commit/1e25cc4))
+
+
+### 🐛 Bug 修复
+
+* **deps:** 修复 13 项阻塞级依赖风险，解除 Docker 发布与安全门禁阻塞 ([39e00f2](https://github.com/CaoMeiYouRen/momei/commit/39e00f2))
+* **deps:** 修复 3 项 high 依赖风险并登记 zod 开发链例外 ([c3eae42](https://github.com/CaoMeiYouRen/momei/commit/c3eae42))
+* **deps:** 修复 follow-redirects、launch-editor、markdown-it 与 vite 的 high 风险 ([dc7120f](https://github.com/CaoMeiYouRen/momei/commit/dc7120f))
+* **deps:** 修复 pnpm-lock.yaml 重复 mapping key 导致的锁文件损坏 ([d2475aa](https://github.com/CaoMeiYouRen/momei/commit/d2475aa))
+* **deps:** 修复 pnpm-lock.yaml 重复映射键导致的 frozen-lockfile 安装失败 ([d2f32b8](https://github.com/CaoMeiYouRen/momei/commit/d2f32b8))
+* **deps:** 收敛 @nuxt/kit override 为精确版本，修复 master 上 kit 双实例导致的 Unit/Coverage 红灯 ([5ea890a](https://github.com/CaoMeiYouRen/momei/commit/5ea890a)), closes [#877](https://github.com/CaoMeiYouRen/momei/issues/877)
+* **deps:** 收紧 @nuxt/kit override 上界，修复 nuxt prepare 的 bundlerDiagnostics 崩溃 ([2fc3bf3](https://github.com/CaoMeiYouRen/momei/commit/2fc3bf3)), closes [#860](https://github.com/CaoMeiYouRen/momei/issues/860)
+* **deps:** 锁步升级 nuxt 与 @nuxt/kit override 至 4.6 线（nuxt 4.5.2 → 4.6.1） ([f2bf89e](https://github.com/CaoMeiYouRen/momei/commit/f2bf89e)), closes [#870](https://github.com/CaoMeiYouRen/momei/issues/870)
+* **docker:** 修复 builder 阶段因 simple-git 4.x 无 default 导出导致的镜像构建失败 ([863437c](https://github.com/CaoMeiYouRen/momei/commit/863437c))
+* **docs:** 修复 3 处截断的回归窗口结束标记 ([5b0c665](https://github.com/CaoMeiYouRen/momei/commit/5b0c665))
+* **mcp-server:** 适配 vitest 5 bench API 重写（test 上下文 fixture） ([0295cf7](https://github.com/CaoMeiYouRen/momei/commit/0295cf7))
+* **migration:** 修复 caomei 迁移批次丢失的按钮可见文案与审核弹窗阻塞 ([bb3670d](https://github.com/CaoMeiYouRen/momei/commit/bb3670d)), closes [#icon](https://github.com/CaoMeiYouRen/momei/issues/icon)
+* **migration:** 修复试点页分页栏右移回归（/admin/comments 补分页对齐 token） ([09aa51f](https://github.com/CaoMeiYouRen/momei/commit/09aa51f))
+* **migration:** 收口第五路由复核残余项（行数口径 / 重复短语 / 笔误） ([0b8d92c](https://github.com/CaoMeiYouRen/momei/commit/0b8d92c))
+* **migration:** 更正第五路由证据计数并补强启停/适配器断言 ([e25b5df](https://github.com/CaoMeiYouRen/momei/commit/e25b5df))
+* **nitro:** 内联 @primeuix/utils 修复 Nuxt 4.6 产物漏收子路径导出导致的启动失败 ([d5ebee9](https://github.com/CaoMeiYouRen/momei/commit/d5ebee9))
+* **security:** 修复依赖安全门禁阻断的 18 项 high 风险 ([a5b8274](https://github.com/CaoMeiYouRen/momei/commit/a5b8274))
+* **security:** 刷新 braces 与 node-forge 的 allowlist 依赖路径 ([4bf0c57](https://github.com/CaoMeiYouRen/momei/commit/4bf0c57))
+* **security:** 升级 Node 运行时到 24.22.1 ([311d97e](https://github.com/CaoMeiYouRen/momei/commit/311d97e))
+* **security:** 拒绝第三方源返回的 Brotli 响应 ([95c95fe](https://github.com/CaoMeiYouRen/momei/commit/95c95fe))
+* **security:** 消除文档检查脚本的 shell 注入面 ([4d56b06](https://github.com/CaoMeiYouRen/momei/commit/4d56b06))
+* **sentry:** 适配 @sentry/nuxt v11 移除 sourceMapsUploadOptions 的破坏性变更 ([2744c74](https://github.com/CaoMeiYouRen/momei/commit/2744c74))
+* **test:** 修复视觉门禁误判构建产物陈旧导致的重复构建 ([723c0cc](https://github.com/CaoMeiYouRen/momei/commit/723c0cc))
+
 # [1.28.0](https://github.com/CaoMeiYouRen/momei/compare/v1.27.0...v1.28.0) (2026-09-26)
 
 
