@@ -68,7 +68,7 @@
 - [ ] **外部资产先验来源**：引入的外部 skill / agent / MCP 是否核对过来源仓库 URL 与维护组织，是否登记到外部技能准入清单（投毒面防御，TrustFall 教训）。
 - [ ] 治理定义改动是否补了 `pnpm ai:check` 与 `pnpm lint:md`。
 
-### 4.6 规范无历史叙述强制审查 (No Historical Narrative in Standards)
+## 4.6 规范无历史叙述强制审查 (No Historical Narrative in Standards)
 
 **适用场景**：改动涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 时强制触发；同样适用于 `docs/design/governance/` 下"治理说明"文档的写作纪律（避免反向漂移）。
 
@@ -90,6 +90,15 @@
   - `docs/plan/archive/index.md`
 - [ ] **本审查项触发标准**：被审改动如果未触碰 `docs/standards/**/*.md` / `docs/guide/**/*.md` / `docs/design/modules/**/*.md`，**跳过本审查项不视为漏审**；若触碰上述目录但审计执行跳过本项，**立即 `Reject` 整个 Review Gate**（措辞同 §3.5 与 `code-auditor.agent.md`、`code-quality-auditor` skill / 步骤 4 必查项保持一致）。
 
+
+## 4.7 界面质量检查（UI 变更触发）
+
+**适用场景**：UI 变更（触发条件见[界面自检清单](../../../../docs/design/ui-review-checklist.md) §0）；未触及则跳过，不视为漏审。判据与阈值以该清单为唯一事实源，本节只定义放行口径。
+
+- [ ] 是否按界面自检清单的 U1–U6 逐项回答「是 / 否 / 不适用」，且没有留空项。
+- [ ] 每项结论是否附证据（截图 / 计算值 / diff 扫描），而不是“看起来没问题”。
+- [ ] 存在「否」时是否登记原因与后续处置；未登记的「否」是否按 blocker 处理。
+- [ ] 涉及颜色 / 主题 / 状态色的改动，是否同时给出浅色与暗色的对比度计算值。
 
 ## 5. 验证与证据链
 
