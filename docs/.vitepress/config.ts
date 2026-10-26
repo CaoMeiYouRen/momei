@@ -162,6 +162,7 @@ export default defineConfig({
                         text: '设计文档',
                         items: [
                             { text: 'UI 设计', link: '/design/ui' },
+                            { text: '界面自检清单', link: '/design/ui-review-checklist' },
                             { text: 'API 设计', link: '/design/api' },
                             { text: '数据库设计', link: '/design/database' },
                         ],

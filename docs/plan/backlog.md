@@ -96,6 +96,15 @@
 - **当前基线**: `primevue@4.5.5` 锁定并在 `.github/dependabot.yml` 按版本屏蔽；**`caomei-ui@0.7.0` 精确锁定**（2026-10-24 维护批次升级：`0.7.0` 无运行时破坏面，唯一 BREAKING 为 locale 预注册 + 子路径化，而 momei 尚未接线 `provideLocale` 故无行为变化；基础层 sha256 与 0.6.0 相同、依赖解析零漂移、`keyCss` 59.84KB / 70KB 未反弹；详见迁移方案 §3.9 与回归记录窗口）；`keyCss` 配额 70KB（组件样式随消费方 chunk 归属）；组件清单 `0.7.0` 口径 **95 项**（0.6.0 为 81 项，+14 个新增组件名），上游反馈清单 1.3 / 1.4 / 1.5 三条真实缺口已由 `0.4.0` 交付闭合。
 - **下一次可切片方向**: 承接第六十八阶段已归档成果，按迁移方案 §7 推进——B3 表单与设置并入浮层类（Dialog / Drawer / Popover / DropdownMenu）为第六十九阶段，B4 展示、浮层收尾与 PrimeVue 卸载为第七十阶段；共享壳过渡组件替换清单见迁移方案 §5.5，上游反馈清单见 [2026-09-25-caomei-ui-upstream-feedback.md](../design/governance/2026-09-25-caomei-ui-upstream-feedback.md)。待上收小切片：① 状态色 tone 对比度修正（short 候选 #12，建议并入第六十九阶段前的独立切片）；② **locale 接线**——`0.7.0` 起 `zh-TW` / `ja-JP` / `ko-KR` 须经 `caomei-ui/locale/<code>` + `registerLocale()` 注册，接入 `CaomeiConfigProvider` 后后台内建文案才会跟随应用语言（当前回落 `zh-CN`，属既有缺口，建议并入第六十九阶段）。**待跟踪**：`admin-marketing-form-dialog-light` 的 parity 参考态已漂移（弹窗宽 680→543，2026-10-24 在 0.6.0 上复跑同数值，与版本无关），需重采参考态并逐项归因后再回绿。**收尾必办**：① B4 只需确认 `keyCss` 未反弹；② 第七十阶段前须为 `caomei-ui` 配置 Dependabot `ignore`（或改走人工升级），阻断「精确锁定仍被单包抬版」的静默漂移路径（见迁移方案 §3.8 / §5.6）。
 
+### 11. UI 视觉质量与界面自检治理
+
+- **目标**: 把「界面是否合格」从审美讨论收敛为可判定检查项与可回归证据。维护一份只收真实命中、影响使用的界面自检清单（U1–U6），用它驱动视觉债清偿与视觉门禁扩容；不追求一次重做设计体系。
+- **专项设计事实源**: [界面自检清单与视觉债治理计划](../design/governance/2026-10-26-ui-review-checklist-plan.md)；可执行判据见 [界面自检清单](../design/ui-review-checklist.md)。
+- **状态**: 观察中（S0 已落盘并接入 V / A 阶段；S1 未开工）。
+- **最近一次上收阶段**: 无（S0 为维护批次，尚未立正式阶段）。
+- **当前基线**: 478 条 `font-size:` / 60 种写法 / token 化 6.3%；34 处状态色幻影 token（24 处 `$color-*` + 7 处 `--p-warning-color` + 2 处 `--p-error-color` + 1 处 `--p-text-secondary-color`）；另有迁移遗留的 `--p-surface-border` 95 处 / `--p-text-color-secondary` 15 处，随 B3 / B4 清理；4 个文件覆盖 5 个页面误用「暂无文章」空态；扫描面 194 处 `border:`；视觉门禁 17 条 admin 路由 / 0 条 reader；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
+- **下一次可切片方向**: 直接做 S1：状态色幻影 token 清零（34 处）+ 空态组件与文案（4 个文件 / 5 页）+ 空表不渲染分页，6–8 文件。S1 优先于暗色 tint 与字阶治理：先让颜色「存在」，再谈颜色「好看」。S1 建议作为第六十九阶段前的独立小切片，不并入 caomei-ui B3 批次。
+
 ## 周期性回归验证层
 
 > **定位**：本层不是“一个任务”，而是所有长期主线的健康检查层。它不产生直接改进，只验证“没有回退”。按固定日历节奏执行，不参与阶段切片容量竞争。
@@ -124,6 +133,7 @@
 | #8 站点性能治理 | — | ✅ `test:perf:budget:strict` | ✅ `test:perf:budget:strict` |
 | #9 脚本治理 | ✅ `governance:check:scripts` + `audit:simple-duplicates` + `audit:eslint-debt` + `audit:comment-drift` | — | —（docs candidate 暂保持独立 baseline） |
 | #10 UI 组件库迁移治理 | ✅ `test`（含路由迁移守卫单测） | ✅ `release:check:full`（内含 lint / typecheck） | ✅ `test:visual`（初期非阻断）+ `review-gate` |
+| #11 UI 视觉质量治理 | — | —（S1 后纳入） | ✅ `test:visual`（现状 17 条 admin；reader 待 S4） |
 
 > 标注 `—` 的条目表示当前缺少自动化回归覆盖，是后续回归层扩面的候选方向。
 
@@ -141,6 +151,7 @@
 | Windows Dev / Build 性能退化 | → 长期主线 #7（Windows 性能治理） |
 | 孤儿脚本、临时脚本残留、脚本入口漂移或治理脚本缺失 | → 长期主线 #9（脚本治理） |
 | caomei-ui 迁移相关视觉 / 路由结构回归失败 | → 长期主线 #10（UI 组件库迁移治理） |
+| 空态 / 控件主次 / 对比度 / 可读性等界面质量问题 | → 长期主线 #11（UI 视觉质量治理） |
 | 依赖安全 high+ 漏洞 | → 直接 blocker，在当前阶段修复 |
 | 跨多条主线的问题 | → 取最匹配的一条路由，其他在路由备注中引用 |
 
