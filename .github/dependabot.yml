@@ -94,7 +94,7 @@ updates:
           - "stylelint"
           - "stylelint-config-cmyr"
 
-      # Better Auth 主包、SSO 扩展与本地化包存在直接集成关系。
+      # Better Auth 主包、扩展包与本地化包存在直接集成关系。
       better-auth:
         patterns:
           - "better-auth"
