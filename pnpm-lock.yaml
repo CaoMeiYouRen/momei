@@ -291,8 +291,8 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2
       primelocale:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
       primevue:
         specifier: ^4.5.5
         version: 4.5.5(vue@3.5.44(typescript@6.0.3))
@@ -8655,8 +8655,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  legacy-javascript@0.0.3:
-    resolution: {integrity: sha512-1r6MT4dVaJyXt4G07Cm2cQ0AUaLJdefiEp4SmIAylA++gnEQ82YvmzE58RkM5EP0fk5hROLCslUPGnwIYdZQVA==}
+  legacy-javascript@0.0.4:
+    resolution: {integrity: sha512-UTmeKBVxnfJcpmpOvzzNnLsQT99BXHpPlc/ZKddIRmWmrR0fw6335I3lq4+sJoP60UTbBNaYsGYVPc65YB1x3A==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -10497,8 +10497,8 @@ packages:
   primeicons@8.0.2:
     resolution: {integrity: sha512-o3UQey3nXMEQRAudVYZZWswz6mmnWpPnksYb7wIu4rEEVfdS3pLnxnmSJx5gKBRMer1MxnhJZG5QRDxVVJFNkA==}
 
-  primelocale@2.6.0:
-    resolution: {integrity: sha512-hqsVVYMisv4KQo329hA2xMSJLmmeFEWGDo/w4DikTCCXfvKBIFUCvp/ktsc5tfgk9WDgnrKMyxpqgdp9ebA2ow==}
+  primelocale@2.6.1:
+    resolution: {integrity: sha512-+sq0a0ORWme94u1nfFsGUU0QvEdwriPIgiD/Jjg6Tr9+S39V7In1FOnRw8Gk5yjJIQfShaXpdqLHsshF8HShzg==}
     engines: {node: '>=18.0.0', npm: '>=8.6.0'}
 
   primevue@4.5.5:
@@ -16535,7 +16535,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.53':
     dependencies:
-      legacy-javascript: 0.0.3
+      legacy-javascript: 0.0.4
       third-party-web: 0.30.0
 
   '@pkgjs/parseargs@0.11.0':
@@ -22040,7 +22040,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  legacy-javascript@0.0.3: {}
+  legacy-javascript@0.0.4: {}
 
   leven@3.1.0: {}
 
@@ -24646,7 +24646,7 @@ snapshots:
 
   primeicons@8.0.2: {}
 
-  primelocale@2.6.0: {}
+  primelocale@2.6.1: {}
 
   primevue@4.5.5(vue@3.5.44(typescript@6.0.3)):
     dependencies:
