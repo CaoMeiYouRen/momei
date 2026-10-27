@@ -87,8 +87,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@lucide/vue':
-        specifier: ^1.59.0
-        version: 1.59.0(vue@3.5.44(typescript@6.0.3))
+        specifier: ^1.61.0
+        version: 1.61.0(vue@3.5.44(typescript@6.0.3))
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -2476,8 +2476,8 @@ packages:
     resolution: {integrity: sha512-AqFloPlWK4JLmZ0U69mU41+Fa1mdVVBiSw1gXBRXpfEdeS/j/mLgW+re6cOWqE/5itJsggekY1FeE0WEouxGUw==}
     engines: {node: '>=20'}
 
-  '@lucide/vue@1.59.0':
-    resolution: {integrity: sha512-X7O3FCwECqmVV9h6l2dPxksuiJx9/gszRTj15aOKsxsfU4jr+p7vUVFILn7K38fG8wfSmsy8jPVS9muDdTt0MA==}
+  '@lucide/vue@1.61.0':
+    resolution: {integrity: sha512-XYclbwUQ6Mvf0UskBG9gJH91BdF3VK4Tt6Pv8PSntwPwNnf357PCQnma4TrzOEdwD49UYCtsTafpfytRIxm1cQ==}
     peerDependencies:
       vue: '>=3.0.1'
 
@@ -15250,7 +15250,7 @@ snapshots:
     dependencies:
       '@types/mdast': 3.0.15
 
-  '@lucide/vue@1.59.0(vue@3.5.44(typescript@6.0.3))':
+  '@lucide/vue@1.61.0(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       vue: 3.5.44(typescript@6.0.3)
 
@@ -18990,7 +18990,7 @@ snapshots:
   caomei-ui@0.7.0(@nuxt/kit@4.6.1(@nuxt/schema@4.6.2)(confbox@0.2.4)(dotenv@18.0.9)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.141.0)(rolldown@1.2.15)(unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.15)(rollup@4.64.9)(vite@8.1.6(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.106.1)(terser@5.51.2)(yaml@2.9.1))))(vue@3.5.44(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
-      '@lucide/vue': 1.59.0(vue@3.5.44(typescript@6.0.3))
+      '@lucide/vue': 1.61.0(vue@3.5.44(typescript@6.0.3))
       '@tanstack/vue-table': 9.2.4(vue@3.5.44(typescript@6.0.3))
       '@vavt/cm-extension': 2.0.0
       reka-ui: 2.10.4(vue@3.5.44(typescript@6.0.3))

@@ -93,7 +93,7 @@
     "@aws-sdk/client-s3": "^3.1156.0",
     "@aws-sdk/s3-request-presigner": "^3.1156.0",
     "@axiomhq/winston": "^2.0.0",
-    "@lucide/vue": "^1.59.0",
+    "@lucide/vue": "^1.61.0",
     "@mdi/font": "^7.4.47",
     "@microsoft/clarity": "^1.0.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
