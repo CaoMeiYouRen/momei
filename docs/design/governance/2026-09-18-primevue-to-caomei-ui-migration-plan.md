@@ -174,7 +174,7 @@ pnpm governance:count:primevue-usage
 | **组件清单** | 自动导入组件 `81 → 95` 项（+14）：`CaomeiAlert`、`CaomeiChart`、`CaomeiTooltip`（含 Trigger/Content/Arrow/Provider）、`CaomeiMenu` / `CaomeiSubMenu` / `CaomeiMenuItem`、`CaomeiBreadcrumb` / `CaomeiBreadcrumbItem`、`CaomeiRow`、`CaomeiCol` | §5.1 口径更新为 **95 项**；第六十九阶段的浮层批次可直接用 `CaomeiTooltip` 承接 `v-tooltip`，`Menu` / `Breadcrumb` 可用于 B4 导航 |
 | **其余变更面** | 修复 769–1023px 响应式空档；抽取 `warnDev` 共享工具；`Message` / `ButtonGroup` / `RichTextEditor` 样式哈希变化（momei 零消费） | 门禁截图为 1440×900，不受响应式修复影响 |
 
-**验证（2026-10-24）**: `pnpm typecheck` 0 error；`pnpm lint` 0 error（8 warning 均为既有）；定向 87 用例通过；`pnpm test:visual` **16/16**；`pnpm test:visual:parity` **33/34**（唯一失败 `admin-marketing-form-dialog-light` 为**升级前既有漂移**——实测差异 128,174px / 9.89%、按允许清单扣减后未归因 114,174px / 8.81%；在 `0.6.0` 上复跑得到完全相同的数值与超差区域，弹窗宽度 680→543，已登记 backlog 待重采参考态并归因；证据见本地 `artifacts/review-gate/2026-10-24-caomei-ui-070-parity-*.json`（按仓库约定不入库））；`pnpm test:perf:budget:strict` 通过（`keyCss` 59.84KB / 70KB，未反弹）。
+**验证（2026-10-24）**: `pnpm typecheck` 0 error；`pnpm lint` 0 error（8 warning 均为既有）；定向 87 用例通过；`pnpm test:visual` **16/16**；`pnpm test:visual:parity` **33/34**（唯一失败 `admin-marketing-form-dialog-light` 为**升级前既有漂移**——实测差异 128,174px / 9.89%、按允许清单扣减后未归因 114,174px / 8.81%；在 `0.6.0` 上复跑得到完全相同的数值与超差区域，弹窗宽度 680→543，已登记 backlog 待重采参考态并归因；**2026-10-28 已闭环**：根因为页面 scoped 的 `&__dialog` 对 teleport 浮层失效（非参考态漂移、与版本无关），改用 `:style` 归位并按实测重登记允许清单，见[偏差处置表](./visual-parity-deviation-register.md)与 backlog；证据见本地 `artifacts/review-gate/2026-10-24-caomei-ui-070-parity-*.json`（按仓库约定不入库））；`pnpm test:perf:budget:strict` 通过（`keyCss` 59.84KB / 70KB，未反弹）。
 
 **有意未做（延后）**: 接入 `CaomeiConfigProvider` + `registerLocale` 让后台内建文案跟随应用语言——属功能变更（ja-JP / ko-KR / zh-TW 的后台文案会从 `zh-CN` 变为本语种），登记为第六十九阶段切片，不混入版本升级批次。
 

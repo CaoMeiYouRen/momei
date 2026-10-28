@@ -70,12 +70,16 @@
             />
         </div>
 
+        <!-- 浮层宽度走 `:style` 而非类选择器：`Dialog` 由 PrimeVue 渲染到 body，页面 scoped 样式
+             无法命中其 `.p-dialog` 根元素（原 `&__dialog` 规则长期失效，宽度遂随内容固有宽度漂移）。
+             680px 对齐 parity 参考态（迁移前 PrimeVue 表单实测 679px），与 taxonomy 弹窗同一处置通道。 -->
         <Dialog
             v-model:visible="showCreateDialog"
             :header="currentCampaignId ? $t('pages.admin.marketing.edit_campaign') : $t('pages.admin.marketing.create_campaign')"
             modal
             dismissable-mask
             class="admin-marketing__dialog"
+            :style="dialogStyle"
         >
             <MarketingCampaignForm
                 :campaign-id="currentCampaignId"
@@ -95,6 +99,10 @@ import MarketingCampaignList from '@/components/admin/marketing-campaign-list.vu
 definePageMeta({
     middleware: 'admin',
 })
+
+/** 弹窗宽度按 parity 参考态固定（迁移前 PrimeVue 表单实测 679px）：caomei 字段更窄，
+ *  不显式声明时宽度会随内容固有宽度漂移到 542px，整窗错位。 */
+const dialogStyle = { width: 'min(90vw, 680px)' }
 
 const stats = ref<any>({})
 const showCreateDialog = ref(false)
@@ -213,16 +221,6 @@ watch(showCreateDialog, (val) => {
 
     &__list {
         margin-top: $spacing-lg;
-    }
-
-    &__dialog {
-        width: 90vw;
-        max-width: 1100px;
-        margin: 0 auto;
-
-        :deep(.p-dialog-content) {
-            padding: $spacing-lg;
-        }
     }
 }
 </style>
