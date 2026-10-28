@@ -135,6 +135,46 @@ describe('check-dependency-risk', () => {
         expect(result.blocking[0].packageName).toBe('serialize-javascript')
     })
 
+    it('rejects critical advisories from the allowlist definition', () => {
+        expect(() => normalizeAllowlistDefinition({
+            entries: [{
+                advisoryId: 'GHSA-critical-demo',
+                packageName: 'demo-package',
+                approvedPaths: ['.>demo-package'],
+                severity: 'critical',
+                reason: 'temporary exception draft',
+                source: 'https://github.com/advisories/GHSA-critical-demo',
+                temporaryException: 'never allowed for critical',
+            }],
+        })).toThrow(/Critical advisories cannot be allowlisted/)
+    })
+
+    it('keeps critical risks blocking even with a matching allowlist entry', () => {
+        const result = evaluateDependencyRiskGate({
+            allowlistEntries: [{
+                advisoryId: 'GHSA-critical-demo',
+                approvedPaths: ['.>demo-package'],
+                packageName: 'demo-package',
+                severity: 'critical',
+            }],
+            minSeverity: 'high',
+            risks: [{
+                advisoryId: 'GHSA-critical-demo',
+                key: 'demo-package:GHSA-critical-demo:critical',
+                packageName: 'demo-package',
+                patchedVersions: 'unavailable',
+                paths: ['.>demo-package'],
+                recommendation: 'None',
+                severity: 'critical',
+                source: 'https://github.com/advisories/GHSA-critical-demo',
+                title: 'demo-package critical risk',
+            }],
+        })
+
+        expect(result.allowlisted).toHaveLength(0)
+        expect(result.blocking).toHaveLength(1)
+    })
+
     it('blocks allowlisted advisories when they appear on unapproved dependency paths', () => {
         const allowlistEntries = normalizeAllowlistDefinition({
             entries: [

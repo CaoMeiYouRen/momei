@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-10-29
 translation_tier: summary-sync
 ---
 
@@ -56,6 +56,17 @@ Before adopting a new dependency, MCP server, external skill/agent, or AI-recomm
 2.  **Pin versions + lockfile**: Dependencies must be pinned and committed with a lockfile (`pnpm-lock.yaml`). Tooling versions in CI / Dockerfile / automation scripts must use immutable versions (git tag / SHA), never floating tags.
 3.  **External skill / agent / MCP source verification**: Before pulling in an external skill, agent, or MCP server, verify the source repository URL and the maintaining organisation are trustworthy subjects. Be alert to vectors that disguise themselves as "helpful docs / skills" (TrustFall lessons); full pre-source checks live in [AI Asset Governance §2.2](../../../standards/ai-governance.md#22-外部同步或平台提供资产).
 4.  **Dependency direction constraints**: When adding internal packages or dependencies, follow the one-way dependency constraints in [Development Standards §2.4 Directory Structure & Dependencies](./development.md#24-directory-structure--dependencies). Circular dependencies and cross-layer application dependencies are forbidden.
+
+### 5.3 Release Security Alert Gate
+
+Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit-deps` (pnpm audit) before every release; both are wired into `release:check:full` and the release workflow and apply the following severity rules:
+
+-   **critical**: must be fixed; no exemption of any kind. Neither `.github/security/security-alert-exceptions.json` nor `.github/security/dependency-risk-allowlist.json` applies to critical alerts, and an unfixed critical alert blocks the release.
+-   **high**: fix first; exempt only when no patched version exists or the fix is disproportionately hard, and record the reason plus a `temporaryException` deadline in the exceptions file (deferred) or the dependency-risk allowlist (unavailable patch / path-level), keeping the item tracked for a prompt fix.
+-   **moderate / medium and below**: may be deferred to regular dependency upgrades and do not block a release.
+-   **Code Scanning**: same severity rules; alerts under `tests/` or classified as test-only are observe-only (out of scope, not an exemption).
+-   **Data source prerequisites**: Code Scanning requires `security-events: read` or `SECURITY_ALERTS_TOKEN`; when the official Dependabot API is unavailable the gate falls back to `pnpm audit --registry=https://registry.npmjs.org/`. Missing sources (no token, insufficient permission, unavailable API) must be recorded in the gate evidence and noted in the release record; never skip them silently.
+-   **Exemptions expire**: re-check and remove entries once the deadline passes or an upstream patch ships.
 
 ## 6. CLI & Automation Security
 

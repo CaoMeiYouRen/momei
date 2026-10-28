@@ -273,6 +273,11 @@ function normalizeAllowlistDefinition(raw) {
             throw new Error(`Invalid allowlist entry at index ${index}`)
         }
 
+        // critical 为发布红线，不允许登记豁免（docs/standards/security.md §5.3）。
+        if (severity === 'critical') {
+            throw new Error(`Critical advisories cannot be allowlisted (entry index ${index}: ${packageName}); see docs/standards/security.md §5.3`)
+        }
+
         return {
             advisoryId,
             approvedPaths,
@@ -296,13 +301,16 @@ function evaluateDependencyRiskGate({ risks, allowlistEntries, minSeverity }) {
     const blocking = []
 
     relevantRisks.forEach((risk) => {
-        const allowlistEntry = allowlistEntries.find((entry) => (
-            entry.advisoryId === risk.advisoryId
-            && entry.packageName === risk.packageName
-            && entry.severity === risk.severity
-            && risk.paths.length > 0
-            && risk.paths.every((riskPath) => entry.approvedPaths.includes(riskPath))
-        ))
+        // critical 为发布红线，allowlist 不生效（docs/standards/security.md §5.3）。
+        const allowlistEntry = risk.severity === 'critical'
+            ? null
+            : allowlistEntries.find((entry) => (
+                entry.advisoryId === risk.advisoryId
+                && entry.packageName === risk.packageName
+                && entry.severity === risk.severity
+                && risk.paths.length > 0
+                && risk.paths.every((riskPath) => entry.approvedPaths.includes(riskPath))
+            ))
 
         if (allowlistEntry) {
             allowlisted.push({ risk, allowlistEntry })

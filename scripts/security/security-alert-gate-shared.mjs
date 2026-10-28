@@ -307,7 +307,7 @@ function matchAllowlistEntry(alert, allowlistEntries) {
     )) || null
 }
 
-/** @param {{ alerts: object[], exceptionEntries: object[], allowlistEntries?: Array<{ advisoryId: string, packageName: string, severity: string, approvedPaths: string[], reason?: string, temporaryException?: string }>, minSeverity: string }} params */
+/** @param {{ alerts: object[], exceptionEntries: object[], allowlistEntries?: Array<{ advisoryId: string, packageName: string, severity: string, approvedPaths: string[], source?: string, reason?: string, temporaryException?: string }>, minSeverity: string }} params */
 function evaluateSecurityAlertGate({ alerts, exceptionEntries, allowlistEntries = [], minSeverity }) {
     const relevantAlerts = alerts.filter((alert) => severityAtLeast(alert.severity, minSeverity))
     const allowlisted = []
@@ -321,13 +321,15 @@ function evaluateSecurityAlertGate({ alerts, exceptionEntries, allowlistEntries 
             return
         }
 
-        const allowlistEntry = matchAllowlistEntry(alert, allowlistEntries)
+        // critical 为发布红线：exception 与 allowlist 均不生效（docs/standards/security.md §5.3）。
+        const exemptible = alert.severity !== 'critical'
+        const allowlistEntry = exemptible ? matchAllowlistEntry(alert, allowlistEntries) : null
         if (allowlistEntry) {
             allowlisted.push({ alert, allowlistEntry })
             return
         }
 
-        if (alert.classification.bucket === 'defer') {
+        if (exemptible && alert.classification.bucket === 'defer') {
             const exceptionEntry = exceptionEntries.find((entry) => entry.source === alert.source && entry.alertNumber === alert.alertNumber)
             if (exceptionEntry) {
                 excepted.push({ alert, exceptionEntry })
