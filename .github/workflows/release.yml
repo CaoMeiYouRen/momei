@@ -15,7 +15,7 @@ jobs:
   regression:
     name: Pre-check & Regression Gate
     runs-on: ubuntu-latest
-    timeout-minutes: 135  # 15 (precheck) + 120 (regression)
+    timeout-minutes: 140  # ≈2 (security gate) + 15 (precheck) + 120 (regression)
     permissions:
       contents: read
       security-events: read
@@ -29,6 +29,22 @@ jobs:
           node-version: "lts/*"
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
+
+      # ── Security gate: Dependabot / Code Scanning ───────
+      # 规范见 docs/standards/security.md §5.3：critical 必须修复且不可豁免，
+      # high 仅在无可用补丁或修复难度过大时登记例外。独立成步以便快速失败与定位；
+      # 与 release:check:full 内的同名门禁构成双跑，此处用于在重回归之前先给出结论。
+      - name: Run security alert gate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run security:alerts
+      - name: Upload security alert evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-alerts
+          path: artifacts/review-gate/*-security-alerts.*
+          if-no-files-found: warn
 
       # ── Phase 1: Pre-check ──────────────────────────────
       - name: Run shared CI pre-check

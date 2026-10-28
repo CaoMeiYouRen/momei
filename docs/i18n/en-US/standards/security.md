@@ -59,7 +59,7 @@ Before adopting a new dependency, MCP server, external skill/agent, or AI-recomm
 
 ### 5.3 Release Security Alert Gate
 
-Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit-deps` (pnpm audit) before every release; both are wired into `release:check:full` and the release workflow and apply the following severity rules:
+Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit-deps` (pnpm audit) before every release. The release workflow already runs `security:alerts` as a dedicated `Run security alert gate` step, and both are wired into `release:check:full`. Severity rules:
 
 -   **critical**: must be fixed; no exemption of any kind. Neither `.github/security/security-alert-exceptions.json` nor `.github/security/dependency-risk-allowlist.json` applies to critical alerts, and an unfixed critical alert blocks the release.
 -   **high**: fix first; exempt only when no patched version exists or the fix is disproportionately hard, and record the reason plus a `temporaryException` deadline in the exceptions file (deferred) or the dependency-risk allowlist (unavailable patch / path-level), keeping the item tracked for a prompt fix.

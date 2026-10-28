@@ -69,7 +69,7 @@
 
 ### 5.3 发布前安全告警门禁 (Release Security Alert Gate)
 
-发布前必须执行 `pnpm security:alerts`（Dependabot / Code Scanning）与 `pnpm security:audit-deps`（pnpm audit），两者均已接入 `release:check:full` 与 release workflow，并按以下严重级别口径处置：
+发布前必须执行 `pnpm security:alerts`（Dependabot / Code Scanning）与 `pnpm security:audit-deps`（pnpm audit）；release workflow 已将 `security:alerts` 作为独立步骤 `Run security alert gate` 执行，两者均接入 `release:check:full`，并按以下严重级别口径处置：
 
 -   **critical**: 必须修复，不允许任何形式的豁免；`.github/security/security-alert-exceptions.json` 与 `.github/security/dependency-risk-allowlist.json` 对 critical 均不生效，未修复即阻断发布。
 -   **high**: 优先修复；仅在无可修复版本或修复难度过大时允许豁免，且必须登记到 `.github/security/security-alert-exceptions.json`（延期）或 `.github/security/dependency-risk-allowlist.json`（补丁不可用 / 路径级），写明豁免原因与 `temporaryException` 期限，纳入追踪并尽快安排修复。
