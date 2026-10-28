@@ -1,5 +1,5 @@
 import { createAuthClient } from 'better-auth/vue'
-import { usernameClient, magicLinkClient, emailOTPClient, inferAdditionalFields, anonymousClient, phoneNumberClient, adminClient, genericOAuthClient, twoFactorClient } from 'better-auth/client/plugins'
+import { usernameClient, magicLinkClient, emailOTPClient, inferAdditionalFields, anonymousClient, phoneNumberClient, adminClient, twoFactorClient } from 'better-auth/client/plugins'
 import type { auth } from './auth'
 import { AUTH_BASE_URL } from '@/utils/shared/env'
 
@@ -191,7 +191,6 @@ export const authClient = createAuthClient({
         anonymousClient(),
         phoneNumberClient(),
         adminClient(),
-        genericOAuthClient(),
         twoFactorClient({}),
     ],
 })

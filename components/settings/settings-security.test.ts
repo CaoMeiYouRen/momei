@@ -90,8 +90,8 @@ describe('SettingsSecurity', () => {
         vi.clearAllMocks()
         listAccountsMock.mockResolvedValue({
             data: [
-                { providerId: 'credential', accountId: 'password-only' },
-                { providerId: 'github', accountId: 'gh-001' },
+                { id: 'acc-cred', providerId: 'credential', accountId: 'password-only' },
+                { id: 'acc-gh', providerId: 'github', accountId: 'gh-001' },
             ],
         })
         unlinkAccountMock.mockResolvedValue({ error: null })
@@ -178,13 +178,13 @@ describe('SettingsSecurity', () => {
         listAccountsMock
             .mockResolvedValueOnce({
                 data: [
-                    { providerId: 'github', accountId: 'gh-001' },
-                    { providerId: 'google', accountId: 'gg-001' },
+                    { id: 'acc-gh', providerId: 'github', accountId: 'gh-001' },
+                    { id: 'acc-gg', providerId: 'google', accountId: 'gg-001' },
                 ],
             })
             .mockResolvedValueOnce({
                 data: [
-                    { providerId: 'google', accountId: 'gg-001' },
+                    { id: 'acc-gg', providerId: 'google', accountId: 'gg-001' },
                 ],
             })
 
@@ -198,7 +198,7 @@ describe('SettingsSecurity', () => {
         await unlinkButtons[0]?.trigger('click')
 
         await vi.waitFor(() => {
-            expect(unlinkAccountMock).toHaveBeenCalledWith({ providerId: 'github' })
+            expect(unlinkAccountMock).toHaveBeenCalledWith({ accountId: 'acc-gh' })
             expect(listAccountsMock).toHaveBeenCalledTimes(2)
         })
 

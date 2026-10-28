@@ -180,9 +180,14 @@ const fetchLinkedAccounts = async () => {
 }
 
 const handleUnlink = async (providerId: string) => {
+    const account = getLinkedAccount(providerId)
+    if (!account) {
+        return
+    }
     loadingUnlink.value = providerId
     try {
-        const { error } = await authClient.unlinkAccount({ providerId })
+        // better-auth 1.7 起账号解绑只接受本地账号 ID，不再接受 providerId
+        const { error } = await authClient.unlinkAccount({ accountId: account.id })
         if (error) {
             toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
         } else {

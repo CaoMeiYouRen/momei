@@ -6,7 +6,6 @@ import {
     openAPI,
     phoneNumber as $phoneNumber,
     admin,
-    genericOAuth,
     jwt,
     twoFactor,
     captcha,
@@ -444,10 +443,6 @@ export const auth = betterAuth({
                 amount: 10, // 备份码数量
             },
         }),
-        genericOAuth({
-            config: [],
-        }),
-
         jwt({
             jwks: {
                 // 用于生成密钥对的算法
