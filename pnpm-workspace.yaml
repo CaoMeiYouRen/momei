@@ -123,3 +123,20 @@ overrides:
     "piscina": "^4.9.3"
     "@babel/plugin-transform-modules-systemjs": "^7.29.4"
     launch-editor: "^2.14.2"
+    # GHSA-83rm-6c8r-g728：vue-i18n 的 escapeParameter 无法阻止翻译消息内 srcdoc 引发的 XSS，
+    # 11.x 线修复版本为 >=11.4.14。@nuxtjs/i18n@10.6.0（npm 最新版）声明 @intlify/core /
+    # vue-i18n 为 ^11.4.8，锁文件停留在 11.4.8（低于修复线），属可修复的 high 风险。
+    # 该 5 个包在 11.4.16 内部互相精确钉版（vue-i18n / @intlify/core 均要求
+    # @intlify/core-base@11.4.16、@intlify/shared@11.4.16），因此必须整体抬到同一次版本，
+    # 只抬其中一个会残留 11.4.8 实例。11.4.16 仍是同一 major，供 @intlify/unplugin-vue-i18n
+    # 的 `~11.4.2` 与 @intlify/h3 的 ^11.1.12 区间消费，无需改动 package.json。
+    # 按 docs/standards/development.md §4.7，lockstep 族 override 必须写精确值：区间写法会让
+    # 上游发布下一个补丁版后新依赖边解析到新版、旧条目仍停在 11.4.16，重新分裂出多个补丁位。
+    # 精确 override 会覆盖 package.json:183-186 的 devDependencies 区间，使 `--frozen-lockfile`
+    # 不再暴露该 3 条声明与锁文件的差异；后续抬版时 override 与 package.json 必须在同一次
+    # 原子变更中同步，否则「只改 package.json」的升级 PR 会被 override 静默吞掉。
+    vue-i18n: "11.4.16"
+    "@intlify/core": "11.4.16"
+    "@intlify/core-base": "11.4.16"
+    "@intlify/shared": "11.4.16"
+    "@intlify/message-compiler": "11.4.16"
