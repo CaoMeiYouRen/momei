@@ -136,26 +136,6 @@
             ]
         },
         {
-            "advisoryId": "GHSA-86w9-cpqp-85rv",
-            "packageName": "node-forge",
-            "severity": "high",
-            "reason": "上游无可用补丁：GHSA-86w9-cpqp-85rv 标注 vulnerable range 为 <= 1.4.0，first_patched_version 为空（Patched versions: None），npm registry 上 node-forge 最新版本即 1.4.0，pnpm audit 报告的 patched >=1.4.1 为误导数据（该版本并不存在）。依赖链被上游锁定：nuxt / @sentry/nuxt / @vueuse/nuxt / @nuxtjs/sitemap → @nuxt/cli 或 nitropack → listhen → node-forge；listhen 属开发服务器工具链，node-forge 仅用于生成本地开发服务器自签证书，不进入生产运行时依赖图（.output/server），也无法在不替换 listhen 的前提下单独升级规避。风险实际暴露面有限：仅本地/CI 开发服务器使用，不参与生产运行时的证书签名校验，也不接受不可信证书输入。本轮复核（2026-10-21）已按当前依赖图刷新 approvedPaths：新增 @nuxtjs/sitemap > nuxt-site-config / nuxtseo-shared 链路经 nitropack > listhen 触达的 3 条路径，移除 7 条已失效的 @nuxt/cli 旧链路。",
-            "source": "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
-            "temporaryException": "有效至 node-forge 上游发布 >=1.4.1 可用补丁，或 listhen / @nuxt/cli / nitropack 链路解除对 node-forge 的依赖后立即移除",
-            "approvedPaths": [
-                ".>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@nuxtjs/sitemap>nuxt-site-config>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@nuxtjs/sitemap>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt-site-config>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@sentry/nuxt>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>@vueuse/nuxt>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge",
-                ".>vitest-environment-nuxt>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>listhen>node-forge"
-            ]
-        },
-        {
             "advisoryId": "GHSA-mrhx-c7xc-m3w5",
             "packageName": "zod",
             "severity": "high",

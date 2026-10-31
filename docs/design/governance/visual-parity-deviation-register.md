@@ -46,7 +46,8 @@
 | **任务列表刷新按钮位置（caomei `DataTable` 无 `#header` 插槽）** | 按钮位于 PrimeVue `DataTable` 的 `#header` 插槽内（表格容器内右上角一行） | caomei 侧同一 `.table-header` 结构改置于**表格之上**（保持右对齐单个图标按钮意图） | `admin-ai-tasks-list` 单带内（L20419 / D24039 含该行位移） | 不适用 | 不适用 | 不需要（无插槽可对齐） | 已登记上游反馈清单 §2.8（`DataTable` 缺 `#header` / `#footer` 插槽，2026-10-16 新增条目） | `@full-stack-master` | 已接受（进允许清单）+ 登记为结构性差异（契约用例显式断言位置，避免静默丢失入口） |
 | **推送历史列表区（`/admin/marketing`）** | PrimeVue `DataTable` + 4 `Column`（`#header` 插槽内标题 + 刷新按钮）+ `Tag` 语义色 | caomei `CaomeiDataTable` + `columns`（`cell-*` 插槽）+ `CaomeiTag tone`（`secondary → neutral` 有损近似）；刷新按钮移出插槽到表格之上 | `admin-marketing-overview` L8384 / D8674（列表带）+ 分页器带 L1167 / D3800 | `--caomei-*` 表格 token（本批不做） | 不适用 | 不需要 | §2.8（同 `/admin/ai`，第 2 个使用者） | `@full-stack-master` | 已接受（进允许清单） |
 | **页头创建按钮（`/admin/marketing`）** | `Button icon="pi pi-plus"`（primeicons 字体图标） | `CaomeiButton` + `#icon` 内 lucide `Plus` | `admin-marketing-overview` L934 / D976 | 不适用 | 不适用 | 不需要 | 不适用（§6.2 图标行映射核对） | `@full-stack-master` | 已接受（进允许清单） |
-| **弹窗表单字段（`/admin/marketing`）** | PrimeVue `Select` / `InputText`（`fluid`）+ `outlined` + `severity` 按钮 | caomei `CaomeiSelect` / `CaomeiInput`（默认 100% 宽；选择器上限在字段外层解除）+ `variant="secondary"` + `tone` | `admin-marketing-form-dialog` L 四带 4950/6101/993/1956，D 四带 4580/5604/2215/1971（含字段高度变化引起的弹窗内纵向位移） | `--caomei-field-*`（本批不做） | 不适用 | 不需要 | 不适用（§6.2 全宽 / 按钮形态行映射核对） | `@full-stack-master` | 已接受（进允许清单） |
+| **弹窗宽度（`/admin/marketing` 创建推送）** | 内容驱动、实测 **679px**（`p-fluid` 字段撑满弹窗） | caomei 字段更窄 → 弹窗收窄到 **542px**，整窗错位 8.81%（`admin-marketing-form-dialog-light`，2026-10-24 起 CI 红） | 归位前 L128174（9.890%）/ D26214；归位后并入下方「弹窗表单字段」四带 | 不适用 | 不适用 | **已修复**：`:style="dialogStyle"` 显式 `min(90vw, 680px)`（页面 scoped 的 `&__dialog` 对 teleport 浮层长期失效，属规则落点缺陷，非样式设计） | — | `@full-stack-master` | **已修复**（2026-10-28：宽度归位后实测面板 380~1059，参考态 381~1059；门禁 34/34 回绿） |
+| **弹窗表单字段（`/admin/marketing`）** | PrimeVue `Select` / `InputText`（`fluid`）+ `outlined` + `severity` 按钮 | caomei `CaomeiSelect` / `CaomeiInput`（默认 100% 宽；选择器上限在字段外层解除）+ `variant="secondary"` + `tone` | `admin-marketing-form-dialog` L 四带 6432/7110/1273/2846（合计 17886），D 四带 5854/8158/2215/2820（合计 19234）——2026-10-28 复测（含字段高度变化引起的弹窗内纵向位移） | `--caomei-field-*`（本批不做） | 不适用 | 不需要 | 不适用（§6.2 全宽 / 按钮形态行映射核对） | `@full-stack-master` | 已接受（进允许清单） |
 
 **允许清单的灵敏度是单侧的**：判定为 `allowed = min(带内差异, 声明值)`、`剩余 = 全图差异 − Σ allowed`（`tests/visual/parity/helpers.ts`）——
 故「带内差异**增长**」会被检出（剩余超阈值即红），而「带内差异**减少**」（如某处被回退成更接近 PrimeVue）不会报警。声明值一律取实测值（无余量）以保证增长方向灵敏；
@@ -60,6 +61,7 @@
 
 > 校准命令：`pnpm test:visual:parity`
 
+- 全量门禁复跑（2026-10-28，`/admin/marketing` 弹窗宽度归位）：**34/34 通过**，未归因差异 L225px / D187px；弹窗表单四带按归位后实测重新登记（L 6432/7110/1273/2846 = 17886，D 5854/8158/2215/2820 = 19234）。根因：`pages/admin/marketing/index.vue` 的 `&__dialog` 写在 scoped 块内，而 `Dialog` 由 PrimeVue 渲染到 body，选择器带不上作用域属性 → 规则长期失效，弹窗宽度随内容固有宽度漂移（caomei 字段更窄 → 542px，参考态 679px）。改为 `:style="{ width: 'min(90vw, 680px)' }"`（与 taxonomy 弹窗同一条处置通道）后宽度归位；余下差异仍为在册族字段外壳 / 按钮与字段高度引起的弹窗内纵向位移，属已归因范围。
 - 全量门禁复跑（2026-10-16，组件型目标第三批次：`/admin/marketing`）：**34/34 通过**，未归因差异 **0px**；新增 4 条按 2 个对照面校准（默认视图 3 带 / 弹窗表单 4 带，声明值 = 各带实测值，求和 = 全图实测值：默认视图浅 10485 / 深 13450；弹窗表单浅 14000 / 深 14370——后者是首个**弹窗内**迁移面的逐像素对照）。
 - 全量门禁复跑（2026-10-16，组件型目标第二批次：`/admin/ai`）：**30/30 通过**，未归因差异 **0px**；新增 4 条按 2 个对照面校准（stats 2 带 / tasks 1 带，声明值 = 各带实测值，求和 = 全图实测值：stats 浅 26951 / 深 27788；tasks 浅 20419 / 深 24039）。
 - 全量门禁复跑（2026-10-16，组件型目标首路由批次：`/admin/categories` + `/admin/tags`）：**26/26 通过**，未归因差异 **0px**；新增 4 条按 4 个非重叠功能带校准（声明值 = 各带实测值，四带求和 = 全图实测值：浅 8985 / 深 11520、浅 8363 / 深 10925）。

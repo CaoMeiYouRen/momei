@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 interface RedisClientMock {
     get: ReturnType<typeof vi.fn>
+    getdel: ReturnType<typeof vi.fn>
     set: ReturnType<typeof vi.fn>
     del: ReturnType<typeof vi.fn>
     incr: ReturnType<typeof vi.fn>
@@ -11,6 +12,7 @@ interface RedisClientMock {
 function createRedisClientMock(): RedisClientMock {
     return {
         get: vi.fn().mockResolvedValue('mock-value'),
+        getdel: vi.fn().mockResolvedValue('mock-value'),
         set: vi.fn().mockResolvedValue('OK'),
         del: vi.fn().mockResolvedValue(1),
         incr: vi.fn().mockResolvedValue(1),
@@ -83,6 +85,9 @@ describe('server/database/storage', () => {
 
             expect(await secondaryStorage.delete('test-key')).toBeNull()
             expect(redisClient.del).toHaveBeenCalledWith('test-key')
+
+            expect(await secondaryStorage.getAndDelete('test-key')).toBe('mock-value')
+            expect(redisClient.getdel).toHaveBeenCalledWith('test-key')
         })
 
         it('limiterStorage 在首次 increment 时应该设置 ttl', async () => {
@@ -126,6 +131,12 @@ describe('server/database/storage', () => {
 
             await expect(secondaryStorage.delete('test-key')).resolves.toBeNull()
             await expect(secondaryStorage.get('test-key')).resolves.toBeNull()
+
+            await expect(secondaryStorage.set('take-key', 'take-value', 60)).resolves.toBeNull()
+            await expect(secondaryStorage.getAndDelete('take-key')).resolves.toBe('take-value')
+            await expect(secondaryStorage.get('take-key')).resolves.toBeNull()
+
+            await expect(secondaryStorage.increment('increment-key', 60)).resolves.toBe(1)
 
             await expect(limiterStorage.increment('limit-key', 60)).resolves.toBe(1)
             await expect(limiterStorage.increment('limit-key', 60)).resolves.toBe(2)
