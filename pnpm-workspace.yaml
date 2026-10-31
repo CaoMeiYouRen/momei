@@ -38,7 +38,9 @@ overrides:
     js-cookie: "^3.0.7"
     basic-ftp: "^6.2.1"
     fast-xml-parser: "^5.8.0"
-    follow-redirects: "^1.16.1"
+    # GHSA-mrwp-f3q8-3g9p（high）的补丁只在 >=1.16.2 提供；锁文件已重解析为 1.16.2，
+    # 该下限可防止后续依赖 PR 把补丁位回退到受影响版本。
+    follow-redirects: "^1.16.2"
     # 以下两项只经 @lhci/cli 触达（devDependencies，仅本地 / CI 执行 Lighthouse 性能审计）。
     proxy-addr: "^2.0.8"
     compression: "^1.8.2"
@@ -53,9 +55,9 @@ overrides:
     source-map-js: "^1.2.2"
     html-minifier: "npm:html-minifier-terser@^7.2.0"
     handlebars: "^4.7.10"
-    # node-forge 上游最新版本即 1.4.0，GHSA-86w9-cpqp-85rv 要求的 >=1.4.1 并不存在，
-    # 无法通过升级规避，改由 .github/security/dependency-risk-allowlist.json 登记临时例外。
-    node-forge: "^1.4.0"
+    # node-forge 1.4.1 / 1.4.2 已发布，GHSA-86w9-cpqp-85rv 等 high 告警随之下线，
+    # 原先登记的临时例外已从 dependency-risk-allowlist.json 移除；此处下限抬到 1.4.2 防止回退。
+    node-forge: "^1.4.2"
     js-yaml: "^4.3.2"
     "read-yaml-file>js-yaml": "^3.14.1"
     tmp: "^0.2.7"
@@ -123,3 +125,20 @@ overrides:
     "piscina": "^4.9.3"
     "@babel/plugin-transform-modules-systemjs": "^7.29.4"
     launch-editor: "^2.14.2"
+    # GHSA-83rm-6c8r-g728：vue-i18n 的 escapeParameter 无法阻止翻译消息内 srcdoc 引发的 XSS，
+    # 11.x 线修复版本为 >=11.4.14。@nuxtjs/i18n@10.6.0（npm 最新版）声明 @intlify/core /
+    # vue-i18n 为 ^11.4.8，锁文件停留在 11.4.8（低于修复线），属可修复的 high 风险。
+    # 该 5 个包在 11.4.16 内部互相精确钉版（vue-i18n / @intlify/core 均要求
+    # @intlify/core-base@11.4.16、@intlify/shared@11.4.16），因此必须整体抬到同一次版本，
+    # 只抬其中一个会残留 11.4.8 实例。11.4.16 仍是同一 major，供 @intlify/unplugin-vue-i18n
+    # 的 `~11.4.2` 与 @intlify/h3 的 ^11.1.12 区间消费，无需改动 package.json。
+    # 按 docs/standards/development.md §4.7，lockstep 族 override 必须写精确值：区间写法会让
+    # 上游发布下一个补丁版后新依赖边解析到新版、旧条目仍停在 11.4.16，重新分裂出多个补丁位。
+    # 精确 override 会覆盖 package.json:183-186 的 devDependencies 区间，使 `--frozen-lockfile`
+    # 不再暴露该 3 条声明与锁文件的差异；后续抬版时 override 与 package.json 必须在同一次
+    # 原子变更中同步，否则「只改 package.json」的升级 PR 会被 override 静默吞掉。
+    vue-i18n: "11.4.16"
+    "@intlify/core": "11.4.16"
+    "@intlify/core-base": "11.4.16"
+    "@intlify/shared": "11.4.16"
+    "@intlify/message-compiler": "11.4.16"

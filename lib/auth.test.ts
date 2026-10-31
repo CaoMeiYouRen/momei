@@ -193,7 +193,6 @@ const {
             openAPI: createPluginFactory('openAPI'),
             phoneNumber: createPluginFactory('phoneNumber'),
             admin: createPluginFactory('admin'),
-            genericOAuth: createPluginFactory('genericOAuth'),
             jwt: createPluginFactory('jwt'),
             twoFactor: createPluginFactory('twoFactor'),
             captcha: createPluginFactory('captcha'),
@@ -216,7 +215,6 @@ vi.mock('better-auth/plugins', () => ({
     openAPI: pluginFactories.openAPI,
     phoneNumber: pluginFactories.phoneNumber,
     admin: pluginFactories.admin,
-    genericOAuth: pluginFactories.genericOAuth,
     jwt: pluginFactories.jwt,
     twoFactor: pluginFactories.twoFactor,
     captcha: pluginFactories.captcha,
@@ -378,9 +376,8 @@ describe('lib/auth configuration', () => {
         getRepositoryMock.mockClear()
     })
 
-    it('keeps generic OAuth anchored to env-locked auth config', async () => {
+    it('keeps auth config anchored to env-locked values', async () => {
         const { config } = await importAuthModule()
-        const genericOAuthPlugin = config.plugins.find((plugin) => plugin.name === 'genericOAuth')
 
         expect(typeormAdapterMock).toHaveBeenCalled()
         expect(config.baseURL).toBe('https://auth.example.com')
@@ -397,10 +394,6 @@ describe('lib/auth configuration', () => {
                 clientId: 'google-client-id',
                 clientSecret: 'google-client-secret',
             },
-        })
-        expect(genericOAuthPlugin).toEqual({
-            name: 'genericOAuth',
-            options: { config: [] },
         })
     })
 

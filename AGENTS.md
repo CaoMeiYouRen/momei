@@ -36,6 +36,8 @@
 | 质量 | `pnpm lint:i18n` | 单独运行 `@intlify/vue-i18n` 相关慢规则校验 |
 | 质量 | `pnpm lint:css` | 运行 Stylelint 并自动修复 |
 | 质量 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
+| 质量 | `pnpm security:alerts` | 检查 Dependabot / Code Scanning 告警（发布前必跑） |
+| 质量 | `pnpm security:audit-deps` | 检查依赖漏洞风险（pnpm audit） |
 | 文档 | `pnpm docs:dev` | 启动文档开发服务器 |
 | 文档 | `pnpm docs:build` | 构建文档 |
 | 文档 | `pnpm docs:preview` | 预览构建后的文档 |
@@ -152,6 +154,13 @@ AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中
 3. **质量前置**：提交前必须确认 A 阶段（`@code-auditor`）已放行，且 `pnpm lint`、`pnpm typecheck` 和必要的定向测试均已通过。质量门禁未通过时不得提交。
 4. **原子粒度**：一个提交对应一个逻辑变更，关联且仅关联 `todo.md` 中的一个原子条目。
 5. **推送禁令**：`git commit` 后不得自动执行 `git push`，推送仅限用户明确要求时执行。提交完成后应告知用户"已提交到本地，等待推送确认"。
+
+### 7.5 发布前安全告警门禁 (Release Security Alert Gate)
+
+-   **发布前必查**：发布前必须通过 `pnpm security:alerts` 与 `pnpm security:audit-deps`；release workflow 已将 `security:alerts` 作为独立步骤执行，`security:audit-deps` 在 pre-check 内执行，两者均接入 `release:check:full`。
+-   **critical 不可豁免**：critical 级 Dependabot / Code Scanning 漏洞必须修复，`security-alert-exceptions.json` 与 `dependency-risk-allowlist.json` 对其均不生效，未修复即阻断发布。
+-   **high 受控豁免**：high 级仅在无可用补丁或修复难度过大时允许豁免，必须登记原因与 `temporaryException` 期限并追踪、尽快修复；moderate 及以下可延后，随常规升级消解。
+-   **细节口径**：严重级别判定、Code Scanning 参照处理与数据源缺口记录见 [安全开发规范 §5.3](./docs/standards/security.md#53-发布前安全告警门禁-release-security-alert-gate)。
 
 ## 8. 其他要求
 

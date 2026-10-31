@@ -193,7 +193,7 @@ describe('check-github-security-alerts', () => {
                 bucket: 'defer',
                 reason: 'open Dependabot alert without patched version',
             },
-            severity: 'critical',
+            severity: 'high',
             source: 'dependabot',
         }
         const immediateFixAlert = {
@@ -806,5 +806,49 @@ describe('check-github-security-alerts', () => {
         } finally {
             globalThis.fetch = originalFetch
         }
+    })
+})
+
+describe('security alert exemption policy', () => {
+    const criticalAlert = {
+        advisoryId: 'GHSA-critical-demo',
+        alertNumber: '42',
+        classification: {
+            bucket: 'defer',
+            reason: 'open Dependabot alert without patched version',
+        },
+        packageName: 'demo-package',
+        paths: [],
+        severity: 'critical',
+        source: 'dependabot',
+    }
+
+    it('keeps critical alerts blocking even when exception and allowlist baselines exist', () => {
+        const result = evaluateSecurityAlertGate({
+            alerts: [criticalAlert],
+            allowlistEntries: [{
+                advisoryId: 'GHSA-critical-demo',
+                approvedPaths: ['.>demo-package'],
+                packageName: 'demo-package',
+                reason: 'temporary',
+                severity: 'critical',
+                source: 'https://github.com/advisories/GHSA-critical-demo',
+                temporaryException: 'never allowed',
+            }],
+            exceptionEntries: normalizeExceptionEntries({
+                entries: [{
+                    source: 'dependabot',
+                    alertNumber: '42',
+                    classification: 'defer',
+                    reason: 'temporary',
+                    temporaryException: 'never allowed',
+                }],
+            }),
+            minSeverity: 'high',
+        })
+
+        expect(result.excepted).toHaveLength(0)
+        expect(result.allowlisted).toHaveLength(0)
+        expect(result.blocking).toEqual([criticalAlert])
     })
 })

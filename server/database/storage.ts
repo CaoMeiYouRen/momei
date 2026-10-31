@@ -7,6 +7,12 @@ import { REDIS_URL } from '@/utils/shared/env'
 interface BaseStorage {
     get: (key: string) => Promise<string | null> | string | null
     /**
+     * 原子读取并删除指定 key。
+     * @param key
+     * @returns 被删除的值；key 不存在时返回 null
+     */
+    getAndDelete: (key: string) => Promise<string | null> | string | null
+    /**
      *
      * @param key
      * @param value
@@ -31,6 +37,10 @@ const createBaseStorage = (): BaseStorage => {
         return {
             get: async (key: string) => {
                 const value = await redis.get(key)
+                return value ?? null
+            },
+            getAndDelete: async (key: string) => {
+                const value = await redis.getdel(key)
                 return value ?? null
             },
             set: async (key: string, value: string, ttl?: number) => {
@@ -60,6 +70,11 @@ const createBaseStorage = (): BaseStorage => {
     return {
         get: (key: string) => {
             const value = memoryStorage.get(key)
+            return Promise.resolve(value ?? null)
+        },
+        getAndDelete: (key: string) => {
+            const value = memoryStorage.get(key)
+            memoryStorage.delete(key)
             return Promise.resolve(value ?? null)
         },
         set: (key: string, value: string, ttl?: number) => {
@@ -92,6 +107,8 @@ const getBaseStorage = (): BaseStorage => {
 // 实现 SecondaryStorage 接口
 const secondaryStorageImplementation: SecondaryStorage = {
     get: (key: string) => getBaseStorage().get(key),
+    getAndDelete: (key: string) => getBaseStorage().getAndDelete(key),
+    increment: (key: string, ttl: number) => getBaseStorage().increment(key, ttl),
     set: (key: string, value: string, ttl?: number) => getBaseStorage().set(key, value, ttl),
     delete: (key: string) => getBaseStorage().delete(key),
 }
@@ -102,6 +119,7 @@ export const secondaryStorage = secondaryStorageImplementation
 // 限流存储
 export const limiterStorage: BaseStorage = {
     get: (key: string) => getBaseStorage().get(key),
+    getAndDelete: (key: string) => getBaseStorage().getAndDelete(key),
     set: (key: string, value: string, ttl?: number) => getBaseStorage().set(key, value, ttl),
     delete: (key: string) => getBaseStorage().delete(key),
     increment: (key: string, ttl: number) => getBaseStorage().increment(key, ttl),

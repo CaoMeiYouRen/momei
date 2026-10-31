@@ -67,6 +67,17 @@
 3.  **外部技能 / agent / MCP 先验来源**: 引入外部 skill、agent 或 MCP server 前，必须核对来源仓库 URL 与维护组织是否为可信主体；警惕伪装成"有用文档 / 技能"诱导信任的投毒载体（TrustFall 教训），先验来源核验详见 [AI 资产治理规范 §2.2](./ai-governance.md#22-外部同步或平台提供资产)。
 4.  **依赖方向约束**: 新增内部包或依赖时，遵守 [开发规范 §2.4 目录规划与依赖约束](./development.md#24-目录规划与依赖约束-directory-structure--dependencies) 的单向依赖约束，禁止循环依赖与应用层互依。
 
+### 5.3 发布前安全告警门禁 (Release Security Alert Gate)
+
+发布前必须执行 `pnpm security:alerts`（Dependabot / Code Scanning）与 `pnpm security:audit-deps`（pnpm audit）；release workflow 已将 `security:alerts` 作为独立步骤 `Run security alert gate` 执行，两者均接入 `release:check:full`，并按以下严重级别口径处置：
+
+-   **critical**: 必须修复，不允许任何形式的豁免；`.github/security/security-alert-exceptions.json` 与 `.github/security/dependency-risk-allowlist.json` 对 critical 均不生效，未修复即阻断发布。
+-   **high**: 优先修复；仅在无可修复版本或修复难度过大时允许豁免，且必须登记到 `.github/security/security-alert-exceptions.json`（延期）或 `.github/security/dependency-risk-allowlist.json`（补丁不可用 / 路径级），写明豁免原因与 `temporaryException` 期限，纳入追踪并尽快安排修复。
+-   **moderate / medium 及以下**: 可暂不处理，随常规依赖升级消解，不阻断发布。
+-   **Code Scanning**: 参照同一严重级别口径；位于 `tests/` 路径或带 test 分类的告警按仅观察处理（属范围外，不计作豁免）。
+-   **数据源前提**: Code Scanning 需 `security-events: read` 或 `SECURITY_ALERTS_TOKEN` 才能读取；Dependabot 官方接口不可用时回退 `pnpm audit --registry=https://registry.npmjs.org/`。无 token、权限不足或接口不可用等数据源缺口必须写入门禁证据并在发布记录中说明，不得静默跳过。
+-   **豁免有期限**: 到期或上游发布可用补丁后必须复核并移除条目，不得长期挂账。
+
 ## 6. 终端命令与自动化安全 (CLI & Automation Security)
 
 在执行任何自动化脚本或终端操作时，必须遵循以下安全准则：

@@ -50,7 +50,6 @@ const {
             anonymousClient: createPluginFactory('anonymousClient'),
             phoneNumberClient: createPluginFactory('phoneNumberClient'),
             adminClient: createPluginFactory('adminClient'),
-            genericOAuthClient: createPluginFactory('genericOAuthClient'),
             twoFactorClient: vi.fn(() => 'twoFactorClient'),
         },
     }
@@ -68,7 +67,6 @@ vi.mock('better-auth/client/plugins', () => ({
     anonymousClient: pluginFactories.anonymousClient,
     phoneNumberClient: pluginFactories.phoneNumberClient,
     adminClient: pluginFactories.adminClient,
-    genericOAuthClient: pluginFactories.genericOAuthClient,
     twoFactorClient: pluginFactories.twoFactorClient,
 }))
 
@@ -110,7 +108,7 @@ describe('lib/auth-client configuration', () => {
         })
     })
 
-    it('registers generic OAuth client support in the auth client', async () => {
+    it('registers the expected client plugins in the auth client', async () => {
         authBaseUrlState.value = 'https://env-auth.example.com'
         const { options } = await importAuthClientModule()
 
@@ -119,7 +117,7 @@ describe('lib/auth-client configuration', () => {
             refetchOnWindowFocus: false,
         })
         expect(options.fetchOptions.customFetchImpl).toBeTypeOf('function')
-        expect(options.plugins).toContain('genericOAuthClient')
+        expect(options.plugins).toContain('twoFactorClient')
     })
 
     it('falls back to runtime authBaseUrl when env lock is absent', async () => {
@@ -134,7 +132,6 @@ describe('lib/auth-client configuration', () => {
             'anonymousClient',
             'phoneNumberClient',
             'adminClient',
-            'genericOAuthClient',
             'twoFactorClient',
         ]))
     })
