@@ -38,7 +38,9 @@ overrides:
     js-cookie: "^3.0.7"
     basic-ftp: "^6.2.1"
     fast-xml-parser: "^5.8.0"
-    follow-redirects: "^1.16.1"
+    # GHSA-mrwp-f3q8-3g9p（high）的补丁只在 >=1.16.2 提供；锁文件已重解析为 1.16.2，
+    # 该下限可防止后续依赖 PR 把补丁位回退到受影响版本。
+    follow-redirects: "^1.16.2"
     # 以下两项只经 @lhci/cli 触达（devDependencies，仅本地 / CI 执行 Lighthouse 性能审计）。
     proxy-addr: "^2.0.8"
     compression: "^1.8.2"
@@ -53,9 +55,9 @@ overrides:
     source-map-js: "^1.2.2"
     html-minifier: "npm:html-minifier-terser@^7.2.0"
     handlebars: "^4.7.10"
-    # node-forge 上游最新版本即 1.4.0，GHSA-86w9-cpqp-85rv 要求的 >=1.4.1 并不存在，
-    # 无法通过升级规避，改由 .github/security/dependency-risk-allowlist.json 登记临时例外。
-    node-forge: "^1.4.0"
+    # node-forge 1.4.1 / 1.4.2 已发布，GHSA-86w9-cpqp-85rv 等 high 告警随之下线，
+    # 原先登记的临时例外已从 dependency-risk-allowlist.json 移除；此处下限抬到 1.4.2 防止回退。
+    node-forge: "^1.4.2"
     js-yaml: "^4.3.2"
     "read-yaml-file>js-yaml": "^3.14.1"
     tmp: "^0.2.7"
