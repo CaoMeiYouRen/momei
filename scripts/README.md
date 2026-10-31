@@ -15,7 +15,7 @@
 | `testing` | `pnpm test:e2e:critical` / `pnpm test:e2e:review-gate --scope=<change>` / `pnpm test:e2e` | Playwright 额外参数、scope、可选 `--keep-auth-state` | Playwright 控制台结果；Review Gate run 目录下的 `evidence.md`、`manifest.json`、HTML 报告与失败附件 | 先跑 `critical`，只有范围扩大时才升级到全量；`review-gate` 会清理过期登录态并落盘结构化证据 | 正式入口 |
 | `docs` | `pnpm docs:check:i18n` / `pnpm docs:check:line-count` / `pnpm docs:check:links` / `pnpm docs:check:markers` / `pnpm docs:check:source-of-truth` / `pnpm docs:check:line-count:candidate` / `pnpm docs:check:source-of-truth:candidate` | 无；默认扫描 `docs/` 与翻译目录 | 重复翻译页、文档膨胀、本地链接有效性、注释 / 回归窗口标记完整性与事实源 / freshness 漂移结论 | 默认入口维持 blocker（`markers` 为构建阻断类：未闭合 HTML 注释会让 VitePress 直接失败）；`candidate` 入口只输出 warning baseline，用于评估扩面与收紧影响 | 正式入口 |
 | `maintenance` | `pnpm clean:temp` | 可选 `--tier=safe,logs,audit,deep`、`--apply`、`--keep-logs-days=<天数>` | 本地临时文件 / 构建产物的清理计划或删除结果 | 默认 dry-run 只输出计划；`audit`（一次性调研数据）与 `deep`（依赖目录）需显式指定；`artifacts/` 根级散落文件因可能被 docs 引用为证据，仅提示不自动清理 | 正式入口 |
-| `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` / `pnpm i18n:audit:duplicates` / `pnpm i18n:verify:runtime` | 可选 CLI 参数、locale / module 过滤器、`--output` | locale key 缺口、同步偏差、跨语言重复文案候选、高频运行时回归 | 审计类入口默认只读；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
+| `i18n` | `pnpm i18n:audit` / `pnpm i18n:check-sync` / `pnpm i18n:audit:duplicates` / `pnpm i18n:audit:field-copy` / `pnpm i18n:verify:runtime` | 可选 CLI 参数、locale / module 过滤器、`--output` | locale key 缺口、同步偏差、跨语言重复文案候选、字段标签 / 占位符文案重复、高频运行时回归 | 审计类入口默认只读；`field-copy` 为 warning 面（仅在 `--fail-on-findings` 时非零退出），用于评估文案重复是否值得升级为 UI 自检条目；`split-locale-files.mjs` 属于治理型脚本，应按专项文档手工执行，不作为日常入口 | 正式入口 |
 | `setup` | `pnpm setup:ai` / `pnpm web-push:generate-vapid` | worktree / 软链接上下文；可选 `--subject`、`--json` | AI 工作树链接同步结果；VAPID 公私钥 | 会产生本地副作用；执行前确认目标环境与路径 | 正式入口 |
 | `hooks` | `scripts/hooks/*.ps1` | 当前机器的 Hook 宿主、Git / pnpm 环境 | 本地日志、lint 副作用、会话摘要 | 仅限本地手工脚本，不纳入 CI / 团队通用入口；若后续退役应优先清理 | 本地实验 |
 
@@ -32,7 +32,7 @@
 | `scripts/review-gate/` | `generate-evidence.mjs`、`check-duplicate-code.mjs` | `pnpm review-gate:generate`、`pnpm review-gate:generate:check`、`pnpm duplicate-code:check` | 生成 Review Gate 证据，或对重复代码输出 JSON / Markdown 审计结果 | 保留 |
 | `scripts/security/` | `check-dependency-risk.mjs`、`run-daily-dependency-audit.mjs`、`dependency-risk-policy.mjs`、`check-github-security-alerts.mjs` | `pnpm security:audit-deps`、`pnpm security:audit-deps:daily`、`pnpm security:alerts`、`.github/workflows/release.yml`、`.github/workflows/dependency-risk-daily.yml` | 读取 `pnpm audit` 官方审计结果并按白名单执行 high+ 发版门禁；`dependency-risk-policy.mjs` 统一维护 release / daily 的最小严重级别、finding level 与 issue 阈值；每日巡检包装脚本会产出结构化 Review Gate 摘要并供调度入口上传 artifact / 触发告警；优先接入 GitHub Dependabot / Code Scanning 告警并在权限不足时显式回退 | 保留 |
 | `scripts/docs/` | `check-i18n-duplicates.mjs`、`check-line-count.mjs`、`check-links.mjs`、`check-doc-markers.mjs`、`check-source-of-truth.mjs` | `pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:links`、`pnpm docs:check:markers`、`pnpm docs:check:source-of-truth`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate` | 只读检查文档重复、膨胀、本地链接有效性、注释 / 回归窗口标记完整性与翻译同步、事实源一致性 | 保留 |
-| `scripts/i18n/` | `audit-locale-keys.mjs`、`audit-duplicate-messages.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`、`pnpm i18n:audit:duplicates`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、跨语言重复文案候选、拆分翻译文件 | 保留 |
+| `scripts/i18n/` | `audit-locale-keys.mjs`、`audit-duplicate-messages.mjs`、`audit-field-copy.mjs`、`split-locale-files.mjs` | `pnpm i18n:audit`、`pnpm i18n:audit:duplicates`、`pnpm i18n:audit:field-copy`；设计 / 翻译治理文档中的手工命令 | 审计 locale key、跨语言重复文案候选、字段标签 / 占位符文案重复、拆分翻译文件 | 保留 |
 | `scripts/testing/` | `run-e2e.mjs`、`run-e2e-critical.mjs`、`run-review-gate-ui-baseline.mjs` | `pnpm test:e2e`、`pnpm test:e2e:critical`、`pnpm test:e2e:review-gate` | 检查 `.output` 新鲜度、执行 Playwright 最小关键路径基线，并在 Review Gate 场景下沉淀按运行目录隔离的日志 / 报告 / 失败附件 | 保留 |
 | `scripts/perf/` | `check-bundle-budget.mjs`、`cwv-baseline.mjs`、`capture-remote-cpuprofile.mjs`、`fs-watch-probe.mjs` | `pnpm test:perf:budget`、`pnpm test:perf:budget:strict`、`pnpm test:perf:cwv`、`pnpm perf:cpuprofile:remote`、`pnpm perf:fs-watch:probe:dev`、`.github/workflows/test.yml` | 读取 Lighthouse / bundle 输出，采集 CWV 基线（LCP / CLS / TBT），按需采集远端 CPU profile，并支持 dev `fs.watch` 注册分布探针 | 保留 |
 | `scripts/setup/` | `generate-web-push-vapid.mjs`、`setup-ai.mjs` | `pnpm web-push:generate-vapid`；`pnpm setup:ai` | 生成 VAPID 密钥；批量同步 worktree 内 AI 目录链接 | `generate-web-push-vapid.mjs` 保留；`setup-ai.mjs` 作为跨平台正式入口 |
@@ -70,6 +70,7 @@ pnpm docs:check:source-of-truth
 pnpm docs:check:source-of-truth:candidate
 pnpm i18n:audit
 pnpm i18n:audit:duplicates
+pnpm i18n:audit:field-copy
 pnpm i18n:verify:runtime
 pnpm test:e2e
 pnpm test:e2e:critical

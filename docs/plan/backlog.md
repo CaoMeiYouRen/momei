@@ -51,6 +51,8 @@
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第六十四阶段（ko-KR / ja-JP 文档治理：13 文件 `last_sync` 刷新、ja-JP 由 seo-ready 升格、补全 features / variables 翻译）。
 - **当前基线**: `i18n:audit:missing = 0`；缺失字段优先修复、重复键及时清理、`unused` 默认观察。
+**待跟踪（2026-11-01 新增，责任人：国际化治理）**：`i18n:audit:duplicates` 以 `JSON.parse` 后的对象为输入，**同一文件内的重复键在解析阶段已被折叠**，因此 `i18n/locales/zh-CN/admin-posts.json:53-66` 的 8 个重复键（`expand` / `condense` 及其派生键）长期未被该审计发现，只能靠原文级检查扫出。收敛方向：在 audit 脚本内补一次原文级重复键扫描（对象栈检测，约 30-50 行脚本 + 1 例单测），或在 `lint:i18n` 前置增加 JSON 重复键规则；进入 PR 阻断前先以 warning 面运行一周观察误报。
+
 **待跟踪（2026-10-14 新增，责任人：国际化治理）**：跨语种键集合漂移在 **per-PR CI 无阻断**——PR 侧只跑 `pnpm lint:i18n`（eslint `@intlify/*` 规则），实测「仅删 `en-US` 一个键」时 `lint:i18n` EXIT 0、`pnpm i18n:check-sync`（默认 `failOnDiff=false`）EXIT 0；只有 `pnpm i18n:audit:missing`（`--fail-on-missing`，在 `regression:weekly` profile 内）与 `i18n:check-sync --fail-on-diff` 才 EXIT 1。收敛方向：把 `i18n:audit:missing`（或 `i18n:check-sync --fail-on-diff`）加入 PR 侧 test job，使五语种键漂移在合并前即被拦下。
 
 - **下一次可切片方向**: 尚未纳入 runtime 回归的公开页装配链路（档案 / 分类 / 标签列表页 i18n 完整性审计）；仍需动态拼接 key 的场景优先评估“是否为有限集合”，默认改显式静态 key 映射而非扩 allowlist。
@@ -104,6 +106,7 @@
 - **最近一次上收阶段**: 无（S0 为维护批次，尚未立正式阶段）。
 - **当前基线**: 478 条 `font-size:` / 60 种写法 / token 化 6.3%；34 处状态色幻影 token（24 处 `$color-*` + 7 处 `--p-warning-color` + 2 处 `--p-error-color` + 1 处 `--p-text-secondary-color`）；另有迁移遗留的 `--p-surface-border` 95 处 / `--p-text-color-secondary` 15 处，随 B3 / B4 清理；4 个文件覆盖 5 个页面误用「暂无文章」空态；扫描面 194 处 `border:`；视觉门禁 17 条 admin 路由 / 0 条 reader；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
 - **下一次可切片方向**: 直接做 S1：状态色幻影 token 清零（34 处）+ 空态组件与文案（4 个文件 / 5 页）+ 空表不渲染分页，6–8 文件。S1 优先于暗色 tint 与字阶治理：先让颜色「存在」，再谈颜色「好看」。S1 建议作为第六十九阶段前的独立小切片，不并入 caomei-ui B3 批次。
+**待跟踪（2026-11-01 新增，责任人：UI 视觉质量治理）**：字段文案同义检查已以 warning 面落地——`pnpm i18n:audit:field-copy`（`scripts/i18n/audit-field-copy.mjs`）已进入 `regression:weekly` 的 `required: false` 步骤，仅 `--fail-on-findings` 时非零退出。当前基线：183 个 Vue 文件，R1 标签与占位符同义 18 处、R2 占位符承载规则信息 11 处。观察两周后按「命中率 / 误报率 / 修复成本」决定是否收窄为 UI 自检 U7；在此之前**不改** `docs/design/ui-review-checklist.md` 的 U1–U6 边界，也不把该原则写入 `AGENTS.md` / `development.md`。已知漏报（不视为缺陷）：术语不一致型（如「推送标题」vs「请输入邮件标题」）与 `SettingFormField` 这类由父级 `field-key` 提供标签的形态。
 
 ## 周期性回归验证层
 
@@ -236,6 +239,12 @@
     - **上收前置**: 视觉基线需覆盖带数据行与状态标签的页面（现状多为空态基线，本差异正是因此漏出）；确认浅色 `tone == solid` 的层次收敛可接受，并明确错误边框是否跟随变深。
     - **验收标准**: light / dark 计算值分别等于对应 `-700` / `-400`，solid 恒 `-700`；soft 8% 底文字对比度两态均 ≥ 4.5；视觉差异仅限状态色区域且逐项归因；`keyCss` 不越线。
     - **详细方案**: [2026-10-24-caomei-status-tone-contrast.md](../design/governance/2026-10-24-caomei-status-tone-contrast.md)
+13. **i18n 键层缺陷清理（2026-11-01 登记，P1）**
+    - **背景**: 2026-11-01 对 zh-CN 2734 个键做了全量体检，剔除审美项后仍有 5 处真实缺陷：① `i18n/locales/zh-CN/admin-posts.json:53-66` 的 `expand` / `expand_tooltip` / `expand_select_first` / `expand_success` / `condense` / `condense_tooltip` / `condense_select_first` / `condense_success` 共 8 键整块重复，JSON 解析时后者静默覆盖前者，等于白写一段；② `admin.json` 与 20 个模块文件定义同一路径（如 `admin.json:14` 与 `admin-ai.json:92` 的 `pages.admin.ai.title`），20 组当前值全部一致，但属双源同键——任一侧改动会同时改菜单与页面标题，一旦漂移即为「菜单叫 A、页面叫 B」；③ `admin-settings.json:192-199` 的 `system.fields.*` 6 键零引用，值与 `system.keys.*` 完全相同；④ `pages/index.vue:4-26` 的 hero 模板已整块注释，`home.hero.*` 3 键成为死键（其中 `home.hero.subtitle` 与 `pages.about.hero.subtitle` 是同一句）；⑤ `pages/submit.vue:46` 的「支持 Markdown 语法」为硬编码中文，未走 i18n。
+    - **最小范围**: ① 去重 `admin-posts.json` 重复块，保留单份并核对 8 键引用；② 收敛 `admin.json` 与模块文件的 20 组同路径键，先判定「菜单标题」与「页面标题」是否本就该是同一文案，再择一为事实源（删除另一侧或改为显式别名）；③ 五语种同步删除 6 个 `system.fields.*` 与 3 个 `home.hero.*`；④ 把 `支持 Markdown 语法` 迁入命名空间（`public` 或 `common`）。
+    - **非目标**: 不改 UI 布局与交互；不做口号 / 副标题的审美调整；不重写五语种文案风格；不动 label / placeholder / hint 的文案重复（该部分另作成本收益评估，尚未上收）。
+    - **上收前置**: 先确认加载与合并顺序（`i18n/config/locale-modules.ts` + 模块 registry 的合并语义），明确 ② 改动后菜单与页面标题的唯一取值来源；确认 20 组同路径键在 `admin.json` 与模块文件中不存在值差异（当前实测 20/20 同值）。
+    - **验收标准**: `pnpm i18n:audit:duplicates` 组数不增加（当前 101 组 / 238 键 / 52 跨模块）；`lint:i18n`、`i18n:audit:missing = 0`、`i18n:check-sync` 五语种一致；被删 / 合并的键在 `pages` / `components` / `server` / `tests` 无残留引用；`pnpm test` 中 `pages/submit.test.ts`、`pages/friend-links.test.ts` 等 i18n stub 同步更新。
 
 ---
 

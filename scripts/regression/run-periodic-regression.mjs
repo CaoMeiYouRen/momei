@@ -84,6 +84,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
             createPnpmStep('i18n:audit:missing', 'i18n:audit:missing', { timeoutBudget: '10m' }),
+            createPnpmStep('i18n:audit:field-copy', 'i18n:audit:field-copy', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
             createPnpmStep('governance:check:scripts', 'governance:check:scripts', { required: false, timeoutBudget: '10m' }),
             createPnpmStep('governance:audit:eslint-debt', 'governance:audit:eslint-debt', { required: false, timeoutBudget: '5m' }),

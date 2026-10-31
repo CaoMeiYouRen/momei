@@ -23,6 +23,7 @@ describe('run-periodic-regression', () => {
             'docs:check:i18n',
             'docs:check:line-count',
             'i18n:audit:missing',
+            'i18n:audit:field-copy',
             'duplicate-code:check',
             'governance:check:scripts',
             'governance:audit:eslint-debt',
