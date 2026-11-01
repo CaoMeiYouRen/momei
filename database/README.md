@@ -14,7 +14,7 @@
 
 为了确保数据一致性，我们强烈建议您手动执行本目录下的 SQL 脚本来初始化生产数据库。系统仅在以下场景会自动开启同步：
 1. 开发环境 (`NODE_ENV=development`)。
-2. Demo 模式 (`DEMO_MODE=true`)。
+2. Demo 模式 (`NUXT_PUBLIC_DEMO_MODE=true`；容器部署请在启动时注入)。
 3. 测试环境 (`vitest`)。
 4. 显式设置环境变量 `DATABASE_SYNCHRONIZE=true`。
 

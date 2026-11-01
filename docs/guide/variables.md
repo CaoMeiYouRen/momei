@@ -17,7 +17,17 @@
 - **Level 2 (管理)**: 仅管理员可见（支持脱敏显示）。
 - **Level 3 (内核)**: 仅服务端可见，永远不会通过 API 返回给前端（如 `AUTH_SECRET`）。
 
-### 1.3 脱敏类型 (Mask Type)
+### 1.3 注入时机：构建期 vs 运行期 (Build-time vs Runtime)
+
+`nuxt.config.ts` 只在**构建期**执行，运行期注入只认 `NUXT_*` 前缀。因此：
+
+- **运行期可注入**（容器启动时设置即可，无需重建镜像）：`NUXT_PUBLIC_*`（映射到 `runtimeConfig.public`）、`NUXT_*`（映射到私有 `runtimeConfig`），以及在服务端代码里直接读取的私有密钥（如 `GITHUB_CLIENT_SECRET` / `GOOGLE_CLIENT_SECRET` / `AUTH_CAPTCHA_SECRET_KEY` / `CRON_SECRET` / `TASKS_TOKEN` / `WEBHOOK_SECRET`）。
+- **构建期专属**（必须在构建环境提供，运行期设置不生效）：`KV_REST_API_URL`（决定 Nitro 缓存驱动）、`i18n.baseUrl` / sitemap 中使用的站点地址等被写入静态产物的值。
+- 依赖私有密钥的**派生开关**（如「社交登录是否可用」）不能写进 `public` 配置——构建期会被固化为 `false`；正确做法是服务端按请求注入（见 [开发规范 §7.1](../standards/development.md#71-构建期与运行期的注入口径-build-time-vs-runtime)）。
+
+> 该口径适用于 SSR / 容器部署；`nuxt generate` 的静态产物仍会把 `public` 值固化在构建期。回归守卫见 `tests/modules/runtime-config-env-injection.test.ts`。
+
+### 1.4 脱敏类型 (Mask Type)
 - **none**: 原样显示。
 - **password**: 全部遮蔽 (********)。
 - **key**: 保留前 4 位和后 4 位，中间遮蔽 (sk-a...bc12)。

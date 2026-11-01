@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 ---
 
 # 변수 및 설정 매핑
@@ -20,6 +20,16 @@ last_sync: 2026-09-04
 3. 코드 기본값
 
 이미 ENV로 잠긴 항목은 관리자 화면에서 읽기 전용처럼 보일 수 있습니다.
+
+### 1.1 주입 시점 (빌드 타임 vs 런타임)
+
+`nuxt.config.ts`는 **빌드 타임**에만 실행되며, 런타임 주입은 `NUXT_*` 접두사만 인식합니다.
+
+- **런타임 주입 가능**(컨테이너 시작 시 설정하면 충분): `NUXT_PUBLIC_*`, `NUXT_*`, 그리고 서버 코드가 런타임에 읽는 비밀 키(`GITHUB_CLIENT_SECRET`, `AUTH_CAPTCHA_SECRET_KEY`, `CRON_SECRET` 등).
+- **빌드 타임 전용**(빌드 환경에 있어야 함): `KV_REST_API_URL`(Nitro 캐시 드라이버), i18n / sitemap 사이트 URL 등 정적 산출물에 기록되는 값.
+- 비밀 키에 의존하는 파생 스위치(예: OAuth 사용 가능 여부)는 `public` 설정에 쓰지 말고 서버 플러그인으로 요청마다 주입해야 합니다.
+
+> SSR / 컨테이너 배포 기준이며, `nuxt generate` 정적 산출물은 빌드 타임 값으로 고정됩니다.
 
 ## 2. 주요 설정 그룹
 

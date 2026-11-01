@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 ---
 
 # 功能特色
@@ -75,7 +75,7 @@ last_sync: 2026-09-04
 - **安裝精靈**：協助完成首輪部署、資料庫與基礎設定。
 - **Momei CLI**：支援從 Hexo 等系統將 Markdown + Front-matter 內容匯入。
 - **外部發佈 API**：可透過 API Key 與外部自動化流程整合。
-- **Demo 模式**：使用記憶體資料庫快速展示產品能力，適合試用與演示。
+- **Demo 模式**：設定 `NUXT_PUBLIC_DEMO_MODE` 後使用記憶體資料庫快速展示產品能力（容器部署請於啟動時注入；非前綴的 `DEMO_MODE` 僅在建置期生效）。
 
 ## 8. 定時任務與自動化
 

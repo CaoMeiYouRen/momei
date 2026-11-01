@@ -48,3 +48,13 @@ source_origin: ../../../standards/development.md
 ## 5. 문서 동기화
 
 핵심 기능, 설정, 아키텍처가 바뀌면 설계 문서와 README, 가이드를 함께 검토해야 합니다.
+
+## 6. 환경 변수 주입 (빌드 타임 vs 런타임)
+
+`nuxt.config.ts`는 빌드 타임에만 실행되며, 런타임 주입은 `NUXT_*` 접두사만 인식합니다.
+
+- 비공개 `runtimeConfig`를 `nuxt.config`에서 `process.env`로 초기화하지 마세요. 비밀 키는 서버 코드에서 런타임에 읽습니다(`NUXT_*` 재정의 가능).
+- 비공개 변수에 의존하는 파생 값(예: OAuth 사용 가능 여부)은 `public` 설정에 쓰지 말고 `.server.ts` 플러그인으로 요청마다 `useState`에 주입합니다.
+- 설정을 읽기 위해 API 라우트를 추가하지 마세요. 라우트를 추가하면 기존 타입화된 `$fetch<T>` 호출에서 `TS2589`가 발생합니다.
+- 빌드 타임 전용 스위치(`KV_REST_API_URL`, i18n / sitemap 사이트 URL)는 문서에 명시해야 합니다.
+- 가드: `tests/modules/runtime-config-env-injection.test.ts`.

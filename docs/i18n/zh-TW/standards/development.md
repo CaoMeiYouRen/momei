@@ -84,3 +84,13 @@ source_origin: ../../../standards/development.md
 - 是否需要更新根目錄 README
 
 對文檔的修改應遵守 [文件規範](./documentation.md)。
+
+## 7. 環境變數注入口徑（建置期 vs 執行期）
+
+`nuxt.config.ts` 只在建置期執行，執行期注入只認 `NUXT_*` 前綴。
+
+- 私有 `runtimeConfig` 不得在 `nuxt.config` 內以 `process.env` 初始化；私有密鑰改由服務端在執行期讀取（或使用 `NUXT_*` 覆寫）。
+- 依賴私有變數的衍生值（例如 OAuth 是否可用）不得寫入 `public` 設定，應由 `.server.ts` 外掛按請求注入 `useState`。
+- 不要為了讀設定而新增 API 路由：本倉新增任意路由都會觸發既有型別化 `$fetch<T>` 的 `TS2589`。
+- 僅建置期生效的開關（`KV_REST_API_URL`、i18n / sitemap 站點網址）必須在文件中標明。
+- 回歸守衛：`tests/modules/runtime-config-env-injection.test.ts`。

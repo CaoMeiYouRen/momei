@@ -545,7 +545,7 @@ pnpm build
 
 ## 7. 配置读取规范 （Configuration Access Standards）
 
-为了实现“零配置”和“热生效”，项目中严禁直接在业务逻辑中使用 `process.env`（基础设施配置除外，如 `DATABASE_URL`）。
+为了实现“零配置”和“热生效”，项目中严禁直接在业务逻辑中使用 `process.env`（基础设施配置与**仅服务端可见的私有密钥**除外，如 `DATABASE_URL`；后者的读取时机见 §7.1）。
 
 - **后端 （Server）**: 
     - 统一使用 `server/services/setting.ts` 中的 `getSetting(key)` 或 `getSettings([keys])` 方法。
@@ -553,6 +553,16 @@ pnpm build
 - **前端 （Frontend）**:
     - 统一使用 `useMomeiConfig()` Composable。
     - 避免强依赖 `useRuntimeConfig()`，除非是真正的构建时静态变量。
+
+### 7.1 构建期与运行期的注入口径 （Build-time vs Runtime）
+
+`nuxt.config.ts` **只在构建期执行**；Nuxt 的运行期环境变量注入只认 `NUXT_*` 前缀（映射到 `runtimeConfig` 的对应 key）。两者混用会造成「本地正常、生产静默失效」——2026-11 的社交登录可用性缺陷即属此类。
+
+- **私有 `runtimeConfig` 不得用 `process.env` 初始化**：非 `NUXT_` 前缀的密钥在构建机上通常为空，会把空值烘焙进产物；若构建机恰好有值，密钥则被固化进镜像。私有配置只声明 key 与字面量默认值（如 `''`），服务端在**运行期**读取环境变量（或使用 `NUXT_` 前缀运行期覆盖）。
+- **依赖私有变量的派生值不得写入 `public` 配置**：例如「某 OAuth 提供方是否可用」依赖 clientSecret，若在 `nuxt.config` 里算成布尔值，生产环境会永久为 `false`。此类能力应由服务端**按请求**注入（`.server.ts` 插件写 `useState`，见 `plugins/social-providers.server.ts`），页面读取该状态。
+- **不要为「读一个配置」新增 API 路由**：本仓的 Nitro 类型化 `$fetch` 已接近 TS 递归上限，新增任意路由会触发既有多处 `$fetch<T>` 的 `TS2589`（2026-11 实测）。需要按请求下发配置时优先 `useState`（payload 自带序列化）。
+- **构建期专属配置要显式标注**：如 `nitro.storage` 的驱动选择（`KV_REST_API_URL`）、`i18n.baseUrl` / sitemap 站点地址等，只在构建期生效；文档与注释须写清，避免被误当成运行期开关。
+- **回归守卫**：`tests/modules/runtime-config-env-injection.test.ts` 静态校验上述口径，改动 `nuxt.config` 的 `runtimeConfig` 结构时应先看该用例。
 
 ## 8. 文档规范 （Documentation Standards）
 

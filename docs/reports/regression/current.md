@@ -10,6 +10,35 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:fix-social-provider-runtime-env:社交登录可用性改运行期判定:2026-11-02 -->
+## 2026-11-02 修复：社交登录可用性改为运行期判定（构建期环境变量导致生产恒隐藏）
+
+### 根因
+
+`nuxt.config.ts` 的 `runtimeConfig.public.socialProviders` 用 `process.env.GITHUB_CLIENT_SECRET` 等**构建期**求值算布尔值。`nuxt.config` 只在构建时执行，而 Nuxt 运行期注入只认 `NUXT_*` 前缀；容器部署时 `*_CLIENT_SECRET` 在构建机为空 → 布尔被固化 `false`，登录 / 注册页即使配置了 OAuth 也永不显示按钮。
+
+### 修复
+
+- 新增 `server/utils/social-providers.ts`：可用性 / better-auth 配置的**单一运行期解析**（clientId 与 clientSecret 同时存在才可用，值做 `trim`）。
+- 新增 `plugins/social-providers.server.ts`：按请求写入 `useState('auth-social-providers')`；页面（login / register）读取该状态，删除 `public.socialProviders`。
+- `lib/auth.ts` 改用同一解析函数，保证「按钮可见 = 服务端已启用」。
+- 同类问题一并修：私有 `runtimeConfig`（`authCaptchaSecretKey` / `cronSecret` / `tasksToken` / `webhookSecret`）不再在 `nuxt.config` 读构建期环境变量，改为字面量 `''` 声明；`server/utils/captcha.ts` 增加运行期 `process.env.AUTH_CAPTCHA_SECRET_KEY` 回退（其余三项本就有运行期回退）。
+- 守卫：`tests/modules/runtime-config-env-injection.test.ts` 静态锁定「私有 runtimeConfig 不得用 process.env 初始化」「public 不得烘焙 socialProviders」「页面只读请求期状态」。
+
+### 验证
+
+- 全量 `pnpm test` **571 文件 / 5051 passed / 1 skipped**；`typecheck` 0；`eslint`（检查态）0。
+- 端到端（同一构建产物、构建期无社交 env）：实例 A 不注入 → 登录页 HTML 中 GitHub/Google 命中 **0**；实例 B 仅在**启动时**注入 4 个凭据 → 命中 **3 / 2**（按钮 + payload 状态），证明运行期生效。
+- 变异验证：把页面改回读 `public.socialProviders`、把 helper 判定改坏、把 `authCaptchaSecretKey` 改回构建期读值，三类改动均使对应用例转红。
+- 文档：新增 [开发规范 §7.1](../../standards/development.md) 与 [环境配置 §1.3](../../guide/variables.md) 口径说明。
+
+### 未覆盖边界
+
+- 插件接线本身无运行时单测（Nuxt 插件在 vitest 中难以按真实 `defineNuxtPlugin` 语义加载）；由静态守卫 + 上述双实例 E2E 覆盖。如需硬覆盖，应在 E2E 层加登录页按钮断言。
+- 非 `NUXT_` 前缀的 demo / test 别名（`DEMO_MODE` / `TEST_MODE` / `WINDOWS_LOCAL_DEV_MODE`）仍只在构建期生效，文档已改为推荐 `NUXT_PUBLIC_*`；彻底统一需另立切片。
+- 新增任意 API 路由会触发既有多处类型化 `$fetch<T>` 的 `TS2589`（本修复因此不新增端点），属既有类型债，未在本批处理。
+<!-- regression-window:end:fix-social-provider-runtime-env:社交登录可用性改运行期判定:2026-11-02 -->
+
 <!-- regression-window:start:phase69-caomei-ui-rc1:caomei-ui 1.0.0-rc.1 升级与 token 角色接线:2026-11-01 -->
 ## 2026-11-01 第六十九阶段条目 1 caomei-ui 1.0.0-rc.1 升级与 token 角色接线
 

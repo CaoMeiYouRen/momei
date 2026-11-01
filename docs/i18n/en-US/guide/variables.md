@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 translation_tier: summary-sync
 ---
 
@@ -31,7 +31,17 @@ These levels control how much of a setting can appear in API responses:
 - **Level 2 (admin)**: Visible only to administrators and may be masked.
 - **Level 3 (kernel)**: Server-only values that are never exposed to the frontend, such as `AUTH_SECRET`.
 
-### 1.3 Mask Types
+### 1.3 Injection Timing (Build-time vs Runtime)
+
+`nuxt.config.ts` runs only at build time, and runtime injection only recognizes the `NUXT_*` prefix.
+
+- **Runtime-injectable** (setting them when the container starts is enough): `NUXT_PUBLIC_*`, `NUXT_*`, and private secrets read by server code at runtime (`GITHUB_CLIENT_SECRET`, `AUTH_CAPTCHA_SECRET_KEY`, `CRON_SECRET`, etc.).
+- **Build-time only** (must be present in the build environment): `KV_REST_API_URL` (Nitro cache driver), i18n / sitemap base URLs baked into static output.
+- Derived switches that depend on private secrets (for example OAuth availability) must be injected per request by a server plugin instead of being written into `public` config, which would freeze them at build time.
+
+> This applies to SSR / container deployments; `nuxt generate` freezes public values at build time.
+
+### 1.4 Mask Types
 
 - **none**: Displayed as-is.
 - **password**: Fully hidden as `********`.

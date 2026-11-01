@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 translation_tier: summary-sync
 ---
 
@@ -86,7 +86,7 @@ Momei treats subscription and external delivery as part of the same operating su
 -   **Installation Wizard**: New installations can use a guided setup flow to complete the initial database and base configuration.
 -   **Momei CLI Migration Tool**: Import Markdown content from Hexo and similar systems through a dedicated CLI with Front-matter support.
 -   **Publishing API**: Integrate Momei into your automation flows (e.g., publish from Obsidian) via API keys.
--   **Demo Mode**: Uses an in-memory database and blocks persistent changes, perfect for product demonstrations.
+-   **Demo Mode**: Set `NUXT_PUBLIC_DEMO_MODE` to run with an in-memory database and block persistent changes, perfect for product demonstrations (inject it at container start; the non-prefixed `DEMO_MODE` alias only works at build time).
 
 ## 10. Engineering Foundation & Runtime Boundaries
 

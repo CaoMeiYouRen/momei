@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 translation_tier: summary-sync
 ---
 
@@ -29,7 +29,17 @@ Momei は **環境変数優先** の戦略を採用しています：
 | Level 2 (管理) | 管理者のみ閲覧可能（マスキング表示対応） |
 | Level 3 (内部) | サーバーのみ参照可能。API では決して返されない（`AUTH_SECRET` 等） |
 
-### 1.3 マスキング種別 (Mask Type)
+### 1.3 注入タイミング（ビルド時 / 実行時）
+
+`nuxt.config.ts` は**ビルド時**のみ実行され、実行時の注入は `NUXT_*` プレフィックスのみ対象です。
+
+- **実行時注入可**（コンテナ起動時に設定すればよい）：`NUXT_PUBLIC_*`、`NUXT_*`、およびサーバーコードが実行時に読む秘密鍵（`GITHUB_CLIENT_SECRET`、`AUTH_CAPTCHA_SECRET_KEY`、`CRON_SECRET` など）。
+- **ビルド時のみ**（ビルド環境で必要）：`KV_REST_API_URL`（Nitro キャッシュドライバ）、i18n / sitemap のサイト URL など静的成果物に埋め込まれる値。
+- 秘密鍵に依存する派生スイッチ（OAuth の可否など）は `public` 設定に書いてはいけません（ビルド時に `false` で固定されます）。サーバープラグインでリクエストごとに注入します。
+
+> SSR / コンテナ配備向けの説明です。`nuxt generate` の静的成果物はビルド時の値になります。
+
+### 1.4 マスキング種別 (Mask Type)
 
 - **none**: そのまま表示
 - **password**: すべて伏せ字 (********)

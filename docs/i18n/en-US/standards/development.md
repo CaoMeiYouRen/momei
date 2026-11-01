@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-24
+last_sync: 2026-11-02
 ---
 
 # Momei Development Standards
@@ -274,3 +274,13 @@ export default defineEventHandler(async (event) => {
     }
 });
 ```
+
+## 6. Build-time vs Runtime Injection
+
+`nuxt.config.ts` runs only at build time; runtime injection only recognizes `NUXT_*`.
+
+- Never seed private `runtimeConfig` from `process.env` in `nuxt.config`; read secrets at runtime in server code (or use `NUXT_*` overrides).
+- Derived values that depend on private variables (such as OAuth availability) must be injected per request via a `.server.ts` plugin + `useState`, never written into `public` config.
+- Do not add an API route just to read configuration: adding any route currently trips `TS2589` in existing typed `$fetch<T>` call sites.
+- Build-time-only knobs (`KV_REST_API_URL`, i18n / sitemap base URLs) must be documented as such.
+- Guard: `tests/modules/runtime-config-env-injection.test.ts`.

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 ---
 
 # 變數與設定映射
@@ -28,7 +28,17 @@ last_sync: 2026-09-04
 - **Level 2（管理）**：僅管理員可見，必要時支援脫敏。
 - **Level 3（內核）**：只在服務端可見，不透過 API 返回前端，例如 `AUTH_SECRET`。
 
-### 1.3 脫敏方式
+### 1.3 注入時機（建置期 vs 執行期）
+
+`nuxt.config.ts` 只在**建置期**執行，執行期注入只認 `NUXT_*` 前綴。
+
+- **執行期可注入**（容器啟動時設定即可）：`NUXT_PUBLIC_*`、`NUXT_*`，以及由服務端程式在執行期讀取的私有密鑰（`GITHUB_CLIENT_SECRET`、`AUTH_CAPTCHA_SECRET_KEY`、`CRON_SECRET` 等）。
+- **僅建置期**（必須在建置環境提供）：`KV_REST_API_URL`（Nitro 快取驅動）、i18n / sitemap 使用的站點網址等會被寫入靜態產物的值。
+- 依賴私有密鑰的衍生開關（例如 OAuth 是否可用）不可寫進 `public` 設定——建置期會被固化為 `false`；正確做法是由服務端外掛按請求注入。
+
+> 適用於 SSR / 容器部署；`nuxt generate` 靜態產物仍為建置期值。
+
+### 1.4 脫敏方式
 
 - **none**：原樣顯示。
 - **password**：完全遮蔽。

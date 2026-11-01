@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-02
 ---
 
 # 기능 소개
@@ -67,5 +67,5 @@ last_sync: 2026-09-04
 - 설치 마법사
 - Hexo 등에서 가져올 수 있는 Momei CLI
 - 외부 발행용 API Key 기반 인터페이스
-- 메모리 DB 기반 Demo 모드
+- 메모리 DB 기반 Demo 모드 (`NUXT_PUBLIC_DEMO_MODE`; 컨테이너 배포 시 시작 시점에 주입, 접두사 없는 `DEMO_MODE`는 빌드 타임에만 적용)
 - 예약 발행, 유지보수 작업, 외부 배포 작업을 처리하는 작업 엔진
