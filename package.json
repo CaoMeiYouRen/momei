@@ -162,7 +162,7 @@
     "p-queue": "^10.0.0",
     "pg": "^8.23.1",
     "primeicons": "^8.0.2",
-    "primelocale": "^2.6.1",
+    "primelocale": "^2.6.2",
     "primevue": "^4.5.5",
     "quill": "^2.0.3",
     "reflect-metadata": "^0.2.2",
