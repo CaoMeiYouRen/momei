@@ -2,7 +2,7 @@
 
 - 日期：2026-09-18（2026-09-20 更新：库侧前置已归档、消费路径已确定、方案 A 三阶段获授权；2026-09-22 更新：目标依赖由 `caomei-ui@0.1.0` 上移到 `0.2.0`，样式入口与并存期包体口径随上游破坏性变更重定，见 §3.6；2026-09-25 更新：上游 0.3.0 已发布并调整目标基线口径，见 §3.7；2026-10-13 更新：补记上游 0.4.0~0.6.0 变更基线与目标依赖静默漂移的复测收口，见 §3.8；2026-10-24 更新：升级并锁定 0.7.0（locale 子路径化 BREAKING 判定与复测），见 §3.9；2026-11-01 更新：目标基线提升到 `1.0.0-rc.1`（token 角色扩展与静态外观影响、批次轨迹重切为 69–71 三段），见 §3.10 / §7）
 - 性质：**迁移评估与执行方案**。本文档为文档产物，**不含任何代码改动**；迁移已授权开工。
-- 状态：**已开工规划**（第六十九阶段规划中，未开工）。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 升级与基线复测**已于 2026-09-26 完成**（第六十八阶段条目 1，见 §3.7），其后依赖经 Dependabot 单包路径静默抬版到 **`0.6.0`**（该轮已按升级纪律补做复测）；2026-10-24 由维护批次**升级并锁定 `0.7.0`**（见 §3.9），漂移已**于 2026-10-13 按升级纪律补做阅读、复测与文档对齐**（见 §3.8 与 [回归记录归档分片](../../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)）；**2026-11-01 立项，第六十九阶段规划中（未开工）**，目标依赖提升为 `1.0.0-rc.1` 并纳入浮层族与 locale 接线（见 §3.10 / §7）。
+- 状态：**已开工**（第六十九阶段进行中：条目 1 已完成，条目 2–4 未开工）。库侧前置（caomei-ui Phase 7 第二阶段，含 M5）已于 2026-09-19 完成归档；`caomei-ui@0.2.0` 已于 2026-09-22 发布（覆盖库侧 Phase 11 M1~M5，含包形态破坏性变更），迁移目标依赖随之更新；momei 侧按方案 A 三阶段轨迹推进，第六十七阶段为首个执行阶段——接入基座已按 0.1.0 落地，**已于 2026-09-24 重锚到 0.2.0**（`keyCss` 配额回落 70KB，见 §3.6 与 §8.4.1）；`caomei-ui@0.3.0` 升级与基线复测**已于 2026-09-26 完成**（第六十八阶段条目 1，见 §3.7），其后依赖经 Dependabot 单包路径静默抬版到 **`0.6.0`**（该轮已按升级纪律补做复测）；2026-10-24 由维护批次**升级并锁定 `0.7.0`**（见 §3.9），漂移已**于 2026-10-13 按升级纪律补做阅读、复测与文档对齐**（见 §3.8 与 [回归记录归档分片](../../reports/regression/archive/2026-10-13-phase68-caomei-drift-060.md)）；**2026-11-01 立项，第六十九阶段进行中（条目 1 已完成）**，目标依赖提升为 `1.0.0-rc.1` 并纳入浮层族与 locale 接线（见 §3.10 / §7）。
 - 事实源边界：库侧能力面、映射表、有意差异与验收判定口径以 caomei-ui 仓库的治理文档为**唯一事实源**（见 §13）；本文档只承载 momei 侧现状基线、批次编排、momei 侧执行动作与开工前置条件，不重复库侧明细。
 - 回链主文档：[UI 设计](../ui.md)（组件库章节在迁移收尾前仍描述 PrimeVue，迁移执行时同步）。
 - 上游动因：[2026-08 PrimeVue 5 许可证变更专项评估](./2026-08-29-primevue-5-license-change-evaluation.md)。
@@ -107,11 +107,11 @@ pnpm governance:count:primevue-usage
 
 | 项 | 目标值 | 说明 |
 | :--- | :--- | :--- |
-| 包名与版本 | 当前锁定 `caomei-ui@0.7.0`，第六十九阶段目标 `1.0.0-rc.1`（2026-10-30 发布，升级基线见 §3.10；先前版本轨迹见 §3.6 ~ §3.9） | 许可证 MIT；`0.2.0` 发布于 2026-09-22T12:21:29Z、`0.3.0` 发布于 2026-09-24T10:47:52Z；`0.3.0` 升级与基线复测已于 2026-09-26 完成（第六十八阶段条目 1），其后经 Dependabot 单包路径抬版至 `0.5.0`（2026-09-30 发布）、`0.6.0`（2026-10-08 发布）与 `0.7.0`（2026-10-20），前两次**已于 2026-10-13 补做升级纪律要求的阅读、复测与文档对齐**，`0.7.0` 于 2026-10-24 维护批次完成（见 §3.8 / §3.9） |
+| 包名与版本 | **当前锁定 `caomei-ui@1.0.0-rc.1`**（2026-10-30 发布，2026-11-01 由第六十九阶段条目 1 升级并复测，见 §3.10；先前版本轨迹见 §3.6 ~ §3.9） | 许可证 MIT；`0.2.0` 发布于 2026-09-22T12:21:29Z、`0.3.0` 发布于 2026-09-24T10:47:52Z；`0.3.0` 升级与基线复测已于 2026-09-26 完成（第六十八阶段条目 1），其后经 Dependabot 单包路径抬版至 `0.5.0`（2026-09-30 发布）、`0.6.0`（2026-10-08 发布）与 `0.7.0`（2026-10-20），前两次**已于 2026-10-13 补做升级纪律要求的阅读、复测与文档对齐**，`0.7.0` 于 2026-10-24 维护批次完成（见 §3.8 / §3.9） |
 | 导出面 | `.` / `./nuxt` / `./resolver` / `./theme.css` / `./package.json` | **`./styles.css` 已在 0.2.0 移除**；`./theme.css` → `dist/styles/index.css`（基础层）。接入面所需入口齐备 |
 | peer 依赖 | `vue@^3.5.0`、`@nuxt/kit@^4.0.0` | momei 侧均已满足 |
 | 运行时依赖 | `reka-ui@2.10.4`、`@lucide/vue@^1.48.0`、`@tanstack/vue-table@9.2.4`、`@internationalized/date@3.12.4` | 由 caomei-ui 自带；**momei 若在自身模板中直接使用 `@lucide/vue` 图标，须在 momei 侧显式声明该依赖**（pnpm 严格 node_modules 不允许直接引用传递依赖） |
-| 版本策略 | 迁移期间**锁定精确版本**（当前 `0.7.0`，不加 `^`；0.6.0 时期的漂移与 0.7.0 升级见 §3.8 / §3.9） | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须先读目标版本 `BREAKING CHANGES` 并重跑该批回归，不得静默升级。**2026-10-13 补强**：精确锁定并不阻止依赖机器人在精确值上继续抬版（`0.3.0 → 0.5.0 → 0.6.0` 即由此发生），迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级路径，见 §3.8 |
+| 版本策略 | 迁移期间**锁定精确版本**（当前 `1.0.0-rc.1`，不加 `^`、不写范围；历史漂移与升级见 §3.8 / §3.9 / §3.10） | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须先读目标版本 `BREAKING CHANGES` 并重跑该批回归，不得静默升级。**2026-10-13 补强**：精确锁定并不阻止依赖机器人在精确值上继续抬版（`0.3.0 → 0.5.0 → 0.6.0` 即由此发生），迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级路径，见 §3.8 |
 | 消费前提 | 产物保留逐模块 CSS import，**裸 Node ESM 不能直接 `import` 包根**（`ERR_UNKNOWN_FILE_EXTENSION: .css`） | momei 走 Nuxt / Vite 打包器，满足前提；momei 侧任何 Node 脚本不得直接 import `caomei-ui` 包根 |
 | 本地联调 | `"caomei-ui": "file:../caomei-ui"` | 仅在需要使用未发布改动时启用；切换后需重跑 `pnpm install`（`file:` 为硬链接，重建后须重装）；**该形态不得进入提交** |
 
@@ -192,16 +192,31 @@ pnpm governance:count:primevue-usage
 | **对比度修复（承接 #12）** | 上游以 `-text` 角色取代「tone 直接当文字 / 边框色」，`tag` 组件样式注释明示 8% soft 底在 6 预设 × 明暗下均 ≥ 4.5:1；tone 仅用于 soft 底色 | **由上游角色承接 backlog 短期候选 #12**，但上游保证只在其默认 token 值下成立——momei 用 Aura 色板覆盖 `-text` 后须**实测** soft 8% 底对比度（light / dark 均 ≥ 4.5）才算闭合；原方案「把 tone 改 light `-700` / dark `-400`」作废（改 tone 会连带动 soft 底色，反而偏离上游契约） |
 | **行为修复** | `DataTable` 横向滚动容器键盘可达；行选择全选作用域与 `lazy` 页内状态 | 15 条已迁移列表路由需定向回归（选择语义 / 分页 / 键盘可达） |
 | **交互变化** | Button 新增 hover / active 状态反馈（`transition` 增 `color`） | 静态截图不受影响；若后续补交互态基线须按新契约采集 |
-| **基础层体积** | `dist/styles/index.css` 9,492 B → **20,595 B**；gzip 1,683 B → **2,824 B**。增量来源：`forest` / `ink` / `sakura` 三套新设计预设（每套 light + dark + auto ≈ 2.8 KB raw）与 6 个新角色 | `keyCss` 预判 **+750 B（按 0.6.0 批次约 0.66 的合并压缩收益折算）~ +1,141 B（无合并收益上界，即基础层 gzip 增量）**（现 61,311 B / 70 KB 配额，不越线）；三套未消费预设对每个下游是纯负担，登记为上游可反馈项（建议改为按需子路径） |
+| **基础层体积** | `dist/styles/index.css` 9,492 B → **20,595 B**；gzip 1,683 B → **2,824 B**。增量来源：`forest` / `ink` / `sakura` 三套新设计预设（每套 light + dark + auto ≈ 2.8 KB raw）与 6 个新角色 | `keyCss` 预判 **+750 B（按 0.6.0 批次约 0.66 的合并压缩收益折算）~ +1,141 B（无合并收益上界，即基础层 gzip 增量）**（现 61,311 B / 70 KB 配额，不越线）；三套未消费预设对每个下游是纯负担，**拟登记**为上游可反馈项（截至 2026-11-01 尚未入清单） |
 | **组件清单** | 自动导入组件仍 **95 项**，与 0.7.0 逐项一致（`dist/nuxt/components.js` 的 `caomeiComponents` 对比为空） | §5.1 的清单口径不变 |
 | **locale** | 子路径清单与 0.7.0 一致（`zh-tw` / `ja-jp` / `ko-kr` / `es-es` / `fr-fr` / `de-de` / `ru-ru` / `pt-br`），预注册仍为 `zh-CN` / `en-US` | 第六十九阶段条目 3 的接线方式不变（§5.4 / §5.6） |
 
 **momei 侧结论**：
 
-1. **升级不是「复跑即绿」批次**。与 `0.7.0`（基础层 sha256 与 `0.6.0` 相同、已消费组件运行时零变化）不同，rc.1 同时改了 token 消费面与基础层体积，因此条目 1 必须**重采 16 条 `test:visual` 用例（14 张截图基线 + 2 条 token 桥接断言）+ 重校准 34 条 parity 允许清单**，并把「控件边界深于 PrimeVue 并存观感」登记为有意偏差，禁止以放宽阈值代替归因。
-2. **桥接扩展口径**：`-text` 按模式感知接线——**`primary` 取 `var(--p-primary-700)`（dark `var(--p-primary-400)`）**，因为本仓主色由用户在运行时配置、`--p-primary-*` 由 `composables/use-theme.ts` 动态生成，写死 Aura 静态蓝 `--p-blue-700` 会让用户换主色后状态文字仍为蓝色；success / warning / danger 取 `--p-{green,orange,red}-700` / `-400`（本仓状态色本就取固定原始色板），neutral 取 `--p-text-muted-color`。暗色用 `html:root.dark` 后排块（特异性 `0,2,1`）压过库侧 `:is(.dark, …)`（`0,1,0`）与桥接自身的 `html:root`（`0,1,1`）——**该压制结论按 0.7.0 选择器形态推断，rc.1 新增三套预设后的选择器集合未逐条核对，以条目 1 的契约测试（light / dark 计算值断言）为准**。`--caomei-color-control-border` **不桥接**，采用上游 3:1 默认（用户 2026-11-01 决策），避免把控件可达性缺口继续顺延到 B4。
+1. **升级不是「复跑即绿」批次**。与 `0.7.0`（基础层 sha256 与 `0.6.0` 相同、已消费组件运行时零变化）不同，rc.1 同时改了 token 消费面与基础层体积，因此条目 1 必须**重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接 + 2 条对比度契约；立项时口径为 16 条，实测已增至 18）+ 重校准 34 条 parity 允许清单**，并把「控件边界深于 PrimeVue 并存观感」登记为有意偏差，禁止以放宽阈值代替归因。
+2. **桥接扩展口径**：`-text` 按模式感知接线——**`primary` 取 `var(--p-primary-700)`（dark `var(--p-primary-400)`）**，因为本仓主色由用户在运行时配置、`--p-primary-*` 由 `composables/use-theme.ts` 动态生成，写死 Aura 静态蓝 `--p-blue-700` 会让用户换主色后状态文字仍为蓝色；`danger` 取 `--p-red-700` / `-400`；`success` / `warning` 取 `--p-{green,orange}-800` / `-400`（`-700` 在 8% soft 底上仅约 4.68 / 4.78，落到 `bg-elevated` 即跌破 4.5；`-800` 与上游同档，且该色板由 PrimeVue 运行期注入，静态产物 grep 不到）；`neutral` **不得**复用 tone（`--p-text-muted-color`），改写 `color-mix(in srgb, var(--p-text-color) 85%, var(--p-surface-card))`——tone == text 正是 rc.1 要拆开的形态（实测仅 4.26），派生值则随主题自适应。暗色用 `html:root.dark` 后排块（特异性 `0,2,1`）压过库侧 `:is(.dark, …)`（`0,1,0`）与桥接自身的 `html:root`（`0,1,1`）——**该压制结论按 0.7.0 选择器形态推断，rc.1 新增三套预设后的选择器集合未逐条核对，以条目 1 的契约测试（light / dark 计算值断言）为准**。`--caomei-color-control-border` **不桥接**，采用上游 3:1 默认（用户 2026-11-01 决策），避免把控件可达性缺口继续顺延到 B4。
 3. **版本锁定**：精确锁定 `1.0.0-rc.1`，预发布通道**不写范围**（`^` / `>=` 会同时跨 rc 与 GA）；`1.0.0` GA 发布后按同一升级纪律另立批次。精确锁定不拦机器人，故 `dependabot.yml` 的 `ignore` 列为条目 1 的执行范围（§3.8 / §5.6）。
 4. **轨迹重切**：2026-11-01 复算的剩余迁移面为 PrimeVue `1,161 处 / 146 文件`、浮层族并集约 `100 文件`（生产文件口径，排除 `*.test.ts`）、`primeicons 556 处 / 142 文件`；原 69 / 70 两段无法覆盖，故重切为 69–71 三段（67 / 68 归档结论不变，总跨度 67–71）；依据与批次表见 §7。
+
+> 说明：本节此前的「目标基线 / 预判」写于立项时；**实际取值以本小节实测结论与 `styles/main.scss` 为准**。
+
+**实测结论（2026-11-01，第六十九阶段条目 1 完成）**：升级已落地，`package.json` / `pnpm-lock.yaml` 精确锁定 `1.0.0-rc.1`（无 `file:` 形态），锁文件仅 `caomei-ui` 一条包记录变更（安装时被顺带重解析的 `tslib@2.9.1` 已手工还原，避免无关 churn）。
+
+| 验证项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| 视觉基线层 | `pnpm test:visual` **18/18**（14 条截图 + 2 条桥接契约 + 2 条对比度契约）；基线更新 10 张（5 个已迁移路由 × 2 主题），2 个未迁移页零差异；逐页差异 656 ~ 3,840px（0.051% ~ 1.129%，阈值 0 逐像素口径，线状占比 0.80–0.99） | 通过，差异归因到两个新角色 |
+| 门禁层 parity | **34/34**；`control-border` 使控件边框整体变深，**33/34 条**带内差异变化（仅 `admin-marketing-overview-dark` 未变，28 条超出 225px 噪声带），已按同一次运行的实测值全量重校准（声明值 = 实测）；`admin-users-list-light` 的区域 0 / 1 几何重叠一并消除；复跑残差 ≤ 225px（0.017%，运行间渲染噪声） | 通过，增长已登记 |
+| 归因探针 | link-governance：控件边界 8,187 / 8,190px、状态文字 0；ai-tasks：控件边界 3,416px、状态文字 251 / 259px | 增量全部来自本批两个 token 角色 |
+| 包体 | `keyCss` **62,382 B（60.92KiB）/ 70KB**（较 0.7.0 批次 61,276 B **+1,106 B**，较 0.6.0 批次 +1,071 B），落在预判区间；`coreEntryJs` 341,231 B / 360KB；`maxAsyncChunkJs` 55,914 B / 130KB；`prIncrementJs` 4,223 B / 20KB | 通过，`keyCss` 增量归因到基础层 |
+| 对比度（soft 8% 底，内容面 / 次级面） | 浅色 primary 8.72 / 8.08、success 6.66 / 6.17、warning 6.74 / 6.24、danger 5.83 / 5.40、neutral 10.36 / 9.60；暗色 8.21 / 7.44、9.75 / 8.85、7.68 / 6.99、6.43 / 5.88、11.38 / 10.34 | 全部 ≥ 4.5，**闭合 backlog 短期候选 #12** |
+| 质量门 | `typecheck` 0 / `lint` 0 error / `lint:css` 通过；定向单测 **70/70**（含新增版本锁定守卫） | 通过 |
+
+未归因项：`coreEntryJs` 相对 0.3.0 基线口径 +4,223 B 未逐项归因（rc.1 的组件 JS 仅 `data-table` +883 B，属路由 chunk，不构成入口增量；`prIncrementJs` 4,223 B 即该差值的门禁口径），保留为观察项。三套新增预设无条件进入基础层**尚未登记**到上游反馈清单，列为候选。`DataTable` 两处上游修复的运行时行为回归（键盘可达、全选 / lazy 语义）未在本批执行，转第七十一阶段全量 E2E。
 
 ## 4. 目标与非目标
 
@@ -269,9 +284,9 @@ pnpm governance:count:primevue-usage
 | `-color-text` / `-color-text-muted` | `var(--p-text-color)` / `var(--p-text-muted-color)` | |
 | `-color-border` | `var(--p-content-border-color)` | momei 既有 `--p-surface-border` 在 Aura 中不存在（见下注） |
 | `-color-mask` | `var(--p-mask-background)` | 遮罩 |
-| `-color-{primary,success,warning,danger}-text`（`1.0.0-rc.1` 新增） | `primary`：light `var(--p-primary-700)` / dark `var(--p-primary-400)`；`success` / `warning` / `danger`：light `var(--p-{green,orange,red}-700)` / dark `-400` | 状态**文字 / 边框**角色（`tag` / `message` / `badge` / `stepper` 等消费）；按模式取值，暗色由 `html:root.dark` 后排块承载。`primary` 必须走运行时主色，不得写死 Aura 静态蓝 |
-| `-color-neutral-text`（`1.0.0-rc.1` 新增） | `var(--p-text-muted-color)` | 中性状态文字 |
-| `-color-control-border`（`1.0.0-rc.1` 新增） | **不桥接**，采用上游默认（light `#8a8b8d` / dark `#67676a`） | 控件边界与装饰边框分离后的 3:1 可达性角色（Button secondary / outline、输入 / 选择器边框）；与 `-color-border` 有意不同值，属**待随条目 1 登记**的有意偏差 |
+| `-color-{primary,success,warning,danger}-text`（`1.0.0-rc.1` 新增） | `primary`：light `var(--p-primary-700)` / dark `var(--p-primary-400)`；`danger`：light `var(--p-red-700)` / dark `var(--p-red-400)`；`success` / `warning`：light `var(--p-{green,orange}-800)` / dark `-400` | 状态**文字 / 边框**角色（`tag` / `message` / `badge` / `stepper` 等消费）；按模式取值，暗色由 `html:root.dark` 后排块承载。`primary` 必须走运行时主色，不得写死 Aura 静态蓝 |
+| `-color-neutral-text`（`1.0.0-rc.1` 新增） | `color-mix(in srgb, var(--p-text-color) 85%, var(--p-surface-card))` | 中性状态文字；**不得**复用 tone（`--p-text-muted-color`），否则 tone == text、8% 底仅约 4.26 |
+| `-color-control-border`（`1.0.0-rc.1` 新增） | **不桥接**，采用上游默认（light `#8a8b8d` / dark `#67676a`） | 控件边界与装饰边框分离后的 3:1 可达性角色（Button secondary / outline、输入 / 选择器边框）；与 `-color-border` 有意不同值，属**已于 2026-11-01 随条目 1 登记**的有意偏差（[偏差处置表](./visual-parity-deviation-register.md)） |
 | `-radius-md` | `var(--p-content-border-radius)` | `sm` / `lg` 用 `calc()` 按半 / 双派生 |
 | `-font-sans` | `$font-sans`（`styles/_variables.scss`） | 沿用 momei 字体栈 |
 
@@ -370,7 +385,7 @@ pnpm governance:count:primevue-usage
 
 - **默认消费路径**：npm 常规依赖 `caomei-ui@1.0.0-rc.1`（第六十九阶段目标基线；升级前为 `0.7.0`），CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
 - **本地联调降级路径**：仅在需要验证库侧未发布改动时，临时改为 `file:../caomei-ui`；该形态**不得进入提交**（否则 CI / Docker / Vercel 会因解析不到 `../caomei-ui` 而失败）。
-- **锁定策略**：迁移在飞期使用精确版本（第六十九阶段目标 `1.0.0-rc.1`，升级前仍为 `0.7.0`；不加 `^`，也不写 `>=` 范围），避免库侧发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
+- **锁定策略**：迁移在飞期使用精确版本（**当前锁定 `1.0.0-rc.1`**；不加 `^`，也不写 `>=` 范围），避免库侧发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
 - **预发布通道约束（2026-11-01 新增）**：`1.0.0-rc.1` 发布于 `dist-tags.next`（`latest` 仍为 `0.7.0`）。预发布版本**只能精确锁定**——`^1.0.0-rc.1` / `>=1.0.0-rc.1` 会同时允许 `rc.2` 与 `1.0.0` GA，等于把「读 BREAKING CHANGES + 重跑该批回归」的入口再次放开。`1.0.0` GA 发布后按同一升级纪律另立批次评估。
 - **升级纪律（0.2.0 / 0.3.0 / 0.6.0 / 0.7.0 / 1.0.0-rc.1 对照背书）**：库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容——`0.1.0 → 0.2.0` 的 `styles.css → theme.css` 破坏性形态变更即为例证；`0.3.0` 与 `0.4.0~0.6.0` 无 `BREAKING CHANGES`，`0.7.0` 唯一 BREAKING 为 locale 预注册 + 子路径化，`1.0.0-rc.1` 未声明 BREAKING **但含静态外观变更**（§3.10）——三者共同说明「无破坏性变更」不等于「无行为变化」，每次升级都须重跑该批次视觉回归与定向测试，并在提交信息与回归记录中留痕，不得静默升级。
 - **0.7.0 起的 locale 子路径约束（2026-10-24）**：包根只预注册 `zh-CN` / `en-US`；一旦接入 `provideLocale` / `CaomeiConfigProvider`，`zh-TW` / `ja-JP` / `ko-KR` 必须显式 `import ... from 'caomei-ui/locale/<code>'` 并在 provider 之前 `registerLocale()`（provider 文案是 `computed`，注册晚于挂载不会重算，异步场景须先注册再挂载）。
@@ -493,7 +508,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | **B0b 视觉验证回归基座** | 在迁移前采集基线，并升级为可自动比对的三层回归（单元 / E2E / 截图，见 §8.2）：列表页 / 表单（设置）页 / 浮层各 1 页，含关键元素计算样式快照与环境元数据（浏览器与版本、视口、主题与明暗、locale、`@layer`） | 基线采集脚本 / 命令、比对脚本、CI 接入、阈值策略、环境、两仓 commit、快照日期齐全的可复现记录 | 接入基座；**不依赖 M5** |
 | **全局 token 语义层**（momei 侧新增） | 按 §5.2 第 ① 层，以并存桥接方式引入 `--caomei-*` 语义 token 与 caomei `momei` 预设，保留 `--p-*` 供给未迁移组件 | 语义层映射说明 + `@layer` 顺序记录 + 视觉回归无差异证据 | 接入基座 + B0b（需先有比对能力才可判定无回退） |
 | **B2 数据类页面** | 先做**试点页 1-2 个**（端到端验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路），再推 20 个 `<Column>` 文件：`pages/admin/posts`、`users`、`friend-links`、`comments`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance`、`components/admin/admin-taxonomy-page.vue`、`components/admin/ai/task-list.vue`、`components/admin/marketing-campaign-list.vue`、`components/admin/settings/{admin-notification-settings,agreements-settings,notification-delivery-log-list,setting-audit-log-list}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue` | 试点结论（链路可行性 + 耗时画像）、逐页功能回归（排序 / 分页 / 选择 / 列插槽）+「文件 → 改动点」清单 | 接入基座 + B0b + 全局 token 语义层 |
-| **前置：`1.0.0-rc.1` 升级与 token 角色接线**（第六十九阶段条目 1） | 精确锁定升级；补接 `-color-*-text` ×5 与 `-color-control-border`；`dependabot.yml` 增 `ignore`；重采 16 条 `test:visual` 用例（14 张截图 + 2 条 token 断言）+ 重校准 34 条 parity 允许清单 + `keyCss` 复测；`DataTable` 两处上游修复的定向回归 | 升级记录 + 桥接契约断言 + 包体复测 + 偏差登记 | npm 发布（§3.10） |
+| **前置：`1.0.0-rc.1` 升级与 token 角色接线**（第六十九阶段条目 1） | 精确锁定升级；补接 `-color-*-text` ×5 与 `-color-control-border`；`dependabot.yml` 增 `ignore`；重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接 + 2 条对比度契约）+ 重校准 34 条 parity 允许清单 + `keyCss` 复测；`DataTable` 两处上游修复的定向回归 | 升级记录 + 桥接契约断言 + 包体复测 + 偏差登记 | npm 发布（§3.10） |
 | **B3 表单与设置页面**（第七十阶段） | `components/admin/settings/*`、`components/settings/*`、`components/installation/*` 与 auth / submit / register 等表单页（合计约 500 处，占剩余面近半；逐目录用量待开工时以脚本家族分桶复核） | 表单交互回归（校验 / 提交 / 提示）+「文件 → 改动点」清单 | 第六十九阶段（浮层族与 locale 先行） |
 | **B4 展示、图标与收尾**（第七十一阶段） | 展示类组件（Card / Divider / Message / Skeleton / Avatar / Tag 残留等）、图标全量替换（556 处 / 142 文件）、`primevue-i18n` 插件替换、测试与 E2E 改写（**剩余项**：全量基线 25 个 mock / 3 文件 11 处断言，扣除第六十九阶段已改写的浮层相关子集）、品牌图标落点选定、`--p-*` 幻影 token 清理（backlog #11 的 S1）、卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 全量测试与 E2E 通过 + 包体对比记录 +「文件 → 改动点」清单 + PrimeVue 相关产物归零 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
 
@@ -602,6 +617,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 **预判（2026-11-01，`caomei-ui@1.0.0-rc.1` 升级立项时；实测前不入基线）**：基础层 `dist/styles/index.css` 由 9,492 B / gzip 1,683 B（`gzip -9` 复测口径；同节 0.6.0 批次的 1,719 B 为 `gzip` 默认级别（-6）口径，差值 36 B 不影响结论）增至 **20,595 B / gzip 2,824 B**（+11,103 B raw / **+1,141 B gzip**），增量来自 `forest` / `ink` / `sakura` 三套新设计预设与 6 个新 token 角色（§3.10）。按 0.6.0 批次的合并压缩收益比（基础层 gzip `+630 B` → `keyCss +415 B`，约 `0.66`）推算，`keyCss` 预期 **+750 B（按 0.66 合并压缩收益折算）~ +1,141 B（无合并收益上界，即基础层 gzip 增量）**，即 61,311 B → **62,061 ~ 62,452 B（60.6 ~ 61.0 KiB）**，仍在 70 KB 配额内（注意：`keyCss` 增量通常小于该上界，仅在无合并收益时才等于基础层 gzip 增量 1,141 B）。该值须由第六十九阶段条目 1 实测确认；若实测越线，优先把「三套未消费预设改为按需子路径」回灌上游，而不是放宽配额。基线 JSON 与 [性能规范](../../standards/performance.md) 的数值在实测通过后方可三处联动刷新。
 
+**实测（2026-11-01，`caomei-ui@1.0.0-rc.1` 升级批次）**：基础层 raw 9,492 → **20,595 B**、gzip -9 1,683 → **2,824 B**；`keyCss` 实测 **62,382 B（60.92KiB）/ 70KB**：较 0.7.0 批次（61,276 B）**+1,106 B**、较 0.6.0 批次（61,311 B）+1,071 B，落在预判 `+750 ~ 1,141 B` 区间内（0.66 折算给出下限 753 B；按增量口径约在区间 91% 处）。基线 JSON **本批不刷新**（沿用 0.3.0 批次口径 60,896 B，实测已高于基线），是否重取仍交由 B4 决定；[性能规范](../../standards/performance.md) 的 70KB 配额不变。
+
 > 说明：上表同时记录的两个既有度量缺陷修正（`coreEntryJsGzipBytes` 入口口径、`maxAsyncChunkJsGzipBytes` manifest 路径）与本迁移无关，继续有效，不随 0.2.0 回退。
 
 ### 8.5 逐批清单
@@ -635,7 +652,7 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
 - **排期落地（2026-09-19 用户授权；2026-11-01 重切）**：采用**方案 A 轨迹**（原为第六十七 ~ 第七十阶段四段；2026-11-01 按剩余迁移面复算，把 69 / 70 两段重切为 69–71 三段，67 / 68 归档结论不变，总跨度 67–71），迁移从第六十七阶段起正式上收为阶段主线：
   1. **第六十七阶段**（已归档）：接入基座 + 视觉验证回归基座 + 全局 token 语义层 + B2 试点页（先验证全链路再全量）。
   2. **第六十八阶段**（已归档 2026-10-24）：`0.3.0` 升级与基线复测 + B2 剩余数据页全量 + 覆盖率第九批切片。
-  3. **第六十九阶段**（规划中，未开工，2026-11-01 立项）：`1.0.0-rc.1` 升级与 6 个新 token 角色接线（并闭合 #12）+ 浮层族整迁 + 内建文案 locale 接线 + 覆盖率第十批。
+  3. **第六十九阶段**（进行中，条目 1 已完成，2026-11-01 立项）：`1.0.0-rc.1` 升级与 6 个新 token 角色接线（并闭合 #12）+ 浮层族整迁 + 内建文案 locale 接线 + 覆盖率第十批。
   4. **第七十阶段**：B3 表单与设置（`components/admin/settings/*` / `components/settings/*` / `components/installation/*` / 认证与提交页）。
   5. **第七十一阶段**：B4 展示族 + 图标全量替换 + 测试 / E2E 改写 + `--p-*` 幻影 token 清理（backlog #11 的 S1）+ PrimeVue 卸载 + 包体对比。
 - 每个批次走完整 PDTFC+ 与 Review Gate；跨批次的阶段准入、容量与验收以 [roadmap.md](../../plan/roadmap.md) 与 [todo.md](../../plan/todo.md) 为准。

@@ -134,14 +134,14 @@
 
 **审计结论**: 第六十八阶段四条主线已完成并归档，并闭合第六十七阶段归档结论中登记的 `caomei-ui@0.3.0` 升级待执行条目。`caomei-ui` 侧完成 `0.3.0` 升级与基线复测（`keyCss` 口径澄清），并在依赖经 Dependabot 单包路径抬版到 `0.5.0` / `0.6.0` 后按升级纪律补做 `0.4.0~0.6.0` 的 `BREAKING CHANGES` 阅读、组件清单重数（81 项）、三层视觉回归（10/10，零像素差异）与包体复测（`keyCss` 61,311 B / 70KB，未越线）；B2 侧完成 10 个 `pages/admin` 数据列表路由与 3 个组件型目标的 4 条 host 路由整路由迁移（`CAOMEI_UI_ROUTE_PREFIXES` 终态 15 项），落地 `ownedFiles`、路由级在册族增量与子路由例外三项守卫机制，5 个过渡组件均已就位并统一消费 V2（`/admin/posts/[id]` 为唯一剩余 V1 消费者）；覆盖率第九批 4 个模块全部达成「+15pp 或 ≥85%」（`friend-link` 99.26% / `notification` 98.45% / `post-distribution` 91.91% / `upload` 98.80%），全仓 Statements 80.45% → 81.04%、Branches → 70.83%、Lines → 81.15%，全仓 `+1pp` 结构上不可达——候选池 866 条语句占全仓 2.48%，但其**基线未覆盖语句仅约 233 条**（约占全仓 0.67pp），全数闭合仍不足 1pp；原因已按验收条款记录并转长期主线 #1。阶段内另以 B 类插队完成「文档标记完整性门禁」派生修复（`docs:check:markers` 接入 `docs:build` / `docs:dev`）。验证以 2026-10-22 全量为准：`pnpm test` **5012 passed / 1 skipped（566 文件）**、`test:coverage` EXIT 0、`typecheck` / `lint` / `lint:css` 通过，文档四项检查通过；其后提交为依赖升级、安全修复（`95c95fed`，server 侧 Brotli 响应过滤；10 个文件 = 5 测试 + 5 实现）、测试工具链与文档修补，各自独立验证并以 CI 结论为准；业务代码的全量回归基线仍取 2026-10-22 记录。各批 Review Gate 均 Pass（Round 1 / Round 2 的 blocker 已逐项闭环）。`todo.md` 已清理，`todo-archive.md` 已收录本阶段归档块，`docs/reports/regression/current.md` 的第六十八阶段活动窗口已整体迁入 [归档分片](../reports/regression/archive/2026-10-16-to-2026-10-22-phase68-close.md)。
 
-> 未覆盖边界与后续观察项：① `friend-link` 的 name/url 归一化被 `assignDefined` 覆盖（既有缺陷，已登记 backlog 待跟踪）；② 迁移页的幻影 token、页面注释中的阶段号与浮层 focus 行为随 B3 / B4 收尾统一清理；③ `keyCss` 基线仍沿用 `0.3.0` 批次口径（实测 61,311 B），待 B4 重取（**2026-11-01 更新**：第六十九阶段条目 1 的 rc.1 升级批次会复测 `keyCss`，届时一并评估是否刷新基线）；④ `caomei-ui` 的 Dependabot `ignore` 须在第七十阶段前配置，阻断静默抬版路径（**2026-11-01 更新**：已上收为第六十九阶段条目 1 的执行范围）。
+> 未覆盖边界与后续观察项：① `friend-link` 的 name/url 归一化被 `assignDefined` 覆盖（既有缺陷，已登记 backlog 待跟踪）；② 迁移页的幻影 token、页面注释中的阶段号与浮层 focus 行为随 B3 / B4 收尾统一清理；③ `keyCss` 基线仍沿用 `0.3.0` 批次口径（实测 61,311 B），待 B4 重取（**2026-11-01 更新**：rc.1 升级批次已复测 `keyCss` = 62,382 B（60.92KiB），仍决定**不刷新基线**，交第七十一阶段即 B4 统一重取）；④ `caomei-ui` 的 Dependabot `ignore` 须在第七十阶段前配置，阻断静默抬版路径（**2026-11-01 更新**：已上收为第六十九阶段条目 1 的执行范围）。
 
-## 主窗口近线规划：第六十九阶段（规划中，未开工）
+## 主窗口近线规划：第六十九阶段（进行中，条目 1 已完成）
 
 > 本阶段规划正文保留在主窗口（近线窗口），收口归档时按 [深度归档治理索引](./archive/index.md) 迁入 `archive/` 分片。
 > 原子条目、验收标准与证据落点见 [待办事项](./todo.md)；批次事实源见 [迁移方案 §3.10 / §7](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
 
-### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（规划中，未开工）
+### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（进行中；条目 1 已完成，条目 2–4 未开工）
 
 **时间表**: 2026-11-01 ~ 待定（按里程碑滚动，不预设结束日）
 
@@ -163,7 +163,7 @@
 
 **长期主线容量说明**: 迁移主线占本阶段主要容量（浮层族并集约 100 文件，为最大项）；仅上收覆盖率第十批一个治理切片，且以「3 模块、全仓 `+0.3pp`」为容量现实目标（单批 `+1pp` 在第六十八阶段已证结构上不可达）。结构复用 / 国际化 / 注释治理 / Postgres 等主线本期不上收新切片，由 `pnpm regression:weekly` 保持不回退。
 
-1. **caomei-ui 1.0.0-rc.1 升级与新 token 角色接线（P1）**: 精确锁定升级；补齐 6 个新 token 的桥接（`-text` 模式感知：**`primary` 取 `--p-primary-700` / `--p-primary-400` 以跟随运行时主色**、状态色取 `--p-{green,orange,red}-700` / `-400`；`control-border` 采用上游默认并登记为有意偏差）；`dependabot.yml` 增加 `caomei-ui` 的 `ignore`；重采 16 条 `test:visual` 用例（14 张截图基线 + 2 条 token 桥接断言）、重校准 34 条 parity 允许清单、复测 `keyCss`；对 `DataTable` 两处上游修复在 15 条已迁移路由做定向回归。**非目标**: 不改 solid / 主色 / surface / 圆角 / 字体，不做选择器覆盖，不接入未发布的更高预发布版本，不迁移页面。**验收**: 精确锁定且无 `file:`；`-text` 契约计算值按模式成立且 `primary` 跟随运行时主色；soft 8% 底文字对比度两态 ≥ 4.5（沿用 #12 原验收）；`control-border` 等于上游默认；视觉 / parity 差异逐项归因；`keyCss` ≤ 70KB 且增量归因到基础层；`dependabot.yml` 规则语义经核对。
+1. **caomei-ui 1.0.0-rc.1 升级与新 token 角色接线（P1）**: 精确锁定升级；补齐 6 个新 token 的桥接（`-text` 模式感知：**`primary` 取 `--p-primary-700` / `--p-primary-400` 以跟随运行时主色**、`danger` 取 `--p-red-700` / `-400`、`success` / `warning` 取 `--p-{green,orange}-800` / `-400`、neutral 取「文本色 → 卡片色」派生并与 tone 分离；`control-border` 采用上游默认并登记为有意偏差）；`dependabot.yml` 增加 `caomei-ui` 的 `ignore`；重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接契约 + 2 条对比度契约）、重校准 34 条 parity 允许清单、复测 `keyCss`；对 `DataTable` 两处上游修复在 15 条已迁移路由做定向回归。**非目标**: 不改 solid / 主色 / surface / 圆角 / 字体，不做选择器覆盖，不接入未发布的更高预发布版本，不迁移页面。**验收**: 精确锁定且无 `file:`；`-text` 契约计算值按模式成立且 `primary` 跟随运行时主色；soft 8% 底文字对比度两态 ≥ 4.5（沿用 #12 原验收）；`control-border` 等于上游默认；视觉 / parity 差异逐项归因；`keyCss` ≤ 70KB 且增量归因到基础层；`dependabot.yml` 规则语义经核对。
 2. **浮层族整迁（P1）**: Dialog / Drawer / Popover / DropdownMenu / Menu / ConfirmDialog / `ConfirmDeleteDialog` / `useConfirm` / `useToast` / `v-tooltip` 整族迁移（组件标签 64 处 / 50 文件，叠加服务层后并集约 100 文件，含 posts 编辑与发布链路、snippets、users、settings 弹窗、公开页浮层）；6 处生产锚点的 `.toggle(event)` 改写；按 caomei 契约统一弹窗焦点；守卫在册族与 `ownedFiles` 同步扩面；mock / E2E `p-*` 断言改写。**非目标**: settings 表单控件本体与 installation（B3）、图标全量、PrimeVue 卸载。**验收**: 全仓无该族 PrimeVue 标签与 API 残留；交互回归与三层视觉回归逐项归因；守卫通过；质量门通过。
 3. **内建文案 locale 接线（P1）**: 挂载前 `registerLocale` 注册 `zh-TW` / `ja-JP` / `ko-KR`；`CaomeiConfigProvider` 以应用语言驱动内建文案；先实测静态 / 异步 import 两种形态的 `coreEntryJs` 差量再择一；补接线单测。**非目标**: 不新增语种、不改 momei i18n 结构、不替换 `primevue-i18n`。**验收**: 5 语种内建文案跟随语言、未注册语种回落 `zh-CN`、`coreEntryJs` 未越 360KB。
 4. **测试覆盖率治理第十批（P2）**: 按未覆盖语句绝对数取 `setting.ts`（43）/ `ai/text-translation-task.ts`（34）/ `ai/post-automation.ts`（32）三模块补测。**验收**: 各 `+15pp` 或 `85%+`；全仓 `+0.3pp` 容量目标，未达记录结构性原因。
