@@ -132,7 +132,7 @@
     "fast-xml-parser": "^5.11.2",
     "feed": "^6.0.0",
     "fs-extra": "^11.4.1",
-    "google-libphonenumber": "^3.2.47",
+    "google-libphonenumber": "^3.2.48",
     "h3": "^1.15.11",
     "highlight.js": "^11.11.0",
     "html-minifier": "npm:html-minifier-terser@^7.2.0",
