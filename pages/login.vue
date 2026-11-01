@@ -166,6 +166,7 @@
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
+import { DEFAULT_SOCIAL_PROVIDER_AVAILABILITY, type SocialProviderAvailability } from '@/utils/shared/social-providers'
 import { loginSchema } from '@/utils/schemas/auth'
 
 const i18n = useI18n()
@@ -209,11 +210,14 @@ useHead({
 })
 
 const toast = useToast()
-const { socialProviders } = runtimeConfig.public
+/* 可用性由服务端在请求期判定（`plugins/social-providers.server.ts`），随 payload 传到客户端；
+ * 不能用构建期固化的 public 配置（生产环境非 NUXT_ 变量不参与运行期注入）。
+ * 与 `lib/auth.ts` 共用同一解析函数，保证「按钮可见 = 服务端已启用」。 */
+const socialProviders = useState<SocialProviderAvailability>('auth-social-providers', () => ({ ...DEFAULT_SOCIAL_PROVIDER_AVAILABILITY }))
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
-const hasSocialLogin = computed(() => Object.values(socialProviders).some((v) => !!v))
+const hasSocialLogin = computed(() => socialProviders.value.github || socialProviders.value.google)
 const form = ref({
     email: '',
     password: '',

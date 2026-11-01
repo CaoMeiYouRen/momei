@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeAll, beforeEach } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockFetch } = vi.hoisted(() => ({
     mockFetch: vi.fn(),
@@ -17,6 +17,12 @@ describe('verifyCaptcha', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
+        /* 隔离宿主环境：本地 .env 可能带 AUTH_CAPTCHA_SECRET_KEY，否则「未配置密钥」用例会走真实 $fetch。 */
+        vi.stubEnv('AUTH_CAPTCHA_SECRET_KEY', '')
+    })
+
+    afterEach(() => {
+        vi.unstubAllEnvs()
     })
 
     const setMockConfig = (secret: string, provider: string = 'cloudflare-turnstile') => {
@@ -38,6 +44,17 @@ describe('verifyCaptcha', () => {
         setMockConfig('')
         const result = await verifyCaptcha('test-token')
         expect(result).toBe(true)
+    })
+
+    it('runtimeConfig 未配置时回退到服务端运行期 AUTH_CAPTCHA_SECRET_KEY', async () => {
+        setMockConfig('')
+        vi.stubEnv('AUTH_CAPTCHA_SECRET_KEY', 'env-captcha-secret')
+        mockFetch.mockResolvedValue({ success: true })
+
+        await verifyCaptcha('test-token')
+
+        const [, options] = mockFetch.mock.calls[0] ?? []
+        expect(String(options?.body)).toContain('secret=env-captcha-secret')
     })
 
     it('如果 token 为空，应返回 false', async () => {

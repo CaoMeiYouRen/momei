@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const signUpEmailMock = vi.fn()
@@ -144,13 +144,15 @@ mockNuxtImport('useRuntimeConfig', () => () => ({
         buildAssetsDir: '/_nuxt/',
         cdnURL: '',
     },
-    public: {
-        socialProviders: {
-            github: true,
-            google: true,
-        },
-    },
+    public: {},
 }))
+const socialProviderState = vi.hoisted(() => ({ current: { github: true, google: true } }))
+mockNuxtImport('useState', () => (key: string, init?: () => unknown) => {
+    if (key === 'auth-social-providers') {
+        return ref({ ...socialProviderState.current })
+    }
+    return ref(init ? init() : undefined)
+})
 mockNuxtImport('navigateTo', () => (...args: Parameters<typeof navigateToMock>) => navigateToMock(...args))
 mockNuxtImport('definePageMeta', () => vi.fn())
 
@@ -215,6 +217,7 @@ async function mountPage() {
 describe('RegisterPage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        socialProviderState.current = { github: true, google: true }
         routeState.query = {}
         routeState.path = '/register'
         routeState.fullPath = '/register'
@@ -249,6 +252,16 @@ describe('RegisterPage', () => {
 
         expect(signUpEmailMock).not.toHaveBeenCalled()
         expect(wrapper.text()).toContain('This field is required')
+    })
+
+    it('hides social login controls when all social providers are disabled', async () => {
+        socialProviderState.current = { github: false, google: false }
+
+        const wrapper = await mountPage()
+        const text = wrapper.text()
+
+        expect(text).not.toContain('pages.login.github_login')
+        expect(text).not.toContain('pages.login.google_login')
     })
 
     it('dispatches social sign-in with localized callback targets', async () => {

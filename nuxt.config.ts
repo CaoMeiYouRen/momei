@@ -127,11 +127,19 @@ export default defineNuxtConfig({
         },
     },
     runtimeConfig: {
-        authCaptchaSecretKey: process.env.AUTH_CAPTCHA_SECRET_KEY,
+        /* 私有配置**不在这里读环境变量**：`nuxt.config` 只在构建期执行，而运行期注入只认
+         * `NUXT_*` 前缀——非前缀的密钥（AUTH_CAPTCHA_SECRET_KEY / CRON_SECRET / TASKS_TOKEN /
+         * WEBHOOK_SECRET）在构建机上通常不存在，会把空值烘焙进产物；若构建机恰好存在，则密钥会被
+         * 固化进镜像。两类结果都不可接受。
+         *
+         * 约定：私有密钥一律在**服务端运行期**读取（`server/utils/captcha.ts`、
+         * `server/api/tasks/run-scheduled.post.ts`）；这里的空串只声明 key，保留 `NUXT_` 运行期覆盖能力。
+         * 回归守卫见 tests/modules/runtime-config-env-injection.test.ts。 */
+        authCaptchaSecretKey: '',
         // 定时任务安全配置
-        cronSecret: process.env.CRON_SECRET,
-        tasksToken: process.env.TASKS_TOKEN,
-        webhookSecret: process.env.WEBHOOK_SECRET || process.env.TASKS_TOKEN,
+        cronSecret: '',
+        tasksToken: '',
+        webhookSecret: '',
         public: {
             NODE_ENV: process.env.NODE_ENV,
             siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://momei.app',
@@ -200,16 +208,9 @@ export default defineNuxtConfig({
                 provider: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_PROVIDER,
                 siteKey: process.env.NUXT_PUBLIC_AUTH_CAPTCHA_SITE_KEY,
             },
-            socialProviders: {
-                github: !!(
-                    (process.env.NUXT_PUBLIC_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID)
-                    && process.env.GITHUB_CLIENT_SECRET
-                ),
-                google: !!(
-                    (process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID)
-                    && process.env.GOOGLE_CLIENT_SECRET
-                ),
-            },
+            /* 社交登录可用性不在此声明：它依赖仅服务端可见的 clientSecret，且必须在运行期判定。
+             * 前端由 `plugins/social-providers.server.ts` 在请求期写入 `useState('auth-social-providers')`
+             * （见 pages/login.vue / register.vue）；不要改为新增 API 路由（见 docs/standards/development.md §7.1）。 */
             // 安全配置
             securityUrlWhitelist: process.env.NUXT_PUBLIC_SECURITY_URL_WHITELIST || '',
             // 上传配置同步到前端

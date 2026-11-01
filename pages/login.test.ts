@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
+import { defineComponent, nextTick, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const emailSignInMock = vi.fn()
@@ -30,15 +30,15 @@ const runtimeConfig = {
         cdnURL: '',
     },
     public: {
-        socialProviders: {
-            github: true,
-            google: true,
-        },
         demoMode: true,
         demoUserEmail: 'demo@momei.dev',
         demoPassword: 'demo-password',
     },
 }
+
+/* 社交登录可用性由服务端插件在请求期写入 `useState('auth-social-providers')`（不再来自 runtimeConfig），
+ * 测试通过替换这份可变对象控制页面读到的值。 */
+const socialProviderState = vi.hoisted(() => ({ current: { github: true, google: true } }))
 
 const translate = (key: string) => {
     switch (key) {
@@ -145,6 +145,12 @@ mockNuxtImport('useRouter', () => () => ({
 mockNuxtImport('useRoute', () => () => routeState)
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 mockNuxtImport('useRuntimeConfig', () => () => runtimeConfig)
+mockNuxtImport('useState', () => (key: string, init?: () => unknown) => {
+    if (key === 'auth-social-providers') {
+        return ref({ ...socialProviderState.current })
+    }
+    return ref(init ? init() : undefined)
+})
 mockNuxtImport('useHead', () => (...args: Parameters<typeof useHeadMock>) => useHeadMock(...args))
 mockNuxtImport('navigateTo', () => (...args: Parameters<typeof navigateToMock>) => navigateToMock(...args))
 mockNuxtImport('definePageMeta', () => vi.fn())
@@ -218,8 +224,7 @@ describe('LoginPage', () => {
         routeState.meta = {}
         routeState.hash = ''
         routeState.redirectedFrom = undefined
-        runtimeConfig.public.socialProviders.github = true
-        runtimeConfig.public.socialProviders.google = true
+        socialProviderState.current = { github: true, google: true }
         runtimeConfig.public.demoMode = true
         runtimeConfig.public.demoUserEmail = 'demo@momei.dev'
         runtimeConfig.public.demoPassword = 'demo-password'
@@ -259,8 +264,7 @@ describe('LoginPage', () => {
     })
 
     it('hides social login controls when all social providers are disabled', async () => {
-        runtimeConfig.public.socialProviders.github = false
-        runtimeConfig.public.socialProviders.google = false
+        socialProviderState.current = { github: false, google: false }
 
         const wrapper = await mountPage()
         const text = wrapper.text()
@@ -268,6 +272,16 @@ describe('LoginPage', () => {
         expect(text).not.toContain('Continue with GitHub')
         expect(text).not.toContain('Continue with Google')
         expect(text).not.toContain('Or continue with email')
+    })
+
+    it('shows only the configured provider when a single one is available', async () => {
+        socialProviderState.current = { github: true, google: false }
+
+        const wrapper = await mountPage()
+        const text = wrapper.text()
+
+        expect(text).toContain('Continue with GitHub')
+        expect(text).not.toContain('Continue with Google')
     })
 
     it('prefills the demo account only for editor redirects in demo mode', async () => {

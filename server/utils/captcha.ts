@@ -4,7 +4,9 @@
  */
 export async function verifyCaptcha(token?: string, remoteip?: string) {
     const config = useRuntimeConfig()
-    const secretKey = config.authCaptchaSecretKey
+    /* 运行期回退：`authCaptchaSecretKey` 不再在 nuxt.config 里按构建期环境变量初始化
+     * （否则生产容器里设置的 AUTH_CAPTCHA_SECRET_KEY 永远不会生效），见 nuxt.config 的注释。 */
+    const secretKey = config.authCaptchaSecretKey || process.env.AUTH_CAPTCHA_SECRET_KEY
     const provider = config.public.authCaptcha?.provider as
         | 'cloudflare-turnstile'
         | 'google-recaptcha'

@@ -22,10 +22,6 @@ import {
     EMAIL_EXPIRES_IN,
     AUTH_SECRET,
     ADMIN_USER_IDS,
-    GITHUB_CLIENT_ID,
-    GITHUB_CLIENT_SECRET,
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
     AUTH_BASE_URL,
     SITE_URL,
     APP_NAME,
@@ -40,6 +36,7 @@ import { Subscriber } from '@/server/entities/subscriber'
 import { User } from '@/server/entities/user'
 import logger from '@/server/utils/logger'
 import { markAgreementConsentForLocale } from '@/server/services/agreement'
+import { getEnabledSocialProviders } from '@/server/utils/social-providers'
 import { getTempEmail, getTempName } from '@/server/utils/auth-generators'
 import { emailService } from '@/server/utils/email/service'
 import { resolvePreferredEmailLocale } from '@/server/utils/email/locale'
@@ -77,24 +74,9 @@ const resolvedAuthBaseUrl = AUTH_BASE_URL || SITE_URL || (TEST_MODE ? 'http://lo
 const trustedOrigins = [AUTH_BASE_URL, SITE_URL, ...(TEST_MODE ? defaultLocalOrigins : [])]
     .filter(Boolean)
     .filter((value, index, array) => array.indexOf(value) === index)
-const socialProviders = {
-    ...(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
-        ? {
-            github: {
-                clientId: GITHUB_CLIENT_ID,
-                clientSecret: GITHUB_CLIENT_SECRET,
-            },
-        }
-        : {}),
-    ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
-        ? {
-            google: {
-                clientId: GOOGLE_CLIENT_ID,
-                clientSecret: GOOGLE_CLIENT_SECRET,
-            },
-        }
-        : {}),
-}
+/* 与 `plugins/social-providers.server.ts` 共用同一解析函数：可用性在**服务端运行期**判定，
+ * 不能在 `nuxt.config` 里按构建期环境变量预先固化成布尔值（详见 server/utils/social-providers.ts）。 */
+const socialProviders = getEnabledSocialProviders()
 
 export const auth = betterAuth({
     appName: APP_NAME, // 应用名称。它将被用作发行者。

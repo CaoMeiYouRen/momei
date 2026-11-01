@@ -214,15 +214,18 @@ import { z } from 'zod'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { registerSchema } from '@/utils/schemas/auth'
+import { DEFAULT_SOCIAL_PROVIDER_AVAILABILITY, type SocialProviderAvailability } from '@/utils/shared/social-providers'
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
-const { socialProviders } = useRuntimeConfig().public
+/* 可用性由服务端在请求期判定（`plugins/social-providers.server.ts`），随 payload 传到客户端；
+ * 不能用构建期固化的 public 配置。与 `lib/auth.ts` 共用同一解析函数（详见 pages/login.vue 的说明）。 */
+const socialProviders = useState<SocialProviderAvailability>('auth-social-providers', () => ({ ...DEFAULT_SOCIAL_PROVIDER_AVAILABILITY }))
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
-const hasSocialLogin = computed(() => Object.values(socialProviders).some((v) => !!v))
+const hasSocialLogin = computed(() => socialProviders.value.github || socialProviders.value.google)
 const form = ref({
     name: '',
     email: '',
