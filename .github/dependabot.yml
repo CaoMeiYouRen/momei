@@ -184,6 +184,22 @@ updates:
         versions:
           - ">=0.8.0"
 
+      # caomei-ui 走「人工升级」：精确锁定只固定声明值，不能阻止依赖机器人在精确值上继续抬版
+      # （0.3.0 → 0.5.0 → 0.6.0 曾由此绕过升级纪律）。该库 0.x 不承诺语义化兼容、1.0.0-rc.1 虽无
+      # BREAKING CHANGES 但含静态外观变更（token 角色拆分），每次升版都必须先读变更并重跑视觉与
+      # 包体回归。1.0.0 GA 后按同一纪律另立批次并复核本条。
+      #
+      # 已知边界（不要误以为本条是完整防线）：
+      # 1. semver 的预发布规则使 `>=1.0.0-rc.2` 只覆盖 GA 与 1.0.x 的预发布；更高 minor 的预发布
+      #    （如 `1.1.0-rc.1`）不满足该区间，仍可能被提出。兜底由
+      #    `tests/modules/caomei-ui-version-pin.test.ts` 承担——任何不在人工批准清单内的版本都会让 CI 失败。
+      # 2. `ignore` 同样抑制**安全更新 PR**（Dependabot 告警仍会生成）；caomei-ui 为自研首发依赖，
+      #    安全面依赖 `pnpm security:alerts` 人工兜底（发布前门禁，见 AGENTS.md §7.5）。
+      # 依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md §3.8 / §5.6 / §3.10
+      - dependency-name: "caomei-ui"
+        versions:
+          - ">=1.0.0-rc.2"
+
       # h3 v2 RC 与 Nuxt 4.x 运行时不兼容（Nuxt v5 才会统一使用 h3 v2）。
       # pnpm 解析到其他依赖的 h3 v2 RC 时，Nitro dev server 会生成
       # 调用 event.req.headers.get() 等 v2 风格 API 的代码，但运行时事件

@@ -1,10 +1,10 @@
 {
     "meta": {
-        "updatedAt": "2026-10-16",
+        "updatedAt": "2026-11-01",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。 2026-11-01 全量重校准：`caomei-ui` 升级到 1.0.0-rc.1 后，控件边界改上游 3:1 默认、状态文字改走 `-text` 角色，34 条中 33 条的带内差异随之变化（仅 `admin-marketing-overview-dark` 未变；其中 28 条超出 225px 复跑噪声带）；本文件已把每条 allowlist 的 `pixels` 全量回填为本次实测（声明值 = 实测，无余量），各条目 `note` 内若记载历史实测总量，以本文件当前 `pixels` 为准。 全量重校准后复跑仍有 6 条残差 36–225px（≤0.017%），属运行间渲染噪声（截图时刻的字形 / 异步数据抖动），预算 3,000px 下不构成漏检风险。"
     },
     "tiers": {
         "reader": {
@@ -31,7 +31,7 @@
                         "width": 1440,
                         "height": 280
                     },
-                    "pixels": 9122,
+                    "pixels": 10208,
                     "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -42,12 +42,12 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 1177,
+                    "pixels": 1393,
                     "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9122 + 1177 = 10299px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +29%）即红。"
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9122 + 1177 = 10299px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +29%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-comments-list-dark": {
             "tier": "admin",
@@ -61,12 +61,12 @@
                         "width": 1440,
                         "height": 400
                     },
-                    "pixels": 13052,
+                    "pixels": 14113,
                     "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（13052px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +23%）即红。"
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10299px/0.795%、dark 13052px/1.007%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（13052px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +23%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-submissions-list-light": {
             "tier": "admin",
@@ -80,7 +80,7 @@
                         "width": 1360,
                         "height": 200
                     },
-                    "pixels": 7326,
+                    "pixels": 7509,
                     "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -91,12 +91,12 @@
                         "width": 80,
                         "height": 80
                     },
-                    "pixels": 1018,
+                    "pixels": 1138,
                     "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（7326 + 1018 = 8344px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +36%）即红。"
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（7326 + 1018 = 8344px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +36%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-submissions-list-dark": {
             "tier": "admin",
@@ -110,7 +110,7 @@
                         "width": 1360,
                         "height": 200
                     },
-                    "pixels": 9937,
+                    "pixels": 10112,
                     "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -121,12 +121,12 @@
                         "width": 80,
                         "height": 80
                     },
-                    "pixels": 1022,
+                    "pixels": 1134,
                     "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9937 + 1022 = 10959px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +27%）即红。"
+            "note": "校准：2026-10-14 parity 复跑实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8344px/0.644%、dark 10959px/0.846%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9937 + 1022 = 10959px，不再 ×1.05）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +27%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-external-links-list-light": {
             "tier": "admin",
@@ -140,7 +140,7 @@
                         "width": 1280,
                         "height": 160
                     },
-                    "pixels": 6469,
+                    "pixels": 6681,
                     "reason": "页面主体（筛选行 + 表格）：表头底色 / 字段外壳 / p-datatable-sm 行高 / 列内 Tag tone 综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -162,12 +162,12 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 修复「CaomeiButton 可见文案丢失」后复跑（chromium，本机 Linux，1440x900 DSF1）。实测：light 7931px/0.612%、dark 10529px/0.812%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（6469 + 863 + 599 = 7931px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +38%）即红。"
+            "note": "校准：2026-10-14 修复「CaomeiButton 可见文案丢失」后复跑（chromium，本机 Linux，1440x900 DSF1）。实测：light 7931px/0.612%、dark 10529px/0.812%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（6469 + 863 + 599 = 7931px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +38%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-external-links-list-dark": {
             "tier": "admin",
@@ -203,12 +203,12 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 修复「CaomeiButton 可见文案丢失」后复跑（chromium，本机 Linux，1440x900 DSF1）。实测：light 7931px/0.612%、dark 10529px/0.812%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9034 + 878 + 617 = 10529px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +28%）即红。"
+            "note": "校准：2026-10-14 修复「CaomeiButton 可见文案丢失」后复跑（chromium，本机 Linux，1440x900 DSF1）。实测：light 7931px/0.612%、dark 10529px/0.812%。参考态取自迁移提交父态（--revert 采集）。允许清单像素量 = 实测区域值本身（9034 + 878 + 617 = 10529px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +28%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-posts-list-light": {
             "tier": "admin",
@@ -222,7 +222,7 @@
                         "width": 1360,
                         "height": 44
                     },
-                    "pixels": 2143,
+                    "pixels": 2566,
                     "reason": "筛选行（`CaomeiInput` 搜索字段 / `CaomeiSwitch` 聚合开关 / `CaomeiSelect` 状态选择器）：控件外壳与高度渲染差异（字段行盒 36px vs PrimeVue 36.39px）。",
                     "owner": "@full-stack-master"
                 },
@@ -233,7 +233,7 @@
                         "width": 1360,
                         "height": 188
                     },
-                    "pixels": 17569,
+                    "pixels": 17747,
                     "reason": "表格区（`DataTable` → `CaomeiDataTable`）：表头行高 61.78px → 34.5px（PrimeVue 表头文本换行，caomei `nowrap`）、数据行高 145px → 125px（行内 icon-only 按钮 40px → 36px）、选择列宽 52px → 34px（PrimeVue 复选框 20px + 单元格 16px 内边距 vs caomei 18px + `space-2`）导致整表左移 18px、表头 / 行底色与冻结列渲染差异。",
                     "owner": "@full-stack-master"
                 },
@@ -244,7 +244,7 @@
                         "width": 1360,
                         "height": 128
                     },
-                    "pixels": 1747,
+                    "pixels": 2191,
                     "reason": "分页器与卡片下缘：分页器随表格总高下移（表格总高 263.78px → 204px），对齐口径由 `--caomei-data-table-pagination-justify: center` 保持（实测中心均落在 x≈720）。",
                     "owner": "@full-stack-master"
                 },
@@ -266,12 +266,12 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 23277px / 1.796%。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 23277px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +13%）即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 23277px / 1.796%。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 23277px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +13%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-posts-list-dark": {
             "tier": "admin",
@@ -285,7 +285,7 @@
                         "width": 1360,
                         "height": 44
                     },
-                    "pixels": 2221,
+                    "pixels": 2634,
                     "reason": "筛选行（`CaomeiInput` 搜索字段 / `CaomeiSwitch` 聚合开关 / `CaomeiSelect` 状态选择器）：控件外壳与高度渲染差异（字段行盒 36px vs PrimeVue 36.39px）。",
                     "owner": "@full-stack-master"
                 },
@@ -296,7 +296,7 @@
                         "width": 1360,
                         "height": 188
                     },
-                    "pixels": 19488,
+                    "pixels": 19615,
                     "reason": "表格区（`DataTable` → `CaomeiDataTable`）：表头行高 61.78px → 34.5px（PrimeVue 表头文本换行，caomei `nowrap`）、数据行高 145px → 125px（行内 icon-only 按钮 40px → 36px）、选择列宽 52px → 34px（PrimeVue 复选框 20px + 单元格 16px 内边距 vs caomei 18px + `space-2`）导致整表左移 18px、表头 / 行底色与冻结列渲染差异。",
                     "owner": "@full-stack-master"
                 },
@@ -307,7 +307,7 @@
                         "width": 1360,
                         "height": 128
                     },
-                    "pixels": 4313,
+                    "pixels": 4529,
                     "reason": "分页器与卡片下缘：分页器随表格总高下移（表格总高 263.78px → 204px），对齐口径由 `--caomei-data-table-pagination-justify: center` 保持（实测中心均落在 x≈720）。",
                     "owner": "@full-stack-master"
                 },
@@ -329,12 +329,12 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27886px / 2.152%（暗色下卡片下缘底色差更大，分页器带 1747 → 4313px）。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 27886px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27886px / 2.152%（暗色下卡片下缘底色差更大，分页器带 1747 → 4313px）。本路由是含数据行的列表页（parity 环境种子 1 篇文章），差异主体为表格 chrome（表头 / 行底色 / 边框 / 字号）+ 选择列 52px → 34px 使整表左移 18px + 行高收缩（表头 61.78px → 34.5px、数据行 145px → 125px；表格总高 263.78px → 204px）导致分页器上移。允许清单按 3 个非重叠功能带（筛选行 / 表格区 / 分页器与卡片下缘）+ 2 个头部区域登记，各带声明值 = 该带实测差异像素本身（求和 27886px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（`in-place`，2026-10-13 采集）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-waitlist-list-light": {
             "tier": "admin",
@@ -348,7 +348,7 @@
                         "width": 1360,
                         "height": 200
                     },
-                    "pixels": 7008,
+                    "pixels": 7608,
                     "reason": "页面主体（筛选行 + 表格）：字段外壳盒模型 / 表头底色 / p-datatable-sm 行高综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -359,7 +359,7 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 1168,
+                    "pixels": 1376,
                     "reason": "列表空态 / 分页区域：空态对齐 + 分页对齐差异。处置走通道① `--caomei-data-table-pagination-justify` 等 token。",
                     "owner": "@full-stack-master"
                 },
@@ -370,7 +370,7 @@
                         "width": 200,
                         "height": 40
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -381,12 +381,12 @@
                         "width": 120,
                         "height": 40
                     },
-                    "pixels": 494,
+                    "pixels": 712,
                     "reason": "头部操作区：secondary 变体按钮渲染差异（边框 / 底纹 / 排版与尺寸），几何已对齐（右对齐、高 36px）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9533px/0.736%、dark 15602px/1.204%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（7008 + 1168 + 863 + 494 = 9533px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +31%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9533px/0.736%、dark 15602px/1.204%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（7008 + 1168 + 863 + 494 = 9533px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +31%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-waitlist-list-dark": {
             "tier": "admin",
@@ -400,7 +400,7 @@
                         "width": 1360,
                         "height": 320
                     },
-                    "pixels": 10696,
+                    "pixels": 11392,
                     "reason": "页面主体（筛选行 + 表格）：字段外壳盒模型 / 表头底色 / p-datatable-sm 行高综合差异。处置走通道① `--caomei-*` token 覆盖，见偏差处置表。",
                     "owner": "@frontend-developer"
                 },
@@ -422,12 +422,12 @@
                         "width": 200,
                         "height": 40
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9533px/0.736%、dark 15602px/1.204%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（10696 + 4028 + 878 = 15602px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +19%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9533px/0.736%、dark 15602px/1.204%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（10696 + 4028 + 878 = 15602px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +19%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-subscribers-list-light": {
             "tier": "admin",
@@ -441,7 +441,7 @@
                         "width": 1360,
                         "height": 200
                     },
-                    "pixels": 6110,
+                    "pixels": 6400,
                     "reason": "筛选行（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`，宽度按参考态实测 260px 约束）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 表体空态行。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -452,7 +452,7 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 1168,
+                    "pixels": 1376,
                     "reason": "分页器（caomei 实边框按钮 vs PrimeVue 文本式，居中口径由 `--caomei-data-table-pagination-justify` 保持）+ 表体空态行高差异带来的位移。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -463,7 +463,7 @@
                         "width": 200,
                         "height": 40
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -474,12 +474,12 @@
                         "width": 120,
                         "height": 40
                     },
-                    "pixels": 494,
+                    "pixels": 712,
                     "reason": "头部导出按钮：`CaomeiButton`（secondary 描边）相对 PrimeVue `Button`（`severity=\"secondary\"`）的边框 / 底纹 / 排版差异；暗色主题下两者底色差异显著（区域像素与既有 `/admin/waitlist` 同位置完全一致）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8635px / 0.666%（本页与既有 `/admin/waitlist` 结构同型：同 4 / 3 个差异区域、其中分页器 / 语言切换 / 导出按钮三处区域像素与之完全一致，差异来自内容列数不同）。允许清单按门禁报出的非重叠区域登记，声明值 = 各区域实测差异像素本身（求和 8635px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +35%）即红。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8635px / 0.666%（本页与既有 `/admin/waitlist` 结构同型：同 4 / 3 个差异区域、其中分页器 / 语言切换 / 导出按钮三处区域像素与之完全一致，差异来自内容列数不同）。允许清单按门禁报出的非重叠区域登记，声明值 = 各区域实测差异像素本身（求和 8635px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +35%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-subscribers-list-dark": {
             "tier": "admin",
@@ -493,7 +493,7 @@
                         "width": 1360,
                         "height": 320
                     },
-                    "pixels": 9933,
+                    "pixels": 10329,
                     "reason": "筛选行（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`，宽度按参考态实测 260px 约束）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 表体空态行。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -515,12 +515,12 @@
                         "width": 200,
                         "height": 40
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 14839px / 1.145%（本页与既有 `/admin/waitlist` 结构同型：同 4 / 3 个差异区域、其中分页器 / 语言切换 / 导出按钮三处区域像素与之完全一致，差异来自内容列数不同）。允许清单按门禁报出的非重叠区域登记，声明值 = 各区域实测差异像素本身（求和 14839px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +20%）即红。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 14839px / 1.145%（本页与既有 `/admin/waitlist` 结构同型：同 4 / 3 个差异区域、其中分页器 / 语言切换 / 导出按钮三处区域像素与之完全一致，差异来自内容列数不同）。允许清单按门禁报出的非重叠区域登记，声明值 = 各区域实测差异像素本身（求和 14839px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +20%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-users-list-light": {
             "tier": "admin",
@@ -534,18 +534,18 @@
                         "width": 1120,
                         "height": 200
                     },
-                    "pixels": 12613,
+                    "pixels": 14390,
                     "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
                     "region": {
                         "x": 1160,
-                        "y": 320,
+                        "y": 360,
                         "width": 120,
-                        "height": 80
+                        "height": 40
                     },
-                    "pixels": 1020,
+                    "pixels": 114,
                     "reason": "分页器（caomei 实边框按钮 vs PrimeVue 文本式，居中口径由 `--caomei-data-table-pagination-justify` 保持）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -556,12 +556,12 @@
                         "width": 120,
                         "height": 80
                     },
-                    "pixels": 386,
+                    "pixels": 574,
                     "reason": "头部刷新按钮：`CaomeiButton`（secondary 描边）相对 PrimeVue `Button`（`severity=\"secondary\"`）的边框 / 底纹 / 排版差异；暗色主题下两者底色差异显著（区域像素与既有 `/admin/waitlist`、`/admin/subscribers` 同位置一致）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 14019px / 1.082%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 14019px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +21%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 14019px / 1.082%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（无余量）；2026-11-01 起区域 1 收窄为 y360..400，消除与区域 0 的几何重叠（此前重叠会让扣减额度重复计算）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +21%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。 2026-11-01 重校准后为 15,078px（前值 14,019 为历史口径）。"
         },
         "admin-users-list-dark": {
             "tier": "admin",
@@ -575,7 +575,7 @@
                         "width": 1120,
                         "height": 240
                     },
-                    "pixels": 16079,
+                    "pixels": 16680,
                     "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -591,7 +591,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 18831px / 1.453%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 18831px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +16%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 18831px / 1.453%。本页是**首个含数据行**的已迁移列表路由（其余路由参考态为空表），差异主要来自表格单元格渲染（Badge / 头像 / 动作按钮组）× 行数。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 18831px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +16%）即红。注：本条目带 `stable: lenient` 与 `readyResponse` / `readySelector`（异步数据 + 外部头像），门禁的就绪口径由 `migrated-routes.visual-parity.test.ts` 与 pending 测试共用。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-friend-links-list-light": {
             "tier": "admin",
@@ -627,7 +627,7 @@
                         "width": 240,
                         "height": 40
                     },
-                    "pixels": 1540,
+                    "pixels": 1739,
                     "reason": "页头两个动作按钮（`CaomeiButton` secondary / 默认 相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -643,7 +643,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 21637px / 1.67%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 21637px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +14%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 21637px / 1.67%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 21637px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +14%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-friend-links-list-dark": {
             "tier": "admin",
@@ -679,7 +679,7 @@
                         "width": 280,
                         "height": 40
                     },
-                    "pixels": 3985,
+                    "pixels": 4030,
                     "reason": "页头两个动作按钮（`CaomeiButton` secondary / 默认 相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -695,7 +695,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27190px / 2.098%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 27190px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27190px / 2.098%。本页含 3 个表格（友链 / 分类 / 申请）与 21 列，差异主体为表格渲染 × 三表叠加。允许清单按门禁报出的区域登记（包围盒之间可能几何重叠，像素计数互斥），声明值 = 各区域实测差异像素本身（求和 27190px = 全图实测值，无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +11%）即红。几何核验（探针实测）：区块 / 表格 / split 三区位置与参考态一致，仅因 caomei **空态行**更高（97px vs 约 76px）使 split 区顶边下移 30px（373 → 403）——该位移已被区域 2 覆盖。**本环境无种子数据**，故本门禁不覆盖数据行 / `Tag` 渲染。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ad-campaigns-list-light": {
             "tier": "admin",
@@ -720,7 +720,7 @@
                         "width": 160,
                         "height": 200
                     },
-                    "pixels": 2146,
+                    "pixels": 2354,
                     "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -731,7 +731,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -747,7 +747,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5735 + 2146 + 863 + 599 = 9343px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +32%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5735 + 2146 + 863 + 599 = 9343px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +32%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ad-campaigns-list-dark": {
             "tier": "admin",
@@ -772,7 +772,7 @@
                         "width": 1280,
                         "height": 200
                     },
-                    "pixels": 4656,
+                    "pixels": 4772,
                     "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -783,7 +783,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -799,7 +799,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5845 + 4656 + 878 + 617 = 11996px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +25%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 9343px/0.721%、dark 11996px/0.926%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（5845 + 4656 + 878 + 617 = 11996px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +25%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ad-placements-list-light": {
             "tier": "admin",
@@ -824,7 +824,7 @@
                         "width": 160,
                         "height": 200
                     },
-                    "pixels": 1965,
+                    "pixels": 2173,
                     "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -835,7 +835,7 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -851,7 +851,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 7991px/0.617%、dark 10643px/0.821%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（4564 + 1965 + 863 + 599 = 7991px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +38%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 7991px/0.617%、dark 10643px/0.821%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（4564 + 1965 + 863 + 599 = 7991px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +38%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ad-placements-list-dark": {
             "tier": "admin",
@@ -876,7 +876,7 @@
                         "width": 1280,
                         "height": 200
                     },
-                    "pixels": 4472,
+                    "pixels": 4588,
                     "reason": "空态与分页区：空态行高差异导致分页器整体**垂直下移**（水平对齐已用 `--caomei-data-table-pagination-justify: center` 收敛，实测两态分页器中心均落在页面中线 x=720）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
@@ -887,7 +887,7 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -903,7 +903,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 7991px/0.617%、dark 10643px/0.821%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（4676 + 4472 + 878 + 617 = 10643px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +28%）即红。"
+            "note": "校准：2026-10-14 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 7991px/0.617%、dark 10643px/0.821%。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。允许清单像素量 = 实测区域值本身（4676 + 4472 + 878 + 617 = 10643px）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +28%）即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-link-governance-light": {
             "tier": "admin",
@@ -917,8 +917,8 @@
                         "width": 260,
                         "height": 80
                     },
-                    "pixels": 863,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "pixels": 1155,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -928,8 +928,8 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 346,
-                    "reason": "头部操作区：`CaomeiButton`（secondary 描边 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "pixels": 536,
+                    "reason": "头部操作区：`CaomeiButton`（secondary 描边 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：按钮描边改上游 `control-border`，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -950,8 +950,8 @@
                         "width": 1360,
                         "height": 205
                     },
-                    "pixels": 10773,
-                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。",
+                    "pixels": 14573,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：`CaomeiInput` / `CaomeiSelect` 边框改上游 `control-border`（非桥接），本带增长 3800px，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -983,8 +983,8 @@
                         "width": 1360,
                         "height": 125
                     },
-                    "pixels": 6141,
-                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。",
+                    "pixels": 7955,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1814px，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1010,7 +1010,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 32070px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 32070px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。2026-11-01 复测（`caomei-ui@1.0.0-rc.1`）：增长全部来自 `--caomei-color-control-border`（上游词 3:1 默认、有意不桥接）；归因探针实测控件边界贡献 8187px、状态文字角色贡献 0px（该页截图内无状态标签入画）。 2026-11-01 全量重校准（`caomei-ui@1.0.0-rc.1`）：全图实测 38166px / 2.945%，带值与实测一致（无余量）；增长来自 `--caomei-color-control-border` 与 `-text` 角色。"
         },
         "admin-link-governance-dark": {
             "tier": "admin",
@@ -1024,8 +1024,8 @@
                         "width": 260,
                         "height": 80
                     },
-                    "pixels": 878,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "pixels": 1166,
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1035,7 +1035,7 @@
                         "width": 160,
                         "height": 80
                     },
-                    "pixels": 525,
+                    "pixels": 426,
                     "reason": "头部操作区：`CaomeiButton`（secondary 描边 + lucide 图标）相对 PrimeVue `Button`（`label` + `pi` 图标）的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
@@ -1057,8 +1057,8 @@
                         "width": 1360,
                         "height": 205
                     },
-                    "pixels": 12901,
-                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。",
+                    "pixels": 16685,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：字段控件边框改上游 `control-border`，本带增长 3784px，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1090,8 +1090,8 @@
                         "width": 1360,
                         "height": 125
                     },
-                    "pixels": 6336,
-                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。",
+                    "pixels": 8104,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1768px，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1117,7 +1117,7 @@
                     "owner": "@frontend-developer"
                 }
             ],
-            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 34819px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。"
+            "note": "校准：2026-10-15 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 32070px/2.475%、dark 34819px/2.687%（本路由为当前差异最大者，约为既有 6 条路由的 2.2–4.0 倍：约 20 个在册族组件替换 + 表头行高 -10px + 字段行盒 36px vs 36.39px 的 1px 累计位移）。允许清单按 **9 个非重叠功能带** 登记，各带声明值 = 该带实测差异像素本身（求和 34819px = 全图实测值，无带外像素、无余量）。参考态取自迁移前 HEAD（等价 --revert <迁移提交>）。有效检出阈值：未归因差异 > 3000px（≈ 实测 +9%）即红。2026-11-01 复测（`caomei-ui@1.0.0-rc.1`）：增长全部来自 `--caomei-color-control-border`；归因探针实测控件边界贡献 8190px、状态文字角色贡献 0px。 2026-11-01 全量重校准（`caomei-ui@1.0.0-rc.1`）：全图实测 40560px / 3.130%，带值与实测一致（无余量）；增长来自 `--caomei-color-control-border` 与 `-text` 角色。"
         },
         "admin-categories-list-light": {
             "tier": "admin",
@@ -1131,7 +1131,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
@@ -1153,7 +1153,7 @@
                         "width": 1280,
                         "height": 44
                     },
-                    "pixels": 1455,
+                    "pixels": 1717,
                     "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1164,12 +1164,12 @@
                         "width": 1280,
                         "height": 240
                     },
-                    "pixels": 5682,
+                    "pixels": 6122,
                     "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8985px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8985px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-categories-list-dark": {
             "tier": "admin",
@@ -1183,7 +1183,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
@@ -1205,7 +1205,7 @@
                         "width": 1280,
                         "height": 44
                     },
-                    "pixels": 1521,
+                    "pixels": 1778,
                     "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1216,12 +1216,12 @@
                         "width": 1280,
                         "height": 240
                     },
-                    "pixels": 8104,
+                    "pixels": 8318,
                     "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 11520px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 11520px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-tags-list-light": {
             "tier": "admin",
@@ -1235,7 +1235,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 863,
+                    "pixels": 1155,
                     "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
@@ -1257,7 +1257,7 @@
                         "width": 1280,
                         "height": 44
                     },
-                    "pixels": 1436,
+                    "pixels": 1698,
                     "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1268,12 +1268,12 @@
                         "width": 1280,
                         "height": 240
                     },
-                    "pixels": 5075,
+                    "pixels": 5515,
                     "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8363px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 8363px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-tags-list-dark": {
             "tier": "admin",
@@ -1287,7 +1287,7 @@
                         "width": 200,
                         "height": 80
                     },
-                    "pixels": 878,
+                    "pixels": 1166,
                     "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
@@ -1309,7 +1309,7 @@
                         "width": 1280,
                         "height": 44
                     },
-                    "pixels": 1525,
+                    "pixels": 1782,
                     "reason": "筛选行（`IconField`+`InputIcon`+`InputText` → `CaomeiInput`；`ToggleSwitch` → `CaomeiSwitch`）：字段外壳行盒 36.39px → 36px、开关高度 24px → 22px、搜索字段内边距与字号差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1320,12 +1320,12 @@
                         "width": 1280,
                         "height": 240
                     },
-                    "pixels": 7503,
+                    "pixels": 7717,
                     "reason": "表格区（`DataTable`/`Column` → `CaomeiDataTable`）：表头行高 31.39px → 32.59px、表头底色与内边距（8px → 12px）与字号（16px → 14px）、空态行高 95.39px → 128.59px、分页器高度 56px → 44px。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 10925px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 10925px（见各带声明值，求和 = 全图实测值，无带外像素、无余量）。允许清单按 **4 个非重叠功能带** 登记（头部语言切换器 / 头部创建按钮 / 筛选行 / 表格区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（`--ref=HEAD` 就地采集，采集前已临时回退路由登记，确保参考态为纯 PrimeVue 原貌）。本路由差异构成与既有 11 条已迁移路由同源（在册族组件替换导致的控件尺寸 / 底色 / 字号差异），无新类差异。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ai-stats-light": {
             "tier": "admin",
@@ -1339,7 +1339,7 @@
                         "width": 1360,
                         "height": 80
                     },
-                    "pixels": 2072,
+                    "pixels": 2126,
                     "reason": "页签行（`Tabs` 族 → `CaomeiTabs` 族）：页签高度 / 内边距 / 指示条渲染差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1355,7 +1355,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 26951px（两带求和 = 全图实测值，无带外像素、无余量）。允许清单按 **2 个非重叠功能带** 登记（页签行 / 统计内容区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（就地采集）。主要构成：`Tabs` 族替换（页签高 / 内边距 / 指示条）+ `Tag` → `CaomeiTag` 7 处（标签尺寸 / 语义色）+ 页签高度变化引起的整体纵向位移。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 26951px（两带求和 = 全图实测值，无带外像素、无余量）。允许清单按 **2 个非重叠功能带** 登记（页签行 / 统计内容区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（就地采集）。主要构成：`Tabs` 族替换（页签高 / 内边距 / 指示条）+ `Tag` → `CaomeiTag` 7 处（标签尺寸 / 语义色）+ 页签高度变化引起的整体纵向位移。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ai-stats-dark": {
             "tier": "admin",
@@ -1369,7 +1369,7 @@
                         "width": 1360,
                         "height": 80
                     },
-                    "pixels": 2127,
+                    "pixels": 2155,
                     "reason": "页签行（`Tabs` 族 → `CaomeiTabs` 族）：页签高度 / 内边距 / 指示条渲染差异。",
                     "owner": "@full-stack-master"
                 },
@@ -1385,7 +1385,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27788px（两带求和 = 全图实测值，无带外像素、无余量）。允许清单按 **2 个非重叠功能带** 登记（页签行 / 统计内容区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（就地采集）。主要构成：`Tabs` 族替换（页签高 / 内边距 / 指示条）+ `Tag` → `CaomeiTag` 7 处（标签尺寸 / 语义色）+ 页签高度变化引起的整体纵向位移。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 27788px（两带求和 = 全图实测值，无带外像素、无余量）。允许清单按 **2 个非重叠功能带** 登记（页签行 / 统计内容区），声明值 = 该带实测差异像素本身。参考态取自迁移前 HEAD（就地采集）。主要构成：`Tabs` 族替换（页签高 / 内边距 / 指示条）+ `Tag` → `CaomeiTag` 7 处（标签尺寸 / 语义色）+ 页签高度变化引起的整体纵向位移。有效检出阈值：未归因差异 > 3000px 即红。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-ai-tasks-list-light": {
             "tier": "admin",
@@ -1399,12 +1399,12 @@
                         "width": 1360,
                         "height": 320
                     },
-                    "pixels": 20419,
-                    "reason": "筛选行 + 表格区（`IconField`/`InputText` → `CaomeiInput`；`Select` → `CaomeiSelect`；`DataTable`/`Column` → `CaomeiDataTable`；刷新按钮由 `#header` 插槽移到表格上方）：控件外壳 / 表格表头 / 空态渲染差异 + 刷新按钮行位移。",
+                    "pixels": 23542,
+                    "reason": "筛选行 + 表格区（`IconField`/`InputText` → `CaomeiInput`；`Select` → `CaomeiSelect`；`DataTable`/`Column` → `CaomeiDataTable`；刷新按钮由 `#header` 插槽移到表格上方）：控件外壳 / 表格表头 / 空态渲染差异 + 刷新按钮行位移（2026-11-01 `1.0.0-rc.1` 复测：控件边框改上游 `control-border`、状态标签文字改 `-text` 角色，本带 20419 → 23542px，值取实测。）",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 20419px（1 个功能带，声明值 = 该带实测差异像素本身，无带外像素、无余量）。截图前激活「任务记录」页签（承载本批主要迁移面）。构成：`IconField` / `InputText` → `CaomeiInput`、`Select` → `CaomeiSelect`、`DataTable` + 11 `Column` → `CaomeiDataTable` + `columns`、刷新按钮由 PrimeVue `#header` 插槽移到表格之上，以及字段外壳 / 表头 / 空态渲染差异。有效检出阈值：未归因差异 > 3000px 即红。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 20419px（1 个功能带，声明值 = 该带实测差异像素本身，无带外像素、无余量）。截图前激活「任务记录」页签（承载本批主要迁移面）。构成：`IconField` / `InputText` → `CaomeiInput`、`Select` → `CaomeiSelect`、`DataTable` + 11 `Column` → `CaomeiDataTable` + `columns`、刷新按钮由 PrimeVue `#header` 插槽移到表格之上，以及字段外壳 / 表头 / 空态渲染差异。有效检出阈值：未归因差异 > 3000px 即红。2026-11-01 复测（`caomei-ui@1.0.0-rc.1`）：归因探针实测控件边界贡献 3416px、状态文字角色贡献 251px（全图、未掩码口径）。 2026-11-01 全量重校准（`caomei-ui@1.0.0-rc.1`）：全图实测 23542px / 1.817%，带值与实测一致（无余量）；增长来自 `--caomei-color-control-border` 与 `-text` 角色。"
         },
         "admin-ai-tasks-list-dark": {
             "tier": "admin",
@@ -1418,12 +1418,12 @@
                         "width": 1360,
                         "height": 320
                     },
-                    "pixels": 24039,
-                    "reason": "筛选行 + 表格区（`IconField`/`InputText` → `CaomeiInput`；`Select` → `CaomeiSelect`；`DataTable`/`Column` → `CaomeiDataTable`；刷新按钮由 `#header` 插槽移到表格上方）：控件外壳 / 表格表头 / 空态渲染差异 + 刷新按钮行位移。",
+                    "pixels": 26961,
+                    "reason": "筛选行 + 表格区（`IconField`/`InputText` → `CaomeiInput`；`Select` → `CaomeiSelect`；`DataTable`/`Column` → `CaomeiDataTable`；刷新按钮由 `#header` 插槽移到表格上方）：控件外壳 / 表格表头 / 空态渲染差异 + 刷新按钮行位移（2026-11-01 `1.0.0-rc.1` 复测：控件边框改上游 `control-border`、状态标签文字改 `-text` 角色，本带 24039 → 26961px，值取实测。）",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 24039px（1 个功能带，声明值 = 该带实测差异像素本身）。截图前激活「任务记录」页签；构成同 light 口径（深色下表格 / 表头底色差异更大）。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 24039px（1 个功能带，声明值 = 该带实测差异像素本身）。截图前激活「任务记录」页签；构成同 light 口径（深色下表格 / 表头底色差异更大）。2026-11-01 复测（`caomei-ui@1.0.0-rc.1`）：归因探针实测控件边界贡献 3416px、状态文字角色贡献 259px。 2026-11-01 全量重校准（`caomei-ui@1.0.0-rc.1`）：全图实测 26961px / 2.080%，带值与实测一致（无余量）；增长来自 `--caomei-color-control-border` 与 `-text` 角色。"
         },
         "admin-marketing-overview-light": {
             "tier": "admin",
@@ -1459,12 +1459,12 @@
                         "width": 840,
                         "height": 40
                     },
-                    "pixels": 1167,
+                    "pixels": 1376,
                     "reason": "列表底部（分页器区）随表格高度变化产生的行位差异。",
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10485px（3 个非重叠功能带求和 = 全图实测值，无带外像素、无余量；声明值 = 各带实测差异像素本身）。参考态取自迁移前 HEAD（就地采集）。有效检出阈值：未归因差异 > 3000px 即红。构成：列表区（`IconField` 无、`DataTable` + 4 `Column` → `CaomeiDataTable` + `columns`、`Tag` → `CaomeiTag`、行内动作按钮、刷新按钮由 PrimeVue `#header` 插槽移到表格之上）、页头「创建推送」按钮、底部分页器行位。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：light 10485px（3 个非重叠功能带求和 = 全图实测值，无带外像素、无余量；声明值 = 各带实测差异像素本身）。参考态取自迁移前 HEAD（就地采集）。有效检出阈值：未归因差异 > 3000px 即红。构成：列表区（`IconField` 无、`DataTable` + 4 `Column` → `CaomeiDataTable` + `columns`、`Tag` → `CaomeiTag`、行内动作按钮、刷新按钮由 PrimeVue `#header` 插槽移到表格之上）、页头「创建推送」按钮、底部分页器行位。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-marketing-overview-dark": {
             "tier": "admin",
@@ -1505,7 +1505,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 13450px（3 个非重叠功能带求和 = 全图实测值，无带外像素、无余量；声明值 = 各带实测差异像素本身）。参考态取自迁移前 HEAD（就地采集）。有效检出阈值：未归因差异 > 3000px 即红。构成同 light 口径（深色下表格底色与分页器对比度差异更大）。"
+            "note": "校准：2026-10-16 parity 实测（chromium，本机 Linux，1440x900 DSF1）。实测：dark 13450px（3 个非重叠功能带求和 = 全图实测值，无带外像素、无余量；声明值 = 各带实测差异像素本身）。参考态取自迁移前 HEAD（就地采集）。有效检出阈值：未归因差异 > 3000px 即红。构成同 light 口径（深色下表格底色与分页器对比度差异更大）。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-marketing-form-dialog-light": {
             "tier": "admin",
@@ -1519,7 +1519,7 @@
                         "width": 1440,
                         "height": 200
                     },
-                    "pixels": 6432,
+                    "pixels": 7734,
                     "reason": "弹窗标题行 + 类型字段：弹窗内表单（`Select`/`InputText`/`Button` → caomei）：字段外壳与控件尺寸差异引起的弹窗内纵向位移。",
                     "owner": "@full-stack-master"
                 },
@@ -1557,7 +1557,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-28 parity 复测（chromium，本机 Linux，1440x900 DSF1，弹窗宽度归位后）。实测：light 17886px（4 个非重叠功能带求和 = 17661px，带外 225px）；参考态取自迁移前 HEAD（24463608，就地采集）。有效检出阈值：未归因差异 > 3000px 即红。2026-10-28 变更：页面 scoped 样式中的 `&__dialog` 因浮层 teleport 无法命中 `.p-dialog`（失效规则），弹窗宽度遂随内容固有宽度漂移——caomei 字段更窄，实测 542px（参考态 679px），整窗错位 9.89%。改为非 scoped 块显式声明 680px 后宽度归位（实测面板 380~1059，参考态 381~1059）；余下差异为在册族字段外壳/按钮与字段高度引起的弹窗内纵向位移，按「声明值 = 实测值」重新登记四带像素。"
+            "note": "校准：2026-10-28 parity 复测（chromium，本机 Linux，1440x900 DSF1，弹窗宽度归位后）。实测：light 17886px（4 个非重叠功能带求和 = 17661px，带外 225px）；参考态取自迁移前 HEAD（24463608，就地采集）。有效检出阈值：未归因差异 > 3000px 即红。2026-10-28 变更：页面 scoped 样式中的 `&__dialog` 因浮层 teleport 无法命中 `.p-dialog`（失效规则），弹窗宽度遂随内容固有宽度漂移——caomei 字段更窄，实测 542px（参考态 679px），整窗错位 9.89%。改为非 scoped 块显式声明 680px 后宽度归位（实测面板 380~1059，参考态 381~1059）；余下差异为在册族字段外壳/按钮与字段高度引起的弹窗内纵向位移，按「声明值 = 实测值」重新登记四带像素。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         },
         "admin-marketing-form-dialog-dark": {
             "tier": "admin",
@@ -1571,7 +1571,7 @@
                         "width": 1440,
                         "height": 200
                     },
-                    "pixels": 5854,
+                    "pixels": 7140,
                     "reason": "弹窗标题行 + 类型字段：弹窗内表单（`Select`/`InputText`/`Button` → caomei）：字段外壳与控件尺寸差异引起的弹窗内纵向位移。",
                     "owner": "@full-stack-master"
                 },
@@ -1609,7 +1609,7 @@
                     "owner": "@full-stack-master"
                 }
             ],
-            "note": "校准：2026-10-28 parity 复测（chromium，本机 Linux，1440x900 DSF1，弹窗宽度归位后）。实测：dark 19234px（4 个非重叠功能带求和 = 19047px，带外 187px）；参考态取自迁移前 HEAD（24463608，就地采集）。有效检出阈值：未归因差异 > 3000px 即红。口径同 light（深色下字段外壳与边框差异更明显）。"
+            "note": "校准：2026-10-28 parity 复测（chromium，本机 Linux，1440x900 DSF1，弹窗宽度归位后）。实测：dark 19234px（4 个非重叠功能带求和 = 19047px，带外 187px）；参考态取自迁移前 HEAD（24463608，就地采集）。有效检出阈值：未归因差异 > 3000px 即红。口径同 light（深色下字段外壳与边框差异更明显）。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
         }
     }
 }

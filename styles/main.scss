@@ -494,6 +494,32 @@ html:root {
     --caomei-color-success: var(--p-green-500);
     --caomei-color-warning: var(--p-orange-500);
 
+    /* 状态「文字 / 边框」角色（caomei-ui 1.0.0-rc.1 起新增）：上游把「tone 直接当文字色」拆成独立
+     * 角色——tone 只承载 soft 底色，文字 / 边框改读 `-text`，从而在 8% 底上维持正文对比度。
+     * 取值按模式分档（浅色取深档，暗色见下方 `html:root.dark` 的 `-400` 提亮档）。
+     *
+     * 为什么 success / warning 取 `-800` 而不是 `-700`：`-700` 在 8% soft 底上仅约 4.68 / 4.78
+     * （白卡），落到 `--caomei-color-bg-elevated`（表头 / 斑马纹）即跌破 4.5；上游对应角色本身
+     * 就取 `-800` 档（`#166534` / `#9a3412`）。注意 `--p-green-800` 等原始色板由 PrimeVue 在运行期
+     * 以 `@layer primevue` 内联注入，**不在** `.output/public` 的静态 CSS 里，不能用 grep 产物断言其不存在。
+     *
+     * `primary` 必须走**运行时主色**的色阶：`--p-primary-*` 由 `composables/use-theme.ts` 按用户
+     * 选定的主色动态生成，写死 Aura 静态蓝会让「换主色后状态文字仍是蓝色」，故不得改为 `--p-blue-*`。
+     *
+     * `neutral` 不能复用 `--p-text-muted-color`：那是 neutral 的 **tone**（soft 底基准），
+     * 若 `-text` 也取同值，则 tone == text，正是 rc.1 要拆开的形态，且 8% 底对比度仅约 4.26；
+     * 故取「文本色向卡片色偏移」的中间档，既跟随主题又保证与 tone 拉开层次。 */
+    --caomei-color-primary-text: var(--p-primary-700);
+    --caomei-color-danger-text: var(--p-red-700);
+    --caomei-color-success-text: var(--p-green-800);
+    --caomei-color-warning-text: var(--p-orange-800);
+    --caomei-color-neutral-text: color-mix(in srgb, var(--p-text-color) 85%, var(--p-surface-card));
+
+    /* 控件边界（`--caomei-color-control-border`）**有意不桥接**：上游为该角色单独取了满足
+     * WCAG 1.4.11（3:1）的边界色，并把「控件边界」与「装饰边框」（`-color-border`）分离。此处采用
+     * 上游默认值，代价是迁移页的按钮 / 输入边框比 PrimeVue 并存观感更深——已在迁移方案 §5.2 与
+     * 偏差处置表登记为有意偏差，禁止为「保持 parity 绿」改回低对比边框。 */
+
     /* 实底（`-solid`）：caomei 约定恒配 `--caomei-color-on-solid`（#fff），故取各自色阶深档以保证
      * 白字对比度，避免暗色下主色变浅后白字不可读。 */
     --caomei-color-primary-solid: var(--p-primary-700);
@@ -521,4 +547,22 @@ html:root {
 
     /* 字体：沿用 momei 字体栈，避免迁移后组件字体族与正文不一致 */
     --caomei-font-sans: #{meta.inspect($font-sans)};
+}
+
+/* ---------------------------------------------------------------------------
+ * 状态「文字 / 边框」角色的暗色档（caomei-ui 1.0.0-rc.1 起）
+ *
+ * 上游在暗色下把 `-text` 取 `-400` 提亮档；但本文件上方的桥接是 `html:root`（特异性 0,1,1），
+ * 会压过库侧 `:is(.dark, [data-theme="dark"])`（0,1,0），因此暗色必须再用 `html:root.dark`
+ * （0,2,1，源码顺序在后）显式覆盖一次，否则暗色下状态文字会沿用浅色的 `-700` 深档。
+ *
+ * 依据：迁移方案 §3.10 / §5.2；契约由 tests/visual/caomei-token-bridge.visual.test.ts 守卫。
+ * ------------------------------------------------------------------------ */
+html:root.dark {
+    --caomei-color-primary-text: var(--p-primary-400);
+    --caomei-color-danger-text: var(--p-red-400);
+    --caomei-color-success-text: var(--p-green-400);
+    --caomei-color-warning-text: var(--p-orange-400);
+
+    /* `neutral-text` 无需暗色覆盖：其取值是「文本色 → 卡片色」的派生，暗色下随文本色自动变浅。 */
 }
