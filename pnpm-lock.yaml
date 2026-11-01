@@ -269,8 +269,8 @@ importers:
         specifier: ^4.0.0-nightly.202508271359
         version: 4.0.0-nightly.202508271359
       music-metadata:
-        specifier: ^12.3.0
-        version: 12.3.0(supports-color@10.2.2)
+        specifier: ^12.3.2
+        version: 12.3.2(supports-color@10.2.2)
       mysql2:
         specifier: ^3.24.6
         version: 3.24.6(@types/node@26.6.5)
@@ -1452,8 +1452,8 @@ packages:
   '@better-fetch/fetch@1.3.3':
     resolution: {integrity: sha512-U6SlDt/GUWtK2JAxS/NhdoYTEim+EL1G5byz2TUj83KjLZBUpYzb5SmX0aXaCnbGkAjFKnV/o/0+cyXMbEcqqg==}
 
-  '@borewit/text-codec@0.2.2':
-    resolution: {integrity: sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ==}
+  '@borewit/text-codec@0.2.3':
+    resolution: {integrity: sha512-49CycTz1aAZmvFcwkeFyhud1HUmRIB5Tabf7ALV+VA4Iu85MTfz2cUwzPagMFAdVBvrWdkCxG67I30tUwwpKsw==}
 
   '@cacheable/memory@2.2.0':
     resolution: {integrity: sha512-CTLKqLItRCEixEAewD3/j9DB3/o96gpTPD4eJ1v+DGOlxZRZncRQkGYqqnAGCscYd6RNeXfGeiuCphsPtqyIfQ==}
@@ -9596,8 +9596,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  music-metadata@12.3.0:
-    resolution: {integrity: sha512-2psGX4VkpdtzoaEGdGWC7paJ0WC2iP0p4qTYIx1B206aCq0kTmwlfhWbLGQVBygmr63kVntehxzapPsHLeJXtg==}
+  music-metadata@12.3.2:
+    resolution: {integrity: sha512-U+Wu8c/7xa8wP331oVuRTAJSHcEWQIkLjpuyRJG+CAIszGYhpr5CRDv6PqkkVHDoX3ndjmdJlB6S49AaLq8SbQ==}
     engines: {node: '>=22'}
 
   mute-stream@0.0.7:
@@ -11576,8 +11576,8 @@ packages:
     resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
     engines: {node: '>=18'}
 
-  strtok3@10.6.2:
-    resolution: {integrity: sha512-BkdixFFUt7r7LsX6aGNPVyYMLjW+M1USLlKPNbZsrZEmLFh5tGqhdfckKo6xgsZIJqdDD0CZGkeCJJwNWQIKQA==}
+  strtok3@10.6.3:
+    resolution: {integrity: sha512-MD8mENgyXMr2mDaDfzP3RWYDSyYQxIIou7HhCiCJiBekrsoDtUG0id3vYnjDfY9ndOEbazFXe13Qw6u/1AB8ew==}
     engines: {node: '>=18'}
 
   strtok3@9.1.1:
@@ -14360,7 +14360,7 @@ snapshots:
 
   '@better-fetch/fetch@1.3.3': {}
 
-  '@borewit/text-codec@0.2.2': {}
+  '@borewit/text-codec@0.2.3': {}
 
   '@cacheable/memory@2.2.0':
     dependencies:
@@ -21186,7 +21186,7 @@ snapshots:
   file-type@21.3.4(supports-color@10.2.2):
     dependencies:
       '@tokenizer/inflate': 0.4.1(supports-color@10.2.2)
-      strtok3: 10.6.2
+      strtok3: 10.6.3
       token-types: 6.1.2
       uint8array-extras: 1.6.0
     transitivePeerDependencies:
@@ -23727,15 +23727,15 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  music-metadata@12.3.0(supports-color@10.2.2):
+  music-metadata@12.3.2(supports-color@10.2.2):
     dependencies:
-      '@borewit/text-codec': 0.2.2
+      '@borewit/text-codec': 0.2.3
       '@tokenizer/token': 0.3.0
       content-type: 3.1.1
       debug: 4.4.3(supports-color@10.2.2)
       file-type: 21.3.4(supports-color@10.2.2)
       media-typer: 2.0.0
-      strtok3: 10.6.2
+      strtok3: 10.6.3
       token-types: 6.1.2
       uint8array-extras: 1.6.0
       win-guid: 0.2.1
@@ -26216,7 +26216,7 @@ snapshots:
     dependencies:
       '@tokenizer/token': 0.3.0
 
-  strtok3@10.6.2:
+  strtok3@10.6.3:
     dependencies:
       '@tokenizer/token': 0.3.0
 
@@ -26566,7 +26566,7 @@ snapshots:
 
   token-types@6.1.2:
     dependencies:
-      '@borewit/text-codec': 0.2.2
+      '@borewit/text-codec': 0.2.3
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
 
