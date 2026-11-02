@@ -136,11 +136,12 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { Calendar, CircleStop, LoaderCircle, Pencil, RefreshCw, Send, Trash2 } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import type { MarketingCampaign, PaginatedData } from '@/types/marketing'
 import type { ApiResponse } from '@/types/api'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -168,11 +169,11 @@ const loadData = async () => {
         total.value = res.data.total || 0
     } catch (e) {
         console.error('Failed to load campaigns:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.error_loading'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.error_loading'),
+            duration: 3000,
         })
     } finally {
         loading.value = false
@@ -236,20 +237,20 @@ const handleSend = async (id: string) => {
         await $fetch(`/api/admin/marketing/campaigns/${id}/send`, {
             method: 'POST',
         })
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.marketing.actions.send_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.marketing.actions.send_success'),
+            duration: 3000,
         })
         loadData()
     } catch (e) {
         console.error('Failed to send campaign:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.marketing.actions.send_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.marketing.actions.send_failed'),
+            duration: 3000,
         })
     } finally {
         stopProcessing(id)
@@ -262,21 +263,21 @@ const handleCancel = async (id: string) => {
         await $fetch(`/api/admin/marketing/campaigns/${id}/cancel`, {
             method: 'POST',
         })
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.marketing.actions.cancel_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.marketing.actions.cancel_success'),
+            duration: 3000,
         })
         await loadData()
         emit('changed')
     } catch (e) {
         console.error('Failed to cancel campaign:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.marketing.actions.cancel_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.marketing.actions.cancel_failed'),
+            duration: 3000,
         })
     } finally {
         stopProcessing(id)
@@ -284,36 +285,44 @@ const handleCancel = async (id: string) => {
 }
 
 const handleDelete = (id: string) => {
-    confirm.require({
-        message: t('pages.admin.marketing.actions.delete_confirm_message'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: async () => {
-            startProcessing(id)
+    void confirm.confirm({
+        title: t('common.confirm_delete'),
+        description: t('pages.admin.marketing.actions.delete_confirm_message'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (!confirmed) {
+            return
+        }
+
+        startProcessing(id)
+
+        void (async () => {
             try {
                 await $fetch(`/api/admin/marketing/campaigns/${id}`, {
                     method: 'DELETE',
                 })
-                toast.add({
-                    severity: 'success',
-                    summary: t('common.success'),
-                    detail: t('pages.admin.marketing.actions.delete_success'),
-                    life: 3000,
+                toast.show({
+                    tone: 'success',
+                    title: t('common.success'),
+                    description: t('pages.admin.marketing.actions.delete_success'),
+                    duration: 3000,
                 })
                 await loadData()
                 emit('changed')
             } catch (e) {
                 console.error('Failed to delete campaign:', e)
-                toast.add({
-                    severity: 'error',
-                    summary: t('common.error'),
-                    detail: t('pages.admin.marketing.actions.delete_failed'),
-                    life: 3000,
+                toast.show({
+                    tone: 'danger',
+                    title: t('common.error'),
+                    description: t('pages.admin.marketing.actions.delete_failed'),
+                    duration: 3000,
                 })
             } finally {
                 stopProcessing(id)
             }
-        },
+        })()
     })
 }
 

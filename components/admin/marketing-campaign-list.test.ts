@@ -4,6 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { CaomeiDataTableStub, caomeiComponentStubs } from '../../tests/helpers/caomei-component-stubs'
 import MarketingCampaignList from './marketing-campaign-list.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 /**
  * `/admin/marketing` 推送历史列表（路由自有组件）的迁移契约用例。
@@ -21,7 +22,15 @@ const { fetchMock, confirmRequire } = vi.hoisted(() => ({
 
 vi.mock('ofetch', () => ({ $fetch: fetchMock }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
-vi.mock('primevue/useconfirm', () => ({ useConfirm: () => ({ require: confirmRequire }) }))
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+
+    return {
+        ...actual,
+        useConfirm: () => createLegacyConfirmApi(confirmRequire),
+        useToast: () => createLegacyToastApi(vi.fn()),
+    }
+})
 
 vi.stubGlobal('useI18n', () => ({
     t: (key: string) => key,
@@ -212,6 +221,7 @@ describe('MarketingCampaignList', () => {
 
         fetchMock.mockClear()
         await options.accept()
+        await flushPromises()
 
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/marketing/campaigns/c-1', { method: 'DELETE' })
         expect(wrapper.emitted('changed')).toBeTruthy()

@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 const { t } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()
@@ -50,9 +51,9 @@ const bookmarkletCode = computed(() => {
 const copyBookmarklet = async () => {
     try {
         await navigator.clipboard.writeText(bookmarkletCode.value)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.copy_success'), life: 2000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('common.copy_success'), duration: 2000 })
     } catch (err) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.copy_failed'), life: 2000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.copy_failed'), duration: 2000 })
     }
 }
 </script>

@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { h, onMounted, ref } from 'vue'
 import { caomeiComponentStubs } from '../../tests/helpers/caomei-component-stubs'
 import MarketingCampaignForm from './marketing-campaign-form.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 /**
  * `/admin/marketing` 推送表单（路由自有组件）的迁移契约用例。
@@ -26,7 +27,7 @@ vi.stubGlobal('useI18n', () => ({
     locales: ref([{ code: 'zh-CN' }]),
 }))
 /* 自动导入的 `useToast` 走 `mockNuxtImport`（`vi.stubGlobal` 对 Nuxt 自动导入解析不生效）。 */
-mockNuxtImport('useToast', () => () => ({ add: toastAdd }))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAdd) }))
 
 /* 保留族（RadioButton / MultiSelect / DatePicker）与懒加载编辑器用轻量桩：本用例只断言
  * 「这些未迁移族仍在原位」，不验其内部实现。 */

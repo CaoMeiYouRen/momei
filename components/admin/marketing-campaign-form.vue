@@ -138,6 +138,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { Send } from '@lucide/vue'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
@@ -238,11 +239,11 @@ const loadCampaign = async () => {
         }
     } catch (e) {
         console.error('Failed to load campaign:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.error_loading'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.error_loading'),
+            duration: 3000,
         })
     }
 }
@@ -256,11 +257,11 @@ onMounted(async () => {
 
 const handleSendTest = async () => {
     if (!form.value.title || !form.value.content) {
-        toast.add({
-            severity: 'warn',
-            summary: t('common.warn'),
-            detail: t('common.validation_error'),
-            life: 3000,
+        toast.show({
+            tone: 'warning',
+            title: t('common.warn'),
+            description: t('common.validation_error'),
+            duration: 3000,
         })
         return
     }
@@ -277,19 +278,19 @@ const handleSendTest = async () => {
             },
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.marketing.form.send_test_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.marketing.form.send_test_success'),
+            duration: 3000,
         })
     } catch (e) {
         console.error('Failed to send test campaign:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.unexpected_error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.unexpected_error'),
+            duration: 3000,
         })
     } finally {
         sendingTest.value = false
@@ -298,11 +299,11 @@ const handleSendTest = async () => {
 
 const handleSave = async () => {
     if (!form.value.title || !form.value.content) {
-        toast.add({
-            severity: 'warn',
-            summary: t('common.warn'),
-            detail: t('common.validation_error'),
-            life: 3000,
+        toast.show({
+            tone: 'warning',
+            title: t('common.warn'),
+            description: t('common.validation_error'),
+            duration: 3000,
         })
         return
     }
@@ -351,20 +352,20 @@ const handleSave = async () => {
             })
         }
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('common.save_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('common.save_success'),
+            duration: 3000,
         })
         emit('save')
     } catch (e) {
         console.error('Failed to save campaign:', e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.save_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.save_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false

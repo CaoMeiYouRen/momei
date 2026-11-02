@@ -88,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { useUpload, UploadType } from '@/composables/use-upload'
 
 const emit = defineEmits<{
@@ -144,10 +145,10 @@ const saveSnippet = async () => {
         } as any)
         newSnippet.value = ''
         pendingMedia.value = []
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('common.save_success'), duration: 3000 })
         emit('success')
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.save_failed'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: e.data?.message || t('common.save_failed'), duration: 3000 })
     } finally {
         saving.value = false
     }
