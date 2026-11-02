@@ -69,13 +69,18 @@
 
 ### 5.3 发布前安全告警门禁 (Release Security Alert Gate)
 
-发布前必须执行 `pnpm security:alerts`（Dependabot / Code Scanning）与 `pnpm security:audit-deps`（pnpm audit）；release workflow 已将 `security:alerts` 作为独立步骤 `Run security alert gate` 执行，两者均接入 `release:check:full`，并按以下严重级别口径处置：
+发布前必须执行 `pnpm security:alerts`（Dependabot / Code Scanning）与 `pnpm security:audit-deps`（pnpm audit）；release workflow 已将 `security:alerts` 作为独立步骤 `Run security alert gate` 执行，两者均接入 `release:check:full`。
 
--   **critical**: 必须修复，不允许任何形式的豁免；`.github/security/security-alert-exceptions.json` 与 `.github/security/dependency-risk-allowlist.json` 对 critical 均不生效，未修复即阻断发布。
--   **high**: 优先修复；仅在无可修复版本或修复难度过大时允许豁免，且必须登记到 `.github/security/security-alert-exceptions.json`（延期）或 `.github/security/dependency-risk-allowlist.json`（补丁不可用 / 路径级），写明豁免原因与 `temporaryException` 期限，纳入追踪并尽快安排修复。
--   **moderate / medium 及以下**: 可暂不处理，随常规依赖升级消解，不阻断发布。
--   **Code Scanning**: 参照同一严重级别口径；位于 `tests/` 路径或带 test 分类的告警按仅观察处理（属范围外，不计作豁免）。
--   **数据源前提**: Code Scanning 需 `security-events: read` 或 `SECURITY_ALERTS_TOKEN` 才能读取；Dependabot 官方接口不可用时回退 `pnpm audit --registry=https://registry.npmjs.org/`。无 token、权限不足或接口不可用等数据源缺口必须写入门禁证据并在发布记录中说明，不得静默跳过。
+-   **扫描范围**: Dependabot 与 Code Scanning 的 `open` 与 `dismissed` 都必须读取；`auto_dismissed` 不参与阻断。任一状态读取失败都按数据源缺口处理，不得只读 `open` 就判定通过。
+-   **critical**: 一律不得存在，**被 dismiss 也算存在**；必须修复，或移除 / 替换受影响依赖与能力，不允许任何形式的豁免；两套台账对 critical 均不生效。
+-   **high**: `open` 仅在 `no-fix`（上游无可用修复版本）或 `hard-fix`（本发布窗口无法完成）时可登记例外；`dismissed` 仅可按 `false-positive` 登记，且 `reason` 必须写明原 dismiss 原因。Code Scanning 必须按实例 `location` 登记，同一 rule 的其他实例不连带放行。
+-   **moderate / medium 及以下**: 不阻断，随常规依赖升级消解；不得登记进 high 豁免台账。
+-   **Code Scanning 范围外**: 位于 `tests/` 路径或带 test 分类的告警按仅观察处理，不计作豁免；`critical` 不受此范围外例外，仍按发布红线阻断。
+-   **台账**: `.github/security/security-alert-exceptions.json` 为告警豁免台账，字段至少包含 `id`、`source`、`severity`、`category`、`target`、`reason`、`review`、`tracking`、`expiresAt`；`target` 在 Dependabot 为包名、Code Scanning 为 rule id；Code Scanning 另需 `location`（实例文件路径），Dependabot 建议提供 `path`（依赖路径）。`expiresAt` 为 ISO 日期，到期即失效并重新阻塞；条件形式写在 `review` 中并由发布前人工复核。`critical` 与 `moderate` / `low` 不得登记。
+-   **双台账分工**: `security-alert-exceptions.json` 处理 GitHub 告警级豁免；`dependency-risk-allowlist.json` 处理 `pnpm audit` 的依赖路径级风险。`pnpm audit` 绿灯不等于可发布，`audit.ignore` 不构成发布豁免。
+-   **fail-closed**: 401 / 403 / 404、超时、429 / 5xx 重试耗尽、响应非数组、严重级别无法判定 → 判失败，不得视为“无告警”。仅当缺少 Dependabot 读取 token 时，允许回退 `pnpm audit` 并在证据中标记为降级（`fallback`）；权限、网络与响应异常仍按失败处理。Code Scanning 无等价回退，读取失败即阻断。
+-   **过渡模式**: `security:alerts` 当前带 `--transition-mode`，对 `dismissed` 与 fail-closed 新检查只报告、不阻断；`open` 告警的既有阻断行为不变。一个发布周期结束后移除该参数，恢复完整阻断；过渡期内仍需在发布记录中说明未处理的 transition findings。
+-   **执行位置**: 预检必须在版本提升之前；阻断检查在发布动作之前；周回归复用同一门禁。
 -   **豁免有期限**: 到期或上游发布可用补丁后必须复核并移除条目，不得长期挂账。
 
 ## 6. 终端命令与自动化安全 (CLI & Automation Security)
