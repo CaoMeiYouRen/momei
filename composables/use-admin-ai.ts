@@ -1,3 +1,4 @@
+import { useToast } from 'caomei-ui'
 import { isPureEnglish } from '@/utils/shared/validate'
 
 interface AdminAiFormEntry {
@@ -39,7 +40,7 @@ export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, act
         // Find the first language with a name as the source
         const sourceLang = localeEntries.find((locale) => multiForm.value[locale.code]?.name && locale.code !== lang)?.code
         if (!sourceLang) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+            toast.show({ tone: 'warning', title: t('common.warn'), description: t('common.no_source_content'), duration: 3000 })
             return
         }
 
@@ -65,7 +66,7 @@ export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, act
             }
         } catch (error) {
             console.error('AI Translate error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.admin.posts.ai_error'), duration: 3000 })
         } finally {
             if (aiLoading.value[lang]) {
                 aiLoading.value[lang].name = false
@@ -76,7 +77,7 @@ export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, act
     const generateSlug = async (lang: string) => {
         const targetForm = getAdminAiFormEntry(multiForm, lang)
         if (!targetForm?.name) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+            toast.show({ tone: 'warning', title: t('common.warn'), description: t('common.no_source_content'), duration: 3000 })
             return
         }
 
@@ -94,7 +95,7 @@ export const useAdminAI = (multiForm: Ref<Record<string, AdminAiFormEntry>>, act
             targetForm.slug = data
         } catch (error) {
             console.error('AI Slug error:', error)
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.admin.posts.ai_error'), duration: 3000 })
         } finally {
             if (aiLoading.value[lang]) {
                 aiLoading.value[lang].slug = false

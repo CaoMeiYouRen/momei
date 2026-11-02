@@ -1,7 +1,9 @@
 import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { useAdminFriendLinksPage } from './use-admin-friend-links-page'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import { FriendLinkApplicationStatus, FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 
 const {
@@ -33,21 +35,13 @@ mockNuxtImport('useRequestFeedback', () => () => ({
     showSuccessToast: showSuccessToastMock,
 }))
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useToast: () => ({ add: toastAddMock }),
-    }
-})
-
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/useconfirm')>()
-
-    return {
-        ...actual,
-        useConfirm: () => ({ require: confirmRequireMock }),
+        useConfirm: () => createLegacyConfirmApi(confirmRequireMock),
+        useToast: () => createLegacyToastApi(toastAddMock),
     }
 })
 
@@ -457,6 +451,7 @@ describe('useAdminFriendLinksPage', () => {
         expect(confirmOptions.message).toBe('pages.admin.friend_links.messages.review_or_disable_confirm')
 
         await confirmOptions.accept()
+        await flushPromises()
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/friend-links/link-1', {
             method: 'PUT',
             body: {
@@ -468,6 +463,7 @@ describe('useAdminFriendLinksPage', () => {
         exposed.confirmReviewOrDisable(item)
         const rejectOptions = confirmRequireMock.mock.calls[1]?.[0]
         rejectOptions.reject()
+        await flushPromises()
         expect(openSpy).toHaveBeenCalledWith('https://momei.app', '_blank', 'noopener,noreferrer')
     })
 
@@ -480,6 +476,7 @@ describe('useAdminFriendLinksPage', () => {
         let confirmOptions = confirmRequireMock.mock.calls[0]?.[0]
         fetchMock.mockRejectedValueOnce(new Error('delete link failed'))
         await confirmOptions.accept()
+        await flushPromises()
         expect(showErrorToastMock).toHaveBeenCalledWith(expect.any(Error), {
             fallbackKey: 'pages.admin.friend_links.messages.delete_link_failed',
         })
@@ -489,6 +486,7 @@ describe('useAdminFriendLinksPage', () => {
         confirmOptions = confirmRequireMock.mock.calls[1]?.[0]
         fetchMock.mockRejectedValueOnce(new Error('delete category failed'))
         await confirmOptions.accept()
+        await flushPromises()
         expect(showErrorToastMock).toHaveBeenCalledWith(expect.any(Error), {
             fallbackKey: 'pages.admin.friend_links.messages.delete_category_failed',
         })

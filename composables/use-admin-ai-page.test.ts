@@ -1,6 +1,7 @@
 import { defineComponent, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 const fetchMock = vi.fn()
 const showErrorToast = vi.fn()
@@ -8,10 +9,8 @@ const showSuccessToast = vi.fn()
 const resolveErrorMessage = vi.fn(() => 'resolved-load-error')
 const confirmRequire = vi.fn()
 
-vi.mock('primevue/useconfirm', () => ({
-    useConfirm: () => ({
-        require: confirmRequire,
-    }),
+vi.mock('caomei-ui', () => ({
+    useConfirm: () => createLegacyConfirmApi(confirmRequire),
 }))
 
 mockNuxtImport('useI18n', () => () => ({

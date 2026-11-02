@@ -1,4 +1,4 @@
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type {
     AIAdminStatsResponse,
@@ -175,51 +175,52 @@ export function useAdminAiPage(options: UseAdminAiPageOptions = {}) {
     }
 
     const confirmDeleteTask = (task: AIAdminTaskListItem) => {
-        confirm.require({
-            message: t('pages.admin.ai.delete_confirm'),
-            header: t('common.confirm_delete'),
-            icon: 'pi pi-exclamation-triangle',
-            rejectProps: {
-                label: t('common.cancel'),
-                severity: 'secondary',
-                outlined: true,
-            },
-            acceptProps: {
-                label: t('common.delete'),
-                severity: 'danger',
-            },
-            accept: () => {
-                void (async () => {
-                    try {
-                        await deleteTasks(task.id, 'pages.admin.ai.feedback.delete_task_success')
-                    } catch (error: unknown) {
-                        showErrorToast(error, {
-                            fallbackKey: 'pages.admin.ai.feedback.delete_task_failed',
-                        })
-                    }
-                })()
-            },
+        void confirm.confirm({
+            title: t('common.confirm_delete'),
+            description: t('pages.admin.ai.delete_confirm'),
+            confirmLabel: t('common.delete'),
+            cancelLabel: t('common.cancel'),
+            tone: 'danger',
+        }).then((confirmed) => {
+            if (!confirmed) {
+                return
+            }
+
+            void (async () => {
+                try {
+                    await deleteTasks(task.id, 'pages.admin.ai.feedback.delete_task_success')
+                } catch (error: unknown) {
+                    showErrorToast(error, {
+                        fallbackKey: 'pages.admin.ai.feedback.delete_task_failed',
+                    })
+                }
+            })()
         })
     }
 
     const confirmBulkDelete = () => {
-        confirm.require({
-            message: t('pages.admin.ai.delete_confirm'),
-            header: t('common.confirm_delete'),
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                void (async () => {
-                    try {
-                        const ids = selectedTasks.value.map((task) => task.id).join(',')
-                        await deleteTasks(ids, 'pages.admin.ai.feedback.delete_tasks_success')
-                        selectedTasks.value = []
-                    } catch (error: unknown) {
-                        showErrorToast(error, {
-                            fallbackKey: 'pages.admin.ai.feedback.delete_tasks_failed',
-                        })
-                    }
-                })()
-            },
+        void confirm.confirm({
+            title: t('common.confirm_delete'),
+            description: t('pages.admin.ai.delete_confirm'),
+            confirmLabel: t('common.delete'),
+            cancelLabel: t('common.cancel'),
+            tone: 'danger',
+        }).then((confirmed) => {
+            if (!confirmed) {
+                return
+            }
+
+            void (async () => {
+                try {
+                    const ids = selectedTasks.value.map((task) => task.id).join(',')
+                    await deleteTasks(ids, 'pages.admin.ai.feedback.delete_tasks_success')
+                    selectedTasks.value = []
+                } catch (error: unknown) {
+                    showErrorToast(error, {
+                        fallbackKey: 'pages.admin.ai.feedback.delete_tasks_failed',
+                    })
+                }
+            })()
         })
     }
 

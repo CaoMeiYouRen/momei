@@ -1,5 +1,4 @@
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
+import { useConfirm, useToast } from 'caomei-ui'
 import { FriendLinkApplicationStatus, FriendLinkHealthStatus, FriendLinkStatus } from '@/types/friend-link'
 import { friendLinkSchema } from '@/utils/schemas/friend-link'
 
@@ -291,11 +290,11 @@ export function useAdminFriendLinksPage() {
         const validation = friendLinkSchema.safeParse(linkForm.value)
 
         if (!validation.success) {
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: validation.error.issues[0]?.message || tt('pages.admin.friend_links.messages.save_failed'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: validation.error.issues[0]?.message || tt('pages.admin.friend_links.messages.save_failed'),
+                duration: 3000,
             })
             return
         }
@@ -378,56 +377,67 @@ export function useAdminFriendLinksPage() {
     }
 
     const confirmReviewOrDisable = (item: FriendLinkItem) => {
-        confirm.require({
-            message: tt('pages.admin.friend_links.messages.review_or_disable_confirm'),
-            header: tt('pages.admin.friend_links.review_or_disable_title'),
-            icon: 'pi pi-info-circle',
-            acceptLabel: tt('pages.admin.friend_links.disable_now'),
-            rejectLabel: tt('pages.admin.friend_links.open_site_recheck'),
-            accept: () => {
+        void confirm.confirm({
+            title: tt('pages.admin.friend_links.review_or_disable_title'),
+            description: tt('pages.admin.friend_links.messages.review_or_disable_confirm'),
+            confirmLabel: tt('pages.admin.friend_links.disable_now'),
+            cancelLabel: tt('pages.admin.friend_links.open_site_recheck'),
+            tone: 'neutral',
+        }).then((confirmed) => {
+            if (confirmed) {
                 void disableLink(item)
-            },
-            reject: () => {
-                window.open(item.url, '_blank', 'noopener,noreferrer')
-            },
+                return
+            }
+
+            window.open(item.url, '_blank', 'noopener,noreferrer')
         })
     }
 
     const confirmDeleteLink = (item: FriendLinkItem) => {
-        confirm.require({
-            message: tt('pages.admin.friend_links.messages.delete_link_confirm'),
-            header: t('common.confirm_delete'),
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                void (async () => {
-                    try {
-                        await $fetch(`/api/admin/friend-links/${item.id}`, { method: 'DELETE' })
-                        showSuccessToast('pages.admin.friend_links.messages.delete_link_success')
-                        await loadLinks()
-                    } catch (error) {
-                        showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.delete_link_failed' })
-                    }
-                })()
-            },
+        void confirm.confirm({
+            title: t('common.confirm_delete'),
+            description: tt('pages.admin.friend_links.messages.delete_link_confirm'),
+            confirmLabel: t('common.delete'),
+            cancelLabel: t('common.cancel'),
+            tone: 'danger',
+        }).then((confirmed) => {
+            if (!confirmed) {
+                return
+            }
+
+            void (async () => {
+                try {
+                    await $fetch(`/api/admin/friend-links/${item.id}`, { method: 'DELETE' })
+                    showSuccessToast('pages.admin.friend_links.messages.delete_link_success')
+                    await loadLinks()
+                } catch (error) {
+                    showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.delete_link_failed' })
+                }
+            })()
         })
     }
 
     const confirmDeleteCategory = (item: FriendLinkCategory) => {
-        confirm.require({
-            message: tt('pages.admin.friend_links.messages.delete_category_confirm'),
-            header: t('common.confirm_delete'),
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                void (async () => {
-                    try {
-                        await $fetch(`/api/admin/friend-link-categories/${item.id}`, { method: 'DELETE' })
-                        showSuccessToast('pages.admin.friend_links.messages.delete_category_success')
-                        await Promise.all([loadCategories(), loadLinks()])
-                    } catch (error) {
-                        showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.delete_category_failed' })
-                    }
-                })()
-            },
+        void confirm.confirm({
+            title: t('common.confirm_delete'),
+            description: tt('pages.admin.friend_links.messages.delete_category_confirm'),
+            confirmLabel: t('common.delete'),
+            cancelLabel: t('common.cancel'),
+            tone: 'danger',
+        }).then((confirmed) => {
+            if (!confirmed) {
+                return
+            }
+
+            void (async () => {
+                try {
+                    await $fetch(`/api/admin/friend-link-categories/${item.id}`, { method: 'DELETE' })
+                    showSuccessToast('pages.admin.friend_links.messages.delete_category_success')
+                    await Promise.all([loadCategories(), loadLinks()])
+                } catch (error) {
+                    showErrorToast(error, { fallbackKey: 'pages.admin.friend_links.messages.delete_category_failed' })
+                }
+            })()
         })
     }
 

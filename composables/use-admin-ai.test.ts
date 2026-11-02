@@ -9,9 +9,7 @@ interface AdminAiFormItem {
     translationId: string
 }
 
-const mockToast = {
-    add: vi.fn(),
-}
+const mockToast = createLegacyToastApi(vi.fn())
 
 const { mockFetch } = vi.hoisted(() => ({
     mockFetch: vi.fn(),
@@ -27,7 +25,7 @@ mockNuxtImport('useI18n', () => () => ({
     ]),
 }))
 
-mockNuxtImport('useToast', () => () => mockToast)
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => mockToast }))
 
 mockNuxtImport('$fetch', () => mockFetch)
 
@@ -36,6 +34,7 @@ vi.mock('@/utils/shared/validate', () => ({
 }))
 
 import { useAdminAI } from './use-admin-ai'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 function createForms() {
     return ref<Record<string, AdminAiFormItem>>({
