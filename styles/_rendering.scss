@@ -293,24 +293,6 @@
   }
 }
 
-// Lightbox Dialog Styles
-@layer momei-overrides {
-    .lightbox-dialog-content {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        max-width: 90vw;
-        max-height: 90vh;
-        overflow: hidden;
-
-        .p-dialog-content {
-            background: transparent;
-            padding: 0;
-        }
-    }
-}
-
 .lightbox-wrapper {
     display: flex;
     justify-content: center;
