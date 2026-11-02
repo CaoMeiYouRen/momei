@@ -158,7 +158,6 @@
                 </div>
             </template>
         </Card>
-        <Toast />
     </div>
 </template>
 

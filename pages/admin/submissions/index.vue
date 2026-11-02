@@ -209,7 +209,6 @@
             :title="$t('common.delete_confirm')"
             @confirm="handleDelete"
         />
-        <Toast />
     </div>
 </template>
 

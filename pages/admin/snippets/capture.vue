@@ -85,7 +85,6 @@
                 </div>
             </footer>
         </div>
-        <Toast />
     </div>
 </template>
 

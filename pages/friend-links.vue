@@ -296,8 +296,6 @@
                 </div>
             </section>
         </div>
-
-        <Toast />
     </div>
 </template>
 

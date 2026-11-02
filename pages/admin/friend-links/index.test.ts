@@ -233,10 +233,9 @@ describe('AdminFriendLinks page', () => {
         expect(buttons.every((button) => button.attributes('data-icon-only') === 'false')).toBe(true)
     })
 
-    it('渲染三个 caomei 数据表与两个豁免浮层', async () => {
+    it('渲染三个 caomei 数据表与三个浮层', async () => {
         const wrapper = await mountComponent()
         expect(wrapper.findAll('.caomei-data-table')).toHaveLength(3)
-        expect(wrapper.find('.toast-stub').exists()).toBe(true)
         expect(wrapper.findAll('.dialog-stub')).toHaveLength(3)
     })
 

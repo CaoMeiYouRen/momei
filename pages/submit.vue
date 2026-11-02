@@ -140,7 +140,6 @@
                 </template>
             </Card>
         </div>
-        <Toast />
     </div>
 </template>
 

@@ -309,11 +309,6 @@ describe('AdminSubmissions page', () => {
         expect(wrapper.find('.status-select').exists()).toBe(true)
     })
 
-    it('renders the toast component', async () => {
-        const wrapper = await mountComponent()
-        expect(wrapper.find('.toast').exists()).toBe(true)
-    })
-
     it('声明本页在册列定义（status / contributor / title / createdAt / actions）', async () => {
         const wrapper = await mountComponent()
 

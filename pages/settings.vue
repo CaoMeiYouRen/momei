@@ -72,8 +72,6 @@
                 </Card>
             </div>
         </div>
-
-        <Toast />
     </div>
 </template>
 

@@ -6,8 +6,6 @@
                 <NuxtLayout>
                     <NuxtPage />
                 </NuxtLayout>
-                <Toast />
-                <ConfirmDialog />
             </div>
         </CaomeiConfirmDialog>
     </CaomeiToastProvider>
