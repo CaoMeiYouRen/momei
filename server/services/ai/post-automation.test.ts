@@ -36,6 +36,8 @@ vi.mock('./text', () => ({
 
 describe('PostAutomationService', () => {
     const actor = { userId: 'user-1', isAdmin: true }
+    type ProcessTranslatePostTask = (taskId: string, actorValue: typeof actor) => Promise<void>
+    const processTask = PostAutomationService as unknown as { processTranslatePostTask: ProcessTranslatePostTask }
 
     const sourcePost = {
         id: 'post-1',
@@ -61,7 +63,8 @@ describe('PostAutomationService', () => {
         status: 'draft',
     }
 
-    let taskRepo: { findOneBy: ReturnType<typeof vi.fn>, save: ReturnType<typeof vi.fn>, create: ReturnType<typeof vi.fn> }
+    type SaveMock = ReturnType<typeof vi.fn<(value: Record<string, unknown>) => Promise<Record<string, unknown>>>>
+    let taskRepo: { findOneBy: ReturnType<typeof vi.fn>, save: SaveMock, create: ReturnType<typeof vi.fn> }
     let postRepo: { findOne: ReturnType<typeof vi.fn> }
     let categoryRepo: { find: ReturnType<typeof vi.fn> }
     let tagRepo: { findOne: ReturnType<typeof vi.fn> }
@@ -176,7 +179,7 @@ describe('PostAutomationService', () => {
             { id: 'cat-en-2', name: 'Engineering', slug: 'engineering', language: 'en-US', translationId: 'engineering' },
         ])
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-preview', actor)
+        await processTask.processTranslatePostTask('task-preview', actor)
 
         expect(createPostService).not.toHaveBeenCalled()
         expect(updatePostService).not.toHaveBeenCalled()
@@ -245,7 +248,7 @@ describe('PostAutomationService', () => {
             } as never)
         })
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-tags-before-content', actor)
+        await processTask.processTranslatePostTask('task-tags-before-content', actor)
 
         expect(savedProgresses).toContain(40)
 
@@ -319,7 +322,7 @@ describe('PostAutomationService', () => {
             } as never
         })
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-tags-failed-preview', actor)
+        await processTask.processTranslatePostTask('task-tags-failed-preview', actor)
 
         const completedTask = taskRepo.save.mock.calls
             .map((call) => call[0])
@@ -407,7 +410,7 @@ describe('PostAutomationService', () => {
             return confirmTask as never
         })
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-confirm', actor)
+        await processTask.processTranslatePostTask('task-confirm', actor)
 
         expect(createPostService).toHaveBeenCalledWith(expect.objectContaining({
             title: 'Translated Title',
@@ -469,7 +472,7 @@ describe('PostAutomationService', () => {
 
         taskRepo.findOneBy.mockResolvedValue(task)
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-assets', actor)
+        await processTask.processTranslatePostTask('task-assets', actor)
 
         expect(createPostService).toHaveBeenCalledWith(expect.objectContaining({
             coverImage: null,
@@ -525,7 +528,7 @@ describe('PostAutomationService', () => {
 
         taskRepo.findOneBy.mockResolvedValue(task)
 
-        await (PostAutomationService as never as { processTranslatePostTask: (taskId: string, actorValue: typeof actor) => Promise<void> }).processTranslatePostTask('task-asset-preview', actor)
+        await processTask.processTranslatePostTask('task-asset-preview', actor)
 
         const completedTask = taskRepo.save.mock.calls
             .map((call) => call[0])
@@ -546,5 +549,225 @@ describe('PostAutomationService', () => {
         expect(result.preview.metadata).toBeNull()
         expect(result.preview.warnings).toContain('Cover image must be regenerated for en-US')
         expect(result.preview.warnings).toContain('Audio asset must be regenerated for en-US')
+    })
+
+    describe('createTranslatePostTask validation', () => {
+        const baseInput = {
+            sourcePostId: 'post-1',
+            targetLanguage: 'en-US',
+            scopes: ['title', 'content'] as const,
+            confirmationMode: 'auto' as const,
+            slugStrategy: 'ai' as const,
+            categoryStrategy: 'cluster' as const,
+        }
+
+        it('should reject when target language equals the source language', async () => {
+            await expect(PostAutomationService.createTranslatePostTask({
+                ...baseInput,
+                targetLanguage: sourcePost.language,
+            }, actor)).rejects.toMatchObject({ statusCode: 400, statusMessage: 'Target language must differ from source language' })
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should reject creating a new post without title and content scopes', async () => {
+            await expect(PostAutomationService.createTranslatePostTask({
+                ...baseInput,
+                scopes: ['summary'],
+            }, actor)).rejects.toMatchObject({ statusCode: 400 })
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should reject confirmed mode without a preview task id', async () => {
+            await expect(PostAutomationService.createTranslatePostTask({
+                ...baseInput,
+                confirmationMode: 'confirmed',
+            }, actor)).rejects.toMatchObject({ statusCode: 400 })
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should reject a missing source post with 404', async () => {
+            await expect(PostAutomationService.createTranslatePostTask({
+                ...baseInput,
+                sourcePostId: 'missing-post',
+            }, actor)).rejects.toMatchObject({ statusCode: 404 })
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should reject a non-owner non-admin actor with 403', async () => {
+            await expect(PostAutomationService.createTranslatePostTask(baseInput, {
+                userId: 'user-2',
+                isAdmin: false,
+            })).rejects.toMatchObject({ statusCode: 403 })
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should persist a pending task and process it asynchronously', async () => {
+            const savedSnapshots: Record<string, unknown>[] = []
+            let savedTask: Record<string, unknown> | null = null
+            taskRepo.create.mockImplementation((value: Record<string, unknown>) => ({ ...value, id: 'task-auto' }))
+            taskRepo.save.mockImplementation((value: Record<string, unknown>) => {
+                savedSnapshots.push({ ...value })
+                savedTask = value
+                return Promise.resolve(value)
+            })
+            taskRepo.findOneBy.mockImplementation((where: { id: string }) => (
+                where.id === 'task-auto' ? savedTask : null
+            ) as never)
+
+            // 在触发 fire-and-forget 之前安装 spy，避免异步链路已写日志后才开始捕获。
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+            try {
+                const task = await PostAutomationService.createTranslatePostTask(baseInput, actor) as { id: string, payload: string }
+                const firstSaved = savedSnapshots[0] as { status?: string, progress?: number }
+
+                expect(task.id).toBe('task-auto')
+                expect(firstSaved.status).toBe('pending')
+                expect(firstSaved.progress).toBe(0)
+                expect(JSON.parse(task.payload)).toMatchObject({
+                    sourcePostId: 'post-1',
+                    targetLanguage: 'en-US',
+                    scopes: ['title', 'content'],
+                    confirmationMode: 'auto',
+                })
+
+                await vi.waitFor(() => {
+                    expect(savedSnapshots.some((snapshot) => snapshot.status === 'completed')).toBe(true)
+                })
+                expect(createPostService).toHaveBeenCalled()
+                expect(consoleError).not.toHaveBeenCalled()
+            } finally {
+                consoleError.mockRestore()
+            }
+        })
+    })
+
+    describe('processTranslatePostTask failure paths', () => {
+        it('should return quietly when the task no longer exists', async () => {
+            taskRepo.findOneBy.mockResolvedValue(null)
+
+            await processTask.processTranslatePostTask('missing-task', actor)
+
+            expect(taskRepo.save).not.toHaveBeenCalled()
+        })
+
+        it('should record a failed task when translation throws', async () => {
+            const snapshots: Record<string, unknown>[] = []
+            taskRepo.save.mockImplementation((value: Record<string, unknown>) => {
+                snapshots.push({ ...value })
+                return Promise.resolve(value)
+            })
+            const task = {
+                id: 'task-fail',
+                userId: 'user-1',
+                payload: JSON.stringify({
+                    sourcePostId: 'post-1',
+                    targetLanguage: 'en-US',
+                    scopes: ['title', 'content'],
+                    confirmationMode: 'auto',
+                    slugStrategy: 'ai',
+                    categoryStrategy: 'cluster',
+                }),
+                progress: 30,
+                status: 'processing',
+                error: null,
+                result: null,
+            }
+            taskRepo.findOneBy.mockResolvedValue(task)
+            vi.mocked(requestTranslation).mockRejectedValueOnce(new Error('provider down'))
+
+            await processTask.processTranslatePostTask('task-fail', actor)
+
+            const failed = snapshots.find((snapshot) => snapshot.status === 'failed')
+            expect(failed).toBeDefined()
+            expect(String(failed?.error)).toContain('provider down')
+        })
+
+        it('should fail the task when the preview task cannot be found', async () => {
+            const snapshots: Record<string, unknown>[] = []
+            taskRepo.save.mockImplementation((value: Record<string, unknown>) => {
+                snapshots.push({ ...value })
+                return Promise.resolve(value)
+            })
+            const task = {
+                id: 'task-confirm',
+                userId: 'user-1',
+                payload: JSON.stringify({
+                    sourcePostId: 'post-1',
+                    targetLanguage: 'en-US',
+                    scopes: ['title', 'content'],
+                    confirmationMode: 'confirmed',
+                    previewTaskId: 'preview-missing',
+                    slugStrategy: 'ai',
+                    categoryStrategy: 'cluster',
+                }),
+                progress: 10,
+                status: 'processing',
+                error: null,
+                result: null,
+            }
+            taskRepo.findOneBy.mockImplementation((where: { id: string }) => (
+                where.id === 'task-confirm' ? task : null
+            ) as never)
+
+            await processTask.processTranslatePostTask('task-confirm', actor)
+
+            const failed = snapshots.find((snapshot) => snapshot.status === 'failed')
+            expect(failed).toBeDefined()
+            expect(String(failed?.error)).toContain('Preview task not found')
+            expect(createPostService).not.toHaveBeenCalled()
+        })
+
+        it('should fail the task when the preview is not awaiting confirmation', async () => {
+            const snapshots: Record<string, unknown>[] = []
+            taskRepo.save.mockImplementation((value: Record<string, unknown>) => {
+                snapshots.push({ ...value })
+                return Promise.resolve(value)
+            })
+            const task = {
+                id: 'task-confirm-2',
+                userId: 'user-1',
+                payload: JSON.stringify({
+                    sourcePostId: 'post-1',
+                    targetLanguage: 'en-US',
+                    scopes: ['title', 'content'],
+                    confirmationMode: 'confirmed',
+                    previewTaskId: 'preview-done',
+                    slugStrategy: 'ai',
+                    categoryStrategy: 'cluster',
+                }),
+                progress: 10,
+                status: 'processing',
+                error: null,
+                result: null,
+            }
+            const previewTask = {
+                id: 'preview-done',
+                userId: 'user-1',
+                type: 'translate_post',
+                status: 'completed',
+                result: JSON.stringify({ needsConfirmation: false }),
+            }
+            taskRepo.findOneBy.mockImplementation((where: { id: string }) => {
+                if (where.id === 'task-confirm-2') {
+                    return task
+                }
+                if (where.id === 'preview-done') {
+                    return previewTask
+                }
+                return null
+            })
+
+            await processTask.processTranslatePostTask('task-confirm-2', actor)
+
+            const failed = snapshots.find((snapshot) => snapshot.status === 'failed')
+            expect(failed).toBeDefined()
+            expect(String(failed?.error)).toContain('Preview task is not awaiting confirmation')
+        })
     })
 })

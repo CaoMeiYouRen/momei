@@ -23,6 +23,7 @@ describe('settingService', () => {
         find: vi.fn(),
         create: vi.fn(),
         save: vi.fn(),
+        delete: vi.fn(),
         createQueryBuilder: vi.fn().mockReturnValue(mockQueryBuilder),
     }
 
