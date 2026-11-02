@@ -141,7 +141,7 @@
 > 本阶段规划正文保留在主窗口（近线窗口），收口归档时按 [深度归档治理索引](./archive/index.md) 迁入 `archive/` 分片。
 > 原子条目、验收标准与证据落点见 [待办事项](./todo.md)；批次事实源见 [迁移方案 §3.10 / §7](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
 
-### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（进行中；条目 1 已完成，条目 2–4 未开工）
+### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（进行中；条目 1 已完成，条目 2 拆为 2a–2d，2a/2b 已完成，2c/2d 未开工；条目 3–4 未开工）
 
 **时间表**: 2026-11-01 ~ 待定（按里程碑滚动，不预设结束日）
 

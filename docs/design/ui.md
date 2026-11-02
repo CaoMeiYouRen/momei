@@ -89,7 +89,7 @@
 针对管理后台场景，抽象出的高效通用组件：
 
 -   **AdminPageHeader**: 统一的页面头部，包含标题、副标题、面包屑和主操作按钮。
--   **ConfirmDeleteDialog**: 基于 PrimeVue ConfirmDialog 封装的删除确认弹窗，统一交互体验。
+-   **ConfirmDeleteDialog**: 基于 caomei-ui `CaomeiDialog` 封装的删除确认弹窗，统一交互体验。
 -   **AdminTable**:（规划中）封装了分页、搜索、排序逻辑的 DataTable。
 -   **UnifiedTranslationEditor**:（规划中）支持在单个对话框内通过标签页 (Tabs) 切换编辑多语言内容的统一编辑器，降低管理员管理翻译簇的认知负载。
 
