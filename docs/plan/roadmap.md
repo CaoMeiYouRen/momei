@@ -136,12 +136,12 @@
 
 > 未覆盖边界与后续观察项：① `friend-link` 的 name/url 归一化被 `assignDefined` 覆盖（既有缺陷，已登记 backlog 待跟踪）；② 迁移页的幻影 token、页面注释中的阶段号与浮层 focus 行为随 B3 / B4 收尾统一清理；③ `keyCss` 基线仍沿用 `0.3.0` 批次口径（实测 61,311 B），待 B4 重取（**2026-11-01 更新**：rc.1 升级批次已复测 `keyCss` = 62,382 B（60.92KiB），仍决定**不刷新基线**，交第七十一阶段即 B4 统一重取）；④ `caomei-ui` 的 Dependabot `ignore` 须在第七十阶段前配置，阻断静默抬版路径（**2026-11-01 更新**：已上收为第六十九阶段条目 1 的执行范围）。
 
-## 主窗口近线规划：第六十九阶段（进行中，条目 1–3 已完成）
+## 主窗口近线规划：第六十九阶段（进行中，条目 1–4 已完成）
 
 > 本阶段规划正文保留在主窗口（近线窗口），收口归档时按 [深度归档治理索引](./archive/index.md) 迁入 `archive/` 分片。
 > 原子条目、验收标准与证据落点见 [待办事项](./todo.md)；批次事实源见 [迁移方案 §3.10 / §7](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。
 
-### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（进行中；条目 1–3 已完成；条目 4 未开工）
+### 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线（Phase 69: caomei-ui 1.0.0-rc.1 Upgrade & Token Roles, Overlay Families, Built-in Locale Wiring）（进行中；条目 1–4 已完成，可进入阶段归档）
 
 **时间表**: 2026-11-01 ~ 待定（按里程碑滚动，不预设结束日）
 

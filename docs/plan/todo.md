@@ -17,7 +17,7 @@
 
 ## 第六十九阶段：PrimeVue → caomei-ui 迁移（三）——1.0.0-rc.1 升级与 token 角色接线、浮层族整迁、内建文案 locale 接线
 
-**状态**: 进行中（2026-11-01 立项；条目 1 已完成，条目 2–4 未开工）
+**状态**: 进行中（2026-11-01 立项；条目 1–4 均已完成，阶段可进入归档）
 
 > 阶段规划详情、ROI 与回滚边界见 [项目计划](./roadmap.md)。
 > 迁移方案事实源见 [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（本阶段对应 §3.10 / §7 重切后的 69 段）。
@@ -59,11 +59,12 @@
     - **证据落点**: 回归记录窗口（5 语种抽查表 + `coreEntryJs` 实测）；迁移方案 §5.4。
     - **收口（2026-11-02）**: 已完成。新增 `plugins/caomei-locale.ts`（静态 import 三门语言 + 模块顶层 `registerLocale`）与 `composables/use-caomei-locale.ts`（registry 归一化 + `satisfies` 映射），`app.vue` 以 `<CaomeiConfigProvider :locale>` 包住 toast / confirm；5 语种浏览器抽查 Paginator 内建文案跟随语言、无 hydration mismatch；`coreEntryJs` 353.05 → **357.41KB**（+4.36KB，未越 360KB），异步形态因 provider 的 `computed` 语义存在切换竞态而否决（裁定与证据见回归记录）；基线三项按本轮实测重取（`prIncrementJs` 归零），入口余量 2,652 B 已登记 backlog 跟踪。`typecheck` / `lint` / 全量单测（577 passed / 1 skipped，共 578 个测试文件）/ `test:visual` 18/18 / `test:perf:budget:strict` 均通过。
 
-- [ ] **4. 测试覆盖率治理第十批（P2）**
+- [x] **4. 测试覆盖率治理第十批（P2）**
     - **执行范围**: 按未覆盖语句绝对数取 `server/services/setting.ts`（43）/ `server/services/ai/text-translation-task.ts`（34）/ `server/services/ai/post-automation.ts`（32）三模块补测；失败 / 边界断言优先，不做低价值铺量。
     - **非目标**: 不追求全仓 `90%+` 一步到位；不为覆盖率重构被测模块。
     - **最小验收**: 三模块各 `+15pp` 或达 `85%+`；全仓 Statements 以 `+0.3pp` 为容量现实目标（第六十八阶段已证单批 `+1pp` 结构上不可达），未达时记录结构性原因；`typecheck` / `lint` / 定向 `pnpm test` 通过。
     - **证据落点**: coverage 数值与模块清单写入回归记录；backlog 长期主线第 1 条基线随阶段归档同步。
+    - **收口（2026-11-03）**: 已完成。三模块补测后 statements / branches / functions 分别为 `setting.ts` 90.31% / 88.35% / 93.18%、`text-translation-task.ts` 95.27% / 85.32% / 100%、`post-automation.ts` 93.18% / 80.12% / 84.21%，均越过「+15pp 或 85%+」验收线；全仓 Statements **80.98% → 81.17%（本批 +0.19pp，闭合 68 条）**；相对第六十八阶段收口 81.04% 的阶段累计为 +0.13pp（分母由 34,857 增至 35,598，条目 1–3 新增代码稀释），Branches 70.83% → 70.90%、Lines 81.15% → 81.29%、Functions 80.07% → 79.98%（同样被新增函数稀释）。全仓 +0.3pp 未达的结构性原因：本批候选池 109 条的理论上限仅 +0.31pp，实际闭合 68 条（62%）；剩余 41 条分散在低价值防御分支，继续铺量收益低于换更大基数的模块。验证：`pnpm test:coverage` EXIT 0、全量 `pnpm test` 578 files / 5,119 passed / 1 skipped（毛新增 36 例、删除 1 例重复后净增 35）、`typecheck` 0 error、`lint` 0 error；证据见[回归记录](../reports/regression/current.md#2026-11-03-第六十九阶段条目-4-测试覆盖率治理第十批setting--文本翻译任务--文章自动化)。
 
 **回滚边界**:
 
