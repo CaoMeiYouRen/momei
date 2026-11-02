@@ -1,25 +1,34 @@
 <template>
-    <CaomeiToastProvider>
-        <CaomeiConfirmDialog>
-            <div>
-                <DemoBanner />
-                <NuxtLayout>
-                    <NuxtPage />
-                </NuxtLayout>
-            </div>
-        </CaomeiConfirmDialog>
-    </CaomeiToastProvider>
+    <CaomeiConfigProvider :locale="caomeiLocale">
+        <CaomeiToastProvider>
+            <CaomeiConfirmDialog>
+                <div>
+                    <DemoBanner />
+                    <NuxtLayout>
+                        <NuxtPage />
+                    </NuxtLayout>
+                </div>
+            </CaomeiConfirmDialog>
+        </CaomeiToastProvider>
+    </CaomeiConfigProvider>
 </template>
 
 <script setup lang="ts">
 import { initializeAuthSessionSync } from '@/lib/auth-client'
 import { primeHydratedAuthSession, setupAuthSessionLifecycle, useAuthSession } from '@/composables/use-auth-session'
 import { isAppLocale, type AppLocaleCode } from '@/i18n/config/locale-registry'
+import { useCaomeiLocale } from '@/composables/use-caomei-locale'
 
 const { t, setLocale, locale } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig()
 const shouldDeferInitialServerSettings = import.meta.server && config.public.windowsLocalDevMode
+
+/**
+ * caomei-ui 内建文案／组件语言：经应用 registry 归一化后映射到 caomei 标识，
+ * 未知 / 历史写法先回落默认语言，避免把「未注册但类型合法」的值传给 provider。
+ */
+const caomeiLocale = useCaomeiLocale()
 
 initializeAuthSessionSync()
 

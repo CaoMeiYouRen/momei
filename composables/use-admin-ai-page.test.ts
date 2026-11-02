@@ -9,7 +9,8 @@ const showSuccessToast = vi.fn()
 const resolveErrorMessage = vi.fn(() => 'resolved-load-error')
 const confirmRequire = vi.fn()
 
-vi.mock('caomei-ui', () => ({
+vi.mock('caomei-ui', async (importOriginal) => ({
+    ...await importOriginal<typeof import('caomei-ui')>(),
     useConfirm: () => createLegacyConfirmApi(confirmRequire),
 }))
 
