@@ -203,6 +203,65 @@ describe('security alert dismissed / fail-closed policy', () => {
         }
     })
 
+    it('keeps open blockers when a source is partially unavailable in transition mode', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-security-partial-transition-'))
+        const inputPath = path.join(tempRoot, 'snapshot.json')
+        const exceptionsPath = path.join(tempRoot, 'exceptions.json')
+        const outputJsonPath = path.join(tempRoot, 'artifacts', 'alerts.json')
+        const outputMdPath = path.join(tempRoot, 'artifacts', 'alerts.md')
+        const originalArgv = process.argv
+        const originalExitCode = process.exitCode
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+
+        try {
+            await writeFile(inputPath, JSON.stringify({
+                codeScanningAlerts: [{
+                    most_recent_instance: {
+                        classifications: [],
+                        location: { path: 'server/api/example.ts' },
+                    },
+                    number: 91,
+                    rule: { id: 'js/example', security_severity_level: 'high', severity: 'error' },
+                    state: 'open',
+                }],
+                dependabotAlerts: [],
+                repository: { owner: 'CaoMeiYouRen', repo: 'momei' },
+                sourceStatuses: {
+                    codeScanning: { detail: 'dismissed state failed', kind: 'unavailable', sourceName: 'github-api' },
+                    dependabot: { detail: 'snapshot', kind: 'ok', sourceName: 'input' },
+                },
+            }), 'utf8')
+            await writeFile(exceptionsPath, JSON.stringify({ entries: [] }), 'utf8')
+
+            process.argv = [
+                process.argv[0] || 'node',
+                'check-github-security-alerts.mjs',
+                `--input=${inputPath}`,
+                `--exceptions=${exceptionsPath}`,
+                `--output-json=${outputJsonPath}`,
+                `--output-md=${outputMdPath}`,
+                '--min-severity=high',
+                '--mode=error',
+                '--transition-mode',
+            ]
+            process.exitCode = undefined
+
+            await securityAlertMain()
+
+            const jsonArtifact = JSON.parse(readFileSync(outputJsonPath, 'utf8'))
+
+            expect(process.exitCode).toBe(1)
+            expect(jsonArtifact.gateConclusion).toBe('Reject')
+            expect(jsonArtifact.results.blocking).toHaveLength(1)
+            expect(jsonArtifact.results.effectiveBlocking).toHaveLength(1)
+        } finally {
+            process.argv = originalArgv
+            process.exitCode = originalExitCode
+            infoSpy.mockRestore()
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
     it('fails closed on source gaps outside transition mode', async () => {
         const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-security-source-gap-'))
         const inputPath = path.join(tempRoot, 'snapshot.json')

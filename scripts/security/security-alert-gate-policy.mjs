@@ -57,6 +57,10 @@ function normalizePatchedVersionValue(value) {
 }
 
 function normalizeExceptionEntries(definition) {
+    if (definition?.version !== undefined && definition.version !== 2) {
+        throw new Error(`Unsupported security alert exception ledger version: ${definition.version}`)
+    }
+
     return toArray(definition?.entries).map((entry, index) => {
         const source = String(entry?.source || '').trim()
         const alertNumber = String(entry?.id ?? entry?.alertNumber ?? '').trim()
@@ -162,7 +166,8 @@ function findExceptionEntry(alert, exceptionEntries) {
         }
 
         const alertPaths = toArray(alert.paths)
-        if (entry.dependencyPath && (alertPaths.length === 0 || !alertPaths.some((riskPath) => riskPath.includes(entry.dependencyPath)))) {
+        // GitHub API 的 Dependabot 告警没有依赖链 paths；只有数据源提供路径时才校验覆盖关系。
+        if (entry.dependencyPath && alertPaths.length > 0 && !alertPaths.some((riskPath) => riskPath.includes(entry.dependencyPath))) {
             return false
         }
 

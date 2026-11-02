@@ -88,6 +88,7 @@
 - **最近一次上收阶段**: 第六十五阶段（`governance:audit:simple-duplicates` 升格至 `regression:weekly` warning 面，结论 Go）。
 - **当前基线**: `governance:check:scripts` 与 `audit:simple-duplicates`、`audit:eslint-debt`、`audit:comment-drift` 均已进入 `regression:weekly` warning 面；`docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 仍为独立 baseline。
 - **下一次可切片方向**: 按周级回归趋势跟踪 comment-drift 的 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理；评估 docs candidate 入口是否进入更高频回归。
+- **待跟踪（2026-11-03 登记，责任人：安全门禁维护）**: `package.json` 的 `security:alerts` 当前带 `--transition-mode`，只对 dismissed / fail-closed 新检查报告。下一次正式发布完成后移除该参数，恢复完整阻断；同时复核 dismissed #43 的归类与 mjml / quill 过期台账。退出条件见 [release-security-gate dismissed 与 fail-closed 对齐](../design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md)。
 
 ### 10. UI 组件库许可证风险与迁移可行性治理
 

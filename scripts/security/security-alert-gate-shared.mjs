@@ -547,7 +547,7 @@ function buildMarkdownArtifact({ alerts, artifactPaths, effectiveBlocking, gateC
         '',
         '## 已执行验证',
         '- 官方数据源优先读取 GitHub repository alerts API，并同时读取 open 与 dismissed 状态。',
-        '- Dependabot 仓库级接口不可用时，回退到 `pnpm audit --json --registry=https://registry.npmjs.org/`，并在证据中标记降级。',
+        '- 仅缺少 Dependabot token 时，回退到 `pnpm audit --json --registry=https://registry.npmjs.org/` 并标记降级；权限 / 网络 / 响应异常保留 failure。',
         '- Code Scanning 若因权限或未启用不可访问，按 fail-closed 记录为阻断项；transition 模式下先降级为 warning。',
         '',
         '## Alerts Summary',
