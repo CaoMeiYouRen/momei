@@ -72,7 +72,7 @@ git worktree add ../momei-feature-search feature/search-improvements
 
 | 陷阱 | 结论 |
 |:---|:---|
-| `lint-staged` 的 `git add` | 钩子会把当时**未暂存**的改动一并 stage（可能把另一批文件或无关脏文件卷进本笔）。拆分提交后必须按 `git show --numstat` **实测落库**回填拆分表，不要按计划口径写；必要时提交前 `git stash push -- <path>` 隔离无关脏文件。 |
+| `lint-staged` 的 `git add` | 钩子会把当时**未暂存**的改动一并 stage（可能把另一批文件或无关脏文件卷进本笔）；`*.md` 规则里的裸 `git add` 等价 `git add -A`，是最常见来源——先提交文档批次或给 `git add` 指定路径。拆分提交后必须按 `git show --numstat` **实测落库**回填拆分表，不要按计划口径写；必要时提交前 `git stash push -- <path>` 隔离无关脏文件。 |
 | `lint-md --fix` 顺带 stage | pre-commit 会重排被覆盖的 Markdown 并 stage；若该文件不属于本批，会把无关文档卷进提交。拆分时把含该文档的那一批**先提交**，后续批次的钩子对其即无操作。 |
 | 多段提交信息的换行 | shell 双引号里的 `\n` 不会转义（bash 只在 `$'...'` 中解释），会写入字面 `\n`；一律用 `git commit -F <file>` 或 heredoc。 |
 | 改写已有提交信息 | 用 `git filter-branch --msg-filter` 修正时，range 起点必须取「**最后一个不受影响的提交**」；从更早的祖先起算会连带重写历史，使文档中引用的哈希失效。 |

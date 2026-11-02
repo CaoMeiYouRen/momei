@@ -42,6 +42,8 @@
 -   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞。
 -   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
 -   **新增用例的环境兜底**：涉及模块级连接 Map / `process.env` / fake timers 的用例必须补 `afterEach` 注销与 `useRealTimers` / `unstubAllGlobals`；即使当前 `isolate: true` 掩盖了污染，审计仍会以「前置断言失败会连锁误报」为由记 warning。
+-   **本批增量与阶段累计分列**：新增代码会把语句总数从上一阶段基线推大；`本批增量 = 终值 − 本批前基线`、`阶段累计 = 终值 − 上一阶段收口值`，两者不同源。文档必须给出各自的分子 / 分母，禁止用累计值冒充本批成果。
+-   **覆盖率展示口径**：全仓百分比常按 vitest 文本报告的截断显示（`81.1759 → 81.17`），模块表用四舍五入；同一文档要注明口径，增量列按「覆盖数 / 总数」复算，与两个展示值相减可能差 0.01pp。
 
 ## 3. 目录结构与命名规范 (Directory Structure & Naming)
 
@@ -342,6 +344,11 @@ pnpm run test:coverage
 | E2E 串行矩阵超时 | 「多路由串行」用例随迁移逐批增长并贴默认 30s 预算，应显式 `test.setTimeout` 把「新增路由」与超时瓶颈解耦；隔离调用下的超时与并行负载下的超时**不同型**，未证伪前按观察项登记并补 HEAD 对照。 |
 | parity 门禁无业务种子 | 门禁环境只播种 settings + posts，列表页多为空态；「未归因 0px」只对空态成立，数据行渲染（Tag / Avatar / 行内按钮）需另补断言。 |
 | 本机全量 E2E | 无外网 / 高负载下公开页 `networkidle` 与 firefox 项目会大面积超时；批次验证统一隔离管理端用例：`pnpm test:e2e --project=chromium tests/e2e/admin.e2e.test.ts`（位置参数直接透传）。 |
+| caomei 浮层组件的 jsdom 行为 | `CaomeiDialog` / `CaomeiDrawer` / `CaomeiPopover` 依赖 Reka Portal + Presence，jsdom 下内容不挂载（teleport stub 内是 `v-if` 注释）；单测必须桩掉浮层内容组件，不能用真实组件断言 DOM。 |
+| caomei-ui mock 的展开方式 | `vi.mock('caomei-ui')` 必须 `importOriginal` 展开后再覆盖 `useToast` / `useConfirm`；整模块替换会丢掉 `CaomeiDialog` / `CaomeiButton` 等导出，使挂载根组件的用例连锁失败。 |
+| Dialog 打开后的可访问性树 | caomei `CaomeiDialog` 按 Reka 契约给外部内容加 `aria-hidden`；「页面就绪」类 `getByRole('heading')` 断言必须在打开弹窗之前，否则等待超时。 |
+| 失败路径断言的引用陷阱 | `recordTask` 这类原地 `Object.assign` 同一对象的路径，`save.mock.calls[i][0]` 读到的是最终状态（引用），必须记录 `{...value}` 快照再断言 `status` / `error`。 |
+| 测试环境变量的隔离 | `process.env = { ...originalEnv }` 只是复制、不是隔离：shell 里恰好导出的被测键（含 legacy alias）会让「默认值 / 写入」用例必挂或空断言；基线副本要显式删除被测键。 |
 
 ## 8. 提交前检查 (Pre-commit Checks)
 
