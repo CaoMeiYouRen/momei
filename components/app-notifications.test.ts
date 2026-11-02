@@ -12,7 +12,6 @@ const {
     enableBrowserPushMock,
     formatDateTimeMock,
     localePathMock,
-    popoverToggleMock,
 } = vi.hoisted(() => ({
     notificationsRef: { __v_isRef: true, value: [] as Record<string, any>[] },
     unreadCountRef: { __v_isRef: true, value: 0 },
@@ -22,7 +21,6 @@ const {
     enableBrowserPushMock: vi.fn(),
     formatDateTimeMock: vi.fn((value: string) => `formatted:${value}`),
     localePathMock: vi.fn((path: string) => `/zh-CN${path}`),
-    popoverToggleMock: vi.fn(),
 }))
 
 const sessionState = ref<{ data: { user: { role: string } } | null }>({
@@ -77,13 +75,17 @@ const ButtonStub = defineComponent({
 })
 
 const PopoverStub = defineComponent({
-    setup(_, { slots, expose }) {
-        expose({
-            toggle: popoverToggleMock,
-        })
-
+    setup(_, { slots }) {
         return () => h('div', { class: 'popover-stub' }, slots.default?.())
     },
+})
+
+const PopoverTriggerStub = defineComponent({
+    template: '<span class="popover-trigger-stub"><slot /></span>',
+})
+
+const PopoverContentStub = defineComponent({
+    template: '<div class="popover-content-stub"><slot /></div>',
 })
 
 const MessageStub = defineComponent({
@@ -107,7 +109,9 @@ function mountComponent() {
         global: {
             stubs: {
                 Button: ButtonStub,
-                Popover: PopoverStub,
+                CaomeiPopover: PopoverStub,
+                CaomeiPopoverTrigger: PopoverTriggerStub,
+                CaomeiPopoverContent: PopoverContentStub,
                 Message: MessageStub,
                 NuxtLink: NuxtLinkStub,
             },
@@ -130,9 +134,7 @@ describe('AppNotifications', () => {
         const wrapper = await mountComponent()
 
         expect(wrapper.find('.empty-state').exists()).toBe(true)
-
-        await wrapper.find('#notification-btn').trigger('click')
-        expect(popoverToggleMock).toHaveBeenCalledTimes(1)
+        expect(wrapper.find('.popover-trigger-stub #notification-btn').exists()).toBe(true)
     })
 
     it('renders notification items, formats timestamps and supports mark-all and item read actions', async () => {

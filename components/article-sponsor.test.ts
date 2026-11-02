@@ -64,7 +64,7 @@ describe('ArticleSponsor', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -88,7 +88,7 @@ describe('ArticleSponsor', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -109,7 +109,7 @@ describe('ArticleSponsor', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -151,7 +151,7 @@ describe('ArticleSponsor', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })

@@ -1,29 +1,32 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
-        modal
-        :header="title || $t('common.confirm_delete')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="title || $t('common.confirm_delete')"
         :style="{width: '25rem'}"
+        modal
+        @update:open="visible = $event"
     >
         <div class="delete-dialog-content">
             <i class="delete-dialog-icon pi pi-exclamation-triangle" />
             <span>{{ message || $t('common.delete_confirm_message') }}</span>
         </div>
         <template #footer>
-            <Button
-                :label="$t('common.cancel')"
-                text
-                severity="secondary"
+            <CaomeiButton
+                variant="ghost"
                 @click="visible = false"
-            />
-            <Button
-                :label="$t('common.delete')"
-                severity="danger"
+            >
+                {{ $t('common.cancel') }}
+            </CaomeiButton>
+            <CaomeiButton
+                tone="danger"
                 :loading="loading"
                 @click="handleConfirm"
-            />
+            >
+                {{ $t('common.delete') }}
+            </CaomeiButton>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

@@ -1,24 +1,19 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
-        modal
-        header=" "
-        :dismissable-mask="true"
-        class="app-search-dialog"
+    <CaomeiDialog
+        :open="visible"
+        :title="$t('components.search.title')"
         :show-header="false"
-        :pt="{
-            root: {class: 'search-dialog-root'},
-            content: {class: 'search-dialog-content'}
-        }"
+        class="app-search-dialog"
+        @update:open="visible = $event"
     >
         <div class="app-search">
             <div class="app-search__header">
                 <i class="app-search__icon pi pi-search" />
                 <InputText
+                    ref="searchInput"
                     v-model="query"
                     :placeholder="$t('components.search.placeholder')"
                     class="app-search__input"
-                    autofocus
                     autocomplete="off"
                     @keyup.enter="performSearch"
                 />
@@ -75,7 +70,7 @@
                 </div>
             </div>
         </div>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
@@ -89,6 +84,16 @@ const { $appFetch } = useAppApi()
 const query = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
+const searchInput = ref<{ $el?: HTMLInputElement } | null>(null)
+
+watch(visible, async (open) => {
+    if (!open) {
+        return
+    }
+
+    await nextTick()
+    searchInput.value?.$el?.focus()
+})
 
 // Use VueUse debounced function
 const debouncedSearch = useDebounceFn(async () => {
@@ -138,25 +143,17 @@ const performSearch = () => {
 <style lang="scss">
 @use "@/styles/variables" as *;
 
-.app-search-dialog {
-    &.p-dialog {
-        background: transparent;
-        box-shadow: none;
-        border: none;
-        width: 100%;
-        max-width: 600px;
-        top: 15%;
-        margin: 0 $spacing-md;
-
-        .p-dialog-content {
-            border-radius: $border-radius-lg;
-            padding: 0;
-            overflow: hidden;
-            background: var(--p-content-background);
-            box-shadow: $shadow-xl;
-            border: 1px solid var(--p-content-border-color);
-        }
-    }
+div.caomei-dialog__content.app-search-dialog {
+    top: 15%;
+    width: min(90vw, 600px);
+    max-width: 600px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: $border-radius-lg;
+    background: var(--p-content-background);
+    box-shadow: $shadow-xl;
+    transform: translate(-50%, 0);
 }
 
 .app-search {

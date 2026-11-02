@@ -8,15 +8,11 @@ const {
     mockEnsureLocaleMessageModules,
     navigateToMock,
     localePathMock,
-    adminMenuToggleMock,
-    userMenuToggleMock,
     mockSignOut,
 } = vi.hoisted(() => ({
     mockEnsureLocaleMessageModules: vi.fn(),
     navigateToMock: vi.fn(),
     localePathMock: vi.fn((path: string) => `/zh-CN${path}`),
-    adminMenuToggleMock: vi.fn(),
-    userMenuToggleMock: vi.fn(),
     mockSignOut: vi.fn(),
 }))
 
@@ -96,7 +92,15 @@ const ButtonStub = defineComponent({
     template: '<button type="button" v-bind="$attrs" :icon="icon" :label="label" @click="$emit(\'click\', $event)"><slot />{{ label }}</button>',
 })
 
-const MenuStub = defineComponent({
+const DropdownMenuStub = defineComponent({
+    template: '<div class="dropdown-menu-stub"><slot /></div>',
+})
+
+const DropdownMenuTriggerStub = defineComponent({
+    template: '<div class="dropdown-trigger-stub"><slot /></div>',
+})
+
+const DropdownMenuContentStub = defineComponent({
     inheritAttrs: false,
     props: {
         model: {
@@ -104,8 +108,7 @@ const MenuStub = defineComponent({
             default: () => [],
         },
     },
-    setup(props, { attrs, expose }) {
-        const id = typeof attrs.id === 'string' ? attrs.id : ''
+    setup(props) {
         const collectLabels = (items: unknown[]): string[] => items.flatMap((item) => {
             if (!item || typeof item !== 'object') {
                 return []
@@ -121,29 +124,18 @@ const MenuStub = defineComponent({
             return [...label, ...nestedItems]
         })
 
-        expose({
-            toggle(event: Event) {
-                if (id === 'admin_menu') {
-                    adminMenuToggleMock(event)
-                    return
-                }
-
-                userMenuToggleMock(event)
-            },
-        })
-
-        return () => h('div', { class: 'menu-stub', ...attrs }, collectLabels(props.model).join(' | '))
+        return () => h('div', { class: 'menu-stub' }, collectLabels(props.model).join(' | '))
     },
 })
 
 const DrawerStub = defineComponent({
     props: {
-        visible: {
+        open: {
             type: Boolean,
             default: false,
         },
     },
-    template: '<div v-if="visible" class="drawer-stub"><slot /></div>',
+    template: '<div v-if="open" class="drawer-stub"><slot /></div>',
 })
 
 const DividerStub = defineComponent({
@@ -160,8 +152,10 @@ const stubs = {
     TravellingsLink: TravellingsLinkStub,
     NuxtLink: NuxtLinkStub,
     Button: ButtonStub,
-    Menu: MenuStub,
-    Drawer: DrawerStub,
+    CaomeiDropdownMenu: DropdownMenuStub,
+    CaomeiDropdownMenuTrigger: DropdownMenuTriggerStub,
+    CaomeiDropdownMenuContent: DropdownMenuContentStub,
+    CaomeiDrawer: DrawerStub,
     Divider: DividerStub,
     LanguageSwitcher: LanguageSwitcherStub,
 }
@@ -450,13 +444,6 @@ describe('AppHeader', () => {
 
         expect(preventDefault).toHaveBeenCalledTimes(1)
         expect(mockOpenSearch).toHaveBeenCalledTimes(2)
-
-        const fakeEvent = new Event('click')
-        await wrapper.find('#admin-menu-btn').trigger('click', fakeEvent)
-        await wrapper.find('#user-menu-btn').trigger('click', fakeEvent)
-
-        expect(adminMenuToggleMock).toHaveBeenCalledTimes(1)
-        expect(userMenuToggleMock).toHaveBeenCalledTimes(1)
 
         wrapper.unmount()
         expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', keydownHandler)

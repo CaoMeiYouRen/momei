@@ -34,11 +34,13 @@
             </div>
         </div>
 
-        <Dialog
-            v-model:visible="dialogVisible"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="dialogVisible"
             modal
-            :header="$t('components.post.share.dialog_title')"
+            :title="$t('components.post.share.dialog_title')"
             class="article-share__dialog"
+            @update:open="dialogVisible = $event"
         >
             <div class="article-share__dialog-body">
                 <section class="article-share__section">
@@ -108,12 +110,12 @@
                     </div>
                 </section>
             </div>
-        </Dialog>
+        </CaomeiDialog>
     </section>
 </template>
 
 <script setup lang="ts">
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import {
     buildDirectShareUrl,
     buildShareCopyText,
@@ -167,11 +169,11 @@ function refreshNativeShareCapability() {
 }
 
 function showSuccess(detail: string) {
-    toast.add({ severity: 'success', summary: t('common.success'), detail, life: 2000 })
+    toast.show({ tone: 'success', title: t('common.success'), description: detail, duration: 2000 })
 }
 
 function showError(detail: string) {
-    toast.add({ severity: 'error', summary: t('common.error'), detail, life: 2500 })
+    toast.show({ tone: 'danger', title: t('common.error'), description: detail, duration: 2500 })
 }
 
 function getPlatformLabel(platform: SharePlatformKey) {

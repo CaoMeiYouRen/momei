@@ -91,11 +91,13 @@
             </DataTable>
         </div>
 
-        <Dialog
-            v-model:visible="showNewKeyDialog"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="showNewKeyDialog"
             modal
-            :header="$t('pages.settings.api_keys.new_key_title')"
+            :title="$t('pages.settings.api_keys.new_key_title')"
             :style="{width: '450px'}"
+            @update:open="showNewKeyDialog = $event"
         >
             <div class="new-key-dialog-content">
                 <Message severity="warn" :closable="false">
@@ -113,11 +115,12 @@
             <template #footer>
                 <Button :label="$t('common.close')" @click="showNewKeyDialog = false" />
             </template>
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 const { t } = useI18n()
 const { formatDate } = useI18nDate()
 const toast = useToast()
@@ -168,12 +171,12 @@ const handleCreateApiKey = async () => {
             showNewKeyDialog.value = true
             newKeyName.value = ''
             expirationOption.value = 'never'
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.api_keys.create_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.api_keys.create_success'), duration: 3000 })
             await fetchApiKeys()
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     } finally {
         loading.value = false
     }
@@ -185,18 +188,18 @@ const handleDeleteApiKey = async (id: string) => {
             method: 'DELETE',
         })
         if (response.code === 200) {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.api_keys.delete_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.api_keys.delete_success'), duration: 3000 })
             await fetchApiKeys()
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     }
 }
 
 const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.add({ severity: 'info', summary: t('common.success'), detail: 'Copied to clipboard', life: 2000 })
+    toast.show({ tone: 'primary', title: t('common.success'), description: 'Copied to clipboard', duration: 2000 })
 }
 
 onMounted(() => {

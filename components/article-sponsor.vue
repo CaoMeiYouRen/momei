@@ -79,11 +79,13 @@
         </div>
 
         <!-- QR Modal -->
-        <Dialog
-            v-model:visible="qrVisible"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="qrVisible"
             modal
-            :header="qrHeader"
+            :title="qrHeader"
             :style="{width: '300px'}"
+            @update:open="qrVisible = $event"
         >
             <div class="article-sponsor__qr-modal-content">
                 <img
@@ -95,7 +97,7 @@
                     {{ qrLabel }}
                 </p>
             </div>
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 

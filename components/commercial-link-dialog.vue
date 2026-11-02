@@ -1,11 +1,11 @@
 <template>
-    <Dialog
-        :visible="visible"
-        :header="editingIndex > -1 ? $t(`${i18nPrefix}.edit_${kind}`) : $t(`${i18nPrefix}.add_${kind}`)"
+    <CaomeiDialog
+        :open="visible"
+        :title="editingIndex > -1 ? $t(`${i18nPrefix}.edit_${kind}`) : $t(`${i18nPrefix}.add_${kind}`)"
         modal
         class="commercial-link-dialog"
-        :dismissable-mask="true"
-        @update:visible="$emit('update:visible', $event)"
+        :close-on-overlay="true"
+        @update:open="$emit('update:visible', $event)"
     >
         <div class="commercial-link-dialog__body">
             <div class="commercial-link-dialog__field">
@@ -92,7 +92,7 @@
                 />
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

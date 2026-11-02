@@ -1,17 +1,7 @@
-import { defineComponent, h } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AppVoiceInputOverlay from './app-voice-input-overlay.vue'
-
-const {
-    popoverToggleMock,
-    popoverShowMock,
-    popoverHideMock,
-} = vi.hoisted(() => ({
-    popoverToggleMock: vi.fn(),
-    popoverShowMock: vi.fn(),
-    popoverHideMock: vi.fn(),
-}))
 
 vi.mock('vue-i18n', async (importOriginal) => ({
     ...await importOriginal<any>(),
@@ -46,16 +36,16 @@ const SelectButtonStub = defineComponent({
 
 const PopoverStub = defineComponent({
     inheritAttrs: false,
-    emits: ['hide'],
-    setup(_, { slots, expose }) {
-        expose({
-            toggle: popoverToggleMock,
-            show: popoverShowMock,
-            hide: popoverHideMock,
-        })
+    props: { open: { type: Boolean, default: false } },
+    template: '<div class="popover-stub" :data-open="String(open)"><slot /></div>',
+})
 
-        return () => h('div', { class: 'popover-stub' }, slots.default?.())
-    },
+const PopoverTriggerStub = defineComponent({
+    template: '<span class="popover-trigger-stub"><slot /></span>',
+})
+
+const PopoverContentStub = defineComponent({
+    template: '<div class="popover-content-stub"><slot /></div>',
 })
 
 function mountOverlay(props: Record<string, unknown> = {}) {
@@ -80,7 +70,9 @@ function mountOverlay(props: Record<string, unknown> = {}) {
         global: {
             stubs: {
                 Button: ButtonStub,
-                Popover: PopoverStub,
+                CaomeiPopover: PopoverStub,
+                CaomeiPopoverTrigger: PopoverTriggerStub,
+                CaomeiPopoverContent: PopoverContentStub,
                 ProgressBar: ProgressBarStub,
                 SelectButton: SelectButtonStub,
             },
@@ -156,12 +148,19 @@ describe('AppVoiceInputOverlay', () => {
         await modeButtons[1]!.trigger('click')
         expect(wrapper.emitted('update:mode')?.[0]).toEqual(['cloud-batch'])
 
-        wrapper.vm.show(new Event('click'))
-        wrapper.vm.hide()
-        wrapper.vm.toggle(new Event('click'))
+        expect(wrapper.find('.popover-stub').attributes('data-open')).toBe('false')
 
-        expect(popoverShowMock).toHaveBeenCalledTimes(1)
-        expect(popoverHideMock).toHaveBeenCalledTimes(1)
-        expect(popoverToggleMock).toHaveBeenCalledTimes(1)
+        wrapper.vm.show(new Event('click'))
+        await nextTick()
+        expect(wrapper.find('.popover-stub').attributes('data-open')).toBe('true')
+
+        wrapper.vm.hide()
+        await nextTick()
+        expect(wrapper.emitted('hide')).toBeTruthy()
+        expect(wrapper.find('.popover-stub').attributes('data-open')).toBe('false')
+
+        wrapper.vm.toggle(new Event('click'))
+        await nextTick()
+        expect(wrapper.find('.popover-stub').attributes('data-open')).toBe('true')
     })
 })

@@ -5,13 +5,13 @@ import ConfirmDeleteDialog from './confirm-delete-dialog.vue'
 
 const DialogStub = defineComponent({
     props: {
-        visible: { type: Boolean, default: false },
-        header: { type: String, default: '' },
+        open: { type: Boolean, default: false },
+        title: { type: String, default: '' },
     },
-    emits: ['update:visible'],
+    emits: ['update:open'],
     setup(props, { slots }) {
-        return () => props.visible
-            ? h('div', { class: 'dialog-stub', 'data-header': props.header }, [
+        return () => props.open
+            ? h('div', { class: 'dialog-stub', 'data-header': props.title }, [
                 slots.default?.(),
                 h('div', { class: 'dialog-footer' }, slots.footer?.()),
             ])
@@ -22,11 +22,10 @@ const DialogStub = defineComponent({
 const ButtonStub = defineComponent({
     inheritAttrs: false,
     props: {
-        label: { type: String, default: '' },
         loading: { type: Boolean, default: false },
     },
     emits: ['click'],
-    template: '<button type="button" v-bind="$attrs" :label="label" :loading="loading" @click="$emit(\'click\')">{{ label }}</button>',
+    template: '<button type="button" v-bind="$attrs" :loading="loading" @click="$emit(\'click\')"><slot /></button>',
 })
 
 describe('ConfirmDeleteDialog', () => {
@@ -43,8 +42,8 @@ describe('ConfirmDeleteDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: DialogStub,
-                    Button: ButtonStub,
+                    CaomeiDialog: DialogStub,
+                    CaomeiButton: ButtonStub,
                 },
             },
         })
@@ -77,8 +76,8 @@ describe('ConfirmDeleteDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: DialogStub,
-                    Button: ButtonStub,
+                    CaomeiDialog: DialogStub,
+                    CaomeiButton: ButtonStub,
                 },
             },
         })

@@ -418,17 +418,17 @@
             <ReaderControls />
         </div>
 
-        <Dialog
-            v-model:visible="lightboxVisible"
+        <CaomeiDialog
+            :open="lightboxVisible"
             modal
-            dismissable-mask
             :show-header="false"
-            content-class="lightbox-dialog-content"
+            :style="{background: 'transparent', border: 'none', boxShadow: 'none', padding: 0, width: 'auto', maxWidth: '90vw', maxHeight: '90vh', overflow: 'hidden'}"
+            @update:open="lightboxVisible = $event"
         >
             <div class="lightbox-wrapper" @click="lightboxVisible = false">
                 <img :src="lightboxImage" class="lightbox-image">
             </div>
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 

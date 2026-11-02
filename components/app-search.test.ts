@@ -39,10 +39,10 @@ vi.mock('@vueuse/core', () => ({
 
 const DialogStub = defineComponent({
     props: {
-        visible: { type: Boolean, default: false },
+        open: { type: Boolean, default: false },
     },
-    emits: ['update:visible'],
-    template: '<div v-if="visible" class="dialog"><slot /></div>',
+    emits: ['update:open'],
+    template: '<div v-if="open" class="dialog"><slot /></div>',
 })
 
 const InputTextStub = defineComponent({
@@ -79,7 +79,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,
@@ -108,7 +108,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,
@@ -145,7 +145,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,
@@ -186,7 +186,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,
@@ -220,7 +220,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,
@@ -263,7 +263,7 @@ describe('AppSearch', () => {
         const wrapper = await mountSuspended(AppSearch, {
             global: {
                 stubs: {
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                     InputText: InputTextStub,
                     Tag: TagStub,
                     NuxtLink: NuxtLinkStub,

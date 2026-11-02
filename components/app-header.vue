@@ -89,23 +89,22 @@
                                 :aria-label="$t('pages.admin.posts.title')"
                                 @click="goToAdminPosts"
                             />
-                            <Button
-                                id="admin-menu-btn"
-                                v-tooltip.bottom="$t('common.admin')"
-                                icon="pi pi-cog"
-                                text
-                                rounded
-                                aria-haspopup="true"
-                                aria-controls="admin_menu"
-                                :aria-label="$t('common.admin')"
-                                @click="toggleAdminMenu"
-                            />
-                            <Menu
-                                id="admin_menu"
-                                ref="adminMenu"
-                                :model="adminMenuItems"
-                                :popup="true"
-                            />
+                            <CaomeiDropdownMenu>
+                                <CaomeiDropdownMenuTrigger as-child>
+                                    <Button
+                                        id="admin-menu-btn"
+                                        v-tooltip.bottom="$t('common.admin')"
+                                        icon="pi pi-cog"
+                                        text
+                                        rounded
+                                        :aria-label="$t('common.admin')"
+                                    />
+                                </CaomeiDropdownMenuTrigger>
+                                <CaomeiDropdownMenuContent
+                                    id="admin_menu"
+                                    :model="adminMenuModel"
+                                />
+                            </CaomeiDropdownMenu>
                         </template>
                     </ClientOnly>
 
@@ -171,22 +170,21 @@
                                     @click="navigateTo(localePath('/login'))"
                                 />
                                 <template v-else>
-                                    <Button
-                                        id="user-menu-btn"
-                                        v-tooltip.bottom="$t('pages.settings.title')"
-                                        icon="pi pi-user"
-                                        text
-                                        rounded
-                                        aria-haspopup="true"
-                                        aria-controls="user_menu"
-                                        @click="toggleUserMenu"
-                                    />
-                                    <Menu
-                                        id="user_menu"
-                                        ref="userMenu"
-                                        :model="userMenuItems"
-                                        :popup="true"
-                                    />
+                                    <CaomeiDropdownMenu>
+                                        <CaomeiDropdownMenuTrigger as-child>
+                                            <Button
+                                                id="user-menu-btn"
+                                                v-tooltip.bottom="$t('pages.settings.title')"
+                                                icon="pi pi-user"
+                                                text
+                                                rounded
+                                            />
+                                        </CaomeiDropdownMenuTrigger>
+                                        <CaomeiDropdownMenuContent
+                                            id="user_menu"
+                                            :model="userMenuModel"
+                                        />
+                                    </CaomeiDropdownMenu>
                                 </template>
                             </template>
 
@@ -221,11 +219,13 @@
             </div>
         </div>
 
-        <Drawer
-            v-model:visible="isMobileMenuOpen"
+        <CaomeiDrawer
+            :open="isMobileMenuOpen"
             position="right"
-            :header="$t('components.header.title')"
+            size="sm"
+            :title="$t('components.header.title')"
             class="mobile-drawer"
+            @update:open="isMobileMenuOpen = $event"
         >
             <div class="mobile-menu">
                 <div
@@ -356,12 +356,12 @@
                     @click="isMobileMenuOpen = false; navigateTo(localePath('/login'))"
                 />
             </div>
-        </Drawer>
+        </CaomeiDrawer>
     </header>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, defineComponent, h, type Component } from 'vue'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
@@ -380,7 +380,6 @@ const nuxtApp = useNuxtApp()
 const isMobileMenuOpen = ref(false)
 const adminLocaleReady = ref(false)
 
-const adminMenu = ref()
 const showAdminControls = computed(() => Boolean(
     user.value
     && isAdminOrAuthor(user.value.role)
@@ -394,7 +393,47 @@ const { adminMenuItems, goToAdminPosts } = useAdminMenuItems({
     isAdmin,
 })
 
-const userMenu = ref()
+/**
+ * `CaomeiDropdownMenu` 的数据驱动条目只接受**组件**图标，不接受 PrimeVue 的 `pi pi-*` 类名。
+ * 浮层批次不承担图标全量迁移（第七十一阶段），故把类名包成一个最小渲染组件，
+ * 保留原图标外观；图标全量替换时删除本适配即可。
+ */
+const primeIconComponentCache = new Map<string, Component>()
+
+function resolvePrimeIcon(icon: string): Component {
+    const cached = primeIconComponentCache.get(icon)
+    if (cached) {
+        return cached
+    }
+
+    const component = defineComponent({
+        name: 'PrimeMenuIcon',
+        inheritAttrs: false,
+        setup(_, { attrs }) {
+            return () => h('i', { ...attrs, class: [icon, attrs.class] })
+        },
+    })
+
+    primeIconComponentCache.set(icon, component)
+
+    return component
+}
+
+interface MenuModelItem {
+    label?: string
+    icon?: string
+    command?: () => void
+    items?: MenuModelItem[]
+}
+
+function toDropdownModel(items: readonly MenuModelItem[]): Record<string, unknown>[] {
+    return items.map((item) => ({
+        ...item,
+        icon: item.icon ? resolvePrimeIcon(item.icon) : undefined,
+        items: item.items ? toDropdownModel(item.items) : undefined,
+    }))
+}
+
 const handleLogout = async () => {
     invalidateAuthSessionState()
 
@@ -428,13 +467,8 @@ const userMenuItems = computed(() => [
     },
 ])
 
-const toggleAdminMenu = (event: any) => {
-    adminMenu.value.toggle(event)
-}
-
-const toggleUserMenu = (event: any) => {
-    userMenu.value.toggle(event)
-}
+const adminMenuModel = computed(() => toDropdownModel(adminMenuItems.value))
+const userMenuModel = computed(() => toDropdownModel(userMenuItems.value))
 
 const handleSearchShortcut = (event: KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
@@ -649,30 +683,4 @@ watch(
     }
 }
 
-/* Fix PrimeVue Menu Dark Mode */
-:global(.dark .p-menu) {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
-
-    .p-menuitem-link {
-        color: var(--p-text-color);
-
-        &:hover {
-            background-color: var(--p-surface-hover);
-        }
-    }
-
-    .p-menuitem-icon {
-        color: var(--p-text-muted-color);
-    }
-}
-
-/* Fix PrimeVue Drawer Dark Mode */
-:global(.dark .p-drawer) {
-    background-color: var(--p-surface-card);
-    border-left: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
-    .p-drawer-header { border-bottom: 1px solid var(--p-surface-border); }
-}
 </style>

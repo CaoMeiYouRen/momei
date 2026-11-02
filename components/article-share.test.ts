@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ArticleShare from './article-share.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const toastAdd = vi.fn()
 
-vi.mock('primevue/usetoast', () => ({
-    useToast: () => ({
-        add: toastAdd,
-    }),
+vi.mock('caomei-ui', async (importOriginal) => ({
+    ...await importOriginal<any>(),
+    useToast: () => createLegacyToastApi(toastAdd),
 }))
 
 mockNuxtImport('useI18n', () => () => ({
@@ -31,9 +31,9 @@ const ButtonStub = defineComponent({
 const DialogStub = defineComponent({
     inheritAttrs: false,
     props: {
-        visible: { type: Boolean, default: false },
+        open: { type: Boolean, default: false },
     },
-    template: '<div v-if="visible" class="dialog"><slot /></div>',
+    template: '<div v-if="open" class="dialog"><slot /></div>',
 })
 
 describe('ArticleShare', () => {
@@ -80,7 +80,7 @@ describe('ArticleShare', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -99,7 +99,7 @@ describe('ArticleShare', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -123,7 +123,7 @@ describe('ArticleShare', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })
@@ -147,7 +147,7 @@ describe('ArticleShare', () => {
             global: {
                 stubs: {
                     Button: ButtonStub,
-                    Dialog: DialogStub,
+                    CaomeiDialog: DialogStub,
                 },
             },
         })

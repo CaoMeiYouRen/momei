@@ -162,7 +162,7 @@ const stubs = {
     CommentList: { template: '<div class="comments">Comments</div>', props: ['postId'] },
     AppAvatar: { template: '<div class="avatar"><slot /></div>', props: ['image', 'emailHash', 'name', 'shape'] },
     Tag: { template: '<span class="tag">{{ value }}</span>', props: ['value', 'severity', 'rounded'] },
-    Dialog: { template: '<div class="dialog"><slot /></div>', props: ['visible', 'modal', 'showHeader', 'contentClass'] },
+    CaomeiDialog: { template: '<div class="dialog"><slot /></div>', props: ['visible', 'modal', 'showHeader', 'contentClass'] },
     TravellingsLink: { template: '<div class="travellings">Travellings</div>', props: ['placement'] },
     ReaderControls: { template: '<div class="reader-controls">Reader Controls</div>' },
 }

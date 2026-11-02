@@ -1,36 +1,32 @@
 <template>
-    <Button
-        v-tooltip.bottom="$t('components.header.language')"
-        v-bind="attrs"
-        type="button"
-        icon="pi pi-globe"
-        text
-        rounded
-        aria-haspopup="true"
-        aria-controls="language_menu"
-        :aria-label="$t('components.header.language')"
-        @click="toggleMenu"
-    />
-    <Menu
-        id="language_menu"
-        ref="menu"
-        :model="localeMenuItems"
-        :popup="true"
-    />
+    <CaomeiDropdownMenu>
+        <CaomeiDropdownMenuTrigger as-child>
+            <Button
+                v-tooltip.bottom="$t('components.header.language')"
+                v-bind="attrs"
+                type="button"
+                icon="pi pi-globe"
+                text
+                rounded
+                :aria-label="$t('components.header.language')"
+            />
+        </CaomeiDropdownMenuTrigger>
+        <CaomeiDropdownMenuContent
+            id="language_menu"
+            :model="localeMenuItems"
+        />
+    </CaomeiDropdownMenu>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, useAttrs } from 'vue'
+import { computed, useAttrs } from 'vue'
 
 defineOptions({
     inheritAttrs: false,
 })
 
 const { locale, locales, setLocale } = useI18n()
-const switchLocalePath = useSwitchLocalePath()
 const attrs = useAttrs()
-
-const menu = ref()
 
 const availableLocales = computed(() => {
     return locales.value
@@ -41,32 +37,20 @@ const localeMenuItems = computed(() => {
         label: l.name,
         class: locale.value === l.code ? 'is-active-locale' : '',
         command: () => {
-            // const path = switchLocalePath(l.code)
-            // if (path) {
-            //     navigateTo(path)
-            // }
             setLocale(l.code)
         },
     }))
 })
-
-const toggleMenu = (event: any) => {
-    menu.value.toggle(event)
-}
 </script>
 
 <style lang="scss">
-.is-active-locale {
-    .p-menuitem-content {
-        background-color: var(--p-surface-100);
-        font-weight: 600;
-        color: var(--p-primary-color);
-    }
+.caomei-dropdown-menu__item.is-active-locale {
+    background-color: var(--p-surface-100);
+    font-weight: 600;
+    color: var(--p-primary-color);
 }
 
-.dark .is-active-locale {
-    .p-menuitem-content {
-        background-color: var(--p-surface-800);
-    }
+.dark .caomei-dropdown-menu__item.is-active-locale {
+    background-color: var(--p-surface-800);
 }
 </style>

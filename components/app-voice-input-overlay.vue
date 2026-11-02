@@ -1,118 +1,131 @@
 <template>
-    <Popover
-        ref="op"
-        class="voice-popover"
-        @hide="$emit('hide')"
+    <CaomeiPopover
+        :open="open"
+        @update:open="open = $event"
     >
-        <div class="voice-popover__card">
-            <div class="voice-popover__header">
-                <span class="voice-popover__title">
-                    <i
-                        class="pi pi-microphone voice-popover__icon"
-                        :class="{'voice-popover__icon--listening': isListening}"
-                    />
-                    {{ isListening ? $t('common.voice.listening') : $t('common.voice.input') }}
-                </span>
-                <SelectButton
-                    v-model="internalMode"
-                    :options="modeOptions"
-                    option-label="label"
-                    option-value="value"
-                    size="small"
-                    :disabled="isListening"
-                    :aria-label="$t('common.voice.input')"
-                />
-            </div>
-
-            <div class="voice-popover__content" aria-live="polite">
-                <div v-if="isLoadingModel" class="voice-popover__loading">
-                    <span class="mb-2 text-sm">{{ $t('common.voice.model_loading') }}</span>
-                    <ProgressBar
-                        :value="Math.round(modelProgress)"
-                        class="w-full"
-                        style="height: 6px"
-                    />
-                </div>
-                <div v-else-if="error" class="voice-popover__error">
-                    <i class="pi pi-exclamation-circle" />
-                    <span>{{ errorText }}</span>
-                    <Button
-                        :label="$t('common.voice.retry')"
+        <CaomeiPopoverTrigger as-child>
+            <span
+                class="voice-popover-anchor"
+                :style="anchorStyle"
+                aria-hidden="true"
+            />
+        </CaomeiPopoverTrigger>
+        <CaomeiPopoverContent
+            side="bottom"
+            align="end"
+            class="voice-popover"
+        >
+            <div class="voice-popover__card">
+                <div class="voice-popover__header">
+                    <span class="voice-popover__title">
+                        <i
+                            class="pi pi-microphone voice-popover__icon"
+                            :class="{'voice-popover__icon--listening': isListening}"
+                        />
+                        {{ isListening ? $t('common.voice.listening') : $t('common.voice.input') }}
+                    </span>
+                    <SelectButton
+                        v-model="internalMode"
+                        :options="modeOptions"
+                        option-label="label"
+                        option-value="value"
                         size="small"
-                        text
-                        @click="$emit('retry')"
+                        :disabled="isListening"
+                        :aria-label="$t('common.voice.input')"
                     />
                 </div>
-                <div v-else class="voice-popover__transcript">
-                    <span class="voice-popover__final">{{ finalTranscript }}</span>
-                    <span class="voice-popover__interim">{{ interimTranscript }}</span>
-                    <div
-                        v-if="!finalTranscript && !interimTranscript"
-                        class="voice-popover__placeholder"
-                    >
-                        {{ idleText }}
-                    </div>
-                </div>
-            </div>
 
-            <div class="voice-popover__footer">
-                <template v-if="isListening">
-                    <Button
-                        :label="$t('common.voice.stop')"
-                        severity="danger"
-                        icon="pi pi-stop-circle"
-                        @click="$emit('stop')"
-                    />
-                </template>
-                <template v-else-if="finalTranscript">
-                    <div class="voice-popover__result-actions">
+                <div class="voice-popover__content" aria-live="polite">
+                    <div v-if="isLoadingModel" class="voice-popover__loading">
+                        <span class="mb-2 text-sm">{{ $t('common.voice.model_loading') }}</span>
+                        <ProgressBar
+                            :value="Math.round(modelProgress)"
+                            class="w-full"
+                            style="height: 6px"
+                        />
+                    </div>
+                    <div v-else-if="error" class="voice-popover__error">
+                        <i class="pi pi-exclamation-circle" />
+                        <span>{{ errorText }}</span>
                         <Button
-                            v-tooltip="$t('common.voice.retry')"
-                            icon="pi pi-refresh"
-                            severity="secondary"
+                            :label="$t('common.voice.retry')"
+                            size="small"
                             text
-                            class="voice-popover__retry-btn"
                             @click="$emit('retry')"
                         />
+                    </div>
+                    <div v-else class="voice-popover__transcript">
+                        <span class="voice-popover__final">{{ finalTranscript }}</span>
+                        <span class="voice-popover__interim">{{ interimTranscript }}</span>
                         <div
-                            class="voice-popover__primary-actions"
-                            :class="{'voice-popover__primary-actions--single': !showRefineAction}"
+                            v-if="!finalTranscript && !interimTranscript"
+                            class="voice-popover__placeholder"
                         >
-                            <Button
-                                :label="$t('common.voice.insert')"
-                                severity="secondary"
-                                outlined
-                                class="voice-popover__action-btn"
-                                @click="$emit('insert', finalTranscript)"
-                            />
-                            <Button
-                                v-if="showRefineAction"
-                                :label="$t('common.voice.refine_insert')"
-                                severity="primary"
-                                :loading="refining"
-                                icon="pi pi-sparkles"
-                                class="voice-popover__action-btn"
-                                @click="$emit('refine', finalTranscript)"
-                            />
+                            {{ idleText }}
                         </div>
                     </div>
-                </template>
-                <template v-else>
-                    <Button
-                        :label="$t('common.voice.start_record')"
-                        icon="pi pi-microphone"
-                        :loading="isLoadingModel"
-                        :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady)"
-                        @click="$emit('start')"
-                    />
-                </template>
+                </div>
+
+                <div class="voice-popover__footer">
+                    <template v-if="isListening">
+                        <Button
+                            :label="$t('common.voice.stop')"
+                            severity="danger"
+                            icon="pi pi-stop-circle"
+                            @click="$emit('stop')"
+                        />
+                    </template>
+                    <template v-else-if="finalTranscript">
+                        <div class="voice-popover__result-actions">
+                            <Button
+                                v-tooltip="$t('common.voice.retry')"
+                                icon="pi pi-refresh"
+                                severity="secondary"
+                                text
+                                class="voice-popover__retry-btn"
+                                @click="$emit('retry')"
+                            />
+                            <div
+                                class="voice-popover__primary-actions"
+                                :class="{'voice-popover__primary-actions--single': !showRefineAction}"
+                            >
+                                <Button
+                                    :label="$t('common.voice.insert')"
+                                    severity="secondary"
+                                    outlined
+                                    class="voice-popover__action-btn"
+                                    @click="$emit('insert', finalTranscript)"
+                                />
+                                <Button
+                                    v-if="showRefineAction"
+                                    :label="$t('common.voice.refine_insert')"
+                                    severity="primary"
+                                    :loading="refining"
+                                    icon="pi pi-sparkles"
+                                    class="voice-popover__action-btn"
+                                    @click="$emit('refine', finalTranscript)"
+                                />
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <Button
+                            :label="$t('common.voice.start_record')"
+                            icon="pi pi-microphone"
+                            :loading="isLoadingModel"
+                            :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady)"
+                            @click="$emit('start')"
+                        />
+                    </template>
+                </div>
             </div>
-        </div>
-    </Popover>
+        </CaomeiPopoverContent>
+    </CaomeiPopover>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { useI18n } from 'vue-i18n'
 import type { VoiceTranscriptionMode as VoiceInputMode } from '@/composables/use-post-editor-voice'
 
@@ -152,9 +165,15 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const op = ref<{ toggle: (event: Event) => void, show: (event: Event) => void, hide: () => void } | null>(null)
+const { open, anchorStyle, show, hide, toggle } = useAnchoredPopover()
 
 const internalMode = ref<VoiceInputMode>(props.mode)
+
+watch(open, (value) => {
+    if (!value) {
+        emit('hide')
+    }
+})
 
 watch(() => props.mode, (newMode) => {
     internalMode.value = newMode
@@ -199,18 +218,6 @@ const errorText = computed(() => {
     }
     return t('common.voice.error')
 })
-
-const toggle = (event: Event) => {
-    op.value?.toggle(event)
-}
-
-const show = (event: Event) => {
-    op.value?.show(event)
-}
-
-const hide = () => {
-    op.value?.hide()
-}
 
 defineExpose({
     toggle,

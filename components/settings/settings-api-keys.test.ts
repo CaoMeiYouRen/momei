@@ -2,6 +2,7 @@ import { defineComponent, inject, provide, ref, toRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsApiKeys from './settings-api-keys.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const dataTableRowsKey = Symbol('data-table-rows')
 
@@ -19,7 +20,7 @@ mockNuxtImport('useI18nDate', () => () => ({
     formatDate: (value: string) => `formatted:${value}`,
 }))
 
-mockNuxtImport('useToast', () => () => ({ add: toastAddMock }))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
 const DataTableStub = defineComponent({
     props: {
@@ -52,7 +53,7 @@ const ColumnStub = defineComponent({
         return { rows }
     },
     template: `
-        <div class="column">
+        <div class="column" :data-header="header">
             <div v-for="row in rows" :key="row.id || header" class="column-row">
                 <slot name="body" :data="row">
                     <span>{{ field ? row[field] : '' }}</span>
@@ -107,10 +108,10 @@ const stubs = {
         props: ['value', 'severity'],
         template: '<span class="tag">{{ value }}</span>',
     },
-    Dialog: {
-        props: ['visible', 'header', 'modal', 'style'],
-        emits: ['update:visible'],
-        template: '<div v-if="visible" class="dialog"><slot /><slot name="footer" /></div>',
+    CaomeiDialog: {
+        props: ['open', 'title', 'modal', 'style'],
+        emits: ['update:open'],
+        template: '<div v-if="open" class="dialog"><slot /><slot name="footer" /></div>',
     },
     Message: {
         props: ['severity', 'closable'],
@@ -167,6 +168,22 @@ describe('SettingsApiKeys', () => {
         expect(wrapper.text()).toContain('momei_key')
         expect(wrapper.text()).toContain('formatted:2025-01-02T00:00:00.000Z')
         expect(wrapper.text()).toContain('pages.settings.api_keys.never_expires')
+    })
+
+    it('renders table column headers via PrimeVue header prop', async () => {
+        const wrapper = await mountComponent()
+
+        await vi.waitFor(() => {
+            expect(fetchMock).toHaveBeenCalledWith('/api/user/api-keys')
+        })
+
+        expect(wrapper.findAll('.column').map((column) => column.attributes('data-header'))).toEqual([
+            'pages.settings.api_keys.name',
+            'pages.settings.api_keys.prefix',
+            'pages.settings.api_keys.last_used_at',
+            'pages.settings.api_keys.expires_at',
+            'common.actions',
+        ])
     })
 
     it('creates a new API key and opens the dialog with the secret', async () => {

@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LanguageSwitcher from './language-switcher.vue'
 
-const toggleSpy = vi.fn()
 const setLocaleSpy = vi.fn()
 let capturedMenuModel: Record<string, any>[] = []
 
@@ -22,18 +21,21 @@ mockNuxtImport('useSwitchLocalePath', () => () => vi.fn())
 
 const stubs = {
     Button: {
-        template: '<button class="lang-btn" @click="$emit(\'click\', $event)"><slot /></button>',
+        template: '<button class="lang-btn"><slot /></button>',
     },
-    Menu: {
-        name: 'Menu',
+    CaomeiDropdownMenu: {
+        template: '<div class="lang-menu-root"><slot /></div>',
+    },
+    CaomeiDropdownMenuTrigger: {
+        template: '<div class="lang-trigger"><slot /></div>',
+    },
+    CaomeiDropdownMenuContent: {
+        name: 'CaomeiDropdownMenuContent',
         props: ['model'],
         created() {
             capturedMenuModel = (this as { model?: Record<string, any>[] }).model ?? []
         },
         template: '<div class="lang-menu" />',
-        methods: {
-            toggle: toggleSpy,
-        },
     },
 }
 
@@ -44,7 +46,7 @@ describe('LanguageSwitcher', () => {
         capturedMenuModel = []
     })
 
-    it('点击按钮会打开语言菜单', async () => {
+    it('渲染触发器与语言菜单内容', async () => {
         const wrapper = await mountSuspended(LanguageSwitcher, {
             global: {
                 stubs,
@@ -54,8 +56,8 @@ describe('LanguageSwitcher', () => {
             },
         })
 
-        await wrapper.find('.lang-btn').trigger('click')
-        expect(toggleSpy).toHaveBeenCalled()
+        expect(wrapper.find('.lang-trigger .lang-btn').exists()).toBe(true)
+        expect(wrapper.find('.lang-menu').exists()).toBe(true)
     })
 
     it('当前语言菜单项应带激活 class', async () => {

@@ -10,7 +10,6 @@ const { notifications, unreadCount, markAsRead, browserPermission, browserPushRe
 const { formatDateTime } = useI18nDate()
 const localePath = useLocalePath()
 const session = authClient.useSession()
-const op = ref()
 const enablingBrowserPush = ref(false)
 const allowAdminNotificationTargets = computed(() => isAdmin(session.value?.data?.user?.role))
 
@@ -25,10 +24,6 @@ const browserPushHint = computed(() => {
 
     return t('components.notifications.browser_status.default')
 })
-
-const toggle = (event: Event) => {
-    op.value.toggle(event)
-}
 
 const handleMarkAsRead = async (id?: string) => {
     await markAsRead(id ? [id] : undefined)
@@ -78,113 +73,119 @@ const resolveNotificationTarget = (link: string | null) => {
 
 <template>
     <div class="app-notifications">
-        <Button
-            id="notification-btn"
-            v-tooltip.bottom="$t('components.notifications.title')"
-            icon="pi pi-bell"
-            text
-            rounded
-            :badge="unreadCount > 0 ? unreadCount.toString() : undefined"
-            badge-severity="danger"
-            :aria-label="$t('components.notifications.title')"
-            @click="toggle"
-        />
+        <CaomeiPopover>
+            <CaomeiPopoverTrigger as-child>
+                <Button
+                    id="notification-btn"
+                    v-tooltip.bottom="$t('components.notifications.title')"
+                    icon="pi pi-bell"
+                    text
+                    rounded
+                    :badge="unreadCount > 0 ? unreadCount.toString() : undefined"
+                    badge-severity="danger"
+                    :aria-label="$t('components.notifications.title')"
+                />
+            </CaomeiPopoverTrigger>
+            <CaomeiPopoverContent
+                side="bottom"
+                align="end"
+                :style="{padding: 0}"
+            >
+                <div class="notification-popover">
+                    <div class="notification-header">
+                        <span class="title">{{ $t('components.notifications.title') }}</span>
+                        <Button
+                            v-if="unreadCount > 0"
+                            :label="$t('components.notifications.mark_all_read')"
+                            text
+                            size="small"
+                            @click="handleMarkAsRead()"
+                        />
+                    </div>
 
-        <Popover ref="op">
-            <div class="notification-popover">
-                <div class="notification-header">
-                    <span class="title">{{ $t('components.notifications.title') }}</span>
-                    <Button
-                        v-if="unreadCount > 0"
-                        :label="$t('components.notifications.mark_all_read')"
-                        text
-                        size="small"
-                        @click="handleMarkAsRead()"
-                    />
-                </div>
-
-                <div class="notification-content">
-                    <div
-                        v-if="browserPushReady && browserPermission !== 'granted'"
-                        class="notification-browser-state"
-                    >
-                        <Message
-                            :severity="browserPermission === 'denied' ? 'warn' : 'secondary'"
-                            :closable="false"
+                    <div class="notification-content">
+                        <div
+                            v-if="browserPushReady && browserPermission !== 'granted'"
+                            class="notification-browser-state"
                         >
-                            <div class="browser-state-content">
-                                <span>{{ browserPushHint }}</span>
-                                <Button
-                                    v-if="browserPermission === 'default'"
-                                    size="small"
-                                    text
-                                    :label="$t('components.notifications.browser_enable')"
-                                    :loading="enablingBrowserPush"
-                                    @click.stop="handleEnableBrowserPush"
+                            <Message
+                                :severity="browserPermission === 'denied' ? 'warn' : 'secondary'"
+                                :closable="false"
+                            >
+                                <div class="browser-state-content">
+                                    <span>{{ browserPushHint }}</span>
+                                    <Button
+                                        v-if="browserPermission === 'default'"
+                                        size="small"
+                                        text
+                                        :label="$t('components.notifications.browser_enable')"
+                                        :loading="enablingBrowserPush"
+                                        @click.stop="handleEnableBrowserPush"
+                                    />
+                                </div>
+                            </Message>
+                        </div>
+
+                        <div
+                            v-if="notifications.length === 0"
+                            class="empty-state"
+                        >
+                            <i class="pi pi-inbox" />
+                            <p>{{ $t('components.notifications.empty') }}</p>
+                        </div>
+
+                        <ul
+                            v-else
+                            class="notification-list"
+                        >
+                            <li
+                                v-for="item in notifications"
+                                :key="item.id"
+                                class="notification-item"
+                                :class="{'is-unread': !item.isRead}"
+                                @click="handleMarkAsRead(item.id)"
+                            >
+                                <div class="item-icon">
+                                    <i :class="getNotificationIcon(item.type)" />
+                                </div>
+                                <div class="item-body">
+                                    <NuxtLink
+                                        v-if="resolveNotificationTarget(item.link)"
+                                        :to="resolveNotificationTarget(item.link)"
+                                        class="item-title"
+                                    >
+                                        {{ item.title }}
+                                    </NuxtLink>
+                                    <span
+                                        v-else
+                                        class="item-title"
+                                    >
+                                        {{ item.title }}
+                                    </span>
+                                    <p class="item-text">
+                                        {{ item.content }}
+                                    </p>
+                                    <span class="item-time">{{ formatTime(item.createdAt) }}</span>
+                                </div>
+                                <div
+                                    v-if="!item.isRead"
+                                    class="unread-dot"
                                 />
-                            </div>
-                        </Message>
+                            </li>
+                        </ul>
                     </div>
 
                     <div
-                        v-if="notifications.length === 0"
-                        class="empty-state"
+                        v-if="notifications.length > 0"
+                        class="notification-footer"
                     >
-                        <i class="pi pi-inbox" />
-                        <p>{{ $t('components.notifications.empty') }}</p>
+                        <NuxtLink :to="localePath('/settings?tab=notifications')">
+                            {{ $t('components.notifications.view_all') }}
+                        </NuxtLink>
                     </div>
-
-                    <ul
-                        v-else
-                        class="notification-list"
-                    >
-                        <li
-                            v-for="item in notifications"
-                            :key="item.id"
-                            class="notification-item"
-                            :class="{'is-unread': !item.isRead}"
-                            @click="handleMarkAsRead(item.id)"
-                        >
-                            <div class="item-icon">
-                                <i :class="getNotificationIcon(item.type)" />
-                            </div>
-                            <div class="item-body">
-                                <NuxtLink
-                                    v-if="resolveNotificationTarget(item.link)"
-                                    :to="resolveNotificationTarget(item.link)"
-                                    class="item-title"
-                                >
-                                    {{ item.title }}
-                                </NuxtLink>
-                                <span
-                                    v-else
-                                    class="item-title"
-                                >
-                                    {{ item.title }}
-                                </span>
-                                <p class="item-text">
-                                    {{ item.content }}
-                                </p>
-                                <span class="item-time">{{ formatTime(item.createdAt) }}</span>
-                            </div>
-                            <div
-                                v-if="!item.isRead"
-                                class="unread-dot"
-                            />
-                        </li>
-                    </ul>
                 </div>
-
-                <div
-                    v-if="notifications.length > 0"
-                    class="notification-footer"
-                >
-                    <NuxtLink :to="localePath('/settings?tab=notifications')">
-                        {{ $t('components.notifications.view_all') }}
-                    </NuxtLink>
-                </div>
-            </div>
-        </Popover>
+            </CaomeiPopoverContent>
+        </CaomeiPopover>
     </div>
 </template>
 
