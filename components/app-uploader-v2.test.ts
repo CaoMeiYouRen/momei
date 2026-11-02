@@ -140,7 +140,7 @@ async function mountUploader(
     const wrapper = await mountSuspended(AppUploaderV2, {
         props: { modelValue: '', ...props },
         slots,
-        global: { stubs, directives: { tooltip: {} } },
+        global: { stubs },
     })
     await nextTick()
 
@@ -258,7 +258,7 @@ describe('AppUploaderV2', () => {
         const migrated = await mountSuspended(AppUploaderV2, {
             props: { modelValue: '' },
             attrs: { class: 'app-uploader--custom' },
-            global: { stubs, directives: { tooltip: {} } },
+            global: { stubs },
         })
         expect(migrated.find('.app-uploader').classes()).toContain('app-uploader--custom')
 
@@ -266,7 +266,7 @@ describe('AppUploaderV2', () => {
         const legacy = await mountSuspended(AppUploaderV2, {
             props: { modelValue: '' },
             attrs: { class: 'app-uploader--custom' },
-            global: { stubs, directives: { tooltip: {} } },
+            global: { stubs },
         })
         expect(legacy.find('.app-uploader').classes()).toContain('app-uploader--custom')
     })

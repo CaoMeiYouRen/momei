@@ -75,16 +75,17 @@ const resolveNotificationTarget = (link: string | null) => {
     <div class="app-notifications">
         <CaomeiPopover>
             <CaomeiPopoverTrigger as-child>
-                <Button
-                    id="notification-btn"
-                    v-tooltip.bottom="$t('components.notifications.title')"
-                    icon="pi pi-bell"
-                    text
-                    rounded
-                    :badge="unreadCount > 0 ? unreadCount.toString() : undefined"
-                    badge-severity="danger"
-                    :aria-label="$t('components.notifications.title')"
-                />
+                <AppTooltip :content="$t('components.notifications.title')" side="bottom">
+                    <Button
+                        id="notification-btn"
+                        icon="pi pi-bell"
+                        text
+                        rounded
+                        :badge="unreadCount > 0 ? unreadCount.toString() : undefined"
+                        badge-severity="danger"
+                        :aria-label="$t('components.notifications.title')"
+                    />
+                </AppTooltip>
             </CaomeiPopoverTrigger>
             <CaomeiPopoverContent
                 side="bottom"

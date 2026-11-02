@@ -77,14 +77,16 @@
                     </template>
                     <template v-else-if="finalTranscript">
                         <div class="voice-popover__result-actions">
-                            <Button
-                                v-tooltip="$t('common.voice.retry')"
-                                icon="pi pi-refresh"
-                                severity="secondary"
-                                text
-                                class="voice-popover__retry-btn"
-                                @click="$emit('retry')"
-                            />
+                            <AppTooltip :content="$t('common.voice.retry')">
+                                <Button
+
+                                    icon="pi pi-refresh"
+                                    severity="secondary"
+                                    text
+                                    class="voice-popover__retry-btn"
+                                    @click="$emit('retry')"
+                                />
+                            </AppTooltip>
                             <div
                                 class="voice-popover__primary-actions"
                                 :class="{'voice-popover__primary-actions--single': !showRefineAction}"

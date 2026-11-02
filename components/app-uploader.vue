@@ -13,16 +13,17 @@
                 :disabled="uploading || disabled"
                 :readonly="readonly"
             />
-            <Button
-                v-tooltip="$t('common.upload')"
-                type="button"
-                icon="pi pi-upload"
-                severity="secondary"
-                text
-                :loading="uploading"
-                :disabled="disabled"
-                @click="triggerFileSelect"
-            />
+            <AppTooltip :content="$t('common.upload')">
+                <Button
+                    type="button"
+                    icon="pi pi-upload"
+                    severity="secondary"
+                    text
+                    :loading="uploading"
+                    :disabled="disabled"
+                    @click="triggerFileSelect"
+                />
+            </AppTooltip>
             <slot name="extra" />
         </InputGroup>
         <input

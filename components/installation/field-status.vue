@@ -1,20 +1,22 @@
 <template>
     <span v-if="envSetting?.isLocked" class="installation-field-status">
-        <span
-            v-tooltip="resolvedMessage || undefined"
-            :title="resolvedMessage || undefined"
-            class="installation-field-status__item"
-        >
-            <Tag
-                severity="warn"
-                :value="$t('pages.admin.settings.system.source_badges.env')"
+        <AppTooltip :content="resolvedMessage || undefined">
+            <span
+                :title="resolvedMessage || undefined"
+                class="installation-field-status__item"
+            >
+                <Tag
+                    severity="warn"
+                    :value="$t('pages.admin.settings.system.source_badges.env')"
+                />
+            </span>
+        </AppTooltip>
+        <AppTooltip :content="resolvedMessage || undefined">
+            <i
+                :title="resolvedMessage || undefined"
+                class="installation-field-status__item installation-field-status__lock pi pi-lock"
             />
-        </span>
-        <i
-            v-tooltip="resolvedMessage || undefined"
-            :title="resolvedMessage || undefined"
-            class="installation-field-status__item installation-field-status__lock pi pi-lock"
-        />
+        </AppTooltip>
     </span>
 </template>
 

@@ -1,19 +1,21 @@
 <template>
     <ClientOnly>
         <template v-if="isVoiceSupported">
-            <Button
-                v-tooltip="tooltipText"
-                :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
-                :text="buttonText"
-                :outlined="buttonOutlined"
-                :rounded="buttonRounded"
-                :severity="isListening ? 'danger' : buttonSeverity"
-                :size="buttonSize"
-                :disabled="disabled"
-                :aria-label="ariaLabelText"
-                :class="[buttonClass, {'pulse-animation': isListening}]"
-                @click="handleVoiceClick"
-            />
+            <AppTooltip :content="tooltipText">
+                <Button
+
+                    :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
+                    :text="buttonText"
+                    :outlined="buttonOutlined"
+                    :rounded="buttonRounded"
+                    :severity="isListening ? 'danger' : buttonSeverity"
+                    :size="buttonSize"
+                    :disabled="disabled"
+                    :aria-label="ariaLabelText"
+                    :class="[buttonClass, {'pulse-animation': isListening}]"
+                    @click="handleVoiceClick"
+                />
+            </AppTooltip>
             <AppVoiceInputOverlay
                 ref="voiceOp"
                 v-model:mode="voiceMode"

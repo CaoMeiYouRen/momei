@@ -21,19 +21,20 @@
                 :disabled="uploading || disabled"
                 :readonly="readonly"
             />
-            <CaomeiButton
-                v-tooltip="$t('common.upload')"
-                icon-only
-                variant="ghost"
-                :label="$t('common.upload')"
-                :loading="uploading"
-                :disabled="disabled"
-                @click="triggerFileSelect"
-            >
-                <template #icon>
-                    <Upload :size="16" />
-                </template>
-            </CaomeiButton>
+            <AppTooltip :content="$t('common.upload')">
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    :label="$t('common.upload')"
+                    :loading="uploading"
+                    :disabled="disabled"
+                    @click="triggerFileSelect"
+                >
+                    <template #icon>
+                        <Upload :size="16" />
+                    </template>
+                </CaomeiButton>
+            </AppTooltip>
             <slot name="extra" />
         </CaomeiInputGroup>
         <input

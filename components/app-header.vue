@@ -79,26 +79,28 @@
                         <AppNotifications v-if="user" />
 
                         <template v-if="showAdminControls">
-                            <Button
-                                id="admin-posts-shortcut"
-                                v-tooltip.bottom="$t('pages.admin.posts.title')"
-                                icon="pi pi-file"
-                                text
-                                rounded
-                                class="app-header__compact-admin-posts"
-                                :aria-label="$t('pages.admin.posts.title')"
-                                @click="goToAdminPosts"
-                            />
+                            <AppTooltip :content="$t('pages.admin.posts.title')" side="bottom">
+                                <Button
+                                    id="admin-posts-shortcut"
+                                    icon="pi pi-file"
+                                    text
+                                    rounded
+                                    class="app-header__compact-admin-posts"
+                                    :aria-label="$t('pages.admin.posts.title')"
+                                    @click="goToAdminPosts"
+                                />
+                            </AppTooltip>
                             <CaomeiDropdownMenu>
                                 <CaomeiDropdownMenuTrigger as-child>
-                                    <Button
-                                        id="admin-menu-btn"
-                                        v-tooltip.bottom="$t('common.admin')"
-                                        icon="pi pi-cog"
-                                        text
-                                        rounded
-                                        :aria-label="$t('common.admin')"
-                                    />
+                                    <AppTooltip :content="$t('common.admin')" side="bottom">
+                                        <Button
+                                            id="admin-menu-btn"
+                                            icon="pi pi-cog"
+                                            text
+                                            rounded
+                                            :aria-label="$t('common.admin')"
+                                        />
+                                    </AppTooltip>
                                 </CaomeiDropdownMenuTrigger>
                                 <CaomeiDropdownMenuContent
                                     id="admin_menu"
@@ -109,25 +111,27 @@
                     </ClientOnly>
 
                     <ClientOnly>
-                        <Button
-                            id="search-btn"
-                            v-tooltip.bottom="$t('components.search.ctrl_k')"
-                            icon="pi pi-search"
-                            text
-                            rounded
-                            :aria-label="$t('components.search.title')"
-                            @click="openSearch"
-                        />
+                        <AppTooltip :content="$t('components.search.ctrl_k')" side="bottom">
+                            <Button
+                                id="search-btn"
+                                icon="pi pi-search"
+                                text
+                                rounded
+                                :aria-label="$t('components.search.title')"
+                                @click="openSearch"
+                            />
+                        </AppTooltip>
 
-                        <Button
-                            id="theme-switcher"
-                            v-tooltip.bottom="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
-                            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                            text
-                            rounded
-                            :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
-                            @click="toggleDark()"
-                        />
+                        <AppTooltip :content="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')" side="bottom">
+                            <Button
+                                id="theme-switcher"
+                                :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+                                text
+                                rounded
+                                :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
+                                @click="toggleDark()"
+                            />
+                        </AppTooltip>
                         <template #fallback>
                             <Button
                                 icon="pi pi-search"
@@ -159,26 +163,31 @@
                                 />
                             </template>
                             <template v-else>
-                                <Button
+                                <AppTooltip
                                     v-if="!user"
-                                    id="login-btn"
-                                    v-tooltip.bottom="$t('pages.login.submit')"
-                                    icon="pi pi-sign-in"
-                                    text
-                                    rounded
-                                    :aria-label="$t('pages.login.submit')"
-                                    @click="navigateTo(localePath('/login'))"
-                                />
+                                    :content="$t('pages.login.submit')"
+                                    side="bottom"
+                                >
+                                    <Button
+                                        id="login-btn"
+                                        icon="pi pi-sign-in"
+                                        text
+                                        rounded
+                                        :aria-label="$t('pages.login.submit')"
+                                        @click="navigateTo(localePath('/login'))"
+                                    />
+                                </AppTooltip>
                                 <template v-else>
                                     <CaomeiDropdownMenu>
                                         <CaomeiDropdownMenuTrigger as-child>
-                                            <Button
-                                                id="user-menu-btn"
-                                                v-tooltip.bottom="$t('pages.settings.title')"
-                                                icon="pi pi-user"
-                                                text
-                                                rounded
-                                            />
+                                            <AppTooltip :content="$t('pages.settings.title')" side="bottom">
+                                                <Button
+                                                    id="user-menu-btn"
+                                                    icon="pi pi-user"
+                                                    text
+                                                    rounded
+                                                />
+                                            </AppTooltip>
                                         </CaomeiDropdownMenuTrigger>
                                         <CaomeiDropdownMenuContent
                                             id="user_menu"
@@ -197,17 +206,21 @@
                     </div>
                 </div>
 
-                <Button
+                <AppTooltip
                     v-if="showAdminControls"
-                    id="mobile-admin-posts-btn"
-                    v-tooltip.bottom="$t('pages.admin.posts.title')"
-                    icon="pi pi-file"
-                    text
-                    rounded
-                    class="mobile-only"
-                    :aria-label="$t('pages.admin.posts.title')"
-                    @click="goToAdminPosts"
-                />
+                    :content="$t('pages.admin.posts.title')"
+                    side="bottom"
+                >
+                    <Button
+                        id="mobile-admin-posts-btn"
+                        icon="pi pi-file"
+                        text
+                        rounded
+                        class="mobile-only"
+                        :aria-label="$t('pages.admin.posts.title')"
+                        @click="goToAdminPosts"
+                    />
+                </AppTooltip>
                 <Button
                     id="mobile-menu-btn"
                     icon="pi pi-bars"

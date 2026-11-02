@@ -70,25 +70,30 @@
 
         <div class="reader-controls__actions">
             <!-- 退出沉浸模式按钮 (仅在激活时显示) -->
-            <Button
+            <AppTooltip
                 v-if="settings.active"
-                v-tooltip.left="$t('components.reader.mode_exit')"
-                icon="pi pi-times"
-                severity="secondary"
-                rounded
-                class="reader-controls__toggle"
-                @click="toggleReaderMode(false)"
-            />
+                :content="$t('components.reader.mode_exit')"
+                side="left"
+            >
+                <Button
+                    icon="pi pi-times"
+                    severity="secondary"
+                    rounded
+                    class="reader-controls__toggle"
+                    @click="toggleReaderMode(false)"
+                />
+            </AppTooltip>
 
             <!-- 设置面板切换 / 开启沉浸阅读 -->
-            <Button
-                v-tooltip.left="settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter')"
-                :icon="settings.active ? 'pi pi-cog' : 'pi pi-book'"
-                :severity="settings.active && isPanelExpanded ? 'primary' : 'secondary'"
-                rounded
-                class="reader-controls__toggle"
-                @click="handleToggle"
-            />
+            <AppTooltip :content="settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter')" side="left">
+                <Button
+                    :icon="settings.active ? 'pi pi-cog' : 'pi pi-book'"
+                    :severity="settings.active && isPanelExpanded ? 'primary' : 'secondary'"
+                    rounded
+                    class="reader-controls__toggle"
+                    @click="handleToggle"
+                />
+            </AppTooltip>
         </div>
     </div>
 </template>

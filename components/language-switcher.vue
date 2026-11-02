@@ -1,15 +1,16 @@
 <template>
     <CaomeiDropdownMenu>
         <CaomeiDropdownMenuTrigger as-child>
-            <Button
-                v-tooltip.bottom="$t('components.header.language')"
-                v-bind="attrs"
-                type="button"
-                icon="pi pi-globe"
-                text
-                rounded
-                :aria-label="$t('components.header.language')"
-            />
+            <AppTooltip :content="$t('components.header.language')" side="bottom">
+                <Button
+                    v-bind="attrs"
+                    type="button"
+                    icon="pi pi-globe"
+                    text
+                    rounded
+                    :aria-label="$t('components.header.language')"
+                />
+            </AppTooltip>
         </CaomeiDropdownMenuTrigger>
         <CaomeiDropdownMenuContent
             id="language_menu"
