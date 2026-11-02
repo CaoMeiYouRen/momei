@@ -8,9 +8,7 @@ const { lifecycle } = vi.hoisted(() => ({
     },
 }))
 
-const mockConfirm = {
-    require: vi.fn(),
-}
+const mockConfirm = createLegacyConfirmApi(vi.fn())
 
 vi.mock('vue', async () => {
     const actual = await vi.importActual<typeof import('vue')>('vue')
@@ -26,8 +24,8 @@ vi.mock('vue', async () => {
     }
 })
 
-vi.mock('primevue/useconfirm', async () => {
-    const actual = await vi.importActual<typeof import('primevue/useconfirm')>('primevue/useconfirm')
+vi.mock('caomei-ui', async () => {
+    const actual = await vi.importActual<typeof import('caomei-ui')>('caomei-ui')
 
     return {
         ...actual,
@@ -47,6 +45,7 @@ vi.mock('vue-router', async () => {
 })
 
 import { useUnsavedChangesGuard } from './use-unsaved-changes-guard'
+import { createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 describe('useUnsavedChangesGuard', () => {
     beforeEach(() => {

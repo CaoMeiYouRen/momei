@@ -1,3 +1,4 @@
+import { useToast } from 'caomei-ui'
 import { resolveRequestErrorMessage, type RequestFeedbackOptions } from '@/utils/shared/request-feedback'
 
 interface ToastFeedbackOptions extends RequestFeedbackOptions {
@@ -11,20 +12,23 @@ export function useRequestFeedback() {
     const resolveErrorMessage = (error: unknown, options: RequestFeedbackOptions) => resolveRequestErrorMessage(error, options, t)
 
     const showErrorToast = (error: unknown, options: ToastFeedbackOptions) => {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: resolveErrorMessage(error, options),
-            life: options.life || 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: resolveErrorMessage(error, options),
+            duration: options.life || 3000,
         })
     }
 
     const showSuccessToast = (detailKey: string, options?: { life?: number, severity?: 'success' | 'info' | 'warn', summaryKey?: string }) => {
-        toast.add({
-            severity: options?.severity || 'success',
-            summary: t(options?.summaryKey || 'common.success'),
-            detail: t(detailKey),
-            life: options?.life || 3000,
+        const toneMap = { success: 'success', info: 'primary', warn: 'warning' } as const
+        const tone = toneMap[options?.severity ?? 'success']
+
+        toast.show({
+            tone,
+            title: t(options?.summaryKey || 'common.success'),
+            description: t(detailKey),
+            duration: options?.life || 3000,
         })
     }
 

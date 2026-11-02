@@ -1,4 +1,4 @@
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import { onBeforeUnmount, onMounted, toValue, type MaybeRefOrGetter } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
@@ -24,13 +24,9 @@ export function useUnsavedChangesGuard(options: UseUnsavedChangesGuardOptions) {
             return true
         }
 
-        return new Promise<boolean>((resolve) => {
-            confirm.require({
-                message: toValue(options.message),
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => resolve(true),
-                reject: () => resolve(false),
-            })
+        return confirm.confirm({
+            title: toValue(options.message),
+            tone: 'danger',
         })
     }
 

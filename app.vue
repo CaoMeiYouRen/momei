@@ -1,12 +1,16 @@
 <template>
-    <div>
-        <DemoBanner />
-        <NuxtLayout>
-            <NuxtPage />
-        </NuxtLayout>
-        <Toast />
-        <ConfirmDialog />
-    </div>
+    <CaomeiToastProvider>
+        <CaomeiConfirmDialog>
+            <div>
+                <DemoBanner />
+                <NuxtLayout>
+                    <NuxtPage />
+                </NuxtLayout>
+                <Toast />
+                <ConfirmDialog />
+            </div>
+        </CaomeiConfirmDialog>
+    </CaomeiToastProvider>
 </template>
 
 <script setup lang="ts">

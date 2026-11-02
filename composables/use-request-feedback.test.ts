@@ -11,9 +11,10 @@ mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => `translated:${key}`,
 }))
 
-mockNuxtImport('useToast', () => () => mockToast)
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(mockToast.add) }))
 
 import { useRequestFeedback } from './use-request-feedback'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 describe('useRequestFeedback', () => {
     beforeEach(() => {
