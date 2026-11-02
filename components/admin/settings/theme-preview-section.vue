@@ -35,11 +35,11 @@
             <div class="form-group">
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_type') }}</label>
-                    <i
-                        v-if="isLocked('themeBackgroundType')"
-                        v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                        class="pi pi-lock text-muted-color text-xs"
-                    />
+                    <AppTooltip v-if="isLocked('themeBackgroundType')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                        <i
+                            class="pi pi-lock text-muted-color text-xs"
+                        />
+                    </AppTooltip>
                 </div>
                 <SelectButton
                     v-model="settings.themeBackgroundType"
@@ -55,11 +55,11 @@
             <div v-if="settings.themeBackgroundType === 'color'" class="form-group mt-3">
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
-                    <i
-                        v-if="isLocked('themeBackgroundValue')"
-                        v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                        class="pi pi-lock text-muted-color text-xs"
-                    />
+                    <AppTooltip v-if="isLocked('themeBackgroundValue')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                        <i
+                            class="pi pi-lock text-muted-color text-xs"
+                        />
+                    </AppTooltip>
                 </div>
                 <div class="color-input-group mt-2">
                     <ColorPicker
@@ -78,11 +78,11 @@
             <div v-if="settings.themeBackgroundType === 'image'" class="form-group mt-3">
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_image') }} URL</label>
-                    <i
-                        v-if="isLocked('themeBackgroundValue')"
-                        v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                        class="pi pi-lock text-muted-color text-xs"
-                    />
+                    <AppTooltip v-if="isLocked('themeBackgroundValue')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                        <i
+                            class="pi pi-lock text-muted-color text-xs"
+                        />
+                    </AppTooltip>
                 </div>
                 <div class="input-with-icon mt-2">
                     <i class="pi pi-image" />

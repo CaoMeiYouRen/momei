@@ -61,13 +61,14 @@
                             </template>
                             <template #footer>
                                 <div class="theme-config-card__actions">
-                                    <Button
-                                        v-tooltip.top="$t('common.preview')"
-                                        icon="pi pi-eye"
-                                        outlined
-                                        severity="secondary"
-                                        @click="$emit('preview', item)"
-                                    />
+                                    <AppTooltip :content="$t('common.preview')">
+                                        <Button
+                                            icon="pi pi-eye"
+                                            outlined
+                                            severity="secondary"
+                                            @click="$emit('preview', item)"
+                                        />
+                                    </AppTooltip>
                                     <Button
                                         icon="pi pi-check"
                                         :label="item.isActive ? $t('common.current') : $t('common.apply')"

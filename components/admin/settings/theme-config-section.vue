@@ -6,11 +6,11 @@
                 <div class="form-group">
                     <div class="align-items-center flex gap-2">
                         <label>{{ $t('pages.admin.settings.theme.preset') }}</label>
-                        <i
-                            v-if="isLocked('themePreset')"
-                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                            class="pi pi-lock text-muted-color text-xs"
-                        />
+                        <AppTooltip v-if="isLocked('themePreset')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                            <i
+                                class="pi pi-lock text-muted-color text-xs"
+                            />
+                        </AppTooltip>
                     </div>
                     <Select
                         v-model="settings.themePreset"
@@ -80,11 +80,11 @@
                                 <div class="form-group">
                                     <div class="align-items-center flex gap-2">
                                         <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
-                                        <i
-                                            v-if="isLocked('themeBorderRadius')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
+                                        <AppTooltip v-if="isLocked('themeBorderRadius')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                            <i
+                                                class="pi pi-lock text-muted-color text-xs"
+                                            />
+                                        </AppTooltip>
                                     </div>
                                     <div class="input-with-addon mt-2">
                                         <InputText
@@ -102,11 +102,11 @@
                                 <div class="form-group">
                                     <div class="align-items-center flex gap-2">
                                         <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
-                                        <i
-                                            v-if="isLocked('themeLogoUrl')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
+                                        <AppTooltip v-if="isLocked('themeLogoUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                            <i
+                                                class="pi pi-lock text-muted-color text-xs"
+                                            />
+                                        </AppTooltip>
                                     </div>
                                     <InputText
                                         v-model="settings.themeLogoUrl"
@@ -119,11 +119,11 @@
                                 <div class="form-group mt-3">
                                     <div class="align-items-center flex gap-2">
                                         <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
-                                        <i
-                                            v-if="isLocked('themeFaviconUrl')"
-                                            v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                            class="pi pi-lock text-muted-color text-xs"
-                                        />
+                                        <AppTooltip v-if="isLocked('themeFaviconUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                            <i
+                                                class="pi pi-lock text-muted-color text-xs"
+                                            />
+                                        </AppTooltip>
                                     </div>
                                     <InputText
                                         v-model="settings.themeFaviconUrl"
@@ -140,11 +140,11 @@
                                     <div class="align-items-center flex justify-content-between">
                                         <div class="align-items-center flex gap-2">
                                             <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
-                                            <i
-                                                v-if="isLocked('themeMourningMode')"
-                                                v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                                                class="pi pi-lock text-muted-color text-xs"
-                                            />
+                                            <AppTooltip v-if="isLocked('themeMourningMode')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                                <i
+                                                    class="pi pi-lock text-muted-color text-xs"
+                                                />
+                                            </AppTooltip>
                                         </div>
                                         <ToggleSwitch v-model="mourningModeRef" :disabled="isLocked('themeMourningMode')" />
                                     </div>

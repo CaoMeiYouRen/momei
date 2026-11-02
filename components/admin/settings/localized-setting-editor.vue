@@ -23,17 +23,18 @@
                         class="localized-setting-editor__locale-select"
                     />
 
-                    <Button
-                        v-tooltip.top="aiDraftButtonLabel"
-                        icon="pi pi-sparkles"
-                        size="small"
-                        text
-                        rounded
-                        :aria-label="aiDraftButtonLabel"
-                        :disabled="metadata?.isLocked || !hasDraftSource || generatingDraft"
-                        :loading="generatingDraft"
-                        @click="generateLocalizedDraft"
-                    />
+                    <AppTooltip :content="aiDraftButtonLabel">
+                        <Button
+                            icon="pi pi-sparkles"
+                            size="small"
+                            text
+                            rounded
+                            :aria-label="aiDraftButtonLabel"
+                            :disabled="metadata?.isLocked || !hasDraftSource || generatingDraft"
+                            :loading="generatingDraft"
+                            @click="generateLocalizedDraft"
+                        />
+                    </AppTooltip>
                 </div>
             </div>
 

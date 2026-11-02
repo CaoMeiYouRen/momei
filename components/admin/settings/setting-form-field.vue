@@ -11,23 +11,23 @@
                 </label>
 
                 <div v-if="metadata" class="setting-form-field__status">
-                    <span
-                        v-if="metadata.source"
-                        v-tooltip="resolvedMessage || undefined"
-                        :title="resolvedMessage || undefined"
-                        class="setting-form-field__status-item"
-                    >
-                        <Tag
-                            :severity="sourceSeverity[metadata.source]"
-                            :value="$t(`pages.admin.settings.system.source_badges.${metadata.source}`)"
+                    <AppTooltip v-if="metadata.source" :content="resolvedMessage || undefined">
+                        <span
+                            :title="resolvedMessage || undefined"
+                            class="setting-form-field__status-item"
+                        >
+                            <Tag
+                                :severity="sourceSeverity[metadata.source]"
+                                :value="$t(`pages.admin.settings.system.source_badges.${metadata.source}`)"
+                            />
+                        </span>
+                    </AppTooltip>
+                    <AppTooltip v-if="metadata.isLocked" :content="resolvedMessage">
+                        <i
+                            :title="resolvedMessage || undefined"
+                            class="pi pi-lock setting-form-field__lock setting-form-field__status-item"
                         />
-                    </span>
-                    <i
-                        v-if="metadata.isLocked"
-                        v-tooltip="resolvedMessage"
-                        :title="resolvedMessage || undefined"
-                        class="pi pi-lock setting-form-field__lock setting-form-field__status-item"
-                    />
+                    </AppTooltip>
                 </div>
             </div>
 

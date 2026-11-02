@@ -2,11 +2,12 @@
     <div class="theme-color-field">
         <div class="align-items-center flex gap-2">
             <label>{{ label }}</label>
-            <i
-                v-if="locked"
-                v-tooltip="$t('pages.admin.settings.system.locked_by_env')"
-                class="pi pi-lock text-muted-color text-xs"
-            />
+            <AppTooltip v-if="locked" :content="$t('pages.admin.settings.system.locked_by_env')">
+                <i
+
+                    class="pi pi-lock text-muted-color text-xs"
+                />
+            </AppTooltip>
         </div>
         <div class="color-input-group mt-2">
             <ColorPicker
