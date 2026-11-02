@@ -52,19 +52,28 @@ async function main() {
         allowlistEntries,
         exceptionEntries,
         minSeverity: args.minSeverity,
+        sourceStatuses: snapshot.sourceStatuses,
     })
-    const gateConclusion = result.blocking.length > 0 ? 'Reject' : 'Pass'
+    const alertBlockers = args.transitionMode
+        ? result.blocking
+        : [...result.blocking, ...result.dismissedBlocking]
+    const sourceBlockers = args.transitionMode ? [] : result.sourceFailures
+    const effectiveBlocking = [...alertBlockers, ...sourceBlockers]
+    const gateConclusion = effectiveBlocking.length > 0 ? 'Reject' : 'Pass'
 
     console.info('Security Alert Gate')
     console.info(`- repository: ${repository.owner}/${repository.repo}`)
     console.info(`- min severity: ${args.minSeverity}`)
+    console.info(`- transition mode: ${args.transitionMode ? 'on (dismissed / fail-closed checks report-only)' : 'off'}`)
     console.info(`- dependabot source: ${snapshot.sourceStatuses.dependabot.kind} (${snapshot.sourceStatuses.dependabot.sourceName})`)
     console.info(`- code-scanning source: ${snapshot.sourceStatuses.codeScanning.kind} (${snapshot.sourceStatuses.codeScanning.sourceName})`)
-    console.info(`- open alerts: ${alerts.length}`)
+    console.info(`- alerts total: ${alerts.length} (open: ${alerts.filter((alert) => alert.state === 'open').length}, dismissed: ${alerts.filter((alert) => alert.state === 'dismissed').length})`)
     console.info(`- high+ relevant alerts: ${result.relevantAlerts.length}`)
     console.info(`- high+ excepted alerts: ${result.excepted.length}`)
     console.info(`- high+ allowlisted alerts: ${result.allowlisted.length}`)
-    console.info(`- high+ blocking alerts: ${result.blocking.length}`)
+    console.info(`- high+ blocking alerts: ${alertBlockers.length}`)
+    console.info(`- transition findings: ${result.transitionBlocking.length}`)
+    console.info(`- source failures: ${result.sourceFailures.length}`)
 
     if (result.allowlisted.length > 0) {
         console.info('\nAllowlisted alerts:')
@@ -74,20 +83,55 @@ async function main() {
         })
     }
 
-    if (result.blocking.length > 0) {
+    if (result.excepted.length > 0) {
+        console.info('\nExcepted alerts:')
+        result.excepted.forEach((item) => {
+            printAlert(item.alert)
+            console.info(`  category: ${item.exceptionEntry.category}; review: ${item.exceptionEntry.review}`)
+        })
+    }
+
+    if (alertBlockers.length > 0) {
         console.info('\nBlocking alerts:')
-        result.blocking.forEach(printAlert)
+        alertBlockers.forEach(printAlert)
+    }
+
+    if (sourceBlockers.length > 0) {
+        console.info('\nBlocking source failures:')
+        sourceBlockers.forEach((failure) => {
+            console.info(`- ${failure.source}: ${failure.status.kind} (${failure.status.detail})`)
+        })
+    }
+
+    if (result.transitionBlocking.length > 0) {
+        console.info(`\nTransition findings (${args.transitionMode ? 'report-only' : 'blocking'}):`)
+        result.transitionBlocking.forEach((item) => {
+            if (item?.classification) {
+                printAlert(item)
+                return
+            }
+            console.info(`- source ${item.source}: ${item.status.kind} (${item.status.detail})`)
+        })
+    }
+
+    if (result.expiredExceptions.length > 0 || result.staleExceptions.length > 0 || result.sourceWarnings.length > 0) {
+        console.info('\nWarnings:')
+        result.expiredExceptions.forEach((entry) => console.info(`- expired exception: ${entry.source}:${entry.alertNumber} (expiresAt=${entry.expiresAt})`))
+        result.staleExceptions.forEach((entry) => console.info(`- stale exception: ${entry.source}:${entry.alertNumber}`))
+        result.sourceWarnings.forEach((warning) => console.info(`- degraded source: ${warning.source} -> ${warning.status.kind} (${warning.status.detail})`))
     }
 
     await writeArtifacts({
         alerts,
         artifactPaths,
+        effectiveBlocking,
         gateConclusion,
         minSeverity: args.minSeverity,
         repoRoot,
         repository,
         result,
         sourceStatuses: snapshot.sourceStatuses,
+        transitionMode: args.transitionMode,
     })
 
     console.info(`\nJSON artifact: ${path.relative(repoRoot, artifactPaths.json)}`)
