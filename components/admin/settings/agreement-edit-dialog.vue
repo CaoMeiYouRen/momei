@@ -1,9 +1,12 @@
 <template>
-    <Dialog
-        v-model:visible="dialogVisible"
-        :header="isEditMode ? $t('pages.admin.settings.system.agreements.edit') : $t('pages.admin.settings.system.agreements.create')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="dialogVisible"
+        :title="isEditMode ? $t('pages.admin.settings.system.agreements.edit') : $t('pages.admin.settings.system.agreements.create')"
         modal
         class="agreements-settings__dialog"
+        :style="{padding: '1.5rem'}"
+        @update:open="dialogVisible = $event"
     >
         <div class="agreements-settings__field">
             <label for="language">{{ $t('pages.admin.settings.system.agreements.language') }}</label>
@@ -98,7 +101,7 @@
                 @click="emit('save')"
             />
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
@@ -190,9 +193,6 @@ function translateAgreement(key: string) {
         width: 90vw;
         max-width: 900px;
 
-        :deep(.p-dialog-content) {
-            padding: 1.5rem;
-        }
     }
 
     &__field {

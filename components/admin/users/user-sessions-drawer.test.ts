@@ -1,12 +1,14 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import UserSessionsDrawer from './user-sessions-drawer.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/users` 路由自有会话抽屉的迁移后契约。
  *
- * `Drawer` 属浮层显式豁免（方案 §5.5）保持 PrimeVue；在册族部分为 `Badge` → `CaomeiBadge`
+ * `Drawer` 已迁入 `CaomeiDrawer`；在册族部分为 `Badge` → `CaomeiBadge`
  * （`severity="info"` → `tone="primary"`）、`Button` ×2 → `CaomeiButton`（icon-only 下线按钮
  * 补可访问名；一键下线为 danger + 可见文案落默认插槽）。`ProgressSpinner` 与 `useConfirm` 不在在册族。
  */
@@ -25,7 +27,15 @@ const { authClientMock, feedbackMocks, confirmRequireMock } = vi.hoisted(() => (
 
 vi.mock('@/lib/auth-client', () => ({ authClient: authClientMock }))
 vi.mock('@/composables/use-request-feedback', () => ({ useRequestFeedback: () => feedbackMocks }))
-vi.mock('primevue/useconfirm', () => ({ useConfirm: () => ({ require: confirmRequireMock }) }))
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+
+    return {
+        ...actual,
+        useConfirm: () => createLegacyConfirmApi(confirmRequireMock),
+        useToast: () => createLegacyToastApi(vi.fn()),
+    }
+})
 vi.mock('@/composables/use-i18n-date', () => ({ useI18nDate: () => ({ d: (value: string) => `d:${value}` }) }))
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key, locale: ref('zh-CN') }))
@@ -64,9 +74,9 @@ const CaomeiButtonStub = defineComponent({
 })
 
 const stubs = {
-    Drawer: defineComponent({
-        name: 'Drawer',
-        props: { visible: Boolean, position: String },
+    CaomeiDrawer: defineComponent({
+        name: 'CaomeiDrawer',
+        props: { open: Boolean, position: String },
         setup: (props, { slots }) => () => h('div', { class: 'drawer-stub', 'data-position': props.position }, [slots.header?.(), slots.default?.()]),
     }),
     ProgressSpinner: defineComponent({ name: 'ProgressSpinner', setup: () => () => h('div', { class: 'progress-spinner-stub' }) }),
@@ -80,7 +90,7 @@ const sessionFixture = [
 ]
 
 async function mountComponent() {
-    // 真实流转为「关闭 → 打开」：组件内 `watch(() => props.visible)` 只在变化时拉取会话。
+    // 真实流转为「关闭 → 打开」：组件内 `watch(() => props.open)` 只在变化时拉取会话。
     const wrapper = await mountSuspended(UserSessionsDrawer, {
         props: { visible: false, user: { id: 'u-1', name: 'Ada' } as never },
         global: { stubs, mocks: { $t: (key: string) => key } },
@@ -153,6 +163,7 @@ describe('UserSessionsDrawer', () => {
         // 执行确认回调
         const accept = confirmRequireMock.mock.calls[0]![0].accept as () => Promise<void>
         await accept()
+        await flushPromises()
         expect(authClientMock.admin.revokeUserSessions).toHaveBeenCalledWith({ userId: 'u-1' })
         expect(wrapper.emitted()['update:visible']!.at(-1)).toEqual([false])
     })

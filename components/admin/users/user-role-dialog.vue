@@ -1,11 +1,12 @@
 <template>
-    <!-- `Dialog` 属浮层显式豁免（迁移方案 §5.5）：留待第六十九阶段，此处保持 PrimeVue。 -->
-    <Dialog
-        :visible="visible"
-        :header="$t('pages.admin.users.edit_role')"
+    <!-- 浮层族已由迁移方案 §5.5 收敛到 caomei-ui。 -->
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.users.edit_role')"
         modal
         class="user-management__dialog"
-        @update:visible="$emit('update:visible', $event)"
+        @update:open="$emit('update:visible', $event)"
     >
         <div class="user-management__dialog-content">
             <label class="user-management__dialog-label">{{ $t('pages.admin.users.select_role') }}</label>
@@ -35,7 +36,7 @@
                 {{ $t('common.save') }}
             </CaomeiButton>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

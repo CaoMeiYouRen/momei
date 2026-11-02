@@ -1,13 +1,12 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
-        :header="t('pages.admin.snippets.aggregate')"
+    <CaomeiDialog
+        :open="visible"
+        :title="t('pages.admin.snippets.aggregate')"
         modal
         class="aggregate-dialog"
-        dismissable-mask
         :style="{width: '50vw'}"
         :breakpoints="{'1199px': '75vw', '575px': '90vw'}"
-        @update:visible="$emit('update:visible', $event)"
+        @update:open="visible = $event"
     >
         <div v-if="aggregating" class="aggregating-state">
             <ProgressSpinner stroke-width="3" class="spinner" />
@@ -206,10 +205,11 @@
                 />
             </div>
         </div>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import markdownit from 'markdown-it'
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'
@@ -276,11 +276,11 @@ const audienceOptions = computed(() => [
 
 const performAggregate = async () => {
     if (aggregateMode.value === 'snippets' && props.selectedSnippetIds.length < 1) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.snippets.aggregate_hint'), life: 3000 })
+        toast.show({ tone: 'warning', title: t('common.warn'), description: t('pages.admin.snippets.aggregate_hint'), duration: 3000 })
         return
     }
     if (aggregateMode.value === 'topic' && !aggregateForm.value.topic.trim()) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('pages.admin.snippets.topic_required'), life: 3000 })
+        toast.show({ tone: 'warning', title: t('common.warn'), description: t('pages.admin.snippets.topic_required'), duration: 3000 })
         return
     }
 
@@ -297,7 +297,7 @@ const performAggregate = async () => {
         scaffold.value = res.data.scaffold
         scaffoldMetadata.value = res.data.metadata
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: e.data?.message || t('common.unexpected_error'), duration: 3000 })
     } finally {
         aggregating.value = false
     }
@@ -321,7 +321,7 @@ const performExpand = async () => {
         })
         expansionResult.value = res.data.expansion
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: e.data?.message || t('common.unexpected_error'), duration: 3000 })
     } finally {
         expandingSection.value = false
     }
@@ -331,9 +331,9 @@ const applyExpansion = async () => {
     if (!expansionResult.value) return
     try {
         await navigator.clipboard.writeText(expansionResult.value)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.copy_success'), life: 2000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('common.copy_success'), duration: 2000 })
     } catch (err) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.copy_failed'), life: 2000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.copy_failed'), duration: 2000 })
     }
 }
 
@@ -345,12 +345,12 @@ const convertToPostFromScaffold = async () => {
             method: 'POST',
             body: { scaffold: scaffold.value },
         })
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.convert_success'), life: 3000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('pages.admin.snippets.convert_success'), duration: 3000 })
         if (res.data.post.id) {
             navigateTo(`/admin/posts/${res.data.post.id}`)
         }
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     } finally {
         aggregating.value = false
     }
@@ -360,9 +360,9 @@ const copyScaffold = async () => {
     if (!scaffold.value) return
     try {
         await navigator.clipboard.writeText(scaffold.value)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.copy_success'), life: 2000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('common.copy_success'), duration: 2000 })
     } catch (err) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.copy_failed'), life: 2000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.copy_failed'), duration: 2000 })
     }
 }
 

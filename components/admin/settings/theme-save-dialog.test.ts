@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const {
     fetchMock,
@@ -16,14 +17,12 @@ mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => key,
 }))
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useToast: () => ({
-            add: toastAddMock,
-        }),
+        useToast: () => createLegacyToastApi(toastAddMock),
     }
 })
 
@@ -37,10 +36,10 @@ vi.mock('ofetch', () => ({ $fetch: fetchMock }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
 const stubs = {
-    Dialog: {
-        props: ['visible', 'header', 'modal', 'class', 'style', 'dismissableMask', 'appendTo'],
-        emits: ['update:visible'],
-        template: '<div v-if="visible" class="dialog-stub"><slot /><slot name="footer" /></div>',
+    CaomeiDialog: {
+        props: ['open', 'title', 'modal', 'class', 'style', 'closeOnOverlay'],
+        emits: ['update:open'],
+        template: '<div v-if="open" class="dialog-stub"><slot /><slot name="footer" /></div>',
     },
     InputText: {
         props: ['modelValue', 'placeholder', 'autofocus', 'class'],

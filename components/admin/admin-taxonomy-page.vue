@@ -112,14 +112,14 @@
             </CaomeiDataTable>
         </div>
 
-        <!-- 浮层显式豁免（§5.5）：`Dialog` / `ConfirmDeleteDialog` 维持 PrimeVue；弹窗内部控件按本条路由登记的路由级在册族增量迁移。 -->
-        <Dialog
-            v-model:visible="dialogVisible"
-            :header="editingItem ? $t('common.edit') : $t('common.create')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="dialogVisible"
+            :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
             class="admin-taxonomy__dialog p-fluid"
             :style="taxonomyDialogStyle"
-            @show="handleDialogShow"
+            @update:open="dialogVisible = $event"
             @focusin="handleDialogFocusIn"
         >
             <CaomeiTabs v-model="activeTab">
@@ -307,7 +307,7 @@
                     {{ $t('common.save') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
+        </CaomeiDialog>
 
         <ConfirmDeleteDialog
             v-model:visible="deleteDialog.visible"
@@ -432,9 +432,11 @@ const setNameFieldRef = (lang: string, instance: unknown) => {
     nameFieldRefs.value[lang] = (instance as { focus?: () => void } | null) ?? null
 }
 
-const handleDialogShow = () => {
-    pendingInitialFocus.value = true
-}
+watch(dialogVisible, (open) => {
+    if (open) {
+        pendingInitialFocus.value = true
+    }
+})
 
 const handleDialogFocusIn = () => {
     if (!pendingInitialFocus.value) {

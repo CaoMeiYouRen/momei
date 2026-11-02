@@ -6,7 +6,7 @@ import UserRoleDialog from './user-role-dialog.vue'
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/users` 路由自有角色弹窗的迁移后契约。
  *
- * `Dialog` 属浮层显式豁免（方案 §5.5）保持 PrimeVue；在册族部分为 `Select` → `CaomeiSelect`、
+ * `Dialog` 已迁入 `CaomeiDialog`；在册族部分为 `Select` → `CaomeiSelect`、
  * `Button` ×2 → `CaomeiButton`（`severity="secondary" text` → `variant="ghost" tone="neutral"`，
  * 可见文案落默认插槽；保存按钮 `:label` + `:loading` → 默认插槽 + `:loading`）。
  */
@@ -48,17 +48,17 @@ const CaomeiButtonStub = defineComponent({
 })
 
 const stubs = {
-    Dialog: defineComponent({
-        name: 'Dialog',
-        props: { visible: Boolean, header: String },
-        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.header }, [slots.default?.(), slots.footer?.()]),
+    CaomeiDialog: defineComponent({
+        name: 'CaomeiDialog',
+        props: { open: Boolean, title: String },
+        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.title }, [slots.default?.(), slots.footer?.()]),
     }),
     CaomeiSelect: CaomeiSelectStub,
     CaomeiButton: CaomeiButtonStub,
 }
 
 async function mountComponent(user: Record<string, unknown> | null = { id: 'u-1', name: 'Ada', role: 'author' }) {
-    // 真实流转为「关闭 → 打开」：组件内 `watch(() => props.visible)` 只在变化时回填角色，
+    // 真实流转为「关闭 → 打开」：组件内 `watch(() => props.open)` 只在变化时回填角色，
     // 故此处以 `visible: false` 挂载后再置为 `true`，避免掩盖该既有行为。
     const wrapper = await mountSuspended(UserRoleDialog, {
         props: { visible: false, user: user as never },
@@ -76,7 +76,7 @@ describe('UserRoleDialog', () => {
         authClientMock.admin.setRole.mockResolvedValue({ error: null })
     })
 
-    it('保持 PrimeVue Dialog（浮层豁免）并在页脚渲染两个 CaomeiButton', async () => {
+    it('使用 CaomeiDialog 并在页脚渲染两个 CaomeiButton', async () => {
         const wrapper = await mountComponent()
 
         expect(wrapper.find('.dialog-stub').attributes('data-header')).toBe('pages.admin.users.edit_role')

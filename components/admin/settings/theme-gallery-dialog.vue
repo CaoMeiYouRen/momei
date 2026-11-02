@@ -1,11 +1,11 @@
 <template>
-    <Dialog
-        :visible="modelValue"
-        :header="$t('pages.admin.settings.theme.gallery_title')"
+    <CaomeiDialog
+        :open="modelValue"
+        :title="$t('pages.admin.settings.theme.gallery_title')"
         modal
         class="theme-gallery-dialog"
-        :style="{width: '80vw', maxWidth: '1000px'}"
-        @update:visible="$emit('update:modelValue', $event)"
+        :style="{width: '80vw', maxWidth: '1000px', padding: 0}"
+        @update:open="$emit('update:modelValue', $event)"
     >
         <DataView
             :value="themeConfigs"
@@ -97,23 +97,23 @@
         </DataView>
 
         <!-- 图片大图预览 -->
-        <Dialog
-            v-model:visible="showImagePreview"
+        <CaomeiDialog
+            :open="showImagePreview"
             modal
-            :header="$t('common.preview')"
+            :title="$t('common.preview')"
             class="image-preview-dialog"
             :style="{width: '90vw', maxWidth: '800px'}"
-            dismissable-mask
-            append-to="body"
+            @update:open="showImagePreview = $event"
         >
             <div class="flex justify-content-center">
                 <img :src="previewImageUrl" style="max-width: 100%; height: auto; border-radius: 8px;">
             </div>
-        </Dialog>
-    </Dialog>
+        </CaomeiDialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 const props = defineProps<{
     modelValue: boolean
 }>()
@@ -146,10 +146,10 @@ const fetchGallery = async () => {
         const res = await $fetch<any>('/api/admin/theme-configs')
         themeConfigs.value = res?.data || []
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.settings.theme.gallery_fetch_error'),
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.settings.theme.gallery_fetch_error'),
         })
     } finally {
         loading.value = false
@@ -159,20 +159,20 @@ const fetchGallery = async () => {
 const applyConfig = async (config: any) => {
     try {
         await $fetch(`/api/admin/theme-configs/${config.id}/apply`, { method: 'POST' })
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.theme.apply_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.settings.theme.apply_success'),
+            duration: 3000,
         })
         // 重新加载页面以应用所有设置
         window.location.reload()
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.data?.message || error.message,
-            life: 5000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.data?.message || error.message,
+            duration: 5000,
         })
     }
 }
@@ -181,18 +181,18 @@ const deleteConfig = async (config: any) => {
     try {
         await $fetch(`/api/admin/theme-configs/${config.id}`, { method: 'DELETE' })
         await fetchGallery()
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.theme.delete_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.settings.theme.delete_success'),
+            duration: 3000,
         })
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.data?.message || error.message,
-            life: 5000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.data?.message || error.message,
+            duration: 5000,
         })
     }
 }
@@ -206,9 +206,6 @@ watch(() => props.modelValue, (val) => {
 
 <style lang="scss" scoped>
 .theme-gallery-dialog {
-    :deep(.p-dialog-content) {
-        padding: 0;
-    }
 }
 
 .theme-gallery-grid {

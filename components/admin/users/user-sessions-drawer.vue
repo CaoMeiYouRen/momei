@@ -1,10 +1,10 @@
 <template>
-    <!-- `Drawer` 属浮层显式豁免（迁移方案 §5.5）：留待第六十九阶段，此处保持 PrimeVue。 -->
-    <Drawer
-        :visible="visible"
+    <CaomeiDrawer
+        :open="visible"
         position="right"
+        size="sm"
         class="user-management__sessions-drawer"
-        @update:visible="$emit('update:visible', $event)"
+        @update:open="$emit('update:visible', $event)"
     >
         <template #header>
             <div class="sessions-header">
@@ -73,13 +73,13 @@
                 {{ $t('pages.admin.users.revoke_all') }}
             </CaomeiButton>
         </div>
-    </Drawer>
+    </CaomeiDrawer>
 </template>
 
 <script setup lang="ts">
 import { LogOut, Power } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import type { ManagedUser } from '@/types/admin-user-management'
 
 interface UserSessionRecord {
@@ -151,31 +151,35 @@ const revokeSession = async (token: string) => {
 const revokeAllUserSessions = async () => {
     if (!props.user) return
     const currentUserId = props.user.id
-    confirm.require({
-        message: t('pages.admin.users.confirm_revoke_all'),
-        header: t('common.danger'),
-        icon: 'pi pi-exclamation-circle',
-        acceptLabel: t('common.confirm'),
-        rejectLabel: t('common.cancel'),
-        accept: async () => {
-            revokingAll.value = true
-            try {
-                const { error } = await authClient.admin.revokeUserSessions({
-                    userId: currentUserId,
-                })
-                if (error) throw error
-                showSuccessToast('pages.admin.users.feedback.revoke_all_sessions_success')
-                sessions.value = []
-                emit('update:visible', false)
-            } catch (error) {
-                showErrorToast(error, {
-                    fallbackKey: 'pages.admin.users.feedback.revoke_all_sessions_failed',
-                })
-            } finally {
-                revokingAll.value = false
-            }
-        },
+
+    const confirmed = await confirm.confirm({
+        title: t('common.danger'),
+        description: t('pages.admin.users.confirm_revoke_all'),
+        confirmLabel: t('common.confirm'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
     })
+
+    if (!confirmed) {
+        return
+    }
+
+    revokingAll.value = true
+    try {
+        const { error } = await authClient.admin.revokeUserSessions({
+            userId: currentUserId,
+        })
+        if (error) throw error
+        showSuccessToast('pages.admin.users.feedback.revoke_all_sessions_success')
+        sessions.value = []
+        emit('update:visible', false)
+    } catch (error) {
+        showErrorToast(error, {
+            fallbackKey: 'pages.admin.users.feedback.revoke_all_sessions_failed',
+        })
+    } finally {
+        revokingAll.value = false
+    }
 }
 
 const parseUserAgent = (ua?: string | null) => {

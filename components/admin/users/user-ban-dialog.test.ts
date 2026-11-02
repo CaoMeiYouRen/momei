@@ -6,7 +6,7 @@ import UserBanDialog from './user-ban-dialog.vue'
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/users` 路由自有封禁弹窗的迁移后契约。
  *
- * `Dialog` 属浮层显式豁免（方案 §5.5）保持 PrimeVue；在册族部分为 `InputText` → `CaomeiInput`、
+ * `Dialog` 已迁入 `CaomeiDialog`；在册族部分为 `InputText` → `CaomeiInput`、
  * `Select` → `CaomeiSelect`、`Button` ×2 → `CaomeiButton`（取消 ghost+neutral / 封禁 danger）。
  */
 
@@ -64,10 +64,10 @@ const CaomeiButtonStub = defineComponent({
 })
 
 const stubs = {
-    Dialog: defineComponent({
-        name: 'Dialog',
-        props: { visible: Boolean, header: String },
-        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.header }, [slots.default?.(), slots.footer?.()]),
+    CaomeiDialog: defineComponent({
+        name: 'CaomeiDialog',
+        props: { open: Boolean, title: String },
+        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.title }, [slots.default?.(), slots.footer?.()]),
     }),
     CaomeiInput: CaomeiInputStub,
     CaomeiSelect: CaomeiSelectStub,

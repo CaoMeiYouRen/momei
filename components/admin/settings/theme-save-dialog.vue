@@ -1,11 +1,12 @@
 <template>
-    <Dialog
-        :visible="modelValue"
-        :header="$t('pages.admin.settings.theme.save_as_new')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="modelValue"
+        :title="$t('pages.admin.settings.theme.save_as_new')"
         modal
         class="save-theme-dialog"
-        :style="{width: '450px'}"
-        @update:visible="$emit('update:modelValue', $event)"
+        :style="{width: '450px', padding: '0 1.5rem 1.5rem'}"
+        @update:open="$emit('update:modelValue', $event)"
     >
         <div class="save-theme-form">
             <div class="save-theme-form__field">
@@ -48,10 +49,11 @@
                 />
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { PRESETS } from '@/composables/use-theme'
 
 const props = defineProps<{
@@ -163,21 +165,21 @@ const saveAsNewTheme = async () => {
         emit('update:modelValue', false)
         emit('saved')
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.theme.save_preset_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.settings.theme.save_preset_success'),
+            duration: 3000,
         })
 
         // 重置表单
         saveForm.value = { name: '', description: '' }
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.data?.message || error.message,
-            life: 5000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.data?.message || error.message,
+            duration: 5000,
         })
     } finally {
         loading.value = false
@@ -193,9 +195,6 @@ watch(() => props.modelValue, (val) => {
 
 <style lang="scss" scoped>
 .save-theme-dialog {
-    :deep(.p-dialog-content) {
-        padding: 0 1.5rem 1.5rem;
-    }
 }
 
 .save-theme-form {

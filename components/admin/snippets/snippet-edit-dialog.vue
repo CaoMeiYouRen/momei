@@ -1,13 +1,12 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
-        :header="t('pages.admin.snippets.edit')"
+    <CaomeiDialog
+        :open="visible"
+        :title="t('pages.admin.snippets.edit')"
         modal
         class="edit-dialog"
-        dismissable-mask
         :style="{width: '80rem', maxWidth: '95vw'}"
         :breakpoints="{'1199px': '85vw', '575px': '95vw'}"
-        @update:visible="$emit('update:visible', $event)"
+        @update:open="visible = $event"
     >
         <div class="edit-form">
             <div class="edit-field">
@@ -110,10 +109,11 @@
                 />
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import type { Snippet } from '@/types/snippet'
 import { useUpload, UploadType } from '@/composables/use-upload'
 
@@ -197,11 +197,11 @@ const updateSnippet = async () => {
             method: 'PUT',
             body: form.value,
         } as any)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('common.save_success'), life: 3000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('common.save_success'), duration: 3000 })
         visible.value = false
         emit('success')
     } catch (e) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     } finally {
         saving.value = false
     }

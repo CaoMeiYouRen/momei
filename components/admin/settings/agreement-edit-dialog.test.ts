@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import AgreementEditDialog from '@/components/admin/settings/agreement-edit-dialog.vue'
 
 /**
@@ -22,6 +22,18 @@ vi.mock('vue-i18n', async (importOriginal) => {
             locale: ref('zh-CN'),
         }),
     }
+})
+
+const CaomeiDialogStub = defineComponent({
+    props: { open: { type: Boolean, default: false }, title: { type: String, default: '' } },
+    setup(props, { slots }) {
+        return () => props.open
+            ? h('div', { role: 'dialog', 'data-title': props.title }, [
+                slots.default?.(),
+                h('div', { class: 'dialog-footer' }, slots.footer?.()),
+            ])
+            : null
+    },
 })
 
 const baseFormData = {
@@ -48,7 +60,7 @@ function mountDialog(overrides: Record<string, unknown> = {}) {
         },
         global: {
             // Dialog 默认 teleport 到 body；内联渲染以便在 wrapper 内断言结构
-            stubs: { teleport: true },
+            stubs: { teleport: true, CaomeiDialog: CaomeiDialogStub },
         },
     })
 }
