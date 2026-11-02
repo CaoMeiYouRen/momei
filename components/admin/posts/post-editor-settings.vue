@@ -235,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import { usePostExport } from '@/composables/use-post-export'
 import type { PostEditorData } from '@/types/post-editor'
 
@@ -275,22 +275,16 @@ const confirmClearTags = () => {
         return
     }
 
-    confirm.require({
-        message: t('pages.admin.posts.clear_tags_confirm_message'),
-        header: t('pages.admin.posts.clear_tags_confirm_title'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptProps: {
-            label: t('common.delete'),
-            severity: 'danger',
-        },
-        rejectProps: {
-            label: t('common.cancel'),
-            severity: 'secondary',
-            text: true,
-        },
-        accept: () => {
+    void confirm.confirm({
+        title: t('pages.admin.posts.clear_tags_confirm_title'),
+        description: t('pages.admin.posts.clear_tags_confirm_message'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (confirmed) {
             post.value.tags = []
-        },
+        }
     })
 }
 </script>
