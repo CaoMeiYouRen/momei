@@ -77,71 +77,76 @@
 
                 <template #cell-actions="{row}">
                     <div class="user-management__actions">
-                        <CaomeiButton
-                            v-tooltip.top="$t('pages.admin.users.edit_role')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            tone="primary"
-                            :label="$t('pages.admin.users.edit_role')"
-                            @click="openRoleDialog(row)"
-                        >
-                            <template #icon>
-                                <UserCog :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="row.banned ? $t('pages.admin.users.unban_user') : $t('pages.admin.users.ban_user')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            :tone="row.banned ? 'success' : 'warning'"
-                            :label="row.banned ? $t('pages.admin.users.unban_user') : $t('pages.admin.users.ban_user')"
-                            @click="row.banned ? unbanUser(row) : openBanDialog(row)"
-                        >
-                            <template #icon>
-                                <component :is="row.banned ? Unlock : Lock" :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="$t('pages.admin.users.view_sessions')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            tone="neutral"
-                            :label="$t('pages.admin.users.view_sessions')"
-                            @click="openSessionsDrawer(row)"
-                        >
-                            <template #icon>
-                                <Monitor :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="$t('pages.admin.users.impersonate')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            tone="primary"
-                            :label="$t('pages.admin.users.impersonate')"
-                            @click="impersonateUser(row)"
-                        >
-                            <template #icon>
-                                <UserRound :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="$t('pages.admin.users.delete_user')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            tone="danger"
-                            :label="$t('pages.admin.users.delete_user')"
-                            @click="openUserDeleteDialog(row)"
-                        >
-                            <template #icon>
-                                <Trash2 :size="16" />
-                            </template>
-                        </CaomeiButton>
+                        <AppTooltip :content="$t('pages.admin.users.edit_role')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                tone="primary"
+                                :label="$t('pages.admin.users.edit_role')"
+                                @click="openRoleDialog(row)"
+                            >
+                                <template #icon>
+                                    <UserCog :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="row.banned ? $t('pages.admin.users.unban_user') : $t('pages.admin.users.ban_user')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                :tone="row.banned ? 'success' : 'warning'"
+                                :label="row.banned ? $t('pages.admin.users.unban_user') : $t('pages.admin.users.ban_user')"
+                                @click="row.banned ? unbanUser(row) : openBanDialog(row)"
+                            >
+                                <template #icon>
+                                    <component :is="row.banned ? Unlock : Lock" :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="$t('pages.admin.users.view_sessions')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                tone="neutral"
+                                :label="$t('pages.admin.users.view_sessions')"
+                                @click="openSessionsDrawer(row)"
+                            >
+                                <template #icon>
+                                    <Monitor :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="$t('pages.admin.users.impersonate')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                tone="primary"
+                                :label="$t('pages.admin.users.impersonate')"
+                                @click="impersonateUser(row)"
+                            >
+                                <template #icon>
+                                    <UserRound :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="$t('pages.admin.users.delete_user')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                tone="danger"
+                                :label="$t('pages.admin.users.delete_user')"
+                                @click="openUserDeleteDialog(row)"
+                            >
+                                <template #icon>
+                                    <Trash2 :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
                     </div>
                 </template>
             </CaomeiDataTable>

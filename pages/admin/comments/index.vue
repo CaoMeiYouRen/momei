@@ -79,47 +79,48 @@
 
                 <template #cell-actions="{row}">
                     <div class="admin-comments__actions">
-                        <CaomeiButton
-                            v-if="row.status !== CommentStatus.PUBLISHED"
-                            v-tooltip.top="$t('pages.admin.comments.approve')"
-                            class="admin-comments__icon-button"
-                            variant="ghost"
-                            rounded
-                            tone="success"
-                            :label="$t('pages.admin.comments.approve')"
-                            @click="updateStatus(row, CommentStatus.PUBLISHED)"
-                        >
-                            <template #icon>
-                                <Check :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-if="row.status !== CommentStatus.SPAM"
-                            v-tooltip.top="$t('pages.admin.comments.reject')"
-                            class="admin-comments__icon-button"
-                            variant="ghost"
-                            rounded
-                            tone="warning"
-                            :label="$t('pages.admin.comments.reject')"
-                            @click="updateStatus(row, CommentStatus.SPAM)"
-                        >
-                            <template #icon>
-                                <Ban :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="$t('common.delete')"
-                            class="admin-comments__icon-button"
-                            variant="ghost"
-                            rounded
-                            tone="danger"
-                            :label="$t('common.delete')"
-                            @click="openDeleteDialog(row)"
-                        >
-                            <template #icon>
-                                <Trash :size="16" />
-                            </template>
-                        </CaomeiButton>
+                        <AppTooltip v-if="row.status !== CommentStatus.PUBLISHED" :content="$t('pages.admin.comments.approve')">
+                            <CaomeiButton
+                                class="admin-comments__icon-button"
+                                variant="ghost"
+                                rounded
+                                tone="success"
+                                :label="$t('pages.admin.comments.approve')"
+                                @click="updateStatus(row, CommentStatus.PUBLISHED)"
+                            >
+                                <template #icon>
+                                    <Check :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip v-if="row.status !== CommentStatus.SPAM" :content="$t('pages.admin.comments.reject')">
+                            <CaomeiButton
+                                class="admin-comments__icon-button"
+                                variant="ghost"
+                                rounded
+                                tone="warning"
+                                :label="$t('pages.admin.comments.reject')"
+                                @click="updateStatus(row, CommentStatus.SPAM)"
+                            >
+                                <template #icon>
+                                    <Ban :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="$t('common.delete')">
+                            <CaomeiButton
+                                class="admin-comments__icon-button"
+                                variant="ghost"
+                                rounded
+                                tone="danger"
+                                :label="$t('common.delete')"
+                                @click="openDeleteDialog(row)"
+                            >
+                                <template #icon>
+                                    <Trash :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
                     </div>
                 </template>
 

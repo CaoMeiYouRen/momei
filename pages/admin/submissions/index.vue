@@ -62,32 +62,33 @@
 
                 <template #cell-actions="{row}">
                     <div class="admin-submissions__actions">
-                        <CaomeiButton
-                            v-if="row.status === SubmissionStatus.PENDING"
-                            v-tooltip.top="$t('pages.admin.submissions.review')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            :label="$t('pages.admin.submissions.review')"
-                            @click="openReview(row)"
-                        >
-                            <template #icon>
-                                <Eye :size="16" />
-                            </template>
-                        </CaomeiButton>
-                        <CaomeiButton
-                            v-tooltip.top="$t('common.delete')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            tone="danger"
-                            :label="$t('common.delete')"
-                            @click="openDeleteDialog(row)"
-                        >
-                            <template #icon>
-                                <Trash :size="16" />
-                            </template>
-                        </CaomeiButton>
+                        <AppTooltip v-if="row.status === SubmissionStatus.PENDING" :content="$t('pages.admin.submissions.review')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                :label="$t('pages.admin.submissions.review')"
+                                @click="openReview(row)"
+                            >
+                                <template #icon>
+                                    <Eye :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <AppTooltip :content="$t('common.delete')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                tone="danger"
+                                :label="$t('common.delete')"
+                                @click="openDeleteDialog(row)"
+                            >
+                                <template #icon>
+                                    <Trash :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
                     </div>
                 </template>
 

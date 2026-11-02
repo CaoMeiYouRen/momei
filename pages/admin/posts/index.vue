@@ -128,16 +128,19 @@
                 <template #cell-translations="{row}">
                     <div class="justify-content-center translation-badges">
                         <!-- `Badge` **确有** `value` prop（与 `Tag` 不同，见迁移方案 §6.2），故沿用 `:value`。 -->
-                        <CaomeiBadge
+                        <AppTooltip
                             v-for="lang in availableLocalesList"
                             :key="lang.code"
-                            v-tooltip="$t('common.languages.' + lang.code)"
-                            :value="lang.code.toUpperCase()"
-                            :tone="hasTranslation(row, lang.code) ? 'success' : 'neutral'"
-                            class="translation-badge"
-                            :class="{'translation-badge--missing': !hasTranslation(row, lang.code)}"
-                            @click="handleTranslationClick(row, lang.code)"
-                        />
+                            :content="$t('common.languages.' + lang.code)"
+                        >
+                            <CaomeiBadge
+                                :value="lang.code.toUpperCase()"
+                                :tone="hasTranslation(row, lang.code) ? 'success' : 'neutral'"
+                                class="translation-badge"
+                                :class="{'translation-badge--missing': !hasTranslation(row, lang.code)}"
+                                @click="handleTranslationClick(row, lang.code)"
+                            />
+                        </AppTooltip>
                     </div>
                 </template>
 
@@ -173,46 +176,48 @@
                     <!-- 迁移前 5 个按钮均为 `text rounded` + 纯图标：caomei 侧用 0.6.0 `iconOnly` +
                          lucide `#icon`（不再复制本地补丁写法），并按契约补 `:label` 可访问名——
                          迁移前仅前三个有 `v-tooltip`，编辑 / 删除两个**既无可见文本也无可访问名**。 -->
-                    <CaomeiButton
-                        v-tooltip.top="$t('pages.admin.posts.distribution.tooltip')"
-                        icon-only
-                        variant="ghost"
-                        rounded
-                        tone="neutral"
-                        :label="$t('pages.admin.posts.distribution.tooltip')"
-                        @click="openDistribution(row.id)"
-                    >
-                        <template #icon>
-                            <RefreshCw :size="16" />
-                        </template>
-                    </CaomeiButton>
-                    <CaomeiButton
-                        v-if="row.status === 'published'"
-                        v-tooltip.top="$t('pages.admin.posts.repush')"
-                        icon-only
-                        variant="ghost"
-                        rounded
-                        tone="warning"
-                        :label="$t('pages.admin.posts.repush')"
-                        @click="confirmRepush(row)"
-                    >
-                        <template #icon>
-                            <Send :size="16" />
-                        </template>
-                    </CaomeiButton>
-                    <CaomeiButton
-                        v-tooltip.top="$t('common.export')"
-                        icon-only
-                        variant="ghost"
-                        rounded
-                        tone="neutral"
-                        :label="$t('common.export')"
-                        @click="handleExport(row)"
-                    >
-                        <template #icon>
-                            <Download :size="16" />
-                        </template>
-                    </CaomeiButton>
+                    <AppTooltip :content="$t('pages.admin.posts.distribution.tooltip')">
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            tone="neutral"
+                            :label="$t('pages.admin.posts.distribution.tooltip')"
+                            @click="openDistribution(row.id)"
+                        >
+                            <template #icon>
+                                <RefreshCw :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
+                    <AppTooltip v-if="row.status === 'published'" :content="$t('pages.admin.posts.repush')">
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            tone="warning"
+                            :label="$t('pages.admin.posts.repush')"
+                            @click="confirmRepush(row)"
+                        >
+                            <template #icon>
+                                <Send :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
+                    <AppTooltip :content="$t('common.export')">
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            tone="neutral"
+                            :label="$t('common.export')"
+                            @click="handleExport(row)"
+                        >
+                            <template #icon>
+                                <Download :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
                     <CaomeiButton
                         icon-only
                         variant="ghost"

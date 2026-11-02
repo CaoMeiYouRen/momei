@@ -25,19 +25,20 @@
                 <template #cell-shortCode="{row}">
                     <div class="flex gap-2 items-center">
                         <code class="short-code">{{ row.shortCode }}</code>
-                        <CaomeiButton
-                            v-tooltip="$t('common.copy')"
-                            icon-only
-                            variant="ghost"
-                            rounded
-                            size="sm"
-                            :label="$t('common.copy')"
-                            @click="copyShortCode(row.shortCode)"
-                        >
-                            <template #icon>
-                                <Copy :size="16" />
-                            </template>
-                        </CaomeiButton>
+                        <AppTooltip :content="$t('common.copy')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                rounded
+                                size="sm"
+                                :label="$t('common.copy')"
+                                @click="copyShortCode(row.shortCode)"
+                            >
+                                <template #icon>
+                                    <Copy :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
                     </div>
                 </template>
 
@@ -67,19 +68,20 @@
                 </template>
 
                 <template #cell-actions="{row}">
-                    <CaomeiButton
-                        v-tooltip="$t('pages.admin.external_links.stats')"
-                        icon-only
-                        variant="ghost"
-                        rounded
-                        tone="primary"
-                        :label="$t('pages.admin.external_links.stats')"
-                        @click="showStats(row)"
-                    >
-                        <template #icon>
-                            <ChartBar :size="16" />
-                        </template>
-                    </CaomeiButton>
+                    <AppTooltip :content="$t('pages.admin.external_links.stats')">
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            rounded
+                            tone="primary"
+                            :label="$t('pages.admin.external_links.stats')"
+                            @click="showStats(row)"
+                        >
+                            <template #icon>
+                                <ChartBar :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
                     <CaomeiButton
                         icon-only
                         variant="ghost"
@@ -114,7 +116,7 @@
             </CaomeiDataTable>
         </div>
 
-        <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；Checkbox / v-tooltip 仍随 B3/收尾批次。
+        <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；Checkbox 仍随 B3 批次。
              其**内部**的 InputText / Select / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
         <CaomeiDialog
             :close-on-overlay="false"

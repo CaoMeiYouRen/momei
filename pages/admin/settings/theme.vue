@@ -53,14 +53,15 @@
             @secondary-click="openFeedbackEntry"
         >
             <template #before-actions>
-                <Button
-                    v-tooltip.bottom="$t('pages.admin.settings.theme.gallery_title')"
-                    icon="pi pi-images"
-                    severity="secondary"
-                    outlined
-                    rounded
-                    @click="showGallery = true"
-                />
+                <AppTooltip :content="$t('pages.admin.settings.theme.gallery_title')" side="bottom">
+                    <Button
+                        icon="pi pi-images"
+                        severity="secondary"
+                        outlined
+                        rounded
+                        @click="showGallery = true"
+                    />
+                </AppTooltip>
                 <Button
                     :label="$t('pages.admin.settings.theme.save_as_new')"
                     icon="pi pi-plus"

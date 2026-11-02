@@ -8,14 +8,15 @@
                             {{ t('pages.admin.snippets.selected_count', {count: selectedSnippetIds.length}) }}
                         </span>
                     </transition>
-                    <Button
-                        v-tooltip.bottom="t('pages.admin.snippets.aggregate_hint')"
-                        :label="t('pages.admin.snippets.aggregate')"
-                        icon="pi pi-sparkles"
-                        severity="help"
-                        :disabled="!selectedSnippetIds.length"
-                        @click="showAggregateDialog = true"
-                    />
+                    <AppTooltip :content="t('pages.admin.snippets.aggregate_hint')" side="bottom">
+                        <Button
+                            :label="t('pages.admin.snippets.aggregate')"
+                            icon="pi pi-sparkles"
+                            severity="help"
+                            :disabled="!selectedSnippetIds.length"
+                            @click="showAggregateDialog = true"
+                        />
+                    </AppTooltip>
                 </div>
             </template>
         </AdminPageHeader>

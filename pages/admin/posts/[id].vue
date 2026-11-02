@@ -49,15 +49,15 @@
                     @run-audit="runAudit"
                     @show-detail="openAuditDialog"
                 />
-                <Button
-                    v-if="!isNew && post.id"
-                    v-tooltip.top="$t('pages.admin.posts.social_post.generate_btn')"
-                    icon="pi pi-share-alt"
-                    text
-                    rounded
-                    severity="secondary"
-                    @click="socialPostVisible = true"
-                />
+                <AppTooltip v-if="!isNew && post.id" :content="$t('pages.admin.posts.social_post.generate_btn')">
+                    <Button
+                        icon="pi pi-share-alt"
+                        text
+                        rounded
+                        severity="secondary"
+                        @click="socialPostVisible = true"
+                    />
+                </AppTooltip>
             </template>
         </PostEditorHeader>
 
