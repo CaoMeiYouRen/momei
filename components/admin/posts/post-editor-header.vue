@@ -1,13 +1,14 @@
 <template>
     <div class="top-bar">
         <div class="top-bar-left">
-            <Button
-                v-tooltip="$t('pages.admin.posts.back_to_list')"
-                icon="pi pi-arrow-left"
-                text
-                rounded
-                @click="navigateTo(localePath('/admin/posts'))"
-            />
+            <AppTooltip :content="$t('pages.admin.posts.back_to_list')">
+                <Button
+                    icon="pi pi-arrow-left"
+                    text
+                    rounded
+                    @click="navigateTo(localePath('/admin/posts'))"
+                />
+            </AppTooltip>
             <InputText
                 v-model="post.title"
                 :placeholder="$t('pages.admin.posts.title_placeholder')"
@@ -17,48 +18,52 @@
             />
             <ButtonGroup class="ai-tools-group">
                 <!-- AI 写作 SplitButton: 主按钮→改写风格选择, 下拉→标题建议/续写/扩写/缩写 -->
-                <SplitButton
-                    id="ai-writing-btn"
-                    ref="writingBtnRef"
-                    v-tooltip="$t('pages.admin.posts.ai.ai_writing')"
-                    icon="pi pi-pencil"
-                    text
-                    outlined
-                    :loading="writingLoading"
-                    :model="writingMenuItems"
-                    @click="showRewritePopover"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.ai_writing')">
+                    <SplitButton
+                        id="ai-writing-btn"
+                        ref="writingBtnRef"
+                        icon="pi pi-pencil"
+                        text
+                        outlined
+                        :loading="writingLoading"
+                        :model="writingMenuItems"
+                        @click="showRewritePopover"
+                    />
+                </AppTooltip>
                 <!-- AI 审校: 触发审查 + 视角检查（编辑视角），badge 显示合并总数 -->
-                <Button
-                    id="ai-review-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.review')"
-                    icon="pi pi-search"
-                    text
-                    outlined
-                    :loading="aiLoading.review || aiLoading.perspective"
-                    :badge="combinedFindings > 0 ? String(combinedFindings) : undefined"
-                    @click="handleReviewClick"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.review')">
+                    <Button
+                        id="ai-review-btn"
+                        icon="pi pi-search"
+                        text
+                        outlined
+                        :loading="aiLoading.review || aiLoading.perspective"
+                        :badge="combinedFindings > 0 ? String(combinedFindings) : undefined"
+                        @click="handleReviewClick"
+                    />
+                </AppTooltip>
                 <!-- AI 翻译: SplitButton with language selection -->
-                <SplitButton
-                    id="ai-translate-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.translate')"
-                    icon="pi pi-language"
-                    text
-                    outlined
-                    :loading="aiLoading.translate"
-                    :model="translateMenuItems"
-                    @click="emit('translate-content', null)"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.translate')">
+                    <SplitButton
+                        id="ai-translate-btn"
+                        icon="pi pi-language"
+                        text
+                        outlined
+                        :loading="aiLoading.translate"
+                        :model="translateMenuItems"
+                        @click="emit('translate-content', null)"
+                    />
+                </AppTooltip>
                 <!-- 格式化 Markdown -->
-                <Button
-                    id="format-markdown-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.format_markdown')"
-                    icon="pi pi-align-left"
-                    text
-                    outlined
-                    @click="handleFormatMarkdown"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.format_markdown')">
+                    <Button
+                        id="format-markdown-btn"
+                        icon="pi pi-align-left"
+                        text
+                        outlined
+                        @click="handleFormatMarkdown"
+                    />
+                </AppTooltip>
                 <!-- 语音输入 -->
                 <AppVoiceInputTrigger
                     id="ai-voice-btn"
@@ -147,21 +152,24 @@
         </div>
         <div class="top-bar-right">
             <div class="mr-4 translation-status-bar">
-                <Tag
+                <AppTooltip
                     v-for="l in locales"
                     :key="l.code"
-                    v-tooltip="l.name"
-                    :value="l.code.toUpperCase()"
-                    :severity="post.language === l.code ? 'success' : 'secondary'"
-                    class="translation-badge"
-                    :class="{
-                        'translation-badge--active': post.language === l.code,
-                        'translation-badge--missing': !hasTranslation(l.code),
-                        'translation-badge--disabled': props.hasUnsavedContent
-                    }"
-                    @mousedown.capture="rememberActiveEditorElement(); onTranslationBadgeMousedown(l.code, $event)"
-                    @click="onTranslationBadgeClick(l.code)"
-                />
+                    :content="l.name"
+                >
+                    <Tag
+                        :value="l.code.toUpperCase()"
+                        :severity="post.language === l.code ? 'success' : 'secondary'"
+                        class="translation-badge"
+                        :class="{
+                            'translation-badge--active': post.language === l.code,
+                            'translation-badge--missing': !hasTranslation(l.code),
+                            'translation-badge--disabled': props.hasUnsavedContent
+                        }"
+                        @mousedown.capture="rememberActiveEditorElement(); onTranslationBadgeMousedown(l.code, $event)"
+                        @click="onTranslationBadgeClick(l.code)"
+                    />
+                </AppTooltip>
             </div>
             <Tag
                 v-if="post.status"
@@ -195,28 +203,30 @@
                 severity="contrast"
                 @click="emit('save', true)"
             />
-            <Button
-                v-tooltip="$t('common.drag_drop_help')"
-                icon="pi pi-info-circle"
-                text
-                rounded
-                severity="secondary"
-            />
-            <Button
-                v-if="!isNew || post.id"
-                v-tooltip="$t('pages.admin.posts.history_versions')"
-                icon="pi pi-history"
-                text
-                rounded
-                @click="emit('open-history')"
-            />
-            <Button
-                v-tooltip="$t('common.settings')"
-                icon="pi pi-cog"
-                text
-                rounded
-                @click="emit('open-settings')"
-            />
+            <AppTooltip :content="$t('common.drag_drop_help')">
+                <Button
+                    icon="pi pi-info-circle"
+                    text
+                    rounded
+                    severity="secondary"
+                />
+            </AppTooltip>
+            <AppTooltip v-if="!isNew || post.id" :content="$t('pages.admin.posts.history_versions')">
+                <Button
+                    icon="pi pi-history"
+                    text
+                    rounded
+                    @click="emit('open-history')"
+                />
+            </AppTooltip>
+            <AppTooltip :content="$t('common.settings')">
+                <Button
+                    icon="pi pi-cog"
+                    text
+                    rounded
+                    @click="emit('open-settings')"
+                />
+            </AppTooltip>
         </div>
 
         <PostEditorReviewPanel

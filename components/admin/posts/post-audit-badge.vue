@@ -1,13 +1,13 @@
 <template>
-    <Button
-        v-if="!auditResult && !loading"
-        v-tooltip.top="$t('pages.admin.posts.audit.run_audit')"
-        icon="pi pi-check-circle"
-        text
-        rounded
-        severity="secondary"
-        @click="$emit('run-audit')"
-    />
+    <AppTooltip v-if="!auditResult && !loading" :content="$t('pages.admin.posts.audit.run_audit')">
+        <Button
+            icon="pi pi-check-circle"
+            text
+            rounded
+            severity="secondary"
+            @click="$emit('run-audit')"
+        />
+    </AppTooltip>
     <Tag
         v-else-if="loading"
         icon="pi pi-spin pi-spinner"

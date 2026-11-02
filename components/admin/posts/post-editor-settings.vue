@@ -11,14 +11,15 @@
                 {{ $t('pages.admin.posts.settings_title') }}
             </h3>
             <div class="settings-sidebar__actions">
-                <Button
-                    v-tooltip="isCompact ? $t('common.expand') : $t('common.collapse')"
-                    :icon="isCompact ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
-                    text
-                    rounded
-                    severity="secondary"
-                    @click="isCompact = !isCompact"
-                />
+                <AppTooltip :content="isCompact ? $t('common.expand') : $t('common.collapse')">
+                    <Button
+                        :icon="isCompact ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
+                        text
+                        rounded
+                        severity="secondary"
+                        @click="isCompact = !isCompact"
+                    />
+                </AppTooltip>
                 <Button
                     icon="pi pi-times"
                     text
@@ -68,15 +69,16 @@
                         v-model="post.slug"
                         :class="{'p-invalid': errors.slug}"
                     />
-                    <Button
-                        id="ai-slug-btn"
-                        v-tooltip="$t('pages.admin.posts.ai.generate_slug')"
-                        icon="pi pi-sparkles"
-                        severity="secondary"
-                        text
-                        :loading="aiLoading.slug"
-                        @click="emit('suggest-slug')"
-                    />
+                    <AppTooltip :content="$t('pages.admin.posts.ai.generate_slug')">
+                        <Button
+                            id="ai-slug-btn"
+                            icon="pi pi-sparkles"
+                            severity="secondary"
+                            text
+                            :loading="aiLoading.slug"
+                            @click="emit('suggest-slug')"
+                        />
+                    </AppTooltip>
                 </InputGroup>
                 <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
                 <small v-else class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
@@ -98,27 +100,28 @@
                 <div class="flex items-center justify-between mb-2">
                     <label for="tags" class="form-label mb-0">{{ $t('common.tags') }}</label>
                     <div class="settings-sidebar__tag-actions">
-                        <Button
-                            v-if="post.tags?.length"
-                            id="clear-tags-btn"
-                            v-tooltip="$t('pages.admin.posts.clear_tags')"
-                            icon="pi pi-trash"
-                            size="small"
-                            text
-                            rounded
-                            severity="danger"
-                            @click="confirmClearTags"
-                        />
-                        <Button
-                            id="ai-tags-btn"
-                            v-tooltip="$t('pages.admin.posts.ai.recommend_tags')"
-                            icon="pi pi-sparkles"
-                            size="small"
-                            text
-                            rounded
-                            :loading="aiLoading.tags"
-                            @click="emit('recommend-tags')"
-                        />
+                        <AppTooltip v-if="post.tags?.length" :content="$t('pages.admin.posts.clear_tags')">
+                            <Button
+                                id="clear-tags-btn"
+                                icon="pi pi-trash"
+                                size="small"
+                                text
+                                rounded
+                                severity="danger"
+                                @click="confirmClearTags"
+                            />
+                        </AppTooltip>
+                        <AppTooltip :content="$t('pages.admin.posts.ai.recommend_tags')">
+                            <Button
+                                id="ai-tags-btn"
+                                icon="pi pi-sparkles"
+                                size="small"
+                                text
+                                rounded
+                                :loading="aiLoading.tags"
+                                @click="emit('recommend-tags')"
+                            />
+                        </AppTooltip>
                     </div>
                 </div>
                 <AutoComplete
@@ -184,16 +187,17 @@
             <div class="form-group">
                 <div class="flex items-center justify-between mb-2">
                     <label for="summary" class="form-label mb-0">{{ $t('common.summary') }}</label>
-                    <Button
-                        id="ai-summary-btn"
-                        v-tooltip="$t('pages.admin.posts.ai.generate_summary')"
-                        icon="pi pi-sparkles"
-                        size="small"
-                        text
-                        rounded
-                        :loading="aiLoading.summary"
-                        @click="emit('suggest-summary')"
-                    />
+                    <AppTooltip :content="$t('pages.admin.posts.ai.generate_summary')">
+                        <Button
+                            id="ai-summary-btn"
+                            icon="pi pi-sparkles"
+                            size="small"
+                            text
+                            rounded
+                            :loading="aiLoading.summary"
+                            @click="emit('suggest-summary')"
+                        />
+                    </AppTooltip>
                 </div>
                 <Textarea
                     id="summary"

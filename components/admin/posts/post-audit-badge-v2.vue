@@ -1,17 +1,17 @@
 <template>
-    <CaomeiButton
-        v-if="!auditResult && !loading"
-        v-tooltip.top="$t('pages.admin.posts.audit.run_audit')"
-        icon-only
-        rounded
-        variant="ghost"
-        :label="$t('pages.admin.posts.audit.run_audit')"
-        @click="emit('run-audit')"
-    >
-        <template #icon>
-            <CircleCheck :size="16" />
-        </template>
-    </CaomeiButton>
+    <AppTooltip v-if="!auditResult && !loading" :content="$t('pages.admin.posts.audit.run_audit')">
+        <CaomeiButton
+            icon-only
+            rounded
+            variant="ghost"
+            :label="$t('pages.admin.posts.audit.run_audit')"
+            @click="emit('run-audit')"
+        >
+            <template #icon>
+                <CircleCheck :size="16" />
+            </template>
+        </CaomeiButton>
+    </AppTooltip>
     <CaomeiTag v-else-if="loading" tone="primary">
         <template #icon>
             <LoaderCircle :size="12" class="post-audit-badge__spin" />

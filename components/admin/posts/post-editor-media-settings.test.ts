@@ -139,9 +139,6 @@ describe('PostEditorMediaSettings', () => {
                 post,
             },
             global: {
-                directives: {
-                    tooltip: () => undefined,
-                },
                 mocks: {
                     $t: (key: string) => key,
                 },
@@ -197,9 +194,6 @@ describe('PostEditorMediaSettings', () => {
                 post,
             },
             global: {
-                directives: {
-                    tooltip: () => undefined,
-                },
                 mocks: {
                     $t: (key: string) => key,
                 },
@@ -298,9 +292,6 @@ describe('PostEditorMediaSettings', () => {
                 post,
             },
             global: {
-                directives: {
-                    tooltip: () => undefined,
-                },
                 mocks: {
                     $t: (key: string) => key,
                 },
@@ -348,9 +339,6 @@ describe('PostEditorMediaSettings', () => {
                 post,
             },
             global: {
-                directives: {
-                    tooltip: () => undefined,
-                },
                 mocks: {
                     $t: (key: string) => key,
                 },
@@ -403,9 +391,6 @@ describe('PostEditorMediaSettings', () => {
                 post,
             },
             global: {
-                directives: {
-                    tooltip: () => undefined,
-                },
                 mocks: {
                     $t: (key: string) => key,
                 },

@@ -5,15 +5,16 @@
         <div class="form-group">
             <div class="flex items-center justify-between mb-2">
                 <label for="cover" class="form-label mb-0">{{ $t('pages.admin.posts.cover_image') }}</label>
-                <Button
-                    id="ai-cover-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.generate_cover')"
-                    icon="pi pi-sparkles"
-                    size="small"
-                    text
-                    rounded
-                    @click="openVisualAssetGenerator('post-cover')"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.generate_cover')">
+                    <Button
+                        id="ai-cover-btn"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        @click="openVisualAssetGenerator('post-cover')"
+                    />
+                </AppTooltip>
             </div>
             <AppUploader
                 id="cover"
@@ -24,14 +25,14 @@
                 placeholder="https://..."
             >
                 <template #extra>
-                    <Button
-                        v-if="isValidImageUrl"
-                        v-tooltip="$t('common.preview')"
-                        icon="pi pi-image"
-                        severity="secondary"
-                        text
-                        @click="toggleImagePreview"
-                    />
+                    <AppTooltip v-if="isValidImageUrl" :content="$t('common.preview')">
+                        <Button
+                            icon="pi pi-image"
+                            severity="secondary"
+                            text
+                            @click="toggleImagePreview"
+                        />
+                    </AppTooltip>
                 </template>
             </AppUploader>
             <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
@@ -43,15 +44,16 @@
                 />
             </div>
             <div class="post-editor-media-settings__visual-actions">
-                <Button
-                    id="ai-illustration-btn"
-                    v-tooltip="$t('pages.admin.posts.ai.generate_illustration')"
-                    icon="pi pi-images"
-                    size="small"
-                    text
-                    rounded
-                    @click="openVisualAssetGenerator('post-illustration')"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.ai.generate_illustration')">
+                    <Button
+                        id="ai-illustration-btn"
+                        icon="pi pi-images"
+                        size="small"
+                        text
+                        rounded
+                        @click="openVisualAssetGenerator('post-illustration')"
+                    />
+                </AppTooltip>
                 <small class="form-hint">{{ $t('pages.admin.posts.ai.article_illustration_hint') }}</small>
             </div>
         </div>
@@ -81,15 +83,16 @@
         <div class="form-group">
             <div class="flex items-center justify-between mb-2">
                 <label for="audioUrl" class="form-label mb-0">{{ $t('pages.admin.posts.audio_url') }}</label>
-                <Button
-                    id="ai-tts-btn"
-                    v-tooltip="$t('pages.admin.posts.tts.generate_title')"
-                    icon="pi pi-sparkles"
-                    size="small"
-                    text
-                    rounded
-                    @click="ttsVisible = true"
-                />
+                <AppTooltip :content="$t('pages.admin.posts.tts.generate_title')">
+                    <Button
+                        id="ai-tts-btn"
+                        icon="pi pi-sparkles"
+                        size="small"
+                        text
+                        rounded
+                        @click="ttsVisible = true"
+                    />
+                </AppTooltip>
             </div>
             <AppUploader
                 id="audioUrl"
@@ -100,22 +103,23 @@
                 placeholder="https://... (mp3, m4a)"
             >
                 <template #extra>
-                    <Button
-                        v-if="isValidAudioUrl"
-                        v-tooltip="showAudioPlayer ? $t('common.close') : $t('common.preview')"
-                        :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
-                        severity="secondary"
-                        text
-                        @click="toggleAudio"
-                    />
-                    <Button
-                        v-tooltip="$t('pages.admin.posts.podcast.probe_metadata')"
-                        icon="pi pi-bolt"
-                        severity="secondary"
-                        text
-                        :loading="probing"
-                        @click="probeAudio"
-                    />
+                    <AppTooltip v-if="isValidAudioUrl" :content="showAudioPlayer ? $t('common.close') : $t('common.preview')">
+                        <Button
+                            :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
+                            severity="secondary"
+                            text
+                            @click="toggleAudio"
+                        />
+                    </AppTooltip>
+                    <AppTooltip :content="$t('pages.admin.posts.podcast.probe_metadata')">
+                        <Button
+                            icon="pi pi-bolt"
+                            severity="secondary"
+                            text
+                            :loading="probing"
+                            @click="probeAudio"
+                        />
+                    </AppTooltip>
                 </template>
             </AppUploader>
             <div v-if="showAudioPlayer && isValidAudioUrl" class="mt-2 preview-container">

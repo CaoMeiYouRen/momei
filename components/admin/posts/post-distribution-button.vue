@@ -1,13 +1,13 @@
 <template>
     <div class="post-distribution-button">
-        <Button
-            v-if="showButton && postId"
-            v-tooltip="$t('pages.admin.posts.distribution.tooltip')"
-            icon="pi pi-sync"
-            text
-            rounded
-            @click="openDialog"
-        />
+        <AppTooltip v-if="showButton && postId" :content="$t('pages.admin.posts.distribution.tooltip')">
+            <Button
+                icon="pi pi-sync"
+                text
+                rounded
+                @click="openDialog"
+            />
+        </AppTooltip>
         <CaomeiDialog
             :open="expandedPreviewVisible"
             modal

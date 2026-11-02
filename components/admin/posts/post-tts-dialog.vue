@@ -97,11 +97,11 @@ function handleConfirm() {
                                 :value="m.value"
                             />
                             <label :for="m.value" class="tts-radio-item__label">{{ m.label }}</label>
-                            <i
-                                v-if="m.value === 'podcast'"
-                                v-tooltip.top="t('pages.admin.posts.tts.podcast_manuscript_notice')"
-                                class="pi pi-info-circle tts-radio-item__hint"
-                            />
+                            <AppTooltip v-if="m.value === 'podcast'" :content="t('pages.admin.posts.tts.podcast_manuscript_notice')">
+                                <i
+                                    class="pi pi-info-circle tts-radio-item__hint"
+                                />
+                            </AppTooltip>
                         </div>
                     </div>
                 </div>

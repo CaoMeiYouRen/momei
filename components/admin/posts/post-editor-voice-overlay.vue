@@ -105,13 +105,14 @@
                         />
                     </template>
                     <template v-else-if="finalTranscript">
-                        <Button
-                            v-tooltip="$t('pages.admin.posts.ai.voice_retry')"
-                            icon="pi pi-refresh"
-                            severity="secondary"
-                            text
-                            @click="$emit('retry')"
-                        />
+                        <AppTooltip :content="$t('pages.admin.posts.ai.voice_retry')">
+                            <Button
+                                icon="pi pi-refresh"
+                                severity="secondary"
+                                text
+                                @click="$emit('retry')"
+                            />
+                        </AppTooltip>
                         <Button
                             :label="$t('pages.admin.posts.ai.voice_insert')"
                             severity="secondary"

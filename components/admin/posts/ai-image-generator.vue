@@ -26,15 +26,16 @@
                     <label class="ai-generator__label">
                         {{ $t('pages.admin.posts.ai.cover_generator.dimension_title') }}
                     </label>
-                    <Button
-                        v-tooltip="$t('pages.admin.posts.ai.cover_generator.magic_hint')"
-                        icon="pi pi-sparkles"
-                        :label="$t('pages.admin.posts.ai.cover_generator.magic_btn')"
-                        size="small"
-                        text
-                        :loading="magicLoading"
-                        @click="generateMagicPrompt"
-                    />
+                    <AppTooltip :content="$t('pages.admin.posts.ai.cover_generator.magic_hint')">
+                        <Button
+                            icon="pi pi-sparkles"
+                            :label="$t('pages.admin.posts.ai.cover_generator.magic_btn')"
+                            size="small"
+                            text
+                            :loading="magicLoading"
+                            @click="generateMagicPrompt"
+                        />
+                    </AppTooltip>
                 </div>
                 <div class="ai-generator__dimension-grid">
                     <div
