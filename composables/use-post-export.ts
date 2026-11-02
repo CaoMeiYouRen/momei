@@ -1,4 +1,4 @@
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 
 export function usePostExport() {
@@ -39,10 +39,10 @@ export function usePostExport() {
             a.click()
             a.remove()
             window.URL.revokeObjectURL(url)
-            toast.add({ severity: 'success', summary: t('pages.admin.posts.export_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('pages.admin.posts.export_success'), duration: 3000 })
         } catch (error) {
             console.error(error)
-            toast.add({ severity: 'error', summary: t('pages.admin.posts.export_error'), life: 3000 })
+            toast.show({ tone: 'danger', title: t('pages.admin.posts.export_error'), duration: 3000 })
         } finally {
             exporting.value = false
         }
@@ -71,10 +71,10 @@ export function usePostExport() {
             a.click()
             a.remove()
             window.URL.revokeObjectURL(url)
-            toast.add({ severity: 'success', summary: t('pages.admin.posts.export_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('pages.admin.posts.export_success'), duration: 3000 })
         } catch (error) {
             console.error(error)
-            toast.add({ severity: 'error', summary: t('pages.admin.posts.export_error'), life: 3000 })
+            toast.show({ tone: 'danger', title: t('pages.admin.posts.export_error'), duration: 3000 })
         } finally {
             exporting.value = false
         }

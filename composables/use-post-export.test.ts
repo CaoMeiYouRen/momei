@@ -1,14 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { usePostExport } from './use-post-export'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
-const mockToast = {
-    add: vi.fn(),
-}
+const mockToast = createLegacyToastApi(vi.fn())
 
 const mockT = vi.fn((key: string) => key)
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,

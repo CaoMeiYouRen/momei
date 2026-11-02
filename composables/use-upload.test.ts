@@ -20,11 +20,9 @@ vi.mock('vue-i18n', async (importOriginal) => ({
 }))
 
 // Mock PrimeVue useToast
-vi.mock('primevue/usetoast', async (importOriginal) => ({
+vi.mock('caomei-ui', async (importOriginal) => ({
     ...await importOriginal<any>(),
-    useToast: () => ({
-        add: mockToastAdd,
-    }),
+    useToast: () => createLegacyToastApi(mockToastAdd),
 }))
 
 const { mockFetch } = vi.hoisted(() => ({
@@ -38,6 +36,7 @@ vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 vi.stubGlobal('fetch', mockBrowserFetch)
 
 import { useUpload, UploadType } from './use-upload'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 describe('useUpload', () => {
     beforeEach(() => {

@@ -1,5 +1,5 @@
 import { computed, ref, unref, type MaybeRefOrGetter } from 'vue'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import type { DirectUploadProxyStrategy, DirectUploadPresignStrategy } from '@/server/services/direct-upload'
 import { UploadType } from '@/types/upload'
@@ -136,11 +136,11 @@ export function useUpload(options: UseUploadOptions = {}) {
             console.error('Upload failed', caughtError)
             if (options.showErrorToast !== false) {
                 const detail = resolveUploadErrorMessage(caughtError, t('common.upload_failed'))
-                toast.add({
-                    severity: 'error',
-                    summary: t('common.error'),
-                    detail,
-                    life: 3000,
+                toast.show({
+                    tone: 'danger',
+                    title: t('common.error'),
+                    description: detail,
+                    duration: 3000,
                 })
             }
             throw caughtError

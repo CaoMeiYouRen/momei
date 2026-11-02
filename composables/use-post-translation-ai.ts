@@ -1,5 +1,5 @@
 import { computed, ref, type Ref } from 'vue'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import { isTranslationStreamFallbackError } from './use-post-translation-ai.stream'
 import {
@@ -189,18 +189,18 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                         runtime.fallbackUsed = true
                         if (isTranslationStreamFallbackError(error) && error.fallbackMode === 'task') {
                             runtime.preferredMode = 'task'
-                            toast.add({
-                                severity: 'warn',
-                                summary: t('common.warn'),
-                                detail: t('pages.admin.posts.translation_workflow.task_fallback'),
-                                life: 3000,
+                            toast.show({
+                                tone: 'warning',
+                                title: t('common.warn'),
+                                description: t('pages.admin.posts.translation_workflow.task_fallback'),
+                                duration: 3000,
                             })
                         } else {
-                            toast.add({
-                                severity: 'warn',
-                                summary: t('common.warn'),
-                                detail: t('pages.admin.posts.translation_workflow.stream_fallback'),
-                                life: 3000,
+                            toast.show({
+                                tone: 'warning',
+                                title: t('common.warn'),
+                                description: t('pages.admin.posts.translation_workflow.stream_fallback'),
+                                duration: 3000,
                             })
                         }
 

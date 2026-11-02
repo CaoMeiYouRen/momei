@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import type { Composer } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import {
     createFieldProgressRecord,
     isTranslationProgressTextField,
@@ -36,11 +36,11 @@ export function notifyTranslationSuccessToast(
     toast: ReturnType<typeof useToast>,
     t: Composer['t'],
 ) {
-    toast.add({
-        severity: 'success',
-        summary: t('common.success'),
-        detail: t('pages.admin.posts.translate_success'),
-        life: 3000,
+    toast.show({
+        tone: 'success',
+        title: t('common.success'),
+        description: t('pages.admin.posts.translate_success'),
+        duration: 3000,
     })
 }
 
@@ -576,11 +576,11 @@ export async function runTranslationPipelineFromIndex(options: {
             error: toTranslationErrorMessage(options.t, error),
         }
 
-        options.toast.add({
-            severity: 'error',
-            summary: options.t('common.error'),
-            detail: toTranslationErrorMessage(options.t, error),
-            life: 4000,
+        options.toast.show({
+            tone: 'danger',
+            title: options.t('common.error'),
+            description: toTranslationErrorMessage(options.t, error),
+            duration: 4000,
         })
 
         return false

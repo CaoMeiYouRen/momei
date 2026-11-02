@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { usePostTranslationAI } from './use-post-translation-ai'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
 import type { PostTranslationSourceDetail } from '@/types/post-translation'
@@ -18,14 +19,12 @@ const translations: Record<string, string> = {
     'pages.admin.posts.translation_workflow.task_fallback': 'task_fallback',
 }
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useToast: () => ({
-            add: toastAdd,
-        }),
+        useToast: () => createLegacyToastApi(toastAdd),
     }
 })
 

@@ -21,7 +21,7 @@
  *   - podcast: WebSocket 双向流式 (未来支持，复杂度更高)
  */
 import { ref } from 'vue'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import { useUpload, UploadType } from './use-upload'
 import {
@@ -649,11 +649,11 @@ export function useTTSVolcengineDirect() {
             progress.value = 100
             isGenerating.value = false
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.tts.completed'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.posts.tts.completed'),
+                duration: 3000,
             })
 
             return { audioUrl, duration }
@@ -685,11 +685,11 @@ export function useTTSVolcengineDirect() {
                 console.warn('[useTTSVolcengineDirect] Skipping failed settlement after audio upload to avoid downgrading a direct task that may already be completed.')
             }
 
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: message,
-                life: 5000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: message,
+                duration: 5000,
             })
 
             throw caughtError
