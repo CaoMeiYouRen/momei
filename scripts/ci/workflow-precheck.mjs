@@ -174,6 +174,8 @@ export const WORKFLOW_PRECHECK_PROFILES = {
                 'Dockerfile',
                 'scripts/release/pre-release-check.mjs',
                 'scripts/security/check-github-security-alerts.mjs',
+                'scripts/security/security-alert-gate-policy.mjs',
+                'scripts/security/security-alert-gate-shared.mjs',
             ])),
             createEnvCheckStep('release environment', [
                 ...COMMON_ENV_REQUIREMENTS,
@@ -181,6 +183,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
             ]),
             createOverridePatchedVersionStep(),
             createDependencyRiskGateStep(),
+            createCommandStep('AI governance check', 'node', ['scripts/ai/check-governance.mjs'], { timeoutBudget: '5m' }),
         ],
     },
     test: {
@@ -196,6 +199,7 @@ export const WORKFLOW_PRECHECK_PROFILES = {
             createEnvCheckStep('test environment', COMMON_ENV_REQUIREMENTS),
             createOverridePatchedVersionStep(),
             createDependencyRiskGateStep(),
+            createCommandStep('AI governance check', 'node', ['scripts/ai/check-governance.mjs'], { timeoutBudget: '5m' }),
         ],
     },
     docker: {

@@ -103,6 +103,14 @@ jobs:
           # security:audit-deps 和 governance 脚本可能需要 GitHub API
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 周回归复用发布前同一安全门禁，覆盖「主分支长期带病」。
+      # 过渡期内 dismissed / fail-closed 只报告，open 告警仍阻断。
+      - name: Run security alert gate
+        if: always()
+        run: pnpm run security:alerts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # ── Phase 2: 补充检查（regression:weekly profile 未覆盖的维度） ───
       - name: Nuxt typecheck
         if: always()

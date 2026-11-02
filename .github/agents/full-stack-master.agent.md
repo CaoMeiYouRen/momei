@@ -80,11 +80,13 @@ description: 全局一体化开发与协作工作流技能，覆盖需求评估�
 2.  读取 `.session/runtime-state.json` → 了解失败计数、当前推理模式与上次验证结果。
 3.  读取 `.session/wisdom.md` → 了解跨 session 值得复用的发现（如有）。
 4.  读取 `docs/plan/todo.md` → 确认阶段级任务上下文与当前进行中的事项。
-5.  向用户输出一份 **不超过 10 行** 的 briefing：
+5.  **CI 回执**（仅当本次是新任务、工作区干净且无 `in_progress` 项时执行）：取 `HEAD` 与 `@{u}` 的 sha（相同则只查一次），运行 `gh run list --commit <sha> --limit 20 --json databaseId,headSha,workflowName,event,conclusion,url`；默认分支为 `master`，任务态文件为 `.session/current-task.yaml`。`gh` 不可用或网络失败时记录「不可用 + 原因」，不得视为通过；`conclusion` 为空（queued / in_progress）写「进行中」，`cancelled` / `action_required` 也不得写成通过。详细判定与处置见上游 canonical：[task-start.md](https://github.com/CaoMeiYouRen/cmyr-skills-agents/blob/main/skills/full-stack-master/references/task-start.md)。
+6.  向用户输出一份 **不超过 10 行** 的 briefing：
     -   当前阶段 + 任务
     -   已完成步骤
     -   下一步（若有）
     -   上次 session 的认知状态摘要（失败次数、推理模式、是否切换过模式）
+    -   CI 回执：通过 / 失败（run 链接）/ 进行中 / 无相关 run / 不可用（原因）
 
 ### Session 收尾（用户说"收工""结束""今天到这"或切换任务时执行）
 

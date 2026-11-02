@@ -44,6 +44,7 @@ describe('workflow-precheck', () => {
             'release environment',
             'security:validate-overrides',
             'security:audit-deps',
+            'AI governance check',
         ])
         expect(resolveWorkflowPrecheckProfile('docker').steps.at(-1)).toMatchObject({
             command: 'pnpm',
