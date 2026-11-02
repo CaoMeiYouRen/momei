@@ -1,5 +1,5 @@
 import { computed, ref, type Ref } from 'vue'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import yaml from 'js-yaml'
 import { useUpload, UploadType } from '@/composables/use-upload'
@@ -56,11 +56,11 @@ export function usePostEditorIO(
             }
         } catch (error) {
             console.error('Upload failed', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.upload_failed'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.upload_failed'),
+                duration: 3000,
             })
         }
     }
@@ -71,11 +71,11 @@ export function usePostEditorIO(
         reader.onload = () => {
             const markdown = reader.result as string
             if (!markdown) {
-                toast.add({
-                    severity: 'warn',
-                    summary: t('common.warn'),
-                    detail: t('pages.admin.posts.file_empty'),
-                    life: 3000,
+                toast.show({
+                    tone: 'warning',
+                    title: t('common.warn'),
+                    description: t('pages.admin.posts.file_empty'),
+                    duration: 3000,
                 })
                 return
             }
@@ -179,32 +179,32 @@ export function usePostEditorIO(
                         if (foundCat) {
                             post.value.categoryId = foundCat.id
                         } else {
-                            toast.add({
-                                severity: 'info',
-                                summary: t('common.info'),
-                                detail: t(
+                            toast.show({
+                                tone: 'primary',
+                                title: t('common.info'),
+                                description: t(
                                     'pages.admin.posts.category_not_found',
                                     { name: catName },
                                 ),
-                                life: 3000,
+                                duration: 3000,
                             })
                         }
                     }
                 }
 
-                toast.add({
-                    severity: 'success',
-                    summary: t('common.success'),
-                    detail: t('pages.admin.posts.import_success'),
-                    life: 3000,
+                toast.show({
+                    tone: 'success',
+                    title: t('common.success'),
+                    description: t('pages.admin.posts.import_success'),
+                    duration: 3000,
                 })
             } catch (e) {
                 console.error('Failed to parse markdown file', e)
-                toast.add({
-                    severity: 'error',
-                    summary: t('common.error'),
-                    detail: t('pages.admin.posts.parse_failed'),
-                    life: 3000,
+                toast.show({
+                    tone: 'danger',
+                    title: t('common.error'),
+                    description: t('pages.admin.posts.parse_failed'),
+                    duration: 3000,
                 })
             }
         }
@@ -215,20 +215,20 @@ export function usePostEditorIO(
             const url = await uploadFile(file)
             if (url) {
                 post.value.content += `\n![${file.name}](${url})\n`
-                toast.add({
-                    severity: 'success',
-                    summary: t('common.success'),
-                    detail: t('pages.admin.posts.image_upload_success'),
-                    life: 3000,
+                toast.show({
+                    tone: 'success',
+                    title: t('common.success'),
+                    description: t('pages.admin.posts.image_upload_success'),
+                    duration: 3000,
                 })
             }
         } catch (error) {
             console.error('Upload failed', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.upload_failed'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.upload_failed'),
+                duration: 3000,
             })
         }
     }
@@ -269,13 +269,13 @@ export function usePostEditorIO(
             } else if (file.type.startsWith('image/')) {
                 await handleImageUpload(file)
             } else {
-                toast.add({
-                    severity: 'warn',
-                    summary: t('common.warn'),
-                    detail: t('pages.admin.posts.unsupported_file_type', {
+                toast.show({
+                    tone: 'warning',
+                    title: t('common.warn'),
+                    description: t('pages.admin.posts.unsupported_file_type', {
                         name: file.name,
                     }),
-                    life: 3000,
+                    duration: 3000,
                 })
             }
         }

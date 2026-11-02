@@ -1,6 +1,7 @@
 /* eslint-disable max-lines, max-lines-per-function */
 
 import { computed, ref } from 'vue'
+import type { ConfirmApi, ToastApi } from 'caomei-ui'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { hasUnsavedNewDraftContent, usePostEditorTranslation } from './use-post-editor-translation'
@@ -101,13 +102,7 @@ function createComposable(options?: {
     isNew?: boolean
     localeItems?: string[]
     postOverrides?: Partial<PostEditorData>
-    confirmRequire?: (options: {
-        message: string
-        header: string
-        icon: string
-        accept: () => void
-        reject: () => void
-    }) => void
+    confirmRequire?: ConfirmApi['confirm']
     loadCategories?: (language?: string) => Promise<void>
     loadTags?: (language?: string) => Promise<void>
     sourcePostSnapshot?: PostTranslationSourceDetail | null
@@ -196,11 +191,11 @@ function createComposable(options?: {
         categories: ref(options?.categories || []),
         tagEntities: ref(options?.tagEntities || []),
         toast: {
-            add: toastAdd,
-        },
+            show: toastAdd,
+        } as unknown as ToastApi,
         confirm: {
-            require: confirmRequire,
-        },
+            confirm: confirmRequire,
+        } as unknown as ConfirmApi,
         t: (key: string) => key,
         localePath: (path: string) => path,
         loadCategories,
@@ -299,8 +294,8 @@ describe('usePostEditorTranslation', () => {
 
         expect(mockNavigateTo).not.toHaveBeenCalled()
         expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'warn',
-            detail: 'pages.admin.posts.save_current_first',
+            tone: 'warning',
+            description: 'pages.admin.posts.save_current_first',
         }))
     })
 
@@ -517,8 +512,8 @@ describe('usePostEditorTranslation', () => {
 
         expect(translatePostFields).not.toHaveBeenCalled()
         expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'warn',
-            detail: 'pages.admin.posts.translation_workflow.same_language_warning',
+            tone: 'warning',
+            description: 'pages.admin.posts.translation_workflow.same_language_warning',
         }))
         expect(post.value.title).toBe('原有标题')
     })
@@ -619,8 +614,8 @@ describe('usePostEditorTranslation', () => {
             completedChunks: 0,
         }))
         expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'error',
-            detail: 'pages.admin.posts.ai_error',
+            tone: 'danger',
+            description: 'pages.admin.posts.ai_error',
         }))
         expect(post.value.tags).toEqual(['旧标签'])
     })
@@ -1014,7 +1009,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('已发布目标拒绝第一次确认时不应继续翻译', async () => {
-        const confirmRequire = vi.fn((options: { reject: () => void }) => options.reject())
+        const confirmRequire = vi.fn(() => Promise.resolve(false))
         const { handleStartTranslationWorkflow, translatePostFields } = createComposable({
             language: 'zh-CN',
             isNew: false,
@@ -1039,14 +1034,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('已发布目标第二次确认拒绝时也应中止翻译', async () => {
-        const confirmRequire = vi.fn((options: { accept: () => void, reject: () => void }) => {
-            if (confirmRequire.mock.calls.length === 1) {
-                options.accept()
-                return
-            }
-
-            options.reject()
-        })
+        const confirmRequire = vi.fn(() => Promise.resolve(confirmRequire.mock.calls.length === 1))
 
         const { handleStartTranslationWorkflow, translatePostFields } = createComposable({
             language: 'zh-CN',
@@ -1072,7 +1060,7 @@ describe('usePostEditorTranslation', () => {
     })
 
     it('草稿继续翻译时应使用 warn 确认并在接受后继续', async () => {
-        const confirmRequire = vi.fn((options: { accept: () => void }) => options.accept())
+        const confirmRequire = vi.fn(() => Promise.resolve(true))
 
         const { handleStartTranslationWorkflow, translatePostFields } = createComposable({
             language: 'zh-CN',
@@ -1094,14 +1082,14 @@ describe('usePostEditorTranslation', () => {
         })
 
         expect(confirmRequire).toHaveBeenCalledWith(expect.objectContaining({
-            header: 'pages.admin.posts.translation_workflow.continue_title',
-            message: 'pages.admin.posts.translation_workflow.continue_draft',
+            title: 'pages.admin.posts.translation_workflow.continue_title',
+            description: 'pages.admin.posts.translation_workflow.continue_draft',
         }))
         expect(translatePostFields).toHaveBeenCalledTimes(1)
     })
 
     it('目标草稿所选范围没有内容时应跳过确认并直接继续翻译', async () => {
-        const confirmRequire = vi.fn()
+        const confirmRequire = vi.fn(() => Promise.resolve(false))
 
         const { handleStartTranslationWorkflow, translatePostFields } = createComposable({
             language: 'zh-CN',

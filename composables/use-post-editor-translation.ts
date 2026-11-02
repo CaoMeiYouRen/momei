@@ -1,4 +1,5 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import type { ConfirmApi, ToastApi } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type { PostEditorData } from '@/types/post-editor'
 import { PostStatus, PostVisibility } from '@/types/post'
@@ -47,34 +48,6 @@ interface TranslationSearchItem {
     title: string
     language: string
     translationId?: string | null
-}
-
-interface ToastApi {
-    add: (options: {
-        severity: string
-        summary: string
-        detail: string
-        life: number
-    }) => void
-}
-
-interface ConfirmApi {
-    require: (options: {
-        message: string
-        header: string
-        icon: string
-        acceptProps: {
-            label: string
-            severity: 'warn' | 'danger'
-        }
-        rejectProps: {
-            label: string
-            severity: 'secondary'
-            outlined: true
-        }
-        accept: () => void
-        reject: () => void
-    }) => void
 }
 
 interface UsePostEditorTranslationOptions {
@@ -189,11 +162,11 @@ async function navigateToTranslationTarget(
     const isUnsavedNewDraft = context.options.isNew.value && !context.options.post.value.id
 
     if (isUnsavedNewDraft && hasUnsavedNewDraftContent(context.options.post.value)) {
-        context.options.toast.add({
-            severity: 'warn',
-            summary: context.options.t('common.warn'),
-            detail: context.options.t('pages.admin.posts.save_current_first'),
-            life: 3000,
+        context.options.toast.show({
+            tone: 'warning',
+            title: context.options.t('common.warn'),
+            description: context.options.t('pages.admin.posts.save_current_first'),
+            duration: 3000,
         })
         return
     }
@@ -585,23 +558,12 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             return true
         }
 
-        const requestConfirm = (message: string, confirmOptions?: { header?: string, severity?: 'warn' | 'danger' }) => new Promise<boolean>((resolve) => {
-            options.confirm.require({
-                message,
-                header: confirmOptions?.header || options.t('pages.admin.posts.translation_workflow.overwrite_title'),
-                icon: 'pi pi-exclamation-triangle',
-                acceptProps: {
-                    label: options.t('common.confirm'),
-                    severity: confirmOptions?.severity || 'danger',
-                },
-                rejectProps: {
-                    label: options.t('common.cancel'),
-                    severity: 'secondary',
-                    outlined: true,
-                },
-                accept: () => resolve(true),
-                reject: () => resolve(false),
-            })
+        const requestConfirm = (message: string, confirmOptions?: { header?: string, severity?: 'warn' | 'danger' }) => options.confirm.confirm({
+            title: confirmOptions?.header || options.t('pages.admin.posts.translation_workflow.overwrite_title'),
+            description: message,
+            confirmLabel: options.t('common.confirm'),
+            cancelLabel: options.t('common.cancel'),
+            tone: confirmOptions?.severity === 'warn' ? 'neutral' : 'danger',
         })
 
         if (targetState === 'published') {
@@ -657,11 +619,11 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
 
     const handleStartTranslationWorkflow = async (payload: PostTranslationWorkflowRequest) => {
         if (payload.sourceLanguage === payload.targetLanguage) {
-            options.toast.add({
-                severity: 'warn',
-                summary: options.t('common.warn'),
-                detail: options.t('pages.admin.posts.translation_workflow.same_language_warning'),
-                life: 4000,
+            options.toast.show({
+                tone: 'warning',
+                title: options.t('common.warn'),
+                description: options.t('pages.admin.posts.translation_workflow.same_language_warning'),
+                duration: 4000,
             })
             return
         }
@@ -727,11 +689,11 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
                         totalChunks: sourceTags.length,
                         completedChunks: 0,
                     })
-                    options.toast.add({
-                        severity: 'error',
-                        summary: options.t('common.error'),
-                        detail: options.t('pages.admin.posts.ai_error'),
-                        life: 4000,
+                    options.toast.show({
+                        tone: 'danger',
+                        title: options.t('common.error'),
+                        description: options.t('pages.admin.posts.ai_error'),
+                        duration: 4000,
                     })
                 }
             },
@@ -755,11 +717,11 @@ export function usePostEditorTranslation(options: UsePostEditorTranslationOption
             }
         } catch (error) {
             console.error('Failed to resolve translated taxonomy bindings', error)
-            options.toast.add({
-                severity: 'error',
-                summary: options.t('common.error'),
-                detail: options.t('pages.admin.posts.ai_error'),
-                life: 4000,
+            options.toast.show({
+                tone: 'danger',
+                title: options.t('common.error'),
+                description: options.t('pages.admin.posts.ai_error'),
+                duration: 4000,
             })
             return
         }

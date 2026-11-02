@@ -16,11 +16,9 @@ mockUseUpload.mockImplementation(() => ({
     uploading: ref(false),
 }))
 
-vi.mock('primevue/usetoast', async (importOriginal) => ({
+vi.mock('caomei-ui', async (importOriginal) => ({
     ...await importOriginal<any>(),
-    useToast: () => ({
-        add: mockToastAdd,
-    }),
+    useToast: () => createLegacyToastApi(mockToastAdd),
 }))
 
 vi.mock('vue-i18n', async (importOriginal) => ({
@@ -43,6 +41,7 @@ vi.mock('@/composables/use-upload', () => ({
 }))
 
 import { usePostEditorIO } from './use-post-editor-io'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 let nextFileReaderResult: string | null = null
 

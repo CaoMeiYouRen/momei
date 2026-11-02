@@ -1,7 +1,7 @@
 /* eslint-disable max-lines, max-lines-per-function */
 import { ref, type Ref } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
 import type { AIReviewSuggestion, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
@@ -185,11 +185,11 @@ export function usePostEditorAI(
 
     const suggestTitles = async (event: TitleSuggestionTriggerEvent) => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -211,11 +211,11 @@ export function usePostEditorAI(
             }
         } catch (error) {
             console.error('AI Title Suggestion error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.title = false
@@ -233,11 +233,11 @@ export function usePostEditorAI(
             || !post.value.content
             || post.value.content.length < 10
         ) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -254,11 +254,11 @@ export function usePostEditorAI(
             post.value.slug = data
         } catch (error) {
             console.error('AI Slug error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.slug = false
@@ -267,11 +267,11 @@ export function usePostEditorAI(
 
     const suggestSummary = async () => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -288,11 +288,11 @@ export function usePostEditorAI(
             post.value.summary = data
         } catch (error) {
             console.error('AI Summary error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.summary = false
@@ -301,11 +301,11 @@ export function usePostEditorAI(
 
     const recommendTags = async () => {
         if (!post.value.content || post.value.content.length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -328,11 +328,11 @@ export function usePostEditorAI(
             })
         } catch (error) {
             console.error('AI Tags error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.tags = false
@@ -351,11 +351,11 @@ export function usePostEditorAI(
         const summaryToTranslate = sourceSummary || post.value.summary
 
         if (!content || content.length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -397,19 +397,19 @@ export function usePostEditorAI(
             // Wait for parallel translation tasks (title, summary) to complete
             await Promise.all(translationTasks)
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.translate_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.posts.translate_success'),
+                duration: 3000,
             })
         } catch (error) {
             console.error('AI Translation error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.translate = false
@@ -492,21 +492,21 @@ export function usePostEditorAI(
     const rewriteContent = async (style: string = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.ai.rewrite_select_first'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.ai.rewrite_select_first'),
+                duration: 3000,
             })
             return
         }
 
         if (selected.text.trim().length < 2) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -532,11 +532,11 @@ export function usePostEditorAI(
             rewriteCompareVisible.value = true
         } catch (error) {
             console.error('AI Rewrite error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.rewrite = false
@@ -553,11 +553,11 @@ export function usePostEditorAI(
         rewriteCompareVisible.value = false
         rewriteCompareData.value = null
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.posts.ai.rewrite_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.posts.ai.rewrite_success'),
+            duration: 3000,
         })
     }
 
@@ -565,11 +565,11 @@ export function usePostEditorAI(
         rewriteCompareVisible.value = false
         rewriteCompareData.value = null
 
-        toast.add({
-            severity: 'info',
-            summary: t('common.info'),
-            detail: t('pages.admin.posts.ai.rewrite_cancelled'),
-            life: 2000,
+        toast.show({
+            tone: 'primary',
+            title: t('common.info'),
+            description: t('pages.admin.posts.ai.rewrite_cancelled'),
+            duration: 2000,
         })
     }
 
@@ -592,11 +592,11 @@ export function usePostEditorAI(
 
     const reviewContent = async () => {
         if (!post.value.content || post.value.content.trim().length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -606,11 +606,11 @@ export function usePostEditorAI(
         // 内容未变化且已有缓存 → 直接打开面板
         if (currentHash === lastReviewHash.value && reviewSuggestions.value.length > 0) {
             reviewPanelVisible.value = true
-            toast.add({
-                severity: 'info',
-                summary: t('common.info'),
-                detail: t('pages.admin.posts.ai.review_cached'),
-                life: 2000,
+            toast.show({
+                tone: 'primary',
+                title: t('common.info'),
+                description: t('pages.admin.posts.ai.review_cached'),
+                duration: 2000,
             })
             return
         }
@@ -632,20 +632,20 @@ export function usePostEditorAI(
             reviewPanelVisible.value = true
 
             if (data.length === 0) {
-                toast.add({
-                    severity: 'success',
-                    summary: t('pages.admin.posts.ai.review_clean'),
-                    detail: t('pages.admin.posts.ai.review_clean_desc'),
-                    life: 3000,
+                toast.show({
+                    tone: 'success',
+                    title: t('pages.admin.posts.ai.review_clean'),
+                    description: t('pages.admin.posts.ai.review_clean_desc'),
+                    duration: 3000,
                 })
             }
         } catch (error) {
             console.error('AI Review error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.review = false
@@ -660,11 +660,11 @@ export function usePostEditorAI(
 
     const perspectiveCheck = async (mode: PerspectiveMode = 'editor') => {
         if (!post.value.content || post.value.content.trim().length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -675,11 +675,11 @@ export function usePostEditorAI(
         if (currentHash === lastPerspectiveHash.value && perspectiveResults.value.length > 0) {
             perspectiveMode.value = mode
             perspectivePanelVisible.value = true
-            toast.add({
-                severity: 'info',
-                summary: t('common.info'),
-                detail: t('pages.admin.posts.ai.perspective_cached'),
-                life: 2000,
+            toast.show({
+                tone: 'primary',
+                title: t('common.info'),
+                description: t('pages.admin.posts.ai.perspective_cached'),
+                duration: 2000,
             })
             return
         }
@@ -701,20 +701,20 @@ export function usePostEditorAI(
             perspectivePanelVisible.value = true
 
             if (data.length === 0) {
-                toast.add({
-                    severity: 'success',
-                    summary: t('pages.admin.posts.ai.perspective_clean'),
-                    detail: t('pages.admin.posts.ai.perspective_clean_desc'),
-                    life: 3000,
+                toast.show({
+                    tone: 'success',
+                    title: t('pages.admin.posts.ai.perspective_clean'),
+                    description: t('pages.admin.posts.ai.perspective_clean_desc'),
+                    duration: 3000,
                 })
             }
         } catch (error) {
             console.error('AI Perspective Check error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.perspective = false
@@ -725,21 +725,21 @@ export function usePostEditorAI(
     const continueContent = async (style: string = 'casual') => {
         const cursorContext = getEditorCursorContext()
         if (!cursorContext) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.ai.continue_no_cursor'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.ai.continue_no_cursor'),
+                duration: 3000,
             })
             return
         }
 
         if (cursorContext.context.trim().length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -773,19 +773,19 @@ export function usePostEditorAI(
                 textarea.setSelectionRange(newCursorPos, newCursorPos)
             }
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.ai.continue_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.posts.ai.continue_success'),
+                duration: 3000,
             })
         } catch (error) {
             console.error('AI Continue error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.continue = false
@@ -796,21 +796,21 @@ export function usePostEditorAI(
     const expandContent = async (style: string = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.ai.expand_select_first'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.ai.expand_select_first'),
+                duration: 3000,
             })
             return
         }
 
         if (selected.text.trim().length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -832,19 +832,19 @@ export function usePostEditorAI(
 
             replaceEditorSelection(selected.start, selected.end, data)
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.ai.expand_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.posts.ai.expand_success'),
+                duration: 3000,
             })
         } catch (error) {
             console.error('AI Expand error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.expand = false
@@ -855,21 +855,21 @@ export function usePostEditorAI(
     const condenseContent = async (style: string = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.ai.condense_select_first'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.ai.condense_select_first'),
+                duration: 3000,
             })
             return
         }
 
         if (selected.text.trim().length < 10) {
-            toast.add({
-                severity: 'warn',
-                summary: t('common.warn'),
-                detail: t('pages.admin.posts.content_too_short'),
-                life: 3000,
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
             })
             return
         }
@@ -891,19 +891,19 @@ export function usePostEditorAI(
 
             replaceEditorSelection(selected.start, selected.end, data)
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.posts.ai.condense_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.posts.ai.condense_success'),
+                duration: 3000,
             })
         } catch (error) {
             console.error('AI Condense error:', error)
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('pages.admin.posts.ai_error'),
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
             })
         } finally {
             aiLoading.value.condense = false

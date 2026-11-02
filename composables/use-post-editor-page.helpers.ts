@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Composer } from 'vue-i18n'
+import type { ConfirmApi } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
@@ -47,10 +48,6 @@ export function buildComparablePostEditorState(post: PostEditorData) {
     }
 }
 
-interface ConfirmServiceLike {
-    require: (options: Record<string, unknown>) => void
-}
-
 interface SuccessToastOptions {
     severity?: 'success' | 'info' | 'warn'
     summaryKey?: string
@@ -73,7 +70,7 @@ interface LoadPostOptions {
     hasRecoverableDraft: () => boolean
     recoverDraft: () => void
     clearLocalDraft: () => void
-    confirm: ConfirmServiceLike
+    confirm: ConfirmApi
     t: Composer['t']
     showSuccessToast: (key: string, options?: SuccessToastOptions) => void
 }
@@ -112,30 +109,24 @@ export function promptDraftRecovery(options: Pick<LoadPostOptions, 'hasRecoverab
         return
     }
 
-    options.confirm.require({
-        message: options.t('pages.admin.posts.recover_draft_confirm'),
-        header: options.t('common.confirmation'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptProps: {
-            label: options.t('common.confirm'),
-            severity: 'warn',
-        },
-        rejectProps: {
-            label: options.t('common.cancel'),
-            severity: 'secondary',
-            outlined: true,
-        },
-        accept: () => {
+    void options.confirm.confirm({
+        title: options.t('common.confirmation'),
+        description: options.t('pages.admin.posts.recover_draft_confirm'),
+        confirmLabel: options.t('common.confirm'),
+        cancelLabel: options.t('common.cancel'),
+        tone: 'neutral',
+    }).then((confirmed) => {
+        if (confirmed) {
             options.recoverDraft()
             options.showSuccessToast('pages.admin.posts.draft_recovered')
-        },
-        reject: () => {
-            options.clearLocalDraft()
-            options.showSuccessToast('pages.admin.posts.draft_discarded', {
-                severity: 'info',
-                summaryKey: 'common.info',
-            })
-        },
+            return
+        }
+
+        options.clearLocalDraft()
+        options.showSuccessToast('pages.admin.posts.draft_discarded', {
+            severity: 'info',
+            summaryKey: 'common.info',
+        })
     })
 }
 

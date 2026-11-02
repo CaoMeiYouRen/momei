@@ -20,14 +20,12 @@ vi.mock('vue-i18n', async (importOriginal) => {
     }
 })
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useToast: () => ({
-            add: mockToastAdd,
-        }),
+        useToast: () => createLegacyToastApi(mockToastAdd),
     }
 })
 
@@ -41,6 +39,7 @@ vi.mock('@vueuse/core', () => ({
 }))
 
 import { usePostEditorAI } from './use-post-editor-ai'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 describe('usePostEditorAI', () => {
     beforeEach(() => {

@@ -1,7 +1,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
+import { useConfirm, useToast } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import { PostStatus, PostVisibility } from '@/types/post'
 import type { PostEditorData } from '@/types/post-editor'
@@ -462,11 +461,11 @@ export function usePostEditorPage() {
                 settingsVisible.value = true
             }
 
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: t('common.validation_error'),
-                life: 5000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('common.validation_error'),
+                duration: 5000,
             })
             return
         }
