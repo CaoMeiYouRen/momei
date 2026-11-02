@@ -22,16 +22,16 @@ import {
     writeArtifacts,
 } from '@/scripts/security/security-alert-gate-shared.mjs'
 
+beforeEach(() => {
+    vi.restoreAllMocks()
+    delete process.env.SECURITY_ALERTS_TOKEN
+    delete process.env.GH_TOKEN
+    delete process.env.GITHUB_TOKEN
+})
+
+const currentDate = new Date().toISOString().slice(0, 10)
+
 describe('check-github-security-alerts', () => {
-    beforeEach(() => {
-        vi.restoreAllMocks()
-        delete process.env.SECURITY_ALERTS_TOKEN
-        delete process.env.GH_TOKEN
-        delete process.env.GITHUB_TOKEN
-    })
-
-    const currentDate = new Date().toISOString().slice(0, 10)
-
     it('classifies open Dependabot alerts with patches as immediate fixes', () => {
         const alert = normalizeDependabotAlert({
             number: 12,
@@ -125,7 +125,7 @@ describe('check-github-security-alerts', () => {
             rule: {
                 id: 'js/path-injection',
                 severity: 'error',
-                security_severity_level: 'critical',
+                security_severity_level: 'high',
                 description: 'Potential path injection',
             },
             tool: {
@@ -142,6 +142,21 @@ describe('check-github-security-alerts', () => {
         expect(classifyAlert(alert)).toMatchObject({
             bucket: 'observe',
         })
+    })
+
+    it('keeps critical test-only code scanning alerts blocking', () => {
+        const alert = normalizeCodeScanningAlert({
+            most_recent_instance: {
+                classifications: ['test'],
+                location: { path: 'tests/server/api/search/index.get.test.ts' },
+            },
+            number: 8,
+            rule: { id: 'js/path-injection', security_severity_level: 'critical', severity: 'error' },
+            state: 'open',
+            tool: { name: 'CodeQL' },
+        })
+
+        expect(classifyAlert(alert).bucket).toBe('immediate-fix')
     })
 
     it('maps pnpm audit fallback risks into Dependabot-like alerts', () => {
@@ -193,6 +208,7 @@ describe('check-github-security-alerts', () => {
                 bucket: 'defer',
                 reason: 'open Dependabot alert without patched version',
             },
+            packageName: 'demo-package',
             severity: 'high',
             source: 'dependabot',
         }
@@ -211,11 +227,15 @@ describe('check-github-security-alerts', () => {
             exceptionEntries: normalizeExceptionEntries({
                 entries: [
                     {
+                        id: '18',
                         source: 'dependabot',
-                        alertNumber: '18',
-                        classification: 'defer',
+                        severity: 'high',
+                        category: 'hard-fix',
+                        target: 'demo-package',
+                        tracking: 'docs/plan/backlog.md',
                         reason: 'waiting upstream patch',
-                        temporaryException: 'recheck next release',
+                        review: 'recheck next release',
+                        expiresAt: '2099-01-01',
                     },
                 ],
             }),
@@ -368,14 +388,16 @@ describe('check-github-security-alerts', () => {
         expect(fetchSpy).not.toHaveBeenCalled()
     })
 
-    it('paginates GitHub alert responses until the final short page', async () => {
+    it('follows Link rel=next across GitHub alert pages', async () => {
         vi.stubGlobal('fetch', vi.fn()
             .mockResolvedValueOnce({
+                headers: { get: (name: string) => name === 'link' ? '<https://api.github.com/example?page=2>; rel="next"' : null },
                 ok: true,
                 status: 200,
                 text: () => Promise.resolve(JSON.stringify([{ number: 1 }, { number: 2 }])),
             })
             .mockResolvedValueOnce({
+                headers: { get: () => null },
                 ok: true,
                 status: 200,
                 text: () => Promise.resolve(JSON.stringify([{ number: 3 }])),
@@ -405,6 +427,27 @@ describe('check-github-security-alerts', () => {
         })
     })
 
+    it('fails closed on non-array GitHub responses', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({ message: 'not an array' })),
+        }))
+
+        const result = await fetchRepositoryAlerts({
+            endpoint: 'code-scanning/alerts',
+            failureResolver: vi.fn(),
+            normalizer: vi.fn(),
+            owner: 'CaoMeiYouRen',
+            perPage: 100,
+            repo: 'momei',
+            token: 'token-123',
+        })
+
+        expect(result.alerts).toEqual([])
+        expect(result.sourceStatus.kind).toBe('invalid-response')
+    })
+
     it('uses the provided failure resolver when GitHub responds with an error', async () => {
         const failureResolver = vi.fn(() => ({ kind: 'permission-denied', sourceName: 'github-api', detail: 'forbidden' }))
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
@@ -429,7 +472,7 @@ describe('check-github-security-alerts', () => {
             sourceStatus: {
                 kind: 'permission-denied',
                 sourceName: 'github-api',
-                detail: 'forbidden',
+                detail: 'forbidden; state=open',
             },
         })
     })
@@ -460,6 +503,7 @@ describe('check-github-security-alerts', () => {
                     most_recent_instance: { location: { path: 'server/api/posts.get.ts' }, classifications: [] },
                 }],
                 sourceStatuses: {
+                    codeScanning: { kind: 'ok', sourceName: 'input', detail: 'snapshot' },
                     dependabot: { kind: 'fallback', sourceName: 'pnpm-audit', detail: 'fallback active' },
                 },
             }), 'utf8')
@@ -477,13 +521,51 @@ describe('check-github-security-alerts', () => {
             })
             expect(snapshot.sourceStatuses).toEqual({
                 dependabot: { kind: 'fallback', sourceName: 'pnpm-audit', detail: 'fallback active' },
-                codeScanning: { kind: 'ok', sourceName: 'input', detail: '' },
+                codeScanning: { kind: 'ok', sourceName: 'input', detail: 'snapshot' },
             })
         } finally {
             await rm(tempRoot, { force: true, recursive: true })
         }
     })
 
+    it('rejects snapshots with non-array alert collections', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-alert-snapshot-invalid-'))
+        const snapshotPath = path.join(tempRoot, 'snapshot.json')
+
+        try {
+            await writeFile(snapshotPath, JSON.stringify({
+                codeScanningAlerts: [],
+                dependabotAlerts: {},
+            }), 'utf8')
+
+            await expect(loadInputSnapshot(snapshotPath)).rejects.toThrow(/must be arrays/)
+        } finally {
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('marks missing snapshot source statuses as gaps', async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-alert-snapshot-status-'))
+        const snapshotPath = path.join(tempRoot, 'snapshot.json')
+
+        try {
+            await writeFile(snapshotPath, JSON.stringify({
+                codeScanningAlerts: [],
+                dependabotAlerts: [],
+            }), 'utf8')
+
+            const snapshot = await loadInputSnapshot(snapshotPath)
+
+            expect(snapshot.sourceStatuses.codeScanning.kind).toBe('missing-source-status')
+            expect(snapshot.sourceStatuses.dependabot.kind).toBe('missing-source-status')
+        } finally {
+            await rm(tempRoot, { force: true, recursive: true })
+        }
+    })
+
+})
+
+describe('check-github-security-alerts artifacts', () => {
     it('builds artifact paths and writes both JSON and markdown outputs', async () => {
         const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'momei-alert-artifacts-'))
 
@@ -512,6 +594,8 @@ describe('check-github-security-alerts', () => {
 
             expect(countByBucket(alerts)).toEqual({
                 defer: 0,
+                'dismissed-critical': 0,
+                'dismissed-high': 0,
                 'immediate-fix': 1,
                 observe: 0,
             })
@@ -524,10 +608,17 @@ describe('check-github-security-alerts', () => {
                 repoRoot: tempRoot,
                 repository: { owner: 'CaoMeiYouRen', repo: 'momei' },
                 result: {
+                    allowlisted: [],
                     blocking: alerts,
+                    dismissedBlocking: [],
                     excepted: [],
+                    expiredExceptions: [],
                     observe: [],
                     relevantAlerts: alerts,
+                    sourceFailures: [],
+                    sourceWarnings: [],
+                    staleExceptions: [],
+                    transitionBlocking: [],
                 },
                 sourceStatuses: {
                     dependabot: { kind: 'ok', sourceName: 'github-api', detail: 'Fetched 1 open alerts.' },
@@ -540,6 +631,8 @@ describe('check-github-security-alerts', () => {
 
             expect(jsonArtifact.summary).toEqual({
                 defer: 0,
+                'dismissed-critical': 0,
+                'dismissed-high': 0,
                 'immediate-fix': 1,
                 observe: 0,
             })
@@ -613,15 +706,34 @@ describe('check-github-security-alerts', () => {
         }
     })
 
-    it('rejects malformed exception entries', () => {
+    it('rejects legacy defer exception entries', () => {
         expect(() => normalizeExceptionEntries({
             entries: [
                 {
                     source: 'dependabot',
                     alertNumber: '18',
+                    severity: 'high',
                     classification: 'defer',
+                    reason: 'legacy entry without category',
+                    temporaryException: 'forever',
+                },
+            ],
+        })).toThrow(/unsupported category/)
+    })
+
+    it('rejects malformed exception entries', () => {
+        expect(() => normalizeExceptionEntries({
+            entries: [
+                {
+                    id: '18',
+                    source: 'dependabot',
+                    severity: 'high',
+                    category: 'hard-fix',
+                    target: 'demo-package',
+                    tracking: 'docs/plan/backlog.md',
                     reason: '',
-                    temporaryException: 'recheck next release',
+                    review: 'recheck next release',
+                    expiresAt: '2099-01-01',
                 },
             ],
         })).toThrow(/Invalid security alert exception entry/)
@@ -837,11 +949,15 @@ describe('security alert exemption policy', () => {
             }],
             exceptionEntries: normalizeExceptionEntries({
                 entries: [{
+                    id: '42',
                     source: 'dependabot',
-                    alertNumber: '42',
-                    classification: 'defer',
+                    severity: 'high',
+                    category: 'hard-fix',
+                    target: 'demo-package',
+                    tracking: 'docs/plan/backlog.md',
                     reason: 'temporary',
-                    temporaryException: 'never allowed',
+                    review: 'never allowed',
+                    expiresAt: '2099-01-01',
                 }],
             }),
             minSeverity: 'high',
