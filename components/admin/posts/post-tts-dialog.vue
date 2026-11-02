@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
 import RadioButton from 'primevue/radiobutton'
@@ -72,12 +71,13 @@ function handleConfirm() {
 </script>
 
 <template>
-    <Dialog
-        v-model:visible="visible"
-        :header="t('pages.admin.posts.tts.generate_title')"
-        :modal="true"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="t('pages.admin.posts.tts.generate_title')"
         class="post-tts-dialog"
-        style="width: 32rem"
+        :style="{width: '32rem', paddingTop: '0.5rem'}"
+        @update:open="visible = $event"
     >
         <div class="tts-dialog">
             <div class="tts-dialog__body">
@@ -262,14 +262,11 @@ function handleConfirm() {
                 </div>
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <style scoped lang="scss">
 .post-tts-dialog {
-    :deep(.p-dialog-content) {
-        padding-top: 0.5rem;
-    }
 }
 
 .tts-dialog {

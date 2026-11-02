@@ -140,7 +140,7 @@ const globalOptions = {
         $t: translate,
     },
     stubs: {
-        Dialog: {
+        CaomeiDialog: {
             template: '<div class="dialog-stub"><slot /><slot name="footer" /></div>',
         },
         Select: {

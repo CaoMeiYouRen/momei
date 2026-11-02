@@ -123,7 +123,7 @@ describe('PostTTSDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+                    CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
                     Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
                     Select: { template: '<div />' },
                     RadioButton: { template: '<div />' },
@@ -202,7 +202,7 @@ describe('PostTTSDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+                    CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
                     Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
                     Select: { template: '<div />' },
                     RadioButton: { template: '<div />' },
@@ -287,7 +287,7 @@ describe('PostTTSDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+                    CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
                     Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
                     Select: { template: '<div />' },
                     RadioButton: { template: '<div />' },
@@ -388,7 +388,7 @@ describe('PostTTSDialog', () => {
             },
             global: {
                 stubs: {
-                    Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+                    CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
                     Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
                     Select: { template: '<div />' },
                     RadioButton: { template: '<div />' },

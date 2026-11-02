@@ -1,9 +1,11 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
         modal
-        :header="$t('pages.admin.posts.publish_confirm_title')"
+        :title="$t('pages.admin.posts.publish_confirm_title')"
         :style="{width: '35rem'}"
+        @update:open="visible = $event"
     >
         <div class="publish-dialog">
             <div class="publish-dialog__message">
@@ -127,7 +129,7 @@
                 @click="handleConfirm"
             />
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

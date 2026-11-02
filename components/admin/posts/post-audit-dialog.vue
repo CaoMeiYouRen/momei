@@ -1,10 +1,10 @@
 <template>
-    <Dialog
-        :visible="visible"
-        :header="$t('pages.admin.posts.audit.dialog_title')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.posts.audit.dialog_title')"
         :style="{width: '540px'}"
-        :modal="true"
-        @update:visible="$emit('close')"
+        @update:open="$emit('close')"
     >
         <template v-if="result">
             <div v-if="aiPending" class="audit-pending">
@@ -107,7 +107,7 @@
                 @click="$emit('close')"
             />
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

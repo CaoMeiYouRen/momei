@@ -1,14 +1,11 @@
 <template>
-    <!--
-      浮层显式豁免（迁移方案 §5.5）：`Dialog` 属延后批次，本批维持 PrimeVue；
-      `RadioButton` / `DatePicker` 不在 B2 在册族（表单控件随 B3 批次），同样维持 PrimeVue。
-      仅页脚的 `Button` 属批次在册族，随本过渡组件迁移到 caomei-ui。
-    -->
-    <Dialog
-        v-model:visible="visible"
-        modal
-        :header="$t('pages.admin.posts.publish_confirm_title')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.posts.publish_confirm_title')"
         :style="{width: '35rem'}"
+        modal
+        @update:open="visible = $event"
     >
         <div class="publish-dialog">
             <div class="publish-dialog__message">
@@ -133,7 +130,7 @@
                 {{ $t('common.confirm_publish') }}
             </CaomeiButton>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
@@ -157,7 +154,7 @@ import {
  * - 页脚 `Button` → `CaomeiButton`：可见文案落**默认插槽**（V1 走 `:label`）；
  *   `text severity="secondary"` → `variant="ghost"`，`severity="contrast"` → `tone="neutral"`
  *   （§6.2 表：`secondary` / `contrast` → `neutral`，有损近似）；
- * - `Dialog` / `RadioButton` / `DatePicker` 不在 B2 在册族，维持 PrimeVue。
+ * - `Dialog` 于第六十九阶段浮层批次迁移；`RadioButton` / `DatePicker` 不在 B2 在册族，维持 PrimeVue。
  */
 defineProps<{
     loading?: boolean

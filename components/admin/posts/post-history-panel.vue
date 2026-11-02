@@ -1,10 +1,11 @@
 <template>
-    <Drawer
-        v-model:visible="visible"
-        :header="$t('pages.admin.posts.history_versions')"
+    <CaomeiDrawer
+        :open="visible"
+        :title="$t('pages.admin.posts.history_versions')"
         position="right"
         class="history-drawer"
         :style="{width: '600px'}"
+        @update:open="visible = $event"
     >
         <div v-if="loading" class="history-panel__loading">
             <ProgressSpinner />
@@ -118,13 +119,13 @@
                 </div>
             </div>
         </template>
-    </Drawer>
+    </CaomeiDrawer>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'caomei-ui'
+import { useConfirm } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import type { ApiResponse } from '@/types/api'
 import {
@@ -191,11 +192,11 @@ const fetchVersions = async () => {
         versions.value = response.data || []
     } catch (error) {
         console.error('Failed to fetch versions', error)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.error_loading'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.error_loading'),
+            duration: 3000,
         })
     } finally {
         loading.value = false
@@ -239,11 +240,16 @@ const selectVersion = async (version: PostVersionListItem) => {
 }
 
 const restoreConfirm = () => {
-    confirm.require({
-        message: t('pages.admin.posts.version_rollback_confirm'),
-        header: t('common.confirmation'),
-        icon: 'pi pi-replay',
-        accept: () => restoreVersion(),
+    void confirm.confirm({
+        title: t('common.confirmation'),
+        description: t('pages.admin.posts.version_rollback_confirm'),
+        confirmLabel: t('common.confirm'),
+        cancelLabel: t('common.cancel'),
+        tone: 'neutral',
+    }).then((confirmed) => {
+        if (confirmed) {
+            void restoreVersion()
+        }
     })
 }
 
@@ -260,22 +266,22 @@ const restoreVersion = async () => {
             emit('restore', response.data.post)
             await fetchVersions()
             visible.value = false
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: response.data.restored
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: response.data.restored
                     ? t('pages.admin.posts.version_restore_success')
                     : t('pages.admin.posts.version_restore_noop'),
-                life: 3000,
+                duration: 3000,
             })
         }
     } catch (error) {
         console.error('Failed to restore version', error)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.posts.version_restore_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.posts.version_restore_failed'),
+            duration: 3000,
         })
     } finally {
         restoring.value = false

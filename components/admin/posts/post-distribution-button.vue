@@ -8,13 +8,13 @@
             rounded
             @click="openDialog"
         />
-        <Dialog
-            v-model:visible="expandedPreviewVisible"
+        <CaomeiDialog
+            :open="expandedPreviewVisible"
             modal
-            maximizable
             class="post-distribution-preview-dialog"
-            :header="expandedPreviewTitle"
+            :title="expandedPreviewTitle"
             :style="{width: 'min(96vw, 82rem)'}"
+            @update:open="expandedPreviewVisible = $event"
         >
             <div v-if="expandedPreview" class="post-distribution-preview-dialog__content">
                 <div class="post-distribution-preview-dialog__meta-grid">
@@ -119,13 +119,15 @@
                     @click="closeExpandedPreview"
                 />
             </template>
-        </Dialog>
-        <Dialog
-            v-model:visible="dialogVisible"
+        </CaomeiDialog>
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="dialogVisible"
             modal
             class="post-distribution-dialog"
-            :header="$t('pages.admin.posts.distribution.dialog_title')"
+            :title="$t('pages.admin.posts.distribution.dialog_title')"
             :style="{width: '58rem'}"
+            @update:open="dialogVisible = $event"
         >
             <div v-if="loading" class="post-distribution-dialog__loading" />
             <div v-else-if="summary" class="post-distribution-dialog__content">
@@ -478,7 +480,7 @@
                     @click="dialogVisible = false"
                 />
             </template>
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 

@@ -1,15 +1,10 @@
 <template>
-    <!--
-      浮层显式豁免（迁移方案 §5.5）：`Dialog` 属延后批次，本批维持 PrimeVue；
-      其内部的 `Button` / `Tag` 属批次在册族，随本过渡组件迁移到 caomei-ui。
-      `ProgressBar` 不在 B2 在册族（随 B4 展示批次），维持 PrimeVue。
-    -->
-    <Dialog
-        :visible="visible"
-        :header="$t('pages.admin.posts.audit.dialog_title')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.posts.audit.dialog_title')"
         :style="{width: '540px'}"
-        :modal="true"
-        @update:visible="emit('close')"
+        @update:open="emit('close')"
     >
         <template v-if="result">
             <div v-if="aiPending" class="audit-pending">
@@ -118,7 +113,7 @@
                 {{ $t('common.close') }}
             </CaomeiButton>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
@@ -138,7 +133,7 @@ import type { PostAuditResult } from '@/types/post'
  *   `severity="secondary"` → `variant="secondary"`、`text` → `variant="ghost"`；
  * - `Tag` 的 `severity="info"` → `tone="primary"`、`success` / `warn` → `success` / `warning`；
  * - 加载态图标由 `pi pi-spin pi-spinner` 换成 lucide `LoaderCircle` + 本组件内旋转动画；
- * - `Dialog` 与 `ProgressBar` 不在 B2 在册族，维持 PrimeVue。
+ * - `Dialog` 于第六十九阶段浮层批次迁移；`ProgressBar` 不在 B2 在册族，维持 PrimeVue。
  */
 defineProps<{
     visible: boolean

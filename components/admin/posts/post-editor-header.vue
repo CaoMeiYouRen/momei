@@ -68,49 +68,79 @@
                     button-class="top-bar__voice-trigger"
                 />
             </ButtonGroup>
-            <Popover
-                ref="rewriteOp"
-                class="rewrite-menu"
-                @hide="pendingStyleAction = 'rewrite'"
+            <CaomeiPopover
+                :open="rewriteOpen"
+                @update:open="rewriteOpen = $event"
             >
-                <div class="rewrite-menu__content">
-                    <div class="rewrite-menu__title">
-                        {{
-                            pendingStyleAction === 'rewrite'
-                                ? $t('pages.admin.posts.ai.rewrite_style_title')
-                                : $t('pages.admin.posts.ai.style_select_title')
-                        }}
-                    </div>
-                    <div
-                        v-for="style in rewriteStyles"
-                        :key="style.value"
-                        class="rewrite-menu__item"
-                        @click="handleRewriteSelect(style.value as string)"
-                    >
-                        <i :class="style.icon" class="rewrite-menu__item-icon" />
-                        <div class="rewrite-menu__item-text">
-                            <div class="rewrite-menu__item-label">
-                                {{ style.label }}
-                            </div>
-                            <div class="rewrite-menu__item-desc">
-                                {{ style.desc }}
+                <CaomeiPopoverTrigger as-child>
+                    <span
+                        class="rewrite-popover-anchor"
+                        :style="rewriteAnchorStyle"
+                        aria-hidden="true"
+                    />
+                </CaomeiPopoverTrigger>
+                <CaomeiPopoverContent
+                    side="bottom"
+                    align="start"
+                    class="rewrite-menu"
+                    :style="{padding: 0}"
+                >
+                    <div class="rewrite-menu__content">
+                        <div class="rewrite-menu__title">
+                            {{
+                                pendingStyleAction === 'rewrite'
+                                    ? $t('pages.admin.posts.ai.rewrite_style_title')
+                                    : $t('pages.admin.posts.ai.style_select_title')
+                            }}
+                        </div>
+                        <div
+                            v-for="style in rewriteStyles"
+                            :key="style.value"
+                            class="rewrite-menu__item"
+                            @click="handleRewriteSelect(style.value as string)"
+                        >
+                            <i :class="style.icon" class="rewrite-menu__item-icon" />
+                            <div class="rewrite-menu__item-text">
+                                <div class="rewrite-menu__item-label">
+                                    {{ style.label }}
+                                </div>
+                                <div class="rewrite-menu__item-desc">
+                                    {{ style.desc }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </Popover>
-            <Popover ref="titleOp" class="title-suggestions-panel">
-                <ul class="suggestion-list">
-                    <li
-                        v-for="(suggestion, index) in titleSuggestions"
-                        :key="index"
-                        class="suggestion-item"
-                        @click="emit('select-title', suggestion)"
-                    >
-                        {{ suggestion }}
-                    </li>
-                </ul>
-            </Popover>
+                </CaomeiPopoverContent>
+            </CaomeiPopover>
+            <CaomeiPopover
+                :open="titleOpen"
+                @update:open="titleOpen = $event"
+            >
+                <CaomeiPopoverTrigger as-child>
+                    <span
+                        class="title-popover-anchor"
+                        :style="titleAnchorStyle"
+                        aria-hidden="true"
+                    />
+                </CaomeiPopoverTrigger>
+                <CaomeiPopoverContent
+                    side="bottom"
+                    align="start"
+                    class="title-suggestions-panel"
+                    :style="{padding: 0}"
+                >
+                    <ul class="suggestion-list">
+                        <li
+                            v-for="(suggestion, index) in titleSuggestions"
+                            :key="index"
+                            class="suggestion-item"
+                            @click="emit('select-title', suggestion)"
+                        >
+                            {{ suggestion }}
+                        </li>
+                    </ul>
+                </CaomeiPopoverContent>
+            </CaomeiPopover>
             <small v-if="errors.title" class="p-error">{{
                 errors.title
             }}</small>
@@ -206,6 +236,8 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
+import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
 import PostEditorPerspectivePanel from '@/components/admin/posts/post-editor-perspective-panel.vue'
@@ -216,6 +248,7 @@ const post = defineModel<any>('post', { required: true })
 
 const { t } = useI18n()
 const { isFuture } = useI18nDate()
+const toast = useToast()
 
 const isScheduled = computed(() => {
     return isFuture(post.value.publishedAt)
@@ -267,8 +300,13 @@ const emit = defineEmits<{
 
 const localePath = useLocalePath()
 
-const titleOp = ref<any>(null)
-const rewriteOp = ref<any>(null)
+const { open: rewriteOpen, anchorStyle: rewriteAnchorStyle, show: showRewriteAnchor, hide: hideRewrite } = useAnchoredPopover()
+const { open: titleOpen, anchorStyle: titleAnchorStyle, show: showTitleAnchor, hide: hideTitle } = useAnchoredPopover()
+
+const titleOp = {
+    show: (event: Event, target?: EventTarget | null) => showTitleAnchor(target ?? event),
+    hide: hideTitle,
+}
 const writingBtnRef = ref<any>(null)
 
 /** True when any AI writing operation is loading */
@@ -290,6 +328,12 @@ const getWritingBtnEl = (): HTMLElement | null => {
 /** 当前等待选择风格的 AI 写作动作（改写/续写/扩写/缩写） */
 const pendingStyleAction = ref<'rewrite' | 'continue' | 'expand' | 'condense'>('rewrite')
 
+watch(rewriteOpen, (value) => {
+    if (!value) {
+        pendingStyleAction.value = 'rewrite'
+    }
+})
+
 /**
  * Show the rewrite style Popover anchored to the AI Writing SplitButton.
  * Uses the template ref for reliable DOM access.
@@ -298,9 +342,7 @@ const showStylePopover = (action: 'rewrite' | 'continue' | 'expand' | 'condense'
     pendingStyleAction.value = action
     const el = getWritingBtnEl()
     if (el) {
-        const event = new MouseEvent('click', { bubbles: true })
-        Object.defineProperty(event, 'currentTarget', { value: el, writable: false })
-        rewriteOp.value?.show?.(event, el)
+        showRewriteAnchor(el)
     }
 }
 
@@ -397,7 +439,7 @@ const rewriteStyles = [
 ]
 
 const handleRewriteSelect = (style: string) => {
-    rewriteOp.value?.hide()
+    hideRewrite()
     const action = pendingStyleAction.value
     if (action === 'continue') {
         emit('continue-content', style)
@@ -456,12 +498,11 @@ const onTranslationBadgeMousedown = (langCode: string, event: MouseEvent) => {
     if (props.hasUnsavedContent) {
         event.stopPropagation()
         event.preventDefault()
-        const toast = useToast()
-        toast.add({
-            severity: 'warn',
-            summary: t('common.warn'),
-            detail: t('pages.admin.posts.save_current_first'),
-            life: 3000,
+        toast.show({
+            tone: 'warning',
+            title: t('common.warn'),
+            description: t('pages.admin.posts.save_current_first'),
+            duration: 3000,
         })
     }
 }

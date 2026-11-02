@@ -3,6 +3,7 @@ import { defineComponent, h } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostHistoryPanel from './post-history-panel.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import { PostVisibility } from '@/types/post'
 import { PostVersionDiffField, PostVersionSource } from '@/types/post-version'
 
@@ -12,30 +13,18 @@ const { mockAppFetch, mockToastAdd, mockConfirmRequire } = vi.hoisted(() => ({
     mockConfirmRequire: vi.fn(({ accept }: { accept?: () => void }) => accept?.()),
 }))
 
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
+
+    return {
+        ...actual,
+        useConfirm: () => createLegacyConfirmApi(mockConfirmRequire),
+        useToast: () => createLegacyToastApi(mockToastAdd),
+    }
+})
+
 vi.mock('ofetch', () => ({ $fetch: mockAppFetch }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: mockAppFetch }))
-
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
-
-    return {
-        ...actual,
-        useToast: () => ({
-            add: mockToastAdd,
-        }),
-    }
-})
-
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/useconfirm')>()
-
-    return {
-        ...actual,
-        useConfirm: () => ({
-            require: mockConfirmRequire,
-        }),
-    }
-})
 
 vi.mock('vue-i18n', async (importOriginal) => {
     const actual = await importOriginal<typeof import('vue-i18n')>()
@@ -204,7 +193,7 @@ describe('PostHistoryPanel', () => {
                     $t: (key: string) => key,
                 },
                 stubs: {
-                    Drawer: { template: '<div><slot /><slot name="footer" /></div>' },
+                    CaomeiDrawer: { template: '<div><slot /><slot name="footer" /></div>' },
                     ProgressSpinner: { template: '<div />' },
                     Tag: { template: '<div><slot /></div>' },
                     Avatar: { template: '<div />' },

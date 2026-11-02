@@ -1,9 +1,12 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
-        :header="$t('pages.admin.posts.ai.cover_generator.title')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.posts.ai.cover_generator.title')"
         modal
         class="ai-generator-dialog"
+        :style="{width: '500px'}"
+        @update:open="visible = $event"
     >
         <div class="ai-generator__container">
             <div v-if="showUsageSelector" class="ai-generator__section">
@@ -183,13 +186,13 @@
                 </div>
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import {
     composeVisualPrompt,
@@ -319,7 +322,7 @@ const resetPromptDimensions = (usage: AIVisualAssetUsage) => {
 // 智能联想 Prompt
 const generateMagicPrompt = async () => {
     if (!props.articleTitle && !props.articleContent) {
-        toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.no_source_content'), life: 3000 })
+        toast.show({ tone: 'warning', title: t('common.warn'), description: t('common.no_source_content'), duration: 3000 })
         return
     }
 
@@ -343,7 +346,7 @@ const generateMagicPrompt = async () => {
         }
     } catch (error: any) {
         console.error('Magic prompt error:', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.admin.posts.ai_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.admin.posts.ai_error'), duration: 3000 })
     } finally {
         magicLoading.value = false
     }
@@ -389,7 +392,7 @@ const { pause, resume } = useIntervalFn(async () => {
         const { data } = await $fetch<any>(`/api/ai/task/status/${currentTaskId.value}`)
 
         if (data.status === 'completed') {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.posts.ai.cover_generator.success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.admin.posts.ai.cover_generator.success'), duration: 3000 })
 
             if (data.result && data.result.images && data.result.images.length > 0) {
                 generatedImages.value = data.result.images
@@ -406,7 +409,7 @@ const { pause, resume } = useIntervalFn(async () => {
         generating.value = false
         pause()
         console.error('Poll task error:', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), life: 5000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), duration: 5000 })
     }
 }, 10000, { immediate: false })
 
@@ -443,7 +446,7 @@ const generateImage = async () => {
         resume()
     } catch (error: any) {
         console.error('Generate image error:', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), life: 5000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: error.data?.message || t('pages.admin.posts.ai.cover_generator.error'), duration: 5000 })
         generating.value = false
     }
 }
@@ -474,9 +477,6 @@ watch(currentAssetUsage, (usage, previousUsage) => {
 @use "@/styles/variables" as *;
 
 .ai-generator-dialog {
-    :deep(.p-dialog) {
-        width: 500px;
-    }
 }
 
 .ai-generator {

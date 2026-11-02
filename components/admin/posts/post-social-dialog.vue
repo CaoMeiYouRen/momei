@@ -1,10 +1,10 @@
 <template>
-    <Dialog
-        :visible="visible"
-        :header="$t('pages.admin.posts.social_post.dialog_title')"
+    <CaomeiDialog
+        :close-on-overlay="false"
+        :open="visible"
+        :title="$t('pages.admin.posts.social_post.dialog_title')"
         :style="{width: '560px'}"
-        :modal="true"
-        @update:visible="$emit('update:visible', $event)"
+        @update:open="$emit('update:visible', $event)"
     >
         <div class="social-post-dialog">
             <div class="social-post-dialog__platform">
@@ -66,7 +66,7 @@
                 @click="$emit('update:visible', false)"
             />
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

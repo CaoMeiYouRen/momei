@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { defineComponent, inject, nextTick, provide, toRef, type Ref } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
 import { PostStatus } from '@/types/post'
@@ -33,19 +33,25 @@ const SplitButtonStub = {
     },
 }
 
-/** Popover stub: 直接渲染默认 slot，通过 show/hide 控制可见性 */
-const PopoverStub = {
-    template: '<div class="popover-stub" v-if="visible"><slot /></div>',
-    props: ['class'],
-    setup(_props: Record<string, unknown>, { expose }: { expose: (api: Record<string, unknown>) => void }) {
-        const visible = ref(false)
-        expose({
-            show: () => { visible.value = true },
-            hide: () => { visible.value = false },
-        })
-        return { visible }
+/** CaomeiPopover stub：把 `open` 通过 provide 传给 content，模拟真实浮层的条件渲染。 */
+const PopoverStub = defineComponent({
+    props: { open: { type: Boolean, default: false } },
+    setup(props, { slots }) {
+        provide('test-popover-open', toRef(props, 'open'))
+        return () => slots.default?.()
     },
-}
+})
+
+const PopoverTriggerStub = defineComponent({
+    template: '<span class="popover-trigger-stub"><slot /></span>',
+})
+
+const PopoverContentStub = defineComponent({
+    setup(_, { slots }) {
+        const open = inject<Ref<boolean>>('test-popover-open')
+        return () => (open?.value ? slots.default?.() : null)
+    },
+})
 
 const stubs = {
     AppVoiceInputTrigger: {
@@ -55,7 +61,9 @@ const stubs = {
         template: '<button class="distribution-button-stub" />',
     },
     SplitButton: SplitButtonStub,
-    Popover: PopoverStub,
+    CaomeiPopover: PopoverStub,
+    CaomeiPopoverTrigger: PopoverTriggerStub,
+    CaomeiPopoverContent: PopoverContentStub,
 }
 
 describe('PostEditorHeader', () => {

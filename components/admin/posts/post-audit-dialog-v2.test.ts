@@ -16,17 +16,17 @@ mockNuxtImport('useI18nDate', () => () => ({
 }))
 
 const DialogStub = defineComponent({
-    name: 'Dialog',
+    name: 'CaomeiDialog',
     props: {
-        visible: { type: Boolean, default: false },
-        header: { type: String, default: '' },
+        open: { type: Boolean, default: false },
+        title: { type: String, default: '' },
         modal: { type: Boolean, default: false },
         style: { type: Object, default: () => ({}) },
     },
-    emits: ['update:visible'],
+    emits: ['update:open'],
     setup(props, { slots }) {
-        return () => props.visible
-            ? h('div', { class: 'p-dialog', 'data-header': props.header, 'data-width': String(props.style.width) }, [
+        return () => props.open
+            ? h('div', { class: 'p-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
                 h('div', { class: 'p-dialog-content' }, slots.default?.()),
                 h('div', { class: 'p-dialog-footer' }, slots.footer?.()),
             ])
@@ -74,7 +74,7 @@ const CaomeiTagStub = defineComponent({
 })
 
 const stubs = {
-    Dialog: DialogStub,
+    CaomeiDialog: DialogStub,
     ProgressBar: ProgressBarStub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiTag: CaomeiTagStub,
@@ -113,7 +113,7 @@ async function mountDialog(props: Record<string, unknown> = {}) {
 }
 
 describe('PostAuditDialogV2', () => {
-    it('浮层壳仍为 PrimeVue Dialog，宽度与标题按 V1 口径透传', async () => {
+    it('浮层壳使用 CaomeiDialog，宽度与标题按 V1 口径透传', async () => {
         const wrapper = await mountDialog()
 
         const dialog = wrapper.find('.p-dialog')

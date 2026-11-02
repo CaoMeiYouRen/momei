@@ -1,13 +1,12 @@
 <template>
-    <Dialog
-        :visible="visible"
-        :header="$t('pages.admin.posts.ai.rewrite_compare_title')"
+    <CaomeiDialog
+        :open="visible"
+        :title="$t('pages.admin.posts.ai.rewrite_compare_title')"
         :style="{width: '48rem'}"
-        :modal="true"
         :closable="false"
-        :draggable="false"
+        :close-on-overlay="false"
         class="rewrite-compare"
-        @hide="emit('cancel')"
+        @update:open="emit('cancel')"
     >
         <div class="rewrite-compare__body">
             <div class="rewrite-compare__badge">
@@ -50,7 +49,7 @@
                 />
             </div>
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

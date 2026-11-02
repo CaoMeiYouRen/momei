@@ -1,12 +1,13 @@
 <template>
-    <Dialog
-        v-model:visible="visible"
+    <CaomeiDialog
+        :open="visible"
         modal
-        :header="dialogTitle"
+        :title="dialogTitle"
         :style="{width: '40rem'}"
         class="translation-workflow-dialog"
         :closable="!isBusy"
-        :dismissable-mask="!isBusy"
+        :close-on-overlay="!isBusy"
+        @update:open="visible = $event"
     >
         <div class="translation-workflow">
             <p class="translation-workflow__intro">
@@ -233,7 +234,7 @@
                 @click="handleStart"
             />
         </template>
-    </Dialog>
+    </CaomeiDialog>
 </template>
 
 <script setup lang="ts">

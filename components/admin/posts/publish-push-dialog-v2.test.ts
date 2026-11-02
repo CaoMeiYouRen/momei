@@ -12,17 +12,17 @@ import PublishPushDialogV2 from './publish-push-dialog-v2.vue'
  */
 
 const DialogStub = defineComponent({
-    name: 'Dialog',
+    name: 'CaomeiDialog',
     props: {
-        visible: { type: Boolean, default: false },
-        header: { type: String, default: '' },
+        open: { type: Boolean, default: false },
+        title: { type: String, default: '' },
         modal: { type: Boolean, default: false },
         style: { type: Object, default: () => ({}) },
     },
-    emits: ['update:visible'],
+    emits: ['update:open'],
     setup(props, { slots }) {
-        return () => props.visible
-            ? h('div', { class: 'p-dialog', 'data-header': props.header, 'data-width': String(props.style.width) }, [
+        return () => props.open
+            ? h('div', { class: 'p-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
                 h('div', { class: 'p-dialog-content' }, slots.default?.()),
                 h('div', { class: 'p-dialog-footer' }, slots.footer?.()),
             ])
@@ -85,7 +85,7 @@ const CaomeiButtonStub = defineComponent({
 })
 
 const stubs = {
-    Dialog: DialogStub,
+    CaomeiDialog: DialogStub,
     RadioButton: RadioButtonStub,
     DatePicker: DatePickerStub,
     CaomeiButton: CaomeiButtonStub,

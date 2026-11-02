@@ -22,11 +22,11 @@ mockNuxtImport('useI18nDate', () => () => ({
 }))
 
 const DialogStub = defineComponent({
-    name: 'Dialog',
-    props: { visible: { type: Boolean, default: false }, header: { type: String, default: '' } },
+    name: 'CaomeiDialog',
+    props: { open: { type: Boolean, default: false }, title: { type: String, default: '' } },
     setup(props, { slots }) {
-        return () => props.visible
-            ? h('div', { class: 'dialog', 'data-header': props.header }, [slots.default?.(), slots.footer?.()])
+        return () => props.open
+            ? h('div', { class: 'dialog', 'data-header': props.title }, [slots.default?.(), slots.footer?.()])
             : null
     },
 })
@@ -75,7 +75,7 @@ const CaomeiButtonStub = defineComponent({
 })
 
 const stubs = {
-    Dialog: DialogStub,
+    CaomeiDialog: DialogStub,
     ProgressBar: ProgressBarStub,
     Tag: TagStub,
     CaomeiTag: CaomeiTagStub,
