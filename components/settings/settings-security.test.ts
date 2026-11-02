@@ -2,6 +2,7 @@ import { nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsSecurity from './settings-security.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const {
     changePasswordMock,
@@ -31,7 +32,7 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
-mockNuxtImport('useToast', () => () => ({ add: toastAddMock }))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
 const stubs = {
     Button: {

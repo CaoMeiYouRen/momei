@@ -219,6 +219,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { computed } from 'vue'
 import NotificationHistoryList from '@/components/settings/notification-history-list.vue'
 import type { Category } from '@/types/category'
@@ -417,11 +418,11 @@ const loadData = async () => {
             })
     } catch (error) {
         console.error('Failed to load settings:', error)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.error_loading'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.error_loading'),
+            duration: 3000,
         })
     } finally {
         loading.value = false
@@ -490,19 +491,19 @@ const handleSave = async () => {
             }),
         ])
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.settings.notifications.save_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.settings.notifications.save_success'),
+            duration: 3000,
         })
     } catch (error) {
         console.error('Failed to save settings:', error)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.settings.notifications.save_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.settings.notifications.save_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false

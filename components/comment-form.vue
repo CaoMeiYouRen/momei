@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
@@ -147,20 +148,20 @@ const handleSubmit = async () => {
         }
 
         form.value.content = ''
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: user.value ? t('common.save_success') : t('comments.pending_audit'),
-            life: 5000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: user.value ? t('common.save_success') : t('comments.pending_audit'),
+            duration: 5000,
         })
         emit('success')
     } catch (error: any) {
         console.error('Comment submission failed:', error)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.statusMessage || error.message || t('common.unexpected_error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.statusMessage || error.message || t('common.unexpected_error'),
+            duration: 3000,
         })
     } finally {
         submitting.value = false

@@ -108,6 +108,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { authClient } from '@/lib/auth-client'
 import type { NotificationHistoryResponseData, UserNotificationHistoryItem } from '@/types/notification'
 import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
@@ -175,11 +176,11 @@ async function loadNotifications() {
         items.value = response.items || []
         total.value = response.total || 0
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.error_loading')),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.error_loading')),
+            duration: 3000,
         })
     } finally {
         loading.value = false

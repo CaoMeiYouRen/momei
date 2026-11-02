@@ -137,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'
 
@@ -189,14 +190,14 @@ const handleUnlink = async (providerId: string) => {
         // better-auth 1.7 起账号解绑只接受本地账号 ID，不再接受 providerId
         const { error } = await authClient.unlinkAccount({ accountId: account.id })
         if (error) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: error.message || error.statusText, duration: 3000 })
         } else {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.security.unlink_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.security.unlink_success'), duration: 3000 })
             await fetchLinkedAccounts()
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.security.unlink_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.settings.security.unlink_error'), duration: 3000 })
     } finally {
         loadingUnlink.value = null
     }
@@ -210,12 +211,12 @@ const handleLink = async (provider: 'github' | 'google') => {
             callbackURL: '/settings',
         })
         if (error) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: error.message || error.statusText, duration: 3000 })
             loadingLink.value = null
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.security.link_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.settings.security.link_error'), duration: 3000 })
         loadingLink.value = null
     }
 }
@@ -225,7 +226,7 @@ const handleChangePassword = async () => {
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t(firstError.message), life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: t(firstError.message), duration: 3000 })
         }
         return
     }
@@ -239,16 +240,16 @@ const handleChangePassword = async () => {
         })
 
         if (error) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: error.message || error.statusText, duration: 3000 })
         } else {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.security.password_updated'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.security.password_updated'), duration: 3000 })
             passwordForm.value.currentPassword = ''
             passwordForm.value.newPassword = ''
             passwordForm.value.confirmPassword = ''
         }
     } catch (e) {
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     } finally {
         loading.value = false
     }

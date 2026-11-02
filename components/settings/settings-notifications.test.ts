@@ -2,6 +2,7 @@ import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsNotifications from './settings-notifications.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 import { NotificationChannel, NotificationType } from '@/utils/shared/notification'
 
 const {
@@ -41,9 +42,7 @@ mockNuxtImport('useI18n', () => () => ({
     },
 }))
 
-mockNuxtImport('useToast', () => () => ({
-    add: toastAddMock,
-}))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
 mockNuxtImport('useMomeiConfig', () => () => ({
     siteConfig: siteConfigRef,

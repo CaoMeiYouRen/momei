@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import CommercialLinkManager from '@/components/commercial-link-manager.vue'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -60,11 +60,11 @@ const saveSettings = async () => {
             },
         })
         if (res.code === 200) {
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.commercial.success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.commercial.success'), duration: 3000 })
             refresh()
         }
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: e.data?.message || t('common.save_failed'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: e.data?.message || t('common.save_failed'), duration: 3000 })
     } finally {
         saving.value = false
     }

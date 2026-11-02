@@ -76,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { z } from 'zod'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
@@ -145,13 +146,13 @@ const handleAvatarUpload = async (event: any) => {
 
         if (response.data?.url) {
             profileForm.value.image = response.data.url
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.upload_success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.profile.upload_success'), duration: 3000 })
             invalidateAuthSessionState()
             await refreshAuthSession()
         }
     } catch (error) {
         console.error('Avatar upload failed', error)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('pages.settings.profile.upload_failed'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('pages.settings.profile.upload_failed'), duration: 3000 })
     }
 }
 
@@ -160,7 +161,7 @@ const handleUpdateProfile = async () => {
     if (!result.success) {
         const firstError = result.error.issues[0]
         if (firstError) {
-            toast.add({ severity: 'error', summary: t('common.error'), detail: t(firstError.message), life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: t(firstError.message), duration: 3000 })
         }
         return
     }
@@ -180,19 +181,19 @@ const handleUpdateProfile = async () => {
 
         if (error) {
             await refreshAuthSession()
-            toast.add({ severity: 'error', summary: t('common.error'), detail: error.message || error.statusText, life: 3000 })
+            toast.show({ tone: 'danger', title: t('common.error'), description: error.message || error.statusText, duration: 3000 })
         } else {
             await refreshAuthSession()
 
             if (profileForm.value.language) {
                 await setLocale(profileForm.value.language as 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP')
             }
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.profile.success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.profile.success'), duration: 3000 })
         }
     } catch (e) {
         await refreshAuthSession()
         console.error(e)
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     } finally {
         loading.value = false
     }

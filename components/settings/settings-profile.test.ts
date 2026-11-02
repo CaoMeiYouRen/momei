@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsProfile from './settings-profile.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const mockSession = ref({
     data: {
@@ -41,9 +42,7 @@ mockNuxtImport('useI18n', () => () => ({
     setLocale: mockSetLocale,
 }))
 
-mockNuxtImport('useToast', () => () => ({
-    add: mockToastAdd,
-}))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(mockToastAdd) }))
 
 const { mockFetch } = vi.hoisted(() => ({
     mockFetch: vi.fn().mockResolvedValue({

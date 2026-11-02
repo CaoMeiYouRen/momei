@@ -2,6 +2,7 @@ import { defineComponent, inject, provide, ref, toRef } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NotificationHistoryList from './notification-history-list.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const dataTableRowsKey = Symbol('notification-history-rows')
 
@@ -42,9 +43,7 @@ mockNuxtImport('useI18nDate', () => () => ({
     formatDateTime: formatDateTimeMock,
 }))
 
-mockNuxtImport('useToast', () => () => ({
-    add: toastAddMock,
-}))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
 mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => {

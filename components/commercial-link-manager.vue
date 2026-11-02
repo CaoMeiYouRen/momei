@@ -77,8 +77,8 @@ import {
 } from '@/utils/shared/commercial'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'
 import { useLocaleMessageModules } from '@/composables/use-locale-message-modules'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'caomei-ui'
+import { useToast } from 'caomei-ui'
 
 interface Props {
     isAdmin?: boolean
@@ -169,7 +169,7 @@ function openDialog(kind: CommercialPlatformKind, link?: SocialLink | DonationLi
 function addLink(kind: CommercialPlatformKind) {
     if (kind === 'social') {
         if (!currentSocialLink.value.url && !currentSocialLink.value.image) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.validation_error'), life: 3000 })
+            toast.show({ tone: 'warning', title: t('common.warn'), description: t('common.validation_error'), duration: 3000 })
             return
         }
         if (editingSocialIndex.value > -1) {
@@ -180,7 +180,7 @@ function addLink(kind: CommercialPlatformKind) {
         socialDialogVisible.value = false
     } else {
         if (!currentLink.value.url && !currentLink.value.image) {
-            toast.add({ severity: 'warn', summary: t('common.warn'), detail: t('common.validation_error'), life: 3000 })
+            toast.show({ tone: 'warning', title: t('common.warn'), description: t('common.validation_error'), duration: 3000 })
             return
         }
         if (editingIndex.value > -1) {
@@ -198,17 +198,22 @@ const socialPlatformType = computed(() => getSocialPlatformType(currentSocialLin
 
 // ── 通用 delete 确认（消除 H 组重复） ──
 function confirmDelete(kind: CommercialPlatformKind, index: number) {
-    confirm.require({
-        message: t('pages.settings.commercial.delete_confirm'),
-        header: t('common.confirmation'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-            if (kind === 'social') {
-                socialLinks.value.splice(index, 1)
-            } else {
-                donationLinks.value.splice(index, 1)
-            }
-        },
+    void confirm.confirm({
+        title: t('common.confirmation'),
+        description: t('pages.settings.commercial.delete_confirm'),
+        confirmLabel: t('common.confirm'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (!confirmed) {
+            return
+        }
+
+        if (kind === 'social') {
+            socialLinks.value.splice(index, 1)
+        } else {
+            donationLinks.value.splice(index, 1)
+        }
     })
 }
 </script>

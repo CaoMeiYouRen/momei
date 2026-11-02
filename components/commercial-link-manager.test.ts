@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import CommercialLinkManager from './commercial-link-manager.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 const locale = ref('zh-CN')
 
@@ -46,34 +47,22 @@ const { mockConfirmRequire, mockToastAdd } = vi.hoisted(() => ({
     mockToastAdd: vi.fn(),
 }))
 
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
+
+    return {
+        ...actual,
+        useConfirm: () => createLegacyConfirmApi(mockConfirmRequire),
+        useToast: () => createLegacyToastApi(mockToastAdd),
+    }
+})
+
 vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/i18n/config/locale-runtime-loader')>()
 
     return {
         ...actual,
         ensureLocaleMessageModules: mockEnsureLocaleMessageModules,
-    }
-})
-
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/useconfirm')>()
-
-    return {
-        ...actual,
-        useConfirm: () => ({
-            require: mockConfirmRequire,
-        }),
-    }
-})
-
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
-
-    return {
-        ...actual,
-        useToast: () => ({
-            add: mockToastAdd,
-        }),
     }
 })
 
@@ -85,7 +74,7 @@ mockNuxtImport('useI18n', () => () => ({
 const stubs = {
     AppUploader: { template: '<div class="app-uploader" />' },
     Button: { template: '<button @click="$emit(\'click\')">{{ label }}</button>', props: ['label'] },
-    Dialog: { template: '<div><slot /><slot name="footer" /></div>', props: ['visible', 'header'] },
+    CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>', props: ['open', 'title'] },
     Divider: { template: '<hr />' },
     Image: { template: '<div><slot name="image" /><slot /></div>', props: ['src', 'alt', 'preview', 'width'] },
     InputText: { template: '<input />' },

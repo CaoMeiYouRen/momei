@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import CommentForm from './comment-form.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 import { authClient } from '@/lib/auth-client'
 
 // Mock PrimeVue components
@@ -28,10 +29,8 @@ vi.mock('@/lib/auth-client', () => ({
 }))
 
 // Mock useToast
-const mockToast = {
-    add: vi.fn(),
-}
-vi.mock('primevue/usetoast', async (importOriginal) => ({
+const mockToast = createLegacyToastApi(vi.fn())
+vi.mock('caomei-ui', async (importOriginal) => ({
     ...await importOriginal<any>(),
     useToast: () => mockToast,
 }))
