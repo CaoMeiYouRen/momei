@@ -179,7 +179,7 @@ function createGlobalStubs() {
         Checkbox: { template: '<input type="checkbox" />' },
         DataTable: { template: '<div><slot /><slot name="empty" /></div>' },
         Column: { template: '<div><slot /></div>' },
-        Dialog: { template: '<div><slot /><slot name="footer" /></div>' },
+        CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
         Tag: { template: '<span><slot /></span>' },
         ProgressSpinner: { template: '<div>spinner</div>' },
     }

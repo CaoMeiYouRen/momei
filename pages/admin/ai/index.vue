@@ -54,8 +54,6 @@
             :task="selectedTask"
             :cost-display="costDisplay"
         />
-
-        <ConfirmDialog />
     </div>
 </template>
 

@@ -55,12 +55,12 @@ const cardStub = defineComponent({
 })
 
 const dialogStub = defineComponent({
-    name: 'Dialog',
-    props: { visible: { type: Boolean, default: false }, header: { type: String, default: '' } },
+    name: 'CaomeiDialog',
+    props: { open: { type: Boolean, default: false }, title: { type: String, default: '' } },
     setup(props, { slots }) {
-        return () => props.visible
+        return () => props.open
             ? h('div', { class: 'p-dialog' }, [
-                h('span', { class: 'p-dialog-title' }, props.header),
+                h('span', { class: 'p-dialog-title' }, props.title),
                 slots.default?.(),
             ])
             : null
@@ -73,7 +73,7 @@ const stubs = {
         props: ['title'],
     },
     Card: cardStub as unknown as Record<string, unknown>,
-    Dialog: dialogStub as unknown as Record<string, unknown>,
+    CaomeiDialog: dialogStub as unknown as Record<string, unknown>,
     MarketingCampaignList: listStub as unknown as Record<string, unknown>,
     MarketingCampaignForm: formStub as unknown as Record<string, unknown>,
 }
@@ -115,7 +115,7 @@ describe('MarketingPage', () => {
         expect(wrapper.text()).toContain('2')
     })
 
-    it('弹窗：仍为 PrimeVue `Dialog`（浮层豁免），创建态标题用 `create_campaign`', async () => {
+    it('弹窗：使用 `CaomeiDialog`，创建态标题用 `create_campaign`', async () => {
         const wrapper = await mountPage()
         const { $t } = wrapper.vm as unknown as { $t: (key: string) => string }
 

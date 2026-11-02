@@ -24,7 +24,7 @@
         </div>
 
         <!-- 展示类容器 `Card` 与表单控件 `MultiSelect` / `Checkbox`、展示类 `ProgressSpinner` 不在 B2
-             在册族清单内（§5.5 显式豁免枚举），维持 PrimeVue 至 B3 / B4 批次；本页页面级样式沿用
+             浮层族已收敛到 caomei-ui；未迁移的表单/展示族仍随 B3 / B4 批次；本页页面级样式沿用
              `--p-*` token 与 `:deep(.p-card-body)` 即因其仍在 PrimeVue 侧。 -->
         <Card class="admin-link-governance__card">
             <template #content>
@@ -295,13 +295,15 @@
             </template>
         </Card>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog 属延后批次，本批维持 PrimeVue；其内部的 Button / Tag
+        <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；其内部的 Button / Tag
              属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
-        <Dialog
-            v-model:visible="detailVisible"
-            :header="$t('pages.admin.link_governance.detail.title')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="detailVisible"
+            :title="$t('pages.admin.link_governance.detail.title')"
             modal
             class="admin-link-governance__dialog"
+            @update:open="detailVisible = $event"
         >
             <div v-if="detailLoading" class="admin-link-governance__detail-loading">
                 <ProgressSpinner stroke-width="4" style="width: 2.5rem; height: 2.5rem" />
@@ -441,7 +443,7 @@
                     {{ $t('common.close') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 

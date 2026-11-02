@@ -2,6 +2,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import AdminAdCampaigns from './campaigns.vue'
+import { createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import { CampaignStatus } from '@/types/ad'
 
 /**
@@ -13,7 +14,7 @@ import { CampaignStatus } from '@/types/ad'
  * `Dropdown` → `CaomeiSelect`、`p-invalid` → `:invalid`）与保存校验。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页未在 B2 在册族内的 PrimeVue 组件（`DatePicker`）与浮层自身（`Dialog` / `ConfirmDialog`）
+ * 本页未在 B2 在册族内的 PrimeVue 组件（`DatePicker`）
  * 显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移（否则命中零残留守卫）。
  */
 
@@ -25,12 +26,12 @@ const { confirmRequireMock, fetchMock, formatDateTimeMock, showErrorToastMock, s
     showSuccessToastMock: vi.fn(),
 }))
 
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/useconfirm')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useConfirm: () => ({ require: confirmRequireMock }),
+        useConfirm: () => createLegacyConfirmApi(confirmRequireMock),
     }
 })
 
@@ -251,9 +252,9 @@ const stubs = {
         props: ['modelValue', 'showTime', 'hourFormat', 'showSeconds', 'id'],
         setup: () => () => h('div', { class: 'date-picker' }),
     }),
-    Dialog: {
-        props: ['visible', 'modal', 'header'],
-        template: '<div v-if="visible" class="dialog"><header>{{ header }}</header><slot /><slot name="footer" /></div>',
+    CaomeiDialog: {
+        props: ['open', 'modal', 'title'],
+        template: '<div v-if="open" class="dialog"><header>{{ title }}</header><slot /><slot name="footer" /></div>',
     },
 }
 
@@ -310,7 +311,6 @@ describe('AdminAdCampaigns page', () => {
     it('渲染 caomei 数据表与全局确认浮层', async () => {
         const wrapper = await mountComponent()
         expect(wrapper.find('.caomei-data-table').exists()).toBe(true)
-        expect(wrapper.find('.confirm-dialog').exists()).toBe(true)
     })
 
     it('声明本页在册列定义（名称 / 状态 / 开始 / 结束 / 展示 / 点击 / 收益 / 动作），动作列右对齐', async () => {

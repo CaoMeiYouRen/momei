@@ -145,7 +145,7 @@ vi.mock('@/components/admin/posts/post-audit-dialog-v2.vue', async () => {
         default: vue.defineComponent({
             name: 'PostAuditDialogV2',
             props: {
-                visible: { type: Boolean, default: false },
+                open: { type: Boolean, default: false },
                 result: { type: Object, default: null },
                 aiPending: { type: Boolean, default: false },
                 reAuditing: { type: Boolean, default: false },
@@ -153,7 +153,7 @@ vi.mock('@/components/admin/posts/post-audit-dialog-v2.vue', async () => {
             emits: ['close', 're-audit'],
             setup: (props, { emit }) => () => vue.h('div', {
                 class: 'audit-dialog-v2',
-                'data-visible': String(props.visible),
+                'data-visible': String(props.open),
                 'data-ai-pending': String(props.aiPending),
                 'data-re-auditing': String(props.reAuditing),
                 onClick: () => emit('close'),

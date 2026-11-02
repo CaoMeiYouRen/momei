@@ -96,18 +96,20 @@
             </CaomeiDataTable>
         </AdminListShell>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / ConfirmDialog / useConfirm 维持 PrimeVue 至第六十九阶段。
+        <!-- 浮层族已由第六十九阶段迁移到 caomei-ui；本页仅保留非在册表单/展示控件。
              其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
              `InputNumber` / `Checkbox` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单批次。
              弹窗 class 上的 `p-fluid` 是迁移前既有写法：实测构建产物中**不存在 `.p-fluid` 规则**（PrimeVue 4
              只注册类名不产样式），字段全宽由 `styles/main.scss` 的 `.p-inputtext/.p-select/.p-inputnumber/
              .p-datepicker { width: 100% }` 提供；本批按「最小改动」原样保留，死类清理与 `admin-placements__dialog`
              一并登记在 backlog 的迁移期幻影类收尾项。 -->
-        <Dialog
-            v-model:visible="dialogVisible"
-            :header="editingItem ? $t('common.edit') : $t('common.create')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="dialogVisible"
+            :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
             class="admin-form-dialog admin-placements__dialog p-fluid"
+            @update:open="dialogVisible = $event"
         >
             <div class="field">
                 <label for="name">{{ $t('common.name') }} *</label>
@@ -201,15 +203,13 @@
                     {{ $t('common.save') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
-
-        <ConfirmDialog />
+        </CaomeiDialog>
     </div>
 </template>
 
 <script setup lang="ts">
 import { Eye, EyeOff, Pencil, Plus, Trash } from '@lucide/vue'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import type { DataTableColumn } from 'caomei-ui'
 import { AdFormat, AdLocation, type AdPlacement, type AdPlacementMetadata } from '@/types/ad'
 
@@ -375,13 +375,16 @@ async function save() {
 }
 
 function confirmDeletePlacement(item: AdPlacement) {
-    confirm.require({
-        message: t('pages.admin.ad.placements.messages.delete_confirm'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
+    void confirm.confirm({
+        title: t('common.confirm_delete'),
+        description: t('pages.admin.ad.placements.messages.delete_confirm'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (confirmed) {
             void deleteItem(item)
-        },
+        }
     })
 }
 

@@ -11,7 +11,7 @@ import { z } from 'zod'
 export const caomeiInputFocusCalls = vi.fn((id: string) => id)
 
 /**
- * 迁移期组件桩与夹具（caomei-ui 组件 + 浮层豁免组件 + 路由自有子组件）。
+ * 迁移期组件桩与夹具（caomei-ui 组件 + 路由自有子组件）。
  *
  * 服务范围：`admin-taxonomy-page.vue`（host `/admin/categories` + `/admin/tags`）系列，以及
  * `components/admin/ai/task-list.vue` 等「多文件渲染同一批 caomei 组件」的用例——
@@ -23,7 +23,7 @@ export const caomeiInputFocusCalls = vi.fn((id: string) => id)
  *
  * 桩口径与 `/admin/posts` 用例一致：
  * - caomei 组件一律用 `defineComponent` 桩（保留可断言的 `data-*` 契约位，不依赖库内部结构）；
- * - `Dialog` / `ConfirmDeleteDialog` 属浮层显式豁免（见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` §5.5），继续用轻量桩；
+ * - `CaomeiDialog` / `ConfirmDeleteDialog` 用轻量桩；浮层族已于第六十九阶段迁移，桩按 `open` / `title` 契约；
  * - `CaomeiTabs` 桩渲染**全部** `CaomeiTabContent`（不对齐真实 `unmountOnHide` 行为）：
  *   便于断言「非活动语言页签的表单桶是否已灌入」，这是本组件 hydration 契约的核心。
  */
@@ -328,7 +328,7 @@ const CaomeiTabContentStub = defineComponent({
     },
 })
 
-/** 浮层显式豁免组件（维持 PrimeVue，随浮层批次收敛）与路由自有子组件的轻量桩。 */
+/** 浮层组件与路由自有子组件的轻量桩。 */
 export const dialogStubs = {
     AdminPageHeader: defineComponent({
         name: 'AdminPageHeader',
@@ -338,19 +338,19 @@ export const dialogStubs = {
             slots.actions?.(),
         ]),
     }),
-    Dialog: defineComponent({
-        name: 'Dialog',
-        props: { visible: Boolean, header: String },
-        emits: ['show'],
+    CaomeiDialog: defineComponent({
+        name: 'CaomeiDialog',
+        props: { open: Boolean, title: String },
+        emits: ['update:open'],
         setup: (props, { slots, emit }) => {
-            watch(() => props.visible, (visible) => {
-                if (visible) {
-                    emit('show')
+            watch(() => props.open, (open) => {
+                if (open) {
+                    emit('update:open', true)
                 }
             })
 
-            return () => (props.visible
-                ? h('div', { class: 'dialog', 'data-header': props.header }, [
+            return () => (props.open
+                ? h('div', { class: 'dialog', 'data-header': props.title }, [
                     slots.default?.(),
                     h('div', { class: 'dialog-footer' }, slots.footer?.()),
                 ])

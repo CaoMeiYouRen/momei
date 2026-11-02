@@ -245,9 +245,9 @@ const stubs = {
     CaomeiButton: CaomeiButtonStub,
     CaomeiInput: CaomeiInputStub,
     CaomeiSelect: CaomeiSelectStub,
-    Dialog: {
-        props: ['visible', 'modal', 'header', 'style'],
-        template: '<div v-if="visible" class="dialog"><header>{{ header }}</header><slot /><slot name="footer" /></div>',
+    CaomeiDialog: {
+        props: ['open', 'modal', 'title', 'style'],
+        template: '<div v-if="open" class="dialog"><header>{{ title }}</header><slot /><slot name="footer" /></div>',
     },
     Textarea: {
         props: ['modelValue', 'placeholder', 'rows', 'fluid'],

@@ -2,6 +2,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import AdminAdPlacements from './placements.vue'
+import { createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import { AdFormat, AdLocation } from '@/types/ad'
 
 /**
@@ -25,12 +26,12 @@ const { confirmRequireMock, fetchMock, showErrorToastMock, showSuccessToastMock 
     showSuccessToastMock: vi.fn(),
 }))
 
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/useconfirm')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useConfirm: () => ({ require: confirmRequireMock }),
+        useConfirm: () => createLegacyConfirmApi(confirmRequireMock),
     }
 })
 
@@ -248,9 +249,9 @@ const stubs = {
         props: ['modelValue', 'binary', 'inputId'],
         setup: () => () => h('input', { class: 'checkbox', type: 'checkbox' }),
     }),
-    Dialog: {
-        props: ['visible', 'modal', 'header'],
-        template: '<div v-if="visible" class="dialog"><header>{{ header }}</header><slot /><slot name="footer" /></div>',
+    CaomeiDialog: {
+        props: ['open', 'modal', 'title'],
+        template: '<div v-if="open" class="dialog"><header>{{ title }}</header><slot /><slot name="footer" /></div>',
     },
 }
 
@@ -306,7 +307,6 @@ describe('AdminAdPlacements page', () => {
     it('渲染 caomei 数据表与全局确认浮层', async () => {
         const wrapper = await mountComponent()
         expect(wrapper.find('.caomei-data-table').exists()).toBe(true)
-        expect(wrapper.find('.confirm-dialog').exists()).toBe(true)
     })
 
     it('声明本页在册列定义（名称 / 位置 / 格式 / 适配器 / 状态 / 优先级 / 动作），动作列右对齐', async () => {

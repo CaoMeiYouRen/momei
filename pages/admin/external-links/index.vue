@@ -114,13 +114,15 @@
             </CaomeiDataTable>
         </div>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：Dialog / Checkbox / ConfirmDialog / v-tooltip 维持 PrimeVue 至第六十九阶段。
+        <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；Checkbox / v-tooltip 仍随 B3/收尾批次。
              其**内部**的 InputText / Select / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
-        <Dialog
-            v-model:visible="dialogVisible"
-            :header="editingItem ? $t('common.edit') : $t('common.create')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="dialogVisible"
+            :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
             class="admin-external-links__dialog admin-form-dialog admin-form-dialog--wide p-fluid"
+            @update:open="dialogVisible = $event"
         >
             <div class="field">
                 <label for="originalUrl">{{ $t('pages.admin.external_links.original_url') }} *</label>
@@ -191,14 +193,16 @@
                     {{ $t('common.save') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
+        </CaomeiDialog>
 
         <!-- Stats Dialog -->
-        <Dialog
-            v-model:visible="statsDialogVisible"
-            :header="$t('pages.admin.external_links.stats')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="statsDialogVisible"
+            :title="$t('pages.admin.external_links.stats')"
             modal
             class="p-fluid"
+            @update:open="statsDialogVisible = $event"
         >
             <div v-if="currentStats" class="stats-container">
                 <div class="stat-item">
@@ -226,16 +230,14 @@
                     </div>
                 </div>
             </div>
-        </Dialog>
-
-        <ConfirmDialog />
+        </CaomeiDialog>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ChartBar, Check, Copy, Pencil, Plus, Trash, X } from '@lucide/vue'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 import type { DataTableColumn } from 'caomei-ui'
 import { LinkStatus, type ExternalLinkMetadata } from '@/types/ad'
 
@@ -377,13 +379,16 @@ async function save() {
 }
 
 function confirmDeleteExternalLink(item: any) {
-    confirm.require({
-        message: t('pages.admin.external_links.messages.delete_confirm'),
-        header: t('common.confirm_delete'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
+    void confirm.confirm({
+        title: t('common.confirm_delete'),
+        description: t('pages.admin.external_links.messages.delete_confirm'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (confirmed) {
             void deleteItem(item)
-        },
+        }
     })
 }
 

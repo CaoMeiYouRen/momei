@@ -72,8 +72,8 @@ const global = {
             template: '<div class="task-list" :data-page="page" />',
             props: ['tasks', 'total', 'loading', 'page', 'pageSize', 'costDisplay', 'selection', 'filters'],
         },
-        AdminAiTaskDetailsDialog: { template: '<div class="details-dialog" />' },
-        ConfirmDialog: { template: '<div class="confirm-dialog" />' },
+        AdminAiTaskDetailsCaomeiDialog: { template: '<div class="details-dialog" />' },
+        ConfirmCaomeiDialog: { template: '<div class="confirm-dialog" />' },
     },
 }
 

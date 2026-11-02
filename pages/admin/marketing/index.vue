@@ -73,20 +73,20 @@
         <!-- 浮层宽度走 `:style` 而非类选择器：`Dialog` 由 PrimeVue 渲染到 body，页面 scoped 样式
              无法命中其 `.p-dialog` 根元素（原 `&__dialog` 规则长期失效，宽度遂随内容固有宽度漂移）。
              680px 对齐 parity 参考态（迁移前 PrimeVue 表单实测 679px），与 taxonomy 弹窗同一处置通道。 -->
-        <Dialog
-            v-model:visible="showCreateDialog"
-            :header="currentCampaignId ? $t('pages.admin.marketing.edit_campaign') : $t('pages.admin.marketing.create_campaign')"
+        <CaomeiDialog
+            :open="showCreateDialog"
+            :title="currentCampaignId ? $t('pages.admin.marketing.edit_campaign') : $t('pages.admin.marketing.create_campaign')"
             modal
-            dismissable-mask
             class="admin-marketing__dialog"
             :style="dialogStyle"
+            @update:open="showCreateDialog = $event"
         >
             <MarketingCampaignForm
                 :campaign-id="currentCampaignId"
                 @save="handleSave"
                 @cancel="showCreateDialog = false"
             />
-        </Dialog>
+        </CaomeiDialog>
     </div>
 </template>
 

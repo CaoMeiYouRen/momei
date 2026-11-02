@@ -99,14 +99,16 @@
             </CaomeiDataTable>
         </div>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5 / §非目标）：Dialog / Divider / Textarea / Checkbox 维持 PrimeVue 至第六十九阶段。
+        <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；Divider / Textarea / Checkbox 仍随 B3/B4 批次。
              其**内部**的 Button / Select 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
-        <Dialog
-            v-model:visible="reviewVisible"
-            :header="$t('pages.admin.submissions.review')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="reviewVisible"
+            :title="$t('pages.admin.submissions.review')"
             modal
             class="submission-review-dialog"
             :style="{width: '80vw', maxWidth: '900px'}"
+            @update:open="reviewVisible = $event"
         >
             <div v-if="selectedSubmission" class="review-content">
                 <div class="review-section">
@@ -200,7 +202,7 @@
                     </CaomeiButton>
                 </div>
             </template>
-        </Dialog>
+        </CaomeiDialog>
 
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"

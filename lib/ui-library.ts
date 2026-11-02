@@ -48,6 +48,14 @@ export const CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS = [
     'Skeleton',
     'ToggleSwitch',
     'Paginator',
+    // 第六十九阶段浮层族（Dialog / Drawer / Popover / DropdownMenu / Menu / ConfirmDialog）
+    // 已整族迁移，纳入在册族后任何已登记路由的回退都会被守卫拦截。
+    'Dialog',
+    'Drawer',
+    'Popover',
+    'DropdownMenu',
+    'Menu',
+    'ConfirmDialog',
 ] as const
 
 /**
@@ -144,8 +152,8 @@ const AI_ROUTE_SCOPE = {
  *
  * - `ownedFiles`：路由自有实体组件（页面为薄包装，实体落在列表与表单两个组件）。
  * - `inScopeComponents`：**无路由级增量**——本路由用到的在册族（`DataTable` / `Column` / `Button` /
- *   `Tag` / `InputText` / `Select`）全部落在批次基准内；未迁移的 `Card` / `Dialog` /
- *   `DatePicker` / `MultiSelect` / `RadioButton` 属 B3 / B4 展示族与浮层豁免，本批维持 PrimeVue。
+ *   `Tag` / `InputText` / `Select`）全部落在批次基准内；`Dialog` 已随浮层族迁入 caomei-ui，
+ *   未迁移的 `Card` / `DatePicker` / `MultiSelect` / `RadioButton` 仍随 B3 / B4 批次。
  * - 无子路由（`pages/admin/marketing/index.vue` 为唯一页面），故无 `primeVueSubRoutes`。
  */
 const MARKETING_ROUTE_SCOPE = {
@@ -186,7 +194,7 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // 一旦迁移会在该子路由内造成库间混用（消费处静态择库需另立 V2 分支，本批不做，登记为延后项）。
     { prefix: '/admin/ai', ...AI_ROUTE_SCOPE },
     // 组件型目标型路由（`/admin/marketing`）：页面 + 列表 + 表单（弹窗内表单控件随本批迁移，
-    // 其浮层本体 `Dialog` 与 `DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。
+    // 浮层本体已迁入 `CaomeiDialog`；`DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。
     { prefix: '/admin/marketing', ...MARKETING_ROUTE_SCOPE },
 ]
 
@@ -233,8 +241,8 @@ export function resolveInScopeComponents(scope?: CaomeiUiRouteScope): readonly s
  * 为「已登记前缀的非 index 子路由页面」补结构守卫）。
  *
  * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，
- * 避免与守卫各持一份）；显式豁免清单（全局壳 `Toast` / `ConfirmDialog`、延后批次浮层、`v-tooltip` 指令）
- * 以迁移方案 §5.5 为唯一载体（跨路由共享壳走「过渡组件」而非豁免）。
+ * 避免与守卫各持一份）；显式豁免清单以迁移方案 §5.5 为唯一载体（跨路由共享壳走「过渡组件」而非豁免）。
+ * 第六十九阶段浮层族已纳入在册族；`v-tooltip` 指令（→ `CaomeiTooltip`）仍在同批收尾中。
  */
 export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = CAOMEI_UI_ROUTE_SCOPES.map((scope) => scope.prefix)
 

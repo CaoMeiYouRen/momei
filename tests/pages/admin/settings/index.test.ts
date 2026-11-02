@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { reactive, ref } from 'vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 import SettingsPage from '@/pages/admin/settings/index.vue'
 
 const translations: Record<string, string> = {
@@ -178,6 +179,8 @@ const { mockFetch } = vi.hoisted(() => ({
 vi.mock('ofetch', () => ({ $fetch: mockFetch }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(mockToast.add) }))
+
 vi.mock('#imports', async (importOriginal) => {
     const actual = await importOriginal<typeof import('#imports')>()
 
@@ -187,7 +190,7 @@ vi.mock('#imports', async (importOriginal) => {
             locale: ref('zh-CN'),
             t: translate,
         }),
-        useToast: () => mockToast,
+        useToast: () => createLegacyToastApi(mockToast.add),
         useRoute: () => mockRoute,
         useAppApi: () => ({
             $appFetch: mockFetch,

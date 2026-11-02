@@ -166,10 +166,10 @@ const stubs = {
         props: { title: String },
         setup: (props, { slots }) => () => h('div', { class: 'admin-page-header', 'data-title': props.title }, [slots.actions?.()]),
     }),
-    Dialog: defineComponent({
-        name: 'Dialog',
-        props: { visible: Boolean, header: String },
-        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.header }, [slots.default?.(), slots.footer?.()]),
+    CaomeiDialog: defineComponent({
+        name: 'CaomeiDialog',
+        props: { open: Boolean, title: String },
+        setup: (props, { slots }) => () => h('div', { class: 'dialog-stub', 'data-header': props.title }, [slots.default?.(), slots.footer?.()]),
     }),
     ConfirmDialog: defineComponent({ name: 'ConfirmDialog', setup: () => () => h('div', { class: 'confirm-dialog-stub' }) }),
     Toast: defineComponent({ name: 'Toast', setup: () => () => h('div', { class: 'toast-stub' }) }),
@@ -236,7 +236,6 @@ describe('AdminFriendLinks page', () => {
     it('渲染三个 caomei 数据表与两个豁免浮层', async () => {
         const wrapper = await mountComponent()
         expect(wrapper.findAll('.caomei-data-table')).toHaveLength(3)
-        expect(wrapper.find('.confirm-dialog-stub').exists()).toBe(true)
         expect(wrapper.find('.toast-stub').exists()).toBe(true)
         expect(wrapper.findAll('.dialog-stub')).toHaveLength(3)
     })

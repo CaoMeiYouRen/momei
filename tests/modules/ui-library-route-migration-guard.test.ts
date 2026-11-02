@@ -454,8 +454,9 @@ describe('守卫扫描口径：假阳性 / 假阴性双向验证', () => {
         expect(findInScopePrimeVueResiduals('<Dropdown :options="options" option-label="label" />')).toEqual(['Dropdown'])
     })
 
-    it('`<DropdownMenu` / `<DropdownTrigger` 不因前缀命中 `<Dropdown` 而被误判', () => {
-        expect(findInScopePrimeVueResiduals('<DropdownMenu><CaomeiButton /></DropdownMenu>')).toEqual([])
+    it('`<DropdownMenu` 独立命中在册族；`<DropdownTrigger` 不因前缀命中 `<Dropdown` 而被误判', () => {
+        // DropdownMenu 已在第六十九阶段纳入在册族，应被独立检出（不是 `<Dropdown` 的前缀误判）。
+        expect(findInScopePrimeVueResiduals('<DropdownMenu><CaomeiButton /></DropdownMenu>')).toEqual(['DropdownMenu'])
         expect(findInScopePrimeVueResiduals('<DropdownTrigger><CaomeiButton /></DropdownTrigger>')).toEqual([])
     })
 

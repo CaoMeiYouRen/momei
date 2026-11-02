@@ -234,12 +234,14 @@
             </section>
         </div>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：`Dialog` ×3 / `ConfirmDialog` / `Toast` / `useConfirm` 维持 PrimeVue 至第六十九阶段。 -->
-        <Dialog
-            v-model:visible="linkDialogVisible"
-            :header="editingLink ? tt('pages.admin.friend_links.edit_link') : tt('pages.admin.friend_links.create_link')"
+        <!-- 浮层族已由迁移方案 §5.5 收敛到 caomei-ui；本页仅保留非在册控件。 -->
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="linkDialogVisible"
+            :title="editingLink ? tt('pages.admin.friend_links.edit_link') : tt('pages.admin.friend_links.create_link')"
             modal
             class="admin-friend-links__dialog"
+            @update:open="linkDialogVisible = $event"
         >
             <div class="admin-friend-links__form">
                 <div class="admin-friend-links__field">
@@ -362,13 +364,15 @@
                     {{ $t('common.save') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
+        </CaomeiDialog>
 
-        <Dialog
-            v-model:visible="categoryDialogVisible"
-            :header="editingCategory ? tt('pages.admin.friend_links.edit_category') : tt('pages.admin.friend_links.create_category')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="categoryDialogVisible"
+            :title="editingCategory ? tt('pages.admin.friend_links.edit_category') : tt('pages.admin.friend_links.create_category')"
             modal
             class="admin-friend-links__dialog"
+            @update:open="categoryDialogVisible = $event"
         >
             <div class="admin-friend-links__form">
                 <div class="admin-friend-links__field">
@@ -427,13 +431,15 @@
                     {{ $t('common.save') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
+        </CaomeiDialog>
 
-        <Dialog
-            v-model:visible="reviewDialogVisible"
-            :header="tt('pages.admin.friend_links.review_application')"
+        <CaomeiDialog
+            :close-on-overlay="false"
+            :open="reviewDialogVisible"
+            :title="tt('pages.admin.friend_links.review_application')"
             modal
             class="admin-friend-links__dialog admin-friend-links__dialog--wide"
+            @update:open="reviewDialogVisible = $event"
         >
             <div v-if="selectedApplication" class="admin-friend-links__review">
                 <div class="admin-friend-links__review-grid">
@@ -522,9 +528,7 @@
                     {{ tt('pages.admin.friend_links.approve') }}
                 </CaomeiButton>
             </template>
-        </Dialog>
-
-        <ConfirmDialog />
+        </CaomeiDialog>
         <Toast />
     </div>
 </template>
