@@ -65,36 +65,36 @@
 
             <template #cell-actions="{row}">
                 <div class="marketing-campaign-list__actions">
-                    <CaomeiButton
-                        v-if="row.status === 'DRAFT'"
-                        v-tooltip.top="$t('pages.admin.marketing.actions.send_now')"
-                        icon-only
-                        size="sm"
-                        tone="success"
-                        :label="$t('pages.admin.marketing.actions.send_now')"
-                        :loading="isProcessing(row.id)"
-                        :disabled="isProcessing(row.id)"
-                        @click="handleSend(row.id)"
-                    >
-                        <template #icon>
-                            <Send :size="16" />
-                        </template>
-                    </CaomeiButton>
-                    <CaomeiButton
-                        v-if="row.status === 'SCHEDULED'"
-                        v-tooltip.top="$t('pages.admin.marketing.actions.cancel_scheduled')"
-                        icon-only
-                        size="sm"
-                        tone="warning"
-                        :label="$t('pages.admin.marketing.actions.cancel_scheduled')"
-                        :loading="isProcessing(row.id)"
-                        :disabled="isProcessing(row.id)"
-                        @click="handleCancel(row.id)"
-                    >
-                        <template #icon>
-                            <CircleStop :size="16" />
-                        </template>
-                    </CaomeiButton>
+                    <AppTooltip v-if="row.status === 'DRAFT'" :content="$t('pages.admin.marketing.actions.send_now')">
+                        <CaomeiButton
+                            icon-only
+                            size="sm"
+                            tone="success"
+                            :label="$t('pages.admin.marketing.actions.send_now')"
+                            :loading="isProcessing(row.id)"
+                            :disabled="isProcessing(row.id)"
+                            @click="handleSend(row.id)"
+                        >
+                            <template #icon>
+                                <Send :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
+                    <AppTooltip v-if="row.status === 'SCHEDULED'" :content="$t('pages.admin.marketing.actions.cancel_scheduled')">
+                        <CaomeiButton
+                            icon-only
+                            size="sm"
+                            tone="warning"
+                            :label="$t('pages.admin.marketing.actions.cancel_scheduled')"
+                            :loading="isProcessing(row.id)"
+                            :disabled="isProcessing(row.id)"
+                            @click="handleCancel(row.id)"
+                        >
+                            <template #icon>
+                                <CircleStop :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
                     <CaomeiButton
                         icon-only
                         variant="secondary"
@@ -108,21 +108,21 @@
                             <Pencil :size="16" />
                         </template>
                     </CaomeiButton>
-                    <CaomeiButton
-                        v-if="row.status !== 'SENDING'"
-                        v-tooltip.top="$t('pages.admin.marketing.actions.delete')"
-                        icon-only
-                        size="sm"
-                        tone="danger"
-                        :label="$t('pages.admin.marketing.actions.delete')"
-                        :loading="isProcessing(row.id)"
-                        :disabled="isProcessing(row.id)"
-                        @click="handleDelete(row.id)"
-                    >
-                        <template #icon>
-                            <Trash2 :size="16" />
-                        </template>
-                    </CaomeiButton>
+                    <AppTooltip v-if="row.status !== 'SENDING'" :content="$t('pages.admin.marketing.actions.delete')">
+                        <CaomeiButton
+                            icon-only
+                            size="sm"
+                            tone="danger"
+                            :label="$t('pages.admin.marketing.actions.delete')"
+                            :loading="isProcessing(row.id)"
+                            :disabled="isProcessing(row.id)"
+                            @click="handleDelete(row.id)"
+                        >
+                            <template #icon>
+                                <Trash2 :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </AppTooltip>
                 </div>
             </template>
 

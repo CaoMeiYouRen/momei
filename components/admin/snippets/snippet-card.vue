@@ -18,15 +18,15 @@
                 </span>
             </div>
             <div class="snippet-card__actions">
-                <Button
-                    v-if="snippet.status === 'inbox'"
-                    v-tooltip.top="$t('pages.admin.snippets.convert_to_post')"
-                    icon="pi pi-file-export"
-                    rounded
-                    text
-                    size="small"
-                    @click="$emit('convert', snippet)"
-                />
+                <AppTooltip v-if="snippet.status === 'inbox'" :content="$t('pages.admin.snippets.convert_to_post')">
+                    <Button
+                        icon="pi pi-file-export"
+                        rounded
+                        text
+                        size="small"
+                        @click="$emit('convert', snippet)"
+                    />
+                </AppTooltip>
                 <Button
                     icon="pi pi-pencil"
                     rounded

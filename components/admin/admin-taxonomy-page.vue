@@ -60,16 +60,19 @@
                 <template #cell-translations="{row}">
                     <div class="justify-content-center translation-badges">
                         <!-- `Badge` 确有 `value` prop（`Tag` 没有，见 §6.2 执行提示 3）；`severity` → `tone`。 -->
-                        <CaomeiBadge
+                        <AppTooltip
                             v-for="languageOption in locales"
                             :key="languageOption.code"
-                            v-tooltip="$t('common.languages.' + languageOption.code)"
-                            :value="languageOption.code.toUpperCase()"
-                            :tone="hasTranslation(row, languageOption.code) ? 'success' : 'neutral'"
-                            class="translation-badge"
-                            :class="{'translation-badge--missing': !hasTranslation(row, languageOption.code)}"
-                            @click="handleTranslationClick(languageOption.code, hasTranslation(row, languageOption.code), row)"
-                        />
+                            :content="$t('common.languages.' + languageOption.code)"
+                        >
+                            <CaomeiBadge
+                                :value="languageOption.code.toUpperCase()"
+                                :tone="hasTranslation(row, languageOption.code) ? 'success' : 'neutral'"
+                                class="translation-badge"
+                                :class="{'translation-badge--missing': !hasTranslation(row, languageOption.code)}"
+                                @click="handleTranslationClick(languageOption.code, hasTranslation(row, languageOption.code), row)"
+                            />
+                        </AppTooltip>
                     </div>
                 </template>
                 <template #cell-language="{row}">
@@ -152,19 +155,20 @@
                                 v-model="getFormState(languageOption.code).name"
                                 :invalid="Boolean(getErrorState(languageOption.code).name)"
                             />
-                            <CaomeiButton
-                                v-tooltip="$t('common.ai_translate')"
-                                icon-only
-                                variant="ghost"
-                                tone="neutral"
-                                :label="$t('common.ai_translate')"
-                                :loading="aiLoading[languageOption.code]?.name"
-                                @click="translateName(languageOption.code)"
-                            >
-                                <template #icon>
-                                    <Sparkles :size="16" />
-                                </template>
-                            </CaomeiButton>
+                            <AppTooltip :content="$t('common.ai_translate')">
+                                <CaomeiButton
+                                    icon-only
+                                    variant="ghost"
+                                    tone="neutral"
+                                    :label="$t('common.ai_translate')"
+                                    :loading="aiLoading[languageOption.code]?.name"
+                                    @click="translateName(languageOption.code)"
+                                >
+                                    <template #icon>
+                                        <Sparkles :size="16" />
+                                    </template>
+                                </CaomeiButton>
+                            </AppTooltip>
                         </CaomeiInputGroup>
                         <small v-if="getErrorState(languageOption.code).name" class="p-error">{{ getErrorState(languageOption.code).name }}</small>
                     </div>
@@ -173,21 +177,21 @@
                             <CaomeiCheckbox :id="'syncAll_' + languageOption.code" v-model="syncToAllLanguages" />
                             <label :for="'syncAll_' + languageOption.code" class="cursor-pointer">{{ $t(config.syncToAllLanguagesKey) }}</label>
                         </div>
-                        <CaomeiButton
-                            v-if="syncToAllLanguages"
-                            v-tooltip="$t('common.ai_translate')"
-                            icon-only
-                            variant="ghost"
-                            tone="neutral"
-                            size="sm"
-                            class="taxonomy-dialog__sync-ai"
-                            :label="$t('common.ai_translate')"
-                            @click="syncAIAllLanguages"
-                        >
-                            <template #icon>
-                                <Sparkles :size="16" />
-                            </template>
-                        </CaomeiButton>
+                        <AppTooltip v-if="syncToAllLanguages" :content="$t('common.ai_translate')">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                tone="neutral"
+                                size="sm"
+                                class="taxonomy-dialog__sync-ai"
+                                :label="$t('common.ai_translate')"
+                                @click="syncAIAllLanguages"
+                            >
+                                <template #icon>
+                                    <Sparkles :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
                     </div>
                     <div class="field">
                         <label :for="'slug_' + languageOption.code">{{ $t('common.slug') }}</label>
@@ -197,19 +201,20 @@
                                 v-model="getFormState(languageOption.code).slug"
                                 :invalid="Boolean(getErrorState(languageOption.code).slug)"
                             />
-                            <CaomeiButton
-                                v-tooltip="$t('common.ai_generate_slug')"
-                                icon-only
-                                variant="ghost"
-                                tone="neutral"
-                                :label="$t('common.ai_generate_slug')"
-                                :loading="aiLoading[languageOption.code]?.slug"
-                                @click="generateSlug(languageOption.code)"
-                            >
-                                <template #icon>
-                                    <Sparkles :size="16" />
-                                </template>
-                            </CaomeiButton>
+                            <AppTooltip :content="$t('common.ai_generate_slug')">
+                                <CaomeiButton
+                                    icon-only
+                                    variant="ghost"
+                                    tone="neutral"
+                                    :label="$t('common.ai_generate_slug')"
+                                    :loading="aiLoading[languageOption.code]?.slug"
+                                    @click="generateSlug(languageOption.code)"
+                                >
+                                    <template #icon>
+                                        <Sparkles :size="16" />
+                                    </template>
+                                </CaomeiButton>
+                            </AppTooltip>
                         </CaomeiInputGroup>
                         <small v-if="getErrorState(languageOption.code).slug" class="p-error">{{ getErrorState(languageOption.code).slug }}</small>
                     </div>

@@ -51,15 +51,17 @@
                                 button-rounded
                                 button-class="quick-capture-voice-btn"
                             />
-                            <Button
-                                v-tooltip.bottom="t('pages.admin.snippets.upload_image')"
-                                :loading="imageUploading"
-                                icon="pi pi-image"
-                                text
-                                rounded
-                                severity="secondary"
-                                @click="triggerUpload"
-                            />
+                            <AppTooltip :content="t('pages.admin.snippets.upload_image')" side="bottom">
+                                <Button
+
+                                    :loading="imageUploading"
+                                    icon="pi pi-image"
+                                    text
+                                    rounded
+                                    severity="secondary"
+                                    @click="triggerUpload"
+                                />
+                            </AppTooltip>
                             <input
                                 ref="fileInput"
                                 type="file"
