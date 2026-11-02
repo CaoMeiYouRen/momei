@@ -190,6 +190,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type { NotificationDeliveryLogItem, NotificationDeliveryLogListData } from '@/types/notification'
 import {
@@ -290,18 +291,18 @@ function getRecipientSecondary(item: NotificationDeliveryLogItem) {
 async function copyUserId(userId: string) {
     try {
         await navigator.clipboard.writeText(userId)
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.notifications.delivery_logs.recipient.copy_id_success'),
-            life: 2000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.notifications.delivery_logs.recipient.copy_id_success'),
+            duration: 2000,
         })
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.error_loading')),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.error_loading')),
+            duration: 3000,
         })
     }
 }
@@ -363,11 +364,11 @@ async function loadLogs() {
         total.value = response.data.total || 0
         demoPreview.value = Boolean(response.data.demoPreview)
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.error_loading')),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.error_loading')),
+            duration: 3000,
         })
     } finally {
         loading.value = false

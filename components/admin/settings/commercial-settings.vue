@@ -55,7 +55,7 @@ import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { getErrorDetail } from '@/utils/shared/error-detail'
 
 const { t } = useI18n()
@@ -102,7 +102,7 @@ const loadSettings = async () => {
             syncInitialCommercialSnapshot()
         }
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.error_loading')), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: getErrorDetail(error, t('common.error_loading')), duration: 3000 })
     }
 }
 
@@ -123,10 +123,10 @@ const saveSettings = async () => {
         })
         if (res.code === 200) {
             syncInitialCommercialSnapshot()
-            toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.settings.commercial.success'), life: 3000 })
+            toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.commercial.success'), duration: 3000 })
         }
     } catch (error) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: getErrorDetail(error, t('common.save_failed')), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: getErrorDetail(error, t('common.save_failed')), duration: 3000 })
     } finally {
         saving.value = false
     }

@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import AgreementsSettings from './agreements-settings.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 const translations: Record<string, string> = {
     'pages.admin.settings.system.agreements.title': '协议管理',
@@ -47,13 +48,9 @@ function translate(key: string) {
     return translations[key] || key
 }
 
-const mockToast = {
-    add: vi.fn(),
-}
+const mockToast = createLegacyToastApi(vi.fn())
 
-const mockConfirm = {
-    require: vi.fn(),
-}
+const mockConfirm = createLegacyConfirmApi(vi.fn())
 
 const mockFetch = vi.fn((url: string, options?: { query?: Record<string, unknown> }) => {
     if (url === '/api/admin/agreements' && options?.query?.type === 'user_agreement') {
@@ -181,10 +178,10 @@ describe('AgreementsSettings', () => {
                         template: '<span class="tag">{{ value }}</span>',
                         props: ['value', 'severity'],
                     },
-                    Dialog: {
-                        template: '<div v-if="visible" class="dialog"><slot /><slot name="footer" /></div>',
-                        props: ['visible', 'header', 'modal', 'class'],
-                        emits: ['update:visible'],
+                    CaomeiDialog: {
+                        template: '<div v-if="open" class="dialog"><slot /><slot name="footer" /></div>',
+                        props: ['open', 'title', 'modal', 'class'],
+                        emits: ['update:open'],
                     },
                     Select: {
                         template: `

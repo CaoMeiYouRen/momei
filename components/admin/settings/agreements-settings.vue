@@ -230,8 +230,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'caomei-ui'
+import { useConfirm } from 'caomei-ui'
 import AgreementEditDialog from './agreement-edit-dialog.vue'
 import type { AgreementFormData } from './agreement-edit-dialog.vue'
 import type { ApiResponse } from '@/types/api'
@@ -474,11 +474,11 @@ async function loadAgreements(type: AgreementType) {
             authoritativeOptions: [],
         }
     } catch {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.settings.system.agreements.load_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.settings.system.agreements.load_failed'),
+            duration: 3000,
         })
     } finally {
         loadingMap[type] = false
@@ -539,11 +539,11 @@ async function saveAgreement() {
                 },
             })
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.settings.system.agreements.update_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.settings.system.agreements.update_success'),
+                duration: 3000,
             })
         } else {
             await $appFetch('/api/admin/agreements', {
@@ -558,22 +558,22 @@ async function saveAgreement() {
                 },
             })
 
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('pages.admin.settings.system.agreements.create_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('pages.admin.settings.system.agreements.create_success'),
+                duration: 3000,
             })
         }
 
         showDialog.value = false
         await loadAgreements(currentType.value)
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.settings.system.agreements.save_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.message || t('pages.admin.settings.system.agreements.save_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false
@@ -606,18 +606,18 @@ async function generateAgreementDraft() {
             editAgreement(createdItem, currentType.value)
         }
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: translateAgreement('ai_draft_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: translateAgreement('ai_draft_success'),
+            duration: 3000,
         })
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || translateAgreement('ai_draft_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.message || translateAgreement('ai_draft_failed'),
+            duration: 3000,
         })
     } finally {
         generatingAIDraft.value = false
@@ -636,22 +636,22 @@ async function updateReviewStatus(
             body: { reviewStatus },
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: reviewStatus === 'approved'
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: reviewStatus === 'approved'
                 ? translateAgreement('approve_success')
                 : translateAgreement('submit_review_success'),
-            life: 3000,
+            duration: 3000,
         })
 
         await loadAgreements(type)
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || translateAgreement('review_status_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.message || translateAgreement('review_status_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false
@@ -668,20 +668,20 @@ async function activateAgreement(agreement: AgreementAdminItem, type: AgreementT
             },
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.system.agreements.activate_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.settings.system.agreements.activate_success'),
+            duration: 3000,
         })
 
         await loadAgreements(type)
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.settings.system.agreements.activate_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.message || t('pages.admin.settings.system.agreements.activate_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false
@@ -689,11 +689,16 @@ async function activateAgreement(agreement: AgreementAdminItem, type: AgreementT
 }
 
 function confirmDeleteAgreement(agreement: AgreementAdminItem, type: AgreementType) {
-    confirm.require({
-        message: t('pages.admin.settings.system.agreements.delete_confirm'),
-        header: t('common.confirm'),
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => deleteAgreement(agreement, type),
+    void confirm.confirm({
+        title: t('common.confirm'),
+        description: t('pages.admin.settings.system.agreements.delete_confirm'),
+        confirmLabel: t('common.delete'),
+        cancelLabel: t('common.cancel'),
+        tone: 'danger',
+    }).then((confirmed) => {
+        if (confirmed) {
+            void deleteAgreement(agreement, type)
+        }
     })
 }
 
@@ -704,20 +709,20 @@ async function deleteAgreement(agreement: AgreementAdminItem, type: AgreementTyp
             method: 'DELETE',
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('pages.admin.settings.system.agreements.delete_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('pages.admin.settings.system.agreements.delete_success'),
+            duration: 3000,
         })
 
         await loadAgreements(type)
     } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.message || t('pages.admin.settings.system.agreements.delete_failed'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.message || t('pages.admin.settings.system.agreements.delete_failed'),
+            duration: 3000,
         })
     } finally {
         saving.value = false

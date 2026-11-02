@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import LocalizedSettingEditor from './localized-setting-editor.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
-const mockToast = {
-    add: vi.fn(),
-}
+const mockToast = createLegacyToastApi(vi.fn())
 
 const translations: Record<string, string> = {
     'pages.admin.settings.system.localized.badge': '多语言配置',
@@ -61,7 +60,7 @@ vi.stubGlobal('useI18n', () => ({
 vi.stubGlobal('useAppApi', () => ({
     $appFetch: vi.fn(),
 }))
-vi.stubGlobal('useToast', () => mockToast)
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => mockToast }))
 
 describe('LocalizedSettingEditor', () => {
     const global = {

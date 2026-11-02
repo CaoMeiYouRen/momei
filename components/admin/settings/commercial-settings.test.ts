@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const {
     appFetchMock,
@@ -21,14 +22,12 @@ mockNuxtImport('useAppApi', () => () => ({
     $appFetch: appFetchMock,
 }))
 
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('primevue/usetoast')>()
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('caomei-ui')>()
 
     return {
         ...actual,
-        useToast: () => ({
-            add: toastAddMock,
-        }),
+        useToast: () => createLegacyToastApi(toastAddMock),
     }
 })
 

@@ -88,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { APP_ENABLED_LOCALES, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import {
@@ -324,19 +325,19 @@ async function generateLocalizedDraft() {
         })
 
         normalizedValue.value = response.data.value
-        toast.add({
-            severity: 'success',
-            summary: tt('common.success'),
-            detail: tt('pages.admin.settings.system.localized.ai_generate_success'),
-            life: 2500,
+        toast.show({
+            tone: 'success',
+            title: tt('common.success'),
+            description: tt('pages.admin.settings.system.localized.ai_generate_success'),
+            duration: 2500,
         })
     } catch (error) {
         const detail = error instanceof Error ? error.message : tt('pages.admin.settings.system.localized.ai_generate_failed')
-        toast.add({
-            severity: 'error',
-            summary: tt('common.error'),
-            detail,
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: tt('common.error'),
+            description: detail,
+            duration: 3000,
         })
     } finally {
         generatingDraft.value = false

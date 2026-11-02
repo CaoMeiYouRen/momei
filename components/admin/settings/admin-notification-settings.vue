@@ -137,7 +137,7 @@ import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
-import { useToast } from 'primevue/usetoast'
+import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingLockReason, SettingSource } from '@/types/setting'
@@ -250,11 +250,11 @@ const load = async () => {
         webPush.value = response.data.webPush || defaultWebPushState
         syncInitialNotificationSnapshot()
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.error_loading')),
-            life: 5000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.error_loading')),
+            duration: 5000,
         })
     } finally {
         loading.value = false
@@ -280,18 +280,18 @@ const save = async () => {
         })
         await load()
         syncInitialNotificationSnapshot()
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: t('common.save_success'),
-            life: 3000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: t('common.save_success'),
+            duration: 3000,
         })
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.save_failed')),
-            life: 5000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.save_failed')),
+            duration: 5000,
         })
     } finally {
         saving.value = false

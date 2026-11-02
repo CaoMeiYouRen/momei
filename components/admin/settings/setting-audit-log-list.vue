@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type { SettingAuditItem } from '@/types/setting'
 import { getErrorDetail } from '@/utils/shared/error-detail'
@@ -175,11 +176,11 @@ const loadLogs = async () => {
         total.value = response.data.total || 0
         demoPreview.value = Boolean(response.data.demoPreview)
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: getErrorDetail(error, t('common.error_loading')),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: getErrorDetail(error, t('common.error_loading')),
+            duration: 3000,
         })
     } finally {
         loading.value = false
