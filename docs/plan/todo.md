@@ -52,11 +52,12 @@
     - **证据落点**: 「文件 → 改动点 → 依据指针」清单；焦点契约结论（含 teleport 下 scoped 样式陷阱的核对记录）；回归记录窗口。
     - **收口（2026-11-02）**: 服务层与浮层组件已迁移——`app.vue` 挂载 `CaomeiToastProvider` / `CaomeiConfirmDialog`，185 处 `toast.add` 与 18 处 `confirm.require` 改写为 caomei API（`useToast` / `useConfirm` 仅从 `caomei-ui` 显式引入）；Dialog 39 / Drawer 3 / Popover 5 / Menu 3 / ConfirmDialog 6 全部迁移，全仓已无该族 PrimeVue 标签与 `.toggle(event)`；`ConfirmDeleteDialog`、`app-search`、`app-notifications`、`app-header`、`language-switcher` 等共享壳同步迁移；6 处生产锚点改为声明式触发器或 `useAnchoredPopover` 锚点；`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 已扩面到浮层族。`v-tooltip` 已由 `AppTooltip`（`CaomeiTooltip` 桥接）承接（84 处 / 36 文件，指令计数归零）。验证与收尾已完成（`test:visual` 18/18、`test:visual:parity` 34/34、浏览器交互抽查、E2E 选择器改写与 critical 三浏览器通过）；`typecheck` / `lint` / 全量单测（5,071 passed）通过。证据见 [回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。
 
-- [ ] **3. 内建文案 locale 接线（P1）**
-    - **执行范围**: 新增 Nuxt plugin：挂载前 `registerLocale()` 注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册，不得重复注册）；以 `CaomeiConfigProvider`（`:locale` 取 `useI18n().locale`）包裹应用根或后台布局，使组件内建文案（表格空态、分页、日期面板、ConfirmDialog 等）跟随语言；先实测「静态 import 三门语言」与「按当前语言异步 import」两种形态的 `coreEntryJs` 差量（现行 331.71KB / 360KB）再择一；补接线单测（注册早于挂载、未注册语种回落 `zh-CN`）。
+- [x] **3. 内建文案 locale 接线（P1）**
+    - **执行范围**: 新增 Nuxt plugin：挂载前 `registerLocale()` 注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册，不得重复注册）；以 `CaomeiConfigProvider`（`:locale` 取 `useI18n().locale`）包裹应用根或后台布局，使组件内建文案（表格空态、分页、日期面板、ConfirmDialog 等）跟随语言；先实测「静态 import 三门语言」与「按当前语言异步 import」两种形态的 `coreEntryJs` 差量（条目开工实测 353.05KB / 360KB）再择一；补接线单测（注册早于挂载、未注册语种回落 `zh-CN`）。
     - **非目标**: 不新增语种；不改 momei 自有 i18n 结构与翻译键；不替换 `primevue-i18n`（随第七十一阶段卸载）；不改写 caomei 文案内容。
     - **最小验收**: 5 个语种下后台内建文案跟随语言（抽查 DataTable 空态、Paginator、DatePicker、ConfirmDialog）；未注册语种回落 `zh-CN` 且非生产告警存在；`coreEntryJs` 未越 360KB；`typecheck` / `lint` / 定向测试通过。
     - **证据落点**: 回归记录窗口（5 语种抽查表 + `coreEntryJs` 实测）；迁移方案 §5.4。
+    - **收口（2026-11-02）**: 已完成。新增 `plugins/caomei-locale.ts`（静态 import 三门语言 + 模块顶层 `registerLocale`）与 `composables/use-caomei-locale.ts`（registry 归一化 + `satisfies` 映射），`app.vue` 以 `<CaomeiConfigProvider :locale>` 包住 toast / confirm；5 语种浏览器抽查 Paginator 内建文案跟随语言、无 hydration mismatch；`coreEntryJs` 353.05 → **357.41KB**（+4.36KB，未越 360KB），异步形态因 provider 的 `computed` 语义存在切换竞态而否决（裁定与证据见回归记录）；基线三项按本轮实测重取（`prIncrementJs` 归零），入口余量 2,652 B 已登记 backlog 跟踪。`typecheck` / `lint` / 全量单测（577 passed / 1 skipped，共 578 个测试文件）/ `test:visual` 18/18 / `test:perf:budget:strict` 均通过。
 
 - [ ] **4. 测试覆盖率治理第十批（P2）**
     - **执行范围**: 按未覆盖语句绝对数取 `server/services/setting.ts`（43）/ `server/services/ai/text-translation-task.ts`（34）/ `server/services/ai/post-automation.ts`（32）三模块补测；失败 / 边界断言优先，不做低价值铺量。

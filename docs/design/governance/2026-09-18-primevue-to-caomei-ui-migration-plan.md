@@ -313,6 +313,8 @@ pnpm governance:count:primevue-usage
 - 迁移后需复核组件内建文案（表格空态、分页、日期面板等）在 5 个语言下的覆盖，避免出现英文回退。
 - 相关测试 `tests/plugins/primevue-i18n.test.ts` 需同步删除或改写为 caomei-ui locale 验证。
 
+> **2026-11-02 进度注（第六十九阶段条目 3）**：caomei-ui 侧接线已完成——`plugins/caomei-locale.ts` 在模块顶层静态注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册），`app.vue` 用 `<CaomeiConfigProvider :locale>` 包住 toast / confirm，语言经 `composables/use-caomei-locale.ts` 归一化后映射。静态 import 实测 `coreEntryJs` +4.36KB（357.41KB / 360KB），因 provider 文案为 `computed`、`registerLocale` 非响应式，异步按需注册在切换路径存在「先回落、后不重算」竞态，故不采用（见[回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-3-内建文案-locale-接线caomeiconfigprovider--registerlocale)）。5 语种 Paginator 内建文案已实测跟随语言。`plugins/primevue-i18n.ts` 仍保留，随第七十一阶段卸载 PrimeVue 时删除。
+
 ### 5.5 双库并存隔离
 
 - **隔离单位＝路由**：以路由前缀为最小切换单位，同一路由（含子路由）内组件来源必须唯一，禁止同路由内按组件混用。
