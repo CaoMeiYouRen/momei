@@ -380,7 +380,7 @@ async function loadInputSnapshot(inputPath) {
 
 async function collectAlerts(args, repoRoot) {
     const repository = await resolveRepository(args, repoRoot)
-    const token = await resolveGitHubToken(repoRoot)
+    const token = resolveGitHubToken()
 
     const [dependabotResult, codeScanningResult] = await Promise.all([
         fetchRepositoryAlerts({
