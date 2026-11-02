@@ -210,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { z } from 'zod'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
@@ -296,30 +297,30 @@ const handleRegister = async () => {
 
         if (error) {
             await refreshAuthSession()
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: error.message || error.statusText,
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: error.message || error.statusText,
+                duration: 3000,
             })
             captchaRef.value?.reset()
         } else {
-            toast.add({
-                severity: 'success',
-                summary: t('common.success'),
-                detail: t('common.save_success'),
-                life: 3000,
+            toast.show({
+                tone: 'success',
+                title: t('common.success'),
+                description: t('common.save_success'),
+                duration: 3000,
             })
             navigateTo(localePath('/'))
         }
     } catch (e) {
         await refreshAuthSession()
         console.error(e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.unexpected_error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.unexpected_error'),
+            duration: 3000,
         })
     } finally {
         loading.value = false

@@ -106,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { useAdminList } from '@/composables/use-admin-list'
 import SnippetCard from '@/components/admin/snippets/snippet-card.vue'
 import SnippetQuickCapture from '@/components/admin/snippets/snippet-quick-capture.vue'
@@ -142,10 +143,10 @@ const editSnippet = (snippet: Snippet) => {
 const convertSnippet = async (snippet: Snippet) => {
     try {
         const res: any = await $fetch(`/api/admin/snippets/${snippet.id}/convert`, { method: 'POST' } as any)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.convert_success'), life: 3000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('pages.admin.snippets.convert_success'), duration: 3000 })
         navigateTo(`/admin/posts/${res.data.post.id}`)
     } catch (e) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     }
 }
 
@@ -153,11 +154,11 @@ const deleteSnippet = async () => {
     if (!snippetToDelete.value) return
     try {
         await $fetch(`/api/admin/snippets/${snippetToDelete.value.id}`, { method: 'DELETE' } as any)
-        toast.add({ severity: 'success', summary: t('common.success'), detail: t('pages.admin.snippets.delete_success'), life: 3000 })
+        toast.show({ tone: 'success', title: t('common.success'), description: t('pages.admin.snippets.delete_success'), duration: 3000 })
         refresh()
         resetDeleteDialog()
     } catch (e) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t('common.unexpected_error'), life: 3000 })
+        toast.show({ tone: 'danger', title: t('common.error'), description: t('common.unexpected_error'), duration: 3000 })
     }
 }
 

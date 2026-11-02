@@ -128,7 +128,7 @@ vi.mock('@/utils/schemas/auth', () => ({
     },
 }))
 
-mockNuxtImport('useToast', () => () => ({ add: toastAddMock }))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 mockNuxtImport('useI18n', () => () => ({
     t: translate,
     locale: { value: 'en-US' },
@@ -201,6 +201,7 @@ const stubs = {
 }
 
 import LoginPage from './login.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 async function mountPage() {
     return mountSuspended(LoginPage, {

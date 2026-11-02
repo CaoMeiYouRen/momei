@@ -145,6 +145,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { submissionSchema } from '@/utils/schemas/submission'
 
 const { t } = useI18n()
@@ -209,10 +210,10 @@ const handleSubmit = async () => {
         })
 
         if (response.code === 200) {
-            toast.add({
-                severity: 'success',
-                summary: t('pages.submit.form.success'),
-                life: 5000,
+            toast.show({
+                tone: 'success',
+                title: t('pages.submit.form.success'),
+                duration: 5000,
             })
             // 重置表单
             form.value = {
@@ -227,11 +228,11 @@ const handleSubmit = async () => {
         }
     } catch (error: any) {
         captchaRef.value?.reset()
-        toast.add({
-            severity: 'error',
-            summary: t('pages.submit.form.error'),
-            detail: error.data?.message || error.message,
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('pages.submit.form.error'),
+            description: error.data?.message || error.message,
+            duration: 3000,
         })
     } finally {
         loading.value = false

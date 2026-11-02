@@ -2,6 +2,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import AdminUsers from './index.vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/users` 路由迁移后的结构与逻辑契约。
@@ -78,9 +79,15 @@ vi.mock('@/composables/use-request-feedback', () => ({
     useRequestFeedback: () => feedbackMocks,
 }))
 
-vi.mock('primevue/useconfirm', () => ({
-    useConfirm: () => ({ require: confirmRequireMock }),
-}))
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+
+    return {
+        ...actual,
+        useConfirm: () => createLegacyConfirmApi(confirmRequireMock),
+        useToast: () => createLegacyToastApi(vi.fn()),
+    }
+})
 
 mockNuxtImport('useI18n', () => () => ({
     t: (key: string) => key,

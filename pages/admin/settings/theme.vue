@@ -75,6 +75,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import { useTheme } from '@/composables/use-theme'
 import { useFeedbackEntry } from '@/composables/use-feedback-entry'
@@ -128,10 +129,10 @@ const previewThemeConfig = (config: any) => {
         previewSettings.value = configData
         applyTheme()
     } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('pages.admin.settings.theme.parse_error'),
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('pages.admin.settings.theme.parse_error'),
         })
     }
 }

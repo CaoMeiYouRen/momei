@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, nextTick } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SubmitPage from './submit.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 const { fetchMock, toastAddMock, usePageSeoMock, resetCaptchaMock } = vi.hoisted(() => ({
     fetchMock: vi.fn(),
@@ -95,9 +96,7 @@ const translate = (key: string) => {
 mockNuxtImport('useI18n', () => () => ({
     t: translate,
 }))
-mockNuxtImport('useToast', () => () => ({
-    add: (...args: Parameters<typeof toastAddMock>) => toastAddMock(...args),
-}))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi((...args: Parameters<typeof toastAddMock>) => toastAddMock(...args)) }))
 mockNuxtImport('useRouter', () => () => routerState)
 mockNuxtImport('useRoute', () => () => routeState)
 mockNuxtImport('useRuntimeConfig', () => () => runtimeConfigState)

@@ -164,7 +164,7 @@
             :user="drawers.sessions.user"
         />
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：`ConfirmDeleteDialog` 与 `useConfirm` 维持 PrimeVue 至第六十九阶段。 -->
+        <!-- 浮层族已由第六十九阶段迁移到 caomei-ui。 -->
         <ConfirmDeleteDialog
             v-model:visible="deleteDialog.visible"
             :title="$t('pages.admin.users.delete_user')"
@@ -178,7 +178,7 @@
 import { Lock, Monitor, RefreshCw, Trash2, Unlock, UserCog, UserRound } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import { authClient } from '@/lib/auth-client'
-import { useConfirm } from 'primevue/useconfirm'
+import { useConfirm } from 'caomei-ui'
 
 definePageMeta({
     middleware: 'admin',
@@ -293,24 +293,27 @@ const unbanUser = async (user: any) => {
 }
 
 const impersonateUser = async (user: any) => {
-    confirm.require({
-        message: t('pages.admin.users.confirm_impersonate', { name: user.name }),
-        header: t('common.confirmation'),
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: t('common.confirm'),
-        rejectLabel: t('common.cancel'),
-        accept: async () => {
-            try {
-                const { error } = await authClient.admin.impersonateUser({
-                    userId: user.id,
-                })
-                if (error) throw error
-                window.location.href = '/'
-            } catch (error) {
-                showErrorToast(error, { fallbackKey: 'pages.admin.users.feedback.impersonate_user_failed' })
-            }
-        },
+    const confirmed = await confirm.confirm({
+        title: t('common.confirmation'),
+        description: t('pages.admin.users.confirm_impersonate', { name: user.name }),
+        confirmLabel: t('common.confirm'),
+        cancelLabel: t('common.cancel'),
+        tone: 'neutral',
     })
+
+    if (!confirmed) {
+        return
+    }
+
+    try {
+        const { error } = await authClient.admin.impersonateUser({
+            userId: user.id,
+        })
+        if (error) throw error
+        window.location.href = '/'
+    } catch (error) {
+        showErrorToast(error, { fallbackKey: 'pages.admin.users.feedback.impersonate_user_failed' })
+    }
 }
 
 const openSessionsDrawer = (user: any) => {

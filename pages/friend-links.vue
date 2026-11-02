@@ -302,6 +302,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { authClient } from '@/lib/auth-client'
 import { UploadType } from '@/composables/use-upload'
 import { friendLinkApplicationSchema } from '@/utils/schemas/friend-link'
@@ -449,21 +450,21 @@ const handleSubmit = async () => {
     const result = friendLinkApplicationSchema.safeParse(form.value)
 
     if (!result.success) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: result.error.issues[0]?.message || tt('pages.links.form.error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: result.error.issues[0]?.message || tt('pages.links.form.error'),
+            duration: 3000,
         })
         return
     }
 
     if (isCaptchaEnabled.value && !form.value.captchaToken) {
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: tt('pages.links.form.captcha_required'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: tt('pages.links.form.captcha_required'),
+            duration: 3000,
         })
         return
     }
@@ -480,11 +481,11 @@ const handleSubmit = async () => {
             body: payload,
         })
 
-        toast.add({
-            severity: 'success',
-            summary: t('common.success'),
-            detail: tt('pages.links.form.success'),
-            life: 4000,
+        toast.show({
+            tone: 'success',
+            title: t('common.success'),
+            description: tt('pages.links.form.success'),
+            duration: 4000,
         })
 
         resetForm()
@@ -492,11 +493,11 @@ const handleSubmit = async () => {
         await Promise.all([refreshMeta(), refreshLinks()])
     } catch (error: any) {
         captchaRef.value?.reset()
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: error.data?.message || error.message || tt('pages.links.form.error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: error.data?.message || error.message || tt('pages.links.form.error'),
+            duration: 3000,
         })
     } finally {
         submitting.value = false

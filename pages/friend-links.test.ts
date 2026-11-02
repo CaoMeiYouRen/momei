@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 import FriendLinksPage from './friend-links.vue'
+import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 
 interface TestFriendLinkItem {
     id: string
@@ -144,9 +145,7 @@ mockNuxtImport('useI18n', () => () => ({
     locale: ref('en-US'),
 }))
 
-mockNuxtImport('useToast', () => () => ({
-    add: mockToastAdd,
-}))
+vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(mockToastAdd) }))
 
 mockNuxtImport('useRuntimeConfig', () => () => ({
     ...mockRuntimeConfig,

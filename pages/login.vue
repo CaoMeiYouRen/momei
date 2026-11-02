@@ -163,6 +163,7 @@
 </template>
 
 <script setup lang="ts">
+import { useToast } from 'caomei-ui'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
@@ -298,11 +299,11 @@ const handleEmailLogin = async () => {
 
         if (error) {
             await refreshAuthSessionSafely()
-            toast.add({
-                severity: 'error',
-                summary: t('common.error'),
-                detail: error.message || error.statusText,
-                life: 3000,
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: error.message || error.statusText,
+                duration: 3000,
             })
             captchaRef.value?.reset()
         } else {
@@ -311,11 +312,11 @@ const handleEmailLogin = async () => {
     } catch (e) {
         await refreshAuthSessionSafely()
         console.error(e)
-        toast.add({
-            severity: 'error',
-            summary: t('common.error'),
-            detail: t('common.unexpected_error'),
-            life: 3000,
+        toast.show({
+            tone: 'danger',
+            title: t('common.error'),
+            description: t('common.unexpected_error'),
+            duration: 3000,
         })
     } finally {
         loading.value = false

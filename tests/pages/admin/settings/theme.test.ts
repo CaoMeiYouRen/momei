@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import ThemePage from '@/pages/admin/settings/theme.vue'
 import * as useThemeComposable from '@/composables/use-theme'
 
@@ -51,11 +52,12 @@ vi.mock('@/composables/use-feedback-entry', () => ({
 }))
 
 // Mock PrimeVue usetoast
-vi.mock('primevue/usetoast', async (importOriginal) => {
+vi.mock('caomei-ui', async (importOriginal) => {
     const actual = await importOriginal<any>()
     return {
         ...actual,
-        useToast: () => mockToast,
+        useConfirm: () => createLegacyConfirmApi(vi.fn()),
+        useToast: () => createLegacyToastApi(mockToast.add),
     }
 })
 
@@ -81,7 +83,7 @@ vi.mock('#imports', async (importOriginal) => {
     const actual = await importOriginal<typeof import('#imports')>()
     return {
         ...actual,
-        useToast: () => mockToast,
+        useToast: () => createLegacyToastApi(mockToast.add),
         useI18n: () => ({
             t: (key: string) => key,
         }),
