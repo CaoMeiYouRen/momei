@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
+import { isDirectExecution } from '../shared/cli.mjs'
 import { collectScriptGovernanceReport } from '../governance/check-script-governance.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -159,6 +160,32 @@ function isExternalLink(target) {
     return /^[a-z][a-z0-9+.-]*:/iu.test(target)
 }
 
+function collectLocalLinkTargets(content) {
+    return extractMarkdownLinks(content)
+        .map((target) => normalizeLocalTarget(target.trim()))
+        .filter((target) => target && !isExternalLink(target) && !target.startsWith('#'))
+}
+
+/**
+ * references 文件必须由本技能执行入口的相对链接直接指向。
+ * 比上游 verify-manifest 更严格：不认仓库级全路径引用，也不认其他技能的文件顶包。
+ */
+async function isReferenceIndexed(referencePath, entryFiles) {
+    const expectedPath = path.resolve(referencePath)
+
+    for (const entryFile of entryFiles) {
+        const content = await readUtf8(entryFile)
+
+        for (const target of collectLocalLinkTargets(content)) {
+            if (path.resolve(path.dirname(entryFile), target) === expectedPath) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
 function normalizeLocalTarget(target) {
     return target.split('#')[0]
 }
@@ -233,6 +260,47 @@ async function validateSkillFile(filePath, issues) {
 
         if (!(await pathExists(resolvedPath))) {
             issues.push(buildIssue('missing-link-target', relativePath, `相对链接目标不存在: ${target}`))
+        }
+    }
+}
+
+/**
+ * 技能 references/*.md 必须被执行入口索引：本技能 SKILL.md 或同名 agent。
+ * 只认这两个位置，避免其他技能或通用文案把孤儿 reference 顶包成「已索引」。
+ */
+async function validateSkillReferences(skillFiles, agentFiles, issues) {
+    const agentBySkillName = new Map(
+        agentFiles.map((agentFile) => [path.basename(agentFile).replace(/\.agent\.md$/u, ''), agentFile]),
+    )
+
+    for (const skillFile of skillFiles) {
+        const skillDir = path.dirname(skillFile)
+        const referencesDir = path.join(skillDir, 'references')
+
+        if (!(await pathExists(referencesDir))) {
+            continue
+        }
+
+        const referenceFiles = await listFilesRecursive(referencesDir, (name) => name.endsWith('.md'))
+
+        if (referenceFiles.length === 0) {
+            continue
+        }
+
+        const skillName = path.basename(skillDir)
+        const agentFile = agentBySkillName.get(skillName)
+        const entryFiles = [skillFile, ...(agentFile ? [agentFile] : [])]
+
+        for (const referenceFile of referenceFiles) {
+            const referencePath = path.join(referencesDir, referenceFile)
+
+            if (!(await isReferenceIndexed(referencePath, entryFiles))) {
+                issues.push(buildIssue(
+                    'unindexed-skill-reference',
+                    toPosixPath(referencePath),
+                    `references 文件未被本技能执行入口索引（${skillName}/SKILL.md 或同名 agent）: references/${referenceFile}`,
+                ))
+            }
         }
     }
 }
@@ -603,6 +671,8 @@ async function main() {
         await validateSkillFile(skillFile, issues)
     }
 
+    await validateSkillReferences(githubSkillFiles, githubAgentFiles, issues)
+
     const githubSkillRefFiles = (await listFilesRecursive(governanceRoots.githubSkills, (name) => name.endsWith('.md') && name !== 'SKILL.md'))
         .map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
     for (const refFile of githubSkillRefFiles) {
@@ -640,6 +710,9 @@ async function main() {
         blockingIssues.some((issue) => issue.type === 'missing-link-target')
             ? '修正治理文档中的相对路径，确保目标文件真实存在。'
             : null,
+        blockingIssues.some((issue) => issue.type === 'unindexed-skill-reference')
+            ? '在技能 SKILL.md 或同名 agent 中索引 references/*.md，确保执行入口可达。'
+            : null,
         blockingIssues.some((issue) => ['missing-external-skill-registry', 'invalid-external-skill-registry', 'invalid-external-skill-entry', 'duplicate-external-skill-id', 'invalid-external-skill-source', 'missing-external-skill-doc', 'external-skill-doc-drift'].includes(issue.type))
             ? '补齐外部 skill 准入清单与说明文档，并确保文档描述与事实源一致。'
             : null,
@@ -666,4 +739,8 @@ async function main() {
     }
 }
 
-await main()
+export { validateSkillReferences }
+
+if (isDirectExecution(import.meta.url)) {
+    await main()
+}
