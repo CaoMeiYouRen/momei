@@ -107,7 +107,7 @@ export function extractTemplateBlock(sourceText) {
 }
 
 export function maskHtmlComments(text) {
-    return text.replace(/<!--[\s\S]*?-->/gu, (comment) => comment.replace(/[^\n]/gu, ' '))
+    return text.replace(/<!--[\s\S]*?--!?>/gu, (comment) => comment.replace(/[^\n]/gu, ' '))
 }
 
 export function normalizeCopy(value) {

@@ -257,8 +257,9 @@ export async function buildReport(options = {}) {
         const serviceHits = []
         // 指令只存在于模板；注释里的同名提及不是调用点，回填「已迁完」注释时不应改变归零口径。
         // 与 `tests/modules/ui-library-guard-helpers.ts` 的 `stripComments` 同口径（HTML / 块 / 整行 `//`）。
+        // HTML 注释闭合符同时接受 `-->` 与 HTML5 的 `--!>`，避免 CodeQL js/bad-tag-filter 漏判。
         const directiveSource = content
-            .replace(/<!--[\s\S]*?-->/gu, '')
+            .replace(/<!--[\s\S]*?--!?>/gu, '')
             .replace(/\/\*[\s\S]*?\*\//gu, '')
             .replace(/^\s*\/\/.*$/gmu, '')
         const tooltipStat = countMatches(directiveSource, TOOLTIP_PATTERN)

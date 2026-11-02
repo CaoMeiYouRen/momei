@@ -47,7 +47,7 @@ export function buildComponentTagPattern(name: string): RegExp {
  */
 export function stripComments(source: string): string {
     return source
-        .replace(/<!--[\s\S]*?-->/gu, '')
+        .replace(/<!--[\s\S]*?--!?>/gu, '')
         .replace(/\/\*[\s\S]*?\*\//gu, '')
         .replace(/^\s*\/\/.*$/gmu, '')
 }
