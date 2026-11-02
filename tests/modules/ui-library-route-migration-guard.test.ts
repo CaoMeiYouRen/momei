@@ -27,7 +27,7 @@ import { findInScopePrimeVueResiduals, stripComments, stripNonTemplateBlocks } f
  * 在册族按**批次基准 + 该路由增量**（`resolveInScopeComponents`）判定：本批新增的
  * `Tabs` 族 / `InputGroup` / `Checkbox` / `Textarea` 只在登记了增量的路由上生效，
  * 避免让已收口批次被动回改。
- * 其余路由自有子组件、跨路由共享壳与 `v-tooltip` 指令由三层视觉回归与各批「文件 → 改动点」清单覆盖（显式豁免）。
+ * 其余路由自有子组件与跨路由共享壳由三层视觉回归与各批「文件 → 改动点」清单覆盖。
  */
 
 /**

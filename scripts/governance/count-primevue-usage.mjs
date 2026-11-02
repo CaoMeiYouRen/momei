@@ -255,7 +255,13 @@ export async function buildReport(options = {}) {
         const overlayParts = new Set()
         const overlayTags = isVue ? countComponentTags(content, OVERLAY_FAMILY.components) : new Map()
         const serviceHits = []
-        const tooltipStat = countMatches(content, TOOLTIP_PATTERN)
+        // 指令只存在于模板；注释里的同名提及不是调用点，回填「已迁完」注释时不应改变归零口径。
+        // 与 `tests/modules/ui-library-guard-helpers.ts` 的 `stripComments` 同口径（HTML / 块 / 整行 `//`）。
+        const directiveSource = content
+            .replace(/<!--[\s\S]*?-->/gu, '')
+            .replace(/\/\*[\s\S]*?\*\//gu, '')
+            .replace(/^\s*\/\/.*$/gmu, '')
+        const tooltipStat = countMatches(directiveSource, TOOLTIP_PATTERN)
         const toggleStat = countMatches(content, TOGGLE_PATTERN)
 
         for (const [name] of overlayTags) {

@@ -66,6 +66,16 @@ describe('count-primevue-usage / 浮层族分桶', () => {
                     'const label = \'v-tooltip\'',
                 ].join('\n'),
             )
+            await writeProjectFile(
+                directory,
+                'components/mentions.vue',
+                [
+                    '<template>',
+                    '    <!-- 浮层族已迁移；v-tooltip 不再是调用点 -->',
+                    '    <span>ok</span>',
+                    '</template>',
+                ].join('\n'),
+            )
 
             const report = await buildReport({
                 projectRoot: directory,

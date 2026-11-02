@@ -242,7 +242,7 @@ export function resolveInScopeComponents(scope?: CaomeiUiRouteScope): readonly s
  *
  * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，
  * 避免与守卫各持一份）；显式豁免清单以迁移方案 §5.5 为唯一载体（跨路由共享壳走「过渡组件」而非豁免）。
- * 第六十九阶段浮层族已纳入在册族；`v-tooltip` 指令（→ `CaomeiTooltip`）仍在同批收尾中。
+ * 第六十九阶段浮层族已纳入在册族；`v-tooltip` 指令已由 `AppTooltip`（`CaomeiTooltip` 桥接）承接。
  */
 export const CAOMEI_UI_ROUTE_PREFIXES: readonly string[] = CAOMEI_UI_ROUTE_SCOPES.map((scope) => scope.prefix)
 
