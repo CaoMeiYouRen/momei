@@ -106,7 +106,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await page.click('button:has-text("创建")')
 
             // 验证对话框打开
-            await expect(page.locator('.p-dialog')).toBeVisible()
+            await expect(page.locator('[role="dialog"]')).toBeVisible()
 
             // 填写分类名称
             await page.fill('input[placeholder*="名称"]', '测试分类')
@@ -115,7 +115,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await page.click('button:has-text("保存")')
 
             // 验证保存成功（对话框关闭）
-            await expect(page.locator('.p-dialog')).not.toBeVisible()
+            await expect(page.locator('[role="dialog"]')).not.toBeVisible()
         })
     })
 

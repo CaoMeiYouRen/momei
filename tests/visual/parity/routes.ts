@@ -175,8 +175,8 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         heading: '营销中心',
         tier: 'admin',
         migrated: true,
-        /* 同路由的第二个对照面：表单在 PrimeVue `Dialog` 内（浮层豁免），先激活「创建推送」
-         * （`create_btn`）打开弹窗再截图——表单承载本批的在册族迁移面。
+        /* 同路由的第二个对照面：表单在 `CaomeiDialog` 内，先激活「创建推送」（`create_btn`）
+         * 打开弹窗再截图——表单承载本批的在册族迁移面。
          * 不声明 `readyResponse`：弹窗内表单的 `/api/categories` 与 `/api/tags` 请求只在**点击之后**发出，
          * 而就绪等待发生在激活之前（注册即等满超时后被吞），语义与成本都不成立；
          * 就绪由 `activate.expect`（`[role="dialog"]`）与激活后的稳定等待承担。 */

@@ -197,7 +197,7 @@ test.describe('User Workflow E2E Tests', () => {
             await page.click('button:has-text("更换头像")')
 
             // 验证上传对话框打开
-            await expect(page.locator('.p-dialog')).toBeVisible()
+            await expect(page.locator('[role="dialog"]')).toBeVisible()
         })
     })
 
@@ -241,7 +241,7 @@ test.describe('User Workflow E2E Tests', () => {
             await page.click('button[type="submit"]')
 
             // 验证提交成功
-            await expect(page.locator('.p-toast-message-success')).toBeVisible()
+            await expect(page.locator('.caomei-toast--success')).toBeVisible()
         })
     })
 

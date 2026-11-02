@@ -43,6 +43,11 @@ test.describe('视觉一致性门禁：已迁移路由', () => {
 
                 await readyResponse
 
+                /* 页面就绪按标题锚点判定：必须在 `activate` **之前**——
+                 * caomei `Dialog` 依 Reka 契约在打开时给外部内容加 `aria-hidden`，
+                 * 之后再按 role 查标题会命中「被模态遮住」的隐藏节点而超时。 */
+                await page.getByRole('heading', { name: route.heading }).waitFor({ state: 'visible' })
+
                 /* 需要对照默认页签之外的分区时，先按可访问角色激活目标页签再截图
                  * （同一准备逻辑对「参考态采集」与「当前态比对」一致生效）。 */
                 if (route.activate) {
@@ -72,8 +77,6 @@ test.describe('视觉一致性门禁：已迁移路由', () => {
                     /* 数据行缺失（如空列表）时按有界超时放弃，不阻断截图。 */
                     await page.locator(route.readySelector).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined)
                 }
-
-                await page.getByRole('heading', { name: route.heading }).waitFor({ state: 'visible' })
 
                 await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo })
             })
