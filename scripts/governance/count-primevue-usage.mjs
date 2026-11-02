@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * PrimeVue 用量取数（迁移基线）。
  *
@@ -58,6 +56,36 @@ const GLOBAL_PATTERN = /:global\(/gu
 const BODY_SLOT_PATTERN = /#body\b/gu
 const SLOT_PROPS_PATTERN = /\bslotProps\b/gu
 const TOGGLE_PATTERN = /\.toggle\(/gu
+const TOAST_PATTERN = /\buseToast\s*\(/gu
+const CONFIRM_PATTERN = /\buseConfirm\s*\(/gu
+const TOOLTIP_PATTERN = /v-tooltip(?=[.:=\s>])/gu
+const CAOMEI_IMPORT_PATTERN = /import\s*\{[^}]*\}\s*from\s*['"]caomei-ui['"]/gu
+const PRIMEVUE_IMPORT_PATTERN = /from\s*['"]primevue(?:\/[^'"]*)?['"]/u
+
+/**
+ * 浮层族（第六十九阶段条目 2 的迁移边界）。
+ *
+ * 该常量把「浮层族」从散落在 todo / 迁移方案里的口径收拢为可执行分组：
+ * 组件标签（含 momei 自有共享壳 `ConfirmDeleteDialog`）、服务层与指令。
+ * 组件名同时用于 `countComponentTags`；`ConfirmDeleteDialog` 不在 PrimeVue 组件名清单内，
+ * 但它是浮层族的共享壳，必须计入迁移面。
+ */
+export const OVERLAY_FAMILY = {
+    components: ['Dialog', 'Drawer', 'Popover', 'DropdownMenu', 'Menu', 'ConfirmDialog', 'ConfirmDeleteDialog'],
+    primeVueComponents: ['Dialog', 'Drawer', 'Popover', 'DropdownMenu', 'Menu', 'ConfirmDialog'],
+    appComponents: ['ConfirmDeleteDialog'],
+    composables: ['useToast', 'useConfirm'],
+    directives: ['v-tooltip'],
+}
+
+/** 生产文件口径（浮层族并集按此统计：排除单测 / E2E 与 `tests/` 目录）。 */
+export function isProductionFile(relativePath) {
+    return !relativePath.startsWith('tests/')
+        && !relativePath.endsWith('.test.ts')
+        && !relativePath.endsWith('.test.js')
+        && !relativePath.endsWith('.spec.ts')
+        && !relativePath.endsWith('.spec.js')
+}
 
 /** 递归收集待扫描文件（返回相对 projectRoot 的 POSIX 路径）。 */
 export async function collectFiles(rootDir = projectRoot) {
@@ -136,6 +164,28 @@ function topEntries(map, limit) {
         .map(([name, count]) => ({ name, count }))
 }
 
+/**
+ * 判定 composable 的导入来源：`caomei-ui` 显式导入 / `primevue` 显式导入 / 自动导入。
+ *
+ * 迁移期这三态分别代表「已迁移」「显式引入 PrimeVue」「依赖 PrimeVue 自动导入」；
+ * 浮层族收尾要求前两态之外的 `auto` 归零，且 `primevue` 仅可能出现在测试桩或过渡组件中。
+ */
+export function resolveComposableOrigin(content, name) {
+    const caomeiImportBlocks = content.match(CAOMEI_IMPORT_PATTERN) ?? []
+    const namedBinding = new RegExp(`\\b${name}\\b`, 'u')
+
+    if (caomeiImportBlocks.some((block) => namedBinding.test(block))) {
+        return 'caomei-ui'
+    }
+
+    const primeVueImport = new RegExp(`import\\s*\\{[^}]*\\b${name}\\b[^}]*\\}\\s*from\\s*['"]primevue`, 'u')
+    if (primeVueImport.test(content)) {
+        return 'primevue'
+    }
+
+    return 'auto'
+}
+
 /** 生成报告。 */
 export async function buildReport(options = {}) {
     const root = options.projectRoot ?? projectRoot
@@ -173,6 +223,19 @@ export async function buildReport(options = {}) {
     let e2eAssertionFiles = 0
     let e2eAssertionTotal = 0
 
+    const overlayTagCounts = new Map()
+    const overlayTagFiles = new Map()
+    const overlayServiceCalls = new Map()
+    const overlayServiceFiles = new Map()
+    const overlayServiceOrigins = new Map()
+    const overlayTooltipFiles = new Set()
+    const overlayToggleFiles = new Set()
+    const overlayProductionFiles = new Set()
+    const overlayTestFiles = new Set()
+    const overlayFileParts = new Map()
+    let overlayTooltipTotal = 0
+    let overlayToggleTotal = 0
+
     for (const relativePath of files) {
         const content = await readFile(path.join(root, relativePath), 'utf8')
         const isVue = relativePath.endsWith('.vue')
@@ -185,6 +248,80 @@ export async function buildReport(options = {}) {
                 increment(componentTags, name, count)
                 componentTagsTotal += count
                 componentTagFiles.add(relativePath)
+            }
+        }
+
+        const isProduction = isProductionFile(relativePath)
+        const overlayParts = new Set()
+        const overlayTags = isVue ? countComponentTags(content, OVERLAY_FAMILY.components) : new Map()
+        const serviceHits = []
+        const tooltipStat = countMatches(content, TOOLTIP_PATTERN)
+        const toggleStat = countMatches(content, TOGGLE_PATTERN)
+
+        for (const [name] of overlayTags) {
+            overlayParts.add(name)
+        }
+
+        for (const [name, pattern] of [['useToast', TOAST_PATTERN], ['useConfirm', CONFIRM_PATTERN]]) {
+            const stat = countMatches(content, pattern)
+
+            if (stat.total > 0) {
+                serviceHits.push({ name, total: stat.total })
+                overlayParts.add(name)
+            }
+        }
+
+        if (tooltipStat.total > 0) {
+            overlayParts.add('v-tooltip')
+        }
+
+        if (toggleStat.total > 0) {
+            overlayParts.add('.toggle()')
+        }
+
+        if (overlayParts.size > 0) {
+            if (isProduction) {
+                for (const [name, count] of overlayTags) {
+                    increment(overlayTagCounts, name, count)
+
+                    if (!overlayTagFiles.has(name)) {
+                        overlayTagFiles.set(name, new Set())
+                    }
+
+                    overlayTagFiles.get(name).add(relativePath)
+                }
+
+                for (const { name, total } of serviceHits) {
+                    increment(overlayServiceCalls, name, total)
+
+                    if (!overlayServiceFiles.has(name)) {
+                        overlayServiceFiles.set(name, new Set())
+                    }
+
+                    overlayServiceFiles.get(name).add(relativePath)
+
+                    const origin = resolveComposableOrigin(content, name)
+                    if (!overlayServiceOrigins.has(origin)) {
+                        overlayServiceOrigins.set(origin, new Map())
+                    }
+
+                    increment(overlayServiceOrigins.get(origin), name, total)
+                }
+
+                if (tooltipStat.total > 0) {
+                    overlayTooltipTotal += tooltipStat.total
+                    overlayTooltipFiles.add(relativePath)
+                }
+
+                if (toggleStat.total > 0) {
+                    overlayToggleTotal += toggleStat.total
+                    overlayToggleFiles.add(relativePath)
+                }
+
+                overlayProductionFiles.add(relativePath)
+                overlayFileParts.set(relativePath, overlayParts)
+            } else {
+                overlayTestFiles.add(relativePath)
             }
         }
 
@@ -269,6 +406,9 @@ export async function buildReport(options = {}) {
         increment(tokenPrefixes, prefix)
     }
 
+    const overlayTagFileUnion = new Set([...overlayTagFiles.values()].flatMap((files) => [...files]))
+    const overlayTagTotal = [...overlayTagCounts.values()].reduce((total, count) => total + count, 0)
+
     return {
         generatedFrom: {
             componentList: {
@@ -318,6 +458,42 @@ export async function buildReport(options = {}) {
             usage: [...composableUsage.entries()]
                 .sort((left, right) => left[0].localeCompare(right[0]))
                 .map(([name, count]) => ({ name, count, files: composableUsageFiles.get(name) ?? 0 })),
+        },
+        overlayFamily: {
+            components: OVERLAY_FAMILY,
+            tags: {
+                total: overlayTagTotal,
+                files: overlayTagFileUnion.size,
+                byComponent: [...overlayTagCounts.entries()]
+                    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+                    .map(([name, count]) => ({ name, count, files: overlayTagFiles.get(name)?.size ?? 0 })),
+            },
+            services: {
+                byName: [...overlayServiceCalls.entries()]
+                    .sort((left, right) => left[0].localeCompare(right[0]))
+                    .map(([name, count]) => ({ name, count, files: overlayServiceFiles.get(name)?.size ?? 0 })),
+                origins: [...overlayServiceOrigins.entries()]
+                    .sort((left, right) => left[0].localeCompare(right[0]))
+                    .map(([origin, byName]) => ({
+                        origin,
+                        total: [...byName.values()].reduce((total, count) => total + count, 0),
+                        byName: [...byName.entries()]
+                            .sort((left, right) => left[0].localeCompare(right[0]))
+                            .map(([name, count]) => ({ name, count })),
+                    })),
+            },
+            directives: {
+                tooltip: { total: overlayTooltipTotal, files: overlayTooltipFiles.size },
+            },
+            anchors: {
+                toggleCalls: overlayToggleTotal,
+                files: overlayToggleFiles.size,
+            },
+            productionFiles: overlayProductionFiles.size,
+            testFiles: overlayTestFiles.size,
+            fileParts: [...overlayFileParts.entries()]
+                .map(([file, parts]) => ({ file, parts: [...parts].sort() }))
+                .sort((left, right) => right.parts.length - left.parts.length || left.file.localeCompare(right.file)),
         },
         testCoupling: {
             vitestPrimeVueMockFiles: vuemockFiles,
@@ -378,6 +554,36 @@ function renderMarkdown(report, outputRelativePath) {
         '## Top PrimeVue class',
         '',
         ...report.primeVueClasses.top.map((entry) => `- ${entry.name}: ${entry.count}`),
+        '',
+        '## 浮层族（第六十九阶段条目 2 口径）',
+        '',
+        '| 成员 | 开标签 / 调用 | 文件数 |',
+        '| :--- | ---: | ---: |',
+        ...report.overlayFamily.tags.byComponent.map(
+            (entry) => `| \`<${entry.name}>\` | ${entry.count} | ${entry.files} |`,
+        ),
+        `| **组件标签小计** | **${report.overlayFamily.tags.total}** | **${report.overlayFamily.tags.files}** |`,
+        ...report.overlayFamily.services.byName.map(
+            (entry) => `| \`${entry.name}()\` | ${entry.count} | ${entry.files} |`,
+        ),
+        `| \`v-tooltip\` | ${report.overlayFamily.directives.tooltip.total} | ${report.overlayFamily.directives.tooltip.files} |`,
+        `| \`.toggle()\` | ${report.overlayFamily.anchors.toggleCalls} | ${report.overlayFamily.anchors.files} |`,
+        `| **生产文件并集** | - | **${report.overlayFamily.productionFiles}** |`,
+        `| 测试文件（不计入并集） | - | ${report.overlayFamily.testFiles} |`,
+        '',
+        '### 服务层导入来源',
+        '',
+        ...report.overlayFamily.services.origins.map(
+            (entry) => `- \`${entry.origin}\`: ${entry.total}（${entry.byName.map((item) => `${item.name} ${item.count}`).join(' / ')}）`,
+        ),
+        '',
+        '### Top 浮层族文件',
+        '',
+        '| 文件 | 命中项 |',
+        '| :--- | :--- |',
+        ...report.overlayFamily.fileParts.slice(0, 30).map(
+            (entry) => `| \`${entry.file}\` | ${entry.parts.join(', ')} |`,
+        ),
         '',
     ]
 
@@ -483,6 +689,9 @@ export async function main(options = {}) {
     logger.info(`[primevue-usage] Markdown: ${path.relative(projectRoot, markdownPath).split(path.sep).join('/')}`)
     logger.info(
         `[primevue-usage] 组件 ${report.components.kinds} 类 / ${report.components.openTags} 处；图标 ${report.icons.total} 处；token ${report.tokens.total} 处`,
+    )
+    logger.info(
+        `[primevue-usage] 浮层族：标签 ${report.overlayFamily.tags.total} 处 / ${report.overlayFamily.tags.files} 文件；生产文件并集 ${report.overlayFamily.productionFiles}`,
     )
 }
 

@@ -1,5 +1,6 @@
 // testSetup.ts
 import { vi } from 'vitest'
+import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 
 // 设置环境变量
 // process.env.NODE_ENV = 'test';
@@ -110,5 +111,20 @@ vi.mock('primevue/useconfirm', async (importOriginal) => {
             require: vi.fn(),
             close: vi.fn(),
         }),
+    }
+})
+
+/**
+ * 浮层族迁移后的全局默认 mock：`useToast` / `useConfirm` 改为显式从 `caomei-ui` 引入。
+ *
+ * 保持 `importOriginal` 展开，避免把组件导入一并替换掉；单测若需断言调用，
+ * 在自己的文件内 `vi.mock('caomei-ui')` 覆盖即可（文件级 mock 优先）。
+ */
+vi.mock('caomei-ui', async (importOriginal) => {
+    const actual = await importOriginal<any>()
+    return {
+        ...actual,
+        useToast: () => createLegacyToastApi(vi.fn()),
+        useConfirm: () => createLegacyConfirmApi(vi.fn((options: { reject?: () => void }) => options.reject?.())),
     }
 })
