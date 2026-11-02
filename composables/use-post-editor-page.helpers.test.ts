@@ -5,6 +5,7 @@ import {
     buildSavePayload,
     getPostStatusLabel,
     getPostStatusSeverity,
+    promptDraftRecovery,
     searchTagOptions,
     restorePostFromHistory,
 } from './use-post-editor-page.helpers'
@@ -202,6 +203,48 @@ describe('use-post-editor-page helpers', () => {
             expect(post.value.metaVersion).toBe(2)
             expect(post.value.tags).toEqual(['tag1', 'tag2'])
             expect(clearDraft).toHaveBeenCalled()
+        })
+    })
+
+    describe('promptDraftRecovery', () => {
+        const createOptions = (confirmed: boolean) => ({
+            hasRecoverableDraft: vi.fn(() => true),
+            confirm: {
+                confirm: vi.fn(async () => confirmed),
+            },
+            t: (key: string) => key,
+            recoverDraft: vi.fn(),
+            showSuccessToast: vi.fn(),
+        })
+
+        it('确认后恢复草稿并提示', async () => {
+            const options = createOptions(true)
+
+            promptDraftRecovery(options as never)
+            await Promise.resolve()
+
+            expect(options.confirm.confirm).toHaveBeenCalledTimes(1)
+            expect(options.recoverDraft).toHaveBeenCalledTimes(1)
+            expect(options.showSuccessToast).toHaveBeenCalledWith('pages.admin.posts.draft_recovered')
+        })
+
+        it('未确认时保留草稿（取消与被后续确认取代都不可逆清理）', async () => {
+            const options = createOptions(false)
+
+            promptDraftRecovery(options as never)
+            await Promise.resolve()
+
+            expect(options.recoverDraft).not.toHaveBeenCalled()
+            expect(options.showSuccessToast).not.toHaveBeenCalled()
+        })
+
+        it('没有可恢复草稿时不弹确认', () => {
+            const options = createOptions(true)
+            options.hasRecoverableDraft.mockReturnValue(false)
+
+            promptDraftRecovery(options as never)
+
+            expect(options.confirm.confirm).not.toHaveBeenCalled()
         })
     })
 })

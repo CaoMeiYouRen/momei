@@ -267,7 +267,6 @@
                         "uploading": "上傳中"
                     }
                 },
-                "draft_discarded": "已清除本機草稿",
                 "draft_recovered": "已恢復本機草稿",
                 "export_as_markdown": "匯出為 Markdown",
                 "export_error": "匯出失敗",

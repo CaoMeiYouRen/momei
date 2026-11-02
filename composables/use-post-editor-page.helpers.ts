@@ -104,7 +104,7 @@ export function setTranslationWorkflowState(options: {
     options.translationDialogVisible.value = true
 }
 
-export function promptDraftRecovery(options: Pick<LoadPostOptions, 'hasRecoverableDraft' | 'confirm' | 't' | 'recoverDraft' | 'clearLocalDraft' | 'showSuccessToast'>) {
+export function promptDraftRecovery(options: Pick<LoadPostOptions, 'hasRecoverableDraft' | 'confirm' | 't' | 'recoverDraft' | 'showSuccessToast'>) {
     if (!options.hasRecoverableDraft()) {
         return
     }
@@ -116,17 +116,16 @@ export function promptDraftRecovery(options: Pick<LoadPostOptions, 'hasRecoverab
         cancelLabel: options.t('common.cancel'),
         tone: 'neutral',
     }).then((confirmed) => {
-        if (confirmed) {
-            options.recoverDraft()
-            options.showSuccessToast('pages.admin.posts.draft_recovered')
+        if (!confirmed) {
+            // 非确认分支保持非破坏性：caomei 的 `confirm` 会用 `false` 了结被**后续请求取代**的待决确认
+            // （典型：编辑器加载时弹出草稿恢复确认，用户立即点路由离开又触发未保存确认），
+            // 此时无法区分「用户主动取消」与「被顶掉」。清理本地草稿属不可逆操作，只应在确认恢复后才发生；
+            // 取消时保留草稿，下次进入仍可再次恢复。
             return
         }
 
-        options.clearLocalDraft()
-        options.showSuccessToast('pages.admin.posts.draft_discarded', {
-            severity: 'info',
-            summaryKey: 'common.info',
-        })
+        options.recoverDraft()
+        options.showSuccessToast('pages.admin.posts.draft_recovered')
     })
 }
 

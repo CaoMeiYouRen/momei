@@ -267,7 +267,6 @@
                         "uploading": "업로드 중"
                     }
                 },
-                "draft_discarded": "로컬 초안을 삭제했습니다",
                 "draft_recovered": "로컬 초안을 복원했습니다",
                 "export_as_markdown": "Markdown으로 내보내기",
                 "export_error": "내보내기에 실패했습니다",

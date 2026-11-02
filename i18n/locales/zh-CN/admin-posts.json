@@ -275,7 +275,6 @@
                         "uploading": "上传中"
                     }
                 },
-                "draft_discarded": "已清除本地草稿",
                 "draft_recovered": "已恢复本地草稿",
                 "export_as_markdown": "导出为 Markdown",
                 "export_error": "导出失败",

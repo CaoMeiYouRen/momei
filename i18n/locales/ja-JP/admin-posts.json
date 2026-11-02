@@ -267,7 +267,6 @@
                         "uploading": "アップロード中"
                     }
                 },
-                "draft_discarded": "ローカル草稿を消去しました",
                 "draft_recovered": "ローカル草稿を復元しました",
                 "export_as_markdown": "Markdown としてエクスポート",
                 "export_error": "エクスポートに失敗しました",
