@@ -1610,6 +1610,88 @@
                 }
             ],
             "note": "校准：2026-10-28 parity 复测（chromium，本机 Linux，1440x900 DSF1，弹窗宽度归位后）。实测：dark 19234px（4 个非重叠功能带求和 = 19047px，带外 187px）；参考态取自迁移前 HEAD（24463608，就地采集）。有效检出阈值：未归因差异 > 3000px 即红。口径同 light（深色下字段外壳与边框差异更明显）。 2026-11-01 全量重校准：`pixels` 已按当次实测回填（含 rc.1 的 `control-border` / `-text` 增量），本 note 内旧实测总量为历史口径。"
+        },
+        "admin-settings-form-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 200,
+                        "y": 360,
+                        "width": 1200,
+                        "height": 560
+                    },
+                    "pixels": 50954,
+                    "reason": "设置表单主体：Input / Password / InputNumber / Textarea / Select / Switch 字段族、`Tabs` 族条与保存按钮整体换到 caomei 契约（外壳高度、边框、内边距与选中态差异）。处置走通道②（caomei 预设）与 ①（`--caomei-*` token 已桥接）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 160,
+                        "width": 960,
+                        "height": 160
+                    },
+                    "pixels": 13074,
+                    "reason": "智能模式说明卡：`Tag` 由 PrimeVue `severity` 改为 caomei `tone`，可见文案改走默认插槽，尺寸/圆角随之变化。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-03 第七十阶段条目 2a（设置页迁 caomei）后按实测登记。light 实测 64,028px / 4.940%（区域和 = 64,028px，无余量）；参考态为迁移前 HEAD 就地采集。未归因差异 > 3,000px 即红。"
+        },
+        "admin-settings-form-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 200,
+                        "y": 360,
+                        "width": 1200,
+                        "height": 560
+                    },
+                    "pixels": 79954,
+                    "reason": "设置表单主体（同 light）：caomei 字段外壳在深色下边框与底色差异更明显。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 200,
+                        "y": 120,
+                        "width": 1040,
+                        "height": 200
+                    },
+                    "pixels": 10316,
+                    "reason": "智能模式说明卡：`Tag` tone 化 + 说明卡背景/边框 token 差异（差异起点 y≈158，不含页头标题）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 760,
+                        "y": 240,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1052,
+                    "reason": "说明卡统计数字的 Tag 尺寸差异（caomei 默认内边距更小）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 240,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 604,
+                    "reason": "说明卡统计数字的 Tag 尺寸差异（同上，相邻区域）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-03 第七十阶段条目 2a 后按实测登记。dark 实测 91,926px / 7.093%（区域和 = 91,926px，无余量）；深色下表单外壳与说明卡差异较浅色更大。未归因差异 > 3,000px 即红。 区域 1 的声明值为矩形内去重后的像素数（矩形计数 11,972 − 嵌套区域 2/3 的 1,656 = 10,316），维护时勿把嵌套区域重复计入。"
         }
     }
 }

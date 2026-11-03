@@ -194,6 +194,14 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         activate: { role: 'button', name: '创建推送', expect: '[role="dialog"]' },
     },
     {
+        /* 第七十阶段条目 2a：设置页已整路由迁到 caomei-ui；参考态保持迁移前 HEAD 采集。 */
+        name: 'admin-settings-form',
+        path: '/admin/settings',
+        heading: '系统设置',
+        tier: 'admin',
+        migrated: true,
+    },
+    {
         name: 'admin-ai-tasks-list',
         path: '/admin/ai',
         heading: 'AI 任务与统计',
@@ -221,13 +229,6 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 export const PENDING_ROUTES: ParityRoute[] = [
     /* B3-A 管理端设置与通知（tier=admin）：2a 设置主体 / 2b 主题工作台 / 2c 通知管理。
      * 三者的参考态在第七十阶段条目 1c 以 HEAD（PrimeVue）采集；迁移后逐项归因。 */
-    {
-        name: 'admin-settings-form',
-        path: '/admin/settings',
-        heading: '系统设置',
-        tier: 'admin',
-        migrated: false,
-    },
     {
         name: 'admin-settings-theme',
         path: '/admin/settings/theme',
