@@ -1,7 +1,32 @@
 <template>
     <div class="setting-audit-log-list">
-        <DataTable
-            :value="items"
+        <div class="setting-audit-log-list__header">
+            <div>
+                <h3 class="setting-audit-log-list__title">
+                    {{ $t('pages.admin.settings.system.audit_logs.title') }}
+                </h3>
+                <p class="setting-audit-log-list__description">
+                    {{ $t('pages.admin.settings.system.audit_logs.description') }}
+                </p>
+                <p v-if="demoPreview" class="setting-audit-log-list__demo-note">
+                    {{ $t('pages.admin.settings.system.demo_preview.description') }}
+                </p>
+            </div>
+            <CaomeiButton
+                variant="ghost"
+                :label="$t('common.refresh')"
+                @click="loadLogs"
+            >
+                <template #icon>
+                    <RefreshCw :size="16" />
+                </template>
+                {{ $t('common.refresh') }}
+            </CaomeiButton>
+        </div>
+
+        <CaomeiDataTable
+            :data="items"
+            :columns="columns"
             :loading="loading"
             paginator
             lazy
@@ -10,102 +35,64 @@
             class="setting-audit-log-list__table"
             @page="onPage"
         >
-            <template #header>
-                <div class="setting-audit-log-list__header">
-                    <div>
-                        <h3 class="setting-audit-log-list__title">
-                            {{ $t('pages.admin.settings.system.audit_logs.title') }}
-                        </h3>
-                        <p class="setting-audit-log-list__description">
-                            {{ $t('pages.admin.settings.system.audit_logs.description') }}
-                        </p>
-                        <p v-if="demoPreview" class="setting-audit-log-list__demo-note">
-                            {{ $t('pages.admin.settings.system.demo_preview.description') }}
-                        </p>
-                    </div>
-                    <Button
-                        icon="pi pi-refresh"
-                        variant="text"
-                        :label="$t('common.refresh')"
-                        @click="loadLogs"
-                    />
+            <template #cell-time="{row}">
+                {{ formatDateTime(row.createdAt) }}
+            </template>
+
+            <template #cell-action="{row}">
+                <CaomeiTag :tone="row.action === 'create' ? 'success' : 'primary'">
+                    {{ $t(`pages.admin.settings.system.audit_logs.actions.${row.action}`) }}
+                </CaomeiTag>
+            </template>
+
+            <template #cell-oldValue="{row}">
+                <span class="setting-audit-log-list__value">{{ formatAuditValue(row.oldValue) }}</span>
+            </template>
+
+            <template #cell-newValue="{row}">
+                <span class="setting-audit-log-list__value">{{ formatAuditValue(row.newValue) }}</span>
+            </template>
+
+            <template #cell-effectiveSource="{row}">
+                <div class="setting-audit-log-list__source">
+                    <CaomeiTag :tone="row.effectiveSource === 'env' ? 'warning' : 'success'">
+                        {{ $t(`pages.admin.settings.system.audit_logs.effective_sources.${row.effectiveSource}`) }}
+                    </CaomeiTag>
+                    <small v-if="row.isOverriddenByEnv" class="setting-audit-log-list__source-note">
+                        {{ $t('pages.admin.settings.system.audit_logs.overridden_by_env') }}
+                    </small>
                 </div>
             </template>
 
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.time')" class="setting-audit-log-list__time-column">
-                <template #body="slotProps">
-                    {{ formatDateTime(slotProps.data.createdAt) }}
-                </template>
-            </Column>
+            <template #cell-operator="{row}">
+                <div v-if="row.operator" class="setting-audit-log-list__operator">
+                    <span>{{ row.operator.name || row.operator.email }}</span>
+                    <small>{{ row.operator.email }}</small>
+                </div>
+                <span v-else>-</span>
+            </template>
 
-            <Column field="settingKey" :header="$t('pages.admin.settings.system.audit_logs.columns.key')" />
+            <template #cell-source="{row}">
+                <span class="setting-audit-log-list__value">{{ translateAuditSource(row.source) }}</span>
+            </template>
 
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.action')">
-                <template #body="slotProps">
-                    <Tag :severity="slotProps.data.action === 'create' ? 'success' : 'info'">
-                        {{ $t(`pages.admin.settings.system.audit_logs.actions.${slotProps.data.action}`) }}
-                    </Tag>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.old_value')">
-                <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ formatAuditValue(slotProps.data.oldValue) }}</span>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.new_value')">
-                <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ formatAuditValue(slotProps.data.newValue) }}</span>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.effective_source')">
-                <template #body="slotProps">
-                    <div class="setting-audit-log-list__source">
-                        <Tag :severity="slotProps.data.effectiveSource === 'env' ? 'warn' : 'success'">
-                            {{ $t(`pages.admin.settings.system.audit_logs.effective_sources.${slotProps.data.effectiveSource}`) }}
-                        </Tag>
-                        <small v-if="slotProps.data.isOverriddenByEnv" class="setting-audit-log-list__source-note">
-                            {{ $t('pages.admin.settings.system.audit_logs.overridden_by_env') }}
-                        </small>
-                    </div>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.operator')">
-                <template #body="slotProps">
-                    <div v-if="slotProps.data.operator" class="setting-audit-log-list__operator">
-                        <span>{{ slotProps.data.operator.name || slotProps.data.operator.email }}</span>
-                        <small>{{ slotProps.data.operator.email }}</small>
-                    </div>
-                    <span v-else>-</span>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.source')">
-                <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ translateAuditSource(slotProps.data.source) }}</span>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.settings.system.audit_logs.columns.reason')">
-                <template #body="slotProps">
-                    <span class="setting-audit-log-list__value">{{ translateAuditReason(slotProps.data.reason) }}</span>
-                </template>
-            </Column>
+            <template #cell-reason="{row}">
+                <span class="setting-audit-log-list__value">{{ translateAuditReason(row.reason) }}</span>
+            </template>
 
             <template #empty>
                 <div class="setting-audit-log-list__empty">
                     {{ $t('pages.admin.settings.system.audit_logs.empty') }}
                 </div>
             </template>
-        </DataTable>
+        </CaomeiDataTable>
     </div>
 </template>
 
 <script setup lang="ts">
+import type { DataTableColumn } from 'caomei-ui'
 import { useToast } from 'caomei-ui'
+import { RefreshCw } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { SettingAuditItem } from '@/types/setting'
 import { getErrorDetail } from '@/utils/shared/error-detail'
@@ -188,10 +175,23 @@ const loadLogs = async () => {
 }
 
 const onPage = (event: { page: number, rows: number }) => {
-    page.value = event.page + 1
+    /* caomei 的 `@page` 是 1 基页码（迁移前 PrimeVue 为 0 基偏移）。 */
+    page.value = event.page
     limit.value = event.rows
     loadLogs()
 }
+
+const columns = computed<DataTableColumn<SettingAuditItem>[]>(() => [
+    { key: 'time', header: t('pages.admin.settings.system.audit_logs.columns.time'), headerClass: 'setting-audit-log-list__time-column' },
+    { key: 'settingKey', header: t('pages.admin.settings.system.audit_logs.columns.key') },
+    { key: 'action', header: t('pages.admin.settings.system.audit_logs.columns.action') },
+    { key: 'oldValue', header: t('pages.admin.settings.system.audit_logs.columns.old_value') },
+    { key: 'newValue', header: t('pages.admin.settings.system.audit_logs.columns.new_value') },
+    { key: 'effectiveSource', header: t('pages.admin.settings.system.audit_logs.columns.effective_source') },
+    { key: 'operator', header: t('pages.admin.settings.system.audit_logs.columns.operator') },
+    { key: 'source', header: t('pages.admin.settings.system.audit_logs.columns.source') },
+    { key: 'reason', header: t('pages.admin.settings.system.audit_logs.columns.reason') },
+])
 
 onMounted(() => {
     loadLogs()
@@ -228,7 +228,7 @@ defineExpose({ refresh: loadLogs })
     }
 
     &__table {
-        :deep(.p-datatable-tbody > tr > td) {
+        :deep(.caomei-data-table__td) {
             vertical-align: top;
         }
     }

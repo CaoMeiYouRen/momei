@@ -10,13 +10,12 @@
     >
         <div class="agreements-settings__field">
             <label for="language">{{ $t('pages.admin.settings.system.agreements.language') }}</label>
-            <Select
+            <CaomeiSelect
                 id="language"
                 v-model="languageValue"
                 :options="languageOptions"
                 option-label="label"
                 option-value="value"
-                fluid
                 :disabled="isEditMode"
             />
             <small class="agreements-settings__help">
@@ -26,34 +25,31 @@
 
         <div class="agreements-settings__field">
             <label for="version">{{ $t('pages.admin.settings.system.agreements.version') }}</label>
-            <InputText
+            <SettingInput
                 id="version"
                 v-model="versionValue"
-                fluid
                 placeholder="e.g. 2026.01"
             />
         </div>
 
         <div class="agreements-settings__field">
             <label for="versionDescription">{{ $t('pages.admin.settings.system.agreements.version_description') }}</label>
-            <Textarea
+            <SettingTextarea
                 id="versionDescription"
                 v-model="versionDescriptionValue"
-                rows="3"
-                fluid
+                :rows="3"
                 auto-resize
             />
         </div>
 
         <div v-if="isReferenceLanguage" class="agreements-settings__field">
             <label for="sourceAgreementId">{{ translateAgreement('source_version') }}</label>
-            <Select
+            <CaomeiSelect
                 id="sourceAgreementId"
                 v-model="sourceAgreementIdValue"
                 :options="currentAuthoritativeOptions"
                 option-label="label"
                 option-value="id"
-                fluid
                 show-clear
                 :placeholder="translateAgreement('source_version_placeholder')"
             />
@@ -79,34 +75,49 @@
         </div>
 
         <template #footer>
-            <Button
+            <CaomeiButton
                 v-if="!isEditMode && isReferenceLanguage"
+                variant="ghost"
                 :label="translateAgreement('generate_ai_draft')"
-                icon="pi pi-sparkles"
-                class="p-button-text"
                 :loading="generatingAIDraft"
                 :disabled="!sourceAgreementIdValue"
                 @click="emit('generate-ai-draft')"
-            />
-            <Button
+            >
+                <template #icon>
+                    <Sparkles :size="16" />
+                </template>
+                {{ translateAgreement('generate_ai_draft') }}
+            </CaomeiButton>
+            <CaomeiButton
+                variant="ghost"
                 :label="$t('common.cancel')"
-                icon="pi pi-times"
-                class="p-button-text"
                 @click="dialogVisible = false"
-            />
-            <Button
+            >
+                <template #icon>
+                    <X :size="16" />
+                </template>
+                {{ $t('common.cancel') }}
+            </CaomeiButton>
+            <CaomeiButton
                 :label="$t('common.save')"
-                icon="pi pi-check"
                 :loading="saving"
                 @click="emit('save')"
-            />
+            >
+                <template #icon>
+                    <Check :size="16" />
+                </template>
+                {{ $t('common.save') }}
+            </CaomeiButton>
         </template>
     </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Check, Sparkles, X } from '@lucide/vue'
 
 export interface AgreementFormData {
     language: string

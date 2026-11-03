@@ -14,7 +14,7 @@
                 </div>
 
                 <div class="localized-setting-editor__toolbar-actions">
-                    <Select
+                    <CaomeiSelect
                         v-model="activeLocale"
                         :options="localeOptions"
                         option-label="label"
@@ -24,62 +24,64 @@
                     />
 
                     <AppTooltip :content="aiDraftButtonLabel">
-                        <Button
-                            icon="pi pi-sparkles"
-                            size="small"
-                            text
+                        <CaomeiButton
+                            icon-only
+                            size="sm"
+                            variant="ghost"
                             rounded
-                            :aria-label="aiDraftButtonLabel"
+                            :label="aiDraftButtonLabel"
                             :disabled="metadata?.isLocked || !hasDraftSource || generatingDraft"
                             :loading="generatingDraft"
                             @click="generateLocalizedDraft"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
                 </div>
             </div>
 
-            <Message
+            <CaomeiMessage
                 v-if="showEnvOverrideNotice"
-                severity="info"
+                tone="primary"
                 :closable="false"
             >
                 <strong>{{ envOverrideNoticeTitle }}</strong>
                 <div>{{ envOverrideNoticeDescription }}</div>
-            </Message>
+            </CaomeiMessage>
 
-            <Message
+            <CaomeiMessage
                 v-if="showLegacyNotice"
-                severity="warn"
+                tone="warning"
                 :closable="false"
             >
                 <strong>{{ legacyNoticeTitle }}</strong>
                 <div>{{ legacyNoticeDescription }}</div>
-            </Message>
+            </CaomeiMessage>
 
-            <Message
+            <CaomeiMessage
                 v-if="showMissingTranslationNotice"
-                severity="secondary"
+                tone="neutral"
                 :closable="false"
             >
                 {{ missingTranslationNotice }}
-            </Message>
+            </CaomeiMessage>
 
-            <Textarea
+            <SettingTextarea
                 v-if="usesTextarea"
                 :id="inputId"
                 :model-value="currentInputValue"
                 :disabled="metadata?.isLocked"
                 :rows="rows"
-                fluid
                 @update:model-value="handleInputUpdate"
             />
 
-            <InputText
+            <SettingInput
                 v-else
                 :id="inputId"
                 :model-value="currentInputValue"
                 :disabled="metadata?.isLocked"
-                fluid
                 @update:model-value="handleInputUpdate"
             />
 
@@ -89,6 +91,9 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
+import { Sparkles } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { APP_ENABLED_LOCALES, type AppLocaleCode } from '@/i18n/config/locale-registry'

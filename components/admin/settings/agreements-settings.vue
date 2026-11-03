@@ -33,35 +33,51 @@
 
                 <div class="agreements-settings__toolbar">
                     <div class="agreements-settings__view-switch">
-                        <Button
+                        <CaomeiButton
+                            :variant="viewMode === 'aggregated' ? 'primary' : 'secondary'"
                             :label="translateAgreement('aggregated_view')"
-                            :outlined="viewMode !== 'aggregated'"
                             @click="viewMode = 'aggregated'"
-                        />
-                        <Button
+                        >
+                            {{ translateAgreement('aggregated_view') }}
+                        </CaomeiButton>
+                        <CaomeiButton
+                            :variant="viewMode === 'flat' ? 'primary' : 'secondary'"
                             :label="translateAgreement('flat_view')"
-                            :outlined="viewMode !== 'flat'"
                             @click="viewMode = 'flat'"
-                        />
+                        >
+                            {{ translateAgreement('flat_view') }}
+                        </CaomeiButton>
                     </div>
 
                     <div class="agreements-settings__controls">
-                        <Button
-                            icon="pi pi-plus"
+                        <CaomeiButton
                             :label="$t('common.add')"
                             @click="showCreateDialog(section.type)"
-                        />
-                        <Button
-                            icon="pi pi-sparkles"
+                        >
+                            <template #icon>
+                                <Plus :size="16" />
+                            </template>
+                            {{ $t('common.add') }}
+                        </CaomeiButton>
+                        <CaomeiButton
                             :label="translateAgreement('create_ai_draft')"
                             @click="showAIDraftDialog(section.type)"
-                        />
-                        <Button
-                            icon="pi pi-refresh"
+                        >
+                            <template #icon>
+                                <Sparkles :size="16" />
+                            </template>
+                            {{ translateAgreement('create_ai_draft') }}
+                        </CaomeiButton>
+                        <CaomeiButton
                             :label="$t('common.refresh')"
                             :loading="isLoading(section.type)"
                             @click="loadAgreements(section.type)"
-                        />
+                        >
+                            <template #icon>
+                                <RefreshCw :size="16" />
+                            </template>
+                            {{ $t('common.refresh') }}
+                        </CaomeiButton>
                     </div>
                 </div>
             </div>
@@ -70,148 +86,153 @@
                 {{ getViewHint() }}
             </p>
 
-            <DataTable
-                :value="getDisplayItems(section.payload)"
+            <CaomeiDataTable
+                :data="getDisplayItems(section.payload)"
+                :columns="agreementColumns"
                 :loading="isLoading(section.type)"
-                responsive-layout="scroll"
                 class="agreements-settings__table"
             >
                 <template #empty>
                     {{ translateAgreement('empty') }}
                 </template>
 
-                <Column field="version" :header="$t('pages.admin.settings.system.agreements.version')">
-                    <template #body="{data}">
-                        <strong>{{ data.version || translateAgreement('version_fallback') }}</strong>
-                    </template>
-                </Column>
+                <template #cell-version="{row}">
+                    <strong>{{ row.version || translateAgreement('version_fallback') }}</strong>
+                </template>
 
-                <Column field="language" :header="$t('pages.admin.settings.system.agreements.language')">
-                    <template #body="{data}">
-                        {{ getLanguageLabel(data.language) }}
-                    </template>
-                </Column>
+                <template #cell-language="{row}">
+                    {{ getLanguageLabel(row.language) }}
+                </template>
 
-                <Column :header="translateAgreement('role')">
-                    <template #body="{data}">
-                        <div class="agreements-settings__tag-group">
-                            <Tag
-                                :value="data.isAuthoritativeVersion
-                                    ? translateAgreement('authoritative_version')
-                                    : translateAgreement('reference_translation')"
-                                :severity="data.isAuthoritativeVersion ? 'success' : 'info'"
-                            />
-                        </div>
-                    </template>
-                </Column>
+                <template #cell-role="{row}">
+                    <div class="agreements-settings__tag-group">
+                        <CaomeiTag :tone="row.isAuthoritativeVersion ? 'success' : 'primary'">
+                            {{ row.isAuthoritativeVersion
+                                ? translateAgreement('authoritative_version')
+                                : translateAgreement('reference_translation') }}
+                        </CaomeiTag>
+                    </div>
+                </template>
 
-                <Column :header="translateAgreement('relation')">
-                    <template #body="{data}">
-                        <span v-if="data.isReferenceTranslation">
-                            {{ getSourceLabel(data) }}
-                        </span>
-                        <span v-else>
-                            {{ translateAgreement('authoritative_version') }}
-                        </span>
-                    </template>
-                </Column>
+                <template #cell-relation="{row}">
+                    <span v-if="row.isReferenceTranslation">
+                        {{ getSourceLabel(row) }}
+                    </span>
+                    <span v-else>
+                        {{ translateAgreement('authoritative_version') }}
+                    </span>
+                </template>
 
-                <Column :header="translateAgreement('status')">
-                    <template #body="{data}">
-                        <div class="agreements-settings__tag-group">
-                            <Tag
-                                :value="getReviewStatusLabel(data.reviewStatus)"
-                                :severity="getReviewStatusSeverity(data.reviewStatus)"
-                            />
-                            <Tag
-                                v-if="data.isCurrentActive"
-                                :value="translateAgreement('current_active')"
-                                severity="warn"
-                            />
-                            <Tag
-                                v-if="data.isCurrentReference"
-                                :value="translateAgreement('current_reference')"
-                                severity="secondary"
-                            />
-                            <Tag
-                                v-if="data.isFromEnv"
-                                :value="translateAgreement('env_locked')"
-                                severity="secondary"
-                            />
-                            <Tag
-                                v-if="data.hasUserConsent"
-                                :value="translateAgreement('consented')"
-                                severity="danger"
-                            />
-                        </div>
-                    </template>
-                </Column>
+                <template #cell-status="{row}">
+                    <div class="agreements-settings__tag-group">
+                        <CaomeiTag :tone="getReviewStatusTone(row.reviewStatus)">
+                            {{ getReviewStatusLabel(row.reviewStatus) }}
+                        </CaomeiTag>
+                        <CaomeiTag v-if="row.isCurrentActive" tone="warning">
+                            {{ translateAgreement('current_active') }}
+                        </CaomeiTag>
+                        <CaomeiTag v-if="row.isCurrentReference" tone="neutral">
+                            {{ translateAgreement('current_reference') }}
+                        </CaomeiTag>
+                        <CaomeiTag v-if="row.isFromEnv" tone="neutral">
+                            {{ translateAgreement('env_locked') }}
+                        </CaomeiTag>
+                        <CaomeiTag v-if="row.hasUserConsent" tone="danger">
+                            {{ translateAgreement('consented') }}
+                        </CaomeiTag>
+                    </div>
+                </template>
 
-                <Column :header="translateAgreement('effective_date')">
-                    <template #body="{data}">
-                        {{ formatDate(data.effectiveAt) }}
-                    </template>
-                </Column>
+                <template #cell-effectiveDate="{row}">
+                    {{ formatDate(row.effectiveAt) }}
+                </template>
 
-                <Column :header="translateAgreement('updated_at')">
-                    <template #body="{data}">
-                        {{ formatDate(data.updatedAt || data.createdAt) }}
-                    </template>
-                </Column>
+                <template #cell-updatedAt="{row}">
+                    {{ formatDate(row.updatedAt || row.createdAt) }}
+                </template>
 
-                <Column :header="$t('pages.admin.settings.system.agreements.version_description')">
-                    <template #body="{data}">
-                        {{ data.versionDescription || translateAgreement('no_description') }}
-                    </template>
-                </Column>
+                <template #cell-versionDescription="{row}">
+                    {{ row.versionDescription || translateAgreement('no_description') }}
+                </template>
 
-                <Column :header="$t('common.actions')" body-class="text-right">
-                    <template #body="{data}">
-                        <div class="agreements-settings__actions">
-                            <Button
-                                v-if="data.reviewStatus === 'draft'"
-                                icon="pi pi-send"
-                                class="p-button-rounded p-button-text"
-                                :title="translateAgreement('submit_review')"
-                                @click="updateReviewStatus(data, section.type, 'pending_review')"
-                            />
-                            <Button
-                                v-if="data.reviewStatus === 'pending_review'"
-                                icon="pi pi-verified"
-                                class="p-button-rounded p-button-text"
-                                :title="translateAgreement('approve_review')"
-                                @click="updateReviewStatus(data, section.type, 'approved')"
-                            />
-                            <Button
-                                icon="pi pi-pencil"
-                                class="p-button-rounded p-button-text"
-                                :disabled="!data.canEdit"
-                                :title="getRestrictionMessage(data.restrictionReasons)"
-                                @click="editAgreement(data, section.type)"
-                            />
-                            <Button
-                                v-if="data.isAuthoritativeVersion"
-                                icon="pi pi-check"
-                                class="p-button-rounded p-button-success p-button-text"
-                                :disabled="!data.canActivate || data.isCurrentActive"
-                                :title="getActivateMessage(data)"
-                                @click="activateAgreement(data, section.type)"
-                            />
-                            <Button
-                                icon="pi pi-trash"
-                                class="p-button-danger p-button-rounded p-button-text"
-                                :disabled="!data.canDelete"
-                                :title="getRestrictionMessage(data.restrictionReasons)"
-                                @click="confirmDeleteAgreement(data, section.type)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                <template #cell-actions="{row}">
+                    <div class="agreements-settings__actions">
+                        <CaomeiButton
+                            v-if="row.reviewStatus === 'draft'"
+                            icon-only
+                            rounded
+                            variant="ghost"
+                            :label="translateAgreement('submit_review')"
+                            :title="translateAgreement('submit_review')"
+                            @click="updateReviewStatus(row, section.type, 'pending_review')"
+                        >
+                            <template #icon>
+                                <Send :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
+                            v-if="row.reviewStatus === 'pending_review'"
+                            icon-only
+                            rounded
+                            variant="ghost"
+                            tone="success"
+                            :label="translateAgreement('approve_review')"
+                            :title="translateAgreement('approve_review')"
+                            @click="updateReviewStatus(row, section.type, 'approved')"
+                        >
+                            <template #icon>
+                                <BadgeCheck :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
+                            icon-only
+                            rounded
+                            variant="ghost"
+                            :label="getRestrictionMessage(row.restrictionReasons) || translateAgreement('edit')"
+                            :title="getRestrictionMessage(row.restrictionReasons) || translateAgreement('edit')"
+                            :disabled="!row.canEdit"
+                            @click="editAgreement(row, section.type)"
+                        >
+                            <template #icon>
+                                <Pencil :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
+                            v-if="row.isAuthoritativeVersion"
+                            icon-only
+                            rounded
+                            variant="ghost"
+                            tone="success"
+                            :label="getActivateMessage(row)"
+                            :title="getActivateMessage(row)"
+                            :disabled="!row.canActivate || row.isCurrentActive"
+                            @click="activateAgreement(row, section.type)"
+                        >
+                            <template #icon>
+                                <Check :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
+                            icon-only
+                            rounded
+                            variant="ghost"
+                            tone="danger"
+                            :label="getRestrictionMessage(row.restrictionReasons) || $t('common.delete')"
+                            :title="getRestrictionMessage(row.restrictionReasons) || $t('common.delete')"
+                            :disabled="!row.canDelete"
+                            @click="confirmDeleteAgreement(row, section.type)"
+                        >
+                            <template #icon>
+                                <Trash2 :size="16" />
+                            </template>
+                        </CaomeiButton>
+                    </div>
+                </template>
+            </CaomeiDataTable>
         </section>
 
         <AgreementEditDialog
-            v-model:visible="showDialog"
+            :visible="showDialog"
             :is-edit-mode="isEditMode"
             :form-data="formData"
             :language-options="languageOptions"
@@ -220,6 +241,7 @@
             :generating-a-i-draft="generatingAIDraft"
             :saving="saving"
             :locale-code="locale"
+            @update:visible="showDialog = $event"
             @update:form-data="Object.assign(formData, $event)"
             @generate-ai-draft="generateAgreementDraft"
             @save="saveAgreement"
@@ -230,6 +252,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { DataTableColumn } from 'caomei-ui'
+import { BadgeCheck, Check, Pencil, Plus, RefreshCw, Send, Sparkles, Trash2 } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import { useConfirm } from 'caomei-ui'
 import AgreementEditDialog from './agreement-edit-dialog.vue'
@@ -384,14 +408,26 @@ function getReviewStatusLabel(status: AgreementReviewStatus) {
     return translateAgreement(`review_statuses.${status}`)
 }
 
-function getReviewStatusSeverity(status: AgreementReviewStatus) {
+const agreementColumns = computed<DataTableColumn<AgreementAdminItem>[]>(() => [
+    { key: 'version', header: t('pages.admin.settings.system.agreements.version') },
+    { key: 'language', header: t('pages.admin.settings.system.agreements.language') },
+    { key: 'role', header: translateAgreement('role') },
+    { key: 'relation', header: translateAgreement('relation') },
+    { key: 'status', header: translateAgreement('status') },
+    { key: 'effectiveDate', header: translateAgreement('effective_date') },
+    { key: 'updatedAt', header: translateAgreement('updated_at') },
+    { key: 'versionDescription', header: t('pages.admin.settings.system.agreements.version_description') },
+    { key: 'actions', header: t('common.actions'), headerClass: 'text-right', bodyClass: 'text-right' },
+])
+
+function getReviewStatusTone(status: AgreementReviewStatus) {
     switch (status) {
         case 'approved':
             return 'success'
         case 'pending_review':
-            return 'warn'
+            return 'warning'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 

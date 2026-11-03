@@ -1,27 +1,27 @@
 <template>
     <div class="commercial-settings">
-        <Message
+        <CaomeiMessage
             v-if="demoPreview"
-            severity="info"
+            tone="primary"
             :closable="false"
             class="commercial-settings__demo-notice"
         >
             {{ $t('pages.admin.settings.system.demo_preview.description') }}
-        </Message>
+        </CaomeiMessage>
 
         <!-- 全局开关 -->
         <section class="commercial-settings__section commercial-settings__section--toggle">
             <div class="commercial-settings__toggle-wrapper">
                 <div class="commercial-settings__toggle-info">
                     <h4 class="commercial-settings__title">
-                        <i class="pi pi-bolt" />
+                        <Zap :size="16" aria-hidden="true" />
                         {{ $t('components.post.sponsor.title') }}
                     </h4>
                     <p class="commercial-settings__desc">
                         {{ $t('pages.admin.settings.commercial.global_toggle_desc') }}
                     </p>
                 </div>
-                <ToggleSwitch v-model="enabled" />
+                <CaomeiSwitch v-model="enabled" />
             </div>
         </section>
 
@@ -35,11 +35,9 @@
 
         <AdminFloatingActions
             :primary-label="$t('common.save')"
-            primary-icon="pi pi-check"
             :primary-loading="saving"
             :primary-disabled="saving || !isDirty"
             :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
-            secondary-icon="pi pi-question-circle"
             :status-label="actionStatusLabel"
             :status-tone="actionStatusTone"
             @primary-click="saveSettings"
@@ -55,6 +53,7 @@ import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
+import { Zap } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import { getErrorDetail } from '@/utils/shared/error-detail'
 

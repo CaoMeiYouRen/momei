@@ -17,7 +17,7 @@
                             {{ $t('pages.admin.settings.system.ai_editor.alerts_description') }}
                         </p>
                     </div>
-                    <ToggleSwitch
+                    <CaomeiSwitch
                         v-model="alertThresholdForm.enabled"
                         :disabled="isLocked"
                     />
@@ -28,15 +28,12 @@
                         <label class="ai-alert-thresholds-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.quota_usage_ratios') }}
                         </label>
-                        <MultiSelect
+                        <CaomeiMultiSelect
                             v-model="alertThresholdForm.quotaUsageRatios"
                             :options="quotaRatioOptions"
                             option-label="label"
                             option-value="value"
-                            display="chip"
-                            append-to="body"
                             :disabled="isLocked || !alertThresholdForm.enabled"
-                            fluid
                         />
                     </div>
 
@@ -44,15 +41,12 @@
                         <label class="ai-alert-thresholds-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.cost_usage_ratios') }}
                         </label>
-                        <MultiSelect
+                        <CaomeiMultiSelect
                             v-model="alertThresholdForm.costUsageRatios"
                             :options="costRatioOptions"
                             option-label="label"
                             option-value="value"
-                            display="chip"
-                            append-to="body"
                             :disabled="isLocked || !alertThresholdForm.enabled"
-                            fluid
                         />
                     </div>
 
@@ -60,13 +54,11 @@
                         <label class="ai-alert-thresholds-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.dedupe_window_minutes') }}
                         </label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="alertThresholdForm.dedupeWindowMinutes"
                             :disabled="isLocked || !alertThresholdForm.enabled"
                             :min="1"
                             :max="44640"
-                            fluid
-                            show-buttons
                             :use-grouping="false"
                         />
                     </div>
@@ -75,13 +67,11 @@
                         <label class="ai-alert-thresholds-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.max_alerts') }}
                         </label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="alertThresholdForm.maxAlerts"
                             :disabled="isLocked || !alertThresholdForm.enabled"
                             :min="1"
                             :max="100"
-                            fluid
-                            show-buttons
                             :use-grouping="false"
                         />
                     </div>
@@ -97,7 +87,7 @@
                                 {{ $t('pages.admin.settings.system.ai_editor.failure_burst_description') }}
                             </p>
                         </div>
-                        <ToggleSwitch
+                        <CaomeiSwitch
                             v-model="alertThresholdForm.failureBurst.enabled"
                             :disabled="isLocked || !alertThresholdForm.enabled"
                         />
@@ -108,13 +98,11 @@
                             <label class="ai-alert-thresholds-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.window_minutes') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="alertThresholdForm.failureBurst.windowMinutes"
                                 :disabled="isLocked || !alertThresholdForm.enabled || !alertThresholdForm.failureBurst.enabled"
                                 :min="1"
                                 :max="1440"
-                                fluid
-                                show-buttons
                                 :use-grouping="false"
                             />
                         </div>
@@ -123,13 +111,11 @@
                             <label class="ai-alert-thresholds-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.max_failures') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="alertThresholdForm.failureBurst.maxFailures"
                                 :disabled="isLocked || !alertThresholdForm.enabled || !alertThresholdForm.failureBurst.enabled"
                                 :min="1"
                                 :max="1000"
-                                fluid
-                                show-buttons
                                 :use-grouping="false"
                             />
                         </div>
@@ -138,15 +124,12 @@
                             <label class="ai-alert-thresholds-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.failure_categories') }}
                             </label>
-                            <MultiSelect
+                            <CaomeiMultiSelect
                                 v-model="alertThresholdForm.failureBurst.categories"
                                 :options="alertCategoryOptions"
                                 option-label="label"
                                 option-value="value"
-                                display="chip"
-                                append-to="body"
                                 :disabled="isLocked || !alertThresholdForm.enabled || !alertThresholdForm.failureBurst.enabled"
-                                fluid
                             />
                         </div>
                     </div>
@@ -157,13 +140,12 @@
                 <p class="ai-alert-thresholds-editor__error">
                     {{ alertThresholdsParseError }}
                 </p>
-                <Textarea
+                <SettingTextarea
                     id="ai_alert_thresholds"
                     v-model="alertThresholds"
                     :disabled="isLocked"
-                    rows="10"
+                    :rows="10"
                     auto-resize
-                    fluid
                 />
             </template>
         </div>
@@ -171,6 +153,7 @@
 </template>
 
 <script setup lang="ts">
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { aiAlertThresholdsSchema } from '@/utils/schemas/ai'
 

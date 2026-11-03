@@ -5,11 +5,10 @@
             input-id="umami_analytics_website_id"
             :metadata="metadata.umami_analytics"
         >
-            <InputText
+            <SettingInput
                 id="umami_analytics_website_id"
                 v-model="umamiWebsiteId"
                 :disabled="metadata.umami_analytics?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -18,11 +17,10 @@
             input-id="umami_analytics_script_url"
             :metadata="metadata.umami_analytics"
         >
-            <InputText
+            <SettingInput
                 id="umami_analytics_script_url"
                 v-model="umamiScriptUrl"
                 :disabled="metadata.umami_analytics?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -31,11 +29,10 @@
             input-id="baidu_analytics"
             :metadata="metadata.baidu_analytics"
         >
-            <InputText
+            <SettingInput
                 id="baidu_analytics"
                 v-model="settings.baidu_analytics"
                 :disabled="metadata.baidu_analytics?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -44,11 +41,10 @@
             input-id="google_analytics"
             :metadata="metadata.google_analytics"
         >
-            <InputText
+            <SettingInput
                 id="google_analytics"
                 v-model="settings.google_analytics"
                 :disabled="metadata.google_analytics?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -57,17 +53,17 @@
             input-id="clarity_analytics"
             :metadata="metadata.clarity_analytics"
         >
-            <InputText
+            <SettingInput
                 id="clarity_analytics"
                 v-model="settings.clarity_analytics"
                 :disabled="metadata.clarity_analytics?.isLocked"
-                fluid
             />
         </SettingFormField>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
 import {

@@ -1,13 +1,13 @@
 <template>
     <div class="admin-notifications">
-        <Message
+        <CaomeiMessage
             v-if="demoPreview"
-            severity="info"
+            tone="primary"
             :closable="false"
             class="mb-4"
         >
             {{ $t('pages.admin.settings.system.demo_preview.description') }}
-        </Message>
+        </CaomeiMessage>
 
         <div class="admin-notifications__web-push">
             <div class="admin-notifications__section-header">
@@ -19,16 +19,16 @@
                         {{ $t('pages.admin.settings.system.notifications.web_push.description') }}
                     </p>
                 </div>
-                <Tag :severity="webPush.isConfigured ? 'success' : 'warn'">
+                <CaomeiTag :tone="webPush.isConfigured ? 'success' : 'warning'">
                     {{ webPush.isConfigured
                         ? $t('pages.admin.settings.system.notifications.web_push.status_ready')
                         : $t('pages.admin.settings.system.notifications.web_push.status_incomplete') }}
-                </Tag>
+                </CaomeiTag>
             </div>
 
             <div class="admin-notifications__status-panel">
-                <Message
-                    :severity="webPush.isConfigured ? 'success' : 'warn'"
+                <CaomeiMessage
+                    :tone="webPush.isConfigured ? 'success' : 'warning'"
                     :closable="false"
                     class="admin-notifications__status-message"
                 >
@@ -40,7 +40,7 @@
                                 : $t('pages.admin.settings.system.notifications.web_push.private_key_missing') }}
                         </strong>
                     </div>
-                </Message>
+                </CaomeiMessage>
 
                 <div class="admin-notifications__field-grid">
                     <SettingFormField
@@ -48,11 +48,10 @@
                         input-id="web-push-subject"
                         :metadata="webPush.subject"
                     >
-                        <InputText
+                        <SettingInput
                             id="web-push-subject"
                             v-model="webPush.subject.value"
                             :disabled="webPush.subject.isLocked"
-                            fluid
                         />
                     </SettingFormField>
 
@@ -61,13 +60,12 @@
                         input-id="web-push-public-key"
                         :metadata="webPush.publicKey"
                     >
-                        <Textarea
+                        <SettingTextarea
                             id="web-push-public-key"
                             v-model="webPush.publicKey.value"
                             :disabled="webPush.publicKey.isLocked"
-                            rows="4"
+                            :rows="4"
                             auto-resize
-                            fluid
                         />
                     </SettingFormField>
                 </div>
@@ -87,42 +85,27 @@
             </p>
         </div>
 
-        <DataTable :value="settings" class="mt-4">
-            <Column
-                field="event"
-                :header="$t('pages.admin.settings.system.notifications.event')"
-            >
-                <template #body="{data}">
-                    <span class="font-medium">{{ $t(`pages.admin.settings.system.notifications.events.${data.event}`) }}</span>
-                </template>
-            </Column>
-            <Column
-                field="isEmailEnabled"
-                :header="$t('pages.admin.settings.system.notifications.email')"
-                class="text-center"
-            >
-                <template #body="{data}">
-                    <ToggleSwitch v-model="data.isEmailEnabled" />
-                </template>
-            </Column>
-            <Column
-                field="isBrowserEnabled"
-                :header="$t('pages.admin.settings.system.notifications.browser')"
-                class="text-center"
-            >
-                <template #body="{data}">
-                    <ToggleSwitch v-model="data.isBrowserEnabled" />
-                </template>
-            </Column>
-        </DataTable>
+        <CaomeiDataTable
+            :data="settings"
+            :columns="columns"
+            class="mt-4"
+        >
+            <template #cell-event="{row}">
+                <span class="font-medium">{{ $t(`pages.admin.settings.system.notifications.events.${row.event}`) }}</span>
+            </template>
+            <template #cell-isEmailEnabled="{row}">
+                <CaomeiSwitch v-model="row.isEmailEnabled" />
+            </template>
+            <template #cell-isBrowserEnabled="{row}">
+                <CaomeiSwitch v-model="row.isBrowserEnabled" />
+            </template>
+        </CaomeiDataTable>
 
         <AdminFloatingActions
             :primary-label="$t('common.save')"
-            primary-icon="pi pi-check"
             :primary-loading="saving"
             :primary-disabled="saving || !isDirty"
             :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
-            secondary-icon="pi pi-question-circle"
             :status-label="actionStatusLabel"
             :status-tone="actionStatusTone"
             @primary-click="save"
@@ -132,11 +115,14 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
 import { ref, onMounted } from 'vue'
 import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import { useFeedbackEntry } from '@/composables/use-feedback-entry'
 import { useUnsavedChangesGuard } from '@/composables/use-unsaved-changes-guard'
 import { stableSerialize } from '@/utils/shared/stable-serialize'
+import type { DataTableColumn } from 'caomei-ui'
 import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
@@ -180,6 +166,12 @@ const { $appFetch } = useAppApi()
 const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry({ includeAdmin: true })
 
 const settings = ref<AdminNotificationSettingItem[]>([])
+
+const columns = computed<DataTableColumn<AdminNotificationSettingItem>[]>(() => [
+    { key: 'event', header: t('pages.admin.settings.system.notifications.event') },
+    { key: 'isEmailEnabled', header: t('pages.admin.settings.system.notifications.email'), headerClass: 'text-center', bodyClass: 'text-center' },
+    { key: 'isBrowserEnabled', header: t('pages.admin.settings.system.notifications.browser'), headerClass: 'text-center', bodyClass: 'text-center' },
+])
 const loading = ref(false)
 const saving = ref(false)
 const demoPreview = ref(false)

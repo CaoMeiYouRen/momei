@@ -13,11 +13,10 @@
             :metadata="metadata.site_name"
             :description="$t('pages.admin.settings.system.hints.site_name')"
         >
-            <InputText
+            <SettingInput
                 id="site_name"
                 v-model="settings.site_name"
                 :disabled="metadata.site_name?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -45,14 +44,13 @@
             :metadata="metadata.post_copyright"
             :description="$t('pages.admin.settings.system.hints.post_copyright')"
         >
-            <Select
+            <CaomeiSelect
                 id="post_copyright"
                 v-model="settings.post_copyright"
                 :options="copyrightOptions"
                 option-label="label"
                 option-value="value"
                 :disabled="metadata.post_copyright?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -70,11 +68,10 @@
             :metadata="metadata.site_copyright_start_year"
             :description="$t('pages.admin.settings.system.hints.site_copyright_start_year')"
         >
-            <InputText
+            <SettingInput
                 id="site_copyright_start_year"
                 v-model="settings.site_copyright_start_year"
                 :disabled="metadata.site_copyright_start_year?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -83,20 +80,19 @@
             input-id="default_language"
             :metadata="metadata.default_language"
         >
-            <Select
+            <CaomeiSelect
                 id="default_language"
                 v-model="settings.default_language"
                 :options="languageOptions"
                 option-label="label"
                 option-value="value"
                 :disabled="metadata.default_language?.isLocked"
-                fluid
             />
         </SettingFormField>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.branding') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <div class="settings-form__media-grid">
             <SettingFormField
@@ -105,17 +101,17 @@
                 :metadata="metadata.site_logo"
             >
                 <div class="settings-form__media-row">
-                    <AppUploader
+                    <AppUploaderV2
                         id="site_logo"
                         v-model="settings.site_logo"
                         :disabled="metadata.site_logo?.isLocked"
                     />
-                    <Image
+                    <CaomeiImage
                         v-if="settings.site_logo"
                         :src="settings.site_logo"
-                        width="48"
                         preview
                         class="settings-form__preview"
+                        style="width: 48px"
                     />
                 </div>
             </SettingFormField>
@@ -126,17 +122,17 @@
                 :metadata="metadata.site_favicon"
             >
                 <div class="settings-form__media-row">
-                    <AppUploader
+                    <AppUploaderV2
                         id="site_favicon"
                         v-model="settings.site_favicon"
                         :disabled="metadata.site_favicon?.isLocked"
                     />
-                    <Image
+                    <CaomeiImage
                         v-if="settings.site_favicon"
                         :src="settings.site_favicon"
-                        width="48"
                         preview
                         class="settings-form__preview"
+                        style="width: 48px"
                     />
                 </div>
             </SettingFormField>
@@ -154,11 +150,10 @@
             input-id="contact_email"
             :metadata="metadata.contact_email"
         >
-            <InputText
+            <SettingInput
                 id="contact_email"
                 v-model="settings.contact_email"
                 :disabled="metadata.contact_email?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -168,17 +163,16 @@
             :metadata="metadata.feedback_url"
             :description="$t('pages.admin.settings.system.hints.feedback_url')"
         >
-            <InputText
+            <SettingInput
                 id="feedback_url"
                 v-model="settings.feedback_url"
                 :disabled="metadata.feedback_url?.isLocked"
-                fluid
             />
         </SettingFormField>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.footer') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="show_compliance_info"
@@ -186,7 +180,7 @@
             :metadata="metadata.show_compliance_info"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="show_compliance_info"
                 v-model="settings.show_compliance_info"
                 :disabled="metadata.show_compliance_info?.isLocked"
@@ -198,11 +192,10 @@
             input-id="icp_license_number"
             :metadata="metadata.icp_license_number"
         >
-            <InputText
+            <SettingInput
                 id="icp_license_number"
                 v-model="settings.icp_license_number"
                 :disabled="metadata.icp_license_number?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -211,11 +204,10 @@
             input-id="public_security_number"
             :metadata="metadata.public_security_number"
         >
-            <InputText
+            <SettingInput
                 id="public_security_number"
                 v-model="settings.public_security_number"
                 :disabled="metadata.public_security_number?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -225,18 +217,17 @@
             :metadata="metadata.footer_code"
             :description="$t('pages.admin.settings.system.hints.footer_code')"
         >
-            <Textarea
+            <SettingTextarea
                 id="footer_code"
                 v-model="settings.footer_code"
                 :disabled="metadata.footer_code?.isLocked"
-                rows="4"
-                fluid
+                :rows="4"
             />
         </SettingFormField>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.friend_links') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="friend_links_enabled"
@@ -244,7 +235,7 @@
             :metadata="metadata.friend_links_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="friend_links_enabled"
                 v-model="settings.friend_links_enabled"
                 :disabled="metadata.friend_links_enabled?.isLocked"
@@ -258,7 +249,7 @@
                 :metadata="metadata.friend_links_application_enabled"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="friend_links_application_enabled"
                     v-model="settings.friend_links_application_enabled"
                     :disabled="metadata.friend_links_application_enabled?.isLocked"
@@ -271,7 +262,7 @@
                 :metadata="metadata.friend_links_footer_enabled"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="friend_links_footer_enabled"
                     v-model="settings.friend_links_footer_enabled"
                     :disabled="metadata.friend_links_footer_enabled?.isLocked"
@@ -284,12 +275,13 @@
                 :metadata="metadata.friend_links_footer_limit"
                 :description="$t('pages.admin.settings.system.hints.friend_links_footer_limit')"
             >
-                <InputNumber
+                <CaomeiInputNumber
                     id="friend_links_footer_limit"
                     v-model="settings.friend_links_footer_limit"
                     :disabled="metadata.friend_links_footer_limit?.isLocked"
                     :min="1"
-                    fluid
+
+                    :controls="false"
                 />
             </SettingFormField>
 
@@ -299,11 +291,10 @@
                 :metadata="metadata.friend_links_check_interval_minutes"
                 :description="$t('pages.admin.settings.system.hints.friend_links_check_interval_minutes')"
             >
-                <InputText
+                <SettingInput
                     id="friend_links_check_interval_minutes"
                     v-model="settings.friend_links_check_interval_minutes"
                     :disabled="metadata.friend_links_check_interval_minutes?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -318,9 +309,9 @@
             />
         </template>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.travellings') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="travellings_enabled"
@@ -328,7 +319,7 @@
             :metadata="metadata.travellings_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="travellings_enabled"
                 v-model="settings.travellings_enabled"
                 :disabled="metadata.travellings_enabled?.isLocked"
@@ -343,7 +334,7 @@
                 :description="$t('pages.admin.settings.system.hints.travellings_header_enabled')"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="travellings_header_enabled"
                     v-model="settings.travellings_header_enabled"
                     :disabled="metadata.travellings_header_enabled?.isLocked"
@@ -357,7 +348,7 @@
                 :description="$t('pages.admin.settings.system.hints.travellings_footer_enabled')"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="travellings_footer_enabled"
                     v-model="settings.travellings_footer_enabled"
                     :disabled="metadata.travellings_footer_enabled?.isLocked"
@@ -371,7 +362,7 @@
                 :description="$t('pages.admin.settings.system.hints.travellings_sidebar_enabled')"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="travellings_sidebar_enabled"
                     v-model="settings.travellings_sidebar_enabled"
                     :disabled="metadata.travellings_sidebar_enabled?.isLocked"
@@ -379,9 +370,9 @@
             </SettingFormField>
         </template>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.live2d') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="live2d_enabled"
@@ -389,7 +380,7 @@
             :metadata="metadata.live2d_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="live2d_enabled"
                 v-model="settings.live2d_enabled"
                 :disabled="metadata.live2d_enabled?.isLocked"
@@ -402,12 +393,11 @@
                 input-id="live2d_script_url"
                 :metadata="metadata.live2d_script_url"
             >
-                <InputText
+                <SettingInput
                     id="live2d_script_url"
                     v-model="settings.live2d_script_url"
                     :disabled="metadata.live2d_script_url?.isLocked"
                     :placeholder="$t('pages.admin.settings.system.hints.live2d_script_url')"
-                    fluid
                 />
             </SettingFormField>
 
@@ -416,12 +406,11 @@
                 input-id="live2d_model_url"
                 :metadata="metadata.live2d_model_url"
             >
-                <InputText
+                <SettingInput
                     id="live2d_model_url"
                     v-model="settings.live2d_model_url"
                     :disabled="metadata.live2d_model_url?.isLocked"
                     :placeholder="$t('pages.admin.settings.system.hints.live2d_model_url')"
-                    fluid
                 />
             </SettingFormField>
 
@@ -430,13 +419,12 @@
                 input-id="live2d_options_json"
                 :metadata="metadata.live2d_options_json"
             >
-                <Textarea
+                <SettingTextarea
                     id="live2d_options_json"
                     v-model="settings.live2d_options_json"
                     :disabled="metadata.live2d_options_json?.isLocked"
                     :placeholder="$t('pages.admin.settings.system.hints.live2d_options_json')"
-                    rows="8"
-                    fluid
+                    :rows="8"
                 />
             </SettingFormField>
 
@@ -446,7 +434,7 @@
                 :metadata="metadata.live2d_mobile_enabled"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="live2d_mobile_enabled"
                     v-model="settings.live2d_mobile_enabled"
                     :disabled="metadata.live2d_mobile_enabled?.isLocked"
@@ -458,14 +446,15 @@
                 input-id="live2d_min_width"
                 :metadata="metadata.live2d_min_width"
             >
-                <InputNumber
+                <CaomeiInputNumber
                     id="live2d_min_width"
                     v-model="settings.live2d_min_width"
                     :disabled="metadata.live2d_min_width?.isLocked"
                     :min="320"
                     :max="2560"
                     :step="1"
-                    fluid
+
+                    :controls="false"
                 />
             </SettingFormField>
 
@@ -475,7 +464,7 @@
                 :metadata="metadata.live2d_data_saver_block"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="live2d_data_saver_block"
                     v-model="settings.live2d_data_saver_block"
                     :disabled="metadata.live2d_data_saver_block?.isLocked"
@@ -483,9 +472,9 @@
             </SettingFormField>
         </template>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.canvas_nest') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="canvas_nest_enabled"
@@ -493,7 +482,7 @@
             :metadata="metadata.canvas_nest_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="canvas_nest_enabled"
                 v-model="settings.canvas_nest_enabled"
                 :disabled="metadata.canvas_nest_enabled?.isLocked"
@@ -506,13 +495,12 @@
                 input-id="canvas_nest_options_json"
                 :metadata="metadata.canvas_nest_options_json"
             >
-                <Textarea
+                <SettingTextarea
                     id="canvas_nest_options_json"
                     v-model="settings.canvas_nest_options_json"
                     :disabled="metadata.canvas_nest_options_json?.isLocked"
                     :placeholder="$t('pages.admin.settings.system.hints.canvas_nest_options_json')"
-                    rows="6"
-                    fluid
+                    :rows="6"
                 />
             </SettingFormField>
 
@@ -522,7 +510,7 @@
                 :metadata="metadata.canvas_nest_mobile_enabled"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="canvas_nest_mobile_enabled"
                     v-model="settings.canvas_nest_mobile_enabled"
                     :disabled="metadata.canvas_nest_mobile_enabled?.isLocked"
@@ -534,14 +522,15 @@
                 input-id="canvas_nest_min_width"
                 :metadata="metadata.canvas_nest_min_width"
             >
-                <InputNumber
+                <CaomeiInputNumber
                     id="canvas_nest_min_width"
                     v-model="settings.canvas_nest_min_width"
                     :disabled="metadata.canvas_nest_min_width?.isLocked"
                     :min="320"
                     :max="2560"
                     :step="1"
-                    fluid
+
+                    :controls="false"
                 />
             </SettingFormField>
 
@@ -551,7 +540,7 @@
                 :metadata="metadata.canvas_nest_data_saver_block"
                 inline
             >
-                <ToggleSwitch
+                <CaomeiSwitch
                     id="canvas_nest_data_saver_block"
                     v-model="settings.canvas_nest_data_saver_block"
                     :disabled="metadata.canvas_nest_data_saver_block?.isLocked"
@@ -559,9 +548,9 @@
             </SettingFormField>
         </template>
 
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ $t('pages.admin.settings.system.sections.effects_performance') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <SettingFormField
             field-key="effects_mobile_enabled"
@@ -569,7 +558,7 @@
             :metadata="metadata.effects_mobile_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="effects_mobile_enabled"
                 v-model="settings.effects_mobile_enabled"
                 :disabled="metadata.effects_mobile_enabled?.isLocked"
@@ -581,14 +570,15 @@
             input-id="effects_min_width"
             :metadata="metadata.effects_min_width"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="effects_min_width"
                 v-model="settings.effects_min_width"
                 :disabled="metadata.effects_min_width?.isLocked"
                 :min="320"
                 :max="2560"
                 :step="1"
-                fluid
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -598,7 +588,7 @@
             :metadata="metadata.effects_data_saver_block"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="effects_data_saver_block"
                 v-model="settings.effects_data_saver_block"
                 :disabled="metadata.effects_data_saver_block?.isLocked"
@@ -608,6 +598,8 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
 import LocalizedSettingEditor from '@/components/admin/settings/localized-setting-editor.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { APP_ENABLED_LOCALES } from '@/i18n/config/locale-registry'

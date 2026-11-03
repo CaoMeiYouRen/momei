@@ -1,8 +1,8 @@
 <template>
     <section class="email-template-settings-panel">
-        <Divider align="left">
+        <CaomeiDivider align="left">
             <b>{{ t('pages.admin.settings.system.email_templates.title') }}</b>
-        </Divider>
+        </CaomeiDivider>
 
         <p class="email-template-settings-panel__description">
             {{ t('pages.admin.settings.system.email_templates.description') }}
@@ -13,31 +13,30 @@
                 :label="t('pages.admin.settings.system.email_templates.selector_label')"
                 :description="t('pages.admin.settings.system.email_templates.selector_hint')"
             >
-                <Select
+                <CaomeiSelect
                     v-model="selectedTemplateId"
                     :options="templateOptions"
                     option-label="label"
                     option-value="value"
-                    fluid
                 />
             </SettingFormField>
         </div>
 
-        <Message
-            severity="secondary"
+        <CaomeiMessage
+            tone="neutral"
             :closable="false"
             class="email-template-settings-panel__template-note"
         >
             <strong>{{ selectedTemplateLabel }}</strong>
             <div>{{ selectedTemplateDescription }}</div>
-        </Message>
+        </CaomeiMessage>
 
         <SettingFormField
             :label="t('pages.admin.settings.system.email_templates.custom_enabled')"
             :description="t('pages.admin.settings.system.email_templates.custom_enabled_hint')"
             inline
         >
-            <ToggleSwitch v-model="selectedTemplateEnabled" />
+            <CaomeiSwitch v-model="selectedTemplateEnabled" />
         </SettingFormField>
 
         <div class="email-template-settings-panel__variables">
@@ -82,24 +81,27 @@
                 <span class="email-template-settings-panel__preview-locale-label">
                     {{ t('pages.admin.settings.system.email_templates.preview_locale_label') }}
                 </span>
-                <Select
+                <CaomeiSelect
                     v-model="previewLocale"
                     :options="localeOptions"
                     option-label="label"
                     option-value="value"
-                    fluid
                 />
                 <small class="email-template-settings-panel__preview-locale-hint">
                     {{ t('pages.admin.settings.system.email_templates.preview_locale_hint') }}
                 </small>
             </div>
 
-            <Button
-                icon="pi pi-eye"
+            <CaomeiButton
                 :label="t('pages.admin.settings.system.email_templates.preview_action')"
                 :loading="previewLoading"
                 @click="loadPreview"
-            />
+            >
+                <template #icon>
+                    <Eye :size="16" />
+                </template>
+                {{ t('pages.admin.settings.system.email_templates.preview_action') }}
+            </CaomeiButton>
         </div>
 
         <div v-if="preview" class="email-template-settings-panel__preview">
@@ -125,10 +127,9 @@
 
                     <div class="email-template-settings-panel__preview-context-value">
                         <strong>{{ preview.meta.appName.value }}</strong>
-                        <Tag
-                            :severity="sourceSeverity[preview.meta.appName.source]"
-                            :value="t(`pages.admin.settings.system.source_badges.${preview.meta.appName.source}`)"
-                        />
+                        <CaomeiTag :tone="sourceTone[preview.meta.appName.source]">
+                            {{ t(`pages.admin.settings.system.source_badges.${preview.meta.appName.source}`) }}
+                        </CaomeiTag>
                     </div>
                 </div>
             </div>
@@ -146,10 +147,9 @@
                         </small>
                     </div>
 
-                    <Tag
-                        :severity="sourceSeverity[getPreviewFieldSource(fieldId)]"
-                        :value="t(`pages.admin.settings.system.source_badges.${getPreviewFieldSource(fieldId)}`)"
-                    />
+                    <CaomeiTag :tone="sourceTone[getPreviewFieldSource(fieldId)]">
+                        {{ t(`pages.admin.settings.system.source_badges.${getPreviewFieldSource(fieldId)}`) }}
+                    </CaomeiTag>
                 </li>
             </ul>
 
@@ -165,6 +165,7 @@
 </template>
 
 <script setup lang="ts">
+import { Eye } from '@lucide/vue'
 import LocalizedSettingEditor from '@/components/admin/settings/localized-setting-editor.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { APP_ENABLED_LOCALES, type AppLocaleCode } from '@/i18n/config/locale-registry'
@@ -199,10 +200,10 @@ const previewLocale = ref<AppLocaleCode>(APP_ENABLED_LOCALES[0]?.code ?? 'zh-CN'
 const previewLoading = ref(false)
 const preview = ref<EmailTemplatePreviewPayload | null>(null)
 
-const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
-    env: 'warn',
+const sourceTone: Record<SettingSource, 'warning' | 'success' | 'primary'> = {
+    env: 'warning',
     db: 'success',
-    default: 'info',
+    default: 'primary',
 }
 
 const localeOptions = computed(() => APP_ENABLED_LOCALES.map((locale) => ({

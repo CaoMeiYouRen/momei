@@ -2,141 +2,135 @@
     <div v-if="settings" class="admin-system-settings">
         <AdminPageHeader :title="$t('pages.admin.settings.system.title')" />
 
-        <Card>
-            <template #content>
-                <Message
-                    v-if="isDemoPreview"
-                    severity="info"
-                    :closable="false"
-                    class="admin-system-settings__demo-notice"
-                >
-                    <div class="admin-system-settings__demo-copy">
-                        <strong>{{ $t('pages.admin.settings.system.demo_preview.title') }}</strong>
-                        <p>{{ $t('pages.admin.settings.system.demo_preview.description') }}</p>
-                    </div>
-                </Message>
+        <CaomeiCard>
+            <CaomeiMessage
+                v-if="isDemoPreview"
+                tone="primary"
+                :closable="false"
+                class="admin-system-settings__demo-notice"
+            >
+                <div class="admin-system-settings__demo-copy">
+                    <strong>{{ $t('pages.admin.settings.system.demo_preview.title') }}</strong>
+                    <p>{{ $t('pages.admin.settings.system.demo_preview.description') }}</p>
+                </div>
+            </CaomeiMessage>
 
-                <SetupFollowUpCard
-                    v-if="showSetupFollowUp"
-                    @open-tab="openSuggestedTab"
-                    @continue-editor="continueToEditor"
-                    @dismiss="dismissSetupFollowUp"
+            <SetupFollowUpCard
+                v-if="showSetupFollowUp"
+                @open-tab="openSuggestedTab"
+                @continue-editor="continueToEditor"
+                @dismiss="dismissSetupFollowUp"
+            />
+
+            <SettingExplanationCard :stats="smartModeStats" />
+
+            <CaomeiTabs v-model="activeTab">
+                <AdminFloatingActions
+                    v-if="showPageActionsBar"
+                    :primary-label="showPagePrimaryAction ? $t('common.save') : ''"
+                    :primary-loading="saving"
+                    :primary-disabled="pagePrimaryDisabled"
+                    :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
+                    :status-label="pageActionStatusLabel"
+                    :status-tone="pageActionStatusTone"
+                    @primary-click="saveSettings"
+                    @secondary-click="openFeedbackEntry"
                 />
 
-                <SettingExplanationCard :stats="smartModeStats" />
+                <CaomeiTabList>
+                    <CaomeiTabTrigger value="general">
+                        {{ $t('pages.admin.settings.system.tabs.general') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="ai">
+                        {{ $t('pages.admin.settings.system.tabs.ai') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="email">
+                        {{ $t('pages.admin.settings.system.tabs.email') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="storage">
+                        {{ $t('pages.admin.settings.system.tabs.storage') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="auth">
+                        {{ $t('pages.admin.settings.system.tabs.auth') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="security">
+                        {{ $t('pages.admin.settings.system.tabs.security') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="limits">
+                        {{ $t('pages.admin.settings.system.tabs.limits') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="analytics">
+                        {{ $t('pages.admin.settings.system.tabs.analytics') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="agreements">
+                        {{ $t('pages.admin.settings.system.tabs.agreements') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="notifications">
+                        {{ $t('pages.admin.settings.system.tabs.notifications') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="commercial">
+                        {{ $t('pages.admin.settings.system.tabs.commercial') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="audit_logs">
+                        {{ $t('pages.admin.settings.system.tabs.audit_logs') }}
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="third_party">
+                        {{ $t('pages.admin.settings.system.tabs.third_party') }}
+                    </CaomeiTabTrigger>
+                </CaomeiTabList>
+                <CaomeiTabContent value="general">
+                    <GeneralSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                <Tabs v-model:value="activeTab">
-                    <AdminFloatingActions
-                        v-if="showPageActionsBar"
-                        :primary-label="showPagePrimaryAction ? $t('common.save') : ''"
-                        primary-icon="pi pi-check"
-                        :primary-loading="saving"
-                        :primary-disabled="pagePrimaryDisabled"
-                        :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
-                        secondary-icon="pi pi-question-circle"
-                        :status-label="pageActionStatusLabel"
-                        :status-tone="pageActionStatusTone"
-                        @primary-click="saveSettings"
-                        @secondary-click="openFeedbackEntry"
-                    />
+                <CaomeiTabContent value="ai">
+                    <AISettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                    <TabList>
-                        <Tab value="general">
-                            {{ $t('pages.admin.settings.system.tabs.general') }}
-                        </Tab>
-                        <Tab value="ai">
-                            {{ $t('pages.admin.settings.system.tabs.ai') }}
-                        </Tab>
-                        <Tab value="email">
-                            {{ $t('pages.admin.settings.system.tabs.email') }}
-                        </Tab>
-                        <Tab value="storage">
-                            {{ $t('pages.admin.settings.system.tabs.storage') }}
-                        </Tab>
-                        <Tab value="auth">
-                            {{ $t('pages.admin.settings.system.tabs.auth') }}
-                        </Tab>
-                        <Tab value="security">
-                            {{ $t('pages.admin.settings.system.tabs.security') }}
-                        </Tab>
-                        <Tab value="limits">
-                            {{ $t('pages.admin.settings.system.tabs.limits') }}
-                        </Tab>
-                        <Tab value="analytics">
-                            {{ $t('pages.admin.settings.system.tabs.analytics') }}
-                        </Tab>
-                        <Tab value="agreements">
-                            {{ $t('pages.admin.settings.system.tabs.agreements') }}
-                        </Tab>
-                        <Tab value="notifications">
-                            {{ $t('pages.admin.settings.system.tabs.notifications') }}
-                        </Tab>
-                        <Tab value="commercial">
-                            {{ $t('pages.admin.settings.system.tabs.commercial') }}
-                        </Tab>
-                        <Tab value="audit_logs">
-                            {{ $t('pages.admin.settings.system.tabs.audit_logs') }}
-                        </Tab>
-                        <Tab value="third_party">
-                            {{ $t('pages.admin.settings.system.tabs.third_party') }}
-                        </Tab>
-                    </TabList>
-                    <TabPanels>
-                        <TabPanel value="general">
-                            <GeneralSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="email">
+                    <EmailSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="ai">
-                            <AISettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="storage">
+                    <StorageSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="email">
-                            <EmailSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="analytics">
+                    <AnalyticsSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="storage">
-                            <StorageSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="auth">
+                    <AuthSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="analytics">
-                            <AnalyticsSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="security">
+                    <SecuritySettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="auth">
-                            <AuthSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="limits">
+                    <LimitsSettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
 
-                        <TabPanel value="security">
-                            <SecuritySettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="agreements">
+                    <AgreementsSettings />
+                </CaomeiTabContent>
 
-                        <TabPanel value="limits">
-                            <LimitsSettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
+                <CaomeiTabContent value="notifications">
+                    <AdminNotificationSettings />
+                </CaomeiTabContent>
 
-                        <TabPanel value="agreements">
-                            <AgreementsSettings />
-                        </TabPanel>
+                <CaomeiTabContent value="commercial">
+                    <CommercialSettings />
+                </CaomeiTabContent>
 
-                        <TabPanel value="notifications">
-                            <AdminNotificationSettings />
-                        </TabPanel>
+                <CaomeiTabContent value="audit_logs">
+                    <SettingAuditLogList />
+                </CaomeiTabContent>
 
-                        <TabPanel value="commercial">
-                            <CommercialSettings />
-                        </TabPanel>
-
-                        <TabPanel value="audit_logs">
-                            <SettingAuditLogList />
-                        </TabPanel>
-
-                        <TabPanel value="third_party">
-                            <ThirdPartySettings v-model:settings="settings" :metadata="metadata" />
-                        </TabPanel>
-                    </TabPanels>
-                </Tabs>
-            </template>
-        </Card>
+                <CaomeiTabContent value="third_party">
+                    <ThirdPartySettings v-model:settings="settings" :metadata="metadata" />
+                </CaomeiTabContent>
+            </CaomeiTabs>
+        </CaomeiCard>
     </div>
 </template>
 

@@ -20,38 +20,50 @@
             </div>
 
             <div class="external-feed-sources-editor__toolbar-actions">
-                <Button
-                    icon="pi pi-plus"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
                     :label="$t('common.add')"
                     :disabled="disabled"
                     @click="addSource"
-                />
-                <Button
-                    icon="pi pi-upload"
-                    severity="secondary"
+                >
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('common.add') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="secondary"
                     :label="$t('pages.admin.settings.system.external_feeds.editor.import_json')"
                     :disabled="disabled"
                     @click="openImportFileDialog"
-                />
-                <Button
-                    icon="pi pi-download"
-                    severity="secondary"
+                >
+                    <template #icon>
+                        <Upload :size="16" />
+                    </template>
+                    {{ $t('pages.admin.settings.system.external_feeds.editor.import_json') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="secondary"
                     :label="$t('common.export')"
                     :disabled="sourceDrafts.length === 0"
                     @click="exportSources"
-                />
+                >
+                    <template #icon>
+                        <Download :size="16" />
+                    </template>
+                    {{ $t('common.export') }}
+                </CaomeiButton>
             </div>
         </div>
 
-        <Message
+        <CaomeiMessage
             v-if="parseError"
-            severity="warn"
+            tone="warning"
             :closable="false"
             class="external-feed-sources-editor__message"
         >
             {{ parseError }}
-        </Message>
+        </CaomeiMessage>
 
         <div v-if="sourceDrafts.length === 0" class="external-feed-sources-editor__empty-state">
             <p class="external-feed-sources-editor__empty-title">
@@ -78,14 +90,18 @@
                         </p>
                     </div>
 
-                    <Button
-                        icon="pi pi-trash"
-                        severity="danger"
-                        text
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        tone="danger"
                         :label="$t('common.delete')"
                         :disabled="disabled"
                         @click="removeSource(index)"
-                    />
+                    >
+                        <template #icon>
+                            <Trash2 :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </div>
 
                 <div class="external-feed-sources-editor__grid">
@@ -93,8 +109,8 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-enabled-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.enabled') }}
                         </label>
-                        <ToggleSwitch
-                            :input-id="`external-feed-source-enabled-${index}`"
+                        <CaomeiSwitch
+                            :id="`external-feed-source-enabled-${index}`"
                             :model-value="source.enabled"
                             :disabled="disabled"
                             @update:model-value="updateSourceField(index, 'enabled', $event)"
@@ -105,8 +121,8 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-home-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.include_in_home') }}
                         </label>
-                        <ToggleSwitch
-                            :input-id="`external-feed-source-home-${index}`"
+                        <CaomeiSwitch
+                            :id="`external-feed-source-home-${index}`"
                             :model-value="source.includeInHome"
                             :disabled="disabled"
                             @update:model-value="updateSourceField(index, 'includeInHome', $event)"
@@ -117,11 +133,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-id-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.id') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-id-${index}`"
                             :model-value="source.id"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateRequiredStringField(index, 'id', $event)"
                         />
                     </div>
@@ -130,11 +145,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-title-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.title') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-title-${index}`"
                             :model-value="source.title"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateRequiredStringField(index, 'title', $event)"
                         />
                     </div>
@@ -143,15 +157,14 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-provider-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.provider') }}
                         </label>
-                        <Select
+                        <CaomeiSelect
                             :id="`external-feed-source-provider-${index}`"
                             :model-value="source.provider"
                             :options="providerOptions"
                             option-label="label"
                             option-value="value"
                             :disabled="disabled"
-                            fluid
-                            @update:model-value="updateSourceField(index, 'provider', $event)"
+                            @update:model-value="updateSelectField(index, 'provider', $event)"
                         />
                     </div>
 
@@ -159,11 +172,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-url-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.source_url') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-url-${index}`"
                             :model-value="source.sourceUrl"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateRequiredStringField(index, 'sourceUrl', $event)"
                         />
                     </div>
@@ -172,11 +184,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-site-url-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.site_url') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-site-url-${index}`"
                             :model-value="source.siteUrl ?? ''"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateNullableStringField(index, 'siteUrl', $event)"
                         />
                     </div>
@@ -185,11 +196,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-site-name-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.site_name') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-site-name-${index}`"
                             :model-value="source.siteName ?? ''"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateNullableStringField(index, 'siteName', $event)"
                         />
                     </div>
@@ -198,15 +208,14 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-locale-strategy-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.locale_strategy') }}
                         </label>
-                        <Select
+                        <CaomeiSelect
                             :id="`external-feed-source-locale-strategy-${index}`"
                             :model-value="source.localeStrategy"
                             :options="localeStrategyOptions"
                             option-label="label"
                             option-value="value"
                             :disabled="disabled"
-                            fluid
-                            @update:model-value="updateSourceField(index, 'localeStrategy', $event)"
+                            @update:model-value="updateSelectField(index, 'localeStrategy', $event)"
                         />
                     </div>
 
@@ -214,14 +223,13 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-default-locale-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.default_locale') }}
                         </label>
-                        <Select
+                        <CaomeiSelect
                             :id="`external-feed-source-default-locale-${index}`"
                             :model-value="source.defaultLocale"
                             :options="defaultLocaleOptions"
                             option-label="label"
                             option-value="value"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateNullableStringField(index, 'defaultLocale', $event)"
                         />
                     </div>
@@ -230,11 +238,10 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-badge-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.badge_label') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             :id="`external-feed-source-badge-${index}`"
                             :model-value="source.badgeLabel ?? ''"
                             :disabled="disabled"
-                            fluid
                             @update:model-value="updateNullableStringField(index, 'badgeLabel', $event)"
                         />
                     </div>
@@ -243,13 +250,14 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-priority-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.priority') }}
                         </label>
-                        <InputNumber
-                            :input-id="`external-feed-source-priority-${index}`"
+                        <CaomeiInputNumber
+                            :id="`external-feed-source-priority-${index}`"
                             :model-value="source.priority"
                             :disabled="disabled"
                             :min="-100"
                             :max="100"
-                            fluid
+                            :controls="false"
+
                             @update:model-value="updateNumericField(index, 'priority', $event, 0)"
                         />
                     </div>
@@ -258,14 +266,12 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-timeout-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.timeout_ms') }}
                         </label>
-                        <InputNumber
-                            :input-id="`external-feed-source-timeout-${index}`"
+                        <CaomeiInputNumber
+                            :id="`external-feed-source-timeout-${index}`"
                             :model-value="source.timeoutMs"
                             :disabled="disabled"
                             :min="1000"
                             :max="60000"
-                            show-buttons
-                            fluid
                             @update:model-value="updateNullableNumberField(index, 'timeoutMs', $event)"
                         />
                     </div>
@@ -274,14 +280,12 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-cache-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.cache_ttl_seconds') }}
                         </label>
-                        <InputNumber
-                            :input-id="`external-feed-source-cache-${index}`"
+                        <CaomeiInputNumber
+                            :id="`external-feed-source-cache-${index}`"
                             :model-value="source.cacheTtlSeconds"
                             :disabled="disabled"
                             :min="60"
                             :max="86400"
-                            show-buttons
-                            fluid
                             @update:model-value="updateNullableNumberField(index, 'cacheTtlSeconds', $event)"
                         />
                     </div>
@@ -290,14 +294,12 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-stale-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.stale_while_error_seconds') }}
                         </label>
-                        <InputNumber
-                            :input-id="`external-feed-source-stale-${index}`"
+                        <CaomeiInputNumber
+                            :id="`external-feed-source-stale-${index}`"
                             :model-value="source.staleWhileErrorSeconds"
                             :disabled="disabled"
                             :min="60"
                             :max="604800"
-                            show-buttons
-                            fluid
                             @update:model-value="updateNullableNumberField(index, 'staleWhileErrorSeconds', $event)"
                         />
                     </div>
@@ -306,14 +308,12 @@
                         <label class="external-feed-sources-editor__label" :for="`external-feed-source-max-items-${index}`">
                             {{ $t('pages.admin.settings.system.external_feeds.editor.fields.max_items') }}
                         </label>
-                        <InputNumber
-                            :input-id="`external-feed-source-max-items-${index}`"
+                        <CaomeiInputNumber
+                            :id="`external-feed-source-max-items-${index}`"
                             :model-value="source.maxItems"
                             :disabled="disabled"
                             :min="1"
                             :max="20"
-                            show-buttons
-                            fluid
                             @update:model-value="updateNullableNumberField(index, 'maxItems', $event)"
                         />
                     </div>
@@ -324,6 +324,8 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import { Download, Plus, Trash2, Upload } from '@lucide/vue'
 import { APP_LOCALE_CODES, type AppLocaleCode } from '@/i18n/config/locale-registry'
 import type { ExternalFeedLocaleStrategy, ExternalFeedProvider } from '@/types/external-feed'
 import { externalFeedSourcesSchema, type ExternalFeedSourceConfigInput } from '@/utils/schemas/external-feed'
@@ -435,9 +437,26 @@ function updateRequiredStringField<K extends 'id' | 'title' | 'sourceUrl'>(index
 function updateNullableStringField<K extends 'siteUrl' | 'siteName' | 'defaultLocale' | 'badgeLabel'>(
     index: number,
     key: K,
-    value: string | null | undefined,
+    value: string | number | null | undefined,
 ) {
-    updateSourceField(index, key, normalizeNullableString(value) as ExternalFeedSourceConfigInput[K])
+    updateSourceField(index, key, normalizeNullableString(toNullableString(value)) as ExternalFeedSourceConfigInput[K])
+}
+
+/** caomei 的 `Select` 会以 `string | number | null | undefined` 回写；设置项只接受字符串或 null。 */
+function updateSelectField<K extends 'provider' | 'localeStrategy'>(
+    index: number,
+    key: K,
+    value: string | number | null | undefined,
+) {
+    updateSourceField(index, key, toNullableString(value) as ExternalFeedSourceConfigInput[K])
+}
+
+function toNullableString(value: string | number | null | undefined): string | null | undefined {
+    if (typeof value === 'number') {
+        return String(value)
+    }
+
+    return value
 }
 
 function updateNumericField<K extends 'priority'>(index: number, key: K, value: number | null | undefined, fallback: number) {

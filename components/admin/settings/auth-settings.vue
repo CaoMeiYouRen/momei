@@ -5,11 +5,10 @@
             input-id="github_client_id"
             :metadata="metadata.github_client_id"
         >
-            <InputText
+            <SettingInput
                 id="github_client_id"
                 v-model="settings.github_client_id"
                 :disabled="metadata.github_client_id?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -18,27 +17,24 @@
             input-id="github_client_secret"
             :metadata="metadata.github_client_secret"
         >
-            <Password
+            <SettingPassword
                 id="github_client_secret"
                 v-model="settings.github_client_secret"
                 :disabled="metadata.github_client_secret?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
 
-        <Divider />
+        <CaomeiDivider />
 
         <SettingFormField
             field-key="google_client_id"
             input-id="google_client_id"
             :metadata="metadata.google_client_id"
         >
-            <InputText
+            <SettingInput
                 id="google_client_id"
                 v-model="settings.google_client_id"
                 :disabled="metadata.google_client_id?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -47,18 +43,18 @@
             input-id="google_client_secret"
             :metadata="metadata.google_client_secret"
         >
-            <Password
+            <SettingPassword
                 id="google_client_secret"
                 v-model="settings.google_client_secret"
                 :disabled="metadata.google_client_secret?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingPassword from '@/components/admin/settings/setting-password.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import type { SettingFormValue, SettingMetadataMap } from '@/types/setting'
 

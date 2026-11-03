@@ -5,55 +5,69 @@
             class="admin-floating-actions__status"
             :class="`admin-floating-actions__status--${statusTone}`"
         >
-            <i :class="statusIcon" aria-hidden="true" />
+            <component
+                :is="statusIcon"
+                :size="16"
+                aria-hidden="true"
+            />
             <span>{{ statusLabel }}</span>
         </div>
 
         <div class="admin-floating-actions__panel">
             <slot name="before-actions" />
 
-            <Button
+            <CaomeiButton
                 v-if="secondaryLabel"
                 :label="secondaryLabel"
-                :icon="secondaryIcon"
-                severity="secondary"
-                outlined
+                variant="secondary"
                 rounded
                 class="admin-floating-actions__button admin-floating-actions__button--secondary"
                 @click="$emit('secondary-click')"
-            />
+            >
+                <template #icon>
+                    <component :is="secondaryIcon" :size="16" />
+                </template>
+                {{ secondaryLabel }}
+            </CaomeiButton>
 
-            <Button
+            <CaomeiButton
                 v-if="primaryLabel"
                 :label="primaryLabel"
-                :icon="primaryIcon"
                 :loading="primaryLoading"
                 :disabled="primaryDisabled"
                 rounded
                 class="admin-floating-actions__button admin-floating-actions__button--primary"
                 @click="$emit('primary-click')"
-            />
+            >
+                <template #icon>
+                    <component :is="primaryIcon" :size="16" />
+                </template>
+                {{ primaryLabel }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import { Check, CircleCheck, CircleHelp, Info, TriangleAlert } from '@lucide/vue'
+
 const props = withDefaults(defineProps<{
     primaryLabel?: string
-    primaryIcon?: string
+    primaryIcon?: Component
     primaryLoading?: boolean
     primaryDisabled?: boolean
     secondaryLabel?: string
-    secondaryIcon?: string
+    secondaryIcon?: Component
     statusLabel?: string
     statusTone?: 'muted' | 'warn' | 'success'
 }>(), {
     primaryLabel: '',
-    primaryIcon: 'pi pi-check',
+    primaryIcon: () => Check,
     primaryLoading: false,
     primaryDisabled: false,
     secondaryLabel: '',
-    secondaryIcon: 'pi pi-question-circle',
+    secondaryIcon: () => CircleHelp,
     statusLabel: '',
     statusTone: 'muted',
 })
@@ -63,16 +77,16 @@ defineEmits<{
     (e: 'secondary-click'): void
 }>()
 
-const statusIcon = computed(() => {
+const statusIcon = computed<Component>(() => {
     if (props.statusTone === 'warn') {
-        return 'pi pi-exclamation-circle'
+        return TriangleAlert
     }
 
     if (props.statusTone === 'success') {
-        return 'pi pi-check-circle'
+        return CircleCheck
     }
 
-    return 'pi pi-info-circle'
+    return Info
 })
 </script>
 

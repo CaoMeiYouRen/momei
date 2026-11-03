@@ -24,10 +24,9 @@
                         <label class="ai-cost-factors-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.currency_code') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             v-model="costFactorForm.currencyCode"
                             :disabled="isLocked"
-                            fluid
                         />
                     </div>
 
@@ -35,10 +34,9 @@
                         <label class="ai-cost-factors-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.currency_symbol') }}
                         </label>
-                        <InputText
+                        <SettingInput
                             v-model="costFactorForm.currencySymbol"
                             :disabled="isLocked"
-                            fluid
                         />
                     </div>
 
@@ -46,14 +44,14 @@
                         <label class="ai-cost-factors-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.quota_unit_price') }}
                         </label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="costFactorForm.quotaUnitPrice"
                             :disabled="isLocked"
                             :min="0"
                             :min-fraction-digits="2"
                             :max-fraction-digits="4"
                             :use-grouping="false"
-                            fluid
+                            :controls="false"
                         />
                     </div>
 
@@ -61,14 +59,14 @@
                         <label class="ai-cost-factors-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.usd_exchange_rate') }}
                         </label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="costFactorForm.usdExchangeRate"
                             :disabled="isLocked"
                             :min="0.0001"
                             :min-fraction-digits="2"
                             :max-fraction-digits="6"
                             :use-grouping="false"
-                            fluid
+                            :controls="false"
                         />
                     </div>
 
@@ -76,14 +74,14 @@
                         <label class="ai-cost-factors-editor__field-label">
                             {{ $t('pages.admin.settings.system.ai_editor.cny_exchange_rate') }}
                         </label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="costFactorForm.cnyExchangeRate"
                             :disabled="isLocked"
                             :min="0.0001"
                             :min-fraction-digits="2"
                             :max-fraction-digits="6"
                             :use-grouping="false"
-                            fluid
+                            :controls="false"
                         />
                     </div>
                 </div>
@@ -97,13 +95,12 @@
                 <p class="ai-cost-factors-editor__error">
                     {{ costFactorsParseError }}
                 </p>
-                <Textarea
+                <SettingTextarea
                     id="ai_cost_factors"
                     v-model="costFactors"
                     :disabled="isLocked"
-                    rows="10"
+                    :rows="10"
                     auto-resize
-                    fluid
                 />
             </template>
         </div>
@@ -111,6 +108,8 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import { aiCostFactorsSchema } from '@/utils/schemas/ai'
 

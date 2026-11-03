@@ -42,11 +42,9 @@
 
         <AdminFloatingActions
             :primary-label="$t('common.save')"
-            primary-icon="pi pi-check"
             :primary-loading="loading"
             :primary-disabled="loading || !isDirty"
             :secondary-label="shouldShowFeedbackEntry ? $t('common.feedback') : ''"
-            secondary-icon="pi pi-question-circle"
             :status-label="themeActionStatusLabel"
             :status-tone="themeActionStatusTone"
             @primary-click="saveTheme"

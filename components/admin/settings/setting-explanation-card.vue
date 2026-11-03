@@ -21,23 +21,33 @@
         <div class="setting-explanation-card__stats">
             <div class="setting-explanation-card__stat">
                 <span>{{ $t('pages.admin.settings.system.smart_mode.stat_locked') }}</span>
-                <Tag severity="warn" :value="String(stats.locked)" />
+                <CaomeiTag tone="warning">
+                    {{ stats.locked }}
+                </CaomeiTag>
             </div>
             <div class="setting-explanation-card__stat">
                 <span>{{ $t('pages.admin.settings.system.smart_mode.stat_default_used') }}</span>
-                <Tag severity="info" :value="String(stats.defaultUsed)" />
+                <CaomeiTag tone="primary">
+                    {{ stats.defaultUsed }}
+                </CaomeiTag>
             </div>
             <div class="setting-explanation-card__stat">
                 <span>{{ $t('pages.admin.settings.system.smart_mode.stat_requires_restart') }}</span>
-                <Tag severity="secondary" :value="String(stats.requiresRestart)" />
+                <CaomeiTag tone="neutral">
+                    {{ stats.requiresRestart }}
+                </CaomeiTag>
             </div>
             <div class="setting-explanation-card__stat">
                 <span>{{ $t('pages.admin.settings.system.smart_mode.source_counts.env') }}</span>
-                <Tag severity="warn" :value="String(stats.sources.env)" />
+                <CaomeiTag tone="warning">
+                    {{ stats.sources.env }}
+                </CaomeiTag>
             </div>
             <div class="setting-explanation-card__stat">
                 <span>{{ $t('pages.admin.settings.system.smart_mode.source_counts.db') }}</span>
-                <Tag severity="success" :value="String(stats.sources.db)" />
+                <CaomeiTag tone="success">
+                    {{ stats.sources.db }}
+                </CaomeiTag>
             </div>
         </div>
     </div>

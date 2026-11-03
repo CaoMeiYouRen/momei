@@ -6,7 +6,7 @@
             :metadata="metadata.ai_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="ai_enabled"
                 v-model="settings.ai_enabled"
                 :disabled="metadata.ai_enabled?.isLocked"
@@ -18,12 +18,13 @@
             input-id="ai_provider"
             :metadata="metadata.ai_provider"
         >
-            <Select
+            <CaomeiSelect
                 id="ai_provider"
                 v-model="settings.ai_provider"
                 :options="aiProviders"
+                option-label="label"
+                option-value="value"
                 :disabled="metadata.ai_provider?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -32,12 +33,13 @@
             input-id="ai_fallback_provider"
             :metadata="metadata.ai_fallback_provider"
         >
-            <Select
+            <CaomeiSelect
                 id="ai_fallback_provider"
                 v-model="settings.ai_fallback_provider"
                 :options="aiProviders"
+                option-label="label"
+                option-value="value"
                 :disabled="metadata.ai_fallback_provider?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -47,12 +49,10 @@
             input-id="ai_fallback_api_key"
             :metadata="metadata.ai_fallback_api_key"
         >
-            <Password
+            <SettingPassword
                 id="ai_fallback_api_key"
                 v-model="settings.ai_fallback_api_key"
                 :disabled="metadata.ai_fallback_api_key?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
 
@@ -62,11 +62,10 @@
             input-id="ai_fallback_model"
             :metadata="metadata.ai_fallback_model"
         >
-            <InputText
+            <SettingInput
                 id="ai_fallback_model"
                 v-model="settings.ai_fallback_model"
                 :disabled="metadata.ai_fallback_model?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -76,11 +75,10 @@
             input-id="ai_fallback_endpoint"
             :metadata="metadata.ai_fallback_endpoint"
         >
-            <InputText
+            <SettingInput
                 id="ai_fallback_endpoint"
                 v-model="settings.ai_fallback_endpoint"
                 :disabled="metadata.ai_fallback_endpoint?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -89,11 +87,10 @@
             input-id="ai_model"
             :metadata="metadata.ai_model"
         >
-            <InputText
+            <SettingInput
                 id="ai_model"
                 v-model="settings.ai_model"
                 :disabled="metadata.ai_model?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -102,12 +99,10 @@
             input-id="ai_api_key"
             :metadata="metadata.ai_api_key"
         >
-            <Password
+            <SettingPassword
                 id="ai_api_key"
                 v-model="settings.ai_api_key"
                 :disabled="metadata.ai_api_key?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
 
@@ -116,11 +111,10 @@
             input-id="ai_endpoint"
             :metadata="metadata.ai_endpoint"
         >
-            <InputText
+            <SettingInput
                 id="ai_endpoint"
                 v-model="settings.ai_endpoint"
                 :disabled="metadata.ai_endpoint?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -130,15 +124,16 @@
             :metadata="metadata.ai_max_tokens"
             :description="$t('pages.admin.settings.system.hints.ai_max_tokens')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="ai_max_tokens"
                 v-model="settings.ai_max_tokens"
                 :disabled="metadata.ai_max_tokens?.isLocked"
                 :min="256"
                 :max="128000"
                 :step="256"
-                fluid
                 :use-grouping="false"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -148,7 +143,7 @@
             :metadata="metadata.ai_temperature"
             :description="$t('pages.admin.settings.system.hints.ai_temperature')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="ai_temperature"
                 v-model="settings.ai_temperature"
                 :disabled="metadata.ai_temperature?.isLocked"
@@ -157,8 +152,9 @@
                 :step="0.01"
                 :min-fraction-digits="2"
                 :max-fraction-digits="2"
-                fluid
                 :use-grouping="false"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -168,15 +164,16 @@
             :metadata="metadata.ai_chunk_size"
             :description="$t('pages.admin.settings.system.hints.ai_chunk_size')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="ai_chunk_size"
                 v-model="settings.ai_chunk_size"
                 :disabled="metadata.ai_chunk_size?.isLocked"
                 :min="256"
                 :max="32768"
                 :step="256"
-                fluid
                 :use-grouping="false"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -186,16 +183,14 @@
             input-id="gemini_api_token"
             :metadata="metadata.gemini_api_token"
         >
-            <Password
+            <SettingPassword
                 id="gemini_api_token"
                 v-model="settings.gemini_api_token"
                 :disabled="metadata.gemini_api_token?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
 
-        <Divider class="my-8" />
+        <CaomeiDivider class="my-8" />
 
         <SettingFormField
             input-id="ai_quota_enabled"
@@ -204,7 +199,7 @@
             :metadata="metadata.ai_quota_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="ai_quota_enabled"
                 v-model="settings.ai_quota_enabled"
                 :disabled="metadata.ai_quota_enabled?.isLocked"
@@ -232,7 +227,7 @@
             />
         </div>
 
-        <Divider class="my-8" />
+        <CaomeiDivider class="my-8" />
 
         <SettingFormField
             input-id="ai_image_enabled"
@@ -241,7 +236,7 @@
             :metadata="metadata.ai_image_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="ai_image_enabled"
                 v-model="settings.ai_image_enabled"
                 :disabled="metadata.ai_image_enabled?.isLocked"
@@ -254,12 +249,13 @@
                 input-id="ai_image_provider"
                 :metadata="metadata.ai_image_provider"
             >
-                <Select
+                <CaomeiSelect
                     id="ai_image_provider"
                     v-model="settings.ai_image_provider"
                     :options="aiImageProviders"
+                    option-label="label"
+                    option-value="value"
                     :disabled="metadata.ai_image_provider?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -268,11 +264,10 @@
                 input-id="ai_image_model"
                 :metadata="metadata.ai_image_model"
             >
-                <InputText
+                <SettingInput
                     id="ai_image_model"
                     v-model="settings.ai_image_model"
                     :disabled="metadata.ai_image_model?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -281,12 +276,10 @@
                 input-id="ai_image_api_key"
                 :metadata="metadata.ai_image_api_key"
             >
-                <Password
+                <SettingPassword
                     id="ai_image_api_key"
                     v-model="settings.ai_image_api_key"
                     :disabled="metadata.ai_image_api_key?.isLocked"
-                    :toggle-mask="true"
-                    fluid
                 />
             </SettingFormField>
 
@@ -295,16 +288,15 @@
                 input-id="ai_image_endpoint"
                 :metadata="metadata.ai_image_endpoint"
             >
-                <InputText
+                <SettingInput
                     id="ai_image_endpoint"
                     v-model="settings.ai_image_endpoint"
                     :disabled="metadata.ai_image_endpoint?.isLocked"
-                    fluid
                 />
             </SettingFormField>
         </div>
 
-        <Divider class="my-8" />
+        <CaomeiDivider class="my-8" />
 
         <SettingFormField
             input-id="asr_enabled"
@@ -313,7 +305,7 @@
             :metadata="metadata.asr_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="asr_enabled"
                 v-model="settings.asr_enabled"
                 :disabled="metadata.asr_enabled?.isLocked"
@@ -327,12 +319,11 @@
                 :metadata="metadata.asr_credential_ttl_seconds"
                 :description="$t('pages.admin.settings.system.hints.asr_credential_ttl_seconds')"
             >
-                <InputText
+                <SettingInput
                     id="asr_credential_ttl_seconds"
                     v-model="settings.asr_credential_ttl_seconds"
                     :disabled="metadata.asr_credential_ttl_seconds?.isLocked"
                     placeholder="10m"
-                    fluid
                 />
             </SettingFormField>
 
@@ -341,14 +332,13 @@
                 input-id="asr_provider"
                 :metadata="metadata.asr_provider"
             >
-                <Select
+                <CaomeiSelect
                     id="asr_provider"
                     v-model="settings.asr_provider"
                     :options="asrProviders"
                     option-label="label"
                     option-value="value"
                     :disabled="metadata.asr_provider?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -358,12 +348,10 @@
                     input-id="asr_api_key"
                     :metadata="metadata.asr_api_key"
                 >
-                    <Password
+                    <SettingPassword
                         id="asr_api_key"
                         v-model="settings.asr_api_key"
                         :disabled="metadata.asr_api_key?.isLocked"
-                        :toggle-mask="true"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -372,12 +360,11 @@
                     input-id="asr_model"
                     :metadata="metadata.asr_model"
                 >
-                    <InputText
+                    <SettingInput
                         id="asr_model"
                         v-model="settings.asr_model"
                         :disabled="metadata.asr_model?.isLocked"
                         placeholder="FunAudioLLM/SenseVoiceSmall"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -386,11 +373,10 @@
                     input-id="asr_endpoint"
                     :metadata="metadata.asr_endpoint"
                 >
-                    <InputText
+                    <SettingInput
                         id="asr_endpoint"
                         v-model="settings.asr_endpoint"
                         :disabled="metadata.asr_endpoint?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
             </div>
@@ -401,12 +387,11 @@
                     input-id="asr_model"
                     :metadata="metadata.asr_model"
                 >
-                    <InputText
+                    <SettingInput
                         id="asr_model"
                         v-model="settings.asr_model"
                         :disabled="metadata.asr_model?.isLocked"
                         placeholder="volc.seedasr.sauc.duration"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -415,11 +400,10 @@
                     input-id="asr_endpoint"
                     :metadata="metadata.asr_endpoint"
                 >
-                    <InputText
+                    <SettingInput
                         id="asr_endpoint"
                         v-model="settings.asr_endpoint"
                         :disabled="metadata.asr_endpoint?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -428,11 +412,10 @@
                     input-id="asr_volcengine_cluster_id"
                     :metadata="metadata.asr_volcengine_cluster_id"
                 >
-                    <InputText
+                    <SettingInput
                         id="asr_volcengine_cluster_id"
                         v-model="settings.asr_volcengine_cluster_id"
                         :disabled="metadata.asr_volcengine_cluster_id?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
             </div>
@@ -442,18 +425,17 @@
             v-if="(settings.asr_enabled && settings.asr_provider === 'volcengine') || (settings.tts_enabled && settings.tts_provider === 'volcengine')"
             class="ai-settings__shared-group"
         >
-            <!-- <Divider class="my-8" /> -->
+            <!-- <CaomeiDivider class="my-8" /> -->
 
             <SettingFormField
                 field-key="volcengine_app_id"
                 input-id="volcengine_app_id"
                 :metadata="metadata.volcengine_app_id"
             >
-                <InputText
+                <SettingInput
                     id="volcengine_app_id"
                     v-model="settings.volcengine_app_id"
                     :disabled="metadata.volcengine_app_id?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -462,11 +444,10 @@
                 input-id="volcengine_access_key"
                 :metadata="metadata.volcengine_access_key"
             >
-                <InputText
+                <SettingInput
                     id="volcengine_access_key"
                     v-model="settings.volcengine_access_key"
                     :disabled="metadata.volcengine_access_key?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -475,17 +456,15 @@
                 input-id="volcengine_secret_key"
                 :metadata="metadata.volcengine_secret_key"
             >
-                <Password
+                <SettingPassword
                     id="volcengine_secret_key"
                     v-model="settings.volcengine_secret_key"
                     :disabled="metadata.volcengine_secret_key?.isLocked"
-                    :toggle-mask="true"
-                    fluid
                 />
             </SettingFormField>
         </div>
 
-        <Divider class="my-8" />
+        <CaomeiDivider class="my-8" />
 
         <SettingFormField
             input-id="tts_enabled"
@@ -494,7 +473,7 @@
             :metadata="metadata.tts_enabled"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="tts_enabled"
                 v-model="settings.tts_enabled"
                 :disabled="metadata.tts_enabled?.isLocked"
@@ -507,14 +486,13 @@
                 input-id="tts_provider"
                 :metadata="metadata.tts_provider"
             >
-                <Select
+                <CaomeiSelect
                     id="tts_provider"
                     v-model="settings.tts_provider"
                     :options="ttsProviders"
                     option-label="label"
                     option-value="value"
                     :disabled="metadata.tts_provider?.isLocked"
-                    fluid
                 />
             </SettingFormField>
 
@@ -524,12 +502,11 @@
                 :metadata="metadata.tts_credential_ttl_seconds"
                 :description="$t('pages.admin.settings.system.hints.tts_credential_ttl_seconds')"
             >
-                <InputText
+                <SettingInput
                     id="tts_credential_ttl_seconds"
                     v-model="settings.tts_credential_ttl_seconds"
                     :disabled="metadata.tts_credential_ttl_seconds?.isLocked"
                     placeholder="10m"
-                    fluid
                 />
             </SettingFormField>
 
@@ -539,12 +516,10 @@
                     input-id="tts_api_key"
                     :metadata="metadata.tts_api_key"
                 >
-                    <Password
+                    <SettingPassword
                         id="tts_api_key"
                         v-model="settings.tts_api_key"
                         :disabled="metadata.tts_api_key?.isLocked"
-                        :toggle-mask="true"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -553,11 +528,10 @@
                     input-id="tts_model"
                     :metadata="metadata.tts_model"
                 >
-                    <InputText
+                    <SettingInput
                         id="tts_model"
                         v-model="settings.tts_model"
                         :disabled="metadata.tts_model?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -566,11 +540,10 @@
                     input-id="tts_endpoint"
                     :metadata="metadata.tts_endpoint"
                 >
-                    <InputText
+                    <SettingInput
                         id="tts_endpoint"
                         v-model="settings.tts_endpoint"
                         :disabled="metadata.tts_endpoint?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
 
@@ -580,14 +553,13 @@
                     :metadata="metadata.tts_default_voice"
                     :description="$t('pages.admin.settings.system.hints.tts_default_voice')"
                 >
-                    <Select
+                    <CaomeiSelect
                         id="tts_default_voice"
                         v-model="settings.tts_default_voice"
                         :options="ttsVoiceOptions"
                         option-label="label"
                         option-value="value"
                         :disabled="metadata.tts_default_voice?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
             </div>
@@ -598,11 +570,10 @@
                     input-id="tts_model"
                     :metadata="metadata.tts_model"
                 >
-                    <InputText
+                    <SettingInput
                         id="tts_model"
                         v-model="settings.tts_model"
                         :disabled="metadata.tts_model?.isLocked"
-                        fluid
                     />
                 </SettingFormField>
             </div>
@@ -611,6 +582,8 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingPassword from '@/components/admin/settings/setting-password.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 import AiQuotaPoliciesEditor from '@/components/admin/settings/ai-quota-policies-editor.vue'
 import AiAlertThresholdsEditor from '@/components/admin/settings/ai-alert-thresholds-editor.vue'
@@ -630,8 +603,8 @@ defineProps<{
     metadata: AISettingsMetadata
 }>()
 
-const aiProviders: AdminAIProvider[] = ['openai', 'groq', 'ollama', 'anthropic', 'google']
-const aiImageProviders: AdminAIImageProvider[] = ['openai', 'gemini', 'stable-diffusion', 'doubao', 'siliconflow']
+const aiProviders = (['openai', 'groq', 'ollama', 'anthropic', 'google'] as AdminAIProvider[]).map((value) => ({ label: value, value }))
+const aiImageProviders = (['openai', 'gemini', 'stable-diffusion', 'doubao', 'siliconflow'] as AdminAIImageProvider[]).map((value) => ({ label: value, value }))
 const asrProviders: Array<{ label: string, value: AdminASRProvider }> = [
     { label: 'SiliconFlow (Batch)', value: 'siliconflow' },
     { label: 'Volcengine (Streaming)', value: 'volcengine' },

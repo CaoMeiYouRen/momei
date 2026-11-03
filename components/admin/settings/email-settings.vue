@@ -5,11 +5,10 @@
             input-id="email_host"
             :metadata="metadata.email_host"
         >
-            <InputText
+            <SettingInput
                 id="email_host"
                 v-model="settings.email_host"
                 :disabled="metadata.email_host?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -18,12 +17,13 @@
             input-id="email_port"
             :metadata="metadata.email_port"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="email_port"
                 v-model="settings.email_port"
                 :disabled="metadata.email_port?.isLocked"
-                fluid
                 :use-grouping="false"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -32,11 +32,10 @@
             input-id="email_user"
             :metadata="metadata.email_user"
         >
-            <InputText
+            <SettingInput
                 id="email_user"
                 v-model="settings.email_user"
                 :disabled="metadata.email_user?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -45,12 +44,10 @@
             input-id="email_pass"
             :metadata="metadata.email_pass"
         >
-            <Password
+            <SettingPassword
                 id="email_pass"
                 v-model="settings.email_pass"
                 :disabled="metadata.email_pass?.isLocked"
-                :toggle-mask="true"
-                fluid
             />
         </SettingFormField>
 
@@ -59,11 +56,10 @@
             input-id="email_from"
             :metadata="metadata.email_from"
         >
-            <InputText
+            <SettingInput
                 id="email_from"
                 v-model="settings.email_from"
                 :disabled="metadata.email_from?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -74,7 +70,7 @@
             :metadata="metadata.email_secure"
             inline
         >
-            <ToggleSwitch
+            <CaomeiSwitch
                 id="email_secure"
                 v-model="settings.email_secure"
                 :disabled="metadata.email_secure?.isLocked"
@@ -87,14 +83,15 @@
             :metadata="metadata.email_expires_in"
             :description="$t('pages.admin.settings.system.hints.email_expires_in')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="email_expires_in"
                 v-model="settings.email_expires_in"
                 :disabled="metadata.email_expires_in?.isLocked"
                 :min="60"
                 :max="86400"
-                fluid
                 :use-grouping="false"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -104,15 +101,14 @@
             :metadata="metadata.temp_email_domain_name"
             :description="$t('pages.admin.settings.system.hints.temp_email_domain_name')"
         >
-            <InputText
+            <SettingInput
                 id="temp_email_domain_name"
                 v-model="settings.temp_email_domain_name"
                 :disabled="metadata.temp_email_domain_name?.isLocked"
-                fluid
             />
         </SettingFormField>
 
-        <Divider />
+        <CaomeiDivider />
 
         <SettingFormField
             field-key="email_daily_limit"
@@ -120,13 +116,14 @@
             :metadata="metadata.email_daily_limit"
             :description="$t('pages.admin.settings.system.hints.email_daily_limit')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="email_daily_limit"
                 v-model="settings.email_daily_limit"
                 :disabled="metadata.email_daily_limit?.isLocked"
                 :use-grouping="false"
                 :min="1"
-                fluid
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -136,13 +133,14 @@
             :metadata="metadata.email_single_user_daily_limit"
             :description="$t('pages.admin.settings.system.hints.email_single_user_daily_limit')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="email_single_user_daily_limit"
                 v-model="settings.email_single_user_daily_limit"
                 :disabled="metadata.email_single_user_daily_limit?.isLocked"
                 :use-grouping="false"
                 :min="1"
-                fluid
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -152,11 +150,10 @@
             :metadata="metadata.email_limit_window"
             :description="$t('pages.admin.settings.system.hints.email_limit_window')"
         >
-            <InputText
+            <SettingInput
                 id="email_limit_window"
                 v-model="settings.email_limit_window"
                 :disabled="metadata.email_limit_window?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -165,6 +162,8 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingPassword from '@/components/admin/settings/setting-password.vue'
 import EmailTemplateSettingsPanel from '@/components/admin/settings/email-template-settings-panel.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 

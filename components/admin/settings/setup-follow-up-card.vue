@@ -1,54 +1,64 @@
 <template>
-    <Card class="setup-follow-up-card">
-        <template #content>
-            <div class="setup-follow-up-card__content">
-                <div class="setup-follow-up-card__copy">
-                    <span class="setup-follow-up-card__eyebrow">
-                        {{ $t('pages.admin.settings.system.setup_follow_up.eyebrow') }}
-                    </span>
-                    <h2 class="setup-follow-up-card__title">
-                        {{ $t('pages.admin.settings.system.setup_follow_up.title') }}
-                    </h2>
-                    <p class="setup-follow-up-card__description">
-                        {{ $t('pages.admin.settings.system.setup_follow_up.description') }}
-                    </p>
-                </div>
-
-                <div class="setup-follow-up-card__chips">
-                    <button
-                        v-for="item in suggestedTabs"
-                        :key="item.tab"
-                        type="button"
-                        class="setup-follow-up-card__chip"
-                        @click="emit('open-tab', item.tab)"
-                    >
-                        <i :class="item.icon" aria-hidden="true" />
-                        <span>
-                            <strong>{{ $t(item.titleKey) }}</strong>
-                            <small>{{ $t(item.descriptionKey) }}</small>
-                        </span>
-                    </button>
-                </div>
-
-                <div class="setup-follow-up-card__actions">
-                    <Button
-                        :label="$t('pages.admin.settings.system.setup_follow_up.continue_editor')"
-                        icon="pi pi-arrow-right"
-                        @click="emit('continue-editor')"
-                    />
-                    <Button
-                        :label="$t('common.skip')"
-                        text
-                        severity="secondary"
-                        @click="emit('dismiss')"
-                    />
-                </div>
+    <CaomeiCard class="setup-follow-up-card">
+        <div class="setup-follow-up-card__content">
+            <div class="setup-follow-up-card__copy">
+                <span class="setup-follow-up-card__eyebrow">
+                    {{ $t('pages.admin.settings.system.setup_follow_up.eyebrow') }}
+                </span>
+                <h2 class="setup-follow-up-card__title">
+                    {{ $t('pages.admin.settings.system.setup_follow_up.title') }}
+                </h2>
+                <p class="setup-follow-up-card__description">
+                    {{ $t('pages.admin.settings.system.setup_follow_up.description') }}
+                </p>
             </div>
-        </template>
-    </Card>
+
+            <div class="setup-follow-up-card__chips">
+                <button
+                    v-for="item in suggestedTabs"
+                    :key="item.tab"
+                    type="button"
+                    class="setup-follow-up-card__chip"
+                    @click="emit('open-tab', item.tab)"
+                >
+                    <component
+                        :is="item.icon"
+                        :size="18"
+                        aria-hidden="true"
+                    />
+                    <span>
+                        <strong>{{ $t(item.titleKey) }}</strong>
+                        <small>{{ $t(item.descriptionKey) }}</small>
+                    </span>
+                </button>
+            </div>
+
+            <div class="setup-follow-up-card__actions">
+                <CaomeiButton
+                    :label="$t('pages.admin.settings.system.setup_follow_up.continue_editor')"
+                    @click="emit('continue-editor')"
+                >
+                    <template #icon>
+                        <ArrowRight :size="16" />
+                    </template>
+                    {{ $t('pages.admin.settings.system.setup_follow_up.continue_editor') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
+                    :label="$t('common.skip')"
+                    @click="emit('dismiss')"
+                >
+                    {{ $t('common.skip') }}
+                </CaomeiButton>
+            </div>
+        </div>
+    </CaomeiCard>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import { ArrowRight, Bell, CloudUpload, Shield, Sparkles } from '@lucide/vue'
 import type { AdminSettingsTab } from '@/utils/shared/admin-settings-tabs'
 
 const emit = defineEmits<{
@@ -59,31 +69,31 @@ const emit = defineEmits<{
 
 const suggestedTabs: Array<{
     tab: AdminSettingsTab
-    icon: string
+    icon: Component
     titleKey: string
     descriptionKey: string
 }> = [
     {
         tab: 'auth',
-        icon: 'pi pi-shield',
+        icon: Shield,
         titleKey: 'pages.admin.settings.system.setup_follow_up.sections.auth.title',
         descriptionKey: 'pages.admin.settings.system.setup_follow_up.sections.auth.description',
     },
     {
         tab: 'notifications',
-        icon: 'pi pi-bell',
+        icon: Bell,
         titleKey: 'pages.admin.settings.system.setup_follow_up.sections.notifications.title',
         descriptionKey: 'pages.admin.settings.system.setup_follow_up.sections.notifications.description',
     },
     {
         tab: 'ai',
-        icon: 'pi pi-sparkles',
+        icon: Sparkles,
         titleKey: 'pages.admin.settings.system.setup_follow_up.sections.ai.title',
         descriptionKey: 'pages.admin.settings.system.setup_follow_up.sections.ai.description',
     },
     {
         tab: 'storage',
-        icon: 'pi pi-cloud-upload',
+        icon: CloudUpload,
         titleKey: 'pages.admin.settings.system.setup_follow_up.sections.storage.title',
         descriptionKey: 'pages.admin.settings.system.setup_follow_up.sections.storage.description',
     },

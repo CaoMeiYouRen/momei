@@ -6,13 +6,14 @@
             :metadata="metadata.posts_per_page"
             :description="$t('pages.admin.settings.system.hints.posts_per_page')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="posts_per_page"
                 v-model="settings.posts_per_page"
                 :disabled="metadata.posts_per_page?.isLocked"
-                fluid
                 :min="1"
                 :max="100"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -22,11 +23,10 @@
             :metadata="metadata.max_upload_size"
             :description="$t('pages.admin.settings.system.hints.upload_size_value')"
         >
-            <InputText
+            <SettingInput
                 id="max_upload_size"
                 v-model="settings.max_upload_size"
                 :disabled="metadata.max_upload_size?.isLocked"
-                fluid
                 :placeholder="$t('pages.admin.settings.system.hints.upload_size_placeholder')"
             />
         </SettingFormField>
@@ -37,11 +37,10 @@
             :metadata="metadata.max_audio_upload_size"
             :description="$t('pages.admin.settings.system.hints.audio_upload_size_value')"
         >
-            <InputText
+            <SettingInput
                 id="max_audio_upload_size"
                 v-model="settings.max_audio_upload_size"
                 :disabled="metadata.max_audio_upload_size?.isLocked"
-                fluid
                 :placeholder="$t('pages.admin.settings.system.hints.audio_upload_size_placeholder')"
             />
         </SettingFormField>
@@ -51,11 +50,10 @@
             input-id="allowed_file_types"
             :metadata="metadata.allowed_file_types"
         >
-            <InputText
+            <SettingInput
                 id="allowed_file_types"
                 v-model="settings.allowed_file_types"
                 :disabled="metadata.allowed_file_types?.isLocked"
-                fluid
                 :placeholder="$t('pages.admin.settings.system.hints.file_types_placeholder')"
             />
         </SettingFormField>
@@ -65,11 +63,10 @@
             input-id="comment_interval"
             :metadata="metadata.comment_interval"
         >
-            <InputText
+            <SettingInput
                 id="comment_interval"
                 v-model="settings.comment_interval"
                 :disabled="metadata.comment_interval?.isLocked"
-                fluid
             />
         </SettingFormField>
 
@@ -79,12 +76,13 @@
             :metadata="metadata.upload_daily_limit"
             :description="$t('pages.admin.settings.system.hints.upload_daily_limit')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="upload_daily_limit"
                 v-model="settings.upload_daily_limit"
                 :disabled="metadata.upload_daily_limit?.isLocked"
-                fluid
                 :min="1"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -94,12 +92,13 @@
             :metadata="metadata.upload_single_user_daily_limit"
             :description="$t('pages.admin.settings.system.hints.upload_single_user_daily_limit')"
         >
-            <InputNumber
+            <CaomeiInputNumber
                 id="upload_single_user_daily_limit"
                 v-model="settings.upload_single_user_daily_limit"
                 :disabled="metadata.upload_single_user_daily_limit?.isLocked"
-                fluid
                 :min="1"
+
+                :controls="false"
             />
         </SettingFormField>
 
@@ -109,17 +108,17 @@
             :metadata="metadata.upload_limit_window"
             :description="$t('pages.admin.settings.system.hints.upload_limit_window')"
         >
-            <InputText
+            <SettingInput
                 id="upload_limit_window"
                 v-model="settings.upload_limit_window"
                 :disabled="metadata.upload_limit_window?.isLocked"
-                fluid
             />
         </SettingFormField>
     </div>
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
 import SettingFormField from '@/components/admin/settings/setting-form-field.vue'
 
 interface LimitSettingsModel {

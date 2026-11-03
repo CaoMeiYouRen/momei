@@ -16,16 +16,17 @@
                             :title="resolvedMessage || undefined"
                             class="setting-form-field__status-item"
                         >
-                            <Tag
-                                :severity="sourceSeverity[metadata.source]"
-                                :value="$t(`pages.admin.settings.system.source_badges.${metadata.source}`)"
-                            />
+                            <CaomeiTag :tone="sourceTone[metadata.source]">
+                                {{ $t(`pages.admin.settings.system.source_badges.${metadata.source}`) }}
+                            </CaomeiTag>
                         </span>
                     </AppTooltip>
                     <AppTooltip v-if="metadata.isLocked" :content="resolvedMessage">
-                        <i
+                        <Lock
                             :title="resolvedMessage || undefined"
-                            class="pi pi-lock setting-form-field__lock setting-form-field__status-item"
+                            :size="14"
+                            class="setting-form-field__lock setting-form-field__status-item"
+                            aria-hidden="true"
                         />
                     </AppTooltip>
                 </div>
@@ -43,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { Lock } from '@lucide/vue'
 import type { SettingFieldMetadata, SettingLockReason, SettingSource } from '@/types/setting'
 
 const props = withDefaults(defineProps<{
@@ -63,10 +65,10 @@ const props = withDefaults(defineProps<{
 
 const { t } = useI18n()
 
-const sourceSeverity: Record<SettingSource, 'warn' | 'success' | 'info'> = {
-    env: 'warn',
+const sourceTone: Record<SettingSource, 'warning' | 'success' | 'primary'> = {
+    env: 'warning',
     db: 'success',
-    default: 'info',
+    default: 'primary',
 }
 
 const resolvedLabel = computed(() => {

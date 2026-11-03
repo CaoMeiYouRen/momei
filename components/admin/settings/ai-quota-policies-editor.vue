@@ -17,13 +17,17 @@
                             {{ $t('pages.admin.settings.system.ai_editor.basic_quota_description') }}
                         </p>
                     </div>
-                    <Button
-                        icon="pi pi-plus"
+                    <CaomeiButton
+                        size="sm"
                         :label="$t('pages.admin.settings.system.ai_editor.add_basic_policy')"
-                        size="small"
                         :disabled="isLocked"
                         @click="addBasicQuotaPolicy"
-                    />
+                    >
+                        <template #icon>
+                            <Plus :size="16" />
+                        </template>
+                        {{ $t('pages.admin.settings.system.ai_editor.add_basic_policy') }}
+                    </CaomeiButton>
                 </div>
 
                 <div v-if="!basicQuotaPolicies.length" class="ai-quota-policies-editor__empty-state">
@@ -44,14 +48,19 @@
                                 {{ $t('pages.admin.settings.system.ai_editor.basic_policy_help') }}
                             </p>
                         </div>
-                        <Button
-                            icon="pi pi-trash"
-                            severity="secondary"
-                            text
-                            size="small"
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
+                            :label="$t('common.delete')"
                             :disabled="isLocked"
                             @click="removeBasicQuotaPolicy(index)"
-                        />
+                        >
+                            <template #icon>
+                                <Trash2 :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </div>
 
                     <div class="ai-quota-policies-editor__policy-grid">
@@ -59,13 +68,12 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.subject_type') }}
                             </label>
-                            <Select
+                            <CaomeiSelect
                                 v-model="policy.subjectType"
                                 :options="basicSubjectTypeOptions"
                                 option-label="label"
                                 option-value="value"
                                 :disabled="isLocked"
-                                fluid
                                 @update:model-value="onBasicPolicySubjectTypeChange(policy)"
                             />
                         </div>
@@ -74,20 +82,18 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.subject_value') }}
                             </label>
-                            <Select
+                            <CaomeiSelect
                                 v-if="policy.subjectType === 'role'"
                                 v-model="policy.subjectValue"
                                 :options="roleOptions"
                                 option-label="label"
                                 option-value="value"
                                 :disabled="isLocked"
-                                fluid
                             />
-                            <InputText
+                            <SettingInput
                                 v-else
                                 v-model="policy.subjectValue"
                                 :disabled="true"
-                                fluid
                             />
                         </div>
 
@@ -95,13 +101,12 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.scope') }}
                             </label>
-                            <Select
+                            <CaomeiSelect
                                 v-model="policy.scope"
                                 :options="quotaScopeOptions"
                                 option-label="label"
                                 option-value="value"
                                 :disabled="isLocked"
-                                fluid
                             />
                         </div>
 
@@ -109,13 +114,12 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.period') }}
                             </label>
-                            <Select
+                            <CaomeiSelect
                                 v-model="policy.period"
                                 :options="quotaPeriodOptions"
                                 option-label="label"
                                 option-value="value"
                                 :disabled="isLocked"
-                                fluid
                             />
                         </div>
 
@@ -123,12 +127,10 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.max_requests') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="policy.maxRequests"
                                 :disabled="isLocked"
                                 :min="0"
-                                fluid
-                                show-buttons
                                 :use-grouping="false"
                             />
                         </div>
@@ -137,12 +139,10 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.max_quota_units') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="policy.maxQuotaUnits"
                                 :disabled="isLocked"
                                 :min="0"
-                                fluid
-                                show-buttons
                                 :use-grouping="false"
                             />
                         </div>
@@ -151,14 +151,14 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.max_actual_cost') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="policy.maxActualCost"
                                 :disabled="isLocked"
                                 :min="0"
                                 :min-fraction-digits="2"
                                 :max-fraction-digits="2"
-                                fluid
                                 :use-grouping="false"
+                                :controls="false"
                             />
                         </div>
 
@@ -166,12 +166,10 @@
                             <label class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.max_concurrent_heavy_tasks') }}
                             </label>
-                            <InputNumber
+                            <CaomeiInputNumber
                                 v-model="policy.maxConcurrentHeavyTasks"
                                 :disabled="isLocked"
                                 :min="0"
-                                fluid
-                                show-buttons
                                 :use-grouping="false"
                             />
                         </div>
@@ -182,7 +180,7 @@
                             <span class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.enabled') }}
                             </span>
-                            <ToggleSwitch
+                            <CaomeiSwitch
                                 v-model="policy.enabled"
                                 :disabled="isLocked"
                             />
@@ -192,7 +190,7 @@
                             <span class="ai-quota-policies-editor__field-label">
                                 {{ $t('pages.admin.settings.system.ai_editor.is_exempt') }}
                             </span>
-                            <ToggleSwitch
+                            <CaomeiSwitch
                                 v-model="policy.isExempt"
                                 :disabled="isLocked"
                             />
@@ -200,42 +198,42 @@
                     </div>
                 </div>
 
-                <Accordion value="advanced-json">
-                    <AccordionPanel value="advanced-json">
-                        <AccordionHeader>
-                            {{ $t('pages.admin.settings.system.ai_editor.advanced_json_title') }}
-                        </AccordionHeader>
-                        <AccordionContent>
-                            <p class="ai-quota-policies-editor__section-description ai-quota-policies-editor__section-description--spaced">
-                                {{ $t('pages.admin.settings.system.ai_editor.advanced_json_description') }}
-                            </p>
-                            <Textarea
-                                id="ai_quota_policies"
-                                v-model="advancedQuotaPoliciesJson"
-                                :disabled="isLocked"
-                                rows="12"
-                                auto-resize
-                                fluid
-                            />
-                            <p v-if="advancedQuotaPoliciesError" class="ai-quota-policies-editor__error">
-                                {{ advancedQuotaPoliciesError }}
-                            </p>
-                        </AccordionContent>
-                    </AccordionPanel>
-                </Accordion>
+                <CaomeiAccordion
+                    type="single"
+                    collapsible
+                    default-value="advanced-json"
+                >
+                    <CaomeiAccordionItem
+                        value="advanced-json"
+                        :title="$t('pages.admin.settings.system.ai_editor.advanced_json_title')"
+                    >
+                        <p class="ai-quota-policies-editor__section-description ai-quota-policies-editor__section-description--spaced">
+                            {{ $t('pages.admin.settings.system.ai_editor.advanced_json_description') }}
+                        </p>
+                        <SettingTextarea
+                            id="ai_quota_policies"
+                            v-model="advancedQuotaPoliciesJson"
+                            :disabled="isLocked"
+                            :rows="12"
+                            auto-resize
+                        />
+                        <p v-if="advancedQuotaPoliciesError" class="ai-quota-policies-editor__error">
+                            {{ advancedQuotaPoliciesError }}
+                        </p>
+                    </CaomeiAccordionItem>
+                </CaomeiAccordion>
             </template>
 
             <template v-else>
                 <p class="ai-quota-policies-editor__error">
                     {{ quotaPoliciesParseError }}
                 </p>
-                <Textarea
+                <SettingTextarea
                     id="ai_quota_policies"
                     v-model="quotaPolicies"
                     :disabled="isLocked"
-                    rows="14"
+                    :rows="14"
                     auto-resize
-                    fluid
                 />
             </template>
         </div>
@@ -243,6 +241,9 @@
 </template>
 
 <script setup lang="ts">
+import SettingInput from '@/components/admin/settings/setting-input.vue'
+import SettingTextarea from '@/components/admin/settings/setting-textarea.vue'
+import { Plus, Trash2 } from '@lucide/vue'
 import type {
     AIQuotaPolicy,
     AIQuotaPolicyPeriod,

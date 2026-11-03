@@ -71,6 +71,11 @@ describe('resolveUiLibraryForRoutePath', () => {
         expect(resolveUiLibraryForRoutePath('/admin/posts')).toBe('caomei-ui')
         // 前缀语义连带子路由（编辑器 `/admin/posts/[id]` 不在迁移范围，但按前缀比较仍命中）。
         expect(resolveUiLibraryForRoutePath('/admin/posts/abc')).toBe('caomei-ui')
+
+        // 第七十阶段条目 2a 新增：设置页与主题子路由（主题页为 2b 的显式例外，由结构守卫单独判定）。
+        expect(CAOMEI_UI_ROUTE_PREFIXES).toContain('/admin/settings')
+        expect(resolveUiLibraryForRoutePath('/admin/settings')).toBe('caomei-ui')
+        expect(resolveUiLibraryForRoutePath('/admin/settings/theme')).toBe('caomei-ui')
     })
 
     it('剥离已知 locale 前缀后再匹配', () => {
@@ -80,8 +85,8 @@ describe('resolveUiLibraryForRoutePath', () => {
     })
 
     it('未登记的 locale 前缀路由仍回退 PrimeVue', () => {
-        // 锚点用**结构性不会登记**的非 admin 路由（`/settings` 不在迁移批次范围内），
-        // 避免随迁移批次推进反复改锚（`/admin/settings` 属待迁移路由，登记后会失效）。
+        // 锚点用**结构性不会登记**的用户设置路由（`/settings` 与 admin 设置页 `/admin/settings` 是两条路由，
+        // 后者已于第七十阶段 2a 登记；此处刻意使用前者）。
         expect(resolveUiLibraryForRoutePath('/en-US/settings')).toBe('primevue')
         expect(resolveUiLibraryForRoutePath('/settings')).toBe('primevue')
     })

@@ -148,6 +148,74 @@ const AI_ROUTE_SCOPE = {
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
+ * 组件型目标路由 `/admin/settings`（第七十阶段条目 2a）的迁移范围。
+ *
+ * - `ownedFiles`：设置页为薄包装（页面只负责标签页与保存动作），实体分散在 `components/admin/settings/`；
+ *   `admin-floating-actions.vue` 为页面与三个设置面板共享的保存条，随本路由迁移。
+ * - `inScopeComponents`（路由级在册族增量）：本批迁入的表单与展示族——`Password` / `InputNumber` /
+ *   `Textarea` / `Card` / `Message` / `Divider` / `Image` / `MultiSelect` / `Accordion` 族 / `Tabs` 族。
+ *   不全局纳入的原因同 `TAXONOMY_ROUTE_SCOPE`：这些族在已收口路由里仍合法存在。
+ * - `primeVueSubRoutes`：`/admin/settings/theme`（主题工作台）属条目 2b，本批不动；该页不渲染路由择库的
+ *   语言切换器，也不引用组件内择库型过渡组件。
+ */
+const ADMIN_SETTINGS_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/admin-floating-actions.vue',
+        'components/admin/settings/admin-notification-settings.vue',
+        'components/admin/settings/agreement-edit-dialog.vue',
+        'components/admin/settings/agreements-settings.vue',
+        'components/admin/settings/ai-alert-thresholds-editor.vue',
+        'components/admin/settings/ai-cost-factors-editor.vue',
+        'components/admin/settings/ai-quota-policies-editor.vue',
+        'components/admin/settings/ai-settings.vue',
+        'components/admin/settings/analytics-settings.vue',
+        'components/admin/settings/auth-settings.vue',
+        'components/admin/settings/commercial-settings.vue',
+        'components/admin/settings/email-settings.vue',
+        'components/admin/settings/email-template-settings-panel.vue',
+        'components/admin/settings/external-feed-sources-editor.vue',
+        'components/admin/settings/general-settings.vue',
+        'components/admin/settings/limits-settings.vue',
+        'components/admin/settings/localized-setting-editor.vue',
+        'components/admin/settings/security-settings.vue',
+        'components/admin/settings/setting-audit-log-list.vue',
+        'components/admin/settings/setting-explanation-card.vue',
+        'components/admin/settings/setting-form-field.vue',
+        'components/admin/settings/setting-input.vue',
+        'components/admin/settings/setting-password.vue',
+        'components/admin/settings/setting-textarea.vue',
+        'components/admin/settings/setup-follow-up-card.vue',
+        'components/admin/settings/storage-settings.vue',
+        'components/admin/settings/third-party-settings.vue',
+    ],
+    inScopeComponents: [
+        'Password',
+        'InputNumber',
+        'Textarea',
+        'Card',
+        'Message',
+        'Divider',
+        'Image',
+        'MultiSelect',
+        'Accordion',
+        'AccordionPanel',
+        'AccordionHeader',
+        'AccordionContent',
+        'Tabs',
+        'TabList',
+        'Tab',
+        'TabPanels',
+        'TabPanel',
+    ],
+    primeVueSubRoutes: [
+        {
+            file: 'pages/admin/settings/theme.vue',
+            reason: '主题工作台属第七十阶段条目 2b，本批仍为 PrimeVue 实现；该页未开启 `show-language-switcher`，也不引用组件内择库型过渡组件。已知偏差：共享保存条 `AdminFloatingActions` 在本批已迁 caomei，故该子路由存在「caomei 保存条 + PrimeVue 页面体」的混用，随 2b 整页迁移与视觉基线一并收口。',
+        },
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
  * 组件型目标型路由 `/admin/marketing` 的迁移范围。
  *
  * - `ownedFiles`：路由自有实体组件（页面为薄包装，实体落在列表与表单两个组件）。
@@ -196,6 +264,8 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // 组件型目标型路由（`/admin/marketing`）：页面 + 列表 + 表单（弹窗内表单控件随本批迁移，
     // 浮层本体已迁入 `CaomeiDialog`；`DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。
     { prefix: '/admin/marketing', ...MARKETING_ROUTE_SCOPE },
+    // 组件型目标路由（`/admin/settings`）：设置页 + 设置面板族（条目 2a）；主题工作台子路由为显式例外（2b）。
+    { prefix: '/admin/settings', ...ADMIN_SETTINGS_ROUTE_SCOPE },
 ]
 
 /**
@@ -232,8 +302,9 @@ export function resolveInScopeComponents(scope?: CaomeiUiRouteScope): readonly s
  * **子路由例外（2026-10-16 补记）**：前缀语义会连带**子路由**，因此登记前必须核对子路由是否也在
  * 迁移范围内。已知例外：`/admin/posts` 的编辑器子路由 `/admin/posts/[id]` **不在**数据列表批次范围内
  * （仍全面使用 PrimeVue；其共享组件走「消费处静态择库」，继续使用 V1）；
- * `/admin/ai` 的任务详情子路由 `/admin/ai/tasks/[id]` 同理（组件型目标批次范围外的 B4 展示族）。
- * 当前两条子路由**均未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
+ * `/admin/ai` 的任务详情子路由 `/admin/ai/tasks/[id]` 同理（组件型目标批次范围外的 B4 展示族）；
+ * `/admin/settings` 的主题工作台子路由 `/admin/settings/theme` 属第七十阶段条目 2b（本批仍为 PrimeVue）。
+ * 当前三条子路由**均未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
  * `AdminPageHeader` / `AppAvatarV2` / `AppUploaderV2`：`/admin/posts/[id]` 用编辑器自有头部，
  * `/admin/ai/tasks/[id]` 的 `AdminPageHeader` 未开 `show-language-switcher`，故切换器不渲染），
  * 已逐处核对，无路由内混用；但该性质**目前无守卫兜底**——若后续把上述过渡组件引入子路由子树，
