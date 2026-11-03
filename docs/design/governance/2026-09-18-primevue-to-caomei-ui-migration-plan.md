@@ -218,6 +218,27 @@ pnpm governance:count:primevue-usage
 
 未归因项：`coreEntryJs` 相对 0.3.0 基线口径 +4,223 B 未逐项归因（rc.1 的组件 JS 仅 `data-table` +883 B，属路由 chunk，不构成入口增量；`prIncrementJs` 4,223 B 即该差值的门禁口径），保留为观察项。三套新增预设无条件进入基础层**尚未登记**到上游反馈清单，列为候选。`DataTable` 两处上游修复的运行时行为回归（键盘可达、全选 / lazy 语义）未在本批执行，转第七十一阶段全量 E2E。
 
+### 3.11 上游 1.0.0 GA 基线（2026-11-03 实测，第七十阶段条目 1a）
+
+`caomei-ui@1.0.0` 于 **2026-11-02** 发布，`dist-tags.latest` 由 `0.7.0` 切换为 `1.0.0`（`next` 仍指向 `1.0.0-rc.1`）。§3.10 结论 3 约定「GA 发布后按同一升级纪律另立批次」，故在第七十阶段开工基座内执行升级。
+
+**实测口径**：`npm pack` 分别取 `1.0.0` 与 `1.0.0-rc.1` 产物，解包后 `diff -rq` 全量比对（两版本均为 432 个文件）。
+
+| 类别 | 差异 |
+| :--- | :--- |
+| `.js` / `.mjs` / `.css` / `.vue` | **零差异**（全量 `diff -rq` 无命中） |
+| `dist/styles/index.css` | 20,595 B，sha256 `ac48aa0b…2591e0` **两版本一致** |
+| `package.json` | 仅 `version` 字段 `1.0.0-rc.1` → `1.0.0` |
+| README（中 / 英） | 版本叙事更新（`latest` 指向 `1.0.0`、1.x 语义化兼容承诺与发布通道说明） |
+| `.d.ts`（28 个） | 仅**成员顺序**变化：27 个文件在按行排序后逐文件相等，`data-table.vue.d.ts` 的差异是单行 emit 联合类型内部顺序（排序后仍不等）；成员集合与签名无增删 |
+
+**结论**：
+
+1. **零运行时影响**：GA 与 rc.1 的执行期产物逐字节一致，视觉、行为、包体与 token 面均无变化；升级不构成「非静默批次」，但**仍须**走人工批准入口（`APPROVED_VERSIONS` + 独立提交）并复跑 `test:visual` / `test:visual:parity` / `keyCss` 留证，不得以「无差异」为由跳过纪律（§3.8 / §5.6）。
+2. **`.d.ts` 顺序变化对 `vue-tsc` 无影响**：类型成员集合与签名未变，仅生成顺序不同；条目 1a 以 `pnpm typecheck` 全量通过为验收。
+3. **对本阶段的影响**：条目 1c 的参考态采集必须在 GA 升级**之后**执行，使参考态 = 「迁移前源码 + 目标依赖」，避免升级与页面迁移两个变量叠加在同一批视觉归因上。
+4. **`latest` 语义变化**：依赖声明仍为精确版本；`dependabot.yml` 的 `ignore`（`>=1.0.0-rc.2`）继续拦住机器人抬版，`APPROVED_VERSIONS` 的加入按批准流程执行。
+
 ## 4. 目标与非目标
 
 **目标**
@@ -390,7 +411,7 @@ pnpm governance:count:primevue-usage
 - **默认消费路径**：npm 常规依赖 `caomei-ui@1.0.0-rc.1`（第六十九阶段目标基线；升级前为 `0.7.0`），CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
 - **本地联调降级路径**：仅在需要验证库侧未发布改动时，临时改为 `file:../caomei-ui`；该形态**不得进入提交**（否则 CI / Docker / Vercel 会因解析不到 `../caomei-ui` 而失败）。
 - **锁定策略**：迁移在飞期使用精确版本（**当前锁定 `1.0.0-rc.1`**；不加 `^`，也不写 `>=` 范围），避免库侧发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
-- **预发布通道约束（2026-11-01 新增）**：`1.0.0-rc.1` 发布于 `dist-tags.next`（`latest` 仍为 `0.7.0`）。预发布版本**只能精确锁定**——`^1.0.0-rc.1` / `>=1.0.0-rc.1` 会同时允许 `rc.2` 与 `1.0.0` GA，等于把「读 BREAKING CHANGES + 重跑该批回归」的入口再次放开。`1.0.0` GA 发布后按同一升级纪律另立批次评估。
+- **预发布通道约束（2026-11-01 新增）**：`1.0.0-rc.1` 发布于 `dist-tags.next`（发布时 `latest` 仍为 `0.7.0`）。预发布版本**只能精确锁定**——`^1.0.0-rc.1` / `>=1.0.0-rc.1` 会同时允许 `rc.2` 与 `1.0.0` GA，等于把「读 BREAKING CHANGES + 重跑该批回归」的入口再次放开。`1.0.0` GA 已于 2026-11-02 发布，按同一升级纪律另立批次：已上收为第七十阶段条目 1a（差异实测见 §3.11）。
 - **升级纪律（0.2.0 / 0.3.0 / 0.6.0 / 0.7.0 / 1.0.0-rc.1 对照背书）**：库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容——`0.1.0 → 0.2.0` 的 `styles.css → theme.css` 破坏性形态变更即为例证；`0.3.0` 与 `0.4.0~0.6.0` 无 `BREAKING CHANGES`，`0.7.0` 唯一 BREAKING 为 locale 预注册 + 子路径化，`1.0.0-rc.1` 未声明 BREAKING **但含静态外观变更**（§3.10）——三者共同说明「无破坏性变更」不等于「无行为变化」，每次升级都须重跑该批次视觉回归与定向测试，并在提交信息与回归记录中留痕，不得静默升级。
 - **0.7.0 起的 locale 子路径约束（2026-10-24）**：包根只预注册 `zh-CN` / `en-US`；一旦接入 `provideLocale` / `CaomeiConfigProvider`，`zh-TW` / `ja-JP` / `ko-KR` 必须显式 `import ... from 'caomei-ui/locale/<code>'` 并在 provider 之前 `registerLocale()`（provider 文案是 `computed`，注册晚于挂载不会重算，异步场景须先注册再挂载）。
 - **精确锁定不足以拦截依赖机器人（2026-10-13 实证）**：精确值只固定声明，不能阻止 Dependabot 在精确值上继续抬版——`0.3.0 → 0.5.0 → 0.6.0` 正是这样绕过升级纪律发生的（仅改 `package.json` / 锁文件，无阅读记录、无复测）。**已上收（2026-11-01）**：为 `caomei-ui` 配置 `ignore`（或改为人工升级）列为第六十九阶段条目 1 的执行范围，与 `1.0.0-rc.1` 升级同批落地，使升级只能经「读 `BREAKING CHANGES` + 重跑该批回归」的入口进入；详见 §3.8 / §3.10。
@@ -515,8 +536,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | **全局 token 语义层**（momei 侧新增） | 按 §5.2 第 ① 层，以并存桥接方式引入 `--caomei-*` 语义 token 与 caomei `momei` 预设，保留 `--p-*` 供给未迁移组件 | 语义层映射说明 + `@layer` 顺序记录 + 视觉回归无差异证据 | 接入基座 + B0b（需先有比对能力才可判定无回退） |
 | **B2 数据类页面** | 先做**试点页 1-2 个**（端到端验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路），再推 20 个 `<Column>` 文件：`pages/admin/posts`、`users`、`friend-links`、`comments`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance`、`components/admin/admin-taxonomy-page.vue`、`components/admin/ai/task-list.vue`、`components/admin/marketing-campaign-list.vue`、`components/admin/settings/{admin-notification-settings,agreements-settings,notification-delivery-log-list,setting-audit-log-list}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue` | 试点结论（链路可行性 + 耗时画像）、逐页功能回归（排序 / 分页 / 选择 / 列插槽）+「文件 → 改动点」清单 | 接入基座 + B0b + 全局 token 语义层 |
 | **前置：`1.0.0-rc.1` 升级与 token 角色接线**（第六十九阶段条目 1） | 精确锁定升级；补接 `-color-*-text` ×5 与 `-color-control-border`；`dependabot.yml` 增 `ignore`；重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接 + 2 条对比度契约）+ 重校准 34 条 parity 允许清单 + `keyCss` 复测；`DataTable` 两处上游修复的定向回归 | 升级记录 + 桥接契约断言 + 包体复测 + 偏差登记 | npm 发布（§3.10） |
-| **B3 表单与设置页面**（第七十阶段） | `components/admin/settings/*`、`components/settings/*`、`components/installation/*` 与 auth / submit / register 等表单页（合计约 500 处，占剩余面近半；逐目录用量待开工时以脚本家族分桶复核） | 表单交互回归（校验 / 提交 / 提示）+「文件 → 改动点」清单 | 第六十九阶段（浮层族与 locale 先行） |
-| **B4 展示、图标与收尾**（第七十一阶段） | 展示类组件（Card / Divider / Message / Skeleton / Avatar / Tag 残留等）、图标全量替换（556 处 / 142 文件）、`primevue-i18n` 插件替换、测试与 E2E 改写（**剩余项**：全量基线 25 个 mock / 3 文件 11 处断言，扣除第六十九阶段已改写的浮层相关子集）、品牌图标落点选定、`--p-*` 幻影 token 清理（backlog #11 的 S1）、卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 全量测试与 E2E 通过 + 包体对比记录 +「文件 → 改动点」清单 + PrimeVue 相关产物归零 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
+| **B3 表单与设置页面**（第七十阶段） | `components/admin/settings/*`、`components/settings/*`、`components/installation/*` 与 auth / submit 等表单页，另含共享依赖 `components/admin/admin-floating-actions.vue` 与 `/admin/notifications` 整路由（2026-11-03 复算 **598 处 / 54 文件 / 38 个组件族**，占剩余面 54.7%；开工时以脚本家族分桶复核） | 表单交互回归（校验 / 提交 / 提示）+「文件 → 改动点」清单 | 第六十九阶段（浮层族与 locale 先行） |
+| **B4 展示、图标与收尾**（第七十一阶段） | 展示类组件（Card / Divider / Message / Skeleton / Avatar / Tag 残留等）、图标全量替换（2026-11-03 口径 540 处 / 133 文件）、`primevue-i18n` 插件替换、测试与 E2E 改写（**剩余项**：全量基线 25 个 mock / 3 文件 11 处断言，扣除第六十九阶段已改写的浮层相关子集）、品牌图标落点选定、`--p-*` 幻影 token 清理（backlog #11 的 S1）、卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 全量测试与 E2E 通过 + 包体对比记录 +「文件 → 改动点」清单 + PrimeVue 相关产物归零 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
 
 > **浮层族位置调整（2026-11-01）**：浮层（Dialog / Drawer / Popover / DropdownMenu / Menu / ConfirmDialog / `useConfirm` / `useToast` / `v-tooltip`）原并入 B4，现**前移到第六十九阶段**——settings 族组件自带 3 个弹窗，浮层不先行则 B3 无法做到「路由内组件来源唯一」；同时在册族的「浮层显式豁免」需要与 `rc.1` 基线重采同批收缩，避免两个变量叠加在同一批视觉归因上。
 
