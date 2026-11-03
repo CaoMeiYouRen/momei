@@ -303,7 +303,9 @@ jobs:
     name: Visual Regression
     needs: [build-nuxt]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 2026-11-03：B3 的 10 条待迁移路由（20 条用例）登记后 parity 单次约 10.4 分钟，
+    # 叠加基线层（约 3 分钟）与双 server 启动，20 分钟余量不足，放宽到 30 分钟。
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7

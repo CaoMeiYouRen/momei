@@ -21,12 +21,12 @@
 
 > 规划依据：[项目计划 § 第七十阶段](./roadmap.md) | [迁移方案 §7](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) | backlog 长期主线 #10 / #1。立项构成经用户 2026-11-03 确认（A/A/A/A）。
 
-- [ ] **1. B3 开工基座：caomei-ui 1.0.0 GA 升级 + 门禁扩展 + 参考态采集**
+- [x] **1. B3 开工基座：caomei-ui 1.0.0 GA 升级 + 门禁扩展 + 参考态采集**
     - 执行范围：`1.0.0-rc.1 → 1.0.0` 精确升级并把版本加入 `APPROVED_VERSIONS`；复核 `dependabot.yml` 的 `caomei-ui` ignore 注释；产物字节点检（`.js` / `.mjs` / `.css` / `.vue` 零差异、`dist/styles/index.css` sha256 一致、仅 `.d.ts` 声明顺序与 README / `package.json` 差异）；parity 配置扩第二 webServer（`MOMEI_INSTALLED=false`、独立端口与 project）与 `reader` 档预算校准能力；页面改动前采集 10 条参考态并写入 `reference-manifest.json`（`admin-settings-form` / `admin-settings-theme` / `admin-notifications-list` / `installation-wizard` / `user-settings` / `auth-login` / `auth-register` / `auth-forgot-password` / `auth-reset-password` / `submit-page`）。
     - 非目标：不改任何页面 / 组件，不清 `--p-*`，不做图标全量，不调整既有 `admin` 档预算。
     - 验收标准：GA 与 rc.1 的差异记录可复现且结论一致；参考态 100% 就绪；迁移前 `pnpm test:visual` 与 `pnpm test:visual:parity` 全绿；`keyCss` ≤ 70KB 且无回归。
     - 证据落点：`docs/reports/regression/current.md` 第七十阶段条目 1 窗口、`tests/visual/parity/reference-manifest.json`、迁移方案 §3.11。
-    - 进度：1a 已完成（2026-11-03；版本、锁文件与三层视觉/包体证据见回归记录「第七十阶段条目 1a」窗口）；待 1b / 1c。
+    - 进度：**已完成**（2026-11-03）。1a 版本与复测证据见回归记录「条目 1a」窗口；1b/1c 见「条目 1b/1c」窗口（10 条参考态 + 54 条 manifest + parity 55/55）。
 - [ ] **2. B3-A 管理端设置与通知整路由迁移**
     - 执行范围：2a 设置主体（15 个设置组件 + `pages/admin/settings/index.vue`，含 13 个 `TabPanel`：InputText / Password / InputNumber / Textarea / ToggleSwitch / Select / `Tabs` 族 / `DatePicker` / `MultiSelect` / `Image` / `Divider` / `Message`）；2b 主题工作台（`Panel→Card`、`ColorPicker`、`SelectButton`、`DataView`、3 个浮层内表单）；2c 四张 DataTable + `/admin/notifications` 整路由（`notification-delivery-log-list` 属 B3 范围目录、唯一消费路由为该路由）；路由 scope + `ownedFiles`（含 `components/admin/admin-floating-actions.vue`）与路由级在册族增量登记。
     - 非目标：`--p-*` 与独立 `<i class="pi">` 清理（B4）；不改设置读写 API 与权限逻辑；不做半路由切换。

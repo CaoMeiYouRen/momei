@@ -27,7 +27,7 @@ export async function main(options = {}) {
 
     /* `pnpm test:visual:parity -- --grep=X` 会把 `--` 分隔符一并透传给本脚本；
      * Playwright 收到 `--` 后会停止解析后续选项（`--grep` 被当作位置过滤参数），
-     * 表现为「忽略 grep、22 条全跑」。此处剔除 `--` 后再转发，使定向运行按预期生效。 */
+     * 表现为「忽略 grep、全部用例都跑」。此处剔除 `--` 后再转发，使定向运行按预期生效。 */
     const playwrightArgs = getCliArgsFn().filter((arg) => arg !== '--')
 
     await ensureBuildOutputFn()

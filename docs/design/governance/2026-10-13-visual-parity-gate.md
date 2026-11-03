@@ -17,6 +17,19 @@
 
 产物隔离：报告目录 `playwright-report/visual` ↔ `playwright-report/visual-parity`，失败产物 `test-results/visual` ↔ `test-results/visual-parity`；两层互不覆盖。
 
+### 2.1 第二 server 实例（2026-11-03 新增，B3 安装向导）
+
+门禁层按 **project** 分流两个 server 实例：
+
+| project | baseURL | server env | 承载 |
+|:---|:---|:---|:---|
+| `chromium-visual-parity` | `127.0.0.1:3001` | `TEST_MODE=true`、`MOMEI_INSTALLED=true` | 除安装向导外的全部路由 |
+| `chromium-visual-parity-installation` | `127.0.0.1:3002` | `TEST_MODE=false`、`MOMEI_INSTALLED=false`、`DATABASE_TYPE=sqlite`、`DATABASE_PATH=:memory:` | 仅 `installation.visual-parity.test.ts` |
+
+为什么需要第二实例：已安装态主实例对 `/installation` 直接 302（`server/middleware/0-installation.ts`），前端 `page.route` 无法补救。**`MOMEI_INSTALLED=false` 本身不等于强制未安装**——中间件只是跳过环境变量短路，随后仍按数据库探测；主库已被 TEST_MODE 种子写成「已安装」，页面照样被 302。因此第二实例必须同时关闭 TEST_MODE（不跑种子）并使用独立内存库，使每次启动都是干净的未安装态。
+
+安装向导的状态响应在 spec 内固定 mock（`/api/install/status`），避免机器相关字段（node / OS / DB 版本）与真实安装态进入截图。
+
 ## 3. 分级严格度
 
 口径由用户设定，落于 `tests/visual/parity-budget.json`：
@@ -25,6 +38,8 @@
 - `admin`（面向管理员）：容许一定偏差，但需「看起来差不多」。
 
 逐 testName 可在 `entries` 覆盖。判定为「取严」：`maxDiffPixels` 与 `maxDiffPixelRatio` 任一超限即失败。
+
+**档位解析（2026-11-03 起）**：档位由 `tests/visual/parity/routes.ts` 的 `tier` **显式声明**并透传到预算解析（`tests/visual/parity/budget.ts` 的 `getBudgetEntry(name, tier)`）；仅当未传 tier 时才回退旧的「testName 含 `reader`」名字启发式。原因是 B3 的公开页命名（`auth-login` / `submit-page` / `user-settings`）不含 `reader`，只靠启发式会**静默**落到 `admin` 档且不报错。该口径由 `tests/scripts/parity-budget.test.ts` 锁定。
 
 ## 4. 偏差处置通道（优先级从高到低）
 
@@ -86,6 +101,8 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 - `/admin/waitlist` 于 2026-10-14 迁入 `MIGRATED_ROUTES`：参考态沿用其迁移前 HEAD 采集（等价 `--revert <迁移提交>`），允许清单按实测校准（浅 9533px / 深 15602px）。
 - 迁移路由的参考态若需以 `--revert` 重采，命令为 `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>`；就地采集的路由应改用 `--revert` 以消除依赖漂移后再复采。
 - **覆盖保护口径修正（2026-10-14）**：`buildHeadCaptureGrepArgs` 原先只排除 `source` 以 `worktree` 开头的清单条目，故**就地（`in-place`）采集的待迁移路由**在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自（`/admin/waitlist` 分区二审计发现）。现改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**」；需要专门刷新某条参考态时显式使用 `--only=<name>`。该契约由 `tests/scripts/capture-visual-reference.test.ts` 覆盖。
+- **第七十阶段（2026-11-03）**：B3 的 10 条路由登记进 `PENDING_ROUTES`（管理端设置 3 条 / 安装向导 1 条 / 用户设置与认证提交 6 条），参考态按 HEAD 就地采集完成（20 张，`reference-manifest.json` 共 54 条）。**`reader` 档首次启用**（6 条路由），档位由路由定义显式声明。安装向导由第二 server 承载（见 §2.1）。比对侧 `pnpm test:visual:parity` 55/55（54 条比对 + 1 条登记守卫），用时约 10.4 分钟；参考态与当前态同源（待迁移路由），差异 0，迁移落地后该批用例即开始反映真实漂移。
+- **保护口径的边界（2026-11-03 补记）**：`getProtectedTestNames` 的「磁盘已有即排除」只作用于 **HEAD 就地采集**；`--ref=<ref>` 的 worktree 模式在全量采集时会把工作树内的参考态 `copyReferences` 回主仓库并改写 manifest，不参与该排除。使用 worktree 模式刷新时须显式给 `--only`。
 
 ## 8. 相关文档
 

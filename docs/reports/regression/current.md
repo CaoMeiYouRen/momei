@@ -300,3 +300,50 @@
 - `.d.ts` 的成员顺序变化未做逐 prop 语义比对，判据为「成员集合一致 + 全量 `typecheck` 通过」。
 - E2E 未重跑：本批无业务 / 样式代码改动，且 GA 运行时产物与 rc.1 逐字节一致。
 <!-- regression-window:end:phase70-caomei-ga:第七十阶段条目 1a caomei-ui 1.0.0 GA 升级:2026-11-03 -->
+
+<!-- regression-window:start:phase70-parity-harness:第七十阶段条目 1b/1c 门禁扩面与参考态采集:2026-11-03 -->
+## 2026-11-03 第七十阶段条目 1b/1c parity 门禁扩面与 10 条参考态采集
+
+### 范围
+
+条目 1b（门禁能力）与 1c（参考态采集）：把 B3 的 10 条路由登记进 `PENDING_ROUTES` 并采集迁移前参考态；扩展门禁以支持「未安装态第二 server」与「`reader` 档显式声明」。本批无页面 / 组件实现改动。
+
+### 能力变更
+
+| 变更 | 落点 | 说明 |
+| :--- | :--- | :--- |
+| 第二 webServer + 独立 project | `playwright.visual-parity.config.ts` | `chromium-visual-parity-installation`（3002）承载 `installation.visual-parity.test.ts`；默认 project 以 `testIgnore` 排除该文件 |
+| 安装向导 spec | `tests/visual/parity/installation.visual-parity.test.ts` | 固定 mock `/api/install/status`（避免机器相关字段与真实安装态）；含「至少登记一条 installation 路由」的防退化断言 |
+| 档位显式化 | `tests/visual/parity/budget.ts`（自 `helpers.ts` 抽出） | `getBudgetEntry(name, tier?)` 以路由定义的 `tier` 优先，名字启发式仅作回退；由 `tests/scripts/parity-budget.test.ts`（4 例）锁定 |
+| 路由登记 | `tests/visual/parity/routes.ts` | 10 条：`admin-settings-form` / `admin-settings-theme` / `admin-notifications-list` / `installation-wizard` / `user-settings` / `auth-login` / `auth-register` / `auth-forgot-password` / `auth-reset-password` / `submit-page` |
+| CI 超时 | `.github/workflows/test.yml` | `visual` job 20 → 30 分钟（parity 单次约 10.4 分钟） |
+
+### 关键结论（实施期发现）
+
+1. **`MOMEI_INSTALLED=false` 不等于「强制未安装」**：中间件仅跳过环境变量短路，随后仍做数据库探测；主库被 TEST_MODE 种子写成已安装，`/installation` 依旧 302。第二 server 必须同时 `TEST_MODE=false`（不跑种子）与 `DATABASE_TYPE=sqlite` / `DATABASE_PATH=:memory:`（每次启动都是干净未安装态）。
+2. **`/settings` 不能等 `networkidle`**：登录态 AppHeader 的 `/api/notifications/stream`（SSE）会让 `networkidle` 不达成（与 `/admin/users` 同源），该路由登记为 `stable: 'lenient'`。
+3. 首轮采集因上述两点失败 4 条（`user-settings` ×2、`installation-wizard` ×2）；修复后 `pnpm test:visual:reference` 通过。
+4. 首轮失败前已落盘 16 张参考态但 manifest 未记录；随后以 `--only=<8 个路由名>` 重采这 16 张，使 `reference-manifest.json` 完整（54 条 = 原 34 + 新 20）。
+
+### 参考态与比对
+
+- 参考态：新增 **20 张**（10 条路由 × 2 主题），`tests/visual/parity/reference-manifest.json` 共 **54** 条 captures。
+- `pnpm test:visual:parity`：**55/55**（54 条比对 + 1 条登记守卫），用时 **10.4 分钟**；`reader` 档实测生效（`user-settings-*` / `auth-*` 行显示 `reader | 2000px / 0.300%`），未归因差异 0。
+- 采集与比对使用同一段渲染代码，故待迁移路由当前为「自比自」；迁移落地后该批用例即开始反映真实漂移。
+
+### 验证结果
+
+- `pnpm test:visual:reference`：EXIT 0（分两次完成，共 20 张）。
+- `pnpm test:visual:parity`：EXIT 0，55/55。
+- `pnpm vitest run tests/scripts/parity-budget.test.ts`：4/4。
+- `pnpm typecheck` 0 error；`pnpm exec eslint`（parity 目录 / config / 新单测）0 error。
+- 文档门禁：`docs:check:links` / `markers` / `line-count` / `i18n` 通过。
+
+### 未覆盖边界
+
+- 认证页参考态为**登录态**（沿用门禁统一 `storageState`），未覆盖匿名访问形态；页面本身不依赖登录态文案，迁移前后比对仍成立。
+- 安装向导按 `admin` 档判定（非公开页），未冻结「点击下一步」后的步骤页；后续条目 3 可按需追加 `activate` 面。
+- 第二 server 使用内存库，Better Auth 会打印 `no such table: momei_jwks` 错误日志（页面不依赖、截图不受影响），保留为观察项。
+- 参考态就绪锚点缺口：`admin-settings-form` / `admin-settings-theme` / `admin-notifications-list` 依赖异步接口渲染，当前未声明 `readyResponse` / `readySelector`（两次运行 0 差异）；迁移（条目 2）时补锚点，避免数据加载时序变化制造假红。
+- `pnpm test:visual`（基线层）未重跑：本批未改动基线层配置与快照。
+<!-- regression-window:end:phase70-parity-harness:第七十阶段条目 1b/1c 门禁扩面与参考态采集:2026-11-03 -->
