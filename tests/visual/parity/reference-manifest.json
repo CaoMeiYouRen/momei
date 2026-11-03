@@ -1,5 +1,5 @@
 {
-    "generatedAt": "2026-11-02T11:31:10.343Z",
+    "generatedAt": "2026-11-03T11:19:06.550Z",
     "environment": {
         "browser": "chromium 156.0.8078.4",
         "playwright": "1.64.1",
@@ -253,6 +253,146 @@
             "source": "in-place",
             "label": "HEAD",
             "capturedAt": "2026-10-16T13:20:01.188Z"
+        },
+        "installation-wizard-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:14:46.286Z"
+        },
+        "installation-wizard-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:14:46.286Z"
+        },
+        "user-settings-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:14:46.286Z"
+        },
+        "user-settings-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:14:46.286Z"
+        },
+        "admin-notifications-list-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "admin-notifications-list-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "admin-settings-form-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "admin-settings-form-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "admin-settings-theme-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "admin-settings-theme-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-forgot-password-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-forgot-password-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-login-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-login-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-register-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-register-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-reset-password-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "auth-reset-password-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "submit-page-dark": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
+        },
+        "submit-page-light": {
+            "ref": "HEAD",
+            "commit": "e3f62999b7f4846b82d82da181d188b3eb9d7afd",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-03T11:19:06.550Z"
         }
     }
 }
