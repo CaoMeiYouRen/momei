@@ -92,8 +92,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@lucide/vue':
-        specifier: ^1.64.0
-        version: 1.64.0(vue@3.5.44(typescript@6.0.3))
+        specifier: ^1.66.0
+        version: 1.66.0(vue@3.5.44(typescript@6.0.3))
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -2478,8 +2478,8 @@ packages:
     resolution: {integrity: sha512-i3ZPmlDYrv/W1299u2cR/slQc8JuKFbOJeMQPS3/65LXqeIqtrEF6MNnHnFYAoWWFuocJqoUCWeFC0lPV70S3g==}
     engines: {node: '>=20'}
 
-  '@lucide/vue@1.64.0':
-    resolution: {integrity: sha512-9Ta6cbHDk49GgKkSQRRVm55Cb99lou++5p4RNzUkS2NvOqD0RlWTEvidWgKMURUkfyz+3J6eeQz7tzCj3PJ0zA==}
+  '@lucide/vue@1.66.0':
+    resolution: {integrity: sha512-cyALYgAzCD2uZ557pM5I/dmFAyTKqtwY7PrdU67gzITkTH+V635u7Uv7VBpQ5hqvmlGqRtbqSDx08LCJHU+GAw==}
     peerDependencies:
       vue: '>=3.0.1'
 
@@ -15368,7 +15368,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lucide/vue@1.64.0(vue@3.5.44(typescript@6.0.3))':
+  '@lucide/vue@1.66.0(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       vue: 3.5.44(typescript@6.0.3)
 
@@ -19196,7 +19196,7 @@ snapshots:
   caomei-ui@1.0.0(@nuxt/kit@4.6.1(@nuxt/schema@4.6.3)(confbox@0.2.4)(dotenv@18.0.9)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(oxc-parser@0.141.0)(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.2)(vite@8.1.6(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.0)(terser@5.51.2)(yaml@2.9.1))))(vue@3.5.44(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
-      '@lucide/vue': 1.64.0(vue@3.5.44(typescript@6.0.3))
+      '@lucide/vue': 1.66.0(vue@3.5.44(typescript@6.0.3))
       '@tanstack/vue-table': 9.2.4(vue@3.5.44(typescript@6.0.3))
       '@vavt/cm-extension': 2.0.0
       reka-ui: 2.10.4(vue@3.5.44(typescript@6.0.3))
