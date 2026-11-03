@@ -8,7 +8,11 @@ import { TEST_ADMIN } from './helpers/auth.helper'
  * 在所有测试运行前创建测试管理员账户
  */
 async function globalSetup(config: FullConfig) {
-    const baseURL = config.projects[0]?.use?.baseURL ?? 'http://127.0.0.1:3001'
+    /* 必须按名字取主实例的 baseURL：门禁层有第二个 project（未安装态 3002），
+     * 若目录顺序被调整而仍取 `projects[0]`，登录会打到 3002 并使 admin 用例整体失去鉴权态。 */
+    const primaryProject = config.projects.find((project) => project.name === 'chromium-visual-parity')
+        ?? config.projects[0]
+    const baseURL = primaryProject?.use?.baseURL ?? 'http://127.0.0.1:3001'
     const authFile = path.resolve(process.cwd(), 'tests/e2e/.auth/admin.json')
     const browser = await chromium.launch()
     const context = await browser.newContext({

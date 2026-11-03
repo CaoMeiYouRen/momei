@@ -1,4 +1,4 @@
-import type { ParityTier } from './helpers'
+import type { ParityTier } from './budget'
 
 /**
  * 视觉一致性门禁覆盖的路由清单。
@@ -45,6 +45,17 @@ export interface ParityRoute {
      * 与 `readyResponse` 组合使用，确保响应回来后 DOM 已渲染。
      */
     readySelector?: string
+    /**
+     * 该路由只能在**独立 server 实例**下渲染。
+     *
+     * - 缺省：主实例（`MOMEI_INSTALLED=true`，端口 3001）；
+     * - `installation`：`MOMEI_INSTALLED=false` 的第二实例（端口 3002）。已安装态的主实例会对
+     *   `/installation` 直接 302，前端 mock 无法补救，故必须由 server 环境区分。
+     *
+     * 由 `playwright.visual-parity.config.ts` 的 project `testMatch` 分流：默认 project 忽略
+     * `*.installation.visual-parity.test.ts`，安装向导 project 只运行该文件。
+     */
+    server?: 'installation'
 }
 
 export const MIGRATED_ROUTES: ParityRoute[] = [
@@ -196,11 +207,97 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：当前离线（无待迁移路由）。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）登记的 10 条路由，当前仍是 PrimeVue 实现。
  *
- * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集）；
+ * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
- * 「与迁移前原貌」的偏差逐项归因。文件与其中的就绪口径（`stable` / `readyResponse` /
- * `readySelector`）保留为后续批次（B3 设置族 / 组件型目标剩余路由）的模板。
+ * 「与迁移前原貌」的偏差逐项归因。
+ *
+ * 档位（`tier`）由本清单**显式声明**并透传到预算解析：不再依赖「testName 含 reader」的
+ * 名字启发式，避免 `auth-login` / `submit-page` 这类命名静默落到 admin 档。
+ *
+ * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  */
-export const PENDING_ROUTES: ParityRoute[] = []
+export const PENDING_ROUTES: ParityRoute[] = [
+    /* B3-A 管理端设置与通知（tier=admin）：2a 设置主体 / 2b 主题工作台 / 2c 通知管理。
+     * 三者的参考态在第七十阶段条目 1c 以 HEAD（PrimeVue）采集；迁移后逐项归因。 */
+    {
+        name: 'admin-settings-form',
+        path: '/admin/settings',
+        heading: '系统设置',
+        tier: 'admin',
+        migrated: false,
+    },
+    {
+        name: 'admin-settings-theme',
+        path: '/admin/settings/theme',
+        heading: '主题定制',
+        tier: 'admin',
+        migrated: false,
+    },
+    {
+        name: 'admin-notifications-list',
+        path: '/admin/notifications',
+        heading: '通知管理',
+        tier: 'admin',
+        migrated: false,
+    },
+    /* B3-C 安装向导：默认实例在已安装态对该路由直接 302（server/middleware/0-installation.ts），
+     * 故必须由 `MOMEI_INSTALLED=false` 的第二 webServer + 独立 project 承载；
+     * 状态响应在 spec 内固定 mock，避免 DB 安装态与机器信息（node / OS / DB 版本）进入截图。 */
+    {
+        name: 'installation-wizard',
+        path: '/installation',
+        heading: '墨梅博客安装向导',
+        tier: 'admin',
+        migrated: false,
+        server: 'installation',
+    },
+    /* B3-D 用户设置与 5 个认证 / 提交页（tier=reader）：首次启用 reader 档。
+     * 这些路由名不含 `reader` 字样，档位由 `tier` 显式传入（不再依赖名字启发式）。 */
+    {
+        name: 'user-settings',
+        path: '/settings',
+        heading: '个人中心',
+        tier: 'reader',
+        migrated: false,
+        /* 登录态的 AppHeader 会打开 `/api/notifications/stream`（SSE 长连接），
+         * `networkidle` 可能永不达成（与 `/admin/users` 同源），改用有界稳定窗口。 */
+        stable: 'lenient',
+    },
+    {
+        name: 'auth-login',
+        path: '/login',
+        heading: '欢迎回来，请登录',
+        tier: 'reader',
+        migrated: false,
+    },
+    {
+        name: 'auth-register',
+        path: '/register',
+        heading: '创建新账号',
+        tier: 'reader',
+        migrated: false,
+    },
+    {
+        name: 'auth-forgot-password',
+        path: '/forgot-password',
+        heading: '找回密码',
+        tier: 'reader',
+        migrated: false,
+    },
+    {
+        name: 'auth-reset-password',
+        path: '/reset-password',
+        heading: '重置密码',
+        tier: 'reader',
+        migrated: false,
+    },
+    {
+        name: 'submit-page',
+        path: '/submit',
+        heading: '访客投稿',
+        tier: 'reader',
+        migrated: false,
+    },
+]

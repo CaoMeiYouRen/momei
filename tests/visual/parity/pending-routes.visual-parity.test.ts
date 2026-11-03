@@ -6,19 +6,20 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * **本文件当前不产出用例**（`PENDING_ROUTES` 为空）：组件型目标各批次完成后（分类 / 标签 → 首路由批次；`/admin/ai` → 第二批次；
- * `/admin/marketing` → 第三批次），对应条目已移入 `MIGRATED_ROUTES`，待迁移层回到空集。文件与其中的就绪口径
- * （`stable` / `readyResponse` / `readySelector` / `activate`）保留为**后续批次的模板**（见 `docs/plan/todo.md`）：
- * 新增待迁移路由时在此登记，即自动获得与已迁移层同口径的比对。
+ * 当前登记 **B3 的 10 条待迁移路由**（管理端设置与通知 3 条、用户设置与认证提交 6 条、
+ * 安装向导 1 条）；安装向导由独立 project 承载（`installation.visual-parity.test.ts`），
+ * 故本文件实际产出 9 条路由 × 2 主题 = 18 条用例。参考态为 HEAD（PrimeVue）就地采集。
  *
- * 待迁移层的语义：这些路由当前仍是 PrimeVue 实现，参考态即当前 PrimeVue 渲染（HEAD 采集）；
- * 待其迁移到 caomei-ui 后，本文件中的用例会立即反映「与迁移前原貌」的偏差，
- * 从而强制逐项归因（token 覆盖 / 预设 / 包装覆盖 / 上游反馈）后才允许放行。
+ * 待其迁移到 caomei-ui 后，把条目移入 `MIGRATED_ROUTES`、保持参考态不变，本文件中的用例
+ * 会立即反映「与迁移前原貌」的偏差，从而强制逐项归因（token 覆盖 / 预设 / 包装覆盖 /
+ * 上游反馈）后才允许放行。就绪口径（`stable` / `readyResponse` / `readySelector` /
+ * `activate`）在两层通用，新增路由时按需声明。
  *
  * 参考态采集命令：pnpm test:visual:reference（默认对 HEAD 全量采集；无待采目标时按成功退出）。
  */
 test.describe('视觉一致性门禁：待迁移路由', () => {
-    for (const route of PENDING_ROUTES) {
+    /* 安装向导类路由由独立 project（第二 webServer）承载，本文件排除。 */
+    for (const route of PENDING_ROUTES.filter((item) => item.server !== 'installation')) {
         for (const theme of VISUAL_THEMES) {
             test(`${route.name}-${theme}`, async ({ page }, testInfo) => {
                 await applyTheme(page, theme)
@@ -72,7 +73,7 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
 
                 await page.getByRole('heading', { name: route.heading }).waitFor({ state: 'visible' })
 
-                await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo })
+                await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo, tier: route.tier })
             })
         }
     }

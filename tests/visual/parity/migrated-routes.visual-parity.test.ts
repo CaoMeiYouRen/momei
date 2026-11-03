@@ -21,7 +21,9 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
  * 命令：pnpm test:visual:reference -- --ref=<ref> --only=<route-name>
  */
 test.describe('视觉一致性门禁：已迁移路由', () => {
-    for (const route of MIGRATED_ROUTES) {
+    /* 安装向导类路由由独立 project（第二 webServer）承载；默认 project 必须排除，
+     * 否则会因服务端 302 截到首页并产出误导性差异。 */
+    for (const route of MIGRATED_ROUTES.filter((item) => item.server !== 'installation')) {
         for (const theme of VISUAL_THEMES) {
             test(`${route.name}-${theme}`, async ({ page }, testInfo) => {
                 await applyTheme(page, theme)
@@ -78,7 +80,7 @@ test.describe('视觉一致性门禁：已迁移路由', () => {
                     await page.locator(route.readySelector).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined)
                 }
 
-                await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo })
+                await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo, tier: route.tier })
             })
         }
     }
