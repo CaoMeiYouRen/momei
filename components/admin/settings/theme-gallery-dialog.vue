@@ -246,7 +246,12 @@ watch(() => props.modelValue, (val) => {
     overflow: hidden;
     transition: all 0.2s ease-in-out;
     background-color: var(--p-content-background);
+}
 
+/* 子元素与内部结构样式必须留在**单类**块内：
+ * 若挂在双类块下，`&__preview` 会编译成 `.theme-config-card.theme-config-card__preview`（要求同一元素有两个类），
+ * 全部子元素样式静默失效。 */
+.theme-config-card {
     &:hover {
         transform: translateY(-4px);
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
