@@ -32,7 +32,7 @@
     - 非目标：`--p-*` 与独立 `<i class="pi">` 清理（B4）；不改设置读写 API 与权限逻辑；不做半路由切换。
     - 验收标准：在册族零残留守卫与过渡组件守卫通过；parity 新增 `admin-settings-form` / `admin-settings-theme` / `admin-notifications-list`，未归因差异为 0，差异逐项归因；`tests/pages/admin/settings/{index,theme}.test.ts` 断言改写后通过；`/admin/settings` 视觉基线按迁移后重采。
     - 证据落点：回归记录条目 2 三个窗口、「文件 → 改动点 → 依据指针」清单（按迁移方案 §8.5）、parity 预算条目与 `note`。
-    - 进度：2a 已完成（2026-11-03；设置主体 25 个文件 + 3 个字段适配层，路由 scope 与 `ownedFiles` 已登记，`/admin/settings/theme` 为 2b 例外）；待 2b / 2c。
+    - 进度：2a 已完成（2026-11-03；设置主体 25 个文件 + 3 个字段适配层，路由 scope 与 `ownedFiles` 已登记）；2b 已完成（2026-11-04；主题工作台 6 个文件，子路由例外已移除、改由 `migratedSubRoutes` 纳入扫描面）；待 2c。
 - [ ] **3. B3-C 安装向导整路由迁移**
     - 执行范围：`Stepper` 族（Stepper / StepList / Step / StepPanels / StepPanel）、`Accordion` 族、`Password`、`Message` 整批迁移；`pages/installation.vue` 的 21 处 `:deep()` 复核（其中 1 处 `:deep(.p-tag)` 需改写为 caomei 契约，其余为页面自有类选择器）；E2E 改为强制未安装态的五步流程断言。
     - 非目标：不改服务端安装逻辑 / API / 中间件；不做真实安装环境改造；`--p-*` token 消费点仍留待 B4 统一清理（仅新增样式不得引入 `--p-*`）。
