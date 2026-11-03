@@ -383,7 +383,7 @@
 1. **Nuxt 组件名带目录前缀**：新增的 `components/admin/settings/setting-*.vue` 自动导入名为 `AdminSettingsSettingInput`，模板里写 `<SettingInput>` 会**静默解析为未知元素**（不报错、不渲染）。首轮视觉采集因此拍到了缺控件的页面（设置表单差异 62,534px），修正为显式 import 后重采（64,028px）。已写入迁移方案 §6.2 执行提示 5。
 2. **可空字段与新库类型不兼容**：caomei 字段组件 `modelValue` 只收 `string | undefined`，设置项通用类型含 `null`；适配层只做边界归一，避免 200+ 处重复回写。
 3. **字符串选项数组**：PrimeVue `Select` 接受 `string[]`，caomei 只接受对象数组；5 处改为 `{ label, value }` 并把 `option-label` / `option-value` 显式声明。
-4. 迁移后路由内已无 PrimeVue 控件（结构抽查：15 inputs / 7 switches / 0 个 `.p-inputtext` / 0 个 `.p-button`）。
+4. 迁移后**设置内容区**已无 PrimeVue 控件（结构抽查：15 inputs / 7 switches / 0 个 `.p-inputtext` / 0 个 `.p-button`）；页面级仍会出现 `.p-button`，来源于全局布局 `AppHeader`（不在本路由 scope 内）。
 
 ### 审核修复（Review Gate Round 1 的 warning / suggest）
 
@@ -400,7 +400,7 @@
 | S4 | 部分测试 stub 与新契约漂移 | `CaomeiTag` 改默认插槽；`CaomeiAccordionItem` 补 `title` 并移除已不存在的 Header/Content stub；`general-settings` 的 `AppUploader` stub 改 `AppUploaderV2` |
 | S5 | `CaomeiMultiSelect` 上的 `display="chip"` 无对应 prop | 删除（3 处） |
 | S6 | 新增注释含规划编号 | 保留（本仓库既有同型写法，后续统一），不阻塞 |
-| S7 | `agreements-settings.vue` 已 771 行（限 800） | 登记为 2b / 收口前的拆分候选，不在本批处置 |
+| S7 | `agreements-settings.vue` 已 776 行（限 800） | 登记为 2b / 收口前的拆分候选，不在本批处置 |
 
 修复后复跑：设置组件 22 files / 55 tests、页面 8/8、守卫双测试 63/63、`lib/ui-library.test.ts` 13/13（合计 **139/139**）、`typecheck` 0 error、`eslint`（设置目录 / 守卫 / 测试）0 error。
 

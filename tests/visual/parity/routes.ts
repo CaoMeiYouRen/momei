@@ -215,7 +215,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）登记的 10 条路由，当前仍是 PrimeVue 实现。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 9 条路由，当前仍是 PrimeVue 实现。
  *
  * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
@@ -227,8 +227,8 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* B3-A 管理端设置与通知（tier=admin）：2a 设置主体 / 2b 主题工作台 / 2c 通知管理。
-     * 三者的参考态在第七十阶段条目 1c 以 HEAD（PrimeVue）采集；迁移后逐项归因。 */
+    /* B3-A 剩余面（tier=admin）：2b 主题工作台 / 2c 通知管理（2a 设置主体已迁入 `MIGRATED_ROUTES`）。
+     * 参考态在第七十阶段条目 1c 以 HEAD（PrimeVue）采集；迁移后逐项归因。 */
     {
         name: 'admin-settings-theme',
         path: '/admin/settings/theme',
