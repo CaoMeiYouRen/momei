@@ -234,7 +234,9 @@ watch(() => props.modelValue, (val) => {
     display: flex;
 }
 
-.theme-config-card {
+/* 双类选择器提高特异性：库内 `.caomei-card` 的同名规则后加载，
+ * 单类选择器会被其 `display: block` 覆盖，导致页脚 `margin-top: auto` 失效。 */
+.theme-config-card.theme-config-card {
     width: 100%;
     height: 100%;
     display: flex;

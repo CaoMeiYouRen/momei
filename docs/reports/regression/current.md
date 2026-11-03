@@ -475,15 +475,23 @@
 | W4 | `migratedSubRoutes` 的「互斥 / 位于 `pages/<prefix>/` / 存在性」只写在注释里 | 守卫测试补 2 条断言（互斥 + 前缀目录；存在性独立报错） |
 | W7 | `lib/ui-library.ts` 仍写「主题子路由为例外」「子路由无守卫兜底」 | 注释同步为当前机制（`migratedSubRoutes` + 既有守卫） |
 
+Round 2 追加修复（复审 Reject 两项）：
+
+| 编号 | 问题 | 处置 |
+| :--- | :--- | :--- |
+| B5 | 新增画廊测试触发 16 条 ESLint 缩进告警，`--max-warnings 0` 失败 | `eslint --fix` 后 0 warning；回归记录的 lint 证据口径同步更正 |
+| B6 | `.theme-config-card` 的 `display:flex` 被库内同特异性规则覆盖，页脚 `margin-top:auto` 失效（内容不等长时页脚悬空） | 选择器提为 `.theme-config-card.theme-config-card`；画廊 mock 的第二种卡片改用长描述制造高度差，并运行时实测两张卡 `footerTop` 一致（520）、贴底 1px，重采 2 张画廊基线 |
+| W2 补充 | 页签行为无可执行覆盖 | 新增 `theme-config-section.test.ts`，断言 3 个页签、默认 `default-value=0`、`unmount-on-hide=false`、8 个色彩字段 |
+
 未采纳：W5（换行符整文件改写，仓库无 `.gitattributes` 统一口径，保留）、W6（流程编号注释，与既有写法一致，后续统一）、W8（视觉覆盖已通过新增 4 张基线补强）、W9（提交规模属单条 todo 原子项，在提交说明记录拆分依据）。
 
 ### 验证结果
 
-- `pnpm test`：**583 files passed / 1 skipped（584）**、**5,156 passed / 1 skipped（5,157）**，EXIT 0。
+- `pnpm test`：**584 files passed / 1 skipped（585）**、**5,157 passed / 1 skipped（5,158）**，EXIT 0。
 - `pnpm typecheck` 0 error；`pnpm lint`（theme 目录 / 页面）0 error 0 warning。
 - `pnpm test:visual`：**22/22**（新增主题工作台与主题画廊弹窗各 2 张基线）；首轮曾出现一次未命名用例失败，复跑 22/22 通过（运行期资源竞争，保留观察）。
 - `pnpm test:visual:parity`：**55/55**；`admin-settings-theme` 从待迁移层移入已迁移层，参考态保持迁移前 HEAD 采集；修正取色器颜色格式、页签等分与卡片外壳后，light **42,263px / 3.261%**、dark **50,759px / 3.917%**，各 6 个区域按实测登记后未归因 **0px**。
-- 页面单测 `tests/pages/admin/settings/theme.test.ts`（stub 全部改到 caomei 契约）、`theme-save-dialog.test.ts`、新增 `theme-gallery-dialog.test.ts`（锁定「主题名 + 当前/系统标签」不被 header 槽吞掉）通过。
+- 页面单测 `tests/pages/admin/settings/theme.test.ts`（stub 全部改到 caomei 契约）、`theme-save-dialog.test.ts`、新增 `theme-gallery-dialog.test.ts`（锁定「主题名 + 当前/系统标签」不被 header 槽吞掉）与 `theme-config-section.test.ts`（3 个页签、默认页签、`unmount-on-hide=false`、8 个色彩字段）通过。
 
 ### 未覆盖边界
 

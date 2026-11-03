@@ -20,7 +20,7 @@ const GALLERY_PAYLOAD = {
         {
             id: 'theme-visual-2',
             name: '系统默认',
-            description: '内置默认主题',
+            description: '内置默认主题，这一行刻意写得更长，用于验证卡片内容高度不一致时页脚仍然贴底显示，而不是停在半空。',
             isActive: false,
             isSystem: true,
             previewImage: '',

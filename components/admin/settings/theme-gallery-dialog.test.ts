@@ -6,22 +6,22 @@ import ThemeGalleryDialog from './theme-gallery-dialog.vue'
 const { mockFetch } = vi.hoisted(() => ({
     mockFetch: vi.fn().mockResolvedValue({
         data: [
-        {
-            id: 'theme-1',
-            name: '深海主题',
-            description: '深色自定义方案',
-            isActive: true,
-            isSystem: false,
-            previewImage: '',
-        },
-        {
-            id: 'theme-2',
-            name: '系统默认',
-            description: '',
-            isActive: false,
-            isSystem: true,
-            previewImage: '',
-        },
+            {
+                id: 'theme-1',
+                name: '深海主题',
+                description: '深色自定义方案',
+                isActive: true,
+                isSystem: false,
+                previewImage: '',
+            },
+            {
+                id: 'theme-2',
+                name: '系统默认',
+                description: '',
+                isActive: false,
+                isSystem: true,
+                previewImage: '',
+            },
         ],
     }),
 }))
