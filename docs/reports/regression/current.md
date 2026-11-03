@@ -347,3 +347,78 @@
 - 参考态就绪锚点缺口：`admin-settings-form` / `admin-settings-theme` / `admin-notifications-list` 依赖异步接口渲染，当前未声明 `readyResponse` / `readySelector`（两次运行 0 差异）；迁移（条目 2）时补锚点，避免数据加载时序变化制造假红。
 - `pnpm test:visual`（基线层）未重跑：本批未改动基线层配置与快照。
 <!-- regression-window:end:phase70-parity-harness:第七十阶段条目 1b/1c 门禁扩面与参考态采集:2026-11-03 -->
+
+<!-- regression-window:start:phase70-item-2a:第七十阶段条目 2a 管理端设置主体迁移:2026-11-03 -->
+## 2026-11-03 第七十阶段条目 2a 管理端设置主体迁移（`/admin/settings`）
+
+### 范围
+
+`/admin/settings` 整路由迁移到 caomei-ui：设置页 + 23 个设置组件 + 共享保存条 `admin-floating-actions`（共 25 个修改文件），另新增 3 个字段适配层。按 HEAD 口径合计 **341 处** PrimeVue（27 个 `ownedFiles` 310 处 + 页面 31 处）。本批不含主题工作台（2b）与 `/admin/notifications`（2c）。
+
+### 组件映射与处置
+
+| PrimeVue | caomei | 说明 / 差异 |
+| :--- | :--- | :--- |
+| `InputText` / `Password` / `Textarea` | `CaomeiInput` / `CaomeiPassword` / `CaomeiTextarea` | 经 3 个薄适配层（`setting-{input,password,textarea}.vue`）做 `null → ''` 归一；删除 `fluid`、`:toggle-mask`；`rows="N"` → `:rows="N"` |
+| `InputNumber` | `CaomeiInputNumber` | 删除 `fluid`；字符串型值经 `Number()` 归一 |
+| `Select` / `MultiSelect` | `CaomeiSelect` / `CaomeiMultiSelect` | 删除 `fluid` / `append-to`；**字符串数组选项映射为 `{ label, value }`**（5 处） |
+| `ToggleSwitch` | `CaomeiSwitch` | 行为一致（布尔 v-model） |
+| `Divider` / `Card` / `Message` | `CaomeiDivider` / `CaomeiCard` / `CaomeiMessage` | `Card` 的 `#content` → 默认插槽；`Message` 的 `severity` → `tone`，`info` → `primary` |
+| `Tag` | `CaomeiTag` | `severity` → `tone`（`warn`→`warning`、`secondary` → `neutral`、`info` → `primary`），可见文案改默认插槽 |
+| `Button` | `CaomeiButton` | 可见文案写默认插槽、`label` 仅作可访问名；图标改 `#icon` + `@lucide/vue`；`outlined/text/severity` → `variant` / `tone` |
+| `DataTable` + `Column` | `CaomeiDataTable` + `columns` prop + `#cell-*` | 无 `#header` 插槽，表头内容移到表格上方；`@page` 由 0 基改 1 基 |
+| `Tabs` 族 | `CaomeiTabs` / `CaomeiTabList` / `CaomeiTabTrigger` / `CaomeiTabContent` | `v-model:value` → `v-model`；`TabPanels` 由 `TabContent` 直接承接 |
+| `Accordion` 族 | `CaomeiAccordion` + `CaomeiAccordionItem` | `title` + 默认插槽；`default-value` 保持默认展开 |
+| `Image` | `CaomeiImage` | `width="48"` → `style="width: 48px"`（无 width prop） |
+| `AppUploader`（V1） | `AppUploaderV2` | 路由已登记，按事实源渲染 caomei 版（字段行为共用） |
+
+### 路由守卫与文件
+
+- `lib/ui-library.ts` 新增 `/admin/settings` scope：27 个 `ownedFiles` + 路由级在册族增量（`Password` / `InputNumber` / `Textarea` / `Card` / `Message` / `Divider` / `Image` / `MultiSelect` / `Accordion` 族 / `Tabs` 族）。
+- `/admin/settings/theme` 登记为 `primeVueSubRoutes` 例外（条目 2b 前仍为 PrimeVue）。
+- 迁移后 2a 文件集 PrimeVue 开口标签 **0 处**；在册族与过渡组件守卫 **63/63**。
+
+### 关键结论（实施期发现）
+
+1. **Nuxt 组件名带目录前缀**：新增的 `components/admin/settings/setting-*.vue` 自动导入名为 `AdminSettingsSettingInput`，模板里写 `<SettingInput>` 会**静默解析为未知元素**（不报错、不渲染）。首轮视觉采集因此拍到了缺控件的页面（设置表单差异 62,534px），修正为显式 import 后重采（64,028px）。已写入迁移方案 §6.2 执行提示 5。
+2. **可空字段与新库类型不兼容**：caomei 字段组件 `modelValue` 只收 `string | undefined`，设置项通用类型含 `null`；适配层只做边界归一，避免 200+ 处重复回写。
+3. **字符串选项数组**：PrimeVue `Select` 接受 `string[]`，caomei 只接受对象数组；5 处改为 `{ label, value }` 并把 `option-label` / `option-value` 显式声明。
+4. 迁移后路由内已无 PrimeVue 控件（结构抽查：15 inputs / 7 switches / 0 个 `.p-inputtext` / 0 个 `.p-button`）。
+
+### 审核修复（Review Gate Round 1 的 warning / suggest）
+
+| 编号 | 问题 | 处置 |
+| :--- | :--- | :--- |
+| W1 | `general-settings.vue` 的两处 `::rows` 拼写使 `rows` prop 丢失（回落默认值） | 改回 `:rows` |
+| W2 | `external-feed-sources-editor.vue` 用 `:input-id`（PrimeVue 契约），caomei 只认 `id`，7 个 label 关联断链 | 统一改 `:id` |
+| W3 | `show-buttons` 残留 11 处（caomei 为 `controls`）；且未声明时 caomei 默认显示步进按钮，与迁移前不一致 | 删除 `show-buttons`；按 HEAD 版本比对，对原本无步进按钮的 21 个 `InputNumber` 显式 `:controls="false"` |
+| W4 | `setting-audit-log-list.vue` 的 `:deep(.p-datatable-tbody …)` 已成死选择器 | 改为 `:deep(.caomei-data-table__td)` |
+| W5 | 主题工作台子路由存在「caomei 保存条 + PrimeVue 页面体」混用 | 在 `lib/ui-library.ts` 的子路由例外理由中显式登记；该提前迁移给 `admin-settings-theme` 带来 parity 实测 **1,492px / 0.115%**（light）与 **1,457px / 0.112%**（dark）的未归因增量（低于 admin 档 3,000px 阈值而 PASS），待 2b 整页迁移时归因或吸收 |
+| W6 | 协议操作按钮的 `:title` 提示（限制原因）在迁移后丢失 | 5 个图标按钮补回 `:title` |
+| S1 | 3 个适配层无直接单测 | 新增 `setting-field-adapters.test.ts`（6 例：null/数字归一、string 回写、属性透传） |
+| S2/S3 | 路由登记无防静默移除钉子、`lib/ui-library.ts` 子路由注释过期 | `lib/ui-library.test.ts` 补 `/admin/settings` 断言；注释补第三条子路由 |
+| S4 | 部分测试 stub 与新契约漂移 | `CaomeiTag` 改默认插槽；`CaomeiAccordionItem` 补 `title` 并移除已不存在的 Header/Content stub；`general-settings` 的 `AppUploader` stub 改 `AppUploaderV2` |
+| S5 | `CaomeiMultiSelect` 上的 `display="chip"` 无对应 prop | 删除（3 处） |
+| S6 | 新增注释含规划编号 | 保留（本仓库既有同型写法，后续统一），不阻塞 |
+| S7 | `agreements-settings.vue` 已 771 行（限 800） | 登记为 2b / 收口前的拆分候选，不在本批处置 |
+
+修复后复跑：设置组件 22 files / 55 tests、页面 8/8、守卫双测试 63/63、`lib/ui-library.test.ts` 13/13（合计 **139/139**）、`typecheck` 0 error、`eslint`（设置目录 / 守卫 / 测试）0 error。
+
+### 验证结果
+
+- `pnpm test`：**582 files passed / 1 skipped（583）**、**5,153 passed / 1 skipped（5,154）**，EXIT 0（新增适配层单测 1 个文件 / 6 例）。
+- `pnpm typecheck` 0 error；`pnpm lint`（设置目录）0 error 0 warning。
+- `pnpm test:visual`：**18/18**；4 张基线按迁移后观感重采（`admin-settings-form` 浅/深 + `admin-agreements-dialog` 浅/深）。
+- `pnpm test:visual:parity`：**55/55**；`admin-settings-form-light` 64,028px / 4.940%、`admin-settings-form-dark` 91,926px / 7.093%，按区域登记允许清单后未归因 **0px**（light 2 区域 / dark 4 区域）。
+- 页面单测 `tests/pages/admin/settings/{index,theme}.test.ts` 8/8；设置组件单测 **22 files / 55 tests**（含适配层 6 例；stub 与选择器改到 caomei 契约，未放宽断言）。
+
+### 未覆盖边界
+
+- 主题工作台（`/admin/settings/theme`）与 `/admin/notifications` 仍未迁移，分别留条目 2b / 2c。
+- `Message` 的 `variant` 维度未使用（仅 `tone`）；`Tag` 的 `selectable` / `closable` 在设置页零用量。
+- 适配层只覆盖 `Input` / `Password` / `Textarea`；`Select` 的回写仍可能给出 `number`（已在使用处按字符串处理）。
+- 截图仅覆盖「常规」标签页与协议弹窗；其余标签页依赖单测 + 结构抽查，未逐页截图。
+- 全量 parity 首次复跑时 `user-settings-dark` 出现 `page.goto` 60s 超时；单条复跑 2/2、全量复跑 **55/55**（9.4 分钟）通过，判定为运行期资源竞争导致的偶发（与本批改动无关联），保留观察。
+- **低于门禁阈值的暗色整列背景变化**：深色设置内容列背景由 `rgb(2,6,23)` 变为 `rgb(12,16,32)`（Δ≤10/通道，约 46 万像素），未达到 pixelmatch 阈值（`0.2` → YIQ 平方距离 ≈1,409，实测 ≈60），因此不进入未归因统计。该变化由 `CaomeiCard` / `CaomeiTabs` 的容器 token 引起，属本批有意观感差异，登记为已知项（若后续 token 继续漂移只有超过阈值才会报警）。
+- 逐文件「文件 → 改动点 → 依据指针」清单在条目 2 收口（2a/2b/2c 合并）时按迁移方案 §8.5 统一产出；本窗口已给出组件族映射表与文件集口径。
+<!-- regression-window:end:phase70-item-2a:第七十阶段条目 2a 管理端设置主体迁移:2026-11-03 -->

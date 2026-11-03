@@ -28,10 +28,11 @@
     - 证据落点：`docs/reports/regression/current.md` 第七十阶段条目 1 窗口、`tests/visual/parity/reference-manifest.json`、迁移方案 §3.11。
     - 进度：**已完成**（2026-11-03）。1a 版本与复测证据见回归记录「条目 1a」窗口；1b/1c 见「条目 1b/1c」窗口（10 条参考态 + 54 条 manifest + parity 55/55）。
 - [ ] **2. B3-A 管理端设置与通知整路由迁移**
-    - 执行范围：2a 设置主体（15 个设置组件 + `pages/admin/settings/index.vue`，含 13 个 `TabPanel`：InputText / Password / InputNumber / Textarea / ToggleSwitch / Select / `Tabs` 族 / `DatePicker` / `MultiSelect` / `Image` / `Divider` / `Message`）；2b 主题工作台（`Panel→Card`、`ColorPicker`、`SelectButton`、`DataView`、3 个浮层内表单）；2c 四张 DataTable + `/admin/notifications` 整路由（`notification-delivery-log-list` 属 B3 范围目录、唯一消费路由为该路由）；路由 scope + `ownedFiles`（含 `components/admin/admin-floating-actions.vue`）与路由级在册族增量登记。
+    - 执行范围：2a 设置主体（26 个设置组件 + `pages/admin/settings/index.vue` + `admin-floating-actions`，含 13 个 `TabPanel` 与 **3 张 DataTable**：`agreements-settings` / `setting-audit-log-list` / `admin-notification-settings`；InputText / Password / InputNumber / Textarea / ToggleSwitch / Select / `Tabs` 族 / `MultiSelect` / `Image` / `Divider` / `Message`）；2b 主题工作台（`Panel→Card`、`ColorPicker`、`SelectButton`、`DataView`、3 个浮层内表单）；2c **剩余 1 张 DataTable**（`notification-delivery-log-list`，含 `DatePicker`）+ `/admin/notifications` 整路由（该组件属 B3 范围目录、唯一消费路由为该路由）；路由 scope + `ownedFiles`（含 `components/admin/admin-floating-actions.vue`）与路由级在册族增量登记。
     - 非目标：`--p-*` 与独立 `<i class="pi">` 清理（B4）；不改设置读写 API 与权限逻辑；不做半路由切换。
     - 验收标准：在册族零残留守卫与过渡组件守卫通过；parity 新增 `admin-settings-form` / `admin-settings-theme` / `admin-notifications-list`，未归因差异为 0，差异逐项归因；`tests/pages/admin/settings/{index,theme}.test.ts` 断言改写后通过；`/admin/settings` 视觉基线按迁移后重采。
     - 证据落点：回归记录条目 2 三个窗口、「文件 → 改动点 → 依据指针」清单（按迁移方案 §8.5）、parity 预算条目与 `note`。
+    - 进度：2a 已完成（2026-11-03；设置主体 25 个文件 + 3 个字段适配层，路由 scope 与 `ownedFiles` 已登记，`/admin/settings/theme` 为 2b 例外）；待 2b / 2c。
 - [ ] **3. B3-C 安装向导整路由迁移**
     - 执行范围：`Stepper` 族（Stepper / StepList / Step / StepPanels / StepPanel）、`Accordion` 族、`Password`、`Message` 整批迁移；`pages/installation.vue` 的 21 处 `:deep()` 复核（其中 1 处 `:deep(.p-tag)` 需改写为 caomei 契约，其余为页面自有类选择器）；E2E 改为强制未安装态的五步流程断言。
     - 非目标：不改服务端安装逻辑 / API / 中间件；不做真实安装环境改造；`--p-*` token 消费点仍留待 B4 统一清理（仅新增样式不得引入 `--p-*`）。
