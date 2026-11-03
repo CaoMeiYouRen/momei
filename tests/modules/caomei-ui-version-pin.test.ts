@@ -19,7 +19,7 @@ import { describe, expect, it } from 'vitest'
  * 的 token 桥接与 `tests/visual/caomei-token-bridge.visual.test.ts` 的契约常量 → 重采视觉基线、
  * 重校准 parity 允许清单、复测 `keyCss` → 把新版本加入 `APPROVED_VERSIONS` 并提交一次独立提交。
  *
- * 依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md §3.8 / §5.6 / §3.10。
+ * 依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md §3.8 / §5.6 / §3.10 / §3.11。
  */
 
 const ROOT_DIR = process.cwd()
@@ -29,7 +29,7 @@ const ROOT_DIR = process.cwd()
  *
  * 新增条目必须伴随该版本的升级证据（回归记录窗口 + 迁移方案 §3.x 段落），不得只改本数组。
  */
-const APPROVED_VERSIONS = ['0.7.0', '1.0.0-rc.1'] as const
+const APPROVED_VERSIONS = ['0.7.0', '1.0.0-rc.1', '1.0.0'] as const
 
 const EXACT_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u
 

@@ -263,3 +263,40 @@
 <!-- regression-window:end:maintenance-caomei-ui-070:caomei-ui 0.7.0 升级与既有 parity 漂移复核:2026-10-24 -->
 
 
+
+<!-- regression-window:start:phase70-caomei-ga:第七十阶段条目 1a caomei-ui 1.0.0 GA 升级:2026-11-03 -->
+## 2026-11-03 第七十阶段条目 1a caomei-ui 1.0.0 GA 升级与门禁复跑
+
+### 范围
+
+`caomei-ui` 由 `1.0.0-rc.1` 精确升级到 `1.0.0`（GA 于 2026-11-02 发布，`dist-tags.latest`），版本追加进 `tests/modules/caomei-ui-version-pin.test.ts` 的 `APPROVED_VERSIONS`；复核 `.github/dependabot.yml` 的 `caomei-ui` ignore（`>=1.0.0-rc.2` 继续覆盖 GA 与 1.0.x，无需调整区间）。本批无业务代码改动，条目 1b / 1c 未开始。
+
+### 上游差异实测（与迁移方案 §3.11 一致）
+
+| 类别 | 结果 |
+| :--- | :--- |
+| `.js` / `.mjs` / `.css` / `.vue` | **零差异**（`npm pack` 双版本解包后 `diff -rq`） |
+| `dist/styles/index.css` | 20,595 B，sha256 `ac48aa0b…2591e0` 两版本一致 |
+| 差异总数 | **31 条** = 28 个 `.d.ts`（成员顺序）+ 2 个 README + `package.json` |
+| 安装产物 | `node_modules/caomei-ui` 与 GA tarball `diff -rq` 为空 |
+
+### 锁文件与依赖树
+
+- 改动面：`package.json` 1 行、`pnpm-lock.yaml` **5 处（+5/−5，diff 计 10 行）**（importer 的 specifier / version、package 键 + integrity、snapshot 键），无无关包版本漂移。
+- 首次 `pnpm add` 顺带重解析的 `electron-to-chromium` / `node-releases` / `rollup@4.66.0` 已按「复原 HEAD 锁文件后只改 caomei-ui 三处」的手工方式还原；`pnpm install --frozen-lockfile` 通过（2719 entries supply-chain policy 通过），安装版本 `1.0.0`。
+
+### 验证结果
+
+- `pnpm build`：EXIT 0，2m04s。
+- `pnpm test:visual`：**18/18**（14 张截图 + 2 条桥接契约 + 2 条对比度契约），零差异。
+- `pnpm test:visual:parity`：**34/34**，未归因差异 0。
+- `pnpm test:perf:budget:strict`：通过 —— `keyCss` **61.79KB / 70KB**、`coreEntryJs` **357.41KB / 360KB**、`maxAsyncChunkJs` **55.45KB / 130KB**、`prIncrementJs` **0.00KB / 20KB**。
+- `pnpm typecheck` 0 error；`pnpm lint` 0 error（warning 均为既有）；版本守护单测 **2/2**。
+- `pnpm test`：**580 files passed / 1 skipped（581）**、**5,142 passed / 1 skipped（5,143）**，EXIT 0，与批次前基线一致。
+
+### 未覆盖边界
+
+- 条目 1b（parity 第二 webServer + `reader` 档校准）与 1c（10 条参考态采集）未开始，`reader` 档仍为 0 路由。
+- `.d.ts` 的成员顺序变化未做逐 prop 语义比对，判据为「成员集合一致 + 全量 `typecheck` 通过」。
+- E2E 未重跑：本批无业务 / 样式代码改动，且 GA 运行时产物与 rc.1 逐字节一致。
+<!-- regression-window:end:phase70-caomei-ga:第七十阶段条目 1a caomei-ui 1.0.0 GA 升级:2026-11-03 -->

@@ -26,6 +26,7 @@
     - 非目标：不改任何页面 / 组件，不清 `--p-*`，不做图标全量，不调整既有 `admin` 档预算。
     - 验收标准：GA 与 rc.1 的差异记录可复现且结论一致；参考态 100% 就绪；迁移前 `pnpm test:visual` 与 `pnpm test:visual:parity` 全绿；`keyCss` ≤ 70KB 且无回归。
     - 证据落点：`docs/reports/regression/current.md` 第七十阶段条目 1 窗口、`tests/visual/parity/reference-manifest.json`、迁移方案 §3.11。
+    - 进度：1a 已完成（2026-11-03；版本、锁文件与三层视觉/包体证据见回归记录「第七十阶段条目 1a」窗口）；待 1b / 1c。
 - [ ] **2. B3-A 管理端设置与通知整路由迁移**
     - 执行范围：2a 设置主体（15 个设置组件 + `pages/admin/settings/index.vue`，含 13 个 `TabPanel`：InputText / Password / InputNumber / Textarea / ToggleSwitch / Select / `Tabs` 族 / `DatePicker` / `MultiSelect` / `Image` / `Divider` / `Message`）；2b 主题工作台（`Panel→Card`、`ColorPicker`、`SelectButton`、`DataView`、3 个浮层内表单）；2c 四张 DataTable + `/admin/notifications` 整路由（`notification-delivery-log-list` 属 B3 范围目录、唯一消费路由为该路由）；路由 scope + `ownedFiles`（含 `components/admin/admin-floating-actions.vue`）与路由级在册族增量登记。
     - 非目标：`--p-*` 与独立 `<i class="pi">` 清理（B4）；不改设置读写 API 与权限逻辑；不做半路由切换。
