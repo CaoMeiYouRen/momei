@@ -482,7 +482,7 @@ Round 2 追加修复（复审 Reject 两项）：
 | B5 | 新增画廊测试触发 16 条 ESLint 缩进告警，`--max-warnings 0` 失败 | `eslint --fix` 后 0 warning；回归记录的 lint 证据口径同步更正 |
 | B6 | `.theme-config-card` 的 `display:flex` 被库内同特异性规则覆盖，页脚 `margin-top:auto` 失效（内容不等长时页脚悬空） | 选择器提为 `.theme-config-card.theme-config-card`；画廊 mock 的第二种卡片改用长描述制造高度差，并运行时实测两张卡页脚**同高且底距 1px**（绝对 y 随视口变化，不作固定值），重采 2 张画廊基线 |
 | W2 补充 | 页签行为无可执行覆盖 | 新增 `theme-config-section.test.ts`，断言 3 个页签、默认 `default-value=0`、`unmount-on-hide=false`、8 个色彩字段（**属性契约级**，不替代库运行时行为） |
-| B7（Round 3） | 双类选择器把同块 `&__*` 编译成 `.theme-config-card.theme-config-card__x`，子元素样式全部失效；重采基线把失效态固化成"正确态" | 拆分样式块：根属性用双类，`&:hover` / `:deep` / `&__*` 回到单类块；重建后产物 CSS 无 `theme-config-card.theme-config-card__*`，运行时实测预览区 160px flex、主题名 18px 省略、两卡页脚同高且底距 1px；再次重采 2 张画廊基线 |
+| B7（Round 3） | 双类选择器把同块 `&__*` 编译成 `.theme-config-card.theme-config-card__x`，子元素样式全部失效；重采基线把失效态固化成"正确态" | 拆分样式块：根属性用双类，`&:hover` / `:deep` / `&__*` 回到单类块；重建后产物 CSS 无 `theme-config-card.theme-config-card__*`，运行时实测预览区 160px flex、主题名 18px 省略、两卡页脚同高且底距 1px；再次重采 2 张画廊基线；画廊视觉用例补 3 条计算样式/几何断言（`display:flex` / 预览 160px / 页脚 top 全等），使重采基线无法再掩盖同类失效 |
 
 未采纳：W5（换行符整文件改写，仓库无 `.gitattributes` 统一口径，保留）、W6（流程编号注释，与既有写法一致，后续统一）、W8（视觉覆盖已通过新增 4 张基线补强）、W9（提交规模属单条 todo 原子项，在提交说明记录拆分依据）。
 

@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { VISUAL_THEMES, applyTheme, expectLocatorScreenshot, waitForVisualStable } from './helpers/visual'
 
 /**
@@ -47,6 +47,19 @@ test.describe('主题画廊弹窗', () => {
             await page.getByRole('button', { name: '主题画廊' }).click()
             await page.locator('.theme-config-card').first().waitFor({ state: 'visible' })
             await waitForVisualStable(page)
+
+            /* 纯快照无法自证级联未坏：B7 曾因双类选择器打死子元素样式、而重采基线掩盖了它。
+             * 这里补三条廉价的计算样式 / 几何断言，使「重采」不再能掩盖同类失效。 */
+            const card = page.locator('.theme-config-card').first()
+            await expect(card).toHaveCSS('display', 'flex')
+            await expect(card.locator('.theme-config-card__preview')).toHaveCSS('height', '160px')
+
+            const footerTops = await page.locator('.theme-config-card').evaluateAll((cards) => cards.map((item) => {
+                const footer = item.querySelector('.caomei-card__footer')
+                return footer ? Math.round(footer.getBoundingClientRect().top) : -1
+            }))
+            expect(footerTops.length).toBeGreaterThan(1)
+            expect(new Set(footerTops).size).toBe(1)
 
             await expectLocatorScreenshot(page.locator('.theme-gallery-dialog'), `admin-theme-gallery-dialog-${theme}.png`)
         })
