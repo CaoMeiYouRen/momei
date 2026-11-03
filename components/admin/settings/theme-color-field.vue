@@ -3,19 +3,20 @@
         <div class="align-items-center flex gap-2">
             <label>{{ label }}</label>
             <AppTooltip v-if="locked" :content="$t('pages.admin.settings.system.locked_by_env')">
-                <i
-
-                    class="pi pi-lock text-muted-color text-xs"
+                <Lock
+                    :size="12"
+                    class="text-muted-color"
+                    aria-hidden="true"
                 />
             </AppTooltip>
         </div>
         <div class="color-input-group mt-2">
-            <ColorPicker
+            <CaomeiColorPicker
                 v-model="pickerValue"
                 format="hex"
                 :disabled="locked"
             />
-            <InputText
+            <CaomeiInput
                 v-model="value"
                 :placeholder="placeholder"
                 :disabled="locked"
@@ -25,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import { Lock } from '@lucide/vue'
+
 defineProps<{
     label: string
     placeholder?: string

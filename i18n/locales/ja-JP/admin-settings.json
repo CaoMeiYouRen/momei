@@ -609,6 +609,7 @@
                 },
                 "theme": {
                     "accent_color": "アクセントカラー（ライトモード）",
+                    "accent_action": "アクセントカラーのボタン",
                     "apply_success": "プリセットを適用しました。サイト全体に反映中です",
                     "background": "背景設定",
                     "background_color": "単色背景",

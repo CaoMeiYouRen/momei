@@ -609,6 +609,7 @@
                 },
                 "theme": {
                     "accent_color": "Accent Color (Light)",
+                    "accent_action": "강조색 버튼",
                     "apply_success": "테마를 성공적으로 적용했습니다",
                     "background": "Background Settings",
                     "background_color": "Solid Color",

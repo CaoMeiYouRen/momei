@@ -7,7 +7,7 @@
         :style="{width: '80vw', maxWidth: '1000px', padding: 0}"
         @update:open="$emit('update:modelValue', $event)"
     >
-        <DataView
+        <CaomeiDataView
             :value="themeConfigs"
             layout="grid"
             :loading="loading"
@@ -19,7 +19,7 @@
                         :key="index"
                         class="theme-gallery-item"
                     >
-                        <Card class="theme-config-card">
+                        <CaomeiCard class="theme-config-card">
                             <template #header>
                                 <div
                                     class="theme-config-card__preview"
@@ -27,75 +27,80 @@
                                     @click="openImagePreview(item.previewImage)"
                                 >
                                     <div v-if="item.previewImage" class="theme-config-card__overlay">
-                                        <i class="pi pi-search-plus" />
+                                        <ZoomIn :size="18" aria-hidden="true" />
                                     </div>
                                     <div v-else class="theme-config-card__placeholder">
-                                        <i class="pi pi-image" />
+                                        <ImageIcon :size="48" aria-hidden="true" />
                                     </div>
                                 </div>
                             </template>
-                            <template #title>
-                                <div class="theme-config-card__title-row">
-                                    <span class="theme-config-card__name">{{ item.name }}</span>
-                                    <div class="theme-config-card__tags">
-                                        <Tag
-                                            v-if="item.isActive"
-                                            severity="success"
-                                            :value="$t('common.current')"
-                                        />
-                                        <Tag
-                                            v-if="item.isSystem"
-                                            severity="info"
-                                            :value="$t('common.system')"
-                                        />
-                                    </div>
+                            <div class="theme-config-card__title-row">
+                                <span class="theme-config-card__name">{{ item.name }}</span>
+                                <div class="theme-config-card__tags">
+                                    <CaomeiTag v-if="item.isActive" tone="success">
+                                        {{ $t('common.current') }}
+                                    </CaomeiTag>
+                                    <CaomeiTag v-if="item.isSystem" tone="primary">
+                                        {{ $t('common.system') }}
+                                    </CaomeiTag>
                                 </div>
-                            </template>
-                            <template #subtitle>
-                                <div
-                                    class="theme-config-card__description"
-                                    :title="item.description || ''"
-                                >
-                                    {{ item.description || $t('common.no_description') }}
-                                </div>
-                            </template>
+                            </div>
+                            <div
+                                class="theme-config-card__description"
+                                :title="item.description || ''"
+                            >
+                                {{ item.description || $t('common.no_description') }}
+                            </div>
                             <template #footer>
                                 <div class="theme-config-card__actions">
                                     <AppTooltip :content="$t('common.preview')">
-                                        <Button
-                                            icon="pi pi-eye"
-                                            outlined
-                                            severity="secondary"
+                                        <CaomeiButton
+                                            icon-only
+                                            variant="secondary"
+                                            :label="$t('common.preview')"
                                             @click="$emit('preview', item)"
-                                        />
+                                        >
+                                            <template #icon>
+                                                <Eye :size="16" />
+                                            </template>
+                                        </CaomeiButton>
                                     </AppTooltip>
-                                    <Button
-                                        icon="pi pi-check"
+                                    <CaomeiButton
+                                        size="sm"
                                         :label="item.isActive ? $t('common.current') : $t('common.apply')"
-                                        size="small"
                                         :disabled="item.isActive"
                                         @click="applyConfig(item)"
-                                    />
-                                    <Button
+                                    >
+                                        <template #icon>
+                                            <Check :size="16" />
+                                        </template>
+                                        {{ item.isActive ? $t('common.current') : $t('common.apply') }}
+                                    </CaomeiButton>
+                                    <CaomeiButton
                                         v-if="!item.isSystem"
-                                        icon="pi pi-trash"
-                                        severity="danger"
-                                        text
+                                        icon-only
+                                        variant="ghost"
+                                        tone="danger"
+                                        :label="$t('common.delete')"
                                         @click="deleteConfig(item)"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <Trash2 :size="16" />
+                                        </template>
+                                    </CaomeiButton>
                                 </div>
                             </template>
-                        </Card>
+                        </CaomeiCard>
                     </div>
                 </div>
             </template>
             <template #empty>
                 <div class="theme-gallery-empty">
-                    <i class="pi pi-box" />
+                    <PackageOpen :size="64" aria-hidden="true" />
                     <p>{{ $t('pages.admin.settings.theme.gallery_empty') }}</p>
                 </div>
             </template>
-        </DataView>
+        </CaomeiDataView>
 
         <!-- 图片大图预览 -->
         <CaomeiDialog
@@ -114,6 +119,7 @@
 </template>
 
 <script setup lang="ts">
+import { Check, Eye, Image as ImageIcon, PackageOpen, Trash2, ZoomIn } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 const props = defineProps<{
     modelValue: boolean
@@ -245,24 +251,21 @@ watch(() => props.modelValue, (val) => {
         border-color: var(--p-primary-color);
     }
 
-    :deep(.p-card-header) {
+    :deep(.caomei-card__header) {
+        padding: 0;
         border-bottom: 1px solid var(--p-content-border-color);
     }
 
-    :deep(.p-card-body) {
+    :deep(.caomei-card__body) {
         flex: 1;
         padding: 1.25rem;
     }
 
-    :deep(.p-card-title) {
+    :deep(.caomei-card__title) {
         margin-bottom: 0.5rem;
     }
 
-    :deep(.p-card-subtitle) {
-        margin: 0;
-    }
-
-    :deep(.p-card-footer) {
+    :deep(.caomei-card__footer) {
         padding: 0 1.25rem 1.25rem;
         margin-top: auto;
     }
@@ -295,21 +298,11 @@ watch(() => props.modelValue, (val) => {
         opacity: 0;
         transition: opacity 0.2s;
         color: white;
-        font-size: 1.5rem;
-
-        i {
-            font-size: inherit;
-        }
     }
 
     &__placeholder {
         opacity: 0.3;
-        font-size: 3rem;
         color: var(--p-text-muted-color);
-
-        i {
-            font-size: inherit;
-        }
     }
 
     &__title-row {
@@ -361,8 +354,7 @@ watch(() => props.modelValue, (val) => {
     text-align: center;
     color: var(--p-text-muted-color);
 
-    i {
-        font-size: 4rem;
+    :deep(svg) {
         margin-bottom: 1rem;
         opacity: 0.2;
     }

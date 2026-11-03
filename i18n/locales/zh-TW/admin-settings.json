@@ -609,6 +609,7 @@
                 },
                 "theme": {
                     "accent_color": "點綴色 (淺色模式)",
+                    "accent_action": "強調色按鈕",
                     "apply_success": "方案已成功套用，全站生效中",
                     "background": "背景設定",
                     "background_color": "純色背景",

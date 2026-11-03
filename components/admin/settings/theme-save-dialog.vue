@@ -11,7 +11,7 @@
         <div class="save-theme-form">
             <div class="save-theme-form__field">
                 <label class="save-theme-form__label">{{ $t('common.name') }}</label>
-                <InputText
+                <CaomeiInput
                     v-model="saveForm.name"
                     class="save-theme-form__input"
                     :placeholder="$t('pages.admin.settings.theme.name_placeholder')"
@@ -20,39 +20,44 @@
             </div>
             <div class="save-theme-form__field">
                 <label class="save-theme-form__label">{{ $t('common.description') }}</label>
-                <Textarea
+                <CaomeiTextarea
                     v-model="saveForm.description"
-                    rows="3"
+                    :rows="3"
                     class="save-theme-form__input"
                     :placeholder="$t('pages.admin.settings.theme.description_placeholder')"
                     auto-resize
                 />
             </div>
             <div class="save-theme-form__hint">
-                <i class="pi pi-info-circle" />
+                <Info :size="14" aria-hidden="true" />
                 <span>{{ $t('pages.admin.settings.theme.save_preset_hint') }}</span>
             </div>
         </div>
         <template #footer>
             <div class="save-theme-form__actions">
-                <Button
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     :label="$t('common.cancel')"
-                    text
-                    severity="secondary"
                     @click="$emit('update:modelValue', false)"
-                />
-                <Button
+                >
+                    {{ $t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :label="$t('common.confirm')"
                     :loading="loading"
                     :disabled="!saveForm.name"
                     @click="saveAsNewTheme"
-                />
+                >
+                    {{ $t('common.confirm') }}
+                </CaomeiButton>
             </div>
         </template>
     </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { Info } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import { PRESETS } from '@/composables/use-theme'
 
@@ -231,7 +236,7 @@ watch(() => props.modelValue, (val) => {
         line-height: 1.5;
         align-items: flex-start;
 
-        i {
+        :deep(svg) {
             margin-top: 0.125rem;
             color: var(--p-primary-color);
         }

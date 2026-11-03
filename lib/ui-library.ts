@@ -100,6 +100,14 @@ export interface CaomeiUiRouteScope {
      * 造成路由内库间混用；③ 已登记前缀下的**其他**非 `index.vue` 页面若未登记则守卫响亮失败。
      */
     primeVueSubRoutes?: readonly { file: string, reason: string }[]
+    /**
+     * **已随本路由迁移的子路由页面**（仓库相对路径）。
+     *
+     * 与 `primeVueSubRoutes` 互斥：登记在此的页面会被**纳入零残留扫描面**（同 `ownedFiles`），
+     * 允许引用组件内择库型过渡组件（因为前缀已登记，它们会正确渲染 caomei 分支）。
+     * 子路由必须二选一显式登记，避免「前缀命中但页面既未迁移也未声明」的静默漏扫。
+     */
+    migratedSubRoutes?: readonly string[]
 }
 
 /**
@@ -155,8 +163,7 @@ const AI_ROUTE_SCOPE = {
  * - `inScopeComponents`（路由级在册族增量）：本批迁入的表单与展示族——`Password` / `InputNumber` /
  *   `Textarea` / `Card` / `Message` / `Divider` / `Image` / `MultiSelect` / `Accordion` 族 / `Tabs` 族。
  *   不全局纳入的原因同 `TAXONOMY_ROUTE_SCOPE`：这些族在已收口路由里仍合法存在。
- * - `primeVueSubRoutes`：`/admin/settings/theme`（主题工作台）属条目 2b，本批不动；该页不渲染路由择库的
- *   语言切换器，也不引用组件内择库型过渡组件。
+ * - 主题工作台（`/admin/settings/theme` + 5 个 `theme-*` 组件）于条目 2b 同批迁移，故不再登记子路由例外。
  */
 const ADMIN_SETTINGS_ROUTE_SCOPE = {
     ownedFiles: [
@@ -187,6 +194,11 @@ const ADMIN_SETTINGS_ROUTE_SCOPE = {
         'components/admin/settings/setup-follow-up-card.vue',
         'components/admin/settings/storage-settings.vue',
         'components/admin/settings/third-party-settings.vue',
+        'components/admin/settings/theme-color-field.vue',
+        'components/admin/settings/theme-config-section.vue',
+        'components/admin/settings/theme-gallery-dialog.vue',
+        'components/admin/settings/theme-preview-section.vue',
+        'components/admin/settings/theme-save-dialog.vue',
     ],
     inScopeComponents: [
         'Password',
@@ -206,12 +218,14 @@ const ADMIN_SETTINGS_ROUTE_SCOPE = {
         'Tab',
         'TabPanels',
         'TabPanel',
+        // 条目 2b（主题工作台）
+        'Panel',
+        'ColorPicker',
+        'SelectButton',
+        'DataView',
     ],
-    primeVueSubRoutes: [
-        {
-            file: 'pages/admin/settings/theme.vue',
-            reason: '主题工作台属第七十阶段条目 2b，本批仍为 PrimeVue 实现；该页未开启 `show-language-switcher`，也不引用组件内择库型过渡组件。已知偏差：共享保存条 `AdminFloatingActions` 在本批已迁 caomei，故该子路由存在「caomei 保存条 + PrimeVue 页面体」的混用，随 2b 整页迁移与视觉基线一并收口。',
-        },
+    migratedSubRoutes: [
+        'pages/admin/settings/theme.vue',
     ],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
@@ -264,7 +278,7 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // 组件型目标型路由（`/admin/marketing`）：页面 + 列表 + 表单（弹窗内表单控件随本批迁移，
     // 浮层本体已迁入 `CaomeiDialog`；`DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。
     { prefix: '/admin/marketing', ...MARKETING_ROUTE_SCOPE },
-    // 组件型目标路由（`/admin/settings`）：设置页 + 设置面板族（条目 2a）；主题工作台子路由为显式例外（2b）。
+    // 组件型目标路由（`/admin/settings`）：设置页 + 设置面板族（2a）+ 主题工作台子路由（2b，经 `migratedSubRoutes` 纳入扫描面）。
     { prefix: '/admin/settings', ...ADMIN_SETTINGS_ROUTE_SCOPE },
 ]
 
@@ -302,14 +316,13 @@ export function resolveInScopeComponents(scope?: CaomeiUiRouteScope): readonly s
  * **子路由例外（2026-10-16 补记）**：前缀语义会连带**子路由**，因此登记前必须核对子路由是否也在
  * 迁移范围内。已知例外：`/admin/posts` 的编辑器子路由 `/admin/posts/[id]` **不在**数据列表批次范围内
  * （仍全面使用 PrimeVue；其共享组件走「消费处静态择库」，继续使用 V1）；
- * `/admin/ai` 的任务详情子路由 `/admin/ai/tasks/[id]` 同理（组件型目标批次范围外的 B4 展示族）；
- * `/admin/settings` 的主题工作台子路由 `/admin/settings/theme` 属第七十阶段条目 2b（本批仍为 PrimeVue）。
- * 当前三条子路由**均未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
+ * `/admin/ai` 的任务详情子路由 `/admin/ai/tasks/[id]` 同理（组件型目标批次范围外的 B4 展示族）。
+ * 当前两条子路由**均未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
  * `AdminPageHeader` / `AppAvatarV2` / `AppUploaderV2`：`/admin/posts/[id]` 用编辑器自有头部，
  * `/admin/ai/tasks/[id]` 的 `AdminPageHeader` 未开 `show-language-switcher`，故切换器不渲染），
- * 已逐处核对，无路由内混用；但该性质**目前无守卫兜底**——若后续把上述过渡组件引入子路由子树，
- * 组件会静默切到 caomei 而无门禁拦截，故登记为收尾项（见 `docs/plan/backlog.md` 迁移收尾跟踪：
- * 为「已登记前缀的非 index 子路由页面」补结构守卫）。
+ * 已逐处核对，无路由内混用；该性质自 2026-10-16 起由结构守卫兜底（`primeVueSubRoutes` 的
+ * 「不得出现路由择库标记」断言 + 「每个非 index 子路由必须二选一登记」断言）。
+ * 已迁移的子路由登记在 `migratedSubRoutes`（纳入零残留扫描面），与未迁移例外互斥。
  *
  * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，
  * 避免与守卫各持一份）；显式豁免清单以迁移方案 §5.5 为唯一载体（跨路由共享壳走「过渡组件」而非豁免）。

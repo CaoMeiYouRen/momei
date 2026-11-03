@@ -1,6 +1,6 @@
 <template>
     <div v-if="settings" class="theme-preview-section">
-        <Panel :header="$t('pages.admin.settings.theme.preview')" class="preview-panel">
+        <CaomeiCard :title="$t('pages.admin.settings.theme.preview')" class="preview-panel">
             <div class="preview-canvas shadow-2">
                 <div
                     ref="previewInner"
@@ -15,38 +15,45 @@
                         :post="previewPost"
                     />
                     <div class="preview-actions">
-                        <Button :label="$t('common.preview')" class="p-button-sm" />
-                        <Button
-                            label="Accent Action"
-                            icon="pi pi-bolt"
-                            class="p-button-sm"
+                        <CaomeiButton size="sm" :label="$t('common.preview')">
+                            {{ $t('common.preview') }}
+                        </CaomeiButton>
+                        <CaomeiButton
+                            size="sm"
+                            :label="$t('pages.admin.settings.theme.accent_action')"
                             :style="{
                                 backgroundColor: 'var(--m-accent-color)',
                                 borderColor: 'var(--m-accent-color)',
                                 color: 'var(--p-primary-contrast-color)'
                             }"
-                        />
+                        >
+                            <template #icon>
+                                <Bolt :size="16" />
+                            </template>
+                            {{ $t('pages.admin.settings.theme.accent_action') }}
+                        </CaomeiButton>
                     </div>
                 </div>
             </div>
-        </Panel>
+        </CaomeiCard>
 
-        <Panel :header="$t('pages.admin.settings.theme.background')" class="mt-4">
+        <CaomeiCard :title="$t('pages.admin.settings.theme.background')" class="mt-4">
             <div class="form-group">
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_type') }}</label>
                     <AppTooltip v-if="isLocked('themeBackgroundType')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                        <i
-                            class="pi pi-lock text-muted-color text-xs"
+                        <Lock
+                            :size="12"
+                            class="text-muted-color"
+                            aria-hidden="true"
                         />
                     </AppTooltip>
                 </div>
-                <SelectButton
-                    v-model="settings.themeBackgroundType"
+                <CaomeiSelectButton
+                    v-model="backgroundTypeModel"
                     :options="backgroundOptions"
                     option-label="label"
                     option-value="value"
-                    :allow-empty="false"
                     class="mt-2"
                     :disabled="isLocked('themeBackgroundType')"
                 />
@@ -56,18 +63,20 @@
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_color') }}</label>
                     <AppTooltip v-if="isLocked('themeBackgroundValue')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                        <i
-                            class="pi pi-lock text-muted-color text-xs"
+                        <Lock
+                            :size="12"
+                            class="text-muted-color"
+                            aria-hidden="true"
                         />
                     </AppTooltip>
                 </div>
                 <div class="color-input-group mt-2">
-                    <ColorPicker
+                    <CaomeiColorPicker
                         v-model="backgroundPickerModel"
                         format="hex"
                         :disabled="isLocked('themeBackgroundValue')"
                     />
-                    <InputText
+                    <CaomeiInput
                         v-model="backgroundColorModel"
                         :placeholder="getCurrentPresetValue('surface', isDark)"
                         :disabled="isLocked('themeBackgroundValue')"
@@ -79,25 +88,29 @@
                 <div class="align-items-center flex gap-2">
                     <label>{{ $t('pages.admin.settings.theme.background_image') }} URL</label>
                     <AppTooltip v-if="isLocked('themeBackgroundValue')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                        <i
-                            class="pi pi-lock text-muted-color text-xs"
+                        <Lock
+                            :size="12"
+                            class="text-muted-color"
+                            aria-hidden="true"
                         />
                     </AppTooltip>
                 </div>
                 <div class="input-with-icon mt-2">
-                    <i class="pi pi-image" />
-                    <InputText
+                    <ImageIcon :size="16" aria-hidden="true" />
+                    <CaomeiInput
                         v-model="settings.themeBackgroundValue"
                         placeholder="https://example.com/bg.jpg"
                         :disabled="isLocked('themeBackgroundValue')"
                     />
                 </div>
             </div>
-        </Panel>
+        </CaomeiCard>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Bolt, Image as ImageIcon, Lock } from '@lucide/vue'
+import type { ThemeBackgroundType } from '@/composables/use-theme'
 import {
     useTheme,
     type ThemePresetColorKey,
@@ -173,6 +186,15 @@ const createColorPickerModel = (key: ThemePreviewColorSettingKey) =>
     createThemeColorPickerModel(settings, key, previewColorTypeMap, (k) => k === 'themeBackgroundValue' && isDark.value)
 
 const createColorModel = (key: ThemePreviewColorSettingKey) => createThemeColorModel(settings, key)
+
+const backgroundTypeModel = computed({
+    get: () => settings.value?.themeBackgroundType ?? undefined,
+    set: (value: string | number | undefined) => {
+        if (settings.value) {
+            settings.value.themeBackgroundType = (value as ThemeBackgroundType | undefined) ?? null
+        }
+    },
+})
 
 const backgroundPickerModel = createColorPickerModel('themeBackgroundValue')
 const backgroundColorModel = createColorModel('themeBackgroundValue')

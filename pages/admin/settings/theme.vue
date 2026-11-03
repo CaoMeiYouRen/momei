@@ -3,21 +3,24 @@
         <AdminPageHeader :title="$t('pages.admin.settings.theme.title')" />
 
         <!-- 预览状态提示 -->
-        <Message
+        <CaomeiMessage
             v-if="previewSettings"
-            severity="info"
+            tone="primary"
             class="mb-4"
             :closable="false"
         >
             <div class="align-items-center flex justify-content-between">
                 <span>{{ $t('pages.admin.settings.theme.previewing_hint') }}</span>
-                <Button
+                <CaomeiButton
+                    size="sm"
+                    variant="ghost"
                     :label="$t('pages.admin.settings.theme.cancel_preview')"
-                    class="p-button-sm p-button-text"
                     @click="cancelPreview"
-                />
+                >
+                    {{ $t('pages.admin.settings.theme.cancel_preview') }}
+                </CaomeiButton>
             </div>
-        </Message>
+        </CaomeiMessage>
 
         <div class="theme-grid">
             <!-- 左侧：实时预览 -->
@@ -52,28 +55,36 @@
         >
             <template #before-actions>
                 <AppTooltip :content="$t('pages.admin.settings.theme.gallery_title')" side="bottom">
-                    <Button
-                        icon="pi pi-images"
-                        severity="secondary"
-                        outlined
+                    <CaomeiButton
+                        icon-only
+                        variant="secondary"
                         rounded
+                        :label="$t('pages.admin.settings.theme.gallery_title')"
                         @click="showGallery = true"
-                    />
+                    >
+                        <template #icon>
+                            <Images :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
-                <Button
-                    :label="$t('pages.admin.settings.theme.save_as_new')"
-                    icon="pi pi-plus"
-                    severity="secondary"
-                    outlined
+                <CaomeiButton
+                    variant="secondary"
                     rounded
+                    :label="$t('pages.admin.settings.theme.save_as_new')"
                     @click="showSaveDialog = true"
-                />
+                >
+                    <template #icon>
+                        <Plus :size="16" />
+                    </template>
+                    {{ $t('pages.admin.settings.theme.save_as_new') }}
+                </CaomeiButton>
             </template>
         </AdminFloatingActions>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Images, Plus } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import AdminFloatingActions from '@/components/admin/admin-floating-actions.vue'
 import { useTheme } from '@/composables/use-theme'

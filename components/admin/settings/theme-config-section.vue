@@ -1,25 +1,27 @@
 <template>
     <div v-if="settings" class="theme-config-section">
-        <Panel :header="$t('common.settings')">
+        <CaomeiCard :title="$t('common.settings')">
             <div class="config-form">
                 <!-- 预设选择 -->
                 <div class="form-group">
                     <div class="align-items-center flex gap-2">
                         <label>{{ $t('pages.admin.settings.theme.preset') }}</label>
                         <AppTooltip v-if="isLocked('themePreset')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                            <i
-                                class="pi pi-lock text-muted-color text-xs"
+                            <Lock
+                                :size="12"
+                                class="text-muted-color"
+                                aria-hidden="true"
                             />
                         </AppTooltip>
                     </div>
-                    <Select
+                    <CaomeiSelect
                         v-model="settings.themePreset"
                         :options="presetOptions"
                         option-label="label"
                         option-value="value"
                         class="mt-2 w-full"
                         :disabled="isLocked('themePreset')"
-                        @change="onPresetChange"
+                        @update:model-value="onPresetChange"
                     />
                     <p v-if="settings.themePreset === 'custom'" class="hint-text mt-2">
                         {{ $t('pages.admin.settings.theme.custom_hint') }}
@@ -30,139 +32,151 @@
                 </div>
 
                 <ClientOnly>
-                    <Tabs value="0" class="mt-4">
-                        <TabList>
-                            <Tab value="0">
+                    <CaomeiTabs
+                        default-value="0"
+                        :unmount-on-hide="false"
+                        class="mt-4"
+                    >
+                        <CaomeiTabList>
+                            <CaomeiTabTrigger value="0">
                                 {{ $t('pages.admin.settings.theme.color_group_light') }}
-                            </Tab>
-                            <Tab value="1">
+                            </CaomeiTabTrigger>
+                            <CaomeiTabTrigger value="1">
                                 {{ $t('pages.admin.settings.theme.color_group_dark') }}
-                            </Tab>
-                            <Tab value="2">
+                            </CaomeiTabTrigger>
+                            <CaomeiTabTrigger value="2">
                                 {{ $t('common.settings') }}
-                            </Tab>
-                        </TabList>
-                        <TabPanels class="px-0">
-                            <TabPanel value="0">
-                                <div
-                                    v-for="field in lightColorFields"
-                                    :key="field.key"
-                                    class="form-group mt-3"
-                                >
-                                    <AdminSettingsThemeColorField
-                                        v-model:value="field.textModel.value"
-                                        v-model:picker-value="field.pickerModel.value"
-                                        :label="$t(field.labelKey)"
-                                        :placeholder="getCurrentPresetValue(field.presetKey, false)"
-                                        :locked="isLocked(field.key)"
-                                    />
-                                </div>
-                            </TabPanel>
+                            </CaomeiTabTrigger>
+                        </CaomeiTabList>
+                        <CaomeiTabContent value="0">
+                            <div
+                                v-for="field in lightColorFields"
+                                :key="field.key"
+                                class="form-group mt-3"
+                            >
+                                <AdminSettingsThemeColorField
+                                    v-model:value="field.textModel.value"
+                                    v-model:picker-value="field.pickerModel.value"
+                                    :label="$t(field.labelKey)"
+                                    :placeholder="getCurrentPresetValue(field.presetKey, false)"
+                                    :locked="isLocked(field.key)"
+                                />
+                            </div>
+                        </CaomeiTabContent>
 
-                            <TabPanel value="1">
-                                <div
-                                    v-for="field in darkColorFields"
-                                    :key="field.key"
-                                    class="form-group mt-3"
-                                >
-                                    <AdminSettingsThemeColorField
-                                        v-model:value="field.textModel.value"
-                                        v-model:picker-value="field.pickerModel.value"
-                                        :label="$t(field.labelKey)"
-                                        :placeholder="getCurrentPresetValue(field.presetKey, true)"
-                                        :locked="isLocked(field.key)"
-                                    />
-                                </div>
-                            </TabPanel>
+                        <CaomeiTabContent value="1">
+                            <div
+                                v-for="field in darkColorFields"
+                                :key="field.key"
+                                class="form-group mt-3"
+                            >
+                                <AdminSettingsThemeColorField
+                                    v-model:value="field.textModel.value"
+                                    v-model:picker-value="field.pickerModel.value"
+                                    :label="$t(field.labelKey)"
+                                    :placeholder="getCurrentPresetValue(field.presetKey, true)"
+                                    :locked="isLocked(field.key)"
+                                />
+                            </div>
+                        </CaomeiTabContent>
 
-                            <TabPanel value="2">
-                                <!-- 其他设置 -->
-                                <div class="form-group">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
-                                        <AppTooltip v-if="isLocked('themeBorderRadius')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                                            <i
-                                                class="pi pi-lock text-muted-color text-xs"
-                                            />
-                                        </AppTooltip>
-                                    </div>
-                                    <div class="input-with-addon mt-2">
-                                        <InputText
-                                            v-model="settings.themeBorderRadius"
-                                            :placeholder="getCurrentPresetValue('radius')"
-                                            :disabled="isLocked('themeBorderRadius')"
+                        <CaomeiTabContent value="2">
+                            <!-- 其他设置 -->
+                            <div class="form-group">
+                                <div class="align-items-center flex gap-2">
+                                    <label>{{ $t('pages.admin.settings.theme.border_radius') }}</label>
+                                    <AppTooltip v-if="isLocked('themeBorderRadius')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                        <Lock
+                                            :size="12"
+                                            class="text-muted-color"
+                                            aria-hidden="true"
                                         />
-                                        <span class="addon">rem/px</span>
-                                    </div>
+                                    </AppTooltip>
                                 </div>
+                                <div class="input-with-addon mt-2">
+                                    <SettingInput
+                                        v-model="settings.themeBorderRadius"
+                                        :placeholder="getCurrentPresetValue('radius')"
+                                        :disabled="isLocked('themeBorderRadius')"
+                                    />
+                                    <span class="addon">rem/px</span>
+                                </div>
+                            </div>
 
-                                <Divider />
+                            <CaomeiDivider />
 
-                                <!-- 品牌标识 -->
-                                <div class="form-group">
+                            <!-- 品牌标识 -->
+                            <div class="form-group">
+                                <div class="align-items-center flex gap-2">
+                                    <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
+                                    <AppTooltip v-if="isLocked('themeLogoUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                        <Lock
+                                            :size="12"
+                                            class="text-muted-color"
+                                            aria-hidden="true"
+                                        />
+                                    </AppTooltip>
+                                </div>
+                                <SettingInput
+                                    v-model="settings.themeLogoUrl"
+                                    placeholder="/logo.png"
+                                    class="mt-2 w-full"
+                                    :disabled="isLocked('themeLogoUrl')"
+                                />
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <div class="align-items-center flex gap-2">
+                                    <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
+                                    <AppTooltip v-if="isLocked('themeFaviconUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                        <Lock
+                                            :size="12"
+                                            class="text-muted-color"
+                                            aria-hidden="true"
+                                        />
+                                    </AppTooltip>
+                                </div>
+                                <SettingInput
+                                    v-model="settings.themeFaviconUrl"
+                                    placeholder="/favicon.ico"
+                                    class="mt-2 w-full"
+                                    :disabled="isLocked('themeFaviconUrl')"
+                                />
+                            </div>
+
+                            <CaomeiDivider />
+
+                            <!-- 特殊模式 -->
+                            <div class="form-group">
+                                <div class="align-items-center flex justify-content-between">
                                     <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.logo') }} URL</label>
-                                        <AppTooltip v-if="isLocked('themeLogoUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                                            <i
-                                                class="pi pi-lock text-muted-color text-xs"
+                                        <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
+                                        <AppTooltip v-if="isLocked('themeMourningMode')" :content="$t('pages.admin.settings.system.locked_by_env')">
+                                            <Lock
+                                                :size="12"
+                                                class="text-muted-color"
+                                                aria-hidden="true"
                                             />
                                         </AppTooltip>
                                     </div>
-                                    <InputText
-                                        v-model="settings.themeLogoUrl"
-                                        placeholder="/logo.png"
-                                        class="mt-2 w-full"
-                                        :disabled="isLocked('themeLogoUrl')"
-                                    />
+                                    <CaomeiSwitch v-model="mourningModeRef" :disabled="isLocked('themeMourningMode')" />
                                 </div>
-
-                                <div class="form-group mt-3">
-                                    <div class="align-items-center flex gap-2">
-                                        <label>{{ $t('pages.admin.settings.theme.favicon') }} URL</label>
-                                        <AppTooltip v-if="isLocked('themeFaviconUrl')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                                            <i
-                                                class="pi pi-lock text-muted-color text-xs"
-                                            />
-                                        </AppTooltip>
-                                    </div>
-                                    <InputText
-                                        v-model="settings.themeFaviconUrl"
-                                        placeholder="/favicon.ico"
-                                        class="mt-2 w-full"
-                                        :disabled="isLocked('themeFaviconUrl')"
-                                    />
-                                </div>
-
-                                <Divider />
-
-                                <!-- 特殊模式 -->
-                                <div class="form-group">
-                                    <div class="align-items-center flex justify-content-between">
-                                        <div class="align-items-center flex gap-2">
-                                            <label>{{ $t('pages.admin.settings.theme.mourning_mode') }}</label>
-                                            <AppTooltip v-if="isLocked('themeMourningMode')" :content="$t('pages.admin.settings.system.locked_by_env')">
-                                                <i
-                                                    class="pi pi-lock text-muted-color text-xs"
-                                                />
-                                            </AppTooltip>
-                                        </div>
-                                        <ToggleSwitch v-model="mourningModeRef" :disabled="isLocked('themeMourningMode')" />
-                                    </div>
-                                    <p class="hint-text mt-1">
-                                        {{ $t('pages.admin.settings.theme.mourning_mode_hint') }}
-                                    </p>
-                                </div>
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
+                                <p class="hint-text mt-1">
+                                    {{ $t('pages.admin.settings.theme.mourning_mode_hint') }}
+                                </p>
+                            </div>
+                        </CaomeiTabContent>
+                    </CaomeiTabs>
                 </ClientOnly>
             </div>
-        </Panel>
+        </CaomeiCard>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { WritableComputedRef } from 'vue'
+import { Lock } from '@lucide/vue'
+import SettingInput from '@/components/admin/settings/setting-input.vue'
 import {
     useTheme,
     type ThemeColorSettingKey,
@@ -335,47 +349,21 @@ const mourningModeRef = computed({
 @use "@/styles/admin-form" as *;
 
 .theme-config-section {
-    background-color: var(--p-surface-0);
-    border-radius: 12px;
-    border: 1px solid var(--p-content-border-color);
     height: fit-content;
 
-    :deep(.p-panel) {
-        border: none;
-        background: transparent;
-
-        .p-panel-header {
-            background: transparent;
-            border: none;
-            padding: 1.25rem;
-            color: var(--p-text-color);
-        }
-
-        .p-panel-content {
-            border: none;
-            background: transparent;
-            padding: 0 1.25rem 1.25rem;
-        }
-    }
-
-    :deep(.p-tabs) {
-        background: transparent;
-        border: none;
+    /* 外层不再自行绘制边框 / 底色：`CaomeiCard` 已提供唯一一层外壳。 */
+    :deep(.caomei-tabs) {
         width: 100%;
         margin-top: 1rem;
     }
 
-    :deep(.p-tablist) {
-        background: transparent;
-    }
-
-    :deep(.p-tablist-tab-list) {
+    :deep(.caomei-tabs__list) {
         background: transparent;
         border-color: var(--p-content-border-color);
         display: flex;
     }
 
-    :deep(.p-tab) {
+    :deep(.caomei-tabs__trigger) {
         flex: 1;
         padding: 0.75rem 0.25rem;
         font-size: 0.8125rem;
@@ -385,12 +373,12 @@ const mourningModeRef = computed({
         border-bottom: 2px solid transparent;
         transition: all 0.2s;
 
-        &.p-tab-active {
+        &[data-state='active'] {
             color: var(--p-primary-color);
             border-bottom-color: var(--p-primary-color);
         }
 
-        &:hover:not(.p-tab-active) {
+        &:hover:not([data-state='active']) {
             color: var(--p-text-color);
             background: var(--p-surface-50);
         }

@@ -609,6 +609,7 @@
                 },
                 "theme": {
                     "accent_color": "Accent Color (Light)",
+                    "accent_action": "Accent Action",
                     "apply_success": "Theme scheme applied successfully across the site",
                     "background": "Background Settings",
                     "background_color": "Solid Color Background",

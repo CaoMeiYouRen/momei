@@ -67,7 +67,11 @@ export function createThemeColorModel(
 }
 
 /**
- * 颜色字段的 ColorPicker 双向绑定；空值回退到预设默认，且去掉 '#' 前缀以匹配 ColorPicker 格式
+ * 颜色字段的 ColorPicker 双向绑定；空值回退到预设默认。
+ *
+ * **格式契约**：caomei `ColorPicker` 的 `modelValue` 是标准 CSS 颜色串（必须带 `#`，如 `#64748b`）；
+ * 早期 PrimeVue 版本要求裸十六进制（无 `#`），该差异曾导致取色器全部回退为红色默认值。
+ * getter 统一归一为带 `#` 的形式，setter 继续接受带 / 不带 `#` 的输入。
  *
  * `isExtraDarkField` 用于扩展 dark 字段的判定规则（例如 preview 侧把
  * `themeBackgroundValue` 在暗色模式下也视作 dark 字段，从 surface 预设取暗色默认值）
@@ -86,7 +90,11 @@ export function createThemeColorPickerModel<K extends ThemePreviewColorSettingKe
                     || (isExtraDarkField ? isExtraDarkField(key) : false)
                 val = getPresetValue(settings.value, colorTypeMap[key], isDarkField)
             }
-            return val ? val.replace('#', '') : ''
+            if (!val) {
+                return ''
+            }
+            const normalized = String(val).trim()
+            return normalized.startsWith('#') ? normalized : `#${normalized}`
         },
         set: (newVal: string) => {
             if (settings.value) {
