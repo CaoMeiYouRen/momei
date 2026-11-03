@@ -161,12 +161,12 @@ describe('AgreementsSettings', () => {
                     $t: translate,
                 },
                 stubs: {
-                    Button: {
+                    CaomeiButton: {
                         template: '<button @click="$emit(\'click\')">{{ label || $slots.default?.() }}</button>',
                         props: ['label', 'icon', 'loading', 'disabled', 'title', 'class'],
                         emits: ['click'],
                     },
-                    DataTable: {
+                    CaomeiDataTable: {
                         template: '<div class="data-table"><slot /><slot name="empty" /></div>',
                         props: ['value', 'loading'],
                     },
@@ -174,16 +174,16 @@ describe('AgreementsSettings', () => {
                         template: '<div class="column"></div>',
                         props: ['field', 'header', 'bodyClass'],
                     },
-                    Tag: {
-                        template: '<span class="tag">{{ value }}</span>',
-                        props: ['value', 'severity'],
+                    CaomeiTag: {
+                        template: '<span class="tag"><slot /></span>',
+                        props: ['tone', 'variant'],
                     },
                     CaomeiDialog: {
                         template: '<div v-if="open" class="dialog"><slot /><slot name="footer" /></div>',
                         props: ['open', 'title', 'modal', 'class'],
                         emits: ['update:open'],
                     },
-                    Select: {
+                    CaomeiSelect: {
                         template: `
                             <select :value="modelValue ?? ''" @change="$emit('update:modelValue', $event.target.value || null)">
                                 <option value="">--</option>
@@ -193,12 +193,12 @@ describe('AgreementsSettings', () => {
                         props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'disabled', 'placeholder'],
                         emits: ['update:modelValue'],
                     },
-                    InputText: {
+                    SettingInput: {
                         template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                         props: ['modelValue'],
                         emits: ['update:modelValue'],
                     },
-                    Textarea: {
+                    SettingTextarea: {
                         template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                         props: ['modelValue'],
                         emits: ['update:modelValue'],

@@ -68,22 +68,22 @@ describe('LocalizedSettingEditor', () => {
             SettingFormField: {
                 template: '<div><slot /></div>',
             },
-            Message: {
+            CaomeiMessage: {
                 template: '<div class="message"><slot /></div>',
             },
-            Select: {
+            CaomeiSelect: {
                 props: ['modelValue'],
                 template: '<div class="select-stub">{{ modelValue }}</div>',
             },
-            Button: {
-                props: ['label', 'disabled', 'loading'],
-                template: '<button class="button-stub" :disabled="disabled" @click="$emit(\'click\')">{{ label ?? "" }}</button>',
+            CaomeiButton: {
+                props: { label: String, disabled: Boolean, loading: Boolean, iconOnly: Boolean },
+                template: '<button class="button-stub" :data-icon-only="String(iconOnly)" :aria-label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
             },
-            InputText: {
+            SettingInput: {
                 props: ['modelValue', 'disabled'],
                 template: '<input class="input-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
             },
-            Textarea: {
+            SettingTextarea: {
                 props: ['modelValue', 'disabled'],
                 template: '<textarea class="textarea-stub" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
             },
@@ -184,6 +184,8 @@ describe('LocalizedSettingEditor', () => {
         const actionButton = wrapper.find('.button-stub')
         expect(actionButton.exists()).toBe(true)
         expect(actionButton.text()).toBe('')
+        expect(actionButton.attributes('data-icon-only')).toBe('true')
+        expect(actionButton.attributes('aria-label')).toBeTruthy()
         expect(actionButton.attributes('disabled')).toBeUndefined()
     })
 })

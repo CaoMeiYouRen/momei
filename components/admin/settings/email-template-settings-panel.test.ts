@@ -93,15 +93,15 @@ describe('EmailTemplateSettingsPanel', () => {
                     $t: translate,
                 },
                 stubs: {
-                    Divider: { template: '<div><slot /></div>' },
-                    Message: { template: '<div><slot /></div>' },
+                    CaomeiDivider: { template: '<div><slot /></div>' },
+                    CaomeiMessage: { template: '<div><slot /></div>' },
                     SettingFormField: { template: '<div><slot /></div>', props: ['label', 'description', 'inline'] },
-                    Select: {
+                    CaomeiSelect: {
                         template: '<select :value="modelValue" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option.value" :value="option.value">{{ option.label }}</option></select>',
                         props: ['modelValue', 'options', 'optionLabel', 'optionValue'],
                         emits: ['update:modelValue'],
                     },
-                    ToggleSwitch: {
+                    CaomeiSwitch: {
                         template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
                         props: ['modelValue'],
                         emits: ['update:modelValue'],
@@ -123,12 +123,12 @@ describe('EmailTemplateSettingsPanel', () => {
                             }
                         },
                     },
-                    Button: {
+                    CaomeiButton: {
                         template: '<button class="preview-button" @click="$emit(\'click\')">{{ label }}</button>',
                         props: ['label', 'icon', 'loading'],
                         emits: ['click'],
                     },
-                    Tag: {
+                    CaomeiTag: {
                         template: '<span class="tag">{{ value }}</span>',
                         props: ['severity', 'value'],
                     },

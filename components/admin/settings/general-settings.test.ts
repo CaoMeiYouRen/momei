@@ -28,22 +28,22 @@ const stubs = {
         template: '<div class="setting-form-field-stub" :data-field-key="fieldKey"><slot /></div>',
         props: ['fieldKey', 'inputId', 'metadata', 'description', 'inline'],
     },
-    InputText: {
+    SettingInput: {
         template: `<input :id="id" class="input-text-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'disabled', 'placeholder', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Textarea: {
+    SettingTextarea: {
         template: `<textarea :id="id" class="textarea-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'disabled', 'placeholder', 'rows', 'fluid'],
         emits: ['update:modelValue'],
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         template: '<input :id="id" class="toggle-switch-stub" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
     },
-    Select: {
+    CaomeiSelect: {
         template: `
             <select :id="id" class="select-stub" :value="modelValue ?? ''" :disabled="disabled" @change="$emit('update:modelValue', $event.target.value)">
                 <option
@@ -58,21 +58,21 @@ const stubs = {
         props: ['id', 'modelValue', 'options', 'disabled', 'optionLabel', 'optionValue', 'fluid'],
         emits: ['update:modelValue'],
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         template: '<input :id="id" class="input-number-stub" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />',
         props: ['id', 'modelValue', 'disabled', 'min', 'max', 'step', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Divider: {
+    CaomeiDivider: {
         template: '<div class="divider-stub"><slot /></div>',
         props: ['align'],
     },
-    AppUploader: {
+    AppUploaderV2: {
         template: '<button :id="id" class="uploader-stub" type="button" :disabled="disabled" @click="$emit(\'update:modelValue\', id === \'site_logo\' ? \'/logo-next.svg\' : \'/favicon-next.ico\')">{{ modelValue }}</button>',
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
     },
-    Image: {
+    CaomeiImage: {
         template: '<img class="image-stub" :src="src" :width="width" />',
         props: ['src', 'width', 'preview', 'class'],
     },

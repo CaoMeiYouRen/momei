@@ -8,12 +8,12 @@ const stubs = {
         props: ['fieldKey', 'inputId', 'metadata', 'description'],
         template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>',
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))">',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',

@@ -3,8 +3,8 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import SetupFollowUpCard from './setup-follow-up-card.vue'
 
 const stubs = {
-    Card: { template: '<section class="card"><slot name="content" /></section>' },
-    Button: {
+    CaomeiCard: { template: '<section class="card"><slot /></section>' },
+    CaomeiButton: {
         props: ['label'],
         emits: ['click'],
         template: '<button type="button" @click="$emit(\'click\')">{{ label }}</button>',

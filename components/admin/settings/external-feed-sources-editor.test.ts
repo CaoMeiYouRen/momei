@@ -20,26 +20,26 @@ mockNuxtImport('useRequestFeedback', () => () => ({
 }))
 
 const stubs = {
-    Button: {
+    CaomeiButton: {
         props: ['icon', 'label', 'severity', 'disabled', 'text'],
         emits: ['click'],
-        template: '<button class="button-stub" type="button" :data-icon="icon" :disabled="disabled" @click="$emit(\'click\')">{{ label }}</button>',
+        template: '<button class="button-stub" type="button" :aria-label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
     },
-    Message: {
+    CaomeiMessage: {
         props: ['severity', 'closable', 'class'],
         template: '<div class="message-stub"><slot /></div>',
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         props: ['modelValue', 'disabled', 'inputId'],
         emits: ['update:modelValue'],
         template: '<input :id="inputId" class="toggle-switch-stub" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled', 'fluid'],
         emits: ['update:modelValue'],
         template: `<input :id="id" class="input-text-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
     },
-    Select: {
+    CaomeiSelect: {
         props: ['id', 'modelValue', 'options', 'disabled', 'optionLabel', 'optionValue', 'fluid'],
         emits: ['update:modelValue'],
         template: `
@@ -54,7 +54,7 @@ const stubs = {
             </select>
         `,
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         props: ['inputId', 'modelValue', 'disabled', 'min', 'max', 'showButtons', 'fluid'],
         emits: ['update:modelValue'],
         template: `<input :id="inputId" class="input-number-stub" type="number" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value === '' ? null : Number($event.target.value))" />`,
@@ -107,7 +107,7 @@ describe('ExternalFeedSourcesEditor', () => {
 
         expect(wrapper.find('.external-feed-sources-editor__empty-state').exists()).toBe(true)
 
-        await wrapper.get('.button-stub[data-icon="pi pi-plus"]').trigger('click')
+        await wrapper.get('.button-stub[aria-label="common.add"]').trigger('click')
         await flushPromises()
 
         expect(wrapper.find('.external-feed-sources-editor__card').exists()).toBe(true)
@@ -154,7 +154,7 @@ describe('ExternalFeedSourcesEditor', () => {
             }),
         ])
 
-        await wrapper.get('.button-stub[data-icon="pi pi-trash"]').trigger('click')
+        await wrapper.get('.button-stub[aria-label="common.delete"]').trigger('click')
         await flushPromises()
 
         expect(wrapper.find('.external-feed-sources-editor__empty-state').exists()).toBe(true)
@@ -206,7 +206,7 @@ describe('ExternalFeedSourcesEditor', () => {
             value: revokeObjectURLMock,
         })
 
-        await wrapper.get('.button-stub[data-icon="pi pi-upload"]').trigger('click')
+        await wrapper.get('.button-stub[aria-label="pages.admin.settings.system.external_feeds.editor.import_json"]').trigger('click')
         expect(inputClickSpy).toHaveBeenCalledTimes(1)
 
         const file = new File([JSON.stringify([
@@ -233,7 +233,7 @@ describe('ExternalFeedSourcesEditor', () => {
             }),
         ])
 
-        await wrapper.get('.button-stub[data-icon="pi pi-download"]').trigger('click')
+        await wrapper.get('.button-stub[aria-label="common.export"]').trigger('click')
 
         expect(createObjectURLMock).toHaveBeenCalledTimes(1)
         expect(anchorClickMock).toHaveBeenCalledTimes(1)

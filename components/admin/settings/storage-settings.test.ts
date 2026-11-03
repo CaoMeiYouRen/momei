@@ -8,22 +8,22 @@ const stubs = {
         props: ['fieldKey', 'inputId', 'metadata', 'description'],
         template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>',
     },
-    Select: {
+    CaomeiSelect: {
         props: ['id', 'modelValue', 'options', 'disabled'],
         emits: ['update:modelValue'],
-        template: '<select :id="id" :value="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option" :value="option">{{ option }}</option></select>',
+        template: '<select :id="id" :value="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option.value ?? option" :value="option.value ?? option">{{ option.label ?? option }}</option></select>',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Password: {
+    SettingPassword: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))">',

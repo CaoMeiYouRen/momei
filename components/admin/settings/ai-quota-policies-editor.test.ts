@@ -17,12 +17,12 @@ const stubs = {
         template: '<div class="setting-form-field-stub" :data-field-key="fieldKey"><slot /></div>',
         props: ['fieldKey', 'inputId', 'label', 'description', 'metadata'],
     },
-    Button: {
-        template: '<button class="button-stub" type="button" :data-icon="icon" :disabled="disabled" @click="$emit(\'click\')">{{ label }}</button>',
+    CaomeiButton: {
+        template: '<button class="button-stub" type="button" :aria-label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
         props: ['icon', 'label', 'size', 'severity', 'text', 'disabled'],
         emits: ['click'],
     },
-    Select: {
+    CaomeiSelect: {
         template: `
             <select class="select-stub" :value="modelValue ?? ''" :disabled="disabled" @change="$emit('update:modelValue', $event.target.value)">
                 <option
@@ -37,39 +37,33 @@ const stubs = {
         props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'disabled', 'fluid'],
         emits: ['update:modelValue'],
     },
-    InputText: {
+    SettingInput: {
         template: `<input class="input-text-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['modelValue', 'disabled', 'fluid'],
         emits: ['update:modelValue'],
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         template: `<input class="input-number-stub" type="number" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value === '' ? null : Number($event.target.value))" />`,
         props: ['modelValue', 'disabled', 'min', 'max', 'fluid', 'showButtons', 'useGrouping', 'minFractionDigits', 'maxFractionDigits'],
         emits: ['update:modelValue'],
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         template: '<input class="toggle-switch-stub" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
         props: ['modelValue', 'disabled'],
         emits: ['update:modelValue'],
     },
-    Textarea: {
+    SettingTextarea: {
         template: `<textarea :id="id" class="textarea-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'disabled', 'rows', 'autoResize', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Accordion: {
+    CaomeiAccordion: {
         template: '<div class="accordion-stub"><slot /></div>',
-        props: ['value'],
+        props: ['type', 'collapsible', 'defaultValue'],
     },
-    AccordionPanel: {
-        template: '<div class="accordion-panel-stub"><slot /></div>',
-        props: ['value'],
-    },
-    AccordionHeader: {
-        template: '<div class="accordion-header-stub"><slot /></div>',
-    },
-    AccordionContent: {
-        template: '<div class="accordion-content-stub"><slot /></div>',
+    CaomeiAccordionItem: {
+        template: '<div class="accordion-panel-stub"><div class="accordion-title">{{ title }}</div><slot /></div>',
+        props: ['value', 'title'],
     },
 }
 
@@ -162,11 +156,11 @@ describe('AiQuotaPoliciesEditor', () => {
         expect(latestPayload).toContain('"subjectType": "user"')
         expect(latestPayload).toContain('"scope": "type:post"')
 
-        await wrapper.get('.button-stub[data-icon="pi pi-plus"]').trigger('click')
+        await wrapper.get('.button-stub[aria-label="pages.admin.settings.system.ai_editor.add_basic_policy"]').trigger('click')
         await flushPromises()
         expect(wrapper.findAll('.ai-quota-policies-editor__policy-card')).toHaveLength(2)
 
-        await getIndexedElement(wrapper.findAll('.button-stub[data-icon="pi pi-trash"]'), 0, 'delete button').trigger('click')
+        await getIndexedElement(wrapper.findAll('.button-stub[aria-label="common.delete"]'), 0, 'delete button').trigger('click')
         await flushPromises()
         expect(wrapper.findAll('.ai-quota-policies-editor__policy-card')).toHaveLength(1)
     })
@@ -193,6 +187,6 @@ describe('AiQuotaPoliciesEditor', () => {
 
         expect(wrapper.findAll('.ai-quota-policies-editor__policy-card')).toHaveLength(0)
         expect(wrapper.find('.ai-quota-policies-editor__empty-state').exists()).toBe(true)
-        expect(wrapper.get('.button-stub[data-icon="pi pi-plus"]').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('.button-stub[aria-label="pages.admin.settings.system.ai_editor.add_basic_policy"]').attributes('disabled')).toBeDefined()
     })
 })

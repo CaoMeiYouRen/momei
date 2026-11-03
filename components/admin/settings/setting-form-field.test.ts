@@ -70,7 +70,7 @@ describe('SettingFormField', () => {
                     $t: translate,
                 },
                 stubs: {
-                    Tag: {
+                    CaomeiTag: {
                         props: ['value'],
                         template: '<span class="tag">{{ value }}</span>',
                     },
@@ -107,7 +107,7 @@ describe('SettingFormField', () => {
                     $t: translate,
                 },
                 stubs: {
-                    Tag: {
+                    CaomeiTag: {
                         props: ['value'],
                         template: '<span class="tag">{{ value }}</span>',
                     },

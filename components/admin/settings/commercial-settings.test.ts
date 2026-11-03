@@ -43,11 +43,11 @@ vi.mock('@/composables/use-unsaved-changes-guard', () => ({
 }))
 
 const stubs = {
-    Message: {
+    CaomeiMessage: {
         props: ['severity', 'closable', 'class'],
         template: '<div class="message-stub"><slot /></div>',
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         props: ['modelValue'],
         emits: ['update:modelValue'],
         template: '<input class="toggle-switch-stub" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',

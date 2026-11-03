@@ -7,17 +7,17 @@ const stubs = {
         props: ['fieldKey', 'inputId', 'metadata'],
         template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Password: {
+    SettingPassword: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Divider: { template: '<hr>' },
+    CaomeiDivider: { template: '<hr>' },
 }
 
 describe('AuthSettings', () => {

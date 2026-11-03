@@ -13,22 +13,22 @@ const stubs = {
         emits: ['update:modelValue'],
         template: '<button class="template-configs" type="button" @click="$emit(\'update:modelValue\', { welcome: { subject: \'Hello\' } })">update templates</button>',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))">',
     },
-    Password: {
+    SettingPassword: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Divider: { template: '<hr>' },
+    CaomeiDivider: { template: '<hr>' },
 }
 
 describe('EmailSettings', () => {

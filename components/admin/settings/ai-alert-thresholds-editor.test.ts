@@ -11,12 +11,12 @@ const stubs = {
         template: '<div class="setting-form-field-stub" :data-field-key="fieldKey"><slot /></div>',
         props: ['fieldKey', 'inputId', 'label', 'description', 'metadata'],
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         template: '<input class="toggle-switch-stub" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
         props: ['modelValue', 'disabled'],
         emits: ['update:modelValue'],
     },
-    MultiSelect: {
+    CaomeiMultiSelect: {
         template: `
             <select class="multi-select-stub" multiple :disabled="disabled" @change="handleChange">
                 <option
@@ -49,12 +49,12 @@ const stubs = {
             },
         },
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         template: `<input class="input-number-stub" type="number" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value === '' ? null : Number($event.target.value))" />`,
         props: ['modelValue', 'disabled', 'min', 'max', 'fluid', 'showButtons', 'useGrouping'],
         emits: ['update:modelValue'],
     },
-    Textarea: {
+    SettingTextarea: {
         template: `<textarea :id="id" class="textarea-stub" :value="modelValue ?? ''" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'disabled', 'rows', 'autoResize', 'fluid'],
         emits: ['update:modelValue'],

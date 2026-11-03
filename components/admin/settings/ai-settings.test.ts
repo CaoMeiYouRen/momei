@@ -17,8 +17,8 @@ vi.mock('vue-i18n', async (importOriginal) => {
 
 const stubs = {
     SettingFormField: { template: '<div class="setting-form-field"><slot /></div>', props: ['fieldKey', 'inputId', 'metadata', 'description', 'inline', 'label'] },
-    ToggleSwitch: { template: '<input :id="id" class="toggle-switch" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['id', 'modelValue', 'disabled'], emits: ['update:modelValue'] },
-    Select: {
+    CaomeiSwitch: { template: '<input :id="id" class="toggle-switch" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />', props: ['id', 'modelValue', 'disabled'], emits: ['update:modelValue'] },
+    CaomeiSelect: {
         template: `
             <select :id="id" class="select" :value="modelValue" :disabled="disabled" @change="$emit('update:modelValue', $event.target.value)">
                 <option
@@ -33,10 +33,10 @@ const stubs = {
         props: ['id', 'modelValue', 'options', 'disabled', 'fluid', 'optionLabel', 'optionValue'],
         emits: ['update:modelValue'],
     },
-    InputText: { template: '<input :id="id" :value="modelValue" :disabled="disabled" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'placeholder'], emits: ['update:modelValue'] },
-    InputNumber: { template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'useGrouping', 'min', 'max', 'step'], emits: ['update:modelValue'] },
-    Password: { template: '<input :id="id" class="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'toggleMask', 'fluid'], emits: ['update:modelValue'] },
-    Divider: { template: '<div class="divider" />' },
+    SettingInput: { template: '<input :id="id" :value="modelValue" :disabled="disabled" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'placeholder'], emits: ['update:modelValue'] },
+    CaomeiInputNumber: { template: '<input :id="id" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />', props: ['id', 'modelValue', 'disabled', 'fluid', 'useGrouping', 'min', 'max', 'step'], emits: ['update:modelValue'] },
+    SettingPassword: { template: '<input :id="id" class="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'disabled', 'toggleMask', 'fluid'], emits: ['update:modelValue'] },
+    CaomeiDivider: { template: '<div class="divider" />' },
     AiQuotaPoliciesEditor: { template: '<div class="ai-quota-policies-editor" />', props: ['modelValue', 'metadata'] },
     AiAlertThresholdsEditor: { template: '<div class="ai-alert-thresholds-editor" />', props: ['modelValue', 'metadata'] },
     AiCostFactorsEditor: { template: '<div class="ai-cost-factors-editor" />', props: ['modelValue', 'metadata'] },

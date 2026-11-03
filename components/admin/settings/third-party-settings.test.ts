@@ -109,27 +109,27 @@ const defaultSettings = {
 
 const stubs = {
     SettingFormField: { template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>', props: ['fieldKey', 'inputId', 'metadata', 'inline', 'description'] },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         template: '<input :id="id" class="toggle-switch" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
     },
-    InputText: {
+    SettingInput: {
         template: `<input :id="id" class="input-text" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'placeholder', 'disabled', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Password: {
+    SettingPassword: {
         template: `<input :id="id" class="password-input" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'placeholder', 'disabled', 'toggleMask', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Textarea: {
+    SettingTextarea: {
         template: `<textarea :id="id" class="textarea-input" :value="modelValue ?? ''" :placeholder="placeholder" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
         props: ['id', 'modelValue', 'placeholder', 'disabled', 'rows', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Select: {
+    CaomeiSelect: {
         template: `
             <select :id="id" class="select-input" :value="modelValue ?? ''" :disabled="disabled" @change="$emit('update:modelValue', $event.target.value)">
                 <option
@@ -144,7 +144,7 @@ const stubs = {
         props: ['id', 'modelValue', 'options', 'disabled', 'optionLabel', 'optionValue', 'fluid'],
         emits: ['update:modelValue'],
     },
-    InputNumber: {
+    CaomeiInputNumber: {
         template: '<input :id="id" class="number-input" type="number" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', Number($event.target.value))" />',
         props: ['id', 'modelValue', 'disabled', 'min', 'max', 'fluid'],
         emits: ['update:modelValue'],
@@ -160,8 +160,8 @@ const stubs = {
             }
         },
     },
-    Button: defineComponent({
-        name: 'Button',
+    CaomeiButton: defineComponent({
+        name: 'CaomeiButton',
         props: {
             label: {
                 type: String,
@@ -234,7 +234,7 @@ async function mountComponent(settings: ReturnType<typeof createSettings>, locke
 }
 
 function getRefreshHandler(wrapper: Awaited<ReturnType<typeof mountComponent>>) {
-    return wrapper.getComponent({ name: 'Button' }).props('onClick') as (() => Promise<void>) | undefined
+    return wrapper.getComponent({ name: 'CaomeiButton' }).props('onClick') as (() => Promise<void>) | undefined
 }
 
 describe('ThirdPartySettings', () => {

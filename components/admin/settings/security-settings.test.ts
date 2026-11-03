@@ -8,32 +8,32 @@ const stubs = {
         props: ['fieldKey', 'inputId', 'metadata', 'inline'],
         template: '<div class="setting-field" :data-field-key="fieldKey"><slot /></div>',
     },
-    ToggleSwitch: {
+    CaomeiSwitch: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" class="toggle-switch" type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.checked)">',
     },
-    Select: {
+    CaomeiSelect: {
         props: ['id', 'modelValue', 'options', 'disabled'],
         emits: ['update:modelValue'],
-        template: '<select :id="id" :value="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option" :value="option">{{ option }}</option></select>',
+        template: '<select :id="id" :value="modelValue" :disabled="disabled" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option.value ?? option" :value="option.value ?? option">{{ option.label ?? option }}</option></select>',
     },
-    InputText: {
+    SettingInput: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Password: {
+    SettingPassword: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<input :id="id" type="password" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)">',
     },
-    Textarea: {
+    SettingTextarea: {
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],
         template: '<textarea :id="id" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
-    Divider: { template: '<hr>' },
+    CaomeiDivider: { template: '<hr>' },
 }
 
 describe('SecuritySettings', () => {
