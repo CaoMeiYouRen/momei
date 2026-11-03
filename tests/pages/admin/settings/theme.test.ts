@@ -63,19 +63,20 @@ vi.mock('caomei-ui', async (importOriginal) => {
 
 // Mock more components to avoid PrimeVue injection errors
 const stubs = {
-    Panel: { template: '<div><slot /></div>' },
-    Button: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
-    Divider: { template: '<hr />' },
-    SelectButton: { template: '<div />' },
-    ColorPicker: { template: '<div />' },
-    InputText: { template: '<input />' },
-    Dropdown: { template: '<div />' },
-    ToggleSwitch: { template: '<div />' },
-    Tabs: { template: '<div><slot /></div>' },
-    TabList: { template: '<div><slot /></div>' },
-    Tab: { template: '<div><slot /></div>' },
-    TabPanels: { template: '<div><slot /></div>' },
-    TabPanel: { template: '<div><slot /></div>' },
+    CaomeiCard: { template: '<div><slot /></div>' },
+    CaomeiButton: { template: '<button @click="$emit(\'click\')"><slot /></button>' },
+    CaomeiDivider: { template: '<hr>' },
+    CaomeiSelectButton: { template: '<div />' },
+    CaomeiColorPicker: { template: '<div />' },
+    CaomeiInput: { template: '<input>' },
+    CaomeiSelect: { template: '<div />' },
+    CaomeiSwitch: { template: '<div />' },
+    CaomeiMessage: { template: '<div><slot /></div>' },
+    AdminSettingsThemeColorField: { template: '<div />' },
+    ThemePreviewSection: { template: '<div>preview</div>' },
+    ThemeConfigSection: { template: '<div>config</div>' },
+    ThemeGalleryDialog: { template: '<div />' },
+    ThemeSaveDialog: { template: '<div />' },
 }
 
 // Mock Nuxt auto-imports

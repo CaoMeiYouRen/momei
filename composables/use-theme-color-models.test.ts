@@ -131,22 +131,22 @@ describe('createThemeColorPickerModel', () => {
         themeBackgroundValue: 'surface',
     }
 
-    it('returns value without "#" when settings has a color', () => {
+    it('returns CSS color with "#" when settings has a color', () => {
         const settings = ref<ThemeSettings | null>(makeSettings({ themePrimaryColor: '#64748b' }))
         const model = createThemeColorPickerModel(settings, 'themePrimaryColor', colorTypeMap)
-        expect(model.value).toBe('64748b')
+        expect(model.value).toBe('#64748b')
     })
 
     it('falls back to preset light value when settings value is null', () => {
         const settings = ref<ThemeSettings | null>(makeSettings({ themePrimaryColor: null }))
         const model = createThemeColorPickerModel(settings, 'themePrimaryColor', colorTypeMap)
-        expect(model.value).toBe(PRESETS.default.primary.light.replace('#', ''))
+        expect(model.value).toBe(PRESETS.default.primary.light)
     })
 
     it('falls back to preset dark value for keys containing "dark"', () => {
         const settings = ref<ThemeSettings | null>(makeSettings({ themeDarkPrimaryColor: null }))
         const model = createThemeColorPickerModel(settings, 'themeDarkPrimaryColor', colorTypeMap)
-        expect(model.value).toBe(PRESETS.default.primary.dark.replace('#', ''))
+        expect(model.value).toBe(PRESETS.default.primary.dark)
     })
 
     it('uses isExtraDarkField callback to extend dark field detection (themeBackgroundValue)', () => {
@@ -154,7 +154,7 @@ describe('createThemeColorPickerModel', () => {
         const isExtraDarkField = (k: ThemePreviewColorSettingKey) => k === 'themeBackgroundValue'
         const model = createThemeColorPickerModel(settings, 'themeBackgroundValue', colorTypeMap, isExtraDarkField)
         // themeBackgroundValue maps to 'surface' and isExtraDarkField returns true → dark branch
-        expect(model.value).toBe(PRESETS.default.surface.dark.replace('#', ''))
+        expect(model.value).toBe(PRESETS.default.surface.dark)
     })
 
     it('ignores isExtraDarkField when callback returns false', () => {
@@ -162,7 +162,7 @@ describe('createThemeColorPickerModel', () => {
         const isExtraDarkField = () => false
         const model = createThemeColorPickerModel(settings, 'themeBackgroundValue', colorTypeMap, isExtraDarkField)
         // key does not contain 'dark' and callback returns false → light branch
-        expect(model.value).toBe(PRESETS.default.surface.light.replace('#', ''))
+        expect(model.value).toBe(PRESETS.default.surface.light)
     })
 
     it('auto-prefixes "#" on set and keeps input', () => {

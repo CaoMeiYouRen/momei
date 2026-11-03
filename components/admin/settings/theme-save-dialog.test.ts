@@ -41,17 +41,17 @@ const stubs = {
         emits: ['update:open'],
         template: '<div v-if="open" class="dialog-stub"><slot /><slot name="footer" /></div>',
     },
-    InputText: {
+    CaomeiInput: {
         props: ['modelValue', 'placeholder', 'autofocus', 'class'],
         emits: ['update:modelValue'],
         template: `<input class="input-text-stub" :value="modelValue ?? ''" @input="$emit('update:modelValue', $event.target.value)" />`,
     },
-    Textarea: {
+    CaomeiTextarea: {
         props: ['modelValue', 'rows', 'class', 'placeholder', 'autoResize'],
         emits: ['update:modelValue'],
         template: `<textarea class="textarea-stub" :value="modelValue ?? ''" @input="$emit('update:modelValue', $event.target.value)" />`,
     },
-    Button: {
+    CaomeiButton: {
         props: ['label', 'text', 'severity', 'loading', 'disabled'],
         emits: ['click'],
         template: `<button class="button-stub" type="button" :data-label="label" :data-loading="loading ? 'true' : 'false'" :disabled="disabled" @click="$emit('click')">{{ label }}</button>`,

@@ -65,11 +65,11 @@ async function resolvePageFile(prefix: string): Promise<string> {
  * `ownedFiles` 声明的是仓库相对路径（POSIX 分隔符），此处统一转绝对路径；
  * 文件不存在时**响亮失败**（与页面文件解析同口径）——否则登记项写错路径会让守卫静默漏扫。
  */
-async function resolveScopeFiles(scope: { prefix: string, ownedFiles?: readonly string[] }): Promise<string[]> {
+async function resolveScopeFiles(scope: { prefix: string, ownedFiles?: readonly string[], migratedSubRoutes?: readonly string[] }): Promise<string[]> {
     const pageFile = await resolvePageFile(scope.prefix)
     const ownedFiles: string[] = []
 
-    for (const relativePath of scope.ownedFiles ?? []) {
+    for (const relativePath of [...(scope.ownedFiles ?? []), ...(scope.migratedSubRoutes ?? [])]) {
         const absolutePath = path.join(process.cwd(), relativePath)
 
         try {
@@ -181,7 +181,10 @@ function normalizeMarkerSource(source: string): string {
 describe('已登记前缀的子路由页面：例外登记与路由择库标记', () => {
     it('已登记前缀下的每个非 index 子路由页面都必须显式登记为例外（否则响亮失败）', async () => {
         for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
-            const declared = new Set((scope.primeVueSubRoutes ?? []).map((item) => item.file))
+            const declared = new Set([
+                ...(scope.primeVueSubRoutes ?? []).map((item) => item.file),
+                ...(scope.migratedSubRoutes ?? []),
+            ])
             const found = await listSubRoutePages(scope.prefix)
 
             for (const page of found) {
@@ -189,6 +192,29 @@ describe('已登记前缀的子路由页面：例外登记与路由择库标记'
                     declared.has(page),
                     `${scope.prefix} 的子路由页面 ${page} 未在 primeVueSubRoutes 登记——请显式声明「本批是否迁移它的哪个部分」`,
                 ).toBe(true)
+            }
+        }
+    })
+
+    it('已迁移子路由必须位于 pages/<prefix>/ 下，且与未迁移例外互斥', () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            const exceptionFiles = new Set((scope.primeVueSubRoutes ?? []).map((item) => item.file))
+            const prefixDir = `pages${scope.prefix}/`
+
+            for (const file of scope.migratedSubRoutes ?? []) {
+                expect(file.startsWith(prefixDir), `${scope.prefix} 的已迁移子路由 ${file} 不在 ${prefixDir} 下`).toBe(true)
+                expect(exceptionFiles.has(file), `${file} 同时出现在 primeVueSubRoutes 与 migratedSubRoutes——两者互斥`).toBe(false)
+            }
+        }
+    })
+
+    it('已迁移子路由页面必须存在（写错路径响亮失败）', async () => {
+        for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
+            for (const file of scope.migratedSubRoutes ?? []) {
+                await expect(
+                    readFile(path.join(process.cwd(), file), 'utf8'),
+                    `${scope.prefix} 的 migratedSubRoutes 不存在：${file}`,
+                ).resolves.toBeTypeOf('string')
             }
         }
     })
@@ -231,7 +257,7 @@ describe('已登记前缀的子路由页面：例外登记与路由择库标记'
 describe('登记项扫描面：ownedFiles 登记与解析', () => {
     it('ownedFiles 路径使用仓库相对 POSIX 形式', () => {
         for (const scope of CAOMEI_UI_ROUTE_SCOPES) {
-            for (const relativePath of scope.ownedFiles ?? []) {
+            for (const relativePath of [...(scope.ownedFiles ?? []), ...(scope.migratedSubRoutes ?? [])]) {
                 expect(path.isAbsolute(relativePath)).toBe(false)
                 expect(relativePath).not.toContain('\\')
             }
