@@ -1692,6 +1692,154 @@
                 }
             ],
             "note": "校准：2026-11-03 第七十阶段条目 2a 后按实测登记。dark 实测 91,926px / 7.093%（区域和 = 91,926px，无余量）；深色下表单外壳与说明卡差异较浅色更大。未归因差异 > 3,000px 即红。 区域 2（说明卡）的声明值为矩形内去重后的像素数（矩形计数 11,972 − 嵌套区域 3/4 的 1,656 = 10,316），维护时勿把嵌套区域重复计入。"
+        },
+        "admin-settings-theme-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 1040,
+                        "y": 120,
+                        "width": 360,
+                        "height": 600
+                    },
+                    "pixels": 21959,
+                    "reason": "右侧配置面板：预设 `Select`、三组色彩字段（`ColorPicker` + 输入）、`Divider` 与 `Switch` 换到 caomei 契约（外壳高度/边框/标签间距/页签等分宽度）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 280,
+                        "y": 280,
+                        "width": 480,
+                        "height": 160
+                    },
+                    "pixels": 10373,
+                    "reason": "左侧实时预览卡片：`Panel` 改 `CaomeiCard` 后的圆角/边框/内边距差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 280,
+                        "y": 480,
+                        "width": 240,
+                        "height": 40
+                    },
+                    "pixels": 3586,
+                    "reason": "预览区动作按钮行：两个按钮改 `CaomeiButton`（尺寸档与内边距差异）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 640,
+                        "width": 320,
+                        "height": 120
+                    },
+                    "pixels": 3413,
+                    "reason": "背景设置区：`SelectButton` 换 caomei 后的分段控件外观差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1040,
+                        "y": 760,
+                        "width": 360,
+                        "height": 120
+                    },
+                    "pixels": 2196,
+                    "reason": "保存为新方案按钮及其所在底部操作区（caomei 按钮内边距与图标位置）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 120,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 736,
+                    "reason": "页头主题图标（lucide 替换后尺寸/描边差异）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 2b（主题工作台迁 caomei，并修正取色器颜色格式、页签等分与卡片外壳）后按实测登记。light 实测 42,263px / 3.261%（区域和 = 42,263px，无余量）；参考态为迁移前 HEAD 就地采集。"
+        },
+        "admin-settings-theme-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 1040,
+                        "y": 120,
+                        "width": 360,
+                        "height": 600
+                    },
+                    "pixels": 21594,
+                    "reason": "右侧配置面板（同 light）：深色下字段外壳边框与底色差异更明显。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 640,
+                        "width": 320,
+                        "height": 120
+                    },
+                    "pixels": 12627,
+                    "reason": "背景设置区：深色下 `SelectButton` 分段控件底色与选中态差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 280,
+                        "y": 280,
+                        "width": 480,
+                        "height": 160
+                    },
+                    "pixels": 10289,
+                    "reason": "左侧实时预览卡片：深色下 `CaomeiCard` 容器底色与边框。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 280,
+                        "y": 480,
+                        "width": 240,
+                        "height": 40
+                    },
+                    "pixels": 3608,
+                    "reason": "预览区动作按钮行（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1040,
+                        "y": 760,
+                        "width": 360,
+                        "height": 120
+                    },
+                    "pixels": 1893,
+                    "reason": "底部保存按钮区（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 120,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 748,
+                    "reason": "页头主题图标（深色）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 2b 后按实测登记。dark 实测 50,759px / 3.917%（区域和 = 50,759px，无余量）。"
         }
     }
 }
