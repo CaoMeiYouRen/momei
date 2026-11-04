@@ -1,195 +1,190 @@
 <template>
     <div class="notification-delivery-log-list">
-        <DataTable
-            :value="items"
+        <div class="notification-delivery-log-list__header">
+            <div>
+                <h3 class="notification-delivery-log-list__title">
+                    {{ $t('pages.admin.notifications.delivery_logs.title') }}
+                </h3>
+                <p class="notification-delivery-log-list__description">
+                    {{ $t('pages.admin.notifications.delivery_logs.description') }}
+                </p>
+                <p v-if="demoPreview" class="notification-delivery-log-list__demo-note">
+                    {{ $t('pages.admin.settings.system.demo_preview.description') }}
+                </p>
+            </div>
+
+            <CaomeiButton
+                variant="ghost"
+                :label="$t('common.refresh')"
+                @click="loadLogs"
+            >
+                <template #icon>
+                    <RefreshCw :size="16" />
+                </template>
+                {{ $t('common.refresh') }}
+            </CaomeiButton>
+        </div>
+
+        <div class="notification-delivery-log-list__filters">
+            <CaomeiInput
+                v-model="filters.recipient"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.recipient')"
+            />
+
+            <CaomeiSelect
+                v-model="filters.notificationType"
+                :options="notificationTypeOptions"
+                option-label="label"
+                option-value="value"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.type')"
+                show-clear
+            />
+
+            <CaomeiSelect
+                v-model="filters.channel"
+                :options="channelOptions"
+                option-label="label"
+                option-value="value"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.channel')"
+                show-clear
+            />
+
+            <CaomeiSelect
+                v-model="filters.status"
+                :options="statusOptions"
+                option-label="label"
+                option-value="value"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.status')"
+                show-clear
+            />
+
+            <CaomeiDatePicker
+                v-model="filters.startDate"
+                date-format="yy-mm-dd"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.start_date')"
+            />
+
+            <CaomeiDatePicker
+                v-model="filters.endDate"
+                date-format="yy-mm-dd"
+                :placeholder="$t('pages.admin.notifications.delivery_logs.filters.end_date')"
+            />
+
+            <div class="notification-delivery-log-list__filter-actions">
+                <CaomeiButton
+                    size="sm"
+                    :label="$t('pages.admin.notifications.delivery_logs.filters.apply')"
+                    @click="applyFilters"
+                >
+                    {{ $t('pages.admin.notifications.delivery_logs.filters.apply') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    size="sm"
+                    variant="secondary"
+                    :label="$t('pages.admin.notifications.delivery_logs.filters.reset')"
+                    @click="resetFilters"
+                >
+                    {{ $t('pages.admin.notifications.delivery_logs.filters.reset') }}
+                </CaomeiButton>
+            </div>
+        </div>
+
+        <CaomeiDataTable
+            :data="items"
+            :columns="columns"
             :loading="loading"
             paginator
             lazy
+            :page="page"
             :rows="limit"
             :total-records="total"
             class="notification-delivery-log-list__table"
             @page="onPage"
         >
-            <template #header>
-                <div class="notification-delivery-log-list__header">
-                    <div>
-                        <h3 class="notification-delivery-log-list__title">
-                            {{ $t('pages.admin.notifications.delivery_logs.title') }}
-                        </h3>
-                        <p class="notification-delivery-log-list__description">
-                            {{ $t('pages.admin.notifications.delivery_logs.description') }}
-                        </p>
-                        <p v-if="demoPreview" class="notification-delivery-log-list__demo-note">
-                            {{ $t('pages.admin.settings.system.demo_preview.description') }}
-                        </p>
-                    </div>
+            <template #cell-sentAt="{row}">
+                {{ formatDateTime(row.sentAt) }}
+            </template>
 
-                    <Button
-                        icon="pi pi-refresh"
-                        variant="text"
-                        :label="$t('common.refresh')"
-                        @click="loadLogs"
-                    />
-                </div>
+            <template #cell-type="{row}">
+                <CaomeiTag :tone="getNotificationTypeTone(row.notificationType)">
+                    {{ translateNotificationType(row.notificationType) }}
+                </CaomeiTag>
+            </template>
 
-                <div class="notification-delivery-log-list__filters">
-                    <InputText
-                        v-model="filters.recipient"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.recipient')"
-                    />
+            <template #cell-channel="{row}">
+                <CaomeiTag :tone="getChannelTone(row.channel)">
+                    {{ translateChannel(row.channel) }}
+                </CaomeiTag>
+            </template>
 
-                    <Select
-                        v-model="filters.notificationType"
-                        :options="notificationTypeOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.type')"
-                        show-clear
-                    />
+            <template #cell-status="{row}">
+                <CaomeiTag :tone="getNotificationDeliveryStatusTone(row.status)">
+                    {{ translateStatus(row.status) }}
+                </CaomeiTag>
+            </template>
 
-                    <Select
-                        v-model="filters.channel"
-                        :options="channelOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.channel')"
-                        show-clear
-                    />
-
-                    <Select
-                        v-model="filters.status"
-                        :options="statusOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.status')"
-                        show-clear
-                    />
-
-                    <DatePicker
-                        v-model="filters.startDate"
-                        show-icon
-                        icon-display="input"
-                        date-format="yy-mm-dd"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.start_date')"
-                    />
-
-                    <DatePicker
-                        v-model="filters.endDate"
-                        show-icon
-                        icon-display="input"
-                        date-format="yy-mm-dd"
-                        :placeholder="$t('pages.admin.notifications.delivery_logs.filters.end_date')"
-                    />
-
-                    <div class="notification-delivery-log-list__filter-actions">
-                        <Button
-                            :label="$t('pages.admin.notifications.delivery_logs.filters.apply')"
-                            size="small"
-                            @click="applyFilters"
-                        />
-                        <Button
-                            :label="$t('pages.admin.notifications.delivery_logs.filters.reset')"
-                            size="small"
-                            severity="secondary"
-                            variant="outlined"
-                            @click="resetFilters"
-                        />
+            <template #cell-recipient="{row}">
+                <div class="notification-delivery-log-list__recipient-cell">
+                    <strong class="notification-delivery-log-list__recipient-primary">
+                        {{ getRecipientPrimary(row) }}
+                    </strong>
+                    <span
+                        v-if="getRecipientSecondary(row)"
+                        class="notification-delivery-log-list__recipient-secondary"
+                    >
+                        {{ getRecipientSecondary(row) }}
+                    </span>
+                    <div
+                        v-if="row.userId"
+                        class="notification-delivery-log-list__recipient-id"
+                    >
+                        <span>{{ $t('pages.admin.notifications.delivery_logs.recipient.user_id') }}: {{ row.userId }}</span>
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            size="sm"
+                            :label="$t('pages.admin.notifications.delivery_logs.recipient.copy_id')"
+                            @click="copyUserId(row.userId)"
+                        >
+                            <template #icon>
+                                <Copy :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </div>
                 </div>
             </template>
 
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.sent_at')" class="notification-delivery-log-list__time-column">
-                <template #body="slotProps">
-                    {{ formatDateTime(slotProps.data.sentAt) }}
-                </template>
-            </Column>
+            <template #cell-title="{row}">
+                <div class="notification-delivery-log-list__title-cell">
+                    <strong>{{ row.title }}</strong>
+                    <NuxtLink
+                        v-if="resolveNotificationTarget(row.targetUrl)"
+                        :to="resolveNotificationTarget(row.targetUrl)"
+                        class="notification-delivery-log-list__target"
+                    >
+                        {{ getNotificationTargetLabel(row.targetUrl) }}
+                    </NuxtLink>
+                </div>
+            </template>
 
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.type')">
-                <template #body="slotProps">
-                    <Tag :severity="getNotificationTypeSeverity(slotProps.data.notificationType)">
-                        {{ translateNotificationType(slotProps.data.notificationType) }}
-                    </Tag>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.channel')">
-                <template #body="slotProps">
-                    <Tag :severity="getChannelSeverity(slotProps.data.channel)">
-                        {{ translateChannel(slotProps.data.channel) }}
-                    </Tag>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.status')">
-                <template #body="slotProps">
-                    <Tag :severity="getNotificationDeliveryStatusSeverity(slotProps.data.status)">
-                        {{ translateStatus(slotProps.data.status) }}
-                    </Tag>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.recipient')">
-                <template #body="slotProps">
-                    <div class="notification-delivery-log-list__recipient-cell">
-                        <strong class="notification-delivery-log-list__recipient-primary">
-                            {{ getRecipientPrimary(slotProps.data) }}
-                        </strong>
-                        <span
-                            v-if="getRecipientSecondary(slotProps.data)"
-                            class="notification-delivery-log-list__recipient-secondary"
-                        >
-                            {{ getRecipientSecondary(slotProps.data) }}
-                        </span>
-                        <div
-                            v-if="slotProps.data.userId"
-                            class="notification-delivery-log-list__recipient-id"
-                        >
-                            <span>{{ $t('pages.admin.notifications.delivery_logs.recipient.user_id') }}: {{ slotProps.data.userId }}</span>
-                            <Button
-                                icon="pi pi-copy"
-                                text
-                                size="small"
-                                :aria-label="$t('pages.admin.notifications.delivery_logs.recipient.copy_id')"
-                                @click="copyUserId(slotProps.data.userId)"
-                            />
-                        </div>
-                    </div>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.title')">
-                <template #body="slotProps">
-                    <div class="notification-delivery-log-list__title-cell">
-                        <strong>{{ slotProps.data.title }}</strong>
-                        <NuxtLink
-                            v-if="resolveNotificationTarget(slotProps.data.targetUrl)"
-                            :to="resolveNotificationTarget(slotProps.data.targetUrl)"
-                            class="notification-delivery-log-list__target"
-                        >
-                            {{ getNotificationTargetLabel(slotProps.data.targetUrl) }}
-                        </NuxtLink>
-                    </div>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.admin.notifications.delivery_logs.columns.error')">
-                <template #body="slotProps">
-                    <span class="notification-delivery-log-list__error">
-                        {{ slotProps.data.errorMessage || $t('pages.admin.notifications.delivery_logs.value_states.none') }}
-                    </span>
-                </template>
-            </Column>
+            <template #cell-error="{row}">
+                <span class="notification-delivery-log-list__error">
+                    {{ row.errorMessage || $t('pages.admin.notifications.delivery_logs.value_states.none') }}
+                </span>
+            </template>
 
             <template #empty>
                 <div class="notification-delivery-log-list__empty">
                     {{ $t('pages.admin.notifications.delivery_logs.empty') }}
                 </div>
             </template>
-        </DataTable>
+        </CaomeiDataTable>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Copy, RefreshCw } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import { useToast } from 'caomei-ui'
 import type { ApiResponse } from '@/types/api'
 import type { NotificationDeliveryLogItem, NotificationDeliveryLogListData } from '@/types/notification'
@@ -307,40 +302,40 @@ async function copyUserId(userId: string) {
     }
 }
 
-function getNotificationTypeSeverity(type: string) {
+function getNotificationTypeTone(type: string) {
     switch (type) {
         case 'SECURITY':
             return 'danger'
         case 'COMMENT_REPLY':
-            return 'info'
+            return 'primary'
         case 'MARKETING':
-            return 'contrast'
+            return 'neutral'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 
-function getChannelSeverity(channel: string) {
+function getChannelTone(channel: string) {
     switch (channel) {
         case 'EMAIL':
-            return 'info'
+            return 'primary'
         case 'WEB_PUSH':
-            return 'warn'
+            return 'warning'
         case 'SSE':
             return 'success'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 
-function getNotificationDeliveryStatusSeverity(status: string) {
+function getNotificationDeliveryStatusTone(status: string) {
     switch (status) {
         case 'SUCCESS':
             return 'success'
         case 'FAILED':
             return 'danger'
         default:
-            return 'warn'
+            return 'warning'
     }
 }
 
@@ -375,6 +370,16 @@ async function loadLogs() {
     }
 }
 
+const columns = computed<DataTableColumn<NotificationDeliveryLogItem>[]>(() => [
+    { key: 'sentAt', header: t('pages.admin.notifications.delivery_logs.columns.sent_at'), headerClass: 'notification-delivery-log-list__time-column', bodyClass: 'notification-delivery-log-list__time-column' },
+    { key: 'type', header: t('pages.admin.notifications.delivery_logs.columns.type') },
+    { key: 'channel', header: t('pages.admin.notifications.delivery_logs.columns.channel') },
+    { key: 'status', header: t('pages.admin.notifications.delivery_logs.columns.status') },
+    { key: 'recipient', header: t('pages.admin.notifications.delivery_logs.columns.recipient') },
+    { key: 'title', header: t('pages.admin.notifications.delivery_logs.columns.title') },
+    { key: 'error', header: t('pages.admin.notifications.delivery_logs.columns.error') },
+])
+
 function applyFilters() {
     page.value = 1
     void loadLogs()
@@ -392,7 +397,8 @@ function resetFilters() {
 }
 
 function onPage(event: { page: number, rows: number }) {
-    page.value = event.page + 1
+    /* caomei 的 `@page` 是 1 基页码（迁移前 PrimeVue 为 0 基偏移）。 */
+    page.value = event.page
     limit.value = event.rows
     void loadLogs()
 }

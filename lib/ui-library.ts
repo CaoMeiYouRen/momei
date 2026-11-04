@@ -245,6 +245,21 @@ const MARKETING_ROUTE_SCOPE = {
     ],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 路由 `/admin/notifications` 的迁移范围。
+ *
+ * 该页是薄包装（标题 + 简介 + 一张卡），实体落在共享列表
+ * `components/admin/settings/notification-delivery-log-list.vue`——该组件虽位于 settings 目录，
+ * 唯一消费路由就是这里，故登记为本路由的 `ownedFiles`。
+ */
+const ADMIN_NOTIFICATIONS_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/settings/notification-delivery-log-list.vue',
+    ],
+    // `Card`（页面外壳）与 `DatePicker`（筛选区间，首个生产用法）不在批次基准族内。
+    inScopeComponents: ['Card', 'DatePicker'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -280,6 +295,8 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/marketing', ...MARKETING_ROUTE_SCOPE },
     // 组件型目标路由（`/admin/settings`）：设置页 + 设置面板族（2a）+ 主题工作台子路由（2b，经 `migratedSubRoutes` 纳入扫描面）。
     { prefix: '/admin/settings', ...ADMIN_SETTINGS_ROUTE_SCOPE },
+    // 通知管理：页面 + 共享投递日志列表。
+    { prefix: '/admin/notifications', ...ADMIN_NOTIFICATIONS_ROUTE_SCOPE },
 ]
 
 /**

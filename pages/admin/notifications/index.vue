@@ -2,13 +2,16 @@
     <div class="admin-notification-management page-container">
         <AdminPageHeader :title="$t('pages.admin.notifications.title')" show-language-switcher>
             <template #actions>
-                <Button
+                <CaomeiButton
+                    variant="secondary"
                     :label="$t('pages.admin.notifications.go_to_marketing')"
-                    icon="pi pi-megaphone"
-                    severity="secondary"
-                    variant="outlined"
                     @click="navigateToMarketing"
-                />
+                >
+                    <template #icon>
+                        <Megaphone :size="16" />
+                    </template>
+                    {{ $t('pages.admin.notifications.go_to_marketing') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
@@ -21,15 +24,14 @@
             </p>
         </div>
 
-        <Card class="admin-notification-management__card">
-            <template #content>
-                <NotificationDeliveryLogList />
-            </template>
-        </Card>
+        <CaomeiCard class="admin-notification-management__card">
+            <NotificationDeliveryLogList />
+        </CaomeiCard>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Megaphone } from '@lucide/vue'
 import NotificationDeliveryLogList from '@/components/admin/settings/notification-delivery-log-list.vue'
 
 definePageMeta({
@@ -67,7 +69,7 @@ function navigateToMarketing() {
     }
 
     &__card {
-        :deep(.p-card-body) {
+        :deep(.caomei-card__body) {
             padding: $spacing-lg;
         }
     }
