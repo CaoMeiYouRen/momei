@@ -194,6 +194,14 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         activate: { role: 'button', name: '创建推送', expect: '[role="dialog"]' },
     },
     {
+        /* 通知管理整路由迁移；参考态保持迁移前 HEAD 采集。 */
+        name: 'admin-notifications-list',
+        path: '/admin/notifications',
+        heading: '通知管理',
+        tier: 'admin',
+        migrated: true,
+    },
+    {
         /* 第七十阶段条目 2b：主题工作台随设置路由迁移；参考态保持迁移前 HEAD 采集。 */
         name: 'admin-settings-theme',
         path: '/admin/settings/theme',
@@ -223,7 +231,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 8 条路由，当前仍是 PrimeVue 实现。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 7 条路由（用户设置、5 个认证 / 提交页、安装向导）。
  *
  * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
@@ -235,15 +243,8 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* B3-A 剩余面（tier=admin）：2c 通知管理（2a 设置主体、2b 主题工作台已迁入 `MIGRATED_ROUTES`）。
-     * 参考态在第七十阶段条目 1c 以 HEAD（PrimeVue）采集；迁移后逐项归因。 */
-    {
-        name: 'admin-notifications-list',
-        path: '/admin/notifications',
-        heading: '通知管理',
-        tier: 'admin',
-        migrated: false,
-    },
+    /* B3-A 剩余面：无（2a 设置主体 / 2b 主题工作台 / 2c 通知管理均已迁入 `MIGRATED_ROUTES`）；
+     * 本层保留用户设置、认证与安装向导，参考态均在条目 1c 以 HEAD（PrimeVue）采集。 */
     /* B3-C 安装向导：默认实例在已安装态对该路由直接 302（server/middleware/0-installation.ts），
      * 故必须由 `MOMEI_INSTALLED=false` 的第二 webServer + 独立 project 承载；
      * 状态响应在 spec 内固定 mock，避免 DB 安装态与机器信息（node / OS / DB 版本）进入截图。 */

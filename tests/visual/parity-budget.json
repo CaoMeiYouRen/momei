@@ -1840,6 +1840,132 @@
                 }
             ],
             "note": "校准：2026-11-04 第七十阶段条目 2b 后按实测登记。dark 实测 50,759px / 3.917%（区域和 = 50,759px，无余量）。"
+        },
+        "admin-notifications-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 240,
+                        "width": 1360,
+                        "height": 360
+                    },
+                    "pixels": 38625,
+                    "reason": "投递日志列表主体：筛选行（Input / 3 个 Select / 2 个 DatePicker）与 DataTable 的表头、行高、控件外壳换到 caomei 契约。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 760,
+                        "width": 960,
+                        "height": 160
+                    },
+                    "pixels": 10594,
+                    "reason": "站点页脚：卡片内筛选控件高度变化导致页脚整体纵向位移（非列表分页器）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 600,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1232,
+                    "reason": "卡片右边框与行分隔线：表格行高随字段外壳变化。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1155,
+                    "reason": "页头左侧语言切换器（路由登记后渲染 caomei 版本）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1022,
+                    "reason": "页头右侧「前往营销中心」按钮（迁移后 caomei 按钮内边距与图标位置）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 640,
+                        "width": 160,
+                        "height": 40
+                    },
+                    "pixels": 158,
+                    "reason": "分页页码行的细微字距差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 2c（通知管理迁 caomei）后按实测登记。light 实测 52,786px / 4.073%（区域和 = 52,786px，无余量）；参考态为迁移前 HEAD 就地采集。"
+        },
+        "admin-notifications-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 40,
+                        "y": 240,
+                        "width": 1360,
+                        "height": 480
+                    },
+                    "pixels": 41624,
+                    "reason": "投递日志列表主体（同 light）：深色下字段外壳、表头底色与行分隔差异更明显。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 760,
+                        "width": 960,
+                        "height": 160
+                    },
+                    "pixels": 10199,
+                    "reason": "站点页脚（深色）：同 light，控件高度变化导致的整体纵向位移。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 1166,
+                    "reason": "页头左侧语言切换器（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 80,
+                        "width": 160,
+                        "height": 80
+                    },
+                    "pixels": 770,
+                    "reason": "页头右侧「前往营销中心」按钮（深色）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 2c 后按实测登记。dark 实测 53,759px / 4.148%（区域和 = 53,759px，无余量）。"
         }
     }
 }
