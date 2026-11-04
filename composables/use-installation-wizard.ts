@@ -47,7 +47,7 @@ interface AdminCreationForm {
     password: string
 }
 
-type InstallationStepActivator = (step: string) => void
+type InstallationStepActivator = (step: number) => void
 
 /**
  * 管理安装向导的步骤状态、表单数据和服务端安装流程。
@@ -60,7 +60,7 @@ export function useInstallationWizard() {
     const config = useRuntimeConfig()
     const localePath = useLocalePath()
 
-    const currentStep = ref('1')
+    const currentStep = ref(1)
     const installationStatus = ref<InstallationStatusState | null>(null)
     const installationMode = computed<InstallationChecklistMode>(() => config.public.demoMode ? 'demo' : 'production')
     const setupChecklist = computed(() => getInstallationChecklist(installationMode.value))
@@ -196,7 +196,7 @@ export function useInstallationWizard() {
         siteFieldErrors.value = {}
         try {
             await $fetch('/api/install/setup-site', { method: 'POST', body: siteConfig.value })
-            activateCallback('4')
+            activateCallback(4)
         } catch (error) {
             siteConfigError.value = resolveRequestErrorMessage(error, {
                 fallbackKey: 'installation.siteConfig.error',
@@ -213,7 +213,7 @@ export function useInstallationWizard() {
         adminFieldErrors.value = {}
         try {
             await $fetch('/api/install/create-admin', { method: 'POST', body: adminData.value })
-            activateCallback('5')
+            activateCallback(5)
         } catch (error) {
             adminError.value = resolveRequestErrorMessage(error, {
                 fallbackKey: 'installation.adminAccount.error',
@@ -230,7 +230,7 @@ export function useInstallationWizard() {
         extraFieldErrors.value = {}
         try {
             await $fetch('/api/install/setup-extra', { method: 'POST', body: extraConfig.value })
-            activateCallback('6')
+            activateCallback(6)
         } catch (error) {
             extraConfigError.value = resolveRequestErrorMessage(error, {
                 fallbackKey: 'installation.preview.error',
@@ -239,7 +239,7 @@ export function useInstallationWizard() {
 
             // 预览接口失败但没有字段级错误时，仍推进到预览步骤，便于用户查看诊断信息后重试。
             if (Object.keys(extraFieldErrors.value).length === 0) {
-                activateCallback('6')
+                activateCallback(6)
             }
         } finally {
             extraConfigLoading.value = false

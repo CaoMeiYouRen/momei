@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
+import { buildInstallationServerCommand, defaultAuthSecret, e2eBaseURL, e2eHost, e2ePort, installationBaseURL } from './tests/helpers/playwright-servers'
 
-const e2eHost = '127.0.0.1'
-const e2ePort = 3001
-const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
-const e2eAuthSecret = 'lhci-test-secret-0123456789abcdef'
+const e2eAuthSecret = defaultAuthSecret
 const mobileCriticalSpecPattern = /.*mobile-critical\.e2e\.test\.ts/
+/** 安装向导必须在「未安装态」实例上跑：已安装态主实例会把它 302 到首页。 */
+const installationSpecPattern = /.*installation\.e2e\.test\.ts/
 // const detectedParallelism = typeof os.availableParallelism === 'function'
 //     ? os.availableParallelism()
 //     : os.cpus().length
@@ -43,6 +43,7 @@ const e2eServerEnv = [
     `NUXT_PUBLIC_AUTH_BASE_URL=${e2eBaseURL}`,
 ].join(' ')
 const e2eServerCommand = `pnpm exec cross-env ${e2eServerEnv} node .output/server/index.mjs`
+
 
 /**
  * Read environment variables from file.
@@ -90,7 +91,7 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
-            testIgnore: mobileCriticalSpecPattern,
+            testIgnore: [mobileCriticalSpecPattern, installationSpecPattern],
             use: {
                 ...devices['Desktop Chrome'],
                 /** Chromium-specific launch args (must NOT be applied to WebKit/Firefox) */
@@ -100,16 +101,28 @@ export default defineConfig({
 
         {
             name: 'firefox',
-            testIgnore: mobileCriticalSpecPattern,
+            testIgnore: [mobileCriticalSpecPattern, installationSpecPattern],
             use: { ...devices['Desktop Firefox'] },
         },
 
         {
             name: 'webkit',
-            testIgnore: mobileCriticalSpecPattern,
+            testIgnore: [mobileCriticalSpecPattern, installationSpecPattern],
             use: { ...devices['Desktop Safari'] },
         },
 
+        {
+            /* 安装向导只在未安装态实例上跑一次（功能与浏览器无关，避免再乘三份实例）。 */
+            name: 'installation',
+            testMatch: installationSpecPattern,
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: installationBaseURL,
+                /* 防御性默认：该实例没有用户库，若将来给主 project 接线 storageState，
+                 * 同 host 的 cookie 会跨端口带过来（cookie 忽略端口）并触发无意义的鉴权查询。 */
+                storageState: { cookies: [], origins: [] },
+            },
+        },
         {
             name: 'mobile-chrome-critical',
             testMatch: mobileCriticalSpecPattern,
@@ -137,10 +150,18 @@ export default defineConfig({
     ],
 
     /* Run your local dev server before starting the tests */
-    webServer: {
-        command: e2eServerCommand,
-        url: e2eBaseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 600000,
-    },
+    webServer: [
+        {
+            command: e2eServerCommand,
+            url: e2eBaseURL,
+            reuseExistingServer: !process.env.CI,
+            timeout: 600000,
+        },
+        {
+            command: buildInstallationServerCommand(e2eAuthSecret),
+            url: `${installationBaseURL}/api/install/status`,
+            reuseExistingServer: !process.env.CI,
+            timeout: 600000,
+        },
+    ],
 })

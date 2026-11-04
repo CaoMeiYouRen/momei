@@ -5,22 +5,24 @@
                 :title="resolvedMessage || undefined"
                 class="installation-field-status__item"
             >
-                <Tag
-                    severity="warn"
-                    :value="$t('pages.admin.settings.system.source_badges.env')"
-                />
+                <CaomeiTag tone="warning">
+                    {{ $t('pages.admin.settings.system.source_badges.env') }}
+                </CaomeiTag>
             </span>
         </AppTooltip>
         <AppTooltip :content="resolvedMessage || undefined">
-            <i
+            <Lock
+                :size="14"
                 :title="resolvedMessage || undefined"
-                class="installation-field-status__item installation-field-status__lock pi pi-lock"
+                class="installation-field-status__item installation-field-status__lock"
+                aria-hidden="true"
             />
         </AppTooltip>
     </span>
 </template>
 
 <script setup lang="ts">
+import { Lock } from '@lucide/vue'
 import { resolveInstallationEnvLockMessage, type InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 
 const props = defineProps<{
@@ -46,7 +48,6 @@ const resolvedMessage = computed(() => resolveInstallationEnvLockMessage(t, prop
     }
 
     &__lock {
-        font-size: 0.85rem;
         color: var(--p-orange-500);
     }
 }

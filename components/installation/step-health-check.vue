@@ -5,14 +5,21 @@
         <div v-if="installationStatus" class="installation-wizard__checks-grid">
             <div class="check-card">
                 <div class="check-card__header">
-                    <i class="pi pi-server" />
+                    <Server :size="20" aria-hidden="true" />
                     <span>{{ $t('installation.healthCheck.database') }}</span>
                 </div>
                 <div class="check-card__content">
                     <div class="status-row">
                         <span>{{ installationStatus.databaseType }}</span>
-                        <i
-                            :class="installationStatus.databaseConnected ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                        <CircleCheck
+                            v-if="installationStatus.databaseConnected"
+                            :size="20"
+                            aria-hidden="true"
+                        />
+                        <CircleX
+                            v-else
+                            :size="20"
+                            aria-hidden="true"
                         />
                     </div>
                     <div class="status-detail">
@@ -23,14 +30,21 @@
 
             <div class="check-card" :class="{'check-card--warning': !installationStatus.isNodeVersionSafe}">
                 <div class="check-card__header">
-                    <i class="pi pi-code" />
+                    <Code :size="20" aria-hidden="true" />
                     <span>{{ $t('installation.healthCheck.node') }}</span>
                 </div>
                 <div class="check-card__content">
                     <div class="status-row">
                         <span>{{ installationStatus.nodeVersion }}</span>
-                        <i
-                            :class="installationStatus.isNodeVersionSafe ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-triangle text-orange-500'"
+                        <CircleCheck
+                            v-if="installationStatus.isNodeVersionSafe"
+                            :size="20"
+                            aria-hidden="true"
+                        />
+                        <TriangleAlert
+                            v-else
+                            :size="20"
+                            aria-hidden="true"
                         />
                     </div>
                     <div class="status-detail">
@@ -44,14 +58,21 @@
 
             <div class="check-card">
                 <div class="check-card__header">
-                    <i class="pi pi-cloud" />
+                    <Cloud :size="20" aria-hidden="true" />
                     <span>{{ $t('installation.healthCheck.runtime') }}</span>
                 </div>
                 <div class="check-card__content">
                     <div class="status-row">
                         <span>{{ runtimeLabel }}</span>
-                        <i
-                            :class="installationStatus.deploymentDiagnostics.platformSupported ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                        <CircleCheck
+                            v-if="installationStatus.deploymentDiagnostics.platformSupported"
+                            :size="20"
+                            aria-hidden="true"
+                        />
+                        <CircleX
+                            v-else
+                            :size="20"
+                            aria-hidden="true"
                         />
                     </div>
                     <div class="status-detail">
@@ -120,26 +141,33 @@
         </section>
 
         <div v-else class="installation-wizard__loading">
-            <ProgressSpinner style="width: 50px; height: 50px" />
+            <CaomeiProgressSpinner
+                size="lg"
+                style="
+
+--caomei-progress-spinner-size: 50px"
+            />
             <p>{{ $t('common.loading') }}</p>
         </div>
 
         <div class="installation-wizard__actions">
-            <Button
+            <CaomeiButton
                 :label="$t('common.next')"
-                icon="pi pi-arrow-right"
-                icon-pos="right"
                 :disabled="!installationStatus || !installationStatus?.databaseConnected || hasBlockingIssues"
                 :loading="!installationStatus"
                 @click="onNext"
-            />
+            >
+                <template #icon>
+                    <ArrowRight :size="16" />
+                </template>
+                {{ $t('common.next') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import Button from 'primevue/button'
-import ProgressSpinner from 'primevue/progressspinner'
+import { ArrowRight, CircleCheck, CircleX, Cloud, Code, Server, TriangleAlert } from '@lucide/vue'
 import type { InstallationDiagnostics, InstallationRuntime } from '@/utils/shared/installation-diagnostics'
 import { buildInstallationDocResources } from '@/utils/shared/installation-doc-links'
 

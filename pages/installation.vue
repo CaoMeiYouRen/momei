@@ -1,22 +1,22 @@
 <template>
     <div class="installation-wizard">
-        <Card class="installation-wizard__card">
-            <template #title>
+        <CaomeiCard
+            class="installation-wizard__card"
+            variant="elevated"
+            padding="none"
+        >
+            <template #header>
                 <div class="installation-wizard__header">
                     <h1 class="installation-wizard__title">
                         {{ $t('installation.title') }}
                     </h1>
-                </div>
-            </template>
-            <template #subtitle>
-                <div class="installation-wizard__header">
                     <p class="installation-wizard__subtitle">
                         {{ $t('installation.subtitle') }}
                     </p>
                 </div>
             </template>
 
-            <template #content>
+            <div class="installation-wizard__body">
                 <section class="installation-wizard__quick-start">
                     <div class="installation-wizard__language-bar">
                         <div>
@@ -36,10 +36,9 @@
 
                     <div class="installation-wizard__setup-summary">
                         <div class="installation-wizard__setup-summary-intro">
-                            <Tag
-                                severity="contrast"
-                                :value="$t(`installation.setupChecklist.mode.${installationMode}`)"
-                            />
+                            <CaomeiTag tone="neutral">
+                                {{ $t(`installation.setupChecklist.mode.${installationMode}`) }}
+                            </CaomeiTag>
                             <div>
                                 <h2 class="installation-wizard__setup-summary-title">
                                     {{ $t('installation.setupChecklist.summaryTitle') }}
@@ -57,7 +56,11 @@
                                 class="installation-wizard__focus-item"
                             >
                                 <span class="installation-wizard__setup-icon">
-                                    <i :class="item.icon" />
+                                    <component
+                                        :is="INSTALLATION_CHECKLIST_ICONS[item.icon]"
+                                        :size="18"
+                                        aria-hidden="true"
+                                    />
                                 </span>
                                 <strong>{{ $t(item.titleKey) }}</strong>
                             </li>
@@ -69,103 +72,103 @@
                     </div>
                 </section>
 
-                <Stepper v-model:value="currentStep" :linear="true">
-                    <StepList>
-                        <Step value="1">
-                            {{ $t('installation.steps.healthCheck') }}
-                        </Step>
-                        <Step value="2">
-                            {{ $t('installation.steps.database') }}
-                        </Step>
-                        <Step value="3">
-                            {{ $t('installation.steps.siteConfig') }}
-                        </Step>
-                        <Step value="4">
-                            {{ $t('installation.steps.adminAccount') }}
-                        </Step>
-                        <Step value="5">
-                            {{ $t('installation.steps.preview') }}
-                        </Step>
-                        <Step value="6">
-                            {{ $t('installation.steps.complete') }}
-                        </Step>
-                    </StepList>
+                <CaomeiStepper
+                    v-model="currentStep"
+                    :linear="true"
+                    class="installation-wizard__stepper"
+                >
+                    <CaomeiStepperList>
+                        <CaomeiStepperItem
+                            v-for="item in steps"
+                            :key="item.value"
+                            :step="item.value"
+                            :completed="currentStep > item.value"
+                            :disabled="item.value !== currentStep"
+                        >
+                            <CaomeiStepperTrigger>
+                                <CaomeiStepperIndicator>
+                                    <Check v-if="currentStep > item.value" :size="14" />
+                                    <template v-else>
+                                        {{ item.value }}
+                                    </template>
+                                </CaomeiStepperIndicator>
+                                <CaomeiStepperTitle>{{ $t(item.labelKey) }}</CaomeiStepperTitle>
+                            </CaomeiStepperTrigger>
+                            <CaomeiStepperSeparator v-if="item.value < steps.length" />
+                        </CaomeiStepperItem>
+                    </CaomeiStepperList>
+                </CaomeiStepper>
 
-                    <StepPanels>
-                        <StepPanel v-slot="{activateCallback}" value="1">
-                            <StepHealthCheck
-                                :installation-status="installationStatus"
-                                @next="activateCallback('2')"
-                            />
-                        </StepPanel>
+                <div class="installation-wizard__panels">
+                    <StepHealthCheck
+                        v-if="currentStep === 1"
+                        :installation-status="installationStatus"
+                        @next="goToStep(2)"
+                    />
 
-                        <StepPanel v-slot="{activateCallback}" value="2">
-                            <StepDatabase
-                                :db-init-loading="dbInitLoading"
-                                :db-init-success="dbInitSuccess"
-                                :db-init-error="dbInitError"
-                                @prev="activateCallback('1')"
-                                @next="dbInitSuccess ? activateCallback('3') : initDatabase()"
-                            />
-                        </StepPanel>
+                    <StepDatabase
+                        v-else-if="currentStep === 2"
+                        :db-init-loading="dbInitLoading"
+                        :db-init-success="dbInitSuccess"
+                        :db-init-error="dbInitError"
+                        @prev="goToStep(1)"
+                        @next="handleDatabaseNext"
+                    />
 
-                        <StepPanel v-slot="{activateCallback}" value="3">
-                            <StepSiteConfig
-                                v-model:site-config="siteConfig"
-                                :site-config-loading="siteConfigLoading"
-                                :site-config-error="siteConfigError"
-                                :field-errors="siteFieldErrors"
-                                :language-options="languageOptions"
-                                :license-options="licenseOptions"
-                                :env-settings="installationStatus?.envSettings || {}"
-                                @prev="activateCallback('2')"
-                                @next="saveSiteConfig(activateCallback)"
-                            />
-                        </StepPanel>
+                    <StepSiteConfig
+                        v-else-if="currentStep === 3"
+                        v-model:site-config="siteConfig"
+                        :site-config-loading="siteConfigLoading"
+                        :site-config-error="siteConfigError"
+                        :field-errors="siteFieldErrors"
+                        :language-options="languageOptions"
+                        :license-options="licenseOptions"
+                        :env-settings="installationStatus?.envSettings || {}"
+                        @prev="goToStep(2)"
+                        @next="saveSiteConfig(goToStep)"
+                    />
 
-                        <StepPanel v-slot="{activateCallback}" value="4">
-                            <StepAdminAccount
-                                v-model:admin-data="adminData"
-                                :admin-loading="adminLoading"
-                                :admin-error="adminError"
-                                :field-errors="adminFieldErrors"
-                                @prev="activateCallback('3')"
-                                @next="createAdmin(activateCallback)"
-                            />
-                        </StepPanel>
+                    <StepAdminAccount
+                        v-else-if="currentStep === 4"
+                        v-model:admin-data="adminData"
+                        :admin-loading="adminLoading"
+                        :admin-error="adminError"
+                        :field-errors="adminFieldErrors"
+                        @prev="goToStep(3)"
+                        @next="createAdmin(goToStep)"
+                    />
 
-                        <StepPanel v-slot="{activateCallback}" value="5">
-                            <StepExtraConfig
-                                v-model:extra-config="extraConfig"
-                                :extra-config-loading="extraConfigLoading"
-                                :extra-config-error="extraConfigError"
-                                :field-errors="extraFieldErrors"
-                                :env-settings="installationStatus?.envSettings || {}"
-                                @prev="activateCallback('4')"
-                                @skip="activateCallback('6')"
-                                @next="saveExtraConfig(activateCallback)"
-                            />
-                        </StepPanel>
+                    <StepExtraConfig
+                        v-else-if="currentStep === 5"
+                        v-model:extra-config="extraConfig"
+                        :extra-config-loading="extraConfigLoading"
+                        :extra-config-error="extraConfigError"
+                        :field-errors="extraFieldErrors"
+                        :env-settings="installationStatus?.envSettings || {}"
+                        @prev="goToStep(4)"
+                        @skip="goToStep(6)"
+                        @next="saveExtraConfig(goToStep)"
+                    />
 
-                        <StepPanel value="6">
-                            <StepComplete
-                                :finalize-loading="finalizeLoading"
-                                :finalize-success="finalizeSuccess"
-                                :finalize-error="finalizeError"
-                                :checklist-mode="installationMode"
-                                :follow-up-items="setupChecklist.later"
-                                @finalize="finalizeInstallation()"
-                                @go-to-admin="openAdminSettings()"
-                            />
-                        </StepPanel>
-                    </StepPanels>
-                </Stepper>
-            </template>
-        </Card>
+                    <StepComplete
+                        v-else-if="currentStep === 6"
+                        :finalize-loading="finalizeLoading"
+                        :finalize-success="finalizeSuccess"
+                        :finalize-error="finalizeError"
+                        :checklist-mode="installationMode"
+                        :follow-up-items="setupChecklist.later"
+                        @finalize="finalizeInstallation()"
+                        @go-to-admin="openAdminSettings()"
+                    />
+                </div>
+            </div>
+        </CaomeiCard>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Check } from '@lucide/vue'
+import { INSTALLATION_CHECKLIST_ICONS } from '@/components/installation/checklist-icons'
 import StepHealthCheck from '@/components/installation/step-health-check.vue'
 import StepDatabase from '@/components/installation/step-database.vue'
 import StepSiteConfig from '@/components/installation/step-site-config.vue'
@@ -211,32 +214,76 @@ const {
     finalizeInstallation,
     openAdminSettings,
 } = useInstallationWizard()
+
+const steps = [
+    { value: 1, labelKey: 'installation.steps.healthCheck' },
+    { value: 2, labelKey: 'installation.steps.database' },
+    { value: 3, labelKey: 'installation.steps.siteConfig' },
+    { value: 4, labelKey: 'installation.steps.adminAccount' },
+    { value: 5, labelKey: 'installation.steps.preview' },
+    { value: 6, labelKey: 'installation.steps.complete' },
+] as const
+
+/**
+ * 步骤切换。caomei 的 `CaomeiStepper` 用数字步号（1 基），由页面统一持有；
+ * `useInstallationWizard` 的保存动作以回调形式回到这里，避免组件内部反向持有步号语义。
+ */
+const goToStep = (step: number) => {
+    currentStep.value = step
+}
+
+/** 数据库步骤：初始化成功后进入下一步，否则先触发初始化。 */
+const handleDatabaseNext = () => {
+    if (dbInitSuccess.value) {
+        goToStep(3)
+        return
+    }
+
+    void initDatabase()
+}
 </script>
 
 <style scoped lang="scss">
 .installation-wizard {
     &__card {
-        background: var(--p-surface-0);
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+        /* 外壳样式全部交给 `CaomeiCard`：只通过它的覆盖钩子改圆角与阴影，
+         * 避免与库内 `.caomei-card--elevated` 的同特异性规则比拼加载顺序。 */
+        --caomei-card-radius: 1rem;
+        --caomei-card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
     }
 
     &__header {
+        /* `CaomeiCard` 的自定义 `#header` 外层是 flex 容器；不占满会把本块压缩成内容宽度，
+         * 标题 / 副标题随之左对齐（迁移前 PrimeVue 标题是居中的）。 */
+        flex: 1;
+        width: 100%;
         text-align: center;
-        padding: 2rem 2rem 1rem;
+
+        /* 迁移前标题与副标题各占一个 PrimeVue 插槽，两个插槽都带 `.installation-wizard__header`
+         * 的 `2rem` 内边距（外加 card body 的 1.5rem）；合并成单个 header 后按原总高还原。 */
+        padding: 3.5rem 1.5rem 1rem;
+    }
+
+    &__body {
+        padding: 0 1.5rem 1.5rem;
     }
 
     &__title {
         font-size: 2rem;
         font-weight: 700;
         color: var(--p-text-color);
-        margin: 0 0 0.5rem;
+
+        /* 0.5rem 标题下边距 + PrimeVue `.p-card-title` 的 1rem + 副标题插槽的 2rem 内边距。 */
+        margin: 0 0 3.5rem;
     }
 
     &__subtitle {
         font-size: 1rem;
+        line-height: 1.5;
         color: var(--p-text-muted-color);
-        margin: 0;
+
+        /* PrimeVue `.p-card-subtitle` 自带的行高与下边距，合并后需显式补回。 */
+        margin: 0 0 0.5rem;
     }
 
     &__quick-start {
@@ -328,6 +375,11 @@ const {
     }
 
     :deep(.form-field) {
+        /* caomei 的选择器 / 数字框默认带 20rem / 12rem 上限，迁移前 PrimeVue `fluid` 为 100%；
+         * token 在字段外层声明，靠继承落到 `.caomei-*-field`（写在组件标签上会静默无效）。 */
+        --caomei-select-max-width: 100%;
+        --caomei-input-number-max-width: 100%;
+
         display: grid;
         gap: 0.45rem;
         margin-bottom: 1rem;
@@ -361,13 +413,38 @@ const {
         line-height: 1.5;
     }
 
-    :deep(.p-tag) {
+    :deep(.caomei-tag) {
+        /* 迁移前 `.p-tag` 是 12px 字号 + 4px/8px 内边距（约 24px 高）；
+         * caomei 默认取控件高度档（36px），此处按 token 回落到原尺寸。 */
+        --caomei-tag-height: 1.5rem;
+        --caomei-tag-padding-x: 0.5rem;
+
         font-size: 0.75rem;
     }
 
-    .p-error {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
+    &__stepper {
+        margin-bottom: 1rem;
+    }
+
+    :deep(.caomei-stepper__separator) {
+        /* 分隔线取固定短长度，把剩余宽度让给标题区；默认 `flex: 1 1 auto`
+         * 会与触发器平分每步宽度，长标签被压成多行。 */
+        flex: 0 0 1rem;
+    }
+
+    :deep(.caomei-stepper__trigger) {
+        /* 6 步在 800px 容器内等分后每步约 120px，标题区约 60px；
+         * 允许换行并居中，避免长标签（日 / 韩语更长）溢出到相邻步骤。 */
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    :deep(.caomei-stepper__title) {
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1.3;
+        text-align: center;
     }
 
     :deep(.installation-wizard__step) {
@@ -435,10 +512,6 @@ const {
                 margin-bottom: 1rem;
                 font-weight: 600;
                 color: var(--p-primary-color);
-
-                i {
-                    font-size: 1.25rem;
-                }
             }
 
             &__content {
@@ -449,10 +522,6 @@ const {
                     font-size: 1.1rem;
                     font-weight: 500;
                     margin-bottom: 0.5rem;
-
-                    i {
-                        font-size: 1.25rem;
-                    }
                 }
 
                 .status-detail {
@@ -625,10 +694,6 @@ const {
 
 :global(.dark) {
     .installation-wizard {
-        &__card {
-            background: var(--p-surface-900);
-        }
-
         &__language-bar,
         &__setup-summary {
             background: color-mix(in srgb, var(--p-primary-900) 32%, var(--p-surface-900) 68%);

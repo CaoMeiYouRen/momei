@@ -3,17 +3,17 @@
         <h2>{{ $t('installation.complete.title') }}</h2>
         <p>{{ $t('installation.complete.description') }}</p>
 
-        <Message v-if="finalizeError" severity="error">
+        <CaomeiMessage v-if="finalizeError" tone="danger">
             {{ finalizeError }}
-        </Message>
-        <Message v-else-if="finalizeSuccess" severity="success">
+        </CaomeiMessage>
+        <CaomeiMessage v-else-if="finalizeSuccess" tone="success">
             {{ $t('installation.complete.success') }}
-        </Message>
+        </CaomeiMessage>
 
         <div v-if="finalizeSuccess" class="installation-wizard__complete">
-            <Message severity="warn">
+            <CaomeiMessage tone="warning">
                 {{ $t('installation.complete.envHint') }}
-            </Message>
+            </CaomeiMessage>
             <code class="env-code">MOMEI_INSTALLED=true</code>
 
             <div class="installation-wizard__follow-up">
@@ -29,7 +29,11 @@
                         @click="openChecklistLink(item)"
                     >
                         <span class="installation-wizard__follow-up-icon">
-                            <i :class="item.icon" />
+                            <component
+                                :is="INSTALLATION_CHECKLIST_ICONS[item.icon]"
+                                :size="18"
+                                aria-hidden="true"
+                            />
                         </span>
                         <span>
                             <strong>{{ $t(item.titleKey) }}</strong>
@@ -42,28 +46,34 @@
         </div>
 
         <div class="installation-wizard__actions">
-            <Button
+            <CaomeiButton
                 v-if="!finalizeSuccess"
                 :label="$t('installation.complete.finalize')"
-                icon="pi pi-check"
-                icon-pos="right"
                 :loading="finalizeLoading"
                 @click="onFinalize"
-            />
-            <Button
+            >
+                <template #icon>
+                    <Check :size="16" />
+                </template>
+                {{ $t('installation.complete.finalize') }}
+            </CaomeiButton>
+            <CaomeiButton
                 v-else
                 :label="$t('installation.complete.goToAdmin')"
-                icon="pi pi-arrow-right"
-                icon-pos="right"
                 @click="onGoToAdmin"
-            />
+            >
+                <template #icon>
+                    <ArrowRight :size="16" />
+                </template>
+                {{ $t('installation.complete.goToAdmin') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import Button from 'primevue/button'
-import Message from 'primevue/message'
+import { ArrowRight, Check } from '@lucide/vue'
+import { INSTALLATION_CHECKLIST_ICONS } from '@/components/installation/checklist-icons'
 import type { InstallationChecklistItem, InstallationChecklistMode } from '@/utils/shared/installation-checklist'
 
 const props = defineProps<{

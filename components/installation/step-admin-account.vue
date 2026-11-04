@@ -3,14 +3,14 @@
         <h2>{{ $t('installation.adminAccount.title') }}</h2>
         <p>{{ $t('installation.adminAccount.description') }}</p>
 
-        <Message
+        <CaomeiMessage
             v-if="adminError && !Object.keys(fieldErrors).length"
-            severity="error"
+            tone="danger"
             :closable="false"
             class="installation-wizard__step-message"
         >
             {{ adminError }}
-        </Message>
+        </CaomeiMessage>
 
         <div class="installation-wizard__form">
             <div class="form-field">
@@ -18,11 +18,10 @@
                     {{ $t('installation.adminAccount.name') }}
                     <span class="ml-1 text-error">*</span>
                 </label>
-                <InputText
+                <CaomeiInput
                     id="admin_name"
                     v-model="adminData.name"
                     :invalid="!!fieldErrors.name"
-                    fluid
                 />
                 <div v-if="fieldErrors.name" class="installation-wizard__field-error">
                     {{ fieldErrors.name }}
@@ -33,11 +32,10 @@
                     {{ $t('installation.adminAccount.email') }}
                     <span class="ml-1 text-error">*</span>
                 </label>
-                <InputText
+                <CaomeiInput
                     id="admin_email"
                     v-model="adminData.email"
                     :invalid="!!fieldErrors.email"
-                    fluid
                 />
                 <div v-if="fieldErrors.email" class="installation-wizard__field-error">
                     {{ fieldErrors.email }}
@@ -48,12 +46,11 @@
                     {{ $t('installation.adminAccount.password') }}
                     <span class="ml-1 text-error">*</span>
                 </label>
-                <Password
+                <CaomeiPassword
                     id="admin_password"
                     v-model="adminData.password"
-                    :toggle-mask="true"
+                    :feedback="true"
                     :invalid="!!fieldErrors.password"
-                    fluid
                 />
                 <div v-if="fieldErrors.password" class="installation-wizard__field-error">
                     {{ fieldErrors.password }}
@@ -62,24 +59,33 @@
         </div>
 
         <div class="installation-wizard__actions">
-            <Button
+            <CaomeiButton
+                variant="ghost"
                 :label="$t('common.prev')"
-                icon="pi pi-arrow-left"
-                variant="text"
                 @click="$emit('prev')"
-            />
-            <Button
+            >
+                <template #icon>
+                    <ArrowLeft :size="16" />
+                </template>
+                {{ $t('common.prev') }}
+            </CaomeiButton>
+            <CaomeiButton
                 :label="$t('common.next')"
-                icon="pi pi-arrow-right"
-                icon-pos="right"
                 :loading="adminLoading"
                 @click="$emit('next')"
-            />
+            >
+                <template #icon>
+                    <ArrowRight :size="16" />
+                </template>
+                {{ $t('common.next') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ArrowLeft, ArrowRight } from '@lucide/vue'
+
 const adminData = defineModel<any>('adminData', { required: true })
 defineProps<{
     adminLoading: boolean

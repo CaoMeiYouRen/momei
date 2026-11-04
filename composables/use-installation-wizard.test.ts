@@ -193,7 +193,7 @@ describe('useInstallationWizard', () => {
             method: 'POST',
             body: wizard.siteConfig.value,
         })
-        expect(activateStep).toHaveBeenCalledWith('4')
+        expect(activateStep).toHaveBeenCalledWith(4)
         expect(wizard.siteConfigLoading.value).toBe(false)
         expect(wizard.siteFieldErrors.value).toEqual({})
     })
@@ -234,8 +234,8 @@ describe('useInstallationWizard', () => {
         await wizard.createAdmin(activateAdminStep)
         await wizard.saveExtraConfig(activateExtraStep)
 
-        expect(activateAdminStep).toHaveBeenCalledWith('5')
-        expect(activateExtraStep).toHaveBeenCalledWith('6')
+        expect(activateAdminStep).toHaveBeenCalledWith(5)
+        expect(activateExtraStep).toHaveBeenCalledWith(6)
         expect(wizard.extraConfigError.value).toBe('installation.preview.error')
         expect(wizard.extraFieldErrors.value).toEqual({})
     })

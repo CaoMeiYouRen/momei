@@ -3,14 +3,14 @@
         <h2>{{ $t('installation.siteConfig.title') }}</h2>
         <p>{{ $t('installation.siteConfig.description') }}</p>
 
-        <Message
+        <CaomeiMessage
             v-if="siteConfigError && !Object.keys(fieldErrors).length"
-            severity="error"
+            tone="danger"
             :closable="false"
             class="installation-wizard__step-message"
         >
             {{ siteConfigError }}
-        </Message>
+        </CaomeiMessage>
 
         <div class="installation-wizard__form">
             <div class="form-field">
@@ -23,12 +23,11 @@
                         :env-setting="envSettings[settingKeys.siteTitle]"
                     />
                 </label>
-                <InputText
+                <CaomeiInput
                     id="site_title"
                     :model-value="localizedFieldValues.siteTitle"
                     :disabled="isLocked(settingKeys.siteTitle)"
                     :invalid="!!fieldErrors.siteTitle"
-                    fluid
                     @update:model-value="updateLocalizedField('siteTitle', $event)"
                 />
                 <small v-if="fieldErrors.siteTitle" class="installation-wizard__field-error">{{ fieldErrors.siteTitle }}</small>
@@ -44,15 +43,14 @@
                         :env-setting="envSettings[settingKeys.defaultLanguage]"
                     />
                 </label>
-                <Select
+                <CaomeiSelect
                     id="default_language"
-                    v-model="siteConfig.defaultLanguage"
+                    v-model="defaultLanguageModel"
                     :options="languageOptions"
                     option-label="label"
                     option-value="value"
                     :disabled="isLocked(settingKeys.defaultLanguage)"
                     :invalid="!!fieldErrors.defaultLanguage"
-                    fluid
                 />
                 <div v-if="fieldErrors.defaultLanguage" class="installation-wizard__field-error">
                     {{ fieldErrors.defaultLanguage }}
@@ -68,13 +66,12 @@
                         :env-setting="envSettings[settingKeys.siteUrl]"
                     />
                 </label>
-                <InputText
+                <CaomeiInput
                     id="site_url"
                     v-model="siteConfig.siteUrl"
                     :placeholder="$t('installation.siteConfig.siteUrlPlaceholder')"
                     :disabled="isLocked(settingKeys.siteUrl)"
                     :invalid="!!fieldErrors.siteUrl"
-                    fluid
                 />
                 <div v-if="fieldErrors.siteUrl" class="installation-wizard__field-error">
                     {{ fieldErrors.siteUrl }}
@@ -90,13 +87,12 @@
                         :env-setting="envSettings[settingKeys.siteDescription]"
                     />
                 </label>
-                <Textarea
+                <CaomeiTextarea
                     id="site_description"
                     :model-value="localizedFieldValues.siteDescription"
-                    rows="3"
+                    :rows="3"
                     :disabled="isLocked(settingKeys.siteDescription)"
                     :invalid="!!fieldErrors.siteDescription"
-                    fluid
                     @update:model-value="updateLocalizedField('siteDescription', $event)"
                 />
                 <div v-if="fieldErrors.siteDescription" class="installation-wizard__field-error">
@@ -113,12 +109,11 @@
                         :env-setting="envSettings[settingKeys.siteKeywords]"
                     />
                 </label>
-                <InputText
+                <CaomeiInput
                     id="site_keywords"
                     :model-value="localizedFieldValues.siteKeywords"
                     :disabled="isLocked(settingKeys.siteKeywords)"
                     :invalid="!!fieldErrors.siteKeywords"
-                    fluid
                     @update:model-value="updateLocalizedField('siteKeywords', $event)"
                 />
                 <div v-if="fieldErrors.siteKeywords" class="installation-wizard__field-error">
@@ -135,15 +130,14 @@
                         :env-setting="envSettings[settingKeys.postCopyright]"
                     />
                 </label>
-                <Select
+                <CaomeiSelect
                     id="post_copyright"
-                    v-model="siteConfig.postCopyright"
+                    v-model="postCopyrightModel"
                     :options="licenseOptions"
                     option-label="label"
                     option-value="value"
                     :disabled="isLocked(settingKeys.postCopyright)"
                     :invalid="!!fieldErrors.postCopyright"
-                    fluid
                 />
                 <div v-if="fieldErrors.postCopyright" class="installation-wizard__field-error">
                     {{ fieldErrors.postCopyright }}
@@ -159,12 +153,11 @@
                         :env-setting="envSettings[settingKeys.siteCopyrightOwner]"
                     />
                 </label>
-                <InputText
+                <CaomeiInput
                     id="site_copyright_owner"
                     :model-value="localizedFieldValues.siteCopyrightOwner"
                     :disabled="isLocked(settingKeys.siteCopyrightOwner)"
                     :invalid="!!fieldErrors.siteCopyrightOwner"
-                    fluid
                     @update:model-value="updateLocalizedField('siteCopyrightOwner', $event)"
                 />
                 <div v-if="fieldErrors.siteCopyrightOwner" class="installation-wizard__field-error">
@@ -181,12 +174,11 @@
                         :env-setting="envSettings[settingKeys.siteCopyrightStartYear]"
                     />
                 </label>
-                <InputText
+                <CaomeiInput
                     id="site_copyright_start_year"
                     v-model="siteConfig.siteCopyrightStartYear"
                     :disabled="isLocked(settingKeys.siteCopyrightStartYear)"
                     :invalid="!!fieldErrors.siteCopyrightStartYear"
-                    fluid
                 />
                 <div v-if="fieldErrors.siteCopyrightStartYear" class="installation-wizard__field-error">
                     {{ fieldErrors.siteCopyrightStartYear }}
@@ -196,24 +188,32 @@
         </div>
 
         <div class="installation-wizard__actions">
-            <Button
+            <CaomeiButton
+                variant="ghost"
                 :label="$t('common.prev')"
-                icon="pi pi-arrow-left"
-                variant="text"
                 @click="$emit('prev')"
-            />
-            <Button
+            >
+                <template #icon>
+                    <ArrowLeft :size="16" />
+                </template>
+                {{ $t('common.prev') }}
+            </CaomeiButton>
+            <CaomeiButton
                 :label="$t('common.next')"
-                icon="pi pi-arrow-right"
-                icon-pos="right"
                 :loading="siteConfigLoading"
                 @click="$emit('next')"
-            />
+            >
+                <template #icon>
+                    <ArrowRight :size="16" />
+                </template>
+                {{ $t('common.next') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ArrowLeft, ArrowRight } from '@lucide/vue'
 import { resolveInstallationEnvLockMessage, type InstallationEnvSetting } from '@/utils/shared/installation-env-setting'
 import {
     INSTALLATION_SITE_SETTING_KEYS,
@@ -224,6 +224,7 @@ import {
     type InstallationSiteFieldErrors,
 } from '@/utils/shared/installation-settings'
 import type { CopyrightLicenseOption } from '@/utils/shared/copyright-options'
+import type { AdminLanguageCode } from '@/types/setting'
 
 const siteConfig = defineModel<InstallationSiteConfigModel>('siteConfig', { required: true })
 const props = defineProps<{
@@ -245,6 +246,24 @@ const localizedFieldValues = computed<Record<InstallationLocalizedSiteFieldKey, 
     siteKeywords: resolveInstallationLocalizedSiteFieldInputValue('siteKeywords', siteConfig.value.siteKeywords, locale.value),
     siteCopyrightOwner: resolveInstallationLocalizedSiteFieldInputValue('siteCopyrightOwner', siteConfig.value.siteCopyrightOwner, locale.value),
 }))
+
+const defaultLanguageModel = computed({
+    get: () => siteConfig.value.defaultLanguage,
+    set: (value: string | number | null | undefined) => {
+        if (typeof value === 'string') {
+            siteConfig.value.defaultLanguage = value as AdminLanguageCode
+        }
+    },
+})
+
+const postCopyrightModel = computed({
+    get: () => siteConfig.value.postCopyright,
+    set: (value: string | number | null | undefined) => {
+        if (typeof value === 'string') {
+            siteConfig.value.postCopyright = value as InstallationSiteConfigModel['postCopyright']
+        }
+    },
+})
 
 const isLocked = (key: string) => !!props.envSettings[key]
 const getLockMessage = (key: string) => resolveInstallationEnvLockMessage(t, key, props.envSettings[key])

@@ -260,6 +260,45 @@ const ADMIN_NOTIFICATIONS_ROUTE_SCOPE = {
     inScopeComponents: ['Card', 'DatePicker'],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 安装向导 `/installation` 的迁移范围。
+ *
+ * - 页面为容器（步骤编排 + 表单状态），实体分散在 `components/installation/` 的 6 个步骤组件、
+ *   1 个字段状态组件（`field-status.vue`）与 1 个清单图标映射（`checklist-icons.ts`）；都必须登记，
+ *   否则「在册族零残留」只扫页面、组件会被静默漏扫。
+ * - `inScopeComponents`（路由级在册族增量）：`Stepper` 族与 `Accordion` 族均为首次生产迁移，
+ *   外加展示 / 表单族 `Card` / `Message` / `Password` / `Textarea` / `InputNumber` / `ProgressSpinner`。
+ */
+const INSTALLATION_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/installation/checklist-icons.ts',
+        'components/installation/field-status.vue',
+        'components/installation/step-admin-account.vue',
+        'components/installation/step-complete.vue',
+        'components/installation/step-database.vue',
+        'components/installation/step-extra-config.vue',
+        'components/installation/step-health-check.vue',
+        'components/installation/step-site-config.vue',
+    ],
+    inScopeComponents: [
+        'Stepper',
+        'StepList',
+        'Step',
+        'StepPanels',
+        'StepPanel',
+        'Accordion',
+        'AccordionPanel',
+        'AccordionHeader',
+        'AccordionContent',
+        'Card',
+        'Message',
+        'Password',
+        'Textarea',
+        'InputNumber',
+        'ProgressSpinner',
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -297,6 +336,8 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/settings', ...ADMIN_SETTINGS_ROUTE_SCOPE },
     // 通知管理：页面 + 共享投递日志列表。
     { prefix: '/admin/notifications', ...ADMIN_NOTIFICATIONS_ROUTE_SCOPE },
+    // 安装向导：容器页 + 6 个步骤组件 + 字段状态 + 清单图标映射（Stepper / Accordion 族首次生产迁移）。
+    { prefix: '/installation', ...INSTALLATION_ROUTE_SCOPE },
 ]
 
 /**
