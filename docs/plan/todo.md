@@ -33,11 +33,12 @@
     - 验收标准：在册族零残留守卫与过渡组件守卫通过；parity 新增 `admin-settings-form` / `admin-settings-theme` / `admin-notifications-list`，未归因差异为 0，差异逐项归因；`tests/pages/admin/settings/{index,theme}.test.ts` 断言改写后通过；`/admin/settings` 视觉基线按迁移后重采。
     - 证据落点：回归记录条目 2 三个窗口、「文件 → 改动点 → 依据指针」清单（按迁移方案 §8.5）、parity 预算条目与 `note`。
     - 进度：**已完成**（2026-11-03 ~ 2026-11-04）。2a 设置主体 25 文件 + 3 个适配层；2b 主题工作台 6 文件（子路由改 `migratedSubRoutes`）；2c 通知管理 2 文件（`DatePicker` 首个生产用法）。
-- [ ] **3. B3-C 安装向导整路由迁移**
-    - 执行范围：`Stepper` 族（Stepper / StepList / Step / StepPanels / StepPanel）、`Accordion` 族、`Password`、`Message` 整批迁移；`pages/installation.vue` 的 21 处 `:deep()` 复核（其中 1 处 `:deep(.p-tag)` 需改写为 caomei 契约，其余为页面自有类选择器）；E2E 改为强制未安装态的五步流程断言。
+- [x] **3. B3-C 安装向导整路由迁移**
+    - 执行范围：`Stepper` 族（Stepper / StepList / Step / StepPanels / StepPanel）、`Accordion` 族、`Password`、`Message` 整批迁移；`pages/installation.vue` 的 21 处 `:deep()` 复核（其中 1 处 `:deep(.p-tag)` 需改写为 caomei 契约，其余为页面自有类选择器）；E2E 改为强制未安装态的六步真实流程断言（含步骤头 `linear` 不可前跳）。
     - 非目标：不改服务端安装逻辑 / API / 中间件；不做真实安装环境改造；`--p-*` token 消费点仍留待 B4 统一清理（仅新增样式不得引入 `--p-*`）。
-    - 验收标准：未安装态 server 下视觉基线与 parity 双绿；安装五步 E2E 通过；`:deep()` 对 `.p-*` 的依赖归零。
+    - 验收标准：未安装态 server 下视觉基线与 parity 双绿；安装六步真实流程 E2E 2/2 通过（含步骤头不可前跳）；`:deep()` 对 `.p-*` 的依赖归零。
     - 证据落点：回归记录条目 3 窗口、第三条 parity 路由预算、E2E 运行记录。
+    - 进度：**已完成**（2026-11-04）。页面 + 6 个步骤组件 + 1 个字段状态组件（共 87 处）；`Stepper` / `Accordion` 族首次生产迁移；E2E 改未安装态六步真实流程（含第二 webServer + 步骤头不可前跳断言）；基线层补 2 张、parity 55/55。
 - [ ] **4. B3-D 用户设置与认证 / 提交页整路由迁移（首次启用 reader 档）**
     - 执行范围：`/settings` 页面 + `components/settings/` 6 个组件（5 个由条件 Tab 消费，`notification-history-list` 内嵌于通知面板；`FileUpload` / `ProgressSpinner` / `ToggleButton` / `Checkbox`；验证 `AppUploaderV2` / `AppAvatarV2` 在该路由登记后自动切换）+ `login` / `register` / `forgot-password` / `reset-password` / `submit` 与 `components/auth-card.vue`（`Card` / `Message` / `fluid` 删除 / `severity→tone`）；`reader` 档首次启用并按实测校准预算。
     - 非目标：不改认证 / 注册 / 投稿业务逻辑与字段；不改服务端限流与校验。

@@ -226,81 +226,6 @@
 - `pnpm test:visual`（基线层）未重跑：本批未改动基线层配置与快照。
 <!-- regression-window:end:phase70-parity-harness:第七十阶段条目 1b/1c 门禁扩面与参考态采集:2026-11-03 -->
 
-<!-- regression-window:start:phase70-item-2a:第七十阶段条目 2a 管理端设置主体迁移:2026-11-03 -->
-## 2026-11-03 第七十阶段条目 2a 管理端设置主体迁移（`/admin/settings`）
-
-### 范围
-
-`/admin/settings` 整路由迁移到 caomei-ui：设置页 + 23 个设置组件 + 共享保存条 `admin-floating-actions`（共 25 个修改文件），另新增 3 个字段适配层。按 HEAD 口径合计 **341 处** PrimeVue（27 个 `ownedFiles` 310 处 + 页面 31 处）。本批不含主题工作台（2b）与 `/admin/notifications`（2c）。
-
-### 组件映射与处置
-
-| PrimeVue | caomei | 说明 / 差异 |
-| :--- | :--- | :--- |
-| `InputText` / `Password` / `Textarea` | `CaomeiInput` / `CaomeiPassword` / `CaomeiTextarea` | 经 3 个薄适配层（`setting-{input,password,textarea}.vue`）做 `null → ''` 归一；删除 `fluid`、`:toggle-mask`；`rows="N"` → `:rows="N"` |
-| `InputNumber` | `CaomeiInputNumber` | 删除 `fluid`；字符串型值经 `Number()` 归一 |
-| `Select` / `MultiSelect` | `CaomeiSelect` / `CaomeiMultiSelect` | 删除 `fluid` / `append-to`；**字符串数组选项映射为 `{ label, value }`**（5 处） |
-| `ToggleSwitch` | `CaomeiSwitch` | 行为一致（布尔 v-model） |
-| `Divider` / `Card` / `Message` | `CaomeiDivider` / `CaomeiCard` / `CaomeiMessage` | `Card` 的 `#content` → 默认插槽；`Message` 的 `severity` → `tone`，`info` → `primary` |
-| `Tag` | `CaomeiTag` | `severity` → `tone`（`warn`→`warning`、`secondary` → `neutral`、`info` → `primary`），可见文案改默认插槽 |
-| `Button` | `CaomeiButton` | 可见文案写默认插槽、`label` 仅作可访问名；图标改 `#icon` + `@lucide/vue`；`outlined/text/severity` → `variant` / `tone` |
-| `DataTable` + `Column` | `CaomeiDataTable` + `columns` prop + `#cell-*` | 无 `#header` 插槽，表头内容移到表格上方；`@page` 由 0 基改 1 基 |
-| `Tabs` 族 | `CaomeiTabs` / `CaomeiTabList` / `CaomeiTabTrigger` / `CaomeiTabContent` | `v-model:value` → `v-model`；`TabPanels` 由 `TabContent` 直接承接 |
-| `Accordion` 族 | `CaomeiAccordion` + `CaomeiAccordionItem` | `title` + 默认插槽；`default-value` 保持默认展开 |
-| `Image` | `CaomeiImage` | `width="48"` → `style="width: 48px"`（无 width prop） |
-| `AppUploader`（V1） | `AppUploaderV2` | 路由已登记，按事实源渲染 caomei 版（字段行为共用） |
-
-### 路由守卫与文件
-
-- `lib/ui-library.ts` 新增 `/admin/settings` scope：27 个 `ownedFiles` + 路由级在册族增量（`Password` / `InputNumber` / `Textarea` / `Card` / `Message` / `Divider` / `Image` / `MultiSelect` / `Accordion` 族 / `Tabs` 族）。
-- `/admin/settings/theme` 登记为 `primeVueSubRoutes` 例外（条目 2b 前仍为 PrimeVue）。
-- 迁移后 2a 文件集 PrimeVue 开口标签 **0 处**；在册族与过渡组件守卫 **63/63**。
-
-### 关键结论（实施期发现）
-
-1. **Nuxt 组件名带目录前缀**：新增的 `components/admin/settings/setting-*.vue` 自动导入名为 `AdminSettingsSettingInput`，模板里写 `<SettingInput>` 会**静默解析为未知元素**（不报错、不渲染）。首轮视觉采集因此拍到了缺控件的页面（设置表单差异 62,534px），修正为显式 import 后重采（64,028px）。已写入迁移方案 §6.2 执行提示 5。
-2. **可空字段与新库类型不兼容**：caomei 字段组件 `modelValue` 只收 `string | undefined`，设置项通用类型含 `null`；适配层只做边界归一，避免 200+ 处重复回写。
-3. **字符串选项数组**：PrimeVue `Select` 接受 `string[]`，caomei 只接受对象数组；5 处改为 `{ label, value }` 并把 `option-label` / `option-value` 显式声明。
-4. 迁移后**设置内容区**已无 PrimeVue 控件（结构抽查：15 inputs / 7 switches / 0 个 `.p-inputtext` / 0 个 `.p-button`）；页面级仍会出现 `.p-button`，来源于全局布局 `AppHeader`（不在本路由 scope 内）。
-
-### 审核修复（Review Gate Round 1 的 warning / suggest）
-
-| 编号 | 问题 | 处置 |
-| :--- | :--- | :--- |
-| W1 | `general-settings.vue` 的两处 `::rows` 拼写使 `rows` prop 丢失（回落默认值） | 改回 `:rows` |
-| W2 | `external-feed-sources-editor.vue` 用 `:input-id`（PrimeVue 契约），caomei 只认 `id`，7 个 label 关联断链 | 统一改 `:id` |
-| W3 | `show-buttons` 残留 11 处（caomei 为 `controls`）；且未声明时 caomei 默认显示步进按钮，与迁移前不一致 | 删除 `show-buttons`；按 HEAD 版本比对，对原本无步进按钮的 21 个 `InputNumber` 显式 `:controls="false"` |
-| W4 | `setting-audit-log-list.vue` 的 `:deep(.p-datatable-tbody …)` 已成死选择器 | 改为 `:deep(.caomei-data-table__td)` |
-| W5 | 主题工作台子路由存在「caomei 保存条 + PrimeVue 页面体」混用 | 在 `lib/ui-library.ts` 的子路由例外理由中显式登记；该提前迁移给 `admin-settings-theme` 带来 parity 实测 **1,492px / 0.115%**（light）与 **1,457px / 0.112%**（dark）的未归因增量（低于 admin 档 3,000px 阈值而 PASS），待 2b 整页迁移时归因或吸收 |
-| W6 | 协议操作按钮的 `:title` 提示（限制原因）在迁移后丢失 | 5 个图标按钮补回 `:title` |
-| S1 | 3 个适配层无直接单测 | 新增 `setting-field-adapters.test.ts`（6 例：null/数字归一、string 回写、属性透传） |
-| S2/S3 | 路由登记无防静默移除钉子、`lib/ui-library.ts` 子路由注释过期 | `lib/ui-library.test.ts` 补 `/admin/settings` 断言；注释补第三条子路由 |
-| S4 | 部分测试 stub 与新契约漂移 | `CaomeiTag` 改默认插槽；`CaomeiAccordionItem` 补 `title` 并移除已不存在的 Header/Content stub；`general-settings` 的 `AppUploader` stub 改 `AppUploaderV2` |
-| S5 | `CaomeiMultiSelect` 上的 `display="chip"` 无对应 prop | 删除（3 处） |
-| S6 | 新增注释含规划编号 | 保留（本仓库既有同型写法，后续统一），不阻塞 |
-| S7 | `agreements-settings.vue` 已 776 行（限 800） | 登记为 2b / 收口前的拆分候选，不在本批处置 |
-
-修复后复跑：设置组件 22 files / 55 tests、页面 8/8、守卫双测试 63/63、`lib/ui-library.test.ts` 13/13（合计 **139/139**）、`typecheck` 0 error、`eslint`（设置目录 / 守卫 / 测试）0 error。
-
-### 验证结果
-
-- `pnpm test`：**582 files passed / 1 skipped（583）**、**5,153 passed / 1 skipped（5,154）**，EXIT 0（新增适配层单测 1 个文件 / 6 例）。
-- `pnpm typecheck` 0 error；`pnpm lint`（设置目录）0 error 0 warning。
-- `pnpm test:visual`：**18/18**；4 张基线按迁移后观感重采（`admin-settings-form` 浅/深 + `admin-agreements-dialog` 浅/深）。
-- `pnpm test:visual:parity`：**55/55**；`admin-settings-form-light` 64,028px / 4.940%、`admin-settings-form-dark` 91,926px / 7.093%，按区域登记允许清单后未归因 **0px**（light 2 区域 / dark 4 区域）。
-- 页面单测 `tests/pages/admin/settings/{index,theme}.test.ts` 8/8；设置组件单测 **22 files / 55 tests**（含适配层 6 例；stub 与选择器改到 caomei 契约，未放宽断言）。
-
-### 未覆盖边界
-
-- 主题工作台（`/admin/settings/theme`）与 `/admin/notifications` 仍未迁移，分别留条目 2b / 2c。
-- `Message` 的 `variant` 维度未使用（仅 `tone`）；`Tag` 的 `selectable` / `closable` 在设置页零用量。
-- 适配层只覆盖 `Input` / `Password` / `Textarea`；`Select` 的回写仍可能给出 `number`（已在使用处按字符串处理）。
-- 截图仅覆盖「常规」标签页与协议弹窗；其余标签页依赖单测 + 结构抽查，未逐页截图。
-- 全量 parity 首次复跑时 `user-settings-dark` 出现 `page.goto` 60s 超时；单条复跑 2/2、全量复跑 **55/55**（9.4 分钟）通过，判定为运行期资源竞争导致的偶发（与本批改动无关联），保留观察。
-- **低于门禁阈值的暗色整列背景变化**：深色设置内容列背景由 `rgb(2,6,23)` 变为 `rgb(12,16,32)`（Δ≤10/通道，约 46 万像素），未达到 pixelmatch 阈值（`0.2` → YIQ 平方距离 ≈1,409，实测 ≈60），因此不进入未归因统计。该变化由 `CaomeiCard` / `CaomeiTabs` 的容器 token 引起，属本批有意观感差异，登记为已知项（若后续 token 继续漂移只有超过阈值才会报警）。
-- 逐文件「文件 → 改动点 → 依据指针」清单在条目 2 收口（2a/2b/2c 合并）时按迁移方案 §8.5 统一产出；本窗口已给出组件族映射表与文件集口径。
-<!-- regression-window:end:phase70-item-2a:第七十阶段条目 2a 管理端设置主体迁移:2026-11-03 -->
-
 <!-- regression-window:start:phase70-item-2b:第七十阶段条目 2b 主题工作台迁移:2026-11-04 -->
 ## 2026-11-04 第七十阶段条目 2b 主题工作台迁移（`/admin/settings/theme`）
 
@@ -420,3 +345,93 @@ Round 2 追加修复（复审 Reject 两项）：
 - 该路由没有基线层用例（与既有 admin 列表页一致），像素守线由 parity 承担。
 - 已知样式债：时间列的 `headerClass` / `bodyClass` 由 `CaomeiDataTable` 内部节点承载，父组件 scoped 选择器无法命中（`min-width: 12rem` 实际未生效）；`setting-audit-log-list.vue` 同型。属迁移前既有机制问题、无行为回归，随 B4 的选择器 / token 清理统一改为 `:deep()` 或全局 utility class。
 <!-- regression-window:end:phase70-item-2c:第七十阶段条目 2c 通知管理迁移:2026-11-04 -->
+
+<!-- regression-window:start:phase70-item-3:第七十阶段条目 3 安装向导迁移:2026-11-04 -->
+## 2026-11-04 第七十阶段条目 3 安装向导整路由迁移（`/installation`）
+
+### 范围
+
+`/installation` 整路由迁移到 caomei-ui：容器页 `pages/installation.vue` + `components/installation/` 的 7 个组件（6 个步骤 + 字段状态），按 HEAD 口径合计 **87 处** PrimeVue（页面 17 + 组件 70）。`Stepper` 族与 `Accordion` 族均为首次生产迁移。
+
+同时把 E2E 从「已安装即通过」的弱断言改为**未安装态实例上的六步真实流程**（健康检查 → 初始化数据库 → 站点配置 → 管理员 → 可选功能 → 完成安装），并为基线层补齐 `/installation` 的两张截图。
+
+### 组件映射与处置
+
+| PrimeVue | caomei | 说明 / 差异 |
+| :--- | :--- | :--- |
+| `Card` | `CaomeiCard` | `#title` / `#subtitle` 两个插槽合并为单个 `#header`（caomei 无 `subtitle` 插槽）；外壳样式改走 `--caomei-card-*` 覆盖钩子；header 需 `flex: 1; width: 100%`（外层是 flex 容器） |
+| `Stepper` / `StepList` / `Step` / `StepPanels` / `StepPanel` | `CaomeiStepper` / `CaomeiStepperList` / `CaomeiStepperItem` / `CaomeiStepperTrigger` / `CaomeiStepperIndicator` / `CaomeiStepperTitle` / `CaomeiStepperSeparator` | **caomei 无面板容器**：步骤内容改为页面内 `v-if="currentStep === N"`；`v-model` 由字符串步号改为数字（1 基）；`activateCallback` 改为页面的 `goToStep` 回调；`CaomeiStepperItem` 需 `:disabled="item.value !== currentStep"` 才能复刻 PrimeVue `linear` 的「仅当前步可点」 |
+| `Accordion` / `AccordionPanel` / `AccordionHeader` / `AccordionContent` | `CaomeiAccordion` + `CaomeiAccordionItem` | `multiple` → `type="multiple"`；`title` prop + 默认插槽（无 Header / Content 组件）；显式 `:unmount-on-hide="false"`（PrimeVue 非 lazy 用 `v-show` 保留折叠内容） |
+| `InputText` / `Textarea` / `Password` | `CaomeiInput` / `CaomeiTextarea` / `CaomeiPassword` | 删除 `fluid`；`rows="N"` → `:rows="N"`；`toggle-mask` 由内建显示 / 隐藏按钮承接。**有意差异**：管理密码保留 `:feedback`（PrimeVue 默认开启强度条），`ai_api_key` / `email_pass` / `s3_key` / `s3_secret` 四处按 caomei 默认关闭强度条（密钥字段无意义） |
+| `InputNumber` | `CaomeiInputNumber` | 删除 `fluid`；显式 `:controls="false"`；宽度上限由字段外层 `--caomei-input-number-max-width: 100%` 复位 |
+| `Select` | `CaomeiSelect` | **字符串选项数组改为 `{ label, value }`**；`AdminLanguageCode` / `CopyrightType` 用 computed 收窄回写类型；宽度上限由 `--caomei-select-max-width: 100%` 复位 |
+| `Message` | `CaomeiMessage` | `severity` → `tone`：`error`→`danger`、`success`→`success`、`warn`→`warning` |
+| `Tag` | `CaomeiTag` | `severity="contrast"` → `tone="neutral"`，文案改默认插槽；高度按 token 回落 36 → 24px 以保持迁移前观感 |
+| `Button` | `CaomeiButton` | 文案入默认插槽、图标走 `#icon` + lucide；`text` → `variant="ghost"`、`severity="secondary"` → `variant="secondary"` |
+| `ProgressSpinner` | `CaomeiProgressSpinner` | `style="width:50px;height:50px"` → `size="lg"` + `--caomei-progress-spinner-size: 50px` |
+| PrimeIcons `<i class="pi pi-*">` | `@lucide/vue` | 状态图标（对勾 / 叉 / 警告）、卡片头图标与 14 个安装清单图标全部换源 |
+
+### 守卫与门禁
+
+- `lib/ui-library.ts` 新增 `/installation` scope：6 个步骤组件 + 1 个字段状态组件 + 1 个清单图标映射共 **8 条 `ownedFiles`**；路由级在册族增量 = `Stepper` 族 / `Accordion` 族 / `Card` / `Message` / `Password` / `Textarea` / `InputNumber` / `ProgressSpinner`。
+- 迁移后该路由 PrimeVue 开口标签 **0 处**，页面内 `:deep()` 不再依赖任何 `.p-*` 类。
+- **E2E 第二个 webServer**（端口 3002）：`MOMEI_INSTALLED=false` + `TEST_MODE=false` + `DATABASE_PATH=:memory:` + `DATABASE_SYNCHRONIZE=true`（内存库需建表，否则 `init-db` 直接 500）；新增 `installation` project（chromium 单实例），三个主 project 的 `testIgnore` 排除该 spec。env / command / baseURL 由 `tests/helpers/playwright-servers.ts` 统一提供给 e2e、基线层与门禁层三份配置。
+- **基线层也接入第二实例**：`playwright.visual.config.ts` 增加同源 webServer / project，`tests/visual/installation.visual.test.ts` 用固定 status mock 采集浅 / 深两张基线，并补 4 条结构断言（6 个步骤项、概览 `Tag` 24px、卡片无横向溢出、标题中心与卡片中心 ≤2px）。
+
+### 关键结论（实施期发现）
+
+1. **`CaomeiStepper` 没有面板容器**：PrimeVue 的 `StepPanels` / `StepPanel` 在 caomei 侧不存在，内容必须由页面按 `modelValue` 自行渲染；「步骤内容懒挂载」语义也从库内转移到页面（`v-if`）。
+2. **步号类型不同**：PrimeVue 用字符串（`'1'`），caomei 用数字（1 基）。`useInstallationWizard` 的 `currentStep` 与保存回调签名一并改为 `number`。
+3. **`linear` 只拦 `goToStep`**：Reka 允许点击「下一步」头直接切换，必须给 `CaomeiStepperItem` 加 `:disabled`，否则可绕过步骤 1 的阻断项与步骤 2 的初始化。
+4. **标题区高度是「两个插槽叠加」的结果**：迁移前 `#title` 与 `#subtitle` 各带一份 `2rem` 内边距，合并成单 header 后若只保留一份，整页内容会整体上移 60px；已按原总高还原（`3.5rem` 顶部 + 标题下 `3.5rem`）。
+5. **`CaomeiCard` 的 `#header` 外层是 flex 容器**：自定义 header 不设 `flex: 1 / width: 100%` 会被压成内容宽度（实测 304px），标题从左对齐变成「居中」的假象消失又复现——本批先出现、后修复。
+6. **步骤条在 800px 容器内是紧凑布局**：6 步等分后每步约 120px，`StepperItem` 内含分隔线。分隔线用默认 `flex:1` 会与触发器平分宽度、把标题压成多行；改为固定 `1rem` 并把剩余宽度让给触发器。
+7. **`Tag` 默认取控件高度档（36px）**，迁移前 `.p-tag` 约 24px；不回落会让概览区整体高 12px。
+8. **caomei 字段默认带宽带上限**：`Select` 20rem / `InputNumber` 12rem，迁移前 `fluid` 为 100%；须在字段外层用 token 复位（写在组件标签上会静默无效）。
+9. **内存库必须开 `DATABASE_SYNCHRONIZE`**：未安装态实例关闭 `TEST_MODE` 后不再跑种子，`synchronize` 也随之关闭，`/api/install/init-db` 会因缺表返回 500。
+10. **同名可访问名**：完成步骤的步骤条触发器与主按钮都叫「完成安装」，E2E 必须限定 `.installation-wizard__panels` 作用域。
+11. **跨路由共享壳仍为 PrimeVue**：页面内的 `LanguageSwitcher` 未在本批迁移（与 `AppHeader` 共用），迁移后该路由仍有 1 个 `.p-button`，已在迁移方案 §5.5 登记为共享壳例外。
+
+### 审核修复（Review Gate 两轮）
+
+| 编号 | 问题 | 处置 |
+| :--- | :--- | :--- |
+| B1 | 步骤头可前跳，绕过步骤 1 阻断项与步骤 2 初始化 | `CaomeiStepperItem` 加 `:disabled="item.value !== currentStep"`；E2E 补「非当前步 `toBeDisabled` + 强点不切换面板」 |
+| B2 | `Select` / `InputNumber` 默认上限 20rem / 12rem，步骤 3/5 字段仅 320 / 166px | `.form-field` 声明 `--caomei-select-max-width: 100%` / `--caomei-input-number-max-width: 100%`；E2E 断言两者宽度 > 600px |
+| B3 | 新增样式触发 5 条 stylelint error | `pnpm lint:css` 修复后 stylelint EXIT 0 |
+| B4 | `CaomeiCard` header 的 flex 收缩导致标题左对齐（中心差 248px），且 parity 误归因为「4px 基线」 | `.installation-wizard__header` 加 `flex: 1; width: 100%`；基线补 `titleOffset ≤ 2px` 断言；重采基线并重校准允许清单 |
+| B5 | 门禁层配置还留有第三份安装实例 env 副本且缺 `DATABASE_SYNCHRONIZE`，复用 3002 时会让 e2e `init-db` 500 | 三份配置统一改用 `tests/helpers/playwright-servers.ts` |
+| W1 | E2E 注释「五步 / 三组 / 只依赖标题」与实际不符 | 统一为六步 / 四组，并注明 `.caomei-*` 的用途 |
+| W2 | 数据库初始化断言默认 5s 超时 | 该步 `{ timeout: 15000 }`，整条流程 `test.slow()` |
+| W3 | 两份配置重复安装实例 env | 抽取共享 helper（见 B5） |
+| W4 | `storageState` 清空注释原因不成立 | 改为「防御性默认」并说明 cookie 跨端口语义 |
+| W5 | 反向测试硬编码 3001 | 改用共享 `e2eBaseURL` |
+| W6 | ownedFiles 注释口径 | 改为「6 个步骤组件 + 1 个字段状态组件 + 1 个清单图标映射（共 8 条）」 |
+| S1 | 状态图标迁移后单色 | 与迁移前一致（仓库无 `text-green-500` 等定义），登记为有意一致 |
+| S2 | 步骤 1 的 `.p-inputtext` 断言恒真 | 删除，保留步骤 3/4/5 的防回退断言 |
+| S3 | 完成页用 `v-else` | 改 `v-else-if="currentStep === 6"` |
+| S4 | 文档把 `icon` 类型写成 `Component` | 改为「语义键 + 渲染侧映射」 |
+| S5 | 4 个密钥字段的强度条关闭 | 在组件映射表登记为有意差异 |
+
+### 批次拆分依据（§2.8）
+
+单条 Todo 条目内做了三层同源改动，不拆分提交的理由：① `Stepper` / `Accordion` 族首次生产迁移必须整路由切换，半路由会同时混用两套组件来源（违反 §5.5）；② 视觉基线、parity 参考态与第二 webServer 必须与实现同批落地，否则任一侧单独运行都会红；③ E2E 的六步流程依赖未安装态实例，实例配置只能随实现一起提交。提交按「实现 + E2E」「视觉证据 + 预算」「文档」三个逻辑单元拆分，便于逐段回滚。
+
+### 验证结果
+
+- `pnpm test`：**584 files passed / 1 skipped（585）**、**5,159 passed / 1 skipped（5,160）**，EXIT 0。
+- `pnpm typecheck` 0 error；`pnpm lint`（页面 / 组件 / 组合式 / 清单 / 守卫 / 视觉 / E2E / 三份 Playwright 配置）0 error 0 warning；`stylelint`（页面 / 组件 / 布局）EXIT 0。
+- `pnpm test:visual`：**24/24**（新增安装向导浅 / 深两张基线；步骤头 `disabled` 与标题居中修复后的最终观感已重采，16:47 采集晚于全部源文件改动；`titleOffset` 断言通过）。
+- `pnpm test:visual:parity`：**55/55**；`installation-wizard` 从待迁移层移入 `MIGRATED_ROUTES`，参考态保持迁移前 HEAD 采集；light **48,145px / 3.715%**、dark **48,708px / 3.758%**，各按 6 个区域 / 条带登记后未归因 **0px**。
+- E2E：`pnpm exec playwright test tests/e2e/installation.e2e.test.ts --project=installation` **2/2**（六步真实流程 + 步骤头不可前跳 + 步骤 3/5 字段宽度 >600px + 已安装态实例仍 302 的反向断言）。
+
+### 未覆盖边界
+
+- 安装向导的失败分支（数据库初始化失败、站点配置校验错误、管理员密码强度不足、扩展配置接口 500 后仍推进到预览）未做 E2E。
+- 步骤 5 的 4 个 Accordion 只断言了条目数量与邮件分组展开后的数字框宽度；其余分组展开态未逐个截图。
+- 其余 4 个语种的步骤标题在 800px 下的换行形态未逐语种截图。
+- 基线层与 parity 只覆盖步骤 1；步骤 2–6 的整体布局由 E2E 结构 / 宽度断言承担，未逐步截图。
+- `docs:check:source-of-truth` 仍有翻译债务（4 个语种的 `docs/i18n/*/plan/roadmap.md` 的 `last_sync` 停在 2026-11-03，源文件已随 2a/2b/2c 与本批变更；另有 4 个 en-US 标准文档）。属既有债务 + 本批新增 1 次源变更（仅周回归失败，主 CI 不跑该检查），未清零。
+- 页面底部 `:global(.dark) { .installation-wizard { … } }` 的暗色覆盖在本仓库的 Vue scoped 编译下退化为 `.dark { … }`（作用到 `<html>` 而非目标元素）——迁移前即如此，参考态记录的也是该渲染结果；本批为避免改变暗色观感未改写，登记为 B4 样式清理项。
+- 页面内 `LanguageSwitcher`（PrimeVue `Button`）为跨路由共享壳，随全站收口统一迁移。
+<!-- regression-window:end:phase70-item-3:第七十阶段条目 3 安装向导迁移:2026-11-04 -->

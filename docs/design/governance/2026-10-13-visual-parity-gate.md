@@ -28,7 +28,9 @@
 
 为什么需要第二实例：已安装态主实例对 `/installation` 直接 302（`server/middleware/0-installation.ts`），前端 `page.route` 无法补救。**`MOMEI_INSTALLED=false` 本身不等于强制未安装**——中间件只是跳过环境变量短路，随后仍按数据库探测；主库已被 TEST_MODE 种子写成「已安装」，页面照样被 302。因此第二实例必须同时关闭 TEST_MODE（不跑种子）并使用独立内存库，使每次启动都是干净的未安装态。
 
-安装向导的状态响应在 spec 内固定 mock（`/api/install/status`），避免机器相关字段（node / OS / DB 版本）与真实安装态进入截图。
+安装向导的状态响应在 spec 内固定 mock（`/api/install/status`），避免机器相关字段（node / OS / DB 版本）与真实安装态进入截图；同一份 mock 由 `tests/visual/helpers/installation-fixture.ts` 提供，基线层与门禁层共用。
+
+**2026-11-04（条目 3）扩展**：基线层也接入了第二实例。`playwright.visual.config.ts` 增加同源 webServer（`DATABASE_SYNCHRONIZE=true`，否则内存库未建表）与 `chromium-visual-installation` project，`tests/visual/installation.visual.test.ts` 采集浅 / 深两张基线并补结构断言（6 个步骤项 / 概览 `Tag` 24px / 卡片无横向溢出）。两层使用同一份 `installation-fixture` 的 status mock，避免「门禁绿、基线拍的是真实机器信息」的漂移。
 
 ## 3. 分级严格度
 
@@ -102,6 +104,7 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 - 迁移路由的参考态若需以 `--revert` 重采，命令为 `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>`；就地采集的路由应改用 `--revert` 以消除依赖漂移后再复采。
 - **覆盖保护口径修正（2026-10-14）**：`buildHeadCaptureGrepArgs` 原先只排除 `source` 以 `worktree` 开头的清单条目，故**就地（`in-place`）采集的待迁移路由**在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自（`/admin/waitlist` 分区二审计发现）。现改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**」；需要专门刷新某条参考态时显式使用 `--only=<name>`。该契约由 `tests/scripts/capture-visual-reference.test.ts` 覆盖。
 - **第七十阶段（2026-11-03）**：B3 的 10 条路由登记进 `PENDING_ROUTES`（管理端设置 3 条 / 安装向导 1 条 / 用户设置与认证提交 6 条），参考态按 HEAD 就地采集完成（20 张，`reference-manifest.json` 共 54 条）。**`reader` 档首次启用**（6 条路由），档位由路由定义显式声明。安装向导由第二 server 承载（见 §2.1）。比对侧 `pnpm test:visual:parity` 55/55（54 条比对 + 1 条登记守卫），用时约 10.4 分钟；参考态与当前态同源（待迁移路由），差异 0，迁移落地后该批用例即开始反映真实漂移。
+- **第七十阶段条目 3（2026-11-04）**：`installation-wizard` 移入 `MIGRATED_ROUTES`（参考态不变）；允许清单按实测登记——light 48,145px / 3.715%（6 区域）、dark 48,708px / 3.758%（6 条带，深色差异分散故按横向条带归因），未归因 0。`Stepper` / `Accordion` 族首次进入已迁移路由的渲染面。
 - **保护口径的边界（2026-11-03 补记）**：`getProtectedTestNames` 的「磁盘已有即排除」只作用于 **HEAD 就地采集**；`--ref=<ref>` 的 worktree 模式在全量采集时会把工作树内的参考态 `copyReferences` 回主仓库并改写 manifest，不参与该排除。使用 worktree 模式刷新时须显式给 `--only`。
 
 ## 8. 相关文档
