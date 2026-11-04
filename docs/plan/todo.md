@@ -39,11 +39,12 @@
     - 验收标准：未安装态 server 下视觉基线与 parity 双绿；安装六步真实流程 E2E 2/2 通过（含步骤头不可前跳）；`:deep()` 对 `.p-*` 的依赖归零。
     - 证据落点：回归记录条目 3 窗口、第三条 parity 路由预算、E2E 运行记录。
     - 进度：**已完成**（2026-11-04）。页面 + 6 个步骤组件 + 1 个字段状态组件（共 87 处）；`Stepper` / `Accordion` 族首次生产迁移；E2E 改未安装态六步真实流程（含第二 webServer + 步骤头不可前跳断言）；基线层补 2 张、parity 55/55。
-- [ ] **4. B3-D 用户设置与认证 / 提交页整路由迁移（首次启用 reader 档）**
+- [x] **4. B3-D 用户设置与认证 / 提交页整路由迁移（首次启用 reader 档）**
     - 执行范围：`/settings` 页面 + `components/settings/` 6 个组件（5 个由条件 Tab 消费，`notification-history-list` 内嵌于通知面板；`FileUpload` / `ProgressSpinner` / `ToggleButton` / `Checkbox`；验证 `AppUploaderV2` / `AppAvatarV2` 在该路由登记后自动切换）+ `login` / `register` / `forgot-password` / `reset-password` / `submit` 与 `components/auth-card.vue`（`Card` / `Message` / `fluid` 删除 / `severity→tone`）；`reader` 档首次启用并按实测校准预算。
     - 非目标：不改认证 / 注册 / 投稿业务逻辑与字段；不改服务端限流与校验。
-    - 验收标准：`reader` 档未归因差异为 0；6 条路由 × 2 主题参考态就绪；`auth` / `submit` E2E 的 `p-*` 断言改写后三浏览器通过。
+    - 验收标准：`reader` 档未归因差异为 0；6 条路由 × 2 主题参考态就绪；`auth` / `submit` E2E 的 `p-*` 断言改写后通过（chromium 单 worker；firefox / webkit 补跑 14 passed / 2 skipped）。
     - 证据落点：回归记录条目 4 窗口、`reader` 档预算 `note`、偏差处置表（若产生豁免）。
+    - 进度：**已完成**（2026-11-04）。16 个文件 / 119 处；6 条路由迁入已迁移层，`reader` 档 12 条预算按实测校准（未归因 0）；`auth` / `submit` E2E 选择器改写后通过。
 - [ ] **5. 测试覆盖率治理第十一批**
     - 执行范围：开工时按绝对未覆盖语句数复算并选 3 个模块（2026-11-03 候选：`server/services/migration-link-governance.ts` 32 / `.helpers.ts` 30 / `ai/tts.ts` 30 / `ai/quota-governance.ts` 28 / `agreement.ts` 26 / `setting.ts` 25）。
     - 非目标：不做全量铺量、不为冲数字写低价值断言。

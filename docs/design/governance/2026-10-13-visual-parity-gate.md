@@ -105,6 +105,7 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 - **覆盖保护口径修正（2026-10-14）**：`buildHeadCaptureGrepArgs` 原先只排除 `source` 以 `worktree` 开头的清单条目，故**就地（`in-place`）采集的待迁移路由**在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自（`/admin/waitlist` 分区二审计发现）。现改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**」；需要专门刷新某条参考态时显式使用 `--only=<name>`。该契约由 `tests/scripts/capture-visual-reference.test.ts` 覆盖。
 - **第七十阶段（2026-11-03）**：B3 的 10 条路由登记进 `PENDING_ROUTES`（管理端设置 3 条 / 安装向导 1 条 / 用户设置与认证提交 6 条），参考态按 HEAD 就地采集完成（20 张，`reference-manifest.json` 共 54 条）。**`reader` 档首次启用**（6 条路由），档位由路由定义显式声明。安装向导由第二 server 承载（见 §2.1）。比对侧 `pnpm test:visual:parity` 55/55（54 条比对 + 1 条登记守卫），用时约 10.4 分钟；参考态与当前态同源（待迁移路由），差异 0，迁移落地后该批用例即开始反映真实漂移。
 - **第七十阶段条目 3（2026-11-04）**：`installation-wizard` 移入 `MIGRATED_ROUTES`（参考态不变）；允许清单按实测登记——light 48,145px / 3.715%（6 区域）、dark 48,708px / 3.758%（6 条带，深色差异分散故按横向条带归因），未归因 0。`Stepper` / `Accordion` 族首次进入已迁移路由的渲染面。
+- **第七十阶段条目 4（2026-11-04）**：`user-settings` / `auth-login` / `auth-register` / `auth-forgot-password` / `auth-reset-password` / `submit-page` 六条 `reader` 路由移入 `MIGRATED_ROUTES`，`PENDING_ROUTES` 清空。`reader` 档首次实测：原始差异 0.265%–2.661%，按区域登记后未归因 0（`auth-reset-password` 含页脚右侧 36 / 34px 小区域）。注意 0.3% 约束的是**扣减后剩余比例**，不是原始差异；`auth-forgot-password` 原始 0.285% 已全额归因。
 - **保护口径的边界（2026-11-03 补记）**：`getProtectedTestNames` 的「磁盘已有即排除」只作用于 **HEAD 就地采集**；`--ref=<ref>` 的 worktree 模式在全量采集时会把工作树内的参考态 `copyReferences` 回主仓库并改写 manifest，不参与该排除。使用 worktree 模式刷新时须显式给 `--only`。
 
 ## 8. 相关文档

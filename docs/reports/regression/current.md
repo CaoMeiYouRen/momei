@@ -226,85 +226,6 @@
 - `pnpm test:visual`（基线层）未重跑：本批未改动基线层配置与快照。
 <!-- regression-window:end:phase70-parity-harness:第七十阶段条目 1b/1c 门禁扩面与参考态采集:2026-11-03 -->
 
-<!-- regression-window:start:phase70-item-2b:第七十阶段条目 2b 主题工作台迁移:2026-11-04 -->
-## 2026-11-04 第七十阶段条目 2b 主题工作台迁移（`/admin/settings/theme`）
-
-### 范围
-
-主题工作台整路由迁移到 caomei-ui：`pages/admin/settings/theme.vue` + 5 个 `theme-*` 组件（42 处 PrimeVue）。同批把 `/admin/settings` 的子路由例外移除，改为「已迁移子路由」纳入零残留扫描面。
-
-### 组件映射与处置
-
-| PrimeVue | caomei | 说明 / 差异 |
-| :--- | :--- | :--- |
-| `Panel` | `CaomeiCard` | `:header` → `:title`；内容走默认插槽（`#header` / `#title` / `#extra` / `#footer` 另有专用插槽） |
-| `Tabs` 族 | `CaomeiTabs` + `CaomeiTabList` + `CaomeiTabTrigger` + `CaomeiTabContent` | 静态 `value="0"` 改 `default-value="0"`；底部无 `TabPanels` 容器 |
-| `Select` | `CaomeiSelect` | `@change` → `@update:model-value`；选项为对象数组，契约一致 |
-| `SelectButton` | `CaomeiSelectButton` | 删 `allow-empty`；`modelValue` 不收 `null`，用 computed 在 `null ↔ undefined` 之间映射 |
-| `ColorPicker` | `CaomeiColorPicker` | `format="hex"` 只决定序列化；**`modelValue` 必须是带 `#` 的 CSS 颜色串**（PrimeVue 旧契约是裸十六进制，已在 `use-theme-color-models` 修正并更新单测） |
-| `DataView` | `CaomeiDataView` | `#grid="{ items }"` 与 `#empty` 契约一致；`layout="grid"` |
-| `InputText` | `SettingInput`（可空字段）/ `CaomeiInput` | 主题设置项类型为 `string \| null`，沿用 2a 的适配层；`saveForm` 等非空字段直接用 `CaomeiInput` |
-| `Textarea` | `CaomeiTextarea` | `rows="3"` → `:rows="3"` |
-| `ToggleSwitch` / `Divider` | `CaomeiSwitch` / `CaomeiDivider` | 行为一致 |
-| `Tag` | `CaomeiTag` | `severity` → `tone`，文案改默认插槽 |
-| `Button` | `CaomeiButton` | 文案入默认插槽、图标走 `#icon` + lucide；`outlined` → `variant="secondary"`、`text` → `variant="ghost"` |
-| `Message` | `CaomeiMessage` | `severity="info"` → `tone="primary"` |
-
-**结构差异**：`CaomeiCard` 没有 `#subtitle` 插槽（只有 `title` / `subtitle` prop），且传入 `#header` 会整段替换默认头（含 `#title`）——主题画廊卡片因此把「主题名 + 当前/系统标签」与描述一并放进默认插槽，避免标题被吞掉；描述容器保留原生 `title` 的 tooltip 语义。
-
-### 守卫机制变更
-
-- `CaomeiUiRouteScope` 新增 `migratedSubRoutes`：已随本路由迁移的子路由页面**纳入零残留扫描面**（同 `ownedFiles`），与 `primeVueSubRoutes`（未迁移例外）二选一显式登记。
-- `/admin/settings` 移除 theme 子路由例外，`theme.vue` 改登记到 `migratedSubRoutes`；`ownedFiles` 追加 5 个 `theme-*` 组件，`inScopeComponents` 追加 `Panel` / `ColorPicker` / `SelectButton` / `DataView`。
-- 守卫测试同步：子路由「必须显式登记」的判定改为 `primeVueSubRoutes ∪ migratedSubRoutes`，扫描面合并两类；守卫三件套 **76/76** 通过。
-
-### 关键结论（实施期发现）
-
-1. **`CaomeiCard` 无 `#subtitle` 插槽**：画廊卡片的描述文本改走默认插槽，视觉位置不变；`title` 属性（原生 tooltip）保留在描述容器上。
-2. **`CaomeiSelectButton` 的 `modelValue` 不收 `null`**：`themeBackgroundType` 在设置模型里是 `... | null`，用 `computed` 做 `null ↔ undefined` 映射，避免类型逃逸。
-3. **`ClientOnly` 内容挂载晚于首屏**：主题配置的标签页在 `ClientOnly` 内，本地实测约 4–5 秒后才能查到 4 个色彩字段；视觉/parity 的就绪等待（networkidle + 标题）已足够，但结构抽查需留出余量。
-4. 迁移后主题路由内 PrimeVue 开口标签 **0 处**，运行时 `.p-inputtext` / `.p-button` / `.p-panel` / `.p-tab*` / `.p-colorpicker` / `.p-selectbutton` 均为 0；渲染 3 个 `CaomeiCard`、4 个色彩字段。
-
-### 审核修复（Review Gate Round 1 的 blocker / warning）
-
-| 编号 | 问题 | 处置 |
-| :--- | :--- | :--- |
-| B1 | 预览按钮引用了 5 个语种都不存在的 `accent_action`，文案回落为 key 字面量并被 parity 当作「尺寸差异」吸收 | 补齐 5 语种文案，`pnpm lint:i18n` 0 error；重跑 parity |
-| B2 | 画廊 `CaomeiCard` 同时传 `#header` + `#title`，而 `#header` 会替换默认头 → 主题名与状态标签永不渲染（且无任何门禁覆盖） | 标题行移入默认插槽；新增 `theme-gallery-dialog.test.ts`（断言主题名 + 2 个标签 + 按钮数）与打开态基线 2 张 |
-| B3 | 取色器模型沿用 PrimeVue 的裸十六进制契约，caomei 解析失败回退红色 → 9 个取色器颜色全错 | `use-theme-color-models` getter 归一为 `#rrggbb`，更新单测；重跑 parity 并重新归因右侧面板区域 |
-| B4 | `:deep(.p-panel)` / `.p-tabs` / `.p-tab` / `.p-card-*` 与 `i` 选择器成死规则：双层边框、页签不等分、卡片页脚不贴底、图标尺寸丢失 | 逐条改写为 `.caomei-tabs__*` / `.caomei-card__*` / `svg`，外层容器不再自绘边框；图标尺寸改 `:size`（占位 48 / 空态 64） |
-| W1 | `unmountOnHide` 默认 `true`，与迁移前「三个面板全挂载」不一致 | 显式 `:unmount-on-hide="false"` |
-| W2 | 主题页单测 stub 仍指向 PrimeVue 组件（死配置），且未覆盖标签页 / 画廊 | stub 全部改 caomei 契约；画廊交互由新增组件测试与基线覆盖 |
-| W4 | `migratedSubRoutes` 的「互斥 / 位于 `pages/<prefix>/` / 存在性」只写在注释里 | 守卫测试补 2 条断言（互斥 + 前缀目录；存在性独立报错） |
-| W7 | `lib/ui-library.ts` 仍写「主题子路由为例外」「子路由无守卫兜底」 | 注释同步为当前机制（`migratedSubRoutes` + 既有守卫） |
-
-Round 2 追加修复（复审 Reject 两项）：
-
-| 编号 | 问题 | 处置 |
-| :--- | :--- | :--- |
-| B5 | 新增画廊测试触发 16 条 ESLint 缩进告警，`--max-warnings 0` 失败 | `eslint --fix` 后 0 warning；回归记录的 lint 证据口径同步更正 |
-| B6 | `.theme-config-card` 的 `display:flex` 被库内同特异性规则覆盖，页脚 `margin-top:auto` 失效（内容不等长时页脚悬空） | 选择器提为 `.theme-config-card.theme-config-card`；画廊 mock 的第二种卡片改用长描述制造高度差，并运行时实测两张卡页脚**同高且底距 1px**（绝对 y 随视口变化，不作固定值），重采 2 张画廊基线 |
-| W2 补充 | 页签行为无可执行覆盖 | 新增 `theme-config-section.test.ts`，断言 3 个页签、默认 `default-value=0`、`unmount-on-hide=false`、8 个色彩字段（**属性契约级**，不替代库运行时行为） |
-| B7（Round 3） | 双类选择器把同块 `&__*` 编译成 `.theme-config-card.theme-config-card__x`，子元素样式全部失效；重采基线把失效态固化成"正确态" | 拆分样式块：根属性用双类，`&:hover` / `:deep` / `&__*` 回到单类块；重建后产物 CSS 无 `theme-config-card.theme-config-card__*`，运行时实测预览区 160px flex、主题名 18px 省略、两卡页脚同高且底距 1px；再次重采 2 张画廊基线；画廊视觉用例补 3 条计算样式/几何断言（`display:flex` / 预览 160px / 页脚 top 全等），使重采基线无法再掩盖同类失效 |
-
-未采纳：W5（换行符整文件改写，仓库无 `.gitattributes` 统一口径，保留）、W6（流程编号注释，与既有写法一致，后续统一）、W8（视觉覆盖已通过新增 4 张基线补强）、W9（提交规模属单条 todo 原子项，在提交说明记录拆分依据）。
-
-### 验证结果
-
-- `pnpm test`：**584 files passed / 1 skipped（585）**、**5,157 passed / 1 skipped（5,158）**，EXIT 0。
-- `pnpm typecheck` 0 error；`pnpm lint`（theme 目录 / 页面）0 error 0 warning。
-- `pnpm test:visual`：**22/22**（新增主题工作台与主题画廊弹窗各 2 张基线）；首轮曾出现一次未命名用例失败，复跑 22/22 通过（运行期资源竞争，保留观察）。
-- `pnpm test:visual:parity`：**55/55**；`admin-settings-theme` 从待迁移层移入已迁移层，参考态保持迁移前 HEAD 采集；修正取色器颜色格式、页签等分与卡片外壳后，light **42,263px / 3.261%**、dark **50,759px / 3.917%**，各 6 个区域按实测登记后未归因 **0px**。
-- 页面单测 `tests/pages/admin/settings/theme.test.ts`（stub 全部改到 caomei 契约）、`theme-save-dialog.test.ts`、新增 `theme-gallery-dialog.test.ts`（锁定「主题名 + 当前/系统标签」不被 header 槽吞掉）与 `theme-config-section.test.ts`（3 个页签、默认页签、`unmount-on-hide=false`、8 个色彩字段）通过。
-
-### 未覆盖边界
-
-- 主题画廊的三种状态（当前 / 系统 / 自定义删除）由新增的打开态基线（固定 mock 两张卡）与组件测试覆盖；删除 / 应用后的二次状态未逐状态截图。
-- `CaomeiDataView` 的 `grid` 布局在窄屏下的列数未单独验证。
-- 2a 阶段登记的主题子路由 parity 增量（1,492 / 1,457px）已被 2b 的整页差异吸收，不再单列。
-- 色彩字段的 `ColorPicker` 弹出面板交互（选择色板）未做 E2E；视觉只覆盖关闭态，颜色正确性由 `use-theme-color-models` 单测与截图观感共同守线。
-<!-- regression-window:end:phase70-item-2b:第七十阶段条目 2b 主题工作台迁移:2026-11-04 -->
-
 <!-- regression-window:start:phase70-item-2c:第七十阶段条目 2c 通知管理迁移:2026-11-04 -->
 ## 2026-11-04 第七十阶段条目 2c 通知管理迁移（`/admin/notifications`）
 
@@ -421,7 +342,7 @@ Round 2 追加修复（复审 Reject 两项）：
 
 - `pnpm test`：**584 files passed / 1 skipped（585）**、**5,159 passed / 1 skipped（5,160）**，EXIT 0。
 - `pnpm typecheck` 0 error；`pnpm lint`（页面 / 组件 / 组合式 / 清单 / 守卫 / 视觉 / E2E / 三份 Playwright 配置）0 error 0 warning；`stylelint`（页面 / 组件 / 布局）EXIT 0。
-- `pnpm test:visual`：**24/24**（新增安装向导浅 / 深两张基线；步骤头 `disabled` 与标题居中修复后的最终观感已重采，16:47 采集晚于全部源文件改动；`titleOffset` 断言通过）。
+- `pnpm test:visual`：**24/24**（条目 4 未新增基线；协议对话框 2 张按「编辑器加载完成」重采，见 B5）。
 - `pnpm test:visual:parity`：**55/55**；`installation-wizard` 从待迁移层移入 `MIGRATED_ROUTES`，参考态保持迁移前 HEAD 采集；light **48,145px / 3.715%**、dark **48,708px / 3.758%**，各按 6 个区域 / 条带登记后未归因 **0px**。
 - E2E：`pnpm exec playwright test tests/e2e/installation.e2e.test.ts --project=installation` **2/2**（六步真实流程 + 步骤头不可前跳 + 步骤 3/5 字段宽度 >600px + 已安装态实例仍 302 的反向断言）。
 
@@ -435,3 +356,86 @@ Round 2 追加修复（复审 Reject 两项）：
 - 页面底部 `:global(.dark) { .installation-wizard { … } }` 的暗色覆盖在本仓库的 Vue scoped 编译下退化为 `.dark { … }`（作用到 `<html>` 而非目标元素）——迁移前即如此，参考态记录的也是该渲染结果；本批为避免改变暗色观感未改写，登记为 B4 样式清理项。
 - 页面内 `LanguageSwitcher`（PrimeVue `Button`）为跨路由共享壳，随全站收口统一迁移。
 <!-- regression-window:end:phase70-item-3:第七十阶段条目 3 安装向导迁移:2026-11-04 -->
+
+<!-- regression-window:start:phase70-item-4:第七十阶段条目 4 用户设置与认证迁移:2026-11-04 -->
+## 2026-11-04 第七十阶段条目 4 用户设置与认证 / 提交页迁移（reader 档首用）
+
+### 范围
+
+`/settings` + `/login` / `/register` / `/forgot-password` / `/reset-password` / `/submit` 共 **6 条路由**、**16 个文件 / 119 处** PrimeVue（`pages/settings.vue`、`components/settings/` 6 个面板、商用链接三件套、5 个认证 / 提交页与 `components/auth-card.vue`）。**首次启用 `reader` 档**（2000px / 0.3%）并按实测校准 12 条预算。
+
+### 组件映射与处置
+
+| PrimeVue | caomei | 说明 / 差异 |
+| :--- | :--- | :--- |
+| `Card` | `CaomeiCard` | `#title` / `#content` / `#footer` 三插槽：内容改默认插槽；卡片 body 内边距 1.5rem → 1rem（`padding="md"`），页面整体高度随之变化 |
+| `InputText` / `Password` / `Textarea` | `CaomeiInput` / `CaomeiPassword` / `CaomeiTextarea` | 删除 `fluid`；`toggle-mask` 由内建显示 / 隐藏按钮承接；`rows` 改为数字绑定 |
+| `Select` | `CaomeiSelect` | 选项对象保持不变；**时区选择的 `filter` 无对应能力**（12 项可滚动），登记为有意差异 |
+| `Checkbox` | `CaomeiCheckbox` | `binary` 与 `input-id` 不再需要：布尔 `v-model` + `id`；分类多选沿用数组 `v-model` + `value` |
+| `ToggleSwitch` / `ToggleButton` / `ProgressSpinner` | `CaomeiSwitch` / `CaomeiToggleButton` / `CaomeiProgressSpinner` | 属性一一对应；`size="small"` → `size="sm"` |
+| `FileUpload` | `CaomeiFileUpload` | `mode="basic"` + `custom-upload` + `auto` + `uploader` 事件契约一致；上传仍走 `/api/user/avatar` |
+| `DataTable` + `Column` | `CaomeiDataTable` + `columns` + `#cell-*` | API Key 表与通知历史表；标题行 / 操作行移出 `#header`，`@page` 由 0 基改 1 基 |
+| `Tag` / `Message` / `Divider` / `Image` / `MultiSelect` | `Caomei*` | `severity` → `tone`（`info`→`primary`、`secondary`/`contrast`→`neutral`、`warn`→`warning`）；`Image` 预览指示器保留 |
+| `AppAvatar`（V1） | `AppAvatarV2` | 该路由登记后自动渲染 caomei 分支；**头像子树改 `ClientOnly`**（见关键结论 1） |
+| 品牌图标 `pi-github` / `pi-google` | 保留 PrimeIcons | lucide 无品牌图标；与平台图标一同留待 B4 图标全量批次 |
+| `auth-card.vue` 的按钮 / 错误条 | `CaomeiButton` / lucide | 提交按钮文案入默认插槽；错误条图标换 lucide |
+
+### 关键结论（实施期发现）
+
+1. **`AppAvatarV2` + 异步头像 URL 会触发 `insertBefore` 运行时错误**：`useAvatar` 依赖异步哈希且会话数据在 SSR / 客户端首帧不一致；Reka 的 `AvatarImage` / `AvatarFallback` 在带 hydration mismatch 的 patch 中报 “node before which ... is not a child”，表现为**切换设置页签时整页 500**。处置：头像子树包 `<ClientOnly>`（仅该子树延迟到客户端），页签切换恢复正常；未改动共享过渡组件，避免影响 admin 路由。
+2. **卡片内边距差 0.5rem**：PrimeVue card body 1.5rem，`CaomeiCard padding="md"` 为 1rem；`/settings` 内容高度减少约 40px、页脚随之上移，已按区域登记。
+3. **reader 档首次实测**：6 条路由差异 0.265%–2.661%，均落在“布局基本不变、控件外壳差异”范围；`reader` 预算 2000px / 0.3% 对 `auth-forgot-password`（0.285%）已接近上限，后续该档路由需先评估。
+4. **商用链接三件套此前是漏扫面**：`commercial-link-{manager,section,dialog}` 同时被 `/admin/settings` 消费，但两条路由都未把它登记进 `ownedFiles`；本批两条路由均已迁移，一并登记并迁移。
+5. **`Image` 的 `#image` 插槽无对应能力**：原实现用该插槽把缩略图替换成一个按钮；caomei 无该插槽，改为直接渲染缩略图 + `preview` 指示器（观感更符合“图片链接”语义），登记为有意差异。
+6. **E2E 并行抖动（非迁移引入）**：`user-workflow` / `submit` 在 4 个 worker 并行冷启动时会卡在 `waitForLoadState('networkidle')`（默认布局的 SSE 与外部头像请求），`--workers=1` 下 21/21 通过；CI 默认单 worker，未改动这些既有等待策略。
+7. **品牌图标保留 PrimeIcons**：`pi-github` / `pi-google` 无 lucide 对应项，与商用平台图标一并留给 B4 的图标全量批次。
+
+### 审核修复（Review Gate Round 1）
+
+| 编号 | 问题 | 处置 |
+| :--- | :--- | :--- |
+| B1 | `CaomeiImage` 不透传 `width` / `height` 到内层 `img`：弹窗 `width="120"` 成死属性，列表缩略图无尺寸约束；两处均不在 parity / 基线覆盖内 | 尺寸改由包装层承载：列表 40×40、弹窗 120px 宽 + 内层 `height: auto` 保持比例；新增定向 E2E `should constrain commercial link thumbnails to a fixed size`（客户端切到商用页签 + mock `/api/user/commercial*`，断言 40×40 与 120px） |
+| W1 | `.p-button.social-btn` 品牌样式在迁移后成死选择器（品牌色 / 边框 / hover 静默丢失） | `styles/main.scss` 选择器扩为 `.p-button…, .caomei-button.caomei-button.social-btn`（双类压过库内 `--secondary`），图标选择器补 `i` |
+| W3 | 只读密钥输入用 `:value`，`CaomeiInput` 挂载时被 `vModelText` 覆盖为首帧空串 | 改 `:model-value="newlyCreatedKey ?? ''"` |
+| W4 | 商用对话框 `Select` 的 `#value` 插槽无兜底，未知平台键时触发器空白 | 补 `v-else` 回退原始 `link.platform`（caomei 提供 `#value` 后不再渲染内建 placeholder） |
+| W5 | `ClientOnly` 无占位导致水合时插入 64px 头像引发布局偏移；根因未登记 | 补同尺寸 `aria-hidden` 占位；backlog 新增「会话数据 SSR / CSR 单一来源」跟踪项，收口后删除 `ClientOnly` |
+| W6 | `app-avatar-v2` / `app-uploader-v2` 注释仍把已迁移路由列为回退 | 同步注释（`settings-profile` / `commercial-link-dialog` 已走 caomei 分支） |
+| W7 | `commercial-link-manager.test.ts` / `settings-commercial.test.ts` 的 stub 仍指向旧组件名 | stub 改 `Caomei*` / `AppUploaderV2`，`Image` 桩移除已删除的 `#image` 插槽 |
+| S1 | 新增样式使用 `--p-red-500` | 与 `auth-card` 保持一致，登记随 B4 token 清理 |
+| S3 | `notification-history-list__time-column` 经列配置落子组件节点，scoped 规则不生效 | 与条目 2c 的同类样式债合并登记，随 B4 改用 `headerStyle` / `bodyStyle` |
+| S4 | 两个 `DataTable` 未设 `row-key` | 当前无选择 / 展开状态，登记为后续加选择列时的前置项 |
+| S5 | Switch / Select 的可访问名依赖外部 label | 与既有可访问性口径一致，未在本批扩大改动 |
+| B5（复审新增） | `test:visual` 的 `admin-agreements-dialog` 两条基线是「编辑器尚未加载」的中间态（协议表单内 Mavon 编辑器约 1s 后才挂载），与迁移无关但卡住 24/24 | 视觉用例补 `.admin-markdown-editor .v-note-wrapper` 可见等待 + `waitForVisualStable`，并在编辑器加载完成后重采这 2 张基线；`test:visual` 24/24 |
+
+### 验证结果
+
+- `pnpm test`：**584 files passed / 1 skipped（585）**、**5,169 passed / 1 skipped（5,170）**，EXIT 0。
+- `pnpm typecheck` 0 error；`eslint`（页面 / 设置组件 / 商用三件套 / 守卫 / 视觉 / E2E）0 error 0 warning；`stylelint`（改动页面与组件）0 error。
+- `pnpm test:visual:parity`：**55/55**（54 条比对 + 1 条登记守卫）。`reader` 档 12 条实测：
+
+| 路由 | light | dark |
+| :--- | :--- | :--- |
+| `user-settings` | 29,943px / 2.310%（3 区域） | 29,901px / 2.307%（3 区域） |
+| `auth-login` | 16,237px / 1.253% | 16,268px / 1.255% |
+| `auth-register` | 28,360px / 2.188%（3 区域） | 28,328px / 2.186%（4 区域） |
+| `auth-forgot-password` | 3,697px / 0.285%（3 区域） | 3,438px / 0.265%（3 区域） |
+| `auth-reset-password` | 9,267px / 0.715%（9 区域） | 8,806px / 0.679%（9 区域） |
+| `submit-page` | 34,491px / 2.661% | 33,575px / 2.591% |
+
+  全部按区域登记后未归因 **0px**；`auth-reset-password` 的 9 区域含页脚右侧 36 / 34px 小区域。
+- E2E（chromium `--workers=1`）：`auth` **5 passed / 1 skipped**（其中受选择器影响的 3 条 3/3）、`submit` **2/2**、`user-workflow` **17 passed / 3 skipped**（含新增的商用缩略图尺寸断言）；`auth` + `submit` 在 firefox / webkit 补跑 **14 passed / 2 skipped**。选择器由 `#password input` 改为 `input#password`，`admin` 的 `.p-card` 改为 `.caomei-card`。
+- 运行时抽查：6 条路由的内容区 `.p-inputtext` / `.p-button` 均为 0；`/settings` 5 个页签切换正常，通知页 7 个 Switch 与 API Key 表格渲染正常。
+
+### 批次拆分依据（§2.8）
+
+单条 Todo 条目内跨 6 条路由与 3 个共享组件，不拆分的理由：① 三条商用链接组件同时被 `/admin/settings` 与 `/settings` 消费，只迁一侧会造成同组件两套库并存；② `reader` 预算、路由台账与 E2E 选择器必须与实现同批落地，否则门禁两侧单独运行都会红；③ 认证页共享 `auth-card`，四条路由必须同批切换。提交按「实现 + 单测」「视觉预算 + E2E」「文档」三个逻辑单元拆分。
+
+### 未覆盖边界
+
+- 6 条路由没有基线层截图（沿用「admin 列表页无基线」的口径，像素守线由 parity 承担）。
+- 分类多选 `CaomeiCheckbox` 只在单测中覆盖数组回写；测试账号无分类数据，浏览器未实测勾选。
+- `AppAvatarV2` 的 `insertBefore` 问题只在 `/settings` 用 `ClientOnly` 规避，未修复共享过渡组件；已知同型风险统一登记在 backlog「会话数据 SSR / CSR 单一来源」；该兜底不扩散，根因修复后连同 `ClientOnly` 与占位一起移除。
+- 认证失败分支（验证码错误、限流、社交登录回调失败）未新增 E2E。
+- 4 个非中文语种的认证页排版未逐语种截图。
+- `docs:check:source-of-truth` 翻译债务未清零（4 个语种 roadmap + 4 个 en-US 标准文档）。
+<!-- regression-window:end:phase70-item-4:第七十阶段条目 4 用户设置与认证迁移:2026-11-04 -->
