@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { mockInstallationStatus } from '../helpers/installation-fixture'
 import { VISUAL_THEMES, applyTheme, waitForVisualStable } from '../helpers/visual'
 import { MIGRATED_ROUTES, PENDING_ROUTES } from './routes'
 import { runVisualParity } from './helpers'
@@ -17,32 +18,6 @@ import { runVisualParity } from './helpers'
  *
  * 参考态采集：`pnpm test:visual:reference -- --only=installation-wizard`（HEAD 就地采集）。
  */
-const INSTALLATION_STATUS_PAYLOAD = {
-    data: {
-        installed: false,
-        databaseConnected: true,
-        hasUsers: false,
-        hasInstallationFlag: false,
-        envInstallationFlag: false,
-        nodeVersion: 'v24.0.0',
-        os: 'linux',
-        databaseType: 'sqlite',
-        databaseVersion: '3.49.1',
-        isServerless: false,
-        isNodeVersionSafe: true,
-        runtime: 'self-hosted-node',
-        envSettings: {},
-        deploymentDiagnostics: {
-            runtime: 'self-hosted-node',
-            platformSupported: true,
-            blockerCount: 0,
-            warningCount: 0,
-            hasBlockingIssues: false,
-            issues: [],
-        },
-    },
-}
-
 const INSTALLATION_ROUTES = [...MIGRATED_ROUTES, ...PENDING_ROUTES].filter(
     (route) => route.server === 'installation',
 )
@@ -51,14 +26,7 @@ test.describe('视觉一致性门禁：安装向导（未安装态 server）', (
     for (const route of INSTALLATION_ROUTES) {
         for (const theme of VISUAL_THEMES) {
             test(`${route.name}-${theme}`, async ({ page }, testInfo) => {
-                await page.route('**/api/install/status', async (routeHandler) => {
-                    await routeHandler.fulfill({
-                        status: 200,
-                        contentType: 'application/json',
-                        body: JSON.stringify(INSTALLATION_STATUS_PAYLOAD),
-                    })
-                })
-
+                await mockInstallationStatus(page)
                 await applyTheme(page, theme)
                 await page.goto(route.path)
                 await waitForVisualStable(page)

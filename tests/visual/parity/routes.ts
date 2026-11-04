@@ -194,6 +194,17 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         activate: { role: 'button', name: '创建推送', expect: '[role="dialog"]' },
     },
     {
+        /* 安装向导整路由迁移（Stepper / Accordion 族首次生产迁移）；参考态保持迁移前 HEAD 采集。
+         * 默认实例在已安装态对该路由直接 302，故仍由 `MOMEI_INSTALLED=false` 的第二 webServer +
+         * 独立 project 承载，状态响应在 spec 内固定 mock。 */
+        name: 'installation-wizard',
+        path: '/installation',
+        heading: '墨梅博客安装向导',
+        tier: 'admin',
+        migrated: true,
+        server: 'installation',
+    },
+    {
         /* 通知管理整路由迁移；参考态保持迁移前 HEAD 采集。 */
         name: 'admin-notifications-list',
         path: '/admin/notifications',
@@ -231,7 +242,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 7 条路由（用户设置、5 个认证 / 提交页、安装向导）。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 6 条路由（用户设置、5 个认证 / 提交页）。
  *
  * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
@@ -243,19 +254,8 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* B3-A 剩余面：无（2a 设置主体 / 2b 主题工作台 / 2c 通知管理均已迁入 `MIGRATED_ROUTES`）；
-     * 本层保留用户设置、认证与安装向导，参考态均在条目 1c 以 HEAD（PrimeVue）采集。 */
-    /* B3-C 安装向导：默认实例在已安装态对该路由直接 302（server/middleware/0-installation.ts），
-     * 故必须由 `MOMEI_INSTALLED=false` 的第二 webServer + 独立 project 承载；
-     * 状态响应在 spec 内固定 mock，避免 DB 安装态与机器信息（node / OS / DB 版本）进入截图。 */
-    {
-        name: 'installation-wizard',
-        path: '/installation',
-        heading: '墨梅博客安装向导',
-        tier: 'admin',
-        migrated: false,
-        server: 'installation',
-    },
+    /* B3-A / B3-C 已全部迁入 `MIGRATED_ROUTES`；本层保留用户设置与认证 / 提交页，
+     * 参考态均在条目 1c 以 HEAD（PrimeVue）采集。 */
     /* B3-D 用户设置与 5 个认证 / 提交页（tier=reader）：首次启用 reader 档。
      * 这些路由名不含 `reader` 字样，档位由 `tier` 显式传入（不再依赖名字启发式）。 */
     {

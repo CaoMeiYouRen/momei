@@ -1,6 +1,6 @@
 {
     "meta": {
-        "updatedAt": "2026-11-01",
+        "updatedAt": "2026-11-04",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
@@ -1966,6 +1966,154 @@
                 }
             ],
             "note": "校准：2026-11-04 第七十阶段条目 2c 后按实测登记。dark 实测 53,759px / 4.148%（区域和 = 53,759px，无余量）。"
+        },
+        "installation-wizard-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 80,
+                        "width": 320,
+                        "height": 160
+                    },
+                    "pixels": 5342,
+                    "reason": "标题与副标题：修正 `CaomeiCard` header 的 flex 收缩后文本已与卡片居中对齐；余下为字体渲染与约 3px 的行盒基线差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 360,
+                        "y": 240,
+                        "width": 400,
+                        "height": 80
+                    },
+                    "pixels": 4167,
+                    "reason": "安装语言说明区：`CaomeiCard` 正文字号档导致的文本行高差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 840,
+                        "y": 240,
+                        "width": 240,
+                        "height": 40
+                    },
+                    "pixels": 1399,
+                    "reason": "语言切换按钮：跨路由共享壳 `LanguageSwitcher` 本批未迁移（PrimeVue `Button`）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 360,
+                        "y": 360,
+                        "width": 720,
+                        "height": 280
+                    },
+                    "pixels": 27488,
+                    "reason": "安装概览：`Tag` 由 `contrast`（黑底白字）改为 `neutral`（浅灰底深字）且高度按 token 回落到 24px；4 个焦点项图标由 PrimeIcons 改 lucide 的尺寸 / 基线差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 680,
+                        "width": 800,
+                        "height": 160
+                    },
+                    "pixels": 7430,
+                    "reason": "步骤条：`Stepper` 族由 PrimeVue 改为 caomei（指示器尺寸、分隔线长度与标题换行排布不同）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 840,
+                        "width": 800,
+                        "height": 80
+                    },
+                    "pixels": 2319,
+                    "reason": "第一个步骤面板的描述与检查卡片顶部；「下一步」按钮位于 900px 视口之外，未计入。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 3（安装向导迁 caomei；标题居中与步骤头 disabled 修复后）按实测登记。light 实测 48,145px / 3.715%（6 区域，区域和 = 实测，无余量）；参考态为迁移前 HEAD 就地采集（未安装态第二实例 + 固定 status mock）。未归因差异 > 3,000px 即红。"
+        },
+        "installation-wizard-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 80,
+                        "width": 800,
+                        "height": 160
+                    },
+                    "pixels": 6941,
+                    "reason": "标题与副标题（深色）：同 light 区域 1，反色文本达到阈值的像素更多。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 160
+                    },
+                    "pixels": 22559,
+                    "reason": "语言条与安装概览头部：`Tag` 由 `contrast` 改 `neutral` + 深色下控件底色 / 文本对比差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 400,
+                        "width": 800,
+                        "height": 160
+                    },
+                    "pixels": 6381,
+                    "reason": "焦点项列表：图标改 lucide 与文本行高差异（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 560,
+                        "width": 800,
+                        "height": 80
+                    },
+                    "pixels": 3135,
+                    "reason": "焦点项收尾与「其余安装后再做」提示（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 680,
+                        "width": 800,
+                        "height": 160
+                    },
+                    "pixels": 7323,
+                    "reason": "步骤条（深色）：同 light 区域 5。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 840,
+                        "width": 800,
+                        "height": 80
+                    },
+                    "pixels": 2369,
+                    "reason": "面板描述与检查卡片顶部（深色）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 3 后按实测登记。dark 实测 48,708px / 3.758%（6 个横向条带，区域和 = 实测，无余量）；深色下反色文本 / 控件底色差异更分散，按条带归因。"
         }
     }
 }

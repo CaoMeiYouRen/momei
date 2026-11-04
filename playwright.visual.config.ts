@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { buildInstallationServerCommand, defaultAuthSecret, installationBaseURL } from './tests/helpers/playwright-servers'
 
 /**
  * 视觉回归（截图识别层）独立工程配置。
@@ -20,7 +21,8 @@ import { defineConfig, devices } from '@playwright/test'
 const visualHost = '127.0.0.1'
 const visualPort = 3001
 const visualBaseURL = `http://${visualHost}:${visualPort}`
-const visualAuthSecret = 'lhci-test-secret-0123456789abcdef'
+const visualAuthSecret = defaultAuthSecret
+
 
 // 有意镜像 playwright.config.ts 的 e2e webServer（同一构建产物 + TEST_MODE 种子）。
 // 上游若调整该 server env，须同步此处（见回归记录归档 [2026-09-20-to-2026-09-25-phase67-migration.md](docs/reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) 的 M2 节（该窗口记录了视觉层与 e2e 的 webServer 镜像关系））。
@@ -82,6 +84,8 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium-visual',
+            /* 安装向导须在未安装态实例运行，默认 project 必须忽略，否则会被 302 截到首页。 */
+            testIgnore: '**/installation.visual.test.ts',
             use: {
                 ...devices['Desktop Chrome'],
                 viewport: { width: 1440, height: 900 },
@@ -92,14 +96,38 @@ export default defineConfig({
                 reducedMotion: 'reduce',
             },
         },
+        {
+            name: 'chromium-visual-installation',
+            testMatch: '**/installation.visual.test.ts',
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: installationBaseURL,
+                viewport: { width: 1440, height: 900 },
+                deviceScaleFactor: 1,
+                locale: 'zh-CN',
+                timezoneId: 'Asia/Shanghai',
+                colorScheme: 'light',
+                reducedMotion: 'reduce',
+                /* 该实例没有用户库，主实例的登录态（cookie 同 host 跨端口共享）会导致鉴权查询失败。 */
+                storageState: { cookies: [], origins: [] },
+            },
+        },
     ],
-    webServer: {
-        command: visualServerCommand,
-        url: visualBaseURL,
-        /* 服务器由本 config 的 webServer 启动（workflow 只负责构建 / 下载产物）。
-         * 与 e2e 共用端口 3001：CI 为独立 runner 无冲突；本地避免与 dev / e2e 并发运行。
-         * 本地复用已运行服务；CI 不复用（与 playwright.config.ts 一致）。 */
-        reuseExistingServer: !process.env.CI,
-        timeout: 600000,
-    },
+    webServer: [
+        {
+            command: visualServerCommand,
+            url: visualBaseURL,
+            /* 服务器由本 config 的 webServer 启动（workflow 只负责构建 / 下载产物）。
+             * 与 e2e 共用端口 3001：CI 为独立 runner 无冲突；本地避免与 dev / e2e 并发运行。
+             * 本地复用已运行服务；CI 不复用（与 playwright.config.ts 一致）。 */
+            reuseExistingServer: !process.env.CI,
+            timeout: 600000,
+        },
+        {
+            command: buildInstallationServerCommand(visualAuthSecret),
+            url: `${installationBaseURL}/api/install/status`,
+            reuseExistingServer: !process.env.CI,
+            timeout: 600000,
+        },
+    ],
 })
