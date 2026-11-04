@@ -418,4 +418,5 @@ Round 2 追加修复（复审 Reject 两项）：
 - 列表筛选的交互（日期区间查询、下拉清空后重置）未做 E2E，依赖既有服务端接口测试与本次结构检查。
 - `DatePicker` 只在 zh-CN 下实测面板文案；其余 4 语种沿用第六十九阶段的 locale 接线证据，未逐语种复查。
 - 该路由没有基线层用例（与既有 admin 列表页一致），像素守线由 parity 承担。
+- 已知样式债：时间列的 `headerClass` / `bodyClass` 由 `CaomeiDataTable` 内部节点承载，父组件 scoped 选择器无法命中（`min-width: 12rem` 实际未生效）；`setting-audit-log-list.vue` 同型。属迁移前既有机制问题、无行为回归，随 B4 的选择器 / token 清理统一改为 `:deep()` 或全局 utility class。
 <!-- regression-window:end:phase70-item-2c:第七十阶段条目 2c 通知管理迁移:2026-11-04 -->
