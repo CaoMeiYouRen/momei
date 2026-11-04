@@ -83,7 +83,7 @@ test.describe('Admin E2E Tests', () => {
 
     test('should load admin settings', async ({ page }) => {
         await gotoAdminRoute(page, '/admin/settings')
-        await expect(page.locator('form, .settings-content, .p-card').first()).toBeVisible({ timeout: 15000 })
+        await expect(page.locator('form, .settings-content, .caomei-card').first()).toBeVisible({ timeout: 15000 })
     })
 
     test('should load extended admin management pages', async ({ page }) => {

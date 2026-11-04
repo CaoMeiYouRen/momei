@@ -2114,6 +2114,542 @@
                 }
             ],
             "note": "校准：2026-11-04 第七十阶段条目 3 后按实测登记。dark 实测 48,708px / 3.758%（6 个横向条带，区域和 = 实测，无余量）；深色下反色文本 / 控件底色差异更分散，按条带归因。"
+        },
+        "user-settings-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 440,
+                        "y": 240,
+                        "width": 640,
+                        "height": 480
+                    },
+                    "pixels": 20594,
+                    "reason": "设置内容卡片：`CaomeiCard` 的 `padding=\"md\"`（1rem）比 PrimeVue card body（1.5rem）小，表单整体上移；Input / Select / FileUpload / Button 的外壳高度与边框差异叠加。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 760,
+                        "width": 960,
+                        "height": 160
+                    },
+                    "pixels": 8951,
+                    "reason": "页面页脚：内容卡片高度差（约 40px）导致页脚整体上移。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 200,
+                        "width": 40,
+                        "height": 240
+                    },
+                    "pixels": 398,
+                    "reason": "侧边导航图标列：PrimeIcons 改 lucide 后的尺寸与基线差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 29943px / 2.310%（3 区域，区域和 = 29943px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "user-settings-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 440,
+                        "y": 240,
+                        "width": 640,
+                        "height": 480
+                    },
+                    "pixels": 20875,
+                    "reason": "设置内容卡片：`CaomeiCard` 的 `padding=\"md\"`（1rem）比 PrimeVue card body（1.5rem）小，表单整体上移；Input / Select / FileUpload / Button 的外壳高度与边框差异叠加。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 760,
+                        "width": 960,
+                        "height": 160
+                    },
+                    "pixels": 8663,
+                    "reason": "页面页脚：内容卡片高度差（约 40px）导致页脚整体上移。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 200,
+                        "width": 40,
+                        "height": 240
+                    },
+                    "pixels": 363,
+                    "reason": "侧边导航图标列：PrimeIcons 改 lucide 后的尺寸与基线差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 29901px / 2.307%（3 区域，区域和 = 29901px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-login-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 120,
+                        "width": 400,
+                        "height": 560
+                    },
+                    "pixels": 16237,
+                    "reason": "登录卡片内部：Card body 内边距 1.5rem → 1rem；Input / Password / Checkbox / Divider / Button 换到 caomei 契约后的高度与边框差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 16237px / 1.253%（1 区域，区域和 = 16237px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-login-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 120,
+                        "width": 400,
+                        "height": 560
+                    },
+                    "pixels": 16268,
+                    "reason": "登录卡片内部：Card body 内边距 1.5rem → 1rem；Input / Password / Checkbox / Divider / Button 换到 caomei 契约后的高度与边框差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 16268px / 1.255%（1 区域，区域和 = 16268px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-register-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 280,
+                        "width": 400,
+                        "height": 480
+                    },
+                    "pixels": 20525,
+                    "reason": "注册卡片表单区：字段外壳与按钮换 caomei 后的高度 / 边框差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 80,
+                        "width": 280,
+                        "height": 160
+                    },
+                    "pixels": 5362,
+                    "reason": "卡片标题区：`#title` 插槽合并进 `CaomeiCard` 头部后 logo 与标题的行盒差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 840,
+                        "width": 960,
+                        "height": 80
+                    },
+                    "pixels": 2473,
+                    "reason": "页脚：卡片比参考态矮约 8px，页脚随之上移。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 28360px / 2.188%（3 区域，区域和 = 28360px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-register-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 280,
+                        "width": 400,
+                        "height": 480
+                    },
+                    "pixels": 20932,
+                    "reason": "注册卡片表单区：字段外壳与按钮换 caomei 后的高度 / 边框差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 520,
+                        "y": 120,
+                        "width": 280,
+                        "height": 120
+                    },
+                    "pixels": 5002,
+                    "reason": "卡片标题 / logo 区：`#title` 插槽合并进 `CaomeiCard` 头部后的行盒差异（深色下反色文本达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 240,
+                        "y": 840,
+                        "width": 960,
+                        "height": 80
+                    },
+                    "pixels": 2394,
+                    "reason": "页脚：卡片比参考态矮约 8px，页脚随之上移。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 28328px / 2.186%（4 个连通区域 / 3 条允许清单，区域和 = 28328px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-forgot-password-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 440,
+                        "width": 320,
+                        "height": 200
+                    },
+                    "pixels": 2219,
+                    "reason": "找回密码卡片表单区：Input / Button 换 caomei 后的输入框高度与按钮内边距差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 360,
+                        "width": 320,
+                        "height": 40
+                    },
+                    "pixels": 1080,
+                    "reason": "邮箱输入行：字段外壳高度差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 240,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 398,
+                    "reason": "卡片标题 / logo 区：Card 头部排版差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 3697px / 0.285%（3 区域，区域和 = 3697px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-forgot-password-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 440,
+                        "width": 320,
+                        "height": 200
+                    },
+                    "pixels": 2168,
+                    "reason": "找回密码卡片表单区：Input / Button 换 caomei 后的输入框高度与按钮内边距差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 360,
+                        "width": 320,
+                        "height": 40
+                    },
+                    "pixels": 1020,
+                    "reason": "邮箱输入行：字段外壳高度差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 240,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 250,
+                    "reason": "卡片标题 / logo 区：Card 头部排版差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 3438px / 0.265%（3 区域，区域和 = 3438px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-reset-password-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 520,
+                        "width": 320,
+                        "height": 200
+                    },
+                    "pixels": 4971,
+                    "reason": "重置密码表单下半部：两个 Password 字段的外壳高度差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 240,
+                        "width": 320,
+                        "height": 160
+                    },
+                    "pixels": 2484,
+                    "reason": "表单上半部：邮箱 / OTP 字段外壳差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 440,
+                        "width": 320,
+                        "height": 40
+                    },
+                    "pixels": 1190,
+                    "reason": "字段间分隔区域：行高差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 120,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 398,
+                    "reason": "卡片标题 / logo 区：Card 头部排版差异。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 880,
+                        "width": 120,
+                        "height": 40
+                    },
+                    "pixels": 72,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 880,
+                        "width": 40,
+                        "height": 40
+                    },
+                    "pixels": 44,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 800,
+                        "y": 880,
+                        "width": 40,
+                        "height": 40
+                    },
+                    "pixels": 36,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 880,
+                        "y": 880,
+                        "width": 80,
+                        "height": 40
+                    },
+                    "pixels": 36,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1000,
+                        "y": 876,
+                        "width": 44,
+                        "height": 44
+                    },
+                    "pixels": 36,
+                    "reason": "页脚右侧（语言切换等）文字的细微差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 9267px / 0.715%（9 区域，区域和 = 9267px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "auth-reset-password-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 520,
+                        "width": 320,
+                        "height": 200
+                    },
+                    "pixels": 4805,
+                    "reason": "重置密码表单下半部：两个 Password 字段的外壳高度差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 240,
+                        "width": 320,
+                        "height": 160
+                    },
+                    "pixels": 2450,
+                    "reason": "表单上半部：邮箱 / OTP 字段外壳差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 440,
+                        "width": 320,
+                        "height": 40
+                    },
+                    "pixels": 1086,
+                    "reason": "字段间分隔区域：行高差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 680,
+                        "y": 160,
+                        "width": 80,
+                        "height": 40
+                    },
+                    "pixels": 250,
+                    "reason": "卡片标题 / logo 区：Card 头部排版差异（深色）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 640,
+                        "y": 880,
+                        "width": 120,
+                        "height": 40
+                    },
+                    "pixels": 68,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 880,
+                        "width": 40,
+                        "height": 40
+                    },
+                    "pixels": 45,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 800,
+                        "y": 880,
+                        "width": 40,
+                        "height": 40
+                    },
+                    "pixels": 34,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 880,
+                        "y": 880,
+                        "width": 80,
+                        "height": 40
+                    },
+                    "pixels": 34,
+                    "reason": "页脚链接 / 说明文字的细微字距与行盒差异（<100px 的小区域）。",
+                    "owner": "@frontend-developer"
+                },
+                {
+                    "region": {
+                        "x": 1000,
+                        "y": 876,
+                        "width": 44,
+                        "height": 44
+                    },
+                    "pixels": 34,
+                    "reason": "页脚右侧（语言切换等）文字的细微差异（深色）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 8806px / 0.679%（9 区域，区域和 = 8806px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "submit-page-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 680
+                    },
+                    "pixels": 34491,
+                    "reason": "投稿卡片整体：`CaomeiCard` 内边距 1.5rem → 1rem，Input / Textarea / Message / Button 换 caomei 后的字段高度、边框与错误提示排版差异。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。light 实测 34491px / 2.661%（1 区域，区域和 = 34491px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "submit-page-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 680
+                    },
+                    "pixels": 33575,
+                    "reason": "投稿卡片整体：`CaomeiCard` 内边距 1.5rem → 1rem，Input / Textarea / Message / Button 换 caomei 后的字段高度、边框与错误提示排版差异（深色下反色文本 / 底色对比使达到阈值的像素更多）。",
+                    "owner": "@frontend-developer"
+                }
+            ],
+            "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 33575px / 2.591%（1 区域，区域和 = 33575px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
         }
     }
 }

@@ -7,7 +7,7 @@ test.describe('Authentication E2E Tests', () => {
 
         // 验证登录页面元素存在
         await expect(page.locator('input#email')).toBeVisible()
-        await expect(page.locator('#password input')).toBeVisible()
+        await expect(page.locator('input#password')).toBeVisible()
         await expect(page.locator('button[type="submit"]')).toBeVisible()
     })
 
@@ -17,7 +17,7 @@ test.describe('Authentication E2E Tests', () => {
         // 验证注册页面元素存在
         await expect(page.locator('input#name')).toBeVisible()
         await expect(page.locator('input#email')).toBeVisible()
-        await expect(page.locator('#password input')).toBeVisible()
+        await expect(page.locator('input#password')).toBeVisible()
         await expect(page.locator('button[type="submit"]')).toBeVisible()
     })
 
@@ -31,7 +31,7 @@ test.describe('Authentication E2E Tests', () => {
         await page.goto('/login')
 
         await page.fill('input#email', 'wrong@momei.test')
-        await page.fill('#password input', 'wrongpassword')
+        await page.fill('input#password', 'wrongpassword')
         await page.click('button[type="submit"]')
 
         // 应该仍然在登录页或显示错误

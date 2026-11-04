@@ -205,6 +205,50 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         server: 'installation',
     },
     {
+        /* 用户设置（首次 reader 档）；SSE 长连接使 networkidle 不达成，沿用 lenient 稳定窗口。 */
+        name: 'user-settings',
+        path: '/settings',
+        heading: '个人中心',
+        tier: 'reader',
+        migrated: true,
+        stable: 'lenient',
+    },
+    {
+        name: 'auth-login',
+        path: '/login',
+        heading: '欢迎回来，请登录',
+        tier: 'reader',
+        migrated: true,
+    },
+    {
+        name: 'auth-register',
+        path: '/register',
+        heading: '创建新账号',
+        tier: 'reader',
+        migrated: true,
+    },
+    {
+        name: 'auth-forgot-password',
+        path: '/forgot-password',
+        heading: '找回密码',
+        tier: 'reader',
+        migrated: true,
+    },
+    {
+        name: 'auth-reset-password',
+        path: '/reset-password',
+        heading: '重置密码',
+        tier: 'reader',
+        migrated: true,
+    },
+    {
+        name: 'submit-page',
+        path: '/submit',
+        heading: '访客投稿',
+        tier: 'reader',
+        migrated: true,
+    },
+    {
         /* 通知管理整路由迁移；参考态保持迁移前 HEAD 采集。 */
         name: 'admin-notifications-list',
         path: '/admin/notifications',
@@ -242,7 +286,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）仍在册的 6 条路由（用户设置、5 个认证 / 提交页）。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）已全部迁移，本层当前为空。
  *
  * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
@@ -254,53 +298,4 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* B3-A / B3-C 已全部迁入 `MIGRATED_ROUTES`；本层保留用户设置与认证 / 提交页，
-     * 参考态均在条目 1c 以 HEAD（PrimeVue）采集。 */
-    /* B3-D 用户设置与 5 个认证 / 提交页（tier=reader）：首次启用 reader 档。
-     * 这些路由名不含 `reader` 字样，档位由 `tier` 显式传入（不再依赖名字启发式）。 */
-    {
-        name: 'user-settings',
-        path: '/settings',
-        heading: '个人中心',
-        tier: 'reader',
-        migrated: false,
-        /* 登录态的 AppHeader 会打开 `/api/notifications/stream`（SSE 长连接），
-         * `networkidle` 可能永不达成（与 `/admin/users` 同源），改用有界稳定窗口。 */
-        stable: 'lenient',
-    },
-    {
-        name: 'auth-login',
-        path: '/login',
-        heading: '欢迎回来，请登录',
-        tier: 'reader',
-        migrated: false,
-    },
-    {
-        name: 'auth-register',
-        path: '/register',
-        heading: '创建新账号',
-        tier: 'reader',
-        migrated: false,
-    },
-    {
-        name: 'auth-forgot-password',
-        path: '/forgot-password',
-        heading: '找回密码',
-        tier: 'reader',
-        migrated: false,
-    },
-    {
-        name: 'auth-reset-password',
-        path: '/reset-password',
-        heading: '重置密码',
-        tier: 'reader',
-        migrated: false,
-    },
-    {
-        name: 'submit-page',
-        path: '/submit',
-        heading: '访客投稿',
-        tier: 'reader',
-        migrated: false,
-    },
 ]

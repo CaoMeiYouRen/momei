@@ -132,13 +132,13 @@ export class AuthHelper {
         await this.page.waitForLoadState('domcontentloaded')
 
         // 填写表单
-        // PrimeVue 的 InputText 渲染为 input#email
+        // caomei 与 PrimeVue 均把 id 落在内层 input 上
         const emailInput = this.page.locator('input#email')
         await expect(emailInput).toBeVisible()
         await emailInput.fill(TEST_ADMIN.email)
 
-        // PrimeVue 的 Password 组件内部包含一个 input
-        const passwordInput = this.page.locator('#password input')
+        // caomei 的 Password 把 id 透传内层 input（`input#password`）；旧版 PrimeVue 的 `#password input` 已失效
+        const passwordInput = this.page.locator('input#password')
         await expect(passwordInput).toBeVisible()
         await passwordInput.fill(TEST_ADMIN.password)
 

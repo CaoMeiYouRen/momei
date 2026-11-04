@@ -71,8 +71,8 @@ test.describe('User Workflow E2E Tests', () => {
             // 填写表单，密码不匹配
             await page.fill('input#name', '测试用户')
             await page.fill('input#email', 'test@momei.test')
-            await page.fill('input#password_input, #password input', 'password123')
-            await page.fill('input#confirmPassword_input, #confirmPassword input', 'password456')
+            await page.fill('input#password, #password input', 'password123')
+            await page.fill('input#confirmPassword, #confirmPassword input', 'password456')
             await acceptAgreement(page)
 
             // 点击提交
@@ -90,8 +90,8 @@ test.describe('User Workflow E2E Tests', () => {
             // 填写表单但不勾选同意复选框
             await page.fill('input#name', '测试用户')
             await page.fill('input#email', 'test@momei.test')
-            await page.fill('input#password_input, #password input', 'password123')
-            await page.fill('input#confirmPassword_input, #confirmPassword input', 'password123')
+            await page.fill('input#password, #password input', 'password123')
+            await page.fill('input#confirmPassword, #confirmPassword input', 'password123')
 
             // 不勾选同意复选框，直接提交
             await submitForm(page, '.register-form__submit-btn')
@@ -184,6 +184,47 @@ test.describe('User Workflow E2E Tests', () => {
 
             await expect(page.locator('.subscription-settings').first()).toBeVisible({ timeout: 10000 })
             await expect(page.locator('body')).not.toContainText('pages.settings.notifications')
+        })
+
+        test('should constrain commercial link thumbnails to a fixed size', async ({ page }) => {
+            /* caomei `Image` 不把 width / height 透传到内层 img，尺寸必须由包装层承载；
+             * 该面板不在 parity / 基线覆盖内，用定向 E2E 守住 40px 缩略图与 120px 预览。 */
+            await page.route('**/api/user/commercial*', (route) => route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    code: 200,
+                    data: {
+                        socialLinks: [{ platform: 'github', url: 'https://github.com/momei', image: '/logo.png', locales: [] }],
+                        donationLinks: [{ platform: 'wechat_pay', url: '', image: '/logo.png', locales: [] }],
+                    },
+                }),
+            }))
+
+            /* 先进入设置页，再切到商用页签：`useAsyncData` 在 SSR 阶段会直接请求，
+             * 只有客户端切换时的请求能被 `page.route` 拦截（否则只能依赖测试账号真实数据）。 */
+            await page.goto('/settings')
+            test.skip(page.url().includes('/login'), 'Auth state not available for settings page')
+            /* 头像子树是 `ClientOnly`，可见即代表水合完成；否则点击页签会在监听器挂载前失效。 */
+            await expect(page.locator('.settings-profile .caomei-avatar')).toBeVisible({ timeout: 15000 })
+            /* 第 5 个菜单项（商用）依赖会话角色，等它出现再点击，避免晚到会话导致点错页签。 */
+            await expect(page.locator('.settings-menu-item')).toHaveCount(5, { timeout: 15000 })
+            await page.locator('.settings-menu-item').last().click()
+
+            const thumbnail = page.locator('.commercial-manager__card-actions .caomei-image').first()
+            await expect(thumbnail).toBeVisible({ timeout: 15000 })
+            await expect.poll(async () => {
+                const box = await thumbnail.boundingBox()
+                return box ? [Math.round(box.width), Math.round(box.height)] : null
+            }).toEqual([40, 40])
+
+            await page.locator('[data-testid="donation-edit-0"]').click()
+            const preview = page.locator('.commercial-link-dialog__preview .caomei-image')
+            await expect(preview).toBeVisible({ timeout: 10000 })
+            await expect.poll(async () => {
+                const box = await preview.boundingBox()
+                return box ? [Math.round(box.width), Math.round(box.height)] : null
+            }).toEqual([120, 120])
         })
 
         test.skip('should change user avatar', async ({ page }) => {

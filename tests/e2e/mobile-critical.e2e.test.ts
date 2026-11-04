@@ -38,7 +38,7 @@ test.describe('Mobile Critical Admin Flow E2E Tests', () => {
             // 无预存认证态时：验证登录页元素并完成 UI 登录
             await page.goto('/login')
             await expect(page.locator('input#email')).toBeVisible({ timeout: 20000 })
-            await expect(page.locator('#password input')).toBeVisible({ timeout: 20000 })
+            await expect(page.locator('input#password')).toBeVisible({ timeout: 20000 })
             await expect(page.locator('button[type="submit"]')).toBeVisible({ timeout: 20000 })
             await new AuthHelper(page).loginAsAdmin()
         }

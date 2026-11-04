@@ -6,9 +6,9 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * 当前登记 **B3 的 6 条待迁移路由**（用户设置、5 个认证 / 提交页）。安装向导已于条目 3 迁入
- * `MIGRATED_ROUTES` 并继续由独立 project（`installation.visual-parity.test.ts`）承载，故本文件
- * 实际产出 6 条路由 × 2 主题 = 12 条用例。参考态为 HEAD（PrimeVue）就地采集。
+ * 当前 `PENDING_ROUTES` **为空**：第七十阶段 B3 的 10 条路由（设置 / 主题 / 通知 / 安装向导 /
+ * 用户设置 / 5 个认证与提交页）已全部迁入 `MIGRATED_ROUTES`。本文件与待迁移清单保留，供后续批次登记；
+ * 空清单时本文件产出 0 条用例，Playwright 按「无测试」处理。参考态仍为 HEAD（PrimeVue）就地采集。
  *
  * 待其迁移到 caomei-ui 后，把条目移入 `MIGRATED_ROUTES`、保持参考态不变，本文件中的用例
  * 会立即反映「与迁移前原貌」的偏差，从而强制逐项归因（token 覆盖 / 预设 / 包装覆盖 /
