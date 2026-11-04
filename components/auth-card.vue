@@ -21,16 +21,18 @@
                 <slot />
 
                 <div v-if="error" class="error-message">
-                    <i class="pi pi-exclamation-circle" />
+                    <CircleAlert :size="16" aria-hidden="true" />
                     <span>{{ error }}</span>
                 </div>
 
-                <Button
+                <CaomeiButton
                     type="submit"
                     :label="$t(submitLabel)"
                     :loading="loading"
                     class="submit-btn"
-                />
+                >
+                    {{ $t(submitLabel) }}
+                </CaomeiButton>
 
                 <div v-if="$slots.footer" class="auth-footer">
                     <slot name="footer" />
@@ -41,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { CircleAlert } from '@lucide/vue'
+
 defineProps<{
     titleKey: string
     subtitleKey: string

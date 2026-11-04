@@ -10,32 +10,36 @@
         <div class="commercial-link-dialog__body">
             <div class="commercial-link-dialog__field">
                 <label>{{ $t(`${i18nPrefix}.platform`) }}</label>
-                <Select
+                <CaomeiSelect
                     v-model="link.platform"
                     :options="platforms"
                     option-label="key"
                     option-value="key"
                     class="w-full"
                 >
-                    <template #option="slotProps">
+                    <template #option="{option}">
                         <div class="commercial-link-dialog__select-option">
-                            <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
-                            <span>{{ slotProps.option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${slotProps.option.key}`) }}</span>
+                            <i :class="option.icon" :style="{color: option.color}" />
+                            <span>{{ option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${option.key}`) }}</span>
                         </div>
                     </template>
-                    <template #value="slotProps">
-                        <div v-if="slotProps.value" class="commercial-link-dialog__select-value">
-                            <i :class="platformIcon(slotProps.value)" :style="{color: platformColor(slotProps.value)}" />
-                            <span>{{ slotProps.value === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${slotProps.value}`) }}</span>
+                    <template #value="{option}">
+                        <div v-if="option" class="commercial-link-dialog__select-value">
+                            <i :class="platformIcon(option.key)" :style="{color: platformColor(option.key)}" />
+                            <span>{{ option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${option.key}`) }}</span>
                         </div>
-                        <span v-else>{{ slotProps.placeholder }}</span>
+                        <!-- 存量数据里的平台键可能不在当前选项集（旧版本改名 / 手改 DB）：
+                             caomei 提供 `#value` 后不再渲染内建 placeholder，需自兜底。 -->
+                        <span v-else class="commercial-link-dialog__select-value">
+                            {{ link.platform || $t(`${i18nPrefix}.platform`) }}
+                        </span>
                     </template>
-                </Select>
+                </CaomeiSelect>
             </div>
 
             <div v-if="link.platform === 'custom'" class="commercial-link-dialog__field">
                 <label for="dialog-label">{{ $t(`${i18nPrefix}.label`) }}</label>
-                <InputText
+                <CaomeiInput
                     id="dialog-label"
                     v-model="link.label"
                     class="w-full"
@@ -44,7 +48,7 @@
 
             <div v-if="platformType !== 'image'" class="commercial-link-dialog__field">
                 <label for="dialog-url">{{ $t(`${i18nPrefix}.url`) }}</label>
-                <InputText
+                <CaomeiInput
                     id="dialog-url"
                     v-model="link.url"
                     class="w-full"
@@ -54,12 +58,11 @@
 
             <div v-if="showImage !== false && (platformType === 'image' || platformType === 'both')" class="commercial-link-dialog__field">
                 <label for="dialog-image">{{ $t(`${i18nPrefix}.image`) }}</label>
-                <AppUploader v-model="link.image" class="w-full" />
+                <AppUploaderV2 v-model="link.image" class="w-full" />
                 <div v-if="link.image" class="commercial-link-dialog__preview">
-                    <Image
+                    <CaomeiImage
                         :src="link.image"
                         alt="Preview"
-                        width="120"
                         preview
                     />
                 </div>
@@ -67,7 +70,7 @@
 
             <div class="commercial-link-dialog__field">
                 <label>{{ $t(`${i18nPrefix}.locales`) }}</label>
-                <MultiSelect
+                <CaomeiMultiSelect
                     v-model="link.locales"
                     :options="localeOptions"
                     option-label="label"
@@ -79,17 +82,21 @@
         </div>
         <template #footer>
             <div class="commercial-link-dialog__footer">
-                <Button
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     :label="$t('common.cancel')"
-                    text
-                    severity="secondary"
                     @click="$emit('update:visible', false)"
-                />
-                <Button
+                >
+                    {{ $t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :label="$t('common.save')"
                     :data-testid="`${kind}-save`"
                     @click="$emit('save')"
-                />
+                >
+                    {{ $t('common.save') }}
+                </CaomeiButton>
             </div>
         </template>
     </CaomeiDialog>
@@ -141,6 +148,17 @@ defineEmits<{ save: [], 'update:visible': [visible: boolean] }>()
         padding: $spacing-sm;
         border-radius: $border-radius-sm;
         border: 1px solid var(--p-surface-200);
+
+        /* caomei 的 `Image` 不透传 width / height 到内层 img（`$attrs` 只落根元素），
+         * 尺寸必须由包装层承载；内层 img 高度默认 100%，需一并改回 auto 以保持原始比例。 */
+        :deep(.caomei-image) {
+            width: 120px;
+            height: auto;
+        }
+
+        :deep(.caomei-image__img) {
+            height: auto;
+        }
 
         .dark & {
             background-color: var(--p-surface-900);

@@ -118,22 +118,22 @@ const AppCaptchaStub = defineComponent({
 })
 
 const stubs = {
-    Card: { template: '<div class="submit-card"><slot name="content" /></div>' },
-    Button: {
-        template: '<button :type="type" :data-loading="String(!!loading)">{{ label }}</button>',
+    CaomeiCard: { template: '<div class="submit-card"><slot /></div>' },
+    CaomeiButton: {
+        template: '<button :type="type" :data-loading="String(!!loading)">{{ label }}<slot /></button>',
         props: ['type', 'label', 'loading', 'class'],
     },
-    InputText: {
+    CaomeiInput: {
         template: '<input :id="id" :value="modelValue" :type="type" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['id', 'modelValue', 'type', 'invalid', 'placeholder', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Textarea: {
+    CaomeiTextarea: {
         template: '<textarea :id="id" :value="modelValue" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['id', 'modelValue', 'invalid', 'placeholder', 'rows', 'fluid'],
         emits: ['update:modelValue'],
     },
-    Message: {
+    CaomeiMessage: {
         template: '<div class="message"><slot /></div>',
         props: ['severity', 'size', 'variant'],
     },

@@ -2,8 +2,8 @@
     <!--
       过渡组件：同一文件内按路由择库。
       - 已迁移路由（`lib/ui-library.ts` 登记）：渲染 caomei-ui `Avatar`；
-      - 未迁移路由（含公开页 `comment-item` / `posts/[id]` 与 `settings-profile`）：回退到 V1，
-        避免公开页头像被被动改变。
+      - 未迁移路由（含公开页 `comment-item` / `posts/[id]`）：回退到 V1，避免公开页头像被被动改变。
+        `/settings` 已于第七十阶段条目 4 登记，`settings-profile` 现在走 caomei 分支。
       属性透传用**显式** `v-bind="$attrs"`（配合 `inheritAttrs: false`）：不依赖 Vue 对
       「组件根」的隐式 fallthrough——该机制在当前实现下确实生效（`CaomeiAvatar` 的根是
       「注释节点 + 单一元素」的 fragment，Vue 会跳过注释并把唯一非注释子节点当作根），
@@ -43,6 +43,7 @@ import { resolveUiLibraryForRoutePath } from '@/lib/ui-library'
  * 页面替换是各自路由批次的原子步骤**）与公开页 / 设置页（`comment-item` / `pages/posts/[id]`、`settings/profile`）。若直接改写 `AppAvatar`，
  * 公开页头像会被被动改变。故并存期新增本过渡组件，**内部按路由择库**（`lib/ui-library.ts` 为单一事实源）：
  * 未迁移路由回退到 V1，因此本组件可在任意路由安全采用；待全站迁完后再删除 V1 分支。
+ * 2026-11-04 起 `/settings` 已登记，设置页头像走 caomei 分支。
  *
  * 与 V1 的差异（均为有意，见迁移方案 §6.2 与上游反馈清单 §2.1）：
  * - **尺寸档位映射（边框盒尺寸保真）**：PrimeVue 有效档位为 `normal`(32px) / `large`(48px) / `xlarge`(64px)，

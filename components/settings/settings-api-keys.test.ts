@@ -1,10 +1,8 @@
-import { defineComponent, inject, provide, ref, toRef } from 'vue'
+import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsApiKeys from './settings-api-keys.vue'
 import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
-
-const dataTableRowsKey = Symbol('data-table-rows')
 
 const { fetchMock, toastAddMock, writeTextMock } = vi.hoisted(() => ({
     fetchMock: vi.fn(),
@@ -22,49 +20,33 @@ mockNuxtImport('useI18nDate', () => () => ({
 
 vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
-const DataTableStub = defineComponent({
+const CaomeiDataTableStub = defineComponent({
     props: {
-        value: {
+        data: {
+            type: Array,
+            default: () => [],
+        },
+        columns: {
             type: Array,
             default: () => [],
         },
         loading: Boolean,
     },
-    setup(props) {
-        provide(dataTableRowsKey, toRef(props, 'value'))
-        return {}
-    },
-    template: '<div class="data-table"><slot /></div>',
-})
-
-const ColumnStub = defineComponent({
-    props: {
-        field: {
-            type: String,
-            default: '',
-        },
-        header: {
-            type: String,
-            default: '',
-        },
-    },
-    setup() {
-        const rows = inject(dataTableRowsKey, ref<Record<string, unknown>[]>([]))
-        return { rows }
-    },
     template: `
-        <div class="column" :data-header="header">
-            <div v-for="row in rows" :key="row.id || header" class="column-row">
-                <slot name="body" :data="row">
-                    <span>{{ field ? row[field] : '' }}</span>
-                </slot>
+        <div class="data-table">
+            <div v-for="column in columns" :key="column.key" class="table-header">{{ column.header }}</div>
+            <div v-for="row in data" :key="row.id" class="table-row">
+                <div v-for="column in columns" :key="column.key" class="table-cell">
+                    <slot :name="'cell-' + column.key" :row="row">{{ row[column.key] }}</slot>
+                </div>
             </div>
+            <slot name="empty" />
         </div>
     `,
 })
 
 const stubs = {
-    InputText: {
+    CaomeiInput: {
         props: ['modelValue', 'placeholder', 'readonly', 'value'],
         emits: ['update:modelValue'],
         template: `
@@ -76,7 +58,7 @@ const stubs = {
             >
         `,
     },
-    Select: {
+    CaomeiSelect: {
         props: ['modelValue', 'options', 'optionLabel', 'optionValue'],
         emits: ['update:modelValue'],
         template: `
@@ -87,13 +69,13 @@ const stubs = {
             </select>
         `,
     },
-    Button: {
+    CaomeiButton: {
         props: ['label', 'icon', 'loading', 'disabled', 'type'],
         emits: ['click'],
         template: `
             <button
                 :type="type || 'button'"
-                :data-icon="icon || ''"
+                :aria-label="label"
                 :disabled="disabled || loading"
                 @click="$emit('click')"
             >
@@ -102,18 +84,16 @@ const stubs = {
             </button>
         `,
     },
-    DataTable: DataTableStub,
-    Column: ColumnStub,
-    Tag: {
-        props: ['value', 'severity'],
-        template: '<span class="tag">{{ value }}</span>',
+    CaomeiDataTable: CaomeiDataTableStub,
+    CaomeiTag: {
+        template: '<span class="tag"><slot /></span>',
     },
     CaomeiDialog: {
         props: ['open', 'title', 'modal', 'style'],
         emits: ['update:open'],
         template: '<div v-if="open" class="dialog"><slot /><slot name="footer" /></div>',
     },
-    Message: {
+    CaomeiMessage: {
         props: ['severity', 'closable'],
         template: '<div class="message"><slot /></div>',
     },
@@ -170,14 +150,14 @@ describe('SettingsApiKeys', () => {
         expect(wrapper.text()).toContain('pages.settings.api_keys.never_expires')
     })
 
-    it('renders table column headers via PrimeVue header prop', async () => {
+    it('renders table column headers from the columns prop', async () => {
         const wrapper = await mountComponent()
 
         await vi.waitFor(() => {
             expect(fetchMock).toHaveBeenCalledWith('/api/user/api-keys')
         })
 
-        expect(wrapper.findAll('.column').map((column) => column.attributes('data-header'))).toEqual([
+        expect(wrapper.findAll('.table-header').map((header) => header.text())).toEqual([
             'pages.settings.api_keys.name',
             'pages.settings.api_keys.prefix',
             'pages.settings.api_keys.last_used_at',
@@ -281,7 +261,7 @@ describe('SettingsApiKeys', () => {
 
         const wrapper = await mountComponent()
 
-        const deleteButton = wrapper.find('button[data-icon="pi pi-trash"]')
+        const deleteButton = wrapper.find('button[aria-label="common.delete"]')
         await deleteButton.trigger('click')
 
         await vi.waitFor(() => {
@@ -323,7 +303,7 @@ describe('SettingsApiKeys', () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
         const wrapper = await mountComponent()
 
-        await wrapper.find('button[data-icon="pi pi-trash"]').trigger('click')
+        await wrapper.find('button[aria-label="common.delete"]').trigger('click')
 
         await vi.waitFor(() => {
             expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
@@ -354,7 +334,7 @@ describe('SettingsApiKeys', () => {
         await wrapper.get('input[placeholder="pages.settings.api_keys.name"]').setValue('Clipboard key')
         await wrapper.findAll('button').find((button) => button.text().includes('pages.settings.api_keys.create_btn'))?.trigger('click')
 
-        const copyButton = wrapper.find('button[data-icon="pi pi-copy"]')
+        const copyButton = wrapper.find('button[aria-label="common.copy"]')
         await copyButton.trigger('click')
 
         expect(writeTextMock).toHaveBeenCalledWith('copy-me')

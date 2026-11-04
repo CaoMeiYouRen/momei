@@ -68,17 +68,17 @@ mockNuxtImport('useRoute', () => () => ({
 }))
 
 const stubs = {
-    Button: {
+    CaomeiButton: {
         template: '<button :type="type" :data-loading="String(loading)" @click="$emit(\'click\')">{{ label }}</button>',
         props: ['label', 'loading', 'type', 'class'],
         emits: ['click'],
     },
-    InputText: {
+    CaomeiInput: {
         template: '<input :id="id" :value="modelValue" :type="type" :placeholder="placeholder" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'type', 'id', 'placeholder', 'required', 'fluid', 'disabled'],
         emits: ['update:modelValue'],
     },
-    Password: {
+    CaomeiPassword: {
         template: '<input :id="id" :value="modelValue" :placeholder="placeholder" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid', 'id', 'placeholder', 'required'],
         emits: ['update:modelValue'],

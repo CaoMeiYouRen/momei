@@ -8,54 +8,50 @@
             <h4 class="font-medium mb-4 text-lg">
                 {{ $t("pages.settings.security.change_password") }}
             </h4>
-            <Message severity="info" class="mb-4">
+            <CaomeiMessage tone="primary" class="mb-4">
                 {{ $t("pages.settings.security.set_password_hint") }}
                 <NuxtLink :to="localePath('/forgot-password')" class="font-bold underline">
                     {{ $t("pages.login.forgot_password") }}
                 </NuxtLink>
-            </Message>
+            </CaomeiMessage>
 
             <form class="settings-form" @submit.prevent="handleChangePassword">
                 <div class="settings-form__field">
                     <label for="currentPassword">{{ $t("pages.settings.security.current_password") }}</label>
-                    <Password
+                    <CaomeiPassword
                         id="currentPassword"
                         v-model="passwordForm.currentPassword"
-                        toggle-mask
                         :feedback="false"
-                        fluid
                     />
                 </div>
                 <div class="settings-form__field">
                     <label for="newPassword">{{ $t("pages.settings.security.new_password") }}</label>
-                    <Password
+                    <CaomeiPassword
                         id="newPassword"
                         v-model="passwordForm.newPassword"
-                        toggle-mask
                         :feedback="true"
-                        fluid
                     />
                 </div>
                 <div class="settings-form__field">
                     <label for="confirmPassword">{{ $t("pages.settings.security.confirm_password") }}</label>
-                    <Password
+                    <CaomeiPassword
                         id="confirmPassword"
                         v-model="passwordForm.confirmPassword"
-                        toggle-mask
                         :feedback="false"
-                        fluid
                     />
                 </div>
-                <Button
+                <CaomeiButton
                     type="submit"
                     :label="$t('pages.settings.security.update_password')"
                     :loading="loading"
                     class="settings-form__submit-btn"
-                />
+                >
+                    {{ $t('pages.settings.security.update_password') }}
+                </CaomeiButton>
             </form>
         </div>
 
-        <Divider class="my-8" />
+        <CaomeiDivider class="my-8" />
 
         <div class="security-section">
             <h4 class="font-medium mb-4 text-lg">
@@ -74,26 +70,33 @@
                         </div>
                     </div>
                     <div class="account-actions">
-                        <Button
+                        <CaomeiButton
                             v-if="isGitHubLinked"
-                            icon="pi pi-trash"
-                            severity="danger"
-                            text
+                            icon-only
+                            variant="ghost"
+                            tone="danger"
                             rounded
-                            :aria-label="$t('pages.settings.security.unlink_account')"
+                            :label="$t('pages.settings.security.unlink_account')"
                             :loading="loadingUnlink === 'github'"
                             @click="handleUnlink('github')"
-                        />
-                        <Button
+                        >
+                            <template #icon>
+                                <Trash2 :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
                             v-else
+                            variant="secondary"
                             :label="$t('pages.settings.security.link_github')"
-                            icon="pi pi-github"
                             class="github-btn social-btn"
-                            severity="secondary"
-                            outlined
                             :loading="loadingLink === 'github'"
                             @click="handleLink('github')"
-                        />
+                        >
+                            <template #icon>
+                                <i class="pi pi-github" aria-hidden="true" />
+                            </template>
+                            {{ $t('pages.settings.security.link_github') }}
+                        </CaomeiButton>
                     </div>
                 </div>
 
@@ -109,26 +112,33 @@
                         </div>
                     </div>
                     <div class="account-actions">
-                        <Button
+                        <CaomeiButton
                             v-if="isGoogleLinked"
-                            icon="pi pi-trash"
-                            severity="danger"
-                            text
+                            icon-only
+                            variant="ghost"
+                            tone="danger"
                             rounded
-                            :aria-label="$t('pages.settings.security.unlink_account')"
+                            :label="$t('pages.settings.security.unlink_account')"
                             :loading="loadingUnlink === 'google'"
                             @click="handleUnlink('google')"
-                        />
-                        <Button
+                        >
+                            <template #icon>
+                                <Trash2 :size="16" />
+                            </template>
+                        </CaomeiButton>
+                        <CaomeiButton
                             v-else
+                            variant="secondary"
                             :label="$t('pages.settings.security.link_google')"
-                            icon="pi pi-google"
                             class="google-btn social-btn"
-                            severity="secondary"
-                            outlined
                             :loading="loadingLink === 'google'"
                             @click="handleLink('google')"
-                        />
+                        >
+                            <template #icon>
+                                <i class="pi pi-google" aria-hidden="true" />
+                            </template>
+                            {{ $t('pages.settings.security.link_google') }}
+                        </CaomeiButton>
                     </div>
                 </div>
             </div>
@@ -137,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { Trash2 } from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import { z } from 'zod'
 import { authClient } from '@/lib/auth-client'

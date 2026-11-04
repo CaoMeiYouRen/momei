@@ -1,6 +1,6 @@
 <template>
     <div class="login-page">
-        <Card class="login-card">
+        <CaomeiCard class="login-card">
             <template #title>
                 <div class="login-card__header">
                     <img
@@ -15,138 +15,140 @@
                     </h1>
                 </div>
             </template>
-            <template #content>
-                <div class="login-form">
-                    <div
-                        v-if="hasSocialLogin"
-                        class="login-form__social"
+            <div class="login-form">
+                <div
+                    v-if="hasSocialLogin"
+                    class="login-form__social"
+                >
+                    <CaomeiButton
+                        v-if="socialProviders.github"
+                        variant="secondary"
+                        :label="$t('pages.login.github_login')"
+                        class="github-btn social-btn"
+                        @click="handleGithubLogin"
                     >
-                        <Button
-                            v-if="socialProviders.github"
-                            :label="$t('pages.login.github_login')"
-                            icon="pi pi-github"
-                            class="github-btn social-btn"
-                            severity="secondary"
-                            outlined
-                            @click="handleGithubLogin"
+                        <template #icon>
+                            <i class="pi pi-github" aria-hidden="true" />
+                        </template>
+                        {{ $t('pages.login.github_login') }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        v-if="socialProviders.google"
+                        variant="secondary"
+                        :label="$t('pages.login.google_login')"
+                        class="google-btn social-btn"
+                        @click="handleGoogleLogin"
+                    >
+                        <template #icon>
+                            <i class="pi pi-google" aria-hidden="true" />
+                        </template>
+                        {{ $t('pages.login.google_login') }}
+                    </CaomeiButton>
+                </div>
+
+                <CaomeiDivider
+                    v-if="hasSocialLogin"
+                    align="center"
+                >
+                    {{ $t("pages.login.or_continue_with_email") }}
+                </CaomeiDivider>
+
+                <form
+                    class="login-form__fields"
+                    @submit.prevent="handleEmailLogin"
+                >
+                    <div class="login-form__field">
+                        <label for="email">{{ $t("pages.login.email") }}</label>
+                        <CaomeiInput
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            :invalid="!!errors.email"
+                            class="login-form__input"
                         />
-                        <Button
-                            v-if="socialProviders.google"
-                            :label="$t('pages.login.google_login')"
-                            icon="pi pi-google"
-                            class="google-btn social-btn"
-                            severity="secondary"
-                            outlined
-                            @click="handleGoogleLogin"
-                        />
+                        <CaomeiMessage
+                            v-if="errors.email"
+                            tone="danger"
+                            size="sm"
+                            variant="simple"
+                        >
+                            {{ errors.email }}
+                        </CaomeiMessage>
                     </div>
 
-                    <Divider
-                        v-if="hasSocialLogin"
-                        align="center"
-                    >
-                        {{ $t("pages.login.or_continue_with_email") }}
-                    </Divider>
-
-                    <form
-                        class="login-form__fields"
-                        @submit.prevent="handleEmailLogin"
-                    >
-                        <div class="login-form__field">
-                            <label for="email">{{ $t("pages.login.email") }}</label>
-                            <InputText
-                                id="email"
-                                v-model="form.email"
-                                type="email"
-                                :invalid="!!errors.email"
-                                fluid
-                                class="login-form__input"
-                            />
-                            <Message
-                                v-if="errors.email"
-                                severity="error"
-                                size="small"
-                                variant="simple"
-                            >
-                                {{ errors.email }}
-                            </Message>
-                        </div>
-
-                        <div class="login-form__field">
-                            <label for="password">{{
-                                $t("pages.login.password")
-                            }}</label>
-                            <Password
-                                id="password"
-                                v-model="form.password"
-                                :feedback="false"
-                                toggle-mask
-                                :invalid="!!errors.password"
-                                fluid
-                            />
-                            <Message
-                                v-if="errors.password"
-                                severity="error"
-                                size="small"
-                                variant="simple"
-                            >
-                                {{ errors.password }}
-                            </Message>
-                        </div>
-
-                        <div class="login-form__actions">
-                            <div class="login-form__remember">
-                                <Checkbox
-                                    v-model="form.rememberMe"
-                                    binary
-                                    input-id="rememberMe"
-                                />
-                                <label for="rememberMe">{{
-                                    $t("pages.login.remember_me")
-                                }}</label>
-                            </div>
-                            <NuxtLink
-                                :to="localePath('/forgot-password')"
-                                class="login-form__forgot"
-                            >
-                                {{ $t("pages.login.forgot_password") }}
-                            </NuxtLink>
-                        </div>
-
-                        <p class="login-form__legal-notice">
-                            <i18n-t keypath="legal.login_notice">
-                                <template #agreement>
-                                    <NuxtLink
-                                        :to="localePath('/user-agreement')"
-                                        target="_blank"
-                                        class="legal-link"
-                                    >
-                                        {{ $t("legal.user_agreement") }}
-                                    </NuxtLink>
-                                </template>
-                                <template #privacy>
-                                    <NuxtLink
-                                        :to="localePath('/privacy-policy')"
-                                        target="_blank"
-                                        class="legal-link"
-                                    >
-                                        {{ $t("legal.privacy_policy") }}
-                                    </NuxtLink>
-                                </template>
-                            </i18n-t>
-                        </p>
-
-                        <app-captcha ref="captchaRef" v-model="captchaToken" />
-
-                        <Button
-                            type="submit"
-                            :label="$t('pages.login.submit')"
-                            :loading="loading"
-                            class="login-form__submit-btn"
+                    <div class="login-form__field">
+                        <label for="password">{{
+                            $t("pages.login.password")
+                        }}</label>
+                        <CaomeiPassword
+                            id="password"
+                            v-model="form.password"
+                            :feedback="false"
+                            :invalid="!!errors.password"
                         />
-                    </form>
-                </div>
-            </template>
+                        <CaomeiMessage
+                            v-if="errors.password"
+                            tone="danger"
+                            size="sm"
+                            variant="simple"
+                        >
+                            {{ errors.password }}
+                        </CaomeiMessage>
+                    </div>
+
+                    <div class="login-form__actions">
+                        <div class="login-form__remember">
+                            <CaomeiCheckbox
+                                id="rememberMe"
+                                v-model="form.rememberMe"
+                            />
+                            <label for="rememberMe">{{
+                                $t("pages.login.remember_me")
+                            }}</label>
+                        </div>
+                        <NuxtLink
+                            :to="localePath('/forgot-password')"
+                            class="login-form__forgot"
+                        >
+                            {{ $t("pages.login.forgot_password") }}
+                        </NuxtLink>
+                    </div>
+
+                    <p class="login-form__legal-notice">
+                        <i18n-t keypath="legal.login_notice">
+                            <template #agreement>
+                                <NuxtLink
+                                    :to="localePath('/user-agreement')"
+                                    target="_blank"
+                                    class="legal-link"
+                                >
+                                    {{ $t("legal.user_agreement") }}
+                                </NuxtLink>
+                            </template>
+                            <template #privacy>
+                                <NuxtLink
+                                    :to="localePath('/privacy-policy')"
+                                    target="_blank"
+                                    class="legal-link"
+                                >
+                                    {{ $t("legal.privacy_policy") }}
+                                </NuxtLink>
+                            </template>
+                        </i18n-t>
+                    </p>
+
+                    <app-captcha ref="captchaRef" v-model="captchaToken" />
+
+                    <CaomeiButton
+                        type="submit"
+                        :label="$t('pages.login.submit')"
+                        :loading="loading"
+                        class="login-form__submit-btn"
+                    >
+                        {{ $t('pages.login.submit') }}
+                    </CaomeiButton>
+                </form>
+            </div>
             <template #footer>
                 <div class="login-card__footer">
                     <NuxtLink
@@ -157,7 +159,7 @@
                     </NuxtLink>
                 </div>
             </template>
-        </Card>
+        </CaomeiCard>
     </div>
 </template>
 

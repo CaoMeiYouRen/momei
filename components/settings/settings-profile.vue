@@ -7,18 +7,26 @@
             <div class="settings-form__field">
                 <label>{{ $t("pages.settings.profile.avatar") }}</label>
                 <div class="avatar-section">
-                    <AppAvatar
-                        :image="profileForm.image"
-                        :email="session?.data?.user?.email"
-                        :name="profileForm.name"
-                        size="xlarge"
-                        shape="circle"
-                        class="avatar-preview"
-                    />
+                    <!-- 头像 URL 依赖异步哈希 / 会话数据，SSR 与客户端首帧不一致；Reka 的
+                         `AvatarImage` / `AvatarFallback` 在带 hydration mismatch 的 patch 中会触发
+                         `insertBefore` 运行时错误（切换设置页签时复现）。此处仅该子树延迟到客户端渲染。 -->
+                    <ClientOnly>
+                        <AppAvatarV2
+                            :image="profileForm.image"
+                            :email="session?.data?.user?.email"
+                            :name="profileForm.name"
+                            size="xlarge"
+                            shape="circle"
+                            class="avatar-preview"
+                        />
+                        <template #fallback>
+                            <!-- 占位与头像同为 64px，避免水合后插入头像把上传按钮横向顶开（CLS）。 -->
+                            <span class="avatar-preview avatar-preview--placeholder" aria-hidden="true" />
+                        </template>
+                    </ClientOnly>
                     <div class="avatar-upload">
-                        <FileUpload
+                        <CaomeiFileUpload
                             mode="basic"
-                            name="avatar"
                             accept="image/*"
                             :max-file-size="2000000"
                             :auto="true"
@@ -32,45 +40,43 @@
 
             <div class="settings-form__field">
                 <label for="name">{{ $t("pages.settings.profile.name") }}</label>
-                <InputText
+                <CaomeiInput
                     id="name"
                     v-model="profileForm.name"
                     type="text"
-                    fluid
                 />
             </div>
 
             <div class="settings-form__field">
                 <label for="language">{{ $t("pages.settings.profile.language") }}</label>
-                <Select
+                <CaomeiSelect
                     id="language"
                     v-model="profileForm.language"
                     :options="localesOptions"
                     option-label="name"
                     option-value="code"
-                    fluid
                 />
             </div>
 
             <div class="settings-form__field">
                 <label for="timezone">{{ $t("pages.settings.profile.timezone") }}</label>
-                <Select
+                <CaomeiSelect
                     id="timezone"
                     v-model="profileForm.timezone"
                     :options="timezoneOptions"
                     option-label="label"
                     option-value="value"
-                    filter
-                    fluid
                 />
             </div>
 
-            <Button
+            <CaomeiButton
                 type="submit"
                 :label="$t('pages.settings.profile.save')"
                 :loading="loading"
                 class="settings-form__submit-btn"
-            />
+            >
+                {{ $t('pages.settings.profile.save') }}
+            </CaomeiButton>
         </form>
     </div>
 </template>
@@ -131,7 +137,7 @@ watchEffect(() => {
     }
 })
 
-const handleAvatarUpload = async (event: any) => {
+const handleAvatarUpload = async (event: { files: File[] }) => {
     const file = event.files[0]
     if (!file) return
 
@@ -210,6 +216,15 @@ const handleUpdateProfile = async () => {
 
     .avatar-preview {
         flex-shrink: 0;
+    }
+
+    /* 水合前的占位与 64px 头像同尺寸，避免插入时把上传按钮横向顶开（CLS）。 */
+    .avatar-preview--placeholder {
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        border-radius: 999px;
+        background: var(--p-surface-100);
     }
 }
 </style>

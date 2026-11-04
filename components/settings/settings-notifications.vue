@@ -5,7 +5,7 @@
         </h3>
 
         <div v-if="loading" class="subscription-settings__loading">
-            <ProgressSpinner />
+            <CaomeiProgressSpinner />
         </div>
 
         <div v-else class="subscription-settings__form">
@@ -13,28 +13,30 @@
             <div class="subscription-settings__section">
                 <label class="subscription-settings__label">{{ $t("pages.settings.notifications.active_status") }}</label>
                 <div class="subscription-settings__status-control">
-                    <Tag :severity="subscription.isActive ? 'success' : 'warn'">
+                    <CaomeiTag :tone="subscription.isActive ? 'success' : 'warning'">
                         {{ subscription.isActive ? $t("pages.settings.notifications.active") : $t("pages.settings.notifications.inactive") }}
-                    </Tag>
-                    <Button
+                    </CaomeiTag>
+                    <CaomeiButton
                         v-if="subscription.isActive"
+                        size="sm"
+                        variant="secondary"
                         :label="$t('pages.settings.notifications.pause_subscription')"
-                        size="small"
-                        variant="outlined"
-                        severity="secondary"
                         @click="toggleSubscription(false)"
-                    />
-                    <Button
+                    >
+                        {{ $t('pages.settings.notifications.pause_subscription') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-else
+                        size="sm"
                         :label="$t('pages.settings.notifications.resume_subscription')"
-                        size="small"
-                        severity="primary"
                         @click="toggleSubscription(true)"
-                    />
+                    >
+                        {{ $t('pages.settings.notifications.resume_subscription') }}
+                    </CaomeiButton>
                 </div>
             </div>
 
-            <Divider v-if="categories.length > 0" class="subscription-settings__divider" />
+            <CaomeiDivider v-if="categories.length > 0" class="subscription-settings__divider" />
 
             <!-- 分类订阅 -->
             <div v-if="categories.length > 0" class="subscription-settings__section">
@@ -49,9 +51,9 @@
                         class="subscription-settings__grid-item"
                     >
                         <div class="subscription-settings__checkbox-group">
-                            <Checkbox
+                            <CaomeiCheckbox
+                                :id="'cat-' + cat.id"
                                 v-model="subscription.selectedCategoryIds"
-                                :input-id="'cat-' + cat.id"
                                 name="category"
                                 :value="cat.id"
                             />
@@ -61,7 +63,7 @@
                 </div>
             </div>
 
-            <Divider v-if="tags.length > 0" class="subscription-settings__divider" />
+            <CaomeiDivider v-if="tags.length > 0" class="subscription-settings__divider" />
 
             <!-- 标签订阅 -->
             <div v-if="tags.length > 0" class="subscription-settings__section">
@@ -72,17 +74,17 @@
                         :key="tag.id"
                         class="subscription-settings__tag-item"
                     >
-                        <ToggleButton
+                        <CaomeiToggleButton
                             v-model="subscription.selectedTagMap[tag.id]"
                             :on-label="tag.name"
                             :off-label="tag.name"
-                            size="small"
+                            size="sm"
                         />
                     </div>
                 </div>
             </div>
 
-            <Divider class="subscription-settings__divider" />
+            <CaomeiDivider class="subscription-settings__divider" />
 
             <!-- 营销通知 -->
             <div class="subscription-settings__section">
@@ -96,11 +98,11 @@
                             {{ $t("pages.settings.notifications.marketing_desc") }}
                         </p>
                     </div>
-                    <ToggleSwitch v-model="subscription.isMarketingEnabled" />
+                    <CaomeiSwitch v-model="subscription.isMarketingEnabled" />
                 </div>
             </div>
 
-            <Divider class="subscription-settings__divider" />
+            <CaomeiDivider class="subscription-settings__divider" />
 
             <div class="subscription-settings__section">
                 <label class="subscription-settings__label">{{ $t("pages.settings.notifications.notification_methods") }}</label>
@@ -135,7 +137,7 @@
                                         {{ $t(getNotificationTypeEmailDescriptionKey(type)) }}
                                     </small>
                                 </div>
-                                <ToggleSwitch
+                                <CaomeiSwitch
                                     v-model="channelNotificationSettings[NotificationChannel.EMAIL][type]"
                                     :disabled="isNotificationTypeLocked(type)"
                                 />
@@ -159,8 +161,8 @@
                             </div>
                         </div>
 
-                        <Message
-                            :severity="browserStatus.severity"
+                        <CaomeiMessage
+                            :tone="browserStatus.tone"
                             :closable="false"
                             class="subscription-settings__browser-message"
                         >
@@ -169,15 +171,17 @@
                                     <strong>{{ $t("pages.settings.notifications.browser_status") }}</strong>
                                     <span>{{ browserStatus.text }}</span>
                                 </div>
-                                <Button
+                                <CaomeiButton
                                     v-if="browserStatus.actionable"
+                                    size="sm"
                                     :label="$t('pages.settings.notifications.enable_browser_push')"
-                                    size="small"
                                     :loading="enablingBrowserPush"
                                     @click="handleEnableBrowserPush"
-                                />
+                                >
+                                    {{ $t('pages.settings.notifications.enable_browser_push') }}
+                                </CaomeiButton>
                             </div>
-                        </Message>
+                        </CaomeiMessage>
 
                         <div class="subscription-settings__channel-list">
                             <div
@@ -193,7 +197,7 @@
                                         {{ $t(getNotificationTypeBrowserDescriptionKey(type)) }}
                                     </small>
                                 </div>
-                                <ToggleSwitch
+                                <CaomeiSwitch
                                     v-model="channelNotificationSettings[NotificationChannel.WEB_PUSH][type]"
                                     :disabled="isNotificationTypeLocked(type) || browserChannelUnavailable"
                                 />
@@ -204,14 +208,16 @@
             </div>
 
             <div class="subscription-settings__actions">
-                <Button
+                <CaomeiButton
                     :label="$t('pages.settings.profile.save')"
                     :loading="saving"
                     @click="handleSave"
-                />
+                >
+                    {{ $t('pages.settings.profile.save') }}
+                </CaomeiButton>
             </div>
 
-            <Divider class="subscription-settings__divider" />
+            <CaomeiDivider class="subscription-settings__divider" />
 
             <NotificationHistoryList />
         </div>
@@ -297,7 +303,7 @@ const browserChannelUnavailable = computed(() => {
 const browserStatus = computed(() => {
     if (!siteConfig.value.webPushEnabled || !siteConfig.value.webPushPublicKey) {
         return {
-            severity: 'secondary' as const,
+            tone: 'neutral' as const,
             text: t('pages.settings.notifications.browser_status_site_disabled'),
             actionable: false,
         }
@@ -305,7 +311,7 @@ const browserStatus = computed(() => {
 
     if (!isBrowserPushSupported.value) {
         return {
-            severity: 'warn' as const,
+            tone: 'warning' as const,
             text: t('pages.settings.notifications.browser_status_unsupported'),
             actionable: false,
         }
@@ -313,7 +319,7 @@ const browserStatus = computed(() => {
 
     if (browserPermission.value === 'granted') {
         return {
-            severity: 'success' as const,
+            tone: 'success' as const,
             text: t('pages.settings.notifications.browser_status_granted'),
             actionable: false,
         }
@@ -321,14 +327,14 @@ const browserStatus = computed(() => {
 
     if (browserPermission.value === 'denied') {
         return {
-            severity: 'warn' as const,
+            tone: 'warning' as const,
             text: t('pages.settings.notifications.browser_status_denied'),
             actionable: false,
         }
     }
 
     return {
-        severity: 'info' as const,
+        tone: 'primary' as const,
         text: t('pages.settings.notifications.browser_status_default'),
         actionable: browserPushReady.value,
     }

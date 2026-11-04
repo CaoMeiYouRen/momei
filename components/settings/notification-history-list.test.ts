@@ -1,10 +1,8 @@
-import { defineComponent, inject, provide, ref, toRef } from 'vue'
+import { defineComponent } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import NotificationHistoryList from './notification-history-list.vue'
 import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
-
-const dataTableRowsKey = Symbol('notification-history-rows')
 
 const {
     appFetchMock,
@@ -61,60 +59,42 @@ mockNuxtImport('useI18n', () => () => ({
 
 mockNuxtImport('useLocalePath', () => () => localePathMock)
 
-const DataTableStub = defineComponent({
+const CaomeiDataTableStub = defineComponent({
     props: {
-        value: {
+        data: {
+            type: Array,
+            default: () => [],
+        },
+        columns: {
             type: Array,
             default: () => [],
         },
         loading: Boolean,
     },
     emits: ['page'],
-    setup(props) {
-        provide(dataTableRowsKey, toRef(props, 'value'))
-        return {}
-    },
     template: `
         <div class="data-table">
-            <slot name="header" />
-            <slot />
-            <slot v-if="!value.length" name="empty" />
-            <button class="paginate" type="button" @click="$emit('page', { page: 1, rows: 20 })">paginate</button>
-        </div>
-    `,
-})
-
-const ColumnStub = defineComponent({
-    props: {
-        header: {
-            type: String,
-            default: '',
-        },
-    },
-    setup() {
-        const rows = inject(dataTableRowsKey, ref<Record<string, unknown>[]>([]))
-        return { rows }
-    },
-    template: `
-        <div class="column">
-            <div v-for="row in rows" :key="row.id || header" class="column-row">
-                <slot name="body" :data="row" />
+            <div v-for="row in data" :key="row.id" class="table-row">
+                <div v-for="column in columns" :key="column.key" class="table-cell">
+                    <slot :name="'cell-' + column.key" :row="row" />
+                </div>
             </div>
+            <slot v-if="!data.length" name="empty" />
+            <button class="paginate" type="button" @click="$emit('page', { page: 2, rows: 20 })">paginate</button>
         </div>
     `,
 })
 
 const stubs = {
-    DataTable: DataTableStub,
-    Column: ColumnStub,
-    Button: {
-        props: ['label', 'icon'],
+    CaomeiDataTable: CaomeiDataTableStub,
+    CaomeiButton: {
+        props: ['label'],
         emits: ['click'],
-        template: '<button type="button" :data-icon="icon || \'\'" @click="$emit(\'click\')">{{ label }}</button>',
+        template: '<button type="button" :aria-label="label" @click="$emit(\'click\')">{{ label }}<slot /></button>',
     },
-    Tag: {
-        props: ['severity'],
-        template: '<span class="tag" :data-severity="severity"><slot /></span>',
+    CaomeiTag: {
+        props: ['tone'],
+        template: '<span class="tag" :data-tone="tone"><slot /></span>',
     },
     NuxtLink: {
         props: ['to'],
@@ -189,11 +169,11 @@ describe('NotificationHistoryList', () => {
         expect(wrapper.text()).toContain('pages.settings.notifications.history.mark_read')
         expect(wrapper.find('.nuxt-link').exists()).toBe(false)
 
-        const severities = wrapper.findAll('.tag').map((tag) => tag.attributes('data-severity'))
-        expect(severities).toContain('info')
-        expect(severities).toContain('danger')
-        expect(severities).toContain('success')
-        expect(severities).toContain('warn')
+        const tones = wrapper.findAll('.tag').map((tag) => tag.attributes('data-tone'))
+        expect(tones).toContain('primary')
+        expect(tones).toContain('danger')
+        expect(tones).toContain('success')
+        expect(tones).toContain('warning')
     })
 
     it('allows admin targets and reloads after marking one notification as read', async () => {

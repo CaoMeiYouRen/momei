@@ -13,82 +13,81 @@
                 <div class="api-keys-form">
                     <div class="api-keys-form__field">
                         <label class="api-keys-form__label">{{ $t("pages.settings.api_keys.name") }}</label>
-                        <InputText
+                        <CaomeiInput
                             v-model="newKeyName"
                             :placeholder="$t('pages.settings.api_keys.name')"
-                            fluid
                             @keyup.enter="handleCreateApiKey"
                         />
                     </div>
                     <div class="api-keys-form__field">
                         <label class="api-keys-form__label">{{ $t("pages.settings.api_keys.expires_at") }}</label>
-                        <Select
+                        <CaomeiSelect
                             v-model="expirationOption"
                             :options="expirationOptions"
                             option-label="label"
                             option-value="value"
-                            fluid
                         />
                     </div>
-                    <Button
+                    <CaomeiButton
                         :label="$t('pages.settings.api_keys.create_btn')"
-                        icon="pi pi-plus"
                         :loading="loading"
                         :disabled="!newKeyName.trim()"
                         class="api-keys-form__submit"
                         @click="handleCreateApiKey"
-                    />
+                    >
+                        <template #icon>
+                            <Plus :size="16" />
+                        </template>
+                        {{ $t('pages.settings.api_keys.create_btn') }}
+                    </CaomeiButton>
                 </div>
             </div>
 
-            <DataTable
-                :value="apiKeys"
+            <CaomeiDataTable
+                :data="apiKeys"
+                :columns="columns"
                 :loading="loadingKeys"
-                size="small"
                 class="api-keys-table"
             >
-                <Column field="name" :header="$t('pages.settings.api_keys.name')">
-                    <template #body="{data}">
-                        <span class="api-key-name">{{ data.name }}</span>
-                    </template>
-                </Column>
-                <Column field="prefix" :header="$t('pages.settings.api_keys.prefix')">
-                    <template #body="{data}">
-                        <code class="api-key-prefix">{{ data.prefix }}...</code>
-                    </template>
-                </Column>
-                <Column field="lastUsedAt" :header="$t('pages.settings.api_keys.last_used_at')">
-                    <template #body="{data}">
-                        <span class="api-key-date">
-                            {{ data.lastUsedAt ? formatDate(data.lastUsedAt) : '-' }}
-                        </span>
-                    </template>
-                </Column>
-                <Column field="expiresAt" :header="$t('pages.settings.api_keys.expires_at')">
-                    <template #body="{data}">
-                        <Tag
-                            v-if="data.expiresAt"
-                            severity="secondary"
-                            :value="formatDate(data.expiresAt)"
-                        />
-                        <span v-else class="api-key-never-expires">
-                            {{ $t('pages.settings.api_keys.never_expires') }}
-                        </span>
-                    </template>
-                </Column>
-                <Column :header="$t('common.actions')" class="text-right">
-                    <template #body="{data}">
-                        <Button
-                            icon="pi pi-trash"
-                            severity="danger"
-                            text
-                            rounded
-                            size="small"
-                            @click="handleDeleteApiKey(data.id)"
-                        />
-                    </template>
-                </Column>
-            </DataTable>
+                <template #cell-name="{row}">
+                    <span class="api-key-name">{{ row.name }}</span>
+                </template>
+
+                <template #cell-prefix="{row}">
+                    <code class="api-key-prefix">{{ row.prefix }}...</code>
+                </template>
+
+                <template #cell-lastUsedAt="{row}">
+                    <span class="api-key-date">
+                        {{ row.lastUsedAt ? formatDate(row.lastUsedAt) : '-' }}
+                    </span>
+                </template>
+
+                <template #cell-expiresAt="{row}">
+                    <CaomeiTag v-if="row.expiresAt" tone="neutral">
+                        {{ formatDate(row.expiresAt) }}
+                    </CaomeiTag>
+                    <span v-else class="api-key-never-expires">
+                        {{ $t('pages.settings.api_keys.never_expires') }}
+                    </span>
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        tone="danger"
+                        rounded
+                        size="sm"
+                        :label="$t('common.delete')"
+                        @click="handleDeleteApiKey(row.id)"
+                    >
+                        <template #icon>
+                            <Trash2 :size="16" />
+                        </template>
+                    </CaomeiButton>
+                </template>
+            </CaomeiDataTable>
         </div>
 
         <CaomeiDialog
@@ -100,38 +99,66 @@
             @update:open="showNewKeyDialog = $event"
         >
             <div class="new-key-dialog-content">
-                <Message severity="warn" :closable="false">
+                <CaomeiMessage tone="warning" :closable="false">
                     {{ $t("pages.settings.api_keys.new_key_hint") }}
-                </Message>
+                </CaomeiMessage>
                 <div class="new-key-input-group">
-                    <InputText
-                        :value="newlyCreatedKey"
+                    <CaomeiInput
+                        :model-value="newlyCreatedKey ?? ''"
                         readonly
                         class="new-key-input"
                     />
-                    <Button icon="pi pi-copy" @click="copyToClipboard(newlyCreatedKey || '')" />
+                    <CaomeiButton
+                        icon-only
+                        :label="$t('common.copy')"
+                        @click="copyToClipboard(newlyCreatedKey || '')"
+                    >
+                        <template #icon>
+                            <Copy :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </div>
             </div>
             <template #footer>
-                <Button :label="$t('common.close')" @click="showNewKeyDialog = false" />
+                <CaomeiButton :label="$t('common.close')" @click="showNewKeyDialog = false">
+                    {{ $t('common.close') }}
+                </CaomeiButton>
             </template>
         </CaomeiDialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Copy, Plus, Trash2 } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import { useToast } from 'caomei-ui'
 const { t } = useI18n()
 const { formatDate } = useI18nDate()
 const toast = useToast()
 
-const apiKeys = ref<any[]>([])
+const apiKeys = ref<ApiKeyItem[]>([])
 const loadingKeys = ref(false)
 const loading = ref(false)
 const showNewKeyDialog = ref(false)
 const newKeyName = ref('')
 const newlyCreatedKey = ref<string | null>(null)
 const expirationOption = ref('never')
+
+interface ApiKeyItem {
+    id: string
+    name: string
+    prefix: string
+    lastUsedAt?: string | null
+    expiresAt?: string | null
+}
+
+const columns = computed<DataTableColumn<ApiKeyItem>[]>(() => [
+    { key: 'name', header: t('pages.settings.api_keys.name') },
+    { key: 'prefix', header: t('pages.settings.api_keys.prefix') },
+    { key: 'lastUsedAt', header: t('pages.settings.api_keys.last_used_at') },
+    { key: 'expiresAt', header: t('pages.settings.api_keys.expires_at') },
+    { key: 'actions', header: t('common.actions'), headerClass: 'text-right', bodyClass: 'text-right' },
+])
 
 const expirationOptions = computed(() => [
     { label: t('pages.settings.api_keys.expired_at_options.never'), value: 'never' },
@@ -309,7 +336,7 @@ onMounted(() => {
         }
     }
 
-    :deep(.p-button) {
+    .caomei-button {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }

@@ -2,8 +2,9 @@
     <!--
       过渡组件：同一文件内按路由择库。
       - 已迁移路由（`lib/ui-library.ts` 登记）：渲染 caomei-ui `InputGroup` + `Input` + `Button`；
-      - 未迁移路由（公开页 `friend-links`、`general-settings`、`post-editor-media-settings`、
-        `commercial-link-dialog`）：回退到 V1，避免这些页面被被动改变。
+      - 未迁移路由（公开页 `friend-links`、`post-editor-media-settings`）：回退到 V1，避免这些页面被被动改变。
+      - `/settings` 的 `commercial-link-dialog` 与 `/admin/settings` 的 `general-settings` 已分别随
+        条目 4 / 2a 登记，走 caomei 分支。
       外壳（类名 / 拖放 / 隐藏 input）两版完全一致，样式见 `./app-uploader.scss`。
     -->
     <div
@@ -73,8 +74,8 @@ import type { UploadType } from '@/composables/use-upload'
  * 过渡用「上传字段（caomei-ui 版）」。
  *
  * 背景：`AppUploader` 是跨路由共享组件，消费者横跨 B2 目标路由（admin `friend-links`，**本批只交付过渡壳，
- * 页面替换是该路由批次的原子步骤**）与公开页 / 设置页（`friend-links`、`general-settings`、
- * `post-editor-media-settings`、`commercial-link-dialog`）。
+ * 页面替换是该路由批次的原子步骤**）与公开页 / 编辑器（`friend-links`、`post-editor-media-settings`）。
+ * `commercial-link-dialog`（`/settings`）与 `general-settings`（`/admin/settings`）已随条目 4 / 2a 迁移。
  * 若直接改写 `AppUploader`，这些页面会被被动改变。故并存期新增本过渡组件，**内部按路由择库**
  * （`lib/ui-library.ts` 为单一事实源）：未迁移路由回退到 V1，因此本组件可在任意路由安全采用。
  *

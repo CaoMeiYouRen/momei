@@ -35,13 +35,14 @@ mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAddMock) }))
 
 const stubs = {
-    Button: {
+    CaomeiButton: {
         props: ['label', 'type', 'loading', 'disabled'],
         emits: ['click'],
         template: `
             <button
                 v-bind="$attrs"
                 :type="type || 'button'"
+                :aria-label="label"
                 :data-loading="loading ? 'true' : 'false'"
                 :disabled="disabled || loading"
                 @click="$emit('click', $event)"
@@ -51,7 +52,7 @@ const stubs = {
             </button>
         `,
     },
-    Password: {
+    CaomeiPassword: {
         props: ['id', 'modelValue'],
         emits: ['update:modelValue'],
         template: `
@@ -63,14 +64,14 @@ const stubs = {
             >
         `,
     },
-    Message: {
+    CaomeiMessage: {
         template: '<div class="message-stub"><slot /></div>',
     },
     NuxtLink: {
         props: ['to'],
         template: '<a :href="to"><slot /></a>',
     },
-    Divider: {
+    CaomeiDivider: {
         template: '<hr>',
     },
 }

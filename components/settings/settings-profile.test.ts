@@ -55,21 +55,21 @@ vi.mock('ofetch', () => ({ $fetch: mockFetch }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 const stubs = {
-    AppAvatar: { template: '<div class="avatar-preview" />' },
-    InputText: {
+    AppAvatarV2: { template: '<div class="avatar-preview" />' },
+    CaomeiInput: {
         template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['id', 'modelValue'],
     },
-    Select: {
+    CaomeiSelect: {
         template: '<select :id="id" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="option in options" :key="option[optionValue]" :value="option[optionValue]">{{ option[optionLabel] }}</option></select>',
         props: ['id', 'modelValue', 'options', 'optionLabel', 'optionValue'],
     },
-    FileUpload: {
-        name: 'FileUpload',
+    CaomeiFileUpload: {
+        name: 'CaomeiFileUpload',
         emits: ['uploader'],
         template: '<div class="avatar-upload-trigger" />',
     },
-    Button: {
+    CaomeiButton: {
         template: '<button :type="type" @click="$emit(\'click\')">{{ label }}</button>',
         props: ['type', 'label', 'loading'],
     },
@@ -96,7 +96,7 @@ describe('SettingsProfile', () => {
             global: { stubs },
         })
 
-        wrapper.findComponent({ name: 'FileUpload' }).vm.$emit('uploader', {
+        wrapper.findComponent({ name: 'CaomeiFileUpload' }).vm.$emit('uploader', {
             files: [new Blob(['avatar'], { type: 'image/png' })],
         })
         await wrapper.vm.$nextTick()

@@ -62,12 +62,12 @@ const AppCaptchaStub = defineComponent({
 })
 
 const stubs = {
-    Button: {
+    CaomeiButton: {
         template: '<button :type="type" :data-loading="String(loading)" @click="$emit(\'click\')">{{ label }}</button>',
         props: ['label', 'loading', 'type', 'class'],
         emits: ['click'],
     },
-    InputText: {
+    CaomeiInput: {
         template: '<input :id="id" :value="modelValue" :type="type" :placeholder="placeholder" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'type', 'invalid', 'id', 'placeholder', 'fluid'],
         emits: ['update:modelValue'],

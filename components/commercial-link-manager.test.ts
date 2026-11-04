@@ -72,15 +72,15 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 
 const stubs = {
-    AppUploader: { template: '<div class="app-uploader" />' },
-    Button: { template: '<button @click="$emit(\'click\')">{{ label }}</button>', props: ['label'] },
+    AppUploaderV2: { template: '<div class="app-uploader" />' },
+    CaomeiButton: { template: '<button :aria-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'] },
     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>', props: ['open', 'title'] },
-    Divider: { template: '<hr />' },
-    Image: { template: '<div><slot name="image" /><slot /></div>', props: ['src', 'alt', 'preview', 'width'] },
-    InputText: { template: '<input />' },
-    MultiSelect: { inheritAttrs: false, template: '<div class="multi-select-stub" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'] },
-    Select: { inheritAttrs: false, template: '<div class="select-stub" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'] },
-    Tag: { template: '<span>{{ value }}</span>', props: ['value'] },
+    CaomeiDivider: { template: '<hr />' },
+    CaomeiImage: { template: '<div><slot name="indicatoricon" /><slot /></div>', props: ['src', 'alt', 'preview', 'ratio', 'fit'] },
+    CaomeiInput: { template: '<input />' },
+    CaomeiMultiSelect: { inheritAttrs: false, template: '<div class="multi-select-stub" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'] },
+    CaomeiSelect: { inheritAttrs: false, template: '<div class="select-stub" />', props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'] },
+    CaomeiTag: { template: '<span><slot /></span>' },
 }
 
 describe('CommercialLinkManager', () => {

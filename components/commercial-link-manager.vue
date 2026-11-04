@@ -14,7 +14,7 @@
             @remove="confirmDelete('social', $event as number)"
         />
 
-        <Divider class="commercial-manager__divider" />
+        <CaomeiDivider class="commercial-manager__divider" />
 
         <CommercialLinkSection
             kind="donation"

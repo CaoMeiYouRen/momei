@@ -9,19 +9,18 @@
     >
         <div class="form-group">
             <label for="email">{{ $t('common.email') }}</label>
-            <InputText
+            <CaomeiInput
                 id="email"
                 v-model="email"
                 type="email"
                 :placeholder="$t('pages.login.email_placeholder')"
                 required
                 :invalid="!!error"
-                fluid
             />
         </div>
 
         <div v-if="success" class="success-message">
-            <i class="pi pi-check-circle" />
+            <CircleCheck :size="16" aria-hidden="true" />
             <span>{{ $t('pages.forgot_password.success_message') }}</span>
         </div>
 
@@ -37,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { CircleCheck } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()

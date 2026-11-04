@@ -299,6 +299,57 @@ const INSTALLATION_ROUTE_SCOPE = {
     ],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 用户设置 `/settings` 的迁移范围（第七十阶段条目 4）。
+ *
+ * - `ownedFiles`：页面为容器，实体落在 `components/settings/` 的 5 个面板 + 通知历史列表；
+ *   `notification-history-list` 内嵌于通知面板、唯一消费者是本路由。
+ * - 商用链接三件套（`commercial-link-manager` / `-section` / `-dialog`）同时被 `/admin/settings`
+ *   消费；两条路由均已迁移，故一并纳入扫描面（此前它们是「跨路由共享但未迁移」的漏扫面）。
+ * - `inScopeComponents`：本批首次纳入的表单 / 展示族；`InputText` / `Select` / `Button` / `Tag` /
+ *   `DataTable` / `Column` / `ToggleSwitch` 属批次基准。
+ */
+const USER_SETTINGS_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/commercial-link-dialog.vue',
+        'components/commercial-link-manager.vue',
+        'components/commercial-link-section.vue',
+        'components/settings/notification-history-list.vue',
+        'components/settings/settings-api-keys.vue',
+        'components/settings/settings-commercial.vue',
+        'components/settings/settings-notifications.vue',
+        'components/settings/settings-profile.vue',
+        'components/settings/settings-security.vue',
+    ],
+    inScopeComponents: [
+        'Card',
+        'Message',
+        'Password',
+        'Divider',
+        'Image',
+        'MultiSelect',
+        'FileUpload',
+        'Checkbox',
+        'ToggleButton',
+        'ProgressSpinner',
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
+ * 认证 / 提交页（`/login` / `/register` / `/forgot-password` / `/reset-password` / `/submit`）的迁移范围。
+ *
+ * 前四条共享 `components/auth-card.vue`（壳 + 提交按钮 + 错误条），故都登记为 `ownedFiles`；
+ * `/submit` 为独立页面，仅纳入其自身。
+ */
+const AUTH_ROUTE_SCOPE = {
+    ownedFiles: ['components/auth-card.vue'],
+    inScopeComponents: ['Card', 'Checkbox', 'Divider', 'Message', 'Password'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+const SUBMIT_ROUTE_SCOPE = {
+    inScopeComponents: ['Card', 'Message', 'Textarea'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -338,6 +389,14 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/notifications', ...ADMIN_NOTIFICATIONS_ROUTE_SCOPE },
     // 安装向导：容器页 + 6 个步骤组件 + 字段状态 + 清单图标映射（Stepper / Accordion 族首次生产迁移）。
     { prefix: '/installation', ...INSTALLATION_ROUTE_SCOPE },
+    // 用户设置：页面 + 设置面板族 + 通知历史列表 + 商用链接三件套。
+    { prefix: '/settings', ...USER_SETTINGS_ROUTE_SCOPE },
+    // 认证页：四条共享 `auth-card`；`/submit` 为独立页面。
+    { prefix: '/login', ...AUTH_ROUTE_SCOPE },
+    { prefix: '/register', ...AUTH_ROUTE_SCOPE },
+    { prefix: '/forgot-password', ...AUTH_ROUTE_SCOPE },
+    { prefix: '/reset-password', ...AUTH_ROUTE_SCOPE },
+    { prefix: '/submit', ...SUBMIT_ROUTE_SCOPE },
 ]
 
 /**

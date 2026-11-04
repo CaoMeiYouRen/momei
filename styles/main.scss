@@ -305,8 +305,11 @@
     }
 }
 
-// Social Login Buttons
-.p-button.p-component.social-btn {
+// Social Login Buttons（PrimeVue 与 caomei 并存期共用的品牌样式）
+// caomei 版用双类选择器提高特异性：`--secondary` 变体同带 library scope 属性，
+// 单类无法稳定压过后加载的库内规则。
+.p-button.p-component.social-btn,
+.caomei-button.caomei-button.social-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -343,7 +346,8 @@
     color: var(--btn-text-color, var(--btn-color));
     border-color: var(--btn-border);
 
-    .p-button-icon {
+    .p-button-icon,
+    i {
         color: var(--icon-color, inherit);
         font-size: 1.1rem;
     }
@@ -354,7 +358,7 @@
         flex: none;
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
         background: var(--btn-hover-bg);
         border-color: var(--btn-color);
     }

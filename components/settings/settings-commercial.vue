@@ -15,17 +15,22 @@
         />
 
         <div class="settings-commercial__actions">
-            <Button
+            <CaomeiButton
                 :label="$t('common.save')"
-                icon="pi pi-check"
                 :loading="saving"
                 @click="saveSettings"
-            />
+            >
+                <template #icon>
+                    <Check :size="16" />
+                </template>
+                {{ $t('common.save') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Check } from '@lucide/vue'
 import CommercialLinkManager from '@/components/commercial-link-manager.vue'
 import { type SocialLink, type DonationLink } from '@/utils/shared/commercial'
 import { useToast } from 'caomei-ui'

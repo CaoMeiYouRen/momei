@@ -85,10 +85,10 @@ describe('resolveUiLibraryForRoutePath', () => {
     })
 
     it('未登记的 locale 前缀路由仍回退 PrimeVue', () => {
-        // 锚点用**结构性不会登记**的用户设置路由（`/settings` 与 admin 设置页 `/admin/settings` 是两条路由，
-        // 后者已于第七十阶段 2a 登记；此处刻意使用前者）。
-        expect(resolveUiLibraryForRoutePath('/en-US/settings')).toBe('primevue')
-        expect(resolveUiLibraryForRoutePath('/settings')).toBe('primevue')
+        // 锚点用**结构性不会登记**的公开内容页（迁移批次只覆盖 admin / 用户设置 / 认证 / 提交路由，
+        // `/about` 不在任何批次的登记范围内）；`/settings` 已于第七十阶段条目 4 登记，不能再作锚点。
+        expect(resolveUiLibraryForRoutePath('/en-US/about')).toBe('primevue')
+        expect(resolveUiLibraryForRoutePath('/about')).toBe('primevue')
     })
 
     it('不把两字母业务段误判为 locale 前缀', () => {

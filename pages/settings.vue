@@ -12,7 +12,7 @@
                     :class="{active: activeTab === 'profile'}"
                     @click="activeTab = 'profile'"
                 >
-                    <i class="pi pi-user" />
+                    <User :size="18" aria-hidden="true" />
                     <span>{{ $t("pages.settings.profile.title") }}</span>
                 </div>
                 <div
@@ -20,7 +20,7 @@
                     :class="{active: activeTab === 'security'}"
                     @click="activeTab = 'security'"
                 >
-                    <i class="pi pi-lock" />
+                    <Lock :size="18" aria-hidden="true" />
                     <span>{{ $t("pages.settings.security.title") }}</span>
                 </div>
                 <div
@@ -28,7 +28,7 @@
                     :class="{active: activeTab === 'apiKeys'}"
                     @click="activeTab = 'apiKeys'"
                 >
-                    <i class="pi pi-key" />
+                    <KeyRound :size="18" aria-hidden="true" />
                     <span>{{ $t("pages.settings.api_keys.title") }}</span>
                 </div>
                 <div
@@ -36,7 +36,7 @@
                     :class="{active: activeTab === 'notifications'}"
                     @click="activeTab = 'notifications'"
                 >
-                    <i class="pi pi-bell" />
+                    <Bell :size="18" aria-hidden="true" />
                     <span>{{ $t("pages.settings.notifications.title") }}</span>
                 </div>
                 <div
@@ -45,37 +45,36 @@
                     :class="{active: activeTab === 'commercial'}"
                     @click="activeTab = 'commercial'"
                 >
-                    <i class="pi pi-dollar" />
+                    <DollarSign :size="18" aria-hidden="true" />
                     <span>{{ $t("pages.settings.commercial.title") }}</span>
                 </div>
             </div>
 
             <!-- Content Area -->
             <div class="settings-content">
-                <Card class="settings-card shadow-sm">
-                    <template #content>
-                        <!-- Profile Settings -->
-                        <SettingsProfile v-if="activeTab === 'profile'" />
+                <CaomeiCard class="settings-card shadow-sm">
+                    <!-- Profile Settings -->
+                    <SettingsProfile v-if="activeTab === 'profile'" />
 
-                        <!-- Security Settings -->
-                        <SettingsSecurity v-if="activeTab === 'security'" />
+                    <!-- Security Settings -->
+                    <SettingsSecurity v-if="activeTab === 'security'" />
 
-                        <!-- API Keys Settings -->
-                        <SettingsApiKeys v-if="activeTab === 'apiKeys'" />
+                    <!-- API Keys Settings -->
+                    <SettingsApiKeys v-if="activeTab === 'apiKeys'" />
 
-                        <!-- Notifications Settings -->
-                        <SettingsNotifications v-if="activeTab === 'notifications'" />
+                    <!-- Notifications Settings -->
+                    <SettingsNotifications v-if="activeTab === 'notifications'" />
 
-                        <!-- Commercial Settings -->
-                        <SettingsCommercial v-if="activeTab === 'commercial' && canViewCommercial" />
-                    </template>
-                </Card>
+                    <!-- Commercial Settings -->
+                    <SettingsCommercial v-if="activeTab === 'commercial' && canViewCommercial" />
+                </CaomeiCard>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Bell, DollarSign, KeyRound, Lock, User } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
 
@@ -169,9 +168,6 @@ watch(() => route.query.tab, syncTabFromRoute, { immediate: true })
         font-weight: 500;
     }
 
-    i {
-        font-size: 1.1rem;
-    }
 }
 
 .settings-content {

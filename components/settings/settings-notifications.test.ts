@@ -66,7 +66,7 @@ const CheckboxStub = defineComponent({
             type: String,
             required: true,
         },
-        inputId: {
+        id: {
             type: String,
             default: '',
         },
@@ -85,7 +85,7 @@ const CheckboxStub = defineComponent({
     },
     template: `
         <input
-            :id="inputId"
+            :id="id"
             class="category-checkbox"
             type="checkbox"
             :checked="modelValue.includes(value)"
@@ -143,18 +143,18 @@ const ToggleSwitchStub = defineComponent({
 })
 
 const stubs = {
-    ProgressSpinner: { template: '<div class="spinner" />' },
-    Tag: { props: ['severity'], template: '<span class="status-tag" :data-severity="severity"><slot /></span>' },
-    Button: {
+    CaomeiProgressSpinner: { template: '<div class="spinner" />' },
+    CaomeiTag: { props: ['tone'], template: '<span class="status-tag" :data-tone="tone"><slot /></span>' },
+    CaomeiButton: {
         props: ['label', 'loading', 'disabled', 'type'],
         emits: ['click'],
         template: '<button :type="type || \'button\'" :data-loading="loading ? \'true\' : \'false\'" :disabled="disabled || loading" @click="$emit(\'click\')">{{ label }}<slot /></button>',
     },
-    Divider: { template: '<hr>' },
-    Checkbox: CheckboxStub,
-    ToggleButton: ToggleButtonStub,
-    ToggleSwitch: ToggleSwitchStub,
-    Message: { props: ['severity', 'closable'], template: '<div class="message" :data-severity="severity"><slot /></div>' },
+    CaomeiDivider: { template: '<hr>' },
+    CaomeiCheckbox: CheckboxStub,
+    CaomeiToggleButton: ToggleButtonStub,
+    CaomeiSwitch: ToggleSwitchStub,
+    CaomeiMessage: { props: ['tone', 'closable'], template: '<div class="message" :data-tone="tone"><slot /></div>' },
     NotificationHistoryList: { template: '<div class="notification-history-list-stub" />' },
 }
 
@@ -288,7 +288,7 @@ describe('SettingsNotifications', () => {
         expect(wrapper.find('.spinner').exists()).toBe(false)
         expect((wrapper.get('#cat-cat-zh').element as HTMLInputElement).checked).toBe(true)
         expect(wrapper.get('.tag-toggle').attributes('data-pressed')).toBe('true')
-        expect(wrapper.find('.message').attributes('data-severity')).toBe('secondary')
+        expect(wrapper.find('.message').attributes('data-tone')).toBe('neutral')
         expect(wrapper.text()).toContain('pages.settings.notifications.browser_status_site_disabled')
 
         const toggleSwitches = wrapper.findAll('.toggle-switch')

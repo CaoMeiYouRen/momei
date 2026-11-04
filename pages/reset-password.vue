@@ -9,54 +9,48 @@
     >
         <div class="form-group">
             <label for="email">{{ $t('common.email') }}</label>
-            <InputText
+            <CaomeiInput
                 id="email"
                 v-model="email"
                 type="email"
                 required
-                fluid
                 :disabled="!!route.query.email"
             />
         </div>
 
         <div class="form-group">
             <label for="otp">{{ $t('common.otp') }}</label>
-            <InputText
+            <CaomeiInput
                 id="otp"
                 v-model="otp"
                 type="text"
                 :placeholder="$t('pages.reset_password.otp_placeholder')"
                 required
-                fluid
             />
         </div>
 
         <div class="form-group">
             <label for="password">{{ $t('pages.reset_password.new_password') }}</label>
-            <Password
+            <CaomeiPassword
                 id="password"
                 v-model="password"
                 :placeholder="$t('pages.reset_password.new_password_placeholder')"
-                toggle-mask
                 :feedback="true"
                 required
-                fluid
             />
         </div>
 
         <div class="form-group">
             <label for="confirmPassword">{{ $t('pages.reset_password.confirm_password') }}</label>
-            <Password
+            <CaomeiPassword
                 id="confirmPassword"
                 v-model="confirmPassword"
                 :placeholder="$t('pages.reset_password.confirm_password_placeholder')"
-                toggle-mask
                 :feedback="false"
                 required
-                fluid
                 :invalid="passwordMismatch"
             />
-            <small v-if="passwordMismatch" class="p-error">{{ $t('pages.register.password_mismatch') }}</small>
+            <small v-if="passwordMismatch" class="form-error">{{ $t('pages.register.password_mismatch') }}</small>
         </div>
     </AuthCard>
 </template>
@@ -115,6 +109,11 @@ const handleResetPassword = async () => {
 </script>
 
 <style lang="scss" scoped>
+.form-error {
+    color: var(--p-red-500);
+    font-size: 0.875rem;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;

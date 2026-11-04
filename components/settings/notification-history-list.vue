@@ -1,113 +1,115 @@
 <template>
     <div class="notification-history-list">
-        <DataTable
-            :value="items"
+        <div class="notification-history-list__header">
+            <div>
+                <h3 class="notification-history-list__title">
+                    {{ $t('pages.settings.notifications.history.title') }}
+                </h3>
+                <p class="notification-history-list__description">
+                    {{ $t('pages.settings.notifications.history.description') }}
+                </p>
+            </div>
+
+            <div class="notification-history-list__actions">
+                <CaomeiButton
+                    v-if="hasUnread"
+                    variant="ghost"
+                    :label="$t('pages.settings.notifications.history.mark_all_read')"
+                    @click="markAllAsRead"
+                >
+                    <template #icon>
+                        <Check :size="16" />
+                    </template>
+                    {{ $t('pages.settings.notifications.history.mark_all_read') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="ghost"
+                    :label="$t('common.refresh')"
+                    @click="loadNotifications"
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ $t('common.refresh') }}
+                </CaomeiButton>
+            </div>
+        </div>
+
+        <CaomeiDataTable
+            :data="items"
+            :columns="columns"
             :loading="loading"
             paginator
             lazy
+            :page="page"
             :rows="limit"
             :total-records="total"
             class="notification-history-list__table"
             @page="onPage"
         >
-            <template #header>
-                <div class="notification-history-list__header">
-                    <div>
-                        <h3 class="notification-history-list__title">
-                            {{ $t('pages.settings.notifications.history.title') }}
-                        </h3>
-                        <p class="notification-history-list__description">
-                            {{ $t('pages.settings.notifications.history.description') }}
-                        </p>
-                    </div>
+            <template #cell-createdAt="{row}">
+                {{ formatDateTime(row.createdAt) }}
+            </template>
 
-                    <div class="notification-history-list__actions">
-                        <Button
-                            v-if="hasUnread"
-                            icon="pi pi-check"
-                            variant="text"
-                            :label="$t('pages.settings.notifications.history.mark_all_read')"
-                            @click="markAllAsRead"
-                        />
-                        <Button
-                            icon="pi pi-refresh"
-                            variant="text"
-                            :label="$t('common.refresh')"
-                            @click="loadNotifications"
-                        />
-                    </div>
+            <template #cell-type="{row}">
+                <CaomeiTag :tone="getTypeTone(row.type)">
+                    {{ translateNotificationType(row.type) }}
+                </CaomeiTag>
+            </template>
+
+            <template #cell-content="{row}">
+                <div class="notification-history-list__content">
+                    <strong>{{ row.title }}</strong>
+                    <p>{{ row.content }}</p>
                 </div>
             </template>
 
-            <Column :header="$t('pages.settings.notifications.history.columns.time')" class="notification-history-list__time-column">
-                <template #body="slotProps">
-                    {{ formatDateTime(slotProps.data.createdAt) }}
-                </template>
-            </Column>
+            <template #cell-isRead="{row}">
+                <CaomeiTag :tone="row.isRead ? 'success' : 'warning'">
+                    {{ row.isRead
+                        ? $t('pages.settings.notifications.history.status.read')
+                        : $t('pages.settings.notifications.history.status.unread') }}
+                </CaomeiTag>
+            </template>
 
-            <Column :header="$t('pages.settings.notifications.history.columns.type')">
-                <template #body="slotProps">
-                    <Tag :severity="getTypeSeverity(slotProps.data.type)">
-                        {{ translateNotificationType(slotProps.data.type) }}
-                    </Tag>
-                </template>
-            </Column>
+            <template #cell-target="{row}">
+                <NuxtLink
+                    v-if="resolveNotificationTarget(row.link)"
+                    :to="resolveNotificationTarget(row.link)"
+                    class="notification-history-list__target"
+                >
+                    {{ $t('pages.settings.notifications.history.view_target') }}
+                </NuxtLink>
+                <span v-else class="notification-history-list__muted">-</span>
+            </template>
 
-            <Column :header="$t('pages.settings.notifications.history.columns.content')">
-                <template #body="slotProps">
-                    <div class="notification-history-list__content">
-                        <strong>{{ slotProps.data.title }}</strong>
-                        <p>{{ slotProps.data.content }}</p>
-                    </div>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.settings.notifications.history.columns.status')">
-                <template #body="slotProps">
-                    <Tag :severity="slotProps.data.isRead ? 'success' : 'warn'">
-                        {{ slotProps.data.isRead
-                            ? $t('pages.settings.notifications.history.status.read')
-                            : $t('pages.settings.notifications.history.status.unread') }}
-                    </Tag>
-                </template>
-            </Column>
-
-            <Column :header="$t('pages.settings.notifications.history.columns.target')">
-                <template #body="slotProps">
-                    <NuxtLink
-                        v-if="resolveNotificationTarget(slotProps.data.link)"
-                        :to="resolveNotificationTarget(slotProps.data.link)"
-                        class="notification-history-list__target"
-                    >
-                        {{ $t('pages.settings.notifications.history.view_target') }}
-                    </NuxtLink>
-                    <span v-else class="notification-history-list__muted">-</span>
-                </template>
-            </Column>
-
-            <Column :header="$t('common.actions')">
-                <template #body="slotProps">
-                    <Button
-                        v-if="!slotProps.data.isRead"
-                        icon="pi pi-check-circle"
-                        variant="text"
-                        :label="$t('pages.settings.notifications.history.mark_read')"
-                        @click="markSingleAsRead(slotProps.data.id)"
-                    />
-                    <span v-else class="notification-history-list__muted">-</span>
-                </template>
-            </Column>
+            <template #cell-actions="{row}">
+                <CaomeiButton
+                    v-if="!row.isRead"
+                    variant="ghost"
+                    :label="$t('pages.settings.notifications.history.mark_read')"
+                    @click="markSingleAsRead(row.id)"
+                >
+                    <template #icon>
+                        <CheckCircle2 :size="16" />
+                    </template>
+                    {{ $t('pages.settings.notifications.history.mark_read') }}
+                </CaomeiButton>
+                <span v-else class="notification-history-list__muted">-</span>
+            </template>
 
             <template #empty>
                 <div class="notification-history-list__empty">
                     {{ $t('pages.settings.notifications.history.empty') }}
                 </div>
             </template>
-        </DataTable>
+        </CaomeiDataTable>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Check, CheckCircle2, RefreshCw } from '@lucide/vue'
+import type { DataTableColumn } from 'caomei-ui'
 import { useToast } from 'caomei-ui'
 import { authClient } from '@/lib/auth-client'
 import type { NotificationHistoryResponseData, UserNotificationHistoryItem } from '@/types/notification'
@@ -149,16 +151,16 @@ function translateNotificationType(type: string) {
     return translated === key ? type : translated
 }
 
-function getTypeSeverity(type: string) {
+function getTypeTone(type: string) {
     switch (type) {
         case 'SECURITY':
             return 'danger'
         case 'COMMENT_REPLY':
-            return 'info'
+            return 'primary'
         case 'MARKETING':
-            return 'contrast'
+            return 'neutral'
         default:
-            return 'secondary'
+            return 'neutral'
     }
 }
 
@@ -203,8 +205,18 @@ async function markAllAsRead() {
     await loadNotifications()
 }
 
+const columns = computed<DataTableColumn<UserNotificationHistoryItem>[]>(() => [
+    { key: 'createdAt', header: t('pages.settings.notifications.history.columns.time'), headerClass: 'notification-history-list__time-column', bodyClass: 'notification-history-list__time-column' },
+    { key: 'type', header: t('pages.settings.notifications.history.columns.type') },
+    { key: 'content', header: t('pages.settings.notifications.history.columns.content') },
+    { key: 'isRead', header: t('pages.settings.notifications.history.columns.status') },
+    { key: 'target', header: t('pages.settings.notifications.history.columns.target') },
+    { key: 'actions', header: t('common.actions') },
+])
+
 function onPage(event: { page: number, rows: number }) {
-    page.value = event.page + 1
+    /* caomei 的 `@page` 是 1 基页码（迁移前 PrimeVue 为 0 基偏移）。 */
+    page.value = event.page
     limit.value = event.rows
     void loadNotifications()
 }

@@ -10,135 +10,130 @@
                 </p>
             </header>
 
-            <Card class="submit-card">
-                <template #content>
-                    <form class="submit-form" @submit.prevent="handleSubmit">
-                        <div class="submit-form__field">
-                            <label for="title">{{ $t('pages.submit.form.title') }} *</label>
-                            <InputText
-                                id="title"
-                                v-model="form.title"
-                                :placeholder="$t('pages.submit.form.title_placeholder')"
-                                :invalid="!!errors.title"
-                                fluid
-                            />
-                            <Message
-                                v-if="errors.title"
-                                severity="error"
-                                size="small"
+            <CaomeiCard class="submit-card">
+                <form class="submit-form" @submit.prevent="handleSubmit">
+                    <div class="submit-form__field">
+                        <label for="title">{{ $t('pages.submit.form.title') }} *</label>
+                        <CaomeiInput
+                            id="title"
+                            v-model="form.title"
+                            :placeholder="$t('pages.submit.form.title_placeholder')"
+                            :invalid="!!errors.title"
+                        />
+                        <CaomeiMessage
+                            v-if="errors.title"
+                            tone="danger"
+                            size="sm"
+                            variant="simple"
+                        >
+                            {{ errors.title }}
+                        </CaomeiMessage>
+                    </div>
+
+                    <div class="submit-form__field">
+                        <label for="content">{{ $t('pages.submit.form.content') }} *</label>
+                        <CaomeiTextarea
+                            id="content"
+                            v-model="form.content"
+                            :placeholder="$t('pages.submit.form.content_placeholder')"
+                            :invalid="!!errors.content"
+                            :rows="12"
+                        />
+                        <div class="submit-form__field-footer">
+                            <small class="submit-form__help">支持 Markdown 语法</small>
+                            <CaomeiMessage
+                                v-if="errors.content"
+                                tone="danger"
+                                size="sm"
                                 variant="simple"
                             >
-                                {{ errors.title }}
-                            </Message>
+                                {{ errors.content }}
+                            </CaomeiMessage>
                         </div>
+                    </div>
 
+                    <div class="submit-form__row">
                         <div class="submit-form__field">
-                            <label for="content">{{ $t('pages.submit.form.content') }} *</label>
-                            <Textarea
-                                id="content"
-                                v-model="form.content"
-                                :placeholder="$t('pages.submit.form.content_placeholder')"
-                                :invalid="!!errors.content"
-                                rows="12"
-                                fluid
+                            <label for="name">{{ $t('pages.submit.form.name') }} *</label>
+                            <CaomeiInput
+                                id="name"
+                                v-model="form.contributorName"
+                                :placeholder="$t('pages.submit.form.name_placeholder')"
+                                :invalid="!!errors.contributorName"
                             />
-                            <div class="submit-form__field-footer">
-                                <small class="submit-form__help">支持 Markdown 语法</small>
-                                <Message
-                                    v-if="errors.content"
-                                    severity="error"
-                                    size="small"
-                                    variant="simple"
-                                >
-                                    {{ errors.content }}
-                                </Message>
-                            </div>
-                        </div>
-
-                        <div class="submit-form__row">
-                            <div class="submit-form__field">
-                                <label for="name">{{ $t('pages.submit.form.name') }} *</label>
-                                <InputText
-                                    id="name"
-                                    v-model="form.contributorName"
-                                    :placeholder="$t('pages.submit.form.name_placeholder')"
-                                    :invalid="!!errors.contributorName"
-                                    fluid
-                                />
-                                <Message
-                                    v-if="errors.contributorName"
-                                    severity="error"
-                                    size="small"
-                                    variant="simple"
-                                >
-                                    {{ errors.contributorName }}
-                                </Message>
-                            </div>
-                            <div class="submit-form__field">
-                                <label for="email">{{ $t('pages.submit.form.email') }} *</label>
-                                <InputText
-                                    id="email"
-                                    v-model="form.contributorEmail"
-                                    type="email"
-                                    :placeholder="$t('pages.submit.form.email_placeholder')"
-                                    :invalid="!!errors.contributorEmail"
-                                    fluid
-                                />
-                                <Message
-                                    v-if="errors.contributorEmail"
-                                    severity="error"
-                                    size="small"
-                                    variant="simple"
-                                >
-                                    {{ errors.contributorEmail }}
-                                </Message>
-                            </div>
-                        </div>
-
-                        <div class="submit-form__field">
-                            <label for="url">{{ $t('pages.submit.form.url') }}</label>
-                            <InputText
-                                id="url"
-                                v-model="form.contributorUrl"
-                                :placeholder="$t('pages.submit.form.url_placeholder')"
-                                :invalid="!!errors.contributorUrl"
-                                fluid
-                            />
-                            <Message
-                                v-if="errors.contributorUrl"
-                                severity="error"
-                                size="small"
+                            <CaomeiMessage
+                                v-if="errors.contributorName"
+                                tone="danger"
+                                size="sm"
                                 variant="simple"
                             >
-                                {{ errors.contributorUrl }}
-                            </Message>
+                                {{ errors.contributorName }}
+                            </CaomeiMessage>
                         </div>
-
-                        <div v-if="isCaptchaEnabled" class="submit-form__captcha">
-                            <div class="align-items-center flex flex-column gap-2">
-                                <app-captcha ref="captchaRef" v-model="form.captchaToken" />
-                                <Message
-                                    v-if="errors.captchaToken"
-                                    severity="error"
-                                    size="small"
-                                    variant="simple"
-                                >
-                                    {{ errors.captchaToken }}
-                                </Message>
-                            </div>
-                        </div>
-
-                        <div class="submit-form__actions">
-                            <Button
-                                type="submit"
-                                :label="loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit')"
-                                :loading="loading"
-                                class="submit-btn"
+                        <div class="submit-form__field">
+                            <label for="email">{{ $t('pages.submit.form.email') }} *</label>
+                            <CaomeiInput
+                                id="email"
+                                v-model="form.contributorEmail"
+                                type="email"
+                                :placeholder="$t('pages.submit.form.email_placeholder')"
+                                :invalid="!!errors.contributorEmail"
                             />
+                            <CaomeiMessage
+                                v-if="errors.contributorEmail"
+                                tone="danger"
+                                size="sm"
+                                variant="simple"
+                            >
+                                {{ errors.contributorEmail }}
+                            </CaomeiMessage>
                         </div>
-                    </form>
-                </template>
-            </Card>
+                    </div>
+
+                    <div class="submit-form__field">
+                        <label for="url">{{ $t('pages.submit.form.url') }}</label>
+                        <CaomeiInput
+                            id="url"
+                            v-model="form.contributorUrl"
+                            :placeholder="$t('pages.submit.form.url_placeholder')"
+                            :invalid="!!errors.contributorUrl"
+                        />
+                        <CaomeiMessage
+                            v-if="errors.contributorUrl"
+                            tone="danger"
+                            size="sm"
+                            variant="simple"
+                        >
+                            {{ errors.contributorUrl }}
+                        </CaomeiMessage>
+                    </div>
+
+                    <div v-if="isCaptchaEnabled" class="submit-form__captcha">
+                        <div class="align-items-center flex flex-column gap-2">
+                            <app-captcha ref="captchaRef" v-model="form.captchaToken" />
+                            <CaomeiMessage
+                                v-if="errors.captchaToken"
+                                tone="danger"
+                                size="sm"
+                                variant="simple"
+                            >
+                                {{ errors.captchaToken }}
+                            </CaomeiMessage>
+                        </div>
+                    </div>
+
+                    <div class="submit-form__actions">
+                        <CaomeiButton
+                            type="submit"
+                            :label="loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit')"
+                            :loading="loading"
+                            class="submit-btn"
+                        >
+                            {{ loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit') }}
+                        </CaomeiButton>
+                    </div>
+                </form>
+            </CaomeiCard>
         </div>
     </div>
 </template>

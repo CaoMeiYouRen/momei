@@ -10,14 +10,17 @@
                     {{ description }}
                 </p>
             </div>
-            <Button
+            <CaomeiButton
                 :label="addLabel"
                 :data-testid="`${kind}-add`"
-                icon="pi pi-plus"
-                size="small"
-                severity="primary"
+                size="sm"
                 @click="emit('add')"
-            />
+            >
+                <template #icon>
+                    <Plus :size="16" />
+                </template>
+                {{ addLabel }}
+            </CaomeiButton>
         </div>
 
         <div v-if="links.length === 0" class="commercial-manager__empty">
@@ -41,14 +44,15 @@
                     <div class="commercial-manager__card-label">
                         <span class="mr-2">{{ link.label || getPlatformName(link.platform) }}</span>
                         <div v-if="link.locales && link.locales.length > 0" class="commercial-manager__card-tags">
-                            <Tag
+                            <CaomeiTag
                                 v-for="localeCode in link.locales"
                                 :key="localeCode"
-                                :value="localeCode"
-                                size="small"
-                                severity="secondary"
+                                size="sm"
+                                tone="neutral"
                                 class="commercial-manager__tag"
-                            />
+                            >
+                                {{ localeCode }}
+                            </CaomeiTag>
                         </div>
                     </div>
                     <div class="commercial-manager__card-value">
@@ -56,7 +60,7 @@
                     </div>
                 </div>
                 <div class="commercial-manager__card-actions">
-                    <Image
+                    <CaomeiImage
                         v-if="link.image"
                         :src="link.image"
                         alt="Preview"
@@ -65,34 +69,35 @@
                         <template #indicatoricon>
                             <i class="pi pi-eye" />
                         </template>
-                        <template #image>
-                            <Button
-                                icon="pi pi-image"
-                                severity="secondary"
-                                text
-                                rounded
-                                size="small"
-                            />
-                        </template>
-                    </Image>
-                    <Button
+                    </CaomeiImage>
+                    <CaomeiButton
                         :data-testid="`${kind}-edit-${index}`"
-                        icon="pi pi-pencil"
-                        severity="secondary"
-                        text
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
                         rounded
-                        size="small"
+                        size="sm"
+                        :label="$t('common.edit')"
                         @click="emit('edit', index)"
-                    />
-                    <Button
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiButton>
+                    <CaomeiButton
                         :data-testid="`${kind}-remove-${index}`"
-                        icon="pi pi-trash"
-                        severity="danger"
-                        text
+                        icon-only
+                        variant="ghost"
+                        tone="danger"
                         rounded
-                        size="small"
+                        size="sm"
+                        :label="$t('common.delete')"
                         @click="emit('remove', index)"
-                    />
+                    >
+                        <template #icon>
+                            <Trash2 :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </div>
             </div>
         </div>
@@ -100,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { Pencil, Plus, Trash2 } from '@lucide/vue'
 import {
     getCommercialPlatformColor,
     getCommercialPlatformIcon,
@@ -316,6 +322,14 @@ function getPlatformName(key: string) {
         display: flex;
         align-items: center;
         gap: 4px;
+
+        /* 缩略图由包装层定尺寸：caomei `Image` 不接受 width / height 透传到内层 img。 */
+        :deep(.caomei-image) {
+            width: 40px;
+            height: 40px;
+            border-radius: $border-radius-sm;
+            cursor: zoom-in;
+        }
     }
 }
 </style>

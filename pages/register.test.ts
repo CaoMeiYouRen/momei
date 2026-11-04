@@ -172,29 +172,29 @@ const AppCaptchaStub = defineComponent({
 })
 
 const stubs = {
-    Card: { template: '<div class="register-card"><slot name="title"/><slot name="content"/><slot name="footer"/></div>' },
-    Button: {
+    CaomeiCard: { template: '<div class="register-card"><slot name="title"/><slot /><slot name="footer"/></div>' },
+    CaomeiButton: {
         template: '<button :type="type" :data-loading="String(loading)" @click="$emit(\'click\')">{{ label }}</button>',
         props: ['label', 'loading', 'icon', 'severity', 'outlined', 'type', 'class'],
         emits: ['click'],
     },
-    InputText: {
+    CaomeiInput: {
         template: '<input :id="id" :value="modelValue" :type="type" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'type', 'invalid', 'id', 'class'],
         emits: ['update:modelValue'],
     },
-    Password: {
+    CaomeiPassword: {
         template: '<input :id="id" :value="modelValue" :data-invalid="String(!!invalid)" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['modelValue', 'feedback', 'toggleMask', 'fluid', 'invalid', 'id'],
         emits: ['update:modelValue'],
     },
-    Checkbox: {
-        template: '<input id="agreed" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
-        props: ['modelValue', 'binary', 'inputId', 'invalid'],
+    CaomeiCheckbox: {
+        template: '<input :id="id || \'agreed\'" type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+        props: ['modelValue', 'id', 'invalid'],
         emits: ['update:modelValue'],
     },
-    Divider: { template: '<div class="divider"><slot /></div>' },
-    Message: { template: '<div v-if="severity" class="message"><slot /></div>', props: ['severity', 'size', 'variant'] },
+    CaomeiDivider: { template: '<div class="divider"><slot /></div>' },
+    CaomeiMessage: { template: '<div class="message"><slot /></div>', props: ['tone', 'size', 'variant'] },
     Toast: { template: '<div class="toast-stub" />' },
     'app-captcha': AppCaptchaStub,
     NuxtLink: { template: '<a :href="to" :target="target"><slot /></a>', props: ['to', 'target', 'class'] },

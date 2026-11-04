@@ -62,10 +62,10 @@ const stubs = {
             </div>
         `,
     },
-    Button: {
+    CaomeiButton: {
         props: ['label', 'loading'],
         emits: ['click'],
-        template: '<button type="button" :data-loading="loading ? \'true\' : \'false\'" @click="$emit(\'click\')">{{ label }}</button>',
+        template: '<button type="button" :aria-label="label" :data-loading="loading ? \'true\' : \'false\'" @click="$emit(\'click\')"><slot /></button>',
     },
 }
 
