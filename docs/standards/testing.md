@@ -26,7 +26,7 @@
 
 ### 2.2 Mock 与断言实践 (Mock & Assertion Practices)
 
--   **once 队列跨测试累积陷阱**: `vi.clearAllMocks()` 只清调用记录与 instances，**不清** `mockResolvedValueOnce`/`mockImplementationOnce` 队列。多个测试各自 `mockResolvedValueOnce` 而未被消费会污染后续断言。修复：beforeEach 中对相关 mock 追加 `mockReset()`（如 `mockRepo.findOne.mockReset()`），或确保每条链路恰好消费一次。
+-   **once 队列跨测试累积陷阱**: `vi.clearAllMocks()` 只清调用记录与 instances，**不清** `mockResolvedValueOnce`/`mockImplementationOnce` 队列，也**不清默认实现**（`mockResolvedValue` / `mockImplementation`）。多个测试各自 `mockResolvedValueOnce` 而未被消费会污染后续断言；前序用例留下的 `mockImplementation` 则会让单例运行与整文件运行结果不同（新文件必在 `beforeEach` 对关键 mock 先 `mockReset()` 再重建默认值，如 `mockRepo.findOne.mockReset()`）。
 -   **类型安全 mock**: `vi.mocked(x).mockResolvedValue({...} as never)` 会绕过联合类型完整性检查（如 `AIProvider`），接口签名漂移时测试会静默失配。改用 `as unknown as AIProvider` 或与签名对齐的显式类型（如 `as Record<string, string | null>`），并 `import type` 生产类型。
 -   **外部解析器行为先探测再断言**: 编写依赖第三方解析器行为的测试前（如 fast-xml-parser），先写探测脚本确认实际行为。已确认：`parseTagValue: false` 下数字字符引用（`&#x41;`）保留原样不解码、命名实体（`&amp;`）解码；stopNodes 列表内节点全文保留（含 CDATA 标记）；malformed XML（未闭合标签）被宽容解析不抛错。
 
@@ -38,8 +38,10 @@
 -   **立项先算候选池上限**：单批「全仓 +1pp」需候选池语句数接近全仓的 1% 且几近全闭合；池体量不足时按模块级验收（各 `+15pp` 或 `≥85%`）立项，全仓差值必须显式记录结构性原因并转长期主线，禁止用不可达的数字当验收线。
 -   **按绝对未覆盖语句数选模**，不按覆盖率百分比排序：百分比低但体量小的模块（几十条语句）对全仓贡献可忽略。
 -   **分支覆盖率一律用分支路径级计数**（逐 `d.b` 元素计一次），不要用「任一分支命中」口径——后者实测可高估 10pp 以上，数字类审计会逐项复算。
--   **基线产物先落盘留档**：`vitest --coverage.reportsDirectory=artifacts/x` 仍会清理默认 `coverage/`；跑新批前把 `coverage-final.json` 复制到独立目录并记录数值。
--   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞。
+-   **基线产物先落盘留档**：`vitest --coverage.reportsDirectory=artifacts/x`（以及定向的 `--coverage.include=...`）仍会清理默认 `coverage/`；跑新批前把 `coverage-final.json` 复制到 `artifacts/coverage/<batch>/` 并记录数值，复算与审计一律读副本。
+-   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞；追加到既有 `describe` 时还要看 `max-lines-per-function`（默认 800），超限按「一个模块一个测试文件」拆分，不靠压缩断言凑行数。
+-   **3 模块粒度的容量上限**：全仓 `+0.3pp` 需闭合 `总语句数 × 0.3%` 条语句；实测 36,340 条语句对应 109 条，而 `server/services/` 前三模块合计仅 92 条（上限 +0.25pp），即使 100% 闭合也不可达。立项时先算「需求条数 vs 候选池」，不足就按模块级验收立项，并在摘要写明是**选模粒度**而非闭合率不足。
+-   **断言必须具备判别力**：新增用例要能「删掉被测守卫就变红」；只断言 `outcome` / 最终状态、而该状态在守卫被删后仍成立，等于零覆盖。应钉住守卫决定的可观测产物（如持久化的 `result.phase`、`signal.aborted`、调用参数）。
 -   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
 -   **新增用例的环境兜底**：涉及模块级连接 Map / `process.env` / fake timers 的用例必须补 `afterEach` 注销与 `useRealTimers` / `unstubAllGlobals`；即使当前 `isolate: true` 掩盖了污染，审计仍会以「前置断言失败会连锁误报」为由记 warning。
 -   **本批增量与阶段累计分列**：新增代码会把语句总数从上一阶段基线推大；`本批增量 = 终值 − 本批前基线`、`阶段累计 = 终值 − 上一阶段收口值`，两者不同源。文档必须给出各自的分子 / 分母，禁止用累计值冒充本批成果。
@@ -349,6 +351,11 @@ pnpm run test:coverage
 | Dialog 打开后的可访问性树 | caomei `CaomeiDialog` 按 Reka 契约给外部内容加 `aria-hidden`；「页面就绪」类 `getByRole('heading')` 断言必须在打开弹窗之前，否则等待超时。 |
 | 失败路径断言的引用陷阱 | `recordTask` 这类原地 `Object.assign` 同一对象的路径，`save.mock.calls[i][0]` 读到的是最终状态（引用），必须记录 `{...value}` 快照再断言 `status` / `error`。 |
 | 测试环境变量的隔离 | `process.env = { ...originalEnv }` 只是复制、不是隔离：shell 里恰好导出的被测键（含 legacy alias）会让「默认值 / 写入」用例必挂或空断言；基线副本要显式删除被测键。 |
+| 未安装态第二实例 | 安装向导的视觉 / E2E 必须用第二 webServer（`MOMEI_INSTALLED=false` + `TEST_MODE=false` + `DATABASE_PATH=:memory:` + `DATABASE_SYNCHRONIZE=true`）；`MOMEI_INSTALLED=false` 单独不够（仍按 DB 探测），且已安装态服务端对 `/installation` 直接 302，前端 `page.route` mock 拦不住。 |
+| 登录态页面的 SSE | `/api/notifications/stream` 会让 `networkidle` 永不达成；parity 路由须标 `stable: 'lenient'`，E2E 改用 `domcontentloaded` 或业务锚点。 |
+| 参考态同批采集 | 新增待迁移 parity 路由必须在同一批登记并采集参考态，否则门禁因缺快照直接失败；采集中途失败时已落盘的 PNG 不会写入 manifest，需 `--only` 重采补齐来源。 |
+| 第二实例配置单一来源 | 多个 Playwright 配置共用同一第二实例时，env / command / baseURL 必须抽到单一模块；副本漏一个 `DATABASE_SYNCHRONIZE` 就会让另一层复用实例时失败。 |
+| E2E 并行冷启动 | 4 worker 并行冷启动会被默认布局 SSE 与外部头像请求卡住 `networkidle`；CI 单 worker 正常，并行抖动不得判为迁移回归。 |
 
 ## 8. 提交前检查 (Pre-commit Checks)
 

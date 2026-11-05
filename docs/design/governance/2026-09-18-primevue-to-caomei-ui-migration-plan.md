@@ -525,7 +525,7 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 
 > 逐组件、逐 prop 的完整映射与已知行为差异，以 caomei-ui 设计规范 §7 为唯一事实源；本文档只保留迁移执行所需的总则。
 
-> **执行提示（2026-10-16 补记，B2 第七 ~ 第十路由批次沉淀；2026-11-02 / 2026-11-03 追加第 4、5 条）**：以下五条在两个以上场景重复出现，迁移新页面前先核对，避免重复踩坑：
+> **执行提示（2026-10-16 补记，B2 第七 ~ 第十路由批次沉淀；2026-11-02 / 2026-11-03 / 2026-11-05 追加第 4、5、6 条）**：以下六条在两个以上场景重复出现，迁移新页面前先核对，避免重复踩坑：
 >
 > 1. **字段宽度钩子（上游 §1.1）**：caomei 字段家族的 `class` 只落**触发器**，宽度 / `max-width` 钩子在**字段外层**（`.caomei-select__field` 默认 `--caomei-select-max-width: 20rem`，自定义属性不向上继承）。受限宽度须由**包装元素**承载（`width` + 必要时 `--caomei-select-max-width: 100%`，token 生效位置是**字段外层或其祖先**）；直接写在组件 `<CaomeiSelect>` 上会静默无效。已在三个路由完成三处处置、落在两种位置（包装元素 ×1 / 字段容器 ×2）。
 > 2. **列定义（上游 §2.2 / §2.7）**：PrimeVue `Column` 的 `style` / `class` **同时落 `th` 与 `td`**（实测 inline 逐字一致），caomei 侧须分别以 `headerStyle` / `bodyStyle`、`headerClass` / `bodyClass` 两侧镜像；`DataTableColumn.width` **只落 `th`**，且只有 `px` 宽度参与冻结列的 `tableMinWidth` 与偏移估算（列宽优先写 `px`）。**选择列宽度不可配置**（PrimeVue 52px vs caomei 34px，整表左移），无 token 可覆盖，按「接受 + 登记」处置。
@@ -534,6 +534,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 > 4. **浮层族与内建文案（2026-11-02 第六十九阶段条目 2 / 3 沉淀）**：`v-model:visible` → `:open` + `@update:open`；`dismissable-mask` → `:close-on-overlay`（默认 `true`，表单弹窗须显式 `false`）；`@show` 在父级打开时**不触发**，初聚焦改用 `watch(open)`。Toast 用 `show({ tone, title, description, duration })`、Confirm 用 `confirm()` 的 Promise；`confirm.open()` 会以 `false` 了结被后续请求取代的待决确认，破坏性副作用只能放在确认分支。命令式 Popover 用 `useAnchoredPopover`（库未导出 `PopoverAnchor`）。`v-tooltip` 无指令形态：桥接组件 `AppTooltip` 内置 `CaomeiTooltipProvider` + `Trigger as-child` + `Content`，方位来自 Vue AST 的 `directive.modifiers`（不是 `arg`）；包装组件若被外层 `as-child` 触发器当子节点，须 `inheritAttrs: false` + `$attrs` 绑到内层触发器，否则外层 aria / 事件被吞。`registerLocale` 写普通对象、provider 文案是 computed，异步注册晚于首帧会永久回落默认文案，故在模块顶层静态注册。
 
 > 5. **可空字段的绑定（2026-11-03 第七十阶段条目 2a 沉淀）**：caomei 的字段组件（`Input` / `Password` / `Textarea`）`modelValue` 只接受 `string | undefined`，而设置项的通用类型 `SettingFormValue` 含 `null`（DB 未设置为 null）。B3 采用三个薄适配层（`components/admin/settings/setting-{input,password,textarea}.vue`）在边界做 `null → ''` 归一，避免在 200+ 处绑定上重复写回写；`Select` / `MultiSelect` 的 `options` 只接受对象数组（PrimeVue 接受 `string[]`），字符串选项须映射为 `{ label, value }`。新增适配层时注意 Nuxt 组件名为**目录前缀**（`AdminSettingsSettingInput`），文件内使用须显式 import 或写全名，否则标签会静默解析为未知元素、页面少渲染控件且不报错。
+
+> 6. **B3 字段 / 卡片 / 表格 / 步骤契约（2026-11-05 第七十阶段 B3 沉淀）**：`InputNumber` 的步进按钮由 `controls` 控制且默认 `true`，PrimeVue `showButtons` 默认 `false`，原本无步进的字段须显式 `:controls="false"`。`Card` 传 `#header` 会整段替换默认头（含 `#title`），且外层是 flex 容器，自定义 header 需 `flex: 1; width: 100%`，否则标题被压成内容宽度并左对齐（实测 248px 位移）。`ColorPicker` 的 `modelValue` 必须带 `#` 的 CSS 颜色串（PrimeVue 旧契约是裸 hex，否则回退默认红色）。`DataTable` 的 `@page` 是 1 基页码，并建议绑定受控 `:page`；筛选重置只改请求参数时，分页器 UI 不会回落。`Stepper` 没有面板容器（无 StepPanels / StepPanel），步骤内容由页面按 1 基数字 `v-model` 渲染（PrimeVue 为字符串步号）；caomei `linear` 默认 `true`（PrimeVue 默认 `false`），开启时可回退到任意已访问步骤、前进仅 1 步，且 trigger / 焦点层同样受限，**不提供**「仅当前步可点」；要复刻须给 `StepperItem` 显式 `:disabled`。`Image` 不透传 `width` / `height` 到内层 `img`（`$attrs` 只落根元素）且根元素默认无高度，尺寸由包装层承载并显式给高度 / `height:auto`。Reka `Avatar` 根是 fragment，叠加 `useAvatar` 异步 URL 与 SSR/CSR 差异会在 hydration mismatch 后卸载时触发 `insertBefore` 崩溃；定向做法是 `ClientOnly` + 同尺寸占位，根因是会话数据未单一来源。`Select` 提供 `#value` 插槽后不再渲染内建 placeholder（未知值自兜底）；`Input` 的 `:value` 会被 `vModelText` 挂载时覆盖，只读回显用 `:model-value`。
 
 ### 6.3 有意差异
 

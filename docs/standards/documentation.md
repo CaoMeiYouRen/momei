@@ -240,7 +240,7 @@
 
 | 陷阱 | 结论 |
 |:---|:---|
-| `regression-window` marker | `docs/reports/regression/current.md` 的 marker 必须成对（`start` + `## 标题` + 正文 + `end`，且 marker 日期与标题日期一致）；只写 `start` 会让下一轮自动回填把新块插进 marker 与标题之间，导致分组错乱。 |
+| `regression-window` marker | `docs/reports/regression/current.md` 的 marker 必须成对（`start` + `## 标题` + 正文 + `end`，且 marker 日期与标题日期一致）；只写 `start` 会让下一轮自动回填把新块插进 marker 与标题之间，导致分组错乱。marker 成对也可能出现「start 在顶部、正文在底部」的 LIFO 形态，检查不会报错；归档时须整块归位并保持 newest-first。 |
 | 改 `roadmap.md` 连带翻译镜像 | `docs/i18n/{en-US,ja-JP,ko-KR,zh-TW}/plan/roadmap.md` 为 summary-sync tier，blocker 判据是「源文档自镜像 `last_sync` 起在 git 中有提交（**严格大于**日期）」；必须同一提交内更新镜像摘要并把 `last_sync` 提升到源提交日（同日不算 stale）。**提交前的 `docs:check:*` PASS 不能作为提交后证据。** |
 | 规划文档口径混写 | 「实测值」与「门禁配额」不可混写（如把 `keyCss` 配额当成迁移前实测值写进增长对比，会使算式自相矛盾）；写数值对比前先回读同节表格的三列口径。 |
 | 阈值类改动的同步点 | 改包体预算阈值时 `docs/standards/performance.md` 是第三处必同步点（与脚本 `BUDGETS`、基线 JSON 并列，规范中明写「三处同步」）；只改脚本 + 基线会被 Review Gate 判 blocker。 |

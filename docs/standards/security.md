@@ -80,6 +80,7 @@
 -   **双台账分工**: `security-alert-exceptions.json` 处理 GitHub 告警级豁免；`dependency-risk-allowlist.json` 处理 `pnpm audit` 的依赖路径级风险。`pnpm audit` 绿灯不等于可发布，`audit.ignore` 不构成发布豁免。
 -   **fail-closed**: 401 / 403 / 404、超时、429 / 5xx 重试耗尽、响应非数组、严重级别无法判定 → 判失败，不得视为“无告警”。仅当缺少 Dependabot 读取 token 时，允许回退 `pnpm audit` 并在证据中标记为降级（`fallback`）；权限、网络与响应异常仍按失败处理。Code Scanning 无等价回退，读取失败即阻断。
 -   **过渡模式**: `security:alerts` 当前带 `--transition-mode`，对 `dismissed` 与 fail-closed 新检查只报告、不阻断；`open` 告警的既有阻断行为不变。一个发布周期结束后移除该参数，恢复完整阻断；过渡期内仍需在发布记录中说明未处理的 transition findings。
+-   **分页口径**: GitHub Dependabot alerts API **不支持** `page` 参数（带 `page` 直接 HTTP 400），必须按响应 `Link` 头的 `rel="next"` 翻页；Code Scanning 支持 `page`，但统一走 `Link` 头最稳。
 -   **执行位置**: 预检必须在版本提升之前；阻断检查在发布动作之前；周回归复用同一门禁。
 -   **豁免有期限**: 到期或上游发布可用补丁后必须复核并移除条目，不得长期挂账。
 

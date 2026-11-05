@@ -466,6 +466,9 @@ pnpm build
 | Nuxt 构建锁残留 | `pnpm test:visual` 的构建进程被 kill 后会留下 `node_modules/.cache/nuxt/output-*.lock`，下一次 build 报 "Another Nuxt build is already running"；按提示清理 PID 或删除锁文件即可。 |
 | 探针服务未清理 | 手工启动 `.output/server/index.mjs` 做探针后必须显式 kill 并 `ps` 复核，否则后续 parity / E2E 会连到错误环境，表现为 `networkidle` 超时或 401 循环。 |
 | `pkill -f` 匹配自身 | `pkill -f "PORT=3011"` 会匹配到执行该命令的 shell 自身（命令行含同样字符串）并把自己杀掉；停服务应改用更精确的模式（如 `node .output/server/index.mjs`）或按 PID。 |
+| Nuxt 组件目录前缀 | `components/admin/settings/setting-input.vue` 的组件名是 `AdminSettingsSettingInput`；模板里写短名会**静默**解析为未知元素，页面少渲染控件且 typecheck / 单测都不报错，必须显式 import 或写全名（迁移期细则见迁移方案 §6.2 执行提示 5）。 |
+| BEM 提权打死子元素 | 给块级选择器提特异性（`.a.a`）会把同块 `&__x` 编译成 `.a.a__x`，子元素样式全部失效；提权只改块级，`&__x` 留在单类块内。 |
+| 归一化被 assignDefined 覆盖 | `assignDefined(entity, input, keys)` 会用原始 input 覆盖此前对同名字段的清洗（如先 `trim()` 的 `name` / `url`）；「先归一化再 assign」的写法必须把归一化下沉到 assign 之后或只保留一处。 |
 
 ### 4.7 依赖与锁文件陷阱（Dependabot / pnpm / CI）
 
@@ -480,6 +483,8 @@ pnpm build
 | 多段提交信息的换行 | 统一口径见 [Git 规范 §5](./git.md)（`git commit -F <file>` 或 heredoc，勿用双引号内联 `\n`）。 |
 | lockfile 重复 mapping key | Dependabot 基于旧基线生成的锁文件被 rebase 合并后会残留重复 mapping key（同一包在 `packages` / `snapshots` 各一份），pnpm 报 `ERR_PNPM_BROKEN_LOCKFILE duplicated mapping key`；PR 阶段不暴露，scheduled 工作流首跑才炸。最小修复：逐字节确认重复块等价后删掉多余块（纯删除、零依赖漂移），**禁止 REGENERATE**（会把 `^` 范围整体抬版）。 |
 | typecheck 失败是否源于锁文件漂移 | 先看报错包是否被抬版：lockfile 损坏触发的重新解析可能把某依赖抬到移除了导出符号的版本（如 `genericOAuthClient`），表现为 `TS2305`；`--frozen-lockfile` 下 typecheck 通过即可证明是漂移而非代码问题。 |
+| 精确版本升级的最小锁文件改法 | 复原 HEAD 的 `pnpm-lock.yaml` 后只手改三处（importer 的 specifier / version、`packages:` 键 + integrity、`snapshots:` 键），再以 `pnpm install --frozen-lockfile` 验证；可避免 `pnpm add` 重解析无关包（`electron-to-chromium` / `node-releases` / `rollup` 等）。 |
+| 升级前先比产物差异面 | 手工改锁文件前用 `npm pack` + `diff -rq` 对比新旧版本；若 `.js` / `.mjs` / `.css` / `.vue` 运行时产物逐字节一致，升级可只做版本 / 证据 / 门禁复跑，不必重采视觉基线。 |
 
 ## 5. 安全规范 （Security）
 
