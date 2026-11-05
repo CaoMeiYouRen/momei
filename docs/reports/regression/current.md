@@ -10,62 +10,73 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
-<!-- regression-window:start:coverage-batch-10:第六十九阶段条目 4 测试覆盖率治理第十批:2026-11-03 -->
-## 2026-11-03 第六十九阶段条目 4 测试覆盖率治理第十批（setting / 文本翻译任务 / 文章自动化）
+<!-- regression-window:start:coverage-batch-11:第七十阶段条目 5 测试覆盖率治理第十一批:2026-11-05 -->
+## 2026-11-05 第七十阶段条目 5 测试覆盖率治理第十一批（链接治理 / 链接治理 helpers / TTS）
 
 ### 范围
 
-按「未覆盖语句绝对数」选模，补测三个服务模块（仅测试代码，无生产改动）：
+按 [todo.md](../../plan/todo.md) 第七十阶段条目 5，开工时以当次全量 `coverage-final.json` 复算「绝对未覆盖语句数」选模，取 `server/services/` 候选池前三名补测（仅测试代码，无生产改动）：
 
-| 模块 | 补测内容 | 新增用例 |
-| :--- | :--- | :--- |
-| `server/services/setting.ts` | `getSetting` / `getSettings` / `resolveSetting` / `resolveSettings` 的未初始化与 DB 异常回退、env 优先与批量提前返回、运行时缓存复用；`setSettings` 的 env 锁定跳过、脱敏占位符保值、legacy alias 清理、值未变化不记审计 | 13（拆到 `setting.fallbacks.test.ts`） |
-| `server/services/ai/text-translation-task.ts` | `createTranslateTask` 成功创建 / 超长 413 / 配额拒绝 / 落库失败；`continueTranslateTask` 任务不存在、非 translate、已完成、failed 显式恢复、全部块已完成、lease 抢占失败、连续 3 次失败落 failed、非 serverless 单步多块 | 12 |
-| `server/services/ai/post-automation.ts` | `createTranslatePostTask` 同语言 / 缺 scope / confirmed 缺 previewTaskId / 404 / 403 / 异步创建；`processTranslatePostTask` 任务不存在、翻译异常落 failed、preview 不存在、preview 未待确认 | 10 |
+| 模块 | 基线（未覆盖 / 总数） | 补测内容 | 新增用例 |
+| :--- | ---: | :--- | ---: |
+| `server/services/migration-link-governance.ts` | 82.61%（32 / 184） | 外部链接在线探测的成功 / 不可达 / 超时中止；相对链接默认跳过；静态模式下域外跳过；seed 命中但目标实体缺失；canonical 路由回退；无匹配 `mapping-missing`；apply 复核报告的 mode / status 校验；contentTypes 与 retry 空集；报告列表分页钳制、筛选与请求人映射；报告 404；默认 seeds | 15（新增 `migration-link-governance.edge-cases.test.ts`） |
+| `server/services/migration-link-governance.helpers.ts` | 88.68%（30 / 265） | 空路径 / 非法绝对 URL / 空过滤器回退；托管域名前缀不匹配与非法 base URL；`permalink-rule` 重定向原因；`translationId` 与 slug 回退；托管域名跳过逻辑；绝对地址 seed 匹配；未知分类 / 标签 canonical 返回 null | 7 |
+| `server/services/ai/tts.ts` | 88.64%（30 / 264） | 无 owner 早退；模型回填、50KB 进度与进度保存失败；完成 / 失败通知异常；总时长超限；收到数据后读超时保留 partial；流读取错误；后台上传失败；resume 后 latest failed（podcast / tts）；podcast checkpoint 无效 phase 与不支持 phase | 11（新增 `tts.process-task.test.ts`） |
+
+> 选模口径：按绝对未覆盖语句数排序（[测试规范 §2.3](../../standards/testing.md#23-覆盖率补测节奏-coverage-batch-pacing)），前三名为 32 / 30 / 30；`quota-governance`（28）、`agreement`（26）、`setting`（25）因绝对数更低未入选，未按百分比排序。`helpers` / `tts` 基线已高于 85% 门槛，本批对二者的验收由「`≥85%`」条款承接，补测目标是其残留的失败 / 兜底分支。
 
 ### 覆盖率结果
 
-| 指标 | 第六十八阶段基线 | 本批前（推算） | 本批终值 | 本批增量 | 阶段累计 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Statements | 81.04%（28,251/34,857） | 80.98%（28,829/35,598） | **81.17%**（28,897/35,598） | **+0.19pp**（+68 条） | +0.13pp（覆盖 +646 / 总数 +741，净 +45/35,598） |
-| Branches | 70.83% | — | **70.90%**（17,824/25,138） | — | +0.07pp |
-| Functions | 80.07%（6,318/7,890） | — | **79.98%**（6,482/8,104） | — | −0.09pp（新增 214 个函数稀释） |
-| Lines | 81.15% | — | **81.29%**（27,840/34,244） | — | +0.15pp |
+| 指标 | 本批前基线（2026-11-05 实测） | 本批终值 | 本批增量 | 阶段累计（相对第六十九阶段收口） |
+| :--- | ---: | ---: | ---: | ---: |
+| Statements | 80.40%（29,220/36,340） | **80.66%**（29,315/36,340） | **+0.26pp**（+95 条） | −0.51pp（覆盖 +418 / 总数 +742） |
+| Branches | 70.70%（18,043/25,519） | **71.07%**（18,137/25,519） | +0.37pp（+94） | +0.17pp（覆盖 +313 / 总数 +381） |
+| Functions | 78.92%（6,578/8,335） | **79.08%**（6,592/8,335） | +0.17pp（+14） | −0.90pp（覆盖 +110 / 总数 +231，新增函数稀释） |
+| Lines | 80.55%（28,151/34,947） | **80.81%**（28,241/34,947） | +0.26pp（+90） | −0.49pp（覆盖 +401 / 总数 +703） |
 
-> 口径注：`28,897/35,598 = 81.1759%`，vitest 文本报告按截断显示 `81.17%`；模块表按四舍五入显示。增量列按「覆盖数 / 总数」复算，与两个展示值直接相减可能差 0.01pp（如 Lines）。本批无生产代码改动，语句总数与「本批终值」一致，故「本批前」= 终值 − 三模块闭合的 68 条 = 28,829/35,598 = 80.98%（推算值，未单独实测）；`+0.13pp` 是相对第六十八阶段收口的**阶段累计**，差额来自条目 1–3 新增的 741 条语句（覆盖 578 条，78.0%）对分母的稀释。
+> 口径注：`29,315/36,340 = 80.6687%`，vitest 文本报告按截断显示 `80.66%`；模块表按四舍五入显示；**增量 / 阶段累计按「覆盖数 / 总数」复算，与两个展示值相减可能差 0.01pp**。本批无生产代码改动，语句总数与「本批前」一致；+95 条中 89 条为三模块直接闭合，另 6 条为间接闭合（`server/utils/snowflake.ts` +5、`server/utils/ai/task-result.ts` +1）。**阶段累计 −0.51pp = 开工前条目 1–4 稀释 −0.77pp（覆盖 +323 / 总数 +742，43.5%）＋ 本批 +0.26pp**，是本批终值相对第六十九阶段收口 81.17%（28,897/35,598）的净差，不是本批回退。
 
 三模块（statements / branches / functions）：
 
-| 模块 | 补测前（按未覆盖语句数反推） | 补测后 |
-| :--- | :--- | :--- |
-| `setting.ts` | 83.33%（43 条未覆盖） | **90.31% / 88.35% / 93.18%** |
-| `text-translation-task.ts` | 77.03%（34 条未覆盖） | **95.27% / 85.32% / 100%** |
-| `post-automation.ts` | 75.76%（32 条未覆盖） | **93.18% / 80.12% / 84.21%** |
+| 模块 | 补测前 | 补测后 | Δ（statements） |
+| :--- | ---: | ---: | ---: |
+| `migration-link-governance.ts` | 82.61% / 65.36% / 73.08% | **100.00% / 85.47% / 100.00%** | +17.39pp |
+| `migration-link-governance.helpers.ts` | 88.68% / 77.27% / 100.00% | **98.87% / 92.27% / 100.00%** | +10.19pp |
+| `ai/tts.ts` | 88.64% / 74.21% / 73.91% | **100.00% / 83.73% / 100.00%** | +11.36pp |
 
-三模块均越过「`+15pp` 或达 `85%+`」验收线。
+三模块均越过「`+15pp` 或 `≥85%`」验收线（MLG +17.39pp；helpers / tts 基线已达 85%+）。
 
 ### 全仓 `+0.3pp` 未达的结构性原因
 
-- 本批候选池（三模块）合计 109 条未覆盖语句，理论上限约 **+0.31pp**；实际闭合 68 条（setting 18 / text 27 / post 23），即 **80.98% → 81.17%，本批自身 +0.19pp**。
-- 单批 `+0.3pp` 需同时满足「候选池 ≥107 条」与「接近 100% 闭合」；本批 109 条池即使 100% 闭合也只到 +0.31pp，实际闭合 62%，余额 41 条分散在低价值防御分支（`??` 兜底 / 不可达 catch / 类型收窄分支），继续铺量的边际收益低于换更大基数的模块。
-- 相对第六十八阶段收口的 **+0.13pp 是阶段累计值**（+646 covered / +741 total），低于本批增量，原因是条目 1–3 的新增代码把分母从 34,857 推到 35,598。
-- 结论：后续批次应优先纳入语句基数更大的模块，或以多模块组批，不在低价值分支上铺量。
+- 单批 `+0.3pp` 需闭合 **109 条**语句（36,340 × 0.3%）。在「3 模块 + `server/services/` 前列」口径下，前三模块未覆盖合计仅 **92 条**（理论上限 +0.25pp），**即使 100% 闭合也不可达**。
+- 本批实际直接闭合 **89 / 92 = 96.7%**（MLG 32、helpers 27、tts 30），加 6 条间接闭合共 95 条，仍差 14 条；剩余 3 条为 helpers 的空 slug 防御分支（正则 `([^/]+)` 已保证 slug 非空，属不可达兜底）。
+- 结论：目标不可达源于**选模粒度（3 模块）**，不是闭合率不足。后续批次若要达 +0.3pp，需放宽为 4 模块或纳入更大基数模块（当前 `server/database/typeorm-adapter.ts` 84 条、`server/utils/logger.ts` 61 条）；已回填 backlog #1 的下一切片方向。
+
+### 「文件 → 改动点」清单
+
+| 文件 | 类型 | 覆盖重点（失败 / 边界优先） |
+| :--- | :--- | :--- |
+| `server/services/migration-link-governance.edge-cases.test.ts` | 新增（15 例） | 探测成功 / 网络失败 / 3s 中止；相对链接默认跳过；静态域外跳过；seed 目标缺失；canonical 回退；mapping-missing；apply 报告非 dry-run（400）/ 未完成（409）；contentTypes 过滤；retry 空集；列表分页钳制与用户映射；空列表；404；默认 seeds |
+| `server/services/migration-link-governance.helpers.test.ts` | 补 7 例 | 空路径与非法绝对 URL；托管域前缀不匹配 / 非法 base URL；`permalink-rule`；`translationId` / slug 回退；空托管域；绝对地址 seed；未知分类 / 标签 |
+| `server/services/ai/tts.process-task.test.ts` | 新增（11 例） | 无 owner；模型回填 + 50KB 进度 + 进度保存异常 + 完成通知异常；总时长超限；收到数据后读超时；流错误 + 失败通知异常；后台上传失败；resume 后 latest failed；checkpoint 无效 / 不支持 phase |
+| `server/services/ai/tts.test.ts` | 未改 | 既有 provider / 计费 / 补偿基线 |
+
+> 拆分依据：本批 3 个测试文件合计新增约 928 行，超过开发规范 §2.8.2 的 800 行软阈值；按「一个模块一个测试文件」承载（MLG 边界用例、TTS `processTask` 流式 / 补偿用例各自独立成文件），未把不同模块塞进同一文件，也未改动既有大文件结构；初版追加到 `migration-link-governance.test.ts` 触发 `max-lines-per-function`（902/800）后按此规则拆分。
 
 ### 验证结果
 
-- `pnpm test:coverage`：EXIT 0，全量覆盖率如上（`coverage/coverage-final.json` 可复算）。
-- `pnpm test`：**578 passed files / 5,119 passed / 1 skipped**（毛新增 36 例，删除 1 例与主文件重复的用例后净增 35；批次前 5,084 → 5,119；`setting.fallbacks.test.ts` 使测试文件数 +1）。
-- `pnpm typecheck` 0 error；`pnpm lint`（4 个测试文件）0 error 0 warning。
-- 环境隔离回归：在 `EMAIL_PASS` / `NUXT_PUBLIC_SITE_DESCRIPTION` / `NUXT_PUBLIC_DEFAULT_COPYRIGHT` 被外部注入的 shell 下单独跑 `setting.fallbacks.test.ts`，13/13 通过（避免「本地必挂 / 空断言」）。
+- `pnpm test:coverage`：**EXIT 0**，全量 **586 个测试文件（1 skipped）／5,202 例通过（1 skipped）**（批次前 5,169 例；净增 33 例，测试文件 +2）。运行前已移走 `node_modules/.vitest-cache`。
+- `pnpm typecheck`：EXIT 0。
+- `pnpm exec eslint`（3 个新增 / 修改测试文件）：**0 error / 0 warning**（初版 `migration-link-governance.test.ts` 追加后触发 `max-lines-per-function` 902/800，已拆分到独立 `edge-cases.test.ts`，原文件保持 582 行）。
+- 定向复跑：5 个相关测试文件 **80 / 80 passed**。
 
 ### 未覆盖边界
 
-- 真实 TypeORM 行为（`repo.create({ id: undefined })`、`In()` 的 SQL 形态、事务内 alias 清理）仍由 mock 替代；本批验证的是服务层分支，不是驱动层。
-- `processTranslatePostTask` 仍通过结构类型断言访问私有方法，重构私有签名时不会在编译期报错，只能在运行时暴露。
-- `setting.ts` 剩余 25 条、`text-translation-task.ts` 剩余 7 条、`post-automation.ts` 剩余 9 条未覆盖语句未继续处理（验收已达标，避免低价值铺量）。
+- `migration-link-governance.helpers.ts` 剩余 3 条为空 slug 防御分支（正则 `([^/]+)` 要求至少一个非斜杠字符，`/posts/`、`/categories/`、`/tags/` 在路径归一化后无法产生空捕获），未为覆盖率引入不可达断言。
+- `tts.ts` 分支 83.73%，剩余为 provider 兼容兜底与类型收窄分支；真实流式 provider / OSS 行为仍由 mock 替代。
+- `migration-link-governance.ts` 分支 85.47%，剩余为 summary 计数的类型收窄与 `dataSource` 兜底。
 
-<!-- regression-window:end:coverage-batch-10:第六十九阶段条目 4 测试覆盖率治理第十批:2026-11-03 -->
-
+<!-- regression-window:end:coverage-batch-11:第七十阶段条目 5 测试覆盖率治理第十一批:2026-11-05 -->
 <!-- regression-window:start:caomei-locale-wiring:第六十九阶段条目 3 内建文案 locale 接线:2026-11-02 -->
 ## 2026-11-02 第六十九阶段条目 3 内建文案 locale 接线（`CaomeiConfigProvider` + `registerLocale`）
 

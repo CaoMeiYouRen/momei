@@ -18,9 +18,9 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十阶段（第十一批：3 模块，候选清单与验收见 [todo.md](./todo.md) 条目 5；开工时按绝对未覆盖语句数复算，结果与基线由收口回填）。上一批为第六十九阶段（第十批：`setting.ts` / `ai/text-translation-task.ts` / `ai/post-automation.ts` 三模块补测，毛新增 36 例、删除 1 例重复后净增 35（5,084 → 5,119）；三模块 statements 分别达 90.31% / 95.27% / 93.18%；全仓 Statements 本批 80.98% → 81.17%（+0.19pp），相对第六十八阶段收口 81.04% 的阶段累计为 +0.13pp；Branches 70.83% → 70.90%，Lines 81.15% → 81.29%，Functions 80.07% → 79.98% 系新增函数稀释）。
-- **当前基线**: Statements `81.17%` / Branches `70.90%` / Functions `79.98%` / Lines `81.29%`（距 `90%+` 长期目标约 8.8%）。
-- **下一次可切片方向**: 第十一批上收后，按同一选模口径（**绝对未覆盖语句数**而非百分比）从 `server/services/` 前列继续取模，并优先纳入语句基数更大的模块；具体候选在第十一批收口后复算，不在本文件与阶段规划重复列出。第九批已把候选池（`friend-link` / `notification` / `post-distribution` / `upload`，合计 866 条语句）的未覆盖语句尽可能闭合，实际 +0.59pp ≈ 该池 100% 闭合上限（约 +0.66pp）的 89%，受池体量限制无法达到单批 +1pp——后续批次应继续坚持“失败 / 边界优先”。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`、`friend-link` 的 name/url 归一化缺陷（见下方待跟踪）。
+- **最近一次上收阶段**: 第七十阶段（第十一批：`server/services/migration-link-governance.ts` / `.helpers.ts` / `ai/tts.ts` 三模块补测，毛新增 33 例（5,169 → 5,202）；三模块 statements 分别达 100% / 98.87% / 100%，均越过「`+15pp` 或 `≥85%`」；全仓 Statements 本批 80.40% → 80.66%（+0.26pp，闭合 95 条），`+0.3pp` 容量目标未达的结构性原因为 **3 模块池上限仅 +0.25pp**（需 109 条而池仅 92 条），已在回归记录逐项量化）。上一批为第六十九阶段（第十批：`setting.ts` / `ai/text-translation-task.ts` / `ai/post-automation.ts` 三模块补测，毛新增 36 例、删除 1 例重复后净增 35（5,084 → 5,119）；三模块 statements 分别达 90.31% / 95.27% / 93.18%；全仓 Statements 本批 80.98% → 81.17%（+0.19pp），相对第六十八阶段收口 81.04% 的阶段累计为 +0.13pp；Branches 70.83% → 70.90%，Lines 81.15% → 81.29%，Functions 80.07% → 79.98% 系新增函数稀释）。
+- **当前基线**: Statements `80.66%` / Branches `71.07%` / Functions `79.08%` / Lines `80.81%`（2026-11-05 实测，距 `90%+` 长期目标约 9.3pp）。
+- **下一次可切片方向**: 第十二批开工时按同一口径（**绝对未覆盖语句数**）复算，当前 `server/services/` 前列为 `ai/quota-governance.ts` 28 / `agreement.ts` 26 / `setting.ts` 25 / `post-hexo-repository-sync.ts` 23 / `post.ts` 23。若要达成单批 `+0.3pp`（需 109 条），3 模块粒度已不足，须放宽为 4 模块或纳入更大基数模块（`server/database/typeorm-adapter.ts` 84 条 / `server/utils/logger.ts` 61 条），并优先保留「失败 / 边界优先」的断言标准；具体候选在第十二批开工时复算，不在本文件与阶段规划重复列出。第九批已把候选池（`friend-link` / `notification` / `post-distribution` / `upload`，合计 866 条语句）的未覆盖语句尽可能闭合，实际 +0.59pp ≈ 该池 100% 闭合上限（约 +0.66pp）的 89%，受池体量限制无法达到单批 +1pp。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`、`friend-link` 的 name/url 归一化缺陷（见下方待跟踪）。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
 

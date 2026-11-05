@@ -45,11 +45,12 @@
     - 验收标准：`reader` 档未归因差异为 0；6 条路由 × 2 主题参考态就绪；`auth` / `submit` E2E 的 `p-*` 断言改写后通过（chromium 单 worker；firefox / webkit 补跑 14 passed / 2 skipped）。
     - 证据落点：回归记录条目 4 窗口、`reader` 档预算 `note`、偏差处置表（若产生豁免）。
     - 进度：**已完成**（2026-11-04）。16 个文件 / 119 处；6 条路由迁入已迁移层，`reader` 档 12 条预算按实测校准（未归因 0）；`auth` / `submit` E2E 选择器改写后通过。
-- [ ] **5. 测试覆盖率治理第十一批**
+- [x] **5. 测试覆盖率治理第十一批**
     - 执行范围：开工时按绝对未覆盖语句数复算并选 3 个模块（2026-11-03 候选：`server/services/migration-link-governance.ts` 32 / `.helpers.ts` 30 / `ai/tts.ts` 30 / `ai/quota-governance.ts` 28 / `agreement.ts` 26 / `setting.ts` 25）。
     - 非目标：不做全量铺量、不为冲数字写低价值断言。
     - 验收标准：3 模块各 `+15pp` 或 `≥85%`；全仓 `+0.3pp` 容量目标，未达须记录结构性原因；覆盖率增量与阶段累计分列。
     - 证据落点：`pnpm test:coverage` 产物、回归记录条目 5 窗口、backlog #1 的基线与下一切片回填。
+    - 进度：**已完成**（2026-11-05）。开工复算取前三模块 `migration-link-governance.ts`（32）/ `.helpers.ts`（30）/ `ai/tts.ts`（30）；补测后 statements 100% / 98.87% / 100%，均达「`+15pp` 或 `≥85%`」；全仓 Statements 80.40% → 80.66%（本批 +0.26pp，+95 条），`+0.3pp` 未达因 3 模块池上限仅 +0.25pp（需 109 条而池仅 92 条），已按条款记录并回填 backlog #1。证据见[回归记录](../reports/regression/current.md#2026-11-05-第七十阶段条目-5-测试覆盖率治理第十一批链接治理--链接治理-helpers--tts)。
 
 > 历史任务见 [待办事项归档](./todo-archive.md)；候选主线与下一阶段切片见 [项目计划](./roadmap.md) 与 [长期规划与积压项](./backlog.md)。
 
