@@ -206,7 +206,11 @@ jobs:
     name: E2E (${{ matrix.shard }}/4)
     needs: [build-nuxt]
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 2026-11-05：`playwright install --with-deps` 要为 chromium/firefox/webkit 装 114 MB apt 包
+    # （gstreamer / 字体族），runner 的 Ubuntu 镜像源被限速时实测 21~29 分钟，
+    # 30 分钟上限已无余量（actions/runs/41869488477 的 E2E (1/4) 因此在安装步骤被 cancel）。
+    # 用例本身约 7 分钟，放宽到 45 分钟只兜底网络限速，不掩盖用例变慢。
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
