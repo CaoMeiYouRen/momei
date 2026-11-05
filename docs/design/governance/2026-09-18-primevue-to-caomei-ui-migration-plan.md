@@ -633,6 +633,8 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | `coreEntryJsGzipBytes` | 210（无意义代理） | **336,333**（88 个 JS） | 260KB → **360KB** | 度量对象修复后重新定标 |
 | `maxAsyncChunkJsGzipBytes` | 126,807（含 admin chunk） | **49,055** | 130KB | 修正 manifest 路径后 admin chunk 正确排除 |
 
+**2026-11-05 更新**：B3 后入口实测 369,212 B（360.56KB），原 360KB 配额越线 572 B；经用户确认按「优化评估 + 重新定标」上调至 365KB（373,760 B），依据见 [质量门阈值重定标](2026-11-05-quality-gate-recalibration.md)。
+
 **同期修正的两个既有度量缺陷**（非本迁移引入，但会使上表数字失真，故一并修正）：
 
 1. `coreEntryJsGzipBytes` 原先在入口识别失败时回退为「gzip 体积最小的 3 个 chunk」，实测只量到 3 个 70 字节的运行时垫片，使该检查恒真。现改为读取 **Nuxt 客户端 manifest** 的 `entrypoints` + `preload` JS（`scripts/perf/check-bundle-budget.mjs` 的 `collectEntryPayloadFilesFromManifest`），实测入口启动载荷为 **88 个 JS / 336,333 B**。因该预算从未真正生效、无有效基线可沿用，按实测值重新定标为 `360 * KB`（约 10% 余量）；若后续要收紧，应作为独立的性能目标而非迁移前置。

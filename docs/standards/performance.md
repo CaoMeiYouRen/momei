@@ -112,17 +112,17 @@ pnpm build && pnpm test:perf:cwv
 
 ### 4.1 JS/CSS 预算
 
--   核心页面首屏客户端 JS（gzip 合计，口径：Nuxt 客户端 manifest 的 `entrypoints` + `preload` JS 去重）：<= 360KB
+-   核心页面首屏客户端 JS（gzip 合计，口径：Nuxt 客户端 manifest 的 `entrypoints` + `preload` JS 去重）：<= 365KB
 -   单异步 Chunk（gzip）：<= 130KB
 -   首屏关键 CSS（gzip）：<= 70KB
 
 > 以上数值与 `scripts/perf/check-bundle-budget.mjs` 的 `BUDGETS` 保持一致，是**唯一的门禁口径**。
 > 两类变更的来源不同，**不要一并处理**：
 >
-> - **首屏 JS 360KB = 度量口径修复后的重新定标**：原 260KB 对应的口径（入口识别失败时回退为「最小的 3 个 chunk」）从未真正生效、实测只有 210 字节，故该检查此前恒真。改用 Nuxt 客户端 manifest 口径后实测 328.45KB，据此重新定标并留约 10% 余量。它**不是**并存期配额，后续要收紧应作为独立的性能目标（见 [backlog 长期主线 #9](./../plan/backlog.md)），**不得**在迁移收尾时机械回落到 260KB。
+> - **首屏 JS 365KB**：当前配额 `365KB`（373,760 B），度量口径为 Nuxt 客户端 manifest 的 `entrypoints` + `preload` JS 去重；后续要收紧应作为独立性能目标（见 [backlog 长期主线 #9](./../plan/backlog.md)），**不得**在迁移收尾时机械回落。配额依据、历次重定标与优化评估见 [质量门阈值重定标（2026-11-05）](../design/governance/2026-11-05-quality-gate-recalibration.md)。
 > - **关键 CSS 预算 70KB（gzip）**：并存期临时配额 85KB 已回落，85KB 仅作沿革保留、不再是门禁值；预算与实测的数值按「脚本 `BUDGETS` / `.github/perf/bundle-baseline.json` / 本节」三处联动同步。组件样式**随消费方 chunk 归属**——入口 `keyCss` 只含基础层 `theme.css` 与全局 token 桥接，消费组件的路由页样式落对应路由 chunk；入口 / 全局壳消费组件时其样式计入 `keyCss`。历史沿革、复测证据与包体归因见 [迁移方案 §8.4.1](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [回归记录](../reports/regression/current.md)，本规范不复述。PrimeVue 卸载后只需确认 `keyCss` 未反弹。
 >
-> 配额来源、度量口径修正与回落要求见 [迁移方案 §8.4.1](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；修改任一数值时必须同步脚本、基线与本文件三处，并说明属于上述哪一类。
+> 配额来源、度量口径修正与回落要求见 [迁移方案 §8.4.1](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；修改任一数值时必须同步脚本、基线与本文件三处，并在 [治理重定标记录](../design/governance/2026-11-05-quality-gate-recalibration.md) 留证。
 
 ### 4.1.1 包体增量的归因纪律
 

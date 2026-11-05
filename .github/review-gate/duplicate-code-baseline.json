@@ -1,11 +1,11 @@
 {
     "tool": "jscpd",
     "scope": "source-code",
-    "generatedFrom": "artifacts/review-gate/2026-04-01-duplicate-code.json",
-    "totalPercentage": 1.22,
-    "clones": 45,
+    "generatedFrom": "artifacts/review-gate/2026-11-05-duplicate-code.json",
+    "totalPercentage": 0.5,
+    "clones": 48,
     "tolerancePercentage": 0.15,
     "toleranceClones": 2,
-    "updatedAt": "2026-04-01T01:37:48.762Z",
-    "notes": "首轮 baseline 仅覆盖 components/composables/layouts/middleware/pages/plugins/server/utils/packages/*/src，排除 tests/docs/i18n/镜像技能目录与构建产物。"
+    "updatedAt": "2026-11-05T12:20:00Z",
+    "notes": "2026-11-05 第七十阶段收口重取：扫描 1,264 文件、48 clones / 877 重复行 / 0.5%（此前基线 1.22% / 45 clones）。重复率远低于原允许上限 1.37%，但 clone 数因 B3 登录 / 注册等整段结构重复超容差 1 个；按「重取基线 + 保留 tolerance」处理，允许上限收紧为 0.65% / 50 clones。首轮 baseline 仅覆盖 components/composables/layouts/middleware/pages/plugins/server/utils/packages/*/src，排除 tests/docs/i18n/镜像技能目录与构建产物。"
 }

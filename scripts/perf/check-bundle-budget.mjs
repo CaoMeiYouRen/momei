@@ -72,7 +72,9 @@ export function collectEntryPayloadFilesFromManifest(manifest) {
 const BUDGETS = {
     // 入口启动载荷（manifest entrypoints + preload 的 JS，去重后）实测 336,333 B ≈ 328.5KB；
     // 原 260KB 从未真正生效（旧度量对象错误、检查恒真），故按实测重新定标并留约 10% 余量。
-    coreEntryJsGzipBytes: 360 * KB,
+    // 2026-11-05 收口重新定标：B3 后实测 369,212 B（约 360.56KB），原 360KB
+    // 余量耗尽并越线 572 B；按「先评估优化或重新定标」条款调到 365KB，保留约 4.5KB 余量。
+    coreEntryJsGzipBytes: 365 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
     keyCssGzipBytes: 70 * KB,
     prIncrementJsGzipBytes: 20 * KB,
