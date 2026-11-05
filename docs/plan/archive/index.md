@@ -13,7 +13,7 @@
 - `roadmap.md`: `182` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八 / 第六十九 / 第七十阶段分别迁入 `roadmap-phases-68.md` / `roadmap-phases-69.md` / `roadmap-phases-70.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
 - `todo-archive.md`: `446` 行（脚本口径），处于健康窗口（主窗口保留第六十五至第七十阶段共 6 个近线归档块；第六十四阶段本轮迁入 `todo-archive-phases-64.md`）。
 - `backlog.md`: `275` 行（脚本口径），处于健康窗口（长期主线 10 条 + 周期性回归验证层 + 短期候选；本轮同步 #10 的 B3 完成状态与剩余迁移面、#1 的覆盖率基线）。
-- `docs/reports/regression/current.md`: `115` 行，处于健康窗口（保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个活动窗口；第七十阶段 6 个窗口整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`）。
+- `docs/reports/regression/current.md`: `105` 行，处于健康窗口（保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个活动窗口；第七十阶段 6 个窗口整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`）。
 
 ## 3. 阈值定义
 
@@ -53,7 +53,7 @@
 > **维护约定**: 本文件中的行数声明必须与 `pnpm docs:check:line-count` 输出逐字对账后再写入；任何涉及 `docs/plan/` 文件的增删改后，先复跑脚本再更新本文件，防止声明漂移。
 
 - 本轮（2026-11-05）完成第七十阶段归档收口：`roadmap.md` 迁出第七十阶段正文至 `roadmap-phases-70.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十阶段归档块，并把第六十四阶段整体迁入 `todo-archive-phases-64.md`，主窗口保留第六十五至第七十阶段共 6 个近线窗口；`todo.md` 已清空已完成阶段正文（当前无进行中阶段）；`backlog.md` 同步 #10 的 B3 完成状态、剩余迁移面（482 处 / 40 类、图标 411 处、token 1,442 处）与 #1 的覆盖率基线（80.66%）。
-- `docs/reports/regression/current.md` 本轮滚动归档：第七十阶段 6 个窗口（条目 5 覆盖率 / 1a / 1b-1c / 2c / 3 / 4）整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`；活动窗口保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个窗口（`115` 行，健康窗口）。条目 2a / 2b 窗口已在阶段内分别归档。
+- `docs/reports/regression/current.md` 本轮滚动归档：第七十阶段 6 个窗口（条目 5 覆盖率 / 1a / 1b-1c / 2c / 3 / 4）整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`；活动窗口保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个窗口（`105` 行，健康窗口）。条目 2a / 2b 窗口已在阶段内分别归档。
 - `roadmap.md` 当前保留第一至第五十三阶段的索引 / 摘要、第五十四至第六十七阶段摘要表与第六十八 / 第六十九 / 第七十阶段摘要（脚本口径 `182` 行，健康）。
 - `todo-archive.md` 当前保留第六十五至第七十阶段共 6 个近线归档块（脚本口径 `446` 行，处于 4 – 6 窗口上限）；下一次阶段归档前应先把第六十五阶段块迁入区间分片，为主窗口腾出余量。
 - 下一步：下一阶段（第七十一阶段 B4）仅为候选方向，尚未正式上收；按 [项目规划规范](../../standards/planning.md) §4.5 Step 7，须在用户确认后另行落盘。

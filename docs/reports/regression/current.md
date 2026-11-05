@@ -11,29 +11,18 @@
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-05 -->
-## 2026-11-05 阶段收口前周期性回归
+## 2026-11-05 阶段收口前周期性回归（自动回填）
 
-- 执行入口: `pnpm regression:phase-close`（phase-close profile，`archivePolicy=block`）
-- 证据 artifact: `../../../artifacts/review-gate/2026-11-05-phase-close-regression.md` / `.json`、`2026-11-05-pre-release.md`、`2026-11-05-security-alerts.json`
-- 结果摘要: `Reject`；blocker=2（`security:alerts` + 活动日志 453 行 / 9 条超窗），warning=0。第二条已由本次滚动归档消除（现 115 行 / 3 条），需在推送修复后重跑 `regression:phase-close` 正式确认关闭。
-
-### 已执行步骤
-
-| 步骤 | 结果 |
-| :--- | :--- |
-| `test:coverage` | ✅ PASS（381.9s；Statements 80.66%，586 文件 / 5,202 例） |
-| `release:check:full` | ❌ FAIL（545.6s；10/11 子步骤通过） |
-| `security:alerts` | ❌ FAIL（开放 high+ Code Scanning #45） |
-| `test:perf:budget:strict` / `duplicate-code:check:strict` / `review-gate:generate:check` | ⏸ 未执行（`release:check:full` abort 后阻断后续步骤） |
-
-通过项：`lint`（146.8s）/ `lint:i18n`（56.9s）/ `i18n:audit:missing` / `lint:css` / `lint:md` / `test`（269.1s）/ `typecheck`（56.3s）/ `docs:check:line-count` / `docs:check:source-of-truth` / `security:audit-deps`。
-
-### 阻断项与处置
-
-- **阻断**：Code Scanning `js/incomplete-multi-character-sanitization` #45（high，open）位于 `scripts/governance/count-primevue-usage.mjs:262`，创建于 2026-11-02（第七十阶段开工前），非本阶段引入；规则指出单次 `replace(/<!--[\s\S]*?--!?>/g, '')` 可能残留 `<!--`。
-- **本地修复**：新增 `stripHtmlComments()`（先循环移除完整注释，再循环移除残余 `<!--` / `--!?>` token 直至稳定）并补回归用例；`governance:count:primevue-usage` 复跑仍为 482 处 / 40 类、图标 411、token 1,442，口径不变。
-- **待办**：远端告警须在推送修复提交并由 CodeQL 重扫后关闭；关闭前阶段收口门禁为 **blocked**，不得宣称 Pass。重扫后需补跑 `test:e2e` 与上表三个未执行步骤。
-- 既有 allowlist 2 条（`extract-zip` #182 / #191，上游无补丁）与 1 条 transition finding（#43，dismissed，report-only）不构成本次阻断。
+- 执行入口: `pnpm regression:phase-close`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-05-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-05-phase-close-regression.json`
+- 结果摘要: `Pass`；blocker=0，warning=0。
+- 已执行验证: test:coverage=PASS，release:check:full=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，test:perf:budget:strict=PASS，duplicate-code:check:strict=PASS，review-gate:generate:check=PASS
+- 回归窗口: 105 行 / 3 条，归档判定=窗口健康。
+- Review Gate: `Pass` / `none`；主要问题=无。
+- 补充证据: `test:e2e` 单 worker **228 passed**（34.1m）；CI 同提交 `Test` run `42016033169` 的 E2E 1/4–4/4 分片亦全部 success。
+- 阈值处置: 首屏 JS 360KB → **365KB**（实测 369,212 B）；重复代码基线 1.22% / 45 clones → **0.5% / 48 clones**（允许 0.65% / 50）；依据见 [2026-11-05 质量门阈值重定标](../../design/governance/2026-11-05-quality-gate-recalibration.md)。
+- 环境说明: 此前本地 `seo-regression` 文章详情 `page.goto` 外部资源加载超时，已将该用例改为 `waitUntil: 'domcontentloaded'` 后通过，断言强度不变。
+- 未覆盖边界: 无新增未覆盖边界。
 
 <!-- regression-window:end:periodic-regression:phase-close:2026-11-05 -->
 

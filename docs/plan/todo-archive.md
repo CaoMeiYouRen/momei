@@ -82,7 +82,7 @@
 - `ToggleSwitch` 44 处的 `change` 载荷差异逐处核对。
 - `reader` 档首次启用可能暴露历史漂移，校准样值入预算 `note`，禁止为变绿放宽阈值。
 
-**验证汇总（阶段口径）**: 条目 1a 全量 5,142 → 条目 5 全量 **5,202 passed / 1 skipped（586 文件）**（阶段收口复跑 `test:coverage` 为 29,314/36,340，与条目 5 收口的 29,315 相差 1 条，差异来自 `composables/use-reader-mode.ts` 的非确定性覆盖路径，模块与百分比口径不变）；视觉 24/24、parity 55/55（含未安装态第二实例与 reader 档 12 条，未归因 0）、chromium E2E 24 passed / 4 skipped（auth 5/1 + submit 2/2 + user-workflow 17/3）；`typecheck` / `lint` / `lint:css` 0 error；阶段收口 `regression:phase-close` 结论见本阶段回归分片。
+**验证汇总（阶段口径）**: 条目 1a 全量 5,142 → 条目 5 全量 **5,202 passed / 1 skipped（586 文件）**（阶段收口复跑 `test:coverage` 为 29,314/36,340，与条目 5 收口的 29,315 相差 1 条，差异来自 `composables/use-reader-mode.ts` 的非确定性覆盖路径，模块与百分比口径不变）；视觉 24/24、parity 55/55（含未安装态第二实例与 reader 档 12 条，未归因 0）、chromium E2E 24 passed / 4 skipped（auth 5/1 + submit 2/2 + user-workflow 17/3）；`typecheck` / `lint` / `lint:css` 0 error；阶段收口 `regression:phase-close` **EXIT 0**（含全量 E2E 228 passed / 34.1m），首屏包体与重复代码基线按 2026-11-05 实测重定标（365KB、0.5% / 48 clones）。
 
 ### 阶段收口检查清单
 
@@ -94,7 +94,7 @@
 - [x] `lint-md` / `docs:check:i18n` / `docs:check:line-count` / `docs:check:links` / `docs:check:markers` 与最小质量门已确认
 - [x] wisdom 蒸馏已执行：32 条 → 迁移至 `docs/standards/` 与 `docs/design/governance/`
 - [x] 各条目 Review Gate 已 Pass（Round 1–4 的 blocker 已逐项闭环）
-- [ ] 阶段收口门禁：`regression:phase-close` 10/11 通过；`security:alerts` 阻断于既有 Code Scanning #45（2026-11-02 创建，非本阶段引入），本地修复与回归断言已就绪，待推送后 CodeQL 重扫关闭，并按重扫结果补跑 `test:e2e`、`test:perf:budget:strict`、`duplicate-code:check:strict`、`review-gate:generate:check`；关闭前不得标记阶段 Pass
+- [x] 阶段收口门禁：**Pass**。完整 `regression:phase-close` **EXIT 0**（`test:coverage` / `release:check:full` / 文档 / 包体 / 重复代码 / Review Gate 全通过；全量 E2E **228 passed** / 34.1m）；`security:alerts` 随修复推送后 CodeQL 重扫转 `fixed`；CI `Test` run `42016033169` 亦全绿（E2E 4/4 分片）
 
 ---
 
