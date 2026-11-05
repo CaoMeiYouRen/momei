@@ -162,8 +162,7 @@ test.describe('SEO Regression', () => {
 
         const postPath = `/posts/${post.slug || post.id}`
 
-        await page.goto(postPath)
-        await page.waitForLoadState('domcontentloaded')
+        await page.goto(postPath, { waitUntil: 'domcontentloaded' })
 
         await expectCanonicalPath(page, postPath)
         await expectLocaleMeta(page, 'zh-CN', 'zh_CN')
