@@ -376,4 +376,123 @@ describe('server/services/migration-link-governance.helpers', () => {
         expect(applyContentCandidateRewrite(input, 'https://legacy.example.com/assets/posts/post-1/image/cover.png', 'https://assets.example.com/assets/posts/post-1/image/cover.png')).toContain('https://assets.example.com/assets/posts/post-1/image/cover.png')
         expect(applyContentCandidateRewrite(input, '/posts/post-1', '/posts/post-1')).toBe(input)
     })
+
+    it('应回退空路径、非法绝对 URL 与空过滤器', () => {
+        expect(getCandidatePath('   ', 'root-relative')).toBe('/')
+        expect(getCandidatePath('https://[broken', 'absolute')).toBe('/https:/[broken')
+        expect(domainMatches('other.example.com', {}, [])).toBe(true)
+        expect(pathPrefixMatches('/anything/a.png')).toBe(true)
+        expect(resolveCanonicalRoute('/', createRuntimeContext())).toBeNull()
+    })
+
+    it('deriveObjectKeyFromAssetUrl 应处理未配置前缀、前缀不匹配与非法托管域名', () => {
+        const runtime = createRuntimeContext()
+
+        expect(deriveObjectKeyFromAssetUrl({
+            value: '/uploads/post-1/image/cover.png',
+            sourceKind: 'root-relative',
+            runtime,
+            options: undefined,
+            field: 'coverImage',
+        })).toBe('uploads/post-1/image/cover.png')
+
+        expect(deriveObjectKeyFromAssetUrl({
+            value: 'https://assets.example.com/assets/other/file.png',
+            sourceKind: 'absolute',
+            runtime,
+            options: undefined,
+            field: 'coverImage',
+            filters: { pathPrefixes: ['/posts'] },
+        })).toBeNull()
+
+        expect(deriveObjectKeyFromAssetUrl({
+            value: 'https://cdn.example.com/assets/posts/post-1/image/cover.png',
+            sourceKind: 'absolute',
+            runtime: {
+                ...runtime,
+                storageContext: {
+                    ...runtime.storageContext,
+                    assetPublicBaseUrl: 'not-a-url',
+                    driverBaseUrl: 'https://cdn.example.com/assets',
+                },
+            },
+            options: undefined,
+            field: 'coverImage',
+        })).toBe('posts/post-1/image/cover.png')
+    })
+
+    it('buildRedirectSeed 应覆盖 permalink-rule 原因', () => {
+        expect(buildRedirectSeed('/old', '/new', 'permalink-rule')).toEqual({
+            source: '/old',
+            target: '/new',
+            statusCode: 301,
+            reason: 'path-rule',
+        })
+    })
+
+    it('resolveTargetPath 应覆盖 translationId、slug 回退与未知目标类型', () => {
+        const runtime = createRuntimeContext()
+
+        expect(resolveTargetPath('post', { translationId: 'cluster-post' }, runtime)).toBe('/posts/hello-world')
+        expect(resolveTargetPath('post', {}, runtime)).toBeNull()
+        expect(resolveTargetPath('category', { id: 'category-1' }, runtime)).toBe('/categories/dev')
+        expect(resolveTargetPath('category', {}, runtime, 'dev')).toBe('/categories/dev')
+        expect(resolveTargetPath('category', {}, runtime)).toBeNull()
+        expect(resolveTargetPath('tag', { translationId: 'cluster-tag' }, runtime)).toBe('/tags/nuxt')
+        expect(resolveTargetPath('tag', {}, runtime, 'nuxt')).toBe('/tags/nuxt')
+        expect(resolveTargetPath('tag', {}, runtime)).toBeNull()
+        // 故意使用未知 targetType，锁定默认兜底分支（正常类型由联合类型约束）
+        expect(resolveTargetPath('unknown' as never, {}, runtime)).toBeNull()
+    })
+
+    it('buildRuntimeContext 应跳过空地址与无法解析的托管域名', async () => {
+        getSettingsMock.mockResolvedValueOnce({
+            [SettingKey.SITE_URL]: '',
+        })
+        getUploadStorageContextMock.mockResolvedValueOnce({
+            rawStorageType: 's3',
+            normalizedStorageType: 's3',
+            bucketPrefix: 'assets/',
+            assetPublicBaseUrl: 'not-a-url',
+            driverBaseUrl: '',
+            env: {} as never,
+            settings: {},
+        })
+
+        const runtime = await buildRuntimeContext()
+
+        expect(runtime.siteUrl).toBe('')
+        expect(runtime.managedDomains).toEqual([])
+    })
+
+    it('collectMatchingSeeds 应匹配绝对地址 seed', () => {
+        const runtime = createRuntimeContext()
+        const request: LinkGovernanceRequest = {
+            scopes: ['post-link'] as LinkGovernanceScope[],
+            seeds: [{
+                source: 'https://blog.example.com/posts/hello-world?utm=1',
+                sourceKind: 'absolute',
+                matchMode: 'exact',
+                scope: 'post-link',
+                targetType: 'post',
+                targetRef: { id: 'post-1' },
+                redirectMode: 'alias-only',
+            }] as LinkGovernanceMappingSeed[],
+        }
+
+        const matches = collectMatchingSeeds({
+            value: 'https://blog.example.com/posts/hello-world#hash',
+            sourceKind: 'absolute',
+            field: 'content',
+        }, runtime, request)
+
+        expect(matches).toHaveLength(1)
+    })
+
+    it('resolveCanonicalRoute 应对未知分类与标签返回 null', () => {
+        const runtime = createRuntimeContext()
+
+        expect(resolveCanonicalRoute('/categories/unknown', runtime)).toBeNull()
+        expect(resolveCanonicalRoute('/tags/unknown', runtime)).toBeNull()
+    })
 })
