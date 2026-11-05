@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-02
+last_sync: 2026-11-05
 ---
 
 # Momei Development Standards
@@ -207,6 +207,14 @@ Summary of the pitfalls distilled from the caomei-ui integration work:
 - `--ignore-scripts` bypasses the `allowBuilds` contract and breaks native modules; prefer explicit placeholder config.
 - When `typecheck` fails after a lockfile repair, check whether the failing package was bumped (e.g. a dependency that removed an export); a passing `--frozen-lockfile` typecheck proves the drift is in the lockfile, not the code.
 - Multi-paragraph commit messages: see `docs/standards/git.md` §5 (`git commit -F <file>`).
+
+## 7.1 Additions (2026-11-05)
+
+- Nuxt directory-prefixed component names (`components/admin/settings/setting-input.vue` → `AdminSettingsSettingInput`) silently resolve to unknown elements when written short; neither typecheck nor unit tests fail. Always import explicitly or use the full name.
+- Raising specificity on a BEM block (`.a.a`) rewrites `&__x` into `.a.a__x` and disables every child selector; keep `&__x` inside a single-class block.
+- `assignDefined(entity, input, keys)` overwrites earlier field normalization with the raw input; normalize after the assignment or in one place only.
+- Minimal exact-version lockfile edit: restore HEAD, edit only the importer specifier/version, `packages:` key + integrity and `snapshots:` key, then verify with `pnpm install --frozen-lockfile`.
+- Compare `npm pack` artifacts with `diff -rq` before a manual bump; byte-identical runtime output means no visual re-baseline is needed.
 
 ## 8. Code Examples
 

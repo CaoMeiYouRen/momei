@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-05
 ---
 
 # AI Collaboration Standards
@@ -134,6 +134,10 @@ Companion practices:
 2.  **Path Verification**: Always verify paths before executing destructive commands (`rm`, `rd`).
 3.  **No Hardcoding**: Never hardcode API Keys, Tokens, or credentials in code or logs.
 4.  **Loop Prevention**: If a bug persists after 3 repair attempts, stop and request human intervention.
+
+## 3.1 Round-2 Review Residuals (2026-11-05)
+
+Verify every claimed commit message against git history (a partial claim is false evidence), and replace `toBeTruthy()` assertions on accessibility names or visible copy with exact values.
 
 ## 4. Communication Principles
 

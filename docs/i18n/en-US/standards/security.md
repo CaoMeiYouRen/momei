@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-29
+last_sync: 2026-11-05
 translation_tier: summary-sync
 ---
 
@@ -67,6 +67,10 @@ Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit
 -   **Code Scanning**: same severity rules; alerts under `tests/` or classified as test-only are observe-only (out of scope, not an exemption).
 -   **Data source prerequisites**: Code Scanning requires `security-events: read` or `SECURITY_ALERTS_TOKEN`; when the official Dependabot API is unavailable the gate falls back to `pnpm audit --registry=https://registry.npmjs.org/`. Missing sources (no token, insufficient permission, unavailable API) must be recorded in the gate evidence and noted in the release record; never skip them silently.
 -   **Exemptions expire**: re-check and remove entries once the deadline passes or an upstream patch ships.
+
+### 5.4 Alert Pagination (2026-11-05)
+
+The GitHub Dependabot alerts API does not accept a `page` parameter (HTTP 400); page through the response `Link` header's `rel="next"`. Code Scanning supports `page`, but the `Link` header is the stable path for both.
 
 ## 6. CLI & Automation Security
 

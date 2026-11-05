@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-24
+last_sync: 2026-11-05
 translation_tier: summary-sync
 ---
 
@@ -190,6 +190,15 @@ Summary of the pitfalls distilled from the migration-period visual regression pr
 - Pixel diffs can be attributed per region via a browser canvas (`Image` + `drawImage` + `getImageData`) aligned to element boxes.
 - Vue test stubs must read `props` inside the render function; `flushPromises` from `@vue/test-utils` needs two calls when the request starts in `onMounted`.
 - Falsify E2E flakiness by reproducing on the HEAD build (`git stash` → build → run → `git stash pop`); capture pre-migration baselines the same way.
+
+## 8.1 Coverage & Migration-Test Additions (2026-11-05)
+
+- **Three-module capacity ceiling**: a workspace `+0.3pp` needs `total statements × 0.3%` closures (109 of 36,340); the top three `server/services/` modules held only 92 uncovered statements (ceiling `+0.25pp`), so the target was structurally unreachable. Compute the pool before approving a batch and record whether the gap is module granularity or closure rate.
+- **Targeted coverage also wipes `coverage/`**: `vitest run --coverage.include=...` rewrites the default report directory; copy `coverage-final.json` to `artifacts/coverage/<batch>/` before the run and recompute from that copy.
+- **Assertions must discriminate**: a new case must fail when the guard under test is deleted; pin the guard's observable product (persisted `result.phase`, `signal.aborted`, call arguments), not only the final `outcome`.
+- **`vi.clearAllMocks()` does not clear implementations or the once queue**: reset key mocks in `beforeEach`, otherwise single-test and whole-file runs diverge.
+- **Split oversized suites**: appending to an existing `describe` is also bounded by `max-lines-per-function` (800); split by module/concern instead of compressing assertions. Four-worker E2E cold starts can still stall on `networkidle` (SSE + external avatars); CI runs with a single worker.
+- **Uninstalled-state second web server**: `/installation` visual/E2E needs `MOMEI_INSTALLED=false` + `TEST_MODE=false` + `:memory:` + `DATABASE_SYNCHRONIZE=true`; `page.route` cannot bypass the server-side 302. Mark logged-in parity routes `stable: 'lenient'` (SSE keeps `networkidle` pending), capture reference snapshots in the same batch as route registration, and keep second-instance env in one shared module.
 
 ## 9. Fix Workflow
 

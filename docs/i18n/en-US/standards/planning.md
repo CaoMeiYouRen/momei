@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-24
+last_sync: 2026-11-05
 translation_tier: summary-sync
 ---
 
@@ -284,6 +284,10 @@ When an item meets "new module / cross-module / contract rewrite / standalone go
 2.  **Minimal design content**: background and problem definition; scope and non-goals; contract / data structure / interaction boundaries; risks, rollback, and validation plan.
 3.  **Landing timing**: design docs must land before large-scale implementation and exist as review objects; do not write "post-hoc explanations" after all code is done.
 4.  **Todo / Roadmap linkage**: if a current-phase mainline depends on a design doc first, `roadmap.md` and `todo.md` acceptance criteria must explicitly state "complete the design doc first, then implement", so execution never skips the design artifact.
+
+### 5.2 Version Statement Sync (2026-11-05)
+
+After any dependency or tool version change, grep the repository for "current version / current pin" statements (migration plan, `docs/design/ui.md`, etc.) and update them in the same batch; otherwise two baselines coexist in one document and later batches plan against the wrong one.
 
 ## 6. Related Documents
 

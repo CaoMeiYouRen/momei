@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-10-24
+last_sync: 2026-11-05
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -299,6 +299,10 @@ Docs are built with VitePress; config lives in `docs/.vitepress/config.ts`.
 3. **Review awareness**: doc, planning, and archive changes need review with a clear conclusion or issue list.
 4. **Archive awareness**: regularly move completed `todo.md` entries to `todo-archive.md`.
 5. **CHANGELOG**: never edit `CHANGELOG.md` manually unless explicitly instructed; it is maintained by the pipeline.
+
+## 8.1 Regression Window Ordering (2026-11-05)
+
+A `regression-window` marker pair can still be malformed as "start at the top, body at the bottom" (LIFO); the marker check will not fail. When archiving, move the whole block together and keep newest-first order.
 
 ## 9. Related Documents
 
