@@ -14,13 +14,87 @@
 - 第五十二至第五十七阶段全文: [archive/todo-archive-phases-52-57.md](./archive/todo-archive-phases-52-57.md)
 - 第五十八至第六十阶段全文: [archive/todo-archive-phases-58-60.md](./archive/todo-archive-phases-58-60.md)
 - 第六十一至第六十三阶段全文: [archive/todo-archive-phases-61-63.md](./archive/todo-archive-phases-61-63.md)
+- 第六十四阶段全文: [archive/todo-archive-phases-64.md](./archive/todo-archive-phases-64.md)
 - 深度归档治理规则: [archive/index.md](./archive/index.md)
 
 ## 主窗口保留范围
 
-- 主文档当前保留第六十四至第六十九阶段共 6 个近线归档块。
-- 第一至第六十三阶段的完整待办归档正文已迁入区间分片。
+- 主文档当前保留第六十五至第七十阶段共 6 个近线归档块。
+- 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+## 第七十阶段：PrimeVue → caomei-ui 迁移（四）——B3 表单与设置、GA 升级与门禁扩面（已审计归档）
+
+> 归档说明: 第七十阶段「1 条开工基座 + 3 条迁移主线 + 1 条覆盖率治理主线」已于 2026-11-05 完成全部条目交付并归档（2026-11-03 立项，2 天密集交付）。条目 1 完成 `caomei-ui@1.0.0` GA 精确升级（与 rc.1 运行时产物逐字节一致、锁文件 5 处、视觉 18/18、parity 34/34、`keyCss` 61.79KB / 70KB），并把 parity 扩到未安装态第二 webServer、首次启用 `reader` 档预算校准（参考态 34 → 54）；条目 2 分 2a / 2b / 2c 完成管理端设置与通知整路由迁移（341 + 42 处，含 4 张 DataTable 与主题工作台）；条目 3 完成安装向导整路由（页面 + 6 个步骤组件 + 1 个字段状态组件，87 处；`Stepper` / `Accordion` 首次生产迁移；E2E 改为未安装态六步真实流程）；条目 4 完成用户设置与认证 / 提交页（6 条路由 / 16 文件 / 119 处），`reader` 档 12 条预算按实测校准；条目 5 按绝对未覆盖语句数补测三模块（statements 100% / 98.87% / 100%），全仓 Statements 80.40% → 80.66%（本批 +0.26pp，闭合 95 条），`+0.3pp` 因 3 模块池上限 +0.25pp 结构性不可达并已量化登记。剩余迁移面复算：组件 1,094 → **482 处 / 40 类**、`primeicons` 540 → **411 处**、token 1,445 → **1,442 处**。各批 Review Gate 均 Pass（Round 1–4 的 blocker 已逐项闭环）；阶段内共 37 个提交（含立项 1 个；其中 7 个为 Dependabot 依赖升级，业务 / 测试 / 文档提交 30 个）。`todo.md` 已清理，`roadmap.md` 已同步归档结论，回归窗口整体迁入 [2026-11-05-phase70-close.md](../reports/regression/archive/2026-11-05-phase70-close.md)，`docs/i18n/*/plan/roadmap.md` 摘要已同步。
+
+> **ROI 评估**: 开工基座 `2.00`；管理端设置与通知 `1.50`；安装向导 `1.33`；用户设置与认证 `1.80`；覆盖率第十一批 `1.75`。
+
+> 阶段规划详情、ROI 与回滚边界见 [项目计划归档](./archive/roadmap-phases-70.md)。
+> 迁移方案事实源见 [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（本阶段对应 §7 的 B3 段与 §3.11）。
+> backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 10 条（UI 组件库迁移）与第 1 条（测试覆盖率）。
+
+**时间表**: 2026-11-03 ~ 2026-11-05
+
+**准入前置（已核对 2026-11-03）**: 第六十九阶段已审计归档、`todo.md` 无已完成阶段正文、`git status` 干净且 `master` 与 `origin/master` 同步（`888c3bd9`）；CI 回执 Test / CodeQL 均 success；`caomei-ui@1.0.0` GA 已于 2026-11-02 发布，与 `1.0.0-rc.1` 运行时产物逐字节一致；阶段构成（A/A/A/A）经用户 2026-11-03 在候选页确认。
+
+**剩余迁移面（2026-11-05 阶段收口复算，`governance:count:primevue-usage` 口径）**: PrimeVue 组件 **482 处 / 40 个组件名**；浮层族标签 8 处 / 8 文件（自有共享壳 `ConfirmDeleteDialog`，内部已用 `CaomeiDialog`）；`primeicons` **411 处**；token **1,442 处**；生产文件并集 56。
+
+- [x] **1. B3 开工基座：caomei-ui 1.0.0 GA 升级 + 门禁扩展 + 参考态采集（P1）**
+    - **执行范围**: 1a `1.0.0-rc.1 → 1.0.0` 精确升级（`APPROVED_VERSIONS`、`dependabot.yml` 注释复核、产物字节点检、复跑视觉 / parity / `keyCss`）；1b parity harness 扩第二 webServer（`MOMEI_INSTALLED=false`、独立端口 3002 与独立 project）与 `reader` 档预算校准能力；1c 在页面改动前采集 10 条参考态并写入 `reference-manifest.json`。
+    - **非目标**: 不改页面 / 组件，不清 `--p-*`，不做图标全量，不调整既有 `admin` 档预算。
+    - **收口（2026-11-03）**: 1a 完成精确升级，GA 与 rc.1 的 `.js` / `.mjs` / `.css` / `.vue` 产物零差异、`dist/styles/index.css` sha256 一致，锁文件 5 处（+5/−5）无无关漂移；复测 build 2m04s、视觉 18/18、parity 34/34、`keyCss` 61.79KB / 70KB、`typecheck` 0、全量 5,142 passed。1b/1c 完成第二 webServer（3002，`MOMEI_INSTALLED=false` + `TEST_MODE=false` + 内存库 + `DATABASE_SYNCHRONIZE=true`）与 `reader` 档预算显式化（`budget.ts` + 4 例单测），10 条 B3 路由登记为待迁移并采集参考态 20 张（manifest 34 → 54）；`reader` 档首次启用（6 条，2000px / 0.3%）。验证：parity 55/55（10.4 分钟）、全量 5,146 passed、`typecheck` / `lint` 0 error、CI visual job 超时改 30 分钟。
+
+- [x] **2. B3-A 管理端设置与通知整路由迁移（P1）**
+    - **执行范围**: 2a 设置主体（26 个设置组件 + `pages/admin/settings/index.vue` + `admin-floating-actions`，含 13 个 `TabPanel` 与 3 张 DataTable）；2b 主题工作台（`Panel→Card`、`ColorPicker`、`SelectButton`、`DataView`、3 个浮层内表单）；2c 剩余 1 张 DataTable（`notification-delivery-log-list`，含 `DatePicker`）+ `/admin/notifications` 整路由。
+    - **非目标**: `--p-*` 与独立 `<i class="pi">` 清理（B4）；不改设置读写 API 与权限逻辑；不做半路由切换。
+    - **收口（2026-11-04）**: 2a 25 个修改文件 + 3 个适配层（341 处；3 张 DataTable 一并迁完；设置页 light 64,028px / dark 91,926px，未归因 0；test 582 files / 5,153 passed、visual 18/18、parity 55/55）；2b 主题工作台 6 文件（42 处；新增主题页 / 画廊基线 4 张；子路由改 `migratedSubRoutes`；test 584 / 5,157、visual 22/22、parity 55/55；主题页 light 42,263px / dark 50,759px；审核 Round 1–4）；2c 通知管理 2 文件（`DatePicker` 首个生产用法；test 584 / 5,158、visual 22/22、parity 55/55；通知列表 light 52,786px / dark 53,759px；审核 Round 1 Pass → 2）。
+
+- [x] **3. B3-C 安装向导整路由迁移（P2）**
+    - **执行范围**: `Stepper` 族 / `Accordion` 族 / `Password` / `Message` 整批迁移；`pages/installation.vue` 的 21 处 `:deep()` 复核（其中 1 处 `.p-tag` 改写为 caomei 契约）；E2E 改为未安装态六步真实流程（含步骤头不可前跳）。
+    - **非目标**: 不改服务端安装逻辑 / API / 中间件；不做真实安装环境改造；新增样式不得引入 `--p-*`。
+    - **收口（2026-11-04）**: 页面 + 6 个步骤组件 + 1 个字段状态组件（共 87 处）；`Stepper` / `Accordion` 族首次生产迁移；E2E 第二 webServer（3002）改为未安装态六步真实流程并断言步骤头不可越过校验门，基线层补 4 条结构断言。验证：test 584 / 5,159 passed、visual 24/24、parity 55/55（安装向导 light 48,145px / dark 48,708px，未归因 0）、E2E 2/2；审核 A 轮 3 blocker（步骤头前跳 / 字段宽度上限 / stylelint）→ Pass，B 轮 6 blocker（基线时刻 / 标题左对齐 / 数字口径 / 五步口径 / backlog 过期 / 拆分依据）→ Pass。
+
+- [x] **4. B3-D 用户设置与认证 / 提交页整路由迁移（P2，首次启用 reader 档）**
+    - **执行范围**: `/settings` 页面 + `components/settings/` 6 个组件（5 个由条件 Tab 消费，`notification-history-list` 内嵌于通知面板；`FileUpload` / `ProgressSpinner` / `ToggleButton` / `Checkbox`）+ `login` / `register` / `forgot-password` / `reset-password` / `submit` 与 `components/auth-card.vue`（`Card` / `Message` / `fluid` 删除 / `severity→tone`）；`reader` 档首次启用并按实测校准预算。
+    - **非目标**: 不改认证 / 注册 / 投稿业务逻辑与字段；不改服务端限流与校验。
+    - **收口（2026-11-04）**: 16 个文件 / 119 处；6 条路由 × 2 主题参考态就绪，`reader` 档 12 条预算按实测校准（未归因 0）；`auth` / `submit` E2E 选择器改写后通过（chromium 单 worker；firefox / webkit 补跑 14 passed / 2 skipped）。验证：test 584 / 5,169 passed、visual 24/24、parity 55/55、chromium E2E 24 passed / 4 skipped（auth 5/1 + submit 2/2 + user-workflow 17/3）；实现审核 3 轮（Image 尺寸 / 品牌样式 / stub 契约）→ Pass，视觉文档审核 2 轮（归因错误 / 基线中间态 / 计数口径）→ Pass。
+
+- [x] **5. 测试覆盖率治理第十一批（P2）**
+    - **执行范围**: 开工时按绝对未覆盖语句数复算取前三模块 `migration-link-governance.ts`（32）/ `.helpers.ts`（30）/ `ai/tts.ts`（30）补测；失败 / 边界断言优先。
+    - **非目标**: 不做全量铺量、不为冲数字写低价值断言。
+    - **收口（2026-11-05）**: 三模块 statements 100% / 98.87% / 100%，均达「`+15pp` 或 `≥85%`」；全仓 Statements **80.40% → 80.66%（本批 +0.26pp，闭合 95 条 = 89 直接 + 6 间接）**；Branches 70.70% → 71.07%、Functions 78.92% → 79.08%、Lines 80.55% → 80.81%；`+0.3pp` 需 109 条而三模块池仅 92 条（上限 +0.25pp），结构性不可达并已量化登记。验证：`test:coverage` EXIT 0（586 文件 / 5,202 例，净增 33 例）、`typecheck` 0、`eslint` 0；审核 Round 1 双 Reject（测试非自包容 / 2 例断言无判别力；增量口径 / 阶段累计表述 / 归档指针）→ 修复 → Round 2 双 Pass。证据见 [回归归档分片](../reports/regression/archive/2026-11-05-phase70-close.md)。
+
+**回滚边界**:
+
+- 条目 1：版本、parity 配置与参考态各自独立可回退；删除参考态不影响迁移前基线。
+- 条目 2：按 2a / 2b / 2c 独立回滚，`CAOMEI_UI_ROUTE_SCOPES` 同步收缩。
+- 条目 3：安装路由独立回滚；第二 server 配置可单独摘除。
+- 条目 4：`reader` 档预算条目可单条移除，路由回滚同步收缩 scope。
+- 条目 5：测试文件独立可删。
+
+**风险提示**:
+
+- `notification-delivery-log-list` 属 B3 范围目录但唯一消费路由是 `/admin/notifications`，漏迁该路由会让组件迁移后落在未登记路由内（守卫只扫描已登记前缀，抓不到这类混用）。
+- 参考态必须在页面改动前采集，`--revert` 只能补救、成本翻倍。
+- `DatePicker` / `MultiSelect` / `Stepper` / `ColorPicker` / `DataView` / `FileUpload` 属首次生产迁移，须先做 1 个代表文件 + 定向回归再批量。
+- `ToggleSwitch` 44 处的 `change` 载荷差异逐处核对。
+- `reader` 档首次启用可能暴露历史漂移，校准样值入预算 `note`，禁止为变绿放宽阈值。
+
+**验证汇总（阶段口径）**: 条目 1a 全量 5,142 → 条目 5 全量 **5,202 passed / 1 skipped（586 文件）**（阶段收口复跑 `test:coverage` 为 29,314/36,340，与条目 5 收口的 29,315 相差 1 条，差异来自 `composables/use-reader-mode.ts` 的非确定性覆盖路径，模块与百分比口径不变）；视觉 24/24、parity 55/55（含未安装态第二实例与 reader 档 12 条，未归因 0）、chromium E2E 24 passed / 4 skipped（auth 5/1 + submit 2/2 + user-workflow 17/3）；`typecheck` / `lint` / `lint:css` 0 error；阶段收口 `regression:phase-close` 结论见本阶段回归分片。
+
+### 阶段收口检查清单
+
+- [x] 当前阶段核心条目已完成（条目 1–5 全部关闭）
+- [x] `todo.md` 已清理（当前无进行中阶段）
+- [x] `todo-archive.md` 已追加归档块
+- [x] `roadmap.md` 已同步阶段状态与结论（正文迁入 `archive/roadmap-phases-70.md`）
+- [x] 回归记录 / Review Gate 证据可追溯（第七十阶段窗口整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`）
+- [x] `lint-md` / `docs:check:i18n` / `docs:check:line-count` / `docs:check:links` / `docs:check:markers` 与最小质量门已确认
+- [x] wisdom 蒸馏已执行：32 条 → 迁移至 `docs/standards/` 与 `docs/design/governance/`
+- [x] 各条目 Review Gate 已 Pass（Round 1–4 的 blocker 已逐项闭环）
+- [ ] 阶段收口门禁：`regression:phase-close` 10/11 通过；`security:alerts` 阻断于既有 Code Scanning #45（2026-11-02 创建，非本阶段引入），本地修复与回归断言已就绪，待推送后 CodeQL 重扫关闭，并按重扫结果补跑 `test:e2e`、`test:perf:budget:strict`、`duplicate-code:check:strict`、`review-gate:generate:check`；关闭前不得标记阶段 Pass
 
 ---
 
@@ -365,68 +439,6 @@
 
 - [x] `todo.md` 当前阶段条目已完成并清理执行面
 - [x] `roadmap.md` 已同步阶段状态与收口结论
-- [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
-- [x] 主干质量门通过（typecheck + lint + test）
-
----
-
----
-
-## 第六十四阶段：设置 UI Phase 2 与治理续航（已审计归档）
-
-> 归档说明: 第六十四阶段「1 个新功能 + 4 个优化」已于 2026-07-27 完成五条主线交付与阶段收口。设置表单 UI Phase 2（首批 UI 组件）将 Phase 63 的 SoT 映射落地为 5 个可交互表单控件（EMAIL_SECURE/EMAIL_EXPIRES_IN/TEMP_EMAIL_DOMAIN_NAME/AI_MAX_TOKENS/TTS_DEFAULT_VOICE）并补齐五语种翻译；reactive→ref Step 5 收尾剩余 3 个表单/弹窗类文件（admin-taxonomy-page/marketing-campaign-form/comment-form）；结构复用治理完成 2 组热点切片（safeDeleteCategory + handleExternalLinkError），duplicate-code 基线保持 0.35%；测试覆盖率第六批为 privacy.ts 新增 7 个边缘 case 测试；ko-KR/ja-JP 文档治理完成 freshness 审计报告、ko-KR 13 文件 last_sync 刷新、ja-JP 语种升格为已支持、补齐 features/variables 翻译。所有主线均通过 typecheck + lint + test 质量门。
-
-> **ROI 评估**: 设置表单 UI Phase 2 `1.60`；reactive→ref Step 5 `1.60`；结构复用治理 `1.80`；测试覆盖率 90%+ 第六批 `1.50`；ko-KR/ja-JP 文档治理 `1.50`。
-
-### 1. 设置表单 UI Phase 2 — 首批 UI 组件（P1）
-
-- **执行范围**: 为 Phase 63 新映射的 5 个 SettingKey 开发 PrimeVue 表单控件：email-settings.vue（EMAIL_SECURE ToggleSwitch、EMAIL_EXPIRES_IN InputNumber、TEMP_EMAIL_DOMAIN_NAME InputText）、ai-settings.vue（AI_MAX_TOKENS InputNumber、TTS_DEFAULT_VOICE Select + ttsVoiceOptions computed）。types/setting.ts AISettingsFields 补齐新字段。
-- **非目标**: 不新增标签页；不改动 FORCED_ENV_LOCKED_KEYS。
-- **实现对照**:
-  - `components/admin/settings/email-settings.vue`：新增 3 个表单控件
-  - `components/admin/settings/ai-settings.vue`：新增 2 个表单控件 + ttsVoiceOptions computed
-  - `types/setting.ts`：AISettingsFields 新增 2 字段
-  - `i18n/locales/*/admin-settings.json`：五语种各 5 个翻译条目
-- **验收对照**: ✅ 5 字段 UI 完成；✅ 五语种 20 个翻译条目；✅ `pnpm typecheck` + `pnpm lint` + `pnpm test` 通过。
-
-### 2. 响应式状态模型收敛 — reactive→ref Step 5（P1）
-
-- **执行范围**: 补齐 Phase 63 延期的 3 个表单/弹窗类文件 `reactive` → `ref` 迁移。
-- **迁移明细**:
-  - `components/admin/admin-taxonomy-page.vue`：deleteDialog reactive → ref（6 处 .value）
-  - `components/admin/marketing-campaign-form.vue`：form reactive → ref（15+ 处 .value）
-  - `components/comment-form.vue`：form reactive → ref（8 处 .value）
-- **验收对照**: ✅ 3 文件迁移完成；✅ 所有 template v-model 零改动；✅ `pnpm typecheck` + `pnpm lint` + 9 tests 通过。
-
-### 3. 结构复用治理 — 下一轮热点切片（P1）
-
-- **执行范围**: 基于 duplicate-code 0.35% 基线做增量切片收敛。
-- **收敛切片**:
-  - Slice 1：`server/utils/category-delete.ts` 新建 `safeDeleteCategory()`，内部/external categories/[id].delete 双端点共用，消除 26 行重复
-  - Slice 2：`server/utils/external-links-shared.ts` 新建 `handleExternalLinkError()`，POST + PUT external-links 双端点共用，消除 21 行重复
-- **验收对照**: ✅ 2 组切片完成；✅ duplicate-code 基线 0.35%（47 clones，不反弹）；✅ `pnpm typecheck` + `pnpm lint` + 7 tests 通过。
-
-### 4. 测试覆盖率 90%+ 第六批（P2）
-
-- **执行范围**: 基于最新全仓覆盖率缺口报告选取高价值模块。
-- **测试新增**:
-  - `utils/shared/privacy.test.ts`：新增 7 个边缘 case（custom maskString/undefined/maskEmail/@/maskPhone 短值/maskIP IPv4 短段）
-  - `server/utils/logger.test.ts`：维持已有 508 行全面覆盖
-- **验收对照**: ✅ 75 tests 全部通过；✅ `pnpm typecheck` + `pnpm lint` 通过。
-
-### 5. ko-KR/ja-JP 文档治理（P2）
-
-- **执行范围**:
-  - Phase A：产出翻译文档 freshness 审计报告 `docs/design/governance/i18n-docs-freshness-audit-ko-ja.md`
-  - Phase B：ko-KR 13 个文档 last_sync 从 2026-03 刷新至 2026-07-27；ja-JP 由 seo-ready 提升为已支持语种
-  - Phase C：创建 ja-JP guide/features.md（7 节）和 guide/variables.md（3 节 + 映射表）翻译；documentation.md 矩阵同步 ja-JP 范围升级至与 ko-KR 一致
-- **验收对照**: ✅ 审计报告输出；✅ 13 个文档问题修复；✅ ja-JP 升格 + 2 新翻译文件；✅ `docs:check:source-of-truth` 通过。
-
-### 阶段收口检查清单
-
-- [x] `todo.md` 当前阶段条目已完成并清理执行面
-- [x] `roadmap.md` 已同步阶段状态与收口结论
-- [x] 多语路线图摘要已更新（`docs/i18n/*/plan/roadmap.md`）
 - [x] 文档检查已执行：`pnpm typecheck` + `pnpm lint` 通过
 - [x] 主干质量门通过（typecheck + lint + test）
 
