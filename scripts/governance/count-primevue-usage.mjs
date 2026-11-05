@@ -133,6 +133,30 @@ export function countMatches(content, pattern) {
 }
 
 /**
+ * 去除 HTML 注释，并保证输出不再残留注释分隔符。
+ *
+ * 单次 `replace(/<!--[\s\S]*?--!?>/g, '')` 可能因嵌套 / 不完整注释重新拼出 `<!--`，
+ * 属 CodeQL js/incomplete-multi-character-sanitization（CWE-20/80/116）场景。
+ * 先循环移除完整注释，再循环移除残余分隔符 token，直到稳定。
+ */
+export function stripHtmlComments(input) {
+    let output = input
+    let previous
+
+    do {
+        previous = output
+        output = output.replace(/<!--[\s\S]*?--!?>/gu, '')
+    } while (output !== previous)
+
+    do {
+        previous = output
+        output = output.replace(/<!--|--!?>/gu, '')
+    } while (output !== previous)
+
+    return output
+}
+
+/**
  * 统计 `.vue` 内的 PrimeVue 组件开标签。
  *
  * 使用 `(?<![\w$])<Name(?=[\s/>]|$)` 双重守卫：前一字非标识符（排除 TS 泛型与对象属性），
@@ -256,10 +280,9 @@ export async function buildReport(options = {}) {
         const overlayTags = isVue ? countComponentTags(content, OVERLAY_FAMILY.components) : new Map()
         const serviceHits = []
         // 指令只存在于模板；注释里的同名提及不是调用点，回填「已迁完」注释时不应改变归零口径。
-        // 与 `tests/modules/ui-library-guard-helpers.ts` 的 `stripComments` 同口径（HTML / 块 / 整行 `//`）。
-        // HTML 注释闭合符同时接受 `-->` 与 HTML5 的 `--!>`，避免 CodeQL js/bad-tag-filter 漏判。
-        const directiveSource = content
-            .replace(/<!--[\s\S]*?--!?>/gu, '')
+        // 剥离类别与 `tests/modules/ui-library-guard-helpers.ts` 的 `stripComments` 相同（HTML / 块 / 整行 `//`）；HTML 注释在本文件按不动点循环处理（helper 仍为单次替换，CodeQL #46 为 test-only observe）。
+        // HTML 注释闭合符同时接受 `-->` 与 HTML5 的 `--!>`；完整注释与残余分隔符都由 `stripHtmlComments` 循环清除。
+        const directiveSource = stripHtmlComments(content)
             .replace(/\/\*[\s\S]*?\*\//gu, '')
             .replace(/^\s*\/\/.*$/gmu, '')
         const tooltipStat = countMatches(directiveSource, TOOLTIP_PATTERN)

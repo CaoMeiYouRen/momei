@@ -8,6 +8,7 @@ import {
     isProductionFile,
     OVERLAY_FAMILY,
     resolveComposableOrigin,
+    stripHtmlComments,
 } from '@/scripts/governance/count-primevue-usage.mjs'
 
 async function writeProjectFile(baseDir: string, relativePath: string, content: string) {
@@ -47,6 +48,18 @@ describe('count-primevue-usage / 浮层族分桶', () => {
         expect(resolveComposableOrigin('import { useToast } from \'caomei-ui\'\nuseToast()', 'useToast')).toBe('caomei-ui')
         expect(resolveComposableOrigin('import { useToast } from \'primevue/usetoast\'\nuseToast()', 'useToast')).toBe('primevue')
         expect(resolveComposableOrigin('const toast = useToast()', 'useToast')).toBe('auto')
+    })
+
+    it('HTML 注释清洗循环收敛且不残留注释分隔符', () => {
+        expect(stripHtmlComments('<!-- a v-tooltip --> v-tooltip')).toBe(' v-tooltip')
+
+        const nested = stripHtmlComments('<!-<!--x-->-\nv-tooltip')
+        expect(nested).not.toContain('<!--')
+        expect(nested).not.toContain('-->')
+        expect(nested).toContain('v-tooltip')
+
+        expect(stripHtmlComments('<!--unclosed v-tooltip')).toBe('unclosed v-tooltip')
+        expect(stripHtmlComments('a--!>b')).toBe('ab')
     })
 
     it('注释中的 v-tooltip 提及不计入指令用量', async () => {
