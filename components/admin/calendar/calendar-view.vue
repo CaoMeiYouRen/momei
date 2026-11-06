@@ -2,41 +2,54 @@
     <div class="calendar-view">
         <div class="calendar-view__toolbar">
             <div class="calendar-view__nav">
-                <Button
-                    icon="pi pi-chevron-left"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="$t('pages.admin.calendar.prev_period')"
                     @click="prevPeriod"
-                />
+                >
+                    <template #icon>
+                        <ChevronLeft :size="16" />
+                    </template>
+                </CaomeiButton>
                 <span class="calendar-view__title">{{ titleText }}</span>
-                <Button
-                    icon="pi pi-chevron-right"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="$t('pages.admin.calendar.next_period')"
                     @click="nextPeriod"
-                />
+                >
+                    <template #icon>
+                        <ChevronRight :size="16" />
+                    </template>
+                </CaomeiButton>
             </div>
             <div class="calendar-view__actions">
-                <Button
-                    :label="$t('pages.admin.calendar.today_btn')"
-                    severity="secondary"
-                    size="small"
+                <CaomeiButton
+                    variant="secondary"
+                    tone="neutral"
+                    size="sm"
                     @click="goToToday"
-                />
-                <SelectButton
+                >
+                    {{ $t('pages.admin.calendar.today_btn') }}
+                </CaomeiButton>
+                <CaomeiSelectButton
                     :model-value="currentView"
                     :options="viewOptions"
                     option-label="label"
                     option-value="value"
-                    size="small"
-                    :allow-empty="false"
+                    size="sm"
                     @update:model-value="onViewChange"
                 />
             </div>
         </div>
 
         <div v-if="loading" class="calendar-view__loading">
-            <i class="pi pi-spin pi-spinner" />
+            <CaomeiProgressSpinner :stroke-width="3" />
             <span>{{ $t('common.loading') }}</span>
         </div>
 
@@ -112,6 +125,7 @@
 </template>
 
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from '@lucide/vue'
 import { ref, computed } from 'vue'
 import dayjs from 'dayjs'
 import type { CalendarDayGroup } from '@/types/calendar'
@@ -135,8 +149,8 @@ const { t, locale } = useI18n()
 const currentView = ref<'month' | 'week'>('month')
 const currentDate = ref(new Date())
 
-function onViewChange(value: 'month' | 'week' | null) {
-    if (value) {
+function onViewChange(value: unknown) {
+    if (value === 'month' || value === 'week') {
         currentView.value = value
     }
 }

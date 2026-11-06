@@ -20,6 +20,8 @@ function createI18nInstance() {
                     admin: {
                         calendar: {
                             today_btn: '今天',
+                            prev_period: '上一周期',
+                            next_period: '下一周期',
                             month_view: '月',
                             week_view: '周',
                             more: '更多',
@@ -37,6 +39,8 @@ function createI18nInstance() {
                     admin: {
                         calendar: {
                             today_btn: 'Today',
+                            prev_period: 'Previous period',
+                            next_period: 'Next period',
                             month_view: 'Month',
                             week_view: 'Week',
                             more: 'more',
@@ -59,10 +63,13 @@ function createWrapper(propsOverrides = {}) {
         global: {
             plugins: [i18n],
             stubs: {
-                Button: { template: '<button><slot /></button>' },
-                SelectButton: {
+                CaomeiButton: {
+                    template: '<button @click="$emit(\'click\')"><slot /></button>',
+                    emits: ['click'],
+                },
+                CaomeiSelectButton: {
                     template: '<div class="mock-select-button"><slot /></div>',
-                    props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'allowEmpty'],
+                    props: ['modelValue', 'options', 'optionLabel', 'optionValue'],
                     emits: ['update:modelValue'],
                 },
             },

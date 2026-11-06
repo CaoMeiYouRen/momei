@@ -10,6 +10,31 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-a-calendar:第七十一阶段条目 2 内容日历整路由:2026-11-07 -->
+
+## 2026-11-07 第七十一阶段条目 2（B4-A）：内容日历整路由迁移
+
+### 范围
+
+- `/admin/calendar` + `components/admin/calendar/{calendar-view,kanban-view}.vue`。
+- 组件替换：Tabs 族 → `CaomeiTabs` + `CaomeiTabTrigger` / `CaomeiTabContent`（模板 `#panel` → 子组件）；语言选择 `Select` → `CaomeiSelect`（size `sm`）；月历工具栏两枚 icon-only 按钮（lucide Chevron）+ Today 按钮；视图切换 `SelectButton`；加载态统一 `CaomeiProgressSpinner`；看板计数 `Tag` → `CaomeiTag`（tone `primary`）。
+- 路由登记：`CAOMEI_UI_ROUTE_SCOPES` 新增 `/admin/calendar`（`ownedFiles` 两视图 + Tabs 族 / `SelectButton` / `ProgressSpinner` 增量）。
+
+### 验证
+
+- 单测：`pages/admin/calendar/index.test.ts`（3）+ `calendar-view.test.ts`（3）+ `kanban-view.test.ts`（3）= **迁移新增 9 passed**；既有 `tests/client/.../calendar-view.test.ts` **9 passed 保留**；guard **59 passed**。
+- 浏览器探针（build 产物 + TEST_MODE 登录）：`/admin/calendar` → 200、h1「内容日历」、`role=tab` 2 条、看板 3 列、`pageerror` 0。
+- 复算：组件 411 → **398 处 / 36 类**（本批消除 calendar 路由的 1 处 lucide `Calendar` 假阳性；398 仍含 marketing 路由 1 处既有假阳性，真实 PrimeVue 组件面 397）；图标 358 → **352 处**；token 1,445（本批 0 变化）。
+- 未纳入跨日 parity：日历「今天」高亮与当月网格跨日 / 跨月不可复现，按条目 1 的判定改用组件测试 + 探针覆盖。
+- 修复（Round 1 审计）：`CaomeiSelect` 丢弃 `null` 值选项 → 语言筛选改用非空哨兵 `'__all__'`（空串会触发 reka `SelectItem` 断言）并在回写时还原 null（「全部语言」恢复可选）；`CaomeiTabs` 补 `:unmount-on-hide="false"` 保留月历状态；prev / next 改用 `pages.admin.calendar.prev_period` / `next_period`（5 语言）；页面测试补语言哨兵与页签切换用例。
+
+### 未覆盖边界
+
+- 月历网格在 TEST_MODE 无文章数据时页面持续显示「加载中」（`calendarLoading` 由 setup 顶层 `void loadData()` 驱动，SSR 与 hydration 时序既有行为；迁移未改该逻辑），未做 HEAD 对照验证；登记为观察项。
+- 月历 / 看板无截图基线；看板卡片拖拽与更新阶段路径未在浏览器验证（原有 E2E 未覆盖）。
+
+<!-- regression-window:end:b4-a-calendar:第七十一阶段条目 2 内容日历整路由:2026-11-07 -->
+
 <!-- regression-window:start:b4-a-ai-task:第七十一阶段条目 2 AI 任务详情整路由:2026-11-06 -->
 
 ## 2026-11-06 第七十一阶段条目 2（B4-A）：AI 任务详情与共享内容组件迁移

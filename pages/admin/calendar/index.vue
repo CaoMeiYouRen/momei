@@ -4,56 +4,55 @@
 
         <div class="admin-content-card">
             <div class="calendar-lang-bar">
-                <Select
-                    :model-value="contentLanguage"
-                    :options="availableLocales"
+                <CaomeiSelect
+                    :model-value="contentLanguage ?? ALL_LANGUAGES_SENTINEL"
+                    :options="localeOptions"
                     option-label="label"
                     option-value="value"
                     :placeholder="t('common.all_languages')"
-                    size="small"
+                    size="sm"
                     class="calendar-lang-bar__select"
-                    @update:model-value="(val: string | null) => {
-                        setContentLanguage(val); loadData()
+                    @update:model-value="(val: unknown) => {
+                        setContentLanguage(typeof val === 'string' && val !== ALL_LANGUAGES_SENTINEL ? val : null); loadData()
                     }"
                 />
             </div>
-            <Tabs v-model:value="activeTab">
-                <TabList>
-                    <Tab value="calendar">
-                        <i class="pi pi-calendar" />
+            <CaomeiTabs v-model="activeTab" :unmount-on-hide="false">
+                <CaomeiTabList>
+                    <CaomeiTabTrigger value="calendar">
+                        <CalendarIcon :size="16" />
                         <span>{{ $t('pages.admin.calendar.tab_calendar') }}</span>
-                    </Tab>
-                    <Tab value="kanban">
-                        <i class="pi pi-th-large" />
+                    </CaomeiTabTrigger>
+                    <CaomeiTabTrigger value="kanban">
+                        <LayoutGrid :size="16" />
                         <span>{{ $t('pages.admin.calendar.tab_kanban') }}</span>
-                    </Tab>
-                </TabList>
+                    </CaomeiTabTrigger>
+                </CaomeiTabList>
 
-                <TabPanels>
-                    <TabPanel value="calendar">
-                        <CalendarView
-                            :loading="calendarLoading"
-                            :calendar-posts="calendarPosts"
-                            @edit-post="navigateToEditPost"
-                            @navigate="handleCalendarNavigate"
-                        />
-                    </TabPanel>
-                    <TabPanel value="kanban">
-                        <KanbanView
-                            :loading="kanbanLoading"
-                            :kanban-data="kanbanData"
-                            @edit-post="navigateToEditPost"
-                            @update-stage="handleUpdateStage"
-                        />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
+                <CaomeiTabContent value="calendar">
+                    <CalendarView
+                        :loading="calendarLoading"
+                        :calendar-posts="calendarPosts"
+                        @edit-post="navigateToEditPost"
+                        @navigate="handleCalendarNavigate"
+                    />
+                </CaomeiTabContent>
+                <CaomeiTabContent value="kanban">
+                    <KanbanView
+                        :loading="kanbanLoading"
+                        :kanban-data="kanbanData"
+                        @edit-post="navigateToEditPost"
+                        @update-stage="handleUpdateStage"
+                    />
+                </CaomeiTabContent>
+            </CaomeiTabs>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { Calendar as CalendarIcon, LayoutGrid } from '@lucide/vue'
+import { computed, ref } from 'vue'
 import CalendarView from '@/components/admin/calendar/calendar-view.vue'
 import KanbanView from '@/components/admin/calendar/kanban-view.vue'
 import type { CalendarDayGroup, KanbanResponse, PipelineStage } from '@/types/calendar'
@@ -69,6 +68,17 @@ const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const { contentLanguage, setContentLanguage, availableLocales } = useAdminI18n()
+
+/* `availableLocales` 的首项是「全部语言」且 value 为 null；caomei `Select` 会丢弃
+ * 非 string / number 的选项，而 reka-ui 的 `SelectItem` 又不允许空字符串，故复用既有
+ * 非空哨兵 `__all__`（与 `content-language-switcher-v2` / 用户筛选同一约定），
+ * 回写时再还原为 null。 */
+const ALL_LANGUAGES_SENTINEL = '__all__'
+
+const localeOptions = computed(() => availableLocales.value.map((option) => ({
+    ...option,
+    value: option.value ?? ALL_LANGUAGES_SENTINEL,
+})))
 const { ensureLocaleMessageModules } = await import('@/i18n/config/locale-runtime-loader')
 
 await ensureLocaleMessageModules({

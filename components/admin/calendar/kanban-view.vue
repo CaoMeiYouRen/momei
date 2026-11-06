@@ -1,7 +1,7 @@
 <template>
     <div class="kanban-view">
         <div v-if="loading" class="kanban-view__loading">
-            <i class="pi pi-spin pi-spinner" />
+            <CaomeiProgressSpinner :stroke-width="3" />
             <span>{{ $t('common.loading') }}</span>
         </div>
         <div v-else class="kanban-view__board">
@@ -15,7 +15,9 @@
             >
                 <div class="kanban-view__column-header">
                     <span class="kanban-view__column-title">{{ col.label }}</span>
-                    <Tag :value="cardsByStage[col.key].length" severity="info" />
+                    <CaomeiTag tone="primary">
+                        {{ cardsByStage[col.key].length }}
+                    </CaomeiTag>
                 </div>
                 <div
                     class="kanban-view__column-cards"

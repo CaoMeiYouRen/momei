@@ -6,6 +6,8 @@
                 "tab_calendar": "カレンダー",
                 "tab_kanban": "かんばん",
                 "today_btn": "今日",
+                "prev_period": "前の期間",
+                "next_period": "次の期間",
                 "month_view": "月",
                 "week_view": "週",
                 "more": "さらに表示",

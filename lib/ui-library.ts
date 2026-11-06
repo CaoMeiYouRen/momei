@@ -353,6 +353,29 @@ const SUBMIT_ROUTE_SCOPE = {
  * - `inScopeComponents`：本批首次纳入的展示 / 表单族（`Button` / `Tag` / `InputText` / `Select` /
  *   `Paginator` 属批次基准；浮层族已在基准内）。
  */
+/**
+ * 内容日历 `/admin/calendar` 的迁移范围。
+ *
+ * - `ownedFiles`：页面为容器，实体落在 `components/admin/calendar/` 的月历与看板视图。
+ * - `inScopeComponents`：本批首次纳入的 Tabs 族 / `SelectButton` / `ProgressSpinner`；
+ *   `Select` / `Tag` / `Button` 属批次基准。
+ */
+const ADMIN_CALENDAR_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/calendar/calendar-view.vue',
+        'components/admin/calendar/kanban-view.vue',
+    ],
+    inScopeComponents: [
+        'Tabs',
+        'TabList',
+        'Tab',
+        'TabPanels',
+        'TabPanel',
+        'SelectButton',
+        'ProgressSpinner',
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 const ADMIN_SNIPPETS_ROUTE_SCOPE = {
     ownedFiles: [
         'components/admin/snippets/snippet-aggregate-dialog.vue',
@@ -389,6 +412,8 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/subscribers' },
     { prefix: '/admin/users' },
     { prefix: '/admin/friend-links' },
+    // 内容日历：页面 + 月历 / 看板视图。
+    { prefix: '/admin/calendar', ...ADMIN_CALENDAR_ROUTE_SCOPE },
     // 灵感收纳箱：页面 + 5 个片段组件；`/capture` 子路由随本批迁移。
     { prefix: '/admin/snippets', ...ADMIN_SNIPPETS_ROUTE_SCOPE },
     {
