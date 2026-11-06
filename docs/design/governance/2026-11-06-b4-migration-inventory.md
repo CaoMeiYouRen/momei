@@ -1,0 +1,158 @@
+# 2026-11-06 第七十一阶段 B4 迁移清单（条目 1 产出）
+
+> 本文件是第七十一阶段条目 1「B4 开工基座与现取复核」的落盘产物：现取口径、未迁移路由与文件映射、参考态纳入清单、在册族扩族策略与「文件 → 改动点」清单骨架。
+> 条目 2 / 3 / 4 在迁移时逐行填充 §5，并把该批实测差异写入回归记录；本文件只保留**可复算事实与归属**，不重复回归证据。
+> 事实源：[迁移方案 §7 / §8.5](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)、[视觉一致性门禁](./2026-10-13-visual-parity-gate.md)、[项目计划](../../plan/roadmap.md) 第七十一阶段。
+
+## 1. 现取口径（2026-11-06）
+
+- 命令：`pnpm governance:count:primevue-usage`（输出 `artifacts/governance/primevue-usage-latest.json`）。
+- 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
+- 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签。
+- 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
+
+## 2. 未迁移路由与文件映射
+
+### 2.1 页面文件
+
+| 路由 | 组件处数 | 组件族 |
+| :--- | ---: | :--- |
+| `/admin` | 18 | Button / Tabs / TabList / Tab / TabPanels / TabPanel / Select / Tag / ProgressSpinner / Card |
+| `/friend-links` | 18 | Card / Tag / InputText / Select / Textarea / Button |
+| `/posts/[id]` | 13 | Skeleton / Button / Message / Tag / InputText |
+| `/` | 10 | Skeleton |
+| `/admin/calendar` | 8 | Select / Tabs / TabList / Tab / TabPanels / TabPanel |
+| `/admin/snippets/capture` | 7 | Button / ProgressSpinner / Textarea / Tag |
+| `/goto/[code]` | 4 | ProgressSpinner / Button |
+| `/admin/snippets` | 3 | Button / Checkbox / Paginator |
+| `/posts` | 3 | Skeleton / Message / Paginator |
+| `/archives` | 2 | Skeleton |
+| `/categories` | 2 | Skeleton / Message |
+| `/tags` | 2 | Skeleton / Message |
+| `/about` | 0 | 仅布局壳与图标 |
+| `/benefits` | 0 | 仅布局壳与图标 |
+| `/feedback` | 0 | 仅布局壳与图标 |
+| `/categories/[slug]` | 0 | 仅布局壳与图标 |
+| `/tags/[slug]` | 0 | 仅布局壳与图标 |
+| `/privacy-policy` | 0 | 仅布局壳与图标 |
+| `/user-agreement` | 0 | 仅布局壳与图标 |
+
+### 2.2 子路由例外（仍为 PrimeVue，随本阶段转正）
+
+| 文件 | 所属登记前缀 | 现状 |
+| :--- | :--- | :--- |
+| `pages/admin/posts/[id].vue` | `/admin/posts` | `primeVueSubRoutes` 例外；无稳定页面 heading，且新建态默认展开设置面板 |
+| `pages/admin/ai/tasks/[id].vue` | `/admin/ai` | `primeVueSubRoutes` 例外；任务 id 无固定种子 |
+
+### 2.3 共享壳与组件文件（B4 需迁移，按处数降序）
+
+| 文件 | 处数 | 组件族 |
+| :--- | ---: | :--- |
+| `components/admin/posts/post-distribution-button.vue` | 28 | Button / Tag / RadioButton / Checkbox |
+| `components/admin/posts/post-editor-settings.vue` | 21 | Button / Select / InputGroup / AutoComplete / InputText / ToggleSwitch / Textarea / Divider |
+| `components/admin/snippets/snippet-aggregate-dialog.vue` | 19 | ProgressSpinner / Button / Divider / InputText / Select / SelectButton / InputNumber / Checkbox |
+| `components/admin/posts/post-translation-workflow-dialog.vue` | 18 | Message / Select / Tag / Checkbox / ProgressBar / Button |
+| `components/app-header.vue` | 17 | Button / Divider |
+| `components/admin/posts/post-editor-header.vue` | 15 | Button / InputText / ButtonGroup / SplitButton / Tag |
+| `components/admin/posts/ai-image-generator.vue` | 12 | SelectButton / Button / InputText / Textarea / ProgressSpinner / Image |
+| `components/admin/posts/post-tts-dialog.vue` | 12 | RadioButton / Select / Button / Textarea / ProgressBar / Message |
+| `components/admin/posts/post-editor-media-settings.vue` | 11 | Divider / Button / Image / InputText / InputNumber |
+| `components/admin/posts/post-editor-voice-overlay.vue` | 11 | SelectButton / ProgressBar / Button |
+| `components/admin/posts/publish-push-dialog.vue` | 8 | RadioButton / DatePicker / Button |
+| `components/app-voice-input-overlay.vue` | 8 | SelectButton / ProgressBar / Button |
+| `components/taxonomy-post-page.vue` | 8 | Skeleton / Message / Button / Paginator |
+| `components/admin/dashboard/creator-stats-panel.vue` | 7 | Tag / ProgressSpinner / Card |
+| `components/admin/marketing-campaign-form.vue` | 7 | RadioButton / MultiSelect / DatePicker / Tag |
+| `components/admin/posts/post-audit-dialog.vue` | 7 | Tag / ProgressBar / Button |
+| `components/admin/posts/post-history-panel.vue` | 7 | ProgressSpinner / Tag / Avatar / Select / Button |
+| `components/admin/snippets/snippet-edit-dialog.vue` | 7 | Textarea / Image / Button / Select |
+| `components/admin/snippets/snippet-quick-capture.vue` | 7 | Card / Textarea / Image / Button / Divider |
+| `components/home/external-feed-panel.vue` | 7 | Tag / Skeleton / Message |
+| `components/admin/ai/task-detail-content.vue` | 6 | Button / Tag / Message / Image |
+| `components/admin/posts/publish-push-dialog-v2.vue` | 6 | RadioButton / DatePicker |
+| `components/comment-form.vue` | 6 | Button / InputText / Textarea |
+| `components/reader-controls.vue` | 6 | Slider / Button |
+| `components/admin/ai/stats-overview.vue` | 5 | Card（已迁移路由 `/admin/ai` 的残留） |
+| 其余 34 文件（2–5 处） | — | 见 `governance:count:primevue-usage` 的逐文件明细 |
+
+## 3. 参考态纳入清单（条目 1b，已采集）
+
+**纳入口径**：有稳定路径、稳定 heading、且在 TEST_MODE 种子下可渲染。全部使用 `stable: 'lenient'`（登录态布局含 SSE，`networkidle` 不保证达成）；公开页首页与文章详情额外使用 `gotoWaitUntil: 'domcontentloaded'`（外部头像等资源阻塞 `load`）。
+
+| name | path | tier | heading |
+| :--- | :--- | :--- | :--- |
+| `admin-dashboard` | `/admin` | admin | 内容洞察 |
+| `admin-calendar-view` | `/admin/calendar` | admin | 内容日历 |
+| `admin-snippets-list` | `/admin/snippets` | admin | 灵感收纳箱 |
+| `admin-snippets-capture` | `/admin/snippets/capture` | admin | 极简采集模式 |
+| `home` | `/` | reader | 最新文章 |
+| `posts-list` | `/posts` | reader | 文章列表 |
+| `post-detail` | `/posts/hello-momei-test` | reader | Hello Momei Test |
+| `friend-links` | `/friend-links` | reader | 友链 |
+| `categories-index` | `/categories` | reader | 分类 |
+| `tags-index` | `/tags` | reader | 标签 |
+| `archives` | `/archives` | reader | 归档 |
+| `about` | `/about` | reader | 墨梅 |
+| `benefits` | `/benefits` | reader | 让你的技术内容自动触达全球读者 |
+| `feedback` | `/feedback` | reader | 问题反馈与支持 |
+
+- 参考态：14 条 × 2 主题 = **28 张**，`pnpm test:visual:reference` 以 HEAD（PrimeVue 原貌）采集，manifest 记录 `ref=HEAD` 与采集时间。
+- 复核：`pnpm test:visual:parity` **83 passed**（82 条比对 + 1 条安装路由登记守卫），新 28 条实测均为 0px / 0.000%。
+- 既有 54 张参考态未重采；其中 `admin-posts-list` 与 `admin-friend-links-list` 因 `--only` 子串匹配被误采一次，已用 `git checkout` 恢复原图并从 HEAD 版本回填 manifest 记录。
+
+**未纳入与理由**
+
+| 路由 | 理由 |
+| :--- | :--- |
+| `/admin/posts/[id]` | 无稳定 id；新建态 `/admin/posts/new` 默认展开设置面板，且页面无 heading。由 E2E + 编辑器组件单测覆盖 |
+| `/admin/ai/tasks/[id]` | 任务 id 无固定种子；页面无 heading。由 E2E + 组件单测覆盖 |
+| `/categories/[slug]`、`/tags/[slug]` | TEST_MODE 种子只建文章，无分类 / 标签实体数据 → 404 |
+| `/goto/[code]` | 无短链种子 → 404 |
+| `/privacy-policy`、`/user-agreement` | 依赖 agreement 种子；缺失时渲染错误态 |
+
+## 4. 在册族扩族策略（条目 1c）
+
+**结论：不在开工时全局扩基准在册族。** 实测把展示族加入 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 后，8 条已收口路由立即判红（均为合法残留，属 B4 后续面）：
+
+| 已迁移路由 | 残留族 | 归属 |
+| :--- | :--- | :--- |
+| `/admin/submissions` | Divider / Checkbox / Textarea | B3 表单族残留；`inScopeComponents` 已登记 Checkbox / Textarea |
+| `/admin/external-links` | Checkbox | B3 表单族残留 |
+| `/admin/ad/campaigns` | DatePicker | B3 表单族残留 |
+| `/admin/ad/placements` | Checkbox / InputNumber | B3 表单族残留 |
+| `/admin/migrations/link-governance` | Card / ProgressSpinner / Checkbox / MultiSelect | B2 + B3 混合残留 |
+| `/admin/friend-links` | Checkbox / Textarea / InputNumber | B3 表单族残留 |
+| `/admin/ai` | Card（`stats-overview.vue`） | 展示族残留 |
+| `/admin/marketing` | Card（`index.vue`） | 展示族残留 |
+
+**执行口径**：
+
+1. 条目 2 / 3 每完成一条路由整迁，把该路由实际消费且已清零的族登记到该路由的 `inScopeComponents`（路由级增量），保持「已收口批次不因后续批次被动回改」。
+2. 全部 B4 路由迁移完成、上述残留清零后，再把展示族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。
+3. 子路由例外复核：`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 在本阶段由例外转为正式迁移；转正前不得把 `/admin/posts` / `/admin/ai` 的族约束扩展到这两个文件（当前守卫已按例外放行）。
+
+## 5. 文件 → 改动点清单（骨架，待条目 2 / 3 / 4 填充）
+
+| 文件 | 路由 | 组件族 | 改动点 | 依据指针 | 状态 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `pages/admin/index.vue` | `/admin` | Button / Tabs 族 / Select / Tag / ProgressSpinner / Card | （待填） | 迁移方案 §6.2 / 清单 §2.1 | 待迁移 |
+| `pages/friend-links.vue` | `/friend-links` | Card / Tag / InputText / Select / Textarea / Button | （待填） | 同上 | 待迁移 |
+| `pages/posts/[id].vue` | `/posts/[id]` | Skeleton / Button / Message / Tag / InputText | （待填） | 同上 | 待迁移 |
+| `pages/index.vue` | `/` | Skeleton | （待填） | 同上 | 待迁移 |
+| `pages/admin/calendar/index.vue` + `components/admin/calendar/**` | `/admin/calendar` | Button / Select / Tabs 族 / Tag | （待填） | 同上 | 待迁移 |
+| `pages/admin/snippets/**` + `components/admin/snippets/**` | `/admin/snippets`、`/capture` | Button / Checkbox / Paginator / ProgressSpinner / Textarea / Tag / Select / SelectButton / InputNumber / Image / Card / Divider | （待填） | 同上 | 待迁移 |
+| `components/admin/posts/**`（23 文件） | `/admin/posts/[id]` | 见 §2.3 | （待填） | 同上 | 待迁移 |
+| `components/app-header.vue` / `app-search.vue` / `app-notifications.vue` / `app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `reader-controls.vue` / `language-switcher.vue` / `feedback-entry-button.vue` / `article-*.vue` / `comment-*.vue` / `subscriber-form.vue` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 | 见 §2.3 | （待填） | 同上 | 待迁移 |
+| `pages/about.vue` / `benefits.vue` / `feedback.vue` / `archives/index.vue` / `categories/index.vue` / `tags/index.vue` / `posts/index.vue` | 公开路由 | 见 §2.1 | （待填） | 同上 | 待迁移 |
+
+## 6. 变更记录
+
+- 2026-11-06：条目 1 立项产出（现取复核、14 条参考态纳入与采集、扩族策略、清单骨架）。
+- 条目 2 / 3 / 4 迁移时在本表逐行补「改动点 / 依据指针 / 状态」，不新增第二份清单。
+
+## 7. 相关文档
+
+- [PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)
+- [视觉一致性门禁](./2026-10-13-visual-parity-gate.md)
+- [项目计划](../../plan/roadmap.md)、[待办事项](../../plan/todo.md)
+- [测试规范](../../standards/testing.md) §7.2

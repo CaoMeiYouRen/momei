@@ -31,7 +31,7 @@ test.describe('视觉一致性门禁：安装向导（未安装态 server）', (
                 await page.goto(route.path)
                 await waitForVisualStable(page)
 
-                await page.getByRole('heading', { name: route.heading }).waitFor({ state: 'visible' })
+                await page.getByRole('heading', { name: route.heading }).first().waitFor({ state: 'visible' })
 
                 await runVisualParity(page, {
                     name: `${route.name}-${theme}`,

@@ -1,6 +1,6 @@
 {
     "meta": {
-        "updatedAt": "2026-11-04",
+        "updatedAt": "2026-11-06",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
@@ -2650,6 +2650,202 @@
                 }
             ],
             "note": "校准：2026-11-04 第七十阶段条目 4（用户设置与认证 / 提交页首迁）按实测登记。dark 实测 33575px / 2.591%（1 区域，区域和 = 33575px）；参考态为迁移前 HEAD 就地采集。reader 档未归因差异 > 2,000px 或 >0.3% 即红。 最终以 2026-11-04 `pnpm test:visual:parity` 的报告为准（声明值 = 实测，无余量）。"
+        },
+        "admin-dashboard-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-dashboard-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-calendar-view-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-calendar-view-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-snippets-list-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-snippets-list-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-snippets-capture-light": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "admin-snippets-capture-dark": {
+            "tier": "admin",
+            "maxDiffPixels": 3000,
+            "maxDiffPixelRatio": 0.0035,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "home-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "home-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "posts-list-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "posts-list-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "post-detail-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "post-detail-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "friend-links-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "friend-links-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "categories-index-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "categories-index-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "tags-index-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "tags-index-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "archives-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "archives-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "about-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "about-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "benefits-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "benefits-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "feedback-light": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+        },
+        "feedback-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 2000,
+            "maxDiffPixelRatio": 0.003,
+            "allowlist": [],
+            "note": "2026-11-06 第七十一阶段条目 1b 立项采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
         }
     }
 }

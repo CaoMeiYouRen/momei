@@ -41,6 +41,14 @@ export interface ParityRoute {
      */
     readyResponse?: string
     /**
+     * 导航等待口径，缺省 `load`。
+     *
+     * 公开页（首页 / 文章详情）会加载外部头像等第三方资源，`load` 在无外网环境下可能长时间
+     * 不达成；这类路由显式改为 `domcontentloaded`，再由 `waitForVisualStableLenient` 做有界
+     * 稳定等待（与第七十阶段 SEO 用例的口径一致）。
+     */
+    gotoWaitUntil?: 'load' | 'domcontentloaded'
+    /**
      * 渲染就绪锚点：等待首个匹配元素可见后再截图（元素缺失时按有界超时放弃）。
      * 与 `readyResponse` 组合使用，确保响应回来后 DOM 已渲染。
      */
@@ -286,7 +294,8 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）已全部迁移，本层当前为空。
+ * 待迁移路由层：第七十阶段（B3 表单与设置）迁移完成后曾清空；**第七十一阶段条目 1b**
+ * 按 B4 未迁移面重新登记，参考态在**任何页面改动前**以 HEAD（PrimeVue 原貌）就地采集。
  *
  * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
@@ -296,6 +305,130 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * 名字启发式，避免 `auth-login` / `submit-page` 这类命名静默落到 admin 档。
  *
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
+ *
+ * **未纳入本节点的路由与理由**（详见
+ * [B4 迁移清单](../design/governance/2026-11-06-b4-migration-inventory.md) §3）：
+ * `/admin/posts/[id]`、`/admin/ai/tasks/[id]` 无稳定可用 id 且页面无 heading；
+ * `/categories/[slug]`、`/tags/[slug]`、`/goto/[code]` 在 TEST_MODE 种子下无对应数据；
+ * `/privacy-policy`、`/user-agreement` 依赖 agreement 种子，缺失时渲染错误态。
+ * 以上路由的迁移由 E2E + 组件单测覆盖，待条目 2 / 3 开工时按需补采。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
+    /* 管理端（4 条）：B4-A 剩余管理端路由。登录态由 `tests/e2e/.auth/admin.json` 提供。 */
+    {
+        name: 'admin-dashboard',
+        path: '/admin',
+        heading: '内容洞察',
+        tier: 'admin',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'admin-calendar-view',
+        path: '/admin/calendar',
+        heading: '内容日历',
+        tier: 'admin',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'admin-snippets-list',
+        path: '/admin/snippets',
+        heading: '灵感收纳箱',
+        tier: 'admin',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'admin-snippets-capture',
+        path: '/admin/snippets/capture',
+        heading: '极简采集模式',
+        tier: 'admin',
+        migrated: false,
+        stable: 'lenient',
+    },
+
+    /* 公开页（10 条）：B4-B 公开路由。登录态下渲染，参考态与当前态口径一致。 */
+    {
+        name: 'home',
+        path: '/',
+        heading: '最新文章',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+        gotoWaitUntil: 'domcontentloaded',
+    },
+    {
+        name: 'posts-list',
+        path: '/posts',
+        heading: '文章列表',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'post-detail',
+        path: '/posts/hello-momei-test',
+        heading: 'Hello Momei Test',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+        gotoWaitUntil: 'domcontentloaded',
+    },
+    {
+        name: 'friend-links',
+        path: '/friend-links',
+        heading: '友链',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'categories-index',
+        path: '/categories',
+        heading: '分类',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'tags-index',
+        path: '/tags',
+        heading: '标签',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'archives',
+        path: '/archives',
+        heading: '归档',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'about',
+        path: '/about',
+        heading: '墨梅',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'benefits',
+        path: '/benefits',
+        heading: '让你的技术内容自动触达全球读者',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'feedback',
+        path: '/feedback',
+        heading: '问题反馈与支持',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
 ]

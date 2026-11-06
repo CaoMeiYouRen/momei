@@ -32,7 +32,7 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
                     ).catch(() => null)
                     : null
 
-                await page.goto(route.path)
+                await page.goto(route.path, route.gotoWaitUntil ? { waitUntil: route.gotoWaitUntil } : undefined)
                 if (route.stable === 'lenient') {
                     await waitForVisualStableLenient(page)
                 } else {
@@ -71,7 +71,7 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
                     await page.locator(route.readySelector).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined)
                 }
 
-                await page.getByRole('heading', { name: route.heading }).waitFor({ state: 'visible' })
+                await page.getByRole('heading', { name: route.heading }).first().waitFor({ state: 'visible' })
 
                 await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo, tier: route.tier })
             })

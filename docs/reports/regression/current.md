@@ -10,6 +10,31 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-item-1-baseline:第七十一阶段条目 1 B4 开工基座:2026-11-06 -->
+
+## 2026-11-06 第七十一阶段条目 1：B4 开工基座与参考态采集
+
+### 范围
+
+- 现取复核：未迁移页面 **19 个 / 页面口径 90 处**；脚本口径组件 **482 处 / 40 类 / 82 文件**。
+- 参考态：`PENDING_ROUTES` 登记 **14 条**（管理端 4 + 公开页 10），HEAD 采集 **28 张**；未纳入 7 条动态 / 无种子路由并登记理由。
+- 门禁基建：新增 `ParityRoute.gotoWaitUntil`（公开页外部资源阻塞 `load` 时改 `domcontentloaded`）；heading 等待改 `.first()`（同名 heading 多条时避免 strict mode 失败）。
+- 在册族：全局扩族会使 **8 条已收口路由**判红（合法残留），改为随条目 2 / 3 路由整迁登记 `inScopeComponents`，残留清零后再并入全局基准；清单见 [B4 迁移清单](../../design/governance/2026-11-06-b4-migration-inventory.md)。
+
+### 验证
+
+- `pnpm test:visual:reference`：14 条 × 2 主题 = 28 张，重采后 manifest 共 **82 条 captures**。
+- `pnpm test:visual:parity`：**83 passed**（82 条比对 + 1 条安装路由登记守卫，14.7m），新 28 条实测 0px / 0.000%。
+- `npx vitest run tests/modules/ui-library-route-migration-guard.test.ts`：**57 passed**。
+- 误采修复：`--only=posts-list` / `friend-links` 子串匹配误覆盖 `admin-posts-list` / `admin-friend-links-list` 的 4 张参考态，已 `git checkout` 恢复原图并从 HEAD 回填 manifest 记录。
+
+### 未覆盖边界
+
+- `/admin/posts/[id]`、`/admin/ai/tasks/[id]`、`/categories/[slug]`、`/tags/[slug]`、`/goto/[code]`、`/privacy-policy`、`/user-agreement` 未纳入 parity，由 E2E + 组件单测覆盖。
+- 新 28 条参考态为「HEAD 当前渲染」，与采集时点绑定；条目 2 / 3 迁移后只比对这些参考态。
+
+<!-- regression-window:end:b4-item-1-baseline:第七十一阶段条目 1 B4 开工基座:2026-11-06 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-05 -->
 ## 2026-11-05 阶段收口前周期性回归（自动回填）
 
