@@ -1,43 +1,41 @@
 <template>
     <div v-if="stats" class="ai-stats-container">
-        <Card v-if="stats.alerts?.length" class="ai-alert-card">
+        <CaomeiCard v-if="stats.alerts?.length" class="ai-alert-card">
             <template #title>
-                <div class="card-header">
-                    <span class="card-title">{{ $t('pages.admin.ai.alerts.title') }}</span>
-                    <i class="icon pi pi-bell" />
-                </div>
+                <span class="card-title">{{ $t('pages.admin.ai.alerts.title') }}</span>
             </template>
-            <template #content>
-                <div class="alert-list">
-                    <div
-                        v-for="alert in stats.alerts"
-                        :key="alert.dedupeKey"
-                        class="alert-item"
-                    >
-                        <div class="alert-copy">
-                            <div class="alert-title">
-                                {{ formatAlertMessage(alert) }}
-                            </div>
-                            <div class="alert-meta">
-                                {{ formatAlertDetail(alert) }}
-                            </div>
+            <template #extra>
+                <Bell :size="18" class="icon" />
+            </template>
+            <div class="alert-list">
+                <div
+                    v-for="alert in stats.alerts"
+                    :key="alert.dedupeKey"
+                    class="alert-item"
+                >
+                    <div class="alert-copy">
+                        <div class="alert-title">
+                            {{ formatAlertMessage(alert) }}
                         </div>
-
-                        <div class="alert-tags">
-                            <CaomeiTag :tone="getAlertTagTone(alert)">
-                                {{ formatAlertSeverity(alert) }}
-                            </CaomeiTag>
-                            <CaomeiTag tone="neutral">
-                                {{ formatAlertPeriod(alert) }}
-                            </CaomeiTag>
-                            <CaomeiTag tone="neutral">
-                                {{ formatAlertScope(alert) }}
-                            </CaomeiTag>
+                        <div class="alert-meta">
+                            {{ formatAlertDetail(alert) }}
                         </div>
                     </div>
+
+                    <div class="alert-tags">
+                        <CaomeiTag :tone="getAlertTagTone(alert)">
+                            {{ formatAlertSeverity(alert) }}
+                        </CaomeiTag>
+                        <CaomeiTag tone="neutral">
+                            {{ formatAlertPeriod(alert) }}
+                        </CaomeiTag>
+                        <CaomeiTag tone="neutral">
+                            {{ formatAlertScope(alert) }}
+                        </CaomeiTag>
+                    </div>
                 </div>
-            </template>
-        </Card>
+            </div>
+        </CaomeiCard>
 
         <!-- Stats Overview Cards -->
         <div class="ai-overview-grid">
@@ -53,89 +51,81 @@
         </div>
 
         <div class="ai-charts-grid">
-            <Card class="ai-chart-card">
+            <CaomeiCard class="ai-chart-card">
                 <template #title>
                     <span class="card-title">{{ $t('pages.admin.ai.chart_status') }}</span>
                 </template>
-                <template #content>
-                    <div class="stats-list">
-                        <div
-                            v-for="s in stats.statusStats"
-                            :key="s.status"
-                            class="stats-item"
-                        >
-                            <span class="label">{{ $t(`pages.admin.ai.statuses.${s.status}`) }}</span>
-                            <CaomeiTag tone="neutral">
-                                {{ s.count }}
-                            </CaomeiTag>
-                        </div>
+                <div class="stats-list">
+                    <div
+                        v-for="s in stats.statusStats"
+                        :key="s.status"
+                        class="stats-item"
+                    >
+                        <span class="label">{{ $t(`pages.admin.ai.statuses.${s.status}`) }}</span>
+                        <CaomeiTag tone="neutral">
+                            {{ s.count }}
+                        </CaomeiTag>
                     </div>
-                </template>
-            </Card>
+                </div>
+            </CaomeiCard>
 
-            <Card class="ai-chart-card">
+            <CaomeiCard class="ai-chart-card">
                 <template #title>
                     <span class="card-title">{{ $t('pages.admin.ai.chart_category') }}</span>
                 </template>
-                <template #content>
-                    <div class="stats-list">
-                        <div
-                            v-for="categoryItem in stats.categoryStats || []"
-                            :key="categoryItem.category || 'uncategorized'"
-                            class="stats-item"
-                        >
-                            <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
-                            <CaomeiTag tone="primary">
-                                {{ formatDecimal(categoryItem.quotaUnits) }}
-                            </CaomeiTag>
-                        </div>
+                <div class="stats-list">
+                    <div
+                        v-for="categoryItem in stats.categoryStats || []"
+                        :key="categoryItem.category || 'uncategorized'"
+                        class="stats-item"
+                    >
+                        <span class="label">{{ $t(`pages.admin.ai.types.${categoryItem.category}`) }}</span>
+                        <CaomeiTag tone="primary">
+                            {{ formatDecimal(categoryItem.quotaUnits) }}
+                        </CaomeiTag>
                     </div>
-                </template>
-            </Card>
+                </div>
+            </CaomeiCard>
 
-            <Card class="ai-chart-card">
+            <CaomeiCard class="ai-chart-card">
                 <template #title>
                     <span class="card-title">{{ $t('pages.admin.ai.chart_charge_status') }}</span>
                 </template>
-                <template #content>
-                    <div class="stats-list">
-                        <div
-                            v-for="chargeItem in stats.chargeStatusStats || []"
-                            :key="chargeItem.chargeStatus"
-                            class="stats-item"
-                        >
-                            <span class="label">{{ $t(`pages.admin.ai.charge_statuses.${chargeItem.chargeStatus}`) }}</span>
-                            <CaomeiTag tone="neutral">
-                                {{ chargeItem.count }}
-                            </CaomeiTag>
-                        </div>
+                <div class="stats-list">
+                    <div
+                        v-for="chargeItem in stats.chargeStatusStats || []"
+                        :key="chargeItem.chargeStatus"
+                        class="stats-item"
+                    >
+                        <span class="label">{{ $t(`pages.admin.ai.charge_statuses.${chargeItem.chargeStatus}`) }}</span>
+                        <CaomeiTag tone="neutral">
+                            {{ chargeItem.count }}
+                        </CaomeiTag>
                     </div>
-                </template>
-            </Card>
+                </div>
+            </CaomeiCard>
 
-            <Card class="ai-chart-card">
+            <CaomeiCard class="ai-chart-card">
                 <template #title>
                     <span class="card-title">{{ $t('pages.admin.ai.chart_failure_stage') }}</span>
                 </template>
-                <template #content>
-                    <div class="stats-list">
-                        <div
-                            v-for="failureItem in stats.failureStageStats || []"
-                            :key="failureItem.failureStage"
-                            class="stats-item"
-                        >
-                            <span class="label">{{ $t(`pages.admin.ai.failure_stages.${failureItem.failureStage}`) }}</span>
-                            <CaomeiTag tone="warning">
-                                {{ failureItem.count }}
-                            </CaomeiTag>
-                        </div>
+                <div class="stats-list">
+                    <div
+                        v-for="failureItem in stats.failureStageStats || []"
+                        :key="failureItem.failureStage"
+                        class="stats-item"
+                    >
+                        <span class="label">{{ $t(`pages.admin.ai.failure_stages.${failureItem.failureStage}`) }}</span>
+                        <CaomeiTag tone="warning">
+                            {{ failureItem.count }}
+                        </CaomeiTag>
                     </div>
-                </template>
-            </Card>
+                </div>
+            </CaomeiCard>
         </div>
     </div>
     <div v-else-if="loading" class="ai-loading-state">
-        <i class="pi pi-spin pi-spinner" />
+        <CaomeiProgressSpinner :stroke-width="3" />
     </div>
     <div v-else class="ai-empty-state">
         {{ $t('pages.admin.ai.no_stats') }}
@@ -143,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import { Bell, ChartLine, CheckCircle2, List, RefreshCw, Wallet, XCircle, Zap } from '@lucide/vue'
 import { formatDecimal } from '@/utils/shared/number'
 import { formatAICost } from '@/utils/shared/ai-cost'
 import type {
@@ -180,49 +171,49 @@ const overviewMetrics = computed(() => [
     {
         label: t('pages.admin.ai.tasks'),
         value: getTotalTasks(),
-        icon: 'pi pi-list',
+        icon: List,
         tone: 'total' as const,
         compact: false,
     },
     {
         label: t('pages.admin.ai.statuses.completed'),
         value: getStatusCount('completed'),
-        icon: 'pi pi-check-circle',
+        icon: CheckCircle2,
         tone: 'completed' as const,
         compact: false,
     },
     {
         label: t('pages.admin.ai.statuses.failed'),
         value: getStatusCount('failed'),
-        icon: 'pi pi-times-circle',
+        icon: XCircle,
         tone: 'failed' as const,
         compact: false,
     },
     {
         label: t('pages.admin.ai.statuses.processing'),
         value: getStatusCount('processing'),
-        icon: 'pi pi-sync',
+        icon: RefreshCw,
         tone: 'processing' as const,
         compact: false,
     },
     {
         label: t('pages.admin.ai.quota_units'),
         value: formatDecimal(props.stats?.overview?.quotaUnits),
-        icon: 'pi pi-bolt',
+        icon: Zap,
         tone: 'quota' as const,
         compact: true,
     },
     {
         label: t('pages.admin.ai.actual_cost'),
         value: formatMoney(props.stats?.overview?.actualCost),
-        icon: 'pi pi-wallet',
+        icon: Wallet,
         tone: 'cost' as const,
         compact: true,
     },
     {
         label: t('pages.admin.ai.success_rate'),
         value: formatPercent(props.stats?.overview?.successRate),
-        icon: 'pi pi-chart-line',
+        icon: ChartLine,
         tone: 'success-rate' as const,
         compact: true,
     },
@@ -316,15 +307,8 @@ const formatAlertDetail = (alert: AIUsageAlert) => {
     border: 1px solid rgb(245 158 11 / 0.25);
     background: linear-gradient(135deg, rgb(255 251 235 / 0.95), rgb(255 247 237 / 0.98));
 
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .icon {
         color: var(--orange-500);
-        font-size: 1.25rem;
     }
 }
 

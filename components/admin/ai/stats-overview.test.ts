@@ -82,5 +82,7 @@ describe('StatsOverview', () => {
 
         expect(wrapper.text()).toContain('¥3.50')
         expect(wrapper.text()).toContain('¥8.00/¥10.00')
+        /* 审计 B1：告警卡图标走 #extra，避免 #title 宽度塌缩导致无法右对齐。 */
+        expect(wrapper.find('.ai-alert-card .caomei-card__extra svg').exists()).toBe(true)
     })
 })

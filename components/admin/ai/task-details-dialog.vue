@@ -8,16 +8,16 @@
         @update:open="$emit('update:visible', $event)"
     >
         <div v-if="loading" class="task-details-dialog__state">
-            <ProgressSpinner stroke-width="4" />
+            <CaomeiProgressSpinner :stroke-width="4" />
         </div>
 
-        <Message
+        <CaomeiMessage
             v-else-if="errorMessage"
-            severity="error"
-            :closable="false"
+            tone="danger"
+            role="alert"
         >
             {{ errorMessage }}
-        </Message>
+        </CaomeiMessage>
 
         <AdminAiTaskDetailContent
             v-else-if="task"

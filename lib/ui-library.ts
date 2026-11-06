@@ -131,28 +131,23 @@ const TAXONOMY_ROUTE_SCOPE = {
 /**
  * 组件型目标型路由 `/admin/ai` 的迁移范围。
  *
- * - `ownedFiles`：路由自有组件（不含 `task-detail-content.vue`，见登记处说明）。
+ * - `ownedFiles`：路由自有组件；`task-detail-content.vue` 随任务详情子路由整迁后一并纳入（此前因跨子路由共享刻意延后）。
  * - `inScopeComponents`（路由级在册族增量）：页面本体使用 `Tabs` 族承载「使用统计 / 任务记录」两个面板，
  *   按「整路由迁移、不做半路由切换」纳入；其余在册族均属批次基准（`DataTable` / `Column` / `Button` /
  *   `InputText` / `Select` / `IconField` / `InputIcon` / `Tag` / `Avatar`）。
- * - `primeVueSubRoutes`：任务详情子路由含 `Card` / `Message` / `ProgressSpinner`（B4 展示族）与共享的
- *   `task-detail-content`，本批维持 PrimeVue。
+ * - `migratedSubRoutes`：任务详情子路由 `/admin/ai/tasks/[id]` 与本批整迁，纳入零残留扫描面。
  */
 const AI_ROUTE_SCOPE = {
     ownedFiles: [
         'components/admin/ai/task-list.vue',
         'components/admin/ai/stats-overview.vue',
         'components/admin/ai/task-details-dialog.vue',
+        'components/admin/ai/task-detail-content.vue',
         'components/admin/ai/metric-card.vue',
         'components/admin/ai/detail-metric.vue',
     ],
-    inScopeComponents: ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel'],
-    primeVueSubRoutes: [
-        {
-            file: 'pages/admin/ai/tasks/[id].vue',
-            reason: '任务详情子路由含 `Card` / `Message` / `ProgressSpinner`（B4 展示族）并消费与未迁移页面共享的 `AdminAiTaskDetailContent`；其 `AdminPageHeader` 未开启 `show-language-switcher`，不渲染路由择库的切换器。',
-        },
-    ],
+    inScopeComponents: ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel', 'Card', 'Message', 'ProgressSpinner', 'Image'],
+    migratedSubRoutes: ['pages/admin/ai/tasks/[id].vue'],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
@@ -412,8 +407,7 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/categories', ...TAXONOMY_ROUTE_SCOPE },
     { prefix: '/admin/tags', ...TAXONOMY_ROUTE_SCOPE },
     // 组件型目标型路由（`/admin/ai`）：路由自有组件位于 `components/admin/ai/`。
-    // **刻意不登记** `task-detail-content.vue`：它同时被豁免子路由 `/admin/ai/tasks/[id]` 消费，
-    // 一旦迁移会在该子路由内造成库间混用（消费处静态择库需另立 V2 分支，本批不做，登记为延后项）。
+    // `task-detail-content.vue` 已于任务详情子路由整迁时一并迁移并纳入 `ownedFiles`。
     { prefix: '/admin/ai', ...AI_ROUTE_SCOPE },
     // 组件型目标型路由（`/admin/marketing`）：页面 + 列表 + 表单（弹窗内表单控件随本批迁移，
     // 浮层本体已迁入 `CaomeiDialog`；`DatePicker` / `MultiSelect` / `RadioButton` 维持 PrimeVue）。

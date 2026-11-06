@@ -2,42 +2,44 @@
     <div class="admin-page-container ai-task-detail-page">
         <AdminPageHeader :title="$t('pages.admin.ai.task_detail.title')">
             <template #actions>
-                <Button
-                    icon="pi pi-arrow-left"
-                    severity="secondary"
-                    variant="outlined"
-                    :label="$t('pages.admin.ai.task_detail.back_to_previous')"
+                <CaomeiButton
+                    variant="secondary"
+                    tone="neutral"
                     @click="goBack"
-                />
+                >
+                    <template #icon>
+                        <ArrowLeft :size="16" />
+                    </template>
+                    {{ $t('pages.admin.ai.task_detail.back_to_previous') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
         <div class="ai-task-detail-page__content">
             <div v-if="pending" class="ai-task-detail-page__state">
-                <ProgressSpinner stroke-width="4" />
+                <CaomeiProgressSpinner :stroke-width="4" />
             </div>
 
-            <Message
+            <CaomeiMessage
                 v-else-if="errorMessage"
-                severity="error"
-                :closable="false"
+                tone="danger"
+                role="alert"
             >
                 {{ errorMessage }}
-            </Message>
+            </CaomeiMessage>
 
-            <Card v-else-if="task">
-                <template #content>
-                    <AdminAiTaskDetailContent
-                        :task="task"
-                        :cost-display="costDisplay"
-                    />
-                </template>
-            </Card>
+            <CaomeiCard v-else-if="task">
+                <AdminAiTaskDetailContent
+                    :task="task"
+                    :cost-display="costDisplay"
+                />
+            </CaomeiCard>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ArrowLeft } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { AITaskDetailResponse } from '@/types/ai'
 

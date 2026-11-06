@@ -10,6 +10,31 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-a-ai-task:第七十一阶段条目 2 AI 任务详情整路由:2026-11-06 -->
+
+## 2026-11-06 第七十一阶段条目 2（B4-A）：AI 任务详情与共享内容组件迁移
+
+### 范围
+
+- `/admin/ai/tasks/[id]` 整路由：Button / ProgressSpinner / Message / Card + `AdminAiTaskDetailContent`。
+- 共享组件：`task-detail-content.vue`（Tag ×3 走 tone、复制按钮、错误 Message、AI 图片包装层）、`task-details-dialog.vue`（ProgressSpinner / Message）、`stats-overview.vue`（5 个 Card + 9 图标）、`metric-card.vue`（Card；`icon` prop 由字符串改为组件）。
+- 路由登记：`AI_ROUTE_SCOPE` 移除 `primeVueSubRoutes`，加 `migratedSubRoutes`（任务详情）、`ownedFiles`（task-detail-content）与 `inScopeComponents`（Card / Message / ProgressSpinner / Image）。
+
+### 验证
+
+- parity admin-ai **4 passed**：stats-light 23,503px（2 区域）、stats-dark 24,127px（2 区域）、tasks-list-light 23,542px、tasks-list-dark 26,961px；stats 两条的第二区域按实测复校（24,879→21,377 / 25,661→21,972），未归因 0。
+- 详情页错误分支探针：`/admin/ai/tasks/nonexistent-id` → 200，h1「AI 任务详情」，`CaomeiMessage` 显示 "Task not found"，pageerror 0。
+- `npx vitest run components/admin/ai "pages/admin/ai/tasks/[id].test.ts"`：**8 passed**（内容 5 + 页面三态 3）；guard 58 passed；`typecheck` 0；`build` 通过（3m05s）。
+- 修复（Round 1 审计）：`CaomeiCard` 的 `#title` 内 `space-between` 失效（heading 宽度塌缩）→ 指标卡与告警卡改用 `#extra` 插槽承载图标；补充 Tag tone 顺序断言与页面三态测试；`metric-card` 恢复 CRLF；迁移方案例外清单同步（AI 子路由转正）。
+- 复算：组件 429 → **411 处 / 36 类**；图标 374 → **358 处**。
+
+### 未覆盖边界
+
+- `/admin/ai/tasks/[id]` 正常数据态无种子任务，未做浏览器截图；由组件测试与错误分支探针覆盖。
+- parity 参考态仍为迁移前 PrimeVue；stats-overview 迁移后的差异按实测归因，未重采参考态。
+
+<!-- regression-window:end:b4-a-ai-task:第七十一阶段条目 2 AI 任务详情整路由:2026-11-06 -->
+
 <!-- regression-window:start:b4-a-snippets:第七十一阶段条目 2 灵感收纳箱整路由:2026-11-06 -->
 
 ## 2026-11-06 第七十一阶段条目 2（B4-A 首批）：灵感收纳箱整路由迁移

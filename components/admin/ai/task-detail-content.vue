@@ -6,22 +6,28 @@
                     <span class="label">{{ $t('pages.admin.ai.task_detail.task_id') }}:</span>
                     <div class="task-id value">
                         <span>{{ task.id }}</span>
-                        <Button
-                            icon="pi pi-copy"
-                            text
-                            size="small"
-                            :aria-label="$t('pages.admin.ai.task_detail.copy_task_id')"
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
+                            :label="$t('pages.admin.ai.task_detail.copy_task_id')"
                             @click="copyTaskId"
-                        />
+                        >
+                            <template #icon>
+                                <Copy :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </div>
                 </div>
                 <div class="detail-item mt-2">
                     <span class="label">{{ $t('pages.admin.ai.category') }}:</span>
-                    <Tag
+                    <CaomeiTag
                         v-if="task.category"
-                        :value="$t(`pages.admin.ai.types.${task.category}`)"
-                        severity="contrast"
-                    />
+                        tone="neutral"
+                    >
+                        {{ $t(`pages.admin.ai.types.${task.category}`) }}
+                    </CaomeiTag>
                     <span v-else class="value">-</span>
                 </div>
                 <div class="detail-item mt-2">
@@ -30,10 +36,9 @@
                 </div>
                 <div class="detail-item mt-2">
                     <span class="label">{{ $t('pages.admin.ai.status') }}:</span>
-                    <Tag
-                        :value="$t(`pages.admin.ai.statuses.${task.status}`)"
-                        :severity="getStatusSeverity(task.status)"
-                    />
+                    <CaomeiTag :tone="toTone(getStatusSeverity(task.status))">
+                        {{ $t(`pages.admin.ai.statuses.${task.status}`) }}
+                    </CaomeiTag>
                 </div>
             </div>
             <div class="col-12 md:col-6">
@@ -43,11 +48,12 @@
                 </div>
                 <div class="detail-item mt-2">
                     <span class="label">{{ $t('pages.admin.ai.charge_status') }}:</span>
-                    <Tag
+                    <CaomeiTag
                         v-if="task.chargeStatus"
-                        :value="$t(`pages.admin.ai.charge_statuses.${task.chargeStatus}`)"
-                        :severity="getChargeStatusSeverity(task.chargeStatus)"
-                    />
+                        :tone="toTone(getChargeStatusSeverity(task.chargeStatus))"
+                    >
+                        {{ $t(`pages.admin.ai.charge_statuses.${task.chargeStatus}`) }}
+                    </CaomeiTag>
                     <span v-else class="value">-</span>
                 </div>
                 <div class="detail-item mt-2">
@@ -71,16 +77,16 @@
         </div>
 
         <div v-if="task.error" class="error-section">
-            <Message
-                severity="error"
-                :closable="false"
+            <CaomeiMessage
+                tone="danger"
+                role="alert"
                 class="m-0"
             >
                 <strong>{{ $t('pages.admin.ai.error') }}:</strong><br>
                 <div class="mt-1 text-sm">
                     {{ task.error }}
                 </div>
-            </Message>
+            </CaomeiMessage>
         </div>
 
         <div v-if="task.type === 'transcription' && task.status === 'completed'" class="grid transcription-info">
@@ -98,18 +104,20 @@
             class="image-preview-section"
         >
             <h4 class="font-bold m-0 mb-3 text-lg">
-                <i class="mr-2 pi pi-images" />{{ $t('pages.admin.ai.images') }}
+                <Images :size="18" class="mr-2" />{{ $t('pages.admin.ai.images') }}
             </h4>
             <div class="bg-emphasis border-round flex flex-wrap gap-3 p-3">
-                <Image
+                <div
                     v-for="(img, idx) in getTaskImages(task)"
                     :key="idx"
-                    :src="img"
-                    alt="AI Generated"
-                    width="240"
-                    preview
-                    class="border-round hover:scale-105 overflow-hidden shadow-2 transition-transform"
-                />
+                    class="ai-task-image"
+                >
+                    <CaomeiImage
+                        :src="img"
+                        alt="AI Generated"
+                        preview
+                    />
+                </div>
             </div>
         </div>
 
@@ -118,7 +126,7 @@
             class="audio-preview-section"
         >
             <h4 class="font-bold m-0 mb-3 text-lg">
-                <i class="mr-2 pi pi-volume-up" />{{ $t('pages.admin.ai.audio_preview') }}
+                <Volume2 :size="18" class="mr-2" />{{ $t('pages.admin.ai.audio_preview') }}
             </h4>
             <div class="bg-emphasis border-round p-3">
                 <audio
@@ -133,7 +141,7 @@
         <div class="data-section grid">
             <div class="col-12 lg:col-6">
                 <h4 class="align-items-center flex font-bold m-0 mb-2">
-                    <i class="mr-2 pi pi-code" />{{ $t('pages.admin.ai.prompt') }}
+                    <Code :size="18" class="mr-2" />{{ $t('pages.admin.ai.prompt') }}
                 </h4>
                 <div class="json-container">
                     <pre>{{ formatJson(task.payload) }}</pre>
@@ -142,7 +150,7 @@
 
             <div v-if="task.result" class="col-12 lg:col-6">
                 <h4 class="align-items-center flex font-bold m-0 mb-2">
-                    <i class="mr-2 pi pi-database" />{{ $t('pages.admin.ai.result') }}
+                    <Database :size="18" class="mr-2" />{{ $t('pages.admin.ai.result') }}
                 </h4>
                 <div class="json-container">
                     <pre>{{ formatJson(task.result) }}</pre>
@@ -151,7 +159,7 @@
 
             <div v-if="task.usageSnapshot" class="col-12 lg:col-6">
                 <h4 class="align-items-center flex font-bold m-0 mb-2">
-                    <i class="mr-2 pi pi-chart-bar" />{{ $t('pages.admin.ai.usage_snapshot') }}
+                    <ChartColumn :size="18" class="mr-2" />{{ $t('pages.admin.ai.usage_snapshot') }}
                 </h4>
                 <div class="json-container">
                     <pre>{{ formatJson(task.usageSnapshot) }}</pre>
@@ -166,6 +174,7 @@ import { parseMaybeJson } from '@/utils/shared/coerce'
 import { formatDecimal } from '@/utils/shared/number'
 import { formatAICost } from '@/utils/shared/ai-cost'
 import { formatAIAdminJson, getAIChargeStatusSeverity, getAITaskStatusSeverity } from '@/utils/shared/ai-admin'
+import { ChartColumn, Code, Copy, Database, Images, Volume2 } from '@lucide/vue'
 import type {
     AIAdminTaskDataValue,
     AIAdminTaskDetailItem,
@@ -194,6 +203,15 @@ const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
 const getStatusSeverity = getAITaskStatusSeverity
 const getChargeStatusSeverity = getAIChargeStatusSeverity
+const toTone = (severity: string) => {
+    switch (severity) {
+        case 'success': return 'success'
+        case 'info': return 'primary'
+        case 'warning': return 'warning'
+        case 'danger': return 'danger'
+        default: return 'neutral'
+    }
+}
 const formatJson = formatAIAdminJson
 
 const governanceMetrics = computed(() => [
@@ -312,6 +330,25 @@ async function copyTaskId() {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.ai-task-image {
+    width: 240px;
+    max-width: 100%;
+    border-radius: var(--p-border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--p-overlay-modal-shadow);
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+
+    :deep(img) {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
 }
 
 .detail-item {

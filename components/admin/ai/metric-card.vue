@@ -1,24 +1,28 @@
 <template>
-    <Card class="ai-metric-card" :class="[`ai-metric-card--${tone}`, {'ai-metric-card--compact': compact}]">
+    <CaomeiCard class="ai-metric-card" :class="[`ai-metric-card--${tone}`, {'ai-metric-card--compact': compact}]">
         <template #title>
-            <div class="card-header">
-                <span class="card-title">{{ label }}</span>
-                <i class="icon" :class="icon" />
-            </div>
+            <span class="card-title">{{ label }}</span>
         </template>
-        <template #content>
-            <div class="card-value" :class="{'card-value--compact': compact}">
-                {{ value }}
-            </div>
+        <template #extra>
+            <component
+                :is="icon"
+                :size="24"
+                class="icon"
+            />
         </template>
-    </Card>
+        <div class="card-value" :class="{'card-value--compact': compact}">
+            {{ value }}
+        </div>
+    </CaomeiCard>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 withDefaults(defineProps<{
     label: string
     value: string | number
-    icon: string
+    icon: Component
     tone?: 'total' | 'completed' | 'failed' | 'processing' | 'quota' | 'cost' | 'success-rate'
     compact?: boolean
 }>(), {
@@ -39,19 +43,12 @@ withDefaults(defineProps<{
         box-shadow: 0 8px 25px rgb(0 0 0 / 0.1);
     }
 
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .card-title {
         font-size: 1rem;
         color: var(--text-color-secondary);
     }
 
     .icon {
-        font-size: 1.5rem;
         opacity: 0.8;
     }
 

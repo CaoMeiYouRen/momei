@@ -10,7 +10,7 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
-- **当前剩余（2026-11-06 B4-A 首批后复算）**：组件 **429 处 / 36 类**、图标 **374 处**、token **1,443 处**；`/admin/snippets` 与 `/capture` 已完成并移出本节清单。
+- **当前剩余（2026-11-06 B4-A 首批 + AI 任务详情后复算）**：组件 **411 处 / 36 类**、图标 **358 处**、token **1,446 处**；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]` 已完成并移出本节清单。
 
 ## 2. 未迁移路由与文件映射
 
@@ -137,7 +137,7 @@
 2. 全部 B4 路由迁移完成，**且另行安排 B3 残留族收口**（上述 8 条路由的展示族与表单族）后，再把展示族 + B3 表单族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。仅完成 B4 路由迁移不足以清零这些残留——它们位于已迁移路由，B4 只随图标与布局壳复核。
 3. 子路由例外复核：`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 在本阶段由例外转为正式迁移；转正前不得把 `/admin/posts` / `/admin/ai` 的族约束扩展到这两个文件（当前守卫已按例外放行）。
 
-## 5. 文件 → 改动点清单（snippets 子批已填，其余待条目 2 / 3 / 4 填充）
+## 5. 文件 → 改动点清单（snippets / AI 任务详情子批已填，其余待条目 2 / 3 / 4 填充）
 
 | 文件 | 路由 | 组件族 | 改动点 | 依据指针 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -148,6 +148,7 @@
 | `pages/admin/calendar/index.vue` + `components/admin/calendar/**` | `/admin/calendar` | Button / Select / Tabs 族 / Tag | （待填） | 同上 | 待迁移 |
 | `pages/admin/snippets/**` + `components/admin/snippets/**`（7 文件：5 组件 + 2 页面） | `/admin/snippets`、`/capture` | Button / Checkbox / Paginator / ProgressSpinner / Textarea / Tag / Select / SelectButton / InputNumber / Image / Card / Divider / Accordion 族 | 已迁完：Button（icon-only + lucide #icon）、Tag（tone + 默认插槽）、Checkbox（数组模型）、Paginator（1 基 `page` + 自渲染页码报告，`useAdminList` 加 `pageIndexBase: 1`）、Textarea/Select/SelectButton/InputNumber/Divider/Card/Image/Accordion 族替换；图标 30+ → `@lucide/vue`（`pi-spin` → `LoaderCircle` + 本组件动画） | 迁移方案 §6.2 / §6.1 E 组 / 清单 §2.1 | **已迁移（待 Round 3 复审）**：parity 4/4 PASS（allowlist 按实测登记）、单测 15 例（页面 5 + 组件 10）、guard 58 + 16 |
 | `components/admin/posts/**`（23 文件） | `/admin/posts/[id]` | 见 §2.3 | （待填） | 同上 | 待迁移 |
+| `pages/admin/ai/tasks/[id].vue` + `components/admin/ai/{task-detail-content,task-details-dialog,stats-overview,metric-card}.vue` | `/admin/ai/tasks/[id]` | Button / Tag / Message / Image / Card / ProgressSpinner | 已迁完：详情页三态（pending / error / task）；共享内容组件 Tag×3 走 tone、图片走包装层、图标全部 lucide；`metric-card` 的 `icon` prop 由 `pi` 字符串改为组件 | 迁移方案 §6.2 / §6.3 / 清单 §2.3 | **已迁移（待 Round 3 复审）**：parity 4/4 PASS、详情页错误分支探针 pageerror 0、单测 4 例、guard 58 |
 | `components/app-header.vue` / `app-search.vue` / `app-notifications.vue` / `app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `reader-controls.vue` / `language-switcher.vue` / `feedback-entry-button.vue` / `article-*.vue` / `comment-*.vue` / `subscriber-form.vue` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 | 见 §2.3 | （待填） | 同上 | 待迁移 |
 | `pages/about.vue` / `benefits.vue` / `feedback.vue` / `archives/index.vue` / `categories/index.vue` / `tags/index.vue` / `posts/index.vue` | 公开路由 | 见 §2.1 | （待填） | 同上 | 待迁移 |
 
