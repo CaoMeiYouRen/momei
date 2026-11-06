@@ -8,7 +8,7 @@
 
 - 命令：`pnpm governance:count:primevue-usage`（输出 `artifacts/governance/primevue-usage-latest.json`）。
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
-- 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签。
+- 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
 
 ## 2. 未迁移路由与文件映射
@@ -81,8 +81,6 @@
 
 | name | path | tier | heading |
 | :--- | :--- | :--- | :--- |
-| `admin-dashboard` | `/admin` | admin | 内容洞察 |
-| `admin-calendar-view` | `/admin/calendar` | admin | 内容日历 |
 | `admin-snippets-list` | `/admin/snippets` | admin | 灵感收纳箱 |
 | `admin-snippets-capture` | `/admin/snippets/capture` | admin | 极简采集模式 |
 | `home` | `/` | reader | 最新文章 |
@@ -95,8 +93,10 @@
 | `about` | `/about` | reader | 墨梅 |
 | `benefits` | `/benefits` | reader | 让你的技术内容自动触达全球读者 |
 | `feedback` | `/feedback` | reader | 问题反馈与支持 |
+| `privacy-policy` | `/privacy-policy` | reader | 隐私政策 |
+| `user-agreement` | `/user-agreement` | reader | 用户协议 |
 
-- 参考态：14 条 × 2 主题 = **28 张**，`pnpm test:visual:reference` 以 HEAD（PrimeVue 原貌）采集，manifest 记录 `ref=HEAD` 与采集时间。
+- 参考态：14 条 × 2 主题 = **28 张**，`pnpm test:visual:reference` 以 HEAD（PrimeVue 原貌）采集，manifest 记录 `ref=HEAD` 与采集时间。管理端 2 条（片段列表 / 极简采集）+ 公开页 12 条。
 - 复核：`pnpm test:visual:parity` **83 passed**（82 条比对 + 1 条安装路由登记守卫），新 28 条实测均为 0px / 0.000%。
 - 既有 54 张参考态未重采；其中 `admin-posts-list` 与 `admin-friend-links-list` 因 `--only` 子串匹配被误采一次，已用 `git checkout` 恢复原图并从 HEAD 版本回填 manifest 记录。
 
@@ -104,11 +104,14 @@
 
 | 路由 | 理由 |
 | :--- | :--- |
+| `/admin`（仪表盘） | 指标与趋势图依赖「最近 N 天」运行时窗口，参考态跨日即漂移 |
+| `/admin/calendar` | 「今天」高亮为整格背景填充，且默认视图随当月变化，参考态跨日 / 跨月不可复现；迁移时用当日 capture → compare 一次性验证，不承诺跨日基线，组件 / E2E 覆盖在条目 2 补 |
 | `/admin/posts/[id]` | 无稳定 id；新建态 `/admin/posts/new` 默认展开设置面板，且页面无 heading。由 E2E + 编辑器组件单测覆盖 |
 | `/admin/ai/tasks/[id]` | 任务 id 无固定种子；页面无 heading。由 E2E + 组件单测覆盖 |
 | `/categories/[slug]`、`/tags/[slug]` | TEST_MODE 种子只建文章，无分类 / 标签实体数据 → 404 |
 | `/goto/[code]` | 无短链种子 → 404 |
-| `/privacy-policy`、`/user-agreement` | 依赖 agreement 种子；缺失时渲染错误态 |
+
+`/privacy-policy` 与 `/user-agreement` 已纳入：`LegalAgreementPage` 在无 active agreement 时使用默认 payload，heading 稳定，可正常采集。
 
 ## 4. 在册族扩族策略（条目 1c）
 
@@ -116,7 +119,7 @@
 
 | 已迁移路由 | 残留族 | 归属 |
 | :--- | :--- | :--- |
-| `/admin/submissions` | Divider / Checkbox / Textarea | B3 表单族残留；`inScopeComponents` 已登记 Checkbox / Textarea |
+| `/admin/submissions` | Divider / Checkbox / Textarea | B3 表单族残留；该路由无 `inScopeComponents` 登记（同源登记在 `/admin/categories` / `/admin/tags`） |
 | `/admin/external-links` | Checkbox | B3 表单族残留 |
 | `/admin/ad/campaigns` | DatePicker | B3 表单族残留 |
 | `/admin/ad/placements` | Checkbox / InputNumber | B3 表单族残留 |
@@ -128,7 +131,7 @@
 **执行口径**：
 
 1. 条目 2 / 3 每完成一条路由整迁，把该路由实际消费且已清零的族登记到该路由的 `inScopeComponents`（路由级增量），保持「已收口批次不因后续批次被动回改」。
-2. 全部 B4 路由迁移完成、上述残留清零后，再把展示族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。
+2. 全部 B4 路由迁移完成，**且另行安排 B3 残留族收口**（上述 8 条路由的展示族与表单族）后，再把展示族 + B3 表单族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。仅完成 B4 路由迁移不足以清零这些残留——它们位于已迁移路由，B4 只随图标与布局壳复核。
 3. 子路由例外复核：`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 在本阶段由例外转为正式迁移；转正前不得把 `/admin/posts` / `/admin/ai` 的族约束扩展到这两个文件（当前守卫已按例外放行）。
 
 ## 5. 文件 → 改动点清单（骨架，待条目 2 / 3 / 4 填充）

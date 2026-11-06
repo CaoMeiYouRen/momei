@@ -22,7 +22,7 @@ import { ensureBuildOutput, ensurePlaywrightBrowsers, quoteWindowsArg } from './
  *
  * 用法：
  * - `pnpm test:visual:reference`                                   对 HEAD 全量采集
- * - `pnpm test:visual:reference -- --only=admin-comments-list`      仅采集单个路由（两个主题）
+ * - `pnpm test:visual:reference -- --only=admin-comments-list`      仅采集单个路由（两个主题；传路由名，勿带 -light / -dark 后缀）
  * - `pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list`
  * - `pnpm test:visual:reference -- --revert=ff443447 --only=admin-submissions-list`
  * - `pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list`
@@ -153,11 +153,22 @@ async function getEnvironmentMetadata() {
     }
 }
 
+function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function getGrepArg(only) {
     if (!only || only.length === 0) {
         return []
     }
-    return ['--grep', only.length === 1 ? only[0] : `(${only.join('|')})`]
+    /* 以名称后缀锚定，并排除前一个字符为标识符 / 连字符的情况：
+     * `posts-list` 只命中 `posts-list-light|dark`，不会再命中 `admin-posts-list-*`。
+     * 此前直接使用裸子串，`--only=posts-list` / `friend-links` 会误采已迁移路由的参考态。 */
+    const names = only.map((item) => escapeRegExp(item))
+    const pattern = names.length === 1
+        ? `(?<![\\w-])${names[0]}-(light|dark)$`
+        : `(?<![\\w-])(?:${names.join('|')})-(light|dark)$`
+    return ['--grep', pattern]
 }
 
 /**

@@ -6,14 +6,13 @@ import { runVisualParity, waitForVisualStableLenient } from './helpers'
 /**
  * 视觉一致性门禁：待迁移路由。
  *
- * 当前 `PENDING_ROUTES` **为空**：第七十阶段 B3 的 10 条路由（设置 / 主题 / 通知 / 安装向导 /
- * 用户设置 / 5 个认证与提交页）已全部迁入 `MIGRATED_ROUTES`。本文件与待迁移清单保留，供后续批次登记；
- * 空清单时本文件产出 0 条用例，Playwright 按「无测试」处理。参考态仍为 HEAD（PrimeVue）就地采集。
+ * `PENDING_ROUTES` 当前登记 B4 未迁移面（管理端 2 条 + 公开页 12 条，共 28 条用例），
+ * 参考态取自当前渲染（HEAD，PrimeVue 原貌）。
  *
- * 待其迁移到 caomei-ui 后，把条目移入 `MIGRATED_ROUTES`、保持参考态不变，本文件中的用例
- * 会立即反映「与迁移前原貌」的偏差，从而强制逐项归因（token 覆盖 / 预设 / 包装覆盖 /
- * 上游反馈）后才允许放行。就绪口径（`stable` / `readyResponse` / `readySelector` /
- * `activate`）在两层通用，新增路由时按需声明。
+ * 迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，本文件中的用例
+ * 会立即反映「与迁移前原貌」的偏差，从而强制逐项归因后才允许放行。
+ * 就绪口径（`stable` / `gotoWaitUntil` / `readyResponse` / `readySelector` / `activate`）
+ * 在 pending / migrated / installation 三处通用，新增路由时按需声明。
  *
  * 参考态采集命令：pnpm test:visual:reference（默认对 HEAD 全量采集；无待采目标时按成功退出）。
  */
@@ -71,7 +70,10 @@ test.describe('视觉一致性门禁：待迁移路由', () => {
                     await page.locator(route.readySelector).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined)
                 }
 
-                await page.getByRole('heading', { name: route.heading }).first().waitFor({ state: 'visible' })
+                /* 保留 .first()：精确同名时（如文章 h1 与另一卡片标题）取 DOM 更靠前者。 */
+
+                /* 保留 .first()：精确同名时（如文章 h1 与另一卡片标题）取 DOM 更靠前者。 */
+                await page.getByRole('heading', { name: route.heading, exact: true }).first().waitFor({ state: 'visible' })
 
                 await runVisualParity(page, { name: `${route.name}-${theme}`, testInfo, tier: route.tier })
             })

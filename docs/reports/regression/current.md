@@ -16,21 +16,22 @@
 
 ### 范围
 
-- 现取复核：未迁移页面 **19 个 / 页面口径 90 处**；脚本口径组件 **482 处 / 40 类 / 82 文件**。
-- 参考态：`PENDING_ROUTES` 登记 **14 条**（管理端 4 + 公开页 10），HEAD 采集 **28 张**；未纳入 7 条动态 / 无种子路由并登记理由。
-- 门禁基建：新增 `ParityRoute.gotoWaitUntil`（公开页外部资源阻塞 `load` 时改 `domcontentloaded`）；heading 等待改 `.first()`（同名 heading 多条时避免 strict mode 失败）。
-- 在册族：全局扩族会使 **8 条已收口路由**判红（合法残留），改为随条目 2 / 3 路由整迁登记 `inScopeComponents`，残留清零后再并入全局基准；清单见 [B4 迁移清单](../../design/governance/2026-11-06-b4-migration-inventory.md)。
+- 现取复核：未迁移页面 **19 个 / 页面口径 90 处**（剥离注释 89 处）；脚本口径组件 **482 处 / 40 类 / 82 文件**。
+- 参考态：`PENDING_ROUTES` 登记 **14 条**（管理端 2 + 公开页 12），HEAD 采集 **28 张**；`/admin` 与 `/admin/calendar` 因运行时日期窗口 /「今天」高亮不纳入，另 5 条动态 id / 无种子路由不纳入（2 条日期型 + 2 条动态 id + 3 条无种子 = 7 条路由，清单表内 6 行）；`/privacy-policy`、`/user-agreement` 按默认 agreement 兜底纳入。
+- 门禁基建：`gotoWaitUntil` 支持（外部头像阻塞 `load`）；heading 等待改为 `exact: true` + `.first()`（保留 `.first()` 作为精确同名时的 DOM 顺序兜底）；`--only` 改为后缀锚定，避免 `posts-list` 误命中 `admin-posts-list`。
+- 在册族：全局扩族会使 **8 条已收口路由**判红（合法残留），改为随条目 2 / 3 路由整迁登记 `inScopeComponents`，B3 残留族另行收口后再并入全局基准；清单见 [B4 迁移清单](../../design/governance/2026-11-06-b4-migration-inventory.md)。
 
 ### 验证
 
-- `pnpm test:visual:reference`：14 条 × 2 主题 = 28 张，重采后 manifest 共 **82 条 captures**。
-- `pnpm test:visual:parity`：**83 passed**（82 条比对 + 1 条安装路由登记守卫，14.7m），新 28 条实测 0px / 0.000%。
-- `npx vitest run tests/modules/ui-library-route-migration-guard.test.ts`：**57 passed**。
-- 误采修复：`--only=posts-list` / `friend-links` 子串匹配误覆盖 `admin-posts-list` / `admin-friend-links-list` 的 4 张参考态，已 `git checkout` 恢复原图并从 HEAD 回填 manifest 记录。
+- `pnpm test:visual`：**24 passed**（4.7m）。
+- `pnpm test:visual:parity`：**83 passed**（82 条比对 + 1 条安装路由登记守卫，18.5m），新 28 条实测 0px / 0.000%。
+- `npx vitest run tests/scripts/capture-visual-reference.test.ts tests/scripts/parity-budget.test.ts tests/modules/ui-library-route-migration-guard.test.ts`：**74 passed**。
+- `pnpm typecheck` 0；`pnpm lint` 0 error（9 个既有 warning）；`lint-md` 通过。
+- 误采修复：`--only=posts-list` / `friend-links` 曾子串命中已迁移路由并覆盖 4 张参考态，已恢复原图与 manifest 记录；`--only` 已改为后缀锚定并补单测。
 
 ### 未覆盖边界
 
-- `/admin/posts/[id]`、`/admin/ai/tasks/[id]`、`/categories/[slug]`、`/tags/[slug]`、`/goto/[code]`、`/privacy-policy`、`/user-agreement` 未纳入 parity，由 E2E + 组件单测覆盖。
+- `/admin`、`/admin/calendar`、`/admin/posts/[id]`、`/admin/ai/tasks/[id]`、`/categories/[slug]`、`/tags/[slug]`、`/goto/[code]` 未纳入 parity；前两者为运行时日期依赖，其余为动态 id / 无种子。
 - 新 28 条参考态为「HEAD 当前渲染」，与采集时点绑定；条目 2 / 3 迁移后只比对这些参考态。
 
 <!-- regression-window:end:b4-item-1-baseline:第七十一阶段条目 1 B4 开工基座:2026-11-06 -->

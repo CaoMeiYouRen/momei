@@ -28,10 +28,13 @@ test.describe('视觉一致性门禁：安装向导（未安装态 server）', (
             test(`${route.name}-${theme}`, async ({ page }, testInfo) => {
                 await mockInstallationStatus(page)
                 await applyTheme(page, theme)
-                await page.goto(route.path)
+                await page.goto(route.path, route.gotoWaitUntil ? { waitUntil: route.gotoWaitUntil } : undefined)
                 await waitForVisualStable(page)
 
-                await page.getByRole('heading', { name: route.heading }).first().waitFor({ state: 'visible' })
+                /* 保留 .first()：精确同名时（如文章 h1 与另一卡片标题）取 DOM 更靠前者。 */
+
+                /* 保留 .first()：精确同名时（如文章 h1 与另一卡片标题）取 DOM 更靠前者。 */
+                await page.getByRole('heading', { name: route.heading, exact: true }).first().waitFor({ state: 'visible' })
 
                 await runVisualParity(page, {
                     name: `${route.name}-${theme}`,

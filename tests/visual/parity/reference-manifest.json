@@ -1,5 +1,5 @@
 {
-    "generatedAt": "2026-11-06T10:50:52.626Z",
+    "generatedAt": "2026-11-06T11:42:21.506Z",
     "environment": {
         "browser": "chromium 156.0.8078.4",
         "playwright": "1.64.1",
@@ -436,34 +436,6 @@
             "label": "HEAD",
             "capturedAt": "2026-11-06T10:50:52.626Z"
         },
-        "admin-calendar-view-dark": {
-            "ref": "HEAD",
-            "commit": "1a23781288c96b4f33465d1d00e67172901c586a",
-            "source": "in-place",
-            "label": "HEAD",
-            "capturedAt": "2026-11-06T10:50:52.626Z"
-        },
-        "admin-calendar-view-light": {
-            "ref": "HEAD",
-            "commit": "1a23781288c96b4f33465d1d00e67172901c586a",
-            "source": "in-place",
-            "label": "HEAD",
-            "capturedAt": "2026-11-06T10:50:52.626Z"
-        },
-        "admin-dashboard-dark": {
-            "ref": "HEAD",
-            "commit": "1a23781288c96b4f33465d1d00e67172901c586a",
-            "source": "in-place",
-            "label": "HEAD",
-            "capturedAt": "2026-11-06T10:50:52.626Z"
-        },
-        "admin-dashboard-light": {
-            "ref": "HEAD",
-            "commit": "1a23781288c96b4f33465d1d00e67172901c586a",
-            "source": "in-place",
-            "label": "HEAD",
-            "capturedAt": "2026-11-06T10:50:52.626Z"
-        },
         "admin-snippets-capture-dark": {
             "ref": "HEAD",
             "commit": "1a23781288c96b4f33465d1d00e67172901c586a",
@@ -589,6 +561,34 @@
             "source": "in-place",
             "label": "HEAD",
             "capturedAt": "2026-11-06T10:50:52.626Z"
+        },
+        "privacy-policy-dark": {
+            "ref": "HEAD",
+            "commit": "aee15558d1b563325007a2e6ff8d5d9e88568f73",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-06T11:42:21.506Z"
+        },
+        "privacy-policy-light": {
+            "ref": "HEAD",
+            "commit": "aee15558d1b563325007a2e6ff8d5d9e88568f73",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-06T11:42:21.506Z"
+        },
+        "user-agreement-dark": {
+            "ref": "HEAD",
+            "commit": "aee15558d1b563325007a2e6ff8d5d9e88568f73",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-06T11:42:21.506Z"
+        },
+        "user-agreement-light": {
+            "ref": "HEAD",
+            "commit": "aee15558d1b563325007a2e6ff8d5d9e88568f73",
+            "source": "in-place",
+            "label": "HEAD",
+            "capturedAt": "2026-11-06T11:42:21.506Z"
         }
     }
 }

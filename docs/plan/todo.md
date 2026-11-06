@@ -25,12 +25,12 @@
     - **执行范围**: 开工复算（脚本家族分桶 + 未迁移路由清单 + 路由 → 文件 → 组件族映射）；页面改动前登记剩余路由并采集参考态（公开页与布局壳缺口优先，`reader` 档按实测校准）；按批次扩展在册族（展示族与表单族随对应路由整迁登记，残留清零后再全局扩）。
     - **非目标**: 不改页面、不清 `--p-*`、不卸载 PrimeVue。
     - **验收**: 迁移前 `test:visual` / `test:visual:parity` 全绿；新增参考态 100%（含 manifest 与来源）；未迁移路由清单与脚本口径一致。
-    - **收口（2026-11-06）**: 1a 未迁移页面 **19 个 / 页面口径 90 处**，与脚本 482 处 / 82 文件一致；清单落盘 [B4 迁移清单](../design/governance/2026-11-06-b4-migration-inventory.md)（路由 → 文件 → 组件族 + 文件 → 改动点骨架）。1b 登记 **14 条**待迁移路由（管理端 4 + 公开页 10），采集参考态 **28 张**（manifest `ref=HEAD`），`pnpm test:visual:parity` **83 passed**（82 条比对 + 1 条安装路由登记守卫，新 28 条实测 0px / 0.000%）；未纳入 7 条动态 / 无种子路由已登记理由。1c 扩族策略：全局扩基准在册族会使 **8 条已收口路由**立即判红（合法残留），改为随条目 2 / 3 的路由整迁登记 `inScopeComponents`，残留清零后再并入全局基准；子路由例外 `/admin/posts/[id]`、`/admin/ai/tasks/[id]` 随本阶段转正。验证：`ui-library-route-migration-guard` 57 passed、`test:visual:parity` 83 passed、`lint-md` 通过。
+    - **收口（2026-11-06）**: 1a 未迁移页面 **19 个 / 页面口径 90 处**（剥离注释后 89 处，含 1 处 `pages/index.vue` 的注释引用），与脚本 482 处 / 82 文件一致；清单落盘 [B4 迁移清单](../design/governance/2026-11-06-b4-migration-inventory.md)（路由 → 文件 → 组件族 + 文件 → 改动点骨架）。1b 登记 **14 条**待迁移路由（管理端 2 + 公开页 12），采集参考态 **28 张**（manifest `ref=HEAD`）；`/admin` 与 `/admin/calendar` 因运行时日期窗口 / 「今天」高亮不纳入，另 5 条动态 id / 无种子路由不纳入（2 条日期型 + 2 条动态 id + 3 条无种子 = 7 条路由，清单表内 6 行）；`/privacy-policy`、`/user-agreement` 按默认 agreement 兜底纳入。1c 扩族策略：全局扩基准在册族会使 **8 条已收口路由**立即判红（合法残留），改为随条目 2 / 3 的路由整迁登记 `inScopeComponents`，B3 残留族另行收口后再并入全局基准；子路由例外 `/admin/posts/[id]`、`/admin/ai/tasks/[id]` 随本阶段转正。验证：`test:visual` **24 passed**、`test:visual:parity` **83 passed**、`ui-library-route-migration-guard` **57 passed**、capture 单测 **9 passed**、`typecheck` / `lint` 0 error、`lint-md` 通过。
 
 - [ ] **2. B4-A 管理端剩余路由整迁（P1）**
     - **执行范围**: 2a 文章编辑器族（`/admin/posts/[id]`（现为例外子路由）与 `components/admin/posts/**`）；2b 其余未迁移管理端路由（`/admin/index`、`/admin/calendar`、`/admin/snippets`（含 `capture`）、`/admin/ai/tasks/[id]`）；`/admin/friend-links`、`/admin/migrations/link-governance`、`/admin/submissions` 等已迁移路由仅随图标与布局壳复核。决策点：`task-detail-content.vue` 的「V2 分支 vs 子路由整迁」、`DataTable` 无 `#header` / `#footer` 插槽的包装元素处置。
     - **非目标**: 不改编辑 / 发布 / AI 任务业务逻辑；不做半路由切换。
-    - **验收**: 在册族零残留守卫通过；每条新增路由 parity 逐项归因、未归因 0；管理端 E2E 主路径通过；`/admin/posts/[id]` 不再是 V1 消费者。
+    - **验收**: 在册族零残留守卫通过；每条新增路由 parity 差异逐项归因、未归因 0（`/admin`、`/admin/calendar` 无跨日基线，迁移时用当日 capture → compare 并补 E2E / 组件单测）；管理端 E2E 主路径通过；`/admin/posts/[id]` 不再是 V1 消费者。
 
 - [ ] **3. B4-B 公开页与布局壳整迁（P1）**
     - **执行范围**: 3a 全局壳（`app-header` / `app-notifications` / `app-search` / `app-uploader` / `app-avatar` / `app-voice-input-*` / `reader-controls` / `language-switcher` / `feedback-entry-button` / `article-*` / `comment-*` / `subscriber-form` / `home/**` / `taxonomy-post-page`）；3b 公开路由（首页 / 文章列表与详情 / 友链 / 关于 / 权益 / 反馈 / 分类 / 标签 / 归档 / 跳转页 / 隐私政策 / 用户协议等）。认证 4 页与 `/submit` 已于第七十阶段条目 4 迁移，本批仅随图标与布局壳复核。

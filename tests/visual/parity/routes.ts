@@ -43,9 +43,10 @@ export interface ParityRoute {
     /**
      * 导航等待口径，缺省 `load`。
      *
-     * 公开页（首页 / 文章详情）会加载外部头像等第三方资源，`load` 在无外网环境下可能长时间
-     * 不达成；这类路由显式改为 `domcontentloaded`，再由 `waitForVisualStableLenient` 做有界
-     * 稳定等待（与第七十阶段 SEO 用例的口径一致）。
+     * 外部头像等第三方资源会阻塞 `load`，无外网时可能长时间不达成；这类路由显式改为
+     * `domcontentloaded`，再由 `waitForVisualStableLenient` 做有界稳定等待（与 E2E 的 SEO
+     * 用例口径一致）。登录态通知 SSE 不阻塞 `load`，只使 `networkidle` 不达成，由 `stable:
+     * 'lenient'` 的有界等待吸收。
      */
     gotoWaitUntil?: 'load' | 'domcontentloaded'
     /**
@@ -265,7 +266,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         migrated: true,
     },
     {
-        /* 第七十阶段条目 2b：主题工作台随设置路由迁移；参考态保持迁移前 HEAD 采集。 */
+        /* 主题工作台随设置路由迁移；参考态保持迁移前 HEAD 采集。 */
         name: 'admin-settings-theme',
         path: '/admin/settings/theme',
         heading: '主题定制',
@@ -273,7 +274,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         migrated: true,
     },
     {
-        /* 第七十阶段条目 2a：设置页已整路由迁到 caomei-ui；参考态保持迁移前 HEAD 采集。 */
+        /* 设置页已整路由迁到 caomei-ui；参考态保持迁移前 HEAD 采集。 */
         name: 'admin-settings-form',
         path: '/admin/settings',
         heading: '系统设置',
@@ -294,10 +295,9 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
 ]
 
 /**
- * 待迁移路由层：第七十阶段（B3 表单与设置）迁移完成后曾清空；**第七十一阶段条目 1b**
- * 按 B4 未迁移面重新登记，参考态在**任何页面改动前**以 HEAD（PrimeVue 原貌）就地采集。
+ * 待迁移路由层：B4 未迁移面重新登记，参考态在**任何页面改动前**以 HEAD（PrimeVue 原貌）就地采集。
  *
- * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集，条目 1c）；
+ * 语义：登记在此的路由**当前仍是 PrimeVue 实现**，参考态即当前渲染（HEAD 采集）；
  * 其迁移到 caomei-ui 后把条目移入 `MIGRATED_ROUTES`、保持参考态不变，由门禁强制
  * 「与迁移前原貌」的偏差逐项归因。
  *
@@ -307,30 +307,14 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * `server: 'installation'` 的条目由独立 project 运行（见 `ParityRoute.server`）。
  *
  * **未纳入本节点的路由与理由**（详见
- * [B4 迁移清单](../design/governance/2026-11-06-b4-migration-inventory.md) §3）：
+ * `docs/design/governance/2026-11-06-b4-migration-inventory.md` §3）：
+ * `/admin` 与 `/admin/calendar` 含运行时日期窗口 / 「今天」高亮，参考态不可跨日复现；
  * `/admin/posts/[id]`、`/admin/ai/tasks/[id]` 无稳定可用 id 且页面无 heading；
- * `/categories/[slug]`、`/tags/[slug]`、`/goto/[code]` 在 TEST_MODE 种子下无对应数据；
- * `/privacy-policy`、`/user-agreement` 依赖 agreement 种子，缺失时渲染错误态。
- * 以上路由的迁移由 E2E + 组件单测覆盖，待条目 2 / 3 开工时按需补采。
+ * `/categories/[slug]`、`/tags/[slug]`、`/goto/[code]` 在 TEST_MODE 种子下无对应数据。
+ * 以上路由的迁移由 E2E + 组件单测覆盖，待条目开工时按需补采。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* 管理端（4 条）：B4-A 剩余管理端路由。登录态由 `tests/e2e/.auth/admin.json` 提供。 */
-    {
-        name: 'admin-dashboard',
-        path: '/admin',
-        heading: '内容洞察',
-        tier: 'admin',
-        migrated: false,
-        stable: 'lenient',
-    },
-    {
-        name: 'admin-calendar-view',
-        path: '/admin/calendar',
-        heading: '内容日历',
-        tier: 'admin',
-        migrated: false,
-        stable: 'lenient',
-    },
+    /* 管理端（2 条）：剩余管理端路由。登录态由 `tests/e2e/.auth/admin.json` 提供。 */
     {
         name: 'admin-snippets-list',
         path: '/admin/snippets',
@@ -348,7 +332,7 @@ export const PENDING_ROUTES: ParityRoute[] = [
         stable: 'lenient',
     },
 
-    /* 公开页（10 条）：B4-B 公开路由。登录态下渲染，参考态与当前态口径一致。 */
+    /* 公开页（12 条）：公开路由。登录态下渲染，参考态与当前态口径一致。 */
     {
         name: 'home',
         path: '/',
@@ -427,6 +411,22 @@ export const PENDING_ROUTES: ParityRoute[] = [
         name: 'feedback',
         path: '/feedback',
         heading: '问题反馈与支持',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'privacy-policy',
+        path: '/privacy-policy',
+        heading: '隐私政策',
+        tier: 'reader',
+        migrated: false,
+        stable: 'lenient',
+    },
+    {
+        name: 'user-agreement',
+        path: '/user-agreement',
+        heading: '用户协议',
         tier: 'reader',
         migrated: false,
         stable: 'lenient',

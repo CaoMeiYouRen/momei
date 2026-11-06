@@ -83,11 +83,24 @@ describe('参考态覆盖保护', () => {
     it('显式 --only 入口不参与排除（用于专门刷新单条参考态）', () => {
         writeReference('admin-waitlist-list-light')
 
-        expect(buildHeadCaptureGrepArgs(['admin-waitlist-list-light'], { root })).toEqual([
+        expect(buildHeadCaptureGrepArgs(['admin-waitlist-list'], { root })).toEqual([
             '--grep',
-            'admin-waitlist-list-light',
+            '(?<![\\w-])admin-waitlist-list-(light|dark)$',
         ])
-        expect(buildHeadCaptureGrepArgs(['a', 'b'], { root })).toEqual(['--grep', '(a|b)'])
+        expect(buildHeadCaptureGrepArgs(['a', 'b'], { root })).toEqual([
+            '--grep',
+            '(?<![\\w-])(?:a|b)-(light|dark)$',
+        ])
+    })
+
+    it('--only 以名称后缀锚定，不会误命中前缀相同的已迁移路由', () => {
+        const pattern = buildHeadCaptureGrepArgs(['posts-list', 'friend-links'], { root })[1] ?? ''
+        const grep = new RegExp(pattern)
+
+        expect(grep.test('视觉一致性门禁：待迁移路由 posts-list-light')).toBe(true)
+        expect(grep.test('视觉一致性门禁：待迁移路由 friend-links-dark')).toBe(true)
+        expect(grep.test('视觉一致性门禁：已迁移路由 admin-posts-list-light')).toBe(false)
+        expect(grep.test('视觉一致性门禁：已迁移路由 admin-friend-links-list-dark')).toBe(false)
     })
 })
 
