@@ -74,7 +74,7 @@
 
 S1 优先于 S2：先让颜色“存在”，再谈颜色“好看”。S3 的字阶替换只约束新增 / 改动文件，不做 478 处全量替换。
 
-**S1 的范围切分**：S1 只处理状态色 / 文本语义幻影 token（`$color-{success,warning,danger,info}` 24 处 + `--p-warning-color` 7 + `--p-error-color` 2 + `--p-text-secondary-color` 1）。`--p-surface-border`（95 处 / 37 文件）与 `--p-text-color-secondary`（15 处 / 9 文件）分布在全站样式与公开页（`main.scss` / `_layout.scss` / `_rendering.scss` / 文章页等），不属单一迁移批次；按迁移方案各批「文件 → 改动点」清单决定是否顺带修正，未被 B3 / B4 覆盖的消费点回到 S1 或后续候选（[roadmap 第六十八阶段观察项②](../../plan/roadmap.md)）。
+**S1 的范围切分**：S1 只处理状态色 / 文本语义幻影 token（`$color-{success,warning,danger,info}` 24 处 + `--p-warning-color` 7 + `--p-error-color` 2 + `--p-text-secondary-color` 1）。`--p-surface-border`（2026-10-26 口径 95 处 / 37 文件；2026-11-06 复算 93 处 / 38 文件）与 `--p-text-color-secondary`（15 处 / 9 文件）分布在全站样式与公开页（`main.scss` / `_layout.scss` / `_rendering.scss` / 文章页等），不属单一迁移批次；按迁移方案各批「文件 → 改动点」清单决定是否顺带修正，未被覆盖的消费点随第七十二阶段 token 切换与卸载清理（[roadmap 第六十八阶段观察项②](../../plan/roadmap.md)）。
 
 ## 6. 风险与回滚
 

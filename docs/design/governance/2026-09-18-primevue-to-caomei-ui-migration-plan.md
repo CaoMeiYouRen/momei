@@ -337,7 +337,7 @@ pnpm governance:count:primevue-usage
 
 - `icon="pi pi-x"` 字符串 → `@lucide/vue` 组件，放入 `#icon` 插槽或直接作为组件使用。
 - 唯一图标逐项落点、语义改名项与填充变体处理见 caomei-ui 资产文档 §3（库侧口径为 128 项；本仓库含 `pi pi-spin` 时为 129，差异原因见 §3.2）。
-- **11 项品牌图标**（github / google / twitter / linkedin / facebook / instagram / youtube / discord / twitch / tiktok / paypal）lucide 无对应，需在 B4 择一：`@iconify/vue` + Simple Icons、保留 `@mdi/font`、或自建 SVG 组件。
+- **11 项品牌图标**（github / google / twitter / linkedin / facebook / instagram / youtube / discord / twitch / tiktok / paypal）lucide 无对应，**2026-11-06 已定稿保留 `@mdi/font`**（零新依赖；`nuxt.config` 已全局加载，`utils/shared/commercial.ts` 已有 `mdi mdi-*` 用法）；`@iconify/vue` + Simple Icons 与自建 SVG 不再采用。
 - `pi-spin` 旋转修饰类不是图标；旋转动效改由加载指示组件（`ProgressSpinner` 或 Button / AutoComplete 加载态）承载。
 
 ### 5.4 i18n 迁移
@@ -347,7 +347,7 @@ pnpm governance:count:primevue-usage
 - 迁移后需复核组件内建文案（表格空态、分页、日期面板等）在 5 个语言下的覆盖，避免出现英文回退。
 - 相关测试 `tests/plugins/primevue-i18n.test.ts` 需同步删除或改写为 caomei-ui locale 验证。
 
-> **2026-11-02 进度注（第六十九阶段条目 3）**：caomei-ui 侧接线已完成——`plugins/caomei-locale.ts` 在模块顶层静态注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册），`app.vue` 用 `<CaomeiConfigProvider :locale>` 包住 toast / confirm，语言经 `composables/use-caomei-locale.ts` 归一化后映射。静态 import 实测 `coreEntryJs` +4.36KB（357.41KB / 360KB），因 provider 文案为 `computed`、`registerLocale` 非响应式，异步按需注册在切换路径存在「先回落、后不重算」竞态，故不采用（见[回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-3-内建文案-locale-接线)）。5 语种 Paginator 内建文案已实测跟随语言。`plugins/primevue-i18n.ts` 仍保留，随第七十一阶段卸载 PrimeVue 时删除。
+> **2026-11-02 进度注（第六十九阶段条目 3）**：caomei-ui 侧接线已完成——`plugins/caomei-locale.ts` 在模块顶层静态注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册），`app.vue` 用 `<CaomeiConfigProvider :locale>` 包住 toast / confirm，语言经 `composables/use-caomei-locale.ts` 归一化后映射。静态 import 实测 `coreEntryJs` +4.36KB（357.41KB / 360KB），因 provider 文案为 `computed`、`registerLocale` 非响应式，异步按需注册在切换路径存在「先回落、后不重算」竞态，故不采用（见[回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-3-内建文案-locale-接线)）。5 语种 Paginator 内建文案已实测跟随语言。`plugins/primevue-i18n.ts` 仍保留，随第七十二阶段卸载 PrimeVue 时删除（**2026-11-06 轨迹调整**：B4 拆为 71 路由与图标 / 72 token 与卸载）。
 
 ### 5.5 双库并存隔离
 
@@ -555,17 +555,18 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | **B2 数据类页面** | 先做**试点页 1-2 个**（端到端验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路），再推 20 个 `<Column>` 文件：`pages/admin/posts`、`users`、`friend-links`、`comments`、`submissions`、`subscribers`、`waitlist`、`external-links`、`ad/campaigns`、`ad/placements`、`migrations/link-governance`、`components/admin/admin-taxonomy-page.vue`、`components/admin/ai/task-list.vue`、`components/admin/marketing-campaign-list.vue`、`components/admin/settings/{admin-notification-settings,agreements-settings,notification-delivery-log-list,setting-audit-log-list}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue` | 试点结论（链路可行性 + 耗时画像）、逐页功能回归（排序 / 分页 / 选择 / 列插槽）+「文件 → 改动点」清单 | 接入基座 + B0b + 全局 token 语义层 |
 | **前置：`1.0.0-rc.1` 升级与 token 角色接线**（第六十九阶段条目 1） | 精确锁定升级；补接 `-color-*-text` ×5 与 `-color-control-border`；`dependabot.yml` 增 `ignore`；重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接 + 2 条对比度契约）+ 重校准 34 条 parity 允许清单 + `keyCss` 复测；`DataTable` 两处上游修复的定向回归 | 升级记录 + 桥接契约断言 + 包体复测 + 偏差登记 | npm 发布（§3.10） |
 | **B3 表单与设置页面**（第七十阶段；2026-11-04 进度：2a 设置主体 / 2b 主题工作台 / 2c 通知管理 / 条目 3 安装向导（87 处，`Stepper` + `Accordion` 族首次生产迁移）与条目 4 用户设置 / 认证 / 提交页（6 条路由 / 16 文件 / 119 处，`reader` 档首用）已完成，B3 路由迁移面清零） | `components/admin/settings/*`、`components/settings/*`、`components/installation/*` 与 auth / submit 等表单页，另含共享依赖 `components/admin/admin-floating-actions.vue` 与 `/admin/notifications` 整路由（2026-11-03 复算 **598 处 / 54 文件 / 38 个组件族**，占剩余面 54.7%；开工时以脚本家族分桶复核） | 表单交互回归（校验 / 提交 / 提示）+「文件 → 改动点」清单 | 第六十九阶段（浮层族与 locale 先行） |
-| **B4 展示、图标与收尾**（第七十一阶段） | 展示类组件（Card / Divider / Message / Skeleton / Avatar / Tag 残留等）、图标全量替换（2026-11-03 口径 540 处 / 133 文件）、`primevue-i18n` 插件替换、测试与 E2E 改写（**剩余项**：全量基线 25 个 mock / 3 文件 11 处断言，扣除第六十九阶段已改写的浮层相关子集）、品牌图标落点选定、`--p-*` 幻影 token 清理（backlog #11 的 S1）、卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 全量测试与 E2E 通过 + 包体对比记录 +「文件 → 改动点」清单 + PrimeVue 相关产物归零 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
+| **B4 前段：剩余路由与图标**（第七十一阶段，2026-11-06 立项） | 剩余全部路由整迁（管理端编辑器 / 仪表盘 / 日历 / 片段 / AI 任务详情 + 公开页与布局壳；已迁移的 `/admin/friend-links`、`/admin/migrations/link-governance`、`/admin/submissions` 与认证 4 页 / `/submit` 仅随图标与布局壳复核；2026-11-06 口径组件 482 处 / 82 文件）、图标全量替换（411 处 / 94 文件；22 处品牌图标走 `mdi mdi-*`，389 处走 `@lucide/vue`）、测试与 E2E 改写（mock 2 文件 / E2E 9 处）、`--p-*` 不在本段清理 | 全量测试与 E2E 通过 + 三层视觉回归 +「文件 → 改动点」清单 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
+| **B4 收尾：token 切换与卸载**（第七十二阶段，候选未落盘） | `--p-*` 1,442 处 / 135 文件语义层反向切换 + 幻影 token 清理（backlog #11 的 S1）+ `p-*` class / `.p-*` 选择器 / `:deep()` / `:global()` 清理 + `plugins/primevue-i18n.ts` 与 Aura 预设移除 + 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 包体对比记录 + PrimeVue 相关产物归零 + `keyCss` 回落确认 | 第七十一阶段；**token 清零与卸载必须同批**（卸载会使 `--p-*` 定义源消失） |
 
 > **浮层族位置调整（2026-11-01）**：浮层（Dialog / Drawer / Popover / DropdownMenu / Menu / ConfirmDialog / `useConfirm` / `useToast` / `v-tooltip`）原并入 B4，现**前移到第六十九阶段**——settings 族组件自带 3 个弹窗，浮层不先行则 B3 无法做到「路由内组件来源唯一」；同时在册族的「浮层显式豁免」需要与 `rc.1` 基线重采同批收缩，避免两个变量叠加在同一批视觉归因上。
 
-**开工顺序（2026-09-19 更新；2026-11-01 重切见下）**：库侧 B0a 资产（已交付）→ 库侧 B1 补齐（已交付，含 M5）→ **接入基座（momei 侧）** → **B0b 视觉验证回归基座** → **全局 token 语义层** → B2 试点页 → B2 全量 → B3 → B4。（2026-11-01 重切后实际顺序：69 `1.0.0-rc.1` 升级 + 浮层族 + locale → 70 B3 → 71 展示族 + 图标 + 测试 + 卸载。）
+**开工顺序（2026-09-19 更新；2026-11-01 重切、2026-11-06 二次切分见下）**：库侧 B0a 资产（已交付）→ 库侧 B1 补齐（已交付，含 M5）→ **接入基座（momei 侧）** → **B0b 视觉验证回归基座** → **全局 token 语义层** → B2 试点页 → B2 全量 → B3 → B4。（2026-11-01 重切后：69 `1.0.0-rc.1` 升级 + 浮层族 + locale → 70 B3 → 71 原定「展示族 + 图标 + 测试 + 卸载」。**2026-11-06 二次切分**：71 = 剩余全部路由 + 图标 + 测试守卫；72 = token 切换 + 卸载。依据：剩余面 482 处组件 + 411 图标 + 1,442 token 合计约 2,500 处，是 70 的 4 倍；且 token 清零与卸载必须同批、属全局主题切换。）
 
 > **momei 侧新增批次说明**：「接入基座」与「全局 token 语义层」两项在 caomei-ui 交接计划的既有批次表（B0b / B2 / B3 / B4）中没有编号，属本文档按开工实际依赖补充的 momei 侧执行面，不改变库侧既定批次编号。
 
 **B2 试点页已落地（2026-09-25）**：试点页定为 `/admin/comments`（管理端评论列表），按路由整体切换并登记到 `CAOMEI_UI_ROUTE_PREFIXES`。链路结论、实际耗时画像、「文件 → 改动点」清单、视觉差异逐项归因与发现的阻塞/修正建议见 [回归记录 M4 节](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md)；共享壳过渡策略与在册范围判定见 §5.5；已顺带闭合的原缺口：`@lucide/vue` 由传递依赖升为 momei 直接依赖（试点页在 momei 模板直接引用图标）。
 
-**第六十八阶段已归档（2026-10-24）**：B2 侧完成 `pages/admin` 10 个数据列表路由与 3 个组件型目标（4 条 host 路由）的整路由迁移（共享壳过渡组件 5 件套统一消费 V2，`CAOMEI_UI_ROUTE_PREFIXES` 终态 15 项、parity 门禁 `PENDING_ROUTES` 清空），并落地 `ownedFiles`、路由级在册族增量与子路由例外三项守卫机制（§5.5）；`caomei-ui` 侧完成 `0.3.0` 升级与基线复测，并把版本口径按升级纪律对齐到 `0.6.0`（§3.7 / §3.8）。批次轨迹原为 67–70 四段，2026-11-01 把 **69 / 70 两段重切为 69–71 三段**（67 / 68 归档结论不变，批次总跨度 67–71）：**69 `1.0.0-rc.1` 升级 + 浮层族 + locale 接线 / 70 B3 表单与设置 / 71 展示族 + 图标全量 + 测试改写 + PrimeVue 卸载**。重切依据：2026-11-01 复算的剩余迁移面为 PrimeVue `1,161 处 / 146 文件`、`primeicons 556 处 / 142 文件`，按第六十八阶段吞吐无法在第七十阶段收口（§3.10）。逐批记录见 [待办归档](../../plan/todo-archive.md) 的第六十七 / 第六十八阶段归档块与各回归归档分片。
+**第六十八阶段已归档（2026-10-24）**：B2 侧完成 `pages/admin` 10 个数据列表路由与 3 个组件型目标（4 条 host 路由）的整路由迁移（共享壳过渡组件 5 件套统一消费 V2，`CAOMEI_UI_ROUTE_PREFIXES` 终态 15 项、parity 门禁 `PENDING_ROUTES` 清空），并落地 `ownedFiles`、路由级在册族增量与子路由例外三项守卫机制（§5.5）；`caomei-ui` 侧完成 `0.3.0` 升级与基线复测，并把版本口径按升级纪律对齐到 `0.6.0`（§3.7 / §3.8）。批次轨迹原为 67–70 四段，2026-11-01 把 **69 / 70 两段重切为 69–71 三段**（67 / 68 归档结论不变，批次总跨度 67–71）：**69 `1.0.0-rc.1` 升级 + 浮层族 + locale 接线 / 70 B3 表单与设置 / 71 展示族 + 图标全量 + 测试改写 + PrimeVue 卸载**（2026-11-06 再切分为 71 剩余路由与图标 / 72 token 切换与卸载，见 §7）。重切依据：2026-11-01 复算的剩余迁移面为 PrimeVue `1,161 处 / 146 文件`、`primeicons 556 处 / 142 文件`，按第六十八阶段吞吐无法在第七十阶段收口（§3.10）。逐批记录见 [待办归档](../../plan/todo-archive.md) 的第六十七 / 第六十八阶段归档块与各回归归档分片。
 
 ## 8. 验收与质量门
 
@@ -701,7 +702,8 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
   2. **第六十八阶段**（已归档 2026-10-24）：`0.3.0` 升级与基线复测 + B2 剩余数据页全量 + 覆盖率第九批切片。
   3. **第六十九阶段**（已归档 2026-11-03）：`1.0.0-rc.1` 升级与 6 个新 token 角色接线（并闭合 #12）+ 浮层族整迁 + 内建文案 locale 接线 + 覆盖率第十批。
   4. **第七十阶段**：B3 表单与设置（`components/admin/settings/*` / `components/settings/*` / `components/installation/*` / 认证与提交页）。
-  5. **第七十一阶段**：B4 展示族 + 图标全量替换 + 测试 / E2E 改写 + `--p-*` 幻影 token 清理（backlog #11 的 S1）+ PrimeVue 卸载 + 包体对比。
+  5. **第七十一阶段**（2026-11-06 立项）：B4 前段——剩余全部路由（管理端余面 + 公开页与布局壳）+ 图标全量替换（411 处）+ 品牌图标保留 `@mdi/font` + 测试 / E2E 改写与守卫收口 + 覆盖率第十二批与小治理。
+  6. **第七十二阶段**（候选，未落盘）：B4 收尾——`--p-*` token 语义层反向切换（1,442 处）+ 幻影 token 清理（backlog #11 的 S1）+ 样式耦合清理 + PrimeVue 卸载 + 包体对比。
 - 每个批次走完整 PDTFC+ 与 Review Gate；跨批次的阶段准入、容量与验收以 [roadmap.md](../../plan/roadmap.md) 与 [todo.md](../../plan/todo.md) 为准。
 
 ## 11. 前置条件与开工检查清单
@@ -720,12 +722,12 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
 7. **视觉验证回归基座建立**：三层（单元 / E2E / 截图）齐备、迁移前基线已采集且可复现（见 §8.2）。
 8. 明确双库并存白名单的载体与初始范围，并登记阻断规则（同路由混用为阻断项）。
 9. 全局 token 语义层桥接完成，且未迁移页面在三层回归下无差异。
-10. 品牌图标落点方案、`useToast` / `useConfirm` 映射写法在 B3 / B4 开工前定稿。
+10. 品牌图标落点方案、`useToast` / `useConfirm` 映射写法在 B3 / B4 开工前定稿。**品牌图标（2026-11-06 定稿）**：11 项保留 `@mdi/font`（零新依赖，`nuxt.config` 已全局加载，`utils/shared/commercial.ts` 已有 `mdi mdi-*` 用法）；`useToast` / `useConfirm` 映射已在第六十九阶段定稿并落地。
 
 ## 12. 未决问题
 
 1. ~~**B2 是否可在 M5 交付前启动**~~ **已消解（2026-09-19）**：M5 已交付，B2 / B3 / B4 不再存在库侧前置争议。
-2. **品牌图标方案**：`@iconify/vue` + Simple Icons / 保留 `@mdi/font` / 自建 SVG 三选一，待 B4 决策。
+2. ~~**品牌图标方案**~~ **已决策（2026-11-06）**：保留 `@mdi/font`——零新依赖、`nuxt.config` 已全局加载、`utils/shared/commercial.ts` 已有 `mdi mdi-*` 用法；11 项品牌图标逐一登记落点。`@iconify/vue` + Simple Icons 与自建 SVG 不再采用；`@mdi/font` 的体积收敛另立候选，不在 B4 批次扩写。
 3. ~~**Popover / DropdownMenu 命令式入口**~~ **已消解（2026-09-19）**：库侧 M5-4 已收敛为声明式迁移写法（`CaomeiPopoverTrigger` 支持 `unstyled` 外观豁免、DropdownMenu 支持 `model` 项模型 + 声明式锚点），momei 侧按声明式改写。
 4. ~~**排期窗口**~~ **已决策（2026-09-19）**：采用方案 A 三阶段轨迹，第六十七阶段起上收。
 5. **PrimeVue 4 的最终安全窗口**：迁移完成前若出现 4.x 安全告警，需要局部打补丁还是加速迁移，待实际发生时的风险处置。
