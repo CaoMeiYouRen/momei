@@ -9,7 +9,7 @@
         @update:open="visible = $event"
     >
         <div v-if="aggregating" class="aggregating-state">
-            <ProgressSpinner stroke-width="3" class="spinner" />
+            <CaomeiProgressSpinner :stroke-width="3" class="spinner" />
             <p class="aggregating-text">
                 AI {{ t('pages.admin.snippets.ai_thinking') }}
             </p>
@@ -17,24 +17,32 @@
         <div v-else-if="scaffold" class="scaffold-preview-container">
             <div class="scaffold-header">
                 <h3 class="scaffold-title">
-                    <i class="pi pi-sparkles" />
+                    <Sparkles :size="16" />
                     {{ t('pages.admin.snippets.ai_scaffold') }}
                 </h3>
                 <div class="flex gap-2">
-                    <Button
-                        icon="pi pi-refresh"
-                        text
-                        size="small"
-                        :label="t('common.regenerate')"
+                    <CaomeiButton
+                        variant="ghost"
+                        tone="neutral"
+                        size="sm"
                         @click="scaffold = ''"
-                    />
-                    <Button
-                        icon="pi pi-copy"
-                        text
-                        size="small"
-                        :label="t('common.copy')"
+                    >
+                        <template #icon>
+                            <RefreshCw :size="16" />
+                        </template>
+                        {{ t('common.regenerate') }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        variant="ghost"
+                        tone="neutral"
+                        size="sm"
                         @click="copyScaffold"
-                    />
+                    >
+                        <template #icon>
+                            <Copy :size="16" />
+                        </template>
+                        {{ t('common.copy') }}
+                    </CaomeiButton>
                 </div>
             </div>
             <div class="dark:prose-invert prose scaffold-content-box">
@@ -44,15 +52,15 @@
 
             <!-- Expansion Tool -->
             <div class="expansion-tool">
-                <Divider />
+                <CaomeiDivider />
                 <h4 class="expansion-title">
-                    <i class="pi pi-search-plus" />
+                    <ZoomIn :size="16" />
                     {{ t('pages.admin.snippets.expand_section') }}
                 </h4>
                 <div class="expansion-fields">
                     <div class="field-item">
                         <label>{{ t('common.title') }}</label>
-                        <InputText
+                        <CaomeiInput
                             v-model="expansionForm.sectionTitle"
                             :placeholder="t('pages.admin.snippets.expand_title')"
                             class="field-input"
@@ -60,7 +68,7 @@
                     </div>
                     <div class="field-item">
                         <label>{{ t('pages.admin.snippets.expand_type') }}</label>
-                        <Select
+                        <CaomeiSelect
                             v-model="expansionForm.expandType"
                             :options="expandTypeOptions"
                             option-label="label"
@@ -69,14 +77,17 @@
                         />
                     </div>
                     <div class="field-item full-width">
-                        <Button
-                            :label="t('pages.admin.snippets.expand_btn')"
-                            icon="pi pi-bolt"
+                        <CaomeiButton
                             class="expand-action-btn"
                             :loading="expandingSection"
                             :disabled="!expansionForm.sectionTitle.trim()"
                             @click="performExpand"
-                        />
+                        >
+                            <template #icon>
+                                <Zap :size="16" />
+                            </template>
+                            {{ t('pages.admin.snippets.expand_btn') }}
+                        </CaomeiButton>
                     </div>
                 </div>
 
@@ -84,13 +95,17 @@
                     <div v-if="expansionResult" class="expansion-result-box">
                         <div class="result-header">
                             <span>{{ t('pages.admin.snippets.expansion_result') }}</span>
-                            <Button
-                                icon="pi pi-copy"
-                                text
-                                size="small"
-                                :label="t('pages.admin.snippets.apply_expansion')"
+                            <CaomeiButton
+                                variant="ghost"
+                                tone="neutral"
+                                size="sm"
                                 @click="applyExpansion"
-                            />
+                            >
+                                <template #icon>
+                                    <Copy :size="16" />
+                                </template>
+                                {{ t('pages.admin.snippets.apply_expansion') }}
+                            </CaomeiButton>
                         </div>
                         <div class="dark:prose-invert prose result-content">
                             <div v-html="renderMarkdown(expansionResult)" />
@@ -100,23 +115,24 @@
             </div>
 
             <div class="dialog-actions-footer">
-                <Button
-                    :label="t('common.close')"
-                    text
-                    severity="secondary"
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     @click="visible = false; scaffold = ''"
-                />
-                <Button
-                    :label="t('pages.admin.snippets.convert_to_post')"
-                    icon="pi pi-file-export"
-                    severity="primary"
-                    @click="convertToPostFromScaffold"
-                />
+                >
+                    {{ t('common.close') }}
+                </CaomeiButton>
+                <CaomeiButton @click="convertToPostFromScaffold">
+                    <template #icon>
+                        <FileOutput :size="16" />
+                    </template>
+                    {{ t('pages.admin.snippets.convert_to_post') }}
+                </CaomeiButton>
             </div>
         </div>
         <div v-else class="aggregate-options">
             <div class="mode-selector">
-                <SelectButton
+                <CaomeiSelectButton
                     v-model="aggregateMode"
                     :options="[
                         {label: t('pages.admin.snippets.mode_snippets'), value: 'snippets'},
@@ -131,7 +147,7 @@
             <div class="options-form">
                 <div v-if="aggregateMode === 'topic'" class="option-field">
                     <label class="field-label">{{ t('pages.admin.snippets.topic') }}</label>
-                    <InputText
+                    <CaomeiInput
                         v-model="aggregateForm.topic"
                         class="field-input"
                         :placeholder="t('pages.admin.snippets.topic_placeholder')"
@@ -139,14 +155,14 @@
                 </div>
 
                 <div v-if="aggregateMode === 'snippets'" class="compact info-alert">
-                    <i class="pi pi-info-circle" />
+                    <Info :size="16" />
                     <span>{{ t('pages.admin.snippets.aggregate_hint_detailed', {count: selectedSnippetIds.length}) }}</span>
                 </div>
 
                 <div class="option-row">
                     <div class="option-field">
                         <label class="field-label">{{ t('pages.admin.snippets.template') }}</label>
-                        <Select
+                        <CaomeiSelect
                             v-model="aggregateForm.template"
                             :options="templateOptions"
                             option-label="label"
@@ -156,9 +172,9 @@
                     </div>
                     <div class="option-field">
                         <label class="field-label">{{ t('pages.admin.snippets.section_count') }}</label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             v-model="aggregateForm.sectionCount"
-                            show-buttons
+                            :controls="true"
                             :min="3"
                             :max="8"
                             class="field-input"
@@ -168,7 +184,7 @@
 
                 <div class="option-field">
                     <label class="field-label">{{ t('pages.admin.snippets.audience') }}</label>
-                    <SelectButton
+                    <CaomeiSelectButton
                         v-model="aggregateForm.audience"
                         :options="audienceOptions"
                         option-label="label"
@@ -178,31 +194,33 @@
                 </div>
 
                 <div class="inline-field option-field">
-                    <Checkbox
+                    <CaomeiCheckbox
                         id="intro-conclusion"
                         v-model="aggregateForm.includeIntroConclusion"
-                        binary
                     />
                     <label for="intro-conclusion" class="inline-label">{{ t('pages.admin.snippets.include_intro_conclusion') }}</label>
                 </div>
             </div>
 
-            <Divider />
+            <CaomeiDivider />
 
             <div class="dialog-actions">
-                <Button
-                    :label="t('common.cancel')"
-                    text
-                    severity="secondary"
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     @click="visible = false"
-                />
-                <Button
-                    :label="t('pages.admin.snippets.generate_scaffold')"
-                    icon="pi pi-sparkles"
-                    severity="primary"
+                >
+                    {{ t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :loading="aggregating"
                     @click="performAggregate"
-                />
+                >
+                    <template #icon>
+                        <Sparkles :size="16" />
+                    </template>
+                    {{ t('pages.admin.snippets.generate_scaffold') }}
+                </CaomeiButton>
             </div>
         </div>
     </CaomeiDialog>
@@ -210,6 +228,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { Copy, FileOutput, Info, RefreshCw, Sparkles, Zap, ZoomIn } from '@lucide/vue'
 import markdownit from 'markdown-it'
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'
@@ -223,7 +242,7 @@ const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
 const md = markdownit()
 
@@ -291,7 +310,7 @@ const performAggregate = async () => {
             body: {
                 ...aggregateForm.value,
                 snippetIds: aggregateMode.value === 'snippets' ? props.selectedSnippetIds : [],
-                language: useI18n().locale.value || 'zh-CN',
+                language: locale.value || 'zh-CN',
             },
         })
         scaffold.value = res.data.scaffold
@@ -308,7 +327,7 @@ const performExpand = async () => {
     expandingSection.value = true
     expansionResult.value = ''
     try {
-        const currentLanguage = (useI18n().locale.value) || 'zh-CN'
+        const currentLanguage = locale.value || 'zh-CN'
         const res = await $fetch<ApiResponse<{ expansion: string }>>('/api/ai/scaffold/expand-section', {
             method: 'POST',
             body: {

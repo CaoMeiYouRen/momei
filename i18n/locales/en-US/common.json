@@ -6,6 +6,7 @@
         "locale": "en-US"
     },
     "common": {
+        "back": "Back",
         "export": "Export",
         "next": "Next",
         "prev": "Prev",

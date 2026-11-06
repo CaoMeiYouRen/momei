@@ -6,6 +6,7 @@
         "locale": "ko-KR"
     },
     "common": {
+        "back": "뒤로",
         "export": "내보내기",
         "next": "다음",
         "prev": "이전",

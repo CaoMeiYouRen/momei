@@ -6,6 +6,7 @@
         "locale": "zh-CN"
     },
     "common": {
+        "back": "返回",
         "export": "导出",
         "next": "下一步",
         "prev": "上一步",

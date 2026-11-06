@@ -2655,29 +2655,187 @@
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 160,
+                        "width": 1120,
+                        "height": 200
+                    },
+                    "pixels": 10082,
+                    "reason": "快捷采集卡片 + Bookmarklet 折叠面板：CaomeiCard / CaomeiAccordion 内边距与高度差异。处置通道① token 校准。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1160,
+                        "y": 80,
+                        "width": 160,
+                        "height": 40
+                    },
+                    "pixels": 3746,
+                    "reason": "头部聚合按钮：severity=help 映射 secondary/neutral 后的尺寸差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 560,
+                        "y": 640,
+                        "width": 320,
+                        "height": 120
+                    },
+                    "pixels": 1942,
+                    "reason": "分页区：CaomeiPaginator 尺寸与自渲染页码报告。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 1024,
+                    "reason": "页面壳左上品牌标识渲染波动（两态均存在，非本批组件差异）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 400,
+                        "width": 120,
+                        "height": 40
+                    },
+                    "pixels": 780,
+                    "reason": "空态图标：lucide Inbox 与 PrimeVue pi-inbox 的尺寸差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1240,
+                        "y": 400,
+                        "width": 40,
+                        "height": 40
+                    },
+                    "pixels": 54,
+                    "reason": "空态区域边缘抗锯齿差异。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-11-06 样式修复后按实测重登记。light 实测 17,628px / 1.360%（6 个互斥连通区域，区域和 = 实测，无余量）。"
         },
         "admin-snippets-list-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 160,
+                        "width": 1120,
+                        "height": 200
+                    },
+                    "pixels": 9554,
+                    "reason": "快捷采集卡片 + Bookmarklet 折叠面板：暗色下内边距与底色差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1160,
+                        "y": 80,
+                        "width": 160,
+                        "height": 40
+                    },
+                    "pixels": 3812,
+                    "reason": "头部聚合按钮尺寸差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 120,
+                        "y": 400,
+                        "width": 1200,
+                        "height": 440
+                    },
+                    "pixels": 3928,
+                    "reason": "空态区域：CaomeiCard 暗色底色与空态布局位移；该连通区域已包含分页边缘差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 80,
+                        "height": 80
+                    },
+                    "pixels": 1024,
+                    "reason": "页面壳左上品牌标识渲染波动（两态均存在）。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-11-06 样式修复后按实测重登记。dark 实测 18,318px / 1.413%（4 个互斥 allowlist 区域（含 5 个连通域，空态带内 149px 已并入）：9,554 + 3,812 + 3,928 + 1,024 = 18,318，声明值 = 各区域实测，无余量；空态大区域自身已包含分页边缘的 149px）。"
         },
         "admin-snippets-capture-light": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 400,
+                        "y": 120,
+                        "width": 640,
+                        "height": 760
+                    },
+                    "pixels": 5660,
+                    "reason": "主文本域区：CaomeiTextarea 外壳与内层 control 的行高 / 内边距差异（已修复控件高度，仍存外观差）。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 440,
+                        "y": 0,
+                        "width": 240,
+                        "height": 80
+                    },
+                    "pixels": 3427,
+                    "reason": "头部操作按钮：CaomeiButton 圆角 / 尺寸与 PrimeVue 图标按钮差异。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-11-06 样式修复后按实测重登记。light 实测 9,087px / 0.701%（2 个互斥连通区域，区域和 = 实测，无余量）。"
         },
         "admin-snippets-capture-dark": {
             "tier": "admin",
             "maxDiffPixels": 3000,
             "maxDiffPixelRatio": 0.0035,
-            "allowlist": [],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），allowlist 待迁移后按实测登记。"
+            "allowlist": [
+                {
+                    "region": {
+                        "x": 400,
+                        "y": 120,
+                        "width": 640,
+                        "height": 760
+                    },
+                    "pixels": 5934,
+                    "reason": "主文本域区：CaomeiTextarea 外壳与内层 control 的暗色外观差异。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 440,
+                        "y": 0,
+                        "width": 240,
+                        "height": 80
+                    },
+                    "pixels": 3476,
+                    "reason": "头部操作按钮尺寸差异。",
+                    "owner": "@full-stack-master"
+                }
+            ],
+            "note": "校准：2026-11-06 样式修复后按实测重登记。dark 实测 9,410px / 0.726%（2 个互斥连通区域，区域和 = 实测，无余量）。"
         },
         "home-light": {
             "tier": "reader",

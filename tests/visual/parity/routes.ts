@@ -292,6 +292,22 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         readyResponse: '/api/admin/ai/tasks',
         activate: { role: 'tab', name: '任务记录' },
     },
+    {
+        name: 'admin-snippets-list',
+        path: '/admin/snippets',
+        heading: '灵感收纳箱',
+        tier: 'admin',
+        migrated: true,
+        stable: 'lenient',
+    },
+    {
+        name: 'admin-snippets-capture',
+        path: '/admin/snippets/capture',
+        heading: '极简采集模式',
+        tier: 'admin',
+        migrated: true,
+        stable: 'lenient',
+    },
 ]
 
 /**
@@ -314,24 +330,6 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
  * 以上路由的迁移由 E2E + 组件单测覆盖，待条目开工时按需补采。
  */
 export const PENDING_ROUTES: ParityRoute[] = [
-    /* 管理端（2 条）：剩余管理端路由。登录态由 `tests/e2e/.auth/admin.json` 提供。 */
-    {
-        name: 'admin-snippets-list',
-        path: '/admin/snippets',
-        heading: '灵感收纳箱',
-        tier: 'admin',
-        migrated: false,
-        stable: 'lenient',
-    },
-    {
-        name: 'admin-snippets-capture',
-        path: '/admin/snippets/capture',
-        heading: '极简采集模式',
-        tier: 'admin',
-        migrated: false,
-        stable: 'lenient',
-    },
-
     /* 公开页（12 条）：公开路由。登录态下渲染，参考态与当前态口径一致。 */
     {
         name: 'home',

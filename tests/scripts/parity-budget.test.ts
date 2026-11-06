@@ -72,4 +72,22 @@ describe('parity 路由台账防退化', () => {
         expect(manifestNames.length).toBe(routeNames.length)
         expect(new Set(manifestNames)).toEqual(new Set(routeNames))
     })
+
+    it('允许清单像素量不超过区域面积', () => {
+        const budgetPath = path.join(process.cwd(), 'tests/visual/parity-budget.json')
+        const budget = JSON.parse(fs.readFileSync(budgetPath, 'utf8')) as {
+            entries: Record<string, { allowlist: { region: { x: number, y: number, width: number, height: number }, pixels: number }[] }>
+        }
+
+        /*
+         * 只校验「像素量 ≤ 面积」：历史条目存在有意的嵌套区域（外层矩形扣减时已排除子区域，
+         * 见 `admin-settings-form-dark` 的 note），不能一刀切禁止重叠。
+         * 新增条目仍要求区域互不重叠、声明值 = 实测；该口径由批次校准记录与人工复核保证。
+         */
+        for (const [name, entry] of Object.entries(budget.entries)) {
+            entry.allowlist.forEach((item, index) => {
+                expect(item.pixels, `${name} 第 ${index} 条像素量超过区域面积`).toBeLessThanOrEqual(item.region.width * item.region.height)
+            })
+        }
+    })
 })

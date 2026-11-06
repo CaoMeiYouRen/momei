@@ -2,28 +2,37 @@
     <div class="minimal-capture-page">
         <div class="capture-container">
             <header class="capture-header">
-                <Button
-                    icon="pi pi-arrow-left"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="t('common.back')"
                     @click="goBack"
-                />
+                >
+                    <template #icon>
+                        <ArrowLeft :size="18" />
+                    </template>
+                </CaomeiButton>
                 <h1 class="font-bold text-xl">
                     {{ t('pages.admin.snippets.capture_title') }}
                 </h1>
                 <div class="flex-grow" />
-                <Button
+                <CaomeiButton
                     v-if="!isSaving && (content.trim() || pendingMedia.length)"
-                    :label="t('common.save')"
-                    icon="pi pi-check"
                     rounded
                     @click="saveSnippet"
-                />
-                <ProgressSpinner v-if="isSaving" style="width: 2rem; height: 2rem" />
+                >
+                    <template #icon>
+                        <Check :size="16" />
+                    </template>
+                    {{ t('common.save') }}
+                </CaomeiButton>
+                <CaomeiProgressSpinner v-if="isSaving" class="capture-spinner" />
             </header>
 
             <main class="capture-main">
-                <Textarea
+                <CaomeiTextarea
                     ref="textareaRef"
                     v-model="content"
                     auto-resize
@@ -38,15 +47,20 @@
                         class="media-item"
                     >
                         <img :src="url">
-                        <Button
-                            icon="pi pi-times"
-                            severity="danger"
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="danger"
                             rounded
-                            text
-                            size="small"
+                            size="sm"
                             class="remove-btn"
+                            :label="t('common.delete')"
                             @click="removeMedia(index)"
-                        />
+                        >
+                            <template #icon>
+                                <X :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </div>
                 </div>
             </main>
@@ -60,13 +74,19 @@
                     button-rounded
                     button-class="capture-voice-trigger"
                 />
-                <Button
-                    icon="pi pi-image"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
                     :loading="isUploading"
+                    :label="t('pages.admin.snippets.upload_image')"
                     @click="triggerUpload"
-                />
+                >
+                    <template #icon>
+                        <ImageIcon :size="18" />
+                    </template>
+                </CaomeiButton>
                 <input
                     ref="fileInput"
                     type="file"
@@ -77,11 +97,9 @@
                 >
 
                 <div v-if="source" class="source-info">
-                    <Tag
-                        :value="t(`pages.admin.snippets.source_types.${source}`)"
-                        severity="secondary"
-                        rounded
-                    />
+                    <CaomeiTag tone="neutral" rounded>
+                        {{ t(`pages.admin.snippets.source_types.${source}`) }}
+                    </CaomeiTag>
                 </div>
             </footer>
         </div>
@@ -89,6 +107,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowLeft, Check, Image as ImageIcon, X } from '@lucide/vue'
+
 const { t } = useI18n()
 const route = useRoute()
 const { showErrorToast, showSuccessToast } = useRequestFeedback()
@@ -97,7 +117,7 @@ const content = ref('')
 const pendingMedia = ref<string[]>([])
 const isSaving = ref(false)
 const isUploading = ref(false)
-const textareaRef = ref<any>(null)
+const textareaRef = ref<{ $el?: HTMLElement } | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 
 const source = ref((route.query.source as string) || 'web')
@@ -121,10 +141,9 @@ onMounted(() => {
 
     // Autofocus on mount
     setTimeout(() => {
-        if (textareaRef.value) {
-            const el = textareaRef.value.$el || textareaRef.value
-            el.focus?.()
-        }
+        const root = textareaRef.value?.$el
+        const textarea = root instanceof HTMLTextAreaElement ? root : root?.querySelector('textarea')
+        textarea?.focus()
     }, 100)
 })
 
@@ -230,6 +249,11 @@ definePageMeta({
         gap: 0.5rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid var(--surface-200);
+
+        .capture-spinner {
+            width: 2rem;
+            height: 2rem;
+        }
     }
 
     .capture-main {
@@ -243,17 +267,24 @@ definePageMeta({
     .capture-textarea {
         flex: 1;
         width: 100%;
-        border: none;
-        resize: none !important;
-        font-size: 1.25rem;
-        line-height: 1.6;
-        padding: 0;
-        background: transparent;
-        color: var(--text-color);
+        display: flex;
 
-        &:focus {
-            box-shadow: none;
-            outline: none;
+        :deep(.caomei-textarea__control) {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none !important;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            padding: 0;
+            background: transparent;
+            color: var(--text-color);
+
+            &:focus {
+                box-shadow: none;
+                outline: none;
+            }
         }
     }
 

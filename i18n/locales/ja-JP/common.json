@@ -6,6 +6,7 @@
         "locale": "ja-JP"
     },
     "common": {
+        "back": "戻る",
         "export": "エクスポート",
         "next": "次へ",
         "prev": "前へ",

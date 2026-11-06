@@ -10,6 +10,41 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-a-snippets:第七十一阶段条目 2 灵感收纳箱整路由:2026-11-06 -->
+
+## 2026-11-06 第七十一阶段条目 2（B4-A 首批）：灵感收纳箱整路由迁移
+
+### 范围
+
+- `/admin/snippets` + `/admin/snippets/capture` 整路由（7 文件：5 组件 + 2 页面）：`snippet-card` / `quick-capture` / `edit-dialog` / `bookmarklet` / `aggregate-dialog` + 两个页面。
+- 组件替换：Button（icon-only + lucide `#icon`）、Tag（tone + 默认插槽）、Checkbox（数组模型）、Paginator（1 基 `page` + 自渲染页码报告，`useAdminList` 加 `pageIndexBase: 1`）、Textarea / Select / SelectButton / InputNumber / Divider / Card / Image / Accordion 族；图标 30+ → `@lucide/vue`（`pi-spin` → `LoaderCircle` + 本组件动画）。
+- 路由登记：`CAOMEI_UI_ROUTE_SCOPES` 新增 `/admin/snippets`（`ownedFiles` 5 个组件 + `migratedSubRoutes` capture）。
+
+### 验证
+
+- `pnpm test:visual:parity`（仅 4 条，**样式修复后重测**）：**4 passed**；list-light 17,628px / list-dark 18,318px / capture-light 9,087px / capture-dark 9,410px，全部由 allowlist 按实测扣减，未归因 0。修复前 list-dark 为 73,535px（快捷采集卡片高度塌缩导致），修复 textarea 内层控件后回落。
+- `npx vitest run pages/admin/snippets/index.test.ts components/admin/snippets tests/modules/ui-library-*-guard.test.ts tests/scripts/parity-budget.test.ts`：**7 files / 98 passed**（页面 5 + 组件 10 + 守卫 74 + 预算 9）。
+- `ui-library-route-migration-guard` + transition guard：**74 passed**（路由守卫 58 + 过渡组件 16）。
+- `pnpm typecheck` 0；`pnpm lint` 0 error；`pnpm build` 通过（2m27s）。
+- 页面结构探测（Playwright + admin storage）：h1、聚合按钮 disabled、空态、capture 标题 / textarea / Tag 均正常，`pageerror` 0。
+
+### 修复（Round 1 审计）
+
+- 补 5 个语言包 `common.back`（返回按钮可访问名）；
+- `CaomeiTextarea` 内层 control 的 flex / 高度 / 字号 / 行高（capture 20px、quick-capture 18px、edit 16px）；
+- 缩略图补 `.caomei-image` 根节点尺寸；
+- 聚合弹窗移除 `useI18n()` 内联调用（改用 setup 顶层 `locale`，避免事件处理器内抛错）；
+- parity allowlist 按互斥连通区域重登记（list-dark 改为 4 个 allowlist 区域（5 个连通域），声明值 = 各区域实测）。
+
+### 未覆盖边界
+
+- 非空片段列表的分页交互未用真实数据验证（TEST_MODE 无片段种子），分页转换由单测覆盖。
+- E2E 补跑计划：`tests/e2e` 无 snippets 专用 spec，随下一次 `regression:weekly` / 管理端 E2E 补跑 `/admin/snippets` 主路径；本窗口不以探针替代 E2E 证据。
+- list-dark 修复前 73,535px 中约 55,000px 来自快捷采集卡片高度塌缩（内层 `textarea` 仅 45px）；修复后降至 18,318px，剩余为卡片 / 折叠面板内边距与暗色底色差异。
+- capture 的差异由 5,620 / 5,956 增至 9,087 / 9,410：文本域修复为填满容器后，外观差异区域随之扩大，属结构正确后的真实差异。
+
+<!-- regression-window:end:b4-a-snippets:第七十一阶段条目 2 灵感收纳箱整路由:2026-11-06 -->
+
 <!-- regression-window:start:b4-item-1-baseline:第七十一阶段条目 1 B4 开工基座:2026-11-06 -->
 
 ## 2026-11-06 第七十一阶段条目 1：B4 开工基座与参考态采集

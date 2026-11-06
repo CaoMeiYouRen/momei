@@ -9,13 +9,17 @@
                         </span>
                     </transition>
                     <AppTooltip :content="t('pages.admin.snippets.aggregate_hint')" side="bottom">
-                        <Button
-                            :label="t('pages.admin.snippets.aggregate')"
-                            icon="pi pi-sparkles"
-                            severity="help"
+                        <CaomeiButton
+                            variant="secondary"
+                            tone="neutral"
                             :disabled="!selectedSnippetIds.length"
                             @click="showAggregateDialog = true"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="16" />
+                            </template>
+                            {{ t('pages.admin.snippets.aggregate') }}
+                        </CaomeiButton>
                     </AppTooltip>
                 </div>
             </template>
@@ -29,14 +33,14 @@
 
         <div class="snippets-container">
             <div v-if="loading && !items.length" class="loading-state">
-                <i class="pi pi-spin pi-spinner" />
+                <LoaderCircle :size="48" class="loading-spinner" />
                 <p class="loading-text">
                     {{ t('common.loading') }}
                 </p>
             </div>
 
             <div v-else-if="!items.length" class="empty-state">
-                <i class="empty-icon pi pi-inbox" />
+                <Inbox :size="72" class="empty-icon" />
                 <p class="empty-main-text">
                     {{ t('pages.admin.snippets.empty') }}
                 </p>
@@ -57,7 +61,7 @@
                         class="snippet-item-wrapper"
                     >
                         <div class="checkbox-wrapper">
-                            <Checkbox
+                            <CaomeiCheckbox
                                 v-model="selectedSnippetIds"
                                 :value="item.id"
                             />
@@ -73,14 +77,15 @@
                 </transition-group>
 
                 <div class="pagination-wrapper">
-                    <Paginator
-                        v-model:first="paginatorFirst"
-                        :rows="pagination.limit"
-                        :total-records="pagination.total"
-                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    <CaomeiPaginator
+                        v-model:page="currentPage"
+                        :items-per-page="pagination.limit"
+                        :total="pagination.total"
+                        show-edges
                         class="paginator-custom"
-                        @page="onPageChange"
+                        @update:page="onPageChange"
                     />
+                    <span class="pagination-report">{{ currentPage }} / {{ totalPages }}</span>
                 </div>
             </template>
         </div>
@@ -108,6 +113,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { Inbox, LoaderCircle, Sparkles } from '@lucide/vue'
 import { useAdminList } from '@/composables/use-admin-list'
 import SnippetCard from '@/components/admin/snippets/snippet-card.vue'
 import SnippetQuickCapture from '@/components/admin/snippets/snippet-quick-capture.vue'
@@ -128,6 +134,7 @@ const {
 const { items, pagination, loading, refresh, onPage } = useAdminList<Snippet>({
     url: '/api/admin/snippets',
     initialLimit: 12,
+    pageIndexBase: 1,
 })
 
 const selectedSnippetIds = ref<string[]>([])
@@ -163,10 +170,10 @@ const deleteSnippet = async () => {
     }
 }
 
-const paginatorFirst = ref(0)
-const onPageChange = (event: any) => {
-    onPage(event)
-    paginatorFirst.value = event.first
+const currentPage = ref(1)
+const totalPages = computed(() => Math.max(1, Math.ceil((pagination.value.total || 0) / (pagination.value.limit || 1))))
+const onPageChange = (nextPage: number) => {
+    onPage({ page: nextPage, rows: pagination.value.limit })
 }
 
 definePageMeta({
@@ -203,14 +210,20 @@ definePageMeta({
             padding: 5rem 0;
             gap: 1rem;
 
-            .pi-spinner {
-                font-size: 3rem;
+            .loading-spinner {
+                animation: snippet-spin 1s linear infinite;
                 color: var(--p-primary-color);
             }
 
             .loading-text {
                 color: var(--p-text-muted-color);
                 animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .loading-spinner {
+                    animation: none;
+                }
             }
         }
 
@@ -227,7 +240,6 @@ definePageMeta({
             color: var(--p-text-muted-color);
 
             .empty-icon {
-                font-size: 4.5rem;
                 margin-bottom: 1rem;
                 opacity: 0.2;
             }
@@ -279,6 +291,8 @@ definePageMeta({
         .pagination-wrapper {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 1rem;
             margin-top: 3rem;
             background: var(--p-content-background);
             padding: 1rem 1.5rem;
@@ -292,6 +306,12 @@ definePageMeta({
             margin-left: auto;
             margin-right: auto;
 
+            .pagination-report {
+                font-size: 0.875rem;
+                color: var(--p-text-muted-color);
+                white-space: nowrap;
+            }
+
             .paginator-custom {
                 background: transparent !important;
                 border: none !important;
@@ -304,6 +324,10 @@ definePageMeta({
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
+}
+
+@keyframes snippet-spin {
+    to { transform: rotate(360deg); }
 }
 
 // Transitions

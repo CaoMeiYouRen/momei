@@ -22,11 +22,11 @@
                         button-class="edit-field__voice-trigger"
                     />
                 </div>
-                <Textarea
+                <CaomeiTextarea
                     id="content"
                     ref="contentInputRef"
                     v-model="form.content"
-                    rows="12"
+                    :rows="12"
                     auto-resize
                     class="edit-textarea field-input"
                 />
@@ -44,20 +44,25 @@
                             :key="index"
                             class="media-item"
                         >
-                            <Image
+                            <CaomeiImage
                                 :src="url"
                                 alt="Attachment"
                                 preview
                                 class="media-preview"
-                                image-class="media-img"
                             />
-                            <Button
-                                icon="pi pi-times"
-                                severity="danger"
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                tone="danger"
                                 rounded
                                 class="remove-btn"
+                                :label="t('common.delete')"
                                 @click="removeEditMedia(index)"
-                            />
+                            >
+                                <template #icon>
+                                    <X :size="16" />
+                                </template>
+                            </CaomeiButton>
                         </div>
                     </div>
                     <div class="media-actions">
@@ -69,21 +74,24 @@
                             multiple
                             @change="onEditFileChange"
                         >
-                        <Button
-                            icon="pi pi-image"
-                            :label="t('pages.admin.snippets.upload_image')"
-                            severity="secondary"
-                            text
+                        <CaomeiButton
+                            variant="ghost"
+                            tone="neutral"
                             :loading="imageUploading"
                             @click="triggerEditUpload"
-                        />
+                        >
+                            <template #icon>
+                                <ImageIcon :size="16" />
+                            </template>
+                            {{ t('pages.admin.snippets.upload_image') }}
+                        </CaomeiButton>
                     </div>
                 </div>
             </div>
 
             <div class="edit-field">
                 <label for="status" class="field-label">{{ t('pages.admin.snippets.status') }}</label>
-                <Select
+                <CaomeiSelect
                     id="status"
                     v-model="form.status"
                     :options="statusOptions"
@@ -95,18 +103,22 @@
         </div>
         <template #footer>
             <div class="edit-dialog-footer">
-                <Button
-                    :label="t('common.cancel')"
-                    text
-                    severity="secondary"
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     @click="visible = false"
-                />
-                <Button
-                    :label="t('common.save')"
-                    icon="pi pi-check"
+                >
+                    {{ t('common.cancel') }}
+                </CaomeiButton>
+                <CaomeiButton
                     :loading="saving"
                     @click="updateSnippet"
-                />
+                >
+                    <template #icon>
+                        <Check :size="16" />
+                    </template>
+                    {{ t('common.save') }}
+                </CaomeiButton>
             </div>
         </template>
     </CaomeiDialog>
@@ -114,6 +126,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { Check, Image as ImageIcon, X } from '@lucide/vue'
 import type { Snippet } from '@/types/snippet'
 import { useUpload, UploadType } from '@/composables/use-upload'
 
@@ -144,7 +157,7 @@ const form = ref({
 
 const saving = ref(false)
 const editFileInput = ref<HTMLInputElement | null>(null)
-const contentInputRef = ref<HTMLTextAreaElement | null>(null)
+const contentInputRef = ref<{ $el?: HTMLElement } | null>(null)
 const snippetLanguage = computed(() => 'zh-CN')
 
 watch(() => props.snippet, (newVal) => {
@@ -242,9 +255,11 @@ const updateSnippet = async () => {
         }
 
         .edit-textarea {
-            font-family: inherit;
-            line-height: 1.6;
-            font-size: 1rem;
+            :deep(.caomei-textarea__control) {
+                font-family: inherit;
+                line-height: 1.6;
+                font-size: 1rem;
+            }
         }
 
         .edit-media-manager {
@@ -265,7 +280,13 @@ const updateSnippet = async () => {
                         width: 100%;
                         height: 100%;
 
-                        :deep(.media-img) {
+                        :deep(.caomei-image) {
+                            width: 100%;
+                            height: 100%;
+                            display: block;
+                        }
+
+                        :deep(img) {
                             width: 100%;
                             height: 100%;
                             object-fit: cover;

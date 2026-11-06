@@ -1,96 +1,107 @@
 <template>
     <div class="quick-capture-wrapper">
-        <Card class="quick-capture-card">
-            <template #content>
-                <div class="quick-capture-content">
-                    <div class="quick-capture-header">
-                        <i class="pi pi-pencil text-primary" />
-                        <span class="quick-capture-title">{{ t('pages.admin.snippets.quick_capture_title') }}</span>
-                    </div>
-                    <Textarea
-                        ref="contentInputRef"
-                        v-model="newSnippet"
-                        rows="2"
-                        :placeholder="t('pages.admin.snippets.quick_capture_placeholder')"
-                        class="quick-capture-input"
-                        auto-resize
-                        @keydown.ctrl.enter="saveSnippet"
-                    />
+        <CaomeiCard class="quick-capture-card">
+            <div class="quick-capture-content">
+                <div class="quick-capture-header">
+                    <Pencil :size="16" class="text-primary" />
+                    <span class="quick-capture-title">{{ t('pages.admin.snippets.quick_capture_title') }}</span>
+                </div>
+                <CaomeiTextarea
+                    ref="contentInputRef"
+                    v-model="newSnippet"
+                    :rows="2"
+                    :placeholder="t('pages.admin.snippets.quick_capture_placeholder')"
+                    class="quick-capture-input"
+                    auto-resize
+                    @keydown.ctrl.enter="saveSnippet"
+                />
 
-                    <div v-if="pendingMedia.length" class="pending-media">
-                        <div
-                            v-for="(url, index) in pendingMedia"
-                            :key="index"
-                            class="media-item"
+                <div v-if="pendingMedia.length" class="pending-media">
+                    <div
+                        v-for="(url, index) in pendingMedia"
+                        :key="index"
+                        class="media-item"
+                    >
+                        <CaomeiImage
+                            :src="url"
+                            preview
+                            alt=""
+                        />
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="danger"
+                            rounded
+                            size="sm"
+                            class="remove-btn"
+                            :label="t('common.delete')"
+                            @click="removeMedia(index)"
                         >
-                            <Image
-                                :src="url"
-                                width="64"
-                                preview
-                            />
-                            <Button
-                                icon="pi pi-times"
-                                severity="danger"
-                                rounded
-                                text
-                                size="small"
-                                class="remove-btn"
-                                @click="removeMedia(index)"
-                            />
-                        </div>
-                    </div>
-
-                    <Divider class="quick-capture-divider" />
-                    <div class="quick-capture-footer">
-                        <div class="footer-left">
-                            <AppVoiceInputTrigger
-                                v-model="newSnippet"
-                                :target-ref="contentInputRef"
-                                insert-strategy="cursor"
-                                :show-refine-action="true"
-                                button-rounded
-                                button-class="quick-capture-voice-btn"
-                            />
-                            <AppTooltip :content="t('pages.admin.snippets.upload_image')" side="bottom">
-                                <Button
-
-                                    :loading="imageUploading"
-                                    icon="pi pi-image"
-                                    text
-                                    rounded
-                                    severity="secondary"
-                                    @click="triggerUpload"
-                                />
-                            </AppTooltip>
-                            <input
-                                ref="fileInput"
-                                type="file"
-                                style="display: none"
-                                accept="image/*"
-                                multiple
-                                @change="onFileChange"
-                            >
-                        </div>
-                        <div class="footer-right">
-                            <span class="shortcut-tip">Ctrl + Enter</span>
-                            <Button
-                                :label="t('common.save')"
-                                icon="pi pi-send"
-                                class="save-btn"
-                                :loading="saving"
-                                :disabled="!newSnippet.trim() && !pendingMedia.length"
-                                @click="saveSnippet"
-                            />
-                        </div>
+                            <template #icon>
+                                <X :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </div>
                 </div>
-            </template>
-        </Card>
+
+                <CaomeiDivider class="quick-capture-divider" />
+                <div class="quick-capture-footer">
+                    <div class="footer-left">
+                        <AppVoiceInputTrigger
+                            v-model="newSnippet"
+                            :target-ref="contentInputRef"
+                            insert-strategy="cursor"
+                            :show-refine-action="true"
+                            button-rounded
+                            button-class="quick-capture-voice-btn"
+                        />
+                        <AppTooltip :content="t('pages.admin.snippets.upload_image')" side="bottom">
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                tone="neutral"
+                                rounded
+                                :loading="imageUploading"
+                                :label="t('pages.admin.snippets.upload_image')"
+                                @click="triggerUpload"
+                            >
+                                <template #icon>
+                                    <ImageIcon :size="16" />
+                                </template>
+                            </CaomeiButton>
+                        </AppTooltip>
+                        <input
+                            ref="fileInput"
+                            type="file"
+                            style="display: none"
+                            accept="image/*"
+                            multiple
+                            @change="onFileChange"
+                        >
+                    </div>
+                    <div class="footer-right">
+                        <span class="shortcut-tip">Ctrl + Enter</span>
+                        <CaomeiButton
+                            class="save-btn"
+                            :loading="saving"
+                            :disabled="!newSnippet.trim() && !pendingMedia.length"
+                            @click="saveSnippet"
+                        >
+                            <template #icon>
+                                <Send :size="16" />
+                            </template>
+                            {{ t('common.save') }}
+                        </CaomeiButton>
+                    </div>
+                </div>
+            </div>
+        </CaomeiCard>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { Image as ImageIcon, Pencil, Send, X } from '@lucide/vue'
 import { useUpload, UploadType } from '@/composables/use-upload'
 
 const emit = defineEmits<{
@@ -105,7 +116,7 @@ const newSnippet = ref('')
 const pendingMedia = ref<string[]>([])
 const saving = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
-const contentInputRef = ref<HTMLTextAreaElement | null>(null)
+const contentInputRef = ref<{ $el?: HTMLElement } | null>(null)
 
 const triggerUpload = () => {
     fileInput.value?.click()
@@ -216,14 +227,17 @@ const saveSnippet = async () => {
 
             .quick-capture-input {
                 width: 100%;
-                border: none;
-                background: transparent;
-                padding: 0.5rem 0;
-                font-size: 1.125rem;
-                box-shadow: none;
 
-                &:focus {
-                    outline: none;
+                :deep(.caomei-textarea__control) {
+                    border: none;
+                    background: transparent;
+                    padding: 0.5rem 0;
+                    font-size: 1.125rem;
+                    box-shadow: none;
+
+                    &:focus {
+                        outline: none;
+                    }
                 }
             }
 
@@ -241,15 +255,16 @@ const saveSnippet = async () => {
                     overflow: hidden;
                     border: 1px solid var(--p-content-border-color);
 
-                    :deep(.p-image) {
+                    :deep(.caomei-image) {
                         width: 100%;
                         height: 100%;
+                        display: block;
+                    }
 
-                        img {
-                            width: 100%;
-                            height: 100%;
-                            object-fit: cover;
-                        }
+                    :deep(img) {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
                     }
 
                     .remove-btn {

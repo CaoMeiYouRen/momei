@@ -10,8 +10,11 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
+- **当前剩余（2026-11-06 B4-A 首批后复算）**：组件 **429 处 / 36 类**、图标 **374 处**、token **1,443 处**；`/admin/snippets` 与 `/capture` 已完成并移出本节清单。
 
 ## 2. 未迁移路由与文件映射
+
+> 本节为**开工口径**（2026-11-06 取数）；已完成迁移项在 §5 标记状态，不在本节删除，便于核对批次差异。
 
 ### 2.1 页面文件
 
@@ -134,7 +137,7 @@
 2. 全部 B4 路由迁移完成，**且另行安排 B3 残留族收口**（上述 8 条路由的展示族与表单族）后，再把展示族 + B3 表单族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。仅完成 B4 路由迁移不足以清零这些残留——它们位于已迁移路由，B4 只随图标与布局壳复核。
 3. 子路由例外复核：`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 在本阶段由例外转为正式迁移；转正前不得把 `/admin/posts` / `/admin/ai` 的族约束扩展到这两个文件（当前守卫已按例外放行）。
 
-## 5. 文件 → 改动点清单（骨架，待条目 2 / 3 / 4 填充）
+## 5. 文件 → 改动点清单（snippets 子批已填，其余待条目 2 / 3 / 4 填充）
 
 | 文件 | 路由 | 组件族 | 改动点 | 依据指针 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -143,7 +146,7 @@
 | `pages/posts/[id].vue` | `/posts/[id]` | Skeleton / Button / Message / Tag / InputText | （待填） | 同上 | 待迁移 |
 | `pages/index.vue` | `/` | Skeleton | （待填） | 同上 | 待迁移 |
 | `pages/admin/calendar/index.vue` + `components/admin/calendar/**` | `/admin/calendar` | Button / Select / Tabs 族 / Tag | （待填） | 同上 | 待迁移 |
-| `pages/admin/snippets/**` + `components/admin/snippets/**` | `/admin/snippets`、`/capture` | Button / Checkbox / Paginator / ProgressSpinner / Textarea / Tag / Select / SelectButton / InputNumber / Image / Card / Divider | （待填） | 同上 | 待迁移 |
+| `pages/admin/snippets/**` + `components/admin/snippets/**`（7 文件：5 组件 + 2 页面） | `/admin/snippets`、`/capture` | Button / Checkbox / Paginator / ProgressSpinner / Textarea / Tag / Select / SelectButton / InputNumber / Image / Card / Divider / Accordion 族 | 已迁完：Button（icon-only + lucide #icon）、Tag（tone + 默认插槽）、Checkbox（数组模型）、Paginator（1 基 `page` + 自渲染页码报告，`useAdminList` 加 `pageIndexBase: 1`）、Textarea/Select/SelectButton/InputNumber/Divider/Card/Image/Accordion 族替换；图标 30+ → `@lucide/vue`（`pi-spin` → `LoaderCircle` + 本组件动画） | 迁移方案 §6.2 / §6.1 E 组 / 清单 §2.1 | **已迁移（待 Round 3 复审）**：parity 4/4 PASS（allowlist 按实测登记）、单测 15 例（页面 5 + 组件 10）、guard 58 + 16 |
 | `components/admin/posts/**`（23 文件） | `/admin/posts/[id]` | 见 §2.3 | （待填） | 同上 | 待迁移 |
 | `components/app-header.vue` / `app-search.vue` / `app-notifications.vue` / `app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `reader-controls.vue` / `language-switcher.vue` / `feedback-entry-button.vue` / `article-*.vue` / `comment-*.vue` / `subscriber-form.vue` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 | 见 §2.3 | （待填） | 同上 | 待迁移 |
 | `pages/about.vue` / `benefits.vue` / `feedback.vue` / `archives/index.vue` / `categories/index.vue` / `tags/index.vue` / `posts/index.vue` | 公开路由 | 见 §2.1 | （待填） | 同上 | 待迁移 |
@@ -151,6 +154,7 @@
 ## 6. 变更记录
 
 - 2026-11-06：条目 1 立项产出（现取复核、14 条参考态纳入与采集、扩族策略、清单骨架）。
+- 2026-11-06（B4-A 首批）：`/admin/snippets` + `/admin/snippets/capture` 整路由迁移完成（7 文件：5 组件 + 2 页面），路由 scope 与 `migratedSubRoutes` 登记，parity 4/4 PASS；其余管理端路由待迁移。
 - 条目 2 / 3 / 4 迁移时在本表逐行补「改动点 / 依据指针 / 状态」，不新增第二份清单。
 
 ## 7. 相关文档

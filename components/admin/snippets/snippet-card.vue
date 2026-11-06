@@ -3,45 +3,63 @@
         <div class="snippet-card__header">
             <div class="snippet-card__meta">
                 <span class="snippet-card__date">
-                    <i class="pi pi-clock" />
+                    <Clock :size="14" />
                     {{ formatDate(snippet.createdAt) }}
                 </span>
-                <Tag
+                <CaomeiTag
                     v-if="snippet.status"
-                    :value="$t(`pages.admin.snippets.${snippet.status}`)"
-                    :severity="statusSeverity"
-                    size="small"
-                />
+                    :tone="statusTone"
+                    size="sm"
+                >
+                    {{ $t(`pages.admin.snippets.${snippet.status}`) }}
+                </CaomeiTag>
                 <span class="snippet-card__source">
-                    <i :class="sourceIcon" />
+                    <component :is="sourceIcon" :size="14" />
                     {{ $t(`pages.admin.snippets.source_types.${snippet.source}`) }}
                 </span>
             </div>
             <div class="snippet-card__actions">
                 <AppTooltip v-if="snippet.status === 'inbox'" :content="$t('pages.admin.snippets.convert_to_post')">
-                    <Button
-                        icon="pi pi-file-export"
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
                         rounded
-                        text
-                        size="small"
+                        size="sm"
+                        :label="$t('pages.admin.snippets.convert_to_post')"
                         @click="$emit('convert', snippet)"
-                    />
+                    >
+                        <template #icon>
+                            <FileOutput :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
-                <Button
-                    icon="pi pi-pencil"
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
-                    text
-                    size="small"
+                    size="sm"
+                    :label="$t('common.edit')"
                     @click="$emit('edit', snippet)"
-                />
-                <Button
-                    icon="pi pi-trash"
-                    severity="danger"
+                >
+                    <template #icon>
+                        <Pencil :size="16" />
+                    </template>
+                </CaomeiButton>
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="danger"
                     rounded
-                    text
-                    size="small"
+                    size="sm"
+                    :label="$t('common.delete')"
                     @click="$emit('delete', snippet)"
-                />
+                >
+                    <template #icon>
+                        <Trash2 :size="16" />
+                    </template>
+                </CaomeiButton>
             </div>
         </div>
 
@@ -50,7 +68,7 @@
             <div class="snippet-card__content" v-html="renderMarkdown(snippet.content)" />
 
             <div v-if="snippet.media && snippet.media.length" class="snippet-card__media">
-                <Image
+                <CaomeiImage
                     v-for="(url, index) in snippet.media"
                     :key="index"
                     :src="url"
@@ -61,7 +79,7 @@
             </div>
 
             <div v-if="snippet.post" class="snippet-card__link">
-                <i class="pi pi-link" />
+                <Link :size="14" />
                 <NuxtLink :to="`/admin/posts/${snippet.post.id}`" class="snippet-card__post-link">
                     {{ $t('pages.admin.snippets.converted') }}: {{ snippet.post.title || snippet.post.id }}
                 </NuxtLink>
@@ -71,8 +89,10 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
 import type { Snippet } from '@/types/snippet'
 import { formatDate } from '@/utils/shared/date'
+import { Bookmark, Clock, Code, ExternalLink, FileOutput, Info, Link, Monitor, Pencil, Smartphone, Trash2 } from '@lucide/vue'
 import markdownit from 'markdown-it'
 
 const props = defineProps<{
@@ -86,23 +106,23 @@ const renderMarkdown = (content: string) => {
     return md.render(content || '')
 }
 
-const statusSeverity = computed(() => {
+const statusTone = computed(() => {
     switch (props.snippet.status) {
-        case 'inbox': return 'warn'
-        case 'converted': return 'success'
-        case 'archived': return 'secondary'
-        default: return 'info'
+        case 'inbox': return 'warning' as const
+        case 'converted': return 'success' as const
+        case 'archived': return 'neutral' as const
+        default: return 'primary' as const
     }
 })
 
-const sourceIcon = computed(() => {
+const sourceIcon = computed<Component>(() => {
     switch (props.snippet.source) {
-        case 'web': return 'pi pi-desktop'
-        case 'api': return 'pi pi-code'
-        case 'shortcut': return 'pi pi-mobile'
-        case 'bookmarklet': return 'pi pi-bookmark'
-        case 'pwa': return 'pi pi-external-link'
-        default: return 'pi pi-info-circle'
+        case 'web': return Monitor
+        case 'api': return Code
+        case 'shortcut': return Smartphone
+        case 'bookmarklet': return Bookmark
+        case 'pwa': return ExternalLink
+        default: return Info
     }
 })
 </script>
@@ -135,6 +155,13 @@ const sourceIcon = computed(() => {
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
+  }
+
+  &__date,
+  &__source {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   &__actions {

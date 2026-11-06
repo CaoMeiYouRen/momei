@@ -1,44 +1,47 @@
 <template>
     <div class="tools-section">
-        <Accordion>
-            <AccordionPanel value="bookmarklet">
-                <AccordionHeader>
+        <CaomeiAccordion>
+            <CaomeiAccordionItem value="bookmarklet">
+                <template #trigger>
                     <div class="flex gap-2 items-center">
-                        <i class="pi pi-bookmark" />
+                        <Bookmark :size="16" />
                         <span>{{ t('pages.admin.snippets.bookmarklet_title') }}</span>
                     </div>
-                </AccordionHeader>
-                <AccordionContent>
-                    <div class="bookmarklet-content">
-                        <p class="bookmarklet-desc">
-                            {{ t('pages.admin.snippets.bookmarklet_desc') }}
-                        </p>
-                        <div class="bookmarklet-actions">
-                            <a
-                                :href="bookmarkletCode"
-                                class="bookmarklet-link-btn"
-                                @click.prevent
-                            >
-                                <i class="pi pi-bookmark" />
-                                <span>{{ t('pages.admin.snippets.bookmarklet_button') }}</span>
-                            </a>
-                            <Button
-                                icon="pi pi-copy"
-                                :label="t('common.copy_code')"
-                                text
-                                size="small"
-                                @click="copyBookmarklet"
-                            />
-                        </div>
+                </template>
+                <div class="bookmarklet-content">
+                    <p class="bookmarklet-desc">
+                        {{ t('pages.admin.snippets.bookmarklet_desc') }}
+                    </p>
+                    <div class="bookmarklet-actions">
+                        <a
+                            :href="bookmarkletCode"
+                            class="bookmarklet-link-btn"
+                            @click.prevent
+                        >
+                            <Bookmark :size="16" />
+                            <span>{{ t('pages.admin.snippets.bookmarklet_button') }}</span>
+                        </a>
+                        <CaomeiButton
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
+                            @click="copyBookmarklet"
+                        >
+                            <template #icon>
+                                <Copy :size="16" />
+                            </template>
+                            {{ t('common.copy_code') }}
+                        </CaomeiButton>
                     </div>
-                </AccordionContent>
-            </AccordionPanel>
-        </Accordion>
+                </div>
+            </CaomeiAccordionItem>
+        </CaomeiAccordion>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { Bookmark, Copy } from '@lucide/vue'
 const { t } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()

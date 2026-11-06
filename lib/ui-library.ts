@@ -350,6 +350,39 @@ const SUBMIT_ROUTE_SCOPE = {
     inScopeComponents: ['Card', 'Message', 'Textarea'],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 灵感收纳箱 `/admin/snippets` 的迁移范围。
+ *
+ * - `ownedFiles`：页面为容器，实体落在 `components/admin/snippets/` 的 5 个组件。
+ * - `migratedSubRoutes`：`/admin/snippets/capture` 随本批整路由迁移，需纳入零残留扫描面。
+ * - `inScopeComponents`：本批首次纳入的展示 / 表单族（`Button` / `Tag` / `InputText` / `Select` /
+ *   `Paginator` 属批次基准；浮层族已在基准内）。
+ */
+const ADMIN_SNIPPETS_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/snippets/snippet-aggregate-dialog.vue',
+        'components/admin/snippets/snippet-bookmarklet.vue',
+        'components/admin/snippets/snippet-card.vue',
+        'components/admin/snippets/snippet-edit-dialog.vue',
+        'components/admin/snippets/snippet-quick-capture.vue',
+    ],
+    migratedSubRoutes: ['pages/admin/snippets/capture.vue'],
+    inScopeComponents: [
+        'Checkbox',
+        'Textarea',
+        'InputNumber',
+        'ProgressSpinner',
+        'Divider',
+        'Card',
+        'Image',
+        'SelectButton',
+        'Accordion',
+        'AccordionPanel',
+        'AccordionHeader',
+        'AccordionContent',
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
@@ -361,6 +394,8 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/subscribers' },
     { prefix: '/admin/users' },
     { prefix: '/admin/friend-links' },
+    // 灵感收纳箱：页面 + 5 个片段组件；`/capture` 子路由随本批迁移。
+    { prefix: '/admin/snippets', ...ADMIN_SNIPPETS_ROUTE_SCOPE },
     {
         prefix: '/admin/posts',
         // 编辑器子路由不在数据列表批次的迁移范围内（仍全面使用 PrimeVue；其共享组件走
