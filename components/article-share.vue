@@ -11,26 +11,28 @@
             </div>
 
             <div class="article-share__actions">
-                <Button
-                    severity="primary"
+                <CaomeiButton
                     class="article-share__action-btn"
                     data-testid="article-share-primary"
                     @click="handlePrimaryShare"
                 >
-                    <i class="article-share__action-icon pi pi-share-alt" />
+                    <template #icon>
+                        <Share2 class="article-share__action-icon" :size="16" />
+                    </template>
                     {{ primaryActionLabel }}
-                </Button>
+                </CaomeiButton>
 
-                <Button
-                    severity="secondary"
-                    outlined
+                <CaomeiButton
+                    variant="secondary"
                     class="article-share__action-btn article-share__secondary-btn"
                     data-testid="article-share-copy-link"
                     @click="copyShareContent('link')"
                 >
-                    <i class="article-share__action-icon pi pi-copy" />
+                    <template #icon>
+                        <Link2 class="article-share__action-icon" :size="16" />
+                    </template>
                     {{ $t('components.post.share.copy_link') }}
-                </Button>
+                </CaomeiButton>
             </div>
         </div>
 
@@ -54,19 +56,20 @@
                     </div>
 
                     <div class="article-share__platform-grid">
-                        <Button
+                        <CaomeiButton
                             v-for="platform in directPlatforms"
                             :key="platform.key"
-                            severity="secondary"
-                            outlined
+                            variant="secondary"
                             class="article-share__platform-btn"
                             :data-platform="platform.key"
                             :style="{'--article-share-platform-color': platform.color}"
                             @click="openDirectShare(platform.key)"
                         >
-                            <i :class="[platform.icon, 'article-share__platform-icon']" />
+                            <template #icon>
+                                <i :class="[platform.icon, 'article-share__platform-icon']" />
+                            </template>
                             {{ getPlatformLabel(platform.key) }}
-                        </Button>
+                        </CaomeiButton>
                     </div>
                 </section>
 
@@ -81,32 +84,34 @@
                     </div>
 
                     <div class="article-share__copy-actions">
-                        <Button
-                            severity="secondary"
-                            outlined
+                        <CaomeiButton
+                            variant="secondary"
                             class="article-share__platform-btn article-share__secondary-btn"
                             data-testid="article-share-copy-rich"
                             @click="copyShareContent('rich')"
                         >
-                            <i class="article-share__platform-icon pi pi-file-edit" />
+                            <template #icon>
+                                <FileText class="article-share__platform-icon" :size="16" />
+                            </template>
                             {{ $t('components.post.share.copy_rich_text') }}
-                        </Button>
+                        </CaomeiButton>
                     </div>
 
                     <div class="article-share__platform-grid">
-                        <Button
+                        <CaomeiButton
                             v-for="platform in copyPlatforms"
                             :key="platform.key"
-                            severity="secondary"
-                            outlined
+                            variant="secondary"
                             class="article-share__platform-btn"
                             :data-platform="platform.key"
                             :style="{'--article-share-platform-color': platform.color}"
                             @click="copyPlatformShare(platform.key)"
                         >
-                            <i :class="[platform.icon, 'article-share__platform-icon']" />
+                            <template #icon>
+                                <i :class="[platform.icon, 'article-share__platform-icon']" />
+                            </template>
                             {{ getPlatformLabel(platform.key) }}
-                        </Button>
+                        </CaomeiButton>
                     </div>
                 </section>
             </div>
@@ -116,6 +121,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
+import { FileText, Link2, Share2 } from '@lucide/vue'
 import {
     buildDirectShareUrl,
     buildShareCopyText,
@@ -288,42 +294,24 @@ onMounted(() => {
     }
 
     &__action-btn {
-        :global(.p-button-label) {
+        :deep(.caomei-button__content) {
             font-weight: 600;
         }
     }
 
     &__platform-btn {
         --article-share-platform-color: var(--p-primary-color);
+        --caomei-button-border: var(--p-content-border-color);
+        --caomei-button-text: var(--p-text-color);
 
-        border-color: var(--p-surface-300);
-        color: var(--p-surface-800);
-        background: var(--p-surface-0);
-
-        :global(.p-button-label) {
+        :deep(.caomei-button__content) {
             font-weight: 500;
-            color: inherit;
-        }
-
-        &:hover {
-            background: var(--p-surface-50);
-            border-color: color-mix(in srgb, var(--article-share-platform-color) 28%, var(--p-surface-300));
         }
     }
 
     &__secondary-btn {
-        border-color: var(--p-surface-300);
-        color: var(--p-surface-800);
-        background: var(--p-surface-0);
-
-        :global(.p-button-label) {
-            color: inherit;
-        }
-
-        &:hover {
-            background: var(--p-surface-50);
-            border-color: var(--p-surface-400);
-        }
+        --caomei-button-border: var(--p-content-border-color);
+        --caomei-button-text: var(--p-text-color);
     }
 
     &__action-icon,
@@ -388,26 +376,7 @@ onMounted(() => {
             color: var(--p-surface-300);
         }
 
-        .article-share__platform-btn {
-            border-color: var(--p-surface-600);
-            color: var(--p-surface-100);
-            background: rgb(15 23 42 / 0.55);
 
-            &:hover {
-                background: rgb(30 41 59 / 0.82);
-            }
-        }
-
-        .article-share__secondary-btn {
-            border-color: var(--p-surface-600);
-            color: var(--p-surface-100);
-            background: rgb(15 23 42 / 0.55);
-
-            &:hover {
-                background: rgb(30 41 59 / 0.82);
-                border-color: var(--p-surface-500);
-            }
-        }
     }
 }
 </style>

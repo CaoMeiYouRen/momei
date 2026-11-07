@@ -79,7 +79,7 @@ describe('ArticleShare', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -98,7 +98,7 @@ describe('ArticleShare', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -122,7 +122,7 @@ describe('ArticleShare', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -146,7 +146,7 @@ describe('ArticleShare', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },

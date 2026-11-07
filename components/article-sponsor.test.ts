@@ -18,18 +18,8 @@ mockNuxtImport('useAppFetch', () => mockUseAppFetch)
 
 const ButtonStub = defineComponent({
     inheritAttrs: false,
-    props: {
-        as: { type: String, default: 'button' },
-        href: { type: String, default: undefined },
-    },
-    template: `
-        <a v-if="as === 'a'" :href="href" v-bind="$attrs">
-            <slot />
-        </a>
-        <button v-else type="button" v-bind="$attrs">
-            <slot />
-        </button>
-    `,
+    emits: ['click'],
+    template: '<button type="button" v-bind="$attrs" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>',
 })
 
 const DialogStub = defineComponent({
@@ -63,7 +53,7 @@ describe('ArticleSponsor', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -87,7 +77,7 @@ describe('ArticleSponsor', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -108,7 +98,7 @@ describe('ArticleSponsor', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },
@@ -150,7 +140,7 @@ describe('ArticleSponsor', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     CaomeiDialog: DialogStub,
                 },
             },

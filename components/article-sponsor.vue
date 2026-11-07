@@ -16,29 +16,28 @@
                 </div>
                 <div class="article-sponsor__social-list">
                     <template v-for="link in displaySocialLinks" :key="link.platform + (link.url || '') + (link.image || '')">
-                        <Button
+                        <a
                             v-if="link.url"
-                            as="a"
                             :href="link.url"
                             target="_blank"
-                            severity="secondary"
-                            outlined
+                            rel="noopener noreferrer"
                             class="article-sponsor__btn"
                         >
-                            <i :class="[getPlatformIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            <i :class="[getPlatformIcon(link.platform, 'social'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'social')}" />
                             {{ link.label || getPlatformName(link.platform, 'social') }}
-                        </Button>
+                        </a>
 
-                        <Button
+                        <CaomeiButton
                             v-if="link.image"
-                            severity="secondary"
-                            outlined
+                            variant="secondary"
                             class="article-sponsor__btn"
                             @click="showQR(link, 'social')"
                         >
-                            <i :class="[getQrTriggerIcon(link.platform, 'social'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            <template #icon>
+                                <i :class="[getQrTriggerIcon(link.platform, 'social'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            </template>
                             {{ link.label || getPlatformName(link.platform, 'social') }}
-                        </Button>
+                        </CaomeiButton>
                     </template>
                 </div>
             </div>
@@ -50,29 +49,28 @@
                 </div>
                 <div class="article-sponsor__donation-list">
                     <template v-for="link in displayDonationLinks" :key="link.platform + (link.url || '') + (link.image || '')">
-                        <Button
+                        <a
                             v-if="link.url && (getPlatformType(link.platform) === 'url' || getPlatformType(link.platform) === 'both')"
-                            as="a"
                             :href="link.url"
                             target="_blank"
-                            severity="secondary"
-                            outlined
+                            rel="noopener noreferrer"
                             class="article-sponsor__btn"
                         >
-                            <i :class="[getPlatformIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            <i :class="[getPlatformIcon(link.platform, 'donation'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
-                        </Button>
+                        </a>
 
-                        <Button
+                        <CaomeiButton
                             v-if="link.image && (getPlatformType(link.platform) === 'image' || getPlatformType(link.platform) === 'both')"
-                            severity="secondary"
-                            outlined
+                            variant="secondary"
                             class="article-sponsor__btn"
                             @click="showQR(link, 'donation')"
                         >
-                            <i :class="[getQrTriggerIcon(link.platform, 'donation'), 'mr-2']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            <template #icon>
+                                <i :class="[getQrTriggerIcon(link.platform, 'donation'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            </template>
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
-                        </Button>
+                        </CaomeiButton>
                     </template>
                 </div>
             </div>
@@ -267,24 +265,40 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
   }
 
   &__btn {
+    --caomei-button-border: var(--p-content-border-color);
+    --caomei-button-text: var(--p-text-color);
+
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    height: var(--caomei-control-height-md);
+    padding: 0 $spacing-md;
+    border: 1px solid var(--caomei-button-border);
+    border-radius: var(--caomei-radius-md);
+    background-color: var(--caomei-color-bg);
+    color: var(--caomei-button-text);
     font-size: 0.9rem;
-    transition: transform 0.2s ease;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
     backface-visibility: hidden;
     will-change: transform;
     transform: translateZ(0);
-    color: var(--p-surface-800);
-    border-color: var(--p-surface-300);
-    background: var(--p-surface-0);
 
-    :global(.p-button-label) {
-      color: inherit;
+    :deep(.caomei-button__content) {
       font-weight: 500;
     }
 
     &:hover {
       transform: translateY(-2px) translateZ(0);
-      background: var(--p-surface-50);
+      border-color: color-mix(in srgb, var(--caomei-button-border) 80%, var(--caomei-button-text));
+      background-color: color-mix(in srgb, var(--caomei-button-text) 8%, var(--caomei-color-bg));
     }
+  }
+
+  &__btn-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
   }
 
   &__qr-modal-content {
@@ -326,15 +340,6 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     color: var(--p-surface-100);
   }
 
-  &__btn {
-    color: var(--p-surface-100);
-    border-color: var(--p-surface-600);
-    background: rgb(15 23 42 / 0.55);
-
-    &:hover {
-      background: rgb(30 41 59 / 0.82);
-    }
-  }
 
   &__qr-label,
   &__section-title {
