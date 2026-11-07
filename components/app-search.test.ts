@@ -45,19 +45,16 @@ const DialogStub = defineComponent({
     template: '<div v-if="open" class="dialog"><slot /></div>',
 })
 
-const InputTextStub = defineComponent({
+const CaomeiInputStub = defineComponent({
     props: {
         modelValue: { type: String, default: '' },
     },
-    emits: ['update:modelValue', 'keyup.enter'],
-    template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" @keyup.enter="$emit(\'keyup.enter\')">',
+    emits: ['update:modelValue', 'enter'],
+    template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" @keyup.enter="$emit(\'enter\')">',
 })
 
-const TagStub = defineComponent({
-    props: {
-        value: { type: String, default: '' },
-    },
-    template: '<span class="tag">{{ value }}</span>',
+const CaomeiTagStub = defineComponent({
+    template: '<span class="tag"><slot /></span>',
 })
 
 const NuxtLinkStub = defineComponent({
@@ -80,8 +77,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },
@@ -109,8 +106,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },
@@ -146,8 +143,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },
@@ -187,8 +184,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },
@@ -221,8 +218,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },
@@ -264,8 +261,8 @@ describe('AppSearch', () => {
             global: {
                 stubs: {
                     CaomeiDialog: DialogStub,
-                    InputText: InputTextStub,
-                    Tag: TagStub,
+                    CaomeiInput: CaomeiInputStub,
+                    CaomeiTag: CaomeiTagStub,
                     NuxtLink: NuxtLinkStub,
                 },
             },

@@ -23,8 +23,8 @@ describe('FeedbackEntryButton', () => {
         const wrapper = await mountSuspended(FeedbackEntryButton, {
             global: {
                 stubs: {
-                    Button: {
-                        template: '<button class="feedback-entry">feedback</button>',
+                    CaomeiButton: {
+                        template: '<button class="feedback-entry"><slot /></button>',
                     },
                 },
             },
@@ -42,7 +42,7 @@ describe('FeedbackEntryButton', () => {
         const wrapper = await mountSuspended(FeedbackEntryButton, {
             global: {
                 stubs: {
-                    Button: true,
+                    CaomeiButton: true,
                 },
             },
         })

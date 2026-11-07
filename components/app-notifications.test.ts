@@ -54,14 +54,22 @@ vi.mock('@/lib/auth-client', () => ({
     },
 }))
 
-const ButtonStub = defineComponent({
+const CaomeiButtonStub = defineComponent({
     inheritAttrs: false,
     props: {
         label: {
             type: String,
             default: '',
         },
-        icon: {
+        iconOnly: {
+            type: Boolean,
+            default: false,
+        },
+        badge: {
+            type: String,
+            default: '',
+        },
+        badgeTone: {
             type: String,
             default: '',
         },
@@ -69,9 +77,23 @@ const ButtonStub = defineComponent({
             type: Boolean,
             default: false,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['click'],
-    template: '<button type="button" v-bind="$attrs" :label="label" :icon="icon" :loading="loading" @click="$emit(\'click\', $event)"><slot />{{ label }}</button>',
+    setup(props, { attrs, slots, emit }) {
+        return () => h('button', {
+            ...attrs,
+            type: 'button',
+            'aria-label': props.label || attrs['aria-label'],
+            'data-badge': props.badge,
+            'data-badge-tone': props.badgeTone,
+            disabled: props.disabled || props.loading,
+            onClick: (event: Event) => emit('click', event),
+        }, [slots.icon?.(), slots.default?.()])
+    },
 })
 
 const PopoverStub = defineComponent({
@@ -90,7 +112,7 @@ const PopoverContentStub = defineComponent({
 
 const MessageStub = defineComponent({
     inheritAttrs: false,
-    template: '<div class="message-stub" v-bind="$attrs"><slot /></div>',
+    template: '<div class="caomei-message" v-bind="$attrs"><slot /></div>',
 })
 
 const NuxtLinkStub = defineComponent({
@@ -108,11 +130,11 @@ function mountComponent() {
     return mountSuspended(AppNotifications, {
         global: {
             stubs: {
-                Button: ButtonStub,
+                CaomeiButton: CaomeiButtonStub,
                 CaomeiPopover: PopoverStub,
                 CaomeiPopoverTrigger: PopoverTriggerStub,
                 CaomeiPopoverContent: PopoverContentStub,
-                Message: MessageStub,
+                CaomeiMessage: MessageStub,
                 NuxtLink: NuxtLinkStub,
             },
         },
@@ -163,7 +185,7 @@ describe('AppNotifications', () => {
         const wrapper = await mountComponent()
 
         expect(wrapper.findAll('.notification-item')).toHaveLength(2)
-        expect(wrapper.find('.notification-item .item-icon i').classes()).toContain('pi-comment')
+        expect(wrapper.find('.notification-item .item-icon svg').exists()).toBe(true)
         expect(wrapper.text()).toContain('formatted:2026-04-19T10:00:00.000Z')
         expect(wrapper.find('.item-title').attributes('href')).toBe('/zh-CN/posts/hello-world')
         expect(wrapper.find('.notification-footer a').attributes('href')).toBe('/zh-CN/settings?tab=notifications')

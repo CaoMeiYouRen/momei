@@ -1,18 +1,22 @@
 <template>
     <div v-if="shouldShowFeedbackEntry" class="feedback-entry-button">
-        <Button
-            :label="$t('common.feedback')"
-            icon="pi pi-question-circle"
-            severity="secondary"
-            outlined
+        <CaomeiButton
+            variant="secondary"
             rounded
             class="feedback-entry-button__action"
             @click="openFeedbackEntry"
-        />
+        >
+            <template #icon>
+                <CircleHelp :size="16" />
+            </template>
+            {{ $t('common.feedback') }}
+        </CaomeiButton>
     </div>
 </template>
 
 <script setup lang="ts">
+import { CircleHelp } from '@lucide/vue'
+
 const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry()
 </script>
 
@@ -39,7 +43,7 @@ const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry()
         bottom: calc(0.75rem + env(safe-area-inset-bottom));
 
         &__action {
-            :deep(.p-button-label) {
+            :deep(.caomei-button__content) {
                 display: none;
             }
         }

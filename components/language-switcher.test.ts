@@ -20,8 +20,9 @@ mockNuxtImport('useI18n', () => () => ({
 mockNuxtImport('useSwitchLocalePath', () => () => vi.fn())
 
 const stubs = {
-    Button: {
-        template: '<button class="lang-btn"><slot /></button>',
+    CaomeiButton: {
+        inheritAttrs: false,
+        template: '<button class="lang-btn" v-bind="$attrs"><slot /></button>',
     },
     CaomeiDropdownMenu: {
         template: '<div class="lang-menu-root"><slot /></div>',

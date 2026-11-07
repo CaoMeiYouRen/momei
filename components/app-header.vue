@@ -70,7 +70,7 @@
                         class="app-header__admin-link nav-link"
                     >
                         <span>{{ $t('pages.admin.posts.title') }}</span>
-                        <i class="app-header__admin-link-icon pi pi-file" />
+                        <FileText class="app-header__admin-link-icon" :size="15" />
                     </NuxtLink>
                 </nav>
 
@@ -80,26 +80,34 @@
 
                         <template v-if="showAdminControls">
                             <AppTooltip :content="$t('pages.admin.posts.title')" side="bottom">
-                                <Button
+                                <CaomeiButton
                                     id="admin-posts-shortcut"
-                                    icon="pi pi-file"
-                                    text
+                                    variant="ghost"
                                     rounded
+                                    icon-only
                                     class="app-header__compact-admin-posts"
-                                    :aria-label="$t('pages.admin.posts.title')"
+                                    :label="$t('pages.admin.posts.title')"
                                     @click="goToAdminPosts"
-                                />
+                                >
+                                    <template #icon>
+                                        <FileText :size="16" />
+                                    </template>
+                                </CaomeiButton>
                             </AppTooltip>
                             <CaomeiDropdownMenu>
                                 <CaomeiDropdownMenuTrigger as-child>
                                     <AppTooltip :content="$t('common.admin')" side="bottom">
-                                        <Button
+                                        <CaomeiButton
                                             id="admin-menu-btn"
-                                            icon="pi pi-cog"
-                                            text
+                                            variant="ghost"
                                             rounded
-                                            :aria-label="$t('common.admin')"
-                                        />
+                                            icon-only
+                                            :label="$t('common.admin')"
+                                        >
+                                            <template #icon>
+                                                <Settings :size="16" />
+                                            </template>
+                                        </CaomeiButton>
                                     </AppTooltip>
                                 </CaomeiDropdownMenuTrigger>
                                 <CaomeiDropdownMenuContent
@@ -112,39 +120,58 @@
 
                     <ClientOnly>
                         <AppTooltip :content="$t('components.search.ctrl_k')" side="bottom">
-                            <Button
+                            <CaomeiButton
                                 id="search-btn"
-                                icon="pi pi-search"
-                                text
+                                variant="ghost"
                                 rounded
-                                :aria-label="$t('components.search.title')"
+                                icon-only
+                                :label="$t('components.search.title')"
                                 @click="openSearch"
-                            />
+                            >
+                                <template #icon>
+                                    <Search :size="16" />
+                                </template>
+                            </CaomeiButton>
                         </AppTooltip>
 
                         <AppTooltip :content="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')" side="bottom">
-                            <Button
+                            <CaomeiButton
                                 id="theme-switcher"
-                                :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                                text
+                                variant="ghost"
                                 rounded
-                                :aria-label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
+                                icon-only
+                                :label="isDark ? $t('components.header.light_mode') : $t('components.header.dark_mode')"
                                 @click="toggleDark()"
-                            />
+                            >
+                                <template #icon>
+                                    <Sun v-if="isDark" :size="16" />
+                                    <Moon v-else :size="16" />
+                                </template>
+                            </CaomeiButton>
                         </AppTooltip>
                         <template #fallback>
-                            <Button
-                                icon="pi pi-search"
-                                text
+                            <CaomeiButton
+                                variant="ghost"
                                 rounded
+                                icon-only
                                 disabled
-                            />
-                            <Button
-                                icon="pi pi-moon"
-                                text
+                                :label="$t('components.search.title')"
+                            >
+                                <template #icon>
+                                    <Search :size="16" />
+                                </template>
+                            </CaomeiButton>
+                            <CaomeiButton
+                                variant="ghost"
                                 rounded
+                                icon-only
                                 disabled
-                            />
+                                :label="$t('components.header.dark_mode')"
+                            >
+                                <template #icon>
+                                    <Moon :size="16" />
+                                </template>
+                            </CaomeiButton>
                         </template>
                     </ClientOnly>
 
@@ -155,11 +182,12 @@
                     <div class="app-header__user-actions">
                         <ClientOnly>
                             <template v-if="isSessionPending">
-                                <Button
-                                    icon="pi pi-spinner pi-spin"
-                                    text
+                                <CaomeiButton
+                                    variant="ghost"
                                     rounded
-                                    disabled
+                                    icon-only
+                                    loading
+                                    :label="$t('components.search.loading')"
                                 />
                             </template>
                             <template v-else>
@@ -168,25 +196,34 @@
                                     :content="$t('pages.login.submit')"
                                     side="bottom"
                                 >
-                                    <Button
+                                    <CaomeiButton
                                         id="login-btn"
-                                        icon="pi pi-sign-in"
-                                        text
+                                        variant="ghost"
                                         rounded
-                                        :aria-label="$t('pages.login.submit')"
+                                        icon-only
+                                        :label="$t('pages.login.submit')"
                                         @click="navigateTo(localePath('/login'))"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <LogIn :size="16" />
+                                        </template>
+                                    </CaomeiButton>
                                 </AppTooltip>
                                 <template v-else>
                                     <CaomeiDropdownMenu>
                                         <CaomeiDropdownMenuTrigger as-child>
                                             <AppTooltip :content="$t('pages.settings.title')" side="bottom">
-                                                <Button
+                                                <CaomeiButton
                                                     id="user-menu-btn"
-                                                    icon="pi pi-user"
-                                                    text
+                                                    variant="ghost"
                                                     rounded
-                                                />
+                                                    icon-only
+                                                    :label="$t('pages.settings.title')"
+                                                >
+                                                    <template #icon>
+                                                        <User :size="16" />
+                                                    </template>
+                                                </CaomeiButton>
                                             </AppTooltip>
                                         </CaomeiDropdownMenuTrigger>
                                         <CaomeiDropdownMenuContent
@@ -198,9 +235,17 @@
                             </template>
 
                             <template #fallback>
-                                <div class="p-button p-button-icon-only p-button-rounded p-button-text p-component">
-                                    <i class="pi pi-spin pi-spinner" />
-                                </div>
+                                <CaomeiButton
+                                    variant="ghost"
+                                    rounded
+                                    icon-only
+                                    disabled
+                                    :label="$t('components.search.loading')"
+                                >
+                                    <template #icon>
+                                        <LoaderCircle :size="16" />
+                                    </template>
+                                </CaomeiButton>
                             </template>
                         </ClientOnly>
                     </div>
@@ -211,24 +256,33 @@
                     :content="$t('pages.admin.posts.title')"
                     side="bottom"
                 >
-                    <Button
+                    <CaomeiButton
                         id="mobile-admin-posts-btn"
-                        icon="pi pi-file"
-                        text
+                        variant="ghost"
                         rounded
+                        icon-only
                         class="mobile-only"
-                        :aria-label="$t('pages.admin.posts.title')"
+                        :label="$t('pages.admin.posts.title')"
                         @click="goToAdminPosts"
-                    />
+                    >
+                        <template #icon>
+                            <FileText :size="18" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
-                <Button
+                <CaomeiButton
                     id="mobile-menu-btn"
-                    icon="pi pi-bars"
-                    text
+                    variant="ghost"
                     rounded
+                    icon-only
                     class="mobile-only"
+                    :label="$t('components.header.title')"
                     @click="isMobileMenuOpen = true"
-                />
+                >
+                    <template #icon>
+                        <MenuIcon :size="18" />
+                    </template>
+                </CaomeiButton>
             </div>
         </div>
 
@@ -245,7 +299,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false; openSearch()"
                 >
-                    <i class="pi pi-search" />
+                    <Search :size="18" />
                     {{ $t('components.search.placeholder') }}
                 </div>
                 <NuxtLink
@@ -253,7 +307,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-home" />
+                    <Home :size="18" />
                     {{ $t('common.home') }}
                 </NuxtLink>
                 <NuxtLink
@@ -261,7 +315,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-file" />
+                    <FileText :size="18" />
                     {{ $t('pages.posts.title') }}
                 </NuxtLink>
                 <NuxtLink
@@ -269,7 +323,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-list" />
+                    <List :size="18" />
                     {{ $t('common.category') }}
                 </NuxtLink>
                 <NuxtLink
@@ -277,7 +331,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-tags" />
+                    <Tags :size="18" />
                     {{ $t('common.tags') }}
                 </NuxtLink>
                 <NuxtLink
@@ -285,7 +339,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-calendar" />
+                    <CalendarIcon :size="18" />
                     {{ $t('pages.archives.title') }}
                 </NuxtLink>
                 <NuxtLink
@@ -293,7 +347,7 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-send" />
+                    <Send :size="18" />
                     {{ $t('pages.submit.title') }}
                 </NuxtLink>
                 <NuxtLink
@@ -302,13 +356,13 @@
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false"
                 >
-                    <i class="pi pi-link" />
+                    <Link :size="18" />
                     {{ $t('common.friend_link_application') }}
                 </NuxtLink>
 
                 <TravellingsLink placement="mobile" />
 
-                <Divider />
+                <CaomeiDivider />
 
                 <div class="mobile-menu__item">
                     <span>{{ $t('components.header.language') }}</span>
@@ -317,15 +371,21 @@
 
                 <div class="mobile-menu__item">
                     <span>{{ isDark ? $t('components.header.dark_mode') : $t('components.header.light_mode') }}</span>
-                    <Button
-                        :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-                        text
+                    <CaomeiButton
+                        variant="ghost"
                         rounded
+                        icon-only
+                        :label="isDark ? $t('components.header.dark_mode') : $t('components.header.light_mode')"
                         @click="toggleDark()"
-                    />
+                    >
+                        <template #icon>
+                            <Sun v-if="isDark" :size="16" />
+                            <Moon v-else :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </div>
 
-                <Divider />
+                <CaomeiDivider />
 
                 <template v-if="user">
                     <div v-if="showAdminControls" class="mobile-admin-section">
@@ -342,32 +402,43 @@
                             {{ item.label }}
                         </div>
                     </div>
-                    <Button
-                        icon="pi pi-user"
-                        :label="user.name"
-                        text
+                    <CaomeiButton
+                        variant="ghost"
                         rounded
                         class="mobile-user-button"
                         @click="isMobileMenuOpen = false; navigateTo(localePath('/settings'))"
-                    />
-                    <Button
-                        icon="pi pi-sign-out"
-                        :label="$t('pages.login.logout')"
-                        text
+                    >
+                        <template #icon>
+                            <User :size="16" />
+                        </template>
+                        {{ user.name }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        variant="ghost"
                         rounded
                         class="mobile-user-button"
                         @click="isMobileMenuOpen = false; handleLogout()"
-                    />
+                    >
+                        <template #icon>
+                            <LogOut :size="16" />
+                        </template>
+                        {{ $t('pages.login.logout') }}
+                    </CaomeiButton>
                 </template>
-                <Button
+                <CaomeiButton
                     v-else
-                    :label="isSessionPending ? $t('components.search.loading') : $t('pages.login.submit')"
-                    :icon="isSessionPending ? 'pi pi-spinner pi-spin' : 'pi pi-sign-in'"
+                    variant="primary"
                     rounded
+                    :loading="isSessionPending"
                     :disabled="isSessionPending"
                     class="mobile-login-button"
                     @click="isMobileMenuOpen = false; navigateTo(localePath('/login'))"
-                />
+                >
+                    <template #icon>
+                        <LogIn :size="16" />
+                    </template>
+                    {{ isSessionPending ? $t('components.search.loading') : $t('pages.login.submit') }}
+                </CaomeiButton>
             </div>
         </CaomeiDrawer>
     </header>
@@ -380,6 +451,24 @@ import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/us
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 import { useAdminMenuItems } from '@/composables/use-admin-menu-items'
+import {
+    Calendar as CalendarIcon,
+    FileText,
+    Home,
+    Link,
+    List,
+    LoaderCircle,
+    LogIn,
+    LogOut,
+    Menu as MenuIcon,
+    Moon,
+    Search,
+    Send,
+    Settings,
+    Sun,
+    Tags,
+    User,
+} from '@lucide/vue'
 
 const { t, locale } = useI18n()
 const { openSearch } = useSearch()
@@ -408,8 +497,8 @@ const { adminMenuItems, goToAdminPosts } = useAdminMenuItems({
 
 /**
  * `CaomeiDropdownMenu` 的数据驱动条目只接受**组件**图标，不接受 PrimeVue 的 `pi pi-*` 类名。
- * 浮层批次不承担图标全量迁移（第七十一阶段），故把类名包成一个最小渲染组件，
- * 保留原图标外观；图标全量替换时删除本适配即可。
+ * 管理端菜单条目仍在 `useAdminMenuItems` 里以类名声明（图标全量替换属第七十一阶段条目 4），
+ * 故把类名包成一个最小渲染组件，保留原图标外观；图标全量替换时删除本适配即可。
  */
 const primeIconComponentCache = new Map<string, Component>()
 
@@ -615,7 +704,7 @@ watch(
     }
 
     &__admin-link-icon {
-        font-size: 0.95rem;
+        flex-shrink: 0;
     }
 
     &__compact-admin-posts {
@@ -670,8 +759,8 @@ watch(
         background-color: var(--p-surface-hover);
     }
 
-    i {
-        font-size: 1.1rem;
+    i,
+    svg {
         color: var(--p-text-muted-color);
     }
 }
@@ -689,7 +778,7 @@ watch(
 
 .mobile-user-button,
 .mobile-login-button {
-    &.p-button {
+    &.caomei-button {
         width: 100%;
         justify-content: flex-start;
         margin-top: $spacing-sm;

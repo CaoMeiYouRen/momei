@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
 import { computed, ref } from 'vue'
 import { authClient } from '@/lib/auth-client'
 import { useNotifications } from '@/composables/use-notifications'
 import { resolveNotificationLinkTarget } from '@/utils/shared/notification'
 import { isAdmin } from '@/utils/shared/roles'
+import { Bell, Inbox, Info, Megaphone, MessageSquare, Shield } from '@lucide/vue'
 
 const { t } = useI18n()
 const { notifications, unreadCount, markAsRead, browserPermission, browserPushReady, enableBrowserPush } = useNotifications()
@@ -39,18 +41,18 @@ const handleEnableBrowserPush = async () => {
     }
 }
 
-const getNotificationIcon = (type: string) => {
+const getNotificationIcon = (type: string): Component => {
     switch (type) {
         case 'COMMENT_REPLY':
-            return 'pi pi-comment'
+            return MessageSquare
         case 'SECURITY':
-            return 'pi pi-shield'
+            return Shield
         case 'SYSTEM':
-            return 'pi pi-info-circle'
+            return Info
         case 'MARKETING':
-            return 'pi pi-megaphone'
+            return Megaphone
         default:
-            return 'pi pi-bell'
+            return Bell
     }
 }
 
@@ -76,15 +78,19 @@ const resolveNotificationTarget = (link: string | null) => {
         <CaomeiPopover>
             <CaomeiPopoverTrigger as-child>
                 <AppTooltip :content="$t('components.notifications.title')" side="bottom">
-                    <Button
+                    <CaomeiButton
                         id="notification-btn"
-                        icon="pi pi-bell"
-                        text
+                        variant="ghost"
                         rounded
+                        icon-only
                         :badge="unreadCount > 0 ? unreadCount.toString() : undefined"
-                        badge-severity="danger"
-                        :aria-label="$t('components.notifications.title')"
-                    />
+                        badge-tone="danger"
+                        :label="$t('components.notifications.title')"
+                    >
+                        <template #icon>
+                            <Bell :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
             </CaomeiPopoverTrigger>
             <CaomeiPopoverContent
@@ -95,13 +101,14 @@ const resolveNotificationTarget = (link: string | null) => {
                 <div class="notification-popover">
                     <div class="notification-header">
                         <span class="title">{{ $t('components.notifications.title') }}</span>
-                        <Button
+                        <CaomeiButton
                             v-if="unreadCount > 0"
-                            :label="$t('components.notifications.mark_all_read')"
-                            text
-                            size="small"
+                            variant="ghost"
+                            size="sm"
                             @click="handleMarkAsRead()"
-                        />
+                        >
+                            {{ $t('components.notifications.mark_all_read') }}
+                        </CaomeiButton>
                     </div>
 
                     <div class="notification-content">
@@ -109,29 +116,30 @@ const resolveNotificationTarget = (link: string | null) => {
                             v-if="browserPushReady && browserPermission !== 'granted'"
                             class="notification-browser-state"
                         >
-                            <Message
-                                :severity="browserPermission === 'denied' ? 'warn' : 'secondary'"
+                            <CaomeiMessage
+                                :tone="browserPermission === 'denied' ? 'warning' : 'neutral'"
                                 :closable="false"
                             >
                                 <div class="browser-state-content">
                                     <span>{{ browserPushHint }}</span>
-                                    <Button
+                                    <CaomeiButton
                                         v-if="browserPermission === 'default'"
-                                        size="small"
-                                        text
-                                        :label="$t('components.notifications.browser_enable')"
+                                        size="sm"
+                                        variant="ghost"
                                         :loading="enablingBrowserPush"
                                         @click.stop="handleEnableBrowserPush"
-                                    />
+                                    >
+                                        {{ $t('components.notifications.browser_enable') }}
+                                    </CaomeiButton>
                                 </div>
-                            </Message>
+                            </CaomeiMessage>
                         </div>
 
                         <div
                             v-if="notifications.length === 0"
                             class="empty-state"
                         >
-                            <i class="pi pi-inbox" />
+                            <Inbox :size="32" />
                             <p>{{ $t('components.notifications.empty') }}</p>
                         </div>
 
@@ -147,7 +155,7 @@ const resolveNotificationTarget = (link: string | null) => {
                                 @click="handleMarkAsRead(item.id)"
                             >
                                 <div class="item-icon">
-                                    <i :class="getNotificationIcon(item.type)" />
+                                    <component :is="getNotificationIcon(item.type)" :size="14" />
                                 </div>
                                 <div class="item-body">
                                     <NuxtLink
@@ -218,7 +226,7 @@ const resolveNotificationTarget = (link: string | null) => {
     .notification-browser-state {
         padding: 12px 16px 0;
 
-        :deep(.p-message) {
+        :deep(.caomei-message) {
             margin: 0;
         }
     }
@@ -228,8 +236,7 @@ const resolveNotificationTarget = (link: string | null) => {
         text-align: center;
         color: var(--p-text-muted-color);
 
-        i {
-            font-size: 2rem;
+        svg {
             margin-bottom: 8px;
         }
     }
@@ -280,8 +287,7 @@ const resolveNotificationTarget = (link: string | null) => {
     border: 1px solid var(--p-content-border-color);
     flex-shrink: 0;
 
-    i {
-        font-size: 0.9rem;
+    svg {
         color: var(--p-primary-500);
     }
 }

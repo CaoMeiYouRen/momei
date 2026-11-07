@@ -8,23 +8,25 @@
     >
         <div class="app-search">
             <div class="app-search__header">
-                <i class="app-search__icon pi pi-search" />
-                <InputText
+                <Search class="app-search__icon" :size="20" />
+                <CaomeiInput
                     ref="searchInput"
                     v-model="query"
                     :placeholder="$t('components.search.placeholder')"
                     class="app-search__input"
                     autocomplete="off"
-                    @keyup.enter="performSearch"
+                    @enter="performSearch"
                 />
                 <div class="app-search__hint desktop-only">
-                    <Tag severity="secondary" value="ESC" />
+                    <CaomeiTag tone="neutral" size="sm">
+                        ESC
+                    </CaomeiTag>
                 </div>
             </div>
 
             <div class="app-search__body">
                 <div v-if="loading" class="app-search__status">
-                    <i class="pi pi-spin pi-spinner" />
+                    <LoaderCircle class="app-search__spinner" :size="32" />
                     <span>{{ $t('components.search.loading') }}</span>
                 </div>
 
@@ -38,7 +40,7 @@
                             @click="closeSearch"
                         >
                             <div class="app-search__result-icon">
-                                <i class="pi pi-file" />
+                                <FileText :size="18" />
                             </div>
                             <div class="app-search__result-content">
                                 <span class="app-search__result-title">{{ item.title }}</span>
@@ -47,7 +49,7 @@
                                 </p>
                                 <div class="app-search__result-meta">
                                     <span v-if="item.category" class="app-search__result-category">
-                                        <i class="pi pi-folder" />
+                                        <Folder :size="12" />
                                         {{ item.category.name }}
                                     </span>
                                     <span v-if="item.language" class="app-search__result-lang">
@@ -55,13 +57,13 @@
                                     </span>
                                 </div>
                             </div>
-                            <i class="app-search__result-arrow pi pi-chevron-right" />
+                            <ChevronRight class="app-search__result-arrow" :size="16" />
                         </NuxtLink>
                     </transition-group>
                 </div>
 
                 <div v-else-if="query && !loading" class="app-search__empty">
-                    <i class="pi pi-search-minus" />
+                    <SearchX :size="32" />
                     <p>{{ $t('components.search.no_results') }}</p>
                 </div>
 
@@ -75,6 +77,7 @@
 
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
+import { ChevronRight, FileText, Folder, LoaderCircle, Search, SearchX } from '@lucide/vue'
 
 const { locale } = useI18n()
 const localePath = useLocalePath()
@@ -84,7 +87,7 @@ const { $appFetch } = useAppApi()
 const query = ref('')
 const results = ref<any[]>([])
 const loading = ref(false)
-const searchInput = ref<{ $el?: HTMLInputElement } | null>(null)
+const searchInput = ref<{ $el?: HTMLElement, focus?: () => void } | null>(null)
 
 watch(visible, async (open) => {
     if (!open) {
@@ -92,7 +95,13 @@ watch(visible, async (open) => {
     }
 
     await nextTick()
-    searchInput.value?.$el?.focus()
+    const input = searchInput.value
+    if (typeof input?.focus === 'function') {
+        input.focus()
+        return
+    }
+
+    input?.$el?.querySelector?.('input')?.focus()
 })
 
 // Use VueUse debounced function
@@ -169,28 +178,36 @@ div.caomei-dialog__content.app-search-dialog {
     }
 
     &__icon {
-        font-size: 1.25rem;
         color: var(--p-text-muted-color);
+        flex-shrink: 0;
     }
 
     &__input {
         flex: 1;
-        border: none;
-        background: transparent;
-        font-size: 1.15rem;
-        padding: 0;
-        box-shadow: none;
 
-        &::placeholder {
+        :deep(.caomei-input__control) {
+            border: none;
+            background: transparent;
+            font-size: 1.15rem;
+            padding: 0;
+            box-shadow: none;
+            height: auto;
+        }
+
+        :deep(.caomei-input__control::placeholder) {
             color: var(--p-text-muted-color);
         }
     }
 
     &__hint {
-        .p-tag {
+        :deep(.caomei-tag) {
             font-size: 0.75rem;
             font-weight: 500;
         }
+    }
+
+    &__spinner {
+        animation: app-search-spin 0.9s linear infinite;
     }
 
     &__body {
@@ -209,10 +226,6 @@ div.caomei-dialog__content.app-search-dialog {
         flex-direction: column;
         align-items: center;
         gap: $spacing-md;
-
-        i {
-            font-size: 2rem;
-        }
     }
 
     &__results {
@@ -307,6 +320,12 @@ div.caomei-dialog__content.app-search-dialog {
     &__result-arrow {
         color: var(--p-text-muted-color);
         transition: transform $transition-base;
+    }
+}
+
+@keyframes app-search-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 

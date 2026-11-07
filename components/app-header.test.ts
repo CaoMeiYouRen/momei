@@ -76,20 +76,38 @@ const NuxtLinkStub = defineComponent({
     },
 })
 
-const ButtonStub = defineComponent({
+const CaomeiButtonStub = defineComponent({
     inheritAttrs: false,
     props: {
-        icon: {
-            type: String,
-            default: '',
-        },
         label: {
             type: String,
             default: '',
         },
+        iconOnly: {
+            type: Boolean,
+            default: false,
+        },
+        loading: {
+            type: Boolean,
+            default: false,
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['click'],
-    template: '<button type="button" v-bind="$attrs" :icon="icon" :label="label" @click="$emit(\'click\', $event)"><slot />{{ label }}</button>',
+    setup(props, { attrs, slots, emit }) {
+        return () => h('button', {
+            ...attrs,
+            type: 'button',
+            'aria-label': props.label || attrs['aria-label'],
+            'data-label': props.label,
+            'data-icon-only': String(props.iconOnly),
+            disabled: props.disabled || props.loading,
+            onClick: (event: Event) => emit('click', event),
+        }, [slots.icon?.(), slots.default?.()])
+    },
 })
 
 const DropdownMenuStub = defineComponent({
@@ -151,12 +169,12 @@ const stubs = {
     AppNotifications: AppNotificationsStub,
     TravellingsLink: TravellingsLinkStub,
     NuxtLink: NuxtLinkStub,
-    Button: ButtonStub,
+    CaomeiButton: CaomeiButtonStub,
     CaomeiDropdownMenu: DropdownMenuStub,
     CaomeiDropdownMenuTrigger: DropdownMenuTriggerStub,
     CaomeiDropdownMenuContent: DropdownMenuContentStub,
     CaomeiDrawer: DrawerStub,
-    Divider: DividerStub,
+    CaomeiDivider: DividerStub,
     LanguageSwitcher: LanguageSwitcherStub,
 }
 
@@ -226,7 +244,9 @@ describe('AppHeader', () => {
         const wrapper = await mountSuspended(AppHeader, {
             global: { stubs },
         })
-        expect(wrapper.find('#login-btn').attributes('icon')).toBe('pi pi-sign-in')
+        expect(wrapper.find('#login-btn').exists()).toBe(true)
+        expect(wrapper.find('#login-btn').attributes('data-icon-only')).toBe('true')
+        expect(wrapper.find('#login-btn').attributes('data-label')).toBeTruthy()
     })
 
     it('shows user profile button and admin menu when logged in as admin', async () => {
@@ -245,7 +265,8 @@ describe('AppHeader', () => {
             expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         })
 
-        expect(wrapper.find('#user-menu-btn').attributes('icon')).toBe('pi pi-user')
+        expect(wrapper.find('#user-menu-btn').exists()).toBe(true)
+        expect(wrapper.find('#user-menu-btn').attributes('data-icon-only')).toBe('true')
         expect(wrapper.find('#desktop-admin-posts-link').exists()).toBe(true)
         expect(wrapper.find('#admin-posts-shortcut').exists()).toBe(true)
         expect(wrapper.find('#mobile-admin-posts-btn').exists()).toBe(true)
@@ -415,10 +436,10 @@ describe('AppHeader', () => {
 
         expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 
-        const mobileMenuButton = wrapper.findAll('button').find((button) => button.attributes('icon') === 'pi pi-bars')
-        expect(mobileMenuButton).toBeDefined()
+        const mobileMenuButton = wrapper.find('#mobile-menu-btn')
+        expect(mobileMenuButton.exists()).toBe(true)
 
-        await mobileMenuButton!.trigger('click')
+        await mobileMenuButton.trigger('click')
         await nextTick()
         expect(wrapper.find('.drawer-stub').exists()).toBe(true)
 

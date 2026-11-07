@@ -2,14 +2,18 @@
     <CaomeiDropdownMenu>
         <CaomeiDropdownMenuTrigger as-child>
             <AppTooltip :content="$t('components.header.language')" side="bottom">
-                <Button
+                <CaomeiButton
                     v-bind="attrs"
                     type="button"
-                    icon="pi pi-globe"
-                    text
+                    variant="ghost"
                     rounded
-                    :aria-label="$t('components.header.language')"
-                />
+                    icon-only
+                    :label="$t('components.header.language')"
+                >
+                    <template #icon>
+                        <Globe :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
         </CaomeiDropdownMenuTrigger>
         <CaomeiDropdownMenuContent
@@ -21,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
+import { Globe } from '@lucide/vue'
 
 defineOptions({
     inheritAttrs: false,
