@@ -207,7 +207,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -259,7 +259,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -333,7 +333,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -407,7 +407,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -459,7 +459,7 @@
                         "height": 40
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -522,7 +522,7 @@
                         "height": 40
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -574,7 +574,7 @@
                         "height": 40
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -637,7 +637,7 @@
                         "height": 40
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -667,7 +667,7 @@
                         "height": 200
                     },
                     "pixels": 14390,
-                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
+                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatar`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -719,7 +719,7 @@
                         "height": 240
                     },
                     "pixels": 16680,
-                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatarV2`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
+                    "reason": "筛选工具条（`IconField` + `InputIcon` + `InputText` → `CaomeiInput`；`Select` ×2 → `CaomeiSelect`，含字段外层宽度口径——`class` 只落触发器，须以包装元素约束 `--caomei-select-max-width`，上游 §1.1）+ 表格（`DataTable` → `CaomeiDataTable`：表头底色 / 边框 / 字号 / 行高、`p-datatable-sm` 移除后的行距）+ 单元格内容（`Badge` ×2 → `CaomeiBadge`、`AppAvatar` → `AppAvatar`、动作按钮组 `Button` → `CaomeiButton`）。处置走通道① token 覆盖。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -908,7 +908,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -971,7 +971,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1034,7 +1034,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1097,7 +1097,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1138,7 +1138,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1267,7 +1267,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换字段外壳差异（跨路由共享壳过渡组件 `ContentLanguageSwitcherV2`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
+                    "reason": "头部语言切换字段外壳差异（跨路由共享壳 `ContentLanguageSwitcher`）。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：控件边界改上游 3:1 默认，本带差异随之增长，值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1396,7 +1396,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher`）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -1459,7 +1459,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher`）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -1522,7 +1522,7 @@
                         "height": 80
                     },
                     "pixels": 1155,
-                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher`）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -1585,7 +1585,7 @@
                         "height": 80
                     },
                     "pixels": 1166,
-                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher` → V2）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
+                    "reason": "头部语言切换器（`AdminContentLanguageSwitcher`）：路由登记后切换器由 PrimeVue `Select` 版换为 caomei 版，控件高度 30.09px → 28px。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -3411,7 +3411,7 @@
                         "width": 320,
                         "height": 120
                     },
-                    "pixels": 1942,
+                    "pixels": 2979,
                     "reason": "分页区：CaomeiPaginator 尺寸与自渲染页码报告。",
                     "owner": "@full-stack-master"
                 },
@@ -3496,7 +3496,7 @@
                         "width": 1200,
                         "height": 440
                     },
-                    "pixels": 3928,
+                    "pixels": 9467,
                     "reason": "空态区域：CaomeiCard 暗色底色与空态布局位移；该连通区域已包含分页边缘差异。",
                     "owner": "@full-stack-master"
                 },
@@ -3529,7 +3529,7 @@
                         "width": 160,
                         "height": 100
                     },
-                    "pixels": 30,
+                    "pixels": 79,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 }
@@ -3775,9 +3775,20 @@
                     "pixels": 243,
                     "reason": "阅读区浮动控件迁移（`ReaderControls`：PrimeVue `Button` 圆形按钮 + `Slider` → `CaomeiButton` / `CaomeiSlider`）：右下角两个图标按钮的边框、底色与尺寸差异；固定定位与圆角保持。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 480,
+                        "y": 220,
+                        "width": 960,
+                        "height": 100
+                    },
+                    "pixels": 1750,
+                    "reason": "文章元信息行（作者头像 / 分类标签 / 日期 / 阅读数 / 字数）：头像切 `AppAvatar` 与分类标签改 `CaomeiTag` 后行盒高度变化，导致该行 1px 级重排；正文与其它区域未受影响。处置走通道① token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "post-detail-dark": {
             "tier": "reader",
@@ -3816,9 +3827,20 @@
                     "pixels": 1733,
                     "reason": "阅读区浮动控件迁移（`ReaderControls`：PrimeVue `Button` 圆形按钮 + `Slider` → `CaomeiButton` / `CaomeiSlider`）：右下角两个图标按钮的边框、底色与尺寸差异；固定定位与圆角保持。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 480,
+                        "y": 220,
+                        "width": 960,
+                        "height": 100
+                    },
+                    "pixels": 1676,
+                    "reason": "文章元信息行（作者头像 / 分类标签 / 日期 / 阅读数 / 字数）：头像切 `AppAvatar` 与分类标签改 `CaomeiTag` 后行盒高度变化，导致该行 1px 级重排；正文与其它区域未受影响。处置走通道① token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "friend-links-light": {
             "tier": "reader",
@@ -3846,9 +3868,31 @@
                     "pixels": 454,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 400,
+                        "width": 1440,
+                        "height": 400
+                    },
+                    "pixels": 28251,
+                    "reason": "友链页卡片与申请表单上半区：`Card` / `Tag` / `InputText` / `Select` / `Textarea` 整批迁移后的组件外壳、间距与字段高度差异（申请表单占满整页宽度）。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 800,
+                        "width": 1280,
+                        "height": 100
+                    },
+                    "pixels": 9204,
+                    "reason": "友链页申请表单下半区（描述 / 留言 textarea 与提交按钮）：`Textarea` / `Button` 迁移后的外壳与间距差异。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "friend-links-dark": {
             "tier": "reader",
@@ -3876,9 +3920,31 @@
                     "pixels": 403,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 0,
+                        "y": 400,
+                        "width": 1440,
+                        "height": 400
+                    },
+                    "pixels": 27412,
+                    "reason": "友链页卡片与申请表单上半区：`Card` / `Tag` / `InputText` / `Select` / `Textarea` 整批迁移后的组件外壳、间距与字段高度差异（申请表单占满整页宽度）。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 160,
+                        "y": 800,
+                        "width": 1280,
+                        "height": 100
+                    },
+                    "pixels": 9371,
+                    "reason": "友链页申请表单下半区（描述 / 留言 textarea 与提交按钮）：`Textarea` / `Button` 迁移后的外壳与间距差异。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "categories-index-light": {
             "tier": "reader",
@@ -4244,9 +4310,20 @@
                     "pixels": 462,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 180
+                    },
+                    "pixels": 8809,
+                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "privacy-policy-dark": {
             "tier": "reader",
@@ -4274,9 +4351,20 @@
                     "pixels": 403,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 180
+                    },
+                    "pixels": 9069,
+                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "user-agreement-light": {
             "tier": "reader",
@@ -4304,9 +4392,20 @@
                     "pixels": 462,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 180
+                    },
+                    "pixels": 8809,
+                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         },
         "user-agreement-dark": {
             "tier": "reader",
@@ -4334,9 +4433,20 @@
                     "pixels": 403,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 320,
+                        "y": 240,
+                        "width": 800,
+                        "height": 180
+                    },
+                    "pixels": 9069,
+                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-08 B4-B 公开路由批：新增组件迁移允许清单，声明值 = 实测。"
         }
     }
 }
