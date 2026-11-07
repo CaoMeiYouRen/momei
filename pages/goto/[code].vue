@@ -1,24 +1,25 @@
 <template>
     <div class="redirect-gate">
         <div v-if="pending" class="loading">
-            <ProgressSpinner />
+            <CaomeiProgressSpinner />
             <p>{{ $t('redirect.loading') }}</p>
         </div>
 
         <div v-else-if="errorMessage" class="error">
-            <i class="pi pi-exclamation-triangle" />
+            <TriangleAlert :size="48" />
             <h2>{{ $t('redirect.error.title') }}</h2>
             <p>{{ errorMessage }}</p>
-            <Button
-                :label="$t('redirect.back_home')"
-                icon="pi pi-home"
-                @click="navigateTo(localePath('/'))"
-            />
+            <CaomeiButton @click="navigateTo(localePath('/'))">
+                <template #icon>
+                    <Home :size="16" />
+                </template>
+                {{ $t('redirect.back_home') }}
+            </CaomeiButton>
         </div>
 
         <div v-else-if="redirectData" class="redirect-info">
             <div class="icon">
-                <i class="pi pi-external-link" />
+                <ExternalLink :size="48" />
             </div>
 
             <h2>{{ $t('redirect.leaving_site') }}</h2>
@@ -39,15 +40,15 @@
             </div>
 
             <div class="actions">
-                <Button
-                    :label="$t('redirect.continue_now')"
-                    @click="navigateToUrl"
-                />
-                <Button
-                    :label="$t('redirect.cancel')"
-                    severity="secondary"
+                <CaomeiButton @click="navigateToUrl">
+                    {{ $t('redirect.continue_now') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="secondary"
                     @click="handleCancel"
-                />
+                >
+                    {{ $t('redirect.cancel') }}
+                </CaomeiButton>
             </div>
 
             <p class="disclaimer">
@@ -59,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { ExternalLink, Home, TriangleAlert } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import { useRoute, useRouter } from 'vue-router'
 import { useLocalePath } from '#i18n'

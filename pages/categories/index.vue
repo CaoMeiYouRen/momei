@@ -10,7 +10,7 @@
         </header>
 
         <div v-if="pending" class="categories-index__grid">
-            <Skeleton
+            <CaomeiSkeleton
                 v-for="i in 6"
                 :key="i"
                 height="8rem"
@@ -19,9 +19,9 @@
         </div>
 
         <div v-else-if="error" class="categories-index__error">
-            <Message severity="error">
+            <CaomeiMessage tone="danger">
                 {{ error.message }}
-            </Message>
+            </CaomeiMessage>
         </div>
 
         <div v-else class="categories-index__grid">
@@ -40,7 +40,7 @@
                     </p>
                 </div>
                 <div class="category-card__footer">
-                    <i class="pi pi-file" />
+                    <File :size="14" />
                     <span>{{ $t('pages.posts.article_count', {count: category.postCount || 0}) }}</span>
                 </div>
             </NuxtLink>
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { File } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
 

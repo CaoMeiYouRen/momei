@@ -17,17 +17,17 @@
             </div>
 
             <div class="legal-page__tags">
-                <Tag
-                    :value="agreement.isReferenceTranslation
+                <CaomeiTag :tone="agreement.isReferenceTranslation ? 'primary' : 'success'">
+                    {{ agreement.isReferenceTranslation
                         ? copy.referenceTranslationTag
-                        : copy.authoritativeVersionTag"
-                    :severity="agreement.isReferenceTranslation ? 'info' : 'success'"
-                />
-                <Tag
+                        : copy.authoritativeVersionTag }}
+                </CaomeiTag>
+                <CaomeiTag
                     v-if="!agreement.isDefault && agreement.history[0]?.isCurrentActive"
-                    :value="copy.currentActiveTag"
-                    severity="secondary"
-                />
+                    tone="neutral"
+                >
+                    {{ copy.currentActiveTag }}
+                </CaomeiTag>
             </div>
 
             <div v-if="agreement.isDefault" class="default-notice">
@@ -47,7 +47,7 @@
                 {{ copy.formatFallbackNotice(agreement.authoritativeLanguage) }}
             </div>
 
-            <Divider />
+            <CaomeiDivider />
 
             <ArticleContent v-if="agreement.content" :content="agreement.content" />
 
@@ -132,6 +132,12 @@ defineProps<{
         flex-wrap: wrap;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
+
+        /* 与迁移前 PrimeVue `Tag` 的行盒高度（约 23px）对齐：caomei `Tag` 的 md 档按控件高度
+         * 取 36px，会把这之后的协议正文整体下移，导致 reader 档像素门禁把正文也算成差异。 */
+        :deep(.caomei-tag) {
+            --caomei-tag-height: 23px;
+        }
     }
 
     &__notice {

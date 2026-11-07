@@ -7,7 +7,7 @@
         </div>
 
         <div v-if="pending" class="loading">
-            <Skeleton
+            <CaomeiSkeleton
                 v-for="i in 4"
                 :key="i"
                 class="mb-4"
@@ -44,7 +44,7 @@
 
                         <div v-if="isExpanded(yearBlock.year, m.month)" class="month-posts">
                             <div v-if="loadingKey(yearBlock.year, m.month)" class="loading mini">
-                                <Skeleton class="mb-2" />
+                                <CaomeiSkeleton class="mb-2" />
                             </div>
 
                             <ul v-else class="post-items">
@@ -74,7 +74,6 @@
 <script setup lang="ts">
 import type { ArchiveMonth, ArchiveYear } from '@/types/archive'
 import type { ApiResponse } from '@/types/api'
-import Skeleton from 'primevue/skeleton'
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()

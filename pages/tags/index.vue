@@ -10,7 +10,7 @@
         </header>
 
         <div v-if="pending" class="tags-index__list">
-            <Skeleton
+            <CaomeiSkeleton
                 v-for="i in 20"
                 :key="i"
                 width="6rem"
@@ -20,9 +20,9 @@
         </div>
 
         <div v-else-if="error" class="tags-index__error">
-            <Message severity="error">
+            <CaomeiMessage tone="danger">
                 {{ error.message }}
-            </Message>
+            </CaomeiMessage>
         </div>
 
         <div v-else class="tags-index__cloud">
