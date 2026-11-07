@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-08
 ---
 
 # Momei Development Standards
@@ -184,6 +184,8 @@ Summary of the pitfalls distilled from the caomei-ui integration work:
 - `@nuxt/kit` `addImports()` registers `imports:extend`, while `nuxt.config` hooks register first — ordering-sensitive import filters must live in a later module.
 - Same-name auto-import conflicts between coexisting libraries are silent (last registration wins); isolation needs a fail-fast build guard.
 - Unlayered CSS beats any named layer (before specificity); covering unlayered third-party styles requires unlayered declarations with sufficient specificity.
+- `@layer` order is established by the first `@layer` declaration in the document; later declarations can only append layers. Inline styles injected by `useHead` may reach the document before external stylesheets, so declare the shared order at the top of the inline style string as well.
+- A scoped `:global(.dark) .x` selector (or `:global(.dark) &` inside a block) may be compiled to a bare `.dark` selector, moving the block's declarations (including nested ones) onto `<html>`; custom properties then inherit site-wide and can silently change other components. Use an unscoped style block or an explicit global selector such as `html:root.dark`, and verify the compiled selector in the build output.
 - Nitro `treeshake.moduleSideEffects` can drop top-level side effects (e.g. `pg-types` parser registration) and silently degrade type parsing; locate by grepping the build output for 0 occurrences.
 - TypeORM boolean columns: `type: Boolean` is coerced by the driver (`'f'` → `true`, unfixable downstream); `type: 'boolean'` passes driver values through and needs a `CustomColumn` normalizing transformer (the pattern used in this repo).
 - Sass interpolation `#{...}` strips quotes from font-family names; use `@use "sass:meta"` + `meta.inspect()` to keep quotes.

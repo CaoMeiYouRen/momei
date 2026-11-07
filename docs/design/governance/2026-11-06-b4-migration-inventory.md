@@ -10,7 +10,7 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
-- **当前剩余（2026-11-07 全局壳子批后复算）**：组件 **163 处 / 26 类**、图标 **189 处**、token **1,445 处**（本批 0 变化）；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin`、`/admin/posts/[id]` 与全局布局壳（AppHeader / 搜索 / 通知 / 语言切换 / 反馈入口）已完成并移出本节清单。
+- **当前剩余（2026-11-07 公开页内容组件子批后复算）**：组件 **132 处 / 23 类**、图标 **176 处**、token **1,426 处**；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin`、`/admin/posts/[id]`、全局布局壳与公开页内容组件（文章分享 / 赞助 / 评论 / 订阅 / 阅读控件）已完成并移出本节清单。
 
 ## 2. 未迁移路由与文件映射
 
@@ -156,7 +156,8 @@
 | `pages/admin/ai/tasks/[id].vue` + `components/admin/ai/{task-detail-content,task-details-dialog,stats-overview,metric-card}.vue` | `/admin/ai/tasks/[id]` | Button / Tag / Message / Image / Card / ProgressSpinner | 已迁完：详情页三态；共享内容组件 Tag×3 走 tone、图片走包装层；`metric-card` 的 `icon` 由字符串改组件 | 迁移方案 §6.2 / §6.3 | **已完成（3ad69ec0）**：parity 4/4、单测 8 例、guard 58 |
 | `pages/admin/calendar/index.vue` + `components/admin/calendar/{calendar-view,kanban-view}.vue` | `/admin/calendar` | Select / Tabs 族 / SelectButton / ProgressSpinner / Button / Tag | 已迁完：Tabs 族改 CaomeiTabs + Trigger/Content；语言选择 size sm；月历工具栏 icon-only + Chevron；看板计数 Tag 走 tone | 迁移方案 §6.2 / §6.1 C 组 | **已迁移（待复审）**：迁移新增单测 9 例（另保留既有 9 例）、浏览器探针 pageerror 0、tabs 2 / 看板 3 列 |
 | `components/app-header.vue` / `app-search.vue` / `app-notifications.vue` / `language-switcher.vue` / `feedback-entry-button.vue` | 公开页共享壳 | Button ×21 / Divider ×2 | 已迁完（25 处）：全部 `Button` → `CaomeiButton`（`text rounded` → `ghost`、图标按钮 → `icon-only` + `#icon` + lucide；`Menu` / `Calendar` 与 PrimeVue 组件同名，按别名导入）；`Divider` → `CaomeiDivider`；通知徽标改 `badge` / `badgeTone`，消息条 `severity` → `tone`；搜索输入改 `CaomeiInput`（`@keyup.enter` → `@enter`，聚焦改暴露的 `focus()`） | 迁移方案 §6.2 / 清单 §2.3 | **已完成（2026-11-07）**：定向单测 29、parity 83/83（头部与反馈入口按实测登记）、基线重采 14 张、E2E critical 全绿 |
-| `components/app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `reader-controls.vue` / `article-*.vue` / `comment-*.vue` / `subscriber-form.vue` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 / 组件 | 见 §2.3 | （待填） | 同上 | 待迁移 |
+| `components/article-share.vue` / `article-sponsor.vue` / `comment-form.vue` / `comment-item.vue` / `subscriber-form.vue` / `reader-controls.vue` | 公开页内容组件 | Button 17 / InputText 4 / Textarea 1 / Tag 3 / Message 1 / Slider 3 / IconField + InputIcon 2 | 已迁完（31 处）：`Button` → `CaomeiButton`（ghost / secondary / icon-only + `#icon` + lucide）；`IconField` + `InputIcon` + `InputText` → `CaomeiInput` + `#prefix`；`Textarea` → `CaomeiTextarea`（`autoResize` 保留）；`Tag` → `CaomeiTag`（作者 primary / 置顶 warning / 语言 neutral）；`Message` → `CaomeiMessage`（`severity` → `tone`）；`Slider` → `CaomeiSlider`；`article-sponsor` 的 `Button as="a"` 改为原生 `<a>` + 按钮样式（保留新标签页语义）；`comment-item` 头像改用 `AppAvatarV2`（路由未登记时仍回退 V1，视觉不变） | 迁移方案 §6.2 / 清单 §2.3 | **已完成（2026-11-07）**：定向单测 36、关联页面测试 130、parity 83/83、E2E critical 全绿；组件 163 → 132、图标 189 → 176 |
+| `components/app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 / 组件 | 见 §2.3 | （待填） | 同上 | 待迁移 |
 | `pages/about.vue` / `benefits.vue` / `feedback.vue` / `archives/index.vue` / `categories/index.vue` / `tags/index.vue` / `posts/index.vue` | 公开路由 | 见 §2.1 | （待填） | 同上 | 待迁移 |
 
 ## 6. 变更记录
@@ -167,6 +168,7 @@
 - 2026-11-07（B4-A）：`/admin/calendar` + 月历 / 看板视图迁移完成；路由 scope 登记；迁移新增测试 9 例（另保留既有 9 例）。lucide `Calendar` 别名后复算 398 处；其中仍含 marketing 路由 1 处既有假阳性（真实 PrimeVue 组件面 397）。
 - 2026-11-07（B4-A）：`/admin` 仪表盘与 3 个 dashboard 组件迁移完成；`/admin` 以**前缀语义**登记（整个管理端树逐页声明归属，编辑器留作 `primeVueSubRoutes` 例外），复算组件 370 / 31 类、图标 328。
 - 2026-11-07（B4-A）：编辑器子批（`/admin/posts/[id]` + 19 个 `components/admin/posts/**`）迁移完成；`/admin/posts` 登记 `ownedFiles` / `inScopeComponents` / `migratedSubRoutes`，V1 三件套删除，`primeVueSubRoutes` 全仓清零；复算组件 188 / 26 类、图标 235。
+- 2026-11-07（B4-B 第二批）：公开页内容组件 6 文件迁移完成（`article-share` / `article-sponsor` / `comment-form` / `comment-item` / `subscriber-form` / `reader-controls`，31 处），图标 13 处改 lucide；复算组件 132 / 23 类、图标 176。
 - 2026-11-07（B4-B 首批）：全局布局壳 5 文件迁移完成（`app-header` / `app-search` / `app-notifications` / `language-switcher` / `feedback-entry-button`，25 处），图标 46 处改 lucide；同批修复 `use-theme` 的 `@layer` 层序声明位置（暗色内容底色误取 Aura `surface.900`）与编辑器 E2E 的 `.title-input` 选择器。复算组件 163 / 26 类、图标 189。
 - 条目 2 / 3 / 4 迁移时在本表逐行补「改动点 / 依据指针 / 状态」，不新增第二份清单。
 

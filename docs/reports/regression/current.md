@@ -10,6 +10,45 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-b-content-components:第七十一阶段条目 3（B4-B）公开页内容组件:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 3（B4-B）：公开页内容组件迁移（分享 / 赞助 / 评论 / 订阅 / 阅读控件）
+
+### 范围
+
+- 6 文件 / 31 处：`article-share`（5）、`article-sponsor`（4）、`comment-form`（6）、`comment-item`（5）、`subscriber-form`（5）、`reader-controls`（6）。
+- 组件替换：`Button` → `CaomeiButton`（ghost / secondary / icon-only + `#icon`）；`IconField` + `InputIcon` + `InputText` → `CaomeiInput` + `#prefix`；`Textarea` → `CaomeiTextarea`（保留 `autoResize`）；`Tag` → `CaomeiTag`（作者 `primary` / 置顶 `warning` / 语言 `neutral`）；`Message` → `CaomeiMessage`（`severity` → `tone`）；`Slider` → `CaomeiSlider`。图标 **13 处** → `@lucide/vue`。
+- `article-sponsor` 的 `Button as="a"` 改为原生 `<a>` + 等价按钮样式，保留新标签页 / 不追踪语义；`comment-item` 头像改用 `AppAvatarV2`（路由未登记时回退 V1，视觉不变）。
+- parity：`post-detail` 新增阅读区浮动控件允许清单（light 243px / dark 1,733px）；其余受影响路由（`home`）的差异仍由既有头部 / 反馈入口条目覆盖，未归因残差 < 200px。
+
+### 顺带修复（真实缺陷）
+
+- **scoped `:global(.dark)` 编译形态**：`article-share` / `article-sponsor` 的暗色覆盖写在 `<style scoped>` 的 `:global(.dark)` 块中，编译产物是**裸 `.dark` 选择器**，把 `--caomei-button-text: var(--p-surface-100)` 声明到 `<html>` 上；任何加载该异步 CSS 的页面（实测含 `/admin/settings/theme`）的 caomei 次级 / 幽灵按钮文字色都会变成深色。主题工作台暗色基线差异 2,642px（头部操作区与浮动保存条文字消失）。
+- 修复方式：基础选择器改用模式感知 token（`--p-content-border-color` / `--p-text-color`），并删除暗色块中的自定义属性；复测主题工作台暗色差异降至 66px（阈值内），根节点 `--caomei-button-text` 为空。
+- 该编译形态在其余 `:global(.dark) .x` 用法上同样存在（产物为裸 `.dark`），本批只修复触碰到的两个文件，其余登记为待治理；陷阱已写入开发规范 §4.6。
+
+### 验证
+
+- 定向单测：6 个组件 **36 passed**；关联页面 / 守卫 **130 passed**（`pages/posts/[id]`、`pages/index`、`pages/posts/index`、`comment-list`、`article-*`、两类守卫）。
+- `pnpm typecheck` 0；ESLint 0 error；Stylelint 0。
+- `pnpm test:visual` **24/24**；`pnpm test:visual:parity` **83/83**（19.5 分钟）。
+- `pnpm test:e2e:critical` **17 passed / 1 skipped** + 安装向导 **2 passed**。
+- 复算：组件 **163 → 132 处 / 26 → 23 类**；图标 **189 → 176**；token 1,445 → 1,426。
+
+### 已接受的视觉 / 行为差异
+
+- 评论表单字段、订阅输入框、阅读滑块、分享 / 赞助按钮的外壳与间距随 caomei 组件统一；`article-sponsor` 的链接按钮由 PrimeVue `as="a"` 改为原生 `<a>` + 等价样式（高度 / 圆角 / 边框走 `--caomei-*` token）。
+- `comment-item` 语言标签原先的 surface 底色直写被删除，改由 `CaomeiTag` 的 neutral soft 呈现（避免与组件 variant 同特异性竞争）。
+- `reader-controls` 的 reset 按钮可访问名复用 `common.refresh`（当前无独立的「重置」i18n 键），未新增键面。
+
+### 未覆盖边界
+
+- 评论 / 分享 / 订阅组件所在的公开路由（`/posts/[id]`、`/`）尚未登记为 caomei 路由，`AppAvatarV2` 仍回退 V1；V1 清零与去 `-v2` 后缀留到公开路由整迁。
+- `home/external-feed-panel`、`taxonomy-post-page`、`app-voice-input-*`、`app-uploader` / `app-avatar` 的 V1 消费者仍未处理。
+- `:global(.dark)` 编译形态的全仓治理未在本批展开（仅修复触碰到的两个文件并登记规范）。
+
+<!-- regression-window:end:b4-b-content-components:第七十一阶段条目 3（B4-B）公开页内容组件:2026-11-08 -->
+
 <!-- regression-window:start:b4-b-global-shell:第七十一阶段条目 3（B4-B）全局布局壳:2026-11-07 -->
 
 ## 2026-11-07 第七十一阶段条目 3（B4-B）：全局布局壳迁移（AppHeader / 搜索 / 通知 / 语言切换 / 反馈入口）

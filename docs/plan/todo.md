@@ -41,7 +41,7 @@
     - **执行范围**: 3a 全局壳（`app-header` / `app-notifications` / `app-search` / `app-uploader` / `app-avatar` / `app-voice-input-*` / `reader-controls` / `language-switcher` / `feedback-entry-button` / `article-*` / `comment-*` / `subscriber-form` / `home/**` / `taxonomy-post-page`）；3b 公开路由（首页 / 文章列表与详情 / 友链 / 关于 / 权益 / 反馈 / 分类 / 标签 / 归档 / 跳转页 / 隐私政策 / 用户协议等）。认证 4 页与 `/submit` 已于第七十阶段条目 4 迁移，本批仅随图标与布局壳复核。
     - **非目标**: 不改内容渲染与 SEO 逻辑；不重做信息架构。
     - **验收**: 公开页 `reader` 档 parity 全量归因；关键 E2E（首页 / 文章详情 / 评论 / 搜索 / 友链）通过；SSR + hydration 复核记录落盘。
-    - **进度（2026-11-07）**: 3a 首批完成全局布局壳 5 文件（`app-header` / `app-search` / `app-notifications` / `language-switcher` / `feedback-entry-button`，25 处），组件复算 188 → 163、图标 235 → 189；parity 83/83、`test:visual` 24/24、E2E critical 全绿。同批修复 `use-theme` 的 `@layer` 层序位置（暗色内容底色误取 Aura `surface.900`）。剩余：`article-*` / `comment-*` / `home/**` / `taxonomy-post-page` / `reader-controls` / 语音输入与公开路由本体。
+    - **进度（2026-11-07）**: 全局布局壳 5 文件（25 处）+ 公开页内容组件 6 文件（`article-share` / `article-sponsor` / `comment-form` / `comment-item` / `subscriber-form` / `reader-controls`，31 处）已完成，组件复算 188 → 132、图标 235 → 176；parity 83/83、`test:visual` 24/24、E2E critical 全绿。同批修复 `use-theme` 的 `@layer` 层序位置（暗色内容底色误取 Aura `surface.900`）。剩余：`home/**` / `taxonomy-post-page` / 语音输入 / `app-uploader` / `app-avatar` 的 V1 消费者与公开路由本体。
 
 - [ ] **4. B4-C 图标全量替换与品牌图标落点（P1）**
     - **执行范围**: `pi pi-*` 411 处 / 94 文件 / 118 唯一；其中品牌图标 22 处 / 11 类 → `mdi mdi-*`（保留 `@mdi/font`，零新依赖），其余 389 处 → `@lucide/vue`；数据驱动 `icon: 'pi pi-*'` 改为显式图标映射；`pi-spin` 12 处（生产用法）改由加载态组件承载。
