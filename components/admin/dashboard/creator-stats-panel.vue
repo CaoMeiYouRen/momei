@@ -42,15 +42,14 @@
 
         <!-- Notes Section -->
         <div class="admin-dashboard__notes">
-            <Tag
-                :value="$t('pages.admin.dashboard.notes.timezone', {timezone: stats?.timezone || timezone})"
-                severity="secondary"
-            />
+            <CaomeiTag tone="neutral">
+                {{ $t('pages.admin.dashboard.notes.timezone', {timezone: stats?.timezone || timezone}) }}
+            </CaomeiTag>
         </div>
 
         <!-- Loading State -->
         <div v-if="loading && !stats" class="admin-dashboard__loading-state">
-            <ProgressSpinner stroke-width="4" />
+            <CaomeiProgressSpinner :stroke-width="4" />
         </div>
 
         <!-- Content -->
@@ -59,20 +58,20 @@
                 <CreatorMetricCard
                     :label="$t('pages.admin.dashboard.creator_published')"
                     :value="stats.publishing.totalPublished"
-                    icon="pi pi-file-check"
+                    :icon="FileCheck"
                     tone="neutral"
                 />
                 <CreatorMetricCard
                     :label="$t('pages.admin.dashboard.creator_drafts')"
                     :value="stats.publishing.draftCount"
-                    icon="pi pi-pen-to-square"
+                    :icon="PenSquare"
                     tone="warm"
                 />
                 <CreatorMetricCard
                     v-if="stats.distribution.wechatsync"
                     :label="$t('pages.admin.dashboard.creator_wechat_sync')"
                     :value="stats.distribution.wechatsync.overallSuccessRate"
-                    icon="pi pi-share-alt"
+                    :icon="Share2"
                     tone="cool"
                     format="percent"
                 />
@@ -80,7 +79,7 @@
                     v-if="stats.distribution.hexoRepositorySync"
                     :label="$t('pages.admin.dashboard.creator_hexo_sync')"
                     :value="stats.distribution.hexoRepositorySync.overallSuccessRate"
-                    icon="pi pi-code-branch"
+                    :icon="GitBranch"
                     tone="cool"
                     format="percent"
                 />
@@ -88,101 +87,94 @@
 
             <div v-if="hasTrendData || hasDistributionData" class="admin-dashboard__rankings">
                 <!-- Publishing Trend Card -->
-                <Card
+                <CaomeiCard
                     v-if="hasTrendData"
                     class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide"
                 >
                     <template #title>
                         <span class="admin-dashboard__title-with-badge">
                             {{ $t('pages.admin.dashboard.creator_publish_trend') }}
-                            <Tag
-                                :value="granularityLabel"
-                                severity="info"
-                            />
+                            <CaomeiTag tone="primary">
+                                {{ granularityLabel }}
+                            </CaomeiTag>
                         </span>
                     </template>
-                    <template #content>
-                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                            <li
-                                v-for="point in stats.publishing.trend"
-                                :key="point.periodStart"
-                                class="admin-dashboard__ranking-item"
-                            >
-                                <div class="admin-dashboard__ranking-copy">
-                                    <strong>{{ formatPeriodLabel(point, stats.aggregationGranularity) }}</strong>
-                                </div>
-                                <div class="admin-dashboard__ranking-stats">
-                                    <span>
-                                        <i class="pi pi-file-edit" />
-                                        {{ $t('pages.admin.dashboard.creator_post_count', {count: point.count}) }}
-                                    </span>
-                                </div>
-                            </li>
-                        </ol>
-                    </template>
-                </Card>
+                    <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                        <li
+                            v-for="point in stats.publishing.trend"
+                            :key="point.periodStart"
+                            class="admin-dashboard__ranking-item"
+                        >
+                            <div class="admin-dashboard__ranking-copy">
+                                <strong>{{ formatPeriodLabel(point, stats.aggregationGranularity) }}</strong>
+                            </div>
+                            <div class="admin-dashboard__ranking-stats">
+                                <span>
+                                    <FilePen :size="14" />
+                                    {{ $t('pages.admin.dashboard.creator_post_count', {count: point.count}) }}
+                                </span>
+                            </div>
+                        </li>
+                    </ol>
+                </CaomeiCard>
 
                 <!-- Distribution Trend Card -->
-                <Card
+                <CaomeiCard
                     v-if="hasDistributionData"
                     class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide"
                 >
                     <template #title>
                         {{ $t('pages.admin.dashboard.creator_distribution_trend') }}
                     </template>
-                    <template #content>
-                        <div
-                            v-if="stats.distribution.wechatsync?.trend.length"
-                            class="admin-dashboard__trend-subsection"
-                        >
-                            <h4 class="admin-dashboard__trend-subtitle">
-                                {{ $t('pages.admin.dashboard.creator_wechat_sync') }}
-                            </h4>
-                            <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                                <li
-                                    v-for="point in stats.distribution.wechatsync.trend"
-                                    :key="point.periodStart"
-                                    class="admin-dashboard__ranking-item"
-                                >
-                                    <div class="admin-dashboard__ranking-copy">
-                                        <strong>{{ point.periodStart }}</strong>
-                                    </div>
-                                    <div class="admin-dashboard__ranking-stats">
-                                        <Tag
-                                            :value="`${point.succeeded} / ${point.total}`"
-                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
-                                        />
-                                    </div>
-                                </li>
-                            </ol>
-                        </div>
-                        <div
-                            v-if="stats.distribution.hexoRepositorySync?.trend.length"
-                            class="admin-dashboard__trend-subsection"
-                        >
-                            <h4 class="admin-dashboard__trend-subtitle">
-                                {{ $t('pages.admin.dashboard.creator_hexo_sync') }}
-                            </h4>
-                            <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                                <li
-                                    v-for="point in stats.distribution.hexoRepositorySync.trend"
-                                    :key="point.periodStart"
-                                    class="admin-dashboard__ranking-item"
-                                >
-                                    <div class="admin-dashboard__ranking-copy">
-                                        <strong>{{ point.periodStart }}</strong>
-                                    </div>
-                                    <div class="admin-dashboard__ranking-stats">
-                                        <Tag
-                                            :value="`${point.succeeded} / ${point.total}`"
-                                            :severity="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warn' : 'danger'"
-                                        />
-                                    </div>
-                                </li>
-                            </ol>
-                        </div>
-                    </template>
-                </Card>
+                    <div
+                        v-if="stats.distribution.wechatsync?.trend.length"
+                        class="admin-dashboard__trend-subsection"
+                    >
+                        <h4 class="admin-dashboard__trend-subtitle">
+                            {{ $t('pages.admin.dashboard.creator_wechat_sync') }}
+                        </h4>
+                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                            <li
+                                v-for="point in stats.distribution.wechatsync.trend"
+                                :key="point.periodStart"
+                                class="admin-dashboard__ranking-item"
+                            >
+                                <div class="admin-dashboard__ranking-copy">
+                                    <strong>{{ point.periodStart }}</strong>
+                                </div>
+                                <div class="admin-dashboard__ranking-stats">
+                                    <CaomeiTag :tone="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warning' : 'danger'">
+                                        {{ point.succeeded }} / {{ point.total }}
+                                    </CaomeiTag>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <div
+                        v-if="stats.distribution.hexoRepositorySync?.trend.length"
+                        class="admin-dashboard__trend-subsection"
+                    >
+                        <h4 class="admin-dashboard__trend-subtitle">
+                            {{ $t('pages.admin.dashboard.creator_hexo_sync') }}
+                        </h4>
+                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                            <li
+                                v-for="point in stats.distribution.hexoRepositorySync.trend"
+                                :key="point.periodStart"
+                                class="admin-dashboard__ranking-item"
+                            >
+                                <div class="admin-dashboard__ranking-copy">
+                                    <strong>{{ point.periodStart }}</strong>
+                                </div>
+                                <div class="admin-dashboard__ranking-stats">
+                                    <CaomeiTag :tone="point.failed === 0 ? 'success' : point.succeeded > 0 ? 'warning' : 'danger'">
+                                        {{ point.succeeded }} / {{ point.total }}
+                                    </CaomeiTag>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </CaomeiCard>
             </div>
         </template>
 
@@ -194,6 +186,7 @@
 </template>
 
 <script setup lang="ts">
+import { FileCheck, FilePen, GitBranch, PenSquare, Share2 } from '@lucide/vue'
 import { computed, watch } from 'vue'
 import { useCreatorStatsPage } from '@/composables/use-creator-stats-page'
 import CreatorMetricCard from './creator-metric-card.vue'
@@ -202,7 +195,7 @@ const props = defineProps<{
     refreshSignal?: number
 }>()
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))
 
@@ -237,12 +230,12 @@ const hasDistributionData = computed(() => Boolean(
 const granularityLabel = computed(() => {
     const g = stats.value?.aggregationGranularity
     if (g === 'day') {
-        return useI18n().t('pages.admin.dashboard.creator_daily')
+        return t('pages.admin.dashboard.creator_daily')
     }
     if (g === 'week') {
-        return useI18n().t('pages.admin.dashboard.creator_weekly')
+        return t('pages.admin.dashboard.creator_weekly')
     }
-    return useI18n().t('pages.admin.dashboard.creator_monthly')
+    return t('pages.admin.dashboard.creator_monthly')
 })
 
 function formatPeriodLabel(point: { periodStart: string, periodEnd?: string }, granularity: string): string {

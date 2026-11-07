@@ -2,233 +2,238 @@
     <div class="admin-dashboard admin-page-container">
         <AdminPageHeader :title="$t('pages.admin.dashboard.title')" show-language-switcher>
             <template #actions>
-                <Button
-                    :label="$t('common.refresh')"
-                    icon="pi pi-refresh"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
+                    tone="neutral"
                     :loading="loading"
                     @click="handleRefresh"
-                />
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ $t('common.refresh') }}
+                </CaomeiButton>
             </template>
         </AdminPageHeader>
 
-        <Tabs v-model:value="activeTab">
-            <TabList>
-                <Tab value="insights">
-                    <i class="pi pi-chart-bar" />
+        <CaomeiTabs v-model="activeTab" :unmount-on-hide="false">
+            <CaomeiTabList>
+                <CaomeiTabTrigger value="insights">
+                    <ChartColumn :size="16" />
                     <span>{{ $t('pages.admin.dashboard.tab_insights') }}</span>
-                </Tab>
-                <Tab value="creator">
-                    <i class="pi pi-user-edit" />
+                </CaomeiTabTrigger>
+                <CaomeiTabTrigger value="creator">
+                    <UserPen :size="16" />
                     <span>{{ $t('pages.admin.dashboard.tab_creator') }}</span>
-                </Tab>
-            </TabList>
+                </CaomeiTabTrigger>
+            </CaomeiTabList>
 
-            <TabPanels>
-                <TabPanel value="insights">
-                    <div class="admin-dashboard__panel" :class="{'admin-dashboard__panel--loading': loading}">
-                        <div class="admin-content-card admin-dashboard__hero">
-                            <div class="admin-dashboard__hero-copy">
-                                <p class="admin-dashboard__eyebrow">
-                                    {{ $t('pages.admin.dashboard.title') }}
-                                </p>
-                                <h2 class="admin-dashboard__headline">
-                                    {{ $t('pages.admin.dashboard.subtitle') }}
-                                </h2>
-                                <p class="admin-dashboard__summary">
-                                    {{ $t('pages.admin.dashboard.selection_summary', {days: selectedRange}) }}
-                                </p>
+            <CaomeiTabContent value="insights">
+                <div class="admin-dashboard__panel" :class="{'admin-dashboard__panel--loading': loading}">
+                    <div class="admin-content-card admin-dashboard__hero">
+                        <div class="admin-dashboard__hero-copy">
+                            <p class="admin-dashboard__eyebrow">
+                                {{ $t('pages.admin.dashboard.title') }}
+                            </p>
+                            <h2 class="admin-dashboard__headline">
+                                {{ $t('pages.admin.dashboard.subtitle') }}
+                            </h2>
+                            <p class="admin-dashboard__summary">
+                                {{ $t('pages.admin.dashboard.selection_summary', {days: selectedRange}) }}
+                            </p>
+                        </div>
+
+                        <div class="admin-dashboard__controls">
+                            <div class="admin-dashboard__ranges">
+                                <button
+                                    v-for="summary in rangeSummaries"
+                                    :key="summary.days"
+                                    type="button"
+                                    class="admin-dashboard__range-button"
+                                    :class="{'admin-dashboard__range-button--active': selectedRange === summary.days}"
+                                    @click="selectedRange = summary.days"
+                                >
+                                    <span class="admin-dashboard__range-label">
+                                        {{ $t('pages.admin.dashboard.range_label', {days: summary.days}) }}
+                                    </span>
+                                    <strong class="admin-dashboard__range-value">
+                                        {{ numberFormatter.format(summary.metrics.posts.total) }}
+                                    </strong>
+                                    <small class="admin-dashboard__range-caption">
+                                        {{ $t('pages.admin.dashboard.metrics.posts') }}
+                                    </small>
+                                </button>
                             </div>
 
-                            <div class="admin-dashboard__controls">
-                                <div class="admin-dashboard__ranges">
-                                    <button
-                                        v-for="summary in rangeSummaries"
-                                        :key="summary.days"
-                                        type="button"
-                                        class="admin-dashboard__range-button"
-                                        :class="{'admin-dashboard__range-button--active': selectedRange === summary.days}"
-                                        @click="selectedRange = summary.days"
-                                    >
-                                        <span class="admin-dashboard__range-label">
-                                            {{ $t('pages.admin.dashboard.range_label', {days: summary.days}) }}
-                                        </span>
-                                        <strong class="admin-dashboard__range-value">
-                                            {{ numberFormatter.format(summary.metrics.posts.total) }}
-                                        </strong>
-                                        <small class="admin-dashboard__range-caption">
-                                            {{ $t('pages.admin.dashboard.metrics.posts') }}
-                                        </small>
-                                    </button>
-                                </div>
-
-                                <div class="admin-dashboard__filters">
-                                    <div class="admin-dashboard__filter-field">
-                                        <label class="admin-dashboard__filter-label" for="dashboard-scope-select">
-                                            {{ $t('pages.admin.dashboard.scope_label') }}
-                                        </label>
-                                        <Select
-                                            id="dashboard-scope-select"
-                                            v-model="scope"
-                                            :options="scopeOptions"
-                                            option-label="label"
-                                            option-value="value"
-                                            class="admin-dashboard__scope-select"
-                                        />
-                                    </div>
+                            <div class="admin-dashboard__filters">
+                                <div class="admin-dashboard__filter-field">
+                                    <label class="admin-dashboard__filter-label" for="dashboard-scope-select">
+                                        {{ $t('pages.admin.dashboard.scope_label') }}
+                                    </label>
+                                    <CaomeiSelect
+                                        id="dashboard-scope-select"
+                                        :model-value="scope"
+                                        :options="scopeOptions"
+                                        option-label="label"
+                                        option-value="value"
+                                        class="admin-dashboard__scope-select"
+                                        @update:model-value="handleScopeChange"
+                                    />
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="admin-dashboard__notes">
-                            <Tag :value="$t('pages.admin.dashboard.notes.timezone', {timezone: dashboard?.timezone || timezone})" severity="secondary" />
-                            <Tag
-                                :value="scope === 'public'
-                                    ? $t('pages.admin.dashboard.notes.public_scope')
-                                    : $t('pages.admin.dashboard.notes.all_scope')"
-                                severity="info"
+                    <div class="admin-dashboard__notes">
+                        <CaomeiTag tone="neutral">
+                            {{ $t('pages.admin.dashboard.notes.timezone', {timezone: dashboard?.timezone || timezone}) }}
+                        </CaomeiTag>
+                        <CaomeiTag tone="primary">
+                            {{ scope === 'public'
+                                ? $t('pages.admin.dashboard.notes.public_scope')
+                                : $t('pages.admin.dashboard.notes.all_scope') }}
+                        </CaomeiTag>
+                        <CaomeiTag tone="warning">
+                            {{ $t('pages.admin.dashboard.notes.cohort_metrics', {days: selectedRange}) }}
+                        </CaomeiTag>
+                        <CaomeiTag tone="neutral">
+                            {{ $t('pages.admin.dashboard.notes.representative') }}
+                        </CaomeiTag>
+                    </div>
+
+                    <div v-if="loading && !dashboard" class="admin-dashboard__loading-state">
+                        <CaomeiProgressSpinner :stroke-width="4" />
+                    </div>
+
+                    <template v-else-if="selectedSummary">
+                        <div class="admin-dashboard__metrics">
+                            <AdminDashboardMetricCard
+                                v-for="metric in metricCards"
+                                :key="metric.key"
+                                :label="metric.label"
+                                :icon="metric.icon"
+                                :metric="metric.metric"
+                                :tone="metric.tone"
                             />
-                            <Tag :value="$t('pages.admin.dashboard.notes.cohort_metrics', {days: selectedRange})" severity="warn" />
-                            <Tag :value="$t('pages.admin.dashboard.notes.representative')" severity="contrast" />
                         </div>
 
-                        <div v-if="loading && !dashboard" class="admin-dashboard__loading-state">
-                            <ProgressSpinner stroke-width="4" />
+                        <div v-if="hasRankingData" class="admin-dashboard__rankings">
+                            <CaomeiCard class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide">
+                                <template #title>
+                                    {{ $t('pages.admin.dashboard.rankings.posts') }}
+                                </template>
+                                <ol class="admin-dashboard__ranking-list">
+                                    <li
+                                        v-for="post in dashboard?.rankings.posts || []"
+                                        :key="post.id"
+                                        class="admin-dashboard__ranking-item"
+                                    >
+                                        <div class="admin-dashboard__ranking-copy">
+                                            <NuxtLink
+                                                :to="localePath(`/admin/posts/${post.id}`)"
+                                                class="admin-dashboard__ranking-link"
+                                            >
+                                                {{ post.title }}
+                                            </NuxtLink>
+                                            <div class="admin-dashboard__ranking-meta">
+                                                <CaomeiTag tone="neutral">
+                                                    {{ post.language.toUpperCase() }}
+                                                </CaomeiTag>
+                                                <span v-if="post.category">{{ post.category.name }}</span>
+                                                <span>{{ formatDateTime(post.publishedAt || post.createdAt) }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="admin-dashboard__ranking-stats">
+                                            <span>
+                                                <Eye :size="14" />
+                                                {{ numberFormatter.format(post.views) }}
+                                            </span>
+                                            <span>
+                                                <MessageSquare :size="14" />
+                                                {{ numberFormatter.format(post.commentCount) }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </CaomeiCard>
+
+                            <CaomeiCard class="admin-dashboard__ranking-card">
+                                <template #title>
+                                    {{ $t('pages.admin.dashboard.rankings.tags') }}
+                                </template>
+                                <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                                    <li
+                                        v-for="tag in dashboard?.rankings.tags || []"
+                                        :key="tag.clusterId"
+                                        class="admin-dashboard__ranking-item"
+                                    >
+                                        <div class="admin-dashboard__ranking-copy">
+                                            <strong>{{ tag.name }}</strong>
+                                            <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: tag.postCount}) }}</small>
+                                        </div>
+                                        <div class="admin-dashboard__ranking-stats">
+                                            <span>
+                                                <Eye :size="14" />
+                                                {{ numberFormatter.format(tag.views) }}
+                                            </span>
+                                            <span>
+                                                <MessageSquare :size="14" />
+                                                {{ numberFormatter.format(tag.commentCount) }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </CaomeiCard>
+
+                            <CaomeiCard class="admin-dashboard__ranking-card">
+                                <template #title>
+                                    {{ $t('pages.admin.dashboard.rankings.categories') }}
+                                </template>
+                                <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
+                                    <li
+                                        v-for="category in dashboard?.rankings.categories || []"
+                                        :key="category.clusterId"
+                                        class="admin-dashboard__ranking-item"
+                                    >
+                                        <div class="admin-dashboard__ranking-copy">
+                                            <strong>{{ category.name }}</strong>
+                                            <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: category.postCount}) }}</small>
+                                        </div>
+                                        <div class="admin-dashboard__ranking-stats">
+                                            <span>
+                                                <Eye :size="14" />
+                                                {{ numberFormatter.format(category.views) }}
+                                            </span>
+                                            <span>
+                                                <MessageSquare :size="14" />
+                                                {{ numberFormatter.format(category.commentCount) }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </CaomeiCard>
                         </div>
-
-                        <template v-else-if="selectedSummary">
-                            <div class="admin-dashboard__metrics">
-                                <AdminDashboardMetricCard
-                                    v-for="metric in metricCards"
-                                    :key="metric.key"
-                                    :label="metric.label"
-                                    :icon="metric.icon"
-                                    :metric="metric.metric"
-                                    :tone="metric.tone"
-                                />
-                            </div>
-
-                            <div v-if="hasRankingData" class="admin-dashboard__rankings">
-                                <Card class="admin-dashboard__ranking-card admin-dashboard__ranking-card--wide">
-                                    <template #title>
-                                        {{ $t('pages.admin.dashboard.rankings.posts') }}
-                                    </template>
-                                    <template #content>
-                                        <ol class="admin-dashboard__ranking-list">
-                                            <li
-                                                v-for="post in dashboard?.rankings.posts || []"
-                                                :key="post.id"
-                                                class="admin-dashboard__ranking-item"
-                                            >
-                                                <div class="admin-dashboard__ranking-copy">
-                                                    <NuxtLink
-                                                        :to="localePath(`/admin/posts/${post.id}`)"
-                                                        class="admin-dashboard__ranking-link"
-                                                    >
-                                                        {{ post.title }}
-                                                    </NuxtLink>
-                                                    <div class="admin-dashboard__ranking-meta">
-                                                        <Tag :value="post.language.toUpperCase()" severity="secondary" />
-                                                        <span v-if="post.category">{{ post.category.name }}</span>
-                                                        <span>{{ formatDateTime(post.publishedAt || post.createdAt) }}</span>
-                                                    </div>
-                                                </div>
-                                                <div class="admin-dashboard__ranking-stats">
-                                                    <span>
-                                                        <i class="pi pi-eye" />
-                                                        {{ numberFormatter.format(post.views) }}
-                                                    </span>
-                                                    <span>
-                                                        <i class="pi pi-comments" />
-                                                        {{ numberFormatter.format(post.commentCount) }}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        </ol>
-                                    </template>
-                                </Card>
-
-                                <Card class="admin-dashboard__ranking-card">
-                                    <template #title>
-                                        {{ $t('pages.admin.dashboard.rankings.tags') }}
-                                    </template>
-                                    <template #content>
-                                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                                            <li
-                                                v-for="tag in dashboard?.rankings.tags || []"
-                                                :key="tag.clusterId"
-                                                class="admin-dashboard__ranking-item"
-                                            >
-                                                <div class="admin-dashboard__ranking-copy">
-                                                    <strong>{{ tag.name }}</strong>
-                                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: tag.postCount}) }}</small>
-                                                </div>
-                                                <div class="admin-dashboard__ranking-stats">
-                                                    <span>
-                                                        <i class="pi pi-eye" />
-                                                        {{ numberFormatter.format(tag.views) }}
-                                                    </span>
-                                                    <span>
-                                                        <i class="pi pi-comments" />
-                                                        {{ numberFormatter.format(tag.commentCount) }}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        </ol>
-                                    </template>
-                                </Card>
-
-                                <Card class="admin-dashboard__ranking-card">
-                                    <template #title>
-                                        {{ $t('pages.admin.dashboard.rankings.categories') }}
-                                    </template>
-                                    <template #content>
-                                        <ol class="admin-dashboard__ranking-list admin-dashboard__ranking-list--compact">
-                                            <li
-                                                v-for="category in dashboard?.rankings.categories || []"
-                                                :key="category.clusterId"
-                                                class="admin-dashboard__ranking-item"
-                                            >
-                                                <div class="admin-dashboard__ranking-copy">
-                                                    <strong>{{ category.name }}</strong>
-                                                    <small>{{ $t('pages.admin.dashboard.ranking_post_count', {count: category.postCount}) }}</small>
-                                                </div>
-                                                <div class="admin-dashboard__ranking-stats">
-                                                    <span>
-                                                        <i class="pi pi-eye" />
-                                                        {{ numberFormatter.format(category.views) }}
-                                                    </span>
-                                                    <span>
-                                                        <i class="pi pi-comments" />
-                                                        {{ numberFormatter.format(category.commentCount) }}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        </ol>
-                                    </template>
-                                </Card>
-                            </div>
-
-                            <div v-else class="admin-content-card admin-dashboard__empty-state">
-                                {{ $t('pages.admin.dashboard.empty') }}
-                            </div>
-                        </template>
 
                         <div v-else class="admin-content-card admin-dashboard__empty-state">
                             {{ $t('pages.admin.dashboard.empty') }}
                         </div>
-                    </div><!-- end panel -->
-                </TabPanel>
+                    </template>
 
-                <TabPanel value="creator">
-                    <CreatorStatsPanel :refresh-signal="creatorRefreshSignal" />
-                </TabPanel>
-            </TabPanels>
-        </Tabs>
+                    <div v-else class="admin-content-card admin-dashboard__empty-state">
+                        {{ $t('pages.admin.dashboard.empty') }}
+                    </div>
+                </div><!-- end panel -->
+            </CaomeiTabContent>
+
+            <CaomeiTabContent value="creator">
+                <CreatorStatsPanel :refresh-signal="creatorRefreshSignal" />
+            </CaomeiTabContent>
+        </CaomeiTabs>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ChartColumn, Eye, FilePen, MessageSquare, RefreshCw, UserPen } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { ADMIN_CONTENT_INSIGHT_RANGES } from '@/types/admin-content-insights'
 import { useI18nDate } from '@/composables/use-i18n-date'
@@ -257,6 +262,12 @@ const {
 
 const activeTab = ref<'insights' | 'creator'>('insights')
 const creatorRefreshSignal = ref(0)
+
+function handleScopeChange(value: string | number | null | undefined) {
+    if (value === 'all' || value === 'public') {
+        scope.value = value
+    }
+}
 
 function handleRefresh() {
     if (activeTab.value === 'creator') {
@@ -289,21 +300,21 @@ const metricCards = computed(() => {
         {
             key: 'views',
             label: t('pages.admin.dashboard.metrics.views'),
-            icon: 'pi pi-eye',
+            icon: Eye,
             tone: 'warm' as const,
             metric: selectedSummary.value.metrics.views,
         },
         {
             key: 'comments',
             label: t('pages.admin.dashboard.metrics.comments'),
-            icon: 'pi pi-comments',
+            icon: MessageSquare,
             tone: 'cool' as const,
             metric: selectedSummary.value.metrics.comments,
         },
         {
             key: 'posts',
             label: t('pages.admin.dashboard.metrics.posts'),
-            icon: 'pi pi-file-edit',
+            icon: FilePen,
             tone: 'neutral' as const,
             metric: selectedSummary.value.metrics.posts,
         },

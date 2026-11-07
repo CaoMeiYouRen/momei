@@ -10,6 +10,41 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-a-admin-dashboard:第七十一阶段条目 2 仪表盘整路由:2026-11-07 -->
+
+## 2026-11-07 第七十一阶段条目 2（B4-A）：仪表盘 `/admin` 整路由迁移
+
+### 范围
+
+- `pages/admin/index.vue` + `components/admin/dashboard/{metric-card,creator-metric-card,creator-stats-panel}.vue`。
+- 组件替换：`Button` → `CaomeiButton`（刷新，`loading` + lucide `RefreshCw`）；Tabs 族 → `CaomeiTabs` + `CaomeiTabTrigger` / `CaomeiTabContent`（`unmount-on-hide=false` 保留创作面板已加载状态）；范围筛选 `Select` → `CaomeiSelect`（`:model-value` + 收窄回写，避免把 `string | number | null` 直接写进 `'all' | 'public'`）；10 处 `Tag` → `CaomeiTag` 走 tone（页面 5 + 创作面板 4 + 指标卡 1；`secondary` / `contrast` → `neutral`、`info` → `primary`、`warn` → `warning`）；`ProgressSpinner` → `CaomeiProgressSpinner`；3 张排行卡 + 3 张指标卡 `Card` → `CaomeiCard`（`#content` → 默认插槽）；**17 处** `pi pi-*` → `@lucide/vue`（页面 12 + 创作面板 5）；`icon` prop 由字符串改为组件（`metric-card` / `creator-metric-card`）。
+- 样式：`.dashboard-metric-card` 与 `.admin-dashboard__ranking-card` 的描边 / 背景改走 `--caomei-card-border` / `--caomei-card-bg` 覆盖钩子——直接写 `border` / `background` 与 `.caomei-card--outlined[data-v-*]` **同特异性**，胜负取决于样式表加载顺序（跨 chunk 不确定），实测用钩子后稳定生效（描边 `1px solid`、渐变背景保留、图标右对齐距卡右内侧 17px）。
+- 路由登记：`CAOMEI_UI_ROUTE_SCOPES` 新增 `/admin`（树根前缀），`ownedFiles` 三个 dashboard 组件、`inScopeComponents` 仅 Tabs 族；`migratedSubRoutes` 登记 22 个已迁移的管理端子页面、`primeVueSubRoutes` 保留编辑器 `/admin/posts/[id]`。
+- 测试：新增 `pages/admin/index.test.ts`（5）、`components/admin/dashboard/metric-card.test.ts`（4）、`creator-stats-panel.test.ts` 补 3 例 = **新增 12 例**。`creator-stats-panel.test.ts` 同时把 mock 的 `stats` 从普通对象改为真正的 `ref`：旧形状下模板 `v-else-if="stats"` 为真（指标卡仍渲染），但 computed 里的 `stats.value` 为 `undefined`，`hasTrendData` / `hasDistributionData` / `granularityLabel` 永久走空分支——**排行 / 趋势区从未被覆盖**；修复后该区才有真实断言。
+
+### 验证
+
+- `pnpm typecheck` 0；`pnpm lint` 0 error；`pnpm lint:i18n` 0；`pnpm lint:css` 0；`pnpm build` 通过（2m28s）。
+- `npx vitest run components/admin/dashboard pages/admin/index.test.ts tests/modules/ui-library-route-migration-guard.test.ts tests/modules/ui-library-transition-component-guard.test.ts` → **6 files / 100 passed**（分文件实测：dashboard **19** / 页面 **5** / 路由守卫 **60** / 过渡守卫 **16**；逐文件复算：`npx vitest run components/admin/dashboard`、`npx vitest run pages/admin/index.test.ts`、`npx vitest run tests/modules/ui-library-route-migration-guard.test.ts`、`npx vitest run tests/modules/ui-library-transition-component-guard.test.ts`）。
+- 计数复算命令（**钉迁移前提交 `f63b7639`**，否则本次提交后 `HEAD` 前移、命令返回 0）：`git show f63b7639:pages/admin/index.vue | grep -o 'pi pi-[a-z-]*' | wc -l` → 12；`git show f63b7639:components/admin/dashboard/creator-stats-panel.vue | grep -o 'pi pi-[a-z-]*' | wc -l` → 5；`git show f63b7639:pages/admin/index.vue | grep -c '<Tag\b'` → 5。
+- 浏览器探针（build 产物 + TEST_MODE 登录，1440×900）：`/admin` → 200、h1「内容洞察」、`role=tab` 2 条、`CaomeiCard` 3 张（指标卡）、`CaomeiTag` 8 个、`pageerror` 0；指标卡实测描边 / 渐变 / 图标右对齐均正确；创作页签切换后无报错。
+- 复算：组件 **398 → 370 处 / 36 → 31 类**；图标 **352 → 328 处**；token 1,445（本批 0 变化）。
+
+### 已接受的视觉 / 行为差异（无 parity 基线，人工核对）
+
+- `Card` → `CaomeiCard` 的组件基线差异：阴影消失（PrimeVue Aura `0 1px 3px rgb(0 0 0/.1)` → caomei `--outlined` 无阴影）、body 内边距 `20px → 16px`、标题 `20px/500 → 16px/600`。影响 6 张卡（3 指标 + 3 排行）与创作面板 2 张卡的标题；描边与渐变背景已用 `--caomei-card-*` 钩子显式保留。
+- `Tabs` 面板挂载时机：PrimeVue `TabPanel` 未设 `lazy` 时首屏即渲染，reka `TabsContent` 走 `Presence`，`unmount-on-hide=false` 只保证**首次激活后**不卸载——创作面板的 `onMounted` 取数因此从「页面加载即请求」变为「首次点击创作页签才请求」。功能无回归（少一次首屏请求），但属行为差异；面板未挂载时 `creatorRefreshSignal` 自增会丢失（当前交互不可达：无页签外的刷新入口）。
+- 「迁移前后无像素对照」：`/admin` 的指标窗口按运行时「最近 N 天」计算，参考态跨日即漂移，故无 parity 基线。
+
+### 未覆盖边界
+
+- `/admin` 不进跨日 parity 基线（指标窗口按「最近 N 天」运行时计算），本批以组件测试 + 浏览器探针替代；无「迁移前 / 迁移后」像素对照。
+- 创作页签在浏览器探针中只到「空状态」：`/api/admin/creator-stats` 在 SQLite 下 `range=30` 返回 500（`no such function: DATE_TRUNC`，PostgreSQL 专有函数），属**既有后端缺陷**，已登记 backlog 待跟踪；卡片 / 趋势 / 分发标签的渲染由组件测试（含 `CaomeiCard` / tone 断言）覆盖。
+- 指标卡网格在 1440px 下为单列（`.admin-dashboard__metrics` 计算宽 1312px）：`_admin-dashboard.scss` 末尾 `respond-to("md")`（`min-width`）把三列布局压成 `1fr`，与基础规则矛盾，属**既有布局缺陷**（本批未改该媒体查询），已登记 backlog。
+- 暗色主题未单独截图；下拉展开在 headless 探针中仍无法触发（与 `/admin/settings`、`/admin/calendar` 同一既有环境行为）。
+
+<!-- regression-window:end:b4-a-admin-dashboard:第七十一阶段条目 2 仪表盘整路由:2026-11-07 -->
+
 <!-- regression-window:start:b4-a-calendar:第七十一阶段条目 2 内容日历整路由:2026-11-07 -->
 
 ## 2026-11-07 第七十一阶段条目 2（B4-A）：内容日历整路由迁移

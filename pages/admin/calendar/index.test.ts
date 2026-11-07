@@ -118,8 +118,8 @@ describe('admin/calendar 页迁移契约', () => {
     it('哨兵必须非空（源码守卫：空串会触发 reka SelectItem 断言）', () => {
         const source = fs.readFileSync(path.join(process.cwd(), 'pages/admin/calendar/index.vue'), 'utf8')
 
-        expect(source).toContain("const ALL_LANGUAGES_SENTINEL = '__all__'")
-        expect(source).not.toContain("?? ''")
+        expect(source).toContain('const ALL_LANGUAGES_SENTINEL = \'__all__\'')
+        expect(source).not.toContain('?? \'\'')
     })
 
     it('渲染两个页签且 Tabs 关闭内容卸载', async () => {

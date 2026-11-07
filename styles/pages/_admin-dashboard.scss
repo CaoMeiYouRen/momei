@@ -114,7 +114,8 @@
     }
 
     &__ranking-card {
-        border: 1px solid color-mix(in srgb, var(--p-surface-400) 18%, transparent);
+        // 同 `dashboard-metric-card`：描边走 `CaomeiCard` 的覆盖钩子，避免与组件类同特异性竞争。
+        --caomei-card-border: color-mix(in srgb, var(--p-surface-400) 18%, transparent);
 
         &--wide {
             min-width: 0;

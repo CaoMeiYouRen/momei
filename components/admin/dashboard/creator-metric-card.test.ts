@@ -1,3 +1,4 @@
+import { Ban, Circle, Eye, File, FileCheck, PenSquare, Share2 } from '@lucide/vue'
 import { describe, expect, it, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import CreatorMetricCard from './creator-metric-card.vue'
@@ -22,7 +23,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '已发布文章',
                 value: 42,
-                icon: 'pi pi-file-check',
+                icon: FileCheck,
             },
         })
 
@@ -35,7 +36,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '分发成功率',
                 value: 0.85,
-                icon: 'pi pi-share-alt',
+                icon: Share2,
                 format: 'percent',
             },
         })
@@ -48,7 +49,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '空数据',
                 value: '—',
-                icon: 'pi pi-ban',
+                icon: Ban,
             },
         })
 
@@ -60,7 +61,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '草稿',
                 value: 5,
-                icon: 'pi pi-pen-to-square',
+                icon: PenSquare,
                 tone: 'warm',
             },
         })
@@ -74,7 +75,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '已发布',
                 value: 0,
-                icon: 'pi pi-file',
+                icon: File,
             },
         })
 
@@ -87,13 +88,14 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: 'Test',
                 value: 1,
-                icon: 'pi pi-eye',
+                icon: Eye,
             },
         })
 
         const icon = wrapper.find('.dashboard-metric-card__icon')
         expect(icon.exists()).toBe(true)
-        expect(icon.classes()).toContain('pi-eye')
+        expect(icon.element.tagName.toLowerCase()).toBe('svg')
+        expect(icon.classes()).toContain('lucide-eye')
     })
 
     it('handles zero value correctly', async () => {
@@ -101,7 +103,7 @@ describe('CreatorMetricCard', () => {
             props: {
                 label: '零',
                 value: 0,
-                icon: 'pi pi-circle',
+                icon: Circle,
             },
         })
 

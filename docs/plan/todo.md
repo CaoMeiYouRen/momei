@@ -29,9 +29,10 @@
 
 - [ ] **2. B4-A 管理端剩余路由整迁（P1）**
     - **执行范围**: 2a 文章编辑器族（`/admin/posts/[id]`（现为例外子路由）与 `components/admin/posts/**`）；2b 其余未迁移管理端路由（`/admin/index`、`/admin/calendar`、`/admin/ai/tasks/[id]`；`/admin/snippets`（含 `capture`）已于 2026-11-06 完成迁移（待 Round 3 复审））；`/admin/friend-links`、`/admin/migrations/link-governance`、`/admin/submissions` 等已迁移路由仅随图标与布局壳复核。决策点：`task-detail-content.vue` 的「V2 分支 vs 子路由整迁」、`DataTable` 无 `#header` / `#footer` 插槽的包装元素处置。
-    - **进度（2026-11-06）**: `/admin/snippets` + `/capture` 整路由迁移完成（待 Round 3 复审；7 文件：5 组件 + 2 页面；Button / Tag / Checkbox / Paginator / Textarea / Select / SelectButton / InputNumber / Divider / Card / Image / Accordion 族 + 图标 30+）；parity 4/4 PASS（allowlist 按实测登记）、单测 15 例（页面 5 + 组件 10）、guard 全绿；路由 scope 与 `migratedSubRoutes` 已登记。剩余 `/admin`、`/admin/posts/[id]`。
+    - **进度（2026-11-06）**: `/admin/snippets` + `/capture` 整路由迁移完成（待 Round 3 复审；7 文件：5 组件 + 2 页面；Button / Tag / Checkbox / Paginator / Textarea / Select / SelectButton / InputNumber / Divider / Card / Image / Accordion 族 + 图标 30+）；parity 4/4 PASS（allowlist 按实测登记）、单测 15 例（页面 5 + 组件 10）、guard 全绿；路由 scope 与 `migratedSubRoutes` 已登记。剩余 `/admin/posts/[id]`（编辑器族）。
     - **进度（2026-11-06 追加）**: `/admin/ai/tasks/[id]` + `task-detail-content` / `task-details-dialog` / `stats-overview` / `metric-card` 迁完；`AI_ROUTE_SCOPE` 由子路由例外转为 `migratedSubRoutes`，parity admin-ai 4/4 PASS、单测 8 例、guard 58。
     - **进度（2026-11-07 追加）**: `/admin/calendar` + `calendar-view` / `kanban-view` 迁完；Tabs 族改 CaomeiTabs + Trigger/Content，看板计数 Tag 走 tone；迁移新增组件测试 9 例（另保留既有 9 例）、浏览器探针 pageerror 0。
+    - **进度（2026-11-07 追加，仪表盘）**: `/admin` + `dashboard/{metric-card,creator-metric-card,creator-stats-panel}` 迁完（Button / Tabs 族 / Select / Tag / ProgressSpinner / Card + 图标 17 处（页面 12 + 创作面板 5））；`CAOMEI_UI_ROUTE_SCOPES` 新增 `/admin` 前缀登记（前缀语义 → 管理端树逐页声明归属，仅编辑器留作例外）；新增单测 12 例（页面 5 + 指标卡 4 + 创作面板 3）、浏览器探针 pageerror 0。
     - **非目标**: 不改编辑 / 发布 / AI 任务业务逻辑；不做半路由切换。
     - **验收**: 在册族零残留守卫通过；每条新增路由 parity 差异逐项归因、未归因 0（`/admin`、`/admin/calendar` 无跨日基线，迁移时用当日 capture → compare 并补 E2E / 组件单测）；管理端 E2E 主路径通过；`/admin/posts/[id]` 不再是 V1 消费者。
 

@@ -10,7 +10,7 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
-- **当前剩余（2026-11-07 内容日历后复算）**：组件 **398 处 / 36 类**、图标 **352 处**、token **1,445 处**（本批 token 0 变化）；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar` 已完成并移出本节清单。
+- **当前剩余（2026-11-07 仪表盘后复算）**：组件 **370 处 / 31 类**、图标 **328 处**、token **1,445 处**（本批 token 0 变化）；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin` 已完成并移出本节清单。
 
 ## 2. 未迁移路由与文件映射
 
@@ -137,11 +137,11 @@
 2. 全部 B4 路由迁移完成，**且另行安排 B3 残留族收口**（上述 8 条路由的展示族与表单族）后，再把展示族 + B3 表单族并入基准在册族（`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`），使后续任何回退都被全局拦截。仅完成 B4 路由迁移不足以清零这些残留——它们位于已迁移路由，B4 只随图标与布局壳复核。
 3. 子路由例外复核：`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 在本阶段由例外转为正式迁移；转正前不得把 `/admin/posts` / `/admin/ai` 的族约束扩展到这两个文件（当前守卫已按例外放行）。
 
-## 5. 文件 → 改动点清单（snippets / AI 任务详情 / 内容日历子批已填，其余待条目 2 / 3 / 4 填充）
+## 5. 文件 → 改动点清单（snippets / AI 任务详情 / 内容日历 / 仪表盘子批已填，其余待条目 2 / 3 / 4 填充）
 
 | 文件 | 路由 | 组件族 | 改动点 | 依据指针 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `pages/admin/index.vue` | `/admin` | Button / Tabs 族 / Select / Tag / ProgressSpinner / Card | （待填） | 迁移方案 §6.2 / 清单 §2.1 | 待迁移 |
+| `pages/admin/index.vue` + `components/admin/dashboard/{metric-card,creator-metric-card,creator-stats-panel}.vue` | `/admin` | Button / Tabs 族 / Select / Tag / ProgressSpinner / Card | 已迁完：Tabs 族改 `CaomeiTabs` + Trigger/Content（`unmount-on-hide=false` 保留创作面板状态）；范围 `Select` 走 `:model-value` + 收窄回写；10 处 `Tag` 走 tone（页面 5 + 创作面板 4 + 指标卡 1；`secondary/contrast→neutral`、`info→primary`、`warn→warning`）；3 张排行卡 + 3 张指标卡改 `CaomeiCard`（`#content` → 默认插槽，描边/背景改走 `--caomei-card-*` 覆盖钩子，避免与组件类同特异性竞争）；`icon` prop 由 `pi` 字符串改为组件；17 处图标 → lucide（页面 12 + 创作面板 5） | 迁移方案 §6.2 / §6.3 / 清单 §2.1 | **已完成**：新增单测 12 例、guard 60、浏览器探针 pageerror 0（创作面板受 `/api/admin/creator-stats` 的 `DATE_TRUNC` 限制，见回归窗口） |
 | `pages/friend-links.vue` | `/friend-links` | Card / Tag / InputText / Select / Textarea / Button | （待填） | 同上 | 待迁移 |
 | `pages/posts/[id].vue` | `/posts/[id]` | Skeleton / Button / Message / Tag / InputText | （待填） | 同上 | 待迁移 |
 | `pages/index.vue` | `/` | Skeleton | （待填） | 同上 | 待迁移 |
@@ -158,6 +158,7 @@
 - 2026-11-06（B4-A 首批）：`/admin/snippets` + `/admin/snippets/capture` 整路由迁移完成（7 文件：5 组件 + 2 页面），路由 scope 与 `migratedSubRoutes` 登记，parity 4/4 PASS；其余管理端路由待迁移。
 - 2026-11-06（B4-A）：`/admin/ai/tasks/[id]` 与 4 个共享 AI 组件迁移完成；`AI_ROUTE_SCOPE` 移除子路由例外并扩户；parity 4/4 PASS。
 - 2026-11-07（B4-A）：`/admin/calendar` + 月历 / 看板视图迁移完成；路由 scope 登记；迁移新增测试 9 例（另保留既有 9 例）。lucide `Calendar` 别名后复算 398 处；其中仍含 marketing 路由 1 处既有假阳性（真实 PrimeVue 组件面 397）。
+- 2026-11-07（B4-A）：`/admin` 仪表盘与 3 个 dashboard 组件迁移完成；`/admin` 以**前缀语义**登记（整个管理端树逐页声明归属，编辑器留作 `primeVueSubRoutes` 例外），复算组件 370 / 31 类、图标 328。
 - 条目 2 / 3 / 4 迁移时在本表逐行补「改动点 / 依据指针 / 状态」，不新增第二份清单。
 
 ## 7. 相关文档

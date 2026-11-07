@@ -1,42 +1,43 @@
 <template>
-    <Card class="dashboard-metric-card" :class="`dashboard-metric-card--${tone}`">
-        <template #content>
-            <div class="dashboard-metric-card__content">
-                <div class="dashboard-metric-card__copy">
-                    <p class="dashboard-metric-card__label">
-                        {{ label }}
-                    </p>
-                    <strong class="dashboard-metric-card__value">
-                        {{ numberFormatter.format(metric.total) }}
-                    </strong>
-                    <div class="dashboard-metric-card__delta-row">
-                        <Tag
-                            :value="deltaText"
-                            :severity="deltaSeverity"
-                            rounded
-                        />
-                        <span class="dashboard-metric-card__previous">
-                            {{ $t('pages.admin.dashboard.previous_window_total', {total: numberFormatter.format(metric.previousTotal)}) }}
-                        </span>
-                        <span v-if="rateText" class="dashboard-metric-card__rate">
-                            {{ rateText }}
-                        </span>
-                    </div>
-                </div>
-                <div class="dashboard-metric-card__icon-wrap">
-                    <i :class="[icon, 'dashboard-metric-card__icon']" />
+    <CaomeiCard class="dashboard-metric-card" :class="`dashboard-metric-card--${tone}`">
+        <div class="dashboard-metric-card__content">
+            <div class="dashboard-metric-card__copy">
+                <p class="dashboard-metric-card__label">
+                    {{ label }}
+                </p>
+                <strong class="dashboard-metric-card__value">
+                    {{ numberFormatter.format(metric.total) }}
+                </strong>
+                <div class="dashboard-metric-card__delta-row">
+                    <CaomeiTag :tone="deltaTone" rounded>
+                        {{ deltaText }}
+                    </CaomeiTag>
+                    <span class="dashboard-metric-card__previous">
+                        {{ $t('pages.admin.dashboard.previous_window_total', {total: numberFormatter.format(metric.previousTotal)}) }}
+                    </span>
+                    <span v-if="rateText" class="dashboard-metric-card__rate">
+                        {{ rateText }}
+                    </span>
                 </div>
             </div>
-        </template>
-    </Card>
+            <div class="dashboard-metric-card__icon-wrap">
+                <component
+                    :is="icon"
+                    :size="18"
+                    class="dashboard-metric-card__icon"
+                />
+            </div>
+        </div>
+    </CaomeiCard>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
 import type { AdminContentInsightsMetric } from '@/types/admin-content-insights'
 
 const props = withDefaults(defineProps<{
     label: string
-    icon: string
+    icon: Component
     metric: AdminContentInsightsMetric
     tone?: 'neutral' | 'warm' | 'cool'
 }>(), {
@@ -52,16 +53,16 @@ const deltaText = computed(() => {
     return `${prefix}${numberFormatter.value.format(props.metric.delta)}`
 })
 
-const deltaSeverity = computed(() => {
+const deltaTone = computed(() => {
     if (props.metric.delta > 0) {
-        return 'success'
+        return 'success' as const
     }
 
     if (props.metric.delta < 0) {
-        return 'warn'
+        return 'warning' as const
     }
 
-    return 'secondary'
+    return 'neutral' as const
 })
 
 const rateText = computed(() => {

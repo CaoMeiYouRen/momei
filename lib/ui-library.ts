@@ -346,13 +346,57 @@ const SUBMIT_ROUTE_SCOPE = {
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
- * 灵感收纳箱 `/admin/snippets` 的迁移范围。
+ * 仪表盘 `/admin`（第七十一阶段条目 2）的迁移范围。
  *
- * - `ownedFiles`：页面为容器，实体落在 `components/admin/snippets/` 的 5 个组件。
- * - `migratedSubRoutes`：`/admin/snippets/capture` 随本批整路由迁移，需纳入零残留扫描面。
- * - `inScopeComponents`：本批首次纳入的展示 / 表单族（`Button` / `Tag` / `InputText` / `Select` /
- *   `Paginator` 属批次基准；浮层族已在基准内）。
+ * - `ownedFiles`：页面为容器，实体落在 `components/admin/dashboard/` 的指标卡与创作统计面板。
+ * - `inScopeComponents`（路由级在册族增量）：仅 Tabs 族（仪表盘的可见 / 创作两个页签）。
+ *   **`Card` / `ProgressSpinner` 不登记**：二者属 B4 展示族，按 [B4 清单 §4](../design/governance/2026-11-06-b4-migration-inventory.md)
+ *   的口径在「全部 B4 路由迁移完成 + B3 残留族收口」后并入基准在册族；本批若登记为 `/admin` 增量，
+ *   会连带要求 `/admin/marketing` 与 `/admin/migrations/link-governance` 的既有展示族残留提前回改
+ *   （并重采 8 条 parity 基线），超出本批范围。
+ * - `migratedSubRoutes` / `primeVueSubRoutes`：登记 `/admin` 是**前缀语义**，会把整个管理端树纳入
+ *   caomei-ui，故每个非 `index.vue` 页面都必须显式声明归属——这里逐页登记**已随各自批次迁移**的页面，
+ *   只把编辑器 `/admin/posts/[id]` 留作未迁移例外。新增管理端页面时守卫会响亮失败，迫使补登记。
  */
+const ADMIN_DASHBOARD_ROUTE_SCOPE = {
+    ownedFiles: [
+        'components/admin/dashboard/metric-card.vue',
+        'components/admin/dashboard/creator-metric-card.vue',
+        'components/admin/dashboard/creator-stats-panel.vue',
+    ],
+    inScopeComponents: ['Tabs', 'TabList', 'Tab', 'TabPanels', 'TabPanel'],
+    migratedSubRoutes: [
+        'pages/admin/ad/campaigns.vue',
+        'pages/admin/ad/placements.vue',
+        'pages/admin/ai/index.vue',
+        'pages/admin/ai/tasks/[id].vue',
+        'pages/admin/calendar/index.vue',
+        'pages/admin/categories/index.vue',
+        'pages/admin/comments/index.vue',
+        'pages/admin/external-links/index.vue',
+        'pages/admin/friend-links/index.vue',
+        'pages/admin/marketing/index.vue',
+        'pages/admin/migrations/link-governance.vue',
+        'pages/admin/notifications/index.vue',
+        'pages/admin/posts/index.vue',
+        'pages/admin/settings/index.vue',
+        'pages/admin/settings/theme.vue',
+        'pages/admin/snippets/capture.vue',
+        'pages/admin/snippets/index.vue',
+        'pages/admin/submissions/index.vue',
+        'pages/admin/subscribers/index.vue',
+        'pages/admin/tags/index.vue',
+        'pages/admin/users/index.vue',
+        'pages/admin/waitlist/index.vue',
+    ],
+    primeVueSubRoutes: [
+        {
+            file: 'pages/admin/posts/[id].vue',
+            reason: '编辑器路由不在数据列表批次范围内（共享组件三件套走消费处静态择库）；其页面用 `PostEditorHeader`，不渲染路由择库的头部切换器。随条目 2 编辑器子批转正。',
+        },
+    ],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
 /**
  * 内容日历 `/admin/calendar` 的迁移范围。
  *
@@ -376,6 +420,14 @@ const ADMIN_CALENDAR_ROUTE_SCOPE = {
     ],
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
+/**
+ * 灵感收纳箱 `/admin/snippets` 的迁移范围。
+ *
+ * - `ownedFiles`：页面为容器，实体落在 `components/admin/snippets/` 的 5 个组件。
+ * - `migratedSubRoutes`：`/admin/snippets/capture` 随本批整路由迁移，需纳入零残留扫描面。
+ * - `inScopeComponents`：本批首次纳入的展示 / 表单族（`Button` / `Tag` / `InputText` / `Select` /
+ *   `Paginator` 属批次基准；浮层族已在基准内）。
+ */
 const ADMIN_SNIPPETS_ROUTE_SCOPE = {
     ownedFiles: [
         'components/admin/snippets/snippet-aggregate-dialog.vue',
@@ -402,6 +454,8 @@ const ADMIN_SNIPPETS_ROUTE_SCOPE = {
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
+    // 仪表盘：管理端树的根前缀（前缀语义会把 `pages/admin/**` 全部纳入，逐页归属见该 scope 的声明）。
+    { prefix: '/admin', ...ADMIN_DASHBOARD_ROUTE_SCOPE },
     { prefix: '/admin/comments' },
     { prefix: '/admin/submissions' },
     { prefix: '/admin/external-links' },

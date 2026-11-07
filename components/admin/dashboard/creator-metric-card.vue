@@ -1,28 +1,32 @@
 <template>
-    <Card class="dashboard-metric-card" :class="`dashboard-metric-card--${tone}`">
-        <template #content>
-            <div class="dashboard-metric-card__content">
-                <div class="dashboard-metric-card__copy">
-                    <p class="dashboard-metric-card__label">
-                        {{ label }}
-                    </p>
-                    <strong class="dashboard-metric-card__value">
-                        {{ displayValue }}
-                    </strong>
-                </div>
-                <div class="dashboard-metric-card__icon-wrap">
-                    <i :class="[icon, 'dashboard-metric-card__icon']" />
-                </div>
+    <CaomeiCard class="dashboard-metric-card" :class="`dashboard-metric-card--${tone}`">
+        <div class="dashboard-metric-card__content">
+            <div class="dashboard-metric-card__copy">
+                <p class="dashboard-metric-card__label">
+                    {{ label }}
+                </p>
+                <strong class="dashboard-metric-card__value">
+                    {{ displayValue }}
+                </strong>
             </div>
-        </template>
-    </Card>
+            <div class="dashboard-metric-card__icon-wrap">
+                <component
+                    :is="icon"
+                    :size="18"
+                    class="dashboard-metric-card__icon"
+                />
+            </div>
+        </div>
+    </CaomeiCard>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 const props = withDefaults(defineProps<{
     label: string
     value: number | string
-    icon: string
+    icon: Component
     tone?: 'neutral' | 'warm' | 'cool'
     format?: 'number' | 'percent'
 }>(), {

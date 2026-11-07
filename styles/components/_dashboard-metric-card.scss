@@ -1,11 +1,14 @@
 @use "@/styles/variables" as *;
 
 .dashboard-metric-card {
-  height: 100%;
-  border: 1px solid color-mix(in srgb, var(--p-surface-400) 20%, transparent);
-  background:
+  // `CaomeiCard` 的描边 / 背景走 `--caomei-card-*` 覆盖钩子：`border` / `background`
+  // 直接写在根类上与 `.caomei-card--outlined` 同特异性，胜负取决于样式表加载顺序，不可靠。
+  --caomei-card-border: color-mix(in srgb, var(--p-surface-400) 20%, transparent);
+  --caomei-card-bg:
     radial-gradient(circle at top right, color-mix(in srgb, var(--p-primary-300) 22%, transparent), transparent 45%),
     linear-gradient(180deg, color-mix(in srgb, var(--p-surface-0) 94%, transparent), var(--p-surface-0));
+
+  height: 100%;
 
   &__content {
     display: flex;
@@ -41,10 +44,6 @@
     justify-content: center;
     background: color-mix(in srgb, var(--p-surface-200) 70%, transparent);
     flex-shrink: 0;
-  }
-
-  &__icon {
-    font-size: 1.2rem;
   }
 
   &--warm {
