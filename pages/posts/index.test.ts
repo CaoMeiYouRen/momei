@@ -79,12 +79,12 @@ mockNuxtImport('useRouter', () => () => ({
 
 // Stub components
 const stubs = {
-    Skeleton: { template: '<div class="skeleton"><slot /></div>' },
-    Message: { template: '<div v-if="severity" class="message">{{ text }}<slot /></div>', props: ['severity', 'text'] },
-    Paginator: {
-        template: '<button class="paginator" :data-first="first" :data-rows="rows" :data-total-records="totalRecords" @click="$emit(\'page\', {page: 1, first: rows})"><slot /></button>',
-        props: ['first', 'rows', 'totalRecords'],
-        emits: ['page'],
+    CaomeiSkeleton: { template: '<div class="skeleton"><slot /></div>' },
+    CaomeiMessage: { template: '<div class="message"><slot /></div>' },
+    CaomeiPaginator: {
+        template: '<button class="paginator" :data-page="page" :data-items-per-page="itemsPerPage" :data-total="total" @click="$emit(\'update:page\', page + 1)"><slot /></button>',
+        props: ['page', 'itemsPerPage', 'total'],
+        emits: ['update:page'],
     },
     ArticleCard: {
         template: '<div class="article-card">{{ post.title }}</div>',
@@ -179,7 +179,7 @@ describe('PostsIndexPage', () => {
 
         expect(routerPushMock).toHaveBeenCalledWith({ query: { page: 2 } })
         expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
-        expect(paginator.attributes('data-first')).toBe('5')
+        expect(paginator.attributes('data-page')).toBe('2')
     })
 
     it('syncs paginator offset from reactive route query changes', async () => {
@@ -190,7 +190,7 @@ describe('PostsIndexPage', () => {
         await nextTick()
         await nextTick()
 
-        expect(wrapper.find('.paginator').attributes('data-first')).toBe('10')
+        expect(wrapper.find('.paginator').attributes('data-page')).toBe('3')
     })
 
     it('has correct CSS class structure', async () => {

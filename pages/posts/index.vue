@@ -5,7 +5,7 @@
         </h1>
 
         <div v-if="pending" class="posts-page__list">
-            <Skeleton
+            <CaomeiSkeleton
                 v-for="i in 6"
                 :key="i"
                 height="12rem"
@@ -14,7 +14,9 @@
         </div>
 
         <div v-else-if="error" class="posts-page__error">
-            <Message severity="error" :text="error.message" />
+            <CaomeiMessage tone="danger">
+                {{ error.message }}
+            </CaomeiMessage>
         </div>
 
         <div v-else-if="posts.length === 0" class="posts-page__empty">
@@ -32,11 +34,12 @@
         </div>
 
         <div v-if="totalPages > 1" class="posts-page__pagination">
-            <Paginator
-                v-model:first="first"
-                :rows="limit"
-                :total-records="total"
-                @page="onPageChange"
+            <CaomeiPaginator
+                :page="page"
+                :items-per-page="limit"
+                :total="total"
+                show-edges
+                @update:page="onPageChange"
             />
         </div>
     </div>
@@ -51,7 +54,6 @@ const router = useRouter()
 const { t } = useI18n()
 
 const page = ref(Number(route.query.page) || 1)
-const first = ref(0)
 
 const { data, pending, error } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
@@ -66,9 +68,8 @@ const total = computed(() => data.value?.data?.total || 0)
 const totalPages = computed(() => data.value?.data?.totalPages || 0)
 const limit = computed(() => data.value?.data?.limit || 10)
 
-const onPageChange = (event: any) => {
-    page.value = event.page + 1
-    first.value = event.first
+const onPageChange = (nextPage: number) => {
+    page.value = nextPage
     router.push({ query: { ...route.query, page: page.value } })
     window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -78,10 +79,6 @@ watch(() => route.query.page, (newPage) => {
         page.value = Number(newPage)
     }
 })
-
-watch([page, limit], ([currentPage, currentLimit]) => {
-    first.value = (currentPage - 1) * currentLimit
-}, { immediate: true })
 
 usePageSeo({
     type: 'collection',

@@ -40,13 +40,13 @@
                         :key="i"
                         class="post-card-skeleton"
                     >
-                        <Skeleton height="200px" class="mb-4" />
-                        <Skeleton
+                        <CaomeiSkeleton height="200px" class="mb-4" />
+                        <CaomeiSkeleton
                             width="60%"
                             height="1.5rem"
                             class="mb-2"
                         />
-                        <Skeleton width="40%" height="1rem" />
+                        <CaomeiSkeleton width="40%" height="1rem" />
                     </div>
                 </div>
 
@@ -88,13 +88,13 @@
                         :key="`recent-hot-${i}`"
                         class="post-card-skeleton"
                     >
-                        <Skeleton height="200px" class="mb-4" />
-                        <Skeleton
+                        <CaomeiSkeleton height="200px" class="mb-4" />
+                        <CaomeiSkeleton
                             width="60%"
                             height="1.5rem"
                             class="mb-2"
                         />
-                        <Skeleton width="40%" height="1rem" />
+                        <CaomeiSkeleton width="40%" height="1rem" />
                     </div>
                 </div>
 
@@ -130,13 +130,13 @@
                         :key="`popular-${i}`"
                         class="post-card-skeleton"
                     >
-                        <Skeleton height="200px" class="mb-4" />
-                        <Skeleton
+                        <CaomeiSkeleton height="200px" class="mb-4" />
+                        <CaomeiSkeleton
                             width="60%"
                             height="1.5rem"
                             class="mb-2"
                         />
-                        <Skeleton width="40%" height="1rem" />
+                        <CaomeiSkeleton width="40%" height="1rem" />
                     </div>
                 </div>
 

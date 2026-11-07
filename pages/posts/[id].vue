@@ -1,20 +1,20 @@
 <template>
     <div class="post-detail">
         <div v-if="pending" class="post-detail__loading">
-            <Skeleton height="30rem" class="post-detail__skeleton-cover" />
+            <CaomeiSkeleton height="30rem" class="post-detail__skeleton-cover" />
             <div class="post-detail__skeleton-content">
                 <div class="post-detail__skeleton-main">
-                    <Skeleton
+                    <CaomeiSkeleton
                         width="60%"
                         height="3rem"
                         class="mb-4"
                     />
-                    <Skeleton
+                    <CaomeiSkeleton
                         width="40%"
                         height="1.5rem"
                         class="mb-8"
                     />
-                    <Skeleton
+                    <CaomeiSkeleton
                         v-for="i in 10"
                         :key="i"
                         height="1rem"
@@ -22,7 +22,7 @@
                     />
                 </div>
                 <div class="post-detail__skeleton-sidebar">
-                    <Skeleton height="20rem" />
+                    <CaomeiSkeleton height="20rem" />
                 </div>
             </div>
         </div>
@@ -30,7 +30,8 @@
         <div v-else-if="error" class="post-detail__error">
             <div class="error-container">
                 <div class="error-icon">
-                    <i :class="error.statusCode === 404 ? 'pi pi-compass' : 'pi pi-exclamation-circle'" />
+                    <Compass v-if="error.statusCode === 404" :size="48" />
+                    <CircleAlert v-else :size="48" />
                 </div>
                 <h2 class="error-title">
                     {{ error.statusCode === 404 ? $t('pages.error.404_title') : $t('pages.error.title') }}
@@ -39,21 +40,26 @@
                     {{ error.statusCode === 404 ? $t('pages.error.404_desc') : (error.statusMessage || error.message) }}
                 </p>
                 <div class="error-actions">
-                    <Button
+                    <CaomeiButton
                         id="back-home-btn"
-                        :label="$t('pages.error.back_home')"
-                        icon="pi pi-home"
                         @click="navigateTo(localePath('/'))"
-                    />
-                    <Button
+                    >
+                        <template #icon>
+                            <Home :size="16" />
+                        </template>
+                        {{ $t('pages.error.back_home') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-if="error.statusCode !== 404"
                         id="retry-btn"
-                        :label="$t('pages.error.retry')"
-                        icon="pi pi-refresh"
-                        severity="secondary"
-                        text
+                        variant="ghost"
                         @click="() => refresh()"
-                    />
+                    >
+                        <template #icon>
+                            <RotateCcw :size="16" />
+                        </template>
+                        {{ $t('pages.error.retry') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </div>
@@ -63,13 +69,13 @@
                 v-if="post.status !== 'published'"
                 class="post-detail__status-banner"
             >
-                <Message
-                    severity="warn"
+                <CaomeiMessage
+                    tone="warning"
                     :closable="false"
                 >
-                    <i class="pi pi-exclamation-triangle" />
+                    <TriangleAlert :size="16" />
                     {{ $t('pages.posts.status_warning', {status: $t(`common.status.${post.status}`)}) }}
-                </Message>
+                </CaomeiMessage>
             </div>
 
             <div
@@ -110,17 +116,17 @@
                             <NuxtLink :to="localePath('/')" class="breadcrumb-link">
                                 {{ $t('common.home') }}
                             </NuxtLink>
-                            <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
+                            <ChevronRight class="post-detail__breadcrumb-separator" :size="14" />
                             <NuxtLink :to="localePath('/posts')" class="breadcrumb-link">
                                 {{ $t('pages.posts.title') }}
                             </NuxtLink>
                             <template v-if="post.category">
-                                <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
+                                <ChevronRight class="post-detail__breadcrumb-separator" :size="14" />
                                 <NuxtLink :to="localePath(`/categories/${post.category.slug}`)" class="breadcrumb-link">
                                     {{ post.category.name }}
                                 </NuxtLink>
                             </template>
-                            <i class="pi pi-angle-right post-detail__breadcrumb-separator" />
+                            <ChevronRight class="post-detail__breadcrumb-separator" :size="14" />
                             <span class="truncate">{{ post.title }}</span>
                         </div>
 
@@ -139,19 +145,19 @@
                                 <span class="font-medium">{{ post.author.name }}</span>
                             </div>
                             <span v-if="post.publishedAt" class="post-detail__meta-item">
-                                <i class="pi pi-calendar" />
+                                <CalendarIcon :size="14" />
                                 {{ formatDateTime(post.publishedAt) }}
                             </span>
                             <span class="post-detail__meta-item">
-                                <i class="pi pi-eye" />
+                                <Eye :size="14" />
                                 {{ post.views }} {{ $t('common.views') }}
                             </span>
                             <span class="post-detail__meta-item">
-                                <i class="pi pi-pencil" />
+                                <Pencil :size="14" />
                                 {{ articleWordCount }} {{ $t('common.word_count') }}
                             </span>
                             <span class="post-detail__meta-item">
-                                <i class="pi pi-clock" />
+                                <Clock :size="14" />
                                 {{ $t('common.minutes', {min: estimateReadingTime(post.content)}) }}
                             </span>
                             <NuxtLink
@@ -159,10 +165,9 @@
                                 :to="localePath(`/categories/${post.category.slug}`)"
                                 class="post-detail__category"
                             >
-                                <Tag
-                                    :value="post.category.name"
-                                    severity="secondary"
-                                />
+                                <CaomeiTag tone="neutral">
+                                    {{ post.category.name }}
+                                </CaomeiTag>
                             </NuxtLink>
                         </div>
                     </header>
@@ -183,7 +188,7 @@
                     <template v-if="post.locked">
                         <div class="post-detail__locked">
                             <div class="post-detail__locked-card">
-                                <i class="pi pi-lock post-detail__locked-icon" />
+                                <Lock class="post-detail__locked-icon" :size="48" />
                                 <h2 class="post-detail__locked-title">
                                     {{ $t(`pages.posts.locked.${post.reason?.toLowerCase()}`) }}
                                 </h2>
@@ -193,18 +198,19 @@
 
                                 <div v-if="post.reason === 'PASSWORD_REQUIRED'" class="post-detail__unlock-form">
                                     <div class="flex gap-2 w-full">
-                                        <InputText
+                                        <CaomeiInput
                                             v-model="password"
                                             type="password"
                                             :placeholder="$t('pages.posts.password_placeholder')"
                                             class="grow"
-                                            @keyup.enter="unlockPost"
+                                            @enter="unlockPost"
                                         />
-                                        <Button
-                                            :label="$t('common.confirm')"
+                                        <CaomeiButton
                                             :loading="unlocking"
                                             @click="unlockPost"
-                                        />
+                                        >
+                                            {{ $t('common.confirm') }}
+                                        </CaomeiButton>
                                     </div>
                                     <small v-if="unlockError" class="block mt-2 p-error">
                                         {{ unlockError }}
@@ -212,12 +218,15 @@
                                 </div>
 
                                 <div v-else class="post-detail__unlock-actions">
-                                    <Button
+                                    <CaomeiButton
                                         v-if="post.reason === 'AUTH_REQUIRED'"
-                                        :label="$t('pages.posts.login_to_read')"
-                                        icon="pi pi-user"
                                         @click="navigateTo(localePath('/login'))"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <User :size="16" />
+                                        </template>
+                                        {{ $t('pages.posts.login_to_read') }}
+                                    </CaomeiButton>
                                     <div v-if="post.reason === 'SUBSCRIPTION_REQUIRED'" class="w-full">
                                         <SubscriberForm />
                                     </div>
@@ -280,11 +289,12 @@
                                 :to="localePath(`/tags/${tag.slug}`)"
                                 class="post-detail__tag-link"
                             >
-                                <Tag
-                                    :value="tag.name"
-                                    severity="info"
+                                <CaomeiTag
+                                    tone="primary"
                                     rounded
-                                />
+                                >
+                                    {{ tag.name }}
+                                </CaomeiTag>
                             </NuxtLink>
                         </div>
                         <section
@@ -336,7 +346,7 @@
                                                 {{ relatedPost.category.name }}
                                             </span>
                                             <span v-if="relatedPost.publishedAt" class="post-detail__related-date">
-                                                <i class="pi pi-calendar" />
+                                                <CalendarIcon :size="14" />
                                                 {{ formatDateTime(relatedPost.publishedAt) }}
                                             </span>
                                         </div>
@@ -376,7 +386,7 @@
                                 class="post-detail__nav-card post-detail__nav-card--previous"
                             >
                                 <span class="post-detail__nav-label">
-                                    <i class="pi pi-arrow-left" />
+                                    <ArrowLeft :size="16" />
                                     {{ $t('pages.posts.article_navigation.previous') }}
                                 </span>
                                 <span class="post-detail__nav-title">{{ post.previousPost.title }}</span>
@@ -384,7 +394,7 @@
                                     {{ post.previousPost.summary }}
                                 </span>
                                 <span v-if="post.previousPost.publishedAt" class="post-detail__nav-meta">
-                                    <i class="pi pi-calendar" />
+                                    <CalendarIcon :size="14" />
                                     {{ formatDateTime(post.previousPost.publishedAt) }}
                                 </span>
                             </NuxtLink>
@@ -396,14 +406,14 @@
                             >
                                 <span class="post-detail__nav-label">
                                     {{ $t('pages.posts.article_navigation.next') }}
-                                    <i class="pi pi-arrow-right" />
+                                    <ArrowRight :size="16" />
                                 </span>
                                 <span class="post-detail__nav-title">{{ post.nextPost.title }}</span>
                                 <span v-if="post.nextPost.summary" class="post-detail__nav-summary">
                                     {{ post.nextPost.summary }}
                                 </span>
                                 <span v-if="post.nextPost.publishedAt" class="post-detail__nav-meta">
-                                    <i class="pi pi-calendar" />
+                                    <CalendarIcon :size="14" />
                                     {{ formatDateTime(post.nextPost.publishedAt) }}
                                 </span>
                             </NuxtLink>
@@ -433,6 +443,22 @@
 </template>
 
 <script setup lang="ts">
+import {
+    ArrowLeft,
+    ArrowRight,
+    Calendar as CalendarIcon,
+    ChevronRight,
+    CircleAlert,
+    Clock,
+    Compass,
+    Eye,
+    Home,
+    Lock,
+    Pencil,
+    RotateCcw,
+    TriangleAlert,
+    User,
+} from '@lucide/vue'
 import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
 import type { ApiResponse } from '@/types/api'
 import type { Post } from '@/types/post'

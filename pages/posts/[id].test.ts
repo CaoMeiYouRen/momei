@@ -139,7 +139,7 @@ mockNuxtImport('useLocalePath', () => () => (target: string | { path: string, qu
 
 // Stub components
 const stubs = {
-    Skeleton: { template: '<div class="skeleton"><slot /></div>' },
+    CaomeiSkeleton: { template: '<div class="skeleton"><slot /></div>' },
     Message: { template: '<div v-if="severity" class="message"><slot /></div>', props: ['severity', 'closable'] },
     Button: {
         template: '<button :id="id" :type="type" @click="$emit(\'click\')"><slot /></button>',
