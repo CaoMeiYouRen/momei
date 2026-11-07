@@ -117,11 +117,11 @@
 
             <template #cell-user="{row}">
                 <div class="author-cell">
-                    <!-- `:email` 必传：`AppAvatarV2` 在既无 `image` 也无 `email` 时会生成 ui-avatars 远程头像
+                    <!-- `:email` 必传：`AppAvatar` 在既无 `image` 也无 `email` 时会生成 ui-avatars 远程头像
                          （`use-avatar` 的同步回退分支），而迁移前 PrimeVue `Avatar` 的 `:label` 渲染的是**首字母**。
                          补 `:email` 后回退走 gravatar，与 `/admin/users`、`/admin/subscribers` 的既有消费口径一致——
                          收益是**不引入该页独有的、未登记的观感与域名口径**（两处消费点均仍走远程头像，本页不再例外）。 -->
-                    <AppAvatarV2
+                    <AppAvatar
                         v-if="row.user_image || row.user_name"
                         :image="row.user_image"
                         :name="row.user_name"

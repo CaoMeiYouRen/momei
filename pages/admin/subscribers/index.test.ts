@@ -7,7 +7,7 @@ import AdminSubscribers from './index.vue'
  * 单元层（迁移方案 §8.2 ①）：`/admin/subscribers` 路由迁移后的结构与逻辑契约。
  *
  * 覆盖「迁移后仍然成立、且与迁移无关」的页面契约：列定义与 `#cell-{key}` 插槽接线、
- * Tag 语义色映射（`severity` → `tone`）、状态 Tag 的可点击切换、`AppAvatar` → `AppAvatarV2`
+ * Tag 语义色映射（`severity` → `tone`）、状态 Tag 的可点击切换、`AppAvatar` → `AppAvatar`
  * 的消费处替换、懒加载服务端分页的 1 基页码契约、筛选与导出、删除确认。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
@@ -213,8 +213,8 @@ const CaomeiInputStub = defineComponent({
     },
 })
 
-const AppAvatarV2Stub = defineComponent({
-    name: 'AppAvatarV2',
+const AppAvatarStub = defineComponent({
+    name: 'AppAvatar',
     inheritAttrs: false,
     props: {
         image: { type: String, default: '' },
@@ -224,7 +224,7 @@ const AppAvatarV2Stub = defineComponent({
         shape: { type: String, default: '' },
     },
     setup: (props, { attrs }) => () => h('span', {
-        class: ['app-avatar-v2', ...(attrs.class ? [attrs.class as string] : [])],
+        class: ['app-avatar', ...(attrs.class ? [attrs.class as string] : [])],
         'data-image': props.image,
         'data-email': props.email,
         'data-name': props.name,
@@ -256,7 +256,7 @@ const stubs = {
     CaomeiTag: CaomeiTagStub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiInput: CaomeiInputStub,
-    AppAvatarV2: AppAvatarV2Stub,
+    AppAvatar: AppAvatarStub,
 }
 
 async function mountComponent(
@@ -390,11 +390,11 @@ describe('AdminSubscribers page', () => {
         expect((useAdminListState.rows[1] as Record<string, unknown>).isActive).toBe(true)
     })
 
-    it('关联用户列：有用户时渲染 AppAvatarV2 与「名称 || 邮箱」回退', async () => {
+    it('关联用户列：有用户时渲染 AppAvatar 与「名称 || 邮箱」回退', async () => {
         const wrapper = await mountComponent()
 
         const cell = wrapper.findAll('.stub-row')[0]!.find('[data-key="user"]')
-        const avatar = cell.find('.app-avatar-v2')
+        const avatar = cell.find('.app-avatar')
         expect(avatar.exists()).toBe(true)
         expect(avatar.attributes('data-image')).toBe('https://cdn.example.com/ada.png')
         expect(avatar.attributes('data-email')).toBe('ada@example.com')
@@ -409,7 +409,7 @@ describe('AdminSubscribers page', () => {
         const wrapper = await mountComponent()
 
         const cell = wrapper.findAll('.stub-row')[1]!.find('[data-key="user"]')
-        expect(cell.find('.app-avatar-v2').exists()).toBe(false)
+        expect(cell.find('.app-avatar').exists()).toBe(false)
         const tag = cell.find('.tag')
         expect(tag.attributes('data-tone')).toBe('warning')
         expect(tag.text()).toBe('pages.admin.subscribers.not_associated')

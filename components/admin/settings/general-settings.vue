@@ -101,7 +101,7 @@
                 :metadata="metadata.site_logo"
             >
                 <div class="settings-form__media-row">
-                    <AppUploaderV2
+                    <AppUploader
                         id="site_logo"
                         v-model="settings.site_logo"
                         :disabled="metadata.site_logo?.isLocked"
@@ -122,7 +122,7 @@
                 :metadata="metadata.site_favicon"
             >
                 <div class="settings-form__media-row">
-                    <AppUploaderV2
+                    <AppUploader
                         id="site_favicon"
                         v-model="settings.site_favicon"
                         :disabled="metadata.site_favicon?.isLocked"

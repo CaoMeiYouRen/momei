@@ -55,7 +55,7 @@ vi.mock('ofetch', () => ({ $fetch: mockFetch }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 
 const stubs = {
-    AppAvatarV2: { template: '<div class="avatar-preview" />' },
+    AppAvatar: { template: '<div class="avatar-preview" />' },
     CaomeiInput: {
         template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         props: ['id', 'modelValue'],

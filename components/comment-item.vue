@@ -5,7 +5,7 @@
         :class="{'comment-item--reply': isReply}"
     >
         <div class="comment-item__avatar">
-            <AppAvatarV2
+            <AppAvatar
                 :image="comment.author?.image"
                 :email-hash="comment.authorEmailHash"
                 :name="comment.authorName"

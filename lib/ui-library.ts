@@ -95,7 +95,7 @@ export interface CaomeiUiRouteScope {
      * 与子路由实现相互矛盾且无门禁拦截。
      *
      * 守卫据此放行该页面的「在册族零残留」判定，但**仍强制三条**：① 每条必须给出理由；
-     * ② 该页面不得引用**组件内择库型**过渡组件（`AppAvatarV2` / `AppUploaderV2`），也不得开启
+     * ② 该页面不得引用**组件内择库型**过渡组件（`AppAvatar` / `AppUploader`），也不得开启
      * `AdminPageHeader` 的 `show-language-switcher`——这三者都会因前缀登记而在子路由内静默切到 caomei，
      * 造成路由内库间混用；③ 已登记前缀下的**其他**非 `index.vue` 页面若未登记则守卫响亮失败。
      */
@@ -331,6 +331,60 @@ const USER_SETTINGS_ROUTE_SCOPE = {
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
+ * 公开列表页（`/archives` / `/categories` / `/tags`）的迁移范围（第七十一阶段条目 3）。
+ *
+ * - 三个索引页均为页面自包含（无路由自有组件），`Skeleton` / `Message` / `Paginator` 已在各批迁完。
+ * - `/categories` 与 `/tags` 的详情子路由共用 `components/taxonomy-post-page.vue`，该组件随本批迁完，
+ *   故登记为 `migratedSubRoutes` 纳入零残留扫描面（`Panel` 之外无路由自有文件）。
+ */
+const PUBLIC_LIST_ROUTE_SCOPE = {
+    inScopeComponents: ['Skeleton', 'Message'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+const CATEGORY_INDEX_ROUTE_SCOPE = {
+    ...PUBLIC_LIST_ROUTE_SCOPE,
+    migratedSubRoutes: ['pages/categories/[slug].vue'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+const TAG_INDEX_ROUTE_SCOPE = {
+    ...PUBLIC_LIST_ROUTE_SCOPE,
+    migratedSubRoutes: ['pages/tags/[slug].vue'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
+ * 文章列表 `/posts` 的迁移范围（第七十一阶段条目 3）。
+ *
+ * - 页面为自包含列表（`Skeleton` / `Message` / `Paginator`），详情子路由 `[id].vue` 随本批整迁，
+ *   登记为 `migratedSubRoutes` 纳入零残留扫描面。
+ * - `inScopeComponents`：`Message`（错误条）为该路由增量；`Skeleton` / `Paginator` 属批次基准。
+ */
+const POSTS_ROUTE_SCOPE = {
+    inScopeComponents: ['Message'],
+    migratedSubRoutes: ['pages/posts/[id].vue'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
+ * 友链页 `/friend-links` 的迁移范围（第七十一阶段条目 3）。
+ *
+ * - 页面自包含（卡片 / 标签 / 表单），登录用户的上传壳改用 `AppUploader`（路由登记后渲染 caomei 分支）。
+ * - `inScopeComponents`：`Card`（引导 / 空态 / 申请卡）与 `Textarea`（申请表单）为该路由增量；
+ *   `Button` / `InputText` / `Select` / `Tag` 属批次基准。
+ */
+const FRIEND_LINKS_ROUTE_SCOPE = {
+    inScopeComponents: ['Card', 'Textarea'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
+ * 法务协议页（`/privacy-policy` / `/user-agreement`）的迁移范围（第七十一阶段条目 3）。
+ *
+ * 两个页面共用 `components/legal-agreement-page.vue`；`Tag` 属批次基准族，`Divider` 按路由增量登记。
+ */
+const LEGAL_AGREEMENT_ROUTE_SCOPE = {
+    ownedFiles: ['components/legal-agreement-page.vue'],
+    inScopeComponents: ['Divider'],
+} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
  * 认证 / 提交页（`/login` / `/register` / `/forgot-password` / `/reset-password` / `/submit`）的迁移范围。
  *
  * 前四条共享 `components/auth-card.vue`（壳 + 提交按钮 + 错误条），故都登记为 `ownedFiles`；
@@ -467,14 +521,14 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // 灵感收纳箱：页面 + 5 个片段组件；`/capture` 子路由随本批迁移。
     { prefix: '/admin/snippets', ...ADMIN_SNIPPETS_ROUTE_SCOPE },
     // 文章路由：列表页 + 编辑器子路由（第七十一阶段条目 2 编辑器子批整迁）。
-    // 编辑器族与列表页共享 V2 三件套（`post-audit-badge-v2` / `post-audit-dialog-v2` / `publish-push-dialog-v2`），
-    // 编辑器改用 V2 后 V1 三件套的消费者清零，已随本批删除。
+    // 编辑器族与列表页共享三件套（`post-audit-badge` / `post-audit-dialog` / `publish-push-dialog`）；
+    // 编辑器迁移后 V1 的消费者清零并已删除，本批去掉 `-v2` 后缀收敛为正式名。
     {
         prefix: '/admin/posts',
         ownedFiles: [
             'components/admin/posts/ai-image-generator.vue',
-            'components/admin/posts/post-audit-badge-v2.vue',
-            'components/admin/posts/post-audit-dialog-v2.vue',
+            'components/admin/posts/post-audit-badge.vue',
+            'components/admin/posts/post-audit-dialog.vue',
             'components/admin/posts/post-distribution-button.vue',
             'components/admin/posts/post-editor-drag-mask.vue',
             'components/admin/posts/post-editor-header.vue',
@@ -490,7 +544,7 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
             'components/admin/posts/post-social-dialog.vue',
             'components/admin/posts/post-translation-workflow-dialog.vue',
             'components/admin/posts/post-tts-dialog.vue',
-            'components/admin/posts/publish-push-dialog-v2.vue',
+            'components/admin/posts/publish-push-dialog.vue',
         ],
         inScopeComponents: [
             // 编辑器批次迁入、此前不在批次基准的族。
@@ -533,6 +587,17 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/installation', ...INSTALLATION_ROUTE_SCOPE },
     // 用户设置：页面 + 设置面板族 + 通知历史列表 + 商用链接三件套。
     { prefix: '/settings', ...USER_SETTINGS_ROUTE_SCOPE },
+    // 友链页：卡片 / 标签 / 申请表单 + 登录用户上传壳（caomei 单一实现）。
+    { prefix: '/friend-links', ...FRIEND_LINKS_ROUTE_SCOPE },
+    // 文章列表：页面 + 详情子路由。
+    { prefix: '/posts', ...POSTS_ROUTE_SCOPE },
+    // 公开列表页：索引页 + taxonomy 详情子路由（共用 taxonomy-post-page）。
+    { prefix: '/archives', ...PUBLIC_LIST_ROUTE_SCOPE },
+    { prefix: '/categories', ...CATEGORY_INDEX_ROUTE_SCOPE },
+    { prefix: '/tags', ...TAG_INDEX_ROUTE_SCOPE },
+    // 法务协议页：两页共用 legal-agreement-page。
+    { prefix: '/privacy-policy', ...LEGAL_AGREEMENT_ROUTE_SCOPE },
+    { prefix: '/user-agreement', ...LEGAL_AGREEMENT_ROUTE_SCOPE },
     // 认证页：四条共享 `auth-card`；`/submit` 为独立页面。
     { prefix: '/login', ...AUTH_ROUTE_SCOPE },
     { prefix: '/register', ...AUTH_ROUTE_SCOPE },
@@ -576,11 +641,10 @@ export function resolveInScopeComponents(scope?: CaomeiUiRouteScope): readonly s
  * 迁移范围内。已知例外：`/admin/posts` 的编辑器子路由 `/admin/posts/[id]` **不在**数据列表批次范围内
  * （仍全面使用 PrimeVue；其共享组件走「消费处静态择库」，继续使用 V1）；
  * `/admin/ai` 的任务详情子路由 `/admin/ai/tasks/[id]` 同理（组件型目标批次范围外的 B4 展示族）。
- * 当前两条子路由**均未被路由择库型过渡组件触达**（全仓消费 `resolveUiLibraryForRoute(Path)` 的仅
- * `AdminPageHeader` / `AppAvatarV2` / `AppUploaderV2`：`/admin/posts/[id]` 用编辑器自有头部，
- * `/admin/ai/tasks/[id]` 的 `AdminPageHeader` 未开 `show-language-switcher`，故切换器不渲染），
- * 已逐处核对，无路由内混用；该性质自 2026-10-16 起由结构守卫兜底（`primeVueSubRoutes` 的
- * 「不得出现路由择库标记」断言 + 「每个非 index 子路由必须二选一登记」断言）。
+ * **2026-11-08 起已无例外**：`/admin/posts/[id]`（2026-11-07 编辑器子批）与 `/admin/ai/tasks/[id]`
+ * （2026-11-06）先后转为 `migratedSubRoutes`；`primeVueSubRoutes` 机制保留，供后续新增未迁移子路由时登记。
+ * 同日起全仓不再有路由择库型过渡组件（`AdminPageHeader` / `AppAvatar` / `AppUploader` 均收敛为单一实现），
+ * 过渡组件守卫改为锁「版本标记文件零残留 + 共享壳不得重新引入路由择库」。
  * 已迁移的子路由登记在 `migratedSubRoutes`（纳入零残留扫描面），与未迁移例外互斥。
  *
  * 在册组件族（本批）范围见上方 `CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS`（本模块内单点定义，

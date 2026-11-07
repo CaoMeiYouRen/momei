@@ -1,10 +1,10 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, inject, nextTick, provide, toRef, type Ref } from 'vue'
-import PublishPushDialogV2 from './publish-push-dialog-v2.vue'
+import PublishPushDialog from './publish-push-dialog.vue'
 
 /**
- * 过渡组件 `PublishPushDialogV2`（caomei-ui 版）的单元契约。
+ * 过渡组件 `PublishPushDialog`（caomei-ui 版）的单元契约。
  *
  * 本族采用**消费处静态择库**（见组件内注释）。状态与语义（`open()` 回填、日期容错、
  * `confirm` 载荷形状）与 V1 共用 `usePublishPushDialog`，本文件同时锁住这三点，
@@ -116,7 +116,7 @@ const stubs = {
 }
 
 async function mountDialog(props: Record<string, unknown> = {}) {
-    const wrapper = await mountSuspended(PublishPushDialogV2, {
+    const wrapper = await mountSuspended(PublishPushDialog, {
         props: { visible: true, ...props },
         global: { stubs },
     })
@@ -125,7 +125,7 @@ async function mountDialog(props: Record<string, unknown> = {}) {
     return wrapper
 }
 
-describe('PublishPushDialogV2', () => {
+describe('PublishPushDialog', () => {
     it('浮层壳、单选组为 caomei；排期 DatePicker 仍为 PrimeVue（B3 表单族）', async () => {
         const wrapper = await mountDialog()
 

@@ -253,8 +253,8 @@ export const CaomeiSelectStub = defineComponent({
 })
 
 /** 共享壳过渡组件（组件内按路由择库）：桩掉以免用例依赖路由上下文。 */
-export const AppAvatarV2Stub = defineComponent({
-    name: 'AppAvatarV2',
+export const AppAvatarStub = defineComponent({
+    name: 'AppAvatar',
     props: {
         image: { type: String, default: null },
         name: { type: String, default: null },
@@ -264,7 +264,7 @@ export const AppAvatarV2Stub = defineComponent({
         shape: { type: String, default: 'square' },
     },
     setup: (props) => () => h('span', {
-        class: 'app-avatar-v2',
+        class: 'app-avatar',
         'data-name': props.name ?? '',
         'data-shape': props.shape,
     }),
@@ -393,7 +393,7 @@ export const dialogStubs = {
 
 export const caomeiComponentStubs = {
     ...dialogStubs,
-    AppAvatarV2: AppAvatarV2Stub,
+    AppAvatar: AppAvatarStub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiInput: CaomeiInputStub,
     CaomeiSelect: CaomeiSelectStub,

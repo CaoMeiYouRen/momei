@@ -58,7 +58,7 @@
 
             <div v-if="showImage !== false && (platformType === 'image' || platformType === 'both')" class="commercial-link-dialog__field">
                 <label for="dialog-image">{{ $t(`${i18nPrefix}.image`) }}</label>
-                <AppUploaderV2 v-model="link.image" class="w-full" />
+                <AppUploader v-model="link.image" class="w-full" />
                 <div v-if="link.image" class="commercial-link-dialog__preview">
                     <CaomeiImage
                         :src="link.image"

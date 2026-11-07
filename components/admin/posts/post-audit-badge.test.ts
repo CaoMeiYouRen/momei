@@ -1,11 +1,11 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
-import PostAuditBadgeV2 from './post-audit-badge-v2.vue'
+import PostAuditBadge from './post-audit-badge.vue'
 import type { PostAuditResult } from '@/types/post'
 
 /**
- * 过渡组件 `PostAuditBadgeV2`（caomei-ui 版）的单元契约。
+ * 过渡组件 `PostAuditBadge`（caomei-ui 版）的单元契约。
  *
  * 本族采用**消费处静态择库**（见组件内注释）：本组件只负责 caomei 渲染，
  * 由 B2 目标路由 `/admin/posts` 在自身迁移批次使用（本批只交付壳）；因此测试聚焦三态渲染、语义色映射与事件载荷。
@@ -58,9 +58,9 @@ function makeResult(tier: PostAuditResult['tier']): PostAuditResult {
     } as unknown as PostAuditResult
 }
 
-describe('PostAuditBadgeV2', () => {
+describe('PostAuditBadge', () => {
     it('无审计结果时渲染纯图标按钮，并补齐可访问名', async () => {
-        const wrapper = await mountSuspended(PostAuditBadgeV2, {
+        const wrapper = await mountSuspended(PostAuditBadge, {
             props: { auditResult: null, loading: false },
             global: { stubs },
         })
@@ -76,7 +76,7 @@ describe('PostAuditBadgeV2', () => {
     })
 
     it('点击纯图标按钮派发 run-audit', async () => {
-        const wrapper = await mountSuspended(PostAuditBadgeV2, {
+        const wrapper = await mountSuspended(PostAuditBadge, {
             props: { auditResult: null, loading: false },
             global: { stubs },
         })
@@ -87,7 +87,7 @@ describe('PostAuditBadgeV2', () => {
     })
 
     it('加载态渲染 primary 色调 Tag 与进行中文案', async () => {
-        const wrapper = await mountSuspended(PostAuditBadgeV2, {
+        const wrapper = await mountSuspended(PostAuditBadge, {
             props: { auditResult: null, loading: true },
             global: { stubs },
         })
@@ -101,7 +101,7 @@ describe('PostAuditBadgeV2', () => {
     })
 
     it('有结果时按 tier 映射色调：good → success，needs-improvement → warning', async () => {
-        const good = await mountSuspended(PostAuditBadgeV2, {
+        const good = await mountSuspended(PostAuditBadge, {
             props: { auditResult: makeResult('good'), loading: false },
             global: { stubs },
         })
@@ -109,7 +109,7 @@ describe('PostAuditBadgeV2', () => {
         expect(goodTag.attributes('data-tone')).toBe('success')
         expect(goodTag.text()).toBe('pages.admin.posts.audit.tier_good')
 
-        const bad = await mountSuspended(PostAuditBadgeV2, {
+        const bad = await mountSuspended(PostAuditBadge, {
             props: { auditResult: makeResult('needs_improvement'), loading: false },
             global: { stubs },
         })
@@ -121,7 +121,7 @@ describe('PostAuditBadgeV2', () => {
 
     it('点击结果 Tag 派发 show-detail 并携带结果对象', async () => {
         const result = makeResult('good')
-        const wrapper = await mountSuspended(PostAuditBadgeV2, {
+        const wrapper = await mountSuspended(PostAuditBadge, {
             props: { auditResult: result, loading: false },
             global: { stubs },
         })
@@ -132,7 +132,7 @@ describe('PostAuditBadgeV2', () => {
     })
 
     it('结果 Tag 带可点击指针样式类（替代 V1 的 :pt 内联样式）', async () => {
-        const wrapper = await mountSuspended(PostAuditBadgeV2, {
+        const wrapper = await mountSuspended(PostAuditBadge, {
             props: { auditResult: makeResult('good'), loading: false },
             global: { stubs },
         })

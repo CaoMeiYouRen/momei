@@ -9,7 +9,7 @@ import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/ca
  *
  * 覆盖「迁移后仍然成立、且与迁移无关」的页面契约：列定义与 `#cell-{key}` 插槽接线、
  * `Badge` 语义色映射（`severity` → `tone`）、动作集合的 tone 与可访问名、
- * `AppAvatar` → `AppAvatarV2` 的消费处替换、懒加载服务端分页的 1 基页码契约、
+ * `AppAvatar` → `AppAvatar` 的消费处替换、懒加载服务端分页的 1 基页码契约、
  * **服务端排序的 `@sort` 载荷归一**、筛选与删除确认。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
@@ -230,8 +230,8 @@ const CaomeiButtonStub = defineComponent({
     },
 })
 
-const AppAvatarV2Stub = defineComponent({
-    name: 'AppAvatarV2',
+const AppAvatarStub = defineComponent({
+    name: 'AppAvatar',
     inheritAttrs: false,
     props: {
         image: { type: String, default: '' },
@@ -241,7 +241,7 @@ const AppAvatarV2Stub = defineComponent({
         shape: { type: String, default: '' },
     },
     setup: (props) => () => h('span', {
-        class: 'app-avatar-v2',
+        class: 'app-avatar',
         'data-image': props.image,
         'data-email': props.email,
         'data-name': props.name,
@@ -298,7 +298,7 @@ const stubs = {
     CaomeiDataTable: CaomeiDataTableStub,
     CaomeiBadge: CaomeiBadgeStub,
     CaomeiButton: CaomeiButtonStub,
-    AppAvatarV2: AppAvatarV2Stub,
+    AppAvatar: AppAvatarStub,
 }
 
 async function mountComponent(
@@ -363,11 +363,11 @@ describe('AdminUsers page', () => {
         expect(headers.every((node) => node.attributes('data-align') === '')).toBe(true)
     })
 
-    it('用户列渲染 AppAvatarV2（size=normal）与姓名 / 邮箱', async () => {
+    it('用户列渲染 AppAvatar（size=normal）与姓名 / 邮箱', async () => {
         const wrapper = await mountComponent()
 
         const cell = wrapper.findAll('.stub-row')[0]!.find('[data-key="name"]')
-        const avatar = cell.find('.app-avatar-v2')
+        const avatar = cell.find('.app-avatar')
         expect(avatar.attributes('data-image')).toBe('https://cdn.example.com/ada.png')
         expect(avatar.attributes('data-name')).toBe('Ada')
         expect(avatar.attributes('data-email')).toBe('ada@example.com')

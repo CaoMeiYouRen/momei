@@ -13,10 +13,9 @@ export interface UseAppUploaderFieldOptions {
 }
 
 /**
- * `AppUploader`（PrimeVue 版）与 `AppUploaderV2`（caomei-ui 过渡版）共用的字段行为。
+ * `AppUploader` 的字段行为：文件选择 / 拖放 / 上传回写。
  *
- * 两版**仅模板不同**（组件来源按路由择库），文件选择 / 拖放 / 上传回写的行为完全一致；
- * 行为集中在本 composable，避免两版各自实现后漂移（例如只修好一版的「上传中阻断拖放」）。
+ * 行为与模板分离，便于单独测试与后续外壳改造（迁移期曾是两版共用的单一行为源）。
  *
  * 职责边界：只负责字段交互与上传调用，不负责渲染；错误提示由 `useUpload` 内部统一处理。
  */

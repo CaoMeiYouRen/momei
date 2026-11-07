@@ -163,7 +163,7 @@ async function listSubRoutePages(prefix: string): Promise<string[]> {
 /**
  * 组件内择库型过渡组件与路由择库开关：出现在例外子路由内会因前缀登记而静默切到 caomei。
  *
- * 归一化匹配（去大小写与连字符）以覆盖 `<app-avatar-v2>` / `:showLanguageSwitcher` 等写法。
+ * 归一化匹配（去大小写与连字符）以覆盖 `<app-avatar>` / `:showLanguageSwitcher` 等写法。
  *
  * **已知边界（不构成门禁保证，故显式声明）**：
  * 1. 动态择库（`<component :is="…">`）与**把过渡组件再包一层**的写法无法由静态子串发现；

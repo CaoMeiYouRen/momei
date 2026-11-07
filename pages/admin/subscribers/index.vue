@@ -66,7 +66,7 @@
                             <!-- 迁移前为 `size="small"`：PrimeVue `Avatar` **无** `small` 档位（有效档位仅
                                  normal / large / xlarge），该值被忽略并回落默认 2rem = 32px。迁移后改用有效档位
                                  `normal`（V2 映射为 caomei `md` = 32px），渲染尺寸与迁移前完全一致。 -->
-                            <AppAvatarV2
+                            <AppAvatar
                                 :image="row.user.image"
                                 :email="row.user.email"
                                 :name="row.user.name"

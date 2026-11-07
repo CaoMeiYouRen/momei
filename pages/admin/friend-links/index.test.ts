@@ -7,7 +7,7 @@ import AdminFriendLinks from './index.vue'
  * 单元层（迁移方案 §8.2 ①）：`/admin/friend-links` 路由迁移后的结构与逻辑契约。
  *
  * 覆盖：页头两个动作按钮、三个表格的列定义与 `#cell-{key}` 插槽接线、`Tag` 语义色映射
- * （`severity` → `tone`）、动作集合的形态与可访问名、`AppUploader` → `AppUploaderV2`
+ * （`severity` → `tone`）、动作集合的形态与可访问名、`AppUploader` → `AppUploader`
  * 的消费处替换、浮层内表单控件的迁移（`InputText` → `CaomeiInput`、`Select` → `CaomeiSelect`）。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  */
@@ -176,12 +176,12 @@ const stubs = {
     InputNumber: defineComponent({ name: 'InputNumber', setup: () => () => h('div', { class: 'input-number-stub' }) }),
     Textarea: defineComponent({ name: 'Textarea', setup: () => () => h('div', { class: 'textarea-stub' }) }),
     Checkbox: defineComponent({ name: 'Checkbox', setup: () => () => h('div', { class: 'checkbox-stub' }) }),
-    AppUploaderV2: defineComponent({
-        name: 'AppUploaderV2',
+    AppUploader: defineComponent({
+        name: 'AppUploader',
         inheritAttrs: false,
         props: { modelValue: { type: String, default: null }, type: { type: String, default: '' }, placeholder: { type: String, default: '' }, accept: { type: String, default: '' } },
         setup: (props, { attrs }) => () => h('div', {
-            class: 'app-uploader-v2',
+            class: 'app-uploader',
             'data-type': props.type,
             'data-accept': props.accept,
             'data-id': (attrs.id as string) ?? '',
@@ -380,9 +380,9 @@ describe('AdminFriendLinks page', () => {
         expect(wrapper.findAll('.checkbox-stub')).toHaveLength(6)
     })
 
-    it('友链表单的 logo 字段使用共享壳过渡组件 AppUploaderV2（按路由择库）', async () => {
+    it('友链表单的 logo 字段使用共享壳过渡组件 AppUploader（按路由择库）', async () => {
         const wrapper = await mountComponent()
-        const uploader = wrapper.find('.app-uploader-v2')
+        const uploader = wrapper.find('.app-uploader')
         expect(uploader.exists()).toBe(true)
         expect(uploader.attributes('data-id')).toBe('link-logo')
         expect(uploader.attributes('data-type')).toBe('image')

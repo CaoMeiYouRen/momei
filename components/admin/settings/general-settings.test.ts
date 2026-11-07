@@ -67,7 +67,7 @@ const stubs = {
         template: '<div class="divider-stub"><slot /></div>',
         props: ['align'],
     },
-    AppUploaderV2: {
+    AppUploader: {
         template: '<button :id="id" class="uploader-stub" type="button" :disabled="disabled" @click="$emit(\'update:modelValue\', id === \'site_logo\' ? \'/logo-next.svg\' : \'/favicon-next.ico\')">{{ modelValue }}</button>',
         props: ['id', 'modelValue', 'disabled'],
         emits: ['update:modelValue'],

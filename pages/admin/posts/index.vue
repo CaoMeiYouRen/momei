@@ -164,7 +164,7 @@
                 </template>
 
                 <template #cell-audit="{row}">
-                    <PostAuditBadgeV2
+                    <PostAuditBadge
                         :audit-result="auditResults.get(row.id) ?? null"
                         :loading="auditingPostId === row.id"
                         @run-audit="runAudit(row.id)"
@@ -260,7 +260,7 @@
 
         <!-- 三件套过渡组件（消费处静态择库，迁移方案 §5.5）：已迁移路由用 `…V2`，
              `/admin/posts/[id]` 编辑器路由继续用 V1。 -->
-        <PostAuditDialogV2
+        <PostAuditDialog
             :visible="showAuditDialog"
             :result="selectedAuditResult"
             :ai-pending="auditingPostId !== null"
@@ -269,7 +269,7 @@
             @re-audit="handleReAudit"
         />
 
-        <PublishPushDialogV2
+        <PublishPushDialog
             ref="repushDialog"
             @confirm="handleRepushConfirm"
         />
@@ -281,9 +281,9 @@ import { Download, Pencil, Plus, RefreshCw, Search, Send, Trash2 } from '@lucide
 import type { DataTableColumn } from 'caomei-ui'
 import { ref, computed } from 'vue'
 import PostMediaPreviewCell from '@/components/admin/posts/post-media-preview-cell.vue'
-import PostAuditBadgeV2 from '@/components/admin/posts/post-audit-badge-v2.vue'
-import PostAuditDialogV2 from '@/components/admin/posts/post-audit-dialog-v2.vue'
-import PublishPushDialogV2 from '@/components/admin/posts/publish-push-dialog-v2.vue'
+import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
+import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
+import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
 import { useAdminI18n } from '@/composables/use-admin-i18n'
 import { getPostStatusSeverity } from '@/composables/use-post-editor-page.helpers'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
@@ -512,7 +512,7 @@ const openDistribution = (id: string) => {
     }))
 }
 
-const repushDialog = ref<InstanceType<typeof PublishPushDialogV2> | null>(null)
+const repushDialog = ref<InstanceType<typeof PublishPushDialog> | null>(null)
 const repushPost = ref<Post | null>(null)
 
 const confirmRepush = (post: Post) => {

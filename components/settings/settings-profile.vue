@@ -11,7 +11,7 @@
                          `AvatarImage` / `AvatarFallback` 在带 hydration mismatch 的 patch 中会触发
                          `insertBefore` 运行时错误（切换设置页签时复现）。此处仅该子树延迟到客户端渲染。 -->
                     <ClientOnly>
-                        <AppAvatarV2
+                        <AppAvatar
                             :image="profileForm.image"
                             :email="session?.data?.user?.email"
                             :name="profileForm.name"

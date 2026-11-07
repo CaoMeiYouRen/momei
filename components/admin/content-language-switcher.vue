@@ -1,51 +1,55 @@
 <template>
     <div class="content-language-switcher">
-        <Select
-            v-model="contentLanguage"
-            :options="availableLocales"
+        <CaomeiSelect
+            v-model="model"
+            :options="options"
             option-label="label"
             option-value="value"
             class="language-select"
-            size="small"
-        >
-            <template #value="slotProps">
-                <div v-if="slotProps.value" class="align-items-center flex">
-                    <span :class="'mr-2 flag-' + slotProps.value.toLowerCase()" />
-                    <div>{{ getLabel(slotProps.value) }}</div>
-                </div>
-                <span v-else>
-                    {{ $t('common.all_languages') }}
-                </span>
-            </template>
-            <template #option="slotProps">
-                <div class="align-items-center flex">
-                    <span v-if="slotProps.option.value" :class="'mr-2 flag-' + slotProps.option.value.toLowerCase()" />
-                    <div>{{ slotProps.option.label }}</div>
-                </div>
-            </template>
-        </Select>
+            size="sm"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import { useAdminI18n } from '@/composables/use-admin-i18n'
 
+/**
+ * 内容语言切换器（caomei-ui）。迁移期曾以 `ContentLanguageSwitcherV2` + 路由择库形式并存；
+ * 管理端路由全部迁完后 V1 消费者清零，收敛为单一实现（原 `-v2` 后缀已去除）。
+ *
+ * 与已删除 PrimeVue 版的差异（均为有意，见迁移方案 §6.2）：
+ * - caomei `Select` 不提供触发器 `#value` 插槽，故不再渲染语言旗帜（该 `flag-*` 类在本仓库无样式定义，
+ *   迁移前即为不可见空元素，视觉无差异）；
+ * - `optionValue` 解析结果必须为 `string` / `number`，而「全部语言」选项值为 `null`，故映射为哨兵字符串，
+ *   并在与共享状态 `contentLanguage` 同步时还原为 `null`（保持既有 `null = 全部语言` 的语义不变）。
+ */
+const ALL_LANGUAGES_SENTINEL = '__all__'
+
 const { contentLanguage, availableLocales } = useAdminI18n()
 
-const getLabel = (value: string | null) => {
-    if (!value) return ''
-    const opt = availableLocales.value.find((o) => o.value === value)
-    return opt ? opt.label : value
-}
+const model = computed({
+    get: () => contentLanguage.value ?? ALL_LANGUAGES_SENTINEL,
+    set: (value: string) => {
+        contentLanguage.value = value === ALL_LANGUAGES_SENTINEL ? null : value
+    },
+})
+
+const options = computed(() => availableLocales.value.map((option) => ({
+    ...option,
+    value: option.value ?? ALL_LANGUAGES_SENTINEL,
+})))
 </script>
 
 <style lang="scss" scoped>
 .content-language-switcher {
-  display: inline-block;
-  min-width: 150px;
+    display: inline-block;
+    min-width: 150px;
 }
 
-.language-select {
-  width: 100%;
+// `class` 透传到 caomei Select 的触发器（`.caomei-select`），宽度需落在字段外层 `.caomei-select__field`
+// （见 caomei-ui 主题与样式设计 §4.1），故以 `:deep()` 命中字段容器。
+:deep(.caomei-select__field) {
+    width: 100%;
 }
 </style>

@@ -1,11 +1,11 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
-import PostAuditDialogV2 from './post-audit-dialog-v2.vue'
+import PostAuditDialog from './post-audit-dialog.vue'
 import type { PostAuditResult } from '@/types/post'
 
 /**
- * 过渡组件 `PostAuditDialogV2`（caomei-ui 版）的单元契约。
+ * 过渡组件 `PostAuditDialog`（caomei-ui 版）的单元契约。
  *
  * 本族随编辑器批次整迁：浮层壳 `Dialog`、内部 `Button` / `Tag` / `ProgressBar` 均为 caomei-ui。
  * 发布确认浮层的排期 `DatePicker` 仍是 PrimeVue（B3 表单族，见 `inScopeComponents` 注释）。
@@ -98,7 +98,7 @@ const baseResult = {
 } as unknown as PostAuditResult
 
 async function mountDialog(props: Record<string, unknown> = {}) {
-    const wrapper = await mountSuspended(PostAuditDialogV2, {
+    const wrapper = await mountSuspended(PostAuditDialog, {
         props: {
             visible: true,
             result: baseResult,
@@ -112,7 +112,7 @@ async function mountDialog(props: Record<string, unknown> = {}) {
     return wrapper
 }
 
-describe('PostAuditDialogV2', () => {
+describe('PostAuditDialog', () => {
     it('浮层壳使用 CaomeiDialog，宽度与标题按 V1 口径透传', async () => {
         const wrapper = await mountDialog()
 

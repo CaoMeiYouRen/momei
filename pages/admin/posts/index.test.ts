@@ -120,12 +120,12 @@ vi.mock('@/composables/use-request-feedback', () => ({
  * 以带标记的桩替换 V2 模块，从而把「本页是否真的消费 V2」变成可断言的契约——
  * 若有人把导入改回 V1，标记缺失即失败（V1 组件内部重新引入在册族 PrimeVue 组件，属路由混用）。
  */
-vi.mock('@/components/admin/posts/post-audit-badge-v2.vue', async () => {
+vi.mock('@/components/admin/posts/post-audit-badge.vue', async () => {
     const vue = await import('vue')
 
     return {
         default: vue.defineComponent({
-            name: 'PostAuditBadgeV2',
+            name: 'PostAuditBadge',
             props: { auditResult: { type: Object, default: null }, loading: { type: Boolean, default: false } },
             emits: ['run-audit', 'show-detail'],
             setup: (props, { emit }) => () => vue.h('span', {
@@ -138,12 +138,12 @@ vi.mock('@/components/admin/posts/post-audit-badge-v2.vue', async () => {
     }
 })
 
-vi.mock('@/components/admin/posts/post-audit-dialog-v2.vue', async () => {
+vi.mock('@/components/admin/posts/post-audit-dialog.vue', async () => {
     const vue = await import('vue')
 
     return {
         default: vue.defineComponent({
-            name: 'PostAuditDialogV2',
+            name: 'PostAuditDialog',
             props: {
                 open: { type: Boolean, default: false },
                 result: { type: Object, default: null },
@@ -162,12 +162,12 @@ vi.mock('@/components/admin/posts/post-audit-dialog-v2.vue', async () => {
     }
 })
 
-vi.mock('@/components/admin/posts/publish-push-dialog-v2.vue', async () => {
+vi.mock('@/components/admin/posts/publish-push-dialog.vue', async () => {
     const vue = await import('vue')
 
     return {
         default: vue.defineComponent({
-            name: 'PublishPushDialogV2',
+            name: 'PublishPushDialog',
             emits: ['confirm'],
             setup: (_props, { emit, expose }) => {
                 const opened = vue.ref<Record<string, unknown> | null>(null)
@@ -179,10 +179,10 @@ vi.mock('@/components/admin/posts/publish-push-dialog-v2.vue', async () => {
                 })
 
                 return () => vue.h('div', {
-                    class: 'publish-push-dialog-v2',
+                    class: 'publish-push-dialog',
                     'data-open-options': JSON.stringify(opened.value),
                     onClick: () => emit('confirm', { pushOption: 'draft' }),
-                }, 'publish-push-dialog-v2')
+                }, 'publish-push-dialog')
             },
         }),
     }
@@ -786,13 +786,13 @@ describe('AdminPostsPage', () => {
 
         expect(wrapper.findAll('.audit-badge-v2')).toHaveLength(sampleRows.length)
         expect(wrapper.find('.audit-dialog-v2').exists()).toBe(true)
-        expect(wrapper.find('.publish-push-dialog-v2').exists()).toBe(true)
+        expect(wrapper.find('.publish-push-dialog').exists()).toBe(true)
     })
 
     it('审计徽标：默认无结果且非加载态；openAuditDialog 只在有缓存结果时开浮层', async () => {
         const wrapper = await mountPage()
         const auditCell = wrapper.findAll('.stub-row')[0]!.find('[data-key="audit"]')
-        const badge = auditCell.findComponent({ name: 'PostAuditBadgeV2' })
+        const badge = auditCell.findComponent({ name: 'PostAuditBadge' })
 
         expect(badge.props('auditResult')).toBeNull()
         expect(badge.props('loading')).toBe(false)

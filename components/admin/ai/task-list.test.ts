@@ -147,11 +147,11 @@ describe('AdminAiTaskList', () => {
         expect(cells[1]?.text()).toBe('-')
     })
 
-    it('作者列：走共享壳过渡组件 `AppAvatarV2`（组件内按路由择库）', async () => {
+    it('作者列：走共享壳 `AppAvatar`（caomei-ui 单一实现）', async () => {
         const { wrapper } = await mountList()
         const cell = wrapper.find('.stub-td[data-key="user"]')
 
-        expect(cell.findComponent({ name: 'AppAvatarV2' }).exists()).toBe(true)
+        expect(cell.findComponent({ name: 'AppAvatar' }).exists()).toBe(true)
         expect(cell.text()).toContain('Alice')
     })
 

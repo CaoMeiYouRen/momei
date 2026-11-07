@@ -43,7 +43,7 @@
             >
                 <template #cell-name="{row}">
                     <div class="user-info">
-                        <AppAvatarV2
+                        <AppAvatar
                             :image="row.image"
                             :name="row.name"
                             :email="row.email"

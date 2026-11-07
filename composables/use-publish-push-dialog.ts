@@ -26,11 +26,8 @@ export interface PublishPushConfirmPayload {
 }
 
 /**
- * `PublishPushDialog`（PrimeVue 版）与 `PublishPushDialogV2`（caomei-ui 过渡版）共用的弹窗状态与语义。
- *
- * 两版**仅模板不同**（组件来源不同），而 `open()` 的回填规则、`publishedAt` 的容错解析与
- * `confirm` 载荷的形状属于业务语义；集中在此避免两版各持一份后在修复时漂移
- * （例如只修好一版的非法日期回退）。
+ * `PublishPushDialog` 的弹窗状态与语义：`open()` 的回填规则、`publishedAt` 的容错解析与
+ * `confirm` 载荷的形状属于业务语义，与模板分离，便于单独测试。
  *
  * 职责边界：不持有 `visible`（由各版组件以 `defineModel` 持有，因为 `open()` 需要同时置位可见性）。
  */

@@ -260,8 +260,8 @@
                 </div>
                 <div class="admin-friend-links__field">
                     <label for="link-logo">{{ tt('components.friend_links.fields.logo') }}</label>
-                    <!-- 跨边界展示型壳过渡组件（迁移方案 §5.5）：按路由择库，已迁移路由渲染 caomei 版。 -->
-                    <AppUploaderV2
+                    <!-- 上传字段（caomei-ui 单一实现）：文件选择 / 拖放 / 上传回写由 `useAppUploaderField` 提供。 -->
+                    <AppUploader
                         id="link-logo"
                         v-model="linkForm.logo"
                         :type="UploadType.IMAGE"

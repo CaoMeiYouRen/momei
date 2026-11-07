@@ -72,7 +72,7 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 
 const stubs = {
-    AppUploaderV2: { template: '<div class="app-uploader" />' },
+    AppUploader: { template: '<div class="app-uploader" />' },
     CaomeiButton: { template: '<button :aria-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'] },
     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>', props: ['open', 'title'] },
     CaomeiDivider: { template: '<hr />' },

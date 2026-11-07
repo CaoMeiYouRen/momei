@@ -1,10 +1,10 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Ref, defineComponent, h, nextTick } from 'vue'
-import ContentLanguageSwitcherV2 from './content-language-switcher-v2.vue'
+import ContentLanguageSwitcher from './content-language-switcher.vue'
 
 /**
- * 过渡组件 `AdminContentLanguageSwitcherV2`（caomei-ui 版）的单元契约。
+ * 过渡组件 `AdminContentLanguageSwitcher`（caomei-ui 版）的单元契约。
  *
  * 重点：caomei `Select` 的 `optionValue` 只接受 `string` / `number`（`null` 值的选项不渲染），
  * 而共享状态 `contentLanguage` 以 `null` 表示「全部语言」。本组件须在边界做哨兵映射，
@@ -60,9 +60,9 @@ beforeEach(() => {
     }
 })
 
-describe('AdminContentLanguageSwitcherV2', () => {
+describe('AdminContentLanguageSwitcher', () => {
     it('「全部语言」（共享状态 null）以哨兵承载并成为当前值', async () => {
-        const wrapper = await mountSuspended(ContentLanguageSwitcherV2, { global: { stubs } })
+        const wrapper = await mountSuspended(ContentLanguageSwitcher, { global: { stubs } })
 
         const select = wrapper.find('select')
         expect(select.element.value).toBe('__all__')
@@ -71,14 +71,14 @@ describe('AdminContentLanguageSwitcherV2', () => {
     })
 
     it('选项值中的 null 被映射为哨兵（否则该选项不会被渲染）', async () => {
-        const wrapper = await mountSuspended(ContentLanguageSwitcherV2, { global: { stubs } })
+        const wrapper = await mountSuspended(ContentLanguageSwitcher, { global: { stubs } })
 
         const values = wrapper.findAll('option').map((option) => option.element.value)
         expect(values).toEqual(['__all__', 'zh-CN', 'en-US'])
     })
 
     it('选择具体语言写回共享状态', async () => {
-        const wrapper = await mountSuspended(ContentLanguageSwitcherV2, { global: { stubs } })
+        const wrapper = await mountSuspended(ContentLanguageSwitcher, { global: { stubs } })
 
         await wrapper.find('select').setValue('zh-CN')
 
@@ -86,7 +86,7 @@ describe('AdminContentLanguageSwitcherV2', () => {
     })
 
     it('选择「全部语言」时还原为 null', async () => {
-        const wrapper = await mountSuspended(ContentLanguageSwitcherV2, { global: { stubs } })
+        const wrapper = await mountSuspended(ContentLanguageSwitcher, { global: { stubs } })
 
         langRef().value = 'en-US'
         await nextTick()

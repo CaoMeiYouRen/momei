@@ -71,7 +71,7 @@ const { contentLanguage, setContentLanguage, availableLocales } = useAdminI18n()
 
 /* `availableLocales` 的首项是「全部语言」且 value 为 null；caomei `Select` 会丢弃
  * 非 string / number 的选项，而 reka-ui 的 `SelectItem` 又不允许空字符串，故复用既有
- * 非空哨兵 `__all__`（与 `content-language-switcher-v2` / 用户筛选同一约定），
+ * 非空哨兵 `__all__`（与 `content-language-switcher` / 用户筛选同一约定），
  * 回写时再还原为 null。 */
 const ALL_LANGUAGES_SENTINEL = '__all__'
 
