@@ -405,6 +405,8 @@ pnpm governance:count:primevue-usage
 
 结构守卫：`tests/modules/ui-library-transition-component-guard.test.ts` 锁住「过渡组件的 caomei 分支不得残留在册族 PrimeVue 组件」与「机制声明与实现一致（组件内择库必须引用事实源；消费处择库不得引用）」。
 
+> **2026-11-08 收口注**：上表两种机制的**存在理由已全部消失**——`/admin/posts/[id]`（2026-11-07 编辑器子批）与公开页 `/posts/[id]`、`/friend-links`、编辑器媒体设置（2026-11-08 公开路由批）先后消费 caomei 实现，V1 消费者清零。处置：`app-avatar` / `app-uploader` / `content-language-switcher` 三个共享壳删除路由择库分支，收敛为单一 caomei 实现；`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` 与 posts 三件套的 `-v2` 后缀全部去除（文件、`import`、模板标签、测试模块 mock、`ownedFiles`）。守卫随之改写为**收口守卫**：`components/**`、`pages/**`、`layouts/**` 不得再出现带版本标记的 `.vue` 文件，且上述三个共享壳不得重新引入 `resolveUiLibraryForRoute*`。本节其余内容保留为迁移期的机制记录。
+
 **上游缺口已闭合的差异（2026-10-13 补记，`caomei-ui@0.4.0+`）**：本清单产出时（基于 `0.2.0`）记录的 3 条「真实缺口」已由库侧 `0.4.0` 交付，B2 剩余页**不再需要**下列行内补丁：
 
 | 原缺口 | 现状（库侧已交付） | B2 动作调整 |

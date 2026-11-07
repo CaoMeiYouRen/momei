@@ -10,6 +10,55 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-b-public-routes:第七十一阶段条目 3（B4-B）公开路由与过渡组件收口:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 3（B4-B）：公开路由整迁与过渡组件收口
+
+### 范围
+
+- 公开路由 8 个页面文件 + 1 个共享页组件，共 **61 处**：
+    - `pages/index.vue`（9 处）：加载骨架 → `CaomeiSkeleton`。
+    - `pages/posts/index.vue`（3 类）：骨架 → `CaomeiSkeleton`；错误条 → `CaomeiMessage`；`Paginator` → `CaomeiPaginator`（切 1 基 `page` + `@update:page` 接收页码，删除 `first` 同步 watch）。
+    - `pages/posts/[id].vue`（13 处）：`Skeleton` ×5 → `CaomeiSkeleton`；错误 / 解锁 / 登录按钮 → `CaomeiButton`；状态条 → `CaomeiMessage`；分类 / 标签 → `CaomeiTag`；密码输入 → `CaomeiInput`（`@keyup.enter` → `@enter`）；14 处图标 → `@lucide/vue`。
+    - `pages/friend-links.vue`（18 处）：`Card` ×3 → `CaomeiCard`；`Tag` → `CaomeiTag`（`severity` → `tone`）；`InputText` ×8 → `CaomeiInput`；`Select` / `Textarea` ×2 / 提交 `Button` 一并迁移，移除 `fluid` 与字符串 `rows`。
+    - `pages/archives/index.vue`（2）+ `pages/categories/index.vue` / `pages/tags/index.vue`（各 2：`Message` + `Skeleton`）+ `pages/goto/[code].vue`（3 按钮 + `ProgressSpinner`）+ `components/legal-agreement-page.vue`（`Tag` ×2 + `Divider`）。
+- 路由 scope 登记 **7 条**：`/archives` / `/categories` / `/tags` / `/posts` / `/friend-links` / `/privacy-policy` / `/user-agreement`；`/about` / `/benefits` / `/feedback` 无页面组件（共用 `legal-agreement-page`），仅登记 parity 迁移状态、不登记 scope。
+- parity：`MIGRATED_ROUTES` 扩到 **41 条**，`PENDING_ROUTES` **清零**（机制保留）。
+- 过渡组件收口：`AppAvatar` / `AppUploader` / `AdminContentLanguageSwitcher` 删除路由择库分支（`resolveUiLibraryForRoutePath`），删除 3 个 V1 文件；`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` 与 posts 三件套共 6 组去掉 `-v2` 后缀（文件、`import`、模板标签、测试 mock、`ownedFiles`）。`ui-library-transition-component-guard` 由「过渡组件结构守卫」改写为「收口守卫」。
+
+### 差异归因（parity 允许清单按实测登记）
+
+| 用例 | 未归因差异（归因前） | 归因 |
+| :--- | :--- | :--- |
+| `post-detail-light` / `-dark` | 2,598 / 2,470px（预算 2,000） | 文章元信息行（头像 / 分类标签 / 日期 / 阅读数 / 字数）：头像切 caomei 实现、分类标签改 `CaomeiTag` 后行盒高度变化，导致该行 1px 级重排；正文与其它区域残差 0。登记区域 480,220 960×100。 |
+| `privacy-policy-*` / `user-agreement-*` | 8,809 / 9,069px | 协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的 md 档按控件高度取 36px，而 PrimeVue `Tag` 行盒约 23px，整块下移后正文随之重排。处置走通道① `--caomei-tag-height: 23px` 覆盖（实测分隔线 y=406/407、正文首行与参考态一致），残差为区外 0；登记区域 320,240 800×180。 |
+| `friend-links-light` / `-dark` | 28,251 / 27,412 + 9,204 / 9,371px | 友链卡片与申请表单整块：`Card` / `Tag` / `InputText` / `Select` / `Textarea` / `Button` 外壳、间距与字段高度统一到 caomei 后的期望差异（表单占满页宽）。登记区域 0,400 1440×400 与 160,800 1280×100。 |
+| `admin-snippets-list-light` / `-dark`（外围组件批连带） | 2,979（原 1,942）/ 9,467（原 3,928）+ 79（原 30） | `/admin/snippets` 的 `SnippetQuickCapture` 卡片内含 `AppVoiceInputTrigger`，该按钮在外围组件批改为 caomei `CaomeiButton` + lucide 后改变卡片与下方网格的整体行高（dark 另含按钮文字色差异）。按实测校准既有允许清单，未新增区域。 |
+
+### 验证
+
+- 定向单测：公开路由 5 个页面测试 + 3 个 i18n 测试 **44 passed**；友链页 **15 passed**；共享壳与收口守卫 **128 passed**；路由守卫 **66 passed**；关联消费方 **83 passed**。
+- `pnpm typecheck` 0；ESLint 0 error；Stylelint 0；`lint-md` 0。
+- `pnpm test:visual` **24/24**；`pnpm test:visual:parity` **83/83**（18.1 分钟，41 条已迁移 + 安装向导 + 待迁移机制用例）。
+- `pnpm test:e2e:critical`：17 passed / 1 skipped + 安装向导 2 passed（三浏览器）。
+- 复算：组件 **108 → 47 处 / 21 → 15 类**；图标 **161 → 136**；token 1,420 不变（第七十二阶段处理）。
+
+### 已接受的视觉 / 行为差异
+
+- 法务协议页版本标签高度按 23px 覆盖以保持正文位置；属 token 通道①，不引入选择器级覆盖，后续 `CaomeiTag` 若调整 md 档高度需复核该值。
+- 友链申请表单的字段间距、卡片内边距与按钮尺寸随 caomei 组件统一；表单结构、校验与提交载荷未变。
+- `posts` 列表分页器改为 caomei 外观（1 基页码事件），URL 契约 `?page=N` 不变。
+- 头像 / 上传字段不再是「按路由择库」，公开页与 admin 使用同一实现；`/admin/posts/[id]` 的媒体设置同步切到该实现（原 V1 分支删除）。
+
+### 未覆盖边界
+
+- 首页 `/` 与跳转页 `/goto/[code]` 暂不登记路由 scope：守卫的 `prefix !== '/'` 断言与 `resolvePageFile` 只识别 `pages/<prefix>/index.vue` / `pages/<prefix>.vue`（不识别 `[code].vue`），留条目 5 与守卫口径一并收口。
+- `app-uploader.scss` 仍使用 `--p-primary-*`（PrimeVue 预设仍全局加载），随第七十二阶段预设卸载一并改名，已在文件头登记指针。
+- 全量 `pnpm test` 的 25 个本地 i18n suite 失败为既有环境问题（`virtual:intlify-i18n` 解析，HEAD 同样失败），非本批引入。
+- 浏览器探针在 10 条公开路由上未见 hydration 警告与 pageerror；但控制台存在既有 `[NUXT_E1001]`（composable 在 setup 外调用），在未改动的 `/admin/comments`、`/login` 上同样出现，判定为批次外问题，建议单独立项定位调用点。
+
+<!-- regression-window:end:b4-b-public-routes:第七十一阶段条目 3（B4-B）公开路由与过渡组件收口:2026-11-08 -->
+
 <!-- regression-window:start:b4-b-content-components:第七十一阶段条目 3（B4-B）公开页内容组件:2026-11-08 -->
 
 ## 2026-11-08 第七十一阶段条目 3（B4-B）：公开页内容组件迁移（分享 / 赞助 / 评论 / 订阅 / 阅读控件）

@@ -37,11 +37,12 @@
     - **非目标**: 不改编辑 / 发布 / AI 任务业务逻辑；不做半路由切换。
     - **收口（2026-11-07）**: 验收逐项达成——① 在册族零残留守卫 **60 passed**（`/admin`、`/admin/posts`、`/admin/calendar` 等全绿，含新增的 19 个 `ownedFiles`）；② parity：snippets 4/4、admin-ai 4/4、仪表盘与编辑器无跨日 / 无稳定种子基线，改由组件测试 + 浏览器探针 + E2E 覆盖（`/admin` 与 `/admin/posts/[id]` 的偏差与残余已登记回归窗口）；③ 管理端 E2E 主路径（`admin-workflow.e2e.test.ts` 14 passed、`admin-posts-shortcut.e2e.test.ts` 4 passed）通过；④ `/admin/posts/[id]` 已切 V2 且 V1 三件套删除，不再是 V1 消费者。**遗留**：`/admin/marketing` 与 `/admin/migrations/link-governance` 的展示族残留（`Card` / `ProgressSpinner`）按 §4 口径留待 B3 残留族收口；发布确认浮层的 `DatePicker` 仍为 PrimeVue（B3 表单族）。
 
-- [ ] **3. B4-B 公开页与布局壳整迁（P1）**
+- [x] **3. B4-B 公开页与布局壳整迁（P1）**
     - **执行范围**: 3a 全局壳（`app-header` / `app-notifications` / `app-search` / `app-uploader` / `app-avatar` / `app-voice-input-*` / `reader-controls` / `language-switcher` / `feedback-entry-button` / `article-*` / `comment-*` / `subscriber-form` / `home/**` / `taxonomy-post-page`）；3b 公开路由（首页 / 文章列表与详情 / 友链 / 关于 / 权益 / 反馈 / 分类 / 标签 / 归档 / 跳转页 / 隐私政策 / 用户协议等）。认证 4 页与 `/submit` 已于第七十阶段条目 4 迁移，本批仅随图标与布局壳复核。
     - **非目标**: 不改内容渲染与 SEO 逻辑；不重做信息架构。
     - **验收**: 公开页 `reader` 档 parity 全量归因；关键 E2E（首页 / 文章详情 / 评论 / 搜索 / 友链）通过；SSR + hydration 复核记录落盘。
-    - **进度（2026-11-07）**: 全局布局壳 5 文件（25 处）+ 公开页内容组件 6 文件（`article-share` / `article-sponsor` / `comment-form` / `comment-item` / `subscriber-form` / `reader-controls`，31 处）已完成，组件复算 188 → 132、图标 235 → 176；parity 83/83、`test:visual` 24/24、E2E critical 全绿。同批修复 `use-theme` 的 `@layer` 层序位置（暗色内容底色误取 Aura `surface.900`）。剩余：`home/**` / `taxonomy-post-page` / 语音输入 / `app-uploader` / `app-avatar` 的 V1 消费者与公开路由本体。
+    - **完成（2026-11-08）**: 3a 组件面三批——全局布局壳 5 文件（25 处）、公开页内容组件 6 文件（31 处）、公开页外围组件 4 文件（24 处）；3b 公开路由 9 文件（首页 / 文章列表与详情 / 友链 / 归档 / 分类 / 标签 / 跳转页 / 法务协议页，61 处）+ 7 条路由 scope 登记；过渡组件收口（`AppAvatar` / `AppUploader` / `AdminContentLanguageSwitcher` 删除路由择库并删 V1，6 组 `-v2` 文件去后缀）。组件 **188 → 47 处 / 26 → 15 类**、图标 **235 → 136**、token 1,420；parity **41 条已迁移 / 0 待迁移**、`test:visual` 24/24、E2E critical 17 passed + 安装向导 2 passed。同批修复 `use-theme` 的 `@layer` 层序位置与 scoped `:global(.dark)` 的 token 全局污染，并写入回归窗口。
+    - **遗留（转条目 5）**: 首页 `/` 与 `/goto/[code]` 因守卫口径（`prefix !== '/'`、`resolvePageFile` 不识别 `[code].vue`）暂未登记路由 scope。
 
 - [ ] **4. B4-C 图标全量替换与品牌图标落点（P1）**
     - **执行范围**: `pi pi-*` 411 处 / 94 文件 / 118 唯一；其中品牌图标 22 处 / 11 类 → `mdi mdi-*`（保留 `@mdi/font`，零新依赖），其余 389 处 → `@lucide/vue`；数据驱动 `icon: 'pi pi-*'` 改为显式图标映射；`pi-spin` 12 处（生产用法）改由加载态组件承载。
@@ -50,7 +51,8 @@
 
 - [ ] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
     - **执行范围**: vitest PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步；视觉与 parity 基线按迁移后实测校准；复算 `keyCss` 与 `coreEntryJs` 并归因（`keyCss` 不得越过 70KB）。
-    - **过渡组件去 `-v2` 后缀（2026-11-07 用户确认，单独小提交）**: `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` 的 V1 已随条目 2 删除，重命名为去 `-v2` 的正式名，并同步 `pages/admin/posts/{index,[id]}.vue` 的 import 与模板标签、`pages/admin/posts/index.test.ts` 的模块 mock 与断言标记、`lib/ui-library.ts` 的 `ownedFiles`、`tests/modules/ui-library-transition-component-guard.test.ts` 的消费处择库注册表，以及迁移方案 §5.5 / B4 清单 / 回归窗口中的引用。`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` **等条目 3 把其 V1 消费者清零后**再统一处理。**验收**：posts 族无 `-v2` 残留；过渡守卫「注册表与磁盘一致」通过；定向组件测试与 `typecheck` / `lint` 0 error。
+    - **过渡组件去 `-v2` 后缀（2026-11-07 用户确认）**: **已于 2026-11-08 随条目 3 收口完成**（posts 三件套 + `app-avatar` / `app-uploader` / `content-language-switcher`，含文件重命名、`import` / 模板标签 / 测试 mock / `ownedFiles` 同步与守卫改写），本条保留为验收口径记录。
+    - **原口径**: `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` 的 V1 已随条目 2 删除，重命名为去 `-v2` 的正式名，并同步 `pages/admin/posts/{index,[id]}.vue` 的 import 与模板标签、`pages/admin/posts/index.test.ts` 的模块 mock 与断言标记、`lib/ui-library.ts` 的 `ownedFiles`、`tests/modules/ui-library-transition-component-guard.test.ts` 的消费处择库注册表，以及迁移方案 §5.5 / B4 清单 / 回归窗口中的引用。`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` **等条目 3 把其 V1 消费者清零后**再统一处理。**验收**：posts 族无 `-v2` 残留；过渡守卫「注册表与磁盘一致」通过；定向组件测试与 `typecheck` / `lint` 0 error。
     - **非目标**: 不借机重构无关测试；不降低断言强度。
     - **验收**: 全量 `pnpm test` 通过；guard 全绿；E2E critical 三浏览器通过；包体与样式预算复算记录落盘。
 
