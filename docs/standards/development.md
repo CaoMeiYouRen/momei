@@ -452,6 +452,7 @@ pnpm build
 | `@nuxt/kit` `addImports()` 顺序 | 其注册的是 `imports:extend` 钩子，而 `nuxt.config` 的 `hooks` **先注册先执行**；「必须在某模块之后执行」的导入过滤写在 `nuxt.config` 的 hooks 里无效，须由排在目标模块之后的 Nuxt 模块注册。 |
 | 同名自动导入冲突 | 多库并存时冲突是**静默**的（仅打印 duplicated imports，后注册者胜出）；隔离必须配「否则直接失败」的构建期护栏，不能只靠注释约定顺序。 |
 | CSS 未分层优先 | 未分层样式优先于任何具名层，且该比较**先于特异性**；要覆盖未分层的第三方样式，只能用未分层 + 不低于其特异性的选择器（写在 `@layer` 内必然失效）。 |
+| `@layer` 层序声明位置 | 层序由**文档中首次出现的 `@layer` 声明**建立，后续声明只能新增层、不能重排。`useHead` 注入的内联样式可能早于外链样式表到达文档；若由内联样式先声明自己的层，第三方库的层会被排到其后并反向胜出（表现为该库的浅色 token 压过本项目的暗色覆盖）。层序声明必须同时写入**内联样式串首行**与主样式入口，保证两种注入顺序下结果一致。 |
 | Nitro treeshake | `treeshake.moduleSideEffects` 白名单会摇掉未列入包的顶层副作用（如 `pg-types` 的 `textParsers.init`），使 pg 类型解析整体退化为字符串；定位方式是产物 grep 关键字为 0 次。 |
 | TypeORM 布尔列 | `type: Boolean`（构造函数）由驱动层先行 `value ? true : false`（`'f'` → `true`，transformer 无法挽救）；`type: 'boolean'`（字符串）不强转、原样透传驱动值，必须由 `CustomColumn` 的归一化 transformer 兜底——仓库统一用后者。 |
 | Sass 插值 | `#{$scss-value}` 会剥掉字体名引号；需保留引号时用 `@use "sass:meta"` + `#{meta.inspect($value)}`。 |

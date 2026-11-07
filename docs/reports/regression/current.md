@@ -10,6 +10,46 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-b-global-shell:第七十一阶段条目 3（B4-B）全局布局壳:2026-11-07 -->
+
+## 2026-11-07 第七十一阶段条目 3（B4-B）：全局布局壳迁移（AppHeader / 搜索 / 通知 / 语言切换 / 反馈入口）
+
+### 范围
+
+- `components/app-header.vue`（17 处：`Button` ×15 / `Divider` ×2）、`app-notifications.vue`（4）、`app-search.vue`（2）、`language-switcher.vue`（1）、`feedback-entry-button.vue`（1）：全部改为 caomei-ui；图标改 `@lucide/vue`（`Menu` / `Calendar` 与 PrimeVue 组件名同名，按别名导入）。
+- 全局壳是**所有默认布局页面**共享的渲染面：本批同时影响 29 条已迁移路由与 12 条公开页的头部，以及公开页左下角反馈入口。
+- 因共享壳改变，重采 **14 张** `tests/visual` 基线（12 张管理端 + 2 张安装向导），并按实测为 80 条 parity 条目登记头部（公开页另加反馈入口）允许清单；安装向导 6 个区域按新实测回填。
+
+### 顺带修复（B4-B 前置缺陷）
+
+- **CSS `@layer` 层序**：`useHead` 注入的 `#momei-theme-custom` 可能排在外部 `main.css` 之前；若由其中的 `@layer momei-overrides` 先建立层序，`primevue` 会被排到其后并反向胜出，暗色下内容底色取到 Aura 的 `surface.900`（亮色）。实测 `/admin/friend-links` 暗色整页变白（parity 差异 497,229px）；在 `use-theme.ts` 样式串首行补 `@layer primevue, momei-base, momei-overrides;` 后回到 33,436px（仅头部）。
+- **E2E 标题选择器**：编辑器迁移后 `.title-input` 是 `CaomeiInput` 根 div，`.fill()` 不再可用；`auth-session-governance` 与 `mobile-critical` 改为 `.title-input input`（`toHaveValue` 同步）。
+
+### 验证
+
+- 定向单测：`language-switcher` / `feedback-entry-button` / `app-notifications` / `app-search` / `app-header` → **5 files / 29 passed**；过渡组件与路由守卫 **76 passed**。
+- `pnpm typecheck` 0；`pnpm lint` 0 error / **9 warnings**（预算 10）；`pnpm lint:css` 0；`pnpm lint:i18n` 0。
+- `pnpm test:visual` **24/24**（重采后复跑）；`pnpm test:visual:parity` **83/83**。
+- `pnpm test:e2e:critical` **17 passed / 1 skipped** + 安装向导 **2 passed**。
+- 全量 `pnpm test`：**5,052 passed / 1 skipped**；25 个 suite 因**既有的本地 vitest `virtual:intlify-i18n` 解析问题**失败（在 HEAD 上同样失败，已登记 backlog，CI 不复现）。
+- 复算：组件 **188 → 163 处 / 26 类**；图标 **235 → 189 处**；token 1,445（本批 0 变化）。
+
+### 已接受的视觉 / 行为差异
+
+- 头部图标字形与按钮外观：`PrimeVue Button text/rounded` → `CaomeiButton ghost/rounded/icon-only`；图标从 `pi pi-*` 字体改为 lucide SVG，字形轮廓与尺寸略有差异（parity 头部区域逐路由实测 5,870–6,201px，已登记允许清单）。
+- 反馈入口按钮：`outlined secondary` → `secondary` 描边；移动端仍隐藏可见文案（由隐藏 `.p-button-label` 改为 `.caomei-button__content`）。
+- 安装向导健康检查步骤内的语言切换控件随共享壳改变高度，内容区按区域重分布（已按实测回填 6 个区域）。
+- `admin-posts-list` 重采时发现行内「无封面」lucide 图标与旧基线有 1px 级抗锯齿差异（461px）；parity 参考态（迁移前原貌）同一位置差异为 0，判定为旧基线过期而非回归。
+
+### 未覆盖边界
+
+- `app-avatar` / `app-uploader` / `content-language-switcher` 的 V1 消费者尚未清零（公开页与未迁移路由），去 `-v2` 后缀留到条目 3 后续子批。
+- 未迁移公开页本体（文章 / 评论 / 首页 / 分类 / 标签 / 归档 / 友链）仍为 PrimeVue；本批只统一了它们共享的布局壳。
+- `app-header` 的管理端 / 用户菜单条目图标仍以 `pi pi-*` 类名声明、经 `resolvePrimeIcon` 适配为组件（`CaomeiDropdownMenu` 只接受组件图标）；随条目 4 图标全量替换一并清理。
+- 暗色主题的头部差异随路由头部元素显隐在 6,043–6,201px 区间波动，允许清单按逐路由实测登记，不做单值近似。
+
+<!-- regression-window:end:b4-b-global-shell:第七十一阶段条目 3（B4-B）全局布局壳:2026-11-07 -->
+
 <!-- regression-window:start:b4-a-post-editor:第七十一阶段条目 2 编辑器整路由:2026-11-07 -->
 
 ## 2026-11-07 第七十一阶段条目 2（B4-A）：文章编辑器整路由迁移
