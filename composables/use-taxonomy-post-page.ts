@@ -61,9 +61,9 @@ export async function useTaxonomyPostPage(options: UseTaxonomyPostPageOptions) {
         setI18nParams(params)
     }, { immediate: true })
 
-    const onPageChange = (event: { page: number, first: number }) => {
-        page.value = event.page + 1
-        first.value = event.first
+    const onPageChange = (nextPage: number) => {
+        page.value = nextPage
+        first.value = (nextPage - 1) * limit.value
         void router.push({ query: { ...route.query, page: page.value } })
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }

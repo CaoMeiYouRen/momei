@@ -1,24 +1,30 @@
 <template>
     <div class="taxonomy-page">
         <div v-if="entityPending" class="taxonomy-page__header">
-            <Skeleton
+            <CaomeiSkeleton
                 width="15rem"
                 height="2.5rem"
                 class="mb-4"
             />
-            <Skeleton width="100%" height="1.5rem" />
+            <CaomeiSkeleton width="100%" height="1.5rem" />
         </div>
 
         <div v-else-if="entityError" class="taxonomy-page__error">
-            <Message severity="error" icon="pi pi-times-circle">
+            <CaomeiMessage tone="danger">
+                <template #icon>
+                    <CircleX :size="16" />
+                </template>
                 {{ $t('common.not_found') }}
-            </Message>
-            <Button
-                :label="$t('common.back_to_home')"
-                icon="pi pi-home"
+            </CaomeiMessage>
+            <CaomeiButton
                 class="mt-4"
                 @click="navigateTo(localePath('/'))"
-            />
+            >
+                <template #icon>
+                    <Home :size="16" />
+                </template>
+                {{ $t('common.back_to_home') }}
+            </CaomeiButton>
         </div>
 
         <div v-else-if="entity" class="taxonomy-page__content">
@@ -42,13 +48,13 @@
                     {{ entity.description }}
                 </p>
                 <div class="taxonomy-page__meta">
-                    <i class="pi pi-file-edit" />
+                    <FilePenLine :size="14" />
                     <span>{{ $t('pages.posts.total_count', {count: total}) }}</span>
                 </div>
             </header>
 
             <div v-if="postsPending" class="taxonomy-page__list">
-                <Skeleton
+                <CaomeiSkeleton
                     v-for="i in 3"
                     :key="i"
                     height="12rem"
@@ -58,7 +64,7 @@
 
             <div v-else-if="postsError || posts.length === 0" class="taxonomy-page__empty">
                 <div class="empty-state">
-                    <i class="pi pi-inbox" />
+                    <Inbox :size="40" />
                     <p>{{ $t('pages.posts.empty') }}</p>
                 </div>
             </div>
@@ -74,30 +80,38 @@
             </div>
 
             <div v-if="totalPages > 1" class="taxonomy-page__pagination">
-                <Paginator
-                    v-model:first="first"
-                    :rows="limit"
-                    :total-records="total"
-                    @page="onPageChange"
+                <CaomeiPaginator
+                    :page="page"
+                    :items-per-page="limit"
+                    :total="total"
+                    show-edges
+                    @update:page="onPageChange"
                 />
             </div>
         </div>
 
         <div v-else class="taxonomy-page__error">
-            <Message severity="error" icon="pi pi-times-circle">
+            <CaomeiMessage tone="danger">
+                <template #icon>
+                    <CircleX :size="16" />
+                </template>
                 {{ $t('common.not_found') }}
-            </Message>
-            <Button
-                :label="$t('common.back_to_home')"
-                icon="pi pi-home"
+            </CaomeiMessage>
+            <CaomeiButton
                 class="mt-4"
                 @click="navigateTo(localePath('/'))"
-            />
+            >
+                <template #icon>
+                    <Home :size="16" />
+                </template>
+                {{ $t('common.back_to_home') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { CircleX, FilePenLine, Home, Inbox } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
@@ -124,7 +138,7 @@ const { data: entityData, pending: entityPending, error: entityError } = await u
 const entity = computed(() => entityData.value?.data as (Category & { description?: string | null }) | null)
 
 // Posts
-const { page, limit, first, posts, total, totalPages, postsPending, postsError, onPageChange } = await useTaxonomyPostPage({
+const { page, limit, posts, total, totalPages, postsPending, postsError, onPageChange } = await useTaxonomyPostPage({
     filterKey: props.taxonomyType,
     slug,
     entityData: entity,
@@ -297,8 +311,7 @@ useHead(() => ({
         text-align: center;
 
         .empty-state {
-            i {
-                font-size: 3rem;
+            svg {
                 color: var(--p-surface-400);
                 margin-bottom: 1rem;
             }

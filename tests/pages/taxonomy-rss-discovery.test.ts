@@ -142,11 +142,11 @@ mockNuxtImport('useHead', () => (input: Record<string, unknown> | (() => Record<
 
 const stubs = {
     ArticleCard: { template: '<article class="article-card">ArticleCard</article>' },
-    Button: { template: '<button><slot /></button>' },
-    Message: { template: '<div><slot /></div>' },
-    Paginator: { template: '<div class="paginator" />' },
+    CaomeiButton: { template: '<button><slot /></button>' },
+    CaomeiMessage: { template: '<div><slot /></div>' },
+    CaomeiPaginator: { template: '<div class="paginator" />' },
     RssIcon: { template: '<svg class="rss-icon" />' },
-    Skeleton: { template: '<div class="skeleton" />' },
+    CaomeiSkeleton: { template: '<div class="skeleton" />' },
 }
 
 describe('taxonomy RSS discovery', () => {

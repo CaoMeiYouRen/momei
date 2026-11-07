@@ -141,7 +141,7 @@ describe('useTaxonomyPostPage', () => {
             entityData: computed(() => null),
         })
 
-        result.onPageChange({ page: 1, first: 10 })
+        result.onPageChange(2)
 
         expect(result.page.value).toBe(2)
         expect(result.first.value).toBe(10)

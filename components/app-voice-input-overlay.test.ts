@@ -69,12 +69,12 @@ function mountOverlay(props: Record<string, unknown> = {}) {
         },
         global: {
             stubs: {
-                Button: ButtonStub,
+                CaomeiButton: ButtonStub,
                 CaomeiPopover: PopoverStub,
                 CaomeiPopoverTrigger: PopoverTriggerStub,
                 CaomeiPopoverContent: PopoverContentStub,
-                ProgressBar: ProgressBarStub,
-                SelectButton: SelectButtonStub,
+                CaomeiProgressBar: ProgressBarStub,
+                CaomeiSelectButton: SelectButtonStub,
             },
         },
     })

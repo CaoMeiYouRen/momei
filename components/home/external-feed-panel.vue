@@ -10,16 +10,20 @@
                 </p>
             </div>
             <div class="external-feed-panel__status">
-                <Tag
+                <CaomeiTag
                     v-if="stale"
-                    severity="warn"
-                    :value="$t('home.external_feed.stale')"
-                />
-                <Tag
+                    tone="warning"
+                    size="sm"
+                >
+                    {{ $t('home.external_feed.stale') }}
+                </CaomeiTag>
+                <CaomeiTag
                     v-if="degraded"
-                    severity="secondary"
-                    :value="$t('home.external_feed.degraded')"
-                />
+                    tone="neutral"
+                    size="sm"
+                >
+                    {{ $t('home.external_feed.degraded') }}
+                </CaomeiTag>
             </div>
         </div>
 
@@ -29,17 +33,17 @@
                 :key="index"
                 class="external-feed-panel__skeleton"
             >
-                <Skeleton
+                <CaomeiSkeleton
                     width="50%"
                     height="1rem"
                     class="mb-3"
                 />
-                <Skeleton
+                <CaomeiSkeleton
                     width="85%"
                     height="1.5rem"
                     class="mb-2"
                 />
-                <Skeleton width="100%" height="3rem" />
+                <CaomeiSkeleton width="100%" height="3rem" />
             </div>
         </div>
 
@@ -52,14 +56,14 @@
         </div>
 
         <template v-else>
-            <Message
+            <CaomeiMessage
                 v-if="degraded"
-                severity="secondary"
+                tone="neutral"
                 :closable="false"
                 class="external-feed-panel__notice"
             >
                 {{ $t('home.external_feed.degraded_notice') }}
-            </Message>
+            </CaomeiMessage>
 
             <div class="external-feed-panel__grid">
                 <article
@@ -69,11 +73,13 @@
                 >
                     <div class="external-feed-panel__meta-row">
                         <div class="external-feed-panel__meta-left">
-                            <Tag
+                            <CaomeiTag
                                 v-if="item.sourceBadge"
-                                severity="contrast"
-                                :value="item.sourceBadge"
-                            />
+                                tone="neutral"
+                                size="sm"
+                            >
+                                {{ item.sourceBadge }}
+                            </CaomeiTag>
                             <span class="external-feed-panel__source">{{ item.sourceTitle }}</span>
                         </div>
                         <span v-if="item.publishedAt" class="external-feed-panel__date">
@@ -107,7 +113,7 @@
                             class="external-feed-panel__action"
                         >
                             {{ $t('home.external_feed.open_external') }}
-                            <i class="pi pi-external-link" />
+                            <ExternalLink :size="14" />
                         </a>
                     </div>
                 </article>
@@ -117,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+import { ExternalLink } from '@lucide/vue'
 import type { ExternalFeedItem } from '@/types/external-feed'
 import { formatDate } from '@/utils/shared/date'
 

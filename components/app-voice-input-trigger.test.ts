@@ -124,7 +124,7 @@ describe('AppVoiceInputTrigger', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     ClientOnly: ClientOnlyStub,
                     AppVoiceInputOverlay: OverlayStub,
                 },
@@ -155,7 +155,7 @@ describe('AppVoiceInputTrigger', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     ClientOnly: ClientOnlyStub,
                     AppVoiceInputOverlay: OverlayStub,
                 },
@@ -189,7 +189,7 @@ describe('AppVoiceInputTrigger', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     ClientOnly: ClientOnlyStub,
                     AppVoiceInputOverlay: OverlayStub,
                 },
@@ -230,7 +230,7 @@ describe('AppVoiceInputTrigger', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     ClientOnly: ClientOnlyStub,
                     AppVoiceInputOverlay: OverlayStub,
                 },
@@ -250,7 +250,7 @@ describe('AppVoiceInputTrigger', () => {
             },
             global: {
                 stubs: {
-                    Button: ButtonStub,
+                    CaomeiButton: ButtonStub,
                     ClientOnly: ClientOnlyStub,
                     AppVoiceInputOverlay: OverlayStub,
                 },

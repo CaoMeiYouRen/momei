@@ -2,19 +2,22 @@
     <ClientOnly>
         <template v-if="isVoiceSupported">
             <AppTooltip :content="tooltipText">
-                <Button
-
-                    :icon="isListening ? 'pi pi-stop-circle' : 'pi pi-microphone'"
-                    :text="buttonText"
-                    :outlined="buttonOutlined"
+                <CaomeiButton
+                    icon-only
+                    :variant="voiceButtonVariant"
+                    :tone="voiceButtonTone"
+                    :size="voiceButtonSize"
                     :rounded="buttonRounded"
-                    :severity="isListening ? 'danger' : buttonSeverity"
-                    :size="buttonSize"
                     :disabled="disabled"
-                    :aria-label="ariaLabelText"
+                    :label="ariaLabelText"
                     :class="[buttonClass, {'pulse-animation': isListening}]"
                     @click="handleVoiceClick"
-                />
+                >
+                    <template #icon>
+                        <StopCircle v-if="isListening" :size="16" />
+                        <Mic v-else :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
             <AppVoiceInputOverlay
                 ref="voiceOp"
@@ -42,6 +45,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, unref } from 'vue'
+import { Mic, StopCircle } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 import { usePostEditorVoice as useVoiceInput } from '@/composables/use-post-editor-voice'
 import { insertVoiceText, type VoiceTextInsertStrategy } from '@/utils/web/voice-text'
@@ -109,6 +113,39 @@ const tooltipText = computed(() => {
 
 const ariaLabelText = computed(() => {
     return isListening.value ? t('common.voice.aria_button_stop') : t('common.voice.aria_button_start')
+})
+
+const voiceButtonVariant = computed(() => {
+    if (props.buttonText) {
+        return 'ghost' as const
+    }
+
+    return props.buttonOutlined ? 'secondary' as const : 'primary' as const
+})
+
+const voiceButtonTone = computed(() => {
+    if (isListening.value) {
+        return 'danger' as const
+    }
+
+    const toneBySeverity = {
+        secondary: 'neutral',
+        contrast: 'neutral',
+        info: 'primary',
+        success: 'success',
+        warn: 'warning',
+        help: 'primary',
+    } as const
+
+    return toneBySeverity[props.buttonSeverity ?? 'secondary']
+})
+
+const voiceButtonSize = computed(() => {
+    if (props.buttonSize === 'small') {
+        return 'sm' as const
+    }
+
+    return props.buttonSize === 'large' ? 'lg' as const : 'md' as const
 })
 
 const isTextareaTargetRef = (value: unknown): value is { value: MaybeTextareaTarget } => {

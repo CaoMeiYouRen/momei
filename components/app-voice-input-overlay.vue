@@ -18,41 +18,43 @@
             <div class="voice-popover__card">
                 <div class="voice-popover__header">
                     <span class="voice-popover__title">
-                        <i
-                            class="pi pi-microphone voice-popover__icon"
+                        <Mic
+                            class="voice-popover__icon"
                             :class="{'voice-popover__icon--listening': isListening}"
+                            :size="16"
                         />
                         {{ isListening ? $t('common.voice.listening') : $t('common.voice.input') }}
                     </span>
-                    <SelectButton
+                    <CaomeiSelectButton
                         v-model="internalMode"
                         :options="modeOptions"
                         option-label="label"
                         option-value="value"
-                        size="small"
+                        size="sm"
                         :disabled="isListening"
-                        :aria-label="$t('common.voice.input')"
+                        :label="$t('common.voice.input')"
                     />
                 </div>
 
                 <div class="voice-popover__content" aria-live="polite">
                     <div v-if="isLoadingModel" class="voice-popover__loading">
                         <span class="mb-2 text-sm">{{ $t('common.voice.model_loading') }}</span>
-                        <ProgressBar
+                        <CaomeiProgressBar
                             :value="Math.round(modelProgress)"
                             class="w-full"
                             style="height: 6px"
                         />
                     </div>
                     <div v-else-if="error" class="voice-popover__error">
-                        <i class="pi pi-exclamation-circle" />
+                        <CircleAlert :size="16" />
                         <span>{{ errorText }}</span>
-                        <Button
-                            :label="$t('common.voice.retry')"
-                            size="small"
-                            text
+                        <CaomeiButton
+                            variant="ghost"
+                            size="sm"
                             @click="$emit('retry')"
-                        />
+                        >
+                            {{ $t('common.voice.retry') }}
+                        </CaomeiButton>
                     </div>
                     <div v-else class="voice-popover__transcript">
                         <span class="voice-popover__final">{{ finalTranscript }}</span>
@@ -68,56 +70,67 @@
 
                 <div class="voice-popover__footer">
                     <template v-if="isListening">
-                        <Button
-                            :label="$t('common.voice.stop')"
-                            severity="danger"
-                            icon="pi pi-stop-circle"
+                        <CaomeiButton
+                            tone="danger"
                             @click="$emit('stop')"
-                        />
+                        >
+                            <template #icon>
+                                <StopCircle :size="16" />
+                            </template>
+                            {{ $t('common.voice.stop') }}
+                        </CaomeiButton>
                     </template>
                     <template v-else-if="finalTranscript">
                         <div class="voice-popover__result-actions">
                             <AppTooltip :content="$t('common.voice.retry')">
-                                <Button
-
-                                    icon="pi pi-refresh"
-                                    severity="secondary"
-                                    text
+                                <CaomeiButton
+                                    icon-only
+                                    variant="ghost"
+                                    :label="$t('common.voice.retry')"
                                     class="voice-popover__retry-btn"
                                     @click="$emit('retry')"
-                                />
+                                >
+                                    <template #icon>
+                                        <RotateCcw :size="16" />
+                                    </template>
+                                </CaomeiButton>
                             </AppTooltip>
                             <div
                                 class="voice-popover__primary-actions"
                                 :class="{'voice-popover__primary-actions--single': !showRefineAction}"
                             >
-                                <Button
-                                    :label="$t('common.voice.insert')"
-                                    severity="secondary"
-                                    outlined
+                                <CaomeiButton
+                                    variant="secondary"
                                     class="voice-popover__action-btn"
                                     @click="$emit('insert', finalTranscript)"
-                                />
-                                <Button
+                                >
+                                    {{ $t('common.voice.insert') }}
+                                </CaomeiButton>
+                                <CaomeiButton
                                     v-if="showRefineAction"
-                                    :label="$t('common.voice.refine_insert')"
-                                    severity="primary"
                                     :loading="refining"
-                                    icon="pi pi-sparkles"
                                     class="voice-popover__action-btn"
                                     @click="$emit('refine', finalTranscript)"
-                                />
+                                >
+                                    <template #icon>
+                                        <Sparkles :size="16" />
+                                    </template>
+                                    {{ $t('common.voice.refine_insert') }}
+                                </CaomeiButton>
                             </div>
                         </div>
                     </template>
                     <template v-else>
-                        <Button
-                            :label="$t('common.voice.start_record')"
-                            icon="pi pi-microphone"
+                        <CaomeiButton
                             :loading="isLoadingModel"
                             :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady)"
                             @click="$emit('start')"
-                        />
+                        >
+                            <template #icon>
+                                <Mic :size="16" />
+                            </template>
+                            {{ $t('common.voice.start_record') }}
+                        </CaomeiButton>
                     </template>
                 </div>
             </div>
@@ -127,6 +140,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { CircleAlert, Mic, RotateCcw, Sparkles, StopCircle } from '@lucide/vue'
 import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { useI18n } from 'vue-i18n'
 import type { VoiceTranscriptionMode as VoiceInputMode } from '@/composables/use-post-editor-voice'
