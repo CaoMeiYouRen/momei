@@ -189,16 +189,16 @@ vi.mock('@/lib/auth-client', () => ({
 }))
 
 const stubs = {
-    Card: { template: '<section class="card"><slot /><slot name="content" /></section>' },
-    Tag: { template: '<span class="tag" :data-severity="severity">{{ value }}</span>', props: ['value', 'severity'] },
-    InputText: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'type'], emits: ['update:modelValue'] },
-    Textarea: { template: '<textarea :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'rows'], emits: ['update:modelValue'] },
-    Select: {
+    CaomeiCard: { template: '<section class="card"><slot /></section>' },
+    CaomeiTag: { template: '<span class="tag" :data-tone="tone"><slot /></span>', props: ['tone'] },
+    CaomeiInput: { template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'type'], emits: ['update:modelValue'] },
+    CaomeiTextarea: { template: '<textarea :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'rows'], emits: ['update:modelValue'] },
+    CaomeiSelect: {
         template: '<select :id="id" :value="modelValue" @change="$emit(\'update:modelValue\', $event.target.value)"><option value=""></option><option v-for="option in options" :key="option[optionValue]" :value="option[optionValue]">{{ option[optionLabel] }}</option><slot /></select>',
         props: ['id', 'modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'],
         emits: ['update:modelValue'],
     },
-    Button: { template: '<button :type="type">{{ label }}<slot /></button>', props: ['label', 'type', 'loading'] },
+    CaomeiButton: { template: '<button :type="type"><slot /></button>', props: ['type', 'loading'] },
     AppUploader: { template: '<input :id="id" class="uploader" :value="modelValue" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />', props: ['id', 'modelValue', 'type', 'accept', 'placeholder'], emits: ['update:modelValue'] },
     ClientOnly: { template: '<div><slot /><slot name="fallback" /></div>' },
     Toast: { template: '<div class="toast" />' },
@@ -485,7 +485,7 @@ describe('FriendLinksPage', () => {
         const tags = wrapper.findAll('.tag')
 
         expect(tags.map((tag) => tag.text())).toEqual(expect.arrayContaining(['Checking', 'Unreachable', 'Unknown']))
-        expect(tags.map((tag) => tag.attributes('data-severity'))).toEqual(expect.arrayContaining(['warning', 'danger', 'secondary']))
+        expect(tags.map((tag) => tag.attributes('data-tone'))).toEqual(expect.arrayContaining(['warning', 'danger', 'neutral']))
         expect(wrapper.text()).toContain('Last checked: -')
     })
 

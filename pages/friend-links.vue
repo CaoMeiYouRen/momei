@@ -13,24 +13,20 @@
                 </p>
             </header>
 
-            <Card v-if="meta.applicationGuidelines" class="links-page__notice">
-                <template #content>
-                    <h2 class="links-page__section-title">
-                        {{ tt('pages.links.guidelines_title') }}
-                    </h2>
-                    <p class="links-page__guidelines">
-                        {{ meta.applicationGuidelines }}
-                    </p>
-                </template>
-            </Card>
+            <CaomeiCard v-if="meta.applicationGuidelines" class="links-page__notice">
+                <h2 class="links-page__section-title">
+                    {{ tt('pages.links.guidelines_title') }}
+                </h2>
+                <p class="links-page__guidelines">
+                    {{ meta.applicationGuidelines }}
+                </p>
+            </CaomeiCard>
 
-            <Card v-if="!meta.enabled" class="links-page__empty-card">
-                <template #content>
-                    <div class="links-page__empty">
-                        {{ tt('pages.links.disabled') }}
-                    </div>
-                </template>
-            </Card>
+            <CaomeiCard v-if="!meta.enabled" class="links-page__empty-card">
+                <div class="links-page__empty">
+                    {{ tt('pages.links.disabled') }}
+                </div>
+            </CaomeiCard>
 
             <template v-else>
                 <div class="links-page__health-notice">
@@ -85,10 +81,9 @@
                                 </p>
 
                                 <div class="links-page__health">
-                                    <Tag
-                                        :value="tt(`pages.links.health_statuses.${item.healthStatus || 'unknown'}`)"
-                                        :severity="getHealthStatusSeverity(item.healthStatus)"
-                                    />
+                                    <CaomeiTag :tone="getHealthStatusTone(item.healthStatus)" size="sm">
+                                        {{ tt(`pages.links.health_statuses.${item.healthStatus || 'unknown'}`) }}
+                                    </CaomeiTag>
                                     <span class="links-page__health-time">
                                         {{ tt('pages.links.last_checked_at') }}: {{ formatDateTime(item.lastCheckedAt) }}
                                     </span>
@@ -109,164 +104,149 @@
                     </article>
                 </section>
 
-                <Card v-else class="links-page__empty-card">
-                    <template #content>
-                        <div class="links-page__empty">
-                            {{ tt('pages.links.empty') }}
-                        </div>
-                    </template>
-                </Card>
+                <CaomeiCard v-else class="links-page__empty-card">
+                    <div class="links-page__empty">
+                        {{ tt('pages.links.empty') }}
+                    </div>
+                </CaomeiCard>
 
-                <Card v-if="meta.applicationEnabled" class="links-page__apply-card">
-                    <template #content>
-                        <div class="links-page__apply-header">
-                            <h2 class="links-page__section-title">
-                                {{ tt('pages.links.application_title') }}
-                            </h2>
-                            <p class="links-page__apply-subtitle">
-                                {{ tt('pages.links.application_subtitle') }}
-                            </p>
-                        </div>
+                <CaomeiCard v-if="meta.applicationEnabled" class="links-page__apply-card">
+                    <div class="links-page__apply-header">
+                        <h2 class="links-page__section-title">
+                            {{ tt('pages.links.application_title') }}
+                        </h2>
+                        <p class="links-page__apply-subtitle">
+                            {{ tt('pages.links.application_subtitle') }}
+                        </p>
+                    </div>
 
-                        <form class="links-page__form" @submit.prevent="handleSubmit">
-                            <div class="links-page__form-grid">
-                                <div class="links-page__field">
-                                    <label for="name">{{ $t('common.name') }} *</label>
-                                    <InputText
-                                        id="name"
-                                        v-model="form.name"
-                                        fluid
+                    <form class="links-page__form" @submit.prevent="handleSubmit">
+                        <div class="links-page__form-grid">
+                            <div class="links-page__field">
+                                <label for="name">{{ $t('common.name') }} *</label>
+                                <CaomeiInput
+                                    id="name"
+                                    v-model="form.name"
+                                />
+                            </div>
+                            <div class="links-page__field">
+                                <label for="url">{{ tt('components.friend_links.fields.site_url') }} *</label>
+                                <CaomeiInput
+                                    id="url"
+                                    v-model="form.url"
+                                />
+                            </div>
+                            <div class="links-page__field">
+                                <label for="logo">{{ tt('components.friend_links.fields.logo') }}</label>
+                                <ClientOnly>
+                                    <AppUploader
+                                        v-if="canUploadLogo"
+                                        id="logo"
+                                        v-model="form.logo"
+                                        :type="UploadType.IMAGE"
+                                        accept="image/*"
+                                        :placeholder="tt('pages.links.form.logo_upload_placeholder')"
                                     />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="url">{{ tt('components.friend_links.fields.site_url') }} *</label>
-                                    <InputText
-                                        id="url"
-                                        v-model="form.url"
-                                        fluid
+                                    <CaomeiInput
+                                        v-else
+                                        id="logo"
+                                        v-model="form.logo"
+                                        :placeholder="tt('pages.links.form.logo_placeholder')"
                                     />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="logo">{{ tt('components.friend_links.fields.logo') }}</label>
-                                    <ClientOnly>
-                                        <AppUploader
-                                            v-if="canUploadLogo"
-                                            id="logo"
-                                            v-model="form.logo"
-                                            :type="UploadType.IMAGE"
-                                            accept="image/*"
-                                            :placeholder="tt('pages.links.form.logo_upload_placeholder')"
-                                        />
-                                        <InputText
-                                            v-else
+                                    <template #fallback>
+                                        <CaomeiInput
                                             id="logo"
                                             v-model="form.logo"
                                             :placeholder="tt('pages.links.form.logo_placeholder')"
-                                            fluid
                                         />
-                                        <template #fallback>
-                                            <InputText
-                                                id="logo"
-                                                v-model="form.logo"
-                                                :placeholder="tt('pages.links.form.logo_placeholder')"
-                                                fluid
-                                            />
-                                        </template>
-                                    </ClientOnly>
-                                    <small class="links-page__field-hint">
-                                        {{ canUploadLogo ? tt('pages.links.form.logo_upload_hint') : tt('pages.links.form.logo_hint') }}
-                                    </small>
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="rssUrl">{{ tt('components.friend_links.fields.rss_url') }}</label>
-                                    <InputText
-                                        id="rssUrl"
-                                        v-model="form.rssUrl"
-                                        fluid
-                                    />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="contactName">{{ tt('pages.links.form.contact_name') }}</label>
-                                    <InputText
-                                        id="contactName"
-                                        v-model="form.contactName"
-                                        fluid
-                                    />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="contactEmail">{{ tt('components.friend_links.fields.contact_email') }} *</label>
-                                    <InputText
-                                        id="contactEmail"
-                                        v-model="form.contactEmail"
-                                        type="email"
-                                        fluid
-                                    />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="categoryId">{{ $t('common.category') }}</label>
-                                    <Select
-                                        id="categoryId"
-                                        v-model="form.categoryId"
-                                        :options="meta.categories"
-                                        option-label="name"
-                                        option-value="id"
-                                        :placeholder="tt('pages.links.form.category_placeholder')"
-                                        fluid
-                                    />
-                                </div>
-                                <div class="links-page__field">
-                                    <label for="categorySuggestion">{{ tt('pages.links.form.category_suggestion') }}</label>
-                                    <InputText
-                                        id="categorySuggestion"
-                                        v-model="form.categorySuggestion"
-                                        fluid
-                                    />
-                                </div>
+                                    </template>
+                                </ClientOnly>
+                                <small class="links-page__field-hint">
+                                    {{ canUploadLogo ? tt('pages.links.form.logo_upload_hint') : tt('pages.links.form.logo_hint') }}
+                                </small>
                             </div>
-
                             <div class="links-page__field">
-                                <label for="reciprocalUrl">{{ tt('pages.links.form.reciprocal_url') }}</label>
-                                <InputText
-                                    id="reciprocalUrl"
-                                    v-model="form.reciprocalUrl"
-                                    fluid
+                                <label for="rssUrl">{{ tt('components.friend_links.fields.rss_url') }}</label>
+                                <CaomeiInput
+                                    id="rssUrl"
+                                    v-model="form.rssUrl"
                                 />
                             </div>
-
                             <div class="links-page__field">
-                                <label for="description">{{ $t('common.description') }}</label>
-                                <Textarea
-                                    id="description"
-                                    v-model="form.description"
-                                    rows="4"
-                                    fluid
+                                <label for="contactName">{{ tt('pages.links.form.contact_name') }}</label>
+                                <CaomeiInput
+                                    id="contactName"
+                                    v-model="form.contactName"
                                 />
                             </div>
-
                             <div class="links-page__field">
-                                <label for="message">{{ tt('pages.links.form.message') }}</label>
-                                <Textarea
-                                    id="message"
-                                    v-model="form.message"
-                                    rows="4"
-                                    fluid
+                                <label for="contactEmail">{{ tt('components.friend_links.fields.contact_email') }} *</label>
+                                <CaomeiInput
+                                    id="contactEmail"
+                                    v-model="form.contactEmail"
+                                    type="email"
                                 />
                             </div>
-
-                            <div v-if="isCaptchaEnabled" class="links-page__captcha">
-                                <app-captcha ref="captchaRef" v-model="form.captchaToken" />
-                            </div>
-
-                            <div class="links-page__actions">
-                                <Button
-                                    type="submit"
-                                    :label="submitting ? tt('pages.links.form.submitting') : tt('pages.links.form.submit')"
-                                    :loading="submitting"
+                            <div class="links-page__field">
+                                <label for="categoryId">{{ $t('common.category') }}</label>
+                                <CaomeiSelect
+                                    id="categoryId"
+                                    v-model="form.categoryId"
+                                    :options="meta.categories"
+                                    option-label="name"
+                                    option-value="id"
+                                    :placeholder="tt('pages.links.form.category_placeholder')"
                                 />
                             </div>
-                        </form>
-                    </template>
-                </Card>
+                            <div class="links-page__field">
+                                <label for="categorySuggestion">{{ tt('pages.links.form.category_suggestion') }}</label>
+                                <CaomeiInput
+                                    id="categorySuggestion"
+                                    v-model="form.categorySuggestion"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="links-page__field">
+                            <label for="reciprocalUrl">{{ tt('pages.links.form.reciprocal_url') }}</label>
+                            <CaomeiInput
+                                id="reciprocalUrl"
+                                v-model="form.reciprocalUrl"
+                            />
+                        </div>
+
+                        <div class="links-page__field">
+                            <label for="description">{{ $t('common.description') }}</label>
+                            <CaomeiTextarea
+                                id="description"
+                                v-model="form.description"
+                                :rows="4"
+                            />
+                        </div>
+
+                        <div class="links-page__field">
+                            <label for="message">{{ tt('pages.links.form.message') }}</label>
+                            <CaomeiTextarea
+                                id="message"
+                                v-model="form.message"
+                                :rows="4"
+                            />
+                        </div>
+
+                        <div v-if="isCaptchaEnabled" class="links-page__captcha">
+                            <app-captcha ref="captchaRef" v-model="form.captchaToken" />
+                        </div>
+
+                        <div class="links-page__actions">
+                            <CaomeiButton
+                                type="submit"
+                                :loading="submitting"
+                            >
+                                {{ submitting ? tt('pages.links.form.submitting') : tt('pages.links.form.submit') }}
+                            </CaomeiButton>
+                        </div>
+                    </form>
+                </CaomeiCard>
             </template>
 
             <!-- 友链 RSS 聚合 -->
@@ -423,16 +403,16 @@ const resetForm = () => {
     }
 }
 
-const getHealthStatusSeverity = (status?: string) => {
+const getHealthStatusTone = (status?: string) => {
     switch (status) {
         case 'healthy':
-            return 'success'
+            return 'success' as const
         case 'unreachable':
-            return 'danger'
+            return 'danger' as const
         case 'checking':
-            return 'warning'
+            return 'warning' as const
         default:
-            return 'secondary'
+            return 'neutral' as const
     }
 }
 
