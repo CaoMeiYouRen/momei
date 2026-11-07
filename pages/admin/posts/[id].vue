@@ -50,13 +50,18 @@
                     @show-detail="openAuditDialog"
                 />
                 <AppTooltip v-if="!isNew && post.id" :content="$t('pages.admin.posts.social_post.generate_btn')">
-                    <Button
-                        icon="pi pi-share-alt"
-                        text
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
                         rounded
-                        severity="secondary"
+                        :label="$t('pages.admin.posts.social_post.generate_btn')"
                         @click="socialPostVisible = true"
-                    />
+                    >
+                        <template #icon>
+                            <Share2 :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
             </template>
         </PostEditorHeader>
@@ -97,7 +102,6 @@
             v-model:post="post"
             :errors="errors"
             :categories="categories"
-            :filtered-tags="filteredTags"
             :ai-loading="aiLoading"
             :posts-for-translation="postsForTranslation"
             :language-options="languageOptions"
@@ -107,7 +111,6 @@
             @search-posts="searchPosts"
             @suggest-slug="suggestSlug"
             @recommend-tags="recommendTags"
-            @search-tags="searchTags"
             @suggest-summary="suggestSummary"
         />
 
@@ -167,16 +170,17 @@
 </template>
 
 <script setup lang="ts">
+import { Share2 } from '@lucide/vue'
 import { nextTick } from 'vue'
 import PostEditorHeader from '@/components/admin/posts/post-editor-header.vue'
 import PostEditorSettings from '@/components/admin/posts/post-editor-settings.vue'
 import PostEditorSetupReminder from '@/components/admin/posts/post-editor-setup-reminder.vue'
 import PostTranslationWorkflowDialog from '@/components/admin/posts/post-translation-workflow-dialog.vue'
-import PublishPushDialog from '@/components/admin/posts/publish-push-dialog.vue'
+import PublishPushDialog from '@/components/admin/posts/publish-push-dialog-v2.vue'
 import PostHistoryPanel from '@/components/admin/posts/post-history-panel.vue'
 import PostEditorDragMask from '@/components/admin/posts/post-editor-drag-mask.vue'
-import PostAuditBadge from '@/components/admin/posts/post-audit-badge.vue'
-import PostAuditDialog from '@/components/admin/posts/post-audit-dialog.vue'
+import PostAuditBadge from '@/components/admin/posts/post-audit-badge-v2.vue'
+import PostAuditDialog from '@/components/admin/posts/post-audit-dialog-v2.vue'
 import PostSocialDialog from '@/components/admin/posts/post-social-dialog.vue'
 import PostEditorRewriteCompare from '@/components/admin/posts/post-editor-rewrite-compare.vue'
 import { usePostEditorPage } from '@/composables/use-post-editor-page'
@@ -209,7 +213,6 @@ const {
     post,
     translationDialogVisible,
     translationWorkflowDefaults,
-    filteredTags,
     isNew,
     settingsVisible,
     settingsCompact,
@@ -260,7 +263,6 @@ const {
     handleStartTranslationWorkflow,
     handlePreview,
     handleRestore,
-    searchTags,
     handlePublishConfirm,
     savePost,
     getStatusLabel,

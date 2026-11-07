@@ -10,6 +10,50 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-a-post-editor:第七十一阶段条目 2 编辑器整路由:2026-11-07 -->
+
+## 2026-11-07 第七十一阶段条目 2（B4-A）：文章编辑器整路由迁移
+
+### 范围
+
+- `pages/admin/posts/[id].vue` + `components/admin/posts/**`（19 个组件；编辑器族整批）。
+- 组件替换（此前全部为 PrimeVue）：`Button` / `Tag` / `Select` / `InputText` / `Textarea` / `Message` / `Divider` / `Image` / `ProgressSpinner` / `ProgressBar` / `Checkbox` / `Avatar` / `InputNumber`，以及首次生产迁移的 `RadioButton` → `CaomeiRadioGroup` + `CaomeiRadioButton`、`ToggleSwitch` → `CaomeiSwitch`、`AutoComplete`（`suggestions` / `{query}` → `options` / `query`）、`InputGroup`、`SplitButton`（`model` 的 `icon` 由 `pi` 字符串改为 lucide 组件）、`ButtonGroup`、`TagsInput`。
+- 三件套收敛：编辑器改用 `post-audit-badge-v2` / `post-audit-dialog-v2` / `publish-push-dialog-v2`；V1 三件套与其两份「两版等价」契约测试**删除**（`post-audit-dialog.contract.test.ts` / `publish-push-dialog.contract.test.ts`），`/admin/posts/[id]` 不再是 V1 消费者。
+- 图标：**81 处** `pi pi-*` → `@lucide/vue`（含数据驱动的 `writingMenuItems` / `translateMenuItems` / `REWRITE_STYLES`）。
+- 路由登记：`/admin/posts` 新增 `ownedFiles`（19 个组件）、`inScopeComponents`（Textarea / Message / Skeleton / Divider / Image / ProgressSpinner / ProgressBar / Checkbox / RadioButton / ToggleSwitch / AutoComplete / InputGroup / SplitButton / ButtonGroup / Avatar / InputNumber）与 `migratedSubRoutes`（`[id].vue`），删除原 `primeVueSubRoutes`；`/admin` 树根前缀同步把 `[id].vue` 移入 `migratedSubRoutes`。**全仓 `primeVueSubRoutes` 例外清零**。
+- 顺带修复（69 阶段遗留）：`CaomeiPopoverTrigger` 会给锚点元素套默认按钮外观，渲染时留下两个 26×36 空盒子（实测顶栏 `#ai-writing-btn` 之后）；用零尺寸/透明规则复位 `rewrite-popover-anchor` / `title-popover-anchor` / `voice-popover-anchor`。
+- 结构治理：`post-editor-header.vue` 因迁移从 753 行增至 836 行（越过 ESLint `max-lines` 800 warn 线），把风格数据外置为 `components/admin/posts/post-editor-rewrite-styles.ts`，并把 `severity → tone` 抽为 `utils/shared/ui-tone.ts`（dashboard / 编辑器 / AI 任务详情三处重复实现收敛），最终 798 行；`ai-image-generator.vue` 787 → 819 后清理死样式 / 死类（含 `.p-*` PrimeVue 内部选择器与未使用的 `&__image-wrapper`），最终 799 行。全仓 lint 警告 **9**（低于 10 的预算上限）。
+
+### 验证
+
+- `pnpm typecheck` 0；`pnpm lint` 0 error / **9 warnings**；`pnpm lint:css` 0；`pnpm lint:i18n` 0。
+- `npx vitest run components/admin/posts tests/client/components/admin/posts components/admin/ai tests/modules/ui-library-route-migration-guard.test.ts tests/modules/ui-library-transition-component-guard.test.ts` → **16 files / 152 passed**。
+- `pnpm build` 通过（最终一次 2m32s）。
+- 浏览器探针（build 产物 + TEST_MODE 登录，1600×900，**headless 与 `xvfb-run` headed 两轮**）：`/admin/posts/new` → 200、标题输入框 1、顶栏 **15 个按钮全部为 `caomei-button`**（`i.pi` 计数 0）、设置面板可见、`pageerror` 0；`Languages` / `Pencil` / `Search` / `AlignLeft` 图标渲染正确；两个锚点实测 `0×0`。
+- headed 探针（`xvfb-run`，等待 **8s** 后交互）：标签输入「输入 + Enter」成功新增 chip（输入框清空）、语言 `CaomeiSelect` 展开（`aria-expanded=true`）、置顶 `CaomeiSwitch` 切为 `checked`、侧栏「收起」（`--compact`）与「关闭」（`--visible` 与父级 `editor-area--shifted` 同时消失）均正常，`pageerror` 0。
+- **探针时序结论（本条对既有记录同样适用）**：编辑器页体积较大，**水合完成需要 6–8s**；3s 内交互会命中未水合的静态 DOM（表现为点击无响应、`CaomeiSelect` 不展开）。此前若在 2–3s 内探测 `/admin/settings`、`/admin/calendar` 的 `CaomeiSelect`，结论同样不可信——判定「headless 下不展开」的两条历史记录应复查；本批的 headed 探针（8s）显示 `CaomeiSelect` 正常展开。
+- 管理端 E2E 主路径：`tests/e2e/admin-workflow.e2e.test.ts` **14 passed**、`tests/e2e/admin-posts-shortcut.e2e.test.ts` **4 passed**（首次并行运行有 1 例 firefox 超时，单文件复跑全绿，判定为冷启动抖动）。
+- 复算：组件 **370 → 188 处 / 31 → 26 类**；图标 **328 → 235 处**；token 1,445（本批 0 变化）。
+
+### 已接受的视觉 / 行为差异
+
+- 首屏组件基线差异随 caomei 组件统一呈现：`CaomeiButton`（`secondary` = 描边、`ghost` = 无底色）、`CaomeiTag` 的 tone 色板、`CaomeiSwitch` / `CaomeiRadioGroup` 的指示器样式、`CaomeiInput` / `CaomeiSelect` 的字段高度与圆角。`PrimeVue` 的 `contrast` 语义无对应 tone，统一落 `neutral`（§6.2 有损近似）。
+- `SelectButton` 的 `allowEmpty` 语义不适用（整数 / 字符串枚举，无「取消选中」路径）。
+- **标签字段改用 `CaomeiTagsInput`**：caomei `AutoComplete` 在多选模式下没有自由文本入口（`onEnter` / `commitFreeText` 直接返回），照搬会**丢失「新建标签」能力**（提示文案「输入标签名称并回车」与服务端 `ensureTags` 都依赖它）。代价是**失去输入时的标签联想下拉**（`search-tags` / `filteredTags` 链路随之删除）；后续若需要「联想 + 新建」二合一，需上游提供带 options 的 tags input。
+- **翻译菜单的语言图标**：原 `fi fi-cn` / `fi fi-us` 等旗标类名改为统一的 lucide `Languages`（caomei `DropdownMenuModelItem.icon` 只接受组件，无法传 CSS 类）；菜单项文本仍显示语言名。
+- **进度条的条内百分比**：PrimeVue `ProgressBar` 默认在条内渲染 `88%`，caomei `ProgressBar` 无该能力（审计弹窗 7 条与翻译工作流进度条受影响）；百分比数值在每条旁仍有文本，信息未丢失。
+- `AutoComplete` 的 `#option` / 值形状按 caomei 契约重写；`post-editor-settings` 的标签建议与翻译来源搜索仍在 `complete` 事件里把字符串包成 `{ query }`，与既有 composable 契约一致。
+
+### 未覆盖边界
+
+- `/admin/posts/[id]` 无 parity 基线（无稳定种子 id；新建态默认展开设置面板、无 heading）；本批以组件测试 + 浏览器探针 + E2E 覆盖。既有文章编辑页未做浏览器截图（TEST_MODE 种子库无文章，列表为空）。
+- 暗色主题未单独截图；下拉 / 浮层的真实展开在 headless 探针中仍无法触发（与 `/admin/settings`、`/admin/calendar` 同一既有环境行为）。
+- **既有缺陷，未在本批修复**：`publish-push-dialog-v2` 的排期仍用 PrimeVue `DatePicker`（B3 表单族，随 B3 残留族收口）；`/admin/marketing` 与 `/admin/migrations/link-governance` 的 `Card` / `ProgressSpinner` 残留同属 B3 / B4 收口。
+- **本地环境限制**：`utils/shared/post-copyright.ts` 的 locale JSON 导入在本地 vitest 下会报 `Cannot find module '/@id/virtual:intlify-i18n-N'`（已登记 backlog；`utils/shared/post-copyright.test.ts` 同样受影响，与本次改动无关）。`post-editor-header.test.ts` 通过模块级 mock 掉 `post-distribution-button.vue` 绕开该传递依赖，本地可正常执行（该 mock 与 `global.stubs` 并存，属已登记的测试技术债）。
+- **提交规模**：本批 **46 个变更文件**（38 修改 + 5 删除 + 3 新增）/ 约 +1400 行，超出「≤10 文件」的常规粒度。**拆分依据**：编辑器是**单个路由**，`pages/admin/posts/[id].vue`、19 个路由自有组件与 V1 三件套的删除必须在同一点落库——先迁一半会让该路由同时运行两套库（违反「不做半路由切换」），先删 V1 会让页面引用空模块（编译失败）。测试与文档同批是为了让「登记 / 断言 / 证据」与实现保持同一可复算基线。
+
+<!-- regression-window:end:b4-a-post-editor:第七十一阶段条目 2 编辑器整路由:2026-11-07 -->
+
 <!-- regression-window:start:b4-a-admin-dashboard:第七十一阶段条目 2 仪表盘整路由:2026-11-07 -->
 
 ## 2026-11-07 第七十一阶段条目 2（B4-A）：仪表盘 `/admin` 整路由迁移

@@ -9,87 +9,40 @@
     >
         <div class="publish-dialog">
             <div class="publish-dialog__message">
-                <i class="pi pi-question-circle publish-dialog__icon" />
+                <CircleHelp :size="32" class="publish-dialog__icon" />
                 <p>{{ $t('pages.admin.posts.publish_confirm_message') }}</p>
             </div>
 
-            <div class="publish-dialog__options">
-                <div class="publish-dialog__option">
-                    <RadioButton
-                        v-model="pushOption"
-                        input-id="push_none"
-                        name="pushOption"
-                        value="none"
-                    />
-                    <label
-                        for="push_none"
-                        class="publish-dialog__option-label"
-                    >
-                        <strong>{{ $t('pages.admin.posts.push_options.none') }}</strong>
-                        <small>{{ $t('pages.admin.posts.push_options.none_desc') }}</small>
-                    </label>
-                </div>
+            <CaomeiRadioGroup v-model="pushOption" class="publish-dialog__options">
+                <CaomeiRadioButton value="none">
+                    <strong>{{ $t('pages.admin.posts.push_options.none') }}</strong>
+                    <small>{{ $t('pages.admin.posts.push_options.none_desc') }}</small>
+                </CaomeiRadioButton>
+                <CaomeiRadioButton value="draft">
+                    <strong>{{ $t('pages.admin.posts.push_options.draft') }}</strong>
+                    <small>{{ $t('pages.admin.posts.push_options.draft_desc') }}</small>
+                </CaomeiRadioButton>
+                <CaomeiRadioButton value="now">
+                    <strong>{{ $t('pages.admin.posts.push_options.now') }}</strong>
+                    <small>{{ $t('pages.admin.posts.push_options.now_desc') }}</small>
+                </CaomeiRadioButton>
+            </CaomeiRadioGroup>
 
-                <div class="publish-dialog__option">
-                    <RadioButton
-                        v-model="pushOption"
-                        input-id="push_draft"
-                        name="pushOption"
-                        value="draft"
-                    />
-                    <label
-                        for="push_draft"
-                        class="publish-dialog__option-label"
-                    >
-                        <strong>{{ $t('pages.admin.posts.push_options.draft') }}</strong>
-                        <small>{{ $t('pages.admin.posts.push_options.draft_desc') }}</small>
-                    </label>
-                </div>
-
-                <div class="publish-dialog__option">
-                    <RadioButton
-                        v-model="pushOption"
-                        input-id="push_now"
-                        name="pushOption"
-                        value="now"
-                    />
-                    <label
-                        for="push_now"
-                        class="publish-dialog__option-label"
-                    >
-                        <strong>{{ $t('pages.admin.posts.push_options.now') }}</strong>
-                        <small>{{ $t('pages.admin.posts.push_options.now_desc') }}</small>
-                    </label>
-                </div>
-
-                <div v-if="pushOption !== 'none'" class="publish-dialog__target-selection">
-                    <p class="publish-dialog__target-label">
-                        {{ $t('pages.admin.marketing.form.targets') }}
-                    </p>
-                    <div class="publish-dialog__target-options">
-                        <div class="publish-dialog__target-option">
-                            <RadioButton
-                                v-model="targetType"
-                                input-id="target_all"
-                                name="targetType"
-                                value="all"
-                            />
-                            <label for="target_all">{{ $t('pages.admin.marketing.form.target_all') }}</label>
-                        </div>
-                        <div class="publish-dialog__target-option">
-                            <RadioButton
-                                v-model="targetType"
-                                input-id="target_criteria"
-                                name="targetType"
-                                value="criteria"
-                            />
-                            <label for="target_criteria">{{ $t('pages.admin.marketing.form.target_criteria') }}</label>
-                        </div>
-                    </div>
-                    <div v-if="targetType === 'criteria'" class="publish-dialog__criteria-hint">
-                        <i class="pi pi-info-circle" />
-                        <span>{{ $t('pages.admin.posts.push_criteria_hint') }}</span>
-                    </div>
+            <div v-if="pushOption !== 'none'" class="publish-dialog__target-selection">
+                <p class="publish-dialog__target-label">
+                    {{ $t('pages.admin.marketing.form.targets') }}
+                </p>
+                <CaomeiRadioGroup
+                    v-model="targetType"
+                    orientation="horizontal"
+                    class="publish-dialog__target-options"
+                >
+                    <CaomeiRadioButton value="all" :text="$t('pages.admin.marketing.form.target_all')" />
+                    <CaomeiRadioButton value="criteria" :text="$t('pages.admin.marketing.form.target_criteria')" />
+                </CaomeiRadioGroup>
+                <div v-if="targetType === 'criteria'" class="publish-dialog__criteria-hint">
+                    <Info :size="16" />
+                    <span>{{ $t('pages.admin.posts.push_criteria_hint') }}</span>
                 </div>
             </div>
 
@@ -134,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import { CircleHelp, Info } from '@lucide/vue'
 import {
     usePublishPushDialog,
     type PublishPushConfirmPayload,
@@ -141,20 +95,18 @@ import {
 } from '@/composables/use-publish-push-dialog'
 
 /**
- * 过渡用「发布确认 / 推送设置浮层（caomei-ui 版）」。
+ * 「发布确认 / 推送设置浮层」的实现（原 V2 过渡壳）。
  *
- * 背景与择库方式同 `PostAuditBadgeV2`（见该文件注释与迁移方案 §5.5）：本族为 admin 专属、
- * 消费者恰好两个（B2 目标 `/admin/posts` 与编辑器 `/admin/posts/[id]`），
- * 故采用**消费处静态择库**，由已迁移路由使用本组件，编辑器路由继续使用 V1。
+ * 历史与现状同 `PostAuditBadgeV2`：曾与 V1 并存（消费处静态择库），2026-11-07 编辑器子批迁移后
+ * V1 已删除，本组件为唯一实现；状态与语义（`open()` 回填、日期容错、`confirm` 载荷形状）仍集中在
+ * `usePublishPushDialog`，模板以外的逻辑不受版本影响。
  *
- * 状态与语义（`open()` 回填、日期容错、`confirm` 载荷形状）与 V1 共用 `usePublishPushDialog`，
- * 两版仅模板不同——避免「第二份 `open()` 语义」成为漂移源。
- *
- * 与 V1 的差异（均为有意，见迁移方案 §6.2）：
+ * 与旧 V1 的差异（均为有意，见迁移方案 §6.2）：
  * - 页脚 `Button` → `CaomeiButton`：可见文案落**默认插槽**（V1 走 `:label`）；
  *   `text severity="secondary"` → `variant="ghost"`，`severity="contrast"` → `tone="neutral"`
  *   （§6.2 表：`secondary` / `contrast` → `neutral`，有损近似）；
- * - `Dialog` 于第六十九阶段浮层批次迁移；`RadioButton` / `DatePicker` 不在 B2 在册族，维持 PrimeVue。
+ * - `RadioButton` 已在编辑器子批改为 `CaomeiRadioGroup` + `CaomeiRadioButton`（富文本选项走默认插槽）；
+ *   **`DatePicker` 仍为 PrimeVue**（B3 表单族，随 B3 残留族收口）。
  */
 defineProps<{
     loading?: boolean

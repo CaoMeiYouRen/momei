@@ -7,39 +7,50 @@
                     : $t('pages.admin.posts.ai.perspective_reader_title')
                 }}
             </span>
-            <Button
-                icon="pi pi-times"
-                text
+            <CaomeiButton
+                icon-only
+                variant="ghost"
+                tone="neutral"
                 rounded
-                severity="secondary"
-                size="small"
+                size="sm"
+                :label="$t('common.close')"
                 @click="emit('close')"
-            />
+            >
+                <template #icon>
+                    <X :size="16" />
+                </template>
+            </CaomeiButton>
         </div>
         <div class="perspective-panel__mode-tabs">
-            <Button
-                :label="$t('pages.admin.posts.ai.perspective_editor')"
-                icon="pi pi-pen-to-square"
-                :severity="mode === 'editor' ? 'contrast' : 'secondary'"
-                size="small"
-                outlined
+            <CaomeiButton
+                :variant="mode === 'editor' ? 'primary' : 'secondary'"
+                :tone="mode === 'editor' ? 'primary' : 'neutral'"
+                size="sm"
                 @click="emit('switch-mode', 'editor')"
-            />
-            <Button
-                :label="$t('pages.admin.posts.ai.perspective_reader')"
-                icon="pi pi-users"
-                :severity="mode === 'reader' ? 'contrast' : 'secondary'"
-                size="small"
-                outlined
+            >
+                <template #icon>
+                    <SquarePen :size="16" />
+                </template>
+                {{ $t('pages.admin.posts.ai.perspective_editor') }}
+            </CaomeiButton>
+            <CaomeiButton
+                :variant="mode === 'reader' ? 'primary' : 'secondary'"
+                :tone="mode === 'reader' ? 'primary' : 'neutral'"
+                size="sm"
                 @click="emit('switch-mode', 'reader')"
-            />
+            >
+                <template #icon>
+                    <Users :size="16" />
+                </template>
+                {{ $t('pages.admin.posts.ai.perspective_reader') }}
+            </CaomeiButton>
         </div>
         <div class="perspective-panel__body">
             <div
                 v-if="results.length === 0"
                 class="perspective-panel__empty"
             >
-                <i class="perspective-panel__empty-icon pi pi-check-circle" />
+                <CircleCheck :size="40" class="perspective-panel__empty-icon" />
                 <p>{{ $t('pages.admin.posts.ai.perspective_no_issues') }}</p>
             </div>
             <div
@@ -48,17 +59,19 @@
                 :class="['perspective-item', `perspective-item--${item.severity}`]"
             >
                 <div class="perspective-item__header">
-                    <Tag
-                        :value="severityLabel(item.severity)"
-                        :severity="severityTag(item.severity)"
-                        size="small"
-                    />
-                    <Tag
-                        :value="typeLabel(item.type)"
-                        severity="info"
-                        size="small"
+                    <CaomeiTag
+                        :tone="severityTone(item.severity)"
+                        size="sm"
+                    >
+                        {{ severityLabel(item.severity) }}
+                    </CaomeiTag>
+                    <CaomeiTag
+                        tone="primary"
+                        size="sm"
                         class="perspective-item__type"
-                    />
+                    >
+                        {{ typeLabel(item.type) }}
+                    </CaomeiTag>
                 </div>
                 <div
                     v-if="item.original"
@@ -84,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+import { CircleCheck, SquarePen, Users, X } from '@lucide/vue'
 import type { PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
 
 defineProps<{
@@ -108,10 +122,10 @@ const severityLabel = (severity: PerspectiveCheckItem['severity']) => {
     return map[severity]
 }
 
-const severityTag = (severity: PerspectiveCheckItem['severity']) => {
-    const map: Record<PerspectiveCheckItem['severity'], 'info' | 'warn' | 'danger'> = {
-        info: 'info',
-        minor: 'warn',
+const severityTone = (severity: PerspectiveCheckItem['severity']) => {
+    const map: Record<PerspectiveCheckItem['severity'], 'primary' | 'warning' | 'danger'> = {
+        info: 'primary',
+        minor: 'warning',
         major: 'danger',
     }
     return map[severity]

@@ -9,7 +9,7 @@
     }
 
     &__icon {
-        font-size: 2rem;
+        flex-shrink: 0;
         color: var(--p-primary-500);
     }
 
@@ -20,16 +20,12 @@
         padding-left: 3rem;
     }
 
-    &__option {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    &__option-label {
-        cursor: pointer;
+    /* `CaomeiRadioButton` 把可见文本渲染在内层 `span.caomei-radio-button__label` 中，
+     * 富文本（strong + small）需要该 span 自身成为块级 flex 容器。 */
+    :deep(.caomei-radio-button__label) {
         display: flex;
         flex-direction: column;
+        cursor: pointer;
 
         strong {
             display: block;
@@ -62,17 +58,6 @@
         display: flex;
         gap: 1.5rem;
         margin-bottom: 0.75rem;
-    }
-
-    &__target-option {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-
-        label {
-            cursor: pointer;
-            font-size: 0.875rem;
-        }
     }
 
     &__criteria-hint {

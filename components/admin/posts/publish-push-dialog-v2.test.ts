@@ -1,6 +1,6 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, inject, nextTick, provide, toRef, type Ref } from 'vue'
 import PublishPushDialogV2 from './publish-push-dialog-v2.vue'
 
 /**
@@ -30,24 +30,47 @@ const DialogStub = defineComponent({
     },
 })
 
-const RadioButtonStub = defineComponent({
-    name: 'RadioButton',
+interface RadioGroupContext {
+    value: Ref<string>
+    select: (value: string) => void
+}
+
+const RadioGroupStub = defineComponent({
+    name: 'CaomeiRadioGroup',
     props: {
-        modelValue: { type: [String, null], default: null },
-        value: { type: [String, null], default: null },
-        inputId: { type: String, default: '' },
-        name: { type: String, default: '' },
+        modelValue: { type: String, default: '' },
+        orientation: { type: String, default: 'vertical' },
     },
     emits: ['update:modelValue'],
-    setup(props, { emit }) {
-        return () => h('input', {
-            class: 'p-radiobutton',
-            type: 'radio',
-            'data-input-id': props.inputId,
-            'data-name': props.name,
-            checked: props.modelValue === props.value,
-            onChange: () => emit('update:modelValue', props.value),
+    setup(props, { emit, slots }) {
+        provide<RadioGroupContext>('radio-group', {
+            value: toRef(props, 'modelValue') as Ref<string>,
+            select: (value: string) => emit('update:modelValue', value),
         })
+        return () => h('div', { class: 'caomei-radio-group' }, slots.default?.())
+    },
+})
+
+const RadioButtonStub = defineComponent({
+    name: 'CaomeiRadioButton',
+    props: {
+        value: { type: String, required: true },
+        text: { type: String, default: '' },
+    },
+    setup(props, { slots }) {
+        const group = inject<RadioGroupContext>('radio-group')
+        return () => h('label', { class: 'caomei-radio-button-stub', 'data-value': props.value }, [
+            h('input', {
+                class: 'p-radiobutton',
+                type: 'radio',
+                'data-value': props.value,
+                checked: group?.value.value === props.value,
+                onChange: () => group?.select(props.value),
+            }),
+            props.text
+                ? h('span', props.text)
+                : h('span', { class: 'caomei-radio-button__label' }, slots.default?.()),
+        ])
     },
 })
 
@@ -86,7 +109,8 @@ const CaomeiButtonStub = defineComponent({
 
 const stubs = {
     CaomeiDialog: DialogStub,
-    RadioButton: RadioButtonStub,
+    CaomeiRadioGroup: RadioGroupStub,
+    CaomeiRadioButton: RadioButtonStub,
     DatePicker: DatePickerStub,
     CaomeiButton: CaomeiButtonStub,
 }
@@ -102,7 +126,7 @@ async function mountDialog(props: Record<string, unknown> = {}) {
 }
 
 describe('PublishPushDialogV2', () => {
-    it('浮层壳与表单控件保持 PrimeVue（不在本批在册族）', async () => {
+    it('浮层壳、单选组为 caomei；排期 DatePicker 仍为 PrimeVue（B3 表单族）', async () => {
         const wrapper = await mountDialog()
 
         expect(wrapper.find('.p-dialog').exists()).toBe(true)
@@ -114,6 +138,25 @@ describe('PublishPushDialogV2', () => {
         ;(wrapper.vm as unknown as { open: (options?: unknown) => void }).open({ pushOption: 'now' })
         await nextTick()
         expect(wrapper.findAll('.p-radiobutton')).toHaveLength(5)
+    })
+
+    it('推送选项渲染富文本标签，并反映当前选中态', async () => {
+        const wrapper = await mountDialog()
+
+        const labels = wrapper.findAll('.caomei-radio-button__label').map((item) => item.text())
+        expect(labels).toHaveLength(3)
+        expect(labels.some((text) => text.includes('push_options.none'))).toBe(true)
+        expect(labels.some((text) => text.includes('push_options.now_desc'))).toBe(true)
+
+        const radios = wrapper.findAll('.p-radiobutton')
+        expect((radios[0]!.element as HTMLInputElement).checked).toBe(true)
+
+        ;(wrapper.vm as unknown as { open: (options?: unknown) => void }).open({ pushOption: 'draft' })
+        await nextTick()
+
+        const afterOpen = wrapper.findAll('.p-radiobutton')
+        expect((afterOpen[1]!.element as HTMLInputElement).checked).toBe(true)
+        expect((afterOpen[0]!.element as HTMLInputElement).checked).toBe(false)
     })
 
     it('页脚按钮：可见文案落默认插槽，变体为 ghost / tone=neutral', async () => {
@@ -168,7 +211,7 @@ describe('PublishPushDialogV2', () => {
         await nextTick()
 
         const targetAll = wrapper.findAll('.p-radiobutton').find(
-            (radio) => radio.attributes('data-input-id') === 'target_all',
+            (radio) => radio.attributes('data-value') === 'all',
         )
         expect(targetAll).toBeTruthy()
         await targetAll!.trigger('change')

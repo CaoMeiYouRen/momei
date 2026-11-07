@@ -1,11 +1,6 @@
 <script setup lang="ts">
+import { CircleAlert, Info, RefreshCw, Sparkles, Zap } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
-import Button from 'primevue/button'
-import Select from 'primevue/select'
-import RadioButton from 'primevue/radiobutton'
-import ProgressBar from 'primevue/progressbar'
-import Message from 'primevue/message'
-import Textarea from 'primevue/textarea'
 import { usePostTtsDialog } from '@/composables/use-post-tts-dialog'
 
 const props = defineProps<{
@@ -84,33 +79,32 @@ function handleConfirm() {
                 <!-- Mode Selection -->
                 <div v-if="modes.length > 1" class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.mode') }}</label>
-                    <div class="tts-field__content tts-field__content--radio">
+                    <CaomeiRadioGroup
+                        v-model="config.mode"
+                        orientation="horizontal"
+                        class="tts-field__content tts-field__content--radio"
+                    >
                         <div
                             v-for="m in modes"
                             :key="m.value"
                             class="tts-radio-item"
                         >
-                            <RadioButton
-                                v-model="config.mode"
-                                :input-id="m.value"
-                                name="mode"
+                            <CaomeiRadioButton
                                 :value="m.value"
+                                :text="m.label"
                             />
-                            <label :for="m.value" class="tts-radio-item__label">{{ m.label }}</label>
                             <AppTooltip v-if="m.value === 'podcast'" :content="t('pages.admin.posts.tts.podcast_manuscript_notice')">
-                                <i
-                                    class="pi pi-info-circle tts-radio-item__hint"
-                                />
+                                <Info :size="16" class="tts-radio-item__hint" />
                             </AppTooltip>
                         </div>
-                    </div>
+                    </CaomeiRadioGroup>
                 </div>
 
                 <!-- Provider Selection (Optional) -->
                 <div v-if="showProviderSelect" class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.provider') }}</label>
                     <div class="tts-field__content">
-                        <Select
+                        <CaomeiSelect
                             v-model="config.provider"
                             :options="providers"
                             option-label="label"
@@ -125,13 +119,13 @@ function handleConfirm() {
                 <div class="tts-field">
                     <label class="tts-field__label">{{ t('pages.admin.posts.tts.voice') }}</label>
                     <div class="tts-field__content">
-                        <Select
+                        <CaomeiSelect
                             v-model="config.voice"
                             :options="voices"
                             option-label="name"
                             option-value="id"
                             class="w-full"
-                            :loading="loadingVoices"
+                            :disabled="loadingVoices"
                             :placeholder="t('pages.admin.posts.tts.select_voice')"
                         />
                     </div>
@@ -141,21 +135,24 @@ function handleConfirm() {
                 <div class="tts-field">
                     <div class="tts-field__header">
                         <label class="tts-field__label">{{ t('pages.admin.posts.tts.manuscript') }}</label>
-                        <Button
-                            icon="pi pi-sparkles"
-                            :label="t('pages.admin.posts.tts.optimize_manuscript')"
-                            size="small"
-                            text
+                        <CaomeiButton
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
                             rounded
                             :loading="optimizing"
                             @click="optimizeManuscript"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="14" />
+                            </template>
+                            {{ t('pages.admin.posts.tts.optimize_manuscript') }}
+                        </CaomeiButton>
                     </div>
                     <div class="tts-field__content">
-                        <Textarea
+                        <CaomeiTextarea
                             v-model="script"
-                            auto-resize
-                            rows="5"
+                            :rows="5"
                             class="tts-manuscript w-full"
                             :placeholder="t('pages.admin.posts.tts.manuscript_hint')"
                         />
@@ -165,7 +162,7 @@ function handleConfirm() {
 
                 <!-- 前端直连提示 -->
                 <div v-if="isDirectMode && config.voice" class="tts-direct-hint">
-                    <i class="pi pi-bolt tts-direct-hint__icon" />
+                    <Zap :size="16" class="tts-direct-hint__icon" />
                     <span class="tts-direct-hint__text">{{ t('pages.admin.posts.tts.direct_hint') }}</span>
                 </div>
 
@@ -174,7 +171,7 @@ function handleConfirm() {
                     <div class="tts-cost__inner">
                         <span class="tts-cost__label">{{ t('pages.admin.posts.tts.estimated_cost') }}:</span>
                         <div class="tts-cost__value">
-                            <i v-if="loadingCost" class="pi pi-spin pi-spinner" />
+                            <CaomeiProgressSpinner v-if="loadingCost" size="sm" />
                             <template v-else>
                                 <span class="tts-cost__amount">{{ formattedEstimatedCost }}</span>
                                 <span class="tts-cost__unit">
@@ -188,9 +185,8 @@ function handleConfirm() {
 
                 <!-- Progress Section -->
                 <div v-if="status === 'processing' || status === 'pending'" class="tts-progress">
-                    <ProgressBar
+                    <CaomeiProgressBar
                         :value="progress"
-                        :show-value="false"
                         class="tts-progress__bar"
                     />
                     <p class="tts-progress__text">
@@ -199,9 +195,9 @@ function handleConfirm() {
                 </div>
 
                 <div v-if="status === 'completed'" class="tts-status tts-status--success">
-                    <Message severity="success" :closable="false">
+                    <CaomeiMessage tone="success">
                         {{ t('pages.admin.posts.tts.completed') }}
-                    </Message>
+                    </CaomeiMessage>
                     <div class="tts-preview">
                         <label class="tts-preview__label">{{ t('pages.admin.posts.tts.preview_audio') }}</label>
                         <audio
@@ -215,9 +211,10 @@ function handleConfirm() {
 
                 <!-- Error Section -->
                 <div v-if="error" class="tts-status tts-status--error">
-                    <Message severity="error" :closable="false">
+                    <CaomeiMessage tone="danger" role="alert">
+                        <CircleAlert :size="16" />
                         {{ error }}
-                    </Message>
+                    </CaomeiMessage>
                 </div>
             </div>
         </div>
@@ -227,38 +224,44 @@ function handleConfirm() {
                 class="tts-dialog__footer"
                 :class="{'tts-dialog__footer--with-retry': hasGeneratedAudio}"
             >
-                <Button
+                <CaomeiButton
                     v-if="hasGeneratedAudio"
-                    icon="pi pi-refresh"
-                    severity="contrast"
-                    outlined
-                    :label="t('pages.admin.posts.tts.regenerate')"
+                    variant="secondary"
+                    tone="neutral"
                     :loading="isGenerating"
                     :disabled="!config.voice || optimizing || isGenerating"
                     @click="startGenerate"
-                />
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ t('pages.admin.posts.tts.regenerate') }}
+                </CaomeiButton>
 
                 <div class="tts-dialog__actions">
-                    <Button
-                        :label="t('common.cancel')"
-                        severity="secondary"
-                        outlined
+                    <CaomeiButton
+                        variant="secondary"
+                        tone="neutral"
                         :disabled="isGenerating"
                         @click="visible = false"
-                    />
-                    <Button
+                    >
+                        {{ t('common.cancel') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-if="hasGeneratedAudio"
-                        :label="t('common.confirm')"
                         :disabled="isGenerating"
                         @click="handleConfirm"
-                    />
-                    <Button
+                    >
+                        {{ t('common.confirm') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-else
-                        :label="t('pages.admin.posts.tts.start_generate')"
                         :loading="isGenerating"
                         :disabled="!config.voice || optimizing || isGenerating"
                         @click="startGenerate"
-                    />
+                    >
+                        {{ t('pages.admin.posts.tts.start_generate') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </template>
@@ -305,12 +308,12 @@ function handleConfirm() {
         justify-content: space-between;
         align-items: center;
 
-        .p-button {
+        .caomei-button {
             padding: 0 0.5rem;
             height: 1.5rem;
             font-size: 0.8125rem;
 
-            :deep(.p-button-icon) {
+            :deep(.caomei-button__icon) {
                 font-size: 0.75rem;
                 margin-right: 0.25rem;
             }
@@ -338,7 +341,7 @@ function handleConfirm() {
             padding: 0.25rem 0;
         }
 
-        .p-select, .p-textarea {
+        .caomei-select, .caomei-textarea {
             width: 100%;
         }
     }
@@ -445,7 +448,7 @@ function handleConfirm() {
 .tts-status {
     margin-top: 0.5rem;
 
-    :deep(.p-message) {
+    :deep(.caomei-message) {
         margin: 0;
     }
 }

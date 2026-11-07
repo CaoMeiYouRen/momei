@@ -14,30 +14,30 @@
                 {{ introText }}
             </p>
 
-            <Message
+            <CaomeiMessage
                 v-if="!hasSourceOptions"
-                severity="warn"
-                :closable="false"
+                tone="warning"
             >
                 {{ noSourcesText }}
-            </Message>
+            </CaomeiMessage>
 
             <div class="translation-workflow__grid">
                 <div class="translation-workflow__field">
                     <label for="translation_source" class="translation-workflow__label">
                         {{ sourcePostLabel }}
                     </label>
-                    <Select
+                    <CaomeiSelect
                         id="translation_source"
-                        v-model="sourcePostId"
+                        :model-value="sourcePostId"
                         :options="sourceOptions"
                         option-label="title"
                         option-value="id"
                         :disabled="isBusy || !hasSourceOptions"
                         class="w-full"
+                        @update:model-value="onSourceChange"
                     >
-                        <template #value="slotProps">
-                            <span v-if="slotProps.value && selectedSource">
+                        <template #value="{option}">
+                            <span v-if="option && selectedSource">
                                 {{ selectedSource.title }}
                                 <small class="translation-workflow__value-meta">{{ selectedSource.language }}</small>
                             </span>
@@ -45,41 +45,39 @@
                                 {{ selectSourceLabel }}
                             </span>
                         </template>
-                        <template #option="slotProps">
+                        <template #option="{option}">
                             <div class="translation-workflow__option">
-                                <span class="translation-workflow__option-title">{{ slotProps.option.title }}</span>
-                                <small class="translation-workflow__option-meta">{{ slotProps.option.language }}</small>
+                                <span class="translation-workflow__option-title">{{ option.title }}</span>
+                                <small class="translation-workflow__option-meta">{{ option.language }}</small>
                             </div>
                         </template>
-                    </Select>
+                    </CaomeiSelect>
                 </div>
 
                 <div class="translation-workflow__field">
                     <label for="translation_target_language" class="translation-workflow__label">
                         {{ targetLanguageLabelText }}
                     </label>
-                    <Select
+                    <CaomeiSelect
                         id="translation_target_language"
-                        v-model="targetLanguage"
+                        :model-value="targetLanguage"
                         :options="targetLanguageOptions"
                         option-label="label"
                         option-value="value"
                         :disabled="isBusy"
                         class="w-full"
+                        @update:model-value="onTargetLanguageChange"
                     />
                 </div>
             </div>
 
             <div class="translation-workflow__meta">
-                <Tag
-                    v-if="selectedSource"
-                    severity="secondary"
-                    :value="sourceLanguageValue"
-                />
-                <Tag
-                    severity="info"
-                    :value="targetLanguageValue"
-                />
+                <CaomeiTag v-if="selectedSource" tone="neutral">
+                    {{ sourceLanguageValue }}
+                </CaomeiTag>
+                <CaomeiTag tone="primary">
+                    {{ targetLanguageValue }}
+                </CaomeiTag>
             </div>
 
             <div v-if="selectedTargetStatus" class="translation-workflow__target-summary">
@@ -87,40 +85,36 @@
                     <span class="translation-workflow__target-summary-label">
                         {{ targetStatusTitle }}
                     </span>
-                    <Tag
-                        :severity="targetStateSeverity"
-                        :value="targetStatusValue"
-                    />
+                    <CaomeiTag :tone="targetStateTone">
+                        {{ targetStatusValue }}
+                    </CaomeiTag>
                 </div>
                 <div class="translation-workflow__target-summary-row">
                     <span class="translation-workflow__target-summary-label">
                         {{ targetActionTitle }}
                     </span>
-                    <Tag
-                        :severity="actionTagSeverity"
-                        :value="startLabel"
-                    />
+                    <CaomeiTag :tone="actionTagTone">
+                        {{ startLabel }}
+                    </CaomeiTag>
                 </div>
                 <p class="translation-workflow__target-summary-description">
                     {{ targetActionDescription }}
                 </p>
             </div>
 
-            <Message
+            <CaomeiMessage
                 v-if="switchTargetHint"
-                severity="info"
-                :closable="false"
+                tone="primary"
             >
                 {{ switchTargetHint }}
-            </Message>
+            </CaomeiMessage>
 
-            <Message
+            <CaomeiMessage
                 v-if="sameLanguageWarning"
-                severity="warn"
-                :closable="false"
+                tone="warning"
             >
                 {{ sameLanguageWarning }}
-            </Message>
+            </CaomeiMessage>
 
             <div class="translation-workflow__field">
                 <div class="translation-workflow__scope-header">
@@ -137,9 +131,8 @@
                         :key="scope.value"
                         class="translation-workflow__scope-item"
                     >
-                        <Checkbox
+                        <CaomeiCheckbox
                             :model-value="selectedScopes.includes(scope.value)"
-                            binary
                             :disabled="isBusy"
                             @update:model-value="toggleScope(scope.value)"
                         />
@@ -156,7 +149,7 @@
                     <span>{{ progressLabel }}</span>
                     <span>{{ Math.round(progress) }}%</span>
                 </div>
-                <ProgressBar :value="progress" class="translation-workflow__progress-bar" />
+                <CaomeiProgressBar :value="progress" class="translation-workflow__progress-bar" />
                 <small v-if="activeField" class="translation-workflow__hint">
                     {{ currentFieldText }}
                 </small>
@@ -177,16 +170,16 @@
                             <small class="translation-workflow__hint">{{ item.progressText }}</small>
                         </div>
                         <div class="translation-workflow__field-progress-tags">
-                            <Tag :value="item.statusLabel" :severity="item.statusSeverity" />
-                            <Tag
-                                v-if="item.modeLabel"
-                                :value="item.modeLabel"
-                                severity="secondary"
-                            />
+                            <CaomeiTag :tone="item.statusTone">
+                                {{ item.statusLabel }}
+                            </CaomeiTag>
+                            <CaomeiTag v-if="item.modeLabel" tone="neutral">
+                                {{ item.modeLabel }}
+                            </CaomeiTag>
                         </div>
                     </div>
 
-                    <ProgressBar :value="item.progress" class="translation-workflow__progress-bar" />
+                    <CaomeiProgressBar :value="item.progress" class="translation-workflow__progress-bar" />
 
                     <div class="translation-workflow__field-progress-body">
                         <small class="translation-workflow__field-progress-caption">
@@ -198,41 +191,46 @@
                     </div>
 
                     <div class="translation-workflow__field-progress-actions">
-                        <Button
+                        <CaomeiButton
                             v-if="item.canCancel"
-                            :label="cancelFieldLabel"
-                            severity="secondary"
-                            outlined
-                            size="small"
+                            variant="secondary"
+                            tone="neutral"
+                            size="sm"
                             @click="handleCancelField(item.textField)"
-                        />
-                        <Button
+                        >
+                            {{ cancelFieldLabel }}
+                        </CaomeiButton>
+                        <CaomeiButton
                             v-if="item.canRetry"
-                            :label="retryFieldLabel"
-                            severity="warn"
-                            size="small"
+                            tone="warning"
+                            size="sm"
                             @click="handleRetryField(item.textField)"
-                        />
+                        >
+                            {{ retryFieldLabel }}
+                        </CaomeiButton>
                     </div>
                 </div>
             </div>
         </div>
 
         <template #footer>
-            <Button
-                :label="$t('common.cancel')"
-                text
-                severity="secondary"
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
                 :disabled="isBusy"
                 @click="visible = false"
-            />
-            <Button
-                :label="startLabel"
-                :severity="startButtonSeverity"
+            >
+                {{ $t('common.cancel') }}
+            </CaomeiButton>
+            <CaomeiButton
+                :tone="startButtonTone"
+                :variant="startButtonTone === 'neutral' ? 'secondary' : 'primary'"
                 :loading="isBusy"
                 :disabled="!canStart"
                 @click="handleStart"
-            />
+            >
+                {{ startLabel }}
+            </CaomeiButton>
         </template>
     </CaomeiDialog>
 </template>
@@ -333,6 +331,16 @@ const tt = (key: string, params?: Record<string, string>) => t(key as never, par
 
 const sourcePostId = ref('')
 const targetLanguage = ref(props.defaultTargetLanguage)
+
+const onSourceChange = (value: string | number | null | undefined) => {
+    sourcePostId.value = typeof value === 'string' ? value : ''
+}
+
+const onTargetLanguageChange = (value: string | number | null | undefined) => {
+    if (typeof value === 'string') {
+        targetLanguage.value = value
+    }
+}
 const selectedScopes = ref<TranslationScopeField[]>([...(props.defaultScopes || DEFAULT_SCOPES)])
 
 const hasSourceOptions = computed(() => props.sourceOptions.length > 0)
@@ -412,9 +420,9 @@ const switchTargetHint = computed(() => {
 
     return tt('pages.admin.posts.translation_workflow.switch_target_hint')
 })
-const targetStateSeverity = computed(() => {
+const targetStateTone = computed<'neutral' | 'danger' | 'warning' | 'primary'>(() => {
     if (!selectedTargetStatus.value) {
-        return 'secondary'
+        return 'neutral'
     }
 
     if (selectedTargetStatus.value.state === 'published') {
@@ -422,14 +430,14 @@ const targetStateSeverity = computed(() => {
     }
 
     if (selectedTargetStatus.value.state === 'draft') {
-        return 'warn'
+        return 'warning'
     }
 
-    return 'info'
+    return 'primary'
 })
-const actionTagSeverity = computed(() => {
+const actionTagTone = computed<'neutral' | 'danger' | 'warning' | 'primary'>(() => {
     if (!selectedTargetStatus.value) {
-        return 'secondary'
+        return 'neutral'
     }
 
     if (selectedTargetStatus.value.action === 'overwrite') {
@@ -437,14 +445,14 @@ const actionTagSeverity = computed(() => {
     }
 
     if (selectedTargetStatus.value.action === 'continue') {
-        return 'warn'
+        return 'warning'
     }
 
-    return 'info'
+    return 'primary'
 })
-const startButtonSeverity = computed(() => {
+const startButtonTone = computed<'neutral' | 'danger' | 'warning' | 'primary'>(() => {
     if (!selectedTargetStatus.value) {
-        return 'contrast'
+        return 'neutral'
     }
 
     if (selectedTargetStatus.value.action === 'overwrite') {
@@ -452,10 +460,10 @@ const startButtonSeverity = computed(() => {
     }
 
     if (selectedTargetStatus.value.action === 'continue') {
-        return 'warn'
+        return 'warning'
     }
 
-    return 'contrast'
+    return 'primary'
 })
 
 const scopeOptions = computed(() => ([
@@ -512,22 +520,22 @@ const selectedProgressFieldStates = computed(() => selectedScopes.value
                 })
             : `${Math.round(state.progress)}%`
 
-        const statusSeverity = state.status === 'completed'
+        const statusTone: 'success' | 'danger' | 'warning' | 'primary' | 'neutral' = state.status === 'completed'
             ? 'success'
             : state.status === 'failed'
                 ? 'danger'
                 : state.status === 'cancelled'
-                    ? 'warn'
+                    ? 'warning'
                     : state.status === 'processing'
-                        ? 'info'
-                        : 'secondary'
+                        ? 'primary'
+                        : 'neutral'
 
         return {
             field,
             textField: isRetryableTextField(field) ? field : null,
             label: tt(`pages.admin.posts.translation_workflow.fields.${field}`),
             statusLabel: getFieldStatusLabel(state.status),
-            statusSeverity,
+            statusTone,
             modeLabel: state.mode ? getFieldModeLabel(state.mode) : '',
             progress: state.progress,
             progressText,

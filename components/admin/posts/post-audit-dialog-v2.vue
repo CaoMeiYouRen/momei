@@ -31,7 +31,7 @@
                 </CaomeiTag>
             </div>
 
-            <ProgressBar :value="result.score" class="audit-overall-bar" />
+            <CaomeiProgressBar :value="result.score" class="audit-overall-bar" />
 
             <!-- 元数据完整度 -->
             <div class="audit-section">
@@ -47,7 +47,7 @@
                         <span class="audit-detail-label">{{ $t(`pages.admin.posts.audit.factors.${key}`) }}</span>
                         <span class="audit-detail-score">{{ result.metaCompleteness.details[key].score }}/20</span>
                     </div>
-                    <ProgressBar :value="result.metaCompleteness.details[key].score * 5" class="audit-detail-bar" />
+                    <CaomeiProgressBar :value="result.metaCompleteness.details[key].score * 5" class="audit-detail-bar" />
                     <span class="audit-detail-msg">{{ $t((result.metaCompleteness.details[key].key as any), result.metaCompleteness.details[key].params as any) }}</span>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                     <span class="audit-detail-label">{{ $t('pages.admin.posts.audit.readability_score') }}</span>
                     <span class="audit-detail-score">{{ result.readability.score }}/100</span>
                 </div>
-                <ProgressBar :value="result.readability.score" class="audit-detail-bar" />
+                <CaomeiProgressBar :value="result.readability.score" class="audit-detail-bar" />
             </div>
 
             <!-- AI 建议 -->
@@ -121,19 +121,18 @@ import { LoaderCircle, RefreshCw, X } from '@lucide/vue'
 import type { PostAuditResult } from '@/types/post'
 
 /**
- * 过渡用「文章审计详情浮层（caomei-ui 版）」。
+ * 「文章审计详情浮层」的实现（原 V2 过渡壳，2026-11-07 起为唯一实现）。
  *
- * 背景与择库方式同 `PostAuditBadgeV2`（见该文件注释与迁移方案 §5.5）：本族为 admin 专属、
- * 消费者恰好两个（B2 目标 `/admin/posts` 与编辑器 `/admin/posts/[id]`），
- * 故采用**消费处静态择库**，由已迁移路由使用本组件，编辑器路由继续使用 V1。
+ * 历史：曾与 V1 并存（消费处静态择库），编辑器子批迁移后 V1 删除；本批同时把 `ProgressBar`
+ * 迁入 caomei-ui。
  *
- * 与 V1 的差异（均为有意，见迁移方案 §6.2）：
+ * 与旧 V1 的差异（均为有意，见迁移方案 §6.2）：
  * - `Button` → `CaomeiButton`：页脚两个按钮在 V1 走 `:label` + `icon`（可见文案），
  *   迁移后可见文案落**默认插槽**、图标走 lucide `#icon`（caomei `label` 只映射可访问名）；
  *   `severity="secondary"` → `variant="secondary"`、`text` → `variant="ghost"`；
  * - `Tag` 的 `severity="info"` → `tone="primary"`、`success` / `warn` → `success` / `warning`；
  * - 加载态图标由 `pi pi-spin pi-spinner` 换成 lucide `LoaderCircle` + 本组件内旋转动画；
- * - `Dialog` 于第六十九阶段浮层批次迁移；`ProgressBar` 不在 B2 在册族，维持 PrimeVue。
+ * - `Dialog` 于第六十九阶段浮层批次迁移；`ProgressBar` 已随 2026-11-07 编辑器子批迁入 caomei-ui。
  */
 defineProps<{
     visible: boolean

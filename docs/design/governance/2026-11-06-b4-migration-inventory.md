@@ -10,7 +10,7 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
-- **当前剩余（2026-11-07 仪表盘后复算）**：组件 **370 处 / 31 类**、图标 **328 处**、token **1,445 处**（本批 token 0 变化）；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin` 已完成并移出本节清单。
+- **当前剩余（2026-11-07 编辑器子批后复算）**：组件 **188 处 / 26 类**、图标 **235 处**、token **1,445 处**（本批 0 变化）；`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin`、`/admin/posts/[id]` 已完成并移出本节清单。
 
 ## 2. 未迁移路由与文件映射
 
@@ -44,10 +44,16 @@
 
 | 文件 | 所属登记前缀 | 现状 |
 | :--- | :--- | :--- |
-| `pages/admin/posts/[id].vue` | `/admin/posts` | `primeVueSubRoutes` 例外；无稳定页面 heading，且新建态默认展开设置面板 |
-| `pages/admin/ai/tasks/[id].vue` | `/admin/ai` | `primeVueSubRoutes` 例外；任务 id 无固定种子 |
+| ~~`pages/admin/posts/[id].vue`~~ | `/admin/posts` | **2026-11-07 转正**：编辑器子批整迁完成，登记为 `migratedSubRoutes`（新建设置面板默认展开、无 heading，仍不进 parity 基线） |
+| ~~`pages/admin/ai/tasks/[id].vue`~~ | `/admin/ai` | **2026-11-06 转正**：任务详情整迁，登记为 `migratedSubRoutes` |
+
+> **本阶段结束时已无 `primeVueSubRoutes` 例外**；维护机制保留（新增未迁移子路由时仍需显式登记）。
 
 ### 2.3 共享壳与组件文件（B4 需迁移，按处数降序）
+
+> 本表是**开工口径快照**（2026-11-06 取数），不随迁移进度删行。已迁移文件在 §5 标注状态；
+> `components/admin/posts/{publish-push-dialog,post-audit-dialog}.vue` 两行对应的 V1 组件已随
+> 2026-11-07 编辑器子批**删除**（实现收敛到同名 `-v2` 文件）。
 
 | 文件 | 处数 | 组件族 |
 | :--- | ---: | :--- |
@@ -146,7 +152,7 @@
 | `pages/posts/[id].vue` | `/posts/[id]` | Skeleton / Button / Message / Tag / InputText | （待填） | 同上 | 待迁移 |
 | `pages/index.vue` | `/` | Skeleton | （待填） | 同上 | 待迁移 |
 | `pages/admin/snippets/**` + `components/admin/snippets/**`（7 文件：5 组件 + 2 页面） | `/admin/snippets`、`/capture` | Button / Checkbox / Paginator / ProgressSpinner / Textarea / Tag / Select / SelectButton / InputNumber / Image / Card / Divider / Accordion 族 | 已迁完：Button（icon-only + lucide #icon）、Tag（tone + 默认插槽）、Checkbox（数组模型）、Paginator（1 基 `page` + 自渲染页码报告，`useAdminList` 加 `pageIndexBase: 1`）、Textarea/Select/SelectButton/InputNumber/Divider/Card/Image/Accordion 族替换；图标 30+ → `@lucide/vue`（`pi-spin` → `LoaderCircle` + 本组件动画） | 迁移方案 §6.2 / §6.1 E 组 / 清单 §2.1 | **已迁移（待 Round 3 复审）**：parity 4/4 PASS（allowlist 按实测登记）、单测 15 例（页面 5 + 组件 10）、guard 58 + 16 |
-| `components/admin/posts/**`（23 文件） | `/admin/posts/[id]` | 见 §2.3 | （待填） | 同上 | 待迁移 |
+| `pages/admin/posts/[id].vue` + `components/admin/posts/**`（19 文件） | `/admin/posts/[id]` | Button / Tag / Select / InputText / Textarea / Message / Divider / Image / ProgressSpinner / ProgressBar / Checkbox / RadioButton / ToggleSwitch / AutoComplete / InputGroup / SplitButton / ButtonGroup / Avatar / InputNumber | 已迁完：三件套 V1 → V2 并由编辑器消费（V1 与两份「两版等价」契约测试一并删除）；`RadioButton` → `CaomeiRadioGroup` + `CaomeiRadioButton`、`ToggleSwitch` → `CaomeiSwitch`、`ProgressBar` → `CaomeiProgressBar`、`AutoComplete` 的 `suggestions`/`{query}` → `options`/`query`；81 处 `pi pi-*` → `@lucide/vue`；同时修复 69 阶段遗留的浮层锚点空盒子（`CaomeiPopoverTrigger` 默认外观） | 迁移方案 §6.2 / §6.3 | **已完成**：组件测试 152（含守卫）、浏览器探针 pageerror 0、管理端 E2E 主路径通过；`/admin/posts/[id]` 不再是 V1 消费者 |
 | `pages/admin/ai/tasks/[id].vue` + `components/admin/ai/{task-detail-content,task-details-dialog,stats-overview,metric-card}.vue` | `/admin/ai/tasks/[id]` | Button / Tag / Message / Image / Card / ProgressSpinner | 已迁完：详情页三态；共享内容组件 Tag×3 走 tone、图片走包装层；`metric-card` 的 `icon` 由字符串改组件 | 迁移方案 §6.2 / §6.3 | **已完成（3ad69ec0）**：parity 4/4、单测 8 例、guard 58 |
 | `pages/admin/calendar/index.vue` + `components/admin/calendar/{calendar-view,kanban-view}.vue` | `/admin/calendar` | Select / Tabs 族 / SelectButton / ProgressSpinner / Button / Tag | 已迁完：Tabs 族改 CaomeiTabs + Trigger/Content；语言选择 size sm；月历工具栏 icon-only + Chevron；看板计数 Tag 走 tone | 迁移方案 §6.2 / §6.1 C 组 | **已迁移（待复审）**：迁移新增单测 9 例（另保留既有 9 例）、浏览器探针 pageerror 0、tabs 2 / 看板 3 列 |
 | `components/app-header.vue` / `app-search.vue` / `app-notifications.vue` / `app-uploader.vue` / `app-avatar.vue` / `app-voice-input-*` / `reader-controls.vue` / `language-switcher.vue` / `feedback-entry-button.vue` / `article-*.vue` / `comment-*.vue` / `subscriber-form.vue` / `home/**` / `taxonomy-post-page.vue` | 公开页共享壳 | 见 §2.3 | （待填） | 同上 | 待迁移 |
@@ -159,6 +165,7 @@
 - 2026-11-06（B4-A）：`/admin/ai/tasks/[id]` 与 4 个共享 AI 组件迁移完成；`AI_ROUTE_SCOPE` 移除子路由例外并扩户；parity 4/4 PASS。
 - 2026-11-07（B4-A）：`/admin/calendar` + 月历 / 看板视图迁移完成；路由 scope 登记；迁移新增测试 9 例（另保留既有 9 例）。lucide `Calendar` 别名后复算 398 处；其中仍含 marketing 路由 1 处既有假阳性（真实 PrimeVue 组件面 397）。
 - 2026-11-07（B4-A）：`/admin` 仪表盘与 3 个 dashboard 组件迁移完成；`/admin` 以**前缀语义**登记（整个管理端树逐页声明归属，编辑器留作 `primeVueSubRoutes` 例外），复算组件 370 / 31 类、图标 328。
+- 2026-11-07（B4-A）：编辑器子批（`/admin/posts/[id]` + 19 个 `components/admin/posts/**`）迁移完成；`/admin/posts` 登记 `ownedFiles` / `inScopeComponents` / `migratedSubRoutes`，V1 三件套删除，`primeVueSubRoutes` 全仓清零；复算组件 188 / 26 类、图标 235。
 - 条目 2 / 3 / 4 迁移时在本表逐行补「改动点 / 依据指针 / 状态」，不新增第二份清单。
 
 ## 7. 相关文档

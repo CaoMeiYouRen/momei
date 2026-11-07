@@ -7,8 +7,8 @@ import type { PostAuditResult } from '@/types/post'
 /**
  * 过渡组件 `PostAuditDialogV2`（caomei-ui 版）的单元契约。
  *
- * 本族采用**消费处静态择库**（见组件内注释）。浮层壳 `Dialog` 与 `ProgressBar` 属显式豁免 /
- * 非本批在册族，必须**保持 PrimeVue**；仅内部的 `Button` / `Tag` 迁移到 caomei-ui。
+ * 本族随编辑器批次整迁：浮层壳 `Dialog`、内部 `Button` / `Tag` / `ProgressBar` 均为 caomei-ui。
+ * 发布确认浮层的排期 `DatePicker` 仍是 PrimeVue（B3 表单族，见 `inScopeComponents` 注释）。
  */
 
 mockNuxtImport('useI18nDate', () => () => ({
@@ -34,10 +34,10 @@ const DialogStub = defineComponent({
     },
 })
 
-const ProgressBarStub = defineComponent({
-    name: 'ProgressBar',
+const CaomeiProgressBarStub = defineComponent({
+    name: 'CaomeiProgressBar',
     props: { value: { type: Number, default: 0 } },
-    setup: (props) => () => h('div', { class: 'p-progressbar', 'data-value': String(props.value) }),
+    setup: (props) => () => h('div', { class: 'caomei-progress-bar', 'data-value': String(props.value) }),
 })
 
 const CaomeiButtonStub = defineComponent({
@@ -75,7 +75,7 @@ const CaomeiTagStub = defineComponent({
 
 const stubs = {
     CaomeiDialog: DialogStub,
-    ProgressBar: ProgressBarStub,
+    CaomeiProgressBar: CaomeiProgressBarStub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiTag: CaomeiTagStub,
 }
@@ -191,12 +191,12 @@ describe('PostAuditDialogV2', () => {
         expect(pending.find('.audit-spin').exists()).toBe(true)
     })
 
-    it('ProgressBar 仍为 PrimeVue（不在本批在册族）', async () => {
+    it('七条进度条均使用 caomei ProgressBar', async () => {
         const wrapper = await mountDialog()
 
         // 总分条 + 5 个元数据因子条 + 可读性条
-        expect(wrapper.findAll('.p-progressbar')).toHaveLength(7)
-        expect(wrapper.findAll('.p-progressbar')[0]!.attributes('data-value')).toBe('88')
+        expect(wrapper.findAll('.caomei-progress-bar')).toHaveLength(7)
+        expect(wrapper.findAll('.caomei-progress-bar')[0]!.attributes('data-value')).toBe('88')
     })
 
     it('缓存时间经 useI18nDate 渲染', async () => {

@@ -1,4 +1,4 @@
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, type DOMWrapper } from '@vue/test-utils'
 import { ref, watch } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -66,6 +66,15 @@ mockNuxtImport('useRequestFeedback', () => () => ({
 vi.mock('ofetch', () => ({ $fetch: mockAppFetch }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: mockAppFetch }))
 
+/** caomei 按钮的可见文案走默认插槽（`label` 仅是可访问名），故按文本定位。 */
+function findButton(wrapper: { findAll: (selector: string) => DOMWrapper<Element>[] }, text: string): DOMWrapper<Element> {
+    const button = wrapper.findAll('button').find((item) => item.text().includes(text))
+    if (!button) {
+        throw new Error(`button not found: ${text}`)
+    }
+    return button
+}
+
 describe('PostTTSDialog', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -124,11 +133,7 @@ describe('PostTTSDialog', () => {
             global: {
                 stubs: {
                     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
-                    Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
-                    Select: { template: '<div />' },
-                    RadioButton: { template: '<div />' },
-                    ProgressBar: { template: '<div />' },
-                    Message: { template: '<div><slot /></div>' },
+                    CaomeiButton: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>', props: ['label'], emits: ['click'] },
                     Textarea: { template: '<textarea />' },
                 },
             },
@@ -203,11 +208,7 @@ describe('PostTTSDialog', () => {
             global: {
                 stubs: {
                     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
-                    Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
-                    Select: { template: '<div />' },
-                    RadioButton: { template: '<div />' },
-                    ProgressBar: { template: '<div />' },
-                    Message: { template: '<div><slot /></div>' },
+                    CaomeiButton: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>', props: ['label'], emits: ['click'] },
                     Textarea: { template: '<textarea />' },
                 },
             },
@@ -216,7 +217,7 @@ describe('PostTTSDialog', () => {
         await flushPromises()
         await flushPromises()
 
-        await wrapper.get('button[data-label="pages.admin.posts.tts.start_generate"]').trigger('click')
+        await findButton(wrapper, 'pages.admin.posts.tts.start_generate').trigger('click')
 
         expect(mockAppFetch).toHaveBeenCalledWith('/api/ai/tts/task', expect.objectContaining({
             method: 'POST',
@@ -288,11 +289,7 @@ describe('PostTTSDialog', () => {
             global: {
                 stubs: {
                     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
-                    Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
-                    Select: { template: '<div />' },
-                    RadioButton: { template: '<div />' },
-                    ProgressBar: { template: '<div />' },
-                    Message: { template: '<div><slot /></div>' },
+                    CaomeiButton: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>', props: ['label'], emits: ['click'] },
                     Textarea: { template: '<textarea />' },
                 },
             },
@@ -301,7 +298,7 @@ describe('PostTTSDialog', () => {
         await flushPromises()
         await flushPromises()
 
-        await wrapper.get('button[data-label="pages.admin.posts.tts.start_generate"]').trigger('click')
+        await findButton(wrapper, 'pages.admin.posts.tts.start_generate').trigger('click')
         await flushPromises()
 
         expect(wrapper.text()).toContain('pages.admin.posts.tts.direct_hint')
@@ -322,7 +319,7 @@ describe('PostTTSDialog', () => {
             }),
         }))
 
-        await wrapper.get('button[data-label="common.confirm"]').trigger('click')
+        await findButton(wrapper, 'common.confirm').trigger('click')
 
         expect(wrapper.emitted('completed')).toEqual([
             [{
@@ -389,11 +386,7 @@ describe('PostTTSDialog', () => {
             global: {
                 stubs: {
                     CaomeiDialog: { template: '<div><slot /><slot name="footer" /></div>' },
-                    Button: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot /></button>', props: ['label'], emits: ['click'] },
-                    Select: { template: '<div />' },
-                    RadioButton: { template: '<div />' },
-                    ProgressBar: { template: '<div />' },
-                    Message: { template: '<div class="message"><slot /></div>' },
+                    CaomeiButton: { template: '<button :data-label="label" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>', props: ['label'], emits: ['click'] },
                     Textarea: { template: '<textarea />' },
                 },
             },
@@ -402,7 +395,7 @@ describe('PostTTSDialog', () => {
         await flushPromises()
         await flushPromises()
 
-        await wrapper.get('button[data-label="pages.admin.posts.tts.start_generate"]').trigger('click')
+        await findButton(wrapper, 'pages.admin.posts.tts.start_generate').trigger('click')
         await flushPromises()
 
         expect(mockResolveErrorMessage).toHaveBeenCalledWith(expect.any(Error), {

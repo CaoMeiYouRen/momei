@@ -24,7 +24,6 @@ import {
     persistPost,
     preloadSourcePost,
     restorePostFromHistory,
-    searchTagOptions,
     type PublishPushDialogExpose,
 } from '@/composables/use-post-editor-page.helpers'
 import { hasUnsavedNewDraftContent, usePostEditorTranslation } from '@/composables/use-post-editor-translation'
@@ -170,7 +169,6 @@ export function usePostEditorPage() {
         locale: locale.value,
     }))
 
-    const filteredTags = ref<string[]>([])
     const allTags = ref<string[]>([])
     const tagEntities = ref<PostTranslationTagOption[]>([])
     const tagBindings = ref<PostTagBindingInput[]>([])
@@ -376,10 +374,6 @@ export function usePostEditorPage() {
 
         await loadExistingPostDetail(loadOptions)
         syncSavedSnapshot()
-    }
-
-    const searchTags = (event: { query: string }) => {
-        searchTagOptions(allTags, filteredTags, event)
     }
 
     const handlePublishConfirm = async (options: {
@@ -592,7 +586,6 @@ export function usePostEditorPage() {
         translations,
         translationDialogVisible,
         translationWorkflowDefaults,
-        filteredTags,
         allTags,
         tagEntities,
         isNew,
@@ -644,7 +637,6 @@ export function usePostEditorPage() {
         handleStartTranslationWorkflow,
         handlePreview,
         handleRestore,
-        searchTags,
         handlePublishConfirm,
         savePost,
         getStatusLabel,

@@ -18,26 +18,28 @@
             <div class="voice-popover__card">
                 <div class="voice-popover__header">
                     <span class="voice-popover__title">
-                        <i
-                            class="pi pi-microphone voice-popover__icon"
+                        <Mic
+                            :size="18"
+                            class="voice-popover__icon"
                             :class="{'voice-popover__icon--listening': isListening}"
                         />
                         {{ isListening ? $t('common.voice.listening') : $t('pages.admin.posts.ai.voice_input') }}
                     </span>
-                    <SelectButton
-                        v-model="internalMode"
+                    <CaomeiSelectButton
+                        :model-value="internalMode"
                         :options="modeOptions"
                         option-label="label"
                         option-value="value"
-                        size="small"
+                        size="sm"
                         :disabled="isListening"
+                        @update:model-value="onModeChange"
                     />
                 </div>
 
                 <div class="voice-popover__content">
                     <div v-if="isLoadingModel" class="voice-popover__loading">
                         <span class="mb-2 text-sm">{{ $t('pages.admin.posts.ai.voice_model_loading') }}</span>
-                        <ProgressBar
+                        <CaomeiProgressBar
                             :value="Math.round(modelProgress)"
                             class="w-full"
                             style="height: 6px"
@@ -46,36 +48,40 @@
                     <!-- 模型确认对话框区域 -->
                     <div v-else-if="showLoadConfirm" class="voice-popover__confirm-panel">
                         <div class="flex font-bold gap-2 items-center mb-2 text-orange-500">
-                            <i class="pi pi-info-circle" />
+                            <Info :size="16" />
                             <span>{{ $t('pages.admin.posts.ai.voice_load_confirm_title') }}</span>
                         </div>
                         <p class="leading-relaxed mb-4 opacity-80 text-sm">
                             {{ confirmMessage }}
                         </p>
                         <div class="flex gap-2 justify-end">
-                            <Button
-                                :label="$t('common.cancel')"
-                                size="small"
-                                text
+                            <CaomeiButton
+                                variant="ghost"
+                                tone="neutral"
+                                size="sm"
                                 @click="internalMode = 'web-speech'"
-                            />
-                            <Button
-                                :label="$t('pages.admin.posts.ai.voice_load_confirm_btn')"
-                                size="small"
-                                severity="primary"
+                            >
+                                {{ $t('common.cancel') }}
+                            </CaomeiButton>
+                            <CaomeiButton
+                                size="sm"
                                 @click="handleLoadModel"
-                            />
+                            >
+                                {{ $t('pages.admin.posts.ai.voice_load_confirm_btn') }}
+                            </CaomeiButton>
                         </div>
                     </div>
                     <div v-else-if="error" class="voice-popover__error">
-                        <i class="pi pi-exclamation-circle" />
+                        <CircleAlert :size="16" />
                         <span>{{ errorText }}</span>
-                        <Button
-                            :label="$t('pages.admin.posts.ai.voice_retry')"
-                            size="small"
-                            text
+                        <CaomeiButton
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
                             @click="$emit('retry')"
-                        />
+                        >
+                            {{ $t('pages.admin.posts.ai.voice_retry') }}
+                        </CaomeiButton>
                     </div>
                     <div v-else class="voice-popover__transcript">
                         <span class="voice-popover__final">{{ finalTranscript }}</span>
@@ -97,51 +103,69 @@
 
                 <div class="voice-popover__footer">
                     <template v-if="isListening">
-                        <Button
-                            :label="$t('common.voice.stop')"
-                            severity="danger"
-                            icon="pi pi-stop-circle"
+                        <CaomeiButton
+                            tone="danger"
                             @click="$emit('stop')"
-                        />
+                        >
+                            <template #icon>
+                                <CircleStop :size="16" />
+                            </template>
+                            {{ $t('common.voice.stop') }}
+                        </CaomeiButton>
                     </template>
                     <template v-else-if="finalTranscript">
                         <AppTooltip :content="$t('pages.admin.posts.ai.voice_retry')">
-                            <Button
-                                icon="pi pi-refresh"
-                                severity="secondary"
-                                text
+                            <CaomeiButton
+                                icon-only
+                                variant="ghost"
+                                tone="neutral"
+                                :label="$t('pages.admin.posts.ai.voice_retry')"
                                 @click="$emit('retry')"
-                            />
+                            >
+                                <template #icon>
+                                    <RefreshCw :size="16" />
+                                </template>
+                            </CaomeiButton>
                         </AppTooltip>
-                        <Button
-                            :label="$t('pages.admin.posts.ai.voice_insert')"
-                            severity="secondary"
-                            outlined
+                        <CaomeiButton
+                            variant="secondary"
+                            tone="neutral"
                             @click="$emit('insert', finalTranscript)"
-                        />
-                        <Button
-                            :label="$t('pages.admin.posts.ai.voice_refine_insert')"
-                            severity="primary"
+                        >
+                            {{ $t('pages.admin.posts.ai.voice_insert') }}
+                        </CaomeiButton>
+                        <CaomeiButton
                             :loading="refining"
-                            icon="pi pi-sparkles"
                             @click="$emit('refine', finalTranscript)"
-                        />
-                        <Button
-                            :label="$t('pages.admin.posts.ai.voice_scaffold_insert')"
-                            severity="info"
+                        >
+                            <template #icon>
+                                <Sparkles :size="16" />
+                            </template>
+                            {{ $t('pages.admin.posts.ai.voice_refine_insert') }}
+                        </CaomeiButton>
+                        <CaomeiButton
+                            tone="primary"
+                            variant="secondary"
                             :loading="refining"
-                            icon="pi pi-list"
                             @click="$emit('scaffold', finalTranscript)"
-                        />
+                        >
+                            <template #icon>
+                                <List :size="16" />
+                            </template>
+                            {{ $t('pages.admin.posts.ai.voice_scaffold_insert') }}
+                        </CaomeiButton>
                     </template>
                     <template v-else>
-                        <Button
-                            :label="$t('common.voice.start_record')"
-                            icon="pi pi-microphone"
+                        <CaomeiButton
                             :loading="isLoadingModel"
                             :disabled="isLoadingModel || (mode !== 'web-speech' && !isModelReady) || showLoadConfirm"
                             @click="$emit('start')"
-                        />
+                        >
+                            <template #icon>
+                                <Mic :size="16" />
+                            </template>
+                            {{ $t('common.voice.start_record') }}
+                        </CaomeiButton>
                     </template>
                 </div>
             </div>
@@ -150,6 +174,7 @@
 </template>
 
 <script setup lang="ts">
+import { CircleAlert, CircleStop, Info, List, Mic, RefreshCw, Sparkles } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { useI18n } from 'vue-i18n'
@@ -183,6 +208,12 @@ watch(open, (value) => {
         emit('hide')
     }
 })
+const onModeChange = (value: string | number | Array<string | number> | undefined) => {
+    if (typeof value === 'string') {
+        internalMode.value = value as typeof internalMode.value
+    }
+}
+
 watch(() => props.mode, (newMode) => {
     internalMode.value = newMode as any
 })
@@ -233,7 +264,20 @@ const errorText = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+
 @use "@/styles/voice-popover" as *;
+
+/* `CaomeiPopoverTrigger` 会给触发器元素套上默认的按钮外观（边框 / 背景 / 最小尺寸）。
+ * 本文件的锚点只用于固定定位承接 `useAnchoredPopover()` 的坐标，首帧尚无内联尺寸，
+ * 不加复位会在顶栏留下两个 26×36 的空盒子（迁移前 PrimeVue `Popover.show(target)` 无触发器元素）。 */
+.voice-popover-anchor {
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+}
 
 .voice-popover {
     &__confirm-panel {

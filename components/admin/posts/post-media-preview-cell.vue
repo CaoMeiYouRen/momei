@@ -2,8 +2,8 @@
     <div class="post-media-cell" :class="`post-media-cell--${mode}`">
         <template v-if="mode === 'cover'">
             <div v-if="coverPreview" class="post-media-cell__cover">
-                <Image
-                    :src="coverPreview.coverImage || undefined"
+                <CaomeiImage
+                    :src="coverPreview.coverImage"
                     :alt="t('pages.admin.posts.cover_column')"
                     preview
                     class="post-media-cell__cover-image"
@@ -11,7 +11,7 @@
                 <small class="post-media-cell__meta">{{ mediaLanguageLabel }}</small>
             </div>
             <div v-else class="post-media-cell__empty">
-                <i class="pi pi-image" />
+                <ImageIcon :size="18" />
                 <span class="post-media-cell__status">{{ t('pages.admin.posts.media.cover_missing') }}</span>
             </div>
         </template>
@@ -46,7 +46,7 @@
                 />
             </div>
             <div v-else class="post-media-cell__empty">
-                <i class="pi pi-headphones" />
+                <Headphones :size="18" />
                 <span class="post-media-cell__status">{{ t('pages.admin.posts.media.audio_missing') }}</span>
             </div>
         </template>
@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { format as formatBytes } from 'better-bytes'
-import { Play, X } from '@lucide/vue'
+import { Headphones, Image as ImageIcon, Play, X } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { getLocaleRegistryItem } from '@/i18n/config/locale-registry'
 import type { Post } from '@/types/post'

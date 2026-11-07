@@ -1,19 +1,25 @@
 <template>
     <div class="post-editor-media-settings">
-        <Divider />
+        <CaomeiDivider />
 
         <div class="form-group">
             <div class="flex items-center justify-between mb-2">
                 <label for="cover" class="form-label mb-0">{{ $t('pages.admin.posts.cover_image') }}</label>
                 <AppTooltip :content="$t('pages.admin.posts.ai.generate_cover')">
-                    <Button
+                    <CaomeiButton
                         id="ai-cover-btn"
-                        icon="pi pi-sparkles"
-                        size="small"
-                        text
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
+                        size="sm"
                         rounded
+                        :label="$t('pages.admin.posts.ai.generate_cover')"
                         @click="openVisualAssetGenerator('post-cover')"
-                    />
+                    >
+                        <template #icon>
+                            <Sparkles :size="14" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
             </div>
             <AppUploader
@@ -26,18 +32,23 @@
             >
                 <template #extra>
                     <AppTooltip v-if="isValidImageUrl" :content="$t('common.preview')">
-                        <Button
-                            icon="pi pi-image"
-                            severity="secondary"
-                            text
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            :label="$t('common.preview')"
                             @click="toggleImagePreview"
-                        />
+                        >
+                            <template #icon>
+                                <ImageIcon :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
                 </template>
             </AppUploader>
             <div v-if="showImagePreview && isValidImageUrl" class="mt-2 preview-container">
-                <Image
-                    :src="post.coverImage ?? undefined"
+                <CaomeiImage
+                    :src="post.coverImage || ''"
                     alt="Cover Preview"
                     preview
                     class="h-auto max-w-full rounded shadow-sm"
@@ -45,14 +56,20 @@
             </div>
             <div class="post-editor-media-settings__visual-actions">
                 <AppTooltip :content="$t('pages.admin.posts.ai.generate_illustration')">
-                    <Button
+                    <CaomeiButton
                         id="ai-illustration-btn"
-                        icon="pi pi-images"
-                        size="small"
-                        text
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
+                        size="sm"
                         rounded
+                        :label="$t('pages.admin.posts.ai.generate_illustration')"
                         @click="openVisualAssetGenerator('post-illustration')"
-                    />
+                    >
+                        <template #icon>
+                            <Images :size="14" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
                 <small class="form-hint">{{ $t('pages.admin.posts.ai.article_illustration_hint') }}</small>
             </div>
@@ -84,14 +101,20 @@
             <div class="flex items-center justify-between mb-2">
                 <label for="audioUrl" class="form-label mb-0">{{ $t('pages.admin.posts.audio_url') }}</label>
                 <AppTooltip :content="$t('pages.admin.posts.tts.generate_title')">
-                    <Button
+                    <CaomeiButton
                         id="ai-tts-btn"
-                        icon="pi pi-sparkles"
-                        size="small"
-                        text
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
+                        size="sm"
                         rounded
+                        :label="$t('pages.admin.posts.tts.generate_title')"
                         @click="ttsVisible = true"
-                    />
+                    >
+                        <template #icon>
+                            <Sparkles :size="14" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
             </div>
             <AppUploader
@@ -104,21 +127,31 @@
             >
                 <template #extra>
                     <AppTooltip v-if="isValidAudioUrl" :content="showAudioPlayer ? $t('common.close') : $t('common.preview')">
-                        <Button
-                            :icon="showAudioPlayer ? 'pi pi-times' : 'pi pi-play'"
-                            severity="secondary"
-                            text
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            :label="showAudioPlayer ? $t('common.close') : $t('common.preview')"
                             @click="toggleAudio"
-                        />
+                        >
+                            <template #icon>
+                                <component :is="showAudioPlayer ? X : Play" :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
                     <AppTooltip :content="$t('pages.admin.posts.podcast.probe_metadata')">
-                        <Button
-                            icon="pi pi-bolt"
-                            severity="secondary"
-                            text
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            :label="$t('pages.admin.posts.podcast.probe_metadata')"
                             :loading="probing"
                             @click="probeAudio"
-                        />
+                        >
+                            <template #icon>
+                                <Zap :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
                 </template>
             </AppUploader>
@@ -135,31 +168,30 @@
             <div class="audio-metadata-row">
                 <div class="form-group">
                     <label for="audioDuration" class="form-label">{{ $t('pages.admin.posts.podcast.duration') }}</label>
-                    <InputText
+                    <CaomeiInput
                         id="audioDuration"
                         v-model="displayDuration"
                         placeholder="00:00:00"
-                        fluid
                     />
                     <small class="form-hint">秒数: {{ audioDurationModel || 0 }}s</small>
                 </div>
                 <div class="form-group">
                     <label for="audioSize" class="form-label">{{ $t('pages.admin.posts.podcast.size') }}</label>
-                    <InputNumber
+                    <CaomeiInputNumber
                         id="audioSize"
                         v-model="audioSizeModel"
                         :min="0"
-                        fluid
                     />
                     <small class="form-hint">{{ readableSize }}</small>
                 </div>
             </div>
             <div class="form-group">
                 <label for="audioMimeType" class="form-label">{{ $t('pages.admin.posts.podcast.mime_type') }}</label>
-                <InputText
+                <CaomeiInput
                     id="audioMimeType"
-                    v-model="audioMimeTypeModel"
+                    :model-value="audioMimeTypeModel ?? ''"
                     placeholder="audio/mpeg"
+                    @update:model-value="audioMimeTypeModel = $event"
                 />
             </div>
         </div>
@@ -167,6 +199,7 @@
 </template>
 
 <script setup lang="ts">
+import { Image as ImageIcon, Images, Play, Sparkles, X, Zap } from '@lucide/vue'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'

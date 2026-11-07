@@ -1,12 +1,18 @@
 <template>
     <div class="post-distribution-button">
         <AppTooltip v-if="showButton && postId" :content="$t('pages.admin.posts.distribution.tooltip')">
-            <Button
-                icon="pi pi-sync"
-                text
+            <CaomeiButton
+                icon-only
+                variant="ghost"
+                tone="neutral"
                 rounded
+                :label="$t('pages.admin.posts.distribution.tooltip')"
                 @click="openDialog"
-            />
+            >
+                <template #icon>
+                    <RefreshCw :size="16" />
+                </template>
+            </CaomeiButton>
         </AppTooltip>
         <CaomeiDialog
             :open="expandedPreviewVisible"
@@ -21,7 +27,9 @@
                     <div class="post-distribution-preview-dialog__meta-card post-distribution-preview-dialog__meta-card--accent">
                         <div class="post-distribution-preview-dialog__meta-topline">
                             <span class="post-distribution-preview-dialog__meta-label">{{ renderChannelLabel(expandedPreview.channel, t) }}</span>
-                            <Tag :value="expandedPreview.badge" :severity="expandedPreview.badgeSeverity" />
+                            <CaomeiTag :tone="severityToTone(expandedPreview.badgeSeverity)">
+                                {{ expandedPreview.badge }}
+                            </CaomeiTag>
                         </div>
                         <h3>{{ renderPreviewValue(expandedPreview.articleTitle) }}</h3>
                         <p>{{ renderPreviewValue(expandedPreview.summary) }}</p>
@@ -98,26 +106,33 @@
                 </div>
             </div>
             <template #footer>
-                <Button
+                <CaomeiButton
                     v-if="expandedPreview?.channel === 'wechatsync' && expandedPreview?.contentProfile === 'wechat_mp'"
-                    :label="$t('pages.admin.posts.distribution.preview.copy_formatted_content')"
-                    icon="pi pi-copy"
-                    severity="contrast"
+                    tone="neutral"
                     @click="copyExpandedPreviewContent"
-                />
-                <Button
+                >
+                    <template #icon>
+                        <Copy :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.distribution.preview.copy_formatted_content') }}
+                </CaomeiButton>
+                <CaomeiButton
                     v-if="expandedPreview?.channel === 'wechatsync' && expandedPreview?.contentProfile === 'wechat_mp'"
-                    :label="$t('pages.admin.posts.distribution.preview.copy_rendered_html')"
-                    icon="pi pi-code"
-                    severity="contrast"
+                    tone="neutral"
                     @click="copyExpandedPreviewRenderedHtml"
-                />
-                <Button
-                    :label="$t('common.close')"
-                    text
-                    severity="secondary"
+                >
+                    <template #icon>
+                        <Code :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.distribution.preview.copy_rendered_html') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     @click="closeExpandedPreview"
-                />
+                >
+                    {{ $t('common.close') }}
+                </CaomeiButton>
             </template>
         </CaomeiDialog>
         <CaomeiDialog
@@ -138,35 +153,25 @@
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.memos') }}</h4>
                                 <small>{{ renderChannelMessage(summary.channels.memos, t) }}</small>
                             </div>
-                            <Tag
-                                :value="renderStatusLabel(summary.channels.memos.status, t)"
-                                :severity="renderStatusSeverity(summary.channels.memos.status)"
+                            <CaomeiTag :tone="severityToTone(renderStatusSeverity(summary.channels.memos.status))">
+                                {{ renderStatusLabel(summary.channels.memos.status, t) }}
+                            </CaomeiTag>
+                        </div>
+                        <CaomeiRadioGroup
+                            v-if="showModeSelector(summary.channels.memos)"
+                            v-model="memosMode"
+                            orientation="horizontal"
+                            class="post-distribution-dialog__mode-group"
+                        >
+                            <CaomeiRadioButton
+                                value="update-existing"
+                                :text="$t('pages.admin.posts.distribution.mode_update_existing')"
                             />
-                        </div>
-                        <div v-if="showModeSelector(summary.channels.memos)" class="post-distribution-dialog__mode-group">
-                            <div class="post-distribution-dialog__mode-item">
-                                <RadioButton
-                                    v-model="memosMode"
-                                    input-id="distribution_memos_update"
-                                    name="distribution_memos_mode"
-                                    value="update-existing"
-                                />
-                                <label for="distribution_memos_update">
-                                    {{ $t('pages.admin.posts.distribution.mode_update_existing') }}
-                                </label>
-                            </div>
-                            <div class="post-distribution-dialog__mode-item">
-                                <RadioButton
-                                    v-model="memosMode"
-                                    input-id="distribution_memos_republish"
-                                    name="distribution_memos_mode"
-                                    value="republish-new"
-                                />
-                                <label for="distribution_memos_republish">
-                                    {{ $t('pages.admin.posts.distribution.mode_republish_new') }}
-                                </label>
-                            </div>
-                        </div>
+                            <CaomeiRadioButton
+                                value="republish-new"
+                                :text="$t('pages.admin.posts.distribution.mode_republish_new')"
+                            />
+                        </CaomeiRadioGroup>
                         <small v-else class="post-distribution-dialog__hint">
                             {{ $t('pages.admin.posts.distribution.first_sync_hint') }}
                         </small>
@@ -186,30 +191,39 @@
                                 </p>
                             </div>
                             <div class="post-distribution-dialog__preview-actions">
-                                <Tag value="Memos" severity="info" />
-                                <Button
-                                    :label="$t('common.expand')"
-                                    icon="pi pi-window-maximize"
-                                    text
-                                    size="small"
+                                <CaomeiTag tone="primary">
+                                    Memos
+                                </CaomeiTag>
+                                <CaomeiButton
+                                    variant="ghost"
+                                    tone="neutral"
+                                    size="sm"
                                     @click="openMemosPreviewDialog"
-                                />
+                                >
+                                    <template #icon>
+                                        <Maximize2 :size="14" />
+                                    </template>
+                                    {{ $t('common.expand') }}
+                                </CaomeiButton>
                             </div>
                         </div>
                         <div class="post-distribution-dialog__actions">
-                            <Button
-                                :label="$t('pages.admin.posts.distribution.sync_now')"
-                                severity="contrast"
+                            <CaomeiButton
+                                tone="neutral"
                                 :loading="memosSubmitting"
                                 @click="dispatchMemos('sync')"
-                            />
-                            <Button
+                            >
+                                {{ $t('pages.admin.posts.distribution.sync_now') }}
+                            </CaomeiButton>
+                            <CaomeiButton
                                 v-if="canRetry(summary.channels.memos)"
-                                :label="$t('pages.admin.posts.distribution.retry')"
-                                text
+                                variant="ghost"
+                                tone="neutral"
                                 :loading="memosSubmitting"
                                 @click="dispatchMemos('retry')"
-                            />
+                            >
+                                {{ $t('pages.admin.posts.distribution.retry') }}
+                            </CaomeiButton>
                         </div>
                     </section>
                     <section class="post-distribution-dialog__channel-card">
@@ -218,10 +232,9 @@
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.hexo_repository_sync') }}</h4>
                                 <small>{{ renderHexoRepositorySyncMessage(summary.channels.hexoRepositorySync) }}</small>
                             </div>
-                            <Tag
-                                :value="renderStatusLabel(summary.channels.hexoRepositorySync.status, t)"
-                                :severity="renderStatusSeverity(summary.channels.hexoRepositorySync.status)"
-                            />
+                            <CaomeiTag :tone="severityToTone(renderStatusSeverity(summary.channels.hexoRepositorySync.status))">
+                                {{ renderStatusLabel(summary.channels.hexoRepositorySync.status, t) }}
+                            </CaomeiTag>
                         </div>
                         <small class="post-distribution-dialog__hint">
                             {{ renderHexoRepositorySyncTarget(summary.channels.hexoRepositorySync) }}
@@ -234,11 +247,12 @@
                                 </p>
                             </div>
                             <div class="post-distribution-dialog__preview-actions">
-                                <Tag
+                                <CaomeiTag
                                     v-if="summary.channels.hexoRepositorySync.remoteSha"
-                                    :value="summary.channels.hexoRepositorySync.remoteSha"
-                                    severity="secondary"
-                                />
+                                    tone="neutral"
+                                >
+                                    {{ summary.channels.hexoRepositorySync.remoteSha }}
+                                </CaomeiTag>
                             </div>
                         </div>
                         <a
@@ -251,19 +265,22 @@
                             {{ $t('pages.admin.posts.distribution.open_remote') }}
                         </a>
                         <div class="post-distribution-dialog__actions">
-                            <Button
-                                :label="$t('pages.admin.posts.distribution.sync_now')"
-                                severity="contrast"
+                            <CaomeiButton
+                                tone="neutral"
                                 :loading="hexoRepositorySubmitting"
                                 @click="dispatchHexoRepositorySync('sync')"
-                            />
-                            <Button
+                            >
+                                {{ $t('pages.admin.posts.distribution.sync_now') }}
+                            </CaomeiButton>
+                            <CaomeiButton
                                 v-if="canRetry(summary.channels.hexoRepositorySync)"
-                                :label="$t('pages.admin.posts.distribution.retry')"
-                                text
+                                variant="ghost"
+                                tone="neutral"
                                 :loading="hexoRepositorySubmitting"
                                 @click="dispatchHexoRepositorySync('retry')"
-                            />
+                            >
+                                {{ $t('pages.admin.posts.distribution.retry') }}
+                            </CaomeiButton>
                         </div>
                     </section>
                     <section class="post-distribution-dialog__channel-card">
@@ -272,10 +289,9 @@
                                 <h4>{{ $t('pages.admin.posts.distribution.channels.wechatsync') }}</h4>
                                 <small>{{ renderChannelMessage(summary.channels.wechatsync, t) }}</small>
                             </div>
-                            <Tag
-                                :value="renderStatusLabel(summary.channels.wechatsync.status, t)"
-                                :severity="renderStatusSeverity(summary.channels.wechatsync.status)"
-                            />
+                            <CaomeiTag :tone="severityToTone(renderStatusSeverity(summary.channels.wechatsync.status))">
+                                {{ renderStatusLabel(summary.channels.wechatsync.status, t) }}
+                            </CaomeiTag>
                         </div>
 
                         <small class="post-distribution-dialog__hint">
@@ -283,30 +299,21 @@
                                 ? $t('pages.admin.posts.distribution.wechatsync_ready')
                                 : $t('pages.admin.posts.distribution.extension_missing') }}
                         </small>
-                        <div v-if="showModeSelector(summary.channels.wechatsync)" class="post-distribution-dialog__mode-group">
-                            <div class="post-distribution-dialog__mode-item">
-                                <RadioButton
-                                    v-model="wechatSyncMode"
-                                    input-id="distribution_wechat_update"
-                                    name="distribution_wechatsync_mode"
-                                    value="update-existing"
-                                />
-                                <label for="distribution_wechat_update">
-                                    {{ $t('pages.admin.posts.distribution.mode_update_existing') }}
-                                </label>
-                            </div>
-                            <div class="post-distribution-dialog__mode-item">
-                                <RadioButton
-                                    v-model="wechatSyncMode"
-                                    input-id="distribution_wechat_republish"
-                                    name="distribution_wechatsync_mode"
-                                    value="republish-new"
-                                />
-                                <label for="distribution_wechat_republish">
-                                    {{ $t('pages.admin.posts.distribution.mode_republish_new') }}
-                                </label>
-                            </div>
-                        </div>
+                        <CaomeiRadioGroup
+                            v-if="showModeSelector(summary.channels.wechatsync)"
+                            v-model="wechatSyncMode"
+                            orientation="horizontal"
+                            class="post-distribution-dialog__mode-group"
+                        >
+                            <CaomeiRadioButton
+                                value="update-existing"
+                                :text="$t('pages.admin.posts.distribution.mode_update_existing')"
+                            />
+                            <CaomeiRadioButton
+                                value="republish-new"
+                                :text="$t('pages.admin.posts.distribution.mode_republish_new')"
+                            />
+                        </CaomeiRadioGroup>
                         <small v-else class="post-distribution-dialog__hint">
                             {{ $t('pages.admin.posts.distribution.first_sync_hint') }}
                         </small>
@@ -316,10 +323,9 @@
                                 :key="resolveWechatSyncAccountKey(account)"
                                 class="post-distribution-dialog__account-item"
                             >
-                                <Checkbox
+                                <CaomeiCheckbox
+                                    :id="`distribution-account-${resolveWechatSyncAccountKey(account)}`"
                                     v-model="account.checked"
-                                    :input-id="`distribution-account-${resolveWechatSyncAccountKey(account)}`"
-                                    binary
                                 />
                                 <label :for="`distribution-account-${resolveWechatSyncAccountKey(account)}`">
                                     <img
@@ -355,17 +361,20 @@
                                     </p>
                                 </div>
                                 <div class="post-distribution-dialog__preview-actions">
-                                    <Tag
-                                        :value="renderWechatSyncPreviewProfile(group, t)"
-                                        :severity="renderWechatSyncPreviewSeverity(group)"
-                                    />
-                                    <Button
-                                        :label="$t('common.expand')"
-                                        icon="pi pi-window-maximize"
-                                        text
-                                        size="small"
+                                    <CaomeiTag :tone="severityToTone(renderWechatSyncPreviewSeverity(group))">
+                                        {{ renderWechatSyncPreviewProfile(group, t) }}
+                                    </CaomeiTag>
+                                    <CaomeiButton
+                                        variant="ghost"
+                                        tone="neutral"
+                                        size="sm"
                                         @click="openWechatSyncPreviewDialog(group)"
-                                    />
+                                    >
+                                        <template #icon>
+                                            <Maximize2 :size="14" />
+                                        </template>
+                                        {{ $t('common.expand') }}
+                                    </CaomeiButton>
                                 </div>
                             </div>
                         </div>
@@ -382,29 +391,33 @@
                         </a>
 
                         <div class="post-distribution-dialog__actions">
-                            <Button
-                                :label="$t('pages.admin.posts.distribution.start_wechatsync')"
-                                severity="contrast"
+                            <CaomeiButton
+                                tone="neutral"
                                 :disabled="!extensionInstalled || !selectedWechatAccounts.length"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('sync')"
-                            />
-                            <Button
+                            >
+                                {{ $t('pages.admin.posts.distribution.start_wechatsync') }}
+                            </CaomeiButton>
+                            <CaomeiButton
                                 v-if="canRetry(summary.channels.wechatsync)"
-                                :label="$t('pages.admin.posts.distribution.retry')"
-                                text
+                                variant="ghost"
+                                tone="neutral"
                                 :disabled="!extensionInstalled || !selectedWechatAccounts.length"
                                 :loading="wechatSyncSubmitting"
                                 @click="dispatchWechatSync('retry')"
-                            />
-                            <Button
+                            >
+                                {{ $t('pages.admin.posts.distribution.retry') }}
+                            </CaomeiButton>
+                            <CaomeiButton
                                 v-if="summary.channels.wechatsync.activeAttemptId"
-                                :label="$t('pages.admin.posts.distribution.terminate')"
-                                text
-                                severity="danger"
+                                variant="ghost"
+                                tone="danger"
                                 :loading="wechatSyncSubmitting"
                                 @click="terminateWechatSync"
-                            />
+                            >
+                                {{ $t('pages.admin.posts.distribution.terminate') }}
+                            </CaomeiButton>
                         </div>
                         <div v-if="localWechatTaskStatus?.accounts?.length" class="post-distribution-dialog__task-list">
                             <div
@@ -432,12 +445,18 @@
                 <div class="post-distribution-dialog__timeline">
                     <div class="post-distribution-dialog__timeline-header">
                         <h4>{{ $t('pages.admin.posts.distribution.timeline_title') }}</h4>
-                        <Button
-                            icon="pi pi-refresh"
-                            text
+                        <CaomeiButton
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
                             rounded
+                            :label="$t('common.refresh')"
                             @click="loadSummary"
-                        />
+                        >
+                            <template #icon>
+                                <RefreshCw :size="16" />
+                            </template>
+                        </CaomeiButton>
                     </div>
                     <div v-if="summary.timeline.length === 0" class="post-distribution-dialog__empty">
                         {{ $t('pages.admin.posts.distribution.no_timeline') }}
@@ -451,10 +470,9 @@
                             <div class="post-distribution-dialog__timeline-main">
                                 <strong>{{ renderChannelLabel(item.channel, t) }}</strong>
                                 <span>{{ renderActionLabel(item.action, item.mode, t) }}</span>
-                                <Tag
-                                    :value="renderStatusLabel(item.status, t)"
-                                    :severity="renderStatusSeverity(item.status)"
-                                />
+                                <CaomeiTag :tone="severityToTone(renderStatusSeverity(item.status))">
+                                    {{ renderStatusLabel(item.status, t) }}
+                                </CaomeiTag>
                             </div>
                             <small class="post-distribution-dialog__timeline-time">
                                 {{ formatDateTime(item.startedAt) }}
@@ -473,21 +491,24 @@
                 </div>
             </div>
             <template #footer>
-                <Button
-                    :label="$t('common.close')"
-                    text
-                    severity="secondary"
+                <CaomeiButton
+                    variant="ghost"
+                    tone="neutral"
                     @click="dialogVisible = false"
-                />
+                >
+                    {{ $t('common.close') }}
+                </CaomeiButton>
             </template>
         </CaomeiDialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Code, Copy, Maximize2, RefreshCw } from '@lucide/vue'
 import { toRef } from 'vue'
 import type { Post } from '@/types/post'
 import { usePostDistributionButton } from '@/composables/use-post-distribution-button'
+import { severityToTone } from '@/utils/shared/ui-tone'
 
 const props = withDefaults(defineProps<{
     post: Partial<Post>

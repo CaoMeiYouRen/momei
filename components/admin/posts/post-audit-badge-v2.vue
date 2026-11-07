@@ -35,18 +35,12 @@ import { CircleCheck, LoaderCircle } from '@lucide/vue'
 import type { PostAuditResult } from '@/types/post'
 
 /**
- * 过渡用「文章审计徽标（caomei-ui 版）」。
+ * 「文章审计徽标」的实现（原 V2 过渡壳，2026-11-07 起为唯一实现）。
  *
- * 背景：`PostAuditBadge` 同时被 B2 目标列表路由 `/admin/posts` 与编辑器路由 `/admin/posts/[id]` 消费。
- * 直接改写 V1 会让编辑器路由被动混用（页内 PrimeVue + 局部 caomei）。故并存期新增本过渡组件
- * ——**本批只交付过渡壳**；`/admin/posts` 改用本组件、`/admin/posts/[id]` 保持 V1 的动作在 posts 路由批次执行。
+ * 历史：本组件曾与 V1（`post-audit-badge.vue`）并存——`/admin/posts` 用 V2、编辑器 `/admin/posts/[id]`
+ * 仍用 V1（消费处静态择库）。编辑器子批迁移后 V1 已删除，本组件成为唯一实现。
  *
- * **择库方式（本族与 `AppAvatarV2` / `AppUploaderV2` 不同，见迁移方案 §5.5）**：本族为
- * **admin 专属、消费者恰好两个（一迁移一未迁移）**且承载多 prop / 事件契约（`emit`）的壳；在组件内做
- * 路由择库会让状态、`open()` / `expose` 与事件契约出现第二份事实源。故采用**消费处静态择库**：
- * 由 `/admin/posts` 在自身迁移批次改用本组件，`/admin/posts/[id]` 继续使用 V1。
- *
- * 与 V1 的差异（均为有意，见迁移方案 §6.2）：
+ * 与旧 V1 的差异（均为有意，见迁移方案 §6.2）：
  * - `Button`（`pi pi-check-circle` + `text rounded severity="secondary"`）→ `CaomeiButton`
  *   （lucide `CircleCheck` + `variant="ghost" rounded icon-only`），并补 `:label` 可访问名
  *   （V1 的纯图标按钮仅有 tooltip，无可访问名）；

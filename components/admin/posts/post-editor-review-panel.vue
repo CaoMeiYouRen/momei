@@ -4,21 +4,26 @@
             <span class="review-panel__title">
                 {{ $t('pages.admin.posts.ai.review_panel_title') }}
             </span>
-            <Button
-                icon="pi pi-times"
-                text
+            <CaomeiButton
+                icon-only
+                variant="ghost"
+                tone="neutral"
                 rounded
-                severity="secondary"
-                size="small"
+                size="sm"
+                :label="$t('common.close')"
                 @click="emit('close')"
-            />
+            >
+                <template #icon>
+                    <X :size="16" />
+                </template>
+            </CaomeiButton>
         </div>
         <div class="review-panel__body">
             <div
                 v-if="suggestions.length === 0"
                 class="review-panel__empty"
             >
-                <i class="pi pi-check-circle review-panel__empty-icon" />
+                <CircleCheck :size="40" class="review-panel__empty-icon" />
                 <p>{{ $t('pages.admin.posts.ai.review_no_issues') }}</p>
             </div>
             <div
@@ -28,17 +33,19 @@
                 :class="`review-suggestion--${suggestion.severity}`"
             >
                 <div class="review-suggestion__header">
-                    <Tag
-                        :value="severityLabel(suggestion.severity)"
-                        :severity="severityTag(suggestion.severity)"
-                        size="small"
-                    />
-                    <Tag
-                        :value="typeLabel(suggestion.type)"
-                        severity="info"
-                        size="small"
+                    <CaomeiTag
+                        :tone="severityTone(suggestion.severity)"
+                        size="sm"
+                    >
+                        {{ severityLabel(suggestion.severity) }}
+                    </CaomeiTag>
+                    <CaomeiTag
+                        tone="primary"
+                        size="sm"
                         class="review-suggestion__type"
-                    />
+                    >
+                        {{ typeLabel(suggestion.type) }}
+                    </CaomeiTag>
                 </div>
                 <div class="review-suggestion__original">
                     <span class="review-suggestion__label">
@@ -64,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import { CircleCheck, X } from '@lucide/vue'
 import type { AIReviewSuggestion } from '@/types/ai'
 
 defineProps<{
@@ -86,10 +94,10 @@ const severityLabel = (severity: AIReviewSuggestion['severity']) => {
     return map[severity]
 }
 
-const severityTag = (severity: AIReviewSuggestion['severity']) => {
-    const map: Record<AIReviewSuggestion['severity'], 'info' | 'warn' | 'danger'> = {
-        minor: 'info',
-        major: 'warn',
+const severityTone = (severity: AIReviewSuggestion['severity']) => {
+    const map: Record<AIReviewSuggestion['severity'], 'primary' | 'warning' | 'danger'> = {
+        minor: 'primary',
+        major: 'warning',
         critical: 'danger',
     }
     return map[severity]

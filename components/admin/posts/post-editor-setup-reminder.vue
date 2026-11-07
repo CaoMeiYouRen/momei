@@ -6,32 +6,41 @@
         </div>
 
         <div class="post-editor-setup-reminder__actions">
-            <Button
-                :label="$t('pages.admin.posts.setup_reminder.open_settings')"
-                icon="pi pi-sliders-h"
-                size="small"
-                severity="secondary"
-                outlined
+            <CaomeiButton
+                variant="secondary"
+                tone="neutral"
+                size="sm"
                 @click="emit('open-settings')"
-            />
-            <Button
-                :label="$t('pages.admin.posts.setup_reminder.open_system_settings')"
-                icon="pi pi-cog"
-                size="small"
+            >
+                <template #icon>
+                    <SlidersHorizontal :size="16" />
+                </template>
+                {{ $t('pages.admin.posts.setup_reminder.open_settings') }}
+            </CaomeiButton>
+            <CaomeiButton
+                size="sm"
                 @click="emit('open-system-settings')"
-            />
-            <Button
-                :label="$t('common.skip')"
-                text
-                size="small"
-                severity="secondary"
+            >
+                <template #icon>
+                    <Settings :size="16" />
+                </template>
+                {{ $t('pages.admin.posts.setup_reminder.open_system_settings') }}
+            </CaomeiButton>
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
+                size="sm"
                 @click="emit('dismiss')"
-            />
+            >
+                {{ $t('common.skip') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Settings, SlidersHorizontal } from '@lucide/vue'
+
 const emit = defineEmits<{
     (e: 'open-settings'): void
     (e: 'open-system-settings'): void

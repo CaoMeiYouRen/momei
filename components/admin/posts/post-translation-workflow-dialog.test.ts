@@ -1,3 +1,4 @@
+import type { DOMWrapper } from '@vue/test-utils'
 import { describe, it, expect, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
@@ -135,6 +136,15 @@ const defaultProps = {
     ] as PostTranslationTargetStatus[],
 }
 
+/** caomei 按钮的可见文案走默认插槽，故按文本精确定位。 */
+function findButton(wrapper: { findAll: (selector: string) => DOMWrapper<Element>[] }, label: string): DOMWrapper<Element> {
+    const button = wrapper.findAll('button').find((item) => item.text().trim() === label)
+    if (!button) {
+        throw new Error(`button not found: ${label}`)
+    }
+    return button
+}
+
 const globalOptions = {
     mocks: {
         $t: translate,
@@ -143,31 +153,32 @@ const globalOptions = {
         CaomeiDialog: {
             template: '<div class="dialog-stub"><slot /><slot name="footer" /></div>',
         },
-        Select: {
+        CaomeiSelect: {
             props: ['modelValue', 'options', 'optionLabel', 'optionValue'],
             emits: ['update:modelValue'],
             template: '<select class="select-stub" />',
         },
-        Message: {
-            template: '<div class="message-stub"><slot /></div>',
+        CaomeiMessage: {
+            props: ['tone'],
+            template: '<div class="message-stub" :data-tone="tone"><slot /></div>',
         },
-        Checkbox: {
-            props: ['modelValue', 'binary', 'disabled'],
+        CaomeiCheckbox: {
+            props: ['modelValue', 'disabled'],
             emits: ['update:modelValue'],
-            template: '<input class="checkbox-stub" type="checkbox" />',
+            template: '<input class="checkbox-stub" type="checkbox" :checked="modelValue" />',
         },
-        Tag: {
-            props: ['value', 'severity'],
-            template: '<span class="tag-stub" :data-severity="severity">{{ value }}</span>',
+        CaomeiTag: {
+            props: ['tone'],
+            template: '<span class="tag-stub" :data-tone="tone"><slot /></span>',
         },
-        ProgressBar: {
+        CaomeiProgressBar: {
             props: ['value'],
             template: '<div class="progress-stub">{{ value }}</div>',
         },
-        Button: {
-            props: ['label', 'severity', 'disabled', 'loading'],
+        CaomeiButton: {
+            props: ['tone', 'variant', 'disabled', 'loading'],
             emits: ['click'],
-            template: '<button class="button-stub" :data-label="label" :data-severity="severity" :disabled="disabled" @click="$emit(\'click\')">{{ label }}</button>',
+            template: '<button class="button-stub" :data-tone="tone" :disabled="disabled" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>',
         },
     },
 }
@@ -187,9 +198,9 @@ describe('PostTranslationWorkflowDialog', () => {
         expect(wrapper.text()).toContain('封面')
         expect(wrapper.text()).toContain('播客音频')
 
-        const startButton = wrapper.find('button[data-label="继续翻译"]')
+        const startButton = findButton(wrapper, '继续翻译')
         expect(startButton.exists()).toBe(true)
-        expect(startButton.attributes('data-severity')).toBe('warn')
+        expect(startButton.attributes('data-tone')).toBe('warning')
     })
 
     it('emits action metadata and preserved scopes on start', async () => {
@@ -199,7 +210,7 @@ describe('PostTranslationWorkflowDialog', () => {
         })
 
         await nextTick()
-        await wrapper.find('button[data-label="继续翻译"]').trigger('click')
+        await findButton(wrapper, '继续翻译').trigger('click')
 
         expect(wrapper.emitted('start')?.[0]?.[0]).toEqual({
             sourcePostId: 'source-1',
@@ -222,7 +233,7 @@ describe('PostTranslationWorkflowDialog', () => {
         })
 
         await nextTick()
-        await wrapper.find('button[data-label="继续翻译"]').trigger('click')
+        await findButton(wrapper, '继续翻译').trigger('click')
 
         expect(wrapper.emitted('start')?.[0]?.[0]).toEqual(expect.objectContaining({
             scopes: ['title', 'content', 'summary', 'category', 'tags', 'coverImage'],
@@ -244,8 +255,8 @@ describe('PostTranslationWorkflowDialog', () => {
         expect(wrapper.text()).toContain('覆盖翻译')
         expect(wrapper.text()).toContain('开始后会先切换到对应目标版本编辑器，并保留来源与范围选择。')
 
-        const startButton = wrapper.find('button[data-label="覆盖翻译"]')
-        expect(startButton.attributes('data-severity')).toBe('danger')
+        const startButton = findButton(wrapper, '覆盖翻译')
+        expect(startButton.attributes('data-tone')).toBe('danger')
     })
 
     it('shows same-language warning and disables start when source and target languages match', async () => {
@@ -269,7 +280,7 @@ describe('PostTranslationWorkflowDialog', () => {
         await nextTick()
 
         expect(wrapper.text()).toContain('来源语言和目标语言不能相同，请重新选择。')
-        expect(wrapper.find('button[data-label="继续翻译"]').attributes('disabled')).toBeDefined()
+        expect(findButton(wrapper, '继续翻译').attributes('disabled')).toBeDefined()
     })
 
     it('shows no-source warning and disables start when no source is available', async () => {
@@ -286,7 +297,7 @@ describe('PostTranslationWorkflowDialog', () => {
         await nextTick()
 
         expect(wrapper.text()).toContain('no_sources')
-        expect(wrapper.find('button[data-label="开始翻译"]').attributes('disabled')).toBeDefined()
+        expect(findButton(wrapper, '开始翻译').attributes('disabled')).toBeDefined()
     })
 
     it('shows progress details and failure message during translation', async () => {

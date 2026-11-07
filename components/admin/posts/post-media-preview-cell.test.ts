@@ -9,7 +9,7 @@ const stubs = {
         props: ['iconOnly', 'variant', 'rounded', 'tone', 'label'],
         emits: ['click'],
     },
-    Image: {
+    CaomeiImage: {
         template: '<img class="cover-image" :src="src" :alt="alt" />',
         props: ['src', 'alt', 'preview'],
     },

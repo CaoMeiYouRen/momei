@@ -8,10 +8,10 @@
         @update:open="visible = $event"
     >
         <div v-if="loading" class="history-panel__loading">
-            <ProgressSpinner />
+            <CaomeiProgressSpinner />
         </div>
         <div v-else-if="versions.length === 0" class="history-panel__empty">
-            <i class="history-panel__empty-icon pi pi-history" />
+            <History :size="40" class="history-panel__empty-icon" />
             <p class="history-panel__empty-text">
                 {{ $t('common.no_data') }}
             </p>
@@ -29,21 +29,22 @@
                             <span class="history-item__sequence">#{{ version.sequence }}</span>
                             <span class="history-item__time">{{ formatDateTime(version.createdAt) }}</span>
                         </div>
-                        <Tag
-                            :value="getSourceLabel(version.source)"
-                            :severity="getSourceSeverity(version.source)"
-                            size="small"
-                        />
+                        <CaomeiTag
+                            :tone="getSourceTone(version.source)"
+                            size="sm"
+                        >
+                            {{ getSourceLabel(version.source) }}
+                        </CaomeiTag>
                     </div>
                     <div class="history-item__summary">
                         {{ getSummaryLabel(version) }}
                     </div>
                     <div class="history-item__footer">
                         <div class="history-item__author">
-                            <Avatar
-                                :image="version.author?.image || undefined"
-                                :label="version.author?.name?.charAt(0)"
-                                size="small"
+                            <CaomeiAvatar
+                                :src="version.author?.image || undefined"
+                                :fallback="version.author?.name?.charAt(0)"
+                                size="sm"
                                 shape="circle"
                             />
                             <span class="author-name">{{ version.author?.name }}</span>
@@ -62,18 +63,19 @@
                         </h4>
                         <div class="history-panel__compare-controls">
                             <span class="history-panel__compare-label">{{ $t('pages.admin.posts.version_compare') }}</span>
-                            <Select
-                                v-model="compareTarget"
+                            <CaomeiSelect
+                                :model-value="compareTarget"
                                 :options="compareOptions"
                                 option-label="label"
                                 option-value="value"
                                 class="history-panel__compare-select"
+                                @update:model-value="onCompareTargetChange"
                             />
                         </div>
                     </div>
 
                     <div v-if="diffLoading" class="history-panel__loading">
-                        <ProgressSpinner />
+                        <CaomeiProgressSpinner />
                     </div>
                     <div v-else-if="!changedDiffItems.length" class="history-panel__empty-diff">
                         {{ $t('pages.admin.posts.version_diff_empty') }}
@@ -102,20 +104,24 @@
                     </div>
                 </div>
                 <div class="history-panel__footer-actions">
-                    <Button
-                        :label="$t('pages.admin.posts.restore_version')"
-                        icon="pi pi-replay"
+                    <CaomeiButton
                         class="history-panel__btn-restore"
                         :loading="restoring"
                         @click="restoreConfirm"
-                    />
-                    <Button
-                        :label="$t('common.close')"
-                        severity="secondary"
-                        outlined
+                    >
+                        <template #icon>
+                            <RotateCcw :size="16" />
+                        </template>
+                        {{ $t('pages.admin.posts.restore_version') }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        variant="secondary"
+                        tone="neutral"
                         class="history-panel__btn-close"
                         @click="selectedVersion = null"
-                    />
+                    >
+                        {{ $t('common.close') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </template>
@@ -123,6 +129,7 @@
 </template>
 
 <script setup lang="ts">
+import { History, RotateCcw } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useToast } from 'caomei-ui'
 import { useConfirm } from 'caomei-ui'
@@ -157,6 +164,12 @@ const restoring = ref(false)
 const selectedVersion = ref<PostVersionDetail | null>(null)
 const diffPayload = ref<PostVersionDiffPayload | null>(null)
 const compareTarget = ref<string>('parent')
+
+const onCompareTargetChange = (value: string | number | null | undefined) => {
+    if (typeof value === 'string') {
+        compareTarget.value = value
+    }
+}
 
 const changedDiffItems = computed<PostVersionDiffItem[]>(() => {
     return (diffPayload.value?.items || []).filter((item) => item.changed)
@@ -290,12 +303,12 @@ const restoreVersion = async () => {
 
 const getSourceLabel = (source: PostVersionSource) => t(`pages.admin.posts.version_sources.${source}`)
 
-const getSourceSeverity = (source: PostVersionSource) => {
-    const severityMap: Record<PostVersionSource, 'success' | 'info' | 'warn' | 'secondary'> = {
+const getSourceTone = (source: PostVersionSource) => {
+    const severityMap: Record<PostVersionSource, 'success' | 'primary' | 'warning' | 'neutral'> = {
         [PostVersionSource.CREATE]: 'success',
-        [PostVersionSource.EDIT]: 'info',
-        [PostVersionSource.RESTORE]: 'warn',
-        [PostVersionSource.ROLLBACK_RECOVERY]: 'secondary',
+        [PostVersionSource.EDIT]: 'primary',
+        [PostVersionSource.RESTORE]: 'warning',
+        [PostVersionSource.ROLLBACK_RECOVERY]: 'neutral',
     }
 
     return severityMap[source]
@@ -487,7 +500,7 @@ watch(compareTarget, () => {
             transform: translateY(0);
         }
 
-        :deep(.p-button-icon) {
+        :deep(.caomei-button__icon) {
             color: white;
             margin-right: 0.5rem;
         }

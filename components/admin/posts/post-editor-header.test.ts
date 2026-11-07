@@ -1,18 +1,28 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { defineComponent, inject, nextTick, provide, toRef, type Ref } from 'vue'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PostEditorHeader from './post-editor-header.vue'
+
+/* 该组件仅以 stub 渲染；显式 mock 掉真实模块，避免其传递依赖
+ * （`use-post-distribution-button` → `distribution-template` → locale JSON）
+ * 在测试环境触发 `virtual:intlify-i18n` 解析失败（见 backlog 的本地 vitest 缓存项）。 */
+vi.mock('@/components/admin/posts/post-distribution-button.vue', () => ({
+    default: {
+        name: 'AdminPostsPostDistributionButton',
+        template: '<button class="distribution-button-stub" />',
+    },
+}))
 import { PostStatus } from '@/types/post'
 import type { PerspectiveMode } from '@/types/ai'
 
 /**
  * SplitButton stub: 渲染主按钮 + 下拉按钮；点击下拉按钮渲染 model 菜单，点击菜单项触发 command。
- * 保持与真实 SplitButton 相同的按钮数量（主按钮 + 下拉按钮 = 2）。
+ * 保持与真实 `CaomeiSplitButton` 相同的按钮数量（主按钮 + 下拉按钮 = 2）。
  */
 const SplitButtonStub = {
     template: `
         <div class="split-button-stub">
-            <button class="split-button-default" @click="$emit('click', $event)" />
+            <button class="split-button-default" @click="$emit('click', $event)"><slot name="icon" /></button>
             <button class="split-button-menu" @click="menuOpen = !menuOpen" />
             <ul v-if="menuOpen" class="split-button-menu-list">
                 <li
@@ -26,7 +36,7 @@ const SplitButtonStub = {
             </ul>
         </div>
     `,
-    props: ['model', 'loading', 'icon'],
+    props: ['model', 'loading', 'label'],
     emits: ['click'],
     data() {
         return { menuOpen: false }
@@ -60,7 +70,7 @@ const stubs = {
     AdminPostsPostDistributionButton: {
         template: '<button class="distribution-button-stub" />',
     },
-    SplitButton: SplitButtonStub,
+    CaomeiSplitButton: SplitButtonStub,
     CaomeiPopover: PopoverStub,
     CaomeiPopoverTrigger: PopoverTriggerStub,
     CaomeiPopoverContent: PopoverContentStub,
@@ -111,7 +121,13 @@ describe('PostEditorHeader', () => {
 
         const input = wrapper.find('.title-input')
         expect(input.exists()).toBe(true)
-        expect((input.element as HTMLInputElement).value).toBe('Test Post')
+
+        // `CaomeiInput` 的 `$attrs`（含 class）落在内层 input 上。
+        const inputElement = input.element as HTMLInputElement
+        const value = inputElement.tagName === 'INPUT'
+            ? inputElement.value
+            : (wrapper.find('.title-input input').element as HTMLInputElement).value
+        expect(value).toBe('Test Post')
     })
 
     it('groups AI tools in ButtonGroup (5 consolidated entries)', async () => {
@@ -133,7 +149,7 @@ describe('PostEditorHeader', () => {
         })
 
         const rightBar = wrapper.find('.top-bar-right')
-        expect(rightBar.findComponent({ name: 'Tag' }).exists()).toBe(true)
+        expect(rightBar.findComponent({ name: 'CaomeiTag' }).exists()).toBe(true)
         expect(rightBar.find('.translation-status-bar').exists()).toBe(true)
     })
 

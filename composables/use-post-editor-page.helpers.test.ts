@@ -6,7 +6,6 @@ import {
     getPostStatusLabel,
     getPostStatusSeverity,
     promptDraftRecovery,
-    searchTagOptions,
     restorePostFromHistory,
 } from './use-post-editor-page.helpers'
 import { PostStatus, PostVisibility } from '@/types/post'
@@ -156,28 +155,6 @@ describe('use-post-editor-page helpers', () => {
         })
     })
 
-    describe('searchTagOptions', () => {
-        it('returns all tags when query is empty', () => {
-            const allTags = ref(['vue', 'nuxt', 'typescript'])
-            const filteredTags = ref<string[]>([])
-            searchTagOptions(allTags, filteredTags, { query: '' })
-            expect(filteredTags.value).toEqual(['vue', 'nuxt', 'typescript'])
-        })
-
-        it('filters tags by case-insensitive prefix', () => {
-            const allTags = ref(['Vue', 'Nuxt', 'TypeScript'])
-            const filteredTags = ref<string[]>([])
-            searchTagOptions(allTags, filteredTags, { query: 'vu' })
-            expect(filteredTags.value).toEqual(['Vue'])
-        })
-
-        it('returns empty array for no match', () => {
-            const allTags = ref(['vue', 'nuxt'])
-            const filteredTags = ref<string[]>([])
-            searchTagOptions(allTags, filteredTags, { query: 'xxxx' })
-            expect(filteredTags.value).toEqual([])
-        })
-    })
 
     describe('restorePostFromHistory', () => {
         it('restores post fields from history data', () => {

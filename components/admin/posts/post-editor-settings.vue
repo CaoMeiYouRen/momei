@@ -12,27 +12,37 @@
             </h3>
             <div class="settings-sidebar__actions">
                 <AppTooltip :content="isCompact ? $t('common.expand') : $t('common.collapse')">
-                    <Button
-                        :icon="isCompact ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
-                        text
+                    <CaomeiButton
+                        icon-only
+                        variant="ghost"
+                        tone="neutral"
                         rounded
-                        severity="secondary"
+                        :label="isCompact ? $t('common.expand') : $t('common.collapse')"
                         @click="isCompact = !isCompact"
-                    />
+                    >
+                        <template #icon>
+                            <component :is="isCompact ? ChevronLeft : ChevronRight" :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
-                <Button
-                    icon="pi pi-times"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
-                    severity="secondary"
+                    :label="$t('common.close')"
                     @click="visible = false"
-                />
+                >
+                    <template #icon>
+                        <X :size="16" />
+                    </template>
+                </CaomeiButton>
             </div>
         </div>
         <div class="settings-form">
             <div class="form-group">
                 <label for="language" class="form-label">{{ $t('pages.admin.posts.language') }}</label>
-                <Select
+                <CaomeiSelect
                     id="language"
                     v-model="post.language"
                     :options="languageOptions"
@@ -46,53 +56,57 @@
                     {{ $t('pages.admin.posts.translation_group') }}
                     <small class="text-secondary">({{ $t('common.optional') }})</small>
                 </label>
-                <InputGroup>
-                    <AutoComplete
+                <CaomeiInputGroup>
+                    <CaomeiAutoComplete
                         id="translationId"
-                        v-model="post.translationId"
-                        :suggestions="postsForTranslation"
-                        option-label="label"
-                        option-value="value"
+                        :model-value="post.translationId ?? undefined"
+                        :options="postsForTranslation"
                         :placeholder="$t('pages.admin.posts.translation_group_hint')"
                         dropdown
-                        fluid
-                        @complete="emit('search-posts', $event)"
+                        @update:model-value="onTranslationIdChange"
+                        @complete="(query: string) => emit('search-posts', {query})"
                     />
-                </InputGroup>
+                </CaomeiInputGroup>
             </div>
 
             <div class="form-group">
                 <label for="slug" class="form-label">{{ $t('pages.admin.posts.slug') }}</label>
-                <InputGroup>
-                    <InputText
+                <CaomeiInputGroup>
+                    <CaomeiInput
                         id="slug"
                         v-model="post.slug"
-                        :class="{'p-invalid': errors.slug}"
+                        :invalid="Boolean(errors.slug)"
                     />
                     <AppTooltip :content="$t('pages.admin.posts.ai.generate_slug')">
-                        <Button
+                        <CaomeiButton
                             id="ai-slug-btn"
-                            icon="pi pi-sparkles"
-                            severity="secondary"
-                            text
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            :label="$t('pages.admin.posts.ai.generate_slug')"
                             :loading="aiLoading.slug"
                             @click="emit('suggest-slug')"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
-                </InputGroup>
+                </CaomeiInputGroup>
                 <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
                 <small v-else class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
             </div>
 
             <div class="form-group">
                 <label for="category" class="form-label">{{ $t('common.category') }}</label>
-                <Select
-                    v-model="post.categoryId"
+                <CaomeiSelect
+                    :model-value="post.categoryId"
                     :options="categories"
                     option-label="name"
                     option-value="id"
                     :placeholder="$t('pages.admin.posts.category_placeholder')"
                     show-clear
+                    @update:model-value="post.categoryId = typeof $event === 'string' ? $event : null"
                 />
             </div>
 
@@ -101,61 +115,73 @@
                     <label for="tags" class="form-label mb-0">{{ $t('common.tags') }}</label>
                     <div class="settings-sidebar__tag-actions">
                         <AppTooltip v-if="post.tags?.length" :content="$t('pages.admin.posts.clear_tags')">
-                            <Button
+                            <CaomeiButton
                                 id="clear-tags-btn"
-                                icon="pi pi-trash"
-                                size="small"
-                                text
+                                icon-only
+                                variant="ghost"
+                                tone="danger"
+                                size="sm"
                                 rounded
-                                severity="danger"
+                                :label="$t('pages.admin.posts.clear_tags')"
                                 @click="confirmClearTags"
-                            />
+                            >
+                                <template #icon>
+                                    <Trash2 :size="14" />
+                                </template>
+                            </CaomeiButton>
                         </AppTooltip>
                         <AppTooltip :content="$t('pages.admin.posts.ai.recommend_tags')">
-                            <Button
+                            <CaomeiButton
                                 id="ai-tags-btn"
-                                icon="pi pi-sparkles"
-                                size="small"
-                                text
+                                icon-only
+                                variant="ghost"
+                                tone="neutral"
+                                size="sm"
                                 rounded
+                                :label="$t('pages.admin.posts.ai.recommend_tags')"
                                 :loading="aiLoading.tags"
                                 @click="emit('recommend-tags')"
-                            />
+                            >
+                                <template #icon>
+                                    <Sparkles :size="14" />
+                                </template>
+                            </CaomeiButton>
                         </AppTooltip>
                     </div>
                 </div>
-                <AutoComplete
-                    v-model="post.tags"
-                    multiple
-                    :suggestions="filteredTags"
+                <CaomeiTagsInput
+                    id="tags"
+                    :model-value="tagModel"
                     :placeholder="$t('pages.admin.posts.tags_placeholder')"
-                    @complete="emit('search-tags', $event)"
+                    @update:model-value="onTagModelUpdate"
                 />
                 <small class="form-hint">{{ $t('pages.admin.posts.tags_hint') }}</small>
             </div>
 
             <div class="form-group">
                 <label for="copyright" class="form-label">{{ $t('pages.admin.posts.copyright') }}</label>
-                <Select
+                <CaomeiSelect
                     id="copyright"
-                    v-model="post.copyright"
+                    :model-value="post.copyright"
                     :options="licenseOptions"
                     option-label="label"
                     option-value="value"
                     :placeholder="defaultLicenseLabel"
                     show-clear
+                    @update:model-value="post.copyright = typeof $event === 'string' ? $event : null"
                 />
                 <small class="form-hint">{{ $t('pages.admin.posts.copyright_hint') }}</small>
             </div>
 
             <div class="form-group">
                 <label for="visibility" class="form-label">{{ $t('pages.admin.posts.visibility') }}</label>
-                <Select
+                <CaomeiSelect
                     id="visibility"
-                    v-model="post.visibility"
+                    :model-value="post.visibility"
                     :options="visibilityOptions"
                     option-label="label"
                     option-value="value"
+                    @update:model-value="onVisibilityChange"
                 />
                 <small class="form-hint">{{ $t('pages.admin.posts.visibility_hint') }}</small>
             </div>
@@ -167,9 +193,9 @@
                         <small class="form-hint">{{ $t('pages.admin.posts.pinned_hint') }}</small>
                     </div>
                     <div class="settings-sidebar__toggle-control">
-                        <ToggleSwitch
+                        <CaomeiSwitch
+                            id="isPinned"
                             v-model="post.isPinned"
-                            input-id="isPinned"
                         />
                     </div>
                 </div>
@@ -177,10 +203,11 @@
 
             <div v-if="post.visibility === 'password'" class="form-group">
                 <label for="password" class="form-label">{{ $t('pages.admin.posts.password') }}</label>
-                <InputText
+                <CaomeiInput
                     id="password"
-                    v-model="post.password"
+                    :model-value="post.password ?? ''"
                     :placeholder="$t('pages.admin.posts.password_placeholder')"
+                    @update:model-value="post.password = $event ?? null"
                 />
             </div>
 
@@ -188,57 +215,69 @@
                 <div class="flex items-center justify-between mb-2">
                     <label for="summary" class="form-label mb-0">{{ $t('common.summary') }}</label>
                     <AppTooltip :content="$t('pages.admin.posts.ai.generate_summary')">
-                        <Button
+                        <CaomeiButton
                             id="ai-summary-btn"
-                            icon="pi pi-sparkles"
-                            size="small"
-                            text
+                            icon-only
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
                             rounded
+                            :label="$t('pages.admin.posts.ai.generate_summary')"
                             :loading="aiLoading.summary"
                             @click="emit('suggest-summary')"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="14" />
+                            </template>
+                        </CaomeiButton>
                     </AppTooltip>
                 </div>
-                <Textarea
+                <CaomeiTextarea
                     id="summary"
-                    v-model="post.summary"
-                    rows="4"
+                    :model-value="post.summary ?? ''"
+                    :rows="4"
                     :placeholder="$t('pages.admin.posts.summary_placeholder')"
-                    class="resize-none"
-                    :class="{'p-invalid': errors.summary}"
+                    resize="none"
+                    :invalid="Boolean(errors.summary)"
+                    @update:model-value="post.summary = $event ?? null"
                 />
                 <small v-if="errors.summary" class="p-error">{{ errors.summary }}</small>
             </div>
 
             <AdminPostsPostEditorMediaSettings v-model:post="post" />
 
-            <Divider />
+            <CaomeiDivider />
 
             <div class="form-group">
-                <Button
-                    :label="$t('pages.admin.posts.export_as_markdown')"
-                    icon="pi pi-download"
-                    severity="secondary"
-                    outlined
-                    fluid
+                <CaomeiButton
+                    block
+                    variant="secondary"
+                    tone="neutral"
                     :loading="exporting"
                     :disabled="!post.id"
                     @click="handleExport"
-                />
+                >
+                    <template #icon>
+                        <Download :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.export_as_markdown') }}
+                </CaomeiButton>
             </div>
         </div>
         <div class="drawer-footer">
-            <Button
-                :label="$t('common.close')"
-                text
-                severity="secondary"
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
                 @click="visible = false"
-            />
+            >
+                {{ $t('common.close') }}
+            </CaomeiButton>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight, Download, Sparkles, Trash2, X } from '@lucide/vue'
 import { useConfirm } from 'caomei-ui'
 import { usePostExport } from '@/composables/use-post-export'
 import type { PostEditorData } from '@/types/post-editor'
@@ -248,7 +287,6 @@ const post = defineModel<PostEditorData>('post', { required: true })
 const props = defineProps<{
     errors: Record<string, string>
     categories: any[]
-    filteredTags: string[]
     aiLoading: any
     postsForTranslation: any[]
     languageOptions: any[]
@@ -257,7 +295,7 @@ const props = defineProps<{
     defaultLicenseLabel: string
 }>()
 
-const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'search-tags', 'suggest-summary'])
+const emit = defineEmits(['search-posts', 'suggest-slug', 'recommend-tags', 'suggest-summary'])
 
 const visible = defineModel<boolean>('visible', { default: false })
 const isCompact = defineModel<boolean>('compact', { default: false })
@@ -265,6 +303,26 @@ const isCompact = defineModel<boolean>('compact', { default: false })
 const confirm = useConfirm()
 const { exporting, exportPost } = usePostExport()
 const { t } = useI18n()
+
+const tagModel = computed(() => post.value.tags ?? [])
+
+const onTagModelUpdate = (value: string[] | undefined) => {
+    post.value.tags = Array.isArray(value) ? value : []
+}
+
+const onTranslationIdChange = (value: string | string[] | undefined) => {
+    /* caomei `AutoComplete` 的清除按钮写空串（PrimeVue 写 null）。`translationId` 是
+     * 「翻译簇键」参与 `IS NULL` / 相等匹配，空串会被当成合法簇键把所有清空过的文章串到一起，
+     * 故必须归一为 null。 */
+    const normalized = typeof value === 'string' ? value.trim() : ''
+    post.value.translationId = normalized === '' ? null : normalized
+}
+
+const onVisibilityChange = (value: string | number | null | undefined) => {
+    if (typeof value === 'string') {
+        post.value.visibility = value as typeof post.value.visibility
+    }
+}
 
 const handleExport = () => {
     if (!post.value.id) {

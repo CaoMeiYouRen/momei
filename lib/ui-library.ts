@@ -378,6 +378,7 @@ const ADMIN_DASHBOARD_ROUTE_SCOPE = {
         'pages/admin/marketing/index.vue',
         'pages/admin/migrations/link-governance.vue',
         'pages/admin/notifications/index.vue',
+        'pages/admin/posts/[id].vue',
         'pages/admin/posts/index.vue',
         'pages/admin/settings/index.vue',
         'pages/admin/settings/theme.vue',
@@ -389,12 +390,7 @@ const ADMIN_DASHBOARD_ROUTE_SCOPE = {
         'pages/admin/users/index.vue',
         'pages/admin/waitlist/index.vue',
     ],
-    primeVueSubRoutes: [
-        {
-            file: 'pages/admin/posts/[id].vue',
-            reason: '编辑器路由不在数据列表批次范围内（共享组件三件套走消费处静态择库）；其页面用 `PostEditorHeader`，不渲染路由择库的头部切换器。随条目 2 编辑器子批转正。',
-        },
-    ],
+
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
@@ -470,16 +466,54 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     { prefix: '/admin/calendar', ...ADMIN_CALENDAR_ROUTE_SCOPE },
     // 灵感收纳箱：页面 + 5 个片段组件；`/capture` 子路由随本批迁移。
     { prefix: '/admin/snippets', ...ADMIN_SNIPPETS_ROUTE_SCOPE },
+    // 文章路由：列表页 + 编辑器子路由（第七十一阶段条目 2 编辑器子批整迁）。
+    // 编辑器族与列表页共享 V2 三件套（`post-audit-badge-v2` / `post-audit-dialog-v2` / `publish-push-dialog-v2`），
+    // 编辑器改用 V2 后 V1 三件套的消费者清零，已随本批删除。
     {
         prefix: '/admin/posts',
-        // 编辑器子路由不在数据列表批次的迁移范围内（仍全面使用 PrimeVue；其共享组件走
-        // 「消费处静态择库」，继续使用 V1 三件套）。已逐处核对：该页面不引用组件内择库型过渡组件。
-        primeVueSubRoutes: [
-            {
-                file: 'pages/admin/posts/[id].vue',
-                reason: '编辑器路由不在数据列表批次范围内（共享组件三件套走消费处静态择库）；其页面用 `PostEditorHeader`，不渲染路由择库的头部切换器。',
-            },
+        ownedFiles: [
+            'components/admin/posts/ai-image-generator.vue',
+            'components/admin/posts/post-audit-badge-v2.vue',
+            'components/admin/posts/post-audit-dialog-v2.vue',
+            'components/admin/posts/post-distribution-button.vue',
+            'components/admin/posts/post-editor-drag-mask.vue',
+            'components/admin/posts/post-editor-header.vue',
+            'components/admin/posts/post-editor-media-settings.vue',
+            'components/admin/posts/post-editor-perspective-panel.vue',
+            'components/admin/posts/post-editor-review-panel.vue',
+            'components/admin/posts/post-editor-rewrite-compare.vue',
+            'components/admin/posts/post-editor-settings.vue',
+            'components/admin/posts/post-editor-setup-reminder.vue',
+            'components/admin/posts/post-editor-voice-overlay.vue',
+            'components/admin/posts/post-history-panel.vue',
+            'components/admin/posts/post-media-preview-cell.vue',
+            'components/admin/posts/post-social-dialog.vue',
+            'components/admin/posts/post-translation-workflow-dialog.vue',
+            'components/admin/posts/post-tts-dialog.vue',
+            'components/admin/posts/publish-push-dialog-v2.vue',
         ],
+        inScopeComponents: [
+            // 编辑器批次迁入、此前不在批次基准的族。
+            'Textarea',
+            'Message',
+            'Skeleton',
+            'Divider',
+            'Image',
+            'ProgressSpinner',
+            'ProgressBar',
+            'Checkbox',
+            'RadioButton',
+            'ToggleSwitch',
+            'AutoComplete',
+            'InputGroup',
+            'SplitButton',
+            'ButtonGroup',
+            'Avatar',
+            'InputNumber',
+            // **不登记 `DatePicker`**：发布确认浮层的排期选择仍为 PrimeVue（B3 表单族，随 B3 残留族收口），
+            // 登记会让本路由立即判红。`Card` 同理（编辑器不使用）。
+        ],
+        migratedSubRoutes: ['pages/admin/posts/[id].vue'],
     },
     // 组件型目标型路由（`/admin/categories` + `/admin/tags`）：两个 host 共享同一份路由自有实体组件
     // 与同一组在册族增量，故复用同一范围常量——同一文件被两条口径分别判定的可能性在结构上被排除。

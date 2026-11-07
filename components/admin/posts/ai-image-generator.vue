@@ -11,12 +11,13 @@
         <div class="ai-generator__container">
             <div v-if="showUsageSelector" class="ai-generator__section">
                 <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.usage_label') }}</label>
-                <SelectButton
-                    v-model="currentAssetUsage"
+                <CaomeiSelectButton
+                    :model-value="currentAssetUsage"
                     :options="usageOptions"
                     option-label="label"
                     option-value="value"
                     :disabled="generating"
+                    @update:model-value="onAssetUsageChange"
                 />
                 <small class="ai-generator__section-hint">{{ $t('pages.admin.posts.ai.cover_generator.usage_hint') }}</small>
             </div>
@@ -27,14 +28,18 @@
                         {{ $t('pages.admin.posts.ai.cover_generator.dimension_title') }}
                     </label>
                     <AppTooltip :content="$t('pages.admin.posts.ai.cover_generator.magic_hint')">
-                        <Button
-                            icon="pi pi-sparkles"
-                            :label="$t('pages.admin.posts.ai.cover_generator.magic_btn')"
-                            size="small"
-                            text
+                        <CaomeiButton
+                            variant="ghost"
+                            tone="neutral"
+                            size="sm"
                             :loading="magicLoading"
                             @click="generateMagicPrompt"
-                        />
+                        >
+                            <template #icon>
+                                <Sparkles :size="14" />
+                            </template>
+                            {{ $t('pages.admin.posts.ai.cover_generator.magic_btn') }}
+                        </CaomeiButton>
                     </AppTooltip>
                 </div>
                 <div class="ai-generator__dimension-grid">
@@ -46,11 +51,10 @@
                         <label :for="`dimension-${field.key}`" class="ai-generator__dimension-label">
                             {{ field.label }}
                         </label>
-                        <InputText
+                        <CaomeiInput
                             :id="`dimension-${field.key}`"
                             v-model="promptDimensions[field.key]"
                             :placeholder="field.placeholder"
-                            fluid
                             :disabled="generating"
                         />
                     </div>
@@ -61,11 +65,10 @@
                 <label for="prompt-preview" class="ai-generator__label">
                     {{ $t('pages.admin.posts.ai.cover_generator.prompt_preview') }}
                 </label>
-                <Textarea
+                <CaomeiTextarea
                     id="prompt-preview"
                     :model-value="composedPrompt"
-                    rows="7"
-                    fluid
+                    :rows="7"
                     class="ai-generator__textarea"
                     readonly
                 />
@@ -75,34 +78,34 @@
             <div class="ai-generator__options">
                 <div class="ai-generator__option-item">
                     <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.images_count') }}</label>
-                    <SelectButton
-                        v-model="imageCount"
+                    <CaomeiSelectButton
+                        :model-value="imageCount"
                         :options="imageCountOptions"
                         option-label="label"
                         option-value="value"
                         aria-labelledby="image-count"
                         :disabled="generating"
+                        @update:model-value="onImageCountChange"
                     />
                 </div>
                 <div class="ai-generator__option-item">
                     <label class="ai-generator__label">{{ $t('pages.admin.posts.ai.cover_generator.resolution') }}</label>
-                    <SelectButton
-                        v-model="resolution"
+                    <CaomeiSelectButton
+                        :model-value="resolution"
                         :options="resolutionOptions"
                         option-label="label"
                         option-value="value"
                         aria-labelledby="resolution"
                         :disabled="generating"
+                        @update:model-value="onResolutionChange"
                     />
                 </div>
             </div>
 
             <div v-if="generating" class="ai-generator__status">
-                <ProgressSpinner
-                    style="width: 50px; height: 50px"
-                    stroke-width="4"
-                    fill="transparent"
-                    animation-duration=".5s"
+                <CaomeiProgressSpinner
+                    size="lg"
+                    :stroke-width="4"
                 />
                 <div class="ai-generator__status-content">
                     <p class="ai-generator__status-text">
@@ -117,7 +120,7 @@
             <!-- Generated Images Preview -->
             <div v-if="generatedImages.length > 0" class="ai-generator__preview">
                 <div class="ai-generator__preview-header">
-                    <i class="pi pi-image text-primary" />
+                    <ImageIcon :size="16" class="text-primary" />
                     {{ $t('common.preview') }}
                 </div>
                 <div class="ai-generator__images-grid">
@@ -128,14 +131,14 @@
                         :class="{'ai-generator__image-card--selected': selectedImageIndex === index}"
                         @click="selectedImageIndex = index"
                     >
-                        <Image
-                            :src="img.url"
-                            alt="Generated Cover"
-                            width="180"
-                            class="ai-generator__image"
-                        />
+                        <div class="ai-generator__image">
+                            <CaomeiImage
+                                :src="img.url"
+                                alt="Generated Cover"
+                            />
+                        </div>
                         <div v-if="selectedImageIndex === index" class="ai-generator__selected-badge">
-                            <i class="pi pi-check" />
+                            <Check :size="14" />
                         </div>
                     </div>
                 </div>
@@ -147,43 +150,53 @@
 
         <template #footer>
             <div class="ai-generator__footer">
-                <Button
+                <CaomeiButton
                     v-if="generatedImages.length > 0"
-                    :label="$t('common.retry')"
-                    icon="pi pi-refresh"
-                    text
-                    severity="warn"
+                    variant="ghost"
+                    tone="warning"
                     class="ai-generator__btn-retry"
                     :disabled="generating"
                     @click="resetGenerator"
-                />
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ $t('common.retry') }}
+                </CaomeiButton>
                 <div v-else />
 
                 <div class="ai-generator__actions">
-                    <Button
-                        :label="$t('common.cancel')"
-                        text
-                        severity="secondary"
+                    <CaomeiButton
+                        variant="ghost"
+                        tone="neutral"
                         class="ai-generator__btn-cancel"
                         @click="visible = false"
-                    />
-                    <Button
+                    >
+                        {{ $t('common.cancel') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-if="generatedImages.length > 0"
-                        :label="$t('common.confirm')"
-                        icon="pi pi-check"
-                        severity="success"
+                        tone="success"
                         class="ai-generator__btn-apply"
                         @click="applyImage"
-                    />
-                    <Button
+                    >
+                        <template #icon>
+                            <Check :size="16" />
+                        </template>
+                        {{ $t('common.confirm') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-else
-                        :label="$t('pages.admin.posts.ai.cover_generator.generate_btn')"
-                        icon="pi pi-wand-lines"
                         class="ai-generator__btn-generate"
                         :loading="generating"
                         :disabled="!composedPrompt"
                         @click="generateImage"
-                    />
+                    >
+                        <template #icon>
+                            <WandSparkles :size="16" />
+                        </template>
+                        {{ $t('pages.admin.posts.ai.cover_generator.generate_btn') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </template>
@@ -191,6 +204,7 @@
 </template>
 
 <script setup lang="ts">
+import { Check, Image as ImageIcon, RefreshCw, Sparkles, WandSparkles } from '@lucide/vue'
 import { ref, computed, watch } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'caomei-ui'
@@ -255,6 +269,24 @@ const promptDimensions = ref<AIVisualPromptDimensions>(extractVisualPromptDimens
         language: props.language || locale.value,
     }),
 ))
+
+const onAssetUsageChange = (value: string | number | Array<string | number> | undefined) => {
+    if (typeof value === 'string') {
+        currentAssetUsage.value = value as AIVisualAssetUsage
+    }
+}
+
+const onImageCountChange = (value: string | number | Array<string | number> | undefined) => {
+    if (typeof value === 'number') {
+        imageCount.value = value
+    }
+}
+
+const onResolutionChange = (value: string | number | Array<string | number> | undefined) => {
+    if (typeof value === 'string') {
+        resolution.value = value
+    }
+}
 
 const imageCount = ref(1)
 const imageCountOptions = [
@@ -554,7 +586,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
             white-space: nowrap;
         }
 
-        :deep(.p-selectbutton) {
+        :deep(.caomei-select-button) {
             flex-shrink: 0;
         }
     }
@@ -625,7 +657,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
             box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
         }
 
-        :deep(.p-image) {
+        :deep(.caomei-image) {
             display: block;
             width: 100%;
             height: 100%;
@@ -653,10 +685,6 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         justify-content: center;
         font-size: 0.875rem;
         box-shadow: $shadow-sm;
-    }
-
-    &__image-wrapper {
-        position: relative;
     }
 
     &__image {
@@ -736,18 +764,6 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-
-        :deep(.p-button-label) {
-            flex: none;
-            line-height: 1;
-            display: inline-block;
-        }
-
-        :deep(.p-button-icon) {
-            margin: 0 !important; /* 取消默认 margin，使用 gap 控制 */
-            color: white;
-            font-size: 1rem;
-        }
     }
 
     &__btn-retry {
@@ -777,10 +793,6 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         &:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba($color-success, 0.3);
-        }
-
-        :deep(.p-button-icon) {
-            margin-right: 0.5rem;
         }
     }
 }

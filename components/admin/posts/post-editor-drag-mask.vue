@@ -1,13 +1,17 @@
 <template>
     <div class="drag-mask">
         <div class="drag-tip">
-            <i class="pi pi-upload upload-icon" />
+            <Upload :size="64" class="upload-icon" />
             <div class="upload-text">
                 {{ $t('common.drag_drop_tip') }}
             </div>
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import { Upload } from '@lucide/vue'
+</script>
 
 <style lang="scss" scoped>
 .drag-mask {
@@ -26,7 +30,6 @@
 
 .upload-icon {
     margin-bottom: 1rem;
-    font-size: 4rem;
     color: var(--p-primary-500);
 }
 

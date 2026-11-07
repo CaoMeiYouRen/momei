@@ -2,67 +2,92 @@
     <div class="top-bar">
         <div class="top-bar-left">
             <AppTooltip :content="$t('pages.admin.posts.back_to_list')">
-                <Button
-                    icon="pi pi-arrow-left"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="$t('pages.admin.posts.back_to_list')"
                     @click="navigateTo(localePath('/admin/posts'))"
-                />
+                >
+                    <template #icon>
+                        <ArrowLeft :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
-            <InputText
+            <CaomeiInput
                 v-model="post.title"
                 :placeholder="$t('pages.admin.posts.title_placeholder')"
                 class="title-input"
-                :class="{'p-invalid': errors.title}"
+                :invalid="Boolean(errors.title)"
                 @focus="rememberFocusedEditorElement"
             />
-            <ButtonGroup class="ai-tools-group">
+            <CaomeiButtonGroup class="ai-tools-group">
                 <!-- AI 写作 SplitButton: 主按钮→改写风格选择, 下拉→标题建议/续写/扩写/缩写 -->
                 <AppTooltip :content="$t('pages.admin.posts.ai.ai_writing')">
-                    <SplitButton
+                    <CaomeiSplitButton
                         id="ai-writing-btn"
                         ref="writingBtnRef"
-                        icon="pi pi-pencil"
-                        text
-                        outlined
+                        variant="secondary"
+                        tone="neutral"
+                        :label="$t('pages.admin.posts.ai.ai_writing')"
                         :loading="writingLoading"
                         :model="writingMenuItems"
                         @click="showRewritePopover"
-                    />
+                    >
+                        <template #icon>
+                            <Pencil :size="16" />
+                        </template>
+                    </CaomeiSplitButton>
                 </AppTooltip>
                 <!-- AI 审校: 触发审查 + 视角检查（编辑视角），badge 显示合并总数 -->
                 <AppTooltip :content="$t('pages.admin.posts.ai.review')">
-                    <Button
+                    <CaomeiButton
                         id="ai-review-btn"
-                        icon="pi pi-search"
-                        text
-                        outlined
+                        icon-only
+                        variant="secondary"
+                        tone="neutral"
+                        icon-position="end"
+                        :label="$t('pages.admin.posts.ai.review')"
                         :loading="aiLoading.review || aiLoading.perspective"
                         :badge="combinedFindings > 0 ? String(combinedFindings) : undefined"
                         @click="handleReviewClick"
-                    />
+                    >
+                        <template #icon>
+                            <Search :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
                 <!-- AI 翻译: SplitButton with language selection -->
                 <AppTooltip :content="$t('pages.admin.posts.ai.translate')">
-                    <SplitButton
+                    <CaomeiSplitButton
                         id="ai-translate-btn"
-                        icon="pi pi-language"
-                        text
-                        outlined
+                        variant="secondary"
+                        tone="neutral"
+                        :label="$t('pages.admin.posts.ai.translate')"
                         :loading="aiLoading.translate"
                         :model="translateMenuItems"
                         @click="emit('translate-content', null)"
-                    />
+                    >
+                        <template #icon>
+                            <Languages :size="16" />
+                        </template>
+                    </CaomeiSplitButton>
                 </AppTooltip>
                 <!-- 格式化 Markdown -->
                 <AppTooltip :content="$t('pages.admin.posts.ai.format_markdown')">
-                    <Button
+                    <CaomeiButton
                         id="format-markdown-btn"
-                        icon="pi pi-align-left"
-                        text
-                        outlined
+                        icon-only
+                        variant="secondary"
+                        tone="neutral"
+                        :label="$t('pages.admin.posts.ai.format_markdown')"
                         @click="handleFormatMarkdown"
-                    />
+                    >
+                        <template #icon>
+                            <AlignLeft :size="16" />
+                        </template>
+                    </CaomeiButton>
                 </AppTooltip>
                 <!-- 语音输入 -->
                 <AppVoiceInputTrigger
@@ -72,7 +97,7 @@
                     :show-refine-action="true"
                     button-class="top-bar__voice-trigger"
                 />
-            </ButtonGroup>
+            </CaomeiButtonGroup>
             <CaomeiPopover
                 :open="rewriteOpen"
                 @update:open="rewriteOpen = $event"
@@ -104,13 +129,17 @@
                             class="rewrite-menu__item"
                             @click="handleRewriteSelect(style.value as string)"
                         >
-                            <i :class="style.icon" class="rewrite-menu__item-icon" />
+                            <component
+                                :is="style.icon"
+                                :size="18"
+                                class="rewrite-menu__item-icon"
+                            />
                             <div class="rewrite-menu__item-text">
                                 <div class="rewrite-menu__item-label">
-                                    {{ style.label }}
+                                    {{ $t(style.labelKey) }}
                                 </div>
                                 <div class="rewrite-menu__item-desc">
-                                    {{ style.desc }}
+                                    {{ $t(style.descKey) }}
                                 </div>
                             </div>
                         </div>
@@ -157,9 +186,8 @@
                     :key="l.code"
                     :content="l.name"
                 >
-                    <Tag
-                        :value="l.code.toUpperCase()"
-                        :severity="post.language === l.code ? 'success' : 'secondary'"
+                    <CaomeiTag
+                        :tone="post.language === l.code ? 'success' : 'neutral'"
                         class="translation-badge"
                         :class="{
                             'translation-badge--active': post.language === l.code,
@@ -168,64 +196,95 @@
                         }"
                         @mousedown.capture="rememberActiveEditorElement(); onTranslationBadgeMousedown(l.code, $event)"
                         @click="onTranslationBadgeClick(l.code)"
-                    />
+                    >
+                        {{ l.code.toUpperCase() }}
+                    </CaomeiTag>
                 </AppTooltip>
             </div>
-            <Tag
+            <CaomeiTag
                 v-if="post.status"
-                :value="getStatusLabel(post.status)"
-                :severity="getStatusSeverity(post.status)"
+                :tone="severityToTone(getStatusSeverity(post.status))"
                 class="mr-2 status-tag"
-            />
+            >
+                {{ getStatusLabel(post.status) }}
+            </CaomeiTag>
             <span v-if="saving" class="saving-text">{{
                 $t("common.saving")
             }}</span>
             <AdminPostsPostDistributionButton ref="distributionButtonRef" :post="post" />
             <slot name="audit" />
-            <Button
+            <CaomeiButton
                 v-if="!isNew || post.id"
-                :label="$t('common.preview')"
-                icon="pi pi-external-link"
-                text
+                variant="ghost"
+                tone="neutral"
                 @click="emit('preview')"
-            />
-            <Button
-                :label="$t('common.save')"
-                icon="pi pi-save"
-                text
+            >
+                <template #icon>
+                    <ExternalLink :size="16" />
+                </template>
+                {{ $t('common.preview') }}
+            </CaomeiButton>
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
                 :loading="saving"
                 @click="emit('save', false)"
-            />
-            <Button
-                :label="publishButtonLabel"
-                icon="pi pi-send"
+            >
+                <template #icon>
+                    <Save :size="16" />
+                </template>
+                {{ $t('common.save') }}
+            </CaomeiButton>
+            <CaomeiButton
+                tone="neutral"
                 :loading="saving"
-                severity="contrast"
                 @click="emit('save', true)"
-            />
+            >
+                <template #icon>
+                    <Send :size="16" />
+                </template>
+                {{ publishButtonLabel }}
+            </CaomeiButton>
             <AppTooltip :content="$t('common.drag_drop_help')">
-                <Button
-                    icon="pi pi-info-circle"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
-                    severity="secondary"
-                />
+                    :label="$t('common.drag_drop_help')"
+                >
+                    <template #icon>
+                        <Info :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
             <AppTooltip v-if="!isNew || post.id" :content="$t('pages.admin.posts.history_versions')">
-                <Button
-                    icon="pi pi-history"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="$t('pages.admin.posts.history_versions')"
                     @click="emit('open-history')"
-                />
+                >
+                    <template #icon>
+                        <History :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
             <AppTooltip :content="$t('common.settings')">
-                <Button
-                    icon="pi pi-cog"
-                    text
+                <CaomeiButton
+                    icon-only
+                    variant="ghost"
+                    tone="neutral"
                     rounded
+                    :label="$t('common.settings')"
                     @click="emit('open-settings')"
-                />
+                >
+                    <template #icon>
+                        <Settings :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
         </div>
 
@@ -246,13 +305,31 @@
 </template>
 
 <script setup lang="ts">
+import {
+    AlignLeft,
+    ArrowLeft,
+    ArrowRight,
+    ExternalLink,
+    Forward,
+    History,
+    Info,
+    Languages,
+    Pencil,
+    Save,
+    Search,
+    Send,
+    Settings,
+    Sparkles,
+} from '@lucide/vue'
 import { useToast } from 'caomei-ui'
 import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
+import { severityToTone } from '@/utils/shared/ui-tone'
+import { POST_EDITOR_REWRITE_STYLES as rewriteStyles } from './post-editor-rewrite-styles'
 import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
 import PostEditorPerspectivePanel from '@/components/admin/posts/post-editor-perspective-panel.vue'
 import type { PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
-import type { MenuItem } from 'primevue/menuitem'
+import type { DropdownMenuModelItem } from 'caomei-ui'
 
 const post = defineModel<any>('post', { required: true })
 
@@ -361,10 +438,10 @@ const showRewritePopover = () => {
 }
 
 /** Menu items for the AI 写作 SplitButton (改写为主按钮, 菜单含标题建议/续写/扩写/缩写) */
-const writingMenuItems = computed<MenuItem[]>(() => [
+const writingMenuItems = computed<DropdownMenuModelItem[]>(() => [
     {
         label: t('pages.admin.posts.ai.suggest_titles'),
-        icon: 'pi pi-sparkles',
+        icon: Sparkles,
         command: () => {
             // Get anchor via template ref for reliable DOM access
             const anchor = getWritingBtnEl()
@@ -377,26 +454,26 @@ const writingMenuItems = computed<MenuItem[]>(() => [
     },
     {
         label: t('pages.admin.posts.ai.continue'),
-        icon: 'pi pi-forward',
+        icon: Forward,
         command: () => { showStylePopover('continue') },
     },
     {
         label: t('pages.admin.posts.ai.expand'),
-        icon: 'pi pi-arrow-right',
+        icon: ArrowRight,
         command: () => { showStylePopover('expand') },
     },
     {
         label: t('pages.admin.posts.ai.condense'),
-        icon: 'pi pi-arrow-left',
+        icon: ArrowLeft,
         command: () => { showStylePopover('condense') },
     },
 ])
 
 /** Menu items for the AI 翻译 SplitButton */
-const translateMenuItems = computed<MenuItem[]>(() =>
+const translateMenuItems = computed<DropdownMenuModelItem[]>(() =>
     props.locales.map((l: any) => ({
         label: l.name || l.code.toUpperCase(),
-        icon: getLangIcon(l.code),
+        icon: Languages,
         command: () => {
             if (l.code === post.value.language) return
             const existingTrans = props.hasTranslation(l.code)
@@ -408,45 +485,6 @@ const translateMenuItems = computed<MenuItem[]>(() =>
         },
     })),
 )
-
-const rewriteStyles = [
-    {
-        value: 'casual' as const,
-        icon: 'pi pi-comments',
-        label: t('pages.admin.posts.ai.rewrite_style_casual'),
-        desc: t('pages.admin.posts.ai.rewrite_style_casual_desc'),
-    },
-    {
-        value: 'formal' as const,
-        icon: 'pi pi-building',
-        label: t('pages.admin.posts.ai.rewrite_style_formal'),
-        desc: t('pages.admin.posts.ai.rewrite_style_formal_desc'),
-    },
-    {
-        value: 'academic' as const,
-        icon: 'pi pi-book',
-        label: t('pages.admin.posts.ai.rewrite_style_academic'),
-        desc: t('pages.admin.posts.ai.rewrite_style_academic_desc'),
-    },
-    {
-        value: 'technical' as const,
-        icon: 'pi pi-cog',
-        label: t('pages.admin.posts.ai.rewrite_style_technical'),
-        desc: t('pages.admin.posts.ai.rewrite_style_technical_desc'),
-    },
-    {
-        value: 'creative' as const,
-        icon: 'pi pi-palette',
-        label: t('pages.admin.posts.ai.rewrite_style_creative'),
-        desc: t('pages.admin.posts.ai.rewrite_style_creative_desc'),
-    },
-    {
-        value: 'concise' as const,
-        icon: 'pi pi-compass',
-        label: t('pages.admin.posts.ai.rewrite_style_concise'),
-        desc: t('pages.admin.posts.ai.rewrite_style_concise_desc'),
-    },
-]
 
 const handleRewriteSelect = (style: string) => {
     hideRewrite()
@@ -529,13 +567,6 @@ const handleFormatMarkdown = async () => {
     }
 }
 
-const getLangIcon = (code: string) => {
-    if (code.startsWith('zh')) return 'fi fi-cn'
-    if (code.startsWith('en')) return 'fi fi-us'
-    if (code.startsWith('ja')) return 'fi fi-jp'
-    return 'pi pi-globe'
-}
-
 defineExpose({
     titleOp,
     openDistribution: async () => {
@@ -545,6 +576,20 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+
+/* `CaomeiPopoverTrigger` 会给触发器元素套上默认的按钮外观（边框 / 背景 / 最小尺寸）。
+ * 本文件的两个锚点只用于固定定位承接 `useAnchoredPopover()` 的坐标，首帧尚无内联尺寸，
+ * 不加复位会在顶栏留下两个 26×36 的空盒子（迁移前 PrimeVue `Popover.show(target)` 无触发器元素）。 */
+.rewrite-popover-anchor,
+.title-popover-anchor {
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+}
+
 .top-bar {
     display: flex;
     justify-content: space-between;

@@ -36,7 +36,7 @@
                 </div>
                 <div class="detail-item mt-2">
                     <span class="label">{{ $t('pages.admin.ai.status') }}:</span>
-                    <CaomeiTag :tone="toTone(getStatusSeverity(task.status))">
+                    <CaomeiTag :tone="severityToTone(getStatusSeverity(task.status))">
                         {{ $t(`pages.admin.ai.statuses.${task.status}`) }}
                     </CaomeiTag>
                 </div>
@@ -50,7 +50,7 @@
                     <span class="label">{{ $t('pages.admin.ai.charge_status') }}:</span>
                     <CaomeiTag
                         v-if="task.chargeStatus"
-                        :tone="toTone(getChargeStatusSeverity(task.chargeStatus))"
+                        :tone="severityToTone(getChargeStatusSeverity(task.chargeStatus))"
                     >
                         {{ $t(`pages.admin.ai.charge_statuses.${task.chargeStatus}`) }}
                     </CaomeiTag>
@@ -173,6 +173,7 @@
 import { parseMaybeJson } from '@/utils/shared/coerce'
 import { formatDecimal } from '@/utils/shared/number'
 import { formatAICost } from '@/utils/shared/ai-cost'
+import { severityToTone } from '@/utils/shared/ui-tone'
 import { formatAIAdminJson, getAIChargeStatusSeverity, getAITaskStatusSeverity } from '@/utils/shared/ai-admin'
 import { ChartColumn, Code, Copy, Database, Images, Volume2 } from '@lucide/vue'
 import type {
@@ -203,15 +204,6 @@ const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const formatMoney = (value: unknown) => formatAICost(value, props.costDisplay)
 const getStatusSeverity = getAITaskStatusSeverity
 const getChargeStatusSeverity = getAIChargeStatusSeverity
-const toTone = (severity: string) => {
-    switch (severity) {
-        case 'success': return 'success'
-        case 'info': return 'primary'
-        case 'warning': return 'warning'
-        case 'danger': return 'danger'
-        default: return 'neutral'
-    }
-}
 const formatJson = formatAIAdminJson
 
 const governanceMetrics = computed(() => [

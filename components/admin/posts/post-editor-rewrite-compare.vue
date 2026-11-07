@@ -10,12 +10,14 @@
     >
         <div class="rewrite-compare__body">
             <div class="rewrite-compare__badge">
-                <Tag :value="styleLabel" severity="info" />
+                <CaomeiTag tone="primary">
+                    {{ styleLabel }}
+                </CaomeiTag>
             </div>
             <div class="rewrite-compare__columns">
                 <div class="rewrite-compare__col">
                     <div class="rewrite-compare__col-header">
-                        <i class="pi pi-file" />
+                        <FileText :size="16" />
                         {{ $t('pages.admin.posts.ai.rewrite_original') }}
                     </div>
                     <div class="rewrite-compare__content">
@@ -24,7 +26,7 @@
                 </div>
                 <div class="rewrite-compare__col rewrite-compare__col--new">
                     <div class="rewrite-compare__col-header">
-                        <i class="pi pi-pencil" />
+                        <Pencil :size="16" />
                         {{ $t('pages.admin.posts.ai.rewrite_result') }}
                     </div>
                     <div class="rewrite-compare__content">
@@ -35,24 +37,32 @@
         </div>
         <template #footer>
             <div class="rewrite-compare__footer">
-                <Button
-                    :label="$t('pages.admin.posts.ai.rewrite_keep_original')"
-                    icon="pi pi-times"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
+                    tone="neutral"
                     @click="emit('cancel')"
-                />
-                <Button
-                    :label="$t('pages.admin.posts.ai.rewrite_apply')"
-                    icon="pi pi-check"
-                    severity="success"
+                >
+                    <template #icon>
+                        <X :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.ai.rewrite_keep_original') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    tone="success"
                     @click="emit('confirm')"
-                />
+                >
+                    <template #icon>
+                        <Check :size="16" />
+                    </template>
+                    {{ $t('pages.admin.posts.ai.rewrite_apply') }}
+                </CaomeiButton>
             </div>
         </template>
     </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { Check, FileText, Pencil, X } from '@lucide/vue'
 import type { RewriteCompareData } from '@/types/ai'
 
 const { t } = useI18n()

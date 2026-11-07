@@ -9,67 +9,79 @@
         <div class="social-post-dialog">
             <div class="social-post-dialog__platform">
                 <label>{{ $t('pages.admin.posts.social_post.platform_label') }}</label>
-                <Select
+                <CaomeiSelect
                     v-model="platform"
                     :options="platformOptions"
                     option-label="label"
                     option-value="value"
                     class="w-full"
                 >
-                    <template #option="slotProps">
+                    <template #option="{option}">
                         <div class="social-post-dialog__select-option">
-                            <i :class="slotProps.option.icon" :style="{color: slotProps.option.color}" />
-                            <span>{{ slotProps.option.label }}</span>
+                            <i :class="option.icon" :style="{color: option.color}" />
+                            <span>{{ option.label }}</span>
                         </div>
                     </template>
-                    <template #value="slotProps">
-                        <div v-if="slotProps.value" class="social-post-dialog__select-value">
+                    <template #value="{option, label}">
+                        <div v-if="option" class="social-post-dialog__select-value">
                             <i :class="selectedPlatform?.icon" :style="{color: selectedPlatform?.color}" />
-                            <span>{{ selectedPlatform?.label }}</span>
+                            <span>{{ label }}</span>
                         </div>
-                        <span v-else>{{ slotProps.placeholder }}</span>
+                        <span v-else>{{ $t('pages.admin.posts.social_post.platform_label') }}</span>
                     </template>
-                </Select>
+                </CaomeiSelect>
             </div>
 
-            <Button
-                :label="$t('pages.admin.posts.social_post.generate_btn')"
-                icon="pi pi-sparkles"
+            <CaomeiButton
                 :loading="generating"
                 class="social-post-dialog__generate"
                 @click="handleGenerate"
-            />
+            >
+                <template #icon>
+                    <Sparkles :size="16" />
+                </template>
+                {{ $t('pages.admin.posts.social_post.generate_btn') }}
+            </CaomeiButton>
 
             <div v-if="result" class="social-post-dialog__result">
-                <Textarea
+                <CaomeiTextarea
                     v-model="result"
                     :rows="12"
                     readonly
                     class="social-post-dialog__textarea"
                 />
                 <div class="social-post-dialog__actions">
-                    <Button
-                        :label="copied ? $t('pages.admin.posts.social_post.copy_success') : $t('pages.admin.posts.social_post.copy_btn')"
-                        :icon="copied ? 'pi pi-check' : 'pi pi-copy'"
-                        :severity="copied ? 'success' : 'secondary'"
-                        size="small"
+                    <CaomeiButton
+                        :tone="copied ? 'success' : 'neutral'"
+                        :variant="copied ? 'primary' : 'secondary'"
+                        size="sm"
                         @click="handleCopy"
-                    />
+                    >
+                        <template #icon>
+                            <component :is="copied ? Check : Copy" :size="14" />
+                        </template>
+                        {{ copied ? $t('pages.admin.posts.social_post.copy_success') : $t('pages.admin.posts.social_post.copy_btn') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </div>
         <template #footer>
-            <Button
-                :label="$t('common.close')"
-                icon="pi pi-times"
-                text
+            <CaomeiButton
+                variant="ghost"
+                tone="neutral"
                 @click="$emit('update:visible', false)"
-            />
+            >
+                <template #icon>
+                    <X :size="16" />
+                </template>
+                {{ $t('common.close') }}
+            </CaomeiButton>
         </template>
     </CaomeiDialog>
 </template>
 
 <script setup lang="ts">
+import { Check, Copy, Sparkles, X } from '@lucide/vue'
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import { SOCIAL_POST_PLATFORMS } from '@/utils/shared/social-post-platforms'

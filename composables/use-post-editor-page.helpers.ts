@@ -332,15 +332,6 @@ export function restorePostFromHistory(post: Ref<PostEditorData>, clearLocalDraf
     clearLocalDraft()
 }
 
-export function searchTagOptions(allTags: Ref<string[]>, filteredTags: Ref<string[]>, event: { query: string }) {
-    if (!event.query.trim().length) {
-        filteredTags.value = [...allTags.value]
-        return
-    }
-
-    filteredTags.value = allTags.value.filter((tag) => tag.toLowerCase().startsWith(event.query.toLowerCase()))
-}
-
 export function getPostStatusLabel(t: Composer['t'], status: string) {
     const map: Record<string, string> = {
         published: t('common.status.published'),
