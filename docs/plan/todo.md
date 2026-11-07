@@ -48,7 +48,8 @@
     - **验收**: 全仓 `pi pi-` 零残留（脚本口径 0）；11 项品牌图标逐一登记落点；视觉 24/24、parity 全绿。
 
 - [ ] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
-    - **执行范围**: vitest PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步（`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 由例外转为正式迁移）；视觉与 parity 基线按迁移后实测校准；复算 `keyCss` 与 `coreEntryJs` 并归因（`keyCss` 不得越过 70KB）。
+    - **执行范围**: vitest PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步；视觉与 parity 基线按迁移后实测校准；复算 `keyCss` 与 `coreEntryJs` 并归因（`keyCss` 不得越过 70KB）。
+    - **过渡组件去 `-v2` 后缀（2026-11-07 用户确认，单独小提交）**: `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` 的 V1 已随条目 2 删除，重命名为去 `-v2` 的正式名，并同步 `pages/admin/posts/{index,[id]}.vue` 的 import 与模板标签、`pages/admin/posts/index.test.ts` 的模块 mock 与断言标记、`lib/ui-library.ts` 的 `ownedFiles`、`tests/modules/ui-library-transition-component-guard.test.ts` 的消费处择库注册表，以及迁移方案 §5.5 / B4 清单 / 回归窗口中的引用。`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` **等条目 3 把其 V1 消费者清零后**再统一处理。**验收**：posts 族无 `-v2` 残留；过渡守卫「注册表与磁盘一致」通过；定向组件测试与 `typecheck` / `lint` 0 error。
     - **非目标**: 不借机重构无关测试；不降低断言强度。
     - **验收**: 全量 `pnpm test` 通过；guard 全绿；E2E critical 三浏览器通过；包体与样式预算复算记录落盘。
 
