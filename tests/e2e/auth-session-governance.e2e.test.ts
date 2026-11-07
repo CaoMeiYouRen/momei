@@ -231,14 +231,14 @@ test.describe('Auth Session Governance E2E Tests', () => {
 
         await openNewDraftEditor(page)
 
-        await page.locator('.title-input').fill('Playwright unsaved draft')
+        await page.locator('.title-input input').fill('Playwright unsaved draft')
         const originalUrl = page.url()
         const { currentLanguage, targetLanguage } = await pickDifferentLanguage(page)
 
         await clickLanguageBadge(page, targetLanguage)
 
         await expect(page).toHaveURL(originalUrl)
-        await expect(page.locator('.title-input')).toHaveValue('Playwright unsaved draft')
+        await expect(page.locator('.title-input input')).toHaveValue('Playwright unsaved draft')
         await expect(getActiveLanguageBadge(page)).toContainText(currentLanguage)
     })
 })

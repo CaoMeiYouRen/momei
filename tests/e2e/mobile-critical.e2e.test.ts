@@ -51,7 +51,7 @@ test.describe('Mobile Critical Admin Flow E2E Tests', () => {
         await expect(page).toHaveURL(/\/admin\/posts\/new(?:\?|$)/, { timeout: 20000 })
         await expect(page.locator('.editor-layout')).toBeVisible({ timeout: 20000 })
 
-        await page.locator('.title-input').fill('Mobile editor smoke')
+        await page.locator('.title-input input').fill('Mobile editor smoke')
 
         const contentEditor = page.locator('.mavon-editor textarea, .mavon-editor .auto-textarea-input').first()
         await expect(contentEditor).toBeVisible({ timeout: 20000 })
