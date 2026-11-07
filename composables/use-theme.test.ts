@@ -217,6 +217,16 @@ describe('useTheme', () => {
         expect(payload.link.value).toEqual([{ rel: 'icon', href: '/favicon.ico' }])
     })
 
+    it('should declare the shared layer order before the override block', () => {
+        const { customStyles } = useTheme()
+        const styles = customStyles.value
+        const orderDeclaration = '@layer primevue, momei-base, momei-overrides;'
+
+        // 内联样式可能早于外链 main.css 到达文档，必须自行声明层序，否则 primevue 会排到覆盖层之后。
+        expect(styles.indexOf(orderDeclaration)).toBeGreaterThan(-1)
+        expect(styles.indexOf(orderDeclaration)).toBeLessThan(styles.indexOf('@layer momei-overrides {'))
+    })
+
     it('should fall back when custom colors are blank-like strings and use readable contrast for bright primary', () => {
         const { settings, customStyles } = useTheme()
         settings.value!.themePrimaryColor = ' #ffe411 '

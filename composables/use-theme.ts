@@ -291,6 +291,12 @@ export const useTheme = () => {
         }
 
         let styles = `
+/* 与 styles/main.scss 同源声明层序：本段由 useHead 内联注入，可能早于外链 main.css 到达文档，
+ * 若由这里的 \`@layer momei-overrides\` 先建立层序，primevue 会被排到其后并反向胜出
+ * （表现为暗色下内容底色取到 Aura 的 surface.900 亮色）。前置声明保证
+ * 无论注入先后，层序恒为 primevue → momei-base → momei-overrides。 */
+@layer primevue, momei-base, momei-overrides;
+
 @layer momei-overrides {
     :root {
         ${generateVariables('light')}
