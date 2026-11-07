@@ -5,7 +5,7 @@
         :class="{'comment-item--reply': isReply}"
     >
         <div class="comment-item__avatar">
-            <AppAvatar
+            <AppAvatarV2
                 :image="comment.author?.image"
                 :email-hash="comment.authorEmailHash"
                 :name="comment.authorName"
@@ -30,25 +30,30 @@
                     <span v-else class="comment-item__author-name">
                         {{ comment.authorName }}
                     </span>
-                    <Tag
+                    <CaomeiTag
                         v-if="comment.authorId"
-                        :value="$t('common.author')"
-                        size="small"
+                        tone="primary"
+                        size="sm"
                         class="comment-item__author-tag"
-                    />
-                    <Tag
+                    >
+                        {{ $t('common.author') }}
+                    </CaomeiTag>
+                    <CaomeiTag
                         v-if="comment.isSticked"
-                        :value="$t('comments.sticked')"
-                        severity="warn"
-                        size="small"
+                        tone="warning"
+                        size="sm"
                         class="comment-item__sticked-tag"
-                    />
-                    <Tag
+                    >
+                        {{ $t('comments.sticked') }}
+                    </CaomeiTag>
+                    <CaomeiTag
                         v-if="showSourceLanguageTag"
-                        :value="sourceLanguageLabel"
-                        size="small"
+                        tone="neutral"
+                        size="sm"
                         class="comment-item__language-tag"
-                    />
+                    >
+                        {{ sourceLanguageLabel }}
+                    </CaomeiTag>
                 </div>
                 <div class="comment-item__meta">
                     <time :datetime="comment.createdAt" class="comment-item__date">
@@ -59,7 +64,7 @@
 
             <div class="comment-item__content">
                 <p v-if="comment.status === 'pending'" class="comment-item__pending">
-                    <i class="pi pi-clock" /> {{ $t('comments.pending_audit') }}
+                    <Clock :size="14" /> {{ $t('comments.pending_audit') }}
                 </p>
                 <!-- eslint-disable vue/no-v-html -->
                 <div
@@ -87,22 +92,28 @@
             </div>
 
             <div class="comment-item__actions">
-                <Button
-                    icon="pi pi-reply"
-                    :label="$t('comments.reply')"
-                    text
-                    size="small"
+                <CaomeiButton
+                    variant="ghost"
+                    size="sm"
                     @click="$emit('reply', comment)"
-                />
-                <Button
+                >
+                    <template #icon>
+                        <Reply :size="14" />
+                    </template>
+                    {{ $t('comments.reply') }}
+                </CaomeiButton>
+                <CaomeiButton
                     v-if="canToggleTranslation"
-                    icon="pi pi-language"
-                    :label="translationActionLabel"
-                    text
-                    size="small"
+                    variant="ghost"
+                    size="sm"
                     :loading="isTranslating"
                     @click="toggleTranslation"
-                />
+                >
+                    <template #icon>
+                        <Languages :size="14" />
+                    </template>
+                    {{ translationActionLabel }}
+                </CaomeiButton>
                 <!-- 后续可以增加点赞功能 -->
             </div>
 
@@ -121,8 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import Tag from 'primevue/tag'
-import Button from 'primevue/button'
+import { Clock, Languages, Reply } from '@lucide/vue'
 import type { Comment, CommentTranslationResult } from '@/types/comment'
 import { getLocaleRegistryItem, resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
@@ -400,11 +410,6 @@ watch([
     font-size: 0.875rem;
   }
 
-  &__language-tag {
-    background-color: var(--p-surface-100);
-    color: var(--p-text-muted-color);
-  }
-
   &__translation-feedback--muted {
     color: var(--p-text-muted-color);
   }
@@ -429,11 +434,6 @@ watch([
 
   .comment-item__author-link {
     color: var(--p-primary-color);
-  }
-
-  .comment-item__language-tag {
-    background-color: var(--p-surface-700);
-    color: var(--p-surface-100);
   }
 
   &__pending {

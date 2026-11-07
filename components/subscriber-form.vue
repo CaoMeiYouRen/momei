@@ -9,47 +9,50 @@
 
         <form class="subscriber-form__body" @submit.prevent="handleSubmit">
             <div class="subscriber-form__input-group">
-                <IconField icon-position="left" class="subscriber-form__field">
-                    <InputIcon class="pi pi-envelope" />
-                    <InputText
-                        v-model="email"
-                        type="email"
-                        :placeholder="$t('components.subscriber_form.placeholder')"
-                        required
-                        class="subscriber-form__input"
-                        :disabled="loading"
-                    />
-                </IconField>
-                <Button
+                <CaomeiInput
+                    v-model="email"
+                    type="email"
+                    :placeholder="$t('components.subscriber_form.placeholder')"
+                    required
+                    class="subscriber-form__field subscriber-form__input"
+                    :disabled="loading"
+                >
+                    <template #prefix>
+                        <Mail :size="16" />
+                    </template>
+                </CaomeiInput>
+                <CaomeiButton
                     type="submit"
-                    :label="loading ? $t('components.subscriber_form.submitting') : $t('components.subscriber_form.submit')"
                     :loading="loading"
                     class="subscriber-form__submit"
-                />
+                >
+                    {{ loading ? $t('components.subscriber_form.submitting') : $t('components.subscriber_form.submit') }}
+                </CaomeiButton>
             </div>
             <transition name="fade">
-                <Message
+                <CaomeiMessage
                     v-if="message"
-                    :severity="messageType"
-                    size="small"
+                    :tone="messageType"
+                    size="sm"
                     variant="simple"
                     class="mt-3 subscriber-form__message"
                 >
                     {{ message }}
-                </Message>
+                </CaomeiMessage>
             </transition>
         </form>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Mail } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t, locale } = useI18n()
 const email = ref('')
 const loading = ref(false)
 const message = ref('')
-const messageType = ref<'success' | 'error' | 'secondary'>('secondary')
+const messageType = ref<'success' | 'danger' | 'neutral'>('neutral')
 
 // 如果用户已登录，预填充其邮箱
 const session = authClient.useSession()
@@ -86,7 +89,7 @@ const handleSubmit = async () => {
         // 后端现在统一返回 200 (幂等)，所以通常不会走到 error
         // 除非是验证失败或其他意外错误
         message.value = error.data?.message || t('common.unexpected_error')
-        messageType.value = 'error'
+        messageType.value = 'danger'
     } finally {
         loading.value = false
     }
@@ -139,24 +142,8 @@ const handleSubmit = async () => {
         flex: 1;
     }
 
-    &__input {
-        width: 100%;
-        height: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
-        border-radius: $border-radius-md;
-        border: 1px solid var(--p-surface-300);
-        transition: border-color $transition-fast, box-shadow $transition-fast;
-
-        &:focus {
-            border-color: var(--p-primary-500);
-            box-shadow: 0 0 0 2px var(--p-primary-100);
-        }
-    }
-
     &__submit {
-        padding: 0.75rem 1.5rem;
         font-weight: 600;
-        border-radius: $border-radius-md;
         white-space: nowrap;
         justify-content: center;
     }
@@ -192,15 +179,5 @@ const handleSubmit = async () => {
     background: linear-gradient(135deg, var(--p-surface-0) 0%, var(--p-surface-50) 100%);
     border-color: var(--p-surface-100);
     box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
-
-    /* 内部输入框样式 */
-    &__input {
-        background: var(--p-surface-100);
-        border-color: var(--p-surface-200);
-
-        &:focus {
-            background: var(--p-surface-200);
-        }
-    }
 }
 </style>

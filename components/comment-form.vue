@@ -2,59 +2,59 @@
     <div class="comment-form">
         <div v-if="parentId" class="comment-form__replying-to">
             <span>{{ $t('comments.replying_to') }} @{{ replyToName }}</span>
-            <Button
-                icon="pi pi-times"
-                severity="secondary"
-                text
+            <CaomeiButton
+                variant="ghost"
                 rounded
-                size="small"
+                icon-only
+                size="sm"
+                :label="$t('common.cancel')"
                 @click="$emit('cancel-reply')"
-            />
+            >
+                <template #icon>
+                    <X :size="14" />
+                </template>
+            </CaomeiButton>
         </div>
 
         <form @submit.prevent="handleSubmit">
             <div v-if="!user" class="comment-form__guest-info">
                 <div class="comment-form__field">
                     <label for="nickname">{{ $t('comments.nickname') }}*</label>
-                    <InputText
+                    <CaomeiInput
                         id="nickname"
                         v-model="form.authorName"
                         :placeholder="$t('comments.nickname_placeholder')"
                         required
-                        fluid
                     />
                 </div>
                 <div class="comment-form__field">
                     <label for="email">{{ $t('comments.email') }}*</label>
-                    <InputText
+                    <CaomeiInput
                         id="email"
                         v-model="form.authorEmail"
                         type="email"
                         :placeholder="$t('comments.email_placeholder')"
                         required
-                        fluid
                     />
                 </div>
                 <div class="comment-form__field">
                     <label for="website">{{ $t('comments.website') }}</label>
-                    <InputText
+                    <CaomeiInput
                         id="website"
                         v-model="form.authorUrl"
                         type="url"
                         :placeholder="$t('comments.website_placeholder')"
-                        fluid
                     />
                 </div>
             </div>
 
             <div class="comment-form__content">
-                <Textarea
+                <CaomeiTextarea
                     v-model="form.content"
                     :placeholder="user ? $t('comments.content_placeholder_logged_in') : $t('comments.content_placeholder_guest')"
-                    rows="4"
+                    :rows="4"
                     required
                     auto-resize
-                    fluid
                 />
             </div>
 
@@ -62,12 +62,15 @@
                 <p v-if="!user" class="comment-form__tip">
                     {{ $t('comments.guest_tip') }}
                 </p>
-                <Button
+                <CaomeiButton
                     type="submit"
-                    :label="$t('comments.submit')"
                     :loading="submitting"
-                    icon="pi pi-send"
-                />
+                >
+                    <template #icon>
+                        <Send :size="16" />
+                    </template>
+                    {{ $t('comments.submit') }}
+                </CaomeiButton>
             </div>
         </form>
     </div>
@@ -75,9 +78,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import Button from 'primevue/button'
+import { Send, X } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 
 const { t } = useI18n()

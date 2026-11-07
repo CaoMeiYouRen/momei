@@ -53,21 +53,19 @@ mockNuxtImport('useI18n', () => () => ({
 mockNuxtImport('$fetch', () => fetchMock)
 
 const stubs = {
-    IconField: { template: '<div class="icon-field"><slot /></div>' },
-    InputIcon: { template: '<span class="input-icon"><slot /></span>' },
-    InputText: {
-        template: '<input :value="modelValue" :disabled="disabled" :type="type" @input="$emit(\'update:modelValue\', $event.target.value)">',
+    CaomeiInput: {
+        template: '<span><slot name="prefix" /><input :value="modelValue" :disabled="disabled" :type="type" @input="$emit(\'update:modelValue\', $event.target.value)"></span>',
         props: ['modelValue', 'disabled', 'type', 'placeholder'],
         emits: ['update:modelValue'],
     },
-    Button: {
-        template: '<button :type="type" :disabled="loading" @click="$emit(\'click\')">{{ label }}</button>',
-        props: ['type', 'label', 'loading'],
+    CaomeiButton: {
+        template: '<button :type="type" :disabled="loading" @click="$emit(\'click\')"><slot /></button>',
+        props: ['type', 'loading'],
         emits: ['click'],
     },
-    Message: {
-        template: '<div class="message" :data-severity="severity"><slot /></div>',
-        props: ['severity', 'size', 'variant'],
+    CaomeiMessage: {
+        template: '<div class="message" :data-tone="tone"><slot /></div>',
+        props: ['tone', 'size', 'variant'],
     },
 }
 
@@ -114,7 +112,7 @@ describe('SubscriberForm', () => {
                 language: 'zh-CN',
             },
         })
-        expect(wrapper.find('.message').attributes('data-severity')).toBe('success')
+        expect(wrapper.find('.message').attributes('data-tone')).toBe('success')
         expect(wrapper.text()).toContain('Subscription successful')
         expect(wrapper.get('input').element.value).toBe('')
     })
@@ -155,7 +153,7 @@ describe('SubscriberForm', () => {
         await wrapper.get('input').setValue('reader@example.com')
         await wrapper.get('form').trigger('submit')
 
-        expect(wrapper.find('.message').attributes('data-severity')).toBe('error')
+        expect(wrapper.find('.message').attributes('data-tone')).toBe('danger')
         expect(wrapper.text()).toContain('Subscription failed')
         expect(wrapper.get('button').attributes('disabled')).toBeUndefined()
     })

@@ -39,12 +39,12 @@ mockNuxtImport('useI18n', () => () => ({
 }))
 
 const stubs = {
-    Button: {
-        template: '<button :data-icon="icon" @click="$emit(\'click\')"><slot /></button>',
-        props: ['icon', 'severity', 'rounded', 'text', 'size'],
+    CaomeiButton: {
+        template: '<button :data-variant="variant" @click="$emit(\'click\')"><slot name="icon" /><slot /></button>',
+        props: ['variant', 'rounded', 'size', 'loading', 'iconOnly', 'label'],
         emits: ['click'],
     },
-    Slider: {
+    CaomeiSlider: {
         template: '<input class="slider" type="range" :value="modelValue" @input="$emit(\'update:modelValue\', Number($event.target.value))">',
         props: ['modelValue', 'min', 'max', 'step'],
         emits: ['update:modelValue'],

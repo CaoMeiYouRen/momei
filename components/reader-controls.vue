@@ -24,7 +24,7 @@
             <!-- 字号调节 -->
             <div class="reader-controls__section">
                 <label>{{ $t('components.reader.font_size') }}: {{ settings.fontSize }}px</label>
-                <Slider
+                <CaomeiSlider
                     v-model="settings.fontSize"
                     :min="14"
                     :max="26"
@@ -36,7 +36,7 @@
             <!-- 行高调节 -->
             <div class="reader-controls__section">
                 <label>{{ $t('components.reader.line_height') }}: {{ settings.lineHeight }}</label>
-                <Slider
+                <CaomeiSlider
                     v-model="settings.lineHeight"
                     :min="1.4"
                     :max="2.2"
@@ -48,7 +48,7 @@
             <!-- 页宽调节 -->
             <div class="reader-controls__section">
                 <label>{{ $t('components.reader.page_width') }}: {{ settings.width }}px</label>
-                <Slider
+                <CaomeiSlider
                     v-model="settings.width"
                     :min="600"
                     :max="1000"
@@ -58,13 +58,17 @@
             </div>
 
             <div class="flex justify-end mt-4">
-                <Button
-                    icon="pi pi-refresh"
-                    severity="secondary"
-                    text
-                    size="small"
+                <CaomeiButton
+                    variant="ghost"
+                    icon-only
+                    size="sm"
+                    :label="$t('common.refresh')"
                     @click="resetSettings"
-                />
+                >
+                    <template #icon>
+                        <RotateCcw :size="14" />
+                    </template>
+                </CaomeiButton>
             </div>
         </div>
 
@@ -75,30 +79,42 @@
                 :content="$t('components.reader.mode_exit')"
                 side="left"
             >
-                <Button
-                    icon="pi pi-times"
-                    severity="secondary"
+                <CaomeiButton
+                    variant="secondary"
                     rounded
+                    icon-only
                     class="reader-controls__toggle"
+                    :label="$t('components.reader.mode_exit')"
                     @click="toggleReaderMode(false)"
-                />
+                >
+                    <template #icon>
+                        <X :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
 
             <!-- 设置面板切换 / 开启沉浸阅读 -->
             <AppTooltip :content="settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter')" side="left">
-                <Button
-                    :icon="settings.active ? 'pi pi-cog' : 'pi pi-book'"
-                    :severity="settings.active && isPanelExpanded ? 'primary' : 'secondary'"
+                <CaomeiButton
+                    :variant="settings.active && isPanelExpanded ? 'primary' : 'secondary'"
                     rounded
+                    icon-only
                     class="reader-controls__toggle"
+                    :label="settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter')"
                     @click="handleToggle"
-                />
+                >
+                    <template #icon>
+                        <Settings v-if="settings.active" :size="16" />
+                        <BookOpen v-else :size="16" />
+                    </template>
+                </CaomeiButton>
             </AppTooltip>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { BookOpen, RotateCcw, Settings, X } from '@lucide/vue'
 import { useReaderMode, type ReaderTheme } from '@/composables/use-reader-mode'
 
 const { settings, toggleReaderMode, isDark } = useReaderMode()

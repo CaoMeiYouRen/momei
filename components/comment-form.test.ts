@@ -6,16 +6,16 @@ import { authClient } from '@/lib/auth-client'
 
 // Mock PrimeVue components
 const stubs = {
-    Button: {
+    CaomeiButton: {
         emits: ['click'],
-        props: ['loading', 'label', 'type'],
-        template: '<button :disabled="loading" :type="type" @click="$emit(\'click\')">{{ label }}<slot /></button>',
+        props: ['loading', 'type'],
+        template: '<button :disabled="loading" :type="type" @click="$emit(\'click\')"><slot /></button>',
     },
-    InputText: {
-        props: ['modelValue'],
-        template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    CaomeiInput: {
+        props: ['modelValue', 'id'],
+        template: '<input :id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
-    Textarea: {
+    CaomeiTextarea: {
         props: ['modelValue', 'placeholder'],
         template: '<textarea :value="modelValue" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
