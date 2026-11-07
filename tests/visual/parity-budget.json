@@ -3764,9 +3764,20 @@
                     "pixels": 454,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1340,
+                        "y": 780,
+                        "width": 100,
+                        "height": 120
+                    },
+                    "pixels": 243,
+                    "reason": "阅读区浮动控件迁移（`ReaderControls`：PrimeVue `Button` 圆形按钮 + `Slider` → `CaomeiButton` / `CaomeiSlider`）：右下角两个图标按钮的边框、底色与尺寸差异；固定定位与圆角保持。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。"
         },
         "post-detail-dark": {
             "tier": "reader",
@@ -3794,9 +3805,20 @@
                     "pixels": 403,
                     "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
+                },
+                {
+                    "region": {
+                        "x": 1340,
+                        "y": 780,
+                        "width": 100,
+                        "height": 120
+                    },
+                    "pixels": 1733,
+                    "reason": "阅读区浮动控件迁移（`ReaderControls`：PrimeVue `Button` 圆形按钮 + `Slider` → `CaomeiButton` / `CaomeiSlider`）：右下角两个图标按钮的边框、底色与尺寸差异；固定定位与圆角保持。处置走通道① `--caomei-*` token。",
+                    "owner": "@full-stack-master"
                 }
             ],
-            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。"
+            "note": "2026-11-06 开工采集：该路由仍未迁移（PrimeVue 原貌），2026-11-07 起头部 / 反馈入口允许清单已按实测登记；页面本体仍未迁移（PrimeVue 原貌）。 2026-11-07 B4-B 全局壳（AppHeader / FeedbackEntryButton）迁移：新增头部与公开页反馈入口允许清单，声明值 = 各路由实测差异像素本身（头部跨路由 5,870–6,201px 的分布来自路由头部元素显隐与图标字形）。 2026-11-07 B4-B 公开页内容组件批：新增阅读区浮动控件允许清单，声明值 = 实测；页面正文的 230px 级差异为种子文章发布时间随服务启动变化的既有噪声（< 2000px 预算，未归因）。"
         },
         "friend-links-light": {
             "tier": "reader",
