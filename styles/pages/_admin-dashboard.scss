@@ -6,10 +6,10 @@
         display: grid;
         grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
         gap: $spacing-xl;
-        border: 1px solid color-mix(in srgb, var(--p-primary-300) 24%, transparent);
+        border: 1px solid color-mix(in srgb, var(--m-primary-300) 24%, transparent);
         background:
             linear-gradient(135deg, color-mix(in srgb, #f8fafc 80%, transparent), color-mix(in srgb, #fff7ed 72%, transparent)),
-            var(--p-surface-0);
+            var(--m-surface-0);
     }
 
     &__hero-copy {
@@ -35,7 +35,7 @@
 
     &__summary {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         max-width: 42rem;
     }
 
@@ -52,8 +52,8 @@
     }
 
     &__range-button {
-        border: 1px solid color-mix(in srgb, var(--p-surface-400) 24%, transparent);
-        background: color-mix(in srgb, var(--p-surface-0) 94%, transparent);
+        border: 1px solid color-mix(in srgb, var(--m-surface-400) 24%, transparent);
+        background: color-mix(in srgb, var(--m-surface-0) 94%, transparent);
         border-radius: $border-radius-lg;
         padding: $spacing-md;
         display: flex;
@@ -71,13 +71,13 @@
         &--active {
             border-color: color-mix(in srgb, #ea580c 58%, transparent);
             box-shadow: 0 0 0 1px color-mix(in srgb, #ea580c 14%, transparent);
-            background: linear-gradient(180deg, color-mix(in srgb, #fff7ed 88%, transparent), var(--p-surface-0));
+            background: linear-gradient(180deg, color-mix(in srgb, #fff7ed 88%, transparent), var(--m-surface-0));
         }
     }
 
     &__range-label,
     &__range-caption {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__range-value {
@@ -98,7 +98,7 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__metrics {
@@ -115,7 +115,7 @@
 
     &__ranking-card {
         // 同 `dashboard-metric-card`：描边走 `CaomeiCard` 的覆盖钩子，避免与组件类同特异性竞争。
-        --caomei-card-border: color-mix(in srgb, var(--p-surface-400) 18%, transparent);
+        --caomei-card-border: color-mix(in srgb, var(--m-surface-400) 18%, transparent);
 
         &--wide {
             min-width: 0;
@@ -141,7 +141,7 @@
         gap: $spacing-md;
         align-items: center;
         padding-bottom: $spacing-sm;
-        border-bottom: 1px solid color-mix(in srgb, var(--p-surface-300) 28%, transparent);
+        border-bottom: 1px solid color-mix(in srgb, var(--m-surface-300) 28%, transparent);
 
         &:last-child {
             padding-bottom: 0;
@@ -161,7 +161,7 @@
         }
 
         small {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
         }
     }
 
@@ -170,7 +170,7 @@
         align-items: center;
         gap: $spacing-sm;
         flex-wrap: wrap;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.85rem;
         justify-content: flex-end;
         flex-shrink: 0;

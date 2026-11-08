@@ -10,7 +10,7 @@
 }
 
 .admin-content-card {
-    background-color: var(--p-surface-card);
+    background-color: var(--caomei-color-bg);
     border-radius: $border-radius-md;
     padding: $spacing-lg;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
@@ -52,7 +52,7 @@
 
     label {
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin: 0;
     }
 }
@@ -85,6 +85,5 @@
 
     &--missing {
         opacity: 0.5;
-        border: 1px dashed var(--p-surface-border);
     }
 }

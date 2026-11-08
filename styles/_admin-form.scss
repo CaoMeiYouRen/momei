@@ -2,7 +2,7 @@
     display: block;
     font-weight: $weight;
     line-height: $line-height;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 
     @if $size != null {
         font-size: $size;
@@ -13,7 +13,7 @@
     }
 }
 
-@mixin admin-form-hint($size: 0.75rem, $color: var(--p-text-muted-color), $line-height: 1.4) {
+@mixin admin-form-hint($size: 0.75rem, $color: var(--caomei-color-text-muted), $line-height: 1.4) {
     font-size: $size;
     color: $color;
     line-height: $line-height;
@@ -54,7 +54,7 @@
             width: 32px;
             height: 32px;
             border-radius: 6px;
-            border: 1px solid var(--p-content-border-color);
+            border: 1px solid var(--caomei-color-border);
         }
     }
 
@@ -77,12 +77,12 @@
     #{$addon-selector} {
         display: flex;
         align-items: center;
-        background-color: var(--p-surface-100);
-        border: 1px solid var(--p-content-border-color);
+        background-color: var(--m-surface-100);
+        border: 1px solid var(--caomei-color-border);
         border-left: none;
         padding: 0 0.75rem;
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         border-top-right-radius: 6px;
         border-bottom-right-radius: 6px;
     }
@@ -96,7 +96,7 @@
     i {
         position: absolute;
         left: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         z-index: 1;
     }
 

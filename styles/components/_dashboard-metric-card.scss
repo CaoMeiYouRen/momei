@@ -3,10 +3,10 @@
 .dashboard-metric-card {
   // `CaomeiCard` 的描边 / 背景走 `--caomei-card-*` 覆盖钩子：`border` / `background`
   // 直接写在根类上与 `.caomei-card--outlined` 同特异性，胜负取决于样式表加载顺序，不可靠。
-  --caomei-card-border: color-mix(in srgb, var(--p-surface-400) 20%, transparent);
+  --caomei-card-border: color-mix(in srgb, var(--m-surface-400) 20%, transparent);
   --caomei-card-bg:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--p-primary-300) 22%, transparent), transparent 45%),
-    linear-gradient(180deg, color-mix(in srgb, var(--p-surface-0) 94%, transparent), var(--p-surface-0));
+    radial-gradient(circle at top right, color-mix(in srgb, var(--m-primary-300) 22%, transparent), transparent 45%),
+    linear-gradient(180deg, color-mix(in srgb, var(--m-surface-0) 94%, transparent), var(--m-surface-0));
 
   height: 100%;
 
@@ -25,14 +25,14 @@
 
   &__label {
     margin: 0;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     font-size: 0.95rem;
   }
 
   &__value {
     font-size: 2rem;
     line-height: 1;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
   }
 
   &__icon-wrap {
@@ -42,27 +42,27 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--p-surface-200) 70%, transparent);
+    background: color-mix(in srgb, var(--m-surface-200) 70%, transparent);
     flex-shrink: 0;
   }
 
   &--warm {
     .dashboard-metric-card__icon-wrap {
-      background: color-mix(in srgb, #f59e0b 18%, var(--p-surface-100));
+      background: color-mix(in srgb, #f59e0b 18%, var(--m-surface-100));
       color: #b45309;
     }
   }
 
   &--cool {
     .dashboard-metric-card__icon-wrap {
-      background: color-mix(in srgb, #0ea5e9 18%, var(--p-surface-100));
+      background: color-mix(in srgb, #0ea5e9 18%, var(--m-surface-100));
       color: #0369a1;
     }
   }
 
   &--neutral {
     .dashboard-metric-card__icon-wrap {
-      background: color-mix(in srgb, #10b981 18%, var(--p-surface-100));
+      background: color-mix(in srgb, #10b981 18%, var(--m-surface-100));
       color: #047857;
     }
   }

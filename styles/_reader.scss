@@ -85,8 +85,8 @@
     }
 
     &__panel {
-        background: var(--p-content-background);
-        border: 1px solid var(--p-content-border-color);
+        background: var(--m-surface-0);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 12px;
         padding: 1.5rem;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -116,7 +116,6 @@
             font-size: 0.875rem;
             font-weight: 500;
             margin-bottom: 0.75rem;
-            color: var(--p-text-secondary-color);
         }
     }
 
@@ -141,14 +140,14 @@
         transition: all 0.2s;
 
         &--active {
-            border-color: var(--p-primary-color);
+            border-color: var(--caomei-color-primary);
             transform: translateY(-2px);
         }
 
         &.theme-default {
-            --bg: var(--p-content-background);
-            --text: var(--p-content-text-color);
-            border: 1px solid var(--p-content-border-color);
+            --bg: var(--m-surface-0);
+            --text: var(--caomei-color-text);
+            border: 1px solid var(--caomei-color-border);
         }
 
         &.theme-sepia {

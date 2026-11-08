@@ -8,7 +8,7 @@ body .driver-popover {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border: 1px solid $onboarding-border;
     padding: $spacing-md;
-    font-family: var(--p-font-family, inherit);
+    font-family: var(--caomei-font-sans, inherit);
 
     .driver-popover-title {
         font-size: 1.125rem;
@@ -135,7 +135,7 @@ body .driver-popover {
         .driver-popover-prev-btn {
             background-color: $onboarding-prev-btn-bg-dark;
             color: $onboarding-prev-btn-color-dark;
-            border-color: var(--p-surface-600);
+            border-color: var(--m-surface-600);
 
             &:hover {
                 background-color: $onboarding-prev-btn-hover-dark;

@@ -16,7 +16,7 @@
 %auth-card-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     line-height: 1.5;
 }
 
@@ -28,13 +28,13 @@
 }
 
 %auth-card-link {
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
     text-decoration: none;
     transition: color 0.2s;
     line-height: 1.5;
 
     &:hover {
-        color: var(--p-primary-700);
+        color: var(--m-primary-700);
         text-decoration: underline;
     }
 }
@@ -42,9 +42,8 @@
 %auth-card {
     width: 100%;
     max-width: 400px;
-    background: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
+    background: var(--caomei-color-bg);
+    color: var(--caomei-color-text);
 }
 
 %auth-form {
