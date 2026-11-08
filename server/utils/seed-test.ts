@@ -8,6 +8,15 @@ import { auth } from '@/lib/auth'
 import { PostStatus, PostVisibility } from '@/types/post'
 
 /**
+ * 种子文章的固定发布时间。
+ *
+ * 视觉参考态（`tests/visual/parity/reference`）采集于 2026-11-06；TEST_MODE 每次启动都用
+ * 内存库重新种子，若按 `new Date()` 生成，参考态里的日期文本会随运行日漂移，把「测试数据时间」
+ * 伪装成「组件迁移差异」进入 parity 允许清单。固定时间让日期文本在基线与参考态之间保持稳定。
+ */
+const TEST_SEED_PUBLISHED_AT = new Date('2026-11-06T04:00:00.000Z')
+
+/**
  * 填充 E2E 测试所需的初始数据
  */
 export async function seedTestData(ds: DataSource) {
@@ -113,7 +122,7 @@ export async function seedTestData(ds: DataSource) {
                     visibility: PostVisibility.PUBLIC,
                     authorId: admin.id,
                     language: 'zh-CN',
-                    publishedAt: new Date(),
+                    publishedAt: TEST_SEED_PUBLISHED_AT,
                 })
                 await postRepo.save(post)
                 logger.info('[Test Seed] Test post created')
