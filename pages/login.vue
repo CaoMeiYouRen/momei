@@ -28,7 +28,7 @@
                         @click="handleGithubLogin"
                     >
                         <template #icon>
-                            <i class="pi pi-github" aria-hidden="true" />
+                            <i class="mdi mdi-github" aria-hidden="true" />
                         </template>
                         {{ $t('pages.login.github_login') }}
                     </CaomeiButton>
@@ -40,7 +40,7 @@
                         @click="handleGoogleLogin"
                     >
                         <template #icon>
-                            <i class="pi pi-google" aria-hidden="true" />
+                            <i class="mdi mdi-google" aria-hidden="true" />
                         </template>
                         {{ $t('pages.login.google_login') }}
                     </CaomeiButton>

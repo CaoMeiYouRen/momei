@@ -18,18 +18,24 @@
                     <Button
                         id="back-home-btn-global"
                         :label="$t('pages.error.back_home')"
-                        icon="pi pi-home"
                         @click="handleError"
-                    />
+                    >
+                        <template #icon>
+                            <Home :size="16" />
+                        </template>
+                    </Button>
                     <Button
                         v-if="!is404"
                         id="retry-btn-global"
                         :label="$t('pages.error.retry')"
-                        icon="pi pi-refresh"
                         severity="secondary"
                         text
                         @click="clearError({redirect: route.path})"
-                    />
+                    >
+                        <template #icon>
+                            <RefreshCw :size="16" />
+                        </template>
+                    </Button>
                 </div>
             </div>
         </main>
@@ -40,6 +46,8 @@
 </template>
 
 <script setup lang="ts">
+import { Home, RefreshCw } from '@lucide/vue'
+
 const props = defineProps({
     error: {
         type: Object,

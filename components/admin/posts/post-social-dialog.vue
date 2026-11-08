@@ -18,13 +18,21 @@
                 >
                     <template #option="{option}">
                         <div class="social-post-dialog__select-option">
-                            <i :class="option.icon" :style="{color: option.color}" />
+                            <component
+                                :is="option.icon"
+                                :size="16"
+                                :style="{color: option.color}"
+                            />
                             <span>{{ option.label }}</span>
                         </div>
                     </template>
                     <template #value="{option, label}">
                         <div v-if="option" class="social-post-dialog__select-value">
-                            <i :class="selectedPlatform?.icon" :style="{color: selectedPlatform?.color}" />
+                            <component
+                                :is="selectedPlatform?.icon"
+                                :size="16"
+                                :style="{color: selectedPlatform?.color}"
+                            />
                             <span>{{ label }}</span>
                         </div>
                         <span v-else>{{ $t('pages.admin.posts.social_post.platform_label') }}</span>

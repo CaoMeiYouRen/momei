@@ -19,13 +19,21 @@
                 >
                     <template #option="{option}">
                         <div class="commercial-link-dialog__select-option">
-                            <i :class="option.icon" :style="{color: option.color}" />
+                            <component
+                                :is="option.icon"
+                                :size="18"
+                                :style="{color: option.color}"
+                            />
                             <span>{{ option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${option.key}`) }}</span>
                         </div>
                     </template>
                     <template #value="{option}">
                         <div v-if="option" class="commercial-link-dialog__select-value">
-                            <i :class="platformIcon(option.key)" :style="{color: platformColor(option.key)}" />
+                            <component
+                                :is="platformIcon(option.key)"
+                                :size="18"
+                                :style="{color: platformColor(option.key)}"
+                            />
                             <span>{{ option.key === 'custom' ? $t('common.custom') : $t(`${platformI18nPrefix}.${option.key}`) }}</span>
                         </div>
                         <!-- 存量数据里的平台键可能不在当前选项集（旧版本改名 / 手改 DB）：
@@ -104,6 +112,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Component } from 'vue'
 import type { LocaleOption } from '@/types/utils'
 
 interface Link {
@@ -119,11 +128,11 @@ const visible = defineModel<boolean>('visible', { required: true })
 
 const props = withDefaults(defineProps<{
     editingIndex?: number
-    platforms: { key: string, icon: string, color: string }[]
+    platforms: { key: string, icon: Component, color: string }[]
     kind: 'social' | 'donation'
     i18nPrefix: string
     platformI18nPrefix: string
-    platformIcon: (key: string) => string
+    platformIcon: (key: string) => Component
     platformColor: (key: string) => string
     platformType: string
     showImage?: boolean

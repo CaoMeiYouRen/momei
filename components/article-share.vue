@@ -66,7 +66,11 @@
                             @click="openDirectShare(platform.key)"
                         >
                             <template #icon>
-                                <i :class="[platform.icon, 'article-share__platform-icon']" />
+                                <component
+                                    :is="platform.icon"
+                                    class="article-share__platform-icon"
+                                    :size="16"
+                                />
                             </template>
                             {{ getPlatformLabel(platform.key) }}
                         </CaomeiButton>
@@ -108,7 +112,11 @@
                             @click="copyPlatformShare(platform.key)"
                         >
                             <template #icon>
-                                <i :class="[platform.icon, 'article-share__platform-icon']" />
+                                <component
+                                    :is="platform.icon"
+                                    class="article-share__platform-icon"
+                                    :size="16"
+                                />
                             </template>
                             {{ getPlatformLabel(platform.key) }}
                         </CaomeiButton>
@@ -375,7 +383,6 @@ onMounted(() => {
         .article-share__section-desc {
             color: var(--p-surface-300);
         }
-
 
     }
 }

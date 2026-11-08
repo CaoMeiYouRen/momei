@@ -4,7 +4,7 @@
         <section class="hero">
             <div class="container hero__container">
                 <div class="hero__icon-wrapper">
-                    <i class="hero__icon pi pi-box" />
+                    <Box class="hero__icon" :size="32" />
                 </div>
 
                 <h1 class="hero__title">
@@ -32,7 +32,7 @@
                         :key="index"
                         class="capability-card"
                     >
-                        <i class="capability-card__check pi pi-check" />
+                        <Check class="capability-card__check" :size="16" />
                         <div class="capability-card__body">
                             <h3 class="capability-card__title">
                                 {{ rt(item.title) }}
@@ -63,7 +63,11 @@
                         class="premium-card"
                     >
                         <div class="premium-card__icon-wrapper">
-                            <i class="pi premium-card__icon" :class="rt(item.icon)" />
+                            <component
+                                :is="getPremiumIcon(rt(item.icon))"
+                                class="premium-card__icon"
+                                :size="24"
+                            />
                         </div>
                         <h3 class="premium-card__title">
                             {{ rt(item.title) }}
@@ -102,13 +106,14 @@
                             {{ row.feature }}
                         </div>
                         <div class="comparison-table__cell">
-                            <i
-                                class="comparison-table__icon"
-                                :class="row.free ? 'comparison-table__icon--check pi pi-check' : 'comparison-table__icon--dash pi pi-minus'"
+                            <component
+                                :is="row.free ? Check : Minus"
+                                :class="['comparison-table__icon', row.free ? 'comparison-table__icon--check' : 'comparison-table__icon--dash']"
+                                :size="18"
                             />
                         </div>
                         <div class="comparison-table__cell comparison-table__cell--highlight">
-                            <i class="comparison-table__icon comparison-table__icon--check pi pi-check" />
+                            <Check class="comparison-table__icon comparison-table__icon--check" :size="18" />
                         </div>
                     </div>
                 </div>
@@ -225,7 +230,10 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import { Box, Check, Languages, Minus, Send } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
+import { rawIcon } from '@/utils/shared/brand-icons'
 
 const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
@@ -251,6 +259,11 @@ interface FaqItem {
 
 const freeCoreItems = computed(() => tm('pages.enhanced_pack.free_core.items') as FreeCoreItem[])
 const premiumItems = computed(() => tm('pages.enhanced_pack.premium.items') as PremiumItem[])
+
+/** i18n 的 `icon` 字段（`pi-language` 等）作为语义键映射到 lucide，避免依赖词条数组顺序。 */
+const PREMIUM_ICON_MAP: Record<string, Component> = { language: rawIcon(Languages), send: rawIcon(Send), box: rawIcon(Box) }
+
+const getPremiumIcon = (legacyName: string) => PREMIUM_ICON_MAP[legacyName.replace(/^pi-/, '')] ?? rawIcon(Box)
 
 interface ComparisonRow {
     feature: string

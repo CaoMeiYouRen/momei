@@ -3,7 +3,9 @@
         <div class="commercial-manager__header">
             <div class="commercial-manager__header-info">
                 <h4 class="commercial-manager__section-title">
-                    <i :class="headerIcon" />
+                    <i :class="['commercial-manager__header-icon', `commercial-manager__header-icon--${kind}`]">
+                        <component :is="headerIcon" :size="18" />
+                    </i>
                     {{ $t(titleKey) }}
                 </h4>
                 <p class="commercial-manager__desc">
@@ -24,7 +26,9 @@
         </div>
 
         <div v-if="links.length === 0" class="commercial-manager__empty">
-            <i :class="emptyIcon" />
+            <i class="commercial-manager__empty-icon">
+                <component :is="emptyIcon" :size="48" />
+            </i>
             <p>{{ $t(emptyKey) }}</p>
         </div>
 
@@ -38,7 +42,7 @@
                     class="commercial-manager__card-icon"
                     :style="{color: getPlatformColor(link.platform)}"
                 >
-                    <i :class="getPlatformIcon(link.platform)" />
+                    <component :is="getPlatformIcon(link.platform)" :size="24" />
                 </div>
                 <div class="commercial-manager__card-content">
                     <div class="commercial-manager__card-label">
@@ -67,7 +71,7 @@
                         preview
                     >
                         <template #indicatoricon>
-                            <i class="pi pi-eye" />
+                            <Eye :size="16" />
                         </template>
                     </CaomeiImage>
                     <CaomeiButton
@@ -105,7 +109,8 @@
 </template>
 
 <script setup lang="ts">
-import { Pencil, Plus, Trash2 } from '@lucide/vue'
+import { Eye, Pencil, Plus, Trash2 } from '@lucide/vue'
+import type { Component } from 'vue'
 import {
     getCommercialPlatformColor,
     getCommercialPlatformIcon,
@@ -122,8 +127,8 @@ interface Props {
     description: string
     addLabel: string
     emptyKey: string
-    headerIcon: string
-    emptyIcon: string
+    headerIcon: Component
+    emptyIcon: Component
     links: CommercialLink[]
 }
 
@@ -198,7 +203,7 @@ function getPlatformName(key: string) {
             color: var(--p-primary-color);
         }
 
-        .pi-heart-fill {
+        .commercial-manager__header-icon--donation {
             color: var(--p-red-500);
         }
     }

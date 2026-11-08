@@ -64,6 +64,8 @@
 </template>
 
 <script setup lang="ts">
+import { Heart, Share2 } from '@lucide/vue'
+import { rawIcon } from '@/utils/shared/brand-icons'
 import {
     SOCIAL_PLATFORMS,
     DONATION_PLATFORMS,
@@ -109,16 +111,16 @@ const socialSection = {
     titleKey: 'pages.settings.commercial.social_links',
     emptyKey: 'pages.settings.commercial.empty_social',
     addLabelKey: 'pages.settings.commercial.add_social',
-    headerIcon: 'pi pi-share-alt',
-    emptyIcon: 'pi pi-share-alt',
+    headerIcon: rawIcon(Share2),
+    emptyIcon: rawIcon(Share2),
 }
 
 const donationSection = {
     titleKey: 'pages.settings.commercial.donation_links',
     emptyKey: 'pages.settings.commercial.empty_donation',
     addLabelKey: 'pages.settings.commercial.add_donation',
-    headerIcon: 'pi pi-heart-fill',
-    emptyIcon: 'pi pi-heart',
+    headerIcon: rawIcon(Heart),
+    emptyIcon: rawIcon(Heart),
 }
 
 // ── 描述键：复用同一逻辑，仅 suffix 不同（消除 C 组重复） ──

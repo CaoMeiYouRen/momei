@@ -2,10 +2,14 @@
     <div v-if="hasContent" class="article-sponsor">
         <div class="article-sponsor__header" @click="isCollapsed = !isCollapsed">
             <div class="article-sponsor__title">
-                <i class="article-sponsor__icon pi pi-heart-fill" />
+                <Heart class="article-sponsor__icon" :size="16" />
                 {{ $t('components.post.sponsor.title') }}
             </div>
-            <i :class="['pi', isCollapsed ? 'pi-chevron-down' : 'pi-chevron-up', 'article-sponsor__toggle']" />
+            <component
+                :is="isCollapsed ? ChevronDown : ChevronUp"
+                class="article-sponsor__toggle"
+                :size="13"
+            />
         </div>
 
         <div v-show="!isCollapsed" class="article-sponsor__body">
@@ -23,7 +27,12 @@
                             rel="noopener noreferrer"
                             class="article-sponsor__btn"
                         >
-                            <i :class="[getPlatformIcon(link.platform, 'social'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                            <component
+                                :is="getPlatformIcon(link.platform, 'social')"
+                                class="article-sponsor__btn-icon"
+                                :size="16"
+                                :style="{color: getPlatformColor(link.platform, 'social')}"
+                            />
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </a>
 
@@ -34,7 +43,12 @@
                             @click="showQR(link, 'social')"
                         >
                             <template #icon>
-                                <i :class="[getQrTriggerIcon(link.platform, 'social'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'social')}" />
+                                <component
+                                    :is="getQrTriggerIcon(link.platform, 'social')"
+                                    class="article-sponsor__btn-icon"
+                                    :size="16"
+                                    :style="{color: getPlatformColor(link.platform, 'social')}"
+                                />
                             </template>
                             {{ link.label || getPlatformName(link.platform, 'social') }}
                         </CaomeiButton>
@@ -56,7 +70,12 @@
                             rel="noopener noreferrer"
                             class="article-sponsor__btn"
                         >
-                            <i :class="[getPlatformIcon(link.platform, 'donation'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                            <component
+                                :is="getPlatformIcon(link.platform, 'donation')"
+                                class="article-sponsor__btn-icon"
+                                :size="16"
+                                :style="{color: getPlatformColor(link.platform, 'donation')}"
+                            />
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
                         </a>
 
@@ -67,7 +86,12 @@
                             @click="showQR(link, 'donation')"
                         >
                             <template #icon>
-                                <i :class="[getQrTriggerIcon(link.platform, 'donation'), 'article-sponsor__btn-icon']" :style="{color: getPlatformColor(link.platform, 'donation')}" />
+                                <component
+                                    :is="getQrTriggerIcon(link.platform, 'donation')"
+                                    class="article-sponsor__btn-icon"
+                                    :size="16"
+                                    :style="{color: getPlatformColor(link.platform, 'donation')}"
+                                />
                             </template>
                             {{ link.label || getPlatformName(link.platform, 'donation') }}
                         </CaomeiButton>
@@ -100,6 +124,9 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+import { ChevronDown, ChevronUp, Heart, QrCode } from '@lucide/vue'
+import { rawIcon } from '@/utils/shared/brand-icons'
 import type { ApiResponse } from '@/types/api'
 import {
     filterCommercialLinksByLocale,
@@ -156,6 +183,8 @@ const hasContent = computed(() => displaySocialLinks.value.length > 0 || display
 
 const getPlatformIcon = (key: string, type: 'social' | 'donation') => getCommercialPlatformIcon(key, type)
 
+const QR_CODE_ICON = rawIcon(QrCode)
+
 const getPlatformColor = (key: string, type: 'social' | 'donation') => getCommercialPlatformColor(key, type)
 
 const getPlatformName = (key: string, type: 'social' | 'donation') => {
@@ -171,16 +200,16 @@ const getPlatformType = (key: string) => {
     return getDonationPlatformType(key)
 }
 
-const getQrTriggerIcon = (key: string, type: 'social' | 'donation') => {
+const getQrTriggerIcon = (key: string, type: 'social' | 'donation'): Component => {
     if (key === 'custom') {
-        return 'pi pi-qrcode'
+        return QR_CODE_ICON
     }
 
     if (type === 'social') {
-        return getSocialPlatformType(key) === 'url' ? 'pi pi-qrcode' : getPlatformIcon(key, type)
+        return getSocialPlatformType(key) === 'url' ? QR_CODE_ICON : getPlatformIcon(key, type)
     }
 
-    return getDonationPlatformType(key) === 'url' ? 'pi pi-qrcode' : getPlatformIcon(key, type)
+    return getDonationPlatformType(key) === 'url' ? QR_CODE_ICON : getPlatformIcon(key, type)
 }
 
 const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') => {
@@ -339,7 +368,6 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
   &__title {
     color: var(--p-surface-100);
   }
-
 
   &__qr-label,
   &__section-title {

@@ -97,7 +97,7 @@ const {
     margin-top: 1.5rem;
 }
 
-// 迁移前为 `pi pi-chart-bar` / `pi pi-list`（primeicons 字体图标，`mr-2`）；换成 lucide SVG 后
+// 迁移前为图表 / 列表字体图标（primeicons，`mr-2`）；换成 lucide SVG 后
 // 按实测补横向间距与基线补偿（SVG 默认贴基线，会比字体图标低约 2px）。
 .ai-tabs__icon {
     margin-right: 0.5rem;

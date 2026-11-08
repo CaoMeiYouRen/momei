@@ -55,7 +55,7 @@
                                 :key="index"
                                 class="feature-list__item"
                             >
-                                <i class="feature-list__icon pi pi-check" />
+                                <Check class="feature-list__icon" :size="16" />
                                 <span>{{ rt(feature) }}</span>
                             </li>
                         </ul>
@@ -78,7 +78,11 @@
                         class="feature-card"
                     >
                         <div class="feature-card__icon-wrapper">
-                            <i class="feature-card__icon" :class="getFeatureIcon(index)" />
+                            <component
+                                :is="getFeatureIcon(index)"
+                                class="feature-card__icon"
+                                :size="20"
+                            />
                         </div>
                         <h3 class="feature-card__title">
                             {{ rt(item.title) }}
@@ -100,7 +104,7 @@
 
                 <div class="contact-links">
                     <a href="mailto:contact@momei.app" class="contact-link">
-                        <i class="contact-link__icon pi pi-envelope" />
+                        <Mail class="contact-link__icon" :size="20" />
                         <span>{{ $t('pages.about.contact.email') }}</span>
                     </a>
 
@@ -109,7 +113,7 @@
                         target="_blank"
                         class="contact-link"
                     >
-                        <i class="contact-link__icon pi pi-github" />
+                        <i class="contact-link__icon mdi mdi-github" />
                         <span>GitHub</span>
                     </a>
 
@@ -118,12 +122,12 @@
                         target="_blank"
                         class="contact-link"
                     >
-                        <i class="contact-link__icon pi pi-book" />
+                        <BookOpen class="contact-link__icon" :size="20" />
                         <span>{{ $t('pages.about.contact.blog') }}</span>
                     </a>
 
                     <NuxtLink :to="localePath('/benefits')" class="contact-link">
-                        <i class="contact-link__icon pi pi-box" />
+                        <Box class="contact-link__icon" :size="20" />
                         <span>{{ $t('pages.enhanced_pack.hero.cta') }}</span>
                     </NuxtLink>
                 </div>
@@ -144,6 +148,9 @@
 </template>
 
 <script setup lang="ts">
+import { BookOpen, Box, Check, Globe, Link as LinkIcon, Mail, Pencil } from '@lucide/vue'
+import { rawIcon } from '@/utils/shared/brand-icons'
+
 const { t, tm, rt } = useI18n()
 const localePath = useLocalePath()
 
@@ -157,10 +164,9 @@ usePageSeo({
     image: '/logo.png',
 })
 
-const getFeatureIcon = (index: number) => {
-    const icons = ['pi-pencil', 'pi-link', 'pi-globe']
-    return icons[index] || 'pi-check'
-}
+const FEATURE_ICONS = [rawIcon(Pencil), rawIcon(LinkIcon), rawIcon(Globe)]
+
+const getFeatureIcon = (index: number) => FEATURE_ICONS[index] || rawIcon(Check)
 
 // 平滑滚动逻辑
 onMounted(() => {

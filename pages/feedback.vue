@@ -15,7 +15,7 @@
         <div class="feedback-page__grid">
             <article class="feedback-page__card">
                 <div class="feedback-page__card-header">
-                    <i class="pi pi-github" aria-hidden="true" />
+                    <i class="mdi mdi-github" aria-hidden="true" />
                     <div>
                         <h2>{{ $t('pages.feedback.project.title') }}</h2>
                         <p>{{ $t('pages.feedback.project.description') }}</p>
@@ -35,7 +35,7 @@
                     rel="noopener noreferrer"
                 >
                     <span>{{ $t('pages.feedback.project.action') }}</span>
-                    <i class="pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink :size="16" aria-hidden="true" />
                 </a>
             </article>
 
@@ -50,9 +50,11 @@
                     >
                     <i
                         v-else
-                        class="pi pi-life-ring"
+                        class="feedback-page__card-header-icon"
                         aria-hidden="true"
-                    />
+                    >
+                        <LifeBuoy :size="16" />
+                    </i>
                     <div>
                         <h2>{{ $t('pages.feedback.deployment.title', {site: siteOperatorName}) }}</h2>
                         <p>{{ $t('pages.feedback.deployment.description', {site: siteOperatorName}) }}</p>
@@ -73,7 +75,11 @@
                     :rel="feedbackUrl ? 'noopener noreferrer' : undefined"
                 >
                     <span>{{ deploymentActionLabel }}</span>
-                    <i :class="feedbackUrl ? 'pi pi-external-link' : 'pi pi-envelope'" aria-hidden="true" />
+                    <component
+                        :is="feedbackUrl ? ExternalLink : Mail"
+                        :size="16"
+                        aria-hidden="true"
+                    />
                 </a>
 
                 <p v-else class="feedback-page__fallback">
@@ -85,6 +91,8 @@
 </template>
 
 <script setup lang="ts">
+import { ExternalLink, LifeBuoy, Mail } from '@lucide/vue'
+
 const projectIssuesUrl = 'https://github.com/CaoMeiYouRen/momei/issues/new/choose'
 
 const { t } = useI18n()

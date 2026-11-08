@@ -195,12 +195,11 @@
 </template>
 
 <script setup lang="ts">
-import { AlignLeft, Eye, Image as ImageIcon, List, MessageSquare, Mic, RefreshCw, Search, Trash2, Volume2 } from '@lucide/vue'
+import { Eye, List, RefreshCw, Search, Trash2 } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
-import type { Component } from 'vue'
 import { formatDecimal } from '@/utils/shared/number'
 import { formatAICost } from '@/utils/shared/ai-cost'
-import { getAIChargeStatusSeverity, getAITaskStatusSeverity } from '@/utils/shared/ai-admin'
+import { getAIChargeStatusSeverity, getAITaskStatusSeverity, getAITaskTypeIcon } from '@/utils/shared/ai-admin'
 import type { AdminAiPageEvent } from '@/composables/use-admin-ai-page'
 import type {
     AIAdminTaskListFilters,
@@ -248,19 +247,8 @@ const taskStatuses = computed(() => [
     { label: t('pages.admin.ai.statuses.failed'), value: 'failed' },
 ])
 
-/**
- * 任务类型图标：迁移前用 `getAITaskTypeIcon(type)` 返回 `pi pi-*` 字体图标类（该 util 同时服务未迁移的
- * 任务详情组件，故不改动共享实现），此处按同一分支顺序落在 **lucide 组件映射**上（图标随组件库迁移）。
- */
-const TYPE_ICON_MAP: Record<string, Component> = {
-    image_generation: ImageIcon,
-    tts: Volume2,
-    podcast: Mic,
-    transcription: MessageSquare,
-    text_generation: AlignLeft,
-}
-
-const getTypeIcon = (type: AIAdminTaskListItem['type']) => TYPE_ICON_MAP[String(type)] ?? AlignLeft
+/** 任务类型图标由共享 util 统一返回 lucide 组件（数据驱动图标随组件库迁移）。 */
+const getTypeIcon = (type: AIAdminTaskListItem['type']) => getAITaskTypeIcon(type)
 
 /**
  * 语义色映射（页面本地，不改共享 helper）：`getAITaskStatusSeverity` / `getAIChargeStatusSeverity`

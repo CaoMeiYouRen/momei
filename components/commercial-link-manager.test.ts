@@ -198,7 +198,7 @@ describe('CommercialLinkManager', () => {
         expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
             message: 'delete confirm',
             header: 'confirmation',
-            icon: 'pi pi-exclamation-triangle',
+            icon: 'warning',
         }))
 
         const confirmOptions = mockConfirmRequire.mock.calls[0]?.[0]
@@ -280,7 +280,7 @@ describe('CommercialLinkManager', () => {
         expect(mockConfirmRequire).toHaveBeenCalledWith(expect.objectContaining({
             message: 'delete confirm',
             header: 'confirmation',
-            icon: 'pi pi-exclamation-triangle',
+            icon: 'warning',
         }))
 
         const confirmOptions = mockConfirmRequire.mock.calls[0]?.[0]
