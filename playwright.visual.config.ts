@@ -61,7 +61,7 @@ export default defineConfig({
             caret: 'hide',
             /* 阈值策略：绝对像素上限 200 + 单像素容差 0.2。
              * 绝对上限保证细粒度 token 改动（圆角 / 间距 / 颜色）可被检出，而非被视口比例吞掉；
-             * 不得为让测试变绿而放宽。实测 `--p-surface-card` 改动即产生全屏级 diff（远超 200px）。 */
+             * 不得为让测试变绿而放宽。实测 `--caomei-color-bg` 改动即产生全屏级 diff（远超 200px）。 */
             maxDiffPixels: 200,
             threshold: 0.2,
             scale: 'css',

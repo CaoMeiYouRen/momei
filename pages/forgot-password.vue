@@ -101,7 +101,7 @@ const handleForgotPassword = async () => {
     label {
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 }
 
@@ -109,9 +109,9 @@ const handleForgotPassword = async () => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--p-green-500);
+    color: var(--m-green-500);
     font-size: 0.875rem;
-    background-color: var(--p-green-50);
+    background-color: var(--m-green-50);
     padding: 0.75rem;
     border-radius: 0.5rem;
 
@@ -121,7 +121,7 @@ const handleForgotPassword = async () => {
 }
 
 .link {
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
     text-decoration: none;
     font-weight: 500;
 

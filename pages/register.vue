@@ -395,13 +395,13 @@ definePageMeta({
 
         &-label {
             font-size: 0.875rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: normal;
             cursor: pointer;
         }
 
         .legal-link {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
             text-decoration: none;
 
             &:hover {

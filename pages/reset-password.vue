@@ -110,7 +110,7 @@ const handleResetPassword = async () => {
 
 <style lang="scss" scoped>
 .form-error {
-    color: var(--p-red-500);
+    color: var(--m-red-500);
     font-size: 0.875rem;
 }
 
@@ -122,7 +122,7 @@ const handleResetPassword = async () => {
     label {
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 }
 </style>

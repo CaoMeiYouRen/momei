@@ -253,13 +253,13 @@ const handleSubmit = async () => {
         font-size: 2.5rem;
         font-weight: 800;
         margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, var(--p-primary-600), var(--p-primary-400));
+        background: linear-gradient(135deg, var(--m-primary-600), var(--m-primary-400));
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
     &__subtitle {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 1.1rem;
     }
 }
@@ -296,7 +296,7 @@ const handleSubmit = async () => {
     }
 
     &__help {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.85rem;
     }
 

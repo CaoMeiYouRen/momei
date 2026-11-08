@@ -23,11 +23,10 @@
 
     &__skeleton-main {
         flex: 1;
-        background-color: var(--p-surface-card);
+        background-color: var(--caomei-color-bg);
         padding: 2.5rem;
         border-radius: 1rem;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        border: 1px solid var(--p-surface-border);
 
         @media (width <= 768px) {
             padding: 1.5rem;
@@ -53,14 +52,13 @@
         .error-container {
             max-width: 400px;
             padding: 3rem;
-            background-color: var(--p-surface-card);
+            background-color: var(--caomei-color-bg);
             border-radius: 1.5rem;
-            border: 1px solid var(--p-surface-border);
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
 
         .error-icon {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
             margin-bottom: 1.5rem;
             opacity: 0.8;
 
@@ -74,11 +72,11 @@
             font-size: 1.75rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
 
         .error-message {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
@@ -157,14 +155,13 @@
     }
 
     &__sidebar-panel {
-        background-color: var(--p-surface-card);
+        background-color: var(--caomei-color-bg);
         padding: 1.25rem;
         border-radius: 1rem;
-        border: 1px solid var(--p-surface-border);
 
         &--travellings {
             padding: 1rem 1.25rem;
-            background: color-mix(in srgb, var(--p-surface-card) 94%, var(--p-primary-color) 6%);
+            background: color-mix(in srgb, var(--caomei-color-bg) 94%, var(--caomei-color-primary) 6%);
         }
     }
 
@@ -172,11 +169,10 @@
         flex: 1;
         min-width: 0;
         max-width: 900px;
-        background-color: var(--p-surface-card);
+        background-color: var(--caomei-color-bg);
         padding: 2.5rem;
         border-radius: 1rem;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        border: 1px solid var(--p-surface-border);
 
         @media (width <= 1024px) {
             max-width: 100%;
@@ -191,9 +187,8 @@
     &__audio {
         margin-bottom: 2rem;
         padding: 1.5rem;
-        background-color: var(--p-surface-100);
+        background-color: var(--m-surface-100);
         border-radius: 1rem;
-        border: 1px solid var(--p-surface-border);
 
         audio {
             width: 100%;
@@ -201,7 +196,7 @@
         }
 
         :global(.dark) & {
-            background-color: var(--p-surface-800);
+            background-color: var(--m-surface-800);
         }
     }
 
@@ -210,9 +205,9 @@
         justify-content: center;
         align-items: center;
         padding: 4rem 0;
-        background-color: var(--p-surface-50);
+        background-color: var(--m-surface-50);
         border-radius: 1rem;
-        border: 2px dashed var(--p-surface-200);
+        border: 2px dashed var(--m-surface-200);
         margin: 2rem 0;
 
         &-card {
@@ -223,7 +218,6 @@
 
         &-icon {
             font-size: 3rem;
-            color: var(--p-text-color-secondary);
             margin-bottom: 1.5rem;
         }
 
@@ -234,7 +228,6 @@
         }
 
         &-desc {
-            color: var(--p-text-color-secondary);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
@@ -245,8 +238,8 @@
     }
 
     :global(.dark) &__locked {
-        background-color: var(--p-surface-900);
-        border-color: var(--p-surface-700);
+        background-color: var(--m-surface-900);
+        border-color: var(--m-surface-700);
     }
 
     &__header {
@@ -259,20 +252,20 @@
         gap: 0.75rem;
         padding: 1rem 1.5rem;
         margin-bottom: 1rem;
-        background-color: color-mix(in srgb, var(--p-warning-color), white 85%);
-        border: 2px solid var(--p-warning-color);
+        background-color: color-mix(in srgb, var(--caomei-color-warning), white 85%);
+        border: 2px solid var(--caomei-color-warning);
         border-radius: 0.75rem;
-        color: color-mix(in srgb, var(--p-warning-color), black 40%);
+        color: color-mix(in srgb, var(--caomei-color-warning), black 40%);
         font-size: 1rem;
         font-weight: 600;
         line-height: 1.5;
-        box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--p-warning-color), transparent 80%);
+        box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--caomei-color-warning), transparent 80%);
         animation: slide-down 0.4s ease-out;
 
         :global(.dark) & {
-            background-color: color-mix(in srgb, var(--p-warning-color), black 85%);
-            border-color: color-mix(in srgb, var(--p-warning-color), transparent 30%);
-            color: color-mix(in srgb, var(--p-warning-color), white 20%);
+            background-color: color-mix(in srgb, var(--caomei-color-warning), black 85%);
+            border-color: color-mix(in srgb, var(--caomei-color-warning), transparent 30%);
+            color: color-mix(in srgb, var(--caomei-color-warning), white 20%);
         }
 
         svg {
@@ -299,7 +292,7 @@
         align-items: center;
         margin-bottom: 1rem;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__breadcrumb-separator {
@@ -311,7 +304,7 @@
         font-weight: 700;
         line-height: 1.25;
         margin-bottom: 1.5rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__meta {
@@ -320,9 +313,8 @@
         gap: 0.75rem 1.5rem;
         align-items: center;
         padding-bottom: 2rem;
-        border-bottom: 1px solid var(--p-surface-border);
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
 
         @media (width <= 768px) {
             gap: 0.75rem 1rem;
@@ -333,8 +325,7 @@
         margin-bottom: 2rem;
         padding: 1.25rem 1.5rem;
         border-radius: 1rem;
-        border: 1px solid color-mix(in srgb, var(--p-primary-color) 16%, var(--p-surface-border));
-        background: color-mix(in srgb, var(--p-surface-card) 92%, var(--p-primary-color) 8%);
+        background: color-mix(in srgb, var(--caomei-color-bg) 92%, var(--caomei-color-primary) 8%);
 
         @media (width <= 768px) {
             padding: 1rem 1.125rem;
@@ -347,14 +338,14 @@
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__summary-text {
         margin: 0;
         font-size: 1.05rem;
         line-height: 1.8;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__author {
@@ -385,7 +376,6 @@
     &__footer {
         margin-top: 3rem;
         padding-top: 2rem;
-        border-top: 1px solid var(--p-surface-border);
     }
 
     &__tags {
@@ -414,20 +404,20 @@
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__section-title {
         margin: 0;
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__section-desc {
         max-width: 34rem;
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -441,24 +431,22 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
-        border: 1px solid var(--p-surface-border);
         border-radius: 1rem;
         overflow: hidden;
-        background: color-mix(in srgb, var(--p-surface-card) 94%, var(--p-primary-color) 6%);
+        background: color-mix(in srgb, var(--caomei-color-bg) 94%, var(--caomei-color-primary) 6%);
         text-decoration: none;
         transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 
         &:hover {
             transform: translateY(-2px);
-            border-color: color-mix(in srgb, var(--p-primary-color) 30%, var(--p-surface-border));
-            box-shadow: 0 14px 28px -24px color-mix(in srgb, var(--p-primary-color) 70%, transparent 30%);
+            box-shadow: 0 14px 28px -24px color-mix(in srgb, var(--caomei-color-primary) 70%, transparent 30%);
         }
     }
 
     &__related-cover {
         aspect-ratio: 16 / 9;
         overflow: hidden;
-        background: color-mix(in srgb, var(--p-surface-card) 88%, var(--p-primary-color) 12%);
+        background: color-mix(in srgb, var(--caomei-color-bg) 88%, var(--caomei-color-primary) 12%);
 
         img {
             width: 100%;
@@ -488,8 +476,8 @@
         align-items: center;
         padding: 0.25rem 0.625rem;
         border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
-        color: var(--p-primary-color);
+        background: color-mix(in srgb, var(--caomei-color-primary) 12%, transparent);
+        color: var(--caomei-color-primary);
         font-size: 0.75rem;
         font-weight: 700;
         line-height: 1;
@@ -500,7 +488,7 @@
         align-items: center;
         gap: 0.35rem;
         font-size: 0.8125rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__related-title {
@@ -508,7 +496,7 @@
         font-size: 1rem;
         font-weight: 700;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         display: -webkit-box;
         overflow: hidden;
         -webkit-box-orient: vertical;
@@ -517,7 +505,7 @@
 
     &__related-summary {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
         display: -webkit-box;
         overflow: hidden;
@@ -534,7 +522,7 @@
 
     &__related-tag {
         font-size: 0.8125rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__navigation {
@@ -550,15 +538,13 @@
         gap: 0.75rem;
         padding: 1.25rem;
         border-radius: 1rem;
-        border: 1px solid var(--p-surface-border);
-        background: color-mix(in srgb, var(--p-surface-card) 92%, var(--p-primary-color) 8%);
+        background: color-mix(in srgb, var(--caomei-color-bg) 92%, var(--caomei-color-primary) 8%);
         text-decoration: none;
         transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 
         &:hover {
             transform: translateY(-2px);
-            border-color: color-mix(in srgb, var(--p-primary-color) 35%, var(--p-surface-border));
-            box-shadow: 0 12px 24px -18px color-mix(in srgb, var(--p-primary-color) 70%, transparent 30%);
+            box-shadow: 0 12px 24px -18px color-mix(in srgb, var(--caomei-color-primary) 70%, transparent 30%);
         }
 
         &--next {
@@ -572,18 +558,18 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__nav-title {
         font-size: 1rem;
         font-weight: 700;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__nav-summary {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
         display: -webkit-box;
         overflow: hidden;
@@ -596,7 +582,7 @@
         align-items: center;
         gap: 0.35rem;
         font-size: 0.8125rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__tag-link {
@@ -612,17 +598,16 @@
     &__divider {
         margin: 2rem 0;
         border: 0;
-        border-top: 1px solid var(--p-surface-border);
     }
 }
 
 .breadcrumb-link {
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     text-decoration: none;
     transition: color 0.2s;
 
     &:hover {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: underline;
     }
 }

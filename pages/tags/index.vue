@@ -106,7 +106,7 @@ usePageSeo({
     }
 
     &__subtitle {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__cloud {
@@ -131,17 +131,17 @@ usePageSeo({
 
 .tag-cloud-item {
     text-decoration: none;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.85;
 
     &:hover {
         opacity: 1;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         transform: scale(1.1);
 
         .tag-cloud-item__count {
-            background-color: var(--p-primary-color);
+            background-color: var(--caomei-color-primary);
             color: white;
         }
     }
@@ -155,9 +155,9 @@ usePageSeo({
     &__count {
         font-size: 0.75rem;
         padding: 0.125rem 0.375rem;
-        background-color: var(--p-surface-200);
+        background-color: var(--m-surface-200);
         border-radius: 1rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-weight: 500;
         transition: inherit;
         line-height: 1;

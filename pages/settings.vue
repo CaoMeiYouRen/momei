@@ -120,7 +120,7 @@ watch(() => route.query.tab, syncTabFromRoute, { immediate: true })
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: 2rem;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 }
 
 .settings-layout {
@@ -154,17 +154,16 @@ watch(() => route.query.tab, syncTabFromRoute, { immediate: true })
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    color: var(--p-text-color-secondary);
     transition: all 0.2s;
 
     &:hover {
-        background-color: var(--p-surface-100);
-        color: var(--p-text-color);
+        background-color: var(--m-surface-100);
+        color: var(--caomei-color-text);
     }
 
     &.active {
-        background-color: var(--p-primary-50);
-        color: var(--p-primary-color);
+        background-color: var(--m-primary-50);
+        color: var(--caomei-color-primary);
         font-weight: 500;
     }
 
@@ -177,8 +176,7 @@ watch(() => route.query.tab, syncTabFromRoute, { immediate: true })
 
 .settings-card {
     width: 100%;
-    background: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
+    background: var(--caomei-color-bg);
+    color: var(--caomei-color-text);
 }
 </style>
