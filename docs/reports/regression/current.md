@@ -171,3 +171,38 @@
 - `CaomeiProgressSpinner` 的 `strokeWidth` 为 CSS 长度（不随尺寸缩放），详情加载用 `--caomei-progress-spinner-size: 2.5rem` 保持原尺寸。
 
 <!-- regression-window:end:primevue-component-residual:第七十二阶段条目 2 剩余组件替换:2026-11-08 -->
+
+<!-- regression-window:start:primevue-token-reverse:第七十二阶段条目 3 token 反向切换:2026-11-09 -->
+
+## 2026-11-09 第七十二阶段条目 3 token 反向切换
+
+### 范围
+
+- 三批完成：① 样式基座（`styles/**` + `layouts/**` + `use-theme` + `use-reader-mode`，1,420 → 1,138）；② 公开页与共享组件（53 文件，1,138 → 578）；③ 管理端（63 文件，578 → 65）+ 定义清零（`use-theme` / `main.scss` 别名 / `use-reader-mode` / `use-theme.test` / `$color-surface-border`，65 → **0**）。
+- 桥接反向：`styles/main.scss` 的 `--caomei-*` 从 `var(--p-*)` 改为 `var(--m-*)`；`use-theme` 只写 `--m-primary` / `--m-primary-contrast` / `--m-surface` / `--m-text-color` / `--m-radius` 与 `--m-surface-ground` 覆盖；`use-reader-mode` 只写 `--m-surface-0` / `--m-surface-ground` / `--m-text-color`。
+- 映射：语义角色 → `--caomei-*`，调色板 → `--m-*`；`--p-border-radius-md` / `-sm` 映射到冻结的 `--m-radius-md`（6px）/ `--m-radius-sm`（4px），保持 Aura 原值。
+- 幻影 token 策略：`--p-surface-border` / `--p-text-secondary-color` / `--p-surface-hover` / `--p-border-radius` / `-rgb` / `-opacity-*` 按「删除声明」处理，保持迁移前 invalid 的计算结果（不加边框 / 底色 / 圆角）；状态色幻影（`--p-success-500` / `--p-warning-color` 等）映射到真实角色，属 backlog #11 S1 修复。
+- 文档：映射表 120 条目标注最终处置（含 11 类删除声明）；`tests/scripts/check-primevue-token-map.test.ts` 改为零残留守卫（`collectTokens` 为空 + `--fail-on-residual`）。
+
+### 验证结果
+
+- `governance:count:primevue-usage`：组件 0 / 图标 0 / token **0**（120 个唯一 token 全部消失）。
+- 静态：`typecheck` 0 error；`eslint` 0 error（1 个既有 max-lines warning）；`stylelint` 0；`lint-md` 0。
+- 单测：`use-theme` 15、`use-reader-mode` 3、token-map 7 全绿。
+- 视觉：`test:visual` **32/32**；`test:visual:parity` **83/83**（20.4m，0 失败）。
+- E2E：critical **17 passed / 1 skipped** + mobile critical **2 passed** + 安装向导 **2 passed**。
+- 包体：`coreEntryJs` **359,061 B / 370KB**；`keyCss` **64,006 B / 70KB**；`maxAsyncChunkJs` 56,781 B。
+
+### 差异归因
+
+- 主题工作台浅深两张基线：`--p-surface-border` 等幻影边框若映射为真实角色会让预览卡片新增 1px 边框并产生 4,672px 文本位移；改为删除声明后基线**零差异**。
+- 法务页 `privacy-policy` / `user-agreement` 浅深四条：默认提示条的 `--p-warn-color` → `--caomei-color-warning`、`--p-warn-600` → `--m-orange-600` 使提示条由 invalid 变为真实橙色，新增 4px 左边框使页脚文本下移；allowlist 按实测回填（内容带 + 页脚带）。
+- `admin-link-governance` / `admin-users-list`：条目 2 的组件替换差异沿用已校准的 allowlist。
+
+### 未覆盖边界
+
+- `--p-border-radius-md` 等冻结值不再随用户主题圆角变化（与 PrimeVue 原行为一致）；若后续希望管理端圆角跟随主题，需另立设计批次。
+- 状态色幻影修复改变了法务页提示条观感（属 S1 目标），已在 allowlist 登记。
+- `plugins/primevue-i18n.ts` 与 PrimeVue Aura 仍会在运行期注入 `--p-*`，但源码消费面已为 0；卸载与注入源移除属条目 4。
+
+<!-- regression-window:end:primevue-token-reverse:第七十二阶段条目 3 token 反向切换:2026-11-09 -->

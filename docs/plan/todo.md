@@ -33,10 +33,11 @@
     - **验收**: 组件脚本口径 **0**；`parity` 83/83（差异逐项归因）；`test:visual` 24/24；E2E critical 17 passed / 1 skipped + 安装向导 2 passed；定向单测全绿。
     - **完成记录（2026-11-08）**: 脚本口径 46 处 / 14 类 → **0**（先清 4 处口径假阳性：2 处注释 `<Column …>`、1 处注释 `<Skeleton>`、1 处 lucide `Tag` 图标）；42 处真实用法全部替换（Checkbox 12 / Card 5 / DatePicker 4 / MultiSelect 4 / InputNumber 4 / Textarea 4 / RadioButton 2 / ProgressSpinner 2 / Button 2 / Toolbar 1 / Divider 2）。验证：定向 19 文件 / 202 例 + 守卫 80 例；`test:visual` 32/32；`parity` 83/83（`admin-link-governance` 浅深 allowlist 按实测重校准、`admin-users-list` 修正 `.p-toolbar`→`.caomei-toolbar` 选择器）；E2E critical 17 passed / 1 skipped + mobile 2 passed + 安装向导 2 passed；`coreEntryJs` 375,543 → **359,547 B**（-15,996 B，`error.vue` 的 PrimeVue `Button` 退出入口 chunk）、`keyCss` 64,102 B / 70KB。
 
-- [ ] **3. token 反向切换（P1，体量最大）**
+- [x] **3. token 反向切换（P1，体量最大）**（2026-11-09 完成）
     - **执行范围**: 1,420 处按 3 批替换——① 样式基座 229 处（`styles/main.scss` 桥接反向、`_variables`、`_rendering`、`use-theme`）；② 公开页与共享组件约 551 处；③ 管理端约 513 处。语义角色直接换 `--caomei-*`（text / border / background / field / status），调色板换 `--m-*`；幻影 token 清理并入本条目，不单独拆批；每批以「视觉零差异或按实测归因」为门禁，新增样式不得再引入 `--p-*`。
     - **非目标**: 不改视觉设计与布局；不改主题预设语义；不做 `:deep()` / `:global()` 的泛化清理（属条目 4）。
     - **验收**: 全仓 `--p-*` 脚本口径 **0**（含 `vue` / `scss` / `css` / `ts`）；主题工作台浅深两张基线不回退；`test:visual` 24/24、`parity` 83/83；`--m-*` 与 `--caomei-*` 的解析链在三套预设下可验证。
+    - **完成记录（2026-11-09）**: 三批完成（① 样式基座 / ② 公开页与共享组件 / ③ 管理端 + 定义清零），`governance:count:primevue-usage` token **1,420 → 0**；桥接反向为 `--m-* → --caomei-*`，`use-theme` 只保留 `--m-*` 基色、`use-reader-mode` 只写 `--m-*`。幻影 token 按「删除声明」保持视觉（边框 / 文本 / 悬停 / 圆角 / rgb），状态色按 S1 映射到真实角色（法务页提示条差异已按实测登记）。验证：`test:visual` 32/32、`parity` 83/83、E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`coreEntryJs` 359,061 B / 370KB、`keyCss` 64,006 B / 70KB。
 
 - [ ] **4. PrimeVue 卸载、样式耦合清理与预算回落（P1，须与条目 3 同批收口）**
     - **执行范围**: 移除 `plugins/primevue-i18n.ts` 与其单测；`nuxt.config.ts` 去掉 Aura `MomeiPreset` / `cssLayer` / PrimeVue locale / `dedupe` / `optimizeDeps` / `css` 中的 `primeicons.css`；卸载 `primevue` / `@primevue/{core,forms,icons,nuxt-module}` / `@primeuix/{styled,styles,themes,utils}` / `primeicons` / `primelocale`；删除路由择库机制（`resolveUiLibraryForRoute*`、`CAOMEI_UI_ROUTE_SCOPES`、迁移守卫）并改为「全站 caomei + 零 PrimeVue 残留」单一守卫；清理 `p-*` class（151 处）、`.p-*` 选择器（83 处）与仅服务于 PrimeVue 的 `:deep()`；复算 `keyCss` / `coreEntryJs` 并按回落收紧配额（含移除的 `primeicons.css` gzip 3,163 B）。
