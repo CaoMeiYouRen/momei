@@ -55,8 +55,8 @@ const emit = defineEmits<{
     justify-content: space-between;
     gap: 1rem;
     padding: 0.85rem 1rem;
-    border-bottom: 1px solid var(--p-content-border-color);
-    background: color-mix(in srgb, var(--p-primary-50) 28%, var(--p-surface-0) 72%);
+    border-bottom: 1px solid var(--caomei-color-border);
+    background: color-mix(in srgb, var(--m-primary-50) 28%, var(--m-surface-0) 72%);
 
     &__copy {
         display: grid;
@@ -68,7 +68,7 @@ const emit = defineEmits<{
 
         p {
             margin: 0;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.5;
         }
     }

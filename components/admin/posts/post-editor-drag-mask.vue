@@ -21,7 +21,7 @@ import { Upload } from '@lucide/vue'
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 3px dashed var(--p-primary-500);
+    border: 3px dashed var(--m-primary-500);
     background-color: rgb(0 0 0 / 0.3);
     z-index: 1000;
     pointer-events: none;
@@ -30,13 +30,13 @@ import { Upload } from '@lucide/vue'
 
 .upload-icon {
     margin-bottom: 1rem;
-    color: var(--p-primary-500);
+    color: var(--m-primary-500);
 }
 
 .upload-text {
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--p-primary-500);
+    color: var(--m-primary-500);
     text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
 }
 </style>

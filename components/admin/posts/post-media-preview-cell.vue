@@ -220,26 +220,26 @@ watch(audioPreview, () => {
             height: 2.75rem;
             object-fit: cover;
             border-radius: 0.5rem;
-            border: 1px solid var(--p-content-border-color);
+            border: 1px solid var(--caomei-color-border);
         }
     }
 
     &__status {
         font-size: 0.75rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         line-height: 1.2;
     }
 
     &__meta {
         max-width: 10rem;
         font-size: 0.7rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.3;
         text-align: center;
     }
 
     &__empty {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__player {

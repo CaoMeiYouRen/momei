@@ -176,7 +176,7 @@ const typeLabel = (type: AIReviewSuggestion['type']) => {
     &__message {
         font-size: 0.875rem;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__replacement {

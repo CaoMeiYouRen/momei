@@ -116,7 +116,7 @@ function onDragEnd() {
         justify-content: center;
         gap: 0.5rem;
         padding: 3rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__board {
@@ -127,22 +127,21 @@ function onDragEnd() {
     }
 
     &__column {
-        background: var(--p-surface-50);
-        border-radius: var(--p-border-radius);
-        border: 1px solid var(--p-content-border-color);
+        background: var(--m-surface-50);
+        border: 1px solid var(--caomei-color-border);
         display: flex;
         flex-direction: column;
 
         &--ideation {
-            border-top: 3px solid var(--p-blue-400);
+            border-top: 3px solid var(--m-blue-400);
         }
 
         &--writing {
-            border-top: 3px solid var(--p-yellow-400);
+            border-top: 3px solid var(--m-yellow-400);
         }
 
         &--ready {
-            border-top: 3px solid var(--p-green-400);
+            border-top: 3px solid var(--m-green-400);
         }
     }
 
@@ -151,7 +150,7 @@ function onDragEnd() {
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem;
-        border-bottom: 1px solid var(--p-content-border-color);
+        border-bottom: 1px solid var(--caomei-color-border);
     }
 
     &__column-title {
@@ -168,14 +167,13 @@ function onDragEnd() {
         gap: 0.5rem;
 
         &--drag-over {
-            background: var(--p-primary-50);
+            background: var(--m-primary-50);
         }
     }
 
     &__card {
-        background: var(--p-content-background);
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--p-border-radius);
+        background: var(--m-surface-0);
+        border: 1px solid var(--caomei-color-border);
         padding: 0.6rem 0.75rem;
         cursor: grab;
         transition: box-shadow 0.15s, opacity 0.15s;
@@ -202,11 +200,11 @@ function onDragEnd() {
         align-items: center;
         justify-content: space-between;
         font-size: 0.7rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__card-category {
-        background: var(--p-surface-100);
+        background: var(--m-surface-100);
         padding: 0.05rem 0.35rem;
         border-radius: 3px;
     }
@@ -214,7 +212,7 @@ function onDragEnd() {
     &__empty {
         text-align: center;
         padding: 2rem 0.5rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.8rem;
     }
 }

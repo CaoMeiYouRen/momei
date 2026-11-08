@@ -310,14 +310,13 @@ function truncate(str: string, max: number): string {
         justify-content: center;
         gap: 0.5rem;
         padding: 3rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--p-border-radius);
+        border: 1px solid var(--caomei-color-border);
         overflow: hidden;
     }
 
@@ -330,15 +329,15 @@ function truncate(str: string, max: number): string {
         text-align: center;
         font-weight: 600;
         font-size: 0.8rem;
-        background: var(--p-surface-100);
-        border-bottom: 1px solid var(--p-content-border-color);
+        background: var(--m-surface-100);
+        border-bottom: 1px solid var(--caomei-color-border);
     }
 
     &__cell {
         min-height: 80px;
         padding: 0.3rem;
-        border-right: 1px solid var(--p-content-border-color);
-        border-bottom: 1px solid var(--p-content-border-color);
+        border-right: 1px solid var(--caomei-color-border);
+        border-bottom: 1px solid var(--caomei-color-border);
 
         &:nth-child(7n) {
             border-right: none;
@@ -349,7 +348,7 @@ function truncate(str: string, max: number): string {
         }
 
         &--today {
-            background: var(--p-primary-50);
+            background: var(--m-primary-50);
         }
 
         &--has-posts {
@@ -359,7 +358,7 @@ function truncate(str: string, max: number): string {
 
     &__cell-date {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         display: block;
         margin-bottom: 0.2rem;
     }
@@ -373,7 +372,7 @@ function truncate(str: string, max: number): string {
 
     &__cell-weekday {
         font-size: 0.7rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-weight: 500;
     }
 
@@ -393,25 +392,25 @@ function truncate(str: string, max: number): string {
         white-space: nowrap;
 
         &--published {
-            background: var(--p-green-100);
-            color: var(--p-green-700);
+            background: var(--m-green-100);
+            color: var(--m-green-700);
         }
 
         &--scheduled {
-            background: var(--p-orange-100);
-            color: var(--p-orange-700);
+            background: var(--m-orange-100);
+            color: var(--m-orange-700);
         }
     }
 
     &__more {
         font-size: 0.65rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__week-placeholder {
         text-align: center;
         padding: 3rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 </style>

@@ -117,20 +117,20 @@ const statusIcon = computed<Component>(() => {
         font-weight: 600;
         backdrop-filter: blur(12px);
         box-shadow: 0 12px 28px rgb(15 23 42 / 0.08);
-        border: 1px solid var(--p-content-border-color);
-        background: color-mix(in srgb, var(--p-surface-0) 92%, white 8%);
-        color: var(--p-text-muted-color);
+        border: 1px solid var(--caomei-color-border);
+        background: color-mix(in srgb, var(--m-surface-0) 92%, white 8%);
+        color: var(--caomei-color-text-muted);
 
         &--warn {
-            color: var(--p-orange-700);
-            background: color-mix(in srgb, var(--p-orange-50) 88%, white 12%);
-            border-color: color-mix(in srgb, var(--p-orange-300) 72%, white 28%);
+            color: var(--m-orange-700);
+            background: color-mix(in srgb, var(--m-orange-50) 88%, white 12%);
+            border-color: color-mix(in srgb, var(--m-orange-300) 72%, white 28%);
         }
 
         &--success {
-            color: var(--p-green-700);
-            background: color-mix(in srgb, var(--p-green-50) 88%, white 12%);
-            border-color: color-mix(in srgb, var(--p-green-300) 72%, white 28%);
+            color: var(--m-green-700);
+            background: color-mix(in srgb, var(--m-green-50) 88%, white 12%);
+            border-color: color-mix(in srgb, var(--m-green-300) 72%, white 28%);
         }
     }
 
@@ -142,8 +142,8 @@ const statusIcon = computed<Component>(() => {
         justify-content: flex-end;
         padding: 0.75rem;
         border-radius: 1.25rem;
-        border: 1px solid color-mix(in srgb, var(--p-content-border-color) 88%, white 12%);
-        background: color-mix(in srgb, var(--p-surface-0) 90%, white 10%);
+        border: 1px solid color-mix(in srgb, var(--caomei-color-border) 88%, white 12%);
+        background: color-mix(in srgb, var(--m-surface-0) 90%, white 10%);
         box-shadow: 0 20px 40px rgb(15 23 42 / 0.14);
         backdrop-filter: blur(16px);
         max-width: min(100%, 34rem);

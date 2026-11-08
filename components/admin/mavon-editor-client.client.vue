@@ -199,19 +199,19 @@ defineExpose({
 @use "@/styles/variables" as *;
 
 .admin-markdown-editor {
-    --momei-md-border-color: var(--p-content-border-color);
-    --momei-md-toolbar-bg: color-mix(in srgb, var(--p-surface-100) 88%, var(--p-surface-0));
-    --momei-md-editor-bg: var(--p-surface-0);
-    --momei-md-preview-bg: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-surface-50));
-    --momei-md-panel-bg: var(--p-surface-card);
-    --momei-md-muted-color: var(--p-text-muted-color);
-    --momei-md-active-color: var(--p-primary-500);
-    --momei-md-active-surface: color-mix(in srgb, var(--p-primary-500) 12%, transparent);
+    --momei-md-border-color: var(--caomei-color-border);
+    --momei-md-toolbar-bg: color-mix(in srgb, var(--m-surface-100) 88%, var(--m-surface-0));
+    --momei-md-editor-bg: var(--m-surface-0);
+    --momei-md-preview-bg: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-surface-50));
+    --momei-md-panel-bg: var(--caomei-color-bg);
+    --momei-md-muted-color: var(--caomei-color-text-muted);
+    --momei-md-active-color: var(--m-primary-500);
+    --momei-md-active-surface: color-mix(in srgb, var(--m-primary-500) 12%, transparent);
 
     width: 100%;
     height: 100%;
     min-height: 20rem;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 
     &__instance {
         width: 100%;
@@ -222,7 +222,6 @@ defineExpose({
     :deep(.v-note-wrapper) {
         min-height: inherit;
         border: 1px solid var(--momei-md-border-color);
-        border-radius: var(--p-content-border-radius, var(--p-border-radius-md));
         overflow: hidden;
         box-shadow: none;
         background: var(--momei-md-panel-bg);
@@ -259,7 +258,7 @@ defineExpose({
     :deep(.v-note-read-model),
     :deep(.v-note-help-content),
     :deep(.v-note-navigation-wrapper) {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     :deep(.auto-textarea-input) {
@@ -267,7 +266,7 @@ defineExpose({
     }
 
     :deep(.auto-textarea-input::placeholder) {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     :deep(.v-show-content),

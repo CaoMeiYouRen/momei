@@ -15,7 +15,7 @@
 .audit-pending-text {
     margin: 0;
     font-size: 0.8rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 }
 
 .audit-score {
@@ -50,13 +50,13 @@
 
 .audit-detail-label {
     font-size: 0.85rem;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 }
 
 .audit-detail-score {
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 }
 
 .audit-detail-bar {
@@ -65,7 +65,7 @@
 
 .audit-detail-msg {
     font-size: 0.8rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 }
 
 .audit-suggestions {
@@ -77,6 +77,6 @@
 
 .audit-cached-at {
     font-size: 0.75rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     margin-top: 1rem;
 }
