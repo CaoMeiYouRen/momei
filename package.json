@@ -32,6 +32,8 @@
     "governance:audit:comment-drift": "node scripts/governance/audit-comment-drift.mjs --output=artifacts/governance/comment-drift-latest.json",
     "governance:count:primevue-usage": "node scripts/governance/count-primevue-usage.mjs --output=artifacts/governance/primevue-usage-latest.json",
     "governance:count:primevue-usage:components": "node scripts/governance/count-primevue-usage.mjs --write-components",
+    "governance:check:token-map": "node scripts/governance/check-primevue-token-map.mjs",
+    "governance:check:token-map:doc": "node scripts/governance/check-primevue-token-map.mjs --doc=docs/design/governance/2026-11-08-primevue-token-mapping.md",
     "i18n:audit": "node scripts/i18n/audit-locale-keys.mjs",
     "i18n:audit:missing": "node scripts/i18n/audit-locale-keys.mjs --only=missing --fail-on-missing",
     "i18n:audit:unused": "node scripts/i18n/audit-locale-keys.mjs --only=unused",
