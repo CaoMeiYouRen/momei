@@ -47,6 +47,11 @@ jobs:
           if-no-files-found: warn
 
       # ── Phase 1: Pre-check ──────────────────────────────
+      # AI 治理检查需要一个已初始化的平台镜像（`.claude/skills` 等由本脚本按主定义建链接）。
+      # 这些链接在 `.gitignore` 中，checkout 后不存在；缺目录会让 ai:check 以 ENOENT 直接失败
+      # （2026-11-07 / 11-08 两次 Release 均因此被预检拦下）。
+      - name: Setup AI mirrors
+        run: node scripts/setup/setup-ai.mjs
       - name: Run shared CI pre-check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
