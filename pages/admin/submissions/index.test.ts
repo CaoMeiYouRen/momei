@@ -249,17 +249,17 @@ const stubs = {
         props: ['open', 'modal', 'title', 'style'],
         template: '<div v-if="open" class="dialog"><header>{{ title }}</header><slot /><slot name="footer" /></div>',
     },
-    Textarea: {
-        props: ['modelValue', 'placeholder', 'rows', 'fluid'],
+    CaomeiTextarea: {
+        props: ['modelValue', 'placeholder', 'rows'],
         emits: ['update:modelValue'],
         template: '<textarea :value="modelValue" :placeholder="placeholder" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     },
-    Checkbox: {
-        props: ['modelValue', 'binary', 'inputId'],
+    CaomeiCheckbox: {
+        props: ['modelValue', 'id'],
         emits: ['update:modelValue'],
-        template: '<input type="checkbox" :checked="modelValue" :id="inputId" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+        template: '<input type="checkbox" :checked="modelValue" :id="id" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
     },
-    Divider: { template: '<hr />' },
+    CaomeiDivider: { template: '<hr />' },
     Toast: { template: '<div class="toast" />' },
 }
 

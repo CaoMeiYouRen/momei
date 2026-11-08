@@ -114,7 +114,7 @@
 
             <div class="field">
                 <label for="startDate">{{ $t('pages.admin.ad.campaigns.start_date') }}</label>
-                <DatePicker
+                <CaomeiDatePicker
                     id="startDate"
                     v-model="formData.startDate"
                     show-time
@@ -125,7 +125,7 @@
 
             <div class="field">
                 <label for="endDate">{{ $t('pages.admin.ad.campaigns.end_date') }}</label>
-                <DatePicker
+                <CaomeiDatePicker
                     id="endDate"
                     v-model="formData.endDate"
                     show-time

@@ -305,45 +305,40 @@
                 </div>
                 <div class="admin-friend-links__field">
                     <label for="link-sort">{{ tt('pages.admin.friend_links.sort_order') }}</label>
-                    <!-- `InputNumber` 不在 B2 在册族（迁移方案 §5.5）：随 B3 表单批次迁移。 -->
-                    <InputNumber
+                    <CaomeiInputNumber
                         id="link-sort"
                         v-model="linkForm.sortOrder"
                         :min="0"
-                        fluid
+                        :controls="false"
                     />
                 </div>
                 <div class="admin-friend-links__field admin-friend-links__field--full">
                     <label for="link-description">{{ $t('common.description') }}</label>
-                    <Textarea
+                    <CaomeiTextarea
                         id="link-description"
                         v-model="linkForm.description"
-                        rows="4"
-                        fluid
+                        :rows="4"
                     />
                 </div>
                 <div class="admin-friend-links__toggles">
                     <div class="admin-friend-links__toggle">
-                        <Checkbox
+                        <CaomeiCheckbox
+                            id="link-featured"
                             v-model="linkForm.isFeatured"
-                            :binary="true"
-                            input-id="link-featured"
                         />
                         <label for="link-featured">{{ tt('pages.admin.friend_links.is_featured') }}</label>
                     </div>
                     <div class="admin-friend-links__toggle">
-                        <Checkbox
+                        <CaomeiCheckbox
+                            id="link-pinned"
                             v-model="linkForm.isPinned"
-                            :binary="true"
-                            input-id="link-pinned"
                         />
                         <label for="link-pinned">{{ tt('pages.admin.friend_links.is_pinned') }}</label>
                     </div>
                     <div class="admin-friend-links__toggle">
-                        <Checkbox
+                        <CaomeiCheckbox
+                            id="link-show-rss"
                             v-model="linkForm.showRssFeed"
-                            :binary="true"
-                            input-id="link-show-rss"
                         />
                         <label for="link-show-rss">{{ tt('pages.admin.friend_links.show_rss_feed') }}</label>
                     </div>
@@ -391,27 +386,25 @@
                 </div>
                 <div class="admin-friend-links__field">
                     <label for="category-sort">{{ tt('pages.admin.friend_links.sort_order') }}</label>
-                    <InputNumber
+                    <CaomeiInputNumber
                         id="category-sort"
                         v-model="categoryForm.sortOrder"
                         :min="0"
-                        fluid
+                        :controls="false"
                     />
                 </div>
                 <div class="admin-friend-links__field admin-friend-links__field--full">
                     <label for="category-description">{{ $t('common.description') }}</label>
-                    <Textarea
+                    <CaomeiTextarea
                         id="category-description"
                         v-model="categoryForm.description"
-                        rows="4"
-                        fluid
+                        :rows="4"
                     />
                 </div>
                 <div class="admin-friend-links__toggle">
-                    <Checkbox
+                    <CaomeiCheckbox
+                        id="category-enabled"
                         v-model="categoryForm.isEnabled"
-                        :binary="true"
-                        input-id="category-enabled"
                     />
                     <label for="category-enabled">{{ tt('pages.admin.friend_links.enabled') }}</label>
                 </div>
@@ -456,11 +449,10 @@
 
                 <div class="admin-friend-links__field admin-friend-links__field--full">
                     <label for="review-note">{{ tt('pages.admin.friend_links.review_note') }}</label>
-                    <Textarea
+                    <CaomeiTextarea
                         id="review-note"
                         v-model="reviewForm.reviewNote"
-                        rows="4"
-                        fluid
+                        :rows="4"
                     />
                 </div>
 
@@ -477,29 +469,27 @@
                     </div>
                     <div class="admin-friend-links__field">
                         <label for="review-sort">{{ tt('pages.admin.friend_links.sort_order') }}</label>
-                        <InputNumber
+                        <CaomeiInputNumber
                             id="review-sort"
                             v-model="reviewForm.linkData.sortOrder"
                             :min="0"
-                            fluid
+                            :controls="false"
                         />
                     </div>
                 </div>
 
                 <div class="admin-friend-links__toggles">
                     <div class="admin-friend-links__toggle">
-                        <Checkbox
+                        <CaomeiCheckbox
+                            id="review-featured"
                             v-model="reviewForm.linkData.isFeatured"
-                            :binary="true"
-                            input-id="review-featured"
                         />
                         <label for="review-featured">{{ tt('pages.admin.friend_links.is_featured') }}</label>
                     </div>
                     <div class="admin-friend-links__toggle">
-                        <Checkbox
+                        <CaomeiCheckbox
+                            id="review-pinned"
                             v-model="reviewForm.linkData.isPinned"
-                            :binary="true"
-                            input-id="review-pinned"
                         />
                         <label for="review-pinned">{{ tt('pages.admin.friend_links.is_pinned') }}</label>
                     </div>

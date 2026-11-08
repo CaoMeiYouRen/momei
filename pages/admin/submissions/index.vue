@@ -118,21 +118,20 @@
                         <span>{{ selectedSubmission.contributorName }} ({{ selectedSubmission.contributorEmail }})</span>
                         <span v-if="selectedSubmission.contributorUrl"> | <a :href="selectedSubmission.contributorUrl" target="_blank">{{ selectedSubmission.contributorUrl }}</a></span>
                     </div>
-                    <Divider />
+                    <CaomeiDivider />
                     <!-- eslint-disable vue/no-v-html -->
                     <div class="markdown-preview" v-html="previewContent" />
                     <!-- eslint-enable vue/no-v-html -->
                 </div>
 
-                <Divider />
+                <CaomeiDivider />
 
                 <div class="review-form">
                     <div class="field">
                         <label>{{ $t('pages.admin.submissions.admin_note') }}</label>
-                        <Textarea
+                        <CaomeiTextarea
                             v-model="reviewForm.adminNote"
-                            rows="3"
-                            fluid
+                            :rows="3"
                             :placeholder="$t('pages.admin.submissions.admin_note_placeholder')"
                         />
                     </div>
@@ -157,10 +156,9 @@
                             />
                         </div>
                         <div class="field-checkbox">
-                            <Checkbox
+                            <CaomeiCheckbox
+                                id="publishNow"
                                 v-model="reviewForm.acceptOptions.publishImmediately"
-                                :binary="true"
-                                input-id="publishNow"
                             />
                             <label for="publishNow">{{ $t('pages.admin.submissions.publish_immediately') }}</label>
                         </div>

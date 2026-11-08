@@ -14,7 +14,7 @@ import { CampaignStatus } from '@/types/ad'
  * `Dropdown` → `CaomeiSelect`、`p-invalid` → `:invalid`）与保存校验。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页未在 B2 在册族内的 PrimeVue 组件（`DatePicker`）
+ * 本页的 `DatePicker`
  * 显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移（否则命中零残留守卫）。
  */
 
@@ -247,8 +247,8 @@ const stubs = {
         name: 'ConfirmDialog',
         setup: () => () => h('div', { class: 'confirm-dialog' }),
     }),
-    DatePicker: defineComponent({
-        name: 'DatePicker',
+    CaomeiDatePicker: defineComponent({
+        name: 'CaomeiDatePicker',
         props: ['modelValue', 'showTime', 'hourFormat', 'showSeconds', 'id'],
         setup: () => () => h('div', { class: 'date-picker' }),
     }),
@@ -427,7 +427,7 @@ describe('AdminAdCampaigns page', () => {
         expect(findButtonByText(wrapper, 'common.cancel').attributes('data-icon-only')).toBe('false')
         expect(findButtonByText(wrapper, 'common.save').text()).toContain('common.save')
 
-        // 浮层自身显式豁免，维持 PrimeVue Dialog / DatePicker；其内部在册族组件已迁移。
+        // 浮层与排期选择器均已迁移为 caomei；其内部在册族组件亦已迁移。
         expect(dialog.find('.caomei-input').exists()).toBe(true)
         expect(dialog.find('.caomei-select').exists()).toBe(true)
         expect(dialog.find('.date-picker').exists()).toBe(true)

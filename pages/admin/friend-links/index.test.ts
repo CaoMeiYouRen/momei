@@ -173,9 +173,9 @@ const stubs = {
     }),
     ConfirmDialog: defineComponent({ name: 'ConfirmDialog', setup: () => () => h('div', { class: 'confirm-dialog-stub' }) }),
     Toast: defineComponent({ name: 'Toast', setup: () => () => h('div', { class: 'toast-stub' }) }),
-    InputNumber: defineComponent({ name: 'InputNumber', setup: () => () => h('div', { class: 'input-number-stub' }) }),
-    Textarea: defineComponent({ name: 'Textarea', setup: () => () => h('div', { class: 'textarea-stub' }) }),
-    Checkbox: defineComponent({ name: 'Checkbox', setup: () => () => h('div', { class: 'checkbox-stub' }) }),
+    CaomeiInputNumber: defineComponent({ name: 'CaomeiInputNumber', setup: () => () => h('div', { class: 'input-number-stub' }) }),
+    CaomeiTextarea: defineComponent({ name: 'CaomeiTextarea', setup: () => () => h('div', { class: 'textarea-stub' }) }),
+    CaomeiCheckbox: defineComponent({ name: 'CaomeiCheckbox', setup: () => () => h('div', { class: 'checkbox-stub' }) }),
     AppUploader: defineComponent({
         name: 'AppUploader',
         inheritAttrs: false,

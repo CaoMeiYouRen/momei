@@ -253,10 +253,10 @@ const stubs = {
         props: ['open', 'modal', 'title'],
         template: '<div v-if="open" class="dialog"><header>{{ title }}</header><slot /><slot name="footer" /></div>',
     },
-    Checkbox: {
-        props: ['modelValue', 'binary', 'inputId'],
+    CaomeiCheckbox: {
+        props: ['modelValue', 'id'],
         emits: ['update:modelValue'],
-        template: '<input type="checkbox" :checked="modelValue" :id="inputId" />',
+        template: '<input type="checkbox" :checked="modelValue" :id="id" />',
     },
 }
 

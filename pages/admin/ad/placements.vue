@@ -172,19 +172,19 @@
 
             <div class="field">
                 <label for="priority">{{ $t('pages.admin.ad.placements.priority') }}</label>
-                <InputNumber
+                <CaomeiInputNumber
                     id="priority"
                     v-model="formData.priority"
                     :min="0"
                     :max="100"
+                    :controls="false"
                 />
             </div>
 
             <div class="field flex gap-2 items-center">
-                <Checkbox
+                <CaomeiCheckbox
+                    id="enabled"
                     v-model="formData.enabled"
-                    :binary="true"
-                    input-id="enabled"
                 />
                 <label for="enabled" class="cursor-pointer">{{ $t('pages.admin.ad.placements.enabled') }}</label>
             </div>

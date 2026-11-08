@@ -160,10 +160,9 @@
             </div>
 
             <div class="field flex gap-2 items-center">
-                <Checkbox
+                <CaomeiCheckbox
+                    id="noFollow"
                     v-model="formData.noFollow"
-                    :binary="true"
-                    input-id="noFollow"
                 />
                 <label for="noFollow" class="cursor-pointer">
                     {{ $t('pages.admin.external_links.no_follow') }}
@@ -171,10 +170,9 @@
             </div>
 
             <div class="field flex gap-2 items-center">
-                <Checkbox
+                <CaomeiCheckbox
+                    id="showRedirectPage"
                     v-model="formData.showRedirectPage"
-                    :binary="true"
-                    input-id="showRedirectPage"
                 />
                 <label for="showRedirectPage" class="cursor-pointer">
                     {{ $t('pages.admin.external_links.show_redirect_page') }}

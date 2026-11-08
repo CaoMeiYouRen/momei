@@ -15,7 +15,7 @@ import { AdFormat, AdLocation } from '@/types/ad'
  * 保存校验、删除确认与启停请求体。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页未在 B2 在册族内的 PrimeVue 组件（`InputNumber` / `Checkbox`）与浮层自身
+ * 本页的 `InputNumber` / `Checkbox` 与浮层自身
  * （`Dialog` / `ConfirmDialog`）显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移。
  */
 
@@ -239,14 +239,14 @@ const stubs = {
         name: 'ConfirmDialog',
         setup: () => () => h('div', { class: 'confirm-dialog' }),
     }),
-    InputNumber: defineComponent({
-        name: 'InputNumber',
-        props: ['modelValue', 'min', 'max', 'id'],
+    CaomeiInputNumber: defineComponent({
+        name: 'CaomeiInputNumber',
+        props: ['modelValue', 'min', 'max', 'controls', 'id'],
         setup: () => () => h('div', { class: 'input-number' }),
     }),
-    Checkbox: defineComponent({
-        name: 'Checkbox',
-        props: ['modelValue', 'binary', 'inputId'],
+    CaomeiCheckbox: defineComponent({
+        name: 'CaomeiCheckbox',
+        props: ['modelValue', 'id'],
         setup: () => () => h('input', { class: 'checkbox', type: 'checkbox' }),
     }),
     CaomeiDialog: {
