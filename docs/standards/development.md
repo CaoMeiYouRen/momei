@@ -470,6 +470,7 @@ pnpm build
 | `pkill -f` 匹配自身 | `pkill -f "PORT=3011"` 会匹配到执行该命令的 shell 自身（命令行含同样字符串）并把自己杀掉；停服务应改用更精确的模式（如 `node .output/server/index.mjs`）或按 PID。 |
 | Nuxt 组件目录前缀 | `components/admin/settings/setting-input.vue` 的组件名是 `AdminSettingsSettingInput`；模板里写短名会**静默**解析为未知元素，页面少渲染控件且 typecheck / 单测都不报错，必须显式 import 或写全名（迁移期细则见迁移方案 §6.2 执行提示 5）。 |
 | BEM 提权打死子元素 | 给块级选择器提特异性（`.a.a`）会把同块 `&__x` 编译成 `.a.a__x`，子元素样式全部失效；提权只改块级，`&__x` 留在单类块内。 |
+| `--p-*` token 新增 | PrimeVue 迁移期 `--p-*` 面只减不增：新增样式一律引用 `--caomei-*`（语义角色）或 `--m-*`（项目调色板），未登记的新增 `--p-*` 会被 `pnpm governance:check:token-map` 判红；映射与派生口径见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。 |
 | 归一化被 assignDefined 覆盖 | `assignDefined(entity, input, keys)` 会用原始 input 覆盖此前对同名字段的清洗（如先 `trim()` 的 `name` / `url`）；「先归一化再 assign」的写法必须把归一化下沉到 assign 之后或只保留一处。 |
 
 ### 4.7 依赖与锁文件陷阱（Dependabot / pnpm / CI）

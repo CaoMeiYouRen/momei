@@ -21,10 +21,11 @@
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-08，用户确认「调色板走项目语义层 `--m-*` / 同批移除 `primeicons`、`primelocale` 与路由择库机制 / 纳入覆盖率第十三批」。开工口径（`governance:count:primevue-usage`）：组件 46 处 / 14 类 / 16 文件、图标 0、token 1,420 处 / 120 唯一 / 136 文件、PrimeVue class 151 处 / 36 文件、`.p-*` 选择器 83 处。
 
-- [ ] **1. token 语义审计与映射基座（P1）**
+- [x] **1. token 语义审计与映射基座（P1）**（2026-11-08 完成）
     - **执行范围**: 把 120 个唯一 `--p-*` 分为三类——v4 语义角色（`text` / `border` / `background` 等，直接映射 `--caomei-*`）、v4 调色板（`surface-*` / `primary-*` / 状态色，映射项目语义层 `--m-*`）、v3 幻影 token（`--p-surface-border` / `--p-text-color-secondary` 等，删除或改语义角色）；在 `styles/main.scss` 落地 `--m-*` 派生层（`color-mix` 从 `--caomei-*` 生成，含 surface / primary / 状态色三组）；映射表落盘并补「禁止新增 `--p-*`」守卫；采集卸载前基线（`keyCss` / `coreEntryJs` / `visual` / `parity`）。
     - **非目标**: 本条目不改业务文件里的 token 用法（仅新增 `--m-*` 与映射表）、不删依赖、不动组件。
     - **验收**: 120 个唯一 token 100% 归类且映射表可机械复算；`--m-*` 派生层在浅色 / 暗色 / 三套预设下取值可解析；新增 `--p-*` 的守卫能判红（用临时文件验证）；基线四项落盘。
+    - **完成记录（2026-11-08）**: 映射表 `scripts/governance/data/primevue-token-map.json`（semantic 34 / palette 58 / phantom 28，100% 覆盖）；守卫 `pnpm governance:check:token-map`（临时文件判红单测 7 例）；`--m-*` 派生层 + 明暗/三预设解析契约 8 例；基线 `coreEntryJs` 375,543 B / 370KB、`keyCss` 64,103 B / 70KB、`test:visual` 32/32、`parity` 83/83。口径见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。
 
 - [ ] **2. 剩余 PrimeVue 组件替换（P1）**
     - **执行范围**: 46 处 / 14 类全部替换——`Checkbox`（12，布尔与数组两种模型）、`Card`（5）、`DatePicker`（4）、`MultiSelect`（4）、`InputNumber`（4）、`Textarea`（4）、`Column`（2，残留 DataTable 复核）、`RadioButton`（2，切 `CaomeiRadioGroup`）、`ProgressSpinner`（2）、`Button`（2，`error.vue`）及余下类别；按宿主路由分批（friend-links / marketing / link-governance / ad / submissions / external-links / 用户会话抽屉）并同步测试 stub 与断言。

@@ -333,6 +333,8 @@ pnpm governance:count:primevue-usage
 
 **幻影 token 注（2026-09-25 实测）**：momei 侧既有 `--p-error-500` / `--p-success-500` / `--p-warning-500` / `--p-surface-border` / `--p-text-color-secondary` 等 token 在 Aura / MomeiPreset 的产物中**并不存在**——Aura 语义层只有 `primary|surface|highlight|mask|formField|text|content|overlay|list|navigation`，不含 `success|warning|error|info`；上述名字仅以 `var()` 被消费、从未被定义（即未迁移页面上这些声明本就按 `unset` 生效）。故桥接**不按幻影 token 直译**，状态色改引由库 `primitive-variables` 样式表真实产出的原始色板（`--p-red-500` / `--p-green-500` / `--p-orange-500` 等），边框改引真实语义 `--p-content-border-color`。该缺口是否顺带修正由各批「文件 → 改动点」清单决定，本层不做消费点清理。
 
+**反向切换基座（第七十二阶段条目 1，2026-11-08）**：1,420 处 `--p-*` / 120 个唯一 token 的三分类、逐 token 映射目标、`--m-*` 项目调色板层的派生口径与守卫方式，统一见 [PrimeVue token 映射表](./2026-11-08-primevue-token-mapping.md)。本节的并存桥接（`--p-* → --caomei-*`）在条目 3 反向为 `--m-* → --caomei-*`；`--m-*` 色阶由 `composables/use-theme.ts` 写入的基色（`--m-primary` / `--m-surface` / `--m-text-color`）派生，业务文件只引用 `--caomei-*` 与 `--m-*`。
+
 ### 5.3 图标体系迁移
 
 - `icon="pi pi-x"` 字符串 → `@lucide/vue` 组件，放入 `#icon` 插槽或直接作为组件使用。
@@ -560,11 +562,11 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 | **前置：`1.0.0-rc.1` 升级与 token 角色接线**（第六十九阶段条目 1） | 精确锁定升级；补接 `-color-*-text` ×5 与 `-color-control-border`；`dependabot.yml` 增 `ignore`；重采 18 条 `test:visual` 用例（14 张截图 + 2 条桥接 + 2 条对比度契约）+ 重校准 34 条 parity 允许清单 + `keyCss` 复测；`DataTable` 两处上游修复的定向回归 | 升级记录 + 桥接契约断言 + 包体复测 + 偏差登记 | npm 发布（§3.10） |
 | **B3 表单与设置页面**（第七十阶段；2026-11-04 进度：2a 设置主体 / 2b 主题工作台 / 2c 通知管理 / 条目 3 安装向导（87 处，`Stepper` + `Accordion` 族首次生产迁移）与条目 4 用户设置 / 认证 / 提交页（6 条路由 / 16 文件 / 119 处，`reader` 档首用）已完成，B3 路由迁移面清零） | `components/admin/settings/*`、`components/settings/*`、`components/installation/*` 与 auth / submit 等表单页，另含共享依赖 `components/admin/admin-floating-actions.vue` 与 `/admin/notifications` 整路由（2026-11-03 复算 **598 处 / 54 文件 / 38 个组件族**，占剩余面 54.7%；开工时以脚本家族分桶复核） | 表单交互回归（校验 / 提交 / 提示）+「文件 → 改动点」清单 | 第六十九阶段（浮层族与 locale 先行） |
 | **B4 前段：剩余路由与图标**（第七十一阶段，2026-11-06 立项；条目 1 已完成：参考态 14 条 / 28 张、[B4 迁移清单](./2026-11-06-b4-migration-inventory.md) 落盘；条目 2 首批 `/admin/snippets` 迁移待复审） | 剩余全部路由整迁（管理端编辑器 / 仪表盘 / 日历 / 片段 / AI 任务详情 + 公开页与布局壳；已迁移的 `/admin/friend-links`、`/admin/migrations/link-governance`、`/admin/submissions` 与认证 4 页 / `/submit` 仅随图标与布局壳复核；2026-11-06 口径组件 482 处 / 82 文件）、图标全量替换（411 处 / 94 文件；22 处品牌图标走 `mdi mdi-*`，389 处走 `@lucide/vue`）、测试与 E2E 改写（mock 2 文件 / E2E 9 处）、`--p-*` 不在本段清理 | 全量测试与 E2E 通过 + 三层视觉回归 +「文件 → 改动点」清单 | B3；库侧 M5 能力**已于 2026-09-19 交付，不再阻塞** |
-| **B4 收尾：token 切换与卸载**（第七十二阶段，候选未落盘） | `--p-*` 1,442 处 / 135 文件语义层反向切换 + 幻影 token 清理（backlog #11 的 S1）+ `p-*` class / `.p-*` 选择器 / `:deep()` / `:global()` 清理 + `plugins/primevue-i18n.ts` 与 Aura 预设移除 + 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 包体对比记录 + PrimeVue 相关产物归零 + `keyCss` 回落确认 | 第七十一阶段；**token 清零与卸载必须同批**（卸载会使 `--p-*` 定义源消失） |
+| **B4 收尾：token 切换与卸载**（第七十二阶段，2026-11-08 立项） | `--p-*` 1,420 处 / 136 文件语义层反向切换 + 幻影 token 清理（backlog #11 的 S1）+ `p-*` class / `.p-*` 选择器 / `:deep()` / `:global()` 清理 + `plugins/primevue-i18n.ts` 与 Aura 预设移除 + 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` | 包体对比记录 + PrimeVue 相关产物归零 + `keyCss` 回落确认 | 第七十一阶段（已完成）；**token 清零与卸载必须同批**（卸载会使 `--p-*` 定义源消失） |
 
 > **浮层族位置调整（2026-11-01）**：浮层（Dialog / Drawer / Popover / DropdownMenu / Menu / ConfirmDialog / `useConfirm` / `useToast` / `v-tooltip`）原并入 B4，现**前移到第六十九阶段**——settings 族组件自带 3 个弹窗，浮层不先行则 B3 无法做到「路由内组件来源唯一」；同时在册族的「浮层显式豁免」需要与 `rc.1` 基线重采同批收缩，避免两个变量叠加在同一批视觉归因上。
 
-**开工顺序（2026-09-19 更新；2026-11-01 重切、2026-11-06 二次切分见下）**：库侧 B0a 资产（已交付）→ 库侧 B1 补齐（已交付，含 M5）→ **接入基座（momei 侧）** → **B0b 视觉验证回归基座** → **全局 token 语义层** → B2 试点页 → B2 全量 → B3 → B4。（2026-11-01 重切后：69 `1.0.0-rc.1` 升级 + 浮层族 + locale → 70 B3 → 71 原定「展示族 + 图标 + 测试 + 卸载」。**2026-11-06 二次切分**：71 = 剩余全部路由 + 图标 + 测试守卫；72 = token 切换 + 卸载。依据：剩余面 482 处组件 + 411 图标 + 1,442 token 合计约 2,500 处，是 70 的 4 倍；且 token 清零与卸载必须同批、属全局主题切换。）
+**开工顺序（2026-09-19 更新；2026-11-01 重切、2026-11-06 二次切分见下）**：库侧 B0a 资产（已交付）→ 库侧 B1 补齐（已交付，含 M5）→ **接入基座（momei 侧）** → **B0b 视觉验证回归基座** → **全局 token 语义层** → B2 试点页 → B2 全量 → B3 → B4。（2026-11-01 重切后：69 `1.0.0-rc.1` 升级 + 浮层族 + locale → 70 B3 → 71 原定「展示族 + 图标 + 测试 + 卸载」。**2026-11-06 二次切分**：71 = 剩余全部路由 + 图标 + 测试守卫；72 = token 切换 + 卸载。依据：剩余面 482 处组件 + 411 图标 + 1,420 token 合计约 2,500 处，是 70 的 4 倍；且 token 清零与卸载必须同批、属全局主题切换。）
 
 > **momei 侧新增批次说明**：「接入基座」与「全局 token 语义层」两项在 caomei-ui 交接计划的既有批次表（B0b / B2 / B3 / B4）中没有编号，属本文档按开工实际依赖补充的 momei 侧执行面，不改变库侧既定批次编号。
 
@@ -707,7 +709,7 @@ B2 / B3 / B4 各产出一份「文件 → 改动点 → 依据指针（差异编
   3. **第六十九阶段**（已归档 2026-11-03）：`1.0.0-rc.1` 升级与 6 个新 token 角色接线（并闭合 #12）+ 浮层族整迁 + 内建文案 locale 接线 + 覆盖率第十批。
   4. **第七十阶段**：B3 表单与设置（`components/admin/settings/*` / `components/settings/*` / `components/installation/*` / 认证与提交页）。
   5. **第七十一阶段**（2026-11-06 立项）：B4 前段——剩余全部路由（管理端余面 + 公开页与布局壳）+ 图标全量替换（411 处）+ 品牌图标保留 `@mdi/font` + 测试 / E2E 改写与守卫收口 + 覆盖率第十二批与小治理。
-  6. **第七十二阶段**（候选，未落盘）：B4 收尾——`--p-*` token 语义层反向切换（1,442 处）+ 幻影 token 清理（backlog #11 的 S1）+ 样式耦合清理 + PrimeVue 卸载 + 包体对比。
+  6. **第七十二阶段**（2026-11-08 立项）：B4 收尾——`--p-*` token 语义层反向切换（1,420 处，2026-11-08 复算）+ 幻影 token 清理（backlog #11 的 S1）+ 样式耦合清理 + PrimeVue 卸载 + 包体对比。
 - 每个批次走完整 PDTFC+ 与 Review Gate；跨批次的阶段准入、容量与验收以 [roadmap.md](../../plan/roadmap.md) 与 [todo.md](../../plan/todo.md) 为准。
 
 ## 11. 前置条件与开工检查清单

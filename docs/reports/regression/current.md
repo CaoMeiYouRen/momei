@@ -102,3 +102,37 @@
 - 全量 E2E 的三浏览器矩阵仅跑了 critical 子集，覆盖面以 chromium 全量 + critical 跨浏览器为准。
 
 <!-- regression-window:end:overlay-family-migration:第六十九阶段条目 2 浮层族整迁:2026-11-02 -->
+
+<!-- regression-window:start:primevue-token-map:第七十二阶段条目 1 token 映射基座:2026-11-08 -->
+
+## 2026-11-08 第七十二阶段条目 1 token 语义审计与映射基座
+
+### 范围
+
+- 新增 `scripts/governance/data/primevue-token-map.json`：120 个唯一 `--p-*` 的三分类（semantic 34 / palette 58 / phantom 28）与逐 token 处置（map / delete）+ 目标 token。
+- 新增 `scripts/governance/check-primevue-token-map.mjs`：与 `governance:count:primevue-usage` 共用扫描面，校验覆盖率、禁止新增 `--p-*`、`--fail-on-residual` 零残留、文档表格机械复算；`pnpm governance:check:token-map` 进入 `regression:weekly` 必需步骤。
+- 新增 `styles/main.scss` 的 `--m-*` 项目调色板层（`@layer momei-base`）：surface 色阶（明暗两向）、primary 色阶、状态色板（Aura primitive 原值冻结）、`--m-text-muted-color`、阴影 / 遮罩 / 等宽字体。
+- `composables/use-theme.ts` 增写基色 `--m-primary` / `--m-primary-contrast` / `--m-surface` / `--m-text-color` / `--m-radius` 与 `--m-surface-ground` 覆盖，取值与 `--p-*` 同值，供后续 token 反向切换零差异替换。
+- 新增 `tests/visual/momei-palette.visual.test.ts`（8 例）：明暗两态 + green / amber / geek 三预设的 `--m-*` 解析、锚点与色阶方向契约。
+- 文档：新增 [PrimeVue token 映射表](../../design/governance/2026-11-08-primevue-token-mapping.md)（含 120 行映射表，由脚本生成）；迁移方案 §5.2 补反向切换基座；开发规范 §4.6 补「`--p-*` 只减不增」。
+
+### 验证结果
+
+- 静态：`typecheck` 0 error；`eslint`（改动文件）0 error；`stylelint` 0；`lint-md` 0。
+- 脚本：`pnpm governance:check:token-map` PASS（120/120 覆盖，0 未登记）；`pnpm governance:check:token-map:doc` PASS（文档表格与事实源一致）；`governance:count:primevue-usage` 仍为 1,420 处 / 120 唯一 / 136 文件（本批未改业务用法）。
+- 单测：`composables/use-theme.test.ts` 15 passed；`tests/scripts/check-primevue-token-map.test.ts` 7 passed（含临时文件新增 `--p-*` 判红）。
+- 视觉：`pnpm test:visual` **32/32**（原 24 + 新增 8 条 `--m-*` 解析契约）；`pnpm test:visual:parity` **83/83**（18.0m）。
+- 包体（卸载前基线）：`coreEntryJs` **375,543 B / 370KB**（+175 B）、`keyCss` **64,103 B / 70KB**（+766 B）、`maxAsyncChunkJs` 56,781 B；已写入 `.github/perf/bundle-baseline.json`，卸载后以此为对照。
+
+### 差异归因
+
+- `keyCss` +766 B：新增 `--m-*` 声明（约 100 条自定义属性），属本批预期增量；卸载后须复测并评估收紧。
+- `coreEntryJs` +175 B：`use-theme` 模板字符串新增基色行。
+- 视觉零差异：`--m-*` 在本批无消费点，新增声明不改变任何渲染。
+
+### 未覆盖边界
+
+- 业务用法替换在后续 token 反向切换批次执行；`--p-border-radius-md`（Aura 6px → 项目圆角 8px）、幻影 token 修复（恒为 unset → 有值）等预期差异留待该批逐项归因。
+- `--m-*` 的消费方为零，本批无法以「消费后视觉」证明派生值正确；由解析契约 + 与 `--p-*` 公式同源的构造保证。
+
+<!-- regression-window:end:primevue-token-map:第七十二阶段条目 1 token 映射基座:2026-11-08 -->
