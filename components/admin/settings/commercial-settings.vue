@@ -152,17 +152,17 @@ useUnsavedChangesGuard({
     }
 
     &__section {
-        background-color: var(--p-surface-0);
-        border: 1px solid var(--p-surface-200);
+        background-color: var(--m-surface-0);
+        border: 1px solid var(--m-surface-200);
         border-radius: $border-radius-lg;
         padding: $spacing-lg;
         margin-bottom: $spacing-xl;
 
         &--toggle {
-            background-color: var(--p-surface-50);
+            background-color: var(--m-surface-50);
 
             .dark & {
-                background-color: var(--p-surface-900);
+                background-color: var(--m-surface-900);
             }
         }
     }
@@ -186,14 +186,14 @@ useUnsavedChangesGuard({
         gap: $spacing-sm;
 
         i {
-            color: var(--p-yellow-500);
+            color: var(--m-yellow-500);
         }
     }
 
     &__desc {
         margin: $spacing-xs 0 0;
         font-size: $font-size-sm;
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
     }
 
 }

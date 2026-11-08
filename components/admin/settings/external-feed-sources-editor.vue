@@ -605,7 +605,7 @@ watch(() => props.modelValue, (value) => {
     &__toolbar-hint,
     &__empty-hint,
     &__card-subtitle {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 
@@ -622,9 +622,8 @@ watch(() => props.modelValue, (value) => {
 
     &__empty-state,
     &__card {
-        border: 1px solid var(--p-surface-border);
         border-radius: 1rem;
-        background: linear-gradient(180deg, var(--p-surface-0) 0%, color-mix(in srgb, var(--p-surface-0) 92%, var(--p-primary-50)) 100%);
+        background: linear-gradient(180deg, var(--m-surface-0) 0%, color-mix(in srgb, var(--m-surface-0) 92%, var(--m-primary-50)) 100%);
     }
 
     &__empty-state {
@@ -681,13 +680,13 @@ watch(() => props.modelValue, (value) => {
     .external-feed-sources-editor {
         &__empty-state,
         &__card {
-            background: linear-gradient(180deg, color-mix(in srgb, var(--p-surface-900) 90%, var(--p-primary-900)) 0%, var(--p-surface-900) 100%);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--m-surface-900) 90%, var(--m-primary-900)) 0%, var(--m-surface-900) 100%);
         }
 
         &__toolbar-hint,
         &__empty-hint,
         &__card-subtitle {
-            color: var(--p-surface-400);
+            color: var(--m-surface-400);
         }
     }
 }

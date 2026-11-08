@@ -326,7 +326,7 @@ watch(alertThresholdForm, () => {
     &__section-description,
     &__policy-card-description {
         margin: 0.35rem 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -353,9 +353,9 @@ watch(alertThresholdForm, () => {
 
     &__subsection {
         padding: 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-primary-100));
+        background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-primary-100));
     }
 
     &__toggle-field {
@@ -364,9 +364,9 @@ watch(alertThresholdForm, () => {
         align-items: center;
         justify-content: space-between;
         padding: 0.875rem 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.875rem;
-        background: var(--p-surface-0);
+        background: var(--m-surface-0);
     }
 
     &__toggle-field--panel {
@@ -376,7 +376,7 @@ watch(alertThresholdForm, () => {
 
     &__error {
         margin: 0;
-        color: var(--p-red-500);
+        color: var(--m-red-500);
         line-height: 1.5;
     }
 }

@@ -310,9 +310,8 @@ useUnsavedChangesGuard({
         flex-direction: column;
         gap: 1rem;
         padding: 1.25rem;
-        border: 1px solid var(--p-surface-border);
         border-radius: 1rem;
-        background: var(--p-surface-0);
+        background: var(--m-surface-0);
         box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
     }
 
@@ -342,7 +341,7 @@ useUnsavedChangesGuard({
 
     &__description {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -356,8 +355,7 @@ useUnsavedChangesGuard({
         gap: 1rem;
         padding: 1rem;
         border-radius: 0.875rem;
-        background: color-mix(in srgb, var(--p-surface-50) 78%, white);
-        border: 1px solid color-mix(in srgb, var(--p-surface-border) 88%, white);
+        background: color-mix(in srgb, var(--m-surface-50) 78%, white);
     }
 
     &__status-copy {
@@ -380,7 +378,7 @@ useUnsavedChangesGuard({
     &__helper {
         margin: 0;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 }

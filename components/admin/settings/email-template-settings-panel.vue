@@ -331,7 +331,7 @@ async function loadPreview() {
 .email-template-settings-panel {
     &__description {
         margin: 0 0 1rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -370,13 +370,13 @@ async function loadPreview() {
         code {
             padding: 0.15rem 0.4rem;
             border-radius: 0.4rem;
-            background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+            background: color-mix(in srgb, var(--caomei-color-primary) 12%, transparent);
         }
     }
 
     &__empty-copy {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__preview-actions {
@@ -400,7 +400,7 @@ async function loadPreview() {
     }
 
     &__preview-locale-hint {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.4;
     }
 
@@ -409,9 +409,9 @@ async function loadPreview() {
         flex-direction: column;
         gap: 1rem;
         padding: 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
     }
 
     &__preview-meta {
@@ -432,7 +432,7 @@ async function loadPreview() {
         gap: 0.35rem;
         padding: 0.75rem;
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-primary-color) 6%, var(--p-content-background));
+        background: color-mix(in srgb, var(--caomei-color-primary) 6%, var(--m-surface-0));
     }
 
     &__preview-context-value {
@@ -457,9 +457,9 @@ async function loadPreview() {
         justify-content: space-between;
         gap: 0.75rem;
         padding: 0.75rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-content-background) 90%, white);
+        background: color-mix(in srgb, var(--m-surface-0) 90%, white);
     }
 
     &__preview-source-copy {
@@ -469,13 +469,13 @@ async function loadPreview() {
     }
 
     &__preview-source-note {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.4;
     }
 
     &__preview-label {
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__preview-frame {

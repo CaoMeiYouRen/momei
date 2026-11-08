@@ -7,11 +7,11 @@
         font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__description {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin: 0;
     }
 
@@ -20,7 +20,7 @@
 
         &:not(:last-child) {
             padding-bottom: 2rem;
-            border-bottom: 1px solid var(--p-content-border-color);
+            border-bottom: 1px solid var(--caomei-color-border);
         }
     }
 
@@ -36,14 +36,14 @@
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__summary {
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 
@@ -63,7 +63,7 @@
 
     &__view-hint {
         margin: 0 0 1rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 
@@ -95,12 +95,12 @@
 :global(.dark) .agreements-settings {
     &__title,
     &__subtitle {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__description,
     &__summary {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 

@@ -213,30 +213,29 @@ function translateAgreement(key: string) {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
     }
 
     &__help {
         display: block;
         margin-top: 0.5rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__notice {
         margin-bottom: 1.5rem;
         padding: 0.875rem 1rem;
         border-radius: 0.5rem;
-        border: 1px solid var(--p-content-border-color);
-        background: color-mix(in srgb, var(--p-surface-100) 88%, transparent);
-        color: var(--p-text-color);
+        border: 1px solid var(--caomei-color-border);
+        background: color-mix(in srgb, var(--m-surface-100) 88%, transparent);
+        color: var(--caomei-color-text);
     }
 
     &__editor {
         min-height: 400px;
         z-index: 1;
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--p-border-radius-md);
+        border: 1px solid var(--caomei-color-border);
 
         :deep(.v-note-wrapper) {
             border: none;
@@ -247,11 +246,11 @@ function translateAgreement(key: string) {
 
 :global(.dark) .agreements-settings {
     &__notice {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__help {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 </style>

@@ -636,7 +636,7 @@ const ttsVoiceOptions = computed(() => [
 
     &__hint {
         margin: 0 0 1.5rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
         white-space: pre-line;
     }
