@@ -270,4 +270,269 @@ describe('post-hexo-repository-sync service', () => {
             lastOperation: 'retry',
         })
     })
+
+    describe('Hexo 仓库同步边界场景', () => {
+        it('归一化仓库路径、语言与文件名中的特殊字符', () => {
+            expect(buildHexoRepositoryFilePath({
+                id: 'post-2',
+                slug: '/guide//hello world',
+                language: '',
+            } as never, '/source/_posts/')).toBe('source/_posts/zh-CN/guide--hello world.md')
+
+            expect(buildHexoRepositoryFilePath({
+                id: 'post-3',
+                slug: 'guide\\windows\\path',
+                language: 'ja-JP',
+            } as never, '')).toBe('source/_posts/ja-JP/guide-windows-path.md')
+
+            expect(buildHexoRepositoryFilePath({
+                id: 'post-4',
+                slug: '',
+                language: 'zh-CN',
+            } as never, 'source/_posts')).toBe('source/_posts/zh-CN/post-4.md')
+        })
+
+        it('远端文件已存在时使用 sha 更新并保留远端链接', async () => {
+            const post = await createPublishedPost()
+            const fetcher = vi.fn<typeof fetch>()
+            fetcher
+                .mockResolvedValueOnce(new Response(JSON.stringify({
+                    sha: 'remote-file-sha',
+                    html_url: 'https://github.com/example-owner/example-hexo/blob/main/existing.md',
+                }), { status: 200 }))
+                .mockResolvedValueOnce(new Response(JSON.stringify({
+                    commit: {
+                        sha: 'commit-updated-sha',
+                    },
+                }), { status: 200 }))
+
+            const config: HexoRepositorySyncConfig = {
+                provider: 'github',
+                owner: 'example-owner',
+                repo: 'example-hexo',
+                branch: 'main',
+                postsDir: 'source/_posts',
+                accessToken: 'ghp_test_token',
+                siteUrl: 'https://momei.app',
+            }
+
+            const result = await syncPostToHexoRepository(post, config, { operation: 'retry' }, fetcher)
+
+            expect(result).toMatchObject({
+                mode: 'updated',
+                sha: 'commit-updated-sha',
+                htmlUrl: 'https://github.com/example-owner/example-hexo/blob/main/existing.md',
+            })
+            const requestInit = fetcher.mock.calls[1]?.[1]
+            expect(requestInit?.method).toBe('PUT')
+            const payload = JSON.parse(readRequestBody(requestInit)) as { sha?: string, message?: string }
+            expect(payload.sha).toBe('remote-file-sha')
+            expect(payload.message).toContain('retry sync')
+        })
+
+        it('非 JSON 响应与 error 字段都会进入失败分类', async () => {
+            const post = await createPublishedPost()
+
+            const textFetcher = vi.fn<typeof fetch>()
+            textFetcher.mockResolvedValueOnce(new Response('Bad Gateway', {
+                status: 502,
+                statusText: 'Bad Gateway',
+            }))
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, textFetcher)).rejects.toMatchObject({
+                statusCode: 502,
+                statusMessage: 'Bad Gateway',
+            })
+
+            const errorFieldFetcher = vi.fn<typeof fetch>()
+            errorFieldFetcher.mockResolvedValueOnce(new Response(JSON.stringify({
+                error: 'forbidden by policy',
+            }), {
+                status: 403,
+                statusText: 'Forbidden',
+            }))
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, errorFieldFetcher)).rejects.toMatchObject({
+                statusCode: 403,
+                statusMessage: 'forbidden by policy',
+            })
+        })
+
+        it('按状态码与错误类型分类并保留失败状态', async () => {
+            const post = await createPublishedPost()
+
+            const cases: { fetcher: ReturnType<typeof vi.fn<typeof fetch>>, statusCode: number, statusMessage: string }[] = []
+
+            const notFoundFetcher = vi.fn<typeof fetch>()
+            notFoundFetcher
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, statusText: 'Not Found' }))
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Repository not found' }), { status: 404, statusText: 'Not Found' }))
+            cases.push({ fetcher: notFoundFetcher, statusCode: 404, statusMessage: 'Repository not found' })
+
+            const rateLimitFetcher = vi.fn<typeof fetch>()
+            rateLimitFetcher
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, statusText: 'Not Found' }))
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Too many requests' }), { status: 429, statusText: 'Too Many Requests' }))
+            cases.push({ fetcher: rateLimitFetcher, statusCode: 429, statusMessage: 'Too many requests' })
+
+            const validationFetcher = vi.fn<typeof fetch>()
+            validationFetcher
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, statusText: 'Not Found' }))
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Invalid content' }), { status: 422 }))
+            cases.push({ fetcher: validationFetcher, statusCode: 422, statusMessage: 'Invalid content' })
+
+            for (const item of cases) {
+                await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                    operation: 'sync',
+                }, actor, item.fetcher)).rejects.toMatchObject({
+                    statusCode: item.statusCode,
+                    statusMessage: item.statusMessage,
+                })
+            }
+
+            const networkFetcher = vi.fn<typeof fetch>()
+            networkFetcher.mockRejectedValueOnce(new Error('fetch timeout'))
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, networkFetcher)).rejects.toMatchObject({
+                statusCode: 500,
+                statusMessage: 'fetch timeout',
+            })
+
+            const unknownFetcher = vi.fn<typeof fetch>()
+            unknownFetcher.mockRejectedValueOnce(new Error('unexpected failure'))
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, unknownFetcher)).rejects.toMatchObject({
+                statusCode: 500,
+                statusMessage: 'unexpected failure',
+            })
+
+            const nonErrorFetcher = vi.fn<typeof fetch>()
+            nonErrorFetcher.mockRejectedValueOnce('boom')
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, nonErrorFetcher)).rejects.toMatchObject({
+                statusCode: 500,
+                statusMessage: 'Unknown repository sync error',
+            })
+
+            const persisted = await dataSource.getRepository(Post).findOneByOrFail({ id: post.id })
+            expect(persisted.metadata?.integration?.hexoRepositorySync).toMatchObject({
+                lastFailureReason: 'unknown',
+                lastMessage: 'Unknown repository sync error',
+            })
+        })
+
+        it('拒绝不存在的文章、非作者请求和未发布文章', async () => {
+            await expect(dispatchPostHexoRepositorySyncService('missing-post-id', {
+                operation: 'sync',
+            }, actor)).rejects.toMatchObject({
+                statusCode: 404,
+                statusMessage: 'Post not found',
+            })
+
+            const post = await createPublishedPost()
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, { currentUserId: 'another-user', isAdmin: false })).rejects.toMatchObject({
+                statusCode: 403,
+                statusMessage: 'Forbidden',
+            })
+
+            post.status = PostStatus.DRAFT
+            await dataSource.getRepository(Post).save(post)
+
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor)).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Only published posts can be synchronized to Hexo repositories',
+            })
+        })
+
+        it('同步未启用或配置不完整时拒绝执行', async () => {
+            const post = await createPublishedPost()
+            const baseImplementation = vi.mocked(getSetting).getMockImplementation()!
+            const applyOverrides = (overrides: Partial<Record<SettingKey, string | null>>) => {
+                vi.mocked(getSetting).mockImplementation((key: string, defaultValue?: unknown) => {
+                    if (Object.hasOwn(overrides, key)) {
+                        return Promise.resolve(overrides[key as SettingKey] ?? null)
+                    }
+                    return baseImplementation(key, defaultValue)
+                })
+            }
+
+            applyOverrides({ [SettingKey.HEXO_SYNC_ENABLED]: 'false' })
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor)).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Hexo repository sync is disabled',
+            })
+
+            applyOverrides({
+                [SettingKey.HEXO_SYNC_ENABLED]: 'true',
+                [SettingKey.HEXO_SYNC_PROVIDER]: null,
+            })
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor)).rejects.toMatchObject({
+                statusCode: 400,
+                statusMessage: 'Hexo repository sync configuration is incomplete',
+            })
+        })
+
+        it('文章元数据为空时仍可持久化同步状态', async () => {
+            const post = await createPublishedPost()
+            post.metadata = null as never
+            post.metaVersion = 0
+            await dataSource.getRepository(Post).save(post)
+
+            const fetcher = vi.fn<typeof fetch>()
+            fetcher
+                .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, statusText: 'Not Found' }))
+                .mockResolvedValueOnce(new Response(JSON.stringify({
+                    content: {
+                        sha: 'created-sha',
+                    },
+                }), { status: 201 }))
+
+            const result = await dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, fetcher)
+
+            expect(result.state.lastFailureReason).toBeNull()
+
+            const persisted = await dataSource.getRepository(Post).findOneByOrFail({ id: post.id })
+            expect(persisted.metaVersion).toBeGreaterThanOrEqual(1)
+            expect(persisted.metadata?.integration?.hexoRepositorySync).toMatchObject({
+                remoteSha: 'created-sha',
+            })
+        })
+
+        it('同步过程中文章被删除时拒绝持久化同步状态', async () => {
+            const post = await createPublishedPost()
+            const fetcher = vi.fn<typeof fetch>()
+            fetcher
+                .mockImplementationOnce(async () => {
+                    await dataSource.getRepository(Post).delete({ id: post.id })
+                    return new Response(JSON.stringify({ message: 'Not Found' }), { status: 404, statusText: 'Not Found' })
+                })
+                .mockResolvedValueOnce(new Response(JSON.stringify({
+                    content: {
+                        sha: 'created-sha',
+                    },
+                }), { status: 201 }))
+
+            await expect(dispatchPostHexoRepositorySyncService(post.id, {
+                operation: 'sync',
+            }, actor, fetcher)).rejects.toMatchObject({
+                statusCode: 404,
+                statusMessage: 'Post not found',
+            })
+        })
+    })
 })

@@ -402,4 +402,260 @@ describe('agreement service', () => {
         expect(mockAgreementRepo.update).toHaveBeenCalledWith({ id: 'pp-v2-en' }, { hasUserConsent: true })
         expect(mockAgreementRepo.update).toHaveBeenCalledWith({ id: 'pp-v2' }, { hasUserConsent: true })
     })
+
+    describe('协议版本回退与管理端边界场景', () => {
+        it('主语言缺少权威版本时回退到最新的本地化版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({
+                    id: 'zh-old',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+                }),
+                createAgreement({
+                    id: 'zh-new',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+                }),
+            ])
+            mockSettings('zh-CN', null)
+
+            const result = await getAgreementContent('user_agreement', 'zh-CN', true)
+
+            expect(result?.id).toBe('zh-new')
+        })
+
+        it('非主语言请求返回该语言下最新的版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({
+                    id: 'en-old',
+                    language: 'en-US',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+                }),
+                createAgreement({
+                    id: 'en-new',
+                    language: 'en-US',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+                }),
+            ])
+            mockSettings('zh-CN', null)
+
+            const result = await getAgreementContent('user_agreement', 'en-US')
+
+            expect(result?.id).toBe('en-new')
+        })
+
+        it('配置的生效版本未审批时回退到最新已审批权威版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({
+                    id: 'pending-active',
+                    reviewStatus: 'draft',
+                    effectiveAt: new Date('2026-03-01T00:00:00.000Z'),
+                }),
+                createAgreement({
+                    id: 'approved-active',
+                    reviewStatus: 'approved',
+                    effectiveAt: new Date('2026-02-01T00:00:00.000Z'),
+                }),
+            ])
+            mockSettings('zh-CN', 'pending-active')
+
+            const result = await getActiveAgreementContent('user_agreement')
+
+            expect(result?.id).toBe('approved-active')
+            expect(result?.history.map((item) => item.id)).toEqual(['approved-active'])
+        })
+
+        it('没有任何已审批权威版本时返回空结果并记录告警', async () => {
+            mockAgreementRepo.find.mockResolvedValue([])
+            mockSettings('zh-CN', 'missing-agreement')
+
+            await expect(getActiveAgreementContent('user_agreement')).resolves.toBeNull()
+        })
+
+        it('创建参考译文时必须存在可关联的权威版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([])
+            mockSettings('zh-CN', null)
+
+            await expect(createAgreementVersion({
+                type: 'user_agreement',
+                language: 'en-US',
+                content: '# English',
+            })).rejects.toThrow('Reference translations must link to an authoritative agreement version')
+        })
+
+        it('参考译文不能关联到不在权威版本集合中的版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({ id: 'zh-main', version: '1.0.0' }),
+                createAgreement({
+                    id: 'en-source',
+                    language: 'en-US',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    sourceAgreementId: 'zh-main',
+                }),
+            ])
+            mockSettings('zh-CN', 'zh-main')
+
+            await expect(createAgreementVersion({
+                type: 'user_agreement',
+                language: 'en-US',
+                content: '# English',
+                sourceAgreementId: 'en-source',
+            })).rejects.toThrow('Reference translations must link to an authoritative agreement version')
+        })
+
+        it('参考译文的来源协议类型必须与目标类型一致', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({ id: 'privacy-main', type: 'privacy_policy', version: '1.0.0' }),
+            ])
+            mockSettings('zh-CN', 'privacy-main')
+
+            await expect(createAgreementVersion({
+                type: 'user_agreement',
+                language: 'en-US',
+                content: '# English',
+                sourceAgreementId: 'privacy-main',
+            })).rejects.toThrow('Reference translation source type mismatch')
+        })
+
+        it('管理端列表按语言过滤版本', async () => {
+            mockAgreementRepo.find.mockResolvedValue([
+                createAgreement({ id: 'zh-main', version: '1.0.0' }),
+                createAgreement({
+                    id: 'en-main',
+                    language: 'en-US',
+                    isMainVersion: false,
+                    isAuthoritativeVersion: false,
+                    sourceAgreementId: 'zh-main',
+                }),
+            ])
+            mockSettings('zh-CN', 'zh-main')
+
+            const result = await getAgreementVersions('user_agreement', 'en-US')
+
+            expect(result.items.map((item) => item.id)).toEqual(['en-main'])
+            expect(result.authoritativeOptions.map((item) => item.id)).toEqual(['zh-main'])
+        })
+
+        it('更新协议时拒绝不存在的版本、环境变量版本和已同意版本', async () => {
+            mockAgreementRepo.findOne.mockResolvedValueOnce(null)
+            await expect(updateAgreementContent('missing', { content: '# x' }))
+                .rejects.toThrow('Agreement with ID missing not found')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'env-version', isFromEnv: true }))
+            await expect(updateAgreementContent('env-version', { content: '# x' }))
+                .rejects.toThrow('Cannot modify agreement content from environment variables')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'consented', hasUserConsent: true }))
+            await expect(updateAgreementContent('consented', { content: '# x' }))
+                .rejects.toThrow('Cannot modify agreement version that users have already consented to')
+        })
+
+        it('删除协议时拒绝不存在的版本、环境变量版本和已同意版本，并支持删除普通版本', async () => {
+            mockAgreementRepo.findOne.mockResolvedValueOnce(null)
+            await expect(deleteAgreementVersion('missing'))
+                .rejects.toThrow('Agreement with ID missing not found')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'env-version', isFromEnv: true }))
+            await expect(deleteAgreementVersion('env-version'))
+                .rejects.toThrow('Cannot delete agreement content from environment variables')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'consented', hasUserConsent: true }))
+            await expect(deleteAgreementVersion('consented'))
+                .rejects.toThrow('Cannot delete agreement version that users have consented to')
+
+            const deletable = createAgreement({ id: 'old-version', effectiveAt: null })
+            mockAgreementRepo.findOne.mockResolvedValueOnce(deletable)
+            mockAgreementRepo.remove.mockResolvedValueOnce(deletable)
+            mockSettings('zh-CN', 'current-version')
+
+            await expect(deleteAgreementVersion('old-version')).resolves.toBe(deletable)
+            expect(mockAgreementRepo.remove).toHaveBeenCalledWith(deletable)
+        })
+
+        it('设置生效版本时校验存在性与权威语言，并更新已有配置项', async () => {
+            mockAgreementRepo.findOne.mockResolvedValueOnce(null)
+            await expect(setActiveAgreement('user_agreement', 'missing'))
+                .rejects.toThrow('Agreement with ID missing not found')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({
+                id: 'en-version',
+                language: 'en-US',
+                isMainVersion: false,
+                isAuthoritativeVersion: false,
+            }))
+            await expect(setActiveAgreement('user_agreement', 'en-version'))
+                .rejects.toThrow('Only authoritative-language versions can be set as active')
+
+            const target = createAgreement({ id: 'ua-v5', version: '5.0.0', effectiveAt: null, reviewStatus: 'approved' })
+            const existingSetting = { key: SettingKey.LEGAL_USER_AGREEMENT_ID, value: 'ua-v4' }
+            mockAgreementRepo.findOne.mockResolvedValueOnce(target)
+            mockAgreementRepo.save.mockResolvedValueOnce(target)
+            mockSettingRepo.findOne.mockImplementation(({ where }: any) => {
+                if (where.key === SettingKey.LEGAL_MAIN_LANGUAGE) {
+                    return Promise.resolve({ key: SettingKey.LEGAL_MAIN_LANGUAGE, value: 'zh-CN' })
+                }
+                if (where.key === SettingKey.LEGAL_USER_AGREEMENT_ID) {
+                    return Promise.resolve(existingSetting)
+                }
+                return Promise.resolve(null)
+            })
+            mockSettingRepo.save.mockImplementation((payload) => Promise.resolve(payload))
+
+            await expect(setActiveAgreement('user_agreement', 'ua-v5')).resolves.toBe(target)
+            expect(existingSetting.value).toBe('ua-v5')
+            expect(mockSettingRepo.save).toHaveBeenCalledWith(existingSetting)
+        })
+
+        it('审批状态流转覆盖不存在、环境变量、已同意、生效版本、重复状态与非法流转', async () => {
+            mockAgreementRepo.findOne.mockResolvedValueOnce(null)
+            await expect(setAgreementReviewStatus('missing', 'approved'))
+                .rejects.toThrow('Agreement with ID missing not found')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'env-version', isFromEnv: true }))
+            await expect(setAgreementReviewStatus('env-version', 'approved'))
+                .rejects.toThrow('Cannot modify agreement content from environment variables')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'consented', hasUserConsent: true }))
+            await expect(setAgreementReviewStatus('consented', 'approved'))
+                .rejects.toThrow('Cannot modify agreement version that users have already consented to')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({ id: 'active-version' }))
+            mockSettings('zh-CN', 'active-version')
+            await expect(setAgreementReviewStatus('active-version', 'draft'))
+                .rejects.toThrow('Cannot change the review status of the currently active authoritative agreement')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({
+                id: 'approved-version',
+                reviewStatus: 'approved',
+                effectiveAt: null,
+            }))
+            mockSettings('zh-CN', 'other-version')
+            await expect(setAgreementReviewStatus('approved-version', 'approved'))
+                .resolves.toMatchObject({ id: 'approved-version' })
+            expect(mockAgreementRepo.save).not.toHaveBeenCalled()
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({
+                id: 'approved-draft',
+                reviewStatus: 'approved',
+                effectiveAt: null,
+            }))
+            await expect(setAgreementReviewStatus('approved-draft', 'pending_review'))
+                .rejects.toThrow('Only draft agreements can be submitted for review')
+
+            mockAgreementRepo.findOne.mockResolvedValueOnce(createAgreement({
+                id: 'legacy-status',
+                reviewStatus: 'legacy' as AgreementReviewStatus,
+                effectiveAt: null,
+            }))
+            await expect(setAgreementReviewStatus('legacy-status', 'approved'))
+                .rejects.toThrow('Only draft or pending-review agreements can be approved')
+        })
+    })
 })
