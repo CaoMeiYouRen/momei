@@ -51,15 +51,13 @@
                     <label for="publish_at" class="publish-dialog__field-label">
                         {{ $t('common.schedule_time') }}
                     </label>
-                    <DatePicker
+                    <CaomeiDatePicker
                         id="publish_at"
                         v-model="publishedAt"
                         show-time
                         hour-format="24"
                         :placeholder="$t('common.schedule_time')"
-                        fluid
                         show-icon
-                        icon-display="input"
                     />
                     <small class="publish-dialog__field-desc">
                         {{ $t('common.schedule_hint') }}

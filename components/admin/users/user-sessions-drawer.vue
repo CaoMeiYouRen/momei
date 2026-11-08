@@ -18,7 +18,7 @@
         </template>
 
         <div v-if="loading" class="sessions-loading">
-            <ProgressSpinner />
+            <CaomeiProgressSpinner />
         </div>
 
         <div v-else class="sessions-list">

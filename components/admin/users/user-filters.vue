@@ -1,6 +1,5 @@
 <template>
-    <!-- `Toolbar` 不在 B2 在册族（迁移方案 §5.5）：浮层 / 表单类组件留待第六十九阶段，此处保持 PrimeVue。 -->
-    <Toolbar class="user-filters-toolbar">
+    <CaomeiToolbar class="user-filters-toolbar">
         <template #start>
             <div class="user-filters">
                 <CaomeiInput
@@ -36,7 +35,7 @@
                 </div>
             </div>
         </template>
-    </Toolbar>
+    </CaomeiToolbar>
 </template>
 
 <script setup lang="ts">
@@ -108,7 +107,9 @@ const statusOptions = computed(() => [
 
 <style lang="scss" scoped>
 .user-filters-toolbar {
-    &.p-toolbar {
+    &.caomei-toolbar {
+        display: flex;
+        width: 100%;
         background-color: transparent;
         border: none;
         padding: 0;

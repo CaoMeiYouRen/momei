@@ -71,8 +71,8 @@ const CaomeiSelectStub = defineComponent({
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key, locale: ref('zh-CN') }))
 
 const stubs = {
-    Toolbar: defineComponent({
-        name: 'Toolbar',
+    CaomeiToolbar: defineComponent({
+        name: 'CaomeiToolbar',
         setup: (_, { slots }) => () => h('div', { class: 'toolbar-stub' }, slots.start?.()),
     }),
     CaomeiInput: CaomeiInputStub,

@@ -79,7 +79,7 @@ const stubs = {
         props: { open: Boolean, position: String },
         setup: (props, { slots }) => () => h('div', { class: 'drawer-stub', 'data-position': props.position }, [slots.header?.(), slots.default?.()]),
     }),
-    ProgressSpinner: defineComponent({ name: 'ProgressSpinner', setup: () => () => h('div', { class: 'progress-spinner-stub' }) }),
+    CaomeiProgressSpinner: defineComponent({ name: 'CaomeiProgressSpinner', setup: () => () => h('div', { class: 'progress-spinner-stub' }) }),
     CaomeiBadge: CaomeiBadgeStub,
     CaomeiButton: CaomeiButtonStub,
 }

@@ -75,10 +75,10 @@ const RadioButtonStub = defineComponent({
 })
 
 const DatePickerStub = defineComponent({
-    name: 'DatePicker',
-    props: { modelValue: { type: [Date, null], default: null }, fluid: { type: Boolean, default: false } },
+    name: 'CaomeiDatePicker',
+    props: { modelValue: { type: [Date, null], default: null }, showTime: { type: Boolean, default: false }, hourFormat: { type: String, default: '24' } },
     emits: ['update:modelValue'],
-    setup: () => () => h('div', { class: 'p-datepicker' }),
+    setup: () => () => h('div', { class: 'caomei-date-picker' }),
 })
 
 const CaomeiButtonStub = defineComponent({
@@ -111,7 +111,7 @@ const stubs = {
     CaomeiDialog: DialogStub,
     CaomeiRadioGroup: RadioGroupStub,
     CaomeiRadioButton: RadioButtonStub,
-    DatePicker: DatePickerStub,
+    CaomeiDatePicker: DatePickerStub,
     CaomeiButton: CaomeiButtonStub,
 }
 
@@ -126,12 +126,12 @@ async function mountDialog(props: Record<string, unknown> = {}) {
 }
 
 describe('PublishPushDialog', () => {
-    it('浮层壳、单选组为 caomei；排期 DatePicker 仍为 PrimeVue（B3 表单族）', async () => {
+    it('浮层壳、单选组与排期 DatePicker 均为 caomei', async () => {
         const wrapper = await mountDialog()
 
         expect(wrapper.find('.p-dialog').exists()).toBe(true)
         expect(wrapper.find('.p-dialog').attributes('data-width')).toBe('35rem')
-        expect(wrapper.find('.p-datepicker').exists()).toBe(true)
+        expect(wrapper.find('.caomei-date-picker').exists()).toBe(true)
         // 推送选项 3 个；目标选择区在「不推送」时隐藏（V1 口径），故初始仅 3 个
         expect(wrapper.findAll('.p-radiobutton')).toHaveLength(3)
 
