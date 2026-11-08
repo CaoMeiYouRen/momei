@@ -89,7 +89,6 @@
                 },
                 "tasks": "任务记录",
                 "text_length": "文本长度",
-                "title": "AI 任务与统计",
                 "type": "任务类型",
                 "types": {
                     "asr": "语音识别",

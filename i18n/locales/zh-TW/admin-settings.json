@@ -189,14 +189,6 @@
                         "saved": "目前內容已儲存",
                         "unsaved": "仍有尚未儲存的變更"
                     },
-                    "fields": {
-                        "external_feed_cache_ttl_seconds": "外部動態快取 TTL",
-                        "external_feed_enabled": "啟用外部動態聚合",
-                        "external_feed_home_enabled": "在首頁顯示外部動態",
-                        "external_feed_home_limit": "首頁外部動態數量",
-                        "external_feed_sources": "外部動態來源設定",
-                        "external_feed_stale_while_error_seconds": "外部動態失敗回退視窗"
-                    },
                     "hints": {
                         "ai_alert_thresholds": "示例:\n｛\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": ｛\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  ｝,\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n｝",
                         "ai_alert_thresholds_description": "透過表單設定額度使用率、成本使用率與短時間失敗暴增的告警閾值。",

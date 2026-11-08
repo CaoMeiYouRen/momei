@@ -61,7 +61,6 @@
                     "all": "All Statuses",
                     "banned": "Banned"
                 },
-                "title": "User Management",
                 "unban_user": "Unban User",
                 "user": "User",
                 "view_sessions": "View Sessions"

@@ -28,7 +28,6 @@
                     "blocked": "ブロック済み",
                     "expired": "期限切れ"
                 },
-                "title": "外部リンク管理",
                 "title_placeholder": "任意のリンクタイトル",
                 "url_placeholder": "例: https://example.com"
             }

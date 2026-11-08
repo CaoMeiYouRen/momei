@@ -95,7 +95,6 @@
                     "rewritten": "待改寫",
                     "total": "總數"
                 },
-                "title": "遷移連結治理",
                 "validation_modes": {
                     "static": "靜態校驗",
                     "static+online": "靜態 + 線上探測"

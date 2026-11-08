@@ -75,8 +75,7 @@
                     "inactive": "停用"
                 },
                 "submitted_ip": "来源 IP",
-                "suggest_review_or_disable": "建议复检/下架",
-                "title": "友链管理"
+                "suggest_review_or_disable": "建议复检/下架"
             }
         }
     }

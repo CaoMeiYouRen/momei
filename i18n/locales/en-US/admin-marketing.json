@@ -49,7 +49,6 @@
                     "scheduled": "Scheduled",
                     "sending": "Sending"
                 },
-                "title": "Marketing Center",
                 "type": {
                     "blog_post": "New Post",
                     "feature": "Feature",

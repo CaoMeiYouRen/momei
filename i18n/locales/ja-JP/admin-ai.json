@@ -89,7 +89,6 @@
                 },
                 "tasks": "タスク記録",
                 "text_length": "テキスト長",
-                "title": "AI タスクと統計",
                 "type": "タスク種別",
                 "types": {
                     "asr": "音声認識",

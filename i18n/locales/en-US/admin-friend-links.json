@@ -75,8 +75,7 @@
                     "inactive": "Inactive"
                 },
                 "submitted_ip": "Source IP",
-                "suggest_review_or_disable": "Suggest Re-check/Take Down",
-                "title": "Friend Links"
+                "suggest_review_or_disable": "Suggest Re-check/Take Down"
             }
         }
     }

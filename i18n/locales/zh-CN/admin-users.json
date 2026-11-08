@@ -61,7 +61,6 @@
                     "all": "所有状态",
                     "banned": "已封禁"
                 },
-                "title": "用户管理",
                 "unban_user": "解封用户",
                 "user": "用户",
                 "view_sessions": "查看会话"

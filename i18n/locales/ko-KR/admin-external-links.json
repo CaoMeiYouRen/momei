@@ -28,7 +28,6 @@
                     "blocked": "차단됨",
                     "expired": "만료됨"
                 },
-                "title": "외부 링크 관리",
                 "title_placeholder": "선택 사항 링크 제목",
                 "url_placeholder": "예: https://example.com"
             }

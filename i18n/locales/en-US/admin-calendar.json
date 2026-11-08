@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "calendar": {
-                "title": "Content Calendar",
                 "tab_calendar": "Calendar",
                 "tab_kanban": "Kanban",
                 "today_btn": "Today",

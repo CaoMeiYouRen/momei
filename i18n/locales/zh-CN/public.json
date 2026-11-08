@@ -11,6 +11,7 @@
                 "title_placeholder": "请输入文章标题",
                 "content": "正文内容 (Markdown)",
                 "content_placeholder": "请使用 Markdown 格式编写...",
+                "markdown_help": "支持 Markdown 语法",
                 "name": "您的称呼",
                 "name_placeholder": "支持昵称",
                 "email": "电子邮箱",

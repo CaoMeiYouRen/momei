@@ -89,7 +89,6 @@
                 },
                 "tasks": "작업 기록",
                 "text_length": "텍스트 길이",
-                "title": "AI 작업 및 통계",
                 "type": "작업 유형",
                 "types": {
                     "asr": "전사",

@@ -8,8 +8,7 @@
                 "delete_success": "分类删除成功",
                 "save_success": "分类保存成功",
                 "search_placeholder": "搜索分类...",
-                "sync_to_all_languages": "同步创建对应的其他语言版本",
-                "title": "分类管理"
+                "sync_to_all_languages": "同步创建对应的其他语言版本"
             },
             "comments": {
                 "approve": "通过审核",
@@ -23,8 +22,7 @@
                 "status": "状态",
                 "status_pending": "待审核",
                 "status_published": "已发布",
-                "status_spam": "垃圾评论",
-                "title": "评论管理"
+                "status_spam": "垃圾评论"
             },
             "subscribers": {
                 "active": "已激活",
@@ -35,7 +33,6 @@
                 "join_date": "加入日期",
                 "not_associated": "未关联",
                 "search_placeholder": "搜索邮箱...",
-                "title": "订阅管理",
                 "user_associated": "关联用户"
             },
             "tags": {
@@ -45,8 +42,7 @@
                 "delete_success": "标签删除成功",
                 "save_success": "标签保存成功",
                 "search_placeholder": "搜索标签...",
-                "sync_to_all_languages": "同步创建对应的其他语言版本",
-                "title": "标签管理"
+                "sync_to_all_languages": "同步创建对应的其他语言版本"
             }
         }
     }

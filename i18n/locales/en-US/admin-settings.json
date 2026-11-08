@@ -189,14 +189,6 @@
                         "saved": "All changes are saved",
                         "unsaved": "You have unsaved changes"
                     },
-                    "fields": {
-                        "external_feed_cache_ttl_seconds": "External feed cache TTL",
-                        "external_feed_enabled": "Enable external feed aggregation",
-                        "external_feed_home_enabled": "Show external updates on the homepage",
-                        "external_feed_home_limit": "Homepage external update count",
-                        "external_feed_sources": "External feed sources",
-                        "external_feed_stale_while_error_seconds": "External feed stale fallback window"
-                    },
                     "hints": {
                         "ai_alert_thresholds": "Example:\n{'{'}\n  \"enabled\": true,\n  \"quotaUsageRatios\": [0.5, 0.8, 1],\n  \"costUsageRatios\": [0.8, 1],\n  \"failureBurst\": {'{'}\n    \"enabled\": true,\n    \"windowMinutes\": 10,\n    \"maxFailures\": 3,\n    \"categories\": [\"image\", \"asr\", \"tts\", \"podcast\"]\n  {'}'},\n  \"dedupeWindowMinutes\": 1440,\n  \"maxAlerts\": 10\n{'}'}",
                         "ai_alert_thresholds_description": "Configure threshold alerts for quota usage, cost usage, and short-window failure bursts via the form.",

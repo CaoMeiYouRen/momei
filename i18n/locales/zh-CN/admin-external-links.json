@@ -28,7 +28,6 @@
                     "blocked": "已屏蔽",
                     "expired": "已过期"
                 },
-                "title": "外链管理",
                 "title_placeholder": "可选链接标题",
                 "url_placeholder": "例如：https://example.com"
             }

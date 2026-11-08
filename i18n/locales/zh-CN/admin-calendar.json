@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "calendar": {
-                "title": "内容日历",
                 "tab_calendar": "日历视图",
                 "tab_kanban": "看板视图",
                 "today_btn": "今天",

@@ -95,7 +95,6 @@
                     "rewritten": "書き換え候補",
                     "total": "総数"
                 },
-                "title": "移行リンクガバナンス",
                 "validation_modes": {
                     "static": "静的検証",
                     "static+online": "静的 + オンライン確認"

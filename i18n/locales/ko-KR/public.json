@@ -11,6 +11,7 @@
                 "title_placeholder": "글 제목을 입력해 주세요",
                 "content": "본문 내용 (Markdown)",
                 "content_placeholder": "Markdown 형식으로 작성해 주세요...",
+                "markdown_help": "Markdown 문법 지원",
                 "name": "이름",
                 "name_placeholder": "닉네임 사용 가능",
                 "email": "이메일 주소",

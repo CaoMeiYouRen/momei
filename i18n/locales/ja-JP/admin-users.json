@@ -61,7 +61,6 @@
                     "all": "すべての状態",
                     "banned": "BAN 済み"
                 },
-                "title": "ユーザー管理",
                 "unban_user": "BAN を解除",
                 "user": "ユーザー",
                 "view_sessions": "セッションを表示"

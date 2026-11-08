@@ -28,7 +28,6 @@
                     "blocked": "Blocked",
                     "expired": "Expired"
                 },
-                "title": "External Links",
                 "title_placeholder": "Optional link title",
                 "url_placeholder": "e.g., https://example.com"
             }

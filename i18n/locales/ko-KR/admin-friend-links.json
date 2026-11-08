@@ -75,8 +75,7 @@
                     "inactive": "비활성"
                 },
                 "submitted_ip": "제출 IP",
-                "suggest_review_or_disable": "재검토 / 비활성화 권장",
-                "title": "친구 링크 관리"
+                "suggest_review_or_disable": "재검토 / 비활성화 권장"
             }
         }
     }

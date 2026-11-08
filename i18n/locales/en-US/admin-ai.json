@@ -89,7 +89,6 @@
                 },
                 "tasks": "Task Records",
                 "text_length": "Text Length",
-                "title": "AI Tasks & Stats",
                 "type": "Task Type",
                 "types": {
                     "asr": "Speech Recognition",

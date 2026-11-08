@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "calendar": {
-                "title": "콘텐츠 캘린더",
                 "tab_calendar": "캘린더",
                 "tab_kanban": "칸반",
                 "today_btn": "오늘",

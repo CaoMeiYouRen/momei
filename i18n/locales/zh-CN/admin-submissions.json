@@ -21,8 +21,7 @@
                 "status": "稿件状态",
                 "status_accepted": "已采纳",
                 "status_pending": "待审核",
-                "status_rejected": "已拒绝",
-                "title": "稿件审核"
+                "status_rejected": "已拒绝"
             }
         }
     }

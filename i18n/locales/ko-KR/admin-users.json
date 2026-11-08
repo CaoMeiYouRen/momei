@@ -61,7 +61,6 @@
                     "all": "모든 상태",
                     "banned": "차단됨"
                 },
-                "title": "사용자 관리",
                 "unban_user": "차단 해제",
                 "user": "사용자",
                 "view_sessions": "세션 보기"

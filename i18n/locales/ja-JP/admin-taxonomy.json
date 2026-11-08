@@ -8,8 +8,7 @@
                 "delete_success": "カテゴリを削除しました",
                 "save_success": "カテゴリを保存しました",
                 "search_placeholder": "カテゴリを検索...",
-                "sync_to_all_languages": "他言語版も同時に作成する",
-                "title": "カテゴリ管理"
+                "sync_to_all_languages": "他言語版も同時に作成する"
             },
             "comments": {
                 "approve": "承認する",
@@ -23,8 +22,7 @@
                 "status": "状態",
                 "status_pending": "審査待ち",
                 "status_published": "公開済み",
-                "status_spam": "スパムコメント",
-                "title": "コメント管理"
+                "status_spam": "スパムコメント"
             },
             "subscribers": {
                 "active": "有効",
@@ -35,7 +33,6 @@
                 "join_date": "登録日",
                 "not_associated": "未関連付け",
                 "search_placeholder": "メールアドレスを検索...",
-                "title": "購読者管理",
                 "user_associated": "関連ユーザーあり"
             },
             "tags": {
@@ -45,8 +42,7 @@
                 "delete_success": "タグを削除しました",
                 "save_success": "タグを保存しました",
                 "search_placeholder": "タグを検索...",
-                "sync_to_all_languages": "他言語版も同時に作成する",
-                "title": "タグ管理"
+                "sync_to_all_languages": "他言語版も同時に作成する"
             }
         }
     }

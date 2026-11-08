@@ -89,7 +89,6 @@
                 },
                 "tasks": "任務記錄",
                 "text_length": "文字長度",
-                "title": "AI 任務與統計",
                 "type": "任務類型",
                 "types": {
                     "asr": "語音識別",

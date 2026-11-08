@@ -327,7 +327,6 @@
                 "summary_placeholder": "Post summary...",
                 "tags_hint": "Type a tag name and press Enter",
                 "tags_placeholder": "Enter tags...",
-                "title": "Post Management",
                 "title_placeholder": "Post title",
                 "translate_success": "Translation completed and applied to the content area.",
                 "translation_group": "Linked Language Versions",

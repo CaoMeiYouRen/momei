@@ -40,7 +40,7 @@
                             :rows="12"
                         />
                         <div class="submit-form__field-footer">
-                            <small class="submit-form__help">支持 Markdown 语法</small>
+                            <small class="submit-form__help">{{ $t('pages.submit.form.markdown_help') }}</small>
                             <CaomeiMessage
                                 v-if="errors.content"
                                 tone="danger"

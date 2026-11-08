@@ -21,8 +21,7 @@
                 "status": "原稿状態",
                 "status_accepted": "採用済み",
                 "status_pending": "審査待ち",
-                "status_rejected": "却下済み",
-                "title": "投稿審査"
+                "status_rejected": "却下済み"
             }
         }
     }

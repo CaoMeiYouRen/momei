@@ -2,7 +2,6 @@
     "pages": {
         "admin": {
             "calendar": {
-                "title": "コンテンツカレンダー",
                 "tab_calendar": "カレンダー",
                 "tab_kanban": "かんばん",
                 "today_btn": "今日",

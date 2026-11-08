@@ -11,6 +11,7 @@
                 "title_placeholder": "記事タイトルを入力してください",
                 "content": "本文 (Markdown)",
                 "content_placeholder": "Markdown 形式で執筆してください...",
+                "markdown_help": "Markdown 記法に対応",
                 "name": "お名前",
                 "name_placeholder": "ニックネーム可",
                 "email": "メールアドレス",

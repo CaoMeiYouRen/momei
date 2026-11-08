@@ -95,7 +95,6 @@
                     "rewritten": "Pending Rewrite",
                     "total": "Total"
                 },
-                "title": "Migration Link Governance",
                 "validation_modes": {
                     "static": "Static Validation",
                     "static+online": "Static + Online Detection"

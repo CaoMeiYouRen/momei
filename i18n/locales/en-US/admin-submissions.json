@@ -21,8 +21,7 @@
                 "status": "Status",
                 "status_accepted": "Accepted",
                 "status_pending": "Pending",
-                "status_rejected": "Rejected",
-                "title": "Submissions"
+                "status_rejected": "Rejected"
             }
         }
     }

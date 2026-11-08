@@ -28,7 +28,6 @@
                     "blocked": "已封鎖",
                     "expired": "已過期"
                 },
-                "title": "外部連結管理",
                 "title_placeholder": "可選連結標題",
                 "url_placeholder": "例如：https://example.com"
             }

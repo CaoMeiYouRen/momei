@@ -95,7 +95,6 @@
                     "rewritten": "待改写",
                     "total": "总数"
                 },
-                "title": "迁移链接治理",
                 "validation_modes": {
                     "static": "静态校验",
                     "static+online": "静态 + 在线探测"

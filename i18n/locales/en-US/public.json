@@ -11,6 +11,7 @@
                 "title_placeholder": "Enter article title",
                 "content": "Content (Markdown)",
                 "content_placeholder": "Write in Markdown format...",
+                "markdown_help": "Markdown syntax supported",
                 "name": "Your Name",
                 "name_placeholder": "Nicknames supported",
                 "email": "Email Address",

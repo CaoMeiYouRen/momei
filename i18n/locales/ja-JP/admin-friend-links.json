@@ -75,8 +75,7 @@
                     "inactive": "無効"
                 },
                 "submitted_ip": "送信元 IP",
-                "suggest_review_or_disable": "再確認 / 非公開を推奨",
-                "title": "相互リンク管理"
+                "suggest_review_or_disable": "再確認 / 非公開を推奨"
             }
         }
     }

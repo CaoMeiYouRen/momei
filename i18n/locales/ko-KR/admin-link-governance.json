@@ -95,7 +95,6 @@
                     "rewritten": "재작성 예정",
                     "total": "전체"
                 },
-                "title": "마이그레이션 링크 거버넌스",
                 "validation_modes": {
                     "static": "정적 검증",
                     "static+online": "정적 + 온라인 탐지"

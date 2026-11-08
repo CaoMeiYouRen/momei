@@ -21,8 +21,7 @@
                 "status": "원고 상태",
                 "status_accepted": "채택됨",
                 "status_pending": "검토 대기",
-                "status_rejected": "거절됨",
-                "title": "원고 심사"
+                "status_rejected": "거절됨"
             }
         }
     }

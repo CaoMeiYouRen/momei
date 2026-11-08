@@ -49,8 +49,7 @@
                     }
                 },
                 "go_to_marketing": "마케팅 센터로 이동",
-                "overview_title": "알림 전달 개요",
-                "title": "알림 관리"
+                "overview_title": "알림 전달 개요"
             }
         }
     }
