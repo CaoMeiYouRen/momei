@@ -36,14 +36,14 @@ test.describe('Admin Workflow E2E Tests', () => {
             await expect(page.locator('.admin-filters')).toBeVisible()
 
             // 验证数据表格存在
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
 
         test.skip('should filter posts by status', async ({ page }) => {
             await page.goto('/admin/posts')
 
             // 等待页面加载
-            await page.waitForSelector('.p-datatable', { timeout: 5000 })
+            await page.waitForSelector('.caomei-data-table', { timeout: 5000 })
 
             // 点击状态下拉框
             await page.click('.status-select')
@@ -68,7 +68,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await page.waitForTimeout(500)
 
             // 验证搜索结果
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
 
         test.skip('should navigate to create new post', async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await expect(page.locator('.admin-filters')).toBeVisible()
 
             // 验证数据表格存在
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
 
         test.skip('should create new category', async ({ page }) => {
@@ -130,7 +130,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await expect(page.locator('.admin-filters')).toBeVisible()
 
             // 验证数据表格存在
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
 
         test.skip('should search tags', async ({ page }) => {
@@ -146,7 +146,7 @@ test.describe('Admin Workflow E2E Tests', () => {
             await page.waitForTimeout(500)
 
             // 验证搜索结果
-            await expect(page.locator('.p-datatable')).toBeVisible()
+            await expect(page.locator('.caomei-data-table')).toBeVisible()
         })
     })
 

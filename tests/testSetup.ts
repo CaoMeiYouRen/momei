@@ -88,32 +88,6 @@ vi.mock('pg', () => {
     }
 })
 
-// Mock PrimeVue useToast
-vi.mock('primevue/usetoast', async (importOriginal) => {
-    const actual = await importOriginal<any>()
-    return {
-        ...actual,
-        useToast: () => ({
-            add: vi.fn(),
-            remove: vi.fn(),
-            removeAllGroups: vi.fn(),
-            removeGroup: vi.fn(),
-        }),
-    }
-})
-
-// Mock PrimeVue useConfirm
-vi.mock('primevue/useconfirm', async (importOriginal) => {
-    const actual = await importOriginal<any>()
-    return {
-        ...actual,
-        useConfirm: () => ({
-            require: vi.fn(),
-            close: vi.fn(),
-        }),
-    }
-})
-
 /**
  * 浮层族迁移后的全局默认 mock：`useToast` / `useConfirm` 改为显式从 `caomei-ui` 引入。
  *

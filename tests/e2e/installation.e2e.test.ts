@@ -49,7 +49,7 @@ test.describe('安装向导（未安装态）', () => {
 
         // 步骤 3：站点配置。
         await expect(panel.getByRole('heading', { level: 2 })).toHaveText('站点配置')
-        await expect(panel.locator('.p-inputtext')).toHaveCount(0)
+        await expect.poll(() => panel.locator('.caomei-input').count()).toBeGreaterThan(0)
 
         /* caomei 的 Select 默认上限 20rem：不显式复位会缩到 320px（迁移前 `fluid` 为 100%）。 */
         const selectWidth = await panel.locator('.caomei-select__field').first().evaluate((el) => el.getBoundingClientRect().width)
@@ -60,7 +60,7 @@ test.describe('安装向导（未安装态）', () => {
 
         // 步骤 4：管理员账号。
         await expect(panel.getByRole('heading', { level: 2 })).toHaveText('创建管理员账号')
-        await expect(panel.locator('.p-inputtext')).toHaveCount(0)
+        await expect.poll(() => panel.locator('.caomei-input').count()).toBeGreaterThan(0)
         await panel.locator('#admin_name').fill('E2E 管理员')
         await panel.locator('#admin_email').fill('installer@momei.test')
         await panel.locator('#admin_password').fill('Password123')
@@ -69,7 +69,7 @@ test.describe('安装向导（未安装态）', () => {
         // 步骤 5：可选功能配置（Accordion 四组折叠面板）。
         await expect(panel.getByRole('heading', { level: 2 })).toHaveText('可选功能配置')
         await expect(panel.locator('.caomei-accordion__item')).toHaveCount(4)
-        await expect(panel.locator('.p-inputtext')).toHaveCount(0)
+        await expect.poll(() => panel.locator('.caomei-input').count()).toBeGreaterThan(0)
 
         /* 数字框默认上限 12rem：同样需要复位到整行宽。折叠面板默认收起，先展开「邮件配置」。 */
         await panel.getByRole('button', { name: '邮件服务' }).click()

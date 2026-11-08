@@ -6,6 +6,7 @@ import {
     CAOMEI_UI_ROUTE_PREFIXES,
     CAOMEI_UI_ROUTE_SCOPES,
     resolveInScopeComponents,
+    resolveUiLibraryForRoute,
 } from '../../lib/ui-library'
 import { findInScopePrimeVueResiduals, stripComments, stripNonTemplateBlocks } from './ui-library-guard-helpers'
 
@@ -44,6 +45,28 @@ function resolvePageFileCandidates(prefix: string): string[] {
     return [path.join(base, 'index.vue'), `${base}.vue`]
 }
 
+/**
+ * 动态参数页回退（`pages/<prefix>/[param].vue`）。
+ *
+ * 目录里只有一个动态参数页时视为该前缀的页面（当前唯一用法：`/goto` → `pages/goto/[code].vue`）。
+ * 有多个动态页则不猜（返回空），交由静态候选路径的报错信息暴露问题。
+ */
+async function resolveDynamicPageFile(prefix: string): Promise<string | undefined> {
+    const normalizedPrefix = prefix === '/' ? '' : prefix.replace(/\/+$/u, '')
+    const base = path.join(process.cwd(), 'pages', normalizedPrefix)
+
+    let entries
+    try {
+        entries = await readdir(base, { withFileTypes: true })
+    } catch {
+        return undefined
+    }
+
+    const dynamicPages = entries.filter((entry) => entry.isFile() && /^\[.+\]\.vue$/u.test(entry.name))
+
+    return dynamicPages.length === 1 ? path.join(base, dynamicPages[0].name) : undefined
+}
+
 async function resolvePageFile(prefix: string): Promise<string> {
     const candidates = resolvePageFileCandidates(prefix)
 
@@ -54,6 +77,11 @@ async function resolvePageFile(prefix: string): Promise<string> {
         } catch {
             // 继续尝试下一个候选形态。
         }
+    }
+
+    const dynamicCandidate = await resolveDynamicPageFile(prefix)
+    if (dynamicCandidate) {
+        return dynamicCandidate
     }
 
     throw new Error(`未找到 ${prefix} 对应的页面文件，已尝试：${candidates.map((item) => path.relative(process.cwd(), item)).join(', ')}`)
@@ -89,8 +117,12 @@ describe('已迁移路由：在册组件族零残留', () => {
         expect(CAOMEI_UI_ROUTE_PREFIXES.length).toBeGreaterThan(0)
         for (const prefix of CAOMEI_UI_ROUTE_PREFIXES) {
             expect(prefix.startsWith('/')).toBe(true)
-            expect(prefix).not.toBe('/')
         }
+    })
+
+    it('根前缀只匹配首页本身（不把未登记路由连带切到 caomei-ui）', () => {
+        expect(resolveUiLibraryForRoute('/', ['/'])).toBe('caomei-ui')
+        expect(resolveUiLibraryForRoute('/posts', ['/'])).toBe('primevue')
     })
 
     it('前缀清单由范围登记派生（不允许两处各持一份）', () => {
@@ -151,12 +183,23 @@ async function listSubRoutePages(prefix: string): Promise<string[]> {
         throw error
     }
 
+    /* 根前缀不做子路由枚举：`pages/**` 全部页面都会被当成「根的子路由」，
+     * 与「前缀登记」的语义无关（根前缀只精确匹配 `/`，见 `resolveUiLibraryForRoute`）。 */
+    if (prefix === '/') {
+        return []
+    }
+
+    /* 页面文件本身（含动态参数页）不属「子路由」，按解析结果精确排除，避免 `[code].vue` 这类
+     * 动态页被误判为未登记子路由。 */
+    const pageFile = path.relative(process.cwd(), await resolvePageFile(prefix)).split(path.sep).join('/')
+
     return entries
         .filter((entry) => entry.endsWith('.vue'))
         /* 只豁免**前缀根**的 `index.vue`（页面文件本身）：嵌套目录形态的子路由页（如
          * `pages/<prefix>/x/index.vue`）同样会被前缀登记连带解析，必须登记为例外，不能一并放过。 */
         .filter((entry) => entry.replaceAll('\\', '/') !== 'index.vue')
         .map((entry) => path.posix.join('pages', normalizedPrefix, entry.replaceAll('\\', '/')))
+        .filter((entry) => entry !== pageFile)
         .sort()
 }
 

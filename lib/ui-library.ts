@@ -385,6 +385,22 @@ const LEGAL_AGREEMENT_ROUTE_SCOPE = {
 } as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
 
 /**
+ * 首页 `/` 的迁移范围（第七十一阶段条目 5）。
+ *
+ * 根前缀按**精确匹配**判定（`resolveUiLibraryForRoute` 对 `/` 只命中 `/` 本身），
+ * 不会把未登记路由连带切到 caomei-ui。页面自包含，加载骨架已随条目 3 迁完。
+ */
+const HOME_ROUTE_SCOPE = {} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
+ * 跳转页 `/goto/[code]` 的迁移范围（第七十一阶段条目 5）。
+ *
+ * 页面是**动态参数页**（`pages/goto/[code].vue`），守卫在 `index.vue` / `<prefix>.vue` 都不存在时
+ * 以「目录内唯一动态页」回退解析。按钮与加载态已随条目 3 迁完。
+ */
+const GOTO_ROUTE_SCOPE = {} as const satisfies Omit<CaomeiUiRouteScope, 'prefix'>
+
+/**
  * 认证 / 提交页（`/login` / `/register` / `/forgot-password` / `/reset-password` / `/submit`）的迁移范围。
  *
  * 前四条共享 `components/auth-card.vue`（壳 + 提交按钮 + 错误条），故都登记为 `ownedFiles`；
@@ -598,6 +614,9 @@ export const CAOMEI_UI_ROUTE_SCOPES: readonly CaomeiUiRouteScope[] = [
     // 法务协议页：两页共用 legal-agreement-page。
     { prefix: '/privacy-policy', ...LEGAL_AGREEMENT_ROUTE_SCOPE },
     { prefix: '/user-agreement', ...LEGAL_AGREEMENT_ROUTE_SCOPE },
+    // 首页与跳转页：根前缀精确匹配；`/goto` 为动态参数页。
+    { prefix: '/', ...HOME_ROUTE_SCOPE },
+    { prefix: '/goto', ...GOTO_ROUTE_SCOPE },
     // 认证页：四条共享 `auth-card`；`/submit` 为独立页面。
     { prefix: '/login', ...AUTH_ROUTE_SCOPE },
     { prefix: '/register', ...AUTH_ROUTE_SCOPE },
