@@ -36,7 +36,7 @@
                     @update:model-value="onFilterChange"
                 >
                     <template #prefix>
-                        <Tag :size="16" />
+                        <TagIcon :size="16" />
                     </template>
                 </CaomeiInput>
             </template>
@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Search, Tag, Trash } from '@lucide/vue'
+import { Download, Search, Tag as TagIcon, Trash } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import type { AdminListFilterValue } from '@/composables/use-admin-list'
 

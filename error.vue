@@ -15,27 +15,27 @@
                 </p>
 
                 <div class="error-actions">
-                    <Button
+                    <CaomeiButton
                         id="back-home-btn-global"
-                        :label="$t('pages.error.back_home')"
                         @click="handleError"
                     >
                         <template #icon>
                             <Home :size="16" />
                         </template>
-                    </Button>
-                    <Button
+                        {{ $t('pages.error.back_home') }}
+                    </CaomeiButton>
+                    <CaomeiButton
                         v-if="!is404"
                         id="retry-btn-global"
-                        :label="$t('pages.error.retry')"
-                        severity="secondary"
-                        text
+                        variant="ghost"
+                        tone="neutral"
                         @click="clearError({redirect: route.path})"
                     >
                         <template #icon>
                             <RefreshCw :size="16" />
                         </template>
-                    </Button>
+                        {{ $t('pages.error.retry') }}
+                    </CaomeiButton>
                 </div>
             </div>
         </main>

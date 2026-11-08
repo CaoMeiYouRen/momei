@@ -72,7 +72,7 @@
 
             <!-- 懒加载服务端分页 + 服务端排序 + 行多选：`page` / `@page` 为 1 基受控值
                  （由共享 composable 的 `pageIndexBase: 1` 归一）；`selection-mode="multiple"`
-                 由 `CaomeiDataTable` 内建首列（迁移前为 `<Column selection-mode="multiple" />`）。
+                 由 `CaomeiDataTable` 内建首列（迁移前为 PrimeVue 选择列）。
 
                  受控分页口径（与既有 5 条已迁移路由一致）：迁移前 PrimeVue 未绑定 `v-model:first`，
                  由组件自持页码；本页改为受控 `:page="pagination.page"`，使「筛选后回到第 1 页」

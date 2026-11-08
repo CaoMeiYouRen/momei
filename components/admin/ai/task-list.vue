@@ -52,7 +52,7 @@
         </div>
 
         <!-- 懒加载服务端分页 + 行多选：`page` / `@page` 为 1 基受控值（由宿主 composable 归一），
-             `selection-mode="multiple"` 由 `CaomeiDataTable` 内建首列（迁移前为 `<Column selection-mode="multiple" />`
+             `selection-mode="multiple"` 由 `CaomeiDataTable` 内建首列（迁移前为 PrimeVue 选择列
              + `data-key="id"` → `row-key="id"`）。 -->
         <!-- 迁移前刷新按钮在 PrimeVue `DataTable` 的 `#header` 插槽内（表格容器内的右上角一行）；
              caomei `DataTable` **无** `#header` 插槽（插槽面为 `cell-*` / `header-*` / `empty` / `groupheader` /

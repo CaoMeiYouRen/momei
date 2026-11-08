@@ -239,7 +239,7 @@ interface HomePostsPayload {
 
 // 首页 latest 区段改为客户端渲染（lazy + server:false）：
 // 1) 跳过 SSR 顶层 await，避免 Vercel 函数冷启动 / 跨实例缓存失效导致 4-10s 阻塞；
-// 2) 失败兜底：homeData.value undefined 时由现有 `<Skeleton>` 块渲染，
+// 2) 失败兜底：homeData.value undefined 时由现有骨架屏块渲染，
 //    `homeData.value?.data?.items || []` 链保护；
 // 3) SEO 影响：搜索引擎首屏 HTML 不含文章列表，靠 ISR/sitemap/详情页承载，
 //    已在 wisdom.md 2026-09-03 记录并排到下一阶段重新评估 SSR 可行性。
