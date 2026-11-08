@@ -16,15 +16,14 @@
     margin-bottom: 1rem;
     font-weight: 700;
     line-height: 1.3;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
   }
 
   h1 { font-size: 1.8rem; }
-  h2 { font-size: 1.5rem; border-bottom: 1px solid var(--p-surface-border); padding-bottom: 0.3em; }
   h3 { font-size: 1.25rem; }
   h4 { font-size: 1.1rem; }
   h5 { font-size: 1rem; }
-  h6 { font-size: 0.875rem; color: var(--p-text-muted-color); }
+  h6 { font-size: 0.875rem; color: var(--caomei-color-text-muted); }
 
   // Image Lightbox Support
   img {
@@ -62,8 +61,8 @@
         width: 32px;
         height: 32px;
         border-radius: 6px;
-        border: 1px solid var(--p-surface-300);
-        background-color: var(--p-surface-0);
+        border: 1px solid var(--m-surface-300);
+        background-color: var(--m-surface-0);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -73,11 +72,11 @@
         mask-repeat: no-repeat;
         mask-position: center;
         mask-size: 18px;
-        background-color: var(--p-text-muted-color);
+        background-color: var(--caomei-color-text-muted);
 
         &:hover {
-            background-color: var(--p-primary-500);
-            border-color: var(--p-primary-500);
+            background-color: var(--m-primary-500);
+            border-color: var(--m-primary-500);
         }
 
         &.copied {
@@ -94,7 +93,7 @@
     padding: 1rem 1.5rem;
     border-radius: 8px;
     border-left: 5px solid transparent;
-    background-color: var(--p-surface-50);
+    background-color: var(--m-surface-50);
 
     &.tip {
       border-color: $color-success;
@@ -134,7 +133,7 @@
     color: inherit;
     border-left: 0.25em solid $color-gh-alert-default;
     border-radius: 0.5rem;
-    background-color: var(--p-surface-50);
+    background-color: var(--m-surface-50);
 
     .markdown-alert-title {
       display: flex;
@@ -203,7 +202,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: var(--p-surface-300);
+        background-color: var(--m-surface-300);
         border-radius: 2px;
     }
   }
@@ -212,25 +211,25 @@
   .dark & {
     .katex {
         // Ensure symbols are readable against dark background
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     .katex-display::-webkit-scrollbar-thumb {
-        background-color: var(--p-surface-600);
+        background-color: var(--m-surface-600);
     }
   }
 
   // Code Group
   .code-group {
-    background-color: var(--p-surface-100);
+    background-color: var(--m-surface-100);
     border-radius: 8px;
     overflow: hidden;
     margin: 1.5rem 0;
 
     .code-group-tabs {
       display: flex;
-      background-color: var(--p-surface-200);
-      border-bottom: 1px solid var(--p-surface-300);
+      background-color: var(--m-surface-200);
+      border-bottom: 1px solid var(--m-surface-300);
       padding: 0 0.5rem;
 
       button {
@@ -238,19 +237,19 @@
         border: none;
         padding: 0.75rem 1rem;
         cursor: pointer;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-weight: 500;
         font-size: 0.9em;
         transition: all 0.2s;
         border-bottom: 2px solid transparent;
 
         &.active {
-          color: var(--p-primary-500);
-          border-bottom-color: var(--p-primary-500);
+          color: var(--m-primary-500);
+          border-bottom-color: var(--m-primary-500);
         }
 
         &:hover:not(.active) {
-          color: var(--p-text-color);
+          color: var(--caomei-color-text);
         }
       }
     }
@@ -272,7 +271,7 @@
   // Dark mode adjustments
   .dark & {
     .custom-block {
-      background-color: var(--p-surface-900);
+      background-color: var(--m-surface-900);
       &.tip { background-color: rgba($color-success, 0.05); }
       &.warning { background-color: rgba($color-warning, 0.05); }
       &.danger { background-color: rgba($color-danger, 0.05); }
@@ -280,14 +279,14 @@
     }
 
     .markdown-alert {
-        background-color: var(--p-surface-900);
+        background-color: var(--m-surface-900);
     }
 
     .code-group {
-        background-color: var(--p-surface-900);
+        background-color: var(--m-surface-900);
         .code-group-tabs {
-            background-color: var(--p-surface-950);
-            border-bottom-color: var(--p-surface-800);
+            background-color: var(--m-surface-950);
+            border-bottom-color: var(--m-surface-800);
         }
     }
   }

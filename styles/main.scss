@@ -21,8 +21,8 @@
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         margin: 0;
         padding: 0;
-        background-color: var(--p-surface-ground);
-        color: var(--p-text-color);
+        background-color: var(--m-surface-ground);
+        color: var(--caomei-color-text);
         transition: background-color 0.3s, color 0.3s;
     }
 
@@ -83,11 +83,11 @@
     }
 
     .text-secondary {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     .text-success {
-        color: var(--p-green-500, #22c55e);
+        color: var(--m-green-500, #22c55e);
     }
 
     .mr-2 {
@@ -152,7 +152,7 @@
             margin: 0;
             font-weight: 600;
             line-height: 1.5;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
 
         .field > .p-error,
@@ -207,100 +207,92 @@
 
 // PrimeVue Select (Dropdown) Dark Mode Fixes
 .p-select {
-    background-color: var(--p-surface-card);
-    border-color: var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
 
     .p-select-label {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     .p-select-dropdown {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 
 // PrimeVue InputText & Password Dark Mode Fixes
 .p-inputtext,
 .p-textarea {
-    background-color: var(--p-surface-card);
-    color: var(--p-text-color);
-    border-color: var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
+    color: var(--caomei-color-text);
 
     &:enabled:hover {
-        border-color: var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
     }
 
     &:enabled:focus {
-        border-color: var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
     }
 }
 
 .p-select-overlay {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
+    background-color: var(--caomei-color-bg);
+    color: var(--caomei-color-text);
 }
 
 .p-select-option {
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 
     &:not(.p-select-option-selected, .p-disabled) {
         &.p-focus,
         &:hover {
-            background-color: var(--p-surface-200);
+            background-color: var(--m-surface-200);
         }
     }
 
     &.p-select-option-selected {
-        background-color: var(--p-primary-100);
-        color: var(--p-primary-700);
+        background-color: var(--m-primary-100);
+        color: var(--m-primary-700);
 
         .dark & {
-            background-color: var(--p-primary-900);
-            color: var(--p-primary-100);
+            background-color: var(--m-primary-900);
+            color: var(--m-primary-100);
         }
     }
 }
 
 // PrimeVue DataTable & Paginator Dark Mode Fixes
 .p-datatable {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    border-radius: var(--p-content-border-radius);
+    background-color: var(--caomei-color-bg);
+    border-radius: var(--caomei-radius-md);
 
     .p-datatable-header,
     .p-datatable-footer {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-color);
-        border-color: var(--p-surface-border);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
     }
 
     .p-datatable-thead > tr > th {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-color);
-        border-color: var(--p-surface-border);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
         transition: background-color 0.3s;
     }
 
     .p-datatable-tbody > tr {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-color);
-        border-color: var(--p-surface-border);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
         transition: background-color 0.3s;
 
         &.p-datatable-row-selected {
-            background-color: var(--p-primary-900);
-            color: var(--p-primary-100);
+            background-color: var(--m-primary-900);
+            color: var(--m-primary-100);
         }
 
         &:hover {
-            background-color: var(--p-surface-200);
+            background-color: var(--m-surface-200);
         }
     }
 
     .p-datatable-paginator {
-        background-color: var(--p-surface-card);
-        border-top: 1px solid var(--p-surface-border);
+        background-color: var(--caomei-color-bg);
         padding: 0.75rem;
     }
 }
@@ -369,38 +361,37 @@
     margin: 1.5rem 0;
 
     .p-divider-content {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-muted-color);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
         padding: 0 0.75rem;
     }
 
     &::before {
-        border-color: var(--p-surface-border);
     }
 }
 
 .p-paginator {
     background-color: transparent;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 
     .p-paginator-page,
     .p-paginator-next,
     .p-paginator-last,
     .p-paginator-first,
     .p-paginator-prev {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         min-width: 2.5rem;
         height: 2.5rem;
         transition: background-color 0.3s, color 0.3s;
 
         &:not(.p-highlight, .p-disabled):hover {
-            background-color: var(--p-surface-200);
+            background-color: var(--m-surface-200);
         }
 
         &.p-highlight {
-            background-color: var(--p-primary-color);
-            color: var(--p-primary-contrast-color);
+            background-color: var(--caomei-color-primary);
+            color: var(--caomei-color-primary-foreground);
         }
     }
 }
@@ -408,24 +399,23 @@
 // PrimeVue Dialog & Drawer Dark Mode Fixes
 .p-dialog,
 .p-drawer {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
-    color: var(--p-text-color);
+    background-color: var(--caomei-color-bg);
+    color: var(--caomei-color-text);
 
     .p-dialog-header,
     .p-drawer-header {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-color);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
     }
 
     .p-dialog-content,
     .p-drawer-content {
-        background-color: var(--p-surface-card);
-        color: var(--p-text-color);
+        background-color: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
     }
 
     .p-dialog-footer {
-        background-color: var(--p-surface-card);
+        background-color: var(--caomei-color-bg);
     }
 }
 
@@ -458,7 +448,7 @@
     &__title {
         font-size: 2.25rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
 
         @include respond-below("md") {
             font-size: 1.75rem;
@@ -568,6 +558,10 @@
         /* info 无 caomei 语义角色；沿用 momei 既有 fallback 值（#2196f3）固化 */
         --m-info-500: #2196f3;
 
+        /* PrimeVue Aura primitive 圆角冻结：保留迁移前 6px / 4px 观感（`--caomei-radius-*` 随主题变化） */
+        --m-radius-md: 6px;
+        --m-radius-sm: 4px;
+
         /* 阴影 / 遮罩 / 字体（Aura 原值；遮罩暗色档见下方 `.dark`） */
         --m-shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         --m-shadow-popover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -601,7 +595,7 @@
  * 目的：双库并存期让 caomei-ui 组件经其文档化定制路径（`--caomei-*` CSS 变量，见 §5.7 约束 1）
  * 复用 momei 现行主题，使「未迁移页面不失去主题」与「新页面可直接消费 `--caomei-*`」同时成立。
  *
- * 取值方向：`--p-*`（momei 现行语义，含 `useTheme` 运行时按用户主题生成的覆盖）
+ * 取值方向：`--m-*`（项目调色板层，含 `useTheme` 运行时按用户主题写入的基色）
  *   → `--caomei-*`。因此用户切换主题预设 / 主色 / 圆角时 caomei-ui 侧同步生效，momei 侧不硬编码新色值。
  *
  * ⚠️ 本段必须置于任何 `@layer` 之外（unlayered），选择器取 `html:root`：
@@ -617,14 +611,14 @@
  * ------------------------------------------------------------------------ */
 html:root {
     /* 主色：tone 用于文字 / 边框 / soft 底；foreground 为配套前景色（随明暗） */
-    --caomei-color-primary: var(--p-primary-color);
-    --caomei-color-primary-foreground: var(--p-primary-contrast-color);
+    --caomei-color-primary: var(--m-primary);
+    --caomei-color-primary-foreground: var(--m-primary-contrast);
 
-    /* 状态色：Aura 未产出 `--p-{error,success,warning}-*` 语义 token（momei 侧既有同名声明为幻影
-     * token），故改引真实存在的原始色板；取值与 caomei `momei` 预设一致（red / green / orange）。 */
-    --caomei-color-danger: var(--p-red-500);
-    --caomei-color-success: var(--p-green-500);
-    --caomei-color-warning: var(--p-orange-500);
+    /* 状态色：Aura 未产出 error / success / warning 语义 token（momei 侧既有同名声明为幻影
+     * token），故改引项目调色板层固化的原始色板；取值与 caomei `momei` 预设一致（red / green / orange）。 */
+    --caomei-color-danger: var(--m-red-500);
+    --caomei-color-success: var(--m-green-500);
+    --caomei-color-warning: var(--m-orange-500);
 
     /* 状态「文字 / 边框」角色（caomei-ui 1.0.0-rc.1 起新增）：上游把「tone 直接当文字色」拆成独立
      * 角色——tone 只承载 soft 底色，文字 / 边框改读 `-text`，从而在 8% 底上维持正文对比度。
@@ -632,20 +626,20 @@ html:root {
      *
      * 为什么 success / warning 取 `-800` 而不是 `-700`：`-700` 在 8% soft 底上仅约 4.68 / 4.78
      * （白卡），落到 `--caomei-color-bg-elevated`（表头 / 斑马纹）即跌破 4.5；上游对应角色本身
-     * 就取 `-800` 档（`#166534` / `#9a3412`）。注意 `--p-green-800` 等原始色板由 PrimeVue 在运行期
-     * 以 `@layer primevue` 内联注入，**不在** `.output/public` 的静态 CSS 里，不能用 grep 产物断言其不存在。
+     * 就取 `-800` 档（`#166534` / `#9a3412`）。`--m-green-800` 等原始色板已在 `styles/main.scss`
+     * 的 `--m-*` 层固化（原由 PrimeVue primitive 运行期注入），静态产物可直接 grep 断言。
      *
-     * `primary` 必须走**运行时主色**的色阶：`--p-primary-*` 由 `composables/use-theme.ts` 按用户
-     * 选定的主色动态生成，写死 Aura 静态蓝会让「换主色后状态文字仍是蓝色」，故不得改为 `--p-blue-*`。
+     * `primary` 必须走**运行时主色**的色阶：`--m-primary-*` 由 `composables/use-theme.ts` 按用户
+     * 选定的主色动态生成，写死 Aura 静态蓝会让「换主色后状态文字仍是蓝色」，故不得改为 `--m-blue-*`。
      *
-     * `neutral` 不能复用 `--p-text-muted-color`：那是 neutral 的 **tone**（soft 底基准），
+     * `neutral` 不能复用 `--m-text-muted-color`：那是 neutral 的 **tone**（soft 底基准），
      * 若 `-text` 也取同值，则 tone == text，正是 rc.1 要拆开的形态，且 8% 底对比度仅约 4.26；
      * 故取「文本色向卡片色偏移」的中间档，既跟随主题又保证与 tone 拉开层次。 */
-    --caomei-color-primary-text: var(--p-primary-700);
-    --caomei-color-danger-text: var(--p-red-700);
-    --caomei-color-success-text: var(--p-green-800);
-    --caomei-color-warning-text: var(--p-orange-800);
-    --caomei-color-neutral-text: color-mix(in srgb, var(--p-text-color) 85%, var(--p-surface-card));
+    --caomei-color-primary-text: var(--m-primary-700);
+    --caomei-color-danger-text: var(--m-red-700);
+    --caomei-color-success-text: var(--m-green-800);
+    --caomei-color-warning-text: var(--m-orange-800);
+    --caomei-color-neutral-text: color-mix(in srgb, var(--m-text-color) 85%, var(--m-surface-card));
 
     /* 控件边界（`--caomei-color-control-border`）**有意不桥接**：上游为该角色单独取了满足
      * WCAG 1.4.11（3:1）的边界色，并把「控件边界」与「装饰边框」（`-color-border`）分离。此处采用
@@ -654,28 +648,28 @@ html:root {
 
     /* 实底（`-solid`）：caomei 约定恒配 `--caomei-color-on-solid`（#fff），故取各自色阶深档以保证
      * 白字对比度，避免暗色下主色变浅后白字不可读。 */
-    --caomei-color-primary-solid: var(--p-primary-700);
-    --caomei-color-danger-solid: var(--p-red-700);
-    --caomei-color-success-solid: var(--p-green-700);
-    --caomei-color-warning-solid: var(--p-orange-700);
+    --caomei-color-primary-solid: var(--m-primary-700);
+    --caomei-color-danger-solid: var(--m-red-700);
+    --caomei-color-success-solid: var(--m-green-700);
+    --caomei-color-warning-solid: var(--m-orange-700);
 
     /* 面：caomei `bg` 承载卡片 / 输入 / 表格 / 浮层 / 工具栏等内容面（见其组件用法），对应 momei 的
-     * `--p-surface-card`；`bg-elevated` 为向文字色偏移的次级面（表头 / 斑马纹 / 悬停 / 骨架），
+     * `--m-surface-card`；`bg-elevated` 为向文字色偏移的次级面（表头 / 斑马纹 / 悬停 / 骨架），
      * 与 caomei 预设中二者的相对关系一致。 */
-    --caomei-color-bg: var(--p-surface-card);
-    --caomei-color-bg-elevated: color-mix(in srgb, var(--p-surface-card) 96%, var(--p-text-color));
+    --caomei-color-bg: var(--m-surface-card);
+    --caomei-color-bg-elevated: color-mix(in srgb, var(--m-surface-card) 96%, var(--m-text-color));
 
     /* 文本 / 边框 / 遮罩 */
-    --caomei-color-text: var(--p-text-color);
-    --caomei-color-text-muted: var(--p-text-muted-color);
-    --caomei-color-border: var(--p-content-border-color);
-    --caomei-color-mask: var(--p-mask-background);
+    --caomei-color-text: var(--m-text-color);
+    --caomei-color-text-muted: var(--m-text-muted-color);
+    --caomei-color-border: var(--m-surface-200);
+    --caomei-color-mask: var(--m-mask-background);
 
     /* 圆角：以运行时主题圆角为基准按档位派生（默认 0.5rem → sm 0.25 / md 0.5 / lg 1rem，与
      * `styles/_variables.scss` 的 $border-radius-* 口径一致） */
-    --caomei-radius-md: var(--p-content-border-radius);
-    --caomei-radius-sm: calc(var(--p-content-border-radius) / 2);
-    --caomei-radius-lg: calc(var(--p-content-border-radius) * 2);
+    --caomei-radius-md: var(--m-radius);
+    --caomei-radius-sm: calc(var(--m-radius) / 2);
+    --caomei-radius-lg: calc(var(--m-radius) * 2);
 
     /* 字体：沿用 momei 字体栈，避免迁移后组件字体族与正文不一致 */
     --caomei-font-sans: #{meta.inspect($font-sans)};
@@ -691,10 +685,10 @@ html:root {
  * 依据：迁移方案 §3.10 / §5.2；契约由 tests/visual/caomei-token-bridge.visual.test.ts 守卫。
  * ------------------------------------------------------------------------ */
 html:root.dark {
-    --caomei-color-primary-text: var(--p-primary-400);
-    --caomei-color-danger-text: var(--p-red-400);
-    --caomei-color-success-text: var(--p-green-400);
-    --caomei-color-warning-text: var(--p-orange-400);
+    --caomei-color-primary-text: var(--m-primary-400);
+    --caomei-color-danger-text: var(--m-red-400);
+    --caomei-color-success-text: var(--m-green-400);
+    --caomei-color-warning-text: var(--m-orange-400);
 
     /* `neutral-text` 无需暗色覆盖：其取值是「文本色 → 卡片色」的派生，暗色下随文本色自动变浅。 */
 }

@@ -34,36 +34,36 @@ $z-index-modal: 1100;
 $z-index-tooltip: 1200;
 
 // Colors
-$color-primary: var(--p-primary-500);
-$color-primary-hover: var(--p-primary-600);
-$color-primary-active: var(--p-primary-700);
+$color-primary: var(--m-primary-500);
+$color-primary-hover: var(--m-primary-600);
+$color-primary-active: var(--m-primary-700);
 $color-primary-text: #ffffff;
 
-$color-text: var(--p-text-color);
-$color-text-muted: var(--p-text-muted-color);
+$color-text: var(--caomei-color-text);
+$color-text-muted: var(--caomei-color-text-muted);
 
-$color-surface-card: var(--p-surface-card);
-$color-surface-border: var(--p-surface-border);
-$color-surface-ground: var(--p-surface-ground);
+$color-surface-card: var(--caomei-color-bg);
+$color-surface-border: var(--caomei-color-border);
+$color-surface-ground: var(--m-surface-ground);
 
-$color-surface-0: var(--p-surface-0);
-$color-surface-50: var(--p-surface-50);
-$color-surface-100: var(--p-surface-100);
-$color-surface-200: var(--p-surface-200);
-$color-surface-300: var(--p-surface-300);
-$color-surface-400: var(--p-surface-400);
-$color-surface-500: var(--p-surface-500);
-$color-surface-600: var(--p-surface-600);
-$color-surface-700: var(--p-surface-700);
-$color-surface-800: var(--p-surface-800);
-$color-surface-900: var(--p-surface-900);
-$color-surface-950: var(--p-surface-950);
+$color-surface-0: var(--m-surface-0);
+$color-surface-50: var(--m-surface-50);
+$color-surface-100: var(--m-surface-100);
+$color-surface-200: var(--m-surface-200);
+$color-surface-300: var(--m-surface-300);
+$color-surface-400: var(--m-surface-400);
+$color-surface-500: var(--m-surface-500);
+$color-surface-600: var(--m-surface-600);
+$color-surface-700: var(--m-surface-700);
+$color-surface-800: var(--m-surface-800);
+$color-surface-900: var(--m-surface-900);
+$color-surface-950: var(--m-surface-950);
 
 // Status Colors (Mapped to PrimeVue Semantic Tokens)
-$color-success: var(--p-success-500);
-$color-warning: var(--p-warning-500);
-$color-danger: var(--p-error-500);
-$color-info: var(--p-info-500);
+$color-success: var(--caomei-color-success);
+$color-warning: var(--caomei-color-warning);
+$color-danger: var(--caomei-color-danger);
+$color-info: var(--m-info-500);
 
 // Shadows
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -85,10 +85,10 @@ $color-gh-alert-caution: #cf222e;
 $color-gh-alert-default: #d0d7de;
 
 // Code & Pre
-$color-code-bg: var(--p-surface-100);
-$color-code-text: var(--p-primary-600);
-$color-code-bg-dark: var(--p-surface-800);
-$color-code-text-dark: var(--p-primary-400);
+$color-code-bg: var(--m-surface-100);
+$color-code-text: var(--m-primary-600);
+$color-code-bg-dark: var(--m-surface-800);
+$color-code-text-dark: var(--m-primary-400);
 $color-pre-bg-dark: #0d1117; // Specialized deep dark for code
 $color-pre-border-dark: #30363d;
 
@@ -138,11 +138,11 @@ $highlight-section-dark: #1f6feb;
 $highlight-bullet-dark: #f2cc60;
 
 // Demo Banner Colors (Using specific colors to maintain previous look while being variable-based)
-$demo-banner-bg: var(--p-primary-50);
-$demo-banner-border: var(--p-primary-100);
-$demo-banner-text: var(--p-text-color);
-$demo-banner-icon: var(--p-primary-500);
-$demo-banner-btn: var(--p-primary-500);
+$demo-banner-bg: var(--m-primary-50);
+$demo-banner-border: var(--m-primary-100);
+$demo-banner-text: var(--caomei-color-text);
+$demo-banner-icon: var(--m-primary-500);
+$demo-banner-btn: var(--m-primary-500);
 
 $demo-banner-bg-dark: #1e293b;
 $demo-banner-border-dark: #334155;

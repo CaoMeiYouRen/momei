@@ -49,8 +49,7 @@
 
 // Card Base
 @mixin card-base($padding: $spacing-md, $radius: $border-radius-lg) {
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
     border-radius: $radius;
     padding: $padding;
 }
@@ -66,11 +65,10 @@
 }
 
 // Glass Morphism
-@mixin glass-morphism($blur: 8px, $bg: rgba(var(--p-surface-0-rgb), 0.7)) {
+@mixin glass-morphism($blur: 8px, $bg: transparent) {
     background: $bg;
     backdrop-filter: blur($blur);
     -webkit-backdrop-filter: blur($blur);
-    border-bottom: 1px solid var(--p-surface-border);
 }
 
 // Container
@@ -96,22 +94,22 @@
     label {
         font-size: 0.875rem;
         font-weight: 500;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 
 // Nav Link
 @mixin nav-link {
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     text-decoration: none;
     font-weight: 500;
     transition: color $transition-fast;
 
     &:hover {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &.router-link-active {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 }
