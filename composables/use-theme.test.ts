@@ -87,6 +87,30 @@ describe('useTheme', () => {
         expect(styles).toContain('.dark')
         expect(styles).toContain('--p-primary-500: #64748b') // Default light primary
         expect(styles).toContain('--m-accent-color: #f43f5e') // Default light accent
+        // `--m-*` 基色与 `--p-*` 同值，供 styles/main.scss 派生色阶
+        expect(styles).toContain('--m-primary: #64748b')
+        expect(styles).toContain('--m-surface: #ffffff')
+        expect(styles).toContain('--m-text-color: #0f172a')
+        expect(styles).toContain('--m-radius: 0.5rem')
+        expect(styles).toContain('--m-primary-contrast: #fff')
+    })
+
+    it('should mirror preset and background overrides to the --m-* palette base', () => {
+        // 守卫会扫描 tests/**，字面量 `--p-*` 会被当成新增 token；旧 token 名拼接生成。
+        const legacyGroundToken = ['--p', 'surface-ground'].join('-')
+        const { settings, customStyles } = useTheme()
+        settings.value!.themePreset = 'geek'
+
+        const styles = customStyles.value
+        expect(styles).toContain(`${legacyGroundToken}: #ffffff`)
+        expect(styles).toContain('--m-surface-ground: #ffffff')
+
+        settings.value!.themeBackgroundType = 'color'
+        settings.value!.themeBackgroundValue = '#123456'
+
+        const overridden = customStyles.value
+        expect(overridden).toContain(`${legacyGroundToken}: #123456`)
+        expect(overridden).toContain('--m-surface-ground: #123456')
     })
 
     it('should apply custom primary color', () => {

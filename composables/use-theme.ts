@@ -275,16 +275,25 @@ export const useTheme = () => {
     --p-text-color: ${text};
     --p-text-muted-color: color-mix(in srgb, ${text}, ${surface} 40%);
     --m-accent-color: ${accent};
+
+    /* 项目调色板层基色：--m-* 色阶在 styles/main.scss 中由这些基色派生（映射表见
+     * docs/design/governance/2026-11-08-primevue-token-mapping.md）。
+     * 与上方 --p-* 同值，后续 token 反向切换删除 --p-* 后基色仍由本段提供。 */
+    --m-primary: ${primary};
+    --m-primary-contrast: ${contrastColor};
+    --m-surface: ${surface};
+    --m-text-color: ${text};
+    --m-radius: ${radius};
 `
             // 如果是暖色或极客主题，微调 body 基础背景
             if (themePreset && themePreset !== 'default') {
-                v += `    --p-surface-ground: ${surface};\n`
+                v += `    --p-surface-ground: ${surface};\n    --m-surface-ground: ${surface};\n`
             }
 
             // 个性化背景颜色覆盖
             if (themeBackgroundType === 'color' && themeBackgroundValue) {
                 const bgColor = formatColor(themeBackgroundValue, surface)
-                v += `    --p-surface-ground: ${bgColor};\n`
+                v += `    --p-surface-ground: ${bgColor};\n    --m-surface-ground: ${bgColor};\n`
             }
 
             return v

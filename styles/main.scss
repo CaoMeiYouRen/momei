@@ -468,6 +468,134 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * 项目调色板层 `--m-*`（迁移方案 §5.2 第 ① 层反向切换的落点；映射表见
+ * docs/design/governance/2026-11-08-primevue-token-mapping.md）
+ *
+ * 定位：`--m-*` 是 momei 自有的**调色板 / 派生档位**层，承接从 PrimeVue 色阶
+ * （surface / primary / 状态色板）迁出的消费点；语义角色仍走 `--caomei-*`。
+ * 因此后续 token 反向切换的规则是：语义角色 → `--caomei-*`，调色板 → `--m-*`。
+ *
+ * 取值来源（为什么不是直接 `color-mix` 自 `--caomei-*`）：
+ * - `--m-primary-*` / `--m-surface-*` 从运行时基色 `--m-primary` / `--m-surface` 派生，
+ *   这两个基色由 `composables/use-theme.ts` 按用户主题写入，公式与既有 PrimeVue
+ *   surface / primary 色阶**逐档一致**，因此后续替换可做到像素级零差异。
+ * - **surface 不能直接取 `--caomei-color-bg`**：caomei `bg` 是卡片面（暗色 = `surface-100`），
+ *   而 surface-0 是页面基面（暗色仍为 surface-0）。直接派生会让暗色下所有
+ *   surface-0 的替换上浮一档，属可预见的视觉回退。
+ * - 状态色板（red / green / orange / blue / yellow / purple / emerald）原先由 PrimeVue
+ *   Aura 的 primitive 样式表在运行期注入；卸载后必须由项目自带，取值按 Aura 原值**冻结**，
+ *   保证替换零差异。只声明仓库实际引用的档位，新增档位时同批补声明。
+ * - 阴影 / 遮罩 / 等宽字体同样来自 Aura / PrimeVue 组件 token，按原值固化。
+ *
+ * 层叠：写在 `@layer momei-base`，让 `use-theme` 在 `@layer momei-overrides` 里的运行时
+ * 覆盖（预设 / 背景色）仍然胜出；`--m-*` 之间的 `var()` 解析与层无关。
+ * ------------------------------------------------------------------------ */
+@layer momei-base {
+    :root {
+        /* surface 色阶：与 use-theme 现行 PrimeVue surface 色阶公式逐档一致（浅色向黑、暗色向白） */
+        --m-surface-0: var(--m-surface);
+        --m-surface-50: color-mix(in srgb, var(--m-surface), black 2%);
+        --m-surface-100: color-mix(in srgb, var(--m-surface), black 4%);
+        --m-surface-200: color-mix(in srgb, var(--m-surface), black 8%);
+        --m-surface-300: color-mix(in srgb, var(--m-surface), black 12%);
+        --m-surface-400: color-mix(in srgb, var(--m-surface), black 20%);
+        --m-surface-500: color-mix(in srgb, var(--m-surface), black 30%);
+        --m-surface-600: color-mix(in srgb, var(--m-surface), black 45%);
+        --m-surface-700: color-mix(in srgb, var(--m-surface), black 60%);
+        --m-surface-800: color-mix(in srgb, var(--m-surface), black 80%);
+        --m-surface-900: color-mix(in srgb, var(--m-surface), black 90%);
+        --m-surface-950: color-mix(in srgb, var(--m-surface), black 95%);
+
+        /* primary 色阶：与 use-theme 现行 primary 色阶公式逐档一致（明暗同一公式） */
+        --m-primary-50: color-mix(in srgb, var(--m-primary), white 95%);
+        --m-primary-100: color-mix(in srgb, var(--m-primary), white 90%);
+        --m-primary-200: color-mix(in srgb, var(--m-primary), white 70%);
+        --m-primary-300: color-mix(in srgb, var(--m-primary), white 50%);
+        --m-primary-400: color-mix(in srgb, var(--m-primary), white 20%);
+        --m-primary-500: var(--m-primary);
+        --m-primary-600: color-mix(in srgb, var(--m-primary), black 20%);
+        --m-primary-700: color-mix(in srgb, var(--m-primary), black 40%);
+        --m-primary-800: color-mix(in srgb, var(--m-primary), black 60%);
+        --m-primary-900: color-mix(in srgb, var(--m-primary), black 80%);
+        --m-primary-950: color-mix(in srgb, var(--m-primary), black 90%);
+
+        /* 语义别名：对应既有 momei 侧 surface 语义别名（浅色档位） */
+        --m-surface-ground: var(--m-surface-50);
+        --m-surface-card: var(--m-surface-0);
+        --m-surface-hover: var(--m-surface-100);
+
+        /* 次级文本：与 use-theme 的 text-muted 语义同公式 */
+        --m-text-muted-color: color-mix(in srgb, var(--m-text-color), var(--m-surface) 40%);
+
+        /* 状态色板（Aura primitive 原值冻结） */
+        --m-blue-50: #eff6ff;
+        --m-blue-300: #93c5fd;
+        --m-blue-400: #60a5fa;
+        --m-blue-500: #3b82f6;
+        --m-blue-700: #1d4ed8;
+        --m-blue-950: #172554;
+        --m-emerald-500: #10b981;
+        --m-emerald-700: #047857;
+        --m-green-50: #f0fdf4;
+        --m-green-100: #dcfce7;
+        --m-green-300: #86efac;
+        --m-green-400: #4ade80;
+        --m-green-500: #22c55e;
+        --m-green-700: #15803d;
+        --m-green-800: #166534;
+        --m-orange-50: #fff7ed;
+        --m-orange-100: #ffedd5;
+        --m-orange-300: #fdba74;
+        --m-orange-400: #fb923c;
+        --m-orange-500: #f97316;
+        --m-orange-600: #ea580c;
+        --m-orange-700: #c2410c;
+        --m-orange-800: #9a3412;
+        --m-orange-900: #7c2d12;
+        --m-purple-400: #c084fc;
+        --m-purple-500: #a855f7;
+        --m-red-50: #fef2f2;
+        --m-red-100: #fee2e2;
+        --m-red-300: #fca5a5;
+        --m-red-400: #f87171;
+        --m-red-500: #ef4444;
+        --m-red-700: #b91c1c;
+        --m-red-900: #7f1d1d;
+        --m-yellow-50: #fefce8;
+        --m-yellow-400: #facc15;
+        --m-yellow-500: #eab308;
+
+        /* info 无 caomei 语义角色；沿用 momei 既有 fallback 值（#2196f3）固化 */
+        --m-info-500: #2196f3;
+
+        /* 阴影 / 遮罩 / 字体（Aura 原值；遮罩暗色档见下方 `.dark`） */
+        --m-shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --m-shadow-popover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --m-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --m-mask-background: rgb(0 0 0 / 0.4);
+        --m-font-mono: #{meta.inspect($font-mono)};
+    }
+
+    .dark {
+        --m-surface-50: color-mix(in srgb, var(--m-surface), white 2%);
+        --m-surface-100: color-mix(in srgb, var(--m-surface), white 4%);
+        --m-surface-200: color-mix(in srgb, var(--m-surface), white 8%);
+        --m-surface-300: color-mix(in srgb, var(--m-surface), white 12%);
+        --m-surface-400: color-mix(in srgb, var(--m-surface), white 20%);
+        --m-surface-500: color-mix(in srgb, var(--m-surface), white 30%);
+        --m-surface-600: color-mix(in srgb, var(--m-surface), white 45%);
+        --m-surface-700: color-mix(in srgb, var(--m-surface), white 60%);
+        --m-surface-800: color-mix(in srgb, var(--m-surface), white 80%);
+        --m-surface-900: color-mix(in srgb, var(--m-surface), white 90%);
+        --m-surface-950: color-mix(in srgb, var(--m-surface), white 95%);
+        --m-surface-ground: var(--m-surface-0);
+        --m-surface-card: var(--m-surface-100);
+        --m-surface-hover: var(--m-surface-800);
+        --m-mask-background: rgb(0 0 0 / 0.6);
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * caomei-ui 语义 token 并存桥接（第六十七阶段第 3 项｜迁移方案 §5.2 第 ① 层）
  *
  * 目的：双库并存期让 caomei-ui 组件经其文档化定制路径（`--caomei-*` CSS 变量，见 §5.7 约束 1）
