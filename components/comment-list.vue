@@ -17,7 +17,11 @@
         />
 
         <div v-if="loading" class="comment-system__loading">
-            <i class="comment-system__spinner pi pi-spin pi-spinner" />
+            <LoaderCircle
+                class="comment-system__spinner"
+                :size="32"
+                aria-hidden="true"
+            />
         </div>
 
         <div v-else-if="comments.length > 0" class="comment-system__list">
@@ -36,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { LoaderCircle } from '@lucide/vue'
 import type { Comment } from '@/types/comment'
 
 const props = defineProps<{
@@ -130,6 +135,7 @@ onMounted(() => {
 
   &__spinner {
     font-size: 2rem;
+    animation: comment-spinner-spin 1s linear infinite;
   }
 
   &__list {
@@ -142,5 +148,11 @@ onMounted(() => {
     color: var(--p-text-color-secondary);
     font-style: italic;
   }
+}
+
+@keyframes comment-spinner-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

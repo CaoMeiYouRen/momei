@@ -57,7 +57,7 @@ export function createLegacyConfirmApi(require: (options: AnyRecord) => unknown)
         require({
             message: options.description ?? '',
             header: options.title ?? '',
-            icon: options.tone === 'danger' ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle',
+            icon: options.tone === 'danger' ? 'warning' : 'info',
             acceptLabel: options.confirmLabel,
             rejectLabel: options.cancelLabel,
             accept: () => resolve(true),

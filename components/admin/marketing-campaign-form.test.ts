@@ -131,7 +131,7 @@ describe('MarketingCampaignForm', () => {
         ])
     })
 
-    it('发送测试按钮：`icon="pi pi-send"` → `#icon` 插槽内 lucide 图标', async () => {
+    it('发送测试按钮：`icon` 属性 → `#icon` 插槽内 lucide 图标', async () => {
         const wrapper = await mountForm()
         const sendTest = wrapper.findAll('.caomei-button')[0]
 

@@ -30,8 +30,7 @@
                 <div class="session-card__header">
                     <div class="session-card__info">
                         <span class="session-card__device">
-                            <!-- 图标全量替换属 B4 批次（迁移方案 §7）：此处 `<i class="pi ...">` 为非在册族用法，保持 primeicons。 -->
-                            <i :class="getDeviceIcon(session.userAgent)" />
+                            <component :is="getDeviceIcon(session.userAgent)" :size="16" />
                             {{ parseUserAgent(session.userAgent) }}
                         </span>
                         <span class="session-card__meta">{{ session.ipAddress }}</span>
@@ -77,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { LogOut, Power } from '@lucide/vue'
+import { LogOut, Monitor, Power, Smartphone } from '@lucide/vue'
 import { authClient } from '@/lib/auth-client'
 import { useConfirm } from 'caomei-ui'
 import type { ManagedUser } from '@/types/admin-user-management'
@@ -192,8 +191,8 @@ const parseUserAgent = (ua?: string | null) => {
 }
 
 const getDeviceIcon = (ua?: string | null) => {
-    if (ua?.includes('iPhone') || ua?.includes('Android')) return 'pi pi-mobile'
-    return 'pi pi-desktop'
+    if (ua?.includes('iPhone') || ua?.includes('Android')) return Smartphone
+    return Monitor
 }
 </script>
 

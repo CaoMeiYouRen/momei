@@ -93,7 +93,7 @@ describe('MarketingPage', () => {
         listRefresh.mockReset()
     })
 
-    it('创建按钮：`icon="pi pi-plus"` → `CaomeiButton` + `#icon` 插槽内 lucide；可见文案落默认插槽', async () => {
+    it('创建按钮：`icon` 属性 → `CaomeiButton` + `#icon` 插槽内 lucide；可见文案落默认插槽', async () => {
         const wrapper = await mountPage()
         const { $t } = wrapper.vm as unknown as { $t: (key: string) => string }
         const button = wrapper.find('.admin-header .caomei-button')

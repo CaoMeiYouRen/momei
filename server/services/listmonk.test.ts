@@ -10,7 +10,7 @@ vi.mock('@/server/services/email-template', () => ({
     resolveEmailTemplateRuntimeContent: vi.fn().mockResolvedValue({
         title: '{title}',
         preheader: '{title}',
-        headerIcon: 'pi pi-send',
+        headerIcon: '📨',
         message: 'newsletter',
         buttonText: '立即查看',
         authorLabel: '作者',

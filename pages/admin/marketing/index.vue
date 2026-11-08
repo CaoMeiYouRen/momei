@@ -2,7 +2,7 @@
     <div class="admin-marketing">
         <AdminPageHeader :title="$t('pages.admin.marketing.title')">
             <template #actions>
-                <!-- `icon="pi pi-plus"` → `#icon` 插槽 + lucide（§6.2 图标行）。 -->
+                <!-- 创建按钮使用 `#icon` 插槽 + lucide（§6.2 图标行）。 -->
                 <CaomeiButton @click="showCreateDialog = true">
                     <template #icon>
                         <Plus :size="16" />
@@ -23,7 +23,7 @@
                             </div>
                         </div>
                         <div class="admin-marketing__stat-icon admin-marketing__stat-icon--blue">
-                            <i class="pi pi-users" />
+                            <Users :size="20" />
                         </div>
                     </div>
                 </template>
@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <div class="admin-marketing__stat-icon admin-marketing__stat-icon--green">
-                            <i class="pi pi-envelope" />
+                            <Mail :size="20" />
                         </div>
                     </div>
                 </template>
@@ -55,7 +55,7 @@
                             </div>
                         </div>
                         <div class="admin-marketing__stat-icon admin-marketing__stat-icon--purple">
-                            <i class="pi pi-send" />
+                            <Send :size="20" />
                         </div>
                     </div>
                 </template>
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plus } from '@lucide/vue'
+import { Mail, Plus, Send, Users } from '@lucide/vue'
 import AdminPageHeader from '@/components/admin-page-header.vue'
 import MarketingCampaignForm from '@/components/admin/marketing-campaign-form.vue'
 import MarketingCampaignList from '@/components/admin/marketing-campaign-list.vue'

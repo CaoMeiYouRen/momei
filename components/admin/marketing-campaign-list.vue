@@ -45,7 +45,7 @@
                         {{ $t('pages.admin.marketing.status.sending') }}
                     </CaomeiTag>
                     <CaomeiTag v-else-if="row.status === 'SCHEDULED'" tone="warning">
-                        <Calendar :size="14" class="marketing-campaign-list__status-icon" />
+                        <CalendarIcon :size="14" class="marketing-campaign-list__status-icon" />
                         {{ $t('pages.admin.marketing.status.scheduled') }}
                     </CaomeiTag>
                     <CaomeiTag v-else :tone="getCampaignStatusTone(row.status)">
@@ -137,7 +137,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
-import { Calendar, CircleStop, LoaderCircle, Pencil, RefreshCw, Send, Trash2 } from '@lucide/vue'
+import { Calendar as CalendarIcon, CircleStop, LoaderCircle, Pencil, RefreshCw, Send, Trash2 } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import type { MarketingCampaign, PaginatedData } from '@/types/marketing'
 import type { ApiResponse } from '@/types/api'

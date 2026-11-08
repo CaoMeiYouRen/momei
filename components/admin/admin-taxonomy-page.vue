@@ -852,7 +852,7 @@ onMounted(() => {
     --caomei-data-table-pagination-justify: center;
 }
 
-// 迁移前为 `pi pi-check-circle text-success`（primeicons 字体图标，`mr-2` + 字体自带基线）；
+// 迁移前为 `check-circle` 字体图标 + `text-success`（primeicons，`mr-2` + 字体自带基线）；
 // 换成 lucide SVG 后按实测补基线补偿 `vertical-align: -0.15em`（SVG 默认贴基线，会比字体图标低约 2px）。
 .taxonomy-dialog__tab-check {
     margin-right: 0.5rem;

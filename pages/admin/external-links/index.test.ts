@@ -340,7 +340,7 @@ describe('AdminExternalLinks page', () => {
         const rows = wrapper.findAll('.stub-row')
         expect(rows).toHaveLength(4)
 
-        // 短码列：`code` 文本 + 复制图标按钮（迁移前为 PrimeVue 按钮 + `pi pi-copy`）。
+        // 短码列：`code` 文本 + 复制图标按钮（迁移前为 PrimeVue 按钮 + copy 字体图标）。
         const shortCodeCell = rows[0]!.find('[data-key="shortCode"]')
         expect(shortCodeCell.text()).toContain('abc123')
         expect(shortCodeCell.find('.short-code').exists()).toBe(true)

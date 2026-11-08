@@ -26,7 +26,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>GitHub</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
                 <a
                     href="https://docs.momei.app/"
@@ -35,7 +39,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>{{ $t('components.footer.docs') }}</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
                 <a
                     href="/feed.xml"
@@ -44,7 +52,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>{{ $t('common.rss') }}</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
                 <a
                     href="/feed/podcast.xml"
@@ -53,7 +65,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>{{ $t('common.podcast_rss') }}</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
                 <a
                     href="/sitemap.xml"
@@ -62,7 +78,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>{{ $t('common.sitemap') }}</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
                 <NuxtLink :to="localePath('/user-agreement')" class="footer__link">
                     {{ $t('legal.user_agreement') }}
@@ -110,7 +130,11 @@
                     class="footer__link footer__link--external"
                 >
                     <span>{{ footerPoweredByText }}</span>
-                    <i class="footer__link-icon pi pi-external-link" aria-hidden="true" />
+                    <ExternalLink
+                        class="footer__link-icon"
+                        :size="11"
+                        aria-hidden="true"
+                    />
                 </a>
             </p>
             <!-- 备案信息组件 -->
@@ -120,6 +144,8 @@
 </template>
 
 <script setup lang="ts">
+import { ExternalLink } from '@lucide/vue'
+
 const localePath = useLocalePath()
 const { t } = useI18n()
 const { currentTitle, siteConfig } = useMomeiConfig()

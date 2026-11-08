@@ -123,7 +123,7 @@ describe('MarketingCampaignList', () => {
         ])
     })
 
-    it('状态图标：`pi pi-spin pi-spinner` → lucide + 本地旋转动画；`pi pi-calendar` → lucide 日历', async () => {
+    it('状态图标：PrimeVue 旋转加载图标 → lucide + 本地旋转动画；日历字体图标 → lucide 日历', async () => {
         const wrapper = await mountList()
         const tags = wrapper.findAll('.stub-td[data-key="status"] .caomei-tag')
 

@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
     // Render using marketing campaign template to keep preview consistent with real sends
     const emailResult = await emailTemplateEngine.generateMarketingEmailTemplate({
-        headerIcon: 'pi pi-send',
+        headerIcon: '📨',
         message: htmlContent,
         articleTitle: title,
         authorLabel: '作者：',

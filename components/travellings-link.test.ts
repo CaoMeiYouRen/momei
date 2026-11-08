@@ -38,7 +38,7 @@ describe('TravellingsLink', () => {
         expect(link.attributes('href')).toBe('https://www.travellings.cn/go.html')
         expect(link.attributes('target')).toBe('_blank')
         expect(link.classes()).toContain('travellings-link--header')
-        expect(wrapper.find('.pi-external-link').exists()).toBe(true)
+        expect(wrapper.find('.travellings-link__icon').exists()).toBe(true)
     })
 
     it('hides itself when the placement switch is off', async () => {

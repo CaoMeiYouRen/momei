@@ -41,12 +41,12 @@ import type { PostAuditResult } from '@/types/post'
  * 仍用 V1（消费处静态择库）。编辑器子批迁移后 V1 已删除，本组件成为唯一实现。
  *
  * 与旧 V1 的差异（均为有意，见迁移方案 §6.2）：
- * - `Button`（`pi pi-check-circle` + `text rounded severity="secondary"`）→ `CaomeiButton`
+ * - `Button`（勾选圆圈字体图标 + `text rounded severity="secondary"`）→ `CaomeiButton`
  *   （lucide `CircleCheck` + `variant="ghost" rounded icon-only`），并补 `:label` 可访问名
  *   （V1 的纯图标按钮仅有 tooltip，无可访问名）；
  * - `Tag` 的 `severity="info"` → `tone="primary"`、`success` / `warn` → `success` / `warning`；
  * - V1 用 `:pt="{root:{style:{cursor:'pointer'}}}"` 内联指针样式，改为本组件内 scoped 类；
- * - 加载态图标由 `pi pi-spin pi-spinner` 换成 lucide `LoaderCircle` + 本组件内旋转动画。
+ * - 加载态图标由 PrimeVue 旋转加载图标换成 lucide `LoaderCircle` + 本组件内旋转动画。
  */
 defineProps<{
     auditResult: PostAuditResult | null

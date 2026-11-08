@@ -61,7 +61,7 @@
                 <!-- GitHub -->
                 <div class="linked-account-item">
                     <div class="account-info">
-                        <i class="github-icon pi pi-github" />
+                        <i class="github-icon mdi mdi-github" />
                         <div class="account-details">
                             <span class="capitalize">GitHub</span>
                             <small v-if="getLinkedAccount('github')" class="account-id text-muted-color">
@@ -93,7 +93,7 @@
                             @click="handleLink('github')"
                         >
                             <template #icon>
-                                <i class="pi pi-github" aria-hidden="true" />
+                                <i class="mdi mdi-github" aria-hidden="true" />
                             </template>
                             {{ $t('pages.settings.security.link_github') }}
                         </CaomeiButton>
@@ -103,7 +103,7 @@
                 <!-- Google -->
                 <div class="linked-account-item">
                     <div class="account-info">
-                        <i class="google-icon pi pi-google" />
+                        <i class="google-icon mdi mdi-google" />
                         <div class="account-details">
                             <span class="capitalize">Google</span>
                             <small v-if="getLinkedAccount('google')" class="account-id text-muted-color">
@@ -135,7 +135,7 @@
                             @click="handleLink('google')"
                         >
                             <template #icon>
-                                <i class="pi pi-google" aria-hidden="true" />
+                                <i class="mdi mdi-google" aria-hidden="true" />
                             </template>
                             {{ $t('pages.settings.security.link_google') }}
                         </CaomeiButton>

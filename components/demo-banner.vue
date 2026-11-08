@@ -8,7 +8,7 @@
                         <span class="demo-banner__stage">{{ $t('demo.current_stage', {stage: $t(`demo.stages.${currentStage}`)}) }}</span>
                     </div>
                     <div class="demo-banner__headline">
-                        <i class="demo-banner__icon pi pi-info-circle" />
+                        <Info class="demo-banner__icon" :size="18" />
                         <span class="demo-banner__title">{{ $t('demo.journey_title') }}</span>
                     </div>
                     <p v-if="!isCollapsed" class="demo-banner__text">
@@ -50,7 +50,9 @@
                     class="demo-banner__path"
                     @click="openDemoPath(entry.to, entry.stage)"
                 >
-                    <span class="demo-banner__path-icon" :class="entry.icon" />
+                    <span class="demo-banner__path-icon">
+                        <component :is="entry.icon" :size="16" />
+                    </span>
                     <span class="demo-banner__path-body">
                         <span class="demo-banner__path-title">{{ entry.title }}</span>
                         <span class="demo-banner__path-description">{{ entry.description }}</span>
@@ -63,7 +65,9 @@
 </template>
 
 <script setup lang="ts">
+import { BookOpen, Box, Compass, Info, Sparkles } from '@lucide/vue'
 import { DEMO_TOUR_QUEUE_KEY, type DemoTourStage } from '@/composables/use-onboarding'
+import { rawIcon } from '@/utils/shared/brand-icons'
 
 const DEMO_BANNER_COLLAPSED_KEY = 'momei_demo_banner_collapsed'
 
@@ -106,7 +110,7 @@ const syncCollapsedState = () => {
 const demoEntries = computed(() => [
     {
         key: 'read_article',
-        icon: 'pi pi-book',
+        icon: rawIcon(BookOpen),
         title: t('demo.paths.read_article.label'),
         description: t('demo.paths.read_article.description'),
         action: t('demo.paths.read_article.action'),
@@ -115,7 +119,7 @@ const demoEntries = computed(() => [
     },
     {
         key: 'browse_content',
-        icon: 'pi pi-compass',
+        icon: rawIcon(Compass),
         title: t('demo.paths.browse_content.label'),
         description: t('demo.paths.browse_content.description'),
         action: t('demo.paths.browse_content.action'),
@@ -124,7 +128,7 @@ const demoEntries = computed(() => [
     },
     {
         key: 'creator_mode',
-        icon: 'pi pi-sparkles',
+        icon: rawIcon(Sparkles),
         title: t('demo.paths.creator_mode.label'),
         description: t('demo.paths.creator_mode.description'),
         action: t('demo.paths.creator_mode.action'),
@@ -133,7 +137,7 @@ const demoEntries = computed(() => [
     },
     {
         key: 'enhanced_pack',
-        icon: 'pi pi-box',
+        icon: rawIcon(Box),
         title: t('demo.paths.enhanced_pack.label'),
         description: t('demo.paths.enhanced_pack.description'),
         action: t('demo.paths.enhanced_pack.action'),
@@ -145,7 +149,7 @@ const demoEntries = computed(() => [
 const creatorEntry = computed(() => {
     return demoEntries.value.find((entry) => entry.key === 'creator_mode') ?? {
         key: 'creator_mode',
-        icon: 'pi pi-sparkles',
+        icon: rawIcon(Sparkles),
         title: t('demo.paths.creator_mode.label'),
         description: t('demo.paths.creator_mode.description'),
         action: t('demo.paths.creator_mode.action'),

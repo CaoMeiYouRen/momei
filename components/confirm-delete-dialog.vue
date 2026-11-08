@@ -8,7 +8,7 @@
         @update:open="visible = $event"
     >
         <div class="delete-dialog-content">
-            <i class="delete-dialog-icon pi pi-exclamation-triangle" />
+            <AlertTriangle class="delete-dialog-icon" :size="32" />
             <span>{{ message || $t('common.delete_confirm_message') }}</span>
         </div>
         <template #footer>
@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { AlertTriangle } from '@lucide/vue'
 
 const props = defineProps<{
     title?: string

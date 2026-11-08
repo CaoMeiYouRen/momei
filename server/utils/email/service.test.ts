@@ -107,7 +107,7 @@ vi.mock('@/server/services/email-template', () => ({
         }
 
         return Promise.resolve({
-            headerIcon: 'pi pi-envelope',
+            headerIcon: '✉️',
             ...templates[templateId],
         })
     }),

@@ -28,7 +28,11 @@
         <span class="travellings-link__content">
             <span class="travellings-link__title-row">
                 <span class="travellings-link__title">{{ t('common.travellings') }}</span>
-                <i class="pi pi-external-link travellings-link__icon" aria-hidden="true" />
+                <ExternalLink
+                    class="travellings-link__icon"
+                    :size="11"
+                    aria-hidden="true"
+                />
             </span>
             <span v-if="placement === 'sidebar'" class="travellings-link__description">
                 {{ t('common.travellings_description') }}
@@ -38,6 +42,8 @@
 </template>
 
 <script setup lang="ts">
+import { ExternalLink } from '@lucide/vue'
+
 type TravellingsPlacement = 'header' | 'footer' | 'sidebar' | 'mobile'
 
 const props = defineProps<{

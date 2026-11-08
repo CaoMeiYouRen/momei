@@ -131,7 +131,7 @@ import type { PostAuditResult } from '@/types/post'
  *   迁移后可见文案落**默认插槽**、图标走 lucide `#icon`（caomei `label` 只映射可访问名）；
  *   `severity="secondary"` → `variant="secondary"`、`text` → `variant="ghost"`；
  * - `Tag` 的 `severity="info"` → `tone="primary"`、`success` / `warn` → `success` / `warning`；
- * - 加载态图标由 `pi pi-spin pi-spinner` 换成 lucide `LoaderCircle` + 本组件内旋转动画；
+ * - 加载态图标由 PrimeVue 旋转加载图标换成 lucide `LoaderCircle` + 本组件内旋转动画；
  * - `Dialog` 于第六十九阶段浮层批次迁移；`ProgressBar` 已随 2026-11-07 编辑器子批迁入 caomei-ui。
  */
 defineProps<{

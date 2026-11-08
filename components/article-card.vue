@@ -23,7 +23,7 @@
             <NuxtLink :to="postPath" class="article-card__main-link">
                 <div v-if="post.isPinned" class="article-card__status-row">
                     <span class="article-card__badge">
-                        <i class="pi pi-thumbtack" />
+                        <Pin :size="12" />
                         {{ $t('common.pinned') }}
                     </span>
                 </div>
@@ -34,19 +34,19 @@
 
                 <div class="article-card__meta">
                     <span v-if="post.author" class="article-card__meta-item">
-                        <i class="pi pi-user" />
+                        <User :size="14" />
                         {{ post.author.name }}
                     </span>
                     <span v-if="post.publishedAt" class="article-card__meta-item">
-                        <i class="pi pi-calendar" />
+                        <CalendarIcon :size="14" />
                         {{ formatDate(post.publishedAt) }}
                     </span>
                     <span class="article-card__meta-item">
-                        <i class="pi pi-eye" />
+                        <Eye :size="14" />
                         {{ post.views }}
                     </span>
                     <span v-if="post.metadata?.audio?.url" class="article-card__meta-item article-card__meta-item--podcast">
-                        <i class="pi pi-headphones" />
+                        <Headphones :size="14" />
                         {{ $t('common.podcast') }}
                     </span>
                 </div>
@@ -83,7 +83,7 @@
                     class="article-card__read-more"
                 >
                     {{ $t('common.read_more') }}
-                    <i class="pi pi-arrow-right" />
+                    <ArrowRight :size="14" />
                 </NuxtLink>
             </div>
         </div>
@@ -91,6 +91,7 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowRight, Calendar as CalendarIcon, Eye, Headphones, Pin, User } from '@lucide/vue'
 import type { Post } from '@/types/post'
 import { formatDate } from '@/utils/shared/date'
 

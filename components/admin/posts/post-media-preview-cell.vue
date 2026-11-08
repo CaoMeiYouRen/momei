@@ -21,7 +21,7 @@
                 <!-- 本组件仅被 `/admin/posts` 列表页消费（迁移方案 §5.5：路由自有组件随该页整路由迁移），
                      故批次在册族的 `Button` 直接切换为 `CaomeiButton`：`text rounded severity="secondary"`
                      → `iconOnly variant="ghost" rounded tone="neutral"`（§6.2 有损近似
-                     `secondary → neutral`）；`pi pi-close` / `pi pi-play` 的 `:icon` 二态改为
+                     `secondary → neutral`）；PrimeVue 的关闭 / 播放字体图标 `:icon` 二态改为
                      `#icon` 插槽内 lucide `X` / `Play` 条件渲染；`aria-label` → caomei `label`（可访问名契约）。
                      非在册族的 `Image`（展示容器，随 B4 展示批次）与其预览浮层维持 PrimeVue。 -->
                 <CaomeiButton
