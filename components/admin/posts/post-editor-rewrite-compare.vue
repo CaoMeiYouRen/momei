@@ -119,12 +119,10 @@ const styleLabel = computed(() => {
     &__col {
         flex: 1;
         min-width: 0;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
         overflow: hidden;
 
         &--new {
-            border-color: var(--p-green-400);
+            border-color: var(--m-green-400);
         }
     }
 
@@ -135,9 +133,8 @@ const styleLabel = computed(() => {
         padding: 0.5rem 0.75rem;
         font-size: 0.8125rem;
         font-weight: 600;
-        background: var(--p-surface-50);
-        border-bottom: 1px solid var(--p-surface-border);
-        color: var(--p-text-muted-color);
+        background: var(--m-surface-50);
+        color: var(--caomei-color-text-muted);
     }
 
     &__content {
@@ -151,7 +148,7 @@ const styleLabel = computed(() => {
             line-height: 1.6;
                         white-space: pre-wrap;
                         overflow-wrap: anywhere;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
             font-family: inherit;
         }
     }
@@ -166,7 +163,7 @@ const styleLabel = computed(() => {
 :global(.dark) {
     .rewrite-compare {
         &__col-header {
-            background: var(--p-surface-800);
+            background: var(--m-surface-800);
         }
     }
 }

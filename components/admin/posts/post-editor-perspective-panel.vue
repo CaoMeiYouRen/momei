@@ -170,7 +170,6 @@ const typeLabel = (type: PerspectiveCheckItem['type']) => {
         display: flex;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--p-surface-border);
     }
 
     &__body {
@@ -216,17 +215,16 @@ const typeLabel = (type: PerspectiveCheckItem['type']) => {
     &__message {
         font-size: 0.875rem;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: 0.5rem;
     }
 
     &__reason {
         font-size: 0.8125rem;
         line-height: 1.4;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         padding: 0.5rem;
-        background: var(--p-surface-100);
-        border-radius: var(--p-border-radius-sm);
+        background: var(--m-surface-100);
     }
 
     &__type {

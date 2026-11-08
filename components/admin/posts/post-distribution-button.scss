@@ -22,9 +22,7 @@
         flex-direction: column;
         gap: 0.875rem;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
     }
 
     &__channel-header {
@@ -38,14 +36,14 @@
 
         small {
             display: block;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.5;
         }
     }
 
     &__hint,
     &__empty {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__mode-group {
@@ -94,9 +92,7 @@
 
     &__precheck {
         padding: 0.75rem 0.875rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-primary-100) 8%);
+        background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-primary-100) 8%);
 
         strong {
             display: block;
@@ -105,26 +101,24 @@
 
         p {
             margin: 0;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.5;
         }
 
         &--warn {
-            border-color: color-mix(in srgb, var(--p-yellow-500) 45%, var(--p-surface-border) 55%);
         }
 
         &--danger {
-            border-color: color-mix(in srgb, var(--p-red-500) 45%, var(--p-surface-border) 55%);
-            background: color-mix(in srgb, var(--p-content-background) 88%, var(--p-red-100) 12%);
+            background: color-mix(in srgb, var(--m-surface-0) 88%, var(--m-red-100) 12%);
 
             p {
-                color: var(--p-text-color);
+                color: var(--caomei-color-text);
             }
         }
     }
 
     &__remote-link {
-        color: var(--p-primary-500);
+        color: var(--m-primary-500);
         text-decoration: none;
     }
 
@@ -146,9 +140,7 @@
         justify-content: space-between;
         gap: 0.75rem;
         padding: 0.875rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 94%, var(--p-primary-100) 6%);
+        background: color-mix(in srgb, var(--m-surface-0) 94%, var(--m-primary-100) 6%);
     }
 
     &__preview-launcher-main {
@@ -161,7 +153,7 @@
     &__preview-launcher-text {
         margin: 0;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__preview-card {
@@ -169,9 +161,7 @@
         flex-direction: column;
         gap: 0.75rem;
         padding: 0.875rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 94%, var(--p-primary-100) 6%);
+        background: color-mix(in srgb, var(--m-surface-0) 94%, var(--m-primary-100) 6%);
     }
 
     &__preview-header {
@@ -205,9 +195,7 @@
         gap: 0.375rem;
         min-width: 0;
         padding: 0.75rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
 
         &--full {
             grid-column: 1 / -1;
@@ -217,7 +205,7 @@
     &__preview-label {
         font-size: 0.75rem;
         font-weight: 600;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__preview-value {
@@ -255,7 +243,7 @@
         }
 
         :deep(a) {
-            color: var(--p-primary-500);
+            color: var(--m-primary-500);
             text-decoration: none;
         }
 
@@ -266,9 +254,7 @@
         :deep(pre) {
             padding: 0.75rem;
             overflow: auto;
-            border: 1px solid var(--p-surface-border);
-            border-radius: var(--p-border-radius-sm);
-            background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-surface-100) 8%);
+            background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-surface-100) 8%);
         }
 
         :deep(img) {
@@ -279,7 +265,6 @@
             max-height: 20rem;
             object-fit: contain;
             margin: 0 auto 1rem;
-            border-radius: var(--p-border-radius-md);
         }
 
         :deep(code) {
@@ -290,15 +275,12 @@
     &__task-list,
     &__timeline {
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
     }
 
     &__task-item,
     &__timeline-item {
         padding: 0.75rem 0;
-        border-bottom: 1px solid var(--p-surface-border);
     }
 
     &__task-item:last-child,
@@ -312,7 +294,7 @@
         display: flex;
         gap: 0.5rem;
         margin-top: 0.25rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__timeline-header {
@@ -328,10 +310,10 @@
 
     &__timeline-message {
         margin: 0.25rem 0 0;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
 
         &--error {
-            color: var(--p-red-500);
+            color: var(--m-red-500);
         }
     }
 }
@@ -356,9 +338,7 @@
         gap: 0.5rem;
         min-width: 0;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
 
         p,
         h3,
@@ -375,7 +355,7 @@
     &__meta-card {
         &--accent {
             grid-column: span 2;
-            background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-primary-100) 8%);
+            background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-primary-100) 8%);
         }
 
         &--cover,
@@ -401,7 +381,7 @@
     &__panel-header span {
         font-size: 0.75rem;
         font-weight: 600;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__cover-media {
@@ -415,17 +395,13 @@
         width: 100%;
         max-height: 12rem;
         object-fit: cover;
-        border-radius: var(--p-border-radius-md);
-        border: 1px solid var(--p-surface-border);
-        background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-surface-100) 8%);
+        background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-surface-100) 8%);
     }
 
     &__tailnote-surface {
         min-height: 100%;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 94%, var(--p-primary-50) 6%);
+        background: color-mix(in srgb, var(--m-surface-0) 94%, var(--m-primary-50) 6%);
         overflow: auto;
     }
 
@@ -451,17 +427,13 @@
 
     &__preview-surface {
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 94%, var(--p-primary-50) 6%);
+        background: color-mix(in srgb, var(--m-surface-0) 94%, var(--m-primary-50) 6%);
         overflow: auto;
     }
 
     &__code-surface {
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
-        border-radius: var(--p-border-radius-md);
-        background: color-mix(in srgb, var(--p-content-background) 92%, var(--p-surface-100) 8%);
+        background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-surface-100) 8%);
         overflow: auto;
     }
 }

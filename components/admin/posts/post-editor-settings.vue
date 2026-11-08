@@ -360,8 +360,7 @@ const confirmClearTags = () => {
     right: -24rem;
     width: 20rem;
     height: calc(100vh - 4rem);
-    background-color: var(--p-surface-card);
-    border-left: 1px solid var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
     display: flex;
     flex-direction: column;
     z-index: 100;
@@ -381,7 +380,6 @@ const confirmClearTags = () => {
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--p-surface-border);
     }
 
     &__actions {
@@ -457,7 +455,7 @@ const confirmClearTags = () => {
 }
 
 .form-hint {
-    @include admin-form-hint($color: var(--p-surface-500));
+    @include admin-form-hint($color: var(--m-surface-500));
 
     display: block;
 }

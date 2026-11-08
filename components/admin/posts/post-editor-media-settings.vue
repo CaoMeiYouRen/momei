@@ -607,14 +607,14 @@ const probeAudio = async (input?: string | Event | null) => {
 }
 
 .form-hint {
-    @include admin-form-hint($color: var(--p-surface-500));
+    @include admin-form-hint($color: var(--m-surface-500));
 }
 
 .preview-container {
     padding: 0.5rem;
     border-radius: 0.5rem;
-    background-color: var(--p-surface-50);
-    border: 1px solid var(--p-surface-200);
+    background-color: var(--m-surface-50);
+    border: 1px solid var(--m-surface-200);
 
     :deep(img) {
         border-radius: 0.25rem;
@@ -622,7 +622,7 @@ const probeAudio = async (input?: string | Event | null) => {
         max-height: 15rem;
         width: 100%;
         object-fit: contain;
-        background-color: var(--p-surface-100);
+        background-color: var(--m-surface-100);
     }
 
     audio {

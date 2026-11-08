@@ -526,7 +526,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
     }
 
     &__section-hint {
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
         font-size: 0.75rem;
     }
 
@@ -538,7 +538,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
 
     &__label {
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__textarea {
@@ -561,7 +561,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
     &__dimension-label {
         font-size: 0.875rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__options {
@@ -612,7 +612,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
     &__status-sub {
         margin-top: 0.25rem;
         font-size: 0.875rem;
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
     }
 
     &__preview {
@@ -689,7 +689,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
 
     &__image {
         border-radius: $border-radius-md;
-        border: 1px solid var(--p-surface-200);
+        border: 1px solid var(--m-surface-200);
         overflow: hidden;
         box-shadow: $shadow-md;
     }
@@ -697,7 +697,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
     &__image-hint {
         margin-top: 0.75rem;
         text-align: center;
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
         font-size: 0.75rem;
     }
 
@@ -725,8 +725,8 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         padding: 0 1.25rem;
 
         &:hover {
-            background-color: var(--p-surface-100);
-            color: var(--p-surface-700);
+            background-color: var(--m-surface-100);
+            color: var(--m-surface-700);
         }
     }
 
@@ -753,9 +753,9 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            background: var(--p-surface-200) !important;
-            color: var(--p-surface-500) !important;
-            border-color: var(--p-surface-300) !important;
+            background: var(--m-surface-200) !important;
+            color: var(--m-surface-500) !important;
+            border-color: var(--m-surface-300) !important;
             box-shadow: none;
         }
 

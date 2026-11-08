@@ -9,8 +9,7 @@
     right: 0;
     width: 24rem;
     height: calc(100vh - 4rem);
-    background: var(--p-surface-card);
-    border-left: 1px solid var(--p-surface-border);
+    background: var(--caomei-color-bg);
     box-shadow: -2px 0 8px rgb(0 0 0 / 0.08);
     z-index: 300;
     display: flex;
@@ -28,7 +27,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--p-surface-border);
 }
 
 %editor-panel__title {
@@ -48,33 +46,31 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     text-align: center;
     gap: 0.75rem;
 }
 
 %editor-panel__empty-icon {
     font-size: 2.5rem;
-    color: var(--p-green-500);
+    color: var(--m-green-500);
 }
 
 // ===== Items =====
 %editor-panel-item {
     padding: 0.75rem;
-    border-radius: var(--p-border-radius-md);
-    border: 1px solid var(--p-surface-border);
     margin-bottom: 0.75rem;
-    background: var(--p-surface-50);
+    background: var(--m-surface-50);
 }
 
 %editor-panel-item--critical {
-    border-color: var(--p-red-300);
-    background: var(--p-red-50);
+    border-color: var(--m-red-300);
+    background: var(--m-red-50);
 }
 
 %editor-panel-item--major {
-    border-color: var(--p-orange-300);
-    background: var(--p-orange-50);
+    border-color: var(--m-orange-300);
+    background: var(--m-orange-50);
 }
 
 %editor-panel-item__header {
@@ -90,7 +86,7 @@
 %editor-panel-item__label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     display: block;
     margin-bottom: 0.25rem;
 }
@@ -98,8 +94,7 @@
 %editor-panel-item__text {
     display: block;
     padding: 0.375rem 0.5rem;
-    background: var(--p-surface-100);
-    border-radius: var(--p-border-radius-sm);
+    background: var(--m-surface-100);
     font-size: 0.8125rem;
     line-height: 1.4;
     white-space: pre-wrap;
@@ -112,23 +107,23 @@
 
 // ===== Dark mode =====
 %editor-panel-dark-item {
-    background: var(--p-surface-800);
+    background: var(--m-surface-800);
 }
 
 %editor-panel-dark-item--critical {
-    background: color-mix(in srgb, var(--p-red-900) 40%, transparent);
-    border-color: var(--p-red-700);
+    background: color-mix(in srgb, var(--m-red-900) 40%, transparent);
+    border-color: var(--m-red-700);
 }
 
 %editor-panel-dark-item--major {
-    background: color-mix(in srgb, var(--p-orange-900) 40%, transparent);
-    border-color: var(--p-orange-700);
+    background: color-mix(in srgb, var(--m-orange-900) 40%, transparent);
+    border-color: var(--m-orange-700);
 }
 
 %editor-panel-dark-item__text {
-    background: var(--p-surface-700);
+    background: var(--m-surface-700);
 }
 
 %editor-panel-dark__empty-icon {
-    color: var(--p-green-400);
+    color: var(--m-green-400);
 }

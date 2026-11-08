@@ -7,7 +7,7 @@
 
     &__intro {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -25,13 +25,13 @@
 
     &__label {
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__hint,
     &__value-meta,
     &__option-meta {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__meta {
@@ -45,9 +45,8 @@
         flex-direction: column;
         gap: 0.75rem;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: color-mix(in srgb, var(--p-primary-color) 3%, var(--p-content-background));
+        background: color-mix(in srgb, var(--caomei-color-primary) 3%, var(--m-surface-0));
     }
 
     &__target-summary-row {
@@ -59,12 +58,12 @@
 
     &__target-summary-label {
         font-weight: 600;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__target-summary-description {
         margin: 0;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         line-height: 1.6;
     }
 
@@ -80,9 +79,8 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.75rem;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
     }
 
     &__scope-item {
@@ -94,9 +92,8 @@
 
     &__progress {
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: color-mix(in srgb, var(--p-primary-color) 4%, var(--p-content-background));
+        background: color-mix(in srgb, var(--caomei-color-primary) 4%, var(--m-surface-0));
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
@@ -120,9 +117,8 @@
         flex-direction: column;
         gap: 0.75rem;
         padding: 1rem;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
     }
 
     &__field-progress-header {
@@ -152,7 +148,7 @@
     }
 
     &__field-progress-caption {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-weight: 600;
     }
 
@@ -165,8 +161,8 @@
         overflow: auto;
         padding: 0.75rem;
         border-radius: $border-radius-sm;
-        background: color-mix(in srgb, var(--p-surface-200) 50%, transparent);
-        color: var(--p-text-color);
+        background: color-mix(in srgb, var(--m-surface-200) 50%, transparent);
+        color: var(--caomei-color-text);
     }
 
     &__option {

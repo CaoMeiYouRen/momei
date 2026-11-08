@@ -354,7 +354,6 @@ watch(compareTarget, () => {
     &__empty {
         padding: 2rem;
         text-align: center;
-        color: var(--p-text-color-secondary);
     }
 
     &__empty-icon {
@@ -372,8 +371,7 @@ watch(compareTarget, () => {
         flex-direction: column;
         gap: 1.25rem;
         padding: 1.25rem;
-        background-color: var(--p-surface-0);
-        border-top: 1px solid var(--p-surface-border);
+        background-color: var(--m-surface-0);
     }
 
     &__selected-info {
@@ -387,7 +385,6 @@ watch(compareTarget, () => {
         justify-content: space-between;
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
-        border-bottom: 1px dashed var(--p-surface-border);
     }
 
     &__selected-title {
@@ -408,7 +405,6 @@ watch(compareTarget, () => {
     &__compare-label {
         font-weight: 500;
         font-size: 0.875rem;
-        color: var(--p-text-color-secondary);
     }
 
     &__compare-select {
@@ -417,13 +413,13 @@ watch(compareTarget, () => {
 
     &__diff-container {
         margin-top: 0.5rem;
-        background-color: var(--p-surface-ground);
+        background-color: var(--m-surface-ground);
         padding: 1rem;
         border-radius: $border-radius-md;
-        font-family: var(--p-font-family-monospace);
+        font-family: var(--m-font-mono);
         max-height: 40vh;
         overflow-y: auto;
-        border: 1px solid var(--p-surface-200);
+        border: 1px solid var(--m-surface-200);
         font-size: 0.85rem;
         white-space: pre-wrap;
         word-break: break-all;
@@ -432,19 +428,18 @@ watch(compareTarget, () => {
     &__diff-group + &__diff-group {
         margin-top: 1.25rem;
         padding-top: 1.25rem;
-        border-top: 1px dashed var(--p-surface-300);
+        border-top: 1px dashed var(--m-surface-300);
     }
 
     &__diff-label {
         margin-bottom: 0.5rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__diff-part {
         &--added {
-            background-color: rgb(var(--p-emerald-500-rgb), 0.1);
-            color: var(--p-emerald-700);
+            color: var(--m-emerald-700);
 
             &::before {
                 content: '+';
@@ -454,8 +449,7 @@ watch(compareTarget, () => {
         }
 
         &--removed {
-            background-color: rgb(var(--p-red-500-rgb), 0.1);
-            color: var(--p-red-700);
+            color: var(--m-red-700);
             text-decoration: line-through;
 
             &::before {
@@ -468,7 +462,6 @@ watch(compareTarget, () => {
 
     &__empty-diff {
         padding: 1rem;
-        color: var(--p-text-color-secondary);
     }
 
     &__footer-actions {
@@ -517,9 +510,9 @@ watch(compareTarget, () => {
         justify-content: center;
 
         &:hover {
-            background-color: var(--p-surface-100);
-            border-color: var(--p-surface-300);
-            color: var(--p-surface-700);
+            background-color: var(--m-surface-100);
+            border-color: var(--m-surface-300);
+            color: var(--m-surface-700);
         }
     }
 }
@@ -534,22 +527,20 @@ watch(compareTarget, () => {
 .history-item {
     display: flex;
     align-items: center;
-    border: 1px solid var(--p-surface-border);
-    border-radius: var(--p-content-border-radius);
+    border-radius: var(--caomei-radius-md);
     overflow: hidden;
     transition: all 0.2s ease;
     margin-right: 0.75rem;
 
     &:hover {
-        background-color: var(--p-surface-hover);
-        border-color: var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
         box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
     }
 
     &--selected {
-        border-color: var(--p-primary-color);
-        background-color: var(--p-primary-50);
-        box-shadow: inset 2px 0 0 var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
+        background-color: var(--m-primary-50);
+        box-shadow: inset 2px 0 0 var(--caomei-color-primary);
     }
 
     &__main {
@@ -574,20 +565,20 @@ watch(compareTarget, () => {
 
     &__sequence {
         font-weight: 700;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &__time {
         font-weight: 600;
         font-size: 0.95rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__summary {
         margin-bottom: 0.65rem;
         font-size: 0.875rem;
         line-height: 1.5;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__footer {
@@ -600,7 +591,6 @@ watch(compareTarget, () => {
         align-items: center;
         gap: 0.6rem;
         font-size: 0.825rem;
-        color: var(--p-text-color-secondary);
     }
 }
 

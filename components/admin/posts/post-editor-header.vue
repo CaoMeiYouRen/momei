@@ -596,8 +596,7 @@ defineExpose({
     align-items: center;
     padding: 0 1rem;
     height: 4rem;
-    border-bottom: 1px solid var(--p-surface-border);
-    background-color: var(--p-surface-card);
+    background-color: var(--caomei-color-bg);
     flex-shrink: 0;
     position: relative;
     z-index: 200;
@@ -639,14 +638,13 @@ defineExpose({
     }
 
     &--active {
-        box-shadow: 0 0 0 2px var(--p-surface-200);
+        box-shadow: 0 0 0 2px var(--m-surface-200);
     }
 
     &--missing {
         opacity: 0.4;
         background-color: transparent !important;
-        border: 1px dashed var(--p-surface-border) !important;
-        color: var(--p-text-muted-color) !important;
+        color: var(--caomei-color-text-muted) !important;
     }
 
     &--disabled {
@@ -681,7 +679,7 @@ defineExpose({
 
 .saving-text {
     font-size: 0.875rem;
-    color: var(--p-surface-500);
+    color: var(--m-surface-500);
     margin-right: 0.5rem;
 }
 
@@ -701,11 +699,9 @@ defineExpose({
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: var(--p-surface-hover);
         }
 
         & + & {
-            border-top: 1px solid var(--p-surface-border);
         }
     }
 }
@@ -720,8 +716,7 @@ defineExpose({
         font-size: 0.875rem;
         font-weight: 600;
         padding: 0.5rem 0.75rem;
-        color: var(--p-text-muted-color);
-        border-bottom: 1px solid var(--p-surface-border);
+        color: var(--caomei-color-text-muted);
         margin-bottom: 0.25rem;
     }
 
@@ -730,12 +725,10 @@ defineExpose({
         align-items: flex-start;
         gap: 0.75rem;
         padding: 0.625rem 0.75rem;
-        border-radius: var(--p-border-radius-md);
         cursor: pointer;
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: var(--p-surface-hover);
         }
 
         &:last-child {
@@ -746,7 +739,7 @@ defineExpose({
     &__item-icon {
         font-size: 1.1rem;
         margin-top: 0.125rem;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &__item-text {
@@ -756,12 +749,12 @@ defineExpose({
     &__item-label {
         font-size: 0.875rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__item-desc {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin-top: 0.125rem;
         line-height: 1.4;
     }
@@ -770,7 +763,7 @@ defineExpose({
 :global(.dark) {
     .rewrite-menu {
         &__item:hover {
-            background-color: var(--p-surface-800);
+            background-color: var(--m-surface-800);
         }
     }
 }
