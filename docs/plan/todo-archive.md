@@ -19,11 +19,46 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第六十五至第七十阶段共 6 个近线归档块。
+- 主文档当前保留第六十五至第七十一阶段共 7 个近线归档块。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第七十一阶段：PrimeVue → caomei-ui 迁移（五）——B4 剩余路由、图标全量与门禁收口（已审计归档）
+
+> 归档说明: 第七十一阶段「1 条开工基座 + 2 条迁移主线 + 1 条图标主线 + 1 条门禁收口 + 1 条治理主线」已于 2026-11-08 完成全部条目交付并归档（2026-11-06 立项，3 天交付；2026-11-08 发布 **v1.30.0**）。条目 1 现取复核（19 个未迁移页面 / 90 处）并采集 14 条参考态（28 张）；条目 2 完成管理端剩余路由（snippets / AI 任务详情 / 日历 / 仪表盘 / 编辑器子批，组件 370 → 188）；条目 3 完成公开页与布局壳（全局壳 25 处、内容组件 31 处、外围组件 24 处、公开路由 9 文件 61 处 + 7 条 scope），并收口过渡组件（删 3 个 V1、6 组去 `-v2`）；条目 4 把 `pi pi-*` **136 处清零**（8 类品牌走 `mdi mdi-*`、3 类字体未收录走内联 Simple Icons、5 个数据驱动配置改组件）；条目 5 清零 E2E `p-*` 断言、守卫扩到 35 条路由（含 `/` 与 `/goto` 动态参数页）、复算 `keyCss` 63,337 B / 70KB 与 `coreEntryJs` 375,368 B（配额 365 → 370KB 并归因）；条目 6 补测 4 模块（+154 条 / +0.42pp）、收敛 i18n 键层缺陷、新增 `useI18n` 位置守卫并修复 `friend-link` 归一化覆盖。阶段收口复算：组件 **188 → 46 处 / 26 → 14 类**、图标 **235 → 0**、token 1,420（留第七十二阶段）；parity **83/83**（`PENDING_ROUTES` 清零）、`test:visual` 24/24、E2E critical 17 passed / 1 skipped + 安装向导 2 passed、CI `Test` 15 job 全绿、本地 `release:check` 10/10、**Release workflow 发布 v1.30.0 成功**（子包 + 多架构镜像）。各批 Review Gate 均 Pass。`todo.md` 已清理，`roadmap.md` 已同步归档结论，回归窗口整体迁入 [2026-11-08-phase71-close.md](../reports/regression/archive/2026-11-08-phase71-close.md)，`docs/i18n/*/plan/roadmap.md` 摘要已同步。
+
+> **ROI 评估**: 开工基座 `2.00`；管理端余面 `1.50`；公开页与布局壳 `1.60`；图标全量 `1.80`；测试守卫 `1.40`；覆盖率与小治理 `1.75`。
+
+> 阶段规划详情、ROI 与回滚边界见 [项目计划归档](./archive/roadmap-phases-71.md)。
+> 迁移方案事实源见 [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（本阶段对应 §7 的 B4 段）。
+> B4 清单见 [第七十一阶段 B4 迁移清单](../design/governance/2026-11-06-b4-migration-inventory.md)。
+> backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 10 条（UI 组件库迁移）与第 1 条（测试覆盖率）。
+
+**时间表**: 2026-11-06 ~ 2026-11-08
+
+**准入前置（已核对 2026-11-06）**: 第七十阶段已审计归档、`todo.md` 无已完成阶段正文、`git status` 干净且 `master` 与 `origin/master` 同步（`b1c8aa73`）；CI 回执 Test / CodeQL / VitePress / TODO-to-Issue 均 success；`pnpm docs:check:source-of-truth` PASS；覆盖率 80.66%；入口包体 369,212 B / 373,760 B、`keyCss` 63,336 B / 70KB。
+
+**剩余迁移面（2026-11-08 阶段收口复算，`governance:count:primevue-usage` 口径）**: 组件 **46 处 / 14 类**（Checkbox 12 / Card 5 / DatePicker 4 / MultiSelect 4 / InputNumber 4 / Textarea 4 / Column 2 / RadioButton 2 / ProgressSpinner 2 / Button 2 等）；图标 **0**；token **1,420 处**（第七十二阶段与卸载同批）；`vitest PrimeVue mock 文件数` 1（`primevue-i18n` 插件单测，随卸载删除）；E2E `p-*` 断言 0。
+
+- [x] **1. B4 开工基座与现取复核（P1）**
+    - **收口（2026-11-06）**: 未迁移页面 **19 个 / 页面口径 90 处**；14 条参考态（管理端 2 + 公开页 12）/ 28 张，manifest `ref=HEAD`；扩族策略改为随路由整迁登记 `inScopeComponents`；`test:visual` 24 passed、parity 83 passed、guard 57 passed、`typecheck` / `lint` 0。
+
+- [x] **2. B4-A 管理端剩余路由整迁（P1）**
+    - **收口（2026-11-06 ~ 11-07）**: `/admin/snippets` + `/capture`（7 文件）、`/admin/ai/tasks/[id]` + 4 个共享 AI 组件、`/admin/calendar` + 月历 / 看板、`/admin` 仪表盘 + 3 个 dashboard 组件、编辑器整路由（`[id].vue` + 19 组件，V1 三件套删除、`primeVueSubRoutes` 清零）。复算组件 370 → 188、图标 328 → 235；parity 全绿、管理端 E2E 主路径通过。
+
+- [x] **3. B4-B 公开页与布局壳整迁（P1）**
+    - **收口（2026-11-07 ~ 11-08）**: 3a 全局布局壳 5 文件（25 处，重采 14 张基线）、内容组件 6 文件（31 处）、外围组件 4 文件（24 处）；3b 公开路由 9 文件（61 处）+ 7 条 scope（`/archives` / `/categories` / `/tags` / `/posts` / `/friend-links` / `/privacy-policy` / `/user-agreement`），`PENDING_ROUTES` 清零；过渡组件收口（`AppAvatar` / `AppUploader` / `AdminContentLanguageSwitcher` 删 V1、posts 三件套去 `-v2`）。同批修复 `use-theme` 的 `@layer` 层序与 scoped `:global(.dark)` token 全局污染。复算组件 188 → 47、图标 235 → 136；parity 83/83、visual 24/24、E2E critical 全绿。
+
+- [x] **4. B4-C 图标全量替换与品牌图标落点（P1）**
+    - **收口（2026-11-08）**: `pi pi-*` 136 处 / 40 文件清零（生产约 110 处 + 注释与测试断言 18 处）；非品牌 → `@lucide/vue`（按原 CSS 字号换算 `:size`）；品牌 11 类：8 类 `mdi mdi-*`、tiktok / discord / paypal 字体未收录 → 内联 Simple Icons；5 个数据驱动配置（菜单 / 商业平台 / AI 任务类型 / 分享 / 社交发布）改组件并同步消费方；同批固定种子文章发布时间（消除参考态日期漂移）并重采 2 张主题工作台基线。组件 47 → 46、图标 → 0；visual 24/24、parity 83/83。
+
+- [x] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
+    - **收口（2026-11-08）**: E2E `p-*` 断言 9 处 / 2 文件清零；删除 `testSetup` 的 PrimeVue toast / confirm mock；守卫支持动态参数页回退与根前缀精确匹配，登记 `/` 与 `/goto`（`CAOMEI_UI_ROUTE_PREFIXES` 35 条，全站登记完成）；`keyCss` 63,337 B / 70KB、`coreEntryJs` 375,368 B（+6,156 B 归因为全局菜单 16 个 lucide 图标，配额 365 → 370KB 三处联动）；guard 70 + 收口守卫 4 全绿。
+
+- [x] **6. 覆盖率第十二批 + 既有缺陷小治理（P2）**
+    - **收口（2026-11-08）**: 6a 4 模块补测（`typeorm-adapter` 84→6 / `quota-governance` 28→0 / `agreement` 26→1 / `post-hexo-sync` 23→0，新增 50 例），全仓 statements **28,993 → 29,147 / 36,790（+154 条 / +0.42pp）**；6b `admin-posts.json` 8 个原文级重复键去重、20 组双源同键收敛、删除 `system.fields.*` 6 个死键、`submit` 硬编码词条化（`duplicates` 101 → 99、`missing` 0）；6c 新增 `useI18n` 位置守卫（可判别失败已验证）；6d `friend-link` 归一化移到 `assignDefined` 之后并补 2 例空白断言。i18n runtime 129 passed；发现 `_id` 覆盖缺陷已登记 backlog。
 
 ## 第七十阶段：PrimeVue → caomei-ui 迁移（四）——B3 表单与设置、GA 升级与门禁扩面（已审计归档）
 

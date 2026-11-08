@@ -18,7 +18,7 @@
 ## 主窗口保留范围
 
 - 主文档现在只保留项目概况、近线阶段窗口、当前规划与归档索引。
-- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
+- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十一阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的区间分片规则向深度归档推进。
 ### 第二十二至第二十四阶段深度归档
 
@@ -162,7 +162,7 @@
 |:---|:---|:---|:---|
 | **70** | 2026-11-03 ~ 2026-11-05 | 1 基座 + 3 迁移 + 1 治理 | `caomei-ui@1.0.0` GA 精确升级与门禁扩面（运行时产物与 rc.1 逐字节一致、视觉 18/18、parity 34/34、`keyCss` 61.79KB / 70KB）；B3 表单与设置整批迁移（立项口径 54 文件 / 598 处；条目级实测 589 处）——管理端设置与通知、安装向导、用户设置 / 认证 / 提交；`Stepper` / `Accordion` / `ColorPicker` / `DatePicker` / `FileUpload` 首次生产迁移；parity 第二 webServer（未安装态）与 `reader` 档首次启用（12 条预算按实测校准）；覆盖率第十一批（三模块 100% / 98.87% / 100%，全仓 80.40% → 80.66%，本批 +0.26pp） |
 
-### 第七十阶段归档结论（最近归档阶段）
+### 第七十阶段归档结论（已审计归档）
 
 **审计结论**: 第七十阶段五条条目已完成并归档。基座完成 `1.0.0-rc.1 → 1.0.0` 精确升级（GA 与 rc.1 运行时产物逐字节一致、锁文件 5 处（+5/−5）、视觉 18/18、parity 34/34、`keyCss` 61.79KB / 70KB），并落地 parity 第二 webServer（`MOMEI_INSTALLED=false` + `TEST_MODE=false` + 内存库 + `DATABASE_SYNCHRONIZE=true`）与 `reader` 档预算校准能力（10 条待迁移路由登记、参考态 34 → 54）；B3 迁移按 2a / 2b / 2c / 3 / 4 分批完成管理端设置与通知（341 + 42 处）、安装向导（87 处）与用户设置 / 认证 / 提交（16 文件 / 119 处），并首次生产使用 `Stepper` / `Accordion` / `ColorPicker` / `DatePicker` / `FileUpload`；覆盖率第十一批闭合 95 条（89 直接 + 6 间接），三模块 statements 100% / 98.87% / 100%，全仓 80.40% → 80.66%（本批 +0.26pp），`+0.3pp` 因 3 模块池上限 +0.25pp 结构性不可达并已量化登记。剩余迁移面复算（2026-11-05 `governance:count:primevue-usage`）：组件 1,094 → **482 处 / 40 类**、`primeicons` 540 → **411 处**、token 1,445 → **1,442 处**。验证：条目 5 全量 `test:coverage` **EXIT 0（586 文件 / 5,202 例）**、`typecheck` 0、`lint` 0、视觉 24/24、parity 55/55、chromium E2E 24 passed / 4 skipped（auth 5/1 + submit 2/2 + user-workflow 17/3）；阶段收口结论 **Pass**：最终 `regression:phase-close` **EXIT 0**（全量 E2E 228 passed / 34.1m，`security:alerts` 随修复推送后关闭 #45，CI `Test` run `42016033169` 亦全绿）；首屏包体与重复代码基线按 2026-11-05 实测重定标（365KB、0.5% / 48 clones）并通过 strict 门禁。明细见本阶段回归分片。各批 Review Gate 均 Pass（Round 1–4 的 blocker 已逐项闭环）。`todo.md` 已清理，`todo-archive.md` 已收录本阶段归档块，回归窗口整体迁入 [归档分片](../reports/regression/archive/2026-11-05-phase70-close.md)。
 
@@ -170,39 +170,19 @@
 
 ---
 
-## 第七十一阶段：PrimeVue → caomei-ui 迁移（五）——B4 剩余路由、图标全量与门禁收口（筹备中）
+### 第七十一阶段概览（已审计归档）
 
-**时间表**: 2026-11-06 ~ 待定（按里程碑滚动，不预设结束日）
+> 本阶段完整规划正文已迁入 [archive/roadmap-phases-71.md](./archive/roadmap-phases-71.md)；各条目的执行明细与验收结论见 [待办事项归档](./todo-archive.md) 的第七十一阶段归档块。
 
-**目标**: 承接 backlog 长期主线第 10 条的第五阶段切片，在双库并存前提下把**剩余全部路由**（管理端编辑器 / 仪表盘 / 日历 / 片段 / AI 任务详情，以及公开页与布局壳）整路由迁到 caomei-ui，并完成图标全量替换（含 11 项品牌图标）与测试 / E2E 断言改写。2026-11-06 现取口径（`governance:count:primevue-usage`）：组件 **482 处 / 40 类 / 82 文件**（其中 `resolveUiLibraryForRoute` 判定为未迁移的页面 19 个、页面文件口径 90 处）、图标 **411 处 / 94 文件 / 118 唯一**、token **1,442 处 / 135 文件**（本阶段不清）、PrimeVue class 203 处 / 52 文件（开工复算值；本阶段只做随路由自然消减与收口复算，清零在第七十二阶段）。目录分桶（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处。
+| 阶段 | 时间 | 组合 | 核心交付 |
+|:---|:---|:---|:---|
+| **71** | 2026-11-06 ~ 2026-11-08 | 1 基座 + 2 迁移 + 1 图标 + 1 门禁 + 1 治理 | B4 剩余路由整迁（管理端 6 路由 + 公开页 9 文件）与布局壳；`pi pi-*` **136 处清零**（品牌 11 类落 `@mdi/font`，tiktok / discord / paypal 内联）；过渡组件收口（V1 清零、6 组去 `-v2`）；E2E `p-*` 断言清零与守卫扩到 35 条路由；覆盖率第十二批 +154 条 / **+0.42pp**；i18n 键层与 `friend-link` 归一化修复；发布 **v1.30.0** |
 
-**准入结论**: 六条条目经用户 2026-11-06 在候选页确认（阶段构成 B 两阶段 / 品牌图标 A 保留 `@mdi/font` / 并入 i18n 键层、`useI18n` 内联、`friend-link` 归一化三项小治理）。条目 1–5 来自 [迁移方案 §7](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) 的 B4 段与 backlog #10，条目 6 来自长期主线 #1 与 #5、短期候选 #11（`useI18n` 内联）与 #13（i18n 键层缺陷）。ROI：开工基座 2.00 / 管理端余面 1.50 / 公开页与布局壳 1.60 / 图标全量 1.80 / 测试守卫 1.40 / 覆盖率与小治理 1.75；**条目 5 低于 1.5 阈值，是本期唯一可延后的条目**（若阶段超时，优先把 E2E 改写拆到第七十二阶段随卸载同批）。不上收：长期主线 #2 结构复用 / #4 Postgres / #8 CWV 专项；短期候选 #5 js-yaml 5 / #10 Mergify；长期主线 #11 的 S1 幻影 token（随第七十二阶段与卸载同批）。
+### 第七十一阶段归档结论（最近归档阶段）
 
-**准入前置（已核对 2026-11-06）**: 第七十阶段已审计归档、`todo.md` 无已完成阶段正文、`git status` 干净且 `master` 与 `origin/master` 同步（`b1c8aa73`）；CI 回执 Test / CodeQL / VitePress / TODO-to-Issue 均 success，`Publish Docker Image` 为 `cancelled`（按口径不计通过）；`pnpm docs:check:source-of-truth` PASS（仅 4 项 soft warning）；覆盖率 80.66%；入口包体 369,212 B / 373,760 B、`keyCss` 63,336 B / 70KB。
+**审计结论**: 第七十一阶段六条条目全部完成并归档，阶段内 16 个业务 / 测试 / 文档提交（另有 1 个 CI 修复提交与语义化发布提交）。条目 1 落盘 B4 迁移清单（19 个未迁移页面 / 90 处）并采集 14 条参考态（28 张）；条目 2 完成管理端剩余路由（snippets / AI 任务详情 / 日历 / 仪表盘 / 编辑器子批）；条目 3 完成公开页与布局壳（全局壳 5 文件 25 处、内容组件 6 文件 31 处、外围组件 4 文件 24 处、公开路由 9 文件 61 处 + 7 条 scope），并把过渡组件收敛为单一实现；条目 4 把 `pi pi-*` 从 136 处清零（非品牌 → `@lucide/vue`、8 类品牌 → `mdi mdi-*`、3 类字体未收录 → 内联 Simple Icons），5 个数据驱动配置改为组件；条目 5 清零 E2E `p-*` 断言、守卫支持动态参数页与根前缀（`CAOMEI_UI_ROUTE_PREFIXES` 35 条）、`keyCss` 63,337 B / 70KB、入口 `coreEntryJs` 375,368 B（配额按归因 365 → 370KB）；条目 6 补测 4 模块（+154 条 / +0.42pp）、收敛 i18n 重复键 / 双源同键 / 死键 / 硬编码、新增 `useI18n` 位置守卫并修复 `friend-link` 归一化被覆盖。阶段收口复算：组件 **188 → 46 处 / 26 → 14 类**、图标 **235 → 0**、token 1,420（留第七十二阶段）；parity **83/83**（41 条已迁移、0 待迁移）、`test:visual` 24/24、CI `Test` 15 job 全绿、本地 `release:check` 10/10；**v1.30.0 经手动触发的 Release workflow 发布成功**（含子包与多架构镜像）。各批 Review Gate 均 Pass。`todo.md` 已清理，`todo-archive.md` 已收录本阶段归档块，回归窗口整体迁入 [归档分片](../reports/regression/archive/2026-11-08-phase71-close.md)。
 
-**长期主线容量说明**: 迁移主线占本阶段绝大部分容量（剩余路由 482 处 / 82 文件 + 图标 411 处 / 94 文件，均高于 B3 的 589 处 / 54 文件），故条目 2 / 3 内部按目录分批、各自独立 Review Gate；治理侧只上收覆盖率第十二批与三项既有缺陷小治理，其余主线由 `pnpm regression:weekly` 保持不回退。**token 1,442 处与 PrimeVue 卸载不在本阶段**（见文末后续阶段轨迹）：二者必须同批（卸载会使 `--p-*` 定义源消失），且属全局主题切换，与本阶段「像素级整路由迁移」的风险类型不同。
-
-1. **B4 开工基座与现取复核（P1）**: 1a 开工复算（脚本家族分桶 + 未迁移路由清单 + 路由 → 文件 → 组件族映射），产出「文件 → 改动点 → 依据指针」清单骨架；1b 在**任何页面改动前**把剩余路由登记为待迁移并采集参考态（公开页与布局壳缺口优先，`reader` 档按实测校准）；1c 在册族扩展：把展示族（`Card` / `Message` / `Skeleton` / `Divider` / `ProgressSpinner` / `Image` / `ProgressBar` / `Badge` / `RadioButton` / `Checkbox` / `Textarea` / `InputNumber` / `Accordion` 族 / `Tabs` 族 / `InputGroup` / `SplitButton` / `ButtonGroup` / `SelectButton` / `AutoComplete` / `MultiSelect` / `DatePicker` / `FileUpload` / `Stepper` 族 / `ColorPicker` / `DataView` / `Panel` / `Toolbar`）按批次登记为在册族，并复核子路由例外。**非目标**: 不改页面、不清 `--p-*`、不卸载 PrimeVue。**验收**: 迁移前 `test:visual` / `test:visual:parity` 全绿；新增参考态 100%（含 manifest 与来源）；未迁移路由清单与脚本口径一致。
-
-2. **B4-A 管理端剩余路由整迁（P1）**: 2a 文章编辑器族（`/admin/posts/[id]`（现为已登记前缀下的例外子路由）与 `components/admin/posts/**`，含 `post-editor-header` / `post-editor-settings` / `post-editor-media-settings` / `post-distribution-button` / `publish-push-dialog(-v2)` / `ai-image-generator` / `post-tts-dialog` / `post-audit-dialog` / `post-history-panel` / `post-social-dialog` / `post-translation-workflow-dialog` / `post-editor-perspective-panel` / `post-editor-voice-overlay`）；2b 其余未迁移管理端路由（`/admin/index` 仪表盘、`/admin/calendar`、`/admin/snippets`（含 `capture`）、`/admin/ai/tasks/[id]`）；`/admin/friend-links`、`/admin/migrations/link-governance`、`/admin/submissions` 等已迁移路由不在本批，仅随图标与布局壳复核。**决策点**: `components/admin/ai/task-detail-content.vue` 与豁免子路由共享，须在「V2 分支」与「子路由整迁」间择一并留记录；`DataTable` 无 `#header` / `#footer` 插槽的缺口按包装元素处置并登记偏差；`Column` 2 处 / `slotProps` 22 处残余随本批核对。**非目标**: 不改编辑 / 发布 / AI 任务业务逻辑；不做半路由切换。**验收**: 在册族零残留守卫通过；每条新增路由 parity 差异逐项归因、未归因 0；管理端 E2E 主路径通过；`/admin/posts/[id]` 不再是 V1 消费者。
-
-3. **B4-B 公开页与布局壳整迁（P1）**: 3a 全局壳（`app-header` / `app-notifications` / `app-search` / `app-uploader` / `app-avatar` / `app-voice-input-*` / `reader-controls` / `language-switcher` / `feedback-entry-button` / `article-*` / `comment-*` / `subscriber-form` / `home/**` / `taxonomy-post-page`）；3b 公开路由（`/`、`/posts`、`/posts/[id]`、`/friend-links`、`/about`、`/benefits`、`/feedback`、`/archives`、`/categories`、`/categories/[slug]`、`/tags`、`/tags/[slug]`、`/goto/[code]`、`/privacy-policy`、`/user-agreement` 等）；`/login` / `/register` / `/forgot-password` / `/reset-password` / `/submit` 已于第七十阶段条目 4 整路由迁移，本批仅随图标与布局壳复核，不重复整路由迁移。**重点**: 公开页 SSR / hydration（`Avatar` / `Image` / 浮层的 fragment 根与异步资源）；`reader` 档基线按实测校准，禁止为变绿放宽阈值。**非目标**: 不改内容渲染与 SEO 逻辑；不重做信息架构。**验收**: 公开页 `reader` 档 parity 全量归因；公开页关键 E2E（首页 / 文章详情 / 评论 / 搜索 / 友链）通过；SSR + hydration 复核记录落盘。
-
-4. **B4-C 图标全量替换与品牌图标落点（P1）**: `pi pi-*` **411 处 / 94 文件 / 118 唯一**：其中品牌图标 **22 处 / 11 类**（github / google / twitter / linkedin / facebook / instagram / youtube / discord / twitch / tiktok / paypal）按用户确认**保留 `@mdi/font`**（零新依赖，`nuxt.config` 已全局加载，`utils/shared/commercial.ts` 已有 `mdi mdi-*` 用法），改走 `mdi mdi-*`；其余 **389 处** → `@lucide/vue`。数据驱动 `icon: 'pi pi-*'` 形态（`social-post-platforms.ts` / `commercial.ts` / `app-notifications.vue` 等）改为显式图标映射，不做运行时字符串解析；`pi-spin` 12 处（生产用法）改由加载态组件承载。**非目标**: 不改 `@mdi/font` 的加载方式与体积策略（另登记 backlog）；不做图标视觉重设计。**验收**: 全仓 `pi pi-` 零残留（脚本口径 0）；11 项品牌图标逐一登记落点；视觉 24/24、parity 全绿。
-
-5. **B4-D 测试 / E2E 断言改写与守卫收口（P2）**: vitest 的 PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步（`/admin/posts/[id]` 与 `/admin/ai/tasks/[id]` 由例外转为正式迁移）；视觉与 parity 基线按迁移后实测校准（新增 / 失效基线的保留与归档口径随本批定稿）；复算 `keyCss` 与 `coreEntryJs` 并逐项归因（`keyCss` 不得越过 70KB）。**非目标**: 不借机重构无关测试；不降低断言强度。**验收**: 全量 `pnpm test` 通过；guard 全绿；E2E critical 三浏览器通过；包体与样式预算复算记录落盘。
-
-6. **覆盖率第十二批 + 既有缺陷小治理（P2）**: 6a 覆盖率按**绝对未覆盖语句数**复算，**4 模块粒度且须含 ≥1 个大基数模块**（3 模块池上限 +0.25pp 已证明不足：达成 `+0.3pp` 需 109 条，而 `ai/quota-governance.ts` 28 + `agreement.ts` 26 + `setting.ts` 25 + `post-hexo-repository-sync.ts` 23 仅 102 条，目标不可达；须纳入 `server/database/typeorm-adapter.ts` 84 或 `server/utils/logger.ts` 61 之一），目标单批 `+0.3pp`；6b i18n 键层缺陷（`admin-posts.json` 8 个重复键、20 组双源同键、6 + 3 个死键、`pages/submit.vue` 1 处硬编码）；6c `useI18n()` 非 setup 顶层调用（`snippet-aggregate-dialog` 2 处、`creator-stats-panel` 3 处，含失败 / 边界断言）；6d `friend-link` 的 `name` / `url` 归一化被 `assignDefined` 覆盖（补「首尾空白不落库」失败断言）。**非目标**: 不做全量铺量；不改 UI 布局与 i18n 装配方式。**验收**: 覆盖率目标与算式落盘；6b–6d 各带可判别断言；`i18n:audit:duplicates` 组数不增、`i18n:audit:missing = 0`、`lint:i18n` 通过。
-
-**回滚边界**:
-
-- 条目 1：参考态与在册族登记各自独立可回退；删除新增参考态不影响既有基线。
-- 条目 2 / 3：按 2a / 2b、3a / 3b 独立回滚，`CAOMEI_UI_ROUTE_SCOPES` 同步收缩。
-- 条目 4：图标替换按文件回滚，不改依赖与加载方式。
-- 条目 5：测试与 E2E 改写独立回滚；守卫扩展须与路由登记同批回退。
-- 条目 6：测试文件与 i18n 键改动各自独立可回滚。
-
-**风险提示**: ① 公开页此前只有 `reader` 档 6 条路由 / 12 条基线（明暗各一），B4-B 会一次性扩面，**不得以「未登记即不比对」替代归因**；② 布局壳（`app-header` / `app-notifications` / `app-voice-input-*`）被所有路由消费，迁错会全站回退，须先做 1 个代表文件 + 全量视觉回归再批量；③ 数据驱动图标改映射会触及公共服务层（`commercial.ts` / `social-post-platforms.ts`），须同步其单测；④ `--p-*` 1,442 处在本阶段**不清**，但新增样式不得再引入 `--p-*`，否则会加重第七十二阶段的切换面；⑤ 若阶段超时，按 ROI 先移出条目 5（E2E 改写随卸载同批），不得拆分条目 4 的「零残留」标准。
+> 未覆盖边界与后续观察项：① `--p-*` token 1,420 处与 PrimeVue 组件 46 处（Checkbox / Card / DatePicker / MultiSelect / InputNumber / Textarea 等）留第七十二阶段「token 切换 + 卸载」同批处理；② `app-uploader.scss` 与若干页面仍引用 `--p-primary-*`，随预设卸载改名；③ `plugins/primevue-i18n.ts` 与其单测保留至第七十二阶段删除（故「vitest PrimeVue mock 文件数」为 1）；④ 本地全量 Vitest 仍受 `node_modules/.vitest-cache` 的 `virtual:intlify-i18n` 解析问题影响（清缓存后通过、CI 未复现），已登记 backlog；⑤ `typeorm-adapter.transformOutput` 的 `_id` 被字段回写覆盖（低影响）与 99 组跨模块同文案键留在 backlog；⑥ `security:alerts` 有 2 条已过期豁免（`mjml` / `quill`）待复核。
 
 > 后续阶段轨迹（已授权方向，未展开规划）：**第七十二阶段 = token 语义层反向切换 + PrimeVue 卸载**——`--p-*` 1,442 处 / 135 文件清零（含 `--p-surface-border` 93 / 38 文件、`--p-text-color-secondary` 15 / 9 文件等幻影 token 与 backlog #11 的 S1）、样式耦合清理（`p-*` class / `.p-*` 选择器 / `:deep()` / `:global()`）、`plugins/primevue-i18n.ts` 与 Aura 预设移除、依赖卸载、包体对比与 `keyCss` 回落确认、文档收口。**卸载与 token 清零必须同批**（卸载会使 `--p-*` 定义源消失），且不得把幻影 token 清理拆出。具体分桶与验收在准入时按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 单独评估，本阶段不提前落盘。
 
