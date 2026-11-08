@@ -48,7 +48,7 @@ const resolvedMessage = computed(() => resolveInstallationEnvLockMessage(t, prop
     }
 
     &__lock {
-        color: var(--p-orange-500);
+        color: var(--m-orange-500);
     }
 }
 </style>

@@ -169,7 +169,7 @@ withDefaults(defineProps<{
 
     &__subtitle {
         margin: 0.5rem 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__status {
@@ -214,7 +214,7 @@ withDefaults(defineProps<{
     &__source,
     &__date,
     &__author {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 
@@ -243,7 +243,7 @@ withDefaults(defineProps<{
 
     &__summary {
         margin: 0 0 $spacing-md;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
 
         @include text-ellipsis-multiline(3);
     }
@@ -257,14 +257,14 @@ withDefaults(defineProps<{
     }
 
     &__state {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
 
         p {
             margin: 0;
         }
 
         &--error {
-            color: var(--p-red-500);
+            color: var(--m-red-500);
         }
     }
 }

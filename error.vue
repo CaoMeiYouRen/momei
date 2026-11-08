@@ -85,25 +85,24 @@ useHead({
     width: 100%;
     text-align: center;
     padding: 3rem;
-    background-color: var(--p-surface-card);
+    background-color: var(--caomei-color-bg);
     border-radius: 1.5rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    border: 1px solid var(--p-surface-border);
 }
 
 .error-badge {
     display: inline-flex;
     padding: 0.5rem 1rem;
-    background-color: var(--p-primary-50);
-    color: var(--p-primary-600);
+    background-color: var(--m-primary-50);
+    color: var(--m-primary-600);
     font-weight: 700;
     font-size: 1.25rem;
     border-radius: 9999px;
     margin-bottom: 1.5rem;
 
     :global(.dark) & {
-        background-color: var(--p-primary-900);
-        color: var(--p-primary-300);
+        background-color: var(--m-primary-900);
+        color: var(--m-primary-300);
     }
 }
 
@@ -111,11 +110,11 @@ useHead({
     font-size: 2rem;
     font-weight: 800;
     margin-bottom: 1rem;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 }
 
 .error-desc {
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     margin-bottom: 2.5rem;
     line-height: 1.6;
     font-size: 1.125rem;

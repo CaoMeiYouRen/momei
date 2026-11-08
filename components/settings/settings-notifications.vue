@@ -526,7 +526,7 @@ const handleSave = async () => {
         font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: $spacing-xl;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__loading {
@@ -543,11 +543,10 @@ const handleSave = async () => {
         display: block;
         font-weight: 600;
         margin-bottom: $spacing-sm;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__description {
-        color: var(--p-text-color-secondary);
         font-size: 0.875rem;
         margin-bottom: $spacing-md;
         line-height: $line-height-relaxed;
@@ -581,7 +580,7 @@ const handleSave = async () => {
 
     &__checkbox-label {
         cursor: pointer;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         user-select: none;
     }
 
@@ -606,7 +605,7 @@ const handleSave = async () => {
     &__marketing-title {
         font-weight: 600;
         margin-bottom: $spacing-xs;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__browser-message {
@@ -647,9 +646,8 @@ const handleSave = async () => {
         flex-direction: column;
         gap: $spacing-md;
         padding: $spacing-lg;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-lg;
-        background: var(--p-surface-0);
+        background: var(--m-surface-0);
     }
 
     &__channel-header {
@@ -669,7 +667,7 @@ const handleSave = async () => {
         margin: 0;
         font-size: 1rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__channel-list {
@@ -684,9 +682,8 @@ const handleSave = async () => {
         justify-content: space-between;
         gap: $spacing-lg;
         padding: $spacing-md;
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
-        background: color-mix(in srgb, var(--p-surface-0) 92%, var(--p-primary-50));
+        background: color-mix(in srgb, var(--m-surface-0) 92%, var(--m-primary-50));
     }
 
     &__channel-item-copy {
@@ -698,17 +695,15 @@ const handleSave = async () => {
 
     &__channel-item-title {
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__field-help {
-        color: var(--p-text-color-secondary);
         line-height: $line-height-relaxed;
     }
 
     &__divider {
         margin: $spacing-xl 0;
-        border-color: var(--p-surface-border);
     }
 
     &__actions {

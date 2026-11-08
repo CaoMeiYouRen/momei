@@ -286,7 +286,6 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    border: 1px solid var(--p-surface-border);
     border-radius: 0.5rem;
     min-height: 4rem;
 

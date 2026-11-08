@@ -224,7 +224,7 @@ const handleUpdateProfile = async () => {
         width: 64px;
         height: 64px;
         border-radius: 999px;
-        background: var(--p-surface-100);
+        background: var(--m-surface-100);
     }
 }
 </style>

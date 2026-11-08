@@ -228,12 +228,12 @@ const onNext = () => emit('next')
     &__diagnostics-summary {
         padding: 1rem 1.125rem;
         border-radius: 0.875rem;
-        border: 1px solid color-mix(in srgb, var(--p-primary-color) 30%, transparent);
-        background: color-mix(in srgb, var(--p-primary-color) 8%, var(--p-surface-0));
+        border: 1px solid color-mix(in srgb, var(--caomei-color-primary) 30%, transparent);
+        background: color-mix(in srgb, var(--caomei-color-primary) 8%, var(--m-surface-0));
 
         &--blocker {
             border-color: color-mix(in srgb, #ef4444 45%, transparent);
-            background: color-mix(in srgb, #ef4444 8%, var(--p-surface-0));
+            background: color-mix(in srgb, #ef4444 8%, var(--m-surface-0));
         }
     }
 
@@ -251,7 +251,7 @@ const onNext = () => emit('next')
     &__diagnostics-text,
     &__diagnostics-item-text,
     &__diagnostics-item-env {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -268,8 +268,8 @@ const onNext = () => emit('next')
         gap: 0.45rem;
         padding: 0.9rem 1rem;
         border-radius: 0.875rem;
-        border: 1px solid var(--p-content-border-color);
-        background: var(--p-surface-0);
+        border: 1px solid var(--caomei-color-border);
+        background: var(--m-surface-0);
 
         &--blocker {
             border-color: color-mix(in srgb, #ef4444 45%, transparent);
@@ -290,8 +290,8 @@ const onNext = () => emit('next')
     &__diagnostics-badge {
         padding: 0.2rem 0.55rem;
         border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, var(--p-surface-0));
-        color: var(--p-text-muted-color);
+        background: color-mix(in srgb, var(--caomei-color-primary) 12%, var(--m-surface-0));
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
         white-space: nowrap;
     }
@@ -309,14 +309,14 @@ const onNext = () => emit('next')
         min-height: 2.5rem;
         padding: 0.55rem 0.9rem;
         border-radius: 999px;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         color: inherit;
         text-decoration: none;
         transition: border-color 0.2s ease, background-color 0.2s ease;
 
         &:hover {
-            border-color: var(--p-primary-color);
-            background: color-mix(in srgb, var(--p-primary-color) 8%, var(--p-surface-0));
+            border-color: var(--caomei-color-primary);
+            background: color-mix(in srgb, var(--caomei-color-primary) 8%, var(--m-surface-0));
         }
     }
 }

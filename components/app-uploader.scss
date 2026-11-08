@@ -3,8 +3,8 @@
 /*
   上传器外壳样式（`AppUploader`，caomei-ui 单一实现）。
 
-  颜色仍沿用 `--p-primary-*`：PrimeVue 预设当前仍全局加载，迁移前后观感一致。
-  收口指针：PrimeVue 预设卸载（B4 剩余部分）时，这里的 `--p-primary-*` 必须一并改为
+  颜色仍沿用 `--m-primary-**`：PrimeVue 预设当前仍全局加载，迁移前后观感一致。
+  收口指针：PrimeVue 预设卸载（B4 剩余部分）时，这里的 `--m-primary-**` 必须一并改为
   `--caomei-color-primary-*`；否则卸载后这些声明会静默变为 unset（无报错、无守卫）。
 */
 .app-uploader {
@@ -12,9 +12,9 @@
     border-radius: $border-radius-md;
 
     &--dragging {
-        outline: 2px dashed var(--p-primary-500);
+        outline: 2px dashed var(--m-primary-500);
         outline-offset: 2px;
-        background-color: var(--p-primary-50);
+        background-color: var(--m-primary-50);
     }
 
     .hidden {
@@ -23,5 +23,5 @@
 }
 
 :global(.dark) .app-uploader--dragging {
-    background-color: var(--p-primary-900);
+    background-color: var(--m-primary-900);
 }
