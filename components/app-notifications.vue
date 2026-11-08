@@ -211,7 +211,7 @@ const resolveNotificationTarget = (link: string | null) => {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    border-bottom: 1px solid var(--p-content-border-color);
+    border-bottom: 1px solid var(--caomei-color-border);
 
     .title {
         font-weight: 600;
@@ -234,7 +234,7 @@ const resolveNotificationTarget = (link: string | null) => {
     .empty-state {
         padding: 40px 20px;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
 
         svg {
             margin-bottom: 8px;
@@ -264,11 +264,11 @@ const resolveNotificationTarget = (link: string | null) => {
     gap: 12px;
 
     &:hover {
-        background-color: var(--p-content-hover-background);
+        background-color: var(--m-surface-hover);
     }
 
     &.is-unread {
-        background-color: var(--p-primary-50);
+        background-color: var(--m-primary-50);
 
         .item-title {
             font-weight: 600;
@@ -280,15 +280,15 @@ const resolveNotificationTarget = (link: string | null) => {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: var(--p-content-background);
+    background-color: var(--m-surface-0);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--p-content-border-color);
+    border: 1px solid var(--caomei-color-border);
     flex-shrink: 0;
 
     svg {
-        color: var(--p-primary-500);
+        color: var(--m-primary-500);
     }
 }
 
@@ -299,19 +299,19 @@ const resolveNotificationTarget = (link: string | null) => {
     .item-title {
         display: block;
         font-size: 0.9rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: 4px;
         text-decoration: none;
         word-break: break-all;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
     .item-text {
         font-size: 0.8rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin: 0 0 4px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -321,14 +321,14 @@ const resolveNotificationTarget = (link: string | null) => {
 
     .item-time {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 
 .unread-dot {
     width: 8px;
     height: 8px;
-    background-color: var(--p-red-500);
+    background-color: var(--m-red-500);
     border-radius: 50%;
     position: absolute;
     right: 16px;
@@ -338,11 +338,11 @@ const resolveNotificationTarget = (link: string | null) => {
 .notification-footer {
     padding: 12px;
     text-align: center;
-    border-top: 1px solid var(--p-content-border-color);
+    border-top: 1px solid var(--caomei-color-border);
 
     a {
         font-size: 0.85rem;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: none;
 
         &:hover {

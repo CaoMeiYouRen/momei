@@ -79,6 +79,6 @@ defineExpose({
 
 .delete-dialog-icon {
     font-size: 2rem;
-    color: var(--p-orange-500);
+    color: var(--m-orange-500);
 }
 </style>

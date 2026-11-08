@@ -599,8 +599,7 @@ watch(
 }
 
 .app-header {
-    background-color: var(--p-surface-card);
-    border-bottom: 1px solid var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
     height: 64px;
     position: sticky;
     top: 0;
@@ -715,17 +714,16 @@ watch(
     gap: 0.75rem;
     padding: 0.75rem;
     border-radius: $border-radius-md;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     text-decoration: none;
     transition: background-color $transition-fast;
 
     &:hover {
-        background-color: var(--p-surface-hover);
     }
 
     i,
     svg {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 
@@ -735,7 +733,7 @@ watch(
     gap: $spacing-xs;
 
     &__title {
-        font-size: 0.75rem; font-weight: 700; color: var(--p-text-muted-color);
+        font-size: 0.75rem; font-weight: 700; color: var(--caomei-color-text-muted);
         padding: $spacing-sm 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
     }
 }

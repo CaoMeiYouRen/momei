@@ -51,12 +51,12 @@ const localeMenuItems = computed(() => {
 
 <style lang="scss">
 .caomei-dropdown-menu__item.is-active-locale {
-    background-color: var(--p-surface-100);
+    background-color: var(--m-surface-100);
     font-weight: 600;
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
 }
 
 .dark .caomei-dropdown-menu__item.is-active-locale {
-    background-color: var(--p-surface-800);
+    background-color: var(--m-surface-800);
 }
 </style>

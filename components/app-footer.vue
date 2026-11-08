@@ -199,9 +199,8 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
 
 .footer {
   padding: $spacing-xl 0;
-  background-color: var(--p-surface-card);
-  border-top: 1px solid var(--p-surface-border);
-  color: var(--p-text-color);
+  background-color: var(--caomei-color-bg);
+  color: var(--caomei-color-text);
   text-align: center;
   margin-top: auto;
 
@@ -231,13 +230,13 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
   }
 
   &__link {
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     text-decoration: none;
     font-size: 0.875rem;
     transition: color $transition-fast;
 
     &:hover {
-      color: var(--p-primary-color);
+      color: var(--caomei-color-primary);
       text-decoration: underline;
     }
   }
@@ -255,7 +254,7 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
 
   &__copyright {
     font-size: 0.875rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     margin-bottom: $spacing-sm;
   }
 
@@ -268,9 +267,8 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
         max-width: 900px;
         margin-bottom: $spacing-lg;
         padding: $spacing-md $spacing-lg;
-        border: 1px solid var(--p-surface-border);
         border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-surface-card) 92%, var(--p-primary-color) 8%);
+        background: color-mix(in srgb, var(--caomei-color-bg) 92%, var(--caomei-color-primary) 8%);
     }
 
     &__friend-links-header {
@@ -289,11 +287,11 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
     &__friend-links-title {
         margin: 0;
         font-size: 1rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__friend-links-more {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: none;
         font-size: 0.875rem;
     }
@@ -311,8 +309,7 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
         gap: 0.5rem;
         padding: 0.5rem 0.875rem;
         border-radius: 999px;
-        border: 1px solid var(--p-surface-border);
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         text-decoration: none;
         background: rgb(255 255 255 / 0.7);
     }

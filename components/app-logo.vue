@@ -43,7 +43,7 @@ const { siteLogo, currentTitle } = useMomeiConfig()
     align-items: center;
     gap: $spacing-sm;
     text-decoration: none;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     transition: opacity $transition-fast;
 
     &:hover {
@@ -58,7 +58,7 @@ const { siteLogo, currentTitle } = useMomeiConfig()
     &__title {
         font-size: 1.25rem;
         font-weight: 600;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 }
 </style>

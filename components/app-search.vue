@@ -158,9 +158,9 @@ div.caomei-dialog__content.app-search-dialog {
     max-width: 600px;
     padding: 0;
     overflow: hidden;
-    border: 1px solid var(--p-content-border-color);
+    border: 1px solid var(--caomei-color-border);
     border-radius: $border-radius-lg;
-    background: var(--p-content-background);
+    background: var(--m-surface-0);
     box-shadow: $shadow-xl;
     transform: translate(-50%, 0);
 }
@@ -173,12 +173,12 @@ div.caomei-dialog__content.app-search-dialog {
         display: flex;
         align-items: center;
         padding: $spacing-md $spacing-lg;
-        border-bottom: 1px solid var(--p-content-border-color);
+        border-bottom: 1px solid var(--caomei-color-border);
         gap: $spacing-md;
     }
 
     &__icon {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         flex-shrink: 0;
     }
 
@@ -195,7 +195,7 @@ div.caomei-dialog__content.app-search-dialog {
         }
 
         :deep(.caomei-input__control::placeholder) {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
         }
     }
 
@@ -221,7 +221,7 @@ div.caomei-dialog__content.app-search-dialog {
     &__status, &__empty, &__footer {
         padding: $spacing-xl * 1.5 $spacing-xl;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -241,20 +241,20 @@ div.caomei-dialog__content.app-search-dialog {
         border-radius: $border-radius-md;
         transition: $transition-base;
         text-decoration: none;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         gap: $spacing-md;
 
         &:hover {
-            background-color: var(--p-primary-50);
+            background-color: var(--m-primary-50);
 
             .app-search__result-icon {
                 background-color: white;
-                color: var(--p-primary-color);
+                color: var(--caomei-color-primary);
             }
 
             .app-search__result-arrow {
                 transform: translateX(4px);
-                color: var(--p-primary-color);
+                color: var(--caomei-color-primary);
             }
         }
     }
@@ -266,9 +266,9 @@ div.caomei-dialog__content.app-search-dialog {
         align-items: center;
         justify-content: center;
         border-radius: $border-radius-sm;
-        background-color: var(--p-content-background);
-        border: 1px solid var(--p-content-border-color);
-        color: var(--p-text-muted-color);
+        background-color: var(--m-surface-0);
+        border: 1px solid var(--caomei-color-border);
+        color: var(--caomei-color-text-muted);
         flex-shrink: 0;
         transition: $transition-base;
     }
@@ -289,7 +289,7 @@ div.caomei-dialog__content.app-search-dialog {
 
     &__result-summary {
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin: 0;
         white-space: nowrap;
         overflow: hidden;
@@ -301,7 +301,7 @@ div.caomei-dialog__content.app-search-dialog {
         display: flex;
         gap: $spacing-md;
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__result-category {
@@ -312,13 +312,13 @@ div.caomei-dialog__content.app-search-dialog {
 
     &__result-lang {
         padding: 0 4px;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: $border-radius-sm;
         text-transform: uppercase;
     }
 
     &__result-arrow {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         transition: transform $transition-base;
     }
 }
@@ -342,11 +342,11 @@ div.caomei-dialog__content.app-search-dialog {
 }
 
 .dark .app-search__result-item:hover {
-    background-color: var(--p-primary-900);
+    background-color: var(--m-primary-900);
 
     .app-search__result-icon {
-        background-color: var(--p-primary-800);
-        color: var(--p-primary-100);
+        background-color: var(--m-primary-800);
+        color: var(--m-primary-100);
     }
 }
 </style>
