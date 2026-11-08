@@ -21,9 +21,15 @@
     }
 
     &__card {
-        :deep(.p-card-body) {
-            padding: $spacing-lg;
-        }
+        /* 对齐迁移前 PrimeVue Card 的观感：暗色下卡片面为页面基面（surface-0，而非 caomei 默认的
+         * 卡片面 surface-100）、圆角取 Aura `border.radius.xl`（12px）、阴影取 Aura card.root.shadow。 */
+        --caomei-card-bg: var(--m-surface-0);
+        --caomei-card-radius: 12px;
+        --caomei-card-shadow: var(--m-shadow-card);
+
+        /* CaomeiCard 根元素把字号固定为 14px；迁移前 PrimeVue Card 继承正文 16px，
+         * 区块描述文字因此会缩小。显式恢复 16px，组件内部控件各自声明字号不受影响。 */
+        font-size: 1rem;
     }
 
     &__section-header {
@@ -73,6 +79,8 @@
     }
 
     &__input {
+        --caomei-multi-select-max-width: none;
+
         width: 100%;
     }
 
@@ -142,6 +150,10 @@
 
     &__empty,
     &__detail-empty,
+    &__detail-spinner {
+        --caomei-progress-spinner-size: 2.5rem;
+    }
+
     &__detail-loading {
         padding: $spacing-xl;
         text-align: center;

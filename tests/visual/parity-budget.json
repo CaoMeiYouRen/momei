@@ -1,10 +1,10 @@
 {
     "meta": {
-        "updatedAt": "2026-11-07",
+        "updatedAt": "2026-11-08",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。 2026-11-01 全量重校准：`caomei-ui` 升级到 1.0.0-rc.1 后，控件边界改上游 3:1 默认、状态文字改走 `-text` 角色，34 条中 33 条的带内差异随之变化（仅 `admin-marketing-overview-dark` 未变；其中 28 条超出 225px 复跑噪声带）；本文件已把每条 allowlist 的 `pixels` 全量回填为本次实测（声明值 = 实测，无余量），各条目 `note` 内若记载历史实测总量，以本文件当前 `pixels` 为准。 全量重校准后复跑仍有 6 条残差 36–225px（≤0.017%），属运行间渲染噪声（截图时刻的字形 / 异步数据抖动），预算 3,000px 下不构成漏检风险。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。 2026-11-01 全量重校准：`caomei-ui` 升级到 1.0.0-rc.1 后，控件边界改上游 3:1 默认、状态文字改走 `-text` 角色，34 条中 33 条的带内差异随之变化（仅 `admin-marketing-overview-dark` 未变；其中 28 条超出 225px 复跑噪声带）；本文件已把每条 allowlist 的 `pixels` 全量回填为本次实测（声明值 = 实测，无余量），各条目 `note` 内若记载历史实测总量，以本文件当前 `pixels` 为准。 全量重校准后复跑仍有 6 条残差 36–225px（≤0.017%），属运行间渲染噪声（截图时刻的字形 / 异步数据抖动），预算 3,000px 下不构成漏检风险。 2026-11-08 第七十二阶段条目 2：`admin-link-governance` 浅 / 深两态的 11 条 allowlist 全量回填为实测值——本批把 `Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner` 迁到 caomei，字段与展示组件的外观差异 + 累计行盒位移使该路由差异增长；其余 81 条未变。 2026-11-08 第七十二阶段条目 2 复校准：`admin-link-governance` 浅 / 深两态的 allowlist 按组件替换后的实测重取（MultiSelect / Checkbox 外观差异 + 累计行盒位移），其余 81 条未变。"
     },
     "tiers": {
         "reader": {
@@ -1170,8 +1170,8 @@
                         "width": 1360,
                         "height": 205
                     },
-                    "pixels": 14573,
-                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：`CaomeiInput` / `CaomeiSelect` 边框改上游 `control-border`（非桥接），本带增长 3800px，值取实测。）",
+                    "pixels": 19383,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：`CaomeiInput` / `CaomeiSelect` 边框改上游 `control-border`（非桥接），本带增长 3800px，值取实测。）；本带新增两个 `CaomeiMultiSelect`（治理范围 / 内容类型）的字段外观差异（chip、边框、触发器为库内渲染，2026-11-08 第七十二阶段条目 2），值取实测。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1181,8 +1181,8 @@
                         "width": 1360,
                         "height": 55
                     },
-                    "pixels": 2574,
-                    "reason": "执行选项复选框行的 **1px 垂直位移**（`Checkbox` 为 PrimeVue 未变，差异来自上游字段行盒的累计取整）。处置：组件替换连带效应。",
+                    "pixels": 3436,
+                    "reason": "执行选项复选框行（`CaomeiCheckbox` ×2，2026-11-08 第七十二阶段条目 2）：18px 方框 + 库内描边与 PrimeVue Checkbox 的外观差异，并含上游字段行盒的累计位移；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -1192,8 +1192,8 @@
                         "width": 1360,
                         "height": 65
                     },
-                    "pixels": 2758,
-                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "pixels": 3621,
+                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1203,8 +1203,8 @@
                         "width": 1360,
                         "height": 125
                     },
-                    "pixels": 7955,
-                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1814px，值取实测。）",
+                    "pixels": 8350,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1814px，值取实测。）（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1214,8 +1214,8 @@
                         "width": 1360,
                         "height": 70
                     },
-                    "pixels": 5799,
-                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖。",
+                    "pixels": 6633,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1225,8 +1225,8 @@
                         "width": 1360,
                         "height": 40
                     },
-                    "pixels": 587,
-                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖。",
+                    "pixels": 691,
+                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1236,7 +1236,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6023,
+                    "pixels": 6014,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -1247,8 +1247,8 @@
                         "width": 160,
                         "height": 100
                     },
-                    "pixels": 939,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 1019,
+                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@full-stack-master"
                 }
             ],
@@ -1299,8 +1299,8 @@
                         "width": 1360,
                         "height": 205
                     },
-                    "pixels": 16685,
-                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：字段控件边框改上游 `control-border`，本带增长 3784px，值取实测。）",
+                    "pixels": 60463,
+                    "reason": "执行区字段行（域名 / 路径前缀 `CaomeiInput`、校验模式 / 报告格式 `CaomeiSelect` 及其 label）：字段外壳盒模型 + 字号（caomei 14px vs PrimeVue 16px）+ 行盒高度（36px vs 36.39px）综合差异，并含该位移向下游的 1px 传递。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：字段控件边框改上游 `control-border`，本带增长 3784px，值取实测。）；本带新增两个 `CaomeiMultiSelect`（治理范围 / 内容类型）的字段外观差异（chip、边框、触发器为库内渲染，2026-11-08 第七十二阶段条目 2），值取实测。",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1310,8 +1310,8 @@
                         "width": 1360,
                         "height": 55
                     },
-                    "pixels": 2769,
-                    "reason": "执行选项复选框行的 **1px 垂直位移**（`Checkbox` 为 PrimeVue 未变，差异来自上游字段行盒的累计取整）。处置：组件替换连带效应。",
+                    "pixels": 4164,
+                    "reason": "执行选项复选框行（`CaomeiCheckbox` ×2，2026-11-08 第七十二阶段条目 2）：18px 方框 + 库内描边与 PrimeVue Checkbox 的外观差异，并含上游字段行盒的累计位移；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -1321,8 +1321,8 @@
                         "width": 1360,
                         "height": 65
                     },
-                    "pixels": 2569,
-                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖。",
+                    "pixels": 3434,
+                    "reason": "执行动作按钮（干跑 / 执行改写）：`CaomeiButton`（含 `tone=\"warning\"` + lucide 图标）相对 PrimeVue `Button` 的边框 / 底纹 / 排版差异。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1332,8 +1332,8 @@
                         "width": 1360,
                         "height": 125
                     },
-                    "pixels": 8104,
-                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1768px，值取实测。）",
+                    "pixels": 8451,
+                    "reason": "报告列表卡片顶部（区块标题）+ 筛选行（两个 `CaomeiSelect` + 应用 / 重置按钮）：字段外壳 / 按钮渲染差异 + 上游累计 1px 位移。处置走通道① token 覆盖。（2026-11-01 `1.0.0-rc.1` 复测：筛选行控件边框改上游 `control-border`，本带增长 1768px，值取实测。）（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1343,8 +1343,8 @@
                         "width": 1360,
                         "height": 70
                     },
-                    "pixels": 5993,
-                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖。",
+                    "pixels": 6809,
+                    "reason": "表格表头行：表头底色 / 边框 / 字号与单元格内边距差异，且**表头行高由 PrimeVue 的 43px 变为 caomei 的 33px（-10px）**；该 −10px 被 caomei 空态行高（约 +7px）部分抵消，**表格总高仅 −3px——不存在「表体与分页器整体上移 10px」**。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1354,8 +1354,8 @@
                         "width": 1360,
                         "height": 40
                     },
-                    "pixels": 585,
-                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖。",
+                    "pixels": 666,
+                    "reason": "表体空态行（`暂无治理报告`）：空态行高与文本位置差异。注：分页器位于 y≈952，**在本路由的 900px 视口截图之外**，故本带不含分页器（该页分页居中 token 因此未被门禁验证，已登记为未覆盖边界）。处置走通道① token 覆盖（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@frontend-developer"
                 },
                 {
@@ -1365,7 +1365,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6201,
+                    "pixels": 6189,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -1376,8 +1376,8 @@
                         "width": 160,
                         "height": 100
                     },
-                    "pixels": 982,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 1054,
+                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token（2026-11-08 第七十二阶段条目 2：本带增长来自上游 `CaomeiMultiSelect` / `CaomeiCheckbox` 替换的累计几何位移；值取实测。）",
                     "owner": "@full-stack-master"
                 }
             ],

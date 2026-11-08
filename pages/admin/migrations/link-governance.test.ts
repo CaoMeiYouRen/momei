@@ -13,7 +13,7 @@ import AdminLinkGovernance from './link-governance.vue'
  * 报告详情渲染（作用域 / 摘要 / 差异项 / redirect seeds）。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页未在 B2 在册族内的 PrimeVue 组件（`Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner`）
+ * 本页的 `Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner`
  * 与浮层自身（`Dialog`）显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移。
  */
 
@@ -220,18 +220,18 @@ const stubs = {
             slots.actions?.(),
         ]),
     }),
-    Card: defineComponent({
-        name: 'Card',
-        setup: (_props, { slots }) => () => h('div', { class: 'card' }, slots.content?.()),
+    CaomeiCard: defineComponent({
+        name: 'CaomeiCard',
+        setup: (_props, { slots }) => () => h('div', { class: 'card' }, slots.default?.()),
     }),
-    MultiSelect: defineComponent({
-        name: 'MultiSelect',
-        props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'display', 'id'],
+    CaomeiMultiSelect: defineComponent({
+        name: 'CaomeiMultiSelect',
+        props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'id'],
         setup: (props) => () => h('div', { class: 'multi-select', 'data-id': props.id }),
     }),
-    Checkbox: defineComponent({
-        name: 'Checkbox',
-        props: ['modelValue', 'binary', 'id'],
+    CaomeiCheckbox: defineComponent({
+        name: 'CaomeiCheckbox',
+        props: ['modelValue', 'id'],
         emits: ['update:modelValue'],
         setup: (props, { emit }) => () => h('input', {
             class: 'checkbox',
@@ -241,8 +241,8 @@ const stubs = {
             onChange: (event: Event) => emit('update:modelValue', (event.target as HTMLInputElement).checked),
         }),
     }),
-    ProgressSpinner: defineComponent({
-        name: 'ProgressSpinner',
+    CaomeiProgressSpinner: defineComponent({
+        name: 'CaomeiProgressSpinner',
         setup: () => () => h('div', { class: 'progress-spinner' }),
     }),
     CaomeiDataTable: CaomeiDataTableStub,
@@ -579,7 +579,7 @@ describe('AdminLinkGovernance page', () => {
         expect(wrapper.find('.dialog').exists()).toBe(false)
     })
 
-    it('未在册族的 PrimeVue 组件仍保留（Card / MultiSelect / Checkbox / ProgressSpinner）', async () => {
+    it('展示与表单族迁移为 caomei（CaomeiCard / MultiSelect / Checkbox / ProgressSpinner）', async () => {
         const wrapper = await mountComponent()
 
         expect(wrapper.findAll('.card')).toHaveLength(2)

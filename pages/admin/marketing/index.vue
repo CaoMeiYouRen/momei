@@ -13,53 +13,59 @@
         </AdminPageHeader>
 
         <div class="admin-marketing__stats">
-            <Card class="admin-marketing__stat-card">
-                <template #content>
-                    <div class="admin-marketing__stat-content">
-                        <div class="admin-marketing__stat-info">
-                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_subscribers') }}</span>
-                            <div class="admin-marketing__stat-value">
-                                {{ stats.totalSubscribers || 0 }}
-                            </div>
-                        </div>
-                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--blue">
-                            <Users :size="20" />
+            <CaomeiCard
+                class="admin-marketing__stat-card"
+                variant="elevated"
+                padding="lg"
+            >
+                <div class="admin-marketing__stat-content">
+                    <div class="admin-marketing__stat-info">
+                        <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_subscribers') }}</span>
+                        <div class="admin-marketing__stat-value">
+                            {{ stats.totalSubscribers || 0 }}
                         </div>
                     </div>
-                </template>
-            </Card>
+                    <div class="admin-marketing__stat-icon admin-marketing__stat-icon--blue">
+                        <Users :size="20" />
+                    </div>
+                </div>
+            </CaomeiCard>
 
-            <Card class="admin-marketing__stat-card">
-                <template #content>
-                    <div class="admin-marketing__stat-content">
-                        <div class="admin-marketing__stat-info">
-                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.marketing_enabled') }}</span>
-                            <div class="admin-marketing__stat-value">
-                                {{ stats.marketingSubscribers || 0 }}
-                            </div>
-                        </div>
-                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--green">
-                            <Mail :size="20" />
+            <CaomeiCard
+                class="admin-marketing__stat-card"
+                variant="elevated"
+                padding="lg"
+            >
+                <div class="admin-marketing__stat-content">
+                    <div class="admin-marketing__stat-info">
+                        <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.marketing_enabled') }}</span>
+                        <div class="admin-marketing__stat-value">
+                            {{ stats.marketingSubscribers || 0 }}
                         </div>
                     </div>
-                </template>
-            </Card>
+                    <div class="admin-marketing__stat-icon admin-marketing__stat-icon--green">
+                        <Mail :size="20" />
+                    </div>
+                </div>
+            </CaomeiCard>
 
-            <Card class="admin-marketing__stat-card">
-                <template #content>
-                    <div class="admin-marketing__stat-content">
-                        <div class="admin-marketing__stat-info">
-                            <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_campaigns') }}</span>
-                            <div class="admin-marketing__stat-value">
-                                {{ stats.totalCampaigns || 0 }}
-                            </div>
-                        </div>
-                        <div class="admin-marketing__stat-icon admin-marketing__stat-icon--purple">
-                            <Send :size="20" />
+            <CaomeiCard
+                class="admin-marketing__stat-card"
+                variant="elevated"
+                padding="lg"
+            >
+                <div class="admin-marketing__stat-content">
+                    <div class="admin-marketing__stat-info">
+                        <span class="admin-marketing__stat-label">{{ $t('pages.admin.marketing.stats.total_campaigns') }}</span>
+                        <div class="admin-marketing__stat-value">
+                            {{ stats.totalCampaigns || 0 }}
                         </div>
                     </div>
-                </template>
-            </Card>
+                    <div class="admin-marketing__stat-icon admin-marketing__stat-icon--purple">
+                        <Send :size="20" />
+                    </div>
+                </div>
+            </CaomeiCard>
         </div>
 
         <div class="admin-marketing__list">
@@ -163,11 +169,9 @@ watch(showCreateDialog, (val) => {
     }
 
     &__stat-card {
-        height: 100%;
+        --caomei-card-shadow: var(--m-shadow-card);
 
-        :deep(.p-card-body) {
-            padding: $spacing-lg;
-        }
+        height: 100%;
     }
 
     &__stat-content {

@@ -23,277 +23,274 @@
             </p>
         </div>
 
-        <!-- 展示类容器 `Card` 与表单控件 `MultiSelect` / `Checkbox`、展示类 `ProgressSpinner` 不在 B2
-             浮层族已收敛到 caomei-ui；未迁移的表单/展示族仍随 B3 / B4 批次；本页页面级样式沿用
-             `--p-*` token 与 `:deep(.p-card-body)` 即因其仍在 PrimeVue 侧。 -->
-        <Card class="admin-link-governance__card">
-            <template #content>
-                <div class="admin-link-governance__section-header">
-                    <div>
-                        <h3 class="admin-link-governance__section-title">
-                            {{ $t('pages.admin.link_governance.execution.title') }}
-                        </h3>
-                        <p class="admin-link-governance__section-description">
-                            {{ $t('pages.admin.link_governance.execution.description') }}
-                        </p>
-                    </div>
+        <CaomeiCard
+            class="admin-link-governance__card"
+            variant="elevated"
+            padding="lg"
+        >
+            <div class="admin-link-governance__section-header">
+                <div>
+                    <h3 class="admin-link-governance__section-title">
+                        {{ $t('pages.admin.link_governance.execution.title') }}
+                    </h3>
+                    <p class="admin-link-governance__section-description">
+                        {{ $t('pages.admin.link_governance.execution.description') }}
+                    </p>
                 </div>
+            </div>
 
-                <div class="admin-link-governance__execution-grid">
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-scopes">
-                            {{ $t('pages.admin.link_governance.execution.scopes') }}
-                        </label>
-                        <MultiSelect
-                            id="link-governance-scopes"
-                            v-model="executionForm.scopes"
-                            :options="scopeOptions"
-                            option-label="label"
-                            option-value="value"
-                            display="chip"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-content-types">
-                            {{ $t('pages.admin.link_governance.execution.content_types') }}
-                        </label>
-                        <MultiSelect
-                            id="link-governance-content-types"
-                            v-model="executionForm.contentTypes"
-                            :options="contentTypeOptions"
-                            option-label="label"
-                            option-value="value"
-                            display="chip"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-domains">
-                            {{ $t('pages.admin.link_governance.execution.domains') }}
-                        </label>
-                        <CaomeiInput
-                            id="link-governance-domains"
-                            v-model="executionForm.domainsText"
-                            :placeholder="$t('pages.admin.link_governance.execution.domains_placeholder')"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-path-prefixes">
-                            {{ $t('pages.admin.link_governance.execution.path_prefixes') }}
-                        </label>
-                        <CaomeiInput
-                            id="link-governance-path-prefixes"
-                            v-model="executionForm.pathPrefixesText"
-                            :placeholder="$t('pages.admin.link_governance.execution.path_prefixes_placeholder')"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-validation-mode">
-                            {{ $t('pages.admin.link_governance.execution.validation_mode') }}
-                        </label>
-                        <CaomeiSelect
-                            id="link-governance-validation-mode"
-                            v-model="executionForm.validationMode"
-                            :options="validationModeOptions"
-                            option-label="label"
-                            option-value="value"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-
-                    <div class="admin-link-governance__field">
-                        <label class="admin-link-governance__label" for="link-governance-report-format">
-                            {{ $t('pages.admin.link_governance.execution.report_format') }}
-                        </label>
-                        <CaomeiSelect
-                            id="link-governance-report-format"
-                            v-model="executionForm.reportFormat"
-                            :options="reportFormatOptions"
-                            option-label="label"
-                            option-value="value"
-                            class="admin-link-governance__input"
-                        />
-                    </div>
-                </div>
-
-                <div class="admin-link-governance__execution-options">
-                    <div class="admin-link-governance__checkbox-field">
-                        <Checkbox
-                            id="link-governance-relative-links"
-                            v-model="executionForm.allowRelativeLinks"
-                            binary
-                        />
-                        <label for="link-governance-relative-links">
-                            {{ $t('pages.admin.link_governance.execution.allow_relative_links') }}
-                        </label>
-                    </div>
-
-                    <div class="admin-link-governance__checkbox-field">
-                        <Checkbox
-                            id="link-governance-apply-confirmed"
-                            v-model="executionForm.applyConfirmed"
-                            binary
-                        />
-                        <label for="link-governance-apply-confirmed">
-                            {{ $t('pages.admin.link_governance.execution.confirm_apply') }}
-                        </label>
-                    </div>
-                </div>
-
-                <div class="admin-link-governance__execution-actions">
-                    <CaomeiButton
-                        :loading="runMode === 'dry-run'"
-                        :disabled="runMode !== null"
-                        @click="executeGovernance('dry-run')"
-                    >
-                        <template #icon>
-                            <Search :size="16" />
-                        </template>
-                        {{ $t('pages.admin.link_governance.actions.dry_run') }}
-                    </CaomeiButton>
-                    <CaomeiButton
-                        tone="warning"
-                        :loading="runMode === 'apply'"
-                        :disabled="runMode !== null || !executionForm.applyConfirmed || !reviewedDryRunReportId"
-                        @click="executeGovernance('apply')"
-                    >
-                        <template #icon>
-                            <Play :size="16" />
-                        </template>
-                        {{ $t('pages.admin.link_governance.actions.apply_now') }}
-                    </CaomeiButton>
-                </div>
-            </template>
-        </Card>
-
-        <Card class="admin-link-governance__card">
-            <template #content>
-                <div class="admin-link-governance__section-header">
-                    <div>
-                        <h3 class="admin-link-governance__section-title">
-                            {{ $t('pages.admin.link_governance.report_list.title') }}
-                        </h3>
-                    </div>
-                </div>
-
-                <div class="admin-link-governance__filters">
-                    <CaomeiSelect
-                        v-model="filters.mode"
-                        :options="modeOptions"
+            <div class="admin-link-governance__execution-grid">
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-scopes">
+                        {{ $t('pages.admin.link_governance.execution.scopes') }}
+                    </label>
+                    <CaomeiMultiSelect
+                        id="link-governance-scopes"
+                        v-model="executionForm.scopes"
+                        :options="scopeOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('pages.admin.link_governance.filters.mode')"
-                        show-clear
-                        class="admin-link-governance__filter"
+                        class="admin-link-governance__input"
                     />
-
-                    <CaomeiSelect
-                        v-model="filters.status"
-                        :options="statusOptions"
-                        option-label="label"
-                        option-value="value"
-                        :placeholder="$t('pages.admin.link_governance.filters.status')"
-                        show-clear
-                        class="admin-link-governance__filter"
-                    />
-
-                    <div class="admin-link-governance__filter-actions">
-                        <CaomeiButton
-                            size="sm"
-                            @click="applyFilters"
-                        >
-                            {{ $t('pages.admin.link_governance.filters.apply') }}
-                        </CaomeiButton>
-                        <CaomeiButton
-                            size="sm"
-                            variant="secondary"
-                            @click="resetFilters"
-                        >
-                            {{ $t('pages.admin.link_governance.filters.reset') }}
-                        </CaomeiButton>
-                    </div>
                 </div>
 
-                <!-- 懒加载服务端分页：`page` 为 1 基受控值，`@page` 载荷亦为 1 基
-                     （迁移前 PrimeVue 为 0 基，原实现恒 `+1`；迁移后直接取载荷页码）。 -->
-                <CaomeiDataTable
-                    :data="reports"
-                    :columns="columns"
-                    :loading="loading"
-                    lazy
-                    :total-records="total"
-                    :rows="limit"
-                    :page="page"
-                    paginator
-                    class="admin-link-governance__table"
-                    @page="onPage"
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-content-types">
+                        {{ $t('pages.admin.link_governance.execution.content_types') }}
+                    </label>
+                    <CaomeiMultiSelect
+                        id="link-governance-content-types"
+                        v-model="executionForm.contentTypes"
+                        :options="contentTypeOptions"
+                        option-label="label"
+                        option-value="value"
+                        class="admin-link-governance__input"
+                    />
+                </div>
+
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-domains">
+                        {{ $t('pages.admin.link_governance.execution.domains') }}
+                    </label>
+                    <CaomeiInput
+                        id="link-governance-domains"
+                        v-model="executionForm.domainsText"
+                        :placeholder="$t('pages.admin.link_governance.execution.domains_placeholder')"
+                        class="admin-link-governance__input"
+                    />
+                </div>
+
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-path-prefixes">
+                        {{ $t('pages.admin.link_governance.execution.path_prefixes') }}
+                    </label>
+                    <CaomeiInput
+                        id="link-governance-path-prefixes"
+                        v-model="executionForm.pathPrefixesText"
+                        :placeholder="$t('pages.admin.link_governance.execution.path_prefixes_placeholder')"
+                        class="admin-link-governance__input"
+                    />
+                </div>
+
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-validation-mode">
+                        {{ $t('pages.admin.link_governance.execution.validation_mode') }}
+                    </label>
+                    <CaomeiSelect
+                        id="link-governance-validation-mode"
+                        v-model="executionForm.validationMode"
+                        :options="validationModeOptions"
+                        option-label="label"
+                        option-value="value"
+                        class="admin-link-governance__input"
+                    />
+                </div>
+
+                <div class="admin-link-governance__field">
+                    <label class="admin-link-governance__label" for="link-governance-report-format">
+                        {{ $t('pages.admin.link_governance.execution.report_format') }}
+                    </label>
+                    <CaomeiSelect
+                        id="link-governance-report-format"
+                        v-model="executionForm.reportFormat"
+                        :options="reportFormatOptions"
+                        option-label="label"
+                        option-value="value"
+                        class="admin-link-governance__input"
+                    />
+                </div>
+            </div>
+
+            <div class="admin-link-governance__execution-options">
+                <div class="admin-link-governance__checkbox-field">
+                    <CaomeiCheckbox
+                        id="link-governance-relative-links"
+                        v-model="executionForm.allowRelativeLinks"
+                    />
+                    <label for="link-governance-relative-links">
+                        {{ $t('pages.admin.link_governance.execution.allow_relative_links') }}
+                    </label>
+                </div>
+
+                <div class="admin-link-governance__checkbox-field">
+                    <CaomeiCheckbox
+                        id="link-governance-apply-confirmed"
+                        v-model="executionForm.applyConfirmed"
+                    />
+                    <label for="link-governance-apply-confirmed">
+                        {{ $t('pages.admin.link_governance.execution.confirm_apply') }}
+                    </label>
+                </div>
+            </div>
+
+            <div class="admin-link-governance__execution-actions">
+                <CaomeiButton
+                    :loading="runMode === 'dry-run'"
+                    :disabled="runMode !== null"
+                    @click="executeGovernance('dry-run')"
                 >
-                    <template #cell-createdAt="{row}">
-                        {{ formatDateTime(row.createdAt) }}
+                    <template #icon>
+                        <Search :size="16" />
                     </template>
+                    {{ $t('pages.admin.link_governance.actions.dry_run') }}
+                </CaomeiButton>
+                <CaomeiButton
+                    tone="warning"
+                    :loading="runMode === 'apply'"
+                    :disabled="runMode !== null || !executionForm.applyConfirmed || !reviewedDryRunReportId"
+                    @click="executeGovernance('apply')"
+                >
+                    <template #icon>
+                        <Play :size="16" />
+                    </template>
+                    {{ $t('pages.admin.link_governance.actions.apply_now') }}
+                </CaomeiButton>
+            </div>
+        </CaomeiCard>
 
-                    <template #cell-mode="{row}">
-                        <CaomeiTag :tone="getModeTone(row.mode)">
-                            {{ translateMode(row.mode) }}
-                        </CaomeiTag>
-                    </template>
+        <CaomeiCard
+            class="admin-link-governance__card"
+            variant="elevated"
+            padding="lg"
+        >
+            <div class="admin-link-governance__section-header">
+                <div>
+                    <h3 class="admin-link-governance__section-title">
+                        {{ $t('pages.admin.link_governance.report_list.title') }}
+                    </h3>
+                </div>
+            </div>
 
-                    <template #cell-status="{row}">
-                        <CaomeiTag :tone="getReportStatusTone(row.status)">
-                            {{ translateStatus(row.status) }}
-                        </CaomeiTag>
-                    </template>
+            <div class="admin-link-governance__filters">
+                <CaomeiSelect
+                    v-model="filters.mode"
+                    :options="modeOptions"
+                    option-label="label"
+                    option-value="value"
+                    :placeholder="$t('pages.admin.link_governance.filters.mode')"
+                    show-clear
+                    class="admin-link-governance__filter"
+                />
 
-                    <template #cell-requestedBy="{row}">
-                        <div class="admin-link-governance__requester">
-                            <strong>{{ getRequesterLabel(row) }}</strong>
-                            <span v-if="row.requestedByEmail" class="admin-link-governance__requester-email">
-                                {{ row.requestedByEmail }}
-                            </span>
-                        </div>
-                    </template>
+                <CaomeiSelect
+                    v-model="filters.status"
+                    :options="statusOptions"
+                    option-label="label"
+                    option-value="value"
+                    :placeholder="$t('pages.admin.link_governance.filters.status')"
+                    show-clear
+                    class="admin-link-governance__filter"
+                />
 
-                    <template #cell-summary="{row}">
-                        <div class="admin-link-governance__summary-cell">
-                            <span>{{ $t('pages.admin.link_governance.summary.total') }}: {{ row.summary.total }}</span>
-                            <span>{{ $t('pages.admin.link_governance.summary.failed') }}: {{ row.summary.failed }}</span>
-                            <span>{{ $t('pages.admin.link_governance.summary.needs_confirmation') }}: {{ row.summary.needsConfirmation }}</span>
-                        </div>
-                    </template>
+                <div class="admin-link-governance__filter-actions">
+                    <CaomeiButton
+                        size="sm"
+                        @click="applyFilters"
+                    >
+                        {{ $t('pages.admin.link_governance.filters.apply') }}
+                    </CaomeiButton>
+                    <CaomeiButton
+                        size="sm"
+                        variant="secondary"
+                        @click="resetFilters"
+                    >
+                        {{ $t('pages.admin.link_governance.filters.reset') }}
+                    </CaomeiButton>
+                </div>
+            </div>
 
-                    <template #cell-redirects="{row}">
-                        {{ row.redirectSeedCount }}
-                    </template>
+            <!-- 懒加载服务端分页：`page` 为 1 基受控值，`@page` 载荷亦为 1 基
+                     （迁移前 PrimeVue 为 0 基，原实现恒 `+1`；迁移后直接取载荷页码）。 -->
+            <CaomeiDataTable
+                :data="reports"
+                :columns="columns"
+                :loading="loading"
+                lazy
+                :total-records="total"
+                :rows="limit"
+                :page="page"
+                paginator
+                class="admin-link-governance__table"
+                @page="onPage"
+            >
+                <template #cell-createdAt="{row}">
+                    {{ formatDateTime(row.createdAt) }}
+                </template>
 
-                    <template #cell-actions="{row}">
-                        <CaomeiButton
-                            variant="ghost"
-                            rounded
-                            :label="$t('pages.admin.link_governance.actions.view')"
-                            @click="openReportDetail(row.reportId)"
-                        >
-                            <template #icon>
-                                <Eye :size="16" />
-                            </template>
-                            {{ $t('pages.admin.link_governance.actions.view') }}
-                        </CaomeiButton>
-                    </template>
+                <template #cell-mode="{row}">
+                    <CaomeiTag :tone="getModeTone(row.mode)">
+                        {{ translateMode(row.mode) }}
+                    </CaomeiTag>
+                </template>
 
-                    <template #empty>
-                        <div class="admin-link-governance__empty">
-                            {{ $t('pages.admin.link_governance.empty') }}
-                        </div>
-                    </template>
-                </CaomeiDataTable>
-            </template>
-        </Card>
+                <template #cell-status="{row}">
+                    <CaomeiTag :tone="getReportStatusTone(row.status)">
+                        {{ translateStatus(row.status) }}
+                    </CaomeiTag>
+                </template>
+
+                <template #cell-requestedBy="{row}">
+                    <div class="admin-link-governance__requester">
+                        <strong>{{ getRequesterLabel(row) }}</strong>
+                        <span v-if="row.requestedByEmail" class="admin-link-governance__requester-email">
+                            {{ row.requestedByEmail }}
+                        </span>
+                    </div>
+                </template>
+
+                <template #cell-summary="{row}">
+                    <div class="admin-link-governance__summary-cell">
+                        <span>{{ $t('pages.admin.link_governance.summary.total') }}: {{ row.summary.total }}</span>
+                        <span>{{ $t('pages.admin.link_governance.summary.failed') }}: {{ row.summary.failed }}</span>
+                        <span>{{ $t('pages.admin.link_governance.summary.needs_confirmation') }}: {{ row.summary.needsConfirmation }}</span>
+                    </div>
+                </template>
+
+                <template #cell-redirects="{row}">
+                    {{ row.redirectSeedCount }}
+                </template>
+
+                <template #cell-actions="{row}">
+                    <CaomeiButton
+                        variant="ghost"
+                        rounded
+                        :label="$t('pages.admin.link_governance.actions.view')"
+                        @click="openReportDetail(row.reportId)"
+                    >
+                        <template #icon>
+                            <Eye :size="16" />
+                        </template>
+                        {{ $t('pages.admin.link_governance.actions.view') }}
+                    </CaomeiButton>
+                </template>
+
+                <template #empty>
+                    <div class="admin-link-governance__empty">
+                        {{ $t('pages.admin.link_governance.empty') }}
+                    </div>
+                </template>
+            </CaomeiDataTable>
+        </CaomeiCard>
 
         <!-- 浮层族已收敛到 caomei-ui（迁移方案 §5.5）；其内部的 Button / Tag
              属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫。 -->
@@ -306,7 +303,7 @@
             @update:open="detailVisible = $event"
         >
             <div v-if="detailLoading" class="admin-link-governance__detail-loading">
-                <ProgressSpinner stroke-width="4" style="width: 2.5rem; height: 2.5rem" />
+                <CaomeiProgressSpinner :stroke-width="4" class="admin-link-governance__detail-spinner" />
             </div>
             <div v-else-if="selectedReport" class="admin-link-governance__detail">
                 <div class="admin-link-governance__detail-grid">

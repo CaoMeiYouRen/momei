@@ -48,9 +48,9 @@ const formStub = defineComponent({
 })
 
 const cardStub = defineComponent({
-    name: 'Card',
+    name: 'CaomeiCard',
     setup(_, { slots }) {
-        return () => h('div', { class: 'p-card' }, slots.content?.())
+        return () => h('div', { class: 'caomei-card' }, slots.default?.())
     },
 })
 
@@ -72,7 +72,7 @@ const stubs = {
         template: '<div class="admin-header"><slot name="actions" /></div>',
         props: ['title'],
     },
-    Card: cardStub as unknown as Record<string, unknown>,
+    CaomeiCard: cardStub as unknown as Record<string, unknown>,
     CaomeiDialog: dialogStub as unknown as Record<string, unknown>,
     MarketingCampaignList: listStub as unknown as Record<string, unknown>,
     MarketingCampaignForm: formStub as unknown as Record<string, unknown>,
@@ -108,7 +108,7 @@ describe('MarketingPage', () => {
         const { $t } = wrapper.vm as unknown as { $t: (key: string) => string }
 
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/marketing/stats')
-        expect(wrapper.findAll('.p-card')).toHaveLength(3)
+        expect(wrapper.findAll('.caomei-card')).toHaveLength(3)
         expect(wrapper.text()).toContain($t('pages.admin.marketing.stats.total_subscribers'))
         expect(wrapper.text()).toContain('7')
         expect(wrapper.text()).toContain('3')

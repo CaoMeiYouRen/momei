@@ -9,8 +9,7 @@ import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 /**
  * `/admin/marketing` 推送表单（路由自有组件）的迁移契约用例。
  *
- * 覆盖：在册族控件（`Select` / `InputText` / `Button`）迁移后的 prop 语义、`id` 透传（`<label for>`
- * 关联依赖它）、以及**刻意保留 PrimeVue 的族**（`RadioButton` / `MultiSelect` / `DatePicker`，B3 / B4）。
+ * 覆盖：控件（`Select` / `InputText` / `Button` / `RadioGroup` / `MultiSelect` / `DatePicker`）迁移后的 prop 语义与 `id` 透传（`<label for>` 关联依赖它）。
  */
 
 const { fetchMock, toastAdd } = vi.hoisted(() => ({
@@ -29,8 +28,7 @@ vi.stubGlobal('useI18n', () => ({
 /* 自动导入的 `useToast` 走 `mockNuxtImport`（`vi.stubGlobal` 对 Nuxt 自动导入解析不生效）。 */
 vi.mock('caomei-ui', async (importOriginal) => ({ ...await importOriginal<any>(), useToast: () => createLegacyToastApi(toastAdd) }))
 
-/* 保留族（RadioButton / MultiSelect / DatePicker）与懒加载编辑器用轻量桩：本用例只断言
- * 「这些未迁移族仍在原位」，不验其内部实现。 */
+/* 懒加载编辑器用轻量桩：保持 `v-model` 语义即可，不验其内部实现。 */
 const retainedStubs = {
     // 编辑器桩需保持 `v-model` 语义（挂载时回写正文），否则保存路径的 `content` 恒为空、无法覆盖写请求。
     AdminMavonEditorClient: {
@@ -42,14 +40,6 @@ const retainedStubs = {
             return () => h('div', { class: 'mavon-editor' })
         },
     },
-    // 保留族桩需保持 `v-model` 双向语义，否则「切换到按条件定向」这一分支无法在用例内驱动。
-    RadioButton: {
-        template: '<input type="radio" class="p-radiobutton" :id="inputId" :checked="modelValue === value" @change="$emit(\'update:modelValue\', value)" />',
-        props: ['modelValue', 'value', 'inputId', 'name'],
-        emits: ['update:modelValue'],
-    },
-    MultiSelect: { template: '<div class="p-multiselect" />' },
-    DatePicker: { template: '<div class="p-datepicker" />' },
 }
 
 const mountForm = async (props: Record<string, unknown> = {}) => {
@@ -92,19 +82,20 @@ describe('MarketingCampaignForm', () => {
         expect(wrapper.find('label[for="title"]').exists()).toBe(true)
     })
 
-    it('刻意保留 PrimeVue 的族仍在原位（RadioButton ×2 / MultiSelect ×2 / DatePicker ×1，属 B3 / B4）', async () => {
+    it('表单族迁移为 caomei：RadioGroup + RadioButton ×2 / MultiSelect ×2 / DatePicker ×1', async () => {
         const wrapper = await mountForm()
 
-        expect(wrapper.findAll('.p-radiobutton')).toHaveLength(2)
-        expect(wrapper.findAll('.p-datepicker')).toHaveLength(1)
+        expect(wrapper.findAll('.caomei-radio-group')).toHaveLength(1)
+        expect(wrapper.findAll('.caomei-radio-button')).toHaveLength(2)
+        expect(wrapper.findAll('.caomei-date-picker')).toHaveLength(1)
         // MultiSelect 仅在选择「按条件定向」后渲染（迁移前后一致的 `v-if`）。
-        expect(wrapper.findAll('.p-multiselect')).toHaveLength(0)
+        expect(wrapper.findAll('.caomei-multi-select')).toHaveLength(0)
 
         // 迁移前后的 `v-if="targetType === 'criteria'"`：切到「按条件定向」后两个 MultiSelect 才渲染。
         await wrapper.findAll('input[type="radio"]')[1]?.setValue()
         await flushPromises()
 
-        expect(wrapper.findAll('.p-multiselect')).toHaveLength(2)
+        expect(wrapper.findAll('.caomei-multi-select')).toHaveLength(2)
     })
 
     it('动作按钮：`outlined + severity` → `variant="secondary"` + `tone`；实底保存按钮沿用 caomei 默认 `primary`', async () => {

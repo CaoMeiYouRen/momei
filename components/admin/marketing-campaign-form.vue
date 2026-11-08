@@ -39,53 +39,40 @@
         <div class="marketing-campaign-form__field">
             <label class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.targets') }}</label>
             <div class="marketing-campaign-form__targets">
-                <div class="marketing-campaign-form__target-option">
-                    <RadioButton
-                        v-model="targetType"
-                        input-id="target-all"
-                        name="target"
-                        value="all"
-                    />
-                    <label for="target-all" class="marketing-campaign-form__target-label">{{ $t('pages.admin.marketing.form.target_all') }}</label>
-                </div>
-                <div class="marketing-campaign-form__target-option">
-                    <RadioButton
-                        v-model="targetType"
-                        input-id="target-criteria"
-                        name="target"
-                        value="criteria"
-                    />
-                    <label for="target-criteria" class="marketing-campaign-form__target-label">{{ $t('pages.admin.marketing.form.target_criteria') }}</label>
-                </div>
+                <CaomeiRadioGroup
+                    v-model="targetType"
+                    name="target"
+                    orientation="vertical"
+                    class="marketing-campaign-form__target-options"
+                >
+                    <div class="marketing-campaign-form__target-option">
+                        <CaomeiRadioButton id="target-all" value="all" />
+                        <label for="target-all" class="marketing-campaign-form__target-label">{{ $t('pages.admin.marketing.form.target_all') }}</label>
+                    </div>
+                    <div class="marketing-campaign-form__target-option">
+                        <CaomeiRadioButton id="target-criteria" value="criteria" />
+                        <label for="target-criteria" class="marketing-campaign-form__target-label">{{ $t('pages.admin.marketing.form.target_criteria') }}</label>
+                    </div>
+                </CaomeiRadioGroup>
 
                 <div v-if="targetType === 'criteria'" class="marketing-campaign-form__criteria">
                     <div class="marketing-campaign-form__field">
                         <label class="marketing-campaign-form__label--sub">{{ $t('pages.admin.marketing.form.categories') }}</label>
-                        <MultiSelect
+                        <CaomeiMultiSelect
                             v-model="form.targetCriteria.categoryIds"
                             :options="categories"
                             option-label="name"
                             option-value="id"
-                            filter
-                            fluid
-                            display="chip"
-                            append-to="body"
-                            :loading="loadingDependencies"
                             :placeholder="$t('common.category')"
                         />
                     </div>
                     <div class="marketing-campaign-form__field">
                         <label class="marketing-campaign-form__label--sub">{{ $t('pages.admin.marketing.form.tags') }}</label>
-                        <MultiSelect
+                        <CaomeiMultiSelect
                             v-model="form.targetCriteria.tagIds"
                             :options="tags"
                             option-label="name"
                             option-value="id"
-                            filter
-                            fluid
-                            display="chip"
-                            append-to="body"
-                            :loading="loadingDependencies"
                             :placeholder="$t('common.tags')"
                         />
                     </div>
@@ -95,12 +82,11 @@
 
         <div class="marketing-campaign-form__field">
             <label for="scheduledAt" class="marketing-campaign-form__label">{{ $t('pages.admin.marketing.form.scheduled_at') }}</label>
-            <DatePicker
+            <CaomeiDatePicker
                 id="scheduledAt"
                 v-model="form.scheduledAt"
                 show-time
                 hour-format="24"
-                fluid
                 :placeholder="$t('pages.admin.marketing.form.scheduled_at_placeholder')"
             />
             <small class="marketing-campaign-form__help">{{ $t('pages.admin.marketing.form.scheduled_at_help') }}</small>
@@ -392,6 +378,14 @@ const handleSave = async () => {
         :deep(.caomei-select__field) {
             --caomei-select-max-width: 100%;
         }
+
+        :deep(.caomei-multi-select) {
+            --caomei-multi-select-max-width: 100%;
+        }
+
+        :deep(.caomei-date-picker) {
+            --caomei-date-picker-max-width: 100%;
+        }
     }
 
     &__label {
@@ -413,6 +407,12 @@ const handleSave = async () => {
         border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
         padding: $spacing-md;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+    }
+
+    &__target-options {
         display: flex;
         flex-direction: column;
         gap: $spacing-md;

@@ -198,6 +198,141 @@ const CaomeiTextareaStub = defineComponent({
     },
 })
 
+const CaomeiInputNumberStub = defineComponent({
+    name: 'CaomeiInputNumber',
+    props: {
+        modelValue: { type: [Number, String], default: null },
+        id: { type: String, default: '' },
+        min: { type: Number, default: undefined },
+        max: { type: Number, default: undefined },
+        controls: { type: Boolean, default: true },
+    },
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        return () => h('input', {
+            class: 'caomei-input-number',
+            id: props.id,
+            type: 'number',
+            value: props.modelValue ?? '',
+            'data-controls': String(props.controls),
+            onInput: (event: Event) => emit('update:modelValue', Number((event.target as HTMLInputElement).value)),
+        })
+    },
+})
+
+const CaomeiDatePickerStub = defineComponent({
+    name: 'CaomeiDatePicker',
+    props: {
+        modelValue: { type: [Date, String], default: null },
+        id: { type: String, default: '' },
+        showTime: { type: Boolean, default: false },
+        hourFormat: { type: String, default: '24' },
+        showSeconds: { type: Boolean, default: false },
+        placeholder: { type: String, default: '' },
+    },
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        return () => h('input', {
+            class: 'caomei-date-picker',
+            id: props.id,
+            placeholder: props.placeholder,
+            'data-show-time': String(props.showTime),
+            'data-hour-format': props.hourFormat,
+            onInput: (event: Event) => emit('update:modelValue', (event.target as HTMLInputElement).value),
+        })
+    },
+})
+
+const CaomeiMultiSelectStub = defineComponent({
+    name: 'CaomeiMultiSelect',
+    props: {
+        modelValue: { type: Array, default: () => [] },
+        options: { type: Array, default: () => [] },
+        optionLabel: { type: String, default: 'label' },
+        optionValue: { type: String, default: 'value' },
+        id: { type: String, default: '' },
+        placeholder: { type: String, default: '' },
+    },
+    emits: ['update:modelValue'],
+    setup(props) {
+        return () => h('div', {
+            class: 'caomei-multi-select',
+            'data-id': props.id,
+            'data-options': (props.options as Record<string, string>[]).map((option) => option[props.optionValue]).join(','),
+            'data-selected': (props.modelValue as (string | number)[]).join(','),
+        }, props.placeholder)
+    },
+})
+
+const CaomeiRadioGroupStub = defineComponent({
+    name: 'CaomeiRadioGroup',
+    props: {
+        modelValue: { type: [String, Number], default: undefined },
+        name: { type: String, default: '' },
+        orientation: { type: String, default: 'vertical' },
+    },
+    emits: ['update:modelValue'],
+    setup(props, { slots, emit }) {
+        return () => h('div', {
+            class: 'caomei-radio-group',
+            'data-name': props.name,
+            'data-orientation': props.orientation,
+            onChange: (event: Event) => emit('update:modelValue', (event.target as HTMLInputElement).value),
+        }, slots.default?.())
+    },
+})
+
+const CaomeiRadioButtonStub = defineComponent({
+    name: 'CaomeiRadioButton',
+    props: {
+        value: { type: [String, Number], required: true },
+        id: { type: String, default: '' },
+        text: { type: String, default: '' },
+        disabled: { type: Boolean, default: false },
+    },
+    setup(props, { slots }) {
+        return () => h('label', { class: 'caomei-radio-button', 'data-value': String(props.value) }, [
+            h('input', { id: props.id, type: 'radio', value: props.value, disabled: props.disabled }),
+            slots.default?.() ?? props.text,
+        ])
+    },
+})
+
+const CaomeiProgressSpinnerStub = defineComponent({
+    name: 'CaomeiProgressSpinner',
+    props: { size: { type: String, default: 'md' }, strokeWidth: { type: [Number, String], default: undefined } },
+    setup: () => () => h('span', { class: 'caomei-progress-spinner' }),
+})
+
+const CaomeiToolbarStub = defineComponent({
+    name: 'CaomeiToolbar',
+    setup: (_props, { slots }) => () => h('div', { class: 'caomei-toolbar' }, [slots.start?.(), slots.center?.(), slots.default?.(), slots.end?.()]),
+})
+
+const CaomeiDividerStub = defineComponent({
+    name: 'CaomeiDivider',
+    setup: (_props, { slots }) => () => h('hr', { class: 'caomei-divider' }, slots.default?.()),
+})
+
+const CaomeiCardStub = defineComponent({
+    name: 'CaomeiCard',
+    props: {
+        variant: { type: String, default: 'outlined' },
+        padding: { type: String, default: 'md' },
+        title: { type: String, default: '' },
+        subtitle: { type: String, default: '' },
+    },
+    setup(props, { slots }) {
+        return () => h('div', { class: 'caomei-card', 'data-variant': props.variant, 'data-padding': props.padding }, [
+            slots.header?.(),
+            slots.title?.(),
+            slots.extra?.(),
+            slots.default?.(),
+            slots.footer?.(),
+        ])
+    },
+})
+
 const CaomeiAutoCompleteStub = defineComponent({
     name: 'CaomeiAutoComplete',
     props: {
@@ -401,6 +536,15 @@ export const caomeiComponentStubs = {
     CaomeiSwitch: CaomeiSwitchStub,
     CaomeiCheckbox: CaomeiCheckboxStub,
     CaomeiTextarea: CaomeiTextareaStub,
+    CaomeiInputNumber: CaomeiInputNumberStub,
+    CaomeiDatePicker: CaomeiDatePickerStub,
+    CaomeiMultiSelect: CaomeiMultiSelectStub,
+    CaomeiRadioGroup: CaomeiRadioGroupStub,
+    CaomeiRadioButton: CaomeiRadioButtonStub,
+    CaomeiProgressSpinner: CaomeiProgressSpinnerStub,
+    CaomeiToolbar: CaomeiToolbarStub,
+    CaomeiDivider: CaomeiDividerStub,
+    CaomeiCard: CaomeiCardStub,
     CaomeiAutoComplete: CaomeiAutoCompleteStub,
     CaomeiTag: CaomeiTagStub,
     CaomeiBadge: CaomeiBadgeStub,
