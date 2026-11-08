@@ -185,10 +185,10 @@ const handleSubmit = async () => {
     gap: $spacing-sm;
     margin-bottom: $spacing-md;
     padding: $spacing-sm $spacing-md;
-    background-color: var(--p-primary-100);
+    background-color: var(--m-primary-100);
     border-radius: $border-radius-md;
     font-size: 0.875rem;
-    color: var(--p-primary-700);
+    color: var(--m-primary-700);
   }
 
   &__guest-info {
@@ -219,7 +219,7 @@ const handleSubmit = async () => {
 
   &__tip {
     font-size: 0.75rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     margin: 0;
   }
 }

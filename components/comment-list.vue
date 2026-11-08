@@ -107,7 +107,7 @@ onMounted(() => {
 .comment-system {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--p-content-border-color);
+  border-top: 1px solid var(--caomei-color-border);
 
   &__header {
     margin-bottom: 1.5rem;
@@ -122,7 +122,6 @@ onMounted(() => {
   &__count {
     font-size: 1rem;
     font-weight: 400;
-    color: var(--p-text-color-secondary);
     margin-left: 0.5rem;
   }
 
@@ -130,7 +129,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     padding: 3rem 0;
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
   }
 
   &__spinner {
@@ -145,7 +144,6 @@ onMounted(() => {
   &__empty {
     padding: 3rem 0;
     text-align: center;
-    color: var(--p-text-color-secondary);
     font-style: italic;
   }
 }

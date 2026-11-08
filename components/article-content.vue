@@ -83,7 +83,7 @@ watch(() => props.content, () => {
 
 .markdown-body {
     line-height: 1.8;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     font-size: 1.1rem;
     font-family: $font-sans;
 
@@ -92,14 +92,14 @@ watch(() => props.content, () => {
         margin-bottom: 0.8em;
         font-weight: 700;
         line-height: 1.3;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     h1 { font-size: 2.25em; }
 
     h2 {
         font-size: 1.75em;
-        border-bottom: 1px solid var(--p-surface-200);
+        border-bottom: 1px solid var(--m-surface-200);
         padding-bottom: 0.3em;
     }
     h3 { font-size: 1.5em; }
@@ -121,24 +121,24 @@ watch(() => props.content, () => {
     }
 
     a {
-        color: var(--p-primary-500);
+        color: var(--m-primary-500);
         text-decoration: none;
         border-bottom: 1px solid transparent;
         transition: border-color $transition-fast;
 
         &:hover {
-            border-bottom-color: var(--p-primary-500);
+            border-bottom-color: var(--m-primary-500);
         }
     }
 
     blockquote {
-        border-left: 4px solid var(--p-primary-500);
+        border-left: 4px solid var(--m-primary-500);
         padding: 0.5em 1em;
         margin: 1.5em 0;
-        background-color: var(--p-surface-50);
-        border: 1px solid var(--p-surface-100);
+        background-color: var(--m-surface-50);
+        border: 1px solid var(--m-surface-100);
         border-radius: 0 $border-radius-md $border-radius-md 0;
-        color: color-mix(in srgb, var(--p-text-color) 78%, var(--p-surface-0) 22%);
+        color: color-mix(in srgb, var(--caomei-color-text) 78%, var(--m-surface-0) 22%);
 
         p:last-child {
             margin-bottom: 0;
@@ -146,12 +146,12 @@ watch(() => props.content, () => {
     }
 
     code {
-        background-color: var(--p-surface-100);
+        background-color: var(--m-surface-100);
         padding: 0.2em 0.4em;
         border-radius: $border-radius-sm;
         font-family: $font-mono;
         font-size: 0.9em;
-        color: var(--p-primary-600);
+        color: var(--m-primary-600);
     }
 
     pre {
@@ -159,8 +159,8 @@ watch(() => props.content, () => {
         border-radius: $border-radius-md;
         overflow: hidden;
         margin: 1.5em 0;
-        background-color: var(--p-surface-50);
-        border: 1px solid var(--p-surface-200);
+        background-color: var(--m-surface-50);
+        border: 1px solid var(--m-surface-200);
 
         code {
             padding: 1.5em;
@@ -184,7 +184,7 @@ watch(() => props.content, () => {
 
     hr {
         border: 0;
-        border-top: 1px solid var(--p-surface-200);
+        border-top: 1px solid var(--m-surface-200);
         margin: 3em 0;
     }
 
@@ -195,27 +195,27 @@ watch(() => props.content, () => {
         color: inherit;
 
         th, td {
-            border: 1px solid var(--p-surface-200);
+            border: 1px solid var(--m-surface-200);
             padding: 0.75em;
             text-align: left;
         }
 
         th {
-            background-color: var(--p-surface-50);
+            background-color: var(--m-surface-50);
             font-weight: 600;
         }
     }
 
     // Dark mode adjustments
     .dark & {
-        color: color-mix(in srgb, var(--p-text-color) 96%, white 4%);
+        color: color-mix(in srgb, var(--caomei-color-text) 96%, white 4%);
 
-        h2 { border-bottom-color: var(--p-surface-800); }
+        h2 { border-bottom-color: var(--m-surface-800); }
 
         blockquote {
-            background-color: var(--p-surface-50);
-            border-color: var(--p-primary-600);
-            color: color-mix(in srgb, var(--p-text-color) 82%, white 18%);
+            background-color: var(--m-surface-50);
+            border-color: var(--m-primary-600);
+            color: color-mix(in srgb, var(--caomei-color-text) 82%, white 18%);
         }
 
         code {
@@ -229,16 +229,16 @@ watch(() => props.content, () => {
         }
 
         hr {
-            border-top-color: var(--p-surface-800);
+            border-top-color: var(--m-surface-800);
         }
 
         table {
             th, td {
-                border-color: var(--p-surface-800);
+                border-color: var(--m-surface-800);
             }
 
             th {
-                background-color: var(--p-surface-100);
+                background-color: var(--m-surface-100);
             }
         }
     }

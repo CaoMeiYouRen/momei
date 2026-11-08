@@ -163,7 +163,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
     &__title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: $spacing-sm;
         transition: color $transition-fast;
 
@@ -182,17 +182,17 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         gap: 0.375rem;
         padding: 0.25rem 0.625rem;
         border-radius: 999px;
-        background: var(--p-primary-50);
-        border: 1px solid var(--p-primary-200);
-        color: var(--p-primary-700);
+        background: var(--m-primary-50);
+        border: 1px solid var(--m-primary-200);
+        color: var(--m-primary-700);
         font-size: 0.75rem;
         font-weight: 700;
         line-height: 1;
 
         :global(.dark) & {
-            background: color-mix(in srgb, var(--p-primary-500) 16%, transparent);
-            border-color: color-mix(in srgb, var(--p-primary-300) 30%, transparent);
-            color: var(--p-primary-100);
+            background: color-mix(in srgb, var(--m-primary-500) 16%, transparent);
+            border-color: color-mix(in srgb, var(--m-primary-300) 30%, transparent);
+            color: var(--m-primary-100);
         }
     }
 
@@ -202,7 +202,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         gap: $spacing-sm 1.25rem;
         align-items: center;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin-bottom: 0.75rem;
 
         &-item {
@@ -214,7 +214,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
     }
 
     &__summary {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin-bottom: $spacing-md;
 
         @include text-ellipsis-multiline(5);
@@ -249,15 +249,14 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         align-items: center;
         padding: 0.25rem 0.625rem;
         border-radius: 999px;
-        border: 1px solid var(--p-surface-border);
-        background: var(--p-surface-100);
-        color: var(--p-text-color);
+        background: var(--m-surface-100);
+        color: var(--caomei-color-text);
         font-size: 0.75rem;
         font-weight: 600;
         line-height: 1.2;
 
         :global(.dark) & {
-            background: color-mix(in srgb, var(--p-surface-700) 78%, transparent);
+            background: color-mix(in srgb, var(--m-surface-700) 78%, transparent);
         }
     }
 
@@ -268,7 +267,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
 
     &__tag {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         text-decoration: none;
         transition: color $transition-fast;
 

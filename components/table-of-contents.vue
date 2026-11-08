@@ -94,7 +94,7 @@ const scrollToHeading = (id: string) => {
         font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__list {
@@ -112,7 +112,7 @@ const scrollToHeading = (id: string) => {
     &__link {
         display: block;
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         transition: color 0.2s;
         white-space: nowrap;
         overflow: hidden;
@@ -120,7 +120,7 @@ const scrollToHeading = (id: string) => {
         text-decoration: none;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
             text-decoration: underline;
         }
     }

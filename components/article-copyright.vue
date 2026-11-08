@@ -84,8 +84,8 @@ const licenseUrl = computed(() => {
 .article-copyright {
     margin: $spacing-xl 0;
     padding: $spacing-lg;
-    border-left: 0.25rem solid var(--p-primary-color);
-    background-color: var(--p-surface-50);
+    border-left: 0.25rem solid var(--caomei-color-primary);
+    background-color: var(--m-surface-50);
     border-radius: $border-radius-md;
     font-size: 0.95rem;
     line-height: 1.6;
@@ -93,9 +93,9 @@ const licenseUrl = computed(() => {
     &__title {
         font-weight: 700;
         margin-bottom: $spacing-md;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         font-size: 1.1rem;
-        border-bottom: 1px solid var(--p-surface-200);
+        border-bottom: 1px solid var(--m-surface-200);
         padding-bottom: $spacing-xs;
     }
 
@@ -113,15 +113,15 @@ const licenseUrl = computed(() => {
 
     &__label {
         font-weight: 600;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__value {
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__link {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: none;
         word-break: break-all;
         transition: color $transition-fast;
@@ -132,15 +132,15 @@ const licenseUrl = computed(() => {
     }
 
     :deep(.license-name) {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 }
 
 :global(.dark) .article-copyright {
-    border-left-color: var(--p-primary-500);
+    border-left-color: var(--m-primary-500);
 
     &__title {
-        border-bottom-color: var(--p-surface-700);
+        border-bottom-color: var(--m-surface-700);
     }
 }
 </style>

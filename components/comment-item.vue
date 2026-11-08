@@ -286,7 +286,6 @@ watch([
   display: flex;
   gap: $spacing-md;
   padding: $spacing-lg 0;
-  border-bottom: 1px solid var(--p-surface-border);
 
   &:last-child {
     border-bottom: none;
@@ -295,7 +294,7 @@ watch([
   &--reply {
     padding: $spacing-md 0 0 $spacing-md;
     border-bottom: none;
-    border-left: 2px solid var(--p-surface-100);
+    border-left: 2px solid var(--m-surface-100);
   }
 
   &__avatar {
@@ -307,7 +306,7 @@ watch([
     height: 3rem;
     border-radius: 50%;
     object-fit: cover;
-    background-color: var(--p-surface-100);
+    background-color: var(--m-surface-100);
   }
 
   &--reply &__avatar-img {
@@ -334,7 +333,7 @@ watch([
 
   &__author-link {
     font-weight: 700;
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
     text-decoration: none;
     transition: color $transition-fast;
 
@@ -345,12 +344,12 @@ watch([
 
   &__author-name {
     font-weight: 700;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
   }
 
   &__meta {
     font-size: 0.875rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
   }
 
   &__content {
@@ -362,25 +361,25 @@ watch([
     align-items: center;
     gap: $spacing-xs;
     padding: $spacing-xs $spacing-sm;
-    background-color: var(--p-warning-50);
-    color: var(--p-warning-700);
+    background-color: var(--m-orange-50);
+    color: var(--caomei-color-warning-text);
     border-radius: $border-radius-sm;
     font-size: 0.75rem;
     margin-bottom: $spacing-sm;
   }
 
   &__text {
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
     overflow-wrap: break-word;
     :deep(p) { margin: 0; }
 
     :deep(pre) {
-      background-color: var(--p-surface-50);
+      background-color: var(--m-surface-50);
       padding: $spacing-md;
       border-radius: $border-radius-md;
       overflow-x: auto;
       margin: $spacing-sm 0;
-      border: 1px solid var(--p-surface-200);
+      border: 1px solid var(--m-surface-200);
 
       code {
         background-color: transparent;
@@ -392,11 +391,11 @@ watch([
     }
 
     :deep(code) {
-      background-color: var(--p-surface-100);
+      background-color: var(--m-surface-100);
       padding: 0.2em 0.4em;
       border-radius: $border-radius-sm;
       font-size: 0.85em;
-      color: var(--p-primary-600);
+      color: var(--m-primary-600);
     }
   }
 
@@ -411,11 +410,11 @@ watch([
   }
 
   &__translation-feedback--muted {
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
   }
 
   &__translation-feedback--error {
-    color: var(--p-red-500);
+    color: var(--m-red-500);
   }
 
   &__replies {
@@ -425,31 +424,30 @@ watch([
 
 :global(.dark) .comment-item {
   &--reply {
-    border-color: var(--p-surface-700);
+    border-color: var(--m-surface-700);
   }
 
   .comment-item__author-name {
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
   }
 
   .comment-item__author-link {
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
   }
 
   &__pending {
-    background-color: rgb(var(--p-primary-rgb), 0.1);
-    color: var(--p-primary-400);
+    color: var(--m-primary-400);
   }
 
   .comment-item__text {
     :deep(code) {
-      background-color: var(--p-surface-100);
-      color: var(--p-primary-400);
+      background-color: var(--m-surface-100);
+      color: var(--m-primary-400);
     }
 
     :deep(pre) {
-      background-color: var(--p-surface-50);
-      border-color: var(--p-surface-100);
+      background-color: var(--m-surface-50);
+      border-color: var(--m-surface-100);
     }
   }
 }

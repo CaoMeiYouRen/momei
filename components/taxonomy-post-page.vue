@@ -231,8 +231,8 @@ useHead(() => ({
     &__badge {
         display: inline-block;
         padding: 0.25rem 0.75rem;
-        background-color: var(--p-primary-color);
-        color: var(--p-primary-contrast-color, #fff);
+        background-color: var(--caomei-color-primary);
+        color: var(--caomei-color-primary-foreground, #fff);
         border-radius: 2rem;
         font-size: 0.75rem;
         font-weight: 600;
@@ -240,7 +240,7 @@ useHead(() => ({
         margin-bottom: 1rem;
 
         &--tag {
-            background-color: var(--p-info-color, #2196f3);
+            background-color: var(--m-info-500, #2196f3);
             color: #fff;
         }
     }
@@ -248,7 +248,7 @@ useHead(() => ({
     &__title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: 1rem;
         line-height: 1.2;
         display: flex;
@@ -282,7 +282,7 @@ useHead(() => ({
 
     &__description {
         font-size: 1.125rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         max-width: 36rem;
         margin: 0 auto 1.5rem;
     }
@@ -292,7 +292,7 @@ useHead(() => ({
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 
@@ -312,12 +312,12 @@ useHead(() => ({
 
         .empty-state {
             svg {
-                color: var(--p-surface-400);
+                color: var(--m-surface-400);
                 margin-bottom: 1rem;
             }
 
             p {
-                color: var(--p-text-muted-color);
+                color: var(--caomei-color-text-muted);
             }
         }
     }

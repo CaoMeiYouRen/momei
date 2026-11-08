@@ -225,14 +225,14 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
 
 .article-sponsor {
   margin: $spacing-lg 0;
-  border: 1px solid var(--p-surface-200);
+  border: 1px solid var(--m-surface-200);
   border-radius: $border-radius-md;
   overflow: hidden;
-  background-color: var(--p-surface-0);
+  background-color: var(--m-surface-0);
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--p-primary-color);
+    border-color: var(--caomei-color-primary);
   }
 
   &__header {
@@ -242,10 +242,10 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     align-items: center;
     cursor: pointer;
     user-select: none;
-    background-color: var(--p-surface-50);
+    background-color: var(--m-surface-50);
 
     &:hover {
-      background-color: var(--p-surface-100);
+      background-color: var(--m-surface-100);
     }
   }
 
@@ -254,7 +254,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     display: flex;
     align-items: center;
     gap: $spacing-sm;
-    color: var(--p-surface-700);
+    color: var(--m-surface-700);
     font-size: 1rem;
   }
 
@@ -264,7 +264,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
 
   &__toggle {
     font-size: 0.8rem;
-    color: var(--p-surface-400);
+    color: var(--m-surface-400);
   }
 
   &__body {
@@ -273,7 +273,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
 
   &__section-title {
     font-size: 0.8rem;
-    color: var(--p-surface-500);
+    color: var(--m-surface-500);
     margin-bottom: $spacing-md;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -294,8 +294,8 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
   }
 
   &__btn {
-    --caomei-button-border: var(--p-content-border-color);
-    --caomei-button-text: var(--p-text-color);
+    --caomei-button-border: var(--caomei-color-border);
+    --caomei-button-text: var(--caomei-color-text);
 
     display: inline-flex;
     align-items: center;
@@ -341,37 +341,37 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     max-width: 100%;
     height: auto;
     border-radius: $border-radius-sm;
-    border: 1px solid var(--p-surface-200);
+    border: 1px solid var(--m-surface-200);
   }
 
   &__qr-label {
     margin: $spacing-md 0 0;
     text-align: center;
     font-size: 0.875rem;
-    color: var(--p-surface-700);
+    color: var(--m-surface-700);
     line-height: 1.5;
   }
 }
 
 :global(.dark) .article-sponsor {
-  background-color: var(--p-surface-900);
-  border-color: var(--p-surface-700);
+  background-color: var(--m-surface-900);
+  border-color: var(--m-surface-700);
 
   &__header {
-    background-color: var(--p-surface-800);
+    background-color: var(--m-surface-800);
 
     &:hover {
-       background-color: var(--p-surface-700);
+       background-color: var(--m-surface-700);
     }
   }
 
   &__title {
-    color: var(--p-surface-100);
+    color: var(--m-surface-100);
   }
 
   &__qr-label,
   &__section-title {
-    color: var(--p-surface-300);
+    color: var(--m-surface-300);
   }
 }
 </style>

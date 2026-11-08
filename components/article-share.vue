@@ -253,11 +253,11 @@ onMounted(() => {
 .article-share {
     margin: $spacing-xl 0;
     padding: $spacing-lg;
-    border: 1px solid var(--p-surface-200);
+    border: 1px solid var(--m-surface-200);
     border-radius: $border-radius-lg;
     background:
         radial-gradient(circle at top right, rgb(100 116 139 / 0.08), transparent 32%),
-        linear-gradient(180deg, var(--p-surface-50) 0%, var(--p-surface-0) 100%);
+        linear-gradient(180deg, var(--m-surface-50) 0%, var(--m-surface-0) 100%);
 
     &__header {
         display: flex;
@@ -276,14 +276,14 @@ onMounted(() => {
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &__title {
         margin: 0;
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__actions {
@@ -308,9 +308,9 @@ onMounted(() => {
     }
 
     &__platform-btn {
-        --article-share-platform-color: var(--p-primary-color);
-        --caomei-button-border: var(--p-content-border-color);
-        --caomei-button-text: var(--p-text-color);
+        --article-share-platform-color: var(--caomei-color-primary);
+        --caomei-button-border: var(--caomei-color-border);
+        --caomei-button-text: var(--caomei-color-text);
 
         :deep(.caomei-button__content) {
             font-weight: 500;
@@ -318,8 +318,8 @@ onMounted(() => {
     }
 
     &__secondary-btn {
-        --caomei-button-border: var(--p-content-border-color);
-        --caomei-button-text: var(--p-text-color);
+        --caomei-button-border: var(--caomei-color-border);
+        --caomei-button-text: var(--caomei-color-text);
     }
 
     &__action-icon,
@@ -353,13 +353,13 @@ onMounted(() => {
         margin: 0;
         font-size: 1rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__section-desc {
         margin: 0;
         font-size: 0.875rem;
-        color: var(--p-surface-700);
+        color: var(--m-surface-700);
         line-height: 1.6;
     }
 
@@ -375,13 +375,13 @@ onMounted(() => {
     }
 
     :global(.dark) & {
-        border-color: var(--p-surface-700);
+        border-color: var(--m-surface-700);
         background:
             radial-gradient(circle at top right, rgb(148 163 184 / 0.12), transparent 34%),
-            linear-gradient(180deg, var(--p-surface-800) 0%, var(--p-surface-900) 100%);
+            linear-gradient(180deg, var(--m-surface-800) 0%, var(--m-surface-900) 100%);
 
         .article-share__section-desc {
-            color: var(--p-surface-300);
+            color: var(--m-surface-300);
         }
 
     }
