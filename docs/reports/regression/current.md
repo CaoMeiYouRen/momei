@@ -10,6 +10,37 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-d-guards:第七十一阶段条目 5（B4-D）测试与守卫收口:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 5（B4-D）：E2E 断言改写、守卫收口与包体复算
+
+### 范围
+
+- E2E `p-*` 断言 **9 处 / 2 文件 → 0**：`tests/e2e/admin-workflow.e2e.test.ts` 的 6 处 `.p-datatable` → `.caomei-data-table`；`tests/e2e/installation.e2e.test.ts` 的 3 处 `.p-inputtext` `toHaveCount(0)` → `.caomei-input` 存在性断言（原意是「不再渲染 PrimeVue 文本输入」，迁移后等价口径是「渲染 caomei 输入」）。
+- 删除 `tests/testSetup.ts` 中已无消费者的 PrimeVue `useToast` / `useConfirm` mock（全仓零 `from 'primevue/useToast'` 引用）。`tests/plugins/primevue-i18n.test.ts` 保留：插件按 roadmap 第七十二阶段随 PrimeVue 卸载删除。
+- 守卫收口：
+    - `resolvePageFile` 增加动态参数页回退（目录内唯一 `[param].vue`），支持 `/goto` → `pages/goto/[code].vue`；
+    - `listSubRoutePages` 排除页面文件自身，根前缀 `/` 不做子路由枚举（根前缀只精确匹配 `/`，新增断言防止「登记根 = 全站切库」）；
+    - 登记 `/` 与 `/goto` 两条 scope；`CAOMEI_UI_ROUTE_PREFIXES` 由 33 → 35 条，全站路由登记完成。
+- 包体复算：`keyCss` 63,337 B（61.85KB / 70KB）、`coreEntryJs` 375,368 B（366.57KB，超原 365KB 配额 1,608 B）、`maxAsyncChunk` 55.45KB / 130KB。
+    - 归因：条目 4 把全局头部管理菜单的 16 个 lucide 图标带入入口 chunk（+6,156 B，`prIncrementJs` 归零）。延后加载菜单图标会让首次展开时缺图标（可见劣化），故按「先评估优化或重新定标」条款把配额 365 → 370KB（378,880 B，余约 3.4KB），同步 `scripts/perf/check-bundle-budget.mjs` / `.github/perf/bundle-baseline.json` / `docs/standards/performance.md` 三处；第七十二阶段卸载 PrimeVue 后复测并收紧。
+
+### 验证
+
+- `pnpm typecheck` 0；ESLint 0 error；Stylelint 0。
+- 守卫：路由守卫 **70 passed**、过渡组件收口守卫 **4 passed**。
+- `pnpm test:e2e:critical` **17 passed / 1 skipped** + 安装向导 **2 passed**。
+- `pnpm test:perf:budget`：`coreEntryJs` 366.57KB / 370KB、`keyCss` 61.85KB / 70KB、`prIncrementJs` 0.00KB / 20KB（通过）。
+- `pnpm test:visual` 24/24、`pnpm test:visual:parity` 83/83（同日条目 4 批次内复跑）。
+
+### 未覆盖边界
+
+- 全量 `pnpm test` 本地仍受 25 个既有 `virtual:intlify-i18n` suite 失败影响（HEAD 同样失败，CI 不复现），本批未新增失败面。
+- `tests/e2e/admin-workflow.e2e.test.ts` 的用例全部为历史 `test.skip`，选择器改写只影响治理计数口径，不改变运行时覆盖。
+- `plugins/primevue-i18n.ts` 与其单测保留至第七十二阶段（PrimeVue 卸载同批），因此「vitest PrimeVue mock 文件数」为 1 而非 0。
+
+<!-- regression-window:end:b4-d-guards:第七十一阶段条目 5（B4-D）测试与守卫收口:2026-11-08 -->
+
 <!-- regression-window:start:b4-c-icons:第七十一阶段条目 4（B4-C）图标全量替换:2026-11-08 -->
 
 ## 2026-11-08 第七十一阶段条目 4（B4-C）：`pi pi-*` 全量替换与品牌图标落点

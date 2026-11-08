@@ -50,12 +50,13 @@
     - **验收**: 全仓 `pi pi-` 零残留（脚本口径 0）；11 项品牌图标逐一登记落点；视觉 24/24、parity 全绿。
     - **完成（2026-11-08）**: 剩余 136 处 / 40 文件清零（生产约 110 处 + 注释与测试断言 18 处）；非品牌改 `@lucide/vue`（按原 CSS 字号换算 `:size`），8 类品牌走 `mdi mdi-*`、tiktok / discord / paypal 因 `@mdi/font` 未收录改内联 Simple Icons；5 个数据驱动配置（菜单 / 商业平台 / AI 任务类型 / 分享平台 / 社交发布平台）改为组件并同步消费方。同批把种子文章发布时间固定，消除参考态日期漂移；组件复算 47 → **46 处 / 14 类**、图标 **0**、token 1,420；`test:visual` 24/24、parity 83/83、typecheck / lint 0 error。
 
-- [ ] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
+- [x] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
     - **执行范围**: vitest PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步；视觉与 parity 基线按迁移后实测校准；复算 `keyCss` 与 `coreEntryJs` 并归因（`keyCss` 不得越过 70KB）。
     - **过渡组件去 `-v2` 后缀（2026-11-07 用户确认）**: **已于 2026-11-08 随条目 3 收口完成**（posts 三件套 + `app-avatar` / `app-uploader` / `content-language-switcher`，含文件重命名、`import` / 模板标签 / 测试 mock / `ownedFiles` 同步与守卫改写），本条保留为验收口径记录。
     - **原口径**: `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` 的 V1 已随条目 2 删除，重命名为去 `-v2` 的正式名，并同步 `pages/admin/posts/{index,[id]}.vue` 的 import 与模板标签、`pages/admin/posts/index.test.ts` 的模块 mock 与断言标记、`lib/ui-library.ts` 的 `ownedFiles`、`tests/modules/ui-library-transition-component-guard.test.ts` 的消费处择库注册表，以及迁移方案 §5.5 / B4 清单 / 回归窗口中的引用。`app-avatar-v2` / `app-uploader-v2` / `content-language-switcher-v2` **等条目 3 把其 V1 消费者清零后**再统一处理。**验收**：posts 族无 `-v2` 残留；过渡守卫「注册表与磁盘一致」通过；定向组件测试与 `typecheck` / `lint` 0 error。
     - **非目标**: 不借机重构无关测试；不降低断言强度。
     - **验收**: 全量 `pnpm test` 通过；guard 全绿；E2E critical 三浏览器通过；包体与样式预算复算记录落盘。
+    - **完成（2026-11-08）**: E2E `p-*` 断言 9 处 / 2 文件清零（`.p-datatable` → `.caomei-data-table`、`.p-inputtext` → `.caomei-input` 存在性断言）；删除 `tests/testSetup.ts` 中已无消费者的 PrimeVue `useToast` / `useConfirm` mock（`primevue-i18n` 插件测试按 roadmap 保留至第七十二阶段）；守卫扩展根前缀精确匹配与动态参数页回退，登记 `/` 与 `/goto` 路由 scope（`CAOMEI_UI_ROUTE_PREFIXES` 增至 35 条）。复算 `keyCss` 63,337 B（61.85KB / 70KB）、`coreEntryJs` 375,368 B（366.57KB）：图标批把全局头部管理菜单的 16 个 lucide 图标带入入口（+6,156 B），延后加载会造成菜单首开缺图标，按「先评估优化或重新定标」条款把配额 365 → **370KB**，三处联动更新并归因落盘；guard 70 + 收口守卫 4 全绿，E2E critical 17 passed / 1 skipped + 安装向导 2 passed，全量 `pnpm test` 本地仍受 25 个既有 `virtual:intlify-i18n` suite 失败影响（HEAD 同样失败，CI 不复现）。
 
 - [ ] **6. 覆盖率第十二批 + 既有缺陷小治理（P2）**
     - **执行范围**: 6a 覆盖率按绝对未覆盖语句数复算、**4 模块粒度且须含 ≥1 个大基数模块**（前四个 `server/services/` 小模块合计仅 102 条，不足 `+0.3pp` 所需 109 条；须纳入 `typeorm-adapter.ts` 84 或 `logger.ts` 61 之一），目标单批 `+0.3pp`；6b i18n 键层缺陷（8 个重复键 / 20 组双源同键 / 6 + 3 个死键 / 1 处硬编码）；6c `useI18n()` 非 setup 顶层调用（`snippet-aggregate-dialog` 2 处、`creator-stats-panel` 3 处）；6d `friend-link` 的 `name` / `url` 归一化被 `assignDefined` 覆盖。
