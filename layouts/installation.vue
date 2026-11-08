@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-primary-100) 100%);
+    background: linear-gradient(135deg, var(--m-primary-50) 0%, var(--m-primary-100) 100%);
     padding: 2rem;
 
     &__container {
@@ -28,6 +28,6 @@
 
 // 暗色模式适配
 :global(.dark) .installation-layout {
-    background: linear-gradient(135deg, var(--p-surface-900) 0%, var(--p-surface-800) 100%);
+    background: linear-gradient(135deg, var(--m-surface-900) 0%, var(--m-surface-800) 100%);
 }
 </style>

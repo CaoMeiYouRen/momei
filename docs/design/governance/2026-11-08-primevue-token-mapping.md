@@ -72,8 +72,8 @@
 
 | token | 分类 | 处置 | 目标 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
-| `--p-border-radius-md` | semantic | map | `--caomei-radius-md` | Aura primitive 6px；改走项目圆角角色（默认 8px），预期 +2px 归因 |
-| `--p-border-radius-sm` | semantic | map | `--caomei-radius-sm` | Aura primitive 4px，与项目 sm 同值 |
+| `--p-border-radius-md` | semantic | map | `--m-radius-md` | Aura primitive 6px；为保持迁移前观感映射到冻结的 `--m-radius-md`（6px），不使用随主题变化的 `--caomei-radius-md` |
+| `--p-border-radius-sm` | semantic | map | `--m-radius-sm` | Aura primitive 4px；为保持迁移前观感映射到冻结的 `--m-radius-sm`（4px），不使用随主题变化的 `--caomei-radius-sm` |
 | `--p-card-background` | semantic | delete | （删除） | PrimeVue 组件内部 token，momei 仅覆盖定义、无自研消费点 |
 | `--p-card-shadow` | semantic | map | `--m-shadow-card` | Aura card.root.shadow |
 | `--p-content-background` | semantic | map | `--m-surface-0` | Aura content.background 被 use-theme 改写为 surface-0；caomei bg 是卡片面（暗色 surface-100），语义不等价 |
@@ -208,8 +208,9 @@ pnpm governance:check:token-map -- --doc=docs/design/governance/2026-11-08-prime
 
 ## 7. 已知偏差与条目 3 执行提示
 
-1. **`--p-border-radius-md`（Aura 6px）→ `--caomei-radius-md`（用户圆角，默认 8px）**：项目设计口径以主题圆角为准，接受 +2px 差异并在条目 3 逐项归因；`--p-border-radius-sm`（4px）与项目 `sm` 同值，无差异。
+1. **`--p-border-radius-md` / `--p-border-radius-sm`（Aura 6px / 4px）→ `--m-radius-md` / `--m-radius-sm`（冻结 6px / 4px）**：条目 3 的非目标是「不改视觉设计」，故不复用随主题变化的 `--caomei-radius-*`；冻结 token 与 Aura 原值一致，替换零差异。
 2. **`--p-content-background` → `--m-surface-0`**：Aura 语义被 `use-theme` 改写为 `surface-0`，与 caomei 卡片面语义不等价，故落调色板层；不要改回 `--caomei-color-bg`。
 3. **`-rgb` / `-opacity-*` 幻影引用**：`rgb(var(--p-primary-rgb), α)` 一类写法改为 `color-mix(in srgb, var(--m-primary-500) α%, transparent)`；映射表 `target` 列给的是基色 token，具体 α 由消费点保留。
 4. **`--p-info-*`**：caomei 无 info 角色，`--m-info-500` 固化既有 fallback `#2196f3`，不借用 `--m-blue-500`（否则颜色从 #2196f3 变为 #3b82f6）。
 5. **`--p-font-family` / `-mono` / `-monospace`**：均为幻影，替换后字体栈由「inherit / monospace」变为项目字体栈，属预期改善，条目 3 归因时注明。
+6. **幻影 token 的删除优先于改角色（2026-11-09 条目 3 批次 ① 实测）**：`--p-surface-border` / `--p-text-secondary-color` / `--p-surface-hover` / `--p-border-radius` / `-rgb` / `-opacity-*` 的消费点是 `border` / `color` / `background` / `border-radius` 声明；映射为真实角色会新增可见边框、底色或圆角，并因盒模型变化产生 1px 文本位移（实测主题工作台预览卡片 4,672px 差异）。按「不改视觉设计」删除这些声明，保持迁移前 invalid 的计算结果；**状态色幻影**（`--p-success-500` / `--p-warning-color` 等）仍映射到真实角色，这是 backlog #11 S1 的修复目标，差异在对应批次归因。

@@ -43,7 +43,7 @@ onMounted(() => {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--p-surface-ground);
+    background-color: var(--m-surface-ground);
 
     &__main {
         @include page-container(1440px);

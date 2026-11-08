@@ -11,10 +11,10 @@ import { VISUAL_THEMES, applyTheme, waitForVisualStable } from './helpers/visual
  * 断言桥接胜过 caomei-ui 基础层的 `:root` 默认值。
  *
  * 断言覆盖：
- * 1. 全部桥接 token 的计算值非空——原始色板（`--p-red-500` 等）由库的 `primitive-variables`
- *    样式表产出，一旦上游移除，`var()` 会以 guaranteed-invalid 覆盖库默认（比「回落到默认」更差），
+ * 1. 全部桥接 token 的计算值非空——原始色板（`--m-red-500` 等）由 `styles/main.scss` 的
+ *    `--m-*` 层固化，一旦该层缺失，`var()` 会以 guaranteed-invalid 覆盖库默认（比「回落到默认」更差），
  *    非空断言即针对该静默失效路径；
- * 2. 直连映射的计算值等于其来源 `--p-*`；
+ * 2. 直连映射的计算值等于其来源 `--m-*`；
  * 3. 反向对照：主色不得等于 caomei-ui 基础层默认值（否则桥接未生效）。
  *
  * 维护提示：`CAOMEI_BASE_DEFAULT_PRIMARY` / `CAOMEI_BASE_DEFAULT_CONTROL_BORDER` 取自
@@ -28,31 +28,31 @@ import { VISUAL_THEMES, applyTheme, waitForVisualStable } from './helpers/visual
  */
 
 /**
- * 桥接中「直连」映射：`--caomei-*` 应与同名语义来源 `--p-*` 取到同一计算值。
+ * 桥接中「直连」映射：`--caomei-*` 应与同名语义来源 `--m-*` 取到同一计算值。
  *
  * 区分力注：断言比较的是 `getComputedStyle()` 返回的**计算后字符串**（不归一化单位 / 十六进制），
- * 故仅当「caomei-ui 基础层默认值字符串」恰好等于「源 `--p-*` 字符串」时，该映射的相等断言对
+ * 故仅当「caomei-ui 基础层默认值字符串」恰好等于「源 `--m-*` 字符串」时，该映射的相等断言对
  * 「桥接失效」不具区分力（如 `--caomei-color-success-solid` 的 `#15803d`、浅色
  * `--caomei-color-primary-foreground` 的 `#fff`）；`--caomei-radius-md`（`8px` vs `0.5rem`）与
  * 浅色 `--caomei-color-bg`（`#fff` vs `#ffffff`）序列化不同，仍具区分力。整体区分力主要由
  * `--caomei-color-primary`（两主题下均不同于库默认，见下方反向对照）承担；非空断言覆盖变量链断裂。
  */
 const DIRECT_BRIDGE_PAIRS: readonly (readonly [string, string])[] = [
-    ['--caomei-color-primary', '--p-primary-color'],
-    ['--caomei-color-primary-foreground', '--p-primary-contrast-color'],
-    ['--caomei-color-primary-solid', '--p-primary-700'],
-    ['--caomei-color-danger', '--p-red-500'],
-    ['--caomei-color-danger-solid', '--p-red-700'],
-    ['--caomei-color-success', '--p-green-500'],
-    ['--caomei-color-success-solid', '--p-green-700'],
-    ['--caomei-color-warning', '--p-orange-500'],
-    ['--caomei-color-warning-solid', '--p-orange-700'],
-    ['--caomei-color-bg', '--p-surface-card'],
-    ['--caomei-color-text', '--p-text-color'],
-    ['--caomei-color-text-muted', '--p-text-muted-color'],
-    ['--caomei-color-border', '--p-content-border-color'],
-    ['--caomei-color-mask', '--p-mask-background'],
-    ['--caomei-radius-md', '--p-content-border-radius'],
+    ['--caomei-color-primary', '--m-primary'],
+    ['--caomei-color-primary-foreground', '--m-primary-contrast'],
+    ['--caomei-color-primary-solid', '--m-primary-700'],
+    ['--caomei-color-danger', '--m-red-500'],
+    ['--caomei-color-danger-solid', '--m-red-700'],
+    ['--caomei-color-success', '--m-green-500'],
+    ['--caomei-color-success-solid', '--m-green-700'],
+    ['--caomei-color-warning', '--m-orange-500'],
+    ['--caomei-color-warning-solid', '--m-orange-700'],
+    ['--caomei-color-bg', '--m-surface-card'],
+    ['--caomei-color-text', '--m-text-color'],
+    ['--caomei-color-text-muted', '--m-text-muted-color'],
+    ['--caomei-color-border', '--m-surface-200'],
+    ['--caomei-color-mask', '--m-mask-background'],
+    ['--caomei-radius-md', '--m-radius'],
 ]
 
 /**
@@ -60,19 +60,19 @@ const DIRECT_BRIDGE_PAIRS: readonly (readonly [string, string])[] = [
  * （`primary` / `danger` 为 `-700`，`success` / `warning` 为 `-800`）、暗色取 `-400` 提亮档。与 `DIRECT_BRIDGE_PAIRS` 分开维护，因为它对同一 token 在不同主题下
  * 有不同来源——合并进直连表会让暗色断言必然失败。
  *
- * 区分力注：`-text` 的库默认值（浅色 `#1d4ed8` 等）与 `--p-*-700` 不同，故相等断言对「桥接失效」
+ * 区分力注：`-text` 的库默认值（浅色 `#1d4ed8` 等）与 `--m-*-700` 不同，故相等断言对「桥接失效」
  * 具区分力。`primary` 一项还有静态蓝的风险（默认主色恰为近似 Aura 蓝，等值断言无法识别写死），
  * 其防线是 `styles/main.scss` 的注释与迁移方案 §3.10 的口径——本测试保证**来源 token 一致**。
  */
 const TEXT_ROLE_BRIDGE: readonly { readonly token: string, readonly light: string, readonly dark: string }[] = [
-    { token: '--caomei-color-primary-text', light: '--p-primary-700', dark: '--p-primary-400' },
-    /* danger 浅色的库默认值恰为 `#b91c1c`（与 `--p-red-700` 同值），故该角色的等值断言对「桥接失效」
+    { token: '--caomei-color-primary-text', light: '--m-primary-700', dark: '--m-primary-400' },
+    /* danger 浅色的库默认值恰为 `#b91c1c`（与 `--m-red-700` 同值），故该角色的等值断言对「桥接失效」
      * 不具区分力——实际由下方对比度契约与 `main.scss` 注释兜底。 */
-    { token: '--caomei-color-danger-text', light: '--p-red-700', dark: '--p-red-400' },
+    { token: '--caomei-color-danger-text', light: '--m-red-700', dark: '--m-red-400' },
     /* success / warning 浅色取 `-800`（上游口径）：8% soft 底上 `-700` 仅约 4.68 / 4.78，落到
-     * `bg-elevated` 即跌破 4.5。`--p-green-800` 由 PrimeVue 运行期注入：静态产物中无定义、只有 `var()` 引用，故只能以运行期计算值断言。 */
-    { token: '--caomei-color-success-text', light: '--p-green-800', dark: '--p-green-400' },
-    { token: '--caomei-color-warning-text', light: '--p-orange-800', dark: '--p-orange-400' },
+     * `bg-elevated` 即跌破 4.5。`--m-green-800` 由 `styles/main.scss` 的 `--m-*` 层固化，运行期计算值可直接断言。 */
+    { token: '--caomei-color-success-text', light: '--m-green-800', dark: '--m-green-400' },
+    { token: '--caomei-color-warning-text', light: '--m-orange-800', dark: '--m-orange-400' },
 ]
 
 /**

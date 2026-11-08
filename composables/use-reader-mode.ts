@@ -48,6 +48,9 @@ export const useReaderMode = () => {
                 root.style.removeProperty('--p-surface-0')
                 root.style.removeProperty('--p-surface-ground')
                 root.style.removeProperty('--p-text-color')
+                root.style.removeProperty('--m-surface-0')
+                root.style.removeProperty('--m-surface-ground')
+                root.style.removeProperty('--m-text-color')
             }
         }
     }
@@ -96,6 +99,9 @@ export const useReaderMode = () => {
                 root.style.setProperty('--p-surface-0', bg)
                 root.style.setProperty('--p-surface-ground', bg)
                 root.style.setProperty('--p-text-color', text)
+                root.style.setProperty('--m-surface-0', bg)
+                root.style.setProperty('--m-surface-ground', bg)
+                root.style.setProperty('--m-text-color', text)
                 document.body.style.setProperty('background-color', bg, 'important')
                 document.body.style.setProperty('color', text, 'important')
             } else {
@@ -103,6 +109,9 @@ export const useReaderMode = () => {
                 root.style.removeProperty('--p-surface-0')
                 root.style.removeProperty('--p-surface-ground')
                 root.style.removeProperty('--p-text-color')
+                root.style.removeProperty('--m-surface-0')
+                root.style.removeProperty('--m-surface-ground')
+                root.style.removeProperty('--m-text-color')
                 document.body.style.removeProperty('background-color')
                 document.body.style.removeProperty('color')
             }

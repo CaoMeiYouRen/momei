@@ -235,12 +235,7 @@ export const useTheme = () => {
 
     --p-primary-color: ${primary};
     --p-primary-contrast-color: ${contrastColor};
-    --p-primary-hover-color: color-mix(in srgb, ${primary}, ${isDarkMode ? 'white' : 'black'} 10%);
-    --p-primary-active-color: color-mix(in srgb, ${primary}, ${isDarkMode ? 'white' : 'black'} 20%);
 
-    --p-select-option-focus-background: var(--p-primary-100);
-    --p-select-option-selected-background: var(--p-primary-500);
-    --p-select-option-selected-color: var(--p-primary-contrast-color);
 
     --p-content-border-radius: ${radius};
 
@@ -260,17 +255,6 @@ export const useTheme = () => {
 
     --p-content-background: var(--p-surface-0);
     --p-content-border-color: var(--p-surface-200);
-    --p-navigation-background: var(--p-surface-0);
-    --p-panel-background: var(--p-surface-0);
-    --p-panel-content-background: var(--p-surface-0);
-    --p-panel-header-background: var(--p-surface-0);
-    --p-tabs-tab-background: var(--p-surface-0);
-    --p-tabs-tab-active-background: var(--p-surface-0);
-    --p-tabs-tab-list-background: var(--p-surface-0);
-    --p-tabs-tabpanel-background: var(--p-surface-0);
-    --p-card-background: var(--p-surface-0);
-    --p-select-background: var(--p-surface-0);
-    --p-select-list-background: var(--p-surface-0);
 
     --p-text-color: ${text};
     --p-text-muted-color: color-mix(in srgb, ${text}, ${surface} 40%);
