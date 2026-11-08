@@ -44,10 +44,11 @@
     - **完成（2026-11-08）**: 3a 组件面三批——全局布局壳 5 文件（25 处）、公开页内容组件 6 文件（31 处）、公开页外围组件 4 文件（24 处）；3b 公开路由 9 文件（首页 / 文章列表与详情 / 友链 / 归档 / 分类 / 标签 / 跳转页 / 法务协议页，61 处）+ 7 条路由 scope 登记；过渡组件收口（`AppAvatar` / `AppUploader` / `AdminContentLanguageSwitcher` 删除路由择库并删 V1，6 组 `-v2` 文件去后缀）。组件 **188 → 47 处 / 26 → 15 类**、图标 **235 → 136**、token 1,420；parity **41 条已迁移 / 0 待迁移**、`test:visual` 24/24、E2E critical 17 passed + 安装向导 2 passed。同批修复 `use-theme` 的 `@layer` 层序位置与 scoped `:global(.dark)` 的 token 全局污染，并写入回归窗口。
     - **遗留（转条目 5）**: 首页 `/` 与 `/goto/[code]` 因守卫口径（`prefix !== '/'`、`resolvePageFile` 不识别 `[code].vue`）暂未登记路由 scope。
 
-- [ ] **4. B4-C 图标全量替换与品牌图标落点（P1）**
+- [x] **4. B4-C 图标全量替换与品牌图标落点（P1）**
     - **执行范围**: `pi pi-*` 411 处 / 94 文件 / 118 唯一；其中品牌图标 22 处 / 11 类 → `mdi mdi-*`（保留 `@mdi/font`，零新依赖），其余 389 处 → `@lucide/vue`；数据驱动 `icon: 'pi pi-*'` 改为显式图标映射；`pi-spin` 12 处（生产用法）改由加载态组件承载。
     - **非目标**: 不改 `@mdi/font` 加载方式与体积策略（另登记 backlog）；不做图标视觉重设计。
     - **验收**: 全仓 `pi pi-` 零残留（脚本口径 0）；11 项品牌图标逐一登记落点；视觉 24/24、parity 全绿。
+    - **完成（2026-11-08）**: 剩余 136 处 / 40 文件清零（生产约 110 处 + 注释与测试断言 18 处）；非品牌改 `@lucide/vue`（按原 CSS 字号换算 `:size`），8 类品牌走 `mdi mdi-*`、tiktok / discord / paypal 因 `@mdi/font` 未收录改内联 Simple Icons；5 个数据驱动配置（菜单 / 商业平台 / AI 任务类型 / 分享平台 / 社交发布平台）改为组件并同步消费方。同批把种子文章发布时间固定，消除参考态日期漂移；组件复算 47 → **46 处 / 14 类**、图标 **0**、token 1,420；`test:visual` 24/24、parity 83/83、typecheck / lint 0 error。
 
 - [ ] **5. B4-D 测试 / E2E 断言改写与守卫收口（P2）**
     - **执行范围**: vitest PrimeVue mock 2 文件与 E2E `p-*` 断言 9 处 / 2 文件改写；`CAOMEI_UI_ROUTE_PREFIXES` 补齐剩余路由，`ownedFiles` / 子路由例外同步；视觉与 parity 基线按迁移后实测校准；复算 `keyCss` 与 `coreEntryJs` 并归因（`keyCss` 不得越过 70KB）。

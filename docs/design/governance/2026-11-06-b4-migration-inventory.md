@@ -10,7 +10,7 @@
 - 组件：**482 处 / 40 类 / 82 文件**；图标 **411 处 / 94 文件 / 118 唯一**；token **1,442 处 / 135 文件**（本阶段不清）；PrimeVue class **203 处 / 52 文件**。
 - 路由判定：`lib/ui-library.ts` 的 `resolveUiLibraryForRoute` 口径（前缀段匹配 + 子路由例外）。未迁移页面 **19 个**，页面文件口径 **90 处**组件开标签（含 `pages/index.vue` 的 1 处注释引用，剥离注释后 89 处）。
 - 目录分桶：`components/admin/**` + `pages/admin/**` 约 341 处，公开页 / 共享壳 / 布局约 140 处（按同一组件名清单统计，与脚本口径存在 ±4 处正则差异）。
-- **当前剩余（2026-11-08 公开路由整迁与过渡组件收口后复算）**：组件 **47 处 / 15 类**、图标 **136 处**、token **1,420 处**。条目 3 面已全部完成并移出本节清单：`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin`、`/admin/posts/[id]`、全局布局壳、公开页内容组件（分享 / 赞助 / 评论 / 订阅 / 阅读控件）、公开页外围组件（外站订阅源 / taxonomy 列表 / 语音输入）、公开路由（首页 / 文章列表与详情 / 友链 / 归档 / 分类 / 标签 / 跳转页 / 法务协议）。剩余面主要是 admin 的表单族（`Checkbox` / `DatePicker` / `MultiSelect` / `InputNumber` / `Textarea` / `Card` 等，属第七十二阶段 token 切换与后续批次）。
+- **当前剩余（2026-11-08 图标全量批后复算）**：组件 **46 处 / 14 类**、图标 **0 处**、token **1,420 处**。条目 3 面已全部完成并移出本节清单：`/admin/snippets`、`/capture`、`/admin/ai/tasks/[id]`、`/admin/calendar`、`/admin`、`/admin/posts/[id]`、全局布局壳、公开页内容组件（分享 / 赞助 / 评论 / 订阅 / 阅读控件）、公开页外围组件（外站订阅源 / taxonomy 列表 / 语音输入）、公开路由（首页 / 文章列表与详情 / 友链 / 归档 / 分类 / 标签 / 跳转页 / 法务协议）。剩余面主要是 admin 的表单族（`Checkbox` / `DatePicker` / `MultiSelect` / `InputNumber` / `Textarea` / `Card` 等，属第七十二阶段 token 切换与后续批次）。
 
 ## 2. 未迁移路由与文件映射
 
@@ -169,6 +169,7 @@
 - 2026-11-07（B4-A）：`/admin/calendar` + 月历 / 看板视图迁移完成；路由 scope 登记；迁移新增测试 9 例（另保留既有 9 例）。lucide `Calendar` 别名后复算 398 处；其中仍含 marketing 路由 1 处既有假阳性（真实 PrimeVue 组件面 397）。
 - 2026-11-07（B4-A）：`/admin` 仪表盘与 3 个 dashboard 组件迁移完成；`/admin` 以**前缀语义**登记（整个管理端树逐页声明归属，编辑器留作 `primeVueSubRoutes` 例外），复算组件 370 / 31 类、图标 328。
 - 2026-11-07（B4-A）：编辑器子批（`/admin/posts/[id]` + 19 个 `components/admin/posts/**`）迁移完成；`/admin/posts` 登记 `ownedFiles` / `inScopeComponents` / `migratedSubRoutes`，V1 三件套删除，`primeVueSubRoutes` 全仓清零；复算组件 188 / 26 类、图标 235。
+- 2026-11-08（B4-C）：`pi pi-*` 全量清零（136 处 / 40 文件 → 0），非品牌图标改 `@lucide/vue`、11 类品牌图标落 `@mdi/font`（tiktok / discord / paypal 因字体未收录改内联 Simple Icons）；5 个数据驱动图标配置改为组件（新增 `utils/shared/brand-icons.ts`）。同批固定种子文章发布时间，消除参考态日期漂移；复算组件 **46 / 14 类**、图标 **0**。
 - 2026-11-08（B4-B 第四批）：公开路由整迁完成（首页 / 文章列表与详情 / 友链 / 归档 / 分类 / 标签 / 跳转页 / 法务协议页的 9 个页面文件 + `legal-agreement-page`），并完成过渡组件收口（三个共享壳删除路由择库、V1 文件与 `-v2` 标识符清零）；路由 scope 登记 7 条，parity 无待迁移路由；复算组件 **47 / 15 类**、图标 **136**。
 - 2026-11-08（B4-B 第三批）：公开页外围组件 4 文件迁移完成（`home/external-feed-panel` / `taxonomy-post-page` / `app-voice-input-trigger` / `app-voice-input-overlay`，24 处），图标 15 处改 lucide；复算组件 108 / 21 类、图标 161。
 - 2026-11-07（B4-B 第二批）：公开页内容组件 6 文件迁移完成（`article-share` / `article-sponsor` / `comment-form` / `comment-item` / `subscriber-form` / `reader-controls`，31 处），图标 13 处改 lucide；复算组件 132 / 23 类、图标 176。

@@ -10,6 +10,58 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:b4-c-icons:第七十一阶段条目 4（B4-C）图标全量替换:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 4（B4-C）：`pi pi-*` 全量替换与品牌图标落点
+
+### 范围
+
+- 全仓 `pi pi-*` 文本命中 **136 处 / 40 文件 → 0**（脚本口径 `pnpm governance:count:primevue-usage` 图标 0），生产代码约 110 处、注释与测试断言 18 处。
+- 非品牌图标 → `@lucide/vue`，按原 CSS `font-size` 传等价 `:size`（0.7rem→11、0.75rem→12、0.875rem→14、1rem→16、1.25rem→20、1.5rem→24、2rem→32、3rem→48）。
+- **数据驱动图标改为组件**：`composables/use-admin-menu-items.ts`（23）、`utils/shared/commercial.ts`（14）、`utils/shared/ai-admin.ts`（5）、`utils/shared/share.ts`（3）、`utils/shared/social-post-platforms.ts`（2）。新增 `utils/shared/brand-icons.ts`：`createClassIcon()`（渲染 `<i class="…">`）、`BRAND_ICONS`、`rawIcon()`（`markRaw` 规避响应式代理告警）。
+- 消费方统一用 `<component :is>`：`app-header`（删除 `resolvePrimeIcon` / `toDropdownModel` 类名适配）、`article-share`、`article-sponsor`、`commercial-link-{section,manager,dialog}`、`post-social-dialog`、`admin/ai/task-list` 等。
+- 旋转图标（`comment-list` 的加载态）改 `LoaderCircle` + 组件内关键帧；`error.vue` 的两个 PrimeVue `Button` 保留组件、图标改 `#icon` 插槽内的 lucide。
+
+### 品牌图标落点（11 类）
+
+| 品牌 | 落点 | 说明 |
+| :--- | :--- | :--- |
+| github / google / twitter / linkedin / youtube / twitch / instagram / facebook | `@mdi/font` 的 `mdi mdi-*` 类名 | 字体已全局加载，零新增依赖 |
+| tiktok / discord / paypal | `utils/shared/brand-icons.ts` 内联 Simple Icons（CC0）SVG | 实测 `@mdi/font@7.4.47` 未收录这三个类名（已 grep 产物 CSS 核验），用内联路径保持品牌外观 |
+
+### 差异归因（parity 允许清单按实测登记）
+
+| 用例 | 未归因差异（归因前） | 归因 |
+| :--- | :--- | :--- |
+| `home-*` | 2,830 / 2,871px（预算 2,000） | 文章卡片元信息与「阅读更多」图标改 lucide 后行内盒宽差（PrimeIcons 1rem 下 advance ≈12.45px、行盒 16px，lucide 为 14px 方形盒），使文本出现 1–2px 水平位移；卡片结构 / 文案 / 换行未变。登记 160,280 360×160 与 160,720 360×120。 |
+| `posts-list-*` | 5,241 / 5,289px | 同上（水平卡片整体 3px 内位移）+ 分页器箭头图标字形差异。登记 560,120 320×240 与 560,800 480×80。 |
+| `post-detail-*` | 元信息行 1,799 / 1,721px | 头像 / 分类标签 / 日期行内的图标盒宽差；按实测回填既有条目。 |
+| `admin-theme-settings-*`（`test:visual` 基线层） | 890 / 885px | 主题工作台预览卡内的文章卡片元信息图标形状差异，按迁移后观感重采两张基线。 |
+
+### 顺带修复（测试确定性）
+
+- **种子文章发布时间漂移**：`server/utils/seed-test.ts` 原用 `new Date()`，TEST_MODE 每次启动用内存库重新种子，参考态里的日期文本随运行日变化。`home` / `posts-list` 移入已迁移清单后，日期漂移被当成组件差异报出。改为固定 `2026-11-06T04:00:00.000Z`（与参考态采集日一致），后续运行日期文本稳定。
+
+### 验证
+
+- `pnpm typecheck` 0；ESLint 0 error（`admin-taxonomy-page` 911 行 `max-lines` 为既有 warning）；Stylelint 0。
+- 定向单测：29 + 10 + 9 个文件 **454 passed**（含 `tests/modules/*guard*`、commercial / share / ai-admin、各页面与组件）。
+- `pnpm test:visual` **24/24**（重采 `admin-theme-settings-light/dark` 两张基线）。
+- `pnpm test:visual:parity` **83/83**（18.1 分钟）。
+- 复算：组件 **46 处 / 14 类**（图标批同时去掉 `error.vue` 之外的 1 处假阳性 `Calendar` 误计）；图标 **0**；token 1,420。
+
+### 已接受的差异
+
+- 图标字形由字体图标改为 lucide 描边图标，视觉形状必然变化；尺寸按原字号等价换算，未做视觉重设计。
+- `pages/benefits.vue` 的 i18n `premium.items[].icon` 字段不再参与渲染（图标改为组件映射），为避免多语言文件联动暂不删除，登记为后续清理项。
+
+### 未覆盖边界
+
+- `@mdi/font` 未收录 tiktok / discord / paypal，后续升级字体后可替换为 `mdi mdi-*` 类名。
+- `error.vue` 仍使用 PrimeVue `Button`（仅图标改 lucide），组件迁移不在本条目范围。
+
+<!-- regression-window:end:b4-c-icons:第七十一阶段条目 4（B4-C）图标全量替换:2026-11-08 -->
+
 <!-- regression-window:start:b4-b-public-routes:第七十一阶段条目 3（B4-B）公开路由与过渡组件收口:2026-11-08 -->
 
 ## 2026-11-08 第七十一阶段条目 3（B4-B）：公开路由整迁与过渡组件收口
