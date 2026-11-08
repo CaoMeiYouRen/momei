@@ -197,7 +197,7 @@ definePageMeta({
 
         .selected-count {
             font-size: 0.875rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
         }
     }
 
@@ -212,11 +212,11 @@ definePageMeta({
 
             .loading-spinner {
                 animation: snippet-spin 1s linear infinite;
-                color: var(--p-primary-color);
+                color: var(--caomei-color-primary);
             }
 
             .loading-text {
-                color: var(--p-text-muted-color);
+                color: var(--caomei-color-text-muted);
                 animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             }
 
@@ -234,10 +234,10 @@ definePageMeta({
             justify-content: center;
             padding: 5rem 0;
             text-align: center;
-            background: var(--p-content-hover-background);
+            background: var(--m-surface-hover);
             border-radius: 0.75rem;
-            border: 2px dashed var(--p-content-border-color);
-            color: var(--p-text-muted-color);
+            border: 2px dashed var(--caomei-color-border);
+            color: var(--caomei-color-text-muted);
 
             .empty-icon {
                 margin-bottom: 1rem;
@@ -294,11 +294,11 @@ definePageMeta({
             align-items: center;
             gap: 1rem;
             margin-top: 3rem;
-            background: var(--p-content-background);
+            background: var(--m-surface-0);
             padding: 1rem 1.5rem;
             border-radius: 9999px;
-            box-shadow: var(--p-overlay-modal-shadow);
-            border: 1px solid var(--p-content-border-color);
+            box-shadow: var(--m-shadow-modal);
+            border: 1px solid var(--caomei-color-border);
             position: sticky;
             bottom: 1rem;
             z-index: 10;
@@ -308,7 +308,7 @@ definePageMeta({
 
             .pagination-report {
                 font-size: 0.875rem;
-                color: var(--p-text-muted-color);
+                color: var(--caomei-color-text-muted);
                 white-space: nowrap;
             }
 

@@ -188,13 +188,12 @@ watch(showCreateDialog, (val) => {
     &__stat-label {
         font-weight: 500;
         margin-bottom: $spacing-sm;
-        color: var(--p-text-color-secondary);
         font-size: 0.875rem;
     }
 
     &__stat-value {
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         font-size: 1.5rem;
     }
 
@@ -208,18 +207,18 @@ watch(showCreateDialog, (val) => {
         font-size: 1.25rem;
 
         &--blue {
-            background-color: color-mix(in srgb, var(--p-blue-400), transparent 90%);
-            color: var(--p-blue-500);
+            background-color: color-mix(in srgb, var(--m-blue-400), transparent 90%);
+            color: var(--m-blue-500);
         }
 
         &--green {
-            background-color: color-mix(in srgb, var(--p-green-400), transparent 90%);
-            color: var(--p-green-500);
+            background-color: color-mix(in srgb, var(--m-green-400), transparent 90%);
+            color: var(--m-green-500);
         }
 
         &--purple {
-            background-color: color-mix(in srgb, var(--p-purple-400), transparent 90%);
-            color: var(--p-purple-500);
+            background-color: color-mix(in srgb, var(--m-purple-400), transparent 90%);
+            color: var(--m-purple-500);
         }
     }
 

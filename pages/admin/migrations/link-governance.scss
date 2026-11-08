@@ -11,12 +11,12 @@
         margin: 0;
         font-size: 1.125rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__intro-description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.7;
     }
 
@@ -48,7 +48,7 @@
 
     &__section-description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -95,7 +95,7 @@
         display: inline-flex;
         align-items: center;
         gap: $spacing-xs;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__execution-actions {
@@ -138,7 +138,7 @@
 
     &__requester-email,
     &__diff-target {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__summary-cell {
@@ -157,7 +157,7 @@
     &__detail-loading {
         padding: $spacing-xl;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__detail-grid,
@@ -180,10 +180,10 @@
 
     &__summary-item,
     &__diff-item {
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
         padding: $spacing-md;
-        background: var(--p-surface-0);
+        background: var(--m-surface-0);
     }
 
     &__summary-item {
@@ -209,10 +209,10 @@
     }
 
     &__redirect-item {
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
         padding: $spacing-md;
-        background: var(--p-surface-0);
+        background: var(--m-surface-0);
     }
 
     &__diff-source,
@@ -225,7 +225,7 @@
     &__markdown {
         padding: $spacing-md;
         border-radius: 1rem;
-        background: var(--p-surface-100);
+        background: var(--m-surface-100);
         max-height: 24rem;
         overflow: auto;
         white-space: pre-wrap;

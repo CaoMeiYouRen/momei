@@ -391,20 +391,18 @@ const handleSave = async () => {
     &__label {
         display: block;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: $spacing-xs;
 
         &--sub {
             display: block;
             font-weight: 500;
             font-size: 0.875rem;
-            color: var(--p-text-color-secondary);
             margin-bottom: $spacing-xs;
         }
     }
 
     &__targets {
-        border: 1px solid var(--p-surface-border);
         border-radius: $border-radius-md;
         padding: $spacing-md;
         display: flex;
@@ -426,7 +424,7 @@ const handleSave = async () => {
 
     &__target-label {
         cursor: pointer;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__criteria {
@@ -449,8 +447,8 @@ const handleSave = async () => {
     }
 
     &__editor {
-        border: 1px solid var(--p-content-border-color);
-        border-radius: var(--p-content-border-radius);
+        border: 1px solid var(--caomei-color-border);
+        border-radius: var(--caomei-radius-md);
         overflow: hidden;
         min-height: 400px;
     }

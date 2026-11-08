@@ -197,14 +197,14 @@ const saveSnippet = async () => {
     .quick-capture-card {
         border-radius: 1.25rem;
         box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:focus-within {
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -6px rgb(0 0 0 / 0.04);
             transform: translateY(-2px);
-            border-color: var(--p-primary-300);
+            border-color: var(--m-primary-300);
         }
 
         .quick-capture-content {
@@ -253,7 +253,7 @@ const saveSnippet = async () => {
                     height: 64px;
                     border-radius: 0.5rem;
                     overflow: hidden;
-                    border: 1px solid var(--p-content-border-color);
+                    border: 1px solid var(--caomei-color-border);
 
                     :deep(.caomei-image) {
                         width: 100%;
@@ -275,11 +275,10 @@ const saveSnippet = async () => {
                         height: 1.5rem;
                         padding: 0;
                         z-index: 10;
-                        background: rgb(var(--p-surface-900-rgb), 0.5);
                         color: white !important;
 
                         &:hover {
-                            background: var(--p-red-500);
+                            background: var(--m-red-500);
                         }
                     }
                 }
@@ -306,7 +305,7 @@ const saveSnippet = async () => {
 
                     .shortcut-tip {
                         font-size: 0.75rem;
-                        color: var(--p-text-muted-color);
+                        color: var(--caomei-color-text-muted);
                     }
                 }
             }

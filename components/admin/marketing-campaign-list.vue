@@ -343,9 +343,9 @@ defineExpose({ refresh: loadData })
         border-radius: $border-radius-md;
         overflow: hidden;
 
-        // 迁移前该表由 PrimeVue `DataTable` 渲染并沿用 `--p-card-shadow`（PrimeVue 卡片的同一 token，
+        // 迁移前该表由 PrimeVue `DataTable` 渲染并沿用 `--m-shadow-card`（PrimeVue 卡片的同一 token，
         // 本页仍与 `Card` / `Dialog` 共存），保持同一取值以避免额外的未归因视觉差异。
-        box-shadow: var(--p-card-shadow);
+        box-shadow: var(--m-shadow-card);
     }
 
     &__header {
@@ -359,7 +359,7 @@ defineExpose({ refresh: loadData })
         margin: 0;
         font-size: 1.125rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__status {
@@ -385,7 +385,6 @@ defineExpose({ refresh: loadData })
     &__empty {
         padding: $spacing-xl;
         text-align: center;
-        color: var(--p-text-color-secondary);
     }
 }
 

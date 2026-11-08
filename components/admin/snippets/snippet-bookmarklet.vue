@@ -71,7 +71,7 @@ const copyBookmarklet = async () => {
 
         .bookmarklet-desc {
             margin-bottom: 1.5rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             font-size: 0.9375rem;
             line-height: 1.6;
         }
@@ -87,20 +87,20 @@ const copyBookmarklet = async () => {
                 align-items: center;
                 gap: 0.5rem;
                 padding: 0.625rem 1.25rem;
-                background-color: var(--p-primary-500);
+                background-color: var(--m-primary-500);
                 color: white;
                 border-radius: 2rem;
                 text-decoration: none;
                 font-weight: 600;
                 font-size: 0.875rem;
-                box-shadow: 0 4px 12px var(--p-primary-200);
+                box-shadow: 0 4px 12px var(--m-primary-200);
                 transition: all 0.2s;
                 cursor: move;
 
                 &:hover {
-                    background-color: var(--p-primary-600);
+                    background-color: var(--m-primary-600);
                     transform: translateY(-1px);
-                    box-shadow: 0 6px 16px var(--p-primary-300);
+                    box-shadow: 0 6px 16px var(--m-primary-300);
                 }
 
                 :global(.dark) & {

@@ -404,7 +404,7 @@ const renderMarkdown = (content: string) => md.render(content)
         }
 
         .aggregating-text {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             font-size: 1.125rem;
             animation: pulse 2s infinite;
         }
@@ -420,7 +420,7 @@ const renderMarkdown = (content: string) => md.render(content)
             align-items: center;
             justify-content: space-between;
             padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--p-content-border-color);
+            border-bottom: 1px solid var(--caomei-color-border);
 
             .scaffold-title {
                 display: flex;
@@ -428,20 +428,20 @@ const renderMarkdown = (content: string) => md.render(content)
                 gap: 0.5rem;
                 margin: 0;
                 font-size: 1.25rem;
-                color: var(--p-primary-color);
+                color: var(--caomei-color-primary);
             }
         }
 
         .scaffold-content-box {
-            background-color: var(--p-surface-50);
+            background-color: var(--m-surface-50);
             border-radius: 0.75rem;
             padding: 1.5rem;
             max-height: 400px;
             overflow-y: auto;
-            border: 1px solid var(--p-content-border-color);
+            border: 1px solid var(--caomei-color-border);
 
             :global(.dark) & {
-                background-color: var(--p-surface-900);
+                background-color: var(--m-surface-900);
             }
         }
 
@@ -483,14 +483,14 @@ const renderMarkdown = (content: string) => md.render(content)
 
             .expansion-result-box {
                 margin-top: 1.5rem;
-                border: 1px solid var(--p-primary-200);
+                border: 1px solid var(--m-primary-200);
                 border-radius: 0.75rem;
                 overflow: hidden;
-                background-color: var(--p-primary-50);
+                background-color: var(--m-primary-50);
 
                 :global(.dark) & {
-                    background-color: var(--p-primary-950);
-                    border-color: var(--p-primary-900);
+                    background-color: var(--m-primary-950);
+                    border-color: var(--m-primary-900);
                 }
 
                 .result-header {
@@ -498,12 +498,12 @@ const renderMarkdown = (content: string) => md.render(content)
                     align-items: center;
                     justify-content: space-between;
                     padding: 0.5rem 1rem;
-                    background-color: var(--p-primary-100);
+                    background-color: var(--m-primary-100);
                     font-weight: 600;
                     font-size: 0.875rem;
 
                     :global(.dark) & {
-                        background-color: var(--p-primary-900);
+                        background-color: var(--m-primary-900);
                     }
                 }
 
@@ -566,14 +566,14 @@ const renderMarkdown = (content: string) => md.render(content)
                 align-items: center;
                 gap: 0.75rem;
                 padding: 0.75rem 1rem;
-                background-color: var(--p-blue-50);
-                color: var(--p-blue-700);
+                background-color: var(--m-blue-50);
+                color: var(--m-blue-700);
                 border-radius: 0.5rem;
                 font-size: 0.875rem;
 
                 :global(.dark) & {
-                    background-color: var(--p-blue-950);
-                    color: var(--p-blue-300);
+                    background-color: var(--m-blue-950);
+                    color: var(--m-blue-300);
                 }
             }
 

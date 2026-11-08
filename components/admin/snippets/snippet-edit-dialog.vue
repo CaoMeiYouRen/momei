@@ -233,7 +233,7 @@ const updateSnippet = async () => {
             display: block;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
 
         .edit-field__header {
@@ -245,7 +245,7 @@ const updateSnippet = async () => {
 
         .field-desc {
             font-size: 0.875rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             margin-top: -0.25rem;
             margin-bottom: 1rem;
         }
@@ -274,7 +274,7 @@ const updateSnippet = async () => {
                     aspect-ratio: 1;
                     border-radius: 0.5rem;
                     overflow: hidden;
-                    border: 1px solid var(--p-content-border-color);
+                    border: 1px solid var(--caomei-color-border);
 
                     .media-preview {
                         width: 100%;

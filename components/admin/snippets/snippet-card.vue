@@ -129,16 +129,15 @@ const sourceIcon = computed<Component>(() => {
 
 <style lang="scss" scoped>
 .snippet-card {
-  background: var(--p-content-background);
-  border: 1px solid var(--p-content-border-color);
-  border-radius: var(--p-border-radius-md);
+  background: var(--m-surface-0);
+  border: 1px solid var(--caomei-color-border);
   padding: 1rem;
   transition: all 0.2s;
   position: relative;
 
   &:hover {
-    border-color: var(--p-primary-color);
-    box-shadow: var(--p-overlay-modal-shadow);
+    border-color: var(--caomei-color-primary);
+    box-shadow: var(--m-shadow-modal);
   }
 
   &__header {
@@ -147,7 +146,7 @@ const sourceIcon = computed<Component>(() => {
     align-items: center;
     margin-bottom: 0.75rem;
     font-size: 0.875rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
   }
 
   &__meta {
@@ -194,7 +193,6 @@ const sourceIcon = computed<Component>(() => {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: var(--p-border-radius-sm);
     }
   }
 
@@ -205,12 +203,11 @@ const sourceIcon = computed<Component>(() => {
     margin-top: 0.75rem;
     font-size: 0.875rem;
     padding: 0.5rem;
-    background: var(--p-content-hover-background);
-    border-radius: var(--p-border-radius-sm);
+    background: var(--m-surface-hover);
   }
 
   &__post-link {
-    color: var(--p-primary-color);
+    color: var(--caomei-color-primary);
     text-decoration: none;
 
     &:hover {
