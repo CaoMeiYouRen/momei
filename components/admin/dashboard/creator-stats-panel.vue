@@ -297,7 +297,7 @@ defineExpose({ refresh })
         align-items: center;
         gap: $spacing-sm;
         font-size: 0.95rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin-top: $spacing-sm;
     }
 }

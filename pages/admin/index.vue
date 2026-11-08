@@ -359,7 +359,7 @@ const hasRankingData = computed(() => Boolean(
 
     &__filter-label {
         font-size: 0.85rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__scope-select {
@@ -372,7 +372,7 @@ const hasRankingData = computed(() => Boolean(
         text-decoration: none;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
@@ -381,7 +381,7 @@ const hasRankingData = computed(() => Boolean(
         align-items: center;
         gap: $spacing-sm;
         flex-wrap: wrap;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.85rem;
     }
 
@@ -419,7 +419,7 @@ const hasRankingData = computed(() => Boolean(
 
     &__trend-subtitle {
         font-size: 0.95rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         margin-top: $spacing-sm;
     }
 
@@ -440,7 +440,7 @@ const hasRankingData = computed(() => Boolean(
         align-items: center;
         justify-content: space-between;
         padding: $spacing-sm $spacing-md;
-        background: color-mix(in srgb, var(--p-surface-100) 50%, transparent);
+        background: color-mix(in srgb, var(--m-surface-100) 50%, transparent);
         border-radius: $border-radius-md;
     }
 
@@ -450,7 +450,7 @@ const hasRankingData = computed(() => Boolean(
     }
 
     &__trend-count {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 

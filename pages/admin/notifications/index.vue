@@ -59,12 +59,12 @@ function navigateToMarketing() {
         margin: 0;
         font-size: 1.125rem;
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__intro-description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.7;
     }
 

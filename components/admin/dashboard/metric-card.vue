@@ -85,7 +85,7 @@ const rateText = computed(() => {
     align-items: center;
     gap: $spacing-sm;
     flex-wrap: wrap;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     font-size: 0.85rem;
   }
 

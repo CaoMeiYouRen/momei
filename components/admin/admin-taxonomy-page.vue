@@ -857,7 +857,7 @@ onMounted(() => {
 .taxonomy-dialog__tab-check {
     margin-right: 0.5rem;
     vertical-align: -0.15em;
-    color: var(--p-green-500);
+    color: var(--m-green-500);
 }
 
 // caomei `Badge` 的尺寸档位与 PrimeVue `Badge` 不同（caomei 默认 20px 高 / 12px 字号）。
@@ -895,7 +895,7 @@ onMounted(() => {
 .empty-state {
     padding: 2rem 0;
     text-align: center;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 }
 
 .field {

@@ -426,7 +426,7 @@ onMounted(() => {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--p-surface-ground);
+    background-color: var(--m-surface-ground);
     position: relative;
 }
 
@@ -445,7 +445,7 @@ onMounted(() => {
     }
 
     &--invalid {
-        border: 1px solid var(--p-error-color);
+        border: 1px solid var(--caomei-color-danger);
     }
 
     &--shifted {
@@ -462,7 +462,7 @@ onMounted(() => {
     bottom: 1rem;
     left: 1rem;
     z-index: 10;
-    background-color: var(--p-surface-card);
+    background-color: var(--caomei-color-bg);
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);

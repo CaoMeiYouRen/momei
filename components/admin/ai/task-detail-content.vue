@@ -327,9 +327,8 @@ async function copyTaskId() {
 .ai-task-image {
     width: 240px;
     max-width: 100%;
-    border-radius: var(--p-border-radius-md);
     overflow: hidden;
-    box-shadow: var(--p-overlay-modal-shadow);
+    box-shadow: var(--m-shadow-modal);
     transition: transform 0.2s;
 
     &:hover {

@@ -743,11 +743,11 @@ async function handleReAudit() {
     gap: 0.25rem;
 
     &__relative {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
 
         &--future {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 }
