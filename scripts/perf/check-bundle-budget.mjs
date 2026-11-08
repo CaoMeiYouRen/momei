@@ -74,7 +74,11 @@ const BUDGETS = {
     // 原 260KB 从未真正生效（旧度量对象错误、检查恒真），故按实测重新定标并留约 10% 余量。
     // 2026-11-05 收口重新定标：B3 后实测 369,212 B（约 360.56KB），原 360KB
     // 余量耗尽并越线 572 B；按「先评估优化或重新定标」条款调到 365KB，保留约 4.5KB 余量。
-    coreEntryJsGzipBytes: 365 * KB,
+    // 2026-11-08 条目 5 复算：图标全量替换把全局头部管理菜单的 16 个 lucide 图标带入入口，
+    // 实测 375,368 B（+6,156 B），越 365KB 线 1,608 B；延后加载菜单图标只会把图标推迟到菜单
+    // 展开时出现，属可见劣化，故按同条款重定标到 370KB（约 3.4KB 余量），待第七十二阶段
+    // 卸载 PrimeVue 后复测并收紧。
+    coreEntryJsGzipBytes: 370 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
     keyCssGzipBytes: 70 * KB,
     prIncrementJsGzipBytes: 20 * KB,
