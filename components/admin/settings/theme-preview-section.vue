@@ -6,8 +6,8 @@
                     ref="previewInner"
                     class="preview-inner"
                     :style="{
-                        backgroundColor: 'var(--p-surface-0)',
-                        color: 'var(--p-text-color)',
+                        backgroundColor: 'var(--m-surface-0)',
+                        color: 'var(--caomei-color-text)',
                         filter: settings.themeMourningMode ? 'grayscale(100%)' : 'none'
                     }"
                 >
@@ -24,7 +24,7 @@
                             :style="{
                                 backgroundColor: 'var(--m-accent-color)',
                                 borderColor: 'var(--m-accent-color)',
-                                color: 'var(--p-primary-contrast-color)'
+                                color: 'var(--caomei-color-primary-foreground)'
                             }"
                         >
                             <template #icon>
@@ -210,7 +210,7 @@ const backgroundColorModel = createColorModel('themeBackgroundValue')
 
 // 预览区域样式
 .preview-canvas {
-    background-color: var(--p-surface-100);
+    background-color: var(--m-surface-100);
     padding: 3rem 2rem;
     border-radius: 12px;
     display: flex;
@@ -225,9 +225,9 @@ const backgroundColorModel = createColorModel('themeBackgroundValue')
     width: 100%;
     max-width: 500px;
     padding: 1.5rem;
-    border-radius: var(--p-content-border-radius);
+    border-radius: var(--caomei-radius-md);
     transition: all 0.3s ease;
-    border: 1px solid var(--p-content-border-color);
+    border: 1px solid var(--caomei-color-border);
 }
 
 .preview-actions {

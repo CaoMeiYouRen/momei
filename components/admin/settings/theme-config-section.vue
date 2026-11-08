@@ -359,7 +359,7 @@ const mourningModeRef = computed({
 
     :deep(.caomei-tabs__list) {
         background: transparent;
-        border-color: var(--p-content-border-color);
+        border-color: var(--caomei-color-border);
         display: flex;
     }
 
@@ -369,18 +369,18 @@ const mourningModeRef = computed({
         font-size: 0.8125rem;
         white-space: nowrap;
         justify-content: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         border-bottom: 2px solid transparent;
         transition: all 0.2s;
 
         &[data-state='active'] {
-            color: var(--p-primary-color);
-            border-bottom-color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
+            border-bottom-color: var(--caomei-color-primary);
         }
 
         &:hover:not([data-state='active']) {
-            color: var(--p-text-color);
-            background: var(--p-surface-50);
+            color: var(--caomei-color-text);
+            background: var(--m-surface-50);
         }
     }
 }

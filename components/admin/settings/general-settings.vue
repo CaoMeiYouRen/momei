@@ -640,9 +640,9 @@ const copyrightOptions = computed(() => getCopyrightLicenseOptions(t))
     }
 
     &__preview {
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.75rem;
-        box-shadow: var(--p-overlay-popover-shadow);
+        box-shadow: var(--m-shadow-popover);
     }
 }
 </style>

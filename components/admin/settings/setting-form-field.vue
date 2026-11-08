@@ -150,12 +150,12 @@ const resolvedMessage = computed(() => {
 
     &__lock {
         font-size: 0.85rem;
-        color: var(--p-orange-500);
+        color: var(--m-orange-500);
     }
 
     &__description {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 

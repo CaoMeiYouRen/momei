@@ -384,8 +384,8 @@ async function generateLocalizedDraft() {
         align-items: center;
         padding: 0.25rem 0.625rem;
         border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
-        color: var(--p-primary-color);
+        background: color-mix(in srgb, var(--caomei-color-primary) 12%, transparent);
+        color: var(--caomei-color-primary);
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.04em;
@@ -393,7 +393,7 @@ async function generateLocalizedDraft() {
     }
 
     &__helper {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 
@@ -402,7 +402,7 @@ async function generateLocalizedDraft() {
     }
 
     &__hint {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 }

@@ -119,7 +119,7 @@ const suggestedTabs: Array<{
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &__title {
@@ -129,7 +129,7 @@ const suggestedTabs: Array<{
 
     &__description {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -145,16 +145,16 @@ const suggestedTabs: Array<{
         gap: 0.75rem;
         align-items: start;
         padding: 0.9rem 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.9rem;
-        background: color-mix(in srgb, var(--p-primary-50) 30%, var(--p-surface-0) 70%);
+        background: color-mix(in srgb, var(--m-primary-50) 30%, var(--m-surface-0) 70%);
         text-align: left;
         cursor: pointer;
         transition: border-color 0.2s ease, transform 0.2s ease;
 
         i {
             margin-top: 0.15rem;
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
 
         span {
@@ -164,16 +164,16 @@ const suggestedTabs: Array<{
 
         strong {
             font-size: 0.95rem;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
 
         small {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.45;
         }
 
         &:hover {
-            border-color: var(--p-primary-color);
+            border-color: var(--caomei-color-primary);
             transform: translateY(-1px);
         }
     }

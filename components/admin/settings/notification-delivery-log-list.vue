@@ -432,13 +432,13 @@ onMounted(() => {
 
     &__description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
     &__demo-note {
         margin: $spacing-xs 0 0;
-        color: var(--p-primary-600);
+        color: var(--m-primary-600);
     }
 
     &__filters {
@@ -481,7 +481,7 @@ onMounted(() => {
     }
 
     &__recipient-secondary {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.85rem;
         overflow-wrap: anywhere;
     }
@@ -490,13 +490,13 @@ onMounted(() => {
         display: flex;
         align-items: center;
         gap: $spacing-xs;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
         overflow-wrap: anywhere;
     }
 
     &__target {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: none;
 
         &:hover {
@@ -505,14 +505,14 @@ onMounted(() => {
     }
 
     &__error {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         overflow-wrap: anywhere;
     }
 
     &__empty {
         padding: $spacing-lg;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__time-column {

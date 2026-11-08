@@ -219,12 +219,12 @@ defineExpose({ refresh: loadLogs })
 
     &__description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__demo-note {
         margin: $spacing-xs 0 0;
-        color: var(--p-primary-600);
+        color: var(--m-primary-600);
     }
 
     &__table {
@@ -247,7 +247,7 @@ defineExpose({ refresh: loadLogs })
     }
 
     &__source-note {
-        color: var(--p-orange-500);
+        color: var(--m-orange-500);
     }
 
     &__operator {
@@ -259,7 +259,7 @@ defineExpose({ refresh: loadLogs })
     &__empty {
         padding: $spacing-lg;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__time-column {

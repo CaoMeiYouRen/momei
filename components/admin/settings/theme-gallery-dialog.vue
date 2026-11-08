@@ -241,11 +241,11 @@ watch(() => props.modelValue, (val) => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--p-content-border-color);
+    border: 1px solid var(--caomei-color-border);
     border-radius: 12px;
     overflow: hidden;
     transition: all 0.2s ease-in-out;
-    background-color: var(--p-content-background);
+    background-color: var(--m-surface-0);
 }
 
 /* 子元素与内部结构样式必须留在**单类**块内：
@@ -255,12 +255,12 @@ watch(() => props.modelValue, (val) => {
     &:hover {
         transform: translateY(-4px);
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
-        border-color: var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
     }
 
     :deep(.caomei-card__header) {
         padding: 0;
-        border-bottom: 1px solid var(--p-content-border-color);
+        border-bottom: 1px solid var(--caomei-color-border);
     }
 
     :deep(.caomei-card__body) {
@@ -281,7 +281,7 @@ watch(() => props.modelValue, (val) => {
         height: 160px;
         background-size: cover;
         background-position: center;
-        background-color: var(--p-surface-100);
+        background-color: var(--m-surface-100);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -309,7 +309,7 @@ watch(() => props.modelValue, (val) => {
 
     &__placeholder {
         opacity: 0.3;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__title-row {
@@ -329,7 +329,7 @@ watch(() => props.modelValue, (val) => {
     &__name {
         font-weight: 700;
         font-size: 1.125rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -337,7 +337,7 @@ watch(() => props.modelValue, (val) => {
 
     &__description {
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -359,7 +359,7 @@ watch(() => props.modelValue, (val) => {
     justify-content: center;
     padding: 4rem 2rem;
     text-align: center;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 
     :deep(svg) {
         margin-bottom: 1rem;

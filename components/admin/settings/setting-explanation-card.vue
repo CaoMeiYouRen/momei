@@ -72,9 +72,9 @@ defineProps<{
 .setting-explanation-card {
     padding: 1rem;
     margin-bottom: 1.5rem;
-    border: 1px solid var(--p-content-border-color);
+    border: 1px solid var(--caomei-color-border);
     border-radius: 1rem;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--p-primary-50) 55%, transparent) 0%, transparent 100%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--m-primary-50) 55%, transparent) 0%, transparent 100%);
 
     &__header {
         display: flex;
@@ -92,7 +92,7 @@ defineProps<{
 
     &__description {
         margin: 0.35rem 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 
@@ -103,12 +103,12 @@ defineProps<{
         min-width: 12rem;
         padding: 0.75rem;
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-surface-100) 80%, transparent);
+        background: color-mix(in srgb, var(--m-surface-100) 80%, transparent);
     }
 
     &__priority-label {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__priority-value {
@@ -128,7 +128,7 @@ defineProps<{
         gap: 0.75rem;
         padding: 0.75rem;
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-surface-0) 88%, transparent);
+        background: color-mix(in srgb, var(--m-surface-0) 88%, transparent);
     }
 }
 
