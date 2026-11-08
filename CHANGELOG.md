@@ -1,5 +1,88 @@
 # momei
 
+# [1.30.0](https://github.com/CaoMeiYouRen/momei/compare/v1.29.0...v1.30.0) (2026-11-08)
+
+
+### ✨ 新功能
+
+* **admin:** 设置/用户/分类弹窗迁移到 caomei-ui ([ca4b1a2](https://github.com/CaoMeiYouRen/momei/commit/ca4b1a2))
+* **admin:** 迁移 AI 任务详情与共享 AI 组件到 caomei-ui ([3ad69ec](https://github.com/CaoMeiYouRen/momei/commit/3ad69ec)), closes [#title](https://github.com/CaoMeiYouRen/momei/issues/title) [#title](https://github.com/CaoMeiYouRen/momei/issues/title)
+* **admin:** 迁移仪表盘与 dashboard 组件到 caomei-ui ([b3d42e5](https://github.com/CaoMeiYouRen/momei/commit/b3d42e5))
+* **admin:** 迁移内容日历与月历 / 看板视图到 caomei-ui ([f63b763](https://github.com/CaoMeiYouRen/momei/commit/f63b763))
+* **admin:** 迁移文章编辑器整路由到 caomei-ui ([e9cf139](https://github.com/CaoMeiYouRen/momei/commit/e9cf139))
+* **admin:** 迁移灵感收纳箱整路由到 caomei-ui ([58064d3](https://github.com/CaoMeiYouRen/momei/commit/58064d3))
+* **ai:** 校验技能 references 索引并修正 skill 链接锚点 ([626a255](https://github.com/CaoMeiYouRen/momei/commit/626a255))
+* **i18n:** 接入 caomei-ui 内建文案 locale ([321cb91](https://github.com/CaoMeiYouRen/momei/commit/321cb91))
+* **i18n:** 新增字段文案同义检查 warning 入口 ([f21cf1c](https://github.com/CaoMeiYouRen/momei/commit/f21cf1c)), closes [#11](https://github.com/CaoMeiYouRen/momei/issues/11)
+* **installation:** 安装向导整路由迁移到 caomei-ui ([74363b2](https://github.com/CaoMeiYouRen/momei/commit/74363b2))
+* **notifications:** 通知管理整路由迁移到 caomei-ui ([6f1ce13](https://github.com/CaoMeiYouRen/momei/commit/6f1ce13))
+* **pages:** 管理端页面浮层迁移并扩面守卫 ([14c7f7a](https://github.com/CaoMeiYouRen/momei/commit/14c7f7a))
+* **posts:** 编辑器与管理端 posts 浮层迁移到 caomei-ui ([2bef148](https://github.com/CaoMeiYouRen/momei/commit/2bef148))
+* **security:** 增加发布前安全告警门禁规范并禁止 critical 豁免 ([f0d7747](https://github.com/CaoMeiYouRen/momei/commit/f0d7747))
+* **security:** 对齐 dismissed 与 fail-closed 门禁并迁移豁免台账 ([c2ec04a](https://github.com/CaoMeiYouRen/momei/commit/c2ec04a))
+* **settings:** 用户设置与认证/提交页迁移到 caomei-ui ([e95c271](https://github.com/CaoMeiYouRen/momei/commit/e95c271)), closes [#value](https://github.com/CaoMeiYouRen/momei/issues/value)
+* **theme:** 主题工作台整批迁移到 caomei-ui ([c7c253b](https://github.com/CaoMeiYouRen/momei/commit/c7c253b))
+* **ui:** 升级 caomei-ui 至 1.0.0-rc.1 并接线状态文字与控件边界 token ([33d3013](https://github.com/CaoMeiYouRen/momei/commit/33d3013))
+* **ui:** 接入 caomei Toast/Confirm 服务层 ([b9acac1](https://github.com/CaoMeiYouRen/momei/commit/b9acac1))
+* **ui:** 新增 AppTooltip 桥接层并收紧浮层族零残留守卫 ([ca25e1e](https://github.com/CaoMeiYouRen/momei/commit/ca25e1e))
+* **ui:** 设置页与设置面板整批迁移到 caomei-ui ([0c11267](https://github.com/CaoMeiYouRen/momei/commit/0c11267))
+* **ui:** 迁移全局布局壳到 caomei-ui ([753b79a](https://github.com/CaoMeiYouRen/momei/commit/753b79a)), closes [#icon](https://github.com/CaoMeiYouRen/momei/issues/icon)
+* **ui:** 迁移共享浮层与全局壳到 caomei-ui ([7c8be83](https://github.com/CaoMeiYouRen/momei/commit/7c8be83))
+* **ui:** 迁移文章分享与赞助组件到 caomei-ui ([ba8c8b5](https://github.com/CaoMeiYouRen/momei/commit/ba8c8b5))
+* **ui:** 迁移评论、订阅与阅读控件到 caomei-ui ([eecb3a8](https://github.com/CaoMeiYouRen/momei/commit/eecb3a8))
+* **workflow:** 开局 CI 回执与周回归安全门禁 ([620021d](https://github.com/CaoMeiYouRen/momei/commit/620021d))
+
+
+### 🐛 Bug 修复
+
+* **auth:** 社交登录可用性改为服务端运行期判定 ([8602b71](https://github.com/CaoMeiYouRen/momei/commit/8602b71))
+* **ci:** Release 预检前初始化 AI 平台镜像 ([a300132](https://github.com/CaoMeiYouRen/momei/commit/a300132))
+* **deps:** 升级 better-auth 到 1.7.14 修复安全漏洞 ([f47d5d1](https://github.com/CaoMeiYouRen/momei/commit/f47d5d1))
+* **deps:** 收敛 i18n 依赖族到 11.4.16 修复 GHSA-83rm-6c8r-g728 ([113c351](https://github.com/CaoMeiYouRen/momei/commit/113c351))
+* **docs:** 修正回归记录相对链接与锚点 ([0926a3a](https://github.com/CaoMeiYouRen/momei/commit/0926a3a))
+* **e2e:** 适配编辑器标题字段的 CaomeiInput 选择器 ([97b98c2](https://github.com/CaoMeiYouRen/momei/commit/97b98c2))
+* **friend-link:** 归一化 name 与 url 在 assignDefined 之后执行 ([1a54c15](https://github.com/CaoMeiYouRen/momei/commit/1a54c15))
+* **i18n:** 清理重复键、双源同键、死键与硬编码文案 ([c12f5e6](https://github.com/CaoMeiYouRen/momei/commit/c12f5e6))
+* **marketing:** 归位创建推送弹窗宽度并重校准文字门禁 ([8b0d34b](https://github.com/CaoMeiYouRen/momei/commit/8b0d34b))
+* **posts:** 草稿恢复取消时保留本地草稿 ([9e49b81](https://github.com/CaoMeiYouRen/momei/commit/9e49b81))
+* **security:** 修复注释清洗的残留分隔符告警 ([2b3e3a9](https://github.com/CaoMeiYouRen/momei/commit/2b3e3a9))
+* **security:** 修正 HTML 注释过滤的 --!> 闭合符 ([e541013](https://github.com/CaoMeiYouRen/momei/commit/e541013))
+* **security:** 升级 node-forge 与 follow-redirects 消除 6 条 high 告警 ([17be98f](https://github.com/CaoMeiYouRen/momei/commit/17be98f))
+* **security:** 收紧台账路径校验并登记过渡期退出项 ([2aebb3a](https://github.com/CaoMeiYouRen/momei/commit/2aebb3a))
+* **test:** 修复 SEO 文章详情用例的外部资源等待超时 ([e753208](https://github.com/CaoMeiYouRen/momei/commit/e753208))
+* **test:** 修正 useI18n 守卫的 match 组类型收窄 ([2cabc0f](https://github.com/CaoMeiYouRen/momei/commit/2cabc0f))
+* **theme:** 修复画廊卡片页脚布局与新增测试的门禁问题 ([2c017c8](https://github.com/CaoMeiYouRen/momei/commit/2c017c8))
+* **theme:** 固定 CSS 层序声明位置避免暗色 token 被反向覆盖 ([10553dd](https://github.com/CaoMeiYouRen/momei/commit/10553dd))
+* **theme:** 拆分双类选择器修复画廊子元素样式失效 ([13d3650](https://github.com/CaoMeiYouRen/momei/commit/13d3650))
+* **visual:** 修正参考态的日期依赖与 --only 误采 ([e3fd8fb](https://github.com/CaoMeiYouRen/momei/commit/e3fd8fb))
+
+
+### 📦 代码重构
+
+* **admin:** AI 与友链页面 composable 迁移至 caomei Toast/Confirm ([3662a4c](https://github.com/CaoMeiYouRen/momei/commit/3662a4c))
+* **admin:** 片段与营销组件迁移 v-tooltip 到 AppTooltip ([da0d07a](https://github.com/CaoMeiYouRen/momei/commit/da0d07a))
+* **icons:** 公开页与共享组件图标改用 lucide / mdi ([c27e8ca](https://github.com/CaoMeiYouRen/momei/commit/c27e8ca))
+* **icons:** 数据驱动图标配置改为组件映射 ([e58fc12](https://github.com/CaoMeiYouRen/momei/commit/e58fc12))
+* **icons:** 清理剩余模板与测试中的 PrimeIcons 图标 ([f98442f](https://github.com/CaoMeiYouRen/momei/commit/f98442f))
+* **marketing:** 推送列表与表单迁移至 caomei Toast/Confirm ([a5adff3](https://github.com/CaoMeiYouRen/momei/commit/a5adff3))
+* **pages:** 页面级 Toast/Confirm 调用迁移至 caomei ([3d12b20](https://github.com/CaoMeiYouRen/momei/commit/3d12b20))
+* **pages:** 页面迁移 v-tooltip 到 AppTooltip ([76e97d9](https://github.com/CaoMeiYouRen/momei/commit/76e97d9))
+* **posts:** 编辑器 composable 迁移至 caomei Toast/Confirm ([5d173d6](https://github.com/CaoMeiYouRen/momei/commit/5d173d6))
+* **posts:** 编辑器与管理端 posts 迁移 v-tooltip 到 AppTooltip ([6387118](https://github.com/CaoMeiYouRen/momei/commit/6387118))
+* **posts:** 编辑器设置确认迁移至 caomei ([b841470](https://github.com/CaoMeiYouRen/momei/commit/b841470))
+* **security:** 抽出告警策略并接入 open/dismissed 双状态读取 ([848d619](https://github.com/CaoMeiYouRen/momei/commit/848d619))
+* **security:** 移除未使用的 token 解析参数 ([888c3bd](https://github.com/CaoMeiYouRen/momei/commit/888c3bd))
+* **settings:** 管理端设置组件迁移至 caomei Toast/Confirm ([8462e1d](https://github.com/CaoMeiYouRen/momei/commit/8462e1d))
+* **settings:** 设置页组件迁移 v-tooltip 到 AppTooltip ([f903514](https://github.com/CaoMeiYouRen/momei/commit/f903514))
+* **ui:** 公开页与用户设置组件迁移至 caomei Toast/Confirm ([7497d1f](https://github.com/CaoMeiYouRen/momei/commit/7497d1f))
+* **ui:** 共享壳与全局组件迁移 v-tooltip 到 AppTooltip ([a8e8251](https://github.com/CaoMeiYouRen/momei/commit/a8e8251))
+* **ui:** 导出/翻译/TTS/上传 composable 迁移至 caomei Toast ([84a266c](https://github.com/CaoMeiYouRen/momei/commit/84a266c))
+* **ui:** 收口过渡组件并登记公开路由迁移范围 ([aaaa317](https://github.com/CaoMeiYouRen/momei/commit/aaaa317))
+* **ui:** 迁移公开页外围组件至 caomei-ui ([1777589](https://github.com/CaoMeiYouRen/momei/commit/1777589))
+* **ui:** 迁移友链页至 caomei-ui ([124a0e8](https://github.com/CaoMeiYouRen/momei/commit/124a0e8))
+* **ui:** 迁移归档、分类、标签、跳转与法务协议页至 caomei-ui ([3194a2d](https://github.com/CaoMeiYouRen/momei/commit/3194a2d))
+* **ui:** 迁移首页与文章列表、详情路由至 caomei-ui ([58e9168](https://github.com/CaoMeiYouRen/momei/commit/58e9168))
+
 # [1.29.0](https://github.com/CaoMeiYouRen/momei/compare/v1.28.0...v1.29.0) (2026-10-24)
 
 
