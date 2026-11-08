@@ -144,7 +144,7 @@ useHead({
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
     }
 
     &__title {
@@ -156,7 +156,7 @@ useHead({
     &__subtitle {
         margin: 0;
         max-width: 50rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.7;
         font-size: 1rem;
     }
@@ -171,9 +171,9 @@ useHead({
         display: grid;
         gap: 1rem;
         padding: 1.5rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1.25rem;
-        background: linear-gradient(180deg, color-mix(in srgb, var(--p-surface-0) 80%, var(--p-primary-50) 20%), var(--p-surface-0));
+        background: linear-gradient(180deg, color-mix(in srgb, var(--m-surface-0) 80%, var(--m-primary-50) 20%), var(--m-surface-0));
         box-shadow: 0 14px 30px rgb(15 23 42 / 0.05);
     }
 
@@ -189,8 +189,8 @@ useHead({
             align-items: center;
             justify-content: center;
             border-radius: 999px;
-            background: color-mix(in srgb, var(--p-primary-color) 12%, white 88%);
-            color: var(--p-primary-color);
+            background: color-mix(in srgb, var(--caomei-color-primary) 12%, white 88%);
+            color: var(--caomei-color-primary);
         }
 
         h2 {
@@ -200,7 +200,7 @@ useHead({
 
         p {
             margin: 0.35rem 0 0;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.6;
         }
     }
@@ -217,7 +217,7 @@ useHead({
         padding-left: 1.2rem;
         display: grid;
         gap: 0.45rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__action {
@@ -227,8 +227,8 @@ useHead({
         gap: 0.5rem;
         padding: 0.85rem 1rem;
         border-radius: 999px;
-        background: var(--p-primary-color);
-        color: var(--p-primary-contrast-color);
+        background: var(--caomei-color-primary);
+        color: var(--caomei-color-primary-foreground);
         text-decoration: none;
         font-weight: 600;
     }
@@ -237,8 +237,8 @@ useHead({
         margin: 0;
         padding: 0.85rem 1rem;
         border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-yellow-50) 70%, var(--p-surface-0) 30%);
-        color: var(--p-text-muted-color);
+        background: color-mix(in srgb, var(--m-yellow-50) 70%, var(--m-surface-0) 30%);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 }

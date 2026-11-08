@@ -271,7 +271,7 @@ const handleDatabaseNext = () => {
     &__title {
         font-size: 2rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
 
         /* 0.5rem 标题下边距 + PrimeVue `.p-card-title` 的 1rem + 副标题插槽的 2rem 内边距。 */
         margin: 0 0 3.5rem;
@@ -280,7 +280,7 @@ const handleDatabaseNext = () => {
     &__subtitle {
         font-size: 1rem;
         line-height: 1.5;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
 
         /* PrimeVue `.p-card-subtitle` 自带的行高与下边距，合并后需显式补回。 */
         margin: 0 0 0.5rem;
@@ -297,9 +297,9 @@ const handleDatabaseNext = () => {
         display: grid;
         gap: 0.875rem;
         padding: 1rem 1.25rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
-        background: color-mix(in srgb, var(--p-primary-50) 32%, var(--p-surface-0) 68%);
+        background: color-mix(in srgb, var(--m-primary-50) 32%, var(--m-surface-0) 68%);
     }
 
     &__language-bar {
@@ -312,13 +312,13 @@ const handleDatabaseNext = () => {
         margin: 0;
         font-size: 1rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__quick-start-description,
     &__setup-summary-description {
         margin: 0.25rem 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 
@@ -343,18 +343,18 @@ const handleDatabaseNext = () => {
         gap: 0.625rem;
         padding: 0.75rem 0.875rem;
         border-radius: 0.875rem;
-        background: color-mix(in srgb, var(--p-surface-0) 86%, var(--p-primary-50) 14%);
-        border: 1px solid color-mix(in srgb, var(--p-content-border-color) 76%, white 24%);
+        background: color-mix(in srgb, var(--m-surface-0) 86%, var(--m-primary-50) 14%);
+        border: 1px solid color-mix(in srgb, var(--caomei-color-border) 76%, white 24%);
 
         strong {
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
             font-size: 0.92rem;
         }
     }
 
     &__focus-later {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
         line-height: 1.5;
     }
@@ -366,12 +366,12 @@ const handleDatabaseNext = () => {
         width: 2rem;
         height: 2rem;
         border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, white 88%);
-        color: var(--p-primary-color);
+        background: color-mix(in srgb, var(--caomei-color-primary) 12%, white 88%);
+        color: var(--caomei-color-primary);
     }
 
     .text-error {
-        color: var(--p-error-color);
+        color: var(--caomei-color-danger);
     }
 
     :deep(.form-field) {
@@ -400,7 +400,7 @@ const handleDatabaseNext = () => {
     :deep(.installation-wizard__field-error) {
         display: block;
         margin-top: 0.25rem;
-        color: var(--p-red-500);
+        color: var(--m-red-500);
         font-size: 0.8125rem;
         line-height: 1.5;
     }
@@ -408,7 +408,7 @@ const handleDatabaseNext = () => {
     :deep(.installation-wizard__field-lock) {
         display: block;
         margin-top: 0.25rem;
-        color: var(--p-orange-500);
+        color: var(--m-orange-500);
         font-size: 0.8125rem;
         line-height: 1.5;
     }
@@ -453,12 +453,12 @@ const handleDatabaseNext = () => {
         h2 {
             font-size: 1.5rem;
             font-weight: 600;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
             margin: 0 0 0.5rem;
         }
 
         > p {
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             margin: 0 0 2rem;
         }
     }
@@ -482,26 +482,25 @@ const handleDatabaseNext = () => {
 
         .check-card {
             padding: 1.25rem;
-            border: 1px solid var(--p-content-border-color);
-            border-radius: var(--p-border-radius-md);
-            background-color: var(--p-content-background);
+            border: 1px solid var(--caomei-color-border);
+            background-color: var(--m-surface-0);
             transition: all 0.2s;
 
             &:hover {
-                border-color: var(--p-primary-color);
-                box-shadow: 0 4px 6px -1px var(--p-primary-100);
+                border-color: var(--caomei-color-primary);
+                box-shadow: 0 4px 6px -1px var(--m-primary-100);
             }
 
             &--warning {
-                border-color: var(--p-orange-300);
-                background-color: var(--p-orange-50);
+                border-color: var(--m-orange-300);
+                background-color: var(--m-orange-50);
 
                 &:hover {
-                    border-color: var(--p-orange-500);
+                    border-color: var(--m-orange-500);
                 }
 
                 .check-card__header {
-                    color: var(--p-orange-600);
+                    color: var(--m-orange-600);
                 }
             }
 
@@ -511,7 +510,7 @@ const handleDatabaseNext = () => {
                 gap: 0.75rem;
                 margin-bottom: 1rem;
                 font-weight: 600;
-                color: var(--p-primary-color);
+                color: var(--caomei-color-primary);
             }
 
             &__content {
@@ -526,12 +525,12 @@ const handleDatabaseNext = () => {
 
                 .status-detail {
                     font-size: 0.875rem;
-                    color: var(--p-text-muted-color);
+                    color: var(--caomei-color-text-muted);
                 }
 
                 .status-warning {
                     font-size: 0.75rem;
-                    color: var(--p-orange-600);
+                    color: var(--m-orange-600);
                     margin-top: 0.5rem;
                     line-height: 1.4;
                 }
@@ -555,13 +554,13 @@ const handleDatabaseNext = () => {
                 display: block;
                 font-weight: 500;
                 margin-bottom: 0.5rem;
-                color: var(--p-text-color);
+                color: var(--caomei-color-text);
             }
 
             small:not(.installation-wizard__field-error, .installation-wizard__field-lock) {
                 display: block;
                 margin-top: 0.25rem;
-                color: var(--p-text-muted-color);
+                color: var(--caomei-color-text-muted);
                 font-size: 0.875rem;
             }
         }
@@ -573,7 +572,7 @@ const handleDatabaseNext = () => {
         .env-code {
             display: block;
             padding: 1rem;
-            background: var(--p-surface-100);
+            background: var(--m-surface-100);
             border-radius: 0.5rem;
             font-family: monospace;
             margin-top: 1rem;
@@ -584,19 +583,19 @@ const handleDatabaseNext = () => {
         margin-top: 1.5rem;
         padding: 1rem;
         border-radius: 0.875rem;
-        background: color-mix(in srgb, var(--p-primary-50) 42%, var(--p-surface-0) 58%);
-        border: 1px solid var(--p-content-border-color);
+        background: color-mix(in srgb, var(--m-primary-50) 42%, var(--m-surface-0) 58%);
+        border: 1px solid var(--caomei-color-border);
 
         h3 {
             margin: 0;
             font-size: 1rem;
             font-weight: 700;
-            color: var(--p-text-color);
+            color: var(--caomei-color-text);
         }
 
         > p {
             margin: 0.5rem 0 0;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             line-height: 1.6;
         }
     }
@@ -614,17 +613,17 @@ const handleDatabaseNext = () => {
         align-items: center;
         width: 100%;
         padding: 0.875rem 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.75rem;
-        background: var(--p-content-background);
-        color: var(--p-text-color);
+        background: var(--m-surface-0);
+        color: var(--caomei-color-text);
         text-align: left;
         cursor: pointer;
         transition: border-color 0.2s ease, transform 0.2s ease;
 
         &:hover {
             transform: translateY(-1px);
-            border-color: var(--p-primary-color);
+            border-color: var(--caomei-color-primary);
         }
 
         strong,
@@ -635,7 +634,7 @@ const handleDatabaseNext = () => {
 
         small {
             margin-top: 0.3rem;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             font-size: 0.8rem;
         }
     }
@@ -647,12 +646,12 @@ const handleDatabaseNext = () => {
         width: 2rem;
         height: 2rem;
         border-radius: 999px;
-        background: color-mix(in srgb, var(--p-primary-color) 12%, white 88%);
-        color: var(--p-primary-color);
+        background: color-mix(in srgb, var(--caomei-color-primary) 12%, white 88%);
+        color: var(--caomei-color-primary);
     }
 
     :deep(.installation-wizard__follow-up-cta) {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         font-size: 0.875rem;
         font-weight: 600;
         white-space: nowrap;
@@ -664,7 +663,6 @@ const handleDatabaseNext = () => {
         gap: 1rem;
         margin-top: 2rem;
         padding-top: 2rem;
-        border-top: 1px solid var(--p-surface-border);
     }
 }
 
@@ -696,24 +694,24 @@ const handleDatabaseNext = () => {
     .installation-wizard {
         &__language-bar,
         &__setup-summary {
-            background: color-mix(in srgb, var(--p-primary-900) 32%, var(--p-surface-900) 68%);
+            background: color-mix(in srgb, var(--m-primary-900) 32%, var(--m-surface-900) 68%);
         }
 
         &__focus-item {
-            background: color-mix(in srgb, var(--p-surface-900) 82%, var(--p-primary-900) 18%);
+            background: color-mix(in srgb, var(--m-surface-900) 82%, var(--m-primary-900) 18%);
         }
 
         &__setup-icon,
         :deep(.installation-wizard__follow-up-icon) {
-            background: color-mix(in srgb, var(--p-primary-color) 20%, var(--p-surface-900) 80%);
+            background: color-mix(in srgb, var(--caomei-color-primary) 20%, var(--m-surface-900) 80%);
         }
 
         :deep(.installation-wizard__follow-up) {
-            background: color-mix(in srgb, var(--p-primary-900) 28%, var(--p-surface-900) 72%);
+            background: color-mix(in srgb, var(--m-primary-900) 28%, var(--m-surface-900) 72%);
         }
 
         :deep(.installation-wizard__follow-up-action) {
-            background: var(--p-surface-800);
+            background: var(--m-surface-800);
         }
     }
 }

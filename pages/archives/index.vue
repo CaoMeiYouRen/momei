@@ -218,7 +218,7 @@ function formatMonthName(month: number) {
             .post-title { font-weight: 600 }
 
             .post-summary {
-              color: var(--p-text-muted-color);
+              color: var(--caomei-color-text-muted);
               font-size: 0.95rem;
             }
           }

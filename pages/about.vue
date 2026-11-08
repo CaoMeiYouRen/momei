@@ -192,11 +192,11 @@ onMounted(() => {
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 
-$color-ink: var(--p-text-color);
-$color-plum: var(--p-primary-color);
-$color-paper: var(--p-surface-ground);
-$color-accent: var(--p-text-muted-color);
-$color-white: var(--p-surface-card);
+$color-ink: var(--caomei-color-text);
+$color-plum: var(--caomei-color-primary);
+$color-paper: var(--m-surface-ground);
+$color-accent: var(--caomei-color-text-muted);
+$color-white: var(--caomei-color-bg);
 
 .home-page {
   font-family: $font-sans;
@@ -270,7 +270,7 @@ $color-white: var(--p-surface-card);
   &__btn {
     display: inline-block;
     background-color: $color-ink;
-    color: var(--p-surface-0);
+    color: var(--m-surface-0);
     padding: $spacing-sm * 1.5 $spacing-xl;
     border-radius: $border-radius-sm;
     text-decoration: none;
@@ -281,7 +281,7 @@ $color-white: var(--p-surface-card);
     }
 
     :global(.dark) & {
-        color: var(--p-surface-900);
+        color: var(--m-surface-900);
     }
   }
 }
@@ -397,7 +397,7 @@ $color-white: var(--p-surface-card);
   &__icon-wrapper {
     width: 3rem;
     height: 3rem;
-    background-color: var(--p-surface-200);
+    background-color: var(--m-surface-200);
     border-radius: 9999px;
     display: flex;
     align-items: center;

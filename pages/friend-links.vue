@@ -532,7 +532,7 @@ const handleSubmit = async () => {
 
     &__guidelines {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.8;
         white-space: pre-line;
     }
@@ -545,10 +545,10 @@ const handleSubmit = async () => {
 
     &__health-notice {
         padding: 0.85rem 1rem;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 0.9rem;
-        background: var(--p-surface-50);
-        color: var(--p-text-muted-color);
+        background: var(--m-surface-50);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
         font-size: 0.95rem;
     }
@@ -566,7 +566,7 @@ const handleSubmit = async () => {
 
     &__group-description {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__grid {
@@ -589,9 +589,9 @@ const handleSubmit = async () => {
         gap: 1rem;
         padding: 1.25rem;
         min-height: 100%;
-        border: 1px solid var(--p-content-border-color);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 1rem;
-        background: var(--p-content-background);
+        background: var(--m-surface-0);
         box-shadow: 0 18px 38px rgb(15 23 42 / 0.04);
     }
 
@@ -607,8 +607,8 @@ const handleSubmit = async () => {
         height: 3.25rem;
         border-radius: 0.9rem;
         object-fit: cover;
-        background: var(--p-surface-100);
-        border: 1px solid var(--p-content-border-color);
+        background: var(--m-surface-100);
+        border: 1px solid var(--caomei-color-border);
 
         &--fallback {
             display: flex;
@@ -616,7 +616,7 @@ const handleSubmit = async () => {
             justify-content: center;
             font-size: 1.35rem;
             font-weight: 700;
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
@@ -631,7 +631,7 @@ const handleSubmit = async () => {
 
     &__card-url {
         margin: 0.3rem 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -639,7 +639,7 @@ const handleSubmit = async () => {
 
     &__card-description {
         margin: 0;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         line-height: 1.7;
     }
 
@@ -656,7 +656,7 @@ const handleSubmit = async () => {
     }
 
     &__health-time {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.85rem;
     }
 
@@ -671,8 +671,8 @@ const handleSubmit = async () => {
         min-height: 2.5rem;
         padding: 0 1rem;
         border-radius: 999px;
-        background: var(--p-primary-color);
-        color: var(--p-primary-contrast-color);
+        background: var(--caomei-color-primary);
+        color: var(--caomei-color-primary-foreground);
         text-decoration: none;
         font-weight: 600;
     }
@@ -683,7 +683,7 @@ const handleSubmit = async () => {
 
     &__apply-subtitle {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__form {
@@ -709,7 +709,7 @@ const handleSubmit = async () => {
     }
 
     &__field-hint {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 
@@ -729,7 +729,7 @@ const handleSubmit = async () => {
     }
 
     &__empty {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.8;
     }
 
@@ -745,7 +745,7 @@ const handleSubmit = async () => {
 
     &__feed-item {
         padding: 0.5rem 0;
-        border-bottom: 1px solid var(--p-surface-200);
+        border-bottom: 1px solid var(--m-surface-200);
     }
 
     &__feed-link {
@@ -755,7 +755,7 @@ const handleSubmit = async () => {
         margin-bottom: 0.25rem;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
@@ -763,7 +763,7 @@ const handleSubmit = async () => {
         display: flex;
         gap: 1rem;
         font-size: 0.8rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__feed-site { font-weight: 500; }

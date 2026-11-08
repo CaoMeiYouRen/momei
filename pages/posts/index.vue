@@ -97,7 +97,7 @@ usePageSeo({
         font-size: 1.875rem; // text-3xl
         font-weight: 700;
         margin-bottom: 2rem; // mb-8
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__list {
@@ -117,7 +117,7 @@ usePageSeo({
     }
 
     &__empty {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__pagination {

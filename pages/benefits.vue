@@ -359,11 +359,11 @@ async function handleSubmit() {
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
 
-$color-ink: var(--p-text-color);
-$color-plum: var(--p-primary-color);
-$color-paper: var(--p-surface-ground);
-$color-accent: var(--p-text-muted-color);
-$color-white: var(--p-surface-card);
+$color-ink: var(--caomei-color-text);
+$color-plum: var(--caomei-color-primary);
+$color-paper: var(--m-surface-ground);
+$color-accent: var(--caomei-color-text-muted);
+$color-white: var(--caomei-color-bg);
 
 .benefits-page {
     font-family: $font-sans;
@@ -732,13 +732,13 @@ $color-white: var(--p-surface-card);
 
         &--success {
             background-color: color-mix(in srgb, $color-success 10%, transparent);
-            color: var(--p-success-700);
+            color: var(--caomei-color-success-text);
             border: 1px solid color-mix(in srgb, $color-success 25%, transparent);
         }
 
         &--error {
             background-color: color-mix(in srgb, $color-danger 10%, transparent);
-            color: var(--p-error-700);
+            color: var(--caomei-color-danger-text);
             border: 1px solid color-mix(in srgb, $color-danger 25%, transparent);
         }
     }

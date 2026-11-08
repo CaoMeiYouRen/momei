@@ -337,19 +337,19 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
 }
 
 .hero {
-  background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-surface-0) 100%);
+  background: linear-gradient(135deg, var(--m-primary-50) 0%, var(--m-surface-0) 100%);
   padding: $spacing-xl * 1.5 0;
   text-align: center;
 
   :global(.dark) & {
-    background: linear-gradient(135deg, var(--p-primary-900) 0%, var(--p-surface-900) 100%);
+    background: linear-gradient(135deg, var(--m-primary-900) 0%, var(--m-surface-900) 100%);
   }
 
   &__title {
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: $spacing-lg;
-    background: linear-gradient(to right, var(--p-primary-600), var(--p-primary-400));
+    background: linear-gradient(to right, var(--m-primary-600), var(--m-primary-400));
     background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -361,7 +361,7 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
 
   &__subtitle {
     font-size: 1.25rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     margin-bottom: $spacing-lg;
     max-width: 600px;
     margin-left: auto;
@@ -391,30 +391,30 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
   text-decoration: none;
 
   &--primary {
-    background-color: var(--p-primary-600);
+    background-color: var(--m-primary-600);
     color: white;
 
     &:hover {
-      background-color: var(--p-primary-700);
+      background-color: var(--m-primary-700);
     }
   }
 
   &--outline {
-    border: 2px solid var(--p-primary-600);
-    color: var(--p-primary-600);
+    border: 2px solid var(--m-primary-600);
+    color: var(--m-primary-600);
 
     &:hover {
-      background-color: var(--p-primary-50);
+      background-color: var(--m-primary-50);
     }
 
     :global(.dark) &:hover {
-      background-color: var(--p-primary-900);
+      background-color: var(--m-primary-900);
     }
   }
 
   &--text {
     padding: 0;
-    color: var(--p-primary-600);
+    color: var(--m-primary-600);
 
     &:hover {
       text-decoration: underline;
@@ -423,7 +423,7 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
 }
 
 .link-more {
-  color: var(--p-primary-600);
+  color: var(--m-primary-600);
   font-weight: 600;
   text-decoration: none;
 
@@ -437,18 +437,17 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
     width: min(100%, 56rem);
     min-height: 13rem;
     border-radius: $border-radius-lg;
-    background: linear-gradient(135deg, var(--p-surface-100) 0%, var(--p-surface-0) 100%);
-    border: 1px dashed var(--p-surface-border);
+    background: linear-gradient(135deg, var(--m-surface-100) 0%, var(--m-surface-0) 100%);
   }
 }
 
 .about-preview {
-  background-color: var(--p-surface-50);
+  background-color: var(--m-surface-50);
   padding: $spacing-xl * 2 0;
   border-radius: $border-radius-lg;
 
   :global(.dark) & {
-    background-color: var(--p-surface-800);
+    background-color: var(--m-surface-800);
   }
 
   .about-text {
@@ -458,7 +457,7 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
 
     p {
       font-size: 1.125rem;
-      color: var(--p-text-muted-color);
+      color: var(--caomei-color-text-muted);
       margin-bottom: $spacing-lg;
       line-height: 1.7;
     }

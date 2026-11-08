@@ -97,7 +97,7 @@ usePageSeo({
     }
 
     &__subtitle {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__grid {
@@ -114,8 +114,7 @@ usePageSeo({
 .category-card {
     display: flex;
     flex-direction: column;
-    background-color: var(--p-surface-card);
-    border: 1px solid var(--p-surface-border);
+    background-color: var(--caomei-color-bg);
     border-radius: 1rem;
     padding: 1.5rem;
     text-decoration: none;
@@ -124,11 +123,11 @@ usePageSeo({
 
     &:hover {
         transform: translateY(-4px);
-        border-color: var(--p-primary-color);
+        border-color: var(--caomei-color-primary);
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
         .category-card__name {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
@@ -140,14 +139,14 @@ usePageSeo({
     &__name {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: 0.5rem;
         transition: color 0.2s;
     }
 
     &__description {
         font-size: 0.875rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -159,7 +158,7 @@ usePageSeo({
         align-items: center;
         gap: 0.5rem;
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 </style>
