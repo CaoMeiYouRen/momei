@@ -33,7 +33,7 @@ async function collectVueFiles(directory: string): Promise<string[]> {
 
     return entries
         .filter((entry) => entry.isFile() && entry.name.endsWith('.vue'))
-        .map((entry) => path.join(entry.parentPath ?? entry.path, entry.name))
+        .map((entry) => path.join(entry.parentPath ?? path.dirname(path.join(process.cwd(), directory)), entry.name))
 }
 
 function stripComments(source: string): string {
@@ -51,7 +51,7 @@ describe('i18n：useI18n() 只能在 setup 顶层调用', () => {
             const source = await readFile(file, 'utf8')
 
             for (const match of source.matchAll(SCRIPT_SETUP)) {
-                if (INDENTED_USE_I18N.test(stripComments(match[1]))) {
+                if (INDENTED_USE_I18N.test(stripComments(match[1] ?? ''))) {
                     offenders.push(path.relative(process.cwd(), file))
                     break
                 }
