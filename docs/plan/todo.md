@@ -58,10 +58,15 @@
     - **验收**: 全量 `pnpm test` 通过；guard 全绿；E2E critical 三浏览器通过；包体与样式预算复算记录落盘。
     - **完成（2026-11-08）**: E2E `p-*` 断言 9 处 / 2 文件清零（`.p-datatable` → `.caomei-data-table`、`.p-inputtext` → `.caomei-input` 存在性断言）；删除 `tests/testSetup.ts` 中已无消费者的 PrimeVue `useToast` / `useConfirm` mock（`primevue-i18n` 插件测试按 roadmap 保留至第七十二阶段）；守卫扩展根前缀精确匹配与动态参数页回退，登记 `/` 与 `/goto` 路由 scope（`CAOMEI_UI_ROUTE_PREFIXES` 增至 35 条）。复算 `keyCss` 63,337 B（61.85KB / 70KB）、`coreEntryJs` 375,368 B（366.57KB）：图标批把全局头部管理菜单的 16 个 lucide 图标带入入口（+6,156 B），延后加载会造成菜单首开缺图标，按「先评估优化或重新定标」条款把配额 365 → **370KB**，三处联动更新并归因落盘；guard 70 + 收口守卫 4 全绿，E2E critical 17 passed / 1 skipped + 安装向导 2 passed，全量 `pnpm test` 本地仍受 25 个既有 `virtual:intlify-i18n` suite 失败影响（HEAD 同样失败，CI 不复现）。
 
-- [ ] **6. 覆盖率第十二批 + 既有缺陷小治理（P2）**
+- [x] **6. 覆盖率第十二批 + 既有缺陷小治理（P2）**
     - **执行范围**: 6a 覆盖率按绝对未覆盖语句数复算、**4 模块粒度且须含 ≥1 个大基数模块**（前四个 `server/services/` 小模块合计仅 102 条，不足 `+0.3pp` 所需 109 条；须纳入 `typeorm-adapter.ts` 84 或 `logger.ts` 61 之一），目标单批 `+0.3pp`；6b i18n 键层缺陷（8 个重复键 / 20 组双源同键 / 6 + 3 个死键 / 1 处硬编码）；6c `useI18n()` 非 setup 顶层调用（`snippet-aggregate-dialog` 2 处、`creator-stats-panel` 3 处）；6d `friend-link` 的 `name` / `url` 归一化被 `assignDefined` 覆盖。
     - **非目标**: 不做全量铺量；不改 UI 布局与 i18n 装配方式。
     - **验收**: 覆盖率目标与算式落盘；6b–6d 各带可判别断言；`i18n:audit:duplicates` 组数不增、`i18n:audit:missing = 0`、`lint:i18n` 通过。
+    - **完成（2026-11-08）**:
+        - **6a**：4 模块 `typeorm-adapter`（84→6）/ `ai/quota-governance`（28→0）/ `agreement`（26→1）/ `post-hexo-repository-sync`（23→0），新增 50 例；全量 statements 28,993 → **29,147 / 36,790（+154 条，+0.42pp）**；算式：`0.003 × 36,790 = 110.4`，四模块未覆盖合计 161 条 → 实际新增 154 条。补测发现 `typeorm-adapter.transformOutput` 的 `_id` 被字段回写覆盖（低影响），已登记 backlog。
+        - **6b**：`admin-posts.json` 8 个原文级重复键去重；20 组 `admin.json` ↔ 模块文件双源同键收敛（`admin-calendar` 页面标题提升为全局值）；删除 `system.fields.*` 6 个死键；`home.hero.*` 3 键经复核仍在使用（立项判断过期）；`submit.vue` 硬编码词条化并补五语。`i18n:audit:duplicates` 101 → **99** 组、`missing = 0`、五语 parity 通过、`i18n:verify:runtime` 129 passed。
+        - **6c**：复核两组件已在 setup 顶层；新增 `tests/modules/i18n-setup-usage-guard.test.ts` 锁「`<script setup>` 内不得在函数体调用 `useI18n()`」，并用临时违规文件验证可判别失败。
+        - **6d**：归一化移到 `assignDefined` 之后，唯一性校验复用同一次清洗；补创建 / 更新两例「首尾空白不落库」断言。
 
 > 历史任务见 [待办事项归档](./todo-archive.md)；token 切换与 PrimeVue 卸载为第七十二阶段候选方向，见 [项目计划](./roadmap.md) 与 [长期规划与积压项](./backlog.md)。
 

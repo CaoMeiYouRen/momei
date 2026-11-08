@@ -10,6 +10,73 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
 
+<!-- regression-window:start:coverage-batch-12:第七十一阶段条目 6a 覆盖率第十二批:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 6a：覆盖率第十二批（4 模块，含大基数）
+
+### 选模与算式
+
+- 目标：全仓 statements 单批 **+0.3pp**。基线 **28,993 / 36,790 = 78.8067%**，所需新增覆盖语句 `0.003 × 36,790 = 110.4` → 至少 **111 条**。
+- 选模按**绝对未覆盖语句数**：`server/database/typeorm-adapter.ts` **84**（大基数，必须纳入）/ `server/services/ai/quota-governance.ts` **28** / `server/services/agreement.ts` **26** / `server/services/post-hexo-repository-sync.ts` **23**，合计 **161 条 > 111**。
+- 结果：四模块未覆盖 84→6、28→0、26→1、23→0，实际新增 **154 条**；全仓 **29,147 / 36,790 = 79.2253%**，**+0.4186pp**（≥ 目标）。
+
+### 补测内容
+
+- `server/database/typeorm-adapter.operations.test.ts`（新增 **17 例**）：create / update / updateMany / deleteMany / findOne / findMany / count / consumeOne / incrementOne / 异常包装 / 实体名与关系解析 / `select` 裁剪 / 模型缺失报错。
+- `quota-governance.test.ts`（+13）、`agreement.test.ts`（+12）、`post-hexo-repository-sync.test.ts`（+8）：失败与边界优先（配额边界、协议权威版本选择、同步冲突与空输入）。
+- 合计新增 **50 例**，定向 **71 passed**（含既有用例）。
+
+### 发现但未修改
+
+- `server/database/typeorm-adapter.ts` 的 `transformOutput`：先写 `id: data.id || data._id`，随后字段回写循环用 `data.id` 把 `id` 覆盖为 `undefined`；仅 `_id` 的 Mongo 风格记录会丢主键（SQL 实体均有 `id`，实际影响低）。已登记 backlog，本批不改产品逻辑。
+- 不可达防御分支：`agreement.ts:184`（`sourceAgreement` 来自已过滤集合）、适配器若干防御分支；不为此写「为覆盖而覆盖」的断言。
+
+### 验证
+
+- 全量 `pnpm test:coverage --coverage.reportOnFailure`：statements 总数 36,790（两轮同口径）；本批 4 个测试文件全部通过。
+- `pnpm typecheck` 0；ESLint（5 个测试文件）0 error / 0 warning。
+- 既有本地环境噪声（25–26 个 Nuxt virtual module / 通知类 suite）在本批前后集合一致，非本批引入。
+
+<!-- regression-window:end:coverage-batch-12:第七十一阶段条目 6a 覆盖率第十二批:2026-11-08 -->
+
+<!-- regression-window:start:defects-i18n:第七十一阶段条目 6b-6d i18n 与缺陷治理:2026-11-08 -->
+
+## 2026-11-08 第七十一阶段条目 6b–6d：i18n 键层、`useI18n` 调用位置与友链归一化
+
+### 6b i18n 键层
+
+- `i18n/locales/zh-CN/admin-posts.json` 的 **8 个原文级重复键**（`expand*` / `condense*`）去重：`JSON.parse` 会在解析阶段折叠同名键，这两个审计脚本都看不到，只能按原文扫描发现。
+- **20 组双源同键**（`pages.admin.<module>.title` 同时存在于 `admin.json` 与 20 个模块文件）收敛为单一来源：保留 `admin.json`（admin 路由的全局模块，菜单在任何管理页都要渲染），从模块文件删除重复键。其中 `admin-calendar` 的页面标题在 4 个语种里与 `admin.json` 取值不同（如 `Content Calendar` vs `Calendar`），说明同键在「菜单」与「页面标题」两种语境下已分叉——按页面语义把更完整的值提升为 `admin.json` 的全局值，菜单与页面标题不再随路由变化。
+- 删除 `pages.admin.settings.system.fields.*` **6 个死键**（设置页实际使用 `external_feeds.editor.fields.*`）。
+- `home.hero.*` 3 个键经复核**仍在使用**（`pages/index.vue` 的 hero 区 + `pages/index-i18n.test.ts` 断言无 raw key），不予删除；条目立项时的「死键」判断已过期。
+- `pages/submit.vue` 的硬编码「支持 Markdown 语法」改用 `pages.submit.form.markdown_help`，五语补齐。
+- 结果：`i18n:audit:duplicates` 101 → **99 组**（不增，实际减少 2 组）；`i18n:audit:missing` **0**；`i18n:check-sync` 五语一致；`i18n:verify:runtime` 129 passed。
+
+### 6c `useI18n()` 调用位置
+
+- 复核：`snippet-aggregate-dialog` 与 `creator-stats-panel` 的 `useI18n()` 均已在 `<script setup>` 顶层（前序批次修复），全仓无 setup 内函数体调用。
+- 新增守卫 `tests/modules/i18n-setup-usage-guard.test.ts`：扫描 `components/**` / `pages/**` / `layouts/**` 的 `<script setup>`，禁止缩进的 `useI18n()`（即函数体内调用），组合式函数保持合法。已用临时违规文件验证守卫**可判别失败**后删除该文件。
+
+### 6d 友链归一化
+
+- 缺陷：`createFriendLink` / `updateFriendLink` 先 `entity.name = input.name.trim()`，随后 `saveFriendLinkEntity` 的 `assignDefined` 用**入参原值**覆盖，导致首尾空白落库；唯一性校验也会拿到未归一化的 URL。
+- 修复：删除预赋值，在 `saveFriendLinkEntity` 的 `assignDefined` 之后统一 `trim`（`name` / `url`），`ensureUniqueFriendLinkUrl` 因此使用归一化后的 URL。
+- 新增 2 例断言：创建时 `"  My Blog  "` / `"  https://…  "` 落库为去空白值且唯一性查询用归一化 URL；更新时同样不被覆盖。
+
+### 验证
+
+- `pnpm i18n:verify:runtime`（含 `lint:i18n`）→ **129 passed**（17 文件）。
+- `pnpm i18n:audit:missing` → 0；`pnpm i18n:audit:duplicates` → 99 组；`pnpm i18n:check-sync` → 五语 parity 通过。
+- `npx vitest run server/services/friend-link.test.ts server/services/friend-link.applications.test.ts` → **53 passed**。
+- 新增守卫单测 → 1 passed（并用临时违规文件验证失败路径）。
+
+### 未覆盖边界
+
+- 条目 6a 覆盖率补测单独记入窗口。
+- `i18n:audit:duplicates` 仍报 99 组跨模块同文案键，属共享词条（如 `status` / `title`），未在本批收敛；脚本的「原文级重复键扫描」能力仍未上收（backlog 保留）。
+
+<!-- regression-window:end:defects-i18n:第七十一阶段条目 6b-6d i18n 与缺陷治理:2026-11-08 -->
+
 <!-- regression-window:start:b4-d-guards:第七十一阶段条目 5（B4-D）测试与守卫收口:2026-11-08 -->
 
 ## 2026-11-08 第七十一阶段条目 5（B4-D）：E2E 断言改写、守卫收口与包体复算
