@@ -136,3 +136,38 @@
 - `--m-*` 的消费方为零，本批无法以「消费后视觉」证明派生值正确；由解析契约 + 与 `--p-*` 公式同源的构造保证。
 
 <!-- regression-window:end:primevue-token-map:第七十二阶段条目 1 token 映射基座:2026-11-08 -->
+
+<!-- regression-window:start:primevue-component-residual:第七十二阶段条目 2 剩余组件替换:2026-11-08 -->
+
+## 2026-11-08 第七十二阶段条目 2 剩余 PrimeVue 组件替换
+
+### 范围
+
+- 脚本口径 46 处 / 14 类 → **0**。先清 4 处口径假阳性（2 处注释中的 `<Column …>`、1 处注释中的 `<Skeleton>`、1 处 lucide `Tag` 图标改为 `Tag as TagIcon`），再替换 42 处真实用法。
+- 表单族：`Checkbox` 12 → `CaomeiCheckbox`（去 `binary`、`input-id` → `id`）；`InputNumber` 4 → `CaomeiInputNumber`（去 `fluid`、补 `:controls="false"` 保持 PrimeVue 无步进行为）；`Textarea` 4 → `CaomeiTextarea`（`rows` 改数字绑定）；`DatePicker` 4 → `CaomeiDatePicker`（去 `fluid`，宽度 token 解除 20rem 上限）；`MultiSelect` 4 → `CaomeiMultiSelect`（去 `filter` / `display` / `append-to`）；`RadioButton` 2 → `CaomeiRadioGroup` + `CaomeiRadioButton`。
+- 展示 / 容器族：`Card` 5 → `CaomeiCard`（`#content` → 默认插槽、`padding="lg"`；统计卡 `variant="elevated"` + `--caomei-card-shadow`）；`ProgressSpinner` 2 → `CaomeiProgressSpinner`；`Toolbar` 1 → `CaomeiToolbar`（页面 CSS `.p-toolbar` → `.caomei-toolbar` 并补 `display:flex; width:100%`）；`Divider` 2 → `CaomeiDivider`；`Button` 2（`error.vue`，可见文案改默认插槽、`severity="secondary" text` → `variant="ghost" tone="neutral"`）。
+- 测试：16 个宿主测试文件的 stub 名与断言同步；`tests/helpers/caomei-component-stubs.ts` 补 9 个 caomei 桩（InputNumber / DatePicker / MultiSelect / RadioGroup / RadioButton / ProgressSpinner / Toolbar / Divider / Card）。
+- 文档：迁移方案 §6.2 补第 7 条「剩余表单 / 展示族收口契约」；上游反馈清单补 `MultiSelect filter` 未实现。
+
+### 验证结果
+
+- `governance:count:primevue-usage`：组件 **0 类 / 0 处**；图标 0；token 1,420（留条目 3）。
+- 定向单测：19 文件 / **202 例**通过；UI 库守卫 3 文件 / **80 例**通过。
+- 静态：`typecheck` 0 error；`eslint` 0；`stylelint` 0；`lint-md` 0。
+- 视觉：`test:visual` **32/32**；`test:visual:parity` **83/83**（21.6m，0 失败）。
+- E2E：critical **17 passed / 1 skipped** + mobile critical **2 passed** + 安装向导 **2 passed**。
+- 包体：`coreEntryJs` 375,543 → **359,547 B**（351.12KB / 370KB，-15,996 B）；`keyCss` 64,102 B / 70KB；`maxAsyncChunkJs` 56,781 B。
+
+### 差异归因
+
+- `admin-link-governance` 浅 / 深：`CaomeiMultiSelect` 字段外观（chip / 边框 / 触发器）与 `CaomeiCheckbox`（18px）替换 + 累计行盒位移；allowlist 11 条按实测回填（浅 52,048px / 深 94,031px，未归因 0）。`CaomeiCard` 根字号 14px 使区块描述缩小，已显式恢复 16px。
+- `admin-users-list` 浅 / 深：`CaomeiToolbar` 默认 `inline-flex` + 边框 / 内边距，页面 CSS 仍按 `.p-toolbar` 选择器覆盖；改为 `.caomei-toolbar` 并补 `display:flex; width:100%` 后回到预算内（2/2 PASS）。
+- 行为差异：`CaomeiMultiSelect` 无 `filter` 搜索（营销表单分类 / 标签 2 处，列表短，接受并登记）；`CaomeiInputNumber` 的 `controls` 默认 `true`，4 处原无步进字段已显式 `:controls="false"`。
+
+### 未覆盖边界
+
+- 多选搜索能力缺失（长列表后续改 `AutoComplete` 或等上游补能力）。
+- `admin-link-governance` 的字段带 allowlist 覆盖两个 MultiSelect 的整个字段区，该带对后续像素回归灵敏度下降，需以截图人工复核。
+- `CaomeiProgressSpinner` 的 `strokeWidth` 为 CSS 长度（不随尺寸缩放），详情加载用 `--caomei-progress-spinner-size: 2.5rem` 保持原尺寸。
+
+<!-- regression-window:end:primevue-component-residual:第七十二阶段条目 2 剩余组件替换:2026-11-08 -->

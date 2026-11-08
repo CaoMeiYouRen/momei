@@ -121,6 +121,7 @@
 - 列级 `selection-mode` 收敛为表格级 `selectionMode`。
 - `frozen` + `align-frozen` 收敛为单个 `frozen: 'left' | 'right'`。
 - `Select filter` 未实现，映射 `AutoComplete`（已登记）。
+- `MultiSelect filter` 未实现（2026-11-08 第七十二阶段条目 2 实测：`CaomeiMultiSelect` 无 `filter` prop，选项列表无搜索入口）；momei 当前 2 处（营销表单的分类 / 标签）按「列表短、接受无搜索」迁移并登记为行为差异；长列表场景后续改 `AutoComplete` 或等待上游补能力。
 - 浮层（Dialog / Drawer / Popover / DropdownMenu）与 `v-tooltip` 的迁移由 momei 侧延后批次处理，非库侧缺口。
 - `ConfirmDeleteDialog` 等共享壳的并存期过渡组件属 momei 侧编排，不需要库侧支持。
 

@@ -27,10 +27,11 @@
     - **验收**: 120 个唯一 token 100% 归类且映射表可机械复算；`--m-*` 派生层在浅色 / 暗色 / 三套预设下取值可解析；新增 `--p-*` 的守卫能判红（用临时文件验证）；基线四项落盘。
     - **完成记录（2026-11-08）**: 映射表 `scripts/governance/data/primevue-token-map.json`（semantic 34 / palette 58 / phantom 28，100% 覆盖）；守卫 `pnpm governance:check:token-map`（临时文件判红单测 7 例）；`--m-*` 派生层 + 明暗/三预设解析契约 8 例；基线 `coreEntryJs` 375,543 B / 370KB、`keyCss` 64,103 B / 70KB、`test:visual` 32/32、`parity` 83/83。口径见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。
 
-- [ ] **2. 剩余 PrimeVue 组件替换（P1）**
+- [x] **2. 剩余 PrimeVue 组件替换（P1）**（2026-11-08 完成）
     - **执行范围**: 46 处 / 14 类全部替换——`Checkbox`（12，布尔与数组两种模型）、`Card`（5）、`DatePicker`（4）、`MultiSelect`（4）、`InputNumber`（4）、`Textarea`（4）、`Column`（2，残留 DataTable 复核）、`RadioButton`（2，切 `CaomeiRadioGroup`）、`ProgressSpinner`（2）、`Button`（2，`error.vue`）及余下类别；按宿主路由分批（friend-links / marketing / link-governance / ad / submissions / external-links / 用户会话抽屉）并同步测试 stub 与断言。
     - **非目标**: 不改表单业务逻辑与校验；不做半路由切换。
     - **验收**: 组件脚本口径 **0**；`parity` 83/83（差异逐项归因）；`test:visual` 24/24；E2E critical 17 passed / 1 skipped + 安装向导 2 passed；定向单测全绿。
+    - **完成记录（2026-11-08）**: 脚本口径 46 处 / 14 类 → **0**（先清 4 处口径假阳性：2 处注释 `<Column …>`、1 处注释 `<Skeleton>`、1 处 lucide `Tag` 图标）；42 处真实用法全部替换（Checkbox 12 / Card 5 / DatePicker 4 / MultiSelect 4 / InputNumber 4 / Textarea 4 / RadioButton 2 / ProgressSpinner 2 / Button 2 / Toolbar 1 / Divider 2）。验证：定向 19 文件 / 202 例 + 守卫 80 例；`test:visual` 32/32；`parity` 83/83（`admin-link-governance` 浅深 allowlist 按实测重校准、`admin-users-list` 修正 `.p-toolbar`→`.caomei-toolbar` 选择器）；E2E critical 17 passed / 1 skipped + mobile 2 passed + 安装向导 2 passed；`coreEntryJs` 375,543 → **359,547 B**（-15,996 B，`error.vue` 的 PrimeVue `Button` 退出入口 chunk）、`keyCss` 64,102 B / 70KB。
 
 - [ ] **3. token 反向切换（P1，体量最大）**
     - **执行范围**: 1,420 处按 3 批替换——① 样式基座 229 处（`styles/main.scss` 桥接反向、`_variables`、`_rendering`、`use-theme`）；② 公开页与共享组件约 551 处；③ 管理端约 513 处。语义角色直接换 `--caomei-*`（text / border / background / field / status），调色板换 `--m-*`；幻影 token 清理并入本条目，不单独拆批；每批以「视觉零差异或按实测归因」为门禁，新增样式不得再引入 `--p-*`。
