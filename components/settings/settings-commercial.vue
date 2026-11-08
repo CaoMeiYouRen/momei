@@ -92,7 +92,7 @@ const saveSettings = async () => {
 
     &__subtitle {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: $font-size-sm;
     }
 

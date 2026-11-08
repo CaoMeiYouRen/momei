@@ -249,7 +249,7 @@ onMounted(() => {
 
     &__description {
         margin: $spacing-xs 0 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.6;
     }
 
@@ -266,13 +266,13 @@ onMounted(() => {
 
         p {
             margin: 0;
-            color: var(--p-text-muted-color);
+            color: var(--caomei-color-text-muted);
             white-space: pre-wrap;
         }
     }
 
     &__target {
-        color: var(--p-primary-color);
+        color: var(--caomei-color-primary);
         text-decoration: none;
 
         &:hover {
@@ -281,13 +281,13 @@ onMounted(() => {
     }
 
     &__muted {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__empty {
         padding: $spacing-lg;
         text-align: center;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__time-column {

@@ -153,10 +153,10 @@ defineEmits<{ save: [], 'update:visible': [visible: boolean] }>()
         margin-top: $spacing-sm;
         display: flex;
         justify-content: center;
-        background-color: var(--p-surface-50);
+        background-color: var(--m-surface-50);
         padding: $spacing-sm;
         border-radius: $border-radius-sm;
-        border: 1px solid var(--p-surface-200);
+        border: 1px solid var(--m-surface-200);
 
         /* caomei 的 `Image` 不透传 width / height 到内层 img（`$attrs` 只落根元素），
          * 尺寸必须由包装层承载；内层 img 高度默认 100%，需一并改回 auto 以保持原始比例。 */
@@ -170,8 +170,8 @@ defineEmits<{ save: [], 'update:visible': [visible: boolean] }>()
         }
 
         .dark & {
-            background-color: var(--p-surface-900);
-            border-color: var(--p-surface-700);
+            background-color: var(--m-surface-900);
+            border-color: var(--m-surface-700);
         }
     }
 

@@ -72,11 +72,10 @@ const localePath = useLocalePath()
 .auth-card {
     width: 100%;
     max-width: 400px;
-    background-color: var(--p-surface-card);
+    background-color: var(--caomei-color-bg);
     border-radius: 1rem;
     padding: 2.5rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
-    border: 1px solid var(--p-surface-border);
 }
 
 .auth-header {
@@ -96,12 +95,12 @@ const localePath = useLocalePath()
     .title {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         margin-bottom: 0.5rem;
     }
 
     .subtitle {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
     }
 }
@@ -116,9 +115,9 @@ const localePath = useLocalePath()
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--p-red-500);
+    color: var(--m-red-500);
     font-size: 0.875rem;
-    background-color: var(--p-red-50);
+    background-color: var(--m-red-50);
     padding: 0.75rem;
     border-radius: 0.5rem;
 

@@ -104,7 +104,7 @@ const handleSubmit = async () => {
     @include card-base($spacing-xl);
     @include hover-lift;
 
-    background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-surface-100) 100%);
+    background: linear-gradient(135deg, var(--m-surface-50) 0%, var(--m-surface-100) 100%);
     max-width: 600px;
     margin: 0 auto;
 
@@ -112,12 +112,12 @@ const handleSubmit = async () => {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: $spacing-sm;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
         letter-spacing: -0.025em;
     }
 
     &__desc {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 1rem;
         margin-bottom: $spacing-xl;
         line-height: 1.6;
@@ -176,8 +176,8 @@ const handleSubmit = async () => {
 }
 
 :global(.dark) .subscriber-form {
-    background: linear-gradient(135deg, var(--p-surface-0) 0%, var(--p-surface-50) 100%);
-    border-color: var(--p-surface-100);
+    background: linear-gradient(135deg, var(--m-surface-0) 0%, var(--m-surface-50) 100%);
+    border-color: var(--m-surface-100);
     box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
 }
 </style>

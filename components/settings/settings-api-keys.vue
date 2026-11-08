@@ -239,24 +239,23 @@ onMounted(() => {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 2rem;
-    color: var(--p-text-color);
+    color: var(--caomei-color-text);
 }
 
 .api-keys-description {
     margin-bottom: 1.5rem;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
     font-size: 0.875rem;
 }
 
 .api-keys-form-container {
-    background-color: var(--p-surface-50);
-    border: 1px solid var(--p-surface-border);
+    background-color: var(--m-surface-50);
     padding: 1.25rem;
     border-radius: 0.75rem;
     margin-bottom: 2rem;
 
     :global(.dark) & {
-        background-color: var(--p-surface-900);
+        background-color: var(--m-surface-900);
     }
 }
 
@@ -301,16 +300,16 @@ onMounted(() => {
 }
 
 .api-key-prefix {
-    background-color: var(--p-surface-100);
-    border: 1px solid var(--p-surface-200);
+    background-color: var(--m-surface-100);
+    border: 1px solid var(--m-surface-200);
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
-    font-family: var(--p-font-family-mono, monospace);
+    font-family: var(--m-font-mono, monospace);
     font-size: 0.75rem;
 
     :global(.dark) & {
-        background-color: var(--p-surface-800);
-        border-color: var(--p-surface-700);
+        background-color: var(--m-surface-800);
+        border-color: var(--m-surface-700);
     }
 }
 
@@ -326,13 +325,13 @@ onMounted(() => {
 
     .new-key-input {
         flex: 1;
-        background-color: var(--p-surface-50);
-        font-family: var(--p-font-family-mono, monospace);
+        background-color: var(--m-surface-50);
+        font-family: var(--m-font-mono, monospace);
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
 
         :global(.dark) & {
-            background-color: var(--p-surface-900);
+            background-color: var(--m-surface-900);
         }
     }
 

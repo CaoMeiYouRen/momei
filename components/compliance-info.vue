@@ -64,7 +64,6 @@ const policeLink = computed(() => {
 .compliance-info {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--p-surface-border);
     text-align: center;
 
     &__content {
@@ -79,13 +78,13 @@ const policeLink = computed(() => {
         display: inline-flex;
         align-items: baseline;
         gap: 0.25rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         text-decoration: none;
         font-size: 0.75rem;
         transition: color 0.2s;
 
         &:hover {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
             text-decoration: underline;
         }
     }
@@ -97,7 +96,6 @@ const policeLink = computed(() => {
 
     &__value {
         font-weight: 500;
-        color: var(--p-text-color-secondary);
     }
 }
 

@@ -101,7 +101,7 @@ defineProps<{
 .legal-page {
     padding: 2rem 1rem;
     min-height: 100vh;
-    background-color: var(--p-surface-0);
+    background-color: var(--m-surface-0);
 
     &__container {
         max-width: 800px;
@@ -112,7 +112,7 @@ defineProps<{
         font-size: 2.25rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__meta-grid {
@@ -122,7 +122,7 @@ defineProps<{
     }
 
     &__meta {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.875rem;
         margin: 0;
     }
@@ -144,15 +144,15 @@ defineProps<{
         padding: 1rem;
         margin-bottom: 1.5rem;
         border-radius: 0.5rem;
-        border: 1px solid var(--p-content-border-color);
-        background: color-mix(in srgb, var(--p-surface-100) 85%, transparent);
-        color: var(--p-text-color);
+        border: 1px solid var(--caomei-color-border);
+        background: color-mix(in srgb, var(--m-surface-100) 85%, transparent);
+        color: var(--caomei-color-text);
     }
 
     &__history {
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 1px solid var(--p-content-border-color);
+        border-top: 1px solid var(--caomei-color-border);
     }
 
     &__history-title {
@@ -173,13 +173,13 @@ defineProps<{
         gap: 0.25rem;
         padding: 0.75rem 1rem;
         border-radius: 0.5rem;
-        background: color-mix(in srgb, var(--p-surface-100) 90%, transparent);
-        color: var(--p-text-muted-color);
+        background: color-mix(in srgb, var(--m-surface-100) 90%, transparent);
+        color: var(--caomei-color-text-muted);
     }
 
     &__content {
         line-height: 1.75;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
 
         section {
             margin-bottom: 2rem;
@@ -190,7 +190,7 @@ defineProps<{
             font-weight: 600;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--p-content-border-color);
+            border-bottom: 1px solid var(--caomei-color-border);
         }
 
         p {
@@ -203,9 +203,9 @@ defineProps<{
         }
 
         .notice {
-            background-color: var(--p-surface-100);
+            background-color: var(--m-surface-100);
             padding: 1rem;
-            border-left: 4px solid var(--p-primary-color);
+            border-left: 4px solid var(--caomei-color-primary);
             border-radius: 4px;
             font-style: italic;
         }
@@ -213,25 +213,25 @@ defineProps<{
 }
 
 .default-notice {
-    background-color: var(--p-surface-100);
-    border-left: 4px solid var(--p-warn-color);
+    background-color: var(--m-surface-100);
+    border-left: 4px solid var(--caomei-color-warning);
     padding: 1rem;
     margin-bottom: 1.5rem;
     border-radius: 4px;
 
     &__text {
-        color: var(--p-warn-600);
+        color: var(--m-orange-600);
         font-weight: 600;
         margin: 0;
     }
 }
 
 :global(.dark) .legal-page {
-    background-color: var(--p-surface-950);
+    background-color: var(--m-surface-950);
 }
 
 :global(.dark) .default-notice {
-    background-color: var(--p-surface-800);
+    background-color: var(--m-surface-800);
 }
 
 @media (width <= 768px) {

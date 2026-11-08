@@ -168,15 +168,15 @@ function getPlatformName(key: string) {
 
 .commercial-manager {
     &__section {
-        background-color: var(--p-surface-0);
-        border: 1px solid var(--p-surface-200);
+        background-color: var(--m-surface-0);
+        border: 1px solid var(--m-surface-200);
         border-radius: $border-radius-lg;
         padding: $spacing-lg;
         margin-bottom: $spacing-xl;
 
         .dark & {
-            background-color: var(--p-surface-800);
-            border-color: var(--p-surface-700);
+            background-color: var(--m-surface-800);
+            border-color: var(--m-surface-700);
         }
     }
 
@@ -200,31 +200,31 @@ function getPlatformName(key: string) {
         gap: $spacing-sm;
 
         i {
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
 
         .commercial-manager__header-icon--donation {
-            color: var(--p-red-500);
+            color: var(--m-red-500);
         }
     }
 
     &__desc {
         margin: $spacing-xs 0 0;
         font-size: $font-size-sm;
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
     }
 
     &__empty {
         text-align: center;
         padding: $spacing-xl;
-        border: 2px dashed var(--p-surface-200);
+        border: 2px dashed var(--m-surface-200);
         border-radius: $border-radius-md;
-        background-color: var(--p-surface-50);
-        color: var(--p-surface-400);
+        background-color: var(--m-surface-50);
+        color: var(--m-surface-400);
 
         .dark & {
-            background-color: var(--p-surface-900);
-            border-color: var(--p-surface-700);
+            background-color: var(--m-surface-900);
+            border-color: var(--m-surface-700);
         }
 
         i {
@@ -258,18 +258,18 @@ function getPlatformName(key: string) {
         flex-wrap: wrap;
         gap: $spacing-md;
         padding: $spacing-md;
-        background-color: var(--p-surface-0);
-        border: 1px solid var(--p-surface-200);
+        background-color: var(--m-surface-0);
+        border: 1px solid var(--m-surface-200);
         border-radius: $border-radius-md;
         transition: all 0.3s ease;
 
         .dark & {
-            background-color: var(--p-surface-900);
-            border-color: var(--p-surface-700);
+            background-color: var(--m-surface-900);
+            border-color: var(--m-surface-700);
         }
 
         &:hover {
-            border-color: var(--p-primary-color);
+            border-color: var(--caomei-color-primary);
             box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
         }
     }
@@ -281,12 +281,12 @@ function getPlatformName(key: string) {
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        background-color: var(--p-surface-50);
+        background-color: var(--m-surface-50);
         border-radius: $border-radius-sm;
         flex-shrink: 0;
 
         .dark & {
-            background-color: var(--p-surface-800);
+            background-color: var(--m-surface-800);
         }
     }
 
@@ -318,7 +318,7 @@ function getPlatformName(key: string) {
 
     &__card-value {
         font-size: $font-size-xs;
-        color: var(--p-surface-500);
+        color: var(--m-surface-500);
         word-break: break-all;
         margin-top: 2px;
     }

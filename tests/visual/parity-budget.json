@@ -1,10 +1,10 @@
 {
     "meta": {
-        "updatedAt": "2026-11-08",
+        "updatedAt": "2026-11-09",
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。 2026-11-01 全量重校准：`caomei-ui` 升级到 1.0.0-rc.1 后，控件边界改上游 3:1 默认、状态文字改走 `-text` 角色，34 条中 33 条的带内差异随之变化（仅 `admin-marketing-overview-dark` 未变；其中 28 条超出 225px 复跑噪声带）；本文件已把每条 allowlist 的 `pixels` 全量回填为本次实测（声明值 = 实测，无余量），各条目 `note` 内若记载历史实测总量，以本文件当前 `pixels` 为准。 全量重校准后复跑仍有 6 条残差 36–225px（≤0.017%），属运行间渲染噪声（截图时刻的字形 / 异步数据抖动），预算 3,000px 下不构成漏检风险。 2026-11-08 第七十二阶段条目 2：`admin-link-governance` 浅 / 深两态的 11 条 allowlist 全量回填为实测值——本批把 `Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner` 迁到 caomei，字段与展示组件的外观差异 + 累计行盒位移使该路由差异增长；其余 81 条未变。 2026-11-08 第七十二阶段条目 2 复校准：`admin-link-governance` 浅 / 深两态的 allowlist 按组件替换后的实测重取（MultiSelect / Checkbox 外观差异 + 累计行盒位移），其余 81 条未变。"
+        "note": "预算按「页面受众分级」声明口径；entries 以 testName 为 key。允许清单按区域扣减差异像素，扣减上限为条目声明值（超出即视为偏差增长并触发失败）。tiers 为默认口径，entries 可逐 testName 覆盖；校准样值见各条目 note。admin 档 2026-10-14 收紧：maxDiffPixels 16000→3000、maxDiffPixelRatio 1.2%→0.35%，且允许清单像素量改为实测值本身（不再 ×1.05）。有效检出阈值 = 未归因差异 > 3000px（约为已迁移 20 条实测值的 +9%~+38%）；收紧前因允许清单含 5% 余量 + 16000px cap，需差异增长 >160% 才红。 2026-11-01 全量重校准：`caomei-ui` 升级到 1.0.0-rc.1 后，控件边界改上游 3:1 默认、状态文字改走 `-text` 角色，34 条中 33 条的带内差异随之变化（仅 `admin-marketing-overview-dark` 未变；其中 28 条超出 225px 复跑噪声带）；本文件已把每条 allowlist 的 `pixels` 全量回填为本次实测（声明值 = 实测，无余量），各条目 `note` 内若记载历史实测总量，以本文件当前 `pixels` 为准。 全量重校准后复跑仍有 6 条残差 36–225px（≤0.017%），属运行间渲染噪声（截图时刻的字形 / 异步数据抖动），预算 3,000px 下不构成漏检风险。 2026-11-08 第七十二阶段条目 2：`admin-link-governance` 浅 / 深两态的 11 条 allowlist 全量回填为实测值——本批把 `Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner` 迁到 caomei，字段与展示组件的外观差异 + 累计行盒位移使该路由差异增长；其余 81 条未变。 2026-11-08 第七十二阶段条目 2 复校准：`admin-link-governance` 浅 / 深两态的 allowlist 按组件替换后的实测重取（MultiSelect / Checkbox 外观差异 + 累计行盒位移），其余 81 条未变。 2026-11-09 第七十二阶段条目 3 批次 ②：`privacy-policy` / `user-agreement` 浅深四条的提示条带按幻影状态色修复后的实测回填；其余条目未变。"
     },
     "tiers": {
         "reader": {
@@ -4384,7 +4384,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6023,
+                    "pixels": 6014,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -4392,11 +4392,11 @@
                     "region": {
                         "x": 0,
                         "y": 800,
-                        "width": 160,
+                        "width": 1440,
                         "height": 100
                     },
-                    "pixels": 462,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 2003,
+                    "reason": "页脚带（logo + 链接 / 版权文本）：法务页默认提示条新增 4px 左边框后，内容高度增加使页脚文本下移 4px（2026-11-09 第七十二阶段条目 3 批次 ②）；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -4406,8 +4406,8 @@
                         "width": 800,
                         "height": 180
                     },
-                    "pixels": 8809,
-                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "pixels": 15269,
+                    "reason": "法务页「标题 + 元信息 + 默认提示条」带：默认提示条（`.default-notice`）的幻影状态色修复（2026-11-09 第七十二阶段条目 3 批次 ②）——`--p-warn-color` → `--caomei-color-warning`、`--p-warn-600` → `--m-orange-600`，由 invalid（无边框色 / 继承文字色）变为真实橙色；属 backlog #11 S1 的预期修复，值取实测。",
                     "owner": "@full-stack-master"
                 }
             ],
@@ -4425,7 +4425,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6201,
+                    "pixels": 6189,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -4433,11 +4433,11 @@
                     "region": {
                         "x": 0,
                         "y": 800,
-                        "width": 160,
+                        "width": 1440,
                         "height": 100
                     },
-                    "pixels": 403,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 2003,
+                    "reason": "页脚带（logo + 链接 / 版权文本）：法务页默认提示条新增 4px 左边框后，内容高度增加使页脚文本下移 4px（2026-11-09 第七十二阶段条目 3 批次 ②）；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -4447,8 +4447,8 @@
                         "width": 800,
                         "height": 180
                     },
-                    "pixels": 9069,
-                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "pixels": 15792,
+                    "reason": "法务页「标题 + 元信息 + 默认提示条」带：默认提示条（`.default-notice`）的幻影状态色修复（2026-11-09 第七十二阶段条目 3 批次 ②）——`--p-warn-color` → `--caomei-color-warning`、`--p-warn-600` → `--m-orange-600`，由 invalid（无边框色 / 继承文字色）变为真实橙色；属 backlog #11 S1 的预期修复，值取实测。",
                     "owner": "@full-stack-master"
                 }
             ],
@@ -4466,7 +4466,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6023,
+                    "pixels": 6014,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -4474,11 +4474,11 @@
                     "region": {
                         "x": 0,
                         "y": 800,
-                        "width": 160,
+                        "width": 1440,
                         "height": 100
                     },
-                    "pixels": 462,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 2003,
+                    "reason": "页脚带（logo + 链接 / 版权文本）：法务页默认提示条新增 4px 左边框后，内容高度增加使页脚文本下移 4px（2026-11-09 第七十二阶段条目 3 批次 ②）；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -4488,8 +4488,8 @@
                         "width": 800,
                         "height": 180
                     },
-                    "pixels": 8809,
-                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "pixels": 15269,
+                    "reason": "法务页「标题 + 元信息 + 默认提示条」带：默认提示条（`.default-notice`）的幻影状态色修复（2026-11-09 第七十二阶段条目 3 批次 ②）——`--p-warn-color` → `--caomei-color-warning`、`--p-warn-600` → `--m-orange-600`，由 invalid（无边框色 / 继承文字色）变为真实橙色；属 backlog #11 S1 的预期修复，值取实测。",
                     "owner": "@full-stack-master"
                 }
             ],
@@ -4507,7 +4507,7 @@
                         "width": 1440,
                         "height": 80
                     },
-                    "pixels": 6201,
+                    "pixels": 6189,
                     "reason": "全局头部 `AppHeader` 迁移到 caomei-ui（`Button` ×15 / `Divider` ×2 → `CaomeiButton` / `CaomeiDivider`，图标由 `pi pi-*` 改 `@lucide/vue`）：图标字形、按钮外观与操作区间距差异；头部高度（64px）与右侧对齐已保持一致。处置走通道① `--caomei-*` token。",
                     "owner": "@full-stack-master"
                 },
@@ -4515,11 +4515,11 @@
                     "region": {
                         "x": 0,
                         "y": 800,
-                        "width": 160,
+                        "width": 1440,
                         "height": 100
                     },
-                    "pixels": 403,
-                    "reason": "全局反馈入口按钮迁移（`FeedbackEntryButton`：PrimeVue `Button` outlined/rounded → `CaomeiButton` secondary/rounded）：边框、底纹与排版差异；固定定位（左下）与可见文案已对齐。处置走通道① `--caomei-*` token。",
+                    "pixels": 2003,
+                    "reason": "页脚带（logo + 链接 / 版权文本）：法务页默认提示条新增 4px 左边框后，内容高度增加使页脚文本下移 4px（2026-11-09 第七十二阶段条目 3 批次 ②）；值取实测。",
                     "owner": "@full-stack-master"
                 },
                 {
@@ -4529,8 +4529,8 @@
                         "width": 800,
                         "height": 180
                     },
-                    "pixels": 9069,
-                    "reason": "协议元信息区（版本标签 / 默认提示 / 分隔线）：`CaomeiTag` 的行盒高度与 PrimeVue `Tag` 不同，整块上移 1px 造成背景与文字重排；协议正文已对齐，区外未归因差异为 0。处置走通道① `--caomei-tag-height`。",
+                    "pixels": 15792,
+                    "reason": "法务页「标题 + 元信息 + 默认提示条」带：默认提示条（`.default-notice`）的幻影状态色修复（2026-11-09 第七十二阶段条目 3 批次 ②）——`--p-warn-color` → `--caomei-color-warning`、`--p-warn-600` → `--m-orange-600`，由 invalid（无边框色 / 继承文字色）变为真实橙色；属 backlog #11 S1 的预期修复，值取实测。",
                     "owner": "@full-stack-master"
                 }
             ],
