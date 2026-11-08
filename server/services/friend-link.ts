@@ -198,6 +198,15 @@ async function saveFriendLinkEntity(
         'applicationId',
     ])
 
+    /* 归一化必须放在 `assignDefined` **之后**：`assignDefined` 会用入参原值覆盖调用方
+     * 预先 `trim()` 的结果（历史缺陷：`create` / `update` 先赋值再被覆盖）。 */
+    if (typeof entity.name === 'string') {
+        entity.name = entity.name.trim()
+    }
+    if (typeof entity.url === 'string') {
+        entity.url = entity.url.trim()
+    }
+
     entity.logo = normalizeOptionalString(entity.logo)
     entity.description = normalizeOptionalString(entity.description)
     entity.rssUrl = normalizeOptionalString(entity.rssUrl)
@@ -497,8 +506,6 @@ export const friendLinkService = {
         }
 
         const entity = new FriendLink()
-        entity.name = input.name.trim()
-        entity.url = input.url.trim()
         entity.source = input.source ?? 'manual'
         entity.status = input.status ?? FriendLinkStatus.DRAFT
         entity.isPinned = input.isPinned ?? false
@@ -531,13 +538,6 @@ export const friendLinkService = {
 
         if (input.url !== undefined && !isHttpUrl(input.url)) {
             throw createError({ statusCode: 400, statusMessage: 'Invalid friend link URL' })
-        }
-
-        if (input.name !== undefined) {
-            entity.name = input.name.trim()
-        }
-        if (input.url !== undefined) {
-            entity.url = input.url.trim()
         }
 
         return saveFriendLinkEntity(entity, input, operatorId)

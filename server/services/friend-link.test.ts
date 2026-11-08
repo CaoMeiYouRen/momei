@@ -691,6 +691,20 @@ describe('friendLinkService.createFriendLink', () => {
         expect(result.showRssFeed).toBeUndefined()
     })
 
+    it('trims name and url before persisting (assignDefined 不再覆盖归一化结果)', async () => {
+        friendLinkRepo.findOne.mockResolvedValue(null)
+
+        const result = await friendLinkService.createFriendLink({
+            name: '  My Blog  ',
+            url: '  https://myblog.example.com  ',
+        }, null)
+
+        expect(result.name).toBe('My Blog')
+        expect(result.url).toBe('https://myblog.example.com')
+        // 唯一性校验必须使用归一化后的 URL，否则带空白的历史数据会绕过冲突检测。
+        expect(friendLinkRepo.findOne).toHaveBeenCalledWith({ where: { url: 'https://myblog.example.com' } })
+    })
+
     it('creates link with showRssFeed true', async () => {
         friendLinkRepo.findOne.mockResolvedValue(null)
 
@@ -780,6 +794,25 @@ describe('friendLinkService.updateFriendLink', () => {
 
         expect(result.name).toBe('Updated')
         expect(result.status).toBe(FriendLinkStatus.ACTIVE)
+    })
+
+    it('trims name and url on update (不被 assignDefined 原值覆盖)', async () => {
+        const existing = Object.assign(new FriendLink(), {
+            id: 'fl-1',
+            name: 'Old',
+            url: 'https://old.example.com',
+        })
+        friendLinkRepo.findOne
+            .mockResolvedValueOnce(existing)
+            .mockResolvedValue(null)
+
+        const result = await friendLinkService.updateFriendLink('fl-1', {
+            name: '  Updated  ',
+            url: '  https://new.example.com  ',
+        }, 'operator-1')
+
+        expect(result.name).toBe('Updated')
+        expect(result.url).toBe('https://new.example.com')
     })
 
     it('updates showRssFeed on a friend link', async () => {
