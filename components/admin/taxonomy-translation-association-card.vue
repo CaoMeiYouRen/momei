@@ -66,12 +66,11 @@ defineEmits<{
     margin-top: 0.75rem;
     padding: 0.75rem;
     border-radius: 0.75rem;
-    background-color: color-mix(in srgb, var(--p-surface-100) 82%, transparent);
-    border: 1px solid var(--p-surface-border);
+    background-color: color-mix(in srgb, var(--m-surface-100) 82%, transparent);
 
     &--warn {
-        border-color: var(--p-orange-300);
-        background-color: color-mix(in srgb, var(--p-orange-50) 72%, transparent);
+        border-color: var(--m-orange-300);
+        background-color: color-mix(in srgb, var(--m-orange-50) 72%, transparent);
     }
 
     &__header {
@@ -84,7 +83,7 @@ defineEmits<{
 
     &__message {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }
 

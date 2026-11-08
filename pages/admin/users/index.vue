@@ -371,8 +371,7 @@ onMounted(() => {
     padding-bottom: 1rem;
 
     &__card {
-        background-color: var(--p-surface-card);
-        border: 1px solid var(--p-surface-border);
+        background-color: var(--caomei-color-bg);
         padding: 1rem;
         border-radius: 0.5rem;
         box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -397,12 +396,12 @@ onMounted(() => {
 
     &__name {
         font-weight: 500;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__email {
         font-size: 0.75rem;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 }
 
@@ -412,7 +411,7 @@ onMounted(() => {
     gap: 0.25rem;
 
     &__relative {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
     }
 }

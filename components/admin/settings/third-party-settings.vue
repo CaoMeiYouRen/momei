@@ -480,13 +480,12 @@ const hexoProviderOptions = computed(() => [
         font-weight: 600;
         padding-bottom: 0.5rem;
         margin-bottom: 1.5rem;
-        border-bottom: 1px solid var(--p-surface-border);
     }
 
     &__sub-fields {
         margin-top: 1.5rem;
         padding-left: 1rem;
-        border-left: 2px solid var(--p-primary-50);
+        border-left: 2px solid var(--m-primary-50);
     }
 
     &__toolbar {
@@ -499,7 +498,7 @@ const hexoProviderOptions = computed(() => [
 
     &__toolbar-hint {
         margin: 0;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
     }
 
     &__refresh-button {
@@ -510,11 +509,10 @@ const hexoProviderOptions = computed(() => [
 :global(.dark) {
     .third-party-settings {
         &__sub-fields {
-            border-left-color: var(--p-primary-900-opacity-20);
         }
 
         &__toolbar-hint {
-            color: var(--p-surface-400);
+            color: var(--m-surface-400);
         }
     }
 }

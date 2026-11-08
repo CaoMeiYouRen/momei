@@ -232,7 +232,7 @@ const getDeviceIcon = (ua?: string | null) => {
 .sessions-empty {
     padding: 2rem 0;
     text-align: center;
-    color: var(--p-text-muted-color);
+    color: var(--caomei-color-text-muted);
 }
 
 .sessions-revoke-all {
@@ -241,8 +241,7 @@ const getDeviceIcon = (ua?: string | null) => {
 }
 
 .session-card {
-    background-color: var(--p-surface-50);
-    border: 1px solid var(--p-surface-border);
+    background-color: var(--m-surface-50);
     padding: 1rem;
     border-radius: 0.5rem;
 
@@ -266,7 +265,7 @@ const getDeviceIcon = (ua?: string | null) => {
     }
 
     &__meta {
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
     }
 

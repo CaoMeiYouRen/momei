@@ -217,7 +217,7 @@ watch(() => props.modelValue, (val) => {
     &__label {
         font-weight: 600;
         font-size: 0.875rem;
-        color: var(--p-text-color);
+        color: var(--caomei-color-text);
     }
 
     &__input {
@@ -228,17 +228,17 @@ watch(() => props.modelValue, (val) => {
         display: flex;
         gap: 0.75rem;
         padding: 1rem;
-        background-color: var(--p-surface-50);
-        border: 1px solid var(--p-content-border-color);
+        background-color: var(--m-surface-50);
+        border: 1px solid var(--caomei-color-border);
         border-radius: 8px;
-        color: var(--p-text-muted-color);
+        color: var(--caomei-color-text-muted);
         font-size: 0.75rem;
         line-height: 1.5;
         align-items: flex-start;
 
         :deep(svg) {
             margin-top: 0.125rem;
-            color: var(--p-primary-color);
+            color: var(--caomei-color-primary);
         }
     }
 
