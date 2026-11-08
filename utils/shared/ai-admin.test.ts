@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { AlignLeft, Image as ImageIcon, MessageSquare, Mic, Volume2 } from '@lucide/vue'
 import {
     getAITaskTypeIcon,
     getAITaskStatusSeverity,
@@ -9,14 +10,14 @@ import {
 describe('ai-admin utils', () => {
     describe('getAITaskTypeIcon', () => {
         it('returns correct icon for each known type', () => {
-            expect(getAITaskTypeIcon('image_generation')).toBe('pi pi-image')
-            expect(getAITaskTypeIcon('tts')).toBe('pi pi-volume-up')
-            expect(getAITaskTypeIcon('podcast')).toBe('pi pi-microphone')
-            expect(getAITaskTypeIcon('transcription')).toBe('pi pi-comment')
+            expect(getAITaskTypeIcon('image_generation')).toBe(ImageIcon)
+            expect(getAITaskTypeIcon('tts')).toBe(Volume2)
+            expect(getAITaskTypeIcon('podcast')).toBe(Mic)
+            expect(getAITaskTypeIcon('transcription')).toBe(MessageSquare)
         })
 
         it('returns default icon for unknown type', () => {
-            expect(getAITaskTypeIcon('unknown' as any)).toBe('pi pi-align-left')
+            expect(getAITaskTypeIcon('unknown' as any)).toBe(AlignLeft)
         })
     })
 

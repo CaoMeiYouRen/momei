@@ -8,6 +8,7 @@ import {
     getDonationPlatformType,
     getSocialPlatformType,
 } from './commercial'
+import { resolveClassIconName } from './brand-icons'
 
 describe('commercial platform registry', () => {
     it('includes expanded high-frequency social platforms', () => {
@@ -35,21 +36,21 @@ describe('commercial platform registry', () => {
     })
 
     it('resolves icon, color and mode from the shared registry', () => {
-        expect(getCommercialPlatformIcon('juejin', 'social')).toBe('iconfont icon-juejin')
-        expect(getCommercialPlatformIcon('xiaohongshu', 'social')).toBe('iconfont icon-xiaohongshu')
-        expect(getCommercialPlatformIcon('bilibili', 'social')).toBe('iconfont icon-bilibili')
-        expect(getCommercialPlatformIcon('weibo', 'social')).toBe('iconfont icon-weibo')
-        expect(getCommercialPlatformIcon('zhihu', 'social')).toBe('iconfont icon-zhihu')
-        expect(getCommercialPlatformIcon('wechat_pay', 'donation')).toBe('iconfont icon-weixinzhifu')
-        expect(getCommercialPlatformIcon('alipay', 'donation')).toBe('iconfont icon-zhifubaozhifu')
-        expect(getCommercialPlatformIcon('afdian', 'donation')).toBe('iconfont icon-aifadian')
-        expect(getCommercialPlatformIcon('opencollective', 'donation')).toBe('iconfont icon-open-collective')
-        expect(getCommercialPlatformIcon('buymeacoffee', 'donation')).toBe('iconfont icon-a-BuyMeACoffee')
-        expect(getCommercialPlatformIcon('ko_fi', 'donation')).toBe('iconfont icon-ko-fi')
-        expect(getCommercialPlatformIcon('liberapay', 'donation')).toBe('iconfont icon-liberapay')
-        expect(getCommercialPlatformIcon('stack_overflow', 'social')).toBe('mdi mdi-stack-overflow')
+        expect(resolveClassIconName(getCommercialPlatformIcon('juejin', 'social'))).toBe('iconfont icon-juejin')
+        expect(resolveClassIconName(getCommercialPlatformIcon('xiaohongshu', 'social'))).toBe('iconfont icon-xiaohongshu')
+        expect(resolveClassIconName(getCommercialPlatformIcon('bilibili', 'social'))).toBe('iconfont icon-bilibili')
+        expect(resolveClassIconName(getCommercialPlatformIcon('weibo', 'social'))).toBe('iconfont icon-weibo')
+        expect(resolveClassIconName(getCommercialPlatformIcon('zhihu', 'social'))).toBe('iconfont icon-zhihu')
+        expect(resolveClassIconName(getCommercialPlatformIcon('wechat_pay', 'donation'))).toBe('iconfont icon-weixinzhifu')
+        expect(resolveClassIconName(getCommercialPlatformIcon('alipay', 'donation'))).toBe('iconfont icon-zhifubaozhifu')
+        expect(resolveClassIconName(getCommercialPlatformIcon('afdian', 'donation'))).toBe('iconfont icon-aifadian')
+        expect(resolveClassIconName(getCommercialPlatformIcon('opencollective', 'donation'))).toBe('iconfont icon-open-collective')
+        expect(resolveClassIconName(getCommercialPlatformIcon('buymeacoffee', 'donation'))).toBe('iconfont icon-a-BuyMeACoffee')
+        expect(resolveClassIconName(getCommercialPlatformIcon('ko_fi', 'donation'))).toBe('iconfont icon-ko-fi')
+        expect(resolveClassIconName(getCommercialPlatformIcon('liberapay', 'donation'))).toBe('iconfont icon-liberapay')
+        expect(resolveClassIconName(getCommercialPlatformIcon('stack_overflow', 'social'))).toBe('mdi mdi-stack-overflow')
         expect(getCommercialPlatformColor('github_sponsors', 'donation')).toBe('#ea4aaa')
-        expect(getCommercialPlatformIcon('patreon', 'donation')).toBe('mdi mdi-patreon')
+        expect(resolveClassIconName(getCommercialPlatformIcon('patreon', 'donation'))).toBe('mdi mdi-patreon')
         expect(getSocialPlatformType('wechat_mp')).toBe('both')
         expect(getSocialPlatformType('github')).toBe('url')
         expect(getDonationPlatformType('custom')).toBe('both')

@@ -398,7 +398,7 @@
                             class="mobile-nav-link"
                             @click="isMobileMenuOpen = false; (item.command as Function)?.({} as any)"
                         >
-                            <i :class="item.icon" />
+                            <component :is="item.icon" :size="18" />
                             {{ item.label }}
                         </div>
                     </div>
@@ -445,12 +445,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed, watch, defineComponent, h, type Component } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { ensureLocaleMessageModules } from '@/i18n/config/locale-runtime-loader'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { isAdminOrAuthor, isAdmin } from '@/utils/shared/roles'
 import { useAdminMenuItems } from '@/composables/use-admin-menu-items'
+import { rawIcon } from '@/utils/shared/brand-icons'
 import {
     Calendar as CalendarIcon,
     FileText,
@@ -495,47 +496,6 @@ const { adminMenuItems, goToAdminPosts } = useAdminMenuItems({
     isAdmin,
 })
 
-/**
- * `CaomeiDropdownMenu` 的数据驱动条目只接受**组件**图标，不接受 PrimeVue 的 `pi pi-*` 类名。
- * 管理端菜单条目仍在 `useAdminMenuItems` 里以类名声明（图标全量替换属第七十一阶段条目 4），
- * 故把类名包成一个最小渲染组件，保留原图标外观；图标全量替换时删除本适配即可。
- */
-const primeIconComponentCache = new Map<string, Component>()
-
-function resolvePrimeIcon(icon: string): Component {
-    const cached = primeIconComponentCache.get(icon)
-    if (cached) {
-        return cached
-    }
-
-    const component = defineComponent({
-        name: 'PrimeMenuIcon',
-        inheritAttrs: false,
-        setup(_, { attrs }) {
-            return () => h('i', { ...attrs, class: [icon, attrs.class] })
-        },
-    })
-
-    primeIconComponentCache.set(icon, component)
-
-    return component
-}
-
-interface MenuModelItem {
-    label?: string
-    icon?: string
-    command?: () => void
-    items?: MenuModelItem[]
-}
-
-function toDropdownModel(items: readonly MenuModelItem[]): Record<string, unknown>[] {
-    return items.map((item) => ({
-        ...item,
-        icon: item.icon ? resolvePrimeIcon(item.icon) : undefined,
-        items: item.items ? toDropdownModel(item.items) : undefined,
-    }))
-}
-
 const handleLogout = async () => {
     invalidateAuthSessionState()
 
@@ -559,18 +519,22 @@ const handleLogout = async () => {
 const userMenuItems = computed(() => [
     {
         label: t('pages.settings.title'),
-        icon: 'pi pi-user',
+        icon: rawIcon(User),
         command: () => navigateTo(localePath('/settings')),
     },
     {
         label: t('pages.login.logout'),
-        icon: 'pi pi-sign-out',
+        icon: rawIcon(LogOut),
         command: handleLogout,
     },
 ])
 
-const adminMenuModel = computed(() => toDropdownModel(adminMenuItems.value))
-const userMenuModel = computed(() => toDropdownModel(userMenuItems.value))
+/**
+ * `CaomeiDropdownMenu` 的数据驱动条目只接受**组件**图标。
+ * 管理端与用户菜单条目均由 composable / computed 直接返回组件，无需再做类名适配。
+ */
+const adminMenuModel = computed(() => adminMenuItems.value)
+const userMenuModel = computed(() => userMenuItems.value)
 
 const handleSearchShortcut = (event: KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {

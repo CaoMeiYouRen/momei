@@ -1,19 +1,21 @@
+import type { Component } from 'vue'
+import { AlignLeft, Image as ImageIcon, MessageSquare, Mic, Volume2 } from '@lucide/vue'
 import { parseMaybeJson } from '@/utils/shared/coerce'
+import { rawIcon } from '@/utils/shared/brand-icons'
 import type { AIAdminTaskDataValue, AIAdminTaskType, AIChargeStatus, AITaskStatus } from '@/types/ai'
 
-export function getAITaskTypeIcon(type: AIAdminTaskType) {
-    switch (type) {
-        case 'image_generation':
-            return 'pi pi-image'
-        case 'tts':
-            return 'pi pi-volume-up'
-        case 'podcast':
-            return 'pi pi-microphone'
-        case 'transcription':
-            return 'pi pi-comment'
-        default:
-            return 'pi pi-align-left'
-    }
+const DEFAULT_AI_TASK_ICON = rawIcon(AlignLeft)
+
+const AI_TASK_TYPE_ICONS: Record<string, Component> = {
+    image_generation: rawIcon(ImageIcon),
+    tts: rawIcon(Volume2),
+    podcast: rawIcon(Mic),
+    transcription: rawIcon(MessageSquare),
+    text_generation: DEFAULT_AI_TASK_ICON,
+}
+
+export function getAITaskTypeIcon(type: AIAdminTaskType): Component {
+    return AI_TASK_TYPE_ICONS[type] ?? DEFAULT_AI_TASK_ICON
 }
 
 export function getAITaskStatusSeverity(status: AITaskStatus) {

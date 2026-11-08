@@ -1,10 +1,12 @@
+import type { Component } from 'vue'
+import { BRAND_ICONS } from './brand-icons'
 import { SOCIAL_PLATFORMS } from './commercial'
 
 export interface SocialPostPlatformConfig {
     key: string
     /** 平台名称 i18n key（common.platforms.{key}） */
     i18nKey: string
-    icon: string
+    icon: Component
     color: string
     /** 最大字符数 */
     maxLength: number
@@ -17,11 +19,11 @@ const SOCIAL_PLATFORM_LOOKUP = new Map(
     SOCIAL_PLATFORMS.map((p) => [p.key, { icon: p.icon, color: p.color }] as const),
 )
 
-function getSocialPlatformLookup(key: string): { icon: string, color: string } {
+function getSocialPlatformLookup(key: string): { icon: Component, color: string } {
     const entry = SOCIAL_PLATFORM_LOOKUP.get(key)
     if (!entry) {
         // 兜底：不应发生，仅防御性处理
-        return { icon: '', color: '#000000' }
+        return { icon: BRAND_ICONS.github, color: '#000000' }
     }
     return entry
 }
@@ -69,7 +71,7 @@ export const SOCIAL_POST_PLATFORMS: SocialPostPlatformConfig[] = [
     {
         key: 'twitter',
         i18nKey: 'common.platforms.x',
-        icon: 'pi pi-twitter',
+        icon: BRAND_ICONS.twitter,
         color: '#000000',
         maxLength: 1500,
         promptGuideline: 'Create a Twitter/X thread (2-4 tweets). Each tweet is separated by "---". Keep each tweet under 280 characters. Use hashtags sparingly (1-2 max). Start with a strong hook tweet.',
@@ -77,7 +79,7 @@ export const SOCIAL_POST_PLATFORMS: SocialPostPlatformConfig[] = [
     {
         key: 'linkedin',
         i18nKey: 'common.platforms.linkedin',
-        icon: 'pi pi-linkedin',
+        icon: BRAND_ICONS.linkedin,
         color: '#0a66c2',
         maxLength: 3000,
         promptGuideline: 'Create a LinkedIn post. Use 3-5 short paragraphs with line breaks. Professional tone, include 2-3 relevant hashtags at the end. Start with a compelling opening line, end with a question or call to action.',

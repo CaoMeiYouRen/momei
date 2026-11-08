@@ -1,3 +1,6 @@
+import type { Component } from 'vue'
+import { Mail, MessageCircle, Send } from '@lucide/vue'
+import { rawIcon } from './brand-icons'
 import { getCommercialPlatformColor, getCommercialPlatformIcon } from './commercial'
 import { buildAbsoluteUrl } from './url'
 
@@ -19,7 +22,7 @@ export interface SharePlatformDefinition {
     key: SharePlatformKey
     mode: SharePlatformMode
     copyMode?: ShareCopyMode
-    icon: string
+    icon: Component
     color: string
 }
 
@@ -77,9 +80,9 @@ export const DIRECT_SHARE_PLATFORMS: SharePlatformDefinition[] = [
     { key: 'x', mode: 'direct', icon: getCommercialPlatformIcon('x', 'social'), color: getCommercialPlatformColor('x', 'social') },
     { key: 'facebook', mode: 'direct', icon: getCommercialPlatformIcon('facebook', 'social'), color: getCommercialPlatformColor('facebook', 'social') },
     { key: 'linkedin', mode: 'direct', icon: getCommercialPlatformIcon('linkedin', 'social'), color: getCommercialPlatformColor('linkedin', 'social') },
-    { key: 'telegram', mode: 'direct', icon: 'pi pi-send', color: '#229ed9' },
-    { key: 'whatsapp', mode: 'direct', icon: 'pi pi-comments', color: '#25d366' },
-    { key: 'email', mode: 'direct', icon: 'pi pi-envelope', color: '#6b7280' },
+    { key: 'telegram', mode: 'direct', icon: rawIcon(Send), color: '#229ed9' },
+    { key: 'whatsapp', mode: 'direct', icon: rawIcon(MessageCircle), color: '#25d366' },
+    { key: 'email', mode: 'direct', icon: rawIcon(Mail), color: '#6b7280' },
 ]
 
 export const COPY_SHARE_PLATFORMS: SharePlatformDefinition[] = [
