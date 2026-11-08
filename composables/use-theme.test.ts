@@ -85,7 +85,7 @@ describe('useTheme', () => {
 
         expect(styles).toContain(':root')
         expect(styles).toContain('.dark')
-        expect(styles).toContain('--p-primary-500: #64748b') // Default light primary
+        expect(styles).toContain('--m-primary: #64748b') // Default light primary
         expect(styles).toContain('--m-accent-color: #f43f5e') // Default light accent
         // `--m-*` 基色与 `--p-*` 同值，供 styles/main.scss 派生色阶
         expect(styles).toContain('--m-primary: #64748b')
@@ -96,20 +96,16 @@ describe('useTheme', () => {
     })
 
     it('should mirror preset and background overrides to the --m-* palette base', () => {
-        // 守卫会扫描 tests/**，字面量 `--p-*` 会被当成新增 token；旧 token 名拼接生成。
-        const legacyGroundToken = ['--p', 'surface-ground'].join('-')
         const { settings, customStyles } = useTheme()
         settings.value!.themePreset = 'geek'
 
         const styles = customStyles.value
-        expect(styles).toContain(`${legacyGroundToken}: #ffffff`)
         expect(styles).toContain('--m-surface-ground: #ffffff')
 
         settings.value!.themeBackgroundType = 'color'
         settings.value!.themeBackgroundValue = '#123456'
 
         const overridden = customStyles.value
-        expect(overridden).toContain(`${legacyGroundToken}: #123456`)
         expect(overridden).toContain('--m-surface-ground: #123456')
     })
 
@@ -118,7 +114,7 @@ describe('useTheme', () => {
         settings.value!.themePrimaryColor = 'ff0000'
 
         const styles = customStyles.value
-        expect(styles).toContain('--p-primary-500: #ff0000')
+        expect(styles).toContain('--m-primary: #ff0000')
     })
 
     it('should apply dark mode overrides', () => {
@@ -128,7 +124,7 @@ describe('useTheme', () => {
         const styles = customStyles.value
         // Check if dark class contains the green color
         const darkSection = styles.split('.dark')[1]
-        expect(darkSection).toContain('--p-primary-500: #00ff00')
+        expect(darkSection).toContain('--m-primary: #00ff00')
     })
 
     it('should handle different background types', () => {
@@ -137,7 +133,7 @@ describe('useTheme', () => {
         // Color background
         settings.value!.themeBackgroundType = 'color'
         settings.value!.themeBackgroundValue = '#f0f0f0'
-        expect(customStyles.value).toContain('--p-surface-ground: #f0f0f0')
+        expect(customStyles.value).toContain('--m-surface-ground: #f0f0f0')
 
         // Image background
         settings.value!.themeBackgroundType = 'image'
@@ -157,8 +153,8 @@ describe('useTheme', () => {
         settings.value!.themePreset = 'geek'
 
         const styles = customStyles.value
-        expect(styles).toContain(`--p-primary-500: ${PRESETS.geek.primary.light}`)
-        expect(styles).toContain('--p-surface-ground: #ffffff') // From geek preset logic
+        expect(styles).toContain(`--m-primary: ${PRESETS.geek.primary.light}`)
+        expect(styles).toContain('--m-surface-ground: #ffffff') // From geek preset logic
     })
 
     it('should skip fetching theme after it has already been loaded', async () => {
@@ -222,7 +218,7 @@ describe('useTheme', () => {
         }
 
         expect(effectiveSettings.value?.themePrimaryColor).toBe('#222222')
-        expect(useTheme().customStyles.value).toContain('--p-primary-500: #222222')
+        expect(useTheme().customStyles.value).toContain('--m-primary: #222222')
     })
 
     it('should apply head metadata with style and favicon links', () => {
@@ -258,8 +254,8 @@ describe('useTheme', () => {
         settings.value!.themeSurfaceColor = 'null'
 
         const styles = customStyles.value
-        expect(styles).toContain('--p-primary-500: #ffe411')
-        expect(styles).toContain('--p-primary-contrast-color: #000')
+        expect(styles).toContain('--m-primary: #ffe411')
+        expect(styles).toContain('--m-primary-contrast: #000')
         expect(styles).toContain(`--m-accent-color: ${PRESETS.default.accent.light}`)
     })
 })

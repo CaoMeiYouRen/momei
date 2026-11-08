@@ -165,8 +165,8 @@
 | `--p-yellow-50` | palette | map | `--m-yellow-50` | Aura primitive 原始色板，冻结为项目调色板常量 |
 | `--p-yellow-500` | palette | map | `--m-yellow-500` | Aura primitive 原始色板，冻结为项目调色板常量 |
 | `--p-blue-` | phantom | map | `--m-blue-*` | 注释文本中的前缀引用（`--p-blue-*`），随批次改写为 `--m-blue-*` |
-| `--p-border-radius` | phantom | map | `--caomei-radius-md` | v3 幻影（Aura 无裸 border.radius），恒为 unset；改走圆角角色 |
-| `--p-emerald-500-rgb` | phantom | map | `--m-emerald-500` | 幻影 rgb 三元组；改为 color-mix(in srgb, var(--m-emerald-500) α%, transparent) |
+| `--p-border-radius` | phantom | delete | （删除） | v3 幻影；消费点是 `border-radius`，删除后保持直角（映射为角色会新增圆角） |
+| `--p-emerald-500-rgb` | phantom | delete | （删除） | 幻影 rgb 三元组；消费点是 `rgb(...)` 背景，删除后保持透明 |
 | `--p-error-500` | phantom | map | `--caomei-color-danger` | v3 幻影状态色阶，恒为 unset；改走状态 tone 角色 |
 | `--p-error-700` | phantom | map | `--caomei-color-danger-text` | v3 幻影状态色阶，恒为 unset；改走状态文字角色 |
 | `--p-error-color` | phantom | map | `--caomei-color-danger` | v3 幻影状态色，恒为 unset；改走状态 tone 角色 |
@@ -175,17 +175,17 @@
 | `--p-info-500` | phantom | map | `--m-info-500` | v3 幻影状态色阶，恒为 unset；固化为项目 info 色 |
 | `--p-info-color` | phantom | map | `--m-info-500` | v3 幻影，既有 fallback #2196f3；固化为项目 info 色 |
 | `--p-primary-` | phantom | map | `--m-primary-*` | 注释文本中的前缀引用（`--p-primary-*`），随批次改写为 `--m-primary-*` |
-| `--p-primary-900-opacity-20` | phantom | map | `--m-primary-900` | 幻影；改为 color-mix(in srgb, var(--m-primary-900) 20%, transparent) |
-| `--p-primary-rgb` | phantom | map | `--m-primary-500` | 幻影 rgb 三元组；改为 color-mix(in srgb, var(--m-primary-500) α%, transparent) |
-| `--p-red-500-rgb` | phantom | map | `--m-red-500` | 幻影 rgb 三元组；改为 color-mix(in srgb, var(--m-red-500) α%, transparent) |
+| `--p-primary-900-opacity-20` | phantom | delete | （删除） | 幻影；消费点是 `border-left-color`，删除后保持初始值（currentColor） |
+| `--p-primary-rgb` | phantom | delete | （删除） | 幻影 rgb 三元组；消费点是 `rgb(...)` 背景，删除后保持透明 |
+| `--p-red-500-rgb` | phantom | delete | （删除） | 幻影 rgb 三元组；消费点是 `rgb(...)` 背景，删除后保持透明 |
 | `--p-success-500` | phantom | map | `--caomei-color-success` | v3 幻影状态色阶，恒为 unset；改走状态 tone 角色 |
 | `--p-success-700` | phantom | map | `--caomei-color-success-text` | v3 幻影状态色阶，恒为 unset；改走状态文字角色 |
-| `--p-surface-0-rgb` | phantom | map | `--m-surface-0` | 幻影 rgb 三元组；改为 color-mix(in srgb, var(--m-surface-0) α%, transparent) |
-| `--p-surface-900-rgb` | phantom | map | `--m-surface-900` | 幻影 rgb 三元组；改为 color-mix(in srgb, var(--m-surface-900) α%, transparent) |
-| `--p-surface-border` | phantom | map | `--caomei-color-border` | v3 幻影（Aura 无 surface.border），恒为 unset；改走装饰边框角色 |
-| `--p-surface-hover` | phantom | map | `--m-surface-hover` | v3 幻影（Aura 无 surface.hover），恒为 unset；改走 hover 面 |
-| `--p-text-color-secondary` | phantom | map | `--caomei-color-text-muted` | v3 幻影，恒为 unset；改走次级文本角色 |
-| `--p-text-secondary-color` | phantom | map | `--caomei-color-text-muted` | v3 幻影，恒为 unset；改走次级文本角色 |
+| `--p-surface-0-rgb` | phantom | delete | （删除） | 幻影 rgb 三元组；消费点是 `rgba(...)` 背景，删除后保持透明（需要玻璃效果时改 `color-mix`） |
+| `--p-surface-900-rgb` | phantom | delete | （删除） | 幻影 rgb 三元组；消费点是 `rgb(...)` 背景，删除后保持透明 |
+| `--p-surface-border` | phantom | delete | （删除） | v3 幻影；消费点是 `border` / `border-color` 声明，映射为真实边框会新增可见边框并改变盒模型；按「不改视觉」删除声明 |
+| `--p-surface-hover` | phantom | delete | （删除） | v3 幻影；消费点是 `background-color`，删除后保持透明（映射为 `--m-surface-hover` 会新增悬停底色） |
+| `--p-text-color-secondary` | phantom | delete | （删除） | v3 幻影；消费点是 `color` 声明，删除后继承父级，保持迁移前 invalid 的计算结果 |
+| `--p-text-secondary-color` | phantom | delete | （删除） | v3 幻影；消费点是 `color` 声明，删除后继承父级，保持迁移前 invalid 的计算结果 |
 | `--p-warn-600` | phantom | map | `--m-orange-600` | v3 幻影状态色阶，恒为 unset；改走 warning 色阶 |
 | `--p-warn-color` | phantom | map | `--caomei-color-warning` | v3 幻影状态色（warn 别名），恒为 unset；改走状态 tone 角色 |
 | `--p-warning-50` | phantom | map | `--m-orange-50` | v3 幻影状态色阶，恒为 unset；改走 warning 色阶 |

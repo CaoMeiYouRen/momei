@@ -221,48 +221,10 @@ export const useTheme = () => {
             }
 
             let v = `
-    --p-primary-50: color-mix(in srgb, ${primary}, white 95%);
-    --p-primary-100: color-mix(in srgb, ${primary}, white 90%);
-    --p-primary-200: color-mix(in srgb, ${primary}, white 70%);
-    --p-primary-300: color-mix(in srgb, ${primary}, white 50%);
-    --p-primary-400: color-mix(in srgb, ${primary}, white 20%);
-    --p-primary-500: ${primary};
-    --p-primary-600: color-mix(in srgb, ${primary}, black 20%);
-    --p-primary-700: color-mix(in srgb, ${primary}, black 40%);
-    --p-primary-800: color-mix(in srgb, ${primary}, black 60%);
-    --p-primary-900: color-mix(in srgb, ${primary}, black 80%);
-    --p-primary-950: color-mix(in srgb, ${primary}, black 90%);
-
-    --p-primary-color: ${primary};
-    --p-primary-contrast-color: ${contrastColor};
-
-
-    --p-content-border-radius: ${radius};
-
-    /* Surface mapping */
-    --p-surface-0: ${surface};
-    --p-surface-50: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 2%);
-    --p-surface-100: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 4%);
-    --p-surface-200: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 8%);
-    --p-surface-300: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 12%);
-    --p-surface-400: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 20%);
-    --p-surface-500: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 30%);
-    --p-surface-600: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 45%);
-    --p-surface-700: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 60%);
-    --p-surface-800: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 80%);
-    --p-surface-900: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 90%);
-    --p-surface-950: color-mix(in srgb, ${surface}, ${isDarkMode ? 'white' : 'black'} 95%);
-
-    --p-content-background: var(--p-surface-0);
-    --p-content-border-color: var(--p-surface-200);
-
-    --p-text-color: ${text};
-    --p-text-muted-color: color-mix(in srgb, ${text}, ${surface} 40%);
     --m-accent-color: ${accent};
 
     /* 项目调色板层基色：--m-* 色阶在 styles/main.scss 中由这些基色派生（映射表见
-     * docs/design/governance/2026-11-08-primevue-token-mapping.md）。
-     * 与上方 --p-* 同值，后续 token 反向切换删除 --p-* 后基色仍由本段提供。 */
+     * docs/design/governance/2026-11-08-primevue-token-mapping.md）。 */
     --m-primary: ${primary};
     --m-primary-contrast: ${contrastColor};
     --m-surface: ${surface};
@@ -271,13 +233,13 @@ export const useTheme = () => {
 `
             // 如果是暖色或极客主题，微调 body 基础背景
             if (themePreset && themePreset !== 'default') {
-                v += `    --p-surface-ground: ${surface};\n    --m-surface-ground: ${surface};\n`
+                v += `    --m-surface-ground: ${surface};\n`
             }
 
             // 个性化背景颜色覆盖
             if (themeBackgroundType === 'color' && themeBackgroundValue) {
                 const bgColor = formatColor(themeBackgroundValue, surface)
-                v += `    --p-surface-ground: ${bgColor};\n    --m-surface-ground: ${bgColor};\n`
+                v += `    --m-surface-ground: ${bgColor};\n`
             }
 
             return v
@@ -300,8 +262,6 @@ export const useTheme = () => {
     }
 
     body {
-        background-color: var(--p-surface-ground);
-        color: var(--p-text-color);
     }
 `
 

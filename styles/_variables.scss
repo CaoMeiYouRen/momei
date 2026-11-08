@@ -43,7 +43,6 @@ $color-text: var(--caomei-color-text);
 $color-text-muted: var(--caomei-color-text-muted);
 
 $color-surface-card: var(--caomei-color-bg);
-$color-surface-border: var(--caomei-color-border);
 $color-surface-ground: var(--m-surface-ground);
 
 $color-surface-0: var(--m-surface-0);
@@ -153,7 +152,6 @@ $demo-banner-btn-dark: #7dd3fc;
 // Onboarding specific (using semantic names)
 $onboarding-bg: $color-surface-card;
 $onboarding-text: $color-text;
-$onboarding-border: $color-surface-border;
 $onboarding-btn-bg: $color-primary;
 $onboarding-btn-hover: $color-primary-hover;
 $onboarding-btn-color: $color-primary-text;

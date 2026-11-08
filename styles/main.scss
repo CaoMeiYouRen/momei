@@ -7,16 +7,6 @@
 @layer primevue, momei-base, momei-overrides;
 
 @layer momei-base {
-    :root {
-        --p-surface-ground: var(--p-surface-50);
-        --p-surface-card: var(--p-surface-0);
-    }
-
-    .dark {
-        --p-surface-ground: var(--p-surface-0);
-        --p-surface-card: var(--p-surface-100);
-    }
-
     body {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         margin: 0;

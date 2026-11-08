@@ -496,7 +496,6 @@ $color-white: var(--caomei-color-bg);
     padding: $spacing-lg;
     background-color: $color-white;
     border-radius: $border-radius-md;
-    border: 1px solid $color-surface-border;
 
     &__check {
         flex-shrink: 0;
@@ -581,7 +580,6 @@ $color-white: var(--caomei-color-bg);
 .comparison-table {
     max-width: 48rem;
     margin: 0 auto;
-    border: 1px solid $color-surface-border;
     border-radius: $border-radius-md;
     overflow: hidden;
     background-color: $color-white;
@@ -590,13 +588,11 @@ $color-white: var(--caomei-color-bg);
         display: grid;
         grid-template-columns: 1fr 120px 120px;
         background-color: $color-paper;
-        border-bottom: 2px solid $color-surface-border;
     }
 
     &__row {
         display: grid;
         grid-template-columns: 1fr 120px 120px;
-        border-bottom: 1px solid $color-surface-border;
 
         &:last-child {
             border-bottom: 0;
@@ -648,7 +644,6 @@ $color-white: var(--caomei-color-bg);
 }
 
 .faq-item {
-    border: 1px solid $color-surface-border;
     border-radius: $border-radius-md;
     background-color: $color-white;
 
@@ -705,7 +700,6 @@ $color-white: var(--caomei-color-bg);
 
     &__input {
         padding: $spacing-sm * 1.5 $spacing-md;
-        border: 1px solid $color-surface-border;
         border-radius: $border-radius-sm;
         font-size: $font-size-base;
         background-color: $color-white;

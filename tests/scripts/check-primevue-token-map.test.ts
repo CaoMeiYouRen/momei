@@ -140,12 +140,12 @@ describe('check-primevue-token-map', () => {
         expect(extractDocTable(docContent)).toBe(markdown)
     })
 
-    it('covers every --p-* token currently in the repository (live guard)', async () => {
-        const map = await loadTokenMap(defaultMapPath)
+    it('keeps the repository at zero --p-* tokens after the reverse switch (live guard)', async () => {
         const tokens = await collectTokens(projectRoot)
-        const coverage = evaluateCoverage(tokens, map)
 
-        expect(coverage.unknown).toEqual([])
-        expect(coverage.mapped.length).toBeGreaterThan(0)
+        expect([...tokens.keys()]).toEqual([])
+
+        const result = await run({ failOnResidual: true })
+        expect(result.ok).toBe(true)
     })
 })

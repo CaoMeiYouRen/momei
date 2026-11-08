@@ -44,10 +44,6 @@ export const useReaderMode = () => {
                 root.style.removeProperty('--reader-font-size')
                 root.style.removeProperty('--reader-line-height')
                 root.style.removeProperty('--reader-width')
-                root.style.removeProperty('--p-content-background')
-                root.style.removeProperty('--p-surface-0')
-                root.style.removeProperty('--p-surface-ground')
-                root.style.removeProperty('--p-text-color')
                 root.style.removeProperty('--m-surface-0')
                 root.style.removeProperty('--m-surface-ground')
                 root.style.removeProperty('--m-text-color')
@@ -95,20 +91,12 @@ export const useReaderMode = () => {
 
             // 如果选择了特定主题，强制覆盖 PrimeVue 基础变量以实现“主题透传”
             if (bg) {
-                root.style.setProperty('--p-content-background', bg)
-                root.style.setProperty('--p-surface-0', bg)
-                root.style.setProperty('--p-surface-ground', bg)
-                root.style.setProperty('--p-text-color', text)
                 root.style.setProperty('--m-surface-0', bg)
                 root.style.setProperty('--m-surface-ground', bg)
                 root.style.setProperty('--m-text-color', text)
                 document.body.style.setProperty('background-color', bg, 'important')
                 document.body.style.setProperty('color', text, 'important')
             } else {
-                root.style.removeProperty('--p-content-background')
-                root.style.removeProperty('--p-surface-0')
-                root.style.removeProperty('--p-surface-ground')
-                root.style.removeProperty('--p-text-color')
                 root.style.removeProperty('--m-surface-0')
                 root.style.removeProperty('--m-surface-ground')
                 root.style.removeProperty('--m-text-color')
