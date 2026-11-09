@@ -1,144 +1,145 @@
 packages:
-    - "packages/*"
+  - "packages/*"
 
 # Keep a short quarantine window for newly published packages,
 # but avoid blocking normal lockfile maintenance for same-day releases.
 minimumReleaseAge: 60
 
 allowBuilds:
-    "@parcel/watcher": true
-    "@sentry/cli": true
-    better-sqlite3: true
-    esbuild: true
-    nice-napi: true
-    protobufjs: true
-    sharp: true
-    unrs-resolver: true
-    vue-demi: true
-    workerd: true
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  better-sqlite3: true
+  esbuild: true
+  nice-napi: true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true
+  vue-demi: true
+  workerd: true
 
 overrides:
-    deepmerge-ts: "^8.0.0"
-    # `nuxt` 与 `@nuxt/nitro-server` 都以「精确版本」声明 `@nuxt/kit`，而第三方 Nuxt
-    # 模块声明的是 `^3.x` / `^4.x` 宽范围。此 override 只应承担「把第三方 3.x 消费者
-    # 抬到 4.x 线」的职责，绝不能让 kit 跨到 nuxt 未要求的次版本：Nuxt 运行时会按自身
-    # 主次版本从 `@nuxt/kit` 取对应的内部符号与子路径导出（4.5 线用 `bundlerDiagnostics`、
-    # 4.6 线用 `./internal`），kit 次版本一旦与 nuxt 不一致，`nuxt prepare`（root
-    # postinstall）会直接以「缺少导出 / 子路径未定义」失败。
-    # 因此**本行与 package.json 的 `nuxt` 版本必须同一次原子变更**：拆分抬升会让
-    # nuxt 升级类 PR 在 postinstall 阶段长期转红（tests/modules/nuxt-kit-version-lockstep.test.ts
-    # 亦会拦截 kit 与 nuxt 版本线不一致）。
-    # 必须是**精确版本**而非 `~4.6.0` 这类区间：pnpm 会**复用**锁文件中仍满足区间的既有解析，
-    # 不会主动把同一主次线内的多个补丁位收敛为一个。锁文件一旦已并存 4.6.0 / 4.6.1 两个实例
-    # （依赖 PR 重解析留下的产物），保持区间不变的重解析不会自愈（实测产物逐字节不变）。
-    # 精确版本会让不再满足的陈旧条目失效，从而强制收敛为单一实例——这正是
-    # tests/modules/nuxt-kit-version-lockstep.test.ts 要求的「kit 单一实例」不变量。
-    "@nuxt/kit": "4.6.1"
-    axios: "^1.20.0"
-    js-cookie: "^3.0.7"
-    basic-ftp: "^6.2.1"
-    fast-xml-parser: "^5.8.0"
-    # GHSA-mrwp-f3q8-3g9p（high）的补丁只在 >=1.16.2 提供；锁文件已重解析为 1.16.2，
-    # 该下限可防止后续依赖 PR 把补丁位回退到受影响版本。
-    follow-redirects: "^1.16.2"
-    # 以下两项只经 @lhci/cli 触达（devDependencies，仅本地 / CI 执行 Lighthouse 性能审计）。
-    proxy-addr: "^2.0.8"
-    compression: "^1.8.2"
-    "@smithy/types": "^4.13.1"
-    file-type: "^21.3.2"
-    preact: "^10.28.2"
-    vite: "8.1.6"
-    esbuild: "^0.28.1"
-    brace-expansion: "^5.0.11"
-    tar: "^7.5.16"
-    minimatch: "^10.2.3"
-    source-map-js: "^1.2.2"
-    html-minifier: "npm:html-minifier-terser@^7.2.0"
-    handlebars: "^4.7.10"
-    # node-forge 1.4.1 / 1.4.2 已发布，GHSA-86w9-cpqp-85rv 等 high 告警随之下线，
-    # 原先登记的临时例外已从 dependency-risk-allowlist.json 移除；此处下限抬到 1.4.2 防止回退。
-    node-forge: "^1.4.2"
-    js-yaml: "^4.3.2"
-    "read-yaml-file>js-yaml": "^3.14.1"
-    tmp: "^0.2.7"
-    debug: "^4.4.0"
-    undici: "^6.28.1"
-    diff: "^9.0.0"
-    devalue: "^5.9.3"
-    defu: "6.1.5"
-    unhead: "^3.2.2"
-    qs: "6.15.2"
-    hono: "^4.12.27"
-    "@hono/node-server": "^2.0.5"
-    uuid: "11.1.1"
-    "@nuxt/test-utils>h3-next": "npm:h3@^2.0.1-rc.18"
-    seroval: "^1.4.1"
-    # GHSA-x6jw-m9v5-85vh（critical）的补丁只在 simple-git 4.x 线提供（3.36.1 未发布），故跨大版本抬升。
-    # simple-git 仅经 nuxt > @nuxt/devtools 在开发 / 构建期被触达，不进入生产运行时依赖图。
-    # ⚠️ 已知代价：@nuxt/devtools 声明的是 `simple-git: ^3.36.0`，而 4.x 移除了 default 导出，
-    # devtools 的 module-main chunk 以 `import Git from 'simple-git'` 加载会抛
-    # `SyntaxError: does not provide an export named 'default'`。当前依赖 nuxt.config.ts 的
-    # `devtools: { enabled: false }` 规避（setup 提前 return，不会加载该 chunk）；
-    # 一旦开启 devtools 会直接失败，届时须先确认 devtools 已支持 simple-git 4 再放开。
-    # ⚠️ 另有第二条规避点：Dockerfile builder 阶段在 `COPY . /app` 之前执行 `pnpm i`，
-    # 该时点没有 `nuxt.config.ts`，上述规避会失效，故在那里写入占位配置；
-    # 两处必须同步维护（详见 Dockerfile 中该步骤的注释）。
-    simple-git: "^4.0.2"
-    "@simple-git/argv-parser": "^2.0.1"
-    immutable: "^5.1.5"
-    "path-to-regexp@0.1.12": "^0.1.13"
-    "path-to-regexp@8.3.0": "^8.4.0"
-    "picomatch@2.3.1": "^2.3.2"
-    "picomatch@4.0.3": "^4.0.4"
-    svgo: "^4.1.0"
-    # GHSA-27r3-jxmh-p828：1.x 与 2.x 两条线必须分别抬到已修复版本，缺失任一条都会在
-    # express 4（@lhci/cli）或 express 5（@modelcontextprotocol/sdk）链路上残留 high 风险。
-    "body-parser@1": "^1.20.9"
-    "body-parser@2": "^2.4.0"
-    # GHSA-mrhx-c7xc-m3w5：@vercel/cli-config 0.3.1（npm 最新 0.3.3 亦然）把 zod 精确钉在
-    # 4.1.11，命中 vulnerable <4.6.6；该链路经 @vercel/blob > @vercel/oidc 进入生产依赖图，
-    # 故按路径定向抬到同 major 的 4.6.7（兼容 minor 升级），清除安装实例与依赖边。
-    # ⚠️ 该包入口 bundle `dist/index.js` 为预打包产物并内联了一份 zod 4.1.11 实现（只 require
-    # fs/os/path；同目录 cli-config.js / schema*.js 虽 require('zod')，但未被 exports 暴露也未进入
-    # .output），override 只能修正依赖边，实际执行的内联副本须等上游重新打包；其输入仅本地
-    # config.json / auth.json，不处理不可信远端数据，内存耗尽风险暴露面有限。
-    # 不写成裸 zod，是为了避免把 chromium-bidi（仅 @lhci/cli 开发链）的 zod 3 跨大版本升级，
-    # 其 lib 仍读取 ZodError.errors（zod 4 已改为 .issues）。该条链路由 allowlist 临时登记。
-    "@vercel/cli-config>zod": "^4.6.7"
-    lodash: "^4.18.1"
-    "ajv@^6.0.0": "^6.14.0"
-    "ajv@^8.0.0": "^8.18.0"
-    rollup: "^4.59.0"
-    serialize-javascript: "^7.0.5"
-    shell-quote: "^1.12.0"
-    yauzl: "^3.2.1"
-    flatted: "^3.4.2"
-    kysely: "^0.28.17"
-    srvx: "^0.11.13"
-    yaml: "^2.8.3"
-    ip-address: "^10.1.1"
-    form-data: "^4.0.6"
-    ws: "^8.21.0"
-    typescript-eslint: "8.63.0"
-    sharp: "^0.35.5"
-    fast-uri: "^3.1.6"
-    "piscina": "^4.9.3"
-    "@babel/plugin-transform-modules-systemjs": "^7.29.4"
-    launch-editor: "^2.14.2"
-    # GHSA-83rm-6c8r-g728：vue-i18n 的 escapeParameter 无法阻止翻译消息内 srcdoc 引发的 XSS，
-    # 11.x 线修复版本为 >=11.4.14。@nuxtjs/i18n@10.6.0（npm 最新版）声明 @intlify/core /
-    # vue-i18n 为 ^11.4.8，锁文件停留在 11.4.8（低于修复线），属可修复的 high 风险。
-    # 该 5 个包在 11.4.16 内部互相精确钉版（vue-i18n / @intlify/core 均要求
-    # @intlify/core-base@11.4.16、@intlify/shared@11.4.16），因此必须整体抬到同一次版本，
-    # 只抬其中一个会残留 11.4.8 实例。11.4.16 仍是同一 major，供 @intlify/unplugin-vue-i18n
-    # 的 `~11.4.2` 与 @intlify/h3 的 ^11.1.12 区间消费，无需改动 package.json。
-    # 按 docs/standards/development.md §4.7，lockstep 族 override 必须写精确值：区间写法会让
-    # 上游发布下一个补丁版后新依赖边解析到新版、旧条目仍停在 11.4.16，重新分裂出多个补丁位。
-    # 精确 override 会覆盖 package.json:183-186 的 devDependencies 区间，使 `--frozen-lockfile`
-    # 不再暴露该 3 条声明与锁文件的差异；后续抬版时 override 与 package.json 必须在同一次
-    # 原子变更中同步，否则「只改 package.json」的升级 PR 会被 override 静默吞掉。
-    vue-i18n: "11.4.16"
-    "@intlify/core": "11.4.16"
-    "@intlify/core-base": "11.4.16"
-    "@intlify/shared": "11.4.16"
-    "@intlify/message-compiler": "11.4.16"
+  deepmerge-ts: "^8.0.0"
+  # `nuxt` 与 `@nuxt/nitro-server` 都以「精确版本」声明 `@nuxt/kit`，而第三方 Nuxt
+  # 模块声明的是 `^3.x` / `^4.x` 宽范围。此 override 只应承担「把第三方 3.x 消费者
+  # 抬到 4.x 线」的职责，绝不能让 kit 跨到 nuxt 未要求的次版本：Nuxt 运行时会按自身
+  # 主次版本从 `@nuxt/kit` 取对应的内部符号与子路径导出（4.5 线用 `bundlerDiagnostics`、
+  # 4.6 线用 `./internal`），kit 次版本一旦与 nuxt 不一致，`nuxt prepare`（root
+  # postinstall）会直接以「缺少导出 / 子路径未定义」失败。
+  # 因此**本行与 package.json 的 `nuxt` 版本必须同一次原子变更**：拆分抬升会让
+  # nuxt 升级类 PR 在 postinstall 阶段长期转红（tests/modules/nuxt-kit-version-lockstep.test.ts
+  # 亦会拦截 kit 与 nuxt 版本线不一致）。
+  # 必须是**精确版本**而非 `~4.6.0` 这类区间：pnpm 会**复用**锁文件中仍满足区间的既有解析，
+  # 不会主动把同一主次线内的多个补丁位收敛为一个。锁文件一旦已并存 4.6.0 / 4.6.1 两个实例
+  # （依赖 PR 重解析留下的产物），保持区间不变的重解析不会自愈（实测产物逐字节不变）。
+  # 精确版本会让不再满足的陈旧条目失效，从而强制收敛为单一实例——这正是
+  # tests/modules/nuxt-kit-version-lockstep.test.ts 要求的「kit 单一实例」不变量。
+  "@nuxt/kit": "4.6.1"
+  axios: "^1.20.0"
+  js-cookie: "^3.0.7"
+  basic-ftp: "^6.2.1"
+  fast-xml-parser: "^5.8.0"
+  # GHSA-mrwp-f3q8-3g9p（high）的补丁只在 >=1.16.2 提供；锁文件已重解析为 1.16.2，
+  # 该下限可防止后续依赖 PR 把补丁位回退到受影响版本。
+  follow-redirects: "^1.16.2"
+  # 以下两项只经 @lhci/cli 触达（devDependencies，仅本地 / CI 执行 Lighthouse 性能审计）。
+  proxy-addr: "^2.0.8"
+  compression: "^1.8.2"
+  "@smithy/types": "^4.13.1"
+  file-type: "^21.3.2"
+  preact: "^10.28.2"
+  vite: "8.1.6"
+  esbuild: "^0.28.1"
+  brace-expansion: "^5.0.11"
+  tar: "^7.5.16"
+  minimatch: "^10.2.3"
+  source-map-js: "^1.2.2"
+  html-minifier: "npm:html-minifier-terser@^7.2.0"
+  handlebars: "^4.7.10"
+  # node-forge 1.4.1 / 1.4.2 已发布，GHSA-86w9-cpqp-85rv 等 high 告警随之下线，
+  # 原先登记的临时例外已从 dependency-risk-allowlist.json 移除；此处下限抬到 1.4.2 防止回退。
+  node-forge: "^1.4.2"
+  js-yaml: "^4.3.2"
+  "read-yaml-file>js-yaml": "^3.14.1"
+  tmp: "^0.2.7"
+  debug: "^4.4.0"
+  undici: "^6.28.1"
+  diff: "^9.0.0"
+  devalue: "^5.9.3"
+  defu: "6.1.5"
+  unhead: "^3.2.2"
+  qs: "^6.16.1"
+  hono: "^4.12.27"
+  "@hono/node-server": "^2.0.5"
+  uuid: "11.1.1"
+  "@nuxt/test-utils>h3-next": "npm:h3@^2.0.1-rc.18"
+  seroval: "^1.4.1"
+  # GHSA-x6jw-m9v5-85vh（critical）的补丁只在 simple-git 4.x 线提供（3.36.1 未发布），故跨大版本抬升。
+  # simple-git 仅经 nuxt > @nuxt/devtools 在开发 / 构建期被触达，不进入生产运行时依赖图。
+  # ⚠️ 已知代价：@nuxt/devtools 声明的是 `simple-git: ^3.36.0`，而 4.x 移除了 default 导出，
+  # devtools 的 module-main chunk 以 `import Git from 'simple-git'` 加载会抛
+  # `SyntaxError: does not provide an export named 'default'`。当前依赖 nuxt.config.ts 的
+  # `devtools: { enabled: false }` 规避（setup 提前 return，不会加载该 chunk）；
+  # 一旦开启 devtools 会直接失败，届时须先确认 devtools 已支持 simple-git 4 再放开。
+  # ⚠️ 另有第二条规避点：Dockerfile builder 阶段在 `COPY . /app` 之前执行 `pnpm i`，
+  # 该时点没有 `nuxt.config.ts`，上述规避会失效，故在那里写入占位配置；
+  # 两处必须同步维护（详见 Dockerfile 中该步骤的注释）。
+  simple-git: "^4.0.2"
+  "@simple-git/argv-parser": "^2.0.1"
+  immutable: "^5.1.5"
+  "path-to-regexp@0.1.12": "^0.1.13"
+  "path-to-regexp@8.3.0": "^8.4.0"
+  "picomatch@2.3.1": "^2.3.2"
+  "picomatch@4.0.3": "^4.0.4"
+  svgo: "^4.1.0"
+  # GHSA-27r3-jxmh-p828：1.x 与 2.x 两条线必须分别抬到已修复版本，缺失任一条都会在
+  # express 4（@lhci/cli）或 express 5（@modelcontextprotocol/sdk）链路上残留 high 风险。
+  "body-parser@1": "^1.20.9"
+  "body-parser@2": "^2.4.0"
+  # GHSA-mrhx-c7xc-m3w5：@vercel/cli-config 0.3.1（npm 最新 0.3.3 亦然）把 zod 精确钉在
+  # 4.1.11，命中 vulnerable <4.6.6；该链路经 @vercel/blob > @vercel/oidc 进入生产依赖图，
+  # 故按路径定向抬到同 major 的 4.6.7（兼容 minor 升级），清除安装实例与依赖边。
+  # ⚠️ 该包入口 bundle `dist/index.js` 为预打包产物并内联了一份 zod 4.1.11 实现（只 require
+  # fs/os/path；同目录 cli-config.js / schema*.js 虽 require('zod')，但未被 exports 暴露也未进入
+  # .output），override 只能修正依赖边，实际执行的内联副本须等上游重新打包；其输入仅本地
+  # config.json / auth.json，不处理不可信远端数据，内存耗尽风险暴露面有限。
+  # 不写成裸 zod，是为了避免把 chromium-bidi（仅 @lhci/cli 开发链）的 zod 3 跨大版本升级，
+  # 其 lib 仍读取 ZodError.errors（zod 4 已改为 .issues）。该条链路由 allowlist 临时登记。
+  "@vercel/cli-config>zod": "^4.6.7"
+  lodash: "^4.18.1"
+  "ajv@^6.0.0": "^6.14.0"
+  "ajv@^8.0.0": "^8.18.0"
+  rollup: "^4.59.0"
+  serialize-javascript: "^7.0.5"
+  shell-quote: "^1.12.0"
+  yauzl: "^3.2.1"
+  flatted: "^3.4.2"
+  kysely: "^0.28.17"
+  srvx: "^0.11.13"
+  yaml: "^2.8.3"
+  ip-address: "^10.1.1"
+  form-data: "^4.0.6"
+  ws: "^8.21.0"
+  typescript-eslint: "8.63.0"
+  sharp: "^0.35.5"
+  fast-uri: "^3.1.6"
+  "piscina": "^4.9.3"
+  "@babel/plugin-transform-modules-systemjs": "^7.29.4"
+  launch-editor: "^2.14.2"
+  # GHSA-83rm-6c8r-g728：vue-i18n 的 escapeParameter 无法阻止翻译消息内 srcdoc 引发的 XSS，
+  # 11.x 线修复版本为 >=11.4.14。@nuxtjs/i18n@10.6.0（npm 最新版）声明 @intlify/core /
+  # vue-i18n 为 ^11.4.8，锁文件停留在 11.4.8（低于修复线），属可修复的 high 风险。
+  # 该 5 个包在 11.4.16 内部互相精确钉版（vue-i18n / @intlify/core 均要求
+  # @intlify/core-base@11.4.16、@intlify/shared@11.4.16），因此必须整体抬到同一次版本，
+  # 只抬其中一个会残留 11.4.8 实例。11.4.16 仍是同一 major，供 @intlify/unplugin-vue-i18n
+  # 的 `~11.4.2` 与 @intlify/h3 的 ^11.1.12 区间消费，无需改动 package.json。
+  # 按 docs/standards/development.md §4.7，lockstep 族 override 必须写精确值：区间写法会让
+  # 上游发布下一个补丁版后新依赖边解析到新版、旧条目仍停在 11.4.16，重新分裂出多个补丁位。
+  # 精确 override 会覆盖 package.json:183-186 的 devDependencies 区间，使 `--frozen-lockfile`
+  # 不再暴露该 3 条声明与锁文件的差异；后续抬版时 override 与 package.json 必须在同一次
+  # 原子变更中同步，否则「只改 package.json」的升级 PR 会被 override 静默吞掉。
+  vue-i18n: "11.4.16"
+  "@intlify/core": "11.4.16"
+  "@intlify/core-base": "11.4.16"
+  "@intlify/shared": "11.4.16"
+  "@intlify/message-compiler": "11.4.16"
+  moment: ^2.31.0
