@@ -2,14 +2,25 @@ name: Publish Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      # release.yml 完成 semantic-release 后主动 workflow_dispatch 本工作流，传入版本号；
+      # push:master 触发时该入参为空，只打 latest / 日期 / sha 三类 tag。
+      version:
+        description: '发布版本号（仅 release.yml 派发时填写，如 1.30.0；留空则不打 semver tag）'
+        type: string
+        required: false
+        default: ''
   push:
     branches:
       - master
 
-# 仅取消针对当前工作流正在进行的作业或运行
+# 发布派发与普通 push 分属不同分组：
+# - 普通 push 之间互相取代（后一次 push 的镜像覆盖前一次）；
+# - 发布派发禁取消（多架构构建耗时长，被后续 push 取代会白烧算力并丢掉版本 tag）。
+# release.yml 以 `--ref <tag>` 派发，github.ref 为 refs/tags/<tag>，与 push 分组天然隔离。
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'push' && 'push' || 'dispatch' }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   precheck:
@@ -95,10 +106,30 @@ jobs:
       - name: Build mcp-server dependency
         run: pnpm --filter momei-mcp-server build
       - run: pnpm run test
+
+  # ── 原生多架构构建 ──────────────────────────────────────────
+  # amd64 / arm64 分别在对应架构的 runner 上构建，避免 QEMU 模拟下从源码编译
+  # better-sqlite3、打包 Nuxt client 导致 build job 触顶超时。
+  # 前置条件：`ubuntu-24.04-arm` 为 GitHub 托管 arm64 runner，仅公开仓库 / 已允许
+  # arm64 托管 runner 的组织可用；不可用时 build 会在 provisioning 阶段直接失败（merge 跳过），
+  # 不会静默发出单架构镜像。
+  # 各架构按 digest 推送（每个 registry 各推一次、各存 digest），由 merge job 合成 manifest list；
+  # 任一架构失败时 merge 不会执行，因此不会发出单架构的 latest。
   build:
+    name: Build (${{ matrix.arch }})
     needs: [qa, unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            arch: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
     permissions:
       packages: write
       contents: read
@@ -108,14 +139,6 @@ jobs:
           persist-credentials: false
       - name: Lowercase the repo name
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
-      - name: Get short commit hash
-        run: echo "TAG=sha-${GITHUB_SHA::7}" >>${GITHUB_ENV}
-      # ── 原生多架构构建 ─────────────────────────────────────
-      # 直接使用原始 Dockerfile，让 Buildx + QEMU 在各目标平台上
-      # 完整执行 pnpm install → build，确保原生模块（如 better-sqlite3）
-      # 针对各架构正确编译，避免预构建 x86_64 产物跨平台兼容问题。
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Login to GitHub Container Registry
@@ -156,7 +179,7 @@ jobs:
               sleep 10
             fi
           done
-          echo "::error::阿里云 ACR 登录连续 3 次失败（网络类错误），本次跳过 ACR 发布目标"
+          echo "::warning::阿里云 ACR 登录连续 3 次失败（网络类错误），本次跳过 ACR 发布目标"
           echo "status=network_failed" >> "${GITHUB_OUTPUT}"
           exit 1
       # 凭据失效属于配置错误，必须硬失败，避免 ACR 长期静默缺更。
@@ -165,49 +188,272 @@ jobs:
         run: |
           echo "::error::阿里云 ACR 凭据无效，发布中止（请检查 ALIYUN_USERNAME / ALIYUN_PASSWORD）"
           exit 1
-      - name: Resolve registry targets
-        id: registries
-        env:
-          ACR_AVAILABLE: ${{ steps.login_aliyun.outputs.status == 'ok' }}
-        run: |
-          images=$(printf '%s\n%s' "${GITHUB_REPOSITORY}" "ghcr.io/${GITHUB_REPOSITORY}")
-          if [ "$ACR_AVAILABLE" = "true" ]; then
-            images=$(printf '%s\n%s' "${images}" "registry.cn-hangzhou.aliyuncs.com/${GITHUB_REPOSITORY}")
-          else
-            echo "::warning::阿里云 ACR 不可用，本次仅发布 docker.io 与 ghcr.io"
-          fi
-          {
-            echo 'images<<EOF'
-            echo "${images}"
-            echo 'EOF'
-          } >> "${GITHUB_OUTPUT}"
-      - name: Extract Docker metadata
+      # OCI 标签（source / revision / version / created）由构建阶段写入，
+      # 不能靠 manifest 合成阶段补（`imagetools create` 不支持 annotation）。
+      - name: Extract Docker metadata (labels)
         id: metadata
         uses: docker/metadata-action@v6
         with:
-          # 发布到 docker.io / ghcr.io；阿里云 ACR 可用时一并发布
-          images: ${{ steps.registries.outputs.images }}
+          images: ${{ env.REPO }}
+      # 三个 registry 的镜像名不同（Docker Hub / ACR 为 <owner>/<repo>，GHCR 为 ghcr.io/<owner>/<repo>），
+      # digest 各自独立，故每个 registry 各推一次并在 merge job 用各自的 digest 组装 manifest list。
+      # provenance / sbom 统一关闭：ACR 个人版拒绝 OCI attestation manifest
+      # （application/vnd.oci.empty.v1+json），且 `imagetools create` 不支持跨 registry 传递 attestation。
+      - name: Build and push by digest (Docker Hub)
+        id: build-dockerhub
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ env.REPO }},push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.metadata.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+      - name: Build and push by digest (GHCR)
+        id: build-ghcr
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=ghcr.io/${{ env.REPO }},push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.metadata.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+      - name: Build and push by digest (Alibaba Cloud ACR)
+        id: build-acr
+        if: ${{ steps.login_aliyun.outputs.status == 'ok' }}
+        # ACR 是可选目标：推送失败（网络 / 配额 / 服务端错误）只降级，不能让该架构 leg 失败，
+        # 否则 merge 被跳过、docker.io / ghcr.io 也一并发不出去。
+        continue-on-error: true
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }},push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.metadata.outputs.labels }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
+      - name: Export digests
+        run: |
+          set -euo pipefail
+          digest_dir="${RUNNER_TEMP}/digests"
+          mkdir -p "${digest_dir}"
+          printf '%s' "${{ steps.build-dockerhub.outputs.digest }}" > "${digest_dir}/dockerhub-${{ matrix.arch }}.digest"
+          printf '%s' "${{ steps.build-ghcr.outputs.digest }}" > "${digest_dir}/ghcr-${{ matrix.arch }}.digest"
+          if [ "${{ steps.build-acr.outcome }}" = "success" ] && [ -n "${{ steps.build-acr.outputs.digest }}" ]; then
+            printf '%s' "${{ steps.build-acr.outputs.digest }}" > "${digest_dir}/acr-${{ matrix.arch }}.digest"
+          else
+            echo "::warning::阿里云 ACR 推送未完成（登录或推送失败），跳过本架构的 ACR 推送（merge 阶段整体降级为 docker.io / ghcr.io）"
+          fi
+          # 空 digest 会让 merge 阶段拼出 `image@` 的晦涩报错，这里提前失败
+          for f in "${digest_dir}"/*.digest; do
+            [ -s "$f" ] || { echo "::error::digest 为空：${f}"; exit 1; }
+          done
+          ls -l "${digest_dir}"
+      - name: Upload digests
+        uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # 合成多架构 manifest 并打 tag：只做 registry manifest 操作，不重复构建。
+  # 需要工作区的 README.md 做 Docker Hub 描述同步（sync-readme 读本地文件）。
+  merge:
+    name: Publish multi-arch manifests
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Lowercase the repo name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+      - name: Get short commit hash
+        run: echo "TAG=sha-${GITHUB_SHA::7}" >>${GITHUB_ENV}
+      - name: Download digests
+        uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Alibaba Cloud Container Registry
+        id: login_aliyun
+        continue-on-error: true
+        env:
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+        run: |
+          for attempt in 1 2 3; do
+            if log=$(printf '%s' "$ALIYUN_PASSWORD" | timeout 60 docker login registry.cn-hangzhou.aliyuncs.com --username "$ALIYUN_USERNAME" --password-stdin 2>&1); then
+              echo "$log"
+              echo "阿里云 ACR 登录成功（第 ${attempt} 次尝试）"
+              echo "status=ok" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            echo "$log"
+            if printf '%s' "$log" | grep -Eiq 'unauthorized|40[13]|forbidden|access ?denied|authentication required|incorrect username or password|wrong username or password|denied:'; then
+              echo "::error::阿里云 ACR 鉴权失败，疑似凭据失效或权限变更（非网络问题）"
+              echo "status=auth_failed" >> "${GITHUB_OUTPUT}"
+              exit 1
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "::warning::阿里云 ACR 登录失败（第 ${attempt}/3 次尝试），10 秒后重试"
+              sleep 10
+            fi
+          done
+          echo "::warning::阿里云 ACR 登录连续 3 次失败（网络类错误），本次跳过 ACR 发布目标"
+          echo "status=network_failed" >> "${GITHUB_OUTPUT}"
+          exit 1
+      - name: Fail fast on invalid Alibaba Cloud credentials
+        if: ${{ steps.login_aliyun.outputs.status == 'auth_failed' }}
+        run: |
+          echo "::error::阿里云 ACR 凭据无效，发布中止（请检查 ALIYUN_USERNAME / ALIYUN_PASSWORD）"
+          exit 1
+      # 各 registry 分别生成 tag 列表（镜像名不同）。tags 策略需与下方 manifest 组装保持同步：
+      # 版本 tag 只在 release.yml 派发（version 非空）时产出，push:master 保持 latest + 日期 + sha。
+      - name: Extract Docker metadata (Docker Hub)
+        id: metadata-dockerhub
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REPO }}
           tags: |
+            type=semver,priority=1100,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=true
             type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
             type=sha,format=short,prefix=sha-,enable=true
           flavor: latest=false
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v7
+      - name: Extract Docker metadata (GHCR)
+        id: metadata-ghcr
+        uses: docker/metadata-action@v6
         with:
-          # 使用原始 Dockerfile，Buildx + QEMU 为各平台原生编译
-          context: .
-          file: Dockerfile
-          push: true
-          tags: ${{ steps.metadata.outputs.tags }}
-          labels: ${{ steps.metadata.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-          # 阿里云 ACR 不支持 OCI attestation manifest（application/vnd.oci.empty.v1+json），
-          # 多架构构建默认注入的 provenance/sbom attestation 会导致 push 被拒绝，故显式禁用。
-          provenance: false
-          sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          images: ghcr.io/${{ env.REPO }}
+          tags: |
+            type=semver,priority=1100,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=true
+            type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
+            type=sha,format=short,prefix=sha-,enable=true
+          flavor: latest=false
+      - name: Extract Docker metadata (Alibaba Cloud ACR)
+        id: metadata-acr
+        if: ${{ steps.login_aliyun.outputs.status == 'ok' }}
+        uses: docker/metadata-action@v6
+        with:
+          images: registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }}
+          tags: |
+            type=semver,priority=1100,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=true
+            type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
+            type=sha,format=short,prefix=sha-,enable=true
+          flavor: latest=false
+      - name: Create and push multi-arch manifest (Docker Hub)
+        env:
+          IMAGE: ${{ env.REPO }}
+          TAGS: ${{ steps.metadata-dockerhub.outputs.tags }}
+        run: |
+          set -euo pipefail
+          digest_dir="${RUNNER_TEMP}/digests"
+          sources="${IMAGE}@$(cat "${digest_dir}/dockerhub-amd64.digest") ${IMAGE}@$(cat "${digest_dir}/dockerhub-arm64.digest")"
+          echo "sources: ${sources}"
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            echo "::group::docker buildx imagetools create -t ${tag}"
+            docker buildx imagetools create -t "${tag}" ${sources}
+            echo "::endgroup::"
+          done <<< "${TAGS}"
+      - name: Create and push multi-arch manifest (GHCR)
+        env:
+          IMAGE: ghcr.io/${{ env.REPO }}
+          TAGS: ${{ steps.metadata-ghcr.outputs.tags }}
+        run: |
+          set -euo pipefail
+          digest_dir="${RUNNER_TEMP}/digests"
+          sources="${IMAGE}@$(cat "${digest_dir}/ghcr-amd64.digest") ${IMAGE}@$(cat "${digest_dir}/ghcr-arm64.digest")"
+          echo "sources: ${sources}"
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            echo "::group::docker buildx imagetools create -t ${tag}"
+            docker buildx imagetools create -t "${tag}" ${sources}
+            echo "::endgroup::"
+          done <<< "${TAGS}"
+      - name: Create and push multi-arch manifest (Alibaba Cloud ACR)
+        id: publish-acr
+        if: ${{ steps.login_aliyun.outputs.status == 'ok' }}
+        # 同上：ACR 组装失败只降级，不能阻断后续的双架构回读校验与 Jenkins 部署。
+        continue-on-error: true
+        env:
+          IMAGE: registry.cn-hangzhou.aliyuncs.com/${{ env.REPO }}
+          TAGS: ${{ steps.metadata-acr.outputs.tags }}
+        run: |
+          set -euo pipefail
+          digest_dir="${RUNNER_TEMP}/digests"
+          # 构建阶段 ACR 登录失败时不会产出 acr digest：整体跳过 ACR 目标并显式告警，
+          # 不允许用单架构 digest 拼出 ACR manifest。
+          if [ ! -s "${digest_dir}/acr-amd64.digest" ] || [ ! -s "${digest_dir}/acr-arm64.digest" ]; then
+            echo "::warning::ACR 缺少某一架构的 digest（构建阶段 ACR 推送未完成），本次跳过 ACR 发布目标"
+            echo "published=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          sources="${IMAGE}@$(cat "${digest_dir}/acr-amd64.digest") ${IMAGE}@$(cat "${digest_dir}/acr-arm64.digest")"
+          echo "sources: ${sources}"
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            echo "::group::docker buildx imagetools create -t ${tag}"
+            docker buildx imagetools create -t "${tag}" ${sources}
+            echo "::endgroup::"
+          done <<< "${TAGS}"
+          echo "published=true" >> "${GITHUB_OUTPUT}"
+      - name: Warn when Alibaba Cloud ACR publish is skipped
+        if: ${{ steps.publish-acr.outcome == 'failure' }}
+        run: echo "::warning::阿里云 ACR manifest 组装失败，已跳过 ACR 目标；docker.io / ghcr.io 不受影响"
+      # 双架构门禁：manifest 合成后回读 index，确认 amd64 + arm64 都在。
+      # 失败即红，不留「以为发了其实只有单架构」的静默 tag。
+      - name: Verify multi-arch manifests
+        env:
+          TAGS_DOCKERHUB: ${{ steps.metadata-dockerhub.outputs.tags }}
+          TAGS_GHCR: ${{ steps.metadata-ghcr.outputs.tags }}
+          TAGS_ACR: ${{ steps.publish-acr.outcome == 'success' && steps.publish-acr.outputs.published == 'true' && steps.metadata-acr.outputs.tags || '' }}
+        run: |
+          set -euo pipefail
+          verify() {
+            tag="$1"
+            [ -z "$tag" ] && return 0
+            plats=$(docker buildx imagetools inspect "${tag}" --raw \
+              | jq -r '.manifests[]?.platform | "\(.os)/\(.architecture)"' | sort -u | tr '\n' ' ')
+            echo "inspect ${tag} → ${plats}"
+            case "${plats}" in
+              *"linux/amd64"*"linux/arm64"*|*"linux/arm64"*"linux/amd64"*) ;;
+              *) echo "::error::${tag} 不是双架构（${plats}）"; exit 1 ;;
+            esac
+          }
+          for t in ${TAGS_DOCKERHUB} ${TAGS_GHCR} ${TAGS_ACR}; do verify "$t"; done
       - name: Docker Hub README & description sync
         uses: meeDamian/sync-readme@v1.0.6
         with:

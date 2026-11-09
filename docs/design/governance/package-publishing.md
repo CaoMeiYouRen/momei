@@ -56,13 +56,20 @@ momei/                                    # 根包 (private, Nuxt app)
         │     ├── @semantic-release/github → 创建 GitHub Release
         │     └── @semantic-release/git → 提交回 CHANGELOG.md + package.json
         │
-        └── Docker build（基于 semantic-release 创建的 git tag）
-              ├── ghcr.io/CaoMeiYouRen/momei
-              ├── docker.io/CaoMeiYouRen/momei
-              └── registry.cn-hangzhou.aliyuncs.com/CaoMeiYouRen/momei
+        └── 派发 docker.yml（--ref <tag>，传入版本号）
+              └── build matrix（amd64 → ubuntu-latest / arm64 → ubuntu-24.04-arm）
+                    ├── 按 digest 推送（docker.io / ghcr.io / ACR 可选）
+                    └── merge：imagetools create 合成多架构 manifest
+                          ├── docker.io/CaoMeiYouRen/momei
+                          ├── ghcr.io/CaoMeiYouRen/momei
+                          └── registry.cn-hangzhou.aliyuncs.com/CaoMeiYouRen/momei
 ```
 
-镜像发布目标分级：`docker.io` 与 `ghcr.io` 为主目标，登录或推送失败即作业失败；阿里云 ACR 为可选目标，**网络类**登录失败（重试 3 次仍失败）降级为仅发布主目标并输出 warning annotation，不阻断发布；**鉴权类**失败（401 / denied / 凭据错误）按配置错误处理，硬失败中止发布。凭据未配置时仍由 `ci:precheck --profile=docker|release` 直接阻断。`release.yml` 与 `docker.yml` 采用同一策略。
+镜像构建不占用 release job 预算：`release.yml` 在 semantic-release 打 tag 后以 `--ref <tag>` 派发 `docker.yml`，由原生 matrix（`linux/amd64` → `ubuntu-latest`、`linux/arm64` → `ubuntu-24.04-arm`）分别按 digest 推送，`merge` job 合成 manifest list 并做双架构回读校验。迁移后主路径不提供 QEMU 回退；arm64 runner 故障时该版本无法发布多架构镜像，需先恢复 runner 后重跑 `docker.yml`。若必须应急发单架构，需临时修改 workflow 并在发布说明标注缺失架构与恢复条件，QEMU 不再作为长期回滚路径。
+
+镜像构建结果以 `docker.yml` 的 run 为准：`release.yml` 的派发步骤只创建 run 并回查链接（60 秒内查不到仅告警），不阻塞等待多架构构建。发布后需核对 `docker.yml` run 为绿、四类 tag 均指向双架构 manifest；构建失败时重跑该 run 即可补发（同一 tag、幂等）。
+
+镜像发布目标分级：`docker.io` 与 `ghcr.io` 为主目标，登录或推送失败即作业失败；阿里云 ACR 为可选目标，**网络类**登录失败（重试 3 次仍失败）、按架构推送失败、manifest 组装失败均降级为仅发布主目标并输出 warning annotation，不阻断发布；**鉴权类**失败在登录阶段（401 / denied / 凭据错误）按配置错误处理，硬失败中止发布；按架构推送与 manifest 组装阶段的失败（含推送时才暴露的权限问题）一律降级并告警，不阻断主目标与部署。凭据未配置时仍由 `ci:precheck --profile=docker|release` 直接阻断。该策略统一在 `docker.yml` 的 `build`（按架构推送）与 `merge`（组装 manifest）两个 job 内实现，`release.yml` 只负责按 tag 派发。
 
 ### 2.3 现有基础设施
 
@@ -104,7 +111,7 @@ GitHub Actions (release.yml)
   │     ├── OIDC 认证 → npm publish（3 个包）
   │     └── git tags（@momei-blog/api-client@0.2.0 等）
   │
-  └── 3. Docker build（基于根 git tag，不变）
+  └── 3. 派发 docker.yml（--ref 根 git tag；原生 matrix + digest merge）
         ├── ghcr.io/...
         ├── docker.io/...
         └── registry.cn-hangzhou.aliyuncs.com/...
@@ -319,13 +326,19 @@ jobs:
           # 无需 NPM_TOKEN — npm CLI 通过 OIDC 自动认证
         run: pnpm changeset publish
 
-      # 步骤 3：Docker build — 基于 semantic-release 的 git tag
+      # 步骤 3：派发 docker.yml — 基于 semantic-release 的 git tag
       - name: Get git tag
         id: git_tag
         run: |
-          GIT_TAG=$(git describe --tags --exact-match HEAD 2>/dev/null || true)
+          # 只取根版本 tag，避开 changeset publish 在同一 HEAD 创建的包级 tag
+          GIT_TAG=$(git describe --tags --exact-match --match 'v[0-9]*' HEAD 2>/dev/null || true)
           echo "tag=$GIT_TAG" >> $GITHUB_OUTPUT
-      # ... 后续 Docker 构建步骤保持不变 ...
+      - name: Trigger Docker build for release tag
+        if: ${{ steps.git_tag.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.git_tag.outputs.tag }}
+        run: gh workflow run docker.yml --ref "${RELEASE_TAG}" -f version="${RELEASE_TAG#v}"
 ```
 
 #### 4.3.2 test.yml 确认
@@ -484,7 +497,7 @@ weekly release trigger
         │     ├── OIDC 认证 → npm publish × 3
         │     └── git tags (api-client@0.2.0, cli@0.1.1 ...)
         │
-        └── Docker build（基于根 tag）
+        └── 派发 docker.yml（--ref 根 tag；原生 matrix + digest merge）
 ```
 
 ### 6.4 验证清单
