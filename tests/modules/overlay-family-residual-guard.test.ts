@@ -1,20 +1,38 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { buildComponentTagPattern, stripComments, stripNonTemplateBlocks } from './ui-library-guard-helpers'
 
 /**
  * 浮层族整族迁出 PrimeVue 后的**全仓零残留**守卫。
  *
- * 与 `ui-library-route-migration-guard.test.ts` 的分工：后者只保证**已登记路由**内不出现
- * 在册族 PrimeVue 组件，允许尚未迁移的页面继续使用；本守卫在浮层族收尾后
- * 收紧为**全仓口径**——浮层族（Dialog / Drawer / Popover / DropdownMenu / Menu /
- * ConfirmDialog / `useToast` / `useConfirm` / `v-tooltip`）已整族迁移，任何生产文件再引入
- * PrimeVue 版本都应在这里失败，而不是等下一次视觉回归才发现。
+ * 与 `primevue-residual-guard.test.ts` 的分工：后者覆盖全仓组件 / 图标 / token / class /
+ * 依赖 / 包引用；本守卫只盯浮层族的**调用面**（Dialog / Drawer / Popover / DropdownMenu / Menu /
+ * ConfirmDialog / `useToast` / `useConfirm` / `v-tooltip`）——这些是运行时服务与指令，
+ * 单靠包名扫描不足以发现回填。
  *
  * 不扫描 `*.test.ts`：测试里为验证 V1 兼容或迁移差异会显式引用旧形态。
  * `ConfirmDeleteDialog` 是 momei 自有共享壳（内部已用 `CaomeiDialog`），刻意保留，不计入残留。
  */
+
+/** 去掉 `<script>` / `<style>` 块，只留模板区参与组件标签匹配。 */
+function stripNonTemplateBlocks(source: string): string {
+    return source
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gu, '')
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gu, '')
+}
+
+/** 组件标签匹配：`<Name` 后必须是空白 / `/` / `>`，避免 `<Button` 命中 `<ButtonGroup`。 */
+function buildComponentTagPattern(name: string): RegExp {
+    return new RegExp(`<${name}[\\s/>]`, 'u')
+}
+
+/** 剥离注释后再扫描（注释里引用旧标签名不算残留）。 */
+function stripComments(source: string): string {
+    return source
+        .replace(/<!--[\s\S]*?--!?>/gu, '')
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/^\s*\/\/.*$/gmu, '')
+}
 
 const SCAN_ROOTS = ['components', 'pages', 'layouts', 'composables', 'plugins', 'utils', 'middleware', 'modules']
 
@@ -22,9 +40,8 @@ const SCAN_ROOTS = ['components', 'pages', 'layouts', 'composables', 'plugins', 
 const SCAN_ROOT_FILES = ['app.vue', 'error.vue']
 
 /**
- * 本族只覆盖 `v-tooltip` 时代的 6 个组件名。
- * `MenuBar` / `TieredMenu` / `ContextMenu` / `MegaMenu` / `PanelMenu` 与 `from 'primevue'`
- * 根桶导入不在本阶段范围内，若后续出现需先确认是否属浮层族再扩面。
+ * 本族只覆盖 `v-tooltip` 时代的 6 个组件名（浮层 / 菜单根组件）。
+ * 其余 PrimeVue 组件与根桶导入由 `primevue-residual-guard.test.ts` 的全仓组件清单覆盖。
  */
 const PRIMEVUE_OVERLAY_COMPONENTS = ['Dialog', 'Drawer', 'Popover', 'DropdownMenu', 'Menu', 'ConfirmDialog']
 

@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（筹备中）**
+**第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（执行中：条目 1–4 完成，条目 5 待做）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-08，用户确认「调色板走项目语义层 `--m-*` / 同批移除 `primeicons`、`primelocale` 与路由择库机制 / 纳入覆盖率第十三批」。开工口径（`governance:count:primevue-usage`）：组件 46 处 / 14 类 / 16 文件、图标 0、token 1,420 处 / 120 唯一 / 136 文件、PrimeVue class 151 处 / 36 文件、`.p-*` 选择器 83 处。
 
@@ -39,10 +39,11 @@
     - **验收**: 全仓 `--p-*` 脚本口径 **0**（含 `vue` / `scss` / `css` / `ts`）；主题工作台浅深两张基线不回退；`test:visual` 24/24、`parity` 83/83；`--m-*` 与 `--caomei-*` 的解析链在三套预设下可验证。
     - **完成记录（2026-11-09）**: 三批完成（① 样式基座 / ② 公开页与共享组件 / ③ 管理端 + 定义清零），`governance:count:primevue-usage` token **1,420 → 0**；桥接反向为 `--m-* → --caomei-*`，`use-theme` 只保留 `--m-*` 基色、`use-reader-mode` 只写 `--m-*`。幻影 token 按「删除声明」保持视觉（边框 / 文本 / 悬停 / 圆角 / rgb），状态色按 S1 映射到真实角色（法务页提示条差异已按实测登记）。验证：`test:visual` 32/32、`parity` 83/83、E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`coreEntryJs` 359,061 B / 370KB、`keyCss` 64,006 B / 70KB。
 
-- [ ] **4. PrimeVue 卸载、样式耦合清理与预算回落（P1，须与条目 3 同批收口）**
+- [x] **4. PrimeVue 卸载、样式耦合清理与预算回落（P1，须与条目 3 同批收口）**（2026-11-09 完成）
     - **执行范围**: 移除 `plugins/primevue-i18n.ts` 与其单测；`nuxt.config.ts` 去掉 Aura `MomeiPreset` / `cssLayer` / PrimeVue locale / `dedupe` / `optimizeDeps` / `css` 中的 `primeicons.css`；卸载 `primevue` / `@primevue/{core,forms,icons,nuxt-module}` / `@primeuix/{styled,styles,themes,utils}` / `primeicons` / `primelocale`；删除路由择库机制（`resolveUiLibraryForRoute*`、`CAOMEI_UI_ROUTE_SCOPES`、迁移守卫）并改为「全站 caomei + 零 PrimeVue 残留」单一守卫；清理 `p-*` class（151 处）、`.p-*` 选择器（83 处）与仅服务于 PrimeVue 的 `:deep()`；复算 `keyCss` / `coreEntryJs` 并按回落收紧配额（含移除的 `primeicons.css` gzip 3,163 B）。
     - **非目标**: 不升级 caomei-ui、不引入新依赖；不改业务组件 API；不删除 `@mdi/font`（品牌图标仍用）。
-    - **验收**: `pnpm build` 成功、`pnpm i --frozen-lockfile` 后依赖图无 prime 包；`governance:count:primevue-usage` 组件 / 图标 / token 全 0（或脚本退役并留零残留守卫）；`test:visual` 24/24、`parity` 83/83、E2E critical 全绿；`test:perf:budget` 通过且 `keyCss` / `coreEntryJs` 较卸载前下降（配额按实测收紧并三处联动）；文档（迁移方案、开发规范、性能规范、B4 清单）同步。
+    - **验收**: `pnpm build` 成功、`pnpm i --frozen-lockfile` 后依赖图无 prime 包；`governance:count:primevue-usage` 组件 / 图标 / token 全 0（或脚本退役并留零残留守卫）；`test:visual` ≥24/24（实测 32/32）、`parity` 83/83、E2E critical 全绿；`test:perf:budget` 通过且 `keyCss` / `coreEntryJs` 较卸载前下降（配额按实测收紧并三处联动）；文档（迁移方案、开发规范、性能规范、B4 清单）同步。
+    - **完成记录（2026-11-09）**: 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale`；移除 `plugins/primevue-i18n.ts` 与其单测、Aura `MomeiPreset` / `cssLayer` / locale / `dedupe` / `optimizeDeps` / Nitro inline 项与 `primeicons.css`；删除路由择库机制（`lib/ui-library.ts` + 2 个迁移守卫 + helper）与 `governance:count:primevue-usage:components` 入口，新增 `tests/modules/primevue-residual-guard.test.ts` 全量零残留守卫（组件 / 图标 / token / 生产源码 `p-*` class / `.p-*` 选择器 / 依赖与 Nuxt 配置 / 包引用 / `@layer primevue` / `usePrimeVue` / `*-v2.vue` 文件名），浮层族专用守卫保留。计数脚本改为生产口径（剥离注释、排除 `p-queue`）：阶段开工 151 处 / 83 处（旧全仓口径）→ 条目 4 开工 104 处 / 79 处（生产口径）→ **0 / 0**、`governance:count:primevue-usage` 组件 0 / 图标 0 / token 0。**卸载暴露并补回两条原由 PrimeVue 主题注入的全局基线**：`* { box-sizing: border-box }`（缺失使 `main` 由 1440 撑到 1504、整页右移 64px，14 张视觉基线失败）与 `:root` / `.dark` 的 `color-scheme`（缺失使暗色裸 textarea 回落白底，1 张失败）。验证：`pnpm build` 成功、`typecheck` / `eslint` / `stylelint` 0 error；`test:visual` **32/32**、`parity` **83/83**、E2E critical **17 passed / 1 skipped** + mobile **2 passed** + 安装向导 **2 passed**；`test:perf:budget` 通过，`coreEntryJs` 359,061 → **329,891 B**（322.16KB，配额 370 → **335KB**）、`keyCss` 64,006 → **60,482 B**（59.06KB，配额 70 → **62KB**）、`maxAsyncChunkJs` 56,781 B / 130KB（三处联动已同步脚本、基线 JSON、性能规范）。顺带修正 `auth-session-governance` 的草稿保护用例：改为先断言 `translation-badge--disabled` 禁用态再用 `force` 点击，消除「水合前点击落空」的历史假绿 flake。文档同步：迁移方案 §8.4.2、B4 清单 §0、UI 设计迁移指针、性能规范 §4.1、backlog 当前基线。
 
 - [ ] **5. 覆盖率第十三批 + 卸载后回归补齐（P2）**
     - **执行范围**: 按绝对未覆盖语句数选 4 模块且含 ≥1 个大基数模块（候选 `setting.ts` 25 / `post.ts` 23 / `server/utils/logger.ts` 61 / `agreement.ts` 1），目标单批 `+0.3pp`；补测卸载后失去 PrimeVue mock 的测试文件，确认无「为通过而放宽」的断言。

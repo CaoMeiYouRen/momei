@@ -123,7 +123,7 @@
             :open="dialogVisible"
             :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="admin-external-links__dialog admin-form-dialog admin-form-dialog--wide p-fluid"
+            class="admin-external-links__dialog admin-form-dialog admin-form-dialog--wide"
             @update:open="dialogVisible = $event"
         >
             <div class="field">
@@ -134,7 +134,7 @@
                     :placeholder="$t('pages.admin.external_links.url_placeholder')"
                     :invalid="Boolean(errors.originalUrl)"
                 />
-                <small v-if="errors.originalUrl" class="p-error">{{ errors.originalUrl }}</small>
+                <small v-if="errors.originalUrl" class="form-error">{{ errors.originalUrl }}</small>
             </div>
 
             <div class="field">
@@ -156,7 +156,7 @@
                     option-value="value"
                     :invalid="Boolean(errors.status)"
                 />
-                <small v-if="errors.status" class="p-error">{{ errors.status }}</small>
+                <small v-if="errors.status" class="form-error">{{ errors.status }}</small>
             </div>
 
             <div class="field flex gap-2 items-center">
@@ -201,7 +201,6 @@
             :open="statsDialogVisible"
             :title="$t('pages.admin.external_links.stats')"
             modal
-            class="p-fluid"
             @update:open="statsDialogVisible = $event"
         >
             <div v-if="currentStats" class="stats-container">

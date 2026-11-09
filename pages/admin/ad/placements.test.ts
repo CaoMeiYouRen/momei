@@ -11,12 +11,11 @@ import { AdFormat, AdLocation } from '@/types/ad'
  * 覆盖「迁移后仍然成立、且与迁移无关」的页面契约：列定义与 `#cell-{key}` 插槽接线、
  * Tag 语义色映射（`severity` → `tone`）、适配器名解析与未知回退、行内动作集合
  * （含启停按钮的**可访问名随状态翻转**与 lucide 图标分支）、客户端分页委托、
- * 弹窗字段映射（`InputText` → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、`p-invalid` → `:invalid`）、
+ * 弹窗字段映射（`InputText` → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、校验态类名 → `:invalid`）、
  * 保存校验、删除确认与启停请求体。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页的 `InputNumber` / `Checkbox` 与浮层自身
- * （`Dialog` / `ConfirmDialog`）显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移。
+ * 本页组件均为 caomei 实现（PrimeVue 已卸载），浮层走 `CaomeiDialog`。
  */
 
 const { confirmRequireMock, fetchMock, showErrorToastMock, showSuccessToastMock } = vi.hoisted(() => ({
@@ -444,7 +443,7 @@ describe('AdminAdPlacements page', () => {
         expect(findButtonByText(wrapper, 'common.cancel').attributes('data-icon-only')).toBe('false')
         expect(findButtonByText(wrapper, 'common.save').text()).toContain('common.save')
 
-        // 浮层自身与不在册族的表单控件维持 PrimeVue。
+        // 浮层内表单控件均为 caomei 实现。
         expect(dialog.find('.input-number').exists()).toBe(true)
         expect(dialog.find('.checkbox').exists()).toBe(true)
         expect(dialog.find('.caomei-input').exists()).toBe(true)

@@ -93,7 +93,7 @@
                         </CaomeiButton>
                     </AppTooltip>
                 </CaomeiInputGroup>
-                <small v-if="errors.slug" class="p-error">{{ errors.slug }}</small>
+                <small v-if="errors.slug" class="form-error">{{ errors.slug }}</small>
                 <small v-else class="form-hint">{{ $t('pages.admin.posts.slug_hint') }}</small>
             </div>
 
@@ -241,7 +241,7 @@
                     :invalid="Boolean(errors.summary)"
                     @update:model-value="post.summary = $event ?? null"
                 />
-                <small v-if="errors.summary" class="p-error">{{ errors.summary }}</small>
+                <small v-if="errors.summary" class="form-error">{{ errors.summary }}</small>
             </div>
 
             <AdminPostsPostEditorMediaSettings v-model:post="post" />

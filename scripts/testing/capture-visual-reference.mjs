@@ -13,7 +13,7 @@ import { ensureBuildOutput, ensurePlaywrightBrowsers, quoteWindowsArg } from './
  * 判定依据。参考快照与基线层的 `<name>.png` 并存、互不覆盖。
  *
  * 采集方式：
- * - 默认（`--ref=HEAD`）：在当前工作树直接采集（适用于仍为 PrimeVue 的待迁移路由）；
+ * - 默认（`--ref=HEAD`）：在当前工作树直接采集（适用于仍在迁移中的路由）；
  * - 指定历史 ref（如 `--ref=44774147^`）：用 `git worktree` 检出该 ref、构建后采集
  *   （适用于已迁移路由，需要其「迁移前提交」的 PrimeVue 原貌）。
  *

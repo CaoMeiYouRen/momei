@@ -63,8 +63,11 @@ export function collectEntryPayloadFilesFromManifest(manifest) {
  * 消费方 chunk 归属）。0.2.0 重锚时点零组件消费，实测 `keyCss` 回落至 60,684 字节（59.26KB），
  * 仅比迁移前 59,795 字节多出基础层约 0.87KB。当前消费面（B2 试点 5 族）的组件样式落路由 chunk，
  * 入口 CSS 只含基础层与全局 token 桥接；入口 / 全局壳消费组件时其样式计入 `keyCss`。0.2.0 与
- * 0.3.0 基础层字节一致，升级本身对指标贡献 0；现行 60,896 字节为 M3 桥接后既达值（较 M1b 期的
- * +212 系入口 CSS 侧净增量）。B4 卸载 PrimeVue 后只需确认未反弹。
+ * 0.3.0 基础层字节一致，升级本身对指标贡献 0。
+ *
+ * **第七十二阶段条目 4（PrimeVue 卸载）后重锚至 `62 * KB`**：卸载 `primeicons.css` 与 PrimeVue
+ * 运行期注入的组件 / 主题样式后，实测 64,006 → **60,482 字节**（59.06KB，-3,524 B）；按实测
+ * 收紧配额到 62KB（63,488 B，余约 2.94KB），避免把释放出的空间长期让渡给后续增量。
  *
  * 依据与验收口径见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md`
  * 的「包体对比」章节（含并存期配额小节）。
@@ -76,11 +79,13 @@ const BUDGETS = {
     // 余量耗尽并越线 572 B；按「先评估优化或重新定标」条款调到 365KB，保留约 4.5KB 余量。
     // 2026-11-08 条目 5 复算：图标全量替换把全局头部管理菜单的 16 个 lucide 图标带入入口，
     // 实测 375,368 B（+6,156 B），越 365KB 线 1,608 B；延后加载菜单图标只会把图标推迟到菜单
-    // 展开时出现，属可见劣化，故按同条款重定标到 370KB（约 3.4KB 余量），待第七十二阶段
-    // 卸载 PrimeVue 后复测并收紧。
-    coreEntryJsGzipBytes: 370 * KB,
+    // 展开时出现，属可见劣化，故按同条款重定标到 370KB（约 3.4KB 余量）。
+    // 2026-11-09 条目 4（PrimeVue 卸载）复测：PrimeVue / PrimeUIX 运行期代码与 primeicons 退出
+    // 入口，359,061 → **329,891 B**（322.16KB，-29,170 B）；按实测收紧到 335KB
+    // （343,040 B，余约 12.8KB / 3.9%），不再沿用迁移期的 370KB 临时配额。
+    coreEntryJsGzipBytes: 335 * KB,
     maxAsyncChunkJsGzipBytes: 130 * KB,
-    keyCssGzipBytes: 70 * KB,
+    keyCssGzipBytes: 62 * KB,
     prIncrementJsGzipBytes: 20 * KB,
 }
 

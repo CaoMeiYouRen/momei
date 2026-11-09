@@ -240,9 +240,9 @@ describe('useTheme', () => {
     it('should declare the shared layer order before the override block', () => {
         const { customStyles } = useTheme()
         const styles = customStyles.value
-        const orderDeclaration = '@layer primevue, momei-base, momei-overrides;'
+        const orderDeclaration = '@layer momei-base, momei-overrides;'
 
-        // 内联样式可能早于外链 main.css 到达文档，必须自行声明层序，否则 primevue 会排到覆盖层之后。
+        // 内联样式可能早于外链 main.css 到达文档，必须自行声明层序，否则样式基座会排到覆盖层之后。
         expect(styles.indexOf(orderDeclaration)).toBeGreaterThan(-1)
         expect(styles.indexOf(orderDeclaration)).toBeLessThan(styles.indexOf('@layer momei-overrides {'))
     })

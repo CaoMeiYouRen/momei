@@ -109,7 +109,7 @@
             </CaomeiDataTable>
         </AdminListShell>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：ConfirmDeleteDialog 属延后批次的浮层，维持 PrimeVue 至第六十九阶段。 -->
+        <!-- `ConfirmDeleteDialog` 是 momei 自有共享壳（内部为 `CaomeiDialog`）。 -->
         <ConfirmDeleteDialog
             v-model:visible="deleteVisible"
             :message="$t('pages.admin.subscribers.delete_confirm')"

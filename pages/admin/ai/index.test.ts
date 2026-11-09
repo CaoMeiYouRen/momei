@@ -100,7 +100,7 @@ describe('AdminAiPage', () => {
 
         expect(wrapper.find('.caomei-tabs').exists()).toBe(true)
         expect(wrapper.findAll('.caomei-tab-trigger')).toHaveLength(2)
-        expect(wrapper.html()).not.toContain('p-tabview')
+        expect(wrapper.find('.p-tabview').exists()).toBe(false)
     })
 
     it('子组件透传：统计面板与任务列表同页签容器内渲染', async () => {

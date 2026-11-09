@@ -45,34 +45,14 @@
     gap: 0.5rem;
     width: 100%;
 
-    :deep(.p-colorpicker) {
+    :deep(.caomei-color-picker) {
         flex-shrink: 0;
-        width: 32px;
-        height: 32px;
-
-        .p-colorpicker-preview {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 1px solid var(--caomei-color-border);
-        }
-    }
-
-    :deep(.p-inputtext) {
-        flex: 1;
-        min-width: 0;
     }
 }
 
 @mixin admin-input-with-addon($addon-selector: '.addon') {
     display: flex;
     align-items: stretch;
-
-    :deep(.p-inputtext) {
-        flex: 1;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
 
     #{$addon-selector} {
         display: flex;
@@ -100,10 +80,6 @@
         z-index: 1;
     }
 
-    :deep(.p-inputtext) {
-        width: 100%;
-        padding-left: 2.25rem;
-    }
 }
 
 @mixin admin-detail-stack($gap: 0.75rem) {

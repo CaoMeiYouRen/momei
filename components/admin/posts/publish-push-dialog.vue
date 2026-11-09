@@ -103,8 +103,8 @@ import {
  * - 页脚 `Button` → `CaomeiButton`：可见文案落**默认插槽**（V1 走 `:label`）；
  *   `text severity="secondary"` → `variant="ghost"`，`severity="contrast"` → `tone="neutral"`
  *   （§6.2 表：`secondary` / `contrast` → `neutral`，有损近似）；
- * - `RadioButton` 已在编辑器子批改为 `CaomeiRadioGroup` + `CaomeiRadioButton`（富文本选项走默认插槽）；
- *   **`DatePicker` 仍为 PrimeVue**（B3 表单族，随 B3 残留族收口）。
+ * - `RadioButton` 为 `CaomeiRadioGroup` + `CaomeiRadioButton`（富文本选项走默认插槽）；
+ *   排期 `DatePicker` 为 `CaomeiDatePicker`（PrimeVue 已卸载）。
  */
 defineProps<{
     loading?: boolean

@@ -10,7 +10,7 @@ import { LinkStatus } from '@/types/ad'
  *
  * 覆盖「迁移后仍然成立、且与迁移无关」的页面契约：列定义与 `#cell-{key}` 插槽接线、
  * Tag 语义色映射（`status` → `tone`）、跳转页图标分支、行内动作集合、客户端分页委托
- * 与弹窗字段映射（`InputText` → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、`p-invalid` → `:invalid`）。
+ * 与弹窗字段映射（`InputText` → `CaomeiInput`、`Dropdown` → `CaomeiSelect`、校验态类名 → `:invalid`）。
  * 沿用本仓库既有页面测试的组件 stub 约定；真实渲染（DOM / 计算样式 / 空态文案）
  * 由 E2E 与截图识别层承担。
  *
@@ -438,7 +438,7 @@ describe('AdminExternalLinks page', () => {
         expect(inputs).toHaveLength(2)
         // `InputText` → `CaomeiInput`：`id` 落在内层输入框，供 `<label for>` 关联。
         expect(inputs.map((input) => input.attributes('data-id'))).toEqual(['originalUrl', 'metadata_title'])
-        // 初始无校验错误（`p-invalid` 类映射为 `:invalid` 布尔）。
+        // 初始无校验错误（校验态类名映射为 `:invalid` 布尔）。
         expect(inputs[0]!.attributes('data-invalid')).toBe('false')
 
         const select = wrapper.find('.caomei-select')

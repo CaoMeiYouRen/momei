@@ -549,10 +549,6 @@ const renderMarkdown = (content: string) => md.render(content)
 
             .field-select-button {
                 width: 100%;
-
-                :deep(.p-button) {
-                    flex: 1;
-                }
             }
 
             .option-row {

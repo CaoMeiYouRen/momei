@@ -92,7 +92,7 @@
                 />
             </ClientOnly>
             <div v-if="errors.content" class="editor-error-message">
-                <small class="p-error">{{ errors.content }}</small>
+                <small class="form-error">{{ errors.content }}</small>
             </div>
         </div>
 

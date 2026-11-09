@@ -13,8 +13,7 @@ import AdminLinkGovernance from './link-governance.vue'
  * 报告详情渲染（作用域 / 摘要 / 差异项 / redirect seeds）。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页的 `Card` / `MultiSelect` / `Checkbox` / `ProgressSpinner`
- * 与浮层自身（`Dialog`）显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移。
+ * 本页组件均为 caomei 实现（PrimeVue 已卸载）；浮层走 `CaomeiDialog`。
  */
 
 const { fetchMock, formatDateTimeMock, showErrorToastMock, showSuccessToastMock } = vi.hoisted(() => ({

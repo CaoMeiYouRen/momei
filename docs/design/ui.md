@@ -1,6 +1,6 @@
 # 墨梅博客 UI 设计文档
 
-> **组件库迁移进行中（2026-09-22；2026-10-13 / 2026-10-24 / 2026-11-01 / 2026-11-03 更新版本口径）**：本文档的组件库与主题章节当前仍以 **PrimeVue** 描述，项目正按 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)迁移到 **caomei-ui**（自研、MIT 许可）。接入基座已落地并与 PrimeVue 并存，`caomei-ui` 当前精确锁定 **`1.0.0`**（`0.3.0` 升级与基线复测已于 2026-09-26 完成，0.4.0~0.6.0 抬版于 2026-10-13 补做复测，0.7.0 于 2026-10-24 按升级纪律升级，rc.1 于 2026-11-01 立项并完成升级（新增 6 个 token 角色），GA `1.0.0` 于 2026-11-03 完成升级（运行时产物与 rc.1 逐字节一致），见迁移方案 §3.7 ~ §3.11）；相关章节将在迁移收尾（**第七十一 / 七十二阶段**：2026-11-06 二次切分为「剩余路由与图标」与「token 切换与卸载」两段）整体改写。**迁移完成前，本文以 PrimeVue 为现行实现的描述仍然有效。**
+> **组件库迁移已收口（2026-11-09）**：`caomei-ui@1.0.0` 为唯一组件库，**PrimeVue 及其依赖已于第七十二阶段条目 4 卸载**（`primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 移除，`--p-*` token、`p-*` class 与 `.p-*` 选择器清零，零残留守卫见 `tests/modules/primevue-residual-guard.test.ts`），迁移过程见 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。**主题与组件库总述（§2.1 / §2.4 / §3 引言 / §7）已按 caomei-ui 更新**；§3.1 起的组件对照表与 Aura 时代措辞仍属迁移期描述，改写由第七十二阶段收口统一完成。实际实现以 `caomei-ui` 组件 + `--caomei-*`（语义角色）/ `--m-*`（项目调色板）为准。
 
 ## 1. 设计理念 (Design Philosophy)
 
@@ -15,7 +15,7 @@
 
 ### 2.1 主题 (Theme)
 
-基于 **PrimeVue Aura** 主题进行定制。Aura 本身具有现代、圆润且通透的特点，非常符合墨梅的气质。
+主题 token 体系原基于 **PrimeVue Aura** 定制（现代、圆润、通透），迁移后由 **caomei-ui** 的语义 token（`--caomei-*`）与项目调色板层（`--m-*`）承接，视觉基调与迁移前保持一致。
 
 -   **基础风格**: Flat (扁平化) + Subtle Shadows (微阴影)。
 -   **圆角**: 使用中等圆角 (0.5rem - 1rem)，保持亲和力。
@@ -51,10 +51,9 @@
 -   **策略**: 支持 **浅色 (Light)**、**深色 (Dark)** 及 **跟随系统 (System)** 三种模式。
 -   **实现**:
     -   使用 CSS Variables 通过 HTML 根元素的 `class="dark"` 进行切换。
-    -   **CSS Layers (@layer)**: 为了优雅地覆盖 PrimeVue 的默认样式，项目定义了以下层级：
-        1. `primevue`: 基础组件样式。
-        2. `momei-base`: 墨梅的基础全局样式。
-        3. `momei-overrides`: 用于覆盖组件样式的最高优先级层，动态生成的主题变量即注入此层。
+    -   **CSS Layers (@layer)**: 项目定义了以下层级（PrimeVue 的 `primevue` 层已随卸载移除）：
+        1. `momei-base`: 墨梅的基础全局样式（含 `--m-*` 调色板与全局盒模型 / `color-scheme` 基线）。
+        2. `momei-overrides`: 用于覆盖组件样式的最高优先级层，动态生成的主题变量即注入此层。
     -   **动态生成**: 通过 `useTheme` Composable 监听配置变化，动态向 `<style id="momei-custom-theme">` 注入各模式下的 CSS 变量。
 -   **体验**:
     -   切换时应有平滑的过渡动画 (Transition)。
@@ -62,9 +61,9 @@
 
 ## 3. 组件库与规范 (Component Library)
 
-使用 **PrimeVue** 作为基础组件库，配合 **SCSS** 进行布局和微调。
+使用 **caomei-ui** 作为基础组件库（`@1.0.0` 精确锁定），配合 **SCSS** 进行布局和微调；PrimeVue 已于 2026-11-09 卸载。
 
-> 迁移进行中：目标组件库为 **caomei-ui**；本章将在迁移收尾整体改写，当前仍以 PrimeVue 为现行实现（见文首迁移指针）。
+> 本章仍保留迁移期的组件对照描述，改写由第七十二阶段收口统一完成（见文首迁移指针）。
 
 ### 3.1 核心组件配置
 
@@ -156,8 +155,8 @@
 
 ## 7. 实施计划 (Implementation Plan)
 
-1.  **安装 PrimeVue**: 配置 Nuxt 模块，引入 Aura 主题。
-2.  **定制主题**: 使用 PrimeVue 的 Design Token 或 CSS 变量覆盖默认颜色，匹配"墨梅"色调。
+1.  **接入 caomei-ui**: 通过 `caomei-ui/nuxt` 模块接入（`caomeiUI` 配置项，`darkMode: 'class'`）。
+2.  **定制主题**: 以 `--caomei-*` 语义 token 与 `--m-*` 调色板覆盖默认颜色，匹配"墨梅"色调。
 3.  **全局样式**: 在 `styles/main.scss` 中定义基础字体、重置样式和动画类。
 4.  **组件开发**: 逐步替换/开发 Header, Footer, ArticleCard 等核心组件。
 

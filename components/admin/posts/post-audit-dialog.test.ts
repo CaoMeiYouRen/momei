@@ -8,7 +8,6 @@ import type { PostAuditResult } from '@/types/post'
  * 过渡组件 `PostAuditDialog`（caomei-ui 版）的单元契约。
  *
  * 本族随编辑器批次整迁：浮层壳 `Dialog`、内部 `Button` / `Tag` / `ProgressBar` 均为 caomei-ui。
- * 发布确认浮层的排期 `DatePicker` 仍是 PrimeVue（B3 表单族，见 `inScopeComponents` 注释）。
  */
 
 mockNuxtImport('useI18nDate', () => () => ({
@@ -26,9 +25,9 @@ const DialogStub = defineComponent({
     emits: ['update:open'],
     setup(props, { slots }) {
         return () => props.open
-            ? h('div', { class: 'p-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
-                h('div', { class: 'p-dialog-content' }, slots.default?.()),
-                h('div', { class: 'p-dialog-footer' }, slots.footer?.()),
+            ? h('div', { class: 'caomei-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
+                h('div', { class: 'caomei-dialog-content' }, slots.default?.()),
+                h('div', { class: 'caomei-dialog-footer' }, slots.footer?.()),
             ])
             : null
     },
@@ -116,7 +115,7 @@ describe('PostAuditDialog', () => {
     it('浮层壳使用 CaomeiDialog，宽度与标题按 V1 口径透传', async () => {
         const wrapper = await mountDialog()
 
-        const dialog = wrapper.find('.p-dialog')
+        const dialog = wrapper.find('.caomei-dialog')
         expect(dialog.exists()).toBe(true)
         expect(dialog.attributes('data-width')).toBe('540px')
         expect(dialog.attributes('data-header')).toBe('pages.admin.posts.audit.dialog_title')
@@ -125,7 +124,7 @@ describe('PostAuditDialog', () => {
     it('visible=false 时不渲染内容', async () => {
         const wrapper = await mountDialog({ visible: false })
 
-        expect(wrapper.find('.p-dialog').exists()).toBe(false)
+        expect(wrapper.find('.caomei-dialog').exists()).toBe(false)
     })
 
     it('页脚按钮：可见文案落默认插槽（非 label），变体为 secondary / ghost', async () => {

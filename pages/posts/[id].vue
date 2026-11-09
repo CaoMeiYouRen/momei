@@ -212,7 +212,7 @@
                                             {{ $t('common.confirm') }}
                                         </CaomeiButton>
                                     </div>
-                                    <small v-if="unlockError" class="block mt-2 p-error">
+                                    <small v-if="unlockError" class="block form-error mt-2">
                                         {{ unlockError }}
                                     </small>
                                 </div>

@@ -70,7 +70,6 @@
                 ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/vite-builder>vite-plugin-checker>stylelint>globby>fast-glob>micromatch>braces",
                 ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/vite-builder>vite-plugin-checker>stylelint>globby>micromatch>braces",
                 ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/vite-builder>vite-plugin-checker>stylelint>micromatch>braces",
-                ".>@primevue/nuxt-module>unplugin-vue-components>chokidar>braces",
                 ".>@sentry/nuxt>nuxt>@nuxt/nitro-server>nitropack>globby>fast-glob>micromatch>braces",
                 ".>@sentry/nuxt>nuxt>@nuxt/nitro-server>nitropack>globby>micromatch>braces",
                 ".>@sentry/nuxt>nuxt>@nuxt/vite-builder>vite-plugin-checker>stylelint>fast-glob>micromatch>braces",

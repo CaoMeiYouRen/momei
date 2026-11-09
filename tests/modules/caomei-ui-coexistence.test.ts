@@ -6,7 +6,7 @@ function createEntry(from: string, name: string): AutoImportEntry {
 }
 
 describe('filterConflictingImports', () => {
-    it('移除 caomei-ui 的冲突条目并保留其非冲突条目', () => {
+    it('移除 caomei-ui 的 useTheme 并保留其非冲突条目', () => {
         const imports = [
             createEntry('caomei-ui', 'useToast'),
             createEntry('caomei-ui', 'useConfirm'),
@@ -15,8 +15,10 @@ describe('filterConflictingImports', () => {
             createEntry('caomei-ui', 'provideLocale'),
         ]
 
-        expect(filterConflictingImports(imports)).toBe(3)
+        expect(filterConflictingImports(imports)).toBe(1)
         expect(imports).toEqual([
+            createEntry('caomei-ui', 'useToast'),
+            createEntry('caomei-ui', 'useConfirm'),
             createEntry('caomei-ui', 'useLocale'),
             createEntry('caomei-ui', 'provideLocale'),
         ])
@@ -24,8 +26,8 @@ describe('filterConflictingImports', () => {
 
     it('不影响其他来源的同名条目', () => {
         const imports = [
-            createEntry('primevue/usetoast', 'useToast'),
-            createEntry('primevue/useconfirm', 'useConfirm'),
+            createEntry('other-lib', 'useToast'),
+            createEntry('other-lib', 'useConfirm'),
             createEntry('../composables/use-theme', 'useTheme'),
         ]
 
@@ -35,14 +37,14 @@ describe('filterConflictingImports', () => {
 
     it('在同一数组中同时保留其他来源与 caomei-ui 的非冲突条目', () => {
         const imports = [
-            createEntry('primevue/usetoast', 'useToast'),
-            createEntry('caomei-ui', 'useToast'),
+            createEntry('other-lib', 'useTheme'),
+            createEntry('caomei-ui', 'useTheme'),
             createEntry('caomei-ui', 'useLocale'),
         ]
 
         expect(filterConflictingImports(imports)).toBe(1)
         expect(imports).toEqual([
-            createEntry('primevue/usetoast', 'useToast'),
+            createEntry('other-lib', 'useTheme'),
             createEntry('caomei-ui', 'useLocale'),
         ])
     })
@@ -62,7 +64,7 @@ describe('filterConflictingImports', () => {
         expect(filterConflictingImports([{}, { from: 'caomei-ui' }])).toBe(0)
     })
 
-    it('冲突名清单覆盖当前三个同名 composables', () => {
-        expect([...CONFLICTING_AUTO_IMPORT_NAMES].toSorted()).toEqual(['useConfirm', 'useTheme', 'useToast'])
+    it('冲突名清单只保留 useTheme', () => {
+        expect([...CONFLICTING_AUTO_IMPORT_NAMES]).toEqual(['useTheme'])
     })
 })

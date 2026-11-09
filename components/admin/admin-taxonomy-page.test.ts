@@ -286,7 +286,7 @@ describe('AdminTaxonomyPage', () => {
         expect(wrapper.find('.caomei-checkbox').attributes('id')).toBe('syncAll_zh-CN')
         expect(wrapper.find('.caomei-textarea').attributes('id')).toBe('description_zh-CN')
         expect(wrapper.find('.caomei-textarea').attributes('rows')).toBe('3')
-        // 校验态由 `:invalid` 承接（迁移前为 `class="p-invalid"`）。
+        // 校验态由 `:invalid` 承接（迁移前为 PrimeVue 的校验态类名）。
         expect(wrapper.find('input#name_zh-CN').exists()).toBe(true)
     })
 

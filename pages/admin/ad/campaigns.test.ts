@@ -11,11 +11,10 @@ import { CampaignStatus } from '@/types/ad'
  * 覆盖「迁移后仍然成立、且与迁移无关」的页面契约：列定义与 `#cell-{key}` 插槽接线、
  * Tag 语义色映射（`severity` → `tone`）、日期 / 收益列的渲染与空值回落、
  * 行内动作集合、客户端分页委托、弹窗字段映射（`InputText` → `CaomeiInput`、
- * `Dropdown` → `CaomeiSelect`、`p-invalid` → `:invalid`）与保存校验。
+ * `Dropdown` → `CaomeiSelect`、校验态类名 → `:invalid`）与保存校验。
  * 真实渲染（DOM / 计算样式 / 空态文案）由 E2E 与截图识别层承担。
  *
- * 本页的 `DatePicker`
- * 显式豁免，维持 PrimeVue；其**内部**在册族组件随本路由迁移（否则命中零残留守卫）。
+ * 本页组件均为 caomei 实现（PrimeVue 已卸载），`DatePicker` → `CaomeiDatePicker`。
  */
 
 const { confirmRequireMock, fetchMock, formatDateTimeMock, showErrorToastMock, showSuccessToastMock } = vi.hoisted(() => ({

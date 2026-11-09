@@ -316,7 +316,7 @@ const columns = computed<DataTableColumn<AIAdminTaskListItem>[]>(() => [
         min-width: 200px;
 
         // caomei 字段默认 `width: 100%`；迁移前该行由 PrimeVue `InputText` 撑满 `.filters-search`
-        // （`.p-inputtext { width: 100% }` 本地规则），故保持同一意图。
+        // （输入框本地宽度规则），故保持同一意图。
         :deep(.caomei-input) {
             width: 100%;
         }

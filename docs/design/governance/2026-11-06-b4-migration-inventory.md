@@ -4,6 +4,12 @@
 > 条目 2 / 3 / 4 在迁移时逐行填充 §5，并把该批实测差异写入回归记录；本文件只保留**可复算事实与归属**，不重复回归证据。
 > 事实源：[迁移方案 §7 / §8.5](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)、[视觉一致性门禁](./2026-10-13-visual-parity-gate.md)、[项目计划](../../plan/roadmap.md) 第七十一阶段。
 
+## 0. 收口状态（2026-11-09）
+
+- 本清单所列迁移面已全部完成：组件 / 图标 / token 均为 **0**（全仓口径）；生产源码 `p-*` class 与 `.p-*` 选择器为 **0**（生产口径，剥离注释）。
+- PrimeVue 及其依赖已于第七十二阶段条目 4 卸载；路由择库机制（`lib/ui-library.ts` 与 `resolveUiLibraryForRoute*`）随之删除，改由 `tests/modules/primevue-residual-guard.test.ts`（全量零残留）+ 保留的浮层族专用守卫双层兜底。
+- 本文 §1 / §2 为**开工口径快照**（2026-11-06 取数），保留用于核对批次差异，不再代表当前状态；包体与验收结论见[迁移方案 §8.4.2](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)与[回归记录](../../reports/regression/current.md)。
+
 ## 1. 现取口径（2026-11-06）
 
 - 命令：`pnpm governance:count:primevue-usage`（输出 `artifacts/governance/primevue-usage-latest.json`）。

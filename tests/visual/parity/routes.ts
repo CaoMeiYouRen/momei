@@ -140,7 +140,7 @@ export const MIGRATED_ROUTES: ParityRoute[] = [
         stable: 'lenient',
         /* 用户列表数据由 better-auth admin 接口异步返回：锚定该响应 + 首个数据行，
          * 避免固定超时下「空表 ↔ 1 行」导致参考态不可复现。
-         * 迁移后数据行选择器改为 caomei `DataTable` 的行类（迁移前为 `.p-datatable-tbody tr`）。 */
+         * 迁移后数据行选择器改为 caomei `DataTable` 的行类。 */
         readyResponse: '/api/auth/admin/list-users',
         readySelector: '.caomei-data-table__row',
     },

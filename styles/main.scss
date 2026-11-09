@@ -4,9 +4,19 @@
 @use "./layout" as *;
 @use "./highlight" as *;
 @use "./rendering" as *;
-@layer primevue, momei-base, momei-overrides;
+@layer momei-base, momei-overrides;
 
 @layer momei-base {
+    // 全局盒模型基线。
+    // PrimeVue 卸载前由其主题注入 `* { box-sizing: border-box }`，本项目自身从未声明 reset；
+    // 卸载后必须由 `momei-base` 接管，否则 `width: 100%` + padding 的容器会外溢 64px
+    // （实测 `main.layout-default__main` 由 1440 撑到 1504，整页居中随之右移）。
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
     body {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         margin: 0;
@@ -120,17 +130,6 @@
         width: min(36rem, calc(100vw - 1.5rem));
         min-width: min(31rem, calc(100vw - 1.5rem));
 
-        .p-dialog-header {
-            padding-bottom: 0;
-        }
-
-        .p-dialog-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding-top: 1rem;
-        }
-
         .field {
             display: flex;
             flex-direction: column;
@@ -145,7 +144,7 @@
             color: var(--caomei-color-text);
         }
 
-        .field > .p-error,
+        .field > .form-error,
         .field > .text-color-secondary {
             margin-top: 0;
         }
@@ -160,28 +159,8 @@
             font-weight: 500;
         }
 
-        .p-inputtext,
-        .p-select,
-        .p-inputnumber,
-        .p-inputnumber-input,
-        .p-datepicker,
-        .p-datepicker-input {
-            width: 100%;
-        }
-
-        .p-dialog-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            padding-top: 1rem;
-        }
-
         @media (width <= 640px) {
             min-width: 0;
-
-            .p-dialog-footer {
-                flex-wrap: wrap;
-            }
         }
     }
 
@@ -195,102 +174,11 @@
         min-width: min(32rem, calc(100vw - 1.5rem));
     }
 
-// PrimeVue Select (Dropdown) Dark Mode Fixes
-.p-select {
-    background-color: var(--caomei-color-bg);
-
-    .p-select-label {
-        color: var(--caomei-color-text);
-    }
-
-    .p-select-dropdown {
-        color: var(--caomei-color-text-muted);
-    }
-}
-
-// PrimeVue InputText & Password Dark Mode Fixes
-.p-inputtext,
-.p-textarea {
-    background-color: var(--caomei-color-bg);
-    color: var(--caomei-color-text);
-
-    &:enabled:hover {
-        border-color: var(--caomei-color-primary);
-    }
-
-    &:enabled:focus {
-        border-color: var(--caomei-color-primary);
-    }
-}
-
-.p-select-overlay {
-    background-color: var(--caomei-color-bg);
-    color: var(--caomei-color-text);
-}
-
-.p-select-option {
-    color: var(--caomei-color-text);
-
-    &:not(.p-select-option-selected, .p-disabled) {
-        &.p-focus,
-        &:hover {
-            background-color: var(--m-surface-200);
-        }
-    }
-
-    &.p-select-option-selected {
-        background-color: var(--m-primary-100);
-        color: var(--m-primary-700);
-
-        .dark & {
-            background-color: var(--m-primary-900);
-            color: var(--m-primary-100);
-        }
-    }
-}
-
-// PrimeVue DataTable & Paginator Dark Mode Fixes
-.p-datatable {
-    background-color: var(--caomei-color-bg);
-    border-radius: var(--caomei-radius-md);
-
-    .p-datatable-header,
-    .p-datatable-footer {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text);
-    }
-
-    .p-datatable-thead > tr > th {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text);
-        transition: background-color 0.3s;
-    }
-
-    .p-datatable-tbody > tr {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text);
-        transition: background-color 0.3s;
-
-        &.p-datatable-row-selected {
-            background-color: var(--m-primary-900);
-            color: var(--m-primary-100);
-        }
-
-        &:hover {
-            background-color: var(--m-surface-200);
-        }
-    }
-
-    .p-datatable-paginator {
-        background-color: var(--caomei-color-bg);
-        padding: 0.75rem;
-    }
-}
-
-// Social Login Buttons（PrimeVue 与 caomei 并存期共用的品牌样式）
-// caomei 版用双类选择器提高特异性：`--secondary` 变体同带 library scope 属性，
-// 单类无法稳定压过后加载的库内规则。
-.p-button.p-component.social-btn,
+// Social Login Buttons（品牌样式）
+// ⚠️ 已知偏差（backlog「迁移后品牌按钮样式被层序压制」）：本块仍在 `@layer momei-base` 内，
+// 而 caomei-ui 组件样式未分层（`.caomei-button--secondary[data-v]`），按层叠规则未分层恒胜具名层，
+// 故下面的 display / gap / 品牌色当前不生效，社交按钮呈现为普通 secondary 按钮。
+// 修复需把本块移出 `@layer` 或改走 `--caomei-button-*` 钩子，并做浏览器人工验收（视觉基线未覆盖）。
 .caomei-button.caomei-button.social-btn {
     display: flex;
     justify-content: center;
@@ -328,84 +216,9 @@
     color: var(--btn-text-color, var(--btn-color));
     border-color: var(--btn-border);
 
-    .p-button-icon,
-    i {
-        color: var(--icon-color, inherit);
-        font-size: 1.1rem;
-    }
-
-    .p-button-label {
-        font-weight: 500;
-        color: inherit;
-        flex: none;
-    }
-
     &:hover:not(:disabled) {
         background: var(--btn-hover-bg);
         border-color: var(--btn-color);
-    }
-}
-
-// Global Divider background fix
-.p-divider.p-component {
-    margin: 1.5rem 0;
-
-    .p-divider-content {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
-        padding: 0 0.75rem;
-    }
-
-    &::before {
-    }
-}
-
-.p-paginator {
-    background-color: transparent;
-    color: var(--caomei-color-text-muted);
-
-    .p-paginator-page,
-    .p-paginator-next,
-    .p-paginator-last,
-    .p-paginator-first,
-    .p-paginator-prev {
-        color: var(--caomei-color-text);
-        min-width: 2.5rem;
-        height: 2.5rem;
-        transition: background-color 0.3s, color 0.3s;
-
-        &:not(.p-highlight, .p-disabled):hover {
-            background-color: var(--m-surface-200);
-        }
-
-        &.p-highlight {
-            background-color: var(--caomei-color-primary);
-            color: var(--caomei-color-primary-foreground);
-        }
-    }
-}
-
-// PrimeVue Dialog & Drawer Dark Mode Fixes
-.p-dialog,
-.p-drawer {
-    background-color: var(--caomei-color-bg);
-    color: var(--caomei-color-text);
-
-    .p-dialog-header,
-    .p-drawer-header {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text);
-    }
-
-    .p-dialog-content,
-    .p-drawer-content {
-        background-color: var(--caomei-color-bg);
-        color: var(--caomei-color-text);
-    }
-
-    .p-dialog-footer {
-        background-color: var(--caomei-color-bg);
     }
 }
 
@@ -445,6 +258,19 @@
         }
     }
 }
+}
+
+/* ---------------------------------------------------------------------------
+ * 表单错误文案（未分层）
+ *
+ * 必须置于 `@layer` 之外：`normalize.css` 的 `small { font-size: 80% }` 未分层，
+ * 层内声明会被其覆盖（实测只剩 color 生效、字号停在 12.8px）。沿用项目既有
+ * `.form-error` 约定（见 `pages/reset-password.vue`）；迁移前的 PrimeVue 错误类在 v4 中
+ * 并无样式（仅继承正文色），此处统一为红色小字。
+ * ------------------------------------------------------------------------ */
+.form-error {
+    color: var(--m-red-500);
+    font-size: 0.875rem;
 }
 
 /* ---------------------------------------------------------------------------
@@ -558,6 +384,11 @@
         --m-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         --m-mask-background: rgb(0 0 0 / 0.4);
         --m-font-mono: #{meta.inspect($font-mono)};
+
+        // 原生控件配色方案：PrimeVue 主题卸载前由其在 `:root` / `.dark` 注入，
+        // 卸载后必须由项目自带，否则暗色下原生表单控件（如 markdown 编辑器的裸 textarea）
+        // 回落到 UA 浅色默认值（白底），并与深色滚动条观感不一致。
+        color-scheme: light;
     }
 
     .dark {
@@ -576,17 +407,20 @@
         --m-surface-card: var(--m-surface-100);
         --m-surface-hover: var(--m-surface-800);
         --m-mask-background: rgb(0 0 0 / 0.6);
+
+        color-scheme: dark;
     }
 }
 
 /* ---------------------------------------------------------------------------
- * caomei-ui 语义 token 并存桥接（第六十七阶段第 3 项｜迁移方案 §5.2 第 ① 层）
+ * caomei-ui 语义 token 桥接（第六十七阶段第 3 项｜迁移方案 §5.2 第 ① 层）
  *
- * 目的：双库并存期让 caomei-ui 组件经其文档化定制路径（`--caomei-*` CSS 变量，见 §5.7 约束 1）
- * 复用 momei 现行主题，使「未迁移页面不失去主题」与「新页面可直接消费 `--caomei-*`」同时成立。
+ * 目的：让 caomei-ui 组件经其文档化定制路径（`--caomei-*` CSS 变量，见 §5.7 约束 1）
+ * 复用 momei 现行主题。PrimeVue 卸载后本桥接仍是唯一接线：用户切换主题预设 / 主色 /
+ * 圆角时，caomei-ui 侧经 `--caomei-*` 同步生效，momei 侧不硬编码色值。
  *
  * 取值方向：`--m-*`（项目调色板层，含 `useTheme` 运行时按用户主题写入的基色）
- *   → `--caomei-*`。因此用户切换主题预设 / 主色 / 圆角时 caomei-ui 侧同步生效，momei 侧不硬编码新色值。
+ *   → `--caomei-*`。
  *
  * ⚠️ 本段必须置于任何 `@layer` 之外（unlayered），选择器取 `html:root`：
  *   - caomei-ui 基础层（`caomei-ui/theme.css`）未分层，且在 `nuxt.options.css` 中排在

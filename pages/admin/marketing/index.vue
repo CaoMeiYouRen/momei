@@ -76,8 +76,8 @@
             />
         </div>
 
-        <!-- 浮层宽度走 `:style` 而非类选择器：`Dialog` 由 PrimeVue 渲染到 body，页面 scoped 样式
-             无法命中其 `.p-dialog` 根元素（原 `&__dialog` 规则长期失效，宽度遂随内容固有宽度漂移）。
+        <!-- 浮层宽度走 `:style` 而非类选择器：浮层渲染到 body（迁移前为 PrimeVue `Dialog`），
+             页面 scoped 样式无法命中其根元素（原 `&__dialog` 规则长期失效，宽度遂随内容固有宽度漂移）。
              680px 对齐 parity 参考态（迁移前 PrimeVue 表单实测 679px），与 taxonomy 弹窗同一处置通道。 -->
         <CaomeiDialog
             :open="showCreateDialog"

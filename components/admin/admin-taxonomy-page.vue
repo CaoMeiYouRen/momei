@@ -120,7 +120,7 @@
             :open="dialogVisible"
             :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="admin-taxonomy__dialog p-fluid"
+            class="admin-taxonomy__dialog"
             :style="taxonomyDialogStyle"
             @update:open="dialogVisible = $event"
             @focusin="handleDialogFocusIn"
@@ -145,7 +145,7 @@
                     :key="languageOption.code"
                     :value="languageOption.code"
                 >
-                    <!-- `InputGroup` 与 `InputText` 结构耦合（靠子元素 `.p-inputtext` 做 flex / 圆角拼接），成组迁移；`.p-invalid` → `:invalid`。 -->
+                    <!-- `InputGroup` 与输入框结构耦合（靠子元素做 flex / 圆角拼接），成组迁移；校验态由 `:invalid` 承接。 -->
                     <div class="field mt-4">
                         <label :for="'name_' + languageOption.code">{{ $t('common.name') }}</label>
                         <CaomeiInputGroup>
@@ -170,7 +170,7 @@
                                 </CaomeiButton>
                             </AppTooltip>
                         </CaomeiInputGroup>
-                        <small v-if="getErrorState(languageOption.code).name" class="p-error">{{ getErrorState(languageOption.code).name }}</small>
+                        <small v-if="getErrorState(languageOption.code).name" class="form-error">{{ getErrorState(languageOption.code).name }}</small>
                     </div>
                     <div v-if="!editingItem" class="taxonomy-dialog__sync-controls">
                         <div class="taxonomy-dialog__sync-toggle">
@@ -216,7 +216,7 @@
                                 </CaomeiButton>
                             </AppTooltip>
                         </CaomeiInputGroup>
-                        <small v-if="getErrorState(languageOption.code).slug" class="p-error">{{ getErrorState(languageOption.code).slug }}</small>
+                        <small v-if="getErrorState(languageOption.code).slug" class="form-error">{{ getErrorState(languageOption.code).slug }}</small>
                     </div>
                     <div class="field">
                         <label :for="'translationId_' + languageOption.code">
@@ -426,10 +426,10 @@ const nameFieldRefs = ref<Record<string, { focus?: () => void } | null>>({})
 const pendingInitialFocus = ref(false)
 
 /**
- * 弹窗宽度：迁移前由内容驱动（实测 444px，分类 / 标签两页一致，`p-fluid` 字段撑满弹窗）；
+ * 弹窗宽度：迁移前由内容驱动（实测 444px，分类 / 标签两页一致，字段撑满弹窗）；
  * caomei 字段宽度只由容器决定、字段外壳更窄，弹窗随之收窄到 372px。故显式声明迁移前实测宽度
- * （「迁移不改几何」）。用 `style` 绑定而非 scoped 类：该浮层由 PrimeVue 组件渲染，类选择器与
- * scoped 作用域属性的落点依赖库内部结构，属性级声明更稳。
+ * （「迁移不改几何」）。用 `style` 绑定而非 scoped 类：类选择器与 scoped 作用域属性的落点
+ * 依赖库内部结构，属性级声明更稳。
  */
 const taxonomyDialogStyle = { width: 'min(90vw, 444px)' }
 
@@ -841,7 +841,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 // 搜索字段宽度：caomei 字段默认 `width: 100%`，在 `.admin-filters`（flex 行）内会撑满容器；
-// 迁移前 `.p-iconfield` 实测固有宽 261px，故显式约束为同一值。
+// 迁移前图标字段实测固有宽 261px，故显式约束为同一值。
 .admin-filters__search {
     width: 261px;
     max-width: 100%;
@@ -862,8 +862,8 @@ onMounted(() => {
 
 // caomei `Badge` 的尺寸档位与 PrimeVue `Badge` 不同（caomei 默认 20px 高 / 12px 字号）。
 // 迁移前这几个翻译徽标的尺寸来源是三处叠加：PrimeVue Aura `Badge` 根 token（`height: 1.5rem` /
-// `minWidth: 1.5rem`）+ 全局 `.translation-badge.p-badge { padding: 2px 4px; font-size: 0.7rem }`
-// + `.translation-badge { min-width: 2rem }`。元素类改为 `caomei-badge` 后 `&.p-badge` 规则静默失效，
+// `minWidth: 1.5rem`）+ 全局徽标 padding / 字号规则 + `.translation-badge { min-width: 2rem }`。
+// 元素类改为 `caomei-badge` 后旧的徽标类规则静默失效，
 // 故按实测口径覆盖 caomei token（token 是文档化定制路径，通道①）：高 24px / 最小宽 32px /
 // 横向内边距 4px / 字号 0.7rem（与 `/admin/posts` 同口径同值）。
 .translation-badge {

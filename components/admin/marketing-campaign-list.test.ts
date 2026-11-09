@@ -74,7 +74,7 @@ describe('MarketingCampaignList', () => {
         const columns = wrapper.findComponent(CaomeiDataTableStub).props('columns') as { key: string, align?: string }[]
 
         expect(columns.map((column) => column.key)).toEqual(['title', 'status', 'publishedAt', 'actions'])
-        // 迁移前靠 `:deep(.p-column-header-content) { justify-content: flex-end }`（PrimeVue 内部类，caomei 侧不存在）。
+        // 迁移前靠对库内部列头类的 `justify-content: flex-end` 覆盖（该内部类在 caomei 侧不存在）。
         expect(columns.find((column) => column.key === 'actions')?.align).toBe('right')
         expect(columns.every((column) => column.key === 'actions' || !column.align)).toBe(true)
     })

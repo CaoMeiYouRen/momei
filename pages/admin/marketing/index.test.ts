@@ -59,8 +59,8 @@ const dialogStub = defineComponent({
     props: { open: { type: Boolean, default: false }, title: { type: String, default: '' } },
     setup(props, { slots }) {
         return () => props.open
-            ? h('div', { class: 'p-dialog' }, [
-                h('span', { class: 'p-dialog-title' }, props.title),
+            ? h('div', { class: 'caomei-dialog' }, [
+                h('span', { class: 'caomei-dialog-title' }, props.title),
                 slots.default?.(),
             ])
             : null
@@ -103,7 +103,7 @@ describe('MarketingPage', () => {
         expect(button.find('svg').exists()).toBe(true)
     })
 
-    it('统计卡片：仍为 PrimeVue `Card`（B4 展示族），三张卡片的标签与取值来自 `/api/admin/marketing/stats`', async () => {
+    it('统计卡片：caomei `Card`，三张卡片的标签与取值来自 `/api/admin/marketing/stats`', async () => {
         const wrapper = await mountPage()
         const { $t } = wrapper.vm as unknown as { $t: (key: string) => string }
 
@@ -119,12 +119,12 @@ describe('MarketingPage', () => {
         const wrapper = await mountPage()
         const { $t } = wrapper.vm as unknown as { $t: (key: string) => string }
 
-        expect(wrapper.find('.p-dialog').exists()).toBe(false)
+        expect(wrapper.find('.caomei-dialog').exists()).toBe(false)
 
         await wrapper.find('.admin-header .caomei-button').trigger('click')
         await flushPromises()
 
-        expect(wrapper.find('.p-dialog-title').text()).toBe($t('pages.admin.marketing.create_campaign'))
+        expect(wrapper.find('.caomei-dialog-title').text()).toBe($t('pages.admin.marketing.create_campaign'))
         expect(wrapper.find('.marketing-form').attributes('data-campaign-id')).toBe('')
     })
 
@@ -136,7 +136,7 @@ describe('MarketingPage', () => {
         await flushPromises()
 
         expect(wrapper.find('.marketing-form').attributes('data-campaign-id')).toBe('c-9')
-        expect(wrapper.find('.p-dialog-title').text()).toBe($t('pages.admin.marketing.edit_campaign'))
+        expect(wrapper.find('.caomei-dialog-title').text()).toBe($t('pages.admin.marketing.edit_campaign'))
     })
 
     it('保存接线：表单 `@save` 关闭弹窗、刷新列表并重取统计', async () => {
@@ -148,7 +148,7 @@ describe('MarketingPage', () => {
         await wrapper.find('.emit-save').trigger('click')
         await flushPromises()
 
-        expect(wrapper.find('.p-dialog').exists()).toBe(false)
+        expect(wrapper.find('.caomei-dialog').exists()).toBe(false)
         expect(listRefresh).toHaveBeenCalled()
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/marketing/stats')
     })
@@ -167,7 +167,7 @@ describe('MarketingPage', () => {
         await flushPromises()
 
         expect(wrapper.find('.marketing-form').attributes('data-campaign-id')).toBe('')
-        expect(wrapper.find('.p-dialog-title').text()).toBe($t('pages.admin.marketing.create_campaign'))
+        expect(wrapper.find('.caomei-dialog-title').text()).toBe($t('pages.admin.marketing.create_campaign'))
     })
 
     it('统计刷新接线：列表 `@changed` 触发统计重取', async () => {

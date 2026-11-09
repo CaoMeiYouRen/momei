@@ -72,11 +72,8 @@
     min-width: 2rem;
     text-align: center;
     transition: all 0.2s;
-
-    &.p-badge {
-        font-size: 0.7rem;
-        padding: 2px 4px;
-    }
+    font-size: 0.7rem;
+    padding: 2px 4px;
 
     &:hover {
         opacity: 0.8;

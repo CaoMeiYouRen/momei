@@ -1,14 +1,14 @@
 import { defineNuxtModule } from 'nuxt/kit'
 
 /**
- * 并存期需要从自动导入中移除的 caomei-ui 同名条目。
+ * 需要从自动导入中移除的 caomei-ui 同名条目。
  *
- * `useToast` / `useConfirm` 与 PrimeVue 服务同名，`useTheme` 与 momei 自身的
- * `composables/use-theme.ts` 同名；两套同名自动导入共存时 caomei-ui 版本会静默胜出
- * （Nuxt 仅给出 `Duplicated imports` 警告），使依赖自动导入的既有页面在运行时切到不同 API
- * （toast 参数由 `severity/summary/detail` 变为 `tone/title/description`，confirm 由回调式变为 Promise 式）。
+ * PrimeVue 卸载后仅剩 `useTheme`：它与 momei 自身的 `composables/use-theme.ts` 同名，
+ * 两套同名自动导入共存时 caomei-ui 版本会静默胜出（Nuxt 仅给出 `Duplicated imports` 警告），
+ * 使依赖自动导入的既有页面在运行时切到不同 API。`useToast` / `useConfirm` 已无同名冲突，
+ * 保留 caomei-ui 的自动导入。
  */
-export const CONFLICTING_AUTO_IMPORT_NAMES = ['useConfirm', 'useTheme', 'useToast'] as const
+export const CONFLICTING_AUTO_IMPORT_NAMES = ['useTheme'] as const
 
 /** 自动导入条目的最小结构（unimport Import 的子集）。 */
 export interface AutoImportEntry {
@@ -44,11 +44,10 @@ export function filterConflictingImports(
 }
 
 /**
- * 双库并存期隔离模块（PrimeVue ↔ caomei-ui）。
+ * caomei-ui 自动导入隔离模块。
  *
- * 职责：把 caomei-ui 的三个冲突自动导入从 Nuxt 的自动导入清单中移除，
- * 保留其不冲突的 `useLocale` / `provideLocale`；迁移后的页面改为显式
- * `import { useToast } from 'caomei-ui'`。
+ * 职责：把 caomei-ui 的 `useTheme` 从 Nuxt 的自动导入清单中移除，
+ * 保留其不冲突的 `useToast` / `useConfirm` / `useLocale` / `provideLocale`。
  *
  * **注册顺序是本模块的硬前提**：caomei-ui 通过依赖模块的 `addImports()` 注册
  * `imports:extend` 钩子，Nuxt 按注册顺序依次调用同名钩子。本模块必须在该钩子之后执行，
@@ -56,9 +55,9 @@ export function filterConflictingImports(
  * 本模块位于 `modules/` 目录，由 Nuxt 在 `nuxt.config` 的 `modules` 之后自动加载，
  * 因此顺序成立；`build:before` 护栏会在顺序被破坏时直接失败，而不是静默放过。
  *
- * 迁移收尾、PrimeVue 卸载后本模块不再需要，应随之一并删除。
- * 详见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` 的
- * 「双库并存隔离」与「样式层叠与 @layer 决策」两节。
+ * `useTheme` 同名冲突与 PrimeVue 无关，卸载后仍需要本隔离。
+ * 背景见 `docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md` 的
+ * 「双库并存隔离」一节。
  */
 export default defineNuxtModule({
     meta: {

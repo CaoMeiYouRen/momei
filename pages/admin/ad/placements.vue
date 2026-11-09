@@ -96,19 +96,14 @@
             </CaomeiDataTable>
         </AdminListShell>
 
-        <!-- 浮层族已由第六十九阶段迁移到 caomei-ui；本页仅保留非在册表单/展示控件。
-             其**内部**的 InputText / Dropdown / Button 属批次在册族，须随本路由迁移，否则命中「在册族零残留」守卫；
-             `InputNumber` / `Checkbox` 不在 B2 在册族清单内（§5.5 显式豁免枚举），保持 PrimeVue 至表单批次。
-             弹窗 class 上的 `p-fluid` 是迁移前既有写法：实测构建产物中**不存在 `.p-fluid` 规则**（PrimeVue 4
-             只注册类名不产样式），字段全宽由 `styles/main.scss` 的 `.p-inputtext/.p-select/.p-inputnumber/
-             .p-datepicker { width: 100% }` 提供；本批按「最小改动」原样保留，死类清理与 `admin-placements__dialog`
-             一并登记在 backlog 的迁移期幻影类收尾项。 -->
+        <!-- 本页组件均为 caomei-ui 实现（PrimeVue 已于第七十二阶段条目 4 卸载）：
+             字段全宽由字段容器与 caomei 组件自身宽度提供。 -->
         <CaomeiDialog
             :close-on-overlay="false"
             :open="dialogVisible"
             :title="editingItem ? $t('common.edit') : $t('common.create')"
             modal
-            class="admin-form-dialog admin-placements__dialog p-fluid"
+            class="admin-form-dialog admin-placements__dialog"
             @update:open="dialogVisible = $event"
         >
             <div class="field">
@@ -118,7 +113,7 @@
                     v-model.trim="formData.name"
                     :invalid="Boolean(errors.name)"
                 />
-                <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+                <small v-if="errors.name" class="form-error">{{ errors.name }}</small>
             </div>
 
             <div class="field">
@@ -131,7 +126,7 @@
                     option-value="value"
                     :invalid="Boolean(errors.location)"
                 />
-                <small v-if="errors.location" class="p-error">{{ errors.location }}</small>
+                <small v-if="errors.location" class="form-error">{{ errors.location }}</small>
             </div>
 
             <div class="field">
@@ -144,7 +139,7 @@
                     option-value="value"
                     :invalid="Boolean(errors.format)"
                 />
-                <small v-if="errors.format" class="p-error">{{ errors.format }}</small>
+                <small v-if="errors.format" class="form-error">{{ errors.format }}</small>
             </div>
 
             <div class="field">
@@ -157,7 +152,7 @@
                     option-value="id"
                     :invalid="Boolean(errors.adapterId)"
                 />
-                <small v-if="errors.adapterId" class="p-error">{{ errors.adapterId }}</small>
+                <small v-if="errors.adapterId" class="form-error">{{ errors.adapterId }}</small>
             </div>
 
             <div class="field">

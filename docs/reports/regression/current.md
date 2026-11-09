@@ -8,7 +8,7 @@
 
 - 该文件应只保留近线证据与最近基线比较所需的记录。
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
-- 「在册族开口标签」统计口径：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；两者均由 `tests/modules/ui-library-route-migration-guard.test.ts` 的在册族清单界定，可脚本复算。
+- 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-05 -->
 ## 2026-11-05 阶段收口前周期性回归（自动回填）
@@ -206,3 +206,47 @@
 - `plugins/primevue-i18n.ts` 与 PrimeVue Aura 仍会在运行期注入 `--p-*`，但源码消费面已为 0；卸载与注入源移除属条目 4。
 
 <!-- regression-window:end:primevue-token-reverse:第七十二阶段条目 3 token 反向切换:2026-11-09 -->
+
+<!-- regression-window:start:primevue-uninstall:第七十二阶段条目 4 PrimeVue 卸载:2026-11-09 -->
+
+## 2026-11-09 第七十二阶段条目 4 PrimeVue 卸载、样式耦合清理与预算回落
+
+### 范围
+
+- 依赖卸载：`primevue` / `@primevue/{core,forms,icons,nuxt-module}` / `@primeuix/{styled,styles,themes,utils}` / `primeicons` / `primelocale` 全部移除；`package.json` 无 `prime` 相关包。
+- 配置清理：`nuxt.config.ts` 移除 `@primevue/nuxt-module`、Aura `MomeiPreset`（`definePreset`）、`primevue.options.theme`（含 `cssLayer` / locale）、`css` 中的 `primeicons/primeicons.css`、`vite.resolve.dedupe` 与 `optimizeDeps.include` 的 PrimeVue 项、Nitro `externals.inline` 的 `@primeuix/utils`；`styles/main.scss` 的 `@layer` 序声明去掉 `primevue` 层。
+- 插件与机制删除：`plugins/primevue-i18n.ts` 及其单测；路由择库机制 `lib/ui-library.ts`（`resolveUiLibraryForRoute*` / `CAOMEI_UI_ROUTE_SCOPES` / `CAOMEI_UI_ROUTE_PREFIXES`）与其单测、`tests/modules/ui-library-route-migration-guard.test.ts`、`tests/modules/ui-library-transition-component-guard.test.ts`、`tests/modules/ui-library-guard-helpers.ts`（后者的扫描 helper 内联进 `overlay-family-residual-guard.test.ts`）。
+- 新增全量守卫：`tests/modules/primevue-residual-guard.test.ts`（组件 / 图标 / token / 生产源码 `p-*` class / `.p-*` 选择器 / `package.json` + `nuxt.config.ts` / 生产源码包引用 / `@layer primevue` / `usePrimeVue` / `*-v2.vue` 文件名）。迁移期的路由择库与过渡组件两套守卫随之删除，**浮层族专用守卫保留**（`overlay-family-residual-guard.test.ts`，职责为浮层组件标签 / `v-tooltip` / toast / confirm 调用面）。
+- 计数口径：`governance:count:primevue-usage` 的 `p-*` class 与 `.p-*` 选择器改为**生产文件口径**（与守卫一致，单测里的旧类名 fixture 不计入）；`--write-components` 入口删除，`scripts/governance/data/primevue-components.json` 转为卸载前冻结快照。
+- 样式耦合清理：`p-*` class **151 → 0**、`.p-*` 选择器 **83 → 0**、PrimeVue 专用 `:deep()` 全部移除（`.p-datatable` / `.p-button` / `.p-message` / `.p-colorpicker` / `.p-inputtext`）；`p-error` → `.form-error`（沿用项目既有 `.form-error` 约定，见 `pages/reset-password.vue`；迁移前 `.p-error` 在 PrimeVue 4 无样式，属错误态可读性修正，错误态无视觉基线覆盖）；`p-fluid` 死类删除。
+- 全局基线补回（卸载暴露的隐式依赖）：`styles/main.scss` 的 `@layer momei-base` 新增 `*, *::before, *::after { box-sizing: border-box }` 与 `:root { color-scheme: light }` / `.dark { color-scheme: dark }`。
+- 包体配额：`scripts/perf/check-bundle-budget.mjs`、`.github/perf/bundle-baseline.json`、`docs/standards/performance.md` 三处联动收紧。
+
+### 验证结果
+
+- `pnpm build` 成功；`typecheck` 0 error；`eslint` 0 error（10 个既有 warning）；`stylelint` 0；`lint-md` / `docs:check:markers` / `docs:check:links` 通过。
+- 单测：全量 `pnpm test` **5,194 passed / 1 failed**——唯一失败为 `composables/use-theme.test.ts` 的层序断言（仍期待 `@layer primevue, …`），已随 `@layer` 声明同步修复（15/15）；修复后定向复跑 **52 文件 / 451 例全绿**（`tests/modules` + `tests/scripts` + 受影响页面/组件）。本地全量复跑受既有 `.vitest-cache` 与 597 worker 资源竞争影响出现 0-test 套件（清缓存后单文件复跑通过），以 CI 为准。
+- `test:visual` **32/32**；`test:visual:parity` **83/83**。
+- E2E：critical **17 passed / 1 skipped** + mobile critical **2 passed** + 安装向导 **2 passed**。
+- `test:perf:budget`：`coreEntryJs` **329,891 B（322.16KB）/ 335KB**、`keyCss` **60,482 B（59.06KB）/ 62KB**、`maxAsyncChunkJs` 56,781 B / 130KB。
+
+### 差异归因
+
+- 卸载后首次 `test:visual` 有 14 张基线失败（管理端列表 / 表单 / 浮层 + 主题工作台暗色）。根因：PrimeVue 主题原先注入 `* { box-sizing: border-box }`，缺失后 `main.layout-default__main` 由 1440 撑到 1504（+64px），整页居中右移；补回全局盒模型后 31/32。
+- 剩余 1 张（`admin-agreements-dialog-dark`）为 Markdown 编辑器裸 `textarea` 由深色变白底。根因：PrimeVue 主题原先注入 `color-scheme`；补回 `:root` / `.dark` 的 `color-scheme` 后 **32/32**。
+- 两条均为「原由第三方主题注入、源码从未声明」的隐式依赖（来源已核实：`@primeuix/styles/base` 的 `*, ::before, ::after { box-sizing: border-box }`，以及 `@primeuix/styled` 主题 `global` CSS 的 `color-scheme: light|dark`），已登记进迁移方案 §8.4.2，避免后续再次以「删依赖」方式静默丢失。
+- `p-error` → `.form-error`：PrimeVue 4 的 `.p-error` 本身无样式（仅继承正文色），改名后沿用项目既有 `.form-error` 约定（`pages/reset-password.vue`：`--m-red-500` + 0.875rem），属错误态可读性修正；错误态无视觉基线覆盖，已在此登记。
+
+### 测试修正
+
+- `tests/e2e/auth-session-governance.e2e.test.ts` 的「保护未保存草稿」用例改为确定性断言：先等待徽标进入 `translation-badge--disabled`（该态只能在水合后由 `post.title` 驱动出现），再 `click({ force: true })` 确认不导航。原写法在水合前点击恰好落空即通过，属历史假绿 flake（本地已能稳定复现失败）。
+
+### 未覆盖边界
+
+- `@mdi/font` 保留（11 项品牌图标共 22 处仍用 `mdi mdi-*`），其体积收敛另立独立候选。
+- `scripts/governance/data/primevue-components.json` 为卸载前 4.5.5 冻结快照，不再随上游重新生成；新增识别面需手工追加。
+- `--m-radius-md` / `--m-radius-sm` 仍为冻结的 6px / 4px（沿用条目 3 决策，管理端圆角不随主题变化）。
+- `docs/design/ui.md` 的组件库与主题章节仍保留迁移期 PrimeVue 描述，改写由第七十二阶段收口统一完成（文首已加迁移指针）。
+- 卸载后复核发现三处**层序导致的既有样式失效**（非本批引入，`@layer momei-base` 内规则被 caomei 未分层组件样式覆盖）：社交登录按钮品牌色 / `admin-form-dialog` 宽度 / `.translation-badge` 尺寸；视觉基线未覆盖社交按钮，已登记 backlog #11「待跟踪（2026-11-09）」，需后续人工验收后修复。
+
+<!-- regression-window:end:primevue-uninstall:第七十二阶段条目 4 PrimeVue 卸载:2026-11-09 -->

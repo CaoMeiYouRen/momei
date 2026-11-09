@@ -252,7 +252,7 @@
             </CaomeiDataTable>
         </div>
 
-        <!-- 浮层显式豁免（迁移方案 §5.5）：`ConfirmDeleteDialog` 维持 PrimeVue（随浮层批次收敛）。 -->
+        <!-- `ConfirmDeleteDialog` 是 momei 自有共享壳（内部为 `CaomeiDialog`），不计入 PrimeVue 残留。 -->
         <ConfirmDeleteDialog
             ref="deleteDialog"
             @confirm="handleDelete"
@@ -559,9 +559,8 @@ const postToDelete = ref<Post | null>(null)
 /**
  * 状态 Tag 的语义色：caomei `Tag` 无 `severity`，改用 `tone`（迁移方案 §6.2 / §6.3 有意差异）。
  *
- * 状态 → `severity` 的映射由共享 helper `getPostStatusSeverity` 承载，而该 helper 同时服务
- * `/admin/posts/[id]` 编辑器路由（本阶段仍为 PrimeVue）、且有单测锁定 PrimeVue 词表，
- * 故按 §5.5「路由内组件来源唯一」的口径不在共享 helper 内改写，而是在本页做一次
+ * 状态 → `severity` 的映射由共享 helper `getPostStatusSeverity` 承载；该 helper 的返回词表
+ * （PrimeVue `severity`）仍被多处与单测锁定，故不在 helper 内改写，而是在本页做一次
  * 有损近似转换（§6.2）：`success` / `danger` 直通、`warn` → `warning`、`info` → `primary`、
  * `secondary` → `neutral`。helper 对未知状态兜底为 `info`，故本映射的兜底分支亦为 `primary`。
  */
@@ -764,7 +763,7 @@ async function handleReAudit() {
 
 // caomei `Badge` 的尺寸档位与 PrimeVue `Badge` 不同（caomei 默认 20px 高 / `space-1` 横向内边距）。
 // 迁移前这几个翻译徽标的尺寸来源是三处叠加：PrimeVue Aura `Badge` 根 token `height: 1.5rem` /
-// `minWidth: 1.5rem` + 全局 `.translation-badge.p-badge { padding: 2px 4px; font-size: 0.7rem }` +
+// `minWidth: 1.5rem` + 全局徽标 padding / 字号规则 +
 // `.translation-badge { min-width: 2rem }`。故按实测口径覆盖 caomei token（token 是文档化定制路径，
 // 优先级 ①）：高 24px / 最小宽 32px / 横向内边距 4px / 字号 0.7rem。
 .translation-badge {

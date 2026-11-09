@@ -247,7 +247,7 @@ AI 在生成代码时应严格遵守以下约定：
 迁移策略说明：
 
 - 当前不主动把全站切换到 `better-auth-localization` 的标识体系。
-- 维持现有 `zh-CN` / `en-US` / `zh-TW` / `ko-KR` / `ja-JP` 方案，可最大限度降低 i18n 目录、路由、SEO 与 PrimeVue locale 的迁移成本。
+- 维持现有 `zh-CN` / `en-US` / `zh-TW` / `ko-KR` / `ja-JP` 方案，可最大限度降低 i18n 目录、路由、SEO 与组件库 locale（caomei-ui `registerLocale`）的迁移成本。
 - 若未来要统一到另一套标识，必须先完成完整的 route、locale 资源、SEO 与存量数据迁移设计，不得局部替换。
 
 ### 2.6 Git 工作流与 Worktree 规范 （Git Workflow & Worktree）

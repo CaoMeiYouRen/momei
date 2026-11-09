@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div v-if="task.error" class="error-section">
+        <div v-if="task.error">
             <CaomeiMessage
                 tone="danger"
                 role="alert"
@@ -394,12 +394,6 @@ async function copyTaskId() {
         font-size: 0.875rem;
         white-space: pre-wrap;
         word-break: break-all;
-    }
-}
-
-.error-section {
-    :deep(.p-message) {
-        border-width: 0 0 0 6px;
     }
 }
 </style>

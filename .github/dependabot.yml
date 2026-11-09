@@ -37,13 +37,6 @@ updates:
           - "@vueuse/core"
           - "@vueuse/nuxt"
 
-      # PrimeVue 主包、官方扩展和 PrimeUIX 底层包共享内部类型与主题能力。
-      primevue-core:
-        patterns:
-          - "primevue"
-          - "@primevue/*"
-          - "@primeuix/*"
-
       # TypeScript、vue-tsc 与 typescript-eslint 共享 TS 版本兼容窗口。
       typescript-checking:
         patterns:
@@ -154,35 +147,9 @@ updates:
         versions:
           - ">=10.0.0"
 
-      # PrimeVue 5 起并入 PrimeUI 商业许可，不再作为开源发布：包以编译产物分发、
-      # 需注入 license key、缺 key 时可能显示 license notice，且 Community 许可禁止
-      # 再分发给最终用户自行构建。与本项目 MIT + 自部署模型冲突，官方亦指引开源项目
-      # 继续使用 MIT 版本（PrimeVue 4 及更早）。@primeuix/* 是 v5 的样式与主题引擎层，
-      # 必须与主包一同屏蔽，否则会与锁定在 4.x 的 primevue 版本错配。
-      # 评估见 docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md
-      - dependency-name: "primevue"
-        versions:
-          - ">=5.0.0"
-
-      - dependency-name: "@primevue/*"
-        versions:
-          - ">=5.0.0"
-
-      - dependency-name: "@primeuix/styled"
-        versions:
-          - ">=1.0.0"
-
-      - dependency-name: "@primeuix/styles"
-        versions:
-          - ">=3.0.0"
-
-      - dependency-name: "@primeuix/themes"
-        versions:
-          - ">=3.0.0"
-
-      - dependency-name: "@primeuix/utils"
-        versions:
-          - ">=0.8.0"
+      # PrimeVue 已于第七十二阶段条目 4 卸载（含 @primevue/*、@primeuix/*、primeicons、primelocale），
+      # 原先的 primevue 分组与 v5 商业许可屏蔽项随之移除；若未来重新引入，须先读
+      # docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md 并重建屏蔽规则。
 
       # caomei-ui 走「人工升级」：精确锁定只固定声明值，不能阻止依赖机器人在精确值上继续抬版
       # （0.3.0 → 0.5.0 → 0.6.0 曾由此绕过升级纪律）。该库 0.x 不承诺语义化兼容、1.0.0-rc.1 虽无

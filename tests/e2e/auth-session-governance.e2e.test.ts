@@ -67,15 +67,6 @@ async function openNewDraftEditor(page: Page) {
     await expect(page.locator('.title-input')).toBeVisible({ timeout: 20000 })
 }
 
-async function clickLanguageBadge(page: Page, languageCode: string) {
-    const badge = page.locator('.translation-status-bar .translation-badge').filter({
-        hasText: languageCode.toUpperCase(),
-    }).first()
-
-    await expect(badge).toBeVisible({ timeout: 10000 })
-    await badge.click()
-}
-
 async function navigateBlankDraftToLanguage(page: Page, languageCode: string) {
     try {
         await page.goto(`/admin/posts/new?language=${encodeURIComponent(languageCode)}`)
@@ -226,7 +217,7 @@ test.describe('Auth Session Governance E2E Tests', () => {
     })
 
     test('should protect entered new draft from language switch before saving', async ({ page, browserName }) => {
-        test.skip(browserName === 'firefox', 'Flaky in Firefox CI — Playwright fill() + PrimeVue InputText v-model timing issue (2026-06)')
+        test.skip(browserName === 'firefox', 'Flaky in Firefox CI — Playwright fill() + 表单输入 v-model 时序问题（2026-06）')
         await new AuthHelper(page).ensureAdminSession()
 
         await openNewDraftEditor(page)
@@ -235,7 +226,16 @@ test.describe('Auth Session Governance E2E Tests', () => {
         const originalUrl = page.url()
         const { currentLanguage, targetLanguage } = await pickDifferentLanguage(page)
 
-        await clickLanguageBadge(page, targetLanguage)
+        /* 未保存内容时语言徽标由 `translation-badge--disabled` 施加 `pointer-events: none`，
+         * 这是「阻断切换」的实现本体：常规 `click()` 会在可操作性检查阶段报「父元素拦截指针事件」，
+         * 而水合完成前点击恰好落空又会让断言假绿（历史 flake 根因）。因此先等待徽标进入禁用态
+         * （该态只能在水合后由 `post.title` 驱动出现），再用 `force` 点击确认不会发生导航。 */
+        const targetBadge = page.locator('.translation-status-bar .translation-badge').filter({
+            hasText: targetLanguage.toUpperCase(),
+        }).first()
+
+        await expect(targetBadge).toHaveClass(/translation-badge--disabled/, { timeout: 10000 })
+        await targetBadge.click({ force: true })
 
         await expect(page).toHaveURL(originalUrl)
         await expect(page.locator('.title-input input')).toHaveValue('Playwright unsaved draft')

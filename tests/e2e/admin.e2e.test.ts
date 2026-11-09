@@ -157,7 +157,7 @@ test.describe('Admin E2E Tests', () => {
         /* 列表（本批迁移面）就绪；刷新入口在表格之上（caomei `DataTable` 无 `#header` 插槽）。 */
         await expect(page.locator('.caomei-data-table').first()).toBeVisible({ timeout: 15000 })
 
-        /* 弹窗本体仍为 PrimeVue `Dialog`（浮层豁免），其内表单控件已迁移：断言打开后出现 caomei 字段。
+        /* 弹窗为 caomei `Dialog`，其内表单控件同为 caomei：断言打开后出现 caomei 字段。
          * 用 `toPass` 重试「点击 → 断言」以规避 SSR 未水合的静默失效（同 `/admin/ai` 页的口径）。 */
         await expect(async () => {
             await page.getByRole('button', { name: '创建推送' }).click()

@@ -90,7 +90,6 @@
                 :data="getDisplayItems(section.payload)"
                 :columns="agreementColumns"
                 :loading="isLoading(section.type)"
-                class="agreements-settings__table"
             >
                 <template #empty>
                     {{ translateAgreement('empty') }}

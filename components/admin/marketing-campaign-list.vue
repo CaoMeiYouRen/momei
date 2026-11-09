@@ -206,8 +206,8 @@ const isProcessing = (id: string) => processingIds.value.includes(id)
  *   `publishedAt` / `actions`）——注意 `DataTableColumn.key` **同时是默认取值字段**（accessor 缺省即 key，
  *   由 `#cell-{key}` 插槽的 `value` 暴露）；本处因提供了 `cell-*` 插槽，取值结果不参与渲染，
  *   且 4 列均未开 `sortable`，故不参与排序。若后续给某列开 `sortable` 或把真实字段名换成 key，需复核语义。
- * - `actions` 列用 caomei 原生 `align: 'right'` 取代迁移前的 `:deep(.p-column-header-content)
- *   { justify-content: flex-end }`（该 PrimeVue 内部类在 caomei 侧不存在）。
+ * - `actions` 列用 caomei 原生 `align: 'right'` 取代迁移前对库内部列头类的 `justify-content: flex-end`
+ *   覆盖（该内部类在 caomei 侧不存在）。
  */
 const columns = computed<DataTableColumn<MarketingCampaign>[]>(() => [
     { key: 'title', header: t('pages.admin.marketing.form.title') },

@@ -22,9 +22,9 @@ const DialogStub = defineComponent({
     emits: ['update:open'],
     setup(props, { slots }) {
         return () => props.open
-            ? h('div', { class: 'p-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
-                h('div', { class: 'p-dialog-content' }, slots.default?.()),
-                h('div', { class: 'p-dialog-footer' }, slots.footer?.()),
+            ? h('div', { class: 'caomei-dialog', 'data-header': props.title, 'data-width': String(props.style.width) }, [
+                h('div', { class: 'caomei-dialog-content' }, slots.default?.()),
+                h('div', { class: 'caomei-dialog-footer' }, slots.footer?.()),
             ])
             : null
     },
@@ -61,7 +61,7 @@ const RadioButtonStub = defineComponent({
         const group = inject<RadioGroupContext>('radio-group')
         return () => h('label', { class: 'caomei-radio-button-stub', 'data-value': props.value }, [
             h('input', {
-                class: 'p-radiobutton',
+                class: 'caomei-radio-button',
                 type: 'radio',
                 'data-value': props.value,
                 checked: group?.value.value === props.value,
@@ -129,15 +129,15 @@ describe('PublishPushDialog', () => {
     it('浮层壳、单选组与排期 DatePicker 均为 caomei', async () => {
         const wrapper = await mountDialog()
 
-        expect(wrapper.find('.p-dialog').exists()).toBe(true)
-        expect(wrapper.find('.p-dialog').attributes('data-width')).toBe('35rem')
+        expect(wrapper.find('.caomei-dialog').exists()).toBe(true)
+        expect(wrapper.find('.caomei-dialog').attributes('data-width')).toBe('35rem')
         expect(wrapper.find('.caomei-date-picker').exists()).toBe(true)
         // 推送选项 3 个；目标选择区在「不推送」时隐藏（V1 口径），故初始仅 3 个
-        expect(wrapper.findAll('.p-radiobutton')).toHaveLength(3)
+        expect(wrapper.findAll('.caomei-radio-button')).toHaveLength(3)
 
         ;(wrapper.vm as unknown as { open: (options?: unknown) => void }).open({ pushOption: 'now' })
         await nextTick()
-        expect(wrapper.findAll('.p-radiobutton')).toHaveLength(5)
+        expect(wrapper.findAll('.caomei-radio-button')).toHaveLength(5)
     })
 
     it('推送选项渲染富文本标签，并反映当前选中态', async () => {
@@ -148,13 +148,13 @@ describe('PublishPushDialog', () => {
         expect(labels.some((text) => text.includes('push_options.none'))).toBe(true)
         expect(labels.some((text) => text.includes('push_options.now_desc'))).toBe(true)
 
-        const radios = wrapper.findAll('.p-radiobutton')
+        const radios = wrapper.findAll('.caomei-radio-button')
         expect((radios[0]!.element as HTMLInputElement).checked).toBe(true)
 
         ;(wrapper.vm as unknown as { open: (options?: unknown) => void }).open({ pushOption: 'draft' })
         await nextTick()
 
-        const afterOpen = wrapper.findAll('.p-radiobutton')
+        const afterOpen = wrapper.findAll('.caomei-radio-button')
         expect((afterOpen[1]!.element as HTMLInputElement).checked).toBe(true)
         expect((afterOpen[0]!.element as HTMLInputElement).checked).toBe(false)
     })
@@ -210,7 +210,7 @@ describe('PublishPushDialog', () => {
         })
         await nextTick()
 
-        const targetAll = wrapper.findAll('.p-radiobutton').find(
+        const targetAll = wrapper.findAll('.caomei-radio-button').find(
             (radio) => radio.attributes('data-value') === 'all',
         )
         expect(targetAll).toBeTruthy()

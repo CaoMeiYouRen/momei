@@ -175,7 +175,7 @@
                     </ul>
                 </CaomeiPopoverContent>
             </CaomeiPopover>
-            <small v-if="errors.title" class="p-error">{{
+            <small v-if="errors.title" class="form-error">{{
                 errors.title
             }}</small>
         </div>

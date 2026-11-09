@@ -1,7 +1,7 @@
 {
     "source": "@primevue/metadata",
     "version": "4.5.5",
-    "description": "PrimeVue 组件名清单，供 count-primevue-usage.mjs 识别组件开标签；升级 primevue 主版本后需重新生成（见 npm 入口 governance:count:primevue-usage:components）。",
+    "description": "PrimeVue 组件名清单（卸载前 4.5.5 冻结快照），供 count-primevue-usage.mjs 识别组件开标签、支撑零残留守卫；PrimeVue 已卸载，不再重新生成，新增识别面时手工追加。",
     "count": 123,
     "components": [
         "Accordion",

@@ -14,13 +14,12 @@
  *
  * 用法：
  *   node scripts/governance/count-primevue-usage.mjs --output=artifacts/governance/primevue-usage-latest.json
- *   node scripts/governance/count-primevue-usage.mjs --write-components   # 升级 primevue 主版本后重新生成组件名清单
  */
 
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -49,8 +48,22 @@ const SCANNED_EXTENSIONS = new Set(['.css', '.scss', '.ts', '.vue'])
 const TOKEN_PATTERN = /--p-[a-z0-9-]+/gu
 const TOKEN_VAR_PATTERN = /var\(--p-[a-z0-9-]+\)/gu
 const ICON_PATTERN = /pi pi-[a-z0-9-]+/gu
-const PRIME_CLASS_PATTERN = /(?<![\w-])p-[a-z][a-z0-9-]*/gu
-const PRIME_CLASS_SELECTOR_PATTERN = /\.p-[a-z][a-z0-9-]*/gu
+// `p-queue` 等 npm 包名与 PrimeVue class 同形，扫描时排除（当前仅 `p-queue` 为真实依赖，
+// 若后续引入 `p-limit` 等同形包需同步排除）。
+export const PRIME_CLASS_PATTERN = /(?<![\w-])p-(?!queue\b)[a-z][a-z0-9-]*/gu
+export const PRIME_CLASS_SELECTOR_PATTERN = /\.p-[a-z][a-z0-9-]*/gu
+
+/**
+ * 剥离注释后再扫描 class / 选择器。
+ *
+ * 注释里回填「迁移前为 `p-dialog`」这类说明是正常文档行为，不应算残留；
+ * 与 `tests/modules/overlay-family-residual-guard.test.ts` 的剥离口径一致（HTML / 块 / 整行 `//`）。
+ */
+export function stripCommentsForClassScan(content) {
+    return stripHtmlComments(content)
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/^\s*\/\/.*$/gmu, '')
+}
 const DEEP_PATTERN = /:deep\(/gu
 const GLOBAL_PATTERN = /:global\(/gu
 const BODY_SLOT_PATTERN = /#body\b/gu
@@ -280,7 +293,7 @@ export async function buildReport(options = {}) {
         const overlayTags = isVue ? countComponentTags(content, OVERLAY_FAMILY.components) : new Map()
         const serviceHits = []
         // 指令只存在于模板；注释里的同名提及不是调用点，回填「已迁完」注释时不应改变归零口径。
-        // 剥离类别与 `tests/modules/ui-library-guard-helpers.ts` 的 `stripComments` 相同（HTML / 块 / 整行 `//`）；HTML 注释在本文件按不动点循环处理（helper 仍为单次替换，CodeQL #46 为 test-only observe）。
+        // 剥离类别与 `tests/modules/overlay-family-residual-guard.test.ts` 的 `stripComments` 相同（HTML / 块 / 整行 `//`）；HTML 注释在本文件按不动点循环处理（CodeQL #46 为 test-only observe）。
         // HTML 注释闭合符同时接受 `-->` 与 HTML5 的 `--!>`；完整注释与残余分隔符都由 `stripHtmlComments` 循环清除。
         const directiveSource = stripHtmlComments(content)
             .replace(/\/\*[\s\S]*?\*\//gu, '')
@@ -375,7 +388,10 @@ export async function buildReport(options = {}) {
 
         tokenVarTotal += countMatches(content, TOKEN_VAR_PATTERN).total
 
-        const primeClassStat = countMatches(content, PRIME_CLASS_PATTERN)
+        // 生产口径：PrimeVue 卸载后 `p-*` class 的残留判定与零残留守卫同口径，
+        // 单测里的旧类名 fixture（计数脚本自身输入）不计入统计。
+        const classScanSource = isProduction ? stripCommentsForClassScan(content) : ''
+        const primeClassStat = isProduction ? countMatches(classScanSource, PRIME_CLASS_PATTERN) : { total: 0, unique: [] }
         if (primeClassStat.total > 0) {
             primeClassTotal += primeClassStat.total
             primeClassFiles.add(relativePath)
@@ -384,8 +400,8 @@ export async function buildReport(options = {}) {
             }
         }
 
-        if (isStyle || isVue) {
-            const selectorStat = countMatches(content, PRIME_CLASS_SELECTOR_PATTERN)
+        if (isProduction && (isStyle || isVue)) {
+            const selectorStat = countMatches(classScanSource, PRIME_CLASS_SELECTOR_PATTERN)
             if (selectorStat.total > 0) {
                 primeClassSelectorTotal += selectorStat.total
                 if (isStyle) {
@@ -555,9 +571,9 @@ function renderMarkdown(report, outputRelativePath) {
         `| token \`var()\` 引用数 | ${report.tokens.varReferences} |`,
         `| token 唯一数 | ${report.tokens.unique} |`,
         `| token 文件数 | ${report.tokens.files} |`,
-        `| PrimeVue class \`p-*\` 处数 | ${report.primeVueClasses.total} |`,
-        `| PrimeVue class 文件数 | ${report.primeVueClasses.files} |`,
-        `| \`.p-*\` 选择器处数 | ${report.primeVueClasses.selectorTotal} |`,
+        `| PrimeVue class \`p-*\` 处数（生产口径，剥离注释） | ${report.primeVueClasses.total} |`,
+        `| PrimeVue class 文件数（生产口径） | ${report.primeVueClasses.files} |`,
+        `| \`.p-*\` 选择器处数（生产口径） | ${report.primeVueClasses.selectorTotal} |`,
         `| 含 \`.p-*\` 选择器文件数（SCSS/CSS） | ${report.primeVueClasses.selectorStyleFiles} |`,
         `| 含 \`.p-*\` 选择器文件数（.vue） | ${report.primeVueClasses.selectorVueFiles} |`,
         `| \`:deep()\` 处数 | ${report.styleCoupling.deepSelectors} |`,
@@ -620,59 +636,6 @@ function renderMarkdown(report, outputRelativePath) {
     return lines.join('\n')
 }
 
-/**
- * 解析 `@primevue/metadata`。
- *
- * 该包是 `@primevue/nuxt-module` 的传递依赖，在 pnpm 严格 node_modules 下通常不可直接 import，
- * 因此失败时回退到 `.pnpm` 目录定位，保证组件名清单可复现再生成。
- */
-export async function resolvePrimeVueMetadata(root = projectRoot) {
-    try {
-        return await import('@primevue/metadata')
-    } catch {
-        const pnpmDir = path.join(root, 'node_modules', '.pnpm')
-        const entries = await readdir(pnpmDir)
-        const matchedDir = entries.find((entry) => entry.startsWith('@primevue+metadata@'))
-
-        if (!matchedDir) {
-            throw new Error('未能解析 @primevue/metadata，请确认 primevue 依赖已安装后再试')
-        }
-
-        const modulePath = path.join(pnpmDir, matchedDir, 'node_modules', '@primevue', 'metadata', 'index.mjs')
-
-        return await import(pathToFileURL(modulePath).href)
-    }
-}
-
-/**
- * 重新生成 `data/primevue-components.json`。
- *
- * 触发时机：升级 primevue 主版本后（组件清单会随版本变化）。
- * 用法：`pnpm governance:count:primevue-usage:components`。
- */
-export async function writeComponentList(options = {}) {
-    const root = options.projectRoot ?? projectRoot
-    const targetPath = options.componentListPath ?? componentListPath
-    const metadata = await resolvePrimeVueMetadata(root)
-    const names = (metadata.components ?? []).map((component) => component.name).sort()
-    const primeVueManifestPath = path.join(root, 'node_modules', 'primevue', 'package.json')
-    const version = await readFile(primeVueManifestPath, 'utf8')
-        .then((raw) => JSON.parse(raw).version)
-        .catch(() => 'unknown')
-
-    const payload = {
-        source: '@primevue/metadata',
-        version,
-        description: 'PrimeVue 组件名清单，供 count-primevue-usage.mjs 识别组件开标签；升级 primevue 主版本后需重新生成（见 npm 入口 governance:count:primevue-usage:components）。',
-        count: names.length,
-        components: names,
-    }
-
-    await writeFile(targetPath, `${JSON.stringify(payload, null, 4)}\n`, 'utf8')
-
-    return { count: names.length, targetPath, version }
-}
-
 export function resolvePaths(outputPath) {
     const absoluteOutputPath = path.isAbsolute(outputPath)
         ? outputPath
@@ -689,20 +652,10 @@ export async function main(options = {}) {
     const argv = options.argv ?? process.argv
     const logger = options.logger ?? console
 
-    const { output, writeComponents } = parseCliOptions(argv, {
+    const { output } = parseCliOptions(argv, {
         defaults: { output: 'artifacts/governance/primevue-usage-latest.json' },
-        flags: { '--write-components': { key: 'writeComponents' } },
         values: { '--output': { key: 'output' } },
     })
-
-    if (writeComponents) {
-        const result = await writeComponentList()
-        logger.info(
-            `[primevue-usage] 组件名清单已重新生成: ${path.relative(projectRoot, result.targetPath).split(path.sep).join('/')}`
-            + `（${result.count} 项，primevue@${result.version}）`,
-        )
-        return
-    }
 
     if (!output) {
         throw new Error('缺少 --output 参数')

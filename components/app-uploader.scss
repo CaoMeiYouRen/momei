@@ -3,9 +3,9 @@
 /*
   上传器外壳样式（`AppUploader`，caomei-ui 单一实现）。
 
-  颜色仍沿用 `--m-primary-**`：PrimeVue 预设当前仍全局加载，迁移前后观感一致。
-  收口指针：PrimeVue 预设卸载（B4 剩余部分）时，这里的 `--m-primary-**` 必须一并改为
-  `--caomei-color-primary-*`；否则卸载后这些声明会静默变为 unset（无报错、无守卫）。
+  颜色沿用 `--m-primary-**`：该色阶自第七十二阶段条目 1 起由 `styles/main.scss` 的 `--m-*`
+  层自带（从运行时基色 `--m-primary` 派生），不再依赖 PrimeVue 预设注入；语义角色仍走
+  `--caomei-*`，此处按「调色板档位」消费 `--m-*`。
 */
 .app-uploader {
     transition: $transition-base;

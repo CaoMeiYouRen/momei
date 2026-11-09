@@ -1,70 +1,5 @@
-import Aura from '@primeuix/themes/aura'
-import { definePreset } from '@primeuix/themes'
-import { zh_CN } from 'primelocale/js/zh_CN.js'
 import { APP_DEFAULT_LOCALE, NUXT_I18N_LOCALES } from './i18n/config/locale-registry'
 import { repairRolldownClientInitImports } from './scripts/build/repair-rolldown-client-init-imports.mjs'
-
-const MomeiPreset = definePreset(Aura, {
-    semantic: {
-        primary: {
-            '50': '#f8fafc',
-            '100': '#f1f5f9',
-            '200': '#e2e8f0',
-            '300': '#cbd5e1',
-            '400': '#94a3b8',
-            '500': '#64748b',
-            '600': '#475569',
-            '700': '#334155',
-            '800': '#1e293b',
-            '900': '#0f172a',
-            '950': '#020617',
-        },
-        colorScheme: {
-            light: {
-                surface: {
-                    '0': '#ffffff',
-                    '50': '#f8fafc',
-                    '100': '#f1f5f9',
-                    '200': '#e2e8f0',
-                    '300': '#cbd5e1',
-                    '400': '#94a3b8',
-                    '500': '#64748b',
-                    '600': '#475569',
-                    '700': '#334155',
-                    '800': '#1e293b',
-                    '900': '#0f172a',
-                    '950': '#020617',
-                },
-                text: {
-                    color: '{surface.700}',
-                    mutedColor: '{surface.500}',
-                    hoverColor: '{surface.900}',
-                },
-            },
-            dark: {
-                surface: {
-                    '0': '#020617',
-                    '50': '#0f172a',
-                    '100': '#1e293b',
-                    '200': '#334155',
-                    '300': '#475569',
-                    '400': '#64748b',
-                    '500': '#94a3b8',
-                    '600': '#cbd5e1',
-                    '700': '#e2e8f0',
-                    '800': '#f1f5f9',
-                    '900': '#f8fafc',
-                    '950': '#ffffff',
-                },
-                text: {
-                    color: '{surface.950}', // 修正：暗色模式下文字使用最亮色，提升可读性
-                    mutedColor: '{surface.400}',
-                    hoverColor: '{surface.900}', // 修正：悬停时稍微变暗一点（相对于950），或者变亮
-                },
-            },
-        },
-    },
-})
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -73,7 +8,6 @@ export default defineNuxtConfig({
     modules: [
         '@nuxt/eslint',
         process.env.VITEST && '@nuxt/test-utils/module',
-        '@primevue/nuxt-module',
         'caomei-ui/nuxt',
         '@nuxtjs/i18n',
         '@vueuse/nuxt',
@@ -261,32 +195,12 @@ export default defineNuxtConfig({
             disable: true,
         },
     },
-    // 与 PrimeVue 并存：darkMode 契约保持 `.dark`（与既有 `darkModeSelector: '.dark'` 一致）。
-    // token 语义桥接已在 `styles/main.scss` 落地（unlayered `html:root`，取值方向 `--p-*` → `--caomei-*`）；
-    // 此处不设置 `data-preset="momei"`——其暗色选择器特异性（0,2,0）会压过桥接并冻结运行时主题，
-    // 详见迁移方案 §5.2 / §5.7 与 main.scss 桥接段注释。
+    // darkMode 契约保持 `.dark`；token 语义桥接已在 `styles/main.scss` 落地
+    // （unlayered `html:root`，取值方向 `--m-*` → `--caomei-*`）。
     caomeiUI: {
         prefix: 'Caomei',
         darkMode: 'class',
         injectStyles: true,
-    },
-    primevue: {
-        options: {
-            theme: {
-                preset: MomeiPreset,
-                options: {
-                    darkModeSelector: '.dark',
-                    // 迁移方案 §5.7 决策：保留 `primevue, momei-base, momei-overrides` 顺序不变；
-                    // caomei-ui 基础层与逐模块组件样式以「未分层」形态加载（未分层优先于任何具名层），
-                    // 故 caomei-ui 的定制走 `--caomei-*` token（见 styles/main.scss 桥接段），不做选择器覆盖。
-                    cssLayer: {
-                        name: 'primevue',
-                        order: 'primevue, momei-base, momei-overrides',
-                    },
-                },
-            },
-            locale: zh_CN,
-        },
     },
     i18n: {
         locales: NUXT_I18N_LOCALES,
@@ -316,7 +230,6 @@ export default defineNuxtConfig({
     css: [
         'normalize.css/normalize.css',
         '@mdi/font/css/materialdesignicons.css',
-        'primeicons/primeicons.css',
         '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
@@ -327,15 +240,6 @@ export default defineNuxtConfig({
     },
     vite: {
         resolve: {
-            // 规避 pnpm + Vite 下 PrimeVue Overlay / 动态组件样式变量偶发丢失
-            dedupe: [
-                'primevue',
-                '@primevue/core',
-                '@primevue/icons',
-                '@primeuix/styled',
-                '@primeuix/styles',
-                '@primeuix/themes',
-            ],
             // Windows 性能优化: 收紧扩展名列表减少 FS 检查次数（每减少 1 项 = 每次 import 省 1 次 stat）
             extensions: ['.mjs', '.js', '.ts', '.mts', '.vue', '.json'],
         },
@@ -351,20 +255,6 @@ export default defineNuxtConfig({
                     './components/app-footer.vue',
                 ],
             },
-        },
-        optimizeDeps: {
-            include: [
-                'primevue/config',
-                'primevue/dialog',
-                'primevue/confirmdialog',
-                'primevue/toast',
-                'primevue/datepicker',
-                'primevue/select',
-                'primevue/autocomplete',
-                '@primevue/core',
-                '@primeuix/styled',
-                '@primeuix/styles',
-            ],
         },
         css: {
             preprocessorOptions: {
@@ -431,7 +321,6 @@ export default defineNuxtConfig({
         },
         externals: {
             // Windows 性能优化: 缩小 inline 列表，仅保留运行时必需的服务端包
-            // PrimeVue 等前端包已在 Vite 客户端构建中处理，不需在 Nitro 服务端重复打包
             inline: [
                 // TypeORM v1.1.0 通过 PlatformTools.load() 动态 require 加载 postgres 驱动，
                 // Vercel trace 可能漏收录 pg。显式 inline 确保部署产物包含 Postgres runtime 依赖。
@@ -469,12 +358,6 @@ export default defineNuxtConfig({
                 'dayjs',
                 // momei-mcp-server 是 workspace 包，生产部署时需 inline 确保可用
                 'momei-mcp-server',
-                // Nuxt 4.6 / Nitro 的 node-file-trace 对 pnpm 布局下经子路径导出
-                // （`@primeuix/utils/object` 等）访问的包只收集到 package.json，漏收 dist/**，
-                // 导致产物启动即 `ERR_MODULE_NOT_FOUND: .../@primeuix/utils/dist/object/index.mjs`。
-                // 顶层 utils 只被服务端 bundle 自身引用（@primeuix/styled 走的是它自己的嵌套副本，
-                // 不受影响），故 inline 后由 bundler 处理，不再依赖被漏收的目录副本。
-                '@primeuix/utils',
             ],
         },
         esbuild: {

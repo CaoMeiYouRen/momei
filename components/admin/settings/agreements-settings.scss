@@ -73,12 +73,6 @@
         flex-wrap: wrap;
     }
 
-    &__table {
-        :deep(.p-datatable) {
-            font-size: 0.875rem;
-        }
-    }
-
     &__tag-group {
         display: flex;
         flex-wrap: wrap;

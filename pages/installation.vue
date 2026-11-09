@@ -273,7 +273,7 @@ const handleDatabaseNext = () => {
         font-weight: 700;
         color: var(--caomei-color-text);
 
-        /* 0.5rem 标题下边距 + PrimeVue `.p-card-title` 的 1rem + 副标题插槽的 2rem 内边距。 */
+        /* 0.5rem 标题下边距 + 卡片标题的 1rem + 副标题插槽的 2rem 内边距。 */
         margin: 0 0 3.5rem;
     }
 
@@ -282,7 +282,7 @@ const handleDatabaseNext = () => {
         line-height: 1.5;
         color: var(--caomei-color-text-muted);
 
-        /* PrimeVue `.p-card-subtitle` 自带的行高与下边距，合并后需显式补回。 */
+        /* 卡片副标题自带的行高与下边距，合并后需显式补回。 */
         margin: 0 0 0.5rem;
     }
 
@@ -414,7 +414,7 @@ const handleDatabaseNext = () => {
     }
 
     :deep(.caomei-tag) {
-        /* 迁移前 `.p-tag` 是 12px 字号 + 4px/8px 内边距（约 24px 高）；
+        /* 迁移前标签是 12px 字号 + 4px/8px 内边距（约 24px 高）；
          * caomei 默认取控件高度档（36px），此处按 token 回落到原尺寸。 */
         --caomei-tag-height: 1.5rem;
         --caomei-tag-padding-x: 0.5rem;

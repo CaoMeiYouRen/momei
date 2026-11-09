@@ -153,7 +153,7 @@
                 <small v-if="activeField" class="translation-workflow__hint">
                     {{ currentFieldText }}
                 </small>
-                <small v-if="(translationStatus === 'failed' || translationStatus === 'cancelled') && errorText" class="p-error">
+                <small v-if="(translationStatus === 'failed' || translationStatus === 'cancelled') && errorText" class="form-error">
                     {{ errorText }}
                 </small>
             </div>
