@@ -62,4 +62,28 @@ describe('post-copyright', () => {
         expect(result).toContain('本文作者: 草梅友仁  \n本文链接: [https://blog.cmyr.ltd/posts/test-post](https://blog.cmyr.ltd/posts/test-post)')
         expect(result).toContain('本文链接: [https://blog.cmyr.ltd/posts/test-post](https://blog.cmyr.ltd/posts/test-post)')
     })
+
+    it('renders plain label when url is blank and appends notice to empty content', () => {
+        const notice = buildPostCopyrightNotice({
+            authorName: '草梅友仁',
+            url: '   ',
+            license: 'cc-by',
+            locale: 'zh-CN',
+        })
+
+        const linkLine = notice.markdown.split('  \n').find((line) => line.startsWith('本文链接:'))
+        // 文章链接为空时不渲染 markdown 链接（否则会出现 `[]()`）
+        expect(linkLine).toBe('本文链接: ')
+        expect(linkLine).not.toContain('](')
+
+        const appended = appendPostCopyrightNotice('', {
+            authorName: '草梅友仁',
+            url: 'https://blog.cmyr.ltd/posts/test-post',
+            license: 'cc-by',
+            locale: 'zh-CN',
+        }, 'text')
+
+        expect(appended.startsWith('----------')).toBe(true)
+    })
+
 })

@@ -4,7 +4,7 @@ import CommentForm from './comment-form.vue'
 import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
 import { authClient } from '@/lib/auth-client'
 
-// Mock PrimeVue components
+// 表单控件 stub（避免真实组件引入额外依赖）
 const stubs = {
     CaomeiButton: {
         emits: ['click'],

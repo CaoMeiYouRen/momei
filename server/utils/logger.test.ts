@@ -1,19 +1,24 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import type { ExtendedLogger } from './logger'
 
+// 捕获 winston 实例，供「消息 / 元数据契约」断言复用（clearAllMocks 会清调用记录，但实例本身常驻）
+const { winstonSpies } = vi.hoisted(() => ({
+    winstonSpies: {
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        http: vi.fn(),
+        verbose: vi.fn(),
+        silly: vi.fn(),
+    },
+}))
+
 // Mock all dependencies
 vi.mock('fs')
 vi.mock('winston', () => ({
     default: {
-        createLogger: vi.fn(() => ({
-            debug: vi.fn(),
-            info: vi.fn(),
-            warn: vi.fn(),
-            error: vi.fn(),
-            http: vi.fn(),
-            verbose: vi.fn(),
-            silly: vi.fn(),
-        })),
+        createLogger: vi.fn(() => winstonSpies),
         format: {
             combine: vi.fn(),
             timestamp: vi.fn(),
@@ -505,4 +510,297 @@ describe('logger utils', () => {
             })).not.toThrow()
         })
     })
+
+    /* 上面的用例只验证「不抛错」，无法发现消息 / 级别 / 元数据回归。
+     * 下面按日志族断言转发到 winston 的 message 与 meta，并覆盖截断器各分支。 */
+    describe('消息与元数据契约', () => {
+        it('基础级别原样转发 message 与 meta', () => {
+            logger.info('hello', { a: 1 })
+            logger.silly('silly')
+            logger.verbose('verbose')
+            logger.http('http')
+
+            expect(winstonSpies.info).toHaveBeenCalledWith('hello', { a: 1 })
+            expect(winstonSpies.silly).toHaveBeenCalledWith('silly', undefined)
+            expect(winstonSpies.verbose).toHaveBeenCalledWith('verbose', undefined)
+            expect(winstonSpies.http).toHaveBeenCalledWith('http', undefined)
+        })
+
+        it('安全日志带 tag 前缀，并按成功 / 失败切换级别', () => {
+            logger.security.loginAttempt({ email: 'a@b.com', success: true, provider: 'github', ip: '1.2.3.4' })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[Security] Login attempt successful for a@b.com via github from 1.2.3.4',
+                { provider: 'github', userAgent: undefined },
+            )
+
+            logger.security.loginAttempt({ userId: 'u1', success: false })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Security] Login attempt failed for unknown',
+                { provider: undefined, userAgent: undefined },
+            )
+
+            logger.security.passwordReset({ userId: 'u1', email: 'a@b.com', ip: '1.2.3.4' })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[Security] Password reset initiated from 1.2.3.4',
+                { userId: 'u1', email: 'a@b.com' },
+            )
+
+            logger.security.accountLocked({ userId: 'u1' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Security] Account locked: Unknown reason',
+                { userId: 'u1', email: undefined },
+            )
+
+            logger.security.permissionDenied({ userId: 'u1', resource: '/admin', action: 'read', ip: '1.2.3.4' })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Security] Permission denied: read on /admin from 1.2.3.4',
+                { userId: 'u1', resource: '/admin', action: 'read' },
+            )
+        })
+
+        it('API 日志按状态码切换级别，并拼接 locale / 耗时', () => {
+            logger.api.request({ method: 'GET', path: '/api/posts', ip: '1.2.3.4', locale: 'zh-CN' })
+            expect(winstonSpies.http).toHaveBeenCalledWith(
+                '[API] GET /api/posts from 1.2.3.4 [zh-CN]',
+                { userId: undefined, userAgent: undefined },
+            )
+
+            logger.api.response({ method: 'GET', path: '/a', statusCode: 200, responseTime: 12 })
+            expect(winstonSpies.http).toHaveBeenCalledWith('[API] GET /a - 200 (12ms)', { userId: undefined })
+            logger.api.response({ method: 'GET', path: '/a', statusCode: 404 })
+            expect(winstonSpies.warn).toHaveBeenCalledWith('[API] GET /a - 404', { userId: undefined })
+            logger.api.response({ method: 'GET', path: '/a', statusCode: 500 })
+            expect(winstonSpies.error).toHaveBeenCalledWith('[API] GET /a - 500', { userId: undefined })
+
+            logger.api.error({ method: 'POST', path: '/a', error: 'boom', stack: 'trace' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[API] POST /a failed: boom',
+                { userId: undefined, stack: 'trace' },
+            )
+        })
+
+        it('数据库日志区分 dev / 慢查询 / 敏感 / 非 SELECT', () => {
+            logger.database.query({ query: 'SELECT 1', type: 'SELECT' })
+            expect(winstonSpies.debug).not.toHaveBeenCalled()
+
+            logger.database.query({ query: 'INSERT INTO t VALUES (1)', type: 'INSERT' })
+            expect(winstonSpies.debug).toHaveBeenCalledWith('[Database] Query executed [INSERT]', undefined)
+
+            logger.database.query({ query: 'SELECT * FROM users', slow: true, duration: 5000 })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Database] Query executed [SLOW] (5000ms)',
+                { query: 'SELECT * FROM users', params: undefined },
+            )
+
+            logger.database.query({ query: 'UPDATE users SET password = ?', sensitive: true })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Database] Query executed [SENSITIVE]',
+                { query: '[REDACTED]', params: '[REDACTED]' },
+            )
+
+            logger.database.error({ error: 'boom', type: 'INSERT', sensitive: true, stack: 'trace' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Database] Database error [INSERT] [SENSITIVE]: boom',
+                { query: '[REDACTED]', stack: 'trace' },
+            )
+
+            logger.database.migration({ name: 'M1', direction: 'down' })
+            expect(winstonSpies.info).toHaveBeenCalledWith('[Database] Migration M1 down', undefined)
+        })
+
+        it('日志参数截断：长字符串 / 超长数组 / 超量键 / 超深嵌套 / 不支持类型', () => {
+            const longString = 'x'.repeat(600)
+            const longArray = Array.from({ length: 12 }, (_, index) => index)
+            const manyKeys = Object.fromEntries(Array.from({ length: 25 }, (_, index) => [`k${index}`, index]))
+            const deepObject = { a: { b: { c: { d: 1 } } } }
+
+            logger.database.query({
+                query: 'q',
+                slow: true,
+                params: {
+                    longString,
+                    longArray,
+                    manyKeys,
+                    deepObject,
+                    fn: () => undefined,
+                    big: 10n,
+                    nil: null,
+                },
+            })
+
+            const meta = winstonSpies.warn.mock.calls[0]?.[1] as { params: Record<string, any> }
+            const params = meta.params
+
+            expect(params.longString).toBe(`${'x'.repeat(500)}... [truncated 100 chars]`)
+            expect(params.longArray).toHaveLength(11)
+            expect(params.longArray[10]).toBe('[... 2 more items]')
+            expect(params.manyKeys.k0).toBe(0)
+            expect(params.manyKeys.k19).toBe(19)
+            expect(params.manyKeys.__truncatedKeys).toBe('5 keys omitted')
+            expect(params.deepObject).toEqual({ a: { b: '[Max depth reached]' } })
+            expect(params.fn).toBe('[Unsupported log value]')
+            expect(params.big).toBe('[Unsupported log value]')
+            expect(params.nil).toBeNull()
+        })
+
+        it('系统日志按健康状态切换级别', () => {
+            logger.system.startup({ port: 3000, env: 'production', dbType: 'postgres' })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[System] System started on port 3000 (production mode)',
+                { dbType: 'postgres' },
+            )
+
+            logger.system.shutdown({})
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[System] System shutting down: Unknown reason',
+                { graceful: undefined },
+            )
+
+            logger.system.healthCheck({ status: 'unhealthy', checks: { database: false } })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[System] Health check failed',
+                { checks: { database: false } },
+            )
+        })
+
+        it('业务日志覆盖 OAuth / SSO / 会话查询失败等分支', () => {
+            logger.business.oauthAppUpdated({ appId: 'a1', name: 'App', updatedBy: 'u1' })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[Business] OAuth app updated: App',
+                { appId: 'a1', updatedBy: 'u1' },
+            )
+
+            logger.business.oauthAppUpdated({ appId: 'a1', updatedBy: 'u1' })
+            expect(winstonSpies.info).toHaveBeenCalledWith('[Business] OAuth app updated', { appId: 'a1', updatedBy: 'u1' })
+
+            logger.business.oauthAppDeleted({ appId: 'a1', deletedBy: 'u1' })
+            expect(winstonSpies.warn).toHaveBeenCalledWith('[Business] OAuth app deleted', { appId: 'a1', deletedBy: 'u1' })
+
+            logger.business.oauthAppListFailed({ error: 'db down', adminId: 'u1' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Business] Failed to list OAuth applications: db down',
+                { adminId: 'u1' },
+            )
+
+            logger.business.ssoProviderCreated({ providerId: 'p1', name: 'SAML', createdBy: 'u1' })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[Business] SSO provider created: SAML',
+                { providerId: 'p1', createdBy: 'u1' },
+            )
+
+            logger.business.ssoProviderUpdated({ providerId: 'p1', updatedBy: 'u1' })
+            expect(winstonSpies.info).toHaveBeenCalledWith('[Business] SSO provider updated', { providerId: 'p1', updatedBy: 'u1' })
+
+            logger.business.ssoProviderDeleted({ providerId: 'p1', deletedBy: 'u1' })
+            expect(winstonSpies.warn).toHaveBeenCalledWith('[Business] SSO provider deleted', { providerId: 'p1', deletedBy: 'u1' })
+
+            logger.business.sessionLogQueryFailed({ adminId: 'u1', error: 'timeout', queryParams: { page: 1 } })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Business] Failed to query session logs: timeout',
+                { adminId: 'u1', queryParams: { page: 1 } },
+            )
+        })
+
+        it('邮件日志覆盖模板渲染成功 / 失败与限流分支', () => {
+            logger.email.templateRendered({ templateName: 'welcome', success: true })
+            expect(winstonSpies.debug).toHaveBeenCalledWith(
+                '[Email] Email template welcome rendered successfully',
+                { templateName: 'welcome', success: true },
+            )
+
+            logger.email.templateRendered({ templateName: 'welcome', success: false })
+            expect(winstonSpies.debug).toHaveBeenCalledWith(
+                '[Email] Email template welcome rendering failed',
+                { templateName: 'welcome', success: false },
+            )
+
+            logger.email.templateError({ templateName: 'welcome', error: 'syntax' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Email] Email template welcome error: syntax',
+                { templateName: 'welcome' },
+            )
+
+            logger.email.rateLimited({ limitType: 'global' })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Email] Email rate limit reached (global)',
+                { limitType: 'global', remainingTime: undefined },
+            )
+
+            logger.email.rateLimited({ email: 'a@b.com', limitType: 'user', remainingTime: 90 })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Email] Email rate limit reached (user) for a@b.com (2min remaining)',
+                { limitType: 'user', remainingTime: 90 },
+            )
+        })
+
+        it('短信日志覆盖渠道 / 分段 / 价格 / 错误码分支', () => {
+            logger.phone.sent({ type: 'verification', phone: '+8613800138000', success: true })
+            expect(winstonSpies.info).toHaveBeenCalledWith(
+                '[Phone] SMS verification sent successfully to +861****138000',
+                { type: 'verification', success: true, sid: undefined, channel: undefined },
+            )
+
+            logger.phone.sent({
+                type: 'verification',
+                phone: '+8613800138000',
+                channel: 'twilio',
+                status: 'delivered',
+                direction: 'outbound-api',
+                numSegments: '2',
+                price: '-0.0075',
+                priceUnit: 'usd',
+            })
+            expect(winstonSpies.info).toHaveBeenLastCalledWith(
+                '[Phone] SMS verification sent successfully via twilio to +861****138000 (status: delivered) [2 segments]',
+                {
+                    type: 'verification',
+                    success: undefined,
+                    sid: undefined,
+                    channel: 'twilio',
+                    status: 'delivered',
+                    direction: 'outbound-api',
+                    numSegments: '2',
+                    cost: '-0.0075 USD',
+                },
+            )
+
+            logger.phone.sent({ type: 'verification', phone: '+8613800138000', price: '-0.0075' })
+            expect(winstonSpies.info).toHaveBeenLastCalledWith(
+                '[Phone] SMS verification sent successfully to +861****138000',
+                { type: 'verification', success: undefined, sid: undefined, channel: undefined },
+            )
+
+            logger.phone.sent({ type: 'verification', phone: '+8613800138000', errorCode: 21211, errorMessage: 'invalid' })
+            expect(winstonSpies.info).toHaveBeenLastCalledWith(
+                '[Phone] SMS verification sent successfully to +861****138000',
+                {
+                    type: 'verification',
+                    success: undefined,
+                    sid: undefined,
+                    channel: undefined,
+                    errorCode: 21211,
+                    errorMessage: 'invalid',
+                },
+            )
+
+            logger.phone.failed({ type: 'verification', phone: '+8613800138000', error: 'boom' })
+            expect(winstonSpies.error).toHaveBeenCalledWith(
+                '[Phone] Failed to send verification SMS to +861****138000: boom',
+                { type: 'verification', channel: undefined },
+            )
+
+            logger.phone.rateLimited({ limitType: 'global' })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Phone] SMS rate limit reached (global)',
+                { limitType: 'global', remainingTime: undefined },
+            )
+
+            logger.phone.rateLimited({ phone: '+8613800138000', limitType: 'user', remainingTime: 30 })
+            expect(winstonSpies.warn).toHaveBeenCalledWith(
+                '[Phone] SMS rate limit reached (user) for +861****138000 (1min remaining)',
+                { limitType: 'user', remainingTime: 30 },
+            )
+        })
+    })
+
 })

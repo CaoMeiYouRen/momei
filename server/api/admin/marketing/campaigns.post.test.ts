@@ -197,4 +197,15 @@ describe('POST /api/admin/marketing/campaigns', () => {
             }),
         )
     })
+
+    it('should reject invalid body with 400', async () => {
+        const mockEvent = { context: {} } as any
+        vi.mocked(readValidatedBody).mockResolvedValue({
+            success: false,
+            error: { issues: [{ path: ['title'], message: 'Required' }] },
+        })
+
+        await expect(handler(mockEvent)).rejects.toMatchObject({ statusCode: 400 })
+    })
+
 })

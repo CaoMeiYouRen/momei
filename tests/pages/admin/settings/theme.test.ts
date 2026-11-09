@@ -22,7 +22,7 @@ vi.mock('#build/fetch.mjs', () => ({ $fetch: mockFetch }))
 const mockOpenFeedbackEntry = vi.fn()
 const mockFetchTheme = vi.fn().mockResolvedValue(undefined)
 
-// Mock PrimeVue components and others
+// 子组件与依赖 mock
 vi.mock('@/components/admin-page-header.vue', () => ({
     default: {
         name: 'AdminPageHeader',
@@ -51,7 +51,7 @@ vi.mock('@/composables/use-feedback-entry', () => ({
     }),
 }))
 
-// Mock PrimeVue usetoast
+// Mock caomei-ui toast / confirm
 vi.mock('caomei-ui', async (importOriginal) => {
     const actual = await importOriginal<any>()
     return {
@@ -61,7 +61,7 @@ vi.mock('caomei-ui', async (importOriginal) => {
     }
 })
 
-// Mock more components to avoid PrimeVue injection errors
+// 其余子组件 stub（避免 caomei 注入错误）
 const stubs = {
     CaomeiCard: { template: '<div><slot /></div>' },
     CaomeiButton: { template: '<button @click="$emit(\'click\')"><slot /></button>' },

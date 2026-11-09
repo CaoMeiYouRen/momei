@@ -41,7 +41,7 @@ vi.mock('@/i18n/config/locale-runtime-loader', async (importOriginal) => {
     }
 })
 
-// Mock PrimeVue components
+// 子组件 stub（避免真实组件引入额外依赖）
 const AppLogoStub = defineComponent({
     template: '<div class="app-logo" />',
 })

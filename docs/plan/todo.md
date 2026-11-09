@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（执行中：条目 1–4 完成，条目 5 待做）**
+**第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（执行中：条目 1–5 完成，待阶段收口）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-08，用户确认「调色板走项目语义层 `--m-*` / 同批移除 `primeicons`、`primelocale` 与路由择库机制 / 纳入覆盖率第十三批」。开工口径（`governance:count:primevue-usage`）：组件 46 处 / 14 类 / 16 文件、图标 0、token 1,420 处 / 120 唯一 / 136 文件、PrimeVue class 151 处 / 36 文件、`.p-*` 选择器 83 处。
 
@@ -45,10 +45,11 @@
     - **验收**: `pnpm build` 成功、`pnpm i --frozen-lockfile` 后依赖图无 prime 包；`governance:count:primevue-usage` 组件 / 图标 / token 全 0（或脚本退役并留零残留守卫）；`test:visual` ≥24/24（实测 32/32）、`parity` 83/83、E2E critical 全绿；`test:perf:budget` 通过且 `keyCss` / `coreEntryJs` 较卸载前下降（配额按实测收紧并三处联动）；文档（迁移方案、开发规范、性能规范、B4 清单）同步。
     - **完成记录（2026-11-09）**: 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale`；移除 `plugins/primevue-i18n.ts` 与其单测、Aura `MomeiPreset` / `cssLayer` / locale / `dedupe` / `optimizeDeps` / Nitro inline 项与 `primeicons.css`；删除路由择库机制（`lib/ui-library.ts` + 2 个迁移守卫 + helper）与 `governance:count:primevue-usage:components` 入口，新增 `tests/modules/primevue-residual-guard.test.ts` 全量零残留守卫（组件 / 图标 / token / 生产源码 `p-*` class / `.p-*` 选择器 / 依赖与 Nuxt 配置 / 包引用 / `@layer primevue` / `usePrimeVue` / `*-v2.vue` 文件名），浮层族专用守卫保留。计数脚本改为生产口径（剥离注释、排除 `p-queue`）：阶段开工 151 处 / 83 处（旧全仓口径）→ 条目 4 开工 104 处 / 79 处（生产口径）→ **0 / 0**、`governance:count:primevue-usage` 组件 0 / 图标 0 / token 0。**卸载暴露并补回两条原由 PrimeVue 主题注入的全局基线**：`* { box-sizing: border-box }`（缺失使 `main` 由 1440 撑到 1504、整页右移 64px，14 张视觉基线失败）与 `:root` / `.dark` 的 `color-scheme`（缺失使暗色裸 textarea 回落白底，1 张失败）。验证：`pnpm build` 成功、`typecheck` / `eslint` / `stylelint` 0 error；`test:visual` **32/32**、`parity` **83/83**、E2E critical **17 passed / 1 skipped** + mobile **2 passed** + 安装向导 **2 passed**；`test:perf:budget` 通过，`coreEntryJs` 359,061 → **329,891 B**（322.16KB，配额 370 → **335KB**）、`keyCss` 64,006 → **60,482 B**（59.06KB，配额 70 → **62KB**）、`maxAsyncChunkJs` 56,781 B / 130KB（三处联动已同步脚本、基线 JSON、性能规范）。顺带修正 `auth-session-governance` 的草稿保护用例：改为先断言 `translation-badge--disabled` 禁用态再用 `force` 点击，消除「水合前点击落空」的历史假绿 flake。文档同步：迁移方案 §8.4.2、B4 清单 §0、UI 设计迁移指针、性能规范 §4.1、backlog 当前基线。
 
-- [ ] **5. 覆盖率第十三批 + 卸载后回归补齐（P2）**
+- [x] **5. 覆盖率第十三批 + 卸载后回归补齐（P2）**（2026-11-09 完成）
     - **执行范围**: 按绝对未覆盖语句数选 4 模块且含 ≥1 个大基数模块（候选 `setting.ts` 25 / `post.ts` 23 / `server/utils/logger.ts` 61 / `agreement.ts` 1），目标单批 `+0.3pp`；补测卸载后失去 PrimeVue mock 的测试文件，确认无「为通过而放宽」的断言。
     - **非目标**: 不做全量铺量；不借机重构测试结构。
     - **验收**: 覆盖率目标与算式落盘（statements 增量 ≥ +0.3pp）；`typecheck` / `lint` 0 error；新增用例有判别力；卸载相关守卫单测全绿。
+    - **完成记录（2026-11-09）**: 按绝对未覆盖语句数取 4 个主模块补测——`server/utils/logger.ts` **61 → 2**（模块初始化分支 + 消息 / 级别 / 元数据契约 + 截断器全分支）、`server/services/setting.ts` **25 → 3**（本地化 fallback 链 / legacy 单值 / 非字符串默认值归一化 / 批量读写与审计边界）、`server/services/post.ts` **23 → 0**（分类清空与按名建分类 / 定时发布三校验 / 非法状态流转 / slug 变更 / 版本服务委托）、`server/database/logger.ts` **15 → 0**（无参格式化 / 生产参数数量 / 错误计数 / 缓冲汇总与统计重置）。上批 `agreement.ts` 26 → 1（剩 `agreement.ts:184` 不可达防御分支），故第 4 模块由 `server/database/logger.ts` 顶替；另补 6 个小模块：`server/utils/post-metadata.ts` 8→0、`server/api/ai/translate-name.post.ts` 4→0、`utils/schemas/post.ts` 4→0、`server/services/setting-audit.ts` 2→0、`utils/shared/post-copyright.ts` 13→11、`server/api/admin/marketing/campaigns.post.ts` 1→0。新增 4 个测试文件（`logger.init` / `setting.localized` / `post.lifecycle` / `setting-audit`）并扩展 8 处既有文件（`logger` / `database/logger` / `snowflake` / `schemas/post` / `post-metadata` / `post-copyright` / `translate-name.post` / `campaigns.post`），共 +68 例（5,197 → 5,265）。全仓 statements **29,995 → 30,135 / 36,828（+140 条 / +0.3801pp）**，Branches 72.40 → 72.88、Functions 79.49 → 79.73、Lines 81.57 → 81.96。另补 `server/utils/snowflake.ts` 序列回绕确定性用例：该文件覆盖依赖随机序列（`Math.random` 初始化 + 12 位回绕约 1/4095），补测后不再随运行波动。卸载后回归补齐：清除 4 个测试文件残留的「Mock PrimeVue」注释（`app-header` / `comment-form` / `use-upload` / `settings/theme`），确认无 `vi.mock('primevue…')` 与放宽断言（沿用条目 4 审计结论）。验证：全量 `pnpm test:coverage` **600 passed / 1 skipped（601 文件）/ 5,265 passed / 1 skipped（5,266 例）**（`--maxWorkers=4` + 运行前清 `.vitest-cache`，规避既有 `virtual:intlify-i18n` 并发 0-test 抖动）；`typecheck` / `lint` 0 error；新增用例以消息 / 级别 / 元数据 / 拒绝原因或「不写入 read-model 字段」为主要断言，不以 `not.toThrow()` 作为唯一断言（仅 null / undefined 等无副作用输入例外）；`primevue-residual-guard` 等守卫单测全绿。
 
 ## 相关文档
 

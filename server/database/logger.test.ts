@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import logger from '../utils/logger'
 import { CustomLogger } from './logger'
 
@@ -24,6 +24,11 @@ describe('CustomLogger', () => {
         customLogger = new CustomLogger()
         // Force production mode for some tests if needed, or dev mode
         process.env.NODE_ENV = 'development'
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+        process.env.NODE_ENV = 'test'
     })
 
     describe('logQuery', () => {
@@ -183,6 +188,73 @@ describe('CustomLogger', () => {
             customLogger.logQuery('UPDATE users SET phone = ?', ['13800138000'])
             const callArgs = (logger.database.query as any).mock.calls[0][0]
             expect(callArgs.params).toContain('[REDACTED]')
+        })
+    })
+
+    describe('CustomLogger 统计与缓冲边界', () => {
+        it('慢查询无参数时格式化结果为空串', () => {
+            process.env.NODE_ENV = 'development'
+
+            customLogger.logQuerySlow(1200, 'SELECT 1')
+
+            expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Slow Query'))
+            expect(logger.warn).toHaveBeenCalledWith(expect.stringMatching(/OK$/u))
+        })
+
+        it('生产环境慢查询只输出参数数量', () => {
+            process.env.NODE_ENV = 'production'
+
+            customLogger.logQuerySlow(1200, 'SELECT * FROM posts WHERE id = ?', [1, 2])
+
+            expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('[2 parameters]'))
+        })
+
+        it('错误计数每满 10 次输出一次告警', () => {
+            for (let index = 0; index < 10; index += 1) {
+                customLogger.logQueryError('boom', 'SELECT 1')
+            }
+
+            expect(logger.warn).toHaveBeenCalledWith('Database error count reached: 10')
+        })
+
+        it('未识别的日志级别回落到 debug', () => {
+            customLogger.log('debug' as never, 'raw message', undefined)
+
+            expect(logger.debug).toHaveBeenCalledWith('raw message', { queryRunner: undefined })
+        })
+
+        it('定时任务输出重复查询汇总、清理过期键并重置统计', () => {
+            vi.useFakeTimers()
+            try {
+                const timerLogger = new CustomLogger()
+                const query = 'UPDATE posts SET count = count + 1'
+
+                timerLogger.logQuery(query, [])
+                timerLogger.logQuery(query, [])
+
+                // 60s：count>1 → 输出汇总（elapsed 恰为 60000，尚不重置统计）
+                vi.advanceTimersByTime(60001)
+                expect(logger.debug).toHaveBeenCalledWith(expect.stringContaining('Query summary'))
+                expect(logger.info).not.toHaveBeenCalledWith(expect.stringContaining('Database stats'))
+
+                // 120s：elapsed>60s 且 total>0 → 重置统计
+                vi.advanceTimersByTime(60001)
+                expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Database stats'))
+
+                // 180s：超过 2×刷新间隔 → 过期键被清理（不再输出汇总）
+                logger.debug.mockClear()
+                vi.advanceTimersByTime(60001)
+                expect(logger.debug).not.toHaveBeenCalledWith(expect.stringContaining('Query summary'))
+            } finally {
+                vi.useRealTimers()
+            }
+        })
+
+        it('getStats 返回统计快照副本', () => {
+            const stats = customLogger.getStats()
+
+            expect(stats).toMatchObject({ total: expect.any(Number), slow: expect.any(Number), errors: expect.any(Number) })
+            expect(stats).not.toBe(customLogger.getStats())
         })
     })
 })

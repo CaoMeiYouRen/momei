@@ -19,7 +19,7 @@ vi.mock('vue-i18n', async (importOriginal) => ({
     }),
 }))
 
-// Mock PrimeVue useToast
+// Mock caomei-ui useToast
 vi.mock('caomei-ui', async (importOriginal) => ({
     ...await importOriginal<any>(),
     useToast: () => createLegacyToastApi(mockToastAdd),

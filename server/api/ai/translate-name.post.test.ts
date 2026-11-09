@@ -49,4 +49,34 @@ describe('POST /api/ai/translate-name', () => {
             data: ['Translated Tag', 'Another Tag'],
         })
     })
+
+    it('should reject invalid parameters with 400', async () => {
+        vi.mocked(readBody).mockResolvedValue({
+            name: '',
+            targetLanguage: 'not-a-locale',
+        })
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('should rethrow errors that already carry a statusCode', async () => {
+        vi.mocked(readBody).mockResolvedValue({
+            name: '源标签',
+            targetLanguage: 'en-US',
+        })
+        vi.mocked(TextService.translateName).mockRejectedValue({ statusCode: 403, message: 'forbidden' })
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 403 })
+    })
+
+    it('should wrap unknown errors as 500', async () => {
+        vi.mocked(readBody).mockResolvedValue({
+            name: '源标签',
+            targetLanguage: 'en-US',
+        })
+        vi.mocked(TextService.translateName).mockRejectedValue(new Error('boom'))
+
+        await expect(handler({ context: {} } as any)).rejects.toMatchObject({ statusCode: 500 })
+    })
+
 })

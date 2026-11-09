@@ -164,6 +164,30 @@ describe('utils/schemas/post', () => {
             expect(result.success).toBe(true)
         })
 
+        it('应该校验封面与可视化素材 URL 的白名单 / 本地路径规则', () => {
+            const accepted = createPostSchema.safeParse({
+                title: '标题',
+                content: '内容',
+                metadata: {
+                    cover: { url: '/uploads/cover.png' },
+                    visualAssets: [{ usage: 'post-cover', url: '/uploads/asset.png' }],
+                },
+            })
+            expect(accepted.success).toBe(true)
+
+            const rejected = createPostSchema.safeParse({
+                title: '标题',
+                content: '内容',
+                metadata: {
+                    cover: { url: 'https://untrusted.example/cover.png' },
+                },
+            })
+            expect(rejected.success).toBe(false)
+            if (!rejected.success) {
+                expect(rejected.error.issues[0]?.message).toContain('Cover image URL must be from a whitelisted domain or local path')
+            }
+        })
+
         it('应该允许较长的 TTS 音色标识写入 metadata', () => {
             const validData = {
                 title: '标题',
@@ -476,6 +500,17 @@ describe('utils/schemas/post', () => {
             if (boolResult.success) {
                 expect(boolResult.data.aggregate).toBe(true)
             }
+        })
+
+        it('应该把字符串 false 解析为布尔 false，并拒绝其他非布尔值', () => {
+            const result = postQuerySchema.safeParse({ isPinned: 'false' })
+
+            expect(result.success).toBe(true)
+            if (result.success) {
+                expect(result.data.isPinned).toBe(false)
+            }
+
+            expect(postQuerySchema.safeParse({ isPinned: 'yes' }).success).toBe(false)
         })
 
         it('应该解析置顶筛选与排除 ID 列表', () => {

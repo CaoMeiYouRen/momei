@@ -250,3 +250,62 @@
 - 卸载后复核发现三处**层序导致的既有样式失效**（非本批引入，`@layer momei-base` 内规则被 caomei 未分层组件样式覆盖）：社交登录按钮品牌色 / `admin-form-dialog` 宽度 / `.translation-badge` 尺寸；视觉基线未覆盖社交按钮，已登记 backlog #11「待跟踪（2026-11-09）」，需后续人工验收后修复。
 
 <!-- regression-window:end:primevue-uninstall:第七十二阶段条目 4 PrimeVue 卸载:2026-11-09 -->
+
+<!-- regression-window:start:coverage-batch-13:第七十二阶段条目 5 覆盖率第十三批:2026-11-09 -->
+
+## 2026-11-09 第七十二阶段条目 5 覆盖率第十三批 + 卸载后回归补齐
+
+### 范围
+
+- 按绝对未覆盖语句数取 4 个主模块补测：`server/utils/logger.ts`、`server/services/setting.ts`、`server/services/post.ts`、`server/database/logger.ts`（上批 `agreement.ts` 26 → 1（剩 184 不可达防御分支），故顶替第 4 模块）。
+- 另补 6 个小模块：`server/utils/post-metadata.ts`、`server/api/ai/translate-name.post.ts`、`utils/schemas/post.ts`、`server/services/setting-audit.ts`、`utils/shared/post-copyright.ts`、`server/api/admin/marketing/campaigns.post.ts`。
+- 新增 4 个测试文件（`server/utils/logger.init.test.ts` / `server/services/setting.localized.test.ts` / `server/services/post.lifecycle.test.ts` / `server/services/setting-audit.test.ts`），扩展 8 处既有文件（`logger` / `database/logger` / `snowflake` / `schemas/post` / `post-metadata` / `post-copyright` / `translate-name.post` / `campaigns.post`），共 +68 例（5,197 → 5,265）。
+- 断言口径：新增用例以消息 / 日志级别 / 元数据 / 拒绝原因（`statusCode` / 错误文案）或「不写入 read-model 字段」为主要断言，不以 `not.toThrow()` 作为唯一断言（仅 null / undefined 等无副作用输入例外）。
+- 卸载后回归补齐：清除 4 个测试文件残留的「Mock PrimeVue」注释（`components/app-header.test.ts` / `comment-form.test.ts` / `composables/use-upload.test.ts` / `tests/pages/admin/settings/theme.test.ts`），确认全仓无 `vi.mock('primevue…')`；沿用条目 4 审计结论「未发现为通过而放宽的断言」。
+
+### 覆盖率算式
+
+| 指标 | 基线（2026-11-09 干净全量） | 收口（2026-11-09 干净全量） | 增量 |
+| :--- | ---: | ---: | ---: |
+| Statements | 29,995 / 36,828（81.45%） | **30,135 / 36,828（81.83%）** | **+140 条 / +0.3801pp** |
+| Branches | 72.40% | 72.88% | +0.48pp |
+| Functions | 79.49% | 79.73% | +0.24pp |
+| Lines | 81.57% | 81.96% | +0.39pp |
+
+模块级闭合（基线未覆盖 → 收口未覆盖）：
+
+| 模块 | 闭合条数 |
+| :--- | ---: |
+| `server/utils/logger.ts` | 61 → 2（+59） |
+| `server/services/post.ts` | 23 → 0（+23） |
+| `server/services/setting.ts` | 25 → 3（+22） |
+| `server/database/logger.ts` | 15 → 0（+15） |
+| `server/utils/post-metadata.ts` | 8 → 0（+8） |
+| `server/api/ai/translate-name.post.ts` | 4 → 0（+4） |
+| `utils/schemas/post.ts` | 4 → 0（+4） |
+| `server/services/setting-audit.ts` | 2 → 0（+2） |
+| `utils/shared/post-copyright.ts` | 13 → 11（+2） |
+| `server/api/admin/marketing/campaigns.post.ts` | 1 → 0（+1） |
+
+确定性闭合合计 **+140 条**，最终干净跑无 lazy-load 损失（本轮收口前曾出现 `canvas-nest-effect.vue` 已覆盖 22 → 0、`use-reader-mode.ts` 56 → 55 的时序波动，重跑后消失，非代码回归；下一批可为 `LazyCanvasNestEffect` 补直接挂载用例消除波动）。
+
+### 验证结果
+
+- 全量 `pnpm test:coverage`：**600 passed / 1 skipped（601 文件）/ 5,265 passed / 1 skipped（5,266 例）**，EXIT 0（`--maxWorkers=4` + 运行前清 `.vitest-cache`）。
+- `typecheck` 0 error；`lint` 0 error（10 个既有 warning）；`eslint` 对全部新增 / 修改测试文件 0 warning。
+- 守卫单测：`primevue-residual-guard` 6 例、`overlay-family-residual-guard` 4 例、`count-primevue-usage` 6 例全绿。
+
+### 差异归因
+
+- `server/utils/snowflake.ts` 基线 19/19 属**随机序列偶然命中**（`Math.random` 初始化 + 12 位序列回绕约 1/4095），复跑掉到 14/19；已补确定性用例（`Date.now` 三连 mock：同毫秒 → 等待循环 → 前进 1ms）稳定 19/19。
+- `canvas-nest-effect.vue` 的 22 → 0 为 `LazyCanvasNestEffect` 异步加载时序波动，非本批代码改动；下一批可为其补直接挂载用例（当前无独立测试文件），顺带消除该波动。
+- 本地全量覆盖率在默认并发下两次触发既有 `virtual:intlify-i18n` 0-test 抖动（25 个套件收集失败）；最终以「清 `.vitest-cache` + `--maxWorkers=4`」的干净跑为准，CI 为最终裁决。
+
+### 未覆盖边界
+
+- `server/services/setting.ts` 剩余 3 条：`213`（lookupKeys 为空，`getSettingLookupKeys` 恒返回至少一个键）、`329`（`parseStoredLocalizedSettingValue` 仅在 definition 缺失时返回 null，已被前置分支拦截）、`642`（`level >= 3` 对非内部键不可达——`resolveSettingLevel` 上限为 2，内部键在更早分支已跳过）。
+- `server/utils/logger.ts` 剩余 2 条：带 tag 的 `verbose` / `silly` 无公开调用方。
+- `utils/shared/post-copyright.ts` 剩余 11 条：`unwrapLocaleObject` / `extractNestedString` 对 i18n 虚拟模块不同包装形态（`default` / `value` / 循环引用）的防御分支，仓库内 locale JSON 不产生这些形态。
+- 覆盖率分母与 2026-11-08 记录的 `79.23%（29,147 / 36,790）` 不可直接相减（分母 +38，且该次记录早于条目 1–4 的测试增补与源码删除）；本轮以干净全量跑为新基线。
+
+<!-- regression-window:end:coverage-batch-13:第七十二阶段条目 5 覆盖率第十三批:2026-11-09 -->
