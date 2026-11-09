@@ -200,7 +200,7 @@
     "@types/web-push": "^3.6.4",
     "@types/ws": "^8.18.1",
     "@vite-pwa/nuxt": "^1.1.1",
-    "@vitest/coverage-v8": "5.0.5",
+    "@vitest/coverage-v8": "5.1.0",
     "@vue/test-utils": "^2.5.1",
     "commitizen": "^4.3.1",
     "commitlint": "^21.2.4",
@@ -226,7 +226,7 @@
     "typescript-eslint": "8.72.1",
     "vite": "8.1.6",
     "vitepress": "^1.6.4",
-    "vitest": "5.0.5",
+    "vitest": "5.1.0",
     "vitest-environment-nuxt": "^2.0.0",
     "vue-tsc": "3.3.13",
     "wrangler": "4.156.0"
