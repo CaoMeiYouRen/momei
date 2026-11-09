@@ -92,8 +92,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@lucide/vue':
-        specifier: ^1.66.0
-        version: 1.66.0(vue@3.5.44(typescript@6.0.3))
+        specifier: ^1.69.0
+        version: 1.69.0(vue@3.5.44(typescript@6.0.3))
       '@mdi/font':
         specifier: ^7.4.47
         version: 7.4.47
@@ -2445,8 +2445,8 @@ packages:
     resolution: {integrity: sha512-i3ZPmlDYrv/W1299u2cR/slQc8JuKFbOJeMQPS3/65LXqeIqtrEF6MNnHnFYAoWWFuocJqoUCWeFC0lPV70S3g==}
     engines: {node: '>=20'}
 
-  '@lucide/vue@1.66.0':
-    resolution: {integrity: sha512-cyALYgAzCD2uZ557pM5I/dmFAyTKqtwY7PrdU67gzITkTH+V635u7Uv7VBpQ5hqvmlGqRtbqSDx08LCJHU+GAw==}
+  '@lucide/vue@1.69.0':
+    resolution: {integrity: sha512-uxR2FtureNe37HOQk/e92CZjlTjXVuNiYlD60Mgns0rmbs0wqDnHDgZPUooP6nvmFn/v7Ie6dKRKPzgR6HW5Tw==}
     peerDependencies:
       vue: '>=3.0.1'
 
@@ -7626,6 +7626,7 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.6:
@@ -7638,7 +7639,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-directory@4.0.1:
     resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
@@ -15240,7 +15241,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lucide/vue@1.66.0(vue@3.5.44(typescript@6.0.3))':
+  '@lucide/vue@1.69.0(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       vue: 3.5.44(typescript@6.0.3)
 
@@ -18993,7 +18994,7 @@ snapshots:
   caomei-ui@1.0.0(@nuxt/kit@4.6.1(@nuxt/schema@4.6.3)(confbox@0.2.4)(dotenv@18.0.9)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.5)(mlly@1.8.2)(oxc-parser@0.141.0)(rolldown@1.2.16)(unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.2)(vite@8.1.6(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(terser@5.51.2)(yaml@2.9.1))))(vue@3.5.44(typescript@6.0.3)):
     dependencies:
       '@internationalized/date': 3.12.4
-      '@lucide/vue': 1.66.0(vue@3.5.44(typescript@6.0.3))
+      '@lucide/vue': 1.69.0(vue@3.5.44(typescript@6.0.3))
       '@tanstack/vue-table': 9.2.4(vue@3.5.44(typescript@6.0.3))
       '@vavt/cm-extension': 2.0.0
       reka-ui: 2.10.4(vue@3.5.44(typescript@6.0.3))
