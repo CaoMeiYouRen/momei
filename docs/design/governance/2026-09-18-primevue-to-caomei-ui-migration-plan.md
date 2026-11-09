@@ -349,7 +349,7 @@ pnpm governance:count:primevue-usage
 - 迁移后需复核组件内建文案（表格空态、分页、日期面板等）在 5 个语言下的覆盖，避免出现英文回退。
 - 相关测试 `tests/plugins/primevue-i18n.test.ts` 需同步删除或改写为 caomei-ui locale 验证。
 
-> **2026-11-02 进度注（第六十九阶段条目 3）**：caomei-ui 侧接线已完成——`plugins/caomei-locale.ts` 在模块顶层静态注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册），`app.vue` 用 `<CaomeiConfigProvider :locale>` 包住 toast / confirm，语言经 `composables/use-caomei-locale.ts` 归一化后映射。静态 import 实测 `coreEntryJs` +4.36KB（357.41KB / 360KB），因 provider 文案为 `computed`、`registerLocale` 非响应式，异步按需注册在切换路径存在「先回落、后不重算」竞态，故不采用（见[回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-3-内建文案-locale-接线)）。5 语种 Paginator 内建文案已实测跟随语言。`plugins/primevue-i18n.ts` 仍保留，随第七十二阶段卸载 PrimeVue 时删除（**2026-11-06 轨迹调整**：B4 拆为 71 路由与图标 / 72 token 与卸载）。
+> **2026-11-02 进度注（第六十九阶段条目 3）**：caomei-ui 侧接线已完成——`plugins/caomei-locale.ts` 在模块顶层静态注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册），`app.vue` 用 `<CaomeiConfigProvider :locale>` 包住 toast / confirm，语言经 `composables/use-caomei-locale.ts` 归一化后映射。静态 import 实测 `coreEntryJs` +4.36KB（357.41KB / 360KB），因 provider 文案为 `computed`、`registerLocale` 非响应式，异步按需注册在切换路径存在「先回落、后不重算」竞态，故不采用（见[回归记录](../../reports/regression/archive/2026-11-02-to-2026-11-05-phase69-70-tail.md#2026-11-02-第六十九阶段条目-3-内建文案-locale-接线)）。5 语种 Paginator 内建文案已实测跟随语言。`plugins/primevue-i18n.ts` 仍保留，随第七十二阶段卸载 PrimeVue 时删除（**2026-11-06 轨迹调整**：B4 拆为 71 路由与图标 / 72 token 与卸载）。
 
 ### 5.5 双库并存隔离
 
@@ -387,7 +387,7 @@ pnpm governance:count:primevue-usage
 | **显式豁免（B4 期，2026-11-06 登记）** | `AppVoiceInputTrigger`（`components/app-voice-input-trigger.vue`） | `Button` | `snippets`（index / capture / quick-capture / edit-dialog）、公开页表单等 | 组件内部按钮仍为 V1；其消费者已登记 caomei-ui，但按钮外观差异已按允许清单接受（视觉偏差登记表）。随展示 / 图标批迁移，不在 B4-A 首批扩写 |
 | 显式豁免 | ~~页面内 `Dialog` / `Drawer` / `ConfirmDialog` / `Popover` / `useConfirm` / `v-tooltip`~~（2026-11-02 已迁完） | 多种 | 各页 | 浮层/指令类，随第六十九阶段 |
 
-> **2026-11-02 进度注**：上表两条浮层豁免已落地——`ConfirmDeleteDialog`、页面内 Dialog / Drawer / ConfirmDialog / Popover、`useConfirm` / `useToast` 已迁到 caomei-ui，`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 已纳入浮层族；`v-tooltip` 已由 `components/app-tooltip.vue` 承接（84 处 / 36 文件，桥接 `CaomeiTooltip` + `Trigger as-child` + `Content`，方位修饰符一并映射，指令计数归零）。条目 2 于 2026-11-02 收口：`test:visual` 18/18（协议 / 分类弹窗基线按 caomei Dialog 观感重采）、`test:visual:parity` 34/34（营销表单弹窗参考态按迁移后观感重采，避免为外壳差异登记覆盖整个弹窗的允许清单）、critical E2E 三浏览器通过，差异逐项归因见 [回归记录](../../reports/regression/current.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。已知偏差：`AppTooltip` 嵌在 `DropdownMenuTrigger` / `PopoverTrigger` 的 `as-child` 内时，内层 tooltip 的 `data-state` 会覆盖外层菜单状态（`aria-expanded` / `aria-haspopup` / 事件均正常，浏览器实测菜单可开可 Esc 关闭并回填焦点）；该 `data-state` 底色规则在迁移前也不作用于 PrimeVue `Button` 子节点，故无观感回退。
+> **2026-11-02 进度注**：上表两条浮层豁免已落地——`ConfirmDeleteDialog`、页面内 Dialog / Drawer / ConfirmDialog / Popover、`useConfirm` / `useToast` 已迁到 caomei-ui，`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 已纳入浮层族；`v-tooltip` 已由 `components/app-tooltip.vue` 承接（84 处 / 36 文件，桥接 `CaomeiTooltip` + `Trigger as-child` + `Content`，方位修饰符一并映射，指令计数归零）。条目 2 于 2026-11-02 收口：`test:visual` 18/18（协议 / 分类弹窗基线按 caomei Dialog 观感重采）、`test:visual:parity` 34/34（营销表单弹窗参考态按迁移后观感重采，避免为外壳差异登记覆盖整个弹窗的允许清单）、critical E2E 三浏览器通过，差异逐项归因见 [回归记录](../../reports/regression/archive/2026-11-02-to-2026-11-05-phase69-70-tail.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。已知偏差：`AppTooltip` 嵌在 `DropdownMenuTrigger` / `PopoverTrigger` 的 `as-child` 内时，内层 tooltip 的 `data-state` 会覆盖外层菜单状态（`aria-expanded` / `aria-haspopup` / 事件均正常，浏览器实测菜单可开可 Esc 关闭并回填焦点）；该 `data-state` 底色规则在迁移前也不作用于 PrimeVue `Button` 子节点，故无观感回退。
 | 路由自有 | `components/admin/users/*`（filters / role-dialog / ban-dialog / sessions-drawer） | `Toolbar` / `IconField` / `InputText` / `Select` / `Dialog` / `Drawer` / `Badge` / `ProgressSpinner` / `Button` | 仅 `/admin/users` | 随该页整路由迁移（无需过渡）。同理 `components/admin/posts/post-media-preview-cell.vue` 仅被列表页消费，亦随该页直接迁移（**2026-10-16 已随 `/admin/posts` 迁移**：批次在册族的 `Button` → `CaomeiButton`；非在册族的 `Image`（展示容器，随 B4）维持 PrimeVue） |
 | **已落地**（2026-10-15） | `components/admin/posts/{post-audit-badge-v2,post-audit-dialog-v2,publish-push-dialog-v2}.vue` | `Tag` / `Button`（浮层与表单控件保持 PrimeVue） | B2：posts 列表（**2026-10-16 已切换为消费 V2**）；非 B2：`/admin/posts/[id]`（继续用 V1） | **消费处静态择库**：本族为 admin 专属、消费者恰好两个（一迁移一未迁移）的有状态 / 多 prop 壳，组件内择库会让状态与 `open()` 语义出现第二份事实源；故由已迁移路由直接用 V2、编辑器路由继续用 V1。`publish-push-dialog` 的状态语义抽到 `composables/use-publish-push-dialog.ts` 供两版共用。**`/admin/posts` 迁移后本族仅剩 `/admin/posts/[id]` 一个 V1 消费者**；**2026-11-07 编辑器子批完成后 V1 三件套已无消费者，随该批删除**（`post-audit-badge` / `post-audit-dialog` / `publish-push-dialog` 及两份「两版等价」契约测试一并移除），本族收敛为单一实现 |
 | 跨路由共享（**部分完成**） | `components/admin/settings/{agreements-settings,notification-delivery-log-list,setting-audit-log-list,admin-notification-settings}.vue`、`components/settings/{notification-history-list,settings-api-keys}.vue`、`setting-form-field`、`admin-floating-actions` | `DataTable` / `Tag` / `Button` 等 | host 路由 `/admin/settings`（B3） | **2026-11-03 第七十阶段条目 2a 已完成**：`/admin/settings` 的设置面板族（含 `setting-form-field` / `admin-floating-actions`）整体迁移并登记路由 scope；`notification-delivery-log-list`（随 `/admin/notifications`）留条目 2c，`components/settings/*` 留条目 4。`general-settings` 的上传壳改用 `AppUploaderV2`（路由择库，2a 路由渲染 caomei 版）。 |
@@ -549,6 +549,14 @@ InputText 178、Button 356、Column 153、Tag 127、Select 73、Message 51、Tog
 迁移**接受** 16 条有意差异（影响面最大的三条：`Select filter → AutoComplete` 2 处、`Tag severity → tone` 125 处、`Dialog title` 必填）。逐条差异、momei 侧核对动作与判定口径见 caomei-ui 交接计划 §6，本方案不重复。
 
 > 0.2.0 的 AutoComplete `strict` 使差异 #1 的替代写法可显式保持「自由文本不写入模型」的原语义（等价 PrimeVue `forceSelection`）；核对时按此口径判定，差异本身仍成立（组件已由 Select 改为 AutoComplete）。
+
+### 6.4 组件替换实测陷阱（2026-11-09 第七十二阶段收口沉淀）
+
+以下为迁移完成后复核出的「组件替换后样式静默失效 / 几何漂移」实测项，后续新增页面或再次替换组件时按此核对：
+
+- **`CaomeiCard`**：根元素固定 `font-size: 14px`，`variant="elevated"` 的背景取 `--caomei-color-bg`（暗色为卡片面 surface-100）。对齐迁移前 PrimeVue Card（16px、暗色 surface-0）需在卡片类上显式 `font-size: 1rem` 与 `--caomei-card-bg: var(--m-surface-0)`；Aura xl 圆角用 `--caomei-card-radius: 12px`。
+- **`CaomeiToolbar`**：默认 `inline-flex` 且自带边框 / 内边距；页面以 `.p-toolbar` 写的覆盖在卸载后会静默失效，必须改用 `.caomei-toolbar` 并补 `display: flex; width: 100%`。
+- **图标几何**：lucide 图标按 `:size` 渲染固定方形盒（1rem 下 14px），PrimeIcons 的 1rem 字形 advance ≈12.45px、行盒 16px；批量替换会让行内文本出现 1–3px 位移，parity 须按区域实测登记，不能按「同类图标」整体放行。
 
 ## 7. 分批执行计划
 

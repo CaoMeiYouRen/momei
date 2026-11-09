@@ -19,11 +19,41 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第六十五至第七十一阶段共 7 个近线归档块。
+- 主文档当前保留第六十五至第七十二阶段共 8 个近线归档块。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（已审计归档）
+
+> 归档说明: 第七十二阶段「1 条映射基座 + 1 条组件替换 + 1 条 token 切换 + 1 条卸载收口 + 1 条覆盖率治理」已于 2026-11-09 完成全部条目交付并归档（2026-11-08 立项，2 天交付）。阶段内把 `--p-*` token 从 1,420 清零、剩余 46 处 PrimeVue 组件清零、卸载 PrimeVue 全家桶与路由择库机制，并建立全量零残留守卫；包体回落 `coreEntryJs` 375,543 → 329,891 B、`keyCss` 64,103 → 60,482 B（配额收紧至 335KB / 62KB）；覆盖率第十三批 +140 条 / +0.38pp。阶段收口 `regression:phase-close` 结论 **__GATE_CONCLUSION__**（__GATE_EVIDENCE__）。
+
+> **ROI 评估**: 映射基座 `2.00`；组件替换 `1.60`；token 切换 `1.50`；卸载收口 `1.80`；覆盖率 `1.75`。
+
+> 阶段规划详情、ROI 与回滚边界见 [项目计划归档](./archive/roadmap-phases-72.md)。
+> 迁移方案事实源见 [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)（本阶段对应 §5.2 / §7 / §8.4.2）。
+> token 映射事实源见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。
+> backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 10 条（UI 组件库迁移）与第 1 条（测试覆盖率）。
+
+**时间表**: 2026-11-08 ~ 2026-11-09
+
+**准入前置（已核对 2026-11-08）**: 第七十一阶段已审计归档、`todo.md` 无已完成阶段正文、工作区干净且 `master` 与 `origin/master` 同步；CI `Test` 15 job 全绿（`2c954194`）、`v1.30.0` 经手动触发的 Release workflow 发布成功；本地 `release:check` 10/10；覆盖率 79.23%（口径见 backlog #1）；入口包体 `coreEntryJs` 375,368 B / 378,880 B、`keyCss` 63,337 B / 70KB。
+
+- [x] **1. token 语义审计与映射基座（P1）**
+    - **收口（2026-11-08）**: 映射表 `scripts/governance/data/primevue-token-map.json`（semantic 34 / palette 58 / phantom 28，100% 覆盖）；守卫 `pnpm governance:check:token-map`（临时文件判红单测 7 例）；`--m-*` 派生层 + 明暗 / 三预设解析契约 8 例；基线 `coreEntryJs` 375,543 B / 370KB、`keyCss` 64,103 B / 70KB、`test:visual` 32/32、`parity` 83/83。口径见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。
+
+- [x] **2. 剩余 PrimeVue 组件替换（P1）**
+    - **收口（2026-11-08）**: 脚本口径 46 处 / 14 类 → **0**（先清 4 处口径假阳性）；42 处真实用法全部替换（Checkbox 12 / Card 5 / DatePicker 4 / MultiSelect 4 / InputNumber 4 / Textarea 4 / RadioButton 2 / ProgressSpinner 2 / Button 2 / Toolbar 1 / Divider 2）。验证：定向 19 文件 / 202 例 + 守卫 80 例；`test:visual` 32/32；`parity` 83/83；E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`coreEntryJs` 375,543 → 359,547 B、`keyCss` 64,102 B / 70KB。
+
+- [x] **3. token 反向切换（P1）**
+    - **收口（2026-11-09）**: 三批完成（① 样式基座 / ② 公开页与共享组件 / ③ 管理端 + 定义清零），token **1,420 → 0**；桥接反向为 `--m-* → --caomei-*`，`use-theme` 只保留 `--m-*` 基色、`use-reader-mode` 只写 `--m-*`。幻影 token 按「删除声明」保持视觉（边框 / 文本 / 悬停 / 圆角 / rgb），状态色按 S1 映射到真实角色（法务页提示条差异按实测登记）。验证：`test:visual` 32/32、`parity` 83/83、E2E critical 17/1 + mobile 2 + 安装向导 2；`coreEntryJs` 359,061 B / 370KB、`keyCss` 64,006 B / 70KB。
+
+- [x] **4. PrimeVue 卸载、样式耦合清理与预算回落（P1）**
+    - **收口（2026-11-09）**: 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale`；移除 Aura 预设、`primevue` 模块与配置、`plugins/primevue-i18n.ts`、路由择库机制（`lib/ui-library.ts` + 2 套迁移守卫 + helper）；`p-*` class 151 → **0**、`.p-*` 选择器 83 → **0**；新增 `tests/modules/primevue-residual-guard.test.ts` 全量零残留守卫（浮层族专用守卫保留）。补回 `* { box-sizing: border-box }` 与 `:root` / `.dark` 的 `color-scheme`（卸载后 15 张视觉基线失败的根因）。包体：`coreEntryJs` 359,061 → **329,891 B**（配额 370 → 335KB）、`keyCss` 64,006 → **60,482 B**（配额 70 → 62KB）、`maxAsyncChunkJs` 56,781 B / 130KB。验证：`test:visual` 32/32、`parity` 83/83、E2E critical 17/1 + mobile 2 + 安装向导 2。文档同步：迁移方案 §8.4.2、B4 清单 §0、UI 设计迁移指针、性能规范 §4.1、backlog 当前基线。
+
+- [x] **5. 覆盖率第十三批 + 卸载后回归补齐（P2）**
+    - **收口（2026-11-09）**: 4 主模块（`logger` 61→2 / `post` 23→0 / `setting` 25→3 / `database/logger` 15→0）+ 6 小模块；新增 4 个测试文件 + 扩展 8 处，+68 例；全仓 statements **29,995 → 30,135 / 36,828（+140 条 / +0.3801pp）**，Branches 72.40 → 72.88、Functions 79.49 → 79.73、Lines 81.57 → 81.96。补 `snowflake` 序列回绕确定性用例；清理 4 处「Mock PrimeVue」残留注释。全量 `pnpm test:coverage` 600 passed / 1 skipped（601 文件）/ 5,265 passed（`--maxWorkers=4` + 清 `.vitest-cache`）。`agreement.ts` 上批已 26 → 1（剩 184 不可达分支），第 4 模块由 `database/logger` 顶替。
 
 ## 第七十一阶段：PrimeVue → caomei-ui 迁移（五）——B4 剩余路由、图标全量与门禁收口（已审计归档）
 
@@ -164,14 +194,14 @@
         - **实现口径（2026-11-02）**: 新增 `components/app-tooltip.vue` 作桥接层（`CaomeiTooltip` + `Trigger as-child` + `Content`），调用点只保留 `content` / `side` 两个语义参数；桥接层内部自带 `CaomeiTooltipProvider`（`delay-duration=0` 对齐原指令即时出现），并以 `inheritAttrs: false` + `v-bind="$attrs"` 把外层 `as-child` 触发器（DropdownMenu / Popover）的 aria 与事件转发到真实触发元素。
         - **验证**: `AppTooltip` 单测 6 例（默认方位、修饰符映射、空内容禁用、attrs 透传、真实 `CaomeiButton` 子节点、嵌套 `DropdownMenuTrigger as-child`）；`tests/modules/overlay-family-residual-guard.test.ts` 新增全仓守卫（`v-tooltip` / 浮层族 PrimeVue 标签 / PrimeVue 服务层导入与调用零残留）。
     - [x] **2d. 验证与收尾**: 浏览器交互回归、三层视觉回归、E2E / mock 收尾、文档与归档。
-        - **验证（2026-11-02）**: `test:visual` 18/18（协议 / 分类弹窗 4 张基线按 caomei Dialog 观感重采）；`test:visual:parity` 34/34；浏览器抽查 tooltip（`side=bottom`、`data-state=delayed-open`、`aria-describedby`）与嵌套下拉（开合 / Esc / 焦点回填）、分类弹窗（Esc / 焦点回填）；E2E 选择器把 `.p-dialog` / `.p-toast-message-success` 改为 `[role="dialog"]` / `.caomei-toast--success`；`test:e2e:critical` 三浏览器通过，chromium 全量 72 passed / 1 flaky / 2 failed（失败均为外网头像请求悬挂与并发资源争抢，已归因）。差异与未覆盖边界见 [回归记录](../reports/regression/current.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。
+        - **验证（2026-11-02）**: `test:visual` 18/18（协议 / 分类弹窗 4 张基线按 caomei Dialog 观感重采）；`test:visual:parity` 34/34；浏览器抽查 tooltip（`side=bottom`、`data-state=delayed-open`、`aria-describedby`）与嵌套下拉（开合 / Esc / 焦点回填）、分类弹窗（Esc / 焦点回填）；E2E 选择器把 `.p-dialog` / `.p-toast-message-success` 改为 `[role="dialog"]` / `.caomei-toast--success`；`test:e2e:critical` 三浏览器通过，chromium 全量 72 passed / 1 flaky / 2 failed（失败均为外网头像请求悬挂与并发资源争抢，已归因）。差异与未覆盖边界见 [回归记录](../reports/regression/archive/2026-11-02-to-2026-11-05-phase69-70-tail.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。
         - **已修复（2026-11-02，2d）**: 草稿恢复确认与路由离开确认并发时，caomei `confirm.open()` 会以 `false` 了结前一条待决请求。`promptDraftRecovery` 改为非破坏性 reject——取消 / 被取代时保留本地草稿，只有确认恢复才写回；`draft_discarded` 文案随之移除（5 语种同步）。
         - **已知偏差（2026-11-02 2c Review Gate）**: `AppTooltip` 嵌在 `CaomeiDropdownMenuTrigger` / `CaomeiPopoverTrigger` 的 `as-child` 内时，两层触发器的 `data-state` 同名，内层 tooltip 的 `closed` 会覆盖外层菜单的 `open`（`aria-expanded` 不受影响）。当前唯一消费方是下拉触发器 `[data-state='open']` 底色且被 `:hover` 规则掩盖；2d 需实测该底色与 `reader-controls` 的左侧（`side="left"`）弹出方位。
     - **执行范围**: 把 Dialog / Drawer / Popover / DropdownMenu / Menu（含 SubMenu / Item）/ ConfirmDialog / `ConfirmDeleteDialog` / `useConfirm` / `useToast` / `v-tooltip`（→ `CaomeiTooltip`）整族迁到 caomei-ui；覆盖范围分两种口径——**组件标签 64 处 / 50 文件**（Dialog 39 处 / 34 文件、ConfirmDeleteDialog 8、ConfirmDialog 6、Popover 5、Drawer 3、Menu 3），叠加服务层与指令调用（生产文件口径：`useToast` 42 文件、`useConfirm` 14 文件、`v-tooltip` 37 文件）后**并集约 100 文件**。含 `components/admin/posts/*`（distribution / translation-workflow / tts / social / audit / publish-push V2 / rewrite-compare）、`components/admin/snippets/*`、`components/admin/users/*`、`components/admin/settings/*-dialog`、`components/admin/ai/task-details-dialog`、`components/app-search` / `article-content` / `article-share` / `article-sponsor` / `commercial-link-dialog` / `confirm-delete-dialog` / `settings-api-keys`，以及 `pages/admin/friend-links`、`pages/admin/marketing`、`pages/admin/migrations/link-governance`、`pages/posts/[id]`；**6 处生产锚点**的 `.toggle(event)`（`post-editor-voice-overlay` / `app-voice-input-overlay` / `app-header` ×2 / `language-switcher` / `app-notifications`）改写为 caomei 触发器形态（另有 1 处测试桩同步调整）；按 caomei 契约复核并统一弹窗焦点（`autofocus` / focus trap，含 backlog 中「切换语言页签后焦点停在触发器」的遗留）；`CAOMEI_UI_ROUTE_SCOPES` / 在册族清单登记浮层族并扩面守卫；`tests/**` 中与浮层相关的 PrimeVue mock 与 E2E `p-*` 断言同步改写（全量基线为 25 个 vitest mock 文件 / 3 文件 11 处断言，本条只承担浮层相关子集，剩余部分随第七十一阶段收口）。
     - **非目标**: 不迁移 settings 表单控件本体与 installation 流程（B3，第七十阶段）；不做图标全量替换（第七十一阶段）；不卸载 PrimeVue；不改浮层视觉设计与信息架构。
     - **最小验收**: 全仓无 `Dialog` / `Drawer` / `Popover` / `DropdownMenu` / `Menu` / `ConfirmDialog` 的 PrimeVue 标签残留；`useConfirm` / `useToast` 仅从 `caomei-ui` 引入；浮层交互回归通过（打开 / 关闭 / 嵌套 / Esc / 焦点回填 / 滚动锁定 / teleport 下的宽度与定位）；三层视觉回归差异逐项归因；在册族零残留守卫通过；`typecheck` / `lint` / `lint:css` / 定向单测 / 相关 E2E 通过。
     - **证据落点**: 「文件 → 改动点 → 依据指针」清单；焦点契约结论（含 teleport 下 scoped 样式陷阱的核对记录）；回归记录窗口。
-    - **收口（2026-11-02）**: 服务层与浮层组件已迁移——`app.vue` 挂载 `CaomeiToastProvider` / `CaomeiConfirmDialog`，185 处 `toast.add` 与 18 处 `confirm.require` 改写为 caomei API（`useToast` / `useConfirm` 仅从 `caomei-ui` 显式引入）；Dialog 39 / Drawer 3 / Popover 5 / Menu 3 / ConfirmDialog 6 全部迁移，全仓已无该族 PrimeVue 标签与 `.toggle(event)`；`ConfirmDeleteDialog`、`app-search`、`app-notifications`、`app-header`、`language-switcher` 等共享壳同步迁移；6 处生产锚点改为声明式触发器或 `useAnchoredPopover` 锚点；`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 已扩面到浮层族。`v-tooltip` 已由 `AppTooltip`（`CaomeiTooltip` 桥接）承接（84 处 / 36 文件，指令计数归零）。验证与收尾已完成（`test:visual` 18/18、`test:visual:parity` 34/34、浏览器交互抽查、E2E 选择器改写与 critical 三浏览器通过）；`typecheck` / `lint` / 全量单测（5,071 passed）通过。证据见 [回归记录](../reports/regression/current.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。
+    - **收口（2026-11-02）**: 服务层与浮层组件已迁移——`app.vue` 挂载 `CaomeiToastProvider` / `CaomeiConfirmDialog`，185 处 `toast.add` 与 18 处 `confirm.require` 改写为 caomei API（`useToast` / `useConfirm` 仅从 `caomei-ui` 显式引入）；Dialog 39 / Drawer 3 / Popover 5 / Menu 3 / ConfirmDialog 6 全部迁移，全仓已无该族 PrimeVue 标签与 `.toggle(event)`；`ConfirmDeleteDialog`、`app-search`、`app-notifications`、`app-header`、`language-switcher` 等共享壳同步迁移；6 处生产锚点改为声明式触发器或 `useAnchoredPopover` 锚点；`CAOMEI_UI_IN_SCOPE_PRIMEVUE_COMPONENTS` 已扩面到浮层族。`v-tooltip` 已由 `AppTooltip`（`CaomeiTooltip` 桥接）承接（84 处 / 36 文件，指令计数归零）。验证与收尾已完成（`test:visual` 18/18、`test:visual:parity` 34/34、浏览器交互抽查、E2E 选择器改写与 critical 三浏览器通过）；`typecheck` / `lint` / 全量单测（5,071 passed）通过。证据见 [回归记录](../reports/regression/archive/2026-11-02-to-2026-11-05-phase69-70-tail.md#2026-11-02-第六十九阶段条目-2-浮层族整迁服务层--浮层组件--v-tooltip)。
 
 - [x] **3. 内建文案 locale 接线（P1）**
     - **执行范围**: 新增 Nuxt plugin：挂载前 `registerLocale()` 注册 `zh-TW` / `ja-JP` / `ko-KR`（`zh-CN` / `en-US` 为包根预注册，不得重复注册）；以 `CaomeiConfigProvider`（`:locale` 取 `useI18n().locale`）包裹应用根或后台布局，使组件内建文案（表格空态、分页、日期面板、ConfirmDialog 等）跟随语言；先实测「静态 import 三门语言」与「按当前语言异步 import」两种形态的 `coreEntryJs` 差量（条目开工实测 353.05KB / 360KB）再择一；补接线单测（注册早于挂载、未注册语种回落 `zh-CN`）。

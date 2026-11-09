@@ -8,12 +8,12 @@
 - `docs/plan/todo-archive.md`: 保留最近若干阶段的完整归档块与近线收口依据，不长期充当所有历史阶段的唯一全文容器。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-11-08）
+## 2. 当前基线（2026-11-09）
 
-- `roadmap.md`: `228` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八 / 第六十九 / 第七十 / 第七十一阶段分别迁入 `roadmap-phases-68.md` / `roadmap-phases-69.md` / `roadmap-phases-70.md` / `roadmap-phases-71.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
-- `todo-archive.md`: `481` 行（脚本口径），处于健康窗口（主窗口保留第六十五至第七十一阶段共 7 个近线归档块；第六十四阶段迁入 `todo-archive-phases-64.md`）。
-- `backlog.md`: `271` 行（脚本口径），处于健康窗口（长期主线 10 条 + 周期性回归验证层 + 短期候选；本轮同步 #10 的 B4 完成状态与剩余面、#1 的覆盖率第十二批基线）。
-- `docs/reports/regression/current.md`: `105` 行，处于健康窗口（保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个活动窗口；第七十阶段 6 个窗口迁入 `2026-11-05-phase70-close.md`，第七十一阶段 13 个窗口迁入 `2026-11-08-phase71-close.md`）。
+- `roadmap.md`: `212` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八 / 第六十九 / 第七十 / 第七十一 / 第七十二阶段分别迁入 `roadmap-phases-68.md` / `roadmap-phases-69.md` / `roadmap-phases-70.md` / `roadmap-phases-71.md` / `roadmap-phases-72.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
+- `todo-archive.md`: `511` 行（脚本口径），warning 窗口（主窗口保留第六十五至第七十二阶段共 8 个近线归档块；第六十四阶段迁入 `todo-archive-phases-64.md`；下一次阶段归档前需把第六十五阶段迁出）。
+- `backlog.md`: `273` 行（脚本口径），处于健康窗口（长期主线 10 条 + 周期性回归验证层 + 短期候选；本轮同步 #10 的迁移收口状态、#1 的覆盖率第十三批基线、#11 的三处层序偏差待跟踪）。
+- `docs/reports/regression/current.md`: `25` 行，处于健康窗口（仅保留阶段收口门禁窗口；第七十二阶段 5 个条目窗口迁入 `2026-11-09-phase72-close.md`，2026-11-02 ~ 11-05 的 3 个遗留窗口迁入 `2026-11-02-to-2026-11-05-phase69-70-tail.md`，第七十 / 七十一阶段窗口分别迁入 `2026-11-05-phase70-close.md` / `2026-11-08-phase71-close.md`）。
 
 ## 3. 阈值定义
 

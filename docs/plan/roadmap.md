@@ -178,41 +178,25 @@
 |:---|:---|:---|:---|
 | **71** | 2026-11-06 ~ 2026-11-08 | 1 基座 + 2 迁移 + 1 图标 + 1 门禁 + 1 治理 | B4 剩余路由整迁（管理端 6 路由 + 公开页 9 文件）与布局壳；`pi pi-*` **136 处清零**（品牌 11 类落 `@mdi/font`，tiktok / discord / paypal 内联）；过渡组件收口（V1 清零、6 组去 `-v2`）；E2E `p-*` 断言清零与守卫扩到 35 条路由；覆盖率第十二批 +154 条 / **+0.42pp**；i18n 键层与 `friend-link` 归一化修复；发布 **v1.30.0** |
 
-### 第七十一阶段归档结论（最近归档阶段）
+### 第七十一阶段归档结论（已审计归档）
 
 **审计结论**: 第七十一阶段六条条目全部完成并归档，阶段内 16 个业务 / 测试 / 文档提交（另有 1 个 CI 修复提交与语义化发布提交）。条目 1 落盘 B4 迁移清单（19 个未迁移页面 / 90 处）并采集 14 条参考态（28 张）；条目 2 完成管理端剩余路由（snippets / AI 任务详情 / 日历 / 仪表盘 / 编辑器子批）；条目 3 完成公开页与布局壳（全局壳 5 文件 25 处、内容组件 6 文件 31 处、外围组件 4 文件 24 处、公开路由 9 文件 61 处 + 7 条 scope），并把过渡组件收敛为单一实现；条目 4 把 `pi pi-*` 从 136 处清零（非品牌 → `@lucide/vue`、8 类品牌 → `mdi mdi-*`、3 类字体未收录 → 内联 Simple Icons），5 个数据驱动配置改为组件；条目 5 清零 E2E `p-*` 断言、守卫支持动态参数页与根前缀（`CAOMEI_UI_ROUTE_PREFIXES` 35 条）、`keyCss` 63,337 B / 70KB、入口 `coreEntryJs` 375,368 B（配额按归因 365 → 370KB）；条目 6 补测 4 模块（+154 条 / +0.42pp）、收敛 i18n 重复键 / 双源同键 / 死键 / 硬编码、新增 `useI18n` 位置守卫并修复 `friend-link` 归一化被覆盖。阶段收口复算：组件 **188 → 46 处 / 26 → 14 类**、图标 **235 → 0**、token 1,420（留第七十二阶段）；parity **83/83**（41 条已迁移、0 待迁移）、`test:visual` 24/24、CI `Test` 15 job 全绿、本地 `release:check` 10/10；**v1.30.0 经手动触发的 Release workflow 发布成功**（含子包与多架构镜像）。各批 Review Gate 均 Pass。`todo.md` 已清理，`todo-archive.md` 已收录本阶段归档块，回归窗口整体迁入 [归档分片](../reports/regression/archive/2026-11-08-phase71-close.md)。
 
 > 未覆盖边界与后续观察项：① `--p-*` token 1,420 处与 PrimeVue 组件 46 处（Checkbox / Card / DatePicker / MultiSelect / InputNumber / Textarea 等）留第七十二阶段「token 切换 + 卸载」同批处理；② `app-uploader.scss` 与若干页面仍引用 `--p-primary-*`，随预设卸载改名；③ `plugins/primevue-i18n.ts` 与其单测保留至第七十二阶段删除（故「vitest PrimeVue mock 文件数」为 1）；④ 本地全量 Vitest 仍受 `node_modules/.vitest-cache` 的 `virtual:intlify-i18n` 解析问题影响（清缓存后通过、CI 未复现），已登记 backlog；⑤ `typeorm-adapter.transformOutput` 的 `_id` 被字段回写覆盖（低影响）与 99 组跨模块同文案键留在 backlog；⑥ `security:alerts` 有 2 条已过期豁免（`mjml` / `quill`）待复核。
 
-## 第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（执行中：条目 1–5 完成，待阶段收口）
+### 第七十二阶段概览（已审计归档）
 
-**时间表**: 2026-11-08 ~ 待定（按里程碑滚动，不预设结束日）
+> 本阶段完整规划正文已迁入 [archive/roadmap-phases-72.md](./archive/roadmap-phases-72.md)；各条目的执行明细与验收结论见 [待办事项归档](./todo-archive.md) 的第七十二阶段归档块。
 
-**目标**: 收口双库并存的最后一公里——把剩余 **46 处 / 14 类** PrimeVue 组件替换为 caomei 等价件，把 **1,420 处 `--p-*`**（120 唯一 / 136 文件，含 v3 幻影 token）反向切到 caomei 语义角色（`--caomei-*`）与项目调色板层（`--m-*`），随后卸载 PrimeVue 全家桶、Aura 预设、`primeicons`、`primelocale`、`primevue-i18n` 插件与路由择库机制，并复算包体把 `keyCss` / `coreEntryJs` 配额回收。开工口径（2026-11-08 `governance:count:primevue-usage`）：组件 46 处 / 14 类 / 16 文件；图标 0；token 1,420 处 / 120 唯一 / 136 文件；PrimeVue class 151 处 / 36 文件；`.p-*` 选择器 83 处（5 SCSS + 12 Vue）；`:deep()` 134 / `:global()` 41。分桶：`styles/` 229 处、公开页与共享组件约 551 处、管理端约 513 处。
+| 阶段 | 时间 | 组合 | 核心交付 |
+|:---|:---|:---|:---|
+| **72** | 2026-11-08 ~ 2026-11-09 | 1 基座 + 1 迁移 + 1 token + 1 卸载 + 1 治理 | `--p-*` token **1,420 处清零**（120 唯一，语义角色 → `--caomei-*`、调色板 → `--m-*`，幻影 token 分两类处置）；剩余 PrimeVue 组件 **46 → 0**；PrimeVue 全家桶卸载（依赖 / Aura 预设 / `primevue-i18n` / 路由择库机制 / `p-*` class / `.p-*` 选择器全部清零），新增全量零残留守卫；补回 `box-sizing` / `color-scheme` 两条运行期全局基线；包体 `coreEntryJs` 375,543 → **329,891 B**、`keyCss` 64,103 → **60,482 B**，配额收紧至 335KB / 62KB；覆盖率第十三批 **+140 条 / +0.38pp** |
 
-**准入结论**: 五条条目经用户在候选页 2026-11-08 确认：① 调色板 token 走**项目语义层 `--m-*`**（`color-mix` 从 `--caomei-*` 派生，业务文件只引用 `--m-*`）；② 卸载范围包含 **`primeicons` / `primelocale` / 路由择库机制**（`resolveUiLibraryForRoute*` + 路由 scope 守卫改为「全站 caomei + 零 PrimeVue 残留」全量守卫，浮层族专用守卫保留）；③ **纳入覆盖率第十三批**（P2，超时可移出）。条目 1–4 来自 backlog 长期主线 #10 与 #11 的 S1 幻影 token；条目 5 来自长期主线 #1。ROI：基座 2.00 / 组件替换 1.60 / token 切换 1.50 / 卸载收口 1.80 / 覆盖率 1.75。
+### 第七十二阶段归档结论（最近归档阶段）
 
-**准入前置（已核对 2026-11-08）**: 第七十一阶段已审计归档、`todo.md` 无已完成阶段正文、工作区干净且 `master` 与 `origin/master` 同步；CI `Test` 15 job 全绿（`2c954194`）、`v1.30.0` 经手动触发的 Release workflow 发布成功；本地 `release:check` 10/10；`docs:check:source-of-truth` PASS（仅 soft warning）；覆盖率 79.23%（29,147 / 36,790）；入口包体 `coreEntryJs` 375,368 B / 378,880 B、`keyCss` 63,337 B / 70KB。
+**审计结论**: 第七十二阶段五条条目全部完成并归档（2026-11-08 立项，2026-11-09 收口）。条目 1 落盘 120 个唯一 `--p-*` 的三分类映射表与 `--m-*` 派生层，并建立禁新增守卫；条目 2 完成剩余 46 处 / 14 类 PrimeVue 组件替换（组件口径 46 → 0）；条目 3 按样式基座 / 公开页与共享组件 / 管理端三批把 token 从 1,420 清零，桥接方向反转为 `--m-* → --caomei-*`；条目 4 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 与 Aura 预设、`plugins/primevue-i18n.ts`、路由择库机制，`p-*` class 151 → 0、`.p-*` 选择器 83 → 0，并以 `tests/modules/primevue-residual-guard.test.ts`（组件 / 图标 / token / class / 选择器 / 依赖 / 包引用 / `@layer` / `usePrimeVue` / `*-v2.vue`）建立全量零残留守卫；卸载同时补回 PrimeVue 主题运行期注入的 `* { box-sizing: border-box }` 与 `color-scheme` 两条全局基线（缺失导致 15 张视觉基线失败）。条目 5 补测 4 个主模块 + 6 个小模块，全仓 statements **29,995 → 30,135 / 36,828（+140 条 / +0.3801pp）**，并清理 4 处「Mock PrimeVue」残留注释。验证：全量 `pnpm test:coverage` 600 passed / 1 skipped（601 文件）/ 5,265 passed；`test:visual` 32/32、`parity` 83/83、E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`typecheck` / `lint` / `stylelint` / `docs:check:*` 全通过；`test:perf:budget` 通过（`coreEntryJs` 322.16KB / 335KB、`keyCss` 59.06KB / 62KB）。阶段收口 `regression:phase-close` 结论 **__GATE_CONCLUSION__**（__GATE_EVIDENCE__）。各批 Review Gate 均 Pass（条目 4 Round 1 Reject → Round 2 Pass；条目 5 Round 1–2 Reject → Round 3 Pass）。
 
-**长期主线容量说明**: token 切换是单阶段体量最大的样式改动（1,420 处 / 136 文件，含 120 个唯一 token 的语义判定），因此条目 1 必须先落映射表与 `--m-*` 派生层，条目 3 再按 3 批执行、各自独立视觉门禁；条目 4 的卸载必须与条目 3 同批收口（卸载会使 `--p-*` 定义源消失）。治理侧只上收覆盖率第十三批，其余主线由 `pnpm regression:weekly` 保持不回退。
-
-1. **token 语义审计与映射基座（P1）**: 120 个唯一 token 三分类（v4 语义角色 / v4 调色板 / v3 幻影）；`styles/main.scss` 落地 `--m-*` 派生层（surface / primary / 状态色三组，`color-mix` 从 `--caomei-*` 生成）；映射表落盘；新增「禁止新增 `--p-*`」守卫；采集卸载前基线。**非目标**: 不改业务用法、不删依赖。**验收**: 分类覆盖 100%、`--m-*` 在三套预设下可解析、守卫可判红、基线四项落盘。
-2. **剩余 PrimeVue 组件替换（P1）**: 46 处 / 14 类全部换 caomei 等价件（Checkbox 布尔/数组双模型、`Column` 残留复核、`error.vue` 的 Button）；按宿主路由分批并同步测试 stub。**非目标**: 不改表单业务逻辑。**验收**: 组件口径 0、parity 83/83、visual 24/24、E2E critical 全绿。
-3. **token 反向切换（P1）**: 1,420 处按「样式基座 229 → 公开页与共享组件约 551 → 管理端约 513」三批替换；语义角色换 `--caomei-*`、调色板换 `--m-*`；幻影 token 清理并入。**非目标**: 不改视觉设计、不做 `:deep()` 泛化清理。**验收**: `--p-*` 口径 0、主题工作台基线不回退、visual 24/24、parity 83/83。
-4. **PrimeVue 卸载、样式耦合清理与预算回落（P1）**: 移除 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 与 `plugins/primevue-i18n.ts`；清 Aura 预设 / `cssLayer` / locale / dedupe / optimizeDeps / `primeicons.css`；删除路由择库机制并改为零残留全量守卫（浮层族专用守卫保留）；清理 `p-*` class 151 处、`.p-*` 选择器 83 处与 PrimeVue 专用 `:deep()`；复算并收紧 `keyCss` / `coreEntryJs`。**非目标**: 不升级 caomei-ui、不删 `@mdi/font`。**验收**: build / frozen-lockfile 干净、脚本口径全 0（或脚本退役）、三层视觉与 E2E 全绿、包体下降且配额三处联动、文档同步。
-5. **覆盖率第十三批 + 卸载后回归补齐（P2）**: 4 模块且含 ≥1 大基数（`setting.ts` 25 / `post.ts` 23 / `server/utils/logger.ts` 61 / `agreement.ts` 1），目标 `+0.3pp`；补测卸载后失去 PrimeVue mock 的测试文件。**非目标**: 不做全量铺量。**验收**: 覆盖率算式与增量落盘、`typecheck` / `lint` 0 error。
-
-**回滚边界**:
-
-- 条目 1：`--m-*` 派生层与守卫可独立移除，不影响现有 `--p-*`。
-- 条目 2：按宿主路由独立回滚。
-- 条目 3：按 3 批独立回滚（样式基座 / 公开页 / 管理端）。
-- 条目 4：与条目 3 同批提交，回滚需整体 revert（恢复 nuxt 配置、依赖、插件与路由择库机制）。
-- 条目 5：测试文件与覆盖率产物独立可回滚。
-
-**风险提示**: ① token 切换触及 136 文件，必须先落映射表再批量替换，禁止边改边猜；② `--m-*` 的 `color-mix` 派生在暗色与三套预设下需逐组验算，避免浅色通过、暗色回退；③ 卸载会使 `--p-*` 定义源消失，**token 清零与卸载必须同批**，不得先删依赖再补样式；④ `:deep()` / `:global()` 中混有 caomei 与通用用法，只能清理确认仅服务 PrimeVue 的部分；⑤ 卸载后 `coreEntryJs` / `keyCss` 的回落幅度不得直接用于放宽配额，须按实测收紧；⑥ 覆盖率第十三批为 P2，若阶段超时优先移出，不得为凑增量放宽断言。
-
-> 后续阶段轨迹（未展开规划）：**第七十三阶段 = 卸载后观察与性能/覆盖率回归**——监控 `coreEntryJs` / `keyCss` 回落是否稳定、`test:perf:budget:strict` 与 CWV 基线、PrimeVue 残留守卫长期有效性，以及长期主线 #1 的下一批覆盖率切片。具体分桶与验收在准入时按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 单独评估，本阶段不提前落盘。
+> 未覆盖边界与后续观察项：① 三处**层序导致的既有样式失效**（社交登录按钮品牌色 / `admin-form-dialog` 宽度 / `.translation-badge` 尺寸）已登记 backlog #11，需浏览器人工验收后修复；② `@mdi/font` 保留（11 类品牌图标 / 22 处），体积收敛另立候选；③ `--m-radius-md` / `--m-radius-sm` 冻结 6px / 4px，管理端圆角不再随主题变化（与 PrimeVue 原行为一致）；④ `docs/design/ui.md` 的组件库对照表仍为迁移期描述，需后续改写；⑤ 本地全量覆盖率存在 `virtual:intlify-i18n` 并发 0-test 抖动，统一以「清 `.vitest-cache` + `--maxWorkers=4`」的干净跑为准，CI 为最终裁决。
 
 ---
 
