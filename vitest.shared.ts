@@ -8,9 +8,12 @@ const availableCpuCount = os.cpus().length
 // 存在 worker thread CWD 竞态，导致 pnpm 在 D:\tmp 目录执行并报
 // ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND。forks 池无此问题。
 const testPool = 'forks'
+// 本地 8 核 + 默认并发会让 `virtual:intlify-i18n` 在部分 worker 中解析失败
+// （表现为 25 个套件 0-test 收集失败，CI 单/低核环境不复现）；普通测试上限收敛到 4，
+// 与稳定的覆盖率并发（ceil(cpus/2)）一致。CI runner 通常 ≤4 核，实际并发不变。
 const maxWorkerCount = isCoverageRun
     ? Math.ceil(availableCpuCount / 2)
-    : availableCpuCount
+    : Math.min(availableCpuCount, 4)
 const coverageExecArgv = isCoverageRun
     ? ['--max-old-space-size=6144']
     : undefined
@@ -36,6 +39,10 @@ const i18nRuntimeTestFiles = [
 ]
 
 const baseVitestOptions = {
+    // 覆盖率与普通测试使用独立缓存：覆盖率运行会写入带 `virtual:intlify-i18n-0`
+    // 引用的预构建产物，普通运行复用后会报 `Cannot find module`（25 个套件 0-test）；
+    // 分开缓存即可消除该跨模式污染（本地与 CI 同口径）。
+    cacheDir: isCoverageRun ? 'node_modules/.vitest-cache-coverage' : 'node_modules/.vitest-cache',
     test: {
         globals: true,
         environment: 'nuxt',
