@@ -224,6 +224,12 @@
     - **范围**: 纯指针——js-yaml 5 见短期候选 #5；ESLint 严格规则批次见 #262；视觉门禁去 `continue-on-error` 见 #6③；入口包体专项见 #8。
     - **状态**: 候选（2026-11-10 登记；用户备注 A+B+C 的余项），按 [项目规划规范](../standards/planning.md) §4.5 Step 7 在第七十三阶段收口后重新评估。
     - **前置**: 各子项独立验收；js-yaml 需先定 override 归属，ESLint 需按批次给出 warning→error 清单，视觉门禁需先完成 CI 参考态复采。
+15. **首页 SWR 与 i18n 响应 cookie 冲突（nuxt 4.6.4 / nitropack 2.13.6 引入，待决策）**
+    - **背景**: 第七十三阶段条目 6 的 nuxt 4.6.4 升级带来 nitropack 2.13.6，新增「响应带 `Set-Cookie` 或 `Cache-Control: private|no-store|no-cache` 时不进入缓存」的安全规则；而 `@nuxtjs/i18n` 的 `detectBrowserLanguage.useCookie` 让 `/` 每次 SSR 都写 `i18n_redirected`，导致首页 SWR 在 Nitro 侧不再生效。
+    - **实测依据（2026-11-10）**: `/robots.txt`（swr 86400）与 `/sitemap_index.xml`（swr 3600）两次请求均返回 `cache-control: s-maxage=..., stale-while-revalidate` 且内容/`X-Sitemap-*` 一致（命中）；`/` 无论是否携带 cookie 都返回 `set-cookie: i18n_redirected=zh-CN` 且无 `cache-control`（不缓存）；`/posts/:slug` 无 cookie，`isr` 在 Node preset 本就不写 Nitro 缓存。升级前 nitropack 2.13.5 不校验 `Set-Cookie`，缓存生效但会把该 cookie 复制给所有访客。
+    - **候选方案**: ① 保持现状（安全优先，另用边缘 / CDN 缓存兜底）；② 关闭 `detectBrowserLanguage.useCookie` 或改为仅在需要重定向时写 cookie（须评估语言偏好持久化与 `/` 根重定向行为）；③ 对 `/` 走独立边缘缓存键控（须先证明不泄漏 cookie）。
+    - **非目标**: 不放宽 4.6.4 的缓存安全规则；不改 `routeRules` 的 swr / isr 时长；不为恢复缓存改动鉴权或会话链路。
+    - **前置**: 确认生产侧首页缓存命中率与回源量；评估关闭 cookie 对五语用户的影响。
 
 ---
 

@@ -167,8 +167,9 @@ const previewPost = computed<Post>(() => ({
         { id: 'theme-preview-preview-tag', name: 'Preview', slug: 'preview' },
     ],
     views: 1234,
-    publishedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
+    // 固定日期：预览卡日期会进入视觉基线，使用 new Date() 会让基线每天漂移并吃掉像素容差。
+    publishedAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00:00.000Z',
     language: 'zh-CN',
 }))
 
