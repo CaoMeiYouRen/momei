@@ -131,6 +131,9 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
+      - run: pnpm run i18n:audit:missing
+      # 原文级重复键当前为可观测面（warn 恒绿），阻断口径待基线稳定后再收紧。
+      - run: pnpm run i18n:audit:raw-duplicates
       - run: pnpm run docs:check:links
       - run: pnpm run docs:check:markers
       - run: pnpm run typecheck

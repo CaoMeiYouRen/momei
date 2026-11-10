@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-10
 translation_tier: summary-sync
 ---
 
@@ -65,6 +65,7 @@ Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit
 -   **high**: fix first; exempt only when no patched version exists or the fix is disproportionately hard, and record the reason plus a `temporaryException` deadline in the exceptions file (deferred) or the dependency-risk allowlist (unavailable patch / path-level), keeping the item tracked for a prompt fix.
 -   **moderate / medium and below**: may be deferred to regular dependency upgrades and do not block a release.
 -   **Code Scanning**: same severity rules; alerts under `tests/` or classified as test-only are observe-only (out of scope, not an exemption).
+-   **Dismissed / fail-closed**: both `open` and `dismissed` alerts are read. Dismissed high+ alerts block unless registered as `false-positive` in the exceptions ledger; a data-source gap (permission, network, malformed response) fails closed and blocks. `security:alerts` does not use `--transition-mode`. See the [dismissed / fail-closed alignment record](../../../design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md) for the rationale and per-item handling.
 -   **Data source prerequisites**: Code Scanning requires `security-events: read` or `SECURITY_ALERTS_TOKEN`; when the official Dependabot API is unavailable the gate falls back to `pnpm audit --registry=https://registry.npmjs.org/`. Missing sources (no token, insufficient permission, unavailable API) must be recorded in the gate evidence and noted in the release record; never skip them silently.
 -   **Exemptions expire**: re-check and remove entries once the deadline passes or an upstream patch ships.
 

@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:i18n-audit:原文级重复键与PR门禁:2026-11-10 -->
+## 2026-11-10 i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断
+
+- 执行入口: `pnpm i18n:audit:raw-duplicates`、`pnpm i18n:audit:duplicates`、`pnpm i18n:audit:missing`（含临时删键判红）、`pnpm i18n:check-sync`、`pnpm docs:check:i18n`、`pnpm lint` / `pnpm lint:i18n` / `pnpm typecheck`、定向 `pnpm exec vitest run tests/scripts/audit-raw-duplicate-keys.test.ts`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-10-i18n-audit.md`；PR 侧门禁见 `.github/workflows/test.yml` 的 `i18n:audit:missing` / `i18n:audit:raw-duplicates` 步骤
+- 结果摘要: `Pass`；blocker=0（Round 1 的 CLI 参数破坏、Round 2 的回归记录口径均已修复），warning=0。
+- 变更范围: 新增 `scripts/i18n/audit-raw-duplicate-keys.mjs`（对象栈扫描同对象重复键，默认 warning、`--mode=error` 可阻断）与 `tests/scripts/audit-raw-duplicate-keys.test.ts`（11 例）；`i18n:audit:duplicates` 保持原样（仅跨语言文案候选），原文级扫描独立为 `i18n:audit:raw-duplicates` 入口（Round 1 的串联方案已回退）；`test.yml` 的 `test` job 增加 `i18n:audit:missing`（阻断）与 `i18n:audit:raw-duplicates`（warning）。
+- 实测: 130 个 locale JSON 原文级重复键 0；五语 sync 通过；临时删除 `pages.admin.waitlist.empty_description` 后 `i18n:audit:missing` 退出 1 并点名该键，恢复后为 0。
+- 回归窗口: 本窗口正文 9 行（含标题）；`current.md` 全文件 77 行 / 6 条（`assessRegressionLogWindow` 口径），归档判定=窗口健康。
+- Review Gate: `Reject` → `Pass`（Round 1 blocker：串联新扫描破坏 `i18n:audit:duplicates` 的 CLI 参数契约；Round 2 blocker：回归记录事实与窗口口径失真；Round 3 仅复审修复点）。
+<!-- regression-window:end:i18n-audit:原文级重复键与PR门禁:2026-11-10 -->
+
 <!-- regression-window:start:ui-s1:空态三态与层序收尾:2026-11-10 -->
 ## 2026-11-10 UI S1 收尾：空态三态、空表分页与三处层序失效
 

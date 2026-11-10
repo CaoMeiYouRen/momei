@@ -75,7 +75,7 @@
 - 禁止为了减少翻译工作量，让公共页长期引用后台页面 key，或让后台页直接复用公共页私有 key；若必须短期复用，需同步补齐依赖声明与迁移计划。
 - 在决定是否上收到共享命名空间前，先运行 `pnpm i18n:audit:duplicates`。该脚本只标记“所有扫描语言里翻译签名完全一致”的重复候选，避免因为单语种撞词就误判为可复用文案。
 - 审计结果只提供候选，不直接等于应该抽取；是否提取到模块共享或全局共享，仍要结合组件职责、加载边界和未来演进方向逐条判断。
-- **原文级重复键不在 `i18n:audit:duplicates` 的可见范围**：`JSON.parse` 会在解析阶段折叠同名键（后者覆盖前者），审计只能看到解析后的对象；需要按原文扫描（如 `i18n:audit:duplicates` 的原文口径或独立脚本）才能发现。同一键在「菜单」与「页面标题」等语境下取值可能分叉，收敛时选语义更完整的一方并补对应模块键。
+- **原文级重复键不在 `i18n:audit:duplicates` 的可见范围**：`JSON.parse` 会在解析阶段折叠同名键（后者覆盖前者），跨语言文案审计只能看到解析后的对象；原文级重复键由 `pnpm i18n:audit:raw-duplicates` 按对象栈扫描 JSON 原文发现（默认 warning，`--mode=error` 可阻断，已接入 PR 侧 `test.yml` 作可观测项）。同一键在「菜单」与「页面标题」等语境下取值可能分叉，收敛时选语义更完整的一方并补对应模块键。
 
 ## 4. 术语约束
 
@@ -179,6 +179,7 @@ pnpm i18n:audit:duplicates
 | 周级治理 | `pnpm regression:weekly` | 内含 `i18n:audit:missing`，任一 required 步骤失败即 blocker |
 | 发版前 | `pnpm regression:pre-release` / `pnpm release:check:full` | `i18n:audit:missing` 失败直接阻断发版 |
 | 阶段收口前 | `pnpm regression:phase-close` | `release:check:full` 内部的 `i18n:audit:missing` 失败直接阻断归档 |
+| PR（`test.yml` 的 `test` job） | `pnpm i18n:audit:missing`（阻断）+ `pnpm i18n:audit:raw-duplicates`（warning 面） | 缺失键在 PR 侧直接阻断；原文级重复键当前只观测、不阻断，待基线稳定后收紧 |
 | 日常 i18n 代码改动 | `pnpm lint:i18n` + `pnpm i18n:audit:missing` | 只要本次变更触及 `i18n/locales/**`、`i18n/config/**`、共享组件命名空间或 locale 模块装配，缺词就按本次 PR / Review Gate blocker 处理 |
 
 `pnpm i18n:audit:unused` 的口径统一为 warning / cleanup candidate，不直接阻断 release、weekly 或 phase-close。只有当本次任务目标本身就是“删除旧 key、收敛未使用文案、证明某模块可安全裁剪”时，才把 unused 结果升级为当前任务的必过检查。
