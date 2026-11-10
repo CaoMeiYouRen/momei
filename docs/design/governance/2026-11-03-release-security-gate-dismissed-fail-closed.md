@@ -30,7 +30,7 @@ momei 已有发布前安全门禁（`pnpm security:alerts` + `pnpm security:audi
 | `scripts/security/security-alert-gate-shared.mjs` | 双状态拉取；部分失败保留已读取告警；非数组 / 缺失 sourceStatuses fail-closed；source fail-closed；transition 输出 |
 | `scripts/security/check-github-security-alerts.mjs` | 传递 source 状态、计算 `effectiveBlocking`、输出 transition findings 与 warnings |
 | `package.json` | `security:alerts` 增加 `--transition-mode` |
-| `.github/security/security-alert-exceptions.json` | 迁移到 v2 字段；保留 mjml / quill 并标记已到期；移除已 fixed 且 medium 的 code-scanning 30 / 31 |
+| `.github/security/security-alert-exceptions.json` | 迁移到 v2 字段；保留 mjml / quill 并标记已到期（本条已由 §6 退出记录取代）；移除已 fixed 且 medium 的 code-scanning 30 / 31 |
 | `docs/standards/security.md` §5.3 | 更新扫描范围、dismissed 语义、台账字段、fail-closed、过渡模式 |
 | `scripts/governance/count-primevue-usage.mjs` | 修复 Code Scanning #44：HTML 注释闭合符同时接受 `-->` 与 `--!>` |
 | `tests/scripts/check-github-security-alerts.test.ts` | 补 dismissed / fail-closed / 双状态拉取 / 过期台账用例 |
@@ -41,7 +41,7 @@ momei 已有发布前安全门禁（`pnpm security:alerts` + `pnpm security:audi
 - **部分失败**：某个 state 或分页失败时保留已成功读取的告警，并同时把数据源标记为缺口；transition 模式只降级数据源缺口，不放松已读取的 open 告警。
 - **台账强校验**：非 legacy 条目必须提供 `expiresAt`、`tracking`、`target`；Code Scanning 另需 `location`；`target` / `location` / 原 dismiss 原因与告警不匹配时不放行。
 - **本地执行**：`security:alerts` 需要 GitHub token；无 token 时 Code Scanning 会进入 transition warning，切阻断后则直接失败。CI 已有 `security-events: read`，不受影响。
-- **台账**：mjml / quill 的 `expiresAt` 已过期，每次门禁会输出 warning；这是“标记失效而非删除”的保留方式，需在后续复核时决定修复、替换或清理。
+- **台账**：mjml / quill 的 `expiresAt` 已过期，每次门禁会输出 warning；这是“标记失效而非删除”的保留方式，需在后续复核时决定修复、替换或清理（本条已由 §6 退出记录取代）。
 - **Dependabot 降级**：仅缺少读取 token 时回退 `pnpm audit`，状态标记为 `fallback` 并输出 warning；权限、网络与响应异常保留 failure，切阻断后会阻塞发布。
 
 ## 5. 复查与退出条件
@@ -50,3 +50,10 @@ momei 已有发布前安全门禁（`pnpm security:alerts` + `pnpm security:audi
 - 退出动作：移除 `package.json` 中 `security:alerts` 的 `--transition-mode`，并在同一提交中更新 [安全开发规范 §5.3](../../standards/security.md)。
 - 切阻断前必须处理：dismissed #43 的 `won't fix` 归类（修复或补 false-positive 依据）；确认 mjml / quill 过期条目已复核。
 - 若 Code Scanning #44 修复后 CI 复扫未关闭，按实际告警继续修复，不使用豁免绕过。
+
+## 6. 退出记录（2026-11-10，第七十三阶段条目 2）
+
+- **已移除** `--transition-mode`：`security:alerts` 恢复完整阻断，实测输出 `transition mode: off`、`high+ blocking alerts: 0`、`transition findings: 0`。
+- **#43 处置**：`scripts/docs/check-doc-markers.mjs` 的 `ORPHAN_CLOSE_RE` 改为 `^--!?>(\s|$)`（HTML5 注释结束的两种形态），并补 `--!>` 单测；GitHub 侧将 #43 由 `won't fix` 重分类为 `false positive`，台账登记 `category: false-positive`、`location` 与 `expiresAt: 2027-05-15`，`reason` 保留原 dismiss 原因与「检测器非过滤器」依据。
+- **过期台账清理**：`mjml`（`GHSA-45h5-66jx-r2wf`）已无 open 告警，条目删除；`quill`（`GHSA-v3m3-f69x-jf25`）当前为 low 且无 patched version，低于 `--min-severity=high`，条目删除并按 moderate/low 规则不阻断，仍在 backlog 跟踪上游修复。
+- **验证**：`pnpm security:alerts` Pass（无 warning）；`pnpm security:audit-deps` Pass（relevant risks 0）；`tests/scripts/check-doc-markers.test.ts` 20 passed。

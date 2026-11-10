@@ -29,12 +29,13 @@
     - **回滚边界**: 空态组件 / 分页绑定 / 三处样式修复按文件组独立回滚；`ui.md` 可单独回退。
     - **完成摘要（2026-11-10）**: 新增共享 `AppEmptyState`（图标 + 说明 + 主操作），替换 7 个文件对 `pages.posts.empty` 的复用并按对象补齐五语 key（评论 / 订阅者 / 候补 / 分类 / 标签 / 文章管理 + 公开列表说明）；空表分页改为按 `total` 判定（`total > 0` 才渲染，避免末页删空后无法回退），5 处绑定同步（分类 / 标签共用组件）；三处层序修复——`.social-btn` 与 `.admin-form-dialog` 宽度钩子移出 `@layer momei-base`（实测社交按钮品牌色生效、弹窗 608 / 576 / 544px），`.translation-badge` 复核维持 24px / 32px token 口径；`ui.md` §3.1–§3.4 按 caomei-ui 重写。验证：`test:visual` 32 passed、`test:visual:parity` 83 passed、`lint` / `lint:css` / `typecheck` 0 error、定向 vitest 144 passed；证据见 `artifacts/review-gate/2026-11-10-phase73-entry1-ui.md` 与 `artifacts/review-gate/entry1/`。
 
-- [ ] **2. 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**
+- [x] **2. 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**
     - **执行范围**: #43（`js/bad-tag-filter`，`scripts/docs/check-doc-markers.mjs`，dismissed `won't fix`）优先修复正则；若确认脚本只读、输入为仓库受信文档、正则是检测器而非过滤器，则按 `false-positive` 重分类并登记依据；复核 `security-alert-exceptions.json` 的 mjml / quill 过期条目（续期并写明理由与跟踪，或替换 / 移除依赖）；移除 `package.json` 的 `--transition-mode`；同步 `docs/standards/security.md §5.3` 与 dismissed / fail-closed 治理文档。
     - **非目标**: 不改 critical 不可豁免与 open 告警阻断口径；不借机放宽 `--min-severity`。
     - **验收标准**: `pnpm security:alerts`（无 transition）Pass；`pnpm security:audit-deps` Pass；台账无过期项；CI `security:alerts` 绿；文档同步。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；门禁输出写入 `artifacts/review-gate/*-security-alerts.*`。
     - **回滚边界**: `--transition-mode` 移除可单独回退；#43 的 false-positive 重分类需在 GitHub 侧恢复原 dismiss 原因。
+    - **完成摘要（2026-11-10）**: `scripts/docs/check-doc-markers.mjs` 的孤立尾行正则改为 `^--!?>(\s|$)`（同时接受 HTML5 的 `-->` / `--!>`）并补单测；GitHub 侧 #43 由 `won't fix` 重分类为 `false positive`，台账登记 `category: false-positive` / `location` / `expiresAt: 2027-05-15`；移除 `package.json` 的 `--transition-mode`，`security:alerts` 恢复完整阻断；删除 mjml（已无告警）与 quill（降为 low、无补丁，留 backlog）两条过期台账；同步 `security.md §5.3` 与 dismissed / fail-closed 治理文档退出记录。验证：`security:alerts` Pass（transition off、transition findings 0、warning 0）、`security:audit-deps` Pass（relevant risks 0）、`check-doc-markers.test.ts` 20 passed；CI `security:alerts` 待推送后回填。
 
 - [ ] **3. i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断（P2）**
     - **执行范围**: 在 `scripts/i18n/audit-duplicate-messages.mjs`（或独立脚本）补原文级重复键扫描（对象栈检测，30–50 行 + 单测 fixture 能判红），接入 `i18n:audit:duplicates` 或新增 `i18n:audit:raw-duplicates`；先以 warning 面运行；把 `i18n:audit:missing`（或 `i18n:check-sync --fail-on-diff`）加入 PR 侧 `test.yml` 的 `test` job（现执行 `pnpm run lint` / `lint:i18n` / `lint:css`）。

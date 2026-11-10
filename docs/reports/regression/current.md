@@ -23,6 +23,18 @@
 - Review Gate: `Reject` → `Pass`（Round 1 blocker：空态与页头双 primary、证据引用失真；Round 2 blocker：`ui.md` 分页口径与实现相反；Round 3 仅复审修复点，taxonomy 错误分支测试登记为已知边界）。
 <!-- regression-window:end:ui-s1:空态三态与层序收尾:2026-11-10 -->
 
+<!-- regression-window:start:security-gate:发布安全门禁收口:2026-11-10 -->
+## 2026-11-10 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式
+
+- 执行入口: `pnpm security:alerts`（无 `--transition-mode`）、`pnpm security:audit-deps`、`pnpm exec vitest run tests/scripts/check-doc-markers.test.ts`、`pnpm lint` / `pnpm typecheck`、`pnpm docs:check:links` / `lint-md`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-10-security-alerts.md`（+ `.json`）
+- 结果摘要: `Pass`；blocker=0，warning=0（`transition findings: 0`、`high+ blocking alerts: 0`）。
+- 变更范围: `scripts/docs/check-doc-markers.mjs` 的孤立尾行正则改为同时接受 `-->` / `--!>`（HTML5 comment end bang state）并补单测；GitHub 侧把 #43 由 `won't fix` 重分类为 `false positive`，台账登记 `category: false-positive`、`location`、`expiresAt: 2027-05-15`；移除 `package.json` 的 `--transition-mode`；删除 mjml（已无告警）与 quill（降为 low、无补丁）两条过期台账；同步 `docs/standards/security.md §5.3` 与 dismissed / fail-closed 治理文档。
+- 验证: `security:alerts` Pass（transition off、excepted 1、warning 0）；`security:audit-deps` Pass（relevant risks 0）；`check-doc-markers.test.ts` 20 passed。
+- 回归窗口: 8 行 / 1 条，归档判定=窗口健康。
+- Review Gate: `Reject` → `Pass`（Round 1 blocker：`security.md §5.3` 规范正文含日期 / 阶段号历史叙述；warning：quill 无落点、CI 证据未取证、旧 transition 口径残留、回归记录预填 Pass；Round 2/3 仅复审修复点）。
+<!-- regression-window:end:security-gate:发布安全门禁收口:2026-11-10 -->
+
 <!-- regression-window:start:dependency-upgrade:nuxt 4.6.4 安全升级与视觉基线归因:2026-11-10 -->
 ## 2026-11-10 nuxt 4.6.4 安全升级与视觉基线归因
 

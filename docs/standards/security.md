@@ -79,7 +79,7 @@
 -   **台账**: `.github/security/security-alert-exceptions.json` 为告警豁免台账（`version: 2`），字段至少包含 `id`、`source`、`severity`、`category`、`target`、`reason`、`review`、`tracking`、`expiresAt`；`target` 在 Dependabot 为包名、Code Scanning 为 rule id；Code Scanning 另需 `location`（实例文件路径），Dependabot 的 `path`（依赖路径）仅在数据源提供依赖链时校验（如 `pnpm audit` fallback）。`reason` 必须原样包含 GitHub 的 dismiss reason（如 `won't fix` / `tolerable_risk` / `used in tests`）。`expiresAt` 为 ISO 日期，到期即失效并重新阻塞；条件形式写在 `review` 中并由发布前人工复核。`critical` 与 `moderate` / `low` 不得登记。
 -   **双台账分工**: `security-alert-exceptions.json` 处理 GitHub 告警级豁免；`dependency-risk-allowlist.json` 处理 `pnpm audit` 的依赖路径级风险。`pnpm audit` 绿灯不等于可发布，`audit.ignore` 不构成发布豁免。
 -   **fail-closed**: 401 / 403 / 404、超时、429 / 5xx 重试耗尽、响应非数组、严重级别无法判定 → 判失败，不得视为“无告警”。仅当缺少 Dependabot 读取 token 时，允许回退 `pnpm audit` 并在证据中标记为降级（`fallback`）；权限、网络与响应异常仍按失败处理。Code Scanning 无等价回退，读取失败即阻断。
--   **过渡模式**: `security:alerts` 当前带 `--transition-mode`，对 `dismissed` 与 fail-closed 新检查只报告、不阻断；`open` 告警的既有阻断行为不变。一个发布周期结束后移除该参数，恢复完整阻断；过渡期内仍需在发布记录中说明未处理的 transition findings。
+-   **dismissed / fail-closed 阻断**: `security:alerts` 不传 `--transition-mode`；`dismissed` high+ 与 fail-closed 数据源缺口均直接阻断，只允许按 `false-positive` 台账放行。过渡期退出依据与逐条处置见 [发布安全门禁 dismissed 与 fail-closed 对齐](../design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md)。
 -   **分页口径**: GitHub Dependabot alerts API **不支持** `page` 参数（带 `page` 直接 HTTP 400），必须按响应 `Link` 头的 `rel="next"` 翻页；Code Scanning 支持 `page`，但统一走 `Link` 头最稳。
 -   **执行位置**: 预检必须在版本提升之前；阻断检查在发布动作之前；周回归复用同一门禁。
 -   **豁免有期限**: 到期或上游发布可用补丁后必须复核并移除条目，不得长期挂账。

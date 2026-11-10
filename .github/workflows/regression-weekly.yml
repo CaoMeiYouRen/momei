@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 周回归复用发布前同一安全门禁，覆盖「主分支长期带病」。
-      # 过渡期内 dismissed / fail-closed 只报告，open 告警仍阻断。
+      # dismissed high+ 与 fail-closed 数据源缺口均直接阻断，只允许按 false-positive 台账放行。
       - name: Run security alert gate
         if: always()
         run: pnpm run security:alerts

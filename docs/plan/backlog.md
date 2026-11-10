@@ -230,6 +230,10 @@
     - **候选方案**: ① 保持现状（安全优先，另用边缘 / CDN 缓存兜底）；② 关闭 `detectBrowserLanguage.useCookie` 或改为仅在需要重定向时写 cookie（须评估语言偏好持久化与 `/` 根重定向行为）；③ 对 `/` 走独立边缘缓存键控（须先证明不泄漏 cookie）。
     - **非目标**: 不放宽 4.6.4 的缓存安全规则；不改 `routeRules` 的 swr / isr 时长；不为恢复缓存改动鉴权或会话链路。
     - **前置**: 确认生产侧首页缓存命中率与回源量；评估关闭 cookie 对五语用户的影响。
+16. **quill 上游补丁跟踪（GHSA-v3m3-f69x-jf25，low / 无 patched version）**
+    - **背景**: Dependabot 告警 #22 当前为 low 且无官方 patched version，低于 `security:alerts` 的 `--min-severity=high`，不阻断发布；`security-alert-exceptions.json` 中对应过期条目已按台账治理移除，不再占用 high 豁免额度。
+    - **待办**: 上游发布可用补丁版本后升级 `quill` 并重跑 `pnpm security:alerts` / `pnpm security:audit-deps`；若告警升级为 high 且仍无补丁，再按 `no-fix` 登记带期限的例外。
+    - **非目标**: 不为此替换编辑器依赖；不放宽 `--min-severity`。
 
 ---
 

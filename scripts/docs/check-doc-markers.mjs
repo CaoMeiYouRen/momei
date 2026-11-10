@@ -86,7 +86,11 @@ export const EXCLUDED_DIRS = new Set([
 
 const FENCE_RE = /^\s*(?:>[ \t]?)*([`~]{3,})/
 const INLINE_CODE_RE = /`[^`]*`/g
-const ORPHAN_CLOSE_RE = /^-->(\s|$)/
+// HTML5 注释结束标记有两种形态：`-->` 与 `--!>`（comment end bang state）。
+// 只认 `-->` 会被静态分析判为「HTML 过滤正则不完整」（rule `js/bad-tag-filter`）；本检查是
+// 只读检测器而非过滤器，但仍按规范接受两种形态，避免漏掉 `--!>` 残留尾行。
+// 范围限定：仅「孤立尾行」判据接受 `--!>`；块级注释闭合仍按 markdown-it 的 `-->` 判定。
+const ORPHAN_CLOSE_RE = /^--!?>(\s|$)/
 // blockquote（`>`）与列表标记（`- ` / `1. ` 等）可重复嵌套；每个标记只吞掉**至多一个**
 // 空白（多出的空白属内容缩进，交由缩进上限判定），块级注释开头判定前先剥离
 const BLOCK_MARKER_RE = /^(?:\s*(?:>[ \t]?|[-*+][ \t]|\d+[.)][ \t]))+/
@@ -313,7 +317,7 @@ export function checkDocFile(file) {
         if (!line.includes('<!--') && ORPHAN_CLOSE_RE.test(line.trimStart())) {
             findings.push({
                 line: lineNumber,
-                message: '孤立注释尾行（整行只剩 `-->`），疑似归档迁出窗口时的残留',
+                message: '孤立注释尾行（整行只剩 `-->` / `--!>`），疑似归档迁出窗口时的残留',
             })
         }
 

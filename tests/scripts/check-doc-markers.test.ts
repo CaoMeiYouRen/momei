@@ -184,6 +184,21 @@ describe('check-doc-markers: 文件级检查', () => {
         expect(messagesOf(findings)).toContain('孤立注释尾行')
     })
 
+    it('孤立尾行同时识别 `--!>`（HTML5 comment end bang state）', async () => {
+        const root = await createTempRoot()
+        const file = resolve(root, 'docs/reports/regression/current.md')
+        await writeProjectFile(root, 'docs/reports/regression/current.md', [
+            '--!>',
+            '--!>x 后面有字',
+            '',
+        ].join('\n'))
+
+        const findings = checkDocFile(file)
+
+        expect(findings.map((finding) => finding.line)).toEqual([1])
+        expect(messagesOf(findings)).toContain('孤立注释尾行')
+    })
+
     it('孤立尾行判据保持窄口径：`-->x` 与正文中的 `-->` 不报错', async () => {
         const root = await createTempRoot()
         const file = resolve(root, 'docs/reports/regression/current.md')

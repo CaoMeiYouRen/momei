@@ -548,7 +548,9 @@ function buildMarkdownArtifact({ alerts, artifactPaths, effectiveBlocking, gateC
         '## 已执行验证',
         '- 官方数据源优先读取 GitHub repository alerts API，并同时读取 open 与 dismissed 状态。',
         '- 仅缺少 Dependabot token 时，回退到 `pnpm audit --json --registry=https://registry.npmjs.org/` 并标记降级；权限 / 网络 / 响应异常保留 failure。',
-        '- Code Scanning 若因权限或未启用不可访问，按 fail-closed 记录为阻断项；transition 模式下先降级为 warning。',
+        transitionMode
+            ? '- Code Scanning 若因权限或未启用不可访问，按 fail-closed 记录为阻断项；transition 模式下先降级为 warning。'
+            : '- Code Scanning 若因权限或未启用不可访问，按 fail-closed 记录为阻断项，不降级。',
         '',
         '## Alerts Summary',
         `- alerts total: ${alerts.length}`,
@@ -645,7 +647,9 @@ function buildMarkdownArtifact({ alerts, artifactPaths, effectiveBlocking, gateC
     lines.push('')
     lines.push('### suggest')
     lines.push('- 若需在 CI 中稳定读取 Dependabot 仓库级告警，建议提供具备 Dependabot alerts read 权限的专用令牌。')
-    lines.push('- transition 模式只用于一个发布周期；到期后移除 `--transition-mode`，让 dismissed / fail-closed 检查恢复阻断。')
+    if (transitionMode) {
+        lines.push('- transition 模式只用于一个发布周期；到期后移除 `--transition-mode`，让 dismissed / fail-closed 检查恢复阻断。')
+    }
     lines.push('')
     lines.push('### Review Gate')
     lines.push(`- 结论: ${gateConclusion}`)

@@ -2,26 +2,16 @@
     "version": 2,
     "entries": [
         {
-            "id": "audit:mjml:GHSA-45h5-66jx-r2wf",
-            "source": "dependabot",
+            "id": "43",
+            "source": "code-scanning",
             "severity": "high",
-            "category": "no-fix",
-            "target": "mjml",
-            "reason": "mjml 当前开源发布线暂无上游补丁版本，先保留例外并持续关注上游修复发布。",
-            "review": "有效至 2026-05-15，或上游发布可用补丁版本后立即移除。",
-            "expiresAt": "2026-05-15",
-            "tracking": "docs/plan/backlog.md"
-        },
-        {
-            "id": "audit:quill:GHSA-v3m3-f69x-jf25",
-            "source": "dependabot",
-            "severity": "high",
-            "category": "no-fix",
-            "target": "quill",
-            "reason": "quill 当前告警没有官方 patched version，暂按低风险依赖例外处理并等待上游修复。",
-            "review": "有效至 2026-05-15，或上游发布可用补丁版本后立即移除。",
-            "expiresAt": "2026-05-15",
-            "tracking": "docs/plan/backlog.md"
+            "category": "false-positive",
+            "target": "js/bad-tag-filter",
+            "location": "scripts/docs/check-doc-markers.mjs",
+            "reason": "原 dismiss 原因：false positive（前次归类为 won't fix）。该正则只用于只读文档 lint 检测孤立注释尾行，输入为仓库受信文档，不参与任何 HTML 清洗或输出 sink，不是过滤器；同时已修正正则接受 HTML5 的 --!> 结束形态，按 false positive 重分类登记依据。",
+            "review": "有效至 2027-05-15；CodeQL 不再报告该文件后立即移除，或上游规则判定口径变化时复核。",
+            "expiresAt": "2027-05-15",
+            "tracking": "docs/design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md"
         }
     ]
 }
