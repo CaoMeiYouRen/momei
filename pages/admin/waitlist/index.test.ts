@@ -349,9 +349,13 @@ describe('AdminWaitlist page', () => {
         expect(onPageMock.mock.calls[0]![0]).toMatchObject({ page: 2, rows: 20 })
     })
 
-    it('空列表时渲染空态插槽（AdminTableEmptyState）', async () => {
+    it('空列表时渲染对象化空态（AppEmptyState），并隐藏分页', async () => {
         const wrapper = await mountComponent([], { page: 1, limit: 20, total: 0 })
         expect(wrapper.find('.stub-empty').exists()).toBe(true)
+        expect(wrapper.text()).toContain('pages.admin.waitlist.empty')
+        expect(wrapper.text()).toContain('pages.admin.waitlist.empty_description')
+        // 空表不渲染分页（界面自检清单 U1）。
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(false)
     })
 
     it('导出 CSV：按目的筛选拼接查询串并新开窗口', async () => {

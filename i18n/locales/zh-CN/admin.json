@@ -111,6 +111,8 @@
                 "purpose_filter": "全部目的",
                 "export": "导出 CSV",
                 "delete_confirm": "确定要移除此候补记录吗？",
+                "empty": "暂无候补记录",
+                "empty_description": "调整筛选条件，或等待访客加入候补名单后刷新。",
                 "columns": {
                     "name": "姓名",
                     "email": "邮箱",

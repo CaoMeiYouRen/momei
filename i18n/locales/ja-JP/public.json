@@ -31,6 +31,7 @@
                 "description": "Momei Blog に公開された最新の技術記事、エッセイ、更新情報を言語やトピック横断で閲覧できます。"
             },
             "empty": "記事が見つかりません",
+            "empty_description": "公開済みの記事はまだありません。しばらくしてから再度ご確認ください。",
             "status_warning": "この記事は現在 {status} 状態で、正式公開されていません。閲覧権限を持つユーザーにのみ表示されます。",
             "article_count": "{count} 件の記事",
             "total_count": "全 {count} 件の記事",

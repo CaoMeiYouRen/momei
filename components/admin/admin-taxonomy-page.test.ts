@@ -122,6 +122,17 @@ describe('AdminTaxonomyPage', () => {
         fetchMock.mockImplementation(() => Promise.resolve({ data: { items: [] } }))
     })
 
+    it('空表渲染对象化空态并隐藏分页', async () => {
+        const wrapper = await mountPage()
+        await flushPromises()
+
+        const emptyState = wrapper.find('.app-empty-state')
+        expect(emptyState.exists()).toBe(true)
+        expect(emptyState.attributes('data-title')).toBe('pages.admin.categories.empty')
+        expect(emptyState.attributes('data-description')).toBe('pages.admin.categories.empty_description')
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(false)
+    })
+
     it('hydrates existing translations when opening a missing translation draft', async () => {
         fetchMock.mockImplementation((...args: any[]) => {
             const options = args[1]

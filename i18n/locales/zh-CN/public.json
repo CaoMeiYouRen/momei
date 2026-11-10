@@ -31,6 +31,7 @@
                 "description": "浏览墨梅博客最新发布的技术文章、实践总结与创作内容，按语言与主题持续获取更新。"
             },
             "empty": "暂无文章",
+            "empty_description": "当前还没有已发布的文章，稍后再来看看。",
             "status_warning": "当前文章处于 {status} 状态，尚未正式发布，仅相关权限人员可见。",
             "article_count": "{count} 篇文章",
             "total_count": "共计 {count} 篇文章",

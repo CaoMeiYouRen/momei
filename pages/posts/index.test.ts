@@ -23,6 +23,7 @@ const mockFetchError = ref<any>(null)
 const routeQuery = reactive<{ page?: string }>({ page: '1' })
 const routerPushMock = vi.fn()
 const scrollToMock = vi.fn()
+const mockRefresh = vi.fn()
 const mockUsePageSeo = vi.fn((config?: { title?: () => string, description?: () => string }) => {
     config?.title?.()
     config?.description?.()
@@ -34,6 +35,10 @@ const translate = (key: string) => {
             return 'Posts'
         case 'pages.posts.empty':
             return 'No posts yet'
+        case 'pages.posts.empty_description':
+            return 'There are no published articles yet. Check back later.'
+        case 'common.back_to_home':
+            return 'Back to home'
         case 'pages.posts.meta.description':
             return 'Browse all published posts.'
         default:
@@ -61,6 +66,7 @@ mockNuxtImport('useAppFetch', () => () => ({
     data: mockFetchData,
     pending: mockFetchPending,
     error: mockFetchError,
+    refresh: mockRefresh,
 }))
 
 mockNuxtImport('useRoute', () => () => ({
@@ -108,6 +114,7 @@ describe('PostsIndexPage', () => {
         vi.clearAllMocks()
         routeQuery.page = '1'
         mockUsePageSeo.mockClear()
+        mockRefresh.mockClear()
         // Reset fetch state
         mockFetchData.value = {
             data: {
@@ -152,8 +159,27 @@ describe('PostsIndexPage', () => {
         const wrapper = await mountPage()
 
         // When data is empty and not pending, empty state should show
-        expect(wrapper.find('.posts-page__empty').exists()).toBe(true)
-        expect(wrapper.text()).toContain('No posts yet')
+        const emptyState = wrapper.find('.app-empty-state')
+        expect(emptyState.exists()).toBe(true)
+        expect(emptyState.text()).toContain('No posts yet')
+        // 界面自检清单 U1：空态包含图标 + 说明 + 主操作。
+        expect(emptyState.find('.app-empty-state__icon').exists()).toBe(true)
+        expect(emptyState.text()).toContain('There are no published articles yet. Check back later.')
+        expect(emptyState.find('.app-empty-state__action').exists()).toBe(true)
+        expect(emptyState.text()).toContain('Back to home')
+        // 空表不渲染分页（界面自检清单 U1）。
+        expect(wrapper.find('.posts-page__pagination').exists()).toBe(false)
+    })
+
+    it('错误态点击「重试」触发 refresh', async () => {
+        mockFetchError.value = { message: 'Error message' }
+        const wrapper = await mountPage()
+
+        const retryButton = wrapper.find('.posts-page__error button')
+        expect(retryButton.exists()).toBe(true)
+        await retryButton.trigger('click')
+
+        expect(mockRefresh).toHaveBeenCalledTimes(1)
     })
 
     it('shows error state when there is an error', async () => {

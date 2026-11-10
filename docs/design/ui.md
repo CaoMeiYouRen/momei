@@ -1,6 +1,6 @@
 # 墨梅博客 UI 设计文档
 
-> **组件库迁移已收口（2026-11-09）**：`caomei-ui@1.0.0` 为唯一组件库，**PrimeVue 及其依赖已于第七十二阶段条目 4 卸载**（`primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 移除，`--p-*` token、`p-*` class 与 `.p-*` 选择器清零，零残留守卫见 `tests/modules/primevue-residual-guard.test.ts`），迁移过程见 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。**主题与组件库总述（§2.1 / §2.4 / §3 引言 / §7）已按 caomei-ui 更新**；§3.1 起的组件对照表与 Aura 时代措辞仍属迁移期描述，改写排入第七十三阶段条目 1。实际实现以 `caomei-ui` 组件 + `--caomei-*`（语义角色）/ `--m-*`（项目调色板）为准。
+> **组件库迁移已收口（2026-11-09）**：`caomei-ui@1.0.0` 为唯一组件库，**PrimeVue 及其依赖已于第七十二阶段条目 4 卸载**（`primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 移除，`--p-*` token、`p-*` class 与 `.p-*` 选择器清零，零残留守卫见 `tests/modules/primevue-residual-guard.test.ts`），迁移过程见 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。**全文已按 caomei-ui 重写（2026-11-10，第七十三阶段条目 1）**，组件口径见 §3。实际实现以 `caomei-ui` 组件 + `--caomei-*`（语义角色）/ `--m-*`（项目调色板）为准。
 
 ## 1. 设计理念 (Design Philosophy)
 
@@ -63,36 +63,55 @@
 
 使用 **caomei-ui** 作为基础组件库（`@1.0.0` 精确锁定），配合 **SCSS** 进行布局和微调；PrimeVue 已于 2026-11-09 卸载。
 
-> 本章仍保留迁移期的组件对照描述，改写由第七十二阶段收口统一完成（见文首迁移指针）。
-
 ### 3.1 核心组件配置
 
--   **Buttons**:
-    -   Primary: 墨色背景，白色文字。
-    -   Secondary: 灰色边框或浅灰色背景。
-    -   Text: 仅文字，Hover 时显示背景。
--   **Cards**:
-    -   极简边框 (`border-1 border-gray-200`) 或微阴影 (`shadow-sm`)。
-    -   Hover 时提升阴影 (`shadow-md`) 并轻微上浮。
--   **Inputs**:
-    -   Aura 默认样式，Focus 环颜色调整为墨色。
+组件一律来自 `caomei-ui`；样式定制只走两条通道：**语义 token（`--caomei-*` / `--m-*`）** 或 **未分层覆盖**。caomei-ui 的组件样式未分层，写在 `@layer momei-base` 里的同名声明会被压制——需要改几何或品牌色时，改用上游文档化钩子（如 `--caomei-dialog-width`、`--caomei-badge-*`）或把规则移出 `@layer`。
+
+-   **Buttons (`CaomeiButton`)**:
+    -   `variant="primary"`：墨色实底 + 白字，用于每屏唯一主操作。
+    -   `variant="secondary"`：白底 + `--caomei-color-control-border` 边框，用于次级操作。
+    -   `variant="ghost"`：无底色，Hover 时叠 8% 文字色；纯图标按钮用 `icon-only` 且必须给 `:label`。
+    -   尺寸 / 语气通过 `--caomei-button-height` / `--caomei-button-padding-x` / `tone` 覆盖，不写死宽度。
+-   **Cards**: 页面容器统一 `.admin-content-card`（`--caomei-color-bg` + `$border-radius-md` + 微阴影）；卡内不再嵌套带边框的盒子。
+-   **Inputs (`CaomeiInput` / `CaomeiSelect` / `CaomeiSwitch`)**:
+    -   Focus 环取 `--caomei-color-primary`；字段默认 `width: 100%`，行内固定宽度由包装元素承担（`class` 只落在触发器上）。
+    -   选择器的「全部」选项以哨兵值承载，`null` 不作为选项值。
+-   **Data (`CaomeiDataTable` / `CaomeiPaginator`)**:
+    -   服务端分页用 `lazy` + 受控 `:page`（1 基）；筛选变更后回到第 1 页。
+    -   **空表不渲染分页**：`paginator` 绑定 `total > 0`；当前页 0 行但 `total > 0` 时仍渲染分页，保证末页删空后可回退。
+    -   空态统一走 §3.3 的 `AppEmptyState`。
+-   **Overlays (`CaomeiDialog` / `CaomeiDrawer` / `CaomeiPopover` / `CaomeiMenu`)**:
+    -   宽度走 `--caomei-dialog-width` 钩子（默认 576px / compact 544px / wide 608px）。
+    -   表单弹窗的 `.field` 排版由项目样式承担，颜色取 `--caomei-color-text`。
+-   **Badges / Tags (`CaomeiBadge` / `CaomeiTag`)**: 语义由 `tone` 表达；尺寸差异（如翻译徽标高 24px / 最小宽 32px）通过 `--caomei-badge-height` / `--caomei-badge-min-width` 等钩子对齐，不直接改 `height`。
 
 ### 3.2 布局 (Layout)
 
 -   **响应式**: Mobile First。
--   **最大宽度**: 内容区域限制在 `max-w-4xl` (约 900px) 以内，优化阅读体验。
--   **栅格**: 使用 Flexbox 或 Grid 布局。
+-   **最大宽度**: 列表页 `max-w-4xl`（约 900px）以内，管理端按内容密度放宽到容器满宽。
+-   **栅格**: 使用 Flexbox 或 Grid 布局；分组靠间距，边框只用于输入框、表格分隔与确有语义的边界。
 
 ### 3.3 管理后台组件 (Admin Components)
 
-针对管理后台场景，抽象出的高效通用组件：
+针对管理后台场景，抽象出的通用组件：
 
--   **AdminPageHeader**: 统一的页面头部，包含标题、副标题、面包屑和主操作按钮。
+-   **AdminPageHeader**: 统一的页面头部，包含标题与主操作按钮，可选语言切换器。
+-   **AdminListShell**: 列表页外壳，统一标题、筛选区与内容区排布。
 -   **ConfirmDeleteDialog**: 基于 caomei-ui `CaomeiDialog` 封装的删除确认弹窗，统一交互体验。
+-   **AppEmptyState**: 共享空态（图标 + 说明 + 主操作），由各页面传入对象化文案；确实无需操作时省略 `action` 插槽并写明理由。管理端表格空态统一使用它，`AdminTableEmptyState` 仅保留给尚未迁移的广告位 / 广告活动列表。
 -   **AdminTable**:（规划中）封装了分页、搜索、排序逻辑的 DataTable。
 -   **UnifiedTranslationEditor**:（规划中）支持在单个对话框内通过标签页 (Tabs) 切换编辑多语言内容的统一编辑器，降低管理员管理翻译簇的认知负载。
 
-### 3.4 移动端适配 (Mobile Adaptation)
+### 3.4 状态三态 (Empty / Loading / Error)
+
+列表与卡片流必须同时具备空态、加载态与错误态，判据见 [界面自检清单 U1](./ui-review-checklist.md)：
+
+-   **空态**：图标 + 说明 + 主操作；文案描述当前对象，不复用其他模块的 key；空表不渲染分页。
+-   **加载态**：超过 300ms 用骨架屏（`CaomeiSkeleton`），不用裸 spinner + 文本。
+-   **错误态**：`CaomeiMessage tone="danger"` 给出原因，并提供「重试」入口（调用 `refresh`）。
+-   **当前覆盖范围**：`/admin/{posts,comments,subscribers,waitlist,categories,tags}` 与公开 `/posts`、`/categories|tags/[slug]`。其余管理端列表（外链、用户、稿件、广告位、广告活动、链接治理）的分页与空态随后续迁移批次补齐，不按本节的通用规则判定。
+
+### 3.5 移动端适配 (Mobile Adaptation)
 
 -   **导航**:
     -   移动端使用 **汉堡菜单 (Hamburger Menu)** 或底部导航栏。

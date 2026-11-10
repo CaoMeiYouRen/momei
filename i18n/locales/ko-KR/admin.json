@@ -111,6 +111,8 @@
                 "purpose_filter": "모든 목적",
                 "export": "CSV 내보내기",
                 "delete_confirm": "이 항목을 삭제하시겠습니까?",
+                "empty": "아직 대기 명단 기록이 없습니다",
+                "empty_description": "필터를 조정하거나 방문자가 대기 명단에 등록한 뒤 새로 고치세요.",
                 "columns": {
                     "name": "이름",
                     "email": "이메일",

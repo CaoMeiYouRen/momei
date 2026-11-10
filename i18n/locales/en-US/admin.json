@@ -111,6 +111,8 @@
                 "purpose_filter": "All Purposes",
                 "export": "Export CSV",
                 "delete_confirm": "Are you sure you want to remove this entry?",
+                "empty": "No waitlist entries yet",
+                "empty_description": "Adjust the filters, or refresh after visitors join the waitlist.",
                 "columns": {
                     "name": "Name",
                     "email": "Email",

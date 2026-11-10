@@ -31,6 +31,7 @@
                 "description": "瀏覽墨梅部落格最新發佈的技術文章、實踐總結與創作內容，依語言與主題持續獲取更新。"
             },
             "empty": "暫無文章",
+            "empty_description": "目前還沒有已發佈的文章，稍後再來看看。",
             "status_warning": "目前文章處於 {status} 狀態，尚未正式發佈，僅相關權限人員可見。",
             "article_count": "{count} 篇文章",
             "total_count": "共 {count} 篇文章",

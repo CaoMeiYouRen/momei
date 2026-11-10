@@ -111,6 +111,8 @@
                 "purpose_filter": "全部目的",
                 "export": "匯出 CSV",
                 "delete_confirm": "確定要移除此候補記錄嗎？",
+                "empty": "暫無候補記錄",
+                "empty_description": "調整篩選條件，或等待訪客加入候補名單後重新整理。",
                 "columns": {
                     "name": "姓名",
                     "email": "郵箱",

@@ -47,7 +47,7 @@
                 :total-records="pagination.total"
                 :rows="pagination.limit"
                 :page="pagination.page"
-                paginator
+                :paginator="pagination.total > 0"
                 :rows-per-page-options="[5, 10, 20, 50]"
                 row-key="id"
                 class="admin-taxonomy__table"
@@ -108,9 +108,19 @@
                     </CaomeiButton>
                 </template>
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.posts.empty') }}
-                    </div>
+                    <AppEmptyState
+                        :title="$t(config.emptyKey)"
+                        :description="$t(config.emptyDescriptionKey)"
+                    >
+                        <template #action>
+                            <CaomeiButton variant="secondary" @click="openDialog()">
+                                <template #icon>
+                                    <Plus :size="16" />
+                                </template>
+                                {{ $t(config.createKey) }}
+                            </CaomeiButton>
+                        </template>
+                    </AppEmptyState>
                 </template>
             </CaomeiDataTable>
         </div>
@@ -356,6 +366,8 @@ interface TaxonomyPageConfig {
     deleteConfirmKey: string
     deleteConfirmTitleKey: string
     deleteSuccessKey: string
+    emptyDescriptionKey: string
+    emptyKey: string
     endpoint: string
     parentPlaceholderKey?: string
     saveSuccessKey: string
@@ -890,12 +902,6 @@ onMounted(() => {
 
 .taxonomy-dialog__sync-ai {
     flex-shrink: 0;
-}
-
-.empty-state {
-    padding: 2rem 0;
-    text-align: center;
-    color: var(--caomei-color-text-muted);
 }
 
 .field {

@@ -268,6 +268,8 @@
                     }
                 },
                 "draft_recovered": "ローカル草稿を復元しました",
+                "empty": "記事はまだありません",
+                "empty_description": "最初の記事を作成するか、絞り込み条件を変更して再試行してください。",
                 "export_as_markdown": "Markdown としてエクスポート",
                 "export_error": "エクスポートに失敗しました",
                 "export_selected": "選択項目をエクスポート",

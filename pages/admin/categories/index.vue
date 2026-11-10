@@ -18,6 +18,8 @@ const categoryTaxonomyConfig = markRaw({
     endpoint: '/api/categories',
     titleKey: 'pages.admin.categories.title',
     createKey: 'pages.admin.categories.create',
+    emptyKey: 'pages.admin.categories.empty',
+    emptyDescriptionKey: 'pages.admin.categories.empty_description',
     searchPlaceholderKey: 'pages.admin.categories.search_placeholder',
     deleteConfirmTitleKey: 'pages.admin.categories.delete_confirm_title',
     deleteConfirmKey: 'pages.admin.categories.delete_confirm',

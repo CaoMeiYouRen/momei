@@ -127,9 +127,6 @@
     }
 
     .admin-form-dialog {
-        width: min(36rem, calc(100vw - 1.5rem));
-        min-width: min(31rem, calc(100vw - 1.5rem));
-
         .field {
             display: flex;
             flex-direction: column;
@@ -158,69 +155,7 @@
         .field.flex > label {
             font-weight: 500;
         }
-
-        @media (width <= 640px) {
-            min-width: 0;
-        }
     }
-
-    .admin-form-dialog--compact {
-        width: min(34rem, calc(100vw - 1.5rem));
-        min-width: min(30rem, calc(100vw - 1.5rem));
-    }
-
-    .admin-form-dialog--wide {
-        width: min(38rem, calc(100vw - 1.5rem));
-        min-width: min(32rem, calc(100vw - 1.5rem));
-    }
-
-// Social Login Buttons（品牌样式）
-// ⚠️ 已知偏差（backlog「迁移后品牌按钮样式被层序压制」）：本块仍在 `@layer momei-base` 内，
-// 而 caomei-ui 组件样式未分层（`.caomei-button--secondary[data-v]`），按层叠规则未分层恒胜具名层，
-// 故下面的 display / gap / 品牌色当前不生效，社交按钮呈现为普通 secondary 按钮。
-// 修复需把本块移出 `@layer` 或改走 `--caomei-button-*` 钩子，并做浏览器人工验收（视觉基线未覆盖）。
-.caomei-button.caomei-button.social-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-    width: 100%;
-    background: transparent;
-
-    &.github-btn {
-        --btn-color: #24292e;
-        --btn-border: #24292e;
-        --btn-hover-bg: rgb(36 41 46 / 0.05);
-
-        :root.dark & {
-            --btn-color: #fff;
-            --btn-border: #fff;
-            --btn-hover-bg: rgb(255 255 255 / 0.1);
-        }
-    }
-
-    &.google-btn {
-        --btn-color: #4285f4;
-        --btn-border: #4285f4;
-        --btn-hover-bg: rgb(66 133 244 / 0.05);
-
-        :root.dark & {
-            --btn-text-color: #fff;
-            --btn-border: #fff;
-            --btn-hover-bg: rgb(255 255 255 / 0.1);
-            --icon-color: #4285f4;
-        }
-    }
-
-    color: var(--btn-text-color, var(--btn-color));
-    border-color: var(--btn-border);
-
-    &:hover:not(:disabled) {
-        background: var(--btn-hover-bg);
-        border-color: var(--btn-color);
-    }
-}
 
 .container {
     width: 100%;
@@ -258,6 +193,76 @@
         }
     }
 }
+}
+
+/* ---------------------------------------------------------------------------
+ * 社交登录按钮（品牌样式，未分层）
+ *
+ * 必须置于 `@layer` 之外：caomei-ui 的组件样式未分层，按层叠规则未分层声明恒胜具名层，
+ * 层内的品牌色 / 布局会被 `.caomei-button--secondary[data-v]` 覆盖（backlog 记录的
+ * 「迁移后品牌按钮样式被层序压制」）。选择器保留双类以稳定压过组件基类。
+ * ------------------------------------------------------------------------ */
+.caomei-button.caomei-button.social-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    transition: opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
+    background: transparent;
+
+    &.github-btn {
+        --btn-color: #24292e;
+        --btn-border: #24292e;
+        --btn-hover-bg: rgb(36 41 46 / 0.05);
+
+        :root.dark & {
+            --btn-color: #fff;
+            --btn-border: #fff;
+            --btn-hover-bg: rgb(255 255 255 / 0.1);
+        }
+    }
+
+    &.google-btn {
+        --btn-color: #4285f4;
+        --btn-border: #4285f4;
+        --btn-hover-bg: rgb(66 133 244 / 0.05);
+
+        :root.dark & {
+            --btn-text-color: #fff;
+            --btn-border: #fff;
+            --btn-hover-bg: rgb(255 255 255 / 0.1);
+            --icon-color: #4285f4;
+        }
+    }
+
+    color: var(--btn-text-color, var(--btn-color));
+    border-color: var(--btn-border);
+
+    &:hover:not(:disabled) {
+        background: var(--btn-hover-bg);
+        border-color: var(--btn-color);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * 管理端表单弹窗宽度（未分层，走 `--caomei-dialog-width` 钩子）
+ *
+ * caomei `Dialog` 的宽度由 `.caomei-dialog__content[data-v]` 上的 `width: min(90vw, var(...))`
+ * 决定，未分层且特异性 0,2,0；层内的 `width` 声明必然被压制。故改用上游文档化钩子，
+ * 并以未分层的 `.admin-form-dialog` 覆盖 `:where(...)` 的尺寸档位（特异性 0）。
+ * 实测宽度：默认 576px / compact 544px / wide 608px（1440 视口）。
+ * ------------------------------------------------------------------------ */
+.admin-form-dialog {
+    --caomei-dialog-width: min(36rem, calc(100vw - 1.5rem));
+}
+
+.admin-form-dialog--compact {
+    --caomei-dialog-width: min(34rem, calc(100vw - 1.5rem));
+}
+
+.admin-form-dialog--wide {
+    --caomei-dialog-width: min(38rem, calc(100vw - 1.5rem));
 }
 
 /* ---------------------------------------------------------------------------

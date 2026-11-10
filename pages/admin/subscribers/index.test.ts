@@ -243,10 +243,12 @@ const stubs = {
             slots.default?.(),
         ]),
     }),
-    AdminTableEmptyState: defineComponent({
-        name: 'AdminTableEmptyState',
-        props: { label: String },
-        setup: (props) => () => h('div', { class: 'admin-table-empty-state', 'data-label': props.label }),
+    AppEmptyState: defineComponent({
+        name: 'AppEmptyState',
+        props: { title: String, description: String },
+        setup: (props, { slots }) => () => h('div', { class: 'app-empty-state', 'data-title': props.title, 'data-description': props.description }, [
+            slots.action?.(),
+        ]),
     }),
     ConfirmDeleteDialog: defineComponent({
         name: 'ConfirmDeleteDialog',
@@ -443,10 +445,14 @@ describe('AdminSubscribers page', () => {
         expect(onPageMock.mock.calls[0]![0]).toMatchObject({ page: 2, rows: 20 })
     })
 
-    it('空列表时渲染空态插槽（AdminTableEmptyState）', async () => {
+    it('空列表时渲染对象化空态（AppEmptyState），并隐藏分页', async () => {
         const wrapper = await mountComponent([], { page: 1, limit: 20, total: 0 })
         expect(wrapper.find('.stub-empty').exists()).toBe(true)
-        expect(wrapper.find('.admin-table-empty-state').attributes('data-label')).toBe('pages.posts.empty')
+        const emptyState = wrapper.find('.app-empty-state')
+        expect(emptyState.attributes('data-title')).toBe('pages.admin.subscribers.empty')
+        expect(emptyState.attributes('data-description')).toBe('pages.admin.subscribers.empty_description')
+        // 空表不渲染分页（界面自检清单 U1）。
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(false)
     })
 
     it('动作列删除按钮打开删除确认浮层并携带该行', async () => {

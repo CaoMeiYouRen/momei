@@ -17,11 +17,32 @@
             <CaomeiMessage tone="danger">
                 {{ error.message }}
             </CaomeiMessage>
+            <CaomeiButton
+                variant="secondary"
+                class="mt-4"
+                @click="refresh()"
+            >
+                <template #icon>
+                    <RefreshCw :size="16" />
+                </template>
+                {{ $t('common.retry') }}
+            </CaomeiButton>
         </div>
 
-        <div v-else-if="posts.length === 0" class="posts-page__empty">
-            {{ $t('pages.posts.empty') }}
-        </div>
+        <AppEmptyState
+            v-else-if="posts.length === 0"
+            :title="$t('pages.posts.empty')"
+            :description="$t('pages.posts.empty_description')"
+        >
+            <template #action>
+                <CaomeiButton variant="secondary" @click="navigateTo(localePath('/'))">
+                    <template #icon>
+                        <Home :size="16" />
+                    </template>
+                    {{ $t('common.back_to_home') }}
+                </CaomeiButton>
+            </template>
+        </AppEmptyState>
 
         <div v-else class="posts-page__list">
             <ArticleCard
@@ -46,16 +67,18 @@
 </template>
 
 <script setup lang="ts">
+import { Home, RefreshCw } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { PostListData } from '@/types/post'
 
 const route = useRoute()
 const router = useRouter()
+const localePath = useLocalePath()
 const { t } = useI18n()
 
 const page = ref(Number(route.query.page) || 1)
 
-const { data, pending, error } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
+const { data, pending, error, refresh } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
     query: {
         page,
         status: 'published',
@@ -110,14 +133,9 @@ usePageSeo({
         border-radius: 0.5rem; // rounded-lg
     }
 
-    &__error,
-    &__empty {
+    &__error {
         padding: 3rem 0; // py-12
         text-align: center;
-    }
-
-    &__empty {
-        color: var(--caomei-color-text-muted);
     }
 
     &__pagination {

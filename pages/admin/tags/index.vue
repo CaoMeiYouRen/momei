@@ -18,6 +18,8 @@ const tagTaxonomyConfig = markRaw({
     endpoint: '/api/tags',
     titleKey: 'pages.admin.tags.title',
     createKey: 'pages.admin.tags.create',
+    emptyKey: 'pages.admin.tags.empty',
+    emptyDescriptionKey: 'pages.admin.tags.empty_description',
     searchPlaceholderKey: 'pages.admin.tags.search_placeholder',
     deleteConfirmTitleKey: 'pages.admin.tags.delete_confirm_title',
     deleteConfirmKey: 'pages.admin.tags.delete_confirm',

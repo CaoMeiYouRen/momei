@@ -76,10 +76,8 @@
             </CaomeiDataTable>
         </AdminListShell>
 
-        <!-- 本页组件均为 caomei-ui 实现（PrimeVue 已于第七十二阶段条目 4 卸载）：
-             字段全宽由字段容器与 caomei 组件自身宽度提供。
-             注：`admin-form-dialog` 的 width 仍在 `@layer momei-base` 内，会被 caomei 未分层的
-             `.caomei-dialog__content` 宽度覆盖（实测 480px vs 声明 544px），属既有偏差，已登记 backlog。 -->
+        <!-- 本页组件均为 caomei-ui 实现，字段全宽由字段容器与 caomei 组件自身宽度提供。
+             弹窗宽度由 `styles/main.scss` 的 `--caomei-dialog-width` 钩子提供（compact 档实测 544px）。 -->
         <CaomeiDialog
             :close-on-overlay="false"
             :open="dialogVisible"

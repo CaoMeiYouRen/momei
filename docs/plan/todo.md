@@ -21,12 +21,13 @@
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-10，用户确认方案 A（备注 A+B+C：依赖 / 工具链余项排入第七十四阶段轨迹）。开工前置：`HEAD=2bffa330` 的 CI `Test` / `Publish Docker Image` 绿；若 Docker 原生多架构首次运行失败，按 B 类插队先修。
 
-- [ ] **1. UI S1 收尾：空态三态、空表分页与三处层序失效（P1）**
+- [x] **1. UI S1 收尾：空态三态、空表分页与三处层序失效（P1）**
     - **执行范围**: 空态组件化（`AdminTableEmptyState` 补齐图标 / 说明 / 主操作，或新建共享 `AppEmptyState`）；替换 `pages/admin/{posts,comments,subscribers,waitlist}/index.vue`、`pages/posts/index.vue`、`components/admin/admin-taxonomy-page.vue`、`components/taxonomy-post-page.vue` 共 7 个文件对 `pages.posts.empty` 的复用（清单计划原口径 4 文件 / 5 页），按对象新增五语 key；空表不渲染分页（`paginator` + 空态判据约 7–10 处）；三处层序修复（`.social-btn` / `.admin-form-dialog` 宽度 / `.translation-badge` 尺寸）；同批改写 `docs/design/ui.md` §3.1+ 与文首指针。
     - **非目标**: 不做 U2 字阶全量替换、不做暗色 tint（S2）、不把 U1 扩到全部列表、不扩 reader parity 档。
     - **验收标准**: 空态 / 加载 / 错误三态截图（空态含图标 + 说明 + 操作）；空表无分页截图；五语 key 完整且无 raw key；三处 `getComputedStyle` 实测符合预期（社交按钮品牌色与布局、弹窗宽度 576 / 544 / 608px、徽标高 24px / min-width 32px）；`test:visual` / `parity` 通过并按实测更新基线；`lint` / `stylelint` / `typecheck` / 定向测试通过；`ui.md` 通过 `lint-md` / `docs:check:links` / `docs:check:line-count`。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；截图与 `getComputedStyle` 取值写入 `artifacts/review-gate/`，结论回填 `docs/reports/regression/current.md`。
     - **回滚边界**: 空态组件 / 分页绑定 / 三处样式修复按文件组独立回滚；`ui.md` 可单独回退。
+    - **完成摘要（2026-11-10）**: 新增共享 `AppEmptyState`（图标 + 说明 + 主操作），替换 7 个文件对 `pages.posts.empty` 的复用并按对象补齐五语 key（评论 / 订阅者 / 候补 / 分类 / 标签 / 文章管理 + 公开列表说明）；空表分页改为按 `total` 判定（`total > 0` 才渲染，避免末页删空后无法回退），5 处绑定同步（分类 / 标签共用组件）；三处层序修复——`.social-btn` 与 `.admin-form-dialog` 宽度钩子移出 `@layer momei-base`（实测社交按钮品牌色生效、弹窗 608 / 576 / 544px），`.translation-badge` 复核维持 24px / 32px token 口径；`ui.md` §3.1–§3.4 按 caomei-ui 重写。验证：`test:visual` 32 passed、`test:visual:parity` 83 passed、`lint` / `lint:css` / `typecheck` 0 error、定向 vitest 144 passed；证据见 `artifacts/review-gate/2026-11-10-phase73-entry1-ui.md` 与 `artifacts/review-gate/entry1/`。
 
 - [ ] **2. 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**
     - **执行范围**: #43（`js/bad-tag-filter`，`scripts/docs/check-doc-markers.mjs`，dismissed `won't fix`）优先修复正则；若确认脚本只读、输入为仓库受信文档、正则是检测器而非过滤器，则按 `false-positive` 重分类并登记依据；复核 `security-alert-exceptions.json` 的 mjml / quill 过期条目（续期并写明理由与跟踪，或替换 / 移除依赖）；移除 `package.json` 的 `--transition-mode`；同步 `docs/standards/security.md §5.3` 与 dismissed / fail-closed 治理文档。

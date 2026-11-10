@@ -418,6 +418,13 @@ const stubs = {
     CaomeiInput: CaomeiInputStub,
     CaomeiSelect: CaomeiSelectStub,
     CaomeiSwitch: CaomeiSwitchStub,
+    AppEmptyState: defineComponent({
+        name: 'AppEmptyState',
+        props: { title: String, description: String },
+        setup: (props, { slots }) => () => h('div', { class: 'app-empty-state', 'data-title': props.title, 'data-description': props.description }, [
+            slots.action?.(),
+        ]),
+    }),
 }
 
 const sampleRows: Record<string, unknown>[] = [
@@ -803,9 +810,15 @@ describe('AdminPostsPage', () => {
         expect(wrapper.find('.audit-dialog-v2').attributes('data-visible')).toBe('false')
     })
 
-    it('空列表时渲染空态插槽', async () => {
+    it('空列表时渲染对象化空态并隐藏分页', async () => {
         const wrapper = await mountPage([], { page: 1, limit: 10, total: 0 })
         expect(wrapper.find('.stub-empty').exists()).toBe(true)
-        expect(wrapper.find('.stub-empty .empty-state').text()).toBe('pages.posts.empty')
+        const emptyState = wrapper.find('.stub-empty .app-empty-state')
+        expect(emptyState.attributes('data-title')).toBe('pages.admin.posts.empty')
+        expect(emptyState.attributes('data-description')).toBe('pages.admin.posts.empty_description')
+        // 空态主操作为「新建文章」（管理端唯一创建入口）。
+        expect(emptyState.text()).toContain('pages.admin.posts.create')
+        // 空表不渲染分页（界面自检清单 U1）。
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(false)
     })
 })

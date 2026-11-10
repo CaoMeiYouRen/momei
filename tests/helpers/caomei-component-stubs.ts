@@ -92,6 +92,18 @@ export const CaomeiDataTableStub = defineComponent({
     },
 })
 
+const AppEmptyStateStub = defineComponent({
+    name: 'AppEmptyState',
+    props: { title: String, description: String },
+    setup: (props, { slots }) => () => h('div', {
+        class: 'app-empty-state',
+        'data-title': props.title,
+        'data-description': props.description,
+    }, [
+        slots.action?.(),
+    ]),
+})
+
 const CaomeiButtonStub = defineComponent({
     name: 'CaomeiButton',
     props: {
@@ -549,6 +561,7 @@ export const caomeiComponentStubs = {
     CaomeiTag: CaomeiTagStub,
     CaomeiBadge: CaomeiBadgeStub,
     CaomeiDataTable: CaomeiDataTableStub,
+    AppEmptyState: AppEmptyStateStub,
     CaomeiTabs: CaomeiTabsStub,
     CaomeiTabList: CaomeiTabListStub,
     CaomeiTabTrigger: CaomeiTabTriggerStub,
@@ -581,6 +594,8 @@ export const taxonomyTestConfig = {
     endpoint: '/api/categories',
     titleKey: 'pages.admin.categories.title',
     createKey: 'pages.admin.categories.create',
+    emptyKey: 'pages.admin.categories.empty',
+    emptyDescriptionKey: 'pages.admin.categories.empty_description',
     searchPlaceholderKey: 'pages.admin.categories.search_placeholder',
     deleteConfirmTitleKey: 'pages.admin.categories.delete_confirm_title',
     deleteConfirmKey: 'pages.admin.categories.delete_confirm',

@@ -31,6 +31,7 @@
                 "description": "Browse the latest technical posts, essays, and creator updates published on Momei Blog across languages and topics."
             },
             "empty": "No articles found",
+            "empty_description": "There are no published articles yet. Check back later.",
             "status_warning": "The current article is in {status} status and has not been officially published. It is only visible to relevant authorized personnel.",
             "article_count": "{count} Articles",
             "total_count": "{count} articles in total",

@@ -35,7 +35,7 @@ export async function useTaxonomyPostPage(options: UseTaxonomyPostPageOptions) {
     const limit = ref(10)
     const first = ref((page.value - 1) * limit.value)
 
-    const { data: postsData, pending: postsPending, error: postsError } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
+    const { data: postsData, pending: postsPending, error: postsError, refresh: refreshPosts } = await useAppFetch<ApiResponse<PostListData>>('/api/posts', {
         query: {
             page,
             limit,
@@ -68,5 +68,5 @@ export async function useTaxonomyPostPage(options: UseTaxonomyPostPageOptions) {
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    return { page, limit, first, posts, total, totalPages, postsPending, postsError, onPageChange }
+    return { page, limit, first, posts, total, totalPages, postsPending, postsError, refreshPosts, onPageChange }
 }

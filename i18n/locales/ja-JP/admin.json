@@ -111,6 +111,8 @@
                 "purpose_filter": "すべての目的",
                 "export": "CSV エクスポート",
                 "delete_confirm": "このエントリを削除してもよろしいですか？",
+                "empty": "キャンセル待ちの記録はまだありません",
+                "empty_description": "絞り込み条件を変更するか、訪問者がキャンセル待ちに登録した後に更新してください。",
                 "columns": {
                     "name": "名前",
                     "email": "メール",

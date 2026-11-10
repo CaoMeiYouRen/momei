@@ -89,7 +89,7 @@
                 :total-records="pagination.total"
                 :rows="pagination.limit"
                 :page="pagination.page"
-                paginator
+                :paginator="pagination.total > 0"
                 :rows-per-page-options="[5, 10, 20, 50]"
                 selection-mode="multiple"
                 row-key="id"
@@ -245,9 +245,19 @@
                 </template>
 
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.posts.empty') }}
-                    </div>
+                    <AppEmptyState
+                        :title="$t('pages.admin.posts.empty')"
+                        :description="$t('pages.admin.posts.empty_description')"
+                    >
+                        <template #action>
+                            <CaomeiButton variant="secondary" @click="navigateTo(localePath('/admin/posts/new'))">
+                                <template #icon>
+                                    <Plus :size="16" />
+                                </template>
+                                {{ $t('pages.admin.posts.create') }}
+                            </CaomeiButton>
+                        </template>
+                    </AppEmptyState>
                 </template>
             </CaomeiDataTable>
         </div>
@@ -729,11 +739,6 @@ async function handleReAudit() {
     :deep(.caomei-data-table__table) {
         min-width: 80rem;
     }
-}
-
-.empty-state {
-    text-align: center;
-    padding: 1rem;
 }
 
 .user-created-at {

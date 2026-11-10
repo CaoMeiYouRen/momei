@@ -76,6 +76,7 @@ const CaomeiDataTableStub = defineComponent({
         totalRecords: { type: Number, default: 0 },
         rows: { type: Number, default: 10 },
         page: { type: Number, default: 1 },
+        paginator: { type: Boolean, default: false },
     },
     emits: ['page'],
     setup(props, { slots, emit }) {
@@ -173,6 +174,13 @@ const stubs = {
         setup: () => () => h('div', { class: 'confirm-delete-dialog' }),
     }),
     CaomeiDataTable: CaomeiDataTableStub,
+    AppEmptyState: defineComponent({
+        name: 'AppEmptyState',
+        props: { title: String, description: String },
+        setup: (props, { slots }) => () => h('div', { class: 'app-empty-state', 'data-title': props.title, 'data-description': props.description }, [
+            slots.action?.(),
+        ]),
+    }),
     CaomeiTag: CaomeiTagStub,
     CaomeiButton: CaomeiButtonStub,
     CaomeiInput: CaomeiInputStub,
@@ -287,11 +295,23 @@ describe('管理端评论列表（B2 试点页）', () => {
         expect(apiQueryOf(2)).toEqual({ page: 1, limit: 20, keyword: undefined, status: undefined })
     })
 
-    it('空态渲染空态插槽内容', async () => {
+    it('空态渲染对象化文案并隐藏分页', async () => {
         fetchMock.mockResolvedValue({ code: 200, data: { items: [], total: 0 } })
         const wrapper = await mountPage()
 
         expect(wrapper.find('.stub-empty').exists()).toBe(true)
+        const emptyState = wrapper.find('.app-empty-state')
+        expect(emptyState.attributes('data-title')).toBe('pages.admin.comments.empty')
+        expect(emptyState.attributes('data-description')).toBe('pages.admin.comments.empty_description')
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(false)
+    })
+
+    it('当前页为空但仍有总数时保留分页（避免末页删空后无法回退）', async () => {
+        fetchMock.mockResolvedValue({ code: 200, data: { items: [], total: 40 } })
+        const wrapper = await mountPage()
+
+        expect(wrapper.find('.stub-empty').exists()).toBe(true)
+        expect(wrapper.findComponent({ name: 'CaomeiDataTable' }).props('paginator')).toBe(true)
     })
 
     it('点击「通过」调用状态更新接口并就地更新行数据', async () => {

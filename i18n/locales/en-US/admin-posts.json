@@ -265,6 +265,8 @@
                     "wechatsync_timeout": "WechatSync timed out while waiting for the extension to report a complete status. Incomplete accounts were marked as failed."
                 },
                 "draft_recovered": "Local draft restored",
+                "empty": "No posts yet",
+                "empty_description": "Create your first post, or adjust the filters and try again.",
                 "export_as_markdown": "Export as Markdown",
                 "export_error": "Export failed",
                 "export_selected": "Export Selected",

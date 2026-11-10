@@ -40,7 +40,7 @@
                 :total-records="pagination.total"
                 :rows="pagination.limit"
                 :page="pagination.page"
-                paginator
+                :paginator="pagination.total > 0"
                 class="admin-subscribers__table"
                 @page="onPage"
             >
@@ -104,7 +104,20 @@
                 </template>
 
                 <template #empty>
-                    <AdminTableEmptyState :label="$t('pages.posts.empty')" />
+                    <!-- 订阅者由访客注册产生，管理端无「新建」入口：主操作取「刷新」。 -->
+                    <AppEmptyState
+                        :title="$t('pages.admin.subscribers.empty')"
+                        :description="$t('pages.admin.subscribers.empty_description')"
+                    >
+                        <template #action>
+                            <CaomeiButton variant="secondary" @click="refresh">
+                                <template #icon>
+                                    <RefreshCw :size="16" />
+                                </template>
+                                {{ $t('common.refresh') }}
+                            </CaomeiButton>
+                        </template>
+                    </AppEmptyState>
                 </template>
             </CaomeiDataTable>
         </AdminListShell>
@@ -119,7 +132,7 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Search, Trash } from '@lucide/vue'
+import { Download, RefreshCw, Search, Trash } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import type { Subscriber } from '@/types/subscriber'
 

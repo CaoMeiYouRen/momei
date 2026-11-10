@@ -35,7 +35,7 @@
                 :total-records="total"
                 :rows="pagination.pageSize"
                 :page="pagination.page"
-                paginator
+                :paginator="total > 0"
                 class="admin-comments__table"
                 @page="onPage"
             >
@@ -125,9 +125,21 @@
                 </template>
 
                 <template #empty>
-                    <div class="empty-state">
-                        {{ $t('pages.posts.empty') }}
-                    </div>
+                    <!-- 评论由访客产生，管理端无「新建」入口：主操作取「刷新」，
+                         让筛选调整后可直接重新拉取，而不是只给一句提示。 -->
+                    <AppEmptyState
+                        :title="$t('pages.admin.comments.empty')"
+                        :description="$t('pages.admin.comments.empty_description')"
+                    >
+                        <template #action>
+                            <CaomeiButton variant="secondary" @click="loadData">
+                                <template #icon>
+                                    <RefreshCw :size="16" />
+                                </template>
+                                {{ $t('common.refresh') }}
+                            </CaomeiButton>
+                        </template>
+                    </AppEmptyState>
                 </template>
             </CaomeiDataTable>
         </div>
@@ -141,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ban, Check, Search, Trash } from '@lucide/vue'
+import { Ban, Check, RefreshCw, Search, Trash } from '@lucide/vue'
 import type { DataTableColumn } from 'caomei-ui'
 import type { Comment } from '@/types/comment'
 
@@ -369,11 +381,5 @@ onMounted(() => {
         color: var(--caomei-color-text-muted);
         opacity: 0.8;
     }
-}
-
-.empty-state {
-    padding: 3rem;
-    text-align: center;
-    color: var(--caomei-color-text-muted);
 }
 </style>

@@ -268,6 +268,8 @@
                     }
                 },
                 "draft_recovered": "로컬 초안을 복원했습니다",
+                "empty": "아직 게시글이 없습니다",
+                "empty_description": "첫 게시글을 작성하거나 필터를 조정한 뒤 다시 시도하세요.",
                 "export_as_markdown": "Markdown으로 내보내기",
                 "export_error": "내보내기에 실패했습니다",
                 "export_selected": "선택 항목 내보내기",

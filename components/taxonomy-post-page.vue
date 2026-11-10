@@ -62,11 +62,42 @@
                 />
             </div>
 
-            <div v-else-if="postsError || posts.length === 0" class="taxonomy-page__empty">
-                <div class="empty-state">
-                    <Inbox :size="40" />
-                    <p>{{ $t('pages.posts.empty') }}</p>
-                </div>
+            <div v-else-if="postsError" class="taxonomy-page__empty">
+                <CaomeiMessage tone="danger">
+                    <template #icon>
+                        <CircleX :size="16" />
+                    </template>
+                    {{ $t('common.error_occurred') }}
+                </CaomeiMessage>
+                <CaomeiButton
+                    variant="secondary"
+                    class="mt-4"
+                    @click="refreshPosts()"
+                >
+                    <template #icon>
+                        <RefreshCw :size="16" />
+                    </template>
+                    {{ $t('common.retry') }}
+                </CaomeiButton>
+            </div>
+
+            <div v-else-if="posts.length === 0" class="taxonomy-page__empty">
+                <AppEmptyState
+                    :title="$t('pages.posts.empty')"
+                    :description="$t('pages.posts.empty_description')"
+                >
+                    <template #action>
+                        <CaomeiButton
+                            variant="secondary"
+                            @click="navigateTo(indexPath)"
+                        >
+                            <template #icon>
+                                <FilePenLine :size="16" />
+                            </template>
+                            {{ $t('common.view_all') }}
+                        </CaomeiButton>
+                    </template>
+                </AppEmptyState>
             </div>
 
             <div v-else class="taxonomy-page__list">
@@ -111,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { CircleX, FilePenLine, Home, Inbox } from '@lucide/vue'
+import { CircleX, FilePenLine, Home, RefreshCw } from '@lucide/vue'
 import type { ApiResponse } from '@/types/api'
 import type { Category } from '@/types/category'
 import type { Tag } from '@/types/tag'
@@ -138,7 +169,7 @@ const { data: entityData, pending: entityPending, error: entityError } = await u
 const entity = computed(() => entityData.value?.data as (Category & { description?: string | null }) | null)
 
 // Posts
-const { page, limit, posts, total, totalPages, postsPending, postsError, onPageChange } = await useTaxonomyPostPage({
+const { page, limit, posts, total, totalPages, postsPending, postsError, refreshPosts, onPageChange } = await useTaxonomyPostPage({
     filterKey: props.taxonomyType,
     slug,
     entityData: entity,
@@ -309,17 +340,6 @@ useHead(() => ({
     &__empty {
         padding: 4rem 0;
         text-align: center;
-
-        .empty-state {
-            svg {
-                color: var(--m-surface-400);
-                margin-bottom: 1rem;
-            }
-
-            p {
-                color: var(--caomei-color-text-muted);
-            }
-        }
     }
 
     &__pagination {

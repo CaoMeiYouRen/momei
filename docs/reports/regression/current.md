@@ -10,6 +10,19 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:ui-s1:空态三态与层序收尾:2026-11-10 -->
+## 2026-11-10 UI S1 收尾：空态三态、空表分页与三处层序失效
+
+- 执行入口: `pnpm build`、`pnpm test:visual`、`pnpm test:visual:parity`、`pnpm lint` / `pnpm lint:css` / `pnpm typecheck`、定向 `pnpm exec vitest run`（11 文件）、`pnpm i18n:check-sync` / `i18n:audit:missing` / `docs:check:i18n`、`pnpm docs:check:links` / `docs:check:line-count` / `lint-md`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-10-phase73-entry1-ui.md`、`../../../artifacts/review-gate/entry1/`（截图 + `empty-states.json` / `layer-order.json`）
+- 结果摘要: `Pass`；blocker=0，warning=1（google 品牌蓝 `#4285f4` 白底 3.56:1，登记为品牌色例外）。
+- 变更范围: 新增 `AppEmptyState`（图标 + 说明 + 主操作），替换 7 个文件对 `pages.posts.empty` 的复用并按对象补齐五语 key（评论 / 订阅者 / 候补 / 分类 / 标签 / 文章管理 + 公开列表说明）；空表分页改为 `total > 0` 才渲染（5 处绑定，分类 / 标签共用组件）；`.social-btn` 与 `.admin-form-dialog` 宽度钩子移出 `@layer momei-base`；`docs/design/ui.md` §3.1–§3.4 按 caomei-ui 重写。
+- 实测: 空态 8 处（明暗）图标 / 说明 / 操作齐全且分页隐藏；社交按钮品牌色 light `rgb(36,41,46)` / `rgb(66,133,244)`、dark `rgb(255,255,255)`；弹窗 608 / 576 / 544px；徽标 24px / 32px；`/posts` 错误态含重试。
+- 基线: `admin-comments-list` 明暗两张按新空态重采；parity `admin-categories-list` / `admin-tags-list` 明暗四条表格区允许带 240 → 276px 重取，声明值 = 最终实测（6999 / 9528 / 6540 / 9095），其余 78 条未变（83 = 82 条比对 + 1 条登记用例）。
+- 回归窗口: 10 行 / 1 条，归档判定=窗口健康。
+- Review Gate: `Reject` → `Pass`（Round 1 blocker：空态与页头双 primary、证据引用失真；Round 2 blocker：`ui.md` 分页口径与实现相反；Round 3 仅复审修复点，taxonomy 错误分支测试登记为已知边界）。
+<!-- regression-window:end:ui-s1:空态三态与层序收尾:2026-11-10 -->
+
 <!-- regression-window:start:dependency-upgrade:nuxt 4.6.4 安全升级与视觉基线归因:2026-11-10 -->
 ## 2026-11-10 nuxt 4.6.4 安全升级与视觉基线归因
 
