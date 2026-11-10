@@ -95,6 +95,7 @@
                     v-model="post.content"
                     :language="post.language"
                     :show-refine-action="true"
+                    :button-text="false"
                     button-class="top-bar__voice-trigger"
                 />
             </CaomeiButtonGroup>
@@ -576,6 +577,7 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+@use './post-editor-header-toolbar' as *;
 
 /* `CaomeiPopoverTrigger` 会给触发器元素套上默认的按钮外观（边框 / 背景 / 最小尺寸）。
  * 本文件的两个锚点只用于固定定位承接 `useAnchoredPopover()` 的坐标，首帧尚无内联尺寸，
@@ -652,11 +654,6 @@ defineExpose({
         opacity: 0.5;
         cursor: not-allowed;
     }
-}
-
-.ai-tools-group {
-    margin-left: 0.5rem;
-    flex-shrink: 0;
 }
 
 .status-tag {

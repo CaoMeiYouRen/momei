@@ -1,0 +1,39 @@
+/*
+ * 文章编辑器顶栏 AI 工具组的分组拼接。
+ *
+ * `CaomeiSplitButton` 的根是嵌套的 `CaomeiButtonGroup`：外层 ButtonGroup 的 `> *`
+ * 拼接规则只命中 split 根（本身无边框），命中不到内部两个按钮，于是 split 仍保留
+ * 自己的外圆角与右边框，和相邻成员之间出现双边框 + 圆角缺口。这里补齐 split 与外层
+ * 相邻成员的接缝；语音触发器的浮层锚点（fixed、零尺寸）是 ButtonGroup 的最后一个
+ * 子元素，会把麦克风按钮挤成中间成员，故一并恢复其视觉末位的右圆角 / 右边框。
+ *
+ * 注意：以下选择器依赖 caomei-ui 1.0.0 的内部类名与 SplitButton 的嵌套 group 结构；
+ * 升级组件库时需复查接缝（上游若支持 ButtonGroup 内嵌 SplitButton 可删除本文件）。
+ * 语音按钮的「末位」补偿前提是它之后不再追加可见成员；追加时需同步调整。
+ */
+.ai-tools-group {
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+
+    > :deep(.caomei-split-button):not(:first-child) .caomei-split-button__main {
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+    }
+
+    > :deep(.caomei-split-button):not(:last-child) .caomei-split-button__menu {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        border-inline-end-width: 0;
+    }
+
+    /*
+     * 语音触发器内部还有一个 fixed 定位的浮层锚点（`.voice-popover-anchor`），
+     * 它是 ButtonGroup 的最后一个子元素，会把麦克风按钮挤成「中间成员」而失去右圆角/右边框。
+     * 锚点已由 overlay 的零尺寸复位隐藏，这里把麦克风按钮恢复为视觉末位。
+     */
+    > :deep(.caomei-button.top-bar__voice-trigger) {
+        border-start-end-radius: var(--caomei-radius-md);
+        border-end-end-radius: var(--caomei-radius-md);
+        border-inline-end-width: 1px;
+    }
+}

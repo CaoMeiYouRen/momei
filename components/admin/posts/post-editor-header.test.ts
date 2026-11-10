@@ -65,6 +65,8 @@ const PopoverContentStub = defineComponent({
 
 const stubs = {
     AppVoiceInputTrigger: {
+        name: 'AppVoiceInputTrigger',
+        props: ['buttonText'],
         template: '<button class="voice-trigger-stub" />',
     },
     AdminPostsPostDistributionButton: {
@@ -140,6 +142,14 @@ describe('PostEditorHeader', () => {
         // Verify the 5 key entry points exist
         const buttons = aiGroup.findAll('button')
         expect(buttons.length).toBeGreaterThanOrEqual(5)
+    })
+
+    it('uses the secondary variant for the voice trigger to match the AI group', async () => {
+        const wrapper = await mountHeader()
+        const voice = wrapper.findComponent({ name: 'AppVoiceInputTrigger' })
+
+        expect(voice.exists()).toBe(true)
+        expect(voice.props('buttonText')).toBe(false)
     })
 
     it('renders status tag and translation badges in right bar', async () => {

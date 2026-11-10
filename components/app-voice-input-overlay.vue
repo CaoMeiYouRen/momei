@@ -3,7 +3,7 @@
         :open="open"
         @update:open="open = $event"
     >
-        <CaomeiPopoverTrigger as-child>
+        <CaomeiPopoverTrigger as-child unstyled>
             <span
                 class="voice-popover-anchor"
                 :style="anchorStyle"
@@ -244,6 +244,17 @@ defineExpose({
 
 <style lang="scss" scoped>
 @use "@/styles/voice-popover" as *;
+
+/* `CaomeiPopoverTrigger` 会给锚点套上默认触发器外观（边框 / 背景 / 最小尺寸）；
+ * 本锚点只用于固定定位承接浮层坐标，不复位会在按钮组末尾留下一个空盒子。 */
+.voice-popover-anchor {
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+}
 
 .voice-popover {
     &__placeholder {
