@@ -134,10 +134,17 @@ test.describe('Admin E2E Tests', () => {
          *    承载（caomei 默认右对齐）。 */
         const searchBox = await wrapperBoxOf(page.locator('.admin-filters__search').first())
         expect(Math.round(searchBox.width), '搜索字段宽度应还原为迁移前实测值 261px').toBe(261)
-        const paginationJustify = await page.locator('.caomei-data-table__pagination').first().evaluate(
-            (element) => getComputedStyle(element as HTMLElement).justifyContent,
-        )
-        expect(paginationJustify, '分页器应水平居中（迁移前 PrimeVue 默认）').toContain('center')
+        /* 空表不渲染分页（docs/design/ui-review-checklist.md U1）：有数据时保留居中几何守卫，
+         * 无数据时以空态作为就绪锚点，避免对不存在的分页器求值而超时。 */
+        const pagination = page.locator('.caomei-data-table__pagination').first()
+        if (await pagination.count() > 0) {
+            const paginationJustify = await pagination.evaluate(
+                (element) => getComputedStyle(element as HTMLElement).justifyContent,
+            )
+            expect(paginationJustify, '分页器应水平居中（迁移前 PrimeVue 默认）').toContain('center')
+        } else {
+            await expect(page.locator('.app-empty-state').first()).toBeVisible({ timeout: 10000 })
+        }
 
         const aggregateSwitch = page.getByRole('switch', { name: '聚合翻译版本' })
         await expect(aggregateSwitch).toBeVisible({ timeout: 10000 })

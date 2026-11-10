@@ -33,6 +33,7 @@
 - 基线: `admin-comments-list` 明暗两张按新空态重采；parity `admin-categories-list` / `admin-tags-list` 明暗四条表格区允许带 240 → 276px 重取，声明值 = 最终实测（6999 / 9528 / 6540 / 9095），其余 78 条未变（83 = 82 条比对 + 1 条登记用例）。
 - 回归窗口: 10 行 / 1 条，归档判定=窗口健康。
 - Review Gate: `Reject` → `Pass`（Round 1 blocker：空态与页头双 primary、证据引用失真；Round 2 blocker：`ui.md` 分页口径与实现相反；Round 3 仅复审修复点，taxonomy 错误分支测试登记为已知边界）。
+- CI 修复: `Test` 的 E2E 分片在 `/admin/categories` 空表下等待不存在的 `.caomei-data-table__pagination` 超时；断言改为「分页存在时校验居中，否则以空态为就绪锚点」，三浏览器定向复跑 3 passed。
 <!-- regression-window:end:ui-s1:空态三态与层序收尾:2026-11-10 -->
 
 <!-- regression-window:start:security-gate:发布安全门禁收口:2026-11-10 -->
