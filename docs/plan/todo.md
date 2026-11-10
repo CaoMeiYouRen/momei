@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十三阶段：迁移后质量收尾与门禁硬化（筹备中：条目 1–5 已规划，待开工）**
+**第七十三阶段：迁移后质量收尾与门禁硬化（筹备中：条目 1–6 已规划，待开工）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-10，用户确认方案 A（备注 A+B+C：依赖 / 工具链余项排入第七十四阶段轨迹）。开工前置：`HEAD=2bffa330` 的 CI `Test` / `Publish Docker Image` 绿；若 Docker 原生多架构首次运行失败，按 B 类插队先修。
 
@@ -55,6 +55,13 @@
     - **验收标准**: `pnpm typecheck` 0 error；`markdown.test.ts` + 全量 test 绿；Visual Regression 绿；PR #745 合入或关闭；若插件不兼容 15，记录证据并退回 backlog（kill-switch）。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；迁移指南结论与兼容矩阵写入 `docs/design/governance/` 或本阶段回归记录。
     - **回滚边界**: 依赖升级与适配层同批 revert；插件不兼容时不动依赖。
+
+- [ ] **6. nuxt 4.6.4 安全升级与视觉基线归因（P2，解阻 PR #1004）**
+    - **执行范围**: `package.json` 将 `nuxt` 由 `^4.6.3` 抬至 `^4.6.4` 并重解析 `pnpm-lock.yaml`（PR #1004 仅改这两个文件；传递升级含 `nitropack 2.13.6` / `unrouting 0.3.2` / `rollup 4.67.5` / `unimport` / `unhead` / `unctx` 等）；先在本地复现并逐处归因 Visual Regression 的 14 张失败快照（7 个用例文件 × 明暗两套）：`Test` 的 lint / typecheck 已绿，差异为 `AppHeader` 导航行约 144px 横向位移（疑似 admin-only 入口与通知区条件渲染）、列表页表格区多出 1px 竖线、`admin-theme-gallery-dialog` 元素高 364 → 384px，需判定是 `adminLocaleReady` 异步装载时序还是 4.6.4「内联组件样式改在样式表链接之后渲染」引发的层叠顺序变化，再决定修代码 / 修等待时序 / 更新基线，禁止直接 `--update-snapshots` 掩盖；同批复核行为变更：生产错误详情剥离（`error.vue` 现取 `statusMessage || message`）、`swr` / `isr` 仅缓存 GET/HEAD 且带 cookie 或 `private` / `no-store` 不再缓存（`/`、`/posts/:id`、`/tags/:slug`、`/categories/:slug`）、`x-forwarded-proto` 仅在 opt-in 时信任（反代绝对 URL 与安全 cookie）、`devServer.allowedHosts`、`workspaceDir` 检测；在 master 抬版落地后关闭 PR #1004 并注明由 master 提交替代（不推 dependabot 分支）。
+    - **非目标**: 不连带 `typescript-checking` / `stylelint` / `markdown-it` 升级（条目 5 与各自 PR 单列）；不放宽 `maxDiffPixels` / `threshold`；不重构 `AppHeader`；不顺带做条目 1 的空态改造。
+    - **验收标准**: `lint` / `lint:css` / `typecheck` 0 error；`test:visual` 绿且每处基线变化都有归因（不得只写「上游升级」）；`test:visual:parity` 无回归；SWR / ISR 二次请求实测命中与响应头符合新规则；反代 HTTPS 场景绝对 URL 与安全 cookie 实测通过；`security:audit-deps` 无新增 high+；CI `Test`（含 Visual Regression）与 `Publish Docker Image` 绿；PR #1004 关闭。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；差异对照图、归因结论与 `getComputedStyle` 取值写入 `artifacts/review-gate/`，阶段结论回填 `docs/reports/regression/current.md`。
+    - **回滚边界**: `package.json` + `pnpm-lock.yaml` 与基线更新同批 revert；若归因为测试时序，等待 / fixture 改动可单独回滚。
 
 ## 相关文档
 
