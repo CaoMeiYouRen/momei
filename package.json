@@ -178,7 +178,7 @@
     "@intlify/message-compiler": "^11.4.18",
     "@intlify/shared": "^11.4.18",
     "@lhci/cli": "^0.16.0",
-    "@lint-md/cli": "2.5.0",
+    "@lint-md/cli": "2.5.1",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/eslint-config": "^1.17.0",
     "@nuxt/test-utils": "^4.3.4",
