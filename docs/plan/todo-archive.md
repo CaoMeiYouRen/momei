@@ -27,7 +27,7 @@
 
 ## 第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（已审计归档）
 
-> 归档说明: 第七十二阶段「1 条映射基座 + 1 条组件替换 + 1 条 token 切换 + 1 条卸载收口 + 1 条覆盖率治理」已于 2026-11-09 完成全部条目交付并归档（2026-11-08 立项，2 天交付）。阶段内把 `--p-*` token 从 1,420 清零、剩余 46 处 PrimeVue 组件清零、卸载 PrimeVue 全家桶与路由择库机制，并建立全量零残留守卫；包体回落 `coreEntryJs` 375,543 → 329,891 B、`keyCss` 64,103 → 60,482 B（配额收紧至 335KB / 62KB）；覆盖率第十三批 +140 条 / +0.38pp。阶段收口 `regression:phase-close` 结论 **__GATE_CONCLUSION__**（__GATE_EVIDENCE__）。
+> 归档说明: 第七十二阶段「1 条映射基座 + 1 条组件替换 + 1 条 token 切换 + 1 条卸载收口 + 1 条覆盖率治理」已于 2026-11-09 完成全部条目交付并归档（2026-11-08 立项，2 天交付）。阶段内把 `--p-*` token 从 1,420 清零、剩余 46 处 PrimeVue 组件清零、卸载 PrimeVue 全家桶与路由择库机制，并建立全量零残留守卫；包体回落 `coreEntryJs` 375,543 → 329,891 B、`keyCss` 64,103 → 60,482 B（配额收紧至 335KB / 62KB）；覆盖率第十三批 +140 条 / +0.38pp。阶段收口 `regression:phase-close` 结论 **Pass**（12 步中 11 步通过；补齐 Playwright 浏览器后 E2E 复跑 227 passed / 1 flaky / 58 skipped；证据见 `artifacts/review-gate/2026-11-09-phase-close-regression.md`）。
 
 > **ROI 评估**: 映射基座 `2.00`；组件替换 `1.60`；token 切换 `1.50`；卸载收口 `1.80`；覆盖率 `1.75`。
 

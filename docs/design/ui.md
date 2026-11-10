@@ -1,6 +1,6 @@
 # 墨梅博客 UI 设计文档
 
-> **组件库迁移已收口（2026-11-09）**：`caomei-ui@1.0.0` 为唯一组件库，**PrimeVue 及其依赖已于第七十二阶段条目 4 卸载**（`primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 移除，`--p-*` token、`p-*` class 与 `.p-*` 选择器清零，零残留守卫见 `tests/modules/primevue-residual-guard.test.ts`），迁移过程见 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。**主题与组件库总述（§2.1 / §2.4 / §3 引言 / §7）已按 caomei-ui 更新**；§3.1 起的组件对照表与 Aura 时代措辞仍属迁移期描述，改写由第七十二阶段收口统一完成。实际实现以 `caomei-ui` 组件 + `--caomei-*`（语义角色）/ `--m-*`（项目调色板）为准。
+> **组件库迁移已收口（2026-11-09）**：`caomei-ui@1.0.0` 为唯一组件库，**PrimeVue 及其依赖已于第七十二阶段条目 4 卸载**（`primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 移除，`--p-*` token、`p-*` class 与 `.p-*` 选择器清零，零残留守卫见 `tests/modules/primevue-residual-guard.test.ts`），迁移过程见 [PrimeVue → caomei-ui 迁移方案](./governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)。**主题与组件库总述（§2.1 / §2.4 / §3 引言 / §7）已按 caomei-ui 更新**；§3.1 起的组件对照表与 Aura 时代措辞仍属迁移期描述，改写排入第七十三阶段条目 1。实际实现以 `caomei-ui` 组件 + `--caomei-*`（语义角色）/ `--m-*`（项目调色板）为准。
 
 ## 1. 设计理念 (Design Philosophy)
 
@@ -160,7 +160,7 @@
 3.  **全局样式**: 在 `styles/main.scss` 中定义基础字体、重置样式和动画类。
 4.  **组件开发**: 逐步替换/开发 Header, Footer, ArticleCard 等核心组件。
 
-## 7. 相关文档
+## 8. 相关文档
 
 -   [AI 代理配置](../../AGENTS.md)
 -   [项目计划](../plan/roadmap.md)

@@ -18,7 +18,7 @@
 ## 主窗口保留范围
 
 - 主文档现在只保留项目概况、近线阶段窗口、当前规划与归档索引。
-- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十一阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
+- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十二阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的区间分片规则向深度归档推进。
 ### 第二十二至第二十四阶段深度归档
 
@@ -194,9 +194,41 @@
 
 ### 第七十二阶段归档结论（最近归档阶段）
 
-**审计结论**: 第七十二阶段五条条目全部完成并归档（2026-11-08 立项，2026-11-09 收口）。条目 1 落盘 120 个唯一 `--p-*` 的三分类映射表与 `--m-*` 派生层，并建立禁新增守卫；条目 2 完成剩余 46 处 / 14 类 PrimeVue 组件替换（组件口径 46 → 0）；条目 3 按样式基座 / 公开页与共享组件 / 管理端三批把 token 从 1,420 清零，桥接方向反转为 `--m-* → --caomei-*`；条目 4 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 与 Aura 预设、`plugins/primevue-i18n.ts`、路由择库机制，`p-*` class 151 → 0、`.p-*` 选择器 83 → 0，并以 `tests/modules/primevue-residual-guard.test.ts`（组件 / 图标 / token / class / 选择器 / 依赖 / 包引用 / `@layer` / `usePrimeVue` / `*-v2.vue`）建立全量零残留守卫；卸载同时补回 PrimeVue 主题运行期注入的 `* { box-sizing: border-box }` 与 `color-scheme` 两条全局基线（缺失导致 15 张视觉基线失败）。条目 5 补测 4 个主模块 + 6 个小模块，全仓 statements **29,995 → 30,135 / 36,828（+140 条 / +0.3801pp）**，并清理 4 处「Mock PrimeVue」残留注释。验证：全量 `pnpm test:coverage` 600 passed / 1 skipped（601 文件）/ 5,265 passed；`test:visual` 32/32、`parity` 83/83、E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`typecheck` / `lint` / `stylelint` / `docs:check:*` 全通过；`test:perf:budget` 通过（`coreEntryJs` 322.16KB / 335KB、`keyCss` 59.06KB / 62KB）。阶段收口 `regression:phase-close` 结论 **__GATE_CONCLUSION__**（__GATE_EVIDENCE__）。各批 Review Gate 均 Pass（条目 4 Round 1 Reject → Round 2 Pass；条目 5 Round 1–2 Reject → Round 3 Pass）。
+**审计结论**: 第七十二阶段五条条目全部完成并归档（2026-11-08 立项，2026-11-09 收口）。条目 1 落盘 120 个唯一 `--p-*` 的三分类映射表与 `--m-*` 派生层，并建立禁新增守卫；条目 2 完成剩余 46 处 / 14 类 PrimeVue 组件替换（组件口径 46 → 0）；条目 3 按样式基座 / 公开页与共享组件 / 管理端三批把 token 从 1,420 清零，桥接方向反转为 `--m-* → --caomei-*`；条目 4 卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` / `primelocale` 与 Aura 预设、`plugins/primevue-i18n.ts`、路由择库机制，`p-*` class 151 → 0、`.p-*` 选择器 83 → 0，并以 `tests/modules/primevue-residual-guard.test.ts`（组件 / 图标 / token / class / 选择器 / 依赖 / 包引用 / `@layer` / `usePrimeVue` / `*-v2.vue`）建立全量零残留守卫；卸载同时补回 PrimeVue 主题运行期注入的 `* { box-sizing: border-box }` 与 `color-scheme` 两条全局基线（缺失导致 15 张视觉基线失败）。条目 5 补测 4 个主模块 + 6 个小模块，全仓 statements **29,995 → 30,135 / 36,828（+140 条 / +0.3801pp）**，并清理 4 处「Mock PrimeVue」残留注释。验证：全量 `pnpm test:coverage` 600 passed / 1 skipped（601 文件）/ 5,265 passed；`test:visual` 32/32、`parity` 83/83、E2E critical 17 passed / 1 skipped + mobile 2 + 安装向导 2；`typecheck` / `lint` / `stylelint` / `docs:check:*` 全通过；`test:perf:budget` 通过（`coreEntryJs` 322.16KB / 335KB、`keyCss` 59.06KB / 62KB）。阶段收口 `regression:phase-close` 结论 **Pass**（12 步中 11 步通过；补齐 Playwright 浏览器后 E2E 复跑 227 passed / 1 flaky / 58 skipped；证据见 `artifacts/review-gate/2026-11-09-phase-close-regression.md`）。各批 Review Gate 均 Pass（条目 4 Round 1 Reject → Round 2 Pass；条目 5 Round 1–2 Reject → Round 3 Pass）。
 
 > 未覆盖边界与后续观察项：① 三处**层序导致的既有样式失效**（社交登录按钮品牌色 / `admin-form-dialog` 宽度 / `.translation-badge` 尺寸）已登记 backlog #11，需浏览器人工验收后修复；② `@mdi/font` 保留（11 类品牌图标 / 22 处），体积收敛另立候选；③ `--m-radius-md` / `--m-radius-sm` 冻结 6px / 4px，管理端圆角不再随主题变化（与 PrimeVue 原行为一致）；④ `docs/design/ui.md` 的组件库对照表仍为迁移期描述，需后续改写；⑤ 本地全量覆盖率存在 `virtual:intlify-i18n` 并发 0-test 抖动，统一以「清 `.vitest-cache` + `--maxWorkers=4`」的干净跑为准，CI 为最终裁决。
+
+---
+
+## 第七十三阶段：迁移后质量收尾与门禁硬化（筹备中：条目 1–5 已规划，待开工）
+
+**时间表**: 2026-11-10 ~ 待定（按里程碑滚动，不预设结束日）
+
+**目标**: 收口 PrimeVue 卸载后的视觉债与空态缺口，把发布安全门禁从过渡模式切回完整阻断，补齐 i18n 原文级重复键与 PR 侧键漂移门禁，并推进覆盖率第十四批与 markdown-it 15 迁移。本阶段不引入新功能，只做「迁移后收尾 + 门禁硬化 + 依赖解阻」。
+
+**准入结论**: 五条条目经用户在候选页 2026-11-10 确认（方案 A；备注 A+B+C 的依赖 / 工具链余项排入第七十四阶段轨迹）：① UI S1 按 [界面自检清单 U1](../design/ui-review-checklist.md) 收尾——空态组件化（图标 + 说明 + 主操作）、空表不渲染分页、三处层序失效修复，并同批改写 `docs/design/ui.md` §3.1+；② 安全门禁优先修复 Code Scanning #43，无法修复则按 `false-positive` 重分类并留证，随后移除 `--transition-mode`；③ i18n 只补「原文级重复键扫描 + PR 侧 missing 阻断」，不动现有 99 组已解析重复键；④ 覆盖率沿用「清 `.vitest-cache` + `--maxWorkers=4`」的干净全量跑口径；⑤ markdown-it 15 先查上游迁移指南与插件兼容矩阵，不兼容即退回 backlog。ROI：UI S1 1.60 / 安全门禁 2.00 / i18n 1.75 / 覆盖率 2.00 / markdown-it 1.00（低于 §3.3 的 1.5 准入线，经用户确认以 kill-switch 纳入；若阶段超时优先移出）。
+
+**准入前置（已核对 2026-11-10）**: 第七十二阶段已审计归档、`todo.md` 无已完成阶段正文、工作区仅含本规划改动、`HEAD=2bffa330` 已推送；`docs/reports/regression/current.md` 仅保留 2026-11-09 阶段收口窗口；CI `Test` 与 `Publish Docker Image`（2bffa330）已于 2026-11-10 实测全绿，开工前置满足。若 Docker 原生多架构首次运行失败，按 B 类插队先修，不并入本阶段条目。
+
+**阶段容量与移出顺序**: 本阶段是「收尾型」阶段，五条条目彼此独立、可分批提交：条目 1 涉及视觉与五语 key，条目 2 涉及安全台账与 CI 门禁，条目 3 涉及脚本与 PR 门禁，条目 4 是常规覆盖率批次，条目 5 是依赖迁移（含 kill-switch）。条目 1 与 2 为 P1，条目 3–5 为 P2；若阶段超时，按 5 → 3 → 4 的顺序移出。
+
+1. **UI S1 收尾：空态三态、空表分页与三处层序失效（P1）**: 空态组件化（以 `AdminTableEmptyState` 为基座补齐图标 / 说明 / 主操作，或新建共享 `AppEmptyState`）；替换 `pages/admin/{posts,comments,subscribers,waitlist}/index.vue`、`pages/posts/index.vue`、`components/admin/admin-taxonomy-page.vue`、`components/taxonomy-post-page.vue` 共 7 个文件对 `pages.posts.empty` 的复用（清单计划原口径为 4 文件 / 5 页，按 2026-11-10 复算），按对象新增五语 key；空表不渲染分页（`paginator` + 空态判据约 7–10 处）；三处层序修复（`.social-btn` 移出 `@layer` 或走 `--caomei-button-*`、`.admin-form-dialog` 宽度改用 Dialog `width` 或移出层、`.translation-badge` 尺寸核实 token 钩子）；同批改写 `docs/design/ui.md` §3.1+ 与文首指针。**非目标**: 不做 U2 字阶全量替换、不做暗色 tint（S2）、不把 U1 扩到全部列表、不扩 reader parity 档。**验收**: 空态 / 加载 / 错误三态截图（空态含图标 + 说明 + 操作）；空表无分页截图；五语 key 完整且无 raw key；三处 `getComputedStyle` 实测符合预期（社交按钮品牌色与布局、弹窗宽度 576 / 544 / 608px、徽标高 24px / min-width 32px）；`test:visual` / `parity` 通过并按实测更新基线；`lint` / `stylelint` / `typecheck` / 定向测试通过；`ui.md` 通过 `lint-md` / `docs:check:links` / `docs:check:line-count`。**验证矩阵**: V0 + V1 + V2 + V3 + RG。
+2. **发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**: Code Scanning #43（`js/bad-tag-filter`，`scripts/docs/check-doc-markers.mjs`，dismissed `won't fix`）——优先修复正则；若确认脚本只读、输入为仓库受信文档、正则是检测器而非过滤器，则按 `false-positive` 重分类并登记依据；复核 `security-alert-exceptions.json` 的 mjml / quill 过期条目（续期并写明理由与跟踪，或替换 / 移除依赖）；移除 `package.json` 的 `--transition-mode`；同步 `docs/standards/security.md §5.3` 与 [dismissed 与 fail-closed 对齐](../design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md)。**非目标**: 不改 critical 不可豁免与 open 告警阻断口径；不借机放宽 `--min-severity`。**验收**: `pnpm security:alerts`（无 transition）Pass；`pnpm security:audit-deps` Pass；台账无过期项；CI `security:alerts` 绿；文档同步。**回滚**: `--transition-mode` 移除可单独回退；#43 的 false-positive 重分类需在 GitHub 侧恢复原 dismiss 原因。**验证矩阵**: V0 + V1 + V2 + RG。
+3. **i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断（P2）**: 在 `scripts/i18n/audit-duplicate-messages.mjs`（或独立脚本）补原文级重复键扫描（对象栈检测，30–50 行 + 单测 fixture 能判红），接入 `i18n:audit:duplicates` 或新增 `i18n:audit:raw-duplicates`；先以 warning 面运行；把 `i18n:audit:missing`（或 `i18n:check-sync --fail-on-diff`）加入 PR 侧 `test.yml` 的 `test` job（现执行 `pnpm run lint` / `lint:i18n` / `lint:css`）。**非目标**: 不做全量 key 重构、不清现有 99 组已解析重复键（只处理原文级与新增）。**验收**: 新脚本单测通过（含重复键 fixture 判红）；当前原文级重复键 0；五语 sync 通过；PR 侧缺失键能判红（用单测或临时分支模拟）；`lint:i18n` 与 `docs:check:i18n` 绿。**验证矩阵**: V0 + V1 + V2 + RG。
+4. **覆盖率第十四批（P2）**: 按绝对未覆盖语句数选 4 模块且含 ≥1 大基数（候选 `composables/use-post-editor-ai.ts` 171 / `server/utils/ai/tts-volcengine-websocket.ts` 59 / `server/api/tasks/run-scheduled.post.ts` 22 + 1 个按实测选取），目标单批 `+0.3pp`（约 111 条）或模块级 `+15pp / ≥85%`。**非目标**: 不做全量铺量；不追不可达分支；不重构测试结构。**验收**: 干净全量跑基线 / 收口；statements delta 落盘；定向测试通过；flaky 归因记录。**验证矩阵**: V0 + V1 + V2 + RG。
+5. **markdown-it 15 迁移（P2，含 kill-switch）**: 先查 markdown-it 15.0.3 官方迁移说明与 5 个插件（`markdown-it-anchor` / `-container` / `-emoji` / `-github-alerts` / `-texmath`）兼容性；并同步升级 `@types/markdown-it`（当前 `^14.1.2`）；在 `utils/shared/markdown.ts` 收敛适配 `MarkdownRendererInstance.render` 的类型 / API 变化；修复 `article-content.vue` / `comment-item.vue` / `table-of-contents.vue` / `pages/admin/submissions/index.vue` / `utils/shared/distribution-template.ts` / `markdown.test.ts` 等 8+ 处类型错误。**非目标**: 不改插件行为与渲染输出语义；不连带其他依赖升级；不做 Markdown 渲染重构。**验收**: `pnpm typecheck` 0 error；`markdown.test.ts` + 全量 test 绿；Visual Regression 绿；PR #745 合入或关闭；若插件不兼容 15，记录证据并退回 backlog（kill-switch）。**验证矩阵**: V0 + V1 + V2 + V3 + RG。
+
+**回滚边界**:
+
+- 条目 1：空态组件 / 分页绑定 / 三处样式修复按文件组独立回滚；`ui.md` 为文档改动，可单独回退。
+- 条目 2：`--transition-mode` 移除可单独回退；#43 的 false-positive 重分类需在 GitHub 侧恢复原 dismiss 原因。
+- 条目 3：新脚本与 CI 步骤独立可回滚（回退后回到 weekly 阻断）。
+- 条目 4：测试文件与覆盖率产物独立可回滚。
+- 条目 5：依赖升级与适配层同批 revert；插件不兼容时不动依赖。
+
+**风险提示**: ① 空态替换会改变 parity 基线（基线本身多为空态），须同批更新并归因；② 三处层序修复可能牵动其他依赖同一 `@layer` 的规则，须用浏览器 `getComputedStyle` 逐项验收，不能只看截图；③ #43 若无法修复且 false-positive 依据不足，保留过渡模式并记录，不强行放行；④ i18n 原文级扫描先以 warning 面运行，避免误报阻断；⑤ markdown-it 15 的插件兼容性是本阶段最大不确定项，先调研后动代码。
+
+> 后续阶段候选（未立项）：依赖与工具链现代化（js-yaml 5 / ESLint 严格规则批次 #262 / 视觉门禁去 `continue-on-error` / 入口包体专项），见 [backlog 短期候选](./backlog.md)；按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
 
 ---
 

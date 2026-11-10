@@ -17,7 +17,44 @@
 
 ## 当前进行中阶段
 
-**暂无进行中阶段**（第七十二阶段已于 2026-11-09 审计归档，归档块见 [待办事项归档](./todo-archive.md)；下一阶段规划见 [项目计划](./roadmap.md) 与 [长期规划与积压项](./backlog.md)）。
+**第七十三阶段：迁移后质量收尾与门禁硬化（筹备中：条目 1–5 已规划，待开工）**
+
+> 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-10，用户确认方案 A（备注 A+B+C：依赖 / 工具链余项排入第七十四阶段轨迹）。开工前置：`HEAD=2bffa330` 的 CI `Test` / `Publish Docker Image` 绿；若 Docker 原生多架构首次运行失败，按 B 类插队先修。
+
+- [ ] **1. UI S1 收尾：空态三态、空表分页与三处层序失效（P1）**
+    - **执行范围**: 空态组件化（`AdminTableEmptyState` 补齐图标 / 说明 / 主操作，或新建共享 `AppEmptyState`）；替换 `pages/admin/{posts,comments,subscribers,waitlist}/index.vue`、`pages/posts/index.vue`、`components/admin/admin-taxonomy-page.vue`、`components/taxonomy-post-page.vue` 共 7 个文件对 `pages.posts.empty` 的复用（清单计划原口径 4 文件 / 5 页），按对象新增五语 key；空表不渲染分页（`paginator` + 空态判据约 7–10 处）；三处层序修复（`.social-btn` / `.admin-form-dialog` 宽度 / `.translation-badge` 尺寸）；同批改写 `docs/design/ui.md` §3.1+ 与文首指针。
+    - **非目标**: 不做 U2 字阶全量替换、不做暗色 tint（S2）、不把 U1 扩到全部列表、不扩 reader parity 档。
+    - **验收标准**: 空态 / 加载 / 错误三态截图（空态含图标 + 说明 + 操作）；空表无分页截图；五语 key 完整且无 raw key；三处 `getComputedStyle` 实测符合预期（社交按钮品牌色与布局、弹窗宽度 576 / 544 / 608px、徽标高 24px / min-width 32px）；`test:visual` / `parity` 通过并按实测更新基线；`lint` / `stylelint` / `typecheck` / 定向测试通过；`ui.md` 通过 `lint-md` / `docs:check:links` / `docs:check:line-count`。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；截图与 `getComputedStyle` 取值写入 `artifacts/review-gate/`，结论回填 `docs/reports/regression/current.md`。
+    - **回滚边界**: 空态组件 / 分页绑定 / 三处样式修复按文件组独立回滚；`ui.md` 可单独回退。
+
+- [ ] **2. 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**
+    - **执行范围**: #43（`js/bad-tag-filter`，`scripts/docs/check-doc-markers.mjs`，dismissed `won't fix`）优先修复正则；若确认脚本只读、输入为仓库受信文档、正则是检测器而非过滤器，则按 `false-positive` 重分类并登记依据；复核 `security-alert-exceptions.json` 的 mjml / quill 过期条目（续期并写明理由与跟踪，或替换 / 移除依赖）；移除 `package.json` 的 `--transition-mode`；同步 `docs/standards/security.md §5.3` 与 dismissed / fail-closed 治理文档。
+    - **非目标**: 不改 critical 不可豁免与 open 告警阻断口径；不借机放宽 `--min-severity`。
+    - **验收标准**: `pnpm security:alerts`（无 transition）Pass；`pnpm security:audit-deps` Pass；台账无过期项；CI `security:alerts` 绿；文档同步。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；门禁输出写入 `artifacts/review-gate/*-security-alerts.*`。
+    - **回滚边界**: `--transition-mode` 移除可单独回退；#43 的 false-positive 重分类需在 GitHub 侧恢复原 dismiss 原因。
+
+- [ ] **3. i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断（P2）**
+    - **执行范围**: 在 `scripts/i18n/audit-duplicate-messages.mjs`（或独立脚本）补原文级重复键扫描（对象栈检测，30–50 行 + 单测 fixture 能判红），接入 `i18n:audit:duplicates` 或新增 `i18n:audit:raw-duplicates`；先以 warning 面运行；把 `i18n:audit:missing`（或 `i18n:check-sync --fail-on-diff`）加入 PR 侧 `test.yml` 的 `test` job（现执行 `pnpm run lint` / `lint:i18n` / `lint:css`）。
+    - **非目标**: 不做全量 key 重构、不清现有 99 组已解析重复键（只处理原文级与新增）。
+    - **验收标准**: 新脚本单测通过（含重复键 fixture 判红）；当前原文级重复键 0；五语 sync 通过；PR 侧缺失键能判红（用单测或临时分支模拟）；`lint:i18n` 与 `docs:check:i18n` 绿。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；脚本输出与 PR 门禁结论回填回归记录。
+    - **回滚边界**: 新脚本与 CI 步骤独立可回滚（回退后回到 weekly 阻断）。
+
+- [ ] **4. 覆盖率第十四批（P2）**
+    - **执行范围**: 按绝对未覆盖语句数选 4 模块且含 ≥1 大基数（候选 `composables/use-post-editor-ai.ts` 171 / `server/utils/ai/tts-volcengine-websocket.ts` 59 / `server/api/tasks/run-scheduled.post.ts` 22 + 1 个按实测选取），目标单批 `+0.3pp`（约 111 条）或模块级 `+15pp / ≥85%`。
+    - **非目标**: 不做全量铺量；不追不可达分支；不重构测试结构。
+    - **验收标准**: 干净全量跑（清 `.vitest-cache` + `--maxWorkers=4`）基线 / 收口；statements delta 落盘；定向测试通过；flaky 归因记录。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；基线 / 收口 `coverage-final.json` 副本写入 `artifacts/coverage/`。
+    - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
+
+- [ ] **5. markdown-it 15 迁移（P2，含 kill-switch）**
+    - **执行范围**: 先查 markdown-it 15.0.3 官方迁移说明与 5 个插件（`markdown-it-anchor` / `-container` / `-emoji` / `-github-alerts` / `-texmath`）兼容性；并同步升级 `@types/markdown-it`（当前 `^14.1.2`）；在 `utils/shared/markdown.ts` 收敛适配 `MarkdownRendererInstance.render` 的类型 / API 变化；修复 `article-content.vue` / `comment-item.vue` / `table-of-contents.vue` / `pages/admin/submissions/index.vue` / `utils/shared/distribution-template.ts` / `markdown.test.ts` 等 8+ 处类型错误。
+    - **非目标**: 不改插件行为与渲染输出语义；不连带其他依赖升级；不做 Markdown 渲染重构。
+    - **验收标准**: `pnpm typecheck` 0 error；`markdown.test.ts` + 全量 test 绿；Visual Regression 绿；PR #745 合入或关闭；若插件不兼容 15，记录证据并退回 backlog（kill-switch）。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；迁移指南结论与兼容矩阵写入 `docs/design/governance/` 或本阶段回归记录。
+    - **回滚边界**: 依赖升级与适配层同批 revert；插件不兼容时不动依赖。
 
 ## 相关文档
 

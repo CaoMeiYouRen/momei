@@ -8,11 +8,11 @@
 - `docs/plan/todo-archive.md`: 保留最近若干阶段的完整归档块与近线收口依据，不长期充当所有历史阶段的唯一全文容器。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-11-09）
+## 2. 当前基线（2026-11-10）
 
-- `roadmap.md`: `212` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八 / 第六十九 / 第七十 / 第七十一 / 第七十二阶段分别迁入 `roadmap-phases-68.md` / `roadmap-phases-69.md` / `roadmap-phases-70.md` / `roadmap-phases-71.md` / `roadmap-phases-72.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
+- `roadmap.md`: `244` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八 / 第六十九 / 第七十 / 第七十一 / 第七十二阶段分别迁入 `roadmap-phases-68.md` / `roadmap-phases-69.md` / `roadmap-phases-70.md` / `roadmap-phases-71.md` / `roadmap-phases-72.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
 - `todo-archive.md`: `511` 行（脚本口径），warning 窗口（主窗口保留第六十五至第七十二阶段共 8 个近线归档块；第六十四阶段迁入 `todo-archive-phases-64.md`；下一次阶段归档前需把第六十五阶段迁出）。
-- `backlog.md`: `273` 行（脚本口径），处于健康窗口（长期主线 10 条 + 周期性回归验证层 + 短期候选；本轮同步 #10 的迁移收口状态、#1 的覆盖率第十三批基线、#11 的三处层序偏差待跟踪）。
+- `backlog.md`: `261` 行（脚本口径），处于健康窗口（长期主线 10 条 + 周期性回归验证层 + 短期候选；本轮同步 #1 覆盖率第十四批、#5 i18n 审计硬化、#9 安全门禁收口、#11 UI S1 收尾的上收状态，并把结构复用基线更新为实测 0.39%）。
 - `docs/reports/regression/current.md`: `25` 行，处于健康窗口（仅保留阶段收口门禁窗口；第七十二阶段 5 个条目窗口迁入 `2026-11-09-phase72-close.md`，2026-11-02 ~ 11-05 的 3 个遗留窗口迁入 `2026-11-02-to-2026-11-05-phase69-70-tail.md`，第七十 / 七十一阶段窗口分别迁入 `2026-11-05-phase70-close.md` / `2026-11-08-phase71-close.md`）。
 
 ## 3. 阈值定义
@@ -43,7 +43,7 @@
 
 ## 5. 后续分片策略
 
-- `roadmap.md` 深度归档优先按阶段区间切分；当前已落地 `docs/plan/archive/roadmap-phases-01-10.md`、`roadmap-phases-11-21.md`、`roadmap-phases-22-24.md`、`roadmap-phases-25-31.md`、`roadmap-phases-32-41.md`、`roadmap-phases-42-53.md`、`roadmap-phases-54-67.md`、`roadmap-phases-68.md`、`roadmap-phases-69.md`、`roadmap-phases-70.md` 与 `roadmap-phases-71.md`。
+- `roadmap.md` 深度归档优先按阶段区间切分；当前已落地 `docs/plan/archive/roadmap-phases-01-10.md`、`roadmap-phases-11-21.md`、`roadmap-phases-22-24.md`、`roadmap-phases-25-31.md`、`roadmap-phases-32-41.md`、`roadmap-phases-42-53.md`、`roadmap-phases-54-67.md`、`roadmap-phases-68.md`、`roadmap-phases-69.md`、`roadmap-phases-70.md`、`roadmap-phases-71.md` 与 `roadmap-phases-72.md`。
 - `todo-archive.md` 深度归档优先按阶段区间切分；已落地 `docs/plan/archive/todo-archive-phases-01-10.md`、`todo-archive-phases-11-21.md`、`todo-archive-phases-22-24.md`、`todo-archive-phases-25-31.md`、`todo-archive-phases-32-41.md`、`todo-archive-phases-42-45.md`、`todo-archive-phases-46-49.md`、`todo-archive-phases-50-51.md`、`todo-archive-phases-52-57.md`、`todo-archive-phases-58-60.md`、`todo-archive-phases-61-63.md` 与 `todo-archive-phases-64.md`。
 - 若未来阶段数继续显著增长，再评估按年份或半年度拆分，而不是重新把旧正文塞回主文档。
 - 主文档只保留摘要、索引与最近窗口，不再复制完整历史正文。
@@ -54,15 +54,16 @@
 
 - 本轮（2026-11-05）完成第七十阶段归档收口：`roadmap.md` 迁出第七十阶段正文至 `roadmap-phases-70.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十阶段归档块，并把第六十四阶段整体迁入 `todo-archive-phases-64.md`，主窗口保留第六十五至第七十阶段共 6 个近线窗口；`todo.md` 已清空已完成阶段正文（2026-11-05 快照：当时无进行中阶段；2026-11-06 已立项第七十一阶段）；`backlog.md` 同步 #10 的 B3 完成状态、剩余迁移面（482 处 / 40 类、图标 411 处、token 1,442 处）与 #1 的覆盖率基线（80.66%）。
 - 本轮（2026-11-08）完成第七十一阶段归档收口：`roadmap.md` 迁出第七十一阶段正文至 `roadmap-phases-71.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十一阶段归档块，主窗口保留第六十五至第七十一阶段共 7 个近线窗口；`todo.md` 已清空已完成阶段正文（2026-11-08 快照：无进行中阶段，第七十二阶段待准入）；`backlog.md` 同步 #10 的 B4 完成状态、剩余面（46 处 / 14 类、图标 0、token 1,420）与 #1 的覆盖率基线（79.23%）。
+- 本轮（2026-11-09）完成第七十二阶段归档收口：`roadmap.md` 迁出第七十二阶段正文至 `roadmap-phases-72.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十二阶段归档块，主窗口保留第六十五至第七十二阶段共 8 个近线窗口；`todo.md` 已清空已完成阶段正文（2026-11-09 快照：无进行中阶段）；`backlog.md` 同步 #10 迁移收口、#1 覆盖率第十三批基线（81.83%）与 #11 三处层序偏差待跟踪。
 - `docs/reports/regression/current.md` 本轮滚动归档：第七十阶段 6 个窗口（条目 5 覆盖率 / 1a / 1b-1c / 2c / 3 / 4）整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`；活动窗口保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个窗口（`105` 行，健康窗口）。条目 2a / 2b 窗口已在阶段内分别归档。
-- `roadmap.md` 当前保留第一至第五十三阶段的索引 / 摘要、第五十四至第六十七阶段摘要表、第六十八至第七十一阶段摘要与第七十二阶段正式规划（2026-11-08 脚本口径 `228` 行，含第七十二阶段规划，低于 800 行 warn 线）。
-- `todo-archive.md` 当前保留第六十五至第七十一阶段共 7 个近线归档块（脚本口径 `481` 行，低于 500 行健康线但已超过 4 – 6 窗口上限）；下一次阶段归档前应先把第六十五阶段块迁入区间分片，为主窗口腾出余量。
-- 下一步：第七十一阶段已于 2026-11-08 审计归档（B4 剩余路由 + 图标全量 + 测试守卫 + 覆盖率第十二批与小治理；发布 v1.30.0）；第七十二阶段（token 切换 + PrimeVue 卸载）为候选方向，按 [项目规划规范](../../standards/planning.md) §4.5 Step 7 另行评估后落盘。
+- `roadmap.md` 当前保留第一至第五十三阶段的索引 / 摘要、第五十四至第六十七阶段摘要表、第六十八至第七十二阶段摘要与第七十三阶段正式规划（2026-11-10 脚本口径 `244` 行，低于 800 行 warn 线）。
+- `todo-archive.md` 当前保留第六十五至第七十二阶段共 8 个近线归档块（脚本口径 `511` 行，已进入 warning 窗口）；下一次阶段归档前应先把第六十五阶段块迁入区间分片，为主窗口腾出余量。
+- 下一步：第七十二阶段已于 2026-11-09 审计归档（token 反向切换 + PrimeVue 卸载 + 覆盖率第十三批）；第七十三阶段（迁移后质量收尾与门禁硬化）已于 2026-11-10 立项并落盘 5 条条目，按 [项目规划规范](../../standards/planning.md) §4.5 Step 7 待开工。
 
 ## 7. 相关入口
 
 - 当前路线图: [../roadmap.md](../roadmap.md)
 - 当前待办归档: [../todo-archive.md](../todo-archive.md)
-- 路线图分片: [roadmap-phases-01-10.md](./roadmap-phases-01-10.md)、[roadmap-phases-11-21.md](./roadmap-phases-11-21.md)、[roadmap-phases-22-24.md](./roadmap-phases-22-24.md)、[roadmap-phases-25-31.md](./roadmap-phases-25-31.md)、[roadmap-phases-32-41.md](./roadmap-phases-32-41.md)、[roadmap-phases-42-53.md](./roadmap-phases-42-53.md)、[roadmap-phases-54-67.md](./roadmap-phases-54-67.md)、[roadmap-phases-68.md](./roadmap-phases-68.md)、[roadmap-phases-69.md](./roadmap-phases-69.md)、[roadmap-phases-70.md](./roadmap-phases-70.md)、[roadmap-phases-71.md](./roadmap-phases-71.md)
+- 路线图分片: [roadmap-phases-01-10.md](./roadmap-phases-01-10.md)、[roadmap-phases-11-21.md](./roadmap-phases-11-21.md)、[roadmap-phases-22-24.md](./roadmap-phases-22-24.md)、[roadmap-phases-25-31.md](./roadmap-phases-25-31.md)、[roadmap-phases-32-41.md](./roadmap-phases-32-41.md)、[roadmap-phases-42-53.md](./roadmap-phases-42-53.md)、[roadmap-phases-54-67.md](./roadmap-phases-54-67.md)、[roadmap-phases-68.md](./roadmap-phases-68.md)、[roadmap-phases-69.md](./roadmap-phases-69.md)、[roadmap-phases-70.md](./roadmap-phases-70.md)、[roadmap-phases-71.md](./roadmap-phases-71.md)、[roadmap-phases-72.md](./roadmap-phases-72.md)
 - 待办归档分片: [todo-archive-phases-01-10.md](./todo-archive-phases-01-10.md)、[todo-archive-phases-11-21.md](./todo-archive-phases-11-21.md)、[todo-archive-phases-22-24.md](./todo-archive-phases-22-24.md)、[todo-archive-phases-25-31.md](./todo-archive-phases-25-31.md)、[todo-archive-phases-32-41.md](./todo-archive-phases-32-41.md)、[todo-archive-phases-42-45.md](./todo-archive-phases-42-45.md)、[todo-archive-phases-46-49.md](./todo-archive-phases-46-49.md)、[todo-archive-phases-50-51.md](./todo-archive-phases-50-51.md)、[todo-archive-phases-52-57.md](./todo-archive-phases-52-57.md)、[todo-archive-phases-58-60.md](./todo-archive-phases-58-60.md)、[todo-archive-phases-61-63.md](./todo-archive-phases-61-63.md)、[todo-archive-phases-64.md](./todo-archive-phases-64.md)
 - 回归记录入口: [../../reports/regression/index.md](../../reports/regression/index.md)
