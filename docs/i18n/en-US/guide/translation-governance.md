@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-10
 translation_tier: must-sync
 ---
 
@@ -53,6 +53,8 @@ Every language rollout should verify these five gates:
 - Route-level locale modules continue to load on demand through the global middleware rather than being promoted into full startup payloads.
 - Shared components must not assume a page already loaded optional locale message modules. Reuse the runtime dependency pattern already enforced around locale-module loading.
 - Keep page-private copy in page namespaces, module-shared copy in module namespaces, and only move genuinely global wording into shared namespaces.
+
+- **Raw-level duplicate keys are outside `i18n:audit:duplicates`**: `JSON.parse` collapses same-name keys before the audit sees them, so only a raw-file scan (or a dedicated script) can detect them. The same key can diverge between contexts such as menu labels and page titles; converge on the more complete meaning and add the module-specific key.
 
 ## 4. Document Freshness Tiers
 

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-10
 translation_tier: summary-sync
 ---
 
@@ -42,6 +42,10 @@ This document outlines the testing process for the Momei blog to ensure code qua
 -   Pick modules by **absolute uncovered statements**, not by low coverage percentage; count branch coverage per branch path (never "any branch hit", which overstates by 10pp+); persist the baseline `coverage-final.json` (targeted runs still wipe the default `coverage/`).
 -   Prefer a new file over appending to a test file already near the `max-lines` warning; move `node_modules/.vitest-cache` aside before local runs (hot cache causes `@id/virtual:*` module errors that CI never sees).
 -   Tests touching module-level connection maps, `process.env` or fake timers need `afterEach` teardown plus `useRealTimers` / `unstubAllGlobals`; `isolate: true` only masks the pollution.
+-   **A clean full run is the only valid baseline**: default concurrency makes `virtual:intlify-i18n` fail collection in about 25 suites (0 tests), distorting both numerator and denominator; use `rm -rf node_modules/.vitest-cache` + `--maxWorkers=4` for baselines and record the convention.
+-   **Prefer `--coverage` for single-file checks**: running one Nuxt test file can randomly fail to resolve `virtual:intlify-i18n`; `--coverage` is more stable. Clear the cache and retry before treating it as a regression.
+-   **Coverage is naturally flaky**: random sequences (for example snowflake `Math.random` seeding), lazy-loaded components (`Lazy*`) and async editors move ±20 statements. Add deterministic cases where possible; otherwise deduct and document the variance in the attribution.
+-   **`not.toThrow()` is not an assertion**: it has no discriminating power for removed guards (property access and optional chaining do not throw). Assert observable side effects instead — no field written, no dependency called, no persisted record.
 
 ## 3. Directory Structure & Naming
 

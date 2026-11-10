@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-10
 translation_tier: summary-sync
 ---
 
@@ -68,6 +68,8 @@ translation_tier: summary-sync
 - 同一術語在同一語言中必須保持一致，不可同頁混用多種譯法。
 - `Locale Registry`、`readiness`、`fallback` 等治理詞彙需盡量與設計文件保持一致。
 - 繁體中文不得殘留簡體字。
+
+**原文級重複鍵不在 `i18n:audit:duplicates` 的可見範圍**：`JSON.parse` 會在解析階段折疊同名鍵（後者覆蓋前者），審計只能看到解析後的物件；需按原文掃描（或獨立腳本）才能發現。同一鍵在「選單」與「頁面標題」等語境下取值可能分叉，收斂時選語意更完整的一方並補對應模組鍵。
 
 建議在提交前抽樣檢查以下高風險詞：
 

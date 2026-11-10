@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-10
 translation_tier: summary-sync
 ---
 
@@ -51,6 +51,8 @@ translation_tier: summary-sync
 - `OpenAI`, `Cloudflare R2`, `VAPID` 같은 고유 명사는 필요 시 원문을 유지합니다.
 - 같은 용어는 같은 언어 안에서 항상 같은 번역을 사용합니다.
 - 한국어 UI에는 영어 자리표시자를 남기지 않습니다.
+
+**원문 수준 중복 키는 `i18n:audit:duplicates`의 가시 범위 밖입니다**: `JSON.parse`가 파싱 단계에서 같은 이름의 키를 접어(뒤 값이 앞 값을 덮음) 감사는 파싱된 객체만 보게 됩니다. 원문을 직접 스캔(또는 전용 스크립트)해야 찾을 수 있습니다. 같은 키가 "메뉴"와 "페이지 제목" 등 문맥에서 갈라질 수 있으므로, 수렴 시 의미가 더 완전한 쪽을 택하고 해당 모듈 키를 보강합니다.
 
 ## 5. 기여 절차
 
