@@ -1,10 +1,14 @@
+import type { Env } from 'markdown-it'
 import { createMarkdownRenderer, sanitizeRenderedMarkdownHtml, type MarkdownRendererInstance } from '@/utils/shared/markdown'
 
 export interface AdminMarkdownEditorInstance {
     $el?: Element
     $img2Url?: (position: number, url: string) => void
     iRender?: (toggleChange?: boolean) => void
-    markdownIt?: MarkdownRendererInstance
+    // 保留 Pick 收窄：改回全量 MarkdownRendererInstance 时，vue-tsc 会在
+    // components/admin/mavon-editor-client.client.vue:148 报 TS2345（模板 ref 传入的
+    // 实例类型与接口不一致）。这里只暴露实际使用的渲染入口。
+    markdownIt?: Pick<MarkdownRendererInstance, 'render'>
     textAreaFocus?: () => void
 }
 
@@ -119,7 +123,7 @@ export function createAdminMarkdownPreviewRenderer() {
     const renderer = createMarkdownRenderer({ html: true, withAnchor: true })
     const unsafeRender = renderer.render.bind(renderer)
 
-    renderer.render = ((source: string, env?: unknown) => sanitizeRenderedMarkdownHtml(unsafeRender(source, env))) as MarkdownRendererInstance['render']
+    renderer.render = (source: string, env?: Env) => sanitizeRenderedMarkdownHtml(unsafeRender(source, env))
     return renderer
 }
 

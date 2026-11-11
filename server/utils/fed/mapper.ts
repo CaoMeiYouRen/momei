@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it'
 import { getOrCreateUserKeyPair } from './crypto'
+import { applyMarkdownLinkifyCompatibility } from '@/utils/shared/markdown-linkify'
 import type { User } from '@/server/entities/user'
 import type { Post } from '@/server/entities/post'
 import {
@@ -20,6 +21,7 @@ const md = new MarkdownIt({
     linkify: true,
     typographer: true,
 })
+applyMarkdownLinkifyCompatibility(md)
 
 /**
  * 将 User 实体转换为 ActivityPub Actor

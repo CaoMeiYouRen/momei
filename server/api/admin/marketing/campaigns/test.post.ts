@@ -3,6 +3,7 @@ import { requireAdmin } from '@/server/utils/permission'
 import { marketingCampaignSchema } from '@/utils/schemas/notification'
 import { emailTemplateEngine } from '@/server/utils/email/templates'
 import { sendEmail } from '@/server/utils/email'
+import { applyMarkdownLinkifyCompatibility } from '@/utils/shared/markdown-linkify'
 
 export default defineEventHandler(async (event) => {
     const session = await requireAdmin(event)
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
         linkify: true,
         typographer: true,
     })
+    applyMarkdownLinkifyCompatibility(md)
     const htmlContent = md.render(content)
 
     // Render using marketing campaign template to keep preview consistent with real sends

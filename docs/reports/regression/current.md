@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:dependency-upgrade:markdown-it 15 迁移:2026-11-11 -->
+## 2026-11-11 markdown-it 15 迁移与 linkify 语义恢复
+
+- 执行入口: `pnpm install --frozen-lockfile`、`pnpm typecheck`、定向 `pnpm exec vitest run`（`markdown` / `markdown-linkify` / `feed` / `feed-query` / `distribution-template` / `admin-markdown-editor` 等）、全量 `pnpm exec vitest run --maxWorkers=4`（移走 `.vitest-cache`）、`pnpm test:visual`、`pnpm test:visual:parity`、`pnpm exec eslint`
+- 证据 artifact: `../../../docs/design/governance/2026-11-11-markdown-it-15-migration.md`（版本表 / 兼容矩阵 / 行为变更 / 适配层 / 回滚）
+- 结果摘要: 代码与验证项见本条「实测」；Review Gate 经四轮后定档 `Pass`，记录见治理文档 §7。
+- 变更范围: `markdown-it` 15.0.3 / `markdown-it-anchor` 10.1.0 / `@types/markdown-it-container` 4.0.1，移除 `@types/markdown-it` 直接依赖；传递 `linkify-it` 6.1.0 / `uc.micro` 3.0.0 / `argparse` 3.0.4 / `entities` 8.1.0；新增 `utils/shared/markdown-linkify.ts` 并被共享渲染器与 4 处服务端渲染器统一调用；`utils/shared/markdown.ts` 类型收敛、`utils/web/admin-markdown-editor.ts` 的 `Env` 与 `markdownIt` 收窄；`feed-query` 的 markdown-it mock 补齐 `linkify.set` 契约。
+- 实测: `typecheck` 0 error、`frozen-lockfile` 通过；定向 11 文件 / 100 例（含 5 处渲染器接线的 9 例守卫）；全量 606 文件 passed / 1 skipped（607 文件）、5,383 例 passed / 1 skipped（5,384 例）；`test:visual` 32 passed、`test:visual:parity` 83 passed；`test:perf:budget` 未越线；5 个插件运行时兼容，kill-switch 未触发。
+- 回归窗口: 本窗口正文 9 行（含标题与空行，不含 marker）；`current.md` 全文件 102 行 / 8 条（`assessRegressionLogWindow` 口径，已达 `maxEntries=8`，下一条追加前需先归档）。
+- Review Gate: Round 1 `Reject`（4 处直连渲染器未恢复 linkify）→ Round 2 `Reject`（文档数字与预填结论）→ Round 3 `Reject`（数字与新增守卫不同源、守卫判别力）→ Round 4 `Pass`；完整记录见 `../../../docs/design/governance/2026-11-11-markdown-it-15-migration.md` §7。
+<!-- regression-window:end:dependency-upgrade:markdown-it 15 迁移:2026-11-11 -->
+
 <!-- regression-window:start:coverage-batch-14:覆盖率第十四批:2026-11-11 -->
 ## 2026-11-11 覆盖率第十四批：use-post-editor-ai 等 4 模块补测
 

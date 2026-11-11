@@ -66,6 +66,26 @@ describe('createMarkdownRenderer', () => {
     it('should reuse shared heading slug rules', () => {
         expect(slugifyMarkdownHeading('  中文 Heading: Hello World!  ')).toBe('中文-heading-hello-world-')
     })
+
+    it('should keep fuzzy link autolinking behaviour after markdown-it 15 upgrade', () => {
+        // linkify-it 6 默认关闭 fuzzyLink / urlAuth，渲染器需显式恢复以保持既有输出语义
+        const result = md.render('访问 example.com 查看详情')
+
+        expect(result).toContain('<a href="http://example.com">example.com</a>')
+    })
+
+    it('should keep URL auth part autolinking behaviour', () => {
+        // linkify-it 6 新增 urlAuth 且默认关闭；未恢复时只会链接到 `https://user`
+        const result = md.render('访问 https://user:pass@example.com/private 查看')
+
+        expect(result).toContain('href="https://user:pass@example.com/private"')
+    })
+
+    it('should render katex math through markdown-it-texmath', () => {
+        const result = md.render('公式 $x^2$ 结束')
+
+        expect(result).toContain('class="katex"')
+    })
 })
 
 describe('formatMarkdown', () => {

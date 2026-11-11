@@ -5,6 +5,7 @@ import { dataSource } from '@/server/database'
 import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
+import { applyMarkdownLinkifyCompatibility } from '@/utils/shared/markdown-linkify'
 
 /**
  * 分页参数校验 Schema
@@ -19,6 +20,7 @@ const md = new MarkdownIt({
     linkify: true,
     typographer: true,
 })
+applyMarkdownLinkifyCompatibility(md)
 
 /**
  * ActivityPub Outbox 端点

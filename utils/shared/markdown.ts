@@ -1,4 +1,4 @@
-import MarkdownIt from 'markdown-it'
+import MarkdownIt, { type MarkdownIt as MarkdownItInstance } from 'markdown-it'
 import MarkdownItAnchor from 'markdown-it-anchor'
 import MarkdownItContainer from 'markdown-it-container'
 import { light as MarkdownItEmoji } from 'markdown-it-emoji'
@@ -23,6 +23,7 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
 import { slugifyMarkdownHeading } from './markdown-heading'
+import { applyMarkdownLinkifyCompatibility } from './markdown-linkify'
 
 hljs.registerLanguage('bash', bash)
 hljs.registerLanguage('css', css)
@@ -48,18 +49,25 @@ hljs.registerLanguage('xml', xml)
 hljs.registerLanguage('yaml', yaml)
 hljs.registerLanguage('yml', yaml)
 
-export interface MarkdownRendererInstance extends MarkdownIt {
+interface MarkdownImagePlaceholderMethods {
     __image?: Record<string, string | undefined>
     image_add: (key: string | number, url: string) => void
     image_del: (key: unknown) => void
 }
 
+export type MarkdownRendererInstance = MarkdownItInstance & MarkdownImagePlaceholderMethods
+
 type MarkdownImageRenderRule = NonNullable<MarkdownRendererInstance['renderer']['rules']['image']>
 type MarkdownTokenList = Parameters<MarkdownImageRenderRule>[0]
 type MarkdownContainerRenderRule = (tokens: MarkdownTokenList, idx: number) => string
-type MarkdownContainerPlugin = (md: MarkdownIt, name: string, options?: { render?: MarkdownContainerRenderRule }) => void
+type MarkdownContainerPlugin = (md: MarkdownItInstance, name: string, options?: { render?: MarkdownContainerRenderRule }) => void
 
 const markdownContainerPlugin = MarkdownItContainer as unknown as MarkdownContainerPlugin
+
+// @types/markdown-it-emoji 仍以 `import = require('markdown-it')` 引用 v14 的类型命名空间，
+// 与 markdown-it 15 自带的实例类型不兼容；这里只借用其运行时签名，类型在本地收敛。
+// 上游类型包声明支持 markdown-it 15 后删除该桥接。
+const markdownEmojiPlugin = MarkdownItEmoji as unknown as (md: MarkdownItInstance) => void
 
 export interface MarkdownOptions {
     /**
@@ -163,16 +171,18 @@ const markdownSanitizeOptions: sanitizeHtml.IOptions = {
     },
 }
 
-function attachMarkdownImagePlaceholderSupport(md: MarkdownRendererInstance) {
-    const imageMap = md.__image && typeof md.__image === 'object' ? md.__image : {}
+function attachMarkdownImagePlaceholderSupport(md: MarkdownItInstance): MarkdownRendererInstance {
+    const imageMap: Record<string, string | undefined> = {}
 
-    md.__image = imageMap
-    md.image_add = (key, url) => {
-        imageMap[String(key)] = url
-    }
-    md.image_del = (key) => {
-        imageMap[String(key)] = undefined
-    }
+    return Object.assign(md, {
+        __image: imageMap,
+        image_add: (key: string | number, url: string) => {
+            imageMap[String(key)] = url
+        },
+        image_del: (key: unknown) => {
+            imageMap[String(key)] = undefined
+        },
+    })
 }
 
 /**
@@ -181,7 +191,7 @@ function attachMarkdownImagePlaceholderSupport(md: MarkdownRendererInstance) {
  * @returns MarkdownIt 实例
  */
 export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
-    const md = new MarkdownIt({
+    const md = attachMarkdownImagePlaceholderSupport(new MarkdownIt({
         html: mdOptions.html ?? false,
         linkify: mdOptions.linkify ?? true,
         typographer: mdOptions.typographer ?? true,
@@ -197,9 +207,11 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
             }
             return '' // use external default escaping
         },
-    }) as MarkdownRendererInstance
+    }))
 
-    attachMarkdownImagePlaceholderSupport(md)
+    // markdown-it 15 升级到 linkify-it 6 后默认关闭 fuzzyLink / urlAuth，
+    // 显式恢复以保持既有渲染输出语义（见 applyMarkdownLinkifyCompatibility）。
+    applyMarkdownLinkifyCompatibility(md)
 
     // 为图片添加懒加载属性
     const defaultImageRender: MarkdownImageRenderRule = md.renderer.rules.image || function (tokens, idx, options, _env, self) {
@@ -265,7 +277,7 @@ export function createMarkdownRenderer(mdOptions: MarkdownOptions = {}) {
     }
 
     // 集成表情符号
-    md.use(MarkdownItEmoji)
+    md.use(markdownEmojiPlugin)
 
     // 集成数学公式
     md.use(texmath, {

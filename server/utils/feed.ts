@@ -8,6 +8,7 @@ import { applyPostListSelect } from './post-list-query'
 import { t, getLocale } from './i18n'
 import { applyPostsReadModelFromMetadata } from './post-metadata'
 import { getLocaleRoutePrefix } from '@/i18n/config/locale-registry'
+import { applyMarkdownLinkifyCompatibility } from '@/utils/shared/markdown-linkify'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { resolveCitableExcerpt } from '@/utils/shared/citable-content'
@@ -63,6 +64,7 @@ export async function generateFeed(event: H3Event, options: FeedOptions = {}) {
         linkify: true,
         typographer: true,
     })
+    applyMarkdownLinkifyCompatibility(md)
 
     md.use(MarkdownItAnchor, {
         slugify: (s) => s.trim().toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, '-'),

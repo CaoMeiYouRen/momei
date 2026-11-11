@@ -84,6 +84,11 @@ vi.mock('feed', () => ({
 
 vi.mock('markdown-it', () => ({
     default: class MockMarkdownIt {
+        // 与真实实例保持同一最小契约：linkify 补偿与插件注册都会在构造后被调用
+        linkify = {
+            set: vi.fn(),
+        }
+
         use() {
             return this
         }
