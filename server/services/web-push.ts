@@ -1,5 +1,5 @@
 import { In } from 'typeorm'
-import webpush from 'web-push'
+import { sendNotification, setVapidDetails } from 'web-push'
 import { dataSource } from '@/server/database'
 import { WebPushSubscription, type WebPushSubscriptionPayload } from '@/server/entities/web-push-subscription'
 import { User } from '@/server/entities/user'
@@ -56,7 +56,7 @@ async function ensureWebPushConfigured() {
 
     const nextSignature = `${config.subject}:${config.publicKey}:${config.privateKey}`
     if (cachedConfigSignature !== nextSignature) {
-        webpush.setVapidDetails(config.subject, config.publicKey, config.privateKey)
+        setVapidDetails(config.subject, config.publicKey, config.privateKey)
         cachedConfigSignature = nextSignature
     }
 
@@ -173,7 +173,7 @@ export async function sendWebPushToUser(userId: string, message: WebPushMessage)
 
     for (const item of subscriptions) {
         try {
-            await webpush.sendNotification(item.subscription, payload, {
+            await sendNotification(item.subscription, payload, {
                 TTL: 60 * 60,
                 urgency: 'high',
             })

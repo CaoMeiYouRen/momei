@@ -34,10 +34,8 @@ vi.mock('typeorm', async () => {
 })
 
 vi.mock('web-push', () => ({
-    default: {
-        setVapidDetails: setVapidDetailsMock,
-        sendNotification: sendNotificationMock,
-    },
+    setVapidDetails: setVapidDetailsMock,
+    sendNotification: sendNotificationMock,
 }))
 
 vi.mock('@/server/services/setting', () => ({

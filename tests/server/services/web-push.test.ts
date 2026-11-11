@@ -26,10 +26,8 @@ const {
 }))
 
 vi.mock('web-push', () => ({
-    default: {
-        setVapidDetails: vi.fn(),
-        sendNotification: vi.fn(),
-    },
+    setVapidDetails: vi.fn(),
+    sendNotification: vi.fn(),
 }))
 
 vi.mock('@/server/database', () => ({

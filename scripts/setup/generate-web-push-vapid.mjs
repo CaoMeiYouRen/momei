@@ -1,4 +1,4 @@
-import webpush from 'web-push'
+import { generateVAPIDKeys } from 'web-push'
 import { parseCliOptions } from '../shared/cli.mjs'
 
 const { jsonOutput, subject: subjectArg } = parseCliOptions(process.argv, {
@@ -15,7 +15,7 @@ const { jsonOutput, subject: subjectArg } = parseCliOptions(process.argv, {
 })
 const subject = subjectArg || process.env.WEB_PUSH_VAPID_SUBJECT || 'mailto:admin@example.com'
 
-const { publicKey, privateKey } = webpush.generateVAPIDKeys()
+const { publicKey, privateKey } = generateVAPIDKeys()
 
 const payload = {
     WEB_PUSH_VAPID_SUBJECT: subject,
