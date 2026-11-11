@@ -19,11 +19,33 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第六十五至第七十二阶段共 8 个近线归档块。
+- 主文档当前保留第六十五至第七十三阶段共 9 个近线归档块。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第七十三阶段：迁移后质量收尾与门禁硬化（已审计归档）
+
+> 归档说明: 第七十三阶段「1 条 UI 收尾 + 1 条安全门禁收口 + 1 条 i18n 门禁 + 1 条覆盖率治理 + 1 条依赖迁移 + 1 条 nuxt 安全升级」已于 2026-11-11 完成全部条目交付并归档（2026-11-10 立项，2 天交付）。阶段内落地共享 `AppEmptyState` 与空表分页判定、把发布安全门禁从过渡模式切回完整阻断、新增 i18n 原文级重复键扫描与 PR 侧缺失键阻断、覆盖率第十四批 **+311 条 / +0.84pp**、markdown-it 15 迁移并恢复 linkify 语义、nuxt 4.6.4 安全抬版与 14 张视觉基线归因。阶段收口 `regression:phase-close` 结论 **Pass**（`test:coverage` 607 文件 / 5,383 例、Statements 82.63%；`release:check:full` 12 步含 E2E 228 passed / 58 skipped；`docs:check:*` / `test:perf:budget:strict` / `duplicate-code:check:strict` / `review-gate:generate:check` 全 PASS）。
+
+- [x] **1. UI S1 收尾：空态三态、空表分页与三处层序失效（P1）**
+    - **完成摘要（2026-11-10）**: 新增共享 `AppEmptyState`（图标 + 说明 + 主操作），替换 7 个文件对 `pages.posts.empty` 的复用并按对象补齐五语 key（评论 / 订阅者 / 候补 / 分类 / 标签 / 文章管理 + 公开列表说明）；空表分页改为按 `total` 判定（`total > 0` 才渲染，避免末页删空后无法回退），5 处绑定同步（分类 / 标签共用组件）；三处层序修复——`.social-btn` 与 `.admin-form-dialog` 宽度钩子移出 `@layer momei-base`（实测社交按钮品牌色生效、弹窗 608 / 576 / 544px），`.translation-badge` 复核维持 24px / 32px token 口径；`ui.md` §3.1–§3.4 按 caomei-ui 重写。验证：`test:visual` 32 passed、`test:visual:parity` 83 passed、`lint` / `lint:css` / `typecheck` 0 error、定向 vitest 144 passed；证据见 `artifacts/review-gate/2026-11-10-phase73-entry1-ui.md` 与 `artifacts/review-gate/entry1/`。
+
+- [x] **2. 发布安全门禁收口：Code Scanning #43、过期台账与去过渡模式（P1）**
+    - **完成摘要（2026-11-10）**: `scripts/docs/check-doc-markers.mjs` 的孤立尾行正则改为 `^--!?>(\s|$)`（同时接受 HTML5 的 `-->` / `--!>`）并补单测；GitHub 侧 #43 由 `won't fix` 重分类为 `false positive`，台账登记 `category: false-positive` / `location` / `expiresAt: 2027-05-15`；移除 `package.json` 的 `--transition-mode`，`security:alerts` 恢复完整阻断；删除 mjml（已无告警）与 quill（降为 low、无补丁，留 backlog）两条过期台账；同步 `security.md §5.3` 与 dismissed / fail-closed 治理文档退出记录。验证：`security:alerts` Pass（transition off、transition findings 0、warning 0）、`security:audit-deps` Pass（relevant risks 0）、`check-doc-markers.test.ts` 20 passed；CI `security:alerts` 待推送后回填。
+
+- [x] **3. i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断（P2）**
+    - **完成摘要（2026-11-10）**: 新增 `scripts/i18n/audit-raw-duplicate-keys.mjs`（对象栈扫描同对象重复键，默认 warning、`--mode=error` 可阻断）与 11 例单测（7 纯函数 + 3 CLI + 1 目录扫描，含重复键 fixture 判红）；`i18n:audit:duplicates` 保持原样（仅跨语言文案候选），原文级扫描独立为 `i18n:audit:raw-duplicates` 入口（Round 1 的串联方案已回退）；`test.yml` 的 `test` job 增加 `i18n:audit:missing`（阻断）与 `i18n:audit:raw-duplicates`（warning）。实测 130 个 locale JSON 原文级重复键 0、五语 sync 通过；临时删除 `pages.admin.waitlist.empty_description` 后 `i18n:audit:missing` 退出 1 并点名该键，恢复后为 0。验证：`lint` / `lint:i18n` / `typecheck` 0 error、`docs:check:i18n` 通过。
+
+- [x] **4. 覆盖率第十四批（P2）**
+    - **完成摘要（2026-11-11）**: 第 4 模块按实测选 `utils/shared/post-audit-quick.ts`（74 条未覆盖 / 75 条总量，被 `/admin/posts` 与 `server/services/ai/content-audit.ts` 消费）。四模块收口：`use-post-editor-ai` 171 → 6（98.08%）、`post-audit-quick` 74 → 3（96.00%）、`tts-volcengine-websocket` 59 → 6（96.94%）、`run-scheduled.post` 22 → 1（98.18%）；4 个测试文件（1 新增 / 3 扩充）共 47 / 19 / 17 / 16 例（本批 +79 例）。全仓 Statements 81.79% → 82.63%（30,260 → 30,571 / 36,994，+311 条 / +0.84pp）、Branches 72.86% → 73.59%、Functions 79.61% → 80.00%、Lines 81.93% → 82.78%；全量 604 passed / 1 skipped（605 文件、5,368 例）。剩余 16 条为防御 / 兜底分支，逐条列于证据文件。证据见 `artifacts/review-gate/2026-11-11-coverage-batch-14.md` 与 `artifacts/coverage/coverage-final.batch-14-{baseline,exit}.json`。
+
+- [x] **5. markdown-it 15 迁移（P2，含 kill-switch）**
+    - **完成摘要（2026-11-11）**: 升级 `markdown-it` 15.0.3 / `markdown-it-anchor` 10.1.0 / `@types/markdown-it-container` 4.0.1，移除 `@types/markdown-it` 直接依赖（15 自带声明）；锁文件 39 增 / 33 删，传递变化为 `linkify-it` 6.1.0 / `uc.micro` 3.0.0 / `argparse` 3.0.4 / `entities` 4.5.0 → 8.1.0，无其他包版本增删，`pnpm install --frozen-lockfile` 通过。适配层：`utils/shared/markdown.ts` 的 `MarkdownRendererInstance` 改为 `MarkdownItInstance & MarkdownImagePlaceholderMethods` 类型别名、`attachMarkdownImagePlaceholderSupport` 改用 `Object.assign` 返回（去掉 `as` 断言）、emoji / container 插件改用本地签名桥接；`utils/web/admin-markdown-editor.ts` 的 `render` 包装改用 `Env`，`AdminMarkdownEditorInstance.markdownIt` 收窄为 `Pick<MarkdownRendererInstance, 'render'>`；`utils/shared/markdown.test.ts` 与新增 `utils/shared/markdown-linkify.test.ts` 钉住 fuzzy link / urlAuth / texmath。linkify-it 6 默认关闭的 `fuzzyLink` / `urlAuth` 由新增 `utils/shared/markdown-linkify.ts` 统一恢复，共享渲染器与 4 处服务端直连渲染器（feed / ActivityPub mapper / outbox / 营销邮件测试发送）一致调用；新增 `tests/modules/markdown-linkify-wiring.test.ts`（9 例）守卫 5 处接线；未恢复的上游行为变更（裸域名+端口、认证段邮箱、实体/HTML block/链接目标边界、entities v8）在治理文档 §3.2 登记为接受项。5 个插件运行时全部兼容，kill-switch 未触发；兼容矩阵与迁移结论见 `docs/design/governance/2026-11-11-markdown-it-15-migration.md`。验证：`typecheck` 0 error、定向 11 文件 / 100 例（含 `markdown.test.ts` 15 例、`markdown-linkify.test.ts` 3 例与 5 处渲染器接线的 9 例静态守卫，复跑命令见治理文档 §5）、全量 606 文件 passed / 1 skipped（607 文件）、5,383 例 passed / 1 skipped（5,384 例）、`test:visual` 32 passed、`test:visual:parity` 83 passed、`test:perf:budget` 未越线。PR #745 待本次提交推送后关闭（本摘要落盘时 `state=OPEN`、未合并）。
+
+- [x] **6. nuxt 4.6.4 安全升级与视觉基线归因（P2，解阻 PR #1004）**
+    - **完成摘要（2026-11-10）**: 依赖升级已由 base 的 `8e354fa3`（dependabot，PR #1004）合入；本提交只剩预览卡日期固定与 14 张基线归因（原 `new Date()` 使主题工作台基线每日漂移，占用约一半像素容差）——页头整体右移 144px 是 4.6.3 下 `caomei-ui` 按钮规则压过组件 `display:none` 导致 3 个桌面隐藏控件泄漏，弹窗 +20px 是 `:deep(.caomei-card__body)` 的 `1.25rem` padding 恢复生效，页脚外链图标为 0.45px 亚像素抗锯齿差异；`test:visual` 32 passed、`test:visual:parity` 83 passed、`lint` / `lint:css` / `typecheck` 0 error；证据见 `artifacts/review-gate/2026-11-10-nuxt-4.6.4-upgrade.md`。遗留：首页 SWR 因 i18n 响应 `Set-Cookie` 不再缓存，已登记 backlog 候选；CI `Test` / `Publish Docker Image` 待推送后回填。
 
 ## 第七十二阶段：PrimeVue → caomei-ui 迁移（六）——token 语义层反向切换与 PrimeVue 卸载（已审计归档）
 

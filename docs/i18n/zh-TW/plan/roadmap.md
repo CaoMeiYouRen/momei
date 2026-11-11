@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-10
+last_sync: 2026-11-11
 ---
 
 # 墨梅專案路線圖
@@ -91,7 +91,7 @@ last_sync: 2026-11-10
 - **第七十階段已完成審計歸檔（2026-11-05）**：`caomei-ui@1.0.0` GA 精確升級並把 parity 擴到未安裝態第二 webServer、首次啟用 `reader` 檔；B3 表單與設置按 2a/2b/2c/3/4 完成管理端設置與通知（341 + 42 處）、安裝精靈（87 處）與用戶設置／認證／提交（16 檔案 / 119 處），`Stepper` / `Accordion` / `ColorPicker` / `DatePicker` / `FileUpload` 首次生產遷移；覆蓋率第十一批閉合 95 條（三模組 100% / 98.87% / 100%，全倉 80.40% → 80.66%，本批 +0.26pp）。剩餘遷移面 482 處組件 / 40 類、411 處圖示、1,442 處 token 留待第七十一階段。範圍與驗收以中文規劃為準。 階段收口結論為 **Pass（CI 終裁）**：Code Scanning #45 已隨修復推送重掃關閉，CI E2E 4/4 全綠；首屏包體與重複代碼基線按 2026-11-05 實測重定標（365KB、0.5% / 48 clones）。
 - **第七十一階段已完成審計歸檔（2026-11-08）**：B4 剩餘路由與圖示全量已收口——管理端剩餘路由（編輯器 / 儀表板 / 日曆 / 片段 / AI 任務詳情）與公開頁 / 佈局殼整遷；`pi pi-*` 由 136 處清零（非品牌走 `@lucide/vue`，8 類品牌走 `mdi mdi-*`，tiktok / discord / paypal 內聯 Simple Icons）；過渡組件收斂為單一實作（V1 清零、6 組去 `-v2`）；E2E `p-*` 斷言清零、路由守衛覆蓋 35 條（含 `/` 與 `/goto`）；覆蓋率第十二批 +154 條 / +0.42pp；i18n 鍵層與 `friend-link` 歸一化修復。收口複算：組件 188 → **46 處 / 14 類**、圖示 **0**、token 1,420（留第七十二階段）；parity 83/83（41 條已遷移、0 待遷移）、`test:visual` 24/24、CI Test 15 job 全綠、本地 `release:check` 10/10，並經手動觸發的 Release workflow 發布 **v1.30.0**。`--p-*` token 1,420 處切換與 PrimeVue 卸載仍順延至第七十二階段（候選，未落盤）；範圍與驗收以中文 roadmap 與 todo 為準。
 - **第七十二階段已審計歸檔（2026-11-09）**：PrimeVue → caomei-ui 遷移完成——1,420 處 `--p-*` token 全數切到 caomei 語意角色（`--caomei-*`）或專案調色盤層（`--m-*`）；剩餘 46 處 PrimeVue 組件歸零；PrimeVue 全家桶（含 `@primevue/*`、`@primeuix/*`、`primeicons`、`primelocale`、Aura 預設、i18n 外掛與路由擇庫機制）已卸載。`p-*` class 151 → 0、`.p-*` 選擇器 83 → 0，並以全倉零殘留守衛兜底；卸載後補回 `box-sizing` / `color-scheme` 兩條執行期全域基線。包體配額收緊：`coreEntryJs` 375,543 → **329,891 B**（335KB）、`keyCss` 64,103 → **60,482 B**（62KB）。覆蓋率第十三批 +140 條（+0.38pp；全倉 81.83%）；視覺 32/32、parity 83/83、E2E critical 17/1 + mobile 2 + 安裝精靈 2、typecheck/lint 全綠。階段收口 `regression:phase-close`：Pass（`regression:phase-close` 12 步中 11 步通过；补齐 Playwright 浏览器后 E2E 复跑 227 passed / 1 flaky / 58 skipped；CI 为最终裁决）。
-- **第七十三階段已進入規劃（2026-11-10）**：遷移後品質收尾與門禁強化——UI S1 空態 / 空表分頁 / 三處層序失效修復（含 `docs/design/ui.md` §3.1+ 改寫）、發布安全門禁收口（Code Scanning #43、過期例外、移除 `--transition-mode`）、i18n 原文級重複鍵掃描與 PR 側缺鍵門禁、覆蓋率第十四批（+0.3pp）、markdown-it 15 遷移（含 kill-switch），以及 nuxt 4.6.4 安全升級與視覺基線歸因（解阻 PR #1004）。
+- **第七十三階段已審計歸檔（2026-11-11）**：遷移後品質收尾與門禁強化——以共享 `AppEmptyState`（圖標 / 說明 / 主操作）統一 7 個檔案的空態、空表僅在 `total > 0` 時渲染分頁、修復三處層序失效；Code Scanning #43 重分類為 false positive 並移除 `--transition-mode`，發布安全門禁恢復完整阻斷；i18n 新增原文級重複鍵掃描與 PR 側缺鍵阻斷；覆蓋率第十四批把 4 模組未覆蓋 171/74/59/22 收斂到 6/3/6/1（全倉 81.79% → 82.63%，+311 條 / +0.84pp）；markdown-it **15.0.3** 遷移並以共享 linkify 相容層接入 5 處渲染器（PR #745 關閉）；nuxt **4.6.4** 與 14 張視覺基線逐處歸因（PR #1004 解阻）。範圍與驗收以中文歸檔為準。階段收口 `regression:phase-close`：Pass。
 - **翻譯頁範圍說明**：本頁保留近期已完成審計階段的摘要；詳細驗收標準與任務拆解仍以中文 `roadmap.md`、`todo.md` 為唯一事實源。
 
 ## 4. 長期積壓方向
