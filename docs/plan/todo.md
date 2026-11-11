@@ -45,12 +45,13 @@
     - **回滚边界**: 新脚本与 CI 步骤独立可回滚（回退后回到 weekly 阻断）。
     - **完成摘要（2026-11-10）**: 新增 `scripts/i18n/audit-raw-duplicate-keys.mjs`（对象栈扫描同对象重复键，默认 warning、`--mode=error` 可阻断）与 11 例单测（7 纯函数 + 3 CLI + 1 目录扫描，含重复键 fixture 判红）；`i18n:audit:duplicates` 保持原样（仅跨语言文案候选），原文级扫描独立为 `i18n:audit:raw-duplicates` 入口（Round 1 的串联方案已回退）；`test.yml` 的 `test` job 增加 `i18n:audit:missing`（阻断）与 `i18n:audit:raw-duplicates`（warning）。实测 130 个 locale JSON 原文级重复键 0、五语 sync 通过；临时删除 `pages.admin.waitlist.empty_description` 后 `i18n:audit:missing` 退出 1 并点名该键，恢复后为 0。验证：`lint` / `lint:i18n` / `typecheck` 0 error、`docs:check:i18n` 通过。
 
-- [ ] **4. 覆盖率第十四批（P2）**
+- [x] **4. 覆盖率第十四批（P2）**
     - **执行范围**: 按绝对未覆盖语句数选 4 模块且含 ≥1 大基数（候选 `composables/use-post-editor-ai.ts` 171 / `server/utils/ai/tts-volcengine-websocket.ts` 59 / `server/api/tasks/run-scheduled.post.ts` 22 + 1 个按实测选取），目标单批 `+0.3pp`（约 111 条）或模块级 `+15pp / ≥85%`。
     - **非目标**: 不做全量铺量；不追不可达分支；不重构测试结构。
     - **验收标准**: 干净全量跑（清 `.vitest-cache` + `--maxWorkers=4`）基线 / 收口；statements delta 落盘；定向测试通过；flaky 归因记录。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；基线 / 收口 `coverage-final.json` 副本写入 `artifacts/coverage/`。
     - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
+    - **完成摘要（2026-11-11）**: 第 4 模块按实测选 `utils/shared/post-audit-quick.ts`（74 条未覆盖 / 75 条总量，被 `/admin/posts` 与 `server/services/ai/content-audit.ts` 消费）。四模块收口：`use-post-editor-ai` 171 → 6（98.08%）、`post-audit-quick` 74 → 3（96.00%）、`tts-volcengine-websocket` 59 → 6（96.94%）、`run-scheduled.post` 22 → 1（98.18%）；4 个测试文件（1 新增 / 3 扩充）共 47 / 19 / 17 / 16 例（本批 +79 例）。全仓 Statements 81.79% → 82.63%（30,260 → 30,571 / 36,994，+311 条 / +0.84pp）、Branches 72.86% → 73.59%、Functions 79.61% → 80.00%、Lines 81.93% → 82.78%；全量 604 passed / 1 skipped（605 文件、5,368 例）。剩余 16 条为防御 / 兜底分支，逐条列于证据文件。证据见 `artifacts/review-gate/2026-11-11-coverage-batch-14.md` 与 `artifacts/coverage/coverage-final.batch-14-{baseline,exit}.json`。
 
 - [ ] **5. markdown-it 15 迁移（P2，含 kill-switch）**
     - **执行范围**: 先查 markdown-it 15.0.3 官方迁移说明与 5 个插件（`markdown-it-anchor` / `-container` / `-emoji` / `-github-alerts` / `-texmath`）兼容性；并同步升级 `@types/markdown-it`（当前 `^14.1.2`）；在 `utils/shared/markdown.ts` 收敛适配 `MarkdownRendererInstance.render` 的类型 / API 变化；修复 `article-content.vue` / `comment-item.vue` / `table-of-contents.vue` / `pages/admin/submissions/index.vue` / `utils/shared/distribution-template.ts` / `markdown.test.ts` 等 8+ 处类型错误。

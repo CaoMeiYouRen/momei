@@ -7,6 +7,7 @@ import {
     parseVolcengineEventPacket,
 } from './volcengine-protocol'
 import { VolcengineTTSProvider } from './tts-volcengine'
+import { AI_HEAVY_TASK_TIMEOUT_MS } from '@/utils/shared/env'
 
 const { MockWebSocket, loggerMock } = vi.hoisted(() => {
     type EventHandler = (...args: any[]) => void
@@ -486,5 +487,186 @@ describe('volcengine tts provider', () => {
             statusCode: 502,
             message: 'round failed',
         })
+    })
+})
+
+describe('volcengine websocket 流式边界分支', () => {
+    const createProvider = () => new VolcengineTTSProvider({
+        appId: 'app-id',
+        accessKey: 'access-key',
+    })
+
+    beforeEach(() => {
+        MockWebSocket.instances = []
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+        vi.restoreAllMocks()
+    })
+
+    // 说明：心跳 / 截断报文分支被删除后，后续 152 仍会正常关闭流，本用例只保证执行路径覆盖，
+    // 不承担回归判别职责；判别力由错误包 / 超时 / 取消等用例承担。
+    it('忽略心跳、无法解析与截断的报文而不中断流', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+
+        // 不足 12 字节：连接包与事件包解析均返回 null
+        ws?.emit('message', Buffer.alloc(4))
+
+        const truncatedConnectionId = Buffer.alloc(12)
+        truncatedConnectionId.writeUInt8(0x44, 1)
+        truncatedConnectionId.writeInt32BE(50, 4)
+        truncatedConnectionId.writeUInt32BE(1024, 8)
+        ws?.emit('message', truncatedConnectionId)
+
+        const truncatedPayload = Buffer.alloc(16)
+        truncatedPayload.writeUInt8(0x44, 1)
+        truncatedPayload.writeInt32BE(50, 4)
+        truncatedPayload.writeUInt32BE(0, 8)
+        truncatedPayload.writeUInt32BE(1024, 12)
+        ws?.emit('message', truncatedPayload)
+
+        ws?.emit('message', buildVolcengineSessionResponsePacket(350, {}))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(351, {}))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+
+        const audio = await readAll(stream)
+
+        expect(audio.length).toBe(0)
+        expect(loggerMock.error).not.toHaveBeenCalled()
+    })
+
+    it('服务端错误包会终止流并带上错误码', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const reader = stream.getReader()
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildPodcastErrorPacket(403, 'forbidden'))
+
+        await expect(reader.read()).rejects.toMatchObject({
+            statusCode: 502,
+            message: 'Volcengine TTS Error(403): forbidden',
+        })
+        expect(ws?.close).toHaveBeenCalledTimes(1)
+    })
+
+    it('连接结束事件会正常关闭流', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineConnectionResponsePacket(52, {}))
+
+        const audio = await readAll(stream)
+
+        expect(audio.length).toBe(0)
+        expect(ws?.close).toHaveBeenCalledTimes(1)
+    })
+
+    it('用量事件只记录日志，不影响音频输出', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineSessionResponsePacket(150, {}))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(154, { usage: { tokens_total: 3 } }))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+
+        const audio = await readAll(stream)
+
+        expect(audio.length).toBe(0)
+        expect(loggerMock.info).toHaveBeenCalledWith(expect.stringContaining('[VolcengineTTS] Usage:'))
+    })
+
+    it('音频帧支持 base64 字符串与对象载荷', async () => {
+        const base64 = Buffer.from('hey').toString('base64')
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineSessionResponsePacket(150, {}))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(352, base64))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(352, { data: base64 }))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(352, { audio: base64 }))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+
+        const audio = await readAll(stream)
+
+        expect(audio.toString()).toBe('heyheyhey')
+    })
+
+    // 说明：空载荷守卫删除后输出同样为空，仅覆盖执行路径；音频内容判别由下一例承担。
+    it('空载荷不会写入音频块', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineSessionResponsePacket(150, {}))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(352, ''))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(352, { data: '' }))
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+
+        const audio = await readAll(stream)
+
+        expect(audio.length).toBe(0)
+    })
+
+    it('超过重任务超时时间会以 504 终止', async () => {
+        vi.useFakeTimers()
+
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const reader = stream.getReader()
+        MockWebSocket.instances[0]?.emit('open')
+        const pending = reader.read().catch((error: unknown) => error)
+
+        await vi.advanceTimersByTimeAsync(AI_HEAVY_TASK_TIMEOUT_MS + 1)
+
+        await expect(pending).resolves.toMatchObject({
+            statusCode: 504,
+        })
+        expect(MockWebSocket.instances[0]?.close).toHaveBeenCalled()
+    })
+
+    it('打开后未经终态即关闭时正常结束流', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('close')
+
+        const audio = await readAll(stream)
+
+        expect(audio.length).toBe(0)
+    })
+
+    it('取消下游读取时会发送结束帧并关闭连接', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineSessionResponsePacket(150, {}))
+        const sendCountBeforeCancel = ws?.send.mock.calls.length ?? 0
+
+        await stream.cancel()
+
+        const cancelFrames = (ws?.send.mock.calls ?? []).slice(sendCountBeforeCancel)
+        expect(cancelFrames).toHaveLength(2)
+        expect(((cancelFrames[0] as unknown as [Buffer])[0]).readInt32BE(4)).toBe(102)
+        expect(((cancelFrames[1] as unknown as [Buffer])[0]).readInt32BE(4)).toBe(2)
+        expect(ws?.close).toHaveBeenCalledTimes(1)
+    })
+
+    it('终态之后的重复事件与错误都会被忽略', async () => {
+        const stream = await createProvider().generateSpeech('hello', 'zh_female_vv_uranus_bigtts', {})
+        const ws = MockWebSocket.instances[0]
+        ws?.emit('open')
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+
+        const audio = await readAll(stream)
+        const closeCountAfterSettle = ws?.close.mock.calls.length
+
+        ws?.emit('message', buildVolcengineSessionResponsePacket(152, {}))
+        ws?.emit('error', new Error('late error'))
+
+        expect(audio.length).toBe(0)
+        // 终态已 settle：重复事件不得再次触发 close / error 分支
+        expect(ws?.close.mock.calls.length).toBe(closeCountAfterSettle)
+        expect(loggerMock.error).not.toHaveBeenCalled()
     })
 })

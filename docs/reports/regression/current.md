@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:coverage-batch-14:覆盖率第十四批:2026-11-11 -->
+## 2026-11-11 覆盖率第十四批：use-post-editor-ai 等 4 模块补测
+
+- 执行入口: `pnpm exec vitest run --coverage --maxWorkers=4`（运行前移走 `node_modules/.vitest-cache` / `.vitest-cache-coverage`，基线 + 收口各一次）、定向 `pnpm exec vitest run <4 文件> --coverage`、`pnpm lint` / `pnpm typecheck`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-11-coverage-batch-14.md`；基线 / 收口副本 `../../../artifacts/coverage/coverage-final.batch-14-baseline.json` / `coverage-final.batch-14-exit.json`
+- 结果摘要: `Pass`；blocker=0，warning=0（Round 1 的 1 个 blocker 与 6 个 warning 已全部关闭）。
+- 变更范围: 补测 `composables/use-post-editor-ai.ts`（171 → 6 未覆盖）、`utils/shared/post-audit-quick.ts`（74 → 3）、`server/utils/ai/tts-volcengine-websocket.ts`（59 → 6）、`server/api/tasks/run-scheduled.post.ts`（22 → 1）；4 个测试文件（1 新增 / 3 扩充）9 → 47 / 新增 19 / 7 → 17 / 4 → 16 例，本批 +79 例。
+- 实测: Statements 81.79% → 82.63%（+311 条 / +0.84pp）、Branches 72.86% → 73.59%、Functions 79.61% → 80.00%、Lines 81.93% → 82.78%；全量 604 passed / 1 skipped（605 文件、5,368 例）；4 模块收口 98.08% / 96.00% / 96.94% / 98.18%。
+- 回归窗口: 本窗口正文 9 行（含标题与空行，不含 marker）；`current.md` 全文件 90 行 / 7 条（`assessRegressionLogWindow` 口径，未超窗口），归档判定=窗口健康。
+- Review Gate: `Reject` → `Pass`（Round 1 blocker：完成摘要用例数 `6 → 17` 实为 `7 → 17` 且预填 Pass、`current.md` 结论悬空；warning：视角缓存缺跨模式判别、轮询 tick 未覆盖、env 未回收、HMAC 未锁请求体、`toError` 归因失真、窗口行数口径；Round 2 仅复审修复点）。
+<!-- regression-window:end:coverage-batch-14:覆盖率第十四批:2026-11-11 -->
+
 <!-- regression-window:start:i18n-audit:原文级重复键与PR门禁:2026-11-10 -->
 ## 2026-11-10 i18n 审计硬化：原文级重复键扫描与 PR 侧键漂移阻断
 
