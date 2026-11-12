@@ -298,6 +298,10 @@ function createTransformHelpers({
 
             const tableSchema = modelSchema.fields
             for (const key in tableSchema) {
+                // id 已在上方按 `data.id || data._id` 归一，二次回写会用 `data.id` 覆盖 `_id` 结果。
+                if (key === 'id') {
+                    continue
+                }
                 if (select.length && !select.includes(key)) {
                     continue
                 }

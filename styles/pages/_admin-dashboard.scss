@@ -184,7 +184,7 @@
     }
 }
 
-@include respond-to("md") {
+@include respond-below("md") {
     .admin-dashboard {
         &__hero,
         &__rankings,

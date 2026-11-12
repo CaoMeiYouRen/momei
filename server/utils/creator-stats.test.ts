@@ -1,9 +1,11 @@
+import Database from 'better-sqlite3'
 import { describe, expect, it } from 'vitest'
 import {
     bucketDistributionEvents,
     bucketPublishingTrend,
     buildCreatorStats,
     computeOverallSuccessRate,
+    resolvePublishingPeriodExpression,
 } from './creator-stats'
 
 describe('bucketPublishingTrend', () => {
@@ -284,5 +286,57 @@ describe('resolveDistributionChannelEnabled', () => {
 
         expect(result.wechatsync).toBe(true) // Always true (no server-side toggle)
         expect(typeof result.hexoRepositorySync).toBe('boolean')
+    })
+})
+
+
+describe('resolvePublishingPeriodExpression', () => {
+    it('selects portable expressions per database type', () => {
+        expect(resolvePublishingPeriodExpression('better-sqlite3', 'day')).toBe('DATE(post.publishedAt)')
+        expect(resolvePublishingPeriodExpression('better-sqlite3', 'week')).toBe('DATE(post.publishedAt, \'weekday 0\', \'-6 days\')')
+        expect(resolvePublishingPeriodExpression('better-sqlite3', 'month')).toBe('strftime(\'%Y-%m-01\', post.publishedAt)')
+        expect(resolvePublishingPeriodExpression('postgres', 'week')).toBe('DATE_TRUNC(\'week\', post.publishedAt)')
+        expect(resolvePublishingPeriodExpression('mysql', 'week')).toBe('DATE_FORMAT(DATE_SUB(post.publishedAt, INTERVAL WEEKDAY(post.publishedAt) DAY), \'%Y-%m-%d\')')
+    })
+
+    it('groups cross-year weeks by Monday start on SQLite', () => {
+        const database = new Database(':memory:')
+        try {
+            database.exec('CREATE TABLE post (publishedAt TEXT)')
+            const insert = database.prepare('INSERT INTO post (publishedAt) VALUES (?)')
+            insert.run('2025-12-29T10:00:00Z')
+            insert.run('2026-01-02T10:00:00Z')
+
+            const expression = resolvePublishingPeriodExpression('better-sqlite3', 'week')
+            const rows = database
+                .prepare(`SELECT ${expression} AS periodStart, COUNT(*) AS count FROM post GROUP BY periodStart ORDER BY periodStart`)
+                .all()
+
+            expect(rows).toEqual([{ periodStart: '2025-12-29', count: 2 }])
+        } finally {
+            database.close()
+        }
+    })
+
+    it('groups months and days on SQLite', () => {
+        const database = new Database(':memory:')
+        try {
+            database.exec('CREATE TABLE post (publishedAt TEXT)')
+            const insert = database.prepare('INSERT INTO post (publishedAt) VALUES (?)')
+            insert.run('2025-12-31T10:00:00Z')
+            insert.run('2026-01-01T10:00:00Z')
+
+            const monthExpression = resolvePublishingPeriodExpression('better-sqlite3', 'month')
+            const months = database
+                .prepare(`SELECT ${monthExpression} AS periodStart, COUNT(*) AS count FROM post GROUP BY periodStart ORDER BY periodStart`)
+                .all()
+
+            expect(months).toEqual([
+                { periodStart: '2025-12-01', count: 1 },
+                { periodStart: '2026-01-01', count: 1 },
+            ])
+        } finally {
+            database.close()
+        }
     })
 })

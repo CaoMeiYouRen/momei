@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { getSettings } from '@/server/services/setting'
 import { SettingKey } from '@/types/setting'
 import type {
@@ -7,11 +8,56 @@ import type {
     PublishingTrendPoint,
 } from '@/types/creator-stats'
 
+dayjs.extend(utc)
+
+export type PublishingPeriodGranularity = 'day' | 'week' | 'month'
+
+/**
+ * 生成发文趋势的周期起点表达式。
+ *
+ * - SQLite 用 `date(..., 'weekday 0', '-6 days')` 得到周一起点，避免 `%W` 在跨年时错位；
+ * - PostgreSQL 沿用 `DATE_TRUNC`；
+ * - MySQL 用 `WEEKDAY` 偏移到周一。
+ */
+export function resolvePublishingPeriodExpression(
+    dbType: string,
+    granularity: PublishingPeriodGranularity,
+    column = 'post.publishedAt',
+): string {
+    const normalizedDbType = dbType.toLowerCase()
+
+    if (normalizedDbType.includes('sqlite')) {
+        if (granularity === 'day') {
+            return `DATE(${column})`
+        }
+        if (granularity === 'week') {
+            return `DATE(${column}, 'weekday 0', '-6 days')`
+        }
+        return `strftime('%Y-%m-01', ${column})`
+    }
+
+    if (normalizedDbType.includes('postgres')) {
+        return granularity === 'day' ? `DATE(${column})` : `DATE_TRUNC('${granularity}', ${column})`
+    }
+
+    if (normalizedDbType.includes('mysql') || normalizedDbType.includes('mariadb')) {
+        if (granularity === 'day') {
+            return `DATE(${column})`
+        }
+        if (granularity === 'week') {
+            return `DATE_FORMAT(DATE_SUB(${column}, INTERVAL WEEKDAY(${column}) DAY), '%Y-%m-%d')`
+        }
+        return `DATE_FORMAT(${column}, '%Y-%m-01')`
+    }
+
+    throw new Error(`Unsupported database type for publishing period expression: ${dbType || '(empty)'}`)
+}
+
 /**
  * 时间段原始数据
  */
 interface RawPeriodBucket {
-    periodStart: Date
+    periodStart: Date | string
     count: number
 }
 
@@ -93,7 +139,11 @@ export function bucketPublishingTrend(
     const buckets = new Map<string, { count: number, periodEnd?: string }>()
 
     for (const row of rows) {
-        const d = dayjs(row.periodStart)
+        // 日期字符串由 SQL 直接产出（SQLite/MySQL），按 UTC 解析以免受进程本地时区影响；
+        // PostgreSQL 的 DATE_TRUNC 返回 Date，保持驱动给出的本地日历日。
+        const d = typeof row.periodStart === 'string'
+            ? dayjs.utc(row.periodStart)
+            : dayjs(row.periodStart)
         let periodStart: string
         let periodEnd: string | undefined
 

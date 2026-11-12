@@ -35,7 +35,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + V4 + RG；参考态复采记录、预算 diff、入口构成清单与本阶段回归记录。
     - **回滚边界**: 参考态与预算刷新同批 revert（并恢复 `continue-on-error`）；入口收敛按文件组独立回滚，重定标可单独回退。
 
-- [ ] **3. 存量缺陷修复批（P1）**
+- [x] **3. 存量缺陷修复批（P1）**
     - **执行范围**: **3a** `server/api/admin/creator-stats.get.ts` 按 `dbType` 分支或改用可移植聚合（评估 `%G` / `%V` 或应用层聚合，`%W` 不是 ISO 周编号），补 SQLite 三档 `range` 与跨年边界测试。**3b** `styles/pages/_admin-dashboard.scss` 的 `respond-to("md")` 改 `respond-below("md")`，核对 1280 / 1024 / 768 / 375 四档。**3c** `server/database/typeorm-adapter.ts` 的 `transformOutput` 回写时跳过 `id` 或回写后 `transformedData.id ??= data._id`，补「只有 `_id` 时仍输出 id」断言。
     - **非目标**: 不改 creator-stats 聚合粒度与响应字段；不重做仪表盘信息架构；不重写适配器 id 映射策略。
     - **验收标准**: SQLite 下 `range=7/30/90` 均 200 且周 / 月分组正确（含跨年）；1440px 三卡同行、四档无回归；适配器 `_id` 回填有单测；`typecheck` / `lint` 0 error。

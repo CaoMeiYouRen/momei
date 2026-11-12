@@ -79,6 +79,7 @@ function mockRepo(...qbs: QueryBuilderMock[]) {
 describe('GET /api/admin/creator-stats', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        ;(dataSource as unknown as { options?: { type?: string } }).options = { type: 'better-sqlite3' }
         vi.stubGlobal('getQuery', vi.fn((event: { query?: unknown }) => event.query || {}))
 
         vi.mocked(buildCreatorStats).mockReturnValue({
@@ -262,6 +263,24 @@ describe('GET /api/admin/creator-stats', () => {
 
         const result = await handler({ query: { range: '7' } } as any as Parameters<typeof handler>[0])
         expect(result.aggregationGranularity).toBe('day')
+    })
+
+    it.each([
+        ['7', 'DATE(post.publishedAt)'],
+        ['30', 'DATE(post.publishedAt, \'weekday 0\', \'-6 days\')'],
+        ['90', 'strftime(\'%Y-%m-01\', post.publishedAt)'],
+    ])('uses SQLite-compatible period expression for range %s', async (range, expectedExpression) => {
+        mockSession('author')
+        const publishedCountQb = createRawQueryBuilder([{ count: '0' }])
+        const draftCountQb = createRawQueryBuilder([{ count: '0' }])
+        const trendQb = createRawQueryBuilder([])
+        const distQb = createRawQueryBuilder([])
+        mockRepo(publishedCountQb, draftCountQb, trendQb, distQb)
+
+        await handler({ query: { range } } as any as Parameters<typeof handler>[0])
+
+        expect(trendQb.select).toHaveBeenCalledWith(expectedExpression, 'periodStart')
+        expect(trendQb.groupBy).toHaveBeenCalledWith(expectedExpression)
     })
 
     it('returns null for disabled distribution channels', async () => {

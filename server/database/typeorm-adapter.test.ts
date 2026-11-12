@@ -378,6 +378,27 @@ describe('typeormAdapter', () => {
         })
     })
 
+    it('keeps the _id-derived id when the record has no id field', async () => {
+        const { dataSource, userRepository } = createDataSource()
+        userRepository.findOne.mockResolvedValue({
+            _id: 'mongo-user-1',
+            email: 'mongo@example.com',
+        })
+
+        const adapter = typeormAdapter(dataSource as never)({})
+        const result = await adapter.findOne({
+            model: 'user',
+            where: [
+                { field: 'email', operator: 'eq', value: 'mongo@example.com' },
+            ],
+        })
+
+        expect(result).toEqual(expect.objectContaining({
+            id: 'mongo-user-1',
+            email: 'mongo@example.com',
+        }))
+    })
+
     it('finds many records with sorting, pagination and array relation mapping', async () => {
         const { dataSource, userRepository } = createDataSource({ relationPropertyName: 'profile' })
         userRepository.find.mockResolvedValue([

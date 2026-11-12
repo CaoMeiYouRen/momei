@@ -6,6 +6,7 @@ import { requireAdminOrAuthor } from '@/server/utils/permission'
 import {
     buildCreatorStats,
     resolveDistributionChannelEnabled,
+    resolvePublishingPeriodExpression,
 } from '@/server/utils/creator-stats'
 import type { CreatorStatsResponse } from '@/types/creator-stats'
 import { PostStatus } from '@/types/post'
@@ -65,12 +66,11 @@ export default defineEventHandler(async (event) => {
     const draftCount = Number(draftResult?.count ?? 0)
 
     // ====== 3. 发文趋势 ======
-    const TRUNC_FN_MAP = {
-        day: 'DATE(post.publishedAt)',
-        week: 'DATE_TRUNC(\'week\', post.publishedAt)',
-        month: 'DATE_TRUNC(\'month\', post.publishedAt)',
-    } as const
-    const truncFn = TRUNC_FN_MAP[aggregationGranularity]
+    const dbType = dataSource.options?.type
+    if (typeof dbType !== 'string' || !dbType) {
+        throw createError({ statusCode: 500, statusMessage: 'Database type is not configured' })
+    }
+    const truncFn = resolvePublishingPeriodExpression(dbType, aggregationGranularity)
 
     const trendQuery = postRepo
         .createQueryBuilder('post')
@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
 
     const trendRows = await trendQuery.getRawMany<{ periodStart: string, count: string }>()
     const publishingRawRows = trendRows.map((row) => ({
-        periodStart: new Date(row.periodStart),
+        periodStart: row.periodStart,
         count: Number(row.count),
     }))
 
