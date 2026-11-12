@@ -143,7 +143,7 @@ AI 代理在遇到以下情况时，**必须优先使用搜索工具获取一手
 AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中执行任务。详细规范请参阅 [Git 工作流规范](./docs/standards/git.md)。
 
 - 严禁在未经授权的情况下跨工作树修改不属于该范畴的代码。
-- **禁止擅自推送**：`git commit` 后不得自动执行 `git push`，除非用户明确要求"推送""push""推到远端"。提交后应止步于本地 commit 并告知用户。
+- **推送默认关闭**：`git commit` 后默认不执行 `git push`，除非用户明确要求"推送""push""推到远端"，或命中 [Git 工作流规范 §7](./docs/standards/git.md) 的授权例外（修复 CI 验证、完整条目完成后推送、风险隔离分支）。提交后应告知推送结果或等待推送确认。
 
 ### 7.4 提交规范 (Commit Convention)
 
@@ -153,7 +153,7 @@ AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中
 2. **格式要求**：提交消息必须符合 Conventional Commits 规范（`type(scope): description`），且 `description` 统一使用**中文或用户使用的语言**。
 3. **质量前置**：提交前必须确认 A 阶段（`@code-auditor`）已放行，且 `pnpm lint`、`pnpm typecheck` 和必要的定向测试均已通过。质量门禁未通过时不得提交。
 4. **原子粒度**：一个提交对应一个逻辑变更，关联且仅关联 `todo.md` 中的一个原子条目。
-5. **推送禁令**：`git commit` 后不得自动执行 `git push`，推送仅限用户明确要求时执行。提交完成后应告知用户"已提交到本地，等待推送确认"。
+5. **推送口径**：默认只提交不推送，授权例外与约束见 §7.3 与 [Git 工作流规范 §7](./docs/standards/git.md)；提交完成后应告知"已提交到本地，等待推送确认"。
 
 ### 7.5 发布前安全告警门禁 (Release Security Alert Gate)
 
@@ -161,6 +161,17 @@ AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中
 -   **critical 不可豁免**：critical 级 Dependabot / Code Scanning 漏洞必须修复，`security-alert-exceptions.json` 与 `dependency-risk-allowlist.json` 对其均不生效，未修复即阻断发布。
 -   **high 受控豁免**：high 级仅在无可用补丁或修复难度过大时允许豁免，必须登记原因与 `temporaryException` 期限并追踪、尽快修复；moderate 及以下可延后，随常规升级消解。
 -   **细节口径**：严重级别判定、Code Scanning 参照处理与数据源缺口记录见 [安全开发规范 §5.3](./docs/standards/security.md#53-发布前安全告警门禁-release-security-alert-gate)。
+
+### 7.6 GitHub 协作与推送授权 (GitHub Collaboration & Push Authorization)
+
+-   **可信提交者**：仅项目所有者、项目贡献者（GitHub `OWNER` / `MEMBER` / `COLLABORATOR`）以及本书登记的受信机器人（`dependabot[bot]`、`dependabot-preview[bot]`、`dependfix[bot]`）的提交允许合并；判定以 `author_association` 与 `user.type` 为准，不按昵称推断。
+-   **Issue 默认只调研**：外部 issue 核实后给简要反馈，成立保留、不成立关闭并写明依据；进入 `backlog.md` 需项目所有者审批。
+-   **PR 必须审查**：无论来源都要给出保留 / 关闭 / 合并结论；命中 `.github/mergify.yml` 规则的机器人依赖 PR 走自动合并，未命中的按常规 PR 审查、修复后合并。
+-   **推送例外**：修复 CI 时允许推送触发验证；完整条目完成后可推送但非默认（建议积累后推送，推送前本地验证）；高风险或大改动走短生命周期分支 + PR。约束见 [Git 工作流规范 §7](./docs/standards/git.md)。
+-   **上游反馈**：向 `CaoMeiYouRen` 维护的上游项目提交 issue 前必须先查重并由用户审查授权，代理只起草不直接创建。
+-   **不重复评论**：已评估且无新活动的 issue / PR 不再重复 comment。
+
+完整口径见 [Git 工作流规范 §6–§7](./docs/standards/git.md)。
 
 ## 8. 其他要求
 

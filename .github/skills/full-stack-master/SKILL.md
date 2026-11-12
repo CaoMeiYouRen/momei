@@ -19,7 +19,7 @@ metadata:
 
 在执行任何写操作 or 决策前，必须确保已读取并理解以下文档的最新内容：
 
-- **全周期基石**：[AGENTS.md](../../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../../docs/standards/ai-collaboration.md)、[Git 规范](../../../docs/standards/git.md)
+- **全周期基石**：[AGENTS.md](../../../AGENTS.md) (安全红线与身份)、[AI 协作规范](../../../docs/standards/ai-collaboration.md)、[Git 规范](../../../docs/standards/git.md)（§4 推送默认关闭，§6–§7 可信提交者 / issue·PR 处置 / 推送授权）
 - **规划与任务**：[项目规划](../../../docs/plan/roadmap.md)、[待办事项](../../../docs/plan/todo.md)、[项目规划规范](../../../docs/standards/planning.md)
 - **开发与设计**：[开发规范](../../../docs/standards/development.md)、[API 规范](../../../docs/standards/api.md)、[UI 设计](../../../docs/design/ui.md)
 - **安全与质量**：[安全规范](../../../docs/standards/security.md)、[测试规范](../../../docs/standards/testing.md)
@@ -70,6 +70,7 @@ metadata:
     1. **文档同步**：更新 `todo.md` 状态，并按需同步 README、Guide、Standards、Design、Plan 文档。
     2. **证据收口**：汇总验证记录、Review Gate 结论、未覆盖边界与后续补跑计划。发布或治理收口时，优先用 `scripts/review-gate/generate-evidence.mjs` 刷新证据文件。
     3. **单次提交**：整个任务所有改动（业务代码 + 测试代码 + 文档）在 F 阶段一次性提交。提交前必须加载 `conventional-committer` skill，确认 A 阶段已放行且 `pnpm lint`、`pnpm typecheck`、定向测试均通过，然后生成符合 Conventional Commits 格式（使用中文或用户使用的语言）的消息并执行 `git commit`。
+    4. **推送口径**：默认只提交不推送；按 [Git 规范 §7](../../../docs/standards/git.md) 的例外执行（CI 修复验证、完整条目完成后推送、风险隔离分支），推送前完成本地必要验证并登记跳过的长耗时检查。
     - **技能**：`documentation-specialist`、`todo-manager`、`conventional-committer`
 
 ## 五、需求挖掘方法论 (Intent Extraction Methodology)

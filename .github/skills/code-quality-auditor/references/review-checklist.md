@@ -66,6 +66,7 @@
 - [ ] **规范执行分层**：新增严格约束（必须 / 阈值 / 禁令）是否已挂接 review 检查点；宽松指引（应当 / 建议）是否留在执行层声明。
 - [ ] **供应链信任边界**：AI 推荐包是否在官方 registry 验证存在性与拼写（幻觉包比例见 [安全规范 §5.2](../../../../docs/standards/security.md)，至少 5.2% 商业模型 / 21.7% 开源模型会推荐不存在的包、typosquatting）；依赖是否钉版本并提交锁文件；CI / 自动化脚本工具版本是否为不可变版本。
 - [ ] **外部资产先验来源**：引入的外部 skill / agent / MCP 是否核对过来源仓库 URL 与维护组织，是否登记到外部技能准入清单（投毒面防御，TrustFall 教训）。
+- [ ] **GitHub 协作口径一致性**：`AGENTS.md §7.6`、`docs/standards/git.md §6–§7`、`.github/skills/*/SKILL.md` 与 `.github/mergify.yml` 是否同源——受信提交者清单、合并门槛（仅可信 + CI 绿）、推送三类例外无互斥或放宽表述。
 - [ ] 治理定义改动是否补了 `pnpm ai:check` 与 `pnpm lint:md`。
 
 ## 4.6 规范无历史叙述强制审查 (No Historical Narrative in Standards)

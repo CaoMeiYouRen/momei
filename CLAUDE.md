@@ -43,7 +43,7 @@
 - **严禁**在提交信息中添加任何表明信息由 AI 生成的内容（例如 "Written by Claude", "AI-generated", "Generated with" 等）。
 - **不要**添加 "Signed-off-by" 或 "Co-authored-by" 页脚，除非明确要求。
 - **直接输出**提交信息，不要包含任何介绍性文字（例如，省略 "Sure, here is the commit..." 这样的客套话）。
-- **禁止擅自推送**: `git commit` 后不得自动执行 `git push`，除非用户明确要求"推送""push""推到远端"。提交后应止步于本地 commit 并告知用户。
+- **推送口径**: 默认只提交不推送；授权例外与约束见 [AGENTS.md §7.3](./AGENTS.md) 与 [Git 工作流规范 §7](./docs/standards/git.md)。
 
 ## 相关文档
 
