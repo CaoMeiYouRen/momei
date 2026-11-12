@@ -78,7 +78,7 @@ const PRIMEVUE_IMPORT_PATTERN = /from\s*['"]primevue(?:\/[^'"]*)?['"]/u
 /**
  * 浮层族（第六十九阶段条目 2 的迁移边界）。
  *
- * 该常量把「浮层族」从散落在 todo / 迁移方案里的口径收拢为可执行分组：
+ * 该常量把「浮层族」从散落在待办 / 迁移方案里的口径收拢为可执行分组：
  * 组件标签（含 momei 自有共享壳 `ConfirmDeleteDialog`）、服务层与指令。
  * 组件名同时用于 `countComponentTags`；`ConfirmDeleteDialog` 不在 PrimeVue 组件名清单内，
  * 但它是浮层族的共享壳，必须计入迁移面。
