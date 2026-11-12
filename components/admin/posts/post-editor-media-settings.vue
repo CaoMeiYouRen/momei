@@ -25,7 +25,7 @@
             <AppUploader
                 id="cover"
                 v-model="post.coverImage"
-                :type="UploadType.IMAGE"
+                :type="uploadImageType"
                 :post-id="post.id"
                 accept="image/*"
                 placeholder="https://..."
@@ -120,7 +120,7 @@
             <AppUploader
                 id="audioUrl"
                 v-model="audioUrlModel"
-                :type="UploadType.AUDIO"
+                :type="uploadAudioType"
                 :post-id="post.id"
                 accept="audio/*"
                 placeholder="https://... (mp3, m4a)"
@@ -203,7 +203,7 @@ import { Image as ImageIcon, Images, Play, Sparkles, X, Zap } from '@lucide/vue'
 import { format as bytes } from 'better-bytes'
 import { secondsToDuration, durationToSeconds } from '@/utils/shared/date'
 import { isValidCustomUrl } from '@/utils/shared/validate'
-import { UploadType } from '@/composables/use-upload'
+import { UploadType } from '@/types/upload'
 import type { PostEditorData } from '@/types/post-editor'
 import type {
     AIVisualAssetApplyMode,
@@ -213,6 +213,9 @@ import type {
 import type { PostVisualAssetMetadata } from '@/types/post'
 
 const post = defineModel<PostEditorData>('post', { required: true })
+// vue-tsc 3.3.14 对模板内枚举成员访问误报 TS2339，改为脚本内常量后再绑定。
+const uploadImageType = UploadType.IMAGE
+const uploadAudioType = UploadType.AUDIO
 
 const aiImageVisible = ref(false)
 const ttsVisible = ref(false)
