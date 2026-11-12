@@ -513,6 +513,10 @@ export async function main(options = {}) {
     const args = options.args ?? parseArgs()
     const environment = await getEnvironmentMetadata()
 
+    if (args.forceAll && (args.revert || args.ref !== 'HEAD')) {
+        throw new Error('--force-all 仅支持当前 HEAD 就地重采，不能与 --ref / --revert 组合使用')
+    }
+
     console.log(`[visual-reference] ref=${args.ref} revert=${args.revert ?? '-'} forceAll=${args.forceAll ? 'yes' : 'no'} only=${args.only.length > 0 ? args.only.join(',') : '(全部)'}`)
 
     const result = args.ref === 'HEAD' && !args.revert

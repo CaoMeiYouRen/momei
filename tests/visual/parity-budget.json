@@ -4,7 +4,7 @@
         "viewport": "1440x900 (deviceScaleFactor 1)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/parity/reference",
-        "note": "2026-11-12 迁移收口后，参考态由 ubuntu runner（Refresh Visual Reference 工作流）按当前 HEAD 复采，CI 产物为门禁唯一判定基线；82 条 allowlist 归零，参考态与当前态同源，未归因差异预期为 0，待首轮阻断运行实测确认。后续渲染漂移由 tiers 阈值判定；新增允许清单须附实测像素、归因与责任人。"
+        "note": "2026-11-12 迁移收口后，参考态由 ubuntu runner（Refresh Visual Reference 工作流）按当前 HEAD 复采，CI 产物为门禁唯一判定基线；82 条 allowlist 归零，参考态与当前态同源，两次阻断态 CI 运行均在 tiers 阈值内全绿（allowlist 已归零）。后续渲染漂移由 tiers 阈值判定；新增允许清单须附实测像素、归因与责任人。"
     },
     "tiers": {
         "reader": {

@@ -6,7 +6,9 @@
 
 ## 1. 为什么需要门禁层
 
-基线层（`tests/visual/*.visual.test.ts`）只能回答「渲染是否相对上一次基线变了」，无法回答「是否与迁移前的 PrimeVue 原貌一致」——仓库里的基线本身是迁移后状态，无法自证。因此新增门禁层：把**迁移前 PrimeVue 参考态**固化为独立快照（`<name>.reference.png`），逐路由比较当前渲染，并按受众分级预算判定。
+基线层（`tests/visual/*.visual.test.ts`）只能回答「渲染是否相对上一次基线变了」，无法回答「是否与迁移前的 PrimeVue 原貌一致」——仓库里的基线本身是迁移后状态，无法自证。门禁层因此引入独立的 `<name>.reference.png` 快照与受众分级预算。
+
+组件迁移收口后，门禁职责已切换为**相对 CI 复采基线的漂移检测**：参考态由 ubuntu runner 按当前 HEAD 生成，不再以 PrimeVue 原貌作为运行时判定依据；迁移期原貌存档的可定位锚点见 [偏差处置表](./visual-parity-deviation-register.md#校准记录)。
 
 ## 2. 分层与产物
 
@@ -88,7 +90,7 @@ pnpm test:visual:reference -- --force-all
 
 `visual` job 包含 `pnpm test:visual` 基线层与 `pnpm test:visual:parity` 门禁层，任一层失败即 job 失败（`continue-on-error` 已移除）。
 
-**当前判定基线**：参考态由 ubuntu runner 的 `Refresh Visual Reference` 工作流（`gh workflow run visual-reference-refresh.yml --ref master`）按当前 HEAD 复采，CI 产物是唯一判定依据；本地快照不参与判定。复采后 82 条 allowlist 归零，参考态与当前态同源，未归因差异预期为 0（以首轮阻断 run 实测回填）；后续漂移由 `tiers` 阈值（reader 2000px / 0.3%，admin 3000px / 0.35%）直接判定。重采 run id 与产物核对结果记录于本节与 `reference-manifest.json`。
+**当前判定基线**：参考态由 ubuntu runner 的 `Refresh Visual Reference` 工作流（`gh workflow run visual-reference-refresh.yml --ref master`）按当前 HEAD 复采，CI 产物是唯一判定依据；本地快照不参与判定。复采后 82 条 allowlist 归零，参考态与当前态同源；两次阻断态 CI 运行（run `43259530123` attempt 2、run `43264952603`）均在 `tiers` 阈值内全绿；后续漂移由 `tiers` 阈值（reader 2000px / 0.3%，admin 3000px / 0.35%）直接判定。重采 run id 与产物核对结果记录于本节与 `reference-manifest.json`。
 
 **转阻断前置**：① 参考态由 CI 复采并刷新预算（已完成，run `43251811066`）；② 新参考态下 `pnpm test:visual` 与 `pnpm test:visual:parity` 已全绿（run `43257379765`，保留 `continue-on-error` 状态）；③ 转阻断后 master 连续 2 次全绿（已完成：run `43259530123` attempt 2 与独立 `workflow_dispatch` run `43264952603`，visual job 的 baseline / parity 两层均 success；attempt 1 的 visual 同样全绿，Test 其余 job 因既有 E2E firefox 导航 flake 重跑后通过）。强制力来自 `Test` workflow 与 Mergify 的 `check-success=Test`（master 未启用 branch protection）；新增允许清单仍须附实测像素、归因与责任人，不得以放宽阈值换取绿灯。
 
