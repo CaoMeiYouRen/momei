@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-12
 ---
 
 # AI Collaboration Standards
@@ -127,6 +127,7 @@ Companion practices:
 
 ### F (Finish)
 - **Closure**: Update `todo.md` to `completed` and update relevant technical documentation.
+- **Push policy**: Do not push by default; authorized exceptions (CI-fix verification, completed-item push, risk-isolation branch) and their constraints follow [Git Workflow Standards §7](../../../standards/git.md).
 
 ## 3. Security Redlines
 

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-12
 translation_tier: summary-sync
 ---
 
@@ -231,9 +231,10 @@ Phase archiving is a formal planning-doc change and must satisfy at least `V0 + 
 
 #### Step 7. Next-Phase Planning Gate
 
-1.  Only after the above archive flow is complete may backlog items be formally promoted to the next phase's planning.
-2.  Before landing, next-phase candidates exist as "evaluation conclusion / candidate mainline / ROI and risk"; do not write them into `todo.md` or `roadmap.md` early. Explicitly distinguish candidate sources: "long-term mainline slice" vs "short-term / one-off candidate".
-3.  If the user only asks to "analyze the next phase first", stay at the candidate level; no sneak-run formal planning persistence.
+1.  Pre-planning inventory: fetch the latest issues, PRs and Actions status (`gh issue list` / `gh pr list` / `gh run list`) and assess their impact on the next phase; author trust and merge gates follow [Git Workflow Standards §6](../../../standards/git.md).
+2.  Only after the above archive flow is complete may backlog items be formally promoted to the next phase's planning.
+3.  Before landing, next-phase candidates exist as "evaluation conclusion / candidate mainline / ROI and risk"; do not write them into `todo.md` or `roadmap.md` early. Explicitly distinguish candidate sources: "long-term mainline slice" vs "short-term / one-off candidate".
+4.  If the user only asks to "analyze the next phase first", stay at the candidate level; no sneak-run formal planning persistence.
 
 #### Step 8. Workspace Cleanliness Check Before New Phase Evaluation
 
