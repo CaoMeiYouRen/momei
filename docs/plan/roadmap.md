@@ -215,7 +215,44 @@
 > 未覆盖边界与后续观察项：① 首页 SWR 因 i18n 响应 `Set-Cookie` 不再缓存（nuxt 4.6.4 规则），已登记 backlog；② markdown-it 15 的上游行为变更中「裸域名+端口」「认证段邮箱」「实体 / HTML block / 链接目标边界」按接受项登记，未做输出等价恢复；③ 覆盖率剩余 16 条为防御 / 兜底分支（见证据文件）；④ quill 已降为 low 且无补丁，保留 backlog；⑤ 本地全量 Vitest 仍受 `node_modules/.vitest-cache` 的 `virtual:intlify-i18n` 解析问题影响（移走缓存后通过，CI 未复现）。
 
 
-> 后续阶段候选（未立项）：依赖与工具链现代化（js-yaml 5 / ESLint 严格规则批次 #262 / 视觉门禁去 `continue-on-error` / 入口包体专项），见 [backlog 短期候选](./backlog.md)；按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
+### 第七十四阶段：工具链现代化、门禁转阻断与存量缺陷收口（筹备中）
+
+**时间表**: 2026-11-12 ~ 待定（按里程碑滚动，不预设结束日）
+
+**目标**: 收口「声明与实际解析不一致」的依赖与静态规则债（js-yaml 5、ESLint #262 首批），把视觉一致性门禁从 `continue-on-error` 转为真门禁并给入口包体留出可解释的余量，同时修复三处已在 backlog 挂账的既有缺陷；随后推进 i18n 重复键收敛、UI 字阶试点与覆盖率第十五批。本阶段不引入新功能面。
+
+**准入结论**: 用户于 2026-11-12 在候选页确认「方案 A + B 为基础」并额外纳入 i18n 重复键收敛与 UI 字阶治理首批；10 个执行切片（js-yaml / ESLint / 视觉门禁 / 入口包体 / 三个存量缺陷 / i18n / 字阶 / 覆盖率）按 [规划规范 §2](../standards/planning.md) 的 5–6 大项约束合并为 6 条条目。ROI（Value+Alignment / Difficulty+Risk）：js-yaml 5 `1.75`、ESLint 首批 `1.20`、视觉门禁转阻断 `1.60`、入口包体护栏 `1.17`、存量缺陷批 `2.00` / `3.50` / `2.50`、i18n 重复键 `1.20`、UI 字阶 `1.40`、覆盖率 `2.33`；低于 §3.3 准入线 `1.5` 的条目（ESLint 首批 / 入口包体 / i18n / 字阶）经用户确认以 kill-switch 或首批范围纳入，若阶段超时优先移出。
+
+**准入前置（已核对 2026-11-12）**: 第七十三阶段已审计归档（`todo.md` 已清空、`roadmap.md` 已迁出正文、回归窗口已迁入归档分片）；工作区干净，`master` 与 `origin/master` 同步于 `e24d9c91`；CI `CodeQL` / `Deploy VitePress` / `Run TODO to Issue` 已绿，`Test`（run `43143666740`）与 `Publish Docker Image` 在规划时仍在运行——**条目 1 开工前必须确认两者为 success**，失败按 B 类插队先修，不并入本阶段条目。阶段基线（2026-11-11 收口 / 2026-11-12 复算）：`test:coverage` statements 30,573 / 36,996（82.63%，仓库既有截断两位口径）、`test:visual` 32/32、`parity` 83/83、`duplicate-code` 0.39%、`i18n:audit:missing` 0、`i18n:audit:duplicates` 99 组、`coreEntryJs` 331,206 / 343,040 B。
+
+**阶段容量与移出顺序**: 六条条目彼此独立、可分批提交：条目 1 只动依赖声明 / 锁文件 / ESLint 配置与 8 处导入；条目 2 动 CI 门禁与参考态产物；条目 3 是三个互不相干的缺陷小修；条目 4–6 是常规治理批次。排程上先做条目 2a（视觉参考态复采）再做条目 5（字阶试点），避免同一批视觉基线二次漂移；条目 6 放最后。条目 1a / 2a / 3 为 P1，其余为 P2；若阶段超时，按 5 → 4 → 6 → 2b 的顺序移出。
+
+1. **依赖与静态规则现代化（P1）**: **1a js-yaml 5**——根 `package.json` 与 `packages/cli/package.json` 已声明 `^5.5.0`，但 `pnpm-workspace.yaml` 的裸名 override 仍为 `^4.3.2`，实际解析 4.3.2（backlog #5 的「声明回退至 4.3.2」记录已与现状相反）：定 override 归属（推荐裸名抬至 `^5.5.0`，`read-yaml-file>js-yaml: ^3.14.1` 保留），把 8 处默认导入改为 `{ load, dump }`（`packages/cli/src/{hugo-parser,post-formatter,parser}.ts`、`server/services/post-export.ts`、`composables/use-post-editor-io.ts`、`scripts/ai-hooks/session-governance-shared.mjs`、`scripts/ai/check-governance.mjs`、`scripts/security/validate-override-patched-versions.mjs`），移除已无用的 `@types/js-yaml`（v5 自带 `dist/js-yaml.d.ts`），复核 `parser.ts` 自定义 YAML 引擎的 `load` 签名 / 选项兼容。**1b ESLint #262 首批**——`governance:inventory:eslint-rules` 现仅覆盖 `no-explicit-any` / `no-non-null-assertion` 两条切片且切片内 0 warning；`eslint.config.js` 共 25 条 `[0]` / `[0, opts]` 规则条目，其中 7 条已由 `strictTsRuleOverrides` 按窄切片或生产 TS 启用（`unbound-method` / `no-dynamic-delete` / `no-unnecessary-type-assertion` / `no-unnecessary-type-arguments` / `no-unnecessary-type-conversion` / `no-explicit-any` / `no-non-null-assertion`）。扩 inventory 扫描面（全仓、按目录分桶）产出「规则 × `configuredSeverity` × `effectiveSeverity` × 命中数」表；候选规则必须同时满足「配置值为 `[0]`」且「未被 `strictTsRuleOverrides` 覆盖」。首批候选为 `ban-ts-comment`（备选 `no-extraneous-class`），实测命中数落盘后升 `[1]` 并清零；`unbound-method` / `no-misused-spread` 均已生效为 `[1]`，不作为候选，若要扩到 tests / scripts 须单列。同步 `eslint-debt-targets.mjs` 与 config 注释。**非目标**: 不一次性启用全部未覆盖规则（25 条 `[0]` 条目中除已 override 的 7 条外）；不连带其他依赖升级；不改 frontmatter 兼容策略；不为过规则放宽既有 `max-lines` / 测试豁免。**验收**: `pnpm install` 后 `js-yaml` 解析 5.5.0 且 `security:validate-overrides` Pass；hexo / hugo / wordpress 三格式 frontmatter 定向测试与 CLI 导入导出通过；`typecheck` / `lint` 0 error、`build` 成功；ESLint 新规则命中清零，`pnpm lint` 0 error 且 warning ≤ 10（不以放宽 `--max-warnings 10` 换绿）。**kill-switch**: 若 js-yaml 5 在 Nitro 构建 / CLI 双入口的 ESM-CJS 互操作上失败且一个修复轮内无法收敛，回退 override 并把结论写回 backlog。**验证矩阵**: V0 + V1 + V2 + RG。
+
+2. **质量门禁硬化（P1/P2）**: **2a 视觉 parity 转阻断**——迁移已收口、`parity` 83/83，CI visual job 的 `Run visual regression` / `Run visual parity gate` 在 run `43060868531` 均 success，但 job 级 `continue-on-error: true` 仍在，且 [视觉门禁 §7](../design/governance/2026-10-13-visual-parity-gate.md) 要求的「参考态由 CI 复采」未做：在 ubuntu runner 以 CI 产物复采 41 路由 / 82 张参考态（含第二实例安装向导）并刷新 `tests/visual/parity-budget.json` 允许清单（未归因差异必须为 0），随后移除 `continue-on-error` 并同步 test.yml 注释、门禁 §7 与 [测试规范 §7.2](../standards/testing.md#72-视觉一致性门禁-visual-parity-gate)。**2b 入口包体护栏**——`coreEntryJs` 331,206 / 343,040 B（余量 3.5%）、`maxAsyncChunkJs` 56,916 / 133,120、`keyCss` 60,482 / 63,488：产出入口 chunk 构成清单（manifest entrypoints + preload 去重，按模块 / 依赖分桶，top consumers 落盘），至少 1 项可量化收敛（动态导入 / 预载裁剪 / 去重 / 第三方按需），或按实测重定标并把依据写入 `bundle-baseline.json` 与 [性能规范](../standards/performance.md)。**非目标**: 不放宽 `reader` 档 0.3% / 2000px 判定；不做全站代码分割重构；不为压包体牺牲首屏可见内容；34 张迁移前原貌存档的保留方式另案决策；不连带 CWV 全量治理（#8 主线）。**验收**: CI 在 master 连续 2 次 parity 与 baseline 层全绿且 `continue-on-error` 已移除、未归因差异 0、预算刷新有逐条记录；`test:perf:budget:strict` Pass、入口构成清单落盘，若收敛则余量 ≥ 8%；若走重定标，须经用户确认、给出「为何不能收敛」的证据，并把新余量下限明确为 ≥ 5%。**验证矩阵**: V0 + V1 + V2 + V3 + V4 + RG。
+
+3. **存量缺陷修复批（P1）**: **3a** `server/api/admin/creator-stats.get.ts` 的周 / 月聚合使用 PostgreSQL 专有的 `DATE_TRUNC`，SQLite（默认自部署库）下 `range=30` / `range=90` 直接 500：按 `dbType` 分支或改用可移植表达式（`strftime('%Y-%W')` 的 `%W` 不是 ISO 周编号，跨年边界与 `DATE_TRUNC('week')` 不等价，需评估 `%G` / `%V` 或应用层聚合），补 SQLite 三档 `range` 接口测试与跨年边界断言。**3b** `styles/pages/_admin-dashboard.scss` 的 `@include respond-to("md")` 把 `.admin-dashboard__{hero,rankings,metrics}` 置为单列，1440px 下三张指标卡纵向堆叠，语义应为 `respond-below("md")`：改断点方向并核对 1280 / 1024 / 768 / 375 四档。**3c** `server/database/typeorm-adapter.ts` 的 `transformOutput` 在字段回写循环把已由 `_id` 落位的 `id` 覆盖为 `undefined`：回写时跳过该键或回写后 `transformedData.id ??= data._id`，并补「只有 `_id` 时仍输出 id」的断言。**非目标**: 不改 creator-stats 的聚合粒度与响应字段；不重做仪表盘信息架构；不重写适配器的 id 映射策略。**验收**: SQLite 下 `range=7/30/90` 均 200 且周 / 月分组正确（含跨年用例）；1440px 三卡同行、四档无回归；适配器单测覆盖 `_id` 回填；`typecheck` / `lint` 0 error，定向测试通过。**验证矩阵**: V0 + V1 + V2 + V3 + RG。
+
+4. **i18n 重复键收敛（P2）**: 当前 `i18n:audit:duplicates` 为 99 组 / 234 keys / 52 组跨模块，`i18n:audit:missing` 为 0、原文级重复键为 0：按分桶（跨模块 `status` / 通用动作 / 空态 / 时间）收敛 ≥25 组——跨模块同文案合并为 `common.*` 共享 key 并同步迁移全部引用与五语，模块内重复视语义保留；剩余组登记 allowlist（组 id + 理由 + 复核日期），由脚本读取并在误报时判红。**非目标**: 不重命名业务语义 key；不合并「值相同但语义不同」的组（逐组人工判定语义）；不动原文级扫描口径。**验收**: 组数 ≤ 74（收敛 ≥ 25 组）；`i18n:check-sync` 五语一致、`i18n:audit:missing` 0、`i18n:verify:runtime` 通过；allowlist 落盘且有单测钉住读取 / 误报判红。**验证矩阵**: V0 + V1 + V2 + RG。
+
+5. **UI 字阶治理首批（P2）**: 全仓 `font-size:` 503 条（2026-11-12 复算，backlog #11 记 60 种写法 / token 化 6.3%）：先产出分桶报告（字号值 × 目录 × 文件），定义 `--m-font-size-*` 字阶（或复用 caomei 字阶 token），试点公开页 3–5 文件 + 管理端 3–5 文件，只做等价替换（视觉 ±0）。**非目标**: 不做 503 条全量替换；不做暗色 tint；不改 [界面自检清单](../design/ui-review-checklist.md) 的 U1–U6 边界。**验收**: 分桶报告落盘；试点文件 `getComputedStyle` 字号与治理前逐项一致；`test:visual` / `parity` 通过且未归因差异 0；`lint:css` 0 error。**验证矩阵**: V0 + V1 + V2 + V3 + RG。
+
+6. **覆盖率第十五批（P2）**: statements 30,573 / 36,996（82.63%），未覆盖 6,423 条 / 454 文件，单批 `+0.3pp` 约需 111 条：按绝对未覆盖语句数取 4 模块且含 ≥1 大基数（候选 `composables/use-tts-volcengine-direct.ts` 166 / `components/admin/settings/agreements-settings.vue` 163 / `components/admin/posts/ai-image-generator.vue` 138 / `composables/use-asr-direct.ts` 91 / `composables/use-post-editor-voice.ts` 87），目标单批 `+0.3pp` 或模块级 `+15pp / ≥85%`。**非目标**: 不为凑数测 getter / 模板分支；不重构测试结构；不新增测试依赖。**验收**: 干净全量跑（移走 `.vitest-cache` + `--maxWorkers=4`）基线 / 收口，statements delta 落盘 `artifacts/coverage/`；定向测试通过；flaky 归因记录。**验证矩阵**: V0 + V1 + V2 + RG。
+
+**回滚边界**:
+
+- 条目 1：js-yaml 的 override / 锁文件 / 8 处导入同批 revert；ESLint 规则与切片可单独回退到上一批配置。
+- 条目 2：参考态与预算刷新同批 revert（回退后需恢复 `continue-on-error`）；入口收敛按改动文件组独立回滚，重定标可单独回退。
+- 条目 3：三处修复按文件独立回滚，互不依赖。
+- 条目 4：key 合并与引用替换同批 revert；allowlist 文件可单独回退。
+- 条目 5：字阶 token 与试点文件同批 revert；分桶报告为产物，可单独撤出。
+- 条目 6：测试文件与覆盖率产物独立可回滚。
+
+**风险提示**: ① 视觉参考态 CI 复采会改变判定基线，必须先复采、再刷新预算、最后移除 `continue-on-error`，顺序颠倒会造成假红或假绿；② js-yaml 5 的 ESM-CJS 互操作在 Nitro build 与 CLI 双入口都可能踩坑，先 CLI 定向再 server；③ ESLint 升 error 前必须先产出全仓计数，不得为了绿而放宽规则；④ i18n 跨模块合并 key 会改动引用点位，必须先用脚本列出引用再替换，五语同步与 runtime 验证同批；⑤ 字阶替换必须用 `getComputedStyle` 逐项对账，截图不足以证明 ±0；⑥ creator-stats 的周 / 月分组必须覆盖跨年边界，避免 `%W` 造成 ISO 周错位；⑦ 入口包体若无法收敛，重定标必须给证据，不得只改数字。
+
+---
+
+> 后续阶段候选（未立项）：功能类（会员 / 付费订阅预研、播客与多媒体、JekyllParser、设置表单 AI Image Fallback 4 项、编辑器工具栏 Phase C）与首页 SWR 缓存方案决策，见 [backlog](./backlog.md)；按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
 
 ---
 
