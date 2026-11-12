@@ -1,5 +1,42 @@
+import { mkdtemp, rmdir, unlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { convertHugoToMomeiPost, type HugoFrontMatter } from './hugo-parser'
+import { convertHugoToMomeiPost, parseHugoMarkdown, type HugoFrontMatter } from './hugo-parser'
+
+async function withHugoTempFile(content: string, run: (filePath: string) => Promise<void>) {
+    const directory = await mkdtemp(join(tmpdir(), 'momei-hugo-'))
+    const filePath = join(directory, 'post.md')
+
+    await writeFile(filePath, content)
+
+    try {
+        await run(filePath)
+    } finally {
+        await unlink(filePath)
+        await rmdir(directory)
+    }
+}
+
+describe('Hugo Parser - parseHugoMarkdown: YAML frontmatter', () => {
+    it('frontmatter 无时区日期按 YAML 时间戳语义解析，避免本地时区偏移', async () => {
+        await withHugoTempFile('---\ntitle: TZ\ndate: 2024-01-01T10:00:00\n---\n\nbody', async (filePath) => {
+            const { frontMatter } = await parseHugoMarkdown(filePath)
+
+            expect(frontMatter.date).toBeInstanceOf(Date)
+            expect((frontMatter.date as Date).toISOString()).toBe('2024-01-01T10:00:00.000Z')
+        })
+    })
+
+    it('空 frontmatter 返回空对象而不抛错', async () => {
+        await withHugoTempFile('---\n\n---\n\nbody', async (filePath) => {
+            const { frontMatter, content } = await parseHugoMarkdown(filePath)
+
+            expect(frontMatter).toEqual({})
+            expect(content.trim()).toBe('body')
+        })
+    })
+})
 
 describe('Hugo Parser - convertHugoToMomeiPost: Basic Conversion', () => {
     it('should convert basic YAML front-matter to Momei post', () => {

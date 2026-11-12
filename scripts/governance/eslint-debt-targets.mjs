@@ -122,6 +122,48 @@ export const NO_NON_NULL_ASSERTION_FILES = [
     'utils/shared/social-post-platforms.ts',
 ]
 
+/**
+ * 生产 TS / Vue 代码中已生效的 ban-ts-comment 切片。
+ * 测试与脚本维持显式豁免边界，若扩到 tests / scripts 需单列条目。
+ */
+export const BAN_TS_COMMENT_FILES = ['**/*.{ts,tsx,mts,cts,vue}']
+
+/**
+ * `eslint.config.js` 中显式配置为 `[0]` / `[0, opts]` 的 25 条规则。
+ * 用于 inventory 产出「规则 × configuredSeverity × effectiveSeverity × 命中数」表，
+ * 候选规则须同时满足 configuredSeverity === 0 且未被 `strictTsRuleOverrides` 覆盖。
+ */
+export const DISABLED_TS_RULES = [
+    'non-nullable-type-assertion-style',
+    'no-inferrable-types',
+    'explicit-function-return-type',
+    'prefer-nullish-coalescing',
+    'no-extraneous-class',
+    'no-confusing-void-expression',
+    'use-unknown-in-catch-callback-variable',
+    'restrict-template-expressions',
+    'no-non-null-assertion',
+    'no-unnecessary-condition',
+    'restrict-plus-operands',
+    'ban-ts-comment',
+    'no-unnecessary-type-arguments',
+    'prefer-reduce-type-parameter',
+    'explicit-module-boundary-types',
+    'no-explicit-any',
+    'no-unsafe-argument',
+    'no-unsafe-assignment',
+    'no-unsafe-member-access',
+    'no-unsafe-return',
+    'no-unsafe-call',
+    'unbound-method',
+    'no-dynamic-delete',
+    'no-unnecessary-type-conversion',
+    'no-unnecessary-type-assertion',
+].map((ruleName) => ({
+    ruleId: `@typescript-eslint/${ruleName}`,
+    scope: ruleName,
+}))
+
 export const ESLINT_DEBT_RULE_SLICES = [
     {
         files: NO_EXPLICIT_ANY_FILES,
@@ -136,5 +178,12 @@ export const ESLINT_DEBT_RULE_SLICES = [
         rationale: '先维持 post editor IO 单文件的非空断言收敛切片，避免一次性扩散到全仓。',
         ruleId: '@typescript-eslint/no-non-null-assertion',
         scope: 'no-non-null-assertion',
+    },
+    {
+        files: BAN_TS_COMMENT_FILES,
+        ignores: [...PRODUCTION_TS_IGNORES],
+        rationale: 'ESLint 严格规则首批：生产 TS / Vue 已无 @ts-<directive> 命中，先在生产范围升为 warning 锁定回归。',
+        ruleId: '@typescript-eslint/ban-ts-comment',
+        scope: 'ban-ts-comment',
     },
 ]

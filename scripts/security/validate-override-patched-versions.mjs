@@ -19,7 +19,7 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
@@ -95,13 +95,22 @@ function extractMinPatchedVersion(patchedVersions) {
 
 /**
  * Returns true for bare-name override keys (`fast-uri`, `@scope/pkg`) and
- * false for version-scoped ones (`fast-uri@^3.1.4`, `@scope/pkg@^2`).
+ * false for version-scoped ones (`fast-uri@^3.1.4`, `@scope/pkg@^2`) and
+ * parent-scoped ones (`gray-matter>js-yaml`).
  */
 function isBareOverrideKey(key) {
+    if (key.includes('>')) {
+        return false
+    }
     if (key.startsWith('@')) {
         return key.indexOf('@', 1) === -1
     }
     return !key.includes('@')
+}
+
+function parseParentScopedOverrides(workspaceYaml) {
+    const overrides = workspaceYaml?.overrides || {}
+    return Object.keys(overrides).filter((key) => key.includes('>'))
 }
 
 function parseBareOverrides(workspaceYaml) {
@@ -123,7 +132,7 @@ function parseBareOverrides(workspaceYaml) {
  * resolution before it ever reaches the snapshot stage.
  */
 function parseInstalledVersionsFromLockfile(lockfileText) {
-    const parsed = yaml.load(lockfileText)
+    const parsed = loadYaml(lockfileText)
     const snapshots = parsed?.snapshots && typeof parsed.snapshots === 'object'
         ? parsed.snapshots
         : {}
@@ -358,8 +367,9 @@ async function main() {
         loadAuditReport(args),
     ])
 
-    const workspaceYaml = yaml.load(workspaceText) || {}
+    const workspaceYaml = loadYaml(workspaceText) || {}
     const bareOverrides = parseBareOverrides(workspaceYaml)
+    const parentScopedOverrides = parseParentScopedOverrides(workspaceYaml)
     const installedVersions = parseInstalledVersionsFromLockfile(lockfileText)
     const advisoriesByPackage = collectAdvisoriesByPackage(auditJson, allowlistEntries)
 
@@ -373,6 +383,7 @@ async function main() {
     console.info(`- workspace: ${args.workspace}`)
     console.info(`- lockfile: ${args.lockfile}`)
     console.info(`- bare-name overrides scanned: ${Object.keys(bareOverrides).length}`)
+    console.info(`- parent-scoped overrides (lockfile-reviewed, not advisory-scanned): ${parentScopedOverrides.length}${parentScopedOverrides.length > 0 ? ` (${parentScopedOverrides.join(', ')})` : ''}`)
     console.info(`- high+ advisories inspected: ${Array.from(advisoriesByPackage.values()).reduce((acc, items) => acc + items.length, 0)}`)
     console.info(`- mode: ${args.mode}`)
 
@@ -408,6 +419,7 @@ export {
     extractMinPatchedVersion,
     isBareOverrideKey,
     parseBareOverrides,
+    parseParentScopedOverrides,
     parseInstalledVersionsFromLockfile,
     parseVersion,
 }

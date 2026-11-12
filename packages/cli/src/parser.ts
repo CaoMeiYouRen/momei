@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { relative } from 'node:path'
 import matter from 'gray-matter'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, binaryTag, load as loadYaml, mergeTag, omapTag, pairsTag, setTag, timestampTag } from 'js-yaml'
 import { glob } from 'glob'
 import type { MomeiPost, MomeiPostAudioMetadata, MomeiPostMetadata } from '@momei-blog/api-client'
 import type { HexoFrontMatter, ParsedHexoPost } from './types'
@@ -198,7 +198,7 @@ function buildMetadata(frontMatter: HexoFrontMatter): MomeiPostMetadata | undefi
 export async function parseHexoMarkdown(filePath: string): Promise<{ frontMatter: HexoFrontMatter, content: string }> {
     const fileContent = await readFile(filePath, 'utf-8')
     // gray-matter v4 内部使用 js-yaml 的 safeLoad，但该函数在 js-yaml v4 中已被移除，
-    // 因此需要传入自定义 YAML 引擎，使用 yaml.load 替代
+    // 因此需要传入自定义 YAML 引擎，使用 js-yaml 5 的具名 load 替代
     const { data, content } = matter(fileContent, {
         engines: {
             yaml: {
@@ -206,7 +206,12 @@ export async function parseHexoMarkdown(filePath: string): Promise<{ frontMatter
                     // Hexo 旧版 frontmatter 可能使用 Tab 缩进，js-yaml 不支持
                     // 在解析前将 Tab 替换为 2 个空格
                     const normalized = input.replace(/\t/g, '  ')
-                    return yaml.load(normalized) as Record<string, unknown>
+                    if (!normalized.trim()) {
+                        return {}
+                    }
+                    return loadYaml(normalized, {
+                        schema: CORE_SCHEMA.withTags(timestampTag, mergeTag, binaryTag, setTag, omapTag, pairsTag),
+                    }) as Record<string, unknown>
                 },
             },
         },

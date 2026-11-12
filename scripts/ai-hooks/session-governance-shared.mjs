@@ -1,7 +1,7 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { exec } from 'node:child_process'
 import path from 'node:path'
-import yaml from 'js-yaml'
+import { dump as dumpYaml, load as loadYaml } from 'js-yaml'
 
 const SESSION_DIR_NAME = '.session'
 const CURRENT_TASK_FILE_NAME = 'current-task.yaml'
@@ -182,7 +182,7 @@ async function readYamlIfExists(filePath, fallbackValue) {
     }
 
     try {
-        const parsed = yaml.load(content)
+        const parsed = loadYaml(content)
         return parsed && typeof parsed === 'object' ? parsed : fallbackValue
     } catch {
         return fallbackValue
@@ -194,11 +194,11 @@ async function writeJsonFile(filePath, value) {
 }
 
 async function writeYamlFile(filePath, value) {
-    const content = yaml.dump(value, {
+    const content = dumpYaml(value, {
         lineWidth: -1,
         noRefs: true,
         sortKeys: false,
-        quotingType: '"',
+        quoteStyle: 'double',
     })
 
     await writeFile(filePath, content, 'utf8')

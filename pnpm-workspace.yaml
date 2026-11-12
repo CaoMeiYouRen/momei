@@ -58,7 +58,13 @@ overrides:
   # node-forge 1.4.1 / 1.4.2 已发布，GHSA-86w9-cpqp-85rv 等 high 告警随之下线，
   # 原先登记的临时例外已从 dependency-risk-allowlist.json 移除；此处下限抬到 1.4.2 防止回退。
   node-forge: "^1.4.2"
-  js-yaml: "^4.3.2"
+  js-yaml: "^5.5.0"
+  # gray-matter v4 在模块加载期读取 js-yaml 的 CJS 默认导出（safeLoad 桩函数），
+  # js-yaml 5 仅提供具名导出会导致 `undefined.bind` 崩溃；此处限定其继续使用 v4。
+  "gray-matter>js-yaml": "^4.3.2"
+  # @rollup/plugin-yaml 的 ESM 产物以 default 导入 js-yaml，原生 ESM 下 v5 会抛
+  # "does not provide an export named 'default'"；限定其继续使用 v4。
+  "@rollup/plugin-yaml>js-yaml": "^4.3.2"
   "read-yaml-file>js-yaml": "^3.14.1"
   tmp: "^0.2.7"
   debug: "^4.4.0"

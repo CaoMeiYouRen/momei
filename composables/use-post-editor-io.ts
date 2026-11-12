@@ -1,7 +1,7 @@
 import { computed, ref, type Ref } from 'vue'
 import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, binaryTag, load as loadYaml, mergeTag, omapTag, pairsTag, setTag, timestampTag } from 'js-yaml'
 import { useUpload, UploadType } from '@/composables/use-upload'
 import type { PostFrontMatter, PostEditorData, CategoryOption } from '@/types/post-editor'
 import { durationToSeconds } from '@/utils/shared/date'
@@ -87,7 +87,9 @@ export function usePostEditorIO(
                 const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/.exec(markdown)
                 if (match) {
                     try {
-                        data = yaml.load(match[1] || '') || {}
+                        data = match[1]?.trim()
+                            ? loadYaml(match[1], { schema: CORE_SCHEMA.withTags(timestampTag, mergeTag, binaryTag, setTag, omapTag, pairsTag) }) || {}
+                            : {}
                         content = match[2] || ''
                     } catch (e) {
                         // front matter 语法损坏时退回纯 Markdown 导入，避免正文因为头部格式错误被整段丢弃。

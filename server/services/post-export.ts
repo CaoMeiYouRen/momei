@@ -1,4 +1,4 @@
-import yaml from 'js-yaml'
+import { dump as dumpYaml } from 'js-yaml'
 import JSZip from 'jszip'
 import type { Post } from '@/server/entities/post'
 import { normalizeOptionalString } from '@/utils/shared/coerce'
@@ -199,7 +199,7 @@ export function formatPostToMarkdown(post: Post, options: PostMarkdownExportOpti
 
     // 可以在这里根据需要添加更多字段映射
 
-    const yamlStr = yaml.dump(frontMatter, { skipInvalid: true, indent: 2 }).trim()
+    const yamlStr = dumpYaml(frontMatter, { skipInvalid: true, indent: 2 }).trim()
     const content = options.absolutizeMediaUrls
         ? absolutizeMarkdownMediaUrls(post.content || '', options.siteUrl)
         : (post.content || '')

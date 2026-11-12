@@ -4,7 +4,7 @@
  * Converts API post data to Markdown (with Front-matter) or JSON.
  * This is a CLI-side implementation (cannot import server code).
  */
-import yaml from 'js-yaml'
+import { dump as dumpYaml } from 'js-yaml'
 import type { MomeiPost } from '@momei-blog/api-client'
 
 // ===== Public API =====
@@ -61,7 +61,7 @@ export function formatPostToMarkdown(post: MomeiPost): string {
         frontMatter.status = post.status
     }
 
-    const yamlStr = yaml.dump(frontMatter, { skipInvalid: true, indent: 2 }).trim()
+    const yamlStr = dumpYaml(frontMatter, { skipInvalid: true, indent: 2 }).trim()
     return `---\n${yamlStr}\n---\n\n${post.content || ''}`
 }
 

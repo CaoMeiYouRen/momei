@@ -80,6 +80,18 @@ const strictTsRuleOverrides = [
             '@typescript-eslint/no-non-null-assertion': [1],
         },
     }),
+    createRuleOverride({
+        // ESLint 严格规则首批：生产 TS / Vue 实测 @ts-<directive> 命中为 0，先升 warning 锁定回归，
+        // 测试与脚本继续维持显式豁免边界（若扩面须单列条目）。
+        files: ['**/*.{ts,tsx,mts,cts,vue}'],
+        ignores: [...PRODUCTION_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/ban-ts-comment': [1, { minimumDescriptionLength: 10 }],
+        },
+    }),
 ]
 
 function createRuleOverride({ files, rules, ignores = [], ...rest }) {

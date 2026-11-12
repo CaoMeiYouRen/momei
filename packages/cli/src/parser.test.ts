@@ -1,6 +1,23 @@
+import { mkdtemp, rmdir, unlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
 import { convertToMomeiPost, parseHexoMarkdown, scanMarkdownFiles } from './parser'
 import type { HexoFrontMatter } from './types'
+
+async function withHexoTempFile(content: string, run: (filePath: string) => Promise<void>) {
+    const directory = await mkdtemp(join(tmpdir(), 'momei-hexo-'))
+    const filePath = join(directory, 'post.md')
+
+    await writeFile(filePath, content)
+
+    try {
+        await run(filePath)
+    } finally {
+        await unlink(filePath)
+        await rmdir(directory)
+    }
+}
 
 describe('Parser - convertToMomeiPost: Basic Conversion', () => {
     it('should convert basic Hexo front-matter to Momei post', () => {
@@ -339,6 +356,35 @@ describe('Parser - parseHexoMarkdown', () => {
     it('should be an async function that reads files', () => {
         expect(typeof parseHexoMarkdown).toBe('function')
         expect(parseHexoMarkdown.constructor.name).toBe('AsyncFunction')
+    })
+
+    it('frontmatter 无时区日期按 YAML 时间戳语义解析，避免本地时区偏移', async () => {
+        await withHexoTempFile('---\ntitle: TZ\ndate: 2024-01-01T10:00:00\n---\n\nbody', async (filePath) => {
+            const { frontMatter } = await parseHexoMarkdown(filePath)
+
+            expect(frontMatter.date).toBeInstanceOf(Date)
+            expect((frontMatter.date as Date).toISOString()).toBe('2024-01-01T10:00:00.000Z')
+        })
+    })
+
+    it('空 frontmatter 返回空对象而不抛错', async () => {
+        await withHexoTempFile('---\n\n---\n\nbody', async (filePath) => {
+            const { frontMatter, content } = await parseHexoMarkdown(filePath)
+
+            expect(frontMatter).toEqual({})
+            expect(content.trim()).toBe('body')
+        })
+    })
+
+    it('frontmatter 保留 v4 标准标签语义（binary）', async () => {
+        await withHexoTempFile('---\ntitle: BIN\nblob: !!binary aGk=\n---\n\nbody', async (filePath) => {
+            const { frontMatter } = await parseHexoMarkdown(filePath)
+
+            const blob = (frontMatter as Record<string, unknown>).blob
+
+            expect(blob).toBeInstanceOf(Uint8Array)
+            expect(Buffer.from(blob as Uint8Array).toString()).toBe('hi')
+        })
     })
 })
 

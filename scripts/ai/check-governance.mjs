@@ -2,7 +2,7 @@ import { access, readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 import { isDirectExecution } from '../shared/cli.mjs'
 import { collectScriptGovernanceReport } from '../governance/check-script-governance.mjs'
 
@@ -133,7 +133,7 @@ function parseFrontmatter(content) {
     let data = null
 
     try {
-        data = yaml.load(raw)
+        data = loadYaml(raw)
     } catch {
         data = null
     }

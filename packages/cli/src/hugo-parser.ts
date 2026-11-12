@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { relative } from 'node:path'
 import matter from 'gray-matter'
 import { parse as parseToml } from 'smol-toml'
-import yaml from 'js-yaml'
+import { CORE_SCHEMA, binaryTag, load as loadYaml, mergeTag, omapTag, pairsTag, setTag, timestampTag } from 'js-yaml'
 import type { MomeiPost } from '@momei-blog/api-client'
 import type { ContentParser, ParsedPost } from './types'
 import { scanMarkdownFiles } from './parser'
@@ -127,7 +127,12 @@ function createYamlEngine() {
     return {
         parse: (input: string) => {
             const normalized = input.replace(/\t/g, '  ')
-            return yaml.load(normalized) as Record<string, unknown>
+            if (!normalized.trim()) {
+                return {}
+            }
+            return loadYaml(normalized, {
+                schema: CORE_SCHEMA.withTags(timestampTag, mergeTag, binaryTag, setTag, omapTag, pairsTag),
+            }) as Record<string, unknown>
         },
     }
 }
