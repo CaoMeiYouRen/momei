@@ -158,7 +158,7 @@ describe('SettingsApiKeys', () => {
         })
 
         expect(wrapper.findAll('.table-header').map((header) => header.text())).toEqual([
-            'pages.settings.api_keys.name',
+            'common.name',
             'pages.settings.api_keys.prefix',
             'pages.settings.api_keys.last_used_at',
             'pages.settings.api_keys.expires_at',
@@ -181,7 +181,7 @@ describe('SettingsApiKeys', () => {
 
         const wrapper = await mountComponent()
 
-        await wrapper.get('input[placeholder="pages.settings.api_keys.name"]').setValue('  Publishing bot  ')
+        await wrapper.get('input[placeholder="common.name"]').setValue('  Publishing bot  ')
         await wrapper.get('select').setValue('30d')
         await wrapper.findAll('button').find((button) => button.text().includes('pages.settings.api_keys.create_btn'))?.trigger('click')
 
@@ -197,7 +197,7 @@ describe('SettingsApiKeys', () => {
 
         expect(wrapper.find('.dialog').exists()).toBe(true)
         expect((wrapper.find('.dialog input[readonly]').element as HTMLInputElement).value).toBe('secret-api-key')
-        expect((wrapper.get('input[placeholder="pages.settings.api_keys.name"]').element as HTMLInputElement).value).toBe('')
+        expect((wrapper.get('input[placeholder="common.name"]').element as HTMLInputElement).value).toBe('')
         expect((wrapper.get('select').element as HTMLSelectElement).value).toBe('never')
         expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'success',
@@ -221,7 +221,7 @@ describe('SettingsApiKeys', () => {
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
         const wrapper = await mountComponent()
 
-        await wrapper.get('input[placeholder="pages.settings.api_keys.name"]').setValue('Broken key')
+        await wrapper.get('input[placeholder="common.name"]').setValue('Broken key')
         await wrapper.findAll('button').find((button) => button.text().includes('pages.settings.api_keys.create_btn'))?.trigger('click')
 
         await vi.waitFor(() => {
@@ -331,7 +331,7 @@ describe('SettingsApiKeys', () => {
 
         const wrapper = await mountComponent()
 
-        await wrapper.get('input[placeholder="pages.settings.api_keys.name"]').setValue('Clipboard key')
+        await wrapper.get('input[placeholder="common.name"]').setValue('Clipboard key')
         await wrapper.findAll('button').find((button) => button.text().includes('pages.settings.api_keys.create_btn'))?.trigger('click')
 
         const copyButton = wrapper.find('button[aria-label="common.copy"]')

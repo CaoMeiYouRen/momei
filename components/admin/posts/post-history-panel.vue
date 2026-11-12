@@ -301,7 +301,13 @@ const restoreVersion = async () => {
     }
 }
 
-const getSourceLabel = (source: PostVersionSource) => t(`pages.admin.posts.version_sources.${source}`)
+const VERSION_SOURCE_KEYS: Partial<Record<PostVersionSource, string>> = {
+    [PostVersionSource.CREATE]: 'common.create',
+    [PostVersionSource.EDIT]: 'common.edit',
+}
+
+const getSourceLabel = (source: PostVersionSource) =>
+    t(VERSION_SOURCE_KEYS[source] ?? `pages.admin.posts.version_sources.${source}`)
 
 const getSourceTone = (source: PostVersionSource) => {
     const severityMap: Record<PostVersionSource, 'success' | 'primary' | 'warning' | 'neutral'> = {

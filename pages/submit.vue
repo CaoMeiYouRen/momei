@@ -95,7 +95,7 @@
                         <CaomeiInput
                             id="url"
                             v-model="form.contributorUrl"
-                            :placeholder="$t('pages.submit.form.url_placeholder')"
+                            :placeholder="$t('common.optional')"
                             :invalid="!!errors.contributorUrl"
                         />
                         <CaomeiMessage
@@ -125,11 +125,11 @@
                     <div class="submit-form__actions">
                         <CaomeiButton
                             type="submit"
-                            :label="loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit')"
+                            :label="loading ? $t('common.submitting') : $t('pages.submit.form.submit')"
                             :loading="loading"
                             class="submit-btn"
                         >
-                            {{ loading ? $t('pages.submit.form.submitting') : $t('pages.submit.form.submit') }}
+                            {{ loading ? $t('common.submitting') : $t('pages.submit.form.submit') }}
                         </CaomeiButton>
                     </div>
                 </form>

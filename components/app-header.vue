@@ -365,7 +365,7 @@
                 <CaomeiDivider />
 
                 <div class="mobile-menu__item">
-                    <span>{{ $t('components.header.language') }}</span>
+                    <span>{{ $t('common.language') }}</span>
                     <language-switcher />
                 </div>
 

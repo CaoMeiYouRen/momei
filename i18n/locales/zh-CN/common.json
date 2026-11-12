@@ -178,14 +178,23 @@
             "unsupported": "当前浏览器不支持语音输入，请尝试使用 Chrome 或 Edge。",
             "error": "语音识别出错",
             "permission_denied": "未获得麦克风权限",
-            "retry": "重试",
             "mode_basic": "基础 (Web)",
             "mode_cloud_batch": "精进 (Cloud Batch)",
             "mode_cloud_stream": "极速 (Cloud Stream)",
             "model_ready": "云端语音模式已就绪",
             "aria_button_start": "开始语音输入",
             "aria_button_stop": "停止语音输入"
-        }
+        },
+        "status_label": "状态",
+        "time": "时间",
+        "expiry_never": "永不过期",
+        "nickname": "昵称",
+        "new_password": "新密码",
+        "submitting": "提交中...",
+        "email_required": "请输入邮箱",
+        "password": "密码",
+        "password_required": "请输入密码",
+        "reset_password": "重置密码"
     },
     "error": {
         "unauthorized": "未授权，请先登录",
@@ -201,7 +210,6 @@
         "auto_continue": "将在 {seconds} 秒后自动跳转...",
         "continue_now": "立即继续",
         "cancel": "返回",
-        "back_home": "返回首页",
         "disclaimer": "您即将访问外部网站，我们不对外部网站的内容负责。",
         "error": {
             "title": "链接不可用",

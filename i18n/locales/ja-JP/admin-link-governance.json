@@ -13,9 +13,7 @@
                     "created_at": "作成日時",
                     "mode": "モード",
                     "redirects": "Redirect Seeds",
-                    "requested_by": "実行者",
-                    "status": "状態",
-                    "summary": "概要"
+                    "requested_by": "実行者"
                 },
                 "content_types": {
                     "asset-record": "アセット記録",

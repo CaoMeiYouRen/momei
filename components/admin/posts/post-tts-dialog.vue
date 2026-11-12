@@ -235,7 +235,7 @@ function handleConfirm() {
                     <template #icon>
                         <RefreshCw :size="16" />
                     </template>
-                    {{ t('pages.admin.posts.tts.regenerate') }}
+                    {{ t('common.regenerate') }}
                 </CaomeiButton>
 
                 <div class="tts-dialog__actions">

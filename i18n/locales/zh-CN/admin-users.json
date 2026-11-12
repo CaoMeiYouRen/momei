@@ -17,7 +17,6 @@
                 "edit_role": "修改角色",
                 "expires_at": "过期时间",
                 "expiry": {
-                    "never": "永不过期",
                     "one_day": "1天",
                     "one_month": "1个月",
                     "one_week": "1周"
@@ -55,7 +54,6 @@
                 "search_placeholder": "搜索姓名或邮箱...",
                 "select_role": "选择新角色",
                 "sessions": "活跃会话",
-                "status": "状态",
                 "status_options": {
                     "active": "正常",
                     "all": "所有状态",

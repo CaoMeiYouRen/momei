@@ -97,7 +97,7 @@
             </div>
 
             <div class="field">
-                <label for="status">{{ $t('pages.admin.ad.campaigns.status') }} *</label>
+                <label for="status">{{ $t('common.status_label') }} *</label>
                 <CaomeiSelect
                     id="status"
                     v-model="formData.status"
@@ -231,7 +231,7 @@ const statusOptions = computed(() => [
 // 同时落在表头与表体单元格，故以 `align: 'right'` + 双 style 等价还原，不改列宽与对齐）。
 const columns = computed<DataTableColumn<AdCampaign>[]>(() => [
     { key: 'name', header: t('common.name'), sortable: true },
-    { key: 'status', header: t('pages.admin.ad.campaigns.status') },
+    { key: 'status', header: t('common.status_label') },
     { key: 'startDate', header: t('pages.admin.ad.campaigns.start_date') },
     { key: 'endDate', header: t('pages.admin.ad.campaigns.end_date') },
     { key: 'impressions', header: t('pages.admin.ad.campaigns.impressions'), sortable: true },

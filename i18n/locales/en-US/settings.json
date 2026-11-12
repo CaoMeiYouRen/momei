@@ -8,7 +8,6 @@
                 "upload": "Upload Avatar",
                 "upload_success": "Avatar updated successfully",
                 "upload_failed": "Failed to upload avatar",
-                "name": "Nickname",
                 "language": "UI Language",
                 "timezone": "Timezone",
                 "save": "Save Changes",
@@ -19,7 +18,6 @@
                 "change_password": "Change Password",
                 "set_password_hint": "If you haven't set a password (e.g. logged in via OAuth), or forgot your current password, please use the ",
                 "current_password": "Current Password",
-                "new_password": "New Password",
                 "confirm_password": "Confirm New Password",
                 "update_password": "Update Password",
                 "password_updated": "Password updated successfully",
@@ -37,12 +35,10 @@
                 "create_btn": "Create New Key",
                 "new_key_title": "New API Key",
                 "new_key_hint": "Please make sure to copy your API key now. You won't be able to see it again for security reasons.",
-                "name": "Name",
                 "prefix": "Prefix",
                 "expires_at": "Expires At",
                 "never_expires": "Never Expires",
                 "expired_at_options": {
-                    "never": "Never",
                     "7d": "7 Days",
                     "30d": "30 Days",
                     "365d": "365 Days"
@@ -111,10 +107,8 @@
                         "unread": "Unread"
                     },
                     "columns": {
-                        "time": "Time",
                         "type": "Type",
                         "content": "Content",
-                        "status": "Status",
                         "target": "Target"
                     }
                 }

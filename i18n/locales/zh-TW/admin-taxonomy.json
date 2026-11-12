@@ -23,7 +23,6 @@
                 "post": "文章",
                 "reject": "標記為垃圾",
                 "search_placeholder": "搜尋評論內容、作者...",
-                "status": "狀態",
                 "status_pending": "待審核",
                 "status_published": "已發佈",
                 "status_spam": "垃圾評論"

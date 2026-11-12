@@ -17,7 +17,6 @@
                 "edit_role": "Change Role",
                 "expires_at": "Expiry Date",
                 "expiry": {
-                    "never": "Never",
                     "one_day": "1 Day",
                     "one_month": "1 Month",
                     "one_week": "1 Week"
@@ -55,7 +54,6 @@
                 "search_placeholder": "Search name or email...",
                 "select_role": "Select New Role",
                 "sessions": "Active Sessions",
-                "status": "Status",
                 "status_options": {
                     "active": "Active",
                     "all": "All Statuses",

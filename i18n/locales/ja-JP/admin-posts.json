@@ -146,7 +146,6 @@
                     "voice_model_ready": "AI モデルの準備ができました",
                     "voice_permission_denied": "マイク権限がありません",
                     "voice_refine_insert": "AI で推敲して挿入",
-                    "voice_retry": "再試行",
                     "voice_scaffold_insert": "AI で構成整理後に挿入",
                     "voice_scaffold_processing": "構成を整理中...",
                     "voice_unsupported": "現在のブラウザは音声認識に対応していません。Chrome または Edge をお試しください。"
@@ -325,7 +324,6 @@
                 },
                 "slug": "URL Slug",
                 "slug_hint": "記事のカスタムリンクパス",
-                "status": "状態",
                 "summary_placeholder": "記事要約...",
                 "tags_hint": "タグ名を入力して Enter",
                 "tags_placeholder": "タグを入力...",
@@ -433,7 +431,6 @@
                         "siliconflow": "SiliconFlow",
                         "volcengine": "Volcengine"
                     },
-                    "regenerate": "再生成",
                     "select_provider": "TTS プロバイダーを選択",
                     "select_voice": "音声を選択",
                     "start_generate": "生成開始",
@@ -461,8 +458,6 @@
                 "version_restore_success": "このバージョンを復元し、新しい線形履歴記録を生成しました",
                 "version_rollback_confirm": "このバージョンへロールバックしてもよろしいですか？現在のエディター内容は上書きされます（保存後に有効）。",
                 "version_sources": {
-                    "create": "作成",
-                    "edit": "編集",
                     "restore": "復元",
                     "rollback_recovery": "復元失敗修復"
                 },
@@ -552,7 +547,6 @@
                     "platform_label": "プラットフォームを選択",
                     "generate_btn": "AI でソーシャル投稿を生成",
                     "generating": "生成中...",
-                    "copy_btn": "コピー",
                     "copy_success": "コピーしました",
                     "generate_failed": "ソーシャル投稿の生成に失敗しました"
                 }

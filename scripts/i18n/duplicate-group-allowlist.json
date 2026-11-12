@@ -1,0 +1,668 @@
+{
+    "reviewedAt": "2026-11-12",
+    "reviewDueAt": "2027-05-12",
+    "summary": "入口收敛后剩余 64 组；按动态拼接 / 模块内字段语义 / 跨模块对象语义分类，明细见各组 reason。",
+    "groups": [
+        {
+            "id": "g-00673deca495",
+            "keys": [
+                "pages.admin.ai.types.image",
+                "pages.admin.ai.types.image_generation"
+            ],
+            "referenceValue": "图像生成",
+            "reason": "类型标签通过动态 key 拼接渲染（如 types.${type}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-05ccfb416676",
+            "keys": [
+                "common.pinned",
+                "pages.admin.friend_links.pinned"
+            ],
+            "referenceValue": "置顶",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-08ebae54eeb8",
+            "keys": [
+                "pages.admin.ai.types.text",
+                "pages.admin.ai.types.text_generation"
+            ],
+            "referenceValue": "文本生成",
+            "reason": "类型标签通过动态 key 拼接渲染（如 types.${type}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-0a2e585d3895",
+            "keys": [
+                "pages.admin.link_governance.statuses.failed",
+                "pages.admin.link_governance.summary.failed",
+                "pages.admin.notifications.delivery_logs.statuses.failed",
+                "pages.admin.posts.translation_workflow.field_statuses.failed"
+            ],
+            "referenceValue": "失败",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-1044b58a2fa9",
+            "keys": [
+                "pages.admin.settings.system.email_templates.catalog.passwordResetOTP.defaults.headerIcon",
+                "pages.admin.settings.system.email_templates.catalog.verification.defaults.headerIcon"
+            ],
+            "referenceValue": "🔐",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-114968cd0078",
+            "keys": [
+                "pages.admin.ad.campaigns.messages.name_required",
+                "pages.admin.ad.placements.messages.name_required"
+            ],
+            "referenceValue": "名称不能为空",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-11f2177be455",
+            "keys": [
+                "pages.admin.posts.ai.cover_generator.dimensions.text",
+                "pages.admin.settings.system.ai_editor.scope_text"
+            ],
+            "referenceValue": "文本",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-134fe76b3d0e",
+            "keys": [
+                "pages.admin.external_links.statuses.active",
+                "pages.admin.friend_links.statuses.active"
+            ],
+            "referenceValue": "启用",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-152695bae25f",
+            "keys": [
+                "common.success",
+                "pages.admin.notifications.delivery_logs.statuses.success"
+            ],
+            "referenceValue": "成功",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-157bffaf9289",
+            "keys": [
+                "common.podcast",
+                "pages.admin.posts.podcast_column",
+                "pages.admin.settings.system.ai_editor.scope_podcast"
+            ],
+            "referenceValue": "播客",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-16962aa45ab5",
+            "keys": [
+                "legal.user_agreement",
+                "pages.user_agreement.title"
+            ],
+            "referenceValue": "用户协议",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-1afff35feb19",
+            "keys": [
+                "pages.admin.ai.alerts.details.cost_usage",
+                "pages.admin.ai.alerts.details.quota_usage"
+            ],
+            "referenceValue": "已用 {used} / 上限 {limit}",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-1cfd2702bac1",
+            "keys": [
+                "pages.admin.ai.statuses.completed",
+                "pages.admin.link_governance.statuses.completed",
+                "pages.admin.marketing.status.completed",
+                "pages.admin.posts.translation_workflow.field_statuses.completed"
+            ],
+            "referenceValue": "已完成",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-1f0ecc274d94",
+            "keys": [
+                "common.status.draft",
+                "pages.admin.ad.campaigns.statuses.draft",
+                "pages.admin.friend_links.statuses.draft",
+                "pages.admin.marketing.status.draft"
+            ],
+            "referenceValue": "草稿",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-2171c326ef53",
+            "keys": [
+                "pages.admin.settings.system.setup_follow_up.sections.ai.title",
+                "pages.admin.settings.system.tabs.ai"
+            ],
+            "referenceValue": "AI 服务",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-222535bb406f",
+            "keys": [
+                "pages.admin.posts.floating_actions.leave_confirm",
+                "pages.admin.settings.system.floating_actions.leave_confirm"
+            ],
+            "referenceValue": "当前页面仍有未保存的更改，确定要离开吗？",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-233746c67de7",
+            "keys": [
+                "common.title",
+                "pages.admin.posts.audit.factors.title",
+                "pages.admin.posts.translation_workflow.fields.title",
+                "pages.admin.posts.version_fields.title"
+            ],
+            "referenceValue": "标题",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-2486373ab3ee",
+            "keys": [
+                "pages.admin.ad.placements.priority",
+                "pages.admin.settings.system.external_feeds.editor.fields.priority"
+            ],
+            "referenceValue": "优先级",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-264e7904895a",
+            "keys": [
+                "pages.admin.posts.translation_workflow.fields.content",
+                "pages.admin.posts.version_fields.content"
+            ],
+            "referenceValue": "正文",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-2da86973d7ce",
+            "keys": [
+                "comments.email",
+                "pages.enhanced_pack.cta_form.email_label",
+                "pages.submit.form.email"
+            ],
+            "referenceValue": "电子邮箱",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-2e5f47f960c0",
+            "keys": [
+                "common.status.published",
+                "pages.admin.comments.status_published"
+            ],
+            "referenceValue": "已发布",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-2f431a81b863",
+            "keys": [
+                "pages.admin.users.active",
+                "pages.admin.users.status_options.active"
+            ],
+            "referenceValue": "正常",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-3693a087ecea",
+            "keys": [
+                "common.enhanced_pack",
+                "pages.enhanced_pack.comparison.premium_label"
+            ],
+            "referenceValue": "增强包",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-3c1e2a5d7931",
+            "keys": [
+                "pages.admin.settings.system.notifications.browser",
+                "pages.settings.notifications.browser.title"
+            ],
+            "referenceValue": "浏览器通知",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-3ce53640f2af",
+            "keys": [
+                "installation.preview.analytics.clarity",
+                "pages.admin.settings.system.keys.clarity_analytics"
+            ],
+            "referenceValue": "Microsoft Clarity ID",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-3dbf35533dda",
+            "keys": [
+                "pages.admin.posts.audit.factors.coverImage",
+                "pages.admin.posts.version_fields.coverImage"
+            ],
+            "referenceValue": "封面图",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-40f73db52bee",
+            "keys": [
+                "common.status.pending",
+                "pages.admin.comments.status_pending",
+                "pages.admin.friend_links.application_statuses.pending",
+                "pages.admin.submissions.status_pending"
+            ],
+            "referenceValue": "待审核",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-4c6ddfed98fa",
+            "keys": [
+                "pages.admin.comments.author",
+                "pages.admin.settings.system.ai_editor.role_author",
+                "pages.admin.users.roles.author"
+            ],
+            "referenceValue": "作者",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-594baef79404",
+            "keys": [
+                "pages.admin.settings.system.agreements.date_fallback",
+                "pages.privacy_policy.date_fallback",
+                "pages.user_agreement.date_fallback"
+            ],
+            "referenceValue": "未设置",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-673a8e770197",
+            "keys": [
+                "components.header.title",
+                "pages.about.hero.title"
+            ],
+            "referenceValue": "墨梅",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-67d492632631",
+            "keys": [
+                "pages.admin.ad.campaigns.clicks",
+                "pages.admin.external_links.clicks"
+            ],
+            "referenceValue": "点击次数",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-68e44af4c74f",
+            "keys": [
+                "pages.admin.users.banned",
+                "pages.admin.users.status_options.banned"
+            ],
+            "referenceValue": "已封禁",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-69e2ac7fd20e",
+            "keys": [
+                "pages.admin.posts.cover_column",
+                "pages.admin.posts.distribution.preview.cover"
+            ],
+            "referenceValue": "封面",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-74877da17132",
+            "keys": [
+                "pages.admin.users.filter_status",
+                "pages.admin.users.status_options.all"
+            ],
+            "referenceValue": "所有状态",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-79651f87b754",
+            "keys": [
+                "common.tags",
+                "pages.admin.link_governance.content_types.tag",
+                "pages.admin.posts.audit.factors.tags",
+                "pages.admin.posts.translation_workflow.fields.tags",
+                "pages.admin.posts.version_fields.tagIds"
+            ],
+            "referenceValue": "标签",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-7fad989f684f",
+            "keys": [
+                "pages.admin.users.filter_role",
+                "pages.admin.users.roles.all"
+            ],
+            "referenceValue": "所有角色",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-802d07de2716",
+            "keys": [
+                "pages.admin.dashboard.tab_insights",
+                "pages.admin.dashboard.title"
+            ],
+            "referenceValue": "内容洞察",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-8db415d41820",
+            "keys": [
+                "pages.admin.posts.distribution.status.failed",
+                "pages.admin.posts.distribution.wechatsync_task.failed"
+            ],
+            "referenceValue": "已失败",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-919a42e4b793",
+            "keys": [
+                "pages.admin.categories.sync_to_all_languages",
+                "pages.admin.tags.sync_to_all_languages"
+            ],
+            "referenceValue": "同步创建对应的其他语言版本",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-9993e7c7087b",
+            "keys": [
+                "pages.admin.posts.ai.perspective_original",
+                "pages.admin.posts.ai.review_original",
+                "pages.admin.posts.ai.rewrite_original"
+            ],
+            "referenceValue": "原文",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-a10cd6f94096",
+            "keys": [
+                "pages.admin.notifications.delivery_logs.columns.type",
+                "pages.admin.notifications.delivery_logs.filters.type"
+            ],
+            "referenceValue": "通知类型",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-a8bf479e1abb",
+            "keys": [
+                "components.post.copyright.license_title",
+                "components.post.copyright.title"
+            ],
+            "referenceValue": "版权声明",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-b0c0912e2d97",
+            "keys": [
+                "pages.admin.posts.audit.factors.summary",
+                "pages.admin.posts.translation_workflow.fields.summary",
+                "pages.admin.posts.version_fields.summary"
+            ],
+            "referenceValue": "摘要",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-b25677c24eb8",
+            "keys": [
+                "pages.admin.friend_links.application_statuses.rejected",
+                "pages.admin.submissions.status_rejected"
+            ],
+            "referenceValue": "已拒绝",
+            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-b2b24a0446bb",
+            "keys": [
+                "pages.admin.settings.system.email_templates.catalog.loginOTP.defaults.securityTip",
+                "pages.admin.settings.system.email_templates.catalog.magicLink.defaults.securityTip"
+            ],
+            "referenceValue": "如果不是您本人操作，请忽略此邮件并检查您的账户安全。",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-b3c4b995854f",
+            "keys": [
+                "pages.admin.settings.system.ai_editor.subject_type_role",
+                "pages.admin.users.role"
+            ],
+            "referenceValue": "角色",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-b5daed20749b",
+            "keys": [
+                "pages.admin.settings.system.audit_logs.effective_sources.db",
+                "pages.admin.settings.system.smart_mode.source_counts.db"
+            ],
+            "referenceValue": "数据库生效",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-bd77befcf302",
+            "keys": [
+                "common.category",
+                "pages.admin.posts.audit.factors.category",
+                "pages.admin.posts.translation_workflow.fields.category",
+                "pages.admin.posts.version_fields.categoryId"
+            ],
+            "referenceValue": "分类",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-cadede3722c5",
+            "keys": [
+                "pages.admin.dashboard.creator_monthly",
+                "pages.admin.settings.system.ai_editor.period_month"
+            ],
+            "referenceValue": "按月",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-ccc1974cf957",
+            "keys": [
+                "pages.admin.link_governance.columns.redirects",
+                "pages.admin.link_governance.detail.redirect_seeds"
+            ],
+            "referenceValue": "Redirect Seeds",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-ccd658ff35d2",
+            "keys": [
+                "pages.admin.submissions.article_title",
+                "pages.submit.form.title"
+            ],
+            "referenceValue": "文章标题",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-cdbb3a2ba801",
+            "keys": [
+                "pages.admin.settings.system.email_templates.catalog.passwordReset.defaults.title",
+                "pages.admin.settings.system.email_templates.catalog.passwordResetOTP.defaults.title"
+            ],
+            "referenceValue": "重置您的 {appName} 密码",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-d6b0c2a2eb39",
+            "keys": [
+                "pages.admin.posts.distribution.channels.hexo_repository_sync",
+                "pages.admin.settings.system.sections.hexo_repository_sync"
+            ],
+            "referenceValue": "远程仓库同步",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-da1d369c314c",
+            "keys": [
+                "pages.admin.settings.system.external_feeds.editor.fields.site_name",
+                "pages.admin.settings.system.keys.site_name"
+            ],
+            "referenceValue": "站点名称",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-de19e0520687",
+            "keys": [
+                "common.platforms.github",
+                "pages.admin.settings.system.hexo_sync.providers.github"
+            ],
+            "referenceValue": "GitHub",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-de68b2a5d310",
+            "keys": [
+                "pages.admin.settings.system.email_templates.catalog.passwordReset.defaults.securityTip",
+                "pages.admin.settings.system.email_templates.catalog.passwordResetOTP.defaults.securityTip"
+            ],
+            "referenceValue": "如果您没有请求重置密码，请忽略此邮件并检查您的账户安全。",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-df0cf88fe9cb",
+            "keys": [
+                "pages.admin.settings.system.email_templates.runtime.privacy_policy_label",
+                "pages.privacy_policy.title"
+            ],
+            "referenceValue": "隐私政策",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-e69db51ee431",
+            "keys": [
+                "pages.admin.notifications.delivery_logs.value_states.none",
+                "pages.admin.posts.distribution.preview.empty"
+            ],
+            "referenceValue": "无",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-eeabc576ea1b",
+            "keys": [
+                "pages.admin.posts.ai.perspective_major",
+                "pages.admin.posts.ai.review_major"
+            ],
+            "referenceValue": "重要",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-efa4610c28bb",
+            "keys": [
+                "pages.admin.posts.ai.perspective_minor",
+                "pages.admin.posts.ai.review_minor"
+            ],
+            "referenceValue": "轻微",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-f06421a6beba",
+            "keys": [
+                "pages.admin.settings.system.audit_logs.effective_sources.env",
+                "pages.admin.settings.system.smart_mode.source_counts.env"
+            ],
+            "referenceValue": "ENV 生效",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-fa55608ad902",
+            "keys": [
+                "pages.admin.settings.system.ai_editor.role_user",
+                "pages.admin.users.user"
+            ],
+            "referenceValue": "用户",
+            "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-fb236933c396",
+            "keys": [
+                "pages.admin.posts.version_fields.visibility",
+                "pages.admin.posts.visibility"
+            ],
+            "referenceValue": "可见性",
+            "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        },
+        {
+            "id": "g-fbb277fd2b30",
+            "keys": [
+                "pages.admin.settings.system.keys.listmonk_access_token",
+                "pages.admin.settings.system.keys.memos_access_token"
+            ],
+            "referenceValue": "Access Token",
+            "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
+            "reviewAt": "2027-05-12"
+        }
+    ]
+}

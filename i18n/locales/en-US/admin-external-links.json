@@ -22,7 +22,6 @@
                 "show_redirect": "Redirect Page",
                 "show_redirect_page": "Show Redirect Page",
                 "stats": "Statistics",
-                "status": "Status",
                 "statuses": {
                     "active": "Active",
                     "blocked": "Blocked",

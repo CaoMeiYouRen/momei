@@ -56,7 +56,6 @@
                     "shortcut": "단축 명령",
                     "web": "웹 관리자"
                 },
-                "status": "상태",
                 "template": "작성 템플릿",
                 "template_blog": "블로그 글",
                 "template_note": "개인 메모",

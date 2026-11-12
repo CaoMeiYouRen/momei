@@ -26,7 +26,7 @@ describe('utils/schemas/auth', () => {
             const result = loginSchema.safeParse(invalidData)
             expect(result.success).toBe(false)
             if (!result.success) {
-                expect(result.error.issues[0]?.message).toBe('pages.login.email_required')
+                expect(result.error.issues[0]?.message).toBe('common.email_required')
             }
         })
 
@@ -39,7 +39,7 @@ describe('utils/schemas/auth', () => {
             const result = loginSchema.safeParse(invalidData)
             expect(result.success).toBe(false)
             if (!result.success) {
-                expect(result.error.issues[0]?.message).toBe('pages.login.password_required')
+                expect(result.error.issues[0]?.message).toBe('common.password_required')
             }
         })
 
@@ -121,7 +121,7 @@ describe('utils/schemas/auth', () => {
             const result = registerSchema.safeParse(invalidData)
             expect(result.success).toBe(false)
             if (!result.success) {
-                expect(result.error.issues[0]?.message).toBe('pages.register.email_required')
+                expect(result.error.issues[0]?.message).toBe('common.email_required')
             }
         })
 
@@ -137,7 +137,7 @@ describe('utils/schemas/auth', () => {
             const result = registerSchema.safeParse(invalidData)
             expect(result.success).toBe(false)
             if (!result.success) {
-                expect(result.error.issues[0]?.message).toBe('pages.register.password_required')
+                expect(result.error.issues[0]?.message).toBe('common.password_required')
             }
         })
 

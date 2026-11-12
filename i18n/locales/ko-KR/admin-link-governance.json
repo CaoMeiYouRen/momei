@@ -13,9 +13,7 @@
                     "created_at": "생성 시간",
                     "mode": "모드",
                     "redirects": "Redirect Seeds",
-                    "requested_by": "요청자",
-                    "status": "상태",
-                    "summary": "요약"
+                    "requested_by": "요청자"
                 },
                 "content_types": {
                     "asset-record": "자산 기록",

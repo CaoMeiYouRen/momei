@@ -17,9 +17,7 @@
                 "email": "电子邮箱",
                 "email_placeholder": "用于接收审核反馈",
                 "url": "个人站点",
-                "url_placeholder": "可选",
                 "submit": "立即投稿",
-                "submitting": "提交中...",
                 "success": "投稿成功！请等待管理员审核，我们会通过邮件通知您结果。",
                 "error": "投稿失败，请稍后再试。",
                 "captcha_required": "请完成验证码校验"
@@ -61,44 +59,19 @@
             }
         },
         "error": {
-            "title": "发生错误",
             "404_title": "页面未找到",
-            "404_desc": "很抱歉，您访问的页面不存在或已被移除。您可以尝试搜索其他内容或返回首页。",
-            "back_home": "返回首页",
-            "retry": "重试"
+            "404_desc": "很抱歉，您访问的页面不存在或已被移除。您可以尝试搜索其他内容或返回首页。"
         },
         "user_agreement": {
             "title": "用户协议",
-            "version_label": "版本：{version}",
-            "effective_date_label": "生效日期：{date}",
-            "last_updated_label": "最近更新：{date}",
-            "version_fallback": "未标记版本",
             "date_fallback": "未设置",
-            "reference_translation_tag": "参考翻译",
-            "authoritative_version_tag": "权威版本",
-            "current_active_tag": "当前生效",
-            "reference_translation_notice": "当前语言内容为参考翻译，所对应的权威版本为 {language} / {version}。如有法律解释差异，请以权威版本为准。",
-            "fallback_notice": "当前语言暂无独立版本，正在展示 {language} 的权威版本。",
-            "history_title": "历史版本",
-            "history_no_description": "暂无版本说明",
             "meta": {
                 "description": "查看墨梅博客的用户协议与站点使用条款，了解访问、注册与内容发布相关规则。"
             }
         },
         "privacy_policy": {
             "title": "隐私政策",
-            "version_label": "版本：{version}",
-            "effective_date_label": "生效日期：{date}",
-            "last_updated_label": "最近更新：{date}",
-            "version_fallback": "未标记版本",
             "date_fallback": "未设置",
-            "reference_translation_tag": "参考翻译",
-            "authoritative_version_tag": "权威版本",
-            "current_active_tag": "当前生效",
-            "reference_translation_notice": "当前语言内容为参考翻译，所对应的权威版本为 {language} / {version}。如有法律解释差异，请以权威版本为准。",
-            "fallback_notice": "当前语言暂无独立版本，正在展示 {language} 的权威版本。",
-            "history_title": "历史版本",
-            "history_no_description": "暂无版本说明",
             "meta": {
                 "description": "查看墨梅博客关于数据收集、使用、存储与用户权利说明的最新隐私政策。"
             }
@@ -180,7 +153,6 @@
             }
         },
         "links": {
-            "title": "友链",
             "subtitle": "记录我们愿意长期互相看见、互相推荐的独立站点与创作者。",
             "meta": {
                 "description": "浏览墨梅博客的友链页面，查看精选站点，并提交您的友链申请。"
@@ -212,7 +184,6 @@
                 "reciprocal_url": "互链页面地址",
                 "message": "补充说明",
                 "submit": "提交申请",
-                "submitting": "提交中...",
                 "success": "申请已提交，等待管理员审核。",
                 "error": "提交失败，请稍后再试。",
                 "captcha_required": "请先完成验证码校验"
@@ -262,11 +233,26 @@
             "free_core": {
                 "heading": "墨梅开源免费核心",
                 "items": [
-                    { "title": "AI 创作助手", "desc": "智能标题建议、自动摘要生成、标签提取 — 单篇文章的 AI 辅助全覆盖。" },
-                    { "title": "原生多语言界面", "desc": "中英日韩繁五语 UI，国际化从骨子里支持，不是事后翻译补丁。" },
-                    { "title": "单篇 AI 翻译", "desc": "一键将文章翻译到目标语言，形成翻译簇，跨语言读者自动路由到对应版本。" },
-                    { "title": "内容分发基础能力", "desc": "RSS / Atom / JSON Feed、sitemap、SEO 元信息，开箱即用的搜索引擎友好。" },
-                    { "title": "自部署 & 开源", "desc": "完整开源，MIT 协议，你可以自由部署、修改、扩展。" }
+                    {
+                        "title": "AI 创作助手",
+                        "desc": "智能标题建议、自动摘要生成、标签提取 — 单篇文章的 AI 辅助全覆盖。"
+                    },
+                    {
+                        "title": "原生多语言界面",
+                        "desc": "中英日韩繁五语 UI，国际化从骨子里支持，不是事后翻译补丁。"
+                    },
+                    {
+                        "title": "单篇 AI 翻译",
+                        "desc": "一键将文章翻译到目标语言，形成翻译簇，跨语言读者自动路由到对应版本。"
+                    },
+                    {
+                        "title": "内容分发基础能力",
+                        "desc": "RSS / Atom / JSON Feed、sitemap、SEO 元信息，开箱即用的搜索引擎友好。"
+                    },
+                    {
+                        "title": "自部署 & 开源",
+                        "desc": "完整开源，MIT 协议，你可以自由部署、修改、扩展。"
+                    }
                 ]
             },
             "premium": {
@@ -306,10 +292,22 @@
             "faq": {
                 "heading": "常见问题",
                 "items": [
-                    { "q": "增强包会影响我现有的博客吗？", "a": "不会。增强包是墨梅开源核心之上的可选增值服务，不安装增强包时，你的博客完全照常运行。" },
-                    { "q": "我需要把博客迁移到别的地方吗？", "a": "不需要。增强包是对你已有墨梅部署的能力延伸，不需要数据迁移或平台切换。" },
-                    { "q": "增强包现在可以购买吗？", "a": "目前增强包还在开发与验证阶段。你可以加入候补名单，我们会在开放时第一时间通知你，并邀请早期用户参与内测。" },
-                    { "q": "候补名单的后续流程是什么？", "a": "我们会通过你留下的邮箱与您联系，分享增强包的最新进展、早期试用机会与正式上线时间。" }
+                    {
+                        "q": "增强包会影响我现有的博客吗？",
+                        "a": "不会。增强包是墨梅开源核心之上的可选增值服务，不安装增强包时，你的博客完全照常运行。"
+                    },
+                    {
+                        "q": "我需要把博客迁移到别的地方吗？",
+                        "a": "不需要。增强包是对你已有墨梅部署的能力延伸，不需要数据迁移或平台切换。"
+                    },
+                    {
+                        "q": "增强包现在可以购买吗？",
+                        "a": "目前增强包还在开发与验证阶段。你可以加入候补名单，我们会在开放时第一时间通知你，并邀请早期用户参与内测。"
+                    },
+                    {
+                        "q": "候补名单的后续流程是什么？",
+                        "a": "我们会通过你留下的邮箱与您联系，分享增强包的最新进展、早期试用机会与正式上线时间。"
+                    }
                 ]
             },
             "cta_form": {
@@ -320,7 +318,6 @@
                 "email_label": "电子邮箱",
                 "email_placeholder": "用于接收增强包上线通知",
                 "submit": "加入候补名单",
-                "submitting": "提交中...",
                 "success": "已成功加入候补名单！我们会在增强包开放时第一时间通知你。",
                 "error": "提交失败，请稍后再试。",
                 "privacy_note": "我们只会用此邮箱发送增强包相关通知，不会用于其他目的。"

@@ -19,7 +19,6 @@
                     },
                     "revenue": "収益",
                     "start_date": "開始日",
-                    "status": "状態",
                     "statuses": {
                         "active": "進行中",
                         "draft": "下書き",
@@ -73,7 +72,6 @@
                     "slot_id": "広告枠 ID",
                     "slot_id_hint": "広告プラットフォームの広告枠 ID を入力してください",
                     "slot_id_placeholder": "例: ca-pub-1234567890/1234567890",
-                    "status": "状態",
                     "title": "広告枠管理"
                 }
             }

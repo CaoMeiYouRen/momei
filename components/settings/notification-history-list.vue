@@ -206,10 +206,10 @@ async function markAllAsRead() {
 }
 
 const columns = computed<DataTableColumn<UserNotificationHistoryItem>[]>(() => [
-    { key: 'createdAt', header: t('pages.settings.notifications.history.columns.time'), headerClass: 'notification-history-list__time-column', bodyClass: 'notification-history-list__time-column' },
+    { key: 'createdAt', header: t('common.time'), headerClass: 'notification-history-list__time-column', bodyClass: 'notification-history-list__time-column' },
     { key: 'type', header: t('pages.settings.notifications.history.columns.type') },
     { key: 'content', header: t('pages.settings.notifications.history.columns.content') },
-    { key: 'isRead', header: t('pages.settings.notifications.history.columns.status') },
+    { key: 'isRead', header: t('common.status_label') },
     { key: 'target', header: t('pages.settings.notifications.history.columns.target') },
     { key: 'actions', header: t('common.actions') },
 ])

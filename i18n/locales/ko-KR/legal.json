@@ -5,6 +5,17 @@
     "agreement_checkbox": "{agreement} 및 {privacy}을 읽고 동의했습니다",
     "login_notice": "로그인하면 {agreement} 및 {privacy}에 동의한 것으로 간주됩니다",
     "notice": "안내: 본 약관과 정책은 예시로 제공됩니다. 이 프로젝트의 개발자는 어떠한 배포 인스턴스에 대해서도 법적 책임을 지지 않습니다. 실제 법적 계약은 현재 사이트 운영자와 사용자 사이에 체결되며, 최종 법적 책임은 사이트 배포자에게 있습니다.",
-    "agreement_required": "이용 약관과 개인정보 처리방침을 읽고 동의해 주세요"
+    "agreement_required": "이용 약관과 개인정보 처리방침을 읽고 동의해 주세요",
+    "authoritative_version_tag": "권위 버전",
+    "current_active_tag": "현재 적용",
+    "effective_date_label": "효력 발생일: {date}",
+    "fallback_notice": "이 언어의 독립 버전이 아직 없어 {language} 권위 버전을 표시합니다.",
+    "history_no_description": "버전 설명 없음",
+    "history_title": "버전 이력",
+    "last_updated_label": "최근 수정: {date}",
+    "reference_translation_notice": "현재 언어 콘텐츠는 참고 번역입니다. 대응하는 권위 버전은 {language} / {version} 입니다. 법적 해석 차이가 있을 경우 권위 버전이 우선합니다.",
+    "reference_translation_tag": "참고 번역",
+    "version_fallback": "버전 표기 없음",
+    "version_label": "버전: {version}"
   }
 }

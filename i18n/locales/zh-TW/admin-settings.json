@@ -43,7 +43,6 @@
                         "flat_view_help": "完整列表會展開所有語言與版本，方便逐筆編輯、切換與排查。",
                         "generate_ai_draft": "AI 產生翻譯草稿",
                         "is_main": "是否生效",
-                        "language": "語言",
                         "language_help": "權威語言版本可直接生效；其他語言會作為參考翻譯顯示。",
                         "language_unknown": "未知語言",
                         "load_failed": "載入協議列表失敗",
@@ -71,7 +70,6 @@
                         "source_version": "對應權威版本",
                         "source_version_help": "參考翻譯會隨此處選取的權威版本一同顯示。",
                         "source_version_placeholder": "選擇此翻譯對應的權威版本",
-                        "status": "狀態",
                         "submit_review": "提交審校",
                         "submit_review_success": "已送出待審校狀態",
                         "title": "協議管理",
@@ -153,8 +151,7 @@
                             "old_value": "變更前",
                             "operator": "操作人",
                             "reason": "變更原因",
-                            "source": "觸發來源",
-                            "time": "時間"
+                            "source": "觸發來源"
                         },
                         "description": "記錄管理員對資料庫設定的寫入歷史，並標示目前是否仍由資料庫生效。",
                         "effective_sources": {

@@ -21,7 +21,7 @@
                         :options="statusOptions"
                         option-label="label"
                         option-value="value"
-                        :placeholder="$t('pages.admin.comments.status')"
+                        :placeholder="$t('common.status_label')"
                         @update:model-value="handleStatusChange"
                     />
                 </div>
@@ -198,7 +198,7 @@ const statusOptions = computed(() => [
 ])
 
 const columns = computed<DataTableColumn<Comment>[]>(() => [
-    { key: 'status', header: t('pages.admin.comments.status'), width: '100px' },
+    { key: 'status', header: t('common.status_label'), width: '100px' },
     { key: 'author', header: t('pages.admin.comments.author'), width: '220px' },
     // 内容列限宽：用列定义的 `bodyStyle`（caomei 会内联到单元格），而非 scoped class——
     // 单元格由子组件渲染、不带页面作用域属性，scoped 规则不会命中（避免留下意图落空的死规则）。

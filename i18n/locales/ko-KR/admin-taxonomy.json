@@ -23,7 +23,6 @@
                 "post": "게시글",
                 "reject": "스팸으로 표시",
                 "search_placeholder": "댓글 내용, 작성자 검색...",
-                "status": "상태",
                 "status_pending": "검토 대기",
                 "status_published": "게시됨",
                 "status_spam": "스팸"

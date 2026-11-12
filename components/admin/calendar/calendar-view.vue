@@ -156,7 +156,7 @@ function onViewChange(value: unknown) {
 }
 
 const viewOptions = computed(() => [
-    { label: t('pages.admin.calendar.month_view'), value: 'month' as const },
+    { label: t('common.month'), value: 'month' as const },
     { label: t('pages.admin.calendar.week_view'), value: 'week' as const },
 ])
 

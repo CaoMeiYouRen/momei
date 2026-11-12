@@ -13,13 +13,13 @@ const routeQuery = reactive<{ email?: string, token?: string }>({
 
 const translate = (key: string) => {
     switch (key) {
-        case 'pages.reset_password.title':
+        case 'common.reset_password':
             return 'Reset Password'
         case 'pages.reset_password.subtitle':
             return 'Enter the code and choose a new password.'
         case 'pages.reset_password.otp_placeholder':
             return 'Enter OTP code'
-        case 'pages.reset_password.new_password':
+        case 'common.new_password':
             return 'New password'
         case 'pages.reset_password.new_password_placeholder':
             return 'Create a new password'
@@ -27,8 +27,6 @@ const translate = (key: string) => {
             return 'Confirm password'
         case 'pages.reset_password.confirm_password_placeholder':
             return 'Repeat the new password'
-        case 'pages.reset_password.submit':
-            return 'Reset password'
         case 'pages.register.password_mismatch':
             return 'Passwords do not match'
         case 'common.email':
@@ -112,9 +110,7 @@ describe('ResetPasswordPage', () => {
         expect(wrapper.find('.auth-page').exists()).toBe(true)
         expect(text).toContain('Reset Password')
         expect(text).toContain('Enter the code and choose a new password.')
-        expect(text).toContain('Reset password')
-        expect(text).not.toContain('pages.reset_password.title')
-        expect(text).not.toContain('pages.reset_password.submit')
+        expect(text).not.toContain('common.reset_password')
         expect(useHeadMock).toHaveBeenCalled()
     })
 

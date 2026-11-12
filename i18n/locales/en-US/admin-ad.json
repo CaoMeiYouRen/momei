@@ -19,7 +19,6 @@
                     },
                     "revenue": "Revenue",
                     "start_date": "Start Date",
-                    "status": "Status",
                     "statuses": {
                         "active": "Active",
                         "draft": "Draft",
@@ -73,7 +72,6 @@
                     "slot_id": "Ad Slot ID",
                     "slot_id_hint": "Please enter the Ad Slot ID from your advertising platform",
                     "slot_id_placeholder": "Example: ca-pub-1234567890/1234567890",
-                    "status": "Status",
                     "title": "Ad Placements"
                 }
             }

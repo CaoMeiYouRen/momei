@@ -68,7 +68,7 @@
                         <template #icon>
                             <component :is="copied ? Check : Copy" :size="14" />
                         </template>
-                        {{ copied ? $t('pages.admin.posts.social_post.copy_success') : $t('pages.admin.posts.social_post.copy_btn') }}
+                        {{ copied ? $t('pages.admin.posts.social_post.copy_success') : $t('common.copy') }}
                     </CaomeiButton>
                 </div>
             </div>

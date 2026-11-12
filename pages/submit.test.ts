@@ -76,11 +76,11 @@ const translate = (key: string) => {
             return 'you@example.com'
         case 'pages.submit.form.url':
             return 'Website'
-        case 'pages.submit.form.url_placeholder':
-            return 'https://example.com'
+        case 'common.optional':
+            return 'Optional'
         case 'pages.submit.form.submit':
             return 'Submit now'
-        case 'pages.submit.form.submitting':
+        case 'common.submitting':
             return 'Submitting...'
         case 'pages.submit.form.captcha_required':
             return 'Please complete the captcha first'

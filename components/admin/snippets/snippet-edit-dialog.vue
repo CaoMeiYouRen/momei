@@ -90,7 +90,7 @@
             </div>
 
             <div class="edit-field">
-                <label for="status" class="field-label">{{ t('pages.admin.snippets.status') }}</label>
+                <label for="status" class="field-label">{{ t('common.status_label') }}</label>
                 <CaomeiSelect
                     id="status"
                     v-model="form.status"

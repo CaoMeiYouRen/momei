@@ -17,9 +17,7 @@
                 "email": "Email Address",
                 "email_placeholder": "For review feedback",
                 "url": "Personal Site",
-                "url_placeholder": "Optional",
                 "submit": "Submit Post",
-                "submitting": "Submitting...",
                 "success": "Submission successful! Please wait for admin review. We will notify you of the result via email.",
                 "error": "Submission failed, please try again later.",
                 "captcha_required": "Please complete the captcha verification"
@@ -61,44 +59,19 @@
             }
         },
         "error": {
-            "title": "An error occurred",
             "404_title": "Page Not Found",
-            "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page.",
-            "back_home": "Back to Home",
-            "retry": "Retry"
+            "404_desc": "Sorry, the page you are looking for does not exist or has been moved. You can try searching for something else or return to the home page."
         },
         "user_agreement": {
             "title": "User Agreement",
-            "version_label": "Version: {version}",
-            "effective_date_label": "Effective date: {date}",
-            "last_updated_label": "Last updated: {date}",
-            "version_fallback": "Unversioned",
             "date_fallback": "Not set",
-            "reference_translation_tag": "Reference Translation",
-            "authoritative_version_tag": "Authoritative Version",
-            "current_active_tag": "Current Active",
-            "reference_translation_notice": "This language is presented as a reference translation. The authoritative version is {language} / {version}. In case of legal interpretation differences, the authoritative version prevails.",
-            "fallback_notice": "No localized version is available for this language yet. Showing the authoritative {language} version instead.",
-            "history_title": "Version History",
-            "history_no_description": "No version notes",
             "meta": {
                 "description": "Read the Momei user agreement to understand the terms for access, registration, publishing, and site usage."
             }
         },
         "privacy_policy": {
             "title": "Privacy Policy",
-            "version_label": "Version: {version}",
-            "effective_date_label": "Effective date: {date}",
-            "last_updated_label": "Last updated: {date}",
-            "version_fallback": "Unversioned",
             "date_fallback": "Not set",
-            "reference_translation_tag": "Reference Translation",
-            "authoritative_version_tag": "Authoritative Version",
-            "current_active_tag": "Current Active",
-            "reference_translation_notice": "This language is presented as a reference translation. The authoritative version is {language} / {version}. In case of legal interpretation differences, the authoritative version prevails.",
-            "fallback_notice": "No localized version is available for this language yet. Showing the authoritative {language} version instead.",
-            "history_title": "Version History",
-            "history_no_description": "No version notes",
             "meta": {
                 "description": "Review the latest Momei privacy policy covering data collection, storage, processing, and your rights as a user."
             }
@@ -180,7 +153,6 @@
             }
         },
         "links": {
-            "title": "Friend Links",
             "subtitle": "A curated list of independent sites and creators we genuinely want to keep recommending.",
             "meta": {
                 "description": "Browse the Momei friend links page and submit your own site for review."
@@ -212,7 +184,6 @@
                 "reciprocal_url": "Reciprocal Link Page",
                 "message": "Additional Notes",
                 "submit": "Submit Application",
-                "submitting": "Submitting...",
                 "success": "Application submitted successfully and pending admin review.",
                 "error": "Failed to submit application. Please try again later.",
                 "captcha_required": "Please complete captcha verification first"
@@ -262,11 +233,26 @@
             "free_core": {
                 "heading": "Momei Open-Source Free Core",
                 "items": [
-                    { "title": "AI Writing Assistant", "desc": "Smart title suggestions, auto-summaries, and tag extraction — full AI support for single articles." },
-                    { "title": "Native Multi-Language UI", "desc": "Five-language interface (zh/en/ja/ko/zh-TW) with internationalization baked in, not patched on." },
-                    { "title": "Single-Article AI Translation", "desc": "One-click translation to target languages with translation clusters and auto-routing for cross-language readers." },
-                    { "title": "Basic Content Distribution", "desc": "RSS / Atom / JSON Feed, sitemap, SEO metadata — search-engine friendly out of the box." },
-                    { "title": "Self-Hosted & Open Source", "desc": "Fully open source under MIT license. Deploy, modify, and extend freely." }
+                    {
+                        "title": "AI Writing Assistant",
+                        "desc": "Smart title suggestions, auto-summaries, and tag extraction — full AI support for single articles."
+                    },
+                    {
+                        "title": "Native Multi-Language UI",
+                        "desc": "Five-language interface (zh/en/ja/ko/zh-TW) with internationalization baked in, not patched on."
+                    },
+                    {
+                        "title": "Single-Article AI Translation",
+                        "desc": "One-click translation to target languages with translation clusters and auto-routing for cross-language readers."
+                    },
+                    {
+                        "title": "Basic Content Distribution",
+                        "desc": "RSS / Atom / JSON Feed, sitemap, SEO metadata — search-engine friendly out of the box."
+                    },
+                    {
+                        "title": "Self-Hosted & Open Source",
+                        "desc": "Fully open source under MIT license. Deploy, modify, and extend freely."
+                    }
                 ]
             },
             "premium": {
@@ -306,10 +292,22 @@
             "faq": {
                 "heading": "FAQ",
                 "items": [
-                    { "q": "Will the Enhanced Pack affect my existing blog?", "a": "No. The Enhanced Pack is an optional value-added service on top of the Momei open-source core. Without it, your blog runs exactly as before." },
-                    { "q": "Do I need to migrate my blog somewhere else?", "a": "No. The Enhanced Pack extends your existing Momei deployment — no data migration or platform switch is needed." },
-                    { "q": "Can I purchase the Enhanced Pack now?", "a": "The Enhanced Pack is still in development and validation. Join the waitlist to be notified when it opens, and get invited to early access." },
-                    { "q": "What happens after I join the waitlist?", "a": "We will contact you via the email you provide with updates on progress, early access opportunities, and the official launch timeline." }
+                    {
+                        "q": "Will the Enhanced Pack affect my existing blog?",
+                        "a": "No. The Enhanced Pack is an optional value-added service on top of the Momei open-source core. Without it, your blog runs exactly as before."
+                    },
+                    {
+                        "q": "Do I need to migrate my blog somewhere else?",
+                        "a": "No. The Enhanced Pack extends your existing Momei deployment — no data migration or platform switch is needed."
+                    },
+                    {
+                        "q": "Can I purchase the Enhanced Pack now?",
+                        "a": "The Enhanced Pack is still in development and validation. Join the waitlist to be notified when it opens, and get invited to early access."
+                    },
+                    {
+                        "q": "What happens after I join the waitlist?",
+                        "a": "We will contact you via the email you provide with updates on progress, early access opportunities, and the official launch timeline."
+                    }
                 ]
             },
             "cta_form": {
@@ -320,7 +318,6 @@
                 "email_label": "Email Address",
                 "email_placeholder": "For receiving launch notifications",
                 "submit": "Join Waitlist",
-                "submitting": "Submitting...",
                 "success": "You've been added to the waitlist! We'll notify you as soon as the Enhanced Pack opens.",
                 "error": "Submission failed, please try again later.",
                 "privacy_note": "We will only use this email to send Enhanced Pack related notifications."

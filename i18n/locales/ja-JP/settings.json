@@ -8,7 +8,6 @@
                 "upload": "アバターをアップロード",
                 "upload_success": "アバターを更新しました",
                 "upload_failed": "アバターのアップロードに失敗しました",
-                "name": "表示名",
                 "language": "UI 言語",
                 "timezone": "タイムゾーン",
                 "save": "変更を保存",
@@ -19,7 +18,6 @@
                 "change_password": "パスワード変更",
                 "set_password_hint": "まだパスワードを設定していない場合（OAuth でログインした場合など）や、現在のパスワードを忘れた場合は、",
                 "current_password": "現在のパスワード",
-                "new_password": "新しいパスワード",
                 "confirm_password": "新しいパスワードの確認",
                 "update_password": "パスワードを更新",
                 "password_updated": "パスワードを更新しました",
@@ -37,12 +35,10 @@
                 "create_btn": "新しいキーを作成",
                 "new_key_title": "新しい API キー",
                 "new_key_hint": "セキュリティ上の理由から、API キーはこの画面で必ず保存してください。後から再表示できません。",
-                "name": "名称",
                 "prefix": "接頭辞",
                 "expires_at": "有効期限",
                 "never_expires": "無期限",
                 "expired_at_options": {
-                    "never": "無期限",
                     "7d": "7日",
                     "30d": "30日",
                     "365d": "365日"
@@ -111,10 +107,8 @@
                         "unread": "未読"
                     },
                     "columns": {
-                        "time": "時刻",
                         "type": "種別",
                         "content": "内容",
-                        "status": "状態",
                         "target": "対象"
                     }
                 }

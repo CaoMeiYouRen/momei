@@ -59,7 +59,7 @@
                 >
                     <div class="register-form__field">
                         <label for="name">{{
-                            $t("pages.register.name")
+                            $t("common.nickname")
                         }}</label>
                         <CaomeiInput
                             id="name"
@@ -80,7 +80,7 @@
 
                     <div class="register-form__field">
                         <label for="email">{{
-                            $t("pages.register.email")
+                            $t("common.email")
                         }}</label>
                         <CaomeiInput
                             id="email"
@@ -101,7 +101,7 @@
 
                     <div class="register-form__field">
                         <label for="password">{{
-                            $t("pages.register.password")
+                            $t("common.password")
                         }}</label>
                         <CaomeiPassword
                             id="password"

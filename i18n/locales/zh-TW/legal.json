@@ -5,6 +5,17 @@
     "agreement_checkbox": "我已閱讀並同意 {agreement} 與 {privacy}",
     "login_notice": "登入即代表您同意 {agreement} 與 {privacy}",
     "notice": "注意：本協議與政策僅作為範例提供。本專案的開發者不對任何部署實例承擔法律責任。具體法律協議由目前網站的營運方與您簽訂，實際法律責任由網站部署者承擔。",
-    "agreement_required": "請閱讀並同意使用者協議與隱私政策"
+    "agreement_required": "請閱讀並同意使用者協議與隱私政策",
+    "authoritative_version_tag": "權威版本",
+    "current_active_tag": "目前生效",
+    "effective_date_label": "生效日期：{date}",
+    "fallback_notice": "目前語言尚無獨立版本，正在顯示 {language} 的權威版本。",
+    "history_no_description": "暫無版本說明",
+    "history_title": "歷史版本",
+    "last_updated_label": "最近更新：{date}",
+    "reference_translation_notice": "目前語言內容為參考翻譯，對應的權威版本為 {language} / {version}。若有法律解釋差異，請以權威版本為準。",
+    "reference_translation_tag": "參考翻譯",
+    "version_fallback": "未標記版本",
+    "version_label": "版本：{version}"
   }
 }

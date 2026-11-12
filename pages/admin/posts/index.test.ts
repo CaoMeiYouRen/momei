@@ -531,7 +531,7 @@ describe('AdminPostsPage', () => {
 
         const select = wrapper.find('.caomei-select')
         expect(select.attributes('data-show-clear')).toBe('true')
-        expect(select.attributes('data-placeholder')).toBe('pages.admin.posts.status')
+        expect(select.attributes('data-placeholder')).toBe('common.status_label')
         expect(select.find('select').attributes('data-options')).toBe('published,scheduled,draft,pending,rejected,hidden')
     })
 

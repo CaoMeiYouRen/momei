@@ -146,7 +146,6 @@
                     "voice_model_ready": "AI 模型已就绪",
                     "voice_permission_denied": "未获得麦克风权限",
                     "voice_refine_insert": "AI 润色后插入",
-                    "voice_retry": "重试",
                     "voice_scaffold_insert": "AI 整理大纲后插入",
                     "voice_scaffold_processing": "正在整理大纲...",
                     "voice_unsupported": "当前浏览器不支持语音识别，请尝试使用 Chrome 或 Edge。"
@@ -325,7 +324,6 @@
                 },
                 "slug": "URL Slug",
                 "slug_hint": "文章的自定义链接路径",
-                "status": "状态",
                 "summary_placeholder": "文章摘要...",
                 "tags_hint": "输入标签名称并回车",
                 "tags_placeholder": "输入标签...",
@@ -433,7 +431,6 @@
                         "siliconflow": "SiliconFlow",
                         "volcengine": "火山引擎"
                     },
-                    "regenerate": "重新生成",
                     "select_provider": "选择 TTS 服务商",
                     "select_voice": "选择朗读音色",
                     "start_generate": "开始生成",
@@ -461,8 +458,6 @@
                 "version_restore_success": "已恢复该版本并生成新的线性版本记录",
                 "version_rollback_confirm": "确定要回滚到该版本吗？当前编辑器的内容将被覆盖（保存后生效）。",
                 "version_sources": {
-                    "create": "创建",
-                    "edit": "编辑",
                     "restore": "恢复",
                     "rollback_recovery": "恢复失败修复"
                 },
@@ -552,7 +547,6 @@
                     "platform_label": "选择平台",
                     "generate_btn": "AI 生成社交帖子",
                     "generating": "正在生成...",
-                    "copy_btn": "复制",
                     "copy_success": "已复制",
                     "generate_failed": "社交帖子生成失败"
                 }

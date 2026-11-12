@@ -71,7 +71,6 @@
                 "quota_units": "쿼터 단위",
                 "result": "결과 데이터",
                 "stats": "사용 통계",
-                "status": "상태",
                 "statuses": {
                     "completed": "완료",
                     "failed": "실패",

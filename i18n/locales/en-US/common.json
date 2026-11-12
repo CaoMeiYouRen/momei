@@ -178,14 +178,23 @@
             "unsupported": "Voice input is not supported in this browser. Please try Chrome or Edge.",
             "error": "Voice recognition error",
             "permission_denied": "Microphone permission denied",
-            "retry": "Retry",
             "mode_basic": "Basic (Web)",
             "mode_cloud_batch": "Precision (Cloud Batch)",
             "mode_cloud_stream": "Instant (Cloud Stream)",
             "model_ready": "Cloud voice mode is ready",
             "aria_button_start": "Start voice input",
             "aria_button_stop": "Stop voice input"
-        }
+        },
+        "status_label": "Status",
+        "time": "Time",
+        "expiry_never": "Never",
+        "nickname": "Nickname",
+        "new_password": "New Password",
+        "submitting": "Submitting...",
+        "email_required": "Email is required",
+        "password": "Password",
+        "password_required": "Password is required",
+        "reset_password": "Reset Password"
     },
     "error": {
         "unauthorized": "Unauthorized, please login first",
@@ -201,7 +210,6 @@
         "auto_continue": "Redirecting in {seconds} seconds...",
         "continue_now": "Continue Now",
         "cancel": "Go Back",
-        "back_home": "Back to Home",
         "disclaimer": "You are about to visit an external website. We are not responsible for the content of external sites.",
         "error": {
             "title": "Link Not Available",

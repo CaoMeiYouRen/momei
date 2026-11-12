@@ -310,7 +310,7 @@ const columns = computed<DataTableColumn<AdPlacement>[]>(() => [
     { key: 'location', header: t('pages.admin.ad.placements.location') },
     { key: 'format', header: t('pages.admin.ad.placements.format') },
     { key: 'adapterId', header: t('pages.admin.ad.placements.adapter') },
-    { key: 'enabled', header: t('pages.admin.ad.placements.status') },
+    { key: 'enabled', header: t('common.status_label') },
     { key: 'priority', header: t('pages.admin.ad.placements.priority'), sortable: true },
     {
         key: 'actions',

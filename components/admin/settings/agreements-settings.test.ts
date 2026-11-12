@@ -19,7 +19,7 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.agreements.aggregated_view_help': '聚合查看会按权威版本合并展示，并优先显示当前界面语言对应的译本。',
     'pages.admin.settings.system.agreements.flat_view_help': '完整列表会展开全部语言和版本，便于逐条编辑、切换和排查。',
     'pages.admin.settings.system.agreements.no_active_version': '尚未设置',
-    'pages.admin.settings.system.agreements.language': '语言',
+    'common.language': '语言',
     'pages.admin.settings.system.agreements.version': '版本号',
     'pages.admin.settings.system.agreements.version_description': '版本说明',
     'pages.admin.settings.system.agreements.content': '协议内容',
@@ -37,6 +37,7 @@ const translations: Record<string, string> = {
     'pages.admin.settings.system.agreements.edit': '编辑协议',
     'pages.admin.settings.system.agreements.create': '创建新协议',
     'common.add': '新增',
+    'common.status_label': '状态',
     'common.refresh': '刷新',
     'common.cancel': '取消',
     'common.save': '保存',
@@ -44,9 +45,7 @@ const translations: Record<string, string> = {
     'common.languages.en-US': 'English',
 }
 
-function translate(key: string) {
-    return translations[key] || key
-}
+const translate = vi.fn((key: string) => translations[key] || key)
 
 const mockToast = createLegacyToastApi(vi.fn())
 
@@ -232,6 +231,7 @@ describe('AgreementsSettings', () => {
         await languageSelect.setValue('en-US')
         await flushPromises()
 
+        expect(translate).toHaveBeenCalledWith('common.status_label')
         expect(wrapper.text()).toContain('对应权威版本')
         expect(wrapper.text()).toContain('参考翻译会跟随这里选中的权威版本一起展示。')
     })

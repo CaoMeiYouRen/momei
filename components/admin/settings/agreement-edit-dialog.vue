@@ -9,7 +9,7 @@
         @update:open="dialogVisible = $event"
     >
         <div class="agreements-settings__field">
-            <label for="language">{{ $t('pages.admin.settings.system.agreements.language') }}</label>
+            <label for="language">{{ $t('common.language') }}</label>
             <CaomeiSelect
                 id="language"
                 v-model="languageValue"

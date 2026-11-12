@@ -146,7 +146,6 @@
                     "voice_model_ready": "AI 模型已就緒",
                     "voice_permission_denied": "未取得麥克風權限",
                     "voice_refine_insert": "AI 潤飾後插入",
-                    "voice_retry": "重試",
                     "voice_scaffold_insert": "AI 整理大綱後插入",
                     "voice_scaffold_processing": "正在整理大綱...",
                     "voice_unsupported": "目前瀏覽器不支援語音辨識，請嘗試使用 Chrome 或 Edge。"
@@ -325,7 +324,6 @@
                 },
                 "slug": "URL Slug",
                 "slug_hint": "文章的自訂連結路徑",
-                "status": "狀態",
                 "summary_placeholder": "文章摘要...",
                 "tags_hint": "輸入標籤名稱後按 Enter",
                 "tags_placeholder": "輸入標籤...",
@@ -433,7 +431,6 @@
                         "siliconflow": "SiliconFlow",
                         "volcengine": "火山引擎"
                     },
-                    "regenerate": "重新產生",
                     "select_provider": "選擇 TTS 服務商",
                     "select_voice": "選擇朗讀音色",
                     "start_generate": "開始產生",
@@ -461,8 +458,6 @@
                 "version_restore_success": "已恢復該版本並產生新的線性版本紀錄",
                 "version_rollback_confirm": "確定要回滾到此版本嗎？目前編輯器的內容將被覆蓋（儲存後生效）。",
                 "version_sources": {
-                    "create": "建立",
-                    "edit": "編輯",
                     "restore": "恢復",
                     "rollback_recovery": "恢復失敗修復"
                 },
@@ -552,7 +547,6 @@
                     "platform_label": "選擇平台",
                     "generate_btn": "AI 產生社群貼文",
                     "generating": "正在產生...",
-                    "copy_btn": "複製",
                     "copy_success": "已複製",
                     "generate_failed": "社群貼文產生失敗"
                 }

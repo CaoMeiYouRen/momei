@@ -17,7 +17,6 @@
                 "edit_role": "ロールを変更",
                 "expires_at": "期限",
                 "expiry": {
-                    "never": "無期限",
                     "one_day": "1 日",
                     "one_month": "1 か月",
                     "one_week": "1 週間"
@@ -55,7 +54,6 @@
                 "search_placeholder": "名前またはメールを検索...",
                 "select_role": "新しいロールを選択",
                 "sessions": "アクティブセッション",
-                "status": "状態",
                 "status_options": {
                     "active": "正常",
                     "all": "すべての状態",

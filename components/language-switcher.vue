@@ -1,14 +1,14 @@
 <template>
     <CaomeiDropdownMenu>
         <CaomeiDropdownMenuTrigger as-child>
-            <AppTooltip :content="$t('components.header.language')" side="bottom">
+            <AppTooltip :content="$t('common.language')" side="bottom">
                 <CaomeiButton
                     v-bind="attrs"
                     type="button"
                     variant="ghost"
                     rounded
                     icon-only
-                    :label="$t('components.header.language')"
+                    :label="$t('common.language')"
                 >
                     <template #icon>
                         <Globe :size="16" />

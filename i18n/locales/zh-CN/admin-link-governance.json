@@ -13,9 +13,7 @@
                     "created_at": "创建时间",
                     "mode": "模式",
                     "redirects": "Redirect Seeds",
-                    "requested_by": "发起人",
-                    "status": "状态",
-                    "summary": "摘要"
+                    "requested_by": "发起人"
                 },
                 "content_types": {
                     "asset-record": "资源记录",

@@ -62,7 +62,7 @@
                             :options="statuses"
                             option-label="label"
                             option-value="value"
-                            :placeholder="$t('pages.admin.posts.status')"
+                            :placeholder="$t('common.status_label')"
                             show-clear
                             @update:model-value="load"
                         />
@@ -418,7 +418,7 @@ const columns = computed<DataTableColumn<Post>[]>(() => {
         },
         {
             key: 'status',
-            header: t('pages.admin.posts.status'),
+            header: t('common.status_label'),
             sortable: true,
             headerStyle: { minWidth: '7rem' },
             headerClass: 'hidden md:table-cell',

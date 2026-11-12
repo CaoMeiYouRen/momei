@@ -14,36 +14,36 @@ interface UseLegalAgreementPageOptions {
 function createLegalAgreementPageCopy(t: ReturnType<typeof useI18n>['t'], agreementType: AgreementPublicPayload['type']) {
     if (agreementType === 'privacy_policy') {
         return {
-            authoritativeVersionTag: t('pages.privacy_policy.authoritative_version_tag'),
-            currentActiveTag: t('pages.privacy_policy.current_active_tag'),
-            formatEffectiveDateLabel: (date: string) => t('pages.privacy_policy.effective_date_label', { date }),
-            formatFallbackNotice: (language: string) => t('pages.privacy_policy.fallback_notice', { language }),
-            formatLastUpdatedLabel: (date: string) => t('pages.privacy_policy.last_updated_label', { date }),
-            formatReferenceTranslationNotice: (language: string, version: string) => t('pages.privacy_policy.reference_translation_notice', { language, version }),
-            formatVersionLabel: (version: string) => t('pages.privacy_policy.version_label', { version }),
-            historyNoDescription: t('pages.privacy_policy.history_no_description'),
-            historyTitle: t('pages.privacy_policy.history_title'),
+            authoritativeVersionTag: t('legal.authoritative_version_tag'),
+            currentActiveTag: t('legal.current_active_tag'),
+            formatEffectiveDateLabel: (date: string) => t('legal.effective_date_label', { date }),
+            formatFallbackNotice: (language: string) => t('legal.fallback_notice', { language }),
+            formatLastUpdatedLabel: (date: string) => t('legal.last_updated_label', { date }),
+            formatReferenceTranslationNotice: (language: string, version: string) => t('legal.reference_translation_notice', { language, version }),
+            formatVersionLabel: (version: string) => t('legal.version_label', { version }),
+            historyNoDescription: t('legal.history_no_description'),
+            historyTitle: t('legal.history_title'),
             legalNotice: t('legal.notice'),
-            referenceTranslationTag: t('pages.privacy_policy.reference_translation_tag'),
+            referenceTranslationTag: t('legal.reference_translation_tag'),
             title: t('pages.privacy_policy.title'),
-            versionFallback: t('pages.privacy_policy.version_fallback'),
+            versionFallback: t('legal.version_fallback'),
         }
     }
 
     return {
-        authoritativeVersionTag: t('pages.user_agreement.authoritative_version_tag'),
-        currentActiveTag: t('pages.user_agreement.current_active_tag'),
-        formatEffectiveDateLabel: (date: string) => t('pages.user_agreement.effective_date_label', { date }),
-        formatFallbackNotice: (language: string) => t('pages.user_agreement.fallback_notice', { language }),
-        formatLastUpdatedLabel: (date: string) => t('pages.user_agreement.last_updated_label', { date }),
-        formatReferenceTranslationNotice: (language: string, version: string) => t('pages.user_agreement.reference_translation_notice', { language, version }),
-        formatVersionLabel: (version: string) => t('pages.user_agreement.version_label', { version }),
-        historyNoDescription: t('pages.user_agreement.history_no_description'),
-        historyTitle: t('pages.user_agreement.history_title'),
+        authoritativeVersionTag: t('legal.authoritative_version_tag'),
+        currentActiveTag: t('legal.current_active_tag'),
+        formatEffectiveDateLabel: (date: string) => t('legal.effective_date_label', { date }),
+        formatFallbackNotice: (language: string) => t('legal.fallback_notice', { language }),
+        formatLastUpdatedLabel: (date: string) => t('legal.last_updated_label', { date }),
+        formatReferenceTranslationNotice: (language: string, version: string) => t('legal.reference_translation_notice', { language, version }),
+        formatVersionLabel: (version: string) => t('legal.version_label', { version }),
+        historyNoDescription: t('legal.history_no_description'),
+        historyTitle: t('legal.history_title'),
         legalNotice: t('legal.notice'),
-        referenceTranslationTag: t('pages.user_agreement.reference_translation_tag'),
+        referenceTranslationTag: t('legal.reference_translation_tag'),
         title: t('pages.user_agreement.title'),
-        versionFallback: t('pages.user_agreement.version_fallback'),
+        versionFallback: t('legal.version_fallback'),
     }
 }
 

@@ -22,7 +22,6 @@
                 "show_redirect": "리디렉션 페이지",
                 "show_redirect_page": "리디렉션 페이지 표시",
                 "stats": "통계",
-                "status": "상태",
                 "statuses": {
                     "active": "활성",
                     "blocked": "차단됨",

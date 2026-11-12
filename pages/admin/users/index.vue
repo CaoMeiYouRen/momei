@@ -201,7 +201,7 @@ const { showErrorToast, showSuccessToast } = useRequestFeedback()
 const columns = computed<DataTableColumn<any>[]>(() => [
     { key: 'name', header: t('pages.admin.users.user'), sortable: true },
     { key: 'role', header: t('pages.admin.users.role'), sortable: true },
-    { key: 'banned', header: t('pages.admin.users.status') },
+    { key: 'banned', header: t('common.status_label') },
     { key: 'createdAt', header: t('pages.admin.users.created_at'), sortable: true },
     { key: 'actions', header: t('common.actions') },
 ])

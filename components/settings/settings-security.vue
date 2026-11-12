@@ -25,7 +25,7 @@
                     />
                 </div>
                 <div class="settings-form__field">
-                    <label for="newPassword">{{ $t("pages.settings.security.new_password") }}</label>
+                    <label for="newPassword">{{ $t("common.new_password") }}</label>
                     <CaomeiPassword
                         id="newPassword"
                         v-model="passwordForm.newPassword"

@@ -6,7 +6,7 @@
                     {{ tt('common.friend_links') }}
                 </p>
                 <h1 class="links-page__title">
-                    {{ tt('pages.links.title') }}
+                    {{ tt('common.friend_links') }}
                 </h1>
                 <p class="links-page__subtitle">
                     {{ tt('pages.links.subtitle') }}
@@ -242,7 +242,7 @@
                                 type="submit"
                                 :loading="submitting"
                             >
-                                {{ submitting ? tt('pages.links.form.submitting') : tt('pages.links.form.submit') }}
+                                {{ submitting ? tt('common.submitting') : tt('pages.links.form.submit') }}
                             </CaomeiButton>
                         </div>
                     </form>
@@ -296,7 +296,7 @@ const canUploadLogo = computed(() => Boolean(user.value))
 
 usePageSeo({
     type: 'website',
-    title: () => tt('pages.links.title'),
+    title: () => tt('common.friend_links'),
     description: () => tt('pages.links.meta.description'),
 })
 

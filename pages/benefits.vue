@@ -207,7 +207,7 @@
                             :disabled="isSubmitting"
                         >
                             {{ isSubmitting
-                                ? $t('pages.enhanced_pack.cta_form.submitting')
+                                ? $t('common.submitting')
                                 : $t('pages.enhanced_pack.cta_form.submit')
                             }}
                         </button>

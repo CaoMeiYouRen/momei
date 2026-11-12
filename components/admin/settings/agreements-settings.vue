@@ -409,10 +409,10 @@ function getReviewStatusLabel(status: AgreementReviewStatus) {
 
 const agreementColumns = computed<DataTableColumn<AgreementAdminItem>[]>(() => [
     { key: 'version', header: t('pages.admin.settings.system.agreements.version') },
-    { key: 'language', header: t('pages.admin.settings.system.agreements.language') },
+    { key: 'language', header: t('common.language') },
     { key: 'role', header: translateAgreement('role') },
     { key: 'relation', header: translateAgreement('relation') },
-    { key: 'status', header: translateAgreement('status') },
+    { key: 'status', header: t('common.status_label') },
     { key: 'effectiveDate', header: translateAgreement('effective_date') },
     { key: 'updatedAt', header: translateAgreement('updated_at') },
     { key: 'versionDescription', header: t('pages.admin.settings.system.agreements.version_description') },

@@ -17,9 +17,7 @@
                 "email": "電子郵件",
                 "email_placeholder": "用於接收審核回饋",
                 "url": "個人網站",
-                "url_placeholder": "可選",
                 "submit": "立即投稿",
-                "submitting": "提交中...",
                 "success": "投稿成功！請等待管理員審核，我們會透過電子郵件通知您結果。",
                 "error": "投稿失敗，請稍後再試。",
                 "captcha_required": "請完成驗證碼校驗"
@@ -61,44 +59,19 @@
             }
         },
         "error": {
-            "title": "發生錯誤",
             "404_title": "找不到頁面",
-            "404_desc": "抱歉，您造訪的頁面不存在或已被移除。您可以嘗試搜尋其他內容或返回首頁。",
-            "back_home": "返回首頁",
-            "retry": "重試"
+            "404_desc": "抱歉，您造訪的頁面不存在或已被移除。您可以嘗試搜尋其他內容或返回首頁。"
         },
         "user_agreement": {
             "title": "使用者協議",
-            "version_label": "版本：{version}",
-            "effective_date_label": "生效日期：{date}",
-            "last_updated_label": "最近更新：{date}",
-            "version_fallback": "未標記版本",
             "date_fallback": "未設定",
-            "reference_translation_tag": "參考翻譯",
-            "authoritative_version_tag": "權威版本",
-            "current_active_tag": "目前生效",
-            "reference_translation_notice": "目前語言內容為參考翻譯，對應的權威版本為 {language} / {version}。若有法律解釋差異，請以權威版本為準。",
-            "fallback_notice": "目前語言尚無獨立版本，正在顯示 {language} 的權威版本。",
-            "history_title": "歷史版本",
-            "history_no_description": "暫無版本說明",
             "meta": {
                 "description": "查看墨梅部落格的使用者協議與站點使用條款，了解存取、註冊與內容發佈的相關規則。"
             }
         },
         "privacy_policy": {
             "title": "隱私權政策",
-            "version_label": "版本：{version}",
-            "effective_date_label": "生效日期：{date}",
-            "last_updated_label": "最近更新：{date}",
-            "version_fallback": "未標記版本",
             "date_fallback": "未設定",
-            "reference_translation_tag": "參考翻譯",
-            "authoritative_version_tag": "權威版本",
-            "current_active_tag": "目前生效",
-            "reference_translation_notice": "目前語言內容為參考翻譯，對應的權威版本為 {language} / {version}。若有法律解釋差異，請以權威版本為準。",
-            "fallback_notice": "目前語言尚無獨立版本，正在顯示 {language} 的權威版本。",
-            "history_title": "歷史版本",
-            "history_no_description": "暫無版本說明",
             "meta": {
                 "description": "查看墨梅部落格關於資料蒐集、使用、儲存與使用者權利說明的最新隱私權政策。"
             }
@@ -180,7 +153,6 @@
             }
         },
         "links": {
-            "title": "友情連結",
             "subtitle": "記錄那些我們願意長期互相看見、互相推薦的獨立站點與創作者。",
             "meta": {
                 "description": "瀏覽墨梅部落格的友情連結頁面，查看精選站點，並提交您的友鏈申請。"
@@ -212,7 +184,6 @@
                 "reciprocal_url": "互鏈頁面位址",
                 "message": "補充說明",
                 "submit": "提交申請",
-                "submitting": "提交中...",
                 "success": "申請已提交，等待管理員審核。",
                 "error": "提交失敗，請稍後再試。",
                 "captcha_required": "請先完成驗證碼校驗"
@@ -228,7 +199,7 @@
                 "description": "瀏覽墨梅部落格熱門標籤雲，依技術主題聚合探索相關文章與創作線索。"
             }
         },
-            "archives": {
+        "archives": {
             "meta": {
                 "description": "按年份與月份瀏覽墨梅部落格的歷史文章歸檔，快速回顧過往內容與更新軌跡。"
             },
@@ -262,11 +233,26 @@
             "free_core": {
                 "heading": "墨梅開源免費核心",
                 "items": [
-                    { "title": "AI 創作助手", "desc": "智能標題建議、自動摘要產生、標籤提取 — 單篇文章的 AI 輔助全覆蓋。" },
-                    { "title": "原生多語言介面", "desc": "中英日韓繁五語 UI，國際化從根本支援，不是事後翻譯補丁。" },
-                    { "title": "單篇 AI 翻譯", "desc": "一鍵將文章翻譯到目標語言，形成翻譯簇，跨語言讀者自動路由到對應版本。" },
-                    { "title": "內容分發基礎能力", "desc": "RSS / Atom / JSON Feed、Sitemap、SEO 元資訊，開箱即用的搜尋引擎友好。" },
-                    { "title": "自部署 & 開源", "desc": "完全開源，MIT 協議，你可以自由部署、修改、擴充。" }
+                    {
+                        "title": "AI 創作助手",
+                        "desc": "智能標題建議、自動摘要產生、標籤提取 — 單篇文章的 AI 輔助全覆蓋。"
+                    },
+                    {
+                        "title": "原生多語言介面",
+                        "desc": "中英日韓繁五語 UI，國際化從根本支援，不是事後翻譯補丁。"
+                    },
+                    {
+                        "title": "單篇 AI 翻譯",
+                        "desc": "一鍵將文章翻譯到目標語言，形成翻譯簇，跨語言讀者自動路由到對應版本。"
+                    },
+                    {
+                        "title": "內容分發基礎能力",
+                        "desc": "RSS / Atom / JSON Feed、Sitemap、SEO 元資訊，開箱即用的搜尋引擎友好。"
+                    },
+                    {
+                        "title": "自部署 & 開源",
+                        "desc": "完全開源，MIT 協議，你可以自由部署、修改、擴充。"
+                    }
                 ]
             },
             "premium": {
@@ -306,10 +292,22 @@
             "faq": {
                 "heading": "常見問題",
                 "items": [
-                    { "q": "增強包會影響我現有的部落格嗎？", "a": "不會。增強包是墨梅開源核心之上的可選增值服務，不安裝增強包時，你的部落格完全照常運作。" },
-                    { "q": "我需要把部落格遷移到其他地方嗎？", "a": "不需要。增強包是對你已有墨梅部署的能力延伸，不需要資料遷移或平台切換。" },
-                    { "q": "增強包現在可以購買嗎？", "a": "目前增強包還在開發與驗證階段。你可以加入候補名單，我們會在開放時第一時間通知你，並邀請早期使用者參與內測。" },
-                    { "q": "候補名單的後續流程是什麼？", "a": "我們會透過你留下的電子郵件與你聯繫，分享增強包的最新進展、早期試用機會與正式上線時間。" }
+                    {
+                        "q": "增強包會影響我現有的部落格嗎？",
+                        "a": "不會。增強包是墨梅開源核心之上的可選增值服務，不安裝增強包時，你的部落格完全照常運作。"
+                    },
+                    {
+                        "q": "我需要把部落格遷移到其他地方嗎？",
+                        "a": "不需要。增強包是對你已有墨梅部署的能力延伸，不需要資料遷移或平台切換。"
+                    },
+                    {
+                        "q": "增強包現在可以購買嗎？",
+                        "a": "目前增強包還在開發與驗證階段。你可以加入候補名單，我們會在開放時第一時間通知你，並邀請早期使用者參與內測。"
+                    },
+                    {
+                        "q": "候補名單的後續流程是什麼？",
+                        "a": "我們會透過你留下的電子郵件與你聯繫，分享增強包的最新進展、早期試用機會與正式上線時間。"
+                    }
                 ]
             },
             "cta_form": {
@@ -320,7 +318,6 @@
                 "email_label": "電子郵件",
                 "email_placeholder": "用於接收增強包上線通知",
                 "submit": "加入候補名單",
-                "submitting": "提交中...",
                 "success": "已成功加入候補名單！我們會在增強包開放時第一時間通知你。",
                 "error": "提交失敗，請稍後再試。",
                 "privacy_note": "我們只會用此電子郵件發送增強包相關通知，不會用於其他目的。"

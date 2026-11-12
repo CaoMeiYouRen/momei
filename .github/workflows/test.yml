@@ -132,6 +132,8 @@ jobs:
       - run: pnpm run lint:i18n
       - run: pnpm run lint:css
       - run: pnpm run i18n:audit:missing
+      # 重复键预算与 allowlist 双向校验：预算 / 未登记 / 失效 / 重复 id / 缺字段 / 到期 / keys 漂移均阻断。
+      - run: pnpm run i18n:audit:duplicates:gate
       # 原文级重复键当前为可观测面（warn 恒绿），阻断口径待基线稳定后再收紧。
       - run: pnpm run i18n:audit:raw-duplicates
       - run: pnpm run docs:check:links

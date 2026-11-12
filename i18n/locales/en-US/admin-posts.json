@@ -146,7 +146,6 @@
                     "voice_model_ready": "AI model ready",
                     "voice_permission_denied": "Microphone access denied",
                     "voice_refine_insert": "Refine with AI and Insert",
-                    "voice_retry": "Retry",
                     "voice_scaffold_insert": "Outline with AI and Insert",
                     "voice_scaffold_processing": "Generating outline...",
                     "voice_unsupported": "Speech recognition is not supported in this browser. Please try Chrome or Edge."
@@ -325,7 +324,6 @@
                 },
                 "slug": "URL Slug",
                 "slug_hint": "Custom URL path for this post",
-                "status": "Status",
                 "summary_placeholder": "Post summary...",
                 "tags_hint": "Type a tag name and press Enter",
                 "tags_placeholder": "Enter tags...",
@@ -433,7 +431,6 @@
                         "siliconflow": "SiliconFlow",
                         "volcengine": "Volcengine"
                     },
-                    "regenerate": "Regenerate",
                     "select_provider": "Select TTS Provider",
                     "select_voice": "Select Voice",
                     "start_generate": "Start Generation",
@@ -461,8 +458,6 @@
                 "version_restore_success": "The version has been restored and a new linear version record has been created.",
                 "version_rollback_confirm": "Are you sure you want to roll back to this version? The current editor content will be overwritten and take effect after saving.",
                 "version_sources": {
-                    "create": "Create",
-                    "edit": "Edit",
                     "restore": "Restore",
                     "rollback_recovery": "Rollback Recovery"
                 },
@@ -552,7 +547,6 @@
                     "platform_label": "Select Platform",
                     "generate_btn": "AI Generate Social Post",
                     "generating": "Generating...",
-                    "copy_btn": "Copy",
                     "copy_success": "Copied!",
                     "generate_failed": "Social post generation failed"
                 }

@@ -1,8 +1,8 @@
 <template>
     <AuthCard
-        title-key="pages.reset_password.title"
+        title-key="common.reset_password"
         subtitle-key="pages.reset_password.subtitle"
-        submit-label="pages.reset_password.submit"
+        submit-label="common.reset_password"
         :loading="loading"
         :error="error"
         @submit="handleResetPassword"
@@ -30,7 +30,7 @@
         </div>
 
         <div class="form-group">
-            <label for="password">{{ $t('pages.reset_password.new_password') }}</label>
+            <label for="password">{{ $t('common.new_password') }}</label>
             <CaomeiPassword
                 id="password"
                 v-model="password"
@@ -75,7 +75,7 @@ definePageMeta({
 })
 
 useHead({
-    title: t('pages.reset_password.title'),
+    title: t('common.reset_password'),
 })
 
 const passwordMismatch = computed(() => {

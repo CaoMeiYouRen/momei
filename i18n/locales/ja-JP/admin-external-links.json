@@ -22,7 +22,6 @@
                 "show_redirect": "リダイレクトページ",
                 "show_redirect_page": "リダイレクトページを表示",
                 "stats": "統計情報",
-                "status": "状態",
                 "statuses": {
                     "active": "有効",
                     "blocked": "ブロック済み",

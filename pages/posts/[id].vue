@@ -34,7 +34,7 @@
                     <CircleAlert v-else :size="48" />
                 </div>
                 <h2 class="error-title">
-                    {{ error.statusCode === 404 ? $t('pages.error.404_title') : $t('pages.error.title') }}
+                    {{ error.statusCode === 404 ? $t('pages.error.404_title') : $t('common.error_occurred') }}
                 </h2>
                 <p class="error-message">
                     {{ error.statusCode === 404 ? $t('pages.error.404_desc') : (error.statusMessage || error.message) }}
@@ -47,7 +47,7 @@
                         <template #icon>
                             <Home :size="16" />
                         </template>
-                        {{ $t('pages.error.back_home') }}
+                        {{ $t('common.back_to_home') }}
                     </CaomeiButton>
                     <CaomeiButton
                         v-if="error.statusCode !== 404"
@@ -58,7 +58,7 @@
                         <template #icon>
                             <RotateCcw :size="16" />
                         </template>
-                        {{ $t('pages.error.retry') }}
+                        {{ $t('common.retry') }}
                     </CaomeiButton>
                 </div>
             </div>

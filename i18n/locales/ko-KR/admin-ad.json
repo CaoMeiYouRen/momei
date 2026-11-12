@@ -19,7 +19,6 @@
                     },
                     "revenue": "수익",
                     "start_date": "시작일",
-                    "status": "상태",
                     "statuses": {
                         "active": "진행 중",
                         "draft": "초안",
@@ -73,7 +72,6 @@
                     "slot_id": "광고 슬롯 ID",
                     "slot_id_hint": "광고 플랫폼의 슬롯 ID를 입력하세요",
                     "slot_id_placeholder": "예: ca-pub-1234567890/1234567890",
-                    "status": "상태",
                     "title": "광고 지면 관리"
                 }
             }

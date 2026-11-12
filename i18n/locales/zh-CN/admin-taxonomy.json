@@ -23,7 +23,6 @@
                 "post": "文章",
                 "reject": "设为垃圾",
                 "search_placeholder": "搜索评论内容、作者...",
-                "status": "状态",
                 "status_pending": "待审核",
                 "status_published": "已发布",
                 "status_spam": "垃圾评论"

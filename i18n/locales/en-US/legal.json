@@ -5,6 +5,17 @@
     "agreement_checkbox": "I have read and agree to the {agreement} and {privacy}",
     "login_notice": "By logging in, you agree to the {agreement} and {privacy}",
     "notice": "Note: This agreement and policy are provided as examples. The developer of this project shall not be held legally responsible for any deployment instances. The specific legal agreement is entered into between you and the operator of this website, and the actual legal responsibility is borne by the website deployer.",
-    "agreement_required": "Please read and agree to the User Agreement and Privacy Policy"
+    "agreement_required": "Please read and agree to the User Agreement and Privacy Policy",
+    "authoritative_version_tag": "Authoritative Version",
+    "current_active_tag": "Current Active",
+    "effective_date_label": "Effective date: {date}",
+    "fallback_notice": "No localized version is available for this language yet. Showing the authoritative {language} version instead.",
+    "history_no_description": "No version notes",
+    "history_title": "Version History",
+    "last_updated_label": "Last updated: {date}",
+    "reference_translation_notice": "This language is presented as a reference translation. The authoritative version is {language} / {version}. In case of legal interpretation differences, the authoritative version prevails.",
+    "reference_translation_tag": "Reference Translation",
+    "version_fallback": "Unversioned",
+    "version_label": "Version: {version}"
   }
 }

@@ -8,7 +8,6 @@
                 "upload": "아바타 업로드",
                 "upload_success": "아바타가 성공적으로 업데이트되었습니다",
                 "upload_failed": "아바타 업로드에 실패했습니다",
-                "name": "닉네임",
                 "language": "인터페이스 언어",
                 "timezone": "시간대 설정",
                 "save": "변경 사항 저장",
@@ -19,7 +18,6 @@
                 "change_password": "비밀번호 변경",
                 "set_password_hint": "아직 비밀번호를 설정하지 않았거나(예: OAuth 로그인) 현재 비밀번호를 잊어버린 경우 다음 기능을 사용해 주세요",
                 "current_password": "현재 비밀번호",
-                "new_password": "새 비밀번호",
                 "confirm_password": "새 비밀번호 확인",
                 "update_password": "비밀번호 업데이트",
                 "password_updated": "비밀번호가 업데이트되었습니다",
@@ -37,12 +35,10 @@
                 "create_btn": "새 키 만들기",
                 "new_key_title": "새 API 키",
                 "new_key_hint": "보안상 지금 바로 API 키를 복사해 두세요. 이후에는 다시 확인할 수 없습니다.",
-                "name": "이름",
                 "prefix": "접두사",
                 "expires_at": "만료 시각",
                 "never_expires": "만료 없음",
                 "expired_at_options": {
-                    "never": "만료 없음",
                     "7d": "7일",
                     "30d": "30일",
                     "365d": "365일"
@@ -111,10 +107,8 @@
                         "unread": "읽지 않음"
                     },
                     "columns": {
-                        "time": "시간",
                         "type": "유형",
                         "content": "알림 내용",
-                        "status": "상태",
                         "target": "이동 대상"
                     }
                 }

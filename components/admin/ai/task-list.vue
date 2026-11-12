@@ -30,7 +30,7 @@
                     :options="taskStatuses"
                     option-label="label"
                     option-value="value"
-                    :placeholder="$t('pages.admin.ai.status')"
+                    :placeholder="$t('common.status_label')"
                     show-clear
                     @update:model-value="$emit('filter-change')"
                 />
@@ -293,7 +293,7 @@ const columns = computed<DataTableColumn<AIAdminTaskListItem>[]>(() => [
     { key: 'provider', header: t('pages.admin.ai.provider') },
     { key: 'model', header: t('pages.admin.ai.model') },
     { key: 'user', header: t('common.author') },
-    { key: 'status', header: t('pages.admin.ai.status') },
+    { key: 'status', header: t('common.status_label') },
     { key: 'quotaUnits', header: t('pages.admin.ai.quota_units') },
     { key: 'actualCost', header: t('pages.admin.ai.actual_cost') },
     { key: 'chargeStatus', header: t('pages.admin.ai.charge_status') },

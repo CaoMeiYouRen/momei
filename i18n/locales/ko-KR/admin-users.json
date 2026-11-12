@@ -17,7 +17,6 @@
                 "edit_role": "역할 수정",
                 "expires_at": "만료 시각",
                 "expiry": {
-                    "never": "만료 없음",
                     "one_day": "1일",
                     "one_month": "1개월",
                     "one_week": "1주"
@@ -55,7 +54,6 @@
                 "search_placeholder": "이름 또는 이메일 검색...",
                 "select_role": "새 역할 선택",
                 "sessions": "활성 세션",
-                "status": "상태",
                 "status_options": {
                     "active": "정상",
                     "all": "모든 상태",

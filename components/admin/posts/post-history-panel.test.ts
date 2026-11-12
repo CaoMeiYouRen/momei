@@ -125,6 +125,20 @@ describe('PostHistoryPanel', () => {
                             authorId: 'user-1',
                             author: { id: 'user-1', name: 'Tester', image: null },
                         },
+                        {
+                            id: 'version-2',
+                            postId: 'post-1',
+                            sequence: 0,
+                            parentVersionId: null,
+                            restoredFromVersionId: null,
+                            source: PostVersionSource.CREATE,
+                            commitSummary: 'create:initial',
+                            changedFields: [],
+                            snapshotHash: 'hash-0',
+                            createdAt: '2026-03-11T00:00:00.000Z',
+                            authorId: 'user-1',
+                            author: { id: 'user-1', name: 'Tester', image: null },
+                        },
                     ],
                 })
             }
@@ -207,6 +221,10 @@ describe('PostHistoryPanel', () => {
         await flushPromises()
         await flushPromises()
         expect(mockAppFetch).toHaveBeenCalledWith('/api/admin/posts/post-1/versions')
+        expect(wrapper.text()).toContain('common.edit')
+        expect(wrapper.text()).toContain('common.create')
+        expect(wrapper.text()).not.toContain('pages.admin.posts.version_sources.edit')
+        expect(wrapper.text()).not.toContain('pages.admin.posts.version_sources.create')
 
         await wrapper.find('.history-item__main').trigger('click')
         await flushPromises()

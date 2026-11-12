@@ -70,7 +70,7 @@ mockNuxtImport('useI18n', () => () => ({
                 return 'Link unavailable'
             case 'redirect.error.message':
                 return 'The requested link does not exist or has been disabled.'
-            case 'redirect.back_home':
+            case 'common.back_to_home':
                 return 'Back home'
             case 'redirect.leaving_site':
                 return 'Leaving this site'

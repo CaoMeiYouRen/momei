@@ -12,10 +12,10 @@
             <div class="api-keys-form-container">
                 <div class="api-keys-form">
                     <div class="api-keys-form__field">
-                        <label class="api-keys-form__label">{{ $t("pages.settings.api_keys.name") }}</label>
+                        <label class="api-keys-form__label">{{ $t("common.name") }}</label>
                         <CaomeiInput
                             v-model="newKeyName"
-                            :placeholder="$t('pages.settings.api_keys.name')"
+                            :placeholder="$t('common.name')"
                             @keyup.enter="handleCreateApiKey"
                         />
                     </div>
@@ -153,7 +153,7 @@ interface ApiKeyItem {
 }
 
 const columns = computed<DataTableColumn<ApiKeyItem>[]>(() => [
-    { key: 'name', header: t('pages.settings.api_keys.name') },
+    { key: 'name', header: t('common.name') },
     { key: 'prefix', header: t('pages.settings.api_keys.prefix') },
     { key: 'lastUsedAt', header: t('pages.settings.api_keys.last_used_at') },
     { key: 'expiresAt', header: t('pages.settings.api_keys.expires_at') },
@@ -161,7 +161,7 @@ const columns = computed<DataTableColumn<ApiKeyItem>[]>(() => [
 ])
 
 const expirationOptions = computed(() => [
-    { label: t('pages.settings.api_keys.expired_at_options.never'), value: 'never' },
+    { label: t('common.expiry_never'), value: 'never' },
     { label: t('pages.settings.api_keys.expired_at_options.7d'), value: '7d' },
     { label: t('pages.settings.api_keys.expired_at_options.30d'), value: '30d' },
     { label: t('pages.settings.api_keys.expired_at_options.365d'), value: '365d' },

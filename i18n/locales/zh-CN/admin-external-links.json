@@ -22,7 +22,6 @@
                 "show_redirect": "跳转页",
                 "show_redirect_page": "显示跳转页",
                 "stats": "统计信息",
-                "status": "状态",
                 "statuses": {
                     "active": "启用",
                     "blocked": "已屏蔽",

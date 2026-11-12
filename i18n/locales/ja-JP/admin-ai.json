@@ -71,7 +71,6 @@
                 "quota_units": "クォータ単位",
                 "result": "結果データ",
                 "stats": "利用統計",
-                "status": "状態",
                 "statuses": {
                     "completed": "完了",
                     "failed": "失敗",

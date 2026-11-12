@@ -316,7 +316,7 @@
                         <p>{{ translateMode(selectedReport.mode) }}</p>
                     </div>
                     <div>
-                        <strong>{{ $t('pages.admin.link_governance.columns.status') }}</strong>
+                        <strong>{{ $t('common.status_label') }}</strong>
                         <p>{{ translateStatus(selectedReport.status || 'completed') }}</p>
                     </div>
                     <div>
@@ -556,9 +556,9 @@ const reportFormatOptions = computed(() => [
 const columns = computed<DataTableColumn<LinkGovernanceReportListItem>[]>(() => [
     { key: 'createdAt', header: t('pages.admin.link_governance.columns.created_at') },
     { key: 'mode', header: t('pages.admin.link_governance.columns.mode') },
-    { key: 'status', header: t('pages.admin.link_governance.columns.status') },
+    { key: 'status', header: t('common.status_label') },
     { key: 'requestedBy', header: t('pages.admin.link_governance.columns.requested_by') },
-    { key: 'summary', header: t('pages.admin.link_governance.columns.summary') },
+    { key: 'summary', header: t('common.summary') },
     { key: 'redirects', header: t('pages.admin.link_governance.columns.redirects') },
     // 迁移前动作列以 `class="text-right"` 右对齐，迁移后用列级 `align` 等价还原。
     { key: 'actions', header: t('common.actions'), align: 'right' },

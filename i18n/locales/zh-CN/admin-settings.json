@@ -43,7 +43,6 @@
                         "flat_view_help": "完整列表会展开全部语言和版本，便于逐条编辑、切换和排查。",
                         "generate_ai_draft": "AI 生成翻译草案",
                         "is_main": "是否生效",
-                        "language": "语言",
                         "language_help": "权威语言版本可直接生效；其他语言会作为参考翻译展示。",
                         "language_unknown": "未知语言",
                         "load_failed": "加载协议列表失败",
@@ -71,7 +70,6 @@
                         "source_version": "对应权威版本",
                         "source_version_help": "参考翻译会跟随这里选中的权威版本一起展示。",
                         "source_version_placeholder": "选择该翻译对应的权威版本",
-                        "status": "状态",
                         "submit_review": "提交审校",
                         "submit_review_success": "已提交到待审校状态",
                         "title": "协议管理",
@@ -153,8 +151,7 @@
                             "old_value": "变更前",
                             "operator": "操作人",
                             "reason": "变更原因",
-                            "source": "触发来源",
-                            "time": "时间"
+                            "source": "触发来源"
                         },
                         "description": "记录管理员对数据库配置的写入历史，并标明当前是否仍由数据库生效。",
                         "effective_sources": {

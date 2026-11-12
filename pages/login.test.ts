@@ -52,9 +52,9 @@ const translate = (key: string) => {
             return 'Continue with Google'
         case 'pages.login.or_continue_with_email':
             return 'Or continue with email'
-        case 'pages.login.email':
+        case 'common.email':
             return 'Email'
-        case 'pages.login.password':
+        case 'common.password':
             return 'Password'
         case 'pages.login.remember_me':
             return 'Remember me'
@@ -64,9 +64,9 @@ const translate = (key: string) => {
             return 'Sign in'
         case 'pages.login.no_account':
             return 'Create an account'
-        case 'pages.login.email_required':
+        case 'common.email_required':
             return 'Email is required'
-        case 'pages.login.password_required':
+        case 'common.password_required':
             return 'Password is required'
         case 'legal.user_agreement':
             return 'User Agreement'
@@ -113,10 +113,10 @@ vi.mock('@/utils/schemas/auth', () => ({
             const issues: { path: string[], message: string }[] = []
 
             if (!data.email) {
-                issues.push({ path: ['email'], message: 'pages.login.email_required' })
+                issues.push({ path: ['email'], message: 'common.email_required' })
             }
             if (!data.password) {
-                issues.push({ path: ['password'], message: 'pages.login.password_required' })
+                issues.push({ path: ['password'], message: 'common.password_required' })
             }
 
             if (issues.length > 0) {

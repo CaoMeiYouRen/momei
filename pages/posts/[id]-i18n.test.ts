@@ -30,10 +30,10 @@ describe('posts/[id] page i18n', () => {
 
         // 验证主要 i18n key 不是 raw key
         expect(text).not.toContain('pages.error.404_title')
-        expect(text).not.toContain('pages.error.title')
+        expect(text).not.toContain('common.error_occurred')
         expect(text).not.toContain('pages.error.404_desc')
-        expect(text).not.toContain('pages.error.back_home')
-        expect(text).not.toContain('pages.error.retry')
+        expect(text).not.toContain('common.back_to_home')
+        expect(text).not.toContain('common.retry')
         expect(text).not.toContain('pages.posts.status_warning')
     })
 

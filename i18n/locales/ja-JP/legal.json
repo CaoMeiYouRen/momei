@@ -5,6 +5,17 @@
         "agreement_checkbox": "{agreement} と {privacy} を読み、同意します",
         "login_notice": "ログインすることで、{agreement} と {privacy} に同意したものとみなされます",
         "notice": "注意: 本規約およびポリシーはサンプルです。プロジェクト開発者は各デプロイ環境に対して法的責任を負いません。実際の法的関係は利用者と当該サイト運営者の間で成立し、責任はサイト管理者が負います。",
-        "agreement_required": "利用規約とプライバシーポリシーに同意してください"
+        "agreement_required": "利用規約とプライバシーポリシーに同意してください",
+        "authoritative_version_tag": "正文版",
+        "current_active_tag": "現在有効",
+        "effective_date_label": "施行日: {date}",
+        "fallback_notice": "この言語のローカライズ版はまだありません。正文である {language} 版を表示しています。",
+        "history_no_description": "更新メモはありません",
+        "history_title": "バージョン履歴",
+        "last_updated_label": "最終更新日: {date}",
+        "reference_translation_notice": "この言語版は参考訳です。正式な正文は {language} / {version} です。法的解釈に差異がある場合は正文を優先します。",
+        "reference_translation_tag": "参考訳",
+        "version_fallback": "バージョン未設定",
+        "version_label": "バージョン: {version}"
     }
 }

@@ -182,7 +182,7 @@ const onPage = (event: { page: number, rows: number }) => {
 }
 
 const columns = computed<DataTableColumn<SettingAuditItem>[]>(() => [
-    { key: 'time', header: t('pages.admin.settings.system.audit_logs.columns.time'), headerClass: 'setting-audit-log-list__time-column' },
+    { key: 'time', header: t('common.time'), headerClass: 'setting-audit-log-list__time-column' },
     { key: 'settingKey', header: t('pages.admin.settings.system.audit_logs.columns.key') },
     { key: 'action', header: t('pages.admin.settings.system.audit_logs.columns.action') },
     { key: 'oldValue', header: t('pages.admin.settings.system.audit_logs.columns.old_value') },

@@ -71,7 +71,6 @@
                 "quota_units": "Quota Units",
                 "result": "Result Data",
                 "stats": "Usage Stats",
-                "status": "Status",
                 "statuses": {
                     "completed": "Completed",
                     "failed": "Failed",

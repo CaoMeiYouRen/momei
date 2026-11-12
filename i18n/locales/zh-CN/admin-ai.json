@@ -71,7 +71,6 @@
                 "quota_units": "额度单位",
                 "result": "结果数据",
                 "stats": "使用统计",
-                "status": "状态",
                 "statuses": {
                     "completed": "已完成",
                     "failed": "已失败",

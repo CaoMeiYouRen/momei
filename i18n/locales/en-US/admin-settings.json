@@ -43,7 +43,6 @@
                         "flat_view_help": "The full list expands all languages and versions so you can edit, switch, and inspect them one by one.",
                         "generate_ai_draft": "Generate AI translation draft",
                         "is_main": "Is active",
-                        "language": "Language",
                         "language_help": "Authoritative language versions can be activated directly; other languages are shown as reference translations.",
                         "language_unknown": "Unknown language",
                         "load_failed": "Failed to load the agreement list",
@@ -71,7 +70,6 @@
                         "source_version": "Corresponding authoritative version",
                         "source_version_help": "The reference translation follows the authoritative version selected here.",
                         "source_version_placeholder": "Select the authoritative version for this translation",
-                        "status": "Status",
                         "submit_review": "Submit for review",
                         "submit_review_success": "Submitted to pending review",
                         "title": "Agreement management",
@@ -153,8 +151,7 @@
                             "old_value": "Before",
                             "operator": "Operator",
                             "reason": "Change Reason",
-                            "source": "Trigger Source",
-                            "time": "Time"
+                            "source": "Trigger Source"
                         },
                         "description": "Records the history of database configuration changes by administrators and indicates whether they are currently active from the database.",
                         "effective_sources": {

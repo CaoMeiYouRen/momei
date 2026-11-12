@@ -13,9 +13,7 @@
                     "created_at": "Created At",
                     "mode": "Mode",
                     "redirects": "Redirect Seeds",
-                    "requested_by": "Requested By",
-                    "status": "Status",
-                    "summary": "Summary"
+                    "requested_by": "Requested By"
                 },
                 "content_types": {
                     "asset-record": "Asset Records",

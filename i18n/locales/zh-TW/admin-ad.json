@@ -19,7 +19,6 @@
                     },
                     "revenue": "收益",
                     "start_date": "開始日期",
-                    "status": "狀態",
                     "statuses": {
                         "active": "進行中",
                         "draft": "草稿",
@@ -73,7 +72,6 @@
                     "slot_id": "廣告版位 ID",
                     "slot_id_hint": "請輸入您的廣告平台版位 ID",
                     "slot_id_placeholder": "例如: ca-pub-1234567890/1234567890",
-                    "status": "狀態",
                     "title": "廣告版位管理"
                 }
             }

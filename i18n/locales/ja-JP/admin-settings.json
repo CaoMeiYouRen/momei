@@ -43,7 +43,6 @@
                         "flat_view_help": "完全一覧ではすべての言語とバージョンを展開表示し、個別編集・切替・調査を行いやすくします。",
                         "generate_ai_draft": "AI で翻訳草案を生成",
                         "is_main": "有効版",
-                        "language": "言語",
                         "language_help": "権威言語版は直接有効化できます。他言語は参照翻訳として表示されます。",
                         "language_unknown": "不明な言語",
                         "load_failed": "規約一覧の読み込みに失敗しました",
@@ -71,7 +70,6 @@
                         "source_version": "対応する権威版",
                         "source_version_help": "参照翻訳はここで選択した権威版に従って一緒に表示されます。",
                         "source_version_placeholder": "この翻訳に対応する権威版を選択",
-                        "status": "状態",
                         "submit_review": "審査に提出",
                         "submit_review_success": "審査待ち状態に提出しました",
                         "title": "規約管理",
@@ -153,8 +151,7 @@
                             "old_value": "変更前",
                             "operator": "操作者",
                             "reason": "変更理由",
-                            "source": "トリガー元",
-                            "time": "時刻"
+                            "source": "トリガー元"
                         },
                         "description": "管理者によるデータベース設定書き込み履歴を記録し、現在も DB が有効ソースかどうかを示します。",
                         "effective_sources": {

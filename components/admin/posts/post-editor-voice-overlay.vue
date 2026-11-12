@@ -80,7 +80,7 @@
                             size="sm"
                             @click="$emit('retry')"
                         >
-                            {{ $t('pages.admin.posts.ai.voice_retry') }}
+                            {{ $t('common.retry') }}
                         </CaomeiButton>
                     </div>
                     <div v-else class="voice-popover__transcript">
@@ -114,12 +114,12 @@
                         </CaomeiButton>
                     </template>
                     <template v-else-if="finalTranscript">
-                        <AppTooltip :content="$t('pages.admin.posts.ai.voice_retry')">
+                        <AppTooltip :content="$t('common.retry')">
                             <CaomeiButton
                                 icon-only
                                 variant="ghost"
                                 tone="neutral"
-                                :label="$t('pages.admin.posts.ai.voice_retry')"
+                                :label="$t('common.retry')"
                                 @click="$emit('retry')"
                             >
                                 <template #icon>

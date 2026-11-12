@@ -5,6 +5,17 @@
     "agreement_checkbox": "我已阅读并同意 {agreement} 和 {privacy}",
     "login_notice": "登录即代表您同意 {agreement} 和 {privacy}",
     "notice": "注意：本协议及政策仅作为示例。本项目的开发者不对任何部署实例承担法律责任。具体的法律协议由当前网站的运营方与您签订，实际法律责任由网站部署者承担。",
-    "agreement_required": "请阅读并同意用户协议和隐私政策"
+    "agreement_required": "请阅读并同意用户协议和隐私政策",
+    "authoritative_version_tag": "权威版本",
+    "current_active_tag": "当前生效",
+    "effective_date_label": "生效日期：{date}",
+    "fallback_notice": "当前语言暂无独立版本，正在展示 {language} 的权威版本。",
+    "history_no_description": "暂无版本说明",
+    "history_title": "历史版本",
+    "last_updated_label": "最近更新：{date}",
+    "reference_translation_notice": "当前语言内容为参考翻译，所对应的权威版本为 {language} / {version}。如有法律解释差异，请以权威版本为准。",
+    "reference_translation_tag": "参考翻译",
+    "version_fallback": "未标记版本",
+    "version_label": "版本：{version}"
   }
 }

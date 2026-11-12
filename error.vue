@@ -8,7 +8,7 @@
                     {{ error.statusCode }}
                 </div>
                 <h1 class="error-title">
-                    {{ is404 ? $t('pages.error.404_title') : $t('pages.error.title') }}
+                    {{ is404 ? $t('pages.error.404_title') : $t('common.error_occurred') }}
                 </h1>
                 <p class="error-desc">
                     {{ is404 ? $t('pages.error.404_desc') : (error.statusMessage || error.message) }}
@@ -22,7 +22,7 @@
                         <template #icon>
                             <Home :size="16" />
                         </template>
-                        {{ $t('pages.error.back_home') }}
+                        {{ $t('common.back_to_home') }}
                     </CaomeiButton>
                     <CaomeiButton
                         v-if="!is404"
@@ -34,7 +34,7 @@
                         <template #icon>
                             <RefreshCw :size="16" />
                         </template>
-                        {{ $t('pages.error.retry') }}
+                        {{ $t('common.retry') }}
                     </CaomeiButton>
                 </div>
             </div>

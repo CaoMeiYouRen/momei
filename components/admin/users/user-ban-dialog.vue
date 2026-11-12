@@ -81,7 +81,7 @@ const expiryModelValue = computed({
 })
 
 const expiryOptions = computed(() => [
-    { label: t('pages.admin.users.expiry.never'), value: NEVER_SENTINEL },
+    { label: t('common.expiry_never'), value: NEVER_SENTINEL },
     { label: t('pages.admin.users.expiry.one_day'), value: 60 * 60 * 24 },
     { label: t('pages.admin.users.expiry.one_week'), value: 60 * 60 * 24 * 7 },
     { label: t('pages.admin.users.expiry.one_month'), value: 60 * 60 * 24 * 30 },

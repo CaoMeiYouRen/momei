@@ -13,7 +13,7 @@
                 <template #icon>
                     <Home :size="16" />
                 </template>
-                {{ $t('redirect.back_home') }}
+                {{ $t('common.back_to_home') }}
             </CaomeiButton>
         </div>
 

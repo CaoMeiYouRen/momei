@@ -8,7 +8,6 @@
                 "upload": "上傳頭像",
                 "upload_success": "頭像上傳成功",
                 "upload_failed": "頭像上傳失敗",
-                "name": "暱稱",
                 "language": "介面語言",
                 "timezone": "時區設定",
                 "save": "儲存變更",
@@ -19,7 +18,6 @@
                 "change_password": "修改密碼",
                 "set_password_hint": "如果您尚未設定密碼（例如透過第三方登入），或忘記目前密碼，請使用",
                 "current_password": "目前密碼",
-                "new_password": "新密碼",
                 "confirm_password": "確認新密碼",
                 "update_password": "更新密碼",
                 "password_updated": "密碼已更新",
@@ -37,12 +35,10 @@
                 "create_btn": "建立新金鑰",
                 "new_key_title": "新 API 金鑰",
                 "new_key_hint": "請務必立即複製此金鑰。出於安全考量，之後將不會再次顯示。",
-                "name": "名稱",
                 "prefix": "前綴",
                 "expires_at": "到期時間",
                 "never_expires": "永不過期",
                 "expired_at_options": {
-                    "never": "永不過期",
                     "7d": "7天",
                     "30d": "30天",
                     "365d": "365天"
@@ -111,10 +107,8 @@
                         "unread": "未讀"
                     },
                     "columns": {
-                        "time": "時間",
                         "type": "類型",
                         "content": "通知內容",
-                        "status": "狀態",
                         "target": "跳轉目標"
                     }
                 }

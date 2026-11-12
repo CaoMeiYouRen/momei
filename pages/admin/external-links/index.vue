@@ -147,7 +147,7 @@
             </div>
 
             <div class="field">
-                <label for="status">{{ $t('pages.admin.external_links.status') }} *</label>
+                <label for="status">{{ $t('common.status_label') }} *</label>
                 <CaomeiSelect
                     id="status"
                     v-model="formData.status"
@@ -287,7 +287,7 @@ const statusOptions = computed(() => [
 const columns = computed<DataTableColumn<any>[]>(() => [
     { key: 'shortCode', header: t('pages.admin.external_links.short_code') },
     { key: 'originalUrl', header: t('pages.admin.external_links.original_url') },
-    { key: 'status', header: t('pages.admin.external_links.status') },
+    { key: 'status', header: t('common.status_label') },
     { key: 'clickCount', header: t('pages.admin.external_links.clicks'), sortable: true },
     { key: 'showRedirectPage', header: t('pages.admin.external_links.show_redirect') },
     {

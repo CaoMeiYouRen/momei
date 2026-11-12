@@ -178,14 +178,23 @@
             "unsupported": "目前瀏覽器不支援語音輸入，請嘗試使用 Chrome 或 Edge。",
             "error": "語音辨識出錯",
             "permission_denied": "未取得麥克風權限",
-            "retry": "重試",
             "mode_basic": "基礎 (Web)",
             "mode_cloud_batch": "精進 (Cloud Batch)",
             "mode_cloud_stream": "極速 (Cloud Stream)",
             "model_ready": "雲端語音模式已就緒",
             "aria_button_start": "開始語音輸入",
             "aria_button_stop": "停止語音輸入"
-        }
+        },
+        "status_label": "狀態",
+        "time": "時間",
+        "expiry_never": "永不過期",
+        "nickname": "暱稱",
+        "new_password": "新密碼",
+        "submitting": "提交中...",
+        "email_required": "請輸入電子郵件",
+        "password": "密碼",
+        "password_required": "請輸入密碼",
+        "reset_password": "重設密碼"
     },
     "error": {
         "unauthorized": "未授權，請先登入",
@@ -201,7 +210,6 @@
         "auto_continue": "將在 {seconds} 秒後自動跳轉...",
         "continue_now": "立即繼續",
         "cancel": "返回",
-        "back_home": "返回首頁",
         "disclaimer": "您即將造訪外部網站，我們不對外部網站內容負責。",
         "error": {
             "title": "連結不可用",

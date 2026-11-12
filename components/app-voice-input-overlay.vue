@@ -53,7 +53,7 @@
                             size="sm"
                             @click="$emit('retry')"
                         >
-                            {{ $t('common.voice.retry') }}
+                            {{ $t('common.retry') }}
                         </CaomeiButton>
                     </div>
                     <div v-else class="voice-popover__transcript">
@@ -82,11 +82,11 @@
                     </template>
                     <template v-else-if="finalTranscript">
                         <div class="voice-popover__result-actions">
-                            <AppTooltip :content="$t('common.voice.retry')">
+                            <AppTooltip :content="$t('common.retry')">
                                 <CaomeiButton
                                     icon-only
                                     variant="ghost"
-                                    :label="$t('common.voice.retry')"
+                                    :label="$t('common.retry')"
                                     class="voice-popover__retry-btn"
                                     @click="$emit('retry')"
                                 >

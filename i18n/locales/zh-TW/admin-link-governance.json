@@ -13,9 +13,7 @@
                     "created_at": "建立時間",
                     "mode": "模式",
                     "redirects": "Redirect Seeds",
-                    "requested_by": "發起人",
-                    "status": "狀態",
-                    "summary": "摘要"
+                    "requested_by": "發起人"
                 },
                 "content_types": {
                     "asset-record": "資源紀錄",

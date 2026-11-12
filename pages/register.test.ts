@@ -25,11 +25,11 @@ const translate = (key: string) => {
     switch (key) {
         case 'pages.register.title':
             return 'Create account'
-        case 'pages.register.name':
+        case 'common.nickname':
             return 'Name'
-        case 'pages.register.email':
+        case 'common.email':
             return 'Email'
-        case 'pages.register.password':
+        case 'common.password':
             return 'Password'
         case 'pages.register.confirm_password':
             return 'Confirm password'

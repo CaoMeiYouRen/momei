@@ -58,7 +58,7 @@
                     @submit.prevent="handleEmailLogin"
                 >
                     <div class="login-form__field">
-                        <label for="email">{{ $t("pages.login.email") }}</label>
+                        <label for="email">{{ $t("common.email") }}</label>
                         <CaomeiInput
                             id="email"
                             v-model="form.email"
@@ -78,7 +78,7 @@
 
                     <div class="login-form__field">
                         <label for="password">{{
-                            $t("pages.login.password")
+                            $t("common.password")
                         }}</label>
                         <CaomeiPassword
                             id="password"

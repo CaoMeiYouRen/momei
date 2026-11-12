@@ -22,7 +22,6 @@
                 "show_redirect": "跳轉頁",
                 "show_redirect_page": "顯示跳轉頁",
                 "stats": "統計資訊",
-                "status": "狀態",
                 "statuses": {
                     "active": "啟用",
                     "blocked": "已封鎖",

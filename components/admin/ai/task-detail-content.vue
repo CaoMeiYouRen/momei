@@ -35,7 +35,7 @@
                     <span class="value">{{ $t(`pages.admin.ai.types.${task.type}`) }}</span>
                 </div>
                 <div class="detail-item mt-2">
-                    <span class="label">{{ $t('pages.admin.ai.status') }}:</span>
+                    <span class="label">{{ $t('common.status_label') }}:</span>
                     <CaomeiTag :tone="severityToTone(getStatusSeverity(task.status))">
                         {{ $t(`pages.admin.ai.statuses.${task.status}`) }}
                     </CaomeiTag>

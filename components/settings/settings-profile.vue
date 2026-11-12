@@ -39,7 +39,7 @@
             </div>
 
             <div class="settings-form__field">
-                <label for="name">{{ $t("pages.settings.profile.name") }}</label>
+                <label for="name">{{ $t("common.nickname") }}</label>
                 <CaomeiInput
                     id="name"
                     v-model="profileForm.name"

@@ -178,14 +178,23 @@
             "unsupported": "このブラウザでは音声入力をサポートしていません。Chrome または Edge をお試しください。",
             "error": "音声認識エラー",
             "permission_denied": "マイク権限が拒否されました",
-            "retry": "再試行",
             "mode_basic": "基本 (Web)",
             "mode_cloud_batch": "高精度 (Cloud Batch)",
             "mode_cloud_stream": "即時 (Cloud Stream)",
             "model_ready": "クラウド音声モードの準備ができました",
             "aria_button_start": "音声入力を開始",
             "aria_button_stop": "音声入力を停止"
-        }
+        },
+        "status_label": "状態",
+        "time": "時刻",
+        "expiry_never": "無期限",
+        "nickname": "表示名",
+        "new_password": "新しいパスワード",
+        "submitting": "送信中...",
+        "email_required": "メールアドレスは必須です",
+        "password": "パスワード",
+        "password_required": "パスワードは必須です",
+        "reset_password": "パスワードを再設定"
     },
     "error": {
         "unauthorized": "未認証です。先にログインしてください",
@@ -201,7 +210,6 @@
         "auto_continue": "{seconds} 秒後に自動で移動します...",
         "continue_now": "今すぐ続行",
         "cancel": "戻る",
-        "back_home": "ホームへ戻る",
         "disclaimer": "これから外部サイトへ移動します。外部サイトの内容について当サイトは責任を負いません。",
         "error": {
             "title": "リンクを利用できません",
