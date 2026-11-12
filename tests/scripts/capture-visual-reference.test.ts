@@ -70,6 +70,12 @@ describe('参考态覆盖保护', () => {
         expect(buildHeadCaptureGrepArgs([], { root })).toEqual([])
     })
 
+    it('--force-all 忽略已有参考态保护，按当前 HEAD 全量重采', () => {
+        writeReference('admin-posts-list-light')
+
+        expect(buildHeadCaptureGrepArgs([], { root, forceAll: true })).toEqual([])
+    })
+
     it('HEAD 全量采集时以 --grep-invert 排除全部受保护用例', () => {
         writeReference('admin-posts-list-light')
         writeReference('admin-waitlist-list-light')

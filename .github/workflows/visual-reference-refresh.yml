@@ -1,0 +1,49 @@
+name: Refresh Visual Reference
+
+# 在 ubuntu runner 上按当前 HEAD 重采视觉 parity 参考态。
+# 用途：迁移收口 / 门禁转阻断前，以 CI 渲染为准刷新参考态与预算，避免本地快照作为判定依据。
+# 产物：tests/visual/parity/reference/ 与 reference-manifest.json，下载后提交回仓库。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    name: Capture reference
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+      - name: Setup Node.js@lts environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+      - run: pnpm i --frozen-lockfile
+      - name: Build api-client dependency
+        run: pnpm --filter @momei-blog/api-client build
+      - name: Build mcp-server dependency
+        run: pnpm --filter momei-mcp-server build
+      - name: Build Nuxt
+        run: pnpm run build
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Capture visual reference states
+        env:
+          TEST_MODE: "true"
+          NUXT_PUBLIC_TEST_MODE: "true"
+          AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+          BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+        run: pnpm test:visual:reference -- --force-all
+      - name: Upload reference states
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-reference-states
+          path: |
+            tests/visual/parity/reference/
+            tests/visual/parity/reference-manifest.json
+          retention-days: 7

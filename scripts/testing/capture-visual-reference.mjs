@@ -23,6 +23,7 @@ import { ensureBuildOutput, ensurePlaywrightBrowsers, quoteWindowsArg } from './
  * 用法：
  * - `pnpm test:visual:reference`                                   对 HEAD 全量采集
  * - `pnpm test:visual:reference -- --only=admin-comments-list`      仅采集单个路由（两个主题；传路由名，勿带 -light / -dark 后缀）
+ * - `pnpm test:visual:reference -- --force-all`                       忽略已有参考态保护，按当前 HEAD 全量重采
  * - `pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list`
  * - `pnpm test:visual:reference -- --revert=ff443447 --only=admin-submissions-list`
  * - `pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list`
@@ -103,6 +104,7 @@ function parseArgs(argv = process.argv) {
             worktreeBase: null,
         },
         flags: {
+            '--force-all': { key: 'forceAll' },
             '--keep-worktree': { key: 'keepWorktree' },
             '--no-build': { key: 'build', value: false },
         },
@@ -209,6 +211,9 @@ export function getProtectedTestNames(options = {}) {
 }
 
 export function buildHeadCaptureGrepArgs(only, options = {}) {
+    if (options.forceAll) {
+        return []
+    }
     if (only && only.length > 0) {
         return getGrepArg(only)
     }
@@ -315,10 +320,10 @@ function copyParityAssets(worktreeDir) {
     }
 }
 
-async function captureInPlace({ only, environment }) {
+async function captureInPlace({ only, environment, forceAll = false }) {
     await ensureBuildOutput()
     await ensurePlaywrightBrowsers()
-    const grepArgs = buildHeadCaptureGrepArgs(only)
+    const grepArgs = buildHeadCaptureGrepArgs(only, { forceAll })
     const startedAt = Date.now()
     await runIn(repoRoot, 'pnpm', [
         'exec', 'playwright', 'test',
@@ -502,10 +507,10 @@ export async function main(options = {}) {
     const args = options.args ?? parseArgs()
     const environment = await getEnvironmentMetadata()
 
-    console.log(`[visual-reference] ref=${args.ref} revert=${args.revert ?? '-'} only=${args.only.length > 0 ? args.only.join(',') : '(全部)'}`)
+    console.log(`[visual-reference] ref=${args.ref} revert=${args.revert ?? '-'} forceAll=${args.forceAll ? 'yes' : 'no'} only=${args.only.length > 0 ? args.only.join(',') : '(全部)'}`)
 
     const result = args.ref === 'HEAD' && !args.revert
-        ? await captureInPlace({ only: args.only, environment })
+        ? await captureInPlace({ only: args.only, environment, forceAll: args.forceAll })
         : await captureFromWorktree({
             ref: args.ref,
             revertCommit: args.revert,
