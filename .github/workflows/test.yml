@@ -296,17 +296,11 @@ jobs:
   #  Independent Playwright config — does NOT touch e2e testMatch.
   #  Two layers:
   #    1) baseline layer  : pnpm test:visual        (self-committed snapshots)
-  #    2) parity gate     : pnpm test:visual:parity (current render vs pre-migration
-  #                         PrimeVue reference, tiered budget + allowlist)
-  #  ⚠️ Job 级 continue-on-error=true 仍保留：参考态基线与 parity 预算在
-  #     本地（Linux/chromium）生成，需先在 ubuntu runner 上确认渲染一致。
-  #     转阻断条件（flip checklist，见 docs/design/governance/2026-10-13-visual-parity-gate.md）：
-  #       ① master 连续 2 次 CI 运行 parity 全绿（无尺寸不一致、未归因差异为 0）；
-  #       ② `pnpm test:visual` 基线层同样连续 2 次全绿；
-  #       ③ 前置条件（非可选）：参考态由 CI 复采。迁移方案 §8.2 第 18 行口径要求
-  #          「跨环境差异若无法消除则以 CI 生成为唯一基线来源，不采用本地快照作为判定依据」；
-  #          移除 continue-on-error 前须先在 ubuntu runner 以 CI 产物复采参考态
-  #          （pnpm test:visual:reference）并刷新预算，否则本地快照不得作为判定依据。
+  #    2) parity gate     : pnpm test:visual:parity (current render vs CI reference,
+  #                         tiered budget + allowlist)
+  #  参考态由 ubuntu runner 的 Refresh Visual Reference 工作流按当前 HEAD 复采，
+  #  CI 产物是门禁唯一判定依据；两层均作为阻断门禁，不再使用 continue-on-error。
+  #  重采命令：gh workflow run visual-reference-refresh.yml --ref master
   # ===============================================================
   visual:
     name: Visual Regression
@@ -315,7 +309,6 @@ jobs:
     # 2026-11-03：B3 的 10 条待迁移路由（20 条用例）登记后 parity 单次约 10.4 分钟，
     # 叠加基线层（约 3 分钟）与双 server 启动，20 分钟余量不足，放宽到 30 分钟。
     timeout-minutes: 30
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm

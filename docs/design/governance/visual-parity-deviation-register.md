@@ -217,7 +217,9 @@
 
 > 全量门禁复跑（2026-10-16，第十路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 **11 路由（22 testName）** 未归因差异均为 0；当时 `PENDING_ROUTES` 为空（10 条 admin 数据列表路由全部迁移完成）。
 
-> 迁移期参考态留存口径（**待收尾决策**）：迁移全部落地后，`tests/visual/parity/reference/*.reference.png`（截至第十路由批次为 22 张，分类 / 标签批次后 26 张，`/admin/ai` 批次后 30 张，`/admin/marketing` 批次后 **34 张**）已不再具备「待迁移参考态」的运行时职责；它们是「PrimeVue 原貌」的唯一存档，卸载 PrimeVue（B4）后无法重采。收尾时须显式决策保留方式（就地归档 / 迁移到设计文档证据目录 / 另存为 release 资产），不得直接删除——已登记 backlog。
+> 迁移期参考态留存口径（**已定位，保留方式待决策**）：迁移期 34 张 PrimeVue 原貌参考态位于提交 `43d0b43d` 的 `tests/visual/parity/reference/`（迁移收口前最后一个包含原貌的提交），可随时从 git 历史恢复；`2026-11-12` 起 HEAD 参考态已切换为 CI 复采的当前态基线，门禁转为漂移检测。原貌是否另存为 release 资产或设计文档证据目录仍待用户决策，不得从 git 历史删除该提交。
+
+> 预算基线切换（2026-11-12）：参考态由 ubuntu runner 的 `Refresh Visual Reference` 工作流（run `43251811066`）按当前 HEAD 全量复采，`parity-budget.json` 的 82 条 allowlist 归零；本表历史「已接受（进允许清单）」行转为历史校准记录，现行判定以 `parity-budget.json` 与 CI 结果为准。
 
 > 全量门禁复跑（2026-10-16，第九路由批次）：`pnpm test:visual:parity` **22/22 通过**，已迁移 10 路由（20 testName）未归因差异均为 0；待迁移 1 路由（2 testName）实测 0px。
 

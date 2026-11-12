@@ -287,20 +287,20 @@ pnpm run test:coverage
 | 证伪 E2E flaky | 回到 HEAD 复现：`git stash push` → `pnpm build` → 跑同一 spec（可按浏览器单独跑）→ `git stash pop`；仅「清理环境后重跑通过」不足以排除自身改动。 |
 | 采集迁移前基线 | 改动 `git stash`（不带 `-u`，保留未跟踪的视觉 spec 与基线文件）→ 构建 → `--update-snapshots` → `pop`；恢复后基线文件仍在，即可与迁移后逐项对照。 |
 | 参考态齐备后全量采集 | `capture-visual-reference.mjs` 的保护口径会排除**全部**已存在参考态的用例，HEAD 全量采集因此以 Playwright `No tests found` / exit 1 硬失败；就地采集块须补 `--pass-with-no-tests`（「无待采目标 = 成功」）并用静态守卫钉在函数边界内。 |
-| `Visual Regression` job 的绿灯 | 当该 job 为 `continue-on-error: true` 时（flip 条件见 `.github/workflows/test.yml` 注释与 [视觉一致性门禁](../design/governance/2026-10-13-visual-parity-gate.md)），其 success **不构成**视觉一致证据；判断升级是否改变渲染须用本地真实基线比对（`pnpm test:visual` / `pnpm test:visual:parity`）。 |
+| `Visual Regression` job 的绿灯 | 该 job 已为阻断门禁：`pnpm test:visual` 与 `pnpm test:visual:parity` 均通过才 success，其绿灯即视觉一致证据。本地环境（chromium 版本 / 平台）与 CI 不同时，不得以本地比对结果否定 CI 判定；判断升级是否改变渲染以 CI 结果为准。 |
 
 ### 7.2 视觉一致性门禁 (Visual Parity Gate)
 
-组件迁移（PrimeVue → caomei-ui）逐路由校验「当前渲染 vs 迁移前原貌」的门禁层，与基线层（§7.1）职责分离、产物隔离。
+逐路由校验「当前渲染 vs CI 复采参考态」的门禁层，与基线层（§7.1）职责分离、产物隔离；参考态由 ubuntu runner 的刷新工作流生成，CI 产物为唯一判定依据。
 
 **命令**
 
 | 命令 | 用途 |
 |:---|:---|
-| `pnpm test:visual:parity` | 比对「当前渲染 ↔ 迁移前参考态」，按分级预算 + 允许清单判定（CI / Review Gate 用） |
+| `pnpm test:visual:parity` | 比对「当前渲染 ↔ CI 复采参考态」，按分级预算 + 允许清单判定（CI / Review Gate 用，阻断） |
 | `pnpm test:visual:parity -- --grep=<testName>` | 定向运行单个 / 一组用例。脚本会剔除 pnpm 透传的 `--` 分隔符后再转发（不带 `--` 的 `pnpm test:visual:parity --grep=<testName>` 亦可）；等价直连命令为 `pnpm exec playwright test --config=playwright.visual-parity.config.ts --grep=<testName>` |
-| `pnpm test:visual:reference` | 对 HEAD 采集待迁移路由参考态（`--update-snapshots`） |
-| `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>` | 采集已迁移路由的「迁移前」参考态（`git worktree` 检出 + 回退该提交源码到父提交 + 构建） |
+| `pnpm test:visual:reference -- --force-all` | 忽略已有参考态保护，按当前 HEAD 全量重采 82 张参考态（CI 刷新工作流使用） |
+| `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>` | 采集指定历史迁移提交的「迁移前」参考态（`git worktree` 检出 + 回退该提交源码到父提交 + 构建），用于历史取证 |
 
 > 定向运行注意：若直接对 Playwright 传入 `-- --grep=...`（即 `pnpm exec playwright test --config=playwright.visual-parity.config.ts -- --grep=...`），Playwright 会把 `--` 当作选项终止符，忽略其后的 `--grep` 并运行全部用例；应省略 `--` 或走上面的脚本入口。
 
@@ -319,10 +319,10 @@ pnpm run test:coverage
 
 **参考态采集与更新流程**
 
-1. 已迁移路由：用 `--revert=<迁移提交>` 采集，例如 `pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list`（脚本以 `git worktree` 检出 HEAD、按当前锁文件安装依赖、把该迁移提交的源码改动回退到父提交、构建后以 `--update-snapshots` 采集）。如此参考态与当前态的差异**只来自组件迁移本身**，隔离依赖漂移。`--ref=<历史 ref>` 的直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃。
-2. 待迁移路由：`pnpm test:visual:reference` 在 HEAD 采集；脚本会自动跳过已由历史 ref 采集过的 testName，避免覆盖迁移前参考态。
+1. 当前基线刷新：运行 `Refresh Visual Reference` 工作流（`gh workflow run visual-reference-refresh.yml --ref master`），在 ubuntu runner 构建后以 `--force-all` 重采全部参考态，下载 artifact 覆盖 `tests/visual/parity/reference/` 与 `reference-manifest.json`，并把 `parity-budget.json` 的 allowlist 按实测归零或重取；CI 产物是门禁唯一判定依据。
+2. 历史取证：已迁移路由如需复现「迁移前」原貌，用 `--revert=<迁移提交> --only=<route-name>`（脚本以 `git worktree` 检出 HEAD、按当前锁文件安装依赖、把该迁移提交的源码改动回退到父提交、构建后采集）；`--ref=<历史 ref>` 直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃。
 3. 参考态与基线层 `<name>.png` 并存、互不覆盖；参考快照随仓库提交（`.gitignore` 已放行 `tests/visual/parity/reference/**/*.png`）。
-4. 环境元数据（浏览器版本、playwright 版本、node、平台、视口、locale、时区、DSF、动画 / 光标、pixel threshold）记录于 `tests/visual/parity/reference-manifest.json`；跨环境（CI 与本地）渲染差异若无法消除，以 CI 产物为准重新采集。
+4. 环境元数据（浏览器版本、playwright 版本、node、平台、视口、locale、时区、DSF、动画 / 光标、pixel threshold）记录于 `tests/visual/parity/reference-manifest.json`；跨环境渲染差异以 CI 产物为准。
 
 **报告**
 
