@@ -76,6 +76,10 @@ describe('参考态覆盖保护', () => {
         expect(buildHeadCaptureGrepArgs([], { root, forceAll: true })).toEqual([])
     })
 
+    it('--force-all 与 --only 同时传入时直接报错，避免定向请求被静默放大', () => {
+        expect(() => buildHeadCaptureGrepArgs(['home'], { root, forceAll: true })).toThrow(/不能同时使用/u)
+    })
+
     it('HEAD 全量采集时以 --grep-invert 排除全部受保护用例', () => {
         writeReference('admin-posts-list-light')
         writeReference('admin-waitlist-list-light')

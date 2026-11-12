@@ -32,8 +32,9 @@ describe('parity 预算档位解析', () => {
 
     it('parity-budget.json 中已声明的条目优先于任何档位参数', () => {
         const entry = getBudgetEntry('admin-comments-list-light', 'reader')
+
         expect(entry.tier).toBe('admin')
-        expect(entry.allowlist.length).toBeGreaterThan(0)
+        expect(entry.maxDiffPixels).toBe(3000)
     })
 })
 

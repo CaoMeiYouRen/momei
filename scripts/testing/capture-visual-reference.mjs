@@ -23,7 +23,7 @@ import { ensureBuildOutput, ensurePlaywrightBrowsers, quoteWindowsArg } from './
  * 用法：
  * - `pnpm test:visual:reference`                                   对 HEAD 全量采集
  * - `pnpm test:visual:reference -- --only=admin-comments-list`      仅采集单个路由（两个主题；传路由名，勿带 -light / -dark 后缀）
- * - `pnpm test:visual:reference -- --force-all`                       忽略已有参考态保护，按当前 HEAD 全量重采
+ * - `pnpm test:visual:reference -- --force-all`                       忽略已有参考态保护，按当前 HEAD 全量重采（仅 CI 刷新工作流使用）
  * - `pnpm test:visual:reference -- --revert=44774147 --only=admin-comments-list`
  * - `pnpm test:visual:reference -- --revert=ff443447 --only=admin-submissions-list`
  * - `pnpm test:visual:reference -- --revert=04d12c17 --only=admin-external-links-list`
@@ -211,6 +211,9 @@ export function getProtectedTestNames(options = {}) {
 }
 
 export function buildHeadCaptureGrepArgs(only, options = {}) {
+    if (options.forceAll && only && only.length > 0) {
+        throw new Error('--force-all 与 --only 不能同时使用：全量重采请只传 --force-all，定向刷新请只传 --only')
+    }
     if (options.forceAll) {
         return []
     }
@@ -321,6 +324,9 @@ function copyParityAssets(worktreeDir) {
 }
 
 async function captureInPlace({ only, environment, forceAll = false }) {
+    if (forceAll && !process.env.CI) {
+        console.warn('[visual-reference] ⚠️ --force-all 仅应通过 Refresh Visual Reference 工作流在 CI 执行；本地产物不得作为门禁基线提交。')
+    }
     await ensureBuildOutput()
     await ensurePlaywrightBrowsers()
     const grepArgs = buildHeadCaptureGrepArgs(only, { forceAll })

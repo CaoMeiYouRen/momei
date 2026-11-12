@@ -14,6 +14,9 @@ jobs:
     name: Capture reference
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    concurrency:
+      group: visual-reference-refresh
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -39,6 +42,8 @@ jobs:
           AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
           BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
         run: pnpm test:visual:reference -- --force-all
+      - name: Verify reference ledger
+        run: pnpm exec vitest run tests/scripts/parity-budget.test.ts
       - name: Upload reference states
         uses: actions/upload-artifact@v7
         with:
