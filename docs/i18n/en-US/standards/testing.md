@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-10
+last_sync: 2026-11-13
 translation_tier: summary-sync
 ---
 
@@ -213,3 +213,4 @@ Fix tasks follow the "minimal reproduction test → targeted subset → batch fi
 > Sync note (2026-10-14): the Chinese source of truth added **§7.2 Visual Parity Gate** (tiered parity budget, allowlist maintenance, reference-capture flow, CI flip conditions) and fixed a malformed fenced block in §7.1/§7.2 area. Full text remains Chinese-only.
 >
 > Sync note (2026-10-24): the Chinese source of truth added **§7.3 Migration & Guard Test Pitfalls** (silent coverage loss in constant-driven guards, guard claims vs. implementation, stub contracts, per-condition isolation of gate cases, call-site assertions, V1/V2 contract equivalence, auto-import mocking, `expose` overridden by component options, E2E matrix timeouts, parity seed data, isolated admin E2E runs) and added the `--pass-with-no-tests` / `continue-on-error` notes to §7.1; §7.3 also covers asserting shapes only (tone / variant / label) instead of write paths and loading states. Full text remains Chinese-only.
+> Sync note (2026-11-13): §7.2 now judges against a CI-recaptured reference baseline and both visual layers are blocking (the job-level `continue-on-error` was removed); `pnpm test:visual:reference -- --force-all` is the refresh entry.
