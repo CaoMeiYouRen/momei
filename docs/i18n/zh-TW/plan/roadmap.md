@@ -104,3 +104,4 @@ last_sync: 2026-11-13
 
 - 若你要了解最完整規劃，請直接閱讀 [中文原文](../../../plan/roadmap.md)。
 - 若你準備參與當前階段工作，建議搭配 [規劃規範](../standards/planning.md) 與 [翻譯治理流程](../guide/translation-governance.md) 一起閱讀。
+- **第七十五階段已立項（2026-11-13）**：依賴與靜態規則收口、字級歸一與治理口徑統一——minimatch / glob 定向 override 評估、deepmerge / quill 無補丁項受控台帳；ESLint #262 第二批 4 條規則（22 命中 / 17 檔案）升檔清零；149 條非階梯字級取值評估與剩餘 225 處字階字面量分批替換；i18n 64 組 allowlist 三類複核與公開頁 runtime 稽核；覆蓋率第十六批（4 模組，含腳本類大基數）；回歸視窗閾值與 coverage 分母口徑收斂為單點。6 條條目，不引入新功能。

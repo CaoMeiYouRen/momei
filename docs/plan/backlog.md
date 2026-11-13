@@ -18,8 +18,8 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十四阶段（第十五批，2026-11-12 **筹备中**，4 模块 / 目标 `+0.3pp`）。上一阶段为第七十三阶段（第十四批，2026-11-11 **已完成**：4 模块 171/74/59/22 → 6/3/6/1，全仓 81.79% → 82.63%，+311 条 / +0.84pp）。再上一阶段为第七十二阶段（第十三批，2026-11-09 **已完成**：`server/utils/logger.ts` 61→2 / `server/services/setting.ts` 25→3 / `server/services/post.ts` 23→0 / `server/database/logger.ts` 15→0，另补 `server/utils/post-metadata.ts` 8→0 / `server/api/ai/translate-name.post.ts` 4→0 / `utils/schemas/post.ts` 4→0 / `server/services/setting-audit.ts` 2→0 / `utils/shared/post-copyright.ts` 13→11 / `server/api/admin/marketing/campaigns.post.ts` 1→0；新增 4 个测试文件 + 8 处扩展、+68 例，全仓 statements **+140 条 / +0.3801pp**；上批 `agreement.ts` 26 → 1（剩 184 不可达防御分支），故以 `server/database/logger.ts` 顶替第 4 模块）。再上一阶段为第七十一阶段（第十二批，2026-11-08 **已完成**：`typeorm-adapter` 84→6 / `ai/quota-governance` 28→0 / `agreement` 26→1 / `post-hexo-repository-sync` 23→0，新增 50 例，statements **+154 条 / +0.42pp**）。再上一批为第七十阶段（第十一批：`server/services/migration-link-governance.ts` / `.helpers.ts` / `ai/tts.ts` 三模块补测，毛新增 33 例（5,169 → 5,202）；三模块 statements 分别达 100% / 98.87% / 100%，均越过「`+15pp` 或 `≥85%`」；全仓 Statements 本批 80.40% → 80.66%（+0.26pp，闭合 95 条），`+0.3pp` 容量目标未达的结构性原因为 **3 模块池上限仅 +0.25pp**（需 109 条而池仅 92 条），已在回归记录逐项量化）。再上一批为第六十九阶段（第十批：`setting.ts` / `ai/text-translation-task.ts` / `ai/post-automation.ts` 三模块补测，毛新增 36 例、删除 1 例重复后净增 35（5,084 → 5,119）；三模块 statements 分别达 90.31% / 95.27% / 93.18%；全仓 Statements 本批 80.98% → 81.17%（+0.19pp），相对第六十八阶段收口 81.04% 的阶段累计为 +0.13pp；Branches 70.83% → 70.90%，Lines 81.15% → 81.29%，Functions 80.07% → 79.98% 系新增函数稀释）。
-- **当前基线**: Statements `82.63%`（`30,573 / 36,996`，2026-11-11 阶段收口全量干净跑：607 文件 / 5,383 例，`--maxWorkers=4` + 运行前移走 `.vitest-cache`；2026-11-12 复算未覆盖语句 6,423 条 / 454 文件）。距 `90%+` 长期目标约 7.4pp。
+- **最近一次上收阶段**: 第七十五阶段（第十六批，2026-11-13 **进行中**，4 模块 / 同源口径目标 `+0.3pp`）。上一阶段为第七十四阶段（第十五批，2026-11-13 **已完成**：tts / asr / voice / 协议设置，同源 +247 条 / +0.67pp）。再上一阶段为第七十三阶段（第十四批，2026-11-11 **已完成**：4 模块 171/74/59/22 → 6/3/6/1，全仓 81.79% → 82.63%，+311 条 / +0.84pp）。再上一阶段为第七十二阶段（第十三批，2026-11-09 **已完成**：`server/utils/logger.ts` 61→2 / `server/services/setting.ts` 25→3 / `server/services/post.ts` 23→0 / `server/database/logger.ts` 15→0，另补 `server/utils/post-metadata.ts` 8→0 / `server/api/ai/translate-name.post.ts` 4→0 / `utils/schemas/post.ts` 4→0 / `server/services/setting-audit.ts` 2→0 / `utils/shared/post-copyright.ts` 13→11 / `server/api/admin/marketing/campaigns.post.ts` 1→0；新增 4 个测试文件 + 8 处扩展、+68 例，全仓 statements **+140 条 / +0.3801pp**；上批 `agreement.ts` 26 → 1（剩 184 不可达防御分支），故以 `server/database/logger.ts` 顶替第 4 模块）。再上一阶段为第七十一阶段（第十二批，2026-11-08 **已完成**：`typeorm-adapter` 84→6 / `ai/quota-governance` 28→0 / `agreement` 26→1 / `post-hexo-repository-sync` 23→0，新增 50 例，statements **+154 条 / +0.42pp**）。再上一批为第七十阶段（第十一批：`server/services/migration-link-governance.ts` / `.helpers.ts` / `ai/tts.ts` 三模块补测，毛新增 33 例（5,169 → 5,202）；三模块 statements 分别达 100% / 98.87% / 100%，均越过「`+15pp` 或 `≥85%`」；全仓 Statements 本批 80.40% → 80.66%（+0.26pp，闭合 95 条），`+0.3pp` 容量目标未达的结构性原因为 **3 模块池上限仅 +0.25pp**（需 109 条而池仅 92 条），已在回归记录逐项量化）。再上一批为第六十九阶段（第十批：`setting.ts` / `ai/text-translation-task.ts` / `ai/post-automation.ts` 三模块补测，毛新增 36 例、删除 1 例重复后净增 35（5,084 → 5,119）；三模块 statements 分别达 90.31% / 95.27% / 93.18%；全仓 Statements 本批 80.98% → 81.17%（+0.19pp），相对第六十八阶段收口 81.04% 的阶段累计为 +0.13pp；Branches 70.83% → 70.90%，Lines 81.15% → 81.29%，Functions 80.07% → 79.98% 系新增函数稀释）。
+- **当前基线**: 同源口径 Statements `83.31%`（`30,815 / 36,989`，2026-11-13 第七十四阶段收口干净全量跑：609 文件 / 5,453 例，`--maxWorkers=4` + 运行前移走 `.vitest-cache`；全局可比分母因新增脚本扩到 37,747，比较时必须按同源文件口径）。距 `90%+` 长期目标约 6.7pp。
 - **下一次可切片方向**: 第十五批（已上收第七十四阶段条目 6）按同一口径（**绝对未覆盖语句数**）复算，并以 4 模块且含 ≥1 个大基数模块组池；2026-11-12 复算未覆盖 6,423 条 / 454 文件，单批 `+0.3pp` 约需 **111 条**（`0.003 × 36,996`），须优先保留「失败 / 边界优先」的断言标准；本批候选为 `composables/use-tts-volcengine-direct.ts`（166）/ `components/admin/settings/agreements-settings.vue`（163）/ `components/admin/posts/ai-image-generator.vue`（138）/ `composables/use-asr-direct.ts`（91）/ `composables/use-post-editor-voice.ts`（87）。第九批已把候选池（`friend-link` / `notification` / `post-distribution` / `upload`，合计 866 条语句）的未覆盖语句尽可能闭合，实际 +0.59pp ≈ 该池 100% 闭合上限（约 +0.66pp）的 89%，受池体量限制无法达到单批 +1pp。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
@@ -49,7 +49,7 @@
 
 - **目标**: 建立“翻译字段定义 → locale 模块注册 → 路由动态加载 → 运行时命中 → 回退 / raw key 暴露 → 重复键审计”的周期性闭环；`pnpm i18n:audit:duplicates` 与 `i18n:audit:missing`、`i18n:verify:runtime` 同步定期执行并保留证据。跨页面相同组件文案的复用只在职责、语义与模块归属都稳定一致时上收。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十四阶段（条目 4：重复键 99 → 64 组、剩余 64 组 allowlist + gate，2026-11-12 **已完成**）。上一阶段为第七十三阶段（条目 3：原文级重复键扫描 + PR 侧键漂移阻断，2026-11-10 **已完成**）。再上一阶段为第七十一阶段（部分切片：条目 6b 已完成 `admin-posts.json` 8 个重复键清理、20 组双源同键收敛、6 个死键删除与 1 处硬编码词条化；脚本的「原文级重复键扫描」能力仍未上收）。再上一阶段为第六十四阶段（ko-KR / ja-JP 文档治理：13 文件 `last_sync` 刷新、ja-JP 由 seo-ready 升格、补全 features / variables 翻译）。
+- **最近一次上收阶段**: 第七十五阶段（条目 4：64 组 allowlist 三类复核 + 公开页 runtime 审计，2026-11-13 **进行中**）。上一阶段为第七十四阶段（条目 4：重复键 99 → 64 组、剩余 64 组 allowlist + gate，2026-11-13 **已完成**）。再上一阶段为第七十三阶段（条目 3：原文级重复键扫描 + PR 侧键漂移阻断，2026-11-10 **已完成**）。再上一阶段为第七十一阶段（部分切片：条目 6b 已完成 `admin-posts.json` 8 个重复键清理、20 组双源同键收敛、6 个死键删除与 1 处硬编码词条化；脚本的「原文级重复键扫描」能力仍未上收）。再上一阶段为第六十四阶段（ko-KR / ja-JP 文档治理：13 文件 `last_sync` 刷新、ja-JP 由 seo-ready 升格、补全 features / variables 翻译）。
 - **当前基线**: `i18n:audit:missing = 0`、`i18n:audit:duplicates` **64 组 / 149 keys / 33 组跨模块**（2026-11-12 第七十四阶段条目 4 收敛后复算；合并 35 组至 `common.*` / `legal.*`，剩余组登记 `scripts/i18n/duplicate-group-allowlist.json` 并由 `i18n:audit:duplicates:gate` 阻断未登记新增 / 失效条目）、原文级重复键 0、`i18n:check-sync` 五语一致；缺失字段优先修复、重复键及时清理、`unused` 默认观察。
 **已上收（2026-11-10）**：原文级重复键扫描（`JSON.parse` 会折叠同名键，审计只能看到解析后对象）与 PR 侧 `i18n:audit:missing` 阻断已随第七十三阶段条目 3 落地：独立入口 `pnpm i18n:audit:raw-duplicates`（默认 warning、`--mode=error` 可阻断）与 `test.yml` 的 `test` job 接线。
 
@@ -59,7 +59,7 @@
 
 - **目标**: 统一维护全文档体系的分层边界、膨胀阈值与 freshness——`docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 与同步；清理无效 / 过时 / 漂移文档；保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过，不靠临时补 `last_sync` 应付检查。阈值被证明过宽时先回写脚本，再更新规范与阶段结论。
 - **状态**: 观察中。
-- **最近一次上收阶段**: 第六十四阶段（ko-KR / ja-JP 专项治理：freshness 审计报告 + 13 文档 `last_sync` 刷新 + ja-JP 升格 + features / variables 翻译补齐）。
+- **最近一次上收阶段**: 第七十五阶段（条目 6：回归窗口阈值单点化、`todo-archive` 拆分、governance 过期报告巡检、coverage 口径入规范，2026-11-13 **进行中**）。上一阶段为第六十四阶段（ko-KR / ja-JP 专项治理：freshness 审计报告 + 13 文档 `last_sync` 刷新 + ja-JP 升格 + features / variables 翻译补齐）。
 - **当前基线**: `docs:check:line-count` 覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 以 git 提交判定 hard blocker，tier 软上限 `must-sync 60 天 / summary-sync 120 天`（`candidate` profile 保留 21/30 天基线，仅作收敛评估）。
 - **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 行数）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。**待跟踪（2026-10-24 更新）**：① **回归窗口阈值存在两套口径**——`docs/reports/regression/index.md` §3.1 为「300-400 行或 6-8 条记录」，`scripts/docs/check-line-count.mjs` 为 warn>500 / error>700；建议收敛为单点口径并把 `index.md` 改为指针引用（第六十八阶段收口按前一口径执行整窗归档：`current.md` 由 452 行 / 5 窗口降为 14 行 / 0 窗口，均为脚本 `docs:check:line-count` 口径）。② **迁移页跨批遗留形态**（责任人：迁移收尾）：页面 scoped 样式的幻影 token（`--surface-ground` / `--border-radius` / `--text-color-secondary` 等全仓未定义、恒为 `unset`）、`p-fluid` 与若干 `*__dialog` class 在构建产物中无对应规则，均与 PrimeVue 卸载同批清理；迁移页注释与测试注释中的阶段号 / 审计编号随 B4 统一清理。③ **视觉一致性门禁的跨环境基线治理**（责任人：迁移收尾）：移除 `visual` job 的 `continue-on-error` 前须先在 ubuntu runner 以 CI 产物复采参考态并刷新预算（见 [视觉一致性门禁](../design/governance/2026-10-13-visual-parity-gate.md) §7）；任何 `reader` 档路由上线前其 parity 未归因差异须为 0。④ **口径沉淀**：回归窗口归档与节名引用改写一并执行（第十三次归档已按该口径落地）。⑤ **en-US 规范翻译同步债务（2026-11-03 登记，2026-11-06 复核已消解）**：2026-11-03 时 `docs/check:source-of-truth` 有 4 项 blocker（`docs/i18n/en-US/standards/` 的 `ai-collaboration.md` / `documentation.md` / `security.md` / `testing.md` 自 `last_sync` 以来源文档有新提交）；2026-11-06 第七十一阶段准入复核时该入口已 **PASS**，仅余 4 项 soft warning（`docs/i18n/en-US/index.md`、`guide/deploy.md`、`guide/quick-start.md`、`guide/translation-governance.md` 超 60 天软上限），不再构成周回归红项。本条保留为「登记 → 消解」痕迹，后续若再次出现 hard blocker 按新记录处理。
 
@@ -75,7 +75,7 @@
 - **目标**: 持续追踪核心页面 Core Web Vitals，建立跨版本性能回归基线；优先级：公开首页 > 文章详情页 > 分类 / 标签列表 > 后台管理页。与 #7 的区别：本条聚焦生产环境用户体验性能。
 - **状态**: 进行中（已有 Lighthouse CI + bundle budget 体系，尚未形成持续优化节奏）。
 - **最近一次上收阶段**: 第七十四阶段（条目 2b：入口包体护栏，2026-11-12 **筹备中**）。上一阶段为第五十二阶段（移动端 CWV 基线采集与评估：首页 / 文章详情 / 分类标签列表页 LCP / CLS / INP 基线落盘）。
-- **当前基线**: `coreEntryJs` 323.44KB / 335KB（331,206 / 343,040 B，2026-11-09 依赖升级后复测；余量 3.5%）；`maxAsyncChunkJs` 55.58KB / 130KB（56,916 / 133,120 B）；`keyCss` 59.06KB / 62KB（60,482 / 63,488 B，卸载后由 70KB 收紧）。
+- **当前基线**: `coreEntryJs` 280.63KB / 335KB（2026-11-13 阶段收口实测；Sentry 客户端移出预载后收敛）；`maxAsyncChunkJs` 92.79KB / 130KB；`keyCss` 59.12KB / 62KB（余量 4.6%，为当前最紧的一项）。
 - **下一次可切片方向**: 入口包体护栏已上收第七十四阶段条目 2b（入口 chunk 构成清单 + ≥1 项可量化收敛或重定标）；之后为文章详情页按需 hydration、评估收紧 `maxAsyncChunkJs` 并为 shared chunk 单列预算、移动端 LCP 超 3s 时启动专项治理。
 
 ### 9. 脚本资产、量化口径与回归入口治理
@@ -89,13 +89,21 @@
 
 > 编号 #10 已于 2026-11-09 随 PrimeVue 迁移收口关闭；编号不复用。
 
+### 10. 依赖与静态规则债治理
+
+- **目标**: 把 Dependabot / Code Scanning 告警与 ESLint 未覆盖规则（issue #262）当作同一条可量化债务线：告警按严重级与可修性分流、无补丁项进受控台账；ESLint 规则按 `governance:inventory:eslint-rules` 的「命中数 × 目录」分桶逐批升档清零，不为变绿放宽门禁。
+- **状态**: 进行中。
+- **最近一次上收阶段**: 第七十五阶段（条目 1 依赖安全收口 + 条目 2 ESLint 第二批，2026-11-13 **进行中**）。上一阶段为第七十四阶段（条目 1：js-yaml 5 / ESLint `ban-ts-comment` 首批 / stylelint 18 配对，2026-11-13 **已完成**）。
+- **当前基线**: Dependabot open 4 条（minimatch #286 medium、glob #284 medium、deepmerge #275 low、quill #22 low；`@hono/node-server` 两条 medium 已随 2.1.8 关闭）；ESLint 候选规则按命中数排序：`restrict-template-expressions` 251 / `no-unsafe-assignment` 233 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50 / `no-inferrable-types` 44 / `use-unknown-in-catch-callback-variable` 32。
+- **下一次可切片方向**: 第二批（已上收）取 22 命中以下的 4 条规则；之后按命中数递增推进 `no-inferrable-types` / `use-unknown-in-catch-callback-variable`；`no-unsafe-*` 系列须单列条目并先评估 typed lint 作用域。
+
 ### 11. UI 视觉质量与界面自检治理
 
 - **目标**: 把「界面是否合格」从审美讨论收敛为可判定检查项与可回归证据。维护一份只收真实命中、影响使用的界面自检清单（U1–U6），用它驱动视觉债清偿与视觉门禁扩容；不追求一次重做设计体系。
 - **专项设计事实源**: [界面自检清单与视觉债治理计划](../design/governance/2026-10-26-ui-review-checklist-plan.md)；可执行判据见 [界面自检清单](../design/ui-review-checklist.md)。
 - **状态**: 进行中（S1 已随第七十三阶段条目 1 收口；S2 字阶首批已上收第七十四阶段条目 5，暗色 tint 仍待切片）。
-- **最近一次上收阶段**: 第七十四阶段（条目 5：字阶试点，2026-11-12 **筹备中**）。上一阶段为第七十三阶段（条目 1：S1 空态 / 空表分页 / 三处层序失效，2026-11-11 **已完成**）。S0 为维护批次，未立正式阶段。
-- **当前基线**: 503 条 `font-size:`（2026-11-12 全仓复算）/ 60 种写法 / token 化 6.3%；状态色幻影 token（34 处）与迁移遗留 `--p-surface-border`（93 处）/ `--p-text-color-secondary`（15 处）已随第七十二阶段清零；「暂无文章」空态误用、空表分页与三处层序失效已随第七十三阶段条目 1 修复；扫描面 194 处 `border:`；视觉门禁 admin 23 条 + reader 18 条（41 路由 / 82 张参考态 + 1 条登记守卫，共 83 项比对）已全部迁移并校准，`PENDING_ROUTES` 为空；以 `tests/visual/parity/routes.ts` 为单点事实源；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
+- **最近一次上收阶段**: 第七十五阶段（条目 3：非字阶取值归一评估 + 剩余字阶字面量分批替换，2026-11-13 **进行中**）。上一阶段为第七十四阶段（条目 5：字阶试点，2026-11-13 **已完成**）。再上一阶段为第七十三阶段（条目 1：S1 空态 / 空表分页 / 三处层序失效，2026-11-11 **已完成**）。S0 为维护批次，未立正式阶段。
+- **当前基线**: 455 条 `font-size:`（2026-11-13 `governance:inventory:font-sizes` 口径）/ 64 种取值 / token 化 10.33% / 口径内待替换 225 条 / 非字阶 149 条；状态色幻影 token（34 处）与迁移遗留 `--p-surface-border`（93 处）/ `--p-text-color-secondary`（15 处）已随第七十二阶段清零；「暂无文章」空态误用、空表分页与三处层序失效已随第七十三阶段条目 1 修复；扫描面 194 处 `border:`；视觉门禁 admin 23 条 + reader 18 条（41 路由 / 82 张参考态 + 1 条登记守卫，共 83 项比对）已全部迁移并校准，`PENDING_ROUTES` 为空；以 `tests/visual/parity/routes.ts` 为单点事实源；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
 - **下一次可切片方向**: S2 字阶首批已上收第七十四阶段条目 5（分桶报告 + 公开页 / 管理端各 3–5 文件等价替换，视觉 ±0）；之后为暗色 tint 与字阶全量推进。**历史说明（2026-11-10）**：S1 的 token 部分已随第七十二阶段完成；空态与三处层序收尾随第七十三阶段条目 1。
 **已上收（2026-11-10，第七十三阶段条目 1）**：PrimeVue 卸载后复核发现三处**层序导致的既有样式失效**（均非条目 4 引入，`@layer momei-base` 内规则被 caomei-ui 未分层组件样式覆盖）：① 社交登录按钮品牌色与布局（`styles/main.scss` 的 `.caomei-button.social-btn`，实测退化为 secondary 按钮；视觉基线未渲染社交按钮故未覆盖）；② `admin-form-dialog` 宽度（实测 base 496px / compact 480px / wide 512px，声明为 576 / 544 / 608px；影响 placements / campaigns / external-links 三个弹窗）；③ `.translation-badge` 尺寸（`styles/_layout.scss` 的 padding / 字号被 `.caomei-badge[data-v]` 覆盖）。修复方向：移出 `@layer` 或改走 `--caomei-*` 钩子，并补浏览器人工验收。
 

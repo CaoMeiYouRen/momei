@@ -90,3 +90,4 @@ last_sync: 2026-11-13
 - [계획 표준](../standards/planning.md)
 - [번역 거버넌스](../guide/translation-governance.md)
 - 최신 상세 정보는 [중국어 원문 로드맵](../../../plan/roadmap.md)
+- **75단계가 계획되었습니다(2026-11-13)**: 의존성과 정적 규칙 마무리, 폰트 스케일 정규화, 거버넌스 기준 통일 — minimatch / glob 범위 지정 override 평가, deepmerge / quill 패치 없는 항목은 관리 대장으로; ESLint #262 2차 4개 규칙(22건 / 17개 파일) 승격·제로화; 149건 비스케일 값 평가와 나머지 225곳 단계적 치환; i18n 64개 그룹 allowlist 3분류 재점검 및 공개 페이지 runtime 감사; 커버리지 16차(4개 모듈, 스크립트 대형 기반 포함); 회귀 윈도 임계값과 coverage 분모 기준을 단일 지점으로 수렴. 6개 항목, 신규 기능 없음.
