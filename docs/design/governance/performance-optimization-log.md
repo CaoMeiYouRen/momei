@@ -43,3 +43,15 @@
 - **影响指标**: LCP / FCP（消除 CSS `@import` 的串行下载瓶颈，浏览器可并行加载）
 - **预期收益**: 减少 CSS 加载链深度，降低 FCP 约 50-150ms
 - **验证方式**: Chrome DevTools → Coverage → 确认三个 CSS 文件的下载不再串行等待
+
+
+## Phase 74-2b (2026-11-13) — Sentry 客户端懒加载与入口 preload 裁剪
+
+### 优化项: Sentry SDK 移出首屏关键路径
+
+- **改动**: 删除 `sentry.client.config.ts` 的入口期顶层 await 初始化，新增 `plugins/sentry.client.ts` + `utils/shared/sentry-client.ts`，在插件内动态 `import('@sentry/nuxt')` 并初始化；自行订阅 Vue / Nuxt 错误钩子并在初始化前缓冲，Tracing（`routeLabel: path`）/ Replay 配置保持不变。
+- **影响指标**: 首屏客户端 JS（`coreEntryJs`）。
+- **实测收益**: 331,190 → **287,359 B**（−43,831 B / −13.3%），配额余量 3.45% → **16.2%**；入口不再静态引入 `@sentry/nuxt` 模块插件（Sentry chunk 约 40.8KB gzip 退出 preload），异步侧 Sentry + Replay 合并 chunk 95,021 B（< 130KB 配额）。
+- **权衡**: 初始化改为插件内动态导入，初始化完成前的 Vue / Nuxt 错误先缓冲后补报；不含 Nuxt 模块的 `vueIntegration`（组件名 / props 上下文）与 `setRouteProvider` 路由上下文注入，错误事件的组件与 route 归因会弱于原生模块集成；SSR / 服务端错误仍由 `sentry.server.config.ts` 覆盖。
+- **验证**: `pnpm test:perf:budget:strict` Pass；`pnpm typecheck` / `pnpm lint` / `pnpm build` 通过。
+- **构成报告**: [入口包体构成（2026-11-13）](./2026-11-13-entry-bundle-composition.md)。

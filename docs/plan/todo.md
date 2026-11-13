@@ -28,7 +28,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；override 解析结果、inventory 前后计数、stylelint 18 前后不带 `--fix` 的全仓 `stylelint` 扫描结果与 PR #1008 合并 / 关闭结论、定向测试结论写入 `artifacts/review-gate/`。
     - **回滚边界**: js-yaml 的 override / 锁文件 / 8 处导入同批 revert；ESLint 规则与切片可单独回退；stylelint 与配置包 + 锁文件同批 revert（恢复 17.x + 1.0.0）。
 
-- [ ] **2. 质量门禁硬化（P1/P2）**
+- [x] **2. 质量门禁硬化（P1/P2）**
     - **执行范围**: **2a 视觉 parity 转阻断**——在 ubuntu runner 以 CI 产物复采 41 路由 / 82 张参考态（含第二实例安装向导），刷新 `tests/visual/parity-budget.json`（未归因差异 0），移除 test.yml visual job 的 `continue-on-error`，同步 test.yml 注释、[门禁 §7](../design/governance/2026-10-13-visual-parity-gate.md) 与 [测试规范 §7.2](../standards/testing.md#72-视觉一致性门禁-visual-parity-gate)。**2b 入口包体护栏**——产出入口 chunk 构成清单（manifest entrypoints + preload 去重、按模块分桶、top consumers 落盘），至少 1 项可量化收敛（动态导入 / 预载裁剪 / 去重），或按实测重定标并写入 `bundle-baseline.json` 与 [性能规范](../standards/performance.md)。
     - **非目标**: 不放宽 `reader` 档 0.3% / 2000px；不做全站代码分割重构；不为压包体牺牲首屏可见内容；34 张迁移前原貌存档另案决策；不连带 CWV 全量治理。
     - **验收标准**: CI 在 master 连续 2 次 parity 与 baseline 层全绿、`continue-on-error` 已移除、未归因差异 0、预算刷新逐条可查；`test:perf:budget:strict` Pass，收敛后余量 ≥ 8%；重定标须经用户确认、给出「为何不能收敛」的证据，新余量下限 ≥ 5%。
