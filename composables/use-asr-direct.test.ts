@@ -1,3 +1,4 @@
+import zlib from 'node:zlib'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('vue', async () => {
@@ -386,5 +387,269 @@ function createVolcengineErrorPacket(code: number, message: string) {
     view.setUint32(4, code, false)
     view.setUint32(8, encoded.length, false)
     packet.set(encoded, 12)
+    return packet
+}
+
+describe('useASRDirect - 边界与错误路径', () => {
+    beforeEach(() => {
+        MockWebSocket.instances = []
+        fetchMock.mockReset()
+        vi.stubGlobal('WebSocket', MockWebSocket)
+    })
+
+    afterEach(() => {
+        vi.unstubAllGlobals()
+        vi.restoreAllMocks()
+    })
+
+    it('does not append a language field when options.language is absent', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createBatchCredentials('batch-1', 'key-1') })
+            .mockResolvedValueOnce({ text: 'hello' })
+
+        const asr = useASRDirect({ provider: 'siliconflow', mode: 'batch' })
+        await asr.transcribeBatch(new Blob(['audio']))
+
+        const request = fetchMock.mock.calls[1] as [string, { body: FormData }]
+        expect(request[1].body.get('language')).toBeNull()
+        expect(request[1].body.get('model')).toBe('FunAudioLLM/SenseVoiceSmall')
+    })
+
+    it('normalizes the language tag to its primary subtag', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createBatchCredentials('batch-2', 'key-2') })
+            .mockResolvedValueOnce({ text: 'hello' })
+
+        const asr = useASRDirect({ provider: 'siliconflow', mode: 'batch', language: 'en-US' })
+        await asr.transcribeBatch(new Blob(['audio']))
+
+        const request = fetchMock.mock.calls[1] as [string, { body: FormData }]
+        expect(request[1].body.get('language')).toBe('en')
+    })
+
+    it('surfaces the provider message and rethrows on non-auth batch failures', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createBatchCredentials('batch-3', 'key-3') })
+            .mockRejectedValueOnce({ status: 500, data: { error: { message: 'upstream unavailable' } } })
+
+        const asr = useASRDirect({ provider: 'siliconflow', mode: 'batch' })
+
+        await expect(asr.transcribeBatch(new Blob(['audio']))).rejects.toBeTruthy()
+        expect(asr.error.value).toBe('upstream unavailable')
+        expect(asr.isProcessing.value).toBe(false)
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('falls back to transcription_failed when the error payload has no message', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createBatchCredentials('batch-4', 'key-4') })
+            .mockRejectedValueOnce({ status: 502 })
+
+        const asr = useASRDirect({ provider: 'siliconflow', mode: 'batch' })
+
+        await expect(asr.transcribeBatch(new Blob(['audio']))).rejects.toBeTruthy()
+        expect(asr.error.value).toBe('transcription_failed')
+    })
+
+    it('rejects connect when stream credentials carry no query auth', async () => {
+        const credentials = createStreamCredentials('no-auth')
+        delete (credentials as Partial<ASRCredentials>).authQuery
+        fetchMock.mockResolvedValueOnce({ code: 200, data: credentials })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+
+        await expect(asr.connect()).rejects.toThrow('Missing Volcengine query auth parameters')
+        expect(asr.isConnecting.value).toBe(false)
+        expect(asr.error.value).toContain('Missing Volcengine query auth parameters')
+    })
+
+    it('requests fresh credentials again after a disconnect', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createStreamCredentials('first') })
+            .mockResolvedValueOnce({ code: 200, data: createStreamCredentials('second') })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+
+        const firstConnect = asr.connect()
+        await flushPromises()
+        MockWebSocket.instances[0]!.open()
+        await firstConnect
+
+        asr.disconnect()
+        expect(asr.isConnected.value).toBe(false)
+
+        const secondConnect = asr.connect()
+        await flushPromises()
+        MockWebSocket.instances[1]!.open()
+        await secondConnect
+
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+        expect(asr.isConnected.value).toBe(true)
+    })
+
+    it('reconnects when audio is sent while the socket is not open', async () => {
+        fetchMock
+            .mockResolvedValueOnce({ code: 200, data: createStreamCredentials('first') })
+            .mockResolvedValueOnce({ code: 200, data: createStreamCredentials('second') })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+        MockWebSocket.instances[0]!.open()
+        await connectPromise
+
+        const socket = MockWebSocket.instances[0]!
+        socket.readyState = MockWebSocket.CLOSED
+        asr.sendAudio(new Float32Array([0.1, 0.2]))
+        await flushPromises()
+
+        expect(MockWebSocket.instances).toHaveLength(2)
+    })
+
+    it('ignores unknown server packets and unparsable payloads', async () => {
+        fetchMock.mockResolvedValueOnce({ code: 200, data: createStreamCredentials('unknown') })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+        const socket = MockWebSocket.instances[0]!
+        socket.open()
+        await connectPromise
+
+        socket.onmessage?.({ data: 'plain-text-frame' })
+        socket.onmessage?.({ data: new Uint8Array([1, 2]).buffer })
+        socket.onmessage?.({ data: createTruncatedResponsePacket() })
+        await flushPromises()
+
+        expect(asr.finalTranscript.value).toBe('')
+        expect(asr.interimTranscript.value).toBe('')
+        expect(asr.error.value).toBeNull()
+    })
+
+    it('reports unknown server errors for short error frames', async () => {
+        fetchMock.mockResolvedValueOnce({ code: 200, data: createStreamCredentials('short-error') })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+        const socket = MockWebSocket.instances[0]!
+        socket.open()
+        await connectPromise
+
+        socket.onmessage?.({ data: createShortErrorPacket() })
+        await flushPromises()
+
+        expect(asr.error.value).toBe('Unknown server error')
+    })
+
+    it('resets transcripts and error state', async () => {
+        fetchMock.mockResolvedValueOnce({ code: 200, data: createStreamCredentials('reset') })
+
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+        const socket = MockWebSocket.instances[0]!
+        socket.open()
+        await connectPromise
+
+        socket.onmessage?.({
+            data: createVolcengineResponsePacket({ result: [{ text: 'partial' }] }).buffer,
+        })
+        await flushPromises()
+        expect(asr.interimTranscript.value).toBe('partial')
+
+        asr.reset()
+
+        expect(asr.interimTranscript.value).toBe('')
+        expect(asr.finalTranscript.value).toBe('')
+        expect(asr.error.value).toBeNull()
+    })
+})
+
+function createTruncatedResponsePacket() {
+    const packet = new Uint8Array(12)
+    const view = new DataView(packet.buffer)
+    packet[0] = 0x11
+    packet[1] = 0b1001 << 4
+    packet[2] = 0
+    view.setUint32(8, 64, false) // payloadSize 超出实际长度
+    return packet.buffer
+}
+
+function createShortErrorPacket() {
+    const packet = new Uint8Array(8)
+    packet[0] = 0x11
+    packet[1] = 0b1111 << 4
+    return packet.buffer
+}
+
+describe('useASRDirect - 压缩与序列化载荷', () => {
+    beforeEach(() => {
+        MockWebSocket.instances = []
+        fetchMock.mockReset()
+        vi.stubGlobal('WebSocket', MockWebSocket)
+    })
+
+    afterEach(() => {
+        vi.unstubAllGlobals()
+        vi.restoreAllMocks()
+    })
+
+    async function connectSocket(connectId: string) {
+        fetchMock.mockResolvedValueOnce({ code: 200, data: createStreamCredentials(connectId) })
+        const asr = useASRDirect({ provider: 'volcengine', mode: 'stream' })
+        const connectPromise = asr.connect()
+        await flushPromises()
+        const socket = MockWebSocket.instances.at(-1)!
+        socket.open()
+        await connectPromise
+        return { asr, socket }
+    }
+
+    it('inflates gzip response packets received as blobs', async () => {
+        const { asr, socket } = await connectSocket('gzip')
+
+        const payload = zlib.gzipSync(new TextEncoder().encode(JSON.stringify({ result: [{ text: '压缩结果' }] })))
+        const packet = createResponsePacketWithPayload(new Uint8Array(payload), { compression: 0b0001, serialization: 0b0001 })
+        socket.onmessage?.({ data: new Blob([packet]) })
+        await flushPromises()
+
+        await vi.waitFor(() => {
+            expect(asr.interimTranscript.value).toBe('压缩结果')
+        })
+        expect(asr.error.value).toBeNull()
+    })
+
+    it('falls back to raw text when a json payload cannot be parsed', async () => {
+        const { asr, socket } = await connectSocket('bad-json')
+
+        const raw = new TextEncoder().encode('not-json')
+        socket.onmessage?.({ data: createResponsePacketWithPayload(raw, { serialization: 0b0001 }).buffer })
+        await flushPromises()
+
+        expect(asr.finalTranscript.value).toBe('')
+        expect(asr.interimTranscript.value).toBe('')
+        expect(asr.error.value).toBeNull()
+    })
+
+    it('reports a generic transcription error when the error packet has no message', async () => {
+        const { asr, socket } = await connectSocket('silent-error')
+
+        socket.onmessage?.({ data: createVolcengineErrorPacket(45000003, '').buffer })
+        await flushPromises()
+
+        expect(asr.error.value).toBe('transcription_error_45000003')
+    })
+})
+
+function createResponsePacketWithPayload(payload: Uint8Array, options: { compression?: number, serialization?: number } = {}) {
+    const packet = new Uint8Array(12 + payload.length)
+    const view = new DataView(packet.buffer)
+    packet[0] = 0x11
+    packet[1] = 0b1001 << 4
+    packet[2] = ((options.serialization ?? 0) << 4) | (options.compression ?? 0)
+    packet[3] = 0
+    view.setUint32(8, payload.length, false)
+    packet.set(payload, 12)
     return packet
 }

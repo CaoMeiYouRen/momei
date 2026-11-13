@@ -71,6 +71,8 @@ class MockScriptProcessorNode {
 
 class MockAudioContext {
     static lastInstance: MockAudioContext | null = null
+    static workletEnabled = false
+    static processorAvailable = true
 
     state: 'running' | 'suspended' | 'closed' = 'running'
     sampleRate = 16000
@@ -102,6 +104,15 @@ class MockAudioContext {
         if (options?.sampleRate) {
             this.sampleRate = options.sampleRate
         }
+
+        if (MockAudioContext.workletEnabled) {
+            this.audioWorklet = { addModule: vi.fn().mockResolvedValue(undefined) }
+        }
+
+        if (!MockAudioContext.processorAvailable) {
+            this.createScriptProcessor = undefined as never
+        }
+
         MockAudioContext.lastInstance = this
     }
 }
@@ -170,6 +181,8 @@ describe('usePostEditorVoice', () => {
         MockSpeechRecognition.lastInstance = null
         MockMediaRecorder.lastInstance = null
         MockAudioContext.lastInstance = null
+        MockAudioContext.workletEnabled = false
+        MockAudioContext.processorAvailable = true
         MockWebSocket.instances = []
 
         directBatchMock.transcribeBatch.mockReset()
@@ -563,5 +576,134 @@ describe('usePostEditorVoice', () => {
 
         expect(directStreamMock.stop).toHaveBeenCalledTimes(1)
         expect(MockAudioContext.lastInstance?.close).toHaveBeenCalledTimes(1)
+    })
+})
+
+describe('usePostEditorVoice - 音频采集管道', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.useRealTimers()
+        localStorage.clear()
+        MockSpeechRecognition.lastInstance = null
+        MockMediaRecorder.lastInstance = null
+        MockAudioContext.lastInstance = null
+        MockAudioContext.workletEnabled = false
+        MockAudioContext.processorAvailable = true
+        MockWebSocket.instances = []
+
+        directStreamMock.connect.mockReset()
+        directStreamMock.sendAudio.mockReset()
+        directStreamMock.stop.mockReset()
+        directStreamMock.isConnected.value = false
+
+        mockFetch.mockImplementation((url: string) => {
+            if (url === '/api/ai/asr/config') {
+                return Promise.resolve({ enabled: true, siliconflow: true, volcengine: true })
+            }
+
+            return Promise.reject(new Error(`unexpected fetch: ${url}`))
+        })
+
+        getUserMediaMock.mockResolvedValue({
+            getTracks: () => [{ stop: vi.fn() }],
+        })
+
+        vi.stubGlobal('MediaRecorder', MockMediaRecorder)
+        vi.stubGlobal('AudioContext', MockAudioContext)
+        vi.stubGlobal('WebSocket', MockWebSocket)
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+        vi.unstubAllGlobals()
+    })
+
+    it('streams recorded samples to the proxy socket once the stream started', async () => {
+        const voice = await mountVoice()
+
+        voice.mode.value = 'cloud-stream'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        const ws = MockWebSocket.instances[0]
+        const processor = MockAudioContext.lastInstance?.scriptProcessorNode
+        expect(processor?.onaudioprocess).toBeTypeOf('function')
+
+        ws?.onopen?.()
+        // 未收到 started 前不应推送音频
+        processor?.onaudioprocess?.({ inputBuffer: { getChannelData: () => new Float32Array([0.5]) } })
+        expect(ws?.sent.some((payload) => payload.includes('"type":"audio"'))).toBe(false)
+
+        ws?.onmessage?.({ data: JSON.stringify({ type: 'started' }) })
+        if (ws) {
+            ws.sent.length = 0
+        }
+        processor?.onaudioprocess?.({ inputBuffer: { getChannelData: () => new Float32Array([0.5, -0.5]) } })
+
+        const audioFrame = ws?.sent.find((payload) => payload.includes('"type":"audio"'))
+        expect(audioFrame).toBeDefined()
+        expect(JSON.parse(audioFrame as string).payload).toMatch(/^[A-Za-z0-9+/=]+$/u)
+    })
+
+    it('routes samples to the direct stream when the direct socket is connected', async () => {
+        directStreamMock.connect.mockImplementation(() => {
+            directStreamMock.isConnected.value = true
+            return Promise.resolve(undefined)
+        })
+
+        const voice = await mountVoice({ directMode: true })
+
+        voice.mode.value = 'cloud-stream'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        const processor = MockAudioContext.lastInstance?.scriptProcessorNode
+        processor?.onaudioprocess?.({ inputBuffer: { getChannelData: () => new Float32Array([0.25]) } })
+
+        expect(directStreamMock.sendAudio).toHaveBeenCalledTimes(1)
+    })
+
+    it('uses the audio worklet when the runtime supports it', async () => {
+        MockAudioContext.workletEnabled = true
+
+        class MockAudioWorkletNode {
+            port: { onmessage: ((event: { data: Float32Array }) => void) | null } = { onmessage: null }
+            connect = vi.fn()
+        }
+
+        vi.stubGlobal('AudioWorkletNode', MockAudioWorkletNode)
+
+        directStreamMock.connect.mockImplementation(() => {
+            directStreamMock.isConnected.value = true
+            return Promise.resolve(undefined)
+        })
+
+        const voice = await mountVoice({ directMode: true })
+
+        voice.mode.value = 'cloud-stream'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        expect(MockAudioContext.lastInstance?.audioWorklet?.addModule).toHaveBeenCalledWith('/worklets/pcm-capture-processor.js')
+        expect(directStreamMock.connect).toHaveBeenCalled()
+    })
+
+    it('reports audio_processor_not_supported when neither worklet nor processor exists', async () => {
+        MockAudioContext.processorAvailable = false
+
+        const voice = await mountVoice()
+
+        voice.mode.value = 'cloud-stream'
+        await nextTick()
+        voice.startListening('zh-CN')
+        await flushVoiceUpdates()
+
+        await vi.waitFor(() => {
+            expect(voice.error.value).toBe('failed_to_start')
+        })
+        expect(voice.isListening.value).toBe(false)
     })
 })

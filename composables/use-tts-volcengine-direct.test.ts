@@ -568,3 +568,179 @@ describe('useTTSVolcengineDirect', () => {
         }))
     })
 })
+
+// ---- 播客（podcast）直连 ----
+
+function buildErrorFrame(code: number, message: string): ArrayBuffer {
+    const messageBytes = new TextEncoder().encode(message)
+    const frame = new Uint8Array(12 + messageBytes.length)
+    const view = new DataView(frame.buffer)
+
+    view.setUint8(0, 0x11)
+    view.setUint8(1, 0b1111 << 4) // messageType = error
+    view.setUint8(2, 0)
+    view.setUint8(3, 0)
+    view.setUint32(4, code, false)
+    view.setUint32(8, messageBytes.length, false)
+    frame.set(messageBytes, 12)
+
+    return frame.buffer
+}
+
+interface PodcastScript {
+    audioChunks?: number[][]
+    error?: { code: number, message: string }
+    finish?: 'session' | 'none'
+    roundError?: string
+    unparsedFrame?: boolean
+    usageTokens?: number
+}
+
+/** 首个 StartConnection 帧发出后按脚本回放事件；后续 finish 帧不再重复回放。 */
+function simulatePodcastFrames(script: PodcastScript) {
+    let emitted = false
+    const sessionId = 'uuid-1'
+
+    MockWebSocket.prototype.send = function () {
+        if (emitted) {
+            return
+        }
+        emitted = true
+
+        setTimeout(() => {
+            if (script.unparsedFrame) {
+                this.onmessage?.({ data: new Uint8Array(12).buffer })
+            }
+
+            for (const chunk of script.audioChunks ?? []) {
+                this.onmessage?.({ data: buildEventFrame(361, new Uint8Array(chunk), sessionId, 0b0000, 0b0000) })
+            }
+
+            if (script.usageTokens !== undefined) {
+                const usageJson = new TextEncoder().encode(JSON.stringify({ usage: { tokens_total: script.usageTokens } }))
+                this.onmessage?.({ data: buildEventFrame(154, usageJson, sessionId, 0b0001, 0b0000) })
+            }
+
+            if (script.roundError) {
+                const roundJson = new TextEncoder().encode(JSON.stringify({ is_error: true, error_msg: script.roundError }))
+                this.onmessage?.({ data: buildEventFrame(362, roundJson, sessionId, 0b0001, 0b0000) })
+            }
+
+            if (script.error) {
+                this.onmessage?.({ data: buildErrorFrame(script.error.code, script.error.message) })
+            }
+
+            if (script.finish === 'session') {
+                this.onmessage?.({ data: buildEventFrame(152, new Uint8Array(0), sessionId, 0b0000, 0b0000) })
+            }
+        }, 0)
+    }
+}
+
+describe('useTTSVolcengineDirect - podcast', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        mockFetch.mockReset()
+        mockUploadFile.mockReset()
+        MockWebSocket.instances = []
+        MockWebSocket.behavior = 'default'
+        MockWebSocket.prototype.send = vi.fn()
+    })
+
+    it('merges podcast audio chunks, reports usage and writes metadata', async () => {
+        simulatePodcastFrames({ audioChunks: [[1, 2, 3], [4, 5]], finish: 'session', usageTokens: 42 })
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true })
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/podcast.mp3')
+
+        const direct = useTTSVolcengineDirect()
+        const result = await direct.generateAndUpload({
+            mode: 'podcast',
+            text: '这是一段播客文本。',
+            voice: 'zh_male_dayixiansheng_v2_saturn_bigtts,zh_female_mizaitongxue_v2_saturn_bigtts',
+            postId: 'post-1',
+        })
+
+        expect(result.audioUrl).toBe('https://cdn.example.com/podcast.mp3')
+        expect(result.duration).toBe(0)
+        expect(direct.progress.value).toBe(100)
+        expect(MockWebSocket.instances.at(-1)?.url).toContain('wss://tts.example.com?')
+
+        const uploadArg = mockUploadFile.mock.calls[0]?.[0] as File
+        expect(uploadArg.type).toBe('audio/mpeg')
+
+        const metadataCall = mockFetch.mock.calls[1] as [string, { method: string, body: Record<string, unknown> }]
+        expect(metadataCall[0]).toBe('/api/posts/post-1/tts-metadata')
+        expect(metadataCall[1].method).toBe('PUT')
+        expect(metadataCall[1].body.mode).toBe('podcast')
+        expect(metadataCall[1].body.audioUrl).toBe('https://cdn.example.com/podcast.mp3')
+        expect(metadataCall[1].body.providerUsage).toBeTruthy()
+    })
+
+    it('tolerates an unparsable frame before the session ends', async () => {
+        simulatePodcastFrames({ audioChunks: [[9, 9]], finish: 'session', unparsedFrame: true })
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true })
+        mockUploadFile.mockResolvedValueOnce('https://cdn.example.com/podcast.mp3')
+
+        const direct = useTTSVolcengineDirect()
+        await expect(direct.generateAndUpload({
+            mode: 'podcast',
+            text: '播客文本',
+            voice: 'zh_female_mizaitongxue_v2_saturn_bigtts',
+            postId: 'post-1',
+        })).resolves.toMatchObject({ audioUrl: 'https://cdn.example.com/podcast.mp3' })
+    })
+
+    it('rejects on provider error frame and marks the task failed', async () => {
+        simulatePodcastFrames({ error: { code: 45000001, message: 'bad request' } })
+
+        mockFetch
+            .mockResolvedValueOnce(createCredentialResponse())
+            .mockResolvedValueOnce({ success: true })
+
+        const direct = useTTSVolcengineDirect()
+        await expect(direct.generateAndUpload({
+            mode: 'podcast',
+            text: '播客文本',
+            voice: 'zh_female_mizaitongxue_v2_saturn_bigtts',
+            postId: 'post-1',
+            taskId: 'task-9',
+        })).rejects.toThrow('bad request')
+
+        expect(direct.error.value).toContain('bad request')
+        const failureCall = mockFetch.mock.calls[1] as [string, { body: Record<string, unknown> }]
+        expect(failureCall[1].body).toMatchObject({ status: 'failed', taskId: 'task-9', provider: 'volcengine' })
+        expect(mockUploadFile).not.toHaveBeenCalled()
+    })
+
+    it('rejects on podcast round error payload', async () => {
+        simulatePodcastFrames({ roundError: 'round failed' })
+
+        mockFetch.mockResolvedValueOnce(createCredentialResponse())
+
+        const direct = useTTSVolcengineDirect()
+        await expect(direct.generateAndUpload({
+            mode: 'podcast',
+            text: '播客文本',
+            voice: 'zh_female_mizaitongxue_v2_saturn_bigtts',
+        })).rejects.toThrow('round failed')
+    })
+
+    it('rejects when the socket closes without audio', async () => {
+        MockWebSocket.behavior = 'close-no-audio'
+
+        mockFetch.mockResolvedValueOnce(createCredentialResponse())
+
+        const direct = useTTSVolcengineDirect()
+        await expect(direct.generateAndUpload({
+            mode: 'podcast',
+            text: '播客文本',
+            voice: 'zh_female_mizaitongxue_v2_saturn_bigtts',
+        })).rejects.toThrow('without audio')
+    })
+})

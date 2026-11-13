@@ -43,6 +43,11 @@ const translations: Record<string, string> = {
     'common.save': '保存',
     'common.languages.zh-CN': '简体中文',
     'common.languages.en-US': 'English',
+    'common.delete': '删除',
+    'pages.admin.settings.system.agreements.authoritative_version': '权威版本',
+    'pages.admin.settings.system.agreements.reference_translation': '参考翻译',
+    'pages.admin.settings.system.agreements.restrictions.pending_review': '仅已审校的权威版本可以设为生效版本',
+    'pages.admin.settings.system.agreements.activate': '设为生效版本',
 }
 
 const translate = vi.fn((key: string) => translations[key] || key)
@@ -132,6 +137,9 @@ vi.mock('vue-i18n', async (importOriginal) => {
         }),
     }
 })
+
+vi.mock('ofetch', () => ({ $fetch: (...args: unknown[]) => (mockFetch as (...inner: unknown[]) => unknown)(...args) }))
+vi.mock('#build/fetch.mjs', () => ({ $fetch: (...args: unknown[]) => (mockFetch as (...inner: unknown[]) => unknown)(...args) }))
 
 vi.mock('#imports', async (importOriginal) => {
     const actual = await importOriginal<typeof import('#imports')>()
@@ -234,5 +242,239 @@ describe('AgreementsSettings', () => {
         expect(translate).toHaveBeenCalledWith('common.status_label')
         expect(wrapper.text()).toContain('对应权威版本')
         expect(wrapper.text()).toContain('参考翻译会跟随这里选中的权威版本一起展示。')
+    })
+})
+
+describe('AgreementsSettings - 行内操作', () => {
+    const baseItem = {
+        id: 'ua-draft',
+        type: 'user_agreement',
+        language: 'zh-CN',
+        version: '3.0.0',
+        versionDescription: '草案版本',
+        content: '# draft',
+        reviewStatus: 'draft',
+        isFromEnv: false,
+        hasUserConsent: false,
+        isAuthoritativeVersion: true,
+        isReferenceTranslation: false,
+        isCurrentActive: false,
+        isCurrentReference: false,
+        sourceAgreementId: null,
+        sourceAgreementVersion: null,
+        sourceAgreementLanguage: null,
+        effectiveAt: null,
+        updatedAt: null,
+        createdAt: '2026-03-01T00:00:00.000Z',
+        canEdit: true,
+        canDelete: true,
+        canActivate: false,
+        restrictionReasons: ['pending_review'] as const,
+    }
+
+    const approvedItem = {
+        ...baseItem,
+        id: 'ua-approved',
+        version: '2.0.0',
+        reviewStatus: 'approved',
+        canActivate: true,
+        restrictionReasons: [],
+        isCurrentActive: false,
+        effectiveAt: '2026-02-01T00:00:00.000Z',
+    }
+
+    const translationItem = {
+        ...baseItem,
+        id: 'ua-en',
+        language: 'en-US',
+        version: '3.0.0',
+        reviewStatus: 'pending_review',
+        isAuthoritativeVersion: false,
+        isReferenceTranslation: true,
+        sourceAgreementId: 'ua-draft',
+        sourceAgreementVersion: '3.0.0',
+        sourceAgreementLanguage: 'zh-CN',
+        canActivate: false,
+    }
+
+    const createRowFetch = () => vi.fn((url: string, options?: { method?: string, query?: Record<string, unknown> }) => {
+        if (url === '/api/admin/agreements' && !options?.method) {
+            const type = options?.query?.type
+            const items = type === 'user_agreement' ? [baseItem, approvedItem, translationItem] : []
+
+            return Promise.resolve({
+                data: {
+                    mainLanguage: 'zh-CN',
+                    activeAgreementId: 'ua-approved',
+                    items,
+                    authoritativeOptions: [
+                        { id: 'ua-draft', version: '3.0.0', language: 'zh-CN', label: '3.0.0 · zh-CN' },
+                    ],
+                },
+            })
+        }
+
+        return Promise.resolve({ data: { id: 'ua-new' } })
+    })
+
+    async function mountWithRows(impl: (...args: never[]) => unknown) {
+        mockFetch.mockImplementation(impl as never)
+
+        const wrapper = await mountSuspended(AgreementsSettings, {
+            global: {
+                mocks: { $t: translate },
+                stubs: {
+                    CaomeiButton: {
+                        template: '<button :disabled="disabled" :title="title" @click="$emit(\'click\')"><slot /></button>',
+                        props: ['label', 'icon', 'loading', 'disabled', 'title', 'variant', 'tone', 'rounded', 'iconOnly'],
+                        emits: ['click'],
+                    },
+                    CaomeiDataTable: {
+                        template: `
+                            <div class="data-table">
+                                <template v-for="row in data" :key="row.id">
+                                    <div class="row">
+                                        <slot name="cell-version" :row="row" />
+                                        <slot name="cell-language" :row="row" />
+                                        <slot name="cell-role" :row="row" />
+                                        <slot name="cell-relation" :row="row" />
+                                        <slot name="cell-status" :row="row" />
+                                        <slot name="cell-effectiveDate" :row="row" />
+                                        <slot name="cell-updatedAt" :row="row" />
+                                        <slot name="cell-versionDescription" :row="row" />
+                                        <slot name="cell-actions" :row="row" />
+                                    </div>
+                                </template>
+                                <slot name="empty" />
+                            </div>
+                        `,
+                        props: ['data', 'value', 'columns', 'loading'],
+                    },
+                    Column: { template: '<div class="column"></div>', props: ['field', 'header', 'bodyClass'] },
+                    CaomeiTag: { template: '<span class="tag"><slot /></span>', props: ['tone', 'variant'] },
+                    CaomeiDialog: {
+                        template: '<div v-if="open" class="dialog"><slot /><slot name="footer" /></div>',
+                        props: ['open', 'title', 'modal', 'class'],
+                        emits: ['update:open'],
+                    },
+                    CaomeiSelect: {
+                        template: '<select :value="modelValue ?? \'\'" @change="$emit(\'update:modelValue\', $event.target.value || null)"><option value="">--</option></select>',
+                        props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'disabled', 'placeholder'],
+                        emits: ['update:modelValue'],
+                    },
+                    SettingInput: {
+                        template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                        props: ['modelValue'],
+                        emits: ['update:modelValue'],
+                    },
+                    SettingTextarea: {
+                        template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                        props: ['modelValue'],
+                        emits: ['update:modelValue'],
+                    },
+                    ClientOnly: { template: '<div><slot /></div>' },
+                    AdminMavonEditorClient: {
+                        template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                        props: ['modelValue'],
+                        emits: ['update:modelValue'],
+                    },
+                },
+                provide: { toast: mockToast, confirm: mockConfirm },
+            },
+        })
+
+        await flushPromises()
+        return wrapper
+    }
+
+    const findButton = (wrapper: Awaited<ReturnType<typeof mountWithRows>>, label: string) => wrapper.findAll('button')
+        .find((button) => button.text().trim() === label || button.attributes('title') === label)
+
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    it('renders aggregated rows through the cell slots', async () => {
+        const fetchMock = createRowFetch()
+        const wrapper = await mountWithRows(fetchMock)
+        const text = wrapper.text()
+
+        expect(text).toContain('3.0.0')
+        expect(text).toContain('简体中文')
+        expect(text).toContain('权威版本')
+        expect(text).toContain('2.0.0 · 简体中文')
+        expect(text).toContain('草案')
+        expect(text).toContain('已审校')
+        expect(text).toContain('2026年2月1日')
+        expect(text).toContain('草案版本')
+
+        await findButton(wrapper, '完整列表')?.trigger('click')
+        await flushPromises()
+        expect(wrapper.text()).toContain('English')
+        expect(wrapper.text()).toContain('参考翻译')
+    })
+
+    it('submits the draft for review and approves the pending translation', async () => {
+        const fetchMock = createRowFetch()
+        const wrapper = await mountWithRows(fetchMock)
+
+        await findButton(wrapper, '完整列表')?.trigger('click')
+        await flushPromises()
+
+        await findButton(wrapper, '标记已审校')?.trigger('click')
+        await flushPromises()
+
+        expect(fetchMock).toHaveBeenCalledWith('/api/admin/agreements/ua-en/review-status', expect.objectContaining({
+            method: 'POST',
+            body: { reviewStatus: 'approved' },
+        }))
+
+        await findButton(wrapper, '提交审校')?.trigger('click')
+        await flushPromises()
+
+        expect(fetchMock).toHaveBeenCalledWith('/api/admin/agreements/ua-draft/review-status', expect.objectContaining({
+            method: 'POST',
+            body: { reviewStatus: 'pending_review' },
+        }))
+    })
+
+    it('reloads agreements when refresh is clicked and switches the view hint', async () => {
+        const fetchMock = createRowFetch()
+        const wrapper = await mountWithRows(fetchMock)
+        const callsBefore = fetchMock.mock.calls.length
+
+        await findButton(wrapper, '刷新')?.trigger('click')
+        await flushPromises()
+        expect(fetchMock.mock.calls.length).toBeGreaterThan(callsBefore)
+
+        await findButton(wrapper, '完整列表')?.trigger('click')
+        await flushPromises()
+        expect(wrapper.text()).toContain('完整列表会展开全部语言和版本')
+    })
+
+    it('opens the AI draft dialog in a non-main language and keeps the source version', async () => {
+        const fetchMock = createRowFetch()
+        const wrapper = await mountWithRows(fetchMock)
+
+        await findButton(wrapper, 'AI 草案')?.trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('.dialog').exists()).toBe(true)
+        expect(wrapper.text()).toContain('对应权威版本')
+    })
+
+    it('keeps the table empty and warns when loading fails', async () => {
+        const failingFetch = vi.fn((url: string) => {
+            if (url === '/api/admin/agreements') {
+                return Promise.reject(new Error('network down'))
+            }
+            return Promise.resolve({ data: null })
+        })
+
+        const wrapper = await mountWithRows(failingFetch)
+
+        expect(failingFetch).toHaveBeenCalled()
+        expect(wrapper.text()).toContain('尚未设置')
+        expect(wrapper.find('.data-table').exists()).toBe(true)
     })
 })
