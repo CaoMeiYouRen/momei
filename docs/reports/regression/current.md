@@ -11,6 +11,18 @@
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
 
+<!-- regression-window:start:maintenance:caomei-ui-upgrade:2026-11-14 -->
+## 2026-11-14 caomei-ui 1.0.0 → 1.2.0 维护批次
+
+- 执行入口: 人工升级（迁移期纪律），升级后撤销人工通道
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-14-caomei-ui-1.2.0.md`
+- 结果摘要: `Pass`；blocker=0，warning=1（`caomei-hit-target` 引入的 `position: relative` 对依赖外层定位上下文的页面存在潜在影响，当前无差异）。
+- 已执行验证: typecheck=0 error、build=success、`test:visual`=32/32、`test:visual:parity`=83/83（残差与升级前同序）、全量单测=608 文件通过 / 1 跳过（共 609）、5,451 例通过、包体 `coreEntryJs` 280.85/335KB（+0.22KB）、`keyCss` 59.41/62KB（+0.29KB）、`maxAsyncChunkJs` 92.79/130KB 不变。
+- 回归窗口: 本窗口只记依赖升级；palette / token 桥接与视觉基线均无改写。
+- Review Gate: `Pass`（standard 档）；上游 1.1.0 / 1.2.0 无 BREAKING，0 个 prop 移除。
+- 未覆盖边界: 新增能力（Form 组合层 / DatePicker range / Toast 逐语气钩子 / data-density）未采纳；依赖通道由人工改为 Dependabot 常规更新，下一轮自动升级首次验证在对应 PR 上进行。
+<!-- regression-window:end:maintenance:caomei-ui-upgrade:2026-11-14 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-13 -->
 ## 2026-11-13 阶段收口前周期性回归
 

@@ -107,11 +107,11 @@ pnpm governance:count:primevue-usage
 
 | 项 | 目标值 | 说明 |
 | :--- | :--- | :--- |
-| 包名与版本 | **当前锁定 `caomei-ui@1.0.0`**（2026-11-02 GA 发布，2026-11-03 由第七十阶段条目 1a 升级并复测，见 §3.11；此前轨迹见 §3.6 ~ §3.10） | 许可证 MIT；`0.2.0` 发布于 2026-09-22T12:21:29Z、`0.3.0` 发布于 2026-09-24T10:47:52Z；`0.3.0` 升级与基线复测已于 2026-09-26 完成（第六十八阶段条目 1），其后经 Dependabot 单包路径抬版至 `0.5.0`（2026-09-30 发布）、`0.6.0`（2026-10-08 发布）与 `0.7.0`（2026-10-20），前两次**已于 2026-10-13 补做升级纪律要求的阅读、复测与文档对齐**，`0.7.0` 于 2026-10-24 维护批次完成（见 §3.8 / §3.9） |
+| 包名与版本 | **当前 `caomei-ui@^1.2.0`**（2026-11-14 维护批次升级并退出人工升级通道，见 §3.12；历史轨迹见 §3.6 ~ §3.11） | 许可证 MIT；`0.2.0` 发布于 2026-09-22T12:21:29Z、`0.3.0` 发布于 2026-09-24T10:47:52Z；`0.3.0` 升级与基线复测已于 2026-09-26 完成（第六十八阶段条目 1），其后经 Dependabot 单包路径抬版至 `0.5.0`（2026-09-30 发布）、`0.6.0`（2026-10-08 发布）与 `0.7.0`（2026-10-20），前两次**已于 2026-10-13 补做升级纪律要求的阅读、复测与文档对齐**，`0.7.0` 于 2026-10-24 维护批次完成（见 §3.8 / §3.9） |
 | 导出面 | `.` / `./nuxt` / `./resolver` / `./theme.css` / `./package.json` | **`./styles.css` 已在 0.2.0 移除**；`./theme.css` → `dist/styles/index.css`（基础层）。接入面所需入口齐备 |
 | peer 依赖 | `vue@^3.5.0`、`@nuxt/kit@^4.0.0` | momei 侧均已满足 |
 | 运行时依赖 | `reka-ui@2.10.4`、`@lucide/vue@^1.48.0`、`@tanstack/vue-table@9.2.4`、`@internationalized/date@3.12.4` | 由 caomei-ui 自带；**momei 若在自身模板中直接使用 `@lucide/vue` 图标，须在 momei 侧显式声明该依赖**（pnpm 严格 node_modules 不允许直接引用传递依赖） |
-| 版本策略 | 迁移期间**锁定精确版本**（当前 `1.0.0`，不加 `^`、不写范围；历史漂移与升级见 §3.8 ~ §3.11） | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须先读目标版本 `BREAKING CHANGES` 并重跑该批回归，不得静默升级。**2026-10-13 补强**：精确锁定并不阻止依赖机器人在精确值上继续抬版（`0.3.0 → 0.5.0 → 0.6.0` 即由此发生），迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级路径，见 §3.8 |
+| 版本策略 | 迁移期锁定精确版本；**迁移期已于 2026-11-09 结束**，自 1.2.0 起改用 `^1.2.0` 并交回 Dependabot 常规更新（§3.12），升级平稳性由上游回归 + 本仓质量门保证 | 库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容，`minor` 可含破坏性变更（`styles.css → theme.css` 即为例证）；每次升级须先读目标版本 `BREAKING CHANGES` 并重跑该批回归，不得静默升级。**2026-10-13 补强**：精确锁定并不阻止依赖机器人在精确值上继续抬版（`0.3.0 → 0.5.0 → 0.6.0` 即由此发生），迁移收尾前须为 `caomei-ui` 配置 Dependabot `ignore` 或改走人工升级路径，见 §3.8 |
 | 消费前提 | 产物保留逐模块 CSS import，**裸 Node ESM 不能直接 `import` 包根**（`ERR_UNKNOWN_FILE_EXTENSION: .css`） | momei 走 Nuxt / Vite 打包器，满足前提；momei 侧任何 Node 脚本不得直接 import `caomei-ui` 包根 |
 | 本地联调 | `"caomei-ui": "file:../caomei-ui"` | 仅在需要使用未发布改动时启用；切换后需重跑 `pnpm install`（`file:` 为硬链接，重建后须重装）；**该形态不得进入提交** |
 
@@ -234,10 +234,10 @@ pnpm governance:count:primevue-usage
 
 **结论**：
 
-1. **零运行时影响**：GA 与 rc.1 的执行期产物逐字节一致，视觉、行为、包体与 token 面均无变化；升级不构成「非静默批次」，但**仍须**走人工批准入口（`APPROVED_VERSIONS` + 独立提交）并复跑 `test:visual` / `test:visual:parity` / `keyCss` 留证，不得以「无差异」为由跳过纪律（§3.8 / §5.6）。
+1. **零运行时影响**：GA 与 rc.1 的执行期产物逐字节一致，视觉、行为、包体与 token 面均无变化；升级不构成「非静默批次」，但当时**仍须**走人工批准入口（`APPROVED_VERSIONS` + 独立提交）并复跑 `test:visual` / `test:visual:parity` / `keyCss` 留证，不得以「无差异」为由跳过纪律（§3.8 / §5.6）。该人工入口已于 2026-11-14 退役，见 §3.12。
 2. **`.d.ts` 顺序变化对 `vue-tsc` 无影响**：类型成员集合与签名未变，仅生成顺序不同；条目 1a 以 `pnpm typecheck` 全量通过为验收。
 3. **对本阶段的影响**：条目 1c 的参考态采集必须在 GA 升级**之后**执行，使参考态 = 「迁移前源码 + 目标依赖」，避免升级与页面迁移两个变量叠加在同一批视觉归因上。
-4. **`latest` 语义变化**：依赖声明仍为精确版本；`dependabot.yml` 的 `ignore`（`>=1.0.0-rc.2`）继续拦住机器人抬版，`APPROVED_VERSIONS` 的加入按批准流程执行。
+4. **`latest` 语义变化**：当时依赖声明为精确版本、`dependabot.yml` 的 `ignore`（`>=1.0.0-rc.2`）拦住机器人抬版；该策略已于 2026-11-14 撤销，现按常规依赖由 Dependabot 更新（§3.12）。
 
 **实测结论（2026-11-03，第七十阶段条目 1a 完成）**：
 
@@ -251,6 +251,38 @@ pnpm governance:count:primevue-usage
 | 质量门 | `typecheck` 0 / `lint` 0 error / 版本守护单测 2/2 / `pnpm test` 580 files、5,142 passed、1 skipped | 通过 |
 
 未覆盖边界：`.d.ts` 顺序变化未做逐 prop 语义比对（判据为成员集合一致 + 全量 `typecheck`）；E2E 未重跑（无业务 / 样式改动，运行时产物逐字节一致）。证据见回归记录 2026-11-03「第七十阶段条目 1a」窗口。
+
+### 3.12 1.2.0 升级与退出人工升级通道（2026-11-14）
+
+PrimeVue 于 2026-11-09 卸载后 `caomei-ui` 成为唯一组件库，迁移期结束；维护批次把依赖由 `1.0.0` 升到 `1.2.0`，同时撤销「人工升级」通道，恢复与其他依赖一致的 Dependabot 常规更新。
+
+**上游变更阅读（1.1.0 / 1.2.0）**：两版均无 `BREAKING CHANGES`。1.1.0 新增 `CaomeiForm` / `CaomeiFormItem` 组合层、`data-density="touch"` 移动端密度轴（未设置属性时逐值不变）、`--caomei-hit-target-min`（24px）与关闭 / 清空类按钮的不可见命中区（视觉盒不变）。1.2.0 新增 `DatePicker` 的 `selectionMode="range"`、Toast 逐语气覆盖钩子（缺省回退全局 token，未覆盖时零变化）与 DataTable 密度 / 选择列钩子（默认值等于现值）。
+
+**API 差分（tarball 逐文件比对）**：
+
+| 面 | 变化 |
+| :--- | :--- |
+| 组件 | 新增 `CaomeiForm` / `CaomeiFormItem`；无组件移除 |
+| props | **0 个移除**；唯一新增为 `date-picker.selectionMode`（`v-model` 静态类型扩为 `Date \| [Date, Date] \| null`） |
+| 导出 | 仅新增 `CaomeiForm` / `CaomeiFormItem`；`useToast` / `useConfirm` / `useLocale` / `registerLocale` 签名不变 |
+| token | 仅新增 `--caomei-hit-target-min`；无移除；`dist/styles/index.css` 20,595 → 21,225 B（+630 B） |
+| 依赖 / peer | 与 `1.0.0` 完全一致（`reka-ui 2.10.4` 等）；`@lucide/vue ^1.48.0` 由现仓 `^1.70.0` 满足；`node >=22` 满足 |
+
+**实测（本仓，node 24.22.1）**：
+
+| 验证项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| 安装 | `pnpm add caomei-ui@1.2.0` 后 `--frozen-lockfile` 通过；锁文件仅 2 处版本行变化 | 通过 |
+| `typecheck` | 0 error | 通过 |
+| `build` | success（2m15s） | 通过 |
+| 包体 | `coreEntryJs` 280.63 → **280.85** / 335 KB（+0.22 KB）、`keyCss` 59.12 → **59.41** / 62 KB（+0.29 KB）、`maxAsyncChunkJs` 92.79 / 130 KB 不变、`prIncrementJs` 0.22 KB / 20 KB | 通过 |
+| 视觉基线层 | `pnpm test:visual` **32/32** | 通过 |
+| 门禁层 parity | `pnpm test:visual:parity` **83/83**，残差与升级前同序（`post-detail` 32px / 803px 头像区） | 通过 |
+| 全量单测 | `pnpm test` 608 文件通过 / 1 跳过（共 609）、5,451 例通过 / 1 跳过（共 5,452；版本守护 2 例随文件退役） | 通过 |
+
+**通道变更**：删除 `.github/dependabot.yml` 的 `caomei-ui` `ignore`，并把 `tests/modules/caomei-ui-version-pin.test.ts`（精确锁定 + `APPROVED_VERSIONS` 守卫）一并退役——该守卫的语义是「禁止自动升级」，与「交回 Dependabot」互斥；版本稳定性改由上游回归 + 本仓质量门承接。依赖声明改为 `^1.2.0`。
+
+**未覆盖边界**：1.1.0 / 1.2.0 新增能力（Form 组合层、DatePicker range、Toast 逐语气钩子、`data-density`）本批只做升级、不做采纳，按需另立切片；`caomei-hit-target` 引入的 `position: relative` 对「子元素绝对定位依赖外层定位上下文」的页面存在潜在影响，当前 83 条 parity 与 32 条基线未见差异。
 
 ## 4. 目标与非目标
 
@@ -428,13 +460,13 @@ pnpm governance:count:primevue-usage
 
 ### 5.6 消费路径与版本锁定
 
-- **默认消费路径**：npm 常规依赖 `caomei-ui@1.0.0`（第七十阶段条目 1a 起；此前为 `1.0.0-rc.1`，再前为 `0.7.0`），CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
+- **默认消费路径**：npm 常规依赖 `caomei-ui@^1.2.0`（2026-11-14 起；此前 `1.0.0` 精确锁定，更早轨迹见 §3.6 ~ §3.11），CI（`pnpm i --frozen-lockfile`）、Docker、Vercel 均可按标准依赖解析，不需要额外 checkout 兄弟仓库。
 - **本地联调降级路径**：仅在需要验证库侧未发布改动时，临时改为 `file:../caomei-ui`；该形态**不得进入提交**（否则 CI / Docker / Vercel 会因解析不到 `../caomei-ui` 而失败）。
-- **锁定策略**：迁移在飞期使用精确版本（**当前锁定 `1.0.0`**；不加 `^`，也不写 `>=` 范围），避免库侧发布引入非预期行为漂移；迁移收尾后可评估恢复 `^`。
+- **锁定策略**：迁移在飞期使用精确版本（`1.0.0`，不加 `^`）；迁移收尾后已按本段预留的路径恢复 `^1.2.0`（§3.12），不再逐版人工批准。
 - **预发布通道约束（2026-11-01 新增）**：`1.0.0-rc.1` 发布于 `dist-tags.next`（发布时 `latest` 仍为 `0.7.0`）。预发布版本**只能精确锁定**——`^1.0.0-rc.1` / `>=1.0.0-rc.1` 会同时允许 `rc.2` 与 `1.0.0` GA，等于把「读 BREAKING CHANGES + 重跑该批回归」的入口再次放开。`1.0.0` GA 已于 2026-11-02 发布，按同一升级纪律另立批次：已上收为第七十阶段条目 1a（差异实测见 §3.11）。
 - **升级纪律（0.2.0 / 0.3.0 / 0.6.0 / 0.7.0 / 1.0.0-rc.1 / 1.0.0 对照背书）**：库侧「版本与兼容策略」明示 0.x **不承诺**语义化兼容——`0.1.0 → 0.2.0` 的 `styles.css → theme.css` 破坏性形态变更即为例证；`0.3.0` 与 `0.4.0~0.6.0` 无 `BREAKING CHANGES`，`0.7.0` 唯一 BREAKING 为 locale 预注册 + 子路径化，`1.0.0-rc.1` 未声明 BREAKING **但含静态外观变更**（§3.10）——三者共同说明「无破坏性变更」不等于「无行为变化」，每次升级都须重跑该批次视觉回归与定向测试，并在提交信息与回归记录中留痕，不得静默升级。
 - **0.7.0 起的 locale 子路径约束（2026-10-24）**：包根只预注册 `zh-CN` / `en-US`；一旦接入 `provideLocale` / `CaomeiConfigProvider`，`zh-TW` / `ja-JP` / `ko-KR` 必须显式 `import ... from 'caomei-ui/locale/<code>'` 并在 provider 之前 `registerLocale()`（provider 文案是 `computed`，注册晚于挂载不会重算，异步场景须先注册再挂载）。
-- **精确锁定不足以拦截依赖机器人（2026-10-13 实证）**：精确值只固定声明，不能阻止 Dependabot 在精确值上继续抬版——`0.3.0 → 0.5.0 → 0.6.0` 正是这样绕过升级纪律发生的（仅改 `package.json` / 锁文件，无阅读记录、无复测）。**已上收（2026-11-01）**：为 `caomei-ui` 配置 `ignore`（或改为人工升级）列为第六十九阶段条目 1 的执行范围，与 `1.0.0-rc.1` 升级同批落地，使升级只能经「读 `BREAKING CHANGES` + 重跑该批回归」的入口进入；详见 §3.8 / §3.10。
+- **精确锁定不足以拦截依赖机器人（2026-10-13 实证，已于 2026-11-14 退役）**：精确值只固定声明，不能阻止 Dependabot 在精确值上继续抬版——`0.3.0 → 0.5.0 → 0.6.0` 曾绕过升级纪律发生。当时以 `dependabot.yml` 的 `ignore` + `APPROVED_VERSIONS` 人工作为唯一入口；**迁移期结束后该通道已撤销**（§3.12），caomei-ui 与其余依赖同构，风险由 `test:visual` / `test:visual:parity` / 包体预算与全量单测承接。
 
 ### 5.7 样式层叠与 `@layer` 决策（第六十七阶段落地）
 

@@ -94,7 +94,7 @@
 - **目标**: 把 Dependabot / Code Scanning 告警与 ESLint 未覆盖规则（issue #262）当作同一条可量化债务线：告警按严重级与可修性分流、无补丁项进受控台账；ESLint 规则按 `governance:inventory:eslint-rules` 的「命中数 × 目录」分桶逐批升档清零，不为变绿放宽门禁。
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第七十五阶段（条目 1 依赖安全收口 + 条目 2 ESLint 第二批，2026-11-13 **进行中**）。上一阶段为第七十四阶段（条目 1：js-yaml 5 / ESLint `ban-ts-comment` 首批 / stylelint 18 配对，2026-11-13 **已完成**）。
-- **当前基线**: Dependabot open 4 条（minimatch #286 medium、glob #284 medium、deepmerge #275 low、quill #22 low；`@hono/node-server` 两条 medium 已随 2.1.8 关闭）；ESLint 候选规则按命中数排序：`restrict-template-expressions` 251 / `no-unsafe-assignment` 233 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50 / `no-inferrable-types` 44 / `use-unknown-in-catch-callback-variable` 32。
+- **当前基线**: Dependabot open 4 条（minimatch #286 medium、glob #284 medium、deepmerge #275 low、quill #22 low；`@hono/node-server` 两条 medium 已随 2.1.8 关闭）；`caomei-ui` 已于 2026-11-14 升级到 `^1.2.0` 并撤销 `ignore` / 人工批准守卫，回到常规依赖通道（迁移方案 §3.12）；ESLint 候选规则按命中数排序：`restrict-template-expressions` 251 / `no-unsafe-assignment` 233 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50 / `no-inferrable-types` 44 / `use-unknown-in-catch-callback-variable` 32。
 - **下一次可切片方向**: 第二批（已上收）取 22 命中以下的 4 条规则；之后按命中数递增推进 `no-inferrable-types` / `use-unknown-in-catch-callback-variable`；`no-unsafe-*` 系列须单列条目并先评估 typed lint 作用域。
 
 ### 11. UI 视觉质量与界面自检治理
