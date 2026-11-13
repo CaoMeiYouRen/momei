@@ -390,6 +390,18 @@
         --m-mask-background: rgb(0 0 0 / 0.4);
         --m-font-mono: #{meta.inspect($font-mono)};
 
+        /* 字阶：与 `_variables.scss` 的 `$font-size-*` 逐档等值（css 变量供组件内直接消费）。
+         * 只声明成阶梯的 8 档；非阶梯取值（0.85rem / 0.95rem / 1.1rem 等）替换会改变渲染，
+         * 需按批次另行归一，不在等价替换范围内。 */
+        --m-font-size-xs: 0.75rem;
+        --m-font-size-sm: 0.875rem;
+        --m-font-size-md: 1rem;
+        --m-font-size-lg: 1.125rem;
+        --m-font-size-xl: 1.25rem;
+        --m-font-size-2xl: 1.5rem;
+        --m-font-size-3xl: 1.875rem;
+        --m-font-size-4xl: 2.25rem;
+
         // 原生控件配色方案：PrimeVue 主题卸载前由其在 `:root` / `.dark` 注入，
         // 卸载后必须由项目自带，否则暗色下原生表单控件（如 markdown 编辑器的裸 textarea）
         // 回落到 UA 浅色默认值（白底），并与深色滚动条观感不一致。
