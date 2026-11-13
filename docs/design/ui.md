@@ -45,6 +45,7 @@
 -   **中文字体**: 优先使用系统默认的无衬线字体，如 `PingFang SC`, `Microsoft YaHei`，确保跨平台清晰度。可考虑引入开源衬线字体 (如 `Noto Serif SC`) 用于文章正文，营造文学感。
 -   **英文字体**: `Inter` 或 `Roboto`，保持现代感。
 -   **代码字体**: `Fira Code` 或 `JetBrains Mono`。
+-   **字号字阶**: 统一用 `--m-font-size-{xs,sm,md,lg,xl,2xl,3xl,4xl}`（`0.75/0.875/1/1.125/1.25/1.5/1.875/2.25rem`），与 `$font-size-*` 逐档等值；新增样式直接消费 token，不再写字面量。分桶口径、试点范围与非字阶取值清单见 [字号治理 §2](./governance/2026-11-13-font-size-scale-pilot.md#2-字阶)。
 
 ### 2.4 暗色模式 (Dark Mode) 与 主题覆盖 (Theme Overrides)
 
