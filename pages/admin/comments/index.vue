@@ -326,7 +326,7 @@ onMounted(() => {
     }
 
     &__content-text {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -335,7 +335,7 @@ onMounted(() => {
     }
 
     &__post-link {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-primary);
         text-decoration: none;
 
@@ -372,12 +372,12 @@ onMounted(() => {
 
     &__name {
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text);
     }
 
     &__email {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
         opacity: 0.8;
     }

@@ -243,7 +243,7 @@ $color-white: var(--caomei-color-bg);
   }
 
   &__title {
-    font-size: 2.25rem;
+    font-size: var(--m-font-size-4xl);
     font-family: $font-serif;
     font-weight: 700;
     margin-bottom: $spacing-lg;
@@ -255,7 +255,7 @@ $color-white: var(--caomei-color-bg);
   }
 
   &__subtitle {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     color: $color-accent;
     margin-bottom: $spacing-xl * 1.25;
     max-width: 42rem;
@@ -263,7 +263,7 @@ $color-white: var(--caomei-color-bg);
     margin-right: auto;
 
     @include respond-to("md") {
-      font-size: 1.5rem;
+      font-size: var(--m-font-size-2xl);
     }
   }
 
@@ -299,7 +299,7 @@ $color-white: var(--caomei-color-bg);
   }
 
   &__title {
-    font-size: 1.875rem;
+    font-size: var(--m-font-size-3xl);
     font-family: $font-serif;
     font-weight: 700;
     margin-bottom: $spacing-xl * 1.5;
@@ -331,7 +331,7 @@ $color-white: var(--caomei-color-bg);
   }
 
   &__text {
-    font-size: 1.125rem;
+    font-size: var(--m-font-size-lg);
     line-height: 1.75rem;
 
     &--mb {
@@ -407,11 +407,11 @@ $color-white: var(--caomei-color-bg);
 
   &__icon {
     color: $color-ink;
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
   }
 
   &__title {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     font-weight: 700;
     margin-bottom: $spacing-sm * 1.5;
   }
@@ -449,7 +449,7 @@ $color-white: var(--caomei-color-bg);
   }
 
   &__icon {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
   }
 }
 
@@ -461,7 +461,7 @@ $color-white: var(--caomei-color-bg);
   display: inline-block;
 
   &__text {
-    font-size: 1.125rem;
+    font-size: var(--m-font-size-lg);
     line-height: 1.75rem;
   }
 

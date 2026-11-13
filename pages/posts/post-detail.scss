@@ -222,7 +222,7 @@
         }
 
         &-title {
-            font-size: 1.5rem;
+            font-size: var(--m-font-size-2xl);
             font-weight: 700;
             margin-bottom: 0.75rem;
         }
@@ -256,7 +256,7 @@
         border: 2px solid var(--caomei-color-warning);
         border-radius: 0.75rem;
         color: color-mix(in srgb, var(--caomei-color-warning), black 40%);
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
         line-height: 1.5;
         box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--caomei-color-warning), transparent 80%);
@@ -291,16 +291,16 @@
         gap: 0.5rem;
         align-items: center;
         margin-bottom: 1rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
     }
 
     &__breadcrumb-separator {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 
     &__title {
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
         font-weight: 700;
         line-height: 1.25;
         margin-bottom: 1.5rem;
@@ -313,7 +313,7 @@
         gap: 0.75rem 1.5rem;
         align-items: center;
         padding-bottom: 2rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
 
         @media (width <= 768px) {
@@ -334,7 +334,7 @@
 
     &__summary-label {
         margin: 0 0 0.5rem;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -400,7 +400,7 @@
 
     &__section-eyebrow {
         margin: 0 0 0.375rem;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -409,7 +409,7 @@
 
     &__section-title {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         font-weight: 700;
         color: var(--caomei-color-text);
     }
@@ -478,7 +478,7 @@
         border-radius: 999px;
         background: color-mix(in srgb, var(--caomei-color-primary) 12%, transparent);
         color: var(--caomei-color-primary);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         line-height: 1;
     }
@@ -493,7 +493,7 @@
 
     &__related-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 700;
         line-height: 1.5;
         color: var(--caomei-color-text);
@@ -557,12 +557,12 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
     }
 
     &__nav-title {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 700;
         line-height: 1.5;
         color: var(--caomei-color-text);

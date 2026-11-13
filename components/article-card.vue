@@ -161,7 +161,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
     }
 
     &__title {
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 700;
         color: var(--caomei-color-text);
         margin-bottom: $spacing-sm;
@@ -185,7 +185,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         background: var(--m-primary-50);
         border: 1px solid var(--m-primary-200);
         color: var(--m-primary-700);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         line-height: 1;
 
@@ -201,7 +201,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         flex-wrap: wrap;
         gap: $spacing-sm 1.25rem;
         align-items: center;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         margin-bottom: 0.75rem;
 
@@ -251,7 +251,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         border-radius: 999px;
         background: var(--m-surface-100);
         color: var(--caomei-color-text);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 600;
         line-height: 1.2;
 
@@ -266,7 +266,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
     }
 
     &__tag {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
         text-decoration: none;
         transition: color $transition-fast;
@@ -281,7 +281,7 @@ const postPath = computed(() => localePath(`/posts/${props.post.slug || props.po
         align-items: center;
         gap: $spacing-xs;
         color: var(--m-accent-color);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         text-decoration: none;
 

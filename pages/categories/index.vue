@@ -91,7 +91,7 @@ usePageSeo({
     }
 
     &__title {
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
         font-weight: 800;
         margin-bottom: 0.5rem;
     }
@@ -137,7 +137,7 @@ usePageSeo({
     }
 
     &__name {
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 700;
         color: var(--caomei-color-text);
         margin-bottom: 0.5rem;
@@ -145,7 +145,7 @@ usePageSeo({
     }
 
     &__description {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -157,7 +157,7 @@ usePageSeo({
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
     }
 }

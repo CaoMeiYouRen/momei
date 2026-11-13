@@ -221,7 +221,7 @@ const saveSnippet = async () => {
 
                 .quick-capture-title {
                     font-weight: 700;
-                    font-size: 0.875rem;
+                    font-size: var(--m-font-size-sm);
                 }
             }
 
@@ -232,7 +232,7 @@ const saveSnippet = async () => {
                     border: none;
                     background: transparent;
                     padding: 0.5rem 0;
-                    font-size: 1.125rem;
+                    font-size: var(--m-font-size-lg);
                     box-shadow: none;
 
                     &:focus {
@@ -304,7 +304,7 @@ const saveSnippet = async () => {
                     gap: 0.75rem;
 
                     .shortcut-tip {
-                        font-size: 0.75rem;
+                        font-size: var(--m-font-size-xs);
                         color: var(--caomei-color-text-muted);
                     }
                 }

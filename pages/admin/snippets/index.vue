@@ -196,7 +196,7 @@ definePageMeta({
         gap: 0.75rem;
 
         .selected-count {
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
             color: var(--caomei-color-text-muted);
         }
     }
@@ -245,12 +245,12 @@ definePageMeta({
             }
 
             .empty-main-text {
-                font-size: 1.25rem;
+                font-size: var(--m-font-size-xl);
                 font-weight: 500;
             }
 
             .empty-sub-text {
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
                 margin-top: 0.5rem;
             }
         }
@@ -307,7 +307,7 @@ definePageMeta({
             margin-right: auto;
 
             .pagination-report {
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
                 color: var(--caomei-color-text-muted);
                 white-space: nowrap;
             }

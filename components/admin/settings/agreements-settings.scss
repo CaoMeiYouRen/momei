@@ -4,7 +4,7 @@
     }
 
     &__title {
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 600;
         margin-bottom: 0.5rem;
         color: var(--caomei-color-text);
@@ -33,7 +33,7 @@
     }
 
     &__subtitle {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
         margin-bottom: 0.5rem;
         color: var(--caomei-color-text);
@@ -44,7 +44,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__toolbar {
@@ -64,7 +64,7 @@
     &__view-hint {
         margin: 0 0 1rem;
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__controls {
