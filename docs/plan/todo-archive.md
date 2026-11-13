@@ -19,11 +19,33 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第六十五至第七十三阶段共 9 个近线归档块。
+- 主文档当前保留第六十五至第七十四阶段共 10 个近线归档块。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第七十四阶段：工具链现代化、门禁转阻断与存量缺陷收口（已审计归档）
+
+> 归档说明: 第七十四阶段「1 条工具链现代化 + 2 条门禁硬化 + 1 条存量缺陷批 + 1 条 i18n 收敛 + 1 条字阶试点 + 1 条覆盖率」已于 2026-11-13 完成全部条目并归档（2026-11-12 立项，2 天交付）。
+
+- [x] **1. 依赖与静态规则现代化（P1）**
+    - **完成摘要**: js-yaml 5：`pnpm-workspace.yaml` 裸名 override 抬至 `^5.5.0`（`read-yaml-file>js-yaml` 保留 `^3.14.1`），8 处默认导入改 `{ load, dump }`，移除 `@types/js-yaml`，`security:validate-overrides` Pass；ESLint #262 首批把 `ban-ts-comment` 从 `[0]` 升 `[1]` 并清零，inventory 扩至全仓分桶；stylelint 18.0.0 与 `stylelint-config-cmyr ^1.1.0` 成对升级（17.x + 1.0.0 可同批回滚），不带 `--fix` 的全仓扫描 0 error 且无样式改写，PR #1008 收口。
+
+- [x] **2. 质量门禁硬化（P1/P2）**
+    - **完成摘要**: 视觉 parity 以 CI 产物复采 41 路由 / 82 张参考态并刷新 `parity-budget.json`（allowlist 归零），移除 visual job 的 `continue-on-error`，`test.yml` / 门禁 §7 / 测试规范 §7.2 同步；入口包体产出构成清单并把 Sentry 客户端移出入口预载，`test:perf:budget:strict` 保持通过。
+
+- [x] **3. 存量缺陷修复批（P1）**
+    - **完成摘要**: `creator-stats` 改用可移植的周 / 月聚合（含跨年边界用例）、`_admin-dashboard.scss` 断点方向改为 `respond-below("md")`、`typeorm-adapter` 的 `transformOutput` 在只有 `_id` 时仍回填 `id` 并补单测。
+
+- [x] **4. i18n 重复键收敛（P2）**
+    - **完成摘要**: 跨模块同文案收敛至 `common.*` / `legal.*` 并迁移全部引用与五语，剩余组登记 allowlist（组 id + 理由 + 复核日期）并由脚本读取、误报判红；`i18n:check-sync` / `i18n:audit:missing` / `i18n:verify:runtime` 通过。
+
+- [x] **5. UI 字阶治理首批（P2）**
+    - **完成摘要**: 新增 `scripts/governance/inventory-font-sizes.mjs`（口径 455 条声明 / 64 种取值，区分 token / 字阶 / SCSS 变量 / 非字阶）与 `governance:inventory:font-sizes`；`styles/main.scss` 定义 `--m-font-size-{xs,sm,md,lg,xl,2xl,3xl,4xl}` 字阶；公开页 4 文件 + 管理端 4 文件共 47 处等价替换，token 化 0% → 10.33%，非字阶 149 条登记待归一。验证：8 路由 × 明暗双主题逐元素 `getComputedStyle` 的 `font-size` / `line-height` 差异 0；`parity` 83 passed、基线层 32 passed、`lint:css` 0 error。证据见 `artifacts/review-gate/2026-11-13-entry5-font-size-pilot.md` 与 `docs/design/governance/2026-11-13-font-size-scale-pilot.md`。
+
+- [x] **6. 覆盖率第十五批（P2）**
+    - **完成摘要**: 四模块补齐（tts 播客直连全流程 / ASR 压缩与未知包 / 语音采集管道 / 协议设置行内操作），新增 27 例。同源文件口径 statements 82.64% → 83.31%（+247 条 / +0.67pp）：`use-tts-volcengine-direct` 46.5→73.9、`use-asr-direct` 72.3→82.4、`use-post-editor-voice` 77.9→87.8、`agreements-settings.vue` 33.5→69.4；全量 609 文件 / 5,453 例通过。证据见 `artifacts/review-gate/2026-11-13-entry6-coverage-batch15.md` 与 `artifacts/coverage/coverage-final.batch-15-exit.json`。
 
 ## 第七十三阶段：迁移后质量收尾与门禁硬化（已审计归档）
 

@@ -11,6 +11,18 @@
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-13 -->
+## 2026-11-13 阶段收口前周期性回归
+
+- 执行入口: `pnpm regression:phase-close` 的分步等价执行（本机未整链运行，见未覆盖边界）
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-13-entry5-font-size-pilot.md` / `../../../artifacts/review-gate/2026-11-13-entry6-coverage-batch15.md` / `../../../artifacts/review-gate/2026-11-13-master.md` / `../../../artifacts/coverage/coverage-final.batch-15-exit.json`
+- 结果摘要: `Pass`；blocker=0，warning=2（`use-asr-direct` 82.4% 未达模块级 85%；新增脚本使可覆盖语句分母 +753，全局百分比口径需按同源文件比较）。
+- 已执行验证: test:coverage=PASS（609 文件 / 5,453 例通过、1 跳过；Statements 82.18% 全局 / 83.31% 同源口径）、test:visual=PASS（32 passed）、test:visual:parity=PASS（83 passed）、test:perf:budget:strict=PASS（coreEntryJs 280.63/335KB、keyCss 59.12/62KB）、duplicate-code:check:strict=PASS、review-gate:generate:check=PASS、lint / lint:css / typecheck=0 error、docs:check:{i18n,links,markers,line-count}=PASS。
+- 回归窗口: 本阶段 6 个条目窗口与阶段收口结论汇总于本文件（2026-11-11 / 2026-11-13 两条窗口并存）。
+- Review Gate: `Pass`；条目 5 为 deep 档、条目 6 为 standard 档，均无 blocker。
+- 未覆盖边界: 本机未整链运行 `pnpm regression:phase-close`（缺 `release:check:full` 的 E2E 段与视觉重跑链），其余分步检查已逐项执行并通过；CI 侧的 `Test` / visual job 与 codecov 结论待推送后回填。
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-13 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-11 -->
 ## 2026-11-11 阶段收口前周期性回归（自动回填）
 
