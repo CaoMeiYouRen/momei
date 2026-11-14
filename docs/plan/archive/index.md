@@ -10,9 +10,9 @@
 
 ## 2. 当前基线（2026-11-15）
 
-- `roadmap.md`: `261` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十五阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-75.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
+- `roadmap.md`: `298` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十五阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-75.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
 - `todo-archive.md`: `234` 行（脚本口径），健康窗口（主窗口保留第七十至第七十五阶段共 6 个近线归档块；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
-- `backlog.md`: `278` 行（脚本口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 短期候选；#1 覆盖率基线已更新为第十六批 83.28%）。
+- `backlog.md`: `260` 行（脚本口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 短期候选；#1 覆盖率基线已更新为第十六批 83.28%）。
 - `docs/reports/regression/current.md`: `51` 行 / 4 条，处于健康窗口（仅保留近线窗口；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
 
 ## 3. 阈值定义
