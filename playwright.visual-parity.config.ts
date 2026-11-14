@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { buildInstallationServerCommand, defaultAuthSecret, installationBaseURL } from './tests/helpers/playwright-servers'
+import { buildInstallationServerCommand, defaultAuthSecret, e2eHost as visualHost, e2ePort as visualPort, installationBaseURL } from './tests/helpers/playwright-servers'
 
 /**
  * 视觉一致性门禁（visual parity gate）独立工程配置。
@@ -21,8 +21,6 @@ import { buildInstallationServerCommand, defaultAuthSecret, installationBaseURL 
  * docs/design/governance/2026-10-13-visual-parity-gate.md。
  */
 
-const visualHost = '127.0.0.1'
-const visualPort = 3001
 const visualBaseURL = `http://${visualHost}:${visualPort}`
 const visualAuthSecret = defaultAuthSecret
 
@@ -116,7 +114,7 @@ export default defineConfig({
             command: visualServerCommand,
             url: visualBaseURL,
             /* 采集参考态时（可能位于独立 git worktree）必须启用自己的 server，
-             * 避免误复用端口 3001 上其他工作树的实例。 */
+             * 避免误复用 `e2ePort` 上其他工作树的实例。 */
             reuseExistingServer: !process.env.CI && !process.env.PARITY_ISOLATED_SERVER,
             timeout: 600000,
         },

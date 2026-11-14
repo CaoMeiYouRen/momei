@@ -6,12 +6,48 @@
  */
 export const defaultAuthSecret = 'lhci-test-secret-0123456789abcdef'
 
-export const e2eHost = '127.0.0.1'
-export const e2ePort = 3001
+/** E2E / 视觉层共用的 loopback 主机；只接受 loopback，避免把 TEST_MODE 种子服务暴露到全网卡。 */
+export function resolveE2eHost(value: string | undefined) {
+    if (!value) {
+        return '127.0.0.1'
+    }
+
+    if (value !== '127.0.0.1' && value !== 'localhost') {
+        throw new Error(`[playwright-servers] E2E_HOST 只支持 loopback（127.0.0.1 / localhost），收到: ${value}`)
+    }
+
+    return value
+}
+
+/** 端口允许用环境变量覆盖：本机 3001 / 3002 可能被其他常驻应用占用，CI 默认端口保持不变。 */
+export function resolvePort(value: string | undefined, fallback: number) {
+    if (!value) {
+        return fallback
+    }
+
+    if (!/^\d+$/u.test(value)) {
+        throw new Error(`[playwright-servers] 非法端口: ${value}`)
+    }
+
+    const parsed = Number(value)
+
+    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 65535) {
+        throw new Error(`[playwright-servers] 非法端口: ${value}`)
+    }
+
+    return parsed
+}
+
+export const e2eHost = resolveE2eHost(process.env.E2E_HOST)
+export const e2ePort = resolvePort(process.env.E2E_PORT, 3001)
 export const e2eBaseURL = `http://${e2eHost}:${e2ePort}`
 
-export const installationPort = 3002
+export const installationPort = resolvePort(process.env.E2E_INSTALLATION_PORT, 3002)
 export const installationBaseURL = `http://${e2eHost}:${installationPort}`
+
+if (e2ePort === installationPort) {
+    throw new Error(`[playwright-servers] E2E_PORT 与 E2E_INSTALLATION_PORT 不能相同（${e2ePort}）`)
+}
 
 /**
  * 安装向导第二实例的环境变量。

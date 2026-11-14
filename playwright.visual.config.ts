@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-import { buildInstallationServerCommand, defaultAuthSecret, installationBaseURL } from './tests/helpers/playwright-servers'
+import { buildInstallationServerCommand, defaultAuthSecret, e2eHost as visualHost, e2ePort as visualPort, installationBaseURL } from './tests/helpers/playwright-servers'
 
 /**
  * 视觉回归（截图识别层）独立工程配置。
@@ -18,8 +18,6 @@ import { buildInstallationServerCommand, defaultAuthSecret, installationBaseURL 
  * 依据见 docs/design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md §8.2。
  */
 
-const visualHost = '127.0.0.1'
-const visualPort = 3001
 const visualBaseURL = `http://${visualHost}:${visualPort}`
 const visualAuthSecret = defaultAuthSecret
 
@@ -118,7 +116,7 @@ export default defineConfig({
             command: visualServerCommand,
             url: visualBaseURL,
             /* 服务器由本 config 的 webServer 启动（workflow 只负责构建 / 下载产物）。
-             * 与 e2e 共用端口 3001：CI 为独立 runner 无冲突；本地避免与 dev / e2e 并发运行。
+             * 与 e2e 共用 `e2ePort`（默认 3001）：CI 为独立 runner 无冲突；本地避免与 dev / e2e 并发运行。
              * 本地复用已运行服务；CI 不复用（与 playwright.config.ts 一致）。 */
             reuseExistingServer: !process.env.CI,
             timeout: 600000,
