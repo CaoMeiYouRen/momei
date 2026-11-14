@@ -94,7 +94,7 @@
 - **目标**: 把 Dependabot / Code Scanning 告警与 ESLint 未覆盖规则（issue #262）当作同一条可量化债务线：告警按严重级与可修性分流、无补丁项进受控台账；ESLint 规则按 `governance:inventory:eslint-rules` 的「命中数 × 目录」分桶逐批升档清零，不为变绿放宽门禁。
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第七十五阶段（条目 1 依赖安全收口 + 条目 2 ESLint 第二批，2026-11-13 **进行中**）。上一阶段为第七十四阶段（条目 1：js-yaml 5 / ESLint `ban-ts-comment` 首批 / stylelint 18 配对，2026-11-13 **已完成**）。
-- **当前基线（2026-11-14 条目 1 本地处置后，待推送）**: Dependabot 仍 open 4 条（#286 minimatch / #284 glob medium、#275 deepmerge low、#22 quill low）；本地锁文件已消除 #286/#284 的受影响版本，#22 随 quill 依赖移除而消失，三者**待推送后由 Dependabot 重扫关闭并回填**；#275 无补丁，继续 open 并按 low 登记 `dependency-risk-allowlist.json` 台账（仅追踪、不改门禁 severity，复核至 2027-05-14）；`@hono/node-server` 两条 medium 已随 2.1.8 关闭；`caomei-ui` 已于 2026-11-14 升级到 `^1.2.0` 并撤销 `ignore` / 人工批准守卫，回到常规依赖通道（迁移方案 §3.12）；台账治理下一轮切片：`dependency-risk-allowlist` 增加 `reviewBy` 机读复核日期与到期提醒输出；补 §5.3「仅追踪型低危条目」口径与 high 阈值惰性单测。ESLint 候选规则按命中数排序：`restrict-template-expressions` 251 / `no-unsafe-assignment` 233 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50 / `no-inferrable-types` 44 / `use-unknown-in-catch-callback-variable` 32。
+- **当前基线（2026-11-14 条目 1 完成后）**: Dependabot open 仅 deepmerge #275 low（无补丁，登记 `dependency-risk-allowlist.json` 台账，仅追踪、不改门禁 severity，复核至 2027-05-14）；minimatch #286 / glob #284 已按父级 scoped override 定向抬版、quill #22 随依赖移除，三者于推送 `b649181e` 后由 Dependabot 重扫关闭；`@hono/node-server` 两条 medium 已随 2.1.8 关闭；`caomei-ui` 已于 2026-11-14 升级到 `^1.2.0` 并撤销 `ignore` / 人工批准守卫，回到常规依赖通道（迁移方案 §3.12）；台账治理下一轮切片：`dependency-risk-allowlist` 增加 `reviewBy` 机读复核日期与到期提醒输出；补 §5.3「仅追踪型低危条目」口径与 high 阈值惰性单测。ESLint 候选规则按命中数排序：`restrict-template-expressions` 251 / `no-unsafe-assignment` 233 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50 / `no-inferrable-types` 44 / `use-unknown-in-catch-callback-variable` 32。
 - **下一次可切片方向**: 第二批（已上收）取 22 命中以下的 4 条规则；之后按命中数递增推进 `no-inferrable-types` / `use-unknown-in-catch-callback-variable`；`no-unsafe-*` 系列须单列条目并先评估 typed lint 作用域。
 
 ### 11. UI 视觉质量与界面自检治理
@@ -233,7 +233,7 @@
     - **非目标**: 不放宽 4.6.4 的缓存安全规则；不改 `routeRules` 的 swr / isr 时长；不为恢复缓存改动鉴权或会话链路。
     - **前置**: 确认生产侧首页缓存命中率与回源量；评估关闭 cookie 对五语用户的影响。
 16. **（已闭合，2026-11-14）quill 上游补丁跟踪（GHSA-v3m3-f69x-jf25，low / 无 patched version）**
-    - **闭合方式**: 全局检索确认 `quill` 在源码中零引用（仅 `package.json` 声明与 `nuxt.config.ts` 的 `vite.ssr.noExternal` / `vite.build.rolldownOptions.external` 两处针对 quill 的配置——配置项本身合法，但 quill 从未 import 故为 no-op；`.output` 无 Quill 产物），实际富文本 / Markdown 编辑器为 `mavon-editor`。条目 1 已删除该依赖与两处无效配置，本地依赖图不再包含 quill，告警待推送后由 Dependabot 重扫关闭。
+    - **闭合方式**: 全局检索确认 `quill` 在源码中零引用（仅 `package.json` 声明与 `nuxt.config.ts` 的 `vite.ssr.noExternal` / `vite.build.rolldownOptions.external` 两处针对 quill 的配置——配置项本身合法，但 quill 从未 import 故为 no-op；`.output` 无 Quill 产物），实际富文本 / Markdown 编辑器为 `mavon-editor`。条目 1 已删除该依赖与两处无效配置，本地依赖图不再包含 quill；推送 `b649181e` 后 Dependabot 重扫，告警 #22 已关闭。
     - **原背景**: Dependabot 告警 #22 为 low 且无官方 patched version，低于 `security:alerts` 的 `--min-severity=high`，不阻断发布；`security-alert-exceptions.json` 中对应过期条目已按台账治理移除。
     - **边界**: 若未来重新引入富文本编辑器并需要 quill，须先确认上游是否已修复该 XSS（HTML export）告警。
 
