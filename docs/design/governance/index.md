@@ -48,7 +48,11 @@
 - **[界面自检清单与视觉债治理计划](./2026-10-26-ui-review-checklist-plan)**: 从通用 UI 规则中筛出 U1–U6 检查项、筛选口径、执行切片与验收标准（候选，待上收）。
 - **[需向上游 caomei-ui 反馈的问题清单](./2026-09-25-caomei-ui-upstream-feedback)**: 迁移中实测确认的库侧缺口与文档缺口及上游落点。
 
+## 治理巡检
+
+- [2026-11-14 专项治理报告巡检（>180 天）](./2026-11-14-governance-report-inspection.md): 巡检 20 份 >180 天文档，2 份归档、18 份在役。
+
 ## 已归档文档入口
 
 - 历史阶段规划稿、已完成评估、已完成工程文档与阶段分析报告已迁入 [archive/](./archive/index.md)。
-- **已完成评估归档**: [Cloudflare 运行时研究](./archive/cloudflare-runtime-study.md)、[Harness Engineering 方案](./archive/harness-engineering-adoption.md)、[微信公众号预览](./archive/wechat-mp-preview-export-assist.md)、[第八阶段复盘](./archive/phase-8-feasibility-report.md)、[跨包复用治理评估](./archive/cross-package-reuse-evaluation.md)、[隐私分析集成评估](./archive/privacy-analytics-evaluation.md)、[友链导航评估](./archive/friend-link-ring-navigation-evaluation.md)、[未使用 API 清理评估](./archive/unused-api-cleanup-assessment.md)、[未使用 API 第二轮评估](./archive/unused-api-round2-assessment.md)。
+- **已完成评估归档**: [API Schema 校验治理初审](./archive/api-schema-validation-governance.md)、[多语言内容资产化承接入口](./archive/multilingual-assetization-intake.md)、[Cloudflare 运行时研究](./archive/cloudflare-runtime-study.md)、[Harness Engineering 方案](./archive/harness-engineering-adoption.md)、[微信公众号预览](./archive/wechat-mp-preview-export-assist.md)、[第八阶段复盘](./archive/phase-8-feasibility-report.md)、[跨包复用治理评估](./archive/cross-package-reuse-evaluation.md)、[隐私分析集成评估](./archive/privacy-analytics-evaluation.md)、[友链导航评估](./archive/friend-link-ring-navigation-evaluation.md)、[未使用 API 清理评估](./archive/unused-api-cleanup-assessment.md)、[未使用 API 第二轮评估](./archive/unused-api-round2-assessment.md)。

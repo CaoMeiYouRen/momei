@@ -13,6 +13,7 @@
 ## 已完成评估（17）
 
 - [ai-setup-assistant-evaluation.md](./ai-setup-assistant-evaluation.md)
+- [api-schema-validation-governance.md](./api-schema-validation-governance.md)
 - [caomei-auth-oauth-evaluation.md](./caomei-auth-oauth-evaluation.md)
 - [cloudflare-runtime-study.md](./cloudflare-runtime-study.md)
 - [commercialization-reassessment-framework.md](./commercialization-reassessment-framework.md)
@@ -29,7 +30,7 @@
 - [unused-api-round2-assessment.md](./unused-api-round2-assessment.md)
 - [wechat-mp-preview-export-assist.md](./wechat-mp-preview-export-assist.md)
 
-## 已完成工程文档（6）
+## 已完成工程文档（7）
 
 - [backlog-consolidation-plan.md](./backlog-consolidation-plan.md)
 - [creator-statistics.md](./creator-statistics.md)
@@ -37,6 +38,7 @@
 - [e2e-testing-enhancement.md](./e2e-testing-enhancement.md)
 - [harness-phase-b-quality-gates.md](./harness-phase-b-quality-gates.md)
 - [post-sharing.md](./post-sharing.md)
+- [multilingual-assetization-intake.md](./multilingual-assetization-intake.md)
 
 ## 阶段分析报告（1）
 

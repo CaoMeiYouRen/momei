@@ -257,7 +257,7 @@
 		- ✅ 已登录用户自动填充默认值（`pages/benefits.vue` 中 `watch(loggedInUser)` 首次自动填充 `name` + `email`）
 		- ✅ 多语言翻译已补全：`pages.enhanced_pack` 已添加到 `ja-JP`、`ko-KR`、`zh-TW` 的 `public.json`，`demo.paths.enhanced_pack` 已同步补全到对应三语 `demo.json`
 		- ✅ Footer 新增增强包链接（`components/app-footer.vue`，5 语种 `common.enhanced_pack` 翻译已补齐）
-	- 验收: 已在 `docs/design/governance/multilingual-assetization-intake.md` 补齐专项设计文档，首版只做独立说明 / 申请页与真实 CTA。
+	- 验收: 已在 `docs/design/governance/archive/multilingual-assetization-intake.md` 补齐专项设计文档，首版只做独立说明 / 申请页与真实 CTA。
 	- 验收: 已形成「让你的技术内容自动触达全球读者」单一主卖点文案，并明确免费核心与付费增强边界；已有 3 条公开入口完成导流接入（Demo Banner / About 页 / Footer），形成"入口 -> 承接页 -> 申请 / 候补名单"的最小闭环。
 	- 非目标: 未对现有免费能力加锁，未扩写为完整销售站点改版。
 	- 验证: `pages/benefits.test.ts`（6 tests）、`waitlist.post.test.ts`（2 tests）、`benefit-waitlist.test.ts`（7 tests）全部通过；`lint:i18n` 与 `nuxt typecheck` 通过；回归记录已回链到活动回归窗口。
