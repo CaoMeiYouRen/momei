@@ -17,9 +17,9 @@
 
 ## 当前进行中阶段
 
-**第七十五阶段：依赖与静态规则收口、字号归一与治理口径统一（6 条待开工）**
+**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（6 条在办，条目 3 已移出）**
 
-> 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
+> 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」；2026-11-14 用户决策插队加入条目 7（Node 26 运行时基线），并按「进一出一」把条目 3 移出至 backlog #11。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
 
 - [ ] **1. 依赖安全收口（P1）**
     - **执行范围**: **1a minimatch / glob**——GHSA #286（minimatch `>=7.0.0 <11.0.1`，修 11.0.1）与 #284（glob `>=9.0.0 <=14.0.1`，修 14.0.2）当前解析到 10.2.5 / 10.2.6 与 10.5.0 / 11.1.0 / 13.0.7 / 14.0.4；先 `pnpm why` 列消费链，按父级 scoped override 定向抬版，禁止裸名跨大版本强推。**1b 无补丁项**——deepmerge 4.3.1（#275）与 quill 2.0.3（#22）登记安全 allowlist / 告警豁免台账，写明影响面、不可修原因与复核日期（≤6 个月）。
@@ -34,13 +34,6 @@
     - **验收标准**: 4 条规则命中清零且 effectiveSeverity=1；`pnpm lint` 0 error、warning ≤ 10；inventory 表更新落盘。
     - **验证矩阵 / 证据落点**: V0 + V1 + RG；inventory 前后对照与 lint 输出写入 `artifacts/review-gate/`。
     - **回滚边界**: 按规则独立回退（配置与代码修复同批）。
-
-- [ ] **3. 字号归一与字阶批量替换（P2）**
-    - **执行范围**: **A 评估**——149 条非字阶取值（0.85/1.1/0.95/0.8125/0.8/0.7/0.9rem、2rem、2.5rem、0.9em、3rem 等）产出「归一目标 → 受影响组件 / 版式」报告，只对实测 ±0 或经用户确认的档位执行。**B 替换**——剩余 225 处口径内字面量按目录分批改 `var(--m-font-size-*)`（`components/admin/posts` 67 处优先），单批 ≤10 文件。
-    - **非目标**: 不新增字阶档；不改 U1–U6；不做暗色 tint；未评估的 `clamp()` / `em` 不动。
-    - **验收标准**: 评估报告落盘 `docs/design/governance/`；每批 `getComputedStyle` 逐元素对账 0 差异（浅 / 深）、`test:visual` / `parity` 通过且未归因差异 0、`lint:css` 0 error；token 覆盖率单调上升。
-    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；分桶前后报告、对账 JSON 与截图写入 `artifacts/review-gate/`。
-    - **回滚边界**: 每批独立可回滚；token 定义与首批同批 revert。
 
 - [ ] **4. i18n allowlist 复核与公开页 runtime 审计（P2）**
     - **执行范围**: 64 组 / 149 keys / 33 跨模块按三类复核（动态拼接改显式静态映射、模块内语义不同保留、跨模块对象语义不同评估上收 `common.*`）；allowlist 每条补理由 + 复核日期；归档 / 分类 / 标签列表页纳入 `i18n:verify:runtime`。
@@ -62,6 +55,14 @@
     - **验收标准**: `docs:check:{line-count,source-of-truth,links,markers}` 全 PASS；`index.md` 与脚本单点一致；巡检与归档清单落盘可查。
     - **验证矩阵 / 证据落点**: V0 + V1 + RG；脚本输出与归档清单写入 `artifacts/review-gate/`。
     - **回滚边界**: 按文件独立回滚。
+
+- [ ] **7. Node 26 运行时基线单点化（P1，插队）**
+    - **插队原因**: 用户 2026-11-14 决策。现状三处不一致：`engines` 24.x、Docker 基础镜像 `node:24.22.1-alpine`、CI `lts/*` 实际解析 26.13.1（运行日志另带 `Unsupported engine` 警告）；本机默认 26 与仓库基线 24 混用已实测触发 `better-sqlite3` ABI 报错（`Module did not self-register`，`/api/*` 503）。严格分类属 C 类（非阻塞），按用户明确指示插队，并以「进一出一」把条目 3 移出到 backlog。
+    - **执行范围**: **7a 单点声明**——新增 `.nvmrc` = `26.13.1`；`package.json` 的 `engines.node` 改 `26.x`；7 个 workflow（`test` / `docker` / `release` / `docs` / `regression-weekly` / `dependency-risk-daily` / `visual-reference-refresh`，共 22 处）的 `node-version: "lts/*"` 改 `node-version-file: .nvmrc`，并同步 `Setup Node.js@lts environment` 步骤名。**7b 生产镜像**——`Dockerfile` 的 `NODE_BUILD_IMAGE` / `NODE_RUNTIME_IMAGE` 默认值改 `node:26.13.1-alpine`（保留 `--build-arg` 覆盖能力与既存安全版校验）。**7c 原生模块与冒烟**——`pnpm rebuild better-sqlite3`，用 Node 26 构建 `.output` 并启动，验证 `/api/install/status` 与 DB 读写；`docker build` 后用容器跑同一探针。**7d 文档**——README「依赖要求」改为 Node.js 26.13.1+，`docs/standards/development.md` 增加一行本地环境要求（指向 `.nvmrc`），`docs/design/governance/` 记录本次运行时升级评估与回退路径。
+    - **非目标**: 不升 pnpm / Nuxt / Vite 大版本；不采纳 Node 26 新特性；不改 Dockerfile 的 22 / 24 / 26 安全版校验白名单（仍需支持 `--build-arg` 覆盖）；不做 Node 26 与 24 的双版本 CI 矩阵。
+    - **验收标准**: `nvm use`（无参数）读到 `.nvmrc` 的 26.13.1；CI 日志为 `node: v26.13.1` 且无 `Unsupported engine`；Node 26 下 `pnpm install --frozen-lockfile`、`pnpm build`、`.output` 启动后 `/api/install/status` 200 且 DB 读写正常；Docker 镜像构建成功、容器启动后同一探针 200；`pnpm test`、`test:visual`（32）、`test:visual:parity`（83）、`test:perf:budget:strict` 全通过；`engines` / `.nvmrc` / workflow / Dockerfile 四处版本单点一致（无 `lts/*` 残留）。
+    - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + V4 + RG；`node -v` 与原生模块重建日志、`.output` 与容器探针输出、CI run 链接、包体与视觉结论写入 `artifacts/review-gate/`。
+    - **回滚边界**: `.nvmrc` / `engines` / 7 个 workflow / `Dockerfile` / README 同批 revert 回 24.22.1，并用旧基础镜像重建一次。**kill-switch**: `node:26.13.1-alpine` 拉取失败或容器冒烟不通过时，先退 `node:26-alpine` 并在证据中记录实际解析版本；仍失败则回退 24 基线，把本项移回 backlog 并登记阻塞原因。
 
 > 上一阶段归档：第七十四阶段「工具链现代化、门禁转阻断与存量缺陷收口」已于 2026-11-13 完成全部 6 条条目并归档，正文见 [roadmap 归档分片](./archive/roadmap-phases-74.md)、条目明细见 [待办事项归档](./todo-archive.md)、阶段结论见 [项目计划](./roadmap.md#第七十四阶段归档结论最近归档阶段)。
 
