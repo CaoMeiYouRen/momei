@@ -1,7 +1,7 @@
 {
-    "reviewedAt": "2026-11-12",
-    "reviewDueAt": "2027-05-12",
-    "summary": "入口收敛后剩余 64 组；按动态拼接 / 模块内字段语义 / 跨模块对象语义分类，明细见各组 reason。",
+    "reviewedAt": "2026-11-14",
+    "reviewDueAt": "2027-05-14",
+    "summary": "入口收敛后剩余 64 组；按动态拼接 / 模块内字段语义 / 跨模块对象语义分类，明细见各组 reason（2026-11-14 复核：修正 3 组动态拼接理由与 3 组静态语境理由，其余动态 / 跨模块判定按源码复核保留）。",
     "groups": [
         {
             "id": "g-00673deca495",
@@ -11,7 +11,7 @@
             ],
             "referenceValue": "图像生成",
             "reason": "类型标签通过动态 key 拼接渲染（如 types.${type}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-05ccfb416676",
@@ -21,7 +21,7 @@
             ],
             "referenceValue": "置顶",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-08ebae54eeb8",
@@ -31,7 +31,7 @@
             ],
             "referenceValue": "文本生成",
             "reason": "类型标签通过动态 key 拼接渲染（如 types.${type}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-0a2e585d3895",
@@ -43,7 +43,7 @@
             ],
             "referenceValue": "失败",
             "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-1044b58a2fa9",
@@ -53,7 +53,7 @@
             ],
             "referenceValue": "🔐",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-114968cd0078",
@@ -63,7 +63,7 @@
             ],
             "referenceValue": "名称不能为空",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-11f2177be455",
@@ -73,7 +73,7 @@
             ],
             "referenceValue": "文本",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-134fe76b3d0e",
@@ -83,7 +83,7 @@
             ],
             "referenceValue": "启用",
             "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-152695bae25f",
@@ -93,7 +93,7 @@
             ],
             "referenceValue": "成功",
             "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-157bffaf9289",
@@ -104,7 +104,7 @@
             ],
             "referenceValue": "播客",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-16962aa45ab5",
@@ -114,7 +114,7 @@
             ],
             "referenceValue": "用户协议",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-1afff35feb19",
@@ -124,7 +124,7 @@
             ],
             "referenceValue": "已用 {used} / 上限 {limit}",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-1cfd2702bac1",
@@ -136,7 +136,7 @@
             ],
             "referenceValue": "已完成",
             "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-1f0ecc274d94",
@@ -148,7 +148,7 @@
             ],
             "referenceValue": "草稿",
             "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-2171c326ef53",
@@ -158,7 +158,7 @@
             ],
             "referenceValue": "AI 服务",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-222535bb406f",
@@ -168,7 +168,7 @@
             ],
             "referenceValue": "当前页面仍有未保存的更改，确定要离开吗？",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-233746c67de7",
@@ -180,7 +180,7 @@
             ],
             "referenceValue": "标题",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-2486373ab3ee",
@@ -190,7 +190,7 @@
             ],
             "referenceValue": "优先级",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-264e7904895a",
@@ -200,7 +200,7 @@
             ],
             "referenceValue": "正文",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-2da86973d7ce",
@@ -211,7 +211,7 @@
             ],
             "referenceValue": "电子邮箱",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-2e5f47f960c0",
@@ -220,8 +220,8 @@
                 "pages.admin.comments.status_published"
             ],
             "referenceValue": "已发布",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "comments 页按 `comments.status_${status}` 动态查表，与 common.status.published（文章通用状态）跨模块语境不同；保留独立 key。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-2f431a81b863",
@@ -230,8 +230,8 @@
                 "pages.admin.users.status_options.active"
             ],
             "referenceValue": "正常",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "用户筛选选项与用户徽标两种静态语境共用「正常」文案，合并会混淆筛选与账号状态；按语义保留。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-3693a087ecea",
@@ -241,7 +241,7 @@
             ],
             "referenceValue": "增强包",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-3c1e2a5d7931",
@@ -251,7 +251,7 @@
             ],
             "referenceValue": "浏览器通知",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-3ce53640f2af",
@@ -261,7 +261,7 @@
             ],
             "referenceValue": "Microsoft Clarity ID",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-3dbf35533dda",
@@ -271,7 +271,7 @@
             ],
             "referenceValue": "封面图",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-40f73db52bee",
@@ -282,8 +282,8 @@
                 "pages.admin.submissions.status_pending"
             ],
             "referenceValue": "待审核",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "comments / submissions 按 `status_${status}` 动态查表，friend_links.application_statuses 为显式映射；四者业务对象不同（跨模块），保留独立 key。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-4c6ddfed98fa",
@@ -294,7 +294,7 @@
             ],
             "referenceValue": "作者",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-594baef79404",
@@ -305,7 +305,7 @@
             ],
             "referenceValue": "未设置",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-673a8e770197",
@@ -315,7 +315,7 @@
             ],
             "referenceValue": "墨梅",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-67d492632631",
@@ -325,7 +325,7 @@
             ],
             "referenceValue": "点击次数",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-68e44af4c74f",
@@ -334,8 +334,8 @@
                 "pages.admin.users.status_options.banned"
             ],
             "referenceValue": "已封禁",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "用户筛选选项与用户徽标两种静态语境共用「已封禁」文案，合并会混淆筛选与账号状态；按语义保留。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-69e2ac7fd20e",
@@ -345,7 +345,7 @@
             ],
             "referenceValue": "封面",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-74877da17132",
@@ -354,8 +354,8 @@
                 "pages.admin.users.status_options.all"
             ],
             "referenceValue": "所有状态",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "筛选占位符与选项标签两种静态语境共用「所有状态」文案，合并会改变占位语义；按语义保留。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-79651f87b754",
@@ -368,7 +368,7 @@
             ],
             "referenceValue": "标签",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-7fad989f684f",
@@ -378,7 +378,7 @@
             ],
             "referenceValue": "所有角色",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-802d07de2716",
@@ -388,7 +388,7 @@
             ],
             "referenceValue": "内容洞察",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-8db415d41820",
@@ -398,7 +398,7 @@
             ],
             "referenceValue": "已失败",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-919a42e4b793",
@@ -408,7 +408,7 @@
             ],
             "referenceValue": "同步创建对应的其他语言版本",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-9993e7c7087b",
@@ -419,7 +419,7 @@
             ],
             "referenceValue": "原文",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-a10cd6f94096",
@@ -429,7 +429,7 @@
             ],
             "referenceValue": "通知类型",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-a8bf479e1abb",
@@ -439,7 +439,7 @@
             ],
             "referenceValue": "版权声明",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-b0c0912e2d97",
@@ -450,7 +450,7 @@
             ],
             "referenceValue": "摘要",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-b25677c24eb8",
@@ -459,8 +459,8 @@
                 "pages.admin.submissions.status_rejected"
             ],
             "referenceValue": "已拒绝",
-            "reason": "状态枚举通过动态 key 拼接渲染（如 statuses.${status}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reason": "submissions 按 `status_${status}` 动态查表，friend_links.application_statuses 为显式映射；两条审核流程业务对象不同（跨模块），保留独立 key。",
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-b2b24a0446bb",
@@ -470,7 +470,7 @@
             ],
             "referenceValue": "如果不是您本人操作，请忽略此邮件并检查您的账户安全。",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-b3c4b995854f",
@@ -480,7 +480,7 @@
             ],
             "referenceValue": "角色",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-b5daed20749b",
@@ -490,7 +490,7 @@
             ],
             "referenceValue": "数据库生效",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-bd77befcf302",
@@ -502,7 +502,7 @@
             ],
             "referenceValue": "分类",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-cadede3722c5",
@@ -512,7 +512,7 @@
             ],
             "referenceValue": "按月",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-ccc1974cf957",
@@ -522,7 +522,7 @@
             ],
             "referenceValue": "Redirect Seeds",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-ccd658ff35d2",
@@ -532,7 +532,7 @@
             ],
             "referenceValue": "文章标题",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-cdbb3a2ba801",
@@ -542,7 +542,7 @@
             ],
             "referenceValue": "重置您的 {appName} 密码",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-d6b0c2a2eb39",
@@ -552,7 +552,7 @@
             ],
             "referenceValue": "远程仓库同步",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-da1d369c314c",
@@ -562,7 +562,7 @@
             ],
             "referenceValue": "站点名称",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-de19e0520687",
@@ -572,7 +572,7 @@
             ],
             "referenceValue": "GitHub",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-de68b2a5d310",
@@ -582,7 +582,7 @@
             ],
             "referenceValue": "如果您没有请求重置密码，请忽略此邮件并检查您的账户安全。",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-df0cf88fe9cb",
@@ -592,7 +592,7 @@
             ],
             "referenceValue": "隐私政策",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-e69db51ee431",
@@ -602,7 +602,7 @@
             ],
             "referenceValue": "无",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-eeabc576ea1b",
@@ -612,7 +612,7 @@
             ],
             "referenceValue": "重要",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-efa4610c28bb",
@@ -622,7 +622,7 @@
             ],
             "referenceValue": "轻微",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-f06421a6beba",
@@ -632,7 +632,7 @@
             ],
             "referenceValue": "ENV 生效",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-fa55608ad902",
@@ -642,7 +642,7 @@
             ],
             "referenceValue": "用户",
             "reason": "跨模块同文案但对象/字段语义不同（角色、范围或业务含义不同）；按语义保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-fb236933c396",
@@ -652,7 +652,7 @@
             ],
             "referenceValue": "可见性",
             "reason": "表单/审计字段标签通过动态 key 拼接渲染（如 fields.${field}），合并会破坏运行时查找；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         },
         {
             "id": "g-fbb277fd2b30",
@@ -662,7 +662,7 @@
             ],
             "referenceValue": "Access Token",
             "reason": "同一模块内不同字段复用同文案，字段语义不同；保留独立 key。",
-            "reviewAt": "2027-05-12"
+            "reviewAt": "2027-05-14"
         }
     ]
 }
