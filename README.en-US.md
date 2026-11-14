@@ -140,7 +140,7 @@ Main Sections:
 
 ## 📦 Requirements
 
--   Node.js 24.22.1+ (22.x requires >= 22.23.4)
+-   Node.js 26.13.1+ (version pinned by `.nvmrc`)
 -   PNPM (Recommended)
 
 ## ☁️ Deployment

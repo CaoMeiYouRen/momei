@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（6 条在办，条目 3 已移出）**
+**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 7 已完成，5 条待办）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」；2026-11-14 用户决策插队加入条目 7（Node 26 运行时基线），并按「进一出一」把条目 3 移出至 backlog #11。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
 
@@ -56,9 +56,9 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + RG；脚本输出与归档清单写入 `artifacts/review-gate/`。
     - **回滚边界**: 按文件独立回滚。
 
-- [ ] **7. Node 26 运行时基线单点化（P1，插队）**
+- [x] **7. Node 26 运行时基线单点化（P1，插队）**
     - **插队原因**: 用户 2026-11-14 决策。现状三处不一致：`engines` 24.x、Docker 基础镜像 `node:24.22.1-alpine`、CI `lts/*` 实际解析 26.13.1（运行日志另带 `Unsupported engine` 警告）；本机默认 26 与仓库基线 24 混用已实测触发 `better-sqlite3` ABI 报错（`Module did not self-register`，`/api/*` 503）。严格分类属 C 类（非阻塞），按用户明确指示插队，并以「进一出一」把条目 3 移出到 backlog。
-    - **执行范围**: **7a 单点声明**——新增 `.nvmrc` = `26.13.1`；`package.json` 的 `engines.node` 改 `26.x`；7 个 workflow（`test` / `docker` / `release` / `docs` / `regression-weekly` / `dependency-risk-daily` / `visual-reference-refresh`，共 22 处）的 `node-version: "lts/*"` 改 `node-version-file: .nvmrc`，并同步 `Setup Node.js@lts environment` 步骤名。**7b 生产镜像**——`Dockerfile` 的 `NODE_BUILD_IMAGE` / `NODE_RUNTIME_IMAGE` 默认值改 `node:26.13.1-alpine`（保留 `--build-arg` 覆盖能力与既存安全版校验）。**7c 原生模块与冒烟**——`pnpm rebuild better-sqlite3`，用 Node 26 构建 `.output` 并启动，验证 `/api/install/status` 与 DB 读写；`docker build` 后用容器跑同一探针。**7d 文档**——README「依赖要求」改为 Node.js 26.13.1+，`docs/standards/development.md` 增加一行本地环境要求（指向 `.nvmrc`），`docs/design/governance/` 记录本次运行时升级评估与回退路径。
+    - **执行范围**: **7a 单点声明**——新增 `.nvmrc` = `26.13.1`；`package.json` 的 `engines.node` 改 `26.x`；7 个 workflow（`test` / `docker` / `release` / `docs` / `regression-weekly` / `dependency-risk-daily` / `visual-reference-refresh`，共 22 处）的 `node-version: "lts/*"` 改 `node-version-file: .nvmrc`，并同步 `Setup Node.js@lts environment` 步骤名。**7b 生产镜像**——`Dockerfile` 的 `NODE_BUILD_IMAGE` / `NODE_RUNTIME_IMAGE` 默认值改 `node:26.13.1-alpine`（保留 `--build-arg` 覆盖能力与既存安全版校验）。**7c 原生模块与冒烟**——`pnpm rebuild better-sqlite3`，用 Node 26 构建 `.output` 并启动，验证 `/api/install/status` 与 DB 读写；`docker build` 后用容器跑同一探针。**7d 文档**——README「依赖要求」改为 Node.js 26.13.1+，`docs/standards/development.md` 增加一行本地环境要求（指向 `.nvmrc`），`docs/design/governance/2026-11-14-node-26-runtime-baseline.md` 记录本次运行时升级评估与回退路径。
     - **非目标**: 不升 pnpm / Nuxt / Vite 大版本；不采纳 Node 26 新特性；不改 Dockerfile 的 22 / 24 / 26 安全版校验白名单（仍需支持 `--build-arg` 覆盖）；不做 Node 26 与 24 的双版本 CI 矩阵。
     - **验收标准**: `nvm use`（无参数）读到 `.nvmrc` 的 26.13.1；CI 日志为 `node: v26.13.1` 且无 `Unsupported engine`；Node 26 下 `pnpm install --frozen-lockfile`、`pnpm build`、`.output` 启动后 `/api/install/status` 200 且 DB 读写正常；Docker 镜像构建成功、容器启动后同一探针 200；`pnpm test`、`test:visual`（32）、`test:visual:parity`（83）、`test:perf:budget:strict` 全通过；`engines` / `.nvmrc` / workflow / Dockerfile 四处版本单点一致（无 `lts/*` 残留）。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + V4 + RG；`node -v` 与原生模块重建日志、`.output` 与容器探针输出、CI run 链接、包体与视觉结论写入 `artifacts/review-gate/`。

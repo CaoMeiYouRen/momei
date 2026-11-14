@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-27
+last_sync: 2026-11-14
 translation_tier: source-only
 source_origin: ../../../guide/development.md
 ---
@@ -19,7 +19,7 @@ source_origin: ../../../guide/development.md
 
 ## 1. 준비 사항
 
-- Node.js `24.22.1+` (22.x는 >= 22.23.4 필요)
+- Node.js `26.13.1+` (버전은 `.nvmrc` 기준, `nvm use`로 맞춤)
 - PNPM 최신 안정판
 - Git
 

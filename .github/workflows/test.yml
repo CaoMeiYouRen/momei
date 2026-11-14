@@ -36,10 +36,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Build api-client dependency
@@ -70,10 +70,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -112,10 +112,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -152,10 +152,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -182,10 +182,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -224,10 +224,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download Nuxt build output
@@ -270,10 +270,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download all blob reports
@@ -313,10 +313,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download Nuxt build output
@@ -372,10 +372,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download Nuxt build output
@@ -446,10 +446,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -477,10 +477,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist
@@ -508,10 +508,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Download api-client dist

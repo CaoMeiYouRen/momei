@@ -11,6 +11,18 @@
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
 
+<!-- regression-window:start:maintenance:node26-runtime-baseline:2026-11-14 -->
+## 2026-11-14 Node 26 运行时基线单点化
+
+- 执行入口: 第七十五阶段条目 7（插队）；`.nvmrc` 单点 + `engines` / CI / Docker 同源
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-14-node26-runtime-baseline.md`
+- 结果摘要: `Pass`；Node 26.13.1 下 `build` 1m52s、全量单测 609 文件 / 5,456 例通过（1 跳过）、`test:visual` 32/32、`test:visual:parity` 83/83、`test:perf:budget:strict` PASS（coreEntryJs 280.87/335KB、keyCss 59.41/62KB）。
+- 已执行验证: `install --frozen-lockfile`（无 `Unsupported engine`）、`pnpm rebuild better-sqlite3`（node-v147 prebuild）、`.output` 与容器双探针（`/api/install/status` 200、DB 36 表可读写）、`lint` 0 error / 10 warning、`lint:css` / `lint:i18n` / `typecheck` 0、`docs:check` 五项 PASS。
+- 回归窗口: 运行时基线从「engines 24.x / Docker 24.22.1 / CI `lts/*`」三处漂移收敛为 `.nvmrc` 单点；视觉 / parity / 包体结论均在 Node 26 产物上复测。
+- Review Gate: `Pass`（standard 档，并发双审）；首轮 audit B 为 `Reject`（治理文档链接指向未入库的 `artifacts/`），修复后 Round 2 双 `Pass`；已接受口径差异与环境性偏差见证据文件。
+- 未覆盖边界: CI run（`node: v26.13.1` 且无 `Unsupported engine`）待推送回填；`devcontainer.json` 仍为 Node 24 镜像，升级需同批替换 corepack 引导，另立条目。
+<!-- regression-window:end:maintenance:node26-runtime-baseline:2026-11-14 -->
+
 <!-- regression-window:start:maintenance:caomei-ui-upgrade:2026-11-14 -->
 ## 2026-11-14 caomei-ui 1.0.0 → 1.2.0 维护批次
 

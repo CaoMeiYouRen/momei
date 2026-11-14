@@ -321,6 +321,8 @@ AI 在生成代码时应严格遵守以下约定：
 
 ### 4.3 常用开发命令 （Common Development Commands）
 
+本地运行时以仓库根的 `.nvmrc` 为单点事实源（`nvm use` 即可对齐），`engines`、CI 与 Docker 基础镜像同源该版本；升级口径与回退路径见 [2026-11-14 Node 26 运行时基线评估](../design/governance/2026-11-14-node-26-runtime-baseline.md)。
+
 ```bash
 # 启动开发服务器
 pnpm dev

@@ -2,7 +2,7 @@
     // 配置名称（可自定义，用于在 Codespaces 中识别）
     "name": "OpenCode Ready Environment",
     // 基础镜像：选择官方 Node.js 镜像（预装 Node.js/npm，兼容 OpenCode 多种安装方式）
-    // Node 24 版本，和项目运行时要求保持一致
+    // 宿主运行时基线见仓库 `.nvmrc`；本镜像仍为 Node 24，升级需同批替换 corepack 引导（见 backlog「devcontainer 运行时基线对齐」）
     "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
     // 【核心】Codespace 创建完成后自动执行的命令（安装依赖并初始化 OpenCode CLI）
     "postCreateCommand": "bash -c 'sudo apt update && sudo apt install -y curl git && corepack enable && pnpm install && (command -v opencode >/dev/null 2>&1 || npm install -g opencode-ai || true) && (command -v opencode >/dev/null 2>&1 && opencode --version || echo \"[devcontainer] opencode CLI 安装失败或不可用，请手动检查 npm registry 与包名\")'",

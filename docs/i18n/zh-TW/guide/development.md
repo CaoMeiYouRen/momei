@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-03-18
+last_sync: 2026-11-14
 translation_tier: source-only
 source_origin: ../../../guide/development.md
 ---
@@ -21,7 +21,7 @@ source_origin: ../../../guide/development.md
 
 開始之前，請先確認你的系統已安裝：
 
-- **Node.js**：`24.22.1+`（22.x 線需 >= 22.23.4）
+- **Node.js**：`26.13.1+`（版本以 `.nvmrc` 為準，`nvm use` 即可對齊）
 - **PNPM**：建議使用最新穩定版
 - **Git**
 

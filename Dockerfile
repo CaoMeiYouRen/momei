@@ -1,9 +1,9 @@
-# 自建镜像 caomeiyouren/alpine-nodejs 依赖 Alpine 仓库的 nodejs 包；Alpine 3.24/edge
-# 目前仍停在 24.18.1，重建也无法拿到 2026-10-21 的安全修复（含 CVE-2026-111497）。
-# 因此固定到官方镜像；待自建镜像改为从官方 tarball 安装并发布 24.22.1 后，可通过
-# --build-arg 切回自建镜像。
-ARG NODE_BUILD_IMAGE=node:24.22.1-alpine
-ARG NODE_RUNTIME_IMAGE=node:24.22.1-alpine
+# 自建镜像 caomeiyouren/alpine-nodejs 依赖 Alpine 仓库的 nodejs 包，版本长期落后于官方，
+# 重建也无法稳定拿到 2026-10-21 的安全修复（含 CVE-2026-111497），因此固定到官方镜像。
+# 运行时基线与 .nvmrc / engines / CI 单点对齐到 26.13.1；待自建镜像改为从官方 tarball
+# 安装并发布同等版本后，可通过 --build-arg 切回自建镜像。
+ARG NODE_BUILD_IMAGE=node:26.13.1-alpine
+ARG NODE_RUNTIME_IMAGE=node:26.13.1-alpine
 
 FROM ${NODE_BUILD_IMAGE} AS nodejs
 

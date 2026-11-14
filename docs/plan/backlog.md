@@ -237,6 +237,11 @@
     - **待办**: 上游发布可用补丁版本后升级 `quill` 并重跑 `pnpm security:alerts` / `pnpm security:audit-deps`；若告警升级为 high 且仍无补丁，再按 `no-fix` 登记带期限的例外。
     - **非目标**: 不为此替换编辑器依赖；不放宽 `--min-severity`。
 
+17. **devcontainer 运行时基线对齐（P3，候选）**
+    - **背景**: 运行时基线已于第七十五阶段条目 7 收敛为 `.nvmrc = 26.13.1`，但 `devcontainer.json` 仍为 `typescript-node:24-bookworm`，其 `postCreateCommand` 依赖 `corepack enable`。镜像内 Node 与 pnpm 自洽，不会 ABI 断裂，仅产生根包 `engines` 告警。
+    - **待办**: 升级到同线 `typescript-node:26-*` 镜像，并把 `corepack enable` 换成与 Node 26 兼容的 pnpm 引导（`npm i -g pnpm@11.17.0` 或 `packageManager` 驱动的等价方式）；升级后核对 Codespaces 内 `pnpm install` 无 `Unsupported engine`。
+    - **非目标**: 不改动 `.nvmrc` 与 CI / Docker 基线；不为 Codespaces 引入双版本矩阵。
+
 ---
 
 - **待跟踪（2026-10-15 新增，责任人：门禁 / E2E 收敛）**：`networkidle` 依赖外网可达性——① 视觉一致性门禁与 E2E 均以 `waitForLoadState('networkidle')` 判定就绪，而页面存在长期 pending 连接（`/api/notifications/stream` SSE、外部 gravatar 头像），无外网环境下永不空闲（本地实测：公开页 E2E 10 处失败、`/admin/users` 门禁需改用 `stable: lenient` 才可运行）；② CI（有外网）与本地（无外网）像素/就绪结果不可复现，与迁移方案 §8.2「跨环境差异」条款冲突；③ 建议后续按「阻断非本地请求」统一收敛门禁与 E2E 的等待口径，并与「以 CI 产物复采参考态」的前置条件同批执行。

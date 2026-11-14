@@ -33,10 +33,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       - name: Run shared CI pre-check
@@ -68,10 +68,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       # Build api-client first so nuxt typecheck resolves its type declarations
@@ -94,10 +94,10 @@ jobs:
       - uses: actions/checkout@v7
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
-      - name: Setup Node.js@lts environment
+      - name: Setup Node.js from .nvmrc
         uses: actions/setup-node@v7
         with:
-          node-version: "lts/*"
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i --frozen-lockfile
       # Build api-client + mcp-server first so dependent packages can resolve them

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-09
+last_sync: 2026-11-14
 ---
 
 # Momei Development Standards
@@ -149,6 +149,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/). Provide cle
 - **No leftover planning IDs**: Comments and test names (including `it('...')` descriptions) must not carry planning / task / audit identifiers (e.g. `T405`, `P1-1`, `RG-B01`, `Phase 66`, "Candidate #14", including the Chinese-colon variants). Allowed exceptions: real in-code constants (such as `E401`), and **navigation pointers with a doc path or section name** (e.g. "see `docs/plan/todo.md`『Known Gap G2』"). Lone orphan IDs must be cleaned; keep only the explanatory prose after the ID.
 
 ## 3. Tech Stack & Libraries
+
+- **Runtime baseline**: Node.js pinned by the repository `.nvmrc` (`nvm use` aligns it). `engines`, CI and the Docker base image all derive from that version. See the [Node 26 runtime baseline assessment](../../../design/governance/2026-11-14-node-26-runtime-baseline.md) for the upgrade and rollback path.
 
 | Category       | Recommended Library/Method | Description                                                           |
 | :------------- | :------------------------- | :-------------------------------------------------------------------- |
