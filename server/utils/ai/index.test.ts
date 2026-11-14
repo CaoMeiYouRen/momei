@@ -8,6 +8,7 @@ const { getSettingsMock, useRuntimeConfigMock } = vi.hoisted(() => ({
 
 vi.mock('./openai-provider', () => ({
     OpenAIProvider: class {
+        name = 'openai'
         kind = 'openai'
         constructor(public config: unknown) {}
     },
@@ -15,6 +16,7 @@ vi.mock('./openai-provider', () => ({
 
 vi.mock('./anthropic-provider', () => ({
     AnthropicProvider: class {
+        name = 'anthropic'
         kind = 'anthropic'
         constructor(public config: unknown) {}
     },
@@ -22,6 +24,7 @@ vi.mock('./anthropic-provider', () => ({
 
 vi.mock('./gemini-provider', () => ({
     GeminiProvider: class {
+        name = 'gemini'
         kind = 'gemini'
         constructor(public config: unknown) {}
     },
@@ -29,6 +32,7 @@ vi.mock('./gemini-provider', () => ({
 
 vi.mock('./stable-diffusion-provider', () => ({
     StableDiffusionProvider: class {
+        name = 'stable-diffusion'
         kind = 'stable-diffusion'
         constructor(public config: unknown) {}
     },
@@ -82,7 +86,7 @@ vi.mock('~/server/services/setting', () => ({
 vi.stubGlobal('useRuntimeConfig', useRuntimeConfigMock)
 
 // eslint-disable-next-line import/order
-import { getAIProvider } from './index'
+import { getAIProvider, getAIProviderWithFallback } from './index'
 
 function createSettings(overrides: Record<string, string> = {}) {
     return {
@@ -249,5 +253,48 @@ describe('getAIProvider', () => {
                 secretKey: 'secret-key',
             },
         })
+    })
+})
+
+describe('getAIProviderWithFallback', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        useRuntimeConfigMock.mockReturnValue({
+            public: {
+                demoMode: false,
+            },
+        })
+    })
+
+    it('wraps image provider when AI image fallback keys are configured', async () => {
+        getSettingsMock.mockResolvedValue(createSettings({
+            [SettingKey.AI_IMAGE_ENABLED]: 'true',
+            [SettingKey.AI_IMAGE_PROVIDER]: 'gemini',
+            [SettingKey.AI_IMAGE_API_KEY]: 'image-key',
+            [SettingKey.GEMINI_API_TOKEN]: 'gemini-token',
+            [SettingKey.AI_IMAGE_FALLBACK_PROVIDER]: 'openai',
+            [SettingKey.AI_IMAGE_FALLBACK_API_KEY]: 'image-fallback-key',
+            [SettingKey.AI_IMAGE_FALLBACK_MODEL]: 'dall-e-3',
+            [SettingKey.AI_IMAGE_FALLBACK_ENDPOINT]: 'https://api.fallback.example.com/image',
+        }))
+
+        const provider = await getAIProviderWithFallback('image')
+
+        expect(provider.name).toBe('gemini+fallback:openai')
+    })
+
+    it('keeps primary image provider when AI image fallback provider is not configured', async () => {
+        getSettingsMock.mockResolvedValue(createSettings({
+            [SettingKey.AI_IMAGE_ENABLED]: 'true',
+            [SettingKey.AI_IMAGE_PROVIDER]: 'gemini',
+            [SettingKey.AI_IMAGE_API_KEY]: 'image-key',
+            [SettingKey.GEMINI_API_TOKEN]: 'gemini-token',
+            [SettingKey.AI_IMAGE_FALLBACK_PROVIDER]: '',
+            [SettingKey.AI_FALLBACK_PROVIDER]: '',
+        }))
+
+        const provider = await getAIProviderWithFallback('image')
+
+        expect(provider.name).toBe('gemini')
     })
 })

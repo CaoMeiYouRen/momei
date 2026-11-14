@@ -294,6 +294,60 @@
                     :disabled="metadata.ai_image_endpoint?.isLocked"
                 />
             </SettingFormField>
+
+            <SettingFormField
+                field-key="ai_image_fallback_provider"
+                input-id="ai_image_fallback_provider"
+                :metadata="metadata.ai_image_fallback_provider"
+            >
+                <CaomeiSelect
+                    id="ai_image_fallback_provider"
+                    v-model="settings.ai_image_fallback_provider"
+                    :options="aiImageProviders"
+                    option-label="label"
+                    option-value="value"
+                    :disabled="metadata.ai_image_fallback_provider?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                v-if="settings.ai_image_fallback_provider"
+                field-key="ai_image_fallback_api_key"
+                input-id="ai_image_fallback_api_key"
+                :metadata="metadata.ai_image_fallback_api_key"
+            >
+                <SettingPassword
+                    id="ai_image_fallback_api_key"
+                    v-model="settings.ai_image_fallback_api_key"
+                    :disabled="metadata.ai_image_fallback_api_key?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                v-if="settings.ai_image_fallback_provider"
+                field-key="ai_image_fallback_model"
+                input-id="ai_image_fallback_model"
+                :metadata="metadata.ai_image_fallback_model"
+            >
+                <SettingInput
+                    id="ai_image_fallback_model"
+                    v-model="settings.ai_image_fallback_model"
+                    :disabled="metadata.ai_image_fallback_model?.isLocked"
+                />
+            </SettingFormField>
+
+            <SettingFormField
+                v-if="settings.ai_image_fallback_provider"
+                field-key="ai_image_fallback_endpoint"
+                input-id="ai_image_fallback_endpoint"
+                :metadata="metadata.ai_image_fallback_endpoint"
+            >
+                <SettingInput
+                    id="ai_image_fallback_endpoint"
+                    v-model="settings.ai_image_fallback_endpoint"
+                    :disabled="metadata.ai_image_fallback_endpoint?.isLocked"
+                />
+            </SettingFormField>
         </div>
 
         <CaomeiDivider class="my-8" />

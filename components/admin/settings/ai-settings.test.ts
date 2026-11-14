@@ -179,6 +179,10 @@ describe('AiSettings', () => {
         expect(wrapper.find('.ai-settings__hint').exists()).toBe(false)
         expect(wrapper.find('.ai-quota-policies-editor').exists()).toBe(false)
         expect(wrapper.find('#ai_image_provider').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_provider').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_api_key').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_model').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_endpoint').exists()).toBe(false)
         expect(wrapper.find('#asr_api_key').exists()).toBe(true)
         expect(wrapper.get('#asr_model').attributes('placeholder')).toBe('FunAudioLLM/SenseVoiceSmall')
         expect(wrapper.find('#asr_volcengine_cluster_id').exists()).toBe(false)
@@ -220,6 +224,10 @@ describe('AiSettings', () => {
         expect(wrapper.find('#asr_credential_ttl_seconds').exists()).toBe(false)
         expect(wrapper.find('#tts_api_key').exists()).toBe(false)
         expect(wrapper.find('#tts_endpoint').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_provider').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_api_key').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_model').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_endpoint').exists()).toBe(false)
         expect(wrapper.find('#volcengine_app_id').exists()).toBe(true)
         expect(wrapper.find('#volcengine_access_key').exists()).toBe(true)
         expect(wrapper.find('#volcengine_secret_key').exists()).toBe(true)
@@ -277,5 +285,52 @@ describe('AiSettings', () => {
         expect(wrapper.get('#ai_fallback_api_key').attributes('disabled')).toBeDefined()
         expect(wrapper.get('#ai_fallback_model').attributes('disabled')).toBeDefined()
         expect(wrapper.get('#ai_fallback_endpoint').attributes('disabled')).toBeDefined()
+    })
+
+    it('renders AI image fallback fields inside the image group and binds them', async () => {
+        const settings = createSettings({
+            ai_image_fallback_provider: 'gemini',
+            ai_image_fallback_api_key: 'image-fb-initial',
+            ai_image_fallback_model: 'imagen-4-fallback',
+            ai_image_fallback_endpoint: 'https://api.example.com/image-fallback',
+        })
+        const wrapper = mountComponent(settings)
+
+        expect(wrapper.find('#ai_image_fallback_provider').exists()).toBe(true)
+        expect(wrapper.find('#ai_image_fallback_api_key').exists()).toBe(true)
+        expect(wrapper.find('#ai_image_fallback_model').exists()).toBe(true)
+        expect(wrapper.find('#ai_image_fallback_endpoint').exists()).toBe(true)
+
+        await wrapper.get('#ai_image_fallback_provider').setValue('openai')
+        await wrapper.get('#ai_image_fallback_api_key').setValue('image-fb-next')
+        await wrapper.get('#ai_image_fallback_model').setValue('dall-e-3')
+        await wrapper.get('#ai_image_fallback_endpoint').setValue('https://api.example.com/image-fallback-next')
+
+        expect(settings.ai_image_fallback_provider).toBe('openai')
+        expect(settings.ai_image_fallback_api_key).toBe('image-fb-next')
+        expect(settings.ai_image_fallback_model).toBe('dall-e-3')
+        expect(settings.ai_image_fallback_endpoint).toBe('https://api.example.com/image-fallback-next')
+
+        await wrapper.get('#ai_image_fallback_provider').setValue('')
+
+        expect(settings.ai_image_fallback_provider).toBe('')
+        expect(wrapper.find('#ai_image_fallback_api_key').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_model').exists()).toBe(false)
+        expect(wrapper.find('#ai_image_fallback_endpoint').exists()).toBe(false)
+    })
+
+    it('disables AI image fallback fields when their metadata is locked', () => {
+        const settings = createSettings({ ai_image_fallback_provider: 'gemini' })
+        const wrapper = mountComponent(settings, [
+            'ai_image_fallback_provider',
+            'ai_image_fallback_api_key',
+            'ai_image_fallback_model',
+            'ai_image_fallback_endpoint',
+        ])
+
+        expect(wrapper.get('#ai_image_fallback_provider').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_image_fallback_api_key').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_image_fallback_model').attributes('disabled')).toBeDefined()
+        expect(wrapper.get('#ai_image_fallback_endpoint').attributes('disabled')).toBeDefined()
     })
 })

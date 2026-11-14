@@ -76,6 +76,10 @@
 | `AI_IMAGE_API_KEY` | `ai_image_api_key` | 2 | key | AI 图像 API Key |
 | `AI_IMAGE_MODEL` | `ai_image_model` | 2 | none | AI 图像模型 |
 | `AI_IMAGE_ENDPOINT` | `ai_image_endpoint` | 2 | none | AI 图像兼容接口或代理端点 |
+| `AI_IMAGE_FALLBACK_PROVIDER` | `ai_image_fallback_provider` | 2 | none | AI 图像备用提供商，主提供商失败时自动切换 |
+| `AI_IMAGE_FALLBACK_API_KEY` | `ai_image_fallback_api_key` | 2 | key | AI 图像备用 API 密钥 |
+| `AI_IMAGE_FALLBACK_MODEL` | `ai_image_fallback_model` | 2 | none | AI 图像备用模型名称 |
+| `AI_IMAGE_FALLBACK_ENDPOINT` | `ai_image_fallback_endpoint` | 2 | none | AI 图像备用 API 代理/转发地址 |
 | `AI_QUOTA_ENABLED` | `ai_quota_enabled` | 2 | none | 是否启用 AI 分级额度治理 |
 | `AI_QUOTA_POLICIES` | `ai_quota_policies` | 2 | none | AI 配额策略 JSON，支持 global / role / trust_level / user 多层覆盖 |
 | `AI_ALERT_THRESHOLDS` | `ai_alert_thresholds` | 2 | none | AI 告警阈值 JSON，覆盖额度、成本与失败突增告警 |

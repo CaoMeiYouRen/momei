@@ -21,7 +21,7 @@
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-15，用户确认「方案 A：内容与编辑体验」6 条组合（Phase C / SWR / 正则清理低于 1.5 准入线，经用户确认受控纳入）。开工前置：`HEAD=03d9d769` 的 CI 全绿（Test / Docker / VitePress / CodeQL / TODO）。
 
-- [ ] **1. 设置表单 AI Image Fallback 4 项（P2）**
+- [x] **1. 设置表单 AI Image Fallback 4 项（P2）**
     - **执行范围**: `AI_IMAGE_FALLBACK_PROVIDER` / `API_KEY` / `MODEL` / `ENDPOINT` 补 `SETTING_ENV_MAP`、`.env.full.example` 示例与 `ai-settings.vue` 控件（挂在 `ai_image_enabled` 组内，沿用 `SettingFormField` + `metadata.isLocked`）；五语翻译补齐。
     - **非目标**: 不暴露基础设施密钥；不改 `FORCED_ENV_LOCKED_KEYS`；不新增 AI Provider。
     - **验收标准**: 4 个 key 可从 env 读入并后台编辑（锁定态只读）；保存后 `/api/ai` fallback 链路读取一致；五语 parity 0；映射无遗漏 / 重复。

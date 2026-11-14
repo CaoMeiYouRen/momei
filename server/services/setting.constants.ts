@@ -31,6 +31,10 @@ export const SETTING_ENV_MAP: Record<string, string> = {
     [SettingKey.AI_IMAGE_API_KEY]: 'AI_IMAGE_API_KEY',
     [SettingKey.AI_IMAGE_MODEL]: 'AI_IMAGE_MODEL',
     [SettingKey.AI_IMAGE_ENDPOINT]: 'AI_IMAGE_ENDPOINT',
+    [SettingKey.AI_IMAGE_FALLBACK_PROVIDER]: 'AI_IMAGE_FALLBACK_PROVIDER',
+    [SettingKey.AI_IMAGE_FALLBACK_API_KEY]: 'AI_IMAGE_FALLBACK_API_KEY',
+    [SettingKey.AI_IMAGE_FALLBACK_MODEL]: 'AI_IMAGE_FALLBACK_MODEL',
+    [SettingKey.AI_IMAGE_FALLBACK_ENDPOINT]: 'AI_IMAGE_FALLBACK_ENDPOINT',
     [SettingKey.EMAIL_HOST]: 'EMAIL_HOST',
     [SettingKey.EMAIL_PORT]: 'EMAIL_PORT',
     [SettingKey.EMAIL_USER]: 'EMAIL_USER',
@@ -365,7 +369,7 @@ export function getSettingLookupKeys(key: string) {
     return uniqValues([key, ...(LEGACY_SETTING_KEY_ALIASES[key] ?? [])])
 }
 
-function getSettingEnvKeys(key: string) {
+export function getSettingEnvKeys(key: string) {
     return uniqValues([SETTING_ENV_MAP[key], ...(LEGACY_SETTING_ENV_ALIASES[key] ?? [])])
 }
 

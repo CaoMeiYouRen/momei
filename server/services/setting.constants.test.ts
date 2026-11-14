@@ -3,6 +3,7 @@ import {
     getLocalizedSettingDefinition,
     isLocalizedSettingKey,
     getSettingLookupKeys,
+    getSettingEnvKeys,
     isInternalOnlySettingKey,
     isLegacyOnlySettingKey,
     getSettingDefaultValue,
@@ -194,6 +195,44 @@ describe('setting.constants', () => {
             expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_API_KEY).value).toBe('fallback-secret')
             expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_MODEL).value).toBe('gpt-fallback')
             expect(resolveSettingEnvEntry(SettingKey.AI_FALLBACK_ENDPOINT).value).toBe('https://api.fallback.example.com')
+        })
+
+        it('maps AI Image Fallback settings to their env keys', () => {
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_PROVIDER).envKey).toBe('AI_IMAGE_FALLBACK_PROVIDER')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_API_KEY).envKey).toBe('AI_IMAGE_FALLBACK_API_KEY')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_MODEL).envKey).toBe('AI_IMAGE_FALLBACK_MODEL')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_ENDPOINT).envKey).toBe('AI_IMAGE_FALLBACK_ENDPOINT')
+        })
+
+        it('reads AI Image Fallback env values when set', () => {
+            vi.stubEnv('AI_IMAGE_FALLBACK_PROVIDER', 'gemini')
+            vi.stubEnv('AI_IMAGE_FALLBACK_API_KEY', 'image-fallback-secret')
+            vi.stubEnv('AI_IMAGE_FALLBACK_MODEL', 'imagen-4')
+            vi.stubEnv('AI_IMAGE_FALLBACK_ENDPOINT', 'https://api.fallback.example.com/image')
+
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_PROVIDER).value).toBe('gemini')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_API_KEY).value).toBe('image-fallback-secret')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_MODEL).value).toBe('imagen-4')
+            expect(resolveSettingEnvEntry(SettingKey.AI_IMAGE_FALLBACK_ENDPOINT).value).toBe('https://api.fallback.example.com/image')
+        })
+    })
+
+    describe('SETTING_ENV_MAP 覆盖完整性', () => {
+        it('为全部 AI 图像类设置项提供 env 映射', () => {
+            const imageSettingKeys = Object.values(SettingKey).filter((key) => key.startsWith('ai_image_'))
+
+            expect(imageSettingKeys.length).toBeGreaterThan(0)
+            for (const key of imageSettingKeys) {
+                expect(resolveSettingEnvEntry(key).envKey, `${key} 缺少 SETTING_ENV_MAP 映射`).not.toBeNull()
+            }
+        })
+
+        it('env 名称在映射表中全局唯一', () => {
+            const envKeys = Object.values(SettingKey)
+                .flatMap((key) => getSettingEnvKeys(key))
+            const duplicated = envKeys.filter((envKey, index) => envKeys.indexOf(envKey) !== index)
+
+            expect(duplicated).toEqual([])
         })
     })
 

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-02
+last_sync: 2026-11-15
 translation_tier: summary-sync
 ---
 
@@ -91,6 +91,10 @@ These variables control the site-wide AI capabilities.
 | `AI_IMAGE_API_KEY` | `ai_image_api_key` | 2 | key | AI image API key |
 | `AI_IMAGE_MODEL` | `ai_image_model` | 2 | none | Default AI image model |
 | `AI_IMAGE_ENDPOINT` | `ai_image_endpoint` | 2 | none | AI image endpoint or proxy |
+| `AI_IMAGE_FALLBACK_PROVIDER` | `ai_image_fallback_provider` | 2 | none | AI image fallback provider, auto-switches when the primary provider fails |
+| `AI_IMAGE_FALLBACK_API_KEY` | `ai_image_fallback_api_key` | 2 | key | AI image fallback API key |
+| `AI_IMAGE_FALLBACK_MODEL` | `ai_image_fallback_model` | 2 | none | AI image fallback model |
+| `AI_IMAGE_FALLBACK_ENDPOINT` | `ai_image_fallback_endpoint` | 2 | none | AI image fallback endpoint or proxy |
 | `AI_QUOTA_ENABLED` | `ai_quota_enabled` | 2 | none | Enables tiered AI quota governance |
 | `AI_QUOTA_POLICIES` | `ai_quota_policies` | 2 | none | JSON quota policy set for global / role / trust-level / user scopes |
 | `AI_ALERT_THRESHOLDS` | `ai_alert_thresholds` | 2 | none | JSON alert thresholds for quota, cost, and failure bursts |

@@ -37,7 +37,7 @@
 | 4 | `TTS_DEFAULT_VOICE` | `env.ts:348` | `string` | TTS 默认音色，TTS 配置同组 | `TTS_DEFAULT_VOICE` |
 | 5 | `AI_MAX_TOKENS` | `env.ts:289` | `number` | AI 生成 Token 上限，权限控制相关 | `AI_MAX_TOKENS` |
 
-### 3.2 Gap B — 已有 SettingKey 缺 SETTING_ENV_MAP 的 (9 项，延期至后续阶段)
+### 3.2 Gap B — 已有 SettingKey 缺 SETTING_ENV_MAP 的 (9 项，已全部补齐，见下方进度更新)
 
 | # | SettingKey | DB Key | 说明 | 优先级 |
 |:---|:---|:---|:---|:---|
@@ -54,9 +54,9 @@
 > **进度更新**：
 > - Phase 3（Phase 65）已完成 #1 `AI_FALLBACK_PROVIDER` + #9 `TTS_CREDENTIAL_TTL_SECONDS`（含 UI + SETTING_ENV_MAP 映射 + 五语种翻译）。
 > - Phase 4（Phase 66）已完成 #2 `AI_FALLBACK_API_KEY` + #3 `AI_FALLBACK_MODEL` + #4 `AI_FALLBACK_ENDPOINT`（含 UI + SETTING_ENV_MAP 映射 + 五语种翻译）。
-> - 剩余 #5–#8（AI Image Fallback 4 项）留 Phase 5 推进。
+> - Phase 5（Phase 76）已完成 #5–#8 `AI_IMAGE_FALLBACK_*` 四项（SETTING_ENV_MAP 映射、`.env.full.example` 示例、`ai-settings.vue` 控件 + 五语种翻译），本表缺口清零。
 
-> **P2 延期理由**：以上 SettingKey 均为 Phase 55-62 新增的 fallback/辅助功能键，
+> **历史延期理由（已全部补齐）**：以上 SettingKey 均为 Phase 55-62 新增的 fallback/辅助功能键，
 > 核心功能（AI Image、AI Fallback 等）为 P2 优先级；TTS_CREDENTIAL_TTL_SECONDS 与 ASR 复用同一逻辑路径，影响有限。
 
 ### 3.3 缺 SettingKey/Env 映射但适合保持 Internal 的

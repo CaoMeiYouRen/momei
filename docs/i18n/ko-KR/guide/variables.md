@@ -1,6 +1,7 @@
 ---
 source_branch: master
-last_sync: 2026-11-02
+last_sync: 2026-11-15
+translation_tier: summary-sync
 ---
 
 # 변수 및 설정 매핑
