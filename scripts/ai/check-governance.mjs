@@ -50,8 +50,8 @@ const supportedSkillFrontmatterKeys = new Set([
     'user-invocable',
 ])
 
-export function toPosixPath(targetPath) {
-    return path.relative(projectRoot, targetPath).replaceAll('\\', '/')
+export function toPosixPath(targetPath, root = projectRoot) {
+    return path.relative(root, targetPath).replaceAll('\\', '/')
 }
 
 export async function pathExists(targetPath) {
@@ -199,9 +199,9 @@ export function buildIssue(type, filePath, message, severity = 'error') {
     }
 }
 
-async function validateSkillFile(filePath, issues) {
+export async function validateSkillFile(filePath, issues, options = {}) {
     const content = await readUtf8(filePath)
-    const relativePath = toPosixPath(filePath)
+    const relativePath = toPosixPath(filePath, options.projectRoot)
     const frontmatter = parseFrontmatter(content)
 
     if (!frontmatter) {
@@ -268,7 +268,7 @@ async function validateSkillFile(filePath, issues) {
  * 技能 references/*.md 必须被执行入口索引：本技能 SKILL.md 或同名 agent。
  * 只认这两个位置，避免其他技能或通用文案把孤儿 reference 顶包成「已索引」。
  */
-async function validateSkillReferences(skillFiles, agentFiles, issues) {
+export async function validateSkillReferences(skillFiles, agentFiles, issues, options = {}) {
     const agentBySkillName = new Map(
         agentFiles.map((agentFile) => [path.basename(agentFile).replace(/\.agent\.md$/u, ''), agentFile]),
     )
@@ -297,7 +297,7 @@ async function validateSkillReferences(skillFiles, agentFiles, issues) {
             if (!(await isReferenceIndexed(referencePath, entryFiles))) {
                 issues.push(buildIssue(
                     'unindexed-skill-reference',
-                    toPosixPath(referencePath),
+                    toPosixPath(referencePath, options.projectRoot),
                     `references 文件未被本技能执行入口索引（${skillName}/SKILL.md 或同名 agent）: references/${referenceFile}`,
                 ))
             }
@@ -305,10 +305,11 @@ async function validateSkillReferences(skillFiles, agentFiles, issues) {
     }
 }
 
-async function loadExternalSkillRegistry(issues) {
-    const relativePath = toPosixPath(externalSkillRegistryPath)
+export async function loadExternalSkillRegistry(issues, options = {}) {
+    const registryPath = options.registryPath ?? externalSkillRegistryPath
+    const relativePath = toPosixPath(registryPath, options.projectRoot)
 
-    if (!(await pathExists(externalSkillRegistryPath))) {
+    if (!(await pathExists(registryPath))) {
         issues.push(buildIssue('missing-external-skill-registry', relativePath, '缺少外部 skill 准入清单。'))
         return []
     }
@@ -316,7 +317,7 @@ async function loadExternalSkillRegistry(issues) {
     let parsed
 
     try {
-        parsed = JSON.parse(await readUtf8(externalSkillRegistryPath))
+        parsed = JSON.parse(await readUtf8(registryPath))
     } catch {
         issues.push(buildIssue('invalid-external-skill-registry', relativePath, '外部 skill 准入清单不是合法 JSON。'))
         return []
@@ -372,15 +373,16 @@ async function loadExternalSkillRegistry(issues) {
     return parsed
 }
 
-async function validateExternalSkillRegistryDoc(registryEntries, issues) {
-    const relativeDocPath = toPosixPath(externalSkillRegistryDocPath)
+export async function validateExternalSkillRegistryDoc(registryEntries, issues, options = {}) {
+    const docPath = options.docPath ?? externalSkillRegistryDocPath
+    const relativeDocPath = toPosixPath(docPath, options.projectRoot)
 
-    if (!(await pathExists(externalSkillRegistryDocPath))) {
+    if (!(await pathExists(docPath))) {
         issues.push(buildIssue('missing-external-skill-doc', relativeDocPath, '缺少外部 skill 准入说明文档。'))
         return
     }
 
-    const content = await readUtf8(externalSkillRegistryDocPath)
+    const content = await readUtf8(docPath)
     const tableRows = content
         .split(/\r?\n/u)
         .filter((line) => line.startsWith('|'))
@@ -460,9 +462,9 @@ async function validateExternalSkillRegistryDoc(registryEntries, issues) {
     }
 }
 
-async function validateAgentOrDocLinks(filePath, issues) {
+export async function validateAgentOrDocLinks(filePath, issues, options = {}) {
     const content = await readUtf8(filePath)
-    const relativePath = toPosixPath(filePath)
+    const relativePath = toPosixPath(filePath, options.projectRoot)
 
     for (const target of extractMarkdownLinks(content)) {
         if (isExternalLink(target) || target.startsWith('#')) {
@@ -483,13 +485,15 @@ async function validateAgentOrDocLinks(filePath, issues) {
     }
 }
 
-export async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, issues, type) {
+// 第 6 参沿用既有 5 参调用（type 必填）+ 可选 projectRoot 注入；拆 options 会破坏既有测试契约。
+// eslint-disable-next-line max-params
+export async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, issues, type, options = {}) {
     for (const relativeFile of relativeFiles) {
         const mainPath = path.join(mainRoot, relativeFile)
         const mirrorPath = path.join(mirrorRoot, relativeFile)
 
         if (!(await pathExists(mirrorPath))) {
-            issues.push(buildIssue('missing-mirror-file', toPosixPath(mainPath), `${type} 镜像缺失: ${toPosixPath(mirrorPath)}`))
+            issues.push(buildIssue('missing-mirror-file', toPosixPath(mainPath, options.projectRoot), `${type} 镜像缺失: ${toPosixPath(mirrorPath, options.projectRoot)}`))
             continue
         }
 
@@ -499,7 +503,7 @@ export async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, is
         ])
 
         if (!mainContent.equals(mirrorContent)) {
-            issues.push(buildIssue('mirror-drift', toPosixPath(mainPath), `${type} 主定义与镜像内容不一致: ${toPosixPath(mirrorPath)}`))
+            issues.push(buildIssue('mirror-drift', toPosixPath(mainPath, options.projectRoot), `${type} 主定义与镜像内容不一致: ${toPosixPath(mirrorPath, options.projectRoot)}`))
         }
     }
 }
@@ -526,9 +530,10 @@ export async function listImmediateDirectories(baseDir) {
         .sort()
 }
 
-async function collectReferenceWarnings(skillFiles, agentFiles) {
+export async function collectReferenceWarnings(skillFiles, agentFiles, options = {}) {
+    const docs = options.docs ?? governanceDocs
     const searchableFiles = [
-        ...governanceDocs,
+        ...docs,
         ...agentFiles,
         ...skillFiles,
     ]
@@ -557,7 +562,7 @@ async function collectReferenceWarnings(skillFiles, agentFiles) {
         }
 
         if (!referenced) {
-            warnings.push(buildIssue('unreferenced-skill', toPosixPath(skillPath), '未在其他治理文件中发现引用，建议确认是否仍需保留。', 'warning'))
+            warnings.push(buildIssue('unreferenced-skill', toPosixPath(skillPath, options.projectRoot), '未在其他治理文件中发现引用，建议确认是否仍需保留。', 'warning'))
         }
     }
 
@@ -578,16 +583,20 @@ async function collectReferenceWarnings(skillFiles, agentFiles) {
         }
 
         if (!referenced) {
-            warnings.push(buildIssue('unreferenced-agent', toPosixPath(agentPath), '未在其他治理文件中发现引用，建议确认是否仍需保留。', 'warning'))
+            warnings.push(buildIssue('unreferenced-agent', toPosixPath(agentPath, options.projectRoot), '未在其他治理文件中发现引用，建议确认是否仍需保留。', 'warning'))
         }
     }
 
     return warnings
 }
 
-async function collectScriptReferenceWarnings(scriptFiles) {
-    const trackedScriptPaths = new Set(scriptFiles.map((scriptPath) => toPosixPath(scriptPath)))
-    const report = await collectScriptGovernanceReport({ projectRoot })
+export async function collectScriptReferenceWarnings(scriptFiles, options = {}) {
+    const root = options.projectRoot ?? projectRoot
+    const trackedScriptPaths = new Set(scriptFiles.map((scriptPath) => toPosixPath(scriptPath, root)))
+    const report = await collectScriptGovernanceReport({
+        projectRoot: root,
+        searchRoots: options.searchRoots,
+    })
 
     return report.findings
         .filter((finding) => trackedScriptPaths.has(finding.filePath))
@@ -611,17 +620,24 @@ export function unique(values) {
     return [...new Set(values)].sort()
 }
 
-async function main() {
+export async function main(overrides = {}) {
+    const root = overrides.projectRoot ?? projectRoot
+    const roots = overrides.roots ?? governanceRoots
+    const groups = overrides.mirrorGroups ?? mirrorGroups
+    const docs = overrides.docs ?? governanceDocs
+    const registryPath = overrides.registryPath ?? externalSkillRegistryPath
+    const registryDocPath = overrides.registryDocPath ?? externalSkillRegistryDocPath
+    const scriptGovernanceOptions = { projectRoot: root, searchRoots: overrides.scriptSearchRoots }
     const issues = []
 
-    const githubSkillRelFiles = await listFilesRecursive(governanceRoots.githubSkills, (name) => name === 'SKILL.md')
-    const githubAgentRelFiles = await listFilesRecursive(governanceRoots.githubAgents, (name) => name.endsWith('.agent.md'))
-    const githubSkillMirrorFiles = await listFilesRecursive(governanceRoots.githubSkills, () => true)
-    const githubAgentMirrorFiles = await listFilesRecursive(governanceRoots.githubAgents, () => true)
-    const githubSkillDirs = await listDirectoriesRecursive(governanceRoots.githubSkills)
-    const githubAgentDirs = await listDirectoriesRecursive(governanceRoots.githubAgents)
+    const githubSkillRelFiles = await listFilesRecursive(roots.githubSkills, (name) => name === 'SKILL.md')
+    const githubAgentRelFiles = await listFilesRecursive(roots.githubAgents, (name) => name.endsWith('.agent.md'))
+    const githubSkillMirrorFiles = await listFilesRecursive(roots.githubSkills, () => true)
+    const githubAgentMirrorFiles = await listFilesRecursive(roots.githubAgents, () => true)
+    const githubSkillDirs = await listDirectoriesRecursive(roots.githubSkills)
+    const githubAgentDirs = await listDirectoriesRecursive(roots.githubAgents)
 
-    for (const group of mirrorGroups) {
+    for (const group of groups) {
         const skillRoot = group.skillRoot
         const agentRoot = group.agentRoot
         const mirrorSkillFiles = skillRoot ? await listFilesRecursive(skillRoot, () => true) : []
@@ -642,7 +658,7 @@ async function main() {
                 issues.push(buildIssue('extra-mirror-directory', `.${group.name}/skills/${directoryName}`, `发现未在 .github/skills 中定义的残留镜像目录: .${group.name}/skills/${directoryName}`))
             }
 
-            await compareMirrorTrees(governanceRoots.githubSkills, skillRoot, githubSkillMirrorFiles, issues, 'skill')
+            await compareMirrorTrees(roots.githubSkills, skillRoot, githubSkillMirrorFiles, issues, 'skill', { projectRoot: root })
         }
 
         if (agentRoot) {
@@ -658,41 +674,41 @@ async function main() {
                 issues.push(buildIssue('extra-mirror-directory', `.${group.name}/agents/${directoryName}`, `发现未在 .github/agents 中定义的残留镜像目录: .${group.name}/agents/${directoryName}`))
             }
 
-            await compareMirrorTrees(governanceRoots.githubAgents, agentRoot, githubAgentMirrorFiles, issues, 'agent')
+            await compareMirrorTrees(roots.githubAgents, agentRoot, githubAgentMirrorFiles, issues, 'agent', { projectRoot: root })
         }
     }
 
-    const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
-    const githubAgentFiles = githubAgentRelFiles.map((relativeFile) => path.join(governanceRoots.githubAgents, relativeFile))
-    const scriptGovernanceReport = await collectScriptGovernanceReport({ projectRoot })
-    const projectScriptFiles = scriptGovernanceReport.scripts.map((entry) => path.join(projectRoot, entry.scriptPath))
+    const githubSkillFiles = githubSkillRelFiles.map((relativeFile) => path.join(roots.githubSkills, relativeFile))
+    const githubAgentFiles = githubAgentRelFiles.map((relativeFile) => path.join(roots.githubAgents, relativeFile))
+    const scriptGovernanceReport = await collectScriptGovernanceReport(scriptGovernanceOptions)
+    const projectScriptFiles = scriptGovernanceReport.scripts.map((entry) => path.join(root, entry.scriptPath))
 
     for (const skillFile of githubSkillFiles) {
-        await validateSkillFile(skillFile, issues)
+        await validateSkillFile(skillFile, issues, { projectRoot: root })
     }
 
-    await validateSkillReferences(githubSkillFiles, githubAgentFiles, issues)
+    await validateSkillReferences(githubSkillFiles, githubAgentFiles, issues, { projectRoot: root })
 
-    const githubSkillRefFiles = (await listFilesRecursive(governanceRoots.githubSkills, (name) => name.endsWith('.md') && name !== 'SKILL.md'))
-        .map((relativeFile) => path.join(governanceRoots.githubSkills, relativeFile))
+    const githubSkillRefFiles = (await listFilesRecursive(roots.githubSkills, (name) => name.endsWith('.md') && name !== 'SKILL.md'))
+        .map((relativeFile) => path.join(roots.githubSkills, relativeFile))
     for (const refFile of githubSkillRefFiles) {
-        await validateAgentOrDocLinks(refFile, issues)
+        await validateAgentOrDocLinks(refFile, issues, { projectRoot: root })
     }
 
     for (const agentFile of githubAgentFiles) {
-        await validateAgentOrDocLinks(agentFile, issues)
+        await validateAgentOrDocLinks(agentFile, issues, { projectRoot: root })
     }
 
-    for (const docFile of governanceDocs) {
-        await validateAgentOrDocLinks(docFile, issues)
+    for (const docFile of docs) {
+        await validateAgentOrDocLinks(docFile, issues, { projectRoot: root })
     }
 
-    const externalSkillRegistry = await loadExternalSkillRegistry(issues)
-    await validateExternalSkillRegistryDoc(externalSkillRegistry, issues)
+    const externalSkillRegistry = await loadExternalSkillRegistry(issues, { projectRoot: root, registryPath })
+    await validateExternalSkillRegistryDoc(externalSkillRegistry, issues, { projectRoot: root, docPath: registryDocPath })
 
     const deferredIssues = [
-        ...await collectReferenceWarnings(githubSkillFiles, githubAgentFiles),
-        ...await collectScriptReferenceWarnings(projectScriptFiles),
+        ...await collectReferenceWarnings(githubSkillFiles, githubAgentFiles, { projectRoot: root, docs }),
+        ...await collectScriptReferenceWarnings(projectScriptFiles, scriptGovernanceOptions),
     ]
 
     const blockingIssues = issues.filter((issue) => issue.severity === 'error')
@@ -738,8 +754,6 @@ async function main() {
         process.exitCode = 1
     }
 }
-
-export { validateSkillReferences }
 
 if (isDirectExecution(import.meta.url)) {
     await main()

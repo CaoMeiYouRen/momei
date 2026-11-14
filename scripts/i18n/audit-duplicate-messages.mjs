@@ -11,7 +11,7 @@ const DEFAULT_MIN_GROUP_SIZE = 2
 const DEFAULT_MAX_GROUPS = 74
 const DEFAULT_ALLOWLIST_PATH = 'scripts/i18n/duplicate-group-allowlist.json'
 
-function parseListArgument(rawValue) {
+export function parseListArgument(rawValue) {
     if (!rawValue) {
         return []
     }
@@ -22,7 +22,7 @@ function parseListArgument(rawValue) {
         .filter(Boolean)
 }
 
-function parseNumberArgument(rawValue, fallbackValue) {
+export function parseNumberArgument(rawValue, fallbackValue) {
     const parsedValue = Number(rawValue)
 
     if (!Number.isInteger(parsedValue) || parsedValue < 0) {
@@ -32,7 +32,7 @@ function parseNumberArgument(rawValue, fallbackValue) {
     return Number.isNaN(parsedValue) ? fallbackValue : parsedValue
 }
 
-function parseArguments(argv) {
+export function parseArguments(argv) {
     const options = parseCliOptions(argv, {
         defaults: {
             crossModuleOnly: false,
@@ -106,7 +106,7 @@ function isNonEmptyString(value) {
     return typeof value === 'string' && value.trim().length > 0
 }
 
-function flattenMessageEntries(source, prefix = '') {
+export function flattenMessageEntries(source, prefix = '') {
     const result = []
 
     if (Array.isArray(source)) {
@@ -154,8 +154,8 @@ async function readJson(filePath) {
     return JSON.parse(await readFile(filePath, 'utf8'))
 }
 
-async function getLocaleMessageMaps(requestedModules) {
-    const localeEntries = await readdir(LOCALE_ROOT, { withFileTypes: true })
+export async function getLocaleMessageMaps(requestedModules, localeRoot = LOCALE_ROOT) {
+    const localeEntries = await readdir(localeRoot, { withFileTypes: true })
     const localeMessageMaps = new Map()
 
     for (const localeEntry of localeEntries) {
@@ -163,7 +163,7 @@ async function getLocaleMessageMaps(requestedModules) {
             continue
         }
 
-        const localeDir = join(LOCALE_ROOT, localeEntry.name)
+        const localeDir = join(localeRoot, localeEntry.name)
         const moduleEntries = await readdir(localeDir, { withFileTypes: true })
         const messageMap = new Map()
         const moduleNames = []
@@ -200,7 +200,7 @@ async function getLocaleMessageMaps(requestedModules) {
     return localeMessageMaps
 }
 
-function ensureRequestedLocales(localeMessageMaps, requestedLocales) {
+export function ensureRequestedLocales(localeMessageMaps, requestedLocales) {
     if (requestedLocales.length === 0) {
         return
     }
@@ -212,7 +212,7 @@ function ensureRequestedLocales(localeMessageMaps, requestedLocales) {
     }
 }
 
-function ensureRequestedModules(localeMessageMaps, requestedModules) {
+export function ensureRequestedModules(localeMessageMaps, requestedModules) {
     if (requestedModules.length === 0) {
         return
     }
@@ -230,7 +230,7 @@ function ensureRequestedModules(localeMessageMaps, requestedModules) {
     }
 }
 
-function getTargetLocales(localeMessageMaps, requestedLocales) {
+export function getTargetLocales(localeMessageMaps, requestedLocales) {
     if (requestedLocales.length > 0) {
         return requestedLocales
     }
@@ -238,7 +238,7 @@ function getTargetLocales(localeMessageMaps, requestedLocales) {
     return [...localeMessageMaps.keys()].sort()
 }
 
-function getSharedKeys(localeCodes, localeMessageMaps) {
+export function getSharedKeys(localeCodes, localeMessageMaps) {
     const unionKeys = new Set()
     let sharedKeys = null
 
@@ -263,7 +263,7 @@ function getSharedKeys(localeCodes, localeMessageMaps) {
     }
 }
 
-function buildDuplicateGroups(localeCodes, localeMessageMaps, sharedKeys, minGroupSize) {
+export function buildDuplicateGroups(localeCodes, localeMessageMaps, sharedKeys, minGroupSize) {
     const groupMap = new Map()
 
     for (const key of sharedKeys) {
@@ -313,7 +313,7 @@ function buildDuplicateGroups(localeCodes, localeMessageMaps, sharedKeys, minGro
         })
 }
 
-function getVisibleGroups(groups, limit, crossModuleOnly) {
+export function getVisibleGroups(groups, limit, crossModuleOnly) {
     const filteredGroups = crossModuleOnly
         ? groups.filter((group) => group.crossModule)
         : groups
@@ -325,7 +325,7 @@ function getVisibleGroups(groups, limit, crossModuleOnly) {
     return filteredGroups.slice(0, limit)
 }
 
-function buildReport(options, groups, summaryInput) {
+export function buildReport(options, groups, summaryInput) {
     const visibleGroups = getVisibleGroups(groups, options.limit, options.crossModuleOnly)
     const crossModuleGroupCount = groups.filter((group) => group.crossModule).length
     const totalKeysInGroups = groups.reduce((sum, group) => sum + group.keyCount, 0)
@@ -371,7 +371,7 @@ function formatKeys(keys) {
         .join('\n')
 }
 
-function formatTextReport(report) {
+export function formatTextReport(report) {
     const { groups, summary } = report
     const lines = [
         `Scanned ${summary.locales.length} locale(s): ${summary.locales.join(', ')}`,
@@ -402,7 +402,7 @@ function formatTextReport(report) {
     return lines.join('\n')
 }
 
-function formatMarkdownReport(report) {
+export function formatMarkdownReport(report) {
     const { groups, summary } = report
     const lines = [
         '# Duplicate Message Audit',
@@ -525,7 +525,7 @@ export function validateAllowlistCoverage(groups, allowlist, options = {}) {
     }
 }
 
-function renderReport(report, format) {
+export function renderReport(report, format) {
     if (format === 'json') {
         return JSON.stringify(report, null, 2)
     }
@@ -537,9 +537,16 @@ function renderReport(report, format) {
     return formatTextReport(report)
 }
 
-async function main() {
-    const options = parseArguments(process.argv.slice(2))
-    const localeMessageMaps = await getLocaleMessageMaps(options.modules)
+/**
+ * 执行审计主流程。
+ *
+ * `argv` / `context` 均有默认值，CLI 调用（`main()`）行为与改造前完全一致；
+ * 测试通过 `context.localeRoot` / `context.rootDir` 注入临时目录。
+ */
+export async function main(argv = process.argv.slice(2), context = {}) {
+    const { localeRoot = LOCALE_ROOT, rootDir = ROOT_DIR } = context
+    const options = parseArguments(argv)
+    const localeMessageMaps = await getLocaleMessageMaps(options.modules, localeRoot)
 
     ensureRequestedLocales(localeMessageMaps, options.locales)
     ensureRequestedModules(localeMessageMaps, options.modules)
@@ -558,7 +565,7 @@ async function main() {
         totalDistinctKeys,
     })
     if (options.gate) {
-        const allowlistPath = resolve(ROOT_DIR, options.allowlist)
+        const allowlistPath = resolve(rootDir, options.allowlist)
         let allowlist
 
         try {
@@ -610,7 +617,7 @@ async function main() {
     const renderedReport = renderReport(report, options.format)
 
     if (options.outputPath) {
-        const resolvedOutputPath = resolve(ROOT_DIR, options.outputPath)
+        const resolvedOutputPath = resolve(rootDir, options.outputPath)
 
         await writeFile(resolvedOutputPath, renderedReport, 'utf8')
         console.info(`Wrote duplicate message audit to ${resolvedOutputPath}`)

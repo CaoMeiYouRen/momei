@@ -44,7 +44,8 @@ const parityAssets = [
     path.join('tests', 'visual', 'helpers'),
 ]
 
-function runIn(cwd, command, args, env = process.env) {
+export function runIn(cwd, command, args, env = process.env, options = {}) {
+    const spawnFn = options.spawnFn ?? spawn
     return new Promise((resolve, reject) => {
         const isWin = process.platform === 'win32'
         const spawnCommand = isWin ? 'cmd.exe' : command
@@ -52,7 +53,7 @@ function runIn(cwd, command, args, env = process.env) {
             ? ['/d', '/s', '/c', [command, ...args].map(quoteWindowsArg).join(' ')]
             : args
 
-        const child = spawn(spawnCommand, spawnArgs, { cwd, env, stdio: 'inherit' })
+        const child = spawnFn(spawnCommand, spawnArgs, { cwd, env, stdio: 'inherit' })
         child.on('error', reject)
         child.on('exit', (code, signal) => {
             if (code === 0) {
@@ -64,7 +65,8 @@ function runIn(cwd, command, args, env = process.env) {
     })
 }
 
-function runCapture(cwd, command, args, env = process.env) {
+export function runCapture(cwd, command, args, env = process.env, options = {}) {
+    const spawnFn = options.spawnFn ?? spawn
     return new Promise((resolve, reject) => {
         const isWin = process.platform === 'win32'
         const spawnCommand = isWin ? 'cmd.exe' : command
@@ -72,7 +74,7 @@ function runCapture(cwd, command, args, env = process.env) {
             ? ['/d', '/s', '/c', [command, ...args].map(quoteWindowsArg).join(' ')]
             : args
 
-        const child = spawn(spawnCommand, spawnArgs, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] })
+        const child = spawnFn(spawnCommand, spawnArgs, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] })
         let stdout = ''
         let stderr = ''
         child.stdout.on('data', (chunk) => {
@@ -92,7 +94,7 @@ function runCapture(cwd, command, args, env = process.env) {
     })
 }
 
-function parseArgs(argv = process.argv) {
+export function parseArgs(argv = process.argv) {
     return parseCliOptions(argv, {
         defaults: {
             ref: 'HEAD',
@@ -118,7 +120,7 @@ function parseArgs(argv = process.argv) {
     })
 }
 
-function sanitizeRef(ref) {
+export function sanitizeRef(ref) {
     return ref.replace(/[^a-zA-Z0-9._-]+/g, '_')
 }
 
@@ -126,11 +128,18 @@ function readJson(filePath) {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'))
 }
 
-async function getEnvironmentMetadata() {
-    const playwrightPkg = readJson(path.join(repoRoot, 'node_modules', 'playwright-core', 'package.json'))
+async function loadPlaywrightChromium() {
+    const { chromium } = await import('playwright')
+    return chromium
+}
+
+export async function getEnvironmentMetadata(options = {}) {
+    const root = options.root ?? repoRoot
+    const loadChromiumFn = options.loadChromiumFn ?? loadPlaywrightChromium
+    const playwrightPkg = readJson(path.join(root, 'node_modules', 'playwright-core', 'package.json'))
     let browserVersion = 'unknown'
     try {
-        const { chromium } = await import('playwright')
+        const chromium = await loadChromiumFn()
         const browser = await chromium.launch()
         browserVersion = browser.version()
         await browser.close()
@@ -159,7 +168,7 @@ function escapeRegExp(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-function getGrepArg(only) {
+export function getGrepArg(only) {
     if (!only || only.length === 0) {
         return []
     }
@@ -228,7 +237,7 @@ export function buildHeadCaptureGrepArgs(only, options = {}) {
     return ['--grep-invert', inverted.join('|')]
 }
 
-function collectReferences(fromDir, sinceMs = 0) {
+export function collectReferences(fromDir, sinceMs = 0) {
     if (!fs.existsSync(fromDir)) {
         return []
     }
@@ -242,7 +251,7 @@ function collectReferences(fromDir, sinceMs = 0) {
         })
 }
 
-function copyReferences(fromDir, toDir, sinceMs = 0) {
+export function copyReferences(fromDir, toDir, sinceMs = 0) {
     fs.mkdirSync(toDir, { recursive: true })
     const names = collectReferences(fromDir, sinceMs)
     for (const name of names) {
@@ -251,8 +260,8 @@ function copyReferences(fromDir, toDir, sinceMs = 0) {
     return names
 }
 
-function updateManifest({ names, ref, commit, source, environment, label }) {
-    const manifestPath = path.join(repoRoot, manifestRel)
+export function updateManifest({ names, ref, commit, source, environment, label, root = repoRoot }) {
+    const manifestPath = path.join(root, manifestRel)
     const manifest = fs.existsSync(manifestPath)
         ? readJson(manifestPath)
         : { generatedAt: null, environment: null, captures: {} }
@@ -277,9 +286,11 @@ function updateManifest({ names, ref, commit, source, environment, label }) {
     return names.length
 }
 
-function resolveGitCommit(ref) {
+export function resolveGitCommit(ref, options = {}) {
+    const root = options.root ?? repoRoot
+    const spawnFn = options.spawnFn ?? spawn
     return new Promise((resolve, reject) => {
-        const child = spawn('git', ['rev-parse', ref], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] })
+        const child = spawnFn('git', ['rev-parse', ref], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
         let stdout = ''
         let stderr = ''
         child.stdout.on('data', (chunk) => {
@@ -299,10 +310,11 @@ function resolveGitCommit(ref) {
     })
 }
 
-function copyParityAssets(worktreeDir) {
+export function copyParityAssets(worktreeDir, options = {}) {
+    const root = options.root ?? repoRoot
     const parityDirRel = path.join('tests', 'visual', 'parity')
     for (const relative of parityAssets) {
-        const source = path.join(repoRoot, relative)
+        const source = path.join(root, relative)
         if (!fs.existsSync(source)) {
             continue
         }
@@ -323,15 +335,24 @@ function copyParityAssets(worktreeDir) {
     }
 }
 
-async function captureInPlace({ only, environment, forceAll = false }) {
+export async function captureInPlace({
+    only,
+    environment,
+    forceAll = false,
+    root = repoRoot,
+    runFn = runIn,
+    ensureBuildOutputFn = ensureBuildOutput,
+    ensurePlaywrightBrowsersFn = ensurePlaywrightBrowsers,
+    resolveGitCommitFn = resolveGitCommit,
+}) {
     if (forceAll && !process.env.CI) {
         console.warn('[visual-reference] ⚠️ --force-all 仅应通过 Refresh Visual Reference 工作流在 CI 执行；本地产物不得作为门禁基线提交。')
     }
-    await ensureBuildOutput()
-    await ensurePlaywrightBrowsers()
-    const grepArgs = buildHeadCaptureGrepArgs(only, { forceAll })
+    await ensureBuildOutputFn()
+    await ensurePlaywrightBrowsersFn()
+    const grepArgs = buildHeadCaptureGrepArgs(only, { forceAll, root })
     const startedAt = Date.now()
-    await runIn(repoRoot, 'pnpm', [
+    await runFn(root, 'pnpm', [
         'exec', 'playwright', 'test',
         `--config=${parityConfigRel}`,
         '--update-snapshots',
@@ -350,10 +371,10 @@ async function captureInPlace({ only, environment, forceAll = false }) {
         PARITY_CAPTURE_REF: 'HEAD',
     })
 
-    const referenceDir = path.join(repoRoot, referenceDirRel)
+    const referenceDir = path.join(root, referenceDirRel)
     const names = collectReferences(referenceDir, startedAt)
-    const commit = await resolveGitCommit('HEAD')
-    const count = updateManifest({ names, ref: 'HEAD', commit, source: 'in-place', environment, label: 'HEAD' })
+    const commit = await resolveGitCommitFn('HEAD', { root })
+    const count = updateManifest({ names, ref: 'HEAD', commit, source: 'in-place', environment, label: 'HEAD', root })
     return { names, count }
 }
 
@@ -370,8 +391,10 @@ const revertedSourcePrefixes = ['pages/', 'components/', 'composables/', 'lib/',
  * 规则：只回退 `revertedSourcePrefixes` 下、状态为 M/D 的文件；提交新增（A）的文件保留，
  * 避免因其他已迁移页面仍引用它们而构建失败。
  */
-async function revertCommitSourceChanges(worktreeDir, commit) {
-    const { stdout } = await runCapture(repoRoot, 'git', ['show', '--name-status', '--format=', commit])
+export async function revertCommitSourceChanges(worktreeDir, commit, options = {}) {
+    const root = options.root ?? repoRoot
+    const runCaptureFn = options.runCaptureFn ?? runCapture
+    const { stdout } = await runCaptureFn(root, 'git', ['show', '--name-status', '--format=', commit])
     const entries = stdout
         .split('\n')
         .map((line) => line.trim())
@@ -389,7 +412,7 @@ async function revertCommitSourceChanges(worktreeDir, commit) {
         if (!revertedSourcePrefixes.some((prefix) => file.startsWith(prefix))) {
             continue
         }
-        await runCapture(worktreeDir, 'git', ['checkout', `${commit}^`, '--', file])
+        await runCaptureFn(worktreeDir, 'git', ['checkout', `${commit}^`, '--', file])
         reverted++
     }
     if (reverted === 0) {
@@ -404,8 +427,9 @@ async function revertCommitSourceChanges(worktreeDir, commit) {
  * 而 `nuxt build` 会被 `server/plugins/mcp-http.ts` 等引用它们。这里从主仓库复制
  * 现有工作区包产物（与本次渲染观感无关），避免在工作树内重复构建包。
  */
-function ensureWorkspacePackageDist(worktreeDir) {
-    const packagesDir = path.join(repoRoot, 'packages')
+export function ensureWorkspacePackageDist(worktreeDir, options = {}) {
+    const root = options.root ?? repoRoot
+    const packagesDir = path.join(root, 'packages')
     if (!fs.existsSync(packagesDir)) {
         return
     }
@@ -419,7 +443,19 @@ function ensureWorkspacePackageDist(worktreeDir) {
     }
 }
 
-async function captureFromWorktree({ ref, revertCommit, only, environment, keepWorktree, build, worktreeBase }) {
+export async function captureFromWorktree({
+    ref,
+    revertCommit,
+    only,
+    environment,
+    keepWorktree,
+    build,
+    worktreeBase,
+    root = repoRoot,
+    runFn = runIn,
+    runCaptureFn = runCapture,
+    resolveGitCommitFn = resolveGitCommit,
+}) {
     const baseDir = worktreeBase ?? (fs.existsSync('/tmp/opencode') ? '/tmp/opencode' : os.tmpdir())
     const dirSuffix = revertCommit ? `${sanitizeRef(ref)}-revert-${sanitizeRef(revertCommit)}` : sanitizeRef(ref)
     const worktreeDir = path.join(baseDir, `momei-parity-${dirSuffix}`)
@@ -431,16 +467,16 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
     }
 
     fs.mkdirSync(baseDir, { recursive: true })
-    await runIn(repoRoot, 'git', ['worktree', 'add', '--detach', worktreeDir, ref])
+    await runFn(root, 'git', ['worktree', 'add', '--detach', worktreeDir, ref])
 
     try {
-        copyParityAssets(worktreeDir)
+        copyParityAssets(worktreeDir, { root })
 
         /* 以基线 ref 的锁文件安装依赖。默认 ref=HEAD 时即当前依赖；
          * 若指定历史 ref，该 ref 的依赖版本可能缺失（如旧版 PrimeVue 依赖的
          * `@primeuix/utils/classnames` 子路径在当前 pnpm 布局下不可解析），
          * 此时应改用 `--revert=<迁移提交>` 模式。 */
-        await runIn(worktreeDir, 'pnpm', [
+        await runFn(worktreeDir, 'pnpm', [
             'install', '--frozen-lockfile',
             '--config.confirm-modules-purge=false',
             '--config.verify-deps-before-run=false',
@@ -450,20 +486,20 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
         })
 
         if (revertCommit) {
-            await revertCommitSourceChanges(worktreeDir, revertCommit)
+            await revertCommitSourceChanges(worktreeDir, revertCommit, { root, runCaptureFn })
         }
 
-        ensureWorkspacePackageDist(worktreeDir)
+        ensureWorkspacePackageDist(worktreeDir, { root })
 
         if (build) {
-            await runIn(worktreeDir, 'pnpm', ['--config.verify-deps-before-run=false', 'run', 'build'], {
+            await runFn(worktreeDir, 'pnpm', ['--config.verify-deps-before-run=false', 'run', 'build'], {
                 ...process.env,
                 npm_config_verify_deps_before_run: 'false',
                 NODE_OPTIONS: process.env.NODE_OPTIONS ?? '--max-old-space-size=6144',
             })
         }
 
-        await runIn(worktreeDir, 'pnpm', [
+        await runFn(worktreeDir, 'pnpm', [
             '--config.verify-deps-before-run=false',
             'exec', 'playwright', 'test',
             `--config=${parityConfigRel}`,
@@ -479,9 +515,9 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
         })
 
         const fromDir = path.join(worktreeDir, referenceDirRel)
-        const toDir = path.join(repoRoot, referenceDirRel)
+        const toDir = path.join(root, referenceDirRel)
         const names = copyReferences(fromDir, toDir)
-        const commit = await resolveGitCommit(referenceRef)
+        const commit = await resolveGitCommitFn(referenceRef, { root })
         const count = updateManifest({
             names,
             ref: referenceRef,
@@ -489,6 +525,7 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
             source: revertCommit ? 'worktree-revert' : 'worktree',
             environment,
             label: revertCommit ? `revert ${revertCommit}` : ref,
+            root,
         })
         return { names, count, worktreeDir }
     } finally {
@@ -496,11 +533,11 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
             console.log(`[visual-reference] 保留工作树：${worktreeDir}`)
         } else {
             try {
-                await runIn(repoRoot, 'git', ['worktree', 'remove', '--force', worktreeDir])
+                await runFn(root, 'git', ['worktree', 'remove', '--force', worktreeDir])
             } catch {
                 try {
-                    await runIn(repoRoot, 'git', ['worktree', 'prune'])
-                    await runIn(repoRoot, 'git', ['worktree', 'remove', '--force', worktreeDir])
+                    await runFn(root, 'git', ['worktree', 'prune'])
+                    await runFn(root, 'git', ['worktree', 'remove', '--force', worktreeDir])
                 } catch (error) {
                     console.warn(`[visual-reference] 清理工作树失败，请手动处理：${worktreeDir}（${error.message}）`)
                 }
@@ -511,7 +548,10 @@ async function captureFromWorktree({ ref, revertCommit, only, environment, keepW
 
 export async function main(options = {}) {
     const args = options.args ?? parseArgs()
-    const environment = await getEnvironmentMetadata()
+    const getEnvironmentMetadataFn = options.getEnvironmentMetadataFn ?? getEnvironmentMetadata
+    const captureInPlaceFn = options.captureInPlaceFn ?? captureInPlace
+    const captureFromWorktreeFn = options.captureFromWorktreeFn ?? captureFromWorktree
+    const environment = await getEnvironmentMetadataFn({ root: options.root })
 
     if (args.forceAll && (args.revert || args.ref !== 'HEAD')) {
         throw new Error('--force-all 仅支持当前 HEAD 就地重采，不能与 --ref / --revert 组合使用')
@@ -520,8 +560,8 @@ export async function main(options = {}) {
     console.log(`[visual-reference] ref=${args.ref} revert=${args.revert ?? '-'} forceAll=${args.forceAll ? 'yes' : 'no'} only=${args.only.length > 0 ? args.only.join(',') : '(全部)'}`)
 
     const result = args.ref === 'HEAD' && !args.revert
-        ? await captureInPlace({ only: args.only, environment, forceAll: args.forceAll })
-        : await captureFromWorktree({
+        ? await captureInPlaceFn({ only: args.only, environment, forceAll: args.forceAll, root: options.root })
+        : await captureFromWorktreeFn({
             ref: args.ref,
             revertCommit: args.revert,
             only: args.only,
@@ -529,6 +569,7 @@ export async function main(options = {}) {
             keepWorktree: args.keepWorktree,
             build: args.build,
             worktreeBase: args.worktreeBase,
+            root: options.root,
         })
 
     console.log(`[visual-reference] 已采集 ${result.count} 个参考快照：${result.names.join(', ') || '(无)'}`)

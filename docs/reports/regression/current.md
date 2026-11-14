@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:coverage:batch17:2026-11-15 -->
+## 2026-11-15 覆盖率第十七批（脚本四模块）
+
+- 执行入口: 第七十六阶段条目 5；干净全量口径（移 `.vitest-cache` / `.vitest-cache-coverage` + `--maxWorkers=4`）
+- 证据 artifact: `artifacts/coverage/phase76-batch17-baseline/coverage-final.json` / `artifacts/coverage/phase76-batch17-final/coverage-final.json`
+- 结果摘要: 全仓 statements `31,597 / 38,076 = 82.98%` → `32,484 / 38,103 = 85.25%`（`+887` 覆盖，分母 `+27`，`+2.27pp`，远超 `+0.3pp` 目标）；四模块 `scripts/i18n/audit-duplicate-messages.mjs` 50→288/291、`scripts/ai/check-governance.mjs` 108→351/352、`scripts/governance/inventory-eslint-rules.mjs` 16→230/231、`scripts/testing/capture-visual-reference.mjs` 39→226/229；`vitest list` 口径 622 文件 / 5,644 例。
+- 已执行验证: 9 个相关套件 193 例通过；新增 4 个测试文件（155 例，连跑 3 轮 155/155 无 flaky）；本批 8 文件 `eslint` 0 error / 0 warning、全仓 `eslint .` 0 error / 10 warning（均为既有文件的既有规则：`max-lines` 3 / `max-lines-per-function` 1 / `max-statements-per-line` 3 / `no-misused-promises` 2 / `no-misused-spread` 1）、`typecheck` 0；本批四模块均 ≥98% statements。
+- 回归窗口: 分母 `+27` 来自四个脚本为测试注入新增可选参默认值（check-governance `+11` / capture `+15` / audit `+1`），文件集合不变（779）；同集合比较 `+2.27pp`。四模块增量合计 `+882`，其余 `5` 条为新增用例确定性触达的共享模块（`scripts/shared/cli.mjs` +4、`scripts/governance/check-script-governance.mjs` +1），非随机波动。
+- Review Gate: 见本轮审计结论；生产改动均为 `export` + 带默认值的依赖注入，CLI 入口行为不变。
+- 未覆盖边界: 四模块剩余 8 条未覆盖语句均为入口/加载器——`audit-duplicate-messages.mjs` 的 `isDirectExecution` 入口块 3 条，`check-governance.mjs` / `inventory-eslint-rules.mjs` / `capture-visual-reference.mjs` 的入口各 1 条，以及 capture 默认 `loadPlaywrightChromium` 动态导入 2 条；import 场景不可达。Windows `cmd.exe` 分支属平台不可达（仅分支未覆盖，不计入语句）。
+<!-- regression-window:end:coverage:batch17:2026-11-15 -->
+
 <!-- regression-window:start:maintenance:node26-runtime-baseline:2026-11-14 -->
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-14 -->

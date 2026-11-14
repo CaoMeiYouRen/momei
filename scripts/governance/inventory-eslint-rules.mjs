@@ -70,7 +70,7 @@ export function parseArgs(argv = process.argv) {
     })
 }
 
-async function pathExists(targetPath) {
+export async function pathExists(targetPath) {
     try {
         await access(targetPath)
         return true
@@ -79,13 +79,13 @@ async function pathExists(targetPath) {
     }
 }
 
-function toPosixPath(targetPath, projectRoot = repoRoot) {
+export function toPosixPath(targetPath, projectRoot = repoRoot) {
     const relativePath = path.relative(projectRoot, targetPath).replaceAll('\\', '/')
 
     return relativePath || '.'
 }
 
-async function collectSourceFiles(targetPath) {
+export async function collectSourceFiles(targetPath) {
     if (!(await pathExists(targetPath))) {
         return []
     }
@@ -117,11 +117,11 @@ async function collectSourceFiles(targetPath) {
     }
 }
 
-function unique(values) {
+export function unique(values) {
     return [...new Set(values)].sort()
 }
 
-function uniqueBy(values, keyFn) {
+export function uniqueBy(values, keyFn) {
     const seen = new Set()
     const result = []
 
@@ -139,7 +139,7 @@ function uniqueBy(values, keyFn) {
     return result
 }
 
-function computeLineNumber(content, index) {
+export function computeLineNumber(content, index) {
     return content.slice(0, index).split('\n').length
 }
 
@@ -176,7 +176,7 @@ export function normalizeRuleMessages(results, ruleId, projectRoot = repoRoot) {
         })))
 }
 
-function buildDirectoryBuckets(items) {
+export function buildDirectoryBuckets(items) {
     const buckets = new Map()
 
     for (const item of items) {
@@ -207,11 +207,11 @@ export function normalizeSeverity(ruleConfig) {
     return typeof ruleConfig === 'number' ? ruleConfig : 0
 }
 
-function isIgnoredByPatterns(relativePath, patterns) {
+export function isIgnoredByPatterns(relativePath, patterns) {
     return patterns.some((pattern) => path.matchesGlob(relativePath, pattern))
 }
 
-async function resolveConfiguredSeverities(eslint, projectRoot) {
+export async function resolveConfiguredSeverities(eslint, projectRoot) {
     const baseFiles = await collectSourceFiles(path.join(projectRoot, CONFIGURED_SEVERITY_SCOPE))
     const sampleFile = baseFiles.find((filePath) => filePath.endsWith('.test.ts')) ?? baseFiles[0]
     const configuredSeverityByRule = new Map(DISABLED_TS_RULES.map((rule) => [rule.ruleId, 0]))
@@ -348,7 +348,7 @@ export function evaluateBaselineDelta(report, baseline) {
     }
 }
 
-async function loadJsonIfExists(filePath) {
+export async function loadJsonIfExists(filePath) {
     try {
         return JSON.parse(await readFile(filePath, 'utf8'))
     } catch (error) {
@@ -360,7 +360,7 @@ async function loadJsonIfExists(filePath) {
     }
 }
 
-async function collectExplicitExemptions(ruleId, projectRoot = repoRoot) {
+export async function collectExplicitExemptions(ruleId, projectRoot = repoRoot) {
     const roots = DEFAULT_SCAN_ROOTS.map((rootPath) => path.join(projectRoot, rootPath))
     const sourceFiles = unique((await Promise.all(roots.map((rootPath) => collectSourceFiles(rootPath)))).flat())
     const exemptions = []
@@ -379,7 +379,7 @@ async function collectExplicitExemptions(ruleId, projectRoot = repoRoot) {
     return uniqueBy(exemptions, (item) => `${item.filePath}:${item.line}:${item.text}`)
 }
 
-async function collectRuleInventory(eslint, slice, projectRoot = repoRoot, candidateByRule = new Map()) {
+export async function collectRuleInventory(eslint, slice, projectRoot = repoRoot, candidateByRule = new Map()) {
     const lintResults = (await eslint.lintFiles(slice.files))
         .filter((result) => !isIgnoredByPatterns(toPosixPath(result.filePath, projectRoot), slice.ignores ?? []))
     const residualWarnings = normalizeRuleMessages(lintResults, slice.ruleId, projectRoot)
@@ -533,11 +533,11 @@ export function renderMarkdownReport(report, artifactPath = null) {
     return lines.join('\n').trimEnd()
 }
 
-function resolveMarkdownPath(outputPath) {
+export function resolveMarkdownPath(outputPath) {
     return outputPath.endsWith('.json') ? outputPath.replace(/\.json$/u, '.md') : `${outputPath}.md`
 }
 
-async function writeArtifacts(report, outputPath, projectRoot = repoRoot) {
+export async function writeArtifacts(report, outputPath, projectRoot = repoRoot) {
     const resolvedOutputPath = path.isAbsolute(outputPath) ? outputPath : path.join(projectRoot, outputPath)
     const markdownPath = resolveMarkdownPath(resolvedOutputPath)
 

@@ -49,8 +49,8 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；选 ② / ③ 时升 V3（五语重定向与语言持久化），证据为决策文档 + 探针输出。
     - **回滚边界**: 配置 / cookie 行为按方案独立回退。**kill-switch**: 线上数据不可得或影响语言持久化时，只交付决策记录并保持现状，并在 backlog 恢复「首页 SWR 决策（阻塞于生产数据）」候选卡。
 
-- [ ] **5. 覆盖率第十七批（P2）**
-    - **执行范围**: 4 个脚本模块——`scripts/i18n/audit-duplicate-messages.mjs`（240/290）、`scripts/ai/check-governance.mjs`（233/341）、`scripts/governance/inventory-eslint-rules.mjs`（215/231）、`scripts/testing/capture-visual-reference.mjs`（175/214）；目标同源 `+0.3pp`（约 113 条）或模块级 `+15pp / ≥85%`；脚本池不可达时换入 `admin-taxonomy-page.vue`（111/284）。
+- [x] **5. 覆盖率第十七批（P2）**
+    - **执行范围**: 4 个脚本模块——`scripts/i18n/audit-duplicate-messages.mjs`（240/290）、`scripts/ai/check-governance.mjs`（233/341）、`scripts/governance/inventory-eslint-rules.mjs`（215/231）、`scripts/testing/capture-visual-reference.mjs`（175/214，括号内为未覆盖 / 总语句数）；目标同源 `+0.3pp`（约 113 条）或模块级 `+15pp / ≥85%`；脚本池不可达时换入 `admin-taxonomy-page.vue`（111/284）。
     - **非目标**: 不为凑数测模板分支；不重构测试结构；不新增测试依赖。
     - **验收标准**: 干净全量跑（移 `.vitest-cache` / `.vitest-cache-coverage` + `--maxWorkers=4`）基线 / 收口，delta 落盘 `artifacts/coverage/`；定向测试通过；flaky 归因。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
