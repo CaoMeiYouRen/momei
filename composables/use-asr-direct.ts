@@ -500,7 +500,7 @@ function buildFullUrl(url: string, query: Record<string, string>): string {
     return fullUrl.toString()
 }
 
-function createTemporaryUserId(): string {
+export function createTemporaryUserId(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
         return crypto.randomUUID()
     }
@@ -508,7 +508,7 @@ function createTemporaryUserId(): string {
     return `asr-${Date.now()}`
 }
 
-function toError(value: unknown): Error {
+export function toError(value: unknown): Error {
     if (value instanceof Error) {
         return value
     }
@@ -516,7 +516,7 @@ function toError(value: unknown): Error {
     return new Error(typeof value === 'string' ? value : 'unknown_error')
 }
 
-function isCredentialFailure(message: string | undefined) {
+export function isCredentialFailure(message: string | undefined) {
     if (!message) {
         return false
     }
@@ -524,7 +524,7 @@ function isCredentialFailure(message: string | undefined) {
     return /expire|credential|token|auth/i.test(message)
 }
 
-function shouldRetryCredentialRequest(error: unknown) {
+export function shouldRetryCredentialRequest(error: unknown) {
     if (!error || typeof error !== 'object') {
         return false
     }
@@ -647,7 +647,7 @@ function concatBytes(...chunks: Uint8Array[]): Uint8Array {
     return merged
 }
 
-function toWebSocketBuffer(data: Uint8Array): ArrayBuffer {
+export function toWebSocketBuffer(data: Uint8Array): ArrayBuffer {
     const { buffer, byteOffset, byteLength } = data
 
     if (buffer instanceof ArrayBuffer && byteOffset === 0 && byteLength === buffer.byteLength) {
@@ -657,7 +657,7 @@ function toWebSocketBuffer(data: Uint8Array): ArrayBuffer {
     return data.slice().buffer
 }
 
-async function parseVolcengineServerPacket(rawData: Blob | ArrayBuffer | string): Promise<VolcengineServerPacket> {
+export async function parseVolcengineServerPacket(rawData: Blob | ArrayBuffer | string): Promise<VolcengineServerPacket> {
     if (typeof rawData === 'string') {
         return { type: 'unknown' }
     }
@@ -732,7 +732,7 @@ async function decodeVolcenginePayload(payload: Uint8Array, compression: number)
     return new Uint8Array(buffer)
 }
 
-function decodeVolcengineSerializedPayload(payload: Uint8Array, serialization: number): unknown {
+export function decodeVolcengineSerializedPayload(payload: Uint8Array, serialization: number): unknown {
     if (serialization === VOLCENGINE_SERIALIZATION.none) {
         return textDecoder.decode(payload)
     }
@@ -749,7 +749,7 @@ function decodeVolcengineSerializedPayload(payload: Uint8Array, serialization: n
     return text
 }
 
-function extractVolcengineTranscript(payload: unknown): string {
+export function extractVolcengineTranscript(payload: unknown): string {
     if (!isRecord(payload)) {
         return ''
     }
@@ -768,7 +768,7 @@ function extractVolcengineTranscript(payload: unknown): string {
     return typeof payload.text === 'string' ? payload.text : ''
 }
 
-function hasDefiniteUtterance(payload: unknown): boolean {
+export function hasDefiniteUtterance(payload: unknown): boolean {
     if (!isRecord(payload) || !isRecord(payload.result)) {
         return false
     }

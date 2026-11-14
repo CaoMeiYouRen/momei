@@ -22,7 +22,7 @@
 
 -   **内存与 Worker 配置**: Nuxt 环境（`@nuxt/test-utils`）下单 worker 跑大测试文件可能触发 `JavaScript heap out of memory`（表现为 `Worker exited unexpectedly` 且 `tests 0ms`）。稳定配置为 `NODE_OPTIONS=--max-old-space-size=10240` + `--pool=forks --maxWorkers=1`；多个测试文件合跑比单跑更稳（环境初始化成本分摊）。
 -   **覆盖率报告目录**: coverage 报告必须显式 `--coverage.reportsDirectory` 到 `artifacts/` 下；默认 `coverage/` 目录可能残留旧报告，解析 `coverage-final.json` 前先核对 `LastWriteTime`。
--   **全量 coverage 执行节奏**: 全仓 `vitest run --coverage` 在 Nuxt 环境下约 8-9 分钟，本地验证用定向 subset（3-5 文件）+ `--coverage.include` 限定目标文件，最终以 CI 为准。
+-   **全量 coverage 执行节奏**: 全仓 `vitest run --coverage` 在 Nuxt 环境下约 8-10 分钟（本地 `--maxWorkers=4` 实测 7.0-8.8 分钟，610+ 测试文件；CI 约 8.6 分钟），本地验证用定向 subset（3-5 文件）+ `--coverage.include` 限定目标文件，最终以 CI 为准。
 
 ### 2.2 Mock 与断言实践 (Mock & Assertion Practices)
 
@@ -44,7 +44,8 @@
 -   **断言必须具备判别力**：新增用例要能「删掉被测守卫就变红」；只断言 `outcome` / 最终状态、而该状态在守卫被删后仍成立，等于零覆盖。应钉住守卫决定的可观测产物（如持久化的 `result.phase`、`signal.aborted`、调用参数）。
 -   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
 -   **新增用例的环境兜底**：涉及模块级连接 Map / `process.env` / fake timers 的用例必须补 `afterEach` 注销与 `useRealTimers` / `unstubAllGlobals`；即使当前 `isolate: true` 掩盖了污染，审计仍会以「前置断言失败会连锁误报」为由记 warning。
--   **本批增量与阶段累计分列**：新增代码会把语句总数从上一阶段基线推大；`本批增量 = 终值 − 本批前基线`、`阶段累计 = 终值 − 上一阶段收口值`，两者不同源。文档必须给出各自的分子 / 分母，禁止用累计值冒充本批成果。
+-   **分母或文件集合变化时按同源比较**：新增源码会改变 statements 分母，新增测试只改变分子；当分母或文件集合与上一批不同时，跨批次 delta 必须在同一文件集合上复算，并给出覆盖数 / 总数 / 文件数，不得用两次运行的全仓百分比直接相减。
+-   **本批增量与阶段累计分列**：`本批增量 = 终值 − 本批前基线`、`阶段累计 = 终值 − 上一阶段收口值`；阶段累计也须在上一阶段收口时的文件集合上复算并给出该集合文件数。两者是「基线不同」，不可用累计值冒充本批成果。
 -   **覆盖率展示口径**：全仓百分比常按 vitest 文本报告的截断显示（`81.1759 → 81.17`），模块表用四舍五入；同一文档要注明口径，增量列按「覆盖数 / 总数」复算，与两个展示值相减可能差 0.01pp。
 -   **干净全量跑才可作为基线**：默认并发下 `virtual:intlify-i18n` 会让约 25 个套件收集失败（0-test），覆盖率分子分母同时失真；基线统一用「运行前 `rm -rf node_modules/.vitest-cache` + `--maxWorkers=4`」，并在文档记录该口径。
 -   **单文件验证优先带 `--coverage`**：单文件跑 Nuxt 测试时 `virtual:intlify-i18n` 解析会随机失败，`--coverage` 模式下更稳定；失败时先清缓存重试，不要当成代码回归。

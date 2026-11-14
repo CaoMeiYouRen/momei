@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-13
+last_sync: 2026-11-14
 translation_tier: summary-sync
 ---
 
@@ -25,7 +25,7 @@ This document outlines the testing process for the Momei blog to ensure code qua
 
 -   **Memory & Worker Configuration**: Running a Nuxt test file (`@nuxt/test-utils`) in a single worker can trigger `JavaScript heap out of memory` (symptom: `Worker exited unexpectedly` plus `tests 0ms`). A stable configuration is `NODE_OPTIONS=--max-old-space-size=10240` plus `--pool=forks --maxWorkers=1`; batching multiple test files together is more stable than running them one-by-one (environment-startup cost amortises).
 -   **Coverage Report Directory**: Coverage output must explicitly point `--coverage.reportsDirectory` to `artifacts/`; the default `coverage/` directory may carry stale reports, so verify `LastWriteTime` before parsing `coverage-final.json`.
--   **Full Coverage Cadence**: A full `vitest run --coverage` in the Nuxt environment takes about 8–9 minutes. Local validation should use a targeted subset (3–5 files) with `--coverage.include` restricted to the files under review; trust CI for the final numbers.
+-   **Full Coverage Cadence**: A full `vitest run --coverage` in the Nuxt environment takes about 8–10 minutes (`--maxWorkers=4`: 7.0–8.8 minutes locally, 610+ test files; about 8.6 minutes in CI). Local validation should use a targeted subset (3–5 files) with `--coverage.include` restricted to the files under review; trust CI for the final numbers.
 
 ### 2.2 Mock & Assertion Practices
 
@@ -39,6 +39,7 @@ This document outlines the testing process for the Momei blog to ensure code qua
 -   Use `it.each` to cover isomorphic fallback branches (e.g. "provider without chat") so audit reviews don't mistake them for "low-value bulk coverage".
 -   The coverage baseline comes from `pnpm test:coverage` output or `coverage/coverage-final.json`; never plan ROI against a possibly-stale report (see §5.1).
 -   Estimate the **candidate-pool ceiling** before planning a batch: a workspace-wide "+1pp" target requires the pool\'s uncovered statements to be close to 1% of the workspace; otherwise set module-level acceptance and record the structural reason.
+-   When the denominator or file set changes, compare on the same file set: new source changes the statement denominator while new tests only change the numerator. Compute cross-batch deltas on an identical file set and report covered count, total, and file count instead of subtracting two whole-repo percentages from separate runs.
 -   Pick modules by **absolute uncovered statements**, not by low coverage percentage; count branch coverage per branch path (never "any branch hit", which overstates by 10pp+); persist the baseline `coverage-final.json` (targeted runs still wipe the default `coverage/`).
 -   Prefer a new file over appending to a test file already near the `max-lines` warning; move `node_modules/.vitest-cache` aside before local runs (hot cache causes `@id/virtual:*` module errors that CI never sees).
 -   Tests touching module-level connection maps, `process.env` or fake timers need `afterEach` teardown plus `useRealTimers` / `unstubAllGlobals`; `isolate: true` only masks the pollution.

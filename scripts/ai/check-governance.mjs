@@ -50,11 +50,11 @@ const supportedSkillFrontmatterKeys = new Set([
     'user-invocable',
 ])
 
-function toPosixPath(targetPath) {
+export function toPosixPath(targetPath) {
     return path.relative(projectRoot, targetPath).replaceAll('\\', '/')
 }
 
-async function pathExists(targetPath) {
+export async function pathExists(targetPath) {
     try {
         await access(targetPath)
         return true
@@ -63,7 +63,7 @@ async function pathExists(targetPath) {
     }
 }
 
-async function listFilesRecursive(baseDir, matcher, currentDir = '') {
+export async function listFilesRecursive(baseDir, matcher, currentDir = '') {
     const targetDir = path.join(baseDir, currentDir)
     const entries = await readdir(targetDir, { withFileTypes: true })
     const files = []
@@ -84,7 +84,7 @@ async function listFilesRecursive(baseDir, matcher, currentDir = '') {
     return files.sort()
 }
 
-async function listDirectoriesRecursive(baseDir, currentDir = '') {
+export async function listDirectoriesRecursive(baseDir, currentDir = '') {
     const targetDir = path.join(baseDir, currentDir)
     const entries = await readdir(targetDir, { withFileTypes: true })
     const directories = []
@@ -112,7 +112,7 @@ async function readRaw(filePath) {
     return readFile(filePath)
 }
 
-function parseFrontmatter(content) {
+export function parseFrontmatter(content) {
     const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/)
 
     if (!match) {
@@ -145,7 +145,7 @@ function parseFrontmatter(content) {
     }
 }
 
-function extractMarkdownLinks(content) {
+export function extractMarkdownLinks(content) {
     const links = []
     const regex = /\[[^\]]+\]\(([^)]+)\)/gu
 
@@ -156,11 +156,11 @@ function extractMarkdownLinks(content) {
     return links
 }
 
-function isExternalLink(target) {
+export function isExternalLink(target) {
     return /^[a-z][a-z0-9+.-]*:/iu.test(target)
 }
 
-function collectLocalLinkTargets(content) {
+export function collectLocalLinkTargets(content) {
     return extractMarkdownLinks(content)
         .map((target) => normalizeLocalTarget(target.trim()))
         .filter((target) => target && !isExternalLink(target) && !target.startsWith('#'))
@@ -170,7 +170,7 @@ function collectLocalLinkTargets(content) {
  * references 文件必须由本技能执行入口的相对链接直接指向。
  * 比上游 verify-manifest 更严格：不认仓库级全路径引用，也不认其他技能的文件顶包。
  */
-async function isReferenceIndexed(referencePath, entryFiles) {
+export async function isReferenceIndexed(referencePath, entryFiles) {
     const expectedPath = path.resolve(referencePath)
 
     for (const entryFile of entryFiles) {
@@ -186,11 +186,11 @@ async function isReferenceIndexed(referencePath, entryFiles) {
     return false
 }
 
-function normalizeLocalTarget(target) {
+export function normalizeLocalTarget(target) {
     return target.split('#')[0]
 }
 
-function buildIssue(type, filePath, message, severity = 'error') {
+export function buildIssue(type, filePath, message, severity = 'error') {
     return {
         type,
         filePath,
@@ -483,7 +483,7 @@ async function validateAgentOrDocLinks(filePath, issues) {
     }
 }
 
-async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, issues, type) {
+export async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, issues, type) {
     for (const relativeFile of relativeFiles) {
         const mainPath = path.join(mainRoot, relativeFile)
         const mirrorPath = path.join(mirrorRoot, relativeFile)
@@ -504,17 +504,17 @@ async function compareMirrorTrees(mainRoot, mirrorRoot, relativeFiles, issues, t
     }
 }
 
-function findMissingRelativeFiles(mainFiles, mirrorFiles) {
+export function findMissingRelativeFiles(mainFiles, mirrorFiles) {
     const mirrorSet = new Set(mirrorFiles)
     return mainFiles.filter((file) => !mirrorSet.has(file))
 }
 
-function findExtraRelativeFiles(mainFiles, mirrorFiles) {
+export function findExtraRelativeFiles(mainFiles, mirrorFiles) {
     const mainSet = new Set(mainFiles)
     return mirrorFiles.filter((file) => !mainSet.has(file))
 }
 
-async function listImmediateDirectories(baseDir) {
+export async function listImmediateDirectories(baseDir) {
     if (!(await pathExists(baseDir))) {
         return []
     }
@@ -607,7 +607,7 @@ function printSection(title, lines) {
     }
 }
 
-function unique(values) {
+export function unique(values) {
     return [...new Set(values)].sort()
 }
 

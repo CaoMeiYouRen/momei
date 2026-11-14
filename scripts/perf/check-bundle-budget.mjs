@@ -89,7 +89,7 @@ const BUDGETS = {
     prIncrementJsGzipBytes: 20 * KB,
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
     return parseCliOptions(argv, {
         defaults: {
             baseline: '.github/perf/bundle-baseline.json',
@@ -108,7 +108,7 @@ function parseArgs(argv) {
     })
 }
 
-async function collectFiles(dir) {
+export async function collectFiles(dir) {
     const result = []
     const entries = await fs.readdir(dir, { withFileTypes: true })
     for (const entry of entries) {
@@ -130,30 +130,30 @@ async function collectFiles(dir) {
     return result
 }
 
-async function getGzipSize(filePath) {
+export async function getGzipSize(filePath) {
     const content = await fs.readFile(filePath)
     return gzipSync(content, { level: 9 }).byteLength
 }
 
-function rel(filePath) {
+export function rel(filePath) {
     return filePath.replaceAll('\\', '/')
 }
 
-function toKBString(bytes) {
+export function toKBString(bytes) {
     return `${(bytes / KB).toFixed(2)}KB`
 }
 
-function isEntryLikeFile(filePath) {
+export function isEntryLikeFile(filePath) {
     const name = path.basename(filePath)
     return /^(entry|app|index)\..+\.js$/i.test(name)
 }
 
-function isVendorChunk(filePath) {
+export function isVendorChunk(filePath) {
     const name = path.basename(filePath)
     return /^vendor-[^.]+\..+\.js$/i.test(name)
 }
 
-function isRuntimeShellChunk(content) {
+export function isRuntimeShellChunk(content) {
     return [
         'window.useNuxtApp||=',
         'builds/meta/${yn().app.buildId}.json',
@@ -168,7 +168,7 @@ function isRuntimeShellChunk(content) {
  * manifest 缺失或结构不符时返回空集合（strategy 为 `unavailable`），交由调用方标记 skipped，
  * 绝不退化为无意义的代理口径。
  */
-async function resolveManifestEntryPayload() {
+export async function resolveManifestEntryPayload() {
     try {
         const manifestUrl = pathToFileURL(path.resolve(CLIENT_MANIFEST_RELATIVE_PATH)).href
         const manifest = (await import(manifestUrl)).default
@@ -179,7 +179,7 @@ async function resolveManifestEntryPayload() {
     }
 }
 
-function extractImportedJsFiles(content) {
+export function extractImportedJsFiles(content) {
     const imports = new Set()
     const patterns = [
         /from["'`]\.\/([^"'`]+\.js)["'`]/g,
@@ -199,7 +199,7 @@ function extractImportedJsFiles(content) {
     return imports
 }
 
-function extractRouteChunkUsage(content) {
+export function extractRouteChunkUsage(content) {
     const usage = new Map()
     const routeChunkPattern = /path:"([^"]+)"[^]*?import\("\.\/([^"]+\.js)"\)/g
 
@@ -218,7 +218,7 @@ function extractRouteChunkUsage(content) {
     return usage
 }
 
-function extractPrecomputedRouteChunkUsage(content) {
+export function extractPrecomputedRouteChunkUsage(content) {
     const usage = new Map()
     const routeChunkPattern = /file:"([^"]+\.js)",name:"[^"]*",src:"(pages\/[^"]+\.vue)",isDynamicEntry:true/g
 
@@ -238,11 +238,11 @@ function extractPrecomputedRouteChunkUsage(content) {
     return usage
 }
 
-function isAdminRoutePath(routePath) {
+export function isAdminRoutePath(routePath) {
     return /^\/(?:[a-z]{2}-[A-Z]{2}\/)?admin(?:\/|$)/.test(routePath)
 }
 
-async function main() {
+export async function main() {
     const args = parseArgs(process.argv)
     const assetsDir = path.resolve('.output/public/_nuxt')
 

@@ -17,7 +17,18 @@ const { fetchMock } = vi.hoisted(() => ({
 vi.mock('ofetch', () => ({ $fetch: fetchMock }))
 vi.mock('#build/fetch.mjs', () => ({ $fetch: fetchMock }))
 
-import { useASRDirect } from './use-asr-direct'
+import {
+    createTemporaryUserId,
+    decodeVolcengineSerializedPayload,
+    extractVolcengineTranscript,
+    hasDefiniteUtterance,
+    isCredentialFailure,
+    parseVolcengineServerPacket,
+    shouldRetryCredentialRequest,
+    toError,
+    toWebSocketBuffer,
+    useASRDirect,
+} from './use-asr-direct'
 import type { ASRCredentials } from '@/types/asr'
 
 class MockWebSocket {
@@ -653,3 +664,69 @@ function createResponsePacketWithPayload(payload: Uint8Array, options: { compres
     packet.set(payload, 12)
     return packet
 }
+
+describe('use-asr-direct 纯函数边界', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals()
+    })
+
+    it('生成临时用户 ID 并在无 randomUUID 时回退', () => {
+        expect(createTemporaryUserId()).toMatch(/[0-9a-f-]{8,}/i)
+        const originalCrypto = globalThis.crypto
+        vi.stubGlobal('crypto', {})
+        try {
+            expect(createTemporaryUserId()).toMatch(/^asr-\d+$/)
+        } finally {
+            vi.stubGlobal('crypto', originalCrypto)
+        }
+    })
+
+    it('归一化错误与凭据失败判定', () => {
+        const error = new Error('boom')
+        expect(toError(error)).toBe(error)
+        expect(toError('plain').message).toBe('plain')
+        expect(toError({ code: 1 }).message).toBe('unknown_error')
+        expect(isCredentialFailure('token expired')).toBe(true)
+        expect(isCredentialFailure('')).toBe(false)
+        expect(shouldRetryCredentialRequest(null)).toBe(false)
+        expect(shouldRetryCredentialRequest({ data: { error: { message: 'expired' } } })).toBe(true)
+        expect(shouldRetryCredentialRequest({ status: 500 })).toBe(false)
+    })
+
+    it('subarray 转 WebSocket buffer 时复制切片', () => {
+        const source = new Uint8Array([1, 2, 3, 4])
+        expect(toWebSocketBuffer(source)).toBe(source.buffer)
+        const slice = toWebSocketBuffer(source.subarray(1, 3))
+        expect(slice).not.toBe(source.buffer)
+        expect(new Uint8Array(slice)).toEqual(new Uint8Array([2, 3]))
+    })
+
+    it('解析未知 / 短错误包并解码 serialized payload', async () => {
+        expect(await parseVolcengineServerPacket('text')).toEqual({ type: 'unknown' })
+        expect(await parseVolcengineServerPacket(new Uint8Array([0x11]).buffer)).toEqual({ type: 'unknown' })
+
+        const unknownPacket = new Uint8Array(12)
+        unknownPacket[1] = 0b0001 << 4
+        expect(await parseVolcengineServerPacket(unknownPacket.buffer as ArrayBuffer)).toEqual({ type: 'unknown' })
+
+        const shortError = new Uint8Array(4)
+        shortError[1] = 0b1111 << 4
+        expect(await parseVolcengineServerPacket(shortError.buffer as ArrayBuffer)).toEqual({ type: 'error', code: 0, message: 'Unknown server error' })
+
+        const encoder = new TextEncoder()
+        expect(decodeVolcengineSerializedPayload(encoder.encode('plain'), 0)).toBe('plain')
+        expect(decodeVolcengineSerializedPayload(encoder.encode('{"a":1}'), 1)).toEqual({ a: 1 })
+        expect(decodeVolcengineSerializedPayload(encoder.encode('{bad'), 1)).toBe('{bad')
+        expect(decodeVolcengineSerializedPayload(encoder.encode('other'), 9)).toBe('other')
+    })
+
+    it('提取 transcript 与 definite utterance', () => {
+        expect(extractVolcengineTranscript({ result: { text: 'a' } })).toBe('a')
+        expect(extractVolcengineTranscript({ result: [{ text: 'a' }, { text: 'b' }, null] })).toBe('ab')
+        expect(extractVolcengineTranscript({ text: 'fallback' })).toBe('fallback')
+        expect(extractVolcengineTranscript('nope')).toBe('')
+        expect(hasDefiniteUtterance({ result: { utterances: [{ definite: true }] } })).toBe(true)
+        expect(hasDefiniteUtterance({ result: { utterances: [{ definite: false }] } })).toBe(false)
+        expect(hasDefiniteUtterance({ result: 'x' })).toBe(false)
+    })
+})
