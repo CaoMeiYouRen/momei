@@ -464,7 +464,7 @@ export const typeormAdapter =
                         select: toFindOptionsSelect(select),
                         relations,
                     })
-                    const transformed = transformHelpers.transformOutput(result, model, select) as Record<string, unknown>
+                    const transformed = transformHelpers.transformOutput(result, model, select)
                     if (transformed && join) {
                         for (const [joinedModel, joinConfig] of Object.entries(join)) {
                             if (joinConfig === false) {
@@ -518,7 +518,7 @@ export const typeormAdapter =
                     })
 
                     return result.map((r) => {
-                        const transformed = transformHelpers.transformOutput(r, model) as Record<string, unknown>
+                        const transformed = transformHelpers.transformOutput(r, model)
                         if (transformed && join) {
                             for (const [joinedModel, joinConfig] of Object.entries(join)) {
                                 if (joinConfig === false) {

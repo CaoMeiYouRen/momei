@@ -522,7 +522,7 @@ export function isValidAdminContentInsightsTimeZone(timezone?: string | null) {
 
 export function resolveAdminContentInsightsTimeZone(timezone?: string | null) {
     return isValidAdminContentInsightsTimeZone(timezone)
-        ? timezone as string
+        ? timezone!
         : DEFAULT_ADMIN_CONTENT_INSIGHTS_TIMEZONE
 }
 

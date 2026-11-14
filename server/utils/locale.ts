@@ -367,12 +367,12 @@ export function getAuthLocaleFromRequest(request: Request): AuthBoundaryLocale {
             const cookies = cookieHeader
                 .split(';')
                 .map((cookie) => cookie.trim().split('='))
-                .reduce((acc, [key, value]) => {
+                .reduce<Record<string, string>>((acc, [key, value]) => {
                     if (key && value) {
                         acc[key] = decodeURIComponent(value)
                     }
                     return acc
-                }, {} as Record<string, string>)
+                }, {})
 
             const cookieLocale = cookies.locale || cookies.language || cookies.lang
             if (cookieLocale && AUTH_BOUNDARY_LOCALES.includes(cookieLocale as AuthBoundaryLocale)) {

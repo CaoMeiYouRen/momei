@@ -317,7 +317,7 @@ export async function dispatchListmonkCampaign(campaign: MarketingCampaign, conf
             remoteCampaignId: currentRemoteCampaignId,
             action,
             listIds,
-            scheduledAt: 'send_at' in statusPayload ? (statusPayload.send_at as string) : null,
+            scheduledAt: 'send_at' in statusPayload ? (statusPayload.send_at ?? null) : null,
         }
     } catch (error) {
         if (error instanceof ListmonkDispatchError) {

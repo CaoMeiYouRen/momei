@@ -309,6 +309,20 @@ describe('FallbackAIProvider', () => {
             expect(result).toBe(0)
         })
 
+        it('should throw a readable error when primary has no generateSpeech', async () => {
+            const mockPrimary: AIProvider = { name: 'primary' }
+            provider = new FallbackAIProvider(mockPrimary, fallback, 'text')
+
+            await expect(provider.generateSpeech?.('text', 'voice1', {})).rejects.toThrow('does not support speech generation')
+        })
+
+        it('should throw a readable error when primary has no transcribe', async () => {
+            const mockPrimary: AIProvider = { name: 'primary' }
+            provider = new FallbackAIProvider(mockPrimary, fallback, 'text')
+
+            await expect(provider.transcribe?.({ audioBuffer: Buffer.from([]), fileName: 'test.wav', mimeType: 'audio/wav' })).rejects.toThrow('does not support transcription')
+        })
+
         it('should delegate transcribe to primary', async () => {
             const mockPrimary: AIProvider = {
                 name: 'primary',

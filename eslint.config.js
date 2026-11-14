@@ -10,6 +10,7 @@ import {
     NO_EXPLICIT_ANY_FILES,
     NO_NON_NULL_ASSERTION_FILES,
     PRODUCTION_TS_IGNORES,
+    PRODUCTION_TYPED_TS_IGNORES,
     RUNTIME_TS_IGNORES,
 } from './scripts/governance/eslint-debt-targets.mjs'
 
@@ -90,6 +91,30 @@ const strictTsRuleOverrides = [
         },
         rules: {
             '@typescript-eslint/ban-ts-comment': [1, { minimumDescriptionLength: 10 }],
+        },
+    }),
+    createRuleOverride({
+        // ESLint 严格规则第二批：生产 TS 实测 prefer-reduce 2 / no-extraneous-class 3 /
+        // restrict-plus-operands 6 / non-nullable-type-assertion-style 11（22 命中 / 17 文件）已清零，
+        // 升 warning 锁定回归；测试与脚本继续维持显式豁免边界。
+        files: tsFiles,
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/prefer-reduce-type-parameter': [1],
+            '@typescript-eslint/no-extraneous-class': [1],
+            '@typescript-eslint/restrict-plus-operands': [1],
+            '@typescript-eslint/non-nullable-type-assertion-style': [1],
+        },
+    }),
+    createRuleOverride({
+        // AIBaseService 是静态方法基类：子类通过 `this.xxx` 继承静态助手，属 no-extraneous-class
+        // 的 allowStaticOnly 场景，不能对象化（会断掉 extends 链）；其余静态类已改为对象字面量。
+        files: ['server/services/ai/base.ts'],
+        rules: {
+            '@typescript-eslint/no-extraneous-class': [1, { allowStaticOnly: true }],
         },
     }),
 ]

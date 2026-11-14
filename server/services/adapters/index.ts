@@ -56,13 +56,13 @@ adAdapterRegistry.register(createTencentAdapter())
  * @author Claude Code
  * @date 2026-03-03
  */
-export class AdAdapterFactory {
+export const AdAdapterFactory = {
     /**
      * 创建并初始化适配器
      * @param adapterId 适配器 ID
      * @param config 适配器配置
      */
-    static async create(adapterId: string, config: AdAdapterConfig): Promise<IAdAdapter> {
+    async create(adapterId: string, config: AdAdapterConfig): Promise<IAdAdapter> {
         const adapter = adAdapterRegistry.get(adapterId)
 
         if (!adapter) {
@@ -76,12 +76,12 @@ export class AdAdapterFactory {
         await instance.initialize(config)
 
         return instance
-    }
+    },
 
     /**
      * 获取可用的适配器列表
      */
-    static getAvailableAdapters(): {
+    getAvailableAdapters(): {
         id: string
         name: string
         supportedLocales: string[]
@@ -91,15 +91,15 @@ export class AdAdapterFactory {
             name: adapter.name,
             supportedLocales: adapter.supportedLocales,
         }))
-    }
+    },
 
     /**
      * 检查适配器是否支持指定的语言环境
      */
-    static supportsLocale(adapterId: string, locale: string): boolean {
+    supportsLocale(adapterId: string, locale: string): boolean {
         const adapter = adAdapterRegistry.get(adapterId)
         return adapter ? adapter.supportsLocale(locale) : false
-    }
+    },
 }
 
 // 导出类型和工厂

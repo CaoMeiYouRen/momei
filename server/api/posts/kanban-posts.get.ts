@@ -4,7 +4,7 @@ import { Post } from '@/server/entities/post'
 import { requireAdminOrAuthor } from '@/server/utils/permission'
 import { isAdmin } from '@/utils/shared/roles'
 import { success } from '@/server/utils/response'
-import type { KanbanCard, KanbanResponse, PipelineStage } from '@/types/calendar'
+import type { KanbanCard, KanbanResponse } from '@/types/calendar'
 import { PostStatus } from '@/types/post'
 
 const querySchema = z.object({
@@ -20,7 +20,8 @@ function toCard(post: Post): KanbanCard {
         updatedAt: post.updatedAt ? (post.updatedAt).toISOString() : null,
         language: post.language,
         categoryName: post.category?.name || null,
-        pipelineStage: (post.metadata?.pipelineStage as PipelineStage) || 'ideation',
+        // metadata 为 JSON 列，历史 / 导入数据可能不是契约值；用 || 兜底归一，避免卡片从看板三列同时消失
+        pipelineStage: post.metadata?.pipelineStage || 'ideation',
     }
 }
 

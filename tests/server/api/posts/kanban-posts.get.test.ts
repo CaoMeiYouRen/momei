@@ -3,6 +3,7 @@ import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { User } from '@/server/entities/user'
 import { PostStatus } from '@/types/post'
+import type { PipelineStage } from '@/types/calendar'
 import { generateRandomString } from '@/utils/shared/random'
 import kanbanPostsHandler from '@/server/api/posts/kanban-posts.get'
 
@@ -24,6 +25,7 @@ describe('/api/posts/kanban-posts', () => {
     let draftEnPost: Post
     let draftZhPost: Post
     let publishedPost: Post
+    let invalidStagePost: Post
 
     beforeAll(async () => {
         vi.stubGlobal('getValidatedQuery', vi.fn(
@@ -62,6 +64,17 @@ describe('/api/posts/kanban-posts', () => {
         draftZhPost.author = author
         draftZhPost.language = 'zh-CN'
         await postRepo.save(draftZhPost)
+
+        // Draft with a non-contract pipelineStage (JSON column, legacy data) — must fall back to ideation
+        invalidStagePost = new Post()
+        invalidStagePost.title = 'Invalid Stage Draft'
+        invalidStagePost.slug = `invalid-stage-${generateRandomString(8)}`
+        invalidStagePost.content = 'Draft content'
+        invalidStagePost.status = PostStatus.DRAFT
+        invalidStagePost.author = author
+        invalidStagePost.language = 'ja-JP'
+        invalidStagePost.metadata = { pipelineStage: '' as unknown as PipelineStage }
+        await postRepo.save(invalidStagePost)
 
         // Published post (should NOT appear in kanban)
         publishedPost = new Post()
@@ -134,6 +147,19 @@ describe('/api/posts/kanban-posts', () => {
         expect(result.code).toBe(200)
         expect(result.data!.ideation.length).toBe(0)
         expect(result.data!.writing.length).toBe(1)
+        expect(result.data!.ready.length).toBe(0)
+    })
+
+    it('should normalize non-contract pipelineStage values to ideation', async () => {
+        const result = await kanbanPostsHandler({
+            context: {},
+            query: { language: 'ja-JP' },
+        } as any)
+
+        expect(result.code).toBe(200)
+        expect(result.data!.ideation.length).toBe(1)
+        expect(result.data!.ideation[0]!.pipelineStage).toBe('ideation')
+        expect(result.data!.writing.length).toBe(0)
         expect(result.data!.ready.length).toBe(0)
     })
 

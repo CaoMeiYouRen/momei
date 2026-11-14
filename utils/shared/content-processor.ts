@@ -69,35 +69,35 @@ export function preserveMarkdownChunkBoundary(sourceChunk: string, translatedChu
     return normalizedChunk
 }
 
-export class ContentProcessor {
-    /**
-     * 提取 splitMarkdown / splitMarkdownLossless 公共的拆分初始化逻辑。
-     * 返回 null 表示内容为空，调用方直接返回空数组。
-     */
-    private static prepareSplitContent(
-        content: string,
-        options: SplitOptions,
-    ): { chunkSize: number, minChunkSize: number, rawSegments: string[] } | null {
-        const { chunkSize = 4000, minChunkSize = 200 } = options
+/**
+ * 提取 splitMarkdown / splitMarkdownLossless 公共的拆分初始化逻辑。
+ * 返回 null 表示内容为空，调用方直接返回空数组。
+ */
+function prepareSplitContent(
+    content: string,
+    options: SplitOptions,
+): { chunkSize: number, minChunkSize: number, rawSegments: string[] } | null {
+    const { chunkSize = 4000, minChunkSize = 200 } = options
 
-        if (!content?.trim()) {
-            return null
-        }
-
-        const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
-
-        return { chunkSize, minChunkSize, rawSegments }
+    if (!content?.trim()) {
+        return null
     }
 
+    const rawSegments = content.split(/(\n\n|\n(?=#+ ))/g)
+
+    return { chunkSize, minChunkSize, rawSegments }
+}
+
+export const ContentProcessor = {
     /**
      * 将 Markdown 内容拆分为多个块
      * 优先在标题处拆分，其次在段落处拆分
      */
-    static splitMarkdown(
+    splitMarkdown(
         content: string,
         options: SplitOptions = {},
     ): string[] {
-        const prepared = ContentProcessor.prepareSplitContent(content, options)
+        const prepared = prepareSplitContent(content, options)
 
         if (!prepared) {
             return []
@@ -173,16 +173,16 @@ export class ContentProcessor {
         }
 
         return chunks
-    }
+    },
 
     /**
      * 将 Markdown 内容拆分为多个块，同时保证 chunks 直接拼接后可恢复原始内容。
      */
-    static splitMarkdownLossless(
+    splitMarkdownLossless(
         content: string,
         options: SplitOptions = {},
     ): string[] {
-        const prepared = ContentProcessor.prepareSplitContent(content, options)
+        const prepared = prepareSplitContent(content, options)
 
         if (!prepared) {
             return []
@@ -231,5 +231,5 @@ export class ContentProcessor {
         }
 
         return chunks
-    }
+    },
 }

@@ -52,9 +52,9 @@ export class AnthropicProvider implements AIProvider {
                 model: response.model,
                 usage: response.usage
                     ? {
-                        promptTokens: response.usage.input_tokens,
-                        completionTokens: response.usage.output_tokens,
-                        totalTokens: response.usage.input_tokens + response.usage.output_tokens,
+                        promptTokens: Number(response.usage.input_tokens),
+                        completionTokens: Number(response.usage.output_tokens),
+                        totalTokens: Number(response.usage.input_tokens) + Number(response.usage.output_tokens),
                     }
                     : undefined,
                 raw: response,

@@ -28,7 +28,7 @@ function rewriteMarkdownMediaUrlsInTextSegment(segment: string, siteUrl: string)
 
     while (index < segment.length) {
         if (segment[index] !== '`') {
-            protectedSegment += segment[index]
+            protectedSegment += segment.charAt(index)
             index += 1
             continue
         }

@@ -32,11 +32,11 @@ export function isBrotliEncoding(contentEncoding: string | null | undefined): bo
 export async function fetchWithoutBrotli(url: string, init?: Parameters<typeof fetch>[1]): Promise<Response> {
     const response = await fetch(url, init)
     const contentEncoding = response.headers.get('content-encoding')
-    if (isBrotliEncoding(contentEncoding)) {
+    if (contentEncoding && isBrotliEncoding(contentEncoding)) {
         // 取消未消费的 body，避免后续数据继续进入解压器；
         // 取消失败（例如 body 已被消费）不影响拒绝结果
         await response.body?.cancel().catch(() => undefined)
-        throw new UnsafeContentEncodingError(contentEncoding as string)
+        throw new UnsafeContentEncodingError(contentEncoding)
     }
     return response
 }

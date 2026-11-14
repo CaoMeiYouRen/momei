@@ -122,7 +122,7 @@ function resolveLocalizedSettingFromValue<T extends LocalizedSettingScalar>(
     if (hasMeaningfulLocalizedValue(value.legacyValue)) {
         return {
             key,
-            value: value.legacyValue as T,
+            value: value.legacyValue!,
             requestedLocale,
             resolvedLocale: 'legacy',
             fallbackChain,

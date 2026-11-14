@@ -38,7 +38,7 @@ export function generateShortCode(length: number = 6): string {
         const bytes = randomBytes(length - result.length)
         for (const byte of bytes) {
             if (byte !== undefined && byte < maxByte) {
-                result += chars[byte % charLen]
+                result += chars.charAt(byte % charLen)
             }
         }
     }

@@ -109,12 +109,12 @@ export function useAdminList<T = unknown, F extends AdminListFilters = AdminList
         error.value = null
         try {
             // 过滤掉 filters 中的 null, undefined 和空字符串
-            const cleanedFilters = Object.entries(filters.value).reduce((acc, [key, value]) => {
+            const cleanedFilters = Object.entries(filters.value).reduce<Record<string, AdminListFilterValue>>((acc, [key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
                     acc[key] = value
                 }
                 return acc
-            }, {} as Record<string, AdminListFilterValue>)
+            }, {})
 
             const params = {
                 page: page.value,

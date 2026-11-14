@@ -112,7 +112,10 @@ export class FallbackAIProvider implements AIProvider {
     }
 
     async generateSpeech?(text: string, voice: string | string[], options: TTSOptions): Promise<ReadableStream<Uint8Array>> {
-        return this.primary.generateSpeech?.(text, voice, options) as Promise<ReadableStream<Uint8Array>>
+        if (!this.primary.generateSpeech) {
+            throw new Error(`Provider ${this.primary.name} does not support speech generation`)
+        }
+        return this.primary.generateSpeech(text, voice, options)
     }
 
     async estimateTTSCost?(text: string, voice: string | string[]): Promise<number> {
@@ -124,7 +127,10 @@ export class FallbackAIProvider implements AIProvider {
     }
 
     async transcribe?(options: TranscribeOptions): Promise<TranscribeResponse> {
-        return this.primary.transcribe?.(options) as Promise<TranscribeResponse>
+        if (!this.primary.transcribe) {
+            throw new Error(`Provider ${this.primary.name} does not support transcription`)
+        }
+        return this.primary.transcribe(options)
     }
 
     /**

@@ -19,7 +19,7 @@ export function generateRandomString(length: number): string {
     let result = ''
     for (let i = 0; i < length; i++) {
         // 使用加密安全的随机字节来选择字符
-        result += characters[bytes[i]! % characters.length]
+        result += characters.charAt(bytes[i]! % characters.length)
     }
     return result
 }
@@ -36,7 +36,7 @@ export function generateInsecureRandomString(length: number): string {
     let result = ''
     for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length)
-        result += characters[randomIndex]
+        result += characters.charAt(randomIndex)
     }
     return result
 }

@@ -1,5 +1,7 @@
 export const RUNTIME_TS_IGNORES = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
 export const PRODUCTION_TS_IGNORES = [...RUNTIME_TS_IGNORES, 'server/api/admin/migrations/**', '**/migration-*.ts']
+// typed 规则不进 nuxt.config.ts（allowDefaultProject 下无类型信息，会直接抛错）
+export const PRODUCTION_TYPED_TS_IGNORES = [...PRODUCTION_TS_IGNORES, 'nuxt.config.ts']
 
 const NO_EXPLICIT_ANY_UTILITY_FILES = [
     'types/ad.ts',
@@ -185,5 +187,33 @@ export const ESLINT_DEBT_RULE_SLICES = [
         rationale: 'ESLint 严格规则首批：生产 TS / Vue 已无 @ts-<directive> 命中，先在生产范围升为 warning 锁定回归。',
         ruleId: '@typescript-eslint/ban-ts-comment',
         scope: 'ban-ts-comment',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第二批：生产 TS 的 reduce 显式类型参数已清零，升 warning 锁定回归。',
+        ruleId: '@typescript-eslint/prefer-reduce-type-parameter',
+        scope: 'prefer-reduce-type-parameter',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第二批：纯静态类已改为对象字面量（静态基类单独 allowStaticOnly），升 warning 锁定回归。',
+        ruleId: '@typescript-eslint/no-extraneous-class',
+        scope: 'no-extraneous-class',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第二批：生产 TS 的跨类型加法已清零，升 warning 锁定回归。',
+        ruleId: '@typescript-eslint/restrict-plus-operands',
+        scope: 'restrict-plus-operands',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第二批：生产 TS 的非空类型断言已清零，升 warning 锁定回归。',
+        ruleId: '@typescript-eslint/non-nullable-type-assertion-style',
+        scope: 'non-nullable-type-assertion-style',
     },
 ]
