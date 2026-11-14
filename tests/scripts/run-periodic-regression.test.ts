@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { BASE_TARGETS } from '@/scripts/docs/check-line-count.mjs'
 import {
     buildEvidence,
     LOG_WINDOW_LIMITS,
@@ -10,6 +13,17 @@ import {
 } from '@/scripts/regression/run-periodic-regression.mjs'
 
 describe('run-periodic-regression', () => {
+    it('行数窗口与 docs:check:line-count 的 current.md 目标同源', () => {
+        const target = BASE_TARGETS.find((item) => item.file === 'docs/reports/regression/current.md')
+        expect(target).toBeDefined()
+        expect(LOG_WINDOW_LIMITS.maxLines).toBe(target?.errorLimit)
+    })
+
+    it('行数阈值不得回退为字面量（锁定同源派生）', () => {
+        const source = readFileSync(resolve(process.cwd(), 'scripts/regression/run-periodic-regression.mjs'), 'utf8')
+        expect(source).not.toMatch(/maxLines:\s*\d/u)
+    })
+
     it('exposes the three fixed cadence profiles', () => {
         expect(Object.keys(PERIODIC_REGRESSION_PROFILES)).toEqual([
             'weekly',

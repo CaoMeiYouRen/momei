@@ -31,7 +31,7 @@
 
 ## 3. 窗口与拆分阈值
 
-1. `current.md` 的长度阈值以 `scripts/docs/check-line-count.mjs` 的配置为唯一事实源（当前 `warningLimit 500` / `errorLimit 700`，见 `BASE_TARGETS`）；本文件不再单独定义行数或条数数值，超过脚本阈值即先滚动归档再继续写入。
+1. `current.md` 的阈值由脚本单点定义，本文件只保留指针：**行数**取 `scripts/docs/check-line-count.mjs` 中 `docs/reports/regression/current.md` 的 `warningLimit` / `errorLimit`；**条数**取 `scripts/regression/run-periodic-regression.mjs` 的 `LOG_WINDOW_LIMITS.maxEntries`。本文件不重复书写数值：`warningLimit` 仅由 `docs:check:line-count` 提示，阶段收口的归档阻断只取 `errorLimit`；超过脚本阈值即先滚动归档再继续写入。
 2. `archive/index.md` 若开始难以承担“按模块 / 日期快速定位”的索引职责，应继续向年份或半年度分片，而不是把历史正文重新塞回活动窗口。
 3. 迁移快照不参与新的窗口统计；窗口健康度只以 `docs/reports/regression/current.md` 为准。
 

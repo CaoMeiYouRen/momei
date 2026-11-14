@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { BASE_TARGETS } from '../docs/check-line-count.mjs'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 import {
     resolveRegressionWindowPath,
@@ -13,9 +14,19 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
 
+const REGRESSION_WINDOW_TARGET = BASE_TARGETS.find((target) => target.file === 'docs/reports/regression/current.md')
+
+if (!REGRESSION_WINDOW_TARGET) {
+    throw new Error('[periodic-regression] check-line-count 缺少 docs/reports/regression/current.md 的行数目标，回归窗口无法判定')
+}
+
+/**
+ * 回归窗口阈值：行数复用 `docs:check:line-count` 的 `errorLimit` 单点，
+ * 条数由本脚本的 `maxEntries` 单点定义（`docs/reports/regression/index.md` 只保留指针）。
+ */
 export const LOG_WINDOW_LIMITS = {
     maxEntries: 8,
-    maxLines: 400,
+    maxLines: REGRESSION_WINDOW_TARGET.errorLimit,
 }
 
 const NON_RECORD_HEADINGS = new Set([
