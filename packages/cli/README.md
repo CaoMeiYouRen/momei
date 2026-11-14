@@ -55,6 +55,7 @@ momei import <source-directory> --api-key <your-api-key>
 
 | 选项 | 说明 | 默认值 |
 | --- | --- | --- |
+| `--format <format>` | 源格式：`hexo` / `hugo` / `wordpress` / `jekyll` | `hexo` |
 | `--api-url <url>` | 墨梅 API 地址 | `http://localhost:3000` |
 | `--api-key <key>` | 墨梅 API Key；非 dry run 必填；提供后 dry run 会额外执行远端别名校验 | - |
 | `--dry-run` | 仅解析文件，不实际导入 | `false` |
@@ -83,6 +84,9 @@ momei import ./hexo-blog/source/_posts \
   --api-key your-api-key-here \
   --concurrency 5 \
   --verbose
+
+# 从 Jekyll 站点导入（指向 _posts，避免扫描 _site 构建产物与 vendor 主题依赖）
+momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
 ```
 
 如果同时提供 `--api-key`，`dry-run` 会调用 `POST /api/external/posts/validate`，输出结构化的路径别名校验报告，而不仅仅是本地解析结果。

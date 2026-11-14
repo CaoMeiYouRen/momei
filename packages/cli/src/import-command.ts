@@ -8,6 +8,7 @@ import { buildImportExecutionPlan, type CliImportValidationCandidate } from './i
 import { migrateImportEntriesLocalImages, type LocalImageMigrationReport } from './import-image-migration'
 import { parseHexoFiles } from './parser'
 import { HugoParser } from './hugo-parser'
+import { JekyllParser } from './jekyll-parser'
 import { WordPressParser } from './wordpress-parser'
 import { MomeiApiClient } from './api-client'
 import type {
@@ -31,12 +32,15 @@ interface ImportCommandOptions {
     format?: string
 }
 
-function getParser(format: string | undefined): ContentParser {
+export function getParser(format: string | undefined): ContentParser {
     if (format === 'hugo') {
         return new HugoParser()
     }
     if (format === 'wordpress') {
         return new WordPressParser()
+    }
+    if (format === 'jekyll') {
+        return new JekyllParser()
     }
     // Default to Hexo
     return { parse: parseHexoFiles as (sourceDir: string, verbose?: boolean) => Promise<ParsedPost[]> }
@@ -316,7 +320,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
 export function registerImportCommand(cli: CAC) {
     cli
         .command('import <source>', 'Import posts from a source directory to Momei')
-        .option('--format <format>', 'Source format (hexo, hugo, or wordpress)', { default: 'hexo' })
+        .option('--format <format>', 'Source format (hexo, hugo, wordpress, or jekyll)', { default: 'hexo' })
         .option('--api-url <url>', 'Momei API URL', { default: 'http://localhost:3000' })
         .option('--api-key <key>', 'Momei API Key (required)')
         .option('--dry-run', 'Dry run mode (parse files without importing)', { default: false })

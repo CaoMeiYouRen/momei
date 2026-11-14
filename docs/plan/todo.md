@@ -28,7 +28,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；设置页定向测试、`i18n:check-sync` / `audit:missing`，证据写入 `artifacts/review-gate/`。
     - **回滚边界**: 类型 / 映射 / 表单 / 翻译同批 revert。
 
-- [ ] **2. JekyllParser 适配器（P2）**
+- [x] **2. JekyllParser 适配器（P2）**
     - **执行范围**: `packages/cli/src` 新增 `JekyllParser`（YAML front-matter），复用 `ContentParser` 与 `import-command` 的 `--format`，同步帮助文本；单测覆盖 title / date / tags / categories / content 与缺字段。
     - **非目标**: 不支持在线 API 导入、自动格式检测、主题 / 插件迁移。
     - **验收标准**: `--format=jekyll` 正确选择；`--help` 含 jekyll；五字段映射正确；Hexo / Hugo / WordPress 无回归；CLI 定向测试通过。

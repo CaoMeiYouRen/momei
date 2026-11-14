@@ -56,6 +56,7 @@ Common options:
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--format <format>` | Source format: `hexo` / `hugo` / `wordpress` / `jekyll` | `hexo` |
 | `--api-url <url>` | Momei API base URL | `http://localhost:3000` |
 | `--api-key <key>` | Momei API key; required unless using dry run | - |
 | `--dry-run` | Parse files without importing | `false` |
@@ -84,6 +85,9 @@ momei import ./hexo-blog/source/_posts \
   --api-key your-api-key-here \
   --concurrency 5 \
   --verbose
+
+# Import a Jekyll site (point at _posts so _site build output and vendor themes are skipped)
+momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
 ```
 
 ## Command 2: Govern Legacy Links

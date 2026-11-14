@@ -1,7 +1,7 @@
 {
   "name": "momei-cli",
   "version": "0.1.0",
-  "description": "Momei CLI - Migration tool for importing posts from Hexo to Momei",
+  "description": "Momei CLI - Migration tool for importing posts from Hexo, Hugo, WordPress, and Jekyll into Momei",
   "type": "module",
   "bin": {
     "momei": "dist/index.mjs"
@@ -28,6 +28,9 @@
   "keywords": [
     "momei",
     "hexo",
+    "hugo",
+    "wordpress",
+    "jekyll",
     "migration",
     "blog",
     "cli"
