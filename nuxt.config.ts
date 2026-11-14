@@ -263,14 +263,6 @@ export default defineNuxtConfig({
                 },
             },
         },
-        ssr: {
-            noExternal: ['quill'],
-        },
-        build: {
-            rolldownOptions: {
-                external: ['quill'],
-            },
-        },
     },
     nitro: {
         sourceMap: false,

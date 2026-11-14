@@ -135,6 +135,41 @@ describe('check-dependency-risk', () => {
         expect(result.blocking[0].packageName).toBe('serialize-javascript')
     })
 
+    it('ignores low-severity allowlist entries at the release high threshold', () => {
+        const lowRisk = {
+            advisoryId: 'GHSA-low-tracking',
+            key: 'deepmerge:GHSA-low-tracking:low',
+            packageName: 'deepmerge',
+            patchedVersions: 'unavailable',
+            paths: ['.>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge'],
+            recommendation: 'None',
+            severity: 'low',
+            source: 'https://github.com/advisories/GHSA-low-tracking',
+            title: 'deepmerge low risk',
+        }
+        const allowlistEntries = normalizeAllowlistDefinition({
+            entries: [{
+                advisoryId: 'GHSA-low-tracking',
+                packageName: 'deepmerge',
+                approvedPaths: lowRisk.paths,
+                severity: 'low',
+                reason: 'tracking only',
+                source: 'https://github.com/advisories/GHSA-low-tracking',
+                temporaryException: 'review by 2027-05-14',
+            }],
+        })
+
+        const releaseResult = evaluateDependencyRiskGate({ allowlistEntries, minSeverity: 'high', risks: [lowRisk] })
+        expect(releaseResult.relevantRisks).toHaveLength(0)
+        expect(releaseResult.allowlisted).toHaveLength(0)
+        expect(releaseResult.blocking).toHaveLength(0)
+
+        // low 条目只作追踪：若有人下调阈值，它会成为真实豁免，因此行为必须被显式钉住
+        const loweredResult = evaluateDependencyRiskGate({ allowlistEntries, minSeverity: 'low', risks: [lowRisk] })
+        expect(loweredResult.allowlisted).toHaveLength(1)
+        expect(loweredResult.blocking).toHaveLength(0)
+    })
+
     it('rejects critical advisories from the allowlist definition', () => {
         expect(() => normalizeAllowlistDefinition({
             entries: [{

@@ -49,9 +49,34 @@ overrides:
   preact: "^10.28.2"
   vite: "8.1.6"
   esbuild: "^0.28.1"
-  brace-expansion: "^5.0.11"
   tar: "^7.5.16"
-  minimatch: "^10.2.3"
+  # GHSA-g3hv-75wg-m249（minimatch >=7.0.0 <11.0.1，medium）：不用裸名 override，改为按
+  # 父级定向抬版，只处理声明落在受影响区间的消费者（^9 / ^10）。声明 ^3 / ^5 的消费者回落
+  # 到自身安全版本（均 <7，不在受影响区间），避免把 eslint 的 ^3 链与 glob 7 链一并打断。
+  # minimatch 11 移除 makeRe / AST / matchOne 等 API，因此 eslint-plugin-import-x 必须同批
+  # 升到 4.18.1（其 no-internal-modules 从 makeRe 改为 `Minimatch`）；以下消费者只用
+  # `minimatch()` / `match` / `Minimatch` / `escape`，均在 11 的稳定导出内。
+  "@typescript-eslint/typescript-estree>minimatch": "^11.0.1"
+  "editorconfig>minimatch": "^11.0.1"
+  "eslint-plugin-import-x>minimatch": "^11.0.1"
+  "mjml-cli>minimatch": "^11.0.1"
+  "readdir-glob>minimatch": "^11.0.1"
+  "@nuxt/eslint-config>eslint-plugin-import-x": "^4.18.1"
+  # brace-expansion 的 DoS 补丁按主版本分别提供（1.1.20 / 2.1.7 / 3.0.9 / 4.0.1 /
+  # 5.0.12）；裸名 override 会把 1.x / 2.x 的依赖也拽到 5.x，而 minimatch 3 / 5 只接受
+  # 1.x / 2.x 的 API（否则 `expand is not a function`）。因此按 minimatch 主版本分流，
+  # 全树消费 brace-expansion 的只有 minimatch 本身。
+  "minimatch@3>brace-expansion": "^1.1.20"
+  "minimatch@5>brace-expansion": "^2.1.7"
+  # GHSA-3g3m-2fjr-6pw4（glob >=9.0.0 <=14.0.1，medium）：以下消费者声明的 glob 落在受影响
+  # 区间；glob 14 仍导出 glob / globSync / sync / hasMagic（这些消费者只用该稳定面），
+  # 因此按父级定向抬到 14.x，避免裸名覆盖仍在安全区的 glob 7 链（commitizen / rimraf）。
+  "@intlify/eslint-plugin-vue-i18n>glob": "^14.0.2"
+  "@vercel/nft>glob": "^14.0.2"
+  "js-beautify>glob": "^14.0.2"
+  "mjml-cli>glob": "^14.0.2"
+  "workbox-build>glob": "^14.0.2"
+  "zhlint>glob": "^14.0.2"
   source-map-js: "^1.2.2"
   html-minifier: "npm:html-minifier-terser@^7.2.0"
   handlebars: "^4.7.10"

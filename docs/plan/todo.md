@@ -17,12 +17,12 @@
 
 ## 当前进行中阶段
 
-**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 7 已完成，5 条待办）**
+**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 1 / 7 已完成，4 条待办）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」；2026-11-14 用户决策插队加入条目 7（Node 26 运行时基线），并按「进一出一」把条目 3 移出至 backlog #11。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
 
-- [ ] **1. 依赖安全收口（P1）**
-    - **执行范围**: **1a minimatch / glob**——GHSA #286（minimatch `>=7.0.0 <11.0.1`，修 11.0.1）与 #284（glob `>=9.0.0 <=14.0.1`，修 14.0.2）当前解析到 10.2.5 / 10.2.6 与 10.5.0 / 11.1.0 / 13.0.7 / 14.0.4；先 `pnpm why` 列消费链，按父级 scoped override 定向抬版，禁止裸名跨大版本强推。**1b 无补丁项**——deepmerge 4.3.1（#275）与 quill 2.0.3（#22）登记安全 allowlist / 告警豁免台账，写明影响面、不可修原因与复核日期（≤6 个月）。
+- [x] **1. 依赖安全收口（P1）**
+    - **执行范围**: **1a minimatch / glob**——GHSA #286（minimatch `>=7.0.0 <11.0.1`，修 11.0.1）与 #284（glob `>=9.0.0 <=14.0.1`，修 14.0.2）当前解析到 10.2.5 / 10.2.6 与 10.5.0 / 11.1.0 / 13.0.7 / 14.0.4；先 `pnpm why` 列消费链，按父级 scoped override 定向抬版，禁止裸名跨大版本强推。**1b 无补丁项**——deepmerge 4.3.1（#275）登记安全 allowlist 台账，写明影响面、不可修原因与复核日期（≤6 个月）；quill 2.0.3（#22）执行时经全仓零引用确认后**直接移除依赖**（未登记台账），并移除 `nuxt.config.ts` 中两处针对 quill 的无效 Vite 配置。
     - **非目标**: 不做依赖全量升级；不为变绿关闭或放宽安全门禁；不连带其他 Dependabot 项。
     - **验收标准**: 2 条 medium 关闭或按 [安全规范 §5.3](../standards/security.md#53-发布前安全告警门禁-release-security-alert-gate) 受控豁免并留证据；`security:audit-deps` relevant risks 0 与 `security:alerts` Pass；`install --frozen-lockfile` / `security:validate-overrides` / `lint` / `typecheck` / 定向测试通过；台账每条含理由与复核日期。
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；`pnpm why` 清单、override diff、audit / alerts 输出写入 `artifacts/review-gate/`。

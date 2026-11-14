@@ -145,6 +145,27 @@
                 ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>chromium-bidi>zod",
                 ".>@lhci/cli>lighthouse>puppeteer-core>chromium-bidi>zod"
             ]
+        },
+        {
+            "advisoryId": "GHSA-gcqx-w48m-w2h4",
+            "packageName": "deepmerge",
+            "severity": "low",
+            "reason": "上游无可用补丁：GitHub Advisory 标注 Patched versions: None，npm registry 上 deepmerge 最新版本即 4.3.1（受影响区间 >=4.2.0 <=4.3.1），无更高版本可升；pnpm audit 报告的 patched >=4.3.2 是误导数据（该版本不存在）。依赖链锁定在 @rollup/plugin-node-resolve（nuxt -> nitropack 与 @vite-pwa/nuxt -> workbox-build 两条构建期链）的 `dependencies`：deepmerge 用于合并受信插件的静态 options，插件源码直接调用其数组拼接语义，替换为 deepmerge-ts 等不同 API 的包需要改上游源码。风险实际暴露面有限：该包位于生产依赖图的构建期插件链，输入为仓库内受信配置，不处理请求体或不可信 JSON；实测 `.output/server` 仅含 `deepmerge-ts`，无 deepmerge 实例。按安全规范 §5.3，low 不阻断发布，本条仅作审计追踪台账，不修改任何门禁的 severity（release / daily 均为 --min-severity=high，high 阈值下本条目不参与判定）。",
+            "source": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4",
+            "temporaryException": "有效至 2027-05-14（≤6 个月复核）；上游发布 >4.3.1 的补丁版本，或 @rollup/plugin-node-resolve 移除 deepmerge 依赖后立即移除。",
+            "approvedPaths": [
+                ".>@sentry/nuxt>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@vueuse/nuxt>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxtjs/sitemap>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxtjs/sitemap>nuxt-site-config>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxtjs/sitemap>nuxt-site-config>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt-site-config>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
+                ".>@vite-pwa/nuxt>vite-plugin-pwa>workbox-build>@rollup/plugin-node-resolve>deepmerge",
+                ".>vitest-environment-nuxt>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge"
+            ]
         }
     ]
 }
