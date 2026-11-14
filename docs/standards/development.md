@@ -473,6 +473,8 @@ pnpm build
 | Nuxt 组件目录前缀 | `components/admin/settings/setting-input.vue` 的组件名是 `AdminSettingsSettingInput`；模板里写短名会**静默**解析为未知元素，页面少渲染控件且 typecheck / 单测都不报错，必须显式 import 或写全名（迁移期细则见迁移方案 §6.2 执行提示 5）。 |
 | BEM 提权打死子元素 | 给块级选择器提特异性（`.a.a`）会把同块 `&__x` 编译成 `.a.a__x`，子元素样式全部失效；提权只改块级，`&__x` 留在单类块内。 |
 | `--p-*` token 新增 | `--p-*` 已清零（第七十二阶段条目 3）；新增样式一律引用 `--caomei-*`（语义角色）或 `--m-*`（项目调色板），`pnpm governance:check:token-map -- --fail-on-residual` 对任何残留判红；映射与派生口径见 [PrimeVue token 映射表](../design/governance/2026-11-08-primevue-token-mapping.md)。 |
+| Node 大版本切换后的原生模块 | 改完 `.nvmrc` / `engines` / CI / Docker 后必须 `pnpm rebuild better-sqlite3`，并确认预编译包与当前运行时 ABI 匹配（细节与证据见 [Node 26 基线治理](../design/governance/2026-11-14-node-26-runtime-baseline.md)）。 |
+| 容器内 `apk add` 挂死 | 构建环境 DNS 只回 AAAA 且无 IPv6 路由时，`apk add` 会长时间无响应；`docker build --add-host dl-cdn.alpinelinux.org:<IPv4>` 可绕行，Dockerfile 不必改。属构建机网络问题，CI 与官方镜像不受影响。 |
 | 归一化被 assignDefined 覆盖 | `assignDefined(entity, input, keys)` 会用原始 input 覆盖此前对同名字段的清洗（如先 `trim()` 的 `name` / `url`）；「先归一化再 assign」的写法必须把归一化下沉到 assign 之后或只保留一处。 |
 
 ### 4.7 依赖与锁文件陷阱（Dependabot / pnpm / CI）
@@ -489,6 +491,12 @@ pnpm build
 | lockfile 重复 mapping key | Dependabot 基于旧基线生成的锁文件被 rebase 合并后会残留重复 mapping key（同一包在 `packages` / `snapshots` 各一份），pnpm 报 `ERR_PNPM_BROKEN_LOCKFILE duplicated mapping key`；PR 阶段不暴露，scheduled 工作流首跑才炸。最小修复：逐字节确认重复块等价后删掉多余块（纯删除、零依赖漂移），**禁止 REGENERATE**（会把 `^` 范围整体抬版）。 |
 | typecheck 失败是否源于锁文件漂移 | 先看报错包是否被抬版：lockfile 损坏触发的重新解析可能把某依赖抬到移除了导出符号的版本（如 `genericOAuthClient`），表现为 `TS2305`；`--frozen-lockfile` 下 typecheck 通过即可证明是漂移而非代码问题。 |
 | 精确版本升级的最小锁文件改法 | 复原 HEAD 的 `pnpm-lock.yaml` 后只手改三处（importer 的 specifier / version、`packages:` 键 + integrity、`snapshots:` 键），再以 `pnpm install --frozen-lockfile` 验证；可避免 `pnpm add` 重解析无关包（`electron-to-chromium` / `node-releases` / `rollup` 等）。 |
+| 裸名 override 跨主版本 | 会把声明安全旧主版本的消费者（如 eslint 的 minimatch `^3`）一并抬到新主版本，掩盖上游兼容问题；应改按父级 scoped override，只动落在受影响区间的消费者。 |
+| `brace-expansion` 补丁按主版本分流 | 各主版本需独立补丁位；裸名 override 会把 1.x 依赖拽到 5.x，minimatch 3/5 直接报 `expand is not a function`。补丁位清单以实现文件与地板守卫为准（`pnpm-workspace.yaml`、`tests/scripts/dependency-vulnerability-floor.test.ts`）。 |
+| minimatch 11 移除 `makeRe` | `eslint-plugin-import-x` 4.17.1 的 `no-internal-modules` 具名导入会 ESM 链接失败，需同批升到 4.18.1（改用 `Minimatch`）。 |
+| glob 7 不参与抬版 | glob 7 与 minimatch 11 不兼容（`set` 行内 Matcher 对象），commitizen 对 glob 14 的 ESM interop 也会失效（`_glob.default.sync` 为 undefined）；glob 7 链保留在安全区。 |
+| bundled 依赖无锁文件依赖边 | 包内自带的 `npm/node_modules/*` 不建锁文件依赖边，Dependabot / pnpm audit 均不计入，也无法用 override 修复；只能升级上游或登记边界。 |
+| scoped override 的校验盲区 | `security:validate-overrides` 按 advisory 比对，不覆盖父级 scoped override；需直接对锁文件断言「受影响版本区间为空集」，并做注入式判别力自检。 |
 | 升级前先比产物差异面 | 手工改锁文件前用 `npm pack` + `diff -rq` 对比新旧版本；若 `.js` / `.mjs` / `.css` / `.vue` 运行时产物逐字节一致，升级可只做版本 / 证据 / 门禁复跑，不必重采视觉基线。 |
 
 ## 5. 安全规范 （Security）

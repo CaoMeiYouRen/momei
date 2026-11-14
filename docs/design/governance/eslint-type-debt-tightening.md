@@ -186,6 +186,16 @@
 
 **回滚边界**: 只需从三组分组常量中移除新增文件条目，并回退对应单文件改动。
 
+### 7.5 第七十五阶段（2026-11-14）：第二批升档与实现陷阱
+
+第二轮升档 `prefer-reduce-type-parameter` / `no-extraneous-class` / `restrict-plus-operands` / `non-nullable-type-assertion-style` 共 22 命中 / 17 文件时的口径沉淀：
+
+| 陷阱 | 结论 |
+|:---|:---|
+| typed 规则与 `allowDefaultProject` | 启用 typed 规则后必须 `ignores: ['nuxt.config.ts']`：该文件在 `allowDefaultProject` 下无类型信息，规则会抛 `requires type information` 而不是给告警。 |
+| 可 `--fix` 规则静默回归 | `prefer-reduce-type-parameter` / `non-nullable-type-assertion-style` 可自动修复，CI 的 `pnpm lint` 会把新回归直接改掉；需要拦截时以不可修复规则或单独的 no-fix probe 为准。 |
+| 纯静态类改造边界 | 改对象字面量前先确认无 `new` / `instanceof` / `this` 依赖；继承静态助手的基类（`this.xxx` + `extends`）用 `allowStaticOnly` 单文件切片，而不是强行对象化。 |
+
 ## 8. 证据落点
 
 - 实施结果与验证记录：`docs/reports/regression/current.md`

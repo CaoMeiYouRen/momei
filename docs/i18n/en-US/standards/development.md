@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-14
+last_sync: 2026-11-15
 ---
 
 # Momei Development Standards
@@ -296,3 +296,5 @@ export default defineEventHandler(async (event) => {
 - Do not add an API route just to read configuration: adding any route currently trips `TS2589` in existing typed `$fetch<T>` call sites.
 - Build-time-only knobs (`KV_REST_API_URL`, i18n / sitemap base URLs) must be documented as such.
 - Guard: `tests/modules/runtime-config-env-injection.test.ts`.
+
+> Sync note (2026-11-15): §4.6 adds the native-module rebuild requirement after a Node major bump (ABI details in the Node 26 baseline governance doc) and the AAAA-only DNS workaround for `apk add` inside builds; §4.7 adds parent-scoped overrides over bare-name overrides, per-major `brace-expansion` patches (version floors live in `pnpm-workspace.yaml` and the floor guard test), minimatch 11 `makeRe` removal, glob 7 staying off the bump chain, bundled dependencies with no lockfile edge, and the scoped-override blind spot in `security:validate-overrides`.

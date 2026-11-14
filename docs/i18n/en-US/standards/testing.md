@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-14
+last_sync: 2026-11-15
 translation_tier: summary-sync
 ---
 
@@ -216,3 +216,5 @@ Fix tasks follow the "minimal reproduction test → targeted subset → batch fi
 >
 > Sync note (2026-10-24): the Chinese source of truth added **§7.3 Migration & Guard Test Pitfalls** (silent coverage loss in constant-driven guards, guard claims vs. implementation, stub contracts, per-condition isolation of gate cases, call-site assertions, V1/V2 contract equivalence, auto-import mocking, `expose` overridden by component options, E2E matrix timeouts, parity seed data, isolated admin E2E runs) and added the `--pass-with-no-tests` / `continue-on-error` notes to §7.1; §7.3 also covers asserting shapes only (tone / variant / label) instead of write paths and loading states. Full text remains Chinese-only.
 > Sync note (2026-11-13): §7.2 now judges against a CI-recaptured reference baseline and both visual layers are blocking (the job-level `continue-on-error` was removed); `pnpm test:visual:reference -- --force-all` is the refresh entry.
+
+> Sync note (2026-11-15): §2.2 adds guard assertions that pin the call form after stripping comments (with a cross-reference to §7.3 discrimination checks); §2.3 clarifies that guard tests add files/tests but only new source files change the coverage denominator, and that `.vitest-cache` / `.vitest-cache-coverage` are separate caches; §7.3 adds the local E2E port override (`E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`), the firefox navigation flake rule, and the admin-list click flake registration with its revocation condition.

@@ -259,6 +259,9 @@
 | VitePress 的注释判据 | md 被当作 Vue SFC 编译，但**只有块级** `<!--`（行首起始，CommonMark HTML block type 2）延续到 EOF 才报 `Unexpected EOF in comment`；合法多行注释、正文中段的行内 `<!--`、缩进代码块与 fenced 内的 `<!--` 均无害。判据必须用 `markdown-it` + `@vue/compiler-dom` 实测校准，凭直觉写「同一行内必须闭合」会引入假阳性并阻断 `docs:build`。 |
 | 新增文档门禁的接线 | 按层级接线，并在 `scripts/README.md` 声明所属层级：**构建期门禁**＝脚本 + `pnpm` 入口 + 构建链前置拦截（`docs:build` / `docs:dev` 或对应构建 workflow）+ PR 覆盖（`test.yml` 或文档构建 workflow）；**发布 / 周期级门禁**＝走 `release:check:full` / `regression:weekly` 等固定入口作等效接线（不强行塞进 `docs:build`，两者的预算与触发点不同）。任一形式都须在 `scripts/README.md` 声明层级与触发点，避免「脚本存在但仍靠人工补跑」。 |
 | 数字的可复算性 | 审计会逐项复算派生比例（如闭环比、分支百分比、舍入口径）；无法从留存产物复算的派生数字宁可不写，改用「实际值 / 理论上限」的相对表述。行数声明一律取 `docs:check:line-count` 口径（= `wc -l` + 1），同一句内不得混用两套口径。 |
+| 阈值口径要连「行数 + 条数」一起收 | 新增 / 改写阈值条款时，行数指向 `scripts/docs/check-line-count.mjs`，条数指向 `scripts/regression/run-periodic-regression.mjs` 的 `LOG_WINDOW_LIMITS.maxEntries`；只改行数会留下无门禁可校验的条数口径，形成同文件自相矛盾。 |
+| 索引引用要用两种链接形态核对 | 判断「文档是否被索引」时，扩展名链接（`./x.md`）与省略扩展名链接（`./x`）都要匹配；只 grep 前者会把在役文档误判成无引用。 |
+| 编辑历史 md 前先确认换行 | 对 CRLF 文件用脚本整文件写入会变成 LF 并产生全文件 diff；先 `file` 或用 git 确认换行，恢复后只保留语义行，规模审计才看得到真实改动。 |
 | 终态数字与收口时点 | 阶段摘要里的数字不能沿用**条目收口时点**的值（如路由登记数在后续条目继续增长）；写摘要前回到事实源复算，并在归档改完后做最后一轮 line-count 回写（合并章节会改变总行数）。 |
 
 ## 6. 事实源收敛机制 (Source of Truth Convergence)

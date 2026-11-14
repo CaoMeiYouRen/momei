@@ -28,6 +28,8 @@
 
 -   **once 队列跨测试累积陷阱**: `vi.clearAllMocks()` 只清调用记录与 instances，**不清** `mockResolvedValueOnce`/`mockImplementationOnce` 队列，也**不清默认实现**（`mockResolvedValue` / `mockImplementation`）。多个测试各自 `mockResolvedValueOnce` 而未被消费会污染后续断言；前序用例留下的 `mockImplementation` 则会让单例运行与整文件运行结果不同（新文件必在 `beforeEach` 对关键 mock 先 `mockReset()` 再重建默认值，如 `mockRepo.findOne.mockReset()`）。
 -   **类型安全 mock**: `vi.mocked(x).mockResolvedValue({...} as never)` 会绕过联合类型完整性检查（如 `AIProvider`），接口签名漂移时测试会静默失配。改用 `as unknown as AIProvider` 或与签名对齐的显式类型（如 `as Record<string, string | null>`），并 `import type` 生产类型。
+-   **守卫的「出现过」断言要钉调用形态**: `toContain('函数名')` 会被注释 / 说明文字命中，必须剥离注释后按调用形态（如 `函数名\(md\)`）匹配；接线类守卫还要做「删单处必红」与「注释诱饵仍绿」的双向判别力自检（判别力口径见 §7.3「守卫的『覆盖声明』与实现脱节」）。
+-   **阈值 / 计数守卫要成对锁定**: 只断言「不等于旧值」挡不住回退为新字面量（尤其当新字面量恰好等于当前配置值时），应同时锁定派生关系与「源码不得出现该字面量」。
 -   **外部解析器行为先探测再断言**: 编写依赖第三方解析器行为的测试前（如 fast-xml-parser），先写探测脚本确认实际行为。已确认：`parseTagValue: false` 下数字字符引用（`&#x41;`）保留原样不解码、命名实体（`&amp;`）解码；stopNodes 列表内节点全文保留（含 CDATA 标记）；malformed XML（未闭合标签）被宽容解析不抛错。
 
 ### 2.3 覆盖率补测节奏 (Coverage Batch Pacing)
@@ -42,12 +44,13 @@
 -   **新增 suite 另开文件**：向既有大文件追加用例前先看 `max-lines` 预算（>1000 行即 warning），按关注点新开文件，不硬塞；追加到既有 `describe` 时还要看 `max-lines-per-function`（默认 800），超限按「一个模块一个测试文件」拆分，不靠压缩断言凑行数。
 -   **3 模块粒度的容量上限**：全仓 `+0.3pp` 需闭合 `总语句数 × 0.3%` 条语句；实测 36,340 条语句对应 109 条，而 `server/services/` 前三模块合计仅 92 条（上限 +0.25pp），即使 100% 闭合也不可达。立项时先算「需求条数 vs 候选池」，不足就按模块级验收立项，并在摘要写明是**选模粒度**而非闭合率不足。
 -   **断言必须具备判别力**：新增用例要能「删掉被测守卫就变红」；只断言 `outcome` / 最终状态、而该状态在守卫被删后仍成立，等于零覆盖。应钉住守卫决定的可观测产物（如持久化的 `result.phase`、`signal.aborted`、调用参数）。
--   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；跑测试或覆盖率前先移走该缓存，避免把环境噪声当回归。
+-   **本地 vitest 缓存噪声**：`node_modules/.vitest-cache` 热命中会让 i18n / `@id/virtual:*` 相关用例报 `Cannot find module`（CI 不复现）；`test` 跑前移走 `.vitest-cache`、`test:coverage` 跑前移走 `.vitest-cache-coverage`（两者独立），避免把环境噪声当回归；`regression:phase-close` 的首个 required 步骤也会受缓存污染影响。
+-   **新增守卫后必须重采全量数字**: 守卫测试计入文件数与用例数；只有守卫同时新增源码文件时才改变覆盖率分母。批次摘要若沿用加守卫前的树，会与证据产物不同源。
 -   **新增用例的环境兜底**：涉及模块级连接 Map / `process.env` / fake timers 的用例必须补 `afterEach` 注销与 `useRealTimers` / `unstubAllGlobals`；即使当前 `isolate: true` 掩盖了污染，审计仍会以「前置断言失败会连锁误报」为由记 warning。
 -   **分母或文件集合变化时按同源比较**：新增源码会改变 statements 分母，新增测试只改变分子；当分母或文件集合与上一批不同时，跨批次 delta 必须在同一文件集合上复算，并给出覆盖数 / 总数 / 文件数，不得用两次运行的全仓百分比直接相减。
 -   **本批增量与阶段累计分列**：`本批增量 = 终值 − 本批前基线`、`阶段累计 = 终值 − 上一阶段收口值`；阶段累计的分母取上一阶段收口干净全量跑的 statements 总数，并在其文件集合上复算、给出该集合文件数，不用含新增源码的新分母回算旧阶段。两者是「基线不同」，不可用累计值冒充本批成果。
 -   **覆盖率展示口径**：全仓百分比常按 vitest 文本报告的截断显示（`81.1759 → 81.17`），模块表用四舍五入；同一文档要注明口径，增量列按「覆盖数 / 总数」复算，与两个展示值相减可能差 0.01pp。
--   **干净全量跑才可作为基线**：默认并发下 `virtual:intlify-i18n` 会让约 25 个套件收集失败（0-test），覆盖率分子分母同时失真；基线统一用「运行前 `rm -rf node_modules/.vitest-cache` + `--maxWorkers=4`」，并在文档记录该口径。
+-   **干净全量跑才可作为基线**：默认并发下 `virtual:intlify-i18n` 会让约 25 个套件收集失败（0-test），覆盖率分子分母同时失真；基线统一用「运行前 `rm -rf node_modules/.vitest-cache node_modules/.vitest-cache-coverage` + `--maxWorkers=4`」，并在文档记录该口径。
 -   **单文件验证优先带 `--coverage`**：单文件跑 Nuxt 测试时 `virtual:intlify-i18n` 解析会随机失败，`--coverage` 模式下更稳定；失败时先清缓存重试，不要当成代码回归。
 -   **识别天然 flaky 的覆盖率**：随机序列（如 snowflake 的 `Math.random` 初始化）、lazy-load 组件（`Lazy*`）、异步编辑器会在 ±20 条内波动；能补确定性用例就补（mock 时间 / 直接挂载），不能补的在归因中显式扣除并说明。
 -   **`not.toThrow()` 不是断言**：它对「删除守卫」没有判别力（字符串属性访问、可选链本就不抛错）；防御分支要断言可观察副作用——未写入字段、未调用依赖、未产生持久化记录。
@@ -360,6 +363,9 @@ pnpm run test:coverage
 | 登录态页面的 SSE | `/api/notifications/stream` 会让 `networkidle` 永不达成；parity 路由须标 `stable: 'lenient'`，E2E 改用 `domcontentloaded` 或业务锚点。 |
 | 参考态同批采集 | 新增待迁移 parity 路由必须在同一批登记并采集参考态，否则门禁因缺快照直接失败；采集中途失败时已落盘的 PNG 不会写入 manifest，需 `--only` 重采补齐来源。 |
 | 第二实例配置单一来源 | 多个 Playwright 配置共用同一第二实例时，env / command / baseURL 必须抽到单一模块；副本漏一个 `DATABASE_SYNCHRONIZE` 就会让另一层复用实例时失败。 |
+| 管理端列表点击偶发丢失 | 全量 coverage 并发下 `pages/admin/posts/index.test.ts` 的 `onPageMock` 与 `pages/admin/users/index.test.ts` 的 `confirmRequireMock` 各出现过一次「点击后 0 次调用」，孤立运行 100% 通过；先按环境抖动处理（定向复跑 / CI 复跑），不据此改实现；同一用例复现 ≥2 次即按缺陷排查并撤销本行。 |
+| 本机 E2E 端口被占用 | E2E 与视觉层共用 `E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`（默认 `127.0.0.1` / 3001 / 3002）；非 loopback 主机、非法端口或两端口相同会直接抛错，CI 未设置这些变量时保持默认值。 |
+| firefox 导航级 flake | `page.goto: <unknown error>` 且服务端无 5xx 属导航层抖动（`/admin/ad/placements` 已复现）；先 `gh run rerun --failed` 复验，不得据此回退业务代码；同一路由连续 2 次复现即升级排查。 |
 | E2E 并行冷启动 | 4 worker 并行冷启动会被默认布局 SSE 与外部头像请求卡住 `networkidle`；CI 单 worker 正常，并行抖动不得判为迁移回归。 |
 
 ## 8. 提交前检查 (Pre-commit Checks)

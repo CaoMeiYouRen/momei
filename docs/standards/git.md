@@ -77,6 +77,7 @@ git worktree add ../momei-feature-search feature/search-improvements
 | `lint-md --fix` 顺带 stage | pre-commit 会重排被覆盖的 Markdown 并 stage；若该文件不属于本批，会把无关文档卷进提交。拆分时把含该文档的那一批**先提交**，后续批次的钩子对其即无操作。 |
 | 多段提交信息的换行 | shell 双引号里的 `\n` 不会转义（bash 只在 `$'...'` 中解释），会写入字面 `\n`；一律用 `git commit -F <file>` 或 heredoc。 |
 | 改写已有提交信息 | 用 `git filter-branch --msg-filter` 修正时，range 起点必须取「**最后一个不受影响的提交**」；从更早的祖先起算会连带重写历史，使文档中引用的哈希失效。 |
+| 阶段归档提交与锁文件 bump 冲突 | 当归档提交本身含 `pnpm-lock.yaml` / override 改动时，rebase 到最新 master 后必须再跑 `pnpm install --frozen-lockfile` 复核锁文件可解析。 |
 | 依赖 PR 的清理顺序 | ① 先修 master 自身红灯（否则 PR CI 结论不可信）→ ② 依赖 PR 走 `@dependabot rebase` + 自动合并 → ③ 人工 PR 最后逐个 rebase 并重解析锁文件。每次合并都会让其余改锁文件的 PR 失效，故人工 PR 不要提前 rebase。 |
 
 ## 6. GitHub 协作与可信提交者 (GitHub Collaboration & Trusted Committers)

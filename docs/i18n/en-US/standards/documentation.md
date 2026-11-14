@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-05
+last_sync: 2026-11-15
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -309,3 +309,5 @@ A `regression-window` marker pair can still be malformed as "start at the top, b
 - [Development Standards](./development.md)
 - [Planning & Evaluation Standards](./planning.md)
 - [AI Collaboration Standards](./ai-collaboration.md)
+
+> Sync note (2026-11-15): §5.4 adds the rule that threshold clauses must single-source both line and record counts (lines → `check-line-count`, records → `LOG_WINDOW_LIMITS.maxEntries`), that index checks must match both `./x.md` and extension-less `./x` links, and that historical CRLF markdown must be checked before scripted rewrites.
