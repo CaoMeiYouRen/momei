@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-14
+last_sync: 2026-11-15
 ---
 
 # Momei 프로젝트 로드맵
@@ -90,4 +90,4 @@ last_sync: 2026-11-14
 - [계획 표준](../standards/planning.md)
 - [번역 거버넌스](../guide/translation-governance.md)
 - 최신 상세 정보는 [중국어 원문 로드맵](../../../plan/roadmap.md)
-- **75단계가 계획되었습니다(2026-11-13, 2026-11-14 항목 7 삽입)**: 의존성과 정적 규칙 마무리, Node 26 런타임 기준 단일화, 거버넌스 기준 통일 — minimatch / glob 범위 지정 override 평가, deepmerge / quill 패치 없는 항목은 관리 대장으로; ESLint #262 2차 4개 규칙(22건 / 17개 파일) 승격·제로화; i18n 64개 그룹 allowlist 3분류 재점검과 공개 페이지 runtime 감사; 커버리지 16차(스크립트 대규모 기반 포함 4개 모듈); 회귀 윈도우 임계값과 coverage 분모 기준을 단일 지점으로 수렴; Node 26.13.1을 `.nvmrc`에 단일 선언하고 `engines`, CI 22곳, Docker 기본 이미지를 같은 버전으로 맞추며 네이티브 모듈 재빌드와 로컬/컨테이너 이중 프로브를 수행합니다. 폰트 스케일 정규화는 2026-11-14 백로그로 이동하여 6개 항목을 유지합니다.
+- **75단계는 감사 완료 후 아카이브되었습니다(2026-11-14)**: 의존성과 정적 규칙 마무리, Node 26 런타임 기준 단일화와 거버넌스 기준 통일 — minimatch / glob은 상위 스코프 override로 마무리(quill 제거, deepmerge는 대장 등록), ESLint 2차 4개 규칙(22건 / 17개 파일) 승격·제로화, i18n 64개 그룹을 사유와 재점검 날짜와 함께 재점검하고 5개 가드 추가, 커버리지 16차 +386문(+1.02pp, 전 저장소 83.28%), 회귀 윈도우 임계값 단일화(행 수 → `docs:check:line-count`, 건수 → `LOG_WINDOW_LIMITS`), `todo-archive.md`를 항목 6 마무리 시점 292행으로 분할(이번 단계 아카이브 후 234행), 180일 초과 거버넌스 보고서 2건 아카이브, Node 26.13.1을 `.nvmrc`에 단일 선언하고 `engines`, CI 22곳, Docker 기본 이미지를 동기화했습니다. 단계 수렴 `regression:phase-close`: Pass(커버리지 83.2% / 615개 파일 / 5,523개 테스트, release:check:full 12/12, E2E 226 passed / 2 flaky / 58 skipped).

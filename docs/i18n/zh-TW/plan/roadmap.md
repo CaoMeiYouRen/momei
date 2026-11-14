@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-14
+last_sync: 2026-11-15
 ---
 
 # 墨梅專案路線圖
@@ -104,4 +104,4 @@ last_sync: 2026-11-14
 
 - 若你要了解最完整規劃，請直接閱讀 [中文原文](../../../plan/roadmap.md)。
 - 若你準備參與當前階段工作，建議搭配 [規劃規範](../standards/planning.md) 與 [翻譯治理流程](../guide/translation-governance.md) 一起閱讀。
-- **第七十五階段已立項（2026-11-13，2026-11-14 插入條目 7）**：依賴與靜態規則收口、Node 26 執行時基線單點化與治理口徑統一——minimatch / glob 定向 override 評估、deepmerge / quill 無補丁項受控台帳；ESLint #262 第二批 4 條規則（22 命中 / 17 檔案）升檔清零；i18n 64 組 allowlist 三類複核與公開頁 runtime 稽核；覆蓋率第十六批（4 模組，含腳本類大基數）；回歸視窗閾值與 coverage 分母口徑收斂為單點；Node 26.13.1 以 `.nvmrc` 單點宣告，`engines`、22 處 CI 與 Docker 基礎鏡像同源，並做原生模組重建與本機 / 容器雙探針。字級歸一於 2026-11-14 移出至 backlog，維持 6 條條目。
+- **第七十五階段已審計歸檔（2026-11-14）**：依賴與靜態規則收口、Node 26 執行時基線單點化與治理口徑統一——minimatch / glob 以父層 scoped override 收口（quill 移除、deepmerge 登記台帳）、ESLint 第二批 4 條規則（22 命中 / 17 檔案）升檔清零、i18n 64 組補理由與複核日期並新增 5 例守衛、覆蓋率第十六批 +386 條（+1.02pp；全倉 83.28%）、回歸視窗閾值單點化（行數 → `docs:check:line-count`，條數 → `LOG_WINDOW_LIMITS`）、`todo-archive.md` 於條目 6 收口時拆分至 292 行（本階段歸檔後 234 行）、>180 天治理報告歸檔 2 份、Node 26.13.1 以 `.nvmrc` 單點宣告並同步 `engines`、22 處 CI 與 Docker 基礎鏡像。階段收口 `regression:phase-close`：Pass（覆蓋率 83.2% / 615 檔案 / 5,523 例、release:check:full 12/12、E2E 226 passed / 2 flaky / 58 skipped）。
