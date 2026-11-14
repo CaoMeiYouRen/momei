@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 1 / 7 已完成，4 条待办）**
+**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 1 / 2 / 7 已完成，3 条待办）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」；2026-11-14 用户决策插队加入条目 7（Node 26 运行时基线），并按「进一出一」把条目 3 移出至 backlog #11。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
 
@@ -28,7 +28,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；`pnpm why` 清单、override diff、audit / alerts 输出写入 `artifacts/review-gate/`。
     - **回滚边界**: override 与锁文件同批 revert；台账条目可单独回退。**kill-switch**: 定向 override 破坏构建且一轮修不好时转受控豁免并登记上游跟踪。
 
-- [ ] **2. ESLint #262 第二批（P2）**
+- [x] **2. ESLint #262 第二批（P2）**
     - **执行范围**: 升档并清零 4 条规则（22 命中 / 17 文件）：`prefer-reduce-type-parameter`（2 / 2）、`no-extraneous-class`（3 / 3）、`restrict-plus-operands`（6 / 4）、`non-nullable-type-assertion-style`（11 / 8）；同步 `eslint-debt-targets.mjs`、`eslint.config.js` 注释、inventory baseline，并回写 issue #262。
     - **非目标**: 不启用 `no-unsafe-*` 系列（233 / 50 / 21 / 19 命中）；不放宽 `--max-warnings 10`；不动测试 / 脚本豁免边界。
     - **验收标准**: 4 条规则命中清零且 effectiveSeverity=1；`pnpm lint` 0 error、warning ≤ 10；inventory 表更新落盘。
