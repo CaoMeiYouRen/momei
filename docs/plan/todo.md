@@ -17,7 +17,7 @@
 
 ## 当前进行中阶段
 
-**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 1 / 2 / 7 已完成，3 条待办）**
+**第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（条目 3 已移出，条目 1 / 2 / 5 / 7 已完成，2 条待办）**
 
 > 阶段规划、准入结论、ROI、回滚边界与风险提示见 [项目计划](./roadmap.md)；立项 2026-11-13，用户确认「方案 A：治理收口」；2026-11-14 用户决策插队加入条目 7（Node 26 运行时基线），并按「进一出一」把条目 3 移出至 backlog #11。开工前置：`HEAD=49e7a078` 的 CI 全绿（Test / Docker / VitePress / TODO）。
 
@@ -42,7 +42,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；前后输出与 allowlist diff 写入 `artifacts/review-gate/`。
     - **回滚边界**: key 合并与 allowlist 独立回滚。
 
-- [ ] **5. 覆盖率第十六批（P2）**
+- [x] **5. 覆盖率第十六批（P2）**
     - **执行范围**: 4 模块含 ≥1 大基数：`scripts/ai/check-governance.mjs`（284/341）、`scripts/perf/check-bundle-budget.mjs`（242/258）、`components/admin/posts/ai-image-generator.vue`（138/161）、`composables/use-asr-direct.ts`（58/329 重连时序）；目标同源 `+0.3pp` 或模块级 `+15pp / ≥85%`；同批把「同源文件比较」口径写入 [测试规范](../standards/testing.md)。
     - **非目标**: 不为凑数测 getter / 模板分支；不重构测试结构；不新增测试依赖。
     - **验收标准**: 干净全量跑（移 `.vitest-cache` + `--maxWorkers=4`）基线 / 收口，delta 落盘 `artifacts/coverage/`；定向测试通过；flaky 归因；规范口径更新。
