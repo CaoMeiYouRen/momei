@@ -219,7 +219,7 @@
     - **原背景**: Dependabot 告警 #22 为 low 且无官方 patched version，低于 `security:alerts` 的 `--min-severity=high`，不阻断发布；`security-alert-exceptions.json` 中对应过期条目已按台账治理移除。
     - **边界**: 若未来重新引入富文本编辑器并需要 quill，须先确认上游是否已修复该 XSS（HTML export）告警。
 
-17. **（已上收，2026-11-15）devcontainer 运行时基线对齐** —— 已上收为第七十七阶段条目 6（`typescript-node:26-*` 镜像 + Node 26 兼容的 pnpm 引导 + `tests/scripts/node-runtime-baseline.test.ts` 扩展），执行范围与验收见 [项目计划](./roadmap.md)。原登记正文已随上收去重。
+17. **（已完成，2026-11-15，第七十七阶段条目 6）devcontainer 运行时基线对齐** —— `devcontainer.json` 基础镜像升至 `typescript-node:26-bookworm`（mcr 实测存在该 tag），`postCreateCommand` 的 `corepack enable` 换为 `sudo npm install -g pnpm@11.17.0`（与 `package.json#packageManager` 同步）；`tests/scripts/node-runtime-baseline.test.ts` 新增 6 条守卫（镜像主版本 = `.nvmrc`、corepack 回流判红、pnpm 引导版本漂移判红、JSONC 解析与注释剥离）。Codespaces 内实测未进行，按验收口径以静态守卫为下限。
 
 18. **首页缓存与语言检测解耦（② + ③ 组合，P2 候选）**
     - **背景**: 条目 4 决策记录确认 `/` 因 `Set-Cookie: i18n_redirected` + 无 `cache-control` 被 Cloudflare 判为 `DYNAMIC`；SSR 返回的是语言中立 200（`Accept-Language` / 偏好 cookie 都不改变 HTML，重定向在客户端）。

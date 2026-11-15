@@ -65,5 +65,5 @@ kill-switch（规划期约定，本次未触发）：`node:26.13.1-alpine` 拉�
 ## 7. 后续与未覆盖面
 
 - **版本推进**：Node 26 线发新补丁时需同批改 `.nvmrc` + Dockerfile 两个 ARG，并核对文档侧人类可读版本（README×5、`docs/guide/development.md`×4、roadmap 镜像摘要、回归窗口与本文）；守卫只钉 `.nvmrc` / `engines` / Docker / workflow 四处，文档副本不在守卫内，靠本节清单人工核对。`engines` 的 `26.x` 与 workflow 无需动。
-- **devcontainer 未纳入本条**：`devcontainer.json` 仍为 `typescript-node:24-bookworm`，其 `postCreateCommand` 依赖 `corepack enable`。该镜像内 Node 与 pnpm 自洽（Codespaces 内不存在与宿主混用 ABI 的问题），但会触发 `engines` 告警；升级需同批替换 corepack 引导方式，已登记 [backlog #17](../../plan/backlog.md)。
+- **devcontainer 已对齐（原「未纳入本条」收口）**：`devcontainer.json` 升为 `typescript-node:26-bookworm`（mcr 上 Node 26 仅 `26-bookworm` / `26-trixie`，无补丁级 tag），`postCreateCommand` 的 `corepack enable` 换为 `sudo npm install -g pnpm@11.17.0`（与 `packageManager` 同步），并由 `tests/scripts/node-runtime-baseline.test.ts` 的 6 条守卫钉住镜像主版本、corepack 回流与 pnpm 引导版本。Codespaces 内实测未进行，见 [backlog #17](../../plan/backlog.md)。
 - **不做双版本 CI 矩阵**：26.x 是本仓唯一支持线，双矩阵会翻倍 CI 成本且不覆盖真实部署形态。

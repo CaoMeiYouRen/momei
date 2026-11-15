@@ -57,7 +57,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
     - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
 
-- [ ] **6. devcontainer 运行时对齐（P3）**: 基础镜像升至 `typescript-node:26-*`（与 `.nvmrc` 同主版本），`corepack enable` 换成 Node 26 兼容的 pnpm 引导；扩展 `tests/scripts/node-runtime-baseline.test.ts` 钉住镜像主版本与 `corepack` 不回流。
+- [x] **6. devcontainer 运行时对齐（P3）**: 基础镜像升至 `typescript-node:26-*`（与 `.nvmrc` 同主版本），`corepack enable` 换成 Node 26 兼容的 pnpm 引导；扩展 `tests/scripts/node-runtime-baseline.test.ts` 钉住镜像主版本与 `corepack` 不回流。
     - **开工前置**: 先确认 mcr 存在 Node 26 变体 tag；不存在则保留 backlog 并改用可自证的替代基线。
     - **验收标准**: `devcontainer.json` JSONC 解析通过；守卫对「镜像降级」「corepack 回流」判红；Codespaces 内 `pnpm install` 无 `Unsupported engine`（无法实测时标注「未实测」并以守卫为下限）。
     - **非目标**: 不改 `.nvmrc` / `engines` / CI / Docker 基线；不引入双版本矩阵。
