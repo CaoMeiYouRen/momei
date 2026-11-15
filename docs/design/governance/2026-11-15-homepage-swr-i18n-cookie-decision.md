@@ -1,6 +1,6 @@
 # 首页 SWR 与 i18n 响应 cookie 冲突决策
 
-> 第七十六阶段条目 4 的事实源与决策记录。执行范围与验收见 [项目计划](../../plan/roadmap.md)；背景登记见 [backlog #15](../../plan/backlog.md)。
+> 第七十六阶段条目 4 的事实源与决策记录。背景见本文 §1–§2；执行范围与验收见 [项目计划](../../plan/roadmap.md)。
 
 ## 1. 背景
 
@@ -44,6 +44,38 @@
 - 选定方案附可复跑探针：`/` 的 `set-cookie` / `cache-control`、首页命中 / 回源；选 ② / ③ 时另附五语重定向用例。
 - 证据写入 `artifacts/review-gate/`，并在回归窗口记录一条第七十六阶段条目 4 窗口。
 
-## 7. 决策结论
+## 7. 决策结论（2026-11-15）
 
-> 待第七十六阶段条目 4 执行时按 §4 标准填入；未取得生产数据时按 kill-switch 保持现状。
+**选定方案：① 保持现状 + 边缘兜底；本阶段不做代码改动。**
+
+### 7.1 线上证据（2026-11-15，`https://momei.app`）
+
+| 请求 | 关键响应头 | 判定 |
+| :--- | :--- | :--- |
+| `/`（连续 2 次） | `set-cookie: i18n_redirected=zh-CN`；无 `cache-control`；`cf-cache-status: DYNAMIC` | 每次回源，边缘未缓存 |
+| `/` + `Accept-Language: en-US` | 同上（仍写 `i18n_redirected=zh-CN`，返回 200 而非 3xx） | 语言重定向不在 SSR 层；`/` HTML 对访客语言中立 |
+| `/` + `Cookie: i18n_redirected=en-US` | 同上（仍写 `zh-CN`） | 根路径会覆盖偏好 cookie 的持久化语义 |
+| `/en-US` | `set-cookie: i18n_redirected=en-US`；`cf-cache-status: DYNAMIC` | 带前缀路由同样因 `Set-Cookie` 回源 |
+| `/robots.txt`（swr 86400） | `cache-control: public, max-age=86400, s-maxage=86400`；`age: 95`；`cf-cache-status: HIT` | 边缘缓存链路本身可用 |
+
+结论：① 的「边缘兜底」目前仅对无 cookie 路由生效；`/` 因 `Set-Cookie` + 无 `cache-control` 被 Cloudflare 判为 `DYNAMIC`。Nitro 的缓存安全规则是**安全修复**，不放宽。
+
+### 7.2 方案取舍
+
+- **② 条件化 cookie（未采纳）**：`useCookie: false` 能让 `/` 去掉 `Set-Cookie` 并进入 SWR / 边缘缓存；但会丢失「显式切换语言」的跨会话持久化，且需把五语重定向改为纯客户端逻辑并补完整 E2E。当前 `/` 的 SSR 固定返回 `zh-CN` 的 200（`Accept-Language` 不改变 SSR 输出、无 3xx），语言切换依赖客户端；改造可行但属产品行为变更，需独立条目与验收，不在本条目的「最小实现」范围内。
+- **③ 独立缓存键控（未采纳）**：需在 Cloudflare 侧配置 Cache Key（`Accept-Language` / 偏好 cookie）与 Vary 策略，属于运维配置，无法由仓库内最小实现保证；且与 `Set-Cookie` 阻断缓存的原点冲突（仍需 ② 的前置改造）。
+- **①（采纳）**：零代码改动、零安全回退；`/` 的 SSR 冷启动成本维持，但当前线上本就未命中边缘缓存，未造成额外退化。后续收益依赖 ② + ③ 的组合改造（`routeRules['/'] = { swr: 3600 }` 已存在，② 去 `Set-Cookie` 后即可进入缓存）。
+
+### 7.3 复跑探针
+
+```bash
+curl -sS -D - -o /dev/null https://momei.app/ | grep -Ei 'set-cookie|cache-control|cf-cache-status'
+curl -sS -D - -o /dev/null -H 'Accept-Language: en-US,en;q=0.9' https://momei.app/ | grep -Ei 'set-cookie|cache-control|cf-cache-status'
+curl -sS -D - -o /dev/null https://momei.app/robots.txt | grep -Ei 'cache-control|cf-cache-status'
+```
+
+判定：`/` 仍为 `DYNAMIC` 且带 `set-cookie` → 维持 ①；若未来 ② 落地后 `/` 出现 `s-maxage` 且无 `set-cookie`，应同时验证 `cf-cache-status` 为 `HIT` / `MISS`（而非 `DYNAMIC`）与五语重定向。
+
+### 7.4 后续候选
+
+已登记 backlog #18「首页缓存与语言检测解耦（② + ③ 组合）」，包含：`useCookie: false` 或仅在显式切换时写 cookie、`/` 去 `Set-Cookie`、客户端重定向 E2E、边缘 Cache Key 运维配置与命中验证。未完成前不得放宽 nitropack 缓存安全规则。

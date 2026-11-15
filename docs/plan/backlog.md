@@ -213,7 +213,7 @@
 12. **（已闭合，2026-11-01）caomei-ui 状态色 tone 对比度修正** —— 原方案（把 tone 改为 light `-700` / dark `-400`）**已被上游取代**：`caomei-ui@1.0.0-rc.1` 新增 `--caomei-color-{*-text,control-border}` 角色，组件文本 / 边框改由该角色承载（上游 `tag` 样式注释明示 8% soft 底在 6 预设 × 明暗下均 ≥ 4.5:1），tone 仅用于 soft 底色。momei 侧把该角色接入并存桥接（`primary` 跟随 `--p-primary-700/-400`、`danger` 取 `--p-red-700/-400`、`success` / `warning` 取 `--p-{green,orange}-800/-400`、neutral 与 tone 分离），随第六十九阶段条目 1 落地（见 [待办归档](./todo-archive.md)）；**闭合证据**：soft 8% 底实测（内容面 / 次级面）浅色 primary 8.72 / 8.08、success 6.66 / 6.17、warning 6.74 / 6.24、danger 5.83 / 5.40、neutral 10.36 / 9.60；暗色 8.21 / 7.44、9.75 / 8.85、7.68 / 6.99、6.43 / 5.88、11.38 / 10.34，两态全部 ≥ 4.5，并由 `tests/visual/caomei-token-bridge.visual.test.ts` 的对比度契约长期守卫。原详细方案保留为问题取证记录：[2026-10-24-caomei-status-tone-contrast.md](../design/governance/2026-10-24-caomei-status-tone-contrast.md)。
 13. **（已上收，2026-11-06）i18n 键层缺陷清理** —— 已上收为第七十一阶段条目 6b（`admin-posts.json` 8 个重复键、`admin.json` 与 20 个模块文件的 20 组双源同键、`system.fields.*` 6 个死键、`home.hero.*` 3 个死键、`pages/submit.vue` 1 处硬编码），执行范围与验收见 [项目计划](./roadmap.md)。原登记正文已随上收去重。
 14. **（已上收，2026-11-12）依赖与工具链现代化** —— 五个子项已分别上收第七十四阶段：js-yaml 5 → 条目 1a、ESLint 严格规则批次（#262）→ 条目 1b、stylelint 18 与 `stylelint-config-cmyr` `^1.1.0` 配对升级 → 条目 1c、视觉门禁去 `continue-on-error` → 条目 2a、入口包体专项 → 条目 2b。执行范围与验收见 [项目计划](./roadmap.md)。原登记正文已随上收去重。
-15. **（已上收，2026-11-15）首页 SWR / i18n cookie 决策** —— 已上收为第七十六阶段条目 4（3 候选决策 + 最小实现，缺线上数据时只交付决策记录），依据与方案见 [决策设计](../design/governance/2026-11-15-homepage-swr-i18n-cookie-decision.md)，执行范围与验收见 [项目计划](./roadmap.md)。
+15. **（已闭合，2026-11-15）首页 SWR / i18n cookie 决策** —— 第七十六阶段条目 4 已交付决策记录：线上证据显示 `/` 每次写 `i18n_redirected` 且 `cf-cache-status: DYNAMIC`（`/robots.txt` 为 `HIT`、`age: 95`），选定 ① 保持现状 + 边缘兜底，不放宽 nitropack 缓存安全规则。结论与复跑探针见 [决策设计 §7](../design/governance/2026-11-15-homepage-swr-i18n-cookie-decision.md#7-决策结论2026-11-15)。后续改造已登记 #18。
 16. **（已闭合，2026-11-14）quill 上游补丁跟踪（GHSA-v3m3-f69x-jf25，low / 无 patched version）**
     - **闭合方式**: 全局检索确认 `quill` 在源码中零引用（仅 `package.json` 声明与 `nuxt.config.ts` 的 `vite.ssr.noExternal` / `vite.build.rolldownOptions.external` 两处针对 quill 的配置——配置项本身合法，但 quill 从未 import 故为 no-op；`.output` 无 Quill 产物），实际富文本 / Markdown 编辑器为 `mavon-editor`。条目 1 已删除该依赖与两处无效配置，本地依赖图不再包含 quill；推送 `b649181e` 后 Dependabot 重扫，告警 #22 已关闭。
     - **原背景**: Dependabot 告警 #22 为 low 且无官方 patched version，低于 `security:alerts` 的 `--min-severity=high`，不阻断发布；`security-alert-exceptions.json` 中对应过期条目已按台账治理移除。
@@ -223,6 +223,12 @@
     - **背景**: 运行时基线已于第七十五阶段条目 7 收敛为 `.nvmrc = 26.13.1`，但 `devcontainer.json` 仍为 `typescript-node:24-bookworm`，其 `postCreateCommand` 依赖 `corepack enable`。镜像内 Node 与 pnpm 自洽，不会 ABI 断裂，仅产生根包 `engines` 告警。
     - **待办**: 升级到同线 `typescript-node:26-*` 镜像，并把 `corepack enable` 换成与 Node 26 兼容的 pnpm 引导（`npm i -g pnpm@11.17.0` 或 `packageManager` 驱动的等价方式）；升级后核对 Codespaces 内 `pnpm install` 无 `Unsupported engine`。
     - **非目标**: 不改动 `.nvmrc` 与 CI / Docker 基线；不为 Codespaces 引入双版本矩阵。
+
+18. **首页缓存与语言检测解耦（② + ③ 组合，P2 候选）**
+    - **背景**: 条目 4 决策记录确认 `/` 因 `Set-Cookie: i18n_redirected` + 无 `cache-control` 被 Cloudflare 判为 `DYNAMIC`；SSR 返回的是语言中立 200（`Accept-Language` / 偏好 cookie 都不改变 HTML，重定向在客户端）。
+    - **待办**: 关闭或条件化 `detectBrowserLanguage.useCookie`（仅在显式切换语言时写偏好，例如客户端写入），让 `/` 去掉 `Set-Cookie` 并进入 SWR 缓存；补五语重定向与语言持久化 E2E；与运维配合配置 Cloudflare Cache Key / Vary（Accept-Language 或偏好 cookie）并验证 `cf-cache-status` 命中与不串语言。
+    - **非目标**: 不放宽 nitropack 2.13.6 缓存安全规则；不改鉴权 / 会话链路；不为缓存牺牲无 JS 场景的默认语言正确性。
+    - **验收标准**: `/` 响应无 `Set-Cookie` 且带 `s-maxage`；边缘命中可复跑；五语重定向与显式切换持久化不回退；决策与探针落 `artifacts/review-gate/`。
 
 ---
 

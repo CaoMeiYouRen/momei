@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:decision:homepage-swr:2026-11-15 -->
+## 2026-11-15 首页 SWR / i18n cookie 决策
+
+- 执行入口: 第七十六阶段条目 4；线上探针（`https://momei.app`）+ 三候选评估
+- 证据 artifact: `artifacts/review-gate/2026-11-15-homepage-swr-decision.md` / `artifacts/review-gate/2026-11-15-homepage-swr-decision-headers.txt`
+- 结果摘要: 选定 ① 保持现状 + 边缘兜底，零代码改动。`/` 每次写 `i18n_redirected=zh-CN`、无 `cache-control`、`cf-cache-status: DYNAMIC`；`/robots.txt` 为 `HIT`（`age: 95`），证明边缘缓存链路可用但被 `Set-Cookie` 阻断。
+- 已执行验证: 4 次 `/`（含 `Accept-Language: en-US` 与偏好 cookie）均返回语言中立 200；`/en-US` 同样 `DYNAMIC`；决策文档 §7 含复跑探针。
+- 回归窗口: 不放宽 nitropack 2.13.6 缓存安全规则；②/③ 组合改造转 backlog #18（`/` 去 Set-Cookie + 客户端语言持久化 + 边缘 Cache Key）。
+- Review Gate: 文档-only 交付；结论见决策文档 §7 与 headers 原始文件。
+- 未覆盖边界: ②/③ 未实现，语言持久化与边缘命中待后续条目验证。
+<!-- regression-window:end:decision:homepage-swr:2026-11-15 -->
+
 <!-- regression-window:start:ui:consolidated-review:2026-11-15 -->
 ## 2026-11-15 编辑器 AI 审校合并（Phase C）
 

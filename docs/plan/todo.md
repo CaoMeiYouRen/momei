@@ -42,7 +42,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + V3 + RG；组件测试、编辑器 E2E、证据写入 `artifacts/review-gate/`。
     - **回滚边界**: 新面板与入口切换同批 revert，旧面板保留至验收通过。**kill-switch**: 并行调用触发配额 / 速率问题或无法等价复刻时，退回顺序调用或保留双按钮。
 
-- [ ] **4. 首页 SWR / i18n cookie 决策与最小实现（P2）**
+- [x] **4. 首页 SWR / i18n cookie 决策与最小实现（P2）**
     - **执行范围**: 按 [首页 SWR 决策设计](../design/governance/2026-11-15-homepage-swr-i18n-cookie-decision.md) 的 3 个候选方案，用本地 + 可得线上证据（`/` 的 `set-cookie` 与 `cache-control`、首页回源 / 命中）产出决策记录并择一实施（现状 + 边缘兜底 / 条件化 `useCookie` / `/` 独立缓存键控）。
     - **非目标**: 不放宽 nitropack 2.13.6 缓存安全规则；不改 `routeRules` 时长；不改鉴权 / 会话链路。
     - **验收标准**: 决策记录落盘；所选方案有定向测试或可复跑探针；选 ②/③ 时 `/` 不再把 `i18n_redirected` 复制给所有访客；五语重定向不回退。
