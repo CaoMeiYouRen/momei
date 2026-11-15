@@ -14,11 +14,75 @@ import { describe, expect, it } from 'vitest'
  * `ConfirmDeleteDialog` 是 momei 自有共享壳（内部已用 `CaomeiDialog`），刻意保留，不计入残留。
  */
 
-/** 去掉 `<script>` / `<style>` 块，只留模板区参与组件标签匹配。 */
+/**
+ * 按标签名剥离 `<script>` / `<style>` 块（大小写不敏感，支持嵌套与未闭合残片）。
+ * 手写扫描而非单次 `replace`：单次正则会被 `<scr<script>ipt>` 这类嵌套输入绕过。
+ */
+function isTagBoundary(char: string | undefined) {
+    return char === undefined || char === '>' || char === '/' || /\s/u.test(char)
+}
+
+/** 查找标签起点：要求标签名后是空白 / `>` / `/`，避免 `<scripture>` 被当成 `<script>`。 */
+function findTag(lower: string, token: string, from: number): number {
+    let index = lower.indexOf(token, from)
+
+    while (index !== -1) {
+        if (isTagBoundary(lower[index + token.length])) {
+            return index
+        }
+        index = lower.indexOf(token, index + 1)
+    }
+
+    return -1
+}
+
+function stripBlockTag(source: string, tagName: string): string {
+    const lower = source.toLowerCase()
+    const openToken = `<${tagName}`
+    const closeToken = `</${tagName}`
+    let cursor = 0
+    let result = ''
+
+    while (cursor < source.length) {
+        const openIndex = findTag(lower, openToken, cursor)
+        if (openIndex === -1) {
+            result += source.slice(cursor)
+            break
+        }
+
+        result += source.slice(cursor, openIndex)
+
+        // 从开标签起按深度配对，避免嵌套块只剥掉内层
+        let depth = 1
+        let searchFrom = openIndex
+        while (depth > 0) {
+            const nextOpen = findTag(lower, openToken, searchFrom + 1)
+            const nextClose = findTag(lower, closeToken, searchFrom + 1)
+
+            if (nextClose === -1) {
+                // 未闭合时保留剩余内容：守卫宁可多扫（可能误报）也不能吞掉后半文件
+                return result + source.slice(openIndex)
+            }
+
+            if (nextOpen !== -1 && nextOpen < nextClose) {
+                depth += 1
+                searchFrom = nextOpen
+                continue
+            }
+
+            depth -= 1
+            searchFrom = nextClose
+        }
+
+        const closeEnd = lower.indexOf('>', searchFrom)
+        cursor = closeEnd === -1 ? source.length : closeEnd + 1
+    }
+
+    return result
+}
+
 function stripNonTemplateBlocks(source: string): string {
-    return source
-        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gu, '')
-        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gu, '')
+    return stripBlockTag(stripBlockTag(source, 'script'), 'style')
 }
 
 /** 组件标签匹配：`<Name` 后必须是空白 / `/` / `>`，避免 `<Button` 命中 `<ButtonGroup`。 */
@@ -26,11 +90,64 @@ function buildComponentTagPattern(name: string): RegExp {
     return new RegExp(`<${name}[\\s/>]`, 'u')
 }
 
-/** 剥离注释后再扫描（注释里引用旧标签名不算残留）。 */
+/** 剥离注释后再扫描（注释里引用旧标签名不算残留；大小写/变体闭合均覆盖）。 */
+function stripHtmlComments(source: string): string {
+    let cursor = 0
+    let result = ''
+
+    while (cursor < source.length) {
+        const openIndex = source.indexOf('<!--', cursor)
+        if (openIndex === -1) {
+            result += source.slice(cursor)
+            break
+        }
+
+        result += source.slice(cursor, openIndex)
+
+        const standardEnd = source.indexOf('-->', openIndex + 4)
+        const bangEnd = source.indexOf('--!>', openIndex + 4)
+        const ends = [standardEnd, bangEnd].filter((index) => index !== -1)
+        const closeEnd = ends.length > 0 ? Math.min(...ends) : -1
+
+        if (closeEnd === -1) {
+            result += source.slice(openIndex)
+            break
+        }
+
+        const closeLength = source.startsWith('--!>', closeEnd) ? 4 : 3
+        cursor = closeEnd + closeLength
+    }
+
+    return result
+}
+
+function stripBlockComments(source: string): string {
+    let cursor = 0
+    let result = ''
+
+    while (cursor < source.length) {
+        const openIndex = source.indexOf('/*', cursor)
+        if (openIndex === -1) {
+            result += source.slice(cursor)
+            break
+        }
+
+        result += source.slice(cursor, openIndex)
+
+        const closeIndex = source.indexOf('*/', openIndex + 2)
+        if (closeIndex === -1) {
+            result += source.slice(openIndex)
+            break
+        }
+
+        cursor = closeIndex + 2
+    }
+
+    return result
+}
+
 function stripComments(source: string): string {
-    return source
-        .replace(/<!--[\s\S]*?--!?>/gu, '')
-        .replace(/\/\*[\s\S]*?\*\//gu, '')
+    return stripHtmlComments(stripBlockComments(source))
         .replace(/^\s*\/\/.*$/gmu, '')
 }
 
@@ -136,5 +253,82 @@ describe('浮层族：全仓零残留', () => {
         }
 
         expect(offenders, `以下文件仍有 PrimeVue 服务层残留：${offenders.join('; ')}`).toEqual([])
+    })
+})
+
+describe('守卫自身：剥离逻辑的嵌套与大小写边界', () => {
+    it('大小写不敏感地剥离 script / style 块', () => {
+        const source = '<template><Dialog /></template>\n<SCRIPT>const a = 1</SCRIPT>\n<Style>.a{}</STYLE>'
+
+        const result = stripNonTemplateBlocks(source)
+
+        expect(result).toContain('<Dialog />')
+        expect(result.toLowerCase()).not.toContain('<script')
+        expect(result.toLowerCase()).not.toContain('<style')
+    })
+
+    it('嵌套 script 块被完整剥离，不残留内层开标签', () => {
+        const source = '<script>outer<script>inner</script>tail</script><template><Menu /></template>'
+
+        const result = stripNonTemplateBlocks(source)
+
+        expect(result).toBe('<template><Menu /></template>')
+    })
+
+    it('标签名边界：scripture / styles 等近似标签不被误剥', () => {
+        const source = '<template><scripture>x</scripture><styles>y</styles></template>'
+
+        expect(stripNonTemplateBlocks(source)).toBe(source)
+    })
+
+    it('剥离 HTML 注释（含 --!> 变体）与块注释', () => {
+        const source = '<template><!-- <Dialog /> --><Menu /><!--! hidden --!><Popover /></template>\n/* <Drawer /> */\nconst a = 1'
+
+        const result = stripComments(source)
+
+        expect(result).toContain('<Menu />')
+        expect(result).toContain('<Popover />')
+        expect(result).not.toContain('Dialog')
+        expect(result).not.toContain('Drawer')
+        expect(result).toContain('const a = 1')
+    })
+
+    it('未闭合的块注释 / 标签保留剩余内容，避免吞掉后半文件', () => {
+        const unclosedComment = '<template><Menu /></template>\n/* <Dialog />'
+        expect(stripComments(unclosedComment)).toContain('<Dialog />')
+
+        const unclosedScript = '<script>const a = 1<template><Dialog /></template>'
+        expect(stripNonTemplateBlocks(unclosedScript)).toContain('<Dialog />')
+    })
+
+    it('glob 通配符等非注释片段不被当作块注释开头', () => {
+        const source = '<template><input accept="image/*"><Dialog /></template>'
+
+        const result = stripComments(source)
+
+        expect(result).toContain('accept="image/*"')
+        expect(result).toContain('<Dialog />')
+    })
+
+    it('近似闭合标签不被误判为闭合（</scriptx> 保留原文）', () => {
+        const source = '<template><Menu /></template></scriptx><Dialog />'
+
+        expect(stripNonTemplateBlocks(source)).toContain('<Dialog />')
+    })
+
+    it('未闭合的 HTML 注释保留后续模板内容', () => {
+        const source = '<template><Menu /></template><!-- <Dialog />'
+
+        expect(stripComments(source)).toContain('<Dialog />')
+    })
+
+    it('注释剥离后可继续用于零残留扫描（组合场景）', () => {
+        const source = '<template><Menu /><!-- <Dialog /> --></template>\n<script>// v-tooltip\nconst a = 1</script>'
+
+        const result = stripComments(stripNonTemplateBlocks(source))
+
+        expect(result).toContain('<Menu />')
+        expect(result).not.toContain('Dialog')
+        expect(result).not.toContain('v-tooltip')
     })
 })
