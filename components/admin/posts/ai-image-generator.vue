@@ -527,7 +527,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
 
     &__section-hint {
         color: var(--m-surface-500);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 
     &__label-row {
@@ -559,7 +559,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
     }
 
     &__dimension-label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         color: var(--caomei-color-text);
     }
@@ -611,7 +611,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
 
     &__status-sub {
         margin-top: 0.25rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--m-surface-500);
     }
 
@@ -628,7 +628,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         align-items: center;
         gap: 0.75rem;
         font-weight: 700;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
     }
 
     &__images-grid {
@@ -683,7 +683,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         box-shadow: $shadow-sm;
     }
 
@@ -698,7 +698,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         margin-top: 0.75rem;
         text-align: center;
         color: var(--m-surface-500);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 
     &__footer {

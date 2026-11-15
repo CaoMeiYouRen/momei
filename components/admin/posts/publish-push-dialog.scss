@@ -54,7 +54,7 @@
     &__target-label {
         font-weight: 600;
         margin-bottom: 0.75rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__target-options {
@@ -68,7 +68,7 @@
         align-items: center;
         gap: 0.375rem;
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         padding-left: 0.25rem;
     }
 
@@ -88,12 +88,12 @@
 
     &__field-label {
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__field-desc {
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__sync-field {
@@ -112,6 +112,6 @@
         margin-top: 0.375rem;
         margin-left: 3rem; // 对应 InputSwitch 的宽度 + gap 的偏移
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 }

@@ -659,7 +659,7 @@ defineExpose({
 }
 
 .title-input {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     font-weight: 700;
     flex: 1;
     min-width: 8rem;
@@ -673,7 +673,7 @@ defineExpose({
 }
 
 .saving-text {
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     color: var(--m-surface-500);
     margin-right: 0.5rem;
 }
@@ -708,7 +708,7 @@ defineExpose({
     }
 
     &__title {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         padding: 0.5rem 0.75rem;
         color: var(--caomei-color-text-muted);
@@ -742,13 +742,13 @@ defineExpose({
     }
 
     &__item-label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         color: var(--caomei-color-text);
     }
 
     &__item-desc {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
         margin-top: 0.125rem;
         line-height: 1.4;

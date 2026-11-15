@@ -30,7 +30,7 @@
 }
 
 %editor-panel__title {
-    font-size: 1rem;
+    font-size: var(--m-font-size-md);
     font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
 }
 
 %editor-panel-item__label {
-    font-size: 0.75rem;
+    font-size: var(--m-font-size-xs);
     font-weight: 600;
     color: var(--caomei-color-text-muted);
     display: block;

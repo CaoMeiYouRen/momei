@@ -203,7 +203,7 @@
     }
 
     &__preview-label {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 600;
         color: var(--caomei-color-text-muted);
     }
@@ -364,7 +364,7 @@
         }
 
         h3 {
-            font-size: 1.125rem;
+            font-size: var(--m-font-size-lg);
         }
     }
 
@@ -379,7 +379,7 @@
 
     &__meta-label,
     &__panel-header span {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 600;
         color: var(--caomei-color-text-muted);
     }

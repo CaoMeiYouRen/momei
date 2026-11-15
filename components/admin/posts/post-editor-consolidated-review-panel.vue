@@ -313,13 +313,13 @@ const perspectiveTypeLabel = (type: PerspectiveCheckItem['type']) => {
     &__loading {
         padding: 1rem;
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__error {
         padding: 0.75rem;
         margin-bottom: 0.5rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-danger);
         background: var(--m-surface-100);
     }
@@ -361,7 +361,7 @@ const perspectiveTypeLabel = (type: PerspectiveCheckItem['type']) => {
     }
 
     &__message {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         line-height: 1.5;
         color: var(--caomei-color-text);
     }
@@ -403,7 +403,7 @@ const perspectiveTypeLabel = (type: PerspectiveCheckItem['type']) => {
     }
 
     &__message {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         line-height: 1.5;
         color: var(--caomei-color-text);
         margin-bottom: 0.5rem;

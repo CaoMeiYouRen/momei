@@ -365,7 +365,7 @@ watch(compareTarget, () => {
     &__empty-icon {
         display: block;
         margin-bottom: 1rem;
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
     }
 
     &__empty-text {
@@ -396,7 +396,7 @@ watch(compareTarget, () => {
     &__selected-title {
         max-width: 300px;
         margin: 0;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 700;
 
         @include text-ellipsis;
@@ -410,7 +410,7 @@ watch(compareTarget, () => {
 
     &__compare-label {
         font-weight: 500;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__compare-select {
@@ -582,7 +582,7 @@ watch(compareTarget, () => {
 
     &__summary {
         margin-bottom: 0.65rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         line-height: 1.5;
         color: var(--caomei-color-text);
     }

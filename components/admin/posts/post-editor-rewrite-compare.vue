@@ -144,7 +144,7 @@ const styleLabel = computed(() => {
 
         pre {
             margin: 0;
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
             line-height: 1.6;
                         white-space: pre-wrap;
                         overflow-wrap: anywhere;

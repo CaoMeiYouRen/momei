@@ -314,7 +314,7 @@ function handleConfirm() {
             font-size: 0.8125rem;
 
             :deep(.caomei-button__icon) {
-                font-size: 0.75rem;
+                font-size: var(--m-font-size-xs);
                 margin-right: 0.25rem;
             }
         }
@@ -349,7 +349,7 @@ function handleConfirm() {
 
 .tts-manuscript {
     font-family: var(--font-family, sans-serif);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     line-height: 1.6;
     background: var(--surface-50);
 }
@@ -362,14 +362,14 @@ function handleConfirm() {
     &__label {
         margin-left: 0.5rem;
         cursor: pointer;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--surface-700);
     }
 
     &__hint {
         margin-left: 0.375rem;
         color: var(--surface-500);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 }
 
@@ -387,7 +387,7 @@ function handleConfirm() {
     }
 
     &__label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--primary-700);
     }
 
@@ -395,13 +395,13 @@ function handleConfirm() {
         display: flex;
         align-items: baseline;
         gap: 0.5rem;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         color: var(--primary-900);
     }
 
     &__amount {
         font-weight: 700;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         line-height: 1;
         font-family: var(--font-family-monospace, monospace);
     }
@@ -414,13 +414,13 @@ function handleConfirm() {
     }
 
     &__currency {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         opacity: 0.9;
     }
 
     &__code {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 500;
         color: var(--text-color-secondary);
         opacity: 0.8;
@@ -482,7 +482,7 @@ function handleConfirm() {
 
     &__icon {
         color: var(--primary-600);
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         flex-shrink: 0;
     }
 

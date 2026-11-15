@@ -27,7 +27,7 @@
 
 **排程与移出顺序**: `3 → 2 → 1 → 6 → 5 → 4`；超时按 `4 → 6 → 1` 移出。
 
-- [ ] **1. 字号归一第一批（P2）**: 首批取 `components/admin/posts` 的前 ≤10 个文件（按 inventory JSON 声明数降序；目录内 72 处声明，筛口径内字面量），完成后滚动至 `components/admin/settings`（35 处声明）；同时产出 150 条非字阶取值的归一评估报告（只评估、不改值）；目录声明数随条目 3 删除面板后须复算。
+- [x] **1. 字号归一第一批（P2）**: 首批取 `components/admin/posts` 的前 ≤10 个文件（按 inventory JSON 声明数降序；目录内 72 处声明，筛口径内字面量），完成后滚动至 `components/admin/settings`（35 处声明）；同时产出 150 条非字阶取值的归一评估报告（只评估、不改值）；目录声明数随条目 3 删除面板后须复算。
     - **验收标准**: 逐元素 `getComputedStyle` 的 `font-size` / `line-height` 零差异；`test:visual` 32/32、parity 83/83 未归因差异 0；`inventory-font-sizes` 口径内待替换数按批次下降；评估报告落 `docs/design/governance/`。
     - **非目标**: 不动 scss 变量与已 token 化项；不一次性替换全仓；不改视觉设计与 `--m-font-size-*` 定义。
     - **验证 / 证据**: V0 + V1 + V2 + RG；V3 由 parity / visual / 逐元素对账覆盖，差异不可归因时补 `@ui-validator` 探针；对账输出与 visual/parity 结果写入 `artifacts/review-gate/`。
