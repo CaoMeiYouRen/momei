@@ -20,22 +20,23 @@
             :ai-loading="aiLoading"
             :title-suggestions="titleSuggestions"
             :review-suggestions="reviewSuggestions"
-            :review-panel-visible="reviewPanelVisible"
             :perspective-results="perspectiveResults"
-            :perspective-panel-visible="perspectivePanelVisible"
             :perspective-mode="perspectiveMode"
+            :consolidated-panel-visible="consolidatedPanelVisible"
+            :consolidated-tab="consolidatedTab"
+            :consolidated-failed-sections="consolidatedFailedSections"
             @suggest-titles="suggestTitles"
             @select-title="selectTitle"
             @handle-translation="(lang) => handleTranslationClick(lang)"
             @translate-content="(lang) => openTranslationWorkflow(lang)"
             @rewrite-content="(style) => rewriteContent(style)"
-            @review-content="reviewContent"
-            @perspective-check="(mode) => perspectiveCheck(mode)"
+            @consolidated-review="consolidatedReview"
+            @perspective-check="(mode) => perspectiveCheck(mode, {showPanel: false})"
             @continue-content="continueContent"
             @expand-content="expandContent"
             @condense-content="condenseContent"
-            @update:review-panel-visible="reviewPanelVisible = $event"
-            @update:perspective-panel-visible="perspectivePanelVisible = $event"
+            @update:consolidated-panel-visible="consolidatedPanelVisible = $event"
+            @update:consolidated-tab="consolidatedTab = $event"
             @preview="handlePreview"
             @save="savePost"
             @open-settings="settingsVisible = true"
@@ -230,14 +231,14 @@ const {
     cancelRewrite,
     rewriteCompareData,
     rewriteCompareVisible,
-    reviewContent,
     reviewSuggestions,
-    reviewPanelVisible,
-    lastReviewAt,
     perspectiveCheck,
     perspectiveResults,
-    perspectivePanelVisible,
     perspectiveMode,
+    consolidatedReview,
+    consolidatedPanelVisible,
+    consolidatedTab,
+    consolidatedFailedSections,
     continueContent,
     expandContent,
     condenseContent,

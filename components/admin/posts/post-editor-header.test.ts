@@ -102,10 +102,11 @@ describe('PostEditorHeader', () => {
         aiLoading: {},
         titleSuggestions: [],
         reviewSuggestions: [],
-        reviewPanelVisible: false,
         perspectiveResults: [],
-        perspectivePanelVisible: false,
         perspectiveMode: 'editor' as PerspectiveMode,
+        consolidatedPanelVisible: false,
+        consolidatedTab: 'review' as const,
+        consolidatedFailedSections: [],
     }
 
     const mountHeader = (props = defaultProps) => mountSuspended(PostEditorHeader, {
@@ -116,6 +117,14 @@ describe('PostEditorHeader', () => {
             },
             stubs,
         },
+    })
+
+    it('点击 AI 审校按钮派出合并审校事件', async () => {
+        const wrapper = await mountHeader()
+
+        await wrapper.find('#ai-review-btn').trigger('click')
+
+        expect(wrapper.emitted('consolidated-review')).toEqual([[]])
     })
 
     it('renders title input correctly', async () => {

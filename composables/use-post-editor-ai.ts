@@ -4,7 +4,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { useToast } from 'caomei-ui'
 import { useI18n } from 'vue-i18n'
 import type { PostEditorData } from '@/types/post-editor'
-import type { AIReviewSuggestion, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
+import type { AIReviewSuggestion, ConsolidatedReviewTab, RewriteCompareData, PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
 
 const MIN_TASK_POLLING_INTERVAL = 10000
 
@@ -573,10 +573,16 @@ export function usePostEditorAI(
         })
     }
 
+    // --- 审校合并面板状态（供旧入口清理失败分段，故提前声明） ---
+    const consolidatedPanelVisible = ref(false)
+    const consolidatedTab = ref<ConsolidatedReviewTab>('review')
+    const consolidatedFailedSections = ref<ConsolidatedReviewTab[]>([])
+
     // --- 审查：缓存 + 去重 ---
     const reviewSuggestions = ref<AIReviewSuggestion[]>([])
     const reviewPanelVisible = ref(false)
     const lastReviewHash = ref('')
+    const lastReviewCompleted = ref(false)
     const lastReviewAt = ref<number | null>(null)
 
     /** 计算内容的简单哈希，用于判断是否变化 */
@@ -601,10 +607,11 @@ export function usePostEditorAI(
             return
         }
 
-        const currentHash = contentHash(post.value.content)
+        // 缓存键含 language：切换正文语言后必须重新审查
+        const currentHash = contentHash(post.value.content + post.value.language)
 
-        // 内容未变化且已有缓存 → 直接打开面板
-        if (currentHash === lastReviewHash.value && reviewSuggestions.value.length > 0) {
+        // 内容未变化且已完成过一轮 → 直接打开面板（零结果同样参与缓存）
+        if (currentHash === lastReviewHash.value && lastReviewCompleted.value) {
             reviewPanelVisible.value = true
             toast.show({
                 tone: 'primary',
@@ -628,7 +635,9 @@ export function usePostEditorAI(
 
             reviewSuggestions.value = data || []
             lastReviewHash.value = currentHash
+            lastReviewCompleted.value = true
             lastReviewAt.value = Date.now()
+            consolidatedFailedSections.value = consolidatedFailedSections.value.filter((section) => section !== 'review')
             reviewPanelVisible.value = true
 
             if (data.length === 0) {
@@ -657,8 +666,9 @@ export function usePostEditorAI(
     const perspectivePanelVisible = ref(false)
     const perspectiveMode = ref<PerspectiveMode>('editor')
     const lastPerspectiveHash = ref('')
+    const lastPerspectiveCompleted = ref(false)
 
-    const perspectiveCheck = async (mode: PerspectiveMode = 'editor') => {
+    const perspectiveCheck = async (mode: PerspectiveMode = 'editor', options: { showPanel?: boolean } = {}) => {
         if (!post.value.content || post.value.content.trim().length < 10) {
             toast.show({
                 tone: 'warning',
@@ -669,12 +679,20 @@ export function usePostEditorAI(
             return
         }
 
-        const currentHash = contentHash(post.value.content + mode)
+        // 缓存键含 language 与 mode：任一变化都必须重新检查
+        const currentHash = contentHash(`${post.value.content}|${post.value.language}|${mode}`)
 
-        // 内容未变化且已有缓存 → 直接打开面板
-        if (currentHash === lastPerspectiveHash.value && perspectiveResults.value.length > 0) {
+        // 视角切换在途时忽略重复点击，避免旧响应覆盖新模式
+        if (aiLoading.value.perspective) {
+            return
+        }
+
+        // 内容未变化且已完成过一轮 → 直接打开面板（零结果同样参与缓存）
+        if (currentHash === lastPerspectiveHash.value && lastPerspectiveCompleted.value) {
             perspectiveMode.value = mode
-            perspectivePanelVisible.value = true
+            if (options.showPanel !== false) {
+                perspectivePanelVisible.value = true
+            }
             toast.show({
                 tone: 'primary',
                 title: t('common.info'),
@@ -698,7 +716,11 @@ export function usePostEditorAI(
 
             perspectiveResults.value = data || []
             lastPerspectiveHash.value = currentHash
-            perspectivePanelVisible.value = true
+            lastPerspectiveCompleted.value = true
+            consolidatedFailedSections.value = consolidatedFailedSections.value.filter((section) => section !== 'perspective')
+            if (options.showPanel !== false) {
+                perspectivePanelVisible.value = true
+            }
 
             if (data.length === 0) {
                 toast.show({
@@ -718,6 +740,134 @@ export function usePostEditorAI(
             })
         } finally {
             aiLoading.value.perspective = false
+        }
+    }
+
+    // --- AI 审校合并：一次入口并行执行审查 + 编辑视角检查 ---
+    /**
+     * 合并审校入口：并行调用 /api/ai/review 与 /api/ai/perspective-check（编辑视角），
+     * 结果统一交给 `PostEditorConsolidatedReviewPanel`。服务端 API 仍保持关注点分离。
+     * 约定：两处缓存命中时直接开面板；部分失败降级为 warning 并在面板内提示；双失败不新开面板。
+     */
+    const consolidatedReview = async () => {
+        if (!post.value.content || post.value.content.trim().length < 10) {
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.content_too_short'),
+                duration: 3000,
+            })
+            return
+        }
+
+        // 并发抑制：同一轮审校未结束时忽略重复点击
+        if (aiLoading.value.review || aiLoading.value.perspective) {
+            return
+        }
+
+        const reviewHash = contentHash(post.value.content + post.value.language)
+        const perspectiveHash = contentHash(`${post.value.content}|${post.value.language}|editor`)
+        const needReview = !(reviewHash === lastReviewHash.value && lastReviewCompleted.value)
+        const needPerspective = !(perspectiveHash === lastPerspectiveHash.value && lastPerspectiveCompleted.value)
+
+        perspectiveMode.value = 'editor'
+        consolidatedTab.value = 'review'
+        consolidatedFailedSections.value = []
+
+        if (!needReview && !needPerspective) {
+            consolidatedPanelVisible.value = true
+            toast.show({
+                tone: 'primary',
+                title: t('common.info'),
+                description: t('pages.admin.posts.ai.review_cached'),
+                duration: 2000,
+            })
+            return
+        }
+
+        aiLoading.value.review = needReview
+        aiLoading.value.perspective = needPerspective
+
+        const [reviewResult, perspectiveResult] = await Promise.allSettled([
+            needReview
+                ? $fetch<ReviewResponse>('/api/ai/review', {
+                    method: 'POST',
+                    body: {
+                        content: post.value.content,
+                        language: post.value.language,
+                    },
+                })
+                : Promise.resolve(null),
+            needPerspective
+                ? $fetch<{ data: PerspectiveCheckItem[] }>('/api/ai/perspective-check', {
+                    method: 'POST',
+                    body: {
+                        content: post.value.content,
+                        mode: 'editor',
+                        language: post.value.language,
+                    },
+                })
+                : Promise.resolve(null),
+        ])
+
+        const failed: ConsolidatedReviewTab[] = []
+
+        if (needReview) {
+            if (reviewResult.status === 'fulfilled' && reviewResult.value) {
+                reviewSuggestions.value = reviewResult.value.data || []
+                lastReviewHash.value = reviewHash
+                lastReviewCompleted.value = true
+                lastReviewAt.value = Date.now()
+            } else {
+                console.error('AI consolidated review error:', reviewResult.status === 'rejected' ? reviewResult.reason : reviewResult)
+                failed.push('review')
+            }
+            aiLoading.value.review = false
+        }
+
+        if (needPerspective) {
+            if (perspectiveResult.status === 'fulfilled' && perspectiveResult.value) {
+                perspectiveResults.value = perspectiveResult.value.data || []
+                lastPerspectiveHash.value = perspectiveHash
+                lastPerspectiveCompleted.value = true
+            } else {
+                console.error('AI consolidated perspective error:', perspectiveResult.status === 'rejected' ? perspectiveResult.reason : perspectiveResult)
+                failed.push('perspective')
+            }
+            aiLoading.value.perspective = false
+        }
+
+        consolidatedFailedSections.value = failed
+
+        if (failed.length === 2) {
+            toast.show({
+                tone: 'danger',
+                title: t('common.error'),
+                description: t('pages.admin.posts.ai_error'),
+                duration: 3000,
+            })
+            return
+        }
+
+        consolidatedPanelVisible.value = true
+
+        if (failed.length === 1) {
+            toast.show({
+                tone: 'warning',
+                title: t('common.warn'),
+                description: t('pages.admin.posts.ai.consolidated_partial_failure'),
+                duration: 3000,
+            })
+            return
+        }
+
+        if (reviewSuggestions.value.length === 0 && perspectiveResults.value.length === 0) {
+            toast.show({
+                tone: 'success',
+                title: t('pages.admin.posts.ai.consolidated_clean'),
+                description: t('pages.admin.posts.ai.consolidated_clean_desc'),
+                duration: 3000,
+            })
         }
     }
 
@@ -933,6 +1083,10 @@ export function usePostEditorAI(
         perspectiveResults,
         perspectivePanelVisible,
         perspectiveMode,
+        consolidatedReview,
+        consolidatedPanelVisible,
+        consolidatedTab,
+        consolidatedFailedSections,
         continueContent,
         expandContent,
         condenseContent,

@@ -464,3 +464,7 @@ export interface PerspectiveCheckItem {
     suggestion: string
     reason: string
 }
+
+// --- Consolidated Review (AI 审校合并面板) ---
+/** 合并面板的 Tab：问题修正 / 视角建议 */
+export type ConsolidatedReviewTab = 'review' | 'perspective'

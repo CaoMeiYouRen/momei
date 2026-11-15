@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:ui:consolidated-review:2026-11-15 -->
+## 2026-11-15 编辑器 AI 审校合并（Phase C）
+
+- 执行入口: 第七十六阶段条目 3；单按钮并行调用 `/api/ai/review` + `/api/ai/perspective-check`
+- 证据 artifact: `artifacts/review-gate/2026-11-15-consolidated-review.md` / `artifacts/review-gate/2026-11-15-consolidated-review-v3.json`
+- 结果摘要: `Pass`；新面板 `PostEditorConsolidatedReviewPanel` 双 Tab（问题修正 / 视角建议）+ editor/reader 切换；旧两个侧面板零引用但保留至验收（回滚边界）。
+- 已执行验证: 相关 4 套件 79 例通过；V3 浏览器探针 6/6（并行调用、Tab 计数、视角结果、读者视角刷新、关闭）；`typecheck` 0、定向 `eslint` / `stylelint` 0、`i18n:check-sync` / `audit:missing` 通过、`pnpm build` 成功。
+- 回归窗口: 缓存键纳入 `language` + mode，零结果也参与缓存；部分失败降级 warning 并在面板内提示，重试成功清除失败分段；双失败不新开面板。
+- Review Gate: 见证据文件；生产改动集中在编排 / 面板 / 入口 3 个文件，i18n 五语 + 测试同批。
+- 未覆盖边界: 旧面板组件的删除、单段 retry 按钮、移动端视觉回归；真实 AI 配额与延迟未测（接口由探针伪造）。
+<!-- regression-window:end:ui:consolidated-review:2026-11-15 -->
+
 <!-- regression-window:start:coverage:batch17:2026-11-15 -->
 ## 2026-11-15 覆盖率第十七批（脚本四模块）
 

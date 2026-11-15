@@ -35,7 +35,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；解析器单测与 CLI 导入冒烟。
     - **回滚边界**: 新增文件与 `--format` 分支独立回滚。
 
-- [ ] **3. 编辑器工具栏 Phase C — AI 审校合并（P2）**
+- [x] **3. 编辑器工具栏 Phase C — AI 审校合并（P2）**
     - **执行范围**: 新建 `PostEditorConsolidatedReviewPanel`（双 Tab + editor/reader 切换），前端编排 `/api/ai/review` 与 `/api/ai/perspective-check`，替换现有两个侧面板；保留服务端 API 关注点分离；必要时补 `usePostEditorAI` 并发抑制或按 kill-switch 退回顺序调用。
     - **非目标**: 不合并服务端 API；不改 MavonEditor 工具栏 / 编辑器布局 / AI 计费；不新增 Provider。
     - **验收标准**: 单按钮触发两次调用并统一展示；两 Tab 与旧面板等价；失败 / 部分失败可读降级；组件测试与 E2E 冒烟通过。

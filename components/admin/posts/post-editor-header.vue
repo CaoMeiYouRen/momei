@@ -289,17 +289,16 @@
             </AppTooltip>
         </div>
 
-        <PostEditorReviewPanel
-            :visible="reviewPanelVisible"
-            :suggestions="reviewSuggestions"
-            @close="emit('update:review-panel-visible', false)"
-        />
-        <PostEditorPerspectivePanel
-            :visible="perspectivePanelVisible"
-            :results="perspectiveResults"
+        <PostEditorConsolidatedReviewPanel
+            :visible="consolidatedPanelVisible"
+            :active-tab="consolidatedTab"
+            :review-suggestions="reviewSuggestions"
+            :perspective-results="perspectiveResults"
             :mode="perspectiveMode"
-            :style="reviewPanelVisible && perspectivePanelVisible ? 'right: 26rem' : undefined"
-            @close="emit('update:perspective-panel-visible', false)"
+            :loading="{review: Boolean(aiLoading.review), perspective: Boolean(aiLoading.perspective)}"
+            :failed-sections="consolidatedFailedSections"
+            @close="emit('update:consolidated-panel-visible', false)"
+            @update:active-tab="(tab) => emit('update:consolidated-tab', tab)"
             @switch-mode="(mode) => emit('perspective-check', mode)"
         />
     </div>
@@ -327,9 +326,8 @@ import { useAnchoredPopover } from '@/composables/use-anchored-popover'
 import { formatMarkdown } from '@/utils/shared/markdown-formatter'
 import { severityToTone } from '@/utils/shared/ui-tone'
 import { POST_EDITOR_REWRITE_STYLES as rewriteStyles } from './post-editor-rewrite-styles'
-import PostEditorReviewPanel from '@/components/admin/posts/post-editor-review-panel.vue'
-import PostEditorPerspectivePanel from '@/components/admin/posts/post-editor-perspective-panel.vue'
-import type { PerspectiveMode, PerspectiveCheckItem } from '@/types/ai'
+import PostEditorConsolidatedReviewPanel from '@/components/admin/posts/post-editor-consolidated-review-panel.vue'
+import type { AIReviewSuggestion, ConsolidatedReviewTab, PerspectiveCheckItem, PerspectiveMode } from '@/types/ai'
 import type { DropdownMenuModelItem } from 'caomei-ui'
 
 const post = defineModel<any>('post', { required: true })
@@ -360,11 +358,12 @@ const props = defineProps<{
     hasUnsavedContent: boolean
     aiLoading: any
     titleSuggestions: string[]
-    reviewSuggestions: any[]
-    reviewPanelVisible: boolean
+    reviewSuggestions: AIReviewSuggestion[]
     perspectiveResults: PerspectiveCheckItem[]
-    perspectivePanelVisible: boolean
     perspectiveMode: PerspectiveMode
+    consolidatedPanelVisible: boolean
+    consolidatedTab: ConsolidatedReviewTab
+    consolidatedFailedSections: ConsolidatedReviewTab[]
 }>()
 
 const emit = defineEmits<{
@@ -377,13 +376,13 @@ const emit = defineEmits<{
     (e: 'open-history'): void
     (e: 'translate-content', lang: string | null): void
     (e: 'rewrite-content', style: string): void
-    (e: 'review-content'): void
+    (e: 'consolidated-review'): void
     (e: 'perspective-check', mode: PerspectiveMode): void
+    (e: 'update:consolidated-panel-visible', visible: boolean): void
+    (e: 'update:consolidated-tab', tab: ConsolidatedReviewTab): void
     (e: 'continue-content', style: string): void
     (e: 'expand-content', style: string): void
     (e: 'condense-content', style: string): void
-    (e: 'update:review-panel-visible', visible: boolean): void
-    (e: 'update:perspective-panel-visible', visible: boolean): void
 }>()
 
 const localePath = useLocalePath()
@@ -502,12 +501,11 @@ const handleRewriteSelect = (style: string) => {
 }
 
 /**
- * Handle AI 审校 click: triggers both review + perspective check (editor mode).
- * Both panels remain accessible; calls are parallel.
+ * AI 审校 click: 合并入口。由 usePostEditorAI.consolidatedReview 并行调用
+ * /api/ai/review 与 /api/ai/perspective-check，结果进入合并侧面板。
  */
 const handleReviewClick = () => {
-    emit('review-content')
-    emit('perspective-check', 'editor')
+    emit('consolidated-review')
 }
 
 const distributionButtonRef = ref<{ openDialog?: () => Promise<void> } | null>(null)
