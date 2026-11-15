@@ -39,7 +39,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + V3；浏览器探针与响应时间对比写入 `artifacts/review-gate/`。
     - **回滚边界**: 中间件判定、SSR 种子与兜底移除同批 revert。**kill-switch**: SSR 增幅 >10% 且无法在不新增查询下消除时，退回客户端种子并把残余 mismatch 登记 backlog。
 
-- [ ] **3. 零引用面板清理与组件扫描守卫（P3）**: 删除 `post-editor-review-panel.vue`（212 行）与 `post-editor-perspective-panel.vue`（257 行），新增 `scripts/governance/find-unused-components.mjs` 与 `pnpm governance:audit:unused-components` 报告型入口（allowlist）与假阳性单测。
+- [x] **3. 零引用面板清理与组件扫描守卫（P3）**: 删除 `post-editor-review-panel.vue`（212 行）与 `post-editor-perspective-panel.vue`（257 行），新增 `scripts/governance/find-unused-components.mjs` 与 `pnpm governance:audit:unused-components` 报告型入口（allowlist）与假阳性单测。
     - **验收标准**: 删除后 `build` / `typecheck` / 编辑器定向测试通过；脚本在当前 HEAD 输出 0 未登记项；单测含动态解析等负向用例。
     - **非目标**: 不清理第三方组件；不把脚本升为阻断门禁；不改编辑器 AI 能力与两个 AI API。
     - **验证 / 证据**: V0 + V1 + RG；删除前后引用计数与脚本输出落盘。

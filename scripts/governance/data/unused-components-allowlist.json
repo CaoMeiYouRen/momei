@@ -1,0 +1,8 @@
+{
+    "entries": [
+        {
+            "component": "components/admin/posts/post-editor-voice-overlay.vue",
+            "reason": "零引用（2026-11-15 第七十七阶段扫描发现，caomei-ui 迁移残留语音浮层）；删除涉及语音输入交互与 i18n 键回收，按回滚边界另案处理，登记前不得删。"
+        }
+    ]
+}

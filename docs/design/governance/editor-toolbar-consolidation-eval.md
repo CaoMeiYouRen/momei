@@ -255,6 +255,8 @@ AI 写作 ▼
 | `components/admin/posts/post-editor-perspective-panel.vue` | 保留或标记废弃 |
 | `pages/admin/posts/[id].vue` | 替换面板组件引用 |
 
+> 执行结果（第七十七阶段条目 3）：两个旧面板已于 2026-11-15 删除（全仓零引用），零引用组件扫描由 `pnpm governance:audit:unused-components` 承接（报告模式 + allowlist）。
+
 ---
 
 ## 7. 验收标准
