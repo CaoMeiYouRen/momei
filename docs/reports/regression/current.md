@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:security:overlay-guard-regex:2026-11-15 -->
+## 2026-11-15 浮层守卫剥离逻辑与 Code Scanning 告警
+
+- 执行入口: 第七十六阶段条目 6；`tests/modules/overlay-family-residual-guard.test.ts`
+- 证据 artifact: `artifacts/review-gate/2026-11-15-overlay-family-residual-guard.md`
+- 结果摘要: `Pass`；4 条 Code Scanning warning（`js/bad-tag-filter` ×1、`js/incomplete-multi-character-sanitization` ×3）已随 CodeQL 重扫关闭（`state=open` 为 0）。
+- 已执行验证: 定向 13 例通过（大写/嵌套/标签边界/注释变体/未闭合保留/glob 通配符/近似闭合/组合）；`eslint` 0、`typecheck` 0；CodeQL run `43662876468` success。
+- 回归窗口: 剥离逻辑改为手写扫描（大小写不敏感、嵌套配对、标签边界），未闭合时**保留剩余内容**避免吞掉后半文件；`accept="image/*"` 不再被误判为块注释；既有守卫断言未改动。
+- Review Gate: Round 1 Reject（未闭合分支截断导致 6 个真实文件漏扫）→ 修复 → Round 2 Pass。
+- 未覆盖边界: `<scr<script></script>ipt>` 单遍剥离仍可拼回 token（旧实现同源，未列入本批）；已由负向用例锁定主要绕过面。
+<!-- regression-window:end:security:overlay-guard-regex:2026-11-15 -->
+
 <!-- regression-window:start:decision:homepage-swr:2026-11-15 -->
 ## 2026-11-15 首页 SWR / i18n cookie 决策
 

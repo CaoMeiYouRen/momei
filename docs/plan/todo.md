@@ -56,7 +56,7 @@
     - **验证矩阵 / 证据落点**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
     - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
 
-- [ ] **6. 浮层守卫正则清理（P3）**
+- [x] **6. 浮层守卫正则清理（P3）**
     - **执行范围**: 修复 `tests/modules/overlay-family-residual-guard.test.ts` 的 `stripNonTemplateBlocks` / `stripComments`（大小写不敏感、不可被嵌套输入绕过），或按 Code Scanning 策略登记 `used in tests` false-positive，关闭 4 条 open warning。
     - **非目标**: 不改守卫覆盖范围与组件清单；不引入 HTML sanitizer 依赖。
     - **验收标准**: 4 条告警关闭或按策略登记；守卫对 `<SCRIPT>` / 嵌套片段仍判红；定向测试通过。

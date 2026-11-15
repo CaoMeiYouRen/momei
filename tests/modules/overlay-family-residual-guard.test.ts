@@ -310,10 +310,11 @@ describe('守卫自身：剥离逻辑的嵌套与大小写边界', () => {
         expect(result).toContain('<Dialog />')
     })
 
-    it('近似闭合标签不被误判为闭合（</scriptx> 保留原文）', () => {
-        const source = '<template><Menu /></template></scriptx><Dialog />'
+    it('近似闭合标签不被误判为闭合（</scriptx> 不结束 script 块）', () => {
+        const source = '<script>1</scriptx><Dialog /></script><template><Menu /></template>'
 
-        expect(stripNonTemplateBlocks(source)).toContain('<Dialog />')
+        // 若把 </scriptx> 当作闭合，<Dialog /> 会残留在模板区；正确实现应一路剥到 </script>
+        expect(stripNonTemplateBlocks(source)).toBe('<template><Menu /></template>')
     })
 
     it('未闭合的 HTML 注释保留后续模板内容', () => {
