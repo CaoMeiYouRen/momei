@@ -21,12 +21,36 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第七十五阶段共 6 个近线归档块。
+- 主文档当前保留第七十至第七十六阶段共 7 个近线归档块。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第七十六阶段：内容与编辑体验收口、首页缓存决策与质量基线（已审计归档）
+
+> 归档说明: 第七十六阶段 6 条条目已于 2026-11-15 完成并归档（同日立项与收口）；阶段规划正文见 [roadmap 分片](./archive/roadmap-phases-76.md)。
+
+- [x] **1. 设置表单 AI Image Fallback 4 项（P2）**
+    - **完成摘要**: `SETTING_ENV_MAP` 补 `AI_IMAGE_FALLBACK_PROVIDER/API_KEY/MODEL/ENDPOINT` 并导出 `getSettingEnvKeys`；`.env.full.example` 补 4 条示例（注明留空继承全局 `AI_FALLBACK_*`）；`ai-settings.vue` 在 AI 图像组内补 provider + api_key/model/endpoint（`v-if` 跟随 provider、锁定态只读）；五语补 4 键。V3 浏览器 2/2（渲染顺序/联动、保存后回显与 key 掩码、env 注入四项 disabled）。提交 `188d30a2`，Review Gate Round 2 Pass。
+
+- [x] **2. JekyllParser 适配器（P2）**
+    - **完成摘要**: 新增 `packages/cli/src/jekyll-parser.ts`（YAML front-matter，单数键 `tag`/`category` 优先、复数键空白拆分、`YYYY-MM-DD-` 文件名日期按 UTC 推导、`published:false` → draft）；`import-command` 增 `--format jekyll` 分支并导出 `getParser`，帮助文本与 README（中英）同步。CLI 全量 140 例、`--format=jekyll` 冒烟与 `--help` 通过。提交 `3c02f149`，Round 2 Pass。
+
+- [x] **3. 编辑器工具栏 Phase C — AI 审校合并（P2）**
+    - **完成摘要**: 新增 `PostEditorConsolidatedReviewPanel`（问题修正/视角建议双 Tab + editor/reader，`inert`/`aria-pressed`）；`usePostEditorAI.consolidatedReview` 单入口并行 `/api/ai/review` + `/api/ai/perspective-check`（`Promise.allSettled`），缓存键含 language、零结果参与缓存、部分失败降级、重试清失败分段；header/页面切换到合并面板，旧面板保留未删。相关 4 套件 84 例、V3 探针 6/6。提交 `ede17ef7`，Round 3 Pass。
+
+- [x] **4. 首页 SWR / i18n cookie 决策与最小实现（P2）**
+    - **完成摘要**: 线上探针确认 `/` 每次写 `i18n_redirected`、无 `cache-control`、`cf-cache-status: DYNAMIC`；`/robots.txt` 为 `HIT`（`age: 95`），边缘可用但被 `Set-Cookie` 阻断。选定 ① 保持现状 + 边缘兜底（零代码改动），②/③ 转 backlog #18；决策文档含证据表、取舍与可复跑探针。提交 `f18da5ae`，Round 2 Pass。
+
+- [x] **5. 覆盖率第十七批（P2）**
+    - **完成摘要**: 四脚本模块补测（audit-duplicate 50→288/291、check-governance 108→351/352、inventory 16→230/231、capture 39→226/229），新增 4 个测试文件 155 例；干净全量 statements 31,597/38,076 = **82.98%** → 32,484/38,103 = **85.25%**（+887 条 / 分母 +27 / +2.27pp）。提交 `8019de79`，Round 3 Pass。
+
+- [x] **6. 浮层守卫正则清理（P3）**
+    - **完成摘要**: `stripNonTemplateBlocks`/`stripComments` 改为手写扫描（大小写不敏感、嵌套配对、标签边界、未闭合保留剩余内容），`accept="image/*"` 不再误判块注释；新增 9 条负向自检（定向 13 例）。4 条 Code Scanning 告警 fixed、open=0。提交 `9ba3f200` + `66ad22ad`，Round 2 Pass。
+
+- **阶段收口**: 收口门禁结果见回归窗口 `periodic-regression:phase-close:2026-11-15`。
 
 ## 第七十五阶段：依赖与静态规则收口、运行时基线升级与治理口径统一（已审计归档）
 

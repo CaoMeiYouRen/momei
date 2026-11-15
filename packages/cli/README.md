@@ -89,6 +89,8 @@ momei import ./hexo-blog/source/_posts \
 momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
 ```
 
+Jekyll 字段映射：单数键 `tag` / `category` 优先（整串为单值），复数键 `tags` / `categories` 的字符串形式按空白拆分，`categories` 在墨梅单分类模型下取拆分首项；`date` 缺失时从文件名 `YYYY-MM-DD-` 前缀（UTC）补齐，`published: false` 判为草稿，`last_modified_at` 映射更新时间。
+
 如果同时提供 `--api-key`，`dry-run` 会调用 `POST /api/external/posts/validate`，输出结构化的路径别名校验报告，而不仅仅是本地解析结果。
 
 ## 命令二：治理旧链接

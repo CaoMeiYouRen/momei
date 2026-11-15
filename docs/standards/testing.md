@@ -365,6 +365,9 @@ pnpm run test:coverage
 | 第二实例配置单一来源 | 多个 Playwright 配置共用同一第二实例时，env / command / baseURL 必须抽到单一模块；副本漏一个 `DATABASE_SYNCHRONIZE` 就会让另一层复用实例时失败。 |
 | 管理端列表点击偶发丢失 | 全量 coverage 并发下 `pages/admin/posts/index.test.ts` 的 `onPageMock` 与 `pages/admin/users/index.test.ts` 的 `confirmRequireMock` 各出现过一次「点击后 0 次调用」，孤立运行 100% 通过；先按环境抖动处理（定向复跑 / CI 复跑），不据此改实现；同一用例复现 ≥2 次即按缺陷排查并撤销本行。 |
 | 本机 E2E 端口被占用 | E2E 与视觉层共用 `E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`（默认 `127.0.0.1` / 3001 / 3002）；非 loopback 主机、非法端口或两端口相同会直接抛错，CI 未设置这些变量时保持默认值。 |
+| WSL 端口被宿主占用 | WSL2 下 Windows 侧常驻进程可能占用 3001（WSL 内 `ss` 看不到、`curl` 返回 404），Playwright webServer 会 `EADDRINUSE`；本机改用 `E2E_PORT` / `E2E_INSTALLATION_PORT` 覆盖，CI 保持默认。 |
+| `.mjs` 脚本覆盖率口径 | 子进程式 CLI 测试不计入 v8 覆盖；脚本内部逻辑必须 `export`（或加带默认值的依赖注入参数）并由同进程测试直接调用，否则「CLI 全绿」不等于有覆盖率。测试文件 / 用例总数可用 `pnpm exec vitest list` / `--filesOnly` 取得，无需为计数重跑全量。 |
+| 设置页 E2E 的交互前提 | 设置页需等 `#__nuxt.__vue_app__` 水合后再点击 `CaomeiSwitch`，否则点击被静默丢弃（`aria-checked` 不变）；API key 保存后按 `key` 掩码回显（前 4 后 4），断言应匹配掩码形态而非明文。 |
 | firefox 导航级 flake | `page.goto: <unknown error>` 且服务端无 5xx 属导航层抖动（`/admin/ad/placements` 已复现）；先 `gh run rerun --failed` 复验，不得据此回退业务代码；同一路由连续 2 次复现即升级排查。 |
 | E2E 并行冷启动 | 4 worker 并行冷启动会被默认布局 SSE 与外部头像请求卡住 `networkidle`；CI 单 worker 正常，并行抖动不得判为迁移回归。 |
 

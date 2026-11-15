@@ -90,6 +90,8 @@ momei import ./hexo-blog/source/_posts \
 momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
 ```
 
+Jekyll mapping: singular `tag` / `category` win as single values; plural `tags` / `categories` strings split on whitespace, and `categories` keeps the first entry for Momei's single-category model; a missing `date` falls back to the `YYYY-MM-DD-` filename prefix (UTC), `published: false` maps to draft, and `last_modified_at` maps to the updated time.
+
 ## Command 2: Govern Legacy Links
 
 `govern-links` scans Hexo files, builds mapping seeds, and calls the Momei migration link governance API in either `dry-run` or `apply` mode.
