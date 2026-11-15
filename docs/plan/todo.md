@@ -51,7 +51,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；修复脚本输出与抽样清单落盘。
     - **回滚边界**: 三批目录独立 revert，门禁改动单独提交位。
 
-- [ ] **5. 覆盖率第十八批（P2）**: 取 `packages/cli/src/import-command.ts`（137 / 145）、`components/admin/admin-taxonomy-page.vue`（111 / 284）、`scripts/security/security-alert-gate-shared.mjs`（98 / 263）、`packages/mcp-server/src/lib/api.ts`（73 / 73），目标同源 `+0.3pp`（约 115 条）或模块级 `+15pp / ≥85%`。
+- [x] **5. 覆盖率第十八批（P2）**: 取 `packages/cli/src/import-command.ts`（137 / 145）、`components/admin/admin-taxonomy-page.vue`（111 / 284）、`scripts/security/security-alert-gate-shared.mjs`（98 / 263）、`packages/mcp-server/src/lib/api.ts`（73 / 73），目标同源 `+0.3pp`（约 115 条）或模块级 `+15pp / ≥85%`。
     - **验收标准**: 干净全量跑（移 `.vitest-cache` / `.vitest-cache-coverage` + `--maxWorkers=4`）基线 / 收口 delta 落 `artifacts/coverage/`；定向测试通过；flaky 归因。
     - **非目标**: 不测模板分支凑数；不重构 `admin-taxonomy-page.vue`；不新增测试依赖。
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
