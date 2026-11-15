@@ -73,10 +73,12 @@ function setRouteSessionState(session: AuthSession, state = useRouteSessionState
 
 function hasFreshRouteSession(maxAgeMs: number) {
     const state = useRouteSessionState()
+    const ageMs = Date.now() - state.timestamp.value
 
     return state.resolved.value
         && state.version.value === getAuthSessionCacheBustVersion()
-        && (Date.now() - state.timestamp.value) < maxAgeMs
+        // 客户端时钟偏慢时 ageMs 会为负；此时种子只可能刚由 SSR 写入，按新鲜处理。
+        && (ageMs < 0 || ageMs < maxAgeMs)
 }
 
 function seedSessionAtom(session: AuthSession) {
@@ -140,6 +142,24 @@ async function fetchRouteSession() {
 
 export function useAuthSession() {
     return authClient.useSession()
+}
+
+/**
+ * 会话的 SSR/CSR 同源快照。
+ *
+ * 服务端由 `plugins/auth-session.server.ts` 从中间件解析结果种入，客户端由
+ * `primeHydratedAuthSession()` 与 `setupAuthSessionLifecycle()` 持续同步；相比直接读
+ * Better-Auth 客户端 atom，这里的取值在 SSR 首帧就可用，页面组件因此不需要 `ClientOnly` 兜底。
+ * 需要「会话变更后立即重渲染」的最小粒度页面优先使用本入口；仍依赖原子 pending 语义的分支
+ * （例如页头加载占位）继续使用 `useAuthSession()`。
+ */
+export function useAuthRouteSession() {
+    const state = useRouteSessionState()
+
+    return computed(() => ({
+        data: state.data.value,
+        isPending: !state.resolved.value,
+    }))
 }
 
 export function primeHydratedAuthSession() {

@@ -49,19 +49,25 @@ vi.mock('@/server/utils/logger', () => ({
     },
 }))
 
-import authMiddleware, { shouldResolveSession } from '@/server/middleware/1-auth'
+import authMiddleware, { createAuthSessionMiddleware, isCacheSharedRouteRules, isHtmlPageRequest, shouldResolveSession, shouldResolveSessionForRequest } from '@/server/middleware/1-auth'
 
-function createEvent(path: string, cookieHeader?: string) {
-    const headers = cookieHeader ? { cookie: cookieHeader } : {}
+function createEvent(path: string, cookieHeader?: string, extraHeaders?: Record<string, string>) {
+    const headers = { ...(cookieHeader ? { cookie: cookieHeader } : {}), ...extraHeaders }
+    const responseHeaders = new Map<string, string>()
 
     return {
         path,
+        method: 'GET',
         headers,
         node: {
             req: { headers },
-            res: {},
+            res: {
+                getHeader: (name: string) => responseHeaders.get(name.toLowerCase()),
+                setHeader: (name: string, value: string) => responseHeaders.set(name.toLowerCase(), String(value)),
+            },
         },
         context: {},
+        responseHeaders,
     } as any
 }
 
@@ -79,6 +85,101 @@ describe('auth optional session middleware', () => {
         expect(shouldResolveSession('/api/settings/public', 'better-auth.session_token=test')).toBe(false)
         expect(shouldResolveSession('/', 'better-auth.session_token=test')).toBe(false)
         expect(shouldResolveSession('/posts', 'better-auth.session_token=test')).toBe(false)
+    })
+
+    it('resolves page navigations that carry a session cookie', () => {
+        expect(shouldResolveSession('/settings', 'better-auth.session_token=test', { isHtmlPageRequest: true })).toBe(true)
+        expect(shouldResolveSession('/posts/hello', 'session=abc', { isHtmlPageRequest: true })).toBe(true)
+        expect(shouldResolveSession('/settings', 'better-auth.session_token=test')).toBe(false)
+        expect(shouldResolveSession('/settings', 'theme=dark', { isHtmlPageRequest: true })).toBe(false)
+        expect(shouldResolveSession('/settings', undefined, { isHtmlPageRequest: true })).toBe(false)
+        expect(shouldResolveSession('/api/settings/public', 'better-auth.session_token=test', { isHtmlPageRequest: true })).toBe(false)
+    })
+
+    it('only treats GET + text/html + non-api paths as page navigations', () => {
+        expect(isHtmlPageRequest({ accept: 'text/html,application/xhtml+xml', method: 'GET', pathname: '/settings' })).toBe(true)
+        expect(isHtmlPageRequest({ accept: 'text/html', method: 'POST', pathname: '/settings' })).toBe(false)
+        expect(isHtmlPageRequest({ accept: 'text/html', method: 'GET', pathname: '/api/posts' })).toBe(false)
+        expect(isHtmlPageRequest({ accept: 'text/html', method: 'GET', pathname: '/_nuxt/app.js' })).toBe(false)
+        expect(isHtmlPageRequest({ accept: 'application/json', method: 'GET', pathname: '/settings' })).toBe(false)
+        expect(isHtmlPageRequest({ method: 'GET', pathname: '/settings' })).toBe(false)
+    })
+
+    it('hydrates page navigations and marks the session as resolved', async () => {
+        const event = createEvent('/settings', 'better-auth.session_token=test', { accept: 'text/html' })
+
+        await authMiddleware(event)
+
+        expect(getSession).toHaveBeenCalledTimes(1)
+        expect(event.context.authSessionResolved).toBe(true)
+        expect(event.context.user).toMatchObject({ id: 'user-1' })
+    })
+
+    it('skips session resolution on cache-shared pages', () => {
+        const base = { cookieHeader: 'better-auth.session_token=test', isPageRequest: true, pathname: '/posts/hello' }
+
+        expect(shouldResolveSessionForRequest({ ...base, routeRules: { swr: 3600 } })).toBe(false)
+        expect(shouldResolveSessionForRequest({ ...base, routeRules: { isr: 600 } })).toBe(false)
+        expect(shouldResolveSessionForRequest({ ...base, routeRules: {} })).toBe(true)
+        expect(shouldResolveSessionForRequest({ ...base, pathname: '/settings', routeRules: {} })).toBe(true)
+    })
+
+    it('recognises cache-shared route rules', () => {
+        expect(isCacheSharedRouteRules({ swr: 3600 })).toBe(true)
+        expect(isCacheSharedRouteRules({ isr: 600 })).toBe(true)
+        expect(isCacheSharedRouteRules({ cache: { maxAge: 60 } })).toBe(true)
+        expect(isCacheSharedRouteRules({ prerender: true })).toBe(true)
+        expect(isCacheSharedRouteRules({ headers: { 'x-foo': '1' } } as never)).toBe(false)
+        expect(isCacheSharedRouteRules(null)).toBe(false)
+    })
+
+    it('skips session resolution for cache-shared page navigations at the handler level', async () => {
+        const middleware = createAuthSessionMiddleware(() => ({ swr: 3600 }))
+        const event = createEvent('/posts/hello', 'better-auth.session_token=test', { accept: 'text/html' })
+
+        await middleware(event)
+
+        expect(getSession).not.toHaveBeenCalled()
+        expect(event.context.authSessionResolved).toBeUndefined()
+        expect(event.context.auth).toBeUndefined()
+    })
+
+    it('still resolves sessions on non-cached pages when rules are empty', async () => {
+        const middleware = createAuthSessionMiddleware(() => ({}))
+        const event = createEvent('/settings', 'better-auth.session_token=test', { accept: 'text/html' })
+
+        await middleware(event)
+
+        expect(getSession).toHaveBeenCalledTimes(1)
+        expect(event.responseHeaders.get('cache-control')).toBe('private, no-store')
+        expect(event.responseHeaders.get('vary')).toContain('cookie')
+    })
+
+    it('does not mark api responses as private pages', async () => {
+        const event = createEvent('/api/posts', 'better-auth.session_token=test', { accept: 'text/html' })
+
+        await authMiddleware(event)
+
+        expect(getSession).toHaveBeenCalledTimes(1)
+        expect(event.responseHeaders.get('cache-control')).toBeUndefined()
+        expect(event.responseHeaders.get('vary')).toBeUndefined()
+    })
+
+    it('treats bare /api as an api path, not a page', async () => {
+        const event = createEvent('/api', 'better-auth.session_token=test', { accept: 'text/html' })
+
+        await authMiddleware(event)
+
+        expect(getSession).not.toHaveBeenCalled()
+    })
+
+    it('skips page navigations without an html accept header', async () => {
+        const event = createEvent('/settings', 'better-auth.session_token=test', { accept: 'application/json' })
+
+        await authMiddleware(event)
+
+        expect(getSession).not.toHaveBeenCalled()
+        expect(event.context.authSessionResolved).toBeUndefined()
     })
 
     it('should skip database and session lookup for non-target routes', async () => {

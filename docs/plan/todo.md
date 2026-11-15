@@ -33,7 +33,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；V3 由 parity / visual / 逐元素对账覆盖，差异不可归因时补 `@ui-validator` 探针；对账输出与 visual/parity 结果写入 `artifacts/review-gate/`。
     - **回滚边界**: 按目录批次独立 revert。
 
-- [ ] **2. 认证会话 SSR/CSR 单一来源（P2）**: 扩展 `server/middleware/1-auth.ts` 到「带会话 cookie 的页面 GET」，SSR 把会话种入 `auth:route-session:*`；移除 `components/settings/settings-profile.vue` 的 `ClientOnly` 与占位，并加「会话驱动型 `ClientOnly` 不得扩散」守卫。
+- [x] **2. 认证会话 SSR/CSR 单一来源（P2）**: 扩展 `server/middleware/1-auth.ts` 到「带会话 cookie 的页面 GET」，SSR 把会话种入 `auth:route-session:*`；移除 `components/settings/settings-profile.vue` 的 `ClientOnly` 与占位，并加「会话驱动型 `ClientOnly` 不得扩散」守卫。
     - **验收标准**: `/settings` SSR 首帧含头像 / 昵称 / 角色；无 hydration mismatch，切页签不触发 `insertBefore`；会话驱动型 `ClientOnly` 为 0 且被守卫锁定；同机同构建已登录页面 SSR 响应时间增幅 ≤10%。
     - **非目标**: 不改 Better-Auth 与登录 / 注销 / 刷新语义；不改头像上传；不新增每请求 session 查询；不动非会话原因的 `ClientOnly`。
     - **验证 / 证据**: V0 + V1 + V2 + V3；浏览器探针与响应时间对比写入 `artifacts/review-gate/`。

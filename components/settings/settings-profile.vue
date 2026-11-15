@@ -7,23 +7,17 @@
             <div class="settings-form__field">
                 <label>{{ $t("pages.settings.profile.avatar") }}</label>
                 <div class="avatar-section">
-                    <!-- 头像 URL 依赖异步哈希 / 会话数据，SSR 与客户端首帧不一致；Reka 的
-                         `AvatarImage` / `AvatarFallback` 在带 hydration mismatch 的 patch 中会触发
-                         `insertBefore` 运行时错误（切换设置页签时复现）。此处仅该子树延迟到客户端渲染。 -->
-                    <ClientOnly>
-                        <AppAvatar
-                            :image="profileForm.image"
-                            :email="session?.data?.user?.email"
-                            :name="profileForm.name"
-                            size="xlarge"
-                            shape="circle"
-                            class="avatar-preview"
-                        />
-                        <template #fallback>
-                            <!-- 占位与头像同为 64px，避免水合后插入头像把上传按钮横向顶开（CLS）。 -->
-                            <span class="avatar-preview avatar-preview--placeholder" aria-hidden="true" />
-                        </template>
-                    </ClientOnly>
+                    <!-- 会话已在 SSR 由中间件解析并种入 `auth:route-session:*`，头像 / 昵称首帧即与
+                         客户端同源；此处不再需要 `ClientOnly` 兜底（曾因 SSR 缺失会话触发 Reka
+                         `insertBefore` 报错）。 -->
+                    <AppAvatar
+                        :image="profileForm.image"
+                        :email="session?.data?.user?.email"
+                        :name="profileForm.name"
+                        size="xlarge"
+                        shape="circle"
+                        class="avatar-preview"
+                    />
                     <div class="avatar-upload">
                         <CaomeiFileUpload
                             mode="basic"
@@ -84,14 +78,14 @@
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
 import { z } from 'zod'
-import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
+import { invalidateAuthSessionState, refreshAuthSession, useAuthRouteSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 
 const { t, locales, setLocale } = useI18n()
 const toast = useToast()
 const loading = ref(false)
 
-const session = authClient.useSession()
+const session = useAuthRouteSession()
 const profileForm = ref({
     name: '',
     image: '',
@@ -216,15 +210,6 @@ const handleUpdateProfile = async () => {
 
     .avatar-preview {
         flex-shrink: 0;
-    }
-
-    /* 水合前的占位与 64px 头像同尺寸，避免插入时把上传按钮横向顶开（CLS）。 */
-    .avatar-preview--placeholder {
-        display: inline-block;
-        width: 64px;
-        height: 64px;
-        border-radius: 999px;
-        background: var(--m-surface-100);
     }
 }
 </style>

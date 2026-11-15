@@ -1,0 +1,68 @@
+{
+    "note": "每个 <ClientOnly> 的登记表：file + ord（文件内出现序号）+ tag 必须与源码一致；category 只允许 browser-api / cache-isolation / client-only-lib / client-storage，session 类目一律判红。",
+    "entries": [
+        {
+            "file": "components/admin/marketing-campaign-form.vue",
+            "ord": 1,
+            "tag": "AdminMavonEditorClient",
+            "category": "client-only-lib",
+            "reason": "Mavon 编辑器依赖浏览器 DOM 与动态样式注入，SSR 无法渲染同一 DOM 结构。"
+        },
+        {
+            "file": "components/admin/settings/agreement-edit-dialog.vue",
+            "ord": 1,
+            "tag": "AdminMavonEditorClient",
+            "category": "client-only-lib",
+            "reason": "同上：Mavon 编辑器只在客户端可用。"
+        },
+        {
+            "file": "components/admin/settings/theme-config-section.vue",
+            "ord": 1,
+            "tag": "CaomeiTabs",
+            "category": "client-only-lib",
+            "reason": "Reka Tabs 的激活态依赖客户端挂载顺序，SSR 首帧会错位；迁移期遗留兜底，与会话无关。"
+        },
+        {
+            "file": "components/app-header.vue",
+            "ord": 1,
+            "tag": "AppNotifications",
+            "category": "cache-isolation",
+            "reason": "页头在 `/`（SWR 1h）、`/posts/:id`（ISR 10min）等共享缓存路由上被复用；SSR 渲染登录态内容会把某用户的 HTML 写给其他人，只能客户端渲染。"
+        },
+        {
+            "file": "components/app-header.vue",
+            "ord": 2,
+            "tag": "AppTooltip",
+            "category": "client-storage",
+            "reason": "主题模式来自客户端持久化状态（localStorage / color-mode），SSR 无法得知首帧明暗，图标与 tooltip 文案只在客户端确定。"
+        },
+        {
+            "file": "components/app-header.vue",
+            "ord": 3,
+            "tag": "template",
+            "category": "cache-isolation",
+            "reason": "登录 / 用户菜单依赖会话，页头位于共享缓存路由，理由同上（缓存隔离，不是会话不可用）。"
+        },
+        {
+            "file": "components/app-voice-input-trigger.vue",
+            "ord": 1,
+            "tag": "template",
+            "category": "browser-api",
+            "reason": "语音输入依赖 MediaRecorder 能力探测，服务端没有该 API。"
+        },
+        {
+            "file": "layouts/default.vue",
+            "ord": 1,
+            "tag": "template",
+            "category": "client-only-lib",
+            "reason": "CanvasNestEffect / Live2dWidget 直接操作 canvas 与 window，只能在客户端挂载。"
+        },
+        {
+            "file": "pages/admin/posts/[id].vue",
+            "ord": 1,
+            "tag": "AdminMavonEditorClient",
+            "category": "client-only-lib",
+            "reason": "Mavon 编辑器只在客户端可用。"
+        }
+    ]
+}

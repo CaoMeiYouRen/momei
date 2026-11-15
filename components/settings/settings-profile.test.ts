@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import SettingsProfile from './settings-profile.vue'
 import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
@@ -27,6 +27,8 @@ const { mockInvalidateAuthSessionState, mockRefreshAuthSession, mockUpdateUser, 
 vi.mock('@/composables/use-auth-session', () => ({
     invalidateAuthSessionState: mockInvalidateAuthSessionState,
     refreshAuthSession: mockRefreshAuthSession,
+    // 会话 SSR 同源快照：测试内与 atom 会话共用同一个 mock 数据源。
+    useAuthRouteSession: () => computed(() => ({ data: mockSession.value?.data ?? null, isPending: false })),
 }))
 
 vi.mock('@/lib/auth-client', () => ({

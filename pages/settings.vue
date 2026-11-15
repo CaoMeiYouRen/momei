@@ -75,14 +75,14 @@
 
 <script setup lang="ts">
 import { Bell, DollarSign, KeyRound, Lock, User } from '@lucide/vue'
-import { authClient } from '@/lib/auth-client'
+import { useAuthRouteSession } from '@/composables/use-auth-session'
 import { isAdminOrAuthor } from '@/utils/shared/roles'
 
 definePageMeta({
     middleware: 'auth',
 })
 
-const session = authClient.useSession()
+const session = useAuthRouteSession()
 const route = useRoute()
 const canViewCommercial = computed(() => {
     return isAdminOrAuthor(session.value?.data?.user?.role)

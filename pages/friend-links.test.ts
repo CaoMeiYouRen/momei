@@ -187,6 +187,11 @@ vi.mock('@/lib/auth-client', () => ({
     },
 }))
 
+// 页面改用 SSR 同源会话快照后，会话来源统一由该 mock 提供（与 atom mock 共用同一 ref）。
+vi.mock('@/composables/use-auth-session', () => ({
+    useAuthRouteSession: () => mockSession,
+}))
+
 const stubs = {
     CaomeiCard: { template: '<section class="card"><slot /></section>' },
     CaomeiTag: { template: '<span class="tag" :data-tone="tone"><slot /></span>', props: ['tone'] },

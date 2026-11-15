@@ -154,69 +154,67 @@
                     {{ $t('pages.enhanced_pack.cta_form.description') }}
                 </p>
 
-                <ClientOnly>
-                    <form class="cta-form" @submit.prevent="handleSubmit">
-                        <div class="cta-form__field">
-                            <label class="cta-form__label" for="benefits-name">
-                                {{ $t('pages.enhanced_pack.cta_form.name_label') }}
-                            </label>
-                            <input
-                                id="benefits-name"
-                                v-model="form.name"
-                                type="text"
-                                class="cta-form__input"
-                                :placeholder="$t('pages.enhanced_pack.cta_form.name_placeholder')"
-                                required
-                                :disabled="isSubmitting"
-                            >
-                        </div>
-
-                        <div class="cta-form__field">
-                            <label class="cta-form__label" for="benefits-email">
-                                {{ $t('pages.enhanced_pack.cta_form.email_label') }}
-                            </label>
-                            <input
-                                id="benefits-email"
-                                v-model="form.email"
-                                type="email"
-                                class="cta-form__input"
-                                :placeholder="$t('pages.enhanced_pack.cta_form.email_placeholder')"
-                                required
-                                :disabled="isSubmitting"
-                            >
-                        </div>
-
-                        <p
-                            v-if="submitError"
-                            class="cta-form__message cta-form__message--error"
-                        >
-                            {{ submitError }}
-                        </p>
-
-                        <p
-                            v-if="submitSuccess"
-                            class="cta-form__message cta-form__message--success"
-                        >
-                            {{ $t('pages.enhanced_pack.cta_form.success') }}
-                        </p>
-
-                        <button
-                            v-if="!submitSuccess"
-                            type="submit"
-                            class="cta-form__btn"
+                <form class="cta-form" @submit.prevent="handleSubmit">
+                    <div class="cta-form__field">
+                        <label class="cta-form__label" for="benefits-name">
+                            {{ $t('pages.enhanced_pack.cta_form.name_label') }}
+                        </label>
+                        <input
+                            id="benefits-name"
+                            v-model="form.name"
+                            type="text"
+                            class="cta-form__input"
+                            :placeholder="$t('pages.enhanced_pack.cta_form.name_placeholder')"
+                            required
                             :disabled="isSubmitting"
                         >
-                            {{ isSubmitting
-                                ? $t('common.submitting')
-                                : $t('pages.enhanced_pack.cta_form.submit')
-                            }}
-                        </button>
+                    </div>
 
-                        <p class="cta-form__privacy">
-                            {{ $t('pages.enhanced_pack.cta_form.privacy_note') }}
-                        </p>
-                    </form>
-                </ClientOnly>
+                    <div class="cta-form__field">
+                        <label class="cta-form__label" for="benefits-email">
+                            {{ $t('pages.enhanced_pack.cta_form.email_label') }}
+                        </label>
+                        <input
+                            id="benefits-email"
+                            v-model="form.email"
+                            type="email"
+                            class="cta-form__input"
+                            :placeholder="$t('pages.enhanced_pack.cta_form.email_placeholder')"
+                            required
+                            :disabled="isSubmitting"
+                        >
+                    </div>
+
+                    <p
+                        v-if="submitError"
+                        class="cta-form__message cta-form__message--error"
+                    >
+                        {{ submitError }}
+                    </p>
+
+                    <p
+                        v-if="submitSuccess"
+                        class="cta-form__message cta-form__message--success"
+                    >
+                        {{ $t('pages.enhanced_pack.cta_form.success') }}
+                    </p>
+
+                    <button
+                        v-if="!submitSuccess"
+                        type="submit"
+                        class="cta-form__btn"
+                        :disabled="isSubmitting"
+                    >
+                        {{ isSubmitting
+                            ? $t('common.submitting')
+                            : $t('pages.enhanced_pack.cta_form.submit')
+                        }}
+                    </button>
+
+                    <p class="cta-form__privacy">
+                        {{ $t('pages.enhanced_pack.cta_form.privacy_note') }}
+                    </p>
+                </form>
             </div>
         </section>
 
@@ -232,13 +230,13 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { Box, Check, Languages, Minus, Send } from '@lucide/vue'
-import { authClient } from '@/lib/auth-client'
+import { useAuthRouteSession } from '@/composables/use-auth-session'
 import { rawIcon } from '@/utils/shared/brand-icons'
 
 const { t, tm, rt, locale } = useI18n()
 const localePath = useLocalePath()
 
-const session = authClient.useSession()
+const session = useAuthRouteSession()
 const loggedInUser = computed(() => session.value?.data?.user)
 
 interface FreeCoreItem {
@@ -290,6 +288,8 @@ usePageSeo({
     image: '/logo.png',
 })
 
+// 首帧由下方 immediate watcher 从同一份 SSR 会话种子填充：服务端 setup 与客户端 setup
+// 走同一条路径，因此不需要 `ClientOnly` 也不会产生 hydration 差异。
 const form = ref({
     name: '',
     email: '',

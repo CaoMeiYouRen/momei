@@ -95,6 +95,7 @@ import {
     refreshAuthSession,
     resolveRouteAuthSession,
     setupAuthSessionLifecycle,
+    useAuthRouteSession,
 } from './use-auth-session'
 
 describe('useAuthSession', () => {
@@ -287,5 +288,46 @@ describe('useAuthSession', () => {
             'Failed to refresh auth session on visibility change',
             expect.objectContaining({ message: 'refresh failed' }),
         )
+    })
+})
+
+describe('useAuthRouteSession', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        cacheBustVersion = 0
+        liveSession.value = {
+            data: null,
+            error: null,
+            isPending: true,
+            isRefetching: false,
+            refetch: createRefetchMock(),
+        }
+        invalidateAuthSessionState({ broadcast: false })
+    })
+
+    it('未解析时视为 pending 且无数据', () => {
+        const session = useAuthRouteSession()
+
+        expect(session.value.data).toBeNull()
+        expect(session.value.isPending).toBe(true)
+    })
+
+    it('解析后透传会话并结束 pending', async () => {
+        await resolveRouteAuthSession()
+
+        const session = useAuthRouteSession()
+
+        expect(session.value.data).toEqual(fetchedSession)
+        expect(session.value.isPending).toBe(false)
+    })
+
+    it('会话失效后回落到 pending', async () => {
+        await resolveRouteAuthSession()
+        const session = useAuthRouteSession()
+
+        invalidateAuthSessionState({ broadcast: false })
+
+        expect(session.value.data).toBeNull()
+        expect(session.value.isPending).toBe(true)
     })
 })

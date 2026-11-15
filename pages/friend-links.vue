@@ -138,29 +138,20 @@
                             </div>
                             <div class="links-page__field">
                                 <label for="logo">{{ tt('components.friend_links.fields.logo') }}</label>
-                                <ClientOnly>
-                                    <AppUploader
-                                        v-if="canUploadLogo"
-                                        id="logo"
-                                        v-model="form.logo"
-                                        :type="UploadType.IMAGE"
-                                        accept="image/*"
-                                        :placeholder="tt('pages.links.form.logo_upload_placeholder')"
-                                    />
-                                    <CaomeiInput
-                                        v-else
-                                        id="logo"
-                                        v-model="form.logo"
-                                        :placeholder="tt('pages.links.form.logo_placeholder')"
-                                    />
-                                    <template #fallback>
-                                        <CaomeiInput
-                                            id="logo"
-                                            v-model="form.logo"
-                                            :placeholder="tt('pages.links.form.logo_placeholder')"
-                                        />
-                                    </template>
-                                </ClientOnly>
+                                <AppUploader
+                                    v-if="canUploadLogo"
+                                    id="logo"
+                                    v-model="form.logo"
+                                    :type="UploadType.IMAGE"
+                                    accept="image/*"
+                                    :placeholder="tt('pages.links.form.logo_upload_placeholder')"
+                                />
+                                <CaomeiInput
+                                    v-else
+                                    id="logo"
+                                    v-model="form.logo"
+                                    :placeholder="tt('pages.links.form.logo_placeholder')"
+                                />
                                 <small class="links-page__field-hint">
                                     {{ canUploadLogo ? tt('pages.links.form.logo_upload_hint') : tt('pages.links.form.logo_hint') }}
                                 </small>
@@ -281,7 +272,7 @@
 
 <script setup lang="ts">
 import { useToast } from 'caomei-ui'
-import { authClient } from '@/lib/auth-client'
+import { useAuthRouteSession } from '@/composables/use-auth-session'
 import { UploadType } from '@/composables/use-upload'
 import { friendLinkApplicationSchema } from '@/utils/schemas/friend-link'
 import type { FeedItem } from '@/types/friend-link'
@@ -290,7 +281,7 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const config = useRuntimeConfig()
 const tt = (key: string) => t(key as never)
-const session = authClient.useSession()
+const session = useAuthRouteSession()
 const user = computed(() => session.value?.data?.user || null)
 const canUploadLogo = computed(() => Boolean(user.value))
 
