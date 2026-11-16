@@ -10,10 +10,10 @@
 
 ## 2. 当前基线（2026-11-16）
 
-- `roadmap.md`: `297` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十七阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-77.md`，主窗口仅保留阶段摘要表与最近阶段归档结论）。
-- `todo-archive.md`: `292` 行（脚本口径），健康窗口（主窗口保留第七十至第七十七阶段共 8 个近线归档块；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
-- `backlog.md`: `263` 行（脚本口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 短期候选；#1 覆盖率基线已更新为第十七批收口 85.34%，第十八批已上收第七十七阶段）。
-- `docs/reports/regression/current.md`: `87` 行 / 7 条，处于健康窗口（仅保留近线窗口；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
+- `roadmap.md`: `335` 行（脚本 `docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十七阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-77.md`，主窗口仅保留阶段摘要表、最近阶段归档结论与第七十八阶段规划正文）。
+- `todo-archive.md`: `293` 行（脚本口径），健康窗口（主窗口保留第七十至第七十七阶段共 8 个近线归档块；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
+- `backlog.md`: `264` 行（脚本口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 短期候选；#1 覆盖率基线已更新为第七十七阶段收口 85.6%，第十九批已上收第七十八阶段）。
+- `docs/reports/regression/current.md`: `88` 行 / 7 条，处于健康窗口（仅保留近线窗口；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
 
 ## 3. 阈值定义
 
