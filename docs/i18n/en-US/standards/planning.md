@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-12
+last_sync: 2026-11-16
 translation_tier: summary-sync
 ---
 
@@ -73,7 +73,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 ### 3.3 Admission Criteria
 
 -   **Score \> 1.5**: High priority for the current or next Phase.
--   **1.0 \< Score \<= 1.5**: Enters the `Backlog`, allocated based on remaining resources.
+-   **1.0 \< Score \<= 1.5**: Enters the `Backlog`, allocated based on remaining resources; when the user explicitly confirms it on the same candidate page, it may enter a phase under control, but the phase text must flag the band, keep a kill-switch and state the reason.
 -   **Score <= 1.0**: Unless it is a security fix (Hotfix), it should be canceled or shelved indefinitely.
 
 ### 3.4 Mid-Iteration Triage

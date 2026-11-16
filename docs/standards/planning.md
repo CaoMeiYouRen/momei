@@ -64,7 +64,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 ### 3.3 准入基准 (Decision Rules)
 
 -   **Score \> 1.5**: 优先进入当前或下一阶段 Phase。
--   **1.0 \< Score \<= 1.5**: 进入 `Backlog` (待办项)，视剩余资源情况分配。
+-   **1.0 \< Score \<= 1.5**: 进入 `Backlog` (待办项)，视剩余资源情况分配；经用户在同一候选页明确确认时可受控纳入阶段，但必须在阶段文本中标注该档位、保留 kill-switch 并说明纳入理由。
 -   **Score <= 1.0**: 除非是安全性修复 (Hotfix)，否则应予以取消或长期搁置。
 
 ### 3.4 迭代中途新增事项的快速分流 (Mid-Iteration Triage)
