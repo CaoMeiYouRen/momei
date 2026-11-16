@@ -147,7 +147,7 @@
 
 ## 第二十四阶段：质量守线与回归执行深化 (已审计归档)
 
-> 审计结论: 第二十四阶段围绕测试覆盖率与红绿测试有效性深化、ESLint / 类型债分批收紧、重复代码与纯函数复用收敛，以及阶段级回归任务执行与收口证据链复盘四条主线，已在实现代码、定向测试、规划文档与阶段收口 artifact 中完成闭环，满足归档条件。正式放行依据为 [2026-04-08-phase-close-regression.md](./../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 的 `Pass` 结论；`docs:check:source-of-truth` 中英文翻译时效告警仍按当前 pre-release 非阻断 warning 口径留作后续治理，不影响本阶段归档。
+> 审计结论: 第二十四阶段围绕测试覆盖率与红绿测试有效性深化、ESLint / 类型债分批收紧、重复代码与纯函数复用收敛，以及阶段级回归任务执行与收口证据链复盘四条主线，已在实现代码、定向测试、规划文档与阶段收口 artifact 中完成闭环，满足归档条件。正式放行依据为 `artifacts/review-gate/2026-04-08-phase-close-regression.md` 的 `Pass` 结论；`docs:check:source-of-truth` 中英文翻译时效告警仍按当前 pre-release 非阻断 warning 口径留作后续治理，不影响本阶段归档。
 
 > **ROI 评估**: 测试覆盖率与红绿测试有效性治理 2.00；ESLint / 类型债分批收紧 1.50；重复代码与纯函数复用收敛 1.40；阶段级回归任务执行与证据链复盘 2.00。四项均已按本阶段准入边界完成收口，其中阶段级回归任务执行与证据链复盘已在收口复跑中转绿。
 
@@ -178,4 +178,4 @@
     - 验收: 完成一次带明确 timeout budget 的阶段级回归任务，而不是只停留在规范层面的固定入口定义。
     - 验收: 至少覆盖 coverage、lint / typecheck、重复代码、文档一致性与 Review Gate 结论，并统一沉淀到 `docs/reports/regression/current.md`。
     - 验收: 若发现 blocker，明确回灌当前阶段待办；若未发现 blocker，也要记录未覆盖边界与下一次补跑条件。
-    - 结果: 已完成真实 `phase-close` 执行、活动日志滚动归档、严格性能预算口径修复与收口复跑；[2026-04-08-phase-close-regression.md](./../../artifacts/review-gate/2026-04-08-phase-close-regression.md) 最终给出 `Pass`，正式放行归档。
+    - 结果: 已完成真实 `phase-close` 执行、活动日志滚动归档、严格性能预算口径修复与收口复跑；`artifacts/review-gate/2026-04-08-phase-close-regression.md` 最终给出 `Pass`，正式放行归档。

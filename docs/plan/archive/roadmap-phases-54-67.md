@@ -18,7 +18,7 @@
     - **执行范围**: 补齐两个包缺失的接口（CLI +3, MCP +4），统一 API 方法覆盖。CLI 新增：`listPosts()`、`updatePost()`、`deletePost()`；MCP 新增：`validateImportPost()`、`dryRunLinkGovernance()`、`applyLinkGovernance()`、`getLinkGovernanceReport()`。
     - **非目标**: 不提取共享包（留到后续阶段）、不新增外部接口。
     - **最小验收**: 两个包 API 方法覆盖率达到 100%；`pnpm typecheck` + `pnpm lint` 通过。
-    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../../design/governance/cli-mcp-api-client-reuse.md)
 
 2. **主线：结构复用治理深水区 — 文件整合 + 逻辑重复排查（P1）**:
     - **执行范围**:
@@ -45,7 +45,7 @@
 
 **审计结论**: 第五十四阶段五条主线已在实现代码、测试、脚本与规划文档中完成闭环。CLI/MCP API 客户端复用优化已完成阶段一（CLI +3, MCP +4 接口）；结构复用治理深水区已完成单函数文件整合（类型守卫、杂项函数）与逻辑重复检测脚本，逻辑重复收敛待下一阶段继续；ESLint/类型债治理已完成规则债 inventory 脚本与 3 组窄切片（types/marketing.ts、server/api/categories/slug/[slug].get.ts、server/api/snippets/index.post.ts）；测试有效性第二轮切片已完成 6 个新增失败路径断言（TTS 4 个、settings 1 个、friend-link 1 个）；脚本治理已完成升格评估（eslint-debt 升格到 regression:weekly）与 comment-drift 误报修复（URL scheme 过滤器）。typecheck + lint 通过，Code Auditor 审计问题已修复并提交。`todo.md` 已清理、`todo-archive.md` 阶段归档块将在本阶段收口时补入。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第五十五阶段：AI 降级与接口扩展（AI Fallback & API Expansion）（已审计归档）
 
@@ -60,7 +60,7 @@
     - **执行范围**: 基于 Phase 54 阶段一已完成的接口补齐，新增高优先级外部接口：分类管理（`GET/POST/PUT/DELETE /api/external/categories`）、标签管理（`GET/POST/PUT/DELETE /api/external/tags`）、灵感管理（`GET/POST/PUT/DELETE /api/external/snippets`）、灵感转文章（`POST /api/external/snippets/[id]/convert`）、文章版本（`GET/POST /api/external/posts/[id]/versions`）。CLI 和 MCP 包同步实现对应客户端方法。
     - **非目标**: 不暴露管理后台全部接口，只暴露适合外部集成的子集。
     - **最小验收**: 新增 ≥15 个外部接口；所有接口有 Zod schema 验证；CLI 和 MCP 包方法覆盖率达到 100%；接口文档更新；`pnpm typecheck` + `pnpm lint` 通过。
-    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../design/governance/cli-mcp-api-client-reuse.md)
+    - **详细方案**: [CLI 与 MCP 包 API 客户端代码复用优化方案](../../design/governance/cli-mcp-api-client-reuse.md)
 
 2. **主线：AI 功能备用路线与自动降级（P1）**:
     - **执行范围**: 实现 backlog #12 中 P1 项：文本生成备用路线（主提供商失败 → 自动切换备用）和图片生成备用路线（主提供商失败 → 自动切换备用）。新增 `SettingKey.AI_FALLBACK_PROVIDER` 配置项（按类别：text/image），修改 `getAIProvider` 函数支持 fallback 链，实现重试逻辑，记录降级日志。
@@ -84,7 +84,7 @@
 
 **审计结论**: 第五十五阶段五条主线已在实现代码、测试、治理脚本与规划文档中完成闭环。CLI/MCP 阶段二已完成 4 组外部 REST 接口 + 灵感转文章 + 文章版本接口，CLI +15, MCP +16；AI 降级已完成 fallback 链透明切换机制；结构复用逻辑重复收敛已完成 2 组抽象切片（taxonomy-post-count 子查询构建器、post-distribution-wechatsync 泛型 mergeByKey），duplicate-code 基线 0.33% < 1.22%；ESLint/类型债已完成 3 组窄切片（累计消除 22 处 any/non-null-assertion），同步更新 eslint-debt-targets.mjs；测试有效性第三轮已完成 7 个新增失败路径断言，覆盖 3 个模块（AI 编辑器、friend-links、admin settings）。typecheck + lint 通过，Code Auditor 审计问题已修复并提交。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第五十六阶段：API 客户端统一与 CLI 导出（API Client Unification & CLI Export）（已审计归档）
 
@@ -93,11 +93,11 @@
 
 **审计结论**: 第五十六阶段五条主线已在实现代码、测试、治理脚本与规划文档中完成闭环。共享 API 客户端库已完成 `packages/api-client` 包创建、统一 HTTP 客户端（`MomeiHttpClient` + `MomeiApiError`）、7 领域模块迁移、CLI/MCP 两包改造、axios 依赖移除，新增 29 测试；CLI 导出命令已完成 `momei export` 完整实现（Markdown/JSON + Hexo Front-matter + 过滤参数）；ESLint/类型债已完成 3 组窄切片（`submission.ts`、`settings.vue`、`commercial-link-manager.vue`），同步更新 `eslint-debt-targets.mjs`；结构复用治理已完成 2 组热点切片（`prepareSplitContent` + `parseTranslateBody`），duplicate-code 基数 0.30% < 基线；测试有效性第四轮已完成 6 个新增错误路径断言（401/400/404/500），覆盖 2 个模块（translate + tts-task-get）。typecheck 通过，Code Auditor 审计问题已修复并提交。todo.md 已清理、todo-archive.md 已收录本阶段归档块。
 
-> 详细条目见 [待办归档](./todo-archive.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档](../todo-archive.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第五十七阶段：迁移体验增强与治理续航（Migration UX Enhancement & Governance Continuity）（已审计归档）
 
-> 第五十七阶段已完成归档，详细记录见 [待办归档](./todo-archive.md#第五十二至第五十七阶段-已归档)。结构复用主线因容量限制延期至第五十八阶段。
+> 第五十七阶段已完成归档，详细记录见 [待办归档](../todo-archive.md)。结构复用主线因容量限制延期至第五十八阶段。
 
 ### 第五十八阶段：HTTP MCP 与展示增强（HTTP MCP & Presentation Enhancement）（已审计归档）
 
@@ -121,7 +121,7 @@
 
 **审计结论**: 第五十九阶段五条主线已在实现代码、测试、设计文档与规划文档中完成闭环。Demo Banner 暗色模式修复已完成（`37b38773`）；近期热门文章列表已完成（`b7b765d9` + `721a563b` 重构三合一）并同步 i18n 五语种翻译；AI 编辑增强改写+审查已完成（`a4319a9f` + `d1c28283`），支持 6 种风格 + 审查缓存 + Code Auditor Review Gate Pass；E2E CI 限流修复 + GHA 分片已完成三层限流修复与共享构建架构（`b6b567a7` + 后续 5 个 CI 修复 commits），CI 验证依赖外部运行时延迟验证；测试覆盖率 90%+ 首批已完成缺口盘点与两批次 8 文件补测，覆盖改进 ~252 行（≈+1.09%）。`pnpm typecheck` + `pnpm lint` + `pnpm test`（503/504 files, 3958/3959 tests）通过。归档记录已写入 todo-archive.md。
 
-> 详细条目见 [待办归档分片](./archive/todo-archive-phases-58-60.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档分片](./todo-archive-phases-58-60.md#第五十九阶段ai-编辑增强与展示优化-已审计归档)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第六十阶段：编辑器延续与代码质量治理（Phase 60: Editor Continuation & Code Quality Governance）（已审计归档）
 
@@ -159,7 +159,7 @@
 
 **审计结论**: 第六十阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。AI 续写已完成（`697b00a4`），支持光标上下文续写 + Ctrl+Z 撤销 + AI 计费续写类型；响应式状态模型迁移已完成（`d3f7314c`），5 个文件（登录页、注册页、权益页、个人设置、安全设置）从 `reactive` 迁移为 `ref`；Zod Schema 复用治理已完成（`6216fedf`），Ad Campaign + Ad Placement 的 create/update schema 抽取到 `utils/schemas/ad.ts`，共享基对象 + `.partial()` 派生；测试覆盖率 90%+ 第二批已完成（`9cea2f38`），新增 69 个测试覆盖 3 个 AI Provider 模块；多平台迁移适配器 Hugo 格式支持已完成（`6075d073`），新增 `ContentParser` 接口 + `HugoParser` 适配器（TOML/YAML/JSON）+ `--format hugo` CLI 参数 + 17 个单元测试。`pnpm typecheck` + `pnpm lint` + `pnpm test` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
-> 详细条目见 [待办归档分片](./archive/todo-archive-phases-58-60.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档分片](./todo-archive-phases-58-60.md#第六十阶段编辑器延续与代码质量治理-已审计归档)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第六十一阶段：AI 编辑增强扩展与治理延续（Phase 61: AI Editing Enhancement Extension & Governance Continuation）（已审计归档）
 
@@ -200,7 +200,7 @@
 
 **审计结论**: 第六十一阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。AI 编辑增强扩写+缩写已完成（`d980cf69`），后端 `/api/ai/expand` + `/api/ai/condense` 端点、前端工具栏按钮、提示词模板（`AI_PROMPTS.EXPAND` + `CONDENSE`）、AI 计费（`recordTask({ type: 'expand' | 'condense' })`）均以交付；结构复用治理已完成 CLI 包类型收敛（`MomeiPostStatus`/`MomeiPostVisibility` 枚举派生、`MomeiPostScaffoldMetadata` 别名 + `@deprecated`）与 `toDateOrNull`/`toDateOrUndefined` 共享函数抽取（`c3554a17`）；响应式状态模型 reactive→ref Step 2 已完成 9 处迁移（`a5bd2c7b`），覆盖 `use-admin-friend-links-page.ts`、`use-admin-list.ts`、`pages/admin/users/index.vue`；测试覆盖率 90%+ 第三批已完成 4 个高价值模块补测（`cac21db3` + `6d4a940f`），installation.ts 86.84%、comment.ts 86.82%、admin-drafts.ts 92.45%、post-automation-helpers.ts 全覆盖；Zod Schema 复用治理第二批已完成 Category/Tag 冗余清理、Post 4 字段共享、Marketing Campaign updateSchema（`db424e4b`）。`pnpm typecheck` + `pnpm lint` + `pnpm docs:build` 通过，Code Auditor 审计已放行。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
-> 详细条目见 [待办归档](./todo-archive.md#第六十一阶段ai-编辑增强扩展与治理延续-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档](../todo-archive.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第六十二阶段：迁移适配扩展与治理续航（Phase 62: Migration Adapter Expansion & Governance Continuation）（已审计归档）
 
@@ -238,7 +238,7 @@
 
 **审计结论**: 第六十二阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。多平台迁移适配器 WordPressParser 已完成（`602326cb`），支持 WXR 格式 title/date/tags/categories/content/slug/draft 映射 + `--format wordpress` 参数 + Hexo/Hugo 无回归；测试覆盖率 90%+ 第四批已完成（`98d5268c`），新增 26 个测试覆盖 4 个纯函数（`toDateOrNull`、`toDateOrUndefined`、`toQueryString`、`toQueryStringArray`）至 100%；AI 编辑视角/读者视角检查已完成（`f48f39b3`），新增 `/api/ai/perspective-check` 端点（`mode: 'editor' | 'reader'`）+ 编辑器工具栏按钮 + `PostEditorPerspectivePanel` 组件 + AI 计费；响应式状态模型 reactive→ref Step 3 已完成（`405825cb`），3 文件 6 处深层嵌套 reactive 迁移（settings-notifications/comments/submissions）+ 11 个定向测试通过；脚本治理 warning 清理已完成（`ab87cd32`），audit-comment-drift TODO 归零 + 逐行复述误报 15→6（-60%）+ docs candidate warning 全部清洁。`pnpm typecheck` + `pnpm lint` + `pnpm test`（4198 passed） + `pnpm docs:build` 全部通过。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
-> 详细条目见 [待办归档](./todo-archive.md#第六十二阶段迁移适配扩展与治理续航-已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档](../todo-archive.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第六十三阶段：设置 UI 盘点与治理续航（Phase 63: Settings UI Inventory & Governance Continuation）（已审计归档）
 
@@ -281,13 +281,13 @@
 
 ### 第六十四阶段：设置 UI Phase 2 与治理续航（已审计归档）
 
-> 详细条目见 [归档记录](./todo-archive.md#第六十四阶段设置-ui-phase-2-与治理续航已审计归档)。backlog 来源: [长期规划与积压项](./backlog.md)。
+> 详细条目见 [归档记录](../todo-archive.md)。backlog 来源: [长期规划与积压项](../backlog.md)。
 
 已完成 5 项主线：设置表单 UI Phase 2（5 字段 + 五语种翻译）；reactive→ref Step 5（3 文件收尾）；结构复用 2 组热点切片（safeDeleteCategory + handleExternalLinkError）；测试覆盖率第六批（privacy 7 边缘 case）；ko-KR/ja-JP 文档治理（审计报告 + 13 日期修复 + ja-JP 升格 + features/variables 翻译）。所有主线通过 typecheck + lint + test 质量门。
 
 ### 第六十五阶段：编辑器工具栏收敛与设置 UI 续航（Phase 65: Editor Toolbar Consolidation & Settings UI Continuation）（已审计归档）
 
-> 详细交付清单见 [待办事项归档](./todo-archive.md#第六十五阶段编辑器工具栏收敛与设置-ui-续航已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细交付清单见 [待办事项归档](../todo-archive.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 **时间表**: 2026-07-27 ~ 2026-07-28
 **交付摘要**: 4/5 主线交付（编辑器工具栏收敛 Phase A、设置表单 UI Phase 3、结构复用治理、脚本治理升格评估）；测试覆盖率第七批未达 ≥1% 目标，转入长期治理。同时修复 vitest threads 池竞态问题，新增 `regression-weekly.yml` CI 工作流。
@@ -335,7 +335,7 @@
 
 **审计结论**: 第六十六阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。编辑器工具栏收敛 Phase B 已完成（续写/扩写/缩写支持 6 种风格选择，Phase A 分组无回归）；设置表单 UI Phase 4 已完成（`AI_FALLBACK_API_KEY`/`AI_FALLBACK_MODEL`/`AI_FALLBACK_ENDPOINT` 表单控件 + 五语种翻译 + 6 个新用例，RG Pass）；测试覆盖率 90%+ 第八批已完成（`85d69d7d`，5 个高价值模块补测 58 用例：text 94.82% / tts 88.63% / parser 92.00% / aggregator 97.56% / category 98.63%，全仓 Statements 79.55%→80.63% 达到 ≥80.48% 目标，+1.08%）；结构复用治理已完成（`8fb91ecd`，theme 颜色 model composable 抽取，duplicate-code 基线 0.31%→0.30%）；脚本治理 comment-drift 升格复核已完成（`1fc73e54`，结论 go 维持 Phase 52 已升格状态，更正 7 处文档漂移含 Phase 归属）。`pnpm typecheck` + `pnpm lint` 全部通过，Code Auditor Review Gate 三轮审计闭环。归档记录已写入 todo-archive.md，多语路线图摘要已同步。
 
-> 详细条目见 [待办归档](./todo-archive.md#第六十六阶段编辑器续航与覆盖率攻坚已审计归档)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办归档](../todo-archive.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第六十七阶段：PrimeVue → caomei-ui 迁移（一）——接入基座、视觉回归与试点（Phase 67: PrimeVue to caomei-ui Migration I — Integration Baseline, Visual Regression & Pilot）
 
@@ -343,7 +343,7 @@
 
 **目标**: 承接 backlog 长期主线第 11 条「UI 组件库许可证风险与迁移可行性治理」，按已授权的**方案 A 三阶段轨迹**落地第一个执行阶段。本阶段不追求批量迁移，而是先把**迁移链路打通并建立可自动比对的守线能力**：引入 npm `caomei-ui@0.2.0` 与双库并存基座、建立单元 / E2E / 截图三层视觉验证回归并采集迁移前基线、以桥接方式完成全局 token 语义层、用 1-2 个数据页试点验证「接入 → token → 图标 → 组件 → 测试改写 → 回归」全链路可闭环。**2026-09-22 更新**：接入基座已按 `0.1.0` 落地，因上游 `0.2.0` 含破坏性样式入口变更（`styles.css` → `theme.css` + 逐模块组件样式），本阶段须先完成基座重锚到 `0.2.0` 再采集基线。**2026-09-24 更新**：基座重锚已完成（1b），基线采集前置已满足。
 
-**准入结论**: 四条主线均来自 [迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [backlog](./backlog.md) 长期主线第 11 条，属用户 2026-09-19 授权上收的长期主线切片（方案 A + 试点先行 + 建立视觉回归），容量控制在 `4` 项内，符合规划规范。其中「全局 token 语义层」ROI `1.13` 落在规划规范 §3.3 的积压带（`1.0 < Score ≤ 1.5`），此处按**使能项例外**上收：它本身不产生用户可见价值，但决定后续批次能否在无观感回退的前提下推进，理由见 ROI 评估。
+**准入结论**: 四条主线均来自 [迁移方案](../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md) 与 [backlog](../backlog.md) 长期主线第 11 条，属用户 2026-09-19 授权上收的长期主线切片（方案 A + 试点先行 + 建立视觉回归），容量控制在 `4` 项内，符合规划规范。其中「全局 token 语义层」ROI `1.13` 落在规划规范 §3.3 的积压带（`1.0 < Score ≤ 1.5`），此处按**使能项例外**上收：它本身不产生用户可见价值，但决定后续批次能否在无观感回退的前提下推进，理由见 ROI 评估。
 
 **准入前置（已核对 2026-09-22）**: 库侧 caomei-ui Phase 7 第二阶段（含 M5 十项）已于 2026-09-19 归档；B1 出口条件达成；`caomei-ui@0.2.0` 已发布至 npm（MIT，导出 `.` / `./nuxt` / `./resolver` / `./theme.css`；**`./styles.css` 已在 0.2.0 移除**）；原阻塞（M5 未交付）已解除；目标依赖由 `0.1.0` 上移到 `0.2.0`，接入基座已于 2026-09-24 重锚完成（迁移方案 §3.6）。
 
@@ -358,14 +358,14 @@
         - **执行范围**: 依赖 `0.1.0 → 0.2.0`（锁定精确版本）；确认 `caomei-ui/nuxt` 模块的 `injectStyles` 注入物为**基础层 `caomei-ui/theme.css`**（0.2.0 起取代 `caomei-ui/styles.css`；组件样式随模块自带、由打包器按需 tree-shaking）且**基础层注入点唯一**（模块 / resolver / 显式 import 三选一）；确认 CSS `@layer` 顺序不变；确认模块自动导入的 `useLocale` / `provideLocale` 不变（`CaomeiConfigProvider` 包裹与 `primevue-i18n` 插件替换延后到启用 caomei-ui 组件的批次）；复测 `pnpm test:perf:budget` 的 `keyCss` 并按迁移方案 §8.4.1 回落配额；复核 §3.4 基线未漂移（如需可重取）；确认 `@lucide/vue` 是否需在 momei 侧显式声明为直接依赖（试点页在 momei 模板直接引用图标时必需，pnpm 严格 node_modules 不允许引用传递依赖）。
         - **非目标**: 不迁移任何页面组件；不移除 PrimeVue；不改动业务逻辑；不引入 Tailwind。
         - **最小验收**: **`theme.css` 在产物中仅注入一次**；`keyCss` 复测后按迁移方案 §8.4.1 **回落配额（85KB → 70KB）并刷新基线**；`pnpm typecheck` + `pnpm lint` + `pnpm build` 通过；`pnpm test:perf:budget` 不越线。
-        - **已验证**: `theme.css` 在 `nuxt.options.css` 中恰好 1 次（`styles.css` 0 次）、`caomei-ui` 模块无重复安装；`keyCss` 75,110 → **60,684** 字节（gzip），配额回落 70KB 并刷新基线；`@layer` 顺序与自动导入隔离均不变；§3.4 基线未漂移；typecheck / lint / test（527 文件 / 4473 用例）/ build / test:perf:budget 全部通过。验证见 [回归记录](../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1b 节。
+        - **已验证**: `theme.css` 在 `nuxt.options.css` 中恰好 1 次（`styles.css` 0 次）、`caomei-ui` 模块无重复安装；`keyCss` 75,110 → **60,684** 字节（gzip），配额回落 70KB 并刷新基线；`@layer` 顺序与自动导入隔离均不变；§3.4 基线未漂移；typecheck / lint / test（527 文件 / 4473 用例）/ build / test:perf:budget 全部通过。验证见 [回归记录](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1b 节。
         - **证据落点**: 复测数值与配额回落写入 `docs/reports/regression/current.md`；决策回链迁移方案 §3.6 / §8.4.1。
 
 2. **主线：视觉验证回归基座（backlog #11）（P1）**:
 
     - **执行范围**: 建立三层回归能力——① 单元层（Vitest + Vue Test Utils 组件渲染 / 关键 DOM、类名、ARIA 断言）；② E2E 功能层（复用既有 Playwright 17 个 spec，确认迁移前全绿）；③ 截图识别层（新增 Playwright `toHaveScreenshot` 视觉回归工程，**独立 project / config**，不并入既有 `test:e2e` 的 `testMatch`）。完成迁移前基线采集（列表页 / 表单（设置）页 / 浮层各 1 页，覆盖浅色 / 深色主题与目标 viewport）。固化环境可复现配置（浏览器渠道与版本、viewport、locale、时区、关闭动画、隐藏光标）、阈值策略与 CI 接入方式；动态区域以 `mask` 显式遮蔽；声明 CI 增量耗时预算与基线快照体积 / 保留策略。
     - **非目标**: 不做全站截图覆盖；不与 caomei-ui 仓库做跨仓触发；不改变既有 `pnpm test:e2e` / `test:e2e:critical` / `test:e2e:review-gate`（`run-review-gate-ui-baseline.mjs`）的断言语义与证据产出；不以放宽阈值代替差异归因。
-    - **最小验收**: 三层入口各自可独立运行且可复现；迁移前基线快照随仓库提交；故意改动一处样式可被截图层稳定检出（假阳性与假阴性各验证一次）；既有 E2E / review-gate 入口行为不变；CI 增量为可解释数值；`pnpm typecheck` + `pnpm lint` 通过；**E2E 基线的已知 flaky 集已显式登记**（当前为 `auth-session-governance`，判定依据见 [回归记录](../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1 节）并给出 M1 前后 flaky 率对比，避免把既有波动当作迁移回归。
+    - **最小验收**: 三层入口各自可独立运行且可复现；迁移前基线快照随仓库提交；故意改动一处样式可被截图层稳定检出（假阳性与假阴性各验证一次）；既有 E2E / review-gate 入口行为不变；CI 增量为可解释数值；`pnpm typecheck` + `pnpm lint` 通过；**E2E 基线的已知 flaky 集已显式登记**（当前为 `auth-session-governance`，判定依据见 [回归记录](../../reports/regression/archive/2026-09-20-to-2026-09-25-phase67-migration.md) M1 节）并给出 M1 前后 flaky 率对比，避免把既有波动当作迁移回归。
     - **证据落点**: 采集与比对命令、环境元数据、基线快照、阈值策略、CI 耗时与基线体积数据落盘；CI 接入写入 `.github/workflows/`。
 
 3. **主线：全局 token 语义层桥接（backlog #11）（P1）**:
@@ -391,4 +391,4 @@
 
 **后续阶段轨迹（方案 A，已授权方向，未展开规划）**: 第六十八阶段承接 B2 剩余数据页 + B3 表单与设置；第六十九阶段承接 B4 展示、浮层与收尾（含卸载 `primevue` / `@primevue/*` / `@primeuix/*` / `primeicons` 与包体对比）。**并存期包体配额须回落**（`keyCssGzipBytes` 85KB → 70KB + 刷新基线，见迁移方案 §8.4.1）：**已于 2026-09-24 在接入基座重锚批次内完成回落**（实测 60,684 字节），届时 B4 只需确认未反弹；未回落不得视为收尾完成。各阶段范围须在其准入时按规划规范单独评估，本阶段不提前落盘其原子条目。
 
-> 事实源: [PrimeVue → caomei-ui 迁移方案](../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；迁移动因见 [PrimeVue 5 许可证变更评估](../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；backlog 来源见 [长期规划与积压项](./backlog.md) 长期主线第 11 条。
+> 事实源: [PrimeVue → caomei-ui 迁移方案](../../design/governance/2026-09-18-primevue-to-caomei-ui-migration-plan.md)；迁移动因见 [PrimeVue 5 许可证变更评估](../../design/governance/2026-08-29-primevue-5-license-change-evaluation.md)；backlog 来源见 [长期规划与积压项](../backlog.md) 长期主线第 11 条。

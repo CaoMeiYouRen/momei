@@ -113,7 +113,7 @@
   .session/wisdom.md          → 跨 session 值得复用的发现
 ```
 
-**关键架构边界**：`.session/` 内的文件**永不进入版本库、永不进入深度归档、永不进入语义索引**。这是任务态（每 session 重写）而非历史态（长期留存）。此边界防止当前任务状态污染长期记忆，与 [planning.md §4.3 不可逆原则](../../standards/planning.md) 的方向一致。
+**关键架构边界**：`.session/` 内的文件**永不进入版本库、永不进入深度归档、永不进入语义索引**。这是任务态（每 session 重写）而非历史态（长期留存）。此边界防止当前任务状态污染长期记忆，与 [planning.md §4.3 不可逆原则](../../../standards/planning.md) 的方向一致。
 
 #### 2.2 `current-task.yaml` 结构
 
@@ -343,7 +343,7 @@ Claude Code 特殊说明：Claude Code 本身有跨 session 的上下文压缩�
 
 1. **应当接入**：因为三平台都已经存在可用事件面，且当前 prompt-only 治理确实暴露出上下文膨胀后的命令丢失问题。
 2. **第一优先级不是安全拦截，而是任务态持久化**：先解决 `.session/` 自动维护、compaction 前刷盘、会话开局 briefing，这比一开始就拦截所有命令更符合当前痛点。
-3. **Copilot 现在应视为一等公民**：仓库已经存在 [`.github/hooks/momei.json`](./../../../.github/hooks/momei.json) 占位文件，后续可以直接在此处接入仓库级 hooks，而不需要把 Copilot 视为无等价能力平台。
+3. **Copilot 现在应视为一等公民**：仓库已经存在 [`.github/hooks/momei.json`](../../../../.github/hooks/momei.json) 占位文件，后续可以直接在此处接入仓库级 hooks，而不需要把 Copilot 视为无等价能力平台。
 4. **OpenCode 不必因为没有原生 hooks 而被排除**：把 `.opencode/plugins/` 视为它的等效边界层即可，但要控制插件代码体积，避免反过来引入一套难维护的小框架。
 5. **不要把 hooks 当成单一真理**：prompt 规则、Review Gate、验证矩阵、`.session/` 协议仍然是主骨架；hooks 只是把关键动作从"靠记忆"抬升到"靠事件"。
 6. **文档结论必须区分“仓库侧实现”与“平台侧验证”**：配置写入仓库不等于三端真实事件链路已经全部验证通过；客户端内 smoke test 应作为下一步证据补齐项保留。
@@ -425,9 +425,9 @@ Claude Code 特殊说明：Claude Code 本身有跨 session 的上下文压缩�
 
 ## 相关文档
 
-- [Harness Engineering 引入分析（本对话）](../../../AGENTS.md) — 原始分析上下文
-- [AI 协作规范](../../standards/ai-collaboration.md)
-- [项目规划规范](../../standards/planning.md)
+- [Harness Engineering 引入分析（本对话）](../../../../AGENTS.md) — 原始分析上下文
+- [AI 协作规范](../../../standards/ai-collaboration.md)
+- [项目规划规范](../../../standards/planning.md)
 - [专项设计与治理索引](./index.md)
 - https://code.claude.com/docs/zh-CN/hooks
 - https://docs.github.com/en/copilot/reference/hooks-reference?versionId=free-pro-team%40latest&productId=copilot

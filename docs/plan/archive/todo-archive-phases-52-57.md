@@ -124,7 +124,7 @@
 - [x] 恢复受影响测试（admin-posts-shortcut、auth-session-governance、admin、mobile-critical）
 - [x] CI E2E 全量通过（CI 已确认执行成功）
 
-> **根因**: DEMO_MODE 和 TEST_MODE 同时启用，导致 seed-demo 和 seed-test 并发争抢 SQLite 事务锁。修复：E2E 配置去掉 DEMO_MODE，seed-demo 加互斥保护，database synchronize 加入 TEST_MODE。已恢复 10 个 fixme/skip 用例（auth.e2e 的 1 个 skip 为独立 UI 流程问题，非 seed-test 相关）。详见 [排查记录](../design/governance/e2e-seed-test-investigation.md)。
+> **根因**: DEMO_MODE 和 TEST_MODE 同时启用，导致 seed-demo 和 seed-test 并发争抢 SQLite 事务锁。修复：E2E 配置去掉 DEMO_MODE，seed-demo 加互斥保护，database synchronize 加入 TEST_MODE。已恢复 10 个 fixme/skip 用例（auth.e2e 的 1 个 skip 为独立 UI 流程问题，非 seed-test 相关）。详见 [排查记录](../../design/governance/e2e-seed-test-investigation.md)。
 
 > **审计结论**: 第五十三阶段五条主线已在实现代码、定向测试、规划文档与治理基线中完成闭环，满足归档条件。Vercel CDN Tier 2 架构治理已完成 routeRules 配置（ISR/SWR）+ Upstash Redis 持久化存储；ESLint/类型债清零已完成 benefits.vue 3 处 as any 替换；结构复用治理已完成 5 组热点切片，duplicate-code 基线从 0.39% 下降至 0.24%；文档治理阈值收紧已执行（must-sync=21 天，summary-sync=30 天）；AI 编辑增强评估已输出条件性 Go 结论（ROI 1.50）；E2E 测试 seed-test 插件失效排查已完成并恢复 10 个 fixme/skip 用例。`todo.md` 已清理执行面，归档块已写入。
 

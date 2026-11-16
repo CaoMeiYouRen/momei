@@ -14,43 +14,43 @@
 
 ### 1. Windows 本地 Dev / Build 性能治理 (P0)
 
-- 结果: [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts)、[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../server/middleware/1-auth.ts)、[server/middleware/2-log.ts](../../server/middleware/2-log.ts) 与 [server/utils/permission.ts](../../server/utils/permission.ts) 已完成 installation state、连接级初始化、optional session、request log 与 permission 边界收紧；[server/services/installation-probe.ts](../../server/services/installation-probe.ts) 已承接轻量安装态探针；Windows 本地 `nuxt build` 长尾首轮已通过关闭 server sourcemap 收敛，`nuxt dev` 首响也已从约 `502279ms` 收敛到约 `58549ms`。
-- 验证: 事实源已统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 与相关 dev 日志；2026-05-16 用户实测 `pnpm run dev` 后首页、`settings/public`、`settings/theme`、`posts/home` 与 `friend-links` 均可访问。
-- [x] 冻结 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要安装态、哪些路径才必须等待完整 `initializeDB()`。
-- [x] 为数据库初始化与首请求冷路径补齐分阶段耗时口径，并把事实源统一沉淀到 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
+- 结果: [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts)、[server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts)、[server/middleware/1-auth.ts](../../../server/middleware/1-auth.ts)、[server/middleware/2-log.ts](../../../server/middleware/2-log.ts) 与 [server/utils/permission.ts](../../../server/utils/permission.ts) 已完成 installation state、连接级初始化、optional session、request log 与 permission 边界收紧；[server/services/installation-probe.ts](../../../server/services/installation-probe.ts) 已承接轻量安装态探针；Windows 本地 `nuxt build` 长尾首轮已通过关闭 server sourcemap 收敛，`nuxt dev` 首响也已从约 `502279ms` 收敛到约 `58549ms`。
+- 验证: 事实源已统一沉淀到 [windows-dev-build-performance-governance.md](../../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 与相关 dev 日志；2026-05-16 用户实测 `pnpm run dev` 后首页、`settings/public`、`settings/theme`、`posts/home` 与 `friend-links` 均可访问。
+- [x] 冻结 [server/middleware/0-installation.ts](../../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要安装态、哪些路径才必须等待完整 `initializeDB()`。
+- [x] 为数据库初始化与首请求冷路径补齐分阶段耗时口径，并把事实源统一沉淀到 [windows-dev-build-performance-governance.md](../../design/governance/windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
 - [x] 针对 `Server built -> Build complete` 长尾完成一轮 Nitro / `.output/server` 写出侧剖析与首轮收敛。
 
 ### 2. 测试有效性切片 (P0)
 
-- 结果: 本轮已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路完成 3 组高风险断言补强：[server/api/ai/tts/task.post.test.ts](../../server/api/ai/tts/task.post.test.ts) 覆盖 post-backed / `404` / `403`， [server/api/admin/ai/stats.get.test.ts](../../server/api/admin/ai/stats.get.test.ts) 覆盖 `estimated / actual` 独立口径与非终``successRate / failureRate =``， [tests/server/api/posts/access-error-mapping.test.ts](../../tests/server/api/posts/access-error-mapping.test.ts) 覆盖 `/api/posts/home` 统一 `503` 映射。
-- 验证: 定向回归矩阵已收敛为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果为 `14` 通过、`0` 失败；详细证据见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
+- 结果: 本轮已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路完成 3 组高风险断言补强：[server/api/ai/tts/task.post.test.ts](../../../server/api/ai/tts/task.post.test.ts) 覆盖 post-backed / `404` / `403`， [server/api/admin/ai/stats.get.test.ts](../../../server/api/admin/ai/stats.get.test.ts) 覆盖 `estimated / actual` 独立口径与非终``successRate / failureRate =``， [tests/server/api/posts/access-error-mapping.test.ts](../../../tests/server/api/posts/access-error-mapping.test.ts) 覆盖 `/api/posts/home` 统一 `503` 映射。
+- 验证: 定向回归矩阵已收敛为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果为 `14` 通过、`0` 失败；详细证据见 [docs/reports/regression/current.md](../../reports/regression/current.md) 的 2026-05-18 记录。
 - [x] 围绕前端直连 TTS、AI task `estimated / actual` 口径一致性、认证退化与公开热点读链路，选择已有测试基座且回归风险最高``2 -`` 组路径补失败断言或边界断言。
 - [x] 至少补一组统计一致性或失败路径回归，不把本轮退化为单纯补 coverage 数字。
 - [x] 将本轮新增测试入口纳入可复用的定向回归矩阵，并记录未覆盖边界。
 
 ### 3. ESLint / 类型债治理 (P1)
 
-- 结果: [server/services/ai/asr.ts](../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，新增 `resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 等窄 helper，去掉 `catch any` 并收紧基础任务记录接口中的多态日志字段。
+- 结果: [server/services/ai/asr.ts](../../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，新增 `resolveAudioSize`、`resolveProviderModel`、`toErrorMessage` 等窄 helper，去掉 `catch any` 并收紧基础任务记录接口中的多态日志字段。
 - 验证: 已执行 `pnpm exec eslint server/services/ai/asr.ts server/services/ai/image.ts server/services/ai/tts.ts server/services/ai/base.ts`、`pnpm exec vitest run server/services/ai/asr.test.ts server/services/ai/image.test.ts server/services/ai/tts.test.ts`（`26` 通过、`0` 失败）与 `pnpm run typecheck`；残余候选继续收敛为测试桩层历史 `as any` 与 provider 聚合层去断言化。
-- [x] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
+- [x] 继续按“单规则 + 单文件 / 双文件”窄切片推进，优先上收 [server/services/ai/asr.ts](../../../server/services/ai/asr.ts) 的高 ROI `no-explicit-any` 收敛候选。
 - [x] 进入实现前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
 - [x] 定向 ESLint 与 `nuxt typecheck` 通过后，再记录残余债务与下一轮候选。
 
 ### 4. 结构复用治理：至少 3 处热点收敛 (P1)
 
-- 结果: 已完成 3 处热点收敛。[pages/admin/subscribers/index.vue](../../pages/admin/subscribers/index.vue) / [pages/admin/waitlist/index.vue](../../pages/admin/waitlist/index.vue) 共享后台列表页壳层；[pages/admin/ad/campaigns.vue](../../pages/admin/ad/campaigns.vue) / [pages/admin/ad/placements.vue](../../pages/admin/ad/placements.vue) 收敛到 [composables/use-admin-entity-list.ts](../../composables/use-admin-entity-list.ts) 与 [composables/use-admin-form-dialog.ts](../../composables/use-admin-form-dialog.ts) 两条窄 composable；[server/utils/email/service.ts](../../server/utils/email/service.ts) 已把模板解析 / 发送 / 记录日志压回内部 helper。
-- 验证: 已执行 [server/utils/email/service.test.ts](../../server/utils/email/service.test.ts)（`13` 通过、`0` 失败）、`pnpm exec nuxt typecheck` 与 `pnpm duplicate-code:check`，确认 baseline 未反弹；[components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 继续保留为下一轮候选。
-- [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue)。
+- 结果: 已完成 3 处热点收敛。[pages/admin/subscribers/index.vue](../../../pages/admin/subscribers/index.vue) / [pages/admin/waitlist/index.vue](../../../pages/admin/waitlist/index.vue) 共享后台列表页壳层；[pages/admin/ad/campaigns.vue](../../../pages/admin/ad/campaigns.vue) / [pages/admin/ad/placements.vue](../../../pages/admin/ad/placements.vue) 收敛到 [composables/use-admin-entity-list.ts](../../../composables/use-admin-entity-list.ts) 与 [composables/use-admin-form-dialog.ts](../../../composables/use-admin-form-dialog.ts) 两条窄 composable；[server/utils/email/service.ts](../../../server/utils/email/service.ts) 已把模板解析 / 发送 / 记录日志压回内部 helper。
+- 验证: 已执行 [server/utils/email/service.test.ts](../../../server/utils/email/service.test.ts)（`13` 通过、`0` 失败）、`pnpm exec nuxt typecheck` 与 `pnpm duplicate-code:check`，确认 baseline 未反弹；[components/commercial-link-manager.vue](../../../components/commercial-link-manager.vue) 继续保留为下一轮候选。
+- [x] 在 `jscpd` 可见重复与文件内自重复中，至少完成 `3` 处热点收敛，优先处理 `pages/admin/subscribers/index.vue` vs `pages/admin/waitlist/index.vue`、`pages/admin/ad/campaigns.vue` vs `pages/admin/ad/placements.vue`、[server/utils/email/service.ts](../../../server/utils/email/service.ts) 与 [components/commercial-link-manager.vue](../../../components/commercial-link-manager.vue)。
 - [x] 每组抽象前先写清共享边界、收益与回滚方式，不把复杂业务逻辑伪装成通用框架。
 - [x] 复核 `pnpm duplicate-code:check` 基线不反弹，并补记结构性重复盘点结论。
 
 ### 5. Postgres 长窗口复核切片 (P1)
 
-- 结果: 基于 2026-05-12 与 2026-05-14 的 Neon 长窗口样本，已确认当前最主要的放大器是非生产环境定时 Cron 与请求入口误触完整初始化，而非单条业务 SQL；[server/plugins/task-scheduler.ts](../../server/plugins/task-scheduler.ts) 已改为非生产默认不注册内置 Cron，[server/middleware/0b-db-ready.ts](../../server/middleware/0b-db-ready.ts) / [server/middleware/1-auth.ts](../../server/middleware/1-auth.ts) 已收紧为连接级初始化。
-- 验证: [docs/reports/regression/current.md](../reports/regression/current.md) 已保留 2026-05-12 与 2026-05-14 两轮长窗口复核记录；同日 System Operations 在 `5` 分钟 autosuspend 延迟下保持成功的 `start / suspend` 交替，未再出现 compute 长期钉住 Active 的阻塞形态。剩余候选已回收到 [backlog.md](./backlog.md)。
+- 结果: 基于 2026-05-12 与 2026-05-14 的 Neon 长窗口样本，已确认当前最主要的放大器是非生产环境定时 Cron 与请求入口误触完整初始化，而非单条业务 SQL；[server/plugins/task-scheduler.ts](../../../server/plugins/task-scheduler.ts) 已改为非生产默认不注册内置 Cron，[server/middleware/0b-db-ready.ts](../../../server/middleware/0b-db-ready.ts) / [server/middleware/1-auth.ts](../../../server/middleware/1-auth.ts) 已收紧为连接级初始化。
+- 验证: [docs/reports/regression/current.md](../../reports/regression/current.md) 已保留 2026-05-12 与 2026-05-14 两轮长窗口复核记录；同日 System Operations 在 `5` 分钟 autosuspend 延迟下保持成功的 `start / suspend` 交替，未再出现 compute 长期钉住 Active 的阻塞形态。剩余候选已回收到 [backlog.md](../backlog.md)。
 - [x] 补一组 `pg_stat_statements` 或等价 live sample 长窗口样本，先确认当前最耗 CPU 或最拉长连接寿命的请求组。
 - [x] 在“请求入口组”与“公开热点读链路组”中二选一推进最小治理动作，不并行扩写成全站数据库重构。
-- [x] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](./backlog.md)。
+- [x] 对照查询体量、结果集大小或连接活跃窗口给出可追溯结论，并把下一轮候选收敛回 [backlog.md](../backlog.md)。
 
 ## 第三十六阶段：运行时稳态补漏与结构治理收口 (Runtime Stability Patch-Up & Structural Governance Closure) (已审计归档)
 
@@ -316,7 +316,7 @@
     - 验收: 只上``1 -`` 条命中有限、回滚边界清晰的高 ROI 规则，不扩写为全仓规则重构。
     - 验收: 输出命中清单、回滚边界与最小验证矩阵，并同步处理受影响文件的 warning / 类型债。
     - 结果: 已完成 `packages/mcp-server` 范围的 `no-explicit-any` / `explicit-module-boundary-types` 收紧，以及 settings API 范围的 `no-unnecessary-type-conversion` 收紧，均保留了命中清单、回滚边界与最小验证矩阵。
-    - 验证: 详细记录见 [current.md](../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20 / 2026-04-21 归档条目；两轮 Review Gate 结论均为 `Pass`。
+    - 验证: 详细记录见 [current.md](../../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20 / 2026-04-21 归档条目；两轮 Review Gate 结论均为 `Pass`。
 
 ### 4. 主线：重复代码与纯函数复用收敛 (P1)
 
@@ -324,7 +324,7 @@
     - 验收: 优先收敛公共页模板片段、列表型查询 helper、查询参数处理或读模型组装中的高收益重复区。
     - 验收: 记录重复基线变化、抽象收益与未覆盖边界，并确认未引入过度泛化。
     - 结果: 已将多处 CSV 列表解析统一回收到 `splitAndNormalizeStringList`，并继续压降前台公共页与查询处理重复区；本轮保持“先复用、后扩面”的窄边界治理策略。
-    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“共享复用层 CSV 列表解析收敛”条目，Review Gate 结论为 `Pass`。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“共享复用层 CSV 列表解析收敛”条目，Review Gate 结论为 `Pass`。
 
 ### 5. 主线：国际化运行时加载、文案复用与 unused 审计治理 (P1)
 
@@ -333,7 +333,7 @@
     - 验收: 明确哪些入口必须把 `i18n:audit:missing` 视为 blocker，并沉淀 i18n 变更后的最小检查矩阵。
     - 验收: 继续减少 raw key 直出、命名空间漂移与不受控的跨页面文案复用。
     - 结果: 已补齐 `admin-posts` 缺词 parity，明确 `release`、`weekly` 与 `phase-close` 对 `i18n:audit:missing` 的 blocker 口径，并完成一轮 cross-module duplicate 抽取与 unused 分级说明。
-    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-18“admin-posts parity 与缺词门禁上收”与“i18n 重复文案抽取”条目。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-18“admin-posts parity 与缺词门禁上收”与“i18n 重复文案抽取”条目。
 
 ### 6. 主线：文档事实源、回归记录与深度归档治理 (P1)
 
@@ -342,7 +342,7 @@
     - 验收: 明确活动窗口、历史归档与兼容入口的边界，并沉淀后续拆分策略。
     - 验收: `docs/design/modules/` 只保留模块总设计，专项治理 / 增量设计 / 阶段复盘统一迁移到 `docs/design/governance/`。
     - 结果: 已完成 `docs/design/modules/` 与 `docs/design/governance/` 的职责分层、`docs/reports/regression/**` 的正式入口收敛，以及 `roadmap.md` / `todo-archive.md` 的 warning / 强制分片阈值文档化。
-    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“文档事实源、回归入口与深度归档阈值收敛”条目，Review Gate 结论为 `Pass`。
+    - 验证: 详细记录见 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 的 2026-04-20“文档事实源、回归入口与深度归档阈值收敛”条目，Review Gate 结论为 `Pass`。
 
 ### 1. 部署体验与初始化收敛 (P0)
 
@@ -372,7 +372,7 @@
     - 验收: 至少覆盖代码块、公式、图片、提示容器、长文本翻译回填与目标语言预览 6 类高风险内容。
     - 验收: 补齐最小定向测试或浏览器验证，记录仍未覆盖的边界与后续观察项。
     - 结果: 已在 `utils/shared/markdown.ts` 收敛正文最终渲染清洗策略，并抽离 `utils/shared/markdown-heading.ts` 作为标题 slug 单一事实源。
-    - 验证: `components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐关键场景验证；专项证据见 [2026-04-10-editor-rendering-round2.md](./../../artifacts/review-gate/2026-04-10-editor-rendering-round2.md)。
+    - 验证: `components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐关键场景验证；专项证据见 `artifacts/review-gate/2026-04-10-editor-rendering-round2.md`。
 
 ### 3. 构建速度与包体性能深化 (P1)
 
@@ -395,13 +395,13 @@
     - 验收: 面向 Cloudflare Pages / Workers / D1 路线输出可追溯的阻塞清单，至少覆盖 TypeORM、Node 运行时依赖、数据库契约、文件存储与定时任务差异。
     - 验收: 若存在最小样机路径，需明确它只代表技术可行性研究，不代表当前项目已支持整站 Cloudflare 部署。
     - 验收: 研究产物至少能够支撑“继续推进 / 暂停投入 / 仅保留外围能力接入”三选一的方向结论。
-    - 结果: 已新增 [docs/design/governance/cloudflare-runtime-study.md](../design/governance/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
+    - 结果: 已新增 [docs/design/governance/cloudflare-runtime-study.md](../../design/governance/archive/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
 - [x] **Cloudflare 平台边界说明与止损结论收口**
     - 验收: 若研究结论仍为短期不适合推进，需进一步收敛对外说明、内部设计约束与后续触发条件，避免未来重复投入同类预研却缺少止损结论。
     - 验收: 若研究结论允许继续推进，也必须先定义下一阶段的技术闸门与替代成本，不得在本阶段直接扩写为整站适配开发。
     - 验收: 补齐对应文档或研究说明入口，确保后续规划可直接复用本轮结论。
     - 结果: 已同步更新部署指南、快速开始、设计入口与文档站导航，将当前对外说明统一收敛为“短期暂停整站 Cloudflare 运行时适配，仅保留外围能力接入”。
-    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-cloudflare-runtime-study.md](./../../artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md)。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 `artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md`。
 
 ### 5. AI 初始化 / 配置问答助手评估 (P1)
 
@@ -410,7 +410,7 @@
     - 验收: 明确复用现有安装向导、设置元信息、`qa-assistant` 与文档知识源的可行路径，不额外维护第二套知识或配置事实源。
     - 验收: 若评估结论为不立项，也需保留清晰的拒绝理由与后续触发条件，而不是停留在模糊候选状态。
     - 结果: 已基于现有安装向导字段模型、`ENV -> DB -> Default` 设置解释层、`qa-assistant` 只读边界与部署文档知识源，冻结“只读解释型助手”的可回答范围、禁止写入面与事实源复用路径。
-    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-ai-setup-assistant-evaluation.md](./../../artifacts/review-gate/2026-04-09-ai-setup-assistant-evaluation.md)。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 `artifacts/review-gate/2026-04-09-ai-setup-assistant-evaluation.md`。
 - [x] **安全边界与交互原型评估**
     - 验收: 至少澄清 ENV 锁定字段、敏感配置写入保护、越权问题、错误回答回退与用户确认链路等关键安全边界。
     - 验收: 若进入原型阶段，只允许做启用前引导或配置解释类最小交互，不直接承诺全功能站内 AI 助手体验。
@@ -435,17 +435,17 @@
 
 ### 2. 测试有效性第二轮切片 (P0)
 
-- 结果: 本轮已完成 `3` 组高风险切片：[components/admin/posts/post-tts-dialog.test.ts](../../components/admin/posts/post-tts-dialog.test.ts) 覆盖 direct TTS 任务创建失败后的可见错误映射；[pages/login.test.ts](../../pages/login.test.ts) 与 [pages/login.vue](../../pages/login.vue) 覆盖登录页 logical failure 后 `refreshAuthSession` 退化不吞主错误；[tests/server/api/settings/public.get.test.ts](../../tests/server/api/settings/public.get.test.ts) 覆盖 `503` bootstrap 失败不污染短 TTL runtime cache、后续成功请求可恢复。
-- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../reports/regression/current.md) 中的本轮定向回归矩阵记录。
+- 结果: 本轮已完成 `3` 组高风险切片：[components/admin/posts/post-tts-dialog.test.ts](../../../components/admin/posts/post-tts-dialog.test.ts) 覆盖 direct TTS 任务创建失败后的可见错误映射；[pages/login.test.ts](../../../pages/login.test.ts) 与 [pages/login.vue](../../../pages/login.vue) 覆盖登录页 logical failure 后 `refreshAuthSession` 退化不吞主错误；[tests/server/api/settings/public.get.test.ts](../../../tests/server/api/settings/public.get.test.ts) 覆盖 `503` bootstrap 失败不污染短 TTL runtime cache、后续成功请求可恢复。
+- 验证: `pnpm exec vitest run components/admin/posts/post-tts-dialog.test.ts pages/login.test.ts tests/server/api/settings/public.get.test.ts`、`pnpm exec nuxt typecheck`，以及 [docs/reports/regression/current.md](../../reports/regression/current.md) 中的本轮定向回归矩阵记录。
 - [x] 至少完成 `3` 组高风险失败 / 边界断言。
 - [x] 其中至少 `1` 组覆盖用户可见错误映射，而不是只断言内部异常被抛出。
 
 ### 3. Postgres 公开热点读链路继续瘦身 (P0)
 
-- 结果: 已将 [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../server/database/index.ts)，并同步修正两阶段初始化状态机，确保 connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试。
-- 结果: [server/api/posts/home.get.ts](../../server/api/posts/home.get.ts) 已把首页列表查询切到 `includeAuthorEmail: false`，并在首页响应剥离 `author.email / emailHash`，避免公开首页卡片继续为未消费的作者邮箱链路付费；对应守线见 [tests/server/api/posts/home.get.test.ts](../../tests/server/api/posts/home.get.test.ts) 与 [tests/server/database/init-boundary.test.ts](../../tests/server/database/init-boundary.test.ts)。
-- 结果: 基于 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是剩余显式 `initializeDB()` 调用点继续主导成本。本阶段据此完成“单路径瘦身 + 根因收敛 + 停止继续沿连接初始化链路硬挤收益”的止损收口；剩余缓存侧优化继续回收到长期主线候选，而不伪装为本阶段已彻底根治。
-- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，受影响文件无错误静态诊断，以及 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)。
+- 结果: 已将 [server/api/posts/home.get.ts](../../../server/api/posts/home.get.ts)、[server/api/categories/index.get.ts](../../../server/api/categories/index.get.ts) 与 [server/api/tags/index.get.ts](../../../server/api/tags/index.get.ts) 从完整 `initializeDB()` 语义切到 connection-only helper [server/database/index.ts](../../../server/database/index.ts)，并同步修正两阶段初始化状态机，确保 connection/full init 的 in-flight promise 在每轮结束后释放，维护链失败后下一次请求仍可重试。
+- 结果: [server/api/posts/home.get.ts](../../../server/api/posts/home.get.ts) 已把首页列表查询切到 `includeAuthorEmail: false`，并在首页响应剥离 `author.email / emailHash`，避免公开首页卡片继续为未消费的作者邮箱链路付费；对应守线见 [tests/server/api/posts/home.get.test.ts](../../../tests/server/api/posts/home.get.test.ts) 与 [tests/server/database/init-boundary.test.ts](../../../tests/server/database/init-boundary.test.ts)。
+- 结果: 基于 `artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md`，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是剩余显式 `initializeDB()` 调用点继续主导成本。本阶段据此完成“单路径瘦身 + 根因收敛 + 停止继续沿连接初始化链路硬挤收益”的止损收口；剩余缓存侧优化继续回收到长期主线候选，而不伪装为本阶段已彻底根治。
+- 验证: `pnpm exec vitest run tests/server/database/init-boundary.test.ts tests/server/api/posts/home.get.test.ts tests/server/api/categories/index.get.test.ts tests/server/api/tags/index.get.test.ts`，受影响文件无错误静态诊断，以及 `artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md`。
 - [x] 本轮只推进“公开热点读链路继续瘦身”，不并行开启剩余显式 `initializeDB()` 调用点审计。
 - [x] 已形成一组新的等价 live sample，并完成“当前超预算更像公开热读问题而不是初始化误触问题”的根因回答。
 
@@ -472,7 +472,7 @@
 ### 1. 微信公众号格式预览 / 导出辅助 (P0)
 
 - 结果: `wechat_mp` profile 已落地到分发预览与预检链路，覆盖公众号兼容规则（标题 / 引用 / 代码块降级、提示容器 / 代码分组转换）、外链转文末引用（去重、代码块排除、裸 URL 兼容），并新增“复制排版后内容”入口（`ClipboardItem` 双格式 + `writeText` 降级）。
-- 证据: 提交 `3f0989d8`、`9c7a5eb2`，设计文档 [docs/design/governance/wechat-mp-preview-export-assist.md](../../docs/design/governance/wechat-mp-preview-export-assist.md)，以及分发预览相关测试集。
+- 证据: 提交 `3f0989d8`、`9c7a5eb2`，设计文档 [docs/design/governance/wechat-mp-preview-export-assist.md](../../design/governance/archive/wechat-mp-preview-export-assist.md)，以及分发预览相关测试集。
 - [x] 仅交付“公众号风格预览 + 复制排版后内容”，未扩写为编辑器替换工程。
 - [x] 定向验证已覆盖转换链路与复制逻辑，核心行为可复现。
 
@@ -518,14 +518,14 @@
 	- 非目标：不重写全部 workflow；不在本轮把所有 warning 一次性升级为 blocker。
 	- 最小验收：release/test/docker 三条 workflow 在执行主体前都调用同一守护入口；至少覆盖依赖风险、关键脚本存在性、必要环境检查。
 	- 证据落点：workflow 变更记录、守护入口定向执行结果、至少一条失败样本定位记录。
-	- 2026-05-25：共享入口 `pnpm ci:precheck -- --profile=<workflow>` 已接入三条 workflow；首轮执行摘要与失败样本定位记录已回写到 [活动回归窗口](../reports/regression/current.md)。
+	- 2026-05-25：共享入口 `pnpm ci:precheck -- --profile=<workflow>` 已接入三条 workflow；首轮执行摘要与失败样本定位记录已回写到 [活动回归窗口](../../reports/regression/current.md)。
 
 2. [x] **发布链路最小回归闸门收紧 (P0)**
 	- 执行范围：把已有 release:check / regression 脚本编排成固定顺序，先解决本地与 CI 执行顺序不一致的问题。
 	- 非目标：不新增第二套回归入口；不把阶段收口专用命令强行塞进日常开发默认流程。
 	- 最小验收：失败日志可直接定位到守护子项；本地与 CI 的执行顺序一致，且至少保留一份标准化执行摘要。
 	- 证据落点：发布前守护脚本或回归入口定向执行记录、活动回归窗口摘要。
-	- 2026-05-25：本地 `pnpm release` 已改为先走 `pnpm regression:pre-release`；[.github/workflows/release.yml](../../.github/workflows/release.yml) 已收敛为 `precheck -> regression -> release`；`regression:pre-release` 摘要会把 `release:check:full` 的内部失败子项直接上浮到 blocker / warning，并保留 `artifacts/review-gate/*-pre-release-regression.{md,json}` 标准化摘要。
+	- 2026-05-25：本地 `pnpm release` 已改为先走 `pnpm regression:pre-release`；[.github/workflows/release.yml](../../../.github/workflows/release.yml) 已收敛为 `precheck -> regression -> release`；`regression:pre-release` 摘要会把 `release:check:full` 的内部失败子项直接上浮到 blocker / warning，并保留 `artifacts/review-gate/*-pre-release-regression.{md,json}` 标准化摘要。
 
 #### B. TypeORM 评估轨
 
@@ -533,16 +533,16 @@
 	- 执行范围：仅做评估态兼容性探针，不直接把 `typeorm` 从 `0.3.29` 升级后作为本阶段已交付；优先覆盖 `server/database/**`、`server/database/typeorm-adapter.ts`、公开热点读链路与依赖 TypeORM 形态的定向测试。
 	- 非目标：不在本轮完成真实升级实施；不顺手重写仓库内所有 TypeORM mock。
 	- 最小验收：完成一轮 `typeorm@1.0.0` 兼容性探针，并按“数据库与适配层 / 实体层 / 查询与服务层 / API 层 / 测试桩”输出失败分桶；最小验证矩阵至少覆盖 `pnpm run typecheck`、适配层相关测试、数据库初始化与公开读链路定向测试。
-	- 证据落点：[docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md)、定向验证记录、活动回归窗口阶段结论。
-	- 2026-05-25：已完成隔离 worktree 首轮 probe；`typeorm@1.0.0` 下适配层与初始化层测试通过，首个 runtime blocker 收敛到 [server/utils/translation.ts](../../server/utils/translation.ts) 的字符串数组 `select` 语法，主工作区已落一条前向兼容补丁。当前 `pnpm run typecheck` 仍暴露主工作区剩余 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]` 旧语法，以及待隔离的 `packages/**` 类型噪音；详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
-	- 2026-05-27：已补齐第二轮 closeout probe；`typeorm@1.0.0` 下适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 全部通过，failure buckets 已收敛到 `11` 个服务端文件中的 `13` 个 TypeORM 旧语法静态错误，以及 `packages/**` 的 `22` 个类型噪音错误。当前结论维持 `NO-GO（直接升级）` / `GO（评估任务收口）`，可关闭本条待办；详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+	- 证据落点：[docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md)、定向验证记录、活动回归窗口阶段结论。
+	- 2026-05-25：已完成隔离 worktree 首轮 probe；`typeorm@1.0.0` 下适配层与初始化层测试通过，首个 runtime blocker 收敛到 [server/utils/translation.ts](../../../server/utils/translation.ts) 的字符串数组 `select` 语法，主工作区已落一条前向兼容补丁。当前 `pnpm run typecheck` 仍暴露主工作区剩余 `22` 处 `select: [...]` 与 `38` 处 `relations: [...]` 旧语法，以及待隔离的 `packages/**` 类型噪音；详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../../reports/regression/current.md)。
+	- 2026-05-27：已补齐第二轮 closeout probe；`typeorm@1.0.0` 下适配层 `11/11`、数据库初始化 `2/2`、公开热点读链路 `41/41` 全部通过，failure buckets 已收敛到 `11` 个服务端文件中的 `13` 个 TypeORM 旧语法静态错误，以及 `packages/**` 的 `22` 个类型噪音错误。当前结论维持 `NO-GO（直接升级）` / `GO（评估任务收口）`，可关闭本条待办；详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../../reports/regression/current.md)。
 
 4. [x] **TypeORM 升级 go/no-go 与回滚预案落盘 (P1)**
 	- 执行范围：依据兼容性探针结果输出 go/no-go，并把回滚锚点、触发条件与后续是否升格为真实升级实施写清楚。
 	- 非目标：不把已有评估文档误写成“升级已可执行”；不在结论不清时强行把真实升级放进下一阶段实施面。
 	- 最小验收：明确记录 `typeorm@0.3.29` 回滚锚点、no-go 触发条件、下一次重新评估窗口，以及是否允许把真实升级实施纳入后续阶段。
 	- 证据落点：评估文档更新、活动回归窗口结论、roadmap/todo 阶段摘要对齐。
-	- 2026-05-25：当前结论已落盘为“`NO-GO（直接升级）` / `GO（继续评估）`”；回滚锚点保持 `typeorm@0.3.29`，下一次重新评估触发点为完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移、隔离 `packages/**` typecheck 噪音并重跑最小验证矩阵后，再决定是否允许把真实升级实施上收到后续阶段。详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../reports/regression/current.md)。
+	- 2026-05-25：当前结论已落盘为“`NO-GO（直接升级）` / `GO（继续评估）`”；回滚锚点保持 `typeorm@0.3.29`，下一次重新评估触发点为完成 `FindOptionsSelect` / `FindOptionsRelations` 旧语法迁移、隔离 `packages/**` typecheck 噪音并重跑最小验证矩阵后，再决定是否允许把真实升级实施上收到后续阶段。详情见 [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md) 与 [docs/reports/regression/current.md](../../reports/regression/current.md)。
 
 #### C. 收口轨
 
@@ -550,8 +550,8 @@
 	- 执行范围：将 pre-check、回归摘要与 TypeORM 评估结论自动沉淀到活动回归窗口模板，减少阶段收口时的人工补录。
 	- 非目标：不重新设计第二套回归记录文档；不要求本轮自动生成完整审计报告。
 	- 最小验收：每次主流程后能生成一条标准化证据记录，至少包含执行入口、结果摘要、阻断项或 go/no-go 结论。
-	- 证据落点：[docs/reports/regression/current.md](../reports/regression/current.md) 中的模板化记录与对应脚本输出。
-	- 2026-05-25：`scripts/ci/workflow-precheck.mjs` 与 `scripts/regression/run-periodic-regression.mjs` 已在落盘 artifact 后自动 upsert [活动回归窗口](../reports/regression/current.md) 的紧凑记录；新增 `pnpm regression:typeorm-assessment` 可从 [typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md) 自动同步 go/no-go 与 probe 摘要。定向验证覆盖 `tests/scripts/workflow-precheck.test.ts`、`tests/scripts/run-periodic-regression.main.test.ts` 与 `tests/scripts/sync-typeorm-assessment.test.ts`。
+	- 证据落点：[docs/reports/regression/current.md](../../reports/regression/current.md) 中的模板化记录与对应脚本输出。
+	- 2026-05-25：`scripts/ci/workflow-precheck.mjs` 与 `scripts/regression/run-periodic-regression.mjs` 已在落盘 artifact 后自动 upsert [活动回归窗口](../../reports/regression/current.md) 的紧凑记录；新增 `pnpm regression:typeorm-assessment` 可从 [typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md) 自动同步 go/no-go 与 probe 摘要。定向验证覆盖 `tests/scripts/workflow-precheck.test.ts`、`tests/scripts/run-periodic-regression.main.test.ts` 与 `tests/scripts/sync-typeorm-assessment.test.ts`。
 
 6. [x] **守护策略分级与依赖风险口径对齐 (P2)**
 	- 执行范围：把阻断项和提醒项配置化，并同步校准 `security:audit-deps` 与 `security:audit-deps:daily` 的判断口径。

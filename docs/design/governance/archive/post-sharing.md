@@ -8,7 +8,7 @@
 2. 各平台应采用“直接拼接分享链接”还是“复制链接 / 二维码 / 手动发布”的形式。
 3. 分享时的链接口径应该如何与当前 locale、SEO canonical 与公开访问边界保持一致。
 
-为避免职责重叠，作者社交链接、打赏配置与文章页赞助展示仍以 [商业化与社交集成设计文档](../modules/commercial.md) 为主；本文只描述“页面分享”能力，不重复作者社交资料展示逻辑。
+为避免职责重叠，作者社交链接、打赏配置与文章页赞助展示仍以 [商业化与社交集成设计文档](../../modules/commercial.md) 为主；本文只描述“页面分享”能力，不重复作者社交资料展示逻辑。
 
 ## 2. 设计目标
 
@@ -71,7 +71,7 @@ interface SharePayload {
 
 分享链接不应直接拼接 `window.location.href` 的完整原值，而应优先复用项目已经存在的 canonical 逻辑：
 
-- 页面级 SEO 已在 [composables/use-page-seo.ts](../../composables/use-page-seo.ts) 中维护 `canonicalUrl`。
+- 页面级 SEO 已在 [composables/use-page-seo.ts](../../../../composables/use-page-seo.ts) 中维护 `canonicalUrl`。
 - 文章详情页已有 locale 感知的路径与公开 URL 信息，可作为分享入口的事实来源。
 
 建议新增一个共享 helper，例如：
@@ -161,9 +161,9 @@ function buildShareCanonicalUrl(options: {
 
 ### 7.1 文章页入口位置
 
-建议在 [pages/posts/[id].vue](../../../pages/posts/[id].vue) 的文章正文后、版权声明与赞助卡片之间，增加统一的分享组件，例如：
+建议在 [pages/posts/[id].vue](../../../../pages/posts/[id].vue) 的文章正文后、版权声明与赞助卡片之间，增加统一的分享组件，例如：
 
-- [components/article-share.vue](../../../components/article-share.vue)
+- [components/article-share.vue](../../../../components/article-share.vue)
 
 放置原因：
 
@@ -212,7 +212,7 @@ function buildShareCanonicalUrl(options: {
 ### 8.2 与现有系统的复用点
 
 - 图标映射优先复用当前商业化平台的共享定义，避免再维护第二套平台表。
-- URL 生成优先复用 [composables/use-page-seo.ts](../../composables/use-page-seo.ts) 与 [utils/shared/seo.ts](../../utils/shared/seo.ts) 的 canonical / absolute URL 逻辑。
+- URL 生成优先复用 [composables/use-page-seo.ts](../../../../composables/use-page-seo.ts) 与 [utils/shared/seo.ts](../../../../utils/shared/seo.ts) 的 canonical / absolute URL 逻辑。
 - i18n 文案统一收敛到 `components.post.share.*` 命名空间，避免硬编码平台说明。
 
 ## 9. 当前阶段的调研清单
@@ -243,6 +243,6 @@ function buildShareCanonicalUrl(options: {
 
 ## 11. 相关文档
 
-- [商业化与社交集成设计文档](../modules/commercial.md)
-- [开发规范](../../standards/development.md)
-- [测试规范](../../standards/testing.md)
+- [商业化与社交集成设计文档](../../modules/commercial.md)
+- [开发规范](../../../standards/development.md)
+- [测试规范](../../../standards/testing.md)

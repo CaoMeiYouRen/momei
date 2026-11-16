@@ -11,7 +11,7 @@
 **时间表**: 2026-05-01 ~ 2026-05-02（提前闭合）
 **目标**: 在第三十一阶段完成商业化转型重评与多条治理主线收口后，把"多语言内容资产化增强包"的统一承接入口正式上收为下一阶段唯一新增能力，同时继续推进测试覆盖率与有效性治理、重复代码与纯函数复用、ESLint / 类型债治理，以及 Postgres 查询 / CPU / 连接生命周期平衡治理四条高风险优化主线，保持"1 个新功能 + 4 个优化"的受控组合。
 
-**审计结论**: 第三十二阶段五条正式主线 + 一条 Postgres 派生切片（AITask stale compensation）已于 2026-05-01 / 2026-05-02 全部闭合并归档至 [todo-archive.md](./todo-archive.md)。统一承接入口已落地独立说明 / 申请页、单一主卖点文案、三条公开入口导流接入与候补名单最小闭环；coverage 已从 `76.03% / 76.08%` 继续抬升，`pages/login.vue` 达 statements 100% / branches 84.44%，`80%+` 冲刺目标顺延至下一阶段；重复代码基线降为 `32 clones / 697 duplicated lines / 0.59%`；ESLint `no-explicit-any` 窄切片已覆盖 `composables/use-post-editor-voice.ts` / `server/api/categories/index.get.ts`；Postgres 已完成 `/api/search` 匿名缓存与 AITask stale scan 最小字段集收紧。`存量代码注释治理与注释漂移收敛` 继续保留为 backlog 备用项。
+**审计结论**: 第三十二阶段五条正式主线 + 一条 Postgres 派生切片（AITask stale compensation）已于 2026-05-01 / 2026-05-02 全部闭合并归档至 [todo-archive.md](../todo-archive.md)。统一承接入口已落地独立说明 / 申请页、单一主卖点文案、三条公开入口导流接入与候补名单最小闭环；coverage 已从 `76.03% / 76.08%` 继续抬升，`pages/login.vue` 达 statements 100% / branches 84.44%，`80%+` 冲刺目标顺延至下一阶段；重复代码基线降为 `32 clones / 697 duplicated lines / 0.59%`；ESLint `no-explicit-any` 窄切片已覆盖 `composables/use-post-editor-voice.ts` / `server/api/categories/index.get.ts`；Postgres 已完成 `/api/search` 匿名缓存与 AITask stale scan 最小字段集收紧。`存量代码注释治理与注释漂移收敛` 继续保留为 backlog 备用项。
 
 **准入结论**: 五条正式主线均已具备明确执行范围、非目标、验收标准与最小验证矩阵，满足规划规范对下一阶段正式上收的要求。新增功能只保留"统一承接入口"一项，并明确先完成独立说明 / 申请页与真实 CTA，不进入支付、会员中心或营销后台实现；测试覆盖率把 `80%+` 降为冲刺目标而非关闭线；重复代码、ESLint 与 Postgres 三条优化继续保持窄切片，避免重新膨胀为全仓治理。`存量代码注释治理与注释漂移收敛` 仅保留为备用项，继续留在 backlog，只有当前五项容量允许时才可额外补入单组切片。
 
@@ -113,7 +113,7 @@
 
 2. **主线：测试覆盖率冲刺 80%+ (P0)**:
     - **阶段结果**: 全仓 coverage 已正式越过 `80%+` 收口线。2026-05-06 最终全量 `pnpm test:coverage` checkpoint 为 statements `80.03%` / branches `67.18%` / functions `78.99%` / lines `80.05%`。
-    - **推进方式**: 本轮优先命中后台 settings / editor 高 ROI 切片，而不是回到低价值铺量测试；[components/admin/settings/general-settings.vue](../../components/admin/settings/general-settings.vue)、[components/admin/settings/ai-quota-policies-editor.vue](../../components/admin/settings/ai-quota-policies-editor.vue)、[components/admin/settings/ai-alert-thresholds-editor.vue](../../components/admin/settings/ai-alert-thresholds-editor.vue)、[components/admin/settings/ai-cost-factors-editor.vue](../../components/admin/settings/ai-cost-factors-editor.vue)、[components/admin/settings/commercial-settings.vue](../../components/admin/settings/commercial-settings.vue)、[components/admin/settings/external-feed-sources-editor.vue](../../components/admin/settings/external-feed-sources-editor.vue) 与 [components/admin/settings/theme-save-dialog.vue](../../components/admin/settings/theme-save-dialog.vue) 已形成连续增量。
+    - **推进方式**: 本轮优先命中后台 settings / editor 高 ROI 切片，而不是回到低价值铺量测试；[components/admin/settings/general-settings.vue](../../../components/admin/settings/general-settings.vue)、[components/admin/settings/ai-quota-policies-editor.vue](../../../components/admin/settings/ai-quota-policies-editor.vue)、[components/admin/settings/ai-alert-thresholds-editor.vue](../../../components/admin/settings/ai-alert-thresholds-editor.vue)、[components/admin/settings/ai-cost-factors-editor.vue](../../../components/admin/settings/ai-cost-factors-editor.vue)、[components/admin/settings/commercial-settings.vue](../../../components/admin/settings/commercial-settings.vue)、[components/admin/settings/external-feed-sources-editor.vue](../../../components/admin/settings/external-feed-sources-editor.vue) 与 [components/admin/settings/theme-save-dialog.vue](../../../components/admin/settings/theme-save-dialog.vue) 已形成连续增量。
     - **验证与证据**: 定向 Vitest / coverage、定向 ESLint 与全量 coverage checkpoint 详见活动回归窗口 2026-05-06 记录。
 
 3. **主线：周期性回归执行 (P1)**:
@@ -230,24 +230,24 @@
 **ROI 评估**: Windows 本地 Dev / Build 性能治理 `2.00`；测试有效性切片 `1.80`；ESLint / 类型债治理 `1.50`；结构复用治理（至少 3 处热点）`1.70`；Postgres 长窗口复核切片 `1.45`。其中 Windows 性能与测试有效性为 P0 主线，其余三项为受控 P1 治理切片。
 
 1. **主线：Windows 本地 Dev / Build 性能治理 (P0)**:
-    - **阶段结果**: installation state、连接级初始化、optional session、request log 与 permission 的 always-loaded 边界已完成收紧；新增 [server/services/installation-probe.ts](../design/governance/windows-dev-build-performance-governance.md) 对应的轻量探针事实源后，Windows 本地 `nuxt dev` 首响已由约 `502279ms` 收敛到约 `58549ms`，`nuxt build` 也已完成 `Server built -> Build complete` 长尾首轮止血。
-    - **验证与证据**: 见 [windows-dev-build-performance-governance.md](../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 以及 2026-05-16 的用户实测记录。
+    - **阶段结果**: installation state、连接级初始化、optional session、request log 与 permission 的 always-loaded 边界已完成收紧；新增 [server/services/installation-probe.ts](../../design/governance/windows-dev-build-performance-governance.md) 对应的轻量探针事实源后，Windows 本地 `nuxt dev` 首响已由约 `502279ms` 收敛到约 `58549ms`，`nuxt build` 也已完成 `Server built -> Build complete` 长尾首轮止血。
+    - **验证与证据**: 见 [windows-dev-build-performance-governance.md](../../design/governance/windows-dev-build-performance-governance.md)、`artifacts/nuxt-*-performance.json`、`artifacts/nitro-resolve-probe.json` 以及 2026-05-16 的用户实测记录。
 
 2. **主线：测试有效性切片 (P0)**:
     - **阶段结果**: 已围绕前端直连 TTS、AI task `estimated / actual` 口径一致性与公开热点读链路补齐 3 组高风险断言，避免本轮退化为单纯补 coverage 数字。
-    - **验证与证据**: 定向回归矩阵为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果 `14` 通过、`0` 失败；详见 [docs/reports/regression/current.md](../reports/regression/current.md) 的 2026-05-18 记录。
+    - **验证与证据**: 定向回归矩阵为 `pnpm exec vitest run server/api/ai/tts/task.post.test.ts server/api/admin/ai/stats.get.test.ts tests/server/api/posts/access-error-mapping.test.ts`，结果 `14` 通过、`0` 失败；详见 [docs/reports/regression/current.md](../../reports/regression/current.md) 的 2026-05-18 记录。
 
 3. **主线：ESLint / 类型债治理 (P1)**:
-    - **阶段结果**: [server/services/ai/asr.ts](../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，AI 服务层日志字段与 provider model 多态断言已同步收紧。
+    - **阶段结果**: [server/services/ai/asr.ts](../../../server/services/ai/asr.ts)、[server/services/ai/image.ts](../../../server/services/ai/image.ts)、[server/services/ai/tts.ts](../../../server/services/ai/tts.ts) 与 [server/services/ai/base.ts](../../../server/services/ai/base.ts) 已完成 `unknown + 显式收窄` 收敛，AI 服务层日志字段与 provider model 多态断言已同步收紧。
     - **验证与证据**: 定向 ESLint、对应单测与 `pnpm run typecheck` 已通过；残余候选继续收敛为测试桩历史 `as any` 与 provider 聚合层进一步去断言化。
 
 4. **主线：结构复用治理：至少 3 处热点收敛 (P1)**:
-    - **阶段结果**: 后台订阅 / waitlist 列表页壳层、广告 campaigns / placements 实体列表与表单弹窗控制流，以及邮件服务内部发送管线已完成 3 处热点收敛；[components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 保留为下一轮候选。
-    - **验证与证据**: `pnpm duplicate-code:check`、[server/utils/email/service.test.ts](../../server/utils/email/service.test.ts) 与 `pnpm exec nuxt typecheck` 已通过，baseline 未反弹。
+    - **阶段结果**: 后台订阅 / waitlist 列表页壳层、广告 campaigns / placements 实体列表与表单弹窗控制流，以及邮件服务内部发送管线已完成 3 处热点收敛；[components/commercial-link-manager.vue](../../../components/commercial-link-manager.vue) 保留为下一轮候选。
+    - **验证与证据**: `pnpm duplicate-code:check`、[server/utils/email/service.test.ts](../../../server/utils/email/service.test.ts) 与 `pnpm exec nuxt typecheck` 已通过，baseline 未反弹。
 
 5. **主线：Postgres 长窗口复核切片 (P1)**:
     - **阶段结果**: 已通过 2026-05-12 与 2026-05-14 的 Neon 长窗口样本确认，当前不再存在“非生产自部署 Cron + 请求入口误触完整初始化”导致的长期 compute 占用阻塞；剩余热点已回收到 backlog 继续管理。
-    - **验证与证据**: 详见 [docs/reports/regression/current.md](../reports/regression/current.md) 中两轮长窗口复核记录，以及 [backlog.md](./backlog.md) 的后续候选收敛说明。
+    - **验证与证据**: 详见 [docs/reports/regression/current.md](../../reports/regression/current.md) 中两轮长窗口复核记录，以及 [backlog.md](../backlog.md) 的后续候选收敛说明。
 
 ### 第三十八阶段：分发一致性修补与热点治理续推 (Distribution Consistency Patch-Up & Hotspot Governance Continuation) (已审计归档)
 
@@ -256,12 +256,12 @@
 
 **审计结论**: 第三十八阶段五条主线已在当前仓库实现、定向测试、live sample、活动回归窗口与规划文档中完成闭环，满足归档条件。`B 站 / Memos` 标签尾注与预览一致性已收口；测试有效性第二轮、结构复用第二轮与 AI provider 聚合层 ESLint / 类型债窄切片也均具备可追溯证据。Postgres P0 当前已完成“公开热点读链路止损式瘦身 + 根因收敛”的本阶段目标，剩余缓存侧优化继续回收到 backlog 长期主线，而不再作为本阶段阻塞项。`todo.md` 当前执行面已清理，下一阶段仍只保留候选分析，不在本轮直接上收。
 
-**准入结论**: 五条主线均来自 [backlog.md](./backlog.md) 的长期主线或短期候选，总数控制在 `5` 项内，符合当前阶段容量约束。当前阶段不引入新增功能，执行优先级为 `2 个 P0 + 3 个 P1`。
+**准入结论**: 五条主线均来自 [backlog.md](../backlog.md) 的长期主线或短期候选，总数控制在 `5` 项内，符合当前阶段容量约束。当前阶段不引入新增功能，执行优先级为 `2 个 P0 + 3 个 P1`。
 
 **ROI 评估**: 第三方分发标签尾注与预览一致性修补 `1.60`；测试有效性第二轮切片 `1.85`；Postgres 公开热点读链路继续瘦身 `1.75`；结构复用第二轮（至少 3 处热点）`1.70`；ESLint / 类型债下一轮窄切片 `1.50`。其中测试有效性与 Postgres 热点读链路为 P0 主线，其余三项为受控 P1 治理切片。
 
 1. **主线：第三方分发标签尾注与预览一致性修补 (P1)**:
-    - **执行范围**: 只覆``B`` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../design/governance/archive/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
+    - **执行范围**: 只覆``B`` 与 `Memos` 两个渠道；优先复用 [Phase 38 执行计划](../../design/governance/archive/phase-38-plan.md) 中冻结的分发物料入口，收敛“标签标准化 + 尾注拼装 + 预览展示”到同一 helper，而不是分别对预览层和投递层做热修。
     - **非目标**: 不扩写到 WechatSync、邮件、Hexo 仓库同步或其他分发器；不重做整套分发 UI。
     - **验收标准**``B`` 预``B`` 实际同步 payload 与 `Memos` 预览三处输出在标签尾注上保持一致；并明确“标签尾注中的标签项去除空格后再输出”的唯一规则。
     - **验证与证据**: 至少补齐一组分发物料 helper / template 测试与一组实际分发 / 导出层测试；必要时补一组后台分发预览组件测试。
@@ -274,11 +274,11 @@
 
 3. **主线：Postgres 公开热点读链路继续瘦身 (P0)**:
     - **阶段结果**: `posts/home`、`categories` 与 `tags` 公开链路已切到 connection-only 初始化边界，`server/database/index.ts` 的两阶段初始化状态机也已修正为“connection/full init 锁在每轮结束后释放，维护链失败后下一次仍可重试”；首页列表响应已剥离 `author.email / emailHash`，避免为未消费字段继续承担公共热读成本。
-    - **阶段结果**: 基于 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是初始化误触问题；本阶段据此完成单路径瘦身与根因收敛，并将剩余缓存侧继续优化回收到 backlog 长期主线。
-    - **验证与证据**: `tests/server/database/init-boundary.test.ts`、`tests/server/api/posts/home.get.test.ts`、受影响 API 定向测试、受影响文件类型检查，以及 [2026-05-19 第三十八阶段 Neon Live Sample 摘要](../../artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md)。
+    - **阶段结果**: 基于 `artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md`，当前超预算更像“公开热读 + 稀疏公共流量持续打醒 compute”的组合，而不是初始化误触问题；本阶段据此完成单路径瘦身与根因收敛，并将剩余缓存侧继续优化回收到 backlog 长期主线。
+    - **验证与证据**: `tests/server/database/init-boundary.test.ts`、`tests/server/api/posts/home.get.test.ts`、受影响 API 定向测试、受影响文件类型检查，以及 `artifacts/review-gate/2026-05-19-phase-38-neon-live-sample.md`。
 
 4. **主线：结构复用第二轮（至少 3 处热点） (P1)**:
-    - **执行范围**: 再次完成 `3` 处以上热点收敛，优先处理 [components/commercial-link-manager.vue](../../components/commercial-link-manager.vue) 文件内自重复；其余候选优先选择轻量 shared helper，而不是复杂业务抽象。
+    - **执行范围**: 再次完成 `3` 处以上热点收敛，优先处理 [components/commercial-link-manager.vue](../../../components/commercial-link-manager.vue) 文件内自重复；其余候选优先选择轻量 shared helper，而不是复杂业务抽象。
     - **非目标**: 不把复杂页面状态机包装成新的通用框架；不重复统计第三十七阶段已收口的热点。
     - **验收标准**: 至少 `3` 处热点完成收敛，其中必须包含 `commercial-link-manager` 文件内自重复；`pnpm duplicate-code:check` 基线不反弹。
     - **验证与证据**: 受影响组件 / helper 定向测试、`pnpm duplicate-code:check` 与受影响文件类型检查。
@@ -296,12 +296,12 @@
 
 **审计结论**: 第三十九阶段五条主线已在实现代码、定向测试、设计文档、治理 baseline 与规划文档中完成闭环。`todo.md` 已清理当前阶段正文，`todo-archive.md` 已收录完整归档块；多语路线图摘要已同步阶段状态。下一阶段当前仅保留候选分析，不在本轮直接上收。
 
-**准入结论**: 五条主线中，“公众号格式预览 / 导出辅助”是唯一新增功能，其余四条均已有可重复执行 baseline 或稳定事实源：`artifacts/governance/simple-duplicates-latest.md`、`artifacts/governance/comment-drift-latest.md`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate`、`artifacts/governance/script-governance-latest.md`，以及 `i18n:audit:missing` / `i18n:verify:runtime` 与 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 的运行时装配基线。总数控制在 `5` 项内，符合当前阶段容量约束。
+**准入结论**: 五条主线中，“公众号格式预览 / 导出辅助”是唯一新增功能，其余四条均已有可重复执行 baseline 或稳定事实源：`artifacts/governance/simple-duplicates-latest.md`、`artifacts/governance/comment-drift-latest.md`、`pnpm docs:check:line-count:candidate`、`pnpm docs:check:source-of-truth:candidate`、`artifacts/governance/script-governance-latest.md`，以及 `i18n:audit:missing` / `i18n:verify:runtime` 与 [i18n/config/locale-modules.ts](../../../i18n/config/locale-modules.ts) 的运行时装配基线。总数控制在 `5` 项内，符合当前阶段容量约束。
 
 **ROI 评估**: 微信公众号格式预览 / 导出辅助 `1.56`；结构复用第三轮（3 个热点）`1.72`；注释治理首轮（1 - 2 组模块）`1.43`；文档 / 脚本治理最小收口包 `1.67`；国际化文案复用治理 `1.60`。其中公众号能力与文档 / 脚本治理作为本阶段优先主线，其余三项保持受控治理切片推进。
 
 1. **主线：微信公众号格式预览 / 导出辅助 (P0)**:
-    - **执行范围**: 只做“Markdown -> 公众号风格 HTML / 样式预览 / 复制排版后内容”三件事，且坚持“格式转换优先，样式美化次之”；优先复用现有编辑器与分发预览表面，如 [components/admin/mavon-editor-client.client.vue](../../components/admin/mavon-editor-client.client.vue)、[components/admin/posts/post-editor-header.vue](../../components/admin/posts/post-editor-header.vue)、[components/admin/posts/post-distribution-button.vue](../../components/admin/posts/post-distribution-button.vue)、[composables/use-post-distribution-button.ts](../../composables/use-post-distribution-button.ts) 与 [utils/web/post-distribution-dialog.ts](../../utils/web/post-distribution-dialog.ts)，而不是新建一套完整编辑器。
+    - **执行范围**: 只做“Markdown -> 公众号风格 HTML / 样式预览 / 复制排版后内容”三件事，且坚持“格式转换优先，样式美化次之”；优先复用现有编辑器与分发预览表面，如 [components/admin/mavon-editor-client.client.vue](../../../components/admin/mavon-editor-client.client.vue)、[components/admin/posts/post-editor-header.vue](../../../components/admin/posts/post-editor-header.vue)、[components/admin/posts/post-distribution-button.vue](../../../components/admin/posts/post-distribution-button.vue)、[composables/use-post-distribution-button.ts](../../../composables/use-post-distribution-button.ts) 与 [utils/web/post-distribution-dialog.ts](../../../utils/web/post-distribution-dialog.ts)，而不是新建一套完整编辑器。
     - **非目标**: 不整体引入 `doocs/md` 的完整编辑器、图床、AI、草稿与部署体系；不替换 `mavon-editor`；不把范围扩写为新的富文本编辑器工程。
     - **数据基线**: 当前仓库已存在 `Memos / WechatSync` 的 expanded preview 与 `finalMarkdown / bodyMarkdown / copyrightMarkdown` 三类预览输出，但尚不存在 dedicated 的 `wechat_mp` 风格渲染 profile，也没有“复制排版后内容”的固定入口。
     - **验收标准**: 先在 `docs/design/governance/` 或等价入口落一份专项设计文档，明确首版只交付“公众号风格预览 / 复制排版后内容”，不交付整体编辑器替换；再补齐一条可复用的公众号样式转换链路，并至少验证标题层级、图片、引用块、代码块 / 提示容器、长文阅读连续性，以及编辑器预览与复制结果的一致性。
@@ -314,7 +314,7 @@
     - **验证与证据**: `artifacts/governance/simple-duplicates-latest.md/.json` 的前后对比、受影响 helper / 组件定向测试、`pnpm duplicate-code:check` 与受影响文件类型检查。
 
 3. **主线：注释治理首轮（1 - 2 组模块） (P1)**:
-    - **执行范围**: 以 `comment-drift` baseline 为事实源推进首轮高复杂度模块补注释，当前基线为“高复杂度导出函数缺注释候选 `177`、TODO / 临时口吻 `27`、疑似漂移注释 `298`”；本轮优先锁定 [composables/use-post-editor-io.ts](../../composables/use-post-editor-io.ts)（complexity `61`）与 [composables/use-post-editor-ai.ts](../../composables/use-post-editor-ai.ts)（complexity `44`），第二组只允许在 [composables/use-notifications.ts](../../composables/use-notifications.ts)、[composables/use-installation-wizard.ts](../../composables/use-installation-wizard.ts)、[composables/use-admin-friend-links-page.ts](../../composables/use-admin-friend-links-page.ts) 中三选一。
+    - **执行范围**: 以 `comment-drift` baseline 为事实源推进首轮高复杂度模块补注释，当前基线为“高复杂度导出函数缺注释候选 `177`、TODO / 临时口吻 `27`、疑似漂移注释 `298`”；本轮优先锁定 [composables/use-post-editor-io.ts](../../../composables/use-post-editor-io.ts)（complexity `61`）与 [composables/use-post-editor-ai.ts](../../../composables/use-post-editor-ai.ts)（complexity `44`），第二组只允许在 [composables/use-notifications.ts](../../../composables/use-notifications.ts)、[composables/use-installation-wizard.ts](../../../composables/use-installation-wizard.ts)、[composables/use-admin-friend-links-page.ts](../../../composables/use-admin-friend-links-page.ts) 中三选一。
     - **非目标**: 不把本轮扩大成全仓平均补注释；不把逐行复述代码的注释当作成果；不为了数字好看而跳过 TODO / 漂移注释清理。
     - **验收标准**: 本轮选中``1 -`` 组模块必须补齐“为什么这样写 / 契约 / 副作用 / 失败回退”类高价值注释，并同步清理对应文件中的 TODO / 漂移注释；重跑 `pnpm governance:audit:comment-drift` 后，所选模块在缺注释 / 漂移候选中应出现可追溯下降。
     - **验证与证据**: `artifacts/governance/comment-drift-latest.md/.json` 对比、受影响 composable 定向测试与受影响文件类型检查。
@@ -326,17 +326,17 @@
     - **验证与证据**: `pnpm lint:md`、`pnpm docs:check:i18n`、`pnpm docs:check:line-count`、`pnpm docs:check:source-of-truth`、`pnpm governance:check:scripts`，以及对应 artifact / 文档 diff。
 
 5. **主线：国际化文案复用治理 (P1)**:
-    - **执行范围**: 继续坚持“先守住模块归属和运行时命中，再做有限复用”。当前 `i18n:audit:missing` 已保``total:``，友链场景共享字段已统一沉淀到 `components.friend_links.fields`；下一轮优先把运行时验证面从 About / friend-links 扩到 [components/app-footer.vue](../../components/app-footer.vue)、[pages/archives/index.vue](../../pages/archives/index.vue)、[pages/categories/index.vue](../../pages/categories/index.vue) 与 [pages/tags/index.vue](../../pages/tags/index.vue) 这 `4` 组公开装配链路。
+    - **执行范围**: 继续坚持“先守住模块归属和运行时命中，再做有限复用”。当前 `i18n:audit:missing` 已保``total:``，友链场景共享字段已统一沉淀到 `components.friend_links.fields`；下一轮优先把运行时验证面从 About / friend-links 扩到 [components/app-footer.vue](../../../components/app-footer.vue)、[pages/archives/index.vue](../../../pages/archives/index.vue)、[pages/categories/index.vue](../../../pages/categories/index.vue) 与 [pages/tags/index.vue](../../../pages/tags/index.vue) 这 `4` 组公开装配链路。
     - **非目标**: 不为了去重强行把页面私有语义上收到 `common`；不把 `unused` 清理扩成整仓 key 改名工程；不改写现有 route-module 装配边界。
     - **验收标准**: 在保持 `pnpm i18n:audit:missing` 为 `0` 的前提下，把上述 `4` 组公开装配链路纳入固定 runtime 验证面，并明确哪些字段继续保留页面私有命名空间、哪些字段可稳定沉淀到共享组件命名空间；新增范围内不得再出现 raw key 暴露。
-    - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试，以及 [i18n/config/locale-modules.ts](../../i18n/config/locale-modules.ts) 对应模块装配的变更记录。
+    - **验证与证据**: `pnpm i18n:audit:missing`、`pnpm i18n:verify:runtime`、受影响页面 / 组件定向测试，以及 [i18n/config/locale-modules.ts](../../../i18n/config/locale-modules.ts) 对应模块装配的变更记录。
 
 ### 第四十阶段：发布前守护与 TypeORM 升级评估收口 (Release Guardrails & TypeORM Upgrade Assessment) (已审计归档)
 
 **时间表**: 2026-05-23 ~ 约 1 - 2 周
 **目标**: 在第三十九阶段完成治理基线落盘后，把第四十阶段明确收敛为“两条主线并行、一个收口层兜底”的执行面：一条主线负责发布前守护与回归闸门固化，另一条主线负责 TypeORM 1.0.0 升级评估的兼容性探针、go/no-go 结论与回滚预案，避免阶段标题已经写了 TypeORM、但实际执行面只剩 CI 守护的规划漂移。
 
-**审计结论**: 第四十阶段六条主线均已在代码、workflow、回归证据与规划文档中完成闭环。当前状态为：发布前守护轨已统一 pre-check 入口并收敛执行顺序；TypeORM 评估轨维持 `NO-GO（直接升级）` / `GO（评估任务收口）`；收口轨已把 pre-check、周期性回归与 TypeORM 评估结论稳定沉淀到 [活动回归窗口](../reports/regression/current.md)。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块，满足阶段归档条件。
+**审计结论**: 第四十阶段六条主线均已在代码、workflow、回归证据与规划文档中完成闭环。当前状态为：发布前守护轨已统一 pre-check 入口并收敛执行顺序；TypeORM 评估轨维持 `NO-GO（直接升级）` / `GO（评估任务收口）`；收口轨已把 pre-check、周期性回归与 TypeORM 评估结论稳定沉淀到 [活动回归窗口](../../reports/regression/current.md)。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块，满足阶段归档条件。
 
 **准入结论**: 本阶段共 `6` 条主线，按“先守护入口、再跑 TypeORM 兼容性探针、最后统一留痕与策略收口”的顺序推进；当前容量为 `2` 条 P0 + `3` 条 P1 + `1` 条 P2，仍在规划规范要求``5 -`` 项窗口内。
 
@@ -358,7 +358,7 @@
     - **执行范围**: 仅做评估态兼容性探针，不直接把 `typeorm` 从 `0.3.29` 升到 `1.0.0` 并宣布实施完成；优先覆盖 `server/database/**`、`server/database/typeorm-adapter.ts`、公开热点读链路与依赖 TypeORM 形态的定向测试。
     - **非目标**: 不在本阶段完成真实升级实施；不顺手重写仓库内所有 TypeORM mock。
     - **最小验收**: 至少完成一轮 `typeorm@1.0.0` 兼容性探针，按“数据库与适配层 / 实体层 / 查询与服务层 / API 层 / 测试桩”输出失败分桶，并跑通最小验证矩阵中的静态检查与关键定向验证。
-    - **验证与证据**: [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../design/governance/archive/typeorm-v1-upgrade-assessment.md)、定向验证记录与活动回归窗口中的阶段结论。
+    - **验证与证据**: [docs/design/governance/archive/typeorm-v1-upgrade-assessment.md](../../design/governance/archive/typeorm-v1-upgrade-assessment.md)、定向验证记录与活动回归窗口中的阶段结论。
 
 4. **主线：TypeORM 升级 go/no-go 与回滚预案落盘 (P1)**:
     - **执行范围**: 依据兼容性探针结果输出 go/no-go，并把回滚锚点、触发条件与后续是否升格为真实升级实施写清楚。
@@ -370,7 +370,7 @@
     - **执行范围**: 将 pre-check、回归摘要与 TypeORM 评估结论自动沉淀到活动回归窗口模板，减少阶段收口时的人工补录。
     - **非目标**: 不重新设计第二套回归记录文档；不要求本轮自动生成完整审计报告。
     - **最小验收**: 每次主流程后能生成一条标准化证据记录，至少包含执行入口、结果摘要、阻断项或 go/no-go 结论。
-    - **验证与证据**: [docs/reports/regression/current.md](../reports/regression/current.md) 中的模板化记录与对应脚本输出。
+    - **验证与证据**: [docs/reports/regression/current.md](../../reports/regression/current.md) 中的模板化记录与对应脚本输出。
 
 6. **主线：守护策略分级与依赖风险口径对齐 (P2)**:
     - **执行范围**: 把阻断项和提醒项配置化，并同步校准 `security:audit-deps` 与 `security:audit-deps:daily` 的判断口径，避免 release 前与 daily 巡检出现双标。
@@ -389,6 +389,6 @@
 
 **ROI 评估**: TypeORM 升级前置清障切片 `1.80`；Postgres 热点读链路治理 `1.75`；文档门禁和脚本治理 `1.60`；结构复用治理 `1.60`；ESLint / 类型债治理 `1.50`。
 
-> 详细条目与验收结论已归档至 [待办事项归档](./todo-archive.md)。
+> 详细条目与验收结论已归档至 [待办事项归档](../todo-archive.md)。
 
 

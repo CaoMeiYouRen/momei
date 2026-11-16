@@ -140,7 +140,7 @@
 
 ## 第二十九阶段：评论翻译与治理事实源收敛推进 (已审计归档)
 
-> 审计结论: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中完成闭环，满足归档条件。评论区翻译已完成只读切换、缓存复用与匿名阅读兼容；GEO / SEO 抽样验证见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；其余治理切片分别在 [current.md](../../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 归档记录中收口并给出 Review Gate `Pass` 结论。
+> 审计结论: 第二十九阶段围绕评论区翻译、GEO / SEO / AI crawler 可见性补强、ESLint / 类型债窄边界收紧、重复代码与纯函数复用收敛、国际化第二轮治理，以及文档事实源 / 回归记录 / 深度归档治理六条主线，已在实现代码、定向测试、活动回归窗口、设计文档与专项验证记录中完成闭环，满足归档条件。评论区翻译已完成只读切换、缓存复用与匿名阅读兼容；GEO / SEO 抽样验证见 `artifacts/geo-seo-ai-crawler-validation-2026-04-20.md`；其余治理切片分别在 [current.md](../../reports/regression/current.md) 的 2026-04-21 近线记录与 [2026-04-18-to-2026-04-21.md](../../reports/regression/archive/2026-04-18-to-2026-04-21.md) 归档记录中收口并给出 Review Gate `Pass` 结论。
 
 > **ROI 评估**: 评论区翻译功能 1.67；GEO / SEO / AI crawler 可见性与文章可引用性补强 1.80；ESLint / 类型债与规则收紧治理 1.50；重复代码与纯函数复用收敛 1.60；国际化运行时加载 / 文案复用 / unused 审计治理 1.50；文档事实源、回归记录与深度归档治理 1.40。六项均已按本阶段准入边界完成收口，其中评论区翻译、GEO / SEO 与重复代码复用为本轮优先上收项。
 
@@ -162,7 +162,7 @@
     - 验收: 首页、文章页、分类页的 `canonical`、OG、Twitter、JSON-LD 抽样验证通过。
     - 验收: 至少抽样 `3 - 5` 篇文章验证摘要 / 要点 / FAQ 或等价可引用性增强，不破坏现有渲染与国际化体验。
     - 结果: 已完成 `/robots.txt`、`/feed.atom`、`/sitemap.xml`、`/llms.txt` 与 `/llms-full.txt` 的公开入口抽样，并确认首页、文章页、分类页的 canonical / OG / JSON-LD 对齐；5 篇文章样本均具备摘要块与 `BlogPosting.abstract`。
-    - 验证: 专项验证记录见 [geo-seo-ai-crawler-validation-2026-04-20.md](../../../../artifacts/geo-seo-ai-crawler-validation-2026-04-20.md)；相关运行时能力继续由 `server/utils/llms.ts`、`server/routes/robots.txt.ts`、`server/api/_sitemap-urls.ts` 与页面级 SEO 测试守线。
+    - 验证: 专项验证记录见 `artifacts/geo-seo-ai-crawler-validation-2026-04-20.md`；相关运行时能力继续由 `server/utils/llms.ts`、`server/routes/robots.txt.ts`、`server/api/_sitemap-urls.ts` 与页面级 SEO 测试守线。
 
 ### 3. 主线：ESLint / 类型债与规则收紧治理 (P1)
 
@@ -218,7 +218,7 @@
     - 验收: 对必须查库的热点读路径继续压缩字段集、重复读取与短 TTL 缓存边界，兼顾查询体量、CPU 使用与连接活跃时长。
     - 验收: 使用 `pg_stat_statements` 或等价 live sample 记录本轮运行期证据，至少能说明查询次数、结果集体量或连接活跃窗口的下降趋势。
     - 结果: 已在 `0b-db-ready` 中间件收紧数据库预热边界，在 `1-auth` 中间件收紧匿名公开链路会话解析触发面，并为 `settings/public`、`friend-links` 等公开读路径补齐短 TTL 运行时缓存；结合后台最新运行期观测，查询次数、重复读取与连接活跃窗口下降趋势已可支撑主线关闭。
-    - 验证: `tests/server/middleware/db-ready.test.ts`、`tests/server/middleware/auth-optional-session.test.ts` 与 `tests/server/api/settings/public.get.test.ts` 已覆盖预热边界、可选会话解析与缓存命中契约；运行期背景基线与热点清单继续见 [postgres-hot-read-governance-2026-04-12.md](../../../../artifacts/postgres-hot-read-governance-2026-04-12.md) 与 [current.md](../../reports/regression/current.md)。
+    - 验证: `tests/server/middleware/db-ready.test.ts`、`tests/server/middleware/auth-optional-session.test.ts` 与 `tests/server/api/settings/public.get.test.ts` 已覆盖预热边界、可选会话解析与缓存命中契约；运行期背景基线与热点清单继续见 `artifacts/postgres-hot-read-governance-2026-04-12.md` 与 [current.md](../../reports/regression/current.md)。
 
 ### 3. 主线：测试覆盖率与有效性治理（目标 > 76%） (P0)
 
@@ -328,7 +328,7 @@
 
 ## 第二十五阶段：部署体验与可持续演进收敛 (已审计归档)
 
-> 审计结论: 第二十五阶段围绕部署体验与初始化收敛、编辑器与正文渲染体验第二轮收口、构建速度与包体性能深化、Cloudflare 运行时兼容研究与止损结论，以及 AI 初始化 / 配置问答助手评估五条主线，已在实现代码、部署 / 设计 / 指南文档、多语言翻译页与专项 Review Gate 证据中形成闭环，满足归档条件。正式放行依据为 [2026-04-11-phase-25-archive.md](../../../artifacts/review-gate/2026-04-11-phase-25-archive.md) 的 `Pass` 结论；其中部署体验收敛、Cloudflare 研究结论、AI 助手评估与编辑器 / 渲染收口分别继续引用 2026-04-09 至 2026-04-10 的专项证据，不再额外起第二套事实源。
+> 审计结论: 第二十五阶段围绕部署体验与初始化收敛、编辑器与正文渲染体验第二轮收口、构建速度与包体性能深化、Cloudflare 运行时兼容研究与止损结论，以及 AI 初始化 / 配置问答助手评估五条主线，已在实现代码、部署 / 设计 / 指南文档、多语言翻译页与专项 Review Gate 证据中形成闭环，满足归档条件。正式放行依据为 `artifacts/review-gate/2026-04-11-phase-25-archive.md` 的 `Pass` 结论；其中部署体验收敛、Cloudflare 研究结论、AI 助手评估与编辑器 / 渲染收口分别继续引用 2026-04-09 至 2026-04-10 的专项证据，不再额外起第二套事实源。
 
 > **ROI 评估**: 部署体验与初始化收敛 2.00；编辑器与正文渲染体验第二轮收口 1.80；构建速度与包体性能深化 1.60；AI 初始化 / 配置问答助手评估 1.33；Cloudflare 运行时兼容研究与止损结论 1.14。五项均已按本阶段准入边界完成收口，其中部署体验与编辑器 / 渲染收口为本轮 P0 主线。
 
@@ -360,7 +360,7 @@
     - 验收: 至少覆盖代码块、公式、图片、提示容器、长文本翻译回填与目标语言预览 6 类高风险内容。
     - 验收: 补齐最小定向测试或浏览器验证，记录仍未覆盖的边界与后续观察项。
     - 结果: 已在 `utils/shared/markdown.ts` 收敛正文最终渲染清洗策略，并抽离 `utils/shared/markdown-heading.ts` 作为标题 slug 单一事实源。
-    - 验证: `components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐关键场景验证；专项证据见 [2026-04-10-editor-rendering-round2.md](../../../artifacts/review-gate/2026-04-10-editor-rendering-round2.md)。
+    - 验证: `components/article-content.vue`、`components/table-of-contents.vue`、`utils/shared/markdown.test.ts`、`components/article-content.test.ts` 与 `components/table-of-contents.test.ts` 已补齐关键场景验证；专项证据见 `artifacts/review-gate/2026-04-10-editor-rendering-round2.md`。
 
 ### 3. 构建速度与包体性能深化 (P1)
 
@@ -383,13 +383,13 @@
     - 验收: 面向 Cloudflare Pages / Workers / D1 路线输出可追溯的阻塞清单，至少覆盖 TypeORM、Node 运行时依赖、数据库契约、文件存储与定时任务差异。
     - 验收: 若存在最小样机路径，需明确它只代表技术可行性研究，不代表当前项目已支持整站 Cloudflare 部署。
     - 验收: 研究产物至少能够支撑“继续推进 / 暂停投入 / 仅保留外围能力接入”三选一的方向结论。
-    - 结果: 已新增 [docs/design/governance/cloudflare-runtime-study.md](../../design/governance/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
+    - 结果: 已新增 [docs/design/governance/cloudflare-runtime-study.md](../../design/governance/archive/cloudflare-runtime-study.md)，并把唯一推荐的最小样机路径收敛为“Cloudflare 仅做外围能力与任务触发，应用主体继续运行在 Vercel / Docker / 自托管 Node”。
 - [x] **Cloudflare 平台边界说明与止损结论收口**
     - 验收: 若研究结论仍为短期不适合推进，需进一步收敛对外说明、内部设计约束与后续触发条件，避免未来重复投入同类预研却缺少止损结论。
     - 验收: 若研究结论允许继续推进，也必须先定义下一阶段的技术闸门与替代成本，不得在本阶段直接扩写为整站适配开发。
     - 验收: 补齐对应文档或研究说明入口，确保后续规划可直接复用本轮结论。
     - 结果: 已同步更新部署指南、快速开始、设计入口与文档站导航，将当前对外说明统一收敛为“短期暂停整站 Cloudflare 运行时适配，仅保留外围能力接入”。
-    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-cloudflare-runtime-study.md](../../../artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md)。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 `artifacts/review-gate/2026-04-09-cloudflare-runtime-study.md`。
 
 ### 5. AI 初始化 / 配置问答助手评估 (P1)
 
@@ -398,7 +398,7 @@
     - 验收: 明确复用现有安装向导、设置元信息、`qa-assistant` 与文档知识源的可行路径，不额外维护第二套知识或配置事实源。
     - 验收: 若评估结论为不立项，也需保留清晰的拒绝理由与后续触发条件，而不是停留在模糊候选状态。
     - 结果: 已基于现有安装向导字段模型、`ENV -> DB -> Default` 设置解释层、`qa-assistant` 只读边界与部署文档知识源，冻结“只读解释型助手”的可回答范围、禁止写入面与事实源复用路径。
-    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 [2026-04-09-ai-setup-assistant-evaluation.md](../../../artifacts/review-gate/2026-04-09-ai-setup-assistant-evaluation.md)。
+    - 验证: `pnpm lint:md` 与 `pnpm docs:check:i18n` 已通过；专项证据见 `artifacts/review-gate/2026-04-09-ai-setup-assistant-evaluation.md`。
 - [x] **安全边界与交互原型评估**
     - 验收: 至少澄清 ENV 锁定字段、敏感配置写入保护、越权问题、错误回答回退与用户确认链路等关键安全边界。
     - 验收: 若进入原型阶段，只允许做启用前引导或配置解释类最小交互，不直接承诺全功能站内 AI 助手体验。

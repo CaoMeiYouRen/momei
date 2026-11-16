@@ -217,11 +217,11 @@
 
 ## 5. 相关文档
 
-- [项目长期规划与积压项](../../plan/backlog.md)
-- [项目路线图](../../plan/roadmap.md)
-- [项目规划规范](../../standards/planning.md)
+- [项目长期规划与积压项](../../../plan/backlog.md)
+- [项目路线图](../../../plan/roadmap.md)
+- [项目规划规范](../../../standards/planning.md)
 - [caomei-auth OAuth / OIDC 接入预研](./caomei-auth-oauth-evaluation.md)
 - [商业化转型可行性重评框架](./commercialization-reassessment-framework.md)
-- [国际化字段治理与共享文案边界收敛](./i18n-field-governance.md)
-- [ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening.md)
+- [国际化字段治理与共享文案边界收敛](../i18n-field-governance.md)
+- [ESLint / 类型债与规则收紧治理](../eslint-type-debt-tightening.md)
 

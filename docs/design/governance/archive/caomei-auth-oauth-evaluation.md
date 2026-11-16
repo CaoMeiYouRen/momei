@@ -214,6 +214,6 @@
 ## 13. 相关文档
 
 - [第三十一阶段候选上收草案](./phase-31-candidate-draft.md)
-- [项目长期规划与积压项](../../plan/backlog.md)
-- [认证模块](../modules/auth.md)
-- [环境变量与配置说明](../../guide/variables.md)
+- [项目长期规划与积压项](../../../plan/backlog.md)
+- [认证模块](../../modules/auth.md)
+- [环境变量与配置说明](../../../guide/variables.md)

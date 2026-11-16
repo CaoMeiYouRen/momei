@@ -163,7 +163,7 @@ ORDER BY isPinned DESC, sortOrder ASC, createdAt DESC
 
 ## 8. 相关文档
 
-- [友链模块设计](../design/modules/friend-links.md)
-- [FriendLink 实体定义](../../server/entities/friend-link.ts)
-- [友链服务层](../../server/services/friend-link.ts)
-- [友链公开页面](../../pages/friend-links.vue)
+- [友链模块设计](../../modules/friend-links.md)
+- [FriendLink 实体定义](../../../../server/entities/friend-link.ts)
+- [友链服务层](../../../../server/services/friend-link.ts)
+- [友链公开页面](../../../../pages/friend-links.vue)

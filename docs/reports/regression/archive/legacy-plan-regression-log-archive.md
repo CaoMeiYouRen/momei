@@ -1,12 +1,12 @@
 # 墨梅博客 回归任务记录归档 (Regression Log Archive)
 
-本文档当前作为兼容归档入口保留。新的正式归档管理已迁移到 [docs/reports/regression/archive/index.md](../reports/regression/archive/index.md)；历史记录仍可继续在本文件中回看。
+本文档当前作为兼容归档入口保留。新的正式归档管理已迁移到 [docs/reports/regression/archive/index.md](./index.md)；历史记录仍可继续在本文件中回看。
 
 ## 兼容入口说明
 
-- 正式历史归档入口已迁移到 [docs/reports/regression/archive/index.md](../reports/regression/archive/index.md)。
+- 正式历史归档入口已迁移到 [docs/reports/regression/archive/index.md](./index.md)。
 - 本文件以下正文为旧归档日志兼容快照，不再继续追加新的正式归档记录。
-- 如需查看最近 1 - 2 个阶段的活动回归，请改用 [docs/reports/regression/current.md](../reports/regression/current.md)。
+- 如需查看最近 1 - 2 个阶段的活动回归，请改用 [docs/reports/regression/current.md](../current.md)。
 
 ## 已归档记录
 
@@ -36,9 +36,9 @@
 		- V4 / 性能预算层: 补跑 `pnpm test:perf:budget:strict` 失败；`maxAsyncChunkJsGzipBytes` 命中 `.output/public/_nuxt/BACaqbb-.js`，实际 `271.17KB`，高于预算 `120KB`，其余 `coreEntryJs` 与 `keyCss` 仍在预算内。
 		- V3 / 浏览器基线层: `release:check:full` 中的 `test:e2e` 未真正进入浏览器用例执行，阻塞点发生在 `pnpm exec playwright install --with-deps`；当前容器内 Yarn apt 源缺少 `NO_PUBKEY 62D54FD4003F6525`，导致浏览器依赖安装失败并提前中断。
 	- 结果摘要:
-		- `pnpm regression:phase-close` 本轮以 exit code `1` 结束，正式 artifact 为 [artifacts/review-gate/2026-04-07-phase-close-regression.md](../../artifacts/review-gate/2026-04-07-phase-close-regression.md) 与 [artifacts/review-gate/2026-04-07-phase-close-regression.json](../../artifacts/review-gate/2026-04-07-phase-close-regression.json)；其 Gate 结论为 `Reject`。
-		- 固定入口中的首个 required blocker 来自 `release:check:full`，而发布前 artifact [artifacts/review-gate/2026-04-07-pre-release.md](../../artifacts/review-gate/2026-04-07-pre-release.md) 进一步确认阻塞项是 `test:e2e (Playwright)`，`docs:check:source-of-truth` 仅为 warning，不单独阻断本轮发布前校验。
-		- `phase-close` 自身还同时命中活动日志窗口 blocker: 当前 [regression-log.md](./regression-log.md) 已膨胀到 `674` 行、`12` 条活动记录，超过 `400` 行 / `8` 条记录的正式阈值；即便修复 E2E，若不先滚动归档，阶段收口仍不能放行。
+		- `pnpm regression:phase-close` 本轮以 exit code `1` 结束，正式 artifact 为 `artifacts/review-gate/2026-04-07-phase-close-regression.md` 与 `artifacts/review-gate/2026-04-07-phase-close-regression.json`；其 Gate 结论为 `Reject`。
+		- 固定入口中的首个 required blocker 来自 `release:check:full`，而发布前 artifact `artifacts/review-gate/2026-04-07-pre-release.md` 进一步确认阻塞项是 `test:e2e (Playwright)`，`docs:check:source-of-truth` 仅为 warning，不单独阻断本轮发布前校验。
+		- `phase-close` 自身还同时命中活动日志窗口 blocker: 当前 [regression-log.md](./legacy-plan-regression-log.md) 已膨胀到 `674` 行、`12` 条活动记录，超过 `400` 行 / `8` 条记录的正式阈值；即便修复 E2E，若不先滚动归档，阶段收口仍不能放行。
 		- 本轮为补齐完整证据链额外执行的 `docs:check:i18n` 与 `duplicate-code:check:strict` 已通过，说明文档目录唯一性与重复代码基线当前不是阻塞点；新增暴露出的第二个真实质量 blocker 是 `test:perf:budget:strict` 的异步 chunk 超预算。
 	- Review Gate 结论:
 		- 结论: Reject
@@ -46,13 +46,13 @@
 		- 主要问题:
 			- `test:e2e` 被 Playwright 浏览器安装阶段阻断，根因是容器内 Yarn apt 源缺少公钥，导致 `playwright install --with-deps` 失败。
 			- `test:perf:budget:strict` 失败，`.output/public/_nuxt/BACaqbb-.js` 的 gzip 体积达到 `271.17KB`，超出 `120KB` 异步 chunk 预算。
-			- [regression-log.md](./regression-log.md) 已超出活动窗口，必须先滚动归档到 [regression-log-archive.md](./regression-log-archive.md) 再重新执行 `phase-close`。
+			- [regression-log.md](./legacy-plan-regression-log.md) 已超出活动窗口，必须先滚动归档到 [regression-log-archive.md](./legacy-plan-regression-log-archive.md) 再重新执行 `phase-close`。
 	- 未覆盖边界:
 		- 由于 `release:check:full` 在 `test:e2e` 阶段提前失败，固定入口中的 `test:perf:budget:strict`、`duplicate-code:check:strict` 与 `review-gate:generate:check` 并未由同一次调度串行执行，本轮对应结果来自补跑命令而非原始调度链末端。
 		- 本轮没有修复 `docs:check:source-of-truth` 的英文翻译陈旧问题，只记录其为非阻塞 warning；若后续要求发版前文档 freshness 也必须清零，需要另行补做翻译同步。
 		- 浏览器层没有生成新的 Playwright 场景运行证据，因为失败发生在浏览器依赖安装前；当前只能证明测试环境阻塞，而不能证明 critical 场景本身是否回归。
 	- 后续补跑计划:
-		- 先滚动迁移活动日志中的较早记录到 [regression-log-archive.md](./regression-log-archive.md)，把主日志收敛回 `6 - 8` 条记录以内，再复跑 `pnpm regression:phase-close`。
+		- 先滚动迁移活动日志中的较早记录到 [regression-log-archive.md](./legacy-plan-regression-log-archive.md)，把主日志收敛回 `6 - 8` 条记录以内，再复跑 `pnpm regression:phase-close`。
 		- 修复或绕过当前容器内 `playwright install --with-deps` 的 apt 公钥问题后，重新执行 `pnpm release:check:full` 与浏览器基线，补齐真实的 E2E 运行证据。
 		- 收敛 `.output/public/_nuxt/BACaqbb-.js` 的异步 chunk 体积后，再复跑 `pnpm test:perf:budget:strict`，确认性能预算恢复到可放行范围。
 
@@ -60,7 +60,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第二十四阶段 P0“测试覆盖率与红绿测试有效性深化”补跑；聚焦高 ROI、低耦合的 AI 服务与语音链路模块，包括 [server/utils/ai/asr-volcengine.ts](../../server/utils/ai/asr-volcengine.ts)、[server/utils/ai/tts-openai.ts](../../server/utils/ai/tts-openai.ts)、[server/utils/ai/tts-siliconflow.ts](../../server/utils/ai/tts-siliconflow.ts)、[server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts)、[server/services/ai/text.ts](../../server/services/ai/text.ts)、[composables/use-post-editor-voice.ts](../../composables/use-post-editor-voice.ts)、[composables/use-post-editor-translation.ts](../../composables/use-post-editor-translation.ts) 与 [server/services/migration-link-governance.helpers.ts](../../server/services/migration-link-governance.helpers.ts)，优先补齐失败路径、边界断言、协议分支与回退逻辑。
+- 回归范围: 第二十四阶段 P0“测试覆盖率与红绿测试有效性深化”补跑；聚焦高 ROI、低耦合的 AI 服务与语音链路模块，包括 [server/utils/ai/asr-volcengine.ts](../../../../server/utils/ai/asr-volcengine.ts)、[server/utils/ai/tts-openai.ts](../../../../server/utils/ai/tts-openai.ts)、[server/utils/ai/tts-siliconflow.ts](../../../../server/utils/ai/tts-siliconflow.ts)、[server/utils/ai/tts-volcengine.ts](../../../../server/utils/ai/tts-volcengine.ts)、[server/services/ai/text.ts](../../../../server/services/ai/text.ts)、[composables/use-post-editor-voice.ts](../../../../composables/use-post-editor-voice.ts)、[composables/use-post-editor-translation.ts](../../../../composables/use-post-editor-translation.ts) 与 [server/services/migration-link-governance.helpers.ts](../../../../server/services/migration-link-governance.helpers.ts)，优先补齐失败路径、边界断言、协议分支与回退逻辑。
 - 触发条件: 上一轮全仓语句覆盖率停留在 `67.60%`，距离本阶段“先达到约 68%”的验收线仍差约 `0.40` 个点；同时待办要求在回归记录中保留失败用例、转绿结果与下一轮优先范围。
 - 执行频率: 本阶段专项补跑；后续仅在覆盖率回退、语音链路扩写或高回归风险模块新增分支时追加。
 - timeout budget:
@@ -83,26 +83,26 @@
 - 输出摘要:
 	- 已执行验证:
 		- V1 / 静态层: `npm run lint` 通过，`npm run typecheck` 以 exit code `0` 通过；新增与扩展的测试文件在编辑器错误面检查中均为 `No errors found`。
-		- V2 / 红绿验证层: [server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) 在 `suggestImagePrompt` 补测阶段先出现 `2` 个失败断言，分别暴露“空输入校验使用原始 truthy 判定”与“`dimensions` 返回结构为扁平对象而非嵌套 resolution”两处错误假设；修正断言后转绿。新增的 [server/utils/ai/tts-volcengine.test.ts](../../server/utils/ai/tts-volcengine.test.ts) 首轮出现 `3` 个失败，随后收敛到 `1` 个失败，最终通过放宽 UUID 断言、移除不存在的可选字段断言并按连接结束帧实际协议校验事件码后全部转绿。
-		- V2 / 定向测试层: 关键新增或扩展测试文件最终全部通过，其中 [server/utils/ai/tts-volcengine.test.ts](../../server/utils/ai/tts-volcengine.test.ts) `6` 条、[server/services/ai/text.test.ts](../../server/services/ai/text.test.ts) `24` 条、[server/utils/ai/asr-volcengine.test.ts](../../server/utils/ai/asr-volcengine.test.ts) `8` 条、[server/utils/ai/tts-openai.test.ts](../../server/utils/ai/tts-openai.test.ts) `5` 条、[server/utils/ai/tts-siliconflow.test.ts](../../server/utils/ai/tts-siliconflow.test.ts) `6` 条、[composables/use-post-editor-translation.test.ts](../../composables/use-post-editor-translation.test.ts) `36` 条、[composables/use-post-editor-voice.test.ts](../../composables/use-post-editor-voice.test.ts) `10` 条、[server/services/migration-link-governance.helpers.test.ts](../../server/services/migration-link-governance.helpers.test.ts) `8` 条。
+		- V2 / 红绿验证层: [server/services/ai/text.test.ts](../../../../server/services/ai/text.test.ts) 在 `suggestImagePrompt` 补测阶段先出现 `2` 个失败断言，分别暴露“空输入校验使用原始 truthy 判定”与“`dimensions` 返回结构为扁平对象而非嵌套 resolution”两处错误假设；修正断言后转绿。新增的 [server/utils/ai/tts-volcengine.test.ts](../../../../server/utils/ai/tts-volcengine.test.ts) 首轮出现 `3` 个失败，随后收敛到 `1` 个失败，最终通过放宽 UUID 断言、移除不存在的可选字段断言并按连接结束帧实际协议校验事件码后全部转绿。
+		- V2 / 定向测试层: 关键新增或扩展测试文件最终全部通过，其中 [server/utils/ai/tts-volcengine.test.ts](../../../../server/utils/ai/tts-volcengine.test.ts) `6` 条、[server/services/ai/text.test.ts](../../../../server/services/ai/text.test.ts) `24` 条、[server/utils/ai/asr-volcengine.test.ts](../../../../server/utils/ai/asr-volcengine.test.ts) `8` 条、[server/utils/ai/tts-openai.test.ts](../../../../server/utils/ai/tts-openai.test.ts) `5` 条、[server/utils/ai/tts-siliconflow.test.ts](../../../../server/utils/ai/tts-siliconflow.test.ts) `6` 条、[composables/use-post-editor-translation.test.ts](../../../../composables/use-post-editor-translation.test.ts) `36` 条、[composables/use-post-editor-voice.test.ts](../../../../composables/use-post-editor-voice.test.ts) `10` 条、[server/services/migration-link-governance.helpers.test.ts](../../../../server/services/migration-link-governance.helpers.test.ts) `8` 条。
 		- V2 / 全仓 coverage 层: `pnpm test:coverage` 通过，最终全仓 `Statements 68.85% / Branches 55.93% / Functions 63.26% / Lines 68.84%`，语句覆盖率已越过本阶段目标线。
 	- 结果摘要:
 		- 全仓语句覆盖率从本轮补跑前的 `67.60%` 提升到 `68.85%`，净提升 `+1.25` 个点，完成当前阶段“先达到约 68%”的验收目标。
-		- 模块分布方面，本轮提升主要来自语音与 AI 服务链路: [server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts) `75.44% (258/342)`、[server/utils/ai/tts-openai.ts](../../server/utils/ai/tts-openai.ts) `100.00% (22/22)`、[server/utils/ai/tts-siliconflow.ts](../../server/utils/ai/tts-siliconflow.ts) `96.97% (32/33)`、[server/utils/ai/asr-volcengine.ts](../../server/utils/ai/asr-volcengine.ts) `88.52% (108/122)`、[server/services/migration-link-governance.helpers.ts](../../server/services/migration-link-governance.helpers.ts) `88.28% (226/256)`、[composables/use-post-editor-translation.ts](../../composables/use-post-editor-translation.ts) `90.99% (212/233)`、[composables/use-post-editor-voice.ts](../../composables/use-post-editor-voice.ts) `76.01% (282/371)`。
+		- 模块分布方面，本轮提升主要来自语音与 AI 服务链路: [server/utils/ai/tts-volcengine.ts](../../../../server/utils/ai/tts-volcengine.ts) `75.44% (258/342)`、[server/utils/ai/tts-openai.ts](../../../../server/utils/ai/tts-openai.ts) `100.00% (22/22)`、[server/utils/ai/tts-siliconflow.ts](../../../../server/utils/ai/tts-siliconflow.ts) `96.97% (32/33)`、[server/utils/ai/asr-volcengine.ts](../../../../server/utils/ai/asr-volcengine.ts) `88.52% (108/122)`、[server/services/migration-link-governance.helpers.ts](../../../../server/services/migration-link-governance.helpers.ts) `88.28% (226/256)`、[composables/use-post-editor-translation.ts](../../../../composables/use-post-editor-translation.ts) `90.99% (212/233)`、[composables/use-post-editor-voice.ts](../../../../composables/use-post-editor-voice.ts) `76.01% (282/371)`。
 		- 本轮新增测试不是只堆成功路径，而是显式覆盖了 provider HTTP 失败、缺少凭据、无响应体、podcast WebSocket 错包 / 提前关闭、文本建议接口空输入 / provider 不支持 chat、翻译工作流标签数量不匹配、语音输入的代理 / 直连回退与治理 helper 的多种边界分支。
 	- Review Gate 结论:
 		- 结论: Pass
 		- 问题分级: warning
 		- 主要问题:
-			- 全仓虽然已过 `68%`，但 [server/services/ai/text.ts](../../server/services/ai/text.ts) 仍为 `57.32% (90/157)`，后续如果继续围绕 AI 文本链路扩展，应优先补齐剩余失败路径与 provider fallback 分支。
-			- 组件层仍存在大量极低覆盖区域，例如 [components/app-captcha.vue](../../components/app-captcha.vue)、[components/app-voice-input-trigger.vue](../../components/app-voice-input-trigger.vue)、[components/app-uploader.vue](../../components/app-uploader.vue) 等；这些不阻塞本轮达标，但属于下一轮高缺口候选。
+			- 全仓虽然已过 `68%`，但 [server/services/ai/text.ts](../../../../server/services/ai/text.ts) 仍为 `57.32% (90/157)`，后续如果继续围绕 AI 文本链路扩展，应优先补齐剩余失败路径与 provider fallback 分支。
+			- 组件层仍存在大量极低覆盖区域，例如 [components/app-captcha.vue](../../../../components/app-captcha.vue)、[components/app-voice-input-trigger.vue](../../../../components/app-voice-input-trigger.vue)、[components/app-uploader.vue](../../../../components/app-uploader.vue) 等；这些不阻塞本轮达标，但属于下一轮高缺口候选。
 	- 未覆盖边界:
 		- 本轮没有继续推进大体量 UI 组件的浏览器或组件测试，主要因为语音 / AI 服务层的单位测试收益更高、回滚半径更小。
-		- [server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts) 仍有剩余未覆盖分支，集中在 HTTP 流解析异常与部分 podcast 元事件的非主干路径；当前已覆盖主要成功流、错误包、连接关闭与轮次错误分支。
-		- [server/services/ai/text.ts](../../server/services/ai/text.ts) 仍有较多未覆盖语句，主要位于其他文本生成接口与更细粒度 provider 失败回退上。
+		- [server/utils/ai/tts-volcengine.ts](../../../../server/utils/ai/tts-volcengine.ts) 仍有剩余未覆盖分支，集中在 HTTP 流解析异常与部分 podcast 元事件的非主干路径；当前已覆盖主要成功流、错误包、连接关闭与轮次错误分支。
+		- [server/services/ai/text.ts](../../../../server/services/ai/text.ts) 仍有较多未覆盖语句，主要位于其他文本生成接口与更细粒度 provider 失败回退上。
 	- 后续补跑计划:
-		- 下一轮优先评估 [server/services/ai/text.ts](../../server/services/ai/text.ts) 的剩余失败路径与 provider fallback，再决定是否继续沿 AI 服务层把语句覆盖率推进到更高基线。
-		- 若转向组件层，优先从 [components/app-voice-input-trigger.vue](../../components/app-voice-input-trigger.vue)、[components/app-voice-input-overlay.vue](../../components/app-voice-input-overlay.vue) 与 [components/app-notifications.vue](../../components/app-notifications.vue) 这类已存在相关 composable 测试上下文的入口切入，降低夹具成本。
+		- 下一轮优先评估 [server/services/ai/text.ts](../../../../server/services/ai/text.ts) 的剩余失败路径与 provider fallback，再决定是否继续沿 AI 服务层把语句覆盖率推进到更高基线。
+		- 若转向组件层，优先从 [components/app-voice-input-trigger.vue](../../../../components/app-voice-input-trigger.vue)、[components/app-voice-input-overlay.vue](../../../../components/app-voice-input-overlay.vue) 与 [components/app-notifications.vue](../../../../components/app-notifications.vue) 这类已存在相关 composable 测试上下文的入口切入，降低夹具成本。
 
 ## 第二十四阶段测试覆盖率与红绿测试有效性深化（2026-04-07）
 
@@ -151,7 +151,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第二十四阶段 P1“ESLint / 类型债分批收紧”首轮落地；覆盖 [eslint.config.js](../../eslint.config.js)、[server/utils/author.ts](../../server/utils/author.ts)、[server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../server/services/comment.ts)、[utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts)、[server/utils/author.test.ts](../../server/utils/author.test.ts)、[utils/shared/installation-settings.test.ts](../../utils/shared/installation-settings.test.ts) 与 [docs/plan/todo.md](./todo.md)，聚焦 `@typescript-eslint/no-dynamic-delete` 这一组低命中规则，不扩写到 `no-unsafe-*`、`no-explicit-any` 等高噪音类型债。
+- 回归范围: 第二十四阶段 P1“ESLint / 类型债分批收紧”首轮落地；覆盖 [eslint.config.js](../../../../eslint.config.js)、[server/utils/author.ts](../../../../server/utils/author.ts)、[server/utils/post-detail-read.ts](../../../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../../../server/services/comment.ts)、[utils/shared/installation-settings.ts](../../../../utils/shared/installation-settings.ts)、[server/utils/author.test.ts](../../../../server/utils/author.test.ts)、[utils/shared/installation-settings.test.ts](../../../../utils/shared/installation-settings.test.ts) 与 [docs/plan/todo.md](../../../plan/todo.md)，聚焦 `@typescript-eslint/no-dynamic-delete` 这一组低命中规则，不扩写到 `no-unsafe-*`、`no-explicit-any` 等高噪音类型债。
 - 触发条件: 第二十二阶段已完成候选规则采样并明确 `no-dynamic-delete` 属于第二梯队中“命中低、但需逐点归因后才能上收”的一组；当前阶段要求只上收 1 - 2 组收益高且回滚边界清晰的规则族，因此优先收敛这组 3 个 production 命中。
 - 执行频率: 本阶段首轮落地；后续仅在继续推进 `no-misused-spread` 逐点归因、或把类型债进一步细分到更高成本规则族时追加增量记录。
 - timeout budget:
@@ -170,16 +170,16 @@
 	- `pnpm exec nuxt typecheck`
 - 输出摘要:
 	- 已执行验证:
-		- V1 / 基线层: `no-dynamic-delete` 当前命中共 `6` 条，其中生产代码仅 `3` 条，集中在 [server/utils/author.ts](../../server/utils/author.ts) `1` 条与 [utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts) `2` 条；其余 `3` 条位于同级测试文件，说明继续维持测试 / 脚本豁免边界是合理的。
+		- V1 / 基线层: `no-dynamic-delete` 当前命中共 `6` 条，其中生产代码仅 `3` 条，集中在 [server/utils/author.ts](../../../../server/utils/author.ts) `1` 条与 [utils/shared/installation-settings.ts](../../../../utils/shared/installation-settings.ts) `2` 条；其余 `3` 条位于同级测试文件，说明继续维持测试 / 脚本豁免边界是合理的。
 		- V1 / 静态层: 定向 ESLint 通过；全仓 `pnpm exec eslint . --max-warnings 10` 通过且无输出，说明本轮提升没有冲破当前 warning 门禁。
 		- V1 / 类型层: `pnpm exec nuxt typecheck` 通过。
 		- V2 / 逻辑层: 首轮定向 Vitest 共 `2` 个测试文件、`16` 条断言通过，覆盖作者隐私字段脱敏、哈希回填，以及安装向导本地化字段在“清空当前语言输入”时只移除活动 locale、不误删其他语言内容的回归路径。
-		- V2 / 回归补跑层: 按 Review Gate 退回意见补跑 `server/services/comment.test.ts` 与 [tests/server/api/posts/detail.get.test.ts](../../tests/server/api/posts/detail.get.test.ts)，共 `2` 个测试文件、`14` 条断言全部通过，确认 `processAuthorPrivacy()` 改为返回处理后对象后，comment tree 构建与文章详情读取链路均已对齐新契约。
+		- V2 / 回归补跑层: 按 Review Gate 退回意见补跑 `server/services/comment.test.ts` 与 [tests/server/api/posts/detail.get.test.ts](../../../../tests/server/api/posts/detail.get.test.ts)，共 `2` 个测试文件、`14` 条断言全部通过，确认 `processAuthorPrivacy()` 改为返回处理后对象后，comment tree 构建与文章详情读取链路均已对齐新契约。
 	- 结果摘要:
-		- [eslint.config.js](../../eslint.config.js) 已把 `@typescript-eslint/no-dynamic-delete` 提升为仅作用于生产 TS 的 warning，并继续显式排除 `tests/**`、`scripts/**` 与同级 `*.test.*` / `*.spec.*` 文件，保持豁免边界可审计。
-		- [server/utils/author.ts](../../server/utils/author.ts) 不再通过动态 `delete` 删除作者邮箱，而是改为显式构造脱敏对象；同时 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../server/services/comment.ts) 与批量处理路径已同步改为接收返回值，避免遗漏脱敏结果。
-		- [utils/shared/installation-settings.ts](../../utils/shared/installation-settings.ts) 在清空某个 locale 草稿时，改为通过显式过滤 locale map 来移除目标语言键，不再依赖动态 `delete`；对应回归已固化到 [utils/shared/installation-settings.test.ts](../../utils/shared/installation-settings.test.ts)。
-		- 回滚方式保持清晰: 若后续发现规则噪音超出预期，只需回退 [eslint.config.js](../../eslint.config.js) 中新增的 `no-dynamic-delete` production warning 配置，并恢复上述两个 helper 的显式过滤实现，不会牵连测试、脚本或更大范围的类型债治理。
+		- [eslint.config.js](../../../../eslint.config.js) 已把 `@typescript-eslint/no-dynamic-delete` 提升为仅作用于生产 TS 的 warning，并继续显式排除 `tests/**`、`scripts/**` 与同级 `*.test.*` / `*.spec.*` 文件，保持豁免边界可审计。
+		- [server/utils/author.ts](../../../../server/utils/author.ts) 不再通过动态 `delete` 删除作者邮箱，而是改为显式构造脱敏对象；同时 [server/utils/post-detail-read.ts](../../../../server/utils/post-detail-read.ts)、[server/services/comment.ts](../../../../server/services/comment.ts) 与批量处理路径已同步改为接收返回值，避免遗漏脱敏结果。
+		- [utils/shared/installation-settings.ts](../../../../utils/shared/installation-settings.ts) 在清空某个 locale 草稿时，改为通过显式过滤 locale map 来移除目标语言键，不再依赖动态 `delete`；对应回归已固化到 [utils/shared/installation-settings.test.ts](../../../../utils/shared/installation-settings.test.ts)。
+		- 回滚方式保持清晰: 若后续发现规则噪音超出预期，只需回退 [eslint.config.js](../../../../eslint.config.js) 中新增的 `no-dynamic-delete` production warning 配置，并恢复上述两个 helper 的显式过滤实现，不会牵连测试、脚本或更大范围的类型债治理。
 	- Review Gate 结论:
 		- 结论: Pass
 		- 问题分级: none
@@ -189,7 +189,7 @@
 		- 本轮没有继续处理 colocated test 中的 `no-dynamic-delete` 命中，测试层仍保留显式豁免，避免把当前小切片扩写成测试夹具重构。
 		- 本轮没有推进 `no-misused-spread` 或 `no-unsafe-*`，因为这些规则当前命中量和影响面仍明显高于当前 warning 预算。
 		- 本轮没有触碰 `components/**` / `pages/**` 中普通属性 `delete` 用法；当前收紧范围仅限 TypeScript 规则实际命中的生产文件。
-		- [server/utils/author.ts](../../server/utils/author.ts) 仍保留 `any` 风格签名；若后续新增调用点但遗漏接收返回值，类型系统仍不会主动拦截，这属于下一轮类型债候选，而不是本轮 blocker。
+		- [server/utils/author.ts](../../../../server/utils/author.ts) 仍保留 `any` 风格签名；若后续新增调用点但遗漏接收返回值，类型系统仍不会主动拦截，这属于下一轮类型债候选，而不是本轮 blocker。
 	- 后续补跑计划:
 		- 下一轮优先对 `@typescript-eslint/no-misused-spread` 的剩余 production 命中做逐点归因，判断哪些应改为显式 DTO / plain object 转换，哪些继续保留例外。
 		- 若后续要继续推进类型债，应先把 `no-explicit-any` 与 `no-unsafe-*` 按生产 / 测试 / 脚本边界再次拆桶，不直接全局提级。
@@ -198,7 +198,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第二十四阶段 P1“重复代码与纯函数复用收敛”第二轮落地；覆盖 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts)、[server/api/posts/[id].get.ts](../../server/api/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](../../server/api/posts/slug/[slug].get.ts)、[server/utils/agreement-public.ts](../../server/utils/agreement-public.ts)、[server/api/agreements/privacy-policy.get.ts](../../server/api/agreements/privacy-policy.get.ts)、[server/api/agreements/user-agreement.get.ts](../../server/api/agreements/user-agreement.get.ts)、[components/admin/admin-taxonomy-page.vue](../../components/admin/admin-taxonomy-page.vue)、[pages/admin/categories/index.vue](../../pages/admin/categories/index.vue)、[pages/admin/tags/index.vue](../../pages/admin/tags/index.vue)，聚焦 post detail 双入口 API、agreements 公共接口与 admin taxonomy 页面级模板 / 交互重复。
+- 回归范围: 第二十四阶段 P1“重复代码与纯函数复用收敛”第二轮落地；覆盖 [server/utils/post-detail-read.ts](../../../../server/utils/post-detail-read.ts)、[server/api/posts/[id].get.ts](../../../../server/api/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](../../../../server/api/posts/slug/[slug].get.ts)、[server/utils/agreement-public.ts](../../../../server/utils/agreement-public.ts)、[server/api/agreements/privacy-policy.get.ts](../../../../server/api/agreements/privacy-policy.get.ts)、[server/api/agreements/user-agreement.get.ts](../../../../server/api/agreements/user-agreement.get.ts)、[components/admin/admin-taxonomy-page.vue](../../../../components/admin/admin-taxonomy-page.vue)、[pages/admin/categories/index.vue](../../../../pages/admin/categories/index.vue)、[pages/admin/tags/index.vue](../../../../pages/admin/tags/index.vue)，聚焦 post detail 双入口 API、agreements 公共接口与 admin taxonomy 页面级模板 / 交互重复。
 - 触发条件: 首轮切片已完成 feed taxonomy 路由 helper 抽象，并明确把 post detail、agreements API 与 admin taxonomy 页面列为下一轮高收益热点；本轮继续按“小切片、低回滚半径”的方式推进，不扩写到 public page 视觉重构或 CLI 构建边界调整。
 - 执行频率: 本阶段第二轮切片；后续仅在继续收敛 privacy / agreement 公共页面、categories / tags 公共页或 CLI slug 副本时追加增量记录。
 - timeout budget:
@@ -224,16 +224,16 @@
 		- V2 / 基线层: `pnpm duplicate-code:check` 复跑通过，重复代码基线检查结果为 `Pass`。
 		- V3 / 浏览器层: 在 `http://127.0.0.1:4000/admin/categories` 与 `http://127.0.0.1:4000/admin/tags` 完成真页验证，分类页与标签页均可直接访问并渲染后台管理界面；分类页包含“分类管理 / 新建分类”，标签页包含“标签管理 / 新建标签”；同时已执行一次深浅色模式切换，页面保持可用。`http://127.0.0.1:3000` 上的验证码拦截仅作为环境差异记录保留，不再阻塞本轮放行。
 	- 结果摘要:
-		- post detail 双入口已通过 [server/utils/post-detail-read.ts](../../server/utils/post-detail-read.ts) 收敛为共享读取 helper，`[id]` 与 `slug` 两条 API 现在只保留参数提取与最小前置校验，访问控制、作者隐私处理、翻译、上一篇 / 下一篇与相关文章组装统一由 helper 承担。
-		- agreements 公共接口已通过 [server/utils/agreement-public.ts](../../server/utils/agreement-public.ts) 收敛为通用 handler，隐私政策与用户协议接口不再各自重复查询语言、拼默认 payload 与兜底 500 错误。
-		- admin taxonomy 页面已通过 [components/admin/admin-taxonomy-page.vue](../../components/admin/admin-taxonomy-page.vue) 收敛出一套共享模板与交互逻辑，[pages/admin/categories/index.vue](../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../pages/admin/tags/index.vue) 仅保留 `definePageMeta` 与差异化配置；同时已修复“聚合列表点击缺失翻译徽章时丢失既有翻译簇 hydration”的回归，并用 [components/admin/admin-taxonomy-page.test.ts](../../components/admin/admin-taxonomy-page.test.ts) 固化。
+		- post detail 双入口已通过 [server/utils/post-detail-read.ts](../../../../server/utils/post-detail-read.ts) 收敛为共享读取 helper，`[id]` 与 `slug` 两条 API 现在只保留参数提取与最小前置校验，访问控制、作者隐私处理、翻译、上一篇 / 下一篇与相关文章组装统一由 helper 承担。
+		- agreements 公共接口已通过 [server/utils/agreement-public.ts](../../../../server/utils/agreement-public.ts) 收敛为通用 handler，隐私政策与用户协议接口不再各自重复查询语言、拼默认 payload 与兜底 500 错误。
+		- admin taxonomy 页面已通过 [components/admin/admin-taxonomy-page.vue](../../../../components/admin/admin-taxonomy-page.vue) 收敛出一套共享模板与交互逻辑，[pages/admin/categories/index.vue](../../../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../../../pages/admin/tags/index.vue) 仅保留 `definePageMeta` 与差异化配置；同时已修复“聚合列表点击缺失翻译徽章时丢失既有翻译簇 hydration”的回归，并用 [components/admin/admin-taxonomy-page.test.ts](../../../../components/admin/admin-taxonomy-page.test.ts) 固化。
 		- 重复代码基线从首轮后的 `45 clones / 1315 duplicated lines / 1.18%` 进一步收敛到 `34 clones / 879 duplicated lines / 0.79%`；若按本阶段累计计算，则已从 `46 / 1340 / 1.20%` 收敛到 `34 / 879 / 0.79%`。
 	- Review Gate 结论:
 		- 结论: Pass
 		- 问题分级: warning
 		- 主要问题:
 			- admin taxonomy 页面测试在当前 stub 口径下仍会输出 `intlify` missing-key 警告，但测试断言与功能回归均通过；这属于测试夹具噪音，而不是本轮组件抽象的行为缺陷。
-			- [pages/privacy-policy.vue](../../pages/privacy-policy.vue) 与 [pages/user-agreement.vue](../../pages/user-agreement.vue)、[pages/categories/[slug].vue](../../pages/categories/[slug].vue) 与 [pages/tags/[slug].vue](../../pages/tags/[slug].vue) 仍保留大块模板重复，是下一轮最值得继续观察的热点。
+			- [pages/privacy-policy.vue](../../../../pages/privacy-policy.vue) 与 [pages/user-agreement.vue](../../../../pages/user-agreement.vue)、[pages/categories/[slug].vue](../../../../pages/categories/[slug].vue) 与 [pages/tags/[slug].vue](../../../../pages/tags/[slug].vue) 仍保留大块模板重复，是下一轮最值得继续观察的热点。
 	- 未覆盖边界:
 		- 本轮没有把 agreements 的默认正文抽到共享文案文件，也没有继续抽象前台 legal pages；当前只收敛了公共 API 层重复。
 		- 本轮没有把 admin taxonomy 的页面测试进一步收敛为共享测试工厂；现有页面测试仍分别保留，缺失翻译 hydration 行为则单独落在共享组件测试中，以降低同轮改动耦合度。
@@ -249,7 +249,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第二十四阶段 P1“重复代码与纯函数复用收敛”首轮落地；仅覆盖 [server/routes/feed/category/[slug].ts](../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../server/routes/feed/tag/[slug].ts) 与新增的 [server/utils/feed-taxonomy-route.ts](../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../server/utils/feed-taxonomy-route.test.ts)，聚焦分类 / 标签 feed 路由中的重复后缀解析、实体查询与 `titleSuffix` 组装逻辑，不扩写到更大范围的页面级重构。
+- 回归范围: 第二十四阶段 P1“重复代码与纯函数复用收敛”首轮落地；仅覆盖 [server/routes/feed/category/[slug].ts](../../../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../../../server/routes/feed/tag/[slug].ts) 与新增的 [server/utils/feed-taxonomy-route.ts](../../../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../../../server/utils/feed-taxonomy-route.test.ts)，聚焦分类 / 标签 feed 路由中的重复后缀解析、实体查询与 `titleSuffix` 组装逻辑，不扩写到更大范围的页面级重构。
 - 触发条件: 当前阶段要求先从重复度较高且近期仍可能继续维护的模块中，完成一轮“小范围共享 helper / 纯函数抽象治理”；jscpd 基线显示分类 / 标签 feed 路由存在一组 25 行级别的同构流程，且具备明确的纯函数拆分点。
 - 执行频率: 本阶段首轮切片；后续仅在继续推进 post detail、agreements API 或 admin taxonomy 重复治理时追加增量记录。
 - timeout budget:
@@ -265,9 +265,9 @@
 	- `get_errors`（目标代码文件）
 - 输出摘要:
 	- 已执行验证:
-		- V1 / 静态层: [server/utils/feed-taxonomy-route.ts](../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../server/utils/feed-taxonomy-route.test.ts)、[server/routes/feed/category/[slug].ts](../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../server/routes/feed/tag/[slug].ts) 的编辑器诊断均为 `No errors found`。
+		- V1 / 静态层: [server/utils/feed-taxonomy-route.ts](../../../../server/utils/feed-taxonomy-route.ts)、[server/utils/feed-taxonomy-route.test.ts](../../../../server/utils/feed-taxonomy-route.test.ts)、[server/routes/feed/category/[slug].ts](../../../../server/routes/feed/category/[slug].ts)、[server/routes/feed/tag/[slug].ts](../../../../server/routes/feed/tag/[slug].ts) 的编辑器诊断均为 `No errors found`。
 		- V1 / 代码质量层: 定向 ESLint、`pnpm exec nuxt typecheck` 与计划文档 `lint-md` 均已通过，本轮最小验证矩阵已补齐静态检查、类型检查与文档格式检查。
-		- V2 / 逻辑层: `server/utils/feed-taxonomy-route.test.ts` 当前 `7` 条定向测试全部通过，连同既有 [server/utils/feed.test.ts](../../server/utils/feed.test.ts) 共 `16` 条断言通过，确认分类 / 标签两条 feed 路由在 `rss2` / `atom1` / `json1` 格式解析、`Content-Type` 设置、`titleSuffix` 拼装以及 404 / 400 失败路径上未发生行为回退。
+		- V2 / 逻辑层: `server/utils/feed-taxonomy-route.test.ts` 当前 `7` 条定向测试全部通过，连同既有 [server/utils/feed.test.ts](../../../../server/utils/feed.test.ts) 共 `16` 条断言通过，确认分类 / 标签两条 feed 路由在 `rss2` / `atom1` / `json1` 格式解析、`Content-Type` 设置、`titleSuffix` 拼装以及 404 / 400 失败路径上未发生行为回退。
 		- V2 / 基线层: `pnpm duplicate-code:check` 复跑通过，Review Gate 结论仍为 `Pass`。
 	- 结果摘要:
 		- 本轮把原本分散在分类 / 标签 feed 路由中的三类重复逻辑收敛到了共享 helper：`parseScopedFeedRequest()`、`buildTaxonomyFeedTitle()` 与 `createTaxonomyFeedRoute()`。
@@ -278,10 +278,10 @@
 		- 结论: Pass
 		- 问题分级: warning
 		- 主要问题:
-			- CLI 侧的 [packages/cli/src/slug.ts](../../packages/cli/src/slug.ts) 与 [utils/shared/slug.ts](../../utils/shared/slug.ts) 仍是完整重复，但当前受 [packages/cli/tsconfig.json](../../packages/cli/tsconfig.json) 中 `rootDir=src` 约束，直接跨包复用会把本轮小切片扩成构建边界调整，暂不纳入本次范围。
-			- [server/api/posts/[id].get.ts](../../server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](../../server/api/posts/slug/[slug].get.ts)、[server/api/agreements/privacy-policy.get.ts](../../server/api/agreements/privacy-policy.get.ts) 与 [server/api/agreements/user-agreement.get.ts](../../server/api/agreements/user-agreement.get.ts) 仍保留高价值重复块，适合后续继续切片治理。
+			- CLI 侧的 [packages/cli/src/slug.ts](../../../../packages/cli/src/slug.ts) 与 [utils/shared/slug.ts](../../../../utils/shared/slug.ts) 仍是完整重复，但当前受 [packages/cli/tsconfig.json](../../../../packages/cli/tsconfig.json) 中 `rootDir=src` 约束，直接跨包复用会把本轮小切片扩成构建边界调整，暂不纳入本次范围。
+			- [server/api/posts/[id].get.ts](../../../../server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](../../../../server/api/posts/slug/[slug].get.ts)、[server/api/agreements/privacy-policy.get.ts](../../../../server/api/agreements/privacy-policy.get.ts) 与 [server/api/agreements/user-agreement.get.ts](../../../../server/api/agreements/user-agreement.get.ts) 仍保留高价值重复块，适合后续继续切片治理。
 	- 未覆盖边界:
-		- 本轮没有推进 [pages/admin/categories/index.vue](../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../pages/admin/tags/index.vue) 的页面级抽象；该组重复收益更高，但会涉及组件拆分、UI 回归与更大的评审半径，不适合与本轮路由 helper 一起打包。
+		- 本轮没有推进 [pages/admin/categories/index.vue](../../../../pages/admin/categories/index.vue) 与 [pages/admin/tags/index.vue](../../../../pages/admin/tags/index.vue) 的页面级抽象；该组重复收益更高，但会涉及组件拆分、UI 回归与更大的评审半径，不适合与本轮路由 helper 一起打包。
 		- 本轮没有调整 CLI 包构建配置，因此尚未消除 `slug.ts` 的跨目录重复副本。
 		- 本轮已执行 `pnpm exec nuxt typecheck`，但没有升级到全量 API 回归或更高成本的 `verify` / 浏览器验证，验证维持在“定向单测 + 重复代码基线 + typecheck + 编辑器错误面”的最小充分矩阵内。
 	- 后续补跑计划:
@@ -293,7 +293,7 @@
 
 ### 回归任务记录
 
-- 回归范围: 第二十三阶段归档准入检查、规划文档状态切换、多语 roadmap 摘要同步，以及与当前仓库实装状态的对账；覆盖 [docs/plan/todo.md](./todo.md)、[docs/plan/todo-archive.md](./todo-archive.md)、[docs/plan/roadmap.md](./roadmap.md)、[docs/i18n/en-US/plan/roadmap.md](../i18n/en-US/plan/roadmap.md)、[docs/i18n/ja-JP/plan/roadmap.md](../i18n/ja-JP/plan/roadmap.md)、[docs/i18n/ko-KR/plan/roadmap.md](../i18n/ko-KR/plan/roadmap.md)、[docs/i18n/zh-TW/plan/roadmap.md](../i18n/zh-TW/plan/roadmap.md) 以及第 23 阶段五条主线对应的定向测试入口。
+- 回归范围: 第二十三阶段归档准入检查、规划文档状态切换、多语 roadmap 摘要同步，以及与当前仓库实装状态的对账；覆盖 [docs/plan/todo.md](../../../plan/todo.md)、[docs/plan/todo-archive.md](../../../plan/todo-archive.md)、[docs/plan/roadmap.md](../../../plan/roadmap.md)、[docs/i18n/en-US/plan/roadmap.md](../../../i18n/en-US/plan/roadmap.md)、[docs/i18n/ja-JP/plan/roadmap.md](../../../i18n/ja-JP/plan/roadmap.md)、[docs/i18n/ko-KR/plan/roadmap.md](../../../i18n/ko-KR/plan/roadmap.md)、[docs/i18n/zh-TW/plan/roadmap.md](../../../i18n/zh-TW/plan/roadmap.md) 以及第 23 阶段五条主线对应的定向测试入口。
 - 触发条件: 用户要求检查当前阶段待办完成情况、与仓库实际代码改动对账并完成归档，同时核对文档与翻译是否同步；原中文 roadmap 仍停留在“第二十三阶段初步规划”，与 `todo.md` 的已完成状态明显漂移，需执行正式阶段收口。
 - 执行频率: 本阶段收口一次性记录；后续仅在复审第 23 阶段归档结论或补写同阶段证据索引时追加增量记录。
 - timeout budget:
@@ -322,9 +322,9 @@
 		- V1 / 编辑器错误面: `get_errors` 显示本轮涉及的中文 / 多语 roadmap 与 archive 文档均无诊断错误。
 		- RG / 审计层: `Code Auditor` 首轮给出 `Pass`，仅指出 3 处多语摘要范围说明仍停留在“第十八至第二十二阶段”的非阻塞文案漂移；修正后本轮归档无 blocker 残留。
 	- 结果摘要:
-		- 第二十三阶段已从 [todo.md](./todo.md) 的当前执行面移除，并完整归档到 [todo-archive.md](./todo-archive.md)；中文 [roadmap.md](./roadmap.md) 已从“初步规划”切换为“已审计归档”，且明确下一阶段仍仅处于候选分析，不提前上收为正式 Phase 24。
+		- 第二十三阶段已从 [todo.md](../../../plan/todo.md) 的当前执行面移除，并完整归档到 [todo-archive.md](../../../plan/todo-archive.md)；中文 [roadmap.md](../../../plan/roadmap.md) 已从“初步规划”切换为“已审计归档”，且明确下一阶段仍仅处于候选分析，不提前上收为正式 Phase 24。
 		- 与“实际代码改动”的对账结论为: 当前仓库状态已具备第 23 阶段五条主线的实装闭环，不存在“todo 已完成但仓库没有对应能力”的反向漂移。五条主线各自对应的最小代码证据分别落在商业平台组件 / helper、统一调度与 AI 媒体补偿、依赖巡检脚本与 workflow、ASR 凭证 TTL 工具与设置项、文章详情推荐服务与 API 测试上。
-		- backlog 已再次核对，未发现第 23 阶段五条主线仍残留在 [backlog.md](./backlog.md) 的重复条目，符合“阶段升格后去重”约束。
+		- backlog 已再次核对，未发现第 23 阶段五条主线仍残留在 [backlog.md](../../../plan/backlog.md) 的重复条目，符合“阶段升格后去重”约束。
 		- 多语 roadmap 摘要现已同步到第 23 阶段归档状态，`en-US`、`ja-JP`、`ko-KR`、`zh-TW` 四个语种均不再保留“Stage 23 尚未正式写入”的陈旧表述。
 	- Review Gate 结论:
 		- 结论: Pass
@@ -338,13 +338,13 @@
 		- 本轮没有对更广泛的 Guide / Design / README 翻译页做全量一致性复审；当前判定为“受第 23 阶段状态变化直接影响的文档”已同步完成。
 	- 后续补跑计划:
 		- 下一阶段正式准入前，先基于当前已归档状态做候选事项 ROI 分析与测试策略设计，不直接在 `todo.md` / `roadmap.md` 中落盘。
-		- 若后续阶段收口再次触发活动日志窗口超限，按既有规则继续滚动迁移到 [regression-log-archive.md](./regression-log-archive.md)，避免主日志重新膨胀。
+		- 若后续阶段收口再次触发活动日志窗口超限，按既有规则继续滚动迁移到 [regression-log-archive.md](./legacy-plan-regression-log-archive.md)，避免主日志重新膨胀。
 
 ## 周期性回归调度入口落地（2026-04-06）
 
 ### 回归任务记录
 
-- 回归范围: 第二十二阶段 P0“周期性回归任务实盘化”首轮落地；覆盖新增的 [scripts/regression/run-periodic-regression.mjs](./../..//scripts/regression/run-periodic-regression.mjs) 统一调度脚本、[package.json](./../..//package.json) 中的三条固定入口、[docs/standards/planning.md](../standards/planning.md)、[docs/standards/testing.md](../standards/testing.md)、[docs/guide/development.md](../guide/development.md) 与 [scripts/README.md](../../scripts/README.md) 的口径同步。
+- 回归范围: 第二十二阶段 P0“周期性回归任务实盘化”首轮落地；覆盖新增的 [scripts/regression/run-periodic-regression.mjs](../../../../scripts/regression/run-periodic-regression.mjs) 统一调度脚本、[package.json](../../../../package.json) 中的三条固定入口、[docs/standards/planning.md](../../../standards/planning.md)、[docs/standards/testing.md](../../../standards/testing.md)、[docs/guide/development.md](../../../guide/development.md) 与 [scripts/README.md](../../../../scripts/README.md) 的口径同步。
 - 触发条件: 当前阶段要求把既有周期性回归规范从“模板与约束”上收到“可直接执行的固定节奏”，并明确周级、发版前、阶段收口前三类回归的责任边界、固定组合与 blocker 条件。
 - 执行频率: 本阶段首轮落地；后续仅在 cadence 组合、blocking 规则或证据落点发生变化时追加增量记录。
 - timeout budget:
@@ -372,7 +372,7 @@
 			- `pre-release`: `release:check:full` + 文档 i18n 检查 + 性能预算 + 重复代码复核。
 			- `phase-close`: 在发版前组合上再补 coverage、strict 重复代码检查与 Review Gate 证据生成。
 		- 证据口径已统一：脚本会把结构化摘要写入 `artifacts/review-gate/<date>-<profile>-regression.md|json`，但正式正文仍只允许沉淀在本文件。
-		- `phase-close` 已把“活动日志超过 400 行或 8 条记录且尚未滚动归档”编码为 blocker；本轮 dry-run 实测当前 [regression-log.md](./regression-log.md) 为 `1015` 行、`17` 条记录，已触发 Reject。
+		- `phase-close` 已把“活动日志超过 400 行或 8 条记录且尚未滚动归档”编码为 blocker；本轮 dry-run 实测当前 [regression-log.md](./legacy-plan-regression-log.md) 为 `1015` 行、`17` 条记录，已触发 Reject。
 	- Review Gate 结论:
 		- 结论: Pass
 		- 问题分级: warning
@@ -381,16 +381,16 @@
 			- 本轮只做了脚本级测试与 dry-run，没有在本次变更中直接补跑完整 `weekly` / `pre-release` / `phase-close` 实盘命令，避免把规范落地任务扩写成全量回归执行任务。
 	- 未覆盖边界:
 		- 本轮未实际执行 `test:coverage`、`release:check:full` 或 `test:perf:budget:strict`，因此没有新增这些命令的最新业务结果，只验证了编排与 blocker 规则。
-		- 本轮未同步清理 [regression-log.md](./regression-log.md) 的超窗历史记录，滚动归档应作为后续阶段收口前置动作单独执行。
+		- 本轮未同步清理 [regression-log.md](./legacy-plan-regression-log.md) 的超窗历史记录，滚动归档应作为后续阶段收口前置动作单独执行。
 	- 后续补跑计划:
-		- 下一步先滚动归档活动日志，把 [regression-log.md](./regression-log.md) 收敛回最近 `6 - 8` 条记录，再重新执行 `pnpm regression:phase-close`。
+		- 下一步先滚动归档活动日志，把 [regression-log.md](./legacy-plan-regression-log.md) 收敛回最近 `6 - 8` 条记录，再重新执行 `pnpm regression:phase-close`。
 		- 发版前直接使用 `pnpm regression:pre-release` 替代手工拼装同类命令；周级治理则默认改用 `pnpm regression:weekly`。
 
 ## 测试有效性增强治理首轮切入（2026-04-06）
 
 ### 回归任务记录
 
-- 回归范围: 第二十二阶段 P0“测试有效性增强治理”首轮切入；仅覆盖内容访问控制链路 [server/utils/post-access.ts](server/utils/post-access.ts) 及其同级测试 [server/utils/post-access.test.ts](server/utils/post-access.test.ts)，聚焦 `applyPostVisibilityFilter()` 与 `checkPostAccess()` 的失败路径、异常输入与公共列表过滤分支。
+- 回归范围: 第二十二阶段 P0“测试有效性增强治理”首轮切入；仅覆盖内容访问控制链路 [server/utils/post-access.ts](../../../../server/utils/post-access.ts) 及其同级测试 [server/utils/post-access.test.ts](../../../../server/utils/post-access.test.ts)，聚焦 `applyPostVisibilityFilter()` 与 `checkPostAccess()` 的失败路径、异常输入与公共列表过滤分支。
 - 触发条件: 当前阶段要求先圈定一组高回归风险链路，并优先补齐失败路径与回退路径，而不是继续扩大 coverage 面积；`post-access` 同时影响文章列表、归档、搜索、详情访问与 feed 隐私边界，是一条典型的高杠杆权限链路。
 - 执行频率: 本阶段首轮切入；后续仅在继续扩展到密码解锁边界、详情路由级异常映射或 QueryBuilder 组合边界时追加增量记录。
 - timeout budget:
@@ -420,7 +420,7 @@
 			- 本轮只收敛了订阅状态查询异常与公共列表过滤分支，尚未覆盖密码解锁 token 的时效性、来源可信度与详情路由级错误映射。
 			- `applyPostVisibilityFilter()` 当前对密码文章在公共列表中的呈现策略仍沿用现状，本轮未改动产品口径，只补测试守线。
 	- 未覆盖边界:
-		- 本轮没有新增 API 路由级测试，因此还未验证 [server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts) 在订阅状态查询抛错时的 HTTP 映射是否符合预期。
+		- 本轮没有新增 API 路由级测试，因此还未验证 [server/api/posts/index.get.ts](../../../../server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](../../../../server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](../../../../server/api/search/index.get.ts) 在订阅状态查询抛错时的 HTTP 映射是否符合预期。
 		- 本轮没有覆盖密码文章 `unlockedIds` 的过期与伪造边界，也没有补并发状态切换场景。
 		- 本轮没有执行全量测试或 E2E，保持在当前阶段“定向失败路径治理”的最小预算内。
 	- 后续补跑计划:
@@ -430,7 +430,7 @@
 
 ### 收口补充（2026-04-06）
 
-- 回归范围: 在首轮工具层守线基础上，继续补齐内容访问相关 API 的异常映射测试，以及密码解锁凭据的时效性和伪造边界测试；覆盖 [server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts)、[server/api/posts/[id]/verify-password.post.ts](server/api/posts/[id]/verify-password.post.ts) 以及新增的 [server/utils/post-unlock.ts](server/utils/post-unlock.ts)。
+- 回归范围: 在首轮工具层守线基础上，继续补齐内容访问相关 API 的异常映射测试，以及密码解锁凭据的时效性和伪造边界测试；覆盖 [server/api/posts/index.get.ts](../../../../server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](../../../../server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](../../../../server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](../../../../server/api/posts/[id].get.ts)、[server/api/posts/slug/[slug].get.ts](../../../../server/api/posts/slug/[slug].get.ts)、[server/api/posts/[id]/verify-password.post.ts](../../../../server/api/posts/[id]/verify-password.post.ts) 以及新增的 [server/utils/post-unlock.ts](../../../../server/utils/post-unlock.ts)。
 - 触发条件: 首轮记录明确将“路由级异常映射”和“`unlockedIds.includes()` 的弱约束”列为下一轮优先项；本轮继续沿同一条内容访问控制主线收口，不扩写到无关目录。
 - timeout budget:
 	- 新增定向 Vitest: 20 分钟。
@@ -447,10 +447,10 @@
 		- V1 / 类型层: `pnpm typecheck` 通过。
 		- V2 / 逻辑层: 新增 `12` 条定向测试全部通过；内容访问相关定向回归集当前共 `52` 条断言全部通过。
 	- 结果摘要:
-		- 内容访问相关 API 的异常映射已统一：当订阅状态查询失败时，[server/api/posts/index.get.ts](server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](server/api/posts/slug/[slug].get.ts) 现在都会一致抛出 `503 Failed to resolve content access state`，不再由不同入口各自漏出原始异常。
+		- 内容访问相关 API 的异常映射已统一：当订阅状态查询失败时，[server/api/posts/index.get.ts](../../../../server/api/posts/index.get.ts)、[server/api/posts/archive.get.ts](../../../../server/api/posts/archive.get.ts)、[server/api/search/index.get.ts](../../../../server/api/search/index.get.ts)、[server/api/posts/[id].get.ts](../../../../server/api/posts/[id].get.ts) 与 [server/api/posts/slug/[slug].get.ts](../../../../server/api/posts/slug/[slug].get.ts) 现在都会一致抛出 `503 Failed to resolve content access state`，不再由不同入口各自漏出原始异常。
 		- 路由级异常映射测试现已同时锁定结构化错误体字段 `data.code=503`、`data.message='Failed to resolve content access state'` 与 `data.flag='POST_ACCESS_STATE_UNAVAILABLE'`，避免后续只保留状态码而丢掉审计友好的错误标识。
-		- 密码解锁凭据已从裸 `id` 列表 cookie 收敛为签名 JSON 载荷，并在 [server/utils/post-unlock.ts](server/utils/post-unlock.ts) 中统一处理解析、去重与过期过滤；详情页读取不再直接信任明文 `momei_unlocked_posts`。
-		- [server/api/posts/[id]/verify-password.post.ts](server/api/posts/[id]/verify-password.post.ts) 已改为通过统一 helper 写入解锁凭据，成功验证后会落盘“带签名 + 逐项 expiresAt”的 cookie，而不是直接拼接 ID 字符串。
+		- 密码解锁凭据已从裸 `id` 列表 cookie 收敛为签名 JSON 载荷，并在 [server/utils/post-unlock.ts](../../../../server/utils/post-unlock.ts) 中统一处理解析、去重与过期过滤；详情页读取不再直接信任明文 `momei_unlocked_posts`。
+		- [server/api/posts/[id]/verify-password.post.ts](../../../../server/api/posts/[id]/verify-password.post.ts) 已改为通过统一 helper 写入解锁凭据，成功验证后会落盘“带签名 + 逐项 expiresAt”的 cookie，而不是直接拼接 ID 字符串。
 		- 解锁凭据 helper 现在额外具备最大条目数裁剪策略：当历史解锁记录超过上限时，只保留最近解锁的 `20` 条；同一篇文章重复解锁时会刷新到队尾并更新过期时间，不再无限膨胀 cookie 体积。
 		- 本轮新增测试不只是证明“能解锁”，而是明确守住两类真实风险：
 			- API 层不能把订阅状态查询异常随意漏成不同的错误语义。
@@ -1375,7 +1375,7 @@
 		- `pnpm exec vitest run pages/register.test.ts pages/login.test.ts composables/use-auth-session.test.ts components/settings/settings-profile.test.ts app.test.ts components/app-header.test.ts`: 6 files passed / 42 tests passed。
 	- 浏览器验证（按需）:
 		- `pnpm exec playwright test tests/e2e/auth-session-governance.e2e.test.ts --project=chromium`: 4 passed。
-		- 用例文件: [tests/e2e/auth-session-governance.e2e.test.ts](../../tests/e2e/auth-session-governance.e2e.test.ts)
+		- 用例文件: [tests/e2e/auth-session-governance.e2e.test.ts](../../../../tests/e2e/auth-session-governance.e2e.test.ts)
 	- Review Gate 结论:
 		- 结论: Pass
 		- 问题分级: warning

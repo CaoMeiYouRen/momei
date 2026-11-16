@@ -1,6 +1,6 @@
 # 新功能点规划前置调研报告 (2026-06)
 
-> 执行机制：按 [backlog 第 8 项「新功能点规划前置调研机制」](../../plan/backlog.md) 要求，在正式规划新功能前执行一次轻量竞品调研。
+> 执行机制：按 [backlog 第 8 项「新功能点规划前置调研机制」](../../../plan/backlog.md) 要求，在正式规划新功能前执行一次轻量竞品调研。
 >
 > 调研时间：2026-06-03
 > 信息来源：TinyFish Search、Web Fetch（LeadAdvisors, Superblog, OpenPanel, Nunuqs, Reddit, HN, Dev.to, Maggie Appleton 等）
@@ -8,7 +8,7 @@
 
 ## 1. 已有能力基线（来自源码与文档核实）
 
-本节列出墨梅**已实现**的核心能力，仅用于避免重复推荐。详细设计见 [模块总设计索引](../modules/index.md)。
+本节列出墨梅**已实现**的核心能力，仅用于避免重复推荐。详细设计见 [模块总设计索引](../../modules/index.md)。
 
 | 领域 | 已实现能力 |
 |:---|:---|
@@ -27,7 +27,7 @@
 
 ## 2. 已有 backlog 候选（避免重复推荐）
 
-以下功能已在 [backlog.md](../../plan/backlog.md) 中存在，本节仅列摘要，不再作为新候选。
+以下功能已在 [backlog.md](../../../plan/backlog.md) 中存在，本节仅列摘要，不再作为新候选。
 
 | backlog # | 功能 | 状态 |
 |:---|:---|:---|

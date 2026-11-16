@@ -229,9 +229,9 @@
 
 ## 11. 相关文档
 
-- [项目长期规划与积压项](../../plan/backlog.md)
-- [项目路线图](../../plan/roadmap.md)
-- [项目规划规范](../../standards/planning.md)
-- [功能特性](../../guide/features.md)
-- [商业化与社交集成设计文档](../modules/commercial.md)
-- [Demo 模式设计文档](../modules/demo-mode.md)
+- [项目长期规划与积压项](../../../plan/backlog.md)
+- [项目路线图](../../../plan/roadmap.md)
+- [项目规划规范](../../../standards/planning.md)
+- [功能特性](../../../guide/features.md)
+- [商业化与社交集成设计文档](../../modules/commercial.md)
+- [Demo 模式设计文档](../../modules/demo-mode.md)

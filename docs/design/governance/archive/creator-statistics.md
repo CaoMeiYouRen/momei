@@ -283,7 +283,7 @@ interface DistributionTrendPoint {
 
 ## 9. 相关入口
 
-- [后台内容洞察模块设计](../modules/admin.md)
-- [项目路线图（第三十三阶段）](../../plan/roadmap.md)
-- [待办事项（第三十三阶段）](../../plan/todo.md)
-- [长期规划与积压项 #12](../../plan/backlog.md)
+- [后台内容洞察模块设计](../../modules/admin.md)
+- [项目路线图（第三十三阶段）](../../../plan/roadmap.md)
+- [待办事项（第三十三阶段）](../../../plan/todo.md)
+- [长期规划与积压项 #12](../../../plan/backlog.md)

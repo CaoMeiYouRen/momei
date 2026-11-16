@@ -60,7 +60,7 @@
 - TEST_MODE 未播种稿件数据，截图基线为**空态**渲染，故截图层不覆盖行级渲染；行级结构（列定义与列插槽 / Tag tone / 动作集合 / 1 基分页转发 / 筛选映射）已由本页单元层用例逐项断言（见「验证结果」层 ①），本路由未新增行级 E2E。**截图基线 provenance**：迁移前 actual / diff 产物未入库，仓库仅存迁移后快照（浅 / 深 2 张），如需以「迁移前基线」作为判定依据应由 CI 复采。
 - 审核弹窗为浮层（PrimeVue 豁免），其内部 caomei `Select` 的浮层层级与 PrimeVue `Dialog` 共存未做截图覆盖（无自动化用例），登记为观察项；异常时按 caomei 0.5.0「模态内浮层面板层级 / z-index 覆盖钩子」复核。
 - 分页 `pagination-justify` token 的实际效果未做单页对照实验（仅由差异量级间接判定）；后续路由若要精确还原对齐，应先做对照再定论。
-- 本批次写入前已按 [index.md](./index.md) §3.1 完成**滚动归档**（第四十二 ~ 第四十九阶段窗口迁入 [archive/2026-06-04-to-2026-06-13.md](./archive/2026-06-04-to-2026-06-13.md)，`current.md` 由 676 → 448 行）；`index.md` §3.1（300-400 行）与 `docs:check:line-count`（500/700）两套阈值仍不一致，待治理。
+- 本批次写入前已按 [index.md](./index.md) §3.1 完成**滚动归档**（第四十二 ~ 第四十九阶段窗口迁入 [archive/2026-06-04-to-2026-06-13.md](./2026-06-04-to-2026-06-13.md)，`current.md` 由 676 → 448 行）；`index.md` §3.1（300-400 行）与 `docs:check:line-count`（500/700）两套阈值仍不一致，待治理。
 - 其余 9 个路由（含 `AppAvatarV2` / `AppUploaderV2` / `PostAuditBadge` 过渡件）仍待办。
 
 <!-- regression-window:end:phase68-b2-submissions:第六十八阶段-条目2-首路由:2026-10-13 -->

@@ -16,7 +16,7 @@
 
 - `Cloudflare Pages / Workers` 目前**不是**墨梅应用主体的正式部署路径。
 - `Cloudflare D1` 目前**不是**主业务数据库候选，不进入当前阶段实施面。
-- `wrangler.toml`、[server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 与相关说明只应视为外围能力探索痕迹或最小样机入口，不能被解读为“已支持整站 Cloudflare 运行时”。
+- `wrangler.toml`、[server/routes/_scheduled.ts](../../../../server/routes/_scheduled.ts) 与相关说明只应视为外围能力探索痕迹或最小样机入口，不能被解读为“已支持整站 Cloudflare 运行时”。
 
 ## 2. 研究范围
 
@@ -37,9 +37,9 @@
 
 ### 3.1 数据层仍以 TypeORM + Node 驱动为核心
 
-- [server/database/index.ts](../../server/database/index.ts) 当前只接受 `sqlite`、`mysql`、`postgres` 三类数据库类型，并分别落到 `better-sqlite3`、`mysql`、`postgres` 驱动族。
-- [server/database/index.ts](../../server/database/index.ts) 会在运行时初始化完整的 TypeORM `DataSource`，并加载全量实体、命名策略、自定义 logger、修复脚本与角色同步逻辑。
-- [server/database/typeorm-adapter.ts](../../server/database/typeorm-adapter.ts) 还承担了 Better Auth 的数据库适配层；这意味着认证会话、账号、验证表等也直接绑在 TypeORM 数据访问模型上。
+- [server/database/index.ts](../../../../server/database/index.ts) 当前只接受 `sqlite`、`mysql`、`postgres` 三类数据库类型，并分别落到 `better-sqlite3`、`mysql`、`postgres` 驱动族。
+- [server/database/index.ts](../../../../server/database/index.ts) 会在运行时初始化完整的 TypeORM `DataSource`，并加载全量实体、命名策略、自定义 logger、修复脚本与角色同步逻辑。
+- [server/database/typeorm-adapter.ts](../../../../server/database/typeorm-adapter.ts) 还承担了 Better Auth 的数据库适配层；这意味着认证会话、账号、验证表等也直接绑在 TypeORM 数据访问模型上。
 
 结论：当前不是“数据库能换成 SQLite 语义即可”，而是**整个后端持久化与认证契约都以 TypeORM 为中心组织**。
 
@@ -47,27 +47,27 @@
 
 已确认的代表性依赖包括：
 
-- 文件系统与路径： [server/utils/logger.ts](../../server/utils/logger.ts)、[server/utils/storage/local.ts](../../server/utils/storage/local.ts)、[server/utils/i18n.ts](../../server/utils/i18n.ts)
-- Redis 长连接： [server/utils/redis.ts](../../server/utils/redis.ts)、[server/utils/pv-cache.ts](../../server/utils/pv-cache.ts)
-- SMTP 邮件： [server/utils/email/factory.ts](../../server/utils/email/factory.ts)
-- WebSocket 客户端： [server/utils/ai/asr-volcengine.ts](../../server/utils/ai/asr-volcengine.ts)、[server/utils/ai/tts-volcengine.ts](../../server/utils/ai/tts-volcengine.ts)、[server/api/ai/asr/stream.ws.ts](../../server/api/ai/asr/stream.ws.ts)
+- 文件系统与路径： [server/utils/logger.ts](../../../../server/utils/logger.ts)、[server/utils/storage/local.ts](../../../../server/utils/storage/local.ts)、[server/utils/i18n.ts](../../../../server/utils/i18n.ts)
+- Redis 长连接： [server/utils/redis.ts](../../../../server/utils/redis.ts)、[server/utils/pv-cache.ts](../../../../server/utils/pv-cache.ts)
+- SMTP 邮件： [server/utils/email/factory.ts](../../../../server/utils/email/factory.ts)
+- WebSocket 客户端： [server/utils/ai/asr-volcengine.ts](../../../../server/utils/ai/asr-volcengine.ts)、[server/utils/ai/tts-volcengine.ts](../../../../server/utils/ai/tts-volcengine.ts)、[server/api/ai/asr/stream.ws.ts](../../../../server/api/ai/asr/stream.ws.ts)
 - Node 内建模块：`node:crypto`、`node:zlib`、`node:async_hooks`、`fs`、`path`
 
 结论：当前应用并非“少量 Node API 依赖”，而是**服务端基础设施、日志、存储、邮件、语音链路与任务执行都天然站在 Node 语义上**。
 
 ### 3.3 本地文件与对象存储是双轨模型，而非纯对象存储模型
 
-- [server/utils/storage/factory.ts](../../server/utils/storage/factory.ts) 当前支持 `local`、`s3/r2`、`vercel_blob`。
-- [server/utils/storage/local.ts](../../server/utils/storage/local.ts) 仍包含本地磁盘目录创建、空间检测、文件写入与路径拼接逻辑。
-- [server/services/direct-upload.ts](../../server/services/direct-upload.ts) 说明 `r2` 路径实际上是复用 S3 兼容签名能力，而不是 Cloudflare 原生运行时绑定。
+- [server/utils/storage/factory.ts](../../../../server/utils/storage/factory.ts) 当前支持 `local`、`s3/r2`、`vercel_blob`。
+- [server/utils/storage/local.ts](../../../../server/utils/storage/local.ts) 仍包含本地磁盘目录创建、空间检测、文件写入与路径拼接逻辑。
+- [server/services/direct-upload.ts](../../../../server/services/direct-upload.ts) 说明 `r2` 路径实际上是复用 S3 兼容签名能力，而不是 Cloudflare 原生运行时绑定。
 
 结论：R2 已经可用，但它只解决“对象存储”这一个切面，**并没有把整个应用从 Node 文件系统语义中剥离出来**。
 
 ### 3.4 定时任务的 Cloudflare 路径仍是实验性入口
 
-- [wrangler.toml](../../wrangler.toml) 当前仅保留 `nodejs_compat`、`compatibility_date` 与 cron 触发配置，没有形成清晰的整站 Worker 主入口。
-- [server/routes/_scheduled.ts](../../server/routes/_scheduled.ts) 当前依赖 `cf-scheduled` 请求头来判定 Cloudflare 触发。
-- [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts) 已经具备成熟的 HMAC / Bearer / Token 任务 webhook 入口，更适合作为“Cloudflare 只负责触发，主站仍在 Node 环境执行任务”的外围集成模式。
+- [wrangler.toml](../../../../wrangler.toml) 当前仅保留 `nodejs_compat`、`compatibility_date` 与 cron 触发配置，没有形成清晰的整站 Worker 主入口。
+- [server/routes/_scheduled.ts](../../../../server/routes/_scheduled.ts) 当前依赖 `cf-scheduled` 请求头来判定 Cloudflare 触发。
+- [server/api/tasks/run-scheduled.post.ts](../../../../server/api/tasks/run-scheduled.post.ts) 已经具备成熟的 HMAC / Bearer / Token 任务 webhook 入口，更适合作为“Cloudflare 只负责触发，主站仍在 Node 环境执行任务”的外围集成模式。
 
 结论：当前最稳妥的 Cloudflare 任务路径不是“把任务逻辑搬进 Worker”，而是**让 Cloudflare 只做外部调度触发器**。
 
@@ -151,7 +151,7 @@
 
 1. 应用主体继续部署在 Vercel、Docker 或自托管 Node。
 2. Cloudflare 继续承接 R2、Turnstile、CDN / WAF / DNS 等边缘能力。
-3. 如需使用 Cloudflare 调度，只让 Cloudflare 触发 [server/api/tasks/run-scheduled.post.ts](../../server/api/tasks/run-scheduled.post.ts) 这一成熟 webhook 入口，由主站执行真实任务。
+3. 如需使用 Cloudflare 调度，只让 Cloudflare 触发 [server/api/tasks/run-scheduled.post.ts](../../../../server/api/tasks/run-scheduled.post.ts) 这一成熟 webhook 入口，由主站执行真实任务。
 
 ### 6.2 不推荐的样机
 
@@ -189,7 +189,7 @@
 - 墨梅当前**支持或保留** Cloudflare 的外围能力接入，包括 R2、Turnstile、CDN / WAF / DNS，以及“由 Cloudflare 触发 Node 主站任务 webhook”的模式。
 - `Cloudflare D1` 仍属于后续条件触发型评估项，而不是当前已支持数据库。
 
-补充说明：若在 [docs/plan/roadmap.md](../../plan/roadmap.md) 等历史规划位置看到更积极的 Cloudflare 目标描述，应将其理解为当时的阶段规划意图，而不是当前版本的正式支持声明；当前支持边界以本研究文档、[部署指南](../../guide/deploy.md) 与 [快速开始](../../guide/quick-start.md) 为准。
+补充说明：若在 [docs/plan/roadmap.md](../../../plan/roadmap.md) 等历史规划位置看到更积极的 Cloudflare 目标描述，应将其理解为当时的阶段规划意图，而不是当前版本的正式支持声明；当前支持边界以本研究文档、[部署指南](../../../guide/deploy.md) 与 [快速开始](../../../guide/quick-start.md) 为准。
 
 ## 8. 重新开启评估的触发条件
 

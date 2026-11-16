@@ -6,7 +6,7 @@
 迁出方式：整体迁移（marker + 标题 + 正文 + end 成对保留），正文逐字未改。
 选此窗口的理由：它是当前窗口内**唯一**未被 `docs/plan/**` / `docs/design/**` 以节名锚点
 （如「回归记录 M1 节 / M3 节」「caomei-ui 漂移收口节」「第六十八阶段条目 1 节」）引用的窗口——其余窗口归档前须先改写引用方，见
-[backlog.md](../../plan/backlog.md) 长期主线第 6 条的「归档约束」补记。
+[backlog.md](../../../plan/backlog.md) 长期主线第 6 条的「归档约束」补记。
 
 <!-- regression-window:start:hotfix-pinned-pg-types:PostgreSQL 值类型解析修复:2026-09-21 -->
 ## 2026-09-21 PostgreSQL 值类型解析退化导致「所有文章显示置顶」修复

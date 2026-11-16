@@ -29,15 +29,15 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 
 ### 2.1 内部管理端入口
 
-管理端文章 TTS 对话框通过 [composables/use-post-tts-dialog.ts](../../../composables/use-post-tts-dialog.ts) 统一做模式分流：
+管理端文章 TTS 对话框通过 [composables/use-post-tts-dialog.ts](../../../../composables/use-post-tts-dialog.ts) 统一做模式分流：
 
 1. `provider !== volcengine` 时继续走 `POST /api/ai/tts/task` + `use-tts-task.ts` 轮询。
-2. `provider === volcengine` 时直接切到 [composables/use-tts-volcengine-direct.ts](../../../composables/use-tts-volcengine-direct.ts)。
+2. `provider === volcengine` 时直接切到 [composables/use-tts-volcengine-direct.ts](../../../../composables/use-tts-volcengine-direct.ts)。
 3. 直连模式同时覆盖 `speech` 和 `podcast`，不再只停留在 HTTP speech 原型。
 
 ### 2.2 服务端任务入口
 
-[server/api/ai/tts/task.post.ts](../../../server/api/ai/tts/task.post.ts) 与 [server/api/external/ai/tts/task.post.ts](../../../server/api/external/ai/tts/task.post.ts) 现在都共享同一条降级判定：
+[server/api/ai/tts/task.post.ts](../../../../server/api/ai/tts/task.post.ts) 与 [server/api/external/ai/tts/task.post.ts](../../../../server/api/external/ai/tts/task.post.ts) 现在都共享同一条降级判定：
 
 - 当运行时是 Serverless，或显式设置 `TTS_FRONTEND_DIRECT=true`
 - 且 Provider 是 `volcengine`（或未显式传入，默认落到 Volcengine）
@@ -65,7 +65,7 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 
 ### 3.1 临时凭证
 
-[server/api/ai/tts/credentials.post.ts](../../../server/api/ai/tts/credentials.post.ts) 调用 [server/utils/ai/tts-credentials.ts](../../../server/utils/ai/tts-credentials.ts) 为前端签发短期凭证：
+[server/api/ai/tts/credentials.post.ts](../../../../server/api/ai/tts/credentials.post.ts) 调用 [server/utils/ai/tts-credentials.ts](../../../../server/utils/ai/tts-credentials.ts) 为前端签发短期凭证：
 
 - speech: 浏览器通过 `X-Api-Access-Key: Jwt; <token>` 访问 HTTP TTS 接口
 - podcast: 浏览器通过 URL Query 传入同一份 JWT，建立 WebSocket 连接
@@ -75,9 +75,9 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 
 当前 Volcengine 二进制协议相关逻辑已经做了分层：
 
-- [utils/shared/volcengine-protocol.ts](../../../utils/shared/volcengine-protocol.ts)
+- [utils/shared/volcengine-protocol.ts](../../../../utils/shared/volcengine-protocol.ts)
   负责浏览器 / Node 都可复用的帧头、事件帧、错误帧、序列化解析。
-- [server/utils/ai/volcengine-protocol.ts](../../../server/utils/ai/volcengine-protocol.ts)
+- [server/utils/ai/volcengine-protocol.ts](../../../../server/utils/ai/volcengine-protocol.ts)
   在共享 helper 之上补 Node 侧 `gzip` 解压与 Buffer 适配。
 
 这样做的原因是：
@@ -88,13 +88,13 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 
 ### 3.3 前端合成与上传
 
-[composables/use-tts-volcengine-direct.ts](../../../composables/use-tts-volcengine-direct.ts) 当前链路如下：
+[composables/use-tts-volcengine-direct.ts](../../../../composables/use-tts-volcengine-direct.ts) 当前链路如下：
 
 1. 拉取临时凭证。
 2. speech 模式直调 Volcengine HTTP 单向流式接口。
 3. podcast 模式通过共享协议 helper 构建 / 解析 WebSocket 帧。
 4. 浏览器拼接音频字节并生成 `File`。
-5. 调用 [composables/use-upload.ts](../../../composables/use-upload.ts) 上传。
+5. 调用 [composables/use-upload.ts](../../../../composables/use-upload.ts) 上传。
 6. 调用 `PUT /api/posts/:id/tts-metadata` 回写 metadata 与 AITask。
 
 上传路径现在会按文章上下文收敛：
@@ -140,7 +140,7 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 1. 回写 `Post.metadata.audio` 与 `Post.metadata.tts`
 2. 记录一条已完成的 `tts_direct` / `podcast_direct` 任务，用于 AI 统计和审计
 
-当前已经与服务端完成态共用同一套 metadata 构造逻辑 [server/utils/ai/tts-post-metadata.ts](../../../server/utils/ai/tts-post-metadata.ts)，避免两条链路继续出现字段漂移。
+当前已经与服务端完成态共用同一套 metadata 构造逻辑 [server/utils/ai/tts-post-metadata.ts](../../../../server/utils/ai/tts-post-metadata.ts)，避免两条链路继续出现字段漂移。
 
 回写字段至少覆盖：
 
@@ -178,7 +178,7 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 - 自部署环境希望继续走统一后台任务
 - 需要继续依赖 `media-task-monitor`、后台补偿与原有任务处理逻辑
 
-[server/services/ai/tts.ts](../../../server/services/ai/tts.ts) 仍是后端唯一正式的 TTS 任务处理器。当前只是把“Volcengine 在 Serverless 环境下的高频超时问题”分流到浏览器侧解决，而不是推翻原始实现。
+[server/services/ai/tts.ts](../../../../server/services/ai/tts.ts) 仍是后端唯一正式的 TTS 任务处理器。当前只是把“Volcengine 在 Serverless 环境下的高频超时问题”分流到浏览器侧解决，而不是推翻原始实现。
 
 ## 7. 当前非目标
 
@@ -189,16 +189,16 @@ TTS 原始链路长期是“前端触发 -> 服务端调 Provider -> 流式读�
 
 ## 8. 受影响文件
 
-- [composables/use-post-tts-dialog.ts](../../../composables/use-post-tts-dialog.ts)
-- [composables/use-tts-volcengine-direct.ts](../../../composables/use-tts-volcengine-direct.ts)
-- [composables/use-upload.ts](../../../composables/use-upload.ts)
-- [server/api/ai/tts/task.post.ts](../../../server/api/ai/tts/task.post.ts)
-- [server/api/external/ai/tts/task.post.ts](../../../server/api/external/ai/tts/task.post.ts)
-- [server/api/ai/tts/credentials.post.ts](../../../server/api/ai/tts/credentials.post.ts)
+- [composables/use-post-tts-dialog.ts](../../../../composables/use-post-tts-dialog.ts)
+- [composables/use-tts-volcengine-direct.ts](../../../../composables/use-tts-volcengine-direct.ts)
+- [composables/use-upload.ts](../../../../composables/use-upload.ts)
+- [server/api/ai/tts/task.post.ts](../../../../server/api/ai/tts/task.post.ts)
+- [server/api/external/ai/tts/task.post.ts](../../../../server/api/external/ai/tts/task.post.ts)
+- [server/api/ai/tts/credentials.post.ts](../../../../server/api/ai/tts/credentials.post.ts)
 - [server/api/posts/[id]/tts-metadata.put.ts](../../../server/api/posts/%5Bid%5D/tts-metadata.put.ts)
-- [server/utils/ai/tts-credentials.ts](../../../server/utils/ai/tts-credentials.ts)
-- [server/utils/ai/volcengine-protocol.ts](../../../server/utils/ai/volcengine-protocol.ts)
-- [utils/shared/volcengine-protocol.ts](../../../utils/shared/volcengine-protocol.ts)
+- [server/utils/ai/tts-credentials.ts](../../../../server/utils/ai/tts-credentials.ts)
+- [server/utils/ai/volcengine-protocol.ts](../../../../server/utils/ai/volcengine-protocol.ts)
+- [utils/shared/volcengine-protocol.ts](../../../../utils/shared/volcengine-protocol.ts)
 
 ## 9. 验收口径
 

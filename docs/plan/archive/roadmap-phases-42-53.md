@@ -34,7 +34,7 @@
 
 **审计结论**: 第四十二阶段五条主线已在实现代码、前端组件、API 端点、i18n 密钥与规划文档中完成闭环。站点性能 CWV 基线采集脚本与图片懒加载就已落地，AI 内容审计（评分徽章 + 审计报告 + 缓存 24h + 行级权限）与内容日历（月/周日历视图 + 看板拖拽 + 管线阶段 PATCH）均已交付，ESLint / 类型债三组窄切片与结构复用三组热点切片均延续治理切片推进。typecheck + lint 通过，Code Auditor 审计问题已修复并提交。`todo.md` 已清理、`todo-archive.md` 阶段归档块将在本阶段收口时补入。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 
 ### 第四十三阶段：AI 分发复用与治理深化（(AI Distribution Reuse & Governance Deepenin）)
@@ -73,7 +73,7 @@
 
 **审计结论**: 第四十三阶段五条主线已在实现代码、测试、i18n 与规划文档中完成闭环。Code Auditor 审计发现 2 blocker（i18n nesting + sourceMap cross-platform）已修复并重新验证通过（`0d9b9f47`）。Windows 性能主线确认平台级瓶颈（Linux CI 106s vs Windows >1800s，>17x），已上收关闭。`todo.md` 已清理、`todo-archive.md` 已收录本阶段归档块。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 
 ### 第四十四阶段：友链生态与性能闭环（(Friend-Link Ecosystem & Performance Loo）)（(已审计归）)
@@ -112,7 +112,7 @@
     - **非目标**: 不做整站重构、不引入新性能框架。
     - **最小验收**: 一项优化完成且 CWV 至少一项有可测量改善；前后对比数据记录到 `performance.md`。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第四十五阶段：隐私闭环与文档治理（(Privacy Closure & Docs Governanc）)（已审计归档）
 
@@ -123,7 +123,7 @@
 
 **ROI 评估**: Umami 隐私分析集成 `1.50`；Digital Garden 探索评估 `0.90`；文档治理收口 `1.70`；ESLint / 类型债治理 `1.40`；结构复用治理 `1.50`。
 
-**审计结论**: 五条主线均已完成并归档，当前阶段实现、测试与文档证据已对齐；`todo.md` 已清理为“待准入（筹备中）”状态。详细收口见 [todo-archive 第四十五阶段](./todo-archive.md#第四十五阶段隐私闭环与文档治理-已审计归档)。
+**审计结论**: 五条主线均已完成并归档，当前阶段实现、测试与文档证据已对齐；`todo.md` 已清理为“待准入（筹备中）”状态。详细收口见 [todo-archive 第四十五阶段](../todo-archive.md)。
 
 1. **主线：Umami 隐私自托管分析集成 — Phase 1 核心（(P）)**:
     - **执行范围**: 基于 Phase 44 评估结论和 `docs/design/governance/privacy-analytics-evaluation.md` 中的实施路线 Phase 1，完成：Schema（`SettingKey.UMAMI_ANALYTICS` + env mapping）、Nuxt 客户端插件（`plugins/umami-analytics.client.ts`）、后台设置页（`analytics-settings.vue` 新增输入框 + 锁定逻辑）、5 locale i18n 翻译、`server/api/settings/public.get.ts` 公开字段。
@@ -308,7 +308,7 @@
 **时间表**: 2026-06-13 ~ 2026-06-14
 **目标**: 经过 Phase 39-49 共 11 个阶段（5 新功能 + 46 治理）后，以「1 个新功能 + 4 个优化」组合重启新功能面：PWA 作为轻量新增能力，三条优化延续治理节奏（API 测试分层、i18n 首屏稳定性、backlog 深度清理），外加友链博客环导航评估。
 
-**审计结论**: 第五十阶段五条主线已于 2026-06-14 全部闭合并归档至 [todo-archive.md](./todo-archive.md)。PWA 模块已启用并验证构建通过（SW + Manifest 生成）；API 测试分层已固化规则并完成 4 组样板迁移；i18n 首屏翻译稳定性已完成命中矩阵并修复 3 处 raw key 泄漏；backlog 深度清理已完成 Phase 32-41 路线图归档压缩（772→409 行）与 backlog 候选条目去重；友链博客环导航评估已输出 Go 结论（~4h 工作量）。
+**审计结论**: 第五十阶段五条主线已于 2026-06-14 全部闭合并归档至 [todo-archive.md](../todo-archive.md)。PWA 模块已启用并验证构建通过（SW + Manifest 生成）；API 测试分层已固化规则并完成 4 组样板迁移；i18n 首屏翻译稳定性已完成命中矩阵并修复 3 处 raw key 泄漏；backlog 深度清理已完成 Phase 32-41 路线图归档压缩（772→409 行）与 backlog 候选条目去重；友链博客环导航评估已输出 Go 结论（~4h 工作量）。
 
 **准入结论**: PWA 配置已在 nuxt.config.ts 中预置（`@vite-pwa/nuxt` 已安装但注释），启用工作量低（~2h）；API 测试分层和 i18n 首屏稳定性为 backlog 中已识别的技术债；backlog 清理为常规维护。
 
@@ -373,14 +373,14 @@
     - **非目标**: 不重写条目正文、不新增条目、不修改主线目标定义。
     - **最小验收**: 10 条主线的「最近一次上收阶段」全部更新至 ≥Phase 48；状态字段与归档记录一致。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第五十二阶段：治理补账与移动性能基线（(Governance Debt Clearance & Mobile Performance Baselin）)（(已审计归）)
 
 **时间表**: 2026-06-23 ~ 2026-06-28（5 天）
 **目标**: 在 Phase 47-51 连续五轮治理后，ESLint 已连续切片 9 个阶段、结构复用已连续切片 11 个阶段。Phase 52 刻意让这两条主线休息一轮，转而清偿最被忽视的四条治理债（脚本 warning 清理 — 已逾期 11 阶段、文档归档审计、站点性能移动端、i18n runtime 扩面），外加测试有效性第二轮。
 
-**审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。详细归档见 [todo-archive.md](./todo-archive.md#第五十二阶段治理补账与移动性能基线-已审计归档)。
+**审计结论**: 第五十二阶段五条主线已在脚本治理、文档治理、性能基线、i18n 验证与测试有效性中完成闭环。`pnpm typecheck` + `pnpm lint` 全部通过，五条主线验收指标全部达成。详细归档见 [todo-archive.md](../todo-archive.md)。
 
 **准入结论**: 五条主线均来自 backlog 长期主线已验证候选，容量控制在 `5` 项内，符合规划规范。脚本治理（Phase 40 后未碰）和文档治理（governance 目录膨胀）为当前最明显治理欠账；站点性能移动端（Phase 44 后未碰）和测试有效性（Phase 49 后未碰）已有明确可切片方向；i18n 扩面延续 Phase 50 节奏。无新功能面，短期候选池已干涸。
 
@@ -411,7 +411,7 @@
     - **非目标**: 不做 coverage 数字冲刺、不做低价值全量补测。
     - **最小验收**: ≥5 个新增失败路径断言；覆盖 ≥2 个模块；全仓 coverage 基线不回退。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 
 ### 第五十三阶段：缓存架构与治理深化（(Cache Architecture & Governance Deepenin）)（已审计归档）
 
@@ -425,7 +425,7 @@
 **ROI 评估**: Vercel CDN 缓存 Tier 2 `2.00`；文档治理阈值收紧 `1.70`；ESLint/类型债 `1.50`；结构复用治理 `1.60`；AI 编辑增强评估 `1.40`。
 
 1. **主线：Vercel CDN 缓存 + Bot 流量治理 — Tier 2 架构（(P）)**:
-    - **执行范围**: 基于 Phase 52 根因分析，在 Tier 1 已执行基础上，实施 Tier 2 架构治理：`nuxt.config.ts` routeRules 配置 ISR/SWR + SSG 预渲染。治理文档：[Vercel 缓存穿透与 Bot 流量治理](../design/governance/vercel-cache-bot-governance.md)。
+    - **执行范围**: 基于 Phase 52 根因分析，在 Tier 1 已执行基础上，实施 Tier 2 架构治理：`nuxt.config.ts` routeRules 配置 ISR/SWR + SSG 预渲染。治理文档：[Vercel 缓存穿透与 Bot 流量治理](../../design/governance/vercel-cache-bot-governance.md)。
     - **非目标**: 不做全量 SSG 预渲染、不引入新缓存框架、不改页面渲染逻辑。
     - **最小验收**: ISR/SWR 配置生效；公开页面缓存命中率可验证；Neon compute 启停频率下降。
     - **完成情况**: ✅ routeRules 配置完成（首页 SWR 1h、文章详情 ISR 10min、标签/分类 SWR 30min）；Upstash Redis 持久化存储配置完成；部署后验证任务延期至运维阶段。
@@ -454,5 +454,5 @@
     - **最小验收**: 评估文档输出明确的 go/no-go 结论，至少覆盖「AI 额度计费策略」「prompt 多语言支持」「与现有 AI 管线复用度」三个维度。
     - **完成情况**: ✅ 评估文档已完成（`docs/design/governance/ai-editing-enhancement-evaluation.md`）；输出条件性 Go 结论（ROI 1.50）。
 
-> 详细条目见 [待办事项](./todo.md)；backlog 来源见 [长期规划与积压项](./backlog.md)。
+> 详细条目见 [待办事项](../todo.md)；backlog 来源见 [长期规划与积压项](../backlog.md)。
 

@@ -247,7 +247,7 @@
 
 ### 6. Demo 模式 (Demo Mode)
 
-详细设计请参考: [Demo 模式设计文档](../design/modules/demo-mode.md)
+详细设计请参考: [Demo 模式设计文档](../../design/modules/demo-mode.md)
 
 - [x] **基础设施与数据库集成**
     - [x] 验收: 当 `NUXT_PUBLIC_DEMO_MODE=true` 时，强制使用 `:memory:` SQLite 数据库。
@@ -334,7 +334,7 @@
 
 ### 4. 内容呈现与质量增强 (Content Rendering & Quality Enhancement)
 
-详细设计请参考: [内容呈现增强设计文档](../design/modules/rendering.md)
+详细设计请参考: [内容呈现增强设计文档](../../design/modules/rendering.md)
 
 - [x] **Lighthouse 性能跑分优化 (High Priority)**
     - [x] 验收: 在 CI 工作流中集成 Lighthouse CI，实现自动化性能监控。
@@ -399,7 +399,7 @@
 
 ### 2. 高级 AI 创作流 (Advanced AI Workflow)
 - [x] **灵感捕捉引擎 (Inspiration Engine) (P1)**
-    - 参考 [灵感捕捉引擎设计规范](../design/modules/inspiration.md)
+    - 参考 [灵感捕捉引擎设计规范](../../design/modules/inspiration.md)
         - [x] 验收: 实现“灵感碎片 (Snippets)” 实体模型，包含内容、媒体附件、来源元数据及状态管理。
         - [x] 验收: 实现通用的、基于令牌鉴权的 REST API，支持各类外部工具（如 cURL, 书签脚本）调用。
     - [x] 验收: **PWA 极简采集模式**: 支持“添加到主屏幕”，提供秒开即输的移动端原生化体验。
@@ -466,7 +466,7 @@
     - 验收: 支持通过 API Key 调用 Open API 进行批量导入。
     - 验收: 元数据映射逻辑逻辑与现有 Open API 一致，支持自动生成缺失项（参考 `/api/external/posts`）。
 - [x] **安装向导与首运行初始化 (Installation Wizard) (P2)**
-    - 参考 [安装向导设计规范](../design/modules/installation.md)
+    - 参考 `安装向导设计规范`
     - [x] 验收: **混合模式安装向导**: 针对生产环境提供 Web 端引导式配置，简化基本 SEO 和 AI 配置。
     - [x] 验收: 实现首运行检测逻辑，引导管理员创建与站点基本设置。
     - [x] 验收: 评估并实现配置持久化至数据库，处理与环境变量的优先级关系。
@@ -477,13 +477,13 @@
     - [x] 验收: 优化安装向导：支持安装时自动从 ENV 载入现有配置到数据库。
     - [x] 验收: 完善 Admin UI：新增“认证”、“安全”、“限额”标签页，并增加 ENV 锁定视觉反馈。
 - [x] **访客投稿工作流 (Guest Posting) (P2)**
-    - [x] 验收: 完成详细设计文档（参考 [互动与隐私控制](../design/modules/interactions.md)）。
+    - [x] 验收: 完成详细设计文档（参考 [互动与隐私控制](../../design/modules/interactions.md)）。
     - [x] 验收: 实现投稿界面 `/submit`，集成 Turnstile 验证码进行防垃圾保护。
     - [x] 验收: 管理后台实现投稿审核管理，支持管理员对投稿进行认领、编辑及发布。
 
 ### 4. 个性化体验深度 (Personalization)
 - [x] **主题画廊系统 (Theme Gallery) (P2)**
-    - 参考 [主题画廊系统设计规范](../design/modules/theme-gallery.md)
+    - 参考 `主题画廊系统设计规范`
     - [x] **设计与评审 (Design)**
         - 验收: 完成详细设计文档，明确 `ThemeConfig` 实体结构、API 及预览逻辑。
     - [x] **数据库模型实现**
@@ -531,7 +531,7 @@
 ## 第五阶段：生态深化与体验极致 (Ecosystem Deepening & Extreme Experience) (已完成)
 
 ### 1. 订阅中心与通知系统 (Subscription Hub & Notification System) (P1)
-具体文档：[订阅中心与通知系统](../design/modules/notifications.md)
+具体文档：[订阅中心与通知系统](../../design/modules/notifications.md)
 - [x] **多格式集成订阅源 (Universal Feeds)**
     - 验收: 在现有 RSS 2.0 基础上，增加对 **Atom 1.0** 和 **JSON Feed 1.1** 的原生支持。
     - 验收: 确保在所有格式中，音频附件 (Enclosure/Attachment)均能被正确解析且不与封面图冲突。
@@ -567,8 +567,8 @@
     - [x] 验收: **多维度显隐控制**: 支持按当前页面语言 (zh-CN/en-US) 动态决定外链/打赏码的展示与隐藏。
     - [x] 验收: **后台商业配置优化**: 提取共享组件 CommercialLinkManager 实现代码复用，并增加权限校验 (RBAC)。
     - [x] 验收: **社交链接与打赏集成**: 实现基于"个人配置+全局覆盖"的社交引流与赞助系统。
-        - [x] 设计文档设计：[商业化与社交集成设计文档](../design/modules/commercial.md)
-        - [x] 共享类型定义：[utils/shared/commercial.ts](../../utils/shared/commercial.ts)
+        - [x] 设计文档设计：[商业化与社交集成设计文档](../../design/modules/commercial.md)
+        - [x] 共享类型定义：[utils/shared/commercial.ts](../../../utils/shared/commercial.ts)
         - [x] 数据库 Schema 更新：User 实体增加链接字段
         - [x] 缓存/配置项更新：COMMERCIAL_SPONSORSHIP
         - [x] 后端 API 实现：全局与个人配置的 CRUD
@@ -579,7 +579,7 @@
     - [x] 验收: **安全校验**: 对自定义 URL 加载进行白名单与协议校验。
 
 ### 3. AI 语音创作增强 (AI Voice Creative Enhancement) (P1)
-具体文档：[AI 语音创作增强](../design/modules/voice.md)
+具体文档：`AI 语音创作增强`
 - [x] **语音创作工作流 (Voice-to-Post)**
     - [x] 验收: **轻量化识别内核**: 实现基于 Web Speech API 的浏览器原生 V2T (Voice-to-Text) 识别。
     - [x] 验收: **多语言适配**: 识别引擎根据当前博文语言自动切换识别语种 (zh/en)。
@@ -601,7 +601,7 @@
 
 ### 5. 第三方平台集成 (Third-party Integration) (P2)
 - [x] **设计与调研 (Design & Research)**
-    - 验收: 完成 Wechatsync 与 Memos 的接口调研，编写详细设计文档 [third-party.md](../design/modules/third-party.md)。
+    - 验收: 完成 Wechatsync 与 Memos 的接口调研，编写详细设计文档 [third-party.md](../../design/modules/third-party.md)。
 - [x] **Memos API 集成**
     - 验收: 实现 Memos v1 API 封装，支持在发布文章时同步推送摘要/正文。
     - 验收: 后台增加 Memos 实例 URL 与 Access Token 配置。
@@ -616,7 +616,7 @@
     - [x] **MCP Server 脚手架 (`packages/mcp-server`)**：已完成基础架构、构建配置（tsdown）、测试配置（vitest）与代码规范（eslint）。
     - [x] **验证与测试**：编写单元测试辅助验证 Tool 注册逻辑，通过 Vitest 测试。
 - [x] **定时发布功能 (Scheduled Publication)** (P1)
-    - [x] 验收: 完成详细设计文档 [scheduled-publication.md](../design/modules/scheduled-publication.md)。
+    - [x] 验收: 完成详细设计文档 [scheduled-publication.md](../../design/modules/scheduled-publication.md)。
     - [x] 验收: **类型与实体扩展**:
         - [x] 在 `PostStatus` 中增加 `SCHEDULED` 状态。
         - [x] 更新 `POST_STATUS_TRANSITIONS` 状态转换矩阵。
@@ -815,7 +815,7 @@
 
 ### 4. 性能基准与优化 (Performance & Optimization)
 - [x] **Lighthouse 红线机制 (P2)**
-    - [x] 文档基线：补充并维护 [性能规范](../standards/performance.md)，明确审计对象、采样策略和发布门禁
+    - [x] 文档基线：补充并维护 [性能规范](../../standards/performance.md)，明确审计对象、采样策略和发布门禁
     - [x] 阈值策略：采用分阶段爬坡（Phase A 跑通基线 -> Phase B 守住基线 -> Phase C 四项 >= 90 阻断）
     - [x] CI/CD 流程中集成 Lighthouse CI 审计（核心页面、移动端+桌面端、每页 3 次取中位数）
     - [x] 核心采样页收敛：移除 `/login`、`/register`，避免非内容页噪声干扰门禁判断
@@ -842,7 +842,7 @@
     - [x] 增加配置项变更审计日志，记录管理员对数据库配置的写入历史与变更原因
     - [x] 明确审计边界：当前不直接审计宿主环境变量变更，环境变量改动由部署平台或运维系统承担审计职责
 - [-] **迁移至积压项（未在本阶段完成）**
-    - [-] “智能混合模式”说明卡片、来源徽标与更细粒度锁定原因提示已迁移至 [长期规划与积压项](./backlog.md)
+    - [-] “智能混合模式”说明卡片、来源徽标与更细粒度锁定原因提示已迁移至 [长期规划与积压项](../backlog.md)
 
 ### 2. 商业化与广告联盟集成 (Commercial & Ad Networks) (P1)
 - [x] **多平台广告系统接入**
@@ -951,7 +951,7 @@
 
 ### 3. 国际化语言扩展与配置模块化 (I18n Expansion & Modularization) (P1)
 
-> 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。当前已继续补齐公开页 SEO 相关词条，文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页已接入统一 `usePageSeo` 链路；同时已将翻译模块进一步细分为 `public / auth / admin / settings / home / demo / installation / legal`，并通过全局路由中间件按当前路径与 demo 模式渐进加载额外模块，默认首屏仅保留核心词条。下一步继续推进冗余词条清理与旧结构迁移收口。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/governance/i18n-seo-unification.md)。
+> 当前执行策略: 本轮不将“国际化语言扩展与配置模块化”和“多语言 SEO 深度优化”拆成两份孤立方案，而是以 Locale Registry 为统一事实源进行一体化设计。设计重点是先收敛默认语言、回退链、Locale 元数据、翻译模块拆分与语言准入规则，再让页面 Head、结构化数据和站点地图共享同一套语言配置。当前已继续补齐公开页 SEO 相关词条，文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页已接入统一 `usePageSeo` 链路；同时已将翻译模块进一步细分为 `public / auth / admin / settings / home / demo / installation / legal`，并通过全局路由中间件按当前路径与 demo 模式渐进加载额外模块，默认首屏仅保留核心词条。下一步继续推进冗余词条清理与旧结构迁移收口。专项设计见 [国际化扩展与多语言 SEO 统一设计](../../design/governance/i18n-seo-unification.md)。
 
 - [x] **多语言配置中心化**
     - [x] 将当前双语言能力抽象为可配置 Locale 集合，支持默认语言、回退策略与 Locale 元数据集中管理
@@ -966,7 +966,7 @@
 
 ### 4. 多语言 SEO 深度优化 (Multilingual SEO) (P1)
 
-> 当前执行策略: 已完成首轮基础设施落地，并复用 Locale Registry 收敛共享页面 SEO 契约。当前已补齐共享 absolute URL / SEO 图片 / JSON-LD 构建器，首页已切到统一 `usePageSeo` 链路，动态 sitemap 已支持语言变体 alternates；本轮又继续把文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页切到统一 SEO 管线，并将上述静态公开页纳入多语言 sitemap alternates 覆盖，相关定向测试与本轮 `typecheck` 已通过；下一步继续补齐更高层级的自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../design/governance/i18n-seo-unification.md)。
+> 当前执行策略: 已完成首轮基础设施落地，并复用 Locale Registry 收敛共享页面 SEO 契约。当前已补齐共享 absolute URL / SEO 图片 / JSON-LD 构建器，首页已切到统一 `usePageSeo` 链路，动态 sitemap 已支持语言变体 alternates；本轮又继续把文章列表、分类列表、标签列表、归档、关于、投稿、用户协议与隐私政策页切到统一 SEO 管线，并将上述静态公开页纳入多语言 sitemap alternates 覆盖，相关定向测试与本轮 `typecheck` 已通过；下一步继续补齐更高层级的自动化回归校验。专项设计见 [国际化扩展与多语言 SEO 统一设计](../../design/governance/i18n-seo-unification.md)。
 
 - [x] **多语言元标签增强**
     - [x] 自动生成并校验 `hreflang`、canonical、Open Graph、Twitter Card 的多语言版本
@@ -1030,7 +1030,7 @@
 
 ## 第十阶段：通知闭环与全球体验增强 (Notification Closure & Global Experience Enhancement) (已审计归档)
 
-**审计结论**: 第十阶段围绕通知触达、工程治理、多语言增强与新用户体验的核心任务已全部闭环；原待办中唯一未勾选的“复用抽象与质量门禁”已依据其拆解子项全部完成而补记为完成。本阶段不再保留专属遗留项，跨阶段积压统一收敛到 [长期规划与积压项](./backlog.md)。
+**审计结论**: 第十阶段围绕通知触达、工程治理、多语言增强与新用户体验的核心任务已全部闭环；原待办中唯一未勾选的“复用抽象与质量门禁”已依据其拆解子项全部完成而补记为完成。本阶段不再保留专属遗留项，跨阶段积压统一收敛到 [长期规划与积压项](../backlog.md)。
 
 > **当前阶段**: Phase 10
 > **核心目标**: 基于现有 SSE、Locale Registry、Demo / Onboarding 与质量门禁基础设施，补齐“通知触达 -> 语言扩展 -> 工程治理 -> 新用户体验”闭环。

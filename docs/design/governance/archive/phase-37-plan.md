@@ -20,8 +20,8 @@
 
 **执行范围**:
 
-1. 冻结 [server/middleware/0-installation.ts](../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
-2. 为数据库初始化与冷请求路径补齐分阶段耗时口径，统一沉淀到 [windows-dev-build-performance-governance.md](./windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
+1. 冻结 [server/middleware/0-installation.ts](../../../../server/middleware/0-installation.ts) 的 installation state 探测边界，明确哪些路径只需要 installation state、哪些路径才必须等待完整 `initializeDB()`。
+2. 为数据库初始化与冷请求路径补齐分阶段耗时口径，统一沉淀到 [windows-dev-build-performance-governance.md](../windows-dev-build-performance-governance.md) 与 `artifacts/nuxt-*-performance.json`。
 3. 进入 `Server built -> Build complete` 长尾专项剖析，优先检查 Nitro / `.output/server` 写出规模、chunk 与 sourcemap。
 
 **非目标**:
@@ -63,7 +63,7 @@
 **执行范围**:
 
 1. 按“单规则 + 单文件 / 双文件”继续推进窄切片。
-2. 本轮优先上收 [server/services/ai/asr.ts](../../server/services/ai/asr.ts) 的 `@typescript-eslint/no-explicit-any` 高 ROI 候选。
+2. 本轮优先上收 [server/services/ai/asr.ts](../../../../server/services/ai/asr.ts) 的 `@typescript-eslint/no-explicit-any` 高 ROI 候选。
 3. 实施前先冻结命中清单、替代写法、回滚边界与最小验证矩阵。
 
 **非目标**:

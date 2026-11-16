@@ -100,7 +100,7 @@
 
 ### 6.2 2026-05-27 第二轮 probe 实测
 
-1. `git worktree add --detach D:\Projects\typescript-projects\momei-typeorm-probe-20260527 HEAD && pnpm up typeorm@1.0.0`
+1. `git worktree add --detach <repo-root>\Projects\typescript-projects\momei-typeorm-probe-20260527 HEAD && pnpm up typeorm@1.0.0`
    - 结果：建立新的隔离 probe worktree，并镜像当前主工作区候选改动后升级到 `typeorm@1.0.0`。
 2. `pnpm run typecheck`
    - 结果：失败（`35 errors / 25 files`）。其中 TypeORM 直接相关问题已收敛到 `13` 个静态错误 / `11` 个服务端文件；其余 `22` 个错误来自 `packages/cli` 与 `packages/mcp-server` 的缺依赖类型声明。
