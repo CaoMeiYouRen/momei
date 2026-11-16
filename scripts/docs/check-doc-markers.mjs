@@ -23,9 +23,8 @@
  * - 与容器边界对齐的 fence 判定：闭合 fence 需「同字符 + 不短于开启 fence + 同 blockquote
  *   深度」，更浅的行会提前终止 fence 并按普通 markdown 继续扫描（与 markdown-it 一致）。
  *
- * 扫描面与 `check-links` 不同：**包含 `archive` 目录**（归档分片正是事故现场，
- * 而 `check-links` 的 `EXCLUDED_DIRS` 把 `archive` 排除在扫描面外），仅排除
- * VitePress 构建产物与依赖目录。
+ * 扫描面：`check-links` 同样覆盖 `archive`，两者都排除 VitePress 构建产物与依赖目录；
+ * 本检查的差别在于按块级 HTML 注释语义处理缩进与容器边界。
  *
  * 已知边界（不追求与 VitePress 完全等价，均为当前语料 0 命中的窄形态）：
  * - 列表项 / 嵌套列表内**缩进 ≥4 列**的块级开头按缩进代码块跳过，而 markdown-it 按

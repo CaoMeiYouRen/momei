@@ -249,7 +249,7 @@
 | 长文本替换 | 用「截断的 oldString」做替换会把原行残余拼成重复句；`lint-md` 与 i18n 检查都检测不到句内重复，替换后必须回读该行。 |
 | 新增型路径也要查存在性 | 写「新增」文件前先 `git log --oneline -- <path>` / `git status` 确认该路径未被跟踪；改写既有测试必须先用 `git show HEAD:<path>` 取回原文，逐条核对覆盖面后再改写。 |
 | `docs:check:links` 的锚点规则 | 锚点按「小写 + 去标点 / 符号 / 空白」宽松比较，且生成标题锚点时会**剥离行内代码**（反引号内容不进入锚点）；标题含反引号时，锚点只能写到代码之前，VitePress 实际 slug 会保留代码内容（`ignoreDeadLinks` 兜底）。 |
-| 归档分片的相对链接深度 | 正文迁入 `docs/plan/archive/` 或 `docs/reports/regression/archive/` 后，原相对链接必须整体 +1 级（`../design/` → `../../design/`）；`docs:check:links` 的 `EXCLUDED_DIRS` 显式包含 `archive`，不会替你发现失效指针。 |
+| 归档分片的相对链接深度 | 正文迁入 `docs/plan/archive/` 或 `docs/reports/regression/archive/` 后，原相对链接必须整体 +1 级（`../design/` → `../../design/`）；`archive` 已纳入 `docs:check:links` 扫描面，失效指针由门禁拦截，`pnpm docs:scan:archive-links` 仅用于快照复现与分类差量。 |
 | 滚动归档残行与引用 | 整块迁出后必须检查孤立 `-->` 尾行（VitePress 会渲染成正文，`docs:check:markers` 兜底）与全仓「窗口节名 / 节名短语」引用；引用改写与窗口迁移一并执行。 |
 | 新增文档门禁的扫描面 | 新写的文档检查必须显式包含 `archive`（`docs:check:markers` 已按此口径），否则归档产物长期处于门禁盲区；`lint-md` / line-count / links / i18n 四道检查都不校验注释完整性。 |
 | 回归窗口的插入位置 | 新窗口必须插在**首个 `## YYYY-MM-DD` 标题之前**（newest-first，与 `scripts/shared/regression-window.mjs` 的定位规则一致）；手工把它贴在「同阶段父条目」旁边会让后续 `regression:weekly` 自动写入插到顶端，造成时间序错乱。 |

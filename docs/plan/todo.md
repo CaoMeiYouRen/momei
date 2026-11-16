@@ -45,7 +45,7 @@
     - **验证 / 证据**: V0 + V1 + RG；删除前后引用计数与脚本输出落盘。
     - **回滚边界**: 两文件删除与新脚本独立 revert。
 
-- [ ] **4. 归档文档链接治理（P2）**: 失效链接基数以入库扫描脚本为单点（自写存在性口径 791 处 / 163 文件：plan 231 / regression 421 / governance 139；`docs:check:links` 同款口径 765 处，差值 26 处须逐条归因；脚本入口 `scripts/docs/scan-archive-links.mjs`（`pnpm docs:scan:archive-links`，报告模式）；完成判据只认 `docs:check:links` 覆盖 archive 后 0 失效，扫描脚本不要求归零）；分类处置：同级上跳（124）、已迁移文档改路径（含 180 处已删除目标映射）、代码路径改可解析相对路径或行内代码（445）、其余逐条（42）；完成后把 `archive` 纳入 `docs:check:links`。
+- [x] **4. 归档文档链接治理（P2）**: 失效链接基数以入库扫描脚本为单点（自写存在性口径 791 处 / 163 文件：plan 231 / regression 421 / governance 139；`docs:check:links` 同款口径 765 处，差值 26 处须逐条归因；脚本入口 `scripts/docs/scan-archive-links.mjs`（`pnpm docs:scan:archive-links`，报告模式）；完成判据只认 `docs:check:links` 覆盖 archive 后 0 失效，扫描脚本不要求归零）；分类处置：同级上跳（124）、已迁移文档改路径（含 180 处已删除目标映射）、代码路径改可解析相对路径或行内代码（445）、其余逐条（42）；完成后把 `archive` 纳入 `docs:check:links`。
     - **验收标准**: 扫描脚本入库并能复现申报基数（或输出逐条差量）；链接门禁覆盖 archive 后 0 失效；每类抽样 5 处人工复核；diff 仅涉及链接目标与反引号化；`docs:check:markers` / `line-count` 保持通过。
     - **非目标**: 不改归档正文语义与阶段结论；不删除归档文件；不伪造目标文件。
     - **验证 / 证据**: V0 + V1 + V2 + RG；修复脚本输出与抽样清单落盘。

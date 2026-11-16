@@ -49,7 +49,6 @@ export const EXCLUDED_DIRS = new Set([
     '.session',
     'research-output',
     '.vitepress',
-    'archive',
     '.agents',
     '.claude',
     'playwright-report',
@@ -93,7 +92,7 @@ export function looseNorm(str) {
 }
 
 // 判断相对路径（POSIX 分隔符）是否位于被排除的目录下（任意路径段命中即排除，
-// 与目录遍历的 EXCLUDED_DIRS 语义一致：archive / dist 等归档或生成物目录不校验）
+// 与目录遍历的 EXCLUDED_DIRS 语义一致：dist 等生成物目录不校验；archive 已纳入门禁）
 export function isExcludedPath(relativePath) {
     return relativePath.split('/').some((segment) => EXCLUDED_DIRS.has(segment))
 }

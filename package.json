@@ -90,6 +90,7 @@
     "docs:check:markers": "node scripts/docs/check-doc-markers.mjs",
     "docs:check:source-of-truth": "node scripts/docs/check-source-of-truth.mjs",
     "docs:check:source-of-truth:candidate": "node scripts/docs/check-source-of-truth.mjs --profile=candidate --mode=warn",
+    "docs:scan:archive-links": "node scripts/docs/scan-archive-links.mjs",
     "docs:dev": "pnpm docs:check:i18n && pnpm docs:check:line-count && pnpm docs:check:links && pnpm docs:check:markers && vitepress dev docs --open",
     "docs:build": "pnpm docs:check:i18n && pnpm docs:check:line-count && pnpm docs:check:links && pnpm docs:check:markers && vitepress build docs",
     "docs:preview": "vitepress preview docs",

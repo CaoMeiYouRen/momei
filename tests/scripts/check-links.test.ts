@@ -181,14 +181,14 @@ describe('check-links: 链接检查', () => {
 })
 
 describe('check-links: 文件收集与聚合', () => {
-    it('非 git 环境回退目录遍历并排除归档与生成物目录', async () => {
+    it('非 git 环境回退目录遍历并排除生成物目录', async () => {
         const root = await createTempRoot()
         await writeProjectFile(root, 'docs/a.md', '# A')
         await writeProjectFile(root, 'docs/archive/old.md', '# Old')
         await writeProjectFile(root, 'dist/generated.md', '# Gen')
         const files = walk(root)
-        expect(files).toHaveLength(1)
-        expect(files[0]).toContain(join('docs', 'a.md'))
+        expect(files).toHaveLength(2)
+        expect(files.some((file) => file.includes(join('docs', 'archive', 'old.md')))).toBe(true)
     })
 
     it('runCheckLinks 聚合多文件错误', async () => {
@@ -204,5 +204,11 @@ describe('check-links: 文件收集与聚合', () => {
         const files = collectMdFiles()
         expect(files.length).toBeGreaterThan(100)
         expect(files.some((file) => file.includes('docs'))).toBe(true)
+    })
+
+    it('collectMdFiles 覆盖归档目录（archive 不在排除清单内）', () => {
+        const files = collectMdFiles()
+        expect(files.some((file) => file.includes(join('docs', 'plan', 'archive')))).toBe(true)
+        expect(files.some((file) => file.includes(join('docs', 'design', 'governance', 'archive')))).toBe(true)
     })
 })
