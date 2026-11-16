@@ -13,6 +13,20 @@
 <!-- regression-window:start:security:overlay-guard-regex:2026-11-15 -->
 
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-15 -->
+
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-16 -->
+## 2026-11-16 阶段收口前周期性回归（自动回填）
+
+- 执行入口: `pnpm regression:phase-close`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-16-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-16-phase-close-regression.json`
+- 结果摘要: `Pass`；blocker=0，warning=0。
+- 已执行验证: test:coverage=PASS，release:check:full=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，test:perf:budget:strict=PASS，duplicate-code:check:strict=PASS，review-gate:generate:check=PASS
+- 回归窗口: 87 行 / 7 条，归档判定=窗口健康。
+- Review Gate: `Pass` / `none`；主要问题=无。
+- 未覆盖边界: 无新增未覆盖边界。
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-16 -->
+
 ## 2026-11-15 阶段收口前周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:phase-close`

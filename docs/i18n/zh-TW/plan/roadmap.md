@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-15
+last_sync: 2026-11-16
 ---
 
 # 墨梅專案路線圖
@@ -106,4 +106,4 @@ last_sync: 2026-11-15
 - 若你準備參與當前階段工作，建議搭配 [規劃規範](../standards/planning.md) 與 [翻譯治理流程](../guide/translation-governance.md) 一起閱讀。
 - **第七十五階段已審計歸檔（2026-11-14）**：依賴與靜態規則收口、Node 26 執行時基線單點化與治理口徑統一——minimatch / glob 以父層 scoped override 收口（quill 移除、deepmerge 登記台帳）、ESLint 第二批 4 條規則（22 命中 / 17 檔案）升檔清零、i18n 64 組補理由與複核日期並新增 5 例守衛、覆蓋率第十六批 +386 條（+1.02pp；全倉 83.28%）、回歸視窗閾值單點化（行數 → `docs:check:line-count`，條數 → `LOG_WINDOW_LIMITS`）、`todo-archive.md` 於條目 6 收口時拆分至 292 行（本階段歸檔後 234 行）、>180 天治理報告歸檔 2 份、Node 26.13.1 以 `.nvmrc` 單點宣告並同步 `engines`、22 處 CI 與 Docker 基礎鏡像。階段收口 `regression:phase-close`：Pass（覆蓋率 83.2% / 615 檔案 / 5,523 例、release:check:full 12/12、E2E 226 passed / 2 flaky / 58 skipped）。
 - **第七十六階段已審計歸檔（2026-11-15）**：內容與編輯體驗收口——AI 圖像備用四項（env 映射 + 表單 + 五語；瀏覽器探針 2/2）、`JekyllParser`（`--format=jekyll`；CLI 140 例）、合併式 AI 審校面板（單入口並行兩 API + 雙 Tab；探針 6/6）、首頁 SWR / i18n cookie 決策（選 ① 保持現狀，②/③ 轉 backlog #18）、覆蓋率第十七批（**82.98% → 85.25%**，+887 條 / +2.27pp）、浮層守衛改手寫掃描（4 條 Code Scanning 告警 fixed）。各條 Review Gate 均 Pass。
-- **第七十七階段已立項（2026-11-15）**：體驗與債務收口——字階歸一第一批（`components/admin/posts` 與 `components/admin/settings`，另含 150 條非字階取值評估報告）、認證會話 SSR / CSR 單一來源（伺服器注入 `auth:route-session:*` 並移除 `settings-profile` 的 `ClientOnly`，加防擴散守衛）、零引用 AI 校審面板 2 個刪除與未使用元件掃描入口、歸檔文檔 163 檔案 / 791 處失效相對連結修復並把 `archive` 納入連結門禁、覆蓋率第十八批（+0.3pp）、devcontainer 對齊 Node 26 並擴充執行時基線守衛。
+- **第七十七階段已審計歸檔（2026-11-16）**：體驗與技術債收口——`components/admin/posts` 與 `components/admin/settings` 的字級統一為字階 token（41 處等值替換；visual 32/32、parity 83/83；另產出 150 條非字階取值評估報告）、認證會話 SSR/CSR 單一來源（移除 `settings-profile` 的 `ClientOnly` 並新增擴散守衛）、刪除兩個零引用 AI 審校面板（469 行）並補零引用元件掃描入口、歸檔連結治理（45 個分片 / 739 處修復，`archive` 納入 `docs:check:links`，掃描面 260 → 354，新增 `docs:scan:archive-links`）、覆蓋率第十八批（+420 條 / +0.37pp）、devcontainer 對齊 Node 26 並移除 `corepack`。各條 Review Gate 均 Pass。

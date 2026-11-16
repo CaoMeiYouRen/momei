@@ -21,10 +21,45 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第七十六阶段共 7 个近线归档块。
+- 主文档当前保留第七十至第七十七阶段共 8 个近线归档块。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+## 第七十七阶段：体验与债务收口（已审计归档）
+
+> 归档说明: 第七十七阶段 6 条条目已于 2026-11-16 完成并归档（2026-11-15 立项）；阶段规划正文见 [roadmap 分片](./archive/roadmap-phases-77.md)。
+
+- [x] **1. 字号归一第一批（P2）**
+    - **完成摘要**: `components/admin/posts` 与 `components/admin/settings` 的口径内字号字面量归一到字阶 token（41 处字面量与 token 逐字节等值），`test:visual` 32/32、parity 83/83 未归因差异 0，并产出 150 条非字阶取值归一评估报告。提交 `e8594ed2`，Review Gate Pass。
+
+- [x] **2. 认证会话 SSR/CSR 单一来源（P2）**
+    - **完成摘要**: `server/middleware/1-auth.ts` 扩展到「带会话 cookie 的页面 GET」，SSR 把会话种入 `auth:route-session:*`；移除 `settings-profile` 的 `ClientOnly` 与占位并新增会话驱动型 `ClientOnly` 守卫；`/settings` 首帧含头像 / 昵称 / 角色，页签切换无 `insertBefore`。提交 `daf19695`，Review Gate Pass。
+
+- [x] **3. 零引用面板清理与组件扫描守卫（P3）**
+    - **完成摘要**: 删除 `post-editor-review-panel.vue` 与 `post-editor-perspective-panel.vue`（共 469 行），新增 `scripts/governance/find-unused-components.mjs` + `governance:audit:unused-components` 报告型入口与假阳性单测；脚本在当前 HEAD 输出 0 未登记项。提交 `7b0d1bfa`，Review Gate Pass。
+
+- [x] **4. 归档文档链接治理（P2）**
+    - **完成摘要**: `archive` 从 `docs:check:links` 排除清单移除（扫描面 260 → 354 个 md），45 个归档分片中的 739 处失效链接修复（祖先基准重解 / 同名后缀映射 / 行内代码化 / 机器路径占位 / 8 处失效锚点摘除 / 17 处方括号标签链接），新增 `scripts/docs/scan-archive-links.mjs`、`pnpm docs:scan:archive-links`（报告模式，`--ref` / `--json`）与 8 例单测，门禁覆盖后 0 失效。立项申报 791 处来自未入库快照，脚本以 `--ref=c877bf38` 为可复现单点（链接 740 = 门禁可见 734 + 仅扫描可见 6，正文机器路径 6）。提交 `605fd5b8`（归档正文）、`fff74f0b`（门禁 / 脚本 / 测试 / 文档），Review Gate 分区审计 Round 1–4 收敛后 Pass。
+
+- [x] **5. 覆盖率第十八批（P2）**
+    - **完成摘要**: 补测 `packages/mcp-server/src/lib/api.ts`（0% → 100%）与 `scripts/security/security-alert-gate-shared.mjs`（62.7% → 94.67%），同源 statements 32,484 / 38,103 → 32,904 / 38,432 = **+420 条 / +0.37pp（85.62%）**；`import-command.ts` 与 `admin-taxonomy-page.vue` 按验收条款登记后续切片。提交 `4439248f`，Review Gate Pass。
+
+- [x] **6. devcontainer 运行时对齐（P3）**
+    - **完成摘要**: 基础镜像升至 `typescript-node:26-*`（与 `.nvmrc` 同主版本），`corepack enable` 换成 `npm i -g pnpm@11.17.0` 引导；`tests/scripts/node-runtime-baseline.test.ts` 扩展为「镜像主版本 = `.nvmrc` 主版本」与「`corepack` 不回流」守卫（含 JSONC 与负向用例）。提交 `b40dacd9`，Review Gate Pass（Codespaces 实测标注「未实测」）。
+
+**回滚边界**:
+
+- 条目 1：按目录批次独立 revert，`--m-font-size-*` 定义不动。
+- 条目 2：中间件判定与 SSR 种子同批 revert，`ClientOnly` 恢复原状。
+- 条目 3：两个零引用面板与新扫描脚本独立回滚。
+- 条目 4：归档正文提交与门禁提交分离，门禁可独立回退。
+- 条目 5：测试文件与覆盖率产物独立可回滚。
+- 条目 6：`devcontainer.json` 与守卫扩展独立回滚。
+
+**未覆盖边界与后续观察项**: ① 归档中 8 处失效锚点改为指向归档索引页，深链精度下降；② 归档 6 处 fenced / 行内代码示例链接按扫描口径保留；③ 立项申报 791 处的逐条原表未入库，脚本以 `--ref` 快照为单点并输出分类与逐条差量；④ `import-command.ts` 与 `admin-taxonomy-page.vue` 覆盖率留待后续切片；⑤ 本机 3001 / 3002 被外部进程占用时，阶段收口 E2E 以 `E2E_PORT=3011` / `E2E_INSTALLATION_PORT=3012` 跑通，CI 仍用默认端口。
 
 ---
 
