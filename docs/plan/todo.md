@@ -51,7 +51,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
     - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
 
-- [ ] **5. AppAvatar 生产构建尺寸缺陷修复（P1 修复型）**: `components/app-avatar.vue` 把 `$attrs` 与 `--caomei-avatar-size` 落到自有包装元素或可用钩子，使 `xlarge` 生产构建渲染 64px、`large` 48px；回填 `/settings`、`/admin/users`、`comments` 实测并同步 backlog。
+- [x] **5. AppAvatar 生产构建尺寸缺陷修复（P1 修复型）**: `components/app-avatar.vue` 把 `$attrs` 与 `--caomei-avatar-size` 落到自有包装元素或可用钩子，使 `xlarge` 生产构建渲染 64px、`large` 48px；回填 `/settings`、`/admin/users`、`comments` 实测并同步 backlog。
     - **验收标准**: `pnpm build` 产物中三处实测 64px / 48px；对应 parity / visual 未归因差异 0；开发态与 SSR 首帧无回归。
     - **非目标**: 不改档位映射；不改消费处 BEM；不以等上游改 Fragment 根为唯一交付。
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；构建产物探针与截图落 `artifacts/review-gate/`。

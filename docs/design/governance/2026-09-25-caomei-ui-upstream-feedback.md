@@ -56,6 +56,7 @@
 - **建议**：补 `xl` 档位，或在 Avatar 页给出与 PrimeVue 的档位对照表。
 - **上游处置**：判定为**设计如此**（Avatar 档位少于 PrimeVue）。
 - **momei 侧落地（2026-10-15）**：过渡组件 `AppAvatarV2` 已按本条目口径实现几何保真映射——PrimeVue 有效档位 `normal`(32px) → caomei `md`(32px)；`large`(48px) / `xlarge`(64px) → caomei `lg` + 内联 `--caomei-avatar-size` 覆盖回 48 / 64px；PrimeVue 不存在的档位（如 `small`，实测被忽略并回落默认 2rem）一律回落 `md`(32px)。**不再产生边框盒尺寸缩水**（`font-size` 未覆盖，属 momei 侧已登记残差）。
+- **momei 侧落地修正（2026-11-17，第七十八阶段条目 5）**：上述「内联 `--caomei-avatar-size`」在生产构建里**不生效**——`CaomeiAvatar` 以 Fragment 为根，组件 attrs 被 Vue 丢弃；且该变量声明在 `.caomei-avatar` 自身（`:where(.caomei-avatar--lg[data-v-*])`），祖辈继承值也压不过它。现改由 `AppAvatar` 自持包装元素承载 `$attrs` 与 `--app-avatar-box`，内层头像按 100% 填满；构建产物实测 `xlarge` 64px，`large` 48px 由档位单测锁定（全仓暂无 `large` 消费者）。**仍建议上游**：把 `CaomeiAvatar` 根改为单元素（便于 attrs 透传），并补 `xl` 档位与档位对照表。
 
 ### 2.2 `DataTable` 列的 `class` 与 scoped 样式
 

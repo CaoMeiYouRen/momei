@@ -225,6 +225,15 @@
 
 > 预算与允许清单的权威值以 `tests/visual/parity-budget.json` 为准；本表为校准快照，重跑后若数值变化须同步更新。
 
+**2026-11-17 `AppAvatar` 生产构建尺寸缺陷修复（`user-settings`，2 个 testName）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| user-settings-light | reader | 2000 / 0.300% | 22933 / 1.770% | 2/2 条，22933px | 0px / 0.000% | PASS |
+| user-settings-dark | reader | 2000 / 0.300% | 23788 / 1.835% | 2/2 条，23788px | 0px / 0.000% | PASS |
+
+归因：`AppAvatar` 的 `xlarge` 因 `CaomeiAvatar` 的 Fragment 根丢弃 attrs，生产构建实测 40px（应为 64px）；修复后头像恢复 64px，`/settings` 卡片增高 24px，表单区与页脚区整体下移。参考态固化了该缺陷，故按两个非重叠功能带（表单区 / 页脚区）登记已归因差异，声明值 = 实测本身。下次 CI 全量重采参考态（`visual-reference-refresh.yml`）后本带可清零。依据见 [Review Gate 记录](../../../artifacts/review-gate/2026-11-17-phase78-item5.md)。
+
 ## 待上游反馈（通道④）
 
 当前无「①~③ 均不可解」的未决项：分页对齐与行内图标按钮已由 `caomei-ui@0.4.0` 交付 token / `iconOnly`；字段外壳 `class` 落点与 DataTable 列 `class` / scoped 样式属文档缺口，已登记上游 Backlog §1.6（见 [2026-09-25 上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)）。

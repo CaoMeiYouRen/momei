@@ -6,9 +6,11 @@ import AppAvatar from './app-avatar.vue'
 /**
  * `AppAvatar` 的单元契约。
  *
- * 迁移期本组件是「同一文件内按路由择库」的过渡件；B4-B 收口后 V1 消费者清零，已收敛为
- * 单一 caomei 实现。本文件锁住收敛后仍必须保真的两件事：
+ * 迁移期本组件是「同一文件内按路由择库」的过渡件；迁移收口后 V1 消费者清零，已收敛为
+ * 单一 caomei 实现。本文件锁住收敛后仍必须保真的三件事：
  * - **档位几何**：PrimeVue 风格档位（`normal` / `large` / `xlarge`）按 px 覆盖还原，缺省与非法值回落 32px；
+ * - **属性落点**：`$attrs` 与尺寸钩子必须落在**自有包装元素**上（`CaomeiAvatar` 以 Fragment 为根，
+ *   挂在它上面的 attrs 在生产构建被丢弃，见 `docs/design/governance/2026-09-25-caomei-ui-upstream-feedback.md` §2.1）；
  * - **回退文案**：无姓名时 `fallback` 保持未传，让 caomei 回退到 `alt` 首字母。
  */
 
@@ -16,7 +18,12 @@ const gravatarUrl = ref('')
 
 mockNuxtImport('useAvatar', () => () => ({ avatarUrl: gravatarUrl }))
 
-/** caomei `Avatar` 的渲染契约：`src` / `fallback` / `size` / `shape`。 */
+/**
+ * caomei `Avatar` 的渲染契约：`src` / `fallback` / `size` / `shape`。
+ *
+ * 刻意**不**接收 `class` / `style`（`inheritAttrs: false`），与真实实现「Fragment 根丢弃 attrs」
+ * 保持一致——否则用例会靠桩的宽容掩盖属性落点错误。
+ */
 const CaomeiAvatarStub = defineComponent({
     name: 'CaomeiAvatar',
     inheritAttrs: false,
@@ -28,18 +35,13 @@ const CaomeiAvatarStub = defineComponent({
         size: { type: String, default: 'md' },
         shape: { type: String, default: 'circle' },
     },
-    setup(props, { attrs }) {
-        const sizeToken = () => {
-            const style = attrs.style as Record<string, string> | undefined
-            return style?.['--caomei-avatar-size'] ?? ''
-        }
+    setup(props) {
         return () => h('span', {
-            class: ['caomei-avatar', ...(attrs.class ? [attrs.class as string] : [])],
+            class: 'caomei-avatar',
             'data-src': props.src,
             'data-alt': props.alt,
             'data-fallback': props.fallback === undefined ? '<unset>' : props.fallback,
             'data-size': props.size,
-            'data-size-token': sizeToken(),
             'data-shape': props.shape,
         })
     },
@@ -98,17 +100,17 @@ describe('AppAvatar', () => {
             ['small', 'md', '32px'],
             ['unknown', 'md', '32px'],
             [undefined, 'md', '32px'],
-            // 已传入 caomei 档位时原样透传，且不注入覆盖 token（用档位自身的 24 / 32 / 40px）
-            ['sm', 'sm', ''],
-            ['md', 'md', ''],
-            ['lg', 'lg', ''],
+            // 已传入 caomei 档位时原样透传，边框盒取档位自身尺寸（24 / 32 / 40px）
+            ['sm', 'sm', '24px'],
+            ['md', 'md', '32px'],
+            ['lg', 'lg', '40px'],
         ]
 
-        for (const [input, expectedSize, expectedToken] of cases) {
+        for (const [input, expectedSize, expectedBox] of cases) {
             const wrapper = await mountAvatar({ name: 'Ada', size: input })
-            const avatar = wrapper.find('.caomei-avatar')
-            expect(avatar.attributes('data-size')).toBe(expectedSize)
-            expect(avatar.attributes('data-size-token')).toBe(expectedToken)
+            // 边框盒由自有包装元素承载（`CaomeiAvatar` 的 Fragment 根会丢弃 attrs）
+            expect(wrapper.get('.app-avatar').attributes('style')).toContain(`--app-avatar-box: ${expectedBox}`)
+            expect(wrapper.find('.caomei-avatar').attributes('data-size')).toBe(expectedSize)
         }
     })
 
@@ -134,9 +136,22 @@ describe('AppAvatar', () => {
         expect(wrapper.find('.caomei-avatar').attributes('data-fallback')).toBe('A')
     })
 
-    it('消费处传入的 class 落到渲染出的根元素', async () => {
+    it('消费处传入的 class 落到自有包装元素（Fragment 根的 CaomeiAvatar 会丢弃 attrs）', async () => {
         const wrapper = await mountAvatar({ name: 'Ada', class: 'avatar-preview' })
 
-        expect(wrapper.find('.caomei-avatar').classes()).toContain('avatar-preview')
+        expect(wrapper.get('.app-avatar').classes()).toContain('avatar-preview')
+        // 反向断言：桩不接收 class，若属性落点回退到 `CaomeiAvatar` 上，上面一行就会失败
+        expect(wrapper.get('.caomei-avatar').classes()).not.toContain('avatar-preview')
+    })
+
+    it('自有包装元素是唯一根节点，`$attrs` 与尺寸钩子不依赖隐式 fallthrough', async () => {
+        const wrapper = await mountAvatar({ name: 'Ada', 'data-testid': 'avatar', loading: 'lazy' })
+
+        const root = wrapper.element as HTMLElement
+        expect(root.tagName).toBe('SPAN')
+        expect(root.classList.contains('app-avatar')).toBe(true)
+        expect(root.getAttribute('data-testid')).toBe('avatar')
+        expect(root.getAttribute('loading')).toBe('lazy')
+        expect(root.style.getPropertyValue('--app-avatar-box')).toBe('32px')
     })
 })
