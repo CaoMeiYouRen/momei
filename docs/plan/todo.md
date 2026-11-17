@@ -45,7 +45,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG（V3 由 parity / visual 与逐元素对账覆盖）；输出落 `artifacts/review-gate/`。
     - **回滚边界**: 按目录批次独立 revert。**kill-switch**: 跨断点 / 容器查询导致无法等值替换时保留原值并登记报告。
 
-- [ ] **4. 覆盖率第十九批（P2）**: 取 `packages/cli/src/import-command.ts`（8 / 145）与 `components/admin/admin-taxonomy-page.vue`（173 / 284），目标同源 `+0.3pp` 或模块级 `+15pp / ≥85%`；`import-command.ts` 超预算时按同源口径换入脚本池。
+- [x] **4. 覆盖率第十九批（P2）**: 取 `packages/cli/src/import-command.ts`（8 / 145）与 `components/admin/admin-taxonomy-page.vue`（173 / 284），目标同源 `+0.3pp` 或模块级 `+15pp / ≥85%`；`import-command.ts` 超预算时按同源口径换入脚本池。
     - **验收标准**: 干净全量跑基线 / 收口 delta 落 `artifacts/coverage/`；定向测试通过；flaky 归因。
     - **非目标**: 不测模板分支凑数；不重构 `admin-taxonomy-page.vue`；不新增测试依赖。
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。

@@ -1,8 +1,8 @@
-import { mkdtemp, rmdir, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, rmdir, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { describe, it, expect } from 'vitest'
-import { convertToMomeiPost, parseHexoMarkdown, scanMarkdownFiles } from './parser'
+import { describe, expect, it, vi } from 'vitest'
+import { convertToMomeiPost, parseHexoFiles, parseHexoMarkdown, scanMarkdownFiles } from './parser'
 import type { HexoFrontMatter } from './types'
 
 async function withHexoTempFile(content: string, run: (filePath: string) => Promise<void>) {
@@ -392,5 +392,44 @@ describe('Parser - scanMarkdownFiles', () => {
     it('should be an async function', () => {
         expect(typeof scanMarkdownFiles).toBe('function')
         expect(scanMarkdownFiles.constructor.name).toBe('AsyncFunction')
+    })
+})
+
+describe('Parser - parseHexoFiles: 目录级解析', () => {
+    it('按目录扫描并返回带相对路径的解析结果', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'momei-hexo-dir-'))
+        const nested = join(directory, 'nested')
+
+        try {
+            await writeFile(join(directory, 'first.md'), '---\ntitle: First\n---\nbody one')
+            await mkdir(nested, { recursive: true })
+            await writeFile(join(nested, 'second.md'), '---\ntitle: Second\n---\nbody two')
+
+            const results = await parseHexoFiles(directory)
+
+            expect(results).toHaveLength(2)
+            expect(results.map((item) => item.relativeFile).sort()).toEqual(['first.md', join('nested', 'second.md')])
+            expect(results.find((item) => item.relativeFile === 'first.md')?.post.title).toBe('First')
+        } finally {
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+
+    it('verbose 模式下打印扫描与逐文件结果', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'momei-hexo-verbose-'))
+        const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+        try {
+            await writeFile(join(directory, 'post.md'), '---\ntitle: Verbose\n---\nbody')
+
+            const results = await parseHexoFiles(directory, true)
+
+            expect(results).toHaveLength(1)
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Found 1 markdown files'))
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Parsed: post.md'))
+        } finally {
+            consoleLogSpy.mockRestore()
+            await rm(directory, { force: true, recursive: true })
+        }
     })
 })
