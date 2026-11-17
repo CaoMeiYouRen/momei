@@ -39,7 +39,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；脚本 JSON 与分类清单落 `artifacts/governance/`。
     - **回滚边界**: 索引改动与新增脚本独立 revert。
 
-- [ ] **3. 字号归一第二批（P2）**: 按 [字号归一评估](../design/governance/2026-11-15-font-size-normalization-evaluation.md) 的 149 条非字阶取值（报告基线 150，第七十七阶段条目 3 删除面板时带走 1 处）与 186 条口径内可替换字面量取 ≤10 个文件（优先非 `components/admin/**`），逐元素对账并复算 inventory。
+- [x] **3. 字号归一第二批（P2）**: 按 [字号归一评估](../design/governance/2026-11-15-font-size-normalization-evaluation.md) 的 149 条非字阶取值（报告基线 150，第七十七阶段条目 3 删除面板时带走 1 处）与 186 条口径内可替换字面量取 ≤10 个文件（优先非 `components/admin/**`），逐元素对账并复算 inventory。
     - **验收标准**: 逐元素 `font-size` / `line-height` 零差异；`test:visual` 32/32、parity 83/83 未归因差异 0；inventory 口径内待替换数下降。
     - **非目标**: 不动 scss 变量与 `--m-font-size-*`；不按现值批量替换非字阶；不改视觉设计。
     - **验证 / 证据**: V0 + V1 + V2 + RG（V3 由 parity / visual 与逐元素对账覆盖）；输出落 `artifacts/review-gate/`。

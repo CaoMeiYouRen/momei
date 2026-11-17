@@ -265,7 +265,7 @@ useHead(() => ({
         background-color: var(--caomei-color-primary);
         color: var(--caomei-color-primary-foreground, #fff);
         border-radius: 2rem;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 600;
         text-transform: uppercase;
         margin-bottom: 1rem;
@@ -293,7 +293,7 @@ useHead(() => ({
         align-items: center;
         justify-content: center;
         color: #f26522;
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         width: 2rem;
         height: 2rem;
         border-radius: 0.5rem;
@@ -307,12 +307,12 @@ useHead(() => ({
         }
 
         &-icon {
-            font-size: 1.25rem;
+            font-size: var(--m-font-size-xl);
         }
     }
 
     &__description {
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         color: var(--caomei-color-text-muted);
         max-width: 36rem;
         margin: 0 auto 1.5rem;
@@ -324,7 +324,7 @@ useHead(() => ({
         justify-content: center;
         gap: 0.5rem;
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__list {

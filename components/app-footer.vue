@@ -232,7 +232,7 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
   &__link {
     color: var(--caomei-color-text-muted);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     transition: color $transition-fast;
 
     &:hover {
@@ -253,7 +253,7 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
     }
 
   &__copyright {
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     color: var(--caomei-color-text-muted);
     margin-bottom: $spacing-sm;
   }
@@ -286,14 +286,14 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
 
     &__friend-links-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         color: var(--caomei-color-text);
     }
 
     &__friend-links-more {
         color: var(--caomei-color-primary);
         text-decoration: none;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__friend-links-list {

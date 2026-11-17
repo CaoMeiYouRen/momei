@@ -93,7 +93,7 @@ const localePath = useLocalePath()
     }
 
     .title {
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         font-weight: 700;
         color: var(--caomei-color-text);
         margin-bottom: 0.5rem;
@@ -101,7 +101,7 @@ const localePath = useLocalePath()
 
     .subtitle {
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 }
 
@@ -116,7 +116,7 @@ const localePath = useLocalePath()
     align-items: center;
     gap: 0.5rem;
     color: var(--m-red-500);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     background-color: var(--m-red-50);
     padding: 0.75rem;
     border-radius: 0.5rem;
@@ -133,6 +133,6 @@ const localePath = useLocalePath()
 .auth-footer {
     text-align: center;
     margin-top: 1rem;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
 }
 </style>

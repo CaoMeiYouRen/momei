@@ -3,10 +3,10 @@
 
 .markdown-body {
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: var(--m-font-size-md);
 
   @media (width <= 768px) {
-    font-size: 1rem;
+    font-size: var(--m-font-size-md);
     line-height: 1.6;
   }
 
@@ -20,10 +20,10 @@
   }
 
   h1 { font-size: 1.8rem; }
-  h3 { font-size: 1.25rem; }
+  h3 { font-size: var(--m-font-size-xl); }
   h4 { font-size: 1.1rem; }
-  h5 { font-size: 1rem; }
-  h6 { font-size: 0.875rem; color: var(--caomei-color-text-muted); }
+  h5 { font-size: var(--m-font-size-md); }
+  h6 { font-size: var(--m-font-size-sm); color: var(--caomei-color-text-muted); }
 
   // Image Lightbox Support
   img {

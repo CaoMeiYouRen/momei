@@ -109,7 +109,7 @@ defineProps<{
     }
 
     &__title {
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
         font-weight: 700;
         margin-bottom: 0.5rem;
         color: var(--caomei-color-text);
@@ -123,7 +123,7 @@ defineProps<{
 
     &__meta {
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         margin: 0;
     }
 
@@ -157,7 +157,7 @@ defineProps<{
 
     &__history-title {
         margin-bottom: 1rem;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
     }
 
     &__history-list {
@@ -186,7 +186,7 @@ defineProps<{
         }
 
         h2 {
-            font-size: 1.5rem;
+            font-size: var(--m-font-size-2xl);
             font-weight: 600;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;

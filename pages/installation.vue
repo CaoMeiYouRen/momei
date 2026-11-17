@@ -278,7 +278,7 @@ const handleDatabaseNext = () => {
     }
 
     &__subtitle {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         line-height: 1.5;
         color: var(--caomei-color-text-muted);
 
@@ -310,7 +310,7 @@ const handleDatabaseNext = () => {
     &__quick-start-title,
     &__setup-summary-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 700;
         color: var(--caomei-color-text);
     }
@@ -355,7 +355,7 @@ const handleDatabaseNext = () => {
     &__focus-later {
         margin: 0;
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         line-height: 1.5;
     }
 
@@ -419,7 +419,7 @@ const handleDatabaseNext = () => {
         --caomei-tag-height: 1.5rem;
         --caomei-tag-padding-x: 0.5rem;
 
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 
     &__stepper {
@@ -441,7 +441,7 @@ const handleDatabaseNext = () => {
     }
 
     :deep(.caomei-stepper__title) {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 500;
         line-height: 1.3;
         text-align: center;
@@ -451,7 +451,7 @@ const handleDatabaseNext = () => {
         padding: 2rem;
 
         h2 {
-            font-size: 1.5rem;
+            font-size: var(--m-font-size-2xl);
             font-weight: 600;
             color: var(--caomei-color-text);
             margin: 0 0 0.5rem;
@@ -524,12 +524,12 @@ const handleDatabaseNext = () => {
                 }
 
                 .status-detail {
-                    font-size: 0.875rem;
+                    font-size: var(--m-font-size-sm);
                     color: var(--caomei-color-text-muted);
                 }
 
                 .status-warning {
-                    font-size: 0.75rem;
+                    font-size: var(--m-font-size-xs);
                     color: var(--m-orange-600);
                     margin-top: 0.5rem;
                     line-height: 1.4;
@@ -561,7 +561,7 @@ const handleDatabaseNext = () => {
                 display: block;
                 margin-top: 0.25rem;
                 color: var(--caomei-color-text-muted);
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
             }
         }
     }
@@ -588,7 +588,7 @@ const handleDatabaseNext = () => {
 
         h3 {
             margin: 0;
-            font-size: 1rem;
+            font-size: var(--m-font-size-md);
             font-weight: 700;
             color: var(--caomei-color-text);
         }
@@ -652,7 +652,7 @@ const handleDatabaseNext = () => {
 
     :deep(.installation-wizard__follow-up-cta) {
         color: var(--caomei-color-primary);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         white-space: nowrap;
     }

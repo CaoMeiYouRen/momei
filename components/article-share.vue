@@ -272,7 +272,7 @@ onMounted(() => {
 
     &__eyebrow {
         margin: 0 0 $spacing-xs;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -281,7 +281,7 @@ onMounted(() => {
 
     &__title {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 700;
         color: var(--caomei-color-text);
     }
@@ -324,7 +324,7 @@ onMounted(() => {
 
     &__action-icon,
     &__platform-icon {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
     }
 
     &__platform-icon {
@@ -351,14 +351,14 @@ onMounted(() => {
 
     &__section-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
         color: var(--caomei-color-text);
     }
 
     &__section-desc {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--m-surface-700);
         line-height: 1.6;
     }

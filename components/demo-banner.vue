@@ -241,7 +241,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         min-height: 1.5rem;
         padding: 0 0.625rem;
         border-radius: 999px;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
     }
 
@@ -267,14 +267,14 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
     }
 
     &__title {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 700;
         color: $demo-banner-text;
     }
 
     &__text {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: $demo-banner-text;
         line-height: 1.5;
     }
@@ -323,7 +323,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         border-radius: 0.75rem;
         background: color-mix(in srgb, $demo-banner-icon 12%, white 88%);
         color: $demo-banner-icon;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
     }
 
     &__path-body {
@@ -333,19 +333,19 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
     }
 
     &__path-title {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 700;
         color: $demo-banner-text;
     }
 
     &__path-description {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: color-mix(in srgb, $demo-banner-text 80%, transparent);
         line-height: 1.4;
     }
 
     &__path-action {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         color: $demo-banner-icon;
     }
@@ -366,7 +366,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         border: 1px solid $demo-banner-btn;
         border-radius: 999px;
         background: transparent;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         color: $demo-banner-btn;
         cursor: pointer;
@@ -389,7 +389,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
         padding: 0.5rem 0.9rem;
         border: 0;
         background: transparent;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         color: $demo-banner-text;
         cursor: pointer;

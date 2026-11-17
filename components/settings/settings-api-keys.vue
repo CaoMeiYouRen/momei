@@ -236,7 +236,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .settings-section-title {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     font-weight: 600;
     margin-bottom: 2rem;
     color: var(--caomei-color-text);
@@ -245,7 +245,7 @@ onMounted(() => {
 .api-keys-description {
     margin-bottom: 1.5rem;
     color: var(--caomei-color-text-muted);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
 }
 
 .api-keys-form-container {
@@ -280,7 +280,7 @@ onMounted(() => {
     }
 
     &__label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         margin-left: 0.25rem;
     }
@@ -305,7 +305,7 @@ onMounted(() => {
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-family: var(--m-font-mono, monospace);
-    font-size: 0.75rem;
+    font-size: var(--m-font-size-xs);
 
     :global(.dark) & {
         background-color: var(--m-surface-800);
