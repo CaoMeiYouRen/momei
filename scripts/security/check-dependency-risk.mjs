@@ -268,6 +268,7 @@ function normalizeAllowlistDefinition(raw) {
         const source = String(entry?.source || '').trim()
         const temporaryException = String(entry?.temporaryException || entry?.temporary_basis || '').trim()
         const approvedPaths = uniqueStrings(toArray(entry?.approvedPaths)).sort()
+        const reviewBy = normalizeReviewBy(entry?.reviewBy, index, packageName)
 
         if (!advisoryId || !packageName || !reason || !source || !temporaryException || approvedPaths.length === 0) {
             throw new Error(`Invalid allowlist entry at index ${index}`)
@@ -283,12 +284,109 @@ function normalizeAllowlistDefinition(raw) {
             approvedPaths,
             packageName,
             reason,
+            reviewBy,
             severity,
             source,
             temporaryException,
         }
     })
 }
+
+/** 复核日期（`reviewBy`）格式：`YYYY-MM-DD`，按 UTC 自然日判定。 */
+const REVIEW_BY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+/** 进入「即将到期」提醒窗口的自然日数。 */
+const REVIEW_DUE_SOON_DAYS = 30
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+
+function normalizeReviewBy(value, index, packageName) {
+    const raw = String(value ?? '').trim()
+
+    if (!raw) {
+        return null
+    }
+
+    const parsed = new Date(`${raw}T00:00:00.000Z`)
+
+    if (!REVIEW_BY_PATTERN.test(raw) || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== raw) {
+        throw new Error(`Invalid allowlist reviewBy at index ${index} (${packageName}): expected YYYY-MM-DD, got "${raw}"`)
+    }
+
+    return raw
+}
+
+function toDateKey(date) {
+    return date.toISOString().slice(0, 10)
+}
+
+/**
+ * 按 `reviewBy` 复核台账条目：过期即判红（error 模式置失败），30 天内到期给提醒。
+ *
+ * 与 `evaluateDependencyRiskGate` 分离的原因：豁免是否仍匹配依赖路径与「复核日期是否过期」是两件事，
+ * 前者决定风险是否被放过，后者决定台账本身是否还成立；混在一个函数里会让「过期但路径已消失」的
+ * 条目静默通过。
+ */
+function evaluateAllowlistReviewDates({ allowlistEntries, now = new Date() }) {
+    const today = toDateKey(now)
+    const todayMs = Date.parse(`${today}T00:00:00.000Z`)
+    const expired = []
+    const dueSoon = []
+    const scheduled = []
+    const missing = []
+
+    allowlistEntries.forEach((entry) => {
+        if (!entry.reviewBy) {
+            missing.push(entry)
+            return
+        }
+
+        const daysUntil = Math.round((Date.parse(`${entry.reviewBy}T00:00:00.000Z`) - todayMs) / MS_PER_DAY)
+        const item = { daysUntil, entry }
+
+        if (daysUntil < 0) {
+            expired.push(item)
+            return
+        }
+
+        if (daysUntil <= REVIEW_DUE_SOON_DAYS) {
+            dueSoon.push(item)
+            return
+        }
+
+        scheduled.push(item)
+    })
+
+    return {
+        dueSoon,
+        expired,
+        missing,
+        scheduled,
+        today,
+    }
+}
+
+function printAllowlistReviewDates(review) {
+    if (review.expired.length === 0 && review.dueSoon.length === 0 && review.scheduled.length === 0 && review.missing.length === 0) {
+        return
+    }
+
+    console.info('\nAllowlist review dates:')
+
+    review.expired.forEach(({ daysUntil, entry }) => {
+        console.info(`- ${entry.packageName} [${entry.severity}] ${entry.advisoryId}: reviewBy ${entry.reviewBy} (EXPIRED ${Math.abs(daysUntil)}d ago)`)
+    })
+    review.dueSoon.forEach(({ daysUntil, entry }) => {
+        console.info(`- ${entry.packageName} [${entry.severity}] ${entry.advisoryId}: reviewBy ${entry.reviewBy} (due in ${daysUntil}d)`)
+    })
+    review.scheduled.forEach(({ daysUntil, entry }) => {
+        console.info(`- ${entry.packageName} [${entry.severity}] ${entry.advisoryId}: reviewBy ${entry.reviewBy} (${daysUntil}d left)`)
+    })
+    review.missing.forEach((entry) => {
+        console.info(`- ${entry.packageName} [${entry.severity}] ${entry.advisoryId}: reviewBy not recorded`)
+    })
+}
+
 
 async function readAllowlist(filePath) {
     const content = await readFile(path.resolve(filePath), 'utf8')
@@ -451,6 +549,7 @@ async function main() {
         blockingRiskCount: result.blocking.length,
         policy,
     })
+    const allowlistReview = evaluateAllowlistReviewDates({ allowlistEntries })
 
     console.info('Dependency Risk Gate')
     console.info(`- policy: ${policy.key}`)
@@ -459,6 +558,23 @@ async function main() {
     console.info(`- allowlist: ${args.allowlist}`)
     console.info(`- relevant risks: ${result.relevantRisks.length}`)
     console.info(`- review gate: ${reviewGate.conclusion} (${reviewGate.findingLevel})`)
+    console.info(`- allowlist review: ${allowlistReview.expired.length} expired / ${allowlistReview.dueSoon.length} due soon / ${allowlistReview.scheduled.length} scheduled / ${allowlistReview.missing.length} missing`)
+
+    printAllowlistReviewDates(allowlistReview)
+
+    if (allowlistReview.expired.length > 0) {
+        console.info(`\n${allowlistReview.expired.length} allowlist entry(ies) passed their reviewBy date; re-review or remove them (docs/standards/security.md §5.3).`)
+        if (args.mode === 'error') {
+            process.exitCode = 1
+        }
+    }
+
+    if (allowlistReview.missing.length > 0) {
+        console.info(`\n${allowlistReview.missing.length} allowlist entry(ies) have no reviewBy date; new entries must record one (docs/standards/security.md §5.3).`)
+        if (args.mode === 'error') {
+            process.exitCode = 1
+        }
+    }
 
     if (result.allowlisted.length > 0) {
         console.info('\nAllowlisted risks:')
@@ -484,6 +600,7 @@ async function main() {
 export {
     assertSupportedAuditReport,
     classifyDependencyRiskOutcome,
+    evaluateAllowlistReviewDates,
     evaluateDependencyRiskGate,
     loadAuditReport,
     main,

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-15
+last_sync: 2026-11-17
 translation_tier: summary-sync
 ---
 
@@ -69,6 +69,7 @@ Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit
 -   **Dismissed / fail-closed**: both `open` and `dismissed` alerts are read. Dismissed high+ alerts block unless registered as `false-positive` in the exceptions ledger; a data-source gap (permission, network, malformed response) fails closed and blocks. `security:alerts` does not use `--transition-mode`. See the [dismissed / fail-closed alignment record](../../../design/governance/2026-11-03-release-security-gate-dismissed-fail-closed.md) for the rationale and per-item handling.
 -   **Data source prerequisites**: Code Scanning requires `security-events: read` or `SECURITY_ALERTS_TOKEN`; when the official Dependabot API is unavailable the gate falls back to `pnpm audit --registry=https://registry.npmjs.org/`. Missing sources (no token, insufficient permission, unavailable API) must be recorded in the gate evidence and noted in the release record; never skip them silently.
 -   **Exemptions expire**: re-check and remove entries once the deadline passes or an upstream patch ships.
+-   **Dependency ledger review date**: every entry in `dependency-risk-allowlist.json` must carry `reviewBy` (`YYYY-MM-DD`, UTC calendar day). `security:audit-deps` prints the remaining days per entry and fails in `--mode=error` when `reviewBy` has passed **or is missing**; entries due within 30 days are reported as reminders, and `--mode=warn` only reports without failing.
 
 ### 5.4 Alert Pagination (2026-11-05)
 

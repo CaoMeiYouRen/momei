@@ -1,11 +1,12 @@
 import { execFile } from 'node:child_process'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
     assertSupportedAuditReport,
+    evaluateAllowlistReviewDates,
     evaluateDependencyRiskGate,
     main as dependencyRiskMain,
     normalizeAllowlistDefinition,
@@ -397,6 +398,141 @@ describe('check-dependency-risk', () => {
         })).toThrow(/Invalid allowlist entry/)
     })
 
+    it('rejects malformed reviewBy dates and keeps them optional for legacy entries', () => {
+        expect(() => normalizeAllowlistDefinition({
+            entries: [{
+                advisoryId: 'GHSA-invalid-review',
+                packageName: 'vite',
+                approvedPaths: ['node_modules/vite'],
+                severity: 'high',
+                reason: 'test',
+                reviewBy: '2027-02-30',
+                source: 'https://github.com/advisories/GHSA-invalid-review',
+                temporaryException: 'temporary',
+            }],
+        })).toThrow(/Invalid allowlist reviewBy/)
+
+        const [entry] = normalizeAllowlistDefinition({
+            entries: [{
+                advisoryId: 'GHSA-review-optional',
+                packageName: 'vite',
+                approvedPaths: ['node_modules/vite'],
+                severity: 'high',
+                reason: 'test',
+                source: 'https://github.com/advisories/GHSA-review-optional',
+                temporaryException: 'temporary',
+            }],
+        })
+
+        expect(entry?.reviewBy).toBeNull()
+    })
+
+    it('buckets allowlist review dates into expired / due soon / scheduled / missing', () => {
+        const review = evaluateAllowlistReviewDates({
+            allowlistEntries: [
+                { advisoryId: 'GHSA-expired', packageName: 'alpha', reviewBy: '2026-11-01', severity: 'high' },
+                { advisoryId: 'GHSA-due-soon', packageName: 'beta', reviewBy: '2026-12-01', severity: 'high' },
+                { advisoryId: 'GHSA-scheduled', packageName: 'gamma', reviewBy: '2027-05-14', severity: 'low' },
+                { advisoryId: 'GHSA-missing', packageName: 'delta', reviewBy: null, severity: 'high' },
+            ],
+            now: new Date('2026-11-17T08:00:00.000Z'),
+        })
+
+        expect(review.today).toBe('2026-11-17')
+        expect(review.expired).toHaveLength(1)
+        expect(review.expired[0]).toMatchObject({ daysUntil: -16, entry: { packageName: 'alpha' } })
+        expect(review.dueSoon).toHaveLength(1)
+        expect(review.dueSoon[0]).toMatchObject({ daysUntil: 14, entry: { packageName: 'beta' } })
+        expect(review.scheduled).toHaveLength(1)
+        expect(review.scheduled[0]).toMatchObject({ daysUntil: 178, entry: { packageName: 'gamma' } })
+        expect(review.missing).toHaveLength(1)
+        expect(review.missing[0]).toMatchObject({ packageName: 'delta' })
+    })
+
+    it('marks an expired reviewBy as a failure while a future reviewBy stays green', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'dependency-risk-review-date-'))
+        const inputPath = resolve(directory, 'audit.json')
+        const originalArgv = process.argv
+        const originalExitCode = process.exitCode
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+
+        // 复核日期按当前时钟推导，避免用例随年份推移失效
+        const dayMs = 24 * 60 * 60 * 1000
+        const toDateKey = (offsetDays) => new Date(Date.now() + offsetDays * dayMs).toISOString().slice(0, 10)
+
+        await writeFile(inputPath, JSON.stringify({ vulnerabilities: {} }), 'utf8')
+
+        const writeAllowlist = async (reviewBy) => {
+            const allowlistPath = resolve(directory, `allowlist-${reviewBy ?? 'missing'}.json`)
+            const entry: Record<string, unknown> = {
+                advisoryId: 'GHSA-review-window',
+                approvedPaths: ['node_modules/vite'],
+                packageName: 'vite',
+                reason: 'temporary upstream exception',
+                severity: 'high',
+                source: 'https://github.com/advisories/GHSA-review-window',
+                temporaryException: 'recheck next vite release',
+            }
+
+            if (reviewBy) {
+                entry.reviewBy = reviewBy
+            }
+
+            await writeFile(allowlistPath, JSON.stringify({ entries: [entry] }), 'utf8')
+
+            return allowlistPath
+        }
+
+        const runMain = async (allowlistPath, mode) => {
+            process.argv = [
+                process.argv[0] || 'node',
+                'check-dependency-risk.mjs',
+                `--input=${inputPath}`,
+                `--allowlist=${allowlistPath}`,
+                '--min-severity=high',
+                `--mode=${mode}`,
+            ]
+            process.exitCode = undefined
+
+            await dependencyRiskMain()
+        }
+
+        try {
+            await runMain(await writeAllowlist(toDateKey(365)), 'error')
+            expect(process.exitCode).toBeUndefined()
+
+            await runMain(await writeAllowlist(toDateKey(-30)), 'error')
+            expect(process.exitCode).toBe(1)
+            expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('passed their reviewBy date'))
+
+            // 缺登记与过期同样判红（新增条目必须登记复核日期）
+            await runMain(await writeAllowlist(null), 'error')
+            expect(process.exitCode).toBe(1)
+            expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('have no reviewBy date'))
+
+            // warn 模式只打印不判红：daily 巡检不得因台账到期而整体变红
+            await runMain(await writeAllowlist(toDateKey(-30)), 'warn')
+            expect(process.exitCode).toBeUndefined()
+
+            // 缺登记在 warn 下同样不判红（与过期分支同构，防止只改一处）
+            await runMain(await writeAllowlist(null), 'warn')
+            expect(process.exitCode).toBeUndefined()
+        } finally {
+            process.argv = originalArgv
+            process.exitCode = originalExitCode
+            infoSpy.mockRestore()
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+
+    it('keeps every tracked allowlist entry carrying a reviewBy date', async () => {
+        const allowlist = JSON.parse(await readFile(resolve(process.cwd(), '.github/security/dependency-risk-allowlist.json'), 'utf8'))
+        const entries = normalizeAllowlistDefinition(allowlist)
+
+        expect(entries.length).toBeGreaterThan(0)
+        expect(entries.filter((entry) => !entry.reviewBy)).toEqual([])
+    })
+
     it('runs main with an input snapshot and exits cleanly when all high risks are allowlisted', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'dependency-risk-main-pass-'))
         const inputPath = resolve(directory, 'audit.json')
@@ -428,6 +564,7 @@ describe('check-dependency-risk', () => {
                 approvedPaths: ['node_modules/vite'],
                 packageName: 'vite',
                 reason: 'temporary upstream exception',
+                reviewBy: '2027-05-14',
                 severity: 'high',
                 source: 'https://github.com/advisories/GHSA-vite-risk',
                 temporaryException: 'recheck next vite release',

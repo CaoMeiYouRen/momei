@@ -11,7 +11,8 @@
             "approvedPaths": [
                 ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip",
                 ".>@lhci/cli>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip"
-            ]
+            ],
+            "reviewBy": "2027-05-14"
         },
         {
             "advisoryId": "GHSA-7pqw-9j4j-h8q3",
@@ -23,7 +24,8 @@
             "approvedPaths": [
                 ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip",
                 ".>@lhci/cli>lighthouse>puppeteer-core>@puppeteer/browsers>extract-zip"
-            ]
+            ],
+            "reviewBy": "2027-05-14"
         },
         {
             "advisoryId": "GHSA-vfj7-8cjw-p6xm",
@@ -132,7 +134,8 @@
                 ".>stylelint>globby>fast-glob>micromatch>braces",
                 ".>stylelint>globby>micromatch>braces",
                 ".>stylelint>micromatch>braces"
-            ]
+            ],
+            "reviewBy": "2027-05-14"
         },
         {
             "advisoryId": "GHSA-mrhx-c7xc-m3w5",
@@ -144,7 +147,8 @@
             "approvedPaths": [
                 ".>@lhci/cli>@lhci/utils>lighthouse>puppeteer-core>chromium-bidi>zod",
                 ".>@lhci/cli>lighthouse>puppeteer-core>chromium-bidi>zod"
-            ]
+            ],
+            "reviewBy": "2027-05-14"
         },
         {
             "advisoryId": "GHSA-gcqx-w48m-w2h4",
@@ -165,7 +169,8 @@
                 ".>@nuxtjs/sitemap>nuxtseo-shared>nuxt-site-config>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge",
                 ".>@vite-pwa/nuxt>vite-plugin-pwa>workbox-build>@rollup/plugin-node-resolve>deepmerge",
                 ".>vitest-environment-nuxt>@nuxt/test-utils>nuxt>@nuxt/nitro-server>nitropack>@rollup/plugin-node-resolve>deepmerge"
-            ]
+            ],
+            "reviewBy": "2027-05-14"
         }
     ]
 }

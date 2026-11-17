@@ -27,7 +27,7 @@
 
 **排程与移出顺序**: `5 → 1 → 2 → 6 → 3 → 4`；超时按 `6 → 3 → 4` 移出。
 
-- [ ] **1. 静态规则债第三批与依赖台账复核（P2）**: 把 `no-inferrable-types`（44 命中 / 16 文件，`server/services/ai` 17 处）与 `use-unknown-in-catch-callback-variable`（32 命中 / 19 文件）升为 `error` 并清零；`dependency-risk-allowlist.json` 增加 `reviewBy` 复核日期与到期提醒输出 + 惰性单测；同批回写 issue #262。
+- [x] **1. 静态规则债第三批与依赖台账复核（P2）**: 把 `no-inferrable-types`（44 命中 / 16 文件，`server/services/ai` 17 处）与 `use-unknown-in-catch-callback-variable`（32 命中 / 19 文件）升为 `error` 并清零；`dependency-risk-allowlist.json` 增加 `reviewBy` 复核日期与到期提醒输出 + 惰性单测；同批回写 issue #262。
     - **验收标准**: 两条规则 `warningCount = 0` / `explicitExemptionCount = 0`；`pnpm lint` 0 error；台账过期判红、未过期通过；issue #262 已回写。
     - **非目标**: 不碰 `no-unsafe-*`；不改 high+ 门禁 severity；不新增依赖。
     - **验证 / 证据**: V0 + V1 + V2 + RG；inventory 产物与台账单测输出落 `artifacts/governance/`。
