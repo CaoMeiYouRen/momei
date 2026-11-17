@@ -232,7 +232,7 @@
 | user-settings-light | reader | 2000 / 0.300% | 22933 / 1.770% | 2/2 条，22933px | 0px / 0.000% | PASS |
 | user-settings-dark | reader | 2000 / 0.300% | 23788 / 1.835% | 2/2 条，23788px | 0px / 0.000% | PASS |
 
-归因：`AppAvatar` 的 `xlarge` 因 `CaomeiAvatar` 的 Fragment 根丢弃 attrs，生产构建实测 40px（应为 64px）；修复后头像恢复 64px，`/settings` 卡片增高 24px，表单区与页脚区整体下移。参考态固化了该缺陷，故按两个非重叠功能带（表单区 / 页脚区）登记已归因差异，声明值 = 实测本身。下次 CI 全量重采参考态（`visual-reference-refresh.yml`）后本带可清零。依据见 [Review Gate 记录](../../../artifacts/review-gate/2026-11-17-phase78-item5.md)。
+归因：`AppAvatar` 的 `xlarge` 因 `CaomeiAvatar` 的 Fragment 根丢弃 attrs，生产构建实测 40px（应为 64px）；修复后头像恢复 64px，`/settings` 卡片增高 24px，表单区与页脚区整体下移。参考态固化了该缺陷，故按两个非重叠功能带（表单区 / 页脚区）登记已归因差异，声明值 = 实测本身。下次 CI 全量重采参考态（`visual-reference-refresh.yml`）后本带可清零。依据见 `artifacts/review-gate/2026-11-17-phase78-item5.md`。
 
 ## 待上游反馈（通道④）
 
