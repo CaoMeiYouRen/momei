@@ -50,7 +50,7 @@
 - [x] **4. 覆盖率第十九批（P2）**
     - **完成摘要**: `import-command.ts` 8/145 → **139/145（95.86%）**（CAC action 捕获 + `ora` / api-client / 图片迁移替身，报告文件走真实临时目录）；复审补 `parser.ts` 真实 `parseHexoFiles` 2 例（124/136 = 91.18%）。干净全量 statements **33,378 / 38,812 = 85.99%**（阶段基线 85.6%；本批纯贡献 +138 条 / +0.36pp = import-command.ts +131 与 parser.ts +7）；首跑 2 例时序 flake 经孤立复跑与干净重跑裁决。提交 `96609b83`，Review Gate Pass。
 
-**阶段收口**: `pnpm regression:phase-close` 本地连跑 5 次，覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例通过 + 1 跳过，statements 85.99%），阻断点均为管理端点击时序 flake（逐例孤立复跑通过）与一次新披露的 picomatch high 依赖告警（无补丁，已登记台账），按测试规范以 CI 为最终裁决，逐次记录见 `docs/reports/regression/current.md` 的 2026-11-17 窗口；回归窗口已把 2026-11-15 的 5 个窗口滚动归档到 [archive/2026-11-15-to-2026-11-17-phase76-78.md](../reports/regression/archive/2026-11-15-to-2026-11-17-phase76-78.md)。
+**阶段收口**: `pnpm regression:phase-close` 本地连跑 5 次，覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例通过 + 1 跳过，statements 85.99%），阻断点均为管理端点击时序 flake（逐例孤立复跑通过）与一次新披露的 picomatch high 依赖告警（无补丁，已登记台账），按测试规范以 CI 为最终裁决——推送 `70a6f3a5` 后 Test / Pages / Docker / TODO 四工作流全部 success，回归门禁按 CI 记为 Pass，逐次记录见 `docs/reports/regression/current.md` 的 2026-11-17 窗口；回归窗口已把 2026-11-15 的 5 个窗口滚动归档到 [archive/2026-11-15-to-2026-11-17-phase76-78.md](../reports/regression/archive/2026-11-15-to-2026-11-17-phase76-78.md)。
 
 ---
 

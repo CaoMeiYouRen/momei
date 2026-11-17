@@ -20,7 +20,7 @@
 - 结果摘要: `Reject`（**环境 flake，非代码 blocker**）；本地连跑 5 次，每次阻断点不同且逐例孤立复跑均通过。
 - 已执行验证: run1 `release:check:full` 的 `test (Vitest)` 被 2 例点击时序 flake 阻断（`snippet-edit-dialog` / `external-links`）；run2 同一步被 `security:audit-deps` 阻断（新披露的 picomatch high，`first_patched_version` 为空，已登记台账）；run3 11/12 步通过，仅 `test:e2e` 因 3001 `EADDRINUSE` 失败；run4 / run5 的 `test:coverage` 分别被 `app-uploader` + `admin/users` / `commercial-settings` 的点击时序 flake 阻断。全部 flake 用例孤立复跑通过，共 4 批 75 例：run1 的 snippet-edit-dialog + external-links（17 例）、run4 的 app-uploader + admin-users（31 例）、run5 的 commercial-settings（3 例），另含同批 admin-users 另一用例（24 例）。
 - 回归窗口: 覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例，statements 85.99%）；flake 集中在「点击后立即断言回调」的管理端用例，与本阶段改动无关。
-- Review Gate: 各条目 Review Gate 均 Pass（见 `artifacts/review-gate/2026-11-17-phase78-item{1..6}.md`）；阶段收口以 CI Test / Pages / Docker 工作流为最终裁决（按测试规范「本地 flake 以孤立复跑与 CI 为裁决」）。
+- Review Gate: 各条目 Review Gate 均 Pass（见 `artifacts/review-gate/2026-11-17-phase78-item{1..6}.md`）；阶段收口以 CI 为最终裁决——推送 `70a6f3a5` 后 **Test / Pages / Docker / TODO 四个工作流全部 success**，回归门禁结论按 CI 记为 **Pass**。
 - 未覆盖边界: 本机未取得一次完整的 `regression:phase-close` Pass；`test:e2e` 全量未在本机跑通（端口占用 + 时序 flake），由 CI 覆盖。
 <!-- regression-window:end:periodic-regression:phase-close:2026-11-17 -->
 

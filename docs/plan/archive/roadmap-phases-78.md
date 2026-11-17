@@ -51,6 +51,6 @@
 | 5 AppAvatar 生产尺寸缺陷 | 自有包装元素承载 `$attrs` + `--app-avatar-box`；构建产物实测 `/settings` 64px、`comments` 48px、`/admin/users` 32px；parity `user-settings` 明暗按实测登记已归因带（待下轮 CI 重采清零） |
 | 6 脚本治理入口接线 | `governance:check:index` 与 `governance:audit:unused-components` 以 `required: false` 接入 `regression:weekly`（7 个 governance 步骤）；`docs:check:*:candidate` 维持独立只读 baseline |
 
-阶段收口 `pnpm regression:phase-close`：本地连跑 5 次，覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例通过 + 1 跳过，statements 85.99%），阻断点均为管理端点击时序 flake（逐例孤立复跑通过）与一次新披露的 picomatch high 依赖告警（无补丁，已登记台账）；按测试规范以 CI 为最终裁决，逐次记录见 `docs/reports/regression/current.md` 的 2026-11-17 窗口。
+阶段收口 `pnpm regression:phase-close`：本地连跑 5 次，覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例通过 + 1 跳过，statements 85.99%），阻断点均为管理端点击时序 flake（逐例孤立复跑通过）与一次新披露的 picomatch high 依赖告警（无补丁，已登记台账）；按测试规范以 CI 为最终裁决——推送 `70a6f3a5` 后 Test / Pages / Docker / TODO 四工作流全部 success，回归门禁按 CI 记为 Pass，逐次记录见 `docs/reports/regression/current.md` 的 2026-11-17 窗口。
 
 > 未覆盖边界与后续观察项：① `user-settings` parity 两条允许清单需在下一轮 CI `visual-reference-refresh.yml` 全量重采后清零（已登记 backlog）；② 周级全量 `--mode=warn` 未在本阶段实测，由下个治理窗口承担；③ `AppAvatar` 的 `xlarge` 首字母字号（16px）与 `comment-item` 的 `loading`/`decoding` 原生懒加载仍属上游缺口；④ `admin-taxonomy-page.vue` 覆盖率未提升（需先拆分组件）；⑤ `parser.ts` 之外的 CLI 解析链与 `_onboarding.scss` 字号留在后续滚动批次。
