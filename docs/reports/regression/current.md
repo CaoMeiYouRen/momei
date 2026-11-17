@@ -10,11 +10,21 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
-<!-- regression-window:start:security:overlay-guard-regex:2026-11-15 -->
-
-<!-- regression-window:start:periodic-regression:phase-close:2026-11-15 -->
-
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-16 -->
+
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-17 -->
+## 2026-11-17 阶段收口前周期性回归（第七十八阶段，人工记录）
+
+- 执行入口: `pnpm regression:phase-close`（本机 3001 被既有常驻进程占用，E2E 改用 `E2E_PORT=3011` / `E2E_INSTALLATION_PORT=3012`）
+- 证据 artifact: `artifacts/review-gate/2026-11-17-phase-close-regression.md` / `.json`（末次自动回填为 Reject，原因见下）
+- 结果摘要: `Reject`（**环境 flake，非代码 blocker**）；本地连跑 5 次，每次阻断点不同且逐例孤立复跑均通过。
+- 已执行验证: run1 `release:check:full` 的 `test (Vitest)` 被 2 例点击时序 flake 阻断（`snippet-edit-dialog` / `external-links`）；run2 同一步被 `security:audit-deps` 阻断（新披露的 picomatch high，`first_patched_version` 为空，已登记台账）；run3 11/12 步通过，仅 `test:e2e` 因 3001 `EADDRINUSE` 失败；run4 / run5 的 `test:coverage` 分别被 `app-uploader` + `admin/users` / `commercial-settings` 的点击时序 flake 阻断。全部 flake 用例孤立复跑通过，共 4 批 75 例：run1 的 snippet-edit-dialog + external-links（17 例）、run4 的 app-uploader + admin-users（31 例）、run5 的 commercial-settings（3 例），另含同批 admin-users 另一用例（24 例）。
+- 回归窗口: 覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例，statements 85.99%）；flake 集中在「点击后立即断言回调」的管理端用例，与本阶段改动无关。
+- Review Gate: 各条目 Review Gate 均 Pass（见 `artifacts/review-gate/2026-11-17-phase78-item{1..6}.md`）；阶段收口以 CI Test / Pages / Docker 工作流为最终裁决（按测试规范「本地 flake 以孤立复跑与 CI 为裁决」）。
+- 未覆盖边界: 本机未取得一次完整的 `regression:phase-close` Pass；`test:e2e` 全量未在本机跑通（端口占用 + 时序 flake），由 CI 覆盖。
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-17 -->
+
+
 ## 2026-11-16 阶段收口前周期性回归（自动回填）
 
 - 执行入口: `pnpm regression:phase-close`
@@ -26,62 +36,3 @@
 - 未覆盖边界: 无新增未覆盖边界。
 
 <!-- regression-window:end:periodic-regression:phase-close:2026-11-16 -->
-
-## 2026-11-15 阶段收口前周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:phase-close`
-- 证据 artifact: `../../../artifacts/review-gate/2026-11-15-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-15-phase-close-regression.json`
-- 结果摘要: `Pass`；blocker=0，warning=0。
-- 已执行验证: test:coverage=PASS，release:check:full=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，test:perf:budget:strict=PASS，duplicate-code:check:strict=PASS，review-gate:generate:check=PASS
-- 回归窗口: 74 行 / 6 条，归档判定=窗口健康。
-- Review Gate: `Pass` / `none`；主要问题=无。
-- 未覆盖边界: 无新增未覆盖边界。
-
-<!-- regression-window:end:periodic-regression:phase-close:2026-11-15 -->
-
-## 2026-11-15 浮层守卫剥离逻辑与 Code Scanning 告警
-
-- 执行入口: 第七十六阶段条目 6；`tests/modules/overlay-family-residual-guard.test.ts`
-- 证据 artifact: `artifacts/review-gate/2026-11-15-overlay-family-residual-guard.md`
-- 结果摘要: `Pass`；4 条 Code Scanning warning（`js/bad-tag-filter` ×1、`js/incomplete-multi-character-sanitization` ×3）已随 CodeQL 重扫关闭（`state=open` 为 0）。
-- 已执行验证: 定向 13 例通过（大写/嵌套/标签边界/注释变体/未闭合保留/glob 通配符/近似闭合/组合）；`eslint` 0、`typecheck` 0；CodeQL run `43662876468` success。
-- 回归窗口: 剥离逻辑改为手写扫描（大小写不敏感、嵌套配对、标签边界），未闭合时**保留剩余内容**避免吞掉后半文件；`accept="image/*"` 不再被误判为块注释；既有守卫断言未改动。
-- Review Gate: Round 1 Reject（未闭合分支截断导致 6 个真实文件漏扫）→ 修复 → Round 2 Pass。
-- 未覆盖边界: `<scr<script></script>ipt>` 单遍剥离仍可拼回 token（旧实现同源，未列入本批）；已由负向用例锁定主要绕过面。
-<!-- regression-window:end:security:overlay-guard-regex:2026-11-15 -->
-
-<!-- regression-window:start:decision:homepage-swr:2026-11-15 -->
-## 2026-11-15 首页 SWR / i18n cookie 决策
-
-- 执行入口: 第七十六阶段条目 4；线上探针（`https://momei.app`）+ 三候选评估
-- 证据 artifact: `artifacts/review-gate/2026-11-15-homepage-swr-decision.md` / `artifacts/review-gate/2026-11-15-homepage-swr-decision-headers.txt`
-- 结果摘要: 选定 ① 保持现状 + 边缘兜底，零代码改动。`/` 每次写 `i18n_redirected=zh-CN`、无 `cache-control`、`cf-cache-status: DYNAMIC`；`/robots.txt` 为 `HIT`（`age: 95`），证明边缘缓存链路可用但被 `Set-Cookie` 阻断。
-- 已执行验证: 4 次 `/`（含 `Accept-Language: en-US` 与偏好 cookie）均返回语言中立 200；`/en-US` 同样 `DYNAMIC`；决策文档 §7 含复跑探针。
-- 回归窗口: 不放宽 nitropack 2.13.6 缓存安全规则；②/③ 组合改造转 backlog #18（`/` 去 Set-Cookie + 客户端语言持久化 + 边缘 Cache Key）。
-- Review Gate: 文档-only 交付；结论见决策文档 §7 与 headers 原始文件。
-- 未覆盖边界: ②/③ 未实现，语言持久化与边缘命中待后续条目验证。
-<!-- regression-window:end:decision:homepage-swr:2026-11-15 -->
-
-<!-- regression-window:start:ui:consolidated-review:2026-11-15 -->
-## 2026-11-15 编辑器 AI 审校合并（Phase C）
-
-- 执行入口: 第七十六阶段条目 3；单按钮并行调用 `/api/ai/review` + `/api/ai/perspective-check`
-- 证据 artifact: `artifacts/review-gate/2026-11-15-consolidated-review.md` / `artifacts/review-gate/2026-11-15-consolidated-review-v3.json`
-- 结果摘要: `Pass`；新面板 `PostEditorConsolidatedReviewPanel` 双 Tab（问题修正 / 视角建议）+ editor/reader 切换；旧两个侧面板零引用但保留至验收（回滚边界）。
-- 已执行验证: 相关 4 套件 79 例通过；V3 浏览器探针 6/6（并行调用、Tab 计数、视角结果、读者视角刷新、关闭）；`typecheck` 0、定向 `eslint` / `stylelint` 0、`i18n:check-sync` / `audit:missing` 通过、`pnpm build` 成功。
-- 回归窗口: 缓存键纳入 `language` + mode，零结果也参与缓存；部分失败降级 warning 并在面板内提示，重试成功清除失败分段；双失败不新开面板。
-- Review Gate: 见证据文件；生产改动集中在编排 / 面板 / 入口 3 个文件，i18n 五语 + 测试同批。
-- 未覆盖边界: 旧面板组件的删除、单段 retry 按钮、移动端视觉回归；真实 AI 配额与延迟未测（接口由探针伪造）。
-<!-- regression-window:end:ui:consolidated-review:2026-11-15 -->
-
-<!-- regression-window:start:coverage:batch17:2026-11-15 -->
-## 2026-11-15 覆盖率第十七批（脚本四模块）
-
-- 执行入口: 第七十六阶段条目 5；干净全量口径（移 `.vitest-cache` / `.vitest-cache-coverage` + `--maxWorkers=4`）
-- 证据 artifact: `artifacts/coverage/phase76-batch17-baseline/coverage-final.json` / `artifacts/coverage/phase76-batch17-final/coverage-final.json`
-- 结果摘要: 全仓 statements `31,597 / 38,076 = 82.98%` → `32,484 / 38,103 = 85.25%`（`+887` 覆盖，分母 `+27`，`+2.27pp`，远超 `+0.3pp` 目标）；四模块 `scripts/i18n/audit-duplicate-messages.mjs` 50→288/291、`scripts/ai/check-governance.mjs` 108→351/352、`scripts/governance/inventory-eslint-rules.mjs` 16→230/231、`scripts/testing/capture-visual-reference.mjs` 39→226/229；`vitest list` 口径 622 文件 / 5,644 例。
-- 已执行验证: 9 个相关套件 193 例通过；新增 4 个测试文件（155 例，连跑 3 轮 155/155 无 flaky）；本批 8 文件 `eslint` 0 error / 0 warning、全仓 `eslint .` 0 error / 10 warning（均为既有文件的既有规则：`max-lines` 3 / `max-lines-per-function` 1 / `max-statements-per-line` 3 / `no-misused-promises` 2 / `no-misused-spread` 1）、`typecheck` 0；本批四模块均 ≥98% statements。
-- 回归窗口: 分母 `+27` 来自四个脚本为测试注入新增可选参默认值（check-governance `+11` / capture `+15` / audit `+1`），文件集合不变（779）；同集合比较 `+2.27pp`。四模块增量合计 `+882`，其余 `5` 条为新增用例确定性触达的共享模块（`scripts/shared/cli.mjs` +4、`scripts/governance/check-script-governance.mjs` +1），非随机波动。
-- Review Gate: 见本轮审计结论；生产改动均为 `export` + 带默认值的依赖注入，CLI 入口行为不变。
-- 未覆盖边界: 四模块剩余 8 条未覆盖语句均为入口/加载器——`audit-duplicate-messages.mjs` 的 `isDirectExecution` 入口块 3 条，`check-governance.mjs` / `inventory-eslint-rules.mjs` / `capture-visual-reference.mjs` 的入口各 1 条，以及 capture 默认 `loadPlaywrightChromium` 动态导入 2 条；import 场景不可达。Windows `cmd.exe` 分支属平台不可达（仅分支未覆盖，不计入语句）。
-<!-- regression-window:end:coverage:batch17:2026-11-15 -->

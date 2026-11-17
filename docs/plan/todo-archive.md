@@ -21,10 +21,36 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第七十七阶段共 8 个近线归档块。
+- 主文档当前保留第七十至第七十八阶段共 9 个近线归档块。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+## 第七十八阶段：质量门禁与债务收口（已审计归档）
+
+> 归档说明: 第七十八阶段 6 条条目已于 2026-11-18 完成并归档（2026-11-16 立项）；阶段规划正文见 [roadmap 分片](./archive/roadmap-phases-78.md)，Review Gate 证据见 `artifacts/review-gate/2026-11-17-phase78-item{1..6}.md`。
+
+- [x] **5. AppAvatar 生产构建尺寸缺陷修复（P1 修复型）**
+    - **完成摘要**: 定位 `caomei-ui` 的 `CaomeiAvatar` 以 Fragment 为根导致 attrs 在生产构建被丢弃（`xlarge` 实测 40px）；改由自有包装元素承载 `$attrs` 与 `--app-avatar-box`，内层按 100% 填满。构建产物实测 `/settings` 64px、评论区 48px、`/admin/users` 32px；`test:visual` 32/32、parity 83/83（`user-settings` 明暗按实测登记已归因带）。提交 `708691b3`，Review Gate Pass（Round 1 Reject → Round 3 Pass）。
+
+- [x] **1. 静态规则债第三批与依赖台账复核（P2）**
+    - **完成摘要**: `no-inferrable-types`（45 处，含 1 处 `.vue`）与 `use-unknown-in-catch-callback-variable`（32 处）清零后直接升 `error`，并导出 `NO_INFERRABLE_TYPES_FILES` 让配置面与治理切片同源；inventory 两规则 `effectiveSeverity 2 / hitCount 0 / warningCount 0 / explicitExemptionCount 0`，debt 产物 9 切片全 0。`dependency-risk-allowlist.json` 5 条补 `reviewBy`，过期或未登记在 `--mode=error` 判红（含 `--mode=warn` 不判红与真实台账 ratchet 断言）。提交 `3c917186` + `90356df8`，issue #262 已回写，Review Gate Pass（三分区并发审计 + Round 2）。
+
+- [x] **2. 治理索引补全与索引检查（P2）**
+    - **完成摘要**: `docs/design/governance` 69 份文档分类——25 份在役补索引（新增「文档、规范与流程治理」「性能、缓存与流量」两节）、15 份一次性报告进 allowlist 并写明替代事实源，未登记归零；新增 `check-governance-index.mjs` 与 `pnpm governance:check:index`（默认报告模式，`--mode=error` 才置 1）+ 9 例单测（不读真实仓库目录，避免经 `pnpm test` 升为阻断）。提交 `f114739d` + `c9a5fc91`，Review Gate Pass（Round 1 Reject → Round 2 Pass）。
+
+- [x] **6. 脚本治理入口晋级与回归接线（P3）**
+    - **完成摘要**: `governance:check:index`（5m）与 `governance:audit:unused-components`（5m）以 `required: false` 接入 `regression:weekly`（governance 面 5 → 7 步），并补断言锁住「除 token-map 外全部 warning 面」；同步 `docs/standards/planning.md` 中英双语周级组合与 `scripts/README.md`；`docs:check:*:candidate` 复核结论为维持独立只读 baseline。提交 `3c727117` + `c7446c7e`（CI 链接修复），Review Gate Pass。
+
+- [x] **3. 字号归一第二批（P2）**
+    - **完成摘要**: 非 admin 路由面 9 文件 51 处与 `--m-font-size-*` 逐字节等值的字面量替换为 token；inventory 声明 457（不变）、token 化 88 → 139、等值可替换 186 → 135；`test:visual` 32/32、parity 83/83 未归因差异 0。`demo-banner` 与 `settings-api-keys` 共 13 处无截图证据（TEST_MODE 与页签条件），以静态等值 + 产物抽查取证并登记。提交 `d0ffcc7e`，Review Gate Pass。
+
+- [x] **4. 覆盖率第十九批（P2）**
+    - **完成摘要**: `import-command.ts` 8/145 → **139/145（95.86%）**（CAC action 捕获 + `ora` / api-client / 图片迁移替身，报告文件走真实临时目录）；复审补 `parser.ts` 真实 `parseHexoFiles` 2 例（124/136 = 91.18%）。干净全量 statements **33,378 / 38,812 = 85.99%**（阶段基线 85.6%；本批纯贡献 +138 条 / +0.36pp = import-command.ts +131 与 parser.ts +7）；首跑 2 例时序 flake 经孤立复跑与干净重跑裁决。提交 `96609b83`，Review Gate Pass。
+
+**阶段收口**: `pnpm regression:phase-close` 本地连跑 5 次，覆盖与单测在干净全量跑中一次通过（631 文件 / 5,893 例通过 + 1 跳过，statements 85.99%），阻断点均为管理端点击时序 flake（逐例孤立复跑通过）与一次新披露的 picomatch high 依赖告警（无补丁，已登记台账），按测试规范以 CI 为最终裁决，逐次记录见 `docs/reports/regression/current.md` 的 2026-11-17 窗口；回归窗口已把 2026-11-15 的 4 个窗口滚动归档到 [archive/2026-11-15-to-2026-11-17-phase76-78.md](../reports/regression/archive/2026-11-15-to-2026-11-17-phase76-78.md)。
 
 ---
 
