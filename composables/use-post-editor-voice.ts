@@ -370,7 +370,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
             } else if (mode.value === 'cloud-stream' && !nextCloudConfig.volcengine) {
                 mode.value = 'web-speech'
             }
-        }).catch((err) => {
+        }).catch((err: unknown) => {
             console.warn('[Voice Composable] Failed to fetch voice config:', err)
         })
     }
@@ -712,7 +712,7 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
         stopMediaInput()
     }
 
-    const startListening = (lang: string = 'zh-CN') => {
+    const startListening = (lang = 'zh-CN') => {
         if (isListening.value) {
             return
         }

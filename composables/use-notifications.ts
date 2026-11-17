@@ -115,10 +115,10 @@ export function useNotifications() {
         if (browserPermission.value !== 'granted') {
             if (existingSubscription) {
                 const endpoint = existingSubscription.endpoint
-                await existingSubscription.unsubscribe().catch((error) => {
+                await existingSubscription.unsubscribe().catch((error: unknown) => {
                     console.error('Failed to unsubscribe browser push:', error)
                 })
-                await removeServerSubscription(endpoint).catch((error) => {
+                await removeServerSubscription(endpoint).catch((error: unknown) => {
                     console.error('Failed to remove browser push subscription:', error)
                 })
             }
@@ -145,7 +145,7 @@ export function useNotifications() {
         const permission = await window.Notification.requestPermission()
         browserPermission.value = permission
 
-        await syncBrowserPushSubscription().catch((error) => {
+        await syncBrowserPushSubscription().catch((error: unknown) => {
             console.error('Failed to enable browser push:', error)
         })
 

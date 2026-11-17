@@ -87,7 +87,7 @@ export default defineNitroPlugin((nitroApp) => {
 
         if (shouldRunInitialFriendLinkHealthCheck()) {
             void runFriendLinkHealthCheck()
-                .catch((error) => {
+                .catch((error: unknown) => {
                     logger.error('[TaskScheduler] Initial friend link health check failed:', error)
                 })
         } else {

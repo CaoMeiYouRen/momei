@@ -154,7 +154,7 @@ const MAX_LOG_ARRAY_LENGTH = 10
 const MAX_LOG_OBJECT_KEYS = 20
 const MAX_LOG_DEPTH = 3
 
-function truncateLogValue(value: unknown, depth: number = 0): unknown {
+function truncateLogValue(value: unknown, depth = 0): unknown {
     if (value === null || value === undefined) {
         return value
     }

@@ -65,7 +65,7 @@ export const isMaskedSettingPlaceholder = (inputValue: string, maskType: string)
 /**
  * 根据数据库键名或环境变量键名推断脱敏类型
  */
-export const inferSettingMaskType = (key: string, value: string = ''): string => {
+export const inferSettingMaskType = (key: string, value = ''): string => {
     const lowerKey = key.toLowerCase()
 
     if (lowerKey.includes('_pass') || lowerKey.includes('_secret') || lowerKey.endsWith('_token')) {
@@ -82,7 +82,7 @@ export const inferSettingMaskType = (key: string, value: string = ''): string =>
     return 'none'
 }
 
-export function resolveSettingMaskType(key: string, value: string = '', explicitMaskType?: string | null): SettingMaskType {
+export function resolveSettingMaskType(key: string, value = '', explicitMaskType?: string | null): SettingMaskType {
     if (isPublicSettingKey(key)) {
         return 'none'
     }

@@ -7,7 +7,7 @@ export class SiliconFlowASRProvider implements Partial<AIProvider> {
     private endpoint: string
     public model: string
 
-    constructor(apiKey: string, endpoint: string = 'https://api.siliconflow.cn/v1', model: string = 'FunAudioLLM/SenseVoiceSmall') {
+    constructor(apiKey: string, endpoint = 'https://api.siliconflow.cn/v1', model = 'FunAudioLLM/SenseVoiceSmall') {
         this.apiKey = apiKey
         this.endpoint = stripTrailingSlash(endpoint)
         this.model = model

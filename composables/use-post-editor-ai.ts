@@ -489,7 +489,7 @@ export function usePostEditorAI(
     const rewriteCompareData = ref<RewriteCompareData | null>(null)
     const rewriteCompareVisible = ref(false)
 
-    const rewriteContent = async (style: string = 'casual') => {
+    const rewriteContent = async (style = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
             toast.show({
@@ -872,7 +872,7 @@ export function usePostEditorAI(
     }
 
     // --- 续写：在光标位置插入 ---
-    const continueContent = async (style: string = 'casual') => {
+    const continueContent = async (style = 'casual') => {
         const cursorContext = getEditorCursorContext()
         if (!cursorContext) {
             toast.show({
@@ -943,7 +943,7 @@ export function usePostEditorAI(
     }
 
     // --- 扩写：选中文本后扩写 ---
-    const expandContent = async (style: string = 'casual') => {
+    const expandContent = async (style = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
             toast.show({
@@ -1002,7 +1002,7 @@ export function usePostEditorAI(
     }
 
     // --- 缩写：选中文本后缩写 ---
-    const condenseContent = async (style: string = 'casual') => {
+    const condenseContent = async (style = 'casual') => {
         const selected = getEditorSelectedText()
         if (!selected) {
             toast.show({

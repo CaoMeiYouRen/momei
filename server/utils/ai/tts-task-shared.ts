@@ -129,7 +129,7 @@ export async function createTTSTask(params: CreateTTSTaskParams): Promise<Create
     // 4. 启动后台处理（前端直连任务不触发服务端处理，避免双端同时连接）
     const isFrontendDirect = params.taskOverrides?.type?.endsWith?.('_direct')
     if (!isFrontendDirect) {
-        const backgroundTask = TTSService.processTask(task.id).catch((err) => {
+        const backgroundTask = TTSService.processTask(task.id).catch((err: unknown) => {
             console.error('TTS Background Task Error:', err)
         })
 

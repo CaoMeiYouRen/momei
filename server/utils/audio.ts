@@ -1,5 +1,6 @@
 import { parseFromTokenizer } from 'music-metadata'
 import { makeTokenizer } from '@tokenizer/http'
+import { toErrorMessage } from './ai/error'
 import logger from './logger'
 
 // 常见的音频容器名到标准 MIME 类型映射
@@ -18,8 +19,8 @@ export async function probeRemoteAudio(url: string) {
     logger.info(`[AudioProbe] 开始探测音频元数据: ${url}`)
     try {
         // 1. 获取基础 HTTP 信息（通常比流式解析更快）
-        const headResponse = await fetch(url, { method: 'HEAD' }).catch((e) => {
-            logger.warn(`[AudioProbe] HEAD 请求失败，将仅依赖流式解析: ${e.message}`)
+        const headResponse = await fetch(url, { method: 'HEAD' }).catch((e: unknown) => {
+            logger.warn(`[AudioProbe] HEAD 请求失败，将仅依赖流式解析: ${toErrorMessage(e)}`)
             return null
         })
         const headerMimeType = headResponse?.headers.get('content-type')?.split(';')[0]

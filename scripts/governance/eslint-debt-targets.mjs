@@ -131,6 +131,12 @@ export const NO_NON_NULL_ASSERTION_FILES = [
 export const BAN_TS_COMMENT_FILES = ['**/*.{ts,tsx,mts,cts,vue}']
 
 /**
+ * 生产 TS / Vue 代码中已生效的 `no-inferrable-types` 切片（非 typed 规则，可覆盖 `.vue` 脚本块）。
+ * 配置面与 inventory 计数面共用同一常量，避免两处各写一份后漂移。
+ */
+export const NO_INFERRABLE_TYPES_FILES = ['**/*.{ts,tsx,mts,cts,vue}']
+
+/**
  * `eslint.config.js` 中显式配置为 `[0]` / `[0, opts]` 的 25 条规则。
  * 用于 inventory 产出「规则 × configuredSeverity × effectiveSeverity × 命中数」表，
  * 候选规则须同时满足 configuredSeverity === 0 且未被 `strictTsRuleOverrides` 覆盖。
@@ -215,5 +221,19 @@ export const ESLINT_DEBT_RULE_SLICES = [
         rationale: 'ESLint 严格规则第二批：生产 TS 的非空类型断言已清零，升 warning 锁定回归。',
         ruleId: '@typescript-eslint/non-nullable-type-assertion-style',
         scope: 'non-nullable-type-assertion-style',
+    },
+    {
+        files: NO_INFERRABLE_TYPES_FILES,
+        ignores: [...PRODUCTION_TS_IGNORES],
+        rationale: 'ESLint 严格规则第三批：可推断的类型注解已逐条清零（非 typed 规则，配置面与计数面同为 TS + .vue 脚本块），直接升 error 锁定回归。',
+        ruleId: '@typescript-eslint/no-inferrable-types',
+        scope: 'no-inferrable-types',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第三批：catch 回调变量统一为 unknown 后升 error；typed 规则在 .vue 无类型信息，故只收 TS。',
+        ruleId: '@typescript-eslint/use-unknown-in-catch-callback-variable',
+        scope: 'use-unknown-in-catch-callback-variable',
     },
 ]

@@ -94,7 +94,7 @@ export function resolveCitableExcerpt(options: {
     return truncatePlainText(plainContent, options.maxLength ?? 320)
 }
 
-export function extractFaqItemsFromMarkdown(markdown: string, maxItems: number = 5): FaqItem[] {
+export function extractFaqItemsFromMarkdown(markdown: string, maxItems = 5): FaqItem[] {
     if (!markdown || maxItems <= 0) {
         return []
     }

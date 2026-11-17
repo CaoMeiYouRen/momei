@@ -185,7 +185,7 @@ export class TTSService extends AIBaseService {
             title: '语音合成完成',
             content: '您的语音合成任务已完成，可点击查看音频结果。',
             link: buildAITaskDetailPath(task.id),
-        }).catch((notificationError) => {
+        }).catch((notificationError: unknown) => {
             logger.error('[TTSService] Failed to send completion notification:', notificationError)
         })
 
@@ -266,14 +266,14 @@ export class TTSService extends AIBaseService {
     /**
      * 合并生成与上传
      */
-    static async generateAndUploadSpeech(text: string, voice: string = TTS_DEFAULT_VOICE, options: TTSOptions = {}, userId?: string, prefix: string = 'tts/') {
+    static async generateAndUploadSpeech(text: string, voice: string = TTS_DEFAULT_VOICE, options: TTSOptions = {}, userId?: string, prefix = 'tts/') {
         const stream = await this.generateSpeech(text, voice, options, userId)
 
         // 复制流以便同时用于返回和上传
         const [userStream, ossStream] = stream.tee()
 
         // 后台异步上传
-        this.uploadStreamToOSS(ossStream, userId, prefix, options.outputFormat || 'mp3').catch((err) => {
+        this.uploadStreamToOSS(ossStream, userId, prefix, options.outputFormat || 'mp3').catch((err: unknown) => {
             logger.error('[TTSService] Background TTS upload failed:', err)
         })
 
@@ -559,7 +559,7 @@ export class TTSService extends AIBaseService {
                                 const currentProgress = typeof task.progress === 'number' ? task.progress : 5
                                 task.progress = Math.min(95, currentProgress + 1)
                                 logger.debug(`[TTSService] Task ${taskId} progress: ${task.progress}% (${receivedBytes} bytes)`)
-                                await taskRepo.save(task).catch((e) => logger.warn(`[TTSService] Task progress save failed (taskId: ${taskId}):`, e))
+                                await taskRepo.save(task).catch((e: unknown) => logger.warn(`[TTSService] Task progress save failed (taskId: ${taskId}):`, e))
                             }
                         }
                     } catch (readErr) {
@@ -672,7 +672,7 @@ export class TTSService extends AIBaseService {
                 title: '语音合成失败',
                 content: `您的语音合成任务失败: ${error.message || '未知错误'}`,
                 link: buildAITaskDetailPath(taskId),
-            }).catch((notificationError) => {
+            }).catch((notificationError: unknown) => {
                 logger.error('[TTSService] Failed to send failure notification:', notificationError)
             })
         }

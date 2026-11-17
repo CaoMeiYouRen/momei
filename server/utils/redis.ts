@@ -32,7 +32,7 @@ export const getRedis = () => redis
  * @param key 锁的键名
  * @param ttl 锁的过期时间 (毫秒)
  */
-export const acquireLock = async (key: string, ttl: number = 30000): Promise<boolean> => {
+export const acquireLock = async (key: string, ttl = 30000): Promise<boolean> => {
     if (!redis) {
         return true
     } // 无 Redis 时默认为单机环境，视为获取成功

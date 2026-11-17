@@ -18,7 +18,7 @@ export function normalizeAICostDisplay(raw?: Partial<AICostDisplay> | null): AIC
     }
 }
 
-export function formatAICost(value: unknown, costDisplay?: Partial<AICostDisplay> | null, digits: number = 2) {
+export function formatAICost(value: unknown, costDisplay?: Partial<AICostDisplay> | null, digits = 2) {
     const normalizedDisplay = normalizeAICostDisplay(costDisplay)
     return formatCurrency(value, digits, normalizedDisplay.currencySymbol)
 }

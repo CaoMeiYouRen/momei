@@ -67,7 +67,7 @@ export const createMemo = async (payload: MemosCreatePayload): Promise<MemosCrea
             content: payload.content,
             visibility: payload.visibility || config.defaultVisibility,
         },
-    }).catch((err) => {
+    }).catch((err: unknown) => {
         console.error('[Memos] Create memo failed:', err)
         throw err
     })

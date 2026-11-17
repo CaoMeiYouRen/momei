@@ -124,7 +124,7 @@ export function createBaiduAdapter(config?: BaiduConfig): BaiduAdapter {
     const adapter = new BaiduAdapter('baidu', '百度联盟', ['zh-CN'])
     if (config) {
         // Initialize asynchronously but don't wait here
-        adapter.initialize(config).catch((err) => {
+        adapter.initialize(config).catch((err: unknown) => {
             console.error('Failed to initialize Baidu adapter:', err)
         })
     }

@@ -318,7 +318,7 @@ export const commentService = {
         notifyAdmins(AdminNotificationEvent.NEW_COMMENT, {
             title: `新评论: ${post.title}`,
             content: `<p>来自 <strong>${comment.authorName}</strong> 的评论:</p><p>${comment.content}</p>`,
-        }).catch((err) => {
+        }).catch((err: unknown) => {
             console.error('Failed to notify admins of new comment:', err)
         })
 
@@ -330,7 +330,7 @@ export const commentService = {
                 title: `文章有新评论: ${post.title}`,
                 content: `${comment.authorName}: ${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}`,
                 link: `/posts/${post.slug || post.id}#comment-${comment.id}`,
-            }).catch((err) => {
+            }).catch((err: unknown) => {
                 console.error('Failed to send in-app notification to post author:', err)
             })
         }
@@ -345,7 +345,7 @@ export const commentService = {
                         title: `评论收到新回复: ${post.title}`,
                         content: `${comment.authorName} 回复了你: ${comment.content.substring(0, 50)}${comment.content.length > 50 ? '...' : ''}`,
                         link: `/posts/${post.slug || post.id}#comment-${comment.id}`,
-                    }).catch((err) => {
+                    }).catch((err: unknown) => {
                         console.error('Failed to send in-app notification to parent comment author:', err)
                     })
                 }
@@ -366,7 +366,7 @@ export const commentService = {
     /**
      * 辅助方法：构建评论树
      */
-    async buildCommentTree(comments: CommentEntity[], isAdmin: boolean = false, context?: CommentReadContext) {
+    async buildCommentTree(comments: CommentEntity[], isAdmin = false, context?: CommentReadContext) {
         const map = new Map<string, Comment>()
         const tree: Comment[] = []
 

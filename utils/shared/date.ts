@@ -22,7 +22,7 @@ dayjs.extend(relativeTime)
  * @param tz 时区
  * @returns 格式化后的日期字符串
  */
-export const formatDate = (date: string | Date | number, format: string = 'YYYY-MM-DD', locale: string = 'zh-cn', tz?: string) => {
+export const formatDate = (date: string | Date | number, format = 'YYYY-MM-DD', locale = 'zh-cn', tz?: string) => {
     if (!date) {
         return ''
     }
@@ -41,7 +41,7 @@ export const formatDate = (date: string | Date | number, format: string = 'YYYY-
  * @param tz 时区
  * @returns 格式化后的日期时间字符串
  */
-export const formatDateTime = (date: string | Date | number, format: string = 'YYYY-MM-DD HH:mm:ss', locale: string = 'zh-cn', tz?: string) => {
+export const formatDateTime = (date: string | Date | number, format = 'YYYY-MM-DD HH:mm:ss', locale = 'zh-cn', tz?: string) => {
     if (!date) {
         return ''
     }

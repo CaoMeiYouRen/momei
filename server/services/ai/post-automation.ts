@@ -127,7 +127,7 @@ export class PostAutomationService extends AIBaseService {
             throw new Error('Failed to create translate post task')
         }
 
-        this.processTranslatePostTask(task.id, actor).catch((error) => {
+        this.processTranslatePostTask(task.id, actor).catch((error: unknown) => {
             console.error(`[PostAutomationService] Failed to process translate post task ${task.id}:`, error)
         })
 

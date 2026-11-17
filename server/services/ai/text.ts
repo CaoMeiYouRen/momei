@@ -162,7 +162,7 @@ export class TextService extends AIBaseService {
 
     static async suggestTitles(
         content: string,
-        language: string = 'zh-CN',
+        language = 'zh-CN',
         userId?: string,
     ) {
         await this.assertTextQuota({
@@ -268,8 +268,8 @@ export class TextService extends AIBaseService {
 
     static async summarize(
         content: string,
-        maxLength: number = 200,
-        language: string = 'zh-CN',
+        maxLength = 200,
+        language = 'zh-CN',
         userId?: string,
     ) {
         await this.assertTextQuota({
@@ -298,7 +298,7 @@ export class TextService extends AIBaseService {
         return summary
     }
 
-    static async refineVoice(content: string, language: string = 'zh-CN', userId?: string) {
+    static async refineVoice(content: string, language = 'zh-CN', userId?: string) {
         await this.assertTextQuota({
             userId,
             type: 'refine_voice',
@@ -338,7 +338,7 @@ export class TextService extends AIBaseService {
         return response.content.trim()
     }
 
-    static async optimizeManuscript(content: string, language: string = 'zh-CN', userId?: string, mode: 'speech' | 'podcast' = 'speech') {
+    static async optimizeManuscript(content: string, language = 'zh-CN', userId?: string, mode: 'speech' | 'podcast' = 'speech') {
         await this.assertTextQuota({
             userId,
             type: 'optimize_manuscript',
@@ -660,7 +660,7 @@ export class TextService extends AIBaseService {
         return slug
     }
 
-    static async recommendTags(content: string, existingTags: string[] = [], language: string = 'zh-CN', userId?: string) {
+    static async recommendTags(content: string, existingTags: string[] = [], language = 'zh-CN', userId?: string) {
         await this.assertTextQuota({
             userId,
             type: 'recommend_tags',
@@ -741,8 +741,8 @@ export class TextService extends AIBaseService {
 
     static async rewrite(
         content: string,
-        style: string = 'casual',
-        language: string = 'zh-CN',
+        style = 'casual',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {
@@ -797,7 +797,7 @@ export class TextService extends AIBaseService {
 
     static async review(
         content: string,
-        language: string = 'zh-CN',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {
@@ -873,7 +873,7 @@ export class TextService extends AIBaseService {
     static async perspectiveCheck(
         content: string,
         mode: 'editor' | 'reader',
-        language: string = 'zh-CN',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {
@@ -968,8 +968,8 @@ export class TextService extends AIBaseService {
 
     static async continueWriting(
         content: string,
-        style: string = 'casual',
-        language: string = 'zh-CN',
+        style = 'casual',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {
@@ -1023,8 +1023,8 @@ export class TextService extends AIBaseService {
 
     static async expandContent(
         content: string,
-        style: string = 'casual',
-        language: string = 'zh-CN',
+        style = 'casual',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {
@@ -1078,8 +1078,8 @@ export class TextService extends AIBaseService {
 
     static async condenseContent(
         content: string,
-        style: string = 'casual',
-        language: string = 'zh-CN',
+        style = 'casual',
+        language = 'zh-CN',
         userId?: string,
     ) {
         if (!content || content.trim().length === 0) {

@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     )
 
     if (campaignStatus === MarketingCampaignStatus.SENDING) {
-        void startMarketingCampaignDispatch(campaign.id).catch((err) => {
+        void startMarketingCampaignDispatch(campaign.id).catch((err: unknown) => {
             console.error('Failed to send repushed marketing campaign:', err)
         })
     }

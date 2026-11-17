@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
         notifyAdmins(AdminNotificationEvent.NEW_USER, {
             title: '新订阅者',
             content: `<p>新用户 <strong>${email}</strong> 已订阅您的博客。</p>`,
-        }).catch((err) => {
+        }).catch((err: unknown) => {
             console.error('Failed to notify admins of new subscriber:', err)
         })
     }

@@ -241,14 +241,14 @@ export function setupAuthSessionLifecycle(session = useAuthSession()) {
             return
         }
 
-        void refreshAuthSession().catch((error) => {
+        void refreshAuthSession().catch((error: unknown) => {
             console.warn('Failed to refresh auth session on visibility change', error)
         })
     }
 
     onMounted(() => {
         if (session.value.isPending && !useRouteSessionState().resolved.value) {
-            void refreshAuthSession().catch((error) => {
+            void refreshAuthSession().catch((error: unknown) => {
                 console.warn('Failed to hydrate auth session on mount', error)
             })
         }

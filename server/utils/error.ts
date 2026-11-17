@@ -7,7 +7,7 @@ import { t, getLocale } from './i18n'
 export class APIError extends Error {
     constructor(
         public key: string,
-        public statusCode: number = 400,
+        public statusCode = 400,
         public params?: Record<string, any>,
     ) {
         super(key)
@@ -23,7 +23,7 @@ export class APIError extends Error {
  * @param statusCode HTTP 状态码
  * @param params 翻译替换参数
  */
-export async function throwLocalizedError(key: string, statusCode: number = 400, params?: Record<string, any>) {
+export async function throwLocalizedError(key: string, statusCode = 400, params?: Record<string, any>) {
     const message = await t(key, params)
     const locale = getLocale()
 

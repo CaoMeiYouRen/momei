@@ -9,8 +9,8 @@
  */
 export class Snowflake {
     private machineId: number
-    private sequence: number = 0
-    private lastTimestamp: number = -1
+    private sequence = 0
+    private lastTimestamp = -1
 
     constructor(machineId: number) {
         this.machineId = machineId

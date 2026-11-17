@@ -173,7 +173,7 @@ export const emailService = {
     async sendLoginOTP(
         email: string,
         otp: string,
-        expiresInMinutes: number = 5,
+        expiresInMinutes = 5,
         locale?: string,
     ): Promise<void> {
         await sendCodeTemplateEmail({
@@ -195,7 +195,7 @@ export const emailService = {
     async sendEmailVerificationOTP(
         email: string,
         otp: string,
-        expiresInMinutes: number = 5,
+        expiresInMinutes = 5,
         locale?: string,
     ): Promise<void> {
         await sendCodeTemplateEmail({
@@ -217,7 +217,7 @@ export const emailService = {
     async sendPasswordResetOTP(
         email: string,
         otp: string,
-        expiresInMinutes: number = 5,
+        expiresInMinutes = 5,
         locale?: string,
     ): Promise<void> {
         await sendCodeTemplateEmail({

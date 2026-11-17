@@ -220,7 +220,7 @@ export async function notifyAdmins(event: AdminNotificationEvent, data: { title:
                 content: data.content,
                 link: '/admin',
                 recipient: admin.email,
-            }).catch((err) => {
+            }).catch((err: unknown) => {
                 logger.error(`Failed to send admin browser notification to ${admin.email}:`, err)
             })
         }
@@ -469,7 +469,7 @@ export async function startMarketingCampaignDispatch(campaignId: string): Promis
         }
     }
 
-    void sendMarketingCampaign(campaignId).catch((error) => {
+    void sendMarketingCampaign(campaignId).catch((error: unknown) => {
         logger.error(`Failed to start campaign dispatch for ${campaignId}:`, error)
     })
 

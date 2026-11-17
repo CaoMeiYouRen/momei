@@ -281,7 +281,7 @@ function createNitroResolveProbe() {
 
         flushTimer = setTimeout(() => {
             flushTimer = undefined
-            void flushSummary().catch((error) => {
+            void flushSummary().catch((error: unknown) => {
                 console.error('[momei-perf] scope=nitro-resolve-probe stage=flush-failed', error)
             })
         }, 1000)

@@ -73,7 +73,7 @@ const maxCount = computed(() => {
     return Math.max(...tags.value.map((tag) => tag.postCount || 0))
 })
 
-const getTagWeight = (count: number = 0) => {
+const getTagWeight = (count = 0) => {
     const min = 0.875
     const max = 2.5
     if (maxCount.value <= 1) return `${min}rem`

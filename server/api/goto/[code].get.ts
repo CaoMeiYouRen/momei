@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // 记录点击（异步，不阻塞响应）
-        recordClick(shortCode).catch((err) => {
+        recordClick(shortCode).catch((err: unknown) => {
             console.error('Failed to record click:', err)
         })
 

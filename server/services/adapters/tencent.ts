@@ -183,7 +183,7 @@ export function createTencentAdapter(config?: TencentConfig): TencentAdapter {
     const adapter = new TencentAdapter('tencent', '腾讯广告 (广点通)', ['zh-CN'])
     if (config) {
         // Initialize asynchronously but don't wait here
-        adapter.initialize(config).catch((err) => {
+        adapter.initialize(config).catch((err: unknown) => {
             console.error('Failed to initialize Tencent adapter:', err)
         })
     }

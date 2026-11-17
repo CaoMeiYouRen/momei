@@ -28,7 +28,7 @@ function getExternalLinkBlacklist(): string[] {
  * 生成随机短码
  * @param length 短码长度，默认 6
  */
-export function generateShortCode(length: number = 6): string {
+export function generateShortCode(length = 6): string {
     const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     const charLen = chars.length
     const maxByte = 256 - (256 % charLen)
@@ -50,7 +50,7 @@ export function generateShortCode(length: number = 6): string {
  * 生成唯一的短码
  * @param maxRetries 最大重试次数
  */
-export async function generateUniqueShortCode(maxRetries: number = 10): Promise<string> {
+export async function generateUniqueShortCode(maxRetries = 10): Promise<string> {
     const linkRepo = dataSource.getRepository(ExternalLink)
 
     let retries = 0

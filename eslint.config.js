@@ -8,6 +8,7 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.mjs'
 import {
     NO_EXPLICIT_ANY_FILES,
+    NO_INFERRABLE_TYPES_FILES,
     NO_NON_NULL_ASSERTION_FILES,
     PRODUCTION_TS_IGNORES,
     PRODUCTION_TYPED_TS_IGNORES,
@@ -107,6 +108,29 @@ const strictTsRuleOverrides = [
             '@typescript-eslint/no-extraneous-class': [1],
             '@typescript-eslint/restrict-plus-operands': [1],
             '@typescript-eslint/non-nullable-type-assertion-style': [1],
+        },
+    }),
+    createRuleOverride({
+        // ESLint 严格规则第三批：no-inferrable-types（非 typed 规则，覆盖 .vue 脚本块）与
+        // use-unknown-in-catch-callback-variable（typed 规则，.vue 无类型信息故只收 TS）
+        // 逐条清零后直接升 error 锁定回归；测试 / 脚本 / 迁移文件维持既有豁免边界。
+        files: NO_INFERRABLE_TYPES_FILES,
+        ignores: [...PRODUCTION_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/no-inferrable-types': 'error',
+        },
+    }),
+    createRuleOverride({
+        files: tsFiles,
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/use-unknown-in-catch-callback-variable': 'error',
         },
     }),
     createRuleOverride({
