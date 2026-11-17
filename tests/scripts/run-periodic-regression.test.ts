@@ -40,6 +40,8 @@ describe('run-periodic-regression', () => {
             'i18n:audit:field-copy',
             'duplicate-code:check',
             'governance:check:scripts',
+            'governance:check:index',
+            'governance:audit:unused-components',
             'governance:audit:eslint-debt',
             'governance:audit:comment-drift',
             'governance:audit:simple-duplicates',
@@ -49,6 +51,20 @@ describe('run-periodic-regression', () => {
             label: 'review-gate:generate:check',
             timeoutBudget: '20m',
         })
+    })
+
+    it('keeps the weekly governance entries on the warning surface', () => {
+        const governanceSteps = resolveRegressionProfile('weekly').steps
+            .filter((step) => step.label.startsWith('governance:'))
+
+        // 报告型治理入口不得升为阻断：只有 token-map 允许 required
+        expect(governanceSteps.filter((step) => step.required !== false).map((step) => step.label)).toEqual([
+            'governance:check:token-map',
+        ])
+        expect(governanceSteps.map((step) => step.label)).toEqual(expect.arrayContaining([
+            'governance:check:index',
+            'governance:audit:unused-components',
+        ]))
     })
 
     it('marks regression-log as archive-required once the activity window exceeds limits', () => {

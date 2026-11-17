@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-16
+last_sync: 2026-11-17
 translation_tier: summary-sync
 ---
 
@@ -148,11 +148,11 @@ Suggested default frequencies: ESLint / type debt / `max-lines` weekly; `init.sq
 
 | Cadence | Entry | Minimal fixed bundle | Blocker rule |
 | :--- | :--- | :--- | :--- |
-| Weekly | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` | Any required command failure is a blocker; active log window overrun first recorded as warning |
+| Weekly | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` + `governance:check:index` + `governance:audit:unused-components` | Any required command failure is a blocker; active log window overrun first recorded as warning |
 | Pre-release | `pnpm regression:pre-release` | `release:check:full` (incl. `i18n:audit:missing`) + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check` | Any required command failure is a blocker |
 | Phase close | `pnpm regression:phase-close` | `test:coverage` + `release:check:full` + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | Any required command failure is a blocker; `current.md` over 700 lines or 8 records without rotation is also a blocker |
 
-Additional constraints: generated artifacts are only reference evidence; formal summaries land in `docs/reports/regression/current.md`. `duplicate-code:check` defaults to warning baseline in weekly / pre-release and upgrades to strict in `phase-close`. Once a mainline has a stable governance script, wire it into a fixed entry or explicitly record why not; avoid "script exists but still manually re-run" drift. `governance:check:scripts`, `governance:audit:simple-duplicates`, `governance:audit:eslint-debt`, and `governance:audit:comment-drift` all run as warning baseline (`required: false`) in weekly; none block the fixed regression.
+Additional constraints: generated artifacts are only reference evidence; formal summaries land in `docs/reports/regression/current.md`. `duplicate-code:check` defaults to warning baseline in weekly / pre-release and upgrades to strict in `phase-close`. Once a mainline has a stable governance script, wire it into a fixed entry or explicitly record why not; avoid "script exists but still manually re-run" drift. `governance:check:scripts`, `governance:check:index`, `governance:audit:unused-components`, `governance:audit:simple-duplicates`, `governance:audit:eslint-debt`, and `governance:audit:comment-drift` all run as warning baseline (`required: false`) in weekly; none block the fixed regression, while `governance:check:token-map` stays required.
 
 ### 4.3 Irreversible Principle: No Retroactive Modifications
 -   **Non-Modification Rule**: Once a task in a phase is marked as `[x]` (Completed), retroactive modifications to that entry are forbidden, including:

@@ -57,7 +57,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；构建产物探针与截图落 `artifacts/review-gate/`。
     - **回滚边界**: 单组件独立 revert。
 
-- [ ] **6. 脚本治理入口晋级与回归接线（P3）**: 评估并把 `governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，复核 `docs:check:*:candidate` 频率，并同步 `scripts/README.md`。
+- [x] **6. 脚本治理入口晋级与回归接线（P3）**: 评估并把 `governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，复核 `docs:check:*:candidate` 频率，并同步 `scripts/README.md`。
     - **验收标准**: `pnpm regression:weekly --dry-run` 通过且步骤清单含新增项；README / 规范同步；周级实测（`--mode=warn`）通过。
     - **非目标**: 不把报告型入口升阻断；不改既有 5 个 governance 步骤的 required 口径；不为凑步骤增加长跑。
     - **验证 / 证据**: V0 + V1 + V2 + RG；dry-run 输出与周回归记录落盘。

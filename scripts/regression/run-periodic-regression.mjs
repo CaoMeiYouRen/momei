@@ -98,6 +98,8 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('i18n:audit:field-copy', 'i18n:audit:field-copy', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),
             createPnpmStep('governance:check:scripts', 'governance:check:scripts', { required: false, timeoutBudget: '10m' }),
+            createPnpmStep('governance:check:index', 'governance:check:index', { required: false, timeoutBudget: '5m' }),
+            createPnpmStep('governance:audit:unused-components', 'governance:audit:unused-components', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:audit:eslint-debt', 'governance:audit:eslint-debt', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:audit:comment-drift', 'governance:audit:comment-drift', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:audit:simple-duplicates', 'governance:audit:simple-duplicates', { required: false, timeoutBudget: '5m' }),
