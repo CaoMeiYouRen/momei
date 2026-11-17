@@ -31,6 +31,7 @@
     "governance:inventory:eslint-rules": "node scripts/governance/inventory-eslint-rules.mjs --output=artifacts/governance/eslint-rules-inventory-latest.json",
     "governance:inventory:font-sizes": "node scripts/governance/inventory-font-sizes.mjs --output=artifacts/governance/font-sizes-inventory-latest.json",
     "governance:audit:unused-components": "node scripts/governance/find-unused-components.mjs --output=artifacts/governance/unused-components-latest.json",
+    "governance:check:index": "node scripts/governance/check-governance-index.mjs --output=artifacts/governance/governance-index-latest.json",
     "governance:audit:comment-drift": "node scripts/governance/audit-comment-drift.mjs --output=artifacts/governance/comment-drift-latest.json",
     "governance:count:primevue-usage": "node scripts/governance/count-primevue-usage.mjs --output=artifacts/governance/primevue-usage-latest.json",
     "governance:check:token-map": "node scripts/governance/check-primevue-token-map.mjs",

@@ -1,0 +1,66 @@
+{
+    "version": 1,
+    "description": "docs/design/governance 的一次性 / 临时报告登记。在役文档应补入 index.md，不得为让检查归零而塞入本表；每条必须写明不进索引的理由与替代事实源。",
+    "entries": [
+        {
+            "path": "docs/design/governance/2026-07-22-dependency-upgrade-evaluation.md",
+            "reason": "一次性大版本升级评估（TypeScript 7 / ESLint 10），结论已由依赖通道与 issue #262 分批复用；当前事实源为 package.json 与 ESLint 配置。"
+        },
+        {
+            "path": "docs/design/governance/2026-07-22-h3-version-pinning.md",
+            "reason": "h3 版本锁定决策记录（已实施），结论已固化在依赖声明与 lockfile，无需长期索引入口。"
+        },
+        {
+            "path": "docs/design/governance/2026-07-23-nuxt-450-fetch-mock.md",
+            "reason": "Nuxt 4.5.0 `$fetch` mock 修复复盘，属一次性排障记录；现行口径见测试规范与测试替身实现。"
+        },
+        {
+            "path": "docs/design/governance/2026-08-29-primevue-5-license-change-evaluation.md",
+            "reason": "一次性许可证变更评估（PrimeVue 5），结论已随迁移方案落地；不构成当前口径。"
+        },
+        {
+            "path": "docs/design/governance/e2e-fixme-skip-analysis.md",
+            "reason": "E2E fixme / skip 现状的一次性分析，修复已完成；现行口径见测试规范与用例本身。"
+        },
+        {
+            "path": "docs/design/governance/e2e-seed-test-investigation.md",
+            "reason": "seed-test 插件失效的一次性排查记录（已解决）；结论已回写测试替身与 CI 配置。"
+        },
+        {
+            "path": "docs/design/governance/editor-toolbar-consolidation-eval.md",
+            "reason": "编辑器工具栏收敛的一次性评估，结论已进入后续批次实施，无需索引常驻。"
+        },
+        {
+            "path": "docs/design/governance/eslint-typescript-baseline.md",
+            "reason": "2026-07-21 的规则命中基线快照，已被 `governance:inventory:eslint-rules` 的机器产物取代，手工快照不再维护。"
+        },
+        {
+            "path": "docs/design/governance/i18n-docs-freshness-audit-ko-ja.md",
+            "reason": "ko-KR / ja-JP 文档 freshness 的一次性审计报告，清偿结论已落到翻译 tier 与镜像文件。"
+        },
+        {
+            "path": "docs/design/governance/i18n-quality-audit-ko-ja.md",
+            "reason": "ko-KR / ja-JP 翻译质量的一次性审计报告，修复已随批次落地。"
+        },
+        {
+            "path": "docs/design/governance/phase-66-coverage-gap-analysis.md",
+            "reason": "第八批覆盖率缺口的一次性分析，缺口已由后续覆盖率批次清偿；现行基线以 `artifacts/coverage/` 与 CI 为准。"
+        },
+        {
+            "path": "docs/design/governance/script-promotion-eval-phase65.md",
+            "reason": "第六十五阶段脚本升格的一次性评估，结论已落到 `scripts/README.md` 与 `regression:weekly`。"
+        },
+        {
+            "path": "docs/design/governance/script-promotion-eval-phase66.md",
+            "reason": "第六十六阶段 `audit:comment-drift` 升格的一次性复核，结论已落到调度配置。"
+        },
+        {
+            "path": "docs/design/governance/settings-form-ui-phase1-gap-inventory.md",
+            "reason": "设置表单 UI Phase 1 的一次性盘点报告，缺口已随批次补齐；现行映射见设置表单实现。"
+        },
+        {
+            "path": "docs/design/governance/wechatsync-tag-copyright-fix-plan.md",
+            "reason": "WechatSync 标签尾注与版权换行的一次性修复方案，修复已落地；现行口径见分发模板实现与测试。"
+        }
+    ]
+}

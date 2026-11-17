@@ -33,7 +33,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；inventory 产物与台账单测输出落 `artifacts/governance/`。
     - **回滚边界**: ESLint 配置与命中修复同批 revert，台账字段独立 revert。
 
-- [ ] **2. 治理索引补全与索引检查（P2）**: 对 `docs/design/governance` 69 份文档分类（在役补索引 / 过期入 `archive/` / 临时报告进 allowlist 并注明理由；断言排除 `index.md` 与 `archive/**`）；新增 `scripts/governance/check-governance-index.mjs` 与 `pnpm governance:check:index`（报告模式）并补单测。
+- [x] **2. 治理索引补全与索引检查（P2）**: 对 `docs/design/governance` 69 份文档分类（在役补索引 / 过期入 `archive/` / 临时报告进 allowlist 并注明理由；断言排除 `index.md` 与 `archive/**`）；新增 `scripts/governance/check-governance-index.mjs` 与 `pnpm governance:check:index`（报告模式）并补单测。
     - **验收标准**: 脚本在当前 HEAD 输出 0 未登记项；单测覆盖已索引 / 未索引 / allowlist 三类；`docs:check:links` / `line-count` / `markers` 保持通过。
     - **非目标**: 不改文档正文结论；不删除文档；不把检查直接升阻断；不重命名既有文档。
     - **验证 / 证据**: V0 + V1 + V2 + RG；脚本 JSON 与分类清单落 `artifacts/governance/`。
