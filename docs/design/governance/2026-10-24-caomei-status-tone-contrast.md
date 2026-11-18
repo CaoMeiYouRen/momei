@@ -1,7 +1,7 @@
 # caomei-ui 状态色 tone 对比度修正方案
 
 > 状态：**被上游取代（2026-11-01）**。`caomei-ui@1.0.0-rc.1` 新增 `--caomei-color-*-text` 角色，把「状态文字 / 边框」与「soft 底色 tone」解耦，正是本方案要解决的对比度问题；本方案原定「把 tone 改 light `-700` / dark `-400`」的做法不再执行（改 tone 会连带动 soft 底色），改为在第六十九阶段条目 1 中接线新角色。本文件保留为问题取证与实测记录（§1.1 的 2.12 / 2.59 / 3.39 仍是「为什么必须修」的事实依据）。
-> 落点：已上收为 [第六十九阶段](../../plan/todo.md) 条目 1（backlog 短期候选 #12 已改写为一行历史说明）；迁移批次事实源为 [PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)（§3.10 / §5.2）。
+> 落点：已上收为 [第六十九阶段](../../plan/todo.md) 条目 1（backlog 短期候选 #12 已迁入 [短期候选解决归档](../../plan/archive/backlog-resolved-candidates.md)）；迁移批次事实源为 [PrimeVue → caomei-ui 迁移方案](./2026-09-18-primevue-to-caomei-ui-migration-plan.md)（§3.10 / §5.2）。
 
 ## 0. 方案替代说明（2026-11-01）
 

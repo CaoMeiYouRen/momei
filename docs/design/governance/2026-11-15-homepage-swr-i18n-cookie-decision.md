@@ -78,4 +78,4 @@ curl -sS -D - -o /dev/null https://momei.app/robots.txt | grep -Ei 'cache-contro
 
 ### 7.4 后续候选
 
-已登记 backlog #18「首页缓存与语言检测解耦（② + ③ 组合）」，包含：`useCookie: false` 或仅在显式切换时写 cookie、`/` 去 `Set-Cookie`、客户端重定向 E2E、边缘 Cache Key 运维配置与命中验证。未完成前不得放宽 nitropack 缓存安全规则。
+已登记 backlog 短期候选「首页缓存与语言检测解耦（② + ③ 组合）」，包含：`useCookie: false` 或仅在显式切换时写 cookie、`/` 去 `Set-Cookie`、客户端重定向 E2E、边缘 Cache Key 运维配置与命中验证。未完成前不得放宽 nitropack 缓存安全规则。

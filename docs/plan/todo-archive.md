@@ -103,7 +103,7 @@
     - **完成摘要**: 新增 `PostEditorConsolidatedReviewPanel`（问题修正/视角建议双 Tab + editor/reader，`inert`/`aria-pressed`）；`usePostEditorAI.consolidatedReview` 单入口并行 `/api/ai/review` + `/api/ai/perspective-check`（`Promise.allSettled`），缓存键含 language、零结果参与缓存、部分失败降级、重试清失败分段；header/页面切换到合并面板，旧面板保留未删。相关 4 套件 84 例、V3 探针 6/6。提交 `ede17ef7`，Round 3 Pass。
 
 - [x] **4. 首页 SWR / i18n cookie 决策与最小实现（P2）**
-    - **完成摘要**: 线上探针确认 `/` 每次写 `i18n_redirected`、无 `cache-control`、`cf-cache-status: DYNAMIC`；`/robots.txt` 为 `HIT`（`age: 95`），边缘可用但被 `Set-Cookie` 阻断。选定 ① 保持现状 + 边缘兜底（零代码改动），②/③ 转 backlog #18；决策文档含证据表、取舍与可复跑探针。提交 `f18da5ae`，Round 2 Pass。
+    - **完成摘要**: 线上探针确认 `/` 每次写 `i18n_redirected`、无 `cache-control`、`cf-cache-status: DYNAMIC`；`/robots.txt` 为 `HIT`（`age: 95`），边缘可用但被 `Set-Cookie` 阻断。选定 ① 保持现状 + 边缘兜底（零代码改动），②/③ 转 backlog「首页缓存与语言检测解耦」；决策文档含证据表、取舍与可复跑探针。提交 `f18da5ae`，Round 2 Pass。
 
 - [x] **5. 覆盖率第十七批（P2）**
     - **完成摘要**: 四脚本模块补测（audit-duplicate 50→288/291、check-governance 108→351/352、inventory 16→230/231、capture 39→226/229），新增 4 个测试文件 155 例；干净全量 statements 31,597/38,076 = **82.98%** → 32,484/38,103 = **85.25%**（+887 条 / 分母 +27 / +2.27pp）。提交 `8019de79`，Round 3 Pass。
