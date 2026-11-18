@@ -25,6 +25,9 @@ async function gotoAdminRoute(page: import('@playwright/test').Page, routePath: 
         'interrupted by another navigation',
         'NS_BINDING_ABORTED',
         'frame was detached',
+        // Firefox 在多路由串行导航时偶发 `page.goto: <unknown error>`（服务端无 5xx，
+        // 每次落在不同路由）；只重试导航本身，URL 与就绪元素断言仍强制执行。
+        '<unknown error>',
     ]
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
