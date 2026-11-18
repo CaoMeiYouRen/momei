@@ -46,6 +46,7 @@ describe('run-periodic-regression', () => {
             'governance:audit:comment-drift',
             'governance:audit:simple-duplicates',
             'governance:check:token-map',
+            'probe:build-geometry',
         ])
         expect(resolveRegressionProfile('phase-close').steps.at(-1)).toMatchObject({
             label: 'review-gate:generate:check',
@@ -65,6 +66,8 @@ describe('run-periodic-regression', () => {
             'governance:check:index',
             'governance:audit:unused-components',
         ]))
+        // 构建产物几何探针同样只报告，不阻断 weekly
+        expect(resolveRegressionProfile('weekly').steps.find((step) => step.label === 'probe:build-geometry')?.required).toBe(false)
     })
 
     it('marks regression-log as archive-required once the activity window exceeds limits', () => {

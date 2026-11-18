@@ -104,6 +104,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('governance:audit:comment-drift', 'governance:audit:comment-drift', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:audit:simple-duplicates', 'governance:audit:simple-duplicates', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('governance:check:token-map', 'governance:check:token-map', { timeoutBudget: '5m' }),
+            createPnpmStep('probe:build-geometry', 'probe:build-geometry', { required: false, timeoutBudget: '10m' }),
         ],
     },
     'pre-release': {

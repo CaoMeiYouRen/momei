@@ -58,6 +58,7 @@
     "test:visual:update": "node scripts/testing/run-visual.mjs --update-snapshots",
     "test:visual:parity": "node scripts/testing/run-visual-parity.mjs",
     "test:visual:reference": "node scripts/testing/capture-visual-reference.mjs",
+    "probe:build-geometry": "node scripts/testing/probe-build-geometry.mjs",
     "typecheck": "nuxt typecheck",
     "commit": "cz",
     "prepare": "husky",

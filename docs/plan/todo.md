@@ -33,7 +33,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；连跑日志与 flake 前后对比落 `artifacts/review-gate/`。
     - **回滚边界**: 按测试文件独立 revert。
 
-- [ ] **2. 构建产物尺寸探针常驻（P2）**: 新增 `scripts/testing/probe-build-geometry.mjs`（`.output` 产物 + `getComputedStyle` 实测几何，清单可配置）与 `package.json` 的 `probe:build-geometry` 稳定入口，接入 `regression:weekly` 的 `required: false`，同步 `scripts/README.md`，补三类路径单测。
+- [x] **2. 构建产物尺寸探针常驻（P2）**: 新增 `scripts/testing/probe-build-geometry.mjs`（`.output` 产物 + `getComputedStyle` 实测几何，清单可配置）与 `package.json` 的 `probe:build-geometry` 稳定入口，接入 `regression:weekly` 的 `required: false`，同步 `scripts/README.md`，补三类路径单测。
     - **验收标准**: `pnpm probe:build-geometry --dry-run` 与真实产物跑均通过；weekly dry-run 清单含该步骤；AppAvatar 三档实测 64 / 48 / 32px 复现；单测覆盖解析 / 缺元素 / 失败路径。
     - **非目标**: 不引入新浏览器依赖；不把探针升为阻断门禁；不扩成全站视觉回归。
     - **验证 / 证据**: V0 + V1 + V2 + RG；探针 JSON 落 `artifacts/review-gate/`。
