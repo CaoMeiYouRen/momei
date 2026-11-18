@@ -305,6 +305,7 @@ pnpm run test:coverage
 | `pnpm test:visual:parity -- --grep=<testName>` | 定向运行单个 / 一组用例。脚本会剔除 pnpm 透传的 `--` 分隔符后再转发（不带 `--` 的 `pnpm test:visual:parity --grep=<testName>` 亦可）；等价直连命令为 `pnpm exec playwright test --config=playwright.visual-parity.config.ts --grep=<testName>` |
 | `pnpm test:visual:reference -- --force-all` | 忽略已有参考态保护，按当前 HEAD 全量重采 82 张参考态（CI 刷新工作流使用） |
 | `pnpm test:visual:reference -- --revert=<迁移提交> --only=<route-name>` | 采集指定历史迁移提交的「迁移前」参考态（`git worktree` 检出 + 回退该提交源码到父提交 + 构建），用于历史取证 |
+| `pnpm prune:parity-allowlist -- --dry-run` | 列出重采后待清零的 `allowlist` 条目；去掉 `--dry-run` 落盘（追加 note 历史，不改预算） |
 
 > 定向运行注意：若直接对 Playwright 传入 `-- --grep=...`（即 `pnpm exec playwright test --config=playwright.visual-parity.config.ts -- --grep=...`），Playwright 会把 `--` 当作选项终止符，忽略其后的 `--grep` 并运行全部用例；应省略 `--` 或走上面的脚本入口。
 
@@ -324,9 +325,10 @@ pnpm run test:coverage
 **参考态采集与更新流程**
 
 1. 当前基线刷新：运行 `Refresh Visual Reference` 工作流（`gh workflow run visual-reference-refresh.yml --ref master`），在 ubuntu runner 构建后以 `--force-all` 重采全部参考态，下载 artifact 覆盖 `tests/visual/parity/reference/` 与 `reference-manifest.json`，并把 `parity-budget.json` 的 allowlist 按实测归零或重取；CI 产物是门禁唯一判定依据。
-2. 历史取证：已迁移路由如需复现「迁移前」原貌，用 `--revert=<迁移提交> --only=<route-name>`（脚本以 `git worktree` 检出 HEAD、按当前锁文件安装依赖、把该迁移提交的源码改动回退到父提交、构建后采集）；`--ref=<历史 ref>` 直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃。
-3. 参考态与基线层 `<name>.png` 并存、互不覆盖；参考快照随仓库提交（`.gitignore` 已放行 `tests/visual/parity/reference/**/*.png`）。
-4. 环境元数据（浏览器版本、playwright 版本、node、平台、视口、locale、时区、DSF、动画 / 光标、pixel threshold）记录于 `tests/visual/parity/reference-manifest.json`；跨环境渲染差异以 CI 产物为准。
+2. 允许清单清零：重采落地后运行 `pnpm prune:parity-allowlist --dry-run` 核对，再去掉 `--dry-run` 落盘（按 testName 清零 `allowlist`，只在 `note` 追加清零记录）；随后复跑 `pnpm test:visual:parity`。**「重采后的绿」**指参考态与当前态同源、`allowlist` 为 0 且未归因差异在预算内；**「预算内吸收的绿」**指仍有 `allowlist` 扣减或 tier 预算吞下差异，后者必须登记到 [视觉一致性偏差处置表](../design/governance/visual-parity-deviation-register.md)，不得以「门禁通过」代替归因。清零失败时回退方式：`git checkout -- tests/visual/parity-budget.json` 后用 `--test-name` 逐条重试，禁止手改 note 历史。
+3. 历史取证：已迁移路由如需复现「迁移前」原貌，用 `--revert=<迁移提交> --only=<route-name>`（脚本以 `git worktree` 检出 HEAD、按当前锁文件安装依赖、把该迁移提交的源码改动回退到父提交、构建后采集）；`--ref=<历史 ref>` 直接检出模式仍保留，但部分历史 ref 会因依赖子路径导出缺失而构建崩溃。
+4. 参考态与基线层 `<name>.png` 并存、互不覆盖；参考快照随仓库提交（`.gitignore` 已放行 `tests/visual/parity/reference/**/*.png`）。
+5. 环境元数据（浏览器版本、playwright 版本、node、平台、视口、locale、时区、DSF、动画 / 光标、pixel threshold）记录于 `tests/visual/parity/reference-manifest.json`；跨环境渲染差异以 CI 产物为准。
 
 **报告**
 

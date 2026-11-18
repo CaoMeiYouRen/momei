@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-15
+last_sync: 2026-11-18
 translation_tier: summary-sync
 ---
 
@@ -218,3 +218,5 @@ Fix tasks follow the "minimal reproduction test → targeted subset → batch fi
 > Sync note (2026-11-13): §7.2 now judges against a CI-recaptured reference baseline and both visual layers are blocking (the job-level `continue-on-error` was removed); `pnpm test:visual:reference -- --force-all` is the refresh entry.
 
 > Sync note (2026-11-15): §2.2 adds guard assertions that pin the call form after stripping comments (with a cross-reference to §7.3 discrimination checks); §2.3 clarifies that guard tests add files/tests but only new source files change the coverage denominator, and that `.vitest-cache` / `.vitest-cache-coverage` are separate caches; §7.3 adds the local E2E port override (`E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`), the firefox navigation flake rule, and the admin-list click flake registration with its revocation condition.
+
+> Sync note (2026-11-18): §7.2 adds the `pnpm prune:parity-allowlist -- --dry-run` entry and a clearing step in the reference refresh flow; it distinguishes "green after recapture" from "green absorbed within budget" and requires the latter to be registered in the visual-parity deviation register.

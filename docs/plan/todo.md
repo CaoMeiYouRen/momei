@@ -45,7 +45,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；daily 与 alerts 产物落 `artifacts/security/`。
     - **回滚边界**: 两个脚本独立 revert。
 
-- [ ] **4. parity 允许清单清零脚本化（P3）**: 新增 `scripts/testing/prune-parity-allowlist.mjs`（按 testName 清零 `parity-budget.json` 的 `allowlist`，保留 note 历史），文档化「CI 重采 → prune → 复跑 parity」流程并补单测。
+- [x] **4. parity 允许清单清零脚本化（P3）**: 新增 `scripts/testing/prune-parity-allowlist.mjs`（按 testName 清零 `parity-budget.json` 的 `allowlist`，保留 note 历史），文档化「CI 重采 → prune → 复跑 parity」流程并补单测。
     - **验收标准**: `--dry-run` 输出待清零条目；单测覆盖命中 / 未命中 / 幂等；文档含流程与失败回退，并显式区分「重采后的绿」与「预算内吸收的绿」（后者须登记到偏差处置表）。
     - **非目标**: 不自动重采参考态；不改预算阈值；不删 note 历史校准记录。
     - **验证 / 证据**: V0 + V1 + RG；dry-run 输出落 `artifacts/review-gate/`。

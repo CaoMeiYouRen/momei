@@ -59,6 +59,7 @@
     "test:visual:parity": "node scripts/testing/run-visual-parity.mjs",
     "test:visual:reference": "node scripts/testing/capture-visual-reference.mjs",
     "probe:build-geometry": "node scripts/testing/probe-build-geometry.mjs",
+    "prune:parity-allowlist": "node scripts/testing/prune-parity-allowlist.mjs",
     "typecheck": "nuxt typecheck",
     "commit": "cz",
     "prepare": "husky",
