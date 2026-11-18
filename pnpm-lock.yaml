@@ -2464,10 +2464,6 @@ packages:
     peerDependencies:
       vue: '>=3.0.1'
 
-  '@lucide/vue@1.73.0':
-    resolution: {integrity: sha512-QVVRSgu2rqRX3NAUktT9venW0Bvtr03aCZjhFRLwnV3uqLyR7KCTOx5mMlukhw0aiyjC3D6w2b+fmy4MeM5R3Q==}
-    peerDependencies:
-      vue: '>=3.0.1'
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -14970,10 +14966,6 @@ snapshots:
       mdast-util-mdx: 2.0.1(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
-
-  '@lucide/vue@1.73.0(vue@3.5.45(typescript@6.0.3))':
-    dependencies:
-      vue: 3.5.45(typescript@6.0.3)
 
   '@lucide/vue@1.73.0(vue@3.5.45(typescript@6.0.3))':
     dependencies:
