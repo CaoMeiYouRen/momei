@@ -57,7 +57,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。
     - **回滚边界**: 测试文件与覆盖率产物独立可回滚。
 
-- [ ] **6. 依赖 PR 处置与已合并 major 的追溯评估（P2）**: 处置唯一 open PR #1068（`sanitize-html` patch）并在合并后本地 `pnpm i --frozen-lockfile` 校验锁文件；对已被 Mergify 自动合并的 `@vite-pwa/nuxt` 2.0.1（`cedcc241`）做追溯评估（PWA 配置兼容、Workbox 7 差异、离线与 SW 更新语义、构建产物与 SW 注册实测），给出保留 / 回滚结论与回滚步骤；把「连续 rebase 自动合并 → 坏锁文件 + major 静默落地」写入 backlog #10 的系统性解法候选。
+- [x] **6. 依赖 PR 处置与已合并 major 的追溯评估（P2）**: 处置唯一 open PR #1068（`sanitize-html` patch）并在合并后本地 `pnpm i --frozen-lockfile` 校验锁文件；对已被 Mergify 自动合并的 `@vite-pwa/nuxt` 2.0.1（`cedcc241`）做追溯评估（PWA 配置兼容、Workbox 7 差异、离线与 SW 更新语义、构建产物与 SW 注册实测），给出保留 / 回滚结论与回滚步骤；把「连续 rebase 自动合并 → 坏锁文件 + major 静默落地」写入 backlog #10 的系统性解法候选。
     - **验收标准**: #1068 已合并、锁文件 `--frozen-lockfile` 本地通过且 CI 绿；2.0.1 追溯评估文档含影响面 / 实测 / 保留或回滚结论与回滚步骤；`security:audit-deps` 与 `security:alerts` 仍 Pass。
     - **非目标**: 不在本阶段新增 major 迁移（已落地的 2.0.1 只做追溯评估与去留结论）；不改 PWA 运行时策略；不改告警 severity 口径；不直接改 `.github/mergify.yml`。
     - **验证 / 证据**: V0 + V1 + RG；评估文档落 `docs/design/governance/`，PR 结论落 Review Gate 证据。
