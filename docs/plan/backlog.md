@@ -213,7 +213,7 @@
 
 ### 门禁与回归
 
-- **`networkidle` 依赖外网可达性（2026-10-15 登记，责任人：门禁 / E2E 收敛）**: 视觉一致性门禁与 E2E 均以 `waitForLoadState('networkidle')` 判定就绪，而页面存在长期 pending 连接（`/api/notifications/stream` SSE、外部 gravatar 头像），无外网环境下永不空闲（本地实测：公开页 E2E 10 处失败、`/admin/users` 门禁需改用 `stable: lenient` 才可运行）；CI（有外网）与本地（无外网）像素 / 就绪结果不可复现，与迁移方案 §8.2「跨环境差异」条款冲突。处置口径（收窄为「阻断非本地请求」还是明确保留）由第七十九阶段条目 1 给出结论。
+- **`networkidle` 依赖外网可达性（2026-10-15 登记，责任人：门禁 / E2E 收敛）**: 视觉一致性门禁与 E2E 均以 `waitForLoadState('networkidle')` 判定就绪，而页面存在长期 pending 连接（`/api/notifications/stream` SSE、外部 gravatar 头像），无外网环境下永不空闲（本地实测：公开页 E2E 10 处失败、`/admin/users` 门禁需改用 `stable: lenient` 才可运行）；CI（有外网）与本地（无外网）像素 / 就绪结果不可复现，与迁移方案 §8.2「跨环境差异」条款冲突。**处置结论（2026-11-18，第七十九阶段条目 1）：明确保留**——`networkidle` 只影响 E2E / 视觉层的就绪判定，CI（有外网 + 单 worker）为最终裁决；本地无外网已有 `stable: 'lenient'`、水合后交互、业务锚点等降级路径，收窄为「阻断非本地请求」需改动全部基线就绪语义且收益不足。重新评估条件：CI 出现 `networkidle` 超时类失败连续 2 次，或 `lenient` 豁免面超过 3 条。详见 [等待口径与处置结论](../design/governance/2026-11-18-test-flake-waiting-and-networkidle.md)。
 - **vitest 转换缓存导致本地模块解析失败（2026-10-22 登记，责任人：测试工程）**: 本地 Nuxt 测试环境存在 `node_modules/.vitest-cache` 热命中后 `utils/shared/post-copyright.ts` 等文件报 `Cannot find module '/@id/virtual:intlify-i18n-N'` 的问题（冷缓存可正常加载，CI 未复现），`tests/server/notification*.test.ts` 与 `post-distribution*.test.ts` 受影响。当前口径：干净全量跑前移走 `.vitest-cache`；`test:coverage` 是否需要显式 `--no-cache` 或隔离缓存目录仍待评估。
 
 ### 迁移收尾与视觉门禁

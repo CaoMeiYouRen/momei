@@ -1,7 +1,8 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h } from 'vue'
 import SnippetEditDialog from './snippet-edit-dialog.vue'
+import { settleUi } from '@/tests/helpers/ui-interaction'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：片段编辑弹窗的渲染与提交契约。
@@ -125,11 +126,12 @@ describe('snippet-edit-dialog 迁移契约', () => {
 
     it('保存时提交 content / status / media 到片段接口', async () => {
         const wrapper = await mountDialog()
+        await settleUi()
         const footerButtons = wrapper.find('.edit-dialog-footer').findAll('.caomei-button')
 
         expect(footerButtons).toHaveLength(2)
         await footerButtons[1]!.trigger('click')
-        await nextTick()
+        await settleUi()
 
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/snippets/s-1', expect.objectContaining({
             method: 'PUT',

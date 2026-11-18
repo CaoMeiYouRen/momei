@@ -27,7 +27,7 @@
 
 **排程与移出顺序**: `1 → 2 → 3 → 5 → 6 → 4`；超时按 `4 → 6 → 5` 移出。
 
-- [ ] **1. 测试 flake 收敛与门禁可信度（P1 修复型）**: 修复管理端 6 处「交互后立即断言」时序 flake（`admin/users` 的 `@page` 与 `onFilterChange`、`snippets/snippet-edit-dialog` 保存载荷、`external-links` 统计弹窗、`commercial-settings` 脏状态与保存、`agreements-settings` 翻译模式切换、`app-uploader` file input），统一「等待可观测状态」口径并评估 `networkidle` 与重试策略。
+- [x] **1. 测试 flake 收敛与门禁可信度（P1 修复型）**: 修复管理端 6 处「交互后立即断言」时序 flake（`admin/users` 的 `@page` 与 `onFilterChange`、`snippets/snippet-edit-dialog` 保存载荷、`external-links` 统计弹窗、`commercial-settings` 脏状态与保存、`agreements-settings` 翻译模式切换、`app-uploader` file input），统一「等待可观测状态」口径并评估 `networkidle` 与重试策略。
     - **验收标准**: 6 个已知用例各连跑 20 次 0 失败；`pnpm test:coverage` 连跑 3 次全绿无 retry；`pnpm regression:phase-close` 本地一次 Pass（3001 占用时以 `E2E_PORT=3011` 跑通并登记）；给出 backlog「`networkidle` 依赖外网可达性」待跟踪项的处置结论（上收或明确保留）。
     - **非目标**: 不改业务逻辑与组件契约；不降低或删除断言；不放宽覆盖率阈值；不新增 `.skip` / `.only`；不改 CI required 口径；不用 `waitForTimeout` 换抖动。
     - **验证 / 证据**: V0 + V1 + V2 + RG；连跑日志与 flake 前后对比落 `artifacts/review-gate/`。

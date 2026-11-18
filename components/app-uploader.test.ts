@@ -1,8 +1,9 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h } from 'vue'
 import AppUploader from './app-uploader.vue'
 import { UploadType } from '@/composables/use-upload'
+import { expectEventually, settleUi } from '@/tests/helpers/ui-interaction'
 
 /**
  * `AppUploader` 的单元契约。
@@ -113,7 +114,7 @@ async function mountUploader(
         slots,
         global: { stubs },
     })
-    await nextTick()
+    await settleUi()
 
     return wrapper
 }
@@ -156,6 +157,7 @@ describe('AppUploader', () => {
         const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => undefined)
 
         await wrapper.find('.caomei-button').trigger('click')
+        await settleUi()
 
         expect(clickSpy).toHaveBeenCalledTimes(1)
     })
@@ -171,11 +173,13 @@ describe('AppUploader', () => {
         })
 
         await wrapper.find('input[type="file"]').trigger('change')
-        await nextTick()
+        await settleUi()
 
-        expect(uploadFileMock).toHaveBeenCalledTimes(1)
-        expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['https://assets.example.com/link.png'])
-        expect(fileInput.value).toBe('')
+        await expectEventually(() => {
+            expect(uploadFileMock).toHaveBeenCalledTimes(1)
+            expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['https://assets.example.com/link.png'])
+            expect(fileInput.value).toBe('')
+        })
     })
 
     it('上传失败时不回写 modelValue（错误提示由 useUpload 统一处理）', async () => {
@@ -189,9 +193,9 @@ describe('AppUploader', () => {
         })
 
         await wrapper.find('input[type="file"]').trigger('change')
-        await nextTick()
+        await settleUi()
 
-        expect(uploadFileMock).toHaveBeenCalledTimes(1)
+        await expectEventually(() => expect(uploadFileMock).toHaveBeenCalledTimes(1))
         expect(wrapper.emitted('update:modelValue')).toBeUndefined()
     })
 
@@ -225,11 +229,13 @@ describe('AppUploader', () => {
         await wrapper.find('.app-uploader').trigger('drop', {
             dataTransfer: { files: createFileList([new File(['x'], 'dropped.png', { type: 'image/png' })]) },
         })
-        await nextTick()
+        await settleUi()
 
-        expect(uploadFileMock).toHaveBeenCalledTimes(1)
-        expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['https://assets.example.com/dropped.png'])
-        expect(wrapper.find('.app-uploader').classes()).not.toContain('app-uploader--dragging')
+        await expectEventually(() => {
+            expect(uploadFileMock).toHaveBeenCalledTimes(1)
+            expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['https://assets.example.com/dropped.png'])
+            expect(wrapper.find('.app-uploader').classes()).not.toContain('app-uploader--dragging')
+        })
     })
 
     it('上传中或禁用时阻断拖放与落文件', async () => {
@@ -262,6 +268,7 @@ describe('AppUploader', () => {
         const fileInput = wrapper.find('input[type="file"]').element as HTMLInputElement
         const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => undefined)
         await button.trigger('click')
+        await settleUi()
         expect(clickSpy).not.toHaveBeenCalled()
     })
 

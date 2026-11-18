@@ -365,7 +365,8 @@ pnpm run test:coverage
 | 登录态页面的 SSE | `/api/notifications/stream` 会让 `networkidle` 永不达成；parity 路由须标 `stable: 'lenient'`，E2E 改用 `domcontentloaded` 或业务锚点。 |
 | 参考态同批采集 | 新增待迁移 parity 路由必须在同一批登记并采集参考态，否则门禁因缺快照直接失败；采集中途失败时已落盘的 PNG 不会写入 manifest，需 `--only` 重采补齐来源。 |
 | 第二实例配置单一来源 | 多个 Playwright 配置共用同一第二实例时，env / command / baseURL 必须抽到单一模块；副本漏一个 `DATABASE_SYNCHRONIZE` 就会让另一层复用实例时失败。 |
-| 管理端列表点击偶发丢失 | 全量 coverage 并发下 `pages/admin/posts/index.test.ts` 的 `onPageMock` 与 `pages/admin/users/index.test.ts` 的 `confirmRequireMock` 各出现过一次「点击后 0 次调用」，孤立运行 100% 通过；先按环境抖动处理（定向复跑 / CI 复跑），不据此改实现；同一用例复现 ≥2 次即按缺陷排查并撤销本行。 |
+| 交互后立即断言 | 管理端点击 / 输入后只等一次 `nextTick()`，async 处理器的 `await` 链与 `onMounted` 拉取可能尚未落地，表现为「mock 0 次调用」或读到首帧空态；统一用 `tests/helpers/ui-interaction.ts` 的 `settleUi()`（排空微任务 + 渲染 flush）、`clickWhenReady()`（目标缺失即抛错）与 `expectEventually()`（有界等待终态），禁止 `?.trigger` 静默跳过与 `waitForTimeout`；口径见 [等待口径治理](../design/governance/2026-11-18-test-flake-waiting-and-networkidle.md)。 |
+| 管理端列表点击偶发丢失 | 全量 coverage 并发下 `pages/admin/posts/index.test.ts` 的 `onPageMock` 与 `pages/admin/users/index.test.ts` 的 `confirmRequireMock` 各出现过一次「点击后 0 次调用」，孤立运行 100% 通过。已按上一条统一等待口径并消除可选链静默跳过；再次复现时按「交互目标是否存在 → 处理器 await 链 → 渲染 flush」三段排查，不再默认归为环境抖动。 |
 | 本机 E2E 端口被占用 | E2E 与视觉层共用 `E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`（默认 `127.0.0.1` / 3001 / 3002）；非 loopback 主机、非法端口或两端口相同会直接抛错，CI 未设置这些变量时保持默认值。 |
 | WSL 端口被宿主占用 | WSL2 下 Windows 侧常驻进程可能占用 3001（WSL 内 `ss` 看不到、`curl` 返回 404），Playwright webServer 会 `EADDRINUSE`；本机改用 `E2E_PORT` / `E2E_INSTALLATION_PORT` 覆盖，CI 保持默认。 |
 | `.mjs` 脚本覆盖率口径 | 子进程式 CLI 测试不计入 v8 覆盖；脚本内部逻辑必须 `export`（或加带默认值的依赖注入参数）并由同进程测试直接调用，否则「CLI 全绿」不等于有覆盖率。测试文件 / 用例总数可用 `pnpm exec vitest list` / `--filesOnly` 取得，无需为计数重跑全量。 |

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createLegacyToastApi } from '@/tests/helpers/caomei-service-mocks'
+import { expectEventually, settleUi } from '@/tests/helpers/ui-interaction'
 
 const {
     appFetchMock,
@@ -81,7 +82,7 @@ const stubs = {
 async function mountComponent() {
     const { default: CommercialSettings } = await import('./commercial-settings.vue')
 
-    return mountSuspended(CommercialSettings, {
+    const wrapper = await mountSuspended(CommercialSettings, {
         global: {
             stubs,
             mocks: {
@@ -89,6 +90,10 @@ async function mountComponent() {
             },
         },
     })
+    // 设置项加载在 `onMounted` 中异步完成；等状态落地再返回，避免测试读到首帧空态。
+    await settleUi()
+
+    return wrapper
 }
 
 function createFetchError(message: string, key: 'message' | 'statusMessage' = 'message') {
@@ -138,30 +143,34 @@ describe('CommercialSettings', () => {
         await wrapper.get('.update-social').trigger('click')
         await wrapper.get('.update-donation').trigger('click')
         await wrapper.get('.toggle-switch-stub').setValue(false)
+        await settleUi()
 
         expect(wrapper.find('.commercial-link-manager-stub').exists()).toBe(false)
         expect(wrapper.find('.status-label').text()).toBe('pages.admin.settings.system.floating_actions.unsaved')
         expect(wrapper.get('.primary-action').attributes('disabled')).toBeUndefined()
 
         await wrapper.get('.primary-action').trigger('click')
+        await settleUi()
 
-        expect(appFetchMock).toHaveBeenCalledWith('/api/admin/settings/commercial', {
-            method: 'PUT',
-            body: {
-                enabled: false,
-                socialLinks: [
-                    { name: 'X', url: 'https://x.com/momei' },
-                ],
-                donationLinks: [
-                    { name: 'Buy Me a Coffee', url: 'https://buymeacoffee.com/momei' },
-                ],
-            },
+        await expectEventually(() => {
+            expect(appFetchMock).toHaveBeenCalledWith('/api/admin/settings/commercial', {
+                method: 'PUT',
+                body: {
+                    enabled: false,
+                    socialLinks: [
+                        { name: 'X', url: 'https://x.com/momei' },
+                    ],
+                    donationLinks: [
+                        { name: 'Buy Me a Coffee', url: 'https://buymeacoffee.com/momei' },
+                    ],
+                },
+            })
+            expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
+                severity: 'success',
+                detail: 'pages.settings.commercial.success',
+            }))
+            expect(wrapper.find('.status-label').text()).toBe('pages.admin.settings.system.floating_actions.saved')
         })
-        expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
-            severity: 'success',
-            detail: 'pages.settings.commercial.success',
-        }))
-        expect(wrapper.find('.status-label').text()).toBe('pages.admin.settings.system.floating_actions.saved')
     })
 
     it('shows backend detail when saving fails', async () => {
@@ -185,11 +194,12 @@ describe('CommercialSettings', () => {
 
         await wrapper.get('.toggle-switch-stub').setValue(false)
         await wrapper.get('.primary-action').trigger('click')
+        await settleUi()
 
-        expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
+        await expectEventually(() => expect(toastAddMock).toHaveBeenCalledWith(expect.objectContaining({
             severity: 'error',
             detail: 'Save rejected',
-        }))
+        })))
     })
 
     it('shows a load error toast and forwards feedback action', async () => {

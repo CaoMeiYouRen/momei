@@ -25,6 +25,7 @@
 - **[质量门阈值重定标](./2026-11-05-quality-gate-recalibration)**: 首屏包体、重复代码 clone 数与 E2E 环境性失败的重定标依据（用户确认选项 A）。
 - **[Node 26 运行时基线评估与单点化](./2026-11-14-node-26-runtime-baseline)**: `.nvmrc` 为唯一版本声明，Dockerfile / workflows 为其副本。
 - **[GitHub 协作边界与推送授权治理](./2026-11-12-github-collaboration-and-push-authorization)**: 人工协作与定时任务共用同一套边界，权威口径见 [Git 工作流规范 §6–§7](../../standards/git.md)。
+- **[管理端单测等待口径与 networkidle 处置结论](./2026-11-18-test-flake-waiting-and-networkidle)**: 第七十九阶段条目 1 的事实源，记录「交互 → 等待可观测状态 → 断言」的统一辅助与 `networkidle` 明确保留结论。
 - **[`@vite-pwa/nuxt` 2.0.1 追溯评估与去留结论](./2026-11-18-vite-pwa-nuxt-2-retrospective)**: 第七十九阶段条目 6 的事实源，记录 major 静默落地后的影响面、构建产物实测、保留结论与回滚步骤。
 - **[API Schema 覆盖与复用治理](./api-schema-coverage-governance)**: schema 文件与 endpoint 的覆盖基线、复用规则与分层验收。
 - **[页面与 API 路径规范化治理](./route-api-path-governance)**: `pages/` 路由与 `server/api/` 路径的命名 / 分层基线。

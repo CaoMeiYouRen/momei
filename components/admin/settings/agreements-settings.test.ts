@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises } from '@vue/test-utils'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import AgreementsSettings from './agreements-settings.vue'
 import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
+import { clickWhenReady, settleUi } from '@/tests/helpers/ui-interaction'
 
 const translations: Record<string, string> = {
     'pages.admin.settings.system.agreements.title': '协议管理',
@@ -224,20 +224,19 @@ describe('AgreementsSettings', () => {
             },
         })
 
-        await flushPromises()
+        await settleUi()
 
         expect(wrapper.text()).toContain('用户协议')
         expect(wrapper.text()).toContain('权威语言')
 
         const addButton = wrapper.findAll('button').find((button) => button.text() === '新增')
-        await addButton?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(addButton, '新增')
 
         expect(wrapper.text()).toContain('权威语言版本可直接生效；其他语言会作为参考翻译展示。')
 
         const languageSelect = wrapper.find('select')
         await languageSelect.setValue('en-US')
-        await flushPromises()
+        await settleUi()
 
         expect(translate).toHaveBeenCalledWith('common.status_label')
         expect(wrapper.text()).toContain('对应权威版本')
@@ -383,7 +382,7 @@ describe('AgreementsSettings - 行内操作', () => {
             },
         })
 
-        await flushPromises()
+        await settleUi()
         return wrapper
     }
 
@@ -408,8 +407,7 @@ describe('AgreementsSettings - 行内操作', () => {
         expect(text).toContain('2026年2月1日')
         expect(text).toContain('草案版本')
 
-        await findButton(wrapper, '完整列表')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '完整列表'), '完整列表')
         expect(wrapper.text()).toContain('English')
         expect(wrapper.text()).toContain('参考翻译')
     })
@@ -418,19 +416,16 @@ describe('AgreementsSettings - 行内操作', () => {
         const fetchMock = createRowFetch()
         const wrapper = await mountWithRows(fetchMock)
 
-        await findButton(wrapper, '完整列表')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '完整列表'), '完整列表')
 
-        await findButton(wrapper, '标记已审校')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '标记已审校'), '标记已审校')
 
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/agreements/ua-en/review-status', expect.objectContaining({
             method: 'POST',
             body: { reviewStatus: 'approved' },
         }))
 
-        await findButton(wrapper, '提交审校')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '提交审校'), '提交审校')
 
         expect(fetchMock).toHaveBeenCalledWith('/api/admin/agreements/ua-draft/review-status', expect.objectContaining({
             method: 'POST',
@@ -443,12 +438,10 @@ describe('AgreementsSettings - 行内操作', () => {
         const wrapper = await mountWithRows(fetchMock)
         const callsBefore = fetchMock.mock.calls.length
 
-        await findButton(wrapper, '刷新')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '刷新'), '刷新')
         expect(fetchMock.mock.calls.length).toBeGreaterThan(callsBefore)
 
-        await findButton(wrapper, '完整列表')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, '完整列表'), '完整列表')
         expect(wrapper.text()).toContain('完整列表会展开全部语言和版本')
     })
 
@@ -456,8 +449,7 @@ describe('AgreementsSettings - 行内操作', () => {
         const fetchMock = createRowFetch()
         const wrapper = await mountWithRows(fetchMock)
 
-        await findButton(wrapper, 'AI 草案')?.trigger('click')
-        await flushPromises()
+        await clickWhenReady(findButton(wrapper, 'AI 草案'), 'AI 草案')
 
         expect(wrapper.find('.dialog').exists()).toBe(true)
         expect(wrapper.text()).toContain('对应权威版本')

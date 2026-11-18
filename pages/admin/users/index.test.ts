@@ -1,8 +1,9 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import AdminUsers from './index.vue'
 import { createLegacyToastApi, createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
+import { expectEventually, settleUi } from '@/tests/helpers/ui-interaction'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/users` 路由迁移后的结构与逻辑契约。
@@ -314,7 +315,7 @@ async function mountComponent(
             mocks: { $t: (key: string) => key },
         },
     })
-    await nextTick()
+    await settleUi()
 
     return wrapper
 }
@@ -433,7 +434,7 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[0]!.trigger('click')
-        await nextTick()
+        await settleUi()
 
         const dialog = wrapper.find('.role-dialog-stub')
         expect(dialog.attributes('data-visible')).toBe('true')
@@ -444,20 +445,22 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[1]!.trigger('click')
-        await nextTick()
+        await settleUi()
         expect(wrapper.find('.ban-dialog-stub').attributes('data-visible')).toBe('true')
 
         await wrapper.findAll('.stub-row')[1]!.findAll('[data-key="actions"] .caomei-button')[1]!.trigger('click')
-        await nextTick()
-        expect(authClientMock.admin.unbanUser).toHaveBeenCalledWith({ userId: 'u-2' })
-        expect(refreshMock).toHaveBeenCalled()
+        await settleUi()
+        await expectEventually(() => {
+            expect(authClientMock.admin.unbanUser).toHaveBeenCalledWith({ userId: 'u-2' })
+            expect(refreshMock).toHaveBeenCalled()
+        })
     })
 
     it('点击会话按钮打开会话抽屉', async () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[2]!.trigger('click')
-        await nextTick()
+        await settleUi()
 
         const drawer = wrapper.find('.sessions-drawer-stub')
         expect(drawer.attributes('data-visible')).toBe('true')
@@ -468,9 +471,9 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[3]!.trigger('click')
-        await nextTick()
+        await settleUi()
 
-        expect(confirmRequireMock).toHaveBeenCalledTimes(1)
+        await expectEventually(() => expect(confirmRequireMock).toHaveBeenCalledTimes(1))
         expect(confirmRequireMock.mock.calls[0]![0]).toMatchObject({
             message: 'pages.admin.users.confirm_impersonate',
             header: 'common.confirmation',
@@ -481,7 +484,7 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[4]!.trigger('click')
-        await nextTick()
+        await settleUi()
 
         const dialog = wrapper.find('.confirm-delete-dialog')
         expect(dialog.attributes('data-visible')).toBe('true')
@@ -514,17 +517,17 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.find('.stub-next-page').trigger('click')
-        await nextTick()
+        await settleUi()
         expect(onPageMock).toHaveBeenCalledTimes(1)
         expect(onPageMock.mock.calls[0]![0]).toMatchObject({ page: 2, rows: 10 })
 
         await wrapper.find('.stub-sort-asc').trigger('click')
-        await nextTick()
+        await settleUi()
         // caomei `@sort` 载荷为字符串（`'asc' | 'desc' | ''`）；归一由共享 composable 承担
         expect(onSortMock).toHaveBeenCalledWith({ sortField: 'name', sortOrder: 'asc' })
 
         await wrapper.find('.stub-sort-desc').trigger('click')
-        await nextTick()
+        await settleUi()
         expect(onSortMock).toHaveBeenLastCalledWith({ sortField: 'createdAt', sortOrder: 'desc' })
     })
 
@@ -532,7 +535,7 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.find('.user-filters-stub').trigger('click')
-        await nextTick()
+        await settleUi()
 
         expect(onFilterChangeMock).toHaveBeenCalled()
     })
@@ -541,11 +544,13 @@ describe('AdminUsers page', () => {
         const wrapper = await mountComponent()
 
         await wrapper.findAll('.stub-row')[0]!.findAll('[data-key="actions"] .caomei-button')[4]!.trigger('click')
-        await nextTick()
+        await settleUi()
         await wrapper.find('.confirm-delete-dialog').trigger('click')
-        await nextTick()
+        await settleUi()
 
-        expect(authClientMock.admin.removeUser).toHaveBeenCalledWith({ userId: 'u-1' })
-        expect(refreshMock).toHaveBeenCalled()
+        await expectEventually(() => {
+            expect(authClientMock.admin.removeUser).toHaveBeenCalledWith({ userId: 'u-1' })
+            expect(refreshMock).toHaveBeenCalled()
+        })
     })
 })

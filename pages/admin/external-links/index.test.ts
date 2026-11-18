@@ -1,9 +1,10 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, ref } from 'vue'
 import AdminExternalLinks from './index.vue'
 import { createLegacyConfirmApi } from '@/tests/helpers/caomei-service-mocks'
 import { LinkStatus } from '@/types/ad'
+import { expectEventually, settleUi } from '@/tests/helpers/ui-interaction'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/external-links` 路由迁移后的结构与逻辑契约。
@@ -271,7 +272,7 @@ async function mountComponent(rows: Record<string, unknown>[] = sampleRows) {
             },
         },
     })
-    await nextTick()
+    await settleUi()
 
     return wrapper
 }
@@ -429,7 +430,7 @@ describe('AdminExternalLinks page', () => {
 
         const createButton = findButtonByText(wrapper, 'common.create')
         await createButton.trigger('click')
-        await nextTick()
+        await settleUi()
 
         const dialog = wrapper.find('.dialog')
         expect(dialog.exists()).toBe(true)
@@ -455,7 +456,7 @@ describe('AdminExternalLinks page', () => {
         const wrapper = await mountComponent()
 
         await findButtonByText(wrapper, 'common.create').trigger('click')
-        await nextTick()
+        await settleUi()
 
         const dialog = wrapper.find('.dialog')
         // 页脚按钮是「有字按钮」（无 `data-label`）；过滤掉浮层内的纯图标控件。
@@ -474,13 +475,13 @@ describe('AdminExternalLinks page', () => {
 
         const createButton = findButtonByText(wrapper, 'common.create')
         await createButton.trigger('click')
-        await nextTick()
+        await settleUi()
 
         fetchMock.mockClear()
 
         const saveButton = findButtonByText(wrapper, 'common.save')
         await saveButton.trigger('click')
-        await nextTick()
+        await settleUi()
 
         expect(fetchMock).not.toHaveBeenCalled()
         expect(wrapper.find('.caomei-input[data-id="originalUrl"]').attributes('data-invalid')).toBe('true')
@@ -493,15 +494,17 @@ describe('AdminExternalLinks page', () => {
             .find('[data-key="actions"]')
             .findAll('.caomei-button')[2]!
         await deleteButton.trigger('click')
+        await settleUi()
 
-        expect(confirmRequireMock).toHaveBeenCalledTimes(1)
+        await expectEventually(() => expect(confirmRequireMock).toHaveBeenCalledTimes(1))
         const options = confirmRequireMock.mock.calls[0]![0] as { message: string, accept: () => Promise<void> }
         expect(options.message).toBe('pages.admin.external_links.messages.delete_confirm')
 
         fetchMock.mockClear()
         await options.accept()
+        await settleUi()
 
-        expect(fetchMock).toHaveBeenCalledWith('/api/admin/external-links/l1', { method: 'DELETE' })
+        await expectEventually(() => expect(fetchMock).toHaveBeenCalledWith('/api/admin/external-links/l1', { method: 'DELETE' }))
     })
 
     it('统计弹窗：点击统计动作按行 id 请求统计接口并打开 Dialog', async () => {
@@ -514,10 +517,12 @@ describe('AdminExternalLinks page', () => {
             .find('[data-key="actions"]')
             .findAll('.caomei-button')[0]!
         await statsButton.trigger('click')
-        await nextTick()
+        await settleUi()
 
-        expect(fetchMock).toHaveBeenCalledWith('/api/admin/external-links/l1/stats')
-        expect(wrapper.find('.stats-container').exists()).toBe(true)
+        await expectEventually(() => {
+            expect(fetchMock).toHaveBeenCalledWith('/api/admin/external-links/l1/stats')
+            expect(wrapper.find('.stats-container').exists()).toBe(true)
+        })
         expect(wrapper.find('.stats-container').text()).toContain('abc123')
     })
 })
