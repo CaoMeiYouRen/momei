@@ -21,10 +21,36 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第七十八阶段共 9 个近线归档块。
+- 主文档当前保留第七十至第七十九阶段共 10 个近线归档块。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
+
+---
+
+## 第七十九阶段：质量稳定性与门禁可信度（已审计归档）
+
+> 归档说明: 第七十九阶段 6 条条目已于 2026-11-18 完成并归档（2026-11-18 立项并收口）；阶段规划正文见 [roadmap 分片](./archive/roadmap-phases-79.md)，Review Gate 证据见 `artifacts/review-gate/2026-11-18-phase79-item{1..6}.md`。
+
+- [x] **1. 测试 flake 收敛与门禁可信度（P1 修复型）**
+    - **完成摘要**: 定位三类确定性缺陷（`?.trigger` 静默跳过、单次 `nextTick` 不覆盖 async 处理器、`onMounted` 拉取未落地），新增 `tests/helpers/ui-interaction.ts`（`settleUi` / `clickWhenReady` / `expectEventually`）并统一 6 个已知用例；6 文件连跑 **20/20 次退出码 0（57/57 例）**，`pnpm test:coverage` **连跑 3 次全绿无 retry**（33,622/39,105 = 85.97%），`pnpm regression:phase-close` 本机一次 Pass。`networkidle` 待跟踪项结论为「明确保留」并写明重新评估条件。提交 `a1592fb6`，Review Gate Pass。
+
+- [x] **2. 构建产物尺寸探针常驻（P2）**
+    - **完成摘要**: 新增 `scripts/testing/probe-build-geometry.mjs` 与 `pnpm probe:build-geometry`，在生产 `.output` 上以 Playwright `getComputedStyle` 实测；真实产物 **3/3 通过**（`/settings` 64×64、`/admin/users` 32×32、合成 large 48×48）；`.output` 缺失时跳过并写明原因，`--dry-run` 只打印清单；以 `required: false` 接入 `regression:weekly` 并同步 `scripts/README.md`；单测 11 例覆盖解析 / 缺元素 / 失败路径。提交 `6b0eff0f`，Review Gate Pass。
+
+- [x] **3. `reviewBy` 复核日期接入日常巡检（P2）**
+    - **完成摘要**: `security:audit-deps:daily` 的 JSON / Markdown 增加 `allowlistReview` 段（过期 / 即将到期 / 计划内 / 未登记四类分桶），`security:alerts` 打印逐条复核日期；退出码与 severity 语义不变。真实 daily 产物含 6 条计划内台账；alerts 为 Pass。单测覆盖四类分桶与摘要缺省。提交 `cf1539f8`，Review Gate Pass。
+
+- [x] **5. 覆盖率第二十批（P2）**
+    - **完成摘要**: 补 `check-script-governance` 的空 / 非空报告、非法模式、`main` 落盘与产物路径分支，模块 statements **191/255 = 74.90% → 244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%。达成条目「模块级 +15pp / ≥85%」目标。提交 `b379eb0c`，Review Gate Pass。
+
+- [x] **6. 依赖 PR 处置与已合并 major 的追溯评估（P2）**
+    - **完成摘要**: #1068（`sanitize-html` 2.18.2，dependabot）已合并为 `6964e10d`，Test / Pages / Docker / TODO / CodeQL 全绿，`pnpm i --frozen-lockfile` 通过；`@vite-pwa/nuxt` 2.0.1 追溯评估结论为**保留**——`sw.js` + Workbox 8 运行时、manifest、`skipWaiting` / `clientsClaim` / denylist 与 `/sw.js` client plugin 注册链均按预期，回滚步骤与 `^2.0.2` / `generateSW` 后续项写入治理文档；backlog 依赖主线回填结论。提交 `150eb835`，Review Gate Pass。
+
+- [x] **4. parity 允许清单清零脚本化（P3）**
+    - **完成摘要**: 新增 `scripts/testing/prune-parity-allowlist.mjs` 与 `pnpm prune:parity-allowlist`，按 testName 清零 `allowlist`，只在 `note` 追加清零记录，不改预算 / tiers；dry-run 列出 `user-settings-light` / `user-settings-dark` 各 2 条；单测覆盖命中 / 未命中 / 幂等 / dry-run 不写盘。测试规范补「CI 重采 → prune → 复跑」流程并区分「重采后的绿」与「预算内吸收的绿」。提交 `550bdf6a`，Review Gate Pass。
+
+**阶段收口**: `pnpm regression:phase-close`（`E2E_PORT=3011` / `E2E_INSTALLATION_PORT=3012`）一次 **Pass**（blocker=0 / warning=0，7/7 步骤），同源 statements **33,622 / 39,105 = 85.97%**；证据见 `artifacts/review-gate/2026-11-18-phase-close-regression.{md,json}` 与 `docs/reports/regression/current.md` 的 2026-11-18 窗口。
 
 ---
 

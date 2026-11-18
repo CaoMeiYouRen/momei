@@ -19,8 +19,8 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十九阶段（第二十批，2026-11-18 **筹备中**：`scripts/governance/check-script-governance.mjs` 与 `scripts/testing/capture-visual-reference.mjs` 的未闭合部分，必要时换入 `run-periodic-regression.mjs`）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
-- **当前基线**: 同源口径 Statements **`85.99%`**（`33,378 / 38,812`，2026-11-18 第七十八阶段收口；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」）。距 `90%+` 长期目标约 4.0pp。
+- **最近一次上收阶段**: 第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
+- **当前基线**: 同源口径 Statements **`85.97%`**（`33,622 / 39,105`，2026-11-18 第七十九阶段收口；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」，连跑 3 次一致）。距 `90%+` 长期目标约 4.0pp。
 - **下一次可切片方向**: 覆盖率同源复算挂接 `code-quality-auditor` review checklist（待补挂）；单批 `+0.3pp` 约需 **115 条**，下一批优先从剩余脚本池（`check-governance` / `capture-visual-reference` 等未闭合部分）与组件池中选取，须保留「失败 / 边界优先」的断言标准；`components/admin/admin-taxonomy-page.vue` 需先拆分组件。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
@@ -83,7 +83,7 @@
 - **目标**: 把脚本作为长期治理主线的事实源，为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出；治理 `scripts/**` 的长期入口、孤儿脚本、临时脚本残留与输出漂移；稳定后并入固定回归入口。
 - **专项设计事实源**: [script-governance.md](../design/governance/script-governance.md)。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十九阶段（条目 2：构建产物尺寸探针常驻并接入 weekly；条目 4：parity 允许清单清零脚本化，2026-11-18 **筹备中**）。上一阶段为第七十八阶段（条目 6：`governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，2026-11-18 **已完成**：governance 面 5 → 7 步、均 `required: false`，并补断言锁住 warning 面）。
+- **最近一次上收阶段**: 第七十九阶段（条目 2：`probe:build-geometry` 常驻并接入 weekly `required: false`；条目 4：`prune:parity-allowlist` 清零脚本与流程，2026-11-18 **已完成**）。上一阶段为第七十八阶段（条目 6：`governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，2026-11-18 **已完成**：governance 面 5 → 7 步、均 `required: false`，并补断言锁住 warning 面）。
 - **当前基线**: `governance:check:scripts` 与 `audit:simple-duplicates`、`audit:eslint-debt`、`audit:comment-drift` 均已进入 `regression:weekly` warning 面；`docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 仍为独立 baseline。
 - **下一次可切片方向**: 按周级回归趋势跟踪 comment-drift 的 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理；评估 docs candidate 入口是否进入更高频回归；零引用组件扫描在报告模式稳定运行 2 个阶段后，再评估是否并入 `regression:weekly` warning 面。
 
