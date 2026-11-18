@@ -225,6 +225,12 @@
 
 > 预算与允许清单的权威值以 `tests/visual/parity-budget.json` 为准；本表为校准快照，重跑后若数值变化须同步更新。
 
+**2026-11-18 `caomei-ui` 1.3.0 分页器漂移（`admin-posts-list`，未归因·预算内吸收）**
+
+`caomei-ui` 1.2.0 → 1.3.0 改了 Paginator（每页条数选择器 6rem → 5rem、新增 `__report`、字段高度钉 32px），`admin-posts-list` 明暗两态的分页器区域在 `test:visual` 层产生 1115px 差异（约 1%），已按上游变更归因并重采两条视觉基线（`4a6efc75`）。**parity 层未同步重采**：`tests/visual/parity/reference/admin-posts-list-{light,dark}.reference.png` 仍为 `ccd69454`（2026-11-13 CI 复采），该两条 `allowlist` 为空、`maxDiffPixels: 3000`，故本次漂移被 admin 预算吸收——属「预算内吸收」而非「已归因」，不计入允许清单。重采与登记随第七十九阶段条目 4 的 CI `visual-reference-refresh.yml` 流程一并处理；在此之前，parity 的 `admin-posts-list` 绿不代表已归因。
+
+
+
 **2026-11-17 `AppAvatar` 生产构建尺寸缺陷修复（`user-settings`，2 个 testName）**
 
 | testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
