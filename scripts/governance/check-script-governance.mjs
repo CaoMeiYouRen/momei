@@ -478,6 +478,9 @@ function printSection(title, lines) {
     }
 }
 
+/**
+ * @param {string | null} [artifactPath]
+ */
 export function renderMarkdownReport(report, artifactPath = null) {
     const lines = [
         '# Governance Baseline — script-governance',

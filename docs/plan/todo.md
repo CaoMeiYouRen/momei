@@ -51,7 +51,7 @@
     - **验证 / 证据**: V0 + V1 + RG；dry-run 输出落 `artifacts/review-gate/`。
     - **回滚边界**: 脚本与文档独立 revert。
 
-- [ ] **5. 覆盖率第二十批（P2）**: 取 `scripts/governance/check-script-governance.mjs` 与 `scripts/testing/capture-visual-reference.mjs` 的未闭合部分（必要时换入 `run-periodic-regression.mjs`），目标同源 `+0.3pp` 或模块级 `+15pp / ≥85%`。
+- [x] **5. 覆盖率第二十批（P2）**: 取 `scripts/governance/check-script-governance.mjs` 与 `scripts/testing/capture-visual-reference.mjs` 的未闭合部分（必要时换入 `run-periodic-regression.mjs`），目标同源 `+0.3pp` 或模块级 `+15pp / ≥85%`。
     - **验收标准**: 干净全量跑基线 / 收口 delta 落 `artifacts/coverage/`；定向测试通过；flaky 归因记录。
     - **非目标**: 不为凑数测模板分支；不重构被测脚本公开行为；不新增测试依赖；`admin-taxonomy-page.vue` 须先评估拆分，不在本批硬做。
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本与证据文件。

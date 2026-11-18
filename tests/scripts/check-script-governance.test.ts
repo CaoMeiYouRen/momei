@@ -1,10 +1,11 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     collectScriptGovernanceReport,
     extractScriptReferences,
+    main,
     parseArgs,
     renderMarkdownReport,
 } from '@/scripts/governance/check-script-governance.mjs'
@@ -99,6 +100,80 @@ describe('check-script-governance', () => {
             })
             expect(renderMarkdownReport(report)).toContain('Governance Baseline — script-governance')
         } finally {
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+})
+
+describe('check-script-governance 输出面', () => {
+    const emptyReport = {
+        directoryBuckets: [],
+        documentedMissingScripts: [],
+        documentedOnlyScripts: [],
+        findings: [],
+        generatedAt: '2026-11-18T00:00:00.000Z',
+        scriptRoot: 'scripts',
+        scripts: [],
+        searchRoots: ['package.json'],
+        summary: {
+            documentedMissingScripts: 0,
+            documentedOnlyScripts: 0,
+            longTermScripts: 0,
+            scriptsWithStableEntry: 0,
+            scriptsWithoutStableEntry: 0,
+            temporaryScripts: 0,
+            totalScripts: 0,
+        },
+        temporaryScripts: [],
+        unreferencedScripts: [],
+    }
+
+    it('空报告渲染三个「无」分支并可按需带产物路径', () => {
+        const markdown = renderMarkdownReport(emptyReport)
+
+        expect(markdown).toContain('## Findings')
+        expect(markdown.match(/- 无/gu)).toHaveLength(3)
+        expect(markdown).not.toContain('产物路径')
+
+        expect(renderMarkdownReport(emptyReport, 'artifacts/governance/x.md')).toContain('产物路径: artifacts/governance/x.md')
+    })
+
+    it('非空报告渲染 findings / 仅文档引用 / 目录分桶', () => {
+        const markdown = renderMarkdownReport({
+            ...emptyReport,
+            directoryBuckets: [{ directory: 'governance', scriptsWithStableEntry: 1, scriptsWithoutStableEntry: 0, temporaryScripts: 0, totalScripts: 1 }],
+            documentedOnlyScripts: [{ scriptPath: 'scripts/manual/doc-only.mjs', stableSources: ['docs'] }],
+            findings: [{ code: 'unreferenced-script', filePath: 'scripts/local/orphan.mjs', message: 'missing entry' }],
+        })
+
+        expect(markdown).toContain('[unreferenced-script] scripts/local/orphan.mjs: missing entry')
+        expect(markdown).toContain('- scripts/manual/doc-only.mjs (docs)')
+        expect(markdown).toContain('- governance: total=1, stable=1, missing=0, temp=0')
+    })
+
+    it('拒绝非法模式', () => {
+        expect(() => parseArgs(['node', 'script.mjs', '--mode=strict'])).toThrow(/不支持的模式/u)
+    })
+
+    it('main 写出 JSON + Markdown 且 mode=error 只在有 findings 时置失败', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'script-governance-main-'))
+        const originalExitCode = process.exitCode
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+
+        try {
+            const output = resolve(directory, 'report.json')
+            const report = await main(['node', 'script.mjs', `--output=${output}`, '--mode=error'])
+
+            expect(report.summary.totalScripts).toBeGreaterThan(0)
+            const written = JSON.parse(await readFile(output, 'utf8'))
+            expect(written.summary.totalScripts).toBe(report.summary.totalScripts)
+            const markdown = await readFile(output.replace(/\.json$/u, '.md'), 'utf8')
+            expect(markdown).toContain('Governance Baseline')
+            expect(infoSpy).toHaveBeenCalledWith('Summary:')
+            expect(process.exitCode).toBe(report.findings.length > 0 ? 1 : undefined)
+        } finally {
+            infoSpy.mockRestore()
+            process.exitCode = originalExitCode
             await rm(directory, { force: true, recursive: true })
         }
     })
