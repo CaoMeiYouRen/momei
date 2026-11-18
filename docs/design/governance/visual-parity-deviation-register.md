@@ -17,7 +17,7 @@
 | 通道③ | 外层包装 + 选择器级覆盖（须留理由） |
 | 通道④ | 上游反馈（issue 草稿） |
 | 责任人 | 处置与复核责任角色 |
-| 状态 | 已覆盖 / 已接受（进允许清单）/ 待上游 / 已修复 / 已闭环 |
+| 状态 | 已覆盖 / 已接受（进允许清单）/ 待上游 / 已修复 / 已闭环 / 预算内吸收（未归因，用于依赖驱动的漂移：差异落在档位预算内且未登记允许清单） |
 
 ## 处置表
 
@@ -227,8 +227,12 @@
 
 **2026-11-18 `caomei-ui` 1.3.0 分页器漂移（`admin-posts-list`，未归因·预算内吸收）**
 
-`caomei-ui` 1.2.0 → 1.3.0 改了 Paginator（每页条数选择器 6rem → 5rem、新增 `__report`、字段高度钉 32px），`admin-posts-list` 明暗两态的分页器区域在 `test:visual` 层产生 1115px 差异（约 1%），已按上游变更归因并重采两条视觉基线（`4a6efc75`）。**parity 层未同步重采**：`tests/visual/parity/reference/admin-posts-list-{light,dark}.reference.png` 仍为 `ccd69454`（2026-11-13 CI 复采），该两条 `allowlist` 为空、`maxDiffPixels: 3000`，故本次漂移被 admin 预算吸收——属「预算内吸收」而非「已归因」，不计入允许清单。重采与登记随第七十九阶段条目 4 的 CI `visual-reference-refresh.yml` 流程一并处理；在此之前，parity 的 `admin-posts-list` 绿不代表已归因。
+| testName | tier | 预算（px / 比例） | `test:visual` 实测 | 允许清单 | parity 层结论 | 责任人 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-posts-list-light | admin | 3000 / 0.350% | 1115px（约 0.09% 视口） | 空 | 未重采，预算内通过（未归因） | @full-stack-master |
+| admin-posts-list-dark | admin | 3000 / 0.350% | 1115px（约 0.09% 视口） | 空 | 未重采，预算内通过（未归因） | @full-stack-master |
 
+`caomei-ui` 1.2.0 → 1.3.0 改了 Paginator（每页条数选择器 6rem → 5rem、新增 `__report`、字段高度钉 32px），`admin-posts-list` 明暗两态的分页器区域在 `test:visual` 层产生 1115px 差异（约占 1440×900 视口 0.09%），已按上游变更归因并重采两条基线（`4a6efc75`）。**parity 层未同步重采**：`tests/visual/parity/reference/admin-posts-list-{light,dark}.reference.png` 仍为 `ccd69454`（2026-11-13 CI 复采），该两条 `allowlist` 为空、`maxDiffPixels: 3000`，故只能断言「未归因差异在 admin 预算内通过」，不能断言具体像素值——属「预算内吸收」而非「已归因」，不计入允许清单。**重采与归因**随第七十九阶段条目 4 的 CI `visual-reference-refresh.yml` 流程一并处理；在此之前，parity 的 `admin-posts-list` 绿不代表已归因。证据指针：`4a6efc75` 提交说明与 `tests/visual/__screenshots__/admin-posts-list.visual.test.ts/` 下的两条重采基线。
 
 
 **2026-11-17 `AppAvatar` 生产构建尺寸缺陷修复（`user-settings`，2 个 testName）**
