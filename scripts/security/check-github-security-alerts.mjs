@@ -23,6 +23,7 @@ import {
     severityAtLeast,
     writeArtifacts,
 } from './security-alert-gate-shared.mjs'
+import { evaluateAllowlistReviewDates, printAllowlistReviewDates } from './check-dependency-risk.mjs'
 import { loadLocalEnvFile } from './load-local-env.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -74,6 +75,10 @@ async function main() {
     console.info(`- high+ blocking alerts: ${alertBlockers.length}`)
     console.info(`- transition findings: ${result.transitionBlocking.length}`)
     console.info(`- source failures: ${result.sourceFailures.length}`)
+
+    const allowlistReview = evaluateAllowlistReviewDates({ allowlistEntries })
+    console.info(`- allowlist review: ${allowlistReview.expired.length} expired / ${allowlistReview.dueSoon.length} due soon / ${allowlistReview.scheduled.length} scheduled / ${allowlistReview.missing.length} missing`)
+    printAllowlistReviewDates(allowlistReview)
 
     if (result.allowlisted.length > 0) {
         console.info('\nAllowlisted alerts:')

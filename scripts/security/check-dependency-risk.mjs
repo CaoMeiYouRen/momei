@@ -608,6 +608,7 @@ export {
     normalizeSeverity,
     parseArgs,
     parseAuditReport,
+    printAllowlistReviewDates,
     readAllowlist,
 }
 

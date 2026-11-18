@@ -4,8 +4,9 @@ import {
     buildDailyDependencyAuditSummary,
     parseArgs,
     renderDailyDependencyAuditMarkdown,
+    serializeAllowlistReview,
 } from '@/scripts/security/run-daily-dependency-audit.mjs'
-import { evaluateDependencyRiskGate, parseAuditReport } from '@/scripts/security/check-dependency-risk.mjs'
+import { evaluateAllowlistReviewDates, evaluateDependencyRiskGate, parseAuditReport } from '@/scripts/security/check-dependency-risk.mjs'
 
 describe('run-daily-dependency-audit', () => {
     it('defaults to the daily dependency risk policy', () => {
@@ -228,5 +229,65 @@ describe('run-daily-dependency-audit', () => {
         expect(summary.requiresAttention).toBe(true)
         expect(summary.shouldOpenIssue).toBe(true)
         expect(renderDailyDependencyAuditMarkdown(summary)).toContain('registry unavailable')
+    })
+})
+
+describe('run-daily-dependency-audit 台账复核日期', () => {
+    const entries = [
+        { advisoryId: 'GHSA-expired', packageName: 'alpha', reviewBy: '2026-11-01', severity: 'high' },
+        { advisoryId: 'GHSA-due-soon', packageName: 'beta', reviewBy: '2026-11-25', severity: 'high' },
+        { advisoryId: 'GHSA-scheduled', packageName: 'gamma', reviewBy: '2027-05-14', severity: 'high' },
+        { advisoryId: 'GHSA-missing', packageName: 'delta', severity: 'high' },
+    ]
+
+    const review = evaluateAllowlistReviewDates({ allowlistEntries: entries, now: new Date('2026-11-18T00:00:00.000Z') })
+
+    it('把四条台账分成过期 / 即将到期 / 计划内 / 未登记', () => {
+        const serialized = serializeAllowlistReview(review)
+
+        expect(serialized?.counts).toEqual({ expired: 1, dueSoon: 1, scheduled: 1, missing: 1 })
+        expect(serialized?.expired[0]).toMatchObject({ advisoryId: 'GHSA-expired', daysUntil: -17, reviewBy: '2026-11-01' })
+        expect(serialized?.dueSoon[0]).toMatchObject({ advisoryId: 'GHSA-due-soon', daysUntil: 7 })
+        expect(serialized?.missing[0]).toMatchObject({ advisoryId: 'GHSA-missing', packageName: 'delta' })
+    })
+
+    it('daily 摘要与 markdown 含复核段，且不改变门禁结论', () => {
+        const summary = buildDailyDependencyAuditSummary({
+            allowlist: '.github/security/dependency-risk-allowlist.json',
+            allowlistReview: review,
+            generatedAt: '2026-11-18T00:00:00.000Z',
+            minSeverity: 'high',
+            policy: 'daily',
+            registry: 'https://registry.npmjs.org/',
+            result: { allowlisted: [], blocking: [], relevantRisks: [] },
+            risks: [],
+            runUrl: '',
+        })
+
+        expect(summary.status).toBe('clean')
+        expect(summary.reviewGate.conclusion).toBe('Pass')
+        expect(summary.requiresAttention).toBe(false)
+        expect(summary.allowlistReview?.counts).toEqual({ expired: 1, dueSoon: 1, scheduled: 1, missing: 1 })
+
+        const markdown = renderDailyDependencyAuditMarkdown(summary)
+        expect(markdown).toContain('## Allowlist 复核日期')
+        expect(markdown).toContain('EXPIRED alpha')
+        expect(markdown).toContain('DUE SOON beta')
+        expect(markdown).toContain('MISSING delta')
+    })
+
+    it('审计失败摘要同样携带复核段（可缺省）', () => {
+        const summary = buildDailyDependencyAuditFailureSummary({
+            allowlist: '.github/security/dependency-risk-allowlist.json',
+            error: new Error('registry unavailable'),
+            generatedAt: '2026-11-18T00:00:00.000Z',
+            minSeverity: 'high',
+            policy: 'daily',
+            registry: 'https://registry.npmjs.org/',
+            runUrl: '',
+        })
+
+        expect(summary.allowlistReview).toBeNull()
+        expect(renderDailyDependencyAuditMarkdown(summary)).not.toContain('## Allowlist 复核日期')
     })
 })

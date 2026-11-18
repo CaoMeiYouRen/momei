@@ -39,7 +39,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；探针 JSON 落 `artifacts/review-gate/`。
     - **回滚边界**: 脚本、调度与 README 同批 revert。
 
-- [ ] **3. `reviewBy` 复核日期接入日常巡检（P2）**: 把 `evaluateAllowlistReviewDates` 接入 `security:audit-deps:daily` 的 summary / JSON 与 `security:alerts` 输出行（只增可见性，不改 severity 与退出码语义），补四类分桶测试。
+- [x] **3. `reviewBy` 复核日期接入日常巡检（P2）**: 把 `evaluateAllowlistReviewDates` 接入 `security:audit-deps:daily` 的 summary / JSON 与 `security:alerts` 输出行（只增可见性，不改 severity 与退出码语义），补四类分桶测试。
     - **验收标准**: daily 产物含 review 段；alerts 打印过期行且退出码不变；单测覆盖过期 / 即将到期 / 计划内 / 未登记。
     - **非目标**: 不改 release 门禁判红逻辑；不让 daily / alerts 因台账到期整体变红；不改 `readAllowlist` 既有字段校验。
     - **验证 / 证据**: V0 + V1 + V2 + RG；daily 与 alerts 产物落 `artifacts/security/`。

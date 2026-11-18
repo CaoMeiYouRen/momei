@@ -4,6 +4,7 @@ import path from 'node:path'
 import { isDirectExecution, parseCliOptions } from '../shared/cli.mjs'
 import { DEPENDENCY_RISK_POLICY_KEYS, classifyDependencyRiskOutcome, resolveDependencyRiskPolicy } from './dependency-risk-policy.mjs'
 import {
+    evaluateAllowlistReviewDates,
     evaluateDependencyRiskGate,
     loadAuditReport,
     normalizeSeverity,
@@ -96,8 +97,49 @@ function buildRiskCounts(blockingRisks) {
     }
 }
 
+/**
+ * 把台账复核结果压成可序列化形态（只增可见性，不参与 severity / 退出码判定）。
+ *
+ * `daysUntil < 0` 为过期，`0..30` 为即将到期，其余为计划内；缺 `reviewBy` 单列。
+ */
+export function serializeAllowlistReview(review) {
+    if (!review) {
+        return null
+    }
+
+    const toItem = ({ daysUntil, entry }) => ({
+        advisoryId: entry.advisoryId,
+        daysUntil,
+        packageName: entry.packageName,
+        reviewBy: entry.reviewBy,
+        severity: entry.severity,
+    })
+
+    return {
+        today: review.today,
+        counts: {
+            dueSoon: review.dueSoon.length,
+            expired: review.expired.length,
+            missing: review.missing.length,
+            scheduled: review.scheduled.length,
+        },
+        dueSoon: review.dueSoon.map(toItem),
+        expired: review.expired.map(toItem),
+        missing: review.missing.map((entry) => ({
+            advisoryId: entry.advisoryId,
+            packageName: entry.packageName,
+            severity: entry.severity,
+        })),
+        scheduled: review.scheduled.map(toItem),
+    }
+}
+
+/**
+ * @param {unknown} [allowlistReview]
+ */
 export function buildDailyDependencyAuditSummary({
     allowlist,
+    allowlistReview = null,
     generatedAt,
     minSeverity,
     policy,
@@ -129,6 +171,7 @@ export function buildDailyDependencyAuditSummary({
     if (blockingRisks.length === 0) {
         return {
             allowlist,
+            allowlistReview: serializeAllowlistReview(allowlistReview),
             conclusion: '无高危风险',
             counts,
             generatedAt,
@@ -154,6 +197,7 @@ export function buildDailyDependencyAuditSummary({
 
     return {
         allowlist,
+        allowlistReview: serializeAllowlistReview(allowlistReview),
         conclusion: counts.fixable > 0 ? '发现可修复风险' : '发现高危风险（暂无直接修复版本）',
         counts,
         generatedAt,
@@ -179,8 +223,12 @@ export function buildDailyDependencyAuditSummary({
     }
 }
 
+/**
+ * @param {unknown} [allowlistReview]
+ */
 export function buildDailyDependencyAuditFailureSummary({
     allowlist,
+    allowlistReview = null,
     error,
     generatedAt,
     minSeverity,
@@ -198,6 +246,7 @@ export function buildDailyDependencyAuditFailureSummary({
 
     return {
         allowlist,
+        allowlistReview: serializeAllowlistReview(allowlistReview),
         conclusion: '审计执行失败',
         counts: {
             relevant: 0,
@@ -268,6 +317,23 @@ export function renderDailyDependencyAuditMarkdown(summary) {
         '',
     ]
 
+    const review = summary.allowlistReview
+    if (review) {
+        lines.push('## Allowlist 复核日期')
+        lines.push(`- 基准日: ${review.today}`)
+        lines.push(`- 过期: ${review.counts.expired} / 即将到期: ${review.counts.dueSoon} / 计划内: ${review.counts.scheduled} / 未登记: ${review.counts.missing}`)
+        for (const item of review.expired) {
+            lines.push(`- EXPIRED ${item.packageName} [${item.severity}] ${item.advisoryId}: reviewBy ${item.reviewBy}（已过期 ${Math.abs(item.daysUntil)} 天）`)
+        }
+        for (const item of review.dueSoon) {
+            lines.push(`- DUE SOON ${item.packageName} [${item.severity}] ${item.advisoryId}: reviewBy ${item.reviewBy}（剩 ${item.daysUntil} 天）`)
+        }
+        for (const item of review.missing) {
+            lines.push(`- MISSING ${item.packageName} [${item.severity}] ${item.advisoryId}: reviewBy 未登记`)
+        }
+        lines.push('')
+    }
+
     if (summary.status === 'audit_failed') {
         lines.push('## 错误')
         lines.push(`- ${summary.error}`)
@@ -319,9 +385,11 @@ async function runDailyDependencyAudit(args) {
         allowlistEntries,
         minSeverity: args.minSeverity,
     })
+    const allowlistReview = evaluateAllowlistReviewDates({ allowlistEntries })
 
     return buildDailyDependencyAuditSummary({
         allowlist: args.allowlist,
+        allowlistReview,
         generatedAt: new Date().toISOString(),
         minSeverity: args.minSeverity,
         policy: args.policy,
@@ -356,6 +424,16 @@ async function main() {
 
     console.info(`[dependency-risk-daily] ${summary.conclusion}`)
     console.info(`[dependency-risk-daily] Review Gate: ${summary.reviewGate.conclusion} (${summary.reviewGate.findingLevel})`)
+    if (summary.allowlistReview) {
+        const review = summary.allowlistReview
+        console.info(`[dependency-risk-daily] Allowlist review: ${review.counts.expired} expired / ${review.counts.dueSoon} due soon / ${review.counts.scheduled} scheduled / ${review.counts.missing} missing`)
+        review.expired.forEach((item) => {
+            console.info(`[dependency-risk-daily] EXPIRED ${item.packageName} [${item.severity}] ${item.advisoryId}: reviewBy ${item.reviewBy} (${Math.abs(item.daysUntil)}d ago)`)
+        })
+        review.dueSoon.forEach((item) => {
+            console.info(`[dependency-risk-daily] DUE SOON ${item.packageName} [${item.severity}] ${item.advisoryId}: reviewBy ${item.reviewBy} (${item.daysUntil}d left)`)
+        })
+    }
     console.info(`[dependency-risk-daily] JSON: ${jsonPath}`)
     console.info(`[dependency-risk-daily] Markdown: ${markdownPath}`)
 
