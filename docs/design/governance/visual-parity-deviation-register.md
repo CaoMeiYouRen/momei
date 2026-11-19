@@ -255,7 +255,7 @@
 
 参考态与 `reference-manifest.json` 由 CI `visual-reference-refresh.yml`（run [44521494648](https://github.com/CaoMeiYouRen/momei/actions/runs/44521494648)，2026-11-19，HEAD `bc93c165`）同一次运行产出，82 张参考态中 45 张有字节变化，其余同内容；覆盖后 `pnpm prune:parity-allowlist` 将 `user-settings-light` / `user-settings-dark` 各 2 条允许清单清零（`parity-budget.json` 现无非空 allowlist），`admin-posts-list` 的「未归因·预算内吸收」行随之关闭。
 
-本机复跑 `pnpm test:visual:parity` 得 82 passed / 1 failed：`user-settings-dark` 在 `440,280 80x120`（`/settings` 头像区）差 3199px。逐像素定位为**头像兜底渲染差异**——CI 参考态与 CI 实际态均渲染 `CaomeiAvatar` 默认人形兜底，本机 `TEST_MODE` 服务渲染出首字母兜底（`aria-label="Test Admin"`），属本机测试数据 / 会话态差异而非代码差异；同一次本机运行的 `user-settings-light` 为 0 差异。按 [测试规范 §7](../standards/testing.md)「本地 flake 与渲染态差异以 CI 为裁决」，该条目结论以 CI `Test` 工作流的 Visual Regression 作业为准；若 CI 同点失败则回退本条参考态并重开允许清单。
+本机复跑 `pnpm test:visual:parity` 得 82 passed / 1 failed：`user-settings-dark` 在 `440,280 80x120`（`/settings` 头像区）差 3199px。逐像素定位为**头像兜底渲染差异**——CI 参考态与 CI 实际态均渲染 `CaomeiAvatar` 默认人形兜底，本机 `TEST_MODE` 服务渲染出首字母兜底（`aria-label="Test Admin"`），属本机测试数据 / 会话态差异而非代码差异；同一次本机运行的 `user-settings-light` 为 0 差异。按 [测试规范 §7](../../standards/testing.md)「本地 flake 与渲染态差异以 CI 为裁决」，该条目结论以 CI `Test` 工作流的 Visual Regression 作业为准；若 CI 同点失败则回退本条参考态并重开允许清单。
 
 ## 待上游反馈（通道④）
 
