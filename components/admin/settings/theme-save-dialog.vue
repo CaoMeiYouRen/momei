@@ -216,7 +216,7 @@ watch(() => props.modelValue, (val) => {
 
     &__label {
         font-weight: 600;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text);
     }
 
@@ -232,7 +232,7 @@ watch(() => props.modelValue, (val) => {
         border: 1px solid var(--caomei-color-border);
         border-radius: 8px;
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         line-height: 1.5;
         align-items: flex-start;
 

@@ -86,7 +86,7 @@ defineProps<{
 
     &__title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 700;
     }
 
@@ -107,7 +107,7 @@ defineProps<{
     }
 
     &__priority-label {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
     }
 

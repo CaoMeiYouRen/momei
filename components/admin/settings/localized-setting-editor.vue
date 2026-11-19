@@ -386,7 +386,7 @@ async function generateLocalizedDraft() {
         border-radius: 999px;
         background: color-mix(in srgb, var(--caomei-color-primary) 12%, transparent);
         color: var(--caomei-color-primary);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         letter-spacing: 0.04em;
         text-transform: uppercase;
@@ -394,7 +394,7 @@ async function generateLocalizedDraft() {
 
     &__helper {
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__locale-select {

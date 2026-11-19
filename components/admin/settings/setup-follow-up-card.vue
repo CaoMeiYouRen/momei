@@ -115,7 +115,7 @@ const suggestedTabs: Array<{
     }
 
     &__eyebrow {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -124,7 +124,7 @@ const suggestedTabs: Array<{
 
     &__title {
         margin: 0;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
     }
 
     &__description {

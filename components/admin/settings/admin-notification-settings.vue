@@ -335,7 +335,7 @@ useUnsavedChangesGuard({
 
     &__section-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
     }
 
@@ -377,7 +377,7 @@ useUnsavedChangesGuard({
 
     &__helper {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         line-height: 1.5;
     }

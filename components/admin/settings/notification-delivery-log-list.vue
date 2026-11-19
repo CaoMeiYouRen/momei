@@ -426,7 +426,7 @@ onMounted(() => {
 
     &__title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
     }
 
@@ -491,7 +491,7 @@ onMounted(() => {
         align-items: center;
         gap: $spacing-xs;
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         overflow-wrap: anywhere;
     }
 

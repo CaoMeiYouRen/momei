@@ -328,7 +328,7 @@ watch(() => props.modelValue, (val) => {
 
     &__name {
         font-weight: 700;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         color: var(--caomei-color-text);
         white-space: nowrap;
         overflow: hidden;
@@ -336,7 +336,7 @@ watch(() => props.modelValue, (val) => {
     }
 
     &__description {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         white-space: nowrap;
         overflow: hidden;
@@ -367,7 +367,7 @@ watch(() => props.modelValue, (val) => {
     }
 
     p {
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
     }
 }
 </style>
