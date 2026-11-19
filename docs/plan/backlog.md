@@ -19,7 +19,7 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
+- **最近一次上收阶段**: 第八十阶段（第二十一批，2026-11-19 **已上收**：`scripts/docs/check-line-count.mjs`（10/56）与 `scripts/testing/probe-build-geometry.mjs`（94/190）的纯函数 / 解析 / 失败路径）。上一批为第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
 - **当前基线**: 同源口径 Statements **`85.97%`**（`33,622 / 39,105`，2026-11-18 第七十九阶段收口；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」，连跑 3 次一致）。距 `90%+` 长期目标约 4.0pp。
 - **下一次可切片方向**: 覆盖率同源复算挂接 `code-quality-auditor` review checklist（待补挂）；单批 `+0.3pp` 约需 **115 条**，下一批优先从剩余脚本池（`check-governance` / `capture-visual-reference` 等未闭合部分）与组件池中选取，须保留「失败 / 边界优先」的断言标准；`components/admin/admin-taxonomy-page.vue` 需先拆分组件。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
@@ -83,7 +83,7 @@
 - **目标**: 把脚本作为长期治理主线的事实源，为 ESLint / 类型债、结构复用、注释治理、文档治理等建立可重复执行的计数、分桶与 delta 输出；治理 `scripts/**` 的长期入口、孤儿脚本、临时脚本残留与输出漂移；稳定后并入固定回归入口。
 - **专项设计事实源**: [script-governance.md](../design/governance/script-governance.md)。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十九阶段（条目 2：`probe:build-geometry` 常驻并接入 weekly `required: false`；条目 4：`prune:parity-allowlist` 清零脚本与流程，2026-11-18 **已完成**）。上一阶段为第七十八阶段（条目 6：`governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，2026-11-18 **已完成**：governance 面 5 → 7 步、均 `required: false`，并补断言锁住 warning 面）。
+- **最近一次上收阶段**: 第八十阶段（条目 6：用 `prune:parity-allowlist` 在 CI 重采后清零参考态允许清单，2026-11-19 **已上收**）。上一阶段为第七十九阶段（条目 2：`probe:build-geometry` 常驻并接入 weekly `required: false`；条目 4：`prune:parity-allowlist` 清零脚本与流程，2026-11-18 **已完成**）。上一阶段为第七十八阶段（条目 6：`governance:audit:unused-components` 与 `governance:check:index` 接入 `regression:weekly` warning 面，2026-11-18 **已完成**：governance 面 5 → 7 步、均 `required: false`，并补断言锁住 warning 面）。
 - **当前基线**: `governance:check:scripts` 与 `audit:simple-duplicates`、`audit:eslint-debt`、`audit:comment-drift` 均已进入 `regression:weekly` warning 面；`docs:check:line-count:candidate` 与 `docs:check:source-of-truth:candidate` 仍为独立 baseline。
 - **下一次可切片方向**: 按周级回归趋势跟踪 comment-drift 的 TODO / 复述 / 漂移候选数，仅在数值异常反弹时治理；评估 docs candidate 入口是否进入更高频回归；零引用组件扫描在报告模式稳定运行 2 个阶段后，再评估是否并入 `regression:weekly` warning 面。
 
@@ -91,7 +91,7 @@
 
 - **目标**: 把 Dependabot / Code Scanning 告警与 ESLint 未覆盖规则（issue #262）当作同一条可量化债务线：告警按严重级与可修性分流、无补丁项进受控台账；ESLint 规则按 `governance:inventory:eslint-rules` 的「命中数 × 目录」分桶逐批升档清零，不为变绿放宽门禁。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第七十八阶段（条目 1：静态规则债第三批 `no-inferrable-types` / `use-unknown-in-catch-callback-variable` + `dependency-risk-allowlist` 复核日期与到期提醒，2026-11-18 **已完成**：两规则 77 处清零后直接升 `error`，inventory / debt 双产物 0 命中 / 0 豁免；台账 5 条 `reviewBy` 2027-05-14，过期或未登记在 `--mode=error` 判红；issue #262 已回写）。
+- **最近一次上收阶段**: 第八十阶段（条目 5：`@vite-pwa/nuxt` 升 `^2.0.2` 并把 `workbox` 选项迁移到 `generateSW`，2026-11-19 **已上收**）。上一阶段为第七十八阶段（条目 1：静态规则债第三批 `no-inferrable-types` / `use-unknown-in-catch-callback-variable` + `dependency-risk-allowlist` 复核日期与到期提醒，2026-11-18 **已完成**：两规则 77 处清零后直接升 `error`，inventory / debt 双产物 0 命中 / 0 豁免；台账 5 条 `reviewBy` 2027-05-14，过期或未登记在 `--mode=error` 判红；issue #262 已回写）。
 - **当前基线（2026-11-18 复算）**: `pnpm audit`（release 门禁）6 条豁免全部登记 `dependency-risk-allowlist.json` 且均带 `reviewBy: 2027-05-14`：extract-zip ×2（high，无补丁）、braces（high，无补丁）、zod 3（high，LHCI 锁定链）、deepmerge（low，仅追踪）、**picomatch（high，GHSA-fc5q-39xc-vjpf，2026-11-17 新披露，`first_patched_version` 为空、npm 最新即 4.0.7，165 条构建期链）**；Dependabot open 仅 deepmerge #275 low（无补丁，仅追踪、不改门禁 severity）；minimatch #286 / glob #284 已按父级 scoped override 定向抬版、quill #22 随依赖移除，三者于推送 `b649181e` 后由 Dependabot 重扫关闭；`@hono/node-server` 两条 medium 已随 2.1.8 关闭；`caomei-ui` 已于 2026-11-14 升级到 `^1.2.0` 并撤销 `ignore` / 人工批准守卫，回到常规依赖通道（迁移方案 §3.12）。ESLint 候选规则（`governance:inventory:eslint-rules` 2026-11-17 复算，warning 0 / 显式豁免 0）按命中数排序：`explicit-function-return-type` 1411 / `prefer-nullish-coalescing` 1380 / `no-unnecessary-condition` 308 / `no-unsafe-member-access` 289 / `restrict-template-expressions` 250 / `no-unsafe-assignment` 230 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50（`no-inferrable-types` 与 `use-unknown-in-catch-callback-variable` 已于第七十八阶段条目 1 清零并升 `error`，不再计入候选）；`no-non-null-assertion` 仍为 warning 且命中 24。Code Scanning open 已归零（2026-11-15 浮层守卫 4 条 fixed）。
 - **待跟踪（2026-11-18 新增，责任人：依赖与静态规则债治理）**: 依赖 PR 的 rebase 自动合并会在连续合并时产生坏锁文件（`ae73996f` 实证：`@lucide/vue@1.73.0` 重复映射键使 master 的 Test / Pages / Docker / Daily 全红），并会让 major 升级绕过评估静默落地（`@vite-pwa/nuxt` 2.0.1）。系统性解法候选：① 把 major 升级排除出自动合并（draft 或人工合并）；② 引入 merge queue + `conflict_resolvers`（见短期候选「Mergify 合并策略与 merge queue 采用」的详细方案 §4，需先闭环 §7 的 6 项验证）。两项均须用户确认后另立条目。**追溯评估已落地（2026-11-18，第七十九阶段条目 6）**：`@vite-pwa/nuxt` 2.0.1 结论为**保留**（构建产物 / client plugin 注册链 / Workbox 8 均按预期生效，无行为回退）；上游 v2.0.2 已修复 SW 与 manifest route rules 的重建问题，下次依赖窗口抬到 `^2.0.2`，`workbox` → `generateSW` 迁移单独立项。详见 [追溯评估](../design/governance/2026-11-18-vite-pwa-nuxt-2-retrospective.md)。另：若未来重新引入 quill 富文本编辑器，须先确认上游已修复 HTML 导出的 XSS（原依赖已移除，见 [短期候选解决归档](./archive/backlog-resolved-candidates.md)）。
 - **下一次可切片方向**: 第三批已收口；下一批按命中数递增取 `no-confusing-void-expression`（80 命中 / 29 文件）与 `no-unsafe-argument`（50 命中 / 23 文件）；`no-unsafe-*` 系列须单列条目并先评估 typed lint 作用域；`explicit-function-return-type` / `prefer-nullish-coalescing` 等千级命中项保持 `[0]` 直到有专项批次。
@@ -101,7 +101,7 @@
 - **目标**: 把「界面是否合格」从审美讨论收敛为可判定检查项与可回归证据。维护一份只收真实命中、影响使用的界面自检清单（U1–U6），用它驱动视觉债清偿与视觉门禁扩容；不追求一次重做设计体系。
 - **专项设计事实源**: [界面自检清单与视觉债治理计划](../design/governance/2026-10-26-ui-review-checklist-plan.md)；可执行判据见 [界面自检清单](../design/ui-review-checklist.md)。
 - **状态**: 进行中（S1 已随第七十三阶段条目 1 收口；S2 字阶首批已上收第七十四阶段条目 5；字号归一第一 / 第二批已随第七十七 / 第七十八阶段完成，剩余 admin 路由面与暗色 tint 仍待切片）。
-- **最近一次上收阶段**: 第七十八阶段（条目 5 `AppAvatar` 生产尺寸缺陷修复 2026-11-17 **已完成**：自有包装元素承载 `$attrs` 与 `--app-avatar-box`，构建产物实测 64 / 48 / 32px；条目 3 字号归一第二批 2026-11-18 **已完成**：非 admin 路由面 9 文件 51 处等值 token，零视觉差异）。
+- **最近一次上收阶段**: 第八十阶段（条目 3：字号归一第三批，`components/admin/settings` 35 处 + `styles/_onboarding.scss`，2026-11-19 **已上收**）。上一阶段为第七十八阶段（条目 5 `AppAvatar` 生产尺寸缺陷修复 2026-11-17 **已完成**：自有包装元素承载 `$attrs` 与 `--app-avatar-box`，构建产物实测 64 / 48 / 32px；条目 3 字号归一第二批 2026-11-18 **已完成**：非 admin 路由面 9 文件 51 处等值 token，零视觉差异）。
 - **当前基线**: 457 条 `font-size:`（2026-11-17 `governance:inventory:font-sizes` 复算，128 文件 / 64 种取值）/ token 化 **139 条（30.42%）** / 可等价替换 274 条（59.96%）/ 口径内待替换 **135 条** / 非字阶 149 条 / scss 变量 34 条；状态色幻影 token（34 处）与迁移遗留 `--p-surface-border`（93 处）/ `--p-text-color-secondary`（15 处）已随第七十二阶段清零；「暂无文章」空态误用、空表分页与三处层序失效已随第七十三阶段条目 1 修复；扫描面 194 处 `border:`；视觉门禁 admin 23 条 + reader 18 条（41 路由 / 82 张参考态 + 1 条登记守卫，共 83 项比对）已全部迁移并校准，`PENDING_ROUTES` 为空；以 `tests/visual/parity/routes.ts` 为单点事实源；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
 - **下一次可切片方向**: **字号归一第三批**——剩余 135 条口径内待替换集中在 admin 路由面（`components/admin/settings` 35 处为最大单点）与 `styles/_onboarding.scss`（需「启动 tour 后截图」取证），单批 ≤10 文件。每批仍按评估报告处理剩余口径内字面量与归纳后的非字阶取值（不得直接按现值批量替换），并做 `getComputedStyle` 逐元素对账 + `test:visual` / `parity` 未归因差异 0。之后才是原有的暗色 tint 与 U1–U6 扩展评估。
 - **待跟踪（2026-11-01 新增，责任人：UI 视觉质量治理）**: 字段文案同义检查已以 warning 面落地——`pnpm i18n:audit:field-copy` 已进入 `regression:weekly` 的 `required: false` 步骤，仅 `--fail-on-findings` 时非零退出。2026-11-18 复算：181 个 Vue 文件，R1 标签与占位符同义 11 处、R2 占位符承载规则信息 10 处，合计 **21 处**（原登记 183 文件 / 18 + 11 = 29 处）。两周观察期已满，待按「命中率 / 误报率 / 修复成本」决定是否收窄为 UI 自检 U7；在此之前**不改** `docs/design/ui-review-checklist.md` 的 U1–U6 边界，也不把该原则写入 `AGENTS.md` / `development.md`。已知漏报（不视为缺陷）：术语不一致型（如「推送标题」vs「请输入邮件标题」）与 `SettingFormField` 这类由父级 `field-key` 提供标签的形态。
@@ -188,24 +188,13 @@
 4. **国际化语种扩展留档（西语 / 葡语 / 法语 / 俄语 / 德语）**
     - **留档范围**: 记录未来可扩展语种候选（es / pt / fr / ru / de），仅用于前置评估，不代表承诺上线。
     - **当前结论**: 短期内不规划新增语种，继续优先保障现有语言链路稳定性、翻译质量与性能基线；若后续上收，需先补齐 locale 注册、路由策略、SEO 元信息、翻译资源拆分与回归预算评估。
-5. **迁移进度可视化与断点续传 (P3, 候选)**
-    - **背景**: CLI 支持 `--concurrency` 并发导入，但大型博客（数百篇）中途失败需从头开始；断点续传可显著改善体验。
-    - **技术方案**: CLI 本地维护迁移状态文件（`.momei-migration-state.json`），记录每篇 pending / success / failed / skipped；导入前检查并跳过已成功项；支持 `--resume` / `--clean`；显示进度（成功 / 失败 / 待处理 / 总数）。
-    - **非目标**: 不做分布式迁移、不做跨机器续传、不做失败项自动重试。
-    - **前置条件**: 评估状态文件格式与兼容性；确认存放位置（源目录 vs 当前目录）。
-    - **验收标准**: 中断后重跑可跳过已成功项；`--resume` 正确启用续传；进度实时更新；状态文件格式清晰可读。
-6. **Mergify 合并策略与 merge queue 采用（候选评估）**
+5. **Mergify 合并策略与 merge queue 采用（候选评估）**
     - **背景**: `.github/mergify.yml` 目前只有一条「立即合并」规则（`actions: merge` / `method: rebase`），依赖 PR 逐个独立落库、每次都改写 `pnpm-lock.yaml`。实测近 20 分钟内有 6 个依赖 PR 相继被自动合并，导致任何同样修改 lockfile 的维护者 PR 反复冲突（#890 连续三次重定基后仍 `behind 3`，一次观测 #877 已 `behind 18`），形成「必须抢在下次依赖合并前完成合并」的不对称拉锯。
     - **要点**: merge queue 能把「自动 update base + 基于最新 base 重测 + 批处理」从人工转为机制，但**队列本身不是冲突解决器**（与 base 的真实冲突会立即 dequeue）；对症的是 `conflict_resolvers`（官方明确覆盖 pnpm-lock.yaml 的包管理器感知形式），而它**只在 `merge_method` 为 `fast-forward` / `merge-batch` 时生效**——即必须放弃现有 `rebase` 语义。取舍与历史形态对照见详细方案 §4。
     - **最小范围**: 分两步——第一步仅引入队列并保留 `rebase`（拿到自动 update + 重测，不改历史形态与冲突语义），同时验证队列在本仓的实际行为；第二步再评估以 `conflict_resolvers` 换取 `merge-batch` / `fast-forward`。
     - **非目标**: 不引入 GitHub 原生 merge queue（无 batch、无 `conflict_resolvers`，对 lockfile 反复冲突场景不对症）；不改变依赖升级节奏、override 体系与 `security:audit-deps` 门禁口径；不借本次调整改动分支保护策略。
     - **上收前置**: 先闭环详细方案 §7 的 6 项待验证——尤其是「当前套餐是否覆盖 Batch / `conflict_resolvers`」「`conflict_resolvers` 对与 base 冲突是否生效」「机械消解后 lockfile 是否内部自洽」。必须在测试仓库用真实 `pnpm-lock.yaml` 冲突跑通一轮后再动生产配置。
     - **详细方案**: [2026-10-12-mergify-merge-queue-adoption-evaluation.md](../design/governance/2026-10-12-mergify-merge-queue-adoption-evaluation.md)
-7. **首页缓存与语言检测解耦（② + ③ 组合，P2 候选）**
-    - **背景**: 第七十六阶段条目 4 的决策记录确认 `/` 因 `Set-Cookie: i18n_redirected` + 无 `cache-control` 被 Cloudflare 判为 `DYNAMIC`；SSR 返回的是语言中立 200（`Accept-Language` / 偏好 cookie 都不改变 HTML，重定向在客户端）。
-    - **待办**: 关闭或条件化 `detectBrowserLanguage.useCookie`（仅在显式切换语言时写偏好，例如客户端写入），让 `/` 去掉 `Set-Cookie` 并进入 SWR 缓存；补五语重定向与语言持久化 E2E；与运维配合配置 Cloudflare Cache Key / Vary（Accept-Language 或偏好 cookie）并验证 `cf-cache-status` 命中与不串语言。
-    - **非目标**: 不放宽 nitropack 2.13.6 缓存安全规则；不改鉴权 / 会话链路；不为缓存牺牲无 JS 场景的默认语言正确性。
-    - **验收标准**: `/` 响应无 `Set-Cookie` 且带 `s-maxage`；边缘命中可复跑；五语重定向与显式切换持久化不回退；决策与探针落 `artifacts/review-gate/`。
 
 ## 待跟踪与上游反馈登记（跨主线）
 

@@ -11,7 +11,7 @@
 
 ## 2. 当前基线（2026-11-18）
 
-- `roadmap.md`: `334` 行（`wc -l` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十九阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-79.md`，主窗口保留阶段摘要表与最近阶段归档结论，无当前阶段规划正文）。
+- `roadmap.md`: `364` 行（`wc -l` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第七十九阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-79.md`，主窗口保留阶段摘要表、最近阶段归档结论与第八十阶段规划正文）。
 - `todo-archive.md`: `344` 行（`wc -l` 口径），健康窗口（主窗口保留第七十至第七十九阶段共 10 个近线归档块；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
 - `backlog.md`: `240` 行（脚本口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 7 条待上收候选 + 跨主线待跟踪项；已上收 / 已闭合 / 已完成条目已于 2026-11-18 迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第七十八阶段收口 85.99%，第二十批已上收第七十九阶段）。
 - `docs/reports/regression/current.md`: 近线窗口（2026-11-15 的 5 个窗口已随第七十八阶段收口滚动归档；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
@@ -83,3 +83,5 @@
 - 回归记录入口: [../../reports/regression/index.md](../../reports/regression/index.md)
 
 - 本轮（2026-11-18）完成第七十九阶段归档收口：`roadmap.md` 迁出第七十九阶段正文至 `roadmap-phases-79.md`（主窗口 `334` 行，仅保留摘要表与归档结论）；`todo-archive.md` 收录第七十九阶段归档块，主窗口保留第七十至第七十九阶段共 10 个近线窗口（`344` 行）；`todo.md` 已清空当前阶段（无进行中阶段，`33` 行）；`backlog.md` 同步 `networkidle` 明确保留与 `@vite-pwa/nuxt` 2.0.1 保留结论（`239` 行）；回归窗口 `51` 行 / 3 条（含 2026-11-18 阶段收口回填）；新增 `roadmap-phases-79.md` 并登记本索引 §7。
+
+- 本轮（2026-11-19）立项第八十阶段「功能与体验收口」：用户于候选页确认方案 A（6 条，ROI 均值 `2.00`）；`roadmap.md` 写入 6 条完整规划（`364` 行），`todo.md` 同步执行面（`79` 行）；`backlog.md` 将 CLI 断点续传与首页缓存解耦迁入短期候选解决归档，并回填 #1 / #9 / #10 / #11 的「最近一次上收阶段」（`228` 行）；四语种 roadmap 摘要同步「第八十阶段已立项」并刷新 `last_sync`。
