@@ -476,7 +476,7 @@ const hexoProviderOptions = computed(() => [
     }
 
     &__section-title {
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 600;
         padding-bottom: 0.5rem;
         margin-bottom: 1.5rem;

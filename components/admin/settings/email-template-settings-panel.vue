@@ -474,7 +474,7 @@ async function loadPreview() {
     }
 
     &__preview-label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
     }
 

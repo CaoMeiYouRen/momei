@@ -9,7 +9,7 @@
 
     &__intro-title {
         margin: 0;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 600;
         color: var(--caomei-color-text);
     }
@@ -29,7 +29,7 @@
 
         /* CaomeiCard 根元素把字号固定为 14px；迁移前 PrimeVue Card 继承正文 16px，
          * 区块描述文字因此会缩小。显式恢复 16px，组件内部控件各自声明字号不受影响。 */
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
     }
 
     &__section-header {
@@ -42,7 +42,7 @@
 
     &__section-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
     }
 
@@ -74,7 +74,7 @@
     }
 
     &__label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
     }
 
@@ -145,7 +145,7 @@
         display: flex;
         flex-direction: column;
         gap: $spacing-xs;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__empty,

@@ -405,7 +405,7 @@ const renderMarkdown = (content: string) => md.render(content)
 
         .aggregating-text {
             color: var(--caomei-color-text-muted);
-            font-size: 1.125rem;
+            font-size: var(--m-font-size-lg);
             animation: pulse 2s infinite;
         }
     }
@@ -427,7 +427,7 @@ const renderMarkdown = (content: string) => md.render(content)
                 align-items: center;
                 gap: 0.5rem;
                 margin: 0;
-                font-size: 1.25rem;
+                font-size: var(--m-font-size-xl);
                 color: var(--caomei-color-primary);
             }
         }
@@ -452,7 +452,7 @@ const renderMarkdown = (content: string) => md.render(content)
                 gap: 0.5rem;
                 margin-top: 0;
                 margin-bottom: 1.25rem;
-                font-size: 1.125rem;
+                font-size: var(--m-font-size-lg);
             }
 
             .expansion-fields {
@@ -466,7 +466,7 @@ const renderMarkdown = (content: string) => md.render(content)
                     gap: 0.5rem;
 
                     label {
-                        font-size: 0.875rem;
+                        font-size: var(--m-font-size-sm);
                         font-weight: 600;
                     }
 
@@ -500,7 +500,7 @@ const renderMarkdown = (content: string) => md.render(content)
                     padding: 0.5rem 1rem;
                     background-color: var(--m-primary-100);
                     font-weight: 600;
-                    font-size: 0.875rem;
+                    font-size: var(--m-font-size-sm);
 
                     :global(.dark) & {
                         background-color: var(--m-primary-900);
@@ -540,7 +540,7 @@ const renderMarkdown = (content: string) => md.render(content)
                 display: block;
                 font-weight: 600;
                 margin-bottom: 0.5rem;
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
             }
 
             .field-input {
@@ -565,7 +565,7 @@ const renderMarkdown = (content: string) => md.render(content)
                 background-color: var(--m-blue-50);
                 color: var(--m-blue-700);
                 border-radius: 0.5rem;
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
 
                 :global(.dark) & {
                     background-color: var(--m-blue-950);

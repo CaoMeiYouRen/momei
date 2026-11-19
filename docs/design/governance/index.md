@@ -74,6 +74,7 @@
 - **[PrimeVue token 映射表（`--p-*` → `--caomei-*` / `--m-*`）](./2026-11-08-primevue-token-mapping)**: 由 `governance:check:token-map:doc` 校验文档与映射脚本一致。
 - **[字号治理：字阶 token 与首批试点](./2026-11-13-font-size-scale-pilot)**: 字阶定义、分桶表快照与试点范围（数字以 `governance:inventory:font-sizes` 为准）。
 - **[非字阶字号取值归一评估](./2026-11-15-font-size-normalization-evaluation)**: 逐处清单、等距桶判定与后续批次的处置建议。
+- **[字号归一第三批（admin settings + onboarding）](./2026-11-19-font-size-batch3-admin-settings)**: 15 文件 37 处等值替换、批次拆分依据、与条目口径的偏差说明与未覆盖边界。
 
 ## 性能、缓存与流量
 

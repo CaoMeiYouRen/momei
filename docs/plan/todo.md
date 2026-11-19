@@ -39,7 +39,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；探针 JSON / E2E 日志落 `artifacts/review-gate/`。
     - **回滚边界**: i18n 配置与 E2E 独立 revert；kill-switch 为恢复 `useCookie: true`。
 
-- [ ] **3. 字号归一第三批（P3 视觉）**: 替换 `components/admin/settings` 35 处与 `styles/_onboarding.scss` 的口径内字面量，单批 ≤10 文件；tour 截图取证。
+- [x] **3. 字号归一第三批（P3 视觉）**: 替换 `components/admin/settings` 35 处与 `styles/_onboarding.scss` 的口径内字面量，单批 ≤10 文件；tour 截图取证。
     - **验收标准**: 口径内待替换 135 → ≤100；token 覆盖上升；逐元素 `getComputedStyle` 0 差异；`test:visual` 32/32、parity 83/83 未归因 0。
     - **非目标**: 不改非字阶值、不按现值批量替换、不改暗色 tint、不动 admin-taxonomy。
     - **验证 / 证据**: V1 + V3 + RG；inventory 与对账 / 截图落 `artifacts/review-gate/`。

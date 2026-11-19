@@ -10,14 +10,14 @@ body .driver-popover {
     font-family: var(--caomei-font-sans, inherit);
 
     .driver-popover-title {
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 600;
         margin-bottom: $spacing-sm;
         color: $color-text;
     }
 
     .driver-popover-description {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         line-height: 1.5;
         color: $color-text-muted;
     }
@@ -31,7 +31,7 @@ body .driver-popover {
     }
 
     .driver-popover-progress-text {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: $color-text-muted;
     }
 
@@ -44,7 +44,7 @@ body .driver-popover {
         color: $onboarding-btn-color;
         border: 1px solid transparent;
         padding: 0.5rem 1rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         border-radius: $border-radius-sm;
         transition: all 0.2s;
         cursor: pointer;
@@ -86,7 +86,7 @@ body .driver-popover {
     .driver-popover-close-btn {
         background-color: transparent;
         color: $color-text-muted;
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         padding: 0;
         line-height: 1;
         top: 0.75rem;
