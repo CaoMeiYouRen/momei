@@ -240,7 +240,7 @@ export function renderMarkdownReport(report) {
     return `${lines.join('\n')}\n`
 }
 
-function writeReport(outputPath, report, rootDir = repoRoot) {
+export function writeReport(outputPath, report, rootDir = repoRoot) {
     const absolutePath = path.isAbsolute(outputPath) ? outputPath : path.join(rootDir, outputPath)
     fs.mkdirSync(path.dirname(absolutePath), { recursive: true })
     fs.writeFileSync(absolutePath, `${JSON.stringify(report, null, 2)}\n`, 'utf8')
@@ -249,13 +249,16 @@ function writeReport(outputPath, report, rootDir = repoRoot) {
     return absolutePath
 }
 
-async function waitForServer(baseURL, timeoutMs) {
-    const deadline = Date.now() + timeoutMs
+export async function waitForServer(baseURL, timeoutMs, deps = {}) {
+    const fetchImpl = deps.fetchImpl ?? fetch
+    const now = deps.now ?? (() => Date.now())
+    const sleep = deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)))
+    const deadline = now() + timeoutMs
     let lastError = ''
 
-    while (Date.now() < deadline) {
+    while (now() < deadline) {
         try {
-            const response = await fetch(`${baseURL}/api/install/status`)
+            const response = await fetchImpl(`${baseURL}/api/install/status`)
             if (response.status < 500) {
                 return
             }
@@ -264,18 +267,21 @@ async function waitForServer(baseURL, timeoutMs) {
             lastError = error instanceof Error ? error.message : String(error)
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await sleep(500)
     }
 
     throw new Error(`服务未在 ${timeoutMs}ms 内就绪（${lastError || '无响应'}）`)
 }
 
-async function waitForSeededAdmin(baseURL, timeoutMs) {
-    const deadline = Date.now() + timeoutMs
+export async function waitForSeededAdmin(baseURL, timeoutMs, deps = {}) {
+    const fetchImpl = deps.fetchImpl ?? fetch
+    const now = deps.now ?? (() => Date.now())
+    const sleep = deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)))
+    const deadline = now() + timeoutMs
 
-    while (Date.now() < deadline) {
+    while (now() < deadline) {
         try {
-            const response = await fetch(`${baseURL}/api/install/status`)
+            const response = await fetchImpl(`${baseURL}/api/install/status`)
             const body = await response.json()
             if (body?.data?.installed) {
                 return
@@ -283,19 +289,23 @@ async function waitForSeededAdmin(baseURL, timeoutMs) {
         } catch {
             // 种子尚未就绪，继续等待
         }
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await sleep(500)
     }
 
     throw new Error(`TEST_MODE 种子未在 ${timeoutMs}ms 内就绪`)
 }
 
-async function signIn(context, baseURL, timeoutMs) {
-    await waitForSeededAdmin(baseURL, timeoutMs)
+export async function signIn(context, baseURL, timeoutMs, deps = {}) {
+    const sleep = deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)))
+    const now = deps.now ?? (() => Date.now())
+    const waitForSeededAdminFn = deps.waitForSeededAdmin ?? waitForSeededAdmin
 
-    const deadline = Date.now() + timeoutMs
+    await waitForSeededAdminFn(baseURL, timeoutMs, deps)
+
+    const deadline = now() + timeoutMs
     let lastStatus = 0
 
-    while (Date.now() < deadline) {
+    while (now() < deadline) {
         const response = await context.request.post(`${baseURL}/api/auth/sign-in/email`, {
             headers: { 'Content-Type': 'application/json', Origin: baseURL },
             data: { ...TEST_ADMIN, rememberMe: true },
@@ -306,13 +316,13 @@ async function signIn(context, baseURL, timeoutMs) {
         }
 
         lastStatus = response.status()
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await sleep(500)
     }
 
     throw new Error(`测试管理员登录失败：HTTP ${lastStatus}`)
 }
 
-async function measureProbe(page, probe) {
+export async function measureProbe(page, probe) {
     return page.evaluate(({ selector, syntheticBox }) => {
         const source = document.querySelector(selector)
         if (!(source instanceof HTMLElement)) {
@@ -345,13 +355,22 @@ async function measureProbe(page, probe) {
     }, { selector: probe.selector, syntheticBox: probe.syntheticBox })
 }
 
-async function runRealProbes(options) {
+export async function runRealProbes(options) {
+    const deps = {
+        chromiumImpl: chromium,
+        exists: (target) => fs.existsSync(target),
+        measureProbeFn: measureProbe,
+        signInFn: signIn,
+        spawnImpl: spawn,
+        waitForServerFn: waitForServer,
+        ...options.deps,
+    }
     const probes = options.probes
     const buildEntry = path.isAbsolute(options.buildEntry)
         ? options.buildEntry
         : path.join(options.rootDir, options.buildEntry)
 
-    if (!options.baseUrl && !fs.existsSync(buildEntry)) {
+    if (!options.baseUrl && !deps.exists(buildEntry)) {
         return {
             skipped: true,
             skipReason: `构建产物不存在：${path.relative(options.rootDir, buildEntry)}（先执行 pnpm build）`,
@@ -364,7 +383,7 @@ async function runRealProbes(options) {
 
     try {
         if (!options.baseUrl) {
-            serverProcess = spawn(process.execPath, [buildEntry], {
+            serverProcess = deps.spawnImpl(process.execPath, [buildEntry], {
                 cwd: options.rootDir,
                 env: {
                     ...process.env,
@@ -392,12 +411,12 @@ async function runRealProbes(options) {
             })
         }
 
-        await waitForServer(baseURL, options.timeoutMs)
+        await deps.waitForServerFn(baseURL, options.timeoutMs, options.deps)
 
-        const browser = await chromium.launch()
+        const browser = await deps.chromiumImpl.launch()
         try {
             const context = await browser.newContext({ baseURL, viewport: { width: 1440, height: 900 } })
-            await signIn(context, baseURL, options.timeoutMs)
+            await deps.signInFn(context, baseURL, options.timeoutMs, options.deps)
             const page = await context.newPage()
             const results = []
 
@@ -405,7 +424,7 @@ async function runRealProbes(options) {
                 await page.goto(`${baseURL}${probe.path}`, { waitUntil: 'domcontentloaded', timeout: options.timeoutMs })
                 try {
                     await page.waitForSelector(probe.selector, { timeout: 15000, state: 'attached' })
-                    results.push(evaluateProbe(probe, await measureProbe(page, probe)))
+                    results.push(evaluateProbe(probe, await deps.measureProbeFn(page, probe)))
                 } catch (error) {
                     results.push(evaluateProbe(probe, { found: false, error: error instanceof Error ? error.message : String(error) }))
                 }
@@ -426,6 +445,7 @@ export async function main(options = {}) {
     const args = options.args ?? parseArgs()
     const rootDir = options.rootDir ?? repoRoot
     const log = options.log ?? console
+    const runProbes = options.runProbes ?? runRealProbes
 
     const probes = options.probes ?? loadProbes(args.config, rootDir)
     const baseURL = args.baseUrl || `http://127.0.0.1:${args.port}`
@@ -459,7 +479,7 @@ export async function main(options = {}) {
         return report
     }
 
-    const outcome = await runRealProbes({ ...args, probes, rootDir, buildEntry, baseUrl: args.baseUrl, timeoutMs: args.timeoutMs })
+    const outcome = await runProbes({ ...args, probes, rootDir, buildEntry, baseUrl: args.baseUrl, timeoutMs: args.timeoutMs, deps: options.deps })
     const report = {
         generatedAt: new Date().toISOString(),
         dryRun: false,

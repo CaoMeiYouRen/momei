@@ -45,7 +45,7 @@
     - **验证 / 证据**: V1 + V3 + RG；inventory 与对账 / 截图落 `artifacts/review-gate/`。
     - **回滚边界**: 按文件独立 revert。
 
-- [ ] **4. 覆盖率第二十一批（P2）**: 补 `scripts/docs/check-line-count.mjs`（10/56）与 `scripts/testing/probe-build-geometry.mjs`（94/190）的纯函数 / 解析 / 失败路径。
+- [x] **4. 覆盖率第二十一批（P2）**: 补 `scripts/docs/check-line-count.mjs`（10/56）与 `scripts/testing/probe-build-geometry.mjs`（94/190）的纯函数 / 解析 / 失败路径。
     - **验收标准**: 同源 `+0.3pp`（约 115 条）或模块 ≥85%（`check-line-count` ≥48/56、`probe-build-geometry` ≥162/190）；干净全量 delta 落 `artifacts/coverage/`；定向测试与 flaky 归因完成。
     - **非目标**: 不测真实浏览器 `runRealProbes`、不重构公开行为、不新增测试依赖、不为凑数测模板分支。
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本。
