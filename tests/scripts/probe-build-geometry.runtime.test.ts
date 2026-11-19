@@ -242,12 +242,14 @@ describe('probe-build-geometry 实测编排', () => {
             browser,
             chromiumImpl: { launch: vi.fn().mockResolvedValue(browser) },
             context,
+            exists: vi.fn().mockReturnValue(true),
             measureProbeFn: vi.fn().mockImplementation(async (_page: unknown, probe: { expected: { height: number, width: number } }) => ({
                 found: true,
                 ...probe.expected,
             })),
             page,
             signInFn: vi.fn().mockResolvedValue(undefined),
+            spawnImpl: vi.fn(),
             waitForServerFn: vi.fn().mockResolvedValue(undefined),
             ...overrides,
         }
