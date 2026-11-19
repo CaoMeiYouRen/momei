@@ -82,6 +82,7 @@ import { invalidateAuthSessionState, refreshAuthSession, useAuthRouteSession } f
 import { authClient } from '@/lib/auth-client'
 
 const { t, locales, setLocale } = useI18n()
+const { remember: rememberLocale } = useLocalePreference()
 const toast = useToast()
 const loading = ref(false)
 
@@ -186,6 +187,7 @@ const handleUpdateProfile = async () => {
             await refreshAuthSession()
 
             if (profileForm.value.language) {
+                rememberLocale(profileForm.value.language)
                 await setLocale(profileForm.value.language as 'zh-CN' | 'en-US' | 'zh-TW' | 'ko-KR' | 'ja-JP')
             }
             toast.show({ tone: 'success', title: t('common.success'), description: t('pages.settings.profile.success'), duration: 3000 })

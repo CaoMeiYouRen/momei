@@ -79,6 +79,10 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: e2eBaseURL,
 
+        /* 固定浏览器语言：语言偏好改由客户端 cookie 承担后，`/` 的初始渲染取决于浏览器语言；
+         * 固定取值保证各机器 / CI 的渲染与断言一致（需要其他语言时在用例内 test.use 覆盖）。 */
+        locale: 'zh-CN',
+
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
         /* Capture screenshot on failure */

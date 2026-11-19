@@ -79,3 +79,38 @@ curl -sS -D - -o /dev/null https://momei.app/robots.txt | grep -Ei 'cache-contro
 ### 7.4 后续候选
 
 已登记 backlog 短期候选「首页缓存与语言检测解耦（② + ③ 组合）」，包含：`useCookie: false` 或仅在显式切换时写 cookie、`/` 去 `Set-Cookie`、客户端重定向 E2E、边缘 Cache Key 运维配置与命中验证。未完成前不得放宽 nitropack 缓存安全规则。
+
+## 8. 方案 ② 落地（第八十阶段条目 2，2026-11-19）
+
+**结论：`detectBrowserLanguage.useCookie` 关闭，偏好改由客户端在显式切换时写入；`/` 去掉 `Set-Cookie` 并进入既有 SWR。**
+
+### 8.1 实现
+
+| 位置 | 改动 |
+|:---|:---|
+| `nuxt.config.ts` | `i18n.detectBrowserLanguage.useCookie: false`（`cookieKey` / `redirectOn: 'root'` 不变） |
+| `composables/use-locale-preference.ts` | 偏好 cookie 的唯一读写点：`remember(code)` 写、`preference` 读、`clear()` 清 |
+| `plugins/i18n-preference.client.ts` | `app:mounted` 后若当前在 `/` 且偏好与当前语言不同，则客户端 `navigateTo('/<locale>')`；**不参与 SSR** |
+| `components/language-switcher.vue`、`components/settings/settings-profile.vue` | 用户显式切换语言时调用 `remember(code)` |
+| `playwright.config.ts` | E2E 固定 `locale: 'zh-CN'`，使根路径初始渲染与断言在各机器一致（视觉层配置本就固定） |
+
+### 8.2 本地实测（`TEST_MODE` 构建产物，`http://127.0.0.1:3107`）
+
+| 检查项 | 结果 |
+|:---|:---|
+| `GET /` | 200；`cache-control: s-maxage=3600, stale-while-revalidate`；**无 `set-cookie`** |
+| `GET /en-US` | 200；无 `set-cookie`（改造前该路由同样写 cookie） |
+| 五语根重定向 | `zh-CN→/`、`en-US→/en-US`、`zh-TW→/zh-TW`、`ja-JP→/ja-JP`、`ko-KR→/ko-KR`，`htmlLang` 与目标一致 |
+| 显式切换 | 写 `i18n_redirected`，刷新后保持；回访 `/` 落到偏好语言且 `htmlLang` 正确 |
+| hydration 提示 | 与改造前基线同量（根路径 1 条、直接访问 `/en-US` 4 条），未新增 |
+
+探针：`pnpm probe:i18n-cache --base-url=<url>`（输出 `set-cookie` / `cache-control` / `cf-cache-status` / `age` / `location` / `vary`，默认落 `artifacts/review-gate/i18n-cache-probe-latest.json`）。
+
+### 8.3 实现约束（排查记录）
+
+客户端插件在 **setup 期调用 `useI18n()`** 会让整个应用渲染进错误页（五语路径与任意路由均 500，控制台无可见 pageerror）；i18n 上下文尚未安装。二分结论：`useCookie` 在 setup 期安全，i18n 状态必须从 `nuxtApp.$i18n` / `nuxtApp.$router` 读取并在 `app:mounted` 之后执行。该约束已写入插件注释，避免后续重写踩回。
+
+### 8.4 未覆盖边界
+
+- 边缘 `cf-cache-status` 仍需运维侧核对：`/` 现在具备可缓存响应头，但 Cloudflare 是否命中属部署配置，仓库内不作保证。
+- 偏好 cookie 只是「显式选择」的载体；清除站点数据后回落浏览器语言。

@@ -32,6 +32,7 @@ defineOptions({
 })
 
 const { locale, locales, setLocale } = useI18n()
+const { remember } = useLocalePreference()
 const attrs = useAttrs()
 
 const availableLocales = computed(() => {
@@ -43,6 +44,7 @@ const localeMenuItems = computed(() => {
         label: l.name,
         class: locale.value === l.code ? 'is-active-locale' : '',
         command: () => {
+            remember(l.code)
             setLocale(l.code)
         },
     }))

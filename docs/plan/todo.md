@@ -33,12 +33,8 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；CLI 定向单测，证据落 `artifacts/review-gate/`。
     - **回滚边界**: CLI 新增模块与参数独立 revert。
 
-- [ ] **2. 首页缓存与语言检测解耦（P2 性能 / SEO，受控纳入）**: 关闭或条件化 `detectBrowserLanguage.useCookie`，`/` 去 `Set-Cookie` 并进入既有 SWR；补五语重定向与显式切换 E2E 及响应头探针。
-    - **阻塞（2026-11-19）**: 已验证 `useCookie: false` 后 `/` 返回 `cache-control: s-maxage=3600, stale-while-revalidate` 且无 `Set-Cookie`、五语根重定向与 `htmlLang` 正确（证据 `artifacts/review-gate/2026-11-19-phase80-item2/i18n-usecookie-false-probe.json`）；但「显式切换偏好持久化」的客户端插件方案在本地构建中导致页面渲染进入错误态，未定位根因前已按 kill-switch 回退，工作区无残留改动。按阶段移出顺序（`2 → 6 → 4`）本条移出本阶段，留待独立条目重做。
-    - **验收标准**: 本地 preview `/` 无 `Set-Cookie` 且有 `s-maxage`；五语重定向与偏好持久化 E2E 通过、无 hydration 错误；决策文档补齐执行结果；边缘 `cf-cache-status` 验证单列未覆盖边界。
-    - **非目标**: 不放宽 nitropack 缓存安全规则、不改 routeRules 时长、不改鉴权 / 会话、不把 Cloudflare Cache Key 写成仓库保证。
-    - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；探针 JSON / E2E 日志落 `artifacts/review-gate/`。
-    - **回滚边界**: i18n 配置与 E2E 独立 revert；kill-switch 为恢复 `useCookie: true`。
+- [x] **2. 首页缓存与语言检测解耦（P2 性能 / SEO，受控纳入）**: 关闭或条件化 `detectBrowserLanguage.useCookie`，`/` 去 `Set-Cookie` 并进入既有 SWR；补五语重定向与显式切换 E2E 及响应头探针。
+    - **完成摘要**: `useCookie: false` + `composables/use-locale-preference.ts`（显式切换才写偏好）+ `plugins/i18n-preference.client.ts`（`app:mounted` 后在 `/` 客户端应用偏好，不参与 SSR）；新增 `tests/e2e/i18n-locale-preference.e2e.test.ts`（7 例：五语根重定向、显式切换与回访、首页响应头）与 `pnpm probe:i18n-cache`。实测 `/` 返回 `s-maxage` 且无 `Set-Cookie`，`test:visual` 32/32、`test:visual:parity` 82/83（余 1 条为本机测试数据态的头像兜底差异，CI 已通过）。决策与排查记录见 `docs/design/governance/2026-11-15-homepage-swr-i18n-cookie-decision.md` §8。
 
 - [x] **3. 字号归一第三批（P3 视觉）**: 替换 `components/admin/settings` 35 处与 `styles/_onboarding.scss` 的口径内字面量，单批 ≤10 文件；tour 截图取证。
     - **验收标准**: 口径内待替换 135 → ≤100；token 覆盖上升；逐元素 `getComputedStyle` 0 差异；`test:visual` 32/32、parity 83/83 未归因 0。
