@@ -32,10 +32,10 @@
 - **`reviewBy` 复核日期接入日常巡检** → 条目 3：接入 `security:audit-deps:daily` 的 summary / JSON 与 `security:alerts` 输出行，只增可见性，不改 severity 与退出码语义。
 - **parity 允许清单清零脚本化** → 条目 4：由 `scripts/testing/prune-parity-allowlist.mjs` 按 testName 清零 `parity-budget.json` 的 `allowlist`（重采后执行），原「手工清零」待跟踪项关闭。
 
-### 已上收至进行中阶段（第八十阶段，2026-11-19 立项）
+### 第八十阶段上收条目（2026-11-19 立项并完成）
 
-- **CLI 迁移断点续传** → 条目 1：`momei import` 增加本地状态文件、`--resume` / `--state-file` / `--clean-state`；原候选中的「分布式 / 跨机器续传 / 自动重试」仍为非目标。
-- **首页缓存与语言检测解耦（② + ③ 组合）** → 条目 2：关闭或条件化 `detectBrowserLanguage.useCookie`，`/` 去 `Set-Cookie` 并进入既有 SWR；五语重定向 / 显式切换 E2E 与响应头探针为验收，边缘 Cache Key 验证单列为未覆盖边界。
+- **CLI 迁移断点续传** → 条目 1（**已完成**）：`momei import` 增加本地状态文件、`--resume` / `--state-file` / `--clean-state`，新增 24 例单测；原候选中的「分布式 / 跨机器续传 / 自动重试」仍为非目标。提交 `bc93c165`。
+- **首页缓存与语言检测解耦（② + ③ 组合）** → 条目 2（**已完成**）：`useCookie: false` + 显式切换写偏好 + 客户端根路径应用，`/` 去 `Set-Cookie` 并返回 `s-maxage`；新增 7 例 E2E 与 `probe:i18n-cache`，边缘 Cache Key 验证仍单列为未覆盖边界。提交 `5a6362e1`。
 
 ### 已完成 / 已闭合的跟踪项
 

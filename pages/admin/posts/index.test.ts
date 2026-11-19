@@ -2,6 +2,7 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, type Ref } from 'vue'
 import AdminPostsPage from './index.vue'
+import { settleUi } from '@/tests/helpers/ui-interaction'
 
 /**
  * 单元层（迁移方案 §8.2 ①）：`/admin/posts` 路由迁移后的结构与逻辑契约。
@@ -717,11 +718,13 @@ describe('AdminPostsPage', () => {
         const badges = wrapper.findAll('.stub-row')[0]!.findAll('.badge')
 
         await badges[0]!.trigger('click')
+        await settleUi()
         expect(navigateToMock).toHaveBeenCalledWith('/admin/posts/post-1')
 
         navigateToMock.mockClear()
         // ja-JP 无既有翻译 → 走新建分支（来源取 `translationId || id`）。
         await badges[2]!.trigger('click')
+        await settleUi()
         expect(navigateToMock).toHaveBeenCalledWith({
             path: '/admin/posts/new',
             query: { translationId: 'post-1', language: 'ja-JP' },

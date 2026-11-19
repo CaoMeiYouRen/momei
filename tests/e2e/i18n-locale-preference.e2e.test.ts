@@ -34,12 +34,17 @@ test.describe('语言偏好与根路径重定向', () => {
 
     test('显式切换语言写入偏好 cookie 并在回访根路径时生效', async ({ page, context, baseURL }) => {
         await page.goto('/')
-        await expect(page.locator('#lang-switcher button')).toBeVisible()
+        const trigger = page.locator('#lang-switcher button')
+        await expect(trigger).toBeVisible()
 
-        await page.locator('#lang-switcher button').click()
-        await page.locator('#language_menu [role="menuitem"]').nth(1).click()
-
-        await expect.poll(() => new URL(page.url()).pathname, { timeout: 15000 }).not.toBe('/')
+        /* 菜单在首屏未水合时点击会静默失效，按「点击 → 断言目标状态」有界重试。 */
+        const targetItem = page.locator('#language_menu [role="menuitem"]').nth(1)
+        await expect(async () => {
+            await trigger.click({ timeout: 3000 })
+            await expect(targetItem).toBeVisible({ timeout: 3000 })
+            await targetItem.click({ timeout: 3000 })
+            await expect.poll(() => new URL(page.url()).pathname, { timeout: 3000 }).not.toBe('/')
+        }).toPass({ timeout: 20000 })
 
         const cookies = await context.cookies()
         const preference = cookies.find((cookie) => cookie.name === 'i18n_redirected')

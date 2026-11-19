@@ -21,12 +21,34 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第七十九阶段共 10 个近线归档块。
+- 主文档当前保留第七十至第八十阶段共 11 个近线归档块（`366` 行，低于 warning `500`，暂不迁出）。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十阶段：功能与体验收口（已审计归档）
+
+> 归档说明: 第八十阶段 6 条条目已于 2026-11-19 完成并归档（2026-11-19 立项并收口）；阶段规划正文见 [roadmap 分片](./archive/roadmap-phases-80.md)，Review Gate 证据见 `artifacts/review-gate/2026-11-19-phase80-item{1..6}.md`。
+
+- [x] **1. CLI 迁移断点续传（P2 功能）**
+    - **完成摘要**: 新增 `packages/cli/src/import-state.ts`（状态文件默认 `<sourceDir>/.momei-migration-state.json`，记录相对路径 / 内容哈希 / `pending·success·failed·skipped` / `postId` / 错误 / 更新时间）与 `--resume` / `--state-file` / `--clean-state`；损坏或缺失状态文件降级为空状态并提示，写盘失败不阻断导入，`--dry-run` 不读写状态，内容哈希变化不误跳过。新增 24 例单测（`import-state.test.ts` 16 例 + `import-command.test.ts` 8 例），`packages/cli` 12 文件 / 176 例全绿。提交 `bc93c165`，Review Gate Pass。
+
+- [x] **2. 首页缓存与语言检测解耦（P2 性能 / SEO，受控纳入）**
+    - **完成摘要**: `detectBrowserLanguage.useCookie` 置 `false`，偏好改由 `composables/use-locale-preference.ts` 在显式切换时写入，`plugins/i18n-preference.client.ts` 于 `app:mounted` 后仅在根路径做客户端应用（不进 SSR 响应头）。`/` 现返回 `cache-control: s-maxage=3600, stale-while-revalidate` 且无 `Set-Cookie`，五语根重定向与 `htmlLang` 正确。新增 `tests/e2e/i18n-locale-preference.e2e.test.ts` 7 例（五语重定向 / 显式切换与回访 / 首页响应头）与 `pnpm probe:i18n-cache` 探针；E2E 配置固定 `locale: 'zh-CN'` 保证渲染确定性。排查结论：插件 setup 期调用 `useI18n()` 会让应用渲染错误页，i18n 状态须从 `nuxtApp.$i18n` 读取。提交 `5a6362e1`，Review Gate Pass。
+
+- [x] **3. 字号归一第三批（P3 视觉）**
+    - **完成摘要**: 15 文件 37 处等值字面量替换为 `var(--m-font-size-*)`（`components/admin/settings` 全部 20 处 + `styles/_onboarding.scss` 5 处 + `snippet-aggregate-dialog.vue` 7 处 + `link-governance.scss` 5 处），按单批 ≤10 文件拆为 A/B 两批提交；inventory 口径内待替换 **135 → 98**、token 化 **139 → 176**；逐元素 `getComputedStyle` 对账 **2,278 元素 0 差异**，`test:visual` 32/32、parity 83/83，tour 以 demo 模式启动后截图取证。提交 `fd47eb21` / `d85a4a7f`，Review Gate Pass。
+
+- [x] **4. 覆盖率第二十一批（P2）**
+    - **完成摘要**: 补 `check-line-count.test.ts` 18 例与 `probe-build-geometry.runtime.test.ts` 20 例；几何探针按「先抽纯函数再加用例」把等待 / 登录 / 测量 / 编排改为可注入依赖（真实浏览器与进程仍不单测）。模块覆盖 `check-line-count` **10/56 → 55/56**、`probe-build-geometry` **94/190 → 193/208**；干净全量 `pnpm test:coverage` 一次通过，同源 statements **85.97% → 86.35%（+0.38pp）**。提交 `94c1633c`（+ `057bec69` 修 Docker QA 类型检查），Review Gate Pass。
+
+- [x] **5. PWA 依赖窗口与 generateSW 迁移（P2）**
+    - **完成摘要**: `@vite-pwa/nuxt` 升 `^2.0.2`，`pwa.workbox` 迁移为 `pwa.generateSW`（缓存 / `skipWaiting` / denylist / glob 语义原样保留）。构建无 deprecated 警告，`sw.js` 23,402 B / 535 条预缓存、`workbox-*.js` 与 `manifest.webmanifest` 除 build id 外与迁移前逐字节一致；`probe:build-geometry` 3/3、`test:visual` 32/32、parity 83/83、安全门禁 Pass。提交 `dd2e5b6b`，Review Gate Pass。
+
+- [x] **6. parity 参考态重采与允许清单清零（P2）**
+    - **完成摘要**: CI `visual-reference-refresh.yml` run 44521494648（HEAD `bc93c165`）同一次运行重采 82 张参考态与 manifest（45 张字节变化），`prune:parity-allowlist` 清零 `user-settings` 明暗各 2 条允许清单，`admin-posts-list` 的「未归因·预算内吸收」随之关闭。本机 parity 82/83（余 1 条为 `/settings` 头像兜底的本机数据态差异），CI Visual Regression 通过。提交 `3199227c`（+ `17f87a03` 修文档相对链接），Review Gate Pass。
 
 ## 第七十九阶段：质量稳定性与门禁可信度（已审计归档）
 
