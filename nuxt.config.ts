@@ -46,7 +46,7 @@ export default defineNuxtConfig({
             ],
             display: 'standalone',
         },
-        workbox: {
+        generateSW: {
             // 生产部署后立即接管新版本，避免旧 SW 继续提供过期 CSS/HTML 组合。
             cleanupOutdatedCaches: true,
             clientsClaim: true,

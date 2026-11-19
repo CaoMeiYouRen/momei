@@ -60,6 +60,26 @@ pnpm build && ls .output/public/sw.js .output/public/workbox-*.js
 
 ## 5. 后续跟踪
 
-- [ ] 下次依赖窗口把 `@vite-pwa/nuxt` 抬到 `^2.0.2`（patch，含 #241 修复），仍走常规依赖 PR；
-- [ ] 单独立项评估 `workbox` → `generateSW` 选项迁移（deprecated 移除前完成）；
+- [x] 下次依赖窗口把 `@vite-pwa/nuxt` 抬到 `^2.0.2`（patch，含 #241 修复），仍走常规依赖 PR；
+- [x] 单独立项评估 `workbox` → `generateSW` 选项迁移（deprecated 移除前完成）；
 - [ ] 系统性解法（major 不自动合并 / merge queue）保持在 [backlog 长期主线 §10](../../plan/backlog.md) 待用户确认。
+
+## 6. 2026-11-19 执行记录（第八十阶段条目 5）
+
+`@vite-pwa/nuxt` 升至 `^2.0.2`（锁定 `2.0.2`），`nuxt.config.ts` 的 `pwa.workbox` 改为 `pwa.generateSW`，配置项 `cleanupOutdatedCaches` / `clientsClaim` / `skipWaiting` / `navigateFallback` / `navigateFallbackDenylist` / `globPatterns` 原样迁移。
+
+| 检查项 | 实测 | 结论 |
+|:---|:---|:---|
+| `pnpm i --frozen-lockfile` | 通过（锁文件已随版本声明更新） | 一致 |
+| `pnpm build` | 退出码 0，构建日志无 `workbox option deprecated` 提示 | 迁移生效 |
+| `sw.js` | 23,402 B（迁移前后同字节数），预缓存 535 条；除 `_nuxt/builds/latest.json` 修订哈希与 build id 外逐字节相同 | 语义一致 |
+| `workbox-*.js` | 运行时文件名与内容与迁移前完全相同 | 语义一致 |
+| `manifest.webmanifest` | 与迁移前逐字节相同 | 语义一致 |
+| `pnpm probe:build-geometry` | 3/3 | 通过 |
+| `pnpm test:visual` / `test:visual:parity` | 32/32、83/83（未归因差异 0） | 通过 |
+| `security:audit-deps` / `security:alerts` | 均 Pass | 通过 |
+
+证据：`artifacts/review-gate/2026-11-19-phase80-item5/`（`before/` 与 `after/` 各含 `sw.js`、`workbox-f2d0f07d.js`、`manifest.webmanifest`）与 `artifacts/review-gate/2026-11-19-phase80-item5.md`。
+
+回滚边界不变：`package.json` / `pnpm-lock.yaml` / `nuxt.config.ts` 的 `pwa` 段同批 revert。
+

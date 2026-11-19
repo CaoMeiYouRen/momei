@@ -51,7 +51,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + RG；`coverage-final.json` 副本。
     - **回滚边界**: 测试与覆盖率产物独立。
 
-- [ ] **5. PWA 依赖窗口与 generateSW 迁移（P2）**: `@vite-pwa/nuxt` 升 `^2.0.2`；`pwa.workbox` → `pwa.generateSW`，保持缓存 / skipWaiting / denylist / glob 语义。
+- [x] **5. PWA 依赖窗口与 generateSW 迁移（P2）**: `@vite-pwa/nuxt` 升 `^2.0.2`；`pwa.workbox` → `pwa.generateSW`，保持缓存 / skipWaiting / denylist / glob 语义。
     - **验收标准**: frozen-lockfile 通过；build 无 deprecated 警告；产物 `sw.js` / `workbox-*.js` / manifest 语义一致；`probe:build-geometry` 3/3；`test:visual` 32/32、parity 83/83；安全门禁 Pass。
     - **非目标**: 不改运行时策略与 manifest 内容、不引入新 PWA 能力、不升其他 major。
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；构建产物与探针 JSON 落 `artifacts/review-gate/`。
