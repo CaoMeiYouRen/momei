@@ -34,6 +34,7 @@
     - **回滚边界**: CLI 新增模块与参数独立 revert。
 
 - [ ] **2. 首页缓存与语言检测解耦（P2 性能 / SEO，受控纳入）**: 关闭或条件化 `detectBrowserLanguage.useCookie`，`/` 去 `Set-Cookie` 并进入既有 SWR；补五语重定向与显式切换 E2E 及响应头探针。
+    - **阻塞（2026-11-19）**: 已验证 `useCookie: false` 后 `/` 返回 `cache-control: s-maxage=3600, stale-while-revalidate` 且无 `Set-Cookie`、五语根重定向与 `htmlLang` 正确（证据 `artifacts/review-gate/2026-11-19-phase80-item2/i18n-usecookie-false-probe.json`）；但「显式切换偏好持久化」的客户端插件方案在本地构建中导致页面渲染进入错误态，未定位根因前已按 kill-switch 回退，工作区无残留改动。按阶段移出顺序（`2 → 6 → 4`）本条移出本阶段，留待独立条目重做。
     - **验收标准**: 本地 preview `/` 无 `Set-Cookie` 且有 `s-maxage`；五语重定向与偏好持久化 E2E 通过、无 hydration 错误；决策文档补齐执行结果；边缘 `cf-cache-status` 验证单列未覆盖边界。
     - **非目标**: 不放宽 nitropack 缓存安全规则、不改 routeRules 时长、不改鉴权 / 会话、不把 Cloudflare Cache Key 写成仓库保证。
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；探针 JSON / E2E 日志落 `artifacts/review-gate/`。
