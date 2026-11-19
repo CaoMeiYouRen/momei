@@ -57,7 +57,7 @@
     - **验证 / 证据**: V0 + V1 + V2 + V3 + RG；构建产物与探针 JSON 落 `artifacts/review-gate/`。
     - **回滚边界**: 依赖声明、锁文件与 `pwa` 段同批 revert。
 
-- [ ] **6. parity 参考态重采与允许清单清零（P2）**: 触发 CI `visual-reference-refresh.yml` 重采 → 覆盖参考态 / manifest → `pnpm prune:parity-allowlist` 落盘 → 复跑 parity 并更新偏差处置表。
+- [x] **6. parity 参考态重采与允许清单清零（P2）**: 触发 CI `visual-reference-refresh.yml` 重采 → 覆盖参考态 / manifest → `pnpm prune:parity-allowlist` 落盘 → 复跑 parity 并更新偏差处置表。
     - **验收标准**: 参考态与 manifest 来自同一次 CI run；非空 allowlist 清零；parity 83/83 未归因差异 0；偏差表相应行关闭或改写。
     - **非目标**: 不本地重采作为门禁基线、不改预算阈值、不删 note 历史、不自动重采。
     - **验证 / 证据**: V2 + RG；CI run、prune 输出与 parity 报告落 `artifacts/review-gate/`。

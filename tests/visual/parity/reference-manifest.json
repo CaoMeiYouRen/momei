@@ -1,10 +1,10 @@
 {
-    "generatedAt": "2026-11-12T15:53:39.428Z",
+    "generatedAt": "2026-11-19T12:15:42.064Z",
     "environment": {
-        "browser": "chromium 158.0.8127.18",
-        "playwright": "1.65.0",
+        "browser": "chromium 159.0.8154.6",
+        "playwright": "1.65.1",
         "node": "v26.13.1",
-        "platform": "linux 7.0.0-1017-azure",
+        "platform": "linux 7.0.0-1019-azure",
         "viewport": "1440x900",
         "deviceScaleFactor": 1,
         "locale": "zh-CN",
@@ -18,577 +18,577 @@
     "captures": {
         "admin-comments-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-comments-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-submissions-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-submissions-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-external-links-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-external-links-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ad-campaigns-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ad-campaigns-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ad-placements-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ad-placements-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-friend-links-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-friend-links-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-link-governance-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-link-governance-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-posts-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-posts-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-subscribers-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-subscribers-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-users-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-users-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-waitlist-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-waitlist-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-categories-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-categories-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-tags-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-tags-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ai-stats-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ai-stats-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ai-tasks-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-ai-tasks-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-marketing-form-dialog-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-marketing-form-dialog-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-marketing-overview-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-marketing-overview-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "installation-wizard-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "installation-wizard-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "user-settings-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "user-settings-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-notifications-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-notifications-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-settings-form-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-settings-form-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-settings-theme-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-settings-theme-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-forgot-password-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-forgot-password-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-login-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-login-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-register-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-register-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-reset-password-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "auth-reset-password-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "submit-page-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "submit-page-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "home-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "home-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "post-detail-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "post-detail-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "about-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "about-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-snippets-capture-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-snippets-capture-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-snippets-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "admin-snippets-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "archives-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "archives-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "benefits-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "benefits-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "categories-index-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "categories-index-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "feedback-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "feedback-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "friend-links-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "friend-links-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "posts-list-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "posts-list-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "tags-index-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "tags-index-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "privacy-policy-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "privacy-policy-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "user-agreement-dark": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         },
         "user-agreement-light": {
             "ref": "HEAD",
-            "commit": "43d0b43d6856daf65d81209bb380abf23849bfc7",
+            "commit": "bc93c165e06e2ad308862c94676a0ec2c110e266",
             "source": "in-place",
             "label": "HEAD",
-            "capturedAt": "2026-11-12T15:53:39.428Z"
+            "capturedAt": "2026-11-19T12:15:42.064Z"
         }
     }
 }

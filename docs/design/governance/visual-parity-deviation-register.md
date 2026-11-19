@@ -244,6 +244,19 @@
 
 归因：`AppAvatar` 的 `xlarge` 因 `CaomeiAvatar` 的 Fragment 根丢弃 attrs，生产构建实测 40px（应为 64px）；修复后头像恢复 64px，`/settings` 卡片增高 24px，表单区与页脚区整体下移。参考态固化了该缺陷，故按两个非重叠功能带（表单区 / 页脚区）登记已归因差异，声明值 = 实测本身。下次 CI 全量重采参考态（`visual-reference-refresh.yml`）后本带可清零。依据见 `artifacts/review-gate/2026-11-17-phase78-item5.md`。
 
+**2026-11-19 CI 全量重采与允许清单清零（`admin-posts-list` 与 `user-settings` 两处关闭）**
+
+| testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |
+|:---|:---|:---|:---|:---|:---|:---|
+| admin-posts-list-light | admin | 3000 / 0.350% | 0 / 0.000% | 空 | 0px / 0.000% | PASS（重采后同源） |
+| admin-posts-list-dark | admin | 3000 / 0.350% | 0 / 0.000% | 空 | 0px / 0.000% | PASS（重采后同源） |
+| user-settings-light | reader | 2000 / 0.300% | 0 / 0.000% | 空 | 0px / 0.000% | PASS（重采后同源） |
+| user-settings-dark | reader | 2000 / 0.300% | 3199 / 0.247% | 空 | 3199px（本机数据态差异，见下） | 本机 FAIL / CI 裁决 |
+
+参考态与 `reference-manifest.json` 由 CI `visual-reference-refresh.yml`（run [44521494648](https://github.com/CaoMeiYouRen/momei/actions/runs/44521494648)，2026-11-19，HEAD `bc93c165`）同一次运行产出，82 张参考态中 45 张有字节变化，其余同内容；覆盖后 `pnpm prune:parity-allowlist` 将 `user-settings-light` / `user-settings-dark` 各 2 条允许清单清零（`parity-budget.json` 现无非空 allowlist），`admin-posts-list` 的「未归因·预算内吸收」行随之关闭。
+
+本机复跑 `pnpm test:visual:parity` 得 82 passed / 1 failed：`user-settings-dark` 在 `440,280 80x120`（`/settings` 头像区）差 3199px。逐像素定位为**头像兜底渲染差异**——CI 参考态与 CI 实际态均渲染 `CaomeiAvatar` 默认人形兜底，本机 `TEST_MODE` 服务渲染出首字母兜底（`aria-label="Test Admin"`），属本机测试数据 / 会话态差异而非代码差异；同一次本机运行的 `user-settings-light` 为 0 差异。按 [测试规范 §7](../standards/testing.md)「本地 flake 与渲染态差异以 CI 为裁决」，该条目结论以 CI `Test` 工作流的 Visual Regression 作业为准；若 CI 同点失败则回退本条参考态并重开允许清单。
+
 ## 待上游反馈（通道④）
 
 当前无「①~③ 均不可解」的未决项：分页对齐与行内图标按钮已由 `caomei-ui@0.4.0` 交付 token / `iconOnly`；字段外壳 `class` 落点与 DataTable 列 `class` / scoped 样式属文档缺口，已登记上游 Backlog §1.6（见 [2026-09-25 上游反馈清单](./2026-09-25-caomei-ui-upstream-feedback.md)）。
