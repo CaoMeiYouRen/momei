@@ -27,7 +27,7 @@
 
 **排程与移出顺序**: `3 → 5 → 1 → 4 → 6 → 2`；超时按 `2 → 6 → 4` 移出。
 
-- [ ] **1. CLI 迁移断点续传（P2 功能）**: 为 `momei import` 增加状态文件（默认 `<sourceDir>/.momei-migration-state.json`）、`--resume`、`--state-file`、`--clean-state`；记录路径 / 内容哈希 / 状态 / postId / 错误。
+- [x] **1. CLI 迁移断点续传（P2 功能）**: 为 `momei import` 增加状态文件（默认 `<sourceDir>/.momei-migration-state.json`）、`--resume`、`--state-file`、`--clean-state`；记录路径 / 内容哈希 / 状态 / postId / 错误。
     - **验收标准**: 中断后重跑跳过已成功项、仅重试失败与待处理；哈希变化不误跳过；损坏状态文件可降级；dry-run 不写状态；单测覆盖读写 / 降级 / 哈希 / 续传 / 清理。
     - **非目标**: 不做分布式 / 跨机器续传、失败项自动重试、Web 进度页；不改导入接口。
     - **验证 / 证据**: V0 + V1 + V2 + RG；CLI 定向单测，证据落 `artifacts/review-gate/`。

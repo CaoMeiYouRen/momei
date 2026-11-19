@@ -67,6 +67,11 @@ Common options:
 | `--confirm-path-aliases` | Accept fallback/repaired path aliases from validation | `false` |
 | `--rate-limit <num>` | Max requests per second (prevents 429) | `3` |
 | `--max-retries <num>` | Max retries on 429 errors (exponential backoff) | `3` |
+| `--resume` | Resume: skip posts already imported with unchanged content, retry failed/pending only | `false` |
+| `--state-file <file>` | Migration state file path | `<source>/.momei-migration-state.json` |
+| `--clean-state` | Clear the state file before running (ignored with `--dry-run`) | `false` |
+
+The state file records each source file's relative path, content hash, `pending` / `success` / `failed` / `skipped` status, `postId`, error and update time. It defaults to the source directory — add it to that repository's `.gitignore`. A corrupted or missing state file degrades to an empty state with a readable warning and never blocks the import; `--dry-run` neither reads nor writes it, and changed content (different hash) is never skipped.
 
 Examples:
 
@@ -88,6 +93,11 @@ momei import ./hexo-blog/source/_posts \
 
 # Import a Jekyll site (point at _posts so _site build output and vendor themes are skipped)
 momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
+
+# Resume after an interruption: skip posts already imported with unchanged content
+momei import ./hexo-blog/source/_posts \
+  --api-key your-api-key-here \
+  --resume
 ```
 
 Jekyll mapping: singular `tag` / `category` win as single values; plural `tags` / `categories` strings split on whitespace, and `categories` keeps the first entry for Momei's single-category model; a missing `date` falls back to the `YYYY-MM-DD-` filename prefix (UTC), `published: false` maps to draft, and `last_modified_at` maps to the updated time.

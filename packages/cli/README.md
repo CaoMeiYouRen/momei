@@ -66,6 +66,11 @@ momei import <source-directory> --api-key <your-api-key>
 | `--concurrency <num>` | 并发导入数量 | `3` |
 | `--rate-limit <num>` | 每秒最大请求数，防止触发服务端 429 限流 | `3` |
 | `--max-retries <num>` | 429 限流时的最大重试次数（指数退避 1s/2s/4s） | `3` |
+| `--resume` | 断点续传：跳过「已成功且内容哈希未变」的文章，只重试失败与待处理项 | `false` |
+| `--state-file <file>` | 迁移状态文件路径 | `<source>/.momei-migration-state.json` |
+| `--clean-state` | 运行前清除状态文件（`--dry-run` 下不生效） | `false` |
+
+迁移状态文件记录每篇源文件的相对路径、内容哈希、`pending` / `success` / `failed` / `skipped` 状态、`postId`、错误与更新时间；默认写在源目录内，建议加入该仓库的 `.gitignore`。状态文件损坏或缺失时会降级为空状态并给出提示，不中断导入；`--dry-run` 不读写状态文件。内容变更（哈希不同）不会被误跳过。
 
 示例：
 
@@ -87,6 +92,11 @@ momei import ./hexo-blog/source/_posts \
 
 # 从 Jekyll 站点导入（指向 _posts，避免扫描 _site 构建产物与 vendor 主题依赖）
 momei import ./jekyll-blog/_posts --format jekyll --dry-run --verbose
+
+# 中断后继续导入：跳过已成功且内容未变的文章
+momei import ./hexo-blog/source/_posts \
+  --api-key your-api-key-here \
+  --resume
 ```
 
 Jekyll 字段映射：单数键 `tag` / `category` 优先（整串为单值），复数键 `tags` / `categories` 的字符串形式按空白拆分，`categories` 在墨梅单分类模型下取拆分首项；`date` 缺失时从文件名 `YYYY-MM-DD-` 前缀（UTC）补齐，`published: false` 判为草稿，`last_modified_at` 映射更新时间。

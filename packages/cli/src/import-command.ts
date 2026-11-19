@@ -6,6 +6,21 @@ import ora from 'ora'
 import type { MomeiImportPostRequest } from '@momei-blog/api-client'
 import { buildImportExecutionPlan, type CliImportValidationCandidate } from './import-validation'
 import { migrateImportEntriesLocalImages, type LocalImageMigrationReport } from './import-image-migration'
+import {
+    clearImportState,
+    computeImportEntryHash,
+    createImportState,
+    createImportStateWriter,
+    DEFAULT_IMPORT_STATE_FILE,
+    loadImportState,
+    normalizeEntryPath,
+    recordImportStateEntry,
+    resolveImportStateFile,
+    saveImportState,
+    shouldResumeSkip,
+    summarizeImportState,
+    type ImportState,
+} from './import-state'
 import { parseHexoFiles } from './parser'
 import { HugoParser } from './hugo-parser'
 import { JekyllParser } from './jekyll-parser'
@@ -30,6 +45,9 @@ interface ImportCommandOptions {
     rateLimit: number | string
     maxRetries: number | string
     format?: string
+    resume?: boolean
+    stateFile?: string
+    cleanState?: boolean
 }
 
 export function getParser(format: string | undefined): ContentParser {
@@ -140,6 +158,222 @@ function displayImageMigrationSummary(report: LocalImageMigrationReport) {
     console.log(chalk.red(`  Failed: ${report.summary.failed}\n`))
 }
 
+interface ImportStateContext {
+    state: ImportState
+    stateFile: string
+}
+
+async function prepareImportState(
+    sourceDir: string,
+    options: ImportCommandOptions,
+    dryRun: boolean,
+): Promise<ImportStateContext> {
+    const stateFile = resolveImportStateFile(sourceDir, options.stateFile)
+
+    if (dryRun) {
+        console.log(chalk.gray(`State File: ${stateFile}（dry-run 不读写状态文件）`))
+
+        if (options.cleanState) {
+            console.log(chalk.gray('  --clean-state 在 dry-run 下不生效，状态文件保持不变'))
+        }
+
+        return { state: createImportState(sourceDir), stateFile }
+    }
+
+    if (options.cleanState) {
+        await clearImportState(stateFile)
+        console.log(chalk.gray(`State File: ${stateFile}（已按 --clean-state 清除）`))
+    }
+
+    const loaded = await loadImportState(stateFile, sourceDir)
+    console.log(chalk.gray(`State File: ${stateFile}`))
+
+    if (loaded.warning) {
+        console.warn(chalk.yellow(`⚠️  ${loaded.warning}`))
+    }
+
+    if (options.resume) {
+        if (!loaded.existed) {
+            console.log(chalk.yellow('⚠️  未找到迁移状态文件，本次按全量导入执行'))
+        } else {
+            const previous = summarizeImportState(loaded.state)
+            console.log(chalk.gray(
+                `Resume: 已成功 ${previous.success} / 失败 ${previous.failed} / 待处理 ${previous.pending} / 跳过 ${previous.skipped}`,
+            ))
+        }
+    }
+
+    return { state: loaded.state, stateFile }
+}
+
+/** 状态文件写盘失败不应阻断导入，只提示并放弃本次断点记录。 */
+async function persistImportState(stateFile: string, state: ImportState): Promise<boolean> {
+    try {
+        await saveImportState(stateFile, state)
+
+        return true
+    } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error)
+        console.warn(chalk.yellow(`⚠️  状态文件写入失败（继续导入，本次不记录断点）：${reason}`))
+
+        return false
+    }
+}
+
+type EntryMeta = Map<string, { hash: string, path: string }>
+
+function buildEntryMeta(posts: ParsedPost[]): EntryMeta {
+    const meta: EntryMeta = new Map()
+
+    for (const post of posts) {
+        meta.set(post.file, {
+            hash: computeImportEntryHash(post),
+            path: normalizeEntryPath(post.relativeFile),
+        })
+    }
+
+    return meta
+}
+
+/** 校验判定为非导入的条目（跳过 / 冲突 / 无效）在状态里落为 `skipped`。 */
+function markValidationSkipped(
+    state: ImportState,
+    items: ReturnType<typeof buildImportExecutionPlan>['items'],
+    entryMeta: EntryMeta,
+): ImportState {
+    let next = state
+
+    for (const item of items) {
+        if (item.action === 'import') {
+            continue
+        }
+
+        const meta = entryMeta.get(item.file)
+
+        if (!meta) {
+            continue
+        }
+
+        next = recordImportStateEntry(next, { ...meta, error: item.actionReason, status: 'skipped' })
+    }
+
+    return next
+}
+
+function markPendingEntries(state: ImportState, entries: Array<{ file: string }>, entryMeta: EntryMeta): ImportState {
+    let next = state
+
+    for (const entry of entries) {
+        const meta = entryMeta.get(entry.file)
+
+        if (meta) {
+            next = recordImportStateEntry(next, { ...meta, status: 'pending' })
+        }
+    }
+
+    return next
+}
+
+function applyResumeFilter<T extends { file: string }>(
+    entries: T[],
+    entryMeta: EntryMeta,
+    state: ImportState,
+): { entries: T[], skipped: number } {
+    const filtered = entries.filter((entry) => {
+        const meta = entryMeta.get(entry.file)
+
+        return !(meta && shouldResumeSkip(state, meta.path, meta.hash))
+    })
+
+    return { entries: filtered, skipped: entries.length - filtered.length }
+}
+
+function buildImportReport(context: {
+    dryRun: boolean
+    executionPlan: ReturnType<typeof buildImportExecutionPlan>
+    imageMigrationReport: LocalImageMigrationReport | null
+}) {
+    const { dryRun, executionPlan, imageMigrationReport } = context
+
+    return {
+        generatedAt: new Date().toISOString(),
+        dryRun,
+        summary: executionPlan.summary,
+        imageMigration: imageMigrationReport
+            ? {
+                enabled: imageMigrationReport.enabled,
+                summary: imageMigrationReport.summary,
+                items: imageMigrationReport.items,
+            }
+            : undefined,
+        items: executionPlan.items.map((item) => ({
+            file: item.relativeFile,
+            action: item.action,
+            actionReason: item.actionReason,
+            report: item.report,
+        })),
+    }
+}
+
+function displayImportHeader(context: {
+    apiUrl: string
+    concurrency: number
+    dryRun: boolean
+    formatLabel: string
+    maxRetries: number | string
+    rateLimit: number | string
+    sourceDir: string
+    uploadImages: boolean
+}) {
+    console.log(chalk.blue('\n🚀 Momei Migration Tool\n'))
+    console.log(chalk.gray(`Source: ${context.sourceDir}`))
+    console.log(chalk.gray(`Format: ${context.formatLabel}`))
+    console.log(chalk.gray(`API URL: ${context.apiUrl}`))
+    console.log(chalk.gray(`Dry Run: ${context.dryRun ? 'Yes' : 'No'}`))
+    console.log(chalk.gray(`Upload Local Images: ${context.uploadImages ? 'Yes' : 'No'}`))
+    console.log(chalk.gray(`Concurrency: ${context.concurrency}`))
+    console.log(chalk.gray(`Rate Limit: ${String(context.rateLimit)} req/s`))
+    console.log(chalk.gray(`Max Retries: ${String(context.maxRetries)}\n`))
+}
+
+function displayParsedPosts(posts: ParsedPost[]) {
+    console.log(chalk.gray('\nParsed posts:'))
+    posts.forEach(({ file, post }) => {
+        console.log(chalk.gray(`  - ${post.title} (${file})`))
+    })
+}
+
+async function runImageMigration(
+    posts: ParsedPost[],
+    options: { client: MomeiApiClient | null, dryRun: boolean, sourceDir: string },
+): Promise<LocalImageMigrationReport> {
+    const { client, dryRun, sourceDir } = options
+    const spinner = ora(dryRun
+        ? 'Scanning local image references (dry run)...'
+        : 'Uploading local images and rewriting references...').start()
+
+    const report = await migrateImportEntriesLocalImages(posts, {
+        sourceDir,
+        dryRun,
+        uploadPrefix: 'migrations/image/',
+        authorizeDirectUpload: dryRun
+            ? undefined
+            : async (payload) => {
+                if (!client) {
+                    throw new Error('API client is unavailable for image upload')
+                }
+
+                const response = await client.authorizeDirectUpload(payload)
+                return response.data
+            },
+    })
+
+    spinner.succeed(chalk.green('Local image migration finished'))
+    displayImageMigrationSummary(report)
+
+    return report
+}
+
 async function runImport(source: string, options: ImportCommandOptions) {
     const { apiUrl, apiKey, dryRun, verbose, reportFile, confirmPathAliases, uploadImages, format } = options
     const concurrency = Number.parseInt(String(options.concurrency), 10)
@@ -153,15 +387,19 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
     const sourceDir = resolve(process.cwd(), source)
     const formatLabel = format || 'hexo'
-    console.log(chalk.blue('\n🚀 Momei Migration Tool\n'))
-    console.log(chalk.gray(`Source: ${sourceDir}`))
-    console.log(chalk.gray(`Format: ${formatLabel}`))
-    console.log(chalk.gray(`API URL: ${apiUrl}`))
-    console.log(chalk.gray(`Dry Run: ${dryRun ? 'Yes' : 'No'}`))
-    console.log(chalk.gray(`Upload Local Images: ${uploadImages ? 'Yes' : 'No'}`))
-    console.log(chalk.gray(`Concurrency: ${concurrency}`))
-    console.log(chalk.gray(`Rate Limit: ${String(options.rateLimit)} req/s`))
-    console.log(chalk.gray(`Max Retries: ${String(options.maxRetries)}\n`))
+    const resume = Boolean(options.resume)
+    displayImportHeader({
+        apiUrl,
+        concurrency,
+        dryRun,
+        formatLabel,
+        maxRetries: options.maxRetries,
+        rateLimit: options.rateLimit,
+        sourceDir,
+        uploadImages,
+    })
+
+    const { state: initialState, stateFile } = await prepareImportState(sourceDir, options, dryRun)
 
     const spinner = ora(`Scanning and parsing ${formatLabel} files...`).start()
     try {
@@ -175,10 +413,7 @@ async function runImport(source: string, options: ImportCommandOptions) {
         }
 
         if (verbose) {
-            console.log(chalk.gray('\nParsed posts:'))
-            posts.forEach(({ file, post }) => {
-                console.log(chalk.gray(`  - ${post.title} (${file})`))
-            })
+            displayParsedPosts(posts)
         }
 
         const rateLimiterOptions = {
@@ -187,32 +422,9 @@ async function runImport(source: string, options: ImportCommandOptions) {
             maxRetries: Number.parseInt(String(options.maxRetries), 10) || 3,
         }
         const client = apiKey ? new MomeiApiClient(apiUrl, apiKey, rateLimiterOptions) : null
-        let imageMigrationReport: LocalImageMigrationReport | null = null
-
-        if (uploadImages) {
-            const imageSpinner = ora(dryRun
-                ? 'Scanning local image references (dry run)...'
-                : 'Uploading local images and rewriting references...').start()
-
-            imageMigrationReport = await migrateImportEntriesLocalImages(posts, {
-                sourceDir,
-                dryRun,
-                uploadPrefix: 'migrations/image/',
-                authorizeDirectUpload: dryRun
-                    ? undefined
-                    : async (payload) => {
-                        if (!client) {
-                            throw new Error('API client is unavailable for image upload')
-                        }
-
-                        const response = await client.authorizeDirectUpload(payload)
-                        return response.data
-                    },
-            })
-
-            imageSpinner.succeed(chalk.green('Local image migration finished'))
-            displayImageMigrationSummary(imageMigrationReport)
-        }
+        const imageMigrationReport = uploadImages
+            ? await runImageMigration(posts, { client, dryRun, sourceDir })
+            : null
 
         if (!apiKey && dryRun) {
             console.log(chalk.yellow('\n⚠️  Dry run completed with local parsing only. Provide --api-key for alias validation and conflict checks.'))
@@ -227,24 +439,10 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         const executionPlan = buildImportExecutionPlan(candidates, { confirmPathAliases })
         displayImportValidationSummary(executionPlan)
-        await maybeWriteImportReport({
-            generatedAt: new Date().toISOString(),
-            dryRun,
-            summary: executionPlan.summary,
-            imageMigration: imageMigrationReport
-                ? {
-                    enabled: imageMigrationReport.enabled,
-                    summary: imageMigrationReport.summary,
-                    items: imageMigrationReport.items,
-                }
-                : undefined,
-            items: executionPlan.items.map((item) => ({
-                file: item.relativeFile,
-                action: item.action,
-                actionReason: item.actionReason,
-                report: item.report,
-            })),
-        }, reportFile)
+        await maybeWriteImportReport(
+            buildImportReport({ dryRun, executionPlan, imageMigrationReport }),
+            reportFile,
+        )
 
         if (dryRun) {
             console.log(chalk.yellow('\n✓ Dry run completed. No posts were imported.'))
@@ -254,7 +452,10 @@ async function runImport(source: string, options: ImportCommandOptions) {
 
         console.log(chalk.blue('\n📤 Importing posts to Momei...\n'))
 
-        const importablePosts = executionPlan.items
+        const entryMeta = buildEntryMeta(posts)
+        let nextState = markValidationSkipped(initialState, executionPlan.items, entryMeta)
+
+        let importablePosts = executionPlan.items
             .filter((item) => item.action === 'import')
             .map((item) => ({
                 file: item.file,
@@ -264,8 +465,28 @@ async function runImport(source: string, options: ImportCommandOptions) {
                 },
             }))
 
+        let resumeSkipped = 0
+
+        if (resume) {
+            const filtered = applyResumeFilter(importablePosts, entryMeta, nextState)
+            importablePosts = filtered.entries
+            resumeSkipped = filtered.skipped
+        }
+
+        if (resumeSkipped > 0) {
+            console.log(chalk.gray(`↷ 跳过 ${resumeSkipped} 篇已成功且内容未变的文章（--resume）`))
+        }
+
         if (importablePosts.length === 0) {
-            console.log(chalk.yellow('No posts passed validation. Nothing was imported.'))
+            if (!dryRun) {
+                await persistImportState(stateFile, nextState)
+            }
+
+            if (resumeSkipped > 0) {
+                console.log(chalk.green('\n✓ 没有需要重新导入的文章（全部已成功且内容未变）\n'))
+            } else {
+                console.log(chalk.yellow('No posts passed validation. Nothing was imported.'))
+            }
             process.exitCode = 0
             return
         }
@@ -274,8 +495,21 @@ async function runImport(source: string, options: ImportCommandOptions) {
             total: importablePosts.length,
             success: 0,
             failed: 0,
-            skipped: executionPlan.summary.skipped,
+            skipped: executionPlan.summary.skipped + resumeSkipped,
             results: [],
+        }
+
+        let stateWriter: ReturnType<typeof createImportStateWriter> | null = null
+
+        if (!dryRun) {
+            nextState = markPendingEntries(nextState, importablePosts, entryMeta)
+            const persisted = await persistImportState(stateFile, nextState)
+            stateWriter = persisted
+                ? createImportStateWriter(stateFile, nextState, (error) => {
+                    const reason = error instanceof Error ? error.message : String(error)
+                    console.warn(chalk.yellow(`⚠️  状态文件写入失败（继续导入）：${reason}`))
+                })
+                : null
         }
 
         const progressSpinner = ora('Importing...').start()
@@ -296,10 +530,22 @@ async function runImport(source: string, options: ImportCommandOptions) {
                         console.log(chalk.red(`  ✗ ${result.file} → Error: ${result.error}`))
                     }
                 }
+
+                const meta = entryMeta.get(result.file)
+
+                if (meta) {
+                    stateWriter?.record({
+                        ...meta,
+                        error: result.success ? undefined : result.error,
+                        postId: result.postId,
+                        status: result.success ? 'success' : 'failed',
+                    })
+                }
             },
         })
 
         progressSpinner.stop()
+        await stateWriter?.flush()
         stats.results = results
 
         displaySummary(stats)
@@ -331,6 +577,9 @@ export function registerImportCommand(cli: CAC) {
         .option('--rate-limit <num>', 'Max requests per second (prevents 429)', { default: 3 })
         .option('--max-retries <num>', 'Max retries on 429 rate limit errors', { default: 3 })
         .option('--concurrency <num>', 'Number of concurrent imports', { default: 3 })
+        .option('--resume', 'Resume a previous import: skip posts already imported with unchanged content', { default: false })
+        .option('--state-file <file>', `Migration state file (default: <source>/${DEFAULT_IMPORT_STATE_FILE})`)
+        .option('--clean-state', 'Clear the migration state file before running (ignored with --dry-run)', { default: false })
         .action(async (source: string, options: ImportCommandOptions) => {
             await runImport(source, options)
         })

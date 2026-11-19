@@ -1,9 +1,10 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest'
 import type { CAC } from 'cac'
 import { getParser, registerImportCommand } from './import-command'
+import { computeImportEntryHash, resolveImportStateFile } from './import-state'
 import { parseHexoFiles } from './parser'
 import { HugoParser } from './hugo-parser'
 import { JekyllParser } from './jekyll-parser'
@@ -134,6 +135,34 @@ function createAliasReport(overrides: Record<string, unknown> = {}) {
             skipped: 0,
         },
         ...overrides,
+    }
+}
+
+function createImportedLocalPost(directory: string, index: number) {
+    return {
+        content: `# Post ${index}`,
+        file: join(directory, `post-${index}.md`),
+        post: { content: `content ${index}`, title: `Post ${index}` },
+        relativeFile: `post-${index}.md`,
+    }
+}
+
+function writeImportStateFile(stateFile: string, directory: string, entries: Record<string, unknown>) {
+    return writeFile(stateFile, JSON.stringify({
+        entries,
+        sourceDir: directory,
+        updatedAt: new Date().toISOString(),
+        version: 1,
+    }, null, 2), 'utf8')
+}
+
+function createSuccessStateEntry(post: ReturnType<typeof createImportedLocalPost>) {
+    return {
+        hash: computeImportEntryHash(post),
+        path: post.relativeFile,
+        postId: 11,
+        status: 'success',
+        updatedAt: new Date().toISOString(),
     }
 }
 
@@ -347,5 +376,189 @@ describe('import-command runImport', () => {
 
         expect(consoleErrorSpy).not.toHaveBeenCalled()
         expect(process.exitCode).toBe(1)
+    })
+})
+
+describe('import-command 断点续传', () => {
+    let directory: string
+    let stateFile: string
+    let originalExitCode: typeof process.exitCode
+    let consoleLogSpy: MockInstance<(...args: unknown[]) => void>
+    let consoleErrorSpy: MockInstance<(...args: unknown[]) => void>
+    let consoleWarnSpy: MockInstance<(...args: unknown[]) => void>
+
+    beforeEach(async () => {
+        directory = await mkdtemp(join(tmpdir(), 'momei-import-state-'))
+        stateFile = join(directory, 'migration-state.json')
+        originalExitCode = process.exitCode
+        process.exitCode = undefined
+        consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+        parseHexoMock.mockReset()
+        migrateImagesMock.mockReset()
+        validateImportPostMock.mockReset()
+        importPostsMock.mockReset()
+    })
+
+    afterEach(async () => {
+        process.exitCode = originalExitCode
+        consoleLogSpy.mockRestore()
+        consoleErrorSpy.mockRestore()
+        consoleWarnSpy.mockRestore()
+        await rm(directory, { force: true, recursive: true })
+    })
+
+    it('--resume 跳过已成功且内容未变的文章', async () => {
+        const posts = [createImportedLocalPost(directory, 1), createImportedLocalPost(directory, 2)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        importPostsMock.mockImplementation(async (imported: Array<{ file: string }>) => imported.map((post) => ({
+            file: post.file,
+            postId: 'new-id',
+            success: true,
+        })))
+        await writeImportStateFile(stateFile, directory, { 'post-1.md': createSuccessStateEntry(posts[0]!) })
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', dryRun: false, resume: true, stateFile }))
+
+        expect(importPostsMock).toHaveBeenCalledTimes(1)
+        const [importedPosts] = importPostsMock.mock.calls[0] as [Array<{ file: string }>]
+        expect(importedPosts.map((post) => post.file)).toEqual([posts[1]!.file])
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('跳过 1 篇已成功且内容未变的文章'))
+    })
+
+    it('内容哈希变化时不跳过', async () => {
+        const posts = [createImportedLocalPost(directory, 1)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        importPostsMock.mockImplementation(async (imported: Array<{ file: string }>) => imported.map((post) => ({
+            file: post.file,
+            postId: 'new-id',
+            success: true,
+        })))
+        await writeImportStateFile(stateFile, directory, {
+            'post-1.md': { ...createSuccessStateEntry(posts[0]!), hash: 'stale-hash' },
+        })
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', dryRun: false, resume: true, stateFile }))
+
+        expect(importPostsMock).toHaveBeenCalledTimes(1)
+        const [importedPosts] = importPostsMock.mock.calls[0] as [Array<{ file: string }>]
+        expect(importedPosts.map((post) => post.file)).toEqual([posts[0]!.file])
+    })
+
+    it('全部命中续传时不再调用导入接口', async () => {
+        const posts = [createImportedLocalPost(directory, 1)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        await writeImportStateFile(stateFile, directory, { 'post-1.md': createSuccessStateEntry(posts[0]!) })
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', dryRun: false, resume: true, stateFile }))
+
+        expect(importPostsMock).not.toHaveBeenCalled()
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('没有需要重新导入的文章'))
+        expect(process.exitCode).toBe(0)
+    })
+
+    it('导入完成后把成功与失败结果写入状态文件', async () => {
+        const posts = [createImportedLocalPost(directory, 1), createImportedLocalPost(directory, 2)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        importPostsMock.mockImplementation(async (imported: Array<{ file: string }>, options: {
+            onProgress?: (current: number, total: number, result: unknown) => void
+        }) => {
+            options.onProgress?.(1, imported.length, { file: imported[0]!.file, postId: 'id-1', success: true })
+            options.onProgress?.(2, imported.length, { error: 'boom', file: imported[1]!.file, success: false })
+
+            return [
+                { file: imported[0]!.file, postId: 'id-1', success: true },
+                { error: 'boom', file: imported[1]!.file, success: false },
+            ]
+        })
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', dryRun: false, stateFile }))
+
+        const state = JSON.parse(await readFile(stateFile, 'utf8'))
+
+        expect(state.entries['post-1.md']).toMatchObject({ postId: 'id-1', status: 'success' })
+        expect(state.entries['post-2.md']).toMatchObject({ error: 'boom', status: 'failed' })
+    })
+
+    it('dry-run 不写状态文件', async () => {
+        const posts = [createImportedLocalPost(directory, 1)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+
+        const customStateFile = join(directory, 'dry-run-state.json')
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', stateFile: customStateFile }))
+
+        await expect(readFile(customStateFile, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' })
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('dry-run 不读写状态文件'))
+    })
+
+    it('--clean-state 清除既有状态后全量导入', async () => {
+        const posts = [createImportedLocalPost(directory, 1)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        importPostsMock.mockImplementation(async (imported: Array<{ file: string }>) => imported.map((post) => ({
+            file: post.file,
+            postId: 'new-id',
+            success: true,
+        })))
+        await writeImportStateFile(stateFile, directory, { 'post-1.md': createSuccessStateEntry(posts[0]!) })
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({
+            apiKey: 'key',
+            cleanState: true,
+            dryRun: false,
+            resume: true,
+            stateFile,
+        }))
+
+        expect(importPostsMock).toHaveBeenCalledTimes(1)
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('已按 --clean-state 清除'))
+    })
+
+    it('状态文件损坏时降级提示并继续导入', async () => {
+        const posts = [createImportedLocalPost(directory, 1)]
+        parseHexoMock.mockResolvedValue(posts)
+        validateImportPostMock.mockResolvedValue({ data: createAliasReport() })
+        importPostsMock.mockImplementation(async (imported: Array<{ file: string }>) => imported.map((post) => ({
+            file: post.file,
+            postId: 'new-id',
+            success: true,
+        })))
+        await writeFile(stateFile, '{ broken', 'utf8')
+
+        const { cli, getHandler } = createActionCac()
+        registerImportCommand(cli)
+
+        await getHandler()('source', createOptions({ apiKey: 'key', dryRun: false, resume: true, stateFile }))
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('状态文件无法解析'))
+        expect(importPostsMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('默认状态文件路径位于源目录', () => {
+        expect(resolveImportStateFile('/source')).toBe(join('/source', '.momei-migration-state.json'))
     })
 })
