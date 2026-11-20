@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-20
+last_sync: 2026-11-21
 ---
 
 # Momei 프로젝트 로드맵
@@ -96,3 +96,4 @@ last_sync: 2026-11-20
 - **제78단계는 감사 완료 후 아카이브되었습니다(2026-11-18)**: 품질 게이트와 부채 마감 — 정적 규칙 부채 3차(`no-inferrable-types`와 `use-unknown-in-catch-callback-variable` 77건 정리 후 `error` 승격, inventory / debt 모두 0), 의존성 대장 `reviewBy`와 만료 판정(issue #262 기록 반영), 거버넌스 인덱스 보완(69개 문서 분류, 미등록 0)과 `governance:check:index` 추가, 폰트 크기 통일 2차(비 admin 9개 파일 51건 등가 치환, 시각 차이 0), 커버리지 19차(`import-command.ts` 5.5% → 95.86%, 전체 85.99%), `AppAvatar` 프로덕션 빌드 크기 결함을 자체 래퍼로 수정(빌드 산출물 64 / 48 / 32px 실측), 거버넌스 진입점 2건을 `regression:weekly` warning 면에 연결. 모든 Review Gate Pass.
 - **제79단계는 감사 완료 후 아카이브되었습니다(2026-11-18)**: 품질 안정성과 게이트 신뢰성 — 관리자 6개 사례를 `settleUi` / `clickWhenReady` / `expectEventually`로 통일해 20/20회, 커버리지 3회 연속, 로컬 `regression:phase-close`를 통과했습니다. 빌드 산출물 치수 프로브는 주간 `required: false`로 상설화(64 / 48 / 32px), 의존성 대장 `reviewBy`는 일일 JSON/Markdown과 경고 출력에 추가(종료 코드 불변), 커버리지 20차로 `check-script-governance`를 74.90% → 95.69%로 올렸고, `@vite-pwa/nuxt` 2.0.1은 추적 평가 후 유지, `prune:parity-allowlist`로 재수집 후 정리를 스크립트화했습니다.
 - **제80단계 심사 및 아카이브 완료(2026-11-19)**: 기능과 경험 마무리 — CLI 가져오기 재개(로컬 상태 파일 + `--resume` / `--state-file` / `--clean-state`, 단위 테스트 24건), 홈페이지 캐시와 언어 감지 분리(`/`의 `Set-Cookie` 제거 후 `s-maxage` 반환, 선호는 명시적 전환 시에만 기록, E2E 7건 + `probe:i18n-cache`), 폰트 크기 통일 3차(15개 파일 37곳, `135 → 98`, 요소별 차이 0), 커버리지 21차(`check-line-count` 55/56, `probe-build-geometry` 193/208, 전체 **86.35%**), PWA 의존성 윈도우(`@vite-pwa/nuxt` ^2.0.2 + `generateSW` 전환, 산출물은 build id 외 동일), CI 재수집 후 parity 허용 목록 정리.
+- **제81단계 계획 수립(2026-11-21)**: 품질 기준선과 부채 마무리 — Weekly Regression 보안 경보 게이트(Dependabot 소스 permission-denied + fallback 테스트 토큰 격리), 커버리지 22차(`+0.3pp`), 정적 규칙 부채 4차(`no-confusing-void-expression` 80건 / 29개 파일), 폰트 크기 통일 4차(남은 98건 중 `≥30`건), 그리고 기획 문서 모델 v1 첫 완전 단계(6열 진행 표 / 소항목 계층 / v1 아카이브 블록)와 회귀 윈도 마커 정리.

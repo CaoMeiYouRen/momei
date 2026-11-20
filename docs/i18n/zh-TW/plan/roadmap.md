@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-20
+last_sync: 2026-11-21
 ---
 
 # 墨梅專案路線圖
@@ -110,3 +110,4 @@ last_sync: 2026-11-20
 - **第七十八階段已審計歸檔（2026-11-18）**：品質門禁與債務收口——靜態規則債第三批（`no-inferrable-types` 與 `use-unknown-in-catch-callback-variable` 77 處清零後升為 `error`，inventory / debt 皆 0）、依賴台帳 `reviewBy` 與到期判紅（issue #262 已回寫）、治理索引補全（69 份文件分類、未登記 0）與新增 `governance:check:index`、字號歸一第二批（非 admin 9 檔案 51 處等值替換、零視覺差異）、覆蓋率第十九批（`import-command.ts` 5.5% → 95.86%，全倉 85.99%）、`AppAvatar` 生產建置尺寸缺陷以自有包裝元素修復（建置產物實測 64 / 48 / 32px）、治理入口 2 項接入 `regression:weekly` 的 warning 面。各 Review Gate 皆 Pass。
 - **第七十九階段已審計歸檔（2026-11-18）**：品質穩定性與門禁可信度——管理端 6 件用例統一 `settleUi` / `clickWhenReady` / `expectEventually`，連跑 20/20 次、覆蓋率 3 次全綠、本機 `regression:phase-close` 一次通過；建置產物尺寸探針以 `required: false` 接入每週回歸（64 / 48 / 32px）；依賴台帳 `reviewBy` 進入每日 JSON / Markdown 與告警輸出（退出碼不變）；覆蓋率第二十批把 `check-script-governance` 由 74.90% 提升到 95.69%；`@vite-pwa/nuxt` 2.0.1 追溯評估結論為保留；`prune:parity-allowlist` 將重採後清零腳本化。
 - **第八十階段已審計歸檔（2026-11-19）**：功能與體驗收口——CLI 遷移斷點續傳（本地狀態檔 + `--resume` / `--state-file` / `--clean-state`，新增 24 例單測）、首頁快取與語言偵測解耦（`/` 去除 `Set-Cookie` 並回傳 `s-maxage`，偏好僅在顯式切換時寫入，新增 7 例 E2E 與 `probe:i18n-cache`）、字號歸一第三批（15 檔案 37 處，`135 → 98`，逐元素 0 差異）、覆蓋率第二十一批（`check-line-count` 55/56、`probe-build-geometry` 193/208，全倉 **86.35%**）、PWA 依賴視窗（`@vite-pwa/nuxt` ^2.0.2 + `generateSW` 遷移，產物除 build id 外一致）、CI 重採後 parity 允許清單清零。
+- **第八十一階段已立項（2026-11-21）**：品質底線與債務收口——Weekly Regression 安全告警門禁（Dependabot 源 permission-denied + fallback 測試 token 隔離）、覆蓋率第二十二批（`+0.3pp`）、靜態規則債第四批（`no-confusing-void-expression` 80 處 / 29 檔案）、字號歸一第四批（剩餘 98 條中處理 `≥30` 條），以及規劃文檔模型 v1 首個完整階段（6 列進度表 / 小條目分層 / v1 歸檔塊）與回歸窗口 marker 規整。

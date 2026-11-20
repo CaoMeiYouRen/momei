@@ -9,12 +9,12 @@
 - `docs/plan/backlog.md`: 只保留长期主线、待上收候选与待跟踪项；已上收 / 已闭合 / 已完成的短期候选整条迁入 `docs/plan/archive/backlog-resolved-candidates.md`，主文档不留历史摘要。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-11-20）
+## 2. 当前基线（2026-11-21）
 
-- `roadmap.md`: `351` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-80.md`，主窗口保留阶段摘要表与近线归档结论）。
+- `roadmap.md`: `424` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-80.md`；第八十一阶段正文位于主窗口）。
 - `todo-archive.md`: `375` 行（`docs:check:line-count` 口径），健康窗口（主窗口保留第七十至第八十阶段共 11 个近线归档块；深度归档索引已改为 4 列表格，倒序覆盖 14 个 todo 分片；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
-- `backlog.md`: `229` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十阶段 6 条上收条目已完成并回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十阶段收口结果）。
-- `todo.md`: `40` 行（`wc -l` 口径；该文件未纳入 `docs:check:line-count` 目标），当前无进行中阶段（第八十阶段已归档，下一阶段待按 §4.5 Step 7 评估立项）。
+- `backlog.md`: `229` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十阶段 6 条上收条目已完成并回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十阶段条目 4 基线（阶段收口 86.33%））。
+- `todo.md`: `141` 行（`wc -l` 口径；该文件未纳入 `docs:check:line-count` 目标），当前阶段（筹备中）为第八十一阶段（5 个大条目 / 17 个小条目，6 列进度表）。
 - `docs/reports/regression/current.md`: `47` 行（`docs:check:line-count` 口径），近线窗口（2026-11-18 与 2026-11-19 两个窗口；更早窗口迁入 `archive/2026-11-16-to-2026-11-17-phase77-78.md`；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
 
 ## 3. 阈值定义
@@ -75,6 +75,8 @@
 - 本轮（2026-11-18）完成第七十八阶段归档收口：`roadmap.md` 迁出第七十八阶段正文至 `roadmap-phases-78.md`（主窗口 `318` 行，仅保留摘要表与归档结论）；`todo-archive.md` 收录第七十八阶段归档块，主窗口保留第七十至第七十八阶段共 9 个近线窗口（`319` 行）；`todo.md` 已清空当前阶段（无进行中阶段）；`backlog.md` 同步 #1 覆盖率第十九批（85.99%）、#6 治理索引、#9 周回归接线、#10 规则债第三批与 picomatch 台账、#11 字号第二批与 `AppAvatar`（`268` 行，`wc -l` 口径 267）；回归窗口把 2026-11-15 的 5 个窗口滚动归档到 `reports/regression/archive/2026-11-15-to-2026-11-17-phase76-78.md`；本文件 §2 / §5 / §7 的行数与分片清单同步更新。
 
 - 本轮（2026-11-18）完成 backlog 候选池清理（文档-only，不涉及阶段规划）：12 条已上收 / 已闭合短期候选与 9 条已完成跟踪项整条迁入 [backlog-resolved-candidates.md](./backlog-resolved-candidates.md)，并复核 9 项过时跟踪项（`ai:check`、DatePicker `id`、parity 参考态张数、`continue-on-error`、`p-fluid`、回归窗口双口径、en-US 同步债务、治理索引缺口、归档链接盲区）；`backlog.md` `268` → `240` 行，待上收候选重排为 7 条并补旧编号对照；同步刷新 #2 / #8 基线、补齐 #10 的回归覆盖矩阵行、清理 #5 / #11 的「已上收」残留叙述。
+
+- 本轮（2026-11-21）立项第八十一阶段「质量底线与债务收口」：用户于候选页确认方案 A（5 条，ROI 均值 `2.42`）；`roadmap.md` 写入 5 条完整规划（`424` 行，`docs:check:line-count` 口径），`todo.md` 同步 5 个大条目 / 17 个小条目与 6 列进度表（`141` 行，`wc -l` 口径）；`backlog.md` 回填 #1 / #6 / #10 / #11 的「最近一次上收阶段」（`228` 行，`wc -l` 口径）；四语种 roadmap 摘要同步「第八十一阶段已立项」并刷新 `last_sync`。
 
 ## 7. 相关入口
 

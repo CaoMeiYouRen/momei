@@ -19,8 +19,8 @@
 
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第八十阶段（第二十一批，2026-11-19 **已完成**：`check-line-count.mjs` 10/56 → 55/56、`probe-build-geometry.mjs` 94/190 → 193/208（分母含依赖注入抽离）；同源 statements 85.97% → 86.35%）。上一批为第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
-- **当前基线**: 同源口径 Statements **`85.97%`**（`33,622 / 39,105`，2026-11-18 第七十九阶段收口；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」，连跑 3 次一致）。距 `90%+` 长期目标约 4.0pp。
+- **最近一次上收阶段**: 第八十一阶段（第二十二批，2026-11-21 **筹备中**：候选 `scripts/governance/find-unused-components.mjs` 90 未覆盖 / `scripts/docs/check-source-of-truth.mjs` 59 未覆盖，目标同源 `+0.3pp`，开工时复算）。上一批为第八十阶段（第二十一批，2026-11-19 **已完成**：`check-line-count.mjs` 10/56 → 55/56、`probe-build-geometry.mjs` 94/190 → 193/208（分母含依赖注入抽离）；同源 statements 85.97% → 86.35%）。上一批为第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
+- **当前基线**: 同源口径 Statements **`86.35%`**（`33,917 / 39,278`，2026-11-19 第八十阶段条目 4 基线（阶段收口 33,935 / 39,306 = 86.33%）；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」）。距 `90%+` 长期目标约 3.65pp。
 - **下一次可切片方向**: 覆盖率同源复算挂接 `code-quality-auditor` review checklist（待补挂）；单批 `+0.3pp` 约需 **115 条**，下一批优先从剩余脚本池（`check-governance` / `capture-visual-reference` 等未闭合部分）与组件池中选取，须保留「失败 / 边界优先」的断言标准；`components/admin/admin-taxonomy-page.vue` 需先拆分组件。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
@@ -28,8 +28,8 @@
 - **目标**: 压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型与轻量响应壳层纳入受控复用；优先治理跨文件重复率高、适合稳定上收的候选，而不是把所有局部实现强行抽象。默认以 `pnpm duplicate-code:check` 作为事实源。
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`）。
-- **当前基线**: `duplicate-code` **0.38%**（43 clones / 665 行，2026-11-18 第七十九阶段立项复算；第六十六阶段记录的 0.30% 与 2026-11-10 的 0.39% 均已过期）。
-- **下一次可切片方向**: 基于 0.38% 基线继续收敛——剩余轻量 shared helper、表单元数据 / 表单控件的类型共享、`server/api/` 层请求上下文与参数校验的共性逻辑；结构性重复候选保留轻量壳层类型与“重复导入后轻包装”的纯函数。
+- **当前基线**: `duplicate-code` **0.37%**（43 clones / 650 行，2026-11-21 复跑；第六十六阶段记录的 0.30% 与 2026-11-10 的 0.39% 均已过期）。
+- **下一次可切片方向**: 基于 0.37% 基线继续收敛——剩余轻量 shared helper、表单元数据 / 表单控件的类型共享、`server/api/` 层请求上下文与参数校验的共性逻辑；结构性重复候选保留轻量壳层类型与“重复导入后轻包装”的纯函数。
 
 ### 3. 存量代码注释治理与注释漂移收敛
 
@@ -58,7 +58,7 @@
 
 - **目标**: 统一维护全文档体系的分层边界、膨胀阈值与 freshness——`docs/design/` 的模块 vs 专项分层、`docs/plan/` 的行数阈值触发归档、`docs/i18n/*/` 的翻译 tier 与同步；清理无效 / 过时 / 漂移文档；保持 `docs:check:source-of-truth` 与 `docs:check:line-count` 可通过，不靠临时补 `last_sync` 应付检查。阈值被证明过宽时先回写脚本，再更新规范与阶段结论。
 - **状态**: 观察中。
-- **最近一次上收阶段**: 第七十八阶段（条目 2：治理索引补全与索引检查，2026-11-18 **已完成**：69 份治理文档分类处置——25 份在役补索引、15 份一次性进 allowlist，未登记归零；新增 `governance:check:index` 报告型入口 + 9 例单测）。
+- **最近一次上收阶段**: 第八十一阶段（条目 5：规划文档 v1 首轮实战与回归窗口插入修复，2026-11-21 **筹备中**）。上一批为第七十八阶段（条目 2：治理索引补全与索引检查，2026-11-18 **已完成**：69 份治理文档分类处置——25 份在役补索引、15 份一次性进 allowlist，未登记归零；新增 `governance:check:index` 报告型入口 + 9 例单测）。
 - **当前基线**: `docs:check:line-count` 覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 以 git 提交判定 hard blocker，tier 软上限 `must-sync 60 天 / summary-sync 120 天`（`candidate` profile 保留 21/30 天基线，仅作收敛评估）。
 - **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 与本文件行数）；评估 `backlog.md` 长期主线与短期候选的必填字段集与存量迁移口径（issue #1071 的候选字段规范化项延后至此）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。
 - **待跟踪**: ① 迁移页跨批遗留形态——`--surface-ground` 幻影 token 仍有 3 处（`pages/goto/[code].vue` 1 处、`pages/admin/external-links/index.vue` 2 处；全仓未定义、恒为 `unset`），`p-fluid` 已清零；迁移页注释与测试注释中的阶段号 / 审计编号清理随 B4 收尾复核。② 视觉一致性门禁的跨环境基线——参考态刷新与预算调整固定走 `visual-reference-refresh.yml` 的 CI 重采，任何 `reader` 档路由上线前 parity 未归因差异须为 0；`capture-visual-reference.mjs` 在「无待采目标」时以 `--pass-with-no-tests` 视为成功，由 `tests/scripts/capture-visual-reference.test.ts` 静态守卫锁定，改动采集口径须同步复核该行为。
@@ -75,7 +75,7 @@
 - **目标**: 持续追踪核心页面 Core Web Vitals，建立跨版本性能回归基线；优先级：公开首页 > 文章详情页 > 分类 / 标签列表 > 后台管理页。与 #7 的区别：本条聚焦生产环境用户体验性能。
 - **状态**: 进行中（已有 Lighthouse CI + bundle budget 体系，尚未形成持续优化节奏）。
 - **最近一次上收阶段**: 第七十四阶段（条目 2b：入口包体护栏，2026-11-12 **已完成**）。上一阶段为第五十二阶段（移动端 CWV 基线采集与评估：首页 / 文章详情 / 分类标签列表页 LCP / CLS / INP 基线落盘）。
-- **当前基线**: `coreEntryJs` **281.07KB / 335KB**、`keyCss` **59.44KB / 62KB**（2026-11-18 第七十九阶段立项复算；`keyCss` 余量 4.4%，为当前最紧的一项）；`maxAsyncChunkJs` 92.79KB / 130KB（2026-11-13 第七十八阶段收口实测）。
+- **当前基线**: `coreEntryJs` **287.20KB / 335KB**、`keyCss` **60.01KB / 62KB**（2026-11-19 第八十阶段收口实测；`keyCss` 余量 3.2%，为当前最紧的一项）；`maxAsyncChunkJs` 92.79KB / 130KB（2026-11-13 第七十八阶段收口实测）。
 - **下一次可切片方向**: 文章详情页按需 hydration、评估收紧 `maxAsyncChunkJs` 并为 shared chunk 单列预算、移动端 LCP 超 3s 时启动专项治理。
 
 ### 9. 脚本资产、量化口径与回归入口治理
@@ -91,19 +91,19 @@
 
 - **目标**: 把 Dependabot / Code Scanning 告警与 ESLint 未覆盖规则（issue #262）当作同一条可量化债务线：告警按严重级与可修性分流、无补丁项进受控台账；ESLint 规则按 `governance:inventory:eslint-rules` 的「命中数 × 目录」分桶逐批升档清零，不为变绿放宽门禁。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第八十阶段（条目 5：`@vite-pwa/nuxt` 升 `^2.0.2` 并把 `workbox` 选项迁移到 `generateSW`，2026-11-19 **已完成**：产物除 build id 外逐字节一致、无 deprecated 警告）。上一阶段为第七十八阶段（条目 1：静态规则债第三批 `no-inferrable-types` / `use-unknown-in-catch-callback-variable` + `dependency-risk-allowlist` 复核日期与到期提醒，2026-11-18 **已完成**：两规则 77 处清零后直接升 `error`，inventory / debt 双产物 0 命中 / 0 豁免；台账 5 条 `reviewBy` 2027-05-14，过期或未登记在 `--mode=error` 判红；issue #262 已回写）。
+- **最近一次上收阶段**: 第八十一阶段（条目 3：静态规则债第四批 `no-confusing-void-expression` 80 处 / 29 文件清零并升 `error`，2026-11-21 **筹备中**；条目 1：Weekly 安全告警门禁 403 与 fallback 测试隔离，2026-11-21 **筹备中**）。上一阶段为第八十阶段（条目 5：`@vite-pwa/nuxt` 升 `^2.0.2` 并把 `workbox` 选项迁移到 `generateSW`，2026-11-19 **已完成**：产物除 build id 外逐字节一致、无 deprecated 警告）。上一阶段为第七十八阶段（条目 1：静态规则债第三批 `no-inferrable-types` / `use-unknown-in-catch-callback-variable` + `dependency-risk-allowlist` 复核日期与到期提醒，2026-11-18 **已完成**：两规则 77 处清零后直接升 `error`，inventory / debt 双产物 0 命中 / 0 豁免；台账 5 条 `reviewBy` 2027-05-14，过期或未登记在 `--mode=error` 判红；issue #262 已回写）。
 - **当前基线（2026-11-18 复算）**: `pnpm audit`（release 门禁）6 条豁免全部登记 `dependency-risk-allowlist.json` 且均带 `reviewBy: 2027-05-14`：extract-zip ×2（high，无补丁）、braces（high，无补丁）、zod 3（high，LHCI 锁定链）、deepmerge（low，仅追踪）、**picomatch（high，GHSA-fc5q-39xc-vjpf，2026-11-17 新披露，`first_patched_version` 为空、npm 最新即 4.0.7，165 条构建期链）**；Dependabot open 仅 deepmerge #275 low（无补丁，仅追踪、不改门禁 severity）；minimatch #286 / glob #284 已按父级 scoped override 定向抬版、quill #22 随依赖移除，三者于推送 `b649181e` 后由 Dependabot 重扫关闭；`@hono/node-server` 两条 medium 已随 2.1.8 关闭；`caomei-ui` 已于 2026-11-14 升级到 `^1.2.0` 并撤销 `ignore` / 人工批准守卫，回到常规依赖通道（迁移方案 §3.12）。ESLint 候选规则（`governance:inventory:eslint-rules` 2026-11-17 复算，warning 0 / 显式豁免 0）按命中数排序：`explicit-function-return-type` 1411 / `prefer-nullish-coalescing` 1380 / `no-unnecessary-condition` 308 / `no-unsafe-member-access` 289 / `restrict-template-expressions` 250 / `no-unsafe-assignment` 230 / `no-confusing-void-expression` 80 / `no-unsafe-argument` 50（`no-inferrable-types` 与 `use-unknown-in-catch-callback-variable` 已于第七十八阶段条目 1 清零并升 `error`，不再计入候选）；`no-non-null-assertion` 仍为 warning 且命中 24。Code Scanning open 已归零（2026-11-15 浮层守卫 4 条 fixed）。
 - **待跟踪（2026-11-18 新增，责任人：依赖与静态规则债治理）**: 依赖 PR 的 rebase 自动合并会在连续合并时产生坏锁文件（`ae73996f` 实证：`@lucide/vue@1.73.0` 重复映射键使 master 的 Test / Pages / Docker / Daily 全红），并会让 major 升级绕过评估静默落地（`@vite-pwa/nuxt` 2.0.1）。系统性解法候选：① 把 major 升级排除出自动合并（draft 或人工合并）；② 引入 merge queue + `conflict_resolvers`（见短期候选「Mergify 合并策略与 merge queue 采用」的详细方案 §4，需先闭环 §7 的 6 项验证）。两项均须用户确认后另立条目。**追溯评估已落地（2026-11-18，第七十九阶段条目 6）**：`@vite-pwa/nuxt` 2.0.1 结论为**保留**（构建产物 / client plugin 注册链 / Workbox 8 均按预期生效，无行为回退）；上游 v2.0.2 已修复 SW 与 manifest route rules 的重建问题，下次依赖窗口抬到 `^2.0.2`，`workbox` → `generateSW` 迁移单独立项。详见 [追溯评估](../design/governance/2026-11-18-vite-pwa-nuxt-2-retrospective.md)。另：若未来重新引入 quill 富文本编辑器，须先确认上游已修复 HTML 导出的 XSS（原依赖已移除，见 [短期候选解决归档](./archive/backlog-resolved-candidates.md)）。
-- **下一次可切片方向**: 第三批已收口；下一批按命中数递增取 `no-confusing-void-expression`（80 命中 / 29 文件）与 `no-unsafe-argument`（50 命中 / 23 文件）；`no-unsafe-*` 系列须单列条目并先评估 typed lint 作用域；`explicit-function-return-type` / `prefer-nullish-coalescing` 等千级命中项保持 `[0]` 直到有专项批次。
+- **下一次可切片方向**: 第四批已上收第八十一阶段条目 3（`no-confusing-void-expression` 80 命中 / 29 文件）；`no-unsafe-argument`（50 命中 / 23 文件）留待后续并须单列条目、先评估 typed lint 作用域；`explicit-function-return-type` / `prefer-nullish-coalescing` 等千级命中项保持 `[0]` 直到有专项批次。
 
 ### 11. UI 视觉质量与界面自检治理
 
 - **目标**: 把「界面是否合格」从审美讨论收敛为可判定检查项与可回归证据。维护一份只收真实命中、影响使用的界面自检清单（U1–U6），用它驱动视觉债清偿与视觉门禁扩容；不追求一次重做设计体系。
 - **专项设计事实源**: [界面自检清单与视觉债治理计划](../design/governance/2026-10-26-ui-review-checklist-plan.md)；可执行判据见 [界面自检清单](../design/ui-review-checklist.md)。
 - **状态**: 进行中（S1 已随第七十三阶段条目 1 收口；S2 字阶首批已上收第七十四阶段条目 5；字号归一第一 / 第二批已随第七十七 / 第七十八阶段完成，剩余 admin 路由面与暗色 tint 仍待切片）。
-- **最近一次上收阶段**: 第八十阶段（条目 3：字号归一第三批，`components/admin/settings` 全部 20 处 + `styles/_onboarding.scss` 5 处 + 两个 admin 相邻文件 12 处，2026-11-19 **已完成**：口径内待替换 135 → 98、逐元素 0 差异）。上一阶段为第七十八阶段（条目 5 `AppAvatar` 生产尺寸缺陷修复 2026-11-17 **已完成**：自有包装元素承载 `$attrs` 与 `--app-avatar-box`，构建产物实测 64 / 48 / 32px；条目 3 字号归一第二批 2026-11-18 **已完成**：非 admin 路由面 9 文件 51 处等值 token，零视觉差异）。
-- **当前基线**: 457 条 `font-size:`（2026-11-17 `governance:inventory:font-sizes` 复算，128 文件 / 64 种取值）/ token 化 **139 条（30.42%）** / 可等价替换 274 条（59.96%）/ 口径内待替换 **135 条** / 非字阶 149 条 / scss 变量 34 条；状态色幻影 token（34 处）与迁移遗留 `--p-surface-border`（93 处）/ `--p-text-color-secondary`（15 处）已随第七十二阶段清零；「暂无文章」空态误用、空表分页与三处层序失效已随第七十三阶段条目 1 修复；扫描面 194 处 `border:`；视觉门禁 admin 23 条 + reader 18 条（41 路由 / 82 张参考态 + 1 条登记守卫，共 83 项比对）已全部迁移并校准，`PENDING_ROUTES` 为空；以 `tests/visual/parity/routes.ts` 为单点事实源；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
-- **下一次可切片方向**: **字号归一第三批**——剩余 135 条口径内待替换集中在 admin 路由面（`components/admin/settings` 35 处为最大单点）与 `styles/_onboarding.scss`（需「启动 tour 后截图」取证），单批 ≤10 文件。每批仍按评估报告处理剩余口径内字面量与归纳后的非字阶取值（不得直接按现值批量替换），并做 `getComputedStyle` 逐元素对账 + `test:visual` / `parity` 未归因差异 0。之后才是原有的暗色 tint 与 U1–U6 扩展评估。
+- **最近一次上收阶段**: 第八十一阶段（条目 4：字号归一第四批，剩余 98 条中处理 ≥30 条、≤10 文件，2026-11-21 **筹备中**）。上一阶段为第八十阶段（条目 3：字号归一第三批，`components/admin/settings` 全部 20 处 + `styles/_onboarding.scss` 5 处 + 两个 admin 相邻文件 12 处，2026-11-19 **已完成**：口径内待替换 135 → 98、逐元素 0 差异）。上一阶段为第七十八阶段（条目 5 `AppAvatar` 生产尺寸缺陷修复 2026-11-17 **已完成**：自有包装元素承载 `$attrs` 与 `--app-avatar-box`，构建产物实测 64 / 48 / 32px；条目 3 字号归一第二批 2026-11-18 **已完成**：非 admin 路由面 9 文件 51 处等值 token，零视觉差异）。
+- **当前基线**: 457 条 `font-size:`（2026-11-19 第八十阶段收口复算，128 文件 / 64 种取值）/ token 化 **176 条（38.51%）** / 可等价替换 274 条（59.96%）/ 口径内待替换 **98 条** / 非字阶 149 条 / scss 变量 34 条；状态色幻影 token（34 处）与迁移遗留 `--p-surface-border`（93 处）/ `--p-text-color-secondary`（15 处）已随第七十二阶段清零；「暂无文章」空态误用、空表分页与三处层序失效已随第七十三阶段条目 1 修复；扫描面 194 处 `border:`；视觉门禁 admin 23 条 + reader 18 条（41 路由 / 82 张参考态 + 1 条登记守卫，共 83 项比对）已全部迁移并校准，`PENDING_ROUTES` 为空；以 `tests/visual/parity/routes.ts` 为单点事实源；soft 8% 对比度实测 2.12 / 2.59 / 3.39。
+- **下一次可切片方向**: **字号归一第四批已上收第八十一阶段条目 4**——剩余 98 条口径内待替换，单批 ≤10 文件；`styles/_onboarding.scss` 需「启动 tour 后截图」取证。每批仍按评估报告处理剩余口径内字面量与归纳后的非字阶取值（不得直接按现值批量替换），并做 `getComputedStyle` 逐元素对账 + `test:visual` / `parity` 未归因差异 0。之后才是原有的暗色 tint 与 U1–U6 扩展评估。
 - **待跟踪（2026-11-01 新增，责任人：UI 视觉质量治理）**: 字段文案同义检查已以 warning 面落地——`pnpm i18n:audit:field-copy` 已进入 `regression:weekly` 的 `required: false` 步骤，仅 `--fail-on-findings` 时非零退出。2026-11-18 复算：181 个 Vue 文件，R1 标签与占位符同义 11 处、R2 占位符承载规则信息 10 处，合计 **21 处**（原登记 183 文件 / 18 + 11 = 29 处）。两周观察期已满，待按「命中率 / 误报率 / 修复成本」决定是否收窄为 UI 自检 U7；在此之前**不改** `docs/design/ui-review-checklist.md` 的 U1–U6 边界，也不把该原则写入 `AGENTS.md` / `development.md`。已知漏报（不视为缺陷）：术语不一致型（如「推送标题」vs「请输入邮件标题」）与 `SettingFormField` 这类由父级 `field-key` 提供标签的形态。
 
 ## 周期性回归验证层
