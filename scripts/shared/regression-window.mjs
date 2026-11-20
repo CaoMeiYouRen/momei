@@ -3,10 +3,7 @@ import path from 'node:path'
 
 const REGRESSION_WINDOW_RELATIVE_PATH = path.join('docs', 'reports', 'regression', 'current.md')
 const FIRST_RECORD_HEADING_PATTERN = /^## \d{4}-\d{2}-\d{2} /mu
-
-function escapeRegExp(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')
-}
+const FIRST_MANAGED_START_MARKER = '<!-- regression-window:start:'
 
 function buildManagedEntryBlock({ body, id, title }) {
     return [
@@ -27,25 +24,60 @@ export function toPosixRelativePath(fromFilePath, toFilePath) {
     return path.relative(path.dirname(fromFilePath), toFilePath).split(path.sep).join('/')
 }
 
+export function findManagedEntryRange(content, id) {
+    const startMarker = `<!-- regression-window:start:${id} -->`
+    const endMarker = `<!-- regression-window:end:${id} -->`
+    const start = content.indexOf(startMarker)
+
+    if (start < 0) {
+        return null
+    }
+
+    const end = content.indexOf(endMarker, start + startMarker.length)
+
+    if (end < 0) {
+        return null
+    }
+
+    const inner = content.slice(start + startMarker.length, end)
+
+    if (inner.includes(FIRST_MANAGED_START_MARKER)) {
+        throw new Error(`Nested regression window blocks detected around id "${id}"; normalize current.md before upserting`)
+    }
+
+    return {
+        end: end + endMarker.length,
+        start,
+    }
+}
+
+export function resolveManagedInsertionIndex(content) {
+    const firstManagedIndex = content.indexOf(FIRST_MANAGED_START_MARKER)
+    const firstRecordMatch = FIRST_RECORD_HEADING_PATTERN.exec(content)
+    const candidates = [firstManagedIndex, firstRecordMatch?.index]
+        .filter((value) => typeof value === 'number' && value >= 0)
+
+    return candidates.length > 0 ? Math.min(...candidates) : -1
+}
+
 export function upsertRegressionWindowContent(content, entry) {
     const nextContent = content.trimEnd()
     const block = buildManagedEntryBlock(entry)
-    const startMarker = `<!-- regression-window:start:${entry.id} -->`
-    const endMarker = `<!-- regression-window:end:${entry.id} -->`
-    const markerPattern = new RegExp(`${escapeRegExp(startMarker)}[\\s\\S]*?${escapeRegExp(endMarker)}\\n?`, 'u')
+    const range = findManagedEntryRange(nextContent, entry.id)
 
-    if (markerPattern.test(nextContent)) {
-        return `${nextContent.replace(markerPattern, `${block}\n`).trimEnd()}\n`
+    if (range) {
+        const merged = `${nextContent.slice(0, range.start)}${block}${nextContent.slice(range.end)}`
+        return `${merged.trimEnd()}\n`
     }
 
-    const firstRecordMatch = FIRST_RECORD_HEADING_PATTERN.exec(nextContent)
+    const insertAt = resolveManagedInsertionIndex(nextContent)
 
-    if (!firstRecordMatch) {
+    if (insertAt < 0) {
         return `${nextContent}\n\n${block}\n`
     }
 
-    const before = nextContent.slice(0, firstRecordMatch.index).trimEnd()
-    const after = nextContent.slice(firstRecordMatch.index).trimStart()
+    const before = nextContent.slice(0, insertAt).trimEnd()
+    const after = nextContent.slice(insertAt).trimStart()
 
     return `${before}\n\n${block}\n\n${after}`
 }

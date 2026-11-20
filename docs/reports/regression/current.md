@@ -12,8 +12,6 @@
 
 
 
-<!-- regression-window:start:periodic-regression:phase-close:2026-11-18 -->
-
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-19 -->
 ## 2026-11-19 阶段收口前周期性回归（自动回填）
 
@@ -27,6 +25,8 @@
 - 未覆盖边界: 本机 `user-settings-dark` parity 仍有 1 条头像兜底数据态差异（CI 通过，已在偏差处置表登记）；边缘 `cf-cache-status` 未在仓库内验证。
 
 <!-- regression-window:end:periodic-regression:phase-close:2026-11-19 -->
+
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-18 -->
 
 ## 2026-11-18 阶段收口前周期性回归（自动回填）
 
