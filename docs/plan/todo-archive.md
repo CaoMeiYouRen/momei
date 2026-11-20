@@ -4,24 +4,32 @@
 
 ## 深度归档索引
 
-- 第一至第十阶段全文: [archive/todo-archive-phases-01-10.md](./archive/todo-archive-phases-01-10.md)
-- 第十一至第二十一阶段全文: [archive/todo-archive-phases-11-21.md](./archive/todo-archive-phases-11-21.md)
-- 第二十二至第二十四阶段全文: [archive/todo-archive-phases-22-24.md](./archive/todo-archive-phases-22-24.md)
-- 第二十五至第四十一阶段全文: [archive/todo-archive-phases-25-31.md](./archive/todo-archive-phases-25-31.md)、[archive/todo-archive-phases-32-41.md](./archive/todo-archive-phases-32-41.md)
-- 第四十二至第四十五阶段全文: [archive/todo-archive-phases-42-45.md](./archive/todo-archive-phases-42-45.md)
-- 第四十六至第四十九阶段全文: [archive/todo-archive-phases-46-49.md](./archive/todo-archive-phases-46-49.md)
-- 第五十至第五十一阶段全文: [archive/todo-archive-phases-50-51.md](./archive/todo-archive-phases-50-51.md)
-- 第五十二至第五十七阶段全文: [archive/todo-archive-phases-52-57.md](./archive/todo-archive-phases-52-57.md)
-- 第五十八至第六十阶段全文: [archive/todo-archive-phases-58-60.md](./archive/todo-archive-phases-58-60.md)
-- 第六十一至第六十三阶段全文: [archive/todo-archive-phases-61-63.md](./archive/todo-archive-phases-61-63.md)
-- 第六十四阶段全文: [archive/todo-archive-phases-64.md](./archive/todo-archive-phases-64.md)
-- 第六十五至第六十八阶段全文: [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)
-- 第六十九阶段全文: [archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)
-- 深度归档治理规则: [archive/index.md](./archive/index.md)
+> 索引表按阶段倒序；`归档日期` 取分片首次入库日期。新增分片必须匹配 `todo-archive-phases-<起>[-<止>].md`，并同步登记本表与 [archive/index.md](./archive/index.md)。
+
+| 阶段 | 主题 | 归档文件 | 归档日期 |
+| :--- | :--- | :--- | :--- |
+| 69 | PrimeVue → caomei-ui 迁移（三）与内建文案 locale 接线 | [todo-archive-phases-69.md](./archive/todo-archive-phases-69.md) | 2026-11-15 |
+| 65-68 | 编辑器续航、覆盖率攻坚与 caomei-ui 迁移（一）（二） | [todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md) | 2026-11-14 |
+| 64 | 设置 UI Phase 2 与治理续航 | [todo-archive-phases-64.md](./archive/todo-archive-phases-64.md) | 2026-11-05 |
+| 61-63 | AI 编辑增强、迁移适配扩展与设置 UI 盘点 | [todo-archive-phases-61-63.md](./archive/todo-archive-phases-61-63.md) | 2026-09-25 |
+| 58-60 | HTTP MCP、AI 编辑增强与代码质量治理 | [todo-archive-phases-58-60.md](./archive/todo-archive-phases-58-60.md) | 2026-08-13 |
+| 52-57 | 缓存架构、CLI/MCP 复用与迁移体验 | [todo-archive-phases-52-57.md](./archive/todo-archive-phases-52-57.md) | 2026-07-24 |
+| 50-51 | PWA 启用、边界收敛与治理增压 | [todo-archive-phases-50-51.md](./archive/todo-archive-phases-50-51.md) | 2026-07-24 |
+| 46-49 | 隐私部署、接口契约与深度治理 | [todo-archive-phases-46-49.md](./archive/todo-archive-phases-46-49.md) | 2026-07-22 |
+| 42-45 | AI 深化、友链生态、隐私闭环与文档治理 | [todo-archive-phases-42-45.md](./archive/todo-archive-phases-42-45.md) | 2026-07-07 |
+| 32-41 | 内容资产化、性能、Postgres 与 TypeORM 前置治理 | [todo-archive-phases-32-41.md](./archive/todo-archive-phases-32-41.md) | 2026-06-14 |
+| 25-31 | 部署体验、数据库流量、国际化与认证预研 | [todo-archive-phases-25-31.md](./archive/todo-archive-phases-25-31.md) | 2026-05-18 |
+| 22-24 | 质量有效性、社交 / AI 优化与回归执行 | [todo-archive-phases-22-24.md](./archive/todo-archive-phases-22-24.md) | 2026-04-28 |
+| 11-21 | 迁移治理、内容编排与质量门禁闭环 | [todo-archive-phases-11-21.md](./archive/todo-archive-phases-11-21.md) | 2026-04-28 |
+| 01-10 | MVP 到生态深化与通知闭环 | [todo-archive-phases-01-10.md](./archive/todo-archive-phases-01-10.md) | 2026-04-28 |
+
+> v1 起：新增归档块按 [规划文档模型 v1](../standards/planning-docs.md) 的 6 项必填填写；本文件已有的近线归档块保持原样，不回改。
+> 深度归档治理规则见 [archive/index.md](./archive/index.md)。
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十阶段共 11 个近线归档块（`366` 行，低于 warning `500`，暂不迁出）。
+- 主文档当前保留第七十至第八十阶段共 11 个近线归档块（`375` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。

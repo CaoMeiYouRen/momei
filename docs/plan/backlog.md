@@ -60,7 +60,7 @@
 - **状态**: 观察中。
 - **最近一次上收阶段**: 第七十八阶段（条目 2：治理索引补全与索引检查，2026-11-18 **已完成**：69 份治理文档分类处置——25 份在役补索引、15 份一次性进 allowlist，未登记归零；新增 `governance:check:index` 报告型入口 + 9 例单测）。
 - **当前基线**: `docs:check:line-count` 覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 以 git 提交判定 hard blocker，tier 软上限 `must-sync 60 天 / summary-sync 120 天`（`candidate` profile 保留 21/30 天基线，仅作收敛评估）。
-- **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 与本文件行数）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。
+- **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 与本文件行数）；评估 `backlog.md` 长期主线与短期候选的必填字段集与存量迁移口径（issue #1071 的候选字段规范化项延后至此）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。
 - **待跟踪**: ① 迁移页跨批遗留形态——`--surface-ground` 幻影 token 仍有 3 处（`pages/goto/[code].vue` 1 处、`pages/admin/external-links/index.vue` 2 处；全仓未定义、恒为 `unset`），`p-fluid` 已清零；迁移页注释与测试注释中的阶段号 / 审计编号清理随 B4 收尾复核。② 视觉一致性门禁的跨环境基线——参考态刷新与预算调整固定走 `visual-reference-refresh.yml` 的 CI 重采，任何 `reader` 档路由上线前 parity 未归因差异须为 0；`capture-visual-reference.mjs` 在「无待采目标」时以 `--pass-with-no-tests` 视为成功，由 `tests/scripts/capture-visual-reference.test.ts` 静态守卫锁定，改动采集口径须同步复核该行为。
 
 ### 7. Windows 本地 Dev / Build 性能治理

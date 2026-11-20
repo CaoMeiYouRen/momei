@@ -9,7 +9,7 @@
 在进行任何阶段性规划（Phase Planning）或重大功能引入时，必须遵循以下硬性约束：
 
 -   **阶段性聚焦 (Phase Focus)**: 
-    -   单个开发迭代 (Phase) 中的核心任务大项应控制在 **5-6 项** 以内。
+    -   单个开发迭代 (Phase) 的大条目容量、容量例外说明与提交 / 审计粒度，按 [规划文档模型 v1 §2](./planning-docs.md) 执行（变更说明见 [落地说明](../design/governance/2026-11-20-planning-document-model-v1.md)）。
     -   当新需求加入导致数量超标时，必须遵循 “进一出一” 原则，确保团队精力不被分散。
 -   **功能解耦 (Decoupling)**: 
     -   新功能的引入不得破坏现有核心逻辑（如认证、文章显示、SEO）。
@@ -20,7 +20,7 @@
 -   **优先级驱动 (Priority Driven)**: 
     -   规划时必须进行 ROI（投资回报率）分析，优先安排对用户体验有直接提升或具有核心竞争力的功能。
 -   **验收标准具体化 (Acceptance Specificity)**:
-    -   任何准备写入 `roadmap.md` 或 `todo.md` 的阶段条目，都必须至少写清：执行范围、非目标、可验证的验收标准、最小验证矩阵 / 证据落点，以及必要的回滚边界。
+    -   大条目与小条目的字段分层按 [规划文档模型 v1 §2](./planning-docs.md) 执行；大条目的验收标准必须覆盖最小验证矩阵 / 证据落点与回滚边界，小条目的验收摘要回指大条目。
     -   禁止使用“优化一下”“补一轮治理”“先做最小版本”之类无法直接验收的模糊口径作为正式准入文本；若当前信息不足以写清这些字段，则只能继续停留在 backlog 候选分析，不能直接升格为正式阶段任务。
 -   **治理脚本优先 (Script-First Governance)**:
     -   凡是长期治理、质量债、复用收敛、注释治理、文档治理与脚本治理类事项，正式上收到 `roadmap.md` / `todo.md` 前，必须先说明可重复执行的量化口径。
@@ -76,7 +76,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
     -   **A 类：当前范围内事项**。如果该事项本质上只是补足当前任务的既有验收标准、修正当前实现遗漏或收口当前任务必需的配套工作，则允许继续执行，但应在任务记录中补充说明，不得借机扩大需求边界。
     -   **B 类：允许插队事项**。仅当该事项满足以下至少一项时，才允许插入当前迭代：阻塞当前待办交付、造成明确功能回归、属于高风险安全/合规问题、属于当前依赖链中的高危漏洞或当前任务无法绕开的基础缺陷。此类事项必须补充原因说明，并作为修复型或派生型任务纳入当前阶段。
     -   **C 类：延期事项**。新的体验优化、非阻塞重构、探索性想法、未来功能延伸、非紧急依赖升级等，统一延后处理，不得直接打断当前阶段实施。
-3.  **容量控制**: 若 B 类事项进入当前阶段后导致核心任务数量超出 5-6 项，必须遵循“进一出一”原则，明确挪出一项低优先级内容至 `backlog.md`。
+3.  **容量控制**: 若 B 类事项进入当前阶段后导致大条目数量超出阶段容量上限（见 [规划文档模型 v1 §2](./planning-docs.md)），必须遵循“进一出一”原则，明确挪出一项低优先级内容至 `backlog.md`。
 4.  **记录落点**:
     -   A 类事项：保留在当前任务上下文中处理，必要时补充验收说明。
     -   B 类事项：写入 `todo.md` 当前阶段，并标注插队原因或阻塞背景。
@@ -101,7 +101,8 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 -   `docs/reports/regression/current.md` 作为活动回归窗口，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/` 或其后续分拆文件。
 -   旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一写入 `docs/reports/regression/current.md`。
 -   任务状态必须清晰标记：`[ ]` (待办), `[x]` (已完成), `[-]` (已取消)。
--   任务描述应包含具体的 "验收标准 (Acceptance Criteria)"，且至少覆盖执行范围、非目标、可验证结果、验证方式 / 证据落点，以及必要时的回滚边界。
+-   当前阶段必须在标题下维护进度表，行数与大条目数一致；列名、状态值与机检口径见 [规划文档模型 v1 §3](./planning-docs.md)。无进行中阶段时保留空表头或占位行。
+-   大条目的任务描述应包含具体的 "验收标准 (Acceptance Criteria)"，且至少覆盖执行范围、非目标、可验证结果、验证方式 / 证据落点，以及必要时的回滚边界；小条目的验收摘要按 [规划文档模型 v1 §2](./planning-docs.md) 回指大条目，不重复展开。
 -   **查重原则**: 在规划或添加任何新功能前，**必须**同步查阅 `docs/plan/todo.md`、`docs/plan/roadmap.md` 以及 `docs/plan/todo-archive.md`。严禁重复设计或规划已被归档、已在当前待办中或已在路线图中的任务。
 -   **中途发现事项处理原则**: 在执行当前任务时新增发现的问题，不得直接把所有事项都塞入 `todo.md`。只有通过“3.4 迭代中途新增事项的快速分流”判定为 A 类或 B 类的内容，才允许进入当前阶段的执行面。
 -   **验收标准不足时禁止最小化解释**: 若执行过程中发现当前条目的验收标准不足以判断合理范围，必须先回到规划环节补充或澄清标准，而不是按最小解释缩小实现面后直接宣称“已完成”。
@@ -161,7 +162,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 | 节奏 | 正式入口 | 最小固定组合 | 责任边界 | blocker 规则 |
 | :--- | :--- | :--- | :--- | :--- |
-| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` + `governance:check:index` + `governance:audit:unused-components` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
+| 周级治理 | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `docs:check:planning-docs` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` + `governance:check:index` + `governance:audit:unused-components` | `@full-stack-master` 或当前值班开发者执行；`@code-auditor` 复核 blocker；`@documentation-specialist` 回写 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker；活动日志窗口超限先记 warning |
 | 发版前 | `pnpm regression:pre-release` | `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check` | `@full-stack-master` 执行；`@code-auditor` 决定放行；结果摘要继续沉淀到 `docs/reports/regression/current.md` | 任一 required 命令失败即 blocker |
 | 阶段收口前 | `pnpm regression:phase-close` | `test:coverage` + `release:check:full`（内含 `i18n:audit:missing`） + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | `@full-stack-master` 执行并补齐 Review Gate；`@code-auditor` 给出 Pass / Reject；`@todo-manager` / `@documentation-specialist` 仅在通过后推进归档 | 任一 required 命令失败即 blocker；若 `docs/reports/regression/current.md` 超过 `700` 行或 `8` 条记录且尚未滚动归档，也直接视为 blocker |
 
@@ -231,7 +232,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 - `README.md` 与根目录 `README.<locale>.md` 镜像：`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行前应先把细节回收到 `docs/` 专题页。
 - `roadmap.md`：`<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行前必须优先拆出更早阶段的深度归档分片。
 - `backlog.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前应先收敛候选摘要与主线卡片，避免把实施正文重新堆回 backlog。
-- `todo-archive.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前必须优先拆出更早阶段区间分片。
+- `todo-archive.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前必须优先拆出更早阶段区间分片；行数是唯一硬约束，归档块数量只作观察项，分片命名与归档块字段见 [规划文档模型 v1 §4](./planning-docs.md)。
 - `docs/reports/regression/current.md`：`<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行前必须先把旧记录整体滚动归档到 `docs/reports/regression/archive/`。
 - 深度归档后，主文档只保留近线阶段窗口、摘要与索引入口，不再长期复制全量历史正文。
 
@@ -273,7 +274,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 #### Step 4. 文件更新顺序
 
 1. 先更新 `docs/plan/todo.md`：清理当前进行中事项，移除已完成阶段的正文，仅保留仍在执行的阶段。
-2. 再更新 `docs/plan/todo-archive.md`：追加完整归档块，包含审计结论、主线条目、验收摘要与关键验证结论。
+2. 再更新 `docs/plan/todo-archive.md`：按 [规划文档模型 v1 §4](./planning-docs.md) 的必填字段追加归档块，并在块首保留 v1 标记。
 3. 然后更新 `docs/plan/roadmap.md`：把该阶段状态改为"已审计归档"或等价完成状态，并补一句阶段收口结论。
 4. 若本次切换涉及 backlog 条目变化，再更新 `docs/plan/backlog.md`：长期主线补记最新状态、最近一次上收阶段与下一次切片方向；短期 / 一次性候选在正式上收后去重或改写为历史说明。
 5. 最后按需更新 `docs/i18n/*/plan/roadmap.md`：只同步阶段状态与摘要，不强制翻译 `todo.md` / `backlog.md`。
@@ -288,6 +289,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 2. 文档目录检查：执行 `pnpm docs:check:i18n`，确认没有旧目录回流或重复翻译页。
 3. 质量状态确认：核对本阶段最近一次 `lint`、`typecheck`、定向测试或专项验证结论是否已落盘；若无法证明当前阶段通过最低质量门，不得直接归档。
 4. 错误面检查：确认本次归档涉及文件没有新的编辑器诊断错误。
+5. 规划模型检查：执行 `pnpm docs:check:planning-docs`，确认进度表行数与正文一致、归档索引覆盖全部分片、v1 归档块字段齐全。
 
 #### Step 6. Review Gate 与放行结论
 
@@ -306,12 +308,13 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 在进入新阶段正式评估前，先执行一次工作区清洁检查，确保规划文档基座干净、归档一致：
 1. **文档基座检查**：
-   - `todo.md` 无已完成阶段的残留正文，新阶段入口为"筹备中"状态。
+   - `todo.md` 无已完成阶段的残留正文，新阶段入口为"筹备中"状态，进度表与正文大条目一致。
+   - `todo-archive.md` 索引表覆盖全部分片、按阶段倒序、无正文残留。
    - `roadmap.md` 无已归档阶段的详细规划残留（已完成阶段应只有摘要表或审计结论，不应保留"执行范围 / 非目标 / 最小验收"等规划细节）。
    - `backlog.md` 无已完成候选条目的正文残留（已上收项应只保留一行说明或完全删除）。
 2. **归档一致性检查**：
    - `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片覆盖的阶段区间应基本对齐；若 roadmap 归档范围明显偏小，应补齐缺失分片。
-   - 归档分片文件名与 `archive/index.md` 中的注册列表一致。
+   - 归档分片文件名与 `archive/index.md` 中的注册列表、`todo-archive.md` 索引表一致。
 3. **格式洁净度检查**：
    - 全文无 `（(` / `）)` 等混用括号（中文语境应统一使用 `（` / `）`）。
    - 全文无异常反引号（如双反引号不对等问题）。
@@ -384,6 +387,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 ## 6. 相关文档
 
 -   [项目规划](../plan/roadmap.md)
+-   [规划文档模型 v1](./planning-docs.md)
 -   [待办事项](../plan/todo.md)
 -   [开发规范](./development.md)
 -   [设计文档汇总](../design/modules/index.md)

@@ -204,7 +204,7 @@
 - `todo-archive.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先进行阶段区间分片再继续归档。
 - `docs/reports/regression/current.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
 
-上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build`、发版前回归、阶段归档前回归与文档类 Review Gate 检查，不能再依赖人工目测。
+上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build`、发版前回归、阶段归档前回归与文档类 Review Gate 检查，不能再依赖人工目测。规划文档的结构一致性由 `pnpm docs:check:planning-docs` 另行检查，口径见 [规划文档模型 v1](./planning-docs.md)。
 
 ### 5.2 根目录 README 多语言镜像
 
@@ -219,6 +219,7 @@
 ### 5.3 项目规划文档 (Plan Docs)
 
 -   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
+-   规划文档形态（粒度 / 进度表 / 索引表 / 归档块字段）遵循 [规划文档模型 v1](./planning-docs.md)；机检入口为 `pnpm docs:check:planning-docs`。
 -   回归记录正式迁移到 [回归记录管理与深度归档](../reports/regression/index.md)；规划文档仅保留与当前阶段直接相关的摘要和入口链接。
 -   模块总设计与专项治理文档必须分目录维护：稳定高层入口留在 `docs/design/modules/`，增量治理 / 迁移方案 / 阶段复盘统一落在 `docs/design/governance/`。
  -   活动回归窗口默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/`。
@@ -234,7 +235,7 @@
 3. 若 `docs/reports/regression/archive/` 继续膨胀，应再按年份或半年分拆，而不是重新把历史记录塞回活动窗口。
 4. 旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一落在 `docs/reports/regression/current.md`。
 5. 若阶段状态从“规划中 / 进行中”变为“已归档 / 已审计归档”，必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要状态与 `last_sync`，但 `todo.md` 与 `backlog.md` 仍保持中文事实源，不为归档动作单独扩展翻译件。
-6. 阶段归档块必须能独立说明“为什么可以归档”，至少包含审计结论、主线完成情况、关键验证或回归入口，以及残余风险或后续观察项；不得只写一句“已完成”。
+6. 阶段归档块必须能独立说明“为什么可以归档”，按 [规划文档模型 v1 §4](./planning-docs.md) 的必填字段填写；存量归档块冻结，不回改正文。
 
 ### 5.4 规划与治理维护陷阱
 
@@ -355,4 +356,5 @@ AI 智能体在处理文档时应遵守以下规则：
 
 -   [开发规范](./development.md)
 -   [规划规范](./planning.md)
+-   [规划文档模型 v1](./planning-docs.md)
 -   [AI 协作规范](./ai-collaboration.md)

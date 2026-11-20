@@ -94,6 +94,7 @@ export const PERIODIC_REGRESSION_PROFILES = {
             createPnpmStep('docs:check:source-of-truth', 'docs:check:source-of-truth', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:i18n', 'docs:check:i18n', { timeoutBudget: '10m' }),
             createPnpmStep('docs:check:line-count', 'docs:check:line-count', { timeoutBudget: '10m' }),
+            createPnpmStep('docs:check:planning-docs', 'docs:check:planning-docs', { timeoutBudget: '10m' }),
             createPnpmStep('i18n:audit:missing', 'i18n:audit:missing', { timeoutBudget: '10m' }),
             createPnpmStep('i18n:audit:field-copy', 'i18n:audit:field-copy', { required: false, timeoutBudget: '5m' }),
             createPnpmStep('duplicate-code:check', 'duplicate-code:check', { required: false, timeoutBudget: '10m' }),

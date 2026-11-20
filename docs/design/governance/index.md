@@ -48,6 +48,7 @@
 
 ## 文档、规范与流程治理
 
+- **[规划文档模型 v1 落地说明](./2026-11-20-planning-document-model-v1)**: 定义阶段 / 大条目 / 小条目三级粒度、6 列进度表、4 列归档索引与 6 项归档块字段；规范本体见 [规划文档模型 v1](../../standards/planning-docs.md)。
 - **[docs:check:source-of-truth freshness 判定重构](./2026-08-29-docs-source-of-truth-freshness-redesign)**: 治理改动单点说明；规范本体见 [文档规范 §6.3](../../standards/documentation.md) 与 [翻译治理指南 §2.1](../../guide/translation-governance.md)。
 - **[VitePress 构建：`§3.5` 反例清单占位符被误识别为 HTML](./2026-08-29-vitepress-md-html-placeholder-fix)**: 治理改动单点说明；规范本体见 [文档规范 §3.5](../../standards/documentation.md)。
 - **[API 测试分层规则](./api-test-layering)**: 固化 API 测试文件的目录归属，消除 `tests/server/api/` 与 `server/api/**/*.test.ts` 双轨并存。

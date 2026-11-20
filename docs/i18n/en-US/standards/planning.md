@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-17
+last_sync: 2026-11-20
 translation_tier: summary-sync
 ---
 
@@ -19,8 +19,8 @@ This document provides a scientific and actionable methodology for the evolution
 When conducting phase planning or introducing major features, the following hard constraints must be followed:
 
 -   **Phase Focus**:
-    -   High-level core tasks in a single development iteration (Phase) should be limited to **5-6 items**.
-    -   When new requirements cause the count to exceed this limit, a "One In, One Out" principle must be applied to ensure focus.
+    -   Large-item capacity, the 7th-8th item exception, and commit / audit granularity follow [Planning Document Model v1 §2](../../../standards/planning-docs.md).
+    -   When new requirements cause the count to exceed the cap, a "One In, One Out" principle must be applied to ensure focus.
 -   **Decoupling**:
     -   The introduction of new features must not break existing core logic (e.g., Auth, Article display, SEO).
     -   If core architecture changes are involved, technical research must be conducted first, and `docs/design/` documents must be updated.
@@ -30,7 +30,7 @@ When conducting phase planning or introducing major features, the following hard
 -   **Priority Driven**:
     -   An ROI (Return on Investment) analysis must be conducted during planning. Priority is given to features that directly improve user experience or represent core competitiveness.
 -   **Acceptance Specificity**:
-    -   Every phase item written into `roadmap.md` or `todo.md` must at least define: execution scope, non-goals, verifiable acceptance criteria, minimal verification matrix / evidence landing point, and rollback boundary when needed.
+    -   Large-item / small-item field layering follows [Planning Document Model v1 §2](../../../standards/planning-docs.md); large-item acceptance criteria must cover the minimal verification matrix / evidence landing point and rollback boundary, and small-item acceptance summaries point back to the large item.
     -   Vague wording such as "optimize it a bit" or "a round of governance" is forbidden as formal admission text; if the information is insufficient, the item stays in backlog candidate analysis and cannot be promoted to a formal phase task.
 -   **Script-First Governance**:
     -   Long-running governance, quality debt, reuse convergence, comment governance, doc governance, and script governance items must explain a repeatable quantitative baseline before being promoted to `roadmap.md` / `todo.md`.
@@ -85,7 +85,7 @@ When additional items are discovered while executing the current iteration, hand
     -   **Class A: in-scope items**. If the item essentially completes the current task's existing acceptance criteria, fixes an omission in the current implementation, or is necessary collateral work for closing the current task, it may proceed, with a note in the task record; do not use it to expand the requirement boundary.
     -   **Class B: queue-jumping items**. Allowed to interrupt the current iteration only when at least one of the following holds: blocking current TODO delivery, causing a clear functional regression, a high-risk security / compliance issue, a high-severity vulnerability in the current dependency chain, or a base defect the current task cannot bypass. Such items must carry a reason note and be added as fix-type or derived tasks in the current phase.
     -   **Class C: deferred items**. New experience optimizations, non-blocking refactors, exploratory ideas, future feature extensions, and non-urgent dependency upgrades are deferred; they must not interrupt the current phase.
-3.  **Capacity control**: if Class B items push the core task count beyond 5-6, apply "One In, One Out" and move a lower-priority item to `backlog.md`.
+3.  **Capacity control**: if Class B items push the large-item count beyond the phase cap (see [Planning Document Model v1 §2](../../../standards/planning-docs.md)), apply "One In, One Out" and move a lower-priority item to `backlog.md`.
 4.  **Record landing points**:
     -   Class A: keep in the current task context, add acceptance notes when needed.
     -   Class B: write into `todo.md` current phase with the queue-jumping reason or blocking background.
@@ -109,7 +109,8 @@ When additional items are discovered while executing the current iteration, hand
 -   `docs/reports/regression/current.md` is the active regression window; `todo.md` keeps only current-phase context, summaries, and links.
 -   The active window keeps only the last 1-2 phases or 6-8 full regression records; older ones rotate to `docs/reports/regression/archive/`.
 -   Task status must be clearly marked: `[ ]` (Pending), `[x]` (Completed), `[-]` (Canceled).
--   Task descriptions should include specific "Acceptance Criteria" covering scope, non-goals, verifiable results, verification method / evidence, and rollback boundary when needed.
+-   The current phase must maintain a progress table under the phase heading; its row count must equal the large-item count. Column names, status values, and machine-check criteria follow [Planning Document Model v1 §3](../../../standards/planning-docs.md). When no phase is active, keep an empty header or a placeholder row.
+-   Large-item task descriptions should include specific "Acceptance Criteria" covering scope, non-goals, verifiable results, verification method / evidence, and rollback boundary when needed; small-item acceptance summaries point back to the large item per [Planning Document Model v1 §2](../../../standards/planning-docs.md) and do not repeat the full set.
 -   **Anti-Duplication Principle**: Before planning or adding any new feature, **always** check `docs/plan/todo.md`, `docs/plan/roadmap.md`, and `docs/plan/todo-archive.md`. Duplicate designs for tasks that are already archived, in progress, or on the roadmap are forbidden.
 -   **Mid-discovery handling**: newly discovered issues must not all be stuffed into `todo.md`; only Class A or B items per section 3.4 enter the current phase's execution surface.
 -   **No minimal interpretation when acceptance is insufficient**: if acceptance criteria are insufficient to judge a reasonable scope, return to planning to supplement or clarify the criteria instead of shrinking the implementation by minimal interpretation and claiming completion.
@@ -148,7 +149,7 @@ Suggested default frequencies: ESLint / type debt / `max-lines` weekly; `init.sq
 
 | Cadence | Entry | Minimal fixed bundle | Blocker rule |
 | :--- | :--- | :--- | :--- |
-| Weekly | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` + `governance:check:index` + `governance:audit:unused-components` | Any required command failure is a blocker; active log window overrun first recorded as warning |
+| Weekly | `pnpm regression:weekly` | `test:coverage` + `security:audit-deps` + `docs:check:source-of-truth` + `docs:check:i18n` + `docs:check:line-count` + `docs:check:planning-docs` + `i18n:audit:missing` + `duplicate-code:check` + `governance:check:scripts` + `governance:check:index` + `governance:audit:unused-components` | Any required command failure is a blocker; active log window overrun first recorded as warning |
 | Pre-release | `pnpm regression:pre-release` | `release:check:full` (incl. `i18n:audit:missing`) + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check` | Any required command failure is a blocker |
 | Phase close | `pnpm regression:phase-close` | `test:coverage` + `release:check:full` + `docs:check:i18n` + `docs:check:line-count` + `test:perf:budget:strict` + `duplicate-code:check:strict` + `review-gate:generate:check` | Any required command failure is a blocker; `current.md` over 700 lines or 8 records without rotation is also a blocker |
 
@@ -175,7 +176,7 @@ Additional constraints: generated artifacts are only reference evidence; formal 
 -   **Format**: Archives should preserve the original hierarchy, checkbox status, and acceptance criteria for historical traceability.
 -   **Simplicity**: After archiving, `docs/plan/todo.md` should only retain active tasks for the current iteration. Long-term mainlines and short-term candidates are managed in `docs/plan/backlog.md`; `roadmap.md` keeps only formal phase plans and archive conclusions.
 
-Deep-archive thresholds (see the [deep archive governance](../../../plan/archive/index.md) entry): root `README*` `<= 300` lines healthy, `301 - 400` warning, over `400` before pushing details back to `docs/` topic pages; `roadmap.md` `<= 800` / `801 - 900` warning / over `900` must split earlier phase shards first; `backlog.md` and `todo-archive.md` `<= 500` / `501 - 700` warning / over `700` must converge candidate summaries or split phase-range shards; `docs/reports/regression/current.md` `<= 500` / `501 - 700` warning / over `700` must rotate old records to the archive. Thresholds are enforced by `pnpm docs:check:line-count`.
+Deep-archive thresholds (see the [deep archive governance](../../../plan/archive/index.md) entry): root `README*` `<= 300` lines healthy, `301 - 400` warning, over `400` before pushing details back to `docs/` topic pages; `roadmap.md` `<= 800` / `801 - 900` warning / over `900` must split earlier phase shards first; `backlog.md` and `todo-archive.md` `<= 500` / `501 - 700` warning / over `700` must converge candidate summaries or split phase-range shards; `docs/reports/regression/current.md` `<= 500` / `501 - 700` warning / over `700` must rotate old records to the archive. Thresholds are enforced by `pnpm docs:check:line-count`; planning document structure is checked separately by `pnpm docs:check:planning-docs` (see the [Planning Document Model v1](../../../standards/planning-docs.md)).
 
 ### 4.5 Phase Archive Workflow
 
@@ -207,7 +208,7 @@ Any "current phase done, ready to archive and evaluate the next phase" action mu
 #### Step 4. File Update Order
 
 1.  Update `docs/plan/todo.md` first: clean up current in-progress items, remove completed-phase bodies, keep only still-executing phases.
-2.  Then update `docs/plan/todo-archive.md`: append a full archive block with audit conclusions, mainline items, acceptance summaries, and key validation conclusions.
+2.  Then update `docs/plan/todo-archive.md`: append the v1 archive block with the 6 required fields and the v1 marker; see [Planning Document Model v1 §4](../../../standards/planning-docs.md).
 3.  Then update `docs/plan/roadmap.md`: change the phase status to "audited & archived" or equivalent, with a one-line closing conclusion.
 4.  If backlog changes are involved, update `docs/plan/backlog.md`: mainlines record latest status, last promoted phase, and next slice direction; short-term candidates de-duplicate or become historical notes after promotion.
 5.  Finally update `docs/i18n/*/plan/roadmap.md` as needed: only phase status and summaries, no forced translation of `todo.md` / `backlog.md`.
@@ -222,6 +223,7 @@ Phase archiving is a formal planning-doc change and must satisfy at least `V0 + 
 2.  Doc directory check: run `pnpm docs:check:i18n` to confirm no legacy directory recurrence or duplicate translation pages.
 3.  Quality status confirmation: verify the phase's latest `lint`, `typecheck`, targeted tests, or special validation conclusions are recorded; without proof of passing the minimum quality gate, do not archive.
 4.  Error-surface check: confirm no new editor diagnostics on the files involved in the archive.
+5.  Planning model check: run `pnpm docs:check:planning-docs` to confirm progress-table rows match the body, the archive index covers all shards, and v1 block fields are complete.
 
 #### Step 6. Review Gate & Release Conclusion
 
@@ -240,8 +242,8 @@ Phase archiving is a formal planning-doc change and must satisfy at least `V0 + 
 
 Before formally evaluating a new phase, run a workspace cleanliness check to ensure the planning doc base is clean and archives are consistent:
 
-1.  **Doc base check**: `todo.md` has no residual completed-phase bodies (new phase entry is "preparing"); `roadmap.md` has no residual detailed planning of archived phases (only summary tables or audit conclusions); `backlog.md` has no residual bodies of completed candidates.
-2.  **Archive consistency check**: roadmap archive shards and todo-archive shards cover roughly aligned phase ranges; shard filenames match the registration list in `archive/index.md`.
+1.  **Doc base check**: `todo.md` has no residual completed-phase bodies (new phase entry is "preparing") and its progress table matches the large items; `todo-archive.md` has a descending 4-column index covering all shards; `roadmap.md` has no residual detailed planning of archived phases (only summary tables or audit conclusions); `backlog.md` has no residual bodies of completed candidates.
+2.  **Archive consistency check**: roadmap archive shards and todo-archive shards cover roughly aligned phase ranges; shard filenames match the registration list in `archive/index.md` and the `todo-archive.md` index table.
 3.  **Format cleanliness check**: no mixed parentheses like `（(` / `）)`; no abnormal backticks; heading levels progress without jumps; the doc ends with a complete "Related Documents" index with valid reference paths.
 4.  **Execution**: performed by the `@product-manager` or equivalent role entering the new phase evaluation; issues are graded "blocking / non-blocking"; blocking items must be fixed before evaluation, non-blocking items marked TODO in the planning docs.
 

@@ -118,6 +118,7 @@ const steps = [
     { label: 'lint:md (Markdown)', run: pnpm('lint:md'), required: false },
     { label: 'typecheck (TypeScript)', run: pnpm('typecheck'), required: true },
     { label: 'docs:check:line-count', run: pnpm('docs:check:line-count'), required: true },
+    { label: 'docs:check:planning-docs', run: pnpm('docs:check:planning-docs'), required: true },
     { label: 'docs:check:source-of-truth', run: pnpm('docs:check:source-of-truth'), required: false },
     { label: 'security:audit-deps', run: pnpm('security:audit-deps'), required: true },
     { label: 'security:alerts', run: pnpm('security:alerts'), required: true },

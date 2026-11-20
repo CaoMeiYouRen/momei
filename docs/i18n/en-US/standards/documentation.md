@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-16
+last_sync: 2026-11-20
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -191,6 +191,8 @@ Each `README.<locale>.md` mirror must include: project intro and core value prop
 ### 5.3 Plan Docs
 
 - `roadmap.md`, `backlog.md`, and `todo.md` maintenance must follow the [Planning & Evaluation Standards](./planning.md).
+- Document shapes (granularity, progress table, archive index, archive block fields) follow the [Planning Document Model v1](../../../standards/planning-docs.md). New archive blocks require the 6 fields; existing blocks stay frozen.
+- `pnpm docs:check:planning-docs` verifies progress-table row counts, archive-index coverage / order / naming, and v1 archive-block fields.
 - Phase archiving and next-phase planning must follow the Phase Archive Workflow in the planning standards; do not skip the fixed order "admission check -> evidence chain -> doc sync -> Review Gate -> next-phase gate".
 - When a current-phase item hits the Design-First Gate, `roadmap.md` / `todo.md` must explicitly state "complete the design doc first, then implement".
 - All planning/standards/Markdown changes need at least one review round before commit; "docs only" is not an excuse to skip review.

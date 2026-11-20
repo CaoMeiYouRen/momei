@@ -82,6 +82,7 @@ export default defineConfig({
                         text: '开发规范',
                         items: [
                             { text: '项目规划规范', link: '/standards/planning' },
+                            { text: '规划文档模型', link: '/standards/planning-docs' },
                             { text: '通用开发规范', link: '/standards/development' },
                             { text: 'AI 资产治理规范', link: '/standards/ai-governance' },
                             { text: '外部 Skills 准入清单', link: '/standards/external-skills-intake' },

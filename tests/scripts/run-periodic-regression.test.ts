@@ -36,6 +36,7 @@ describe('run-periodic-regression', () => {
             'docs:check:source-of-truth',
             'docs:check:i18n',
             'docs:check:line-count',
+            'docs:check:planning-docs',
             'i18n:audit:missing',
             'i18n:audit:field-copy',
             'duplicate-code:check',
