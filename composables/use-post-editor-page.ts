@@ -345,9 +345,13 @@ export function usePostEditorPage() {
         leaveMessage: computed(() => t('pages.admin.posts.floating_actions.leave_confirm')),
     })
 
-    const handlePreview = () => openPostPreview(isNew.value, post, localePath)
+    const handlePreview = () => {
+        openPostPreview(isNew.value, post, localePath)
+    }
 
-    const handleRestore = (data: RestorePostPayload) => restoreEditorPostState(post, clearLocalDraft, data)
+    const handleRestore = (data: RestorePostPayload) => {
+        restoreEditorPostState(post, clearLocalDraft, data)
+    }
 
     const loadPost = async () => {
         const loadOptions = {

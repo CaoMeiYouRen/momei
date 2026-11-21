@@ -202,7 +202,7 @@ export class ImageService extends AIBaseService {
             title: 'AI 图片生成完成',
             content: `您的图片生成任务已完成，共生成 ${finalResponse.images.length} 张图片。`,
             link: buildAITaskDetailPath(task.id),
-        }).catch((error: unknown) => logger.error('[ImageService] Failed to send completion notification:', error))
+        }).catch((error: unknown) => { logger.error('[ImageService] Failed to send completion notification:', error) })
     }
 
     private static async continueTask(task: AITask, options: AIImageOptions) {
@@ -260,7 +260,7 @@ export class ImageService extends AIBaseService {
                 title: 'AI 图片生成失败',
                 content: `您的图片生成任务失败: ${toErrorMessage(error) || '未知错误'}`,
                 link: buildAITaskDetailPath(task.id),
-            }).catch((notificationError: unknown) => logger.error('[ImageService] Failed to send failure notification:', notificationError))
+            }).catch((notificationError: unknown) => { logger.error('[ImageService] Failed to send failure notification:', notificationError) })
 
             return 'failed' as const
         }

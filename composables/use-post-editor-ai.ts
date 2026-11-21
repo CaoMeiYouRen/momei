@@ -138,15 +138,21 @@ export function usePostEditorAI(
                 const task = response.data
 
                 if (task.status === 'completed') {
-                    finalize(() => resolve(extractTranslatedContent(task.result)))
+                    finalize(() => {
+                        resolve(extractTranslatedContent(task.result))
+                    })
                     return
                 }
 
                 if (task.status === 'failed') {
-                    finalize(() => reject(new Error(task.error || t('pages.admin.posts.ai_error'))))
+                    finalize(() => {
+                        reject(new Error(task.error || t('pages.admin.posts.ai_error')))
+                    })
                 }
             } catch (error) {
-                finalize(() => reject(toError(error)))
+                finalize(() => {
+                    reject(toError(error))
+                })
             } finally {
                 requestInFlight = false
             }

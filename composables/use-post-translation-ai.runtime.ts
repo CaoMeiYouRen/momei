@@ -532,7 +532,7 @@ export async function runTranslationPipelineFromIndex(options: {
         fields: context.fields,
         startIndex: options.startIndex,
         translationProgress: options.translationProgress,
-        setFieldProgress: (field, patch) => patchTranslationProgressField(options.runContext, options.translationProgress, field, patch),
+        setFieldProgress: (field, patch) => { patchTranslationProgressField(options.runContext, options.translationProgress, field, patch) },
     })
     updateOverallTranslationProgress(options.runContext, options.translationProgress)
 

@@ -527,7 +527,9 @@ export class TTSService extends AIBaseService {
                     // 使用可以清理的超时
                     let timeoutId: ReturnType<typeof setTimeout> | undefined
                     const timeoutPromise = new Promise<{ done: boolean, value?: Uint8Array }>((_, reject) => {
-                        timeoutId = setTimeout(() => reject(new Error(`Stream read timeout: No data received for ${Math.round(READ_TIMEOUT / 1000)} seconds`)), READ_TIMEOUT)
+                        timeoutId = setTimeout(() => {
+                            reject(new Error(`Stream read timeout: No data received for ${Math.round(READ_TIMEOUT / 1000)} seconds`))
+                        }, READ_TIMEOUT)
                     })
 
                     try {
@@ -559,7 +561,9 @@ export class TTSService extends AIBaseService {
                                 const currentProgress = typeof task.progress === 'number' ? task.progress : 5
                                 task.progress = Math.min(95, currentProgress + 1)
                                 logger.debug(`[TTSService] Task ${taskId} progress: ${task.progress}% (${receivedBytes} bytes)`)
-                                await taskRepo.save(task).catch((e: unknown) => logger.warn(`[TTSService] Task progress save failed (taskId: ${taskId}):`, e))
+                                await taskRepo.save(task).catch((e: unknown) => {
+                                    logger.warn(`[TTSService] Task progress save failed (taskId: ${taskId}):`, e)
+                                })
                             }
                         }
                     } catch (readErr) {

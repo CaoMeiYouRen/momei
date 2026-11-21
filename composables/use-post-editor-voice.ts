@@ -404,10 +404,10 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
     let muteGainNode: GainNode | null = null
 
     const stopMediaInput = () => {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach((track) => track.stop())
-            mediaStream = null
-        }
+        mediaStream?.getTracks().forEach((track) => {
+            track.stop()
+        })
+        mediaStream = null
     }
 
     const clearStartRetry = () => {

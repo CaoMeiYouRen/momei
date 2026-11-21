@@ -104,10 +104,14 @@ export function useAdInjection() {
         })
 
         if (context?.categories) {
-            context.categories.forEach((cat) => params.append('categories', cat))
+            context.categories.forEach((cat) => {
+                params.append('categories', cat)
+            })
         }
         if (context?.tags) {
-            context.tags.forEach((tag) => params.append('tags', tag))
+            context.tags.forEach((tag) => {
+                params.append('tags', tag)
+            })
         }
 
         const response = await $fetch<{

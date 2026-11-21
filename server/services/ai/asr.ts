@@ -204,7 +204,7 @@ export class ASRService extends AIBaseService {
                 type: NotificationType.SYSTEM,
                 title: '语音转写失败',
                 content: `您的音频文件 ${fileName} 转写失败: ${toErrorMessage(err) || '未知错误'}`,
-            }).catch((e: unknown) => logger.error('[ASRService] Failed to send notification:', e))
+            }).catch((e: unknown) => { logger.error('[ASRService] Failed to send notification:', e) })
         })
 
         return { taskId: task.id }
@@ -298,7 +298,7 @@ export class ASRService extends AIBaseService {
                 title: '语音转写完成',
                 content: `您的音频文件已成功转写，共 ${response.text.length} 个字符。`,
                 link: buildAITaskDetailPath(taskId),
-            }).catch((e: unknown) => logger.error('[ASRService] Failed to send notification:', e))
+            }).catch((e: unknown) => { logger.error('[ASRService] Failed to send notification:', e) })
         } catch (err: unknown) {
             // 更新状态为失败
             await this.recordTask({

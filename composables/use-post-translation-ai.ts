@@ -75,14 +75,14 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         content?: string
         totalChunks?: number
         mode?: PostTranslationMode | null
-    } = {}) => beginAuxiliaryProgressState(runContext, translationProgress, field, options)
+    } = {}) => { beginAuxiliaryProgressState(runContext, translationProgress, field, options) }
 
     const completeAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
         content?: string
         totalChunks?: number
         completedChunks?: number
         mode?: PostTranslationMode | null
-    } = {}) => completeAuxiliaryProgressState(runContext, translationProgress, field, options)
+    } = {}) => { completeAuxiliaryProgressState(runContext, translationProgress, field, options) }
 
     const failAuxiliaryFieldProgress = (field: Exclude<TranslationProgressField, TranslationTextField>, options: {
         error: string
@@ -90,7 +90,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
         totalChunks?: number
         completedChunks?: number
         mode?: PostTranslationMode | null
-    }) => failAuxiliaryProgressState(runContext, translationProgress, field, options)
+    }) => { failAuxiliaryProgressState(runContext, translationProgress, field, options) }
 
     const translateField = async (field: TranslationTextField, options: TranslateFieldOptions) => {
         const context = runContext.value
@@ -141,15 +141,17 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                     translateOptions: options,
                     targetLanguage: runContext.value?.targetLanguage || '',
                     t,
-                    syncFieldContent: (nextField, nextRuntime, overrides, visibleChunkCount) => syncTranslationFieldContent({
-                        post,
-                        runContext,
-                        translationProgress,
-                        field: nextField,
-                        runtime: nextRuntime,
-                        overrides,
-                        visibleChunkCount,
-                    }),
+                    syncFieldContent: (nextField, nextRuntime, overrides, visibleChunkCount) => {
+                        syncTranslationFieldContent({
+                            post,
+                            runContext,
+                            translationProgress,
+                            field: nextField,
+                            runtime: nextRuntime,
+                            overrides,
+                            visibleChunkCount,
+                        })
+                    },
                 })
             } else if (preferredMode === 'task') {
                 await executeTaskModeTranslation({
@@ -172,16 +174,18 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                         t,
                         toErrorMessage: (error) => toTranslationErrorMessage(t, error),
                         createActiveController: () => createActiveTranslationController(controllerState),
-                        resetActiveController: () => resetActiveTranslationController(controllerState),
-                        syncFieldContent: (nextField, nextRuntime, overrides, visibleChunkCount) => syncTranslationFieldContent({
-                            post,
-                            runContext,
-                            translationProgress,
-                            field: nextField,
-                            runtime: nextRuntime,
-                            overrides,
-                            visibleChunkCount,
-                        }),
+                        resetActiveController: () => { resetActiveTranslationController(controllerState) },
+                        syncFieldContent: (nextField, nextRuntime, overrides, visibleChunkCount) => {
+                            syncTranslationFieldContent({
+                                post,
+                                runContext,
+                                translationProgress,
+                                field: nextField,
+                                runtime: nextRuntime,
+                                overrides,
+                                visibleChunkCount,
+                            })
+                        },
                     })
                 } catch (error) {
                     const hasNoAppliedChunk = runtime.nextChunkIndex === completedBeforeExecution
@@ -224,7 +228,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                 field,
                 status: 'completed',
                 translationProgress,
-                setFieldProgress: (nextField, patch) => patchTranslationProgressField(runContext, translationProgress, nextField, patch),
+                setFieldProgress: (nextField, patch) => { patchTranslationProgressField(runContext, translationProgress, nextField, patch) },
             })
         } catch (error) {
             if ((error as { name?: string } | null)?.name === 'AbortError') {
@@ -232,7 +236,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                     field,
                     status: 'cancelled',
                     translationProgress,
-                    setFieldProgress: (nextField, patch) => patchTranslationProgressField(runContext, translationProgress, nextField, patch),
+                    setFieldProgress: (nextField, patch) => { patchTranslationProgressField(runContext, translationProgress, nextField, patch) },
                 })
                 throw error
             }
@@ -242,7 +246,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
                 status: 'failed',
                 error: toTranslationErrorMessage(t, error),
                 translationProgress,
-                setFieldProgress: (nextField, patch) => patchTranslationProgressField(runContext, translationProgress, nextField, patch),
+                setFieldProgress: (nextField, patch) => { patchTranslationProgressField(runContext, translationProgress, nextField, patch) },
             })
             throw error
         }
@@ -309,7 +313,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             fields: runContext.value.fields,
             startIndex: fieldIndex,
             translationProgress,
-            setFieldProgress: (nextField, patch) => patchTranslationProgressField(runContext, translationProgress, nextField, patch),
+            setFieldProgress: (nextField, patch) => { patchTranslationProgressField(runContext, translationProgress, nextField, patch) },
         })
         return runPipelineFrom(fieldIndex)
     }
@@ -327,7 +331,7 @@ export function usePostTranslationAI(post: Ref<PostEditorData>) {
             post,
             runContext,
             translationProgress,
-            setFieldProgress: (field, patch) => patchTranslationProgressField(runContext, translationProgress, field, patch),
+            setFieldProgress: (field, patch) => { patchTranslationProgressField(runContext, translationProgress, field, patch) },
             resetTranslationProgress,
         })
         if (!initialized) {
