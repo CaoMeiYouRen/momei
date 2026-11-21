@@ -109,6 +109,12 @@ jobs:
         if: always()
         run: pnpm run security:alerts
         env:
+          # Dependabot alerts API 不接受 GITHUB_TOKEN（permissions.security-events
+          # 只覆盖 Code Scanning，调用 Dependabot 端点固定 403）。这里优先使用仓库
+          # 已配置的 GH_TOKEN（与 security-auto-fix 的 dependabot-alerts-token 同源）；
+          # 未配置时回退 GITHUB_TOKEN，Dependabot 访问失败会按 fail-closed 判 Reject；
+          # 两者都缺失时才记录为 degraded source，不做静默放行。
+          SECURITY_ALERTS_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Phase 2: 补充检查（regression:weekly profile 未覆盖的维度） ───
