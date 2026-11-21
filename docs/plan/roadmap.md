@@ -22,87 +22,33 @@
 - 第七十七阶段： [archive/roadmap-phases-77.md](./archive/roadmap-phases-77.md)
 - 第七十八阶段： [archive/roadmap-phases-78.md](./archive/roadmap-phases-78.md)
 - 第七十九阶段： [archive/roadmap-phases-79.md](./archive/roadmap-phases-79.md)
+- 第八十阶段： [archive/roadmap-phases-80.md](./archive/roadmap-phases-80.md)
+- 第八十一阶段： [archive/roadmap-phases-81.md](./archive/roadmap-phases-81.md)
 - 深度归档治理索引： [archive/index.md](./archive/index.md)
 
 ## 主窗口保留范围
 
 - 主文档现在只保留项目概况、近线阶段窗口、当前规划与归档索引。
-- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十八阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
+- 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第八十一阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的区间分片规则向深度归档推进。
 
-## 第八十一阶段：质量底线与债务收口（进行中）
+### 第八十一阶段概览（已审计归档）
 
-**时间表**: 2026-11-21 ~ 待定（按里程碑滚动，不预设结束日）
+> 本阶段完整规划正文已迁入 [archive/roadmap-phases-81.md](./archive/roadmap-phases-81.md)；各条目的执行明细与验收结论见 [待办事项归档](./todo-archive.md) 的第八十一阶段归档块。
 
-**目标**: 恢复 Weekly Regression 绿，收口 P1 安全门禁与 fallback 测试环境耦合；完成覆盖率第二十二批、静态规则债第四批、字号归一第四批；并用 [规划文档模型 v1](../standards/planning-docs.md) 完成首个完整阶段（6 列进度表 / 小条目分层 / v1 归档块）。
+| 阶段 | 时间 | 组合 | 核心交付 |
+|:---|:---|:---|:---|
+| **81** | 2026-11-21 | 1 修复 + 4 治理 | Weekly 安全门禁恢复（`dependabot source: ok`）；覆盖率第二十二批（86.35% → 86.69%，+0.34pp）；`no-confusing-void-expression` 80 处 / 29 文件清零并升 error；字号归一第四批 30 条（98 → 68）；规划文档模型 v1 首轮（5 行进度表 / 17 小条目 / 回归窗口插入修复） |
 
-**准入结论**: 用户于 2026-11-21 在候选页确认方案 A（5 条，ROI 均值 `2.42`）：Weekly 安全门禁 `2.25` / 覆盖率 `2.33` / ESLint 第四批 `2.33` / 字号第四批 `1.67` / 规划 v1 首轮实战 `3.50`。
+### 第八十一阶段归档结论（最近归档阶段）
 
-**准入前置（已核对 2026-11-21）**: 第八十阶段已审计归档；issue #1071 已采纳并提交 `11013702`（本地，待推送）；open PR 0；open issue #1071（已回写）/ #262（ESLint 规则分批）。基线：coverage **86.35%**、duplicate-code **0.37%**（43 clones / 650 行）、i18n missing 0 / duplicates 64 组、字号 457 声明 / token 176 / 口径内待替换 98、`coreEntryJs` 287.20KB / 335KB、`keyCss` 60.01KB / 62KB。CI 回执：`396ed65b` 的 Test / Pages / Docker / CodeQL / TODO 全绿；Weekly Regression run `44733444354` **failure**（见条目 1）。**开工前先推送 `11013702` 并核对 CI。**
+**审计结论**: 第八十一阶段 5 条条目全部完成并归档（2026-11-21 立项并收口）。条目 1 隔离 fallback 测试的三类 token 环境并为 Weekly/Release 注入 `SECURITY_ALERTS_TOKEN`，Weekly run `44847021795` 恢复 `dependabot source: ok (github-api)`；条目 2 补测零引用组件与事实源检查脚本，同源 statements 86.35% → **86.69%**（+0.34pp），模块 60.7% → 94.78% / 74.9% → 96.17%；条目 3 清零 `no-confusing-void-expression` 80 处 / 29 文件并升 `error`，`fail()` / `localizedFail()` 补 `never` 返回类型，issue #262 已回写；条目 4 完成 30 条等值字号替换，口径内待替换 98 → 68、token 176 → 206，CI Visual 32/32 + parity 83/83；条目 5 完成规划文档模型 v1 首轮（5 行进度表 / 17 小条目回填 / 回归窗口插入修复 56 例 + marker 315 文件）。各条 Review Gate 均 Pass。
 
-**阶段容量与移出顺序**: 5 个大条目 / 17 个小条目（超过建议 15 的原因：条目 3 按 ≤10 文件/提交拆为 3 个批量小条目，避免单 commit 超规模；范围未新增，仅提交粒度拆分，故不拆阶段）。顺序 `1 → 2 → 3 → 4 → 5`（条目 5 与 1-4 并行，收口时闭环）；若超时，按 `4 → 3 → 2` 移出——先移出视觉债，保留 CI 修复、覆盖率与 v1 实战。
+阶段收口证据：CI Test run `44867691632`（`689469f1`）与 `44869703295`（`b78c2092`）全绿（Unit / Coverage / Visual 32 + parity 83 / E2E / Build & Lighthouse）；Weekly Regression `44847021795` success；`pnpm lint` 0 error（10 root + 3 cli 既有 warning）、`pnpm typecheck` / `pnpm lint:css` / `lint-md` 通过；同源 statements **33,917 / 39,278 = 86.35% → 34,068 / 39,299 = 86.69%**；docs links 366 文件 / markers 315 文件 / planning-docs / line-count / source-of-truth 通过。阶段收口 `regression:phase-close` 本机首跑在 `test:coverage` 被 2 个既有并发 flake 阻断（`app-header` drawer 点击、`admin/comments` 筛选后 fetch 次数），两文件孤立复跑 24/24 通过；`release:check` 11/11、`test:perf:budget:strict`、`duplicate-code:check:strict`、`review-gate:generate:check` 均通过，`test:coverage` 以 CI Coverage job 为最终裁决，逐项映射见 `artifacts/review-gate/2026-11-21-phase81-close.md`。
 
-**执行进展（2026-11-21）**: 条目 1-4 已闭环，条目 5 的 81.5.1 / 81.5.2 已完成，81.5.3（v1 归档块与阶段收口）待阶段收口时执行。关键结果：Weekly Regression run `44847021795` success（`dependabot source: ok (github-api)` / `code-scanning source: ok`）；覆盖率同源 statements `86.35% → 86.69%`（+0.34pp），`find-unused-components` 60.7% → 94.78%、`check-source-of-truth` 74.9% → 96.17%；`no-confusing-void-expression` 80 处 / 29 文件清零并升 `error`；字号口径内待替换 `98 → 68`（本批 30 条），`test:visual` 32/32、parity 本地 82/83（1 条为本机测试数据态差异，以 CI 裁决）。Review Gate 各条目 R1/R2 均 Pass。
+> 未覆盖边界与后续观察项：① `server/middleware/i18n.ts` 的 ALS 注入失效为既有缺陷，已登记 [backlog](./backlog.md) 国际化主线；② `no-confusing-void-expression` 为 typed 规则，`.vue`、scripts、tests、migrations 维持既有豁免；③ 本机 `user-settings-dark` parity 头像差异为本机 TEST_MODE 数据态，CI 已 83/83，不登记 allowlist；④ `GH_TOKEN` secret 权限由 CI 运行证明，失效时门禁按 fail-closed 判 Reject；⑤ 下一阶段尚未立项，候选按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
 
-1. **Weekly 安全告警门禁 403 与 fallback 测试隔离（P1 修复型）**
-    - **目标**: 让 Weekly Regression 的 `security:alerts` 与 `test:coverage` 恢复稳定通过；修复 fallback 测试对 CI token 的环境耦合；定位 Dependabot 源 `permission-denied`。
-    - **优先级**: P1（CI 阻断 / 安全门禁可信度）。
-    - **范围**: ① `tests/scripts/security-alert-gate-shared.fallback.test.ts` 的无 token 用例显式隔离 `SECURITY_ALERTS_TOKEN` / `GH_TOKEN` / `GITHUB_TOKEN`；② 复核 `.github/workflows/regression-weekly.yml` 的 token 来源：`permissions.security-events: read` 只覆盖 Code Scanning，Dependabot alerts 需要专用 PAT / App token（`security_events` 或 `repo` scope），必要时改用 `SECURITY_ALERTS_TOKEN`；③ 以 `workflow_dispatch` 或下一次 scheduled run 复核 `dependabot source`。
-    - **验收标准**: 无 token / 有 token 两种环境下定向测试均通过；本地 `GITHUB_TOKEN=$(gh auth token) pnpm security:alerts` Pass；Weekly run 的 `security:alerts` 为 Pass 且 `dependabot source` 为 `ok (github-api)`；若专用 token 无法提供，必须在 issue / backlog #10 登记 `permission-denied` 为已知阻塞并给出到期日，不得把该源降级为 warning；`pnpm lint` / `typecheck` 通过。
-    - **不做什么**: 不改 severity / allowlist / fail-closed 口径；不通过放宽门禁换绿；不升级依赖。
-    - **依赖**: 仓库 Actions token 权限或专用 secret（可能需要用户操作）；本地 `gh auth token` 仅用于验证。
-    - **交付物**: 测试隔离改动、workflow / token 配置、run 链接与 Review Gate 证据。
-    - **风险**: 若权限无法在仓库侧修复，需用户确认专用 token；不得静默把 `permission-denied` 降级为 warning。
-
-2. **覆盖率第二十二批（P2）**
-    - **目标**: 同源 statements 至少 `+0.3pp`（约 115 条），优先 `scripts/governance/find-unused-components.mjs`（phase79 快照 90 未覆盖）与 `scripts/docs/check-source-of-truth.mjs`（phase79 快照 59 未覆盖；artifact `artifacts/coverage/2026-11-19-phase80-item4/coverage-final.json`），开工时按最新 coverage-final 复算。
-    - **优先级**: P2（长期主线 #1）。
-    - **范围**: 2-3 个模块；失败 / 边界分支优先；新增或扩充测试；不改生产行为。
-    - **验收标准**: 模块级 `+15pp` 或 `≥85%`；同源 statements `+0.3pp`；干净全量 `pnpm test:coverage` 通过；定向测试通过；flaky 记录。
-    - **不做什么**: 不追全量 90%；不测真实网络 / 浏览器；不为凑数写低价值断言；不拆 `admin-taxonomy-page`（另案）。
-    - **依赖**: phase79 / 最新 coverage-final；清 `.vitest-cache` + `--maxWorkers=4` 的干净跑口径。
-    - **交付物**: 测试文件、coverage baseline / exit、证据。
-    - **风险**: coverage 分母变化、0-test 套件、异步 flake；先复算再选模块，必要时换模块。
-
-3. **静态规则债第四批（P2）**
-    - **目标**: `no-confusing-void-expression` 80 处 / 29 文件（2026-11-17 inventory 口径，开工复算）清零并升 `error`；同步 inventory / debt / issue #262。
-    - **优先级**: P2（长期主线 #10）。
-    - **范围**: 80 处 / 29 文件；按 ≤10 文件/提交拆为 3 个批量小条目（29 文件 ≈ 3 批）；先改 1 个代表文件 + 定向测试，再批量；`no-unsafe-argument` 只评估 typed lint 作用域，不强行清零。
-    - **验收标准**: inventory 该规则 0 命中 / 0 warning / 0 显式豁免；`pnpm lint` 0 error、warning ≤10；issue #262 回写；相关定向测试通过。
-    - **不做什么**: 不动千级命中项（`explicit-function-return-type` / `prefer-nullish-coalescing`）；不放宽规则；不写 `eslint-disable`。
-    - **依赖**: `governance:inventory:eslint-rules`（timeout budget 10m）；现有 `eslint-debt-targets.mjs`。
-    - **交付物**: 代码 / 配置改动、inventory JSON、issue 回写。
-    - **风险**: `void` 表达式可能涉及事件处理器 / Promise；逐文件确认行为等价；单文件风险高则拆小批。
-
-4. **字号归一第四批（P3）**
-    - **目标**: 按 `governance:inventory:font-sizes` 复算，处理剩余 98 条中的 `≥30` 条（≤10 文件），优先 admin 路由面与 `_onboarding.scss` 剩余。
-    - **优先级**: P3（长期主线 #11）。
-    - **范围**: 等值字面量 → `--m-font-size-*`；单批 ≤10 文件；onboarding 需 tour 截图。
-    - **验收标准**: 口径内待替换下降 `≥30` 条；逐元素 `getComputedStyle` 0 差异；`test:visual` 32/32、parity 83/83 未归因 0；`pnpm lint:css` 0 error。
-    - **不做什么**: 不改非字阶取值；不按现值批量替换；不改暗色 tint；不扩 U1-U6；不动 `admin-taxonomy-page`。
-    - **依赖**: inventory；tour 截图环境；parity 参考态。
-    - **交付物**: token 替换、inventory JSON、对账 / 截图证据。
-    - **风险**: 参考态覆盖不足时登记偏差表；单文件视觉回归立即回退。
-
-5. **规划文档 v1 首轮实战与回归窗口插入修复（P3 治理）**
-    - **目标**: 本阶段按 v1 维护 6 列进度表 / 小条目分层 / 独立提交审计；复核立项前置已完成的 `scripts/shared/regression-window.mjs` 插入锚点修复与 `current.md` 规整；收口产出首个 v1 归档块。
-    - **优先级**: P3（规划文档模型 v1 首轮实战）。
-    - **范围**: `todo.md` / `roadmap.md` / `todo-archive.md` / `current.md` / `scripts/shared/regression-window.mjs` / `tests/scripts/regression-window.test.ts`；插入锚点与 marker 顺序；v1 归档块模板。
-    - **验收标准**: 连续两次 upsert 后四个 marker 顺次排列、重 upsert 外层不删除内层；`tests/scripts/regression-window.test.ts` 的当前窗口顺序断言通过（11-19 在 11-18 之前）；`pnpm docs:check:planning-docs` 通过；`pnpm docs:check:markers` 通过；进度表 5 行 = 5 大条目；小条目 17；归档块 6 项 + `> **归档块模型**: v1`。
-    - **不做什么**: 不改存量归档正文；不重排历史窗口；不改阈值 / 规范。
-    - **依赖**: 阶段收口；脚本改动需先补单测，再在临时副本上验证 upsert。
-    - **交付物**: 脚本修复、单测、进度表、marker 规整、v1 归档块、证据。
-    - **风险**: 脚本改动影响 weekly 自动追加；先补单测 + 临时副本验证，再改真实窗口；嵌套旧块若存在，脚本会显式抛错而不是删除内层。
-
-**回滚边界（阶段级）**:
-
-- 条目 1：测试隔离与 workflow / token 配置分离，可独立回滚；回滚后 Weekly 仍红，需重新评估。
-- 条目 2：测试文件独立可删。
-- 条目 3：规则配置与代码改动按文件回退；升 `error` 先于批量清零时需同批回滚。
-- 条目 4：按文件独立 revert；token 定义不动。
-- 条目 5：文档改动 revert；marker 恢复原顺序仅用于紧急。
-
-**风险提示**: ① 条目 1 的 token 权限可能需要仓库管理员操作，不得用放宽 fail-closed 换绿；② 条目 2 的 coverage 受 flake 影响，以干净全量跑 + CI 为最终裁决；③ 条目 3 可能暴露真实 `void` 语义差异，逐文件定向测试；④ 条目 4 的 `_onboarding.scss` 必须 tour 截图取证；⑤ 条目 5 的脚本插入修复已覆盖 weekly 自动回写；先合脚本 + 单测，再让 weekly 回写；若窗口内已有嵌套旧块，脚本会显式抛错而不是删除内层。
+> 第八十一阶段已审计归档。下一阶段候选来源见 [backlog](./backlog.md)；未落盘前不写入 `todo.md` 或本文。
 
 ### 第二十二至第二十四阶段深度归档
 
@@ -402,7 +348,7 @@
 |:---|:---|:---|:---|
 | **80** | 2026-11-19 | 1 功能 + 5 体验 / 债务 | CLI 断点续传（状态文件 + `--resume` / `--state-file` / `--clean-state`，24 例新单测）；首页缓存与语言检测解耦（`/` 去 `Set-Cookie` 并返回 `s-maxage`，五语重定向 + 显式偏好 E2E 7 例 + `probe:i18n-cache`）；字号归一第三批（15 文件 37 处，待替换 135 → 98，逐元素 0 差异）；覆盖率第二十一批（`check-line-count` 55/56、`probe-build-geometry` 193/208，全仓 **86.35%**，+0.38pp）；`@vite-pwa/nuxt` 2.0.2 + `generateSW` 迁移（产物逐字节一致）；parity 参考态 CI 重采与允许清单清零 |
 
-### 第八十阶段归档结论（最近归档阶段）
+### 第八十阶段归档结论（已归档）
 
 **审计结论**: 第八十阶段 6 条条目全部完成并归档（2026-11-19 立项并收口）。条目 1 为 `momei import` 增加迁移状态文件与 `--resume` / `--state-file` / `--clean-state`，损坏状态降级、写盘失败不阻断、`--dry-run` 不写状态，新增 24 例单测（`packages/cli` 176 例全绿）；条目 2 关闭 `detectBrowserLanguage.useCookie`，`/` 去 `Set-Cookie` 并进入 `swr 3600`，偏好改由显式切换写入 + 客户端根路径应用，新增 7 例 E2E 与 `probe:i18n-cache`，并定位「插件 setup 期调用 `useI18n()` 导致错误页」的根因；条目 3 完成 15 文件 37 处等值字号替换（settings 全部 20 处 + onboarding 5 处 + 两个 admin 相邻文件 12 处），口径内待替换 135 → 98、token 化 139 → 176，逐元素 `getComputedStyle` 对账 2,278 元素 0 差异并以 tour 截图取证；条目 4 把两个脚本模块从 17.9% / 49.5% 提升到 98.2% / 92.8%，同源 statements 85.97% → **86.35%**（+0.38pp）；条目 5 升 `@vite-pwa/nuxt` 2.0.2 并迁移 `workbox` → `generateSW`，`sw.js` / workbox 运行时 / manifest 除 build id 外逐字节一致，无 deprecated 警告；条目 6 以 CI 同一次运行重采 82 张参考态并清零 `user-settings` 4 条允许清单，关闭 `admin-posts-list` 的预算内吸收行。各条 Review Gate 均 Pass。
 
@@ -410,7 +356,7 @@
 
 > 未覆盖边界与后续观察项：① 首页边缘 `cf-cache-status` 仍需运维侧核对，仓库只保证响应头可缓存；② 偏好应用为客户端跳转，首帧存在极短默认语言闪烁，若要首帧即命中需边缘 Cache Key 配合；③ `snippet-aggregate-dialog` 聚合弹窗状态无独立 parity 参考态；④ demo 模式首页存在 1 条 hydration mismatch 提示（改动前基线即存在）；⑤ 本机 `user-settings-dark` parity 有 1 条头像兜底数据态差异，CI 已通过并已在偏差处置表登记。
 
-> 第八十阶段已审计归档。第八十一阶段已单独立项（见本文「第八十一阶段：质量底线与债务收口（筹备中）」），不在本行重复。其余未上收候选：结构复用、注释治理、Mergify merge queue、播客与多媒体、会员付费前置评估、国际化语种扩展，见 [backlog](./backlog.md)；按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
+> 第八十阶段已审计归档；第八十一阶段已审计归档，见本文「第八十一阶段归档结论」。其余未上收候选：结构复用、注释治理、Mergify merge queue、播客与多媒体、会员付费前置评估、国际化语种扩展，见 [backlog](./backlog.md)；按 [项目规划规范 §4.5 Step 7](../standards/planning.md) 在准入时重新评估。
 
 ---
 

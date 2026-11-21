@@ -28,13 +28,25 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十阶段共 11 个近线归档块（`375` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 主文档当前保留第七十至第八十一阶段共 12 个近线归档块（`387` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
 - 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十一阶段：质量底线与债务收口（已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十一阶段 · 2026-11-21 ~ 2026-11-21
+-   **大条目清单与状态**: 1. Weekly 安全告警门禁 403 与 fallback 测试隔离（[x]）；2. 覆盖率第二十二批（[x]）；3. 静态规则债第四批（[x]）；4. 字号归一第四批（[x]）；5. 规划文档 v1 首轮实战与回归窗口插入修复（[x]）
+-   **提交清单**: `b5eed8f8`、`d398ea18`（81.1，81.1.3 为复跑验证不单独提交）；`1b517ae0`（81.2）；`8f560060`、`0762e86b`、`10639741`、`096bd653`（81.3）；`689469f1`（81.4）；`1e117400`、`b78c2092` 与本归档提交（81.5）
+-   **质量门结果**: CI Test `44867691632` / `44869703295` 全绿（Unit / Coverage / Visual 32 + parity 83 / E2E / Build & Lighthouse）；Weekly Regression `44847021795` success；同源 statements 86.35% → 86.69%（+0.34pp）；`pnpm lint` 0 error、`typecheck` / `lint:css` / `lint-md` 通过；docs links 366 文件、markers 315 文件、planning-docs / line-count / source-of-truth 通过。阶段收口 `regression:phase-close` 本机首跑被 2 个既有 coverage 并发 flake 阻断，孤立复跑 24/24 通过；required 命令逐项映射见 `artifacts/review-gate/2026-11-21-phase81-close.md`（test:coverage 以 CI Coverage job 为最终裁决）
+-   **Review Gate 结论与轮次**: 81.1 R1 Reject → R2 Pass；81.2 R1 Pass（W1 修复）→ R2 Pass；81.3 并行双分区 R1 Pass + R2 Pass；81.4 R1 Reject → R2 Pass；81.5 归档 R1 Reject → R2 Pass
+-   **未覆盖边界**: ① `server/middleware/i18n.ts` 的 ALS 注入失效为既有缺陷，登记 backlog 国际化主线；② `no-confusing-void-expression` 为 typed 规则，`.vue`、scripts、tests、migrations 维持既有豁免；③ 本机 `user-settings-dark` parity 头像差异为本机 TEST_MODE 数据态，CI 已 83/83，不登记 allowlist；④ `GH_TOKEN` secret 权限由 CI 运行证明，失效时门禁按 fail-closed 判 Reject
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-81.md)
 
 ## 第八十阶段：功能与体验收口（已审计归档）
 
