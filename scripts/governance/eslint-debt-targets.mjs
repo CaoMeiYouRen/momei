@@ -236,4 +236,11 @@ export const ESLINT_DEBT_RULE_SLICES = [
         ruleId: '@typescript-eslint/use-unknown-in-catch-callback-variable',
         scope: 'use-unknown-in-catch-callback-variable',
     },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第四批：void 表达式上下文已逐条改为语句位置后升 error；typed 规则在 .vue 无类型信息，故只收 TS。',
+        ruleId: '@typescript-eslint/no-confusing-void-expression',
+        scope: 'no-confusing-void-expression',
+    },
 ]

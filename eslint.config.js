@@ -134,6 +134,18 @@ const strictTsRuleOverrides = [
         },
     }),
     createRuleOverride({
+        // ESLint 严格规则第四批：void 表达式上下文清零后直接升 error；
+        // typed 规则在 .vue 无类型信息，故只收 TS，测试 / 脚本 / 迁移文件维持既有豁免边界。
+        files: tsFiles,
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/no-confusing-void-expression': 'error',
+        },
+    }),
+    createRuleOverride({
         // AIBaseService 是静态方法基类：子类通过 `this.xxx` 继承静态助手，属 no-extraneous-class
         // 的 allowStaticOnly 场景，不能对象化（会断掉 extends 链）；其余静态类已改为对象字面量。
         files: ['server/services/ai/base.ts'],
