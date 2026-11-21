@@ -53,6 +53,7 @@
 - **最近一次上收阶段**: 第七十五阶段（条目 4：64 组 allowlist 三类复核 + 公开页 runtime 审计，2026-11-13 **已完成**）。
 - **当前基线**: `i18n:audit:missing = 0`、`i18n:audit:duplicates` **64 组 / 149 keys / 33 组跨模块**（2026-11-12 第七十四阶段条目 4 收敛后复算；合并 35 组至 `common.*` / `legal.*`，剩余组登记 `scripts/i18n/duplicate-group-allowlist.json` 并由 `i18n:audit:duplicates:gate` 阻断未登记新增 / 失效条目）、原文级重复键 0、`i18n:check-sync` 五语一致；缺失字段优先修复、重复键及时清理、`unused` 默认观察。原文级重复键扫描（`pnpm i18n:audit:raw-duplicates`，默认 warning、`--mode=error` 可阻断）与 PR 侧 `i18n:audit:missing` 阻断已随第七十三阶段条目 3 落地。
 - **下一次可切片方向**: 剩余 64 组 allowlist 按「动态 key 拼接」「模块内字段语义不同」「跨模块对象语义不同」三类复核；动态拼接优先评估“是否为有限集合”，默认改显式静态 key 映射而非扩 allowlist。之后仍未纳入 runtime 回归的公开页装配链路（档案 / 分类 / 标签列表页 i18n 完整性审计）。
+- **待跟踪**: `server/middleware/i18n.ts` 的 `i18nStorage.run(appLocale, () => {})` 在 `run()` 返回即销毁上下文，后续 handler 不在 ALS 作用域内，`server/utils/i18n.ts` 的 `getLocale()` 实际恒走 `AUTH_DEFAULT_LOCALE` 回退（2026-11-21 第八十一阶段条目 3 审计发现，属既有缺陷）。需单独评估在 handler 链上包裹后续执行，或删除 ALS 与误导性注释；本轮只做 void 表达式改写，不顺手修。
 
 ### 6. 文档事实源、翻译与分层归档治理
 

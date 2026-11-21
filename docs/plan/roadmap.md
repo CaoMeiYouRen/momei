@@ -30,7 +30,7 @@
 - 第一至第五十三阶段的完整正文已迁入区间归档分片，第五十四至第七十八阶段的完整正文已迁入阶段区间分片（主窗口仅保留摘要表与归档结论），避免旧阶段长期挤占当前阅读面。
 - 后续若近线窗口再次膨胀，继续按 [archive/index.md](./archive/index.md) 的区间分片规则向深度归档推进。
 
-## 第八十一阶段：质量底线与债务收口（筹备中）
+## 第八十一阶段：质量底线与债务收口（进行中）
 
 **时间表**: 2026-11-21 ~ 待定（按里程碑滚动，不预设结束日）
 
@@ -41,6 +41,8 @@
 **准入前置（已核对 2026-11-21）**: 第八十阶段已审计归档；issue #1071 已采纳并提交 `11013702`（本地，待推送）；open PR 0；open issue #1071（已回写）/ #262（ESLint 规则分批）。基线：coverage **86.35%**、duplicate-code **0.37%**（43 clones / 650 行）、i18n missing 0 / duplicates 64 组、字号 457 声明 / token 176 / 口径内待替换 98、`coreEntryJs` 287.20KB / 335KB、`keyCss` 60.01KB / 62KB。CI 回执：`396ed65b` 的 Test / Pages / Docker / CodeQL / TODO 全绿；Weekly Regression run `44733444354` **failure**（见条目 1）。**开工前先推送 `11013702` 并核对 CI。**
 
 **阶段容量与移出顺序**: 5 个大条目 / 17 个小条目（超过建议 15 的原因：条目 3 按 ≤10 文件/提交拆为 3 个批量小条目，避免单 commit 超规模；范围未新增，仅提交粒度拆分，故不拆阶段）。顺序 `1 → 2 → 3 → 4 → 5`（条目 5 与 1-4 并行，收口时闭环）；若超时，按 `4 → 3 → 2` 移出——先移出视觉债，保留 CI 修复、覆盖率与 v1 实战。
+
+**执行进展（2026-11-21）**: 条目 1-4 已闭环，条目 5 的 81.5.1 / 81.5.2 已完成，81.5.3（v1 归档块与阶段收口）待阶段收口时执行。关键结果：Weekly Regression run `44847021795` success（`dependabot source: ok (github-api)` / `code-scanning source: ok`）；覆盖率同源 statements `86.35% → 86.69%`（+0.34pp），`find-unused-components` 60.7% → 94.78%、`check-source-of-truth` 74.9% → 96.17%；`no-confusing-void-expression` 80 处 / 29 文件清零并升 `error`；字号口径内待替换 `98 → 68`（本批 30 条），`test:visual` 32/32、parity 本地 82/83（1 条为本机测试数据态差异，以 CI 裁决）。Review Gate 各条目 R1/R2 均 Pass。
 
 1. **Weekly 安全告警门禁 403 与 fallback 测试隔离（P1 修复型）**
     - **目标**: 让 Weekly Regression 的 `security:alerts` 与 `test:coverage` 恢复稳定通过；修复 fallback 测试对 CI token 的环境耦合；定位 Dependabot 源 `permission-denied`。

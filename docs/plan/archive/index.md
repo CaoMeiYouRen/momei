@@ -11,9 +11,9 @@
 
 ## 2. 当前基线（2026-11-21）
 
-- `roadmap.md`: `424` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-80.md`；第八十一阶段正文位于主窗口）。
+- `roadmap.md`: `426` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-80.md`；第八十一阶段正文位于主窗口）。
 - `todo-archive.md`: `375` 行（`docs:check:line-count` 口径），健康窗口（主窗口保留第七十至第八十阶段共 11 个近线归档块；深度归档索引已改为 4 列表格，倒序覆盖 14 个 todo 分片；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
-- `backlog.md`: `229` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十阶段 6 条上收条目已完成并回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十阶段条目 4 基线（阶段收口 86.33%））。
+- `backlog.md`: `230` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十阶段 6 条上收条目已完成并回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十阶段条目 4 基线（阶段收口 86.33%））。
 - `todo.md`: `141` 行（`wc -l` 口径；该文件未纳入 `docs:check:line-count` 目标），当前阶段（筹备中）为第八十一阶段（5 个大条目 / 17 个小条目，6 列进度表）。
 - `docs/reports/regression/current.md`: `47` 行（`docs:check:line-count` 口径），近线窗口（2026-11-18 与 2026-11-19 两个窗口；更早窗口迁入 `archive/2026-11-16-to-2026-11-17-phase77-78.md`；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
 
