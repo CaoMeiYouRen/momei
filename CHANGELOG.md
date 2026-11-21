@@ -1,5 +1,85 @@
 # momei
 
+# [1.31.0](https://github.com/CaoMeiYouRen/momei/compare/v1.30.0...v1.31.0) (2026-11-21)
+
+
+### ⚡ 性能优化
+
+* **bundle:** 将 Sentry 客户端移出入口预载并收敛首屏 JS ([47fc1fc](https://github.com/CaoMeiYouRen/momei/commit/47fc1fc))
+* **i18n:** 关闭 SSR 偏好 cookie 使首页进入 SWR ([5a6362e](https://github.com/CaoMeiYouRen/momei/commit/5a6362e))
+
+
+### ✨ 新功能
+
+* **admin:** 迁移友链/投稿/外链/广告表单控件至 caomei-ui ([f08f19c](https://github.com/CaoMeiYouRen/momei/commit/f08f19c))
+* **admin:** 迁移用户工具条/会话抽屉与发布弹窗组件 ([8a7da00](https://github.com/CaoMeiYouRen/momei/commit/8a7da00))
+* **admin:** 迁移营销与链接治理剩余组件至 caomei-ui ([99e1ba7](https://github.com/CaoMeiYouRen/momei/commit/99e1ba7))
+* **auth:** 会话 SSR 单一来源并移除头像 ClientOnly 兜底 ([daf1969](https://github.com/CaoMeiYouRen/momei/commit/daf1969))
+* **cli:** 导入支持断点续传与状态文件 ([bc93c16](https://github.com/CaoMeiYouRen/momei/commit/bc93c16))
+* **cli:** 新增 Jekyll 迁移解析器 ([3c02f14](https://github.com/CaoMeiYouRen/momei/commit/3c02f14))
+* **docs:** 将归档目录纳入链接门禁并新增失效链接快照扫描 ([fff74f0](https://github.com/CaoMeiYouRen/momei/commit/fff74f0))
+* **editor:** 合并 AI 审校入口与侧面板 ([ede17ef](https://github.com/CaoMeiYouRen/momei/commit/ede17ef))
+* **governance:** 新增 PrimeVue token 映射表与禁新增守卫 ([40820b3](https://github.com/CaoMeiYouRen/momei/commit/40820b3))
+* **governance:** 新增字号分桶清单与 --m-font-size 字阶 ([8ac1a80](https://github.com/CaoMeiYouRen/momei/commit/8ac1a80))
+* **governance:** 补全治理索引并新增索引检查脚本 ([c9a5fc9](https://github.com/CaoMeiYouRen/momei/commit/c9a5fc9))
+* **i18n:** 新增原文级重复键扫描并接入 PR 门禁 ([e0777a4](https://github.com/CaoMeiYouRen/momei/commit/e0777a4))
+* **security:** 依赖风险台账增加复核日期与到期判红 ([90356df](https://github.com/CaoMeiYouRen/momei/commit/90356df))
+* **security:** 把台账复核日期接入日常巡检输出 ([cf1539f](https://github.com/CaoMeiYouRen/momei/commit/cf1539f))
+* **settings:** 补齐 AI 图像备用提供商 4 项设置 ([188d30a](https://github.com/CaoMeiYouRen/momei/commit/188d30a)), closes [#8](https://github.com/CaoMeiYouRen/momei/issues/8)
+* **styles:** 落地 --m-* 项目调色板派生层与解析契约 ([6fbba7b](https://github.com/CaoMeiYouRen/momei/commit/6fbba7b))
+* **testing:** 新增 parity 允许清单清零脚本与流程 ([550bdf6](https://github.com/CaoMeiYouRen/momei/commit/550bdf6))
+* **testing:** 新增构建产物几何探针并接入周级回归 ([6b0eff0](https://github.com/CaoMeiYouRen/momei/commit/6b0eff0))
+* **ui:** 收口空态三态与空表分页并修复三处层叠失效 ([f4fa975](https://github.com/CaoMeiYouRen/momei/commit/f4fa975))
+* **ui:** 迁移错误页按钮并清理组件口径假阳性 ([03bd4b4](https://github.com/CaoMeiYouRen/momei/commit/03bd4b4))
+
+
+### 🐛 Bug 修复
+
+* **avatar:** 修复 AppAvatar 生产构建尺寸与属性落点失效 ([708691b](https://github.com/CaoMeiYouRen/momei/commit/708691b))
+* **deps:** 修复 pnpm-lock.yaml 重复映射键 ([d92e271](https://github.com/CaoMeiYouRen/momei/commit/d92e271))
+* **deps:** 将 @hono/node-server 升至 2.1.8 修复安全告警 ([6cab4f6](https://github.com/CaoMeiYouRen/momei/commit/6cab4f6)), closes [#288](https://github.com/CaoMeiYouRen/momei/issues/288)
+* **deps:** 将 hono 升至 4.13.18 修复安全告警 ([92ad6d1](https://github.com/CaoMeiYouRen/momei/commit/92ad6d1)), closes [289-#293](https://github.com/289-/issues/293)
+* **deps:** 抬升 @hono/node-server override 地板至 2.1.6 ([49e7a07](https://github.com/CaoMeiYouRen/momei/commit/49e7a07))
+* **deps:** 收口 minimatch / glob 安全告警并移除未使用 quill ([b649181](https://github.com/CaoMeiYouRen/momei/commit/b649181))
+* **docs:** 修正归档分片失效相对链接 ([605fd5b](https://github.com/CaoMeiYouRen/momei/commit/605fd5b))
+* **editor:** 修复 AI 工具栏分组接缝与语音浮层空盒子 ([2f3592a](https://github.com/CaoMeiYouRen/momei/commit/2f3592a))
+* **regression:** 修正回归窗口插入锚点并规整 marker ([1e11740](https://github.com/CaoMeiYouRen/momei/commit/1e11740))
+* **regression:** 回归窗口行数阈值改由文档门禁单点派生 ([9c28862](https://github.com/CaoMeiYouRen/momei/commit/9c28862))
+* **stats:** 修复 SQLite 统计分组、仪表盘断点与适配器 id 回填 ([bb4be74](https://github.com/CaoMeiYouRen/momei/commit/bb4be74))
+* **test:** 统一管理端交互等待口径并消除时序抖动 ([a1592fb](https://github.com/CaoMeiYouRen/momei/commit/a1592fb))
+* **web-push:** 适配 web-push 4.0 的 ESM 命名导出 ([ea69357](https://github.com/CaoMeiYouRen/momei/commit/ea69357))
+
+
+### 📦 代码重构
+
+* **admin:** 迁移分类/仪表盘/管理端页面 token ([869efc2](https://github.com/CaoMeiYouRen/momei/commit/869efc2))
+* **admin:** 迁移文章编辑器核心样式 token ([f7b1ae6](https://github.com/CaoMeiYouRen/momei/commit/f7b1ae6))
+* **admin:** 迁移片段/营销/链接治理 token ([7586f18](https://github.com/CaoMeiYouRen/momei/commit/7586f18))
+* **admin:** 迁移编辑器剩余组件与日历视图 token ([6711a69](https://github.com/CaoMeiYouRen/momei/commit/6711a69))
+* **admin:** 迁移设置 C 批与用户管理 token ([0c98029](https://github.com/CaoMeiYouRen/momei/commit/0c98029))
+* **admin:** 迁移设置面板 A 批 token ([3ab20bc](https://github.com/CaoMeiYouRen/momei/commit/3ab20bc))
+* **admin:** 迁移设置面板 B 批 token ([0c91a45](https://github.com/CaoMeiYouRen/momei/commit/0c91a45))
+* **components:** 迁移全局壳与导航组件 token ([f152e18](https://github.com/CaoMeiYouRen/momei/commit/f152e18))
+* **components:** 迁移文章与评论组件 token 至 --m-*/--caomei-* ([358a248](https://github.com/CaoMeiYouRen/momei/commit/358a248))
+* **components:** 迁移设置/商用/法务组件 token 并校准法务页基线 ([17649cc](https://github.com/CaoMeiYouRen/momei/commit/17649cc))
+* **components:** 迁移设置面板与安装步骤 token ([2505bc7](https://github.com/CaoMeiYouRen/momei/commit/2505bc7))
+* **composables:** 清理 void 表达式上下文（第一批） ([8f56006](https://github.com/CaoMeiYouRen/momei/commit/8f56006))
+* **i18n:** 收敛重复文案至 common/legal 并新增 allowlist 门禁 ([3737c44](https://github.com/CaoMeiYouRen/momei/commit/3737c44))
+* **lint:** 清零并升档 ESLint 严格规则第三批 ([3c91718](https://github.com/CaoMeiYouRen/momei/commit/3c91718))
+* **lint:** 清零并升档 ESLint 严格规则第二批 ([78df33d](https://github.com/CaoMeiYouRen/momei/commit/78df33d))
+* **pages:** 迁移公开页面 token（关于/归档/福利/分类/反馈/友链/首页/安装/文章列表） ([756e688](https://github.com/CaoMeiYouRen/momei/commit/756e688))
+* **pages:** 迁移认证与设置页面 token ([f723d86](https://github.com/CaoMeiYouRen/momei/commit/f723d86))
+* **server:** 清理 void 表达式上下文（第三批） ([1063974](https://github.com/CaoMeiYouRen/momei/commit/1063974))
+* **server:** 清理 void 表达式上下文（第二批） ([0762e86](https://github.com/CaoMeiYouRen/momei/commit/0762e86))
+* **styles:** 反转 main.scss token 桥接并迁移核心样式 ([9518179](https://github.com/CaoMeiYouRen/momei/commit/9518179))
+* **styles:** 试点文件字号字面量统一为字阶 token ([dafd08d](https://github.com/CaoMeiYouRen/momei/commit/dafd08d))
+* **styles:** 迁移布局/阅读器/页面级样式 token ([26bbf65](https://github.com/CaoMeiYouRen/momei/commit/26bbf65))
+* **theme:** 清零 --p-* 定义并收口 token 映射口径 ([2823b4d](https://github.com/CaoMeiYouRen/momei/commit/2823b4d))
+* **theme:** 运行时主题与桥接契约切换到 --m-* ([592dcb3](https://github.com/CaoMeiYouRen/momei/commit/592dcb3))
+* **ui:** 卸载 PrimeVue 并清理 p-* 样式耦合 ([a42d1bb](https://github.com/CaoMeiYouRen/momei/commit/a42d1bb))
+* **ui:** 字号归一第三批批次 A（admin settings 10 文件） ([fd47eb2](https://github.com/CaoMeiYouRen/momei/commit/fd47eb2))
+* **ui:** 字号归一第三批批次 B 并收口条目 3 ([d85a4a7](https://github.com/CaoMeiYouRen/momei/commit/d85a4a7))
+
 # [1.30.0](https://github.com/CaoMeiYouRen/momei/compare/v1.29.0...v1.30.0) (2026-11-08)
 
 
