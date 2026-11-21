@@ -36,7 +36,7 @@ export async function localizedSuccess<T>(data: T, messageKey: string, params?: 
  * @param message 错误消息
  * @param statusCode 状态码，默认为 400
  */
-export function fail(message: string, statusCode = 400) {
+export function fail(message: string, statusCode = 400): never {
     throw createError({
         statusCode,
         statusMessage: message,
@@ -51,7 +51,7 @@ export function fail(message: string, statusCode = 400) {
 /**
  * 带翻译支持的失败响应
  */
-export async function localizedFail(messageKey: string, statusCode = 400, params?: Record<string, any>) {
+export async function localizedFail(messageKey: string, statusCode = 400, params?: Record<string, any>): Promise<never> {
     const locale = getLocale()
     const message = await t(messageKey, params)
 

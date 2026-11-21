@@ -51,7 +51,9 @@ export default defineNuxtPlugin((): { provide: { googleAnalytics: GoogleAnalytic
 
         // 使用 requestIdleCallback 延迟加载，避免阻塞初始渲染
         if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(() => initGA(), { timeout: 3000 })
+            window.requestIdleCallback(() => {
+                initGA()
+            }, { timeout: 3000 })
         } else {
             setTimeout(initGA, 2000)
         }

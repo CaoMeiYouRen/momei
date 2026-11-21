@@ -12,7 +12,9 @@ export default defineNuxtPlugin((): { provide: { clarity: ClarityMethods } } | u
         }
 
         if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(() => initClarity(), { timeout: 3000 })
+            window.requestIdleCallback(() => {
+                initClarity()
+            }, { timeout: 3000 })
         } else {
             setTimeout(initClarity, 2000)
         }

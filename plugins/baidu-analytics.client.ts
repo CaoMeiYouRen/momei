@@ -40,7 +40,9 @@ export default defineNuxtPlugin((): { provide: { baiduAnalytics: BaiduAnalyticsM
 
         // 使用 requestIdleCallback 延迟加载
         if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(() => initBaidu(), { timeout: 3000 })
+            window.requestIdleCallback(() => {
+                initBaidu()
+            }, { timeout: 3000 })
         } else {
             setTimeout(initBaidu, 2000)
         }
