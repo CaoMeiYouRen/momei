@@ -23,7 +23,7 @@
 
     &__icon {
         color: var(--caomei-color-primary);
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
 
         &--listening {
             animation: pulse-mic 1.5s infinite;
@@ -53,7 +53,7 @@
 
     &__transcript {
         line-height: 1.5;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         word-break: break-all;
     }
 
@@ -80,7 +80,7 @@
         gap: 0.5rem;
         color: var(--m-red-500);
         padding: 0.5rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__footer {

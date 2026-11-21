@@ -348,7 +348,7 @@ watch([
   }
 
   &__meta {
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     color: var(--caomei-color-text-muted);
   }
 
@@ -364,7 +364,7 @@ watch([
     background-color: var(--m-orange-50);
     color: var(--caomei-color-warning-text);
     border-radius: $border-radius-sm;
-    font-size: 0.75rem;
+    font-size: var(--m-font-size-xs);
     margin-bottom: $spacing-sm;
   }
 
@@ -406,7 +406,7 @@ watch([
 
   &__translation-feedback {
     margin-top: $spacing-sm;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
   }
 
   &__translation-feedback--muted {

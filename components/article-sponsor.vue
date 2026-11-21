@@ -255,7 +255,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     align-items: center;
     gap: $spacing-sm;
     color: var(--m-surface-700);
-    font-size: 1rem;
+    font-size: var(--m-font-size-md);
   }
 
   &__icon {
@@ -327,7 +327,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
 
   &__btn-icon {
     flex-shrink: 0;
-    font-size: 1rem;
+    font-size: var(--m-font-size-md);
   }
 
   &__qr-modal-content {
@@ -347,7 +347,7 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
   &__qr-label {
     margin: $spacing-md 0 0;
     text-align: center;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     color: var(--m-surface-700);
     line-height: 1.5;
   }

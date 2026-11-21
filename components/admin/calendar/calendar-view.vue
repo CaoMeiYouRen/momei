@@ -293,7 +293,7 @@ function truncate(str: string, max: number): string {
 
     &__title {
         font-weight: 600;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         min-width: 8rem;
         text-align: center;
     }
@@ -357,7 +357,7 @@ function truncate(str: string, max: number): string {
     }
 
     &__cell-date {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
         display: block;
         margin-bottom: 0.2rem;

@@ -523,7 +523,7 @@ const handleSave = async () => {
 
 .subscription-settings {
     &__title {
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 600;
         margin-bottom: $spacing-xl;
         color: var(--caomei-color-text);
@@ -547,7 +547,7 @@ const handleSave = async () => {
     }
 
     &__description {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         margin-bottom: $spacing-md;
         line-height: $line-height-relaxed;
 
@@ -665,7 +665,7 @@ const handleSave = async () => {
 
     &__channel-title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
         color: var(--caomei-color-text);
     }

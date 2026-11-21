@@ -212,7 +212,7 @@ const getDeviceIcon = (ua?: string | null) => {
 
     &__title {
         font-weight: 700;
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
     }
 }
 
@@ -266,14 +266,14 @@ const getDeviceIcon = (ua?: string | null) => {
 
     &__meta {
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 
     &__footer {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 }
 </style>

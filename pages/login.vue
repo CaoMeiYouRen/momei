@@ -393,7 +393,7 @@ definePageMeta({
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
 
         label {
             line-height: 1.5;
@@ -401,7 +401,7 @@ definePageMeta({
     }
 
     &__forgot {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-primary);
         text-decoration: none;
         transition: color 0.2s;
@@ -418,7 +418,7 @@ definePageMeta({
     }
 
     &__legal-notice {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
         margin: 0;
         text-align: center;

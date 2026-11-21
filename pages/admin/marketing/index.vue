@@ -188,13 +188,13 @@ watch(showCreateDialog, (val) => {
     &__stat-label {
         font-weight: 500;
         margin-bottom: $spacing-sm;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__stat-value {
         font-weight: 600;
         color: var(--caomei-color-text);
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
     }
 
     &__stat-icon {
@@ -204,7 +204,7 @@ watch(showCreateDialog, (val) => {
         width: 3rem;
         height: 3rem;
         border-radius: $border-radius-md;
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
 
         &--blue {
             background-color: color-mix(in srgb, var(--m-blue-400), transparent 90%);

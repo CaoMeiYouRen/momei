@@ -351,11 +351,11 @@ const columns = computed<DataTableColumn<AIAdminTaskListItem>[]>(() => [
 
         .author-name {
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
         }
 
         .author-email {
-            font-size: 0.75rem;
+            font-size: var(--m-font-size-xs);
             color: var(--text-color-secondary);
         }
     }

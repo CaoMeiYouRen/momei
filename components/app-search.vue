@@ -201,7 +201,7 @@ div.caomei-dialog__content.app-search-dialog {
 
     &__hint {
         :deep(.caomei-tag) {
-            font-size: 0.75rem;
+            font-size: var(--m-font-size-xs);
             font-weight: 500;
         }
     }
@@ -288,7 +288,7 @@ div.caomei-dialog__content.app-search-dialog {
     }
 
     &__result-summary {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         margin: 0;
         white-space: nowrap;
@@ -300,7 +300,7 @@ div.caomei-dialog__content.app-search-dialog {
         margin-top: $spacing-xs;
         display: flex;
         gap: $spacing-md;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
     }
 
