@@ -537,13 +537,16 @@ export async function collectUnusedComponents(options = {}) {
 
     const components = componentFiles.map((file) => ({ filePath: file.filePath }))
     const references = findComponentReferences({ components, projectRoot, sources })
-    const allowlist = options.allowlist ?? (await loadAllowlist(options.allowlistPath ?? DEFAULT_ALLOWLIST_PATH, projectRoot))
+    const allowlistSource = options.allowlist ?? (await loadAllowlist(options.allowlistPath ?? DEFAULT_ALLOWLIST_PATH, projectRoot))
+    // 数组自带 `entries()` 方法，不能用 `allowlist.entries ?? allowlist` 判断：
+    // 直接传入数组时会取到函数并被 normalizeAllowlist 丢弃，导致显式 allowlist 失效。
+    const allowlistEntries = Array.isArray(allowlistSource) ? allowlistSource : (allowlistSource.entries ?? [])
 
     return {
-        allowlistPath: allowlist.path ?? null,
+        allowlistPath: Array.isArray(allowlistSource) ? null : (allowlistSource.path ?? null),
         sourceFileCount: sourceFiles.length,
         ...buildUnusedComponentReport({
-            allowlist: allowlist.entries ?? allowlist,
+            allowlist: allowlistEntries,
             components,
             projectRoot,
             references,

@@ -179,7 +179,8 @@ function parseFrontmatter(content) {
 // 仅暴露给单测；不影响 CLI 行为。
 export { parseFrontmatter }
 
-function resolveTranslationTier(filePath) {
+// 仅暴露给单测；不影响 CLI 行为。
+export function resolveTranslationTier(filePath) {
     const normalized = normalizePath(filePath)
     const match = normalized.match(/^docs\/i18n\/([^/]+)\/(.+)$/)
 
@@ -281,8 +282,8 @@ function fileExists(absolutePath) {
     }
 }
 
-function checkFile(filePath, rule) {
-    const content = readFile(filePath)
+function checkFile(filePath, rule, root = ROOT) {
+    const content = readFile(filePath, root)
     if (!content) {
         return { pass: false, reason: `文件不存在: ${filePath}` }
     }
@@ -295,7 +296,7 @@ function checkFile(filePath, rule) {
 
     // 如果有 maxAge 检查文件修改时间
     if (rule.maxAge) {
-        const stats = fs.statSync(path.join(ROOT, filePath))
+        const stats = fs.statSync(path.join(root, filePath))
         const age = daysSince(stats.mtime)
         if (age > rule.maxAge) {
             return {
@@ -634,7 +635,7 @@ export function collectSourceOfTruthReport(options = {}) {
     const profileConfig = SOURCE_OF_TRUTH_PROFILES[profile] ?? SOURCE_OF_TRUTH_PROFILES.default
     const baseRuleResults = RULES.map((rule) => ({
         file: rule.file,
-        ...checkFile(rule.file, rule),
+        ...checkFile(rule.file, rule, root),
     }))
     const translationResults = checkTranslatedDocs({
         translationTierRules: profileConfig.translationTierRules,
